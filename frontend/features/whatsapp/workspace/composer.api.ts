@@ -78,7 +78,7 @@ export const composerApi = {
     const { data } = await apiClient.post<WhatsAppSendResponse>(
       API_ENDPOINTS.whatsapp.send(variables.groupId),
       payload,
-      { headers: { "Idempotency-Key": intent.key } },
+      { ...intent.requestConfig(), headers: { "Idempotency-Key": intent.key } },
     );
     return data;
   },

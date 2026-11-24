@@ -7,6 +7,7 @@ import { useAuthStore } from "@/stores/auth.store";
 import { AuthHydrator } from "./auth-hydrator";
 import { LoginForm } from "./login-form";
 import { safeRestorationDestination } from "../services/restoration-destination";
+import { CookieCoordinationUnavailableError } from "../services/cookie-mutation";
 
 /** Check the backend-owned session before starting another password/MFA login. */
 export function LoginSessionEntry({ notice, from }: { notice?: string; from?: string }) {
@@ -36,7 +37,9 @@ export function LoginSessionEntry({ notice, from }: { notice?: string; from?: st
       <div className="space-y-5 text-[#123047]" role="alert">
         <h1 className="text-[28px] font-semibold tracking-tight">Let’s reconnect.</h1>
         <p className="text-sm leading-relaxed text-slate-600">
-          We couldn’t check your saved session. Your saved session will be checked once the connection is back.
+          {typeof navigator !== "undefined" && !navigator.locks?.request
+            ? new CookieCoordinationUnavailableError().message
+            : "We couldn’t check your saved session. Your saved session will be checked once the connection is back."}
         </p>
         <button type="button" onClick={() => window.dispatchEvent(new Event("auth:retry-restoration"))}
           className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-[#123753] px-5 text-sm font-semibold text-white hover:bg-[#17486d] focus-visible:outline-2 focus-visible:outline-offset-2">

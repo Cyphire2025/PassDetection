@@ -1,0 +1,438 @@
+{
+  "sealed_at_utc": "2026-10-31T07:44:37.424637+00:00",
+  "reviewer": "document_ui_architecture",
+  "status": "Focused architecture batch complete and sources frozen; parent single final combined verification remains deferred until remaining work completes.",
+  "scope": "Source ownership/readability and duplicate quota-code consolidation only. Existing formula policy and inputs preserved; no new adversarial fixture/probing, scanner, provider send, external network operation, dependencies, shared configuration/gates, frontend/mobile feature code, production data or deployment changes.",
+  "original_importer_sha256": "bc2c4432736e7d9296f12a55cc75ed0b479260f3ebe63b5da709c25e75d31a1a",
+  "formula_helper_sha256": "d932d4ce4b788fc5ea6f7e239395e859c6d471f8f948545bfbedccd6b02e4d40",
+  "edited_runtime_paths": [
+    {
+      "path": "backend/app/infrastructure/imports/passport_excel_importer.py",
+      "sha256": "44406c80359ec3c37197a566cd150e0b439838885b3016416316870e008fde03",
+      "lines": 115
+    },
+    {
+      "path": "backend/app/infrastructure/imports/passport_excel_catalog.py",
+      "sha256": "3a27556ec32bec2c7a524951981ed4906421f52b7c4a0fd8c313fbda56eb45f3",
+      "lines": 228
+    },
+    {
+      "path": "backend/app/infrastructure/imports/passport_excel_records.py",
+      "sha256": "f6f895e4cd3e8efe09c1242438811b475671e2cb2ce7ae56e61ac3b4880d5b15",
+      "lines": 52
+    },
+    {
+      "path": "backend/app/infrastructure/imports/passport_excel_rows.py",
+      "sha256": "93d00e74b9003e981f0fc65987efacb1a8a3f0be945e42fa3a0e15b473c4f44e",
+      "lines": 264
+    },
+    {
+      "path": "backend/app/infrastructure/imports/passport_excel_limits.py",
+      "sha256": "a12469a59bc650b82151139c66e90c1c3b3e38d6b0813b0b926e371c4e78d7ca",
+      "lines": 158
+    },
+    {
+      "path": "backend/app/infrastructure/imports/passport_excel_worksheets.py",
+      "sha256": "1ac46c34eec98de7b4ea6fee9188580d44af16a43c2cbd1aaae0a612ca1913a3",
+      "lines": 256
+    }
+  ],
+  "all_checked_sources": [
+    {
+      "path": "backend/app/infrastructure/imports/passport_excel_importer.py",
+      "sha256": "44406c80359ec3c37197a566cd150e0b439838885b3016416316870e008fde03",
+      "lines": 115
+    },
+    {
+      "path": "backend/app/infrastructure/imports/passport_excel_catalog.py",
+      "sha256": "3a27556ec32bec2c7a524951981ed4906421f52b7c4a0fd8c313fbda56eb45f3",
+      "lines": 228
+    },
+    {
+      "path": "backend/app/infrastructure/imports/passport_excel_records.py",
+      "sha256": "f6f895e4cd3e8efe09c1242438811b475671e2cb2ce7ae56e61ac3b4880d5b15",
+      "lines": 52
+    },
+    {
+      "path": "backend/app/infrastructure/imports/passport_excel_rows.py",
+      "sha256": "93d00e74b9003e981f0fc65987efacb1a8a3f0be945e42fa3a0e15b473c4f44e",
+      "lines": 264
+    },
+    {
+      "path": "backend/app/infrastructure/imports/passport_excel_limits.py",
+      "sha256": "a12469a59bc650b82151139c66e90c1c3b3e38d6b0813b0b926e371c4e78d7ca",
+      "lines": 158
+    },
+    {
+      "path": "backend/app/infrastructure/imports/passport_excel_worksheets.py",
+      "sha256": "1ac46c34eec98de7b4ea6fee9188580d44af16a43c2cbd1aaae0a612ca1913a3",
+      "lines": 256
+    },
+    {
+      "path": "backend/app/infrastructure/imports/passport_excel_formula.py",
+      "sha256": "d932d4ce4b788fc5ea6f7e239395e859c6d471f8f948545bfbedccd6b02e4d40",
+      "lines": 46
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_passport_excel_importer.py",
+      "sha256": "71823038ba16c82b2718e93977789c516d22190cbec05a140c76300b2208c0bd",
+      "lines": 571
+    }
+  ],
+  "full_read_files": 14,
+  "full_read_physical_lines": 3065,
+  "partial_context_files": 3,
+  "implemented": {
+    "original_importer_lines": 941,
+    "maximum_owner_lines": 264,
+    "original_controller_lines": 308,
+    "public_controller_lines": 62,
+    "purpose_owners": [
+      {
+        "path": "app/infrastructure/imports/passport_excel_importer.py",
+        "lines": 115,
+        "max_function_complexity": 13,
+        "most_complex_function": "import_rows",
+        "coverage_percent": null
+      },
+      {
+        "path": "app/infrastructure/imports/passport_excel_catalog.py",
+        "lines": 228,
+        "max_function_complexity": 7,
+        "most_complex_function": "_build_header_alias_index",
+        "coverage_percent": null
+      },
+      {
+        "path": "app/infrastructure/imports/passport_excel_records.py",
+        "lines": 52,
+        "max_function_complexity": 0,
+        "most_complex_function": null,
+        "coverage_percent": null
+      },
+      {
+        "path": "app/infrastructure/imports/passport_excel_rows.py",
+        "lines": 264,
+        "max_function_complexity": 13,
+        "most_complex_function": "_confirmed_fields",
+        "coverage_percent": null
+      },
+      {
+        "path": "app/infrastructure/imports/passport_excel_limits.py",
+        "lines": 158,
+        "max_function_complexity": 13,
+        "most_complex_function": "_validate_archive",
+        "coverage_percent": null
+      },
+      {
+        "path": "app/infrastructure/imports/passport_excel_worksheets.py",
+        "lines": 256,
+        "max_function_complexity": 25,
+        "most_complex_function": "_collect_worksheet",
+        "coverage_percent": null
+      },
+      {
+        "path": "app/infrastructure/imports/passport_excel_formula.py",
+        "lines": 46,
+        "max_function_complexity": 4,
+        "most_complex_function": "worksheet_contains_formula",
+        "coverage_percent": null
+      }
+    ],
+    "duplicate_quota_blocks_consolidated": 3,
+    "typed_state_data_fields": 5,
+    "typed_sheet_data_fields": 7,
+    "public_class_and_all_legacy_self_override_lookup": "retained through cohesive concrete template-method owners; no callback bag/proxy"
+  },
+  "proof": {
+    "other_original_method_asts_equal_after_only_policy_qualification": 19,
+    "whole_expanded_controller_ast_equal": true,
+    "expanded_move_details": {
+      "typed_state_initialization_expanded": 1,
+      "sheet_calls_expanded": 1,
+      "sheet_return_to_original_continue": 2,
+      "passenger_row_calls_expanded": 1,
+      "duplicate_unmapped_quota_blocks_expanded": 3,
+      "row_data_fields_exactly_bound": [
+        "data_rows",
+        "first_row_number",
+        "formula_rows",
+        "headers",
+        "metadata_headers",
+        "scanned_rows",
+        "worksheet"
+      ],
+      "per_import_data_fields_exactly_bound": [
+        "imported",
+        "readable_sheet_count",
+        "total_metadata_characters",
+        "total_populated_cells",
+        "total_rows"
+      ],
+      "formula_columns_local_annotation_only": "frozenset[int] restores the original broad function's inference context"
+    },
+    "original_self_calls_preserved": 31,
+    "actual_global_bindings": 70,
+    "actual_caller_aliases": 7,
+    "original_importer_assertions_unchanged": 57,
+    "old_methods_and_module_annotations_evaluated": 20,
+    "public_constants": 20,
+    "row_dataclass_fields": 9,
+    "original_public_class_module_metadata_and_alias_identity": true,
+    "no_new_orm_or_ddl_metadata": true,
+    "new_helper_and_data_get_type_hints": true
+  },
+  "checks": {
+    "focused_unique_existing_cases": 83,
+    "affected_test_files": 4,
+    "baseline_pass": 83,
+    "intermediate_mechanical_pass": 83,
+    "pre_annotation_pass": 83,
+    "pre_quota_extraction_pass": 83,
+    "final_current_source_pass": 83,
+    "total_case_executions": 415,
+    "mypy": "7 source paths passed",
+    "ruff": "8 affected source/test paths passed with --no-fix",
+    "whole_app_or_release_checks": "None run in this tranche; user requested one final combined verification after all outstanding work."
+  },
+  "focused_coverage": {
+    "backend/app/infrastructure/imports/passport_excel_catalog.py": {
+      "covered_lines": 51,
+      "num_statements": 54,
+      "percent_covered": 90.9090909090909,
+      "percent_covered_display": "91",
+      "missing_lines": 3,
+      "excluded_lines": 0,
+      "percent_statements_covered": 94.44444444444444,
+      "percent_statements_covered_display": "94",
+      "num_branches": 12,
+      "num_partial_branches": 3,
+      "covered_branches": 9,
+      "missing_branches": 3,
+      "percent_branches_covered": 75.0,
+      "percent_branches_covered_display": "75"
+    },
+    "backend/app/infrastructure/imports/passport_excel_formula.py": {
+      "covered_lines": 23,
+      "num_statements": 26,
+      "percent_covered": 90.0,
+      "percent_covered_display": "90",
+      "missing_lines": 3,
+      "excluded_lines": 3,
+      "percent_statements_covered": 88.46153846153847,
+      "percent_statements_covered_display": "88",
+      "num_branches": 4,
+      "num_partial_branches": 0,
+      "covered_branches": 4,
+      "missing_branches": 0,
+      "percent_branches_covered": 100.0,
+      "percent_branches_covered_display": "100"
+    },
+    "backend/app/infrastructure/imports/passport_excel_importer.py": {
+      "covered_lines": 64,
+      "num_statements": 67,
+      "percent_covered": 93.82716049382717,
+      "percent_covered_display": "94",
+      "missing_lines": 3,
+      "excluded_lines": 0,
+      "percent_statements_covered": 95.5223880597015,
+      "percent_statements_covered_display": "96",
+      "num_branches": 14,
+      "num_partial_branches": 2,
+      "covered_branches": 12,
+      "missing_branches": 2,
+      "percent_branches_covered": 85.71428571428571,
+      "percent_branches_covered_display": "86"
+    },
+    "backend/app/infrastructure/imports/passport_excel_limits.py": {
+      "covered_lines": 59,
+      "num_statements": 66,
+      "percent_covered": 86.95652173913044,
+      "percent_covered_display": "87",
+      "missing_lines": 7,
+      "excluded_lines": 0,
+      "percent_statements_covered": 89.39393939393939,
+      "percent_statements_covered_display": "89",
+      "num_branches": 26,
+      "num_partial_branches": 3,
+      "covered_branches": 21,
+      "missing_branches": 5,
+      "percent_branches_covered": 80.76923076923077,
+      "percent_branches_covered_display": "81"
+    },
+    "backend/app/infrastructure/imports/passport_excel_records.py": {
+      "covered_lines": 34,
+      "num_statements": 34,
+      "percent_covered": 100.0,
+      "percent_covered_display": "100",
+      "missing_lines": 0,
+      "excluded_lines": 0,
+      "percent_statements_covered": 100.0,
+      "percent_statements_covered_display": "100",
+      "num_branches": 0,
+      "num_partial_branches": 0,
+      "covered_branches": 0,
+      "missing_branches": 0,
+      "percent_branches_covered": 100.0,
+      "percent_branches_covered_display": "100"
+    },
+    "backend/app/infrastructure/imports/passport_excel_rows.py": {
+      "covered_lines": 119,
+      "num_statements": 128,
+      "percent_covered": 91.23711340206185,
+      "percent_covered_display": "91",
+      "missing_lines": 9,
+      "excluded_lines": 0,
+      "percent_statements_covered": 92.96875,
+      "percent_statements_covered_display": "93",
+      "num_branches": 66,
+      "num_partial_branches": 8,
+      "covered_branches": 58,
+      "missing_branches": 8,
+      "percent_branches_covered": 87.87878787878788,
+      "percent_branches_covered_display": "88"
+    },
+    "backend/app/infrastructure/imports/passport_excel_worksheets.py": {
+      "covered_lines": 78,
+      "num_statements": 87,
+      "percent_covered": 85.8267716535433,
+      "percent_covered_display": "86",
+      "missing_lines": 9,
+      "excluded_lines": 0,
+      "percent_statements_covered": 89.65517241379311,
+      "percent_statements_covered_display": "90",
+      "num_branches": 40,
+      "num_partial_branches": 9,
+      "covered_branches": 31,
+      "missing_branches": 9,
+      "percent_branches_covered": 77.5,
+      "percent_branches_covered_display": "78"
+    }
+  },
+  "remaining_limits": [
+    "Focused coverage is incomplete on existing error/branch paths and is not exhaustive security validation. No additional formula-policy probing was authorized or performed.",
+    "Budget candidates are measured proposals; AI gate owner must preserve the greater of proposed and all existing caps/floors. Shared gates were not edited.",
+    "No throughput/latency or algorithmic speedup is claimed. Existing1500-row import and10k deduplication regressions pass; they do not constitute a benchmark.",
+    "Workbook SDK objects retain the original Any boundary; new quota/result and worksheet-input DATA are explicitly typed. Further SDK typing would require separate evidence/compatibility work.",
+    "This bounded tranche does not complete repository-wide review; parent will run the single final combined checkpoint once remaining implementation work is done."
+  ],
+  "corrected_validation_issues": [
+    "Initial scoped mypy identified a fresh-scope frozenset local that lost inference from the original broad method. Added explicit frozenset[int]; initial failure log retained and final7-source check passes.",
+    "Initial import-format lint findings were corrected with import organization only, before final scoped checks.",
+    "Proof tooling normalized JSON tuple serialization and compared reconstructed record-type annotations by their evaluated public identity representation; no runtime annotation globals were patched. A guarded extraction selector stopped before writes until the intended passenger-row loop was selected."
+  ],
+  "prior_manual_lane": {
+    "scope_preserved": "Earlier parsing correction and48-case formula/importer evidence are retained separately; this receipt claims only the subsequent completed architecture tranche.",
+    "artifacts_untouched_by_this_work": [
+      {
+        "path": "passport-excel-formula-before.xml",
+        "sha256": "2910fd392cce0ce2e39fc0ce54e4bbcf5db9e911d04c76597a9008e1113fe3d8"
+      },
+      {
+        "path": "passport-excel-formula-before.txt",
+        "sha256": "6946d5c31846f74269046a2280fcf545bb0630956a6a8981ad166b57091acbb8"
+      },
+      {
+        "path": "passport-excel-formula-after.xml",
+        "sha256": "a65fb14fbf2c6e88fe894d006e5c35ce167853b6677108d535d95f5c95668c5e"
+      },
+      {
+        "path": "passport-excel-formula-after.txt",
+        "sha256": "3685b2f534bf2f1c5cba819a74220ab981215425e3c5fe54dd488c35dfd1f6d9"
+      }
+    ]
+  },
+  "artifacts": [
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-architecture-original-source.json",
+      "sha256": "aad3b0656884bedda03813f3d6f41d45b2092083b44b6f5032e1ab7094e895a1"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-architecture-before-runtime.json",
+      "sha256": "09988791a7eb61de793b29d948d09bd09595d644812774a8d81558808e7ca16f"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-architecture-after-runtime.json",
+      "sha256": "09988791a7eb61de793b29d948d09bd09595d644812774a8d81558808e7ca16f"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-architecture-runtime.log",
+      "sha256": "a3be6d57ab3b18af486906ec13e2cb7853770737f1dba806b587c0c12d4a64c3"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-architecture-mechanical-checkpoint.json",
+      "sha256": "f6b6d42a5c588bc2837346833f21e932ec071f743d078f953d63ed5b3520dc06"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-architecture-extraction-proof.json",
+      "sha256": "7723779ef7fa0276219cbe3054588b46046c89625dde8c7e07373ebf45b46ba8"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-architecture-proof.log",
+      "sha256": "9f298b3a716a4ffcea0e04ff7cb9dda2d7c5c19a6412640eaa2804380b43d9e7"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-architecture-proof-programs.json",
+      "sha256": "1d47acf7f42a6c4bff4bbab3528b7281551069b342344613c5418dc792ada393"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-architecture-budget-candidates.json",
+      "sha256": "66885468ac2fc82ce996d0c5e12338dab93ea84c0c7e282ff9ef0c4fcf86db50"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-architecture-reviewed-files.json",
+      "sha256": "93f1def1ee62802ed021a3d5c717880c72bb2bab6ba37828334ef91d31340fb3"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-architecture-partial-context.json",
+      "sha256": "b157cb052ee2dfe5875a7c257d8a01f4494f971126675ebd7a38c115af5c17ed"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-architecture-before-tests.log",
+      "sha256": "901a1953663eb9ab849ad9c336ec5bd7eee77ea6f975f2db56f82aad1f16895f"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-architecture-before-coverage.json",
+      "sha256": "cb3c41a12469641e90a4abfd44ebc622b083c9eebdfe9f88f2ee5d72a8ad2852"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-architecture-mechanical-tests.log",
+      "sha256": "06f9a0f0543c2b7007f92b26407aab8bb46c145ab1236b099a36a8616879dd98"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-architecture-pre-annotation-tests.log",
+      "sha256": "873e33e278292c801b68b8d67bd495f3f6766004024b2a10ec16de526546921d"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-architecture-pre-annotation-coverage.json",
+      "sha256": "300ec2a46066fd44a1702d09e6df4cde934540c901bc82c8e2f984390e345b4e"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-architecture-pre-quota-tests.log",
+      "sha256": "5365fcf03c78a3d60fb2f71873cf81471fb11a96229386a859a3495cc3cd8fe4"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-architecture-pre-quota-coverage.json",
+      "sha256": "5789ca5e04ff2dcb546c78d0c9fb7ac268a57788e6298c558991205b117c8ca3"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-architecture-after-tests.log",
+      "sha256": "a1e0d2f3cf50993e9848e9a337fe8edbc99476b44c16ed8b4095c90b94a9e0b4"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-architecture-after-coverage.json",
+      "sha256": "0214924cac3431663deea6249900cb4f36c6ac2820e384b4caabd6d33ffe225e"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-architecture-types-initial.log",
+      "sha256": "335de5ef3154da8d896a2cee394501f8e6fff0249a4634ae7a7d496ef6abd419"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-architecture-types.log",
+      "sha256": "e2702f9afc4c0f80ff1e8624f77af7a7d2689ca184512114aae5967a76229ba8"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-architecture-lint.log",
+      "sha256": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0"
+    }
+  ]
+}

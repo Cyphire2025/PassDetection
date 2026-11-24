@@ -1,0 +1,99 @@
+{
+  "actual_alias_wiring": {
+    "_match_filename_evidence": {
+      "module": "app.infrastructure.documents.document_filename_matching",
+      "qualname": "match_filename_evidence",
+      "signature": "(*, filename: 'str', prepared: 'DocumentMatchIndex', resolver: 'DocumentMatchResolution') -> 'list[MatchResult] | None'",
+      "hints": {
+        "filename": "<class 'str'>",
+        "prepared": "<class 'app.infrastructure.documents.document_matcher_models.DocumentMatchIndex'>",
+        "resolver": "<class 'app.infrastructure.documents.document_match_resolution.DocumentMatchResolution'>",
+        "return": "list[app.infrastructure.documents.document_matcher_models.MatchResult] | None"
+      }
+    },
+    "_collect_primary_content_evidence": {
+      "module": "app.infrastructure.documents.document_content_matching",
+      "qualname": "collect_primary_content_evidence",
+      "signature": "(*, document: 'ClassifiedDocument', prepared: 'DocumentMatchIndex', resolver: 'DocumentMatchResolution') -> 'ContentMatchEvidence'",
+      "hints": {
+        "document": "<class 'app.infrastructure.documents.document_matcher_models.ClassifiedDocument'>",
+        "prepared": "<class 'app.infrastructure.documents.document_matcher_models.DocumentMatchIndex'>",
+        "resolver": "<class 'app.infrastructure.documents.document_match_resolution.DocumentMatchResolution'>",
+        "return": "<class 'app.infrastructure.documents.document_content_matching.ContentMatchEvidence'>"
+      }
+    },
+    "_collect_secondary_content_evidence": {
+      "module": "app.infrastructure.documents.document_content_matching",
+      "qualname": "collect_secondary_content_evidence",
+      "signature": "(*, document: 'ClassifiedDocument', prepared: 'DocumentMatchIndex', resolver: 'DocumentMatchResolution', evidence: 'ContentMatchEvidence', name_matches: 'list[MatchResult]', ambiguity: 'MatchResult | None') -> 'None'",
+      "hints": {
+        "document": "<class 'app.infrastructure.documents.document_matcher_models.ClassifiedDocument'>",
+        "prepared": "<class 'app.infrastructure.documents.document_matcher_models.DocumentMatchIndex'>",
+        "resolver": "<class 'app.infrastructure.documents.document_match_resolution.DocumentMatchResolution'>",
+        "evidence": "<class 'app.infrastructure.documents.document_content_matching.ContentMatchEvidence'>",
+        "name_matches": "list[app.infrastructure.documents.document_matcher_models.MatchResult]",
+        "ambiguity": "app.infrastructure.documents.document_matcher_models.MatchResult | None",
+        "return": "<class 'NoneType'>"
+      }
+    },
+    "_merge_manifest_name_matches": {
+      "module": "app.infrastructure.documents.document_content_matching",
+      "qualname": "merge_manifest_name_matches",
+      "signature": "(name_matches: 'list[MatchResult]', partial_name_matches: 'list[MatchResult]') -> 'list[MatchResult]'",
+      "hints": {
+        "name_matches": "list[app.infrastructure.documents.document_matcher_models.MatchResult]",
+        "partial_name_matches": "list[app.infrastructure.documents.document_matcher_models.MatchResult]",
+        "return": "list[app.infrastructure.documents.document_matcher_models.MatchResult]"
+      }
+    },
+    "_resolve_content_evidence": {
+      "module": "app.infrastructure.documents.document_match_results",
+      "qualname": "resolve_content_evidence",
+      "signature": "(*, content_match_groups: 'list[list[MatchResult]]', content_ambiguities: 'list[MatchResult]') -> 'list[MatchResult] | None'",
+      "hints": {
+        "content_match_groups": "list[list[app.infrastructure.documents.document_matcher_models.MatchResult]]",
+        "content_ambiguities": "list[app.infrastructure.documents.document_matcher_models.MatchResult]",
+        "return": "list[app.infrastructure.documents.document_matcher_models.MatchResult] | None"
+      }
+    },
+    "_select_single_passenger_match": {
+      "module": "app.infrastructure.documents.document_match_results",
+      "qualname": "select_single_passenger_match",
+      "signature": "(matches: 'list[MatchResult]') -> 'MatchResult'",
+      "hints": {
+        "matches": "list[app.infrastructure.documents.document_matcher_models.MatchResult]",
+        "return": "<class 'app.infrastructure.documents.document_matcher_models.MatchResult'>"
+      }
+    },
+    "_mark_duplicate_matches": {
+      "module": "app.infrastructure.documents.document_match_results",
+      "qualname": "mark_duplicate_matches",
+      "signature": "(matches: 'list[MatchResult]') -> 'list[MatchResult]'",
+      "hints": {
+        "matches": "list[app.infrastructure.documents.document_matcher_models.MatchResult]",
+        "return": "list[app.infrastructure.documents.document_matcher_models.MatchResult]"
+      }
+    }
+  },
+  "evidence_slots": [
+    "match_groups",
+    "ambiguities",
+    "words",
+    "name_result"
+  ],
+  "evidence_frozen_outer_record": true,
+  "evidence_evaluated_hints": {
+    "match_groups": "list[list[app.infrastructure.documents.document_matcher_models.MatchResult]]",
+    "ambiguities": "list[app.infrastructure.documents.document_matcher_models.MatchResult]",
+    "words": "list[str]",
+    "name_result": "tuple[list[app.infrastructure.documents.document_matcher_models.MatchResult], app.infrastructure.documents.document_matcher_models.MatchResult | None]"
+  },
+  "owned_list_and_pending_name_tuple_identities_preserved": true,
+  "source_fence": {
+    "backend/app/infrastructure/documents/document_matcher.py": "56d4bd08647d29d5d1a98b6469dc6e6149eb9e191effa1aab5e59febee89eb7e",
+    "backend/app/infrastructure/documents/document_filename_matching.py": "3b9f3e31d1348cad060b5b3563a6af6b1481ebde18f372da70fdce0bc33b2955",
+    "backend/app/infrastructure/documents/document_content_matching.py": "e546765e17ec69ac174b8b812ae4a8d0fe79682b106e42d429be703b29fee48f",
+    "backend/app/infrastructure/documents/document_match_results.py": "9992c0747769477e54022ec3312241577201ad403836411bb797acb298bd6451"
+  },
+  "notes": "All7 real new helper import aliases and evaluated annotations exercised; resolver is actual existing class ancestry. Frozen outer record deliberately owns mutable evidence lists; no deep-immutability or service proof claimed."
+}

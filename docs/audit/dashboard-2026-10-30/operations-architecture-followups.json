@@ -1,0 +1,42 @@
+{
+  "method": "Source-read coverage, concrete behavior qualification and architecture completion tracked separately; historical source receipts remain immutable.",
+  "followups": [
+    {
+      "path": "frontend/features/operations/hooks/use-operations.ts",
+      "original_lines": 752,
+      "status": "resolved-by-coherent-current-domain-split-and-qualified-owner-fix",
+      "receipt": "operations-hooks-verification.json",
+      "evidence": "Actual normal manager page/account reset/remount/owner adapter negative and same-authority control; final81affected cases/38Node contracts/types/scoped lint. Ten focused owners, all live signatures/typed bodies preserved, seven closed wrappers retired with full source caller evidence."
+    },
+    {
+      "path": "frontend/features/operations/api/operations.api.ts",
+      "original_lines": 1200,
+      "status": "resolved-by-current-domain-transport-and-type-owners",
+      "receipt": "operations-api-verification.json",
+      "supersedes": "operations-hooks-verification.json:open_followups",
+      "evidence": "Seven domain transport and seven domain contract owners plus explicit compatibility facade; all61SDKmethods/64types retained,125typed ASTs and1621definition bindings preserved;124actual SDK parity cases and126type-equality obligations plus affected workflow controls."
+    },
+    {
+      "path": "frontend/features/operations/components/tour-group-qr-codes-page.tsx",
+      "original_lines": 899,
+      "status": "resolved-by-current-cohesive-UI-and-proven-performance-lifecycle-fixes",
+      "receipt": "group-qr-verification.json",
+      "evidence": "11focused owners max270lines, full current source read;14rendered/14Node/types/lint and exact historical/current-delta proofs. Measured selected-ID scans, failed-vs-empty projection, actual390/1440message wrapping and per-row pending/duplicate lifecycle bugs fixed with original print/confirmation/recipient controls retained. Native geometry is isolated SSR/CSS, not production qualification."
+    },
+    {
+      "path": "frontend/features/menu/components/menu-library.tsx",
+      "original_lines": 716,
+      "status": "resolved-by-current-library-owners-and-qualified-owner-draft-fixes",
+      "receipt": "menu-library-verification.json",
+      "evidence": "716lineUI\u00e2\u2020\u20199focused owners max253lines. Twelveprivatehook boundaries capture originalauthority; actualnormalpage/clientadapter baseline and12revision/callback pairs qualifyintent. Fiveprovednewerdraft-loss failures fixed before exact28statement/1758expandedJSX/942definition-binding movement. Final48affected/5Node/3SSRparity/types/lint pass; no productionqualification claim."
+    },
+    {
+      "path": "frontend/public/offline-scanner.js",
+      "original_lines": 1267,
+      "status": "resolved-by-current-authored-domain-owners-and-qualified-lifetime-fixes",
+      "evidence": "Original1267lineIIFE to15authored modules max279 plus deterministic existing-tooling singleclassicartifact. Historical58AST movement; current55unchanged/3deliberate deltas.50affectedNode/1WebKit cache preservation/types/scopedlint/prebuild pass. Nativecrypto/testIDB/physicalcamera limits explicit. Independent attendanceperformance/sharedtest/finalcombined remainOPEN.",
+      "receipt": "offline-scanner-verification.json"
+    }
+  ],
+  "final_combined_verification": "OPEN-parent-final-round; no partial-batch broad suite/build/browser qualification claimed"
+}

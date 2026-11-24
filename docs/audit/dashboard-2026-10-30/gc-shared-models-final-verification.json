@@ -1,0 +1,96 @@
+{
+  "status": "Focused schema-preserving architecture change verified; final docstring-only continuity explicit",
+  "before": {
+    "file": "backend/app/infrastructure/database/gc_mobile_models.py",
+    "physical_lines": 2540,
+    "classes": 23,
+    "star_exports": 22,
+    "fresh_original_startups": 3,
+    "clock_defaults_all23classes": 65,
+    "original_existing_cases": 61
+  },
+  "after": {
+    "facade_lines": 110,
+    "domain_owners": 17,
+    "domain_lines_min": 99,
+    "domain_lines_max": 304,
+    "primer_lines": 7,
+    "total_runtime_sources": 19,
+    "new_regression_file": "backend/tests/unit/infrastructure/test_gc_model_facade_contract.py",
+    "qualified_prepolish_cases": 65,
+    "unchanged_existing_cases": 61,
+    "new_retained_cases": 4,
+    "pytest_seconds": 33.17,
+    "command_wall_seconds": 57.062,
+    "qualified_fresh_startup_modes": 21,
+    "statement_line_coverage": 100.0,
+    "executable_lines": 731,
+    "branch_sites": 0,
+    "current_no_fix_Ruff_files": 20,
+    "current_strict_mypy_files": 19,
+    "current_format_files": 20,
+    "final_source_fence_paths": 275
+  },
+  "preservation": {
+    "whole23class_AST_exact": true,
+    "26original_imported_objects_and_all_leaf_shared_binding_identity_exact": true,
+    "original_clock_function_docstring_and22star_exports_exact": true,
+    "actual_importer_files": 116,
+    "actual_import_statements_executed_perstartup": 120,
+    "GC_bindings": 277,
+    "all116consumer_sources_unchanged": true,
+    "all142migrations_unchanged": true,
+    "all174table_mapper_schema_and_PGSQLiteDDL_exact": true,
+    "construction_time_qualifiedregistry_and_public_pickle_exact": true,
+    "default_onupdate_deferred_type_hints_and_order_exact": true
+  },
+  "policy_candidates": {
+    "normal_before": 882,
+    "normal_after": 900,
+    "old_rows_updated": 1,
+    "new_normal_rows": 18,
+    "all19_minimum_coverage_percent": 99.81,
+    "critical_additions": 0,
+    "shared_policy_files_written_by_this_agent": false
+  },
+  "source_read_credit": {
+    "direct_full_current_files": [
+      "backend/app/infrastructure/database/gc_mobile_models.py",
+      "backend/app/infrastructure/database/_gc_models/__init__.py",
+      "backend/tests/unit/infrastructure/test_gc_model_facade_contract.py"
+    ],
+    "17leaves": "Focused current header/glue/schema-equivalence continuity to physically full original source; no false new whole-body physical read credit."
+  },
+  "parent_adopted_introspection_tradeoff": {
+    "class_inspect_getsource": "OSError: original __module__ now points to stable import facade; no actual class statement there",
+    "getter_getsourcefile": "backend/app/infrastructure/database/_gc_models/organizations.py",
+    "maintained_backend_app_backend_scripts_scripts_getsource_consumers": 0,
+    "no_introspection_monkeypatch": true,
+    "parent_adopted": true
+  },
+  "limits": [
+    "No SQL/data/schema migration, provider/network/production/Docker/native feature/Inbox action; no throughput/space/security certification from structural split",
+    "Current source after approved17module descriptions uses explicit whole-module AST continuity toprepolish65tests/21startup/coverage results; no repeat65run or rewritten coverage artifact",
+    "Branchless declaration coverage cannot certify domain behavior; original99.81linefloor retained on everyowner, no declaration-only critical gates",
+    "Old23star-export assumption was invalid; original22__all__retained;65clockdefaults includes all23classes versus old62for22starclasses",
+    "Class getsource cannot locate a class through legacy-module facade; getter returns actual leaf source, no maintained current consumers found in backend/app,backend/scripts,scripts",
+    "Initial resumed format command used rootcwd withbackendrelativepath and failed beforeformat; corrected. Initial no-fixlint found importformat/E402 placement, corrected beforequalification. Initial strict check found2descriptorattrtyping issues, corrected before65cases; one failed patch foundno match and wrote nothing.",
+    "Normal module docstrings polished afterqualification by parent-approved exactdocstring-only proof; finalcand/manifest/newreceipt retainprepolish originals immutable"
+  ],
+  "artifacts": {
+    "gc-shared-models-final-architecture-manifest.json": "ed558046a537b33a454d4d5d49475b9247940166b1d3e939bdd247d0e4a2699a",
+    "gc-shared-models-final-budget-candidates.json": "69331f196d9bd004c4ddf2ee2e7d2e44f430753aa07855d33ad906d1a145a917",
+    "gc-shared-models-final-source-continuity.json": "3d5900a9439ba7d1253c982ac7135cea5fa3c65197222e1a6bc8a0cf825acb07",
+    "gc-shared-models-final-reviewed-files.json": "af08e3b91dcb39d377c92e202aef7291b2eec3887b8353a3ffb73f51965dea7c",
+    "gc-shared-models-resume-original-verification.json": "5812334aaa7ab2ab3a700b3b65a902a3267dd565bdab988a6221d64c73bd6987",
+    "gc-shared-models-current-command.json": "09bd40af2d5eb6c9b82e06643b8e281a112ac3d66c854d07aada1d3936a324e3",
+    "gc-shared-models-current-tests.txt": "2b04ece7cd72f10fffffc6b9a80c83041df5375da545cf15708a2286d314305f",
+    "gc-shared-models-current-junit.xml": "697a71df3ed01f662e3169fe496d737d0df8d83c8bd165d4dc92aa6392ddba99",
+    "gc-shared-models-current-coverage.json": "901ecd2f36c9590fc8721a7768994246b0a1ca312084f90b76d60f587fd9e67e",
+    "gc-shared-models-current-coverage.xml": "78a5d2a34f053bb3ad5cc712fb4ac4e087f1a4a0e9e6cf0b602deb35183631e9",
+    "gc-shared-models-current-metadata-verification.json": "ab187ac6f2f3450cd57d52a257b87700a81cbcadee3422118fc41f2398c376f2",
+    "gc-shared-models-module-docstring-continuity.json": "ab95a473a1aa70f40a28f818662e56060d7389002167dc6099cbcd46ce10da87",
+    "gc-shared-models-prepolish-source.json": "27af886678e3a5032cb59538bdbb2eaa6b863ac5d01a786d9851d1f3e3911f95",
+    "gc-shared-models-baseline-command.json": "5486a00106b2ebf442665dafbf240db892301587c3aebde2d382e3b59ea10c50"
+  }
+}

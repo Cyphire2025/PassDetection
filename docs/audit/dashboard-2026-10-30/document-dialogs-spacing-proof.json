@@ -1,0 +1,44 @@
+[
+  {
+    "path": "frontend/features/documents/components/abort-incomplete-upload-dialog.tsx",
+    "whole_typed_AST_exact": true,
+    "before_sha256": "1ef51649de68a84178f66fcb360c8f3fc45355b1aa5f54c1396929e079ec1405",
+    "after_sha256": "05d9e99b834388f42422e0f6c05cc6627e7d665e597321393d7b0150a47b7cb0"
+  },
+  {
+    "path": "frontend/features/documents/components/remove-document-assignments-dialog.tsx",
+    "whole_typed_AST_exact": true,
+    "before_sha256": "4aa9addcfe68b7707b735dcae1774b8488223f080800fc41ec3dfa611f7b2fce",
+    "after_sha256": "bed392931d4a3d01e9fa1bd64c7dd31ce780fa94bf6b76e5ce53f83762ede27d"
+  },
+  {
+    "path": "frontend/features/documents/components/document-delivery-preview-dialog.tsx",
+    "whole_typed_AST_exact": true,
+    "before_sha256": "818943e556dcc2176bf494bda47f2d605f296493dd7e47edb50b9846c2e2b6cf",
+    "after_sha256": "11f4c6496787d3a327a0dd78c0d11d03548b1be4e308fc4edb1fe1bd1c62d23e"
+  },
+  {
+    "path": "frontend/features/documents/components/document-delivery-preview-summary.tsx",
+    "whole_typed_AST_exact": true,
+    "before_sha256": "9d15c045b83d0e842ff0bedb61935b42807e738a126c7fd57a2f97e465e87b52",
+    "after_sha256": "18f00876992e48330a37f2e736ef7dc0ffaf35246664b7959c24f1b67e1fbc88"
+  },
+  {
+    "path": "frontend/features/documents/components/document-delivery-message-fields.tsx",
+    "whole_typed_AST_exact": true,
+    "before_sha256": "4e1263b8a332a9ad8202d9edf8836f3b86f22e43df8c07d42513818d83500f28",
+    "after_sha256": "b84d1747fc64cda815e8daed5f804c82f415bc56320c4754cc9e507c597f66de"
+  },
+  {
+    "path": "frontend/features/documents/components/document-delivery-recipient-table.tsx",
+    "whole_typed_AST_exact": true,
+    "before_sha256": "5a026c1b4d682375d968c49e31dc9c2fa7a085f995111d1ca49cb12da5803d23",
+    "after_sha256": "48bacd0b72b6041cd68cabdebb5c01d00e4bee62bec18735aedb5dbd15629138"
+  },
+  {
+    "path": "frontend/features/documents/components/document-delivery-preview-footer.tsx",
+    "whole_typed_AST_exact": true,
+    "before_sha256": "546aff4d910e0cd1a5b5f1d3e41d78de37a55e2efa78090cb285a4e019490e84",
+    "after_sha256": "8b3b1c47d96ebd500704b6faf9178e9507c95009c0ebfb157185546efcc7bc31"
+  }
+]

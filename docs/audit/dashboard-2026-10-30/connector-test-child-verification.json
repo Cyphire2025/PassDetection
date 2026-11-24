@@ -1,0 +1,59 @@
+{
+  "status": "FROZEN narrow test-only cleanup fix; historical read-only cohort retained separately",
+  "sources": [
+    {
+      "path": "mcp-connector/tests/test_windows_vault_native.py",
+      "sha256": "a5351796223c6ac85f252929621bf18ac6c2488b2c07ad608601f51e5062b0e6",
+      "physical_lines": 109,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full original86/currentsource physically read. Only new test-helper, first-test child=None and cleanup-before-deletefinally, and second-test reuse change. Original module metadata/imports/environment function and both complete native test bodies/assertions exact after explicit cleanup-delta inversion. No production connector/OS vault invocation in affected regression run."
+    },
+    {
+      "path": "mcp-connector/tests/test_native_test_cleanup.py",
+      "sha256": "c71415047bd554a965b3d5c931982b4004d43e75c8efc036537d01e1a5a6fa42",
+      "physical_lines": 126,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full authored synthetic qualificationcontrols. Invokes actual original qualification test function with fakevault/process only; real asyncio wait_for deadline/task cancellation/repeated cancellation. Original3negativesfail/1success; final5pass covers timeout/cancel/racedexit/success and repeatedcancel while reaping, assertsreap before synthetic target deletion. No nativecredential/subprocess API actually executed."
+    }
+  ],
+  "original_native_test_sha256": "885f05a67c17dc9118df9e4702838a490abf224269d55151e2359cb5bca80e75",
+  "intent": "Kill/drain a known qualification child before deleting its synthetic vault target on communicate timeout/cancellation, tolerate exit races, and shield draining from repeated cancellation; preserve real success/assertion behavior. Existingsecondtest cleanupcontract shared.",
+  "ast_proof": {
+    "module_nonfunction_statements_unchanged": true,
+    "child_environment_unchanged": true,
+    "both_complete_existing_test_functions_exact_after_explicit_cleanup_only_inversion": true,
+    "actual_deltas": [
+      "new private test-only cleanup helper",
+      "firsttest adds child=None and drains in nestedfinally beforedelete",
+      "secondtest reuses samehelper instead ofinlinekillwait"
+    ]
+  },
+  "baseline": {
+    "cases": 4,
+    "passed": 1,
+    "failed": 3,
+    "raw": ".tmp/offline-scanner/connector-child-baseline.txt"
+  },
+  "current": {
+    "cases": 5,
+    "passed": 5,
+    "failed": 0,
+    "raw": ".tmp/offline-scanner/connector-child-final.txt",
+    "ruff_check": "passed affected2files",
+    "ruff_format_check": "passed affected2files"
+  },
+  "other_initial_cohort_sources_stable": 18,
+  "full_support_and_partial_proxy_stable": true,
+  "runtime_edits": [],
+  "services_or_native_vault_calls": [],
+  "limits": [
+    "Real asyncio deadlines/cancellation over fake process-handle and vault interfaces, not nativeWindows process/credential validation.",
+    "Guarantees tested after subprocess handle is returned; processcreation/runtime connector cancellation paths were not changed.",
+    "OS processkill/wholetestprocessshutdown and failing OS wait primitives are not qualified by fake controls.",
+    "No broad suites/provider/production data/deployment invoked."
+  ]
+}

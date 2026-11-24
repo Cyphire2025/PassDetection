@@ -26,8 +26,15 @@ from app.infrastructure.whatsapp.template_settings import (
     TemplateSettingsSnapshot,
 )
 from app.presentation.api.v1.routes import whatsapp_composer as preview_route
+from app.presentation.api.v1.routes import whatsapp_composer_preview as preview_selection
+from app.presentation.api.v1.routes import whatsapp_composer_preview_response as preview_response
 from app.presentation.api.v1.routes import whatsapp_resend as resend_route
+from app.presentation.api.v1.routes import whatsapp_resend_claims as resend_claims
+from app.presentation.api.v1.routes import whatsapp_resend_preparation as resend_preparation
+from app.presentation.api.v1.routes import whatsapp_resend_publication as resend_publication
 from app.presentation.api.v1.routes import whatsapp_scope, whatsapp_send
+from app.presentation.api.v1.routes import whatsapp_send_claims as send_claims
+from app.presentation.api.v1.routes import whatsapp_send_preparation as send_preparation
 from app.presentation.api.v1.routes.whatsapp_bulk_resend_composer import (
     BulkResendEdits,
     resolve_saved_resend_snapshot,
@@ -177,20 +184,22 @@ def rig(monkeypatch):
     session.add = MagicMock()
     publish = AsyncMock()
     prerequisite = AsyncMock(wraps=enforce_broadcast_welcome_prerequisite)
-    for module in (whatsapp_send, preview_route, resend_route):
+    for module in (send_preparation, preview_response, resend_preparation):
         monkeypatch.setattr(module, "_support_contacts_for_group", AsyncMock(return_value=[]))
-    for module in (whatsapp_send, preview_route):
+    for module in (send_preparation, preview_selection):
         monkeypatch.setattr(module, "_group_recipients", AsyncMock(return_value=[recipient]))
         monkeypatch.setattr(module, "_latest_composer_snapshot", AsyncMock(return_value=None))
-    for module in (whatsapp_send, resend_route):
+    for module in (whatsapp_send, resend_preparation):
         monkeypatch.setattr(module, "get_settings", lambda: settings)
+    for module in (send_preparation, resend_claims):
         monkeypatch.setattr(module, "enforce_broadcast_welcome_prerequisite", prerequisite)
+    for module in (whatsapp_send, resend_publication):
         monkeypatch.setattr(module, "publish_whatsapp_task", publish)
     monkeypatch.setattr(whatsapp_scope, "get_settings", lambda: settings)
-    for module in (whatsapp_send, resend_route):
+    for module in (send_claims, resend_claims):
         monkeypatch.setattr(module, "group_invite_blocking_statuses", AsyncMock(return_value={}))
-    monkeypatch.setattr(preview_route, "_recipient_delivery_counts", AsyncMock(return_value=(1, 0, 0, 0)))
-    monkeypatch.setattr(preview_route, "welcome_preview_values", AsyncMock(wraps=welcome_preview_values))
+    monkeypatch.setattr(preview_response, "_recipient_delivery_counts", AsyncMock(return_value=(1, 0, 0, 0)))
+    monkeypatch.setattr(preview_response, "welcome_preview_values", AsyncMock(wraps=welcome_preview_values))
     monkeypatch.setattr(resend_route, "active_replacement_resolution_id_for_recipient", AsyncMock(return_value=None))
     monkeypatch.setattr(resend_route.AuditLogRepository, "record", AsyncMock())
     monkeypatch.setitem(sys.modules, "app.infrastructure.whatsapp.tasks", SimpleNamespace(process_whatsapp_broadcast=object()))
@@ -342,7 +351,7 @@ async def test_bulk_old_text_invites_require_photo_and_never_publish_malformed_r
 
 
 async def test_successful_invite_history_blocks_explicit_resend(rig, monkeypatch):
-    monkeypatch.setattr(resend_route, "group_invite_blocking_statuses", AsyncMock(return_value={rig.recipient.id: "delivered"}))
+    monkeypatch.setattr(resend_claims, "group_invite_blocking_statuses", AsyncMock(return_value={rig.recipient.id: "delivered"}))
     rig.session.execute.side_effect = [db_result(rig.group), db_result(rig.recipient)]
     with pytest.raises(HTTPException, match="already been submitted or delivered") as exc:
         await resend_route.resend_recipient_message(

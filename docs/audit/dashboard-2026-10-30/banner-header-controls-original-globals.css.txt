@@ -1,0 +1,268 @@
+@import "tailwindcss";
+
+.traveller-portal {
+  --traveller-canvas-color: #f8fbff;
+  position: relative;
+  isolation: isolate;
+  background-color: var(--traveller-canvas-color);
+}
+.traveller-portal::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-color: var(--traveller-canvas-color);
+  background-image: url('/images/traveller/traveller-portal-4k.webp');
+  background-position: center;
+  /* Preserve every artwork edge, including on short landscape screens. */
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+@media (orientation: portrait) {
+  .traveller-portal::before { background-image: url('/images/traveller/traveller-portal-portrait-4k.webp'); }
+}
+
+/* Design Tokens. */
+:root {
+  /* Brand */
+  --color-brand-50:  #EFF6FF;
+  --color-brand-100: #DBEAFE;
+  --color-brand-500: #3B82F6;
+  --color-brand-600: #2563EB;
+  --color-brand-700: #1D4ED8;
+
+  /* Neutral surface */
+  --color-bg:          #F8FAFC;   /* page background */
+  --color-surface:     #FFFFFF;   /* cards, panels */
+  --color-surface-2:   #F1F5F9;   /* secondary surfaces */
+  --color-border:      #E2E8F0;   /* standard border */
+  --color-border-strong: #CBD5E1; /* stronger border */
+
+  /* Text */
+  --color-text-primary:   #0F172A;  /* headings */
+  --color-text-secondary: #475569;  /* body text */
+  --color-text-muted:     #94A3B8;  /* placeholders, hints */
+
+  /* Status */
+  --color-success:  #16A34A;
+  --color-warning:  #D97706;
+  --color-error:    #DC2626;
+  --color-info:     #2563EB;
+
+  /* Sidebar */
+  --sidebar-width:     240px;
+  --sidebar-collapsed: 64px;
+  --header-height:     60px;
+
+  /* Font */
+  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
+}
+
+/* Base Reset. */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: var(--font-sans);
+    background-color: var(--color-bg);
+    color: var(--color-text-primary);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    touch-action: manipulation;
+  }
+
+  /*
+   * Dashboard routes own their scrolling through #main-content. Locking the
+   * root scroller prevents wheel/touch scroll chaining from moving the whole
+   * application shell and exposing the document canvas below it.
+   */
+  html:has([data-dashboard-shell]),
+  body:has([data-dashboard-shell]) {
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+}
+
+[data-coordinator-shell] {
+  min-height: 100svh;
+  min-height: 100dvh;
+  overflow-x: clip;
+  overscroll-behavior-y: contain;
+}
+
+.dashboard-sidebar-scroll {
+  scrollbar-width: none;
+}
+
+.dashboard-sidebar-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+[data-coordinator-fixed-viewport] {
+  height: 100svh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  [data-coordinator-scanner-main] {
+    flex-direction: row;
+  }
+
+  [data-coordinator-scanner-camera] {
+    flex: 1 1 52%;
+    min-width: 0;
+  }
+
+  [data-coordinator-scanner-controls] {
+    flex: 0 0 48%;
+    width: 48%;
+    max-height: none;
+    border-left: 1px solid rgb(226 232 240);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Focus (Accessibility). */
+:focus-visible {
+  outline: 2px solid var(--color-brand-600);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.company-logo:focus-visible { border-radius: 9999px; }
+
+/* Scrollbar. */
+::-webkit-scrollbar        { width: 5px; height: 5px; }
+::-webkit-scrollbar-track  { background: var(--color-surface-2); }
+::-webkit-scrollbar-thumb  { background: var(--color-border-strong); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-brand-600); }
+
+/* Dashboard presentation preferences only affect the office workspace. */
+[data-dashboard-shell] { background: #fafbfc; }
+[data-dashboard-shell] #main-content { scrollbar-gutter: stable; }
+/* Uploaded artwork stays unfiltered; only its content surfaces become transparent. */
+.group-banner :is(.workspace-page-header, [data-workspace-summary], [data-workspace-metric]),
+.group-banner .workspace-page-header :is(span, button),
+.group-banner [data-workspace-metric] > span {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+.group-banner .workspace-page-header { padding: 1rem; border-radius: 0.75rem; }
+.group-workspace[data-group-background] :is([data-workspace-card], [data-workspace-toolbar], [data-workspace-empty], [data-workspace-summary], [data-workspace-metric], .workspace-page-header) {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+.group-workspace[data-group-background] :is(.workspace-page-header, [data-workspace-metric]) > span,
+.group-workspace[data-group-background] .workspace-page-header span,
+.group-workspace[data-group-background] [data-workspace-metric] > span {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+[data-dashboard-shell]:has(.group-workspace[data-group-background]) > div:last-child > header {
+  position: relative;
+  z-index: 20;
+  background: transparent;
+  border-color: transparent;
+}
+@media (width < 640px) {
+  .group-banner [data-workspace-summary],
+  .group-workspace[data-group-background] [data-workspace-summary] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .group-banner [data-workspace-metric] { flex-direction: column; align-items: flex-start; gap: 0.5rem; padding: 0.875rem 0.75rem; }
+  :is(.group-banner, .group-workspace[data-group-background]) [data-workspace-metric] p.truncate {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+  }
+  :is(.group-banner, .group-workspace[data-group-background]) [data-workspace-metric] div:has(> p.truncate) {
+    flex-wrap: wrap;
+    column-gap: 0.5rem;
+  }
+}
+
+.group-workspace[data-group-background] [data-workspace-skeleton] { background: transparent; }
+
+[data-dashboard-shell] .workspace-page-header [class*="bg-white/10"][class*="text-white"] { color: #334155; }
+[data-dashboard-shell] .workspace-page-header [class*="text-slate-100"] { color: #64748b; }
+[data-dashboard-shell] .workspace-page-header [class*="border-white/"] { border-color: #dce1e8; background: white; }
+[data-dashboard-shell] .workspace-page-header button[class*="bg-white"] { border: 1px solid #dce1e8; }
+[data-dashboard-shell] table { font-variant-numeric: tabular-nums; }
+[data-dashboard-shell] thead { letter-spacing: .035em; }
+[data-dashboard-shell] [data-density="compact"], [data-dashboard-shell][data-density="compact"] { --dashboard-cell-padding: .55rem; }
+[data-dashboard-shell][data-density="compact"] td,
+[data-dashboard-shell][data-density="compact"] th { padding-top: var(--dashboard-cell-padding); padding-bottom: var(--dashboard-cell-padding); }
+[data-dashboard-shell][data-density="compact"] .dashboard-content { padding-top: 1.25rem; }
+[data-dashboard-shell][data-text-size="large"] .dashboard-content .text-sm { font-size: .95rem; }
+[data-dashboard-shell][data-text-size="large"] .dashboard-content .text-xs { font-size: .82rem; }
+[data-dashboard-shell][data-reduce-motion="true"] *,
+[data-dashboard-shell][data-reduce-motion="true"] *::before,
+[data-dashboard-shell][data-reduce-motion="true"] *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+
+[data-dashboard-shell] .workspace-page-header [class*="text-slate-200"] { color: #64748b; }
+[data-dashboard-shell] .workspace-page-header [class*="text-sky-300"] { color: #64748b; }
+[data-dashboard-shell] .workspace-page-header :is([class*="text-blue-100"], [class*="text-blue-200"], [class*="text-sky-100"], [class*="text-sky-200"]) { color: #1d4ed8; }
+[data-dashboard-shell] .workspace-page-header :is([class*="text-amber-100"], [class*="text-amber-200"]) { color: #92400e; }
+[data-dashboard-shell] .workspace-page-header :is([class*="text-emerald-100"], [class*="text-emerald-200"], [class*="text-green-100"]) { color: #047857; }
+
+.group-banner .workspace-page-header button,
+.group-workspace[data-group-background] .workspace-page-header button {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+.group-workspace[data-group-background] .group-banner { border-color: transparent; background: transparent; box-shadow: none; }
+
+.group-banner .workspace-page-header a,
+.group-workspace[data-group-background] .workspace-page-header a,
+.group-workspace[data-group-background] [data-workspace-empty] > div,
+.group-workspace[data-group-background] [data-workspace-card] span:has(> svg) {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.group-banner :is(p, [data-workspace-summary]),
+.group-workspace[data-group-background] :is(p, [data-workspace-summary]) {
+  color: #0f172a;
+}
+.group-banner :is(p, span)[class*="text-slate-"],
+.group-workspace[data-group-background] :is(p, span)[class*="text-slate-"] { color: #0f172a; }

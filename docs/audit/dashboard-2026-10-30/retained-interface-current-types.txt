@@ -1,0 +1,6 @@
+retained_release_fast.py:14: error: Signature of "backend" incompatible with supertype "mcp_direct_build.RetainedBuild"  [override]
+retained_release_fast.py:14: note:      Superclass:
+retained_release_fast.py:14: note:          def backend(self, base_image: str, previous_lock: Path) -> dict[Any, Any]
+retained_release_fast.py:14: note:      Subclass:
+retained_release_fast.py:14: note:          def backend(self, base_image: str) -> dict[str, Any]
+Found 1 error in 1 file (checked 7 source files)

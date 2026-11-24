@@ -1,0 +1,47 @@
+{
+  "workload_entire_module_without_imports_restored_after_only_exact_cleanup_and_CLI_admission_removal": true,
+  "workload_unchanged_whole_declarations": [
+    "fixture",
+    "percentile",
+    "summarize",
+    "measured",
+    "path_for",
+    "paced_actor",
+    "scans",
+    "synthetic_jpeg",
+    "uploads",
+    "overload_actor",
+    "gates",
+    "observed_queue_drain_seconds",
+    "begin_stage",
+    "end_stage",
+    "tenant_negatives",
+    "inspect_backend"
+  ],
+  "fixture_entire_module_without_imports_AST_exact_after_only_absolute_deadline_and_two_Redis_keyword_removals": true,
+  "fixture_import_statements_unchanged_except_Ruff_order": true,
+  "journey_entire_module_without_imports_AST_exact": true,
+  "journey_canonical_aliases": {
+    "_code_digest": "code_digest",
+    "_digest": "digest"
+  },
+  "source_sha256": {
+    "scripts/qa/qualify_workload_capacity.py": "a3217d6482e698d28c2ae2c81d6dc2beef2e532ba047862b5e56638164ef562a",
+    "scripts/qa/capacity_fixtures.py": "bc5a0715e703368b23ad208a972ff7f0a656632105a7ccef12b43390d4210053",
+    "scripts/qa/qualification_application_journey.py": "772d601da4734f7f3c4563d1169727f1cfff623daab7c78118fd3cb794db9226",
+    "scripts/qa/capacity_observer_lifecycle.py": "658e046fd2be95462d1212c26d7700cdb0a595f60c13e591dadd68175e80cd16",
+    "scripts/qa/test_capacity_observer_lifecycle.py": "8364160a90322925637918c22fdae31e46f1aedeba81b0ced607fa958ea6c975",
+    "backend/tests/unit/infrastructure/test_capacity_observer_reader_bounds.py": "66389ed589b644f670e2cb8a3819a36cd16241f1c4d7f45c960ab6a1c1655418",
+    "scripts/qa/test_workload_capacity.py": "a0e1be994d760740c23a8dfa0373816211db47dc70b93f712352a73297ed118b",
+    "scripts/qa/test_mcp_capacity_profile.py": "e18ef81199a70a87bbaacbb02f8af00b1bfb1362576a57ab13db1bb3542620e1",
+    "backend/app/infrastructure/documents/storage_transfers.py": "a15cde9b255188896500d54e4de7faf9dafbbe332f13f3163b1590f38a1c58d1",
+    "backend/app/__init__.py": "f7f0ae580a55bd07e427d55d2982e40d12a2cd590386d85e583db5d77f8fdb0b",
+    "backend/app/infrastructure/__init__.py": "f7f0ae580a55bd07e427d55d2982e40d12a2cd590386d85e583db5d77f8fdb0b",
+    "backend/app/infrastructure/documents/__init__.py": "ab8acea9fe1e3e7fa631a8ed64ebdd61d8bb6553a977649e80d8804dab04147f"
+  },
+  "original_source_sha256": {
+    ".tmp/workload-capacity-before-observer.py": "608e0a6e083cb538ffde15bf4734a00faf367cbb858d50f7f15a835f8704f427",
+    ".tmp/capacity-fixtures-before-observer-bound.py": "8c6bdf129c80448fb413df72ac4f55bd89498eea90a8fbe97330a95f3325c004",
+    ".tmp/qualification-journey-before-import.py": "67b332b584780371863ad8a11de05fc7d778d78d922b05eb5cb1f67ef1e21542"
+  }
+}

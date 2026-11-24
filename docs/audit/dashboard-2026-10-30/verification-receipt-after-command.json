@@ -1,0 +1,42 @@
+{
+  "argv": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "tests/unit/infrastructure/test_document_verification_staging.py",
+    "tests/unit/presentation/test_document_distribution_staging_routes.py",
+    "--cov=app.infrastructure.documents.verification_staging",
+    "--cov=app.infrastructure.documents.verification_receipt_models",
+    "--cov=app.infrastructure.documents.verification_receipt_payload",
+    "--cov=app.infrastructure.documents.verification_receipt_cipher",
+    "--cov=app.infrastructure.documents.verification_receipt_scope",
+    "--cov-branch",
+    "--cov-report=json:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\verification-receipt-after-coverage.json",
+    "--cov-report="
+  ],
+  "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection\\backend",
+  "exit_code": 0,
+  "before": {
+    "backend/tests/unit/infrastructure/test_document_verification_staging.py": "5da6ca37951816e2fc84d84a119548a6a83e54624a023113336278ad6cff26cc",
+    "backend/tests/unit/presentation/test_document_distribution_staging_routes.py": "9ed52130c26879815757d7f224476e3fcf72a19d3e3ad7f1157f78489724d04a",
+    "backend/app/infrastructure/documents/verification_receipt_cipher.py": "30913eac94b50e9741489d7c9404aa11660aa85b063bc9827c26dcd81f7b7ff3",
+    "backend/app/infrastructure/documents/verification_receipt_models.py": "07da7bde5fd0596290e94f84d291b6cb0eb6217daa2a9f1b010079355e30edac",
+    "backend/app/infrastructure/documents/verification_receipt_payload.py": "0e88fe849a24ab6bd9b8e9e6068ac09c47f2a3d0811ea5a9207e6fb2e93f23b3",
+    "backend/app/infrastructure/documents/verification_receipt_scope.py": "e2d24df8b74457cdbafaf61321c91c6397049138e2ce22478868434014949a0b",
+    "backend/app/infrastructure/documents/verification_staging.py": "8326e233d637e2bd4c662d7308af9fda1a03d2272ab000dc7aadac1c2f0601de"
+  },
+  "after": {
+    "backend/tests/unit/infrastructure/test_document_verification_staging.py": "5da6ca37951816e2fc84d84a119548a6a83e54624a023113336278ad6cff26cc",
+    "backend/tests/unit/presentation/test_document_distribution_staging_routes.py": "9ed52130c26879815757d7f224476e3fcf72a19d3e3ad7f1157f78489724d04a",
+    "backend/app/infrastructure/documents/verification_receipt_cipher.py": "30913eac94b50e9741489d7c9404aa11660aa85b063bc9827c26dcd81f7b7ff3",
+    "backend/app/infrastructure/documents/verification_receipt_models.py": "07da7bde5fd0596290e94f84d291b6cb0eb6217daa2a9f1b010079355e30edac",
+    "backend/app/infrastructure/documents/verification_receipt_payload.py": "0e88fe849a24ab6bd9b8e9e6068ac09c47f2a3d0811ea5a9207e6fb2e93f23b3",
+    "backend/app/infrastructure/documents/verification_receipt_scope.py": "e2d24df8b74457cdbafaf61321c91c6397049138e2ce22478868434014949a0b",
+    "backend/app/infrastructure/documents/verification_staging.py": "8326e233d637e2bd4c662d7308af9fda1a03d2272ab000dc7aadac1c2f0601de"
+  },
+  "source_frozen": true,
+  "output": "verification-receipt-after-tests.txt"
+}

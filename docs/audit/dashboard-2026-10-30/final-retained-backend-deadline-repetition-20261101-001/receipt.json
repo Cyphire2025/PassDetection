@@ -1,0 +1,23 @@
+{
+  "exit_code": 3,
+  "seconds": 23.984,
+  "same_guard_minimal_environment": true,
+  "coverage_isolated_no_merging": true,
+  "source_fence_exact_before_after": true,
+  "predeclared_invocations": 50,
+  "actual_call_outcomes": {},
+  "failed_phases": [],
+  "all_outcome_reports": 0,
+  "artifacts": {
+    "environment-guard-14888.json": "156a71e415a07a9df5a3d61314b2bceee06aa93fc9e94b94b615ce964e490edf",
+    "junit.xml": "0c05c4c83a1f464b49b8cc4b1bfe7ef26f867f8205018af7afd0d873e9a00ada",
+    "predeclared-profile.json": "b09e27af8d920f81b582d646f97421b573c2852347fd3503fda40d942592ab66",
+    "source-fence.json": "eb286986c046a4f1fa769bb0504d25b3222cff36943c3234e14a0a465b47e08c",
+    "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout.txt": "03a257a705fa5ff7c63d350ed1754487af4421789ea0b7ad626ce4a14a743fb9"
+  },
+  "limits": [
+    "Actual repeated pytest collection of unchanged source, not mirrored implementation or conditional retry.",
+    "Diagnostic-only coverage never replaces or merges with failed combined-run evidence."
+  ]
+}

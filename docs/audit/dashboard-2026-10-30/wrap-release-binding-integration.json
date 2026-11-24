@@ -1,0 +1,30 @@
+{
+  "exact_paths": 79,
+  "updated_after_paths": [
+    {
+      "path": "frontend/scripts/verify-whatsapp-recipient-bulk-browser.mjs",
+      "before_after_digest": "115e4f7f7ec0d16873d4e445d92fa6a2b061548579e3730ca469b6cd7da607de",
+      "current_after_digest": "0b54ce46b5bbbd1a013157bd3d58431e193f99cea760a62146b52f21865d2fdf",
+      "source_raw_sha256": "d206ccf7a614ad03ff721c88e76c4fc22b9d1cf2ef1ee6739609c16e29078c9d"
+    },
+    {
+      "path": "frontend/scripts/browser-verification-local-fixture.mjs",
+      "before_after_digest": "247b49a075c86a09f03b88e20284b66bafb8de9bf2deadabfa0ca7610ea2f727",
+      "current_after_digest": "7e7ecd76b8a48b67ceff46d2fac31e551da17dceab07457ef465e94ba51e8a9f",
+      "source_raw_sha256": "f3bea282961d8049ab83a90af8a471b74ea56c6b014942cb7758192b70d6dc70"
+    },
+    {
+      "path": "frontend/scripts/verify-whatsapp-composer-browser.mjs",
+      "before_after_digest": "3598dc4ce5f83f692e219b5fe08d732d38bcf5c3222392b0d0109fac4f6bf987",
+      "current_after_digest": "952a2b819dcdf220a1a8e1e72abc10748825229975e979be0e22fd3f5b9721ca",
+      "source_raw_sha256": "4c384a6b58e97a300bd035660114333be5e9a34c47c6ad875f2f3e31d7cf6f0a"
+    }
+  ],
+  "both_original_before_sets_unchanged": true,
+  "all_other_after_bindings_unchanged": true,
+  "before_manifest_sha256": "5525b42a9387da66b995c3788d3d81a40879f20822e1446cc431f51d129d96a7",
+  "after_manifest_sha256": "70bbd9c76b84ca534238284d5cc66173bace0ed2a55192a1fcfa77a427c52ca9",
+  "review_provenance": "message-pane-wrapping-reviewed-files.json",
+  "qualification_provenance": "message-pane-wrapping-verification.json, production build jmn7rIY1ck17GZ_tqrKAH,6composer+3history/recovery+4innerbounds cases. Parent final9critical journeys are separately owned.",
+  "limits": "Only reviewed current script digests changed. This is not qualification of clean committed source, real PostgreSQL/Redis/storage or VPS baseline/catalog state."
+}

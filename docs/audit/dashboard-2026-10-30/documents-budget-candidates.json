@@ -1,0 +1,72 @@
+[
+  {
+    "path": "features/documents/components/document-workspace.tsx",
+    "baselineLines": 20,
+    "maximumLines": 50,
+    "baselineMaxFunctionComplexity": 1,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/documents/components/document-workspace-bindings.tsx",
+    "baselineLines": 60,
+    "maximumLines": 75,
+    "baselineMaxFunctionComplexity": 1,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/documents/components/document-workspace-header.tsx",
+    "baselineLines": 57,
+    "maximumLines": 75,
+    "baselineMaxFunctionComplexity": 7,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/documents/components/document-workspace-upload.tsx",
+    "baselineLines": 104,
+    "maximumLines": 125,
+    "baselineMaxFunctionComplexity": 30,
+    "maximumFunctionComplexity": 32
+  },
+  {
+    "path": "features/documents/components/document-workspace-roster.tsx",
+    "baselineLines": 177,
+    "maximumLines": 200,
+    "baselineMaxFunctionComplexity": 15,
+    "maximumFunctionComplexity": 17
+  },
+  {
+    "path": "features/documents/components/document-workspace-actions.tsx",
+    "baselineLines": 156,
+    "maximumLines": 175,
+    "baselineMaxFunctionComplexity": 9,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/documents/hooks/use-document-workspace.ts",
+    "baselineLines": 55,
+    "maximumLines": 75,
+    "baselineMaxFunctionComplexity": 18,
+    "maximumFunctionComplexity": 20
+  },
+  {
+    "path": "features/documents/hooks/use-document-workspace-upload.ts",
+    "baselineLines": 250,
+    "maximumLines": 275,
+    "baselineMaxFunctionComplexity": 16,
+    "maximumFunctionComplexity": 18
+  },
+  {
+    "path": "features/documents/hooks/use-document-workspace-selection.ts",
+    "baselineLines": 89,
+    "maximumLines": 100,
+    "baselineMaxFunctionComplexity": 10,
+    "maximumFunctionComplexity": 12
+  },
+  {
+    "path": "features/documents/hooks/use-document-workspace-delivery.ts",
+    "baselineLines": 93,
+    "maximumLines": 125,
+    "baselineMaxFunctionComplexity": 9,
+    "maximumFunctionComplexity": 11
+  }
+]

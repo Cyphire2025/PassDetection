@@ -1,0 +1,18 @@
+{
+  "build_id": "-SsobzdWJpn6pla1bMQEw",
+  "original_runtime_sources": {
+    "frontend/features/branding/components/group-image-dialog.tsx": {
+      "preserved_before_sha256": "4e91f10b44c15da0703bd35086fd14ac133410290ebf52bde110e41dff42eddf",
+      "matches_historical_build_source_fence": true
+    },
+    "frontend/features/branding/components/group-banner.tsx": {
+      "preserved_before_sha256": "36d684b84fcb75c1dbb6b832041cdb592aadb561277c0e67ba175486f3d57b1f",
+      "matches_historical_build_source_fence": true
+    },
+    "frontend/features/branding/components/group-banner-action.tsx": {
+      "preserved_before_sha256": "2fc7d9110a8318bf70be8d25f3668cefc9e691eef837b27c38f106cad96d907d",
+      "matches_historical_build_source_fence": true
+    }
+  },
+  "limits": "Historical compiledsource baseline, not currentnewruntimequalification. No afterbuild claim fromoldartifact."
+}

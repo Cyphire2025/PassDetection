@@ -1,0 +1,40 @@
+F401 [*] `dataclasses.field` imported but unused
+ --> backend\app\domain\entities\passport_extraction.py:5:25
+  |
+3 | from __future__ import annotations
+4 |
+5 | from dataclasses import field
+  |                         ^^^^^
+6 |
+7 | from app.domain.entities.enums import PassportExtractionStatus, PassportProcessingStatus
+  |
+help: Remove unused import: `dataclasses.field`
+  |
+4 |
+  - from dataclasses import field
+5 |
+  |
+
+F811 Redefinition of unused `field` from line 5
+   --> backend\app\domain\entities\passport_extraction.py:110:17
+    |
+108 |         absent_fields = {
+109 |             field
+110 |             for field in (raw_absent_fields if isinstance(raw_absent_fields, list) else [])
+    |                 ^^^^^ `field` redefined here
+111 |             if field == "surname"
+112 |         }
+    |
+   ::: backend\app\domain\entities\passport_extraction.py:5:25
+    |
+  3 | from __future__ import annotations
+  4 |
+  5 | from dataclasses import field
+    |                         ----- previous definition of `field` here
+  6 |
+  7 | from app.domain.entities.enums import PassportExtractionStatus, PassportProcessingStatus
+    |
+help: Remove definition: `field`
+
+Found 2 errors.
+[*] 1 fixable with the `--fix` option.

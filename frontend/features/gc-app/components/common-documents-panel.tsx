@@ -1,13 +1,13 @@
 "use client";
 
-import { ArrowDown, ArrowUp, Eye, FileText, RefreshCw, Trash2, Upload } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
-import { Badge, Button, Card, CardContent, Input } from "@/components/ui";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Badge, Button, Card, CardContent } from "@/components/ui";
 import type { CommonDocumentUpload, GcCommonDocument, GcDocumentCategory } from "../types";
-import { formatGcDateTime, gcAppErrorMessage, gcPublicationState } from "../utils";
+import { gcAppErrorMessage } from "../utils";
 import { GcAlert } from "./gc-app-feedback";
 import { GcDialog } from "./gc-dialog";
-import { GcSelect } from "./gc-select";
+import { DocumentUploadForm } from "./common-document-upload-form";
+import { DocumentRows } from "./common-document-rows";
 
 const ITINERARY_CATEGORY: GcDocumentCategory = "itinerary_pdf";
 const OTHER_DOCUMENT_CATEGORIES: { value: GcDocumentCategory; label: string }[] = [
@@ -51,6 +51,12 @@ export function CommonDocumentsPanel({
   const [preview, setPreview] = useState<{ document: GcCommonDocument; url: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [now, setNow] = useState(() => Date.now());
+  const previewRequest = useRef({ mounted: false, generation: 0 });
+  useEffect(() => {
+    const request = previewRequest.current;
+    request.mounted = true;
+    return () => { request.mounted = false; request.generation += 1; };
+  }, []);
   const orderedDocuments = useMemo(
     () => [...documents].sort((a, b) => a.sort_order - b.sort_order || a.title.localeCompare(b.title)),
     [documents],
@@ -105,11 +111,15 @@ export function CommonDocumentsPanel({
   };
 
   const openPreview = async (document: GcCommonDocument) => {
+    const request = previewRequest.current;
+    const generation = ++request.generation;
     setError(null);
     try {
       const blob = await onPreview(document.id);
+      if (!request.mounted || generation !== request.generation) return;
       setPreview({ document, url: URL.createObjectURL(blob) });
     } catch (previewError) {
+      if (!request.mounted || generation !== request.generation) return;
       setError(gcAppErrorMessage(previewError, "The document preview could not be opened."));
     }
   };
@@ -224,7 +234,7 @@ export function CommonDocumentsPanel({
       <GcDialog
         open={Boolean(preview)}
         title={preview?.document.title ?? "Document preview"}
-        onClose={() => setPreview(null)}
+        onClose={() => { previewRequest.current.generation += 1; setPreview(null); }}
         size="full"
       >
         {preview && (
@@ -257,204 +267,6 @@ export function CommonDocumentsPanel({
         <p className="text-sm text-slate-600">Document history remains auditable. This action does not affect personal passenger documents.</p>
       </GcDialog>
     </fieldset>
-  );
-}
-
-function DocumentUploadForm({
-  id,
-  categories,
-  fixedCategory,
-  fixedTitle,
-  replaceDocument,
-  isUploading,
-  onUpload,
-  onComplete,
-  onError,
-}: {
-  id: string;
-  categories?: { value: GcDocumentCategory; label: string }[];
-  fixedCategory?: GcDocumentCategory;
-  fixedTitle?: string;
-  replaceDocument: GcCommonDocument | null;
-  isUploading: boolean;
-  onUpload: (upload: CommonDocumentUpload) => Promise<void>;
-  onComplete: () => void;
-  onError: (message: string | null) => void;
-}) {
-  const [file, setFile] = useState<File | null>(null);
-  const [title, setTitle] = useState(replaceDocument?.title ?? fixedTitle ?? "");
-  const [category, setCategory] = useState<GcDocumentCategory>(
-    fixedCategory ?? replaceDocument?.category ?? categories?.[0]?.value ?? "other",
-  );
-  const [fileInputKey, setFileInputKey] = useState(0);
-  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
-
-  const upload = async () => {
-    onError(null);
-    const normalizedTitle = (fixedTitle ?? title).trim();
-    if (!file || !normalizedTitle) {
-      onError("Choose a PDF and enter a document title.");
-      return;
-    }
-    if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
-      onError("Only PDF common documents are accepted.");
-      return;
-    }
-    if (file.size > 25 * 1024 * 1024) {
-      onError("The PDF exceeds the 25 MB dashboard upload limit.");
-      return;
-    }
-    try {
-      setUploadProgress(0);
-      await onUpload({
-        file,
-        title: normalizedTitle,
-        category: fixedCategory ?? category,
-        replace_document_id: replaceDocument?.id,
-        onProgress: setUploadProgress,
-      });
-      setFile(null);
-      setFileInputKey((value) => value + 1);
-      if (!fixedTitle) setTitle("");
-      onComplete();
-    } catch (uploadError) {
-      onError(gcAppErrorMessage(uploadError, "The common document could not be uploaded."));
-    } finally {
-      setUploadProgress(null);
-    }
-  };
-
-  return (
-    <div id={id} className="scroll-mt-24 space-y-4 rounded-xl border border-slate-200 bg-slate-50/60 p-4">
-      <div>
-        <h4 className="font-semibold text-slate-900">{replaceDocument ? `Upload a new version of ${replaceDocument.title}` : fixedTitle ? `Upload ${fixedTitle} PDF` : "Upload common document"}</h4>
-        <p className="mt-1 text-xs text-slate-500">The file remains a draft until you publish it.</p>
-      </div>
-      <div className="grid gap-4 md:grid-cols-2">
-        {fixedTitle ? (
-          <div className="flex flex-col gap-1.5">
-            <span className="text-sm font-medium text-slate-700">Document title</span>
-            <span className="flex h-9 items-center rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-800">{fixedTitle}</span>
-          </div>
-        ) : (
-          <Input label="Document title" value={title} onChange={(event) => setTitle(event.target.value)} required />
-        )}
-        {fixedCategory ? (
-          <div className="flex flex-col gap-1.5">
-            <span className="text-sm font-medium text-slate-700">Category</span>
-            <span className="flex h-9 items-center rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-800">Itinerary PDF</span>
-          </div>
-        ) : (
-          <GcSelect
-            id={`${id}-category`}
-            label="Category"
-            value={category}
-            options={categories ?? []}
-            onChange={(nextCategory) => setCategory(nextCategory as GcDocumentCategory)}
-          />
-        )}
-      </div>
-      <label className="relative flex min-h-24 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-xl border border-dashed border-slate-300 bg-white px-4 py-5 text-center hover:border-blue-400 hover:bg-blue-50/40 focus-within:ring-2 focus-within:ring-blue-600">
-        <Upload className="h-5 w-5 text-slate-400" aria-hidden="true" />
-        <span className="mt-2 text-sm font-medium text-slate-700">{file ? file.name : "Choose PDF"}</span>
-        <span className="mt-1 text-xs text-slate-500">PDF only, up to 25 MB</span>
-        <input
-          key={fileInputKey}
-          type="file"
-          accept="application/pdf,.pdf"
-          className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-          onChange={(event) => {
-            const nextFile = event.target.files?.[0] ?? null;
-            setFile(nextFile);
-            if (nextFile && !fixedTitle && !title) setTitle(nextFile.name.replace(/\.pdf$/i, ""));
-          }}
-        />
-      </label>
-      {isUploading && uploadProgress !== null ? (
-        <div
-          className="space-y-2 rounded-xl border border-blue-100 bg-blue-50/70 p-3"
-          role="progressbar"
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={uploadProgress}
-          aria-label="Document upload progress"
-        >
-          <div className="flex items-center justify-between gap-3 text-xs font-medium text-blue-900">
-            <span>{uploadProgress < 100 ? "Uploading PDF" : "Upload complete — checking and saving PDF"}</span>
-            <span>{uploadProgress}%</span>
-          </div>
-          <div className="h-1.5 overflow-hidden rounded-full bg-blue-100">
-            <div
-              className="h-full rounded-full bg-blue-600 transition-[width] duration-200 ease-out"
-              style={{ width: `${uploadProgress}%` }}
-            />
-          </div>
-        </div>
-      ) : null}
-      <div className="flex justify-end">
-        <Button type="button" isLoading={isUploading} onClick={() => void upload()}>
-          {isUploading && uploadProgress !== null
-            ? uploadProgress < 100 ? `Uploading ${uploadProgress}%` : "Checking PDF"
-            : replaceDocument ? "Upload replacement as draft" : "Upload as draft"}
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-function DocumentRows({
-  now,
-  documents,
-  emptyMessage,
-  isUpdating,
-  previewingDocumentId,
-  onPreview,
-  onMove,
-  onReplace,
-  onSetPublished,
-  onDelete,
-}: {
-  now: number;
-  documents: GcCommonDocument[];
-  emptyMessage: string;
-  isUpdating: boolean;
-  previewingDocumentId: string | null;
-  onPreview: (document: GcCommonDocument) => Promise<void>;
-  onMove: (index: number, direction: -1 | 1) => Promise<void>;
-  onReplace: (document: GcCommonDocument) => void;
-  onSetPublished: (documentId: string, published: boolean) => Promise<void>;
-  onDelete: (document: GcCommonDocument) => void;
-}) {
-  if (documents.length === 0) {
-    return <p className="rounded-xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500">{emptyMessage}</p>;
-  }
-
-  return (
-    <div className="space-y-3">
-      {documents.map((document, index) => (
-        <div key={document.id} className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-4 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex min-w-0 items-start gap-3">
-            <span className="rounded-lg bg-blue-50 p-2 text-blue-700"><FileText className="h-5 w-5" aria-hidden="true" /></span>
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2">
-                <p className="truncate font-medium text-slate-900">{document.title}</p>
-                <Badge variant={gcPublicationState(document, now).variant}>{gcPublicationState(document, now).label}</Badge>
-                <Badge variant="default">v{document.version}</Badge>
-              </div>
-              <p className="mt-1 truncate text-xs text-slate-500">{document.filename} · Updated {formatGcDateTime(document.updated_at)}</p>
-            </div>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Button type="button" variant="secondary" size="sm" leftIcon={<Eye className="h-4 w-4" aria-hidden="true" />} isLoading={previewingDocumentId === document.id} onClick={() => void onPreview(document)}>Preview</Button>
-            <Button type="button" variant="ghost" size="icon" aria-label={`Move ${document.title} up`} disabled={isUpdating || index === 0} onClick={() => void onMove(index, -1)}><ArrowUp className="h-4 w-4" /></Button>
-            <Button type="button" variant="ghost" size="icon" aria-label={`Move ${document.title} down`} disabled={isUpdating || index === documents.length - 1} onClick={() => void onMove(index, 1)}><ArrowDown className="h-4 w-4" /></Button>
-            <Button type="button" variant="secondary" size="sm" leftIcon={<RefreshCw className="h-4 w-4" />} onClick={() => onReplace(document)}>Replace</Button>
-            <Button type="button" variant="secondary" size="sm" isLoading={isUpdating} onClick={() => void onSetPublished(document.id, !document.is_published)}>{document.is_published ? "Unpublish" : "Publish"}</Button>
-            <Button type="button" variant="ghost" size="icon" className="text-red-600 hover:bg-red-50" aria-label={`Delete ${document.title}`} disabled={isUpdating} onClick={() => onDelete(document)}><Trash2 className="h-4 w-4" /></Button>
-          </div>
-        </div>
-      ))}
-    </div>
   );
 }
 

@@ -1,0 +1,117 @@
+{
+  "basis": "Post separately reproduced dual-lease expiry fix, before architecture extraction. This does not claim equivalence with original faulty worker.",
+  "basis_sha256": "6623fa9a906ed3fbc61d58f8c4e4868a647511131a3094919b739309766bde7a",
+  "exact_declarations_after_explicit_factory_context_normalization": 15,
+  "public_dispatch_whole_function_ast_exact": true,
+  "private_compatibility_wrapper_signatures_and_all_arguments_exact": 4,
+  "legacy_class_alias_module_hints_pickle": true,
+  "typed_context": "One immutable session factory, resolved from original facade at each helper invocation exactly as the original helper global lookup; no callback bag/circular lookup.",
+  "original_tests_whole_ast_exact_after_only2_actual_audit_owner_target_relocations": true,
+  "test_target_relocations": [
+    "app.infrastructure.my_photos.search_job_claims._audit_search",
+    "app.infrastructure.my_photos.search_job_publication._audit_search"
+  ],
+  "separate_lease_fix": "Every original whole-module AST node outside _locked_claim_rows remains exact. Shared helper adds current expiry predicates for both durable rows and rechecks both after locks;5 actual failing/10control cases before,27 affected cases pass after fix and again after extraction.",
+  "declarations": [
+    {
+      "name": "WorkerState",
+      "owner": "backend/app/infrastructure/my_photos/search_job_contracts.py",
+      "context_parameter": false,
+      "exact_after_explicit_factory_context_normalization": true
+    },
+    {
+      "name": "SearchJobExecutionResult",
+      "owner": "backend/app/infrastructure/my_photos/search_job_contracts.py",
+      "context_parameter": false,
+      "exact_after_explicit_factory_context_normalization": true
+    },
+    {
+      "name": "_SearchClaim",
+      "owner": "backend/app/infrastructure/my_photos/search_job_contracts.py",
+      "context_parameter": false,
+      "exact_after_explicit_factory_context_normalization": true
+    },
+    {
+      "name": "_validated_provider_result",
+      "owner": "backend/app/infrastructure/my_photos/search_job_policy.py",
+      "context_parameter": false,
+      "exact_after_explicit_factory_context_normalization": true
+    },
+    {
+      "name": "_retry_delay",
+      "owner": "backend/app/infrastructure/my_photos/search_job_policy.py",
+      "context_parameter": false,
+      "exact_after_explicit_factory_context_normalization": true
+    },
+    {
+      "name": "_stable_error_code",
+      "owner": "backend/app/infrastructure/my_photos/search_job_policy.py",
+      "context_parameter": false,
+      "exact_after_explicit_factory_context_normalization": true
+    },
+    {
+      "name": "_gallery_window_closed",
+      "owner": "backend/app/infrastructure/my_photos/search_job_policy.py",
+      "context_parameter": false,
+      "exact_after_explicit_factory_context_normalization": true
+    },
+    {
+      "name": "_utc",
+      "owner": "backend/app/infrastructure/my_photos/search_job_policy.py",
+      "context_parameter": false,
+      "exact_after_explicit_factory_context_normalization": true
+    },
+    {
+      "name": "_locked_claim_rows",
+      "owner": "backend/app/infrastructure/my_photos/search_job_queries.py",
+      "context_parameter": false,
+      "exact_after_explicit_factory_context_normalization": true
+    },
+    {
+      "name": "_retry_or_fail",
+      "owner": "backend/app/infrastructure/my_photos/search_job_lifecycle.py",
+      "context_parameter": true,
+      "exact_after_explicit_factory_context_normalization": true
+    },
+    {
+      "name": "_terminal_claim_failure",
+      "owner": "backend/app/infrastructure/my_photos/search_job_lifecycle.py",
+      "context_parameter": true,
+      "exact_after_explicit_factory_context_normalization": true
+    },
+    {
+      "name": "_mark_terminal_failure",
+      "owner": "backend/app/infrastructure/my_photos/search_job_lifecycle.py",
+      "context_parameter": false,
+      "exact_after_explicit_factory_context_normalization": true
+    },
+    {
+      "name": "_audit_search",
+      "owner": "backend/app/infrastructure/my_photos/search_job_lifecycle.py",
+      "context_parameter": false,
+      "exact_after_explicit_factory_context_normalization": true
+    },
+    {
+      "name": "_claim_search",
+      "owner": "backend/app/infrastructure/my_photos/search_job_claims.py",
+      "context_parameter": true,
+      "exact_after_explicit_factory_context_normalization": true
+    },
+    {
+      "name": "_finalize_search",
+      "owner": "backend/app/infrastructure/my_photos/search_job_publication.py",
+      "context_parameter": true,
+      "exact_after_explicit_factory_context_normalization": true
+    }
+  ],
+  "source_sha256": {
+    "backend/app/infrastructure/my_photos/worker_runtime.py": "fbaee6ad22a5e0fb054639eed785e6383affcbdef89ef867b0e63500d73e8931",
+    "backend/app/infrastructure/my_photos/search_job_claims.py": "0f63c60008a03187b1d71626d9b68108c16c7c5b40ddd9114c28df9464bab354",
+    "backend/app/infrastructure/my_photos/search_job_contracts.py": "483e287f85fe760f4d8ac86710d0b87a238e77cc9e1f420346a30a129a47b3a1",
+    "backend/app/infrastructure/my_photos/search_job_lifecycle.py": "f2bb24c594528790694ec8f0c86ed8c9f3c695b1c5436fdc4a19bb3de48dcb3e",
+    "backend/app/infrastructure/my_photos/search_job_policy.py": "1c94ba6a6f7c7202fb1194943e2965e18c904ecee08b0147e0bee3f4747aa755",
+    "backend/app/infrastructure/my_photos/search_job_publication.py": "99099cdc1e26452fc2e71305e48804a37ae2c3780308b13fcc62eea500c53398",
+    "backend/app/infrastructure/my_photos/search_job_queries.py": "353bee1088cf89f7362a2a65222625392926f62f7ded19e0c4cd776d8ed9c1d5"
+  },
+  "limits": "Structural/annotation and scoped synthetic behavior evidence only; no service/PostgreSQL/provider or VPS qualification."
+}

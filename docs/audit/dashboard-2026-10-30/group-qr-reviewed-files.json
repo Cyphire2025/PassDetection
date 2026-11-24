@@ -1,0 +1,203 @@
+{
+  "method": "Full original/current physical source reads/authored source. One combined tool output was truncated; the entire affected view/header/card group was reread independently before full scope was recorded. Static/compiler/rendered evidence is qualified separately.",
+  "files": [
+    {
+      "path": "frontend/features/operations/components/tour-group-qr-codes-page.tsx",
+      "sha256": "a3a4fcc1f8c248760f62f14ecd4056f3f04d538061bcbb145e9588ae6e93e366",
+      "physical_lines": 11,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full original899line/current entry source read. Both public exports/signatures retained via page/controller/view and dialog compatibility reexport."
+    },
+    {
+      "path": "frontend/features/operations/hooks/use-group-qr-codes-controller.ts",
+      "sha256": "3e33f3cb6ab8a6ee76493ab4b37211206df457da20d4f6c4216c855d4f901724",
+      "physical_lines": 119,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full current source read; original scoped filters/deferred query, visible-payload projection, delivery selection/message defaults and summary state remain. Image and passenger actions now have focused lifetime owners."
+    },
+    {
+      "path": "frontend/features/operations/hooks/use-group-qr-images.ts",
+      "sha256": "1f9e88f0188363849cf89ec4872b57d2c500e6ed60f38c873925c4984671a88e",
+      "physical_lines": 124,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full current image/cache/progressive RAF/print owner read; original four states and two whole effect callbacks exact. Three added dependency entries are the original stable React setters passed directly by sole caller. Cache is per component; no token persistence."
+    },
+    {
+      "path": "frontend/features/operations/hooks/use-passenger-qr-actions.ts",
+      "sha256": "b6dfe0afe3f9c3ab6b6f77f6df24e96319d5c81fec8bf6efaa391811c3dd1eaa",
+      "physical_lines": 73,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full authored/current source read. Synchronous per-row ref locks block pre-commit duplicates; immutable pending membership keeps parallel rows pending independently. Original confirmations, per-action private mutation calls/payload publication/removal and error text retained; only own lock released in finally."
+    },
+    {
+      "path": "frontend/features/operations/components/group-qr-model.ts",
+      "sha256": "084f9bc2e5c886bff973b5709e442f0c7e2e2315f526869df1d27b9e84bc272d",
+      "physical_lines": 3,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full current shared local type/48-card constant source read; original three declarations exact except required internal exports."
+    },
+    {
+      "path": "frontend/features/operations/components/group-qr-codes-view.tsx",
+      "sha256": "de42dd8d5a702267cf995c77959065246e70456286326f14fcab421acb53fb48",
+      "physical_lines": 233,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full current source read; all original print-card/filter/delivery handlers remain, with intentional per-row pending membership and honest unavailable-roster projection. Original full JSX movement proof retained separately from these deliberate fixes."
+    },
+    {
+      "path": "frontend/features/operations/components/group-qr-page-header.tsx",
+      "sha256": "4e67ace54d545c6533e54c313a11c9c5074fb4f3c0869bc30d2d13416703da43",
+      "physical_lines": 94,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full current source read; original header/activity/summary trees moved, public print/send actions preserved. Unknown counts use em dashes, unavailable text and neutral tones; successful empty/stale-data paths retained."
+    },
+    {
+      "path": "frontend/features/operations/components/passenger-qr-card.tsx",
+      "sha256": "6621bc0c6929149026dbb52979c2b84a2e331e03dd96c2fd172be7a30de8e585",
+      "physical_lines": 100,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full original/current whole typed component source read, body/props/JSX exact. React text/alt interpolation, encoded QR image and existing lifecycle controls retained."
+    },
+    {
+      "path": "frontend/features/operations/components/qr-delivery-preview-dialog.tsx",
+      "sha256": "39a5593600fc4c7fe2201e3249bd3b242028073d60adb0aad81ac9825fea0e96",
+      "physical_lines": 270,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full original/current source read; unchanged props/keyboard/modal/busy/capability/message/recipient gates. One Set indexes membership without changing selected array order/duplicates; message text remains literal and whitespace-preserved with measured overflow-wrap fix."
+    },
+    {
+      "path": "frontend/features/operations/components/qr-delivery-status.tsx",
+      "sha256": "4a26a4748eb1888a6d0e5a0553eed610494eae604080b51c72d1d578ac208b0d",
+      "physical_lines": 37,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full original/current typed summary/status components read; complete bodies exact except required internal exports."
+    },
+    {
+      "path": "frontend/features/operations/components/qr-status.ts",
+      "sha256": "aebff76e6b33e1d54aee081b5391a7114b5f9227da22df4d34b90f2e137cc57a",
+      "physical_lines": 10,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full original/current pure label/status variant helpers read; exact original body/type semantics."
+    },
+    {
+      "path": "frontend/features/operations/components/group-qr-source.contract-helper.mjs",
+      "sha256": "1c153174c259fd887a789f279ac9c53e87be6980025e135556c6a82d5706c358",
+      "physical_lines": 50,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full authored/read helper follows the actual entry/controller/image/action/view/header/card/dialog/status/model graph. No historical source injection; original source assertions remain active."
+    },
+    {
+      "path": "frontend/features/operations/components/tour-group-qr-codes-page.test.tsx",
+      "sha256": "a13a5329d477b726666cac882de8c2f547403b3ba7b8a97838cf72210daba7a2",
+      "physical_lines": 196,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full authored/current rendered regressions read: bounded selection work, literal message/eligibility/busy gates, unavailable/empty/stale-data, print readiness/failure/filtering/unmount, send activity and per-row duplicate/concurrency/retry controls. Hooks/network and QR renderer synthetic at stated boundaries."
+    },
+    {
+      "path": "frontend/features/operations/components/qr-delivery-preview-workflow.test.tsx",
+      "sha256": "f06a2983ffdc941d90bc7ff3c14bd4e2b28852561332e20cd325a69f872fe204",
+      "physical_lines": 83,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full authored/current rendered regressions read: bounded selection work, literal message/eligibility/busy gates, unavailable/empty/stale-data, print readiness/failure/filtering/unmount, send activity and per-row duplicate/concurrency/retry controls. Hooks/network and QR renderer synthetic at stated boundaries."
+    },
+    {
+      "path": "frontend/features/operations/components/qr-whatsapp-delivery.contract.test.mjs",
+      "sha256": "847ebd999ed1a232b26c7c2c37f63403b5e8df22c0b56c2794ae76da9461fbe9",
+      "physical_lines": 35,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full original/current Node test read; actual wired source-loader/import only changed and all current test bodies/assertions retained. Direct rasterizer behavior tests execute unchanged real service logic."
+    },
+    {
+      "path": "frontend/features/operations/components/operations-ui-transformation.contract.test.mjs",
+      "sha256": "0bc39aa572e3ee911f823f62dfffd9aabe6a41b2b0cc97af12c28a235c8058ed",
+      "physical_lines": 92,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full original/current Node test read; actual wired source-loader/import only changed and all current test bodies/assertions retained. Direct rasterizer behavior tests execute unchanged real service logic."
+    },
+    {
+      "path": "frontend/features/operations/services/qr-image-generation.test.mjs",
+      "sha256": "67b20af40a04612f32d9b0420c56e76ef645cbd8a836d86c42f200e12691380a",
+      "physical_lines": 147,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full original/current Node test read; actual wired source-loader/import only changed and all current test bodies/assertions retained. Direct rasterizer behavior tests execute unchanged real service logic."
+    },
+    {
+      "path": "frontend/features/operations/components/qr-delivery-preview-dialog.test.tsx",
+      "sha256": "ccf93d656eca3efb8f1c18602472eac769e979c2645e87c20d19228f757a109f",
+      "physical_lines": 46,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full original/current unchanged keyboard isolation, external-focus containment, trigger restoration and pending Escape gates read; both cases execute in final affected suite."
+    },
+    {
+      "path": "frontend/features/operations/services/qr-image-generation.ts",
+      "sha256": "1364384a05e730952c770ca809aecde5b4e06ba4a3662e7ddb5a406af51d725f",
+      "physical_lines": 165,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full current worker/cache/lazy library source read. Four-worker default across overlapping generations, stable order/progressive callbacks, aborted publication and exact unchanged-payload cache reuse remain; service bytes unchanged. No full vendor source audit inferred."
+    },
+    {
+      "path": "frontend/app/(dashboard)/tour-operations/groups/[groupId]/qr-codes/page.tsx",
+      "sha256": "50239c2db55a02df7049ddd8f2b17485fb09d15491bf002fa9b252a58d0a847c",
+      "physical_lines": 15,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full actual route wrapper source read; original asyncgroupId resolution/metadata/page invocation unchanged."
+    },
+    {
+      "path": "frontend/app/(dashboard)/layout.tsx",
+      "sha256": "1c9895386110183bd072d21cb4f063e20e973d44e3b9d02baab67a889517db72",
+      "physical_lines": 25,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full actual immediate dashboard authority/capability/provider caller source read; unchanged AuthenticatedContent key-remount and page placement retained."
+    },
+    {
+      "path": "frontend/components/layout/dashboard-shell.tsx",
+      "sha256": "8cfa5c19d281fa54d29d7fbafef936919cd1ad994a25a87a96673ad91f59385e",
+      "physical_lines": 63,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full immediate shell source read; no transformed fixed-dialog containing block observed in this actual wrapper. This source trace does not replace whole production responsive/browser qualification."
+    }
+  ]
+}

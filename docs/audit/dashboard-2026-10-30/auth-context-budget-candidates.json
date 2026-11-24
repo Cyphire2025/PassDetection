@@ -1,0 +1,9 @@
+[
+  {
+    "path": "features/auth/services/authentication-context.ts",
+    "baselineLines": 36,
+    "maximumLines": 45,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 7
+  }
+]

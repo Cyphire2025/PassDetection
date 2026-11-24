@@ -1,0 +1,183 @@
+{
+  "status": "source frozen; actual shared ZIP and dashboard worksheet resource corrections focused-qualified",
+  "runtime_changed": {
+    "backend/app/core/zip_directory_admission.py": "b15f7007473b7f2f895a1f9fcf4a883c51252d54d0ba41be8e45cc9d268cef21",
+    "backend/app/infrastructure/imports/passport_zip_admission.py": "bd6d3a73be7fc1a82ca612b7b2403ef370982a41a260a9feba053e243541d3bd",
+    "backend/app/application/use_cases/whatsapp/spreadsheet_values.py": "2a2680e0e53d7388f6bd0fff4ef263936ae71c9c97b91d83c18841a6d681f275",
+    "backend/app/presentation/api/v1/routes/whatsapp_contact_import.py": "b0ba7bf421b699533d4557eb94e3b994c151655bf519bb3d2f73f55002be0cd5"
+  },
+  "source_fence": {
+    "backend/app/core/zip_directory_admission.py": "b15f7007473b7f2f895a1f9fcf4a883c51252d54d0ba41be8e45cc9d268cef21",
+    "backend/app/infrastructure/imports/passport_zip_admission.py": "bd6d3a73be7fc1a82ca612b7b2403ef370982a41a260a9feba053e243541d3bd",
+    "backend/app/application/use_cases/whatsapp/spreadsheet_values.py": "2a2680e0e53d7388f6bd0fff4ef263936ae71c9c97b91d83c18841a6d681f275",
+    "backend/app/presentation/api/v1/routes/whatsapp_contact_import.py": "b0ba7bf421b699533d4557eb94e3b994c151655bf519bb3d2f73f55002be0cd5",
+    "backend/app/infrastructure/imports/passport_zip_reader.py": "8c5d054b922a9f3878ba1ded3b7971a873286b36a3cf84356fe2cb9c366d88ea",
+    "backend/app/infrastructure/imports/passport_document_importer.py": "1431aac22fdf7d255516c02f34d1f6ad8102ca083668a5f609bc9b74b7c65d92",
+    "backend/app/infrastructure/imports/passport_zip_members.py": "88ef17047879d07ae2720d99dee680b4744c49d68baf59e7de33821ce6e3628c",
+    "backend/app/infrastructure/imports/passport_document_streams.py": "6ab71940f43d46edff2ece4e5c80706428ab087702e99f65eff5f2f3ed6a4caf",
+    "backend/app/infrastructure/imports/passport_document_workspace.py": "78260b471bcc10d9edd1ed44b06dc732e5468802ea723ca8891964c12add98f7",
+    "backend/app/infrastructure/security/contact_spreadsheet_security.py": "731d5489216a25e4688f042e8c9c0695d50bc36e297a795ea546c742af23b167",
+    "backend/app/presentation/api/v1/routes/whatsapp_actor_credentials.py": "0e82cb8ba583b039c8d85c1ab6b3a835532360a14a7c035e63bd7454f9f4e69f",
+    "backend/app/presentation/api/v1/routes/whatsapp_scope.py": "fb1f5adf2ca2f924c57da9efbeb057ad013c4af1f2fc37704ac0883879b9da4c",
+    "backend/app/presentation/api/v1/routes/whatsapp_contact_values.py": "3a6c521cbd30e24af2492d3807d398b61c028ec305b5f66368b84e427da713a3",
+    "backend/app/presentation/api/v1/routes/whatsapp_creation.py": "80d28f482839d06f304973b37242e3c7ba60e0b50ee3db994d67fed5da8522eb",
+    "backend/app/presentation/api/v1/routes/whatsapp_recipient_additions.py": "278d992f0ac8343d4754aba07fd93c7412f5ff9003c8333d5aa42784b80800f4",
+    "backend/tests/unit/presentation/test_whatsapp_workbook_resource_admission.py": "809a94a0f35934ed0cb116d2607a730c4748db8587165425faf95a99edcffa56",
+    "backend/tests/unit/infrastructure/test_passport_zip_member_admission.py": "a0975f2180c69445f3e167808192a304d8028b8b4d507717ba2af6a4fad1b3e4",
+    "backend/tests/unit/infrastructure/test_passport_document_import_policies.py": "8da8e50b0ba9a1879d6be35c0e40329ca4825caa7796de2387f45e5c07ea8247",
+    "backend/tests/unit/infrastructure/test_passport_document_import_staging.py": "c221d9bfba0d176b12c7812ff42c9dd46d2ac40219edf25400761677e91f845f",
+    "backend/tests/unit/presentation/test_whatsapp_delivery_ledger.py": "c0b534ee0e5a15b1aca8587c31ef45d4bbd8a0dd3d7ed1249b83023331732ac5",
+    "backend/tests/unit/presentation/test_whatsapp_recipient_capacity.py": "d219e684df5548dcfe9b8e8819ba6b76226b41f46869bef60ad30e3149d53507",
+    "backend/tests/integration/test_mcp_contact_imports.py": "0fafeb285a48dfa284eca079a20890f20ad8075611636b80d319d954f2bc9be9"
+  },
+  "source_fence_count": 22,
+  "full_current_files": 10,
+  "full_current_physical_lines": 1473,
+  "before": {
+    "actual_new_regressions": "9failed/8healthy controls over actual current parser, <=5MiB10000entry package, metadata forgery, actual64row XML/dimensions, ordinary wide/header/name/source fixtures",
+    "initial_actual_source_probe": "10000ZipInfo objects before2000memberHTTP400; forged5031byte64row dimension1048576tuple slots vs128healthy, same complete result"
+  },
+  "after": {
+    "unique_affected_cases": 99,
+    "test_files": 7,
+    "new_cases": 17,
+    "seconds": 67.25,
+    "normal_original_source_complete_result_and_preview_JSON_parities": 15,
+    "actual_work_counters": {
+      "archive_payload_bytes": 1117802,
+      "existing_WA_quota": 2000,
+      "before_actual_ZipInfo_constructions": 10000,
+      "after_actual_ZipInfo_constructions": 0,
+      "forged64row_actual_tuple_slots": {
+        "before": {
+          "tuple_slots": 1048576,
+          "rows": 64,
+          "max_width": 16384
+        },
+        "after": {
+          "tuple_slots": 4,
+          "rows": 64,
+          "max_width": 2
+        }
+      }
+    },
+    "strict_sources": 4,
+    "Ruff_paths": 5,
+    "measurements": [
+      {
+        "path": "app/core/zip_directory_admission.py",
+        "source_sha256": "b15f7007473b7f2f895a1f9fcf4a883c51252d54d0ba41be8e45cc9d268cef21",
+        "lines": 65,
+        "complexity": 13,
+        "line_percent": 95.65217391304348,
+        "covered_statements": 44,
+        "statements": 46,
+        "branch_percent": 88.88888888888889,
+        "covered_branches": 16,
+        "branch_sites": 18
+      },
+      {
+        "path": "app/infrastructure/imports/passport_zip_admission.py",
+        "source_sha256": "bd6d3a73be7fc1a82ca612b7b2403ef370982a41a260a9feba053e243541d3bd",
+        "lines": 53,
+        "complexity": 2,
+        "line_percent": 100.0,
+        "covered_statements": 20,
+        "statements": 20,
+        "branch_percent": null,
+        "covered_branches": 0,
+        "branch_sites": 0
+      },
+      {
+        "path": "app/application/use_cases/whatsapp/spreadsheet_values.py",
+        "source_sha256": "2a2680e0e53d7388f6bd0fff4ef263936ae71c9c97b91d83c18841a6d681f275",
+        "lines": 61,
+        "complexity": 9,
+        "line_percent": 83.87096774193549,
+        "covered_statements": 26,
+        "statements": 31,
+        "branch_percent": 62.5,
+        "covered_branches": 10,
+        "branch_sites": 16
+      },
+      {
+        "path": "app/presentation/api/v1/routes/whatsapp_contact_import.py",
+        "source_sha256": "b0ba7bf421b699533d4557eb94e3b994c151655bf519bb3d2f73f55002be0cd5",
+        "lines": 424,
+        "complexity": 35,
+        "line_percent": 94.63087248322148,
+        "covered_statements": 141,
+        "statements": 149,
+        "branch_percent": 85.71428571428571,
+        "covered_branches": 48,
+        "branch_sites": 56
+      }
+    ]
+  },
+  "source_proof": {
+    "path": "whatsapp-workbook-resource-source-proof.json",
+    "sha256": "c92075e902cd090feaae7121a6a2e189ffcfef99d49cebda954ea20a2a2b4001"
+  },
+  "normal_candidates": [
+    {
+      "path": "app/core/zip_directory_admission.py",
+      "source_sha256": "b15f7007473b7f2f895a1f9fcf4a883c51252d54d0ba41be8e45cc9d268cef21",
+      "previous": null,
+      "baseline_lines": 65,
+      "maximum_lines": 70,
+      "baseline_max_function_complexity": 13,
+      "maximum_function_complexity": 13,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/application/use_cases/whatsapp/spreadsheet_values.py",
+      "source_sha256": "2a2680e0e53d7388f6bd0fff4ef263936ae71c9c97b91d83c18841a6d681f275",
+      "previous": null,
+      "baseline_lines": 61,
+      "maximum_lines": 70,
+      "baseline_max_function_complexity": 9,
+      "maximum_function_complexity": 9,
+      "minimum_coverage_percent": 80
+    }
+  ],
+  "critical_candidates": [
+    {
+      "path": "app/core/zip_directory_admission.py",
+      "source_sha256": "b15f7007473b7f2f895a1f9fcf4a883c51252d54d0ba41be8e45cc9d268cef21",
+      "minimum_line_percent": 90,
+      "minimum_branch_percent": 80
+    }
+  ],
+  "all_existing_gates_preserved": true,
+  "early_checks": "Initial35new+passport cases passed before final99; not summed. One scoped Ruff import-order error repaired before final99. Two initial proof assertions compared regenerated FastAPI dependency instances/address reprs; final comparator checks dependency code/closure, cache/scope and public parameter metadata, with full original default-expression AST inverse. No runtime/test policy changed to satisfy proof.",
+  "read_limits": "New10full records are actual read scope. Other99case selection/executed imports and22path sourcefence are not additional full source-review claims. Earlier importer/passport/WA authority receipts remain historical as only this separate helper/parser family changes.",
+  "limits": [
+    "Real parser allocation/value-slot counts only; no whole-process RSS/throughput/latency/production concurrency claim",
+    "Single pinned CPython3.11 private footer seam moved unchanged; no new interpreter support claimed",
+    "Understated dimension loss is deliberately corrected against authoritative actual XML cells; normal actual data/JSON parity and actual wide columns preserved",
+    "Original public passport exception type/message/class and cursor function exact; generic inner cause and private checker implementation change explicitly documented",
+    "Original quota/postarchive/encryption/nestedname/localheader/image validation source and policy unchanged",
+    "New neutral engine90L80B follows inherited actual behavior; old wrapper branchless after extraction is not standalone branch qualification",
+    "No broad app suite/build/browser/provider/VPS/deploy or currentMCPmatrix claim;1990historical, Inbox deferred"
+  ],
+  "artifacts": {
+    "whatsapp-workbook-resource-proposal.json": "231f666eef3feb55803a56abff7bafaef14ff93ebc173f44d34e7667249c448b",
+    "whatsapp-workbook-resource-probe.json": "a00d3b73f29b7ed502046ed6ddcd2729116edeb9a43cde07e6445abce2d7a0a4",
+    "whatsapp-workbook-resource-original-sources.json": "d24fed1d1ee5ea9f4d581b8244d4b9632878ed57173558d869428677fa474e1c",
+    "whatsapp-workbook-resource-before-tests.txt": "0c3d06aecca84e3b69f06283d84a92560ed6c5f4f298d711ee572f44ae549f18",
+    "whatsapp-workbook-resource-affected-tests.txt": "aef995d59a6cf12c2716c7258c1101ff8ba6b5450496de1bbb7d44f2e2459d50",
+    "whatsapp-workbook-resource-command.json": "780f8c6a99e4d338e0d727957074f8cd4a6f6e6993f57681c5a2d582c29d004c",
+    "whatsapp-workbook-resource-coverage.json": "7d3858b41539793a81a246ab91750869d2feb0b85636f484f08dca45427598be",
+    "whatsapp-workbook-resource-coverage.xml": "bfe9ee116309d13b003f30820402c22d48beff37f82524a44e39c579b38317dc",
+    "whatsapp-workbook-resource-junit.xml": "7b25cae993a4022f10d4542aadbb4e6108f99abe62ab3ae5f4c502a096ab8b58",
+    "whatsapp-workbook-resource-types.txt": "d9a5631f7d87a741fbecc3236286d1792d22d349ff13846d71cdc9217307bb76",
+    "whatsapp-workbook-resource-lint.txt": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0",
+    "whatsapp-workbook-resource-architecture.txt": "895bfbeca4c78591066dcf214c4bfe9de43b5d7ed5d3f518fe398563a7bcc992",
+    "whatsapp-workbook-resource-source-proof.json": "c92075e902cd090feaae7121a6a2e189ffcfef99d49cebda954ea20a2a2b4001",
+    "whatsapp-workbook-resource-budget-candidates.json": "feb99c21ebdf17635435095c78eb964b9ef2f54951163776202bd763a2d1c119",
+    "whatsapp-workbook-resource-reviewed-files.json": "59f17305463770134ef75412298bd510b0cd9b428032805dcc83e3dbe7278096",
+    "whatsapp-workbook-resource-budget-candidates-before-wording-correction.json": "c7e10669bdf96d97d441a41d675ad2b8b5abdab9ae64d1e3d806830664e8f757",
+    "whatsapp-workbook-resource-verification-before-wording-correction.json": "dcaa487ceffa5f530bc06ec6451277fb66ec008e92fe6802ebccb6e07fc58aa6"
+  },
+  "metadata_correction": "Removed an unfinished question-mark phrase in candidate explanatory prose before parent delivery. No gate values/source/coverage/check changes; prior candidate/receipt raw bytes retained."
+}

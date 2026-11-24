@@ -1,0 +1,22 @@
+{
+  "files": [
+    {
+      "path": "mcp-connector/tests/test_windows_vault_native.py",
+      "sha256": "a5351796223c6ac85f252929621bf18ac6c2488b2c07ad608601f51e5062b0e6",
+      "physical_lines": 109,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full original86/currentsource physically read. Only new test-helper, first-test child=None and cleanup-before-deletefinally, and second-test reuse change. Original module metadata/imports/environment function and both complete native test bodies/assertions exact after explicit cleanup-delta inversion. No production connector/OS vault invocation in affected regression run."
+    },
+    {
+      "path": "mcp-connector/tests/test_native_test_cleanup.py",
+      "sha256": "c71415047bd554a965b3d5c931982b4004d43e75c8efc036537d01e1a5a6fa42",
+      "physical_lines": 126,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full authored synthetic qualificationcontrols. Invokes actual original qualification test function with fakevault/process only; real asyncio wait_for deadline/task cancellation/repeated cancellation. Original3negativesfail/1success; final5pass covers timeout/cancel/racedexit/success and repeatedcancel while reaping, assertsreap before synthetic target deletion. No nativecredential/subprocess API actually executed."
+    }
+  ]
+}

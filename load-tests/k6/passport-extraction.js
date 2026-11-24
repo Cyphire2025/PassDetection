@@ -1,4 +1,6 @@
 import { check, fail, sleep } from "k6";
+import crypto from "k6/crypto";
+import encoding from "k6/encoding";
 import http from "k6/http";
 import { Counter, Rate, Trend } from "k6/metrics";
 
@@ -77,6 +79,10 @@ export const options = {
     extraction_latency: ["p(99)<40000"],
   },
   insecureSkipTLSVerify: __ENV.INSECURE_SKIP_TLS_VERIFY === "true",
+  systemTags: [
+    "proto", "status", "method", "name", "group", "check",
+    "error_code", "tls_version", "scenario", "expected_response",
+  ],
   noConnectionReuse: false,
   userAgent: "PassDetection-k6-approved-non-production-load-test/1.0",
 };
@@ -131,16 +137,15 @@ function extractionOutcome(payload) {
 
 export default function () {
   const fixture = fixtures[(__VU - 1) % fixtures.length];
-  const sessionId = `k6-${__VU}-${__ITER}-${Date.now()}`;
-  const bootstrapSessionId = `${sessionId}-bootstrap`;
-  const idempotencyKey = `${sessionId}-upload`;
+  const idempotencyKey = encoding.b64encode(crypto.randomBytes(32), "rawurl");
+  const bootstrapSessionId = `${idempotencyKey}-bootstrap`;
   const uploadStarted = Date.now();
   const bootstrapResponse = http.get(
     `${BASE_URL}/api/v1/upload-links/token/${UPLOAD_TOKEN}`,
     {
       headers: requestHeaders(bootstrapSessionId),
       timeout: "12s",
-      tags: { operation: "upload_link_bootstrap" },
+      tags: { operation: "upload_link_bootstrap", name: "GET public upload bootstrap" },
     },
   );
   recordHttpFailure(bootstrapResponse);
@@ -168,7 +173,7 @@ export default function () {
     {
       headers: requestHeaders(idempotencyKey),
       timeout: "65s",
-      tags: { operation: "initial_upload" },
+      tags: { operation: "initial_upload", name: "POST public passport upload" },
     },
   );
   uploadLatency.add(Date.now() - uploadStarted);
@@ -199,9 +204,9 @@ export default function () {
     const pollResponse = http.get(
       `${BASE_URL}/api/v1/passports/upload/${UPLOAD_TOKEN}/${uploaded.id}/status`,
       {
-        headers: requestHeaders(uploaded.id),
+        headers: requestHeaders(idempotencyKey),
         timeout: "12s",
-        tags: { operation: "extraction_status" },
+        tags: { operation: "extraction_status", name: "GET public extraction status" },
       },
     );
     recordHttpFailure(pollResponse);
@@ -235,7 +240,7 @@ export default function () {
       {
         headers: requestHeaders(idempotencyKey),
         timeout: "65s",
-        tags: { operation: "idempotent_upload_replay" },
+        tags: { operation: "idempotent_upload_replay", name: "POST public upload replay" },
       },
     );
     recordHttpFailure(replay);

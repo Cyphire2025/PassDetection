@@ -5,7 +5,7 @@ import zipfile
 
 import pytest
 
-from app.infrastructure.imports import passport_document_importer as importer_module
+from app.infrastructure.imports import passport_document_workspace as importer_module
 from app.infrastructure.imports.passport_document_importer import (
     MAX_ARCHIVE_BYTES,
     MAX_COMPRESSION_RATIO,

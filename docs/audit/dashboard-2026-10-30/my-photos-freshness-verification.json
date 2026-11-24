@@ -1,0 +1,21 @@
+{
+  "status": "eight_validated_negative_regressions_fixed_before_service_decomposition",
+  "genuine_baseline": "six expected-denial failures in12.81s plus two expired-claim failures in4.92s (six deselected); earlier initial fixture version mistakes kept separate",
+  "affected": "38passed in16.06s",
+  "positive_idempotency_control": "1passed in2.19s; creates and completes/replays one logical session with one provider call per phase and one durable search/job/reference version",
+  "ruff": "pass",
+  "mypy": "2owned sources pass",
+  "source_sha256": {
+    "backend/app/infrastructure/my_photos/service.py": "8019f7ba419f93b83922a57c522fcf954d4d1fbb8614a4c6af9cd31a598c2e8c",
+    "backend/app/infrastructure/my_photos/liveness_validation.py": "e10914150491f332239430fb9fe12b316a45a141520800d969a6d08cbf2a8571",
+    "backend/tests/integration/test_my_photos_provider_claim_freshness.py": "4390282ee8e6a2d2cf6e5f38b1ea8cc5d9aaff662add6bcad21e733131ed20dc"
+  },
+  "fixes": [
+    "Refresh reacquired liveness/enrollment/gallery ORM values",
+    "Reject replaced or expired provider claims",
+    "Revalidate gallery after session creation",
+    "Reuse one pure current-consent guard before promotion"
+  ],
+  "contracts": "No public HTTP/DTO/model/config changes; existing provider claim/tenant/idempotency gates preserved and strengthened. No real providers or service-dependent PostgreSQL qualification.",
+  "next": "Cohesive service decomposition proof must use this post-eight-fix source baseline, not original checkout."
+}

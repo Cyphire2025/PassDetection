@@ -1,0 +1,48 @@
+{
+  "modules": [
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_actor_credentials.py",
+      "source_sha256": "0e82cb8ba583b039c8d85c1ab6b3a835532360a14a7c035e63bd7454f9f4e69f",
+      "previous": null,
+      "baseline_lines": 34,
+      "maximum_lines": 40,
+      "baseline_max_function_complexity": 2,
+      "maximum_function_complexity": 2,
+      "minimum_coverage_percent": 100
+    }
+  ],
+  "critical_modules": [],
+  "old_scope_budget_unchanged": {
+    "path": "app/presentation/api/v1/routes/whatsapp_scope.py",
+    "baseline_lines": 165,
+    "maximum_lines": 181,
+    "baseline_max_function_complexity": 4,
+    "maximum_function_complexity": 4,
+    "minimum_coverage_percent": 85
+  },
+  "measurements": [
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_scope.py",
+      "source_sha256": "fb1f5adf2ca2f924c57da9efbeb057ad013c4af1f2fc37704ac0883879b9da4c",
+      "lines": 177,
+      "complexity": 3,
+      "line_percent": 87.71929824561404,
+      "branch_percent": 83.33333333333333,
+      "branch_sites": 12,
+      "covered_statements": 50,
+      "statements": 57
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_actor_credentials.py",
+      "source_sha256": "0e82cb8ba583b039c8d85c1ab6b3a835532360a14a7c035e63bd7454f9f4e69f",
+      "lines": 34,
+      "complexity": 2,
+      "line_percent": 100.0,
+      "branch_percent": null,
+      "branch_sites": 0,
+      "covered_statements": 15,
+      "statements": 15
+    }
+  ],
+  "qualification": "Actual locked security-state refresh and canonical session/credential projection, not declaration-only code. Fresh15/15statements and zero measured branch sites; no invented branch execution or new critical proposal. Existing scope85normal requirement passes50/57statements. All old caps/floors/global values remain exact."
+}

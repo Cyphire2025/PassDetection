@@ -1,0 +1,22 @@
+{
+  "files": [
+    {
+      "path": "scripts/dashboard_audit_inventory.py",
+      "sha256": "3c86b45998e5b39f5417e766ebd40a91ca65a532257b4a2abfc1b09ba420cca0",
+      "physical_lines": 291,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "notes": "Complete source physically reviewed; digest and exact partial-resolution function ASTs unchanged; original10 control cases unchanged;32focused tooling cases and configured Ruff pass. Notes normalized only in display copy, explicit legacy-contact retirement preserves2source digests and185/123line counts. UTF8 LF final bytes differ only line endings from passing test-source encoding where applicable."
+    },
+    {
+      "path": "backend/tests/unit/scripts/test_dashboard_audit_review_resolutions.py",
+      "sha256": "516f40f6a05fc0e6f37f6618f225a819146d344ccf4dcda5a0e9a4fe796c6dd7",
+      "physical_lines": 217,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "notes": "Complete source physically reviewed; digest and exact partial-resolution function ASTs unchanged; original10 control cases unchanged;32focused tooling cases and configured Ruff pass. Notes normalized only in display copy, explicit legacy-contact retirement preserves2source digests and185/123line counts. UTF8 LF final bytes differ only line endings from passing test-source encoding where applicable."
+    }
+  ]
+}

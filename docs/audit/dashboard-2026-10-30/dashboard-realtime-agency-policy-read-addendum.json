@@ -1,0 +1,35 @@
+{
+  "status": "Source-only policy compatibility evidence; no execution or realtime policy change",
+  "original_proposal": {
+    "path": "dashboard-realtime-agency-reproducer-proposal.json",
+    "sha256": "110c4a5cbd5b5b22203de21c6fc2d14130b01868ec5e73b5b65fbce21590ae99"
+  },
+  "sources": {
+    "backend/tests/integration/test_mcp_rename_reads.py": "0f8073b3348414e2dc1a7bab20490fe3ec4d8fbfbf8e73e632f8681d131a8109",
+    "backend/tests/integration/test_mcp_analytics_reads.py": "4155d3dc45f957fa76f4a1173471214aebb0ef4224c85395223405295c116f4c",
+    "backend/tests/integration/test_mcp_ecr_reads.py": "b3d420bb4beacf12567b08078e8b7ad82372a14dfdacd9fa7e844ecba95ceb18"
+  },
+  "evidence": [
+    {
+      "path": "backend/tests/integration/test_mcp_rename_reads.py",
+      "line": 52,
+      "test": "test_list_and_detail_canonical_parity_inactive_agency_and_no_file_authority",
+      "contract": "Agency is inactive; existing website/MCP rename metadata read scope deliberately does not add an agency-active rule."
+    },
+    {
+      "path": "backend/tests/integration/test_mcp_analytics_reads.py",
+      "line": 208,
+      "test": "test_inactive_agencies_and_retained_deleted_groups_are_not_new_filters",
+      "contract": "All agencies made inactive and groups retained-deleted; canonical global analytics counts remain unchanged."
+    },
+    {
+      "path": "backend/tests/integration/test_mcp_ecr_reads.py",
+      "line": 315,
+      "test": "test_current_authority_failure_never_returns_retained_data",
+      "contract": "ECR current-authority matrix explicitly includes inactive agency as a denial, beside role/user/version/grant/scope states."
+    }
+  ],
+  "interpretation": "Existing retained read policy is workflow-specific. A universal active-agency gate would change valid existing rename/analytics behavior. Realtime agency suspension remains an unproven policy question; no auth vulnerability or fixed status claimed.",
+  "next_action": "Parent establishes intended realtime semantics before adopting any negative expected-denial test or implementation. Preserve original125-row reconciliation/finding and minimal reproducer proposal as immutable historical evidence.",
+  "runtime_gates_inventory_stamps_changed": false
+}

@@ -1,0 +1,54 @@
+{
+  "status": "Read-only current source cohort complete; broader audit active",
+  "new_current_full_tests": 3,
+  "test_physical_lines": 1942,
+  "supporting_full_rows": 2,
+  "focused_rows": 2,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-passport-export-source-reviewed-files.json",
+    "sha256": "b805c7b560a8f9c9d54526f8eecf376e912a4bf9e004a6d6ac6d1285b0ba1405"
+  },
+  "source_fence": {
+    "backend/tests/unit/presentation/test_selected_groups_export.py": "e8f1d33df3ba15d3dafa173c4b5e013a3de9ab8fdbee2eb55ce42323c6888019",
+    "backend/tests/unit/presentation/test_passport_export_history_routes.py": "b2b95a05310c6824b182dcb524199a44455932f075edf1b255fb130b3e751f6f",
+    "backend/tests/unit/presentation/test_passport_group_pending_export_helpers.py": "1887e6829b5136ccf7e223face8e00f1d3bbe22fcfb6f42bd2aee3e0b4b8cb81",
+    "backend/app/presentation/api/v1/routes/passport_routes/selected_exports.py": "1af700103fda455214e6bcf8934714746ad93758663fbf9b5315e0c50deb04a3",
+    "backend/app/presentation/api/v1/routes/passport_routes/export_history.py": "ad4ed57b819b8f246d91a3d2b04d0cc6ff7cfd34851b39b0d2d356bdc58ed59d",
+    "backend/app/presentation/api/v1/routes/passport_routes/constants.py": "fde4a454674243207fe194ab20cd456ca3b341dfd6e9c99d2f06e1b77d13bffc",
+    "backend/app/presentation/api/v1/routes/passport_export_support.py": "3bf9cd6a6c6854971df328266b2f2610ad0bfa18bb83cdbeab1bed8ea426bd13"
+  },
+  "previous_current_full_support": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/selected_exports.py",
+      "sha256": "1af700103fda455214e6bcf8934714746ad93758663fbf9b5315e0c50deb04a3",
+      "ledgers": [
+        "passport-excel-exporter-reviewed-files.json",
+        "passport-export-support-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/export_context.py",
+      "sha256": "ce172b2f3c0bf0c02a79a83937a239bb4dddfabc2e4fc913190cbeacd67371ee",
+      "ledgers": [
+        "bulk-architecture-reviewed-files.json",
+        "bulk-roster-diagnostic-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/export_history.py",
+      "sha256": "ad4ed57b819b8f246d91a3d2b04d0cc6ff7cfd34851b39b0d2d356bdc58ed59d",
+      "ledgers": [
+        "passport-office-preflight-reviewed-files.json",
+        "passport-office-reviewed-files.json"
+      ]
+    }
+  ],
+  "checks_run": [],
+  "changes": [],
+  "findings": [],
+  "limitations": [
+    "No app/test/database/provider/network/credential/scanner execution for source-read credit.",
+    "Previously full implementation owners and imported fixtures are not automatically new physical-read credit; focused slices remain focused.",
+    "No new architecture/security/performance claim based on source length or existing test names."
+  ]
+}

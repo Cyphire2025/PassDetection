@@ -1,0 +1,204 @@
+{
+  "status": "passed/frozen coherent tracker composition; final broad verification deferred by user",
+  "runtime_sources": [
+    {
+      "path": "backend/app/infrastructure/travel_tracker/service.py",
+      "sha256": "46dc6766ba6b41de4825b7a08a13a4040bf071a8a75a97fa57cce39891540546"
+    },
+    {
+      "path": "backend/app/infrastructure/travel_tracker/spreadsheets.py",
+      "sha256": "3631d37fc6edf5812e69c783b7aebdc973c96a10356564541dd35f509afa9dcf"
+    },
+    {
+      "path": "backend/app/infrastructure/travel_tracker/queries.py",
+      "sha256": "9767612e03fbca78969628332778f7e5860acb71a5ad0b5c1b6627117b8c7cb4"
+    },
+    {
+      "path": "backend/app/infrastructure/travel_tracker/reads.py",
+      "sha256": "dab608a9db981140e8c31a4a064e143e2e50016ed0498e453d44b5595aca457b"
+    },
+    {
+      "path": "backend/app/infrastructure/travel_tracker/projections.py",
+      "sha256": "71955d39ebe70864ef807d361fcdfa897ca6b392bfe5bc073e164e3c87656299"
+    },
+    {
+      "path": "backend/app/infrastructure/travel_tracker/changes.py",
+      "sha256": "b56fb8e896136401da4f85e9a17180a19732b5fb116c2f1ed5950f9ae8744f44"
+    },
+    {
+      "path": "backend/app/infrastructure/travel_tracker/files.py",
+      "sha256": "aab1888109e1965e8f93434d782c326319a12b95d7529b9edb888f6fcd192cff"
+    },
+    {
+      "path": "backend/app/infrastructure/travel_tracker/spreadsheet_values.py",
+      "sha256": "c68d237ca6324c0bdc34e2927d3b3bc4d09baf7a93e570e51743f3e889eb3423"
+    },
+    {
+      "path": "backend/app/infrastructure/travel_tracker/spreadsheet_reader.py",
+      "sha256": "eac524464c0f8368e31d42eb5ee4b7bd865813df280e67c3d55f3e84c5a3c9d8"
+    },
+    {
+      "path": "backend/app/infrastructure/travel_tracker/spreadsheet_matching.py",
+      "sha256": "a195bad2cab0a412ec19f61674c78ad752c1cea1bae59b9a4e484e4deab1b81c"
+    },
+    {
+      "path": "backend/app/infrastructure/travel_tracker/spreadsheet_export.py",
+      "sha256": "62b6ce61f5b9a4868238949a7947888f1d91051cf879c781991403d837b5a9b7"
+    },
+    {
+      "path": "backend/app/infrastructure/travel_tracker/threading.py",
+      "sha256": "0e4ed2a5fdcfd0061a9661938a34e3936f1b482d3a460ec74cd9788c908ca85f"
+    }
+  ],
+  "qualification": {
+    "affected_http_sqlite_mcp_workbook_worker_cases": 64,
+    "runtime_alias_hint_contract_cases": 2,
+    "scoped_mypy_source_files": 14,
+    "ruff_format_files": 16,
+    "original_spreadsheet_declarations_exact": 17,
+    "service_methods_complete_after_explicit_value_call_projection": 17,
+    "constructor_public_private_signatures_defaults_decorators_and_actorpreflight_preserved": true,
+    "worker_behavior_checkpoint_unchanged": true
+  },
+  "measurements": [
+    {
+      "path": "app/infrastructure/travel_tracker/service.py",
+      "lines": 183,
+      "complexity": 2,
+      "line_percent": 87.09677419354838,
+      "branch_percent": 100.0
+    },
+    {
+      "path": "app/infrastructure/travel_tracker/spreadsheets.py",
+      "lines": 25,
+      "complexity": 0,
+      "line_percent": 100.0,
+      "branch_percent": 100.0
+    },
+    {
+      "path": "app/infrastructure/travel_tracker/queries.py",
+      "lines": 176,
+      "complexity": 7,
+      "line_percent": 95.5223880597015,
+      "branch_percent": 86.36363636363636
+    },
+    {
+      "path": "app/infrastructure/travel_tracker/reads.py",
+      "lines": 109,
+      "complexity": 5,
+      "line_percent": 96.7741935483871,
+      "branch_percent": 50.0
+    },
+    {
+      "path": "app/infrastructure/travel_tracker/projections.py",
+      "lines": 43,
+      "complexity": 5,
+      "line_percent": 100.0,
+      "branch_percent": 100.0
+    },
+    {
+      "path": "app/infrastructure/travel_tracker/changes.py",
+      "lines": 113,
+      "complexity": 18,
+      "line_percent": 92.3076923076923,
+      "branch_percent": 94.44444444444444
+    },
+    {
+      "path": "app/infrastructure/travel_tracker/files.py",
+      "lines": 114,
+      "complexity": 5,
+      "line_percent": 86.95652173913044,
+      "branch_percent": 50.0
+    },
+    {
+      "path": "app/infrastructure/travel_tracker/spreadsheet_values.py",
+      "lines": 56,
+      "complexity": 6,
+      "line_percent": 96.29629629629629,
+      "branch_percent": 75.0
+    },
+    {
+      "path": "app/infrastructure/travel_tracker/spreadsheet_reader.py",
+      "lines": 151,
+      "complexity": 25,
+      "line_percent": 86.74698795180723,
+      "branch_percent": 77.27272727272727
+    },
+    {
+      "path": "app/infrastructure/travel_tracker/spreadsheet_matching.py",
+      "lines": 119,
+      "complexity": 27,
+      "line_percent": 96.72131147540983,
+      "branch_percent": 92.85714285714286
+    },
+    {
+      "path": "app/infrastructure/travel_tracker/spreadsheet_export.py",
+      "lines": 158,
+      "complexity": 51,
+      "line_percent": 96.875,
+      "branch_percent": 90.0
+    },
+    {
+      "path": "app/infrastructure/travel_tracker/threading.py",
+      "lines": 36,
+      "complexity": 6,
+      "line_percent": 100.0,
+      "branch_percent": 75.0
+    }
+  ],
+  "source_proof": {
+    "path": "docs/audit/dashboard-2026-10-30/travel-tracker-composition-source-proof.json",
+    "sha256": "3f7a35d58c48eb71bbd57e8c8f3c5bd7cccce2824209d391feaba8d870a1524c"
+  },
+  "ledger": {
+    "path": "docs/audit/dashboard-2026-10-30/travel-tracker-composition-reviewed-files.json",
+    "sha256": "20f74319102e7a5259e93681b612cc3b9e1dfdbe8c33674f6d8751f1c2f6a300"
+  },
+  "candidates": [
+    {
+      "path": "docs/audit/dashboard-2026-10-30/travel-tracker-budget-candidates.json",
+      "sha256": "520aa188a92f42deb3193580c2d6dc3d2e898cfed5788ef7b4ba4757137a9902"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/travel-tracker-critical-candidates.json",
+      "sha256": "d196837df95e2c4d56469e24f5ad3f16977e1c97a38f09f208020d37990da61d"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": ".tmp/travel-tracker-audit/composition-tests.txt",
+      "sha256": "007be9f6211a15bb16f9c0ed6730dbd04e00e29339b5168dd7da4bd6b784e925"
+    },
+    {
+      "path": ".tmp/travel-tracker-audit/composition-coverage.json",
+      "sha256": "41ba4d75c01362cbfb45379bb2187720e7d17e26df0b6a7294ef1ad9d173cea8"
+    },
+    {
+      "path": ".tmp/travel-tracker-audit/composition-coverage.xml",
+      "sha256": "df3773097fab566a53b6d0e003bee3a04439e67b1a6c698717f8aff7ac3586ad"
+    },
+    {
+      "path": ".tmp/travel-tracker-audit/composition-runtime-contracts.txt",
+      "sha256": "213e7d69730d580643d7992407f884b06d136118668df0636d528458e79724e5"
+    },
+    {
+      "path": ".tmp/travel-tracker-audit/composition-types.txt",
+      "sha256": "e903677c248a6ca6ac9094eed21b5350be088d014c43570c553f047d8f487a0a"
+    },
+    {
+      "path": ".tmp/travel-tracker-audit/composition-lint.txt",
+      "sha256": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0"
+    },
+    {
+      "path": ".tmp/travel-tracker-audit/composition-format.txt",
+      "sha256": "ff48816299c0229eee091029455819afe09b19b5aa20c598a0be2a61d4635da3"
+    }
+  ],
+  "limits": [
+    "Actual affected SQLite/MCP SDK and in-memory artifact/native fixture controls; no live PostgreSQL locking/storage/provider/VPS qualification.",
+    "No actor/role/agency/group grant/row lock/capability/revision/receipt/native source/public API/schema/workflow change.",
+    "Private function module metadata and explicit value-argument ownership change; no whole-class source identity claim.",
+    "MCP preview direct AnyIO await cancellation remains independently unproven/pending, not fixed or closed by this batch.",
+    "No shared budgets/gates, dependency/package, migration or broad application suite/build/browser changed/run."
+  ]
+}

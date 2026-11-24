@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
+import { passportCameraSource } from "../components/passport-camera-source.contract-helper.mjs";
 import {
   analyzeRectangularPassportFramePixels,
 } from "./passport-rectangular-frame-detector.ts";
@@ -200,10 +201,7 @@ test("passport hook keeps geometry-only rolling detection and manual capture", (
     new URL("../hooks/use-passport-frame-detection.ts", import.meta.url),
     "utf8",
   );
-  const cameraSource = readFileSync(
-    new URL("../components/smart-camera.tsx", import.meta.url),
-    "utf8",
-  );
+  const cameraSource = passportCameraSource;
 
   assert.match(hookSource, /detectRectangularPassportFrame\(/);
   assert.doesNotMatch(hookSource, /\bdetectPassportFrame\(/);

@@ -1,0 +1,32 @@
+--- a/backend/tests/unit/infrastructure/test_traveller_reconciliation_runtime.py
++++ b/backend/tests/unit/infrastructure/test_traveller_reconciliation_runtime.py
+@@ -76,11 +76,29 @@
+         finally:
+             cancelled.append(index)
+ 
++    # Keep bookkeeping time stable; asyncio retains its real cancellation clock.
++    monkeypatch.setattr(runtime, "monotonic", lambda: 0.0)
+     monkeypatch.setattr(runtime, "RECONCILIATION_BURST_SECONDS", 0.01)
+     monkeypatch.setattr(runtime, "advance_company_history_chain", AsyncMock())
+     monkeypatch.setattr(runtime, "_reconciliation_slot", slot)
+     assert await runtime.run_reconciliation_tick(session_factory=factory(), crypto=object()) == 0
+     assert cancelled == [0]
++
++
++@pytest.mark.asyncio
++async def test_exhausted_initial_burst_budget_never_starts_work(monkeypatch):
++    session_factory = Mock()
++    advance, slot = AsyncMock(), AsyncMock()
++    clock = Mock(side_effect=[0.0, runtime.RECONCILIATION_BURST_SECONDS + 1.0])
++    monkeypatch.setattr(runtime, "monotonic", clock)
++    monkeypatch.setattr(runtime, "advance_company_history_chain", advance)
++    monkeypatch.setattr(runtime, "_reconciliation_slot", slot)
++    assert await runtime.run_reconciliation_tick(
++        session_factory=session_factory, crypto=object(),
++    ) == 0
++    session_factory.assert_not_called()
++    advance.assert_not_awaited()
++    slot.assert_not_awaited()
+ 
+ 
+ @pytest.mark.asyncio

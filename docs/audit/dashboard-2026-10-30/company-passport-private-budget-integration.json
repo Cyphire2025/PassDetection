@@ -1,0 +1,17 @@
+{
+  "candidates": "docs/audit/dashboard-2026-10-30/company-passport-private-budget-candidates.json",
+  "before_sha256": "a1830463ed7f877cad5964aef1ec7667f23208cfb3254a3fa2e7de56a8a030f4",
+  "sha256": "be523ca85b11e5cd1a10fd2d9f79ac1a8cfa0806dbe0ec39dcae100f8f77e030",
+  "lf_normalized_sha256": "ebff60276654d27efc39a8061cfa8de5adf6c0cf541b17ccb9285e566a61b980",
+  "added": 44,
+  "updated_existing": 9,
+  "lowered_existing": 4,
+  "lowered_existing_paths": [
+    "features/companies/hooks/use-companies.ts",
+    "features/companies/components/company-settings.tsx",
+    "features/companies/components/company-all-data.tsx",
+    "features/companies/components/company-person-page.tsx"
+  ],
+  "existing_ceilings_preserved": true,
+  "previous_ceilings_sha256": "e6b7add762332bcc96d5946f438e516144b3b119a4aedce659a616618a6580fd"
+}

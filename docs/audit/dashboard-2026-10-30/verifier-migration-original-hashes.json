@@ -1,0 +1,18 @@
+[
+  {
+    "path": "frontend/scripts/verify-upload-options-browser.mjs",
+    "sha256": "614ee67f689414476dede83f9784d522607dbf3b1a76decdf5e9198829d1284a"
+  },
+  {
+    "path": "frontend/scripts/verify-visa-photo-browser.mjs",
+    "sha256": "a43f3b34685fb9b23bb82a371a6f4aab5b7e3c670fb6e7e49847ad9739b60b53"
+  },
+  {
+    "path": "frontend/scripts/verify-whatsapp-composer-browser.mjs",
+    "sha256": "51e966d9e5b24e360d664a1b35ef50a8734e68db6dab23ee6a1e485ef42e5c01"
+  },
+  {
+    "path": "frontend/scripts/verify-whatsapp-recipient-bulk-browser.mjs",
+    "sha256": "decdafeeabe7683926f6f726cc6a4955806134836855ef5293af79f4f4328b39"
+  }
+]

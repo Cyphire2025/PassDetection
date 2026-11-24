@@ -1,0 +1,40 @@
+✔ one 1500-file selection is partitioned into bounded resumable chunks (0.6907ms)
+✔ the client sends up to 50 PDFs and moves the 51st into the next sequential chunk (0.2853ms)
+✔ the 24 MiB target splits a chunk before the 50-file ceiling (0.1209ms)
+✔ verification uses the largest file chunk inside the bounded OCR envelope (0.1105ms)
+✔ verification keeps the 16 MiB byte target when PDFs are larger (0.145ms)
+✔ a verification chunk can feed eight two-MiB PDFs to the parser workers (0.4429ms)
+✔ verification can process chunks sequentially, preserves order, and reports committed files (42.1265ms)
+✔ verification drains already-started requests before returning an error (30.9135ms)
+✔ an aborted verification never retries or starts another chunk (0.589ms)
+✔ accepted files become a receipt-only manifest with the same upload and chunk identities (1.1122ms)
+✔ receipt finalization releases acknowledged token chunks and remains resumable (0.3712ms)
+✔ only verified files with a confirmed passenger match are uploadable (0.0876ms)
+✔ receipt finalization is bounded by aggregate UTF-8 bytes (12.8977ms)
+✔ rename retains raw chunking while distribution finalizes one receipt manifest (0.188ms)
+✔ distribution verification binds receipts to the exact upload and chunk session (0.1334ms)
+✔ progress reflects committed files and contains no synthetic 88 or 92 percent timer (0.1125ms)
+✔ every incomplete distribution upload is surfaced and can be explicitly discarded (0.0852ms)
+✔ new selection and save remain blocked until incomplete uploads are resolved (0.0815ms)
+✔ route-driven document lanes cannot change while type-scoped work is pending (0.1938ms)
+✔ distribution distinguishes physical files from assigned passengers and surfaces reasons first (0.1895ms)
+✔ document delivery polling follows active work and stops after webhook grace (0.1105ms)
+✔ distribution finalizes opaque verification receipts without retransmitting PDF bytes (0.1146ms)
+✔ expired receipts fail explicitly without retaining a raw PDF fallback (0.075ms)
+✔ saved document lists expose an explicit WhatsApp preview before sending (0.6735ms)
+✔ frontend uses dedicated preview, send, and tracking contracts (0.1465ms)
+✔ group details include compact document delivery management (0.1425ms)
+✔ review tables keep one row per submitted passenger and nest saved documents (0.1471ms)
+✔ document review exposes assignment counts, filters, and safe bulk removal choices (0.2115ms)
+✔ document review supports passenger search and per-file assignment removal without a scroll-only action column (0.1944ms)
+✔ optional document-workspace surfaces use explicit lazy boundaries (0.576ms)
+✔ the primary upload workflow remains eager and route-owned (0.9719ms)
+✔ review derivation and row rendering are isolated from the workspace controller (0.1447ms)
+ℹ tests 32
+ℹ suites 0
+ℹ pass 32
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 390.5076

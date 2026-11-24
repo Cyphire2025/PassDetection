@@ -1,5 +1,12 @@
 # Phase 2 Enterprise Hardening Runbook
 
+This is a historical architecture record of the former passport OCR ensemble.
+Current passport extraction uses the active AI flow; the dormant local OCR
+engines and MRZ OCR implementation described below have been retired during
+the dashboard audit. The original design and commands are preserved as history.
+See the [current audit tracker](../audit/dashboard-2026-10-30/TRACKER.md) for
+retirement details and current verification limits.
+
 This phase moves passport extraction out of the upload request path, adds stricter upload security, exposes operational diagnostics, and keeps the public client link fast by polling for processing status.
 
 ## Implemented slices

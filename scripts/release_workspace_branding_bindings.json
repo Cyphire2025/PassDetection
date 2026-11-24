@@ -1,0 +1,869 @@
+{
+  "schema_version": 1,
+  "files": [
+    {
+      "path": ".env.example",
+      "before_0140": "9b090e053539e9fe136fae5ccf5759ace3c374b20e0ce5f7bf81a7715e736407",
+      "before_0141": "45e3ba39b4be7b776fabf0f49fa172c6dc9ac87b4ce0cbe086d28ebdcaa333a9",
+      "after": "425c44a00321aa71a2295986b0d562ece8d03a7aeab7603f8be8bc97a331979c"
+    },
+    {
+      "path": "backend/alembic/script.py.mako",
+      "before_0140": "e3ab701a79eb8e2a2c2f212ea11f62368ff629244cdf3714b23c70383f0d4ee6",
+      "before_0141": "e3ab701a79eb8e2a2c2f212ea11f62368ff629244cdf3714b23c70383f0d4ee6",
+      "after": "9a5507bcc1a059bdc43463b420539e0c1d6050bdf7d796293cd81b2f70329567"
+    },
+    {
+      "path": "backend/alembic/versions/0141_workspace_branding.py",
+      "before_0140": null,
+      "before_0141": "f511c957f633c5bf3c2065b80270f61f89b4d4d75e5c4c3ca1e3c71f3b2d4567",
+      "after": "f511c957f633c5bf3c2065b80270f61f89b4d4d75e5c4c3ca1e3c71f3b2d4567"
+    },
+    {
+      "path": "backend/alembic/versions/0142_group_background.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "171477cb03f92d19b65b26c1c1580a23dc95e3a3c462732aa7c58914f0fb0af0"
+    },
+    {
+      "path": "backend/app/core/config/ai_settings_fields.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "2d7c876502cf60b435b12bd8b33823e91877e8082057f7d16a976b4b51705ad3"
+    },
+    {
+      "path": "backend/app/core/config/database_settings.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "7b9726cf21327e74ef9ae4ff58208ac6c1ce3a1d9703e5c8c8c09674cc841d91"
+    },
+    {
+      "path": "backend/app/core/config/email_settings_fields.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "ae471aa0f319c27390953546c57f385ea6bb9cb88f6d6bf6e4bc6aae52f45e95"
+    },
+    {
+      "path": "backend/app/core/config/identity_settings_fields.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "1aaa228536583a4e8f023f4a350d2652139b2f0aa1dfd34316656d55f972afae"
+    },
+    {
+      "path": "backend/app/core/config/ingestion_settings_fields.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "b4b3f161aa7dd3350d077dd20e4880dcca69439f853cccb63bec8d82338e2788"
+    },
+    {
+      "path": "backend/app/core/config/jwt_settings.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "35558f00bcfc550b776f36ce71e3dc5a1d338faa13aa968c7f8782d13413e44c"
+    },
+    {
+      "path": "backend/app/core/config/my_photos_aws_policy.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "bf72bbe93b00bc98c589cde717c4e80676114d869095d4787b6276696aa65492"
+    },
+    {
+      "path": "backend/app/core/config/my_photos_settings.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "e30629c3d3803355ba4484d55f97c08e1857cc75ea7e1a52e83849b601cd7f17"
+    },
+    {
+      "path": "backend/app/core/config/redis_settings.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "c957557cc89327b0dd872741b42f7e012cd3a477b7587df1376bd3494e69e8ca"
+    },
+    {
+      "path": "backend/app/core/config/release_manifest.json",
+      "before_0140": "c299ce7831e45c560772460e88adb90425601d9a8eefa2e705300f6b5494c37f",
+      "before_0141": "cc268e4b24d58b50ec72f95c3ccd03350c96033833db061fd3ba5fe63b0fdf80",
+      "after": "122e7b38970b18609cf46b20b99d4b2c093c4f8b471bcd484b8c59a7080c6119"
+    },
+    {
+      "path": "backend/app/core/config/request_settings_fields.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "f7dbe65f066e304ee089241e7709f14246801039aeee25ba6f91f474fa38468b"
+    },
+    {
+      "path": "backend/app/core/config/runtime_settings_fields.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "dd324d05455e837d57ca26aa4dba1f8a0e712214c544fbdc50aab21cd7495a86"
+    },
+    {
+      "path": "backend/app/core/config/s3_settings.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "94ec7f8105a32d2a16e2a23aa030425bec1711d93f30abbc7e5db23f7fb3ab47"
+    },
+    {
+      "path": "backend/app/core/config/settings.py",
+      "before_0140": "f03d2164785e577d5cdceb05d821b793fc7602a8e01d2992a3c7561d0d42d41e",
+      "before_0141": "ca8a8ebd3333f588766d85071e5c963ef10dbb01e9d5ee2891d94fbe64cd9017",
+      "after": "6c5485def68a3d76a27260fbce57bfb2321b241787b769ce0738d63fccc8fef3"
+    },
+    {
+      "path": "backend/app/core/config/settings_deployment_policy.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "966075f95b4c23faf2f6da0260587e9f40a2cca9fcdeaaaa9dd30aad06522123"
+    },
+    {
+      "path": "backend/app/core/config/settings_identity_policy.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "a3d1c6c91dec985a044fd5140cea479b3703f023e8fb84d960711e387538814c"
+    },
+    {
+      "path": "backend/app/core/config/settings_mobile_policy.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "01faa1d917fb7f47fa18e4b0acc7c3e8d7e538f5a10175ff14f625fec447c546"
+    },
+    {
+      "path": "backend/app/core/config/whatsapp_settings_fields.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "3a0844b5cc46ff1693f4386df51c8f1c53e4cde1e86ef579abe4f4dbc6eb21bf"
+    },
+    {
+      "path": "backend/app/domain/entities/__init__.py",
+      "before_0140": "f7f0ae580a55bd07e427d55d2982e40d12a2cd590386d85e583db5d77f8fdb0b",
+      "before_0141": "f7f0ae580a55bd07e427d55d2982e40d12a2cd590386d85e583db5d77f8fdb0b",
+      "after": "5cc58c46b7ce501cf98e236127603629092da502b29a510a5f19e368b537b0bd"
+    },
+    {
+      "path": "backend/app/domain/entities/client_group.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "3611455105d0b61425774efb899b883fe9d4e3e192b4e3ca39330c955d5b50f2"
+    },
+    {
+      "path": "backend/app/domain/entities/client_group_configuration.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "3486a83b66db4ec1658e74ba47bdd0052423d7a122fb5cc6bcbbb5fc633606db"
+    },
+    {
+      "path": "backend/app/domain/entities/client_group_lifecycle.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "30910eb18732f1174995da1a49b021b6658d3acef96ab9253f9c2ddeeb51f55a"
+    },
+    {
+      "path": "backend/app/domain/entities/client_group_state.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "00d98b8ee7c09f2604903f2b6be2cbfff8b4a30679c645f9a7ae656d3244592b"
+    },
+    {
+      "path": "backend/app/domain/entities/entities.py",
+      "before_0140": "0d6ca59ea43f42daddbb686fb79f21e04c27157c589bf4227f1bc169ffdd96d2",
+      "before_0141": "ff83a9b8c350d7d3bfd0b75922d67ee32bec62a7164cf1ca2d13e77e6e19e225",
+      "after": "6e632388e2e0074771f336a1459c86d6a0712a3d0a93e14def7b2062270bf6fa"
+    },
+    {
+      "path": "backend/app/domain/entities/enums.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "4ef547c3c578e0c44d40ce03f8deaa0059077af2c59a78df40946b134ad88324"
+    },
+    {
+      "path": "backend/app/domain/entities/factories.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "b74b82177ea101abeafdd188d5c197a9f6ea01f49e56ad06b438bbb491220950"
+    },
+    {
+      "path": "backend/app/domain/entities/identity.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "4e60b4cc3d4759f1c2b12b34984a4300ae388055694cf46581be33f632b94d9e"
+    },
+    {
+      "path": "backend/app/domain/entities/passport_client_review.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "591e2d935dd68ee27e7cfef3229b8080eb590f9e3fed2600cbe1ecb3b014f7cb"
+    },
+    {
+      "path": "backend/app/domain/entities/passport_extraction.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "e745eb8f9d1b0827bf9bdeb2f8076ed898588fb0f3d1a0cb6c5baf5abc0d3cf1"
+    },
+    {
+      "path": "backend/app/domain/entities/passport_staff_review.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "3e93dfe727f18b35556bcd2522607d169d297cfa194d2ae1e62e90c6f6439e76"
+    },
+    {
+      "path": "backend/app/domain/entities/passport_state.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "acdd388a8baab76b6a2f0436b3e34ab364605532b192d80d37d2bada30d21e4c"
+    },
+    {
+      "path": "backend/app/domain/entities/passport_submission.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "b46b0a5e20840b903f9b9e4f9e5ba089f66e3f0857937b2eaa1475ccf97b63b2"
+    },
+    {
+      "path": "backend/app/domain/entities/qualifier_selection.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "79088b2e146a88ca46b17f4f716be932ca0aa37fcdadb6dd191e811761da67f4"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_communications_models/__init__.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "93f1ffe885e89709e8e59326a3c20db5be6969f0e63c6501052477226783237c"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_communications_models/broadcast.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "8fc27df633446ef911ad0598fbcf2491c36a17bbe2057863d9df6299bd2d6370"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_communications_models/delivery.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "1fd04b74883bc0a355b94939b74a1173cabd9f2f9c9226ebaf9657df72a2af2c"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_communications_models/source.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "f57b7c4a3d07d5abc09a8edf6f4d964617ce2fb9da8058ad42f38c0b8805b0b0"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_communications_models/welcome.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "610fe7aaaeb5eb62bbd0defab28b9c298ba9cd7941b4efe73fff8988f0fae12c"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/__init__.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "faa1f24f577a07ccfdb3220f3525a0e2e01f529df5debff3909fb64dcc88c83f"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/access.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "b18d92055a87b33ab6284b5ed8934d701a9a20cdf76b4a02182f8f180e5b1c23"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/audit.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "f52c5e0fa7fe5c43b9f4ca56426babcf647cff463c06594b7251d08a7e86644d"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/broadcast_links.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "3d86bf2528c510c2641e8f2b9bdf385831af7e35560e87ace323be68f729d559"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/exports.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "8251fdad16fafec07e963cb941ac96c832f6e3dbab5032a733e916186cfd3551"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/groups.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "f21b171c859d22ce92d578dce8498c05ad060f8a2fa9719323bad024d25147f5"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/identity.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "c8b6871bc2ebc4a75b0f4bd8ed3b1927d3f67a517fb8ed92212429d8bb935abf"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/images.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "d5ec6767f3b9c5beb8ba306a341361c3a0d650296fc3f6a4674f2b382ab9e641"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/notifications.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "e11bc29fd02fc0df264f9476b64073f6beacf4c9c2dd319ac5b3081a30703096"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/passport.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "6c5db24c2bb231c3f9e191879cedb21dbf25d5502985b538db90f30c8cfaf44d"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/platform.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "4e33f21bcf30ea0630696b08e0add2c66e357d1b0eca375a1ffbc091f19dae6a"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/roster.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "6fbdd6446f17e92e4cbeee06e757a95bfba49d42192c7ff3860c8c0773214793"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/upload_workflow.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "cf1a6a558e8ebdb6d212aca2f0540dd9961793481fe4fdb7d4c463c950b0a7e5"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/verification_jobs.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "9b78f3c3c1f993a2414be562c660de8c51352c046b7c0efb8cb5b44ae66a46c6"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_document_models/__init__.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "b96f487be8cd75c281c4c2a4fbcbfaf87155724c3c2601628443980475be1da7"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_document_models/cleanup.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "44392393eae79acc34f548106f56c8b9f8dacf73920cbecb966db4a577b42406"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_document_models/delivery.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "8d686a11093f3f9e50a6d9246ca140fb5ec9e376affef1d44331d78c8c7a42b9"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_document_models/distribution.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "13837498e7ce0513cf86da4b65fef689fe9ae3659906e42752deec7701bdfbed"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_document_models/rename.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "25f5db90fb583f67d8f30556bc7aea88aa66d70f9c72c1f0ff17f3f3b283c4d4"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_document_models/upload_chunk.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "633cc8658617d0ca89385064982cda41604ce7bcdbca1e4b125886d520dd56e6"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_document_models/upload_scan.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "81b73b7e44895cc6d1919d4e51282f764cfc49ee5b7caf18baef492e5a09ace9"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_ai_models/__init__.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "1dec3465188dd0ec7c96ab35d20fa4fd28150756355e34637ae574578318c2dc"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_ai_models/analyses.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "152526fe868170a5d12ce353d1f990d6a4098364662a1725a04994eb9769d872"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_ai_models/deadlines.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "25b2192f32a5ef2fcd5764e9e7092016ea7848a8bbd283292159254558d2d0dd"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_ai_models/drafts.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "75c30c385d04d40661d1bcdfca237b18e1647fde4d8f49141199087bae8de6cd"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_ai_models/feedback.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "2ec1a4e4dd4f5f41fa8cc7e34c6d670b836fdd79a1eab60b33f8623a9048d44d"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_ai_models/proposals.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "2f43bd6295e9b37a4889296b37a6af1edf1548e2794eeab2d0f4cc612106a1aa"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_ai_models/rollout.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "d0ca6a17300c86ca1b4cf945b5babf4f5e3e550cd75340dfb6e808d243602725"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_models/__init__.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "65c72734aaf387cf30b89e1b390fd9c23259d1822449024d900f48ba9cef76f8"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_models/activity.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "ae00d24f812131dcdeae41d7a32d13b1744325f45e13fd61bff1c5255fb2f588"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_models/artifacts.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "c761fc46dcd022d7afc0ac5dbbbdb7b28a931d9a5444ce581e968a2966a6fa32"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_models/connections.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "fb08f8be131213b1f3d778e089db69dcc82874cbd848e4d37b8e99cbb4ad65c9"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_models/documents.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "4466f1e006d175e9ad98acca3518bc288e9b8c494daff026fa33484c8a4f3109"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_models/messages.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "d45ce4a5c27666eb3e376c5c7b3fa9f48a6297851374f21ec43cad74e7f01427"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_models/oauth.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "989bc18b71a0d543ae531500d01b92cd6ec41ceb8a132bb24fbd362ae1254ff9"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_models/reviews.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "4d8214ce7f96b2dccf09da4cf7dd41dd95b59085c813b2421d75f24518194b84"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/__init__.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "3d6b47ac4f231cd452fbac0be5b0b91ebd1051e43e14d2bfac8b037461b6be29"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/announcements.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "95557789347676f1deb422eacb0691ad87e1c45b99732773eed1e881689e078a"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/attestation.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "2f10cda0bfd1d80d5ea5342a809d2ffc387209adff9f1f714f31d1fdb097b66e"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/common_documents.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "61dd82604a8ace6ebd6bef1237617c6af57b2b453829b5a9d561175cb334aa64"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/document_cache.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "996996609ddc53f669f321dc9c5726811d06e44665082286eb4c7f0fc56f7768"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/family_delegations.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "4372b9cba09cc9ab7d0eca5636998e80d7f7da532633f95f1f1f2bc869ecb2f3"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/group_access.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "5371607094fa1a79535cbd6aaed4c44f91c48057a73f2967828f33eca9057e26"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/idempotency_receipts.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "dc0f401db53de6739495e1090e5f91de194eeaaf0eaf162fd260e7c4385fc855"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/incidents.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "35eb661d643d32a6e531fd84001526b852c8d894f7be75d1858b1a8a292c4819"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/itineraries.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "61eab6fc8a1338a561f6ba6d9c32df99ec6f697049b4962e3f8aa18064aa84a5"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/notifications.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "9e48fd290eb08d8afd757857428706220f482775546cd4d2fd616547ba23a4da"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/organizations.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "c33594e8818ec324f1ab3e23a698b518b9eb68a7d5ed23103c41e97fb5c509e4"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/otp_challenges.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "3451f13e29e1f11594f8a286613e84fa5ee6dd53340ef1a45051bece578d5bf7"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/passenger_identities.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "f74767ffe5bfe0089e6a0d451b3e0a47d5fb28e3f0912ef419cb72fff1e8dd17"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/push_transport.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "cb40fc6dc28f16fe914d421529514dc71c1fced0bc7dcb35b52596215cf92540"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/refresh_tokens.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "26fd7f20350e1d396d0213031552a9c69e48d9719e7cdc5415576cb6ba36da30"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/sessions.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "87a22d62b159a6ff6fc57bf2cb2513f554a7f3a5ac2ba9d940929a0d44de5a64"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/sync_changes.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "38d0b7fee9b35119e0ff35cd028f19183ff74a93011861e2e1fe336aceba5a3f"
+    },
+    {
+      "path": "backend/app/infrastructure/database/attendance_activity_models.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "043f2f294ffa5080a9c9e644966712fa9cb721da4f8052215097d3e1b3125322"
+    },
+    {
+      "path": "backend/app/infrastructure/database/attendance_batch_models.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "d597b978a39b4fee5c328f1cc86de60754dcc21d4274c4c1cf46aaaf3ebc9c5b"
+    },
+    {
+      "path": "backend/app/infrastructure/database/attendance_closeout_models.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "c6a78703fe756dbf0afc0a7480274b4489c58cb025473fbdb16b506406d3871a"
+    },
+    {
+      "path": "backend/app/infrastructure/database/attendance_runtime_models.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "574e87e93d3ad90882de7fdbe1ba068ebaac1a7d7b4f2e6c549d4046d5c8e289"
+    },
+    {
+      "path": "backend/app/infrastructure/database/communications_models.py",
+      "before_0140": "f28acf7b3c2e90f758202a18e4dcbc56bbec2d93d4db9c38e4bde3bfb58240a0",
+      "before_0141": "1945ccceb8ee2c8e7b937eacd5370dc26cbc6bfacd80376c4cdfa42446a48297",
+      "after": "0283ffad7b14ef05b16c2240fba2cf1a2580a7b68d29665ece26a284d67f7688"
+    },
+    {
+      "path": "backend/app/infrastructure/database/document_models.py",
+      "before_0140": "ba215203086d1298b46d9491053239a4aa9eaad13e7e0a8107f9695717479091",
+      "before_0141": "ba215203086d1298b46d9491053239a4aa9eaad13e7e0a8107f9695717479091",
+      "after": "4ae0d78c9f6b57f6bd3569e83ea971cf266c6406935b0dcf395b26c2d149a5be"
+    },
+    {
+      "path": "backend/app/infrastructure/database/email_ai_models.py",
+      "before_0140": "86334fa77e57b5653a9fb13a88ac9f023a75f2e6d0bc970337d6329e8618fe15",
+      "before_0141": "86334fa77e57b5653a9fb13a88ac9f023a75f2e6d0bc970337d6329e8618fe15",
+      "after": "6c61c0e776c096ea56f26e853fbfcfd05054f099b7d3d1f73f6e238a87174c10"
+    },
+    {
+      "path": "backend/app/infrastructure/database/email_models.py",
+      "before_0140": "6219999038bcbc6628643bc4d605a9f1571e444cb22331db591333414a1d5d17",
+      "before_0141": "6219999038bcbc6628643bc4d605a9f1571e444cb22331db591333414a1d5d17",
+      "after": "7b0ee596fea8b7c43d92315038b1e14893d1fd865a32f0adee477fd3bb762e2d"
+    },
+    {
+      "path": "backend/app/infrastructure/database/gc_mobile_models.py",
+      "before_0140": "d9bed4d91e3c30690de5fe575373b48a6b8a51edb7feb77527aa20b7a85fba61",
+      "before_0141": "401154b6e85d45ebbbfd2151d84e30cf50a74721c50a472ef95f5fae25536b34",
+      "after": "e3e310aba0e7027db9a6cf617e79b8d19035237a496043b7a36e1956f6f92e47"
+    },
+    {
+      "path": "backend/app/infrastructure/database/models.py",
+      "before_0140": "4c4b5d0d51d39a359fe5467a5aa26c3e7fb9eef41a5ef609036dbfcab6eb7da7",
+      "before_0141": "6d5fd4469e2b5321800a713c0bf3ecce48d0d6d3a78cd6ecbcab36f76ac90abb",
+      "after": "685526fd00128c49052195d84ac17d7e1ad66ace8e43dbcd70e260435be24c16"
+    },
+    {
+      "path": "backend/app/infrastructure/database/my_photo_delivery_models.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "5a7678b5516cb4d422d68c0d0ca5adde98a666aff4983a6deb4946c28908e1a8"
+    },
+    {
+      "path": "backend/app/infrastructure/database/my_photo_enrollment_models.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "2fc6c4dc3c0e9c3ac4d3a753d2bf5a5cd4d4922da9649adfc014cd2cb4812eda"
+    },
+    {
+      "path": "backend/app/infrastructure/database/my_photo_face_models.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "5762fcc8503674c2596404868d11ccb327b897c26ebf6ff94f08bfd7cdc9a654"
+    },
+    {
+      "path": "backend/app/infrastructure/database/my_photo_gallery_models.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "ff685c2c81777b0a7469ac29e52e3274fcc16add312a5d7a6320e86497849e81"
+    },
+    {
+      "path": "backend/app/infrastructure/database/my_photo_job_models.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "d05e08b0f92db539d508346fa20efa72dfa178e5c6a342aa5e989473624cf9fb"
+    },
+    {
+      "path": "backend/app/infrastructure/database/my_photo_liveness_models.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "715b592b3f5efc81722dae77c818a795149505d29060cbc76f478851cbcec259"
+    },
+    {
+      "path": "backend/app/infrastructure/database/my_photo_media_models.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "97b42531db5a6559e077e3e9142def20c0c02a1804c18770a0f87908a3469a7a"
+    },
+    {
+      "path": "backend/app/infrastructure/database/my_photo_search_models.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "042d6321afd562ae64bcfe3632ff3d067cb6c6a51f0f8b9320c9a4431daad849"
+    },
+    {
+      "path": "backend/app/infrastructure/database/my_photos_models.py",
+      "before_0140": "946142be0d6d85dddfa7a45b7e71dfb7186b8d5ed69055744f1c876d2d263704",
+      "before_0141": "946142be0d6d85dddfa7a45b7e71dfb7186b8d5ed69055744f1c876d2d263704",
+      "after": "aca22d028095e0de7f440dcb896cbfee4510a3006c59f538c95aa5423e76a98d"
+    },
+    {
+      "path": "backend/app/infrastructure/database/operations_models.py",
+      "before_0140": "5241d15febee31cf52feac5c45d1146200ec71332fbf4294173efd88afe1dbba",
+      "before_0141": "5241d15febee31cf52feac5c45d1146200ec71332fbf4294173efd88afe1dbba",
+      "after": "c7de0dbae6ad793799fcdc9645b813e95e9d4ded354bc00a50cbfb3a985d4402"
+    },
+    {
+      "path": "backend/app/infrastructure/database/passenger_qr_models.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "d57eaab27cc3636c19efb17dd6c702abdeeea31b85ae4e426523c2ad933a75bc"
+    },
+    {
+      "path": "backend/app/infrastructure/database/rooming_allocation_models.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "68f96b41b11265f190e15bc57834c240dff1e91e4e2832d3154b4073f31f9ab9"
+    },
+    {
+      "path": "backend/app/infrastructure/database/rooming_property_models.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "cefceafa65038c418430d6e64cbebf7e17537cf33183bd64980bd590b4fb59db"
+    },
+    {
+      "path": "backend/app/infrastructure/database/session.py",
+      "before_0140": "bcb8f16506d95ea2e73cb355fa877e7c5a18735fc2d4e71bf2f8bcb33eb00451",
+      "before_0141": "bcb8f16506d95ea2e73cb355fa877e7c5a18735fc2d4e71bf2f8bcb33eb00451",
+      "after": "e5b4d5b41740661ae1f527eb7077d712a71e5210158098527003ef415a64e4cd"
+    },
+    {
+      "path": "backend/app/infrastructure/processing/celery_app.py",
+      "before_0140": "e947425a414a451ad5d00f4938793c2927269ea3f46ec77b877cff7bfb6fe7d5",
+      "before_0141": "e947425a414a451ad5d00f4938793c2927269ea3f46ec77b877cff7bfb6fe7d5",
+      "after": "7698059525fa0e66ea9fdc29c42fb6623b5829b6ca7ec3c7539e395b093b5681"
+    },
+    {
+      "path": "backend/app/infrastructure/storage/branding_urls.py",
+      "before_0140": null,
+      "before_0141": "d6372bdb551e4def9cc5edeed8904e9edff162d39259458b5083c909a6466b22",
+      "after": "9b75c427c919f2a0ed48bb99979ccd69bc7a3ba94d9514e7b45ba5a52d838b29"
+    },
+    {
+      "path": "backend/app/infrastructure/storage/minio_repository.py",
+      "before_0140": "dde40a198aff9f1ecbd7e36aa6e4069ebfd58808329744ccf6cac54a669294e1",
+      "before_0141": "dde40a198aff9f1ecbd7e36aa6e4069ebfd58808329744ccf6cac54a669294e1",
+      "after": "f31fe249d63c18ea0e400bae0ee3161eb05db6b194527e2bdab39bf88626180c"
+    },
+    {
+      "path": "backend/backend_quality_budgets.json",
+      "before_0140": "1a0a15cddd6a58eecdf40e7f401c1a8475b559525def093289d51fdb1ee790b0",
+      "before_0141": "1a0a15cddd6a58eecdf40e7f401c1a8475b559525def093289d51fdb1ee790b0",
+      "after": "5b4249b233c075481e258760b8721462f2190e4754312e361b05349aaf2cde46"
+    },
+    {
+      "path": "backend/requirements-dev.lock",
+      "before_0140": "558e52f32ca3b6225d39b7ee86a036f79c13225baf4a78f051925bef511e146c",
+      "before_0141": "558e52f32ca3b6225d39b7ee86a036f79c13225baf4a78f051925bef511e146c",
+      "after": "fa496ac3b66cb786678e2d68d5dd105b06e1f111c909334848a93f29c17c7e1f"
+    },
+    {
+      "path": "backend/requirements.lock",
+      "before_0140": "1504909b310b33fcfbdd6a45d90f41dc6df8b743ec97f77e3ed918013fa43c75",
+      "before_0141": "1504909b310b33fcfbdd6a45d90f41dc6df8b743ec97f77e3ed918013fa43c75",
+      "after": "1fe14679cfb5a5dce7043966982e4b348c5861d9d952dfc32183eea7ce1e2bd0"
+    },
+    {
+      "path": "backend/requirements.txt",
+      "before_0140": "85806e4acd976cfb1d86437cb6af229505ec9c86ef714e015c91e19883344282",
+      "before_0141": "85806e4acd976cfb1d86437cb6af229505ec9c86ef714e015c91e19883344282",
+      "after": "ba9cbd3b577b316b1262c2f5ce6cd14f8d2cf5c9347df152f75bc252a42ad31c"
+    },
+    {
+      "path": "docker-compose.audit.yml",
+      "before_0140": "eb2a6bb2f7aa0fc02a787c0d868002b80be9084bbcb2fc92becc5a902eda4057",
+      "before_0141": "eb2a6bb2f7aa0fc02a787c0d868002b80be9084bbcb2fc92becc5a902eda4057",
+      "after": "b356f5c9044d77cab626d4cba704c9f6b8d17ae290b8d7d563e402b8e105c38c"
+    },
+    {
+      "path": "docker-compose.yml",
+      "before_0140": "e7e44f8ad4aa6fd39c6fbbdd1befec7750470d4c64c4eac623cf308cfc861e45",
+      "before_0141": "37a1d21f0e313c9e0e0c3d9fde4a662743317751aae059965d01ab6eb53ea8a8",
+      "after": "918eb4fc3eccecb7c68ad56ab66b36a976754b3f0b1f0ce7a04081c8e309a357"
+    },
+    {
+      "path": "frontend/package-lock.json",
+      "before_0140": "8fad36f5d051e3d3b57c4db03d042d152c4dc8ddfaccf43e1df385d06681b0a8",
+      "before_0141": "8fad36f5d051e3d3b57c4db03d042d152c4dc8ddfaccf43e1df385d06681b0a8",
+      "after": "aa4adc3d5ff8e8fba20dc8454d60c953011da383a74fba26dda48c36f96ff029"
+    },
+    {
+      "path": "frontend/package.json",
+      "before_0140": "2af0aef08b986e7ea44ad5ab6039716c695f63d1a8d2564b216d9310131ec754",
+      "before_0141": "2af0aef08b986e7ea44ad5ab6039716c695f63d1a8d2564b216d9310131ec754",
+      "after": "408dad065be30f21a2344af398a32238ac72250a778e363977fab10ba247ff81"
+    },
+    {
+      "path": "frontend/scripts/browser-verification-local-fixture.mjs",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "7e7ecd76b8a48b67ceff46d2fac31e551da17dceab07457ef465e94ba51e8a9f"
+    },
+    {
+      "path": "frontend/scripts/browser-verification-portrait.mjs",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "534b119869f906a6f3153aaf0d992d554ff6dce80039cdcf3416401cf6f51ff7"
+    },
+    {
+      "path": "frontend/scripts/browser-verification-whatsapp-fixture.mjs",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "ba8cc40f6376db7d57f4cfbc02dcab585b443bdc59dbdb81d4931c5d91c4d304"
+    },
+    {
+      "path": "frontend/scripts/build-offline-scanner.mjs",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "43f6ea6db77140818253850dc9a4501e98bfeb27d41c000cd1a4382e2db690cc"
+    },
+    {
+      "path": "frontend/scripts/verify-access-level-browser.mjs",
+      "before_0140": "3a36a163a25bd4b2e756b63573553831ecf366c612fb6439af060ca4c8427b2d",
+      "before_0141": "3a36a163a25bd4b2e756b63573553831ecf366c612fb6439af060ca4c8427b2d",
+      "after": "c3b0794fee6ff06f6e865b14fec3b49a2e64b97d68839c4c6d3465ea0ee0764c"
+    },
+    {
+      "path": "frontend/scripts/verify-frontend-module-budgets.mjs",
+      "before_0140": "dd6bad57c8eae5afe4e0ca49d7d28568c0637a716b434da8a7c07f869723fabe",
+      "before_0141": "dd6bad57c8eae5afe4e0ca49d7d28568c0637a716b434da8a7c07f869723fabe",
+      "after": "13f252c5ec63f9b0906c77d5cdaf47bd6dce01580cd074728a2aa65e60f097f7"
+    },
+    {
+      "path": "frontend/scripts/verify-upload-options-browser.mjs",
+      "before_0140": "793e4f32fddf6a6993d0ac28976754a8ab639c468b35656700d97b50c7da3d40",
+      "before_0141": "793e4f32fddf6a6993d0ac28976754a8ab639c468b35656700d97b50c7da3d40",
+      "after": "b8ddd9961a025076a5d7b8563494a4ae87fa355dda8f03db63fddc6c30df275f"
+    },
+    {
+      "path": "frontend/scripts/verify-visa-photo-browser.mjs",
+      "before_0140": "57b510c551e9d8265c493fdd44e16c095ab78624c78184d24144784dd4e47abd",
+      "before_0141": "57b510c551e9d8265c493fdd44e16c095ab78624c78184d24144784dd4e47abd",
+      "after": "3a606c70411b68c7c9585b623a0b7f059b85983353f0dae4fddc492ffad2b192"
+    },
+    {
+      "path": "frontend/scripts/verify-whatsapp-composer-browser.mjs",
+      "before_0140": "51e966d9e5b24e360d664a1b35ef50a8734e68db6dab23ee6a1e485ef42e5c01",
+      "before_0141": "51e966d9e5b24e360d664a1b35ef50a8734e68db6dab23ee6a1e485ef42e5c01",
+      "after": "952a2b819dcdf220a1a8e1e72abc10748825229975e979be0e22fd3f5b9721ca"
+    },
+    {
+      "path": "frontend/scripts/verify-whatsapp-recipient-bulk-browser.mjs",
+      "before_0140": "bfd36aa9eed6d26eca5ae998a0f73b8fd278d045008ecccba3465da7e9c8b143",
+      "before_0141": "99c936a2da8696e77d8f986700f91058070479b7f2bbe9a67b0bb6b0e04f7ab5",
+      "after": "0b54ce46b5bbbd1a013157bd3d58431e193f99cea760a62146b52f21865d2fdf"
+    },
+    {
+      "path": "frontend/tsconfig.json",
+      "before_0140": "be18523b23b78b6e1a876ddd107d330f0168bddf09d751b57e0b5edce69c66f3",
+      "before_0141": "be18523b23b78b6e1a876ddd107d330f0168bddf09d751b57e0b5edce69c66f3",
+      "after": "e1f2b4ec806c55ba0cc71369588733fe427a277990cccfd44ef62c9b6e9fe49d"
+    },
+    {
+      "path": "nginx/conf.d/default.conf",
+      "before_0140": "b023517acaf89fdc07bcef11d72be7cf43f20b48507bab55e96ab18c4e06cd42",
+      "before_0141": "b023517acaf89fdc07bcef11d72be7cf43f20b48507bab55e96ab18c4e06cd42",
+      "after": "d4785794a3bf927c59dab74d4c1c99ed6b5919c26ffa0df06842821b3470f183"
+    },
+    {
+      "path": "nginx/nginx.conf",
+      "before_0140": "c6b821810504df2ad51866a7929210ed913e9f0debcc6a59d62eaf38d2520024",
+      "before_0141": "c6b821810504df2ad51866a7929210ed913e9f0debcc6a59d62eaf38d2520024",
+      "after": "383ad2de629ba95d564b8ae302ef485ac4f9d22bcbe599abd691dc0b5583edb1"
+    }
+  ]
+}

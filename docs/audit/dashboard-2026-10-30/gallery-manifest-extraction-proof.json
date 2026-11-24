@@ -1,0 +1,325 @@
+{
+  "basis_sha256": "c726cef72fa668a07b827fe8a6faecfba2f0468fac0e37c2fa32e5b357b697df",
+  "basis": "Fully read original gallery ingestion source before any gallery behavior fix. AWS dispatch cancellation is a separate source owner checkpoint.",
+  "normalization": "Only explicit self\u2192typed ctx resource/method relocation plus docstring indentation normalized with inspect.cleandoc. Executable statements remain exact.",
+  "declarations": [
+    {
+      "name": "_content_fingerprint",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_fingerprints.py",
+      "basis": "Original complete declaration AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_json_fingerprint",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_fingerprints.py",
+      "basis": "Original complete declaration AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_BATCH_SIZE",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_contracts.py",
+      "basis": "Original complete declaration AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_MAX_MANIFEST_ASSETS",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_contracts.py",
+      "basis": "Original complete declaration AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_MAX_BATCHES",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_contracts.py",
+      "basis": "Original complete declaration AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "GalleryManifestVariant",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_contracts.py",
+      "basis": "Original complete declaration AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "GalleryManifestAsset",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_contracts.py",
+      "basis": "Original complete declaration AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "GalleryManifestRequest",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_contracts.py",
+      "basis": "Original complete declaration AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "GalleryManifestLocator",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_contracts.py",
+      "basis": "Original complete declaration AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "ManifestDispatchState",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_contracts.py",
+      "basis": "Original complete declaration AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "ManifestState",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_contracts.py",
+      "basis": "Original complete declaration AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "GalleryManifestResult",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_contracts.py",
+      "basis": "Original complete declaration AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "GalleryManifestStatus",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_contracts.py",
+      "basis": "Original complete declaration AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_VerifiedAsset",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_contracts.py",
+      "basis": "Original complete declaration AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_ADMIN_MFA_MAX_AGE",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_policy.py",
+      "basis": "Original complete declaration AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_STABLE_ID",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_policy.py",
+      "basis": "Original complete declaration AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_require_operator",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_policy.py",
+      "basis": "Original complete declaration AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_require_gallery_scope",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_policy.py",
+      "basis": "Original complete declaration AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_require_manifest_header",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_policy.py",
+      "basis": "Original complete declaration AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_require_variant_match",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_policy.py",
+      "basis": "Original complete declaration AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_result_with_job",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_policy.py",
+      "basis": "Original complete declaration AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_dispatch_result",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_policy.py",
+      "basis": "Original complete declaration AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_valid_stable",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_policy.py",
+      "basis": "Original complete declaration AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_as_utc",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_policy.py",
+      "basis": "Original complete declaration AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_load_scope",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_queries.py",
+      "basis": "Explicit ctx replaces self resource attributes and internal method dispatch; all remaining AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_locked_gallery",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_queries.py",
+      "basis": "Explicit ctx replaces self resource attributes and internal method dispatch; all remaining AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_locked_manifest",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_queries.py",
+      "basis": "Explicit ctx replaces self resource attributes and internal method dispatch; all remaining AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_locked_batch",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_queries.py",
+      "basis": "Explicit ctx replaces self resource attributes and internal method dispatch; all remaining AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_job_for_manifest",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_queries.py",
+      "basis": "Explicit ctx replaces self resource attributes and internal method dispatch; all remaining AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_existing_batch_result",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_results.py",
+      "basis": "Explicit ctx replaces self resource attributes and internal method dispatch; all remaining AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_result_for_manifest",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_results.py",
+      "basis": "Explicit ctx replaces self resource attributes and internal method dispatch; all remaining AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "manifest_status",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_status.py",
+      "basis": "Explicit ctx replaces self resource attributes and internal method dispatch; all remaining AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_status_snapshot",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_status.py",
+      "basis": "Explicit ctx replaces self resource attributes and internal method dispatch; all remaining AST unchanged.",
+      "normalized_ast_equal": false,
+      "explicit_tested_cancelled_projection_fix_ast_equal": true
+    },
+    {
+      "name": "cancel_manifest",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_cancellation.py",
+      "basis": "Explicit ctx replaces self resource attributes and internal method dispatch; all remaining AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_audit_cancellation_requested",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_cancellation.py",
+      "basis": "Explicit ctx replaces self resource attributes and internal method dispatch; all remaining AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_delete_cancelled_provider_faces",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_cleanup.py",
+      "basis": "Explicit ctx replaces self resource attributes and internal method dispatch; all remaining AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_cancelled_media_batch",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_cleanup.py",
+      "basis": "Explicit ctx replaces self resource attributes and internal method dispatch; all remaining AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_delete_cancelled_media",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_cleanup.py",
+      "basis": "Explicit ctx replaces self resource attributes and internal method dispatch; all remaining AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_has_cancelled_media",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_cleanup.py",
+      "basis": "Explicit ctx replaces self resource attributes and internal method dispatch; all remaining AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_cleanup_cancelled_manifest",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_cleanup.py",
+      "basis": "Explicit ctx replaces self resource attributes and internal method dispatch; all remaining AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "register_batch",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_registration.py",
+      "basis": "Explicit ctx replaces self resource attributes and internal method dispatch; all remaining AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "finalize_manifest",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_finalization.py",
+      "basis": "Explicit ctx replaces self resource attributes and internal method dispatch; all remaining AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_PROVIDER_CONCURRENCY",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_providers.py",
+      "basis": "Original complete declaration AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_ProviderResultT",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_providers.py",
+      "basis": "Original complete declaration AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_ensure_collection",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_providers.py",
+      "basis": "Explicit ctx replaces self resource attributes and internal method dispatch; all remaining AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_provider_configuration_fingerprint",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_providers.py",
+      "basis": "Explicit ctx replaces self resource attributes and internal method dispatch; all remaining AST unchanged.",
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_verify_media",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_providers.py",
+      "basis": "Explicit ctx replaces self resource attributes and internal method dispatch; all remaining AST unchanged.",
+      "normalized_ast_equal": false,
+      "explicit_tested_ownership_fix_ast_equal": true
+    },
+    {
+      "name": "_persist_batch_assets",
+      "owner": "backend/app/infrastructure/my_photos/gallery_manifest_persistence.py",
+      "basis": "Explicit ctx replaces self resource attributes and internal method dispatch; all remaining AST unchanged.",
+      "normalized_ast_equal": true
+    }
+  ],
+  "exact_or_explicit_context_normalized_declarations": 46,
+  "original_constructor_and_four_public_method_signatures_and_decorators": "identical",
+  "actual_original_class_definition_count": 23,
+  "private_wrapper_retirement": "18 unconsumed private compatibility wrappers removed after caller proof, while all18 implementation functions remain in focused owners. See gallery-manifest-private-wrapper-retirement.json. Phase1 proof validated all23 original signatures; its initial hardcoded26 label was a reporting error, not a skipped check.",
+  "wrapper_arguments": "every original public positional and keyword argument forwarded exactly once; original3 resources resolved by explicit call-time typed context",
+  "unmodified_context_body_proof_limit": "Source relocation proof is separate from behavior tests and native/provider qualification. No proxy globals, mixins, runtime circular lookup or generic callback bag.",
+  "runtime_sha256": {
+    "backend/app/infrastructure/my_photos/gallery_manifest_cancellation.py": "5b7985cc2b14a39088f2d9e15a8f92b19dc396481a7afe4a8e89109b341803aa",
+    "backend/app/infrastructure/my_photos/gallery_manifest_cleanup.py": "69a007bc2f7edf6fba14dbf01a626ac4354f03dbea2eb31a2c324f0188425f1b",
+    "backend/app/infrastructure/my_photos/gallery_manifest_context.py": "13962075ff5d9f37d59f204a2bd541f4e82d60b162a0a1bade6abb7f4a1bd43e",
+    "backend/app/infrastructure/my_photos/gallery_manifest_contracts.py": "32741f69e2257347172fe3e6d30f67156ed3f8aae7f0fc84120ce2dd9bf8069f",
+    "backend/app/infrastructure/my_photos/gallery_manifest_finalization.py": "d559954084fbc13f884bee9b734f51f415b7a23d363439199a8e2b8283d7be36",
+    "backend/app/infrastructure/my_photos/gallery_manifest_fingerprints.py": "ebd0dafd7459736a204e311ff4476bf5350e976b11555638671a6d5b48d52d4d",
+    "backend/app/infrastructure/my_photos/gallery_manifest_persistence.py": "bc6e4c8f4ee9a610bb173075fc35d60166220df26373fb3a72821a6d1b903c56",
+    "backend/app/infrastructure/my_photos/gallery_manifest_policy.py": "d7ad70a7bb06e670a3f0548cad0a1d2082277cc13d19cb126efef4e09947149a",
+    "backend/app/infrastructure/my_photos/gallery_manifest_providers.py": "924f7e0141c0eccb2702fb103ec5ec52d901f51d3300f182f902376643fc0a47",
+    "backend/app/infrastructure/my_photos/gallery_manifest_queries.py": "361c4521a8df1c8b55a8e7a68ba6886558f8b46958b288f6cebfebcf7d5069a8",
+    "backend/app/infrastructure/my_photos/gallery_manifest_registration.py": "fe7a14da11c196eb6be3f18b58c2e1704fde8bc30f5b92cf3f1fb97ea2d3319f",
+    "backend/app/infrastructure/my_photos/gallery_manifest_results.py": "701d3ee1ff1bc2e6374ca796536e0d3a8a9fa73e4e89edcf8fdb6a8a8bb1f0ff",
+    "backend/app/infrastructure/my_photos/gallery_manifest_service.py": "ce540ff8b5fcfb9cb07c5b6c7d2b5837ce6243cf147061471350fd0832746eb1",
+    "backend/app/infrastructure/my_photos/gallery_manifest_status.py": "73b770fe01fda889d2d7def31cea42144b40619c9dcf98c28f857ef01cef7b71",
+    "backend/app/infrastructure/my_photos/gallery_ingestion.py": "b657e77f97acc158ba29bd582273a4e053fa0f1a384e914c7f150f22ca52c5e5"
+  },
+  "intentional_behavior_changes": [
+    "_verify_media: cancel and drain every owned sibling on failure/cancellation while preserving the first provider error and existing input order. Two blocked-native negatives failed before; repeated cancellation/success/late-failure controls exercise cleanup.",
+    "_status_snapshot: terminal cancelled manifest takes precedence over a retained failed indexing job. Six actual partial-index cleanup flows failed before."
+  ],
+  "composition_class_relocation": "Original constructor and four public wrapper bodies/signatures remain in focused gallery_manifest_service; legacy namespace exports the identical class and all annotation dependencies. Four get_type_hints regressions reproduced; seven class namespace/pickle cases pass. No runtime circular lookup."
+}

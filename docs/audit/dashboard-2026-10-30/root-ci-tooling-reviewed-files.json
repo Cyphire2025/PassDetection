@@ -1,0 +1,98 @@
+[
+  {
+    "path": ".github/workflows/ci.yml",
+    "sha256": "fdc9457fd5321ca9d1733400d7d599820b0c60f733d65d677bafc9e2666077d2",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "needs-follow-up",
+    "notes": "All physical source/configread, including4frozenbatches/1352CI lines. Exact sourcecheck/collection/coverage/service/attestation/promotion/SSH boundaries inspected; no workflows dispatched or GitHub/protection/deployment writes. Configdescriptions and historicalcandidate resourceclaims are not executed instructions or present qualification. Native-only workflow sources not reviewed by this record. MainCI stilllong with duplicatedsetup/serviceorchestration; runtime/toolinghelper and realLinux/native-service qualification remain open. Trackerretirementhistory now accepts onlytwoexplicit proof manifests, validatespaths/digests and retains newlycreated-then-retiredWhatsAppfiles."
+  },
+  {
+    "path": ".github/dependabot.yml",
+    "sha256": "a7b087063a81aa16e165c6e4f28e4515c02d67c6ba2f490cd4e2855720d5cfdb",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All physical source/configread, including4frozenbatches/1352CI lines. Exact sourcecheck/collection/coverage/service/attestation/promotion/SSH boundaries inspected; no workflows dispatched or GitHub/protection/deployment writes. Configdescriptions and historicalcandidate resourceclaims are not executed instructions or present qualification. Native-only workflow sources not reviewed by this record. MainCI stilllong with duplicatedsetup/serviceorchestration; runtime/toolinghelper and realLinux/native-service qualification remain open. Trackerretirementhistory now accepts onlytwoexplicit proof manifests, validatespaths/digests and retains newlycreated-then-retiredWhatsAppfiles."
+  },
+  {
+    "path": ".gitattributes",
+    "sha256": "dec68ef90900c5175746ed92df3603e86396d7cb1a38656204463041024cd344",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All physical source/configread, including4frozenbatches/1352CI lines. Exact sourcecheck/collection/coverage/service/attestation/promotion/SSH boundaries inspected; no workflows dispatched or GitHub/protection/deployment writes. Configdescriptions and historicalcandidate resourceclaims are not executed instructions or present qualification. Native-only workflow sources not reviewed by this record. MainCI stilllong with duplicatedsetup/serviceorchestration; runtime/toolinghelper and realLinux/native-service qualification remain open. Trackerretirementhistory now accepts onlytwoexplicit proof manifests, validatespaths/digests and retains newlycreated-then-retiredWhatsAppfiles."
+  },
+  {
+    "path": "tooling/toolchain.json",
+    "sha256": "33991e672ee1c948c323ec483f3df9a16d30c58145146ed5c56decaacde7db16",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All physical source/configread, including4frozenbatches/1352CI lines. Exact sourcecheck/collection/coverage/service/attestation/promotion/SSH boundaries inspected; no workflows dispatched or GitHub/protection/deployment writes. Configdescriptions and historicalcandidate resourceclaims are not executed instructions or present qualification. Native-only workflow sources not reviewed by this record. MainCI stilllong with duplicatedsetup/serviceorchestration; runtime/toolinghelper and realLinux/native-service qualification remain open. Trackerretirementhistory now accepts onlytwoexplicit proof manifests, validatespaths/digests and retains newlycreated-then-retiredWhatsAppfiles."
+  },
+  {
+    "path": "tooling/database-deployment-budget.json",
+    "sha256": "9bb07cb27b351cd20b81d91fda99c33042c856d72941c8fab3f34b7e8a9cfa02",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All physical source/configread, including4frozenbatches/1352CI lines. Exact sourcecheck/collection/coverage/service/attestation/promotion/SSH boundaries inspected; no workflows dispatched or GitHub/protection/deployment writes. Configdescriptions and historicalcandidate resourceclaims are not executed instructions or present qualification. Native-only workflow sources not reviewed by this record. MainCI stilllong with duplicatedsetup/serviceorchestration; runtime/toolinghelper and realLinux/native-service qualification remain open. Trackerretirementhistory now accepts onlytwoexplicit proof manifests, validatespaths/digests and retains newlycreated-then-retiredWhatsAppfiles."
+  },
+  {
+    "path": "tooling/deployment-profiles/kvm4.json",
+    "sha256": "0849671322f5fce1df76dd0ad75730bf6e55bd24f4d0a86a5b382bc608bd7abe",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "needs-follow-up",
+    "notes": "All physical source/configread, including4frozenbatches/1352CI lines. Exact sourcecheck/collection/coverage/service/attestation/promotion/SSH boundaries inspected; no workflows dispatched or GitHub/protection/deployment writes. Configdescriptions and historicalcandidate resourceclaims are not executed instructions or present qualification. Native-only workflow sources not reviewed by this record. MainCI stilllong with duplicatedsetup/serviceorchestration; runtime/toolinghelper and realLinux/native-service qualification remain open. Trackerretirementhistory now accepts onlytwoexplicit proof manifests, validatespaths/digests and retains newlycreated-then-retiredWhatsAppfiles."
+  },
+  {
+    "path": "tooling/release-trust.json",
+    "sha256": "d86331a874e4e14b3356c662ec5a75e86089d3997a73a0c54dbdac9e9cbab002",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All physical source/configread, including4frozenbatches/1352CI lines. Exact sourcecheck/collection/coverage/service/attestation/promotion/SSH boundaries inspected; no workflows dispatched or GitHub/protection/deployment writes. Configdescriptions and historicalcandidate resourceclaims are not executed instructions or present qualification. Native-only workflow sources not reviewed by this record. MainCI stilllong with duplicatedsetup/serviceorchestration; runtime/toolinghelper and realLinux/native-service qualification remain open. Trackerretirementhistory now accepts onlytwoexplicit proof manifests, validatespaths/digests and retains newlycreated-then-retiredWhatsAppfiles."
+  },
+  {
+    "path": "tooling/github-protection/branch-main.json",
+    "sha256": "36279443013a9db6e588a0989534e29a87a862cda45d03b6ae503ff1367ad42a",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All physical source/configread, including4frozenbatches/1352CI lines. Exact sourcecheck/collection/coverage/service/attestation/promotion/SSH boundaries inspected; no workflows dispatched or GitHub/protection/deployment writes. Configdescriptions and historicalcandidate resourceclaims are not executed instructions or present qualification. Native-only workflow sources not reviewed by this record. MainCI stilllong with duplicatedsetup/serviceorchestration; runtime/toolinghelper and realLinux/native-service qualification remain open. Trackerretirementhistory now accepts onlytwoexplicit proof manifests, validatespaths/digests and retains newlycreated-then-retiredWhatsAppfiles."
+  },
+  {
+    "path": "tooling/github-protection/production-artifacts.json",
+    "sha256": "a04a60f2ccaf4008e4e2647472d1a7e1a8b4cd6ef4520cc2b377bf1c6d11609f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All physical source/configread, including4frozenbatches/1352CI lines. Exact sourcecheck/collection/coverage/service/attestation/promotion/SSH boundaries inspected; no workflows dispatched or GitHub/protection/deployment writes. Configdescriptions and historicalcandidate resourceclaims are not executed instructions or present qualification. Native-only workflow sources not reviewed by this record. MainCI stilllong with duplicatedsetup/serviceorchestration; runtime/toolinghelper and realLinux/native-service qualification remain open. Trackerretirementhistory now accepts onlytwoexplicit proof manifests, validatespaths/digests and retains newlycreated-then-retiredWhatsAppfiles."
+  },
+  {
+    "path": "tooling/github-protection/production-main-branch.json",
+    "sha256": "85cfaae1add3dc880f73ba5084558c163e16de32205371a79e1864849de10205",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All physical source/configread, including4frozenbatches/1352CI lines. Exact sourcecheck/collection/coverage/service/attestation/promotion/SSH boundaries inspected; no workflows dispatched or GitHub/protection/deployment writes. Configdescriptions and historicalcandidate resourceclaims are not executed instructions or present qualification. Native-only workflow sources not reviewed by this record. MainCI stilllong with duplicatedsetup/serviceorchestration; runtime/toolinghelper and realLinux/native-service qualification remain open. Trackerretirementhistory now accepts onlytwoexplicit proof manifests, validatespaths/digests and retains newlycreated-then-retiredWhatsAppfiles."
+  },
+  {
+    "path": "tooling/github-protection/requests.json",
+    "sha256": "b3dcbd976b6f1be0df64113bc319d7ed755b6d907726ef359e1339613f1f3b70",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All physical source/configread, including4frozenbatches/1352CI lines. Exact sourcecheck/collection/coverage/service/attestation/promotion/SSH boundaries inspected; no workflows dispatched or GitHub/protection/deployment writes. Configdescriptions and historicalcandidate resourceclaims are not executed instructions or present qualification. Native-only workflow sources not reviewed by this record. MainCI stilllong with duplicatedsetup/serviceorchestration; runtime/toolinghelper and realLinux/native-service qualification remain open. Trackerretirementhistory now accepts onlytwoexplicit proof manifests, validatespaths/digests and retains newlycreated-then-retiredWhatsAppfiles."
+  },
+  {
+    "path": "scripts/dashboard_audit_inventory.py",
+    "sha256": "08463520e0e38d3fb57b21ae5387520e2502d4c085c923b26bac7956c93b29e7",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole current inventory source physically read by root. Added explicit normalization for current wrapping/verifier/pending-review labels and refactored priority; open follow-ups retain precedence over successful narrow fixes. Only this actually edited tooling row refreshed."
+  }
+]

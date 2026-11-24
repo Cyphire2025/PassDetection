@@ -1,0 +1,14 @@
+{
+  "candidates": "docs/audit/dashboard-2026-10-30/message-composer-current-budget-candidates.json",
+  "before_sha256": "3b3068b6d4eee2f84dbf48d368a82723142b4639e774009095a062a396cc2848",
+  "sha256": "b25f3c49e27bf41fa38e033c4fae49b4487b174b37e6720eae3ff5253c12c45f",
+  "lf_normalized_sha256": "560b1db3dbd83dc38c90cc5e4d64aeb182bab2b88e8a96c26c9a3e3dcfd802a4",
+  "added": 1,
+  "updated_existing": 12,
+  "lowered_existing": 1,
+  "lowered_existing_paths": [
+    "features/whatsapp/workspace/use-message-composer-preview.ts"
+  ],
+  "existing_ceilings_preserved": true,
+  "previous_ceilings_sha256": "561243a1ca83116f3b2bb59d021b9a2f3406cdaf444475bf5d442584f14e665c"
+}

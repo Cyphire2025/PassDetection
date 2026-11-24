@@ -1,0 +1,158 @@
+{
+  "recorded_at": "2026-10-31T04:46:00.753810+00:00",
+  "records": [
+    {
+      "path": "frontend/scripts/verify-upload-options-browser.mjs",
+      "sha256": "614ee67f689414476dede83f9784d522607dbf3b1a76decdf5e9198829d1284a",
+      "physical_lines": 275,
+      "review_scope": "full",
+      "status": "reviewed-with-verification-gap",
+      "review_method": "Every physical source line read in bounded Get-Content ranges; current route/import and real caller traces checked. This is source review, not automated triage or test execution. Frontend freeze held throughout; exact current bytes rechecked before ledger write.",
+      "notes": "Loopback origin/protocol, per-context service-worker blocking, external page request abort, synthetic API fixtures and public portrait hash checked. Current UI path is stale: direct Single and retired visa-photo-choice/passport-document-choice targets precede the present New traveller/Fresh private-draft workflow."
+    },
+    {
+      "path": "frontend/scripts/verify-visa-photo-browser.mjs",
+      "sha256": "a43f3b34685fb9b23bb82a371a6f4aab5b7e3c670fb6e7e49847ad9739b60b53",
+      "physical_lines": 272,
+      "review_scope": "full",
+      "status": "reviewed-with-qualified-scope",
+      "review_method": "Every physical source line read in bounded Get-Content ranges; current route/import and real caller traces checked. This is source review, not automated triage or test execution. Frontend freeze held throughout; exact current bytes rechecked before ledger write.",
+      "notes": "Pinned public MediaPipe portrait, nonce production-CSP extraction,127.0.0.1 ephemeral server, whitelisted asset filenames, failure/retry checks and finally resource cleanup read. Raw face-loader/CSP coverage remains useful; its uploaded-photo wrapper is not the current Fresh document upload entry point."
+    },
+    {
+      "path": "frontend/scripts/verify-whatsapp-composer-browser.mjs",
+      "sha256": "51e966d9e5b24e360d664a1b35ef50a8734e68db6dab23ee6a1e485ef42e5c01",
+      "physical_lines": 301,
+      "review_scope": "full",
+      "status": "reviewed-with-verification-gap",
+      "review_method": "Every physical source line read in bounded Get-Content ranges; current route/import and real caller traces checked. This is source review, not automated triage or test execution. Frontend freeze held throughout; exact current bytes rechecked before ledger write.",
+      "notes": "Synthetic actor/recipients/images, fresh browser contexts, external request abort, send/resend/media blocking and unexpected mutation denial checked. It targets the retired actions/Recipient List dialog path, absent from the current route-owned BroadcastIndex."
+    },
+    {
+      "path": "frontend/scripts/verify-whatsapp-recipient-bulk-browser.mjs",
+      "sha256": "decdafeeabe7683926f6f726cc6a4955806134836855ef5293af79f4f4328b39",
+      "physical_lines": 588,
+      "review_scope": "full",
+      "status": "reviewed-with-verification-gap",
+      "review_method": "Every physical source line read in bounded Get-Content ranges; current route/import and real caller traces checked. This is source review, not automated triage or test execution. Frontend freeze held throughout; exact current bytes rechecked before ledger write.",
+      "notes": "All API mutations intercepted, non-API writes aborted, external requests aborted and service workers blocked. Preview/send/replay payloads and held-response cleanup are synthetic. Current route entry still expects the retired Open actions/Recipient List modal path. Release policy has reviewed hash bindings for this tool, so later changes require coordinated admission."
+    }
+  ],
+  "total_physical_lines": 1436,
+  "callers": {
+    "frontend/scripts/verify-upload-options-browser.mjs": [
+      "Self-documented manual command; no package/CI invocation found in .github,package.json,README,scripts,tooling and nonaudit docs."
+    ],
+    "frontend/scripts/verify-visa-photo-browser.mjs": [
+      "frontend/package.json:test:visa-browser"
+    ],
+    "frontend/scripts/verify-whatsapp-composer-browser.mjs": [
+      "Self-documented manual command; no package/CI invocation found in the inspected caller roots."
+    ],
+    "frontend/scripts/verify-whatsapp-recipient-bulk-browser.mjs": [
+      "Self-documented manual command",
+      "scripts/release_workspace_branding_policy.py exact reviewed source hash tables"
+    ]
+  },
+  "findings": [
+    {
+      "id": "BVR01",
+      "kind": "verification_gap",
+      "status": "open-after-checkpoint",
+      "paths": [
+        "frontend/scripts/verify-upload-options-browser.mjs"
+      ],
+      "evidence": [
+        {
+          "path": "frontend/scripts/verify-upload-options-browser.mjs",
+          "line": 113,
+          "detail": "Direct Single button lookup immediately after opening upload/token; retired visa-photo-choice and combined legacy upload payload expected."
+        },
+        {
+          "path": "frontend/features/upload/components/traveller-portal.tsx",
+          "line": 45,
+          "detail": "Actual entry first offers New traveller and opens FreshFlow."
+        },
+        {
+          "path": "frontend/features/upload/components/fresh-documents.tsx",
+          "line": 26,
+          "detail": "Current document cards use private draft document preparation/upload, not the retired combined review flow."
+        }
+      ],
+      "impact": "This script cannot presently qualify the production configurable upload UI it describes. No current product regression inferred; no script execution was performed.",
+      "follow_up": "Migrate the manual verifier to the actual New traveller/Fresh private-draft contract while retaining live-only/upload-only/both, CSP, rejection and no-duplicate assertions."
+    },
+    {
+      "id": "BVR02",
+      "kind": "verification_gap",
+      "status": "open-after-checkpoint",
+      "paths": [
+        "frontend/scripts/verify-whatsapp-composer-browser.mjs",
+        "frontend/scripts/verify-whatsapp-recipient-bulk-browser.mjs"
+      ],
+      "evidence": [
+        {
+          "path": "frontend/scripts/verify-whatsapp-composer-browser.mjs",
+          "line": 154,
+          "detail": "Expects Open actions for group and then Recipient List."
+        },
+        {
+          "path": "frontend/scripts/verify-whatsapp-recipient-bulk-browser.mjs",
+          "line": 246,
+          "detail": "Same retired modal entry precedes every workspace/retry scenario."
+        },
+        {
+          "path": "frontend/features/whatsapp/components/whatsapp-page.tsx",
+          "line": 12,
+          "detail": "Actual route lazily imports BroadcastIndex."
+        },
+        {
+          "path": "frontend/features/whatsapp/workspace/broadcast-index.tsx",
+          "line": 213,
+          "detail": "Current list provides an Open broadcast link to route-owned workspaces, without the old group-actions/Recipient List controls."
+        }
+      ],
+      "impact": "Useful saved-message/idempotency/recipient isolation assertions are currently attached to a retired UI path; these scripts do not provide current-workspace qualification.",
+      "follow_up": "Retarget entry/navigation and fixture endpoints to current routed composer/recipients/history owners without dropping any negative or uncertain-send coverage. Parent owns WhatsApp runtime and strict tool-source admission."
+    },
+    {
+      "id": "BVR03",
+      "kind": "qualified_coverage_limit",
+      "status": "open-after-checkpoint",
+      "paths": [
+        "frontend/scripts/verify-visa-photo-browser.mjs"
+      ],
+      "evidence": [
+        {
+          "path": "frontend/package.json",
+          "line": 15,
+          "detail": "npm test:visa-browser invokes the script."
+        },
+        {
+          "path": "frontend/scripts/verify-visa-photo-browser.mjs",
+          "line": 47,
+          "detail": "Uploaded-photo scenarios bundle the legacy service wrapper and prewarmer."
+        },
+        {
+          "path": "frontend/features/upload/hooks/use-selected-document-uploads.ts",
+          "line": 5,
+          "detail": "Current Fresh document file path prepares public uploads and sends draft-side documents."
+        },
+        {
+          "path": "frontend/features/upload/hooks/use-visa-detector.ts",
+          "line": 6,
+          "detail": "The face loader itself remains active in the live camera; retain its valid CSP/model qualification."
+        }
+      ],
+      "impact": "Raw MediaPipe/CSP/retry diagnostics still exercise current shared loader infrastructure, but the upload half alone does not qualify the active Fresh document submission path. This is not a claim that all script coverage is obsolete.",
+      "follow_up": "Preserve valid raw detector/CSP cases and add or migrate upload-side qualification to the actual current entry point before considering legacy wrapper retirement."
+    }
+  ],
+  "qualified_isolation_note": "Upload-options and composer guards intercept /api/v1 whereas the bulk verifier blocks all /api and non-API writes. Current reviewed UI API calls use the intercepted API boundary; no concrete current escape or provider send was established. Broader future-proof interception can be considered when modernizing, but is not reported as a proven current vulnerability.",
+  "verification": "Read-only source review during parent frontend checkpoint. None of these four scripts was run; no ports, provider calls, external API/key setup or runtime/test/config edits were made.",
+  "limits": [
+    "No claim of production vulnerability discovery or complete real-service qualification.",
+    "Supporting current route/import reads are focused caller traces, not new full-file review claims.",
+    "Exact digests bind the actual frozen source; inventory classification and passing unrelated tests were not substituted for physical reads."
+  ]
+}

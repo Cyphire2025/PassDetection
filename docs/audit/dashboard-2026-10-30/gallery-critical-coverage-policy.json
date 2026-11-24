@@ -1,0 +1,211 @@
+{
+  "schema_version": 1,
+  "untracked_module_line_threshold": 2000,
+  "modules": [
+    {
+      "path": "app/infrastructure/my_photos/gallery_ingestion.py",
+      "baseline_lines": 109,
+      "maximum_lines": 114,
+      "baseline_max_function_complexity": 1,
+      "maximum_function_complexity": 1,
+      "minimum_coverage_percent": 100
+    },
+    {
+      "path": "app/infrastructure/my_photos/gallery_manifest_cancellation.py",
+      "baseline_lines": 248,
+      "maximum_lines": 258,
+      "baseline_max_function_complexity": 38,
+      "maximum_function_complexity": 38,
+      "minimum_coverage_percent": 65
+    },
+    {
+      "path": "app/infrastructure/my_photos/gallery_manifest_cleanup.py",
+      "baseline_lines": 290,
+      "maximum_lines": 302,
+      "baseline_max_function_complexity": 10,
+      "maximum_function_complexity": 10,
+      "minimum_coverage_percent": 65
+    },
+    {
+      "path": "app/infrastructure/my_photos/gallery_manifest_context.py",
+      "baseline_lines": 17,
+      "maximum_lines": 18,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 100
+    },
+    {
+      "path": "app/infrastructure/my_photos/gallery_manifest_contracts.py",
+      "baseline_lines": 192,
+      "maximum_lines": 200,
+      "baseline_max_function_complexity": 11,
+      "maximum_function_complexity": 11,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/infrastructure/my_photos/gallery_manifest_finalization.py",
+      "baseline_lines": 175,
+      "maximum_lines": 182,
+      "baseline_max_function_complexity": 20,
+      "maximum_function_complexity": 20,
+      "minimum_coverage_percent": 80
+    },
+    {
+      "path": "app/infrastructure/my_photos/gallery_manifest_fingerprints.py",
+      "baseline_lines": 18,
+      "maximum_lines": 19,
+      "baseline_max_function_complexity": 1,
+      "maximum_function_complexity": 1,
+      "minimum_coverage_percent": 100
+    },
+    {
+      "path": "app/infrastructure/my_photos/gallery_manifest_persistence.py",
+      "baseline_lines": 143,
+      "maximum_lines": 149,
+      "baseline_max_function_complexity": 7,
+      "maximum_function_complexity": 7,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/my_photos/gallery_manifest_policy.py",
+      "baseline_lines": 159,
+      "maximum_lines": 166,
+      "baseline_max_function_complexity": 10,
+      "maximum_function_complexity": 10,
+      "minimum_coverage_percent": 80
+    },
+    {
+      "path": "app/infrastructure/my_photos/gallery_manifest_providers.py",
+      "baseline_lines": 186,
+      "maximum_lines": 194,
+      "baseline_max_function_complexity": 8,
+      "maximum_function_complexity": 8,
+      "minimum_coverage_percent": 85
+    },
+    {
+      "path": "app/infrastructure/my_photos/gallery_manifest_queries.py",
+      "baseline_lines": 113,
+      "maximum_lines": 118,
+      "baseline_max_function_complexity": 3,
+      "maximum_function_complexity": 3,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/my_photos/gallery_manifest_registration.py",
+      "baseline_lines": 223,
+      "maximum_lines": 232,
+      "baseline_max_function_complexity": 17,
+      "maximum_function_complexity": 17,
+      "minimum_coverage_percent": 80
+    },
+    {
+      "path": "app/infrastructure/my_photos/gallery_manifest_results.py",
+      "baseline_lines": 84,
+      "maximum_lines": 88,
+      "baseline_max_function_complexity": 7,
+      "maximum_function_complexity": 7,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/infrastructure/my_photos/gallery_manifest_service.py",
+      "baseline_lines": 95,
+      "maximum_lines": 99,
+      "baseline_max_function_complexity": 1,
+      "maximum_function_complexity": 1,
+      "minimum_coverage_percent": 100
+    },
+    {
+      "path": "app/infrastructure/my_photos/gallery_manifest_status.py",
+      "baseline_lines": 93,
+      "maximum_lines": 97,
+      "baseline_max_function_complexity": 9,
+      "maximum_function_complexity": 9,
+      "minimum_coverage_percent": 90
+    }
+  ],
+  "coverage_gates": {
+    "measurement_basis": "Python 3.11.15, full backend suite with SQLite foreign keys and branch measurement; 2026-09-26 remediation. Floors are ratchets, not evidence of complete behavioral coverage.",
+    "global": {
+      "minimum_line_percent": 75,
+      "minimum_branch_percent": 58
+    },
+    "critical_modules": [
+      {
+        "path": "app/infrastructure/my_photos/gallery_ingestion.py",
+        "minimum_line_percent": 75,
+        "minimum_branch_percent": 53
+      },
+      {
+        "path": "app/infrastructure/my_photos/gallery_manifest_cancellation.py",
+        "minimum_line_percent": 75,
+        "minimum_branch_percent": 53
+      },
+      {
+        "path": "app/infrastructure/my_photos/gallery_manifest_cleanup.py",
+        "minimum_line_percent": 75,
+        "minimum_branch_percent": 53
+      },
+      {
+        "path": "app/infrastructure/my_photos/gallery_manifest_context.py",
+        "minimum_line_percent": 75,
+        "minimum_branch_percent": 53
+      },
+      {
+        "path": "app/infrastructure/my_photos/gallery_manifest_contracts.py",
+        "minimum_line_percent": 75,
+        "minimum_branch_percent": 53
+      },
+      {
+        "path": "app/infrastructure/my_photos/gallery_manifest_finalization.py",
+        "minimum_line_percent": 75,
+        "minimum_branch_percent": 53
+      },
+      {
+        "path": "app/infrastructure/my_photos/gallery_manifest_fingerprints.py",
+        "minimum_line_percent": 75,
+        "minimum_branch_percent": 53
+      },
+      {
+        "path": "app/infrastructure/my_photos/gallery_manifest_persistence.py",
+        "minimum_line_percent": 75,
+        "minimum_branch_percent": 53
+      },
+      {
+        "path": "app/infrastructure/my_photos/gallery_manifest_policy.py",
+        "minimum_line_percent": 75,
+        "minimum_branch_percent": 53
+      },
+      {
+        "path": "app/infrastructure/my_photos/gallery_manifest_providers.py",
+        "minimum_line_percent": 75,
+        "minimum_branch_percent": 53
+      },
+      {
+        "path": "app/infrastructure/my_photos/gallery_manifest_queries.py",
+        "minimum_line_percent": 75,
+        "minimum_branch_percent": 53
+      },
+      {
+        "path": "app/infrastructure/my_photos/gallery_manifest_registration.py",
+        "minimum_line_percent": 75,
+        "minimum_branch_percent": 53
+      },
+      {
+        "path": "app/infrastructure/my_photos/gallery_manifest_results.py",
+        "minimum_line_percent": 75,
+        "minimum_branch_percent": 53
+      },
+      {
+        "path": "app/infrastructure/my_photos/gallery_manifest_service.py",
+        "minimum_line_percent": 75,
+        "minimum_branch_percent": 53
+      },
+      {
+        "path": "app/infrastructure/my_photos/gallery_manifest_status.py",
+        "minimum_line_percent": 75,
+        "minimum_branch_percent": 53
+      }
+    ]
+  },
+  "evidence_scope": "Only the15gallery owners. Retained repository floors are exercised on this scoped measurement; whole-backend coverage is not inferred."
+}

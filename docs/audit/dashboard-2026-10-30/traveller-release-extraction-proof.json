@@ -1,0 +1,342 @@
+{
+  "basis": "Whole original25method/5top-level function AST preservation; inherited self dispatch remains direct and all actual referenced global values/canonical aliases preserved.",
+  "methods": [
+    {
+      "name": "run",
+      "owner": "scripts/traveller_release_host.py",
+      "whole_AST_decorators_signature_evaluated_hints_module_qualname_pickle_exact": true
+    },
+    {
+      "name": "dc",
+      "owner": "scripts/traveller_release_host.py",
+      "whole_AST_decorators_signature_evaluated_hints_module_qualname_pickle_exact": true
+    },
+    {
+      "name": "inspect",
+      "owner": "scripts/traveller_release_host.py",
+      "whole_AST_decorators_signature_evaluated_hints_module_qualname_pickle_exact": true
+    },
+    {
+      "name": "say",
+      "owner": "scripts/traveller_release_host.py",
+      "whole_AST_decorators_signature_evaluated_hints_module_qualname_pickle_exact": true
+    },
+    {
+      "name": "verify_checkout",
+      "owner": "scripts/traveller_release_host.py",
+      "whole_AST_decorators_signature_evaluated_hints_module_qualname_pickle_exact": true
+    },
+    {
+      "name": "verify_running_project",
+      "owner": "scripts/traveller_release_host.py",
+      "whole_AST_decorators_signature_evaluated_hints_module_qualname_pickle_exact": true
+    },
+    {
+      "name": "preflight",
+      "owner": "scripts/traveller_release_host.py",
+      "whole_AST_decorators_signature_evaluated_hints_module_qualname_pickle_exact": true
+    },
+    {
+      "name": "config_fingerprint",
+      "owner": "scripts/traveller_release_host.py",
+      "whole_AST_decorators_signature_evaluated_hints_module_qualname_pickle_exact": true
+    },
+    {
+      "name": "write_private",
+      "owner": "scripts/traveller_release_host.py",
+      "whole_AST_decorators_signature_evaluated_hints_module_qualname_pickle_exact": true
+    },
+    {
+      "name": "sync_directory",
+      "owner": "scripts/traveller_release_host.py",
+      "whole_AST_decorators_signature_evaluated_hints_module_qualname_pickle_exact": true
+    },
+    {
+      "name": "verify_image",
+      "owner": "scripts/traveller_release_host.py",
+      "whole_AST_decorators_signature_evaluated_hints_module_qualname_pickle_exact": true
+    },
+    {
+      "name": "container",
+      "owner": "scripts/traveller_release_readiness.py",
+      "whole_AST_decorators_signature_evaluated_hints_module_qualname_pickle_exact": true
+    },
+    {
+      "name": "worker_probe",
+      "owner": "scripts/traveller_release_readiness.py",
+      "whole_AST_decorators_signature_evaluated_hints_module_qualname_pickle_exact": true
+    },
+    {
+      "name": "verify_containers",
+      "owner": "scripts/traveller_release_readiness.py",
+      "whole_AST_decorators_signature_evaluated_hints_module_qualname_pickle_exact": true
+    },
+    {
+      "name": "schema",
+      "owner": "scripts/traveller_release_readiness.py",
+      "whole_AST_decorators_signature_evaluated_hints_module_qualname_pickle_exact": true
+    },
+    {
+      "name": "prepare",
+      "owner": "scripts/traveller_release_preparation.py",
+      "whole_AST_decorators_signature_evaluated_hints_module_qualname_pickle_exact": true
+    },
+    {
+      "name": "prepare_images",
+      "owner": "scripts/traveller_release_preparation.py",
+      "whole_AST_decorators_signature_evaluated_hints_module_qualname_pickle_exact": true
+    },
+    {
+      "name": "__init__",
+      "owner": "scripts/traveller_release_lifecycle.py",
+      "whole_AST_decorators_signature_evaluated_hints_module_qualname_pickle_exact": true
+    },
+    {
+      "name": "prepare_recovery",
+      "owner": "scripts/traveller_release_lifecycle.py",
+      "whole_AST_decorators_signature_evaluated_hints_module_qualname_pickle_exact": true
+    },
+    {
+      "name": "before_migration",
+      "owner": "scripts/traveller_release_lifecycle.py",
+      "whole_AST_decorators_signature_evaluated_hints_module_qualname_pickle_exact": true
+    },
+    {
+      "name": "resume_maintenance",
+      "owner": "scripts/traveller_release_lifecycle.py",
+      "whole_AST_decorators_signature_evaluated_hints_module_qualname_pickle_exact": true
+    },
+    {
+      "name": "begin_maintenance",
+      "owner": "scripts/traveller_release_lifecycle.py",
+      "whole_AST_decorators_signature_evaluated_hints_module_qualname_pickle_exact": true
+    },
+    {
+      "name": "complete_activation",
+      "owner": "scripts/traveller_release_lifecycle.py",
+      "whole_AST_decorators_signature_evaluated_hints_module_qualname_pickle_exact": true
+    },
+    {
+      "name": "pinned_services",
+      "owner": "scripts/traveller_release_lifecycle.py",
+      "whole_AST_decorators_signature_evaluated_hints_module_qualname_pickle_exact": true
+    },
+    {
+      "name": "activate",
+      "owner": "scripts/traveller_release_lifecycle.py",
+      "whole_AST_decorators_signature_evaluated_hints_module_qualname_pickle_exact": true
+    }
+  ],
+  "actual_global_bindings": [
+    {
+      "method": "run",
+      "global": "ReleaseError"
+    },
+    {
+      "method": "run",
+      "global": "subprocess"
+    },
+    {
+      "method": "inspect",
+      "global": "ReleaseError"
+    },
+    {
+      "method": "inspect",
+      "global": "json"
+    },
+    {
+      "method": "verify_checkout",
+      "global": "ReleaseError"
+    },
+    {
+      "method": "verify_running_project",
+      "global": "PROJECT_LABEL"
+    },
+    {
+      "method": "verify_running_project",
+      "global": "SERVICE_LABEL"
+    },
+    {
+      "method": "verify_running_project",
+      "global": "ReleaseError"
+    },
+    {
+      "method": "verify_running_project",
+      "global": "Path"
+    },
+    {
+      "method": "preflight",
+      "global": "ReleaseError"
+    },
+    {
+      "method": "preflight",
+      "global": "json"
+    },
+    {
+      "method": "config_fingerprint",
+      "global": "hashlib"
+    },
+    {
+      "method": "config_fingerprint",
+      "global": "json"
+    },
+    {
+      "method": "config_fingerprint",
+      "global": "copy"
+    },
+    {
+      "method": "config_fingerprint",
+      "global": "updated_environment"
+    },
+    {
+      "method": "write_private",
+      "global": "os"
+    },
+    {
+      "method": "write_private",
+      "global": "Path"
+    },
+    {
+      "method": "write_private",
+      "global": "tempfile"
+    },
+    {
+      "method": "sync_directory",
+      "global": "os"
+    },
+    {
+      "method": "verify_image",
+      "global": "re"
+    },
+    {
+      "method": "verify_image",
+      "global": "ReleaseError"
+    },
+    {
+      "method": "container",
+      "global": "PROJECT_LABEL"
+    },
+    {
+      "method": "container",
+      "global": "SERVICE_LABEL"
+    },
+    {
+      "method": "container",
+      "global": "ReleaseError"
+    },
+    {
+      "method": "worker_probe",
+      "global": "ReleaseError"
+    },
+    {
+      "method": "worker_probe",
+      "global": "CONTROL_PROBE"
+    },
+    {
+      "method": "worker_probe",
+      "global": "PROBE_MARKER"
+    },
+    {
+      "method": "worker_probe",
+      "global": "validate_worker_probe"
+    },
+    {
+      "method": "worker_probe",
+      "global": "json"
+    },
+    {
+      "method": "verify_containers",
+      "global": "ReleaseError"
+    },
+    {
+      "method": "schema",
+      "global": "re"
+    },
+    {
+      "method": "schema",
+      "global": "ReleaseError"
+    },
+    {
+      "method": "prepare",
+      "global": "ReleaseError"
+    },
+    {
+      "method": "prepare",
+      "global": "image_reference"
+    },
+    {
+      "method": "prepare",
+      "global": "json"
+    },
+    {
+      "method": "__init__",
+      "global": "re"
+    },
+    {
+      "method": "__init__",
+      "global": "ReleaseError"
+    },
+    {
+      "method": "__init__",
+      "global": "os"
+    },
+    {
+      "method": "__init__",
+      "global": "NODE_PREFIXES"
+    },
+    {
+      "method": "activate",
+      "global": "ReleaseError"
+    },
+    {
+      "method": "activate",
+      "global": "time"
+    },
+    {
+      "method": "activate",
+      "global": "READY_PROBE"
+    },
+    {
+      "method": "activate",
+      "global": "json"
+    },
+    {
+      "method": "activate",
+      "global": "PUBLIC_URL"
+    },
+    {
+      "method": "activate",
+      "global": "updated_environment"
+    }
+  ],
+  "top_level_whole_functions": 5,
+  "constant_AST_and_values": 12,
+  "constructor_and_all_lifecycle_bodies_exact": true,
+  "static_descriptor_preserved": true,
+  "public_class_method_hints_equal": true,
+  "runtime_state_contracts_added": false,
+  "explicit_private_MRO_bases_added": [
+    "_ReleasePreparation",
+    "_ReleaseReadiness",
+    "_ReleaseHost"
+  ],
+  "class_dict_layout_and_internal_code_owner_names_changed": true,
+  "class_source_introspection_tradeoff": {
+    "Release": "OSError: legacy public alias points to facade, actual class owner is focused module",
+    "ReleaseError": "OSError: legacy public alias points to facade, actual class owner is focused module"
+  },
+  "no_inspect_patch_or_proxy_lookup": true,
+  "main_default_Release_is_corresponding_current_canonical_class": true,
+  "qualification_exact_additions": 6,
+  "qualification_source_module_inverse_exact": true,
+  "source_sha256": {
+    "scripts/release_traveller_whatsapp.py": "457f805b900300d4816f44c4d5b7acad903ec9d4aff129f8ca0d631a438999e8",
+    "scripts/traveller_release_contract.py": "73d9424ff0eb8e43f8f016134c1c25b8c93fb3b37e6cc44737d638d695275c70",
+    "scripts/traveller_release_host.py": "9d8064805c01c9841bc2fb1f1066cdbea1cedda451f08cf433e8431b9fa16fed",
+    "scripts/traveller_release_readiness.py": "8d29593a1ee8608ba1582ef173dceddd04f10a8fe6ce7d7fa2eb83d2835522a2",
+    "scripts/traveller_release_preparation.py": "a4ff288d0c9154dda7207f2dc71c7d2edc7cfe5c719aca25dba4458129dacfca",
+    "scripts/traveller_release_lifecycle.py": "2c16a67c382037afab7c98ac28832493982514c0901938b6260c42f8a87d128d",
+    "scripts/release_document_resources.py": "6be3fcab032898193fb9ac4715755f26edaa27d3f63032d3bb5ac6eb257a326a",
+    "scripts/test_traveller_release_owners.py": "98b7370c682a5305a2804836e7119a11590feb01a40988834b9f2fc3eeab7776"
+  }
+}

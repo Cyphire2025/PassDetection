@@ -1,0 +1,15 @@
+{
+  "versions": {
+    "Pillow": "13.0.0",
+    "pypdf": "6.21.2",
+    "certifi": "2026.10.18",
+    "dnspython": "2.9.1",
+    "opentelemetry-api": "1.45.1",
+    "pillow-heif": "1.6.0"
+  },
+  "tls_ca_bundle_context": "certificate+hostnameverificationenabled",
+  "dns_wire_roundtrip": "passedsyntheticnoquery",
+  "email_validation": "passedwithdeliverabilitynetworkdisabled",
+  "tracestate_header": "passed",
+  "network_provider_calls": false
+}

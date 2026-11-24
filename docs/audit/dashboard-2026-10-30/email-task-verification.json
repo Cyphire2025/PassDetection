@@ -1,0 +1,119 @@
+{
+  "status": "complete; sources frozen; integration candidates only",
+  "manifest": {
+    "path": "docs/audit/dashboard-2026-10-30/email-task-source-manifest.json",
+    "sha256": "6c5bf4d81d00c32b843e4f8c6ba7234209e268caa42fb6840ad7c6bc1f84c719"
+  },
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/email-task-residual-reviewed-files.json",
+    "sha256": "2e6581c503d2b7b938d996e09c1234709006ad8208b18eb5b85d41d5fcdea4bb"
+  },
+  "candidates": {
+    "path": "docs/audit/dashboard-2026-10-30/email-task-budget-candidates.json",
+    "sha256": "668fd80a472c46ef486278883c71535f60dca7f2c6db92009e3c271cc9d1ef5e"
+  },
+  "followups": {
+    "path": "docs/audit/dashboard-2026-10-30/email-task-residual-followups.json",
+    "sha256": "f80abbfe0a9f0e315013384ba7ed69edae66af0efea7dbfae4126224e3ec5202"
+  },
+  "source_fence": {
+    "path": "docs/audit/dashboard-2026-10-30/email-task-source-fence.json",
+    "sha256": "8cc1b1371000ff08cef616e6236ac84cd20726344c79cb7a406a942d56b0f096"
+  },
+  "extraction_proof": {
+    "path": "docs/audit/dashboard-2026-10-30/email-task-extraction-proof.json",
+    "sha256": "f105cbbf0c43dbc13bc29340d41daeedc80b33a0717d3d6cf10445bc12908342"
+  },
+  "runtime_bindings_proof": {
+    "path": "docs/audit/dashboard-2026-10-30/email-task-runtime-bindings-proof.json",
+    "sha256": "7337ec81ddc598cd7c3ad3cd09b4c0cfcb8bf87c17525348aa036fa8d3692d3d"
+  },
+  "baseline": {
+    "existing_unchanged11passed": true,
+    "corrected_expanded32passed_before_runtime_edit": true,
+    "failed_initial3fixture_cases_retained": true
+  },
+  "focused_check": {
+    "stage": "checkpoint",
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "-m",
+      "pytest",
+      "-q",
+      "-o",
+      "addopts=",
+      "-p",
+      "email_task_contract_plugin",
+      "tests/unit/infrastructure/test_email_task_routing.py",
+      "tests/unit/infrastructure/test_email_task_outcomes.py",
+      "tests/unit/infrastructure/test_email_retention_persistence.py",
+      "--cov=app/infrastructure/email",
+      "--cov-branch",
+      "--cov-report=",
+      "--cov-report=json:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\email-task-checkpoint-coverage.json",
+      "--cov-report=xml:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\email-task-checkpoint-coverage.xml"
+    ],
+    "exit_code": 0,
+    "log": "docs/audit/dashboard-2026-10-30/email-task-checkpoint-tests.log",
+    "sha256": "fab666b3ed3c8bafb09a4def940ea61f7b9e292eba2bef8c3c91ce92ccc9f384"
+  },
+  "focused_cases": 32,
+  "existing_cases": 11,
+  "new_cases": 21,
+  "scoped_lint": {
+    "command": "python -m ruff check --no-fix [4runtime +3affected tests]",
+    "exit_code": 0,
+    "stdout": "All checks passed!",
+    "tool_chunk": "1435a1"
+  },
+  "strict_types": {
+    "command": "python -m mypy [4runtime owners]",
+    "exit_code": 0,
+    "stdout": "Success: no issues found in4source files",
+    "tool_chunk": "1435a1"
+  },
+  "actual_owner_coverage": [
+    {
+      "path": "app/infrastructure/email/tasks.py",
+      "lines": 217,
+      "max_function_complexity": 12,
+      "most_complex_function": "sync_email_connection",
+      "coverage_percent": 100.0,
+      "branch_count": 8,
+      "branch_coverage_percent": 100.0
+    },
+    {
+      "path": "app/infrastructure/email/task_dispatch.py",
+      "lines": 93,
+      "max_function_complexity": 3,
+      "most_complex_function": "_claim_due_dispatches",
+      "coverage_percent": 100.0,
+      "branch_count": 2,
+      "branch_coverage_percent": 100.0
+    },
+    {
+      "path": "app/infrastructure/email/task_retention.py",
+      "lines": 206,
+      "max_function_complexity": 11,
+      "most_complex_function": "_apply_email_retention",
+      "coverage_percent": 100.0,
+      "branch_count": 4,
+      "branch_coverage_percent": 100.0
+    },
+    {
+      "path": "app/infrastructure/email/storage_reconciliation.py",
+      "lines": 113,
+      "max_function_complexity": 9,
+      "most_complex_function": "_reconcile_orphaned_email_storage",
+      "coverage_percent": 100.0,
+      "branch_count": 14,
+      "branch_coverage_percent": 100.0
+    }
+  ],
+  "normal_candidates": 4,
+  "critical_candidates": 0,
+  "global_coverage_qualified": false,
+  "shared_budgets_or_release_sources_edited": false,
+  "broad_suites_builds_browsers_deployments_provider_sends": false,
+  "notes": "The already passing32case checkpoint is sealed without a redundant app rerun: current7owned digests match the exact before-checkpoint extraction proof. Runtime contract comparison and scoped static checks completed afterward with unchanged source. Coverage used isolatedCOVERAGE_FILE, never backend/.coverage."
+}

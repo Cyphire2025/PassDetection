@@ -1,0 +1,186 @@
+[
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/images.py",
+    "sha256": "6a5858948bf8fb6a3c45b51b10934f381c1965bcf22f67cbbce648fab76e3b34",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete original source bodies read; every moved current declaration, all actual used global bindings, public signatures/evaluated hints/default dependencies and full current module graph are accounted for in passport-image-siblings-extraction-proof.json. Current88-case six-file selection source-fenced; real FK-enabled SQLite scope/commit/prior-crop observers and synthetic raster/provider/storage adapters. Original tests restore exactly after only declared mock scopes, unused setup removals and two initial-read rollback expectations. Retained-document purge after external work is a separately reproduced open follow-through; no closure or live-service claim."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library.py",
+    "sha256": "161c17e2131ec908028e29ec1ace999687280b0f9001e742a9c80c3225987f97",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete original source bodies read; every moved current declaration, all actual used global bindings, public signatures/evaluated hints/default dependencies and full current module graph are accounted for in passport-image-siblings-extraction-proof.json. Current88-case six-file selection source-fenced; real FK-enabled SQLite scope/commit/prior-crop observers and synthetic raster/provider/storage adapters. Original tests restore exactly after only declared mock scopes, unused setup removals and two initial-read rollback expectations. Retained-document purge after external work is a separately reproduced open follow-through; no closure or live-service claim."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_edits.py",
+    "sha256": "5f853cb838a381cf9dda1e3e3eb83ac364d48120baba63ce3c5d0155e86b3841",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete original source bodies read; every moved current declaration, all actual used global bindings, public signatures/evaluated hints/default dependencies and full current module graph are accounted for in passport-image-siblings-extraction-proof.json. Current88-case six-file selection source-fenced; real FK-enabled SQLite scope/commit/prior-crop observers and synthetic raster/provider/storage adapters. Original tests restore exactly after only declared mock scopes, unused setup removals and two initial-read rollback expectations. Retained-document purge after external work is a separately reproduced open follow-through; no closure or live-service claim."
+  },
+  {
+    "path": "backend/tests/passport_image_mutations.py",
+    "sha256": "fceefc1ce5c57969627ddadc7d481470cd8aba31041704a0cf226bc598ce4679",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete original source bodies read; every moved current declaration, all actual used global bindings, public signatures/evaluated hints/default dependencies and full current module graph are accounted for in passport-image-siblings-extraction-proof.json. Current88-case six-file selection source-fenced; real FK-enabled SQLite scope/commit/prior-crop observers and synthetic raster/provider/storage adapters. Original tests restore exactly after only declared mock scopes, unused setup removals and two initial-read rollback expectations. Retained-document purge after external work is a separately reproduced open follow-through; no closure or live-service claim."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_image_mutation_commit_outcomes.py",
+    "sha256": "439a934843acad14260a56eaa7de412ea80fa1c7869f334e88784753db921c95",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete original source bodies read; every moved current declaration, all actual used global bindings, public signatures/evaluated hints/default dependencies and full current module graph are accounted for in passport-image-siblings-extraction-proof.json. Current88-case six-file selection source-fenced; real FK-enabled SQLite scope/commit/prior-crop observers and synthetic raster/provider/storage adapters. Original tests restore exactly after only declared mock scopes, unused setup removals and two initial-read rollback expectations. Retained-document purge after external work is a separately reproduced open follow-through; no closure or live-service claim."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_image_mutation_authority.py",
+    "sha256": "7f13b174a03eb2511425241ff53305a5e7cf57ba7e8665f17a5275687afe33a4",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete original source bodies read; every moved current declaration, all actual used global bindings, public signatures/evaluated hints/default dependencies and full current module graph are accounted for in passport-image-siblings-extraction-proof.json. Current88-case six-file selection source-fenced; real FK-enabled SQLite scope/commit/prior-crop observers and synthetic raster/provider/storage adapters. Original tests restore exactly after only declared mock scopes, unused setup removals and two initial-read rollback expectations. Retained-document purge after external work is a separately reproduced open follow-through; no closure or live-service claim."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_image_mutation_cancellation.py",
+    "sha256": "cd5748a3fbf8bc069a63c6f543ad55af045a9426d087fb0f52659275a84e88cc",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete original source bodies read; every moved current declaration, all actual used global bindings, public signatures/evaluated hints/default dependencies and full current module graph are accounted for in passport-image-siblings-extraction-proof.json. Current88-case six-file selection source-fenced; real FK-enabled SQLite scope/commit/prior-crop observers and synthetic raster/provider/storage adapters. Original tests restore exactly after only declared mock scopes, unused setup removals and two initial-read rollback expectations. Retained-document purge after external work is a separately reproduced open follow-through; no closure or live-service claim."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_image_mutation.py",
+    "sha256": "9b7d044a448d8fd6ef5b19bbd8af9eee1c43a3a290486c0e081f4dd09777e7cd",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete original source bodies read; every moved current declaration, all actual used global bindings, public signatures/evaluated hints/default dependencies and full current module graph are accounted for in passport-image-siblings-extraction-proof.json. Current88-case six-file selection source-fenced; real FK-enabled SQLite scope/commit/prior-crop observers and synthetic raster/provider/storage adapters. Original tests restore exactly after only declared mock scopes, unused setup removals and two initial-read rollback expectations. Retained-document purge after external work is a separately reproduced open follow-through; no closure or live-service claim."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_image_library_authority.py",
+    "sha256": "1a3f020f32134e9eab62ccd3f24e116648af90e2f34f238b2813fa5129a6e390",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete original source bodies read; every moved current declaration, all actual used global bindings, public signatures/evaluated hints/default dependencies and full current module graph are accounted for in passport-image-siblings-extraction-proof.json. Current88-case six-file selection source-fenced; real FK-enabled SQLite scope/commit/prior-crop observers and synthetic raster/provider/storage adapters. Original tests restore exactly after only declared mock scopes, unused setup removals and two initial-read rollback expectations. Retained-document purge after external work is a separately reproduced open follow-through; no closure or live-service claim."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_image_storage_write.py",
+    "sha256": "11b12fdbb9b053c2b26f87d21ef97f3ce87490c3751c0a6c1d4922259ee804f7",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete original source bodies read; every moved current declaration, all actual used global bindings, public signatures/evaluated hints/default dependencies and full current module graph are accounted for in passport-image-siblings-extraction-proof.json. Current88-case six-file selection source-fenced; real FK-enabled SQLite scope/commit/prior-crop observers and synthetic raster/provider/storage adapters. Original tests restore exactly after only declared mock scopes, unused setup removals and two initial-read rollback expectations. Retained-document purge after external work is a separately reproduced open follow-through; no closure or live-service claim."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/images_crop.py",
+    "sha256": "29d2098f013b7994df9d531ffaa17922fb8f0aa931f55b46ca9dcb574a03da1f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete original source bodies read; every moved current declaration, all actual used global bindings, public signatures/evaluated hints/default dependencies and full current module graph are accounted for in passport-image-siblings-extraction-proof.json. Current88-case six-file selection source-fenced; real FK-enabled SQLite scope/commit/prior-crop observers and synthetic raster/provider/storage adapters. Original tests restore exactly after only declared mock scopes, unused setup removals and two initial-read rollback expectations. Retained-document purge after external work is a separately reproduced open follow-through; no closure or live-service claim."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/images_reads.py",
+    "sha256": "f4ba7cb5c72664d1858b35d096e46be96bcdbbcc5fa3d8b7514192e3a2ab6688",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete original source bodies read; every moved current declaration, all actual used global bindings, public signatures/evaluated hints/default dependencies and full current module graph are accounted for in passport-image-siblings-extraction-proof.json. Current88-case six-file selection source-fenced; real FK-enabled SQLite scope/commit/prior-crop observers and synthetic raster/provider/storage adapters. Original tests restore exactly after only declared mock scopes, unused setup removals and two initial-read rollback expectations. Retained-document purge after external work is a separately reproduced open follow-through; no closure or live-service claim."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/images_reset.py",
+    "sha256": "736c527fe10bb536c780e1b4a97f63b25dde48deff53f5a21fb93027f6777619",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete original source bodies read; every moved current declaration, all actual used global bindings, public signatures/evaluated hints/default dependencies and full current module graph are accounted for in passport-image-siblings-extraction-proof.json. Current88-case six-file selection source-fenced; real FK-enabled SQLite scope/commit/prior-crop observers and synthetic raster/provider/storage adapters. Original tests restore exactly after only declared mock scopes, unused setup removals and two initial-read rollback expectations. Retained-document purge after external work is a separately reproduced open follow-through; no closure or live-service claim."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library_generation.py",
+    "sha256": "769c3819f227f4efb7bb6dc19fcd799bf53a2e706d7fbe272e685c4f61197cd8",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete original source bodies read; every moved current declaration, all actual used global bindings, public signatures/evaluated hints/default dependencies and full current module graph are accounted for in passport-image-siblings-extraction-proof.json. Current88-case six-file selection source-fenced; real FK-enabled SQLite scope/commit/prior-crop observers and synthetic raster/provider/storage adapters. Original tests restore exactly after only declared mock scopes, unused setup removals and two initial-read rollback expectations. Retained-document purge after external work is a separately reproduced open follow-through; no closure or live-service claim."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library_reads.py",
+    "sha256": "f8136ae728752aec0222e58ee7674476e316c8e5148579140d6ed06f96c65cab",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete original source bodies read; every moved current declaration, all actual used global bindings, public signatures/evaluated hints/default dependencies and full current module graph are accounted for in passport-image-siblings-extraction-proof.json. Current88-case six-file selection source-fenced; real FK-enabled SQLite scope/commit/prior-crop observers and synthetic raster/provider/storage adapters. Original tests restore exactly after only declared mock scopes, unused setup removals and two initial-read rollback expectations. Retained-document purge after external work is a separately reproduced open follow-through; no closure or live-service claim."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library_selection.py",
+    "sha256": "b64648afc2ad09952fbbbe384b60fabc9302f0adabb8f360749b10a76acaf685",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete original source bodies read; every moved current declaration, all actual used global bindings, public signatures/evaluated hints/default dependencies and full current module graph are accounted for in passport-image-siblings-extraction-proof.json. Current88-case six-file selection source-fenced; real FK-enabled SQLite scope/commit/prior-crop observers and synthetic raster/provider/storage adapters. Original tests restore exactly after only declared mock scopes, unused setup removals and two initial-read rollback expectations. Retained-document purge after external work is a separately reproduced open follow-through; no closure or live-service claim."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_edits_apply.py",
+    "sha256": "24d1563a569c39261179a09a26976fa01028fee4126531796d715bc65ac0670f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete original source bodies read; every moved current declaration, all actual used global bindings, public signatures/evaluated hints/default dependencies and full current module graph are accounted for in passport-image-siblings-extraction-proof.json. Current88-case six-file selection source-fenced; real FK-enabled SQLite scope/commit/prior-crop observers and synthetic raster/provider/storage adapters. Original tests restore exactly after only declared mock scopes, unused setup removals and two initial-read rollback expectations. Retained-document purge after external work is a separately reproduced open follow-through; no closure or live-service claim."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_edits_preview.py",
+    "sha256": "0bc67dafcc56074e5dc4ca5d766403dd9b9148554f631dc0b8d72f2b95bfe93b",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete original source bodies read; every moved current declaration, all actual used global bindings, public signatures/evaluated hints/default dependencies and full current module graph are accounted for in passport-image-siblings-extraction-proof.json. Current88-case six-file selection source-fenced; real FK-enabled SQLite scope/commit/prior-crop observers and synthetic raster/provider/storage adapters. Original tests restore exactly after only declared mock scopes, unused setup removals and two initial-read rollback expectations. Retained-document purge after external work is a separately reproduced open follow-through; no closure or live-service claim."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/image_support.py",
+    "sha256": "bb7f17f95e18abf65436f6e7ad71be2ce25926b04ced89b1382ae27334ee3e9f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete original source bodies read; every moved current declaration, all actual used global bindings, public signatures/evaluated hints/default dependencies and full current module graph are accounted for in passport-image-siblings-extraction-proof.json. Current88-case six-file selection source-fenced; real FK-enabled SQLite scope/commit/prior-crop observers and synthetic raster/provider/storage adapters. Original tests restore exactly after only declared mock scopes, unused setup removals and two initial-read rollback expectations. Retained-document purge after external work is a separately reproduced open follow-through; no closure or live-service claim."
+  },
+  {
+    "path": "backend/tests/route_dependencies.py",
+    "sha256": "36ab3ffd5c252f94e5137925158c7dfc4ec5ac4c05d482c7d826ae0cfd40e5a9",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete original source bodies read; every moved current declaration, all actual used global bindings, public signatures/evaluated hints/default dependencies and full current module graph are accounted for in passport-image-siblings-extraction-proof.json. Current88-case six-file selection source-fenced; real FK-enabled SQLite scope/commit/prior-crop observers and synthetic raster/provider/storage adapters. Original tests restore exactly after only declared mock scopes, unused setup removals and two initial-read rollback expectations. Retained-document purge after external work is a separately reproduced open follow-through; no closure or live-service claim."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_image_crop_routes.py",
+    "sha256": "2a9f6650cf4499438f02d7cf1c0ca34a780f179a9dffdc82f6a37611b48e1343",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete original source bodies read; every moved current declaration, all actual used global bindings, public signatures/evaluated hints/default dependencies and full current module graph are accounted for in passport-image-siblings-extraction-proof.json. Current88-case six-file selection source-fenced; real FK-enabled SQLite scope/commit/prior-crop observers and synthetic raster/provider/storage adapters. Original tests restore exactly after only declared mock scopes, unused setup removals and two initial-read rollback expectations. Retained-document purge after external work is a separately reproduced open follow-through; no closure or live-service claim."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_image_mutation_cleanup.py",
+    "sha256": "142f7a86ed6fd364c1bee8562a11c7dd0dc1fd625bb72cd480b0385a74476f67",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete original source bodies read; every moved current declaration, all actual used global bindings, public signatures/evaluated hints/default dependencies and full current module graph are accounted for in passport-image-siblings-extraction-proof.json. Current88-case six-file selection source-fenced; real FK-enabled SQLite scope/commit/prior-crop observers and synthetic raster/provider/storage adapters. Original tests restore exactly after only declared mock scopes, unused setup removals and two initial-read rollback expectations. Retained-document purge after external work is a separately reproduced open follow-through; no closure or live-service claim."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_image_read_routes.py",
+    "sha256": "a6ec7db374632890af647265e49ea6efb525e48c57a4adef5393a32d27334d26",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete original source bodies read; every moved current declaration, all actual used global bindings, public signatures/evaluated hints/default dependencies and full current module graph are accounted for in passport-image-siblings-extraction-proof.json. Current88-case six-file selection source-fenced; real FK-enabled SQLite scope/commit/prior-crop observers and synthetic raster/provider/storage adapters. Original tests restore exactly after only declared mock scopes, unused setup removals and two initial-read rollback expectations. Retained-document purge after external work is a separately reproduced open follow-through; no closure or live-service claim."
+  }
+]

@@ -1,0 +1,114 @@
+[
+  {
+    "path": "backend/tests/integration/test_private_copy_retry_envelope.py",
+    "sha256": "dc8b69d8e8be8f502d426e90bc9eab614e3afb4118d7313c5aad458d2d2cee7a",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/fixture source read. Reviewed actual SDK-backoff envelope controls, positive-only document classification, visible-text validation, additive migration model/DDL boundaries, scoped crypto/hash distinctions, structured readiness under unavailable dependencies, shared-notification safe fixture content, provider-template normalization via AsyncMock, stable cleanup-key identity, tenant/cursor enrollment selection and actual OpenAPI output checks. Source review only: no new test execution/provider send/live service result. Health smoke intentionally accepts503 and is not evidence all readiness capabilities are available. Shared notification fixture uses email-like metadata only to exercise generic personal-notification allowlists; dedicated Inbox scope remains deferred. No defect adopted or assertions edited."
+  },
+  {
+    "path": "backend/tests/unit/domain/test_passport_document_classification.py",
+    "sha256": "fb2e40ed2b48fdf4fcf57a13c35e1aa081323882d26dfe35369631572ff87d30",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/fixture source read. Reviewed actual SDK-backoff envelope controls, positive-only document classification, visible-text validation, additive migration model/DDL boundaries, scoped crypto/hash distinctions, structured readiness under unavailable dependencies, shared-notification safe fixture content, provider-template normalization via AsyncMock, stable cleanup-key identity, tenant/cursor enrollment selection and actual OpenAPI output checks. Source review only: no new test execution/provider send/live service result. Health smoke intentionally accepts503 and is not evidence all readiness capabilities are available. Shared notification fixture uses email-like metadata only to exercise generic personal-notification allowlists; dedicated Inbox scope remains deferred. No defect adopted or assertions edited."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_passport_field_validator.py",
+    "sha256": "793008d2460f68a2bd2914b7fdfe55ee3b4813719be827da4874454e9799ddfe",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/fixture source read. Reviewed actual SDK-backoff envelope controls, positive-only document classification, visible-text validation, additive migration model/DDL boundaries, scoped crypto/hash distinctions, structured readiness under unavailable dependencies, shared-notification safe fixture content, provider-template normalization via AsyncMock, stable cleanup-key identity, tenant/cursor enrollment selection and actual OpenAPI output checks. Source review only: no new test execution/provider send/live service result. Health smoke intentionally accepts503 and is not evidence all readiness capabilities are available. Shared notification fixture uses email-like metadata only to exercise generic personal-notification allowlists; dedicated Inbox scope remains deferred. No defect adopted or assertions edited."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_public_upload_contact_migration.py",
+    "sha256": "f69d2906906e00853d827eeb7093ce58ba4fa8f0e5b32c028f2fa9bdc93a20fc",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/fixture source read. Reviewed actual SDK-backoff envelope controls, positive-only document classification, visible-text validation, additive migration model/DDL boundaries, scoped crypto/hash distinctions, structured readiness under unavailable dependencies, shared-notification safe fixture content, provider-template normalization via AsyncMock, stable cleanup-key identity, tenant/cursor enrollment selection and actual OpenAPI output checks. Source review only: no new test execution/provider send/live service result. Health smoke intentionally accepts503 and is not evidence all readiness capabilities are available. Shared notification fixture uses email-like metadata only to exercise generic personal-notification allowlists; dedicated Inbox scope remains deferred. No defect adopted or assertions edited."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_traveller_reuse_crypto.py",
+    "sha256": "da4c8a58e266c06a95750010df070e6eb919520e928c416183d4f8d61722c4a1",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/fixture source read. Reviewed actual SDK-backoff envelope controls, positive-only document classification, visible-text validation, additive migration model/DDL boundaries, scoped crypto/hash distinctions, structured readiness under unavailable dependencies, shared-notification safe fixture content, provider-template normalization via AsyncMock, stable cleanup-key identity, tenant/cursor enrollment selection and actual OpenAPI output checks. Source review only: no new test execution/provider send/live service result. Health smoke intentionally accepts503 and is not evidence all readiness capabilities are available. Shared notification fixture uses email-like metadata only to exercise generic personal-notification allowlists; dedicated Inbox scope remains deferred. No defect adopted or assertions edited."
+  },
+  {
+    "path": "backend/tests/integration/test_health.py",
+    "sha256": "bc146f039f1c1d8f61072b1cd1f39ef008fbff25df377f3628ee782174bdac70",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/fixture source read. Reviewed actual SDK-backoff envelope controls, positive-only document classification, visible-text validation, additive migration model/DDL boundaries, scoped crypto/hash distinctions, structured readiness under unavailable dependencies, shared-notification safe fixture content, provider-template normalization via AsyncMock, stable cleanup-key identity, tenant/cursor enrollment selection and actual OpenAPI output checks. Source review only: no new test execution/provider send/live service result. Health smoke intentionally accepts503 and is not evidence all readiness capabilities are available. Shared notification fixture uses email-like metadata only to exercise generic personal-notification allowlists; dedicated Inbox scope remains deferred. No defect adopted or assertions edited."
+  },
+  {
+    "path": "backend/tests/mcp_notification_fixtures.py",
+    "sha256": "bddb7603444603dc59a82b201294e6c139f81d775b1df484c283b344a8f0f9d3",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/fixture source read. Reviewed actual SDK-backoff envelope controls, positive-only document classification, visible-text validation, additive migration model/DDL boundaries, scoped crypto/hash distinctions, structured readiness under unavailable dependencies, shared-notification safe fixture content, provider-template normalization via AsyncMock, stable cleanup-key identity, tenant/cursor enrollment selection and actual OpenAPI output checks. Source review only: no new test execution/provider send/live service result. Health smoke intentionally accepts503 and is not evidence all readiness capabilities are available. Shared notification fixture uses email-like metadata only to exercise generic personal-notification allowlists; dedicated Inbox scope remains deferred. No defect adopted or assertions edited."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_reminder_template_whitespace.py",
+    "sha256": "df43c3ceeffa56e284c25c3c519adece0f431bef90c01b40ab5a529da96c8b64",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/fixture source read. Reviewed actual SDK-backoff envelope controls, positive-only document classification, visible-text validation, additive migration model/DDL boundaries, scoped crypto/hash distinctions, structured readiness under unavailable dependencies, shared-notification safe fixture content, provider-template normalization via AsyncMock, stable cleanup-key identity, tenant/cursor enrollment selection and actual OpenAPI output checks. Source review only: no new test execution/provider send/live service result. Health smoke intentionally accepts503 and is not evidence all readiness capabilities are available. Shared notification fixture uses email-like metadata only to exercise generic personal-notification allowlists; dedicated Inbox scope remains deferred. No defect adopted or assertions edited."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_passport_object_keys.py",
+    "sha256": "90a0a7d534e4cf7537e82ceaf75f287ec04ea7302e1775ac02665359514b1d18",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/fixture source read. Reviewed actual SDK-backoff envelope controls, positive-only document classification, visible-text validation, additive migration model/DDL boundaries, scoped crypto/hash distinctions, structured readiness under unavailable dependencies, shared-notification safe fixture content, provider-template normalization via AsyncMock, stable cleanup-key identity, tenant/cursor enrollment selection and actual OpenAPI output checks. Source review only: no new test execution/provider send/live service result. Health smoke intentionally accepts503 and is not evidence all readiness capabilities are available. Shared notification fixture uses email-like metadata only to exercise generic personal-notification allowlists; dedicated Inbox scope remains deferred. No defect adopted or assertions edited."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_traveller_enrollment_sources.py",
+    "sha256": "da503dfacc99cfff29eb8e9874512a766330fda9fa5b04c48b80709b68c38df7",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/fixture source read. Reviewed actual SDK-backoff envelope controls, positive-only document classification, visible-text validation, additive migration model/DDL boundaries, scoped crypto/hash distinctions, structured readiness under unavailable dependencies, shared-notification safe fixture content, provider-template normalization via AsyncMock, stable cleanup-key identity, tenant/cursor enrollment selection and actual OpenAPI output checks. Source review only: no new test execution/provider send/live service result. Health smoke intentionally accepts503 and is not evidence all readiness capabilities are available. Shared notification fixture uses email-like metadata only to exercise generic personal-notification allowlists; dedicated Inbox scope remains deferred. No defect adopted or assertions edited."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_ecr_migration.py",
+    "sha256": "418d2ae1695ea9bc80a61827c9a15c852718d98433c1ce431422ac7d1e8a7cd0",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/fixture source read. Reviewed actual SDK-backoff envelope controls, positive-only document classification, visible-text validation, additive migration model/DDL boundaries, scoped crypto/hash distinctions, structured readiness under unavailable dependencies, shared-notification safe fixture content, provider-template normalization via AsyncMock, stable cleanup-key identity, tenant/cursor enrollment selection and actual OpenAPI output checks. Source review only: no new test execution/provider send/live service result. Health smoke intentionally accepts503 and is not evidence all readiness capabilities are available. Shared notification fixture uses email-like metadata only to exercise generic personal-notification allowlists; dedicated Inbox scope remains deferred. No defect adopted or assertions edited."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_enterprise_migration_topology.py",
+    "sha256": "ccd521c38f7d22e2545147dff23a928c6ad8823c3800fc443a19b5d548d19eb5",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/fixture source read. Reviewed actual SDK-backoff envelope controls, positive-only document classification, visible-text validation, additive migration model/DDL boundaries, scoped crypto/hash distinctions, structured readiness under unavailable dependencies, shared-notification safe fixture content, provider-template normalization via AsyncMock, stable cleanup-key identity, tenant/cursor enrollment selection and actual OpenAPI output checks. Source review only: no new test execution/provider send/live service result. Health smoke intentionally accepts503 and is not evidence all readiness capabilities are available. Shared notification fixture uses email-like metadata only to exercise generic personal-notification allowlists; dedicated Inbox scope remains deferred. No defect adopted or assertions edited."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_passport_ecr_migration.py",
+    "sha256": "a04e3380aeacbba93e806085f3d4bfd2efc53bb70465ae3315d639494fdef58e",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/fixture source read. Reviewed actual SDK-backoff envelope controls, positive-only document classification, visible-text validation, additive migration model/DDL boundaries, scoped crypto/hash distinctions, structured readiness under unavailable dependencies, shared-notification safe fixture content, provider-template normalization via AsyncMock, stable cleanup-key identity, tenant/cursor enrollment selection and actual OpenAPI output checks. Source review only: no new test execution/provider send/live service result. Health smoke intentionally accepts503 and is not evidence all readiness capabilities are available. Shared notification fixture uses email-like metadata only to exercise generic personal-notification allowlists; dedicated Inbox scope remains deferred. No defect adopted or assertions edited."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_openapi_response_contract.py",
+    "sha256": "6d35a1d64f79e2cc4c036d9cbc6e04aed91f8288d3886aec12266e7865e5b6dc",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/fixture source read. Reviewed actual SDK-backoff envelope controls, positive-only document classification, visible-text validation, additive migration model/DDL boundaries, scoped crypto/hash distinctions, structured readiness under unavailable dependencies, shared-notification safe fixture content, provider-template normalization via AsyncMock, stable cleanup-key identity, tenant/cursor enrollment selection and actual OpenAPI output checks. Source review only: no new test execution/provider send/live service result. Health smoke intentionally accepts503 and is not evidence all readiness capabilities are available. Shared notification fixture uses email-like metadata only to exercise generic personal-notification allowlists; dedicated Inbox scope remains deferred. No defect adopted or assertions edited."
+  }
+]

@@ -1,0 +1,37 @@
+{
+  "files": [
+    {
+      "path": "scripts/release_code_update.py",
+      "sha256": "5ae04cf862c283c6e95cb05847d368bca6a8327298b09486add2c621c938aa48",
+      "reviewer": "ai_extraction",
+      "review_scope": "partial",
+      "status": "verified-narrow-health-probe",
+      "notes": "Two actual CodeUpdate frontend/public probe paths and related readiness/timeout statements reviewed; whole larger controller source is not independently fully read by this narrow follow-up."
+    },
+    {
+      "path": "scripts/release_retained_update.py",
+      "sha256": "b0b9daf0ad422893ef5618895f04b36f435959838945ca2e4384ab3936b91e14",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "verified-narrow-health-probe",
+      "notes": "Prior complete597-line retained source review retained via exact inverse of one literal path."
+    },
+    {
+      "path": "scripts/test_release_health_asset.py",
+      "sha256": "c7317de970613fd11dba2607f96f77e424f7dae3d352371a8dc447acb2d1ca50",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "verified-focused",
+      "notes": "New four method controls authored/read; actual captured JS executed in six synthetic-fetch Node cases, public route/error checks plus retained-source PNG/Docker availability. No Docker/network/provider processes."
+    },
+    {
+      "path": "frontend/public/pwa-icon-192.png",
+      "sha256": "554d5337b9f093cf54dc7e0f552ebe4a987c58fc7aa404d69512165f3ace502c",
+      "reviewer": "ai_extraction",
+      "review_scope": "partial",
+      "status": "asset-metadata-qualified",
+      "notes": "Binary PNG signature/size/decoder verification and both immutable Git sources; not visual UI or live serving qualification."
+    }
+  ],
+  "scope": "Three existing release health probe asset literals only; no deploy or real production credential access."
+}

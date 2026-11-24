@@ -1,0 +1,38 @@
+[
+  {
+    "path": "backend/tests/integration/test_mcp_whatsapp_intents.py",
+    "sha256": "6c4612a5c8bd503d1f3b198681cbd3552ae02ea2a63926ec694ab1125ef21f51",
+    "physical_lines": 568,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete exact reminder plan/confirm/cancel and synthetic-provider worker fixture, literal confirmation, preview no effects, unknown outcome suppression, original grant/current source/hash/expiry gates, durable queue/replay, cancellation retaining accepted history, broker race/origin recovery, verified receipt reconciliation and crash-after-claim remaining-work behavior reviewed. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_whatsapp_media.py",
+    "sha256": "449e0e74865e61d14c5e6d2a77d36e8ced520f77aab012af385d75162e80e5a0",
+    "physical_lines": 312,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete scanned original/normalized provider byte identity and opaque handle fixture, immutable request/replay, failed versus uncertain provider outcomes without automatic upload, explicit new-grant recovery, live capabilities/scope/sender/source validation, durable attempted claim expiry and authority preflight assertions reviewed with synthetic provider only. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/service_integration/test_mcp_whatsapp_media_postgresql.py",
+    "sha256": "1e720450e58ef3014595e1c3e3c331eee717c06d05cec3a907611397e741ad18",
+    "physical_lines": 321,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete isolated PostgreSQL two-slot media claim/retry barrier, expired observation waiting for held valid attempt, original grant revocation waiting for known result and recovered handle, exact image-to-welcome-worker header reuse protocols reviewed; bounded waits/finally listener and task drain examined, no Meta/PG execution. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/service_integration/test_mcp_whatsapp_postgresql.py",
+    "sha256": "8149fb40e42068ad574502a3592db4436c79ff487539d1c17ae3ff285a0498f1",
+    "physical_lines": 430,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete PostgreSQL cross-connection plan confirmation deduplication, original grant revocation/orphan origin blocking, provider-winner authority barrier versus revoke/cancel, accepted-history retention and nonblocking terminal observation/recovery ordering protocols reviewed. Safe immutable initial receipts and eventual progress catchup remain distinct from delivery. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  }
+]

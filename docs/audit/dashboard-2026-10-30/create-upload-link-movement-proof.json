@@ -1,0 +1,227 @@
+{
+  "recorded_at": "2026-10-31T04:22:35.824Z",
+  "original_sha256": "684bffa42b3be54ce5fdfccc1ec03e47a3774e7fb0a63e5d1f6e091ccec8bdef",
+  "records": [
+    {
+      "kind": "controller-statement",
+      "index": 0,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 1,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 2,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 3,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 4,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 5,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 6,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 7,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 8,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 9,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 10,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 11,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 12,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 13,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 14,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 15,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 16,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 17,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 18,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 19,
+      "exact_AST": true,
+      "declared_substitution": "Fresh default object comes from the exact preserved factory object."
+    },
+    {
+      "kind": "controller-statement",
+      "index": 20,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 21,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 22,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 23,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 24,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 25,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 26,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 27,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 28,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 29,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 30,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 31,
+      "exact_AST": true
+    },
+    {
+      "kind": "default-factory",
+      "exact_object_AST": true,
+      "fresh_allocation_preserved": true
+    },
+    {
+      "kind": "single-flight-gate",
+      "exact_AST": true
+    },
+    {
+      "kind": "view",
+      "owner": "create-upload-link-details.tsx",
+      "rendered_JSX_AST": true
+    },
+    {
+      "kind": "view",
+      "owner": "create-upload-link-result.tsx",
+      "rendered_JSX_AST": true,
+      "declared_substitution": "Only the banner retry callback moves into its controller."
+    },
+    {
+      "kind": "retry-handler",
+      "body_exact_AST_except_declared_missing_group_guard": true
+    },
+    {
+      "kind": "modal-frame",
+      "declared_view_substitutions_only": true
+    },
+    {
+      "kind": "workspace-session-key-wrapper",
+      "exact_AST": true
+    },
+    {
+      "kind": "public-props",
+      "exact_AST": true,
+      "type_only_export_added": true
+    }
+  ],
+  "files": [
+    {
+      "path": "frontend/features/passports/components/create-upload-link-modal.tsx",
+      "sha256": "08b545a8fcba98e3ba4f628f0050eb18e6d1ee868c397c6fb82da17d04331f5a"
+    },
+    {
+      "path": "frontend/features/passports/components/use-create-upload-link-form.ts",
+      "sha256": "6e3bea262eb9c7f0edecfcb0e15e081b5c1fc5e4965d3e1a16062273e0f96a75"
+    },
+    {
+      "path": "frontend/features/passports/components/create-upload-link-defaults.ts",
+      "sha256": "dce7d039f75154cc2c37466635b11d3e65e58d324a4487e4a96952cca0cd3ae9"
+    },
+    {
+      "path": "frontend/features/passports/components/create-upload-link-details.tsx",
+      "sha256": "26da29f4b4ebd1cf5f2750a13a20499da5809502c9dc4abd4b8d2e743c8ff802"
+    },
+    {
+      "path": "frontend/features/passports/components/create-upload-link-result.tsx",
+      "sha256": "ddd936d38925e35989c96be296c7e0550fd39c17e91587e212e799137c2ae1ac"
+    }
+  ],
+  "basis": "Mechanical partition follows two separately proved clipboard lifetime fixes. All32 state statements, default literal, single-flight gate, both view expressions, banner retry body, modal frame, workspace/session key wrapper and public props checked. Missing saved-group retry guard replaces the original JSX narrowing context."
+}

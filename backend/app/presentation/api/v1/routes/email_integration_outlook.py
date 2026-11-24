@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
-import uuid
+import uuid as uuid
 from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 from fastapi.responses import RedirectResponse
-from sqlalchemy import or_, select
+from sqlalchemy import or_ as or_
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import undefer
@@ -15,9 +16,11 @@ from sqlalchemy.orm import undefer
 from app.application.interfaces.email_provider import EmailProviderError
 from app.core.config.settings import get_settings
 from app.core.logging.logger import get_logger
-from app.domain.entities.entities import User, UserRole
+from app.domain.entities.entities import User
+from app.domain.entities.entities import UserRole as UserRole
 from app.infrastructure.database.email_models import EmailConnectionModel, EmailOAuthStateModel
-from app.infrastructure.database.models import AgencyModel, UserModel
+from app.infrastructure.database.models import AgencyModel as AgencyModel
+from app.infrastructure.database.models import UserModel as UserModel
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.email.oauth import (
     hash_oauth_state,
@@ -48,6 +51,8 @@ from .email_integration_access import (
     _require_provider_account_owner,
 )
 from .email_integration_oauth_start import begin_provider_authorization
+from .email_oauth_actor import _oauth_actor_is_authorized
+from .email_oauth_grant import _apply_encrypted_oauth_grant, _new_oauth_connection
 
 router = APIRouter()
 logger = get_logger(__name__)
@@ -145,29 +150,7 @@ async def outlook_oauth_callback(
             _oauth_return_url(settings, "failed", "outlook"),
             status_code=303,
         )
-    actor_is_still_authorized = await session.scalar(
-        select(UserModel.id)
-        .outerjoin(AgencyModel, AgencyModel.id == UserModel.agency_id)
-        .where(
-            UserModel.id == user_id,
-            UserModel.is_active.is_(True),
-            or_(
-                UserModel.role == UserRole.SUPER_ADMIN.value,
-                (
-                    (UserModel.agency_id == agency_id)
-                    & UserModel.role.in_(
-                        {
-                            UserRole.AGENCY_ADMIN.value,
-                            UserRole.AGENCY_MANAGER.value,
-                            UserRole.AGENCY_STAFF.value,
-                        }
-                    )
-                    & AgencyModel.is_active.is_(True)
-                ),
-            ),
-        )
-    )
-    if actor_is_still_authorized is None:
+    if not await _oauth_actor_is_authorized(session, user_id=user_id, agency_id=agency_id):
         return RedirectResponse(
             _oauth_return_url(settings, "failed", "outlook"),
             status_code=303,
@@ -248,24 +231,14 @@ async def outlook_oauth_callback(
             else:
                 if encrypted_refresh is None:
                     raise ValueError("Microsoft did not return offline access")
-                connection = EmailConnectionModel(
-                    id=uuid.uuid4(),
+                connection = _new_oauth_connection(
                     agency_id=agency_id,
-                    owner_user_id=user_id,
-                    provider="outlook",
-                    provider_account_id=profile.provider_account_id,
-                    email_address=profile.email_address,
-                    normalized_email_address=profile.email_address.casefold(),
-                    display_name=profile.display_name,
-                    status="active",
-                    sync_state="queued",
-                    scopes=list(token_set.scopes),
-                    token_key_version=cipher.key_version,
-                    sync_generation=0,
-                    consecutive_failures=0,
-                    created_by_user_id=user_id,
-                    created_at=now,
-                    updated_at=now,
+                    user_id=user_id,
+                    provider_name="outlook",
+                    profile=profile,
+                    token_set=token_set,
+                    cipher=cipher,
+                    now=now,
                 )
                 session.add(connection)
 
@@ -273,32 +246,19 @@ async def outlook_oauth_callback(
             raise ValueError("Email connection could not be created")
         if encrypted_refresh is None and connection.refresh_token_ciphertext is None:
             raise ValueError("Microsoft did not return offline access")
-        connection.provider_account_id = profile.provider_account_id
-        connection.email_address = profile.email_address
-        connection.normalized_email_address = profile.email_address.casefold()
-        connection.display_name = profile.display_name[:255] if profile.display_name else None
-        connection.status = "active"
-        connection.sync_state = "queued"
-        connection.access_token_ciphertext = encrypted_access.ciphertext.encode("ascii")
-        if encrypted_refresh is not None:
-            # Microsoft rotates refresh tokens; every replacement is encrypted
-            # and committed atomically with the access token.
-            connection.refresh_token_ciphertext = encrypted_refresh.ciphertext.encode("ascii")
-        connection.token_key_version = cipher.key_version
-        connection.token_expires_at = token_set.expires_at
-        connection.scopes = list(token_set.scopes)
-        # Keep the first synchronization on the common bounded-lookback path;
-        # that path snapshots a fresh Graph delta cursor before listing recent
-        # inbox messages and therefore cannot miss mail during authorization.
-        connection.sync_cursor = None
-        connection.sync_generation += 1
-        connection.next_sync_at = now
-        connection.paused_at = None
-        connection.disconnected_at = None
-        connection.last_error_code = None
-        connection.last_error_message = None
-        connection.last_error_at = None
-        connection.updated_at = now
+        # Microsoft rotates refresh tokens; every replacement remains encrypted
+        # and is committed atomically with the access token.
+        # Clearing the cursor keeps first sync on the bounded-lookback path,
+        # which snapshots a fresh Graph delta cursor before listing recent mail.
+        _apply_encrypted_oauth_grant(
+            connection,
+            profile=profile,
+            token_set=token_set,
+            cipher=cipher,
+            encrypted_access=encrypted_access,
+            encrypted_refresh=encrypted_refresh,
+            now=now,
+        )
         await session.flush()
         await AuditLogRepository(session).record(
             action=("email_connection_reauthorized" if reconnected else "email_connection_created"),

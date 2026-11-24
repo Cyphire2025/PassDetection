@@ -1,0 +1,283 @@
+{
+  "status": "passed-fresh-production-feature-bundle",
+  "recorded_at": "2026-10-31T05:27:58.692028+00:00",
+  "records": [
+    {
+      "path": "frontend/features/whatsapp/workspace/message-composer-review-dialog.tsx",
+      "sha256": "db713b4753ec61ea22a7b54d4b549d313ded3856ebcd5ee49503bc4368b24b20",
+      "physical_lines": 94,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "fixed-and-verified",
+      "notes": "Every current source line read/authored. Actual component and project CSS long/small message bounds tested at390 and1440px; all contents and white-space preserved. Runtime fix adds only one overflow-wrap:anywhere class; complete original bytes recover exactly when that class is removed."
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/historical-resend-dialog.tsx",
+      "sha256": "16733090bbab804a3ba9c15ce2fc5538dde0c9d25cfa043438d01cc3931858aa",
+      "physical_lines": 109,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "fixed-and-verified",
+      "notes": "Every current source line read/authored. Actual component and project CSS long/small message bounds tested at390 and1440px; all contents and white-space preserved. Runtime fix adds only one overflow-wrap:anywhere class; complete original bytes recover exactly when that class is removed."
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/document-composer.tsx",
+      "sha256": "104a7e4f980bc67091754fe43b37b626854c35c974428a63e23091eb707aaf22",
+      "physical_lines": 265,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "fixed-and-verified",
+      "notes": "Every current source line read/authored. Actual component and project CSS long/small message bounds tested at390 and1440px; all contents and white-space preserved. Runtime fix adds only one overflow-wrap:anywhere class; complete original bytes recover exactly when that class is removed."
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/trip-update-composer.tsx",
+      "sha256": "2c7c6dce285bceca82717bf5150a5c17b0f4bec1ab81ca8e86a0af78225150b8",
+      "physical_lines": 247,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "fixed-and-verified",
+      "notes": "Every current source line read/authored. Actual component and project CSS long/small message bounds tested at390 and1440px; all contents and white-space preserved. Runtime fix adds only one overflow-wrap:anywhere class; complete original bytes recover exactly when that class is removed."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/group-update-recipient-details.tsx",
+      "sha256": "d736c47d7ba83a229193d57d6bd641e61f36bae0aabc49f3ff55a8877596ca6f",
+      "physical_lines": 81,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "fixed-and-verified",
+      "notes": "Every current source line read/authored. Actual component and project CSS long/small message bounds tested at390 and1440px; all contents and white-space preserved. Runtime fix adds only one overflow-wrap:anywhere class; complete original bytes recover exactly when that class is removed."
+    },
+    {
+      "path": "frontend/features/documents/components/document-workspace-dialogs.tsx",
+      "sha256": "0a46db86357155b8b0725515247743abcb2c77b6c3011ccedde08c1e38d187e0",
+      "physical_lines": 547,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "fixed-and-verified",
+      "notes": "Every current source line read/authored. Actual component and project CSS long/small message bounds tested at390 and1440px; all contents and white-space preserved. Runtime fix adds only one overflow-wrap:anywhere class; complete original bytes recover exactly when that class is removed."
+    },
+    {
+      "path": "frontend/scripts/browser-verification-local-fixture.mjs",
+      "sha256": "f3bea282961d8049ab83a90af8a471b74ea56c6b014942cb7758192b70d6dc70",
+      "physical_lines": 85,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-current-regression",
+      "notes": "Full source and actual current callers read; rendered fixture/production verifier checks actual inner pane and existing outer bounds. Synthetic presentation controller inputs only; all unexpected network/API writes blocked. Existing protected previews remain byte-identical."
+    },
+    {
+      "path": "frontend/scripts/verify-whatsapp-composer-browser.mjs",
+      "sha256": "4c384a6b58e97a300bd035660114333be5e9a34c47c6ad875f2f3e31d7cf6f0a",
+      "physical_lines": 73,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-current-regression",
+      "notes": "Full source and actual current callers read; rendered fixture/production verifier checks actual inner pane and existing outer bounds. Synthetic presentation controller inputs only; all unexpected network/API writes blocked. Existing protected previews remain byte-identical."
+    },
+    {
+      "path": "frontend/scripts/verify-whatsapp-recipient-bulk-browser.mjs",
+      "sha256": "d206ccf7a614ad03ff721c88e76c4fc22b9d1cf2ef1ee6739609c16e29078c9d",
+      "physical_lines": 157,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-current-regression",
+      "notes": "Full source and actual current callers read; rendered fixture/production verifier checks actual inner pane and existing outer bounds. Synthetic presentation controller inputs only; all unexpected network/API writes blocked. Existing protected previews remain byte-identical."
+    },
+    {
+      "path": "frontend/e2e-fixtures/message-pane-overflow.spec.ts",
+      "sha256": "15bdf23819b21bce508d02a12c581fb531f775f6217c9d12009a83c6b1cb13bf",
+      "physical_lines": 52,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-current-regression",
+      "notes": "Full source and actual current callers read; rendered fixture/production verifier checks actual inner pane and existing outer bounds. Synthetic presentation controller inputs only; all unexpected network/API writes blocked. Existing protected previews remain byte-identical."
+    },
+    {
+      "path": "frontend/e2e-fixtures/support/message-pane-overflow-fixture.tsx",
+      "sha256": "811640129eec289ffc3cceca7c8be6268b5231b6cf7a348cb8d3db2aac71b13a",
+      "physical_lines": 47,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-current-regression",
+      "notes": "Full source and actual current callers read; rendered fixture/production verifier checks actual inner pane and existing outer bounds. Synthetic presentation controller inputs only; all unexpected network/API writes blocked. Existing protected previews remain byte-identical."
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/composer-primitives.tsx",
+      "sha256": "582710895b60f79a99aa44d176cc30f5e9f51b37a3f88bb95313b69d614fbd87",
+      "physical_lines": 180,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-existing-wrap-protection-unchanged",
+      "notes": "Full source and actual current callers read; rendered fixture/production verifier checks actual inner pane and existing outer bounds. Synthetic presentation controller inputs only; all unexpected network/API writes blocked. Existing protected previews remain byte-identical."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-message-composer-ui.tsx",
+      "sha256": "1d9b474eae4edbd06fc7b219b08d1cf543db13eec83da9937f9d4a12a7405064",
+      "physical_lines": 91,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-existing-wrap-protection-unchanged",
+      "notes": "Full source and actual current callers read; rendered fixture/production verifier checks actual inner pane and existing outer bounds. Synthetic presentation controller inputs only; all unexpected network/API writes blocked. Existing protected previews remain byte-identical."
+    }
+  ],
+  "changed_paths": [
+    "frontend/features/whatsapp/workspace/message-composer-review-dialog.tsx",
+    "frontend/features/whatsapp/workspace/historical-resend-dialog.tsx",
+    "frontend/features/whatsapp/workspace/document-composer.tsx",
+    "frontend/features/whatsapp/workspace/trip-update-composer.tsx",
+    "frontend/features/whatsapp/components/group-update-recipient-details.tsx",
+    "frontend/features/documents/components/document-workspace-dialogs.tsx",
+    "frontend/scripts/browser-verification-local-fixture.mjs",
+    "frontend/scripts/verify-whatsapp-composer-browser.mjs",
+    "frontend/scripts/verify-whatsapp-recipient-bulk-browser.mjs",
+    "frontend/e2e-fixtures/message-pane-overflow.spec.ts",
+    "frontend/e2e-fixtures/support/message-pane-overflow-fixture.tsx"
+  ],
+  "runtime_paths": [
+    "frontend/features/whatsapp/workspace/message-composer-review-dialog.tsx",
+    "frontend/features/whatsapp/workspace/historical-resend-dialog.tsx",
+    "frontend/features/whatsapp/workspace/document-composer.tsx",
+    "frontend/features/whatsapp/workspace/trip-update-composer.tsx",
+    "frontend/features/whatsapp/components/group-update-recipient-details.tsx",
+    "frontend/features/documents/components/document-workspace-dialogs.tsx"
+  ],
+  "class_only_proof": [
+    {
+      "path": "frontend/features/whatsapp/workspace/message-composer-review-dialog.tsx",
+      "before_sha256": "e6c9d57c801685a6f47640a7c5d01ff3a76ba7ec46954ef573442553e4d4c330",
+      "after_sha256": "db713b4753ec61ea22a7b54d4b549d313ded3856ebcd5ee49503bc4368b24b20",
+      "proof": "Removing only the one added CSS utility restores the complete original raw bytes. Contents, whitespace and event/action/state code unchanged."
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/historical-resend-dialog.tsx",
+      "before_sha256": "2cbea919ebd763543e5656bf0aa17249a22eb10a430876f86f59c2ebcb0fab83",
+      "after_sha256": "16733090bbab804a3ba9c15ce2fc5538dde0c9d25cfa043438d01cc3931858aa",
+      "proof": "Removing only the one added CSS utility restores the complete original raw bytes. Contents, whitespace and event/action/state code unchanged."
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/document-composer.tsx",
+      "before_sha256": "d0a5bf1a4d946599c8ca816bd70509ed755c7c38f5621154714e726e6015ab7d",
+      "after_sha256": "104a7e4f980bc67091754fe43b37b626854c35c974428a63e23091eb707aaf22",
+      "proof": "Removing only the one added CSS utility restores the complete original raw bytes. Contents, whitespace and event/action/state code unchanged."
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/trip-update-composer.tsx",
+      "before_sha256": "1f7e345cb948830afb8c7be9c3c2de226a16cb497fc55008768c4f473537d53c",
+      "after_sha256": "2c7c6dce285bceca82717bf5150a5c17b0f4bec1ab81ca8e86a0af78225150b8",
+      "proof": "Removing only the one added CSS utility restores the complete original raw bytes. Contents, whitespace and event/action/state code unchanged."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/group-update-recipient-details.tsx",
+      "before_sha256": "b2ada0fde569c98f6d7cef3da8b79f7756b1adab03a5b6a9e5b3d0daf3e48537",
+      "after_sha256": "d736c47d7ba83a229193d57d6bd641e61f36bae0aabc49f3ff55a8877596ca6f",
+      "proof": "Removing only the one added CSS utility restores the complete original raw bytes. Contents, whitespace and event/action/state code unchanged."
+    },
+    {
+      "path": "frontend/features/documents/components/document-workspace-dialogs.tsx",
+      "before_sha256": "5e01b142c946f29ceda1fd756bf44bd198eceff73be81f065cc4f10dc96a1cb7",
+      "after_sha256": "0a46db86357155b8b0725515247743abcb2c77b6c3011ccedde08c1e38d187e0",
+      "proof": "Removing only the one added CSS utility restores the complete original raw bytes. Contents, whitespace and event/action/state code unchanged."
+    }
+  ],
+  "browser": {
+    "method": "Actual source components + project CSS via Vite; only two presentation controller hooks and Next process-env shim provided. Every API/network request blocked. This qualifies layout, not provider/backend workflows.",
+    "before": {
+      "cases": 32,
+      "passed": 20,
+      "failed": 12,
+      "skipped": 0,
+      "receipt": "message-pane-wrapping-before-browser.json"
+    },
+    "after": {
+      "cases": 32,
+      "passed": 32,
+      "failed": 0,
+      "skipped": 0,
+      "receipt": "message-pane-wrapping-after-browser.json"
+    },
+    "controls": "All16small-text controls preserve exact text, CSSwhite-space and pane width. Both existing protected preview components remain byte-identical.",
+    "bounds_receipt": "message-pane-wrapping-computed-bounds.json",
+    "screenshots_physically_viewed": [
+      ".tmp/message-pane-wrapping/after-review-390.png",
+      ".tmp/message-pane-wrapping/after-historical-390.png",
+      ".tmp/message-pane-wrapping/after-document-delivery-390.png"
+    ]
+  },
+  "checks": {
+    "affected_unit": {
+      "files": 6,
+      "cases": 35,
+      "passed": 35,
+      "failed": 0,
+      "receipt": ".tmp/message-pane-wrapping/affected-unit.json"
+    },
+    "node_contracts": {
+      "files": 16,
+      "cases": 82,
+      "passed": 82,
+      "receipt": ".tmp/message-pane-wrapping/contracts.txt"
+    },
+    "types": {
+      "passed": true,
+      "receipt": ".tmp/message-pane-wrapping/types.txt"
+    },
+    "scoped_lint": {
+      "files": 11,
+      "passed": true,
+      "warnings": 0,
+      "receipt": ".tmp/message-pane-wrapping/lint.txt"
+    },
+    "budgets": {
+      "modules": 526,
+      "passed": true,
+      "ceiling_or_floor_changes": false,
+      "receipt": ".tmp/message-pane-wrapping/budgets.txt"
+    }
+  },
+  "historical_receipts": "Previous portal/new-verifier qualification on ZVLp8MXKE6IoTayf51zGq and all checkpoint3 failures/receipts remain unchanged.",
+  "next": "Parent final seal incorporates its nine critical production journeys; returning-traveller architecture follow-through remains separate.",
+  "services": "Stopped owned3186/session19826 after final feature bundle; no lane-owned services remain.",
+  "completed_at": "2026-10-31T05:31:43.552181+00:00",
+  "production_artifact": {
+    "build_id": "jmn7rIY1ck17GZ_tqrKAH",
+    "api_origin": "http://127.0.0.1:3199",
+    "basis": "Fresh production artifact containing all six wrapping changes and prior body portal; all1644 frontend bytes frozen without exclusions. Public/static staged in local standalone tree only.",
+    "files": {
+      "frontend/.next/BUILD_ID": "37991aa1afbceadab0e1cbc11e5bcc1bd99c9b23db05d87b3ab4500dcc27cf85",
+      "frontend/.next/required-server-files.json": "25fef115322a86903edd904be501a9ca46283c1ef62af8792a2eb5675ef00d33",
+      "frontend/.next/server/app-paths-manifest.json": "99bfd70226f70809ffb155a4936810bc62d2a03b74eabf2597edf1fbe5632d38",
+      "frontend/.next/standalone/server.js": "4ce533c2d4db0d48e1ea2666d64865986cb36e709b0912e9dc86b803743dfa17"
+    }
+  },
+  "production_browser": {
+    "composer_cases": 6,
+    "recipient_history_and_uncertain_recovery_cases": 3,
+    "inner_bounds_cases": 4,
+    "viewports": [
+      390,
+      1440
+    ],
+    "passed": true,
+    "source_hashes_after_match": true,
+    "artifact_hashes_after_match": true,
+    "receipts": [
+      "message-pane-wrapping-production-composer.json",
+      "message-pane-wrapping-production-history-recovery.json",
+      "message-pane-wrapping-production-inner-bounds.json"
+    ],
+    "mobile_review_and_historical_inner_width": {
+      "scrollWidth": 308,
+      "clientWidth": 308,
+      "overflowWrap": "anywhere"
+    },
+    "desktop_review_and_historical_inner_width": {
+      "scrollWidth": 718,
+      "clientWidth": 718,
+      "overflowWrap": "anywhere"
+    },
+    "screenshots_physically_viewed": [
+      ".tmp/message-pane-wrapping/production-review-after-390.png",
+      ".tmp/message-pane-wrapping/production-historical-after-390.png"
+    ]
+  }
+}

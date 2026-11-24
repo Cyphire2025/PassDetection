@@ -1,0 +1,3 @@
+QA native-library/memory source cohort and lifecycle follow-through
+
+The original eight-file read-only source checkpoint remains historical. The focused lifecycle checkpoint is now sealed in qa-native-memory-lifecycle-verification.json. It records ten actual synthetic negative outcomes before repair (nine original plus partial parallel connection acquisition) and 29 current focused methods after repair, with the original four healthy outcomes retained. New source owner preserves exact container ownership and bounded teardown; no Docker daemon, native library, PostgreSQL or provider was exercised. Current full-read ledger and exact AST preservation obligations are linked by hash in that receipt. Shared quality/release gates and advisory policy remain unchanged.

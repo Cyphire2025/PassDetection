@@ -1,0 +1,97 @@
+.EEEEFFFFF..
+======================================================================
+ERROR: test_non_object_asset_json_fails_with_existing_bounded_reason (test_retained_release_json_boundaries.RetainedJsonBoundaries.test_non_object_asset_json_fails_with_existing_bounded_reason) (value=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_retained_release_json_boundaries.py", line 77, in test_non_object_asset_json_fails_with_existing_bounded_reason
+    self.proof(value)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_retained_release_json_boundaries.py", line 60, in proof
+    release.proof(rows, REVISION, public=True)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\retained_release_runtime.py", line 114, in proof
+    isinstance(asset.get("path"), str)
+               ^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'get'
+
+======================================================================
+ERROR: test_non_object_asset_json_fails_with_existing_bounded_reason (test_retained_release_json_boundaries.RetainedJsonBoundaries.test_non_object_asset_json_fails_with_existing_bounded_reason) (value=[])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_retained_release_json_boundaries.py", line 77, in test_non_object_asset_json_fails_with_existing_bounded_reason
+    self.proof(value)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_retained_release_json_boundaries.py", line 60, in proof
+    release.proof(rows, REVISION, public=True)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\retained_release_runtime.py", line 114, in proof
+    isinstance(asset.get("path"), str)
+               ^^^^^^^^^
+AttributeError: 'list' object has no attribute 'get'
+
+======================================================================
+ERROR: test_non_object_asset_json_fails_with_existing_bounded_reason (test_retained_release_json_boundaries.RetainedJsonBoundaries.test_non_object_asset_json_fails_with_existing_bounded_reason) (value='synthetic-private')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_retained_release_json_boundaries.py", line 77, in test_non_object_asset_json_fails_with_existing_bounded_reason
+    self.proof(value)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_retained_release_json_boundaries.py", line 60, in proof
+    release.proof(rows, REVISION, public=True)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\retained_release_runtime.py", line 114, in proof
+    isinstance(asset.get("path"), str)
+               ^^^^^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+======================================================================
+ERROR: test_non_object_asset_json_fails_with_existing_bounded_reason (test_retained_release_json_boundaries.RetainedJsonBoundaries.test_non_object_asset_json_fails_with_existing_bounded_reason) (value=42)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_retained_release_json_boundaries.py", line 77, in test_non_object_asset_json_fails_with_existing_bounded_reason
+    self.proof(value)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_retained_release_json_boundaries.py", line 60, in proof
+    release.proof(rows, REVISION, public=True)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\retained_release_runtime.py", line 114, in proof
+    isinstance(asset.get("path"), str)
+               ^^^^^^^^^
+AttributeError: 'int' object has no attribute 'get'
+
+======================================================================
+FAIL: test_non_object_inventory_rows_fail_with_bounded_reason (test_retained_release_json_boundaries.RetainedJsonBoundaries.test_non_object_inventory_rows_fail_with_bounded_reason) (value=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_retained_release_json_boundaries.py", line 36, in test_non_object_inventory_rows_fail_with_bounded_reason
+    with self.assertRaisesRegex(ValueError, "^invalid_docker_inventory$"):
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_non_object_inventory_rows_fail_with_bounded_reason (test_retained_release_json_boundaries.RetainedJsonBoundaries.test_non_object_inventory_rows_fail_with_bounded_reason) (value={})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_retained_release_json_boundaries.py", line 36, in test_non_object_inventory_rows_fail_with_bounded_reason
+    with self.assertRaisesRegex(ValueError, "^invalid_docker_inventory$"):
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_non_object_inventory_rows_fail_with_bounded_reason (test_retained_release_json_boundaries.RetainedJsonBoundaries.test_non_object_inventory_rows_fail_with_bounded_reason) (value='synthetic-private')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_retained_release_json_boundaries.py", line 36, in test_non_object_inventory_rows_fail_with_bounded_reason
+    with self.assertRaisesRegex(ValueError, "^invalid_docker_inventory$"):
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_non_object_inventory_rows_fail_with_bounded_reason (test_retained_release_json_boundaries.RetainedJsonBoundaries.test_non_object_inventory_rows_fail_with_bounded_reason) (value=42)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_retained_release_json_boundaries.py", line 36, in test_non_object_inventory_rows_fail_with_bounded_reason
+    with self.assertRaisesRegex(ValueError, "^invalid_docker_inventory$"):
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_non_object_inventory_rows_fail_with_bounded_reason (test_retained_release_json_boundaries.RetainedJsonBoundaries.test_non_object_inventory_rows_fail_with_bounded_reason) (value=['synthetic-private'])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_retained_release_json_boundaries.py", line 36, in test_non_object_inventory_rows_fail_with_bounded_reason
+    with self.assertRaisesRegex(ValueError, "^invalid_docker_inventory$"):
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.011s
+
+FAILED (failures=5, errors=4)

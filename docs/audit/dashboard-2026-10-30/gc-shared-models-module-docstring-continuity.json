@@ -1,0 +1,127 @@
+{
+  "status": "Only17new leaf module descriptions changed; original facade/class docs remain exact",
+  "files": [
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/organizations.py",
+      "before_sha256": "65810d3a8417ac9927a06c6ce14cb7db12e75f5c55db91a91ada6f4688442a30",
+      "after_sha256": "948281b090747a2ecfaa7a7d203086858d0ac0c042b35e151c5f81ad46b4dd1f",
+      "only_first_module_docstring_AST_changed": true,
+      "physical_line_count_exact": 235
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/group_access.py",
+      "before_sha256": "da14bb5fcbc1244383af36ecc30daaa5d34f7c269e2825a34cfeb4930c937216",
+      "after_sha256": "be19a91b9200629cb94c9761ac69cee226725cfd45d5317a17184ee25e4cf755",
+      "only_first_module_docstring_AST_changed": true,
+      "physical_line_count_exact": 260
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/common_documents.py",
+      "before_sha256": "592bce1fce13c67044f1b9cd79908d184e528e5d96f10ad949c602ce60ddeb5e",
+      "after_sha256": "079550653b8479c535f14252ea1d83b9d037cb0112d6947b4a57dacb9a71971b",
+      "only_first_module_docstring_AST_changed": true,
+      "physical_line_count_exact": 164
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/itineraries.py",
+      "before_sha256": "4db614f999f533c6fab41007df9ad517533a0d9bd631ab59e806806f5895f35e",
+      "after_sha256": "8456f3888a78300afc37d316ffd98bab4efe5fa7aa5b192b23ad689b436030de",
+      "only_first_module_docstring_AST_changed": true,
+      "physical_line_count_exact": 304
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/announcements.py",
+      "before_sha256": "9cbda877049b9443fcc6f70657f78df232dad0dacbe7f3f31239f8a77838f39c",
+      "after_sha256": "ddfd167e3ec6f694a5b9b4fd5e78f74dbc73ffbda1e2b1f6fa68b7121db9f9b5",
+      "only_first_module_docstring_AST_changed": true,
+      "physical_line_count_exact": 160
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/passenger_identities.py",
+      "before_sha256": "0e9789d681c703185e4210cc92ac5ae5d512cd1ed1fbc179b24d017fe876f1b5",
+      "after_sha256": "a9f5ab3b247a55a5bbf3ffd59fa22ce4e8fcc2afb7db960bfadc581f2d337f7f",
+      "only_first_module_docstring_AST_changed": true,
+      "physical_line_count_exact": 170
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/document_cache.py",
+      "before_sha256": "d789b4b046ef4a1790a51ad5b7fe28f1b0159b37250e2667eb6f506dd503d022",
+      "after_sha256": "d9cc4bad0435253e7b0aa73e00e1ccf12153a5cd77e3ce725a4dee80f4290bbf",
+      "only_first_module_docstring_AST_changed": true,
+      "physical_line_count_exact": 126
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/otp_challenges.py",
+      "before_sha256": "b68b8236efe15824b6ecc5fab7d4dcfdae6d592424b88c0ae305c4c9a4700ada",
+      "after_sha256": "ea43f9a6ef67d7ac0292974239d9375a8031d2f556bf449a16fef41fb7e847f2",
+      "only_first_module_docstring_AST_changed": true,
+      "physical_line_count_exact": 133
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/sessions.py",
+      "before_sha256": "323d18d61ace33850ac8cdb0a4e9f359eaf3dd300750391a55afa49d78186474",
+      "after_sha256": "2a976b5fb1e8f8966810793b1dee2652070b19871d97b07706b11f99d7002b75",
+      "only_first_module_docstring_AST_changed": true,
+      "physical_line_count_exact": 256
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/attestation.py",
+      "before_sha256": "6a838cc146a90751918930dc8c9bb04b3a70db98e9682908cfbc872f90ff67ae",
+      "after_sha256": "d121fb0cbca7591a3d3c907c0cb399d5d1adc94f36e8be421ec8fdb0366f9261",
+      "only_first_module_docstring_AST_changed": true,
+      "physical_line_count_exact": 131
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/refresh_tokens.py",
+      "before_sha256": "11adfeadc13177797c7b3885e6af4e7f3345de981ad1321f2faf65f60f67e424",
+      "after_sha256": "82fa0d47cfc766268d1509f4079da96d16584c6b03c724c6210fc61577979996",
+      "only_first_module_docstring_AST_changed": true,
+      "physical_line_count_exact": 112
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/push_transport.py",
+      "before_sha256": "9e6ce65b5333d82c1ce2e128872fb47453ac4b95679c4ad389b2eb323be21df0",
+      "after_sha256": "981efda676d8049bd35729b17c3bd4536d2fc050321540963cb1b3e1098fcafd",
+      "only_first_module_docstring_AST_changed": true,
+      "physical_line_count_exact": 227
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/notifications.py",
+      "before_sha256": "ae33bb00f8ddba26f4d8be94074abdbc24590a990f290a5ea8d41bbae6a2970a",
+      "after_sha256": "eb171fe049d06297dafa51d5c38b690e41096506040079aa240bcdd037de7254",
+      "only_first_module_docstring_AST_changed": true,
+      "physical_line_count_exact": 186
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/sync_changes.py",
+      "before_sha256": "03ee132550365fea2f3ef34887e1f9d0000d0d07ab35ab2d7af541314131b505",
+      "after_sha256": "30c997125dcf6fd4a0a8a2edf753543811c5770f7952913f82df45eb649985ab",
+      "only_first_module_docstring_AST_changed": true,
+      "physical_line_count_exact": 120
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/family_delegations.py",
+      "before_sha256": "4bab7d5df690a76cb07319d650464d4a4fadd5d97808d9cf9c36a084f880b614",
+      "after_sha256": "00881bb3e306e7985cb687163d41ce4045575c2be8e41a33c79f32187df759d4",
+      "only_first_module_docstring_AST_changed": true,
+      "physical_line_count_exact": 133
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/idempotency_receipts.py",
+      "before_sha256": "43e607a46686d81e16febd95768e99f144105f437cfdb1b8a466adb7a78dc450",
+      "after_sha256": "2e4ee76a54a7876508fe47a29c9ff4471ef5886baf03cda90111d22652012db5",
+      "only_first_module_docstring_AST_changed": true,
+      "physical_line_count_exact": 99
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/incidents.py",
+      "before_sha256": "79e811ece14d35c8469492a06d18a29fd185fe21b05aa3a9f8da4a21bf887310",
+      "after_sha256": "d74c0acaac5610a28d57802b6a45272baa51154c97a42bf56e78208cb32f8bac",
+      "only_first_module_docstring_AST_changed": true,
+      "physical_line_count_exact": 125
+    }
+  ],
+  "original_checks_not_rerun": true,
+  "original65case_and21startup_proofs_are_prepolish_exact_source": true,
+  "changes_are_plain_domain_descriptions_only": true
+}

@@ -1,0 +1,82 @@
+[
+  {
+    "path": "frontend/features/settings/components/whatsapp-template-settings-panel.tsx",
+    "sha256": "9fa5bf0b8bea481657bcd4ef268f1fb3734f258c521d5722ae21978cfe103b92",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Full original/current physical settings sources read. Template panel259 lines split by controller, name field, save feedback and panel composition. All24 original controller statements, draft interface/public panel props, six field statements/full JSX and whole expanded rendered tree exact. Eight new actual workflow controls pass before/after; final21cases/5files cover read-only roles, lazy loading, invalid names/reviewed revision/single pending save, conflict and failed reload draft retention, monotonic GET revision, null environment fallback, unmount abort/late-result cache exclusion and existing appearance/policy/purge controls. Full dashboard auth-root authority remount, actual owner-bound request adapter and save abort traced before clearing the hypothesized cross-account concern; no vulnerability claimed. Local preferences persist only allowlisted presentation fields and validate hydrated enums/booleans. Original operational storage keys and flat backend settings contracts preserved. Scoped settings types and five changed paths lint pass; no browser/build qualification from this batch."
+  },
+  {
+    "path": "frontend/features/settings/components/whatsapp-template-name-field.tsx",
+    "sha256": "4c14d5d77655dd5b764ec4955dd2d6ec8d27620a42f80b6fc664192aac247045",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Full original/current physical settings sources read. Template panel259 lines split by controller, name field, save feedback and panel composition. All24 original controller statements, draft interface/public panel props, six field statements/full JSX and whole expanded rendered tree exact. Eight new actual workflow controls pass before/after; final21cases/5files cover read-only roles, lazy loading, invalid names/reviewed revision/single pending save, conflict and failed reload draft retention, monotonic GET revision, null environment fallback, unmount abort/late-result cache exclusion and existing appearance/policy/purge controls. Full dashboard auth-root authority remount, actual owner-bound request adapter and save abort traced before clearing the hypothesized cross-account concern; no vulnerability claimed. Local preferences persist only allowlisted presentation fields and validate hydrated enums/booleans. Original operational storage keys and flat backend settings contracts preserved. Scoped settings types and five changed paths lint pass; no browser/build qualification from this batch."
+  },
+  {
+    "path": "frontend/features/settings/components/whatsapp-template-save-feedback.tsx",
+    "sha256": "c63c8cac47cebb6dc95265a1d082770ff6b1fe498819915397f7b1f8d37608a6",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Full original/current physical settings sources read. Template panel259 lines split by controller, name field, save feedback and panel composition. All24 original controller statements, draft interface/public panel props, six field statements/full JSX and whole expanded rendered tree exact. Eight new actual workflow controls pass before/after; final21cases/5files cover read-only roles, lazy loading, invalid names/reviewed revision/single pending save, conflict and failed reload draft retention, monotonic GET revision, null environment fallback, unmount abort/late-result cache exclusion and existing appearance/policy/purge controls. Full dashboard auth-root authority remount, actual owner-bound request adapter and save abort traced before clearing the hypothesized cross-account concern; no vulnerability claimed. Local preferences persist only allowlisted presentation fields and validate hydrated enums/booleans. Original operational storage keys and flat backend settings contracts preserved. Scoped settings types and five changed paths lint pass; no browser/build qualification from this batch."
+  },
+  {
+    "path": "frontend/features/settings/hooks/use-whatsapp-template-settings.ts",
+    "sha256": "e0babde62cb4ceeea0b324df6170d4548edeb0123a06d2e29dd0d103fbd7f809",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Full original/current physical settings sources read. Template panel259 lines split by controller, name field, save feedback and panel composition. All24 original controller statements, draft interface/public panel props, six field statements/full JSX and whole expanded rendered tree exact. Eight new actual workflow controls pass before/after; final21cases/5files cover read-only roles, lazy loading, invalid names/reviewed revision/single pending save, conflict and failed reload draft retention, monotonic GET revision, null environment fallback, unmount abort/late-result cache exclusion and existing appearance/policy/purge controls. Full dashboard auth-root authority remount, actual owner-bound request adapter and save abort traced before clearing the hypothesized cross-account concern; no vulnerability claimed. Local preferences persist only allowlisted presentation fields and validate hydrated enums/booleans. Original operational storage keys and flat backend settings contracts preserved. Scoped settings types and five changed paths lint pass; no browser/build qualification from this batch."
+  },
+  {
+    "path": "frontend/features/settings/components/appearance-settings.tsx",
+    "sha256": "28a6f67aea812bae41e011ecdcec99a29195520f0ac253416431165a903e7bbb",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full original/current physical settings sources read. Template panel259 lines split by controller, name field, save feedback and panel composition. All24 original controller statements, draft interface/public panel props, six field statements/full JSX and whole expanded rendered tree exact. Eight new actual workflow controls pass before/after; final21cases/5files cover read-only roles, lazy loading, invalid names/reviewed revision/single pending save, conflict and failed reload draft retention, monotonic GET revision, null environment fallback, unmount abort/late-result cache exclusion and existing appearance/policy/purge controls. Full dashboard auth-root authority remount, actual owner-bound request adapter and save abort traced before clearing the hypothesized cross-account concern; no vulnerability claimed. Local preferences persist only allowlisted presentation fields and validate hydrated enums/booleans. Original operational storage keys and flat backend settings contracts preserved. Scoped settings types and five changed paths lint pass; no browser/build qualification from this batch."
+  },
+  {
+    "path": "frontend/features/settings/components/dashboard-settings-page.tsx",
+    "sha256": "9bd812fbd7b01f407b65dfdd1857e7af996528650d8676d409d9eb4f19b9c916",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full original/current physical settings sources read. Template panel259 lines split by controller, name field, save feedback and panel composition. All24 original controller statements, draft interface/public panel props, six field statements/full JSX and whole expanded rendered tree exact. Eight new actual workflow controls pass before/after; final21cases/5files cover read-only roles, lazy loading, invalid names/reviewed revision/single pending save, conflict and failed reload draft retention, monotonic GET revision, null environment fallback, unmount abort/late-result cache exclusion and existing appearance/policy/purge controls. Full dashboard auth-root authority remount, actual owner-bound request adapter and save abort traced before clearing the hypothesized cross-account concern; no vulnerability claimed. Local preferences persist only allowlisted presentation fields and validate hydrated enums/booleans. Original operational storage keys and flat backend settings contracts preserved. Scoped settings types and five changed paths lint pass; no browser/build qualification from this batch."
+  },
+  {
+    "path": "frontend/features/settings/dashboard-preferences.ts",
+    "sha256": "95a5c838507f952408f713933d824b8fafdb92494e98d354905b8460e3d1213b",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full original/current physical settings sources read. Template panel259 lines split by controller, name field, save feedback and panel composition. All24 original controller statements, draft interface/public panel props, six field statements/full JSX and whole expanded rendered tree exact. Eight new actual workflow controls pass before/after; final21cases/5files cover read-only roles, lazy loading, invalid names/reviewed revision/single pending save, conflict and failed reload draft retention, monotonic GET revision, null environment fallback, unmount abort/late-result cache exclusion and existing appearance/policy/purge controls. Full dashboard auth-root authority remount, actual owner-bound request adapter and save abort traced before clearing the hypothesized cross-account concern; no vulnerability claimed. Local preferences persist only allowlisted presentation fields and validate hydrated enums/booleans. Original operational storage keys and flat backend settings contracts preserved. Scoped settings types and five changed paths lint pass; no browser/build qualification from this batch."
+  },
+  {
+    "path": "frontend/features/settings/platform-settings-policy.ts",
+    "sha256": "e80c95699eccaa0bca53686e1dacb6a87bb1a252eb527c9cfd0b9d0116e7b9f4",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full original/current physical settings sources read. Template panel259 lines split by controller, name field, save feedback and panel composition. All24 original controller statements, draft interface/public panel props, six field statements/full JSX and whole expanded rendered tree exact. Eight new actual workflow controls pass before/after; final21cases/5files cover read-only roles, lazy loading, invalid names/reviewed revision/single pending save, conflict and failed reload draft retention, monotonic GET revision, null environment fallback, unmount abort/late-result cache exclusion and existing appearance/policy/purge controls. Full dashboard auth-root authority remount, actual owner-bound request adapter and save abort traced before clearing the hypothesized cross-account concern; no vulnerability claimed. Local preferences persist only allowlisted presentation fields and validate hydrated enums/booleans. Original operational storage keys and flat backend settings contracts preserved. Scoped settings types and five changed paths lint pass; no browser/build qualification from this batch."
+  },
+  {
+    "path": "frontend/features/settings/whatsapp-template-settings.ts",
+    "sha256": "8d566e371a18783a3f8641f0d7faab241833e7c1281c8fa86376a4c89d4b7b5a",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full original/current physical settings sources read. Template panel259 lines split by controller, name field, save feedback and panel composition. All24 original controller statements, draft interface/public panel props, six field statements/full JSX and whole expanded rendered tree exact. Eight new actual workflow controls pass before/after; final21cases/5files cover read-only roles, lazy loading, invalid names/reviewed revision/single pending save, conflict and failed reload draft retention, monotonic GET revision, null environment fallback, unmount abort/late-result cache exclusion and existing appearance/policy/purge controls. Full dashboard auth-root authority remount, actual owner-bound request adapter and save abort traced before clearing the hypothesized cross-account concern; no vulnerability claimed. Local preferences persist only allowlisted presentation fields and validate hydrated enums/booleans. Original operational storage keys and flat backend settings contracts preserved. Scoped settings types and five changed paths lint pass; no browser/build qualification from this batch."
+  },
+  {
+    "path": "frontend/features/settings/components/whatsapp-template-settings-panel.test.tsx",
+    "sha256": "e32a33f0ac725065740f965b4c7eccac5f92da207bd14b3286b5b60fdb569ee4",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Eight direct component workflows authored and fully read; all passed against original and extracted controller/field/footer. Valid synthetic API values only. These are meaningful behavior/race/permission controls, not an assertion that a mocked client proves real server authorization."
+  }
+]

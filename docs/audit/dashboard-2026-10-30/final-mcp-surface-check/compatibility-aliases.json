@@ -1,0 +1,1375 @@
+{
+  "scope": "17 still-live historical facade policy rows and concrete current binding/owner mapping. All original implementation objects, requirements and exclusions remain authoritative as historical classifications; no verification renewed.",
+  "aliases": [
+    {
+      "historical_id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:acknowledgeRejectedAttendanceScans",
+      "public_source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+      "public_export": "acknowledgeRejectedAttendanceScans",
+      "binding_kind": "direct_named_reexport",
+      "original_export_remains": true,
+      "facade_export_statement": "export {\n  enqueueAttendanceScan,\n  countPendingAttendanceScans,\n  listPendingAttendanceScans,\n  getNextPendingAttendanceAttemptAt,\n  removePendingAttendanceScan,\n  countRejectedAttendanceScans,\n  listRejectedAttendanceScans,\n  acknowledgeRejectedAttendanceScans,\n} from \"./attendance-queue-commands\"",
+      "current_owner": "frontend/features/tour-operations/services/attendance-queue-commands.ts",
+      "current_owner_export_line": 216,
+      "current_owner_export_declaration": "export async function acknowledgeRejectedAttendanceScans(",
+      "current_discovery_ids": [],
+      "discovery_omission_reason": "The stable facade only reexports the same binding; its direct owner contains no apiClient./fetch transport text. Current discovery intentionally indexes transport-containing files rather than every export. The retained historical workflow/removal boundary still applies.",
+      "historical_policy_row": {
+        "surface": {
+          "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:acknowledgeRejectedAttendanceScans",
+          "kind": "frontend_callable",
+          "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "handler": "acknowledgeRejectedAttendanceScans"
+        },
+        "workflow": "tour-operations.acknowledgeRejectedAttendanceScans",
+        "disposition": "implement",
+        "phase": 7,
+        "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+        "adapter_requirements": [
+          "no_removal_effect_audit",
+          "business_transaction_idempotency",
+          "durable_operation_progress",
+          "Preserve real event evidence, signed runtime/device context and attendance-closeout policy; do not fabricate scans."
+        ],
+        "implementation": {
+          "status": "planned",
+          "adapter": null,
+          "evidence": []
+        },
+        "effect_review": "required_before_enablement"
+      },
+      "sources": [
+        {
+          "path": "frontend/features/tour-operations/services/attendance-queue-commands.ts",
+          "sha256": "28b502f45eed14bce8480d1e6d8556660b543db3d9164b133b69a7e5a3847863",
+          "scope": "retained",
+          "matching_current_review_receipts": 2,
+          "source_receipt_index": "current-source-receipts.json#frontend/features/tour-operations/services/attendance-queue-commands.ts",
+          "current_discovery_check": "command-verification.json"
+        },
+        {
+          "path": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "sha256": "b647f8ae7070c661497c9f3620460318a70d117db6eb2da37f1112d5497b6911",
+          "scope": "retained",
+          "matching_current_review_receipts": 2,
+          "source_receipt_index": "current-source-receipts.json#frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "current_discovery_check": "command-verification.json"
+        }
+      ]
+    },
+    {
+      "historical_id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:collectBrowserAttendanceQueueCloseout",
+      "public_source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+      "public_export": "collectBrowserAttendanceQueueCloseout",
+      "binding_kind": "direct_named_reexport",
+      "original_export_remains": true,
+      "facade_export_statement": "export {\n  getBrowserAttendanceQueueSafetySnapshot,\n  collectBrowserAttendanceQueueCloseout,\n  publishBrowserAttendanceQueueCloseout,\n  runAttendanceQueueLogoutBoundary,\n} from \"./attendance-queue-closeout\"",
+      "current_owner": "frontend/features/tour-operations/services/attendance-queue-closeout.ts",
+      "current_owner_export_line": 43,
+      "current_owner_export_declaration": "export async function collectBrowserAttendanceQueueCloseout(",
+      "current_discovery_ids": [],
+      "discovery_omission_reason": "The stable facade only reexports the same binding; its direct owner contains no apiClient./fetch transport text. Current discovery intentionally indexes transport-containing files rather than every export. The retained historical workflow/removal boundary still applies.",
+      "historical_policy_row": {
+        "surface": {
+          "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:collectBrowserAttendanceQueueCloseout",
+          "kind": "frontend_callable",
+          "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "handler": "collectBrowserAttendanceQueueCloseout"
+        },
+        "workflow": "tour-operations.collectBrowserAttendanceQueueCloseout",
+        "disposition": "implement",
+        "phase": 7,
+        "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+        "adapter_requirements": [
+          "no_removal_effect_audit",
+          "business_transaction_idempotency",
+          "durable_operation_progress",
+          "Preserve real event evidence, signed runtime/device context and attendance-closeout policy; do not fabricate scans."
+        ],
+        "implementation": {
+          "status": "planned",
+          "adapter": null,
+          "evidence": []
+        },
+        "effect_review": "required_before_enablement"
+      },
+      "sources": [
+        {
+          "path": "frontend/features/tour-operations/services/attendance-queue-closeout.ts",
+          "sha256": "dabad7e8478072fe909b2708e2dea18fc68220e85c353ec5be3fd2c2493f1e9e",
+          "scope": "retained",
+          "matching_current_review_receipts": 1,
+          "source_receipt_index": "current-source-receipts.json#frontend/features/tour-operations/services/attendance-queue-closeout.ts",
+          "current_discovery_check": "command-verification.json"
+        },
+        {
+          "path": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "sha256": "b647f8ae7070c661497c9f3620460318a70d117db6eb2da37f1112d5497b6911",
+          "scope": "retained",
+          "matching_current_review_receipts": 2,
+          "source_receipt_index": "current-source-receipts.json#frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "current_discovery_check": "command-verification.json"
+        }
+      ]
+    },
+    {
+      "historical_id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:countPendingAttendanceScans",
+      "public_source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+      "public_export": "countPendingAttendanceScans",
+      "binding_kind": "direct_named_reexport",
+      "original_export_remains": true,
+      "facade_export_statement": "export {\n  enqueueAttendanceScan,\n  countPendingAttendanceScans,\n  listPendingAttendanceScans,\n  getNextPendingAttendanceAttemptAt,\n  removePendingAttendanceScan,\n  countRejectedAttendanceScans,\n  listRejectedAttendanceScans,\n  acknowledgeRejectedAttendanceScans,\n} from \"./attendance-queue-commands\"",
+      "current_owner": "frontend/features/tour-operations/services/attendance-queue-commands.ts",
+      "current_owner_export_line": 120,
+      "current_owner_export_declaration": "export async function countPendingAttendanceScans(",
+      "current_discovery_ids": [],
+      "discovery_omission_reason": "The stable facade only reexports the same binding; its direct owner contains no apiClient./fetch transport text. Current discovery intentionally indexes transport-containing files rather than every export. The retained historical workflow/removal boundary still applies.",
+      "historical_policy_row": {
+        "surface": {
+          "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:countPendingAttendanceScans",
+          "kind": "frontend_callable",
+          "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "handler": "countPendingAttendanceScans"
+        },
+        "workflow": "tour-operations.countPendingAttendanceScans",
+        "disposition": "implement",
+        "phase": 7,
+        "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+        "adapter_requirements": [
+          "no_removal_effect_audit",
+          "business_transaction_idempotency",
+          "durable_operation_progress",
+          "Preserve real event evidence, signed runtime/device context and attendance-closeout policy; do not fabricate scans."
+        ],
+        "implementation": {
+          "status": "planned",
+          "adapter": null,
+          "evidence": []
+        },
+        "effect_review": "required_before_enablement"
+      },
+      "sources": [
+        {
+          "path": "frontend/features/tour-operations/services/attendance-queue-commands.ts",
+          "sha256": "28b502f45eed14bce8480d1e6d8556660b543db3d9164b133b69a7e5a3847863",
+          "scope": "retained",
+          "matching_current_review_receipts": 2,
+          "source_receipt_index": "current-source-receipts.json#frontend/features/tour-operations/services/attendance-queue-commands.ts",
+          "current_discovery_check": "command-verification.json"
+        },
+        {
+          "path": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "sha256": "b647f8ae7070c661497c9f3620460318a70d117db6eb2da37f1112d5497b6911",
+          "scope": "retained",
+          "matching_current_review_receipts": 2,
+          "source_receipt_index": "current-source-receipts.json#frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "current_discovery_check": "command-verification.json"
+        }
+      ]
+    },
+    {
+      "historical_id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:countRejectedAttendanceScans",
+      "public_source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+      "public_export": "countRejectedAttendanceScans",
+      "binding_kind": "direct_named_reexport",
+      "original_export_remains": true,
+      "facade_export_statement": "export {\n  enqueueAttendanceScan,\n  countPendingAttendanceScans,\n  listPendingAttendanceScans,\n  getNextPendingAttendanceAttemptAt,\n  removePendingAttendanceScan,\n  countRejectedAttendanceScans,\n  listRejectedAttendanceScans,\n  acknowledgeRejectedAttendanceScans,\n} from \"./attendance-queue-commands\"",
+      "current_owner": "frontend/features/tour-operations/services/attendance-queue-commands.ts",
+      "current_owner_export_line": 190,
+      "current_owner_export_declaration": "export async function countRejectedAttendanceScans(",
+      "current_discovery_ids": [],
+      "discovery_omission_reason": "The stable facade only reexports the same binding; its direct owner contains no apiClient./fetch transport text. Current discovery intentionally indexes transport-containing files rather than every export. The retained historical workflow/removal boundary still applies.",
+      "historical_policy_row": {
+        "surface": {
+          "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:countRejectedAttendanceScans",
+          "kind": "frontend_callable",
+          "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "handler": "countRejectedAttendanceScans"
+        },
+        "workflow": "tour-operations.countRejectedAttendanceScans",
+        "disposition": "implement",
+        "phase": 7,
+        "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+        "adapter_requirements": [
+          "no_removal_effect_audit",
+          "business_transaction_idempotency",
+          "durable_operation_progress",
+          "Preserve real event evidence, signed runtime/device context and attendance-closeout policy; do not fabricate scans."
+        ],
+        "implementation": {
+          "status": "planned",
+          "adapter": null,
+          "evidence": []
+        },
+        "effect_review": "required_before_enablement"
+      },
+      "sources": [
+        {
+          "path": "frontend/features/tour-operations/services/attendance-queue-commands.ts",
+          "sha256": "28b502f45eed14bce8480d1e6d8556660b543db3d9164b133b69a7e5a3847863",
+          "scope": "retained",
+          "matching_current_review_receipts": 2,
+          "source_receipt_index": "current-source-receipts.json#frontend/features/tour-operations/services/attendance-queue-commands.ts",
+          "current_discovery_check": "command-verification.json"
+        },
+        {
+          "path": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "sha256": "b647f8ae7070c661497c9f3620460318a70d117db6eb2da37f1112d5497b6911",
+          "scope": "retained",
+          "matching_current_review_receipts": 2,
+          "source_receipt_index": "current-source-receipts.json#frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "current_discovery_check": "command-verification.json"
+        }
+      ]
+    },
+    {
+      "historical_id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:enqueueAttendanceScan",
+      "public_source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+      "public_export": "enqueueAttendanceScan",
+      "binding_kind": "direct_named_reexport",
+      "original_export_remains": true,
+      "facade_export_statement": "export {\n  enqueueAttendanceScan,\n  countPendingAttendanceScans,\n  listPendingAttendanceScans,\n  getNextPendingAttendanceAttemptAt,\n  removePendingAttendanceScan,\n  countRejectedAttendanceScans,\n  listRejectedAttendanceScans,\n  acknowledgeRejectedAttendanceScans,\n} from \"./attendance-queue-commands\"",
+      "current_owner": "frontend/features/tour-operations/services/attendance-queue-commands.ts",
+      "current_owner_export_line": 45,
+      "current_owner_export_declaration": "export async function enqueueAttendanceScan(",
+      "current_discovery_ids": [],
+      "discovery_omission_reason": "The stable facade only reexports the same binding; its direct owner contains no apiClient./fetch transport text. Current discovery intentionally indexes transport-containing files rather than every export. The retained historical workflow/removal boundary still applies.",
+      "historical_policy_row": {
+        "surface": {
+          "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:enqueueAttendanceScan",
+          "kind": "frontend_callable",
+          "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "handler": "enqueueAttendanceScan"
+        },
+        "workflow": "tour-operations.enqueueAttendanceScan",
+        "disposition": "implement",
+        "phase": 7,
+        "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+        "adapter_requirements": [
+          "no_removal_effect_audit",
+          "business_transaction_idempotency",
+          "durable_operation_progress",
+          "Preserve real event evidence, signed runtime/device context and attendance-closeout policy; do not fabricate scans."
+        ],
+        "implementation": {
+          "status": "planned",
+          "adapter": null,
+          "evidence": []
+        },
+        "effect_review": "required_before_enablement"
+      },
+      "sources": [
+        {
+          "path": "frontend/features/tour-operations/services/attendance-queue-commands.ts",
+          "sha256": "28b502f45eed14bce8480d1e6d8556660b543db3d9164b133b69a7e5a3847863",
+          "scope": "retained",
+          "matching_current_review_receipts": 2,
+          "source_receipt_index": "current-source-receipts.json#frontend/features/tour-operations/services/attendance-queue-commands.ts",
+          "current_discovery_check": "command-verification.json"
+        },
+        {
+          "path": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "sha256": "b647f8ae7070c661497c9f3620460318a70d117db6eb2da37f1112d5497b6911",
+          "scope": "retained",
+          "matching_current_review_receipts": 2,
+          "source_receipt_index": "current-source-receipts.json#frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "current_discovery_check": "command-verification.json"
+        }
+      ]
+    },
+    {
+      "historical_id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:getBrowserAttendanceQueueSafetySnapshot",
+      "public_source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+      "public_export": "getBrowserAttendanceQueueSafetySnapshot",
+      "binding_kind": "direct_named_reexport",
+      "original_export_remains": true,
+      "facade_export_statement": "export {\n  getBrowserAttendanceQueueSafetySnapshot,\n  collectBrowserAttendanceQueueCloseout,\n  publishBrowserAttendanceQueueCloseout,\n  runAttendanceQueueLogoutBoundary,\n} from \"./attendance-queue-closeout\"",
+      "current_owner": "frontend/features/tour-operations/services/attendance-queue-closeout.ts",
+      "current_owner_export_line": 38,
+      "current_owner_export_declaration": "export async function getBrowserAttendanceQueueSafetySnapshot(",
+      "current_discovery_ids": [],
+      "discovery_omission_reason": "The stable facade only reexports the same binding; its direct owner contains no apiClient./fetch transport text. Current discovery intentionally indexes transport-containing files rather than every export. The retained historical workflow/removal boundary still applies.",
+      "historical_policy_row": {
+        "surface": {
+          "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:getBrowserAttendanceQueueSafetySnapshot",
+          "kind": "frontend_callable",
+          "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "handler": "getBrowserAttendanceQueueSafetySnapshot"
+        },
+        "workflow": "tour-operations.getBrowserAttendanceQueueSafetySnapshot",
+        "disposition": "internal_dependency",
+        "phase": null,
+        "rationale": "Attendance browser safety dependency. Requires the current browser owner and reads that owner's local queue safety state; authoritative server closeout evidence remains governed by the existing signed runtime/checkpoint protocol.",
+        "adapter_requirements": [],
+        "implementation": {
+          "status": "not_applicable",
+          "adapter": null,
+          "evidence": []
+        }
+      },
+      "sources": [
+        {
+          "path": "frontend/features/tour-operations/services/attendance-queue-closeout.ts",
+          "sha256": "dabad7e8478072fe909b2708e2dea18fc68220e85c353ec5be3fd2c2493f1e9e",
+          "scope": "retained",
+          "matching_current_review_receipts": 1,
+          "source_receipt_index": "current-source-receipts.json#frontend/features/tour-operations/services/attendance-queue-closeout.ts",
+          "current_discovery_check": "command-verification.json"
+        },
+        {
+          "path": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "sha256": "b647f8ae7070c661497c9f3620460318a70d117db6eb2da37f1112d5497b6911",
+          "scope": "retained",
+          "matching_current_review_receipts": 2,
+          "source_receipt_index": "current-source-receipts.json#frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "current_discovery_check": "command-verification.json"
+        }
+      ]
+    },
+    {
+      "historical_id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:getNextPendingAttendanceAttemptAt",
+      "public_source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+      "public_export": "getNextPendingAttendanceAttemptAt",
+      "binding_kind": "direct_named_reexport",
+      "original_export_remains": true,
+      "facade_export_statement": "export {\n  enqueueAttendanceScan,\n  countPendingAttendanceScans,\n  listPendingAttendanceScans,\n  getNextPendingAttendanceAttemptAt,\n  removePendingAttendanceScan,\n  countRejectedAttendanceScans,\n  listRejectedAttendanceScans,\n  acknowledgeRejectedAttendanceScans,\n} from \"./attendance-queue-commands\"",
+      "current_owner": "frontend/features/tour-operations/services/attendance-queue-commands.ts",
+      "current_owner_export_line": 136,
+      "current_owner_export_declaration": "export async function getNextPendingAttendanceAttemptAt(",
+      "current_discovery_ids": [],
+      "discovery_omission_reason": "The stable facade only reexports the same binding; its direct owner contains no apiClient./fetch transport text. Current discovery intentionally indexes transport-containing files rather than every export. The retained historical workflow/removal boundary still applies.",
+      "historical_policy_row": {
+        "surface": {
+          "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:getNextPendingAttendanceAttemptAt",
+          "kind": "frontend_callable",
+          "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "handler": "getNextPendingAttendanceAttemptAt"
+        },
+        "workflow": "tour-operations.getNextPendingAttendanceAttemptAt",
+        "disposition": "internal_dependency",
+        "phase": null,
+        "rationale": "Attendance browser retry-scheduling dependency. Computes the next local attempt from owner-scoped pending scans and discard tombstones; it neither represents an administrator query nor supplies physical-event or runtime authority to MCP.",
+        "adapter_requirements": [],
+        "implementation": {
+          "status": "not_applicable",
+          "adapter": null,
+          "evidence": []
+        }
+      },
+      "sources": [
+        {
+          "path": "frontend/features/tour-operations/services/attendance-queue-commands.ts",
+          "sha256": "28b502f45eed14bce8480d1e6d8556660b543db3d9164b133b69a7e5a3847863",
+          "scope": "retained",
+          "matching_current_review_receipts": 2,
+          "source_receipt_index": "current-source-receipts.json#frontend/features/tour-operations/services/attendance-queue-commands.ts",
+          "current_discovery_check": "command-verification.json"
+        },
+        {
+          "path": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "sha256": "b647f8ae7070c661497c9f3620460318a70d117db6eb2da37f1112d5497b6911",
+          "scope": "retained",
+          "matching_current_review_receipts": 2,
+          "source_receipt_index": "current-source-receipts.json#frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "current_discovery_check": "command-verification.json"
+        }
+      ]
+    },
+    {
+      "historical_id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:listPendingAttendanceScans",
+      "public_source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+      "public_export": "listPendingAttendanceScans",
+      "binding_kind": "direct_named_reexport",
+      "original_export_remains": true,
+      "facade_export_statement": "export {\n  enqueueAttendanceScan,\n  countPendingAttendanceScans,\n  listPendingAttendanceScans,\n  getNextPendingAttendanceAttemptAt,\n  removePendingAttendanceScan,\n  countRejectedAttendanceScans,\n  listRejectedAttendanceScans,\n  acknowledgeRejectedAttendanceScans,\n} from \"./attendance-queue-commands\"",
+      "current_owner": "frontend/features/tour-operations/services/attendance-queue-commands.ts",
+      "current_owner_export_line": 128,
+      "current_owner_export_declaration": "export async function listPendingAttendanceScans(",
+      "current_discovery_ids": [],
+      "discovery_omission_reason": "The stable facade only reexports the same binding; its direct owner contains no apiClient./fetch transport text. Current discovery intentionally indexes transport-containing files rather than every export. The retained historical workflow/removal boundary still applies.",
+      "historical_policy_row": {
+        "surface": {
+          "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:listPendingAttendanceScans",
+          "kind": "frontend_callable",
+          "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "handler": "listPendingAttendanceScans"
+        },
+        "workflow": "tour-operations.listPendingAttendanceScans",
+        "disposition": "internal_dependency",
+        "phase": null,
+        "rationale": "Attendance browser transport dependency. Reads pending scans from the current signed-in owner's local IndexedDB queue for client synchronization; server-retained attendance reads remain separate and cannot attest this device-local queue.",
+        "adapter_requirements": [],
+        "implementation": {
+          "status": "not_applicable",
+          "adapter": null,
+          "evidence": []
+        }
+      },
+      "sources": [
+        {
+          "path": "frontend/features/tour-operations/services/attendance-queue-commands.ts",
+          "sha256": "28b502f45eed14bce8480d1e6d8556660b543db3d9164b133b69a7e5a3847863",
+          "scope": "retained",
+          "matching_current_review_receipts": 2,
+          "source_receipt_index": "current-source-receipts.json#frontend/features/tour-operations/services/attendance-queue-commands.ts",
+          "current_discovery_check": "command-verification.json"
+        },
+        {
+          "path": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "sha256": "b647f8ae7070c661497c9f3620460318a70d117db6eb2da37f1112d5497b6911",
+          "scope": "retained",
+          "matching_current_review_receipts": 2,
+          "source_receipt_index": "current-source-receipts.json#frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "current_discovery_check": "command-verification.json"
+        }
+      ]
+    },
+    {
+      "historical_id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:listRejectedAttendanceScans",
+      "public_source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+      "public_export": "listRejectedAttendanceScans",
+      "binding_kind": "direct_named_reexport",
+      "original_export_remains": true,
+      "facade_export_statement": "export {\n  enqueueAttendanceScan,\n  countPendingAttendanceScans,\n  listPendingAttendanceScans,\n  getNextPendingAttendanceAttemptAt,\n  removePendingAttendanceScan,\n  countRejectedAttendanceScans,\n  listRejectedAttendanceScans,\n  acknowledgeRejectedAttendanceScans,\n} from \"./attendance-queue-commands\"",
+      "current_owner": "frontend/features/tour-operations/services/attendance-queue-commands.ts",
+      "current_owner_export_line": 203,
+      "current_owner_export_declaration": "export async function listRejectedAttendanceScans(",
+      "current_discovery_ids": [],
+      "discovery_omission_reason": "The stable facade only reexports the same binding; its direct owner contains no apiClient./fetch transport text. Current discovery intentionally indexes transport-containing files rather than every export. The retained historical workflow/removal boundary still applies.",
+      "historical_policy_row": {
+        "surface": {
+          "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:listRejectedAttendanceScans",
+          "kind": "frontend_callable",
+          "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "handler": "listRejectedAttendanceScans"
+        },
+        "workflow": "tour-operations.listRejectedAttendanceScans",
+        "disposition": "internal_dependency",
+        "phase": null,
+        "rationale": "Attendance browser transport dependency. Reads and sorts the current owner's local rejected scan queue for a group/session. MCP server reads may inspect retained server evidence but do not impersonate this browser or manufacture its unsynchronized queue.",
+        "adapter_requirements": [],
+        "implementation": {
+          "status": "not_applicable",
+          "adapter": null,
+          "evidence": []
+        }
+      },
+      "sources": [
+        {
+          "path": "frontend/features/tour-operations/services/attendance-queue-commands.ts",
+          "sha256": "28b502f45eed14bce8480d1e6d8556660b543db3d9164b133b69a7e5a3847863",
+          "scope": "retained",
+          "matching_current_review_receipts": 2,
+          "source_receipt_index": "current-source-receipts.json#frontend/features/tour-operations/services/attendance-queue-commands.ts",
+          "current_discovery_check": "command-verification.json"
+        },
+        {
+          "path": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "sha256": "b647f8ae7070c661497c9f3620460318a70d117db6eb2da37f1112d5497b6911",
+          "scope": "retained",
+          "matching_current_review_receipts": 2,
+          "source_receipt_index": "current-source-receipts.json#frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "current_discovery_check": "command-verification.json"
+        }
+      ]
+    },
+    {
+      "historical_id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:publishBrowserAttendanceQueueCloseout",
+      "public_source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+      "public_export": "publishBrowserAttendanceQueueCloseout",
+      "binding_kind": "direct_named_reexport",
+      "original_export_remains": true,
+      "facade_export_statement": "export {\n  getBrowserAttendanceQueueSafetySnapshot,\n  collectBrowserAttendanceQueueCloseout,\n  publishBrowserAttendanceQueueCloseout,\n  runAttendanceQueueLogoutBoundary,\n} from \"./attendance-queue-closeout\"",
+      "current_owner": "frontend/features/tour-operations/services/attendance-queue-closeout.ts",
+      "current_owner_export_line": 61,
+      "current_owner_export_declaration": "export async function publishBrowserAttendanceQueueCloseout<",
+      "current_discovery_ids": [],
+      "discovery_omission_reason": "The stable facade only reexports the same binding; its direct owner contains no apiClient./fetch transport text. Current discovery intentionally indexes transport-containing files rather than every export. The retained historical workflow/removal boundary still applies.",
+      "historical_policy_row": {
+        "surface": {
+          "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:publishBrowserAttendanceQueueCloseout",
+          "kind": "frontend_callable",
+          "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "handler": "publishBrowserAttendanceQueueCloseout"
+        },
+        "workflow": "tour-operations.publishBrowserAttendanceQueueCloseout",
+        "disposition": "implement",
+        "phase": 7,
+        "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+        "adapter_requirements": [
+          "no_removal_effect_audit",
+          "business_transaction_idempotency",
+          "durable_operation_progress",
+          "Preserve real event evidence, signed runtime/device context and attendance-closeout policy; do not fabricate scans."
+        ],
+        "implementation": {
+          "status": "planned",
+          "adapter": null,
+          "evidence": []
+        },
+        "effect_review": "required_before_enablement"
+      },
+      "sources": [
+        {
+          "path": "frontend/features/tour-operations/services/attendance-queue-closeout.ts",
+          "sha256": "dabad7e8478072fe909b2708e2dea18fc68220e85c353ec5be3fd2c2493f1e9e",
+          "scope": "retained",
+          "matching_current_review_receipts": 1,
+          "source_receipt_index": "current-source-receipts.json#frontend/features/tour-operations/services/attendance-queue-closeout.ts",
+          "current_discovery_check": "command-verification.json"
+        },
+        {
+          "path": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "sha256": "b647f8ae7070c661497c9f3620460318a70d117db6eb2da37f1112d5497b6911",
+          "scope": "retained",
+          "matching_current_review_receipts": 2,
+          "source_receipt_index": "current-source-receipts.json#frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "current_discovery_check": "command-verification.json"
+        }
+      ]
+    },
+    {
+      "historical_id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:removePendingAttendanceScan",
+      "public_source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+      "public_export": "removePendingAttendanceScan",
+      "binding_kind": "direct_named_reexport",
+      "original_export_remains": true,
+      "facade_export_statement": "export {\n  enqueueAttendanceScan,\n  countPendingAttendanceScans,\n  listPendingAttendanceScans,\n  getNextPendingAttendanceAttemptAt,\n  removePendingAttendanceScan,\n  countRejectedAttendanceScans,\n  listRejectedAttendanceScans,\n  acknowledgeRejectedAttendanceScans,\n} from \"./attendance-queue-commands\"",
+      "current_owner": "frontend/features/tour-operations/services/attendance-queue-commands.ts",
+      "current_owner_export_line": 158,
+      "current_owner_export_declaration": "export async function removePendingAttendanceScan(",
+      "current_discovery_ids": [],
+      "discovery_omission_reason": "The stable facade only reexports the same binding; its direct owner contains no apiClient./fetch transport text. Current discovery intentionally indexes transport-containing files rather than every export. The retained historical workflow/removal boundary still applies.",
+      "historical_policy_row": {
+        "surface": {
+          "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:removePendingAttendanceScan",
+          "kind": "frontend_callable",
+          "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "handler": "removePendingAttendanceScan"
+        },
+        "workflow": "tour-operations.removePendingAttendanceScan",
+        "disposition": "manual_removal",
+        "phase": null,
+        "rationale": "Record, file, membership, archive or destructive cancellation/removal effects are outside MCP authority and remain manual.",
+        "adapter_requirements": [],
+        "implementation": {
+          "status": "not_applicable",
+          "adapter": null,
+          "evidence": []
+        },
+        "exclusion_boundary": "no_removal"
+      },
+      "sources": [
+        {
+          "path": "frontend/features/tour-operations/services/attendance-queue-commands.ts",
+          "sha256": "28b502f45eed14bce8480d1e6d8556660b543db3d9164b133b69a7e5a3847863",
+          "scope": "retained",
+          "matching_current_review_receipts": 2,
+          "source_receipt_index": "current-source-receipts.json#frontend/features/tour-operations/services/attendance-queue-commands.ts",
+          "current_discovery_check": "command-verification.json"
+        },
+        {
+          "path": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "sha256": "b647f8ae7070c661497c9f3620460318a70d117db6eb2da37f1112d5497b6911",
+          "scope": "retained",
+          "matching_current_review_receipts": 2,
+          "source_receipt_index": "current-source-receipts.json#frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "current_discovery_check": "command-verification.json"
+        }
+      ]
+    },
+    {
+      "historical_id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:runAttendanceQueueLogoutBoundary",
+      "public_source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+      "public_export": "runAttendanceQueueLogoutBoundary",
+      "binding_kind": "direct_named_reexport",
+      "original_export_remains": true,
+      "facade_export_statement": "export {\n  getBrowserAttendanceQueueSafetySnapshot,\n  collectBrowserAttendanceQueueCloseout,\n  publishBrowserAttendanceQueueCloseout,\n  runAttendanceQueueLogoutBoundary,\n} from \"./attendance-queue-closeout\"",
+      "current_owner": "frontend/features/tour-operations/services/attendance-queue-closeout.ts",
+      "current_owner_export_line": 122,
+      "current_owner_export_declaration": "export async function runAttendanceQueueLogoutBoundary<",
+      "current_discovery_ids": [],
+      "discovery_omission_reason": "The stable facade only reexports the same binding; its direct owner contains no apiClient./fetch transport text. Current discovery intentionally indexes transport-containing files rather than every export. The retained historical workflow/removal boundary still applies.",
+      "historical_policy_row": {
+        "surface": {
+          "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:runAttendanceQueueLogoutBoundary",
+          "kind": "frontend_callable",
+          "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "handler": "runAttendanceQueueLogoutBoundary"
+        },
+        "workflow": "tour-operations.runAttendanceQueueLogoutBoundary",
+        "disposition": "implement",
+        "phase": 7,
+        "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+        "adapter_requirements": [
+          "no_removal_effect_audit",
+          "business_transaction_idempotency",
+          "durable_operation_progress",
+          "Preserve real event evidence, signed runtime/device context and attendance-closeout policy; do not fabricate scans."
+        ],
+        "implementation": {
+          "status": "planned",
+          "adapter": null,
+          "evidence": []
+        },
+        "effect_review": "required_before_enablement"
+      },
+      "sources": [
+        {
+          "path": "frontend/features/tour-operations/services/attendance-queue-closeout.ts",
+          "sha256": "dabad7e8478072fe909b2708e2dea18fc68220e85c353ec5be3fd2c2493f1e9e",
+          "scope": "retained",
+          "matching_current_review_receipts": 1,
+          "source_receipt_index": "current-source-receipts.json#frontend/features/tour-operations/services/attendance-queue-closeout.ts",
+          "current_discovery_check": "command-verification.json"
+        },
+        {
+          "path": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "sha256": "b647f8ae7070c661497c9f3620460318a70d117db6eb2da37f1112d5497b6911",
+          "scope": "retained",
+          "matching_current_review_receipts": 2,
+          "source_receipt_index": "current-source-receipts.json#frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "current_discovery_check": "command-verification.json"
+        }
+      ]
+    },
+    {
+      "historical_id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:subscribeAttendanceQueueScheduleChanges",
+      "public_source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+      "public_export": "subscribeAttendanceQueueScheduleChanges",
+      "binding_kind": "direct_named_reexport",
+      "original_export_remains": true,
+      "facade_export_statement": "export { subscribeAttendanceQueueScheduleChanges } from \"./attendance-queue-runtime\"",
+      "current_owner": "frontend/features/tour-operations/services/attendance-queue-runtime.ts",
+      "current_owner_export_line": 15,
+      "current_owner_export_declaration": "export function subscribeAttendanceQueueScheduleChanges(",
+      "current_discovery_ids": [],
+      "discovery_omission_reason": "The stable facade only reexports the same binding; its direct owner contains no apiClient./fetch transport text. Current discovery intentionally indexes transport-containing files rather than every export. The retained historical workflow/removal boundary still applies.",
+      "historical_policy_row": {
+        "surface": {
+          "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:subscribeAttendanceQueueScheduleChanges",
+          "kind": "frontend_callable",
+          "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "handler": "subscribeAttendanceQueueScheduleChanges"
+        },
+        "workflow": "tour-operations.subscribeAttendanceQueueScheduleChanges",
+        "disposition": "implement",
+        "phase": 7,
+        "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+        "adapter_requirements": [
+          "no_removal_effect_audit",
+          "business_transaction_idempotency",
+          "durable_operation_progress",
+          "Preserve real event evidence, signed runtime/device context and attendance-closeout policy; do not fabricate scans."
+        ],
+        "implementation": {
+          "status": "planned",
+          "adapter": null,
+          "evidence": []
+        },
+        "effect_review": "required_before_enablement"
+      },
+      "sources": [
+        {
+          "path": "frontend/features/tour-operations/services/attendance-queue-runtime.ts",
+          "sha256": "b3791303f7115ceb2d353a91cced27c72ecb30e4733ea783dd3c2d0525ecdaea",
+          "scope": "retained",
+          "matching_current_review_receipts": 2,
+          "source_receipt_index": "current-source-receipts.json#frontend/features/tour-operations/services/attendance-queue-runtime.ts",
+          "current_discovery_check": "command-verification.json"
+        },
+        {
+          "path": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "sha256": "b647f8ae7070c661497c9f3620460318a70d117db6eb2da37f1112d5497b6911",
+          "scope": "retained",
+          "matching_current_review_receipts": 2,
+          "source_receipt_index": "current-source-receipts.json#frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "current_discovery_check": "command-verification.json"
+        }
+      ]
+    },
+    {
+      "historical_id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:syncPendingAttendanceScans",
+      "public_source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+      "public_export": "syncPendingAttendanceScans",
+      "binding_kind": "direct_named_reexport",
+      "original_export_remains": true,
+      "facade_export_statement": "export { syncPendingAttendanceScans, tryRecordAttendanceScan } from \"./attendance-queue-replay\"",
+      "current_owner": "frontend/features/tour-operations/services/attendance-queue-replay.ts",
+      "current_owner_export_line": 44,
+      "current_owner_export_declaration": "export function syncPendingAttendanceScans(",
+      "current_discovery_ids": [],
+      "discovery_omission_reason": "The stable facade only reexports the same binding; its direct owner contains no apiClient./fetch transport text. Current discovery intentionally indexes transport-containing files rather than every export. The retained historical workflow/removal boundary still applies.",
+      "historical_policy_row": {
+        "surface": {
+          "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:syncPendingAttendanceScans",
+          "kind": "frontend_callable",
+          "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "handler": "syncPendingAttendanceScans"
+        },
+        "workflow": "tour-operations.syncPendingAttendanceScans",
+        "disposition": "implement",
+        "phase": 7,
+        "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+        "adapter_requirements": [
+          "no_removal_effect_audit",
+          "business_transaction_idempotency",
+          "durable_operation_progress",
+          "Preserve real event evidence, signed runtime/device context and attendance-closeout policy; do not fabricate scans."
+        ],
+        "implementation": {
+          "status": "planned",
+          "adapter": null,
+          "evidence": []
+        },
+        "effect_review": "required_before_enablement"
+      },
+      "sources": [
+        {
+          "path": "frontend/features/tour-operations/services/attendance-queue-replay.ts",
+          "sha256": "28bc21ce06138b80e0aceba0831198dd4527e8962862f7a3413cd6552f1352ad",
+          "scope": "retained",
+          "matching_current_review_receipts": 1,
+          "source_receipt_index": "current-source-receipts.json#frontend/features/tour-operations/services/attendance-queue-replay.ts",
+          "current_discovery_check": "command-verification.json"
+        },
+        {
+          "path": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "sha256": "b647f8ae7070c661497c9f3620460318a70d117db6eb2da37f1112d5497b6911",
+          "scope": "retained",
+          "matching_current_review_receipts": 2,
+          "source_receipt_index": "current-source-receipts.json#frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "current_discovery_check": "command-verification.json"
+        }
+      ]
+    },
+    {
+      "historical_id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:tryRecordAttendanceScan",
+      "public_source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+      "public_export": "tryRecordAttendanceScan",
+      "binding_kind": "direct_named_reexport",
+      "original_export_remains": true,
+      "facade_export_statement": "export { syncPendingAttendanceScans, tryRecordAttendanceScan } from \"./attendance-queue-replay\"",
+      "current_owner": "frontend/features/tour-operations/services/attendance-queue-replay.ts",
+      "current_owner_export_line": 131,
+      "current_owner_export_declaration": "export async function tryRecordAttendanceScan(",
+      "current_discovery_ids": [],
+      "discovery_omission_reason": "The stable facade only reexports the same binding; its direct owner contains no apiClient./fetch transport text. Current discovery intentionally indexes transport-containing files rather than every export. The retained historical workflow/removal boundary still applies.",
+      "historical_policy_row": {
+        "surface": {
+          "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:tryRecordAttendanceScan",
+          "kind": "frontend_callable",
+          "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "handler": "tryRecordAttendanceScan"
+        },
+        "workflow": "tour-operations.tryRecordAttendanceScan",
+        "disposition": "implement",
+        "phase": 7,
+        "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+        "adapter_requirements": [
+          "no_removal_effect_audit",
+          "business_transaction_idempotency",
+          "durable_operation_progress",
+          "Preserve real event evidence, signed runtime/device context and attendance-closeout policy; do not fabricate scans."
+        ],
+        "implementation": {
+          "status": "planned",
+          "adapter": null,
+          "evidence": []
+        },
+        "effect_review": "required_before_enablement"
+      },
+      "sources": [
+        {
+          "path": "frontend/features/tour-operations/services/attendance-queue-replay.ts",
+          "sha256": "28bc21ce06138b80e0aceba0831198dd4527e8962862f7a3413cd6552f1352ad",
+          "scope": "retained",
+          "matching_current_review_receipts": 1,
+          "source_receipt_index": "current-source-receipts.json#frontend/features/tour-operations/services/attendance-queue-replay.ts",
+          "current_discovery_check": "command-verification.json"
+        },
+        {
+          "path": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "sha256": "b647f8ae7070c661497c9f3620460318a70d117db6eb2da37f1112d5497b6911",
+          "scope": "retained",
+          "matching_current_review_receipts": 2,
+          "source_receipt_index": "current-source-receipts.json#frontend/features/tour-operations/services/attendance-scan-queue.ts",
+          "current_discovery_check": "command-verification.json"
+        }
+      ]
+    },
+    {
+      "historical_id": "frontend_api:frontend/features/documents/api/document-distribution.api.ts",
+      "public_source": "frontend/features/documents/api/document-distribution.api.ts",
+      "public_export": "documentDistributionApi",
+      "binding_kind": "ordered_object_spread_composition",
+      "original_export_remains": true,
+      "current_owner_sources": [
+        "frontend/features/documents/api/document-batches.api.ts",
+        "frontend/features/documents/api/document-delivery.api.ts",
+        "frontend/features/documents/api/document-review.api.ts",
+        "frontend/features/documents/api/document-verification.api.ts"
+      ],
+      "current_discovery_ids": [
+        "frontend_api:frontend/features/documents/api/document-batches.api.ts",
+        "frontend_api:frontend/features/documents/api/document-delivery.api.ts",
+        "frontend_api:frontend/features/documents/api/document-review.api.ts",
+        "frontend_api:frontend/features/documents/api/document-verification.api.ts"
+      ],
+      "method_aliases": [
+        {
+          "handler": "abortUpload",
+          "current_source": "frontend/features/documents/api/document-batches.api.ts",
+          "current_discovery_id": "frontend:frontend/features/documents/api/document-batches.api.ts:abortUpload"
+        },
+        {
+          "handler": "deleteDocuments",
+          "current_source": "frontend/features/documents/api/document-batches.api.ts",
+          "current_discovery_id": "frontend:frontend/features/documents/api/document-batches.api.ts:deleteDocuments"
+        },
+        {
+          "handler": "manualUploadPassengerDocument",
+          "current_source": "frontend/features/documents/api/document-batches.api.ts",
+          "current_discovery_id": "frontend:frontend/features/documents/api/document-batches.api.ts:manualUploadPassengerDocument"
+        },
+        {
+          "handler": "reuploadPassengerDocument",
+          "current_source": "frontend/features/documents/api/document-batches.api.ts",
+          "current_discovery_id": "frontend:frontend/features/documents/api/document-batches.api.ts:reuploadPassengerDocument"
+        },
+        {
+          "handler": "saveBatch",
+          "current_source": "frontend/features/documents/api/document-batches.api.ts",
+          "current_discovery_id": "frontend:frontend/features/documents/api/document-batches.api.ts:saveBatch"
+        },
+        {
+          "handler": "unassignDocuments",
+          "current_source": "frontend/features/documents/api/document-batches.api.ts",
+          "current_discovery_id": "frontend:frontend/features/documents/api/document-batches.api.ts:unassignDocuments"
+        },
+        {
+          "handler": "uploadDocuments",
+          "current_source": "frontend/features/documents/api/document-batches.api.ts",
+          "current_discovery_id": "frontend:frontend/features/documents/api/document-batches.api.ts:uploadDocuments"
+        },
+        {
+          "handler": "getDeliveryTracking",
+          "current_source": "frontend/features/documents/api/document-delivery.api.ts",
+          "current_discovery_id": "frontend:frontend/features/documents/api/document-delivery.api.ts:getDeliveryTracking"
+        },
+        {
+          "handler": "previewWhatsAppDelivery",
+          "current_source": "frontend/features/documents/api/document-delivery.api.ts",
+          "current_discovery_id": "frontend:frontend/features/documents/api/document-delivery.api.ts:previewWhatsAppDelivery"
+        },
+        {
+          "handler": "sendWhatsAppDelivery",
+          "current_source": "frontend/features/documents/api/document-delivery.api.ts",
+          "current_discovery_id": "frontend:frontend/features/documents/api/document-delivery.api.ts:sendWhatsAppDelivery"
+        },
+        {
+          "handler": "exportReview",
+          "current_source": "frontend/features/documents/api/document-review.api.ts",
+          "current_discovery_id": "frontend:frontend/features/documents/api/document-review.api.ts:exportReview"
+        },
+        {
+          "handler": "getReview",
+          "current_source": "frontend/features/documents/api/document-review.api.ts",
+          "current_discovery_id": "frontend:frontend/features/documents/api/document-review.api.ts:getReview"
+        },
+        {
+          "handler": "listGroups",
+          "current_source": "frontend/features/documents/api/document-review.api.ts",
+          "current_discovery_id": "frontend:frontend/features/documents/api/document-review.api.ts:listGroups"
+        },
+        {
+          "handler": "manuallyVerifyDocument",
+          "current_source": "frontend/features/documents/api/document-verification.api.ts",
+          "current_discovery_id": "frontend:frontend/features/documents/api/document-verification.api.ts:manuallyVerifyDocument"
+        },
+        {
+          "handler": "verifyDocuments",
+          "current_source": "frontend/features/documents/api/document-verification.api.ts",
+          "current_discovery_id": "frontend:frontend/features/documents/api/document-verification.api.ts:verifyDocuments"
+        }
+      ],
+      "discovery_omission_reason": "The stable public composition facade remains present and exports the original API object. Transport moved to the individually fingerprinted owner modules, so the current discovery transport predicate no longer emits a facade fingerprint. Original internal dependency classification is retained.",
+      "historical_policy_row": {
+        "surface": {
+          "id": "frontend_api:frontend/features/documents/api/document-distribution.api.ts",
+          "kind": "frontend_api_contract",
+          "source": "frontend/features/documents/api/document-distribution.api.ts",
+          "contract_sha256": "d546bc3428a26d8c2dbe360456cb79cd702c83785c2c32e4b2efd76e79b0c2f4"
+        },
+        "workflow": "transport.frontend.features.documents.api.document-distribution.api.ts",
+        "disposition": "internal_dependency",
+        "phase": null,
+        "rationale": "Routing or frontend transport facade implementing the individually classified business operations; fingerprint forces review of prefix/registration/alias and nonstandard action changes.",
+        "adapter_requirements": [],
+        "implementation": {
+          "status": "not_applicable",
+          "adapter": null,
+          "evidence": []
+        }
+      },
+      "sources": [
+        {
+          "path": "frontend/features/documents/api/document-batches.api.ts",
+          "sha256": "0d811cd76a73c62b47a299762cb14a4792a9bffc769f0e33e110c898d8108a1b",
+          "scope": "retained",
+          "matching_current_review_receipts": 1,
+          "source_receipt_index": "current-source-receipts.json#frontend/features/documents/api/document-batches.api.ts",
+          "current_discovery_check": "command-verification.json"
+        },
+        {
+          "path": "frontend/features/documents/api/document-delivery.api.ts",
+          "sha256": "4bd918f76bb2847b975adc2eea2ab49649993b0d1d38d06760949ed602f791f9",
+          "scope": "retained",
+          "matching_current_review_receipts": 1,
+          "source_receipt_index": "current-source-receipts.json#frontend/features/documents/api/document-delivery.api.ts",
+          "current_discovery_check": "command-verification.json"
+        },
+        {
+          "path": "frontend/features/documents/api/document-distribution.api.ts",
+          "sha256": "29b422e32c2515d910fc7fa7e50aa137045b6695718bc50ed63e46796cdec7a8",
+          "scope": "retained",
+          "matching_current_review_receipts": 1,
+          "source_receipt_index": "current-source-receipts.json#frontend/features/documents/api/document-distribution.api.ts",
+          "current_discovery_check": "command-verification.json"
+        },
+        {
+          "path": "frontend/features/documents/api/document-review.api.ts",
+          "sha256": "0e65fec9713722a3a2fb684f751a3c0054176a08802434df069d5b6ec45a3325",
+          "scope": "retained",
+          "matching_current_review_receipts": 1,
+          "source_receipt_index": "current-source-receipts.json#frontend/features/documents/api/document-review.api.ts",
+          "current_discovery_check": "command-verification.json"
+        },
+        {
+          "path": "frontend/features/documents/api/document-verification.api.ts",
+          "sha256": "f07dcb1a9e9131ed9f4b5e58c9ff6bf93074c27a888395c3b7317c8e6c2304d6",
+          "scope": "retained",
+          "matching_current_review_receipts": 1,
+          "source_receipt_index": "current-source-receipts.json#frontend/features/documents/api/document-verification.api.ts",
+          "current_discovery_check": "command-verification.json"
+        }
+      ]
+    },
+    {
+      "historical_id": "frontend_api:frontend/features/operations/api/operations.api.ts",
+      "public_source": "frontend/features/operations/api/operations.api.ts",
+      "public_export": "operationsApi",
+      "binding_kind": "direct_function_reference_composition",
+      "original_export_remains": true,
+      "current_owner_sources": [
+        "frontend/features/operations/api/operations-accounts.api.ts",
+        "frontend/features/operations/api/operations-attendance.api.ts",
+        "frontend/features/operations/api/operations-audit.api.ts",
+        "frontend/features/operations/api/operations-checkin.api.ts",
+        "frontend/features/operations/api/operations-qr.api.ts",
+        "frontend/features/operations/api/operations-rooming.api.ts",
+        "frontend/features/operations/api/operations-tour.api.ts"
+      ],
+      "current_discovery_ids": [
+        "frontend_api:frontend/features/operations/api/operations-accounts.api.ts",
+        "frontend_api:frontend/features/operations/api/operations-attendance.api.ts",
+        "frontend_api:frontend/features/operations/api/operations-audit.api.ts",
+        "frontend_api:frontend/features/operations/api/operations-checkin.api.ts",
+        "frontend_api:frontend/features/operations/api/operations-qr.api.ts",
+        "frontend_api:frontend/features/operations/api/operations-rooming.api.ts",
+        "frontend_api:frontend/features/operations/api/operations-tour.api.ts"
+      ],
+      "method_aliases": [
+        {
+          "handler": "adminGroups",
+          "current_source": "frontend/features/operations/api/operations-accounts.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-accounts.api.ts:adminGroups"
+        },
+        {
+          "handler": "adminOverview",
+          "current_source": "frontend/features/operations/api/operations-accounts.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-accounts.api.ts:adminOverview"
+        },
+        {
+          "handler": "assignManagerGroups",
+          "current_source": "frontend/features/operations/api/operations-accounts.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-accounts.api.ts:assignManagerGroups"
+        },
+        {
+          "handler": "assignStaffGroups",
+          "current_source": "frontend/features/operations/api/operations-accounts.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-accounts.api.ts:assignStaffGroups"
+        },
+        {
+          "handler": "createManager",
+          "current_source": "frontend/features/operations/api/operations-accounts.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-accounts.api.ts:createManager"
+        },
+        {
+          "handler": "createStaff",
+          "current_source": "frontend/features/operations/api/operations-accounts.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-accounts.api.ts:createStaff"
+        },
+        {
+          "handler": "deleteManagedAccount",
+          "current_source": "frontend/features/operations/api/operations-accounts.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-accounts.api.ts:deleteManagedAccount"
+        },
+        {
+          "handler": "deleteManager",
+          "current_source": "frontend/features/operations/api/operations-accounts.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-accounts.api.ts:deleteManager"
+        },
+        {
+          "handler": "managedAccounts",
+          "current_source": "frontend/features/operations/api/operations-accounts.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-accounts.api.ts:managedAccounts"
+        },
+        {
+          "handler": "managers",
+          "current_source": "frontend/features/operations/api/operations-accounts.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-accounts.api.ts:managers"
+        },
+        {
+          "handler": "resetManagedAccountMfa",
+          "current_source": "frontend/features/operations/api/operations-accounts.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-accounts.api.ts:resetManagedAccountMfa"
+        },
+        {
+          "handler": "resetManagedAccountPassword",
+          "current_source": "frontend/features/operations/api/operations-accounts.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-accounts.api.ts:resetManagedAccountPassword"
+        },
+        {
+          "handler": "revokeManagedAccountSessions",
+          "current_source": "frontend/features/operations/api/operations-accounts.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-accounts.api.ts:revokeManagedAccountSessions"
+        },
+        {
+          "handler": "setManagedAccountStatus",
+          "current_source": "frontend/features/operations/api/operations-accounts.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-accounts.api.ts:setManagedAccountStatus"
+        },
+        {
+          "handler": "staffAccessAccounts",
+          "current_source": "frontend/features/operations/api/operations-accounts.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-accounts.api.ts:staffAccessAccounts"
+        },
+        {
+          "handler": "staffAccounts",
+          "current_source": "frontend/features/operations/api/operations-accounts.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-accounts.api.ts:staffAccounts"
+        },
+        {
+          "handler": "completeManagedAttendanceSession",
+          "current_source": "frontend/features/operations/api/operations-attendance.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-attendance.api.ts:completeManagedAttendanceSession"
+        },
+        {
+          "handler": "createManagedAttendanceSession",
+          "current_source": "frontend/features/operations/api/operations-attendance.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-attendance.api.ts:createManagedAttendanceSession"
+        },
+        {
+          "handler": "groupAttendanceMissingPassengers",
+          "current_source": "frontend/features/operations/api/operations-attendance.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-attendance.api.ts:groupAttendanceMissingPassengers"
+        },
+        {
+          "handler": "groupAttendanceOverview",
+          "current_source": "frontend/features/operations/api/operations-attendance.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-attendance.api.ts:groupAttendanceOverview"
+        },
+        {
+          "handler": "groupAttendanceSummary",
+          "current_source": "frontend/features/operations/api/operations-attendance.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-attendance.api.ts:groupAttendanceSummary"
+        },
+        {
+          "handler": "managedAttendanceCloseoutStatus",
+          "current_source": "frontend/features/operations/api/operations-attendance.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-attendance.api.ts:managedAttendanceCloseoutStatus"
+        },
+        {
+          "handler": "myAttendanceSessionDetails",
+          "current_source": "frontend/features/operations/api/operations-attendance.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-attendance.api.ts:myAttendanceSessionDetails"
+        },
+        {
+          "handler": "myAttendanceSessions",
+          "current_source": "frontend/features/operations/api/operations-attendance.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-attendance.api.ts:myAttendanceSessions"
+        },
+        {
+          "handler": "publishMyAttendanceCloseoutCheckpoint",
+          "current_source": "frontend/features/operations/api/operations-attendance.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-attendance.api.ts:publishMyAttendanceCloseoutCheckpoint"
+        },
+        {
+          "handler": "scanMyAttendanceSession",
+          "current_source": "frontend/features/operations/api/operations-attendance.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-attendance.api.ts:scanMyAttendanceSession"
+        },
+        {
+          "handler": "scanMyAttendanceSessionBatch",
+          "current_source": "frontend/features/operations/api/operations-attendance.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-attendance.api.ts:scanMyAttendanceSessionBatch"
+        },
+        {
+          "handler": "analyticsSummary",
+          "current_source": "frontend/features/operations/api/operations-audit.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-audit.api.ts:analyticsSummary"
+        },
+        {
+          "handler": "auditLogPage",
+          "current_source": "frontend/features/operations/api/operations-audit.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-audit.api.ts:auditLogPage"
+        },
+        {
+          "handler": "exportAuditLogs",
+          "current_source": "frontend/features/operations/api/operations-audit.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-audit.api.ts:exportAuditLogs"
+        },
+        {
+          "handler": "exportHotelCheckins",
+          "current_source": "frontend/features/operations/api/operations-checkin.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-checkin.api.ts:exportHotelCheckins"
+        },
+        {
+          "handler": "hotelCheckins",
+          "current_source": "frontend/features/operations/api/operations-checkin.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-checkin.api.ts:hotelCheckins"
+        },
+        {
+          "handler": "scanHotelCheckin",
+          "current_source": "frontend/features/operations/api/operations-checkin.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-checkin.api.ts:scanHotelCheckin"
+        },
+        {
+          "handler": "updateHotelCheckin",
+          "current_source": "frontend/features/operations/api/operations-checkin.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-checkin.api.ts:updateHotelCheckin"
+        },
+        {
+          "handler": "generatePassengerQr",
+          "current_source": "frontend/features/operations/api/operations-qr.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-qr.api.ts:generatePassengerQr"
+        },
+        {
+          "handler": "groupQrCodes",
+          "current_source": "frontend/features/operations/api/operations-qr.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-qr.api.ts:groupQrCodes"
+        },
+        {
+          "handler": "qrDeliveryPreview",
+          "current_source": "frontend/features/operations/api/operations-qr.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-qr.api.ts:qrDeliveryPreview"
+        },
+        {
+          "handler": "regeneratePassengerQr",
+          "current_source": "frontend/features/operations/api/operations-qr.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-qr.api.ts:regeneratePassengerQr"
+        },
+        {
+          "handler": "revokePassengerQr",
+          "current_source": "frontend/features/operations/api/operations-qr.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-qr.api.ts:revokePassengerQr"
+        },
+        {
+          "handler": "sendQrBroadcast",
+          "current_source": "frontend/features/operations/api/operations-qr.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-qr.api.ts:sendQrBroadcast"
+        },
+        {
+          "handler": "setPassengerQrActive",
+          "current_source": "frontend/features/operations/api/operations-qr.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-qr.api.ts:setPassengerQrActive"
+        },
+        {
+          "handler": "setPassengerQrExpiration",
+          "current_source": "frontend/features/operations/api/operations-qr.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-qr.api.ts:setPassengerQrExpiration"
+        },
+        {
+          "handler": "autoAllocateRoomingHotel",
+          "current_source": "frontend/features/operations/api/operations-rooming.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-rooming.api.ts:autoAllocateRoomingHotel"
+        },
+        {
+          "handler": "createRoomingHotel",
+          "current_source": "frontend/features/operations/api/operations-rooming.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-rooming.api.ts:createRoomingHotel"
+        },
+        {
+          "handler": "exportRoomingHotel",
+          "current_source": "frontend/features/operations/api/operations-rooming.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-rooming.api.ts:exportRoomingHotel"
+        },
+        {
+          "handler": "roomingPriorityFields",
+          "current_source": "frontend/features/operations/api/operations-rooming.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-rooming.api.ts:roomingPriorityFields"
+        },
+        {
+          "handler": "roomingRosterFieldValues",
+          "current_source": "frontend/features/operations/api/operations-rooming.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-rooming.api.ts:roomingRosterFieldValues"
+        },
+        {
+          "handler": "roomingWorkspace",
+          "current_source": "frontend/features/operations/api/operations-rooming.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-rooming.api.ts:roomingWorkspace"
+        },
+        {
+          "handler": "updateRoomingHotel",
+          "current_source": "frontend/features/operations/api/operations-rooming.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-rooming.api.ts:updateRoomingHotel"
+        },
+        {
+          "handler": "updateRoomingPassengerSelection",
+          "current_source": "frontend/features/operations/api/operations-rooming.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-rooming.api.ts:updateRoomingPassengerSelection"
+        },
+        {
+          "handler": "updateRoomingVip",
+          "current_source": "frontend/features/operations/api/operations-rooming.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-rooming.api.ts:updateRoomingVip"
+        },
+        {
+          "handler": "assignTourGroupCoordinators",
+          "current_source": "frontend/features/operations/api/operations-tour.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-tour.api.ts:assignTourGroupCoordinators"
+        },
+        {
+          "handler": "assignTourGroupPassengers",
+          "current_source": "frontend/features/operations/api/operations-tour.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-tour.api.ts:assignTourGroupPassengers"
+        },
+        {
+          "handler": "createTourCoordinator",
+          "current_source": "frontend/features/operations/api/operations-tour.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-tour.api.ts:createTourCoordinator"
+        },
+        {
+          "handler": "myTourGroupPassenger",
+          "current_source": "frontend/features/operations/api/operations-tour.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-tour.api.ts:myTourGroupPassenger"
+        },
+        {
+          "handler": "myTourGroupPassengers",
+          "current_source": "frontend/features/operations/api/operations-tour.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-tour.api.ts:myTourGroupPassengers"
+        },
+        {
+          "handler": "myTourGroups",
+          "current_source": "frontend/features/operations/api/operations-tour.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-tour.api.ts:myTourGroups"
+        },
+        {
+          "handler": "tourCoordinators",
+          "current_source": "frontend/features/operations/api/operations-tour.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-tour.api.ts:tourCoordinators"
+        },
+        {
+          "handler": "tourGroupPassengers",
+          "current_source": "frontend/features/operations/api/operations-tour.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-tour.api.ts:tourGroupPassengers"
+        },
+        {
+          "handler": "tourGroups",
+          "current_source": "frontend/features/operations/api/operations-tour.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-tour.api.ts:tourGroups"
+        },
+        {
+          "handler": "tourOperationsArchitecture",
+          "current_source": "frontend/features/operations/api/operations-tour.api.ts",
+          "current_discovery_id": "frontend:frontend/features/operations/api/operations-tour.api.ts:tourOperationsArchitecture"
+        }
+      ],
+      "discovery_omission_reason": "The stable public composition facade remains present and exports the original API object. Transport moved to the individually fingerprinted owner modules, so the current discovery transport predicate no longer emits a facade fingerprint. Original internal dependency classification is retained.",
+      "historical_policy_row": {
+        "surface": {
+          "id": "frontend_api:frontend/features/operations/api/operations.api.ts",
+          "kind": "frontend_api_contract",
+          "source": "frontend/features/operations/api/operations.api.ts",
+          "contract_sha256": "d1a2cb128065e70bd6d016b91683d5a8d5c06bd9ea449e3805fcbc119c92afc0"
+        },
+        "workflow": "transport.frontend.features.operations.api.operations.api.ts",
+        "disposition": "internal_dependency",
+        "phase": null,
+        "rationale": "Routing or frontend transport facade implementing the individually classified business operations; fingerprint forces review of prefix/registration/alias and nonstandard action changes.",
+        "adapter_requirements": [],
+        "implementation": {
+          "status": "not_applicable",
+          "adapter": null,
+          "evidence": []
+        }
+      },
+      "sources": [
+        {
+          "path": "frontend/features/operations/api/operations-accounts.api.ts",
+          "sha256": "3f20bb6cfe3bb4e791023cdaac89efec5d08b18cb5f27e73b2470fbd652d962c",
+          "scope": "retained",
+          "matching_current_review_receipts": 1,
+          "source_receipt_index": "current-source-receipts.json#frontend/features/operations/api/operations-accounts.api.ts",
+          "current_discovery_check": "command-verification.json"
+        },
+        {
+          "path": "frontend/features/operations/api/operations-attendance.api.ts",
+          "sha256": "e5fcb39fa2768ad5aea25e34f3f2c352afa8ad89ce46c4aacc8f35ea8a06bf0b",
+          "scope": "retained",
+          "matching_current_review_receipts": 1,
+          "source_receipt_index": "current-source-receipts.json#frontend/features/operations/api/operations-attendance.api.ts",
+          "current_discovery_check": "command-verification.json"
+        },
+        {
+          "path": "frontend/features/operations/api/operations-audit.api.ts",
+          "sha256": "0241f0a107c2aa4071053a685fd5919950736ef03800af426ede9f3f505848cf",
+          "scope": "retained",
+          "matching_current_review_receipts": 1,
+          "source_receipt_index": "current-source-receipts.json#frontend/features/operations/api/operations-audit.api.ts",
+          "current_discovery_check": "command-verification.json"
+        },
+        {
+          "path": "frontend/features/operations/api/operations-checkin.api.ts",
+          "sha256": "b6e228ed910022835b618345ebe8a80a51116e8c1b2b992365b0841b209c65ea",
+          "scope": "retained",
+          "matching_current_review_receipts": 1,
+          "source_receipt_index": "current-source-receipts.json#frontend/features/operations/api/operations-checkin.api.ts",
+          "current_discovery_check": "command-verification.json"
+        },
+        {
+          "path": "frontend/features/operations/api/operations-qr.api.ts",
+          "sha256": "5d0a0502b976c7e4cafb4370052ac811c04844e0e90be26d5b51eab423ac61d6",
+          "scope": "retained",
+          "matching_current_review_receipts": 1,
+          "source_receipt_index": "current-source-receipts.json#frontend/features/operations/api/operations-qr.api.ts",
+          "current_discovery_check": "command-verification.json"
+        },
+        {
+          "path": "frontend/features/operations/api/operations-rooming.api.ts",
+          "sha256": "4fd943882cf3599e5f0a02919fff9c233cab949e417615dfc8e36421e7eefc54",
+          "scope": "retained",
+          "matching_current_review_receipts": 1,
+          "source_receipt_index": "current-source-receipts.json#frontend/features/operations/api/operations-rooming.api.ts",
+          "current_discovery_check": "command-verification.json"
+        },
+        {
+          "path": "frontend/features/operations/api/operations-tour.api.ts",
+          "sha256": "bb81e64d34b8b38399f63be3e299ba5b1697aca9156c5e49910518534bffa572",
+          "scope": "retained",
+          "matching_current_review_receipts": 1,
+          "source_receipt_index": "current-source-receipts.json#frontend/features/operations/api/operations-tour.api.ts",
+          "current_discovery_check": "command-verification.json"
+        },
+        {
+          "path": "frontend/features/operations/api/operations.api.ts",
+          "sha256": "b17508f7b25e0e442b24fc4fdc420e469975d76943c13c157e730f9122a984c4",
+          "scope": "retained",
+          "matching_current_review_receipts": 1,
+          "source_receipt_index": "current-source-receipts.json#frontend/features/operations/api/operations.api.ts",
+          "current_discovery_check": "command-verification.json"
+        }
+      ]
+    }
+  ]
+}

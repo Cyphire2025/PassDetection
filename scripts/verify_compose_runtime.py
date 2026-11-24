@@ -14,115 +14,99 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
+from compose_runtime_capacity import validate_production_capacity
+from compose_runtime_clients import (
+    validate_development,
+    validate_frontend,
+    validate_runtime_source_files,
+)
+from compose_runtime_contract import (
+    BACKEND_DOCKERFILE as BACKEND_DOCKERFILE,
+)
+from compose_runtime_contract import (
+    BACKEND_DOCKERIGNORE as BACKEND_DOCKERIGNORE,
+)
+from compose_runtime_contract import (
+    BACKEND_SERVICES as BACKEND_SERVICES,
+)
+from compose_runtime_contract import (
+    BASE_COMPOSE as BASE_COMPOSE,
+)
+from compose_runtime_contract import (
+    DEV_COMPOSE as DEV_COMPOSE,
+)
+from compose_runtime_contract import (
+    DEVELOPMENT_PUBLISHED_TARGETS as DEVELOPMENT_PUBLISHED_TARGETS,
+)
+from compose_runtime_contract import (
+    EXPECTED_DATABASE_SCHEMA_REVISION as EXPECTED_DATABASE_SCHEMA_REVISION,
+)
+from compose_runtime_contract import (
+    FRONTEND_ALLOWED_BUILD_KEYS as FRONTEND_ALLOWED_BUILD_KEYS,
+)
+from compose_runtime_contract import (
+    FRONTEND_ALLOWED_ENVIRONMENT_KEYS as FRONTEND_ALLOWED_ENVIRONMENT_KEYS,
+)
+from compose_runtime_contract import (
+    FRONTEND_DOCKERIGNORE as FRONTEND_DOCKERIGNORE,
+)
+from compose_runtime_contract import (
+    FRONTEND_FORBIDDEN_ENVIRONMENT_KEYS as FRONTEND_FORBIDDEN_ENVIRONMENT_KEYS,
+)
+from compose_runtime_contract import (
+    GUNICORN_CONFIG as GUNICORN_CONFIG,
+)
+from compose_runtime_contract import (
+    INTERNAL_SERVICES as INTERNAL_SERVICES,
+)
+from compose_runtime_contract import (
+    NGINX_PUBLISHED_TARGETS as NGINX_PUBLISHED_TARGETS,
+)
+from compose_runtime_contract import (
+    PINNED_CLAMAV_IMAGE as PINNED_CLAMAV_IMAGE,
+)
+from compose_runtime_contract import (
+    PINNED_NGINX_IMAGE as PINNED_NGINX_IMAGE,
+)
+from compose_runtime_contract import (
+    PINNED_STATSD_EXPORTER_IMAGE as PINNED_STATSD_EXPORTER_IMAGE,
+)
+from compose_runtime_contract import (
+    PROD_COMPOSE as PROD_COMPOSE,
+)
+from compose_runtime_contract import (
+    REDIS_SERVICES as REDIS_SERVICES,
+)
+from compose_runtime_contract import (
+    ROOT as ROOT,
+)
+from compose_runtime_contract import (
+    STORAGE_COMPOSE as STORAGE_COMPOSE,
+)
+from compose_runtime_contract import (
+    WORKER_QUEUE_CONTRACTS as WORKER_QUEUE_CONTRACTS,
+)
+from compose_runtime_services import validate_production_topology
+from compose_runtime_values import (
+    _command_text as _command_text,
+)
+from compose_runtime_values import (
+    _healthcheck_text as _healthcheck_text,
+)
+from compose_runtime_values import (
+    _published_port_targets as _published_port_targets,
+)
+from compose_runtime_values import (
+    _require as _require,
+)
+from compose_runtime_values import (
+    _volume_targets as _volume_targets,
+)
+from compose_runtime_workers import validate_backend_consistency, validate_workers
 from image_runtime_policy import validate_process_isolation
-from release_manifest import load_release_manifest, verify_source_defaults
-from storage_release import STORAGE_IMAGE
-from verify_database_deployment_budget import calculate as database_budget, capacity_markdown
-
-ROOT = Path(__file__).resolve().parents[1]
-BASE_COMPOSE = ROOT / "docker-compose.yml"
-DEV_COMPOSE = ROOT / "docker-compose.dev.yml"
-PROD_COMPOSE = ROOT / "docker-compose.prod.yml"
-STORAGE_COMPOSE = ROOT / "docker-compose.storage-production.yml"
-BACKEND_DOCKERFILE = ROOT / "backend" / "Dockerfile"
-GUNICORN_CONFIG = ROOT / "backend" / "gunicorn.conf.py"
-BACKEND_DOCKERIGNORE = ROOT / "backend" / ".dockerignore"
-FRONTEND_DOCKERIGNORE = ROOT / "frontend" / ".dockerignore"
-BACKEND_SERVICES = (
-    "backend",
-    "worker",
-    "my-photos-worker",
-    "email-worker",
-    "email-ai-worker",
-    "email-beat",
-    "extraction-worker",
-    "verification-worker",
-    "visa-ai-worker",
-    "ecr-worker",
-)
-REDIS_SERVICES = ("redis", "redis-broker", "redis-realtime", "redis-cache")
-INTERNAL_SERVICES = (
-    "db",
-    *REDIS_SERVICES,
-    "clamav",
-    "minio",
-    "metrics-exporter",
-    "backend",
-)
-DEVELOPMENT_PUBLISHED_TARGETS = {
-    "db": {5432},
-    "redis": {6379},
-    "redis-broker": {6379},
-    "redis-realtime": {6379},
-    "redis-cache": {6379},
-    "minio": {9000, 9001},
-    "metrics-exporter": {9102},
-    "backend": {8000},
-}
-NGINX_PUBLISHED_TARGETS = {80, 443}
-PINNED_NGINX_IMAGE = "nginx:1.30.4-alpine@sha256:97d490c12ba55b4946b01546d1c3ed324e8d41ab1c9fcb2a616aa470620e5b46"
-PINNED_CLAMAV_IMAGE = (
-    "clamav/clamav:1.5_base"
-    "@sha256:2a682381f314a3ac6ec13eea55b69bd2594887598e5358d938e711a30df850f2"
-)
-PINNED_STATSD_EXPORTER_IMAGE = (
-    "prom/statsd-exporter:v0.29.0"
-    "@sha256:632f705804922d50c1c95ba8ff9c8c0cc18d4bbb0cc265dc4f9ae708271c95b3"
-)
-EXPECTED_DATABASE_SCHEMA_REVISION = load_release_manifest()["schema_revision"]
-FRONTEND_ALLOWED_ENVIRONMENT_KEYS = {
-    "NEXT_PUBLIC_API_BASE_URL",
-    "NEXT_PUBLIC_APP_URL",
-    "NEXT_PUBLIC_DEV_APP_URL",
-    "NEXT_PUBLIC_APP_REVISION",
-}
-FRONTEND_ALLOWED_BUILD_KEYS = FRONTEND_ALLOWED_ENVIRONMENT_KEYS | {"APP_REVISION"}
-FRONTEND_FORBIDDEN_ENVIRONMENT_KEYS = {
-    "APP_SECRET_KEY",
-    "GOOGLE_API_KEY",
-    "POSTGRES_PASSWORD",
-    "REDIS_PASSWORD",
-    "REDIS_BROKER_PASSWORD",
-    "REDIS_SECURITY_PASSWORD",
-    "REDIS_REALTIME_PASSWORD",
-    "REDIS_CACHE_PASSWORD",
-    "S3_ACCESS_KEY_ID",
-    "S3_SECRET_ACCESS_KEY",
-    "WHATSAPP_ACCESS_TOKEN",
-    "WHATSAPP_APP_SECRET",
-    "WHATSAPP_WEBHOOK_VERIFY_TOKEN",
-}
-WORKER_QUEUE_CONTRACTS = {
-    "ecr-worker": ("ecr@", "ecr_checks"),
-    "worker": ("general@", "passport_ocr", "whatsapp"),
-    "my-photos-worker": (
-        "my-photos@",
-        "my_photos_control",
-        "my_photos_index",
-        "my_photos_media",
-        "my_photos_search",
-    ),
-    "extraction-worker": (
-        "extraction@",
-        "interactive-passport-extraction",
-    ),
-    "verification-worker": (
-        "verification@",
-        "post-submission-ai-verification",
-    ),
-    "visa-ai-worker": (
-        "visa-ai@",
-        "visa-ai-image-edit",
-    ),
-    "email-worker": (
-        "email@",
-        "email_integrations",
-    ),
-    "email-ai-worker": (
-        "email-ai@",
-        "email_ai",
-    ),
-}
+from release_manifest import verify_source_defaults
+from verify_database_deployment_budget import calculate as database_budget
+from verify_database_deployment_budget import capacity_markdown
 
 
 def _render_compose(*files: Path) -> dict[str, Any]:
@@ -137,9 +121,16 @@ def _render_compose(*files: Path) -> dict[str, Any]:
 
 def _render_compose_fixture(files: tuple[Path, ...], fixture: Path) -> dict[str, Any]:
     command = [
-        "docker", "compose", "--profile", "maintenance",
-        "--project-name", "passdetection-compose-contract",
-        "--project-directory", str(fixture.parent), "--env-file", str(fixture),
+        "docker",
+        "compose",
+        "--profile",
+        "maintenance",
+        "--project-name",
+        "passdetection-compose-contract",
+        "--project-directory",
+        str(fixture.parent),
+        "--env-file",
+        str(fixture),
     ]
     for file in files:
         command.extend(("-f", str(file)))
@@ -175,550 +166,46 @@ def _render_compose_fixture(files: tuple[Path, ...], fixture: Path) -> dict[str,
     if completed.returncode != 0:
         detail = completed.stderr.strip() or "Compose configuration failed."
         raise RuntimeError(detail)
-    return json.loads(completed.stdout)
-
-
-def _command_text(service: dict[str, Any]) -> str:
-    command = service.get("command")
-    if command is None:
-        return ""
-    if isinstance(command, list):
-        return " ".join(str(part) for part in command)
-    return str(command)
-
-
-def _volume_targets(service: dict[str, Any]) -> set[str]:
-    return {
-        str(volume.get("target"))
-        for volume in service.get("volumes", [])
-        if isinstance(volume, dict) and volume.get("target")
-    }
-
-
-def _healthcheck_text(service: dict[str, Any]) -> str:
-    test = service.get("healthcheck", {}).get("test", [])
-    if isinstance(test, list):
-        return " ".join(str(part) for part in test)
-    return str(test)
-
-
-def _published_port_targets(service: dict[str, Any]) -> set[int]:
-    targets: set[int] = set()
-    for port in service.get("ports", []):
-        if not isinstance(port, dict) or port.get("published") is None:
-            continue
-        target = port.get("target")
-        if isinstance(target, int):
-            targets.add(target)
-        elif isinstance(target, str) and target.isdigit():
-            targets.add(int(target))
-    return targets
-
-
-def _require(condition: bool, message: str) -> None:
-    if not condition:
-        raise AssertionError(message)
+    decoded = json.loads(completed.stdout)
+    if not isinstance(decoded, dict):
+        raise RuntimeError("Rendered Compose configuration must be an object")
+    return decoded
 
 
 def main() -> int:
     verify_source_defaults()
     production = _render_compose(BASE_COMPOSE, PROD_COMPOSE, STORAGE_COMPOSE)
-    budget = database_budget(production, json.loads((ROOT / "tooling/database-deployment-budget.json").read_text()))
-    _require(not budget["errors"], "Rendered production database pool budget exceeds capacity")
+    budget = database_budget(
+        production,
+        json.loads((ROOT / "tooling/database-deployment-budget.json").read_text()),
+    )
     _require(
-        (ROOT / "docs/DATABASE_CONNECTION_CAPACITY.generated.md").read_text(encoding="utf-8") == capacity_markdown(budget),
+        not budget["errors"],
+        "Rendered production database pool budget exceeds capacity",
+    )
+    _require(
+        (ROOT / "docs/DATABASE_CONNECTION_CAPACITY.generated.md").read_text(encoding="utf-8")
+        == capacity_markdown(budget),
         "Generated database capacity table is stale; review the rendered deployment and regenerate it",
     )
     development = _render_compose(BASE_COMPOSE, DEV_COMPOSE)
-
     production_services = production["services"]
-    validate_process_isolation(production_services, storage_directory=str(ROOT / "tmp/compose-contract"))
+    validate_process_isolation(
+        production_services, storage_directory=str(ROOT / "tmp/compose-contract")
+    )
     development_services = development["services"]
-
     production_backend = production_services["backend"]
-    _require(
-        production_backend.get("command") is None,
-        "Production backend must inherit the runtime image CMD.",
+    validate_production_topology(production_services, production_backend)
+    validate_backend_consistency(production_services, production_backend)
+    validate_production_capacity(production_services, production_backend)
+    validate_frontend(production_services)
+    validate_workers(production_services)
+    validate_runtime_source_files(
+        BACKEND_DOCKERFILE, GUNICORN_CONFIG, FRONTEND_DOCKERIGNORE, BACKEND_DOCKERIGNORE
     )
-    _require(
-        "--reload" not in _command_text(production_backend),
-        "Production backend must not enable Uvicorn reload.",
-    )
-    for service_name in BACKEND_SERVICES:
-        _require(
-            "/app" not in _volume_targets(production_services[service_name]),
-            f"Production {service_name} must not bind-mount application source.",
-        )
-    for service_name in INTERNAL_SERVICES:
-        _require(
-            not production_services[service_name].get("ports"),
-            f"Production {service_name} must not publish host ports.",
-        )
-    _require(
-        _published_port_targets(production_services["nginx"]) == NGINX_PUBLISHED_TARGETS,
-        "Production Nginx must remain the only public entry point on ports 80 and 443.",
-    )
-    _require(
-        production_services["nginx"].get("image") == PINNED_NGINX_IMAGE,
-        "Production Nginx must use the reviewed stable image pin.",
-    )
-    _require(
-        production_services["minio"].get("image") == STORAGE_IMAGE,
-        "Current production storage must use the maintained immutable provider digest.",
-    )
-    storage = production_services["minio"]
-    _require(storage.get("user") == "1000:1000" and storage.get("cap_drop") == ["ALL"],
-             "Maintained storage must run without root or Linux capabilities.")
-    _require(storage.get("environment", {}) == {}, "Provider administrator credentials belong in the protected identity file.")
-    _require("-ip.bind=127.0.0.1" in _command_text(storage) and "-s3.ip.bind=0.0.0.0" in _command_text(storage),
-             "Only authenticated S3 may bind the application network.")
-    _require("minio_data" not in {value.get("source") for value in storage.get("volumes", [])},
-             "SeaweedFS must never open the original MinIO data volume.")
-    _require("maintenance" in production_services["storage-stage"].get("profiles", [])
-             and "maintenance" in production_services["storage-copy"].get("profiles", []),
-             "Copy/staging services must not run during ordinary application startup.")
-    clamav = production_services["clamav"]
-    _require(
-        clamav.get("image") == PINNED_CLAMAV_IMAGE,
-        "Production ClamAV must use the reviewed immutable feature-line digest.",
-    )
-    _require(
-        clamav.get("user") == "clamav"
-        and clamav.get("entrypoint") == ["/init-unprivileged"],
-        "ClamAV must run through its unprivileged initialization path.",
-    )
-    _require(
-        clamav.get("cap_drop") == ["ALL"]
-        and "no-new-privileges:true" in clamav.get("security_opt", []),
-        "ClamAV must drop Linux capabilities and forbid privilege escalation.",
-    )
-    _require(
-        "/var/lib/clamav" in _volume_targets(clamav),
-        "ClamAV signatures must persist across container replacement.",
-    )
-    _require(
-        any(
-            mount.startswith("/var/log/clamav:")
-            and {"uid=100", "gid=101", "mode=0750"}.issubset(
-                set(mount.split(":", 1)[1].split(","))
-            )
-            for mount in clamav.get("tmpfs", [])
-        ),
-        "ClamAV's temporary log directory must be writable by its unprivileged user.",
-    )
-    clamav_healthcheck = _healthcheck_text(clamav)
-    _require(
-        "PING" in clamav_healthcheck and "127.0.0.1 3310" in clamav_healthcheck,
-        "ClamAV health must probe the IPv4 clamd socket, not only its process.",
-    )
-    _require(
-        int(clamav.get("mem_limit", 0)) >= 4 * 1024**3
-        and float(clamav.get("cpus", 0)) >= 2
-        and int(clamav.get("pids_limit", 0)) == 256,
-        "ClamAV must keep the reviewed memory, CPU, and process resource envelope.",
-    )
-    statsd_exporter = production_services["metrics-exporter"]
-    _require(
-        statsd_exporter.get("image") == PINNED_STATSD_EXPORTER_IMAGE,
-        "StatsD exporter must use the reviewed immutable release digest.",
-    )
-    _require(
-        statsd_exporter.get("read_only") is True
-        and statsd_exporter.get("cap_drop") == ["ALL"]
-        and "no-new-privileges:true" in statsd_exporter.get("security_opt", []),
-        "StatsD exporter must be read-only and unable to gain Linux privileges.",
-    )
-    _require(
-        int(statsd_exporter.get("mem_limit", 0)) <= 128 * 1024**2
-        and float(statsd_exporter.get("cpus", 0)) <= 0.25
-        and int(statsd_exporter.get("pids_limit", 0)) == 64,
-        "StatsD exporter must retain its bounded resource envelope.",
-    )
-    _require(
-        "/api/v1/health/ready" in _healthcheck_text(production_backend),
-        "Production backend must use the dependency readiness probe.",
-    )
-    for service_name in BACKEND_SERVICES:
-        environment = production_services[service_name].get("environment", {})
-        _require(
-            environment.get("APP_ENV") == "production",
-            f"Production {service_name} must force APP_ENV=production.",
-        )
-        _require(
-            str(environment.get("APP_DEBUG", "")).lower() == "false",
-            f"Production {service_name} must force APP_DEBUG=false.",
-        )
-        _require(
-            str(environment.get("UNTRUSTED_DOCUMENT_INGESTION_ENABLED", "")).lower()
-            == "true"
-            and str(environment.get("MALWARE_SCANNER_ENABLED", "")).lower() == "true"
-            and environment.get("MALWARE_SCANNER_HOST") == "clamav"
-            and int(environment.get("MALWARE_SCANNER_PORT", 0)) == 3310,
-            (
-                f"Production {service_name} must fail closed through the shared "
-                "ClamAV document-ingestion boundary."
-            ),
-        )
-        expected_pool_profile = "api" if service_name == "backend" else "worker"
-        _require(
-            environment.get("POSTGRES_POOL_PROFILE") == expected_pool_profile,
-            f"Production {service_name} must use the {expected_pool_profile} database pool.",
-        )
-        for capacity_key in (
-            "WEB_CONCURRENCY",
-            "WORKER_CONCURRENCY",
-            "EMAIL_WORKER_CONCURRENCY",
-            "EMAIL_AI_WORKER_CONCURRENCY",
-            "MY_PHOTOS_WORKER_CONCURRENCY",
-            "GEMINI_EXTRACTION_MAX_CONCURRENCY",
-            "GEMINI_VERIFICATION_MAX_CONCURRENCY",
-            "GEMINI_IMAGE_EDIT_MAX_CONCURRENCY",
-            "POSTGRES_API_POOL_SIZE",
-            "POSTGRES_API_MAX_OVERFLOW",
-            "POSTGRES_WORKER_POOL_SIZE",
-            "POSTGRES_WORKER_MAX_OVERFLOW",
-            "POSTGRES_POOL_TIMEOUT_SECONDS",
-            "POSTGRES_POOL_RECYCLE_SECONDS",
-            "POSTGRES_API_STATEMENT_TIMEOUT_MS",
-            "POSTGRES_WORKER_STATEMENT_TIMEOUT_MS",
-            "POSTGRES_LOCK_TIMEOUT_MS",
-            "POSTGRES_IDLE_IN_TRANSACTION_SESSION_TIMEOUT_MS",
-            "POSTGRES_SERVER_MAX_CONNECTIONS",
-            "POSTGRES_RESERVED_CONNECTIONS",
-            "POSTGRES_API_CONNECTION_BUDGET",
-            "EXPECTED_DATABASE_SCHEMA_REVISION",
-            "METRICS_EXPORTER",
-            "METRICS_EXPORT_REQUIRED",
-            "METRICS_STATSD_HOST",
-            "METRICS_STATSD_PORT",
-            "METRICS_NAMESPACE",
-        ):
-            _require(
-                environment.get(capacity_key)
-                == production_backend.get("environment", {}).get(capacity_key),
-                f"Production {service_name} must share {capacity_key} with the API.",
-            )
-        for redis_key in (
-            "REDIS_DOMAIN_ISOLATION_REQUIRED",
-            "REDIS_BROKER_HOST",
-            "REDIS_BROKER_PORT",
-            "REDIS_BROKER_PASSWORD",
-            "REDIS_BROKER_DB",
-            "REDIS_SECURITY_HOST",
-            "REDIS_SECURITY_PORT",
-            "REDIS_SECURITY_PASSWORD",
-            "REDIS_SECURITY_DB",
-            "REDIS_REALTIME_HOST",
-            "REDIS_REALTIME_PORT",
-            "REDIS_REALTIME_PASSWORD",
-            "REDIS_REALTIME_DB",
-            "REDIS_CACHE_HOST",
-            "REDIS_CACHE_PORT",
-            "REDIS_CACHE_PASSWORD",
-            "REDIS_CACHE_DB",
-        ):
-            _require(
-                environment.get(redis_key)
-                == production_backend.get("environment", {}).get(redis_key),
-                f"Production {service_name} must share {redis_key} with the API.",
-            )
-    backend_environment = production_backend.get("environment", {})
-    database_environment = production_services["db"].get("environment", {})
-    for service in BACKEND_SERVICES:
-        environment = production_services[service].get("environment", {})
-        _require(environment.get("POSTGRES_USER") != database_environment.get("POSTGRES_USER"),
-                 f"{service}: runtime and bootstrap database identities must differ.")
-        _require(not environment.get("POSTGRES_MIGRATION_PASSWORD")
-                 and not environment.get("POSTGRES_RUNTIME_PASSWORD"),
-                 f"{service}: extra database credential variables must be cleared.")
-    _require(
-        backend_environment.get("EXPECTED_DATABASE_SCHEMA_REVISION")
-        == EXPECTED_DATABASE_SCHEMA_REVISION,
-        "Production readiness must gate on the reviewed Alembic merge head.",
-    )
-    _require(
-        backend_environment.get("METRICS_EXPORTER") == "statsd"
-        and str(backend_environment.get("METRICS_EXPORT_REQUIRED", "")).lower()
-        == "true"
-        and backend_environment.get("METRICS_STATSD_HOST") == "metrics-exporter"
-        and int(backend_environment.get("METRICS_STATSD_PORT", 0)) == 9125,
-        "Production API and workers must export metrics through the private StatsD service.",
-    )
-    _require(
-        str(backend_environment.get("REDIS_DOMAIN_ISOLATION_REQUIRED", "")).lower()
-        == "true",
-        "Production must require Redis domain isolation.",
-    )
-    redis_endpoints = {
-        (
-            str(backend_environment[f"REDIS_{domain}_HOST"]),
-            int(backend_environment[f"REDIS_{domain}_PORT"]),
-            int(backend_environment[f"REDIS_{domain}_DB"]),
-        )
-        for domain in ("BROKER", "SECURITY", "REALTIME", "CACHE")
-    }
-    _require(
-        len(redis_endpoints) == 4,
-        "Broker, security, realtime, and cache Redis domains must be distinct.",
-    )
-    for service_name in BACKEND_SERVICES:
-        dependencies = production_services[service_name].get("depends_on", {})
-        _require(
-            set(REDIS_SERVICES).issubset(dependencies),
-            f"Production {service_name} must wait for every isolated Redis domain.",
-        )
-        _require(
-            dependencies.get("clamav", {}).get("condition") == "service_healthy",
-            f"Production {service_name} must wait for a healthy malware scanner.",
-        )
-        _require(
-            dependencies.get("metrics-exporter", {}).get("condition")
-            == "service_started",
-            f"Production {service_name} must start after the metrics exporter.",
-        )
-    security_command = _command_text(production_services["redis"])
-    for service_name in (*BACKEND_SERVICES, "db", *REDIS_SERVICES, "minio", "frontend", "nginx"):
-        _require(
-            int(production_services[service_name].get("mem_limit", 0)) > 0
-            and float(production_services[service_name].get("cpus", 0)) > 0,
-            f"Production {service_name} must declare memory and CPU ceilings.",
-        )
-    for service_name in REDIS_SERVICES:
-        _require("--maxmemory " in _command_text(production_services[service_name]),
-                 f"{service_name} must bound data memory below the container ceiling.")
-    for name in BACKEND_SERVICES:
-        _require(all(production_services[name].get("environment", {}).get(key) == "" for key in (
-            "MINIO_ROOT_USER", "MINIO_ROOT_PASSWORD", "OBJECT_STORAGE_ADMIN_ACCESS_KEY", "OBJECT_STORAGE_ADMIN_SECRET_KEY",
-        )), "Long-running application services must not inherit storage administrator credentials.")
-    broker_command = _command_text(production_services["redis-broker"])
-    realtime_command = _command_text(production_services["redis-realtime"])
-    cache_command = _command_text(production_services["redis-cache"])
-    for service_name, command in (
-        ("redis", security_command),
-        ("redis-broker", broker_command),
-    ):
-        _require(
-            "--appendonly yes" in command
-            and "--appendfsync everysec" in command
-            and "--maxmemory-policy noeviction" in command,
-            f"{service_name} must be persistent and non-evicting.",
-        )
-    _require(
-        "--appendonly no" in realtime_command
-        and "--maxmemory-policy noeviction" in realtime_command,
-        "Realtime Redis must be reconstructable but non-evicting.",
-    )
-    _require(
-        "--appendonly no" in cache_command
-        and "--maxmemory-policy allkeys-lru" in cache_command
-        and "--maxmemory" in cache_command,
-        "Cache Redis must be explicitly memory-bounded and evictable.",
-    )
-    declared_server_connections = production_backend.get("environment", {}).get(
-        "POSTGRES_SERVER_MAX_CONNECTIONS"
-    )
-    _require(
-        f"max_connections={declared_server_connections}"
-        in _command_text(production_services["db"]),
-        "Bundled PostgreSQL must apply the declared server connection ceiling.",
-    )
-    capacity_environment = production_backend.get("environment", {})
-    _require(
-        "--concurrency=1" in _command_text(production_services["ecr-worker"]),
-        "ECR must keep one batch process; its eight image lanes share that process budget.",
-    )
-    api_claim = int(capacity_environment["WEB_CONCURRENCY"]) * (
-        int(capacity_environment["POSTGRES_API_POOL_SIZE"])
-        + int(capacity_environment["POSTGRES_API_MAX_OVERFLOW"])
-    )
-    _require(
-        api_claim <= int(capacity_environment["POSTGRES_API_CONNECTION_BUDGET"]),
-        "Rendered API worker pools exceed POSTGRES_API_CONNECTION_BUDGET.",
-    )
-    background_processes = (
-        int(capacity_environment["WORKER_CONCURRENCY"])
-        + int(capacity_environment["EMAIL_WORKER_CONCURRENCY"])
-        + int(capacity_environment["EMAIL_AI_WORKER_CONCURRENCY"])
-        + int(capacity_environment["MY_PHOTOS_WORKER_CONCURRENCY"])
-        + int(capacity_environment["GEMINI_EXTRACTION_MAX_CONCURRENCY"])
-        + int(capacity_environment["GEMINI_VERIFICATION_MAX_CONCURRENCY"])
-        + int(capacity_environment["GEMINI_IMAGE_EDIT_MAX_CONCURRENCY"])
-        + 1  # Scheduler process.
-        + 1  # ECR has one prefork process; its image lanes share that pool.
-    )
-    total_claim = api_claim + background_processes * (
-        int(capacity_environment["POSTGRES_WORKER_POOL_SIZE"])
-        + int(capacity_environment["POSTGRES_WORKER_MAX_OVERFLOW"])
-    )
-    usable_connections = int(declared_server_connections) - int(
-        capacity_environment["POSTGRES_RESERVED_CONNECTIONS"]
-    )
-    _require(
-        total_claim <= usable_connections,
-        "Rendered API and worker pools exceed the usable PostgreSQL connection budget.",
-    )
-    _require(
-        production_backend.get("environment", {}).get("PROCESSING_BACKEND") == "celery",
-        "Production backend must dispatch durable work through Celery.",
-    )
-    _require(
-        str(
-            production_backend.get("environment", {}).get(
-                "PUBLIC_UPLOAD_RATE_LIMIT_REQUIRE_REDIS",
-                "",
-            )
-        ).lower()
-        == "true",
-        "Production public-upload rate limits must fail closed through Redis.",
-    )
-    _require(
-        str(
-            production_backend.get("environment", {}).get(
-                "MOBILE_REALTIME_ENABLED",
-                "",
-            )
-        ).lower()
-        == "true",
-        "Production must enable the mobile realtime invalidation service.",
-    )
-    _require(
-        str(
-            production_backend.get("environment", {}).get(
-                "MOBILE_REALTIME_REQUIRE_REDIS",
-                "",
-            )
-        ).lower()
-        == "true",
-        "Production mobile realtime must fail readiness closed through Redis.",
-    )
-    production_frontend_environment = production_services["frontend"].get(
-        "environment",
-        {},
-    )
-    _require(
-        not production_services["frontend"].get("env_file"),
-        "Production frontend must not load the server environment file.",
-    )
-    _require(
-        set(production_frontend_environment).issubset(FRONTEND_ALLOWED_ENVIRONMENT_KEYS),
-        "Production frontend may receive only explicitly public runtime variables.",
-    )
-    _require(
-        not (set(production_frontend_environment) & FRONTEND_FORBIDDEN_ENVIRONMENT_KEYS),
-        "Production frontend must not receive backend credentials or secrets.",
-    )
-    production_frontend_build_args = (
-        production_services["frontend"].get("build", {}).get("args", {})
-    )
-    _require(
-        set(production_frontend_build_args).issubset(FRONTEND_ALLOWED_BUILD_KEYS),
-        "Production frontend build may receive only explicitly public variables.",
-    )
-    _require(
-        production_frontend_build_args.get("NEXT_PUBLIC_API_BASE_URL") == "",
-        "Production frontend build must use same-origin API requests.",
-    )
-    _require(
-        production_frontend_build_args.get("NEXT_PUBLIC_DEV_APP_URL") == "",
-        "Production frontend build must not bake in a development origin.",
-    )
-    for service_name, expected_parts in WORKER_QUEUE_CONTRACTS.items():
-        service = production_services[service_name]
-        command = _command_text(service)
-        healthcheck = _healthcheck_text(service)
-        _require(
-            "--hostname=" in command and expected_parts[0] in command,
-            f"{service_name} must have a stable queue-specific Celery node name.",
-        )
-        _require(
-            "worker_healthcheck" in healthcheck,
-            f"{service_name} must use the queue-specific healthcheck helper.",
-        )
-        for queue_name in expected_parts[1:]:
-            _require(
-                queue_name in command,
-                f"{service_name} must consume its assigned queue ({queue_name}).",
-            )
-        for expected_part in expected_parts:
-            _require(
-                expected_part in healthcheck,
-                (
-                    f"{service_name} healthcheck must target its own node and "
-                    f"queue contract ({expected_part})."
-                ),
-            )
-
-    email_beat = production_services["email-beat"]
-    _require(
-        " beat " in f" {_command_text(email_beat)} ",
-        "email-beat must run the Celery Beat scheduler.",
-    )
-    _require(
-        "app.infrastructure.email.beat_healthcheck" in _healthcheck_text(email_beat),
-        "email-beat must verify its durable scheduler heartbeat.",
-    )
-
-    dockerfile = BACKEND_DOCKERFILE.read_text(encoding="utf-8")
-    _require(
-        '"gunicorn", "--config", "gunicorn.conf.py", "app.main:app"' in dockerfile,
-        "Backend runtime image must load the validated Gunicorn configuration.",
-    )
-    gunicorn_config = GUNICORN_CONFIG.read_text(encoding="utf-8")
-    _require(
-        'worker_class = "app.infrastructure.bounded_uvicorn_worker.BoundedUvicornWorker"'
-        in gunicorn_config,
-        ("Backend runtime image must use the bounded Uvicorn worker under Gunicorn."),
-    )
-    _require(
-        "workers = _settings.web_concurrency" in gunicorn_config,
-        "Gunicorn workers must come from validated WEB_CONCURRENCY settings.",
-    )
-    frontend_dockerignore = FRONTEND_DOCKERIGNORE.read_text(encoding="utf-8")
-    _require(
-        ".env*" in frontend_dockerignore.splitlines(),
-        "Frontend build context must exclude every .env variant.",
-    )
-    backend_dockerignore = BACKEND_DOCKERIGNORE.read_text(encoding="utf-8")
-    _require(
-        {".env", ".env.*"}.issubset(backend_dockerignore.splitlines()),
-        "Backend build context must exclude every .env variant.",
-    )
-
-    development_backend = development_services["backend"]
-    _require(
-        "--reload" in _command_text(development_backend),
-        "Development backend must retain hot reload.",
-    )
-    _require(
-        "/app" in _volume_targets(development_backend),
-        "Development backend must retain its source bind mount.",
-    )
-    _require(
-        "/api/v1/health/live" in _healthcheck_text(development_backend),
-        "Development backend must retain the lightweight liveness probe.",
-    )
-    development_frontend = development_services["frontend"]
-    _require(
-        "npm run dev" in _command_text(development_frontend),
-        "Development frontend must retain its development server.",
-    )
-    _require(
-        "/app" in _volume_targets(development_frontend),
-        "Development frontend must retain its source bind mount.",
-    )
-    for service_name, expected_targets in DEVELOPMENT_PUBLISHED_TARGETS.items():
-        _require(
-            _published_port_targets(development_services[service_name]) == expected_targets,
-            (
-                f"Development {service_name} must retain host publications for "
-                f"container ports {sorted(expected_targets)}."
-            ),
-        )
-
+    validate_development(development_services)
     print(
-        "Compose runtime contracts verified: production uses the immutable "
-        "Gunicorn image with internal services private behind Nginx; "
-        "development retains hot reload and local service ports."
+        "Compose runtime contracts verified: production uses the immutable Gunicorn image with internal services private behind Nginx; development retains hot reload and local service ports."
     )
     return 0
 

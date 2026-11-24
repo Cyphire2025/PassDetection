@@ -1,0 +1,437 @@
+{
+  "files": 6181,
+  "scope": {
+    "operations-and-tooling": 326,
+    "mobile-excluded": 789,
+    "supporting-material": 468,
+    "backend": 2723,
+    "frontend": 1833,
+    "mcp-connector": 42
+  },
+  "status": {
+    "needs-follow-up": 125,
+    "reviewed": 1790,
+    "fixed": 397,
+    "inventoried": 2404,
+    "excluded": 787,
+    "verified": 217,
+    "removed-in-working-tree": 204,
+    "refactored": 223,
+    "verified-local-synthetic-scope": 5,
+    "changed-needs-recheck": 12,
+    "reviewed-regression-tests": 6,
+    "reviewed-regression-source": 3,
+    "loader-updated-assertions-preserved": 4,
+    "reviewed-and-executed-synthetic-test": 3,
+    "verified-private-invocation-fix": 1
+  },
+  "review_scope": {
+    "focused": 138,
+    "full": 2636,
+    "unreviewed": 2416,
+    "excluded": 787,
+    "retired": 204
+  },
+  "largest_source_modules": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_resources.py",
+      "lines": 2779,
+      "status": "inventoried"
+    },
+    {
+      "path": "backend/app/infrastructure/database/gc_mobile_models.py",
+      "lines": 2540,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_ops.py",
+      "lines": 2457,
+      "status": "inventoried"
+    },
+    {
+      "path": "backend/app/application/mobile/notification_service.py",
+      "lines": 1995,
+      "status": "needs-follow-up"
+    },
+    {
+      "path": "backend/alembic/versions/0069_gc_mobile_foundation.py",
+      "lines": 1802,
+      "status": "inventoried"
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+      "lines": 1778,
+      "status": "fixed"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_auth.py",
+      "lines": 1537,
+      "status": "inventoried"
+    },
+    {
+      "path": "backend/app/infrastructure/database/email_models.py",
+      "lines": 1417,
+      "status": "inventoried"
+    },
+    {
+      "path": "backend/alembic/versions/0086_my_photos_foundation.py",
+      "lines": 1367,
+      "status": "inventoried"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "lines": 1354,
+      "status": "fixed"
+    },
+    {
+      "path": "backend/alembic/versions/0065_ai_travel_inbox.py",
+      "lines": 1274,
+      "status": "inventoried"
+    },
+    {
+      "path": "frontend/public/offline-scanner.js",
+      "lines": 1267,
+      "status": "reviewed"
+    },
+    {
+      "path": "frontend/features/operations/api/operations.api.ts",
+      "lines": 1200,
+      "status": "fixed"
+    },
+    {
+      "path": "backend/alembic/versions/0061_email_integrations.py",
+      "lines": 1042,
+      "status": "inventoried"
+    },
+    {
+      "path": "backend/app/infrastructure/mobile_realtime.py",
+      "lines": 1006,
+      "status": "inventoried"
+    },
+    {
+      "path": "backend/app/infrastructure/security/apple_app_attest_verifier.py",
+      "lines": 986,
+      "status": "inventoried"
+    },
+    {
+      "path": "backend/app/infrastructure/email/outlook_provider.py",
+      "lines": 951,
+      "status": "fixed"
+    },
+    {
+      "path": "backend/app/infrastructure/ai_priority/metrics.py",
+      "lines": 941,
+      "status": "inventoried"
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_submission_repository.py",
+      "lines": 901,
+      "status": "reviewed"
+    },
+    {
+      "path": "frontend/features/operations/components/tour-group-qr-codes-page.tsx",
+      "lines": 899,
+      "status": "fixed"
+    },
+    {
+      "path": "backend/alembic/versions/0087_enterprise_hardening.py",
+      "lines": 895,
+      "status": "inventoried"
+    },
+    {
+      "path": "backend/scripts/rehearse_postgresql_upgrade.py",
+      "lines": 878,
+      "status": "inventoried"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_groups.py",
+      "lines": 859,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/mobile_schemas.py",
+      "lines": 818,
+      "status": "inventoried"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/document_delivery_runtime.py",
+      "lines": 812,
+      "status": "reviewed"
+    },
+    {
+      "path": "docker-compose.yml",
+      "lines": 783,
+      "status": "needs-follow-up"
+    },
+    {
+      "path": "backend/app/infrastructure/export/passport_excel_exporter.py",
+      "lines": 780,
+      "status": "fixed"
+    },
+    {
+      "path": "frontend/features/operations/hooks/use-operations.ts",
+      "lines": 752,
+      "status": "fixed"
+    },
+    {
+      "path": "backend/app/infrastructure/email/gmail_provider.py",
+      "lines": 747,
+      "status": "fixed"
+    },
+    {
+      "path": "scripts/verify_compose_runtime.py",
+      "lines": 731,
+      "status": "inventoried"
+    },
+    {
+      "path": "scripts/qa/qualify_workload_capacity.py",
+      "lines": 730,
+      "status": "inventoried"
+    },
+    {
+      "path": "scripts/release_code_update.py",
+      "lines": 719,
+      "status": "fixed"
+    },
+    {
+      "path": "frontend/features/tour-operations/components/coordinator-group-scanner.tsx",
+      "lines": 718,
+      "status": "reviewed"
+    },
+    {
+      "path": "frontend/features/menu/components/menu-library.tsx",
+      "lines": 716,
+      "status": "reviewed"
+    },
+    {
+      "path": "frontend/components/ui/liquid-sculpture/engine.ts",
+      "lines": 707,
+      "status": "fixed"
+    },
+    {
+      "path": "frontend/features/tour-operations/services/browser-offline-authorization.ts",
+      "lines": 698,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/application/mcp/artifacts.py",
+      "lines": 692,
+      "status": "reviewed"
+    },
+    {
+      "path": "frontend/scripts/verify-frontend-module-budgets.mjs",
+      "lines": 691,
+      "status": "changed-needs-recheck"
+    },
+    {
+      "path": "scripts/release_traveller_whatsapp.py",
+      "lines": 690,
+      "status": "inventoried"
+    },
+    {
+      "path": "backend/app/presentation/middleware/rate_limit.py",
+      "lines": 686,
+      "status": "fixed"
+    },
+    {
+      "path": "backend/app/application/mcp/pdf_ingestion.py",
+      "lines": 682,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/infrastructure/email/deadline_notifications.py",
+      "lines": 674,
+      "status": "inventoried"
+    },
+    {
+      "path": "frontend/features/tour-operations/components/coordinator-hotel-checkin.tsx",
+      "lines": 674,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/infrastructure/documents/document_matcher.py",
+      "lines": 667,
+      "status": "changed-needs-recheck"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/passport_schemas.py",
+      "lines": 667,
+      "status": "needs-follow-up"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/submission_review.py",
+      "lines": 663,
+      "status": "inventoried"
+    },
+    {
+      "path": "backend/app/infrastructure/my_photos/providers.py",
+      "lines": 651,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_image_library.py",
+      "lines": 651,
+      "status": "inventoried"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/public_upload.py",
+      "lines": 645,
+      "status": "inventoried"
+    },
+    {
+      "path": "backend/app/infrastructure/documents/storage_cleanup.py",
+      "lines": 638,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions.py",
+      "lines": 638,
+      "status": "inventoried"
+    },
+    {
+      "path": "frontend/features/documents/services/document-upload-batching.ts",
+      "lines": 633,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_attendance_action_support.py",
+      "lines": 632,
+      "status": "inventoried"
+    },
+    {
+      "path": "backend/app/infrastructure/database/email_ai_models.py",
+      "lines": 630,
+      "status": "inventoried"
+    },
+    {
+      "path": "frontend/features/operations/components/tour-group-attendance-page.tsx",
+      "lines": 629,
+      "status": "fixed"
+    },
+    {
+      "path": "scripts/mcp_direct_activate.py",
+      "lines": 625,
+      "status": "inventoried"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_connections.py",
+      "lines": 604,
+      "status": "inventoried"
+    },
+    {
+      "path": "scripts/release_retained_update.py",
+      "lines": 597,
+      "status": "inventoried"
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/process_passport_submission_job_use_case.py",
+      "lines": 590,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/infrastructure/ecr/passport_runtime.py",
+      "lines": 568,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/application/mobile/passenger_identity_reconciliation.py",
+      "lines": 567,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_rollout_admin.py",
+      "lines": 565,
+      "status": "inventoried"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_activity.py",
+      "lines": 562,
+      "status": "inventoried"
+    },
+    {
+      "path": "backend/app/infrastructure/security/identity_notifications.py",
+      "lines": 558,
+      "status": "reviewed"
+    },
+    {
+      "path": "frontend/features/documents/components/document-rename-page.tsx",
+      "lines": 558,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/infrastructure/documents/pdf_parser_sandbox.py",
+      "lines": 556,
+      "status": "needs-follow-up"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_auth_session_support.py",
+      "lines": 553,
+      "status": "inventoried"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp.py",
+      "lines": 552,
+      "status": "inventoried"
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/submission_view.py",
+      "lines": 546,
+      "status": "inventoried"
+    },
+    {
+      "path": "backend/app/infrastructure/database/communications_models.py",
+      "lines": 545,
+      "status": "inventoried"
+    },
+    {
+      "path": "backend/app/infrastructure/database/document_models.py",
+      "lines": 543,
+      "status": "inventoried"
+    },
+    {
+      "path": "backend/app/infrastructure/runtime_readiness.py",
+      "lines": 539,
+      "status": "inventoried"
+    },
+    {
+      "path": "frontend/features/operations/components/rooming-auto-allocation.tsx",
+      "lines": 539,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/infrastructure/email/tasks.py",
+      "lines": 532,
+      "status": "inventoried"
+    },
+    {
+      "path": "backend/app/infrastructure/ecr/runtime.py",
+      "lines": 528,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker.py",
+      "lines": 523,
+      "status": "inventoried"
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/client_submit_passport_use_case.py",
+      "lines": 521,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/infrastructure/my_photos/recovery_runtime.py",
+      "lines": 521,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_exports.py",
+      "lines": 520,
+      "status": "inventoried"
+    },
+    {
+      "path": "backend/app/infrastructure/email/ai_context.py",
+      "lines": 518,
+      "status": "reviewed"
+    }
+  ]
+}

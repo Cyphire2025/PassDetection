@@ -1,0 +1,119 @@
+{
+  "scope": "One added owned object namespace; full9current orphan runtime/test files plus3explicit partial supporting traces. No full support-source credit from search hits.",
+  "files": [
+    {
+      "path": "backend/app/infrastructure/documents/passport_orphan_reconciliation.py",
+      "sha256": "9c64d48c060800206ed9a0455b9f1570b284e5fd87a68811bb4b0afd43a362b1",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 110,
+      "notes": "Prior whole authored/physical orphan source reviews retained; current helper inverse is only one fixed drafts/ prefix and docstring. Fixture gains optional prefix input with unchanged old default, raw-original inverse proved; new4actual FK/control cases authored/read. Other current owners/test statements unchanged.30focused cases/current3owner coverage, no real storage/provider/VPS actions."
+    },
+    {
+      "path": "backend/app/infrastructure/documents/orphan_reconciliation.py",
+      "sha256": "7458b420372052de441f45b4349c440eb59464b78d7d5a6dc9da89356dae26a2",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 226,
+      "notes": "Prior whole authored/physical orphan source reviews retained; current helper inverse is only one fixed drafts/ prefix and docstring. Fixture gains optional prefix input with unchanged old default, raw-original inverse proved; new4actual FK/control cases authored/read. Other current owners/test statements unchanged.30focused cases/current3owner coverage, no real storage/provider/VPS actions."
+    },
+    {
+      "path": "backend/app/infrastructure/documents/cleanup_tasks.py",
+      "sha256": "39c6acc102334472316a68f88cc2b57cd9cd9a4115318a7596ed632c1df56517",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 67,
+      "notes": "Prior whole authored/physical orphan source reviews retained; current helper inverse is only one fixed drafts/ prefix and docstring. Fixture gains optional prefix input with unchanged old default, raw-original inverse proved; new4actual FK/control cases authored/read. Other current owners/test statements unchanged.30focused cases/current3owner coverage, no real storage/provider/VPS actions."
+    },
+    {
+      "path": "backend/tests/integration/passport_orphan_fixtures.py",
+      "sha256": "cd765e1056ce494eccfa91df8c1c555d014775a8810dcdb236dea58d5bfed1d0",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 205,
+      "notes": "Prior whole authored/physical orphan source reviews retained; current helper inverse is only one fixed drafts/ prefix and docstring. Fixture gains optional prefix input with unchanged old default, raw-original inverse proved; new4actual FK/control cases authored/read. Other current owners/test statements unchanged.30focused cases/current3owner coverage, no real storage/provider/VPS actions."
+    },
+    {
+      "path": "backend/tests/integration/test_passport_draft_orphan_reconciliation.py",
+      "sha256": "a074f7b914dbfb80ca1efa75a4d146bd9999d6ecf1bb6fe5126c910bddd13dc5",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 113,
+      "notes": "Prior whole authored/physical orphan source reviews retained; current helper inverse is only one fixed drafts/ prefix and docstring. Fixture gains optional prefix input with unchanged old default, raw-original inverse proved; new4actual FK/control cases authored/read. Other current owners/test statements unchanged.30focused cases/current3owner coverage, no real storage/provider/VPS actions."
+    },
+    {
+      "path": "backend/tests/integration/test_passport_orphan_reconciliation.py",
+      "sha256": "f830e3dd04d0b20e72afa084a91a09fe135b99a5669be37367387add874649ba",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 173,
+      "notes": "Prior whole authored/physical orphan source reviews retained; current helper inverse is only one fixed drafts/ prefix and docstring. Fixture gains optional prefix input with unchanged old default, raw-original inverse proved; new4actual FK/control cases authored/read. Other current owners/test statements unchanged.30focused cases/current3owner coverage, no real storage/provider/VPS actions."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_passport_orphan_bounds.py",
+      "sha256": "aa84ebf9999e431ec17d3f2969e136537e19ae12d690db339729607127560b23",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 184,
+      "notes": "Prior whole authored/physical orphan source reviews retained; current helper inverse is only one fixed drafts/ prefix and docstring. Fixture gains optional prefix input with unchanged old default, raw-original inverse proved; new4actual FK/control cases authored/read. Other current owners/test statements unchanged.30focused cases/current3owner coverage, no real storage/provider/VPS actions."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_document_orphan_reconciliation.py",
+      "sha256": "4dfd54838bfdf8b0c9b8ea2305896ea5e1dac3455d6b90808db277833f1ac7ed",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 159,
+      "notes": "Prior whole authored/physical orphan source reviews retained; current helper inverse is only one fixed drafts/ prefix and docstring. Fixture gains optional prefix input with unchanged old default, raw-original inverse proved; new4actual FK/control cases authored/read. Other current owners/test statements unchanged.30focused cases/current3owner coverage, no real storage/provider/VPS actions."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_document_cleanup_task_diagnostics.py",
+      "sha256": "2eb37f217f744e51622c663abab2b46128bb493cb310b613dd5a432a1517f231",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 48,
+      "notes": "Prior whole authored/physical orphan source reviews retained; current helper inverse is only one fixed drafts/ prefix and docstring. Fixture gains optional prefix input with unchanged old default, raw-original inverse proved; new4actual FK/control cases authored/read. Other current owners/test statements unchanged.30focused cases/current3owner coverage, no real storage/provider/VPS actions."
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/submit_passport_use_case.py",
+      "sha256": "802dbc630bb46811b2e960f81647215566124927bb8d199146b6715bd161f831",
+      "reviewer": "ai_extraction",
+      "review_scope": "partial",
+      "status": "caller-reference-trace",
+      "notes": "This follow-up inspected exact draft key generation/cleanup, promotion reference fields or deletion namespace policy only. Root owns complete current native use-case review; no independent full physical-source claim here."
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/client_submit_passport_use_case.py",
+      "sha256": "aee3271b832c45f09989735136583602051456bd830a01c278a766b77b6bdc72",
+      "reviewer": "ai_extraction",
+      "review_scope": "partial",
+      "status": "caller-reference-trace",
+      "notes": "This follow-up inspected exact draft key generation/cleanup, promotion reference fields or deletion namespace policy only. Root owns complete current native use-case review; no independent full physical-source claim here."
+    },
+    {
+      "path": "backend/app/infrastructure/documents/storage_cleanup_policy.py",
+      "sha256": "0ce27cd07e1116f98219c8564e512ed10faf3e7a9b92fd0c28bfa95e11062646",
+      "reviewer": "ai_extraction",
+      "review_scope": "partial",
+      "status": "caller-reference-trace",
+      "notes": "This follow-up inspected exact draft key generation/cleanup, promotion reference fields or deletion namespace policy only. Root owns complete current native use-case review; no independent full physical-source claim here."
+    }
+  ]
+}

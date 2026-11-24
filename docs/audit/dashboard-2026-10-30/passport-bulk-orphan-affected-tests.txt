@@ -1,0 +1,7 @@
+..................................                                       [100%]
+
+---------- coverage: platform win32, python 3.11.15-final-0 ----------
+Coverage XML written to file ../docs/audit/dashboard-2026-10-30/passport-bulk-orphan-qualified-coverage.xml
+Coverage JSON written to file ../docs/audit/dashboard-2026-10-30/passport-bulk-orphan-qualified-coverage.json
+
+34 passed in 13.77s

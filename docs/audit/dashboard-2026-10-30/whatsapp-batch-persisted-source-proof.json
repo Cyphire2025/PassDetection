@@ -1,0 +1,42 @@
+{
+  "status": "passed",
+  "original_source_sha256": "2e4f9e560c8b2bfb76409359c206767618fbd1428948742167732e8055ebe5a8",
+  "current_source_sha256": "47cbcbe85c98e99f482df74fe79be292c58bc03caab86a4860549ad18279dbeb",
+  "whole_module_AST_inverse_exact": true,
+  "explicit_delta": "One new typed helper and one timestamp argument wrapper; absent timezone restored asUTC, existing aware offset retained. All original import/decorator/signature/default dependency/query/response/status/cutoff bodies otherwise exact.",
+  "existing_budget_exact": {
+    "path": "app/presentation/api/v1/routes/whatsapp_batch_status.py",
+    "baseline_lines": 131,
+    "maximum_lines": 150,
+    "baseline_max_function_complexity": 15,
+    "maximum_function_complexity": 15,
+    "minimum_coverage_percent": 95
+  },
+  "current_lines": 143,
+  "current_complexity": 15,
+  "coverage_summary": {
+    "covered_lines": 37,
+    "num_statements": 37,
+    "percent_covered": 100.0,
+    "percent_covered_display": "100",
+    "missing_lines": 0,
+    "excluded_lines": 0,
+    "percent_statements_covered": 100.0,
+    "percent_statements_covered_display": "100",
+    "num_branches": 6,
+    "num_partial_branches": 0,
+    "covered_branches": 6,
+    "missing_branches": 0,
+    "percent_branches_covered": 100.0,
+    "percent_branches_covered_display": "100"
+  },
+  "test_format_proof": {
+    "path": "backend/tests/unit/presentation/test_whatsapp_batch_status_persistence.py",
+    "tested_sha256": "df070b02f6a28f01fe816b5519303364d0bd4b27a4e5a645e962d3b58c3ea745",
+    "final_sha256": "6d55a29e470e25e68e6d20f7343abec7880d085edb89f3684fcab9f86a6c5d66",
+    "whole_test_module_AST_exact": true,
+    "runtime_sources_unchanged": true,
+    "proof_limit": "Pinned formatting only, no test semantics/assertion/import change.17case run binds tested source; final source-equivalence explicit, no unnecessary full rerun."
+  },
+  "no_normal_or_critical_budget_change_required": true
+}

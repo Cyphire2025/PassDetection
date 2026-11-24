@@ -4,6 +4,7 @@ import { PassportDisplayNameDialog } from "./passport-display-name-dialog";
 import { PassportGroupDialogs } from "./passport-group-dialogs";
 import { PassportGroupHeaderPanel } from "./passport-group-header-panel";
 import { PassportGroupReadiness } from "./passport-group-readiness";
+import { GroupWorkspaceBackground } from "@/features/branding/components/group-workspace-background";
 import { GroupBanner } from "@/features/branding/components/group-banner";
 import { PassportGroupImportPanel } from "./passport-group-import-panel";
 import { PassportGroupOverviewPanel } from "./passport-group-overview-panel";
@@ -15,7 +16,7 @@ export function PassportGroupDetail({ groupId }: { groupId: string }) {
   const controller = usePassportGroupController({ groupId });
   return (
     <DocumentThumbnailCacheProvider key={`${groupId}:${controller.page}`}>
-      <div className="flex flex-col gap-5">
+      <GroupWorkspaceBackground src={controller.groupDetails?.background_url}>
         <GroupBanner src={controller.groupDetails?.banner_url}>
           <PassportGroupHeaderPanel {...controller} />
           <PassportGroupReadiness {...controller} />
@@ -29,7 +30,7 @@ export function PassportGroupDetail({ groupId }: { groupId: string }) {
           <PassportDisplayNameDialog key={controller.displayNameEditorId} id={controller.displayNameEditorId} groupId={groupId}
             onClose={() => controller.setDisplayNameEditorId(null)} />
         )}
-      </div>
+      </GroupWorkspaceBackground>
     </DocumentThumbnailCacheProvider>
   );
 }

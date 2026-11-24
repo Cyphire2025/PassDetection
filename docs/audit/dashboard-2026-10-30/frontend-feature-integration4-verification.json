@@ -1,0 +1,106 @@
+{
+  "status": "passed current combined frontend integration checkpoint4",
+  "frozen_frontend_paths": 1667,
+  "initial_qualified_snapshot_exclusions": [],
+  "unit_cases": 1860,
+  "unit_files": 286,
+  "unit_workers": 1,
+  "node_contracts": 668,
+  "types": "required typegen+tsc passed; tsc rerun after two test-only corrections",
+  "lint": "full strict zero warnings; focused zero warnings after the two test-only corrections",
+  "module_budgets": 549,
+  "existing_ceilings_and_critical_floors_preserved": true,
+  "critical_coverage_owners": 30,
+  "critical_per_file_floors": {
+    "statements": 74,
+    "branches": 50,
+    "functions": 75,
+    "lines": 75
+  },
+  "critical_measured_summary": {
+    "lines": {
+      "total": 828,
+      "covered": 810,
+      "skipped": 0,
+      "pct": 97.82
+    },
+    "statements": {
+      "total": 1193,
+      "covered": 1104,
+      "skipped": 0,
+      "pct": 92.53
+    },
+    "functions": {
+      "total": 285,
+      "covered": 261,
+      "skipped": 0,
+      "pct": 91.57
+    },
+    "branches": {
+      "total": 872,
+      "covered": 762,
+      "skipped": 0,
+      "pct": 87.38
+    },
+    "branchesTrue": {
+      "total": 0,
+      "covered": 0,
+      "skipped": 0,
+      "pct": 100
+    }
+  },
+  "build_id": "sk5Gr2SBpAGsBdGnFXb9g",
+  "production_browser_cases": 21,
+  "production_browser_scope": {
+    "authentication_and_fresh": 7,
+    "returning_travellers": 12,
+    "nonce_and_proxy": 2
+  },
+  "failures_retained": {
+    "initial_complete_run": {
+      "passed": 1858,
+      "failed_stale_portal_fixture_cases": 2,
+      "files": 286
+    },
+    "corrected_focused": {
+      "cases": 11,
+      "passed": 11
+    },
+    "corrected_complete": {
+      "cases": 1860,
+      "passed": 1860
+    },
+    "runtime_edits_between_complete_runs": []
+  },
+  "source_admission_sequence": "Initial helper subprocess newline argument was corrected before unit/build/browser. Earlier dispatched Node/types/lint source provenance is established against the complete prior1644snapshot plus all source-frozen feature hashes and exact budget merge. Only two later test edits are admitted; complete old source is recoverable after declared fixture/title reversal. No broad repeats for that helper-only error; final full unit repeated after actual two-case failure.",
+  "receipts_sha256": {
+    "frontend-feature-integration4-budget-integration.json": "57f30c93232b5b1a0112e15432c15eb13de464955604ec210ca42727da05fc2a",
+    "frontend-feature-integration4-budgets.txt": "571f5453863e94075f6b46c69481fe23418a47f639f32abe2da5df1c324bbc0b",
+    "frontend-feature-integration4-source-checkpoint.json": "f4dcd596ca76ab543e7a1c4fb0cb0c4a77af284e167f55a4cc4193fd261f0c75",
+    "frontend-feature-integration4-admission-transition.json": "d9a43bdc640efdc4f129bd41220399ba3bb0638d93909db6e0d80328d98cd675",
+    "frontend-feature-integration4-test-corrections.json": "7d447a5727663859f96569bed9ae0e57b9c68e2325970b07c85120a795538ca8",
+    "frontend-feature-integration4-corrections-proof.json": "b80ad29517082ff913f1b244ff41d05746bc35b1f8bd37f8109472ad12acbbed",
+    "frontend-feature-integration4-qualified-source-checkpoint.json": "23678b874982e1e9aa963204bd273996576aa94139b4939f5126a59d2bd6b7bc",
+    "frontend-feature-integration4-qualified-source-verification.json": "faf31570e5183f325fcb400973eaa737871b89375314d8c56f9e6764e073a450",
+    "frontend-feature-integration4-unit-tests.txt": "9774351cc99b50ccf61c255909c516bd5848ad166c18d206cc732f1d7737cf8f",
+    "frontend-feature-integration4-unit-tests-corrected.txt": "41a63a0241d5f1903b8fce44fb3692a75ed6de3eab0d8a841b4ad1e25426655f",
+    "frontend-feature-integration4-corrected-focused-tests.txt": "f4aa92d10c58f3da780b545db26e0188c82c63e5b330a9c4db7c480183abc656",
+    "frontend-feature-integration4-node-tests.txt": "23ceefa21d2bf1b06b4fbdc938de97b0598edfd49353ce94f6f438bcfad577c7",
+    "frontend-feature-integration4-types.txt": "9454c3f1e6dd0b35a44cd34b78d3a60b348f85fde420b2665f190a84b5597031",
+    "frontend-feature-integration4-corrected-types.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "frontend-feature-integration4-lint.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "frontend-feature-integration4-correction-lint.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "frontend-feature-integration4-coverage-summary.json": "ccfc08f8f9da6ef2007aa6c8bee320afa0348dc3d8b716428b0f4f8d566fa394",
+    "frontend-feature-integration4-build.txt": "64e44e863c6e0b937cf4cfe21b4d81b13ef4b608e4263217f56ed6d9101a44cb",
+    "frontend-feature-integration4-production-artifact.json": "a8335afa7439f118716a8eaf9533993a1626bc2886e14350cb38c2abe239cd11",
+    "frontend-feature-integration4-production-browser.json": "44322c47686f6377494dfd58bc5d235ebce5cbad6fba2978167ed45709b6d79d",
+    "returning-traveller-verification.json": "78fff84446de05e6a40a518090275255f3976955c65177b63728a7859e23f12e",
+    "document-dialogs-verification.json": "75b4bb39e2d33df5d88a12036e78520a1a174245570af427c10b7cd9df64d2fb"
+  },
+  "limits": [
+    "Coverage is of30configured critical owners, not all frontend runtime.",
+    "Synthetic isolated API/browser fixtures establish UI contracts, not real provider delivery or backend service authorization.",
+    "Current artifact qualifies frozen returning/document module graphs and prior portal/wrapping. All later runtime changes require independent source-bound verification.",
+    "No VPS/real services/production deployment/commit/push/provider sends; full codebase audit remains open."
+  ]
+}

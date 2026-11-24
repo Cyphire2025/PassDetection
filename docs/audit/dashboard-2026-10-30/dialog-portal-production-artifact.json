@@ -1,0 +1,12 @@
+{
+  "build_id": "ZVLp8MXKE6IoTayf51zGq",
+  "api_origin": "http://127.0.0.1:3199",
+  "basis": "Fresh production artifact including the source-fenced SSR-safe body portal; public/static staged in local standalone tree only. Active browser verifier tools have separate receipts.",
+  "files": {
+    "frontend/.next/BUILD_ID": "56fbf502cb6d334b8af81915e22ec364b0adbda734c9fba478101da74cff0144",
+    "frontend/.next/required-server-files.json": "25fef115322a86903edd904be501a9ca46283c1ef62af8792a2eb5675ef00d33",
+    "frontend/.next/server/app-paths-manifest.json": "99bfd70226f70809ffb155a4936810bc62d2a03b74eabf2597edf1fbe5632d38",
+    "frontend/.next/standalone/server.js": "4ce533c2d4db0d48e1ea2666d64865986cb36e709b0912e9dc86b803743dfa17"
+  },
+  "dialog_frame_source_sha256": "839402186eb82b93b694e4adda93bf65d1ff3d1e96681bd4cfca7a9b0993ce1a"
+}

@@ -1,0 +1,146 @@
+[
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_recipient_details.py",
+    "sha256": "cbf2a7caef9dec783ffb6252f6e3aa5ca3c6108e7e19df9d2a6308d55f098b0e",
+    "physical_lines": 224,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical source read, independently of execution. Selected10recipient/identity/rejected/send-intent/source/update-resend/welcome/passenger-link owners had no matching current full ledgers. Current actor/session checks, effective role/agency refresh, stable parent/recipient lock order, frozen recipient phones, active private-delivery blocks, archive/replacement protections, immutable send receipts and commit-before-publication replay paths traced through actual support. Frozen composition24/distribution unchanged; no new privacy/security finding from await syntax alone. Source-only physical inspection, not sibling workflow/service qualification. Existing intent publication uses retained batch/outbox and canonical worker rechecks; phone/source identity policies unchanged. Supporting actual parser/type/authority controls retained; no provider/livePG/VPS claim."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_recipient_phone_identity.py",
+    "sha256": "569623532a6da96476575a413e74aa9ce6721d9ec2de648f7c2d97beb174553e",
+    "physical_lines": 160,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical source read, independently of execution. Selected10recipient/identity/rejected/send-intent/source/update-resend/welcome/passenger-link owners had no matching current full ledgers. Current actor/session checks, effective role/agency refresh, stable parent/recipient lock order, frozen recipient phones, active private-delivery blocks, archive/replacement protections, immutable send receipts and commit-before-publication replay paths traced through actual support. Frozen composition24/distribution unchanged; no new privacy/security finding from await syntax alone. Source-only physical inspection, not sibling workflow/service qualification. Existing intent publication uses retained batch/outbox and canonical worker rechecks; phone/source identity policies unchanged. Supporting actual parser/type/authority controls retained; no provider/livePG/VPS claim."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_recipients.py",
+    "sha256": "f2cd931620b7b155a079b10f1cb58b8faa4dd56183282a3f17749af4d49edc05",
+    "physical_lines": 301,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical source read, independently of execution. Selected10recipient/identity/rejected/send-intent/source/update-resend/welcome/passenger-link owners had no matching current full ledgers. Current actor/session checks, effective role/agency refresh, stable parent/recipient lock order, frozen recipient phones, active private-delivery blocks, archive/replacement protections, immutable send receipts and commit-before-publication replay paths traced through actual support. Frozen composition24/distribution unchanged; no new privacy/security finding from await syntax alone. Source-only physical inspection, not sibling workflow/service qualification. Existing intent publication uses retained batch/outbox and canonical worker rechecks; phone/source identity policies unchanged. Supporting actual parser/type/authority controls retained; no provider/livePG/VPS claim."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_rejected_contacts.py",
+    "sha256": "1e58dacd0f9846c38e9c2d3e47d22b5635c0fb31450a4f4935acbc4a487a622c",
+    "physical_lines": 291,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical source read, independently of execution. Selected10recipient/identity/rejected/send-intent/source/update-resend/welcome/passenger-link owners had no matching current full ledgers. Current actor/session checks, effective role/agency refresh, stable parent/recipient lock order, frozen recipient phones, active private-delivery blocks, archive/replacement protections, immutable send receipts and commit-before-publication replay paths traced through actual support. Frozen composition24/distribution unchanged; no new privacy/security finding from await syntax alone. Source-only physical inspection, not sibling workflow/service qualification. Existing intent publication uses retained batch/outbox and canonical worker rechecks; phone/source identity policies unchanged. Supporting actual parser/type/authority controls retained; no provider/livePG/VPS claim."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_send_intents.py",
+    "sha256": "462de74cb9c8fa305e26ec299815876c7439a72ba4436d4adf96d590178f5e51",
+    "physical_lines": 212,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical source read, independently of execution. Selected10recipient/identity/rejected/send-intent/source/update-resend/welcome/passenger-link owners had no matching current full ledgers. Current actor/session checks, effective role/agency refresh, stable parent/recipient lock order, frozen recipient phones, active private-delivery blocks, archive/replacement protections, immutable send receipts and commit-before-publication replay paths traced through actual support. Frozen composition24/distribution unchanged; no new privacy/security finding from await syntax alone. Source-only physical inspection, not sibling workflow/service qualification. Existing intent publication uses retained batch/outbox and canonical worker rechecks; phone/source identity policies unchanged. Supporting actual parser/type/authority controls retained; no provider/livePG/VPS claim."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_source_groups.py",
+    "sha256": "987e6b0ef5e4a3d59331157dc51c5a0675b8f4b10486ee686c712ce7d6784139",
+    "physical_lines": 283,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified-focused",
+    "notes": "Complete current physical source read, independently of execution. Selected10recipient/identity/rejected/send-intent/source/update-resend/welcome/passenger-link owners had no matching current full ledgers. Current actor/session checks, effective role/agency refresh, stable parent/recipient lock order, frozen recipient phones, active private-delivery blocks, archive/replacement protections, immutable send receipts and commit-before-publication replay paths traced through actual support. Frozen composition24/distribution unchanged; no new privacy/security finding from await syntax alone. Only behavior change indexes source-row counts once. Actual64groups/512contacts property reads34304\u21922048, same3SQL calls/order/IDs/counts/phones; small3groups/6rows current24. Baseline1negativefail1control\u219232current affected tests pass. Fresh106/111statements(95.495L)/15of18branches(83.333B). FullmoduleAST inverse after Counter/index plus explicit typed helper-return/cast adjustments; SQL/schema/permission unchanged. One new normal95floor proposal, no prior normal/critical membership."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_update_resend.py",
+    "sha256": "6a4030480233fc5b6865a6b49452eb685f21a8a58012601611b552a6eb73a2b6",
+    "physical_lines": 218,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical source read, independently of execution. Selected10recipient/identity/rejected/send-intent/source/update-resend/welcome/passenger-link owners had no matching current full ledgers. Current actor/session checks, effective role/agency refresh, stable parent/recipient lock order, frozen recipient phones, active private-delivery blocks, archive/replacement protections, immutable send receipts and commit-before-publication replay paths traced through actual support. Frozen composition24/distribution unchanged; no new privacy/security finding from await syntax alone. Source-only physical inspection, not sibling workflow/service qualification. Existing intent publication uses retained batch/outbox and canonical worker rechecks; phone/source identity policies unchanged. Supporting actual parser/type/authority controls retained; no provider/livePG/VPS claim."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_phone_welcome.py",
+    "sha256": "5bfe0b3e22e078f786633d32556118dc353d0aae1ff7b9d9663c308976f9e05e",
+    "physical_lines": 114,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical source read, independently of execution. Selected10recipient/identity/rejected/send-intent/source/update-resend/welcome/passenger-link owners had no matching current full ledgers. Current actor/session checks, effective role/agency refresh, stable parent/recipient lock order, frozen recipient phones, active private-delivery blocks, archive/replacement protections, immutable send receipts and commit-before-publication replay paths traced through actual support. Frozen composition24/distribution unchanged; no new privacy/security finding from await syntax alone. Source-only physical inspection, not sibling workflow/service qualification. Existing intent publication uses retained batch/outbox and canonical worker rechecks; phone/source identity policies unchanged. Supporting actual parser/type/authority controls retained; no provider/livePG/VPS claim."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_workspace_passengers.py",
+    "sha256": "b787f21714f8ed58155f6ee89a04902e54dc4a2d98aea9972a0cdfa43888972d",
+    "physical_lines": 69,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical source read, independently of execution. Selected10recipient/identity/rejected/send-intent/source/update-resend/welcome/passenger-link owners had no matching current full ledgers. Current actor/session checks, effective role/agency refresh, stable parent/recipient lock order, frozen recipient phones, active private-delivery blocks, archive/replacement protections, immutable send receipts and commit-before-publication replay paths traced through actual support. Frozen composition24/distribution unchanged; no new privacy/security finding from await syntax alone. Source-only physical inspection, not sibling workflow/service qualification. Existing intent publication uses retained batch/outbox and canonical worker rechecks; phone/source identity policies unchanged. Supporting actual parser/type/authority controls retained; no provider/livePG/VPS claim."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_welcome_view.py",
+    "sha256": "e12fdb14e5e9da76df4c7f4decfe9ba17d7f13d71b8a836f35cc493a685121f5",
+    "physical_lines": 145,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical source read, independently of execution. Selected10recipient/identity/rejected/send-intent/source/update-resend/welcome/passenger-link owners had no matching current full ledgers. Current actor/session checks, effective role/agency refresh, stable parent/recipient lock order, frozen recipient phones, active private-delivery blocks, archive/replacement protections, immutable send receipts and commit-before-publication replay paths traced through actual support. Frozen composition24/distribution unchanged; no new privacy/security finding from await syntax alone. Source-only physical inspection, not sibling workflow/service qualification. Existing intent publication uses retained batch/outbox and canonical worker rechecks; phone/source identity policies unchanged. Supporting actual parser/type/authority controls retained; no provider/livePG/VPS claim."
+  },
+  {
+    "path": "backend/app/application/travellers/broadcast_history_schedule.py",
+    "sha256": "a05d07b8696d41ae74543d64360afe984c1db962c1279131f607ed4b97f8d9af",
+    "physical_lines": 96,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical source read, independently of execution. Selected10recipient/identity/rejected/send-intent/source/update-resend/welcome/passenger-link owners had no matching current full ledgers. Current actor/session checks, effective role/agency refresh, stable parent/recipient lock order, frozen recipient phones, active private-delivery blocks, archive/replacement protections, immutable send receipts and commit-before-publication replay paths traced through actual support. Frozen composition24/distribution unchanged; no new privacy/security finding from await syntax alone. Source-only physical inspection, not sibling workflow/service qualification. Existing intent publication uses retained batch/outbox and canonical worker rechecks; phone/source identity policies unchanged. Supporting actual parser/type/authority controls retained; no provider/livePG/VPS claim."
+  },
+  {
+    "path": "backend/app/infrastructure/whatsapp/web_publication.py",
+    "sha256": "d5132698ea97f869e6add9b5df5fbc8b78ece0cac4b664e3458d28e0294cf0ee",
+    "physical_lines": 133,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical source read, independently of execution. Selected10recipient/identity/rejected/send-intent/source/update-resend/welcome/passenger-link owners had no matching current full ledgers. Current actor/session checks, effective role/agency refresh, stable parent/recipient lock order, frozen recipient phones, active private-delivery blocks, archive/replacement protections, immutable send receipts and commit-before-publication replay paths traced through actual support. Frozen composition24/distribution unchanged; no new privacy/security finding from await syntax alone. Source-only physical inspection, not sibling workflow/service qualification. Existing intent publication uses retained batch/outbox and canonical worker rechecks; phone/source identity policies unchanged. Supporting actual parser/type/authority controls retained; no provider/livePG/VPS claim."
+  },
+  {
+    "path": "backend/app/application/security/access_level_actor.py",
+    "sha256": "3a8eec715f67356a378986999a012723bdd21f5510518ee7320ce7d0809013a6",
+    "physical_lines": 59,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical source read, independently of execution. Selected10recipient/identity/rejected/send-intent/source/update-resend/welcome/passenger-link owners had no matching current full ledgers. Current actor/session checks, effective role/agency refresh, stable parent/recipient lock order, frozen recipient phones, active private-delivery blocks, archive/replacement protections, immutable send receipts and commit-before-publication replay paths traced through actual support. Frozen composition24/distribution unchanged; no new privacy/security finding from await syntax alone. Source-only physical inspection, not sibling workflow/service qualification. Existing intent publication uses retained batch/outbox and canonical worker rechecks; phone/source identity policies unchanged. Supporting actual parser/type/authority controls retained; no provider/livePG/VPS claim."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/schemas/whatsapp_source_group_schemas.py",
+    "sha256": "30f2bf41344462b75cf0ffb27473d78d9da525ce1c21f4b3cff104773e7172fc",
+    "physical_lines": 85,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical source read, independently of execution. Selected10recipient/identity/rejected/send-intent/source/update-resend/welcome/passenger-link owners had no matching current full ledgers. Current actor/session checks, effective role/agency refresh, stable parent/recipient lock order, frozen recipient phones, active private-delivery blocks, archive/replacement protections, immutable send receipts and commit-before-publication replay paths traced through actual support. Frozen composition24/distribution unchanged; no new privacy/security finding from await syntax alone. Source-only physical inspection, not sibling workflow/service qualification. Existing intent publication uses retained batch/outbox and canonical worker rechecks; phone/source identity policies unchanged. Supporting actual parser/type/authority controls retained; no provider/livePG/VPS claim."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_whatsapp_source_groups.py",
+    "sha256": "8de4d0276f7316af0451c8f29d287373b9135ac337b009ac1c94394856f87ca2",
+    "physical_lines": 426,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical source read, independently of execution. Selected10recipient/identity/rejected/send-intent/source/update-resend/welcome/passenger-link owners had no matching current full ledgers. Current actor/session checks, effective role/agency refresh, stable parent/recipient lock order, frozen recipient phones, active private-delivery blocks, archive/replacement protections, immutable send receipts and commit-before-publication replay paths traced through actual support. Frozen composition24/distribution unchanged; no new privacy/security finding from await syntax alone. Source-only physical inspection, not sibling workflow/service qualification. Existing intent publication uses retained batch/outbox and canonical worker rechecks; phone/source identity policies unchanged. Supporting actual parser/type/authority controls retained; no provider/livePG/VPS claim."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_whatsapp_source_roster_work.py",
+    "sha256": "fefda4142ba43fb7d50c03d53f8bed9389d0ab8a7c89dbfdbb8df98b81feee9f",
+    "physical_lines": 89,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical source read, independently of execution. Selected10recipient/identity/rejected/send-intent/source/update-resend/welcome/passenger-link owners had no matching current full ledgers. Current actor/session checks, effective role/agency refresh, stable parent/recipient lock order, frozen recipient phones, active private-delivery blocks, archive/replacement protections, immutable send receipts and commit-before-publication replay paths traced through actual support. Frozen composition24/distribution unchanged; no new privacy/security finding from await syntax alone. Source-only physical inspection, not sibling workflow/service qualification. Existing intent publication uses retained batch/outbox and canonical worker rechecks; phone/source identity policies unchanged. Supporting actual parser/type/authority controls retained; no provider/livePG/VPS claim."
+  }
+]

@@ -11,8 +11,14 @@ from pathlib import Path
 from unittest.mock import Mock, patch
 
 from release_code_update import (
-    CORE_CAPABILITIES, WEB, CodeUpdate, ReleaseError, task_contract,
-    validate_capacity, validate_readiness, web_configuration,
+    CORE_CAPABILITIES,
+    WEB,
+    CodeUpdate,
+    ReleaseError,
+    task_contract,
+    validate_capacity,
+    validate_readiness,
+    web_configuration,
 )
 
 REVISION = "b" * 40
@@ -206,6 +212,30 @@ class SafetyContracts(unittest.TestCase):
         self.assertEqual(task_contract(old), task_contract(old.replace("return 1", "return 2")))
         self.assertNotEqual(task_contract(old), task_contract(old.replace("identifier: str", "identifier: str, force=False")))
         self.assertNotEqual(task_contract(old), task_contract(old.replace("queue='jobs'", "queue='other'")))
+
+    def test_task_contract_accepts_one_utf8_bom_without_ignoring_signature_changes(self) -> None:
+        source = "@celery_app.task(name='job', queue='jobs')\ndef task(identifier: str):\n return 1\n"
+        self.assertEqual(task_contract("\ufeff" + source), task_contract(source))
+        self.assertEqual(task_contract("\ufeff# coding: utf-8\n" + source), task_contract(source))
+        self.assertEqual(set(task_contract("\ufeff" + source)), {"task"})
+        self.assertNotEqual(
+            task_contract("\ufeff" + source),
+            task_contract("\ufeff" + source.replace("queue='jobs'", "queue='other'")),
+        )
+        self.assertNotEqual(
+            task_contract("\ufeff" + source),
+            task_contract("\ufeff" + source.replace("identifier: str", "identifier: str, force=False")),
+        )
+
+    def test_task_contract_rejects_multiple_or_noninitial_boms(self) -> None:
+        source = "@celery_app.task(name='job')\ndef task():\n return 1\n"
+        for invalid in (
+            "\ufeff\ufeff" + source,
+            source + "\ufeff",
+            "\ufeff# coding: latin-1\n" + source,
+        ):
+            with self.subTest(source=invalid), self.assertRaises(SyntaxError):
+                task_contract(invalid)
 
     @unittest.skipUnless(shutil.which("docker"), "Docker Compose CLI is required to verify env_file precedence")
     def test_compose_pins_candidate_and_recovery_identity_over_unchanged_env_file(self) -> None:

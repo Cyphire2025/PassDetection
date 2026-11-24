@@ -14,6 +14,7 @@ import {
 import { ManagedAccountControls } from "./managed-account-controls";
 import type { ManagerGroupAccess, StaffAccount } from "../api/operations.api";
 import { useModalKeyboardBoundary } from "@/components/ui/modal";
+import { copyTextToClipboard } from "@/lib/utils/clipboard";
 
 type StaffForm = {
   full_name: string;
@@ -31,6 +32,7 @@ export function ManagedAccountsPanel() {
   const [staffAccessError, setStaffAccessError] = useState<{ staffId: string; message: string } | null>(null);
   const [issuedInvitation, setIssuedInvitation] = useState<{ name: string; token: string } | null>(null);
   const [invitationCopied, setInvitationCopied] = useState(false);
+  const [invitationCopyError, setInvitationCopyError] = useState(false);
   const createStaffButtonRef = useRef<HTMLButtonElement>(null);
   const invitationDialogRef = useRef<HTMLDivElement>(null);
   const invitationTitleId = useId();
@@ -54,6 +56,7 @@ export function ManagedAccountsPanel() {
       if (!created.activation_token) throw new Error("Activation link was not returned");
       setIssuedInvitation({ name: created.full_name, token: created.activation_token });
       setInvitationCopied(false);
+      setInvitationCopyError(false);
       setStaffForm({ full_name: "", email: "" });
       setShowCreateStaff(false);
     } catch {
@@ -191,14 +194,17 @@ export function ManagedAccountsPanel() {
                 <p id={invitationDescriptionId} className="mt-1 text-sm leading-6 text-slate-600">{issuedInvitation.name} must use this single-use link within seven days and choose their own password. The raw link is not stored in the dashboard.</p>
               </div>
               <div className="break-all rounded-xl border border-slate-200 bg-slate-50 p-3 font-mono text-xs text-slate-800">{staffActivationLink(issuedInvitation.token)}</div>
+              {invitationCopyError && <p role="alert" className="text-sm text-red-700">The link could not be copied. Select the link above and copy it manually.</p>}
               <div className="flex justify-end gap-2">
                 <Button
                   type="button"
                   variant="secondary"
                   data-dialog-initial-focus
                   leftIcon={invitationCopied ? <Check className="h-4 w-4" aria-hidden="true" /> : <Copy className="h-4 w-4" aria-hidden="true" />}
-                  onClick={() => {
-                    void navigator.clipboard.writeText(staffActivationLink(issuedInvitation.token)).then(() => setInvitationCopied(true));
+                  onClick={async () => {
+                    setInvitationCopyError(false);
+                    try { await copyTextToClipboard(staffActivationLink(issuedInvitation.token)); setInvitationCopied(true); }
+                    catch { setInvitationCopyError(true); }
                   }}
                 >
                   {invitationCopied ? "Copied" : "Copy activation link"}
@@ -342,7 +348,7 @@ function CreateStaffDialog({
                 <p id={descriptionId} className="mt-0.5 text-sm leading-5 text-slate-500">Staff accounts are separated from managers. Feature access can be assigned later.</p>
               </div>
             </div>
-            <button type="button" className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700" onClick={onClose}>
+            <button type="button" className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700" onClick={onClose} disabled={isLoading}>
               <X className="h-5 w-5" />
               <span className="sr-only">Close</span>
             </button>

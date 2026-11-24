@@ -1,0 +1,22 @@
+{
+  "beforeSha256": "d943b3f6f7989031b8bc3d2994197ffbb73f3c73b315e138d720b6d5a76c5b23",
+  "afterSha256": "839402186eb82b93b694e4adda93bf65d1ff3d1e96681bd4cfca7a9b0993ce1a",
+  "normalization": "CRLF/LF only for complete printed JSX/parameters and unchanged declarations; raw hashes preserved separately",
+  "innerAndBackdropJsxExact": true,
+  "publicParametersExact": true,
+  "unchangedFunctions": [
+    {
+      "name": "ErrorBanner",
+      "exact": true
+    },
+    {
+      "name": "readErrorMessage",
+      "exact": true
+    }
+  ],
+  "deliberateChanges": [
+    "SSR-safe external-store mount snapshot",
+    "body portal placement",
+    "keyboard boundary enabled when portal has mounted"
+  ]
+}

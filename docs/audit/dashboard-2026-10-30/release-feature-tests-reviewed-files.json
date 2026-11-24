@@ -1,0 +1,127 @@
+{
+  "files": [
+    {
+      "path": "scripts/test_release_authored_notifications.py",
+      "sha256": "a494909f07567c5a3b1afa5d863736822e07f4ae1b8333bb2eb43ed224edc914",
+      "physical_lines": 96,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete96physicalsource read. RetainedArtifactDocker patch exercises historical0096->0097 realrelease prepare/activate/preflight: originalenv/provider config andallappservices/backup-beforemigration/acceptedbusyretry preserved, faileddecodeblockschange, optionalAPNSreadonlymount forbothphases. Onlysynthetic .env underownedtempdir, no credentials/notificationprovider/nativeclient execution."
+    },
+    {
+      "path": "scripts/test_release_gc_app_group_removal.py",
+      "sha256": "be430b652a8add3eb0adcf87880dfc5b1d3b89a29e0855872c5d3d729d5d7fd6",
+      "physical_lines": 96,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete96physicalsource read. Realhistorical0098->0099 release overfakehost protectsfrontend/sharedworkerpins, originalhistory/artifacts/env/providerconfig, no destructiveops/--rm, backupfailbeforemigration, retryoriginalbackup andAPNSmountcompat. DoesnotexerciseorqualifynativeclientorgroupmutationAPI."
+    },
+    {
+      "path": "scripts/test_release_gc_group_access.py",
+      "sha256": "cb15ff3e0e008879615fc22364cc461eaabd8bd3a2f35c724f4bc066a7ef1f2d",
+      "physical_lines": 87,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete87physicalsource read. Historical0095->0096 submittedphone-index release testsbackup-beforeupgrade/allappservicepins/providerconfig/history retention, targetretryrequiresexactoriginalpremigrationbackup andbusyworkerrecheck. Fakehostschema transitionsnotrealphoneauthorization/migration/volume qualification."
+    },
+    {
+      "path": "scripts/test_release_health_asset.py",
+      "sha256": "946363b761bfe7e4ca1a2da5612f4fd690a0c41591b40dfab17a57d58f478adb",
+      "physical_lines": 135,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete135physicalsource read0-75+75-EOF. Realcapturedfrontendpromise scripts runonlyunderlocalfakefetchwhitelist wheninvoked; success/loginfail/iconfail exitcontrols validatebothroutes, currentandbothGitsourcePWAiconPNG/Dockercopy andpublicHTTP200 checks meaningful. ExistingAI44case receipt attribution separate; no rerunhere. No realfetch/privatefixtures/liveprobe/archiveassets change."
+    },
+    {
+      "path": "scripts/test_release_import_groups_archive.py",
+      "sha256": "4f72c81fe0f1f5e886615f0b986a69b3fcff918d200507fad72fb0d4394e2bf6",
+      "physical_lines": 156,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete156physicalsource read0-98+98-EOF. Historical0099->0101 release fakehost guardsallappservices/premigrationbackup/hashdecode/retryemptyworkers/unknownintermediateschema/refusalwithoutoriginalevidence, provider/env/history retention, optionalAPNStruthystrings andexplicittrafficpauseCLIbeforecommand. No live migration/archival/API/provider result."
+    },
+    {
+      "path": "scripts/test_release_notification_guard.py",
+      "sha256": "960437170b799105791032b154af0069234ce5844b2ec3414633d89e421b6d93",
+      "physical_lines": 315,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete315physicalsource read0-125/125-230/230-EOF. RetainedArtifactDocker faithfullydifferentiatespreservedoneoffs fromoriginalfake; realsame-schema release guardedfreshperattemptbackup, nofallbackolderbackup, sharedlockbutdistinctreceipt namespaces, opt-inpartial/container/archive retention, olddefaultcleanupunchanged, busy/no-broader-schema/retag/wrongrevision/privateoutput/public503/frontendunchanged/explicittrafficpause controls. Nativepgdump/restore/containers mocked; no priorrelease workflow reset orrealproductionenv."
+    },
+    {
+      "path": "scripts/test_release_notification_workspace.py",
+      "sha256": "666bbc126a78a9bc6b48ac0166ab5492ca7a1b2d02ba70d120f48a82159d5a64",
+      "physical_lines": 96,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete96physicalsource read. Historical0097->0098 dashboardnotification release guardsfrontendinclusion/sharedservices, freshvalidatedbackup, ownedartifact/env/historyretention, busyretry andoptionalAPNSreadonlymount. No liveAPI/notificationsends/Postgres proof."
+    },
+    {
+      "path": "scripts/test_release_travel_tracker_contract.py",
+      "sha256": "cebb3eba2fc2ce52cb55ac6e626e4b5dba0314c39f9d22a9389e7ff055d117d9",
+      "physical_lines": 114,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete114physicalsource read. Uniquehistoricalmanifest/canonicalmigrationbytecopy exerciseactualsourceandpackagedhelperpolicies; strictversion/write/grant/settings/history/nulltable/downgrade retention mutations, exacthash/path/parentandduplicateassignment refusal. Inimagehelper onlyverify_sources called; no data/provider/schemaexecution orlive trackerqualification."
+    },
+    {
+      "path": "scripts/test_release_workspace_branding.py",
+      "sha256": "bc4940e5c52ee6ff9dd253d9b780f4f8d4ddd074fa67ff5cecb2cb4827508690",
+      "physical_lines": 157,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete157physicalsource read0-100+100-EOF. Actualsourcecontract/currentreviewedbindings, baselines/background-onlychain, stale/prohibitedpersistentpathbeforeGit, freshschedulerprocess-tick/PID/StartedAt guards andsource-vs-partial/target forwardrecovery distinction tested. Syntheticpartialrecords KeyError controls onlyproveoldwriterrecovernotcalled; notvalidrolloutsuccess. No stamps/bindings edits orruntimebuildclaim."
+    },
+    {
+      "path": "scripts/release_notification_guard.py",
+      "sha256": "921f3f42562e03559cd70d7ee3e4f57d39b8ae4b5574d23d5d6fa338edc34050",
+      "physical_lines": 36,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete smallsource reread. Explicitprevious_schemaSCHEMA,include_frontendFalse,preserve_artifactsTrue constructor makeshistoricalmocktests meaningful. Priorparentfullsource attributionindependent; notnewruntimependingcredit."
+    },
+    {
+      "path": "scripts/release_authored_notifications.py",
+      "sha256": "b28c8138ac3c41edc80af68ca6d10bf29f14ebbf511e04056d3404d678545ab3",
+      "physical_lines": 48,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete smallsource reread. ExactSCHEMA/previouskind/runtimefactory andAPNSpreflightboolhandling traced. Sharedservernotificationdeployment only, no nativeclient/credential/providerdeepreview."
+    },
+    {
+      "path": "scripts/release_gc_group_access.py",
+      "sha256": "53d06c2be27e68a56026429e897a3962931370560692f72575fa9886b8f9793a",
+      "physical_lines": 38,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete smallsource reread. Canonicalpreviousschema/currentreleaseinitializer exactsharedservices/retainedartifacts flagstraced; no nativephoneAPIreview."
+    },
+    {
+      "path": "scripts/release_workspace_branding.py",
+      "sha256": "c33d5a89ca173072319b2ba798eb2f946c5d546009afe2a1976c551c9fd98a43",
+      "physical_lines": 226,
+      "reviewer": "branding_visuals",
+      "review_scope": "partial",
+      "status": "reviewed",
+      "notes": "Only82-128 wait_resumed_scheduler/fence/earlyevidence source physicallyread; no whole-filecredit. Correctmocktargets freshprocess/PID/StartedAt/time/marker guardcalls."
+    }
+  ],
+  "new_complete_test_files": 9,
+  "new_complete_test_lines": 1252,
+  "supporting_small_runtime_rereads": 3,
+  "reference_only_not_review_credit": [
+    "Otherreleaseclass/function rg references; parentownsfullimplementationreads"
+  ]
+}

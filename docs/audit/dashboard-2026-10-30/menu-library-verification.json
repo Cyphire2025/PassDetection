@@ -1,0 +1,261 @@
+{
+  "recorded_at": "2026-10-31T12:40:03.507Z",
+  "status": "frozen",
+  "runtime_files": 10,
+  "library_architecture_owners": 9,
+  "changed_test_helper_files": 6,
+  "source_fence": [
+    {
+      "path": "frontend/features/menu/components/menu-library.tsx",
+      "sha256": "2add43b09390947540269f7b5089db78cb1352d87b9f9fc149e911e538a06983",
+      "physical_lines": 10
+    },
+    {
+      "path": "frontend/features/menu/hooks/use-menu-library-controller.ts",
+      "sha256": "189f942fb78ca10df7d4355645d76f7b4cbb52545a583fcaf4bea8d394649fef",
+      "physical_lines": 253
+    },
+    {
+      "path": "frontend/features/menu/types/menu-library.ts",
+      "sha256": "7e5a4c77d9c21816960d87b4e76f29fbe3ee64dd35e5cae6eefa9e406244a6ba",
+      "physical_lines": 14
+    },
+    {
+      "path": "frontend/features/menu/components/menu-library-view.tsx",
+      "sha256": "5eb69bf0937598101a5f0397548ca97a4df49628709659a415158927cebef4cc",
+      "physical_lines": 83
+    },
+    {
+      "path": "frontend/features/menu/components/menu-category-rail.tsx",
+      "sha256": "16f6b0253bf0286e1c4c5ed857d336823be1e037d9e573cb18d17517fb80a027",
+      "physical_lines": 115
+    },
+    {
+      "path": "frontend/features/menu/components/menu-category-workspace.tsx",
+      "sha256": "4fd3d4f3996656652439825de440b93d4711dc5595b779142e84879c22839edf",
+      "physical_lines": 57
+    },
+    {
+      "path": "frontend/features/menu/components/menu-category-header.tsx",
+      "sha256": "69df2f05edde3114122b5e3248f25e4bdb655d9516069af4e3046100b72b875d",
+      "physical_lines": 124
+    },
+    {
+      "path": "frontend/features/menu/components/menu-dish-create-form.tsx",
+      "sha256": "a1065238d6dd678aa34d8fc4b9ebf96e3f848a94701db74f32e0bff8bb8eb649",
+      "physical_lines": 59
+    },
+    {
+      "path": "frontend/features/menu/components/menu-library-dish-row.tsx",
+      "sha256": "86af8c90528d8a7039c56e3de42d3d50d396cb97918a6607f4434f638173a0b1",
+      "physical_lines": 160
+    },
+    {
+      "path": "frontend/features/menu/hooks/use-menu.ts",
+      "sha256": "84cc85d9379fbcc34f0da39839156f25f170d5ef8875d63cc05f972d194d89e5",
+      "physical_lines": 311
+    },
+    {
+      "path": "frontend/features/menu/components/menu-library.test.tsx",
+      "sha256": "339179f0ef38816afbcaf36577abb19202e197c4b15c00405897f2dc828f1b12",
+      "physical_lines": 136
+    },
+    {
+      "path": "frontend/features/menu/hooks/use-menu-authority.test.tsx",
+      "sha256": "8e89177e29cf9de7b33af7b6d0a359339c27b208f96f2d8adfa54e9d697e2685",
+      "physical_lines": 52
+    },
+    {
+      "path": "frontend/features/menu/hooks/use-menu-mutations.test.tsx",
+      "sha256": "2a23916788aa57aab702fdf85ffbb03f9ffc7490aea5486da8f87b4df88916d7",
+      "physical_lines": 138
+    },
+    {
+      "path": "frontend/features/menu/test-support/menu-authority.test-fixture.tsx",
+      "sha256": "2fe0e7d0e3f6c9d658b37e1c3157fb2581a64fa49b834ab60706a6d528b507d9",
+      "physical_lines": 62
+    },
+    {
+      "path": "frontend/features/menu/components/menu-library-source.contract-helper.mjs",
+      "sha256": "ca7e1a68e60918367e5db09acc9728ea12df6cfdc4a9d7952f9266bf43d09e93",
+      "physical_lines": 35
+    },
+    {
+      "path": "frontend/features/menu/components/menu-page.contract.test.mjs",
+      "sha256": "fba7ad5a7400800fc9468dde4f5164042ed3a4cd1250917c30a28691a275f4e2",
+      "physical_lines": 65
+    }
+  ],
+  "original_sources": {
+    "library": {
+      "path": ".tmp/menu-library/library.original.tsx",
+      "sha256": "2138396230a886864660d7485ac6f714de55957665f943949d24b3e37369d92a",
+      "physical_lines": 716
+    },
+    "hooks": {
+      "path": ".tmp/menu-library/hooks.original.ts",
+      "sha256": "75b255e8bf69685a78954310dd90fc9ec19a996428e6494a9d0df41ebd2fe433",
+      "physical_lines": 310
+    },
+    "API": {
+      "path": "frontend/features/menu/api/menu.api.ts",
+      "sha256": "02263f3a5a00d7963389c4d57b4f56b38162d1fade2329fb5fb4364238b51699",
+      "physical_lines": 300
+    }
+  },
+  "concrete_fixes": [
+    {
+      "finding": "QueuedA categoryform sent under replacementB despite actualMenuPage remount and centralcache reset.",
+      "proof": "ActualnormalMenuPage/library/query/privatehooks/API/owneradapter; onlyfinalnetworksynthetic. Correctedbaseline1pass1fail;12hookactornegatives alsofailwith legitimateBworkspace present.",
+      "fix": "ExistingusePrivateMutation captures initiatingauthority beforeglobal/onMutateawait; all12private boundary wrappers updated with19functionbodies otherwiseexact.",
+      "calibration": "UnintendedB-bound clientdispatch, not a live serverauthorization bypass/provider send."
+    },
+    {
+      "finding": "Earlier same-owner saves erased newercategory/dishform input or overrode explicitcategorynavigation.",
+      "proof": "Nineactualrendered cases:4ordinarycontrols pass/5draft-loss negatives fail beforefix.",
+      "fix": "Atomic submitteddishdraft identity, submittededit object identity, unchangednewname check and explicitnavigation generation. Valid saves stillclear their own form; newerintent preserved."
+    }
+  ],
+  "architecture": {
+    "original_library_lines": 716,
+    "largest_current_UI_owner": 253,
+    "private_hook_catalog_lines": 311,
+    "complete_controller_statements_exact": 28,
+    "complete_shared_declarations": 3,
+    "expanded_typed_JSX_nodes": 1758,
+    "real_definition_binding_comparisons": 942,
+    "explicit_child_edges": 5,
+    "public_component_parameter_exact": true,
+    "phase": "Intentionalowner/draft fixes were reproduced first. Mechanicalmovement is qualified against the actual fixed-source snapshot; sourceindentation only changes whitespace-normalizedJSXlayout, while explicitstrings/templates/props/handlers remainexact.",
+    "provenance": "menu-library-provenance.json"
+  },
+  "checks": {
+    "normal_baseline": {
+      "passed": 1,
+      "failed": 1,
+      "raw": ".tmp/menu-library/authority-baseline-corrected.json"
+    },
+    "mutation_baseline": {
+      "passed": 12,
+      "failed": 12,
+      "raw": ".tmp/menu-library/mutation-baseline.json"
+    },
+    "draft_baseline": {
+      "passed": 4,
+      "failed": 5,
+      "raw": ".tmp/menu-library/ui-baseline-final.json"
+    },
+    "final_affected": {
+      "passed": 48,
+      "failed": 0,
+      "files": 5,
+      "raw": ".tmp/menu-library/final-affected.json"
+    },
+    "final_Node": {
+      "passed": 5,
+      "failed": 0,
+      "raw": ".tmp/menu-library/final-node.txt"
+    },
+    "actual_SSR_parity": {
+      "passed": 3,
+      "failed": 0,
+      "raw": ".tmp/menu-library/markup-parity.json",
+      "scope": "Actualoldfixed/currentcomponents under QueryClientprovider, empty/ordinary/hostileliteral-shaped names+notes. NativeDOMmarkup/classes/labels/textexact after ReactgeneratedID canonicalization; no hydration/browser/CSSgeometry claim."
+    },
+    "types": {
+      "exit_code": 0,
+      "raw": ".tmp/menu-library/final-types.txt"
+    },
+    "scoped_lint": {
+      "exit_code": 0,
+      "warnings": 0,
+      "raw": ".tmp/menu-library/final-eslint.txt"
+    }
+  },
+  "preserved": {
+    "all_menu_API_bytes": true,
+    "all13public_hook_exports": true,
+    "all19typed_hook_function_bodies_except12wrappernames": true,
+    "authoritative_revisions_and_missing_cache_preconditions": true,
+    "public_mutation_variables_callbacks_context_reset": true,
+    "existing_saved_plan_names_and_delete_confirmation_retry": true,
+    "existing_MealPlanner5controls": true
+  },
+  "critical_coverage": {
+    "config": "frontend/vitest.config.mts",
+    "sha256": "85ce4e7d5be4ff07748412030ccf1fca3177be52c388dbbada89053bcfc1a400",
+    "original_library_included": false,
+    "original_hooks_included": false,
+    "existing31criticalIncludesAndPerFileFloorsUntouched": true
+  },
+  "source_contract": {
+    "path": "frontend/features/menu/components/menu-page.contract.test.mjs",
+    "before": {
+      "path": ".tmp/menu-library/menu-page.contract.original.mjs",
+      "sha256": "bae26981b0e5358e821c0c6579427cfa1451f78ba89b1c600b74771f92027eff",
+      "physical_lines": 67
+    },
+    "all5OriginalTestBodiesByteIdentical": true,
+    "currentLoader": "menu-library-source.contract-helper.mjs"
+  },
+  "diagnostics": {
+    "initial_normal_fixture_selector": ".tmp/menu-library/authority-baseline-initial.json retained; implicitoutputrole=status made a broadfeedbackselector ambiguous, corrected to exactfeedbacktext before the1pass1fail baseline.",
+    "initial_extraction_typecheck": ".tmp/menu-library/split-types.txt retained; missing controllerparameterMenuCategory typeimport corrected, no assertion/runtimebehaviorchange.",
+    "isolated_SSR_import_scope": ".tmp/menu-library/markup-parity-fixture-import-error.json and -fixture-lucide-error.json retained; .tmp configbinds existing localpackages/alias only, productiontoolchain config untouched."
+  },
+  "proof_artifacts": [
+    {
+      "path": ".tmp/menu-library/library.original.tsx",
+      "sha256": "2138396230a886864660d7485ac6f714de55957665f943949d24b3e37369d92a",
+      "physical_lines": 716
+    },
+    {
+      "path": ".tmp/menu-library/library.fixed.tsx",
+      "sha256": "f6f0feab49039a142ef04f684d7b6cd38fcca6848c3a56f1f1ae8859bd9c44e5",
+      "physical_lines": 732
+    },
+    {
+      "path": ".tmp/menu-library/hooks.original.ts",
+      "sha256": "75b255e8bf69685a78954310dd90fc9ec19a996428e6494a9d0df41ebd2fe433",
+      "physical_lines": 310
+    },
+    {
+      "path": ".tmp/menu-library/hooks.private.ts",
+      "sha256": "84cc85d9379fbcc34f0da39839156f25f170d5ef8875d63cc05f972d194d89e5",
+      "physical_lines": 311
+    },
+    {
+      "path": ".tmp/menu-library/library.fixed-imports.tsx",
+      "sha256": "1fbe55ca0a7d69bc19e57b9f8ad7a00fc051f6c4c41a8557facaad7546705fa4",
+      "physical_lines": 732
+    },
+    {
+      "path": ".tmp/menu-library/parity.config.mts",
+      "sha256": "a1e9d2e0f60031bd2877582222bdd28f8c434175ea130808949c5ec38144c9ee",
+      "physical_lines": 9
+    },
+    {
+      "path": ".tmp/menu-library/markup-parity.test.tsx",
+      "sha256": "ea99bed4ca8e88676ae31e432d12adc3108b8ea1612ca224a27d13c287bdbbc5",
+      "physical_lines": 31
+    },
+    {
+      "path": ".tmp/verify-menu-library.cjs",
+      "sha256": "52f200cc1a8ab71d42293ebffc08ea36179a2a75b5d5ba820609cf4a6a9b11f0",
+      "physical_lines": 82
+    }
+  ],
+  "test_fixture_discovery": {
+    "path": "frontend/features/menu/test-support/menu-authority.test-fixture.tsx",
+    "sha256": "2fe0e7d0e3f6c9d658b37e1c3157fb2581a64fa49b834ab60706a6d528b507d9",
+    "callers": [
+      "frontend/features/menu/hooks/use-menu-authority.test.tsx",
+      "frontend/features/menu/hooks/use-menu-mutations.test.tsx"
+    ],
+    "note": "createMenuAuthorityContext calledonlyby actualnormal-authoritytest; constants reusedbyclosedmutationtest. syntheticMenuWorkspace usedonlyinsidefixture."
+  },
+  "budget_candidates": "menu-library-budget-candidates.json",
+  "parent_budget_admission": "PENDING-parent-owned10measuredadditive owners; no existingfloor/cap raised.",
+  "final_combined_verification": "OPEN-parent-final-round",
+  "limits": "Focusedsynthetic actualcomponent/hook/clientadapter/compiler/SSR source evidence. No liveAPI/database/provider send, productionbrowser/build, fullapplicationsuite orVPS qualification was run for this batch. NormalNextlazyloading is bridged byReact.lazy only injsdom testfixture, not replaced inproduct."
+}

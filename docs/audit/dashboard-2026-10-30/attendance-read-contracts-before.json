@@ -1,0 +1,616 @@
+{
+  "source_sha256": {
+    "app.infrastructure.repositories.attendance_dashboard_repository": "a1e5ccb3f24c097cc581ad3027667250c3917f9714d0513fccf5afed059db940",
+    "app.infrastructure.repositories.attendance_closeout_types": "a10e016c550c601ea050f6c8675d5ea38ac7e5b35a0b32782c3f3166bb241b35"
+  },
+  "metadata": {
+    "AttendanceRosterAggregate": {
+      "module": "app.infrastructure.repositories.attendance_dashboard_repository",
+      "qualname": "AttendanceRosterAggregate",
+      "signature": "(passenger_count: 'int', latest_updated_at: 'datetime | None', latest_passenger_key: 'str | None') -> None",
+      "parameters": "_DataclassParams(init=True,repr=True,eq=True,order=False,unsafe_hash=False,frozen=True)",
+      "slots": [
+        "passenger_count",
+        "latest_updated_at",
+        "latest_passenger_key"
+      ],
+      "fields": [
+        [
+          "passenger_count",
+          "int",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ],
+        [
+          "latest_updated_at",
+          "datetime | None",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ],
+        [
+          "latest_passenger_key",
+          "str | None",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ]
+      ]
+    },
+    "AttendanceActivityAggregate": {
+      "module": "app.infrastructure.repositories.attendance_dashboard_repository",
+      "qualname": "AttendanceActivityAggregate",
+      "signature": "(session_id: 'uuid.UUID', name: 'str', status: 'str', created_at: 'datetime', started_at: 'datetime | None', completed_at: 'datetime | None', updated_at: 'datetime', present_count: 'int', record_count: 'int', latest_record_created_at: 'datetime | None') -> None",
+      "parameters": "_DataclassParams(init=True,repr=True,eq=True,order=False,unsafe_hash=False,frozen=True)",
+      "slots": [
+        "session_id",
+        "name",
+        "status",
+        "created_at",
+        "started_at",
+        "completed_at",
+        "updated_at",
+        "present_count",
+        "record_count",
+        "latest_record_created_at"
+      ],
+      "fields": [
+        [
+          "session_id",
+          "uuid.UUID",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ],
+        [
+          "name",
+          "str",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ],
+        [
+          "status",
+          "str",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ],
+        [
+          "created_at",
+          "datetime",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ],
+        [
+          "started_at",
+          "datetime | None",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ],
+        [
+          "completed_at",
+          "datetime | None",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ],
+        [
+          "updated_at",
+          "datetime",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ],
+        [
+          "present_count",
+          "int",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ],
+        [
+          "record_count",
+          "int",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ],
+        [
+          "latest_record_created_at",
+          "datetime | None",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ]
+      ]
+    },
+    "AttendanceGroupAggregate": {
+      "module": "app.infrastructure.repositories.attendance_dashboard_repository",
+      "qualname": "AttendanceGroupAggregate",
+      "signature": "(roster: 'AttendanceRosterAggregate', activities: 'tuple[AttendanceActivityAggregate, ...]') -> None",
+      "parameters": "_DataclassParams(init=True,repr=True,eq=True,order=False,unsafe_hash=False,frozen=True)",
+      "slots": [
+        "roster",
+        "activities"
+      ],
+      "fields": [
+        [
+          "roster",
+          "AttendanceRosterAggregate",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ],
+        [
+          "activities",
+          "tuple[AttendanceActivityAggregate, ...]",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ]
+      ]
+    },
+    "AttendanceCoordinatorScanAggregate": {
+      "module": "app.infrastructure.repositories.attendance_dashboard_repository",
+      "qualname": "AttendanceCoordinatorScanAggregate",
+      "signature": "(session_id: 'uuid.UUID', coordinator_id: 'uuid.UUID', scanned_count: 'int') -> None",
+      "parameters": "_DataclassParams(init=True,repr=True,eq=True,order=False,unsafe_hash=False,frozen=True)",
+      "slots": [
+        "session_id",
+        "coordinator_id",
+        "scanned_count"
+      ],
+      "fields": [
+        [
+          "session_id",
+          "uuid.UUID",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ],
+        [
+          "coordinator_id",
+          "uuid.UUID",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ],
+        [
+          "scanned_count",
+          "int",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ]
+      ]
+    },
+    "MissingPassengerProjection": {
+      "module": "app.infrastructure.repositories.attendance_dashboard_repository",
+      "qualname": "MissingPassengerProjection",
+      "signature": "(passenger_id: 'uuid.UUID', display_name: 'str') -> None",
+      "parameters": "_DataclassParams(init=True,repr=True,eq=True,order=False,unsafe_hash=False,frozen=True)",
+      "slots": [
+        "passenger_id",
+        "display_name"
+      ],
+      "fields": [
+        [
+          "passenger_id",
+          "uuid.UUID",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ],
+        [
+          "display_name",
+          "str",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ]
+      ]
+    },
+    "MissingPassengerPage": {
+      "module": "app.infrastructure.repositories.attendance_dashboard_repository",
+      "qualname": "MissingPassengerPage",
+      "signature": "(items: 'tuple[MissingPassengerProjection, ...]', has_more: 'bool', next_cursor: 'uuid.UUID | None') -> None",
+      "parameters": "_DataclassParams(init=True,repr=True,eq=True,order=False,unsafe_hash=False,frozen=True)",
+      "slots": [
+        "items",
+        "has_more",
+        "next_cursor"
+      ],
+      "fields": [
+        [
+          "items",
+          "tuple[MissingPassengerProjection, ...]",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ],
+        [
+          "has_more",
+          "bool",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ],
+        [
+          "next_cursor",
+          "uuid.UUID | None",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ]
+      ]
+    },
+    "AttendanceCloseoutCoordinatorStatus": {
+      "module": "app.infrastructure.repositories.attendance_closeout_types",
+      "qualname": "AttendanceCloseoutCoordinatorStatus",
+      "signature": "(coordinator_id: 'uuid.UUID', coordinator_name: 'str', state: \"Literal['ready', 'missing', 'stale', 'blocked']\", reported_at: 'datetime | None', report_age_seconds: 'int | None', pending_count: 'int', sending_count: 'int', retryable_count: 'int', needs_review_count: 'int', unreviewed_rejected_count: 'int', oldest_pending_age_seconds: 'int | None', runtime_id: 'uuid.UUID | None', runtime_kind: 'str', runtime_status: 'str') -> None",
+      "parameters": "_DataclassParams(init=True,repr=True,eq=True,order=False,unsafe_hash=False,frozen=True)",
+      "slots": [
+        "coordinator_id",
+        "coordinator_name",
+        "state",
+        "reported_at",
+        "report_age_seconds",
+        "pending_count",
+        "sending_count",
+        "retryable_count",
+        "needs_review_count",
+        "unreviewed_rejected_count",
+        "oldest_pending_age_seconds",
+        "runtime_id",
+        "runtime_kind",
+        "runtime_status"
+      ],
+      "fields": [
+        [
+          "coordinator_id",
+          "uuid.UUID",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ],
+        [
+          "coordinator_name",
+          "str",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ],
+        [
+          "state",
+          "Literal['ready', 'missing', 'stale', 'blocked']",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ],
+        [
+          "reported_at",
+          "datetime | None",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ],
+        [
+          "report_age_seconds",
+          "int | None",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ],
+        [
+          "pending_count",
+          "int",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ],
+        [
+          "sending_count",
+          "int",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ],
+        [
+          "retryable_count",
+          "int",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ],
+        [
+          "needs_review_count",
+          "int",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ],
+        [
+          "unreviewed_rejected_count",
+          "int",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ],
+        [
+          "oldest_pending_age_seconds",
+          "int | None",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ],
+        [
+          "runtime_id",
+          "uuid.UUID | None",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ],
+        [
+          "runtime_kind",
+          "str",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ],
+        [
+          "runtime_status",
+          "str",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ]
+      ]
+    },
+    "AttendanceCloseoutStatus": {
+      "module": "app.infrastructure.repositories.attendance_closeout_types",
+      "qualname": "AttendanceCloseoutStatus",
+      "signature": "(ready: 'bool', checkpoint_ttl_seconds: 'int', active_assignment_count: 'int', ready_assignment_count: 'int', missing_assignment_count: 'int', stale_assignment_count: 'int', nonzero_assignment_count: 'int', blocked_assignment_count: 'int', unresolved_count: 'int', oldest_pending_age_seconds: 'int | None', coordinators: 'tuple[AttendanceCloseoutCoordinatorStatus, ...]') -> None",
+      "parameters": "_DataclassParams(init=True,repr=True,eq=True,order=False,unsafe_hash=False,frozen=True)",
+      "slots": [
+        "ready",
+        "checkpoint_ttl_seconds",
+        "active_assignment_count",
+        "ready_assignment_count",
+        "missing_assignment_count",
+        "stale_assignment_count",
+        "nonzero_assignment_count",
+        "blocked_assignment_count",
+        "unresolved_count",
+        "oldest_pending_age_seconds",
+        "coordinators"
+      ],
+      "fields": [
+        [
+          "ready",
+          "bool",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ],
+        [
+          "checkpoint_ttl_seconds",
+          "int",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ],
+        [
+          "active_assignment_count",
+          "int",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ],
+        [
+          "ready_assignment_count",
+          "int",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ],
+        [
+          "missing_assignment_count",
+          "int",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ],
+        [
+          "stale_assignment_count",
+          "int",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ],
+        [
+          "nonzero_assignment_count",
+          "int",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ],
+        [
+          "blocked_assignment_count",
+          "int",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ],
+        [
+          "unresolved_count",
+          "int",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ],
+        [
+          "oldest_pending_age_seconds",
+          "int | None",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ],
+        [
+          "coordinators",
+          "tuple[AttendanceCloseoutCoordinatorStatus, ...]",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          "<dataclasses._MISSING_TYPE object at 0x0000025294AF2890>",
+          true,
+          true,
+          true,
+          {}
+        ]
+      ]
+    }
+  }
+}

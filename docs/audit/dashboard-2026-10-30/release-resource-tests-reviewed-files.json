@@ -1,0 +1,87 @@
+{
+  "files": [
+    {
+      "path": "scripts/test_release_persistent_resources.py",
+      "sha256": "9e0b6ee6da536fc11b87797f3acc73c947126821bfe7a1c11e7653749967fce7",
+      "physical_lines": 248,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete248physicalsource read0-125+125-EOF. Fixturemodels containers/images/volumes/process identity/fingerprints andfaults while actualapply/recover follows sameRedisprocess/unpause/all-target-beforemutation/verifiedbackup/PGDATA/mount guard/interruptedDB/fingerprint/volume/cluster/runtimewriter checks. Nativecgroup/fingerprint calls mocked deliberately; data-preservation in a dictionary is notPostgreSQL/Redis evidence. No rollback/purge/restore command introduced."
+    },
+    {
+      "path": "scripts/test_release_realtime_startup.py",
+      "sha256": "f03b213c8eb82b26fef29fb7ea00a0e2cb545b861f5ac34d456891df605f9cde",
+      "physical_lines": 85,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete85physicalsource read with0-35/30-45clippingrecovery andremaining45-EOF. FakeRetainedArtifactDocker + synthetictemp.env exercise historicalschema0098 backend/sharedworker update, nofrontend/downgrade/purge/cleanup, freshperactivationbackup, baddecodebeforeupgrade/up, optionalAPNSmountpreservation andprivatefixturevalue notstdout. Sharedstartuprelease surface retained; no nativeclient/provider/actualdeployment called."
+    },
+    {
+      "path": "scripts/test_release_redis_dataset_transition.py",
+      "sha256": "6f2d9257adef1d1ecffac1a1fc3b659027564bc3fee4c0d86d19d74ff53a3ea6",
+      "physical_lines": 220,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete220physicalsource read0-110+110-EOF. FakeRedisDocker/files/fingerprint/CLI executes actualtransitioncheckpoint code; old/new maxmemory auth/policy/duplicate flag validation, exactone-restart resume, retainedcache snapshot/volume, ambiguousarchive/start recovery, missingunexpired/value/absoluteTTL drift, legitimateexpiry andmemoryadmission tested. _runtime and nativefingerprint intentionallymocked; not actualRedis/Lua/persistence/clock qualification."
+    },
+    {
+      "path": "scripts/test_release_resource_budget.py",
+      "sha256": "5b513ba10d4fd9ff359e6c389448083c615952fe813adc80a7a4e6d873ffb336",
+      "physical_lines": 113,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete113physicalsource read includingrecovered99-EOF. Pureplanned/liveadmission asserts fixedhostreserve, declaredmaintenanceprofile/restart/phaseexclusion, allforeigncaps/unboundedIDs/overcommit, exactstoppedwriters andsinglehelper/provider overlap, no concurrentDBhelpers/Redisrestarts orbatchedpersistentservices. Syntheticinspectrows notlivephysicalmemory/process-state proof; no hostmutation."
+    },
+    {
+      "path": "scripts/test_release_resource_fence.py",
+      "sha256": "e7cb9e74a62b55eea119783e6f831a9a99cea02d1f083db4606715603b5d61ae",
+      "physical_lines": 179,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete179physicalsource read0-95+95-EOF. ResourceDocker inherits fakeFenceDocker while actual durableouterfence methods track stops/drains/checkpoints/config/project/image/mount/preparedcandidate identity/cleanexits/startcompletion andnetwork fallback. Storageinnerrestore mustnotrestartouter-fencedwriters. Exactcap/reserve/inheritedallowedSwap assertions meaningful overfakeinspectrows; no livekernel/Docker/acceptedjob/volume proof."
+    },
+    {
+      "path": "scripts/release_redis_dataset_transition.py",
+      "sha256": "63f2f10b1250e46d4550b55eadd2743cadaf194fc70b112e187a7633e078af9f",
+      "physical_lines": 308,
+      "reviewer": "branding_visuals",
+      "review_scope": "partial",
+      "status": "reviewed",
+      "notes": "Only105-175 requestedclippedmiddle, then120-154 fullyread. compare_fingerprints/currentruntime/remainingadmission supporting logic traced; notwhole-sourcecredit. Nativefingerprint/Lua implementation remains rootfullowner source, nottestedbythiscohort."
+    },
+    {
+      "path": "scripts/release_resource_fence.py",
+      "sha256": "1de8c4d88662369deb9321e0f13d4b64a8fa4ebdee4e5a2fa792211a0889649b",
+      "physical_lines": 266,
+      "reviewer": "branding_visuals",
+      "review_scope": "partial",
+      "status": "reviewed",
+      "notes": "Only215-277 existingcomplete/limits/applicationadmission physicalsupportread; notwhole-sourcecredit. Exactoldnginxswap allowances andallforeigncaps are deliberatetests, notcaprelaxation."
+    },
+    {
+      "path": "scripts/release_resource_budget.py",
+      "sha256": "d132cb6cd8ab6a52aaea058bc5c9be17cae986eab30b7e8d68412696e0e334a0",
+      "physical_lines": 103,
+      "reviewer": "branding_visuals",
+      "review_scope": "partial",
+      "status": "reviewed",
+      "notes": "Only18-57 plan/livefunctionintro physicalsupportread; notwhole-sourcecredit."
+    },
+    {
+      "path": "scripts/release_realtime_startup.py",
+      "sha256": "8f4196d13ad67c77f214c214355ee6ba1f8d0d47d969ef6fedfc2aedabaaae1d",
+      "physical_lines": 42,
+      "reviewer": "branding_visuals",
+      "review_scope": "partial",
+      "status": "reviewed",
+      "notes": "First40source linesrequestedwithclippedmiddle; historicalSCHEMA inheritance andsharedbackend-only publicclass observed, notfullcredit."
+    }
+  ],
+  "new_complete_test_files": 5,
+  "new_complete_test_lines": 845
+}

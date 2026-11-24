@@ -1,0 +1,408 @@
+{
+  "basis": "Retarget test-only module global patches to the function actual owner. No assertion or original test removed; legacy function imports remain valid through compatibility facade.",
+  "changes": [
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_announcements.py",
+      "test": "test_announcement_list_excludes_retired_and_revoked_history",
+      "before": "app.presentation.api.v1.routes.gc_app_content._admin_access_context",
+      "after": "app.presentation.api.v1.routes.gc_app_announcements._admin_access_context"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_announcements.py",
+      "test": "test_deleting_published_announcement_cancels_pending_notifications",
+      "before": "app.presentation.api.v1.routes.gc_app_content._admin_access_context",
+      "after": "app.presentation.api.v1.routes.gc_app_announcement_publication._admin_access_context"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_announcements.py",
+      "test": "test_deleting_published_announcement_cancels_pending_notifications",
+      "before": "app.presentation.api.v1.routes.gc_app_content._get_announcement",
+      "after": "app.presentation.api.v1.routes.gc_app_announcement_publication._get_announcement"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_announcements.py",
+      "test": "test_deleting_published_announcement_cancels_pending_notifications",
+      "before": "app.presentation.api.v1.routes.gc_app_content.append_mobile_sync_change",
+      "after": "app.presentation.api.v1.routes.gc_app_announcement_publication.append_mobile_sync_change"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_announcements.py",
+      "test": "test_deleting_published_announcement_cancels_pending_notifications",
+      "before": "app.presentation.api.v1.routes.gc_app_content.cancel_announcement_notifications",
+      "after": "app.presentation.api.v1.routes.gc_app_announcement_publication.cancel_announcement_notifications"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_announcements.py",
+      "test": "test_deleting_published_announcement_cancels_pending_notifications",
+      "before": "app.presentation.api.v1.routes.gc_app_content._content_audit",
+      "after": "app.presentation.api.v1.routes.gc_app_announcement_publication._content_audit"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_announcement_atomic_publish.py",
+      "test": "test_failed_publication_rolls_back_draft_and_revision_so_safe_retry_creates_once",
+      "before": "app.presentation.api.v1.routes.gc_app_content.enqueue_announcement_notifications",
+      "after": "app.presentation.api.v1.routes.gc_app_announcement_publication.enqueue_announcement_notifications"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_client_managers.py",
+      "test": "test_client_manager_create_returns_single_use_activation_without_refetch",
+      "before": "app.presentation.api.v1.routes.gc_app._audit",
+      "after": "app.presentation.api.v1.routes.gc_app_manager_creation._audit"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_client_managers.py",
+      "test": "test_client_manager_invitation_stays_pending_without_forced_password",
+      "before": "app.presentation.api.v1.routes.gc_app._audit",
+      "after": "app.presentation.api.v1.routes.gc_app_manager_creation._audit"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_client_managers.py",
+      "test": "test_client_manager_create_flushes_foreign_key_dependencies_in_order",
+      "before": "app.presentation.api.v1.routes.gc_app._validate_manager_groups",
+      "after": "app.presentation.api.v1.routes.gc_app_manager_creation._validate_manager_groups"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_client_managers.py",
+      "test": "test_client_manager_create_flushes_foreign_key_dependencies_in_order",
+      "before": "app.presentation.api.v1.routes.gc_app._audit",
+      "after": "app.presentation.api.v1.routes.gc_app_manager_creation._audit"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_client_managers.py",
+      "test": "test_client_manager_delete_revokes_access_and_releases_the_email",
+      "before": "app.presentation.api.v1.routes.gc_app._get_client_manager",
+      "after": "app.presentation.api.v1.routes.gc_app_manager_profile._get_client_manager"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_client_managers.py",
+      "test": "test_client_manager_delete_revokes_access_and_releases_the_email",
+      "before": "app.presentation.api.v1.routes.gc_app._revoke_mobile_sessions",
+      "after": "app.presentation.api.v1.routes.gc_app_manager_profile._revoke_mobile_sessions"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_client_managers.py",
+      "test": "test_client_manager_delete_revokes_access_and_releases_the_email",
+      "before": "app.presentation.api.v1.routes.gc_app.hash_password",
+      "after": "app.presentation.api.v1.routes.gc_app_manager_profile.hash_password"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_client_managers.py",
+      "test": "test_client_manager_delete_revokes_access_and_releases_the_email",
+      "before": "app.presentation.api.v1.routes.gc_app._audit",
+      "after": "app.presentation.api.v1.routes.gc_app_manager_profile._audit"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_content_compensation.py",
+      "test": "test_draft_delete_commits_before_object_cleanup",
+      "before": "app.presentation.api.v1.routes.gc_app_content._admin_access_context",
+      "after": "app.presentation.api.v1.routes.gc_app_common_publication._admin_access_context"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_content_compensation.py",
+      "test": "test_draft_delete_commits_before_object_cleanup",
+      "before": "app.presentation.api.v1.routes.gc_app_content._get_common_document",
+      "after": "app.presentation.api.v1.routes.gc_app_common_publication._get_common_document"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_content_compensation.py",
+      "test": "test_draft_delete_commits_before_object_cleanup",
+      "before": "app.presentation.api.v1.routes.gc_app_content._content_audit",
+      "after": "app.presentation.api.v1.routes.gc_app_common_publication._content_audit"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_content_compensation.py",
+      "test": "test_draft_delete_commits_before_object_cleanup",
+      "before": "app.presentation.api.v1.routes.gc_app_content.MinioStorageRepository",
+      "after": "app.presentation.api.v1.routes.gc_app_common_publication.MinioStorageRepository"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_content_compensation.py",
+      "test": "test_draft_delete_commit_failure_preserves_object",
+      "before": "app.presentation.api.v1.routes.gc_app_content._admin_access_context",
+      "after": "app.presentation.api.v1.routes.gc_app_common_publication._admin_access_context"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_content_compensation.py",
+      "test": "test_draft_delete_commit_failure_preserves_object",
+      "before": "app.presentation.api.v1.routes.gc_app_content._get_common_document",
+      "after": "app.presentation.api.v1.routes.gc_app_common_publication._get_common_document"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_content_compensation.py",
+      "test": "test_draft_delete_commit_failure_preserves_object",
+      "before": "app.presentation.api.v1.routes.gc_app_content._content_audit",
+      "after": "app.presentation.api.v1.routes.gc_app_common_publication._content_audit"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_content_compensation.py",
+      "test": "test_draft_delete_commit_failure_preserves_object",
+      "before": "app.presentation.api.v1.routes.gc_app_content.MinioStorageRepository",
+      "after": "app.presentation.api.v1.routes.gc_app_common_publication.MinioStorageRepository"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_content_compensation.py",
+      "test": "test_common_document_preview_streams_without_materializing_full_pdf",
+      "before": "app.presentation.api.v1.routes.gc_app_content._admin_access_context",
+      "after": "app.presentation.api.v1.routes.gc_app_common_preview._admin_access_context"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_content_compensation.py",
+      "test": "test_common_document_preview_streams_without_materializing_full_pdf",
+      "before": "app.presentation.api.v1.routes.gc_app_content._get_common_document",
+      "after": "app.presentation.api.v1.routes.gc_app_common_preview._get_common_document"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_content_compensation.py",
+      "test": "test_common_document_preview_streams_without_materializing_full_pdf",
+      "before": "app.presentation.api.v1.routes.gc_app_content.MinioStorageRepository",
+      "after": "app.presentation.api.v1.routes.gc_app_common_preview.MinioStorageRepository"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_content_compensation.py",
+      "test": "test_common_document_preview_cancellation_closes_storage_stream",
+      "before": "app.presentation.api.v1.routes.gc_app_content._admin_access_context",
+      "after": "app.presentation.api.v1.routes.gc_app_common_preview._admin_access_context"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_content_compensation.py",
+      "test": "test_common_document_preview_cancellation_closes_storage_stream",
+      "before": "app.presentation.api.v1.routes.gc_app_content._get_common_document",
+      "after": "app.presentation.api.v1.routes.gc_app_common_preview._get_common_document"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_content_compensation.py",
+      "test": "test_common_document_preview_cancellation_closes_storage_stream",
+      "before": "app.presentation.api.v1.routes.gc_app_content.MinioStorageRepository",
+      "after": "app.presentation.api.v1.routes.gc_app_common_preview.MinioStorageRepository"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_content_compensation.py",
+      "test": "test_common_document_storage_finishes_before_access_row_lock",
+      "before": "app.presentation.api.v1.routes.gc_app_content._admin_access_context",
+      "after": "app.presentation.api.v1.routes.gc_app_common_staging._admin_access_context"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_content_compensation.py",
+      "test": "test_common_document_storage_finishes_before_access_row_lock",
+      "before": "app.presentation.api.v1.routes.gc_app_content._validated_common_pdf",
+      "after": "app.presentation.api.v1.routes.gc_app_common_staging._validated_common_pdf"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_content_compensation.py",
+      "test": "test_common_document_storage_finishes_before_access_row_lock",
+      "before": "app.presentation.api.v1.routes.gc_app_content.MinioStorageRepository",
+      "after": "app.presentation.api.v1.routes.gc_app_common_staging.MinioStorageRepository"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_content_compensation.py",
+      "test": "test_common_document_storage_finishes_before_access_row_lock",
+      "before": "app.presentation.api.v1.routes.gc_app_content._content_audit",
+      "after": "app.presentation.api.v1.routes.gc_app_common_staging._content_audit"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_content_compensation.py",
+      "test": "test_common_document_storage_finishes_before_access_row_lock",
+      "before": "app.presentation.api.v1.routes.gc_app_content._common_document_response",
+      "after": "app.presentation.api.v1.routes.gc_app_common_staging._common_document_response"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_content_compensation.py",
+      "test": "test_common_document_commit_failure_deletes_only_staged_object",
+      "before": "app.presentation.api.v1.routes.gc_app_content._admin_access_context",
+      "after": "app.presentation.api.v1.routes.gc_app_common_staging._admin_access_context"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_content_compensation.py",
+      "test": "test_common_document_commit_failure_deletes_only_staged_object",
+      "before": "app.presentation.api.v1.routes.gc_app_content._validated_common_pdf",
+      "after": "app.presentation.api.v1.routes.gc_app_common_staging._validated_common_pdf"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_content_compensation.py",
+      "test": "test_common_document_commit_failure_deletes_only_staged_object",
+      "before": "app.presentation.api.v1.routes.gc_app_content.MinioStorageRepository",
+      "after": "app.presentation.api.v1.routes.gc_app_common_staging.MinioStorageRepository"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_content_compensation.py",
+      "test": "test_common_document_commit_failure_deletes_only_staged_object",
+      "before": "app.presentation.api.v1.routes.gc_app_content._content_audit",
+      "after": "app.presentation.api.v1.routes.gc_app_common_staging._content_audit"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_content_compensation.py",
+      "test": "test_common_document_commit_failure_deletes_only_staged_object",
+      "before": "app.presentation.api.v1.routes.gc_app_content._common_document_response",
+      "after": "app.presentation.api.v1.routes.gc_app_common_staging._common_document_response"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_content_compensation.py",
+      "test": "test_revision_conflict_after_staging_rolls_back_and_deletes_object",
+      "before": "app.presentation.api.v1.routes.gc_app_content._admin_access_context",
+      "after": "app.presentation.api.v1.routes.gc_app_common_staging._admin_access_context"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_content_compensation.py",
+      "test": "test_revision_conflict_after_staging_rolls_back_and_deletes_object",
+      "before": "app.presentation.api.v1.routes.gc_app_content._validated_common_pdf",
+      "after": "app.presentation.api.v1.routes.gc_app_common_staging._validated_common_pdf"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_content_compensation.py",
+      "test": "test_revision_conflict_after_staging_rolls_back_and_deletes_object",
+      "before": "app.presentation.api.v1.routes.gc_app_content.MinioStorageRepository",
+      "after": "app.presentation.api.v1.routes.gc_app_common_staging.MinioStorageRepository"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_content_compensation.py",
+      "test": "test_replacement_allocates_version_only_after_row_lock",
+      "before": "app.presentation.api.v1.routes.gc_app_content._admin_access_context",
+      "after": "app.presentation.api.v1.routes.gc_app_common_staging._admin_access_context"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_content_compensation.py",
+      "test": "test_replacement_allocates_version_only_after_row_lock",
+      "before": "app.presentation.api.v1.routes.gc_app_content._get_common_document",
+      "after": "app.presentation.api.v1.routes.gc_app_common_staging._get_common_document"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_content_compensation.py",
+      "test": "test_replacement_allocates_version_only_after_row_lock",
+      "before": "app.presentation.api.v1.routes.gc_app_content._validated_common_pdf",
+      "after": "app.presentation.api.v1.routes.gc_app_common_staging._validated_common_pdf"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_content_compensation.py",
+      "test": "test_replacement_allocates_version_only_after_row_lock",
+      "before": "app.presentation.api.v1.routes.gc_app_content.MinioStorageRepository",
+      "after": "app.presentation.api.v1.routes.gc_app_common_staging.MinioStorageRepository"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_content_compensation.py",
+      "test": "test_replacement_allocates_version_only_after_row_lock",
+      "before": "app.presentation.api.v1.routes.gc_app_content._content_audit",
+      "after": "app.presentation.api.v1.routes.gc_app_common_staging._content_audit"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_content_compensation.py",
+      "test": "test_replacement_allocates_version_only_after_row_lock",
+      "before": "app.presentation.api.v1.routes.gc_app_content._common_document_response",
+      "after": "app.presentation.api.v1.routes.gc_app_common_staging._common_document_response"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_my_photos_feature.py",
+      "test": "test_enabling_my_photos_creates_placeholder_and_journals_without_refencing",
+      "before": "app.presentation.api.v1.routes.gc_app._get_group",
+      "after": "app.presentation.api.v1.routes.gc_app_group_settings._get_group"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_my_photos_feature.py",
+      "test": "test_enabling_my_photos_creates_placeholder_and_journals_without_refencing",
+      "before": "app.presentation.api.v1.routes.gc_app._get_group_access",
+      "after": "app.presentation.api.v1.routes.gc_app_group_settings._get_group_access"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_my_photos_feature.py",
+      "test": "test_enabling_my_photos_creates_placeholder_and_journals_without_refencing",
+      "before": "app.presentation.api.v1.routes.gc_app.append_mobile_sync_change",
+      "after": "app.presentation.api.v1.routes.gc_app_group_settings.append_mobile_sync_change"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_my_photos_feature.py",
+      "test": "test_enabling_my_photos_creates_placeholder_and_journals_without_refencing",
+      "before": "app.presentation.api.v1.routes.gc_app._audit",
+      "after": "app.presentation.api.v1.routes.gc_app_group_settings._audit"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_my_photos_feature.py",
+      "test": "test_enabling_my_photos_creates_placeholder_and_journals_without_refencing",
+      "before": "app.presentation.api.v1.routes.gc_app._group_access_response",
+      "after": "app.presentation.api.v1.routes.gc_app_group_settings._group_access_response"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_my_photos_feature.py",
+      "test": "test_disabling_my_photos_is_optimistic_and_keeps_sessions_valid",
+      "before": "app.presentation.api.v1.routes.gc_app._get_group",
+      "after": "app.presentation.api.v1.routes.gc_app_group_settings._get_group"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_my_photos_feature.py",
+      "test": "test_disabling_my_photos_is_optimistic_and_keeps_sessions_valid",
+      "before": "app.presentation.api.v1.routes.gc_app._get_group_access",
+      "after": "app.presentation.api.v1.routes.gc_app_group_settings._get_group_access"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_my_photos_feature.py",
+      "test": "test_disabling_my_photos_is_optimistic_and_keeps_sessions_valid",
+      "before": "app.presentation.api.v1.routes.gc_app.append_mobile_sync_change",
+      "after": "app.presentation.api.v1.routes.gc_app_group_settings.append_mobile_sync_change"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_my_photos_feature.py",
+      "test": "test_disabling_my_photos_is_optimistic_and_keeps_sessions_valid",
+      "before": "app.presentation.api.v1.routes.gc_app._audit",
+      "after": "app.presentation.api.v1.routes.gc_app_group_settings._audit"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_my_photos_feature.py",
+      "test": "test_disabling_my_photos_is_optimistic_and_keeps_sessions_valid",
+      "before": "app.presentation.api.v1.routes.gc_app._group_access_response",
+      "after": "app.presentation.api.v1.routes.gc_app_group_settings._group_access_response"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_my_photos_feature.py",
+      "test": "test_my_photos_toggle_rejects_stale_revision_before_writing",
+      "before": "app.presentation.api.v1.routes.gc_app._get_group",
+      "after": "app.presentation.api.v1.routes.gc_app_group_settings._get_group"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_my_photos_feature.py",
+      "test": "test_my_photos_toggle_rejects_stale_revision_before_writing",
+      "before": "app.presentation.api.v1.routes.gc_app._get_group_access",
+      "after": "app.presentation.api.v1.routes.gc_app_group_settings._get_group_access"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_my_photos_feature.py",
+      "test": "test_my_photos_toggle_is_idempotent_without_version_or_journal_churn",
+      "before": "app.presentation.api.v1.routes.gc_app._get_group",
+      "after": "app.presentation.api.v1.routes.gc_app_group_settings._get_group"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_my_photos_feature.py",
+      "test": "test_my_photos_toggle_is_idempotent_without_version_or_journal_churn",
+      "before": "app.presentation.api.v1.routes.gc_app._get_group_access",
+      "after": "app.presentation.api.v1.routes.gc_app_group_settings._get_group_access"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_my_photos_feature.py",
+      "test": "test_my_photos_toggle_is_idempotent_without_version_or_journal_churn",
+      "before": "app.presentation.api.v1.routes.gc_app.append_mobile_sync_change",
+      "after": "app.presentation.api.v1.routes.gc_app_group_settings.append_mobile_sync_change"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_my_photos_feature.py",
+      "test": "test_my_photos_toggle_is_idempotent_without_version_or_journal_churn",
+      "before": "app.presentation.api.v1.routes.gc_app._audit",
+      "after": "app.presentation.api.v1.routes.gc_app_group_settings._audit"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_my_photos_feature.py",
+      "test": "test_my_photos_toggle_is_idempotent_without_version_or_journal_churn",
+      "before": "app.presentation.api.v1.routes.gc_app._group_access_response",
+      "after": "app.presentation.api.v1.routes.gc_app_group_settings._group_access_response"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_common_document_native_cancellation.py",
+      "before": "from app.presentation.api.v1.routes import gc_app_content",
+      "after": "from app.presentation.api.v1.routes import gc_app_common_staging as gc_app_content",
+      "reason": "Direct operation module alias follows the current owner; old facade export identity tested separately."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_announcement_notification_diagnostics.py",
+      "before": "from app.presentation.api.v1.routes import gc_app_content as routes",
+      "after": "from app.presentation.api.v1.routes import gc_app_announcements as routes",
+      "reason": "Direct operation module alias follows the current owner; old facade export identity tested separately."
+    }
+  ],
+  "pending": []
+}

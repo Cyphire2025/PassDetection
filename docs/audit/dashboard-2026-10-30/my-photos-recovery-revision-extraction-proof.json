@@ -1,0 +1,154 @@
+{
+  "basis": "Recovery and revision equivalence starts at explicitly captured POST-bug-fix source; original pre-fix hashes and actual failures remain separate. Summary starts at prior complete original452line source.",
+  "checks": [
+    {
+      "name": "DurableDispatch",
+      "comparison": "whole post-fix declaration AST exact"
+    },
+    {
+      "name": "ProviderDeletionBatchResult",
+      "comparison": "whole post-fix declaration AST exact"
+    },
+    {
+      "name": "_DeletionClaim",
+      "comparison": "whole post-fix declaration AST exact"
+    },
+    {
+      "name": "_DeletionOutcome",
+      "comparison": "whole post-fix declaration AST exact"
+    },
+    {
+      "name": "recoverable_dispatches",
+      "comparison": "whole AST restored after expanding owned due-dispatch query and call-time factory"
+    },
+    {
+      "name": "_terminalize_requested_cancellations",
+      "comparison": "whole post-fix function AST exact after removing typed context parameter/factory substitution"
+    },
+    {
+      "name": "execute_provider_deletion_batch",
+      "comparison": "whole post-fix facade declaration AST exact"
+    },
+    {
+      "name": "_claim_provider_deletions",
+      "comparison": "whole post-fix function AST exact after removing typed context parameter/factory substitution"
+    },
+    {
+      "name": "_finalize_provider_deletions",
+      "comparison": "whole post-fix function AST exact after removing typed context parameter/factory substitution"
+    },
+    {
+      "name": "_reference_unchanged",
+      "comparison": "whole post-fix declaration AST exact"
+    },
+    {
+      "name": "_complete_reference",
+      "comparison": "whole post-fix declaration AST exact"
+    },
+    {
+      "name": "_pending_reference",
+      "comparison": "whole post-fix declaration AST exact"
+    },
+    {
+      "name": "_fail_reference",
+      "comparison": "whole post-fix declaration AST exact"
+    },
+    {
+      "name": "_deletion_retry_delay",
+      "comparison": "whole post-fix declaration AST exact"
+    },
+    {
+      "name": "_set_next_attempt",
+      "comparison": "whole post-fix declaration AST exact"
+    },
+    {
+      "name": "_due",
+      "comparison": "whole post-fix declaration AST exact"
+    },
+    {
+      "name": "_stable_error",
+      "comparison": "whole post-fix declaration AST exact"
+    },
+    {
+      "name": "RefreshFanoutResult",
+      "comparison": "whole post-fix AST exact; only typed call-time factory normalized for refresh function"
+    },
+    {
+      "name": "publish_gallery_revision",
+      "comparison": "whole post-fix AST exact; only typed call-time factory normalized for refresh function"
+    },
+    {
+      "name": "execute_refresh_fanout",
+      "comparison": "whole post-fix AST exact; only typed call-time factory normalized for refresh function"
+    },
+    {
+      "name": "_refresh_claim_current",
+      "comparison": "whole post-fix AST exact; only typed call-time factory normalized for refresh function"
+    },
+    {
+      "name": "_checkpoint_uuid",
+      "comparison": "whole post-fix AST exact; only typed call-time factory normalized for refresh function"
+    },
+    {
+      "name": "_complete_job",
+      "comparison": "whole post-fix AST exact; only typed call-time factory normalized for refresh function"
+    },
+    {
+      "name": "_fail_job",
+      "comparison": "whole post-fix AST exact; only typed call-time factory normalized for refresh function"
+    },
+    {
+      "name": "refresh MyPhotoSearchRunModel construction",
+      "comparison": "entire constructor AST exact across lease/lock/FK fix"
+    },
+    {
+      "name": "refresh MyPhotoJobModel construction",
+      "comparison": "entire constructor AST exact across lease/lock/FK fix"
+    },
+    {
+      "name": "summary constructor",
+      "comparison": "whole constructor AST exact"
+    },
+    {
+      "name": "summary ordered state",
+      "comparison": "whole original state tree exact after typed input projection and removal of the prior-dominated duplicate bare revoked branch"
+    },
+    {
+      "name": "gallery timestamp assignment",
+      "comparison": "whole original local timestamp AST exact"
+    },
+    {
+      "name": "enrollment timestamp assignment",
+      "comparison": "whole original local timestamp AST exact"
+    },
+    {
+      "name": "summary complete expanded build",
+      "comparison": "whole original method AST restored after exact owner expansion/typed casts/duplicate revoked removal; all SQL and nested response constructors unchanged"
+    }
+  ],
+  "check_count": 31,
+  "summary_policy_parity": {
+    "same_output_cases": 181440,
+    "ordered_output_sha256": "3f996a28ca412ab56509e066e5361662dc6905bc066f204f5c365d27f5d6999c",
+    "domain": "All gallery/enrollment/search literal statuses plus absent/disabled,3windows,16provider/stale/failure flag combinations,consent booleans and3count states; synthetic policy equivalence, not live-service qualification"
+  },
+  "runtime_contract": "All original3module public/helper signatures,evaluated hints,module/qualname identities equal; call-time facade SessionFactory remains authoritative. One test virtual-clock patch deliberately targets real revision_refresh owner.",
+  "source_sha256": {
+    "backend/app/infrastructure/my_photos/recovery_contracts.py": "d037566eef9b6b427de95afc1f1976d40d7a71216da23a77dfdde6bb0aeaf948",
+    "backend/app/infrastructure/my_photos/recovery_deletion_claims.py": "311a11102a96d5ecb0795c2e39e71015eb7d924555ab701d431e5ebb5d6584b6",
+    "backend/app/infrastructure/my_photos/recovery_deletion_policy.py": "d86945b7fa3042e484a11fedafade9aa4345c068cc339111368879c6a6f0c510",
+    "backend/app/infrastructure/my_photos/recovery_deletion_results.py": "54d36f744992a3f453f0a5b30e750e4ab5ec1541dae2ab18409deb582f602ab6",
+    "backend/app/infrastructure/my_photos/recovery_dispatch.py": "4cb0782b1a4b73bb9571224bacc500e4ae2600d635081984f9c30ed26ff6bf55",
+    "backend/app/infrastructure/my_photos/recovery_runtime.py": "f8cce11b8425da1e2477171056aaa6d36a6cd8bd46264687bfce28df3c40f039",
+    "backend/app/infrastructure/my_photos/revision_contracts.py": "ef11937ab13464689f76279f70ea3ae6d3eb975255ae530c05d0fb76c9cb8f5d",
+    "backend/app/infrastructure/my_photos/revision_policy.py": "e36496eb03da944383505621b8bf014224153da892237f81b4ece5d019b475f1",
+    "backend/app/infrastructure/my_photos/revision_publication.py": "4231360e46b2c036ae69723e64b00d1674faa1e4a6d8b2732783c622d0ed72fe",
+    "backend/app/infrastructure/my_photos/revision_refresh.py": "f11efdcc61935d884f7219e1eaa8710dcdf09650868759a298e500d82fafa42c",
+    "backend/app/infrastructure/my_photos/revision_runtime.py": "152f40b2a0cb17c02a429aaa7748b2f017d55aca19536e40293724d14f02d557",
+    "backend/app/infrastructure/my_photos/summary_counts.py": "767294893570227fdfc8c69fea3ba0fde042ec6b4decd52d12631236fb40b9d4",
+    "backend/app/infrastructure/my_photos/summary_projector.py": "3af212f0e352bb194a5ebe90257fb33211d9d83fcad44282ea316715f8dcc8e1",
+    "backend/app/infrastructure/my_photos/summary_responses.py": "6b0b2302b34058b9ff34b4de3a0532184c63f88179ecdfe7a47b588f8d5124fb",
+    "backend/app/infrastructure/my_photos/summary_state.py": "03d083cc4f4fd2d15d87d4620850bddee2ca13b379a935ff007978a352690758"
+  },
+  "limits": "No live PostgreSQL locking or provider calls. No new API/schema/task payload. Initial omitted uuid compatibility import was caught by get_type_hints and corrected before this proof; source AST proof is not a substitute for affected regressions."
+}

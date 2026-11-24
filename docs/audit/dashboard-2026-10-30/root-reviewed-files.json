@@ -1,0 +1,338 @@
+[
+  {
+    "path": "AGENTS.md",
+    "status": "reviewed",
+    "reviewer": "root",
+    "sha256": "65d3cf5f7539fd491e57d71a75871f7517a4237c876c0a9aef502be3c0791d2d",
+    "notes": "Source inspected for project instructions, framework/runtime/configuration or current callers; this is a focused review, not a whole-system assurance claim."
+  },
+  {
+    "path": "frontend/AGENTS.md",
+    "status": "reviewed",
+    "reviewer": "root",
+    "sha256": "ec1b6e023814ae1a510b02ea62229e5eb035d75e39e3335d5ea7f5ce5654d567",
+    "notes": "Source inspected for project instructions, framework/runtime/configuration or current callers; this is a focused review, not a whole-system assurance claim."
+  },
+  {
+    "path": "tooling/toolchain.json",
+    "status": "reviewed",
+    "reviewer": "root",
+    "sha256": "33991e672ee1c948c323ec483f3df9a16d30c58145146ed5c56decaacde7db16",
+    "notes": "Source inspected for project instructions, framework/runtime/configuration or current callers; this is a focused review, not a whole-system assurance claim."
+  },
+  {
+    "path": "frontend/package.json",
+    "status": "reviewed",
+    "reviewer": "root",
+    "sha256": "6865b581723a6f0baf7427aef9f8ca41a6ca7ff17841dc2cc2906d62fedfd719",
+    "notes": "Source inspected for project instructions, framework/runtime/configuration or current callers; this is a focused review, not a whole-system assurance claim."
+  },
+  {
+    "path": "frontend/tsconfig.json",
+    "status": "reviewed",
+    "reviewer": "root",
+    "sha256": "be18523b23b78b6e1a876ddd107d330f0168bddf09d751b57e0b5edce69c66f3",
+    "notes": "Source inspected for project instructions, framework/runtime/configuration or current callers; this is a focused review, not a whole-system assurance claim."
+  },
+  {
+    "path": "frontend/next.config.ts",
+    "status": "reviewed",
+    "reviewer": "root",
+    "sha256": "806d75de101be36e1a52c30956f40fe200cfb5165c9726f9402f4454a3f5e5e0",
+    "notes": "Source inspected for project instructions, framework/runtime/configuration or current callers; this is a focused review, not a whole-system assurance claim."
+  },
+  {
+    "path": "frontend/playwright.config.ts",
+    "status": "reviewed",
+    "reviewer": "root",
+    "sha256": "a6b07a340d745641ee593806d5a4eec135d7602f1b2ad4f8166b3f8fb468240c",
+    "notes": "Source inspected for project instructions, framework/runtime/configuration or current callers; this is a focused review, not a whole-system assurance claim."
+  },
+  {
+    "path": "frontend/config/e2e-isolation.ts",
+    "status": "reviewed",
+    "reviewer": "root",
+    "sha256": "1bc1311256650ab153334dac3c1c7b6b408087d1f1eccb8ccb2b1864a05b2ea9",
+    "notes": "Source inspected for project instructions, framework/runtime/configuration or current callers; this is a focused review, not a whole-system assurance claim."
+  },
+  {
+    "path": "frontend/hooks/use-debounce.ts",
+    "status": "reviewed",
+    "reviewer": "root",
+    "sha256": "d3ac5719369837daabf0ee753a5eebdd65c28a375ce528a6d5cafa26dde7c59a",
+    "notes": "Source inspected for project instructions, framework/runtime/configuration or current callers; this is a focused review, not a whole-system assurance claim."
+  },
+  {
+    "path": "frontend/components/layout/header.tsx",
+    "status": "reviewed",
+    "reviewer": "root",
+    "sha256": "fdfbf41c1bd8e91a818c2af3b9612e2b09a24ef18d65a36153804e72af6ba5ad",
+    "notes": "Source inspected for project instructions, framework/runtime/configuration or current callers; this is a focused review, not a whole-system assurance claim."
+  },
+  {
+    "path": "frontend/components/layout/dashboard-shell.tsx",
+    "status": "reviewed",
+    "reviewer": "root",
+    "sha256": "8cfa5c19d281fa54d29d7fbafef936919cd1ad994a25a87a96673ad91f59385e",
+    "notes": "Source inspected for project instructions, framework/runtime/configuration or current callers; this is a focused review, not a whole-system assurance claim."
+  },
+  {
+    "path": "frontend/features/search/api/search.api.ts",
+    "status": "reviewed",
+    "reviewer": "root",
+    "sha256": "126d762e10ab17fc49199f3830abc5528855e36532488876fb7254f97059e34d",
+    "notes": "Source inspected for project instructions, framework/runtime/configuration or current callers; this is a focused review, not a whole-system assurance claim."
+  },
+  {
+    "path": ".gitignore",
+    "status": "fixed",
+    "reviewer": "root",
+    "sha256": "6b056ee26277f56277cc255857882814d1def08deafbca017f8f59b9eb351ec8",
+    "notes": "Changed area and callers inspected; targeted regressions/static checks recorded in TRACKER. Large providers/exporters/engine and native display-only files have partial review scope; fixing the listed issue does not mark their entire workflow audited."
+  },
+  {
+    "path": "README.md",
+    "status": "fixed",
+    "reviewer": "root",
+    "sha256": "59a1e9b146378a0c343f2dd151f76011b1c47fb550ea23a6835385e6d1468443",
+    "notes": "Changed area and callers inspected; targeted regressions/static checks recorded in TRACKER. Large providers/exporters/engine and native display-only files have partial review scope; fixing the listed issue does not mark their entire workflow audited."
+  },
+  {
+    "path": "frontend/app/layout.tsx",
+    "status": "fixed",
+    "reviewer": "root",
+    "sha256": "afa6964f5db39cf907d5ea930b05698fe36bd789132dde78d72ed9161d77e95e",
+    "notes": "Changed area and callers inspected; targeted regressions/static checks recorded in TRACKER. Large providers/exporters/engine and native display-only files have partial review scope; fixing the listed issue does not mark their entire workflow audited."
+  },
+  {
+    "path": "frontend/app/manifest.ts",
+    "status": "fixed",
+    "reviewer": "root",
+    "sha256": "6c12704376c490d3d96f3ca04e2ee50bab243233adc708758c720f95aacb3dcc",
+    "notes": "Changed area and callers inspected; targeted regressions/static checks recorded in TRACKER. Large providers/exporters/engine and native display-only files have partial review scope; fixing the listed issue does not mark their entire workflow audited."
+  },
+  {
+    "path": "mobile/app.config.ts",
+    "status": "fixed",
+    "reviewer": "root",
+    "sha256": "f62bcf27b1c0f2130169bc5ca582ab3376435d9290aa74e27eb9f2d6ce0c79b8",
+    "notes": "Changed area and callers inspected; targeted regressions/static checks recorded in TRACKER. Large providers/exporters/engine and native display-only files have partial review scope; fixing the listed issue does not mark their entire workflow audited."
+  },
+  {
+    "path": "mobile/src/core/config/__tests__/release-config-contract.test.ts",
+    "status": "fixed",
+    "reviewer": "root",
+    "sha256": "cc2de570b0c0e4bd5423928e43dadf993a2313a98fbb93f68ad6300484359d5f",
+    "notes": "Changed area and callers inspected; targeted regressions/static checks recorded in TRACKER. Large providers/exporters/engine and native display-only files have partial review scope; fixing the listed issue does not mark their entire workflow audited."
+  },
+  {
+    "path": "frontend/components/ui/liquid-sculpture/engine.ts",
+    "status": "fixed",
+    "reviewer": "root",
+    "sha256": "7181b5a9307440e3d611e89dc4710c09d3f02fcd90ec39817709dc29d55d2811",
+    "notes": "Changed area and callers inspected; targeted regressions/static checks recorded in TRACKER. Large providers/exporters/engine and native display-only files have partial review scope; fixing the listed issue does not mark their entire workflow audited."
+  },
+  {
+    "path": "frontend/features/search/components/global-search.tsx",
+    "status": "fixed",
+    "reviewer": "root",
+    "sha256": "c6029e13dc0a0ee41b6d02e035a7aeb86b047fbb4c985b95c09c716035d4ee23",
+    "notes": "Changed area and callers inspected; targeted regressions/static checks recorded in TRACKER. Large providers/exporters/engine and native display-only files have partial review scope; fixing the listed issue does not mark their entire workflow audited."
+  },
+  {
+    "path": "frontend/features/operations/components/tour-operations-ui.tsx",
+    "status": "fixed",
+    "reviewer": "root",
+    "sha256": "b58ec32dbcbe095917fa2fd2f48033d33692f4166f62779e35244befb9f1f455",
+    "notes": "Changed area and callers inspected; targeted regressions/static checks recorded in TRACKER. Large providers/exporters/engine and native display-only files have partial review scope; fixing the listed issue does not mark their entire workflow audited."
+  },
+  {
+    "path": "frontend/features/operations/components/tour-operations-ui.test.tsx",
+    "status": "fixed",
+    "reviewer": "root",
+    "sha256": "0906c0cba23ed8d03f264ce4745fa32110aa7e14d46f3f1c5fefe8fad2823cdc",
+    "notes": "Changed area and callers inspected; targeted regressions/static checks recorded in TRACKER. Large providers/exporters/engine and native display-only files have partial review scope; fixing the listed issue does not mark their entire workflow audited."
+  },
+  {
+    "path": "frontend/features/settings/components/platform-settings-panel.tsx",
+    "status": "fixed",
+    "reviewer": "root",
+    "sha256": "df159530aa3bc83d1632617be5d78ee55f322bd2c09ecb8d2f47dc41a6b6857b",
+    "notes": "Changed area and callers inspected; targeted regressions/static checks recorded in TRACKER. Large providers/exporters/engine and native display-only files have partial review scope; fixing the listed issue does not mark their entire workflow audited."
+  },
+  {
+    "path": "frontend/features/settings/components/platform-policy-section.tsx",
+    "status": "fixed",
+    "reviewer": "root",
+    "sha256": "0f2a413f940ebc402de6a41a2e035a84d7adbab565232e203cd940e916d80d46",
+    "notes": "Changed area and callers inspected; targeted regressions/static checks recorded in TRACKER. Large providers/exporters/engine and native display-only files have partial review scope; fixing the listed issue does not mark their entire workflow audited."
+  },
+  {
+    "path": "frontend/features/settings/components/platform-data-section.tsx",
+    "status": "fixed",
+    "reviewer": "root",
+    "sha256": "0f3f9c7e99333203a4f70f25020653c22157ea883c5649f5efea84704b1dce7c",
+    "notes": "Changed area and callers inspected; targeted regressions/static checks recorded in TRACKER. Large providers/exporters/engine and native display-only files have partial review scope; fixing the listed issue does not mark their entire workflow audited."
+  },
+  {
+    "path": "frontend/features/settings/components/platform-setting-controls.tsx",
+    "status": "fixed",
+    "reviewer": "root",
+    "sha256": "58bb9e00166772df6b518d039b12fd0d7188de6ada1bc188e74fbc3a38d626eb",
+    "notes": "Changed area and callers inspected; targeted regressions/static checks recorded in TRACKER. Large providers/exporters/engine and native display-only files have partial review scope; fixing the listed issue does not mark their entire workflow audited."
+  },
+  {
+    "path": "frontend/features/settings/hooks/use-platform-settings.ts",
+    "status": "fixed",
+    "reviewer": "root",
+    "sha256": "85bc2f470ca1dc2e6f36de305d2ee1bf6b6c90a8f9a8a1a98c20dc52c7a7318e",
+    "notes": "Changed area and callers inspected; targeted regressions/static checks recorded in TRACKER. Large providers/exporters/engine and native display-only files have partial review scope; fixing the listed issue does not mark their entire workflow audited."
+  },
+  {
+    "path": "frontend/features/settings/hooks/use-platform-data-purge.ts",
+    "status": "fixed",
+    "reviewer": "root",
+    "sha256": "c2d8c0c1e6eb9c9458891e7b0857615f27f8533693fe85341d107b4c4a334635",
+    "notes": "Changed area and callers inspected; targeted regressions/static checks recorded in TRACKER. Large providers/exporters/engine and native display-only files have partial review scope; fixing the listed issue does not mark their entire workflow audited."
+  },
+  {
+    "path": "frontend/features/settings/components/platform-settings-panel.test.tsx",
+    "status": "fixed",
+    "reviewer": "root",
+    "sha256": "0bf21f29c19feaea9c654bcab3c1c23e3deca4285b7028bfe3645e7c5e09a3b7",
+    "notes": "Changed area and callers inspected; targeted regressions/static checks recorded in TRACKER. Large providers/exporters/engine and native display-only files have partial review scope; fixing the listed issue does not mark their entire workflow audited."
+  },
+  {
+    "path": "frontend/app/(dashboard)/settings/settings-page.contract.test.mjs",
+    "status": "fixed",
+    "reviewer": "root",
+    "sha256": "4778b84b4a73d697375a96330a50a4db498c393a9b4f9b0be41c589d53539db1",
+    "notes": "Changed area and callers inspected; targeted regressions/static checks recorded in TRACKER. Large providers/exporters/engine and native display-only files have partial review scope; fixing the listed issue does not mark their entire workflow audited."
+  },
+  {
+    "path": "frontend/features/dashboard/components/dashboard-ui-transformation.contract.test.mjs",
+    "status": "fixed",
+    "reviewer": "root",
+    "sha256": "f3f09579e4be04dd92017c12a5fdbeb296dc9e714d952dde2b77dfc0c03c3726",
+    "notes": "Changed area and callers inspected; targeted regressions/static checks recorded in TRACKER. Large providers/exporters/engine and native display-only files have partial review scope; fixing the listed issue does not mark their entire workflow audited."
+  },
+  {
+    "path": "frontend/features/upload/services/passport-camera-guide.ts",
+    "status": "fixed",
+    "reviewer": "root",
+    "sha256": "a6e47e9fcc5c9c74358cebfe62e7d8175243f4e3822c103e3bb681ae081d9ee4",
+    "notes": "Changed area and callers inspected; targeted regressions/static checks recorded in TRACKER. Large providers/exporters/engine and native display-only files have partial review scope; fixing the listed issue does not mark their entire workflow audited."
+  },
+  {
+    "path": "frontend/features/upload/services/passport-camera-guide.test.mjs",
+    "status": "fixed",
+    "reviewer": "root",
+    "sha256": "8ec9c46ac82ca74bf31e806289f86676baf3cd32c63c39c5b131b3aded0b0998",
+    "notes": "Changed area and callers inspected; targeted regressions/static checks recorded in TRACKER. Large providers/exporters/engine and native display-only files have partial review scope; fixing the listed issue does not mark their entire workflow audited."
+  },
+  {
+    "path": "backend/app/infrastructure/export/workbook_values.py",
+    "status": "fixed",
+    "reviewer": "root",
+    "sha256": "bd7cbaf14a7b682e8e4bee6ece7475e38b9696e74e17bda0b573b49df2d32ec8",
+    "notes": "Changed area and callers inspected; targeted regressions/static checks recorded in TRACKER. Large providers/exporters/engine and native display-only files have partial review scope; fixing the listed issue does not mark their entire workflow audited."
+  },
+  {
+    "path": "backend/app/infrastructure/export/passport_excel_exporter.py",
+    "status": "fixed",
+    "reviewer": "root",
+    "sha256": "ed47e94d322a97ed45f78901131f83af8172d1b382153da0102f5efee04850ad",
+    "notes": "Changed area and callers inspected; targeted regressions/static checks recorded in TRACKER. Large providers/exporters/engine and native display-only files have partial review scope; fixing the listed issue does not mark their entire workflow audited."
+  },
+  {
+    "path": "backend/app/infrastructure/export/rooming_excel_exporter.py",
+    "status": "fixed",
+    "reviewer": "root",
+    "sha256": "877bba594f55701c19e4fd139b0d964ce6f31ba9b5046efe6952003bdb44b102",
+    "notes": "Changed area and callers inspected; targeted regressions/static checks recorded in TRACKER. Large providers/exporters/engine and native display-only files have partial review scope; fixing the listed issue does not mark their entire workflow audited."
+  },
+  {
+    "path": "backend/app/infrastructure/export/whatsapp_filter_excel_exporter.py",
+    "status": "fixed",
+    "reviewer": "root",
+    "sha256": "5c019ac68ca05d9c02ddc889475675a17015984cdd93b09f25ad02a16226f31b",
+    "notes": "Changed area and callers inspected; targeted regressions/static checks recorded in TRACKER. Large providers/exporters/engine and native display-only files have partial review scope; fixing the listed issue does not mark their entire workflow audited."
+  },
+  {
+    "path": "backend/app/infrastructure/email/retry_after.py",
+    "status": "fixed",
+    "reviewer": "root",
+    "sha256": "38ff352601fc244a89f48dd0152caf80337b01a65fb7c672b4d7ab13d28b0d5a",
+    "notes": "Changed area and callers inspected; targeted regressions/static checks recorded in TRACKER. Large providers/exporters/engine and native display-only files have partial review scope; fixing the listed issue does not mark their entire workflow audited."
+  },
+  {
+    "path": "backend/app/infrastructure/email/gmail_provider.py",
+    "status": "fixed",
+    "reviewer": "root",
+    "sha256": "e36134267ca2582561e5f525091759759ff2e8933c471b48ef1b691f7833ea28",
+    "notes": "Changed area and callers inspected; targeted regressions/static checks recorded in TRACKER. Large providers/exporters/engine and native display-only files have partial review scope; fixing the listed issue does not mark their entire workflow audited."
+  },
+  {
+    "path": "backend/app/infrastructure/email/outlook_provider.py",
+    "status": "fixed",
+    "reviewer": "root",
+    "sha256": "72c1a9a91b37e1509f31f752f3e7bb2c84cda68550d309f6827b08101efd6d30",
+    "notes": "Changed area and callers inspected; targeted regressions/static checks recorded in TRACKER. Large providers/exporters/engine and native display-only files have partial review scope; fixing the listed issue does not mark their entire workflow audited."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_email_retry_after.py",
+    "status": "fixed",
+    "reviewer": "root",
+    "sha256": "27b948599e182078de6c662a1a3f583f48766dd956a74732de7c42e40547d92f",
+    "notes": "Changed area and callers inspected; targeted regressions/static checks recorded in TRACKER. Large providers/exporters/engine and native display-only files have partial review scope; fixing the listed issue does not mark their entire workflow audited."
+  },
+  {
+    "path": "backend/requirements.txt",
+    "status": "fixed",
+    "reviewer": "root",
+    "sha256": "bd9f9d2ce8fff99670d5d2f23d4b434c1e9a59c9c8c54f5715bc8bdf37b8820c",
+    "notes": "Changed area and callers inspected; targeted regressions/static checks recorded in TRACKER. Large providers/exporters/engine and native display-only files have partial review scope; fixing the listed issue does not mark their entire workflow audited."
+  },
+  {
+    "path": "backend/requirements.lock",
+    "status": "fixed",
+    "reviewer": "root",
+    "sha256": "fdcc91a5eb87f6f678fe03ef37c83109edb639527eba387d73d031114a4188b6",
+    "notes": "Changed area and callers inspected; targeted regressions/static checks recorded in TRACKER. Large providers/exporters/engine and native display-only files have partial review scope; fixing the listed issue does not mark their entire workflow audited."
+  },
+  {
+    "path": "backend/requirements-dev.lock",
+    "status": "fixed",
+    "reviewer": "root",
+    "sha256": "7ea4f5b8c8ecbc7831892949564679349d2852fa1f0f0b60f88af994f6c1f4f2",
+    "notes": "Changed area and callers inspected; targeted regressions/static checks recorded in TRACKER. Large providers/exporters/engine and native display-only files have partial review scope; fixing the listed issue does not mark their entire workflow audited."
+  },
+  {
+    "path": "backend/pyproject.toml",
+    "status": "fixed",
+    "reviewer": "root",
+    "sha256": "b2e64e9c2eb7c449d6f8c1f307433760fcb054ceede1cdf2350d5421308addb3",
+    "notes": "Changed area and callers inspected; targeted regressions/static checks recorded in TRACKER. Large providers/exporters/engine and native display-only files have partial review scope; fixing the listed issue does not mark their entire workflow audited."
+  },
+  {
+    "path": "scripts/qa/qualify_runtime_image.py",
+    "status": "fixed",
+    "reviewer": "root",
+    "sha256": "36c1ab6c55cbfdbc2c0ca09c6611ea6fea098bac3599f729157827fdb3fd6069",
+    "notes": "Changed area and callers inspected; targeted regressions/static checks recorded in TRACKER. Large providers/exporters/engine and native display-only files have partial review scope; fixing the listed issue does not mark their entire workflow audited."
+  },
+  {
+    "path": "scripts/dashboard_audit_inventory.py",
+    "status": "fixed",
+    "reviewer": "root",
+    "sha256": "38aadb00f67c536245931968b67cf2dbc5484126bc1a2f97914de9e32a1699e4",
+    "notes": "Changed area and callers inspected; targeted regressions/static checks recorded in TRACKER. Large providers/exporters/engine and native display-only files have partial review scope; fixing the listed issue does not mark their entire workflow audited."
+  },
+  {
+    "path": "scripts/dashboard_source_metrics.py",
+    "status": "fixed",
+    "reviewer": "root",
+    "sha256": "ba62545ea57ac280bc6648b13643afccc2300597de7d173ddcf17aaa21cfc1a6",
+    "notes": "Changed area and callers inspected; targeted regressions/static checks recorded in TRACKER. Large providers/exporters/engine and native display-only files have partial review scope; fixing the listed issue does not mark their entire workflow audited."
+  }
+]

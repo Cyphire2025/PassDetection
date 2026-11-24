@@ -1,0 +1,34 @@
+{
+  "implemented": [
+    "Separated Celery entry ownership from due-dispatch/envelope, retention, and bounded storage reconciliation. Whole declarations remain exact."
+  ],
+  "validated_behavior_defects": [],
+  "candidate": {
+    "status": "unvalidated; no policy change",
+    "description": "Direct retention deletion does not repeat durable-reference checks used by orphan reconciliation.",
+    "ordinary_flow_evidence": "Only live staging-key assignment embeds artifact.id. Normal passenger-document ingestion uses separate email-integrations-canonical keys; duplicate assignment creates document links. No ordinary shared-staging reference outcome demonstrated.",
+    "remaining": "Historical compatibility/in-flight writer semantics require service-level evidence; no impossible shared-row synthetic fixture is credited as reachable defect."
+  },
+  "open_architecture": [
+    {
+      "path": "backend/app/infrastructure/database/email_ai_models.py",
+      "notes": "Full630line source read only. Six mapped tables (rollout,analysis,deadline,proposal,draft,feedback) have coherent domain boundaries but remain one630line owner. Architecture follow-through remains OPEN and needs protected DB ownership/actual metadata/DDL/default/alias/pickle/caller proofs before any split; no model edits or service/DDL qualification here."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_rollout_admin.py",
+      "notes": "Full565line source read only. Authenticated SuperAdmin list/update, namespace+row locks, optimistic timestamp checks, target query composition and inherited response mapping traced in this file. Actual caller search finds router and MCP reader; only caller ranges/searches traced. Query/response owners are plausible architecture follow-ups; no demonstrated security defect, full caller/test closure or runtime qualification claimed."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_review_decisions.py",
+      "notes": "Full367line source read only. Actual owner filters, connection\u2192message\u2192artifact\u2192review lock order, revision/closed/action checks, group/passenger authorization, mutation/audit/flush/rollback/ambiguous-commit behavior traced. Its313line route remains architecture follow-through OPEN; extraction would require typed locked context/action results and actual focused caller/test proofs. No route edits or validated defect here."
+    }
+  ],
+  "remaining_verification": [
+    "RealPostgresSKIPLOCKED/isolation and concurrent reference-writer lifecycle remain unqualified by SQLite/mock controls.",
+    "Retention SQL updates remain whole-table predicates; database workload/lock duration/capacity not measured and no latency/asymptotic performance improvement claimed.",
+    "Live Redis/Celery delivery/MinIO and provider contracts are not qualified; no services/providers were contacted.",
+    "Broader repository audit, remaining ownership follow-ups, and final combined verification remain active."
+  ],
+  "introspection": "Legacy envelope module/qualname/pickle/evaluated annotations stay compatible, but inspect.getsource(class) now raisesOSError. Actual class source is task_dispatch.py; no inspect monkeypatch.",
+  "initial_failed_checkpoint": "email-task-baseline-tests.log has3fixture integrity failures for missing required proposal.status,29other cases passed. Corrected fixture baseline32passed before runtime edits; failed log retained."
+}

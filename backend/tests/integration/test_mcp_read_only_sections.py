@@ -21,7 +21,7 @@ from app.infrastructure.database.mcp_models import MCPControlModel, MCPGrantMode
 from app.infrastructure.database.models import AuditLogModel, ClientGroupModel
 from app.infrastructure.database.session import get_db_session
 from app.main import create_application
-from app.presentation.api.v1.routes import mcp_admin, mcp_admin_files, mcp_artifacts
+from app.presentation.api.v1.routes import mcp_admin_files, mcp_admin_reads, mcp_artifacts
 from tests.dashboard_session_fixtures import issue_dashboard_access
 from tests.integration.test_mcp_authorization import CLIENT, RESOURCE, call_mcp, connect, consent
 from tests.integration.test_mcp_authorization import mcp_fixture as mcp_fixture
@@ -164,7 +164,7 @@ async def test_file_routes_deny_before_any_service_or_bytes(readonly_mcp, method
 
 
 @pytest.mark.parametrize("path,module", [
-    ("/api/v1/admin/mcp/operations", mcp_admin),
+    ("/api/v1/admin/mcp/operations", mcp_admin_reads),
     ("/api/v1/admin/mcp/artifacts", mcp_admin_files),
 ])
 async def test_legacy_dashboard_workflow_and_file_controls_deny_before_projection(readonly_mcp, path, module, monkeypatch):

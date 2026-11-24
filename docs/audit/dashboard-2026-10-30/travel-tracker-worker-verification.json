@@ -1,0 +1,109 @@
+{
+  "status": "frozen; deliberate behavior fix only; architecture remains open",
+  "changed_runtime": [
+    {
+      "path": "backend/app/infrastructure/travel_tracker/threading.py",
+      "sha256": "0e4ed2a5fdcfd0061a9661938a34e3936f1b482d3a460ec74cd9788c908ca85f"
+    }
+  ],
+  "baseline": {
+    "initial": "5failed/1normalcontrolpassed",
+    "expanded": "5failed/4controls passed; initial limiter observation then strengthened",
+    "explicit_thread_token_control": "1failed8deselected; borrowed_tokens was0 while native worker still active"
+  },
+  "after": {
+    "affected_cases": 45,
+    "new_worker_cases": 10,
+    "strict_scoped_mypy": "passed",
+    "ruff_and_format": "passed",
+    "worker_line_percent": 100.0,
+    "worker_branch_percent": 75.0
+  },
+  "unchanged_sources": [
+    {
+      "path": "backend/app/infrastructure/travel_tracker/actor.py",
+      "sha256": "ec9dca830b1486c3e55a183759d09c50e41ddb334c845e241d1cb7a9907c16c2",
+      "physical_lines": 45
+    },
+    {
+      "path": "backend/app/infrastructure/travel_tracker/service.py",
+      "sha256": "171444bfa92d48ab37321e0603282d5761cfe021c17c248426312b0ba3d50c23",
+      "physical_lines": 487
+    },
+    {
+      "path": "backend/app/infrastructure/travel_tracker/spreadsheets.py",
+      "sha256": "4bf66a2e2708d8755de2ffc9426fe6844e91bd2cc8ad56837d2e7afe53b8af76",
+      "physical_lines": 436
+    },
+    {
+      "path": "backend/app/infrastructure/travel_tracker/__init__.py",
+      "sha256": "824420c4815f1c14e6d3189722aeca19ee89bedad4a7510799384509c159a7f9",
+      "physical_lines": 1
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_travel_tracker_spreadsheets.py",
+      "sha256": "043221d02d556b9a90cf7d43d96fa518ff7c9c4536d58dd0323d4dae662ab469",
+      "physical_lines": 105
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_travel_tracker.py",
+      "sha256": "30bf4c076b8f20a8446057225d13b19ee6a4b2842121b2a5ba7697abe14c6b25",
+      "physical_lines": 501
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/travel_tracker.py",
+      "sha256": "fe2b56936d219d382179246e6e51f87fd08b21a1ed62de29f73aacd272b61239",
+      "physical_lines": 139
+    }
+  ],
+  "original_public_signature_preserved": true,
+  "artifacts": [
+    {
+      "path": ".tmp/travel-tracker-audit/worker-baseline.txt",
+      "sha256": "6638bf5565560d6237b389e6063f9993ba7123cf4510752d9db6f2a5ca53833c"
+    },
+    {
+      "path": ".tmp/travel-tracker-audit/worker-baseline-expanded.txt",
+      "sha256": "9ae2a9371a856ea0eeec03f8ba8b68af83c66875c3e6e3877e2e66572b22c9ee"
+    },
+    {
+      "path": ".tmp/travel-tracker-audit/worker-limiter-baseline.txt",
+      "sha256": "e916df4a886f35d795fefc41c309985eb2eef4e6c10bf16fd0ca731ed6682a71"
+    },
+    {
+      "path": ".tmp/travel-tracker-audit/worker-fixed-tests.txt",
+      "sha256": "88598c9ef5d7573edc4fbff6b367c793895a176453f89d44e18e5983adcadebb"
+    },
+    {
+      "path": ".tmp/travel-tracker-audit/worker-coverage.json",
+      "sha256": "fdfb0830f7af2f84f4ef2bc13a7b537348ee4fe12074d6bd7d6046947afa8b2a"
+    },
+    {
+      "path": ".tmp/travel-tracker-audit/worker-coverage.xml",
+      "sha256": "a9564a20e4e9e4dbf92b9be0b97d433ceed15a44f537cc18eda9942d4a4b0d4c"
+    },
+    {
+      "path": ".tmp/travel-tracker-audit/worker-types.txt",
+      "sha256": "8e63ae22e8213e327a5e9cbd584067681681bd8ef7f25c869877887ccdcfc4ff"
+    },
+    {
+      "path": ".tmp/travel-tracker-audit/worker-lint.txt",
+      "sha256": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0"
+    },
+    {
+      "path": ".tmp/travel-tracker-audit/worker-format.txt",
+      "sha256": "97d85b4b6c185a05396e2d09a3c304ff0f7cc77f8b7b7bb7989ec6cd875b3898"
+    }
+  ],
+  "ledger": {
+    "path": "docs/audit/dashboard-2026-10-30/travel-tracker-worker-reviewed-files.json",
+    "sha256": "72e9adb15764a05fff5a7cd0e6b47f7d728044f7637fc57e12ad49ff739452ae"
+  },
+  "limits": [
+    "Synthetic native blocking work and actual authorized service.export over isolated SQLite fixtures. No live PostgreSQL rowlock or Redis/provider/VPS qualification.",
+    "Confirmed request/resource/thread-capacity lifetime problem; no data leak/authentication bypass or measured wall-clock performance claim.",
+    "Existing AnyIO pool limit/config stays unchanged; no shared helper/domain/gate mutation.",
+    "No whole application suite/build/browser.",
+    "Service/spreadsheet oversized-owner follow-through remains open and must preserve helper fix."
+  ]
+}

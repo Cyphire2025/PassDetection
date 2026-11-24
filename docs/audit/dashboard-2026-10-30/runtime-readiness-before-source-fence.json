@@ -1,0 +1,50 @@
+{
+  "status": "before mechanical extraction; actual source and focused safety controls physically read",
+  "files": [
+    {
+      "path": "backend/app/infrastructure/runtime_readiness.py",
+      "sha256": "86ebedc0a97af8de6a994ffbacf3b4aa1e8277ca2c8bc032eac4198b65f1052b",
+      "physical_lines": 539
+    },
+    {
+      "path": "backend/app/infrastructure/readiness_executor.py",
+      "sha256": "945f5950fab2d2acb7138f3ee4333d950c0cf8e8110f9b987e161e3d73f3c1ee",
+      "physical_lines": 66
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/health.py",
+      "sha256": "fb9056f1b956503f10260b8569e7f9ee75fec830d7572bace2ba20fa3c744dbf",
+      "physical_lines": 325
+    },
+    {
+      "path": "backend/app/infrastructure/ai_priority/worker_readiness.py",
+      "sha256": "4768c464dead1fa83aa3842863a8bfe057826be558c68eb1180338160268a8ee",
+      "physical_lines": 183
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_runtime_readiness.py",
+      "sha256": "5f292421f094570aa74b379f1ce5e752b78fd52b38fa4021718fb30d6ec14ff8",
+      "physical_lines": 339
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_health_readiness.py",
+      "sha256": "55029dbfbf193f6d8f82ed6e605ffc60b85b2b2e1193962e18ad68fd91d04675",
+      "physical_lines": 266
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_health_readiness_deadline.py",
+      "sha256": "4e065e6ac3e79ecc6086e9b8c119f6a766bd0f514b473e3cc2769d3d29edf773",
+      "physical_lines": 247
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_readiness_executor.py",
+      "sha256": "36621b07f9b9e1069775d73f47285c739a20312124512c6abe206adc57eece05",
+      "physical_lines": 74
+    }
+  ],
+  "existing_critical_floor": {
+    "path": "app/infrastructure/runtime_readiness.py",
+    "minimum_line_percent": 88,
+    "minimum_branch_percent": 63
+  }
+}

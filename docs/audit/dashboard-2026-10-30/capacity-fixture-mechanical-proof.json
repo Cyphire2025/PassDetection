@@ -1,0 +1,55 @@
+{
+  "basis": "Actual frozen fixture AFTER separately verified Redis/deadline/import fix. No seed/job/query/task/policy changes; exact original6whole function declarations and3constant ASTs through responsibility partition.",
+  "definitions": [
+    {
+      "name": "seed",
+      "owner": "scripts/qa/capacity_fixture_seed.py",
+      "whole_AST_exact": true,
+      "static_import_origins_equal": true
+    },
+    {
+      "name": "queue_retries",
+      "owner": "scripts/qa/capacity_fixture_jobs.py",
+      "whole_AST_exact": true,
+      "static_import_origins_equal": true
+    },
+    {
+      "name": "verify",
+      "owner": "scripts/qa/capacity_fixture_jobs.py",
+      "whole_AST_exact": true,
+      "static_import_origins_equal": true
+    },
+    {
+      "name": "observe",
+      "owner": "scripts/qa/capacity_fixture_observer.py",
+      "whole_AST_exact": true,
+      "static_import_origins_equal": true
+    },
+    {
+      "name": "identifier",
+      "owner": "scripts/qa/capacity_fixture_contract.py",
+      "whole_AST_exact": true,
+      "static_import_origins_equal": true
+    },
+    {
+      "name": "main",
+      "owner": "scripts/qa/capacity_fixtures.py",
+      "whole_AST_exact": true,
+      "static_import_origins_equal": true
+    }
+  ],
+  "static_import_origin_checks": 96,
+  "static_import_checks_are_not_an_independent_runtime_identity_measurement": true,
+  "constant_ASTs_exact": 3,
+  "observer_test_raw_source_restored_except_only_actual_owner_import_retarget": true,
+  "source_sha256": {
+    "backend/tests/unit/infrastructure/test_capacity_fixture_owners.py": "dd09705fddc372587082d7bdbbe6f7d85bc2828865954d57a4bf8fbed4111d8f",
+    "backend/tests/unit/infrastructure/test_capacity_observer_reader_bounds.py": "4f7a76d81f247d2d0e6da876db59342ff15bdfb22c08ee421f209dbfd461996a",
+    "scripts/qa/capacity_fixture_contract.py": "4306af60d5a23b24c8a40fa108dcd5ce7b028bf77bd1d6e7d229520488ae0ec1",
+    "scripts/qa/capacity_fixture_jobs.py": "1fe0b25ec4cd8152d438bf5fb28e6feb144a9ed4da5568bc7b1f323bb20e13f5",
+    "scripts/qa/capacity_fixture_observer.py": "95876ee16d3ea8a8a4058d1181b844e0df0d86b3ced87c000c079c73ee9eb88b",
+    "scripts/qa/capacity_fixture_seed.py": "9333a2867ab5c9a1e26fc2a41df7c94e05655158ed3915ec7ee995189ebd6ac2",
+    "scripts/qa/capacity_fixtures.py": "412fade1f8d87c61fbb3325398ba5f92eecf4ba9e9d0db39363ab542f169859a"
+  },
+  "original_source_sha256": "bc5a0715e703368b23ad208a972ff7f0a656632105a7ccef12b43390d4210053"
+}

@@ -1,0 +1,85 @@
+{
+  "source_manifest": {
+    "path": "docs/audit/dashboard-2026-10-30/whatsapp-exports-final-source-manifest.json",
+    "sha256": "a01f8190642cd4d2187a5ac01fc991a1d2b2718a805a301ffcc99741afdd96b0"
+  },
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/whatsapp-exports-final-reviewed-files.json",
+    "sha256": "70c0d0a82748198abac928a84d56f7ab53acad1d49688665535687dbad0aa810"
+  },
+  "normal_module_candidates": [
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_exports.py",
+      "sha256": "d205033cf09a5e9700ca8a69fe442d0746abc3e1f27d8d96efef741e07fbd413",
+      "previous": null,
+      "baseline_lines": 265,
+      "maximum_lines": 270,
+      "baseline_max_function_complexity": 5,
+      "maximum_function_complexity": 6,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_export_hydration.py",
+      "sha256": "81b7ca7b933e77e0544cf625c6161005c70fc267dccbe461e9e82c61b2e2b288",
+      "previous": null,
+      "baseline_lines": 161,
+      "maximum_lines": 170,
+      "baseline_max_function_complexity": 10,
+      "maximum_function_complexity": 11,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_export_matching.py",
+      "sha256": "5629130dd850e98c531f76aa020aa70b3194b887ee7824097335c9c89453e6d5",
+      "previous": null,
+      "baseline_lines": 132,
+      "maximum_lines": 140,
+      "baseline_max_function_complexity": 16,
+      "maximum_function_complexity": 17,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_export_projection.py",
+      "sha256": "113e8e2c30234079fbb172466469a8f1d43eee6468da2fd2ccd9daf432fa28de",
+      "previous": null,
+      "baseline_lines": 246,
+      "maximum_lines": 250,
+      "baseline_max_function_complexity": 13,
+      "maximum_function_complexity": 14,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_export_selection.py",
+      "sha256": "19bfd1f654bb0c3484bc36af1ee759f0551a5d334052089a4cadac0d8a7b8e9c",
+      "previous": null,
+      "baseline_lines": 60,
+      "maximum_lines": 60,
+      "baseline_max_function_complexity": 12,
+      "maximum_function_complexity": 13,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_export_sources.py",
+      "sha256": "3f1af44c7b37cb8a93a306262643ed4bb7f689605fb29fd93ea2bdc7459847b2",
+      "previous": null,
+      "baseline_lines": 201,
+      "maximum_lines": 210,
+      "baseline_max_function_complexity": 16,
+      "maximum_function_complexity": 17,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_export_support.py",
+      "sha256": "e69b75a0b214ac678244b06b7888df8c8c01ba098fc6718666361a700fe5f410",
+      "previous": null,
+      "baseline_lines": 185,
+      "maximum_lines": 190,
+      "baseline_max_function_complexity": 9,
+      "maximum_function_complexity": 10,
+      "minimum_coverage_percent": 95
+    }
+  ],
+  "critical_module_candidates": [],
+  "original_critical_membership": [],
+  "note": "Seven additive measured normal floors; no original module cap/floor/global/critical gate edited or weakened. Shared integration belongs to parent/AI."
+}

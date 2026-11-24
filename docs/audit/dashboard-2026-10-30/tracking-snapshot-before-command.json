@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "--tb=short",
+    "tests/integration/test_tracking_snapshot_admission.py"
+  ],
+  "exit_code": 1,
+  "source_sha256": "e9163cfbf06b3c58213a2963437e681ac33964a0370a100c6371e37afbed4e21",
+  "test_sha256": "aac0eb8f65ff0d9023b464c4c269029fc591f59bbf911da4f5ccf6306bcd1b8d",
+  "output": "tracking-snapshot-before-tests.txt"
+}

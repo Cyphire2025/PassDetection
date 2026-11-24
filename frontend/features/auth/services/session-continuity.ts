@@ -1,5 +1,10 @@
 import type { User } from "@/types";
 
+/** Effective private-data scope; ordinary profile/rotation changes preserve it. */
+export function privateAuthorityKey(user: User | null | undefined): string {
+  return JSON.stringify([user?.id, user?.role, user?.agency_id]);
+}
+
 /** Only successful existing-cookie revalidation may preserve a browser epoch.
  * New login/access transitions still use setSession and always invalidate it.
  * Account timestamps also fence security changes not represented by capabilities.

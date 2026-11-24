@@ -1,0 +1,37 @@
+test_code_update_frontend_probe_preserves_success_and_failure_gates (test_release_health_asset.RetainedHealthAssetTests.test_code_update_frontend_probe_preserves_success_and_failure_gates) ... 
+  test_code_update_frontend_probe_preserves_success_and_failure_gates (test_release_health_asset.RetainedHealthAssetTests.test_code_update_frontend_probe_preserves_success_and_failure_gates) (rejected=None) ... FAIL
+test_current_and_both_release_sources_contain_valid_icon_and_runtime_copy (test_release_health_asset.RetainedHealthAssetTests.test_current_and_both_release_sources_contain_valid_icon_and_runtime_copy) ... ok
+test_public_probe_requires_both_original_routes_and_rejects_icon_failure (test_release_health_asset.RetainedHealthAssetTests.test_public_probe_requires_both_original_routes_and_rejects_icon_failure) ... ERROR
+test_retained_update_frontend_probe_preserves_success_and_failure_gates (test_release_health_asset.RetainedHealthAssetTests.test_retained_update_frontend_probe_preserves_success_and_failure_gates) ... 
+  test_retained_update_frontend_probe_preserves_success_and_failure_gates (test_release_health_asset.RetainedHealthAssetTests.test_retained_update_frontend_probe_preserves_success_and_failure_gates) (rejected=None) ... FAIL
+
+======================================================================
+ERROR: test_public_probe_requires_both_original_routes_and_rejects_icon_failure (test_release_health_asset.RetainedHealthAssetTests.test_public_probe_requires_both_original_routes_and_rejects_icon_failure)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_release_health_asset.py", line 122, in test_public_probe_requires_both_original_routes_and_rejects_icon_failure
+    release.public_probe(REVISION, full=True)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_code_update.py", line 529, in public_probe
+    raise ReleaseError("Public login or existing sample asset did not return HTTP 200")
+release_traveller_whatsapp.ReleaseError: Public login or existing sample asset did not return HTTP 200
+
+======================================================================
+FAIL: test_code_update_frontend_probe_preserves_success_and_failure_gates (test_release_health_asset.RetainedHealthAssetTests.test_code_update_frontend_probe_preserves_success_and_failure_gates) (rejected=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_release_health_asset.py", line 103, in assert_node_cases
+    self.assertEqual(result.returncode, expected, result.stderr)
+AssertionError: 1 != 0 : 
+
+======================================================================
+FAIL: test_retained_update_frontend_probe_preserves_success_and_failure_gates (test_release_health_asset.RetainedHealthAssetTests.test_retained_update_frontend_probe_preserves_success_and_failure_gates) (rejected=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_release_health_asset.py", line 103, in assert_node_cases
+    self.assertEqual(result.returncode, expected, result.stderr)
+AssertionError: 1 != 0 : 
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.351s
+
+FAILED (failures=2, errors=1)

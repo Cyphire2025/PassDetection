@@ -1,0 +1,526 @@
+{
+  "method": "Actual TypeScript syntax and compiler module resolution over all current TS/TSX/JS/MJS source. Excludes explicit test/e2e/helper sources. Only definition and compatibility-facade forwarding references excluded; all other identifier/import/alias/string references retain a declaration. Namespace/literal dynamic ownership makes all candidates ambiguous.",
+  "sourceFilesTraversed": 1662,
+  "facade": {
+    "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\features\\operations\\hooks\\use-operations.ts",
+    "sha256": "c64c8faf7a1858b9e7cce3fca9c326edcbbb540d853b37eb2894f9508d6ab315"
+  },
+  "runtimeNamespaceOrDynamicImports": [],
+  "candidates": [
+    {
+      "name": "useAdminOverview",
+      "owner": "use-admin-operations.ts"
+    },
+    {
+      "name": "useAssignManagerGroups",
+      "owner": "use-admin-operations.ts"
+    },
+    {
+      "name": "useManagedAccounts",
+      "owner": "use-managed-accounts.ts"
+    },
+    {
+      "name": "useStaffAccounts",
+      "owner": "use-managed-accounts.ts"
+    },
+    {
+      "name": "useTourOperationsArchitecture",
+      "owner": "use-tour-operations.ts"
+    },
+    {
+      "name": "useScanMyAttendanceSession",
+      "owner": "use-coordinator-attendance.ts"
+    },
+    {
+      "name": "useGroupAttendanceOverview",
+      "owner": "use-managed-attendance.ts"
+    }
+  ],
+  "allPublicReferences": {
+    "useAdminOverview": [],
+    "useManagers": [
+      {
+        "path": "frontend/features/operations/components/manager-administration/manager-administration-page.tsx",
+        "kind": "ImportSpecifier",
+        "line": 9
+      },
+      {
+        "path": "frontend/features/operations/components/manager-administration/manager-administration-page.tsx",
+        "kind": "CallExpression",
+        "line": 17
+      }
+    ],
+    "useAdminGroups": [
+      {
+        "path": "frontend/features/operations/components/managed-accounts-panel.tsx",
+        "kind": "ImportSpecifier",
+        "line": 9
+      },
+      {
+        "path": "frontend/features/operations/components/managed-accounts-panel.tsx",
+        "kind": "CallExpression",
+        "line": 26
+      }
+    ],
+    "useCreateManager": [
+      {
+        "path": "frontend/features/operations/components/manager-administration/manager-administration-page.tsx",
+        "kind": "ImportSpecifier",
+        "line": 9
+      },
+      {
+        "path": "frontend/features/operations/components/manager-administration/manager-administration-page.tsx",
+        "kind": "CallExpression",
+        "line": 20
+      }
+    ],
+    "useDeleteManager": [
+      {
+        "path": "frontend/features/operations/components/manager-administration/manager-administration-page.tsx",
+        "kind": "ImportSpecifier",
+        "line": 9
+      },
+      {
+        "path": "frontend/features/operations/components/manager-administration/manager-administration-page.tsx",
+        "kind": "CallExpression",
+        "line": 21
+      }
+    ],
+    "useAssignManagerGroups": [],
+    "useManagedAccounts": [],
+    "useStaffAccounts": [],
+    "useStaffAccessAccounts": [
+      {
+        "path": "frontend/features/operations/components/managed-accounts-panel.tsx",
+        "kind": "ImportSpecifier",
+        "line": 12
+      },
+      {
+        "path": "frontend/features/operations/components/managed-accounts-panel.tsx",
+        "kind": "CallExpression",
+        "line": 25
+      }
+    ],
+    "useCreateStaff": [
+      {
+        "path": "frontend/features/operations/components/managed-accounts-panel.tsx",
+        "kind": "ImportSpecifier",
+        "line": 11
+      },
+      {
+        "path": "frontend/features/operations/components/managed-accounts-panel.tsx",
+        "kind": "CallExpression",
+        "line": 27
+      }
+    ],
+    "useAssignStaffGroups": [
+      {
+        "path": "frontend/features/operations/components/managed-accounts-panel.tsx",
+        "kind": "ImportSpecifier",
+        "line": 10
+      },
+      {
+        "path": "frontend/features/operations/components/managed-accounts-panel.tsx",
+        "kind": "CallExpression",
+        "line": 28
+      }
+    ],
+    "useManagedAccountActions": [
+      {
+        "path": "frontend/features/operations/components/managed-account-controls.tsx",
+        "kind": "ImportSpecifier",
+        "line": 9
+      },
+      {
+        "path": "frontend/features/operations/components/managed-account-controls.tsx",
+        "kind": "CallExpression",
+        "line": 30
+      }
+    ],
+    "useAnalyticsSummary": [
+      {
+        "path": "frontend/app/(dashboard)/analytics/page.tsx",
+        "kind": "ImportSpecifier",
+        "line": 19
+      },
+      {
+        "path": "frontend/app/(dashboard)/analytics/page.tsx",
+        "kind": "CallExpression",
+        "line": 23
+      }
+    ],
+    "useAuditLogPages": [
+      {
+        "path": "frontend/features/audit-logs/hooks/use-audit-ledger.ts",
+        "kind": "ImportSpecifier",
+        "line": 7
+      },
+      {
+        "path": "frontend/features/audit-logs/hooks/use-audit-ledger.ts",
+        "kind": "CallExpression",
+        "line": 19
+      }
+    ],
+    "useAuditLogExport": [
+      {
+        "path": "frontend/features/audit-logs/hooks/use-audit-ledger.ts",
+        "kind": "ImportSpecifier",
+        "line": 7
+      },
+      {
+        "path": "frontend/features/audit-logs/hooks/use-audit-ledger.ts",
+        "kind": "CallExpression",
+        "line": 20
+      }
+    ],
+    "useTourOperationsArchitecture": [],
+    "useTourCoordinators": [
+      {
+        "path": "frontend/features/operations/components/tour-operations-overview.tsx",
+        "kind": "ImportSpecifier",
+        "line": 8
+      },
+      {
+        "path": "frontend/features/operations/components/tour-operations-overview.tsx",
+        "kind": "CallExpression",
+        "line": 34
+      },
+      {
+        "path": "frontend/features/operations/components/tour-group-assignments-page.tsx",
+        "kind": "ImportSpecifier",
+        "line": 22
+      },
+      {
+        "path": "frontend/features/operations/components/tour-group-assignments-page.tsx",
+        "kind": "CallExpression",
+        "line": 38
+      },
+      {
+        "path": "frontend/features/operations/components/tour-coordinators-page.tsx",
+        "kind": "ImportSpecifier",
+        "line": 13
+      },
+      {
+        "path": "frontend/features/operations/components/tour-coordinators-page.tsx",
+        "kind": "CallExpression",
+        "line": 26
+      }
+    ],
+    "useCreateTourCoordinator": [
+      {
+        "path": "frontend/features/operations/components/tour-coordinators-page.tsx",
+        "kind": "ImportSpecifier",
+        "line": 12
+      },
+      {
+        "path": "frontend/features/operations/components/tour-coordinators-page.tsx",
+        "kind": "CallExpression",
+        "line": 27
+      }
+    ],
+    "useTourGroups": [
+      {
+        "path": "frontend/features/operations/components/tour-operations-overview.tsx",
+        "kind": "ImportSpecifier",
+        "line": 8
+      },
+      {
+        "path": "frontend/features/operations/components/tour-operations-overview.tsx",
+        "kind": "CallExpression",
+        "line": 35
+      },
+      {
+        "path": "frontend/features/operations/components/tour-group-passenger-assignment-page.tsx",
+        "kind": "ImportSpecifier",
+        "line": 20
+      },
+      {
+        "path": "frontend/features/operations/components/tour-group-passenger-assignment-page.tsx",
+        "kind": "CallExpression",
+        "line": 50
+      },
+      {
+        "path": "frontend/features/operations/components/tour-group-assignments-page.tsx",
+        "kind": "ImportSpecifier",
+        "line": 22
+      },
+      {
+        "path": "frontend/features/operations/components/tour-group-assignments-page.tsx",
+        "kind": "CallExpression",
+        "line": 39
+      },
+      {
+        "path": "frontend/features/operations/components/rooming-groups-page.tsx",
+        "kind": "ImportSpecifier",
+        "line": 17
+      },
+      {
+        "path": "frontend/features/operations/components/rooming-groups-page.tsx",
+        "kind": "CallExpression",
+        "line": 28
+      }
+    ],
+    "useRoomingWorkspace": [
+      {
+        "path": "frontend/features/operations/hooks/use-rooming-workspace-controller.ts",
+        "kind": "ImportSpecifier",
+        "line": 6
+      },
+      {
+        "path": "frontend/features/operations/hooks/use-rooming-workspace-controller.ts",
+        "kind": "CallExpression",
+        "line": 12
+      }
+    ],
+    "useRoomingPriorityFields": [
+      {
+        "path": "frontend/features/operations/hooks/use-rooming-workspace-controller.ts",
+        "kind": "ImportSpecifier",
+        "line": 6
+      },
+      {
+        "path": "frontend/features/operations/hooks/use-rooming-workspace-controller.ts",
+        "kind": "CallExpression",
+        "line": 13
+      }
+    ],
+    "useRoomingRosterFieldValues": [
+      {
+        "path": "frontend/features/operations/hooks/use-rooming-passenger-selection.ts",
+        "kind": "ImportSpecifier",
+        "line": 6
+      },
+      {
+        "path": "frontend/features/operations/hooks/use-rooming-passenger-selection.ts",
+        "kind": "CallExpression",
+        "line": 35
+      }
+    ],
+    "useRoomingActions": [
+      {
+        "path": "frontend/features/operations/hooks/use-rooming-workspace-controller.ts",
+        "kind": "ImportSpecifier",
+        "line": 6
+      },
+      {
+        "path": "frontend/features/operations/hooks/use-rooming-workspace-controller.ts",
+        "kind": "CallExpression",
+        "line": 14
+      }
+    ],
+    "useAssignTourGroupCoordinators": [
+      {
+        "path": "frontend/features/operations/components/tour-group-assignments-page.tsx",
+        "kind": "ImportSpecifier",
+        "line": 22
+      },
+      {
+        "path": "frontend/features/operations/components/tour-group-assignments-page.tsx",
+        "kind": "CallExpression",
+        "line": 40
+      }
+    ],
+    "useTourGroupPassengers": [
+      {
+        "path": "frontend/features/operations/components/tour-group-passenger-assignment-page.tsx",
+        "kind": "ImportSpecifier",
+        "line": 19
+      },
+      {
+        "path": "frontend/features/operations/components/tour-group-passenger-assignment-page.tsx",
+        "kind": "CallExpression",
+        "line": 55
+      }
+    ],
+    "useAssignTourGroupPassengers": [
+      {
+        "path": "frontend/features/operations/components/tour-group-passenger-assignment-page.tsx",
+        "kind": "ImportSpecifier",
+        "line": 18
+      },
+      {
+        "path": "frontend/features/operations/components/tour-group-passenger-assignment-page.tsx",
+        "kind": "CallExpression",
+        "line": 56
+      }
+    ],
+    "useMyTourGroups": [
+      {
+        "path": "frontend/features/tour-operations/components/coordinator-mobile-shell.tsx",
+        "kind": "ImportSpecifier",
+        "line": 15
+      },
+      {
+        "path": "frontend/features/tour-operations/components/coordinator-mobile-shell.tsx",
+        "kind": "CallExpression",
+        "line": 30
+      },
+      {
+        "path": "frontend/features/tour-operations/components/coordinator-group-activity-page.tsx",
+        "kind": "ImportSpecifier",
+        "line": 27
+      },
+      {
+        "path": "frontend/features/tour-operations/components/coordinator-group-activity-page.tsx",
+        "kind": "CallExpression",
+        "line": 59
+      }
+    ],
+    "useMyTourGroupPassengers": [
+      {
+        "path": "frontend/features/tour-operations/components/coordinator-group-activity-page.tsx",
+        "kind": "ImportSpecifier",
+        "line": 26
+      },
+      {
+        "path": "frontend/features/tour-operations/components/coordinator-group-activity-page.tsx",
+        "kind": "CallExpression",
+        "line": 64
+      }
+    ],
+    "useMyTourGroupPassenger": [
+      {
+        "path": "frontend/features/tour-operations/components/coordinator-passenger-detail-page.tsx",
+        "kind": "ImportSpecifier",
+        "line": 9
+      },
+      {
+        "path": "frontend/features/tour-operations/components/coordinator-passenger-detail-page.tsx",
+        "kind": "CallExpression",
+        "line": 35
+      }
+    ],
+    "useMyAttendanceSessions": [
+      {
+        "path": "frontend/features/tour-operations/components/coordinator-group-scanner.tsx",
+        "kind": "ImportSpecifier",
+        "line": 23
+      },
+      {
+        "path": "frontend/features/tour-operations/components/coordinator-group-scanner.tsx",
+        "kind": "CallExpression",
+        "line": 88
+      },
+      {
+        "path": "frontend/features/tour-operations/components/coordinator-group-activity-page.tsx",
+        "kind": "ImportSpecifier",
+        "line": 25
+      },
+      {
+        "path": "frontend/features/tour-operations/components/coordinator-group-activity-page.tsx",
+        "kind": "CallExpression",
+        "line": 71
+      }
+    ],
+    "useMyAttendanceSessionDetails": [
+      {
+        "path": "frontend/features/tour-operations/components/coordinator-group-activity-page.tsx",
+        "kind": "ImportSpecifier",
+        "line": 24
+      },
+      {
+        "path": "frontend/features/tour-operations/components/coordinator-group-activity-page.tsx",
+        "kind": "CallExpression",
+        "line": 91
+      }
+    ],
+    "useScanMyAttendanceSession": [],
+    "useCompleteManagedAttendanceSession": [
+      {
+        "path": "frontend/features/operations/components/tour-group-attendance-page.tsx",
+        "kind": "ImportSpecifier",
+        "line": 29
+      },
+      {
+        "path": "frontend/features/operations/components/tour-group-attendance-page.tsx",
+        "kind": "CallExpression",
+        "line": 50
+      }
+    ],
+    "useCreateManagedAttendanceSession": [
+      {
+        "path": "frontend/features/operations/components/tour-group-attendance-page.tsx",
+        "kind": "ImportSpecifier",
+        "line": 30
+      },
+      {
+        "path": "frontend/features/operations/components/tour-group-attendance-page.tsx",
+        "kind": "CallExpression",
+        "line": 51
+      }
+    ],
+    "useGroupAttendanceOverview": [],
+    "useGroupAttendanceSummary": [
+      {
+        "path": "frontend/features/operations/components/tour-group-attendance-page.tsx",
+        "kind": "ImportSpecifier",
+        "line": 32
+      },
+      {
+        "path": "frontend/features/operations/components/tour-group-attendance-page.tsx",
+        "kind": "CallExpression",
+        "line": 49
+      }
+    ],
+    "useGroupAttendanceMissingPassengers": [
+      {
+        "path": "frontend/features/operations/components/tour-group-attendance-page.tsx",
+        "kind": "ImportSpecifier",
+        "line": 31
+      },
+      {
+        "path": "frontend/features/operations/components/tour-group-attendance-page.tsx",
+        "kind": "CallExpression",
+        "line": 537
+      }
+    ],
+    "useGroupQrCodes": [
+      {
+        "path": "frontend/features/operations/components/tour-group-qr-codes-page.tsx",
+        "kind": "ImportSpecifier",
+        "line": 15
+      },
+      {
+        "path": "frontend/features/operations/components/tour-group-qr-codes-page.tsx",
+        "kind": "CallExpression",
+        "line": 40
+      }
+    ],
+    "useQrDeliveryPreview": [
+      {
+        "path": "frontend/features/operations/components/tour-group-qr-codes-page.tsx",
+        "kind": "ImportSpecifier",
+        "line": 17
+      },
+      {
+        "path": "frontend/features/operations/components/tour-group-qr-codes-page.tsx",
+        "kind": "CallExpression",
+        "line": 59
+      }
+    ],
+    "useSendQrBroadcast": [
+      {
+        "path": "frontend/features/operations/components/tour-group-qr-codes-page.tsx",
+        "kind": "ImportSpecifier",
+        "line": 18
+      },
+      {
+        "path": "frontend/features/operations/components/tour-group-qr-codes-page.tsx",
+        "kind": "CallExpression",
+        "line": 60
+      }
+    ],
+    "usePassengerQrLifecycle": [
+      {
+        "path": "frontend/features/operations/components/tour-group-qr-codes-page.tsx",
+        "kind": "ImportSpecifier",
+        "line": 16
+      },
+      {
+        "path": "frontend/features/operations/components/tour-group-qr-codes-page.tsx",
+        "kind": "CallExpression",
+        "line": 41
+      }
+    ]
+  }
+}

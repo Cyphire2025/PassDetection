@@ -1,0 +1,1186 @@
+[
+  {
+    "pane": "review",
+    "width": 390,
+    "sample": "small",
+    "before": {
+      "clientWidth": 308,
+      "scrollWidth": 308,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "normal",
+      "text": "Hello,\n\nYour synthetic trip is confirmed.\n\nRegards,\nSynthetic team",
+      "x": 41,
+      "width": 308
+    },
+    "after": {
+      "clientWidth": 308,
+      "scrollWidth": 308,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "anywhere",
+      "text": "Hello,\n\nYour synthetic trip is confirmed.\n\nRegards,\nSynthetic team",
+      "x": 41,
+      "width": 308
+    },
+    "before_outer": {
+      "clientWidth": 356,
+      "scrollWidth": 356,
+      "pageWidth": 390,
+      "viewport": 390
+    },
+    "after_outer": {
+      "clientWidth": 356,
+      "scrollWidth": 356,
+      "pageWidth": 390,
+      "viewport": 390
+    },
+    "text_exact": true,
+    "white_space_exact": true
+  },
+  {
+    "pane": "review",
+    "width": 390,
+    "sample": "long",
+    "before": {
+      "clientWidth": 308,
+      "scrollWidth": 1307,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "normal",
+      "text": "Hello,\n\nLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientName\nhttps://travel.example.test/synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-\n\nRegards,\nSynthetic team",
+      "x": 41,
+      "width": 308
+    },
+    "after": {
+      "clientWidth": 308,
+      "scrollWidth": 308,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "anywhere",
+      "text": "Hello,\n\nLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientName\nhttps://travel.example.test/synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-\n\nRegards,\nSynthetic team",
+      "x": 41,
+      "width": 308
+    },
+    "before_outer": {
+      "clientWidth": 356,
+      "scrollWidth": 356,
+      "pageWidth": 390,
+      "viewport": 390
+    },
+    "after_outer": {
+      "clientWidth": 356,
+      "scrollWidth": 356,
+      "pageWidth": 390,
+      "viewport": 390
+    },
+    "text_exact": true,
+    "white_space_exact": true
+  },
+  {
+    "pane": "review",
+    "width": 1440,
+    "sample": "small",
+    "before": {
+      "clientWidth": 718,
+      "scrollWidth": 718,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "normal",
+      "text": "Hello,\n\nYour synthetic trip is confirmed.\n\nRegards,\nSynthetic team",
+      "x": 361,
+      "width": 718
+    },
+    "after": {
+      "clientWidth": 718,
+      "scrollWidth": 718,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "anywhere",
+      "text": "Hello,\n\nYour synthetic trip is confirmed.\n\nRegards,\nSynthetic team",
+      "x": 361,
+      "width": 718
+    },
+    "before_outer": {
+      "clientWidth": 766,
+      "scrollWidth": 766,
+      "pageWidth": 1440,
+      "viewport": 1440
+    },
+    "after_outer": {
+      "clientWidth": 766,
+      "scrollWidth": 766,
+      "pageWidth": 1440,
+      "viewport": 1440
+    },
+    "text_exact": true,
+    "white_space_exact": true
+  },
+  {
+    "pane": "review",
+    "width": 1440,
+    "sample": "long",
+    "before": {
+      "clientWidth": 718,
+      "scrollWidth": 1307,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "normal",
+      "text": "Hello,\n\nLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientName\nhttps://travel.example.test/synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-\n\nRegards,\nSynthetic team",
+      "x": 361,
+      "width": 718
+    },
+    "after": {
+      "clientWidth": 718,
+      "scrollWidth": 718,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "anywhere",
+      "text": "Hello,\n\nLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientName\nhttps://travel.example.test/synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-\n\nRegards,\nSynthetic team",
+      "x": 361,
+      "width": 718
+    },
+    "before_outer": {
+      "clientWidth": 766,
+      "scrollWidth": 766,
+      "pageWidth": 1440,
+      "viewport": 1440
+    },
+    "after_outer": {
+      "clientWidth": 766,
+      "scrollWidth": 766,
+      "pageWidth": 1440,
+      "viewport": 1440
+    },
+    "text_exact": true,
+    "white_space_exact": true
+  },
+  {
+    "pane": "historical",
+    "width": 390,
+    "sample": "small",
+    "before": {
+      "clientWidth": 308,
+      "scrollWidth": 308,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "normal",
+      "text": "Hello,\n\nYour synthetic trip is confirmed.\n\nRegards,\nSynthetic team",
+      "x": 41,
+      "width": 308
+    },
+    "after": {
+      "clientWidth": 308,
+      "scrollWidth": 308,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "anywhere",
+      "text": "Hello,\n\nYour synthetic trip is confirmed.\n\nRegards,\nSynthetic team",
+      "x": 41,
+      "width": 308
+    },
+    "before_outer": {
+      "clientWidth": 356,
+      "scrollWidth": 356,
+      "pageWidth": 390,
+      "viewport": 390
+    },
+    "after_outer": {
+      "clientWidth": 356,
+      "scrollWidth": 356,
+      "pageWidth": 390,
+      "viewport": 390
+    },
+    "text_exact": true,
+    "white_space_exact": true
+  },
+  {
+    "pane": "historical",
+    "width": 390,
+    "sample": "long",
+    "before": {
+      "clientWidth": 308,
+      "scrollWidth": 1307,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "normal",
+      "text": "Hello,\n\nLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientName\nhttps://travel.example.test/synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-\n\nRegards,\nSynthetic team",
+      "x": 41,
+      "width": 308
+    },
+    "after": {
+      "clientWidth": 308,
+      "scrollWidth": 308,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "anywhere",
+      "text": "Hello,\n\nLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientName\nhttps://travel.example.test/synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-\n\nRegards,\nSynthetic team",
+      "x": 41,
+      "width": 308
+    },
+    "before_outer": {
+      "clientWidth": 356,
+      "scrollWidth": 356,
+      "pageWidth": 390,
+      "viewport": 390
+    },
+    "after_outer": {
+      "clientWidth": 356,
+      "scrollWidth": 356,
+      "pageWidth": 390,
+      "viewport": 390
+    },
+    "text_exact": true,
+    "white_space_exact": true
+  },
+  {
+    "pane": "historical",
+    "width": 1440,
+    "sample": "small",
+    "before": {
+      "clientWidth": 718,
+      "scrollWidth": 718,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "normal",
+      "text": "Hello,\n\nYour synthetic trip is confirmed.\n\nRegards,\nSynthetic team",
+      "x": 361,
+      "width": 718
+    },
+    "after": {
+      "clientWidth": 718,
+      "scrollWidth": 718,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "anywhere",
+      "text": "Hello,\n\nYour synthetic trip is confirmed.\n\nRegards,\nSynthetic team",
+      "x": 361,
+      "width": 718
+    },
+    "before_outer": {
+      "clientWidth": 766,
+      "scrollWidth": 766,
+      "pageWidth": 1440,
+      "viewport": 1440
+    },
+    "after_outer": {
+      "clientWidth": 766,
+      "scrollWidth": 766,
+      "pageWidth": 1440,
+      "viewport": 1440
+    },
+    "text_exact": true,
+    "white_space_exact": true
+  },
+  {
+    "pane": "historical",
+    "width": 1440,
+    "sample": "long",
+    "before": {
+      "clientWidth": 718,
+      "scrollWidth": 1307,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "normal",
+      "text": "Hello,\n\nLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientName\nhttps://travel.example.test/synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-\n\nRegards,\nSynthetic team",
+      "x": 361,
+      "width": 718
+    },
+    "after": {
+      "clientWidth": 718,
+      "scrollWidth": 718,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "anywhere",
+      "text": "Hello,\n\nLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientName\nhttps://travel.example.test/synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-\n\nRegards,\nSynthetic team",
+      "x": 361,
+      "width": 718
+    },
+    "before_outer": {
+      "clientWidth": 766,
+      "scrollWidth": 766,
+      "pageWidth": 1440,
+      "viewport": 1440
+    },
+    "after_outer": {
+      "clientWidth": 766,
+      "scrollWidth": 766,
+      "pageWidth": 1440,
+      "viewport": 1440
+    },
+    "text_exact": true,
+    "white_space_exact": true
+  },
+  {
+    "pane": "document-review",
+    "width": 390,
+    "sample": "small",
+    "before": {
+      "clientWidth": 308,
+      "scrollWidth": 308,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "normal",
+      "text": "Hello,\n\nYour synthetic trip is confirmed.\n\nRegards,\nSynthetic team",
+      "x": 41,
+      "width": 308
+    },
+    "after": {
+      "clientWidth": 308,
+      "scrollWidth": 308,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "anywhere",
+      "text": "Hello,\n\nYour synthetic trip is confirmed.\n\nRegards,\nSynthetic team",
+      "x": 41,
+      "width": 308
+    },
+    "before_outer": {
+      "clientWidth": 356,
+      "scrollWidth": 356,
+      "pageWidth": 390,
+      "viewport": 390
+    },
+    "after_outer": {
+      "clientWidth": 356,
+      "scrollWidth": 356,
+      "pageWidth": 390,
+      "viewport": 390
+    },
+    "text_exact": true,
+    "white_space_exact": true
+  },
+  {
+    "pane": "document-review",
+    "width": 390,
+    "sample": "long",
+    "before": {
+      "clientWidth": 308,
+      "scrollWidth": 1283,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "normal",
+      "text": "Hello,\n\nLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientName\nhttps://travel.example.test/synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-\n\nRegards,\nSynthetic team",
+      "x": 41,
+      "width": 308
+    },
+    "after": {
+      "clientWidth": 308,
+      "scrollWidth": 308,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "anywhere",
+      "text": "Hello,\n\nLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientName\nhttps://travel.example.test/synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-\n\nRegards,\nSynthetic team",
+      "x": 41,
+      "width": 308
+    },
+    "before_outer": {
+      "clientWidth": 356,
+      "scrollWidth": 1307,
+      "pageWidth": 390,
+      "viewport": 390
+    },
+    "after_outer": {
+      "clientWidth": 356,
+      "scrollWidth": 356,
+      "pageWidth": 390,
+      "viewport": 390
+    },
+    "text_exact": true,
+    "white_space_exact": true
+  },
+  {
+    "pane": "document-review",
+    "width": 1440,
+    "sample": "small",
+    "before": {
+      "clientWidth": 718,
+      "scrollWidth": 718,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "normal",
+      "text": "Hello,\n\nYour synthetic trip is confirmed.\n\nRegards,\nSynthetic team",
+      "x": 361,
+      "width": 718
+    },
+    "after": {
+      "clientWidth": 718,
+      "scrollWidth": 718,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "anywhere",
+      "text": "Hello,\n\nYour synthetic trip is confirmed.\n\nRegards,\nSynthetic team",
+      "x": 361,
+      "width": 718
+    },
+    "before_outer": {
+      "clientWidth": 766,
+      "scrollWidth": 766,
+      "pageWidth": 1440,
+      "viewport": 1440
+    },
+    "after_outer": {
+      "clientWidth": 766,
+      "scrollWidth": 766,
+      "pageWidth": 1440,
+      "viewport": 1440
+    },
+    "text_exact": true,
+    "white_space_exact": true
+  },
+  {
+    "pane": "document-review",
+    "width": 1440,
+    "sample": "long",
+    "before": {
+      "clientWidth": 718,
+      "scrollWidth": 1283,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "normal",
+      "text": "Hello,\n\nLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientName\nhttps://travel.example.test/synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-\n\nRegards,\nSynthetic team",
+      "x": 361,
+      "width": 718
+    },
+    "after": {
+      "clientWidth": 718,
+      "scrollWidth": 718,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "anywhere",
+      "text": "Hello,\n\nLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientName\nhttps://travel.example.test/synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-\n\nRegards,\nSynthetic team",
+      "x": 361,
+      "width": 718
+    },
+    "before_outer": {
+      "clientWidth": 766,
+      "scrollWidth": 1307,
+      "pageWidth": 1440,
+      "viewport": 1440
+    },
+    "after_outer": {
+      "clientWidth": 766,
+      "scrollWidth": 766,
+      "pageWidth": 1440,
+      "viewport": 1440
+    },
+    "text_exact": true,
+    "white_space_exact": true
+  },
+  {
+    "pane": "trip-review",
+    "width": 390,
+    "sample": "small",
+    "before": {
+      "clientWidth": 308,
+      "scrollWidth": 308,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "normal",
+      "text": "Hello,\n\nYour synthetic trip is confirmed.\n\nRegards,\nSynthetic team",
+      "x": 41,
+      "width": 308
+    },
+    "after": {
+      "clientWidth": 308,
+      "scrollWidth": 308,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "anywhere",
+      "text": "Hello,\n\nYour synthetic trip is confirmed.\n\nRegards,\nSynthetic team",
+      "x": 41,
+      "width": 308
+    },
+    "before_outer": {
+      "clientWidth": 356,
+      "scrollWidth": 356,
+      "pageWidth": 390,
+      "viewport": 390
+    },
+    "after_outer": {
+      "clientWidth": 356,
+      "scrollWidth": 356,
+      "pageWidth": 390,
+      "viewport": 390
+    },
+    "text_exact": true,
+    "white_space_exact": true
+  },
+  {
+    "pane": "trip-review",
+    "width": 390,
+    "sample": "long",
+    "before": {
+      "clientWidth": 308,
+      "scrollWidth": 1287,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "normal",
+      "text": "Hello,\n\nLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientName\nhttps://travel.example.test/synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-\n\nRegards,\nSynthetic team",
+      "x": 41,
+      "width": 308
+    },
+    "after": {
+      "clientWidth": 308,
+      "scrollWidth": 308,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "anywhere",
+      "text": "Hello,\n\nLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientName\nhttps://travel.example.test/synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-\n\nRegards,\nSynthetic team",
+      "x": 41,
+      "width": 308
+    },
+    "before_outer": {
+      "clientWidth": 356,
+      "scrollWidth": 1311,
+      "pageWidth": 390,
+      "viewport": 390
+    },
+    "after_outer": {
+      "clientWidth": 356,
+      "scrollWidth": 356,
+      "pageWidth": 390,
+      "viewport": 390
+    },
+    "text_exact": true,
+    "white_space_exact": true
+  },
+  {
+    "pane": "trip-review",
+    "width": 1440,
+    "sample": "small",
+    "before": {
+      "clientWidth": 718,
+      "scrollWidth": 718,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "normal",
+      "text": "Hello,\n\nYour synthetic trip is confirmed.\n\nRegards,\nSynthetic team",
+      "x": 361,
+      "width": 718
+    },
+    "after": {
+      "clientWidth": 718,
+      "scrollWidth": 718,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "anywhere",
+      "text": "Hello,\n\nYour synthetic trip is confirmed.\n\nRegards,\nSynthetic team",
+      "x": 361,
+      "width": 718
+    },
+    "before_outer": {
+      "clientWidth": 766,
+      "scrollWidth": 766,
+      "pageWidth": 1440,
+      "viewport": 1440
+    },
+    "after_outer": {
+      "clientWidth": 766,
+      "scrollWidth": 766,
+      "pageWidth": 1440,
+      "viewport": 1440
+    },
+    "text_exact": true,
+    "white_space_exact": true
+  },
+  {
+    "pane": "trip-review",
+    "width": 1440,
+    "sample": "long",
+    "before": {
+      "clientWidth": 718,
+      "scrollWidth": 1287,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "normal",
+      "text": "Hello,\n\nLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientName\nhttps://travel.example.test/synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-\n\nRegards,\nSynthetic team",
+      "x": 361,
+      "width": 718
+    },
+    "after": {
+      "clientWidth": 718,
+      "scrollWidth": 718,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "anywhere",
+      "text": "Hello,\n\nLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientName\nhttps://travel.example.test/synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-\n\nRegards,\nSynthetic team",
+      "x": 361,
+      "width": 718
+    },
+    "before_outer": {
+      "clientWidth": 766,
+      "scrollWidth": 1311,
+      "pageWidth": 1440,
+      "viewport": 1440
+    },
+    "after_outer": {
+      "clientWidth": 766,
+      "scrollWidth": 766,
+      "pageWidth": 1440,
+      "viewport": 1440
+    },
+    "text_exact": true,
+    "white_space_exact": true
+  },
+  {
+    "pane": "saved-update",
+    "width": 390,
+    "sample": "small",
+    "before": {
+      "clientWidth": 330,
+      "scrollWidth": 330,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "normal",
+      "text": "Hello,\n\nYour synthetic trip is confirmed.\n\nRegards,\nSynthetic team",
+      "x": 29,
+      "width": 332
+    },
+    "after": {
+      "clientWidth": 330,
+      "scrollWidth": 330,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "anywhere",
+      "text": "Hello,\n\nYour synthetic trip is confirmed.\n\nRegards,\nSynthetic team",
+      "x": 29,
+      "width": 332
+    },
+    "before_outer": {
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "pageWidth": 390,
+      "viewport": 390
+    },
+    "after_outer": {
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "pageWidth": 390,
+      "viewport": 390
+    },
+    "text_exact": true,
+    "white_space_exact": true
+  },
+  {
+    "pane": "saved-update",
+    "width": 390,
+    "sample": "long",
+    "before": {
+      "clientWidth": 330,
+      "scrollWidth": 1098,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "normal",
+      "text": "Hello,\n\nLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientName\nhttps://travel.example.test/synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-\n\nRegards,\nSynthetic team",
+      "x": 29,
+      "width": 332
+    },
+    "after": {
+      "clientWidth": 330,
+      "scrollWidth": 330,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "anywhere",
+      "text": "Hello,\n\nLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientName\nhttps://travel.example.test/synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-\n\nRegards,\nSynthetic team",
+      "x": 29,
+      "width": 332
+    },
+    "before_outer": {
+      "clientWidth": 390,
+      "scrollWidth": 1128,
+      "pageWidth": 1128,
+      "viewport": 390
+    },
+    "after_outer": {
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "pageWidth": 390,
+      "viewport": 390
+    },
+    "text_exact": true,
+    "white_space_exact": true
+  },
+  {
+    "pane": "saved-update",
+    "width": 1440,
+    "sample": "small",
+    "before": {
+      "clientWidth": 964,
+      "scrollWidth": 964,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "normal",
+      "text": "Hello,\n\nYour synthetic trip is confirmed.\n\nRegards,\nSynthetic team",
+      "x": 237,
+      "width": 966
+    },
+    "after": {
+      "clientWidth": 964,
+      "scrollWidth": 964,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "anywhere",
+      "text": "Hello,\n\nYour synthetic trip is confirmed.\n\nRegards,\nSynthetic team",
+      "x": 237,
+      "width": 966
+    },
+    "before_outer": {
+      "clientWidth": 1024,
+      "scrollWidth": 1024,
+      "pageWidth": 1440,
+      "viewport": 1440
+    },
+    "after_outer": {
+      "clientWidth": 1024,
+      "scrollWidth": 1024,
+      "pageWidth": 1440,
+      "viewport": 1440
+    },
+    "text_exact": true,
+    "white_space_exact": true
+  },
+  {
+    "pane": "saved-update",
+    "width": 1440,
+    "sample": "long",
+    "before": {
+      "clientWidth": 964,
+      "scrollWidth": 1098,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "normal",
+      "text": "Hello,\n\nLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientName\nhttps://travel.example.test/synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-\n\nRegards,\nSynthetic team",
+      "x": 237,
+      "width": 966
+    },
+    "after": {
+      "clientWidth": 964,
+      "scrollWidth": 964,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "anywhere",
+      "text": "Hello,\n\nLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientName\nhttps://travel.example.test/synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-\n\nRegards,\nSynthetic team",
+      "x": 237,
+      "width": 966
+    },
+    "before_outer": {
+      "clientWidth": 1024,
+      "scrollWidth": 1128,
+      "pageWidth": 1440,
+      "viewport": 1440
+    },
+    "after_outer": {
+      "clientWidth": 1024,
+      "scrollWidth": 1024,
+      "pageWidth": 1440,
+      "viewport": 1440
+    },
+    "text_exact": true,
+    "white_space_exact": true
+  },
+  {
+    "pane": "document-delivery",
+    "width": 390,
+    "sample": "small",
+    "before": {
+      "clientWidth": 276,
+      "scrollWidth": 276,
+      "whiteSpace": "pre-line",
+      "overflowWrap": "normal",
+      "text": "Dear Delegates\n\nGreetings from Global Connect Travels\n\nHello,\n\nYour synthetic trip is confirmed.\n\nRegards,\nSynthetic team\n\nCheck every document.\n\nRegards,\nTeam Global Connect Travels",
+      "x": 57,
+      "width": 276
+    },
+    "after": {
+      "clientWidth": 276,
+      "scrollWidth": 276,
+      "whiteSpace": "pre-line",
+      "overflowWrap": "anywhere",
+      "text": "Dear Delegates\n\nGreetings from Global Connect Travels\n\nHello,\n\nYour synthetic trip is confirmed.\n\nRegards,\nSynthetic team\n\nCheck every document.\n\nRegards,\nTeam Global Connect Travels",
+      "x": 57,
+      "width": 276
+    },
+    "before_outer": {
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "pageWidth": 390,
+      "viewport": 390
+    },
+    "after_outer": {
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "pageWidth": 390,
+      "viewport": 390
+    },
+    "text_exact": true,
+    "white_space_exact": true
+  },
+  {
+    "pane": "document-delivery",
+    "width": 390,
+    "sample": "long",
+    "before": {
+      "clientWidth": 1267,
+      "scrollWidth": 1267,
+      "whiteSpace": "pre-line",
+      "overflowWrap": "normal",
+      "text": "Dear Delegates\n\nGreetings from Global Connect Travels\n\nHello,\n\nLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientName\nhttps://travel.example.test/synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-\n\nRegards,\nSynthetic team\n\nCheck every document.\n\nRegards,\nTeam Global Connect Travels",
+      "x": 57,
+      "width": 1267.015625
+    },
+    "after": {
+      "clientWidth": 276,
+      "scrollWidth": 276,
+      "whiteSpace": "pre-line",
+      "overflowWrap": "anywhere",
+      "text": "Dear Delegates\n\nGreetings from Global Connect Travels\n\nHello,\n\nLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientName\nhttps://travel.example.test/synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-\n\nRegards,\nSynthetic team\n\nCheck every document.\n\nRegards,\nTeam Global Connect Travels",
+      "x": 57,
+      "width": 276
+    },
+    "before_outer": {
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "pageWidth": 390,
+      "viewport": 390
+    },
+    "after_outer": {
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "pageWidth": 390,
+      "viewport": 390
+    },
+    "text_exact": true,
+    "white_space_exact": true
+  },
+  {
+    "pane": "document-delivery",
+    "width": 1440,
+    "sample": "small",
+    "before": {
+      "clientWidth": 510,
+      "scrollWidth": 510,
+      "whiteSpace": "pre-line",
+      "overflowWrap": "normal",
+      "text": "Dear Delegates\n\nGreetings from Global Connect Travels\n\nHello,\n\nYour synthetic trip is confirmed.\n\nRegards,\nSynthetic team\n\nCheck every document.\n\nRegards,\nTeam Global Connect Travels",
+      "x": 745,
+      "width": 510
+    },
+    "after": {
+      "clientWidth": 510,
+      "scrollWidth": 510,
+      "whiteSpace": "pre-line",
+      "overflowWrap": "anywhere",
+      "text": "Dear Delegates\n\nGreetings from Global Connect Travels\n\nHello,\n\nYour synthetic trip is confirmed.\n\nRegards,\nSynthetic team\n\nCheck every document.\n\nRegards,\nTeam Global Connect Travels",
+      "x": 745,
+      "width": 510
+    },
+    "before_outer": {
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "pageWidth": 1440,
+      "viewport": 1440
+    },
+    "after_outer": {
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "pageWidth": 1440,
+      "viewport": 1440
+    },
+    "text_exact": true,
+    "white_space_exact": true
+  },
+  {
+    "pane": "document-delivery",
+    "width": 1440,
+    "sample": "long",
+    "before": {
+      "clientWidth": 510,
+      "scrollWidth": 1267,
+      "whiteSpace": "pre-line",
+      "overflowWrap": "normal",
+      "text": "Dear Delegates\n\nGreetings from Global Connect Travels\n\nHello,\n\nLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientName\nhttps://travel.example.test/synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-\n\nRegards,\nSynthetic team\n\nCheck every document.\n\nRegards,\nTeam Global Connect Travels",
+      "x": 745,
+      "width": 510
+    },
+    "after": {
+      "clientWidth": 510,
+      "scrollWidth": 510,
+      "whiteSpace": "pre-line",
+      "overflowWrap": "anywhere",
+      "text": "Dear Delegates\n\nGreetings from Global Connect Travels\n\nHello,\n\nLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientName\nhttps://travel.example.test/synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-\n\nRegards,\nSynthetic team\n\nCheck every document.\n\nRegards,\nTeam Global Connect Travels",
+      "x": 745,
+      "width": 510
+    },
+    "before_outer": {
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "pageWidth": 1440,
+      "viewport": 1440
+    },
+    "after_outer": {
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "pageWidth": 1440,
+      "viewport": 1440
+    },
+    "text_exact": true,
+    "white_space_exact": true
+  },
+  {
+    "pane": "inline-preview",
+    "width": 390,
+    "sample": "small",
+    "before": {
+      "clientWidth": 322,
+      "scrollWidth": 322,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "break-word",
+      "text": "Hello,\n\nYour synthetic trip is confirmed.\n\nRegards,\nSynthetic team",
+      "x": 34,
+      "width": 322
+    },
+    "after": {
+      "clientWidth": 322,
+      "scrollWidth": 322,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "break-word",
+      "text": "Hello,\n\nYour synthetic trip is confirmed.\n\nRegards,\nSynthetic team",
+      "x": 34,
+      "width": 322
+    },
+    "before_outer": {
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "pageWidth": 390,
+      "viewport": 390
+    },
+    "after_outer": {
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "pageWidth": 390,
+      "viewport": 390
+    },
+    "text_exact": true,
+    "white_space_exact": true
+  },
+  {
+    "pane": "inline-preview",
+    "width": 390,
+    "sample": "long",
+    "before": {
+      "clientWidth": 322,
+      "scrollWidth": 322,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "break-word",
+      "text": "Hello,\n\nLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientName\nhttps://travel.example.test/synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-\n\nRegards,\nSynthetic team",
+      "x": 34,
+      "width": 322
+    },
+    "after": {
+      "clientWidth": 322,
+      "scrollWidth": 322,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "break-word",
+      "text": "Hello,\n\nLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientName\nhttps://travel.example.test/synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-\n\nRegards,\nSynthetic team",
+      "x": 34,
+      "width": 322
+    },
+    "before_outer": {
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "pageWidth": 390,
+      "viewport": 390
+    },
+    "after_outer": {
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "pageWidth": 390,
+      "viewport": 390
+    },
+    "text_exact": true,
+    "white_space_exact": true
+  },
+  {
+    "pane": "inline-preview",
+    "width": 1440,
+    "sample": "small",
+    "before": {
+      "clientWidth": 446,
+      "scrollWidth": 446,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "break-word",
+      "text": "Hello,\n\nYour synthetic trip is confirmed.\n\nRegards,\nSynthetic team",
+      "x": 748,
+      "width": 446
+    },
+    "after": {
+      "clientWidth": 446,
+      "scrollWidth": 446,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "break-word",
+      "text": "Hello,\n\nYour synthetic trip is confirmed.\n\nRegards,\nSynthetic team",
+      "x": 748,
+      "width": 446
+    },
+    "before_outer": {
+      "clientWidth": 1024,
+      "scrollWidth": 1024,
+      "pageWidth": 1440,
+      "viewport": 1440
+    },
+    "after_outer": {
+      "clientWidth": 1024,
+      "scrollWidth": 1024,
+      "pageWidth": 1440,
+      "viewport": 1440
+    },
+    "text_exact": true,
+    "white_space_exact": true
+  },
+  {
+    "pane": "inline-preview",
+    "width": 1440,
+    "sample": "long",
+    "before": {
+      "clientWidth": 446,
+      "scrollWidth": 446,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "break-word",
+      "text": "Hello,\n\nLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientName\nhttps://travel.example.test/synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-\n\nRegards,\nSynthetic team",
+      "x": 748,
+      "width": 446
+    },
+    "after": {
+      "clientWidth": 446,
+      "scrollWidth": 446,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "break-word",
+      "text": "Hello,\n\nLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientName\nhttps://travel.example.test/synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-\n\nRegards,\nSynthetic team",
+      "x": 748,
+      "width": 446
+    },
+    "before_outer": {
+      "clientWidth": 1024,
+      "scrollWidth": 1024,
+      "pageWidth": 1440,
+      "viewport": 1440
+    },
+    "after_outer": {
+      "clientWidth": 1024,
+      "scrollWidth": 1024,
+      "pageWidth": 1440,
+      "viewport": 1440
+    },
+    "text_exact": true,
+    "white_space_exact": true
+  },
+  {
+    "pane": "existing-delivery-preview",
+    "width": 390,
+    "sample": "small",
+    "before": {
+      "clientWidth": 298,
+      "scrollWidth": 298,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "anywhere",
+      "text": "Hello,\n\nYour synthetic trip is confirmed.\n\nRegards,\nSynthetic team",
+      "x": 46,
+      "width": 298
+    },
+    "after": {
+      "clientWidth": 298,
+      "scrollWidth": 298,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "anywhere",
+      "text": "Hello,\n\nYour synthetic trip is confirmed.\n\nRegards,\nSynthetic team",
+      "x": 46,
+      "width": 298
+    },
+    "before_outer": {
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "pageWidth": 390,
+      "viewport": 390
+    },
+    "after_outer": {
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "pageWidth": 390,
+      "viewport": 390
+    },
+    "text_exact": true,
+    "white_space_exact": true
+  },
+  {
+    "pane": "existing-delivery-preview",
+    "width": 390,
+    "sample": "long",
+    "before": {
+      "clientWidth": 298,
+      "scrollWidth": 298,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "anywhere",
+      "text": "Hello,\n\nLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientName\nhttps://travel.example.test/synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-\n\nRegards,\nSynthetic team",
+      "x": 46,
+      "width": 298
+    },
+    "after": {
+      "clientWidth": 298,
+      "scrollWidth": 298,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "anywhere",
+      "text": "Hello,\n\nLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientName\nhttps://travel.example.test/synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-\n\nRegards,\nSynthetic team",
+      "x": 46,
+      "width": 298
+    },
+    "before_outer": {
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "pageWidth": 390,
+      "viewport": 390
+    },
+    "after_outer": {
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "pageWidth": 390,
+      "viewport": 390
+    },
+    "text_exact": true,
+    "white_space_exact": true
+  },
+  {
+    "pane": "existing-delivery-preview",
+    "width": 1440,
+    "sample": "small",
+    "before": {
+      "clientWidth": 386,
+      "scrollWidth": 386,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "anywhere",
+      "text": "Hello,\n\nYour synthetic trip is confirmed.\n\nRegards,\nSynthetic team",
+      "x": 792,
+      "width": 386
+    },
+    "after": {
+      "clientWidth": 386,
+      "scrollWidth": 386,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "anywhere",
+      "text": "Hello,\n\nYour synthetic trip is confirmed.\n\nRegards,\nSynthetic team",
+      "x": 792,
+      "width": 386
+    },
+    "before_outer": {
+      "clientWidth": 1024,
+      "scrollWidth": 1024,
+      "pageWidth": 1440,
+      "viewport": 1440
+    },
+    "after_outer": {
+      "clientWidth": 1024,
+      "scrollWidth": 1024,
+      "pageWidth": 1440,
+      "viewport": 1440
+    },
+    "text_exact": true,
+    "white_space_exact": true
+  },
+  {
+    "pane": "existing-delivery-preview",
+    "width": 1440,
+    "sample": "long",
+    "before": {
+      "clientWidth": 386,
+      "scrollWidth": 386,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "anywhere",
+      "text": "Hello,\n\nLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientName\nhttps://travel.example.test/synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-\n\nRegards,\nSynthetic team",
+      "x": 792,
+      "width": 386
+    },
+    "after": {
+      "clientWidth": 386,
+      "scrollWidth": 386,
+      "whiteSpace": "pre-wrap",
+      "overflowWrap": "anywhere",
+      "text": "Hello,\n\nLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientNameLongSyntheticRecipientName\nhttps://travel.example.test/synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-synthetic-secure-link-\n\nRegards,\nSynthetic team",
+      "x": 792,
+      "width": 386
+    },
+    "before_outer": {
+      "clientWidth": 1024,
+      "scrollWidth": 1024,
+      "pageWidth": 1440,
+      "viewport": 1440
+    },
+    "after_outer": {
+      "clientWidth": 1024,
+      "scrollWidth": 1024,
+      "pageWidth": 1440,
+      "viewport": 1440
+    },
+    "text_exact": true,
+    "white_space_exact": true
+  }
+]

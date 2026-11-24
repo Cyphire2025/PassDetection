@@ -1,3 +1,4 @@
+import { prepareVisibleMenuTrigger } from "./support/visible-menu-trigger";
 import { expect, test } from "@playwright/test";
 import {
   batchId,
@@ -204,7 +205,9 @@ test("recipients support failed-number correction and stacked detail panels", as
   await page.setViewportSize({ width: 1536, height: 1100 });
   await page.goto(`${base}/recipients`);
   for (const name of ["Aarav Shah", "Diya Mehta"]) {
-    await page.getByRole("button", { name: `Actions for ${name}` }).click();
+    const actions = page.getByRole("button", { name: `Actions for ${name}` });
+    await prepareVisibleMenuTrigger(actions);
+    await actions.click();
     await page.getByRole("menuitem", { name: "View details" }).click();
   }
   await expect(

@@ -1,0 +1,7 @@
+{
+  "original_receipt": {
+    "path": "document-import-verification.json",
+    "sha256": "0bcdd12759355fe02cbf4441313bcaefaaa2cd8dad5f5b345fb81bafdb0992ac"
+  },
+  "correction": "measurements.nonblank_lines is a mislabeled physical-line metric from the unchanged quality checker:431/49 actual physical lines, matching physical_lines and candidate baseline_lines; this does not claim whitespace compression or431 nonblank statements. Original immutable receipt retained. Source hashes, budgets, coverage and checks unchanged."
+}

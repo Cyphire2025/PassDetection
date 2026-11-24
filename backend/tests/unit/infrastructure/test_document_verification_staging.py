@@ -1,14 +1,20 @@
 from __future__ import annotations
 
 import asyncio
+import pickle
 import uuid
 from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
 import pytest
+from pydantic import SecretStr
 
-from app.infrastructure.documents import verification_staging
+from app.infrastructure.documents import (
+    verification_receipt_cipher,
+    verification_receipt_scope,
+    verification_staging,
+)
 from app.infrastructure.documents.document_matcher import ClassifiedDocument
 from app.infrastructure.documents.storage_transfers import run_bounded_storage_operations
 from app.infrastructure.documents.verification_staging import (
@@ -48,7 +54,7 @@ class _Storage:
 @pytest.fixture
 def receipt_cipher(monkeypatch: pytest.MonkeyPatch) -> VerificationReceiptCipher:
     monkeypatch.setattr(
-        verification_staging,
+        verification_receipt_cipher,
         "get_settings",
         lambda: SimpleNamespace(
             storage_cleanup_encryption_key=None,
@@ -263,7 +269,7 @@ def test_duplicate_receipt_in_one_chunk_is_rejected_but_single_replay_decodes(
 def test_encoded_receipt_batch_limit_is_enforced_before_decrypt(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.setattr(verification_staging, "MAX_VERIFICATION_RECEIPT_BATCH_BYTES", 5)
+    monkeypatch.setattr(verification_receipt_scope, "MAX_VERIFICATION_RECEIPT_BATCH_BYTES", 5)
 
     with pytest.raises(VerificationReceiptBatchTooLargeError):
         validate_verification_receipt_token_batch(["abc", "def"])
@@ -285,7 +291,7 @@ def test_decoded_receipt_batch_limit_is_incremental(
     )
     one_payload_size = len(verification_staging._serialized_receipt_payload(receipt_one))
     monkeypatch.setattr(
-        verification_staging,
+        verification_receipt_scope,
         "MAX_VERIFICATION_RECEIPT_DECODED_BATCH_BYTES",
         one_payload_size,
     )
@@ -593,3 +599,50 @@ async def test_bounded_storage_operations_preserve_cancellation_after_drain() ->
     with pytest.raises(asyncio.CancelledError):
         await task
     assert completed == ["finished"]
+
+
+def test_receipt_key_rotation_keeps_issued_tokens_and_public_pickle_identity(
+    monkeypatch: pytest.MonkeyPatch, receipt_cipher: VerificationReceiptCipher,
+) -> None:
+    receipt = _receipt(now=datetime.now(tz=UTC))
+    issued = receipt_cipher.encrypt(receipt)
+    monkeypatch.setattr(
+        verification_receipt_cipher,
+        "get_settings",
+        lambda: SimpleNamespace(
+            storage_cleanup_encryption_key=SecretStr("new-test-receipt-key"),
+            app_secret_key="unused-fallback-key",
+            storage_cleanup_encryption_key_version=2,
+            storage_cleanup_decryption_keys={1: SecretStr("test-document-verification-secret")},
+        ),
+    )
+    rotated = VerificationReceiptCipher()
+    assert rotated.decrypt(issued) == receipt
+    assert rotated.decrypt("000" + issued) == receipt
+    current = rotated.encrypt(receipt)
+    assert current.startswith("2.")
+    assert rotated.decrypt(current) == receipt
+    with pytest.raises(VerificationReceiptError):
+        receipt_cipher.decrypt(current)
+    restored = pickle.loads(pickle.dumps(receipt))
+    assert restored == receipt
+    assert type(restored) is StagedDocumentReceipt
+
+
+@pytest.mark.asyncio
+async def test_staging_cleanup_deduplicates_only_its_namespace_and_defers_storage_failure() -> None:
+    storage = SimpleNamespace(delete_files=AsyncMock(return_value=1))
+    key = f"document-verification-staging/{uuid.uuid4()}/{uuid.uuid4()}/{uuid.uuid4()}.pdf"
+    await verification_staging.cleanup_staged_storage_keys([], storage=storage)
+    storage.delete_files.assert_not_awaited()
+    with pytest.raises(ValueError, match="outside the verification namespace"):
+        await verification_staging.cleanup_staged_storage_keys(
+            [key, "document-distribution/other.pdf"], storage=storage,
+        )
+    storage.delete_files.assert_not_awaited()
+    await verification_staging.cleanup_staged_storage_keys([key, key], storage=storage)
+    storage.delete_files.assert_awaited_once_with([key])
+    storage.delete_files.reset_mock(side_effect=True)
+    storage.delete_files.side_effect = RuntimeError("synthetic storage outage")
+    await verification_staging.cleanup_staged_storage_keys([key], storage=storage)
+    storage.delete_files.assert_awaited_once_with([key])

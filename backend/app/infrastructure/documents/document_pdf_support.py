@@ -245,6 +245,61 @@ def extract_pdf_text_with_pdfium(
         return None
 
 
+def _pdf_open_destination_is_passive(
+    reader: Any,
+    destination_reference: Any,
+    *,
+    deadline: float | None,
+    resolve_object: Callable[[Any], Any],
+) -> bool:
+    """Allow only an explicit local page view, never an opening action.
+
+    PDF OpenAction may contain a destination array rather than an action
+    dictionary. mPDF uses ``[page /XYZ null null 1]`` in issued e-VOA PDFs.
+    Validate the page reference, view syntax and operands before admitting it.
+    Named destinations and all action dictionaries continue to fail closed.
+    """
+
+    try:
+        from pypdf.generic import FloatObject, IndirectObject, NameObject, NullObject, NumberObject
+    except ImportError:
+        return False
+
+    destination = resolve_object(destination_reference)
+    if not isinstance(destination, (list, tuple)) or len(destination) < 2:
+        return False
+    page_reference, view = destination[:2]
+    if not isinstance(page_reference, IndirectObject) or page_reference.pdf is not reader:
+        return False
+    if not isinstance(view, NameObject):
+        return False
+    arities = {
+        "/XYZ": 5,
+        "/Fit": 2,
+        "/FitH": 3,
+        "/FitV": 3,
+        "/FitR": 6,
+        "/FitB": 2,
+        "/FitBH": 3,
+        "/FitBV": 3,
+    }
+    if arities.get(view) != len(destination):
+        return False
+    for operand in destination[2:]:
+        if isinstance(operand, NullObject) and view != "/FitR":
+            continue
+        if not isinstance(operand, (NumberObject, FloatObject)) or not math.isfinite(operand):
+            return False
+    if view == "/XYZ" and not isinstance(destination[4], NullObject) and destination[4] < 0:
+        return False
+    for page in reader.pages:
+        if deadline is not None and time.monotonic() > deadline:
+            return False
+        if page_reference == getattr(page, "indirect_reference", None):
+            return True
+    return False
+
+
 def has_active_pdf_features(
     reader: Any,
     *,
@@ -253,13 +308,18 @@ def has_active_pdf_features(
     fields_have_actions: Callable[..., bool],
     action_is_active: Callable[..., bool],
 ) -> bool:
-    """Reject executable, auto-action, attachment, and XFA PDF features."""
+    """Reject executable actions, attachments and XFA; allow passive page views."""
 
     root = resolve_object(reader.root_object)
     if not isinstance(root, Mapping):
         return True
-    if any(
-        key in root for key in ("/OpenAction", "/AA", "/AF", "/Collection", "/JavaScript", "/JS")
+    if any(key in root for key in ("/AA", "/AF", "/Collection", "/JavaScript", "/JS")):
+        return True
+    if "/OpenAction" in root and not _pdf_open_destination_is_passive(
+        reader,
+        root.get("/OpenAction"),
+        deadline=deadline,
+        resolve_object=resolve_object,
     ):
         return True
 

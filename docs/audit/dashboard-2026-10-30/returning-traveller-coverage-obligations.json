@@ -1,0 +1,16 @@
+{
+  "path": "frontend/vitest.config.mts",
+  "sha256": "43f8ef71f59df34257e296abc4e2d6181105066af32a39c66bf2dcca6268d37d",
+  "reviewer": "branding_visuals",
+  "review_scope": "full",
+  "review_basis": "Full physical current config read; explicit critical include entries compared to exact20changed source paths.",
+  "changed_existing_critical_owners": [],
+  "preserved_thresholds": {
+    "perFile": true,
+    "statements": 74,
+    "branches": 50,
+    "functions": 75,
+    "lines": 75
+  },
+  "conclusion": "None of the seven original returning owners is a configured critical owner. No critical include entry or coverage floor moved/was removed; current use-returning-draft and lifecycle/upload owners remain unchanged. New16focused runtime owners have meaningful affected tests and proposed budgets; no unmeasured per-file coverage claim."
+}

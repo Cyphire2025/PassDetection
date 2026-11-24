@@ -252,16 +252,6 @@ export function useResumeEmailConnection() {
   });
 }
 
-export function useDisconnectEmailConnection() {
-  const invalidate = useInvalidateEmailIntegrations();
-  return useMutation({
-    mutationFn: emailIntegrationsApi.disconnectConnection,
-    // A failed provider revocation deliberately leaves the connection in a
-    // retryable blocked state, so refresh the card on both outcomes.
-    onSettled: invalidate,
-  });
-}
-
 export function useResolveEmailReview() {
   const queryClient = useQueryClient();
   return useMutation({

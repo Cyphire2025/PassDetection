@@ -1,0 +1,2441 @@
+{
+  "status": "Static AST function selection for later retained qualification; no pytest collection or execution",
+  "source_ledgers": [
+    {
+      "path": "retained-shared-native-test-slices-reviewed-files.json",
+      "sha256": "c37ad950ce368b2c8a2441824c0d81d6307f47d00d16d334cc5295dd915083cb"
+    },
+    {
+      "path": "retained-mcp-test-source-closure.json",
+      "sha256": "6244439d8d1ae15d380dd50f950c50e127695b8ae679e577bd0a628910f6e8b7"
+    },
+    {
+      "path": "retained-delivery-ledger-source-reviewed-files.json",
+      "sha256": "f4bbcbbf6032ede03dbc224e9b0b22e14d687c6de49509162c4936894b2392c4"
+    }
+  ],
+  "files": [
+    {
+      "path": "backend/tests/unit/application/test_mobile_otp_provider.py",
+      "sha256": "e40683b3847dfc6c89e636d65ce946de996741b05aac5407cbcbc15da60f9d03",
+      "physical_lines": 49,
+      "source_review_credit": "full",
+      "whole_file_execution_recommendation": "select-only-listed-complete-retained-functions",
+      "whole_file_defer_reason": null,
+      "selected_complete_function_names": [
+        "test_development_provider_fails_closed_in_production",
+        "test_development_provider_never_returns_the_code",
+        "test_disabled_provider_fails_without_leaking_destination"
+      ],
+      "test_functions": [
+        {
+          "function": "test_development_provider_never_returns_the_code",
+          "definition_line": 11,
+          "end_line": 23,
+          "decorator_start_line": 10,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "5ba7e4c081fb4111dab152810f156155e27a8902750a96a5d7b7470ffe6e5909",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_development_provider_fails_closed_in_production",
+          "definition_line": 27,
+          "end_line": 40,
+          "decorator_start_line": 26,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "be0140d6d5be3859dbb611090e26807c5e2b7b9a59f1ee329e7ae3efe7e70416",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_disabled_provider_fails_without_leaking_destination",
+          "definition_line": 43,
+          "end_line": 49,
+          "decorator_start_line": 42,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "4fb2aa0832dc66752b5988d658fa3a4fc08acf98fb9a27e9c46568027f705e8d",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        }
+      ]
+    },
+    {
+      "path": "backend/tests/unit/application/test_passenger_session_authority.py",
+      "sha256": "c97dcff8ac4db6e3dceba59dd5ec656268e334d331c1bed8a1278d4286426940",
+      "physical_lines": 74,
+      "source_review_credit": "full",
+      "whole_file_execution_recommendation": "select-only-listed-complete-retained-functions",
+      "whole_file_defer_reason": null,
+      "selected_complete_function_names": [
+        "test_changed_nonselected_contact_revokes_session_durably_without_deleting_data",
+        "test_direct_trip_policy_rejects_old_broadcast_phone_after_contact_policy_change",
+        "test_unchanged_submitted_contacts_keep_existing_session_and_refresh_token"
+      ],
+      "test_functions": [
+        {
+          "function": "test_unchanged_submitted_contacts_keep_existing_session_and_refresh_token",
+          "definition_line": 17,
+          "end_line": 26,
+          "decorator_start_line": 16,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "a022606c65df3d608d5cb4e44b58fbeeff547ac7db25cd8ea8141673ec865169",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_changed_nonselected_contact_revokes_session_durably_without_deleting_data",
+          "definition_line": 31,
+          "end_line": 56,
+          "decorator_start_line": 29,
+          "parametrized": true,
+          "decorators": [
+            "pytest.mark.asyncio",
+            "pytest.mark.parametrize(\"change\", [\"number\", \"draft\", \"import\", \"generation\", \"revoked\"])"
+          ],
+          "normalized_ast_sha256": "cd32bcb296a99d20ed4a507aca37b2b776990b2e4688c7daa6dec6063ed229a3",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_direct_trip_policy_rejects_old_broadcast_phone_after_contact_policy_change",
+          "definition_line": 60,
+          "end_line": 74,
+          "decorator_start_line": 59,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "e6525d9aab050b5a50def104198f166857b1da6e9a0b821981a1158cae5b00af",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        }
+      ]
+    },
+    {
+      "path": "backend/tests/unit/application/test_mobile_realtime_authorization.py",
+      "sha256": "4e32a7bcc92c2887cfb020ddb0b7a24999e84b3708c91570280b19366e4ec8fd",
+      "physical_lines": 125,
+      "source_review_credit": "full",
+      "whole_file_execution_recommendation": "select-only-listed-complete-retained-functions",
+      "whole_file_defer_reason": null,
+      "selected_complete_function_names": [
+        "test_authorization_is_tenant_scoped_and_live_revocation_removes_trip"
+      ],
+      "test_functions": [
+        {
+          "function": "test_authorization_is_tenant_scoped_and_live_revocation_removes_trip",
+          "definition_line": 23,
+          "end_line": 125,
+          "decorator_start_line": 22,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "ed49ecb1a27ea4412b4340a2a53ea9e80fcc9f651fc584e0f06b381469e9fef7",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        }
+      ]
+    },
+    {
+      "path": "backend/tests/unit/application/test_mobile_push_provider.py",
+      "sha256": "fbb59b5991842620a2a1e3a202f378229b80d4caa9754479438df27dd672a9f4",
+      "physical_lines": 240,
+      "source_review_credit": "focused",
+      "whole_file_execution_recommendation": "select-only-listed-complete-retained-functions",
+      "whole_file_defer_reason": null,
+      "selected_complete_function_names": [
+        "test_disabled_provider_is_fail_closed",
+        "test_message_rejects_non_allowlisted_push_data"
+      ],
+      "test_functions": [
+        {
+          "function": "test_disabled_provider_is_fail_closed",
+          "definition_line": 34,
+          "end_line": 39,
+          "decorator_start_line": 33,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "fc7de443c38e3a1f9344ff015dfeb86fb5248992cebbe1d51b3d10c321d51334",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_message_rejects_non_allowlisted_push_data",
+          "definition_line": 42,
+          "end_line": 52,
+          "decorator_start_line": 42,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "e806763f8d33ab873d8509cdac3adfc653d0b06dc6a5876268da7ec1473ce5ed",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_expo_provider_sends_only_lock_screen_safe_payload",
+          "definition_line": 56,
+          "end_line": 81,
+          "decorator_start_line": 55,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "5e68648d5d50a003079c1bf679f98c28f42c74eb7d6928de443d33ffc229ac4f",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_expo_provider_classifies_revoked_device_ticket",
+          "definition_line": 85,
+          "end_line": 109,
+          "decorator_start_line": 84,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "bcfa711fe170369c17f3caaa5bede69ecf6a80733a09756887427723a9c63528",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_expo_provider_retries_bounded_service_failure",
+          "definition_line": 113,
+          "end_line": 125,
+          "decorator_start_line": 112,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "fa1395feebcfc522d890325505a91a9d476d34d2c959de6807ec56b852ae17b3",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_expo_provider_requires_ticket_id_for_accepted_submission",
+          "definition_line": 129,
+          "end_line": 144,
+          "decorator_start_line": 128,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "3ed1304f9a6dd7da6aa148a17fe2cf97857d8c076d684a91af69348f584a6ef2",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_expo_provider_rejects_duplicate_ticket_ids_fail_closed",
+          "definition_line": 148,
+          "end_line": 179,
+          "decorator_start_line": 147,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "3f7d529ce650d4a946364157802e66d7701034a36abd9e9a08f659995027ed4c",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_expo_provider_maps_receipts_without_retaining_provider_message",
+          "definition_line": 183,
+          "end_line": 221,
+          "decorator_start_line": 182,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "21dec175ce9b17ff71a3afccac22222277dd058f92438e41c53fb45f5b86c55d",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_expo_provider_receipt_outage_is_bounded_and_retryable",
+          "definition_line": 225,
+          "end_line": 240,
+          "decorator_start_line": 224,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "3f04061b441d9e416ed92b6a6c68042023d46412181020788777389ce6c51347",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        }
+      ]
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_mobile_authorization_matrix.py",
+      "sha256": "cee8f3d80aa744ca0121ccd493a12d214d1e0b01bd476c3f5d9376cba0540999",
+      "physical_lines": 722,
+      "source_review_credit": "focused",
+      "whole_file_execution_recommendation": "select-only-listed-complete-retained-functions",
+      "whole_file_defer_reason": null,
+      "selected_complete_function_names": [
+        "test_access_policy_and_realtime_deny_cross_scope_and_lifecycle_rows"
+      ],
+      "test_functions": [
+        {
+          "function": "test_every_mobile_http_route_has_an_explicit_authentication_classification",
+          "definition_line": 237,
+          "end_line": 252,
+          "decorator_start_line": 237,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "1374b39131f294fc744795589b148981ab2e784417249c06533c4b8cbcc5bf6d",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_realtime_is_the_only_mobile_websocket_and_uses_custom_preaccept_auth",
+          "definition_line": 255,
+          "end_line": 278,
+          "decorator_start_line": 255,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "f8bf2bc9fb5ce3be266f726b42fa489099c29272d20cb7ca2621ed718e0aaf65",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_every_role_specific_ops_route_calls_its_shared_fail_closed_guard",
+          "definition_line": 281,
+          "end_line": 298,
+          "decorator_start_line": 281,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "504c5eb1dad5eca7b411be4b0abc9e6ec7756a430cea6a3028fe9dedb26ff76e",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_role_guards_reject_before_any_object_query",
+          "definition_line": 311,
+          "end_line": 318,
+          "decorator_start_line": 301,
+          "parametrized": true,
+          "decorators": [
+            "pytest.mark.asyncio",
+            "pytest.mark.parametrize(\r\n    (\"guard\", \"wrong_role\"),\r\n    [\r\n        (_require_coordinator_trip, \"passenger\"),\r\n        (_require_coordinator_trip, \"client_manager\"),\r\n        (_require_client_manager_trip, \"passenger\"),\r\n        (_require_client_manager_trip, \"coordinator\"),\r\n    ],\r\n)"
+          ],
+          "normalized_ast_sha256": "166af9edd08a17c3e3149096b07bba512c15682b9e4641dc6249e3ea5ce56113",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_manager_readiness_rejects_wrong_role_before_any_object_query",
+          "definition_line": 322,
+          "end_line": 333,
+          "decorator_start_line": 321,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "3363229ee42c73ba804225fc4106e19d03b4ef9b7e310fc53d601904a0c1ff62",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_document_authorization_denies_trip_before_integrity_or_object_lookup",
+          "definition_line": 337,
+          "end_line": 368,
+          "decorator_start_line": 336,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "b6050f517abbce79eac14c802d208121ca31e1002053ecd66cca76da274c118a",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_access_policy_and_realtime_deny_cross_scope_and_lifecycle_rows",
+          "definition_line": 372,
+          "end_line": 486,
+          "decorator_start_line": 371,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "4c7f2c62c1a20f515d37042a74979489ad7bcb70b4c019616c183db8d7c3d2d9",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_live_dependency_rechecks_session_and_staff_account_state",
+          "definition_line": 500,
+          "end_line": 576,
+          "decorator_start_line": 489,
+          "parametrized": true,
+          "decorators": [
+            "pytest.mark.asyncio",
+            "pytest.mark.parametrize(\r\n    (\"scenario\", \"message\"),\r\n    [\r\n        (\"revoked_session\", \"session is no longer active\"),\r\n        (\"expired_status\", \"session is no longer active\"),\r\n        (\"generation_rotated\", \"session is no longer active\"),\r\n        (\"disabled_account\", \"account is inactive\"),\r\n        (\"role_downgraded\", \"account is inactive\"),\r\n    ],\r\n)"
+          ],
+          "normalized_ast_sha256": "3dde89eb533736a8821b2c4d04b3047672ec9f1e191c5d9c6443642663b347c4",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_refresh_fails_closed_on_missing_or_ambiguous_selected_trip_access",
+          "definition_line": 581,
+          "end_line": 623,
+          "decorator_start_line": 579,
+          "parametrized": true,
+          "decorators": [
+            "pytest.mark.asyncio",
+            "pytest.mark.parametrize(\"row_count\", [0, 2])"
+          ],
+          "normalized_ast_sha256": "aecf89699ba5635c7621759bb82d1ab408e4a2cc0b0a91921ef2885185a20867",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_refresh_returns_the_exact_locked_access_used_for_offline_lease",
+          "definition_line": 627,
+          "end_line": 664,
+          "decorator_start_line": 626,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "2dcce11181188f034f4d6cb8e0efeea10a71ec75b92c42aec898c6181d10b7ad",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_realtime_rejects_invalid_session_before_accepting_socket",
+          "definition_line": 668,
+          "end_line": 722,
+          "decorator_start_line": 667,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "7669a66bf57b269e8d1b47ed60d7a376558656b702eda1a33d1da1b7fae8264b",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        }
+      ]
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_mobile_historical_access_sync.py",
+      "sha256": "ba7a2ad7c5db9421801e244b9bdcd03d3164197cfab882c37da8dbcd1ed99cc1",
+      "physical_lines": 178,
+      "source_review_credit": "focused",
+      "whole_file_execution_recommendation": "select-only-listed-complete-retained-functions",
+      "whole_file_defer_reason": null,
+      "selected_complete_function_names": [
+        "test_projection_keeps_unrelated_or_unknown_revocations"
+      ],
+      "test_functions": [
+        {
+          "function": "test_new_session_passes_historical_revokes_and_advances_without_rewriting_history",
+          "definition_line": 65,
+          "end_line": 85,
+          "decorator_start_line": 63,
+          "parametrized": true,
+          "decorators": [
+            "pytest.mark.asyncio",
+            "pytest.mark.parametrize(\"reactivated\", [False, True])"
+          ],
+          "normalized_ast_sha256": "24a6ef56e75eaa9d4b4bcce2fb73935170d2e6a54db50d805c0fbfa8df3a0240",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_current_revocation_is_denied_before_historical_projection",
+          "definition_line": 90,
+          "end_line": 111,
+          "decorator_start_line": 88,
+          "parametrized": true,
+          "decorators": [
+            "pytest.mark.asyncio",
+            "pytest.mark.parametrize(\"revocation\", [\"session\", \"group\", \"role\", \"identity\", \"claim_generation\"])"
+          ],
+          "normalized_ast_sha256": "8d88763d1916f59f76bc1bfbfc760254aaf8874e8b6e5522a97572f8d00af0e8",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_projection_keeps_unrelated_or_unknown_revocations",
+          "definition_line": 116,
+          "end_line": 131,
+          "decorator_start_line": 114,
+          "parametrized": true,
+          "decorators": [
+            "pytest.mark.asyncio",
+            "pytest.mark.parametrize(\"mismatch\", [\"agency\", \"group\", \"access\", \"generation\", \"role\", \"entity\", \"unknown\"])"
+          ],
+          "normalized_ast_sha256": "6c5640cdcdf1a44939116c0fab2578e54ef1336c12f6ce34ac852728f823acc3",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_window_edit_invalidates_old_session_but_only_revokes_disabled_role",
+          "definition_line": 136,
+          "end_line": 178,
+          "decorator_start_line": 134,
+          "parametrized": true,
+          "decorators": [
+            "pytest.mark.asyncio",
+            "pytest.mark.parametrize(\"disable_role\", [False, True])"
+          ],
+          "normalized_ast_sha256": "da2016d363bb20e1db0ea0053424befdfcf714cb4311e5d0393eadee75b9b005",
+          "classification": "mixed-source-slice-only",
+          "execution_recommendation": "Retained dashboard mutation/journal assertions136-167 share one callable with excluded native HTTP continuation168-178; source-only retained slice, no execution selection."
+        }
+      ]
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_mobile_ops.py",
+      "sha256": "512c33736a7d3b458ded87f17d2d2dffa9d7b2662fbf7ee9fc1434d7cfade755",
+      "physical_lines": 1658,
+      "source_review_credit": "focused",
+      "whole_file_execution_recommendation": "select-only-listed-complete-retained-functions",
+      "whole_file_defer_reason": null,
+      "selected_complete_function_names": [
+        "test_accessible_notification_groups_are_role_and_tenant_scoped",
+        "test_attendance_qr_batch_is_tenant_scoped_and_loaded_once",
+        "test_attendance_qr_snapshot_preserves_fail_closed_rejection_precedence",
+        "test_attendance_replay_batch_uses_one_canonical_family_read",
+        "test_attendance_session_batch_uses_two_bounded_scoped_reads",
+        "test_attendance_session_capacity_is_tenant_scoped_and_serialized",
+        "test_attendance_session_capacity_keeps_idempotent_active_name_retry",
+        "test_coordinator_imported_date_parser_fails_closed",
+        "test_hundred_scan_batch_bounds_reads_and_journal_flushes",
+        "test_notification_payload_uses_a_fixed_public_allowlist",
+        "test_trip_countdowns_are_excluded_from_the_durable_updates_feed"
+      ],
+      "test_functions": [
+        {
+          "function": "test_mobile_ops_projects_domestic_lanes_as_flight_tickets",
+          "definition_line": 91,
+          "end_line": 97,
+          "decorator_start_line": 91,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "6b9d23f08e4d082a2cefb7d51a43fdd0597607ad2e0a8f6ad497551f716d2b94",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_mobile_ops_routes_match_native_client_contract",
+          "definition_line": 100,
+          "end_line": 138,
+          "decorator_start_line": 100,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "3c81fede61310ef4cbef88cf51e9b5664b8ca66401570546c9de398f4b32fabc",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_client_manager_trip_scope_fails_closed_for_other_mobile_roles",
+          "definition_line": 176,
+          "end_line": 178,
+          "decorator_start_line": 175,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "223a033bdebe56329b45c5e01161142189145bc3829a841824097586aa8bf5c9",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_legacy_coordinator_global_close_is_explicitly_denied_before_session_lookup",
+          "definition_line": 182,
+          "end_line": 208,
+          "decorator_start_line": 181,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "53a1396cab4f312915c861056e47f34a8aea1975f8a37fdbdec28072c0913632",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_legacy_coordinator_activity_create_is_denied_before_any_write",
+          "definition_line": 212,
+          "end_line": 238,
+          "decorator_start_line": 211,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "b98b253ecb5ca793610047b6dc254a30ad3c74ec6f7a315bf43a95333f34fa3a",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_manager_global_close_rejects_coordinator_before_any_object_query",
+          "definition_line": 242,
+          "end_line": 255,
+          "decorator_start_line": 241,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "551b5c9b4a4472ef2925dd2ec3e61a3dfe524f9ebae898028cb304fd43493d63",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_client_manager_creation_uses_canonical_boundary_and_notifies_coordinators",
+          "definition_line": 259,
+          "end_line": 324,
+          "decorator_start_line": 258,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "60ac4fa68b9a20161a2e31870cfdac0a14e72afa4361e77d2a664426adee5b07",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_client_manager_global_close_uses_locked_shared_boundary_and_audits",
+          "definition_line": 328,
+          "end_line": 445,
+          "decorator_start_line": 327,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "d55f8cb6b530bb50b1665eeb13338e2a82ad0043b3b60fcd645a3a4041bb19c6",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_mobile_coordinator_checkpoint_uses_shared_activity_lock_and_count_only_identity",
+          "definition_line": 449,
+          "end_line": 525,
+          "decorator_start_line": 448,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "a86cbe589c90dd4c0fc32f2858b8694684584bcd89705cdbea4f0f467109eabd",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_mobile_manager_close_fails_closed_before_state_change_when_checkpoint_missing",
+          "definition_line": 529,
+          "end_line": 575,
+          "decorator_start_line": 528,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "0f0c2ec83e48d7d6d08e9f26619b9f69689de2a86c3392fe39105d2bc4eea9ca",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_mobile_manager_override_requires_dashboard_recent_mfa_and_is_audited",
+          "definition_line": 579,
+          "end_line": 635,
+          "decorator_start_line": 578,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "00bdd1b5fa5bb2fe39f8240fa07f723a64a28f90ecc734205aec414cd9137831",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_mobile_manager_status_returns_only_safe_closeout_aggregates",
+          "definition_line": 639,
+          "end_line": 672,
+          "decorator_start_line": 638,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "43ad7242eae618f66d465843965e43ac7be2914c7fb557cc41962db602a21c8c",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_client_manager_roster_includes_every_group_passenger_status",
+          "definition_line": 676,
+          "end_line": 706,
+          "decorator_start_line": 675,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "9322b756b8dbce31d044bf018e04bd32d655ed95965b8252846654af04798384",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_coordinator_roster_filters_before_count_and_cursor_pagination",
+          "definition_line": 714,
+          "end_line": 760,
+          "decorator_start_line": 709,
+          "parametrized": true,
+          "decorators": [
+            "pytest.mark.asyncio",
+            "pytest.mark.parametrize(\r\n    (\"roster_filter\", \"required_sql\"),\r\n    ((\"rooming\", \"rooming_rooms.room_number\"), (\"meals\", \"meal_preference\")),\r\n)"
+          ],
+          "normalized_ast_sha256": "14478bb13894438baf8a09ee4c2addb90fa847aca9dba4311b8ac715f537ecea",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_attendance_session_capacity_is_tenant_scoped_and_serialized",
+          "definition_line": 764,
+          "end_line": 786,
+          "decorator_start_line": 763,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "f8649f75ead2899e72e6fc3ee1b6c21db86f1b9a67cec982b7b2626c20225905",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_attendance_session_capacity_keeps_idempotent_active_name_retry",
+          "definition_line": 790,
+          "end_line": 804,
+          "decorator_start_line": 789,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "a49c4cc8e4d95f5b936e54ebb2220afd339bfc108c43ed52588c6b3161d6ce3f",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_client_manager_detail_accepts_an_assigned_in_progress_passenger",
+          "definition_line": 808,
+          "end_line": 837,
+          "decorator_start_line": 807,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "235a0036cac46faab8a73d7d9491637b47e834a069b447c4e02758d528e4faab",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_client_manager_preview_signature_validation_is_fail_closed",
+          "definition_line": 840,
+          "end_line": 848,
+          "decorator_start_line": 840,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "7d6136d36897a64fee6dfe2e1e1acc4484b786e5b12fb3d6eb6bb1deefb78238",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_attendance_batch_requires_unique_uuid_event_ids",
+          "definition_line": 851,
+          "end_line": 856,
+          "decorator_start_line": 851,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "b64fdc9bfaa1b5fbcd2d85768304609f2e8d319fba1bb2c55c0c9916f143be0c",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_attendance_batch_is_bounded_to_one_hundred_actions",
+          "definition_line": 859,
+          "end_line": 861,
+          "decorator_start_line": 859,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "87951e0f479ee443c1d627afcf40be1e54bb153952c08a6fd4614b8a8b21b2fa",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_attendance_scan_timestamp_requires_timezone",
+          "definition_line": 864,
+          "end_line": 870,
+          "decorator_start_line": 864,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "395e4cebce41ef8ab396b62fdb8d61f8c36f7339f595fc5190f50c1362bef752",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_attendance_batch_returns_per_item_idempotent_results",
+          "definition_line": 874,
+          "end_line": 969,
+          "decorator_start_line": 873,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "ee2d478893e4d65c8cc4df6478b39b44be42b50f2eba88226744199638b64471",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_mobile_batch_rejects_a_fresh_scan_after_manager_close",
+          "definition_line": 973,
+          "end_line": 1011,
+          "decorator_start_line": 972,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "7f0a87463b5d4c3719d94a0b2cb3b622325e2ee436d0a38eda99cbd1991a8911",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_attendance_replay_rejects_event_id_bound_to_another_passenger",
+          "definition_line": 1015,
+          "end_line": 1042,
+          "decorator_start_line": 1014,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "f795ae31ecd27505b78c13c0fd97a57b436e7a076982eebeec5819107ecd0b45",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_attendance_rejection_codes_do_not_echo_internal_values",
+          "definition_line": 1045,
+          "end_line": 1047,
+          "decorator_start_line": 1045,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "4d04901ee69a0098b9ece55f4746976452e7808dd857176d3951d4e487e2eac9",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_attendance_session_batch_uses_two_bounded_scoped_reads",
+          "definition_line": 1051,
+          "end_line": 1091,
+          "decorator_start_line": 1050,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "3acdbe1c627d88a2aa9318b3b2238ea4f27c48d0e8046f0c57c6671e90473b88",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_attendance_qr_batch_is_tenant_scoped_and_loaded_once",
+          "definition_line": 1095,
+          "end_line": 1125,
+          "decorator_start_line": 1094,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "c11081f8e879afe1d7f32b569db3e1f12c5fa4bf8084b86d2ab8e1342b4580c3",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_attendance_qr_snapshot_preserves_fail_closed_rejection_precedence",
+          "definition_line": 1128,
+          "end_line": 1167,
+          "decorator_start_line": 1128,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "13953c657d1b58adefc08a6277965259c6ae8755ed21e504de17ff222d36bfd9",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_attendance_replay_batch_uses_one_canonical_family_read",
+          "definition_line": 1171,
+          "end_line": 1213,
+          "decorator_start_line": 1170,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "24ae4bb33c55c5b04336ece05227eb29bea5a4514163695cde24c219290673b3",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_hundred_scan_batch_bounds_reads_and_journal_flushes",
+          "definition_line": 1217,
+          "end_line": 1308,
+          "decorator_start_line": 1216,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "2ebc896d69100266fe0572e54f1b938f4feb703289ded0ae2b0fa07e6852e6f3",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_push_token_ciphertext_does_not_contain_plaintext",
+          "definition_line": 1311,
+          "end_line": 1315,
+          "decorator_start_line": 1311,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "5820ed0a6d6e01911493e631ad594ac3e41177b0139e2b3fed937b7de91cd0f4",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_push_token_is_trimmed_before_length_validation",
+          "definition_line": 1318,
+          "end_line": 1331,
+          "decorator_start_line": 1318,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "44ab505fdfa13fbf7ff06af8e94937f220c89891d9f08f8dd697dad1ad0fda65",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_notification_payload_uses_a_fixed_public_allowlist",
+          "definition_line": 1334,
+          "end_line": 1343,
+          "decorator_start_line": 1334,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "518c1436c1bbc1b865248488516ee8b08a576ca73c062e3acd00abc1fbc6797b",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_trip_countdowns_are_excluded_from_the_durable_updates_feed",
+          "definition_line": 1346,
+          "end_line": 1347,
+          "decorator_start_line": 1346,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "ce522d4b32e2f34d3461e65cab2c987f42b5362794e456fe094c9ea76da3588f",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_coordinator_imported_date_parser_fails_closed",
+          "definition_line": 1350,
+          "end_line": 1353,
+          "decorator_start_line": 1350,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "284300cbba335bc2c40b9298145eb57d0f990bf7b37de1bc617be934fe4340f6",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_coordinator_passenger_detail_is_tenant_scoped_and_allowlisted",
+          "definition_line": 1357,
+          "end_line": 1545,
+          "decorator_start_line": 1356,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "4d3b2738088f6c07aba754c55d6ce7cd7834e4f3e5f56a0933bae1926b6c5161",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_coordinator_passenger_detail_stops_before_query_when_group_is_unassigned",
+          "definition_line": 1549,
+          "end_line": 1566,
+          "decorator_start_line": 1548,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "27604422736a4b01843de9cb3648ddc0766d90294d94b31aa201011f27796336",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_coordinator_passenger_detail_rejects_cross_group_passenger_identifier",
+          "definition_line": 1570,
+          "end_line": 1596,
+          "decorator_start_line": 1569,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "97bf72c60662bec20ce88b315f3cf49c17b9e10ae7f357e094b26d25243170ab",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_accessible_notification_groups_are_role_and_tenant_scoped",
+          "definition_line": 1599,
+          "end_line": 1609,
+          "decorator_start_line": 1599,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "fb56425d0f1cde600293c3dd62757f56d697f1379d8bb7c516e5e7de253abf63",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_incident_retry_returns_durable_receipt_without_duplicate_insert",
+          "definition_line": 1613,
+          "end_line": 1658,
+          "decorator_start_line": 1612,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "91868ad43236091105be7c0baa248c943df6112c2e8560f31f7ed66bdea5678a",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        }
+      ]
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_mobile_route_type_boundaries.py",
+      "sha256": "ce05d9ea8dc60a03ebbb037bae5f9c3334a4e508ba0dc1fb4ca13e25f7a99128",
+      "physical_lines": 122,
+      "source_review_credit": "focused",
+      "whole_file_execution_recommendation": "defer",
+      "whole_file_defer_reason": "Two parameterized validator catalogs mix retained dashboard values with excluded native MIME/session/sync contracts. Do not invent parameter IDs or execute the whole file; retain shared source slices only.",
+      "selected_complete_function_names": [],
+      "test_functions": [
+        {
+          "function": "test_mobile_sync_operation_preserves_installed_client_contract",
+          "definition_line": 38,
+          "end_line": 42,
+          "decorator_start_line": 29,
+          "parametrized": true,
+          "decorators": [
+            "pytest.mark.parametrize(\r\n    (\"stored_operation\", \"expected_operation\"),\r\n    [\r\n        (\"publish\", \"upsert\"),\r\n        (\"upsert\", \"upsert\"),\r\n        (\"delete\", \"delete\"),\r\n        (\"revoke\", \"revoke\"),\r\n    ],\r\n)"
+          ],
+          "normalized_ast_sha256": "8ae6d4041fc3734b0ff41f2069d1fcb0e3cee7b35a04174ba3309e165d09ba19",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Whole file deferred from execution: Two parameterized validator catalogs mix retained dashboard values with excluded native MIME/session/sync contracts. Do not invent parameter IDs or execute the whole file; retain shared source slices only."
+        },
+        {
+          "function": "test_persisted_mobile_enum_boundaries_accept_only_contract_values",
+          "definition_line": 68,
+          "end_line": 73,
+          "decorator_start_line": 45,
+          "parametrized": true,
+          "decorators": [
+            "pytest.mark.parametrize(\r\n    (\"validator\", \"accepted_values\"),\r\n    [\r\n        (_organization_status, (\"active\", \"inactive\")),\r\n        (\r\n            _client_manager_status,\r\n            (\"active\", \"suspended\", \"deleted\", \"invited\"),\r\n        ),\r\n        (_itinerary_status, (\"draft\", \"published\", \"retired\")),\r\n        (\r\n            _content_status,\r\n            (\"draft\", \"published\", \"retired\", \"revoked\"),\r\n        ),\r\n        (\r\n            _attendance_session_status,\r\n            (\"draft\", \"active\", \"completed\", \"cancelled\"),\r\n        ),\r\n        (\r\n            _mobile_document_content_type,\r\n            (\"application/pdf\", \"image/jpeg\", \"image/png\", \"image/webp\"),\r\n        ),\r\n    ],\r\n)"
+          ],
+          "normalized_ast_sha256": "bbd8b94eaf4895810e40d83f01173050093edfdcf6489ac46d16b8d3646786d7",
+          "classification": "mixed-source-slice-only",
+          "execution_recommendation": "Whole file deferred from execution: Two parameterized validator catalogs mix retained dashboard values with excluded native MIME/session/sync contracts. Do not invent parameter IDs or execute the whole file; retain shared source slices only."
+        },
+        {
+          "function": "test_persisted_mobile_enum_boundaries_fail_closed",
+          "definition_line": 88,
+          "end_line": 92,
+          "decorator_start_line": 76,
+          "parametrized": true,
+          "decorators": [
+            "pytest.mark.parametrize(\r\n    \"validator\",\r\n    [\r\n        _organization_status,\r\n        _client_manager_status,\r\n        _itinerary_status,\r\n        _content_status,\r\n        _attendance_session_status,\r\n        _mobile_document_content_type,\r\n        _mobile_sync_operation,\r\n    ],\r\n)"
+          ],
+          "normalized_ast_sha256": "712ff39c6f9da75377a7327b8ef90c45422285c350c6623b142dd982599823e1",
+          "classification": "mixed-source-slice-only",
+          "execution_recommendation": "Whole file deferred from execution: Two parameterized validator catalogs mix retained dashboard values with excluded native MIME/session/sync contracts. Do not invent parameter IDs or execute the whole file; retain shared source slices only."
+        },
+        {
+          "function": "test_mobile_principal_boundary_is_authorization_safe",
+          "definition_line": 95,
+          "end_line": 100,
+          "decorator_start_line": 95,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "b007c6b91a8153a12821c859183b2c0d4c47d10135b2ca717aaff898596195b1",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Whole file deferred from execution: Two parameterized validator catalogs mix retained dashboard values with excluded native MIME/session/sync contracts. Do not invent parameter IDs or execute the whole file; retain shared source slices only."
+        },
+        {
+          "function": "test_mobile_notification_priority_preserves_legacy_normalization",
+          "definition_line": 112,
+          "end_line": 116,
+          "decorator_start_line": 103,
+          "parametrized": true,
+          "decorators": [
+            "pytest.mark.parametrize(\r\n    (\"stored_priority\", \"public_priority\"),\r\n    [\r\n        (\"normal\", \"normal\"),\r\n        (\"high\", \"important\"),\r\n        (\"emergency\", \"emergency\"),\r\n        (\"unknown-legacy-value\", \"normal\"),\r\n    ],\r\n)"
+          ],
+          "normalized_ast_sha256": "c28e2179af8acd853f2e101d7f37904e002fc45ecc0eee31a964b0f8fa7c088a",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Whole file deferred from execution: Two parameterized validator catalogs mix retained dashboard values with excluded native MIME/session/sync contracts. Do not invent parameter IDs or execute the whole file; retain shared source slices only."
+        },
+        {
+          "function": "test_mobile_meal_preference_accepts_read_only_validated_mappings",
+          "definition_line": 119,
+          "end_line": 122,
+          "decorator_start_line": 119,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "12dc2b04fafb55ecb2c8e93d9294ae5054b79cec474f57cdc3ab7e8df331349d",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Whole file deferred from execution: Two parameterized validator catalogs mix retained dashboard values with excluded native MIME/session/sync contracts. Do not invent parameter IDs or execute the whole file; retain shared source slices only."
+        }
+      ]
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_mobile_submitted_phone_auth.py",
+      "sha256": "b21a9c43707088e10a287a1522d8e4f9d6ffd4bff7147188eacfd6d6734c1078",
+      "physical_lines": 244,
+      "source_review_credit": "focused",
+      "whole_file_execution_recommendation": "select-only-listed-complete-retained-functions",
+      "whole_file_defer_reason": null,
+      "selected_complete_function_names": [
+        "test_completed_collection_statuses_authorize_without_staff_approval",
+        "test_drafts_and_imported_numbers_are_not_collection_authority",
+        "test_explicit_public_completion_can_supersede_legacy_import_provenance"
+      ],
+      "test_functions": [
+        {
+          "function": "test_completed_collection_statuses_authorize_without_staff_approval",
+          "definition_line": 72,
+          "end_line": 73,
+          "decorator_start_line": 71,
+          "parametrized": true,
+          "decorators": [
+            "pytest.mark.parametrize(\"status\", [\"submitted\", \"needs_review\", \"ai_approved\", \"staff_approved\", \"client_submitted\", \"confirmed\"])"
+          ],
+          "normalized_ast_sha256": "2584ddb827380af8af8510232158d3e220d4466a000be680ed1b5612569a3254",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_drafts_and_imported_numbers_are_not_collection_authority",
+          "definition_line": 81,
+          "end_line": 82,
+          "decorator_start_line": 76,
+          "parametrized": true,
+          "decorators": [
+            "pytest.mark.parametrize(\"changes\", [\r\n    {\"status\": \"ready_for_client_review\"}, {\"client_reviewed_at\": None},\r\n    {\"client_phone\": None}, {\"confidence_score\": {\"source\": \"excel_import\"}},\r\n    {\"image_s3_key\": \"excel-imports/row.placeholder\"},\r\n])"
+          ],
+          "normalized_ast_sha256": "8c763a698ef04d948d0b44b56652c692f0c42c5964d825e67ab063fbbaa5c3b0",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_explicit_public_completion_can_supersede_legacy_import_provenance",
+          "definition_line": 85,
+          "end_line": 88,
+          "decorator_start_line": 85,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "124bbf714fc12950ba9492f38df9ff5cce91ed6a4781d0e0d42bd55acc995425",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_send_uses_submission_presence_even_without_active_gc_identity",
+          "definition_line": 93,
+          "end_line": 107,
+          "decorator_start_line": 91,
+          "parametrized": true,
+          "decorators": [
+            "pytest.mark.asyncio",
+            "pytest.mark.parametrize(\"is_submitted\", [False, True])"
+          ],
+          "normalized_ast_sha256": "ed01ecfdd7e0e175841febaecd4d89765a06bc766d2a5cf9e8180d715d0f0f12",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_guidance_is_generic_and_distinguishes_access_window",
+          "definition_line": 117,
+          "end_line": 118,
+          "decorator_start_line": 110,
+          "parametrized": true,
+          "decorators": [
+            "pytest.mark.parametrize((\"settings\", \"expected\"), [\r\n    (None, \"trip_not_active\"), (access(is_enabled=False), \"trip_not_active\"),\r\n    (access(passenger_access_enabled=False), \"trip_not_active\"),\r\n    (access(access_starts_at=datetime.now(UTC) + timedelta(days=1)), \"trip_starts_later\"),\r\n    (access(access_expires_at=datetime.now(UTC) - timedelta(days=1)), \"trip_access_ended\"),\r\n    (access(), None),\r\n])"
+          ],
+          "normalized_ast_sha256": "71574ec37353b03abd032b9253237fe20670dff7a9593649a4343c702948a49b",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_inactive_guidance_requires_correct_phone_ownership_proof",
+          "definition_line": 123,
+          "end_line": 149,
+          "decorator_start_line": 121,
+          "parametrized": true,
+          "decorators": [
+            "pytest.mark.asyncio",
+            "pytest.mark.parametrize(\"correct_code\", [False, True])"
+          ],
+          "normalized_ast_sha256": "12162328859851dc7ef25054f9c190938914f435088dbb6cf11db931d54680d0",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_echoed_phone_cannot_swap_the_otp_proof_to_another_number",
+          "definition_line": 153,
+          "end_line": 155,
+          "decorator_start_line": 152,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "7a4e7d8d1ea5521d150b979c79f42b810bb792a8a71f13265c64c29f72a6effb",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_phone_removed_between_request_and_verify_cannot_issue_session",
+          "definition_line": 159,
+          "end_line": 178,
+          "decorator_start_line": 158,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "2629b50fe992fee947ebbf54cf589e4a651d0bdc1bf5e89036144e4f7e05a9dd",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_legacy_identity_with_changed_submitted_phone_is_not_eligible",
+          "definition_line": 182,
+          "end_line": 191,
+          "decorator_start_line": 181,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "e644afea25fafcc374fa5a2a497aa62a25ffde97e7de2cd63076df492140cc0e",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_sql_candidates_still_require_canonical_completed_collection_contact",
+          "definition_line": 195,
+          "end_line": 210,
+          "decorator_start_line": 194,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "4a6a3cf58bb5efdb9baf2423fa17301cd58e428462772825fe0155a337d6212d",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_phone_discovery_overflow_never_authorizes_a_partial_shared_phone",
+          "definition_line": 214,
+          "end_line": 224,
+          "decorator_start_line": 213,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "eff87c90730310d249997a3974808710d302a3230ea72916942601f2fdfac076",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_guidance_response_contract_never_grants_tokens_or_claims",
+          "definition_line": 228,
+          "end_line": 229,
+          "decorator_start_line": 227,
+          "parametrized": true,
+          "decorators": [
+            "pytest.mark.parametrize(\"status\", [\"trip_not_active\", \"trip_starts_later\", \"trip_access_ended\"])"
+          ],
+          "normalized_ast_sha256": "9a92037d8ddb93722b6ee3183ac5e21b8f466118f0a2be03823747cf2f1c9aae",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_refresh_rejects_stale_submitted_contact_before_issuing_offline_lease",
+          "definition_line": 233,
+          "end_line": 244,
+          "decorator_start_line": 232,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "c571e0cd5e63e06401f9af14e8933364bb798d88c4f0421fc5e1a0084572c1a7",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        }
+      ]
+    },
+    {
+      "path": "backend/tests/integration/test_mcp_content_read_http.py",
+      "sha256": "31c1bb61f19c50ae3110b764ff252d1a28453d58c3977940ffa05bf114ef37b0",
+      "physical_lines": 47,
+      "source_review_credit": "focused",
+      "whole_file_execution_recommendation": "defer",
+      "whole_file_defer_reason": "Single test contains an inline mixed GC/mailbox loop, a mailbox fixture and dedicated mailbox error calls. No complete retained callable selection exists without editing source; defer whole file from execution.",
+      "selected_complete_function_names": [],
+      "test_functions": [
+        {
+          "function": "test_content_tools_http_scope_envelope_and_schema",
+          "definition_line": 17,
+          "end_line": 47,
+          "decorator_start_line": 16,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "11206a7d7eb6c5032e08bb96fe4940caab5fa5206800bcb43351bf90c31b77b9",
+          "classification": "mixed-source-slice-only",
+          "execution_recommendation": "Whole file deferred from execution: Single test contains an inline mixed GC/mailbox loop, a mailbox fixture and dedicated mailbox error calls. No complete retained callable selection exists without editing source; defer whole file from execution."
+        }
+      ]
+    },
+    {
+      "path": "backend/tests/integration/test_mcp_dashboard_detail_reads.py",
+      "sha256": "2a25b62c68717bdf79064621aeb1cb5f23abace009d89f392cefd24c43a0335c",
+      "physical_lines": 569,
+      "source_review_credit": "focused",
+      "whole_file_execution_recommendation": "defer",
+      "whole_file_defer_reason": "Whole-file execution includes a mixed parameterized dashboard catalog with four Inbox selectors and a dedicated email review paging test. Defer whole file from execution for this retained qualification; retained source slices remain credited and can inform a future separately approved split.",
+      "selected_complete_function_names": [],
+      "test_functions": [
+        {
+          "function": "test_every_reviewed_view_has_a_valid_input_schema_and_no_mutation_selector",
+          "definition_line": 89,
+          "end_line": 94,
+          "decorator_start_line": 89,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "ffa4b909a95f4ef5b0c92ff7d75ce76f7629bae014970ff9fb17c6c18e190060",
+          "classification": "mixed-source-slice-only",
+          "execution_recommendation": "Whole file deferred from execution: Whole-file execution includes a mixed parameterized dashboard catalog with four Inbox selectors and a dedicated email review paging test. Defer whole file from execution for this retained qualification; retained source slices remain credited and can inform a future separately approved split."
+        },
+        {
+          "function": "test_full_passport_fields_and_canonical_expiry_without_business_changes",
+          "definition_line": 97,
+          "end_line": 111,
+          "decorator_start_line": 97,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "30d8ac0e2338deb3de3395006861af02c0b0823c871ed6b094e94c8ced0a57c9",
+          "classification": "retained-shared-complete-function; file-execution-deferred",
+          "execution_recommendation": "Whole file deferred from execution: Whole-file execution includes a mixed parameterized dashboard catalog with four Inbox selectors and a dedicated email review paging test. Defer whole file from execution for this retained qualification; retained source slices remain credited and can inform a future separately approved split."
+        },
+        {
+          "function": "test_roster_hydrates_real_identity_only_cache_and_retains_revision_fence",
+          "definition_line": 114,
+          "end_line": 137,
+          "decorator_start_line": 114,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "88f403449da92e3a87e3246b9ef6bb3b899e6197ad100a129ecb637dae8f3008",
+          "classification": "retained-shared-complete-function; file-execution-deferred",
+          "execution_recommendation": "Whole file deferred from execution: Whole-file execution includes a mixed parameterized dashboard catalog with four Inbox selectors and a dedicated email review paging test. Defer whole file from execution for this retained qualification; retained source slices remain credited and can inform a future separately approved split."
+        },
+        {
+          "function": "test_whatsapp_dashboard_unidentified_and_imported_fields_are_canonical",
+          "definition_line": 140,
+          "end_line": 162,
+          "decorator_start_line": 140,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "4f17b8f4cf78ff61066ba63abcf11005df8e99a0870761454392ce41e4c20cc4",
+          "classification": "retained-shared-complete-function; file-execution-deferred",
+          "execution_recommendation": "Whole file deferred from execution: Whole-file execution includes a mixed parameterized dashboard catalog with four Inbox selectors and a dedicated email review paging test. Defer whole file from execution for this retained qualification; retained source slices remain credited and can inform a future separately approved split."
+        },
+        {
+          "function": "test_section_denial_and_role_loss_stop_before_data",
+          "definition_line": 165,
+          "end_line": 176,
+          "decorator_start_line": 165,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "a58ab1444cddea2aaff13cb3fda7c4943f74ce119a69d98d70ff781e0ed759af",
+          "classification": "retained-shared-complete-function; file-execution-deferred",
+          "execution_recommendation": "Whole file deferred from execution: Whole-file execution includes a mixed parameterized dashboard catalog with four Inbox selectors and a dedicated email review paging test. Defer whole file from execution for this retained qualification; retained source slices remain credited and can inform a future separately approved split."
+        },
+        {
+          "function": "test_staff_code_search_matches_saved_editor_precedence_and_explicit_clear",
+          "definition_line": 179,
+          "end_line": 193,
+          "decorator_start_line": 179,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "5a7940544a1796a4318feb8bb6ad53086d8534ac7724871ad36406c6371064ae",
+          "classification": "retained-shared-complete-function; file-execution-deferred",
+          "execution_recommendation": "Whole file deferred from execution: Whole-file execution includes a mixed parameterized dashboard catalog with four Inbox selectors and a dedicated email review paging test. Defer whole file from execution for this retained qualification; retained source slices remain credited and can inform a future separately approved split."
+        },
+        {
+          "function": "test_all_stored_whatsapp_imports_removed_contacts_and_provenance_are_paged",
+          "definition_line": 196,
+          "end_line": 243,
+          "decorator_start_line": 196,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "ee62e6d6529d8f7d747590061a54677ce5c3b12a9320ab876368627e09f60132",
+          "classification": "retained-shared-complete-function; file-execution-deferred",
+          "execution_recommendation": "Whole file deferred from execution: Whole-file execution includes a mixed parameterized dashboard catalog with four Inbox selectors and a dedicated email review paging test. Defer whole file from execution for this retained qualification; retained source slices remain credited and can inform a future separately approved split."
+        },
+        {
+          "function": "test_qr_and_welcome_observation_never_issues_tokens_or_recovers_delivery",
+          "definition_line": 246,
+          "end_line": 265,
+          "decorator_start_line": 246,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "b248db6f7a9e05e00e26872ed7cf920d0cea879a01d57174fc29160569774b86",
+          "classification": "retained-shared-complete-function; file-execution-deferred",
+          "execution_recommendation": "Whole file deferred from execution: Whole-file execution includes a mixed parameterized dashboard catalog with four Inbox selectors and a dedicated email review paging test. Defer whole file from execution for this retained qualification; retained source slices remain credited and can inform a future separately approved split."
+        },
+        {
+          "function": "test_document_review_and_delivery_eligibility_are_pure_without_storage",
+          "definition_line": 268,
+          "end_line": 295,
+          "decorator_start_line": 268,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "361799258727303dad486bf29ed9c0639fb98ab3caadab457a0ab9cb2e54fcba",
+          "classification": "retained-shared-complete-function; file-execution-deferred",
+          "execution_recommendation": "Whole file deferred from execution: Whole-file execution includes a mixed parameterized dashboard catalog with four Inbox selectors and a dedicated email review paging test. Defer whole file from execution for this retained qualification; retained source slices remain credited and can inform a future separately approved split."
+        },
+        {
+          "function": "test_image_library_and_ai_job_reads_do_not_ensure_original_or_dispatch",
+          "definition_line": 298,
+          "end_line": 318,
+          "decorator_start_line": 298,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "0e16f927e053d5888b1b54e2b4083e0ff5506061f759d2cdde15fa6666592764",
+          "classification": "retained-shared-complete-function; file-execution-deferred",
+          "execution_recommendation": "Whole file deferred from execution: Whole-file execution includes a mixed parameterized dashboard catalog with four Inbox selectors and a dedicated email review paging test. Defer whole file from execution for this retained qualification; retained source slices remain credited and can inform a future separately approved split."
+        },
+        {
+          "function": "test_all_delivery_kinds_preserve_saved_statuses_content_and_tenant_scope",
+          "definition_line": 321,
+          "end_line": 358,
+          "decorator_start_line": 321,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "4a31c12d920ba5dab3723bb230b30fc274024ae3a5e7da04c0d68548276ad59d",
+          "classification": "retained-shared-complete-function; file-execution-deferred",
+          "execution_recommendation": "Whole file deferred from execution: Whole-file execution includes a mixed parameterized dashboard catalog with four Inbox selectors and a dedicated email review paging test. Defer whole file from execution for this retained qualification; retained source slices remain credited and can inform a future separately approved split."
+        },
+        {
+          "function": "test_regressed_reader_cannot_write_or_commit",
+          "definition_line": 361,
+          "end_line": 380,
+          "decorator_start_line": 361,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "2b3504f897ed09ed1fc1b68b93b6daf38d5e905c73324fb19df1eb82dd543e41",
+          "classification": "retained-shared-complete-function; file-execution-deferred",
+          "execution_recommendation": "Whole file deferred from execution: Whole-file execution includes a mixed parameterized dashboard catalog with four Inbox selectors and a dedicated email review paging test. Defer whole file from execution for this retained qualification; retained source slices remain credited and can inform a future separately approved split."
+        },
+        {
+          "function": "test_large_text_nested_fields_and_all_rows_remain_readable_with_bound_cursors",
+          "definition_line": 383,
+          "end_line": 408,
+          "decorator_start_line": 383,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "e70ac288668104fd13356f1048f1a06d85dc60b9421588d65e6e8c6f1a9aa487",
+          "classification": "retained-shared-complete-function; file-execution-deferred",
+          "execution_recommendation": "Whole file deferred from execution: Whole-file execution includes a mixed parameterized dashboard catalog with four Inbox selectors and a dedicated email review paging test. Defer whole file from execution for this retained qualification; retained source slices remain credited and can inform a future separately approved split."
+        },
+        {
+          "function": "test_projection_size_counts_long_paths_and_all_rows_stay_reachable",
+          "definition_line": 411,
+          "end_line": 426,
+          "decorator_start_line": 411,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "b07054d8086e40b66b319b76999fcd6aa0889db877b79f8b99d7822cef85f288",
+          "classification": "retained-shared-complete-function; file-execution-deferred",
+          "execution_recommendation": "Whole file deferred from execution: Whole-file execution includes a mixed parameterized dashboard catalog with four Inbox selectors and a dedicated email review paging test. Defer whole file from execution for this retained qualification; retained source slices remain credited and can inform a future separately approved split."
+        },
+        {
+          "function": "test_complete_delivery_history_passes_one_hundred_rows_and_filters",
+          "definition_line": 429,
+          "end_line": 456,
+          "decorator_start_line": 429,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "da1b806b747e4942c11b6678f7fd1b24e553af9d2883591ea89baa210edbfcc9",
+          "classification": "retained-shared-complete-function; file-execution-deferred",
+          "execution_recommendation": "Whole file deferred from execution: Whole-file execution includes a mixed parameterized dashboard catalog with four Inbox selectors and a dedicated email review paging test. Defer whole file from execution for this retained qualification; retained source slices remain credited and can inform a future separately approved split."
+        },
+        {
+          "function": "test_dashboard_domains_execute_canonical_reads_without_business_changes",
+          "definition_line": 479,
+          "end_line": 489,
+          "decorator_start_line": 459,
+          "parametrized": true,
+          "decorators": [
+            "pytest.mark.parametrize(\"view,parameters,scoped\", [\r\n    (\"platform_settings\", {}, False),\r\n    (\"whatsapp_templates\", {}, False),\r\n    (\"menu_workspace\", {}, True),\r\n    (\"rooming_workspace\", {}, True),\r\n    (\"rooming_priority_fields\", {}, True),\r\n    (\"tour_passengers\", {}, True),\r\n    (\"tour_architecture\", {}, False),\r\n    (\"coordinators\", {}, False),\r\n    (\"managed_accounts\", {}, False),\r\n    (\"staff_accounts\", {}, False),\r\n    (\"email_connections\", {}, False),\r\n    (\"email_activity\", {}, False),\r\n    (\"email_reviews\", {\"review_status\": \"all\"}, False),\r\n    (\"email_review_options\", {}, False),\r\n    (\"personal_notifications\", {}, False),\r\n    (\"audit_logs\", {}, False),\r\n    (\"gc_agencies\", {\"limit\": 10}, False),\r\n    (\"global_search\", {\"q\": \"Example\"}, False),\r\n])"
+          ],
+          "normalized_ast_sha256": "ab186ecb09a38a4d186f42515194af032128e880808fa81277a521560928b46c",
+          "classification": "mixed-source-slice-only",
+          "execution_recommendation": "Whole file deferred from execution: Whole-file execution includes a mixed parameterized dashboard catalog with four Inbox selectors and a dedicated email review paging test. Defer whole file from execution for this retained qualification; retained source slices remain credited and can inform a future separately approved split."
+        },
+        {
+          "function": "test_common_document_native_pages_reach_beyond_previous_two_hundred_cap",
+          "definition_line": 492,
+          "end_line": 519,
+          "decorator_start_line": 492,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "b10969a5bb83a3977bbd81ba61a255612fe15b4b967660a903a446685fe90159",
+          "classification": "retained-shared-complete-function; file-execution-deferred",
+          "execution_recommendation": "Whole file deferred from execution: Whole-file execution includes a mixed parameterized dashboard catalog with four Inbox selectors and a dedicated email review paging test. Defer whole file from execution for this retained qualification; retained source slices remain credited and can inform a future separately approved split."
+        },
+        {
+          "function": "test_qr_root_cursor_ignores_query_clock_and_reaches_every_field",
+          "definition_line": 522,
+          "end_line": 530,
+          "decorator_start_line": 522,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "c06800e50c798be9ce16267306085d20bce1a7b66d04ff6a3c5ea7b1127c1e86",
+          "classification": "retained-shared-complete-function; file-execution-deferred",
+          "execution_recommendation": "Whole file deferred from execution: Whole-file execution includes a mixed parameterized dashboard catalog with four Inbox selectors and a dedicated email review paging test. Defer whole file from execution for this retained qualification; retained source slices remain credited and can inform a future separately approved split."
+        },
+        {
+          "function": "test_owner_email_review_pages_reach_beyond_previous_two_hundred_fifty_cap",
+          "definition_line": 533,
+          "end_line": 553,
+          "decorator_start_line": 533,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "b1ca91c6e06f24213c1bcdcb5799d366a9ef0146206c71a4129c13f834eb5019",
+          "classification": "dedicated-Inbox-or-whole-file-deferred",
+          "execution_recommendation": "Whole file deferred from execution: Whole-file execution includes a mixed parameterized dashboard catalog with four Inbox selectors and a dedicated email review paging test. Defer whole file from execution for this retained qualification; retained source slices remain credited and can inform a future separately approved split."
+        },
+        {
+          "function": "test_long_imported_text_bounds_encoded_bytes_and_retains_every_character",
+          "definition_line": 557,
+          "end_line": 569,
+          "decorator_start_line": 556,
+          "parametrized": true,
+          "decorators": [
+            "pytest.mark.parametrize(\"text_value\", [\"\ud83c\udf0f\" * 40000, \"\\n\\\\\\\"\" * 40000], ids=[\"unicode\", \"escaped-text\"])"
+          ],
+          "normalized_ast_sha256": "48224e2b93173fcec6c00321ac22683fb188a6c1724862bc00ca36c0024b8b84",
+          "classification": "retained-shared-complete-function; file-execution-deferred",
+          "execution_recommendation": "Whole file deferred from execution: Whole-file execution includes a mixed parameterized dashboard catalog with four Inbox selectors and a dedicated email review paging test. Defer whole file from execution for this retained qualification; retained source slices remain credited and can inform a future separately approved split."
+        }
+      ]
+    },
+    {
+      "path": "backend/tests/integration/test_mcp_content_reads.py",
+      "sha256": "508b0cb8eb2d1999cbe288688dcab1e617cb1db47e7168fbfc533d0dcf8e9241",
+      "physical_lines": 195,
+      "source_review_credit": "focused",
+      "whole_file_execution_recommendation": "select-only-listed-complete-retained-functions",
+      "whole_file_defer_reason": null,
+      "selected_complete_function_names": [
+        "test_gc_versions_optional_content_and_shared_availability",
+        "test_notification_history_reuses_recipient_and_device_projection_without_dispatch"
+      ],
+      "test_functions": [
+        {
+          "function": "test_unconfigured_gc_and_empty_owned_mailboxes_are_explicit",
+          "definition_line": 55,
+          "end_line": 64,
+          "decorator_start_line": 54,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "2994dd414c786ba413d106877af24ea147f4fd2d2423b3adfb0d7a8256913bd8",
+          "classification": "mixed-source-slice-only",
+          "execution_recommendation": "Whole callable mixes shared GC availability loop with dedicated mailbox loop; retained slice only."
+        },
+        {
+          "function": "test_gc_versions_optional_content_and_shared_availability",
+          "definition_line": 68,
+          "end_line": 105,
+          "decorator_start_line": 67,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "cbffb3b53dcf13d68596609f62d850e8c0ff5803a62caccba18c524a55ea9a0f",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_notification_history_reuses_recipient_and_device_projection_without_dispatch",
+          "definition_line": 109,
+          "end_line": 129,
+          "decorator_start_line": 108,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "f4da608ac9c8590d0effe378edbef70af858254e523ed8ddba766854d52eb1f0",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_personal_mailbox_boundary_and_credential_omission_for_superadmin",
+          "definition_line": 148,
+          "end_line": 174,
+          "decorator_start_line": 147,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "fcc718e092c60d6fb28734e4750c10405cbff40bf89ae0a599bb36c34f3f3f50",
+          "classification": "dedicated-Inbox-or-whole-file-deferred",
+          "execution_recommendation": "Do not execute in retained qualification; source scope does not grant complete callable credit."
+        },
+        {
+          "function": "test_content_pages_cursor_binding_role_and_bounds",
+          "definition_line": 178,
+          "end_line": 195,
+          "decorator_start_line": 177,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "c412a874055bb3539933bdca3f60a4f0204dbfdd1b24582ca26aea4385608f94",
+          "classification": "mixed-source-slice-only",
+          "execution_recommendation": "Most assertions use dedicated mailbox paging; isolated shared notification bound assertion does not qualify full callable."
+        }
+      ]
+    },
+    {
+      "path": "backend/tests/service_integration/test_mcp_read_parity_postgresql.py",
+      "sha256": "2cfb7d6ba0c769decb9dcfa8f5d0f335cb0a5087ec4d723b3a4764ddc4701279",
+      "physical_lines": 121,
+      "source_review_credit": "focused",
+      "whole_file_execution_recommendation": "defer",
+      "whole_file_defer_reason": "Single parameterized runner consumes a mixed constructed CASES catalog including Inbox and mixed-source tests. Defer whole file from execution rather than infer collected parameter node IDs; retained catalog/runner source review remains focused.",
+      "selected_complete_function_names": [],
+      "test_functions": [
+        {
+          "function": "test_postgresql_read_parity",
+          "definition_line": 110,
+          "end_line": 121,
+          "decorator_start_line": 109,
+          "parametrized": true,
+          "decorators": [
+            "pytest.mark.parametrize(\"module_name,fixture_name,case_name\", CASES, ids=[case[2] for case in CASES])"
+          ],
+          "normalized_ast_sha256": "f70866e4701cc24cdfa13ca1f4b5580451abae3277f3670809621e2ffffd5fcf",
+          "classification": "mixed-source-slice-only",
+          "execution_recommendation": "Whole file deferred from execution: Single parameterized runner consumes a mixed constructed CASES catalog including Inbox and mixed-source tests. Defer whole file from execution rather than infer collected parameter node IDs; retained catalog/runner source review remains focused."
+        }
+      ]
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_delivery_ledger.py",
+      "sha256": "c0b534ee0e5a15b1aca8587c31ef45d4bbd8a0dd3d7ed1249b83023331732ac5",
+      "physical_lines": 2115,
+      "source_review_credit": "focused",
+      "whole_file_execution_recommendation": "select-only-listed-complete-retained-functions",
+      "whole_file_defer_reason": null,
+      "selected_complete_function_names": [
+        "test_batch_status_reports_ambiguous_outcomes_separately_from_failures",
+        "test_current_failed_receipt_releases_submitted_but_not_delivered",
+        "test_delivery_ledger_schema_is_generic_and_unique_per_recipient_type",
+        "test_eligibility_counts_failed_as_retryable_and_active_claim_as_skipped",
+        "test_excel_contact_direct_upload_remains_strict_but_allows_merged_duplicates",
+        "test_excel_contact_name_composes_given_names_and_surname",
+        "test_excel_contact_name_prefers_staffname_over_zone_name",
+        "test_excel_contact_preview_bounds_rejected_row_payload",
+        "test_excel_contact_preview_preserves_an_empty_column_heading",
+        "test_excel_contact_preview_rejects_empty_or_unnamed_contacts",
+        "test_excel_contact_preview_rejects_invalid_file_type",
+        "test_excel_contact_preview_returns_all_rejected_rows_without_a_server_error",
+        "test_excel_contact_preview_returns_named_normalized_recipients",
+        "test_excel_contact_preview_returns_valid_rows_and_actionable_rejections",
+        "test_excel_contact_preview_route_is_role_gated_and_has_stable_contract",
+        "test_excel_contact_preview_skips_structural_header_variants",
+        "test_excel_contact_upload_converts_unexpected_parser_error_to_400",
+        "test_excel_contact_upload_detects_headers_below_title_row",
+        "test_excel_contact_upload_distinguishes_contact_name_from_phone",
+        "test_excel_contact_upload_enforces_compressed_byte_limit",
+        "test_excel_contact_upload_preserves_bounded_fields_across_sheets",
+        "test_excel_contact_upload_stops_after_recipient_row_limit",
+        "test_explicit_resend_never_mutates_baseline_delivery_ledger",
+        "test_explicit_resend_route_is_role_gated_and_returns_send_contract",
+        "test_explicit_resend_schema_freezes_payload_and_has_single_active_guard",
+        "test_explicit_resend_webhook_updates_log_without_loading_baseline_state",
+        "test_explicit_resend_worker_guard_uses_log_claim_not_baseline_state",
+        "test_failed_receipt_before_acceptance_releases_retry_claim",
+        "test_group_delete_blocks_active_passport_replacement",
+        "test_group_delete_blocks_processing_explicit_resend",
+        "test_imported_recipient_field_limit_accepts_large_rosters_but_remains_bounded",
+        "test_late_failed_receipt_does_not_regress_accepted_checklist",
+        "test_late_failed_receipt_remains_scoped_to_its_original_batch",
+        "test_late_welcome_receipt_stays_batch_fenced_for_recipient_phone_changes",
+        "test_legacy_decoder_fails_closed_when_saved_render_is_modified",
+        "test_legacy_passport_snapshot_survives_later_group_and_support_edits",
+        "test_legacy_welcome_snapshot_is_byte_exact_and_keeps_original_support",
+        "test_manual_reactivation_does_not_erase_imported_fields",
+        "test_manual_recipient_rejects_non_phone_characters_and_excess_digits",
+        "test_mark_failed_skips_baseline_ledger_for_explicit_resend",
+        "test_older_provider_event_is_ignored",
+        "test_out_of_order_accepted_receipt_never_moves_status_backwards",
+        "test_readding_removed_phone_reactivates_same_row_and_preserves_identity",
+        "test_readding_replaced_phone_requires_roster_restore",
+        "test_recipient_checklist_only_marks_provider_accepted_states_as_sent",
+        "test_resend_endpoint_blocks_delivery_unknown_explicit_attempt",
+        "test_resend_endpoint_queues_one_edited_message_with_current_template",
+        "test_resend_endpoint_rejects_removed_or_missing_recipient",
+        "test_resend_queue_failure_does_not_release_baseline_sent_state",
+        "test_webhook_delivery_error_redacts_raw_meta_message",
+        "test_worker_acceptance_makes_inflight_provider_success_authoritative",
+        "test_worker_failure_releases_ledger_claim_for_safe_retry",
+        "test_worker_guard_rejects_later_same_phone_replacement_row",
+        "test_worker_guard_rejects_removed_recipient_before_provider_call",
+        "test_worker_guard_requires_current_processing_batch",
+        "test_worker_prefers_frozen_template_snapshot_over_current_group_values",
+        "test_worker_success_exits_retry_loop_and_remains_submitted"
+      ],
+      "test_functions": [
+        {
+          "function": "test_delivery_ledger_schema_is_generic_and_unique_per_recipient_type",
+          "definition_line": 76,
+          "end_line": 88,
+          "decorator_start_line": 76,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "d3b07fdb31059cc3e652260aa317a38d01b37b5e6390b360b37d5178e0d63fe6",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_webhook_delivery_error_redacts_raw_meta_message",
+          "definition_line": 91,
+          "end_line": 109,
+          "decorator_start_line": 91,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "0892d9712686b6a1abf13aa0251ee6dfd566af7871d0c8a0ae3ca5a852c3dfe7",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_recipient_checklist_only_marks_provider_accepted_states_as_sent",
+          "definition_line": 112,
+          "end_line": 148,
+          "decorator_start_line": 112,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "723cfb71ee32dbad725e58b02639e15176d059bca79754ca6349aaaf3f85c319",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_eligibility_counts_failed_as_retryable_and_active_claim_as_skipped",
+          "definition_line": 165,
+          "end_line": 188,
+          "decorator_start_line": 164,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "7b28599dc63fa85c1b2d3ecafcaf92b350c25a950c3add4d6ff749ffe91b5d53",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_readding_removed_phone_reactivates_same_row_and_preserves_identity",
+          "definition_line": 191,
+          "end_line": 226,
+          "decorator_start_line": 191,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "ce2c0be2aaacc4c2215b5dbed387bcec95265e83cb898f5a36d34f20dc4efd3f",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_manual_reactivation_does_not_erase_imported_fields",
+          "definition_line": 229,
+          "end_line": 264,
+          "decorator_start_line": 229,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "be0fb0c8a0e424ea813dc6c21ff69d545a39484ba97085b9b95579b8dc153703",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_readding_replaced_phone_requires_roster_restore",
+          "definition_line": 267,
+          "end_line": 301,
+          "decorator_start_line": 267,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "addb23960040e785dcc8036ae2d1fc13b04e44f1239c47cc93650cb680589afb",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_worker_acceptance_makes_inflight_provider_success_authoritative",
+          "definition_line": 305,
+          "end_line": 329,
+          "decorator_start_line": 304,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "bb1956177f0e6835a34529bc392ceacad326eb6c234424815287fa02179dff99",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_worker_failure_releases_ledger_claim_for_safe_retry",
+          "definition_line": 333,
+          "end_line": 353,
+          "decorator_start_line": 332,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "3d02c990e2f6044f95ccfc8315162ca12176cc03ace113f0cd1b7a9f02d10799",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_worker_success_exits_retry_loop_and_remains_submitted",
+          "definition_line": 357,
+          "end_line": 468,
+          "decorator_start_line": 356,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "02971a81c578ee1377b5ff62af27a74a04e76e55a4277c8ff7e7b814185f1e84",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_worker_guard_rejects_removed_recipient_before_provider_call",
+          "definition_line": 472,
+          "end_line": 495,
+          "decorator_start_line": 471,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "e4f1fcd06d601ccf77abc7a8e351d065e70259a8c85ac039344161ce36431723",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_worker_guard_requires_current_processing_batch",
+          "definition_line": 499,
+          "end_line": 546,
+          "decorator_start_line": 498,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "b4a5acfa6d0727fcb60dfd54ce585cc4e1d6f689e5a5d5029936fc9d03fed78e",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_worker_guard_rejects_later_same_phone_replacement_row",
+          "definition_line": 550,
+          "end_line": 586,
+          "decorator_start_line": 549,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "2c688f77aeb2513a2a4669add04ebf0a9ae53f654020c48c36d307f5c6de8c97",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_late_failed_receipt_does_not_regress_accepted_checklist",
+          "definition_line": 589,
+          "end_line": 609,
+          "decorator_start_line": 589,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "0da4a497a3a5905c98cbf4a9c074066310b197798dbf8202e88c72ee8566992f",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_out_of_order_accepted_receipt_never_moves_status_backwards",
+          "definition_line": 612,
+          "end_line": 630,
+          "decorator_start_line": 612,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "282cac571acf04a4042ad68af64f98c90a4b0fd2329ca5d779e369f2226ffcb1",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_failed_receipt_before_acceptance_releases_retry_claim",
+          "definition_line": 633,
+          "end_line": 652,
+          "decorator_start_line": 633,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "26c2492f3a08b5f967b7357f2372562f8a8fb789f1195436e4ffe3e3e4ce4e64",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_current_failed_receipt_releases_submitted_but_not_delivered",
+          "definition_line": 655,
+          "end_line": 677,
+          "decorator_start_line": 655,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "7c9750c19032809bcd412ef25b3fadfd9489ec5e8262521e21375aa9ee83557b",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_older_provider_event_is_ignored",
+          "definition_line": 680,
+          "end_line": 699,
+          "decorator_start_line": 680,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "3280d076857c7da1324f57f2de51a70379df77e564c5561f4b16c4ba014050e0",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_late_welcome_receipt_stays_batch_fenced_for_recipient_phone_changes",
+          "definition_line": 702,
+          "end_line": 714,
+          "decorator_start_line": 702,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "d06d26a9a495f052f8c6d2c285f0c4a8044ffb605ea85edac8bfb9e7d486add2",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_late_failed_receipt_remains_scoped_to_its_original_batch",
+          "definition_line": 717,
+          "end_line": 730,
+          "decorator_start_line": 717,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "2f1cb090e87069654dd9d8b00e97a5e84f9434fd0a9ee9d19a3247b8118098b9",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_batch_status_reports_ambiguous_outcomes_separately_from_failures",
+          "definition_line": 734,
+          "end_line": 793,
+          "decorator_start_line": 733,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "3aa96dce5110c5493dae84ca16ad1de39416ae4ee39cb1fd9ee1f5e933809048",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_manual_recipient_rejects_non_phone_characters_and_excess_digits",
+          "definition_line": 796,
+          "end_line": 811,
+          "decorator_start_line": 796,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "0be591b7676856438ee42c55963c244326b90eab9fe9e554e0ae6eb51af6c94d",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_imported_recipient_field_limit_accepts_large_rosters_but_remains_bounded",
+          "definition_line": 814,
+          "end_line": 830,
+          "decorator_start_line": 814,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "f1241d8d434f32e9c9c2b2cd50b00a0862b8846b065592dd583249373b3fce45",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_excel_contact_upload_enforces_compressed_byte_limit",
+          "definition_line": 834,
+          "end_line": 850,
+          "decorator_start_line": 833,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "3adc0805086fb9bb5072922e93eabb8ae8d7b0d9957584636e36148b20bce6ae",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_excel_contact_upload_detects_headers_below_title_row",
+          "definition_line": 854,
+          "end_line": 877,
+          "decorator_start_line": 853,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "6b4b02bb125b9945b07f35b8cc67878f9ef0a21cf1085b4f52ebf24df2c16f58",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_excel_contact_upload_distinguishes_contact_name_from_phone",
+          "definition_line": 881,
+          "end_line": 897,
+          "decorator_start_line": 880,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "b1f8e8a1504ff1a2c318a9ee3a13bcd3659a96820987f69caa4a1ae8da3ca73f",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_excel_contact_upload_preserves_bounded_fields_across_sheets",
+          "definition_line": 901,
+          "end_line": 961,
+          "decorator_start_line": 900,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "44182e5c5005a7df6ea73a7d0550fff8fb366bf78a03978bf848e88e466c4254",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_excel_contact_name_prefers_staffname_over_zone_name",
+          "definition_line": 965,
+          "end_line": 1008,
+          "decorator_start_line": 964,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "3782ff84f4fe99ac82c17c4f7f15c08018fea086638ae1e7654eb31074bdde96",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_excel_contact_name_composes_given_names_and_surname",
+          "definition_line": 1012,
+          "end_line": 1026,
+          "decorator_start_line": 1011,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "0dad6d5bc82e069ed4cd8201dd5765319b4903310ecbb60a2b458e5470b0ce37",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_excel_contact_upload_converts_unexpected_parser_error_to_400",
+          "definition_line": 1030,
+          "end_line": 1054,
+          "decorator_start_line": 1029,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "813aa0ce9db0e40d6e96a5ebd7c0a4a58275e549280884c056771e5dcc6d6518",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_excel_contact_preview_returns_named_normalized_recipients",
+          "definition_line": 1058,
+          "end_line": 1141,
+          "decorator_start_line": 1057,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "fda1eeead7f838d7b36e40b19bde8ad5f85460a032df9728c4e8a08ff8e3c9eb",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_excel_contact_preview_returns_valid_rows_and_actionable_rejections",
+          "definition_line": 1145,
+          "end_line": 1199,
+          "decorator_start_line": 1144,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "d8ce124399e71d1dce2c0e39b4d7b9af9a19f25952a2bf372d5027bdef876f3f",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_excel_contact_preview_skips_structural_header_variants",
+          "definition_line": 1203,
+          "end_line": 1223,
+          "decorator_start_line": 1202,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "d6efca98902aca3308261fe5e51ebe77bfd2f78062219c77ef7c1040e0cf047f",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_excel_contact_preview_returns_all_rejected_rows_without_a_server_error",
+          "definition_line": 1227,
+          "end_line": 1246,
+          "decorator_start_line": 1226,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "e2a8a64d045afd326baf321918d233138b3d31028b98579d3a691f6c348c758d",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_excel_contact_direct_upload_remains_strict_but_allows_merged_duplicates",
+          "definition_line": 1250,
+          "end_line": 1284,
+          "decorator_start_line": 1249,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "27e143a7c0cae492ba70fcb8f3e6ef31df1536fb8bf45477500e71ad743eabea",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_excel_contact_preview_bounds_rejected_row_payload",
+          "definition_line": 1288,
+          "end_line": 1318,
+          "decorator_start_line": 1287,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "2d39bb66252863a09c8ca2762c2983e893b93ab7594ebad5fb64073f585405cc",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_excel_contact_preview_preserves_an_empty_column_heading",
+          "definition_line": 1322,
+          "end_line": 1346,
+          "decorator_start_line": 1321,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "d28e7272b71f91844b12e1981ac5daa09852c16341537e84a1c575f5e6f7f1ca",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_excel_contact_preview_rejects_empty_or_unnamed_contacts",
+          "definition_line": 1349,
+          "end_line": 1367,
+          "decorator_start_line": 1349,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "d1078418438439c54f6ef8c99e2eff28f837674686c3d78ea38c88ad097c5420",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_excel_contact_preview_rejects_invalid_file_type",
+          "definition_line": 1371,
+          "end_line": 1384,
+          "decorator_start_line": 1370,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "27f26a6eff058fe7268e61107316cc4546c391893a91c650d6672389008da6f7",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_excel_contact_preview_route_is_role_gated_and_has_stable_contract",
+          "definition_line": 1387,
+          "end_line": 1406,
+          "decorator_start_line": 1387,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "b0da6b95b4ae9e0e3a23e967b9ca0f823563b77de4bb5db2d29c57f9b4b49f5b",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_excel_contact_upload_stops_after_recipient_row_limit",
+          "definition_line": 1410,
+          "end_line": 1426,
+          "decorator_start_line": 1409,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "25c9beda76928268189268bacc3065c9fe581e8cdca5ec5283da43f12de3d4de",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_explicit_resend_schema_freezes_payload_and_has_single_active_guard",
+          "definition_line": 1429,
+          "end_line": 1436,
+          "decorator_start_line": 1429,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "be949bd97098e5f16b44159df5f75f4fbf8dfb5b21c17577a573ab69767fdfe2",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_legacy_welcome_snapshot_is_byte_exact_and_keeps_original_support",
+          "definition_line": 1454,
+          "end_line": 1469,
+          "decorator_start_line": 1454,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "a185623906c847f2da9b6bb7b12eadac8c4dfb6fcb7d0c9d7d6b413fa537df76",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_legacy_passport_snapshot_survives_later_group_and_support_edits",
+          "definition_line": 1472,
+          "end_line": 1498,
+          "decorator_start_line": 1472,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "4a8f132bcfe69c9d84ce4ce3793e2b8639f9496d224e75911bdc5a05254aeefe",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_legacy_decoder_fails_closed_when_saved_render_is_modified",
+          "definition_line": 1501,
+          "end_line": 1511,
+          "decorator_start_line": 1501,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "69d088f2aaa73868aa086140ad6983de562ba31cf17820793d1e642040c6f5d9",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_worker_prefers_frozen_template_snapshot_over_current_group_values",
+          "definition_line": 1514,
+          "end_line": 1535,
+          "decorator_start_line": 1514,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "a7d224120515ac3e6a48cf7ab6221b144cddf6fd80ac1ee685b19012adf29b4b",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_explicit_resend_never_mutates_baseline_delivery_ledger",
+          "definition_line": 1539,
+          "end_line": 1556,
+          "decorator_start_line": 1538,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "d9d28dd44a5baa2b547d1b4dd7dbad422b7f4611c1dd62c794fb0898223e5979",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_explicit_resend_worker_guard_uses_log_claim_not_baseline_state",
+          "definition_line": 1560,
+          "end_line": 1606,
+          "decorator_start_line": 1559,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "8ba1a8d2fdf207d955299f24f48dde73590b9e346f976619bba48f06d7e2e2b7",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_explicit_resend_route_is_role_gated_and_returns_send_contract",
+          "definition_line": 1609,
+          "end_line": 1622,
+          "decorator_start_line": 1609,
+          "parametrized": false,
+          "decorators": [],
+          "normalized_ast_sha256": "250e9d8e4a1ac0830d5bded36a7f62698fdd1bb3ad64b8e34967a6e099834684",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_resend_endpoint_queues_one_edited_message_with_current_template",
+          "definition_line": 1626,
+          "end_line": 1743,
+          "decorator_start_line": 1625,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "6c3a9800c13bcfb2e37dcce675f04bc4f8604246803727fb5a9bbb0e3190bc0f",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_resend_endpoint_blocks_delivery_unknown_explicit_attempt",
+          "definition_line": 1747,
+          "end_line": 1798,
+          "decorator_start_line": 1746,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "29b6e4306dd6e9db6bfd4f8d8f5c815361e12ca932c416b73b8c4bd72861e0a8",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_resend_endpoint_rejects_removed_or_missing_recipient",
+          "definition_line": 1802,
+          "end_line": 1831,
+          "decorator_start_line": 1801,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "1fbbb24404e12d9f1526f59b3f9491a58b0c310aab9e8f83ce86d4b525592152",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_resend_queue_failure_does_not_release_baseline_sent_state",
+          "definition_line": 1835,
+          "end_line": 1948,
+          "decorator_start_line": 1834,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "57a02b3785b9241d2a57633b0ac47a4dccf9fab6fddfb632e7a88d8d7f6b483d",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_explicit_resend_webhook_updates_log_without_loading_baseline_state",
+          "definition_line": 1952,
+          "end_line": 1975,
+          "decorator_start_line": 1951,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "838e4e16789eaa2da099c8b46928783f6bcc0449b5426764590817899835cbab",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_otp_webhook_records_provider_failure_without_phone_or_code",
+          "definition_line": 1979,
+          "end_line": 2009,
+          "decorator_start_line": 1978,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "12a64de54be85e47dbfca02cbdb9de2f18b3c9f5532370f8f3da92d3ec350f86",
+          "classification": "dedicated-native-excluded",
+          "execution_recommendation": "Do not execute in retained qualification; native adapter/device/provider feature remains outside scope."
+        },
+        {
+          "function": "test_mark_failed_skips_baseline_ledger_for_explicit_resend",
+          "definition_line": 2013,
+          "end_line": 2050,
+          "decorator_start_line": 2012,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "1c49607f7adbdb44b200f2f8664d0ab2836f6c61ceafa1e55c8539e6f265c632",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_group_delete_blocks_processing_explicit_resend",
+          "definition_line": 2054,
+          "end_line": 2085,
+          "decorator_start_line": 2053,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "bb358dc12d590a80c8e9b90693a0ec974273293f7375c8f6b32ffe616b4bf7c2",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        },
+        {
+          "function": "test_group_delete_blocks_active_passport_replacement",
+          "definition_line": 2089,
+          "end_line": 2115,
+          "decorator_start_line": 2088,
+          "parametrized": false,
+          "decorators": [
+            "pytest.mark.asyncio"
+          ],
+          "normalized_ast_sha256": "67c9a1987bdd424fd24cfd4a8198bbafcc9faf5928ff0194b7b7c090c084a5ec",
+          "classification": "retained-shared-complete-function",
+          "execution_recommendation": "eligible-static-function-selection; collected parameter IDs must be obtained by actual collection later"
+        }
+      ]
+    }
+  ],
+  "total_files": 14,
+  "whole_file_execution_deferred": [
+    "backend/tests/unit/presentation/test_mobile_route_type_boundaries.py",
+    "backend/tests/integration/test_mcp_content_read_http.py",
+    "backend/tests/integration/test_mcp_dashboard_detail_reads.py",
+    "backend/tests/service_integration/test_mcp_read_parity_postgresql.py"
+  ],
+  "selection_is_not_collected_node_ids": true,
+  "test_execution": false,
+  "source_mutations": false,
+  "gate_floor_changes": false,
+  "limits": "No selected source function is claimed collected or passing. Parameter IDs are deliberately not manufactured. Dependency/fixture imports remain subject to final runner collection and retained scope review. Four whole files with mixed catalogs/inline dispatch are deferred from execution; their retained physical slices remain source-reviewed. Original global/critical coverage floors remain unchanged; any retained qualification coverage gap must be reported or filled with authorized retained controls, never silently weakened or represented as a whole-global pass."
+}

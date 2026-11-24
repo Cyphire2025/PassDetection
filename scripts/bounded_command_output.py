@@ -1,0 +1,173 @@
+"""Stdlib-only bounded subprocess capture for trusted operator commands."""
+
+from __future__ import annotations
+
+import asyncio
+import subprocess
+from typing import Literal, Protocol, cast
+
+FailureReason = Literal[
+    "capture_failed_or_timed_out", "output_limit_or_capture_failed", "command_failed"
+]
+
+
+class CommandOutputError(RuntimeError):
+    """Carry only a typed static failure reason, never captured diagnostics."""
+
+    def __init__(
+        self,
+        reason: FailureReason,
+        *,
+        output_limit: bool = False,
+        timed_out: bool = False,
+    ) -> None:
+        super().__init__(reason)
+        self.reason = reason
+        self.output_limit = output_limit
+        self.timed_out = timed_out
+
+
+class OutputSink(Protocol):
+    def write(self, data: bytes, /) -> int: ...
+
+
+class _BoundedOutput(asyncio.SubprocessProtocol):
+    """Drain private bytes without a blocking reader that can outlive its pipe."""
+
+    def __init__(
+        self,
+        output: OutputSink,
+        maximum_bytes: int,
+        merge_stderr: bool,
+        stderr_output: OutputSink | None = None,
+    ) -> None:
+        self.output = output
+        self.maximum_bytes = maximum_bytes
+        self.merge_stderr = merge_stderr
+        self.stderr_output = stderr_output
+        self.size = 0
+        self.failed = False
+        self.closed: asyncio.Future[None] = asyncio.get_running_loop().create_future()
+        self.transport: asyncio.SubprocessTransport
+
+    def connection_made(self, transport: asyncio.BaseTransport) -> None:
+        self.transport = cast(asyncio.SubprocessTransport, transport)
+
+    def pipe_data_received(self, fd: int, data: bytes) -> None:
+        if self.failed:
+            return
+        remaining = self.maximum_bytes - self.size
+        try:
+            if fd == 2 and self.stderr_output is not None:
+                self.stderr_output.write(data[:remaining])
+            elif self.merge_stderr or fd == 1:
+                self.output.write(data[:remaining])
+        except OSError:
+            self.failed = True
+        # Unretained piped stderr still consumes the total command byte budget.
+        self.size += len(data)
+        if self.failed or self.size > self.maximum_bytes:
+            self.failed = True
+            self.transport.close()
+
+    def pipe_connection_lost(self, fd: int, exc: Exception | None) -> None:
+        if exc is not None:
+            self.failed = True
+            self.transport.close()
+
+    def connection_lost(self, exc: Exception | None) -> None:
+        self.failed = self.failed or exc is not None
+        self.closed.set_result(None)
+
+
+async def _capture(
+    arguments: list[str],
+    timeout: float,
+    maximum_bytes: int,
+    output: OutputSink,
+    merge_stderr: bool,
+    discard_stderr: bool,
+    stdin: int | None,
+    stderr_output: OutputSink | None,
+) -> None:
+    protocol = _BoundedOutput(
+        output, maximum_bytes, merge_stderr, None if discard_stderr else stderr_output
+    )
+    transport: asyncio.SubprocessTransport | None = None
+    try:
+        # The same deadline covers process exit AND pipe EOF. A descendant may
+        # retain stdout after its parent exits; transport.close() closes our end
+        # without waiting for that descendant or leaving a reader thread behind.
+        async with asyncio.timeout(timeout):
+            transport, _ = await asyncio.get_running_loop().subprocess_exec(
+                lambda: protocol,
+                *arguments,
+                stdin=stdin,
+                stdout=subprocess.PIPE,
+                stderr=(
+                    subprocess.DEVNULL
+                    if discard_stderr
+                    else subprocess.PIPE
+                    if stderr_output is not None
+                    else subprocess.STDOUT
+                    if merge_stderr
+                    else subprocess.PIPE
+                ),
+            )
+            await asyncio.shield(protocol.closed)
+        if protocol.failed:
+            raise CommandOutputError(
+                "output_limit_or_capture_failed",
+                output_limit=protocol.size > maximum_bytes,
+            )
+        if transport.get_returncode():
+            raise CommandOutputError("command_failed")
+    except TimeoutError:
+        raise CommandOutputError(
+            "capture_failed_or_timed_out", timed_out=True
+        ) from None
+    except OSError:
+        raise CommandOutputError("capture_failed_or_timed_out") from None
+    finally:
+        if transport is not None:
+            transport.close()
+            # Closing kills a still-running direct child and closes its pipes.
+            # Reap that child before the event loop and private output are closed.
+            try:
+                await asyncio.wait_for(asyncio.shield(protocol.closed), timeout=10)
+            except TimeoutError:
+                raise CommandOutputError(
+                    "capture_failed_or_timed_out", timed_out=True
+                ) from None
+
+
+def capture_command(
+    arguments: list[str],
+    *,
+    timeout: float,
+    maximum_bytes: int,
+    output: OutputSink,
+    merge_stderr: bool = True,
+    discard_stderr: bool = False,
+    stdin: int | None = None,
+    stderr_output: OutputSink | None = None,
+) -> None:
+    """Write bounded bytes; optionally discard stderr without counting its bytes.
+
+    Existing callers merge or count stderr. Explicit discard takes precedence
+    for protocols that treat stderr as an unbounded, unused diagnostic stream.
+    An optional separate stderr sink shares the same total byte budget.
+    Close and reap only the direct child.
+    """
+    asyncio.run(
+        _capture(
+            arguments,
+            timeout,
+            maximum_bytes,
+            output,
+            merge_stderr,
+            discard_stderr,
+            stdin,
+            stderr_output,
+        )
+    )

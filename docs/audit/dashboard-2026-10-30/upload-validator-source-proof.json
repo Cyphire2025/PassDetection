@@ -1,0 +1,82 @@
+{
+  "status": "whole-module AST equals original plus exactly two deliberate fixes and canonical metadata docstring",
+  "before_source_sha256": "1594a12c88f7f1e9eb0f7527ab99603f92830c4fb8f4e5c4920c878fbf94e49b",
+  "after_source_sha256": "dfb2683e620bcc1a3a5d4f97f5cb4c1cfda20105e493f6070e63b8574c11c73f",
+  "whole_module_expected_delta_exact": true,
+  "canonical_metadata": "One canonical_image.size assignment immediately before the unchanged JPEG encoder; original source pixel limits, scan/decode/resize/orient order and output bytes retained.",
+  "health_protocol": "One total deadline, existing framed reader with health-only 64 byte bound, reader failures mapped to ConfigurationError; complete surrounding whitespace compatibility retained.",
+  "scan_full_method_ast_exact": true,
+  "scan_reader_inverse": "Two original4096 constants projected to optional maximum_bytes default4096; other response framing/decode/strict scan verdict logic unchanged.",
+  "format_only": "Ruff normalized line endings and the existing multiline source-format conditional; AST proof excludes no additional semantic nodes.",
+  "original_tests": [
+    {
+      "path": "backend/tests/unit/infrastructure/test_upload_validator.py",
+      "sha256": "4adae8595d80953f154c84390446723bdac1b63e6ee0d7ff0770f823cc953409",
+      "original_bytes_unchanged": true
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_clamav_scanner_protocol.py",
+      "sha256": "a4aa9a2edbfe782b99a79a76a1dc3f62db4a5d11b92cdaec430f18db2a7f7093",
+      "original_bytes_unchanged": true
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_native_image_pixel_compatibility.py",
+      "sha256": "c84a8d606a2b1b9e6b5d01212df6c33733f1f6a8d1e69ba0865c4a6206cadce8",
+      "original_bytes_unchanged": true
+    }
+  ],
+  "current_resolved_signatures": {
+    "ClamAVMalwareScanner.__init__": {
+      "signature": "(self, *, host: 'str', port: 'int', timeout_seconds: 'float') -> 'None'",
+      "type_hints_resolve": true
+    },
+    "ClamAVMalwareScanner.scan": {
+      "signature": "(self, content: 'bytes') -> 'None'",
+      "type_hints_resolve": true
+    },
+    "ClamAVMalwareScanner._read_scan_response": {
+      "signature": "(self, sock: 'socket.socket', deadline: 'float', *, maximum_bytes: 'int' = 4096) -> 'str'",
+      "type_hints_resolve": true
+    },
+    "ClamAVMalwareScanner.healthcheck": {
+      "signature": "(self) -> 'None'",
+      "type_hints_resolve": true
+    },
+    "ClamAVMalwareScanner._set_remaining_timeout": {
+      "signature": "(sock: 'socket.socket', deadline: 'float') -> 'None'",
+      "type_hints_resolve": true
+    },
+    "UploadValidator.__init__": {
+      "signature": "(self, scanner: 'MalwareScanner | None' = None) -> 'None'",
+      "type_hints_resolve": true
+    },
+    "UploadValidator.validate": {
+      "signature": "(self, *, content: 'bytes', filename: 'str | None', declared_content_type: 'str | None', max_dimension: 'int | None' = None, allowed_source_formats: 'frozenset[str] | None' = None) -> 'ValidatedUpload'",
+      "type_hints_resolve": true
+    },
+    "UploadValidator._to_rgb": {
+      "signature": "(image: 'Image.Image') -> 'Image.Image'",
+      "type_hints_resolve": true
+    },
+    "UploadValidator._encode_jpeg": {
+      "signature": "(image: 'Image.Image') -> 'bytes'",
+      "type_hints_resolve": true
+    },
+    "UploadValidator._safe_filename": {
+      "signature": "(filename: 'str | None', extension: 'str') -> 'str'",
+      "type_hints_resolve": true
+    },
+    "UploadValidator._default_scanner": {
+      "signature": "(self) -> 'MalwareScanner'",
+      "type_hints_resolve": true
+    }
+  },
+  "dataclass_fields_unchanged": [
+    "content",
+    "content_type",
+    "filename",
+    "width",
+    "height",
+    "format"
+  ]
+}

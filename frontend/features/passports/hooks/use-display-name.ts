@@ -1,4 +1,5 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { usePrivateMutation } from "@/hooks/use-private-mutation";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/constants";
 import { passportsApi } from "../api/passports.api";
 import { updateDisplayName, type DisplayNamePatch } from "../api/display-name.api";
@@ -14,8 +15,8 @@ export function useDisplayNameEditor(id: string, groupId: string) {
     refetchOnReconnect: false,
     retry: false,
   });
-  const mutation = useMutation({
-    mutationFn: (body: DisplayNamePatch) => updateDisplayName(groupId, id, body),
+  const mutation = usePrivateMutation({
+    mutationFn: (body: DisplayNamePatch, _context, owner) => updateDisplayName(groupId, id, body, owner.requestConfig),
     retry: false,
     onSuccess: async () => {
       await Promise.all([

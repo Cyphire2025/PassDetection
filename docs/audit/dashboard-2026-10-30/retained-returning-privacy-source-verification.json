@@ -1,0 +1,33 @@
+{
+  "status": "Read-only retained source cohort sealed; broader audit remains active",
+  "new_current_full_tests": 4,
+  "test_physical_lines": 1091,
+  "supporting_full_rows": 5,
+  "focused_rows": 3,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-returning-privacy-source-reviewed-files.json",
+    "sha256": "1fc636dd3cc802cad71e7c54de0c1cb780542263b0e0c1680c110ab1c346d4ca"
+  },
+  "source_fence": {
+    "backend/tests/integration/test_returning_claims.py": "a51dc72c3781f0f932d21e0a0c7a25d613f2782082eacb333689b6fc04da53ae",
+    "backend/tests/integration/test_returning_drafts.py": "b68bffa5b0275eb8811b28a7e30b1289bf49982d833ef8eb3d49f33c63d4b32d",
+    "backend/tests/integration/test_returning_portal_http.py": "a575b65b77ec5305308bc06ae0cddf6774b26165952d2bd4518c76ae37c4966e",
+    "backend/tests/unit/application/test_retained_data_authorization.py": "bec5c2212d70b651d04a40aed64c1f3ae4058be44472a75720c668cc8d958998",
+    "backend/app/application/travellers/grants.py": "d08df8268effdc099ca8da67433b2b16d81d79c0f84f91d86a988b623d765c78",
+    "backend/app/application/travellers/document_challenge.py": "19e7496a493a1ae148b8508d113f9d8a27dd8343b77210d9e82665f516a0eabd",
+    "backend/app/application/travellers/drafts.py": "690a8e1e81788f5da626c34183a6ee5a0c48632f1795a28a2459f600a34b7fb9",
+    "backend/app/application/travellers/passport_lookup_index.py": "278e3ba78f4a5c939fa90d409738ffe589b21402a3242e0f2e3286d275c10895",
+    "backend/app/application/travellers/passport_date_proof.py": "3e2322669a389773571aa2539bd4734c0f379d865456226f2c557282c1b71e50",
+    "backend/app/application/security/authorization_policy.py": "6a1ee49097b124715ce52fb5810387c6be5a3a5e18f4896676340c6e6dabe663",
+    "backend/app/application/travellers/matching.py": "2df698ab8e89b06f4b05fe07a2254ab016d4b067f41508c1c99d97f799608373",
+    "backend/app/presentation/api/v1/routes/returning_claims.py": "ffa02a956d7334c7b826fd22a4e136918ec5e099188788e185a889e7bf581503"
+  },
+  "checks_run": [],
+  "changes": [],
+  "findings": [],
+  "limitations": [
+    "No service/provider/native/browser/test execution for source-only review credit.",
+    "Existing root completion/directory and all historical source qualifications remain frozen; no generic architecture issue inferred.",
+    "Shared raw authorization test retained despite historical consumer name; dedicated Operations Inbox source remains deferred."
+  ]
+}

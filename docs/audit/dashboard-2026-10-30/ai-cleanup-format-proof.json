@@ -1,0 +1,5 @@
+{
+  "path": "backend/app/infrastructure/documents/storage_cleanup.py",
+  "ast_identical": true,
+  "ast_sha256": "20ca84a25e3baf71714edafe427b984ab5caf98e05f33d94bfa03956cf1b5551"
+}

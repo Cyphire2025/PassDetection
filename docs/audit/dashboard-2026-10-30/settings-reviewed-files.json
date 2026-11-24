@@ -1,0 +1,122 @@
+[
+  {
+    "path": "backend/app/core/config/runtime_settings_fields.py",
+    "sha256": "dd324d05455e837d57ca26aa4dba1f8a0e712214c544fbdc50aab21cd7495a86",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All927original root and411MyPhotos configuration lines read; current thirteen owners reviewed. Exact261ordered public fields/defaults/aliases/constructor/config/validator-order/computed contracts and four schemas retained.195field ASTs,21moved root methods,66Photos fields and35statement expanded AWS policy proven exact.201distinct affected cases, current13Ruff/mypy/architecture pass. Flat env and synthetic dotenv/constructor precedence verified; SMTP missing/valid credential controls pass. No configuration/deployment identity or real credentials changed. Independent peer13file physical review and isolated old/current environment probes also pass; exact source manifest retained."
+  },
+  {
+    "path": "backend/app/core/config/request_settings_fields.py",
+    "sha256": "f7dbe65f066e304ee089241e7709f14246801039aeee25ba6f91f474fa38468b",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All927original root and411MyPhotos configuration lines read; current thirteen owners reviewed. Exact261ordered public fields/defaults/aliases/constructor/config/validator-order/computed contracts and four schemas retained.195field ASTs,21moved root methods,66Photos fields and35statement expanded AWS policy proven exact.201distinct affected cases, current13Ruff/mypy/architecture pass. Flat env and synthetic dotenv/constructor precedence verified; SMTP missing/valid credential controls pass. No configuration/deployment identity or real credentials changed. Independent peer13file physical review and isolated old/current environment probes also pass; exact source manifest retained."
+  },
+  {
+    "path": "backend/app/core/config/ingestion_settings_fields.py",
+    "sha256": "b4b3f161aa7dd3350d077dd20e4880dcca69439f853cccb63bec8d82338e2788",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All927original root and411MyPhotos configuration lines read; current thirteen owners reviewed. Exact261ordered public fields/defaults/aliases/constructor/config/validator-order/computed contracts and four schemas retained.195field ASTs,21moved root methods,66Photos fields and35statement expanded AWS policy proven exact.201distinct affected cases, current13Ruff/mypy/architecture pass. Flat env and synthetic dotenv/constructor precedence verified; SMTP missing/valid credential controls pass. No configuration/deployment identity or real credentials changed. Independent peer13file physical review and isolated old/current environment probes also pass; exact source manifest retained."
+  },
+  {
+    "path": "backend/app/core/config/ai_settings_fields.py",
+    "sha256": "2d7c876502cf60b435b12bd8b33823e91877e8082057f7d16a976b4b51705ad3",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All927original root and411MyPhotos configuration lines read; current thirteen owners reviewed. Exact261ordered public fields/defaults/aliases/constructor/config/validator-order/computed contracts and four schemas retained.195field ASTs,21moved root methods,66Photos fields and35statement expanded AWS policy proven exact.201distinct affected cases, current13Ruff/mypy/architecture pass. Flat env and synthetic dotenv/constructor precedence verified; SMTP missing/valid credential controls pass. No configuration/deployment identity or real credentials changed. Independent peer13file physical review and isolated old/current environment probes also pass; exact source manifest retained."
+  },
+  {
+    "path": "backend/app/core/config/email_settings_fields.py",
+    "sha256": "ae471aa0f319c27390953546c57f385ea6bb9cb88f6d6bf6e4bc6aae52f45e95",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All927original root and411MyPhotos configuration lines read; current thirteen owners reviewed. Exact261ordered public fields/defaults/aliases/constructor/config/validator-order/computed contracts and four schemas retained.195field ASTs,21moved root methods,66Photos fields and35statement expanded AWS policy proven exact.201distinct affected cases, current13Ruff/mypy/architecture pass. Flat env and synthetic dotenv/constructor precedence verified; SMTP missing/valid credential controls pass. No configuration/deployment identity or real credentials changed. Independent peer13file physical review and isolated old/current environment probes also pass; exact source manifest retained."
+  },
+  {
+    "path": "backend/app/core/config/identity_settings_fields.py",
+    "sha256": "1aaa228536583a4e8f023f4a350d2652139b2f0aa1dfd34316656d55f972afae",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All927original root and411MyPhotos configuration lines read; current thirteen owners reviewed. Exact261ordered public fields/defaults/aliases/constructor/config/validator-order/computed contracts and four schemas retained.195field ASTs,21moved root methods,66Photos fields and35statement expanded AWS policy proven exact.201distinct affected cases, current13Ruff/mypy/architecture pass. Flat env and synthetic dotenv/constructor precedence verified; SMTP missing/valid credential controls pass. No configuration/deployment identity or real credentials changed. Independent peer13file physical review and isolated old/current environment probes also pass; exact source manifest retained."
+  },
+  {
+    "path": "backend/app/core/config/whatsapp_settings_fields.py",
+    "sha256": "3a0844b5cc46ff1693f4386df51c8f1c53e4cde1e86ef579abe4f4dbc6eb21bf",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All927original root and411MyPhotos configuration lines read; current thirteen owners reviewed. Exact261ordered public fields/defaults/aliases/constructor/config/validator-order/computed contracts and four schemas retained.195field ASTs,21moved root methods,66Photos fields and35statement expanded AWS policy proven exact.201distinct affected cases, current13Ruff/mypy/architecture pass. Flat env and synthetic dotenv/constructor precedence verified; SMTP missing/valid credential controls pass. No configuration/deployment identity or real credentials changed. Independent peer13file physical review and isolated old/current environment probes also pass; exact source manifest retained."
+  },
+  {
+    "path": "backend/app/core/config/settings_deployment_policy.py",
+    "sha256": "966075f95b4c23faf2f6da0260587e9f40a2cca9fcdeaaaa9dd30aad06522123",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All927original root and411MyPhotos configuration lines read; current thirteen owners reviewed. Exact261ordered public fields/defaults/aliases/constructor/config/validator-order/computed contracts and four schemas retained.195field ASTs,21moved root methods,66Photos fields and35statement expanded AWS policy proven exact.201distinct affected cases, current13Ruff/mypy/architecture pass. Flat env and synthetic dotenv/constructor precedence verified; SMTP missing/valid credential controls pass. No configuration/deployment identity or real credentials changed. Independent peer13file physical review and isolated old/current environment probes also pass; exact source manifest retained."
+  },
+  {
+    "path": "backend/app/core/config/settings_identity_policy.py",
+    "sha256": "a3d1c6c91dec985a044fd5140cea479b3703f023e8fb84d960711e387538814c",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All927original root and411MyPhotos configuration lines read; current thirteen owners reviewed. Exact261ordered public fields/defaults/aliases/constructor/config/validator-order/computed contracts and four schemas retained.195field ASTs,21moved root methods,66Photos fields and35statement expanded AWS policy proven exact.201distinct affected cases, current13Ruff/mypy/architecture pass. Flat env and synthetic dotenv/constructor precedence verified; SMTP missing/valid credential controls pass. No configuration/deployment identity or real credentials changed. Independent peer13file physical review and isolated old/current environment probes also pass; exact source manifest retained."
+  },
+  {
+    "path": "backend/app/core/config/settings_mobile_policy.py",
+    "sha256": "01faa1d917fb7f47fa18e4b0acc7c3e8d7e538f5a10175ff14f625fec447c546",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All927original root and411MyPhotos configuration lines read; current thirteen owners reviewed. Exact261ordered public fields/defaults/aliases/constructor/config/validator-order/computed contracts and four schemas retained.195field ASTs,21moved root methods,66Photos fields and35statement expanded AWS policy proven exact.201distinct affected cases, current13Ruff/mypy/architecture pass. Flat env and synthetic dotenv/constructor precedence verified; SMTP missing/valid credential controls pass. No configuration/deployment identity or real credentials changed. Independent peer13file physical review and isolated old/current environment probes also pass; exact source manifest retained."
+  },
+  {
+    "path": "backend/app/core/config/settings.py",
+    "sha256": "6c5485def68a3d76a27260fbce57bfb2321b241787b769ce0738d63fccc8fef3",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All927original root and411MyPhotos configuration lines read; current thirteen owners reviewed. Exact261ordered public fields/defaults/aliases/constructor/config/validator-order/computed contracts and four schemas retained.195field ASTs,21moved root methods,66Photos fields and35statement expanded AWS policy proven exact.201distinct affected cases, current13Ruff/mypy/architecture pass. Flat env and synthetic dotenv/constructor precedence verified; SMTP missing/valid credential controls pass. No configuration/deployment identity or real credentials changed. Independent peer13file physical review and isolated old/current environment probes also pass; exact source manifest retained."
+  },
+  {
+    "path": "backend/app/core/config/my_photos_settings.py",
+    "sha256": "e30629c3d3803355ba4484d55f97c08e1857cc75ea7e1a52e83849b601cd7f17",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All927original root and411MyPhotos configuration lines read; current thirteen owners reviewed. Exact261ordered public fields/defaults/aliases/constructor/config/validator-order/computed contracts and four schemas retained.195field ASTs,21moved root methods,66Photos fields and35statement expanded AWS policy proven exact.201distinct affected cases, current13Ruff/mypy/architecture pass. Flat env and synthetic dotenv/constructor precedence verified; SMTP missing/valid credential controls pass. No configuration/deployment identity or real credentials changed. Independent peer13file physical review and isolated old/current environment probes also pass; exact source manifest retained."
+  },
+  {
+    "path": "backend/app/core/config/my_photos_aws_policy.py",
+    "sha256": "bf72bbe93b00bc98c589cde717c4e80676114d869095d4787b6276696aa65492",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All927original root and411MyPhotos configuration lines read; current thirteen owners reviewed. Exact261ordered public fields/defaults/aliases/constructor/config/validator-order/computed contracts and four schemas retained.195field ASTs,21moved root methods,66Photos fields and35statement expanded AWS policy proven exact.201distinct affected cases, current13Ruff/mypy/architecture pass. Flat env and synthetic dotenv/constructor precedence verified; SMTP missing/valid credential controls pass. No configuration/deployment identity or real credentials changed. Independent peer13file physical review and isolated old/current environment probes also pass; exact source manifest retained."
+  },
+  {
+    "path": "backend/tests/unit/core/test_identity_security.py",
+    "sha256": "824ddaa1c798f25165cb6be975eef4a4da757fb0dda6ee008f388c8ba8f8dddb",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete file read.16current supplementary cases pass with current-hash policy coverage. Synthetic credentials/temporary dotenv only, no provider send or production configuration read."
+  },
+  {
+    "path": "backend/tests/unit/core/test_settings_environment_contract.py",
+    "sha256": "92f87a062eb845a2d3055f894b38b987f1190b51e87e0011d1c00d77c2252d06",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete file read.16current supplementary cases pass with current-hash policy coverage. Synthetic credentials/temporary dotenv only, no provider send or production configuration read."
+  }
+]

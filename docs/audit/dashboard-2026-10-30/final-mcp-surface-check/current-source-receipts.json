@@ -1,0 +1,1627 @@
+{
+  "scope": "Current raw source hashes and exact current-hash matches to prior review receipts. Historical source-review statuses are copied only as provenance; no workflow implementation status is derived from them. This artifact does not assert fresh whole-line review.",
+  "files": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/admin.py",
+      "sha256": "d6cef1f7db8cc08202866b7d93e0a1b3feb91b69ddb49a25687850b9f5cc36c4",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/admin-reviewed-files.json",
+          "receipt_sha256": "298440eeae9b018f43fae94b90fc130b572fa007fea78d190d07b5cdc8bfd7f4",
+          "json_pointer": "/0",
+          "review_scope": "full",
+          "review_status": "refactored",
+          "reviewer": "root",
+          "notes": "Full original/current bodies and current owner imports/composition reviewed. Whole moved declaration ASTs, actual facade identities, complete OpenAPI and runtime type annotations verified;203unique affected cases. Current per-owner coverage and measured size/branch candidates recorded separately."
+        },
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/retained-http-boundary-unit-source-reviewed-files.json",
+          "receipt_sha256": "ef8f5922184b54829ed1ded75307a859a82a3be04802a066576644e130acfd21",
+          "json_pointer": "/files/22",
+          "review_scope": "focused",
+          "review_status": "reviewed",
+          "reviewer": "/root/document_ui_architecture",
+          "notes": "Physical read1-60 only: actual stable deletion/purge aliases and context for source-level cleanup guard; owner literals searched separately. No whole facade/owner credit or runtime/admin mutation."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/admin_accounts.py",
+      "sha256": "75ff6a0e79de56d0397c4ed7f980e2ffa1135a41dcf2f9e07d137edeb522a2ac",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/managed-account-reviewed-files.json",
+          "receipt_sha256": "619b7f83faf1fdaa736393179a173b1e2a7bf05fecead2265b576833c7c312a1",
+          "json_pointer": "/0",
+          "review_scope": "full",
+          "review_status": "refactored",
+          "reviewer": "root",
+          "notes": "All original/current body and owner composition read/authored. Whole15function extraction/hints/facade/8API contracts preserved; two policy/query deduplications restore exact baseline. Real25case policy matrix before/after,72unique affected cases, all original assertions retained; six proven dead test setup nodes retired. Public invitation/session/MFA/status/removal workflows intact."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/admin_group_access.py",
+      "sha256": "16536e1644470b62c7130224d9f4650a7c44dfe101c34a29c6f4623d6792657e",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/admin-reviewed-files.json",
+          "receipt_sha256": "298440eeae9b018f43fae94b90fc130b572fa007fea78d190d07b5cdc8bfd7f4",
+          "json_pointer": "/4",
+          "review_scope": "full",
+          "review_status": "refactored",
+          "reviewer": "root",
+          "notes": "Full original/current bodies and current owner imports/composition reviewed. Whole moved declaration ASTs, actual facade identities, complete OpenAPI and runtime type annotations verified;203unique affected cases. Current per-owner coverage and measured size/branch candidates recorded separately."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/admin_manager_deletion.py",
+      "sha256": "3af4881d8f0090dd4f12868f533fa20f81fc81e08edebaca28691018f3dca10f",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/admin-reviewed-files.json",
+          "receipt_sha256": "298440eeae9b018f43fae94b90fc130b572fa007fea78d190d07b5cdc8bfd7f4",
+          "json_pointer": "/9",
+          "review_scope": "full",
+          "review_status": "refactored",
+          "reviewer": "root",
+          "notes": "Full original/current bodies and current owner imports/composition reviewed. Whole moved declaration ASTs, actual facade identities, complete OpenAPI and runtime type annotations verified;203unique affected cases. Current per-owner coverage and measured size/branch candidates recorded separately."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/admin_passport_purge.py",
+      "sha256": "2286fd0144a7a6fbd6a74e00e8ce21415f55d7b2a91f5ca524ec51d048225916",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/admin-reviewed-files.json",
+          "receipt_sha256": "298440eeae9b018f43fae94b90fc130b572fa007fea78d190d07b5cdc8bfd7f4",
+          "json_pointer": "/10",
+          "review_scope": "full",
+          "review_status": "refactored",
+          "reviewer": "root",
+          "notes": "Full original/current bodies and current owner imports/composition reviewed. Whole moved declaration ASTs, actual facade identities, complete OpenAPI and runtime type annotations verified;203unique affected cases. Current per-owner coverage and measured size/branch candidates recorded separately."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/admin_platform_settings.py",
+      "sha256": "634e968871f22640240a86050f2fa778fd23f1520190e29c70dcd4570492760e",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/admin-reviewed-files.json",
+          "receipt_sha256": "298440eeae9b018f43fae94b90fc130b572fa007fea78d190d07b5cdc8bfd7f4",
+          "json_pointer": "/5",
+          "review_scope": "full",
+          "review_status": "refactored",
+          "reviewer": "root",
+          "notes": "Full original/current bodies and current owner imports/composition reviewed. Whole moved declaration ASTs, actual facade identities, complete OpenAPI and runtime type annotations verified;203unique affected cases. Current per-owner coverage and measured size/branch candidates recorded separately."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/admin_retention.py",
+      "sha256": "a0af2341a6ba20246358af1fd376a0f18f0450d497d984bb734e840d21988e4a",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/admin-reviewed-files.json",
+          "receipt_sha256": "298440eeae9b018f43fae94b90fc130b572fa007fea78d190d07b5cdc8bfd7f4",
+          "json_pointer": "/6",
+          "review_scope": "full",
+          "review_status": "refactored",
+          "reviewer": "root",
+          "notes": "Full original/current bodies and current owner imports/composition reviewed. Whole moved declaration ASTs, actual facade identities, complete OpenAPI and runtime type annotations verified;203unique affected cases. Current per-owner coverage and measured size/branch candidates recorded separately."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/admin_workforce.py",
+      "sha256": "c2a127cfff5e662562379a44cb1018e7c9069c1dbc8c929766f6b87f45459644",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/admin-reviewed-files.json",
+          "receipt_sha256": "298440eeae9b018f43fae94b90fc130b572fa007fea78d190d07b5cdc8bfd7f4",
+          "json_pointer": "/3",
+          "review_scope": "full",
+          "review_status": "fixed",
+          "reviewer": "root",
+          "notes": "Full original/current bodies and current owner imports/composition reviewed. Whole moved declaration ASTs, actual facade identities, complete OpenAPI and runtime type annotations verified;203unique affected cases. Current per-owner coverage and measured size/branch candidates recorded separately."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_assignment_delete.py",
+      "sha256": "574e94e2c4474cb365a2a6d12205466f9368e5bec9da45e110c90898c9b495cc",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/document-distribution-review-final-reviewed-files.json",
+          "receipt_sha256": "553311d5d3ec678dba03cdd2b316d9d8c09d7509d4187560ffb91df34ca61e91",
+          "json_pointer": "/files/2",
+          "review_scope": "full",
+          "review_status": "reviewed",
+          "reviewer": "/root/document_ui_architecture",
+          "notes": "Complete physical current source read in bounded untruncated output; changed import regions reread after final reader placement, current whole declarations/bodies read. Unchanged preflight sources retain their exact physically read hashes; this is not a claim of21 newly unique unreviewed files. Original12 review/router/workbook test assertions and complete source bytes remain unchanged. New DB fixtures/control bodies also fully read. Operations Inbox/native/mobile-only/repository/MCP work is outside this tranche; shared artifact provenance and existing propagation call sites were read only for retained dashboard compatibility. Separate coverage/service/unconfirmed-source follow-ups remain in the final receipt."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_assignment_unassign.py",
+      "sha256": "24d74b8f73c6ffbc626c877291544246f77c112c00caac37b4a36ea1fed5b688",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/document-distribution-review-final-reviewed-files.json",
+          "receipt_sha256": "553311d5d3ec678dba03cdd2b316d9d8c09d7509d4187560ffb91df34ca61e91",
+          "json_pointer": "/files/4",
+          "review_scope": "full",
+          "review_status": "reviewed",
+          "reviewer": "/root/document_ui_architecture",
+          "notes": "Complete physical current source read in bounded untruncated output; changed import regions reread after final reader placement, current whole declarations/bodies read. Unchanged preflight sources retain their exact physically read hashes; this is not a claim of21 newly unique unreviewed files. Original12 review/router/workbook test assertions and complete source bytes remain unchanged. New DB fixtures/control bodies also fully read. Operations Inbox/native/mobile-only/repository/MCP work is outside this tranche; shared artifact provenance and existing propagation call sites were read only for retained dashboard compatibility. Separate coverage/service/unconfirmed-source follow-ups remain in the final receipt."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_assignments.py",
+      "sha256": "136de40db054a6f757af621486d49296aac5feab7f38684fb65581e76d91d49a",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/document-distribution-review-final-reviewed-files.json",
+          "receipt_sha256": "553311d5d3ec678dba03cdd2b316d9d8c09d7509d4187560ffb91df34ca61e91",
+          "json_pointer": "/files/5",
+          "review_scope": "full",
+          "review_status": "reviewed",
+          "reviewer": "/root/document_ui_architecture",
+          "notes": "Complete physical current source read in bounded untruncated output; changed import regions reread after final reader placement, current whole declarations/bodies read. Unchanged preflight sources retain their exact physically read hashes; this is not a claim of21 newly unique unreviewed files. Original12 review/router/workbook test assertions and complete source bytes remain unchanged. New DB fixtures/control bodies also fully read. Operations Inbox/native/mobile-only/repository/MCP work is outside this tranche; shared artifact provenance and existing propagation call sites were read only for retained dashboard compatibility. Separate coverage/service/unconfirmed-source follow-ups remain in the final receipt."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker.py",
+      "sha256": "6a10b853b8ecb15371dd770f80f27abd201a812d0cc48948fb65981d2d998726",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/ecr-checker-final-reviewed-files.json",
+          "receipt_sha256": "569d81942ebb5da117af47e737aaede658699f25de4702f7afe6fa7fbebb44a2",
+          "json_pointer": "/files/0",
+          "review_scope": "full",
+          "review_status": "reviewed",
+          "reviewer": "/root/document_ui_architecture",
+          "notes": "Complete current physical source read, including all new imports/typed phase bodies. Pure ownership/readability improvement; final37synthetic affected cases plus exact expanded original17function/metadata/global/route proofs qualified. Frozen."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_actions.py",
+      "sha256": "58b5fec6fb013d7b89115cb00070059b9b36e8876a025ee6e73f7da5b8e40119",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/ecr-checker-final-reviewed-files.json",
+          "receipt_sha256": "569d81942ebb5da117af47e737aaede658699f25de4702f7afe6fa7fbebb44a2",
+          "json_pointer": "/files/1",
+          "review_scope": "full",
+          "review_status": "reviewed",
+          "reviewer": "/root/document_ui_architecture",
+          "notes": "Complete current physical source read, including all new imports/typed phase bodies. Pure ownership/readability improvement; final37synthetic affected cases plus exact expanded original17function/metadata/global/route proofs qualified. Frozen."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_batches.py",
+      "sha256": "3b785bd4319187d78ba24b51c8295a5f0df1812d3f3f153298036f0e67d70007",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/ecr-checker-final-reviewed-files.json",
+          "receipt_sha256": "569d81942ebb5da117af47e737aaede658699f25de4702f7afe6fa7fbebb44a2",
+          "json_pointer": "/files/2",
+          "review_scope": "full",
+          "review_status": "reviewed",
+          "reviewer": "/root/document_ui_architecture",
+          "notes": "Complete current physical source read, including all new imports/typed phase bodies. Pure ownership/readability improvement; final37synthetic affected cases plus exact expanded original17function/metadata/global/route proofs qualified. Frozen."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_upload.py",
+      "sha256": "4cbb51f86dbaff18129c84c42d484a586d3b851f9800952cc4e4d574ddff3036",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/ecr-checker-final-reviewed-files.json",
+          "receipt_sha256": "569d81942ebb5da117af47e737aaede658699f25de4702f7afe6fa7fbebb44a2",
+          "json_pointer": "/files/6",
+          "review_scope": "full",
+          "review_status": "reviewed",
+          "reviewer": "/root/document_ui_architecture",
+          "notes": "Complete current physical source read, including all new imports/typed phase bodies. Pure ownership/readability improvement; final37synthetic affected cases plus exact expanded original17function/metadata/global/route proofs qualified. Frozen."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_connection_ai_settings.py",
+      "sha256": "dc0843deb74e38e5436042f97de8dfb8a2b0ba7d18810626a4fddbba17462f07",
+      "scope": "Inbox-deferred",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/email-ai-models-reviewed-files.json",
+          "receipt_sha256": "245ac7b56d9b4aab332961ac82971d89bf17c869b56f693960d02fc850221207",
+          "json_pointer": "/prior_current_full_context_reused/20",
+          "review_scope": null,
+          "review_status": null,
+          "reviewer": null,
+          "notes": null
+        },
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/email-connections-reviewed-files.json",
+          "receipt_sha256": "2014871237260f3b4684af8e7bf344e02fcddeb9a100aa2d9a98a66a49236c8e",
+          "json_pointer": "/files/3",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "document_ui_architecture",
+          "notes": "Complete final physical source read. Whole8post-fix endpoint AST/decorators preserved across actual owners; same public aliases/global values/route registration and complete OpenAPI. Narrow local renewed-grant generation protection validated before mechanical move; fresh95case actual owner100percent line/branch; no live provider/PostgreSQL claim."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_connection_disconnect.py",
+      "sha256": "0083a3514a2f499ba1c9bce25b2e07e02ba8896ae62af4389acf6a974251d3b9",
+      "scope": "Inbox-deferred",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/email-connections-reviewed-files.json",
+          "receipt_sha256": "2014871237260f3b4684af8e7bf344e02fcddeb9a100aa2d9a98a66a49236c8e",
+          "json_pointer": "/files/1",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "document_ui_architecture",
+          "notes": "Complete final physical source read. Whole8post-fix endpoint AST/decorators preserved across actual owners; same public aliases/global values/route registration and complete OpenAPI. Narrow local renewed-grant generation protection validated before mechanical move; fresh95case actual owner100percent line/branch; no live provider/PostgreSQL claim."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_connection_monitoring.py",
+      "sha256": "0e1b1a87c4f3bc1219f2ac79503feedbc4e2d5bd0e6347472fa801c61abcb880",
+      "scope": "Inbox-deferred",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/email-connections-reviewed-files.json",
+          "receipt_sha256": "2014871237260f3b4684af8e7bf344e02fcddeb9a100aa2d9a98a66a49236c8e",
+          "json_pointer": "/files/0",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "document_ui_architecture",
+          "notes": "Complete final physical source read. Whole8post-fix endpoint AST/decorators preserved across actual owners; same public aliases/global values/route registration and complete OpenAPI. Narrow local renewed-grant generation protection validated before mechanical move; fresh95case actual owner100percent line/branch; no live provider/PostgreSQL claim."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_connection_removal.py",
+      "sha256": "d9cd81b8a36b7c966a4841150a8e039d8c7dfaa24dc1c2a0e68787f85f122888",
+      "scope": "Inbox-deferred",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/email-connections-reviewed-files.json",
+          "receipt_sha256": "2014871237260f3b4684af8e7bf344e02fcddeb9a100aa2d9a98a66a49236c8e",
+          "json_pointer": "/files/2",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "document_ui_architecture",
+          "notes": "Complete final physical source read. Whole8post-fix endpoint AST/decorators preserved across actual owners; same public aliases/global values/route registration and complete OpenAPI. Narrow local renewed-grant generation protection validated before mechanical move; fresh95case actual owner100percent line/branch; no live provider/PostgreSQL claim."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_connections.py",
+      "sha256": "70591a17783ac049a4b6b664f2a32f1541fba09551856899177832755c70bf69",
+      "scope": "Inbox-deferred",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/email-connections-reviewed-files.json",
+          "receipt_sha256": "2014871237260f3b4684af8e7bf344e02fcddeb9a100aa2d9a98a66a49236c8e",
+          "json_pointer": "/files/4",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "document_ui_architecture",
+          "notes": "Complete final physical source read. Whole8post-fix endpoint AST/decorators preserved across actual owners; same public aliases/global values/route registration and complete OpenAPI. Narrow local renewed-grant generation protection validated before mechanical move; fresh95case actual owner100percent line/branch; no live provider/PostgreSQL claim."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/managed_account_creation.py",
+      "sha256": "6b377cce932b283ec9cd83b4ec8d7020eda70165330c57fad96ab6b344ced05f",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/managed-account-reviewed-files.json",
+          "receipt_sha256": "619b7f83faf1fdaa736393179a173b1e2a7bf05fecead2265b576833c7c312a1",
+          "json_pointer": "/1",
+          "review_scope": "full",
+          "review_status": "refactored",
+          "reviewer": "root",
+          "notes": "All original/current body and owner composition read/authored. Whole15function extraction/hints/facade/8API contracts preserved; two policy/query deduplications restore exact baseline. Real25case policy matrix before/after,72unique affected cases, all original assertions retained; six proven dead test setup nodes retired. Public invitation/session/MFA/status/removal workflows intact."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/managed_account_credentials.py",
+      "sha256": "067cfca4e972d2caaff00aa6b2dc81fbe3bcff6f2bb7bb39b0c4a5fee114a778",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/bulk-actor-reviewed-files.json",
+          "receipt_sha256": "21b783d2563f2b92f2ee14b350e0a954745e1b33dab9b680d7f794f253f1da10",
+          "json_pointer": "/3",
+          "review_scope": "focused",
+          "review_status": "verified",
+          "reviewer": "root",
+          "notes": "Affected test execution or management reset/session-state transition trace; no full physical source credit in this batch."
+        },
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/managed-account-reviewed-files.json",
+          "receipt_sha256": "619b7f83faf1fdaa736393179a173b1e2a7bf05fecead2265b576833c7c312a1",
+          "json_pointer": "/2",
+          "review_scope": "full",
+          "review_status": "refactored",
+          "reviewer": "root",
+          "notes": "All original/current body and owner composition read/authored. Whole15function extraction/hints/facade/8API contracts preserved; two policy/query deduplications restore exact baseline. Real25case policy matrix before/after,72unique affected cases, all original assertions retained; six proven dead test setup nodes retired. Public invitation/session/MFA/status/removal workflows intact."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/managed_account_mutations.py",
+      "sha256": "b5a6857bf9589e9e8ea07f5b73b1b9173234544d1d9d04bcb1ad4469a5ceb68b",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/managed-account-reviewed-files.json",
+          "receipt_sha256": "619b7f83faf1fdaa736393179a173b1e2a7bf05fecead2265b576833c7c312a1",
+          "json_pointer": "/3",
+          "review_scope": "full",
+          "review_status": "refactored",
+          "reviewer": "root",
+          "notes": "All original/current body and owner composition read/authored. Whole15function extraction/hints/facade/8API contracts preserved; two policy/query deduplications restore exact baseline. Real25case policy matrix before/after,72unique affected cases, all original assertions retained; six proven dead test setup nodes retired. Public invitation/session/MFA/status/removal workflows intact."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/managed_account_queries.py",
+      "sha256": "7a6551812cf5935088b20d795e42660f7e787b4459bef731da77c8fb7a1a8e4c",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/managed-account-reviewed-files.json",
+          "receipt_sha256": "619b7f83faf1fdaa736393179a173b1e2a7bf05fecead2265b576833c7c312a1",
+          "json_pointer": "/4",
+          "review_scope": "full",
+          "review_status": "refactored",
+          "reviewer": "root",
+          "notes": "All original/current body and owner composition read/authored. Whole15function extraction/hints/facade/8API contracts preserved; two policy/query deduplications restore exact baseline. Real25case policy matrix before/after,72unique affected cases, all original assertions retained; six proven dead test setup nodes retired. Public invitation/session/MFA/status/removal workflows intact."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mcp_admin.py",
+      "sha256": "1fc02367a0ad64fdf78e6f4404fdd4babbd35cbc477221e7e12de0b1c9c554c4",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/mcp-admin-architecture-reviewed-files.json",
+          "receipt_sha256": "bd041136f449c31e77c83cb7d8a6cd2c2505695f93bf744a8aba6fc77e9701d9",
+          "json_pointer": "/0",
+          "review_scope": "full",
+          "review_status": "refactored",
+          "reviewer": "ai_extraction",
+          "notes": "Complete original433 and current owned source physically read. Three concrete management responsibilities plus typed settings context retain16whole function ASTs after explicit decorator restoration; original14routing expressions stay in facade order.18complete OpenAPI/routes/default dependency trees and16runtime signature/defaultFieldInfo/evaluated hints/old+new pickles/aliases match;47original imported objects retained.165unique focused cases across unchanged5runtime sources;100line coverage each, actual branches reported per owner. No auth-policy/workflow change, no provider/livePG/VPS qualification. Contended administration actor-revalidation observation remains unvalidated; no blanket security closure."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mcp_admin_authorization.py",
+      "sha256": "23214b6da5c95e3651105b8e1af831d9d56202dbdcea20af889706c156bcc8df",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/mcp-admin-architecture-reviewed-files.json",
+          "receipt_sha256": "bd041136f449c31e77c83cb7d8a6cd2c2505695f93bf744a8aba6fc77e9701d9",
+          "json_pointer": "/1",
+          "review_scope": "full",
+          "review_status": "refactored",
+          "reviewer": "ai_extraction",
+          "notes": "Complete original433 and current owned source physically read. Three concrete management responsibilities plus typed settings context retain16whole function ASTs after explicit decorator restoration; original14routing expressions stay in facade order.18complete OpenAPI/routes/default dependency trees and16runtime signature/defaultFieldInfo/evaluated hints/old+new pickles/aliases match;47original imported objects retained.165unique focused cases across unchanged5runtime sources;100line coverage each, actual branches reported per owner. No auth-policy/workflow change, no provider/livePG/VPS qualification. Contended administration actor-revalidation observation remains unvalidated; no blanket security closure."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mcp_admin_connections.py",
+      "sha256": "df81ec3e74e2145c15db6b35334b1e675c54eec4fb6d4e0d165dc654dd995b28",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/mcp-admin-architecture-reviewed-files.json",
+          "receipt_sha256": "bd041136f449c31e77c83cb7d8a6cd2c2505695f93bf744a8aba6fc77e9701d9",
+          "json_pointer": "/2",
+          "review_scope": "full",
+          "review_status": "refactored",
+          "reviewer": "ai_extraction",
+          "notes": "Complete original433 and current owned source physically read. Three concrete management responsibilities plus typed settings context retain16whole function ASTs after explicit decorator restoration; original14routing expressions stay in facade order.18complete OpenAPI/routes/default dependency trees and16runtime signature/defaultFieldInfo/evaluated hints/old+new pickles/aliases match;47original imported objects retained.165unique focused cases across unchanged5runtime sources;100line coverage each, actual branches reported per owner. No auth-policy/workflow change, no provider/livePG/VPS qualification. Contended administration actor-revalidation observation remains unvalidated; no blanket security closure."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mcp_admin_reads.py",
+      "sha256": "2a4c7456cf81da14ef12139f13f2260c64be2a5fa19ce7587d4e0c1573122449",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/mcp-admin-architecture-reviewed-files.json",
+          "receipt_sha256": "bd041136f449c31e77c83cb7d8a6cd2c2505695f93bf744a8aba6fc77e9701d9",
+          "json_pointer": "/4",
+          "review_scope": "full",
+          "review_status": "refactored",
+          "reviewer": "ai_extraction",
+          "notes": "Complete original433 and current owned source physically read. Three concrete management responsibilities plus typed settings context retain16whole function ASTs after explicit decorator restoration; original14routing expressions stay in facade order.18complete OpenAPI/routes/default dependency trees and16runtime signature/defaultFieldInfo/evaluated hints/old+new pickles/aliases match;47original imported objects retained.165unique focused cases across unchanged5runtime sources;100line coverage each, actual branches reported per owner. No auth-policy/workflow change, no provider/livePG/VPS qualification. Contended administration actor-revalidation observation remains unvalidated; no blanket security closure."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_image_library.py",
+      "sha256": "3384131d33cebaf71fb8036b95a7710b663ec88773d4db2bd5302c4ec0d7285e",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/passport-image-family-reviewed-files.json",
+          "receipt_sha256": "7a8b7ee29a38f140ee76de81af6bd0ab2dbd5d51f00d4f896e85276422c2dfc3",
+          "json_pointer": "/2",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "root",
+          "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_image_library_manual.py",
+      "sha256": "688f966d72482c4ed19f0b2c558a3d31db83aae44e75301dff7579e5576bd6bc",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/passport-image-family-reviewed-files.json",
+          "receipt_sha256": "7a8b7ee29a38f140ee76de81af6bd0ab2dbd5d51f00d4f896e85276422c2dfc3",
+          "json_pointer": "/4",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "root",
+          "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_image_library_reads.py",
+      "sha256": "c30bf3950088011d42655ea7b4f6390e88e01ca7615e1a3e9a9b15afe0cea478",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/image-library-reviewed-files.json",
+          "receipt_sha256": "365b38155ae1dbec09197cce055cf480dcbcfd7155deaafbcad97bfd651664f8",
+          "json_pointer": "/2",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "root",
+          "notes": "Complete current source read; final91-case seven-file affected selection is source-fenced. Read routes retain the original audit wrapper; mutations release the initial read transaction, revalidate actual actor/session/group/assignment/source under locks, and audit only after that boundary. Native cancellation drains writes; failed precommit persistence rolls back and compensates; uncertain commits retain bytes. Synthetic external storage; actual FK-enabled SQLite authority/commit observers, no live service claim. Independent image-library-followups.json remains open; this record does not close crash durability or sibling routes."
+        },
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/passport-image-family-reviewed-files.json",
+          "receipt_sha256": "7a8b7ee29a38f140ee76de81af6bd0ab2dbd5d51f00d4f896e85276422c2dfc3",
+          "json_pointer": "/5",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "root",
+          "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_image_library_selection.py",
+      "sha256": "9e0f598d9fe96328858c0845fb3495f6c7a3dda4ac8d6eb8fc72694261066a3d",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/passport-image-family-reviewed-files.json",
+          "receipt_sha256": "7a8b7ee29a38f140ee76de81af6bd0ab2dbd5d51f00d4f896e85276422c2dfc3",
+          "json_pointer": "/7",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "root",
+          "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions.py",
+      "sha256": "c7f71262abc162e63839c977f407770a2837651f8995472ef52154f990334d40",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/bulk-architecture-reviewed-files.json",
+          "receipt_sha256": "4683692ddfcaf8a706943f36af9617a2bd51b11b407e359fca558afe2e68278f",
+          "json_pointer": "/0",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "root",
+          "notes": "Complete physical current source/original moved declarations read; whole AST, evaluated contracts, route/global identity and99 focused test proof."
+        },
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/retained-deletion-storage-source-reviewed-files.json",
+          "receipt_sha256": "c0e25da8d007ab80fff3aef640af97c68d30580bcf2451b14045126a2f2cf1b0",
+          "json_pointer": "/files/4",
+          "review_scope": "focused",
+          "review_status": "focused",
+          "reviewer": "/root/document_ui_architecture",
+          "notes": "Physical107-133 only: actual stable bulk facade reexports current deletion/approval owners and ordered router inclusion. Exact original caller alias traced; no whole-file credit."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions_approval.py",
+      "sha256": "c40650d432686c9be0c0fbee801c5aa9cd2699125859b0f84f1c4002e66d1810",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/bulk-architecture-reviewed-files.json",
+          "receipt_sha256": "4683692ddfcaf8a706943f36af9617a2bd51b11b407e359fca558afe2e68278f",
+          "json_pointer": "/13",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "root",
+          "notes": "Complete physical current source/original moved declarations read; whole AST, evaluated contracts, route/global identity and99 focused test proof."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions_delete.py",
+      "sha256": "3ebfce47110e3e562639e5d520a3b95fcb945a25468c082d0dfbe131cd53dece",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/bulk-architecture-reviewed-files.json",
+          "receipt_sha256": "4683692ddfcaf8a706943f36af9617a2bd51b11b407e359fca558afe2e68278f",
+          "json_pointer": "/14",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "root",
+          "notes": "Complete physical current source/original moved declarations read; whole AST, evaluated contracts, route/global identity and99 focused test proof."
+        },
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/retained-route-residual-reviewed-files.json",
+          "receipt_sha256": "02bd25d9cd23caca471ebb8bc55f30369772a6da384d9c01d233e0944637a638",
+          "json_pointer": "/files/36",
+          "review_scope": "focused",
+          "review_status": "reviewed",
+          "reviewer": "/root/document_ui_architecture",
+          "notes": "Physical read1-100 only: recent MFA/CSRF/destructive policy/tenant group before helper replay use; parent frozen whole owner not modified or newly credited full."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/contact_completion.py",
+      "sha256": "4566bc44f3a6bcf4b98335d2d7d34111779c36c6b04384bb4899912a0f64cc6e",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/contact-verification-reviewed-files.json",
+          "receipt_sha256": "aa4e5ae34f2c4048b617631875806b6d6b42ed2d754c8180d526c734b953f116",
+          "json_pointer": "/1",
+          "review_scope": "full",
+          "review_status": "reviewed",
+          "reviewer": "document_ui_architecture",
+          "notes": "Full current 73-line owner physically read. Entire decorated verification function is source/AST exact: bearer binding, unchanged expiry replay, pending status and bounded attempts, durable wrong-attempt commit, successful proof commit. Runtime annotations and dependency/header/OpenAPI contracts evaluated and matched."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/contact_issuance.py",
+      "sha256": "501fa24ed5656c4ca760ef8549049211f274218ed5dffbbfc8c41355f8689121",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/contact-verification-reviewed-files.json",
+          "receipt_sha256": "aa4e5ae34f2c4048b617631875806b6d6b42ed2d754c8180d526c734b953f116",
+          "json_pointer": "/3",
+          "review_scope": "full",
+          "review_status": "reviewed",
+          "reviewer": "document_ui_architecture",
+          "notes": "Full current 152-line owner physically read. Entire decorated issuance function is original source/AST exact: rate limiting, bound resend replay, cryptographic rotation, sending-state commit before provider, sanitized error metadata, capability/challenge revalidation and final commit. Original logger channel retained. Shared provider imports do not change mobile feature code."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/contact_verification.py",
+      "sha256": "e0c3c985d3994ce9f36a65262081514e328b9469c87db1b77e3d4e5ab06265a0",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/contact-verification-reviewed-files.json",
+          "receipt_sha256": "aa4e5ae34f2c4048b617631875806b6d6b42ed2d754c8180d526c734b953f116",
+          "json_pointer": "/5",
+          "review_scope": "full",
+          "review_status": "reviewed",
+          "reviewer": "document_ui_architecture",
+          "notes": "Full current 17-line facade physically read; original 364-line module fully read and raw source/SHA archived before edits. Seven public/private callable aliases retain identity with their actual purpose-specific owners. Actual request/verify endpoints remain ordered through the router and no leaf owner imports this facade."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/images.py",
+      "sha256": "6a5858948bf8fb6a3c45b51b10934f381c1965bcf22f67cbbce648fab76e3b34",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/passport-image-family-reviewed-files.json",
+          "receipt_sha256": "7a8b7ee29a38f140ee76de81af6bd0ab2dbd5d51f00d4f896e85276422c2dfc3",
+          "json_pointer": "/11",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "root",
+          "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+        },
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/passport-image-siblings-reviewed-files.json",
+          "receipt_sha256": "67ec6ae8b3b2546d399df4dd6d87634b620fe671701f1b8ec484fa3b6bac43a1",
+          "json_pointer": "/0",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "root",
+          "notes": "Complete original source bodies read; every moved current declaration, all actual used global bindings, public signatures/evaluated hints/default dependencies and full current module graph are accounted for in passport-image-siblings-extraction-proof.json. Current88-case six-file selection source-fenced; real FK-enabled SQLite scope/commit/prior-crop observers and synthetic raster/provider/storage adapters. Original tests restore exactly after only declared mock scopes, unused setup removals and two initial-read rollback expectations. Retained-document purge after external work is a separately reproduced open follow-through; no closure or live-service claim."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/images_crop.py",
+      "sha256": "29d2098f013b7994df9d531ffaa17922fb8f0aa931f55b46ca9dcb574a03da1f",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/passport-image-family-reviewed-files.json",
+          "receipt_sha256": "7a8b7ee29a38f140ee76de81af6bd0ab2dbd5d51f00d4f896e85276422c2dfc3",
+          "json_pointer": "/12",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "root",
+          "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+        },
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/passport-image-siblings-reviewed-files.json",
+          "receipt_sha256": "67ec6ae8b3b2546d399df4dd6d87634b620fe671701f1b8ec484fa3b6bac43a1",
+          "json_pointer": "/10",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "root",
+          "notes": "Complete original source bodies read; every moved current declaration, all actual used global bindings, public signatures/evaluated hints/default dependencies and full current module graph are accounted for in passport-image-siblings-extraction-proof.json. Current88-case six-file selection source-fenced; real FK-enabled SQLite scope/commit/prior-crop observers and synthetic raster/provider/storage adapters. Original tests restore exactly after only declared mock scopes, unused setup removals and two initial-read rollback expectations. Retained-document purge after external work is a separately reproduced open follow-through; no closure or live-service claim."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/images_reads.py",
+      "sha256": "f4ba7cb5c72664d1858b35d096e46be96bcdbbcc5fa3d8b7514192e3a2ab6688",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/passport-image-family-reviewed-files.json",
+          "receipt_sha256": "7a8b7ee29a38f140ee76de81af6bd0ab2dbd5d51f00d4f896e85276422c2dfc3",
+          "json_pointer": "/13",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "root",
+          "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+        },
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/passport-image-siblings-reviewed-files.json",
+          "receipt_sha256": "67ec6ae8b3b2546d399df4dd6d87634b620fe671701f1b8ec484fa3b6bac43a1",
+          "json_pointer": "/11",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "root",
+          "notes": "Complete original source bodies read; every moved current declaration, all actual used global bindings, public signatures/evaluated hints/default dependencies and full current module graph are accounted for in passport-image-siblings-extraction-proof.json. Current88-case six-file selection source-fenced; real FK-enabled SQLite scope/commit/prior-crop observers and synthetic raster/provider/storage adapters. Original tests restore exactly after only declared mock scopes, unused setup removals and two initial-read rollback expectations. Retained-document purge after external work is a separately reproduced open follow-through; no closure or live-service claim."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/images_reset.py",
+      "sha256": "736c527fe10bb536c780e1b4a97f63b25dde48deff53f5a21fb93027f6777619",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/passport-image-family-reviewed-files.json",
+          "receipt_sha256": "7a8b7ee29a38f140ee76de81af6bd0ab2dbd5d51f00d4f896e85276422c2dfc3",
+          "json_pointer": "/14",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "root",
+          "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+        },
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/passport-image-siblings-reviewed-files.json",
+          "receipt_sha256": "67ec6ae8b3b2546d399df4dd6d87634b620fe671701f1b8ec484fa3b6bac43a1",
+          "json_pointer": "/12",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "root",
+          "notes": "Complete original source bodies read; every moved current declaration, all actual used global bindings, public signatures/evaluated hints/default dependencies and full current module graph are accounted for in passport-image-siblings-extraction-proof.json. Current88-case six-file selection source-fenced; real FK-enabled SQLite scope/commit/prior-crop observers and synthetic raster/provider/storage adapters. Original tests restore exactly after only declared mock scopes, unused setup removals and two initial-read rollback expectations. Retained-document purge after external work is a separately reproduced open follow-through; no closure or live-service claim."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/public_upload.py",
+      "sha256": "a669ea87ed3488fe4d7a680478d15efb2b4c55dd72177c24ad80e0a031c7cde8",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/public-upload-reviewed-files.json",
+          "receipt_sha256": "bb53887bce1f87d217cc017ff87ebdb54136fcbba0c3076d6e01e50359132391",
+          "json_pointer": "/0",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "root",
+          "notes": "Complete physical source or whole original/current moved declaration read; exact scope/route/binding proof and current171-case selection. Independent bulk actor and submit-use-case native lifetime follow-ups remain open in their own ledger."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/public_upload_discard.py",
+      "sha256": "d6f95d5da7bb2da0d7351d90ee4114cf6368276edacaf5c9f9f474a0cda76287",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/public-upload-reviewed-files.json",
+          "receipt_sha256": "bb53887bce1f87d217cc017ff87ebdb54136fcbba0c3076d6e01e50359132391",
+          "json_pointer": "/17",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "root",
+          "notes": "Complete physical source or whole original/current moved declaration read; exact scope/route/binding proof and current171-case selection. Independent bulk actor and submit-use-case native lifetime follow-ups remain open in their own ledger."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/public_upload_images.py",
+      "sha256": "3dcb9a9643672db808e242c5378083b8b37c2124b9c3fb550362b6b92d359b59",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/public-upload-reviewed-files.json",
+          "receipt_sha256": "bb53887bce1f87d217cc017ff87ebdb54136fcbba0c3076d6e01e50359132391",
+          "json_pointer": "/18",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "root",
+          "notes": "Complete physical source or whole original/current moved declaration read; exact scope/route/binding proof and current171-case selection. Independent bulk actor and submit-use-case native lifetime follow-ups remain open in their own ledger."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/public_upload_preparation.py",
+      "sha256": "12d04c2039d5beefdd512bcd8d795e898aa7c984ffd5f21a8f5066f81bcee930",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/public-upload-reviewed-files.json",
+          "receipt_sha256": "bb53887bce1f87d217cc017ff87ebdb54136fcbba0c3076d6e01e50359132391",
+          "json_pointer": "/19",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "root",
+          "notes": "Complete physical source or whole original/current moved declaration read; exact scope/route/binding proof and current171-case selection. Independent bulk actor and submit-use-case native lifetime follow-ups remain open in their own ledger."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/public_upload_status.py",
+      "sha256": "402392e3f03b55060b0d39e991193ab136f46ca8560bd53646bb26c7dc94b674",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/backend-dtos-interfaces-reviewed-files.json",
+          "receipt_sha256": "1baea68a40f0b51fa9a6e6071f808f59d915e6ebd77e6a986a580058796260d7",
+          "json_pointer": "/files/31",
+          "review_scope": "partial",
+          "review_status": "focused",
+          "reviewer": "branding_visuals",
+          "notes": "Owned public upload status dependency, token/submission/header parameters, DTO snapshot and response with document URLs disabled inspected. Ownership helper implementation not re-reviewed fully here."
+        },
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/public-upload-reviewed-files.json",
+          "receipt_sha256": "bb53887bce1f87d217cc017ff87ebdb54136fcbba0c3076d6e01e50359132391",
+          "json_pointer": "/21",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "root",
+          "notes": "Complete physical source or whole original/current moved declaration read; exact scope/route/binding proof and current171-case selection. Independent bulk actor and submit-use-case native lifetime follow-ups remain open in their own ledger."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/public_upload_submission.py",
+      "sha256": "6639f322a898f1689186c8300eaedcbe330b04d6e58403ae4c0dfab5b5243dbf",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/public-upload-reviewed-files.json",
+          "receipt_sha256": "bb53887bce1f87d217cc017ff87ebdb54136fcbba0c3076d6e01e50359132391",
+          "json_pointer": "/22",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "root",
+          "notes": "Complete physical source or whole original/current moved declaration read; exact scope/route/binding proof and current171-case selection. Independent bulk actor and submit-use-case native lifetime follow-ups remain open in their own ledger."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/submission_review.py",
+      "sha256": "4448a7071295eb89fb960960c8e686c06ff0da7d44e7e1be952c3274a600d9d7",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/submission-review-reviewed-files.json",
+          "receipt_sha256": "65fbb8fd19890637f4529e64ffa2a5d10dfac92c04d194d060287cc416bbad67",
+          "json_pointer": "/0",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "root",
+          "notes": "Complete source read and original/current whole-declaration proof or new helper/test review."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/submission_review_approval.py",
+      "sha256": "0ab762a2dedf15458d2a122ae694673697b1886013e35d461d235aa6a09ceea4",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/submission-review-reviewed-files.json",
+          "receipt_sha256": "65fbb8fd19890637f4529e64ffa2a5d10dfac92c04d194d060287cc416bbad67",
+          "json_pointer": "/2",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "root",
+          "notes": "Complete source read and original/current whole-declaration proof or new helper/test review."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/submission_review_client.py",
+      "sha256": "ee16659a97152e26d852f44fd77f7a8ae1d75b3bdca52b14fefa0387dd0fdd77",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/submission-review-reviewed-files.json",
+          "receipt_sha256": "65fbb8fd19890637f4529e64ffa2a5d10dfac92c04d194d060287cc416bbad67",
+          "json_pointer": "/3",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "root",
+          "notes": "Complete source read and original/current whole-declaration proof or new helper/test review."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/submission_review_confirmation.py",
+      "sha256": "b5439cd454fe40ddefe19690f60e1665386a99048f7ac6607db5c8a160674b29",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/submission-review-reviewed-files.json",
+          "receipt_sha256": "65fbb8fd19890637f4529e64ffa2a5d10dfac92c04d194d060287cc416bbad67",
+          "json_pointer": "/4",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "root",
+          "notes": "Complete source read and original/current whole-declaration proof or new helper/test review."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/submission_review_processing.py",
+      "sha256": "9ea3488f3c1db847b128edb3dff59edd710b9aa5a1d5bc99f9a4d9f8c5a903b5",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/submission-review-reviewed-files.json",
+          "receipt_sha256": "65fbb8fd19890637f4529e64ffa2a5d10dfac92c04d194d060287cc416bbad67",
+          "json_pointer": "/5",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "root",
+          "notes": "Complete source read and original/current whole-declaration proof or new helper/test review."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/submission_review_read.py",
+      "sha256": "54f37e6940ca8abca757e3432fa2141ba994344a0030781c7d197ae289cb7931",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/submission-review-reviewed-files.json",
+          "receipt_sha256": "65fbb8fd19890637f4529e64ffa2a5d10dfac92c04d194d060287cc416bbad67",
+          "json_pointer": "/6",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "root",
+          "notes": "Complete source read and original/current whole-declaration proof or new helper/test review."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_edits.py",
+      "sha256": "5f853cb838a381cf9dda1e3e3eb83ac364d48120baba63ce3c5d0155e86b3841",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/passport-image-family-reviewed-files.json",
+          "receipt_sha256": "7a8b7ee29a38f140ee76de81af6bd0ab2dbd5d51f00d4f896e85276422c2dfc3",
+          "json_pointer": "/15",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "root",
+          "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+        },
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/passport-image-siblings-reviewed-files.json",
+          "receipt_sha256": "67ec6ae8b3b2546d399df4dd6d87634b620fe671701f1b8ec484fa3b6bac43a1",
+          "json_pointer": "/2",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "root",
+          "notes": "Complete original source bodies read; every moved current declaration, all actual used global bindings, public signatures/evaluated hints/default dependencies and full current module graph are accounted for in passport-image-siblings-extraction-proof.json. Current88-case six-file selection source-fenced; real FK-enabled SQLite scope/commit/prior-crop observers and synthetic raster/provider/storage adapters. Original tests restore exactly after only declared mock scopes, unused setup removals and two initial-read rollback expectations. Retained-document purge after external work is a separately reproduced open follow-through; no closure or live-service claim."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_edits_apply.py",
+      "sha256": "24d1563a569c39261179a09a26976fa01028fee4126531796d715bc65ac0670f",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/passport-image-family-reviewed-files.json",
+          "receipt_sha256": "7a8b7ee29a38f140ee76de81af6bd0ab2dbd5d51f00d4f896e85276422c2dfc3",
+          "json_pointer": "/16",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "root",
+          "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+        },
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/passport-image-siblings-reviewed-files.json",
+          "receipt_sha256": "67ec6ae8b3b2546d399df4dd6d87634b620fe671701f1b8ec484fa3b6bac43a1",
+          "json_pointer": "/16",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "root",
+          "notes": "Complete original source bodies read; every moved current declaration, all actual used global bindings, public signatures/evaluated hints/default dependencies and full current module graph are accounted for in passport-image-siblings-extraction-proof.json. Current88-case six-file selection source-fenced; real FK-enabled SQLite scope/commit/prior-crop observers and synthetic raster/provider/storage adapters. Original tests restore exactly after only declared mock scopes, unused setup removals and two initial-read rollback expectations. Retained-document purge after external work is a separately reproduced open follow-through; no closure or live-service claim."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_edits_preview.py",
+      "sha256": "0bc67dafcc56074e5dc4ca5d766403dd9b9148554f631dc0b8d72f2b95bfe93b",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/passport-image-family-reviewed-files.json",
+          "receipt_sha256": "7a8b7ee29a38f140ee76de81af6bd0ab2dbd5d51f00d4f896e85276422c2dfc3",
+          "json_pointer": "/17",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "root",
+          "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+        },
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/passport-image-siblings-reviewed-files.json",
+          "receipt_sha256": "67ec6ae8b3b2546d399df4dd6d87634b620fe671701f1b8ec484fa3b6bac43a1",
+          "json_pointer": "/17",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "root",
+          "notes": "Complete original source bodies read; every moved current declaration, all actual used global bindings, public signatures/evaluated hints/default dependencies and full current module graph are accounted for in passport-image-siblings-extraction-proof.json. Current88-case six-file selection source-fenced; real FK-enabled SQLite scope/commit/prior-crop observers and synthetic raster/provider/storage adapters. Original tests restore exactly after only declared mock scopes, unused setup removals and two initial-read rollback expectations. Retained-document purge after external work is a separately reproduced open follow-through; no closure or live-service claim."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library.py",
+      "sha256": "161c17e2131ec908028e29ec1ace999687280b0f9001e742a9c80c3225987f97",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/passport-image-family-reviewed-files.json",
+          "receipt_sha256": "7a8b7ee29a38f140ee76de81af6bd0ab2dbd5d51f00d4f896e85276422c2dfc3",
+          "json_pointer": "/18",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "root",
+          "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+        },
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/passport-image-siblings-reviewed-files.json",
+          "receipt_sha256": "67ec6ae8b3b2546d399df4dd6d87634b620fe671701f1b8ec484fa3b6bac43a1",
+          "json_pointer": "/1",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "root",
+          "notes": "Complete original source bodies read; every moved current declaration, all actual used global bindings, public signatures/evaluated hints/default dependencies and full current module graph are accounted for in passport-image-siblings-extraction-proof.json. Current88-case six-file selection source-fenced; real FK-enabled SQLite scope/commit/prior-crop observers and synthetic raster/provider/storage adapters. Original tests restore exactly after only declared mock scopes, unused setup removals and two initial-read rollback expectations. Retained-document purge after external work is a separately reproduced open follow-through; no closure or live-service claim."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library_generation.py",
+      "sha256": "769c3819f227f4efb7bb6dc19fcd799bf53a2e706d7fbe272e685c4f61197cd8",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/passport-image-family-reviewed-files.json",
+          "receipt_sha256": "7a8b7ee29a38f140ee76de81af6bd0ab2dbd5d51f00d4f896e85276422c2dfc3",
+          "json_pointer": "/19",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "root",
+          "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+        },
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/passport-image-siblings-reviewed-files.json",
+          "receipt_sha256": "67ec6ae8b3b2546d399df4dd6d87634b620fe671701f1b8ec484fa3b6bac43a1",
+          "json_pointer": "/13",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "root",
+          "notes": "Complete original source bodies read; every moved current declaration, all actual used global bindings, public signatures/evaluated hints/default dependencies and full current module graph are accounted for in passport-image-siblings-extraction-proof.json. Current88-case six-file selection source-fenced; real FK-enabled SQLite scope/commit/prior-crop observers and synthetic raster/provider/storage adapters. Original tests restore exactly after only declared mock scopes, unused setup removals and two initial-read rollback expectations. Retained-document purge after external work is a separately reproduced open follow-through; no closure or live-service claim."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library_reads.py",
+      "sha256": "f8136ae728752aec0222e58ee7674476e316c8e5148579140d6ed06f96c65cab",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/passport-image-family-reviewed-files.json",
+          "receipt_sha256": "7a8b7ee29a38f140ee76de81af6bd0ab2dbd5d51f00d4f896e85276422c2dfc3",
+          "json_pointer": "/20",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "root",
+          "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+        },
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/passport-image-siblings-reviewed-files.json",
+          "receipt_sha256": "67ec6ae8b3b2546d399df4dd6d87634b620fe671701f1b8ec484fa3b6bac43a1",
+          "json_pointer": "/14",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "root",
+          "notes": "Complete original source bodies read; every moved current declaration, all actual used global bindings, public signatures/evaluated hints/default dependencies and full current module graph are accounted for in passport-image-siblings-extraction-proof.json. Current88-case six-file selection source-fenced; real FK-enabled SQLite scope/commit/prior-crop observers and synthetic raster/provider/storage adapters. Original tests restore exactly after only declared mock scopes, unused setup removals and two initial-read rollback expectations. Retained-document purge after external work is a separately reproduced open follow-through; no closure or live-service claim."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library_selection.py",
+      "sha256": "b64648afc2ad09952fbbbe384b60fabc9302f0adabb8f360749b10a76acaf685",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/passport-image-family-reviewed-files.json",
+          "receipt_sha256": "7a8b7ee29a38f140ee76de81af6bd0ab2dbd5d51f00d4f896e85276422c2dfc3",
+          "json_pointer": "/21",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "root",
+          "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+        },
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/passport-image-siblings-reviewed-files.json",
+          "receipt_sha256": "67ec6ae8b3b2546d399df4dd6d87634b620fe671701f1b8ec484fa3b6bac43a1",
+          "json_pointer": "/15",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "root",
+          "notes": "Complete original source bodies read; every moved current declaration, all actual used global bindings, public signatures/evaluated hints/default dependencies and full current module graph are accounted for in passport-image-siblings-extraction-proof.json. Current88-case six-file selection source-fenced; real FK-enabled SQLite scope/commit/prior-crop observers and synthetic raster/provider/storage adapters. Original tests restore exactly after only declared mock scopes, unused setup removals and two initial-read rollback expectations. Retained-document purge after external work is a separately reproduced open follow-through; no closure or live-service claim."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_composer.py",
+      "sha256": "8ffe7f51d1bf42bf82a3d2df3b17e45283dd98b0432c45cc860d65f5a5f920b2",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/whatsapp-composition-final-reviewed-files.json",
+          "receipt_sha256": "d5756fc812f88106d6dbc228b6f921ab695aa16b632d75f9cf4eb7c39ee6e7ee",
+          "json_pointer": "/files/0",
+          "review_scope": "full",
+          "review_status": "reviewed",
+          "reviewer": "/root/document_ui_architecture",
+          "notes": "Complete current physical source read in bounded untruncated output after cohesive phase movement. Complete declaration/expanded statement proofs, current evaluated annotations/import identities and affected behavior checks retained. Read completion is separate from remaining coverage/service validation debt; see final receipt."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_composer_media.py",
+      "sha256": "76be5978b5a0dc68cbc04bbc5746187b0991a70e9df30b04334bb9ba068c2d12",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/whatsapp-composition-final-reviewed-files.json",
+          "receipt_sha256": "d5756fc812f88106d6dbc228b6f921ab695aa16b632d75f9cf4eb7c39ee6e7ee",
+          "json_pointer": "/files/6",
+          "review_scope": "full",
+          "review_status": "reviewed",
+          "reviewer": "/root/document_ui_architecture",
+          "notes": "Complete current physical source read in bounded untruncated output after cohesive phase movement. Complete declaration/expanded statement proofs, current evaluated annotations/import identities and affected behavior checks retained. Read completion is separate from remaining coverage/service validation debt; see final receipt."
+        }
+      ]
+    },
+    {
+      "path": "frontend/features/documents/api/document-batches.api.ts",
+      "sha256": "0d811cd76a73c62b47a299762cb14a4792a9bffc769f0e33e110c898d8108a1b",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/document-api-architecture-reviewed-files.json",
+          "receipt_sha256": "b7ba3ad79d55941e0cdc47fe07526821fc2e9d74a50ed9816cf46460352d87a1",
+          "json_pointer": "/records/3",
+          "review_scope": "full",
+          "review_status": "reviewed-and-restructured",
+          "reviewer": "branding_visuals",
+          "notes": "Every original API line and final focused runtime owner physically read/authored. Complete15method/signature ASTs and ordered facade/type/filename edges preserved after a separately measured filename-index correction. Public transport/cancellation/receipt/DTO behavior unchanged; no actor/privacy failure claimed. Queued private invocation remains an open candidate, not closed by architecture work."
+        }
+      ]
+    },
+    {
+      "path": "frontend/features/documents/api/document-delivery.api.ts",
+      "sha256": "4bd918f76bb2847b975adc2eea2ab49649993b0d1d38d06760949ed602f791f9",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/document-api-architecture-reviewed-files.json",
+          "receipt_sha256": "b7ba3ad79d55941e0cdc47fe07526821fc2e9d74a50ed9816cf46460352d87a1",
+          "json_pointer": "/records/4",
+          "review_scope": "full",
+          "review_status": "reviewed-and-restructured",
+          "reviewer": "branding_visuals",
+          "notes": "Every original API line and final focused runtime owner physically read/authored. Complete15method/signature ASTs and ordered facade/type/filename edges preserved after a separately measured filename-index correction. Public transport/cancellation/receipt/DTO behavior unchanged; no actor/privacy failure claimed. Queued private invocation remains an open candidate, not closed by architecture work."
+        }
+      ]
+    },
+    {
+      "path": "frontend/features/documents/api/document-distribution.api.ts",
+      "sha256": "29b422e32c2515d910fc7fa7e50aa137045b6695718bc50ed63e46796cdec7a8",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/document-api-architecture-reviewed-files.json",
+          "receipt_sha256": "b7ba3ad79d55941e0cdc47fe07526821fc2e9d74a50ed9816cf46460352d87a1",
+          "json_pointer": "/records/0",
+          "review_scope": "full",
+          "review_status": "reviewed-and-restructured",
+          "reviewer": "branding_visuals",
+          "notes": "Every original API line and final focused runtime owner physically read/authored. Complete15method/signature ASTs and ordered facade/type/filename edges preserved after a separately measured filename-index correction. Public transport/cancellation/receipt/DTO behavior unchanged; no actor/privacy failure claimed. Queued private invocation remains an open candidate, not closed by architecture work."
+        }
+      ]
+    },
+    {
+      "path": "frontend/features/documents/api/document-rename.api.ts",
+      "sha256": "b061e3339b305aea068165e9993d3998725ad01c51cc7135c42cdbd4485c69bc",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/document-rename-reviewed-files.json",
+          "receipt_sha256": "85e9676828643b5cdb6e704b14a7ab9422d446b9a75b85ef22999f3ee89cb94e",
+          "json_pointer": "/files/0",
+          "review_scope": "full",
+          "review_status": "reviewed",
+          "reviewer": "branding_visuals",
+          "notes": "Full original facade and current deliberate owner guards read/authored; four public method names/order/original parameter prefixes retained. Optional trailing request-owner config remains outside all HTTP DTO/form fields. Same initial authority guards each chunk, response, progress and final result."
+        }
+      ]
+    },
+    {
+      "path": "frontend/features/documents/api/document-review.api.ts",
+      "sha256": "0e65fec9713722a3a2fb684f751a3c0054176a08802434df069d5b6ec45a3325",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/document-api-architecture-reviewed-files.json",
+          "receipt_sha256": "b7ba3ad79d55941e0cdc47fe07526821fc2e9d74a50ed9816cf46460352d87a1",
+          "json_pointer": "/records/1",
+          "review_scope": "full",
+          "review_status": "reviewed-and-restructured",
+          "reviewer": "branding_visuals",
+          "notes": "Every original API line and final focused runtime owner physically read/authored. Complete15method/signature ASTs and ordered facade/type/filename edges preserved after a separately measured filename-index correction. Public transport/cancellation/receipt/DTO behavior unchanged; no actor/privacy failure claimed. Queued private invocation remains an open candidate, not closed by architecture work."
+        }
+      ]
+    },
+    {
+      "path": "frontend/features/documents/api/document-verification.api.ts",
+      "sha256": "f07dcb1a9e9131ed9f4b5e58c9ff6bf93074c27a888395c3b7317c8e6c2304d6",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/document-api-architecture-reviewed-files.json",
+          "receipt_sha256": "b7ba3ad79d55941e0cdc47fe07526821fc2e9d74a50ed9816cf46460352d87a1",
+          "json_pointer": "/records/2",
+          "review_scope": "full",
+          "review_status": "reviewed-and-restructured",
+          "reviewer": "branding_visuals",
+          "notes": "Every original API line and final focused runtime owner physically read/authored. Complete15method/signature ASTs and ordered facade/type/filename edges preserved after a separately measured filename-index correction. Public transport/cancellation/receipt/DTO behavior unchanged; no actor/privacy failure claimed. Queued private invocation remains an open candidate, not closed by architecture work."
+        }
+      ]
+    },
+    {
+      "path": "frontend/features/documents/test-support/ecr-authority.test-fixture.tsx",
+      "sha256": "08c964dfab41436f98530b0c4df041aeef063e1a2ad69095036c24f676f3382d",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/ecr-workspace-authority-reviewed-files.json",
+          "receipt_sha256": "1963e745e38dafbcf4de3165dd5deb341b1fb25b66941855eeae171486851441",
+          "json_pointer": "/files/2",
+          "review_scope": "full",
+          "review_status": "reviewed",
+          "reviewer": "branding_visuals",
+          "notes": "Complete synthetic ECR transport/page fixture source read. Actual auth/client/query/lifecycle owners execute; only network response semantics are synthetic, with explicit authorized actor/scope and404 on replacement scope. Client cache, mounts, unmounts and final network writes are observable. This test helper has no production caller."
+        }
+      ]
+    },
+    {
+      "path": "frontend/features/documents/test-support/operation-authority.test-fixture.tsx",
+      "sha256": "92e22c4fe75392da923df9575a3e78d9186e1a7ebcbe1829cbef2875bc9e2146",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/document-operation-authority-reviewed-files.json",
+          "receipt_sha256": "a3ef61feb0038a8d02be9a34c4feed3d0deb7c6bb9c1351a5ab2a4ec0c32cbe0",
+          "json_pointer": "/records/2",
+          "review_scope": "full",
+          "review_status": "reviewed-and-executed-synthetic-test",
+          "reviewer": "branding_visuals",
+          "notes": "Full authored source reviewed; actual auth boundary/SessionLifecycle/workspace controller/actions/manual dialog/client owner adapter execute. Only final HTTP delegate, framework routing/lazy-loading indirection, irrelevant activity registration and offline-purge side effects are synthetic. Transport and mounted-workspace fixture responsibilities split coherently; no production callers or MCP permissions."
+        }
+      ]
+    },
+    {
+      "path": "frontend/features/documents/test-support/rename-authority.test-fixture.tsx",
+      "sha256": "66f1760899a4778e0d95a16bd2b07973d8e3a4fc717ccbefe08744010a377a58",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/document-rename-reviewed-files.json",
+          "receipt_sha256": "85e9676828643b5cdb6e704b14a7ab9422d446b9a75b85ef22999f3ee89cb94e",
+          "json_pointer": "/files/8",
+          "review_scope": "full",
+          "review_status": "reviewed",
+          "reviewer": "branding_visuals",
+          "notes": "Full synthetic fixture authored/read; actual AuthenticatedContent/SessionLifecycle/authStore/client ownerBoundAdapter run. Only final Axios network delegate is synthetic. Fixed fixture accounts/files, no credentials/provider sends. Scope of global onMutate gate and network failure controls explicit."
+        }
+      ]
+    },
+    {
+      "path": "frontend/features/mcp/api/mcp-transfer.api.ts",
+      "sha256": "cf7a4a0a95df4e944d3d60bc144130b513f49ce7d7b69745769790f130dc2aab",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/mcp-transfer-lifecycle-reviewed-files.json",
+          "receipt_sha256": "dd43b2797a48670956166d3f04ba845343ceb24d6a780c000752ad20eeb23fa7",
+          "json_pointer": "/1",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "ai_extraction",
+          "notes": "Complete current physical-source and caller/lifecycle read. Fragment-only bounded bearer transfer remains independent of dashboard account state; credentials omitted. Four actual unmount failures corrected with route-lifetime signal and post-await checks;8current hook cases include StrictMode/upload/save/anchor controls and dispatched-PUT limitation.34affected tests and scoped types/lint pass. No live service/browser/production qualification in this batch."
+        }
+      ]
+    },
+    {
+      "path": "frontend/features/menu/test-support/menu-authority.test-fixture.tsx",
+      "sha256": "2fe0e7d0e3f6c9d658b37e1c3157fb2581a64fa49b834ab60706a6d528b507d9",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/menu-library-reviewed-files.json",
+          "receipt_sha256": "60190e42c808f6d863a04487e86ab0c35fdba64343217b6ebc9d077cc645f0e1",
+          "json_pointer": "/files/13",
+          "review_scope": "full",
+          "review_status": "reviewed-and-improved",
+          "reviewer": "branding_visuals",
+          "notes": "Full authored/read synthetic fixture. ActualMenuPage\u2192lazyMenuLibrary, realquery/privatehooks/API/clientowneradapter, AuthenticatedContent remount andSessionLifecycle cache reset. Onlyfinalnetworkadapter synthetic; isolatedReact.lazy bridges Nextdynamic injsdom; no productionloader/browser claim."
+        }
+      ]
+    },
+    {
+      "path": "frontend/features/operations/api/operations-accounts.api.ts",
+      "sha256": "3f20bb6cfe3bb4e791023cdaac89efec5d08b18cb5f27e73b2470fbd652d962c",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/operations-api-reviewed-files.json",
+          "receipt_sha256": "1e641f8d7071113e40fc408535bfc395c54dcc0d57068dcbc09695e5bca70b47",
+          "json_pointer": "/files/1",
+          "review_scope": "full",
+          "review_status": "reviewed-and-restructured",
+          "reviewer": "branding_visuals",
+          "notes": "Full original/current focused transport source read. All61typed arrow properties retain exact typed syntax/bindings/defaults/body order/signals/owner metadata. Three minified checkin methods formatted only after exact mechanical proof; no SDK behavior change."
+        }
+      ]
+    },
+    {
+      "path": "frontend/features/operations/api/operations-attendance.api.ts",
+      "sha256": "e5fcb39fa2768ad5aea25e34f3f2c352afa8ad89ce46c4aacc8f35ea8a06bf0b",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/operations-api-reviewed-files.json",
+          "receipt_sha256": "1e641f8d7071113e40fc408535bfc395c54dcc0d57068dcbc09695e5bca70b47",
+          "json_pointer": "/files/6",
+          "review_scope": "full",
+          "review_status": "reviewed-and-restructured",
+          "reviewer": "branding_visuals",
+          "notes": "Full original/current focused transport source read. All61typed arrow properties retain exact typed syntax/bindings/defaults/body order/signals/owner metadata. Three minified checkin methods formatted only after exact mechanical proof; no SDK behavior change."
+        }
+      ]
+    },
+    {
+      "path": "frontend/features/operations/api/operations-audit.api.ts",
+      "sha256": "0241f0a107c2aa4071053a685fd5919950736ef03800af426ede9f3f505848cf",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/operations-api-reviewed-files.json",
+          "receipt_sha256": "1e641f8d7071113e40fc408535bfc395c54dcc0d57068dcbc09695e5bca70b47",
+          "json_pointer": "/files/2",
+          "review_scope": "full",
+          "review_status": "reviewed-and-restructured",
+          "reviewer": "branding_visuals",
+          "notes": "Full original/current focused transport source read. All61typed arrow properties retain exact typed syntax/bindings/defaults/body order/signals/owner metadata. Three minified checkin methods formatted only after exact mechanical proof; no SDK behavior change."
+        }
+      ]
+    },
+    {
+      "path": "frontend/features/operations/api/operations-checkin.api.ts",
+      "sha256": "b6e228ed910022835b618345ebe8a80a51116e8c1b2b992365b0841b209c65ea",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/operations-api-reviewed-files.json",
+          "receipt_sha256": "1e641f8d7071113e40fc408535bfc395c54dcc0d57068dcbc09695e5bca70b47",
+          "json_pointer": "/files/5",
+          "review_scope": "full",
+          "review_status": "reviewed-and-restructured",
+          "reviewer": "branding_visuals",
+          "notes": "Full original/current focused transport source read. All61typed arrow properties retain exact typed syntax/bindings/defaults/body order/signals/owner metadata. Three minified checkin methods formatted only after exact mechanical proof; no SDK behavior change."
+        }
+      ]
+    },
+    {
+      "path": "frontend/features/operations/api/operations-qr.api.ts",
+      "sha256": "5d0a0502b976c7e4cafb4370052ac811c04844e0e90be26d5b51eab423ac61d6",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/operations-api-reviewed-files.json",
+          "receipt_sha256": "1e641f8d7071113e40fc408535bfc395c54dcc0d57068dcbc09695e5bca70b47",
+          "json_pointer": "/files/7",
+          "review_scope": "full",
+          "review_status": "reviewed-and-restructured",
+          "reviewer": "branding_visuals",
+          "notes": "Full original/current focused transport source read. All61typed arrow properties retain exact typed syntax/bindings/defaults/body order/signals/owner metadata. Three minified checkin methods formatted only after exact mechanical proof; no SDK behavior change."
+        }
+      ]
+    },
+    {
+      "path": "frontend/features/operations/api/operations-rooming.api.ts",
+      "sha256": "4fd943882cf3599e5f0a02919fff9c233cab949e417615dfc8e36421e7eefc54",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/operations-api-reviewed-files.json",
+          "receipt_sha256": "1e641f8d7071113e40fc408535bfc395c54dcc0d57068dcbc09695e5bca70b47",
+          "json_pointer": "/files/4",
+          "review_scope": "full",
+          "review_status": "reviewed-and-restructured",
+          "reviewer": "branding_visuals",
+          "notes": "Full original/current focused transport source read. All61typed arrow properties retain exact typed syntax/bindings/defaults/body order/signals/owner metadata. Three minified checkin methods formatted only after exact mechanical proof; no SDK behavior change."
+        }
+      ]
+    },
+    {
+      "path": "frontend/features/operations/api/operations-tour.api.ts",
+      "sha256": "bb81e64d34b8b38399f63be3e299ba5b1697aca9156c5e49910518534bffa572",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/operations-api-reviewed-files.json",
+          "receipt_sha256": "1e641f8d7071113e40fc408535bfc395c54dcc0d57068dcbc09695e5bca70b47",
+          "json_pointer": "/files/3",
+          "review_scope": "full",
+          "review_status": "reviewed-and-restructured",
+          "reviewer": "branding_visuals",
+          "notes": "Full original/current focused transport source read. All61typed arrow properties retain exact typed syntax/bindings/defaults/body order/signals/owner metadata. Three minified checkin methods formatted only after exact mechanical proof; no SDK behavior change."
+        }
+      ]
+    },
+    {
+      "path": "frontend/features/operations/api/operations.api.ts",
+      "sha256": "b17508f7b25e0e442b24fc4fdc420e469975d76943c13c157e730f9122a984c4",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/operations-api-reviewed-files.json",
+          "receipt_sha256": "1e641f8d7071113e40fc408535bfc395c54dcc0d57068dcbc09695e5bca70b47",
+          "json_pointer": "/files/0",
+          "review_scope": "full",
+          "review_status": "reviewed-and-restructured",
+          "reviewer": "branding_visuals",
+          "notes": "Full original1200/current facade read. All61original methods and64types remain in original public order; direct function references preserve identity/descriptors without proxy/wrapper/this assumptions."
+        }
+      ]
+    },
+    {
+      "path": "frontend/features/operations/test-support/operations-authority.test-fixture.tsx",
+      "sha256": "1db836ce9fb25305cb5e3509c2ae2d99b0d5af4f550b2770575c7d8168beb641",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/operations-hooks-reviewed-files.json",
+          "receipt_sha256": "05acd7e4b6f856ee36d6142f1c4843c41a85381a02aba241e52607c12651fe34",
+          "json_pointer": "/files/12",
+          "review_scope": "full",
+          "review_status": "reviewed-and-improved",
+          "reviewer": "branding_visuals",
+          "notes": "Full authored/read synthetic fixture. Real AuthenticatedContent remount, SessionLifecycle reset, manager page, API and owner-bound Axios adapter; only final network delegate is synthetic. Closed test-only caller chain."
+        }
+      ]
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-closeout.ts",
+      "sha256": "dabad7e8478072fe909b2708e2dea18fc68220e85c353ec5be3fd2c2493f1e9e",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/attendance-queue-performance-reviewed-files.json",
+          "receipt_sha256": "c1c6c94975932573a2b82deb2d81c671794b242dd363837660ea955b294646eb",
+          "json_pointer": "/files/13",
+          "review_scope": "full",
+          "review_status": "reviewed-and-improved",
+          "reviewer": "branding_visuals",
+          "notes": "Full original207/current206line source read; oldest timestamp reads first row from actual verified ascending storage order. Whole module AST otherwise exact: authsnapshot checks, ownerlock collection/publish, discard/logout/privacy preservation and allcounts retain behavior."
+        }
+      ]
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-commands.ts",
+      "sha256": "28b502f45eed14bce8480d1e6d8556660b543db3d9164b133b69a7e5a3847863",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/attendance-queue-performance-reviewed-files.json",
+          "receipt_sha256": "c1c6c94975932573a2b82deb2d81c671794b242dd363837660ea955b294646eb",
+          "json_pointer": "/files/8",
+          "review_scope": "full",
+          "review_status": "reviewed",
+          "reviewer": "branding_visuals",
+          "notes": "Full253line source read: current signed authorization, owner lock/hash/protect/capacity/durable enqueue/publication, count/list/group/retry interfaces, explicitdiscard tombstone transaction and terminal acknowledgement. Byte unchanged; no extra metadata caching/index schema."
+        },
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/attendance-queue-reviewed-files.json",
+          "receipt_sha256": "b0a906c763310e176cf2ec81342e2f0c6f8ad651c8f778ce6448cf7b62495b55",
+          "json_pointer": "/files/8",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "/root/document_ui_architecture",
+          "notes": "Complete physical current source reviewed after extraction/final diffs. Runtime movement has original97/intermediate exact text and final95 whole AST parity plus two precise corrections. Actual public API controls, imports and source-bound affected checks retained; test contract assertion bodies unchanged where moved loader only."
+        }
+      ]
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-discards.ts",
+      "sha256": "70cacfa4648d3b6b688c6ca4ce63ff49cd21bcc544ad6a3da39982f53623db3f",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/attendance-queue-performance-reviewed-files.json",
+          "receipt_sha256": "c1c6c94975932573a2b82deb2d81c671794b242dd363837660ea955b294646eb",
+          "json_pointer": "/files/9",
+          "review_scope": "full",
+          "review_status": "reviewed",
+          "reviewer": "branding_visuals",
+          "notes": "Full188line source read: owner WebLock, bounded50 due/discard reconciliation, actual expected-owner request config, authoritative cookie hint, retry/accepted/rejected retention and privacy-safe audit IDs. Byte unchanged; no provider action or raw QR audit."
+        },
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/attendance-queue-reviewed-files.json",
+          "receipt_sha256": "b0a906c763310e176cf2ec81342e2f0c6f8ad651c8f778ce6448cf7b62495b55",
+          "json_pointer": "/files/9",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "/root/document_ui_architecture",
+          "notes": "Complete physical current source reviewed after extraction/final diffs. Runtime movement has original97/intermediate exact text and final95 whole AST parity plus two precise corrections. Actual public API controls, imports and source-bound affected checks retained; test contract assertion bodies unchanged where moved loader only."
+        }
+      ]
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-replay.ts",
+      "sha256": "28bc21ce06138b80e0aceba0831198dd4527e8962862f7a3413cd6552f1352ad",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/attendance-queue-performance-reviewed-files.json",
+          "receipt_sha256": "c1c6c94975932573a2b82deb2d81c671794b242dd363837660ea955b294646eb",
+          "json_pointer": "/files/10",
+          "review_scope": "full",
+          "review_status": "reviewed-and-improved",
+          "reviewer": "branding_visuals",
+          "notes": "Full original186/current181line source read; fresh bounded first50 selector replaces fullfilter/slice only, five predicate operands/order exact. Existing handled-set update, scan order/legacy path/stop/owner/lock/recovery and final scheduling unchanged under complete module AST delta inversion."
+        }
+      ]
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-runtime.ts",
+      "sha256": "b3791303f7115ceb2d353a91cced27c72ecb30e4733ea783dd3c2d0525ecdaea",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/attendance-queue-performance-reviewed-files.json",
+          "receipt_sha256": "c1c6c94975932573a2b82deb2d81c671794b242dd363837660ea955b294646eb",
+          "json_pointer": "/files/2",
+          "review_scope": "full",
+          "review_status": "reviewed",
+          "reviewer": "branding_visuals",
+          "notes": "Full94line source read: current actor/session assertion, process-local lanes and WebLock owner/drain lock semantics, schedule event/channel lifetime retained exactly. No ownership weakening for performance."
+        },
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/attendance-queue-reviewed-files.json",
+          "receipt_sha256": "b0a906c763310e176cf2ec81342e2f0c6f8ad651c8f778ce6448cf7b62495b55",
+          "json_pointer": "/files/2",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "/root/document_ui_architecture",
+          "notes": "Complete physical current source reviewed after extraction/final diffs. Runtime movement has original97/intermediate exact text and final95 whole AST parity plus two precise corrections. Actual public API controls, imports and source-bound affected checks retained; test contract assertion bodies unchanged where moved loader only."
+        }
+      ]
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+      "sha256": "b647f8ae7070c661497c9f3620460318a70d117db6eb2da37f1112d5497b6911",
+      "scope": "retained",
+      "matching_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/attendance-queue-performance-reviewed-files.json",
+          "receipt_sha256": "c1c6c94975932573a2b82deb2d81c671794b242dd363837660ea955b294646eb",
+          "json_pointer": "/files/0",
+          "review_scope": "full",
+          "review_status": "reviewed",
+          "reviewer": "branding_visuals",
+          "notes": "Full original/current34line facade: public type/constructor/constant/function reexports retain names and direct identities, no network/DTO/schema changes."
+        },
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/attendance-queue-reviewed-files.json",
+          "receipt_sha256": "b0a906c763310e176cf2ec81342e2f0c6f8ad651c8f778ce6448cf7b62495b55",
+          "json_pointer": "/files/0",
+          "review_scope": "full",
+          "review_status": "verified",
+          "reviewer": "/root/document_ui_architecture",
+          "notes": "Complete physical current source reviewed after extraction/final diffs. Runtime movement has original97/intermediate exact text and final95 whole AST parity plus two precise corrections. Actual public API controls, imports and source-bound affected checks retained; test contract assertion bodies unchanged where moved loader only."
+        }
+      ]
+    }
+  ]
+}

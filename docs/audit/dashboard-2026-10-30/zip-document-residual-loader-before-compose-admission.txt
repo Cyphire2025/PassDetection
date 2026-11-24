@@ -1,0 +1,32 @@
+............warning: in the working copy of 'backend/alembic/script.py.mako', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/core/config/release_manifest.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/core/config/settings.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/domain/entities/__init__.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/domain/entities/entities.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/infrastructure/database/communications_models.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/infrastructure/database/document_models.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/infrastructure/database/email_ai_models.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/infrastructure/database/email_models.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/infrastructure/database/models.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/infrastructure/database/session.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/infrastructure/storage/minio_repository.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/requirements-dev.lock', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/requirements.lock', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'docker-compose.yml', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/scripts/verify-access-level-browser.mjs', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/scripts/verify-frontend-module-budgets.mjs', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'nginx/nginx.conf', LF will be replaced by CRLF the next time Git touches it
+F.
+======================================================================
+FAIL: test_all_prospective_persistent_changes_have_exact_admission (__main__.CurrentBindingTests.test_all_prospective_persistent_changes_have_exact_admission)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_release_workspace_branding_bindings.py", line 159, in test_all_prospective_persistent_changes_have_exact_admission
+    self.assertEqual(missing, set(), f'unreviewed persistent sources relative to {revision}')
+AssertionError: Items in the first set but not the second:
+'docker-compose.audit.yml' : unreviewed persistent sources relative to 98f4fb4f7ba982fc46f917d24db63d59993a74a8
+
+----------------------------------------------------------------------
+Ran 14 tests in 15.949s
+
+FAILED (failures=1)

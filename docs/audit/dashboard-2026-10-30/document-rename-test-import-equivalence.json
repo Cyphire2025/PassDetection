@@ -1,0 +1,8 @@
+{
+  "path": "backend/tests/unit/presentation/test_document_rename_compensation.py",
+  "tested_sha256": "6c790e1b4736826a79a726f736285442f5e8989e989efc32672f49f47f1fffa4",
+  "final_sha256": "7c2f7b723b4df42e567ba4d8926db5ce5dc61913d4ae85c4d14151aea9fcdb68",
+  "whole_test_declarations_ast_equal": true,
+  "import_name_to_module_identities_equal": true,
+  "change": "Merged two identical-module from-import statements to satisfy Ruff I001; no test body/fixture/parametrization/assertion change."
+}

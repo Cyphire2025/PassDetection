@@ -38,7 +38,7 @@ from app.infrastructure.database.models import (
 )
 from app.infrastructure.repositories.ecr_read_repository import ECR_COUNT_FIELDS, ECRReadRepository
 from app.infrastructure.repositories.user_repository import UserRepository
-from app.presentation.api.v1.routes import ecr_checker
+from app.presentation.api.v1.routes import ecr_checker, ecr_checker_upload
 from tests.postgresql_schema import create_isolated_postgresql_tables
 
 pytestmark = [pytest.mark.service_integration, pytest.mark.skipif(
@@ -160,7 +160,7 @@ def no_storage(monkeypatch):
     def forbidden(*_args, **_kwargs):
         raise AssertionError("ECR metadata reads must not initialize storage")
     monkeypatch.setattr(MCPArtifactService, "storage", property(forbidden))
-    monkeypatch.setattr(ecr_checker, "MinioStorageRepository", forbidden)
+    monkeypatch.setattr(ecr_checker_upload, "MinioStorageRepository", forbidden)
 
 
 async def test_postgresql_web_scope_counters_scalar_projection_and_no_effects(ecr_cohort):

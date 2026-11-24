@@ -1,0 +1,176 @@
+{
+  "files": [
+    {
+      "path": "backend/tests/unit/application/test_reconcile_passport_upload_use_case.py",
+      "sha256": "ca422a1067ca158218bd95115298ae113f09b8c9552d5a349f1d22bdea814b8d",
+      "physical_lines": 140,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete140-line source read. Public active bearer-link + exact opaque attempt key recovers durable committed submission; missing/closed/wrong scope and malformed keys give same empty result without forbidden probing, repeated reconciliation read-only. Whole actual use case read; mocked repositories not ownership/service proof."
+    },
+    {
+      "path": "backend/tests/unit/application/test_verify_submitted_passport_use_case.py",
+      "sha256": "2306401b5be996c767ab8b281c987ddcf81456a9c8801b68a48d8e38154c19fe",
+      "physical_lines": 195,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete195-line source read. Canonical nine passport verification fields/current place-of-issue vs legacy country, exhausted provider fallback conservative review and manually typed values independently compared after initial extraction failure. Whole actual second-pass use case read; synthetic verification objects only, no AI call/model recommendation/production data."
+    },
+    {
+      "path": "backend/tests/unit/application/test_retry_post_submission_verification_use_case.py",
+      "sha256": "f0247edbe2f9f7d73769c8fd9dfa0d507783a224645808326b62ec242a4b18e6",
+      "physical_lines": 80,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete80-line source read. Staff retry locks current submission, new immutable verification revision/unchanged submitted fields and bounded previous failure provenance, genuine completed AI review not requeued. Whole actual retry owner read; mock row lock does not establish PG concurrency."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_post_submission_verification_runtime.py",
+      "sha256": "1f9930da34bd2b9134e6405f43716f1ecf573ae4bca1c54117b88f72bc4f92cb",
+      "physical_lines": 88,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete88-line source read before infrastructure lane transfer to AI. Transient job failure requeues+commits without terminal review; exhausted durable budget passes original provider fallback identity into conservative persistence. Exact current _handle_job_failure consumer read, no executed worker/provider work."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_post_submission_verification_task_budget.py",
+      "sha256": "d56d96f0fb69160061fd7235ef08cb6d50902e497dfaf369ff0e2d5101a69ba8",
+      "physical_lines": 175,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete175-line source read before infrastructure lane transfer. Celery redelivery max aligns durable provider attempts; scheduler/busy deferral fresh deliveries avoid provider budget, failed publication Reject(requeue=True) and true provider exhaustion never resets attempts. Whole actual two task owners read; no Celery broker invocation."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_verification_delivery_binding.py",
+      "sha256": "52116f171f8fddcdede51cd84a2f80cf175d12333461f0804d39d994248e5553",
+      "physical_lines": 91,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete91-line source read before infrastructure lane transfer. Wrong queued/failed durable-job submission/revision cannot reach verification/terminal fallback or consume attempts, correct later delivery remains claimable. Actual admitted runtime and claim method read; temporary SQLite assertions not real PG execution here."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_processing_dispatcher.py",
+      "sha256": "9997c9c253713194a0a5505beb121515b936c7334c4056dc4a1580357f37e811",
+      "physical_lines": 140,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete140-line source read before infrastructure lane transfer. Broker accepted task registers exact lazy watchdog/priority lease; outage owned local fallback, queued task-ID compatibility and running/no-redelivery. Whole actual dispatcher/watchdog owners read; source mocks not live broker/worker readiness proof."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_processing_job_busy_claim.py",
+      "sha256": "d5f1452f2f439a12457299022a4f4dac4d1ba07b4a961dc08035738adfffb651",
+      "physical_lines": 145,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete145-line source read before infrastructure lane transfer. Fresh-running vs stale exhaustion, no fourth provider attempt, manual busy only never-started queued row, zero attempt charge/flush on duplicate fresh claim. Whole actual relevant mutation methods read, not entire repository."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_processing_delivery_watchdog.py",
+      "sha256": "b02f800bcf2f3b859d5a162703d2bc6246ba31ffa129aebf49dcd7dda192a24a",
+      "physical_lines": 102,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete102-line source read before infrastructure lane transfer. Exact extraction-queue probe, healthy worker receives bounded redelivery without web fallback; unhealthy worker only still-queued state runs locally. Whole watchdog with reread-after-ping boundary inspected; no live queue/probe/worker qualification."
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/reconcile_passport_upload_use_case.py",
+      "sha256": "7a93a639b10148589d2bf5925fc31c032ad4ef82174f01b84ae8a82124929f8a",
+      "physical_lines": 46,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source physically read. Exact browser-owned attempt credential validation before repositories, active public/non-import link scope and stable read-only committed submission ID response."
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/retry_post_submission_verification_use_case.py",
+      "sha256": "d833985834f261af50e4048beb2a6872f8c9f57ffbda8ad0a9af25cdd07f8e0c",
+      "physical_lines": 56,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source physically read. Current submission FOR UPDATE abstraction, bounded prior status/reason metadata, domain retry revision transition and unchanged submitted fields, caller-owned persistence."
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/verify_submitted_passport_use_case.py",
+      "sha256": "8f6c266b0356dc877c92707733509bb9186189db0d3f0c97cf8b9849b545e5cd",
+      "physical_lines": 150,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source physically read. Current status/revision early exit, canonical allowlisted fields/private original image, conservative storage/provider fallback, guarded final revision apply, bounded operational reason events and media type mapping. No provider actions or source policy edits."
+    },
+    {
+      "path": "backend/app/infrastructure/processing/tasks.py",
+      "sha256": "3b0c253f7585b016e5f27172754d479320453c3213c0dbb16f2831e32b701769",
+      "physical_lines": 84,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source physically read. Typed real Celery task/request seams, durable configured retry bound vs admission/busy fresh redelivery, failed-publish late-ACK requeue, bounded backoff and safe error type. Broker/process runtime not run."
+    },
+    {
+      "path": "backend/app/infrastructure/verification/tasks.py",
+      "sha256": "6c93e37549729dd1be037bd2877c01190d8ad032154afe888bec76caa0cc6bde",
+      "physical_lines": 72,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source physically read. Exact durable job/submission/revision payload and queue, configured provider retry budget independent from scheduling deferral, failed publish preserves current delivery and original runtime exception path."
+    },
+    {
+      "path": "backend/app/infrastructure/processing/delivery_watchdog.py",
+      "sha256": "27a494e2046a2d760d56f6a1d2d5e1a5e50c26195e41c8892fdca041b3637e3e",
+      "physical_lines": 120,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source physically read. Lazy DB/runtime imports and thread-offloaded exact queue health/redelivery, queued reread after probe prevents losing concurrent claim; local fallback only no healthy worker. Existing broker work and priority implementation unchanged."
+    },
+    {
+      "path": "backend/app/infrastructure/processing/dispatcher.py",
+      "sha256": "6e31aa4b8be8d82edd2a79a85f5d0833d39a83c8555d50ef595cdd3d6d3517ae",
+      "physical_lines": 141,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source physically read. Typed job IDs and exact canonical broker args/queue, priority lease dispatch, watchdog registration and bounded actual worker local bridge; polling compatibility state remains explicit. No new task/policy/capacity behavior."
+    },
+    {
+      "path": "backend/app/infrastructure/verification/runtime.py",
+      "sha256": "bde2ed55836312685572f5294feb522639ce5f35a0436562f8a6029e81d23499",
+      "physical_lines": 260,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical44-242 complete terminal fallback persistence, failure retry tri-state, priority admission and admitted durable target validation/use-case/audit/QR-sandbox/job completion paths. Prefix imports/local recovery tail not fully read; source unchanged and no provider/native startup execution."
+    },
+    {
+      "path": "backend/app/infrastructure/processing/job_repository.py",
+      "sha256": "cb6a2c126b1e4da14e07d6e872671456cac286f6c1ea8745715e5f691d4c2176",
+      "physical_lines": 360,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical92-185 complete unstarted-busy/set-task/mark-running/claim-running methods, original row locks/fresh-running lease/cancel/exhaustion and attempt order. Other query/mapping/checkpoint/recovery paths not full read in this cohort."
+    },
+    {
+      "path": "backend/app/infrastructure/verification/job_repository.py",
+      "sha256": "08d701d797fa46f783ac6939c5652a1d19c04f05a5e0ded5cfb3ce37929c9210",
+      "physical_lines": 261,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical113-148 complete claim_running and next method signature only. Original terminal/fresh lease/exhaustion/one-attempt mutation preserved; remaining repo not full read."
+    }
+  ],
+  "scope": "Nine newly current-full retained processing/verification test sources1156lines, seven whole support reads/three focused slices. Six infrastructure reads physically finished before ownership passed to AI; AI notified to skip exact paths. No source/check/provider changes."
+}

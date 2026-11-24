@@ -1,0 +1,53 @@
+{
+  "original_orphan_sha256": "49a42bd73aafe20aabda8fee66ef052b40c4c934b9d36cdc5e13d03b1ca7acf9",
+  "original_task_sha256": "9a1af21b40764a8a7a849b12b764fdf70f9c26cb43ebaa5ab5e54a01c5b644a0",
+  "unchanged_whole_declarations": [
+    "DocumentOrphanReconciliationResult",
+    "_database_referenced_keys",
+    "_cursor_key",
+    "_read_cursor",
+    "_advance_cursor",
+    "_is_past_grace"
+  ],
+  "original_public_scanner_ast_arguments_identical": true,
+  "entire_engine_body_restores_original_after_single_fixed_prefix_parameter_substitution": true,
+  "both_celery_task_whole_ast_identical_except_docstring": true,
+  "existing_task_name_queue_and_async_import_identity_verified": true,
+  "original_two_prefix_public_contract_unchanged": true,
+  "current_runtime_evaluated_hints": {
+    "app.infrastructure.documents.orphan_reconciliation.DocumentOrphanReconciliationResult": "{'scanned_count': <class 'int'>, 'stale_candidate_count': <class 'int'>, 'deleted_count': <class 'int'>}",
+    "app.infrastructure.documents.orphan_reconciliation._database_referenced_keys": "{'prefix': <class 'str'>, 'keys': collections.abc.Sequence[str], 'return': set[str]}",
+    "app.infrastructure.documents.orphan_reconciliation._cursor_key": "{'prefix': <class 'str'>, 'return': <class 'str'>}",
+    "app.infrastructure.documents.orphan_reconciliation._read_cursor": "{'client': typing.Any, 'prefix': <class 'str'>, 'cipher': <class 'app.infrastructure.documents.storage_cleanup.StorageCleanupCipher'>, 'return': str | None}",
+    "app.infrastructure.documents.orphan_reconciliation._advance_cursor": "{'client': typing.Any, 'prefix': <class 'str'>, 'objects': collections.abc.Sequence[tuple[str, datetime.datetime | None]], 'cipher': <class 'app.infrastructure.documents.storage_cleanup.StorageCleanupCipher'>, 'return': <class 'NoneType'>}",
+    "app.infrastructure.documents.orphan_reconciliation._is_past_grace": "{'modified_at': datetime.datetime | None, 'cutoff': <class 'datetime.datetime'>, 'return': <class 'bool'>}",
+    "app.infrastructure.documents.orphan_reconciliation.reconcile_document_storage_orphans": "{'storage': app.infrastructure.storage.minio_repository.MinioStorageRepository | None, 'reference_lookup': collections.abc.Callable[[str, collections.abc.Sequence[str]], collections.abc.Awaitable[set[str]]], 'cursor_client': typing.Any | None, 'cursor_cipher': app.infrastructure.documents.storage_cleanup.StorageCleanupCipher | None, 'now': datetime.datetime | None, 'return': <class 'app.infrastructure.documents.orphan_reconciliation.DocumentOrphanReconciliationResult'>}",
+    "app.infrastructure.documents.orphan_reconciliation._reconcile_fixed_storage_namespaces": "{'prefixes': tuple[str, ...], 'reference_lookup': collections.abc.Callable[[str, collections.abc.Sequence[str]], collections.abc.Awaitable[set[str]]], 'storage': app.infrastructure.storage.minio_repository.MinioStorageRepository | None, 'cursor_client': typing.Any | None, 'cursor_cipher': app.infrastructure.documents.storage_cleanup.StorageCleanupCipher | None, 'now': datetime.datetime | None, 'return': <class 'app.infrastructure.documents.orphan_reconciliation.DocumentOrphanReconciliationResult'>}",
+    "app.infrastructure.documents.passport_orphan_reconciliation._referenced_keys": "{'prefix': <class 'str'>, 'keys': collections.abc.Sequence[str], 'return': set[str]}",
+    "app.infrastructure.documents.passport_orphan_reconciliation.reconcile_sensitive_storage_orphans": "{'storage': app.infrastructure.storage.minio_repository.MinioStorageRepository | None, 'reference_lookup': collections.abc.Callable[[str, collections.abc.Sequence[str]], collections.abc.Awaitable[set[str]]], 'cursor_client': typing.Any | None, 'cursor_cipher': app.infrastructure.documents.storage_cleanup.StorageCleanupCipher | None, 'now': datetime.datetime | None, 'return': <class 'app.infrastructure.documents.orphan_reconciliation.DocumentOrphanReconciliationResult'>}"
+  },
+  "original_result_fields": [
+    [
+      "scanned_count",
+      "int"
+    ],
+    [
+      "stale_candidate_count",
+      "int"
+    ],
+    [
+      "deleted_count",
+      "int"
+    ]
+  ],
+  "intentional_changes": [
+    "Scheduled task async alias now resolves combined fixed2document+4image wrapper.",
+    "New conservative20-column durable image reference query, no status filters.",
+    "Private engine parameterized by internal fixed namespace tuple; all original engine statements otherwise exact."
+  ],
+  "source_sha256": {
+    "backend/app/infrastructure/documents/orphan_reconciliation.py": "7458b420372052de441f45b4349c440eb59464b78d7d5a6dc9da89356dae26a2",
+    "backend/app/infrastructure/documents/passport_orphan_reconciliation.py": "386437eba16ef0ce7ad40ddf6bfa9542ba55c23ce2797c42413d090201d854ca",
+    "backend/app/infrastructure/documents/cleanup_tasks.py": "39c6acc102334472316a68f88cc2b57cd9cd9a4115318a7596ed632c1df56517"
+  }
+}

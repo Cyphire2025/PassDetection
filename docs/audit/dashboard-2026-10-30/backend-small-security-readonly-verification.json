@@ -1,0 +1,73 @@
+{
+  "status": "completed bounded read-only manual cohort; no checks executed",
+  "full_current_records": 13,
+  "physical_lines_read": 1026,
+  "substantive_initial_helpers": 6,
+  "docstring_only_initializers": 4,
+  "additional_complete_route_callers": 1,
+  "additional_complete_test_sources": 2,
+  "strict_current_hashes_unchanged": true,
+  "runtime_test_config_edits": 0,
+  "app_check_provider_network_executions": 0,
+  "confirmed_security_findings": [],
+  "architecture_followthrough": {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/contact_verification.py",
+    "physical_lines": 364,
+    "basis": "Mixed OTP request/provider completion, proof consumption and family validation responsibilities. Parent authorized a separate coherent architecture tranche after this seal; no edit is included here."
+  },
+  "resolved_source_questions": [
+    "OTP helper attempt mutation is protected by caller-held submission/challenge locks and explicit failure commits in the fully read route.",
+    "Public lifecycle guard has no retention-based grace; active/import/deleted state is explicit.",
+    "Kernel export lease distinguishes inherited child tasks and drains native work in the specified tests; actual test/platform execution remains separately qualified.",
+    "PDF process bounds differ by platform as documented; this is not a claim of a complete OS/network sandbox."
+  ],
+  "prior_full_callers_reused_without_credit": [
+    {
+      "path": "backend/app/application/travellers/fresh_contact.py",
+      "sha256": "3fe3eff3481dd9d8b88139aa196c164c94130b4e563ebf9755e38612d36609f6",
+      "physical_lines": 110,
+      "current_full_records": [
+        "company-backend-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/security/upload_security.py",
+      "sha256": "293afb52d404d9dc96dd0d303620891274d8654d1e21c2d81ccc844c2d5e4102",
+      "physical_lines": 451,
+      "current_full_records": [
+        "security-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "backend/app/application/mcp/export_capacity.py",
+      "sha256": "15d193ab89252bd45154506727950657bba25270b5dee6c0d7bc7f43aceda04d",
+      "physical_lines": 30,
+      "current_full_records": [
+        "backend-mcp-application-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "backend/app/application/mcp/authorization.py",
+      "sha256": "8e9b9b9d95392262d07dd60184397779e0898bb2b1e543737fff6eb0192ac56f",
+      "physical_lines": 349,
+      "current_full_records": [
+        "backend-mcp-application-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "backend/app/core/native_image_admission.py",
+      "sha256": "8ec758c93c7424730e115d99dcbbdc5f3a0835534465f5380c0c2bbccd633e09",
+      "physical_lines": 194,
+      "current_full_records": [
+        "auth-security-support-reviewed-files.json"
+      ]
+    }
+  ],
+  "partial_reference_scope": "Literal call searches for lifecycle/MCP management/TimeBudget wiring guide context only; no additional whole-file credit from those searches.",
+  "receipts_sha256": {
+    "backend-small-security-reviewed-files.json": "1249574efdc051bf201db8020d9939db03f6935f1db5e66db6063c189c52b21e",
+    "backend-small-security-selection.json": "55fa73fda3be4f7a2fea34cde7e5dc9f082eeccc102d3b20e8d2c69155a0d3ab",
+    "backend-small-security-caller-triage.json": "470e85543a866c851eb4250a4f9e6db6cde258e175ac2550e1f73407d2815583"
+  },
+  "limits": "No scanner, provider send, application import/run, test suite, credentials/data access or deployment. No global security/performance certification inferred from thirteen source reads."
+}

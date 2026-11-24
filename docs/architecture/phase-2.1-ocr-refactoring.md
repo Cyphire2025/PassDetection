@@ -1,5 +1,12 @@
 # Phase 2.1: OCR Architecture Refactoring
 
+This is a historical architecture record of the former passport OCR ensemble.
+Current passport extraction uses the active AI flow; the dormant local OCR
+engines and MRZ OCR implementation described below have been retired during
+the dashboard audit. The original design and commands are preserved as history.
+See the [current audit tracker](../audit/dashboard-2026-10-30/TRACKER.md) for
+retirement details and current verification limits.
+
 ## Why this phase exists
 
 The extraction facade had accumulated image normalization, OCR runtime discovery, preprocessing variants, AI HTTP integration, field voting, MRZ recovery, validation, and confidence scoring. This made changes risky because infrastructure concerns and extraction policy changed together.

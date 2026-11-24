@@ -1,0 +1,1094 @@
+{
+  "runtime_importers": 116,
+  "imports": [
+    {
+      "path": "backend/app/application/companies/access.py",
+      "sha256": "85eb5114243a39d708f1cf3162051317e5702190e0c1bc5345bff19e1ba8e69c",
+      "imported_names": [
+        "ClientOrganizationModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/companies/assignment.py",
+      "sha256": "cf87ffaf0b731341a3a88ffa9fa2ee4cd40d9872baf071691a4b4d517404ce30",
+      "imported_names": [
+        "ClientManagerGroupAssignmentModel",
+        "ClientOrganizationModel",
+        "GCGroupAccessModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/companies/directory.py",
+      "sha256": "19e05f934d317377c69ba2aa09c66b378ea12f8ffafb4331a5792de2c3711d8f",
+      "imported_names": [
+        "ClientOrganizationModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/companies/directory_projection.py",
+      "sha256": "a87d9e5a2dae80c36b3ef2e3e6681a39f4a87533058b94696b142348e9c450c5",
+      "imported_names": [
+        "ClientOrganizationModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/companies/reassignment.py",
+      "sha256": "09bf94a4096e13eef69cb899c93a3768338032b3e729dc79f5bf8c0d9c9be523",
+      "imported_names": [
+        "ClientManagerGroupAssignmentModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/companies/removal.py",
+      "sha256": "12db6956cd2ab9ea42bc7a28c594cf38ac84cd2de4c245cda603ddb15db71bba",
+      "imported_names": [
+        "ClientManagerGroupAssignmentModel",
+        "ClientOrganizationModel",
+        "GCGroupAccessModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mcp/account_creation.py",
+      "sha256": "fa069508b1a3aaac1fd4f77c34a95d82a3ea1373fdf9dec0cf57422c8117f8ae",
+      "imported_names": [
+        "ClientManagerGroupAssignmentModel",
+        "ClientManagerProfileModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mcp/additive_mobile.py",
+      "sha256": "d967092e508375be247468933119529f7939a1638c02cc3157267af2337f97a4",
+      "imported_names": [
+        "GCGroupAccessModel",
+        "MobilePassengerIdentityModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mcp/announcement_changes.py",
+      "sha256": "546293342c435e1945a9dd377eccf801f8aba1b6bc1f6a88063965b2e0b229ea",
+      "imported_names": [
+        "GCAnnouncementModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mcp/content_reads.py",
+      "sha256": "238181db9c2fb2ccfe73662ccbe99508d00c3fc3261d988ab1fc4222bb273f3d",
+      "imported_names": [
+        "GCGroupAccessModel",
+        "GCItineraryVersionModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mcp/gc_push_intents.py",
+      "sha256": "24f3f58d25386db0c54b85eab163559b08eff8c8a5f632d68102759c310c6193",
+      "imported_names": [
+        "MobileNotificationModel",
+        "MobilePushDeliveryModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mcp/gc_push_snapshots.py",
+      "sha256": "60f113dbe3bf4a77aa8f5611319ba696ad06188ada3dbf5571958243af433168",
+      "imported_names": [
+        "GCGroupAccessModel",
+        "MobilePassengerIdentityModel",
+        "MobilePushRegistrationModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mcp/itinerary_changes.py",
+      "sha256": "85f5acc04b258a8ebb89e9c41ac8d0b13aabc9875f765c0aa8ef5f61e9fddae5",
+      "imported_names": [
+        "GCItineraryVersionModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mobile/announcement_notification_status.py",
+      "sha256": "cefe730a4a7eb143521edbdd929555bbbe7226d94a7dddbbf8ff1ae56fb65b91",
+      "imported_names": [
+        "MobileNotificationModel",
+        "MobilePushDeliveryModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mobile/announcement_push_guard.py",
+      "sha256": "5ed04426edb69436f5f16f776b35fb7db1a24ba3085da6ecf221a18043758d1c",
+      "imported_names": [
+        "GCAnnouncementModel",
+        "MobileNotificationModel",
+        "MobilePushDeliveryModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mobile/authored_notification_audience.py",
+      "sha256": "4fcfe94e5b790e15acb1af41f3bd5662f68f95211e80a64d60a9044fbfc90ddc",
+      "imported_names": [
+        "ClientManagerGroupAssignmentModel",
+        "ClientManagerProfileModel",
+        "GCGroupAccessModel",
+        "MobilePassengerIdentityModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mobile/authored_notification_grants.py",
+      "sha256": "9aa48574f95e52e68a851865a7e1174212e70ee428360bb3e94af9b2a9eb42d2",
+      "imported_names": [
+        "MobileNotificationModel",
+        "MobilePushDeliveryModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mobile/authored_notification_history.py",
+      "sha256": "8b3a87b7324383525d919877c8c96735795bfde7b0468795875da6dbeb6d0300",
+      "imported_names": [
+        "MobileNotificationModel",
+        "MobilePushDeliveryModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mobile/authored_notification_registrations.py",
+      "sha256": "57e7d9816df1ed537a3666be01c2ebf78f818bd046dd930c704aa545141b14ae",
+      "imported_names": [
+        "MobileDeviceSessionModel",
+        "MobilePassengerSessionIdentityModel",
+        "MobilePushRegistrationModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mobile/authored_notification_send.py",
+      "sha256": "3dd0fb03a063cb6857f417f7fd9c95022aea7215bba36a65db874a6e48a8f23b",
+      "imported_names": [
+        "GCGroupAccessModel",
+        "MobileNotificationModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mobile/authored_notification_targets.py",
+      "sha256": "b626caaf4f5930a625761e29482940d5a29290173ea4bafa95623ac94774d57e",
+      "imported_names": [
+        "MobileDeviceSessionModel",
+        "MobileNotificationModel",
+        "MobilePushDeliveryModel",
+        "MobilePushRegistrationModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mobile/fcm_dispatch_intents.py",
+      "sha256": "9d2b5b7eefb1b90448e4e07a377f725a25dface5fba660718c1717b297c884a8",
+      "imported_names": [
+        "MobileNotificationModel",
+        "MobilePushDeliveryModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mobile/group_app_availability.py",
+      "sha256": "054b0a4e071e42749aab33f1a71abd9099e0e43a1a7de74d57f6a1161848bbbf",
+      "imported_names": [
+        "GCGroupAccessModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mobile/integrity_service.py",
+      "sha256": "d5f2bf7f28c114eb72d858be3c30be38434e625aa2ef2c6613e92d1925b0e6b1",
+      "imported_names": [
+        "MobileAppAttestKeyModel",
+        "MobileDeviceSessionModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mobile/mcp_push_guard.py",
+      "sha256": "f618802168295379d8f20e9d4d03772afd1870e7f9a8197e065cd8fbf0bedb98",
+      "imported_names": [
+        "GCGroupAccessModel",
+        "MobileDeviceSessionModel",
+        "MobileNotificationModel",
+        "MobilePushDeliveryModel",
+        "MobilePushRegistrationModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mobile/mobile_push_payload.py",
+      "sha256": "9bb6ef5f47a0dda48d5a20a7cd020e72896b58cedbf985490b04d7e529c1e3c3",
+      "imported_names": [
+        "MobileNotificationModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mobile/native_push_targets.py",
+      "sha256": "1274da5a9e400d1601d343e0fe477e59b468d3852e40f94ae2331b265b8523ec",
+      "imported_names": [
+        "MobileNotificationModel",
+        "MobilePushDeliveryModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mobile/notification_announcements.py",
+      "sha256": "563585af06e23c380bbc6d20e00a52522492089bd0c047f0f6f7279897d0f2ec",
+      "imported_names": [
+        "ClientManagerGroupAssignmentModel",
+        "ClientManagerProfileModel",
+        "GCAnnouncementModel",
+        "GCGroupAccessModel",
+        "MobileNotificationModel",
+        "MobilePassengerIdentityModel",
+        "MobilePushDeliveryModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mobile/notification_authority.py",
+      "sha256": "256d49c099af6fdcbd890188c2377a33654098c96ae720c8d5f824eecf823c8f",
+      "imported_names": [
+        "MobileNotificationModel",
+        "MobilePushDeliveryModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mobile/notification_countdown_recipients.py",
+      "sha256": "93cea0065f9efba55f96ccd02679b431de265006c4cdbe4d77aea13361e07ee4",
+      "imported_names": [
+        "ClientManagerGroupAssignmentModel",
+        "ClientManagerProfileModel",
+        "GCGroupAccessModel",
+        "MobileNotificationModel",
+        "MobilePassengerIdentityModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mobile/notification_countdown_schedule.py",
+      "sha256": "68547ff85ea97f4c8f15696793214c4d9604f9dc3bd2e77be3d49bf3b43c9ef0",
+      "imported_names": [
+        "GCGroupAccessModel",
+        "MobileNotificationModel",
+        "MobilePushDeliveryModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mobile/notification_countdown_values.py",
+      "sha256": "3049121d16a2a51c2d6ca7eb6850caac0aa87caad94a0aae9d6e9136e2383e68",
+      "imported_names": [
+        "GCGroupAccessModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mobile/notification_delivery_states.py",
+      "sha256": "e8ca0f35b325a32b467ab522b583916dbd1de4bbd7800be2a4a5e33cdc3ad0b1",
+      "imported_names": [
+        "MobileNotificationModel",
+        "MobilePushDeliveryModel",
+        "MobilePushRegistrationModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mobile/notification_dispatch_claims.py",
+      "sha256": "ec801e44f48bb9f8fdb2ffbe22c98af2599bb1d6710b3de507951e97643cdbfe",
+      "imported_names": [
+        "MobileNotificationModel",
+        "MobilePushDeliveryModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mobile/notification_dispatch_targets.py",
+      "sha256": "5f1eb1796997dd3e2798b89eb0bc909e0c9f56dd9783088d95e5699c46b589af",
+      "imported_names": [
+        "MobileNotificationModel",
+        "MobilePushDeliveryModel",
+        "MobilePushRegistrationModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mobile/notification_document_changes.py",
+      "sha256": "a7b19ccbc3fddf277d34618bebf517bc1082b779d5f756444069abdb697bbf0a",
+      "imported_names": [
+        "ClientManagerGroupAssignmentModel",
+        "ClientManagerProfileModel",
+        "GCGroupAccessModel",
+        "MobileNotificationModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mobile/notification_group_authority.py",
+      "sha256": "9ce27a54edbb03114908fcd54816565a90a05e561c51f15d8cd2db50d899f66a",
+      "imported_names": [
+        "ClientManagerGroupAssignmentModel",
+        "ClientManagerProfileModel",
+        "GCGroupAccessModel",
+        "MobileNotificationModel",
+        "MobilePassengerIdentityModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mobile/notification_receipts.py",
+      "sha256": "b296c55c6998f25a7669b2d7b6776ad493ec67779cb2dd4c57f2ae9f52632135",
+      "imported_names": [
+        "MobilePushDeliveryModel",
+        "MobilePushRegistrationModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mobile/notification_registrations.py",
+      "sha256": "1f183b687f587d4d07cecce8e6e89eb51872fff2ead7985b09b1984e3c1c0d0d",
+      "imported_names": [
+        "MobileDeviceSessionModel",
+        "MobileNotificationModel",
+        "MobilePushRegistrationModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mobile/passenger_change_identities.py",
+      "sha256": "0e663f42d3f78ab195b2cda8b51b7021a8a231f9dcdd3098a3f989e3921bbd7d",
+      "imported_names": [
+        "GCGroupAccessModel",
+        "MobilePassengerIdentityModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mobile/passenger_change_journal.py",
+      "sha256": "dee981f849e150af11a70bf3d7d3db990d4eb6b885ce293372e2f4b0ab37ce16",
+      "imported_names": [
+        "GCGroupAccessModel",
+        "MobileSyncChangeModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mobile/passenger_change_propagation.py",
+      "sha256": "a87d9aef03194a21969670437f2a2905045a66b2e536c52eda2281975ffc0bd7",
+      "imported_names": [
+        "GCGroupAccessModel",
+        "MobilePassengerIdentityModel",
+        "MobileSyncChangeModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mobile/passenger_identity_reconciliation.py",
+      "sha256": "542d8dcdb03dd5d32ab5c9051f0a62cb508ef8546a95bf7355271167da760217",
+      "imported_names": [
+        "GCGroupAccessModel",
+        "MobileDeviceSessionModel",
+        "MobilePassengerIdentityModel",
+        "MobilePassengerSessionIdentityModel",
+        "MobileRefreshTokenModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mobile/passenger_notification_authority.py",
+      "sha256": "e0f14a41a6154009d09d7c9c1e879d7f06baae8876bbd73f485d0d355bb23391",
+      "imported_names": [
+        "GCGroupAccessModel",
+        "MobileDeviceSessionModel",
+        "MobilePassengerIdentityModel",
+        "MobilePassengerSessionIdentityModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mobile/passenger_session_authority.py",
+      "sha256": "b89f8d768290b78f5874a8b992dd18739271e0a79c5bf700ba4b978d2259c889",
+      "imported_names": [
+        "MobileDeviceSessionModel",
+        "MobilePassengerIdentityModel",
+        "MobilePassengerSessionIdentityModel",
+        "MobileRefreshTokenModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mobile/push_receipt_claims.py",
+      "sha256": "a83e54302a957328f3c15e340729ce121e77987dc9bd222d3be0d66a97f856f2",
+      "imported_names": [
+        "MobileNotificationModel",
+        "MobilePushDeliveryModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mobile/push_registration.py",
+      "sha256": "8d6ef4742b2a887ae2ad7dba333bb37d42f37ce062f17070f727c76fa6825148",
+      "imported_names": [
+        "MobileDeviceSessionModel",
+        "MobilePushRegistrationModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mobile/realtime_authorization.py",
+      "sha256": "cfade7c6b0e0d1accae866372cf085d6c21cce4f932c4c32d6765927e90b049f",
+      "imported_names": [
+        "ClientManagerGroupAssignmentModel",
+        "ClientManagerProfileModel",
+        "GCGroupAccessModel",
+        "MobilePassengerIdentityModel",
+        "MobilePassengerSessionIdentityModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mobile/realtime_hints.py",
+      "sha256": "9c32a58f000b2837f4c541cc89ce20416f04b6c8a4ebaa1412e45c1d48e4011d",
+      "imported_names": [
+        "MobileSyncChangeModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/mobile/sync_journal.py",
+      "sha256": "c8a5e7918ebde6d58d79ffb17862c99dc2a016e98f654b49b8e5606db986e34e",
+      "imported_names": [
+        "GCGroupAccessModel",
+        "MobileSyncChangeModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/security/mobile_access_policy.py",
+      "sha256": "ea822d8fc84bc9e2758e3ae954e8fffb53b13d575fe33e52a3b409a11510c9d7",
+      "imported_names": [
+        "ClientManagerGroupAssignmentModel",
+        "ClientManagerProfileModel",
+        "GCGroupAccessModel",
+        "MobilePassengerIdentityModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/travellers/authority.py",
+      "sha256": "dcd35f002a1e29362ec8fd6857f128f181759ce68b960381ecb4aefbd579bead",
+      "imported_names": [
+        "ClientOrganizationModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/travellers/broadcast_history_schedule.py",
+      "sha256": "a05d07b8696d41ae74543d64360afe984c1db962c1279131f607ed4b97f8d9af",
+      "imported_names": [
+        "ClientOrganizationModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/travellers/company_history_jobs.py",
+      "sha256": "af993d639cb35c42dafb072a8af48612338f9164ae205d4195c75ae1507e7bfb",
+      "imported_names": [
+        "ClientOrganizationModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/travellers/draft_completion.py",
+      "sha256": "e57cbbd30e03b3e009639bd37dc5b7b061f6af51160c217c951fc310ca6e6891",
+      "imported_names": [
+        "ClientOrganizationModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/travellers/enrollment.py",
+      "sha256": "cc10c65c84ce2290bbf57614228c4442e8ae80c2f2246f1721ae7d1c507c9a5a",
+      "imported_names": [
+        "ClientOrganizationModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/travellers/history_schedule.py",
+      "sha256": "d577286fcf48b2ef367c19c342e04a0a5089ec66dcacdb5602c90666bfc9c1f3",
+      "imported_names": [
+        "ClientOrganizationModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/travellers/match_resolution.py",
+      "sha256": "c594f106fc0e9aac6beabcbe5367ebd120451ded7df681afc050a3ff40fd10c6",
+      "imported_names": [
+        "ClientOrganizationModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/travellers/operational_autoassignment.py",
+      "sha256": "43c8e015205ba695a139ec20398c8e10b6752875e0a275c9850d457b0fb4522c",
+      "imported_names": [
+        "ClientOrganizationModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/travellers/reconciliation.py",
+      "sha256": "2a3126138910a5bf3a0764922b85cafb80cd240edef2e4b675c9de41b4f484c1",
+      "imported_names": [
+        "ClientOrganizationModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/use_cases/gc_app/create_announcement.py",
+      "sha256": "9658dd32b4348c14bc22bc06facae7f561f0ecb1b272b219dec20b976caf75a8",
+      "imported_names": [
+        "GCAnnouncementModel",
+        "GCGroupAccessModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/application/use_cases/gc_app/create_itinerary.py",
+      "sha256": "a082d329598fac6c0c0daffd5684a539aab70d905cc9ce6840a1408f5e36fe29",
+      "imported_names": [
+        "GCGroupAccessModel",
+        "GCItineraryDayModel",
+        "GCItineraryItemModel",
+        "GCItineraryVersionModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/infrastructure/database/models.py",
+      "sha256": "685526fd00128c49052195d84ac17d7e1ad66ace8e43dbcd70e260435be24c16",
+      "imported_names": [
+        "ClientOrganizationModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/infrastructure/database/model_registry.py",
+      "sha256": "226b2b4c321e3b231222355d9f6752d945dd2e160324b7a3685c4b37865b9ec5",
+      "imported_names": [
+        "<module>"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/groups.py",
+      "sha256": "f21b171c859d22ce92d578dce8498c05ad060f8a2fa9719323bad024d25147f5",
+      "imported_names": [
+        "ClientOrganizationModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/infrastructure/my_photos/context.py",
+      "sha256": "5882eafd5f6279d7069588ef3f151a7e3aad3f811330b4c0293bbdefcf71f178",
+      "imported_names": [
+        "MobilePassengerIdentityModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/infrastructure/my_photos/delivery_context.py",
+      "sha256": "af629e7efa13952428cc21fe1a8bb7bd355c05ba1c5d25fbf29c5ef8600e39f3",
+      "imported_names": [
+        "MobilePassengerIdentityModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/infrastructure/my_photos/development_fixture.py",
+      "sha256": "1e23d22c73acf9a480cae33d2af8da21d68b1ca10d7bc714731ca2c7e0f3a5e6",
+      "imported_names": [
+        "GCGroupAccessModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/infrastructure/my_photos/gallery_manifest_queries.py",
+      "sha256": "361c4521a8df1c8b55a8e7a68ba6886558f8b46958b288f6cebfebcf7d5069a8",
+      "imported_names": [
+        "GCGroupAccessModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/infrastructure/my_photos/search_job_claims.py",
+      "sha256": "0f63c60008a03187b1d71626d9b68108c16c7c5b40ddd9114c28df9464bab354",
+      "imported_names": [
+        "MobilePassengerIdentityModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/infrastructure/my_photos/search_job_publication.py",
+      "sha256": "99099cdc1e26452fc2e71305e48804a37ae2c3780308b13fcc62eea500c53398",
+      "imported_names": [
+        "MobilePassengerIdentityModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/mcp_content_read_repository.py",
+      "sha256": "9e93a94921330987ccdf4a36d68385e014bcdcbf4cc84a388013c0419803334c",
+      "imported_names": [
+        "GCAnnouncementModel",
+        "GCCommonDocumentModel",
+        "GCGroupAccessModel",
+        "GCItineraryDayModel",
+        "GCItineraryItemModel",
+        "GCItineraryVersionModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/mcp_group_read_repository.py",
+      "sha256": "490749a0e19c13c0cae16660de319fa159621d69593b5de4a2d22d3de699898d",
+      "imported_names": [
+        "ClientOrganizationModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/mobile_session_security.py",
+      "sha256": "7481d91450b47fe0e6b5b1cfb0bdc81e84a821b95e2c5cbf1eb317e67b4b3b6d",
+      "imported_names": [
+        "MobileDeviceSessionModel",
+        "MobileRefreshTokenModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_verification_history.py",
+      "sha256": "66977ee7ff045be532675dff0284dc6ea3732c355f16f2fbdec98f667c9ce64c",
+      "imported_names": [
+        "ClientOrganizationModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/receipt_bindings.py",
+      "sha256": "c2c710fd6719084e80e559273649f9d4c31af1c67c344cec4ac0e4cc26ebcab7",
+      "imported_names": [
+        "MobileOTPChallengeModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/receipt_runtime.py",
+      "sha256": "19b356ab48ee3ea6c34d91e14aa5ede416342fb8dc6143782dc53e5c1c6cad8e",
+      "imported_names": [
+        "MobileOTPChallengeModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/branding_metadata.py",
+      "sha256": "af2fde94a527905676e039565a7bc6c9ccba298821c35f4258a6e3e7a308d40f",
+      "imported_names": [
+        "ClientOrganizationModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/branding_images.py",
+      "sha256": "9b5c671e49300a11d91fdb27d2cc52563e35ee5b941ce2c29e06b62d96414627",
+      "imported_names": [
+        "ClientOrganizationModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_account_support.py",
+      "sha256": "866cc314da3b10e34271674c3d970493c16c41fed61cfd6f7a3d08861c634615",
+      "imported_names": [
+        "ClientManagerProfileModel",
+        "ClientOrganizationModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_announcements.py",
+      "sha256": "fa477ecd36f4bc9cc6991314d5c9a173fff479273d6687fb620c3eebefc92530",
+      "imported_names": [
+        "GCAnnouncementModel",
+        "GCGroupAccessModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_announcement_publication.py",
+      "sha256": "b8e93bd5bc1b4fa56390d352e538d1b6b7a82e60e63707022743cda3db1fa37b",
+      "imported_names": [
+        "GCAnnouncementModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_common_documents.py",
+      "sha256": "8b98cbcbeaee8dd2782ba2e282bec6c3ac988326b087724ec275045ff6fde469",
+      "imported_names": [
+        "GCCommonDocumentModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_common_publication.py",
+      "sha256": "0679798544767676fb0c37eddfe714517b83d8b57b188eeb7bdd65532585d7a2",
+      "imported_names": [
+        "GCCommonDocumentModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_common_staging.py",
+      "sha256": "21c0b756307e35642e9819f1509f1065df89b70bdfad74b65537e4379414718d",
+      "imported_names": [
+        "GCCommonDocumentModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_content_lookup.py",
+      "sha256": "442b46958be2ecb20122533e5a6dd9bd6c01f14b222f5e0f89f942eb23d5fdb7",
+      "imported_names": [
+        "GCAnnouncementModel",
+        "GCCommonDocumentModel",
+        "GCGroupAccessModel",
+        "GCItineraryVersionModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_content_projection.py",
+      "sha256": "0a7cfd214733b178265af9eb809982cf67f51c9ab31f2aed95a5b12315235e89",
+      "imported_names": [
+        "GCAnnouncementModel",
+        "GCCommonDocumentModel",
+        "GCItineraryDayModel",
+        "GCItineraryItemModel",
+        "GCItineraryVersionModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_content_scope.py",
+      "sha256": "ee1b01c9543593b6600aedde21acd5e6b7c6082a8b58320729f6799b4acab2d8",
+      "imported_names": [
+        "GCGroupAccessModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_group_access_support.py",
+      "sha256": "238744b3b55e57baeab37e1533a126a4a91def27c845cd75364474a29ef0ab24",
+      "imported_names": [
+        "ClientOrganizationModel",
+        "GCGroupAccessModel",
+        "MobileDeviceSessionModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_group_directory.py",
+      "sha256": "afdb38527c34adc9959a46a05a20e3721d0f1acf7e81eb11a96b255d6677f929",
+      "imported_names": [
+        "ClientOrganizationModel",
+        "GCGroupAccessModel",
+        "MobileDeviceSessionModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_group_settings.py",
+      "sha256": "2404362318d37b76efd70e081a56e25d2d9a3fc1e0d50a2e552a60e98c97f9fc",
+      "imported_names": [
+        "GCCommonDocumentModel",
+        "GCGroupAccessModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_history_support.py",
+      "sha256": "bdf2286f4ca7ee627106c8f2fb200a3fdefefa7ec2e94c4de43ad2190c291e7c",
+      "imported_names": [
+        "MobileDeviceSessionModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_itineraries.py",
+      "sha256": "c07eee3e4cbd5fbc3a2e34ef5cc6ff8a16892fe49d082131789875dc00706294",
+      "imported_names": [
+        "GCItineraryVersionModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_manager_access.py",
+      "sha256": "c6fc614f7acca55e4d81f2519d8cdd6578f21dd04c640745cea96d487fd75cee",
+      "imported_names": [
+        "ClientManagerGroupAssignmentModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_manager_creation.py",
+      "sha256": "d11ae641ad5e32496956609465046db83ffba3ebe8288c54d334734040bf6465",
+      "imported_names": [
+        "ClientManagerGroupAssignmentModel",
+        "ClientManagerProfileModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_manager_directory.py",
+      "sha256": "b039d0aaab7b43bd0b36290bb9addbb7828ef0d4ce3e384b00a737d01dbbad1b",
+      "imported_names": [
+        "ClientManagerProfileModel",
+        "ClientOrganizationModel",
+        "MobileDeviceSessionModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_manager_profile.py",
+      "sha256": "e7f22a5da952fe5084ce284746e3b55c3e04116f5e50053a885bcb68935c9271",
+      "imported_names": [
+        "ClientManagerGroupAssignmentModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_manager_support.py",
+      "sha256": "d41ea141a9dbcb6531ee1dab0cb68d246a0fef2acf18b644fe9c49ce6268dca5",
+      "imported_names": [
+        "ClientManagerGroupAssignmentModel",
+        "ClientOrganizationModel",
+        "GCGroupAccessModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_organizations.py",
+      "sha256": "54f7e9ad83c2509529631e689019af4d854c530d0ea06331ea6be680e9ca85b4",
+      "imported_names": [
+        "ClientOrganizationModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_scope.py",
+      "sha256": "19c66d3d873131f1a931974532b48c77b0867e581aa0207c68b43fb7af0dbf59",
+      "imported_names": [
+        "ClientManagerProfileModel",
+        "ClientOrganizationModel",
+        "GCGroupAccessModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_sessions.py",
+      "sha256": "d61e6747da999d75c058c446a74ab11e8d9841185cacc7d92d4399085790570e",
+      "imported_names": [
+        "ClientManagerGroupAssignmentModel",
+        "ClientManagerProfileModel",
+        "GCGroupAccessModel",
+        "MobileDeviceSessionModel",
+        "MobilePassengerIdentityModel",
+        "MobileRefreshTokenModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_group_directory_filters.py",
+      "sha256": "10eea059002d7af41dbf80a7040fbe0776ed041e2b66804f7422d25df3ea5f2e",
+      "imported_names": [
+        "GCGroupAccessModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_group_directory_query.py",
+      "sha256": "2de6566fb5e1df37eebd32e5740f874c9eb6c36542d3524268f2ada299f036db",
+      "imported_names": [
+        "ClientOrganizationModel",
+        "GCGroupAccessModel",
+        "MobileDeviceSessionModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_attendance_action_support.py",
+      "sha256": "62a8de5e7789dfd111e3e9aaebfc945287c32248ddf9df14e6990661844c1f06",
+      "imported_names": [
+        "GCGroupAccessModel",
+        "MobileSyncChangeModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_auth.py",
+      "sha256": "138bd3a289b4e8320565557a4d8ebf969cd02da6d10e2cc9e4cfe39c50453db5",
+      "imported_names": [
+        "ClientManagerProfileModel",
+        "GCGroupAccessModel",
+        "MobileDeviceSessionModel",
+        "MobileOTPChallengeModel",
+        "MobilePassengerIdentityModel",
+        "MobilePassengerSessionIdentityModel",
+        "MobileRefreshTokenModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_auth_otp_support.py",
+      "sha256": "15929311e71138705a1a658d67b5e4850f59f73e8425a1b51d83bb71261f4d1f",
+      "imported_names": [
+        "GCGroupAccessModel",
+        "MobileOTPChallengeModel",
+        "MobilePassengerIdentityModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_auth_phone_support.py",
+      "sha256": "740488919bbed6fdfa44c8bd597836be75126819263c306ec32c9cf82d7b6768",
+      "imported_names": [
+        "GCGroupAccessModel",
+        "MobilePassengerIdentityModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_auth_session_support.py",
+      "sha256": "62a631194e658f23bb3f9aa4cc132bf9389698c412de20398d7209fa567678c4",
+      "imported_names": [
+        "ClientManagerProfileModel",
+        "GCGroupAccessModel",
+        "MobileDeviceSessionModel",
+        "MobilePassengerIdentityModel",
+        "MobilePassengerSessionIdentityModel",
+        "MobileRefreshTokenModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_ops.py",
+      "sha256": "9579d8a220f78d7d422be448f8165fae470f0b48122b141eb58c1ad114bf8b26",
+      "imported_names": [
+        "MobileDeviceSessionModel",
+        "MobileIdempotencyReceiptModel",
+        "MobileIncidentModel",
+        "MobileNotificationModel",
+        "MobilePushRegistrationModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_ops_notification_support.py",
+      "sha256": "22a1427638d519eaea72ae6349c6cb3d54ad9661f6ff0fd63b5cb43b2b4b8308",
+      "imported_names": [
+        "ClientManagerGroupAssignmentModel",
+        "ClientManagerProfileModel",
+        "GCAnnouncementModel",
+        "GCGroupAccessModel",
+        "MobileNotificationModel",
+        "MobilePassengerIdentityModel",
+        "MobilePassengerSessionIdentityModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_resources.py",
+      "sha256": "5c94b9cac99b83ac04bd556643a64347d048cb96d8cd2b62acc37a8c868b1a9e",
+      "imported_names": [
+        "ClientManagerGroupAssignmentModel",
+        "ClientManagerProfileModel",
+        "GCAnnouncementModel",
+        "GCCommonDocumentModel",
+        "GCGroupAccessModel",
+        "GCItineraryDayModel",
+        "GCItineraryItemModel",
+        "GCItineraryVersionModel",
+        "MobileDeviceSessionModel",
+        "MobileDocumentMetadataCacheModel",
+        "MobilePassengerIdentityModel",
+        "MobilePassengerSessionIdentityModel",
+        "MobileSyncChangeModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_sync_projection.py",
+      "sha256": "621e62f9ff69dff633b2e1514a547e447d4252968d17b8bfbb9d1ea7fec99cb0",
+      "imported_names": [
+        "MobileSyncChangeModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/traveller_admin.py",
+      "sha256": "3a6353323b215664affa8912f827c71337786c327b603e0797db74da333d7809",
+      "imported_names": [
+        "ClientOrganizationModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp.py",
+      "sha256": "f2f9e3f934ad389ab39e2e46039c40a7584f0443ac285f057e9f4eac538ea948",
+      "imported_names": [
+        "MobileOTPChallengeModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/presentation/dependencies/mobile_auth.py",
+      "sha256": "e15e6efb5660026543df7efc2f0569ccec3c5401e07ded630d7d22ac9cfe9ee9",
+      "imported_names": [
+        "ClientManagerProfileModel",
+        "MobileDeviceSessionModel",
+        "MobilePassengerIdentityModel",
+        "MobilePassengerSessionIdentityModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    },
+    {
+      "path": "backend/app/presentation/mcp/announcement_tools.py",
+      "sha256": "f531a07b633f1a176043f546317f8a003ddc48321a8dd9d8d0f6ce9c82235cfe",
+      "imported_names": [
+        "GCAnnouncementModel"
+      ],
+      "review_scope": "metadata-only-import-map"
+    }
+  ]
+}

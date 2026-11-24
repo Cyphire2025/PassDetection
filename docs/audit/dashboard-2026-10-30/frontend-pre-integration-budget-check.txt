@@ -1,0 +1,26 @@
+
+> frontend@0.1.0 maintainability:check
+> node scripts/verify-frontend-module-budgets.mjs
+
+node:fs:483
+    return binding.readFileUtf8(path, stringToFlags(options.flag));
+                   ^
+
+Error: ENOENT: no such file or directory, open 'C:\Users\nipun\Desktop\PassDetection\frontend\features\whatsapp\api\broadcast-resends.api.ts'
+    at readFileSync (node:fs:483:20)
+    at readSource (file:///C:/Users/nipun/Desktop/PassDetection/frontend/scripts/verify-frontend-module-budgets.mjs:334:34)
+    at file:///C:/Users/nipun/Desktop/PassDetection/frontend/scripts/verify-frontend-module-budgets.mjs:337:20
+    at Array.map (<anonymous>)
+    at evaluateFrontendModuleBudgets (file:///C:/Users/nipun/Desktop/PassDetection/frontend/scripts/verify-frontend-module-budgets.mjs:336:18)
+    at run (file:///C:/Users/nipun/Desktop/PassDetection/frontend/scripts/verify-frontend-module-budgets.mjs:351:19)
+    at file:///C:/Users/nipun/Desktop/PassDetection/frontend/scripts/verify-frontend-module-budgets.mjs:379:38
+    at ModuleJob.run (node:internal/modules/esm/module_job:561:25)
+    at async node:internal/modules/esm/loader:647:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\features\\whatsapp\\api\\broadcast-resends.api.ts'
+}
+
+Node.js v24.21.0

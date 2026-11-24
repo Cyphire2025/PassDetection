@@ -3,21 +3,23 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 const trackerSource = readFileSync(
-  new URL("./whatsapp-activity-tracker.tsx", import.meta.url),
+  new URL("./activity-tracker/use-tracked-activities.ts", import.meta.url),
   "utf8",
 );
-const hooksSource = readFileSync(
-  new URL("../hooks/use-whatsapp.ts", import.meta.url),
+const providerSource = readFileSync(
+  new URL("./whatsapp-activity-tracker.tsx", import.meta.url),
   "utf8",
 );
 
 test("batch summary 404 stops retries and interval polling", () => {
-  assert.match(hooksSource, /retry:\s*\(failureCount, error\)/);
-  assert.match(hooksSource, /shouldRetryWhatsAppBatchStatus/);
-  assert.match(hooksSource, /whatsappBatchHttpStatus\(error\)/);
+  assert.match(providerSource, /from "\.\/activity-tracker\/use-tracked-activities"/);
+  assert.match(providerSource, /useTrackedActivities\(\)/);
+  assert.match(trackerSource, /retry:\s*\(failureCount: number, error: unknown\)/);
+  assert.match(trackerSource, /shouldRetryWhatsAppBatchStatus/);
+  assert.match(trackerSource, /whatsappBatchHttpStatus\(error\)/);
   assert.match(
-    hooksSource,
-    /isMissingWhatsAppBatchError\(query\.state\.error\)\) return false/,
+    trackerSource,
+    /isTerminalWhatsAppBatchStatus\(\s*whatsappBatchHttpStatus\(query\.state\.error\),\s*\)[\s\S]*return false/,
   );
 });
 

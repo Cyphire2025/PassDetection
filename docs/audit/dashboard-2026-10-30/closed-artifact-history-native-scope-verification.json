@@ -1,0 +1,44 @@
+{
+  "status": "current focused qualification frozen",
+  "cases": 119,
+  "new_artifact_cases": 12,
+  "current_test_seconds": 0.86,
+  "current_fence_count": 7,
+  "current_fence_rechecked": true,
+  "explicit_no_fix_Ruff_files": 3,
+  "native_scope": {
+    "old_literals": 36,
+    "new_literals": 42,
+    "added_exact_test_literals": [
+      "backend/tests/unit/infrastructure/test_apple_app_attest_verifier.py",
+      "backend/tests/unit/infrastructure/test_mobile_integrity_providers.py",
+      "backend/tests/unit/infrastructure/test_mobile_journey_geocoding.py",
+      "backend/tests/unit/infrastructure/test_mobile_association_proxy_contract.py",
+      "backend/tests/unit/infrastructure/test_mobile_openapi_contract.py",
+      "backend/tests/unit/infrastructure/test_mobile_app_attest_keys_migration.py"
+    ],
+    "purpose": "Only six tests of already excluded native AppAttest/integrity/journey/association/native-only contract owners. No runtime, migration, provider, schema or native feature audit/run.",
+    "all_other_scope_values_unchanged": true,
+    "old_test_raw_normalized_inverse_except_literal_cohort_counts_exact": true,
+    "Inbox_deferred_paths": 253
+  },
+  "retirement_admission": {
+    "paths": 6,
+    "journey_probe_paths": 5,
+    "unused_placeholder_paths": 1,
+    "archive_payloads_opened": false,
+    "fresh_history_reconstructed_without_local_archive": true,
+    "original_all_other_inventory_raw_source_exact_by_inverse": true,
+    "negative_baseline": "Correctly selected actual collected testcase module on independently hash-matched old script:12fail. Initial audit-only hook patched a duplicate package import;12pass there exercised current source, not old. Both logs preserved, only hook corrected. Current119source unchanged, no duplicate rerun."
+  },
+  "artifacts": {
+    "closed-artifact-history-source-equivalence.json": "66fe2f19faf0d27e3457c24649ab771789e772a276946a19358c83b84d49d000",
+    "closed-artifact-history-qualification-command.json": "3591258a0ad774c6fdad55932aceb00d0ad2a1e9a6225b1836ada01da370a212",
+    "closed-artifact-history-corrected-original-command.json": "73d0250c518ca77a28e32895766fe53c71b467df70d5aec2562640253e713c31",
+    "closed-artifact-history-current-lint.txt": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "journey-color-probes-retirement-manifest.json": "2bdf19311a4899a7007568dd19f92381600259c9311d6e8b4f1f16662f70f8f7",
+    "unused-placeholder-retirement-manifest.json": "0a424883ad8e9c1d0d45c7930bc82fad3449b417072efdce17ca84bb061609bf",
+    "native-infrastructure-test-scope-proposal.json": "1b45b2cee58dd05232ccc9337d1eec9bd3dbf6ec9902ae86b527837d3dfd679c"
+  },
+  "limits": "Tracker/source-scope and metadata trust controls only. No new application, native image, real services, capacity/browser qualification or blanket asset/source exclusion."
+}

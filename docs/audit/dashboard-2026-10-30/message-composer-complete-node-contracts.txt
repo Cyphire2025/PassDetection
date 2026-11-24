@@ -1,0 +1,25 @@
+✔ dashboard owns one durable cross-route WhatsApp activity provider (0.6971ms)
+✔ the current composer and update sender register their durable broadcast IDs (0.6178ms)
+✔ registered activity preserves the message and group labels while historical resend refreshes its history (0.1529ms)
+✔ floating progress hides on sender pages and remains draggable elsewhere (0.1293ms)
+✔ floating progress uses a green capsule while inline progress remains unchanged (0.0853ms)
+✔ failed names load only after the failure arrow is expanded (0.0908ms)
+✔ current recipients expose deferred passenger search and a recoverable empty state (0.9482ms)
+✔ current create, add, and send actions have synchronous single-flight guards (0.9318ms)
+✔ superseded previews receive query cancellation and cannot authorize the latest draft (0.2175ms)
+✔ the live send gate requires reviewed content, approval, consent, welcome delivery and an active broadcast (0.1748ms)
+✔ an unconfirmed transport request retains its exact payload and reviewed snapshot for recovery (0.1613ms)
+✔ WhatsApp dialogs expose modal semantics and announce errors (0.139ms)
+✔ mixed Excel previews preserve rejected rows and imported headings in both live mutation flows (0.2104ms)
+✔ the live composer uses one support contact and bounded searchable selection (0.1417ms)
+✔ the live library obtains approved message definitions and passes the selected definition to its composer (0.7938ms)
+✔ a not-submitted reminder resolves an active linked group before requesting a preview (0.3083ms)
+✔ the audience is the intersection of locally eligible people and server-confirmed preview IDs (0.2265ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 102.4398

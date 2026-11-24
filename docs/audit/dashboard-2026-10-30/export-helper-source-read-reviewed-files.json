@@ -1,0 +1,42 @@
+[
+  {
+    "path": "backend/app/application/use_cases/passports/complete_export_delivery.py",
+    "sha256": "27ce4cadc3dd1c12acdaf6b83e33faf42eaf37612178372f6456415fe2be8650",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read of unchanged bounded helper: completion state/integrity and caller-owned transaction, canonical Excel field projection, revision/legacy delta semantics, privacy-selectable history projection, and revision-guarded staff correction respectively. Caller authorization remains at existing transport boundary; no new runtime defect adopted, no implementation change or fresh test execution inferred from source read."
+  },
+  {
+    "path": "backend/app/application/use_cases/passports/excel_export_options.py",
+    "sha256": "8b751b8d3d13ee60bc3d7333bed599101e73b52907105a5a4b5b6adb5a840dab",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read of unchanged bounded helper: completion state/integrity and caller-owned transaction, canonical Excel field projection, revision/legacy delta semantics, privacy-selectable history projection, and revision-guarded staff correction respectively. Caller authorization remains at existing transport boundary; no new runtime defect adopted, no implementation change or fresh test execution inferred from source read."
+  },
+  {
+    "path": "backend/app/application/use_cases/passports/export_changes.py",
+    "sha256": "803d49c572dde815ec9e11fa4ec8969e5df35e75fc1e6e7a43b5c7ac477cf2e2",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read of unchanged bounded helper: completion state/integrity and caller-owned transaction, canonical Excel field projection, revision/legacy delta semantics, privacy-selectable history projection, and revision-guarded staff correction respectively. Caller authorization remains at existing transport boundary; no new runtime defect adopted, no implementation change or fresh test execution inferred from source read."
+  },
+  {
+    "path": "backend/app/application/use_cases/passports/export_history_projection.py",
+    "sha256": "f315a1a12702a7b1408c8febe933588cf3a6d73a63db1519d844a772fecc9b9f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read of unchanged bounded helper: completion state/integrity and caller-owned transaction, canonical Excel field projection, revision/legacy delta semantics, privacy-selectable history projection, and revision-guarded staff correction respectively. Caller authorization remains at existing transport boundary; no new runtime defect adopted, no implementation change or fresh test execution inferred from source read."
+  },
+  {
+    "path": "backend/app/application/use_cases/passports/staff_approve_passport_use_case.py",
+    "sha256": "d11f2e0d4af4d1699bb3c2733b530f060c56706b8d7882d2779ac27aaf581eb8",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read of unchanged bounded helper: completion state/integrity and caller-owned transaction, canonical Excel field projection, revision/legacy delta semantics, privacy-selectable history projection, and revision-guarded staff correction respectively. Caller authorization remains at existing transport boundary; no new runtime defect adopted, no implementation change or fresh test execution inferred from source read."
+  }
+]

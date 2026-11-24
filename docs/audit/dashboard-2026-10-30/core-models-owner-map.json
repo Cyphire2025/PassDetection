@@ -1,0 +1,114 @@
+{
+  "owners": [
+    {
+      "path": "backend/app/infrastructure/database/_core_models/identity.py",
+      "classes": [
+        "AgencyModel",
+        "UserModel",
+        "RefreshTokenModel"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/groups.py",
+      "classes": [
+        "ClientGroupModel"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/access.py",
+      "classes": [
+        "ManagerGroupAccessModel",
+        "CoordinatorAssignmentModel",
+        "CoordinatorGroupAssignmentModel"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/passport.py",
+      "classes": [
+        "PassportSubmissionModel"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/exports.py",
+      "classes": [
+        "PassportExportHistoryModel"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/roster.py",
+      "classes": [
+        "PassportRosterResolutionModel"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/images.py",
+      "classes": [
+        "PassportImageCropModel",
+        "PassportVisaAiImageModel",
+        "PassportVisaAiImageJobModel"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/upload_workflow.py",
+      "classes": [
+        "QualifierSelectionModel",
+        "PassportProcessingJobModel"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/broadcast_links.py",
+      "classes": [
+        "ClientGroupWhatsAppBroadcastLinkModel"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/verification_jobs.py",
+      "classes": [
+        "PassportPostSubmissionVerificationJobModel"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/audit.py",
+      "classes": [
+        "AuditChainHeadModel",
+        "AuditLogModel"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/notifications.py",
+      "classes": [
+        "NotificationModel"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/platform.py",
+      "classes": [
+        "PlatformSettingModel"
+      ]
+    }
+  ],
+  "public_typed_contract_retained": "PlatformSettingsValue",
+  "declaration_order": [
+    "AgencyModel",
+    "UserModel",
+    "RefreshTokenModel",
+    "ClientGroupModel",
+    "ManagerGroupAccessModel",
+    "CoordinatorAssignmentModel",
+    "CoordinatorGroupAssignmentModel",
+    "PassportSubmissionModel",
+    "PassportExportHistoryModel",
+    "PassportRosterResolutionModel",
+    "PassportImageCropModel",
+    "PassportVisaAiImageModel",
+    "PassportVisaAiImageJobModel",
+    "QualifierSelectionModel",
+    "PassportProcessingJobModel",
+    "ClientGroupWhatsAppBroadcastLinkModel",
+    "PassportPostSubmissionVerificationJobModel",
+    "AuditChainHeadModel",
+    "AuditLogModel",
+    "NotificationModel",
+    "PlatformSettingModel"
+  ]
+}

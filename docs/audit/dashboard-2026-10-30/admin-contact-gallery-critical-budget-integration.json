@@ -1,0 +1,440 @@
+{
+  "before_modules": 471,
+  "after_modules": 493,
+  "new_modules": 22,
+  "existing_module_changed_only_group_manage_tightening": true,
+  "original19critical_entries_unchanged": true,
+  "new_critical_entries": [
+    {
+      "path": "app/presentation/api/v1/routes/admin_group_access.py",
+      "minimum_line_percent": 90,
+      "minimum_branch_percent": 75
+    },
+    {
+      "path": "app/presentation/api/v1/routes/admin_manager_deletion.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 90
+    },
+    {
+      "path": "app/presentation/api/v1/routes/admin_passport_purge.py",
+      "minimum_line_percent": 90,
+      "minimum_branch_percent": 70
+    },
+    {
+      "path": "app/infrastructure/my_photos/gallery_manifest_cancellation.py",
+      "minimum_line_percent": 75,
+      "minimum_branch_percent": 53
+    },
+    {
+      "path": "app/infrastructure/my_photos/gallery_manifest_cleanup.py",
+      "minimum_line_percent": 75,
+      "minimum_branch_percent": 53
+    },
+    {
+      "path": "app/infrastructure/my_photos/gallery_manifest_context.py",
+      "minimum_line_percent": 75,
+      "minimum_branch_percent": 53
+    },
+    {
+      "path": "app/infrastructure/my_photos/gallery_manifest_contracts.py",
+      "minimum_line_percent": 75,
+      "minimum_branch_percent": 53
+    },
+    {
+      "path": "app/infrastructure/my_photos/gallery_manifest_finalization.py",
+      "minimum_line_percent": 75,
+      "minimum_branch_percent": 53
+    },
+    {
+      "path": "app/infrastructure/my_photos/gallery_manifest_fingerprints.py",
+      "minimum_line_percent": 75,
+      "minimum_branch_percent": 53
+    },
+    {
+      "path": "app/infrastructure/my_photos/gallery_manifest_persistence.py",
+      "minimum_line_percent": 75,
+      "minimum_branch_percent": 53
+    },
+    {
+      "path": "app/infrastructure/my_photos/gallery_manifest_policy.py",
+      "minimum_line_percent": 75,
+      "minimum_branch_percent": 53
+    },
+    {
+      "path": "app/infrastructure/my_photos/gallery_manifest_providers.py",
+      "minimum_line_percent": 75,
+      "minimum_branch_percent": 53
+    },
+    {
+      "path": "app/infrastructure/my_photos/gallery_manifest_queries.py",
+      "minimum_line_percent": 75,
+      "minimum_branch_percent": 53
+    },
+    {
+      "path": "app/infrastructure/my_photos/gallery_manifest_registration.py",
+      "minimum_line_percent": 75,
+      "minimum_branch_percent": 53
+    },
+    {
+      "path": "app/infrastructure/my_photos/gallery_manifest_results.py",
+      "minimum_line_percent": 75,
+      "minimum_branch_percent": 53
+    },
+    {
+      "path": "app/infrastructure/my_photos/gallery_manifest_service.py",
+      "minimum_line_percent": 75,
+      "minimum_branch_percent": 53
+    },
+    {
+      "path": "app/infrastructure/my_photos/gallery_manifest_status.py",
+      "minimum_line_percent": 75,
+      "minimum_branch_percent": 53
+    }
+  ],
+  "critical_entry_count": 36,
+  "global_and_other_policy_values_unchanged": true,
+  "gallery_effective_floor_transfer": "Retain original75line/53branch requirement on every focused original-role owner; actual all15owner XML passes. Existing thin facade gate also retained. Earlier facade-only preservation was insufficient and this explicitly corrects it.",
+  "before_budget_sha256": "28a73beb41822d43b6351adfbd8d25e3a52bb869f8eb8e33a2869d26d8cb5467",
+  "after_budget_sha256": "96aa1d8427e6d30cffc457141bc648f0b6a3429c76fdc57777c3fb0fb5aeb5ed",
+  "before_exact_manifest_sha256": "70bbd9c76b84ca534238284d5cc66173bace0ed2a55192a1fcfa77a427c52ca9",
+  "after_exact_manifest_sha256": "41fb05bff2dd04576c92ba3bae2b33eca7d09908cc99f2442ff393c691f8a2fb",
+  "both_original_before_sets_unchanged": true,
+  "only_backend_budget_after_changed_in_exact_bindings": true,
+  "source_review_provenance": [
+    "root:admin-verification.json",
+    "manual_security:whatsapp-contact-verification.json",
+    "ai_extraction:gallery-critical-followthrough-checks.json"
+  ],
+  "not_a_second_full_physical_peer_review": true,
+  "coverage_limit": "103affected cases/fresh15galleryowner branch coverage and attributed peer source fences. No whole-backend current global coverage or live-service qualification is inferred.",
+  "changes": [
+    {
+      "owner": "admin",
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/admin.py",
+        "baseline_lines": 97,
+        "maximum_lines": 100,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "d6cef1f7db8cc08202866b7d93e0a1b3feb91b69ddb49a25687850b9f5cc36c4",
+      "candidate_manifest_sha256": "70876bc3ea5c8cbffa032a7219bfc28b773aec4f79869b184dafc1fdf4aa1263"
+    },
+    {
+      "owner": "admin",
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/admin_account_scope.py",
+        "baseline_lines": 42,
+        "maximum_lines": 44,
+        "baseline_max_function_complexity": 2,
+        "maximum_function_complexity": 2,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "0caf40547a4a4b0b4694454532d71d9f728260872ece9a6a93e842faaaca3b12",
+      "candidate_manifest_sha256": "70876bc3ea5c8cbffa032a7219bfc28b773aec4f79869b184dafc1fdf4aa1263"
+    },
+    {
+      "owner": "admin",
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/admin_account_views.py",
+        "baseline_lines": 86,
+        "maximum_lines": 89,
+        "baseline_max_function_complexity": 7,
+        "maximum_function_complexity": 7,
+        "minimum_coverage_percent": 90
+      },
+      "source_sha256": "64b25aba211ee143b2bd1501bcde536d83af502c22efaa15f3d92f32e7c9df9c",
+      "candidate_manifest_sha256": "70876bc3ea5c8cbffa032a7219bfc28b773aec4f79869b184dafc1fdf4aa1263"
+    },
+    {
+      "owner": "admin",
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/admin_workforce.py",
+        "baseline_lines": 195,
+        "maximum_lines": 201,
+        "baseline_max_function_complexity": 10,
+        "maximum_function_complexity": 10,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "c2a127cfff5e662562379a44cb1018e7c9069c1dbc8c929766f6b87f45459644",
+      "candidate_manifest_sha256": "70876bc3ea5c8cbffa032a7219bfc28b773aec4f79869b184dafc1fdf4aa1263"
+    },
+    {
+      "owner": "admin",
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/admin_group_access.py",
+        "baseline_lines": 204,
+        "maximum_lines": 211,
+        "baseline_max_function_complexity": 9,
+        "maximum_function_complexity": 9,
+        "minimum_coverage_percent": 90
+      },
+      "source_sha256": "16536e1644470b62c7130224d9f4650a7c44dfe101c34a29c6f4623d6792657e",
+      "candidate_manifest_sha256": "70876bc3ea5c8cbffa032a7219bfc28b773aec4f79869b184dafc1fdf4aa1263"
+    },
+    {
+      "owner": "admin",
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/admin_platform_settings.py",
+        "baseline_lines": 146,
+        "maximum_lines": 151,
+        "baseline_max_function_complexity": 8,
+        "maximum_function_complexity": 8,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "634e968871f22640240a86050f2fa778fd23f1520190e29c70dcd4570492760e",
+      "candidate_manifest_sha256": "70876bc3ea5c8cbffa032a7219bfc28b773aec4f79869b184dafc1fdf4aa1263"
+    },
+    {
+      "owner": "admin",
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/admin_retention.py",
+        "baseline_lines": 65,
+        "maximum_lines": 67,
+        "baseline_max_function_complexity": 2,
+        "maximum_function_complexity": 2,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "a0af2341a6ba20246358af1fd376a0f18f0450d497d984bb734e840d21988e4a",
+      "candidate_manifest_sha256": "70876bc3ea5c8cbffa032a7219bfc28b773aec4f79869b184dafc1fdf4aa1263"
+    },
+    {
+      "owner": "admin",
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/admin_manager_delete_replay.py",
+        "baseline_lines": 57,
+        "maximum_lines": 59,
+        "baseline_max_function_complexity": 5,
+        "maximum_function_complexity": 5,
+        "minimum_coverage_percent": 85
+      },
+      "source_sha256": "961b3fa5fb070f3bd2e6f69bfaac2d61605d2de3510d580a3fae210fa1752481",
+      "candidate_manifest_sha256": "70876bc3ea5c8cbffa032a7219bfc28b773aec4f79869b184dafc1fdf4aa1263"
+    },
+    {
+      "owner": "admin",
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/admin_deletion_queries.py",
+        "baseline_lines": 119,
+        "maximum_lines": 123,
+        "baseline_max_function_complexity": 6,
+        "maximum_function_complexity": 6,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "cb724cc20cd7900148eb8ad4b8da27e94dbb4c91aee5f6a022ef2e7d1fb8e88a",
+      "candidate_manifest_sha256": "70876bc3ea5c8cbffa032a7219bfc28b773aec4f79869b184dafc1fdf4aa1263"
+    },
+    {
+      "owner": "admin",
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/admin_manager_deletion.py",
+        "baseline_lines": 273,
+        "maximum_lines": 282,
+        "baseline_max_function_complexity": 18,
+        "maximum_function_complexity": 18,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "3af4881d8f0090dd4f12868f533fa20f81fc81e08edebaca28691018f3dca10f",
+      "candidate_manifest_sha256": "70876bc3ea5c8cbffa032a7219bfc28b773aec4f79869b184dafc1fdf4aa1263"
+    },
+    {
+      "owner": "admin",
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/admin_passport_purge.py",
+        "baseline_lines": 252,
+        "maximum_lines": 260,
+        "baseline_max_function_complexity": 24,
+        "maximum_function_complexity": 24,
+        "minimum_coverage_percent": 90
+      },
+      "source_sha256": "2286fd0144a7a6fbd6a74e00e8ce21415f55d7b2a91f5ca524ec51d048225916",
+      "candidate_manifest_sha256": "70876bc3ea5c8cbffa032a7219bfc28b773aec4f79869b184dafc1fdf4aa1263"
+    },
+    {
+      "owner": "admin",
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/admin_group_projection.py",
+        "baseline_lines": 33,
+        "maximum_lines": 35,
+        "baseline_max_function_complexity": 5,
+        "maximum_function_complexity": 5,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "6bec9d7d3a94f52d2586534d55247851dc1d94f0993ea66db8dcf19a0ec34ace",
+      "candidate_manifest_sha256": "70876bc3ea5c8cbffa032a7219bfc28b773aec4f79869b184dafc1fdf4aa1263"
+    },
+    {
+      "owner": "whatsapp-contact",
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/whatsapp_contact_support.py",
+        "baseline_lines": 189,
+        "maximum_lines": 197,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "c6640e915d3a22ceb880189bb4e3a89f0d7cfc3180a6a8b7582b446b709e1fce",
+      "candidate_manifest_sha256": "7b20a852a4eba1e5d27228b134e4edd270b25bd61f400c0953b57e33825c81c5"
+    },
+    {
+      "owner": "whatsapp-contact",
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/whatsapp_contact_values.py",
+        "baseline_lines": 189,
+        "maximum_lines": 197,
+        "baseline_max_function_complexity": 3,
+        "maximum_function_complexity": 3,
+        "minimum_coverage_percent": 90
+      },
+      "source_sha256": "3a6c521cbd30e24af2492d3807d398b61c028ec305b5f66368b84e427da713a3",
+      "candidate_manifest_sha256": "7b20a852a4eba1e5d27228b134e4edd270b25bd61f400c0953b57e33825c81c5"
+    },
+    {
+      "owner": "whatsapp-contact",
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/whatsapp_imported_fields.py",
+        "baseline_lines": 186,
+        "maximum_lines": 194,
+        "baseline_max_function_complexity": 21,
+        "maximum_function_complexity": 21,
+        "minimum_coverage_percent": 90
+      },
+      "source_sha256": "fc4ab60c67b8ba4da46dc0b50684264173f2af260696e138b1f40925049ba811",
+      "candidate_manifest_sha256": "7b20a852a4eba1e5d27228b134e4edd270b25bd61f400c0953b57e33825c81c5"
+    },
+    {
+      "owner": "whatsapp-contact",
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/whatsapp_contact_excel.py",
+        "baseline_lines": 276,
+        "maximum_lines": 288,
+        "baseline_max_function_complexity": 22,
+        "maximum_function_complexity": 22,
+        "minimum_coverage_percent": 90
+      },
+      "source_sha256": "dd4fdbdb2ce0a78983ead4bfd5bd9ef311c3a1a366e68e207c72f3cdbfe300dc",
+      "candidate_manifest_sha256": "7b20a852a4eba1e5d27228b134e4edd270b25bd61f400c0953b57e33825c81c5"
+    },
+    {
+      "owner": "whatsapp-contact",
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/whatsapp_recipient_inputs.py",
+        "baseline_lines": 219,
+        "maximum_lines": 228,
+        "baseline_max_function_complexity": 12,
+        "maximum_function_complexity": 12,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "b36a54b257d60ba8825ae02f253aa7f7f63998c34bf06a678fd4ef88524ecee8",
+      "candidate_manifest_sha256": "7b20a852a4eba1e5d27228b134e4edd270b25bd61f400c0953b57e33825c81c5"
+    },
+    {
+      "owner": "whatsapp-contact",
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/whatsapp_contact_rejections.py",
+        "baseline_lines": 150,
+        "maximum_lines": 156,
+        "baseline_max_function_complexity": 14,
+        "maximum_function_complexity": 14,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "afeab1dc52e467c586a57b85b9b5289a7dcb45414035c1652a0bfd46d8f11e9e",
+      "candidate_manifest_sha256": "7b20a852a4eba1e5d27228b134e4edd270b25bd61f400c0953b57e33825c81c5"
+    },
+    {
+      "owner": "whatsapp-contact",
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/whatsapp_roster_order.py",
+        "baseline_lines": 126,
+        "maximum_lines": 132,
+        "baseline_max_function_complexity": 12,
+        "maximum_function_complexity": 12,
+        "minimum_coverage_percent": 90
+      },
+      "source_sha256": "364fb303eb5ff6eb6f62e68bb9b47674f4596ef555ecbcf941a79efc85dbf997",
+      "candidate_manifest_sha256": "7b20a852a4eba1e5d27228b134e4edd270b25bd61f400c0953b57e33825c81c5"
+    },
+    {
+      "owner": "whatsapp-contact",
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/whatsapp_contact_responses.py",
+        "baseline_lines": 193,
+        "maximum_lines": 201,
+        "baseline_max_function_complexity": 19,
+        "maximum_function_complexity": 19,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "04cdf2c58e178c1fbe733ec238efbe3d3eec3765fe938607cadf3b85e9c1cb14",
+      "candidate_manifest_sha256": "7b20a852a4eba1e5d27228b134e4edd270b25bd61f400c0953b57e33825c81c5"
+    },
+    {
+      "owner": "whatsapp-contact",
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/whatsapp_contact_parse_result.py",
+        "baseline_lines": 24,
+        "maximum_lines": 25,
+        "baseline_max_function_complexity": 1,
+        "maximum_function_complexity": 1,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "473226263ce8155b0aa4177327c3338c7aff8442f96c0ba6ab862186fbc70aed",
+      "candidate_manifest_sha256": "7b20a852a4eba1e5d27228b134e4edd270b25bd61f400c0953b57e33825c81c5"
+    },
+    {
+      "owner": "whatsapp-contact",
+      "before": {
+        "path": "app/presentation/api/v1/routes/whatsapp_groups_manage.py",
+        "baseline_lines": 330,
+        "maximum_lines": 360,
+        "baseline_max_function_complexity": 35,
+        "maximum_function_complexity": 35,
+        "minimum_coverage_percent": 62
+      },
+      "after": {
+        "path": "app/presentation/api/v1/routes/whatsapp_groups_manage.py",
+        "baseline_lines": 228,
+        "maximum_lines": 238,
+        "baseline_max_function_complexity": 10,
+        "maximum_function_complexity": 10,
+        "minimum_coverage_percent": 62
+      },
+      "source_sha256": "6c48d2e6838d056e9d83db1266521c09ca50a1eda61430c9922bfd93d8c1e924",
+      "candidate_manifest_sha256": "7b20a852a4eba1e5d27228b134e4edd270b25bd61f400c0953b57e33825c81c5"
+    },
+    {
+      "owner": "gallery-compatibility",
+      "before": null,
+      "after": {
+        "path": "app/infrastructure/my_photos/gallery_manifest_service.py",
+        "baseline_lines": 95,
+        "maximum_lines": 99,
+        "baseline_max_function_complexity": 1,
+        "maximum_function_complexity": 1,
+        "minimum_coverage_percent": 100
+      },
+      "source_sha256": "ce540ff8b5fcfb9cb07c5b6c7d2b5837ce6243cf147061471350fd0832746eb1"
+    }
+  ]
+}

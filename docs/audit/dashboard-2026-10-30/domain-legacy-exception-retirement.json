@@ -1,0 +1,29 @@
+{
+  "retired_types": [
+    "ClientGroupUsedError",
+    "LowConfidenceError",
+    "MRZParsingError",
+    "OCREngineError"
+  ],
+  "retained_AST": "All other declarations/imports/registered handler bodies unchanged after deleting exactly four closed classes and handlers.",
+  "reference_proof": "domain-legacy-exception-reference-proof.json",
+  "changes": [
+    {
+      "path": "backend/app/domain/exceptions/exceptions.py",
+      "before_sha256": "a04b6f143a8f289ff9fe172164f18efc9b5b4dbe5ce2bc6db1a7a586983dbdc7",
+      "after_sha256": "81f41f5ae643e9a87c20fdd285ed3cb2791c92c63273c71743dfb7d609021c1f",
+      "before_lines": 208,
+      "after_lines": 169,
+      "retained_AST_exact": true
+    },
+    {
+      "path": "backend/app/presentation/middleware/error_handler.py",
+      "before_sha256": "f13e9b0fee8ceefb1bef491680a252e2b2f15916a348ba8e8a05bbf32d800733",
+      "after_sha256": "90539db647f6bb6bf113535fbe5d73383f573bdccc5213e2a455390fa86c5b98",
+      "before_lines": 224,
+      "after_lines": 206,
+      "retained_AST_exact": true
+    }
+  ],
+  "limits": "AI-returned MRZ fields/checksum value validation and active visa/ticket OCR are retained. No HTTP endpoints or published error contracts used by a supported current path were removed."
+}

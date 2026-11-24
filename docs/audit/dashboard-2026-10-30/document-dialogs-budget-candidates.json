@@ -1,0 +1,83 @@
+[
+  {
+    "path": "features/documents/components/document-workspace-dialogs.tsx",
+    "baselineLines": 3,
+    "maximumLines": 10,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1,
+    "sha256": "95b3fd3e4d3f61e281a074a3bb8bb890baeef42e5fe08180e4d117965a808c05",
+    "previousBudget": null
+  },
+  {
+    "path": "features/documents/components/abort-incomplete-upload-dialog.tsx",
+    "baselineLines": 80,
+    "maximumLines": 85,
+    "baselineMaxFunctionComplexity": 5,
+    "maximumFunctionComplexity": 6,
+    "sha256": "05d9e99b834388f42422e0f6c05cc6627e7d665e597321393d7b0150a47b7cb0",
+    "previousBudget": null
+  },
+  {
+    "path": "features/documents/components/remove-document-assignments-dialog.tsx",
+    "baselineLines": 105,
+    "maximumLines": 110,
+    "baselineMaxFunctionComplexity": 4,
+    "maximumFunctionComplexity": 5,
+    "sha256": "bed392931d4a3d01e9fa1bd64c7dd31ce780fa94bf6b76e5ce53f83762ede27d",
+    "previousBudget": null
+  },
+  {
+    "path": "features/documents/components/document-delivery-preview-dialog.tsx",
+    "baselineLines": 157,
+    "maximumLines": 165,
+    "baselineMaxFunctionComplexity": 12,
+    "maximumFunctionComplexity": 13,
+    "sha256": "11f4c6496787d3a327a0dd78c0d11d03548b1be4e308fc4edb1fe1bd1c62d23e",
+    "previousBudget": null
+  },
+  {
+    "path": "features/documents/components/document-delivery-preview-props.ts",
+    "baselineLines": 21,
+    "maximumLines": 30,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1,
+    "sha256": "c16ea10f707b9809afff7f37ee5861ddfdfea0c6647d202539d4074edf67e96a",
+    "previousBudget": null
+  },
+  {
+    "path": "features/documents/components/document-delivery-preview-summary.tsx",
+    "baselineLines": 105,
+    "maximumLines": 110,
+    "baselineMaxFunctionComplexity": 10,
+    "maximumFunctionComplexity": 11,
+    "sha256": "18f00876992e48330a37f2e736ef7dc0ffaf35246664b7959c24f1b67e1fbc88",
+    "previousBudget": null
+  },
+  {
+    "path": "features/documents/components/document-delivery-message-fields.tsx",
+    "baselineLines": 73,
+    "maximumLines": 80,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3,
+    "sha256": "5a2866341935451dbcc00e90d8eb866c6d7b5b96def492f09746122ad9e5e51d",
+    "previousBudget": null
+  },
+  {
+    "path": "features/documents/components/document-delivery-recipient-table.tsx",
+    "baselineLines": 144,
+    "maximumLines": 150,
+    "baselineMaxFunctionComplexity": 19,
+    "maximumFunctionComplexity": 20,
+    "sha256": "48bacd0b72b6041cd68cabdebb5c01d00e4bee62bec18735aedb5dbd15629138",
+    "previousBudget": null
+  },
+  {
+    "path": "features/documents/components/document-delivery-preview-footer.tsx",
+    "baselineLines": 84,
+    "maximumLines": 90,
+    "baselineMaxFunctionComplexity": 17,
+    "maximumFunctionComplexity": 18,
+    "sha256": "b8d2710538182ec0786f6440769ee253bac99dfc9a47e4ec3b9e98a88f6ced81",
+    "previousBudget": null
+  }
+]

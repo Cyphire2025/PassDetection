@@ -1,0 +1,89 @@
+{
+  "status": "passed",
+  "archives": [
+    {
+      "path": "docs/audit/dashboard-2026-10-30/document-import-authority-original.py.txt",
+      "sha256": "7b61af41d2d04bef87fff08c24211b35cf26d6684ca5b85581e526feec18b3c8"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/document-import-authority-post-guard.py.txt",
+      "sha256": "1d50220cd5fc48a76d0d4c7cd220ba130e453b60ae66673518a4a4f70a390d2a"
+    }
+  ],
+  "five_whole_declarations_unchanged_from_original_and_post_guard_checkpoint": [
+    "_authorized_passport_document_group",
+    "_passport_document_preview",
+    "_passport_document_upload_sources",
+    "_stage_ocr_for_complete_staff_bundles",
+    "_queue_ocr_for_complete_staff_bundles"
+  ],
+  "mechanical_extraction_phase_preserves_all7_post_guard_definitions_except_one_explicit_populate_existing_snapshot_query": true,
+  "all7_original_args_decorators_evaluated_hints_module_qualname_legacy_pickle_current_pickle_and_facade_aliases": [
+    "_authorized_passport_document_group",
+    "_passport_document_preview",
+    "_passport_document_upload_sources",
+    "preview_passport_documents_by_group",
+    "save_passport_documents_by_group",
+    "_stage_ocr_for_complete_staff_bundles",
+    "_queue_ocr_for_complete_staff_bundles"
+  ],
+  "all_original_imported_objects_preserved_across_focused_owners": [
+    "annotations",
+    "asyncio",
+    "uuid",
+    "partial",
+    "APIRouter",
+    "BackgroundTasks",
+    "Depends",
+    "File",
+    "HTTPException",
+    "UploadFile",
+    "status",
+    "select",
+    "AsyncSession",
+    "PassportSubmissionOutputDTO",
+    "propagate_mobile_passenger_change",
+    "AuthorizationPolicy",
+    "ReextractPassportSubmissionUseCase",
+    "get_logger",
+    "ClientGroup",
+    "User",
+    "UserRole",
+    "AuthorizationError",
+    "PassportImageType",
+    "PassportSubmissionModel",
+    "get_db_session",
+    "run_bounded_storage_operations",
+    "PassportDocumentFile",
+    "PassportDocumentImporter",
+    "PassportDocumentImportWorkspace",
+    "PassportDocumentUploadSource",
+    "RejectedPassportDocument",
+    "PassportProcessingDispatcher",
+    "PassportProcessingJobRepository",
+    "AuditLogRepository",
+    "ClientGroupRepository",
+    "PassportImageCropRepository",
+    "PassportImageLibraryRepository",
+    "PassportSubmissionRepository",
+    "MinioStorageRepository",
+    "PassportDocumentImportItem",
+    "PassportDocumentImportPreviewResponse",
+    "PassportDocumentImportSaveResponse",
+    "get_current_active_user",
+    "require_cookie_csrf",
+    "_staff_code_for_submission",
+    "compensate_failed_document_import",
+    "_delete_unreferenced_passport_image_keys_best_effort"
+  ],
+  "complete_two_route_openapi_and_dependency_callable_identities_exact": true,
+  "deliberate_authority_pipeline_change": [
+    "Initial canonical export check retained",
+    "Native validation/PUT stages followed by fresh canonical actor/state/group/grant admission",
+    "Read transaction rollback precedes external PUT; actor/state/group/grant locks precede scoped target locks",
+    "Source/staff/group compare protects target after removing pre-PUT target lock",
+    "Same image mapping/reset/original-library/AI staging/commit/publication policy, with current actor supplied",
+    "HTTP403/409 guard failures survive existing shielded compensation; ordinary503 text/cancellation preserved"
+  ],
+  "limits": "No claim entire final pipeline is mechanically identical to old unsafe authority ordering. Moving helper code changes source-file introspection location; explicit legacy function module/qualname/pickle identities remain. PostgreSQL SQL compilation/source order is not a live lock/concurrency qualification."
+}

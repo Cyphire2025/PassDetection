@@ -1,0 +1,4337 @@
+{
+  "status": "Automated structure/provenance triage only; manual per-file interpretation pending",
+  "source_manifest_sha256": "c515e6992ca0412e9bb41e898a43ff6503577f39d3077763a5910ee2d6478a86",
+  "records": [
+    {
+      "path": "docs/architecture/group-companion-changed-files.txt",
+      "sha256": "37e3792248f286e3207b308b67a89f3a3f3d018f7c76f6823a47b1f518c49743",
+      "bytes": 16437,
+      "physical_lines": 293,
+      "suffix": ".txt",
+      "line_classes": {
+        "blank": 5,
+        "headings": 1,
+        "pass_summary_lines": 0
+      }
+    },
+    {
+      "path": "docs/engineering-claims.json",
+      "sha256": "c7b94431cb6a5518a5decf74c5e7a670e19caa1eb9b9bbd7db81655abe8606c8",
+      "bytes": 5696,
+      "physical_lines": 122,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "schema_version",
+        "claims"
+      ],
+      "root_items": 2,
+      "declared_historical_metadata": {
+        "schema_version": 1
+      },
+      "root_collection_sizes": {
+        "claims": 7
+      }
+    },
+    {
+      "path": "docs/implementation/companies-returning-travellers-handoff.txt",
+      "sha256": "b54221d4b5193112620170ff818ffceb36280162a836c29d87c2a569ee183402",
+      "bytes": 86165,
+      "physical_lines": 1099,
+      "suffix": ".txt",
+      "line_classes": {
+        "blank": 25,
+        "headings": 0,
+        "pass_summary_lines": 97
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/archived-staff-assets-ffef7eb7-diagnosis-01.json",
+      "sha256": "0f46f5d2e5c3225f504e96341e8376dca2a3ba16370c21f088f60e9538361cf2",
+      "bytes": 2057,
+      "physical_lines": 72,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "after",
+        "backend",
+        "backend_image",
+        "before",
+        "checked_at",
+        "copy_authority",
+        "document_bytes_downloaded",
+        "document_sides",
+        "examined_assets",
+        "head_concurrency",
+        "head_connect_timeout_seconds",
+        "head_max_attempts",
+        "head_read_timeout_seconds",
+        "read_only",
+        "release",
+        "source_head_count",
+        "source_head_limit",
+        "source_head_outcomes",
+        "source_reference_categories",
+        "worker_max_copy_attempts"
+      ],
+      "root_items": 20,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "after": 2,
+        "before": 2,
+        "copy_authority": 1,
+        "document_sides": 1,
+        "source_head_outcomes": 1,
+        "source_reference_categories": 1
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/bluechip-history-observer-ffef7eb7-02.json",
+      "sha256": "874ffa28f126805a3a05c090a824f28640e40e50c9599616c0c7d58875199a8c",
+      "bytes": 6371,
+      "physical_lines": 226,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "backend",
+        "backend_image",
+        "checked_at",
+        "completion",
+        "current_link",
+        "fingerprint_preservation",
+        "group_refresh_jobs",
+        "lock_timeout_seconds",
+        "maximum_remaining_acceptance_sample",
+        "origin_population",
+        "policy",
+        "public_authorization",
+        "read_only",
+        "refresh_audits",
+        "release",
+        "remaining_registration_reasons",
+        "remaining_source_acceptance",
+        "scoped_job_statuses",
+        "source_document_coverage",
+        "source_groups",
+        "staff_rule_assets",
+        "staff_rule_documents",
+        "statement_timeout_seconds",
+        "test_assignments",
+        "test_submissions"
+      ],
+      "root_items": 25,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "completion": 5,
+        "current_link": 1,
+        "fingerprint_preservation": 3,
+        "group_refresh_jobs": 2,
+        "origin_population": 1,
+        "policy": 1,
+        "public_authorization": 1,
+        "refresh_audits": 2,
+        "remaining_registration_reasons": 3,
+        "remaining_source_acceptance": 4,
+        "scoped_job_statuses": 5,
+        "source_document_coverage": 2,
+        "source_groups": 2,
+        "staff_rule_assets": 2,
+        "staff_rule_documents": 2,
+        "test_assignments": 1,
+        "test_submissions": 1
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/bluechip-history-refresh-ffef7eb7.json",
+      "sha256": "cdd3b3952893f3c51df093073daaa6910fc74fdb1059cd858224de09f1f853cc",
+      "bytes": 1579,
+      "physical_lines": 51,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "admitted_group_jobs",
+        "apply_requested",
+        "checked_at",
+        "committed_groups",
+        "group_count",
+        "manifest_sha256",
+        "operation",
+        "origin_source_count",
+        "original_source_unchanged",
+        "prerequisites",
+        "previously_admitted_groups",
+        "ready_for_apply",
+        "release",
+        "remaining_source_gap",
+        "source_groups",
+        "target_source_count"
+      ],
+      "root_items": 16,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "committed_groups": 2,
+        "prerequisites": 6,
+        "source_groups": 2
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/broadcast-import-diagnosis-20261014.json",
+      "sha256": "6603ff66fd2232a0d54ef12880e40814e957b2303831ca109aca91248793626a",
+      "bytes": 4294,
+      "physical_lines": 151,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "cases",
+        "checked_at",
+        "current_link",
+        "identity_dry_run",
+        "import_audit",
+        "jobs",
+        "matching_source_limit",
+        "read_only",
+        "recipient_population",
+        "rejected_metadata",
+        "rejected_population",
+        "target_submissions"
+      ],
+      "root_items": 12,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "cases": 2,
+        "current_link": 1,
+        "identity_dry_run": 12,
+        "import_audit": 0,
+        "jobs": 4,
+        "recipient_population": 1,
+        "rejected_metadata": 1,
+        "rejected_population": 1,
+        "target_submissions": 1
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/broadcast-refresh-postgresql-20261014.json",
+      "sha256": "4827b254d9c341cb58401b8d6c2ff6796eac4e7af855a8bd1ff5944d7e4776ca",
+      "bytes": 1950,
+      "physical_lines": 48,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "admission",
+        "backend_memory_before",
+        "candidate_release_artifact_qualified",
+        "full_ci_qualified",
+        "helper",
+        "kind",
+        "limitation",
+        "maximum_extra_database_connections",
+        "owned_database_and_role_removed",
+        "production_app_source_modified",
+        "production_service_config_modified",
+        "production_tables_modified",
+        "source_sha256",
+        "status",
+        "version"
+      ],
+      "root_items": 15,
+      "declared_historical_metadata": {
+        "status": "passed"
+      },
+      "root_collection_sizes": {
+        "admission": 6,
+        "helper": 6,
+        "source_sha256": 3
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/business-comparison-0bb8de2c.json",
+      "sha256": "cf88c050427df521861f613f78e46a833b655660576ebad9a5f701b786f783ad",
+      "bytes": 2773,
+      "physical_lines": 88,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "all_data_counts",
+        "anonymous_application_boundary",
+        "anonymous_public_boundary",
+        "assigned_without_public_grant",
+        "backend",
+        "backend_image",
+        "baseline_checked_at",
+        "baseline_target_source_count",
+        "checked_at",
+        "checks",
+        "errors",
+        "identity_totals_partial",
+        "incomplete_checks",
+        "origin_source_count_before",
+        "origin_source_count_now",
+        "passed",
+        "pending_copy_count_for_assigned_document",
+        "public_authorization",
+        "queue_counts",
+        "target_source_count"
+      ],
+      "root_items": 20,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "all_data_counts": 2,
+        "anonymous_application_boundary": 2,
+        "anonymous_public_boundary": 2,
+        "checks": 11,
+        "errors": 0,
+        "identity_totals_partial": 2,
+        "incomplete_checks": 0,
+        "public_authorization": 2,
+        "queue_counts": 2
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/capacity-100000-profiles-200000-participations.json",
+      "sha256": "6262a045fb930f3fafed14078f04ae80f6aab9bd99ef89778e985f58b2b9967f",
+      "bytes": 2538,
+      "physical_lines": 97,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "engine",
+        "qualification",
+        "platform",
+        "cpu_logical_count",
+        "python",
+        "profiles",
+        "passports",
+        "participations",
+        "companies",
+        "groups",
+        "large_group_participations",
+        "concurrent_readers",
+        "duration_seconds",
+        "seed_seconds",
+        "peak_working_set_bytes",
+        "database_bytes",
+        "error_count",
+        "measurements",
+        "query_plans",
+        "not_tested"
+      ],
+      "root_items": 20,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "measurements": 4,
+        "query_plans": 4,
+        "not_tested": 8
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/capacity-50000-profiles-100000-participations.json",
+      "sha256": "d08b822165d0c235aa66b803cb84842eb137e19844b59ed2324be8d5925e050e",
+      "bytes": 2533,
+      "physical_lines": 97,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "engine",
+        "qualification",
+        "platform",
+        "cpu_logical_count",
+        "python",
+        "profiles",
+        "passports",
+        "participations",
+        "companies",
+        "groups",
+        "large_group_participations",
+        "concurrent_readers",
+        "duration_seconds",
+        "seed_seconds",
+        "peak_working_set_bytes",
+        "database_bytes",
+        "error_count",
+        "measurements",
+        "query_plans",
+        "not_tested"
+      ],
+      "root_items": 20,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "measurements": 4,
+        "query_plans": 4,
+        "not_tested": 8
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/ci-security-patch-followup.txt",
+      "sha256": "1a407dccee504ed2211a96536570f3d7fcfafc707f957db54f2bb4064f8fae13",
+      "bytes": 9943,
+      "physical_lines": 144,
+      "suffix": ".txt",
+      "line_classes": {
+        "blank": 5,
+        "headings": 0,
+        "pass_summary_lines": 20
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/company-all-data-100000-people.json",
+      "sha256": "f1083005704423134ff4a585b5b385ea31d3b862992c20490050b7eadfe08975",
+      "bytes": 38209,
+      "physical_lines": 194,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "dataset",
+        "runtime",
+        "seed_batch_size",
+        "seed_seconds",
+        "concurrent_readers",
+        "elapsed_seconds",
+        "errors",
+        "max_records_returned",
+        "database_bytes",
+        "peak_working_set_bytes",
+        "first_page_query_count",
+        "read_query_total",
+        "export",
+        "budgets",
+        "read_budgets_met",
+        "latencies",
+        "query_plans",
+        "limitations"
+      ],
+      "root_items": 18,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "dataset": 4,
+        "runtime": 3,
+        "export": 8,
+        "budgets": 6,
+        "latencies": 3,
+        "query_plans": 16,
+        "limitations": 6
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/company-records-100k-after-query-optimization.json",
+      "sha256": "54d99def4c0b06d48ba06b321caad1a937b79abfe1ba1cd703db9e207826f313",
+      "bytes": 24134,
+      "physical_lines": 197,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "dataset",
+        "runtime",
+        "seed_batch_size",
+        "seed_seconds",
+        "concurrent_readers",
+        "elapsed_seconds",
+        "errors",
+        "max_records_returned",
+        "database_bytes",
+        "peak_working_set_bytes",
+        "summary_single_sample_ms",
+        "latencies",
+        "query_plans",
+        "limitations"
+      ],
+      "root_items": 14,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "dataset": 3,
+        "runtime": 3,
+        "latencies": 3,
+        "query_plans": 4,
+        "limitations": 4
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/company-records-100k-before-query-optimization.json",
+      "sha256": "367a332e2309c7a593c4bf0b2259873be1702842809af3dfb59cd53ef24aab8a",
+      "bytes": 6736,
+      "physical_lines": 78,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "dataset",
+        "runtime",
+        "seed_batch_size",
+        "seed_seconds",
+        "concurrent_readers",
+        "elapsed_seconds",
+        "errors",
+        "max_records_returned",
+        "database_bytes",
+        "peak_working_set_bytes",
+        "latencies",
+        "query_plans",
+        "limitations"
+      ],
+      "root_items": 13,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "dataset": 3,
+        "runtime": 3,
+        "latencies": 3,
+        "query_plans": 4,
+        "limitations": 4
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/fast-release-0bb8de2c.json",
+      "sha256": "81e6f675623a779d45ccc2fd7586ed47798de09dcb1a3e7643b8ba57e9b260b4",
+      "bytes": 3196,
+      "physical_lines": 79,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "additive_release",
+        "all_prior_resources_retained",
+        "automatic_downgrade",
+        "backend_api_contract_sha256",
+        "backup_archive_listing_recorded",
+        "builds",
+        "completion_receipt_sha256",
+        "full_ci_qualified",
+        "images",
+        "limits",
+        "migrations_run",
+        "mode",
+        "previous_revision",
+        "resources",
+        "runtime_inherited_from_previous_images",
+        "same_schema_release",
+        "schema",
+        "source_revision",
+        "status"
+      ],
+      "root_items": 19,
+      "declared_historical_metadata": {
+        "status": "complete",
+        "source_revision": "0bb8de2c6cb260c34f4ba966309f938708ae8841"
+      },
+      "root_collection_sizes": {
+        "builds": 2,
+        "images": 2,
+        "limits": 4,
+        "resources": 8
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/fast-release-0e596846.json",
+      "sha256": "3a465570b7e5028c021173d8e0e7d4897d925873d88a402395ec7f861e4edde1",
+      "bytes": 2717,
+      "physical_lines": 55,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "all_prior_resources_retained",
+        "automatic_downgrade",
+        "backend_api_contract_sha256",
+        "backend_image_id",
+        "completion_receipt_sha256",
+        "dockerfile_native_security_changes_applied",
+        "existing_migration_identity_preflight_verified",
+        "frontend_image_id",
+        "full_ci_qualified",
+        "limits",
+        "live_migration_validation_recorded",
+        "migration_helper_credentials_excluded_from_journal",
+        "mode",
+        "phase",
+        "rehearsal",
+        "rehearsal_receipt_sha256",
+        "runtime_inherited_from_previous_images",
+        "schema",
+        "source_contract_sha256",
+        "source_revision",
+        "status"
+      ],
+      "root_items": 21,
+      "declared_historical_metadata": {
+        "status": "complete",
+        "source_revision": "0e596846f85ec3dbf87cbc70a581b8902e7a2c0c"
+      },
+      "root_collection_sizes": {
+        "limits": 3,
+        "rehearsal": 13
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/fast-release-10914d09.json",
+      "sha256": "39b4ad8b2ec4b4dd6fc84a3366a891202d55ca946821d34eb663e318c4f9d397",
+      "bytes": 3198,
+      "physical_lines": 79,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "additive_release",
+        "all_prior_resources_retained",
+        "automatic_downgrade",
+        "backend_api_contract_sha256",
+        "backup_archive_listing_recorded",
+        "builds",
+        "completion_receipt_sha256",
+        "full_ci_qualified",
+        "images",
+        "limits",
+        "migrations_run",
+        "mode",
+        "previous_revision",
+        "resources",
+        "runtime_inherited_from_previous_images",
+        "same_schema_release",
+        "schema",
+        "source_revision",
+        "status"
+      ],
+      "root_items": 19,
+      "declared_historical_metadata": {
+        "status": "complete",
+        "source_revision": "10914d09fb858bf37e2c9a1c7e7c373a452c5d08"
+      },
+      "root_collection_sizes": {
+        "builds": 2,
+        "images": 2,
+        "limits": 4,
+        "resources": 8
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/fast-release-490b5ade.json",
+      "sha256": "d1ca289c266ba5d3449069b62ea64ac11c79bd76f8ee061944e2c3ef5c7e5777",
+      "bytes": 3196,
+      "physical_lines": 79,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "additive_release",
+        "all_prior_resources_retained",
+        "automatic_downgrade",
+        "backend_api_contract_sha256",
+        "backup_archive_listing_recorded",
+        "builds",
+        "completion_receipt_sha256",
+        "full_ci_qualified",
+        "images",
+        "limits",
+        "migrations_run",
+        "mode",
+        "previous_revision",
+        "resources",
+        "runtime_inherited_from_previous_images",
+        "same_schema_release",
+        "schema",
+        "source_revision",
+        "status"
+      ],
+      "root_items": 19,
+      "declared_historical_metadata": {
+        "status": "complete",
+        "source_revision": "490b5ade5aeb221534894f8bf621d983cac82137"
+      },
+      "root_collection_sizes": {
+        "builds": 2,
+        "images": 2,
+        "limits": 4,
+        "resources": 8
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/fast-release-a58b17dc.json",
+      "sha256": "c1439df7646d144a5aaaf7cf7173c64ebfe9d4af624fb79236875f5361070f08",
+      "bytes": 3196,
+      "physical_lines": 79,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "additive_release",
+        "all_prior_resources_retained",
+        "automatic_downgrade",
+        "backend_api_contract_sha256",
+        "backup_archive_listing_recorded",
+        "builds",
+        "completion_receipt_sha256",
+        "full_ci_qualified",
+        "images",
+        "limits",
+        "migrations_run",
+        "mode",
+        "previous_revision",
+        "resources",
+        "runtime_inherited_from_previous_images",
+        "same_schema_release",
+        "schema",
+        "source_revision",
+        "status"
+      ],
+      "root_items": 19,
+      "declared_historical_metadata": {
+        "status": "complete",
+        "source_revision": "a58b17dc3dc2ec004608f91817db5954b34e0dea"
+      },
+      "root_collection_sizes": {
+        "builds": 2,
+        "images": 2,
+        "limits": 4,
+        "resources": 8
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/fast-release-a8345cb2.json",
+      "sha256": "4487d387f191635b83f15765000cdd19fa15f4b45fa8a56422e10100116dc04f",
+      "bytes": 3588,
+      "physical_lines": 70,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "all_prior_resources_retained",
+        "automatic_downgrade",
+        "backend_api_contract_sha256",
+        "backend_image_id",
+        "completion_receipt_sha256",
+        "dockerfile_native_security_changes_applied",
+        "existing_migration_identity_preflight_verified",
+        "frontend_image_id",
+        "full_ci_qualified",
+        "limits",
+        "live_migration_validation_recorded",
+        "migration_helper_credentials_excluded_from_journal",
+        "mode",
+        "phase",
+        "rehearsal",
+        "rehearsal_receipt_sha256",
+        "release_policy_version",
+        "runtime_inherited_from_previous_images",
+        "schema",
+        "source_contract_sha256",
+        "source_revision",
+        "source_schema",
+        "status"
+      ],
+      "root_items": 23,
+      "declared_historical_metadata": {
+        "status": "complete",
+        "source_revision": "a8345cb2b021b0d099c08c022685aded9a3727dc"
+      },
+      "root_collection_sizes": {
+        "limits": 4,
+        "rehearsal": 19
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/fast-release-ffef7eb7.json",
+      "sha256": "713777751704672e4914b50392168b7667403b263378106a5e3ca2823f34b1f4",
+      "bytes": 3196,
+      "physical_lines": 79,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "additive_release",
+        "all_prior_resources_retained",
+        "automatic_downgrade",
+        "backend_api_contract_sha256",
+        "backup_archive_listing_recorded",
+        "builds",
+        "completion_receipt_sha256",
+        "full_ci_qualified",
+        "images",
+        "limits",
+        "migrations_run",
+        "mode",
+        "previous_revision",
+        "resources",
+        "runtime_inherited_from_previous_images",
+        "same_schema_release",
+        "schema",
+        "source_revision",
+        "status"
+      ],
+      "root_items": 19,
+      "declared_historical_metadata": {
+        "status": "complete",
+        "source_revision": "ffef7eb76c6576ddd2ac49b4dca42d3dad0229e4"
+      },
+      "root_collection_sizes": {
+        "builds": 2,
+        "images": 2,
+        "limits": 4,
+        "resources": 8
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/frontend-contract-audit.txt",
+      "sha256": "5cfba9c87af4293da70879aecc4027137308591880b47cd10f84aabf61e82339",
+      "bytes": 3549,
+      "physical_lines": 61,
+      "suffix": ".txt",
+      "line_classes": {
+        "blank": 4,
+        "headings": 0,
+        "pass_summary_lines": 0
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/frontend-release-verification.txt",
+      "sha256": "f204bbe29ea27c0342c9765fab9eb26fa72e76b62debe0a73b61827d30a218cb",
+      "bytes": 4661,
+      "physical_lines": 75,
+      "suffix": ".txt",
+      "line_classes": {
+        "blank": 4,
+        "headings": 0,
+        "pass_summary_lines": 1
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/history-worker-postgresql-20261014.json",
+      "sha256": "02684fb959b6061716a24425553c12c0dbe5ce2f147ecd136462014069876e62",
+      "bytes": 2148,
+      "physical_lines": 52,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "admission",
+        "backend_memory_before",
+        "candidate_release_artifact_qualified",
+        "full_ci_qualified",
+        "helper",
+        "kind",
+        "limitation",
+        "maximum_extra_database_connections",
+        "owned_database_and_role_removed",
+        "production_app_source_modified",
+        "production_service_config_modified",
+        "production_tables_modified",
+        "source_sha256",
+        "status",
+        "version"
+      ],
+      "root_items": 15,
+      "declared_historical_metadata": {
+        "status": "passed"
+      },
+      "root_collection_sizes": {
+        "admission": 6,
+        "helper": 6,
+        "source_sha256": 5
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/http-smoke-10914d09.json",
+      "sha256": "ea28356d6e66aefadc1db1a368206abff3514ded532af230acebbac2438604e4",
+      "bytes": 4090,
+      "physical_lines": 148,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "browser_hydrated",
+        "budgets",
+        "checks",
+        "credentials_used",
+        "expected_revision",
+        "full_ci_qualified",
+        "method",
+        "not_verified",
+        "origin",
+        "requests_sent",
+        "response_bytes_budget_charged",
+        "skipped",
+        "status",
+        "successful_response_bytes",
+        "version"
+      ],
+      "root_items": 15,
+      "declared_historical_metadata": {
+        "status": "limited_smoke_passed"
+      },
+      "root_collection_sizes": {
+        "budgets": 4,
+        "checks": 12,
+        "not_verified": 5,
+        "skipped": 2
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/http-smoke-490b5ade.json",
+      "sha256": "5873526435e59cca85492965fb93bd6a26b63ff2e4058d470d1aa21ca405e94c",
+      "bytes": 4083,
+      "physical_lines": 148,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "browser_hydrated",
+        "budgets",
+        "checks",
+        "credentials_used",
+        "expected_revision",
+        "full_ci_qualified",
+        "method",
+        "not_verified",
+        "origin",
+        "requests_sent",
+        "response_bytes_budget_charged",
+        "skipped",
+        "status",
+        "successful_response_bytes",
+        "version"
+      ],
+      "root_items": 15,
+      "declared_historical_metadata": {
+        "status": "limited_smoke_passed"
+      },
+      "root_collection_sizes": {
+        "budgets": 4,
+        "checks": 12,
+        "not_verified": 5,
+        "skipped": 2
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/http-smoke-a58b17dc.json",
+      "sha256": "8a6211cea4821823702efb02683fd655e719f4bf0604262cbad100fa4cb4adc4",
+      "bytes": 4081,
+      "physical_lines": 148,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "browser_hydrated",
+        "budgets",
+        "checks",
+        "credentials_used",
+        "expected_revision",
+        "full_ci_qualified",
+        "method",
+        "not_verified",
+        "origin",
+        "requests_sent",
+        "response_bytes_budget_charged",
+        "skipped",
+        "status",
+        "successful_response_bytes",
+        "version"
+      ],
+      "root_items": 15,
+      "declared_historical_metadata": {
+        "status": "limited_smoke_passed"
+      },
+      "root_collection_sizes": {
+        "budgets": 4,
+        "checks": 12,
+        "not_verified": 5,
+        "skipped": 2
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/http-smoke-a8345cb2.json",
+      "sha256": "df937926c1773e8fbcce3725daf7d53654ff0ef1204ac3422fbae9f012b4f3af",
+      "bytes": 4089,
+      "physical_lines": 148,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "browser_hydrated",
+        "budgets",
+        "checks",
+        "credentials_used",
+        "expected_revision",
+        "full_ci_qualified",
+        "method",
+        "not_verified",
+        "origin",
+        "requests_sent",
+        "response_bytes_budget_charged",
+        "skipped",
+        "status",
+        "successful_response_bytes",
+        "version"
+      ],
+      "root_items": 15,
+      "declared_historical_metadata": {
+        "status": "limited_smoke_passed"
+      },
+      "root_collection_sizes": {
+        "budgets": 4,
+        "checks": 12,
+        "not_verified": 5,
+        "skipped": 2
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/http-smoke-ffef7eb7.json",
+      "sha256": "05a4be7ffdaf3751fa6a99ab8aac86731cfbe5df96df4e05975da0610e3c939f",
+      "bytes": 4087,
+      "physical_lines": 148,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "browser_hydrated",
+        "budgets",
+        "checks",
+        "credentials_used",
+        "expected_revision",
+        "full_ci_qualified",
+        "method",
+        "not_verified",
+        "origin",
+        "requests_sent",
+        "response_bytes_budget_charged",
+        "skipped",
+        "status",
+        "successful_response_bytes",
+        "version"
+      ],
+      "root_items": 15,
+      "declared_historical_metadata": {
+        "status": "limited_smoke_passed"
+      },
+      "root_collection_sizes": {
+        "budgets": 4,
+        "checks": 12,
+        "not_verified": 5,
+        "skipped": 2
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/live-broadcast-import-490b5ade-01.json",
+      "sha256": "144806291957737c870e78d6209f93dc12b4e07e66c24eaafc894123ab4789c0",
+      "bytes": 5535,
+      "physical_lines": 193,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "cases",
+        "checked_at",
+        "current_link",
+        "identity_dry_run",
+        "import_audit",
+        "jobs",
+        "matching_source_limit",
+        "read_only",
+        "recipient_population",
+        "rejected_metadata",
+        "rejected_population",
+        "target_detail_counts",
+        "target_submissions",
+        "valid_assignment_outcomes"
+      ],
+      "root_items": 14,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "cases": 4,
+        "current_link": 1,
+        "identity_dry_run": 12,
+        "import_audit": 0,
+        "jobs": 5,
+        "recipient_population": 1,
+        "rejected_metadata": 1,
+        "rejected_population": 1,
+        "target_detail_counts": 1,
+        "target_submissions": 1,
+        "valid_assignment_outcomes": 1
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/live-history-business-490b5ade-comparison.json",
+      "sha256": "8ab52f76d580175f6d7e819b664c9eb93adbc03db5a6357df4be804953d4a7bc",
+      "bytes": 2770,
+      "physical_lines": 88,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "all_data_counts",
+        "anonymous_application_boundary",
+        "anonymous_public_boundary",
+        "assigned_without_public_grant",
+        "backend",
+        "backend_image",
+        "baseline_checked_at",
+        "baseline_target_source_count",
+        "checked_at",
+        "checks",
+        "errors",
+        "identity_totals_partial",
+        "incomplete_checks",
+        "origin_source_count_before",
+        "origin_source_count_now",
+        "passed",
+        "pending_copy_count_for_assigned_document",
+        "public_authorization",
+        "queue_counts",
+        "target_source_count"
+      ],
+      "root_items": 20,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "all_data_counts": 2,
+        "anonymous_application_boundary": 2,
+        "anonymous_public_boundary": 2,
+        "checks": 11,
+        "errors": 0,
+        "identity_totals_partial": 2,
+        "incomplete_checks": 0,
+        "public_authorization": 2,
+        "queue_counts": 2
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/live-history-business-a58b17dc.json",
+      "sha256": "fe6321b1051891922085ef7a391abd2267156e212db760fec6894b70ad64720d",
+      "bytes": 3648,
+      "physical_lines": 109,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "all_data_counts",
+        "anonymous_application_boundary",
+        "anonymous_public_boundary",
+        "assigned_without_public_grant",
+        "backend",
+        "backend_image",
+        "baseline_checked_at",
+        "baseline_target_source_count",
+        "checked_at",
+        "checks",
+        "errors",
+        "final_asset_check",
+        "identity_totals_partial",
+        "incomplete_checks",
+        "limits",
+        "link_chronology_utc",
+        "origin_source_count_before",
+        "origin_source_count_now",
+        "passed",
+        "pending_copy_count_for_assigned_document",
+        "public_authorization",
+        "queue_counts",
+        "target_source_count"
+      ],
+      "root_items": 23,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "all_data_counts": 2,
+        "anonymous_application_boundary": 2,
+        "anonymous_public_boundary": 2,
+        "checks": 11,
+        "errors": 0,
+        "final_asset_check": 2,
+        "identity_totals_partial": 2,
+        "incomplete_checks": 0,
+        "limits": 3,
+        "link_chronology_utc": 4,
+        "public_authorization": 2,
+        "queue_counts": 2
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/live-history-business-ffef7eb7-comparison.json",
+      "sha256": "c44670fb24c1ac7238edc2320cb982896f165ede4b80de6aade410b23e451a07",
+      "bytes": 2954,
+      "physical_lines": 98,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "all_data_counts",
+        "anonymous_application_boundary",
+        "anonymous_public_boundary",
+        "assigned_without_public_grant",
+        "backend",
+        "backend_image",
+        "baseline_checked_at",
+        "baseline_target_source_count",
+        "checked_at",
+        "checks",
+        "errors",
+        "identity_totals_partial",
+        "incomplete_checks",
+        "origin_source_count_before",
+        "origin_source_count_now",
+        "passed",
+        "pending_copy_count_for_assigned_document",
+        "public_authorization",
+        "queue_counts",
+        "target_source_count"
+      ],
+      "root_items": 20,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "all_data_counts": 2,
+        "anonymous_application_boundary": 2,
+        "anonymous_public_boundary": 2,
+        "checks": 11,
+        "errors": 0,
+        "identity_totals_partial": 2,
+        "incomplete_checks": 0,
+        "public_authorization": 2,
+        "queue_counts": 4
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/live-import-parser-490b5ade.json",
+      "sha256": "d2cb13cac4457c43ab891fefa13bdd4fce9488ba7dd5c7a9a52f61497745c6ed",
+      "bytes": 780,
+      "physical_lines": 29,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "database_access",
+        "passed",
+        "provider_calls",
+        "results",
+        "running_backend_image",
+        "synthetic_only"
+      ],
+      "root_items": 6,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "results": 2
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/live-release-0bb8de2c.json",
+      "sha256": "1f34506df44be833674c920f718b7b997fab7584eedf0c9d40092cf148a7a8ea",
+      "bytes": 4633,
+      "physical_lines": 173,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "candidate_image_ids_verified",
+        "feature_assets_in_running_container",
+        "full_ci_qualified",
+        "independent_reuse_keys_present",
+        "not_verified",
+        "public_readiness",
+        "public_requests_sent",
+        "reuse_configuration_identical_across_writers",
+        "revision",
+        "schema",
+        "served_frontend_asset",
+        "services",
+        "status",
+        "technical_disclosure_enabled"
+      ],
+      "root_items": 14,
+      "declared_historical_metadata": {
+        "status": "postdeploy_metadata_verified",
+        "revision": "0bb8de2c6cb260c34f4ba966309f938708ae8841"
+      },
+      "root_collection_sizes": {
+        "candidate_image_ids_verified": 2,
+        "feature_assets_in_running_container": 5,
+        "not_verified": 3,
+        "served_frontend_asset": 2,
+        "services": 20
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/live-replacement-reasons-490b5ade-04.json",
+      "sha256": "98928ba686a1ec2bd50cf1155fafa7be711238bc3a18b2c77a77cccf4d4debed",
+      "bytes": 2163,
+      "physical_lines": 69,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "ai_field_proof",
+        "case_count",
+        "case_limit",
+        "checked_at",
+        "current_source_acceptance",
+        "expiry_classification",
+        "historical_registration_reasons",
+        "historical_source_flags",
+        "historical_source_statuses",
+        "nonblocking_additional_requirements",
+        "origin_source_count",
+        "original_source_unchanged",
+        "read_only",
+        "replacement_gates",
+        "retained_asset_statuses",
+        "retained_provenance",
+        "staff_review_evidence",
+        "suitability_reason_counts",
+        "target_source_count"
+      ],
+      "root_items": 19,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "ai_field_proof": 6,
+        "current_source_acceptance": 1,
+        "expiry_classification": 1,
+        "historical_registration_reasons": 1,
+        "historical_source_flags": 15,
+        "historical_source_statuses": 1,
+        "nonblocking_additional_requirements": 0,
+        "replacement_gates": 1,
+        "retained_asset_statuses": 0,
+        "retained_provenance": 0,
+        "staff_review_evidence": 14,
+        "suitability_reason_counts": 0
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/live-staff-compatibility-scope-490b5ade-02.json",
+      "sha256": "279ac7f487ade4b73059e4daa76547908e3b1775770fec4a39948f1a2e5ed085",
+      "bytes": 1911,
+      "physical_lines": 51,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "candidate_code_only",
+        "candidate_rule_sha256",
+        "checked_at",
+        "companies",
+        "maximum_candidate_rows_per_company",
+        "maximum_companies",
+        "read_only",
+        "source_page_size"
+      ],
+      "root_items": 8,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "companies": 2
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/live-staff-review-remaining-ffef7eb7-03.json",
+      "sha256": "0170ff37e79d6829676b53d66ff310b732dedb032c24c7258985f695dfa74621",
+      "bytes": 3447,
+      "physical_lines": 105,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "backend",
+        "backend_image",
+        "checked_at",
+        "directory_access",
+        "identity_review_sample",
+        "identity_sample_limit",
+        "owner_conflict_context",
+        "read_only",
+        "review_dob_format_aggregate",
+        "review_state"
+      ],
+      "root_items": 10,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "directory_access": 1,
+        "identity_review_sample": 7,
+        "owner_conflict_context": 1,
+        "review_dob_format_aggregate": 1,
+        "review_state": 4
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/live-verification-0e596846.json",
+      "sha256": "96590526d8ea652092ed1a0481b6f39fadf646212c072f1c8a43f01491978e53",
+      "bytes": 4560,
+      "physical_lines": 170,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "candidate_image_ids_verified",
+        "feature_assets_in_running_container",
+        "full_ci_qualified",
+        "independent_reuse_keys_present",
+        "not_verified",
+        "public_readiness",
+        "public_requests_sent",
+        "reuse_configuration_identical_across_writers",
+        "revision",
+        "schema",
+        "served_frontend_asset",
+        "services",
+        "status",
+        "technical_disclosure_enabled"
+      ],
+      "root_items": 14,
+      "declared_historical_metadata": {
+        "status": "postdeploy_metadata_verified",
+        "revision": "0e596846f85ec3dbf87cbc70a581b8902e7a2c0c"
+      },
+      "root_collection_sizes": {
+        "candidate_image_ids_verified": 2,
+        "feature_assets_in_running_container": 2,
+        "not_verified": 3,
+        "served_frontend_asset": 2,
+        "services": 20
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/live-verification-10914d09.json",
+      "sha256": "1fc384bc3713cfb89d46b1745c20cc84d9336c656a1cba9009a95808560a65c4",
+      "bytes": 4617,
+      "physical_lines": 172,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "candidate_image_ids_verified",
+        "feature_assets_in_running_container",
+        "full_ci_qualified",
+        "independent_reuse_keys_present",
+        "not_verified",
+        "public_readiness",
+        "public_requests_sent",
+        "reuse_configuration_identical_across_writers",
+        "revision",
+        "schema",
+        "served_frontend_asset",
+        "services",
+        "status",
+        "technical_disclosure_enabled"
+      ],
+      "root_items": 14,
+      "declared_historical_metadata": {
+        "status": "postdeploy_metadata_verified",
+        "revision": "10914d09fb858bf37e2c9a1c7e7c373a452c5d08"
+      },
+      "root_collection_sizes": {
+        "candidate_image_ids_verified": 2,
+        "feature_assets_in_running_container": 4,
+        "not_verified": 3,
+        "served_frontend_asset": 2,
+        "services": 20
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/live-verification-490b5ade.json",
+      "sha256": "5c4488ecb5ba6764a7d115e4018b08e589e0f7ecddf5c1cd1697e4853cb065cb",
+      "bytes": 4633,
+      "physical_lines": 173,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "candidate_image_ids_verified",
+        "feature_assets_in_running_container",
+        "full_ci_qualified",
+        "independent_reuse_keys_present",
+        "not_verified",
+        "public_readiness",
+        "public_requests_sent",
+        "reuse_configuration_identical_across_writers",
+        "revision",
+        "schema",
+        "served_frontend_asset",
+        "services",
+        "status",
+        "technical_disclosure_enabled"
+      ],
+      "root_items": 14,
+      "declared_historical_metadata": {
+        "status": "postdeploy_metadata_verified",
+        "revision": "490b5ade5aeb221534894f8bf621d983cac82137"
+      },
+      "root_collection_sizes": {
+        "candidate_image_ids_verified": 2,
+        "feature_assets_in_running_container": 5,
+        "not_verified": 3,
+        "served_frontend_asset": 2,
+        "services": 20
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/live-verification-a58b17dc.json",
+      "sha256": "118772e2f09b8ed9b9d9245809f5781d57ef8d1499077c01ec54cef0f0ffa993",
+      "bytes": 4633,
+      "physical_lines": 173,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "candidate_image_ids_verified",
+        "feature_assets_in_running_container",
+        "full_ci_qualified",
+        "independent_reuse_keys_present",
+        "not_verified",
+        "public_readiness",
+        "public_requests_sent",
+        "reuse_configuration_identical_across_writers",
+        "revision",
+        "schema",
+        "served_frontend_asset",
+        "services",
+        "status",
+        "technical_disclosure_enabled"
+      ],
+      "root_items": 14,
+      "declared_historical_metadata": {
+        "status": "postdeploy_metadata_verified",
+        "revision": "a58b17dc3dc2ec004608f91817db5954b34e0dea"
+      },
+      "root_collection_sizes": {
+        "candidate_image_ids_verified": 2,
+        "feature_assets_in_running_container": 5,
+        "not_verified": 3,
+        "served_frontend_asset": 2,
+        "services": 20
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/live-verification-a8345cb2.json",
+      "sha256": "7cc7e4dd65a30042abc45831d100052f3bfc144539b6c8e990c6440f1160cbdc",
+      "bytes": 4633,
+      "physical_lines": 173,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "candidate_image_ids_verified",
+        "feature_assets_in_running_container",
+        "full_ci_qualified",
+        "independent_reuse_keys_present",
+        "not_verified",
+        "public_readiness",
+        "public_requests_sent",
+        "reuse_configuration_identical_across_writers",
+        "revision",
+        "schema",
+        "served_frontend_asset",
+        "services",
+        "status",
+        "technical_disclosure_enabled"
+      ],
+      "root_items": 14,
+      "declared_historical_metadata": {
+        "status": "postdeploy_metadata_verified",
+        "revision": "a8345cb2b021b0d099c08c022685aded9a3727dc"
+      },
+      "root_collection_sizes": {
+        "candidate_image_ids_verified": 2,
+        "feature_assets_in_running_container": 5,
+        "not_verified": 3,
+        "served_frontend_asset": 2,
+        "services": 20
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/live-verification-ffef7eb7.json",
+      "sha256": "01fed4d92a8fcfc5699e2d76d48f9d0f1c3e3824113039e698f7dc1093bad5eb",
+      "bytes": 4633,
+      "physical_lines": 173,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "candidate_image_ids_verified",
+        "feature_assets_in_running_container",
+        "full_ci_qualified",
+        "independent_reuse_keys_present",
+        "not_verified",
+        "public_readiness",
+        "public_requests_sent",
+        "reuse_configuration_identical_across_writers",
+        "revision",
+        "schema",
+        "served_frontend_asset",
+        "services",
+        "status",
+        "technical_disclosure_enabled"
+      ],
+      "root_items": 14,
+      "declared_historical_metadata": {
+        "status": "postdeploy_metadata_verified",
+        "revision": "ffef7eb76c6576ddd2ac49b4dca42d3dad0229e4"
+      },
+      "root_collection_sizes": {
+        "candidate_image_ids_verified": 2,
+        "feature_assets_in_running_container": 5,
+        "not_verified": 3,
+        "served_frontend_asset": 2,
+        "services": 20
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/public-smoke-0bb8de2c.json",
+      "sha256": "ac9540fc7203b4af05c1082a6b87f5ff404c79cf7f14b96859f762e7fa9e2083",
+      "bytes": 4090,
+      "physical_lines": 148,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "browser_hydrated",
+        "budgets",
+        "checks",
+        "credentials_used",
+        "expected_revision",
+        "full_ci_qualified",
+        "method",
+        "not_verified",
+        "origin",
+        "requests_sent",
+        "response_bytes_budget_charged",
+        "skipped",
+        "status",
+        "successful_response_bytes",
+        "version"
+      ],
+      "root_items": 15,
+      "declared_historical_metadata": {
+        "status": "limited_smoke_passed"
+      },
+      "root_collection_sizes": {
+        "budgets": 4,
+        "checks": 12,
+        "not_verified": 5,
+        "skipped": 2
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/regression-staff-reuse-ffef7eb7.json",
+      "sha256": "c901c882b7510006078de8178950bf21fdca813858199a5f7f0f26030f431245",
+      "bytes": 1822,
+      "physical_lines": 48,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "source_revision",
+        "verification_date",
+        "selected_regression_suite",
+        "independent_helper_coverage",
+        "static_checks",
+        "limits"
+      ],
+      "root_items": 6,
+      "declared_historical_metadata": {
+        "source_revision": "ffef7eb76c6576ddd2ac49b4dca42d3dad0229e4"
+      },
+      "root_collection_sizes": {
+        "selected_regression_suite": 4,
+        "independent_helper_coverage": 2,
+        "static_checks": 5,
+        "limits": 6
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/regression-test200-correction.json",
+      "sha256": "caa1876a8d927c16e2b8863cae72227a6e61cf32acafed3d200736836042ca70",
+      "bytes": 4350,
+      "physical_lines": 144,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "selected_test_files",
+        "current_selected_tests",
+        "latest_results_passed",
+        "unverified_current_tests",
+        "runs",
+        "coverage_of_changed_modules",
+        "coverage_floor_failures",
+        "full_ci_qualified",
+        "note"
+      ],
+      "root_items": 9,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "unverified_current_tests": 0,
+        "runs": 3,
+        "coverage_of_changed_modules": 22,
+        "coverage_floor_failures": 0
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/requested-client-removal-a8345cb2.json",
+      "sha256": "d21331f7cfc4c8d68bfdcdf9a1f6b1da624ba37fbb968e5a9d82468720e5a201",
+      "bytes": 4301,
+      "physical_lines": 1,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "automatic_provider_actions",
+        "clients",
+        "deleted_client_entries",
+        "detached_groups",
+        "hard_deleted_rows",
+        "preservation_verified",
+        "preserved",
+        "preview_sha256",
+        "revision",
+        "schema",
+        "status"
+      ],
+      "root_items": 11,
+      "declared_historical_metadata": {
+        "status": "applied",
+        "revision": "a8345cb2b021b0d099c08c022685aded9a3727dc"
+      },
+      "root_collection_sizes": {
+        "clients": 3,
+        "preserved": 30
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/staff-repair-ffef7eb7.json",
+      "sha256": "ce02231965e4b9beef85887a1942dd53565bef91ad65c3e7a311c2a3a1caaec6",
+      "bytes": 899,
+      "physical_lines": 28,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "admitted_source_jobs",
+        "all_source_fingerprints_unchanged",
+        "apply_requested",
+        "case_states",
+        "checked_at",
+        "current_staff_audits_verified",
+        "downstream_roster",
+        "job_status_counts",
+        "manifest_sha256",
+        "operation",
+        "origin_source_count",
+        "original_source_unchanged",
+        "previously_admitted",
+        "ready_for_apply",
+        "release",
+        "source_acceptance",
+        "source_count",
+        "target_source_count",
+        "transaction_committed",
+        "valid_recipients"
+      ],
+      "root_items": 20,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "case_states": 1,
+        "job_status_counts": 1,
+        "source_acceptance": 1
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/test-roster-repair-490b5ade.json",
+      "sha256": "7e6b1e345a7c91bfb821c23c18f04c5a3be7827156dd05e1b5996decb2f728de",
+      "bytes": 621,
+      "physical_lines": 17,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "admitted",
+        "apply_requested",
+        "checked_at",
+        "job_before_created",
+        "job_before_status",
+        "job_created",
+        "job_id",
+        "job_status",
+        "link_unchanged",
+        "operation",
+        "original_source_unchanged",
+        "previously_admitted",
+        "release",
+        "transaction_committed",
+        "valid_recipients"
+      ],
+      "root_items": 15,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {}
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/test200-candidate-readonly.json",
+      "sha256": "9f4138cc4fdea783533190adad2e8d2b004437ba651a24cdc01e1fac8325eae3",
+      "bytes": 1082,
+      "physical_lines": 34,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "checked_at",
+        "read_only",
+        "live_revision_at_probe",
+        "candidate_overlay_isolated_to_process",
+        "exact_source_and_recipient_hmacs_verified",
+        "expected_identity_matches",
+        "exact_name_matches",
+        "corroborated_partial_name_matches",
+        "accepted_original_sources",
+        "existing_passports_selecting_real_source_version",
+        "available_assets_per_selected_passport",
+        "sources_needing_normal_enrollment",
+        "query_count_measured",
+        "selector_execution_ms_min",
+        "selector_execution_ms_max",
+        "indexes",
+        "limits"
+      ],
+      "root_items": 17,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "available_assets_per_selected_passport": 6,
+        "indexes": 4,
+        "limits": 2
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/test200-recovery-0bb8de2c.json",
+      "sha256": "0cffbd59983b6255d811e48212fc0f2cf7916c19a482853e1f5d0c6e7ef834f7",
+      "bytes": 2520,
+      "physical_lines": 73,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "release",
+        "admission",
+        "read_only_recheck",
+        "roster_checked_at",
+        "valid_assignment_outcomes",
+        "target_detail_counts",
+        "note"
+      ],
+      "root_items": 7,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "admission": 18,
+        "read_only_recheck": 16,
+        "valid_assignment_outcomes": 1,
+        "target_detail_counts": 1
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/test200-seven-after-0bb8de2c.json",
+      "sha256": "02d2d324731aba94ae2aeefb453f999d464fc731347ba265e609bd552703129d",
+      "bytes": 1175,
+      "physical_lines": 42,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "checked_at",
+        "checks",
+        "consistency_checks",
+        "database_read_only",
+        "isolation_level",
+        "passed",
+        "populations",
+        "public_access_record_counts",
+        "read_only",
+        "ready_asset_counts",
+        "release",
+        "reviewed_people",
+        "source_job_status_counts"
+      ],
+      "root_items": 13,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "checks": 9,
+        "populations": 3,
+        "public_access_record_counts": 2,
+        "ready_asset_counts": 7,
+        "source_job_status_counts": 1
+      }
+    },
+    {
+      "path": "docs/implementation/companies-reuse-evidence/worker-recovery-20261014.json",
+      "sha256": "763d0de32d6076247f6857e344cc14ba4204476721296af514f43318903182ca",
+      "bytes": 1472,
+      "physical_lines": 43,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "actual_exit_code",
+        "candidate_activation",
+        "candidates_fenced",
+        "child_invariant",
+        "clean_drain_proven",
+        "config_mutation",
+        "database_mutation",
+        "deployment_inactive",
+        "ended_at",
+        "exclusive_release_lock",
+        "final_health",
+        "impact_queue_after_repair",
+        "kill_attempts",
+        "kind",
+        "limits",
+        "oom_killed",
+        "phase",
+        "queue_mutation",
+        "release_qualified",
+        "revision",
+        "start_attempts",
+        "started_at",
+        "unfinished_task_before_repair",
+        "verification"
+      ],
+      "root_items": 24,
+      "declared_historical_metadata": {
+        "revision": "a8345cb2b021b0d099c08c022685aded9a3727dc"
+      },
+      "root_collection_sizes": {
+        "impact_queue_after_repair": 3,
+        "limits": 2,
+        "unfinished_task_before_repair": 4,
+        "verification": 4
+      }
+    },
+    {
+      "path": "docs/implementation/mcp-production-baseline.json",
+      "sha256": "12ab27283cbc142ac883fdc2293448b163ffd4fb3f7e46b4236fd2325ef39431",
+      "bytes": 10108,
+      "physical_lines": 240,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "schema_version",
+        "observed_at",
+        "observation_scope",
+        "source_revision",
+        "source_branch",
+        "live_production",
+        "local_execution",
+        "repository_configuration",
+        "retained_evidence",
+        "release_contract",
+        "unpublished_candidate"
+      ],
+      "root_items": 11,
+      "declared_historical_metadata": {
+        "schema_version": 1,
+        "source_revision": "a18d236f15bd96ea326fe436cdcc28af60ec17b0"
+      },
+      "root_collection_sizes": {
+        "live_production": 17,
+        "local_execution": 9,
+        "repository_configuration": 20,
+        "retained_evidence": 3,
+        "release_contract": 6,
+        "unpublished_candidate": 6
+      }
+    },
+    {
+      "path": "docs/implementation/mcp-workflow-coverage.json",
+      "sha256": "0655e79c9e009dc9d01b41cf7507f3609b7b30f2daf979a982e98c1342636523",
+      "bytes": 2161370,
+      "physical_lines": 48703,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "schema_version",
+        "reviewed_at",
+        "scope",
+        "truth_contract",
+        "owners",
+        "limitations",
+        "surfaces"
+      ],
+      "root_items": 7,
+      "declared_historical_metadata": {
+        "schema_version": 1
+      },
+      "root_collection_sizes": {
+        "owners": 4,
+        "limitations": 3,
+        "surfaces": 1990
+      }
+    },
+    {
+      "path": "docs/implementation/traveller-portal-2026-10-14.txt",
+      "sha256": "822d8b78b882ffb437f17f75d3f4c2d5e2f80a3a3027545a43a9ca91024598cb",
+      "bytes": 5565,
+      "physical_lines": 86,
+      "suffix": ".txt",
+      "line_classes": {
+        "blank": 9,
+        "headings": 0,
+        "pass_summary_lines": 0
+      }
+    },
+    {
+      "path": "docs/remediation/api-contract-review-evidence.json",
+      "sha256": "e49142b4d4dfdbee5b3d736779a8aab1442859d2ba5e4b72ce6384e709bd0775",
+      "bytes": 5228,
+      "physical_lines": 59,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "result",
+        "reviewed_at_utc",
+        "original_finding",
+        "conclusion",
+        "commands",
+        "acceptance_mapping",
+        "limitations",
+        "description_only_change",
+        "source_sha256_lf"
+      ],
+      "root_items": 9,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "commands": 3,
+        "acceptance_mapping": 6,
+        "limitations": 4,
+        "description_only_change": 2,
+        "source_sha256_lf": 15
+      }
+    },
+    {
+      "path": "docs/remediation/api-native-memory-evidence.json",
+      "sha256": "33bd47e14f5e3ebcd5908f5230298e4f9853011a26d362f0669ee3b900de18a5",
+      "bytes": 23884,
+      "physical_lines": 725,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "image",
+        "container",
+        "name",
+        "source_admission_overlay",
+        "admission_sha256",
+        "memory_limit_bytes",
+        "workers",
+        "cpus",
+        "fixture_sha256",
+        "source_sha256",
+        "limits",
+        "status",
+        "results",
+        "worker_processes",
+        "state_before_stop",
+        "terminal_cgroup",
+        "state_after_stop",
+        "previous_failure_receipt",
+        "previous_interference_receipt",
+        "previous_allocator_image_pass",
+        "qualification_summary"
+      ],
+      "root_items": 21,
+      "declared_historical_metadata": {
+        "status": "passed"
+      },
+      "root_collection_sizes": {
+        "limits": 5,
+        "results": 3,
+        "state_before_stop": 11,
+        "terminal_cgroup": 4,
+        "state_after_stop": 11,
+        "previous_allocator_image_pass": 5,
+        "qualification_summary": 11
+      }
+    },
+    {
+      "path": "docs/remediation/api-native-memory-failure-evidence.json",
+      "sha256": "ec0271aba9e70ee8a82ca844a62a0d545815981fe586d4e3a1934d0677bd2a19",
+      "bytes": 1938,
+      "physical_lines": 50,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "image",
+        "container",
+        "name",
+        "memory_limit_bytes",
+        "workers",
+        "cpus",
+        "fixture_sha256",
+        "source_sha256",
+        "limits",
+        "state_before_stop",
+        "state_after_stop",
+        "status",
+        "cause",
+        "initial_cgroup_bytes",
+        "observed_peak_bytes",
+        "observed_oom_kill_count",
+        "observed_completed_worker_rss_kib_before_overload",
+        "replacement_receipt"
+      ],
+      "root_items": 18,
+      "declared_historical_metadata": {
+        "status": "failed_actual_oom"
+      },
+      "root_collection_sizes": {
+        "limits": 5,
+        "state_before_stop": 11,
+        "state_after_stop": 11
+      }
+    },
+    {
+      "path": "docs/remediation/api-native-memory-interference-evidence.json",
+      "sha256": "01c23b5263d264577d56832b5afd217b953b2d05b8c9ca55292800dd4593f38e",
+      "bytes": 3180,
+      "physical_lines": 95,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "image",
+        "container",
+        "name",
+        "source_admission_overlay",
+        "admission_sha256",
+        "memory_limit_bytes",
+        "workers",
+        "cpus",
+        "fixture_sha256",
+        "source_sha256",
+        "limits",
+        "state_before_stop",
+        "state_after_stop",
+        "status",
+        "cause_classification",
+        "last_successful_sample_peak_bytes",
+        "docker_host_memory_bytes",
+        "overlapping_activity",
+        "replacement_receipt",
+        "last_successful_sample"
+      ],
+      "root_items": 20,
+      "declared_historical_metadata": {
+        "status": "failed_oom_during_overlapping_local_qualifications"
+      },
+      "root_collection_sizes": {
+        "limits": 5,
+        "state_before_stop": 11,
+        "state_after_stop": 11,
+        "last_successful_sample": 4
+      }
+    },
+    {
+      "path": "docs/remediation/api-replica-evidence.json",
+      "sha256": "450c016d7cd64d3d4343fe553da4c505e8f22dd03f797ad45ffeaf98a603a4ce",
+      "bytes": 550,
+      "physical_lines": 10,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "result",
+        "image_id",
+        "actual_api_instances",
+        "accepted_submission_id",
+        "shared_session_and_accepted_upload_survived_origin_stop",
+        "logout_on_peer",
+        "restarted_origin_rejects_peer_revoked_cookie",
+        "limitation"
+      ],
+      "root_items": 8,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {}
+    },
+    {
+      "path": "docs/remediation/artifact-retrieval-evidence.json",
+      "sha256": "675e222a537b7f5162ae4076140ff84a56f589a92a254b25540a53ea2b2a33e5",
+      "bytes": 1430,
+      "physical_lines": 25,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "result",
+        "registry_image",
+        "releases",
+        "assertions",
+        "limitation"
+      ],
+      "root_items": 5,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "releases": 2,
+        "assertions": 6
+      }
+    },
+    {
+      "path": "docs/remediation/backend-integration-fixtures-final.txt",
+      "sha256": "af858518e7a8cb39985df01d67fda565c97add0561c15f4fd15d967ef12991d5",
+      "bytes": 102,
+      "physical_lines": 2,
+      "suffix": ".txt",
+      "line_classes": {
+        "blank": 0,
+        "headings": 0,
+        "pass_summary_lines": 1
+      }
+    },
+    {
+      "path": "docs/remediation/backend-native-final-image.json",
+      "sha256": "cef557e138926d3de2630eb8fb006a195db7a7aa88c2178a7eb832190ba9847a",
+      "bytes": 1586,
+      "physical_lines": 28,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "result",
+        "created_at",
+        "image_id",
+        "image_config_sha256",
+        "static_checks",
+        "runtime_source_integrity",
+        "build_log",
+        "scan_report",
+        "policy_receipt",
+        "api_repeated_memory_receipt",
+        "mixed_capacity_receipt",
+        "production_changed",
+        "shared_stack_changed",
+        "shared_stack_change",
+        "limitations"
+      ],
+      "root_items": 15,
+      "declared_historical_metadata": {
+        "created_at": "2026-09-26T23:05:31.015008+00:00"
+      },
+      "root_collection_sizes": {
+        "static_checks": 3,
+        "runtime_source_integrity": 2,
+        "limitations": 3
+      }
+    },
+    {
+      "path": "docs/remediation/backend-quality-mypy.txt",
+      "sha256": "ea5503b62d143406d8b0d1b8f9a31eb6323f01e5f69d9f37d4317ee412788a17",
+      "bytes": 46,
+      "physical_lines": 1,
+      "suffix": ".txt",
+      "line_classes": {
+        "blank": 0,
+        "headings": 0,
+        "pass_summary_lines": 1
+      }
+    },
+    {
+      "path": "docs/remediation/backend-sec01-final.txt",
+      "sha256": "7b7a7cba4cc7904b9c2cf324069f7147311093a76ba95b15db292b1cfc1cf1a0",
+      "bytes": 183,
+      "physical_lines": 3,
+      "suffix": ".txt",
+      "line_classes": {
+        "blank": 0,
+        "headings": 0,
+        "pass_summary_lines": 1
+      }
+    },
+    {
+      "path": "docs/remediation/backend-whatsapp-fixtures-final.txt",
+      "sha256": "f4c0b4a39ef1e9eec3cb7363d2f8a68dc43150bbec39f6ee705d79ae1948f7c1",
+      "bytes": 508,
+      "physical_lines": 7,
+      "suffix": ".txt",
+      "line_classes": {
+        "blank": 0,
+        "headings": 0,
+        "pass_summary_lines": 1
+      }
+    },
+    {
+      "path": "docs/remediation/browser-offline-signing-evidence.json",
+      "sha256": "4a094506b3b18fec6ded7a305e2907d0b711b2fc4dee7416231538b0ffb695a6",
+      "bytes": 1653,
+      "physical_lines": 38,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "result",
+        "checked_at_utc",
+        "scope",
+        "project",
+        "database",
+        "source_image_id",
+        "final_image_id",
+        "backend_container_id",
+        "configured_key_names",
+        "key_scope",
+        "source_sha256",
+        "capacity_preserved",
+        "runtime_signing_validator",
+        "nginx_config_and_reload",
+        "loopback_tls_live",
+        "nonbackend_data_services_and_volume_ids_preserved",
+        "api_peer_preserved",
+        "production_changed",
+        "native_sources_changed",
+        "raw_log",
+        "limitations"
+      ],
+      "root_items": 21,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "configured_key_names": 3,
+        "source_sha256": 1,
+        "capacity_preserved": 5,
+        "limitations": 2
+      }
+    },
+    {
+      "path": "docs/remediation/capacity-tail-diagnosis.json",
+      "sha256": "bc4def59c9100515f727539849d267bda28e3d29f7071fd814c2d8048489d073",
+      "bytes": 56858,
+      "physical_lines": 2003,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "result",
+        "capacity_acceptance",
+        "run_id",
+        "runtime_image_id",
+        "failed_capacity_gates",
+        "first_process",
+        "second_process",
+        "read_only_plan_summary",
+        "roster_revision_before",
+        "roster_revision_after",
+        "findings",
+        "next_evidence",
+        "scope",
+        "limits",
+        "reviewed_script_sha256",
+        "raw_artifacts",
+        "production_changed",
+        "backend_application_changed",
+        "existing_data_deleted"
+      ],
+      "root_items": 19,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "failed_capacity_gates": 2,
+        "first_process": 12,
+        "second_process": 12,
+        "read_only_plan_summary": 12,
+        "findings": 4,
+        "limits": 4,
+        "raw_artifacts": 3
+      }
+    },
+    {
+      "path": "docs/remediation/ci-36278735902-frontend-fixes.json",
+      "sha256": "7fd70c81fac57a965cf013945935f07beeae937ad855b40dd4f8a423f7627a68",
+      "bytes": 4619,
+      "physical_lines": 117,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "date",
+        "failed_ci_run",
+        "source_commit",
+        "status",
+        "findings",
+        "verification",
+        "source_sha256",
+        "limits"
+      ],
+      "root_items": 8,
+      "declared_historical_metadata": {
+        "status": "focused_fixes_verified_locally_awaiting_fresh_ci",
+        "date": "2026-09-27"
+      },
+      "root_collection_sizes": {
+        "findings": 2,
+        "verification": 8,
+        "source_sha256": 3,
+        "limits": 3
+      }
+    },
+    {
+      "path": "docs/remediation/ci-operator-uid-evidence.json",
+      "sha256": "5c99bb5603498cfa20feb8534fe04f2d668234a705af2e57a9e1bea170475bce",
+      "bytes": 983,
+      "physical_lines": 22,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "result",
+        "scope",
+        "source_revision",
+        "original_ci_run",
+        "original_failure",
+        "cases",
+        "windows_seconds",
+        "linux_seconds",
+        "linux_effective_uid",
+        "linux_image",
+        "production_source_changed",
+        "controls",
+        "files"
+      ],
+      "root_items": 13,
+      "declared_historical_metadata": {
+        "source_revision": "5be49da13a807ca0c82aa52098a0da9603ce4957 plus reviewed test-only correction"
+      },
+      "root_collection_sizes": {
+        "controls": 3,
+        "files": 2
+      }
+    },
+    {
+      "path": "docs/remediation/ci-storage-uid-evidence.json",
+      "sha256": "e514a22f9a9f97dd10024f0842a2eb5cc072265f258280fe486a05ebb1840377",
+      "bytes": 4985,
+      "physical_lines": 111,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "finding",
+        "severity",
+        "scope",
+        "base_revision",
+        "cause",
+        "image",
+        "before",
+        "fix",
+        "actual_s3_security_checks",
+        "actual_linux_retry",
+        "validation",
+        "limits",
+        "source_sha256",
+        "raw_evidence_directory",
+        "production_mutations",
+        "fixture_preservation"
+      ],
+      "root_items": 16,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "before": 4,
+        "fix": 7,
+        "actual_s3_security_checks": 5,
+        "actual_linux_retry": 3,
+        "validation": 5,
+        "limits": 2,
+        "source_sha256": 5,
+        "fixture_preservation": 7
+      }
+    },
+    {
+      "path": "docs/remediation/compose-isolation-evidence.json",
+      "sha256": "f816a771f287073fbd39a4697b8da8477e5eaff4ef43d08fb9e4b9b5c49ceb03",
+      "bytes": 1186,
+      "physical_lines": 33,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "result",
+        "source_volume_names",
+        "projects",
+        "limitation"
+      ],
+      "root_items": 4,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "source_volume_names": 5,
+        "projects": 2
+      }
+    },
+    {
+      "path": "docs/remediation/core-regression-phase2-evidence.json",
+      "sha256": "1c501d20234ef3c435832d901daffb977d73717ff71116409746f530e6576a61",
+      "bytes": 3769,
+      "physical_lines": 76,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "result",
+        "recorded_at_utc",
+        "command",
+        "working_directory",
+        "exit_code",
+        "cases_passed",
+        "subtests_passed",
+        "service_cases_deselected",
+        "skipped",
+        "failures",
+        "errors",
+        "duration_seconds",
+        "coverage",
+        "source_consistency",
+        "additional_checks",
+        "artifacts",
+        "limitations",
+        "post_run_whitespace_only_cleanup"
+      ],
+      "root_items": 18,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "coverage": 4,
+        "source_consistency": 4,
+        "additional_checks": 9,
+        "artifacts": 4,
+        "limitations": 3,
+        "post_run_whitespace_only_cleanup": 3
+      }
+    },
+    {
+      "path": "docs/remediation/database-capacity-evidence.json",
+      "sha256": "1d9b8476b2e66157942a7bd43c852e5e8a8cc7729bffe8ee202450f36f6ce8e2",
+      "bytes": 395,
+      "physical_lines": 13,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "result",
+        "scope",
+        "api_replicas",
+        "api_processes_per_replica",
+        "api_pool_per_process",
+        "worker_and_beat_connections",
+        "application_connections_held",
+        "observer_connections",
+        "server_max_connections",
+        "elapsed_seconds",
+        "throughput_or_failover_proven"
+      ],
+      "root_items": 11,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {}
+    },
+    {
+      "path": "docs/remediation/database-role-final.txt",
+      "sha256": "676cdbd4408044ce3288dc8ca1a83c41b4f2429294338df35957b2361733639b",
+      "bytes": 240,
+      "physical_lines": 3,
+      "suffix": ".txt",
+      "line_classes": {
+        "blank": 0,
+        "headings": 0,
+        "pass_summary_lines": 0
+      }
+    },
+    {
+      "path": "docs/remediation/dependency-recovery-evidence.json",
+      "sha256": "addb8b596bdfce960d05d14920aef461ce21ca4713fd6177a6bc4b6195d5ab0f",
+      "bytes": 1152,
+      "physical_lines": 19,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "result",
+        "backend_image",
+        "database_image",
+        "same_database_container_and_mounts",
+        "accepted_submission_id",
+        "down_verified_seconds_after_stop_request",
+        "restored_checks_seconds_after_start_request",
+        "controlled_unavailability_window_seconds",
+        "liveness_200_database_unavailable_readiness_503",
+        "database_unavailable_probe_status",
+        "authenticated_and_private_reads_fail_closed",
+        "same_session_private_object_checksum_and_readiness_baseline_restored",
+        "overall_readiness_status_before_and_after",
+        "preexisting_unavailable_capabilities",
+        "limitation"
+      ],
+      "root_items": 15,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "preexisting_unavailable_capabilities": 1
+      }
+    },
+    {
+      "path": "docs/remediation/document-delivery-production-20261016.json",
+      "sha256": "0946ee3ff4902803ebcff4d2a08845f1309799eec71317d1db5e6cd4143a579f",
+      "bytes": 9032,
+      "physical_lines": 341,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "observed_date_local",
+        "revision",
+        "mode",
+        "full_ci_qualified",
+        "phase",
+        "public_status",
+        "schema",
+        "all_prior_resources_retained",
+        "services",
+        "host",
+        "redis_runtime",
+        "qualification",
+        "sender_exact_image_probe",
+        "delivery_state",
+        "live_browser_checks",
+        "deployment_recoveries",
+        "limitations"
+      ],
+      "root_items": 17,
+      "declared_historical_metadata": {
+        "revision": "644176c9b52d09634d0f006201c4387294bae526"
+      },
+      "root_collection_sizes": {
+        "services": 20,
+        "host": 3,
+        "redis_runtime": 2,
+        "qualification": 5,
+        "sender_exact_image_probe": 17,
+        "delivery_state": 5,
+        "live_browser_checks": 9,
+        "deployment_recoveries": 2,
+        "limitations": 5
+      }
+    },
+    {
+      "path": "docs/remediation/document-delivery-rebalance-evidence.json",
+      "sha256": "01a7fb68cd755bc3c188dc556f1a715a111e246d4387284710ae22efcfe140c4",
+      "bytes": 2401,
+      "physical_lines": 52,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "run_id",
+        "date_utc",
+        "script",
+        "initial_host_available_gib",
+        "final_host_available_gib",
+        "production_changes",
+        "network",
+        "cpu_ceiling_each",
+        "containers_sequential",
+        "cleanup",
+        "rows",
+        "limitations"
+      ],
+      "root_items": 12,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "rows": 3,
+        "limitations": 5
+      }
+    },
+    {
+      "path": "docs/remediation/document-distribution-release-evidence.json",
+      "sha256": "4f491107916aa08a5c7559f665bb6c1a87e9cad2efbd6a3f1132f89ca9d7edf4",
+      "bytes": 2779,
+      "physical_lines": 54,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "version",
+        "qualified_at_utc",
+        "status",
+        "deployment_kind",
+        "source_schema",
+        "target_schema",
+        "source_sha256",
+        "checks",
+        "resources",
+        "unit_checks",
+        "cleanup",
+        "limitations"
+      ],
+      "root_items": 12,
+      "declared_historical_metadata": {
+        "status": "isolated_backend_helper_passed_not_production_activation"
+      },
+      "root_collection_sizes": {
+        "source_sha256": 7,
+        "checks": 12,
+        "resources": 7,
+        "unit_checks": 2,
+        "cleanup": 3,
+        "limitations": 3
+      }
+    },
+    {
+      "path": "docs/remediation/document-sender-mechanical-evidence.json",
+      "sha256": "71e2e848a08cf2a9e8ef0dfb2d3938e7a3d183a60cd026e6e0b3c765ad1e7d2c",
+      "bytes": 2095,
+      "physical_lines": 83,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "version",
+        "status",
+        "fixture_source_sha256",
+        "application_source_sha256",
+        "fixture",
+        "limits",
+        "postgres_peak_bytes",
+        "minimum_host_available_bytes",
+        "all_owned_resources_removed",
+        "production_changed",
+        "limitations"
+      ],
+      "root_items": 11,
+      "declared_historical_metadata": {
+        "status": "source_overlay_mechanical_probe_passed_not_final_image_qualification"
+      },
+      "root_collection_sizes": {
+        "fixture_source_sha256": 1,
+        "application_source_sha256": 1,
+        "fixture": 13,
+        "limits": 3,
+        "limitations": 3
+      }
+    },
+    {
+      "path": "docs/remediation/document-verification-speed-evidence.json",
+      "sha256": "64fa286e33aec97cb5da9720cfb803aac441c9fd4a9bc12dec393752a28aa283",
+      "bytes": 6491,
+      "physical_lines": 169,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "version",
+        "qualification_date_utc",
+        "status",
+        "parser_source_sha256",
+        "tested_candidate_parser_source_sha256",
+        "parser_source",
+        "fixture",
+        "parser_comparison",
+        "four_parent_idle_comparison",
+        "parser_safety",
+        "scan_comparison",
+        "postgresql_migration",
+        "cleanup",
+        "limitations"
+      ],
+      "root_items": 14,
+      "declared_historical_metadata": {
+        "status": "both_speed_candidates_rejected_existing_runtime_retained"
+      },
+      "root_collection_sizes": {
+        "fixture": 4,
+        "parser_comparison": 16,
+        "four_parent_idle_comparison": 18,
+        "parser_safety": 8,
+        "scan_comparison": 16,
+        "postgresql_migration": 16,
+        "cleanup": 3,
+        "limitations": 6
+      }
+    },
+    {
+      "path": "docs/remediation/ecr-readiness-final.txt",
+      "sha256": "7adea388018a09cfc300eb94b11da7ce0738004a7a657b8d8ad1417ef396ec29",
+      "bytes": 101,
+      "physical_lines": 2,
+      "suffix": ".txt",
+      "line_classes": {
+        "blank": 0,
+        "headings": 0,
+        "pass_summary_lines": 1
+      }
+    },
+    {
+      "path": "docs/remediation/email-constraint-evidence.json",
+      "sha256": "2f3fe8759d675f2bbdaa8329c9a8572c8f6d993b503ce4893a0b513c8581f52a",
+      "bytes": 1492,
+      "physical_lines": 37,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "scope",
+        "sqlite",
+        "postgresql",
+        "cases",
+        "boundary",
+        "assertions",
+        "test_only",
+        "schema_modified",
+        "postgres_test_rows_committed",
+        "limits"
+      ],
+      "root_items": 10,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "sqlite": 4,
+        "postgresql": 6,
+        "cases": 3,
+        "assertions": 5,
+        "limits": 2
+      }
+    },
+    {
+      "path": "docs/remediation/email-constraints-sqlite.txt",
+      "sha256": "2cc1ec2409e7762a4b982d719d22e91cb51938835855eb7ef90ac3f30ba8c900",
+      "bytes": 100,
+      "physical_lines": 2,
+      "suffix": ".txt",
+      "line_classes": {
+        "blank": 0,
+        "headings": 0,
+        "pass_summary_lines": 1
+      }
+    },
+    {
+      "path": "docs/remediation/email-tour-decomposition-evidence.json",
+      "sha256": "fc9fa65a8fc18596b35164ca048cfd623cbc666f3fb81b7439d033711f311278",
+      "bytes": 7949,
+      "physical_lines": 248,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "schema_version",
+        "scope",
+        "route_contracts",
+        "email_tests",
+        "tour_tests",
+        "typing",
+        "source_budget_violations",
+        "coverage_note",
+        "modules",
+        "function_equivalence",
+        "limits"
+      ],
+      "root_items": 11,
+      "declared_historical_metadata": {
+        "schema_version": 1
+      },
+      "root_collection_sizes": {
+        "route_contracts": 5,
+        "email_tests": 3,
+        "tour_tests": 6,
+        "source_budget_violations": 0,
+        "modules": 23,
+        "function_equivalence": 2,
+        "limits": 4
+      }
+    },
+    {
+      "path": "docs/remediation/final-image-disposition-evidence.json",
+      "sha256": "d7d6a909efe19499e0a49a47c733c89bda0e2ab7328566608e431f4c874d7c15",
+      "bytes": 2697,
+      "physical_lines": 75,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "result",
+        "image_config_sha256",
+        "image_id",
+        "scan_sha256",
+        "policy_sha256",
+        "native_conditions",
+        "runtime_smoke",
+        "limitation"
+      ],
+      "root_items": 8,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "native_conditions": 12,
+        "runtime_smoke": 12
+      }
+    },
+    {
+      "path": "docs/remediation/frontend-browser-evidence.json",
+      "sha256": "294986cf1868164553a059314cc7cbd807bb55990a518cff57aa13093c3be841",
+      "bytes": 4592,
+      "physical_lines": 103,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "date",
+        "frontend_image",
+        "backend_image",
+        "target",
+        "unique_cases",
+        "passed",
+        "unsupported_host_capability",
+        "runs",
+        "matrix",
+        "webkit_capabilities",
+        "test_substitutions",
+        "visual_review",
+        "remaining_limits",
+        "render_error_receipt",
+        "final_app_change",
+        "no_data_deletion",
+        "native_changes",
+        "execution",
+        "linux_webkit"
+      ],
+      "root_items": 19,
+      "declared_historical_metadata": {
+        "date": "2026-09-27"
+      },
+      "root_collection_sizes": {
+        "runs": 3,
+        "matrix": 3,
+        "webkit_capabilities": 7,
+        "test_substitutions": 4,
+        "visual_review": 3,
+        "remaining_limits": 4,
+        "linux_webkit": 3
+      }
+    },
+    {
+      "path": "docs/remediation/frontend-budgets-final.txt",
+      "sha256": "9b0a69b1a53a12afc7aee7af475a3b325aaa6d9cf6ac6b64acb52400c80ad2b4",
+      "bytes": 2615,
+      "physical_lines": 29,
+      "suffix": ".txt",
+      "line_classes": {
+        "blank": 2,
+        "headings": 0,
+        "pass_summary_lines": 1
+      }
+    },
+    {
+      "path": "docs/remediation/frontend-coverage-evidence.json",
+      "sha256": "53f255c95eb94a0d9a5980cd2b40da1cd6652a32455588a6b9b79b22ac9df398",
+      "bytes": 6026,
+      "physical_lines": 288,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "scope",
+        "test_files_passed",
+        "tests_passed",
+        "duration_seconds",
+        "max_workers",
+        "test_timeout_ms",
+        "coverage_target_count",
+        "coverage_total",
+        "files",
+        "unchanged_per_file_thresholds",
+        "lint",
+        "typegen_and_typescript",
+        "unchanged_module_ratchets",
+        "native_sources_modified",
+        "production_deployment"
+      ],
+      "root_items": 15,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "coverage_total": 5,
+        "files": 9,
+        "unchanged_per_file_thresholds": 4
+      }
+    },
+    {
+      "path": "docs/remediation/frontend-dependency-audit-final.json",
+      "sha256": "681b685690526362351883120fb1744d5bf434277fe1cf1ee493ecf5bc3b81d7",
+      "bytes": 387,
+      "physical_lines": 22,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "auditReportVersion",
+        "vulnerabilities",
+        "metadata"
+      ],
+      "root_items": 3,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "vulnerabilities": 0,
+        "metadata": 2
+      }
+    },
+    {
+      "path": "docs/remediation/frontend-expanded-coverage-final.txt",
+      "sha256": "8642324d4e8357b11003c604ef850f7d5f1e8baf73604abc1091181593f3bf11",
+      "bytes": 1845,
+      "physical_lines": 39,
+      "suffix": ".txt",
+      "line_classes": {
+        "blank": 7,
+        "headings": 0,
+        "pass_summary_lines": 2
+      }
+    },
+    {
+      "path": "docs/remediation/frontend-image-audit-evidence.json",
+      "sha256": "7f1bb144a1f9b15d92f110e0fd19198bcdfad4ce924508833cc26f2f9510dcfc",
+      "bytes": 14154,
+      "physical_lines": 511,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "status",
+        "image_id",
+        "config_sha256",
+        "scanner",
+        "high_critical_package_matches",
+        "high_critical_distinct_advisory_ids",
+        "remaining_lower_severity",
+        "raw_scan_sha256",
+        "runtime_smoke",
+        "applied_fixes",
+        "new_dispositions",
+        "limitation",
+        "scan_database",
+        "baseline",
+        "previous_runtime_candidate",
+        "previous_application_candidate"
+      ],
+      "root_items": 16,
+      "declared_historical_metadata": {
+        "status": "passed_final_application_candidate"
+      },
+      "root_collection_sizes": {
+        "remaining_lower_severity": 2,
+        "applied_fixes": 3,
+        "new_dispositions": 0,
+        "scan_database": 2,
+        "baseline": 8,
+        "previous_runtime_candidate": 3,
+        "previous_application_candidate": 3
+      }
+    },
+    {
+      "path": "docs/remediation/frontend-lint-final.txt",
+      "sha256": "72160178f908993547e66d1ebb88f031175b45dc29044a377efdeb7eebfd408b",
+      "bytes": 32,
+      "physical_lines": 3,
+      "suffix": ".txt",
+      "line_classes": {
+        "blank": 1,
+        "headings": 0,
+        "pass_summary_lines": 0
+      }
+    },
+    {
+      "path": "docs/remediation/frontend-phase2-evidence.json",
+      "sha256": "aa107307da876a039a035e665a359ca1fa712dfe42e51eb01ae5bc3ae0f2bed6",
+      "bytes": 18031,
+      "physical_lines": 789,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "schema_version",
+        "scope",
+        "unit_tests",
+        "node_contracts",
+        "critical_surface",
+        "type_check",
+        "eslint",
+        "module_budget_count",
+        "module_budgets",
+        "production_image_build",
+        "real_browser_workflows",
+        "physical_device_camera_screenreader_cold_offline",
+        "native_application_changes",
+        "coverage_files",
+        "qualification_image",
+        "image_revision_label",
+        "real_browser_collection",
+        "toolchain",
+        "upload_controller",
+        "previous_application_image_id",
+        "previous_application_image_config_sha256",
+        "image_id",
+        "image_config_sha256",
+        "runtime_smoke",
+        "runtime_image_scan",
+        "dependency_audit",
+        "focus_followup"
+      ],
+      "root_items": 27,
+      "declared_historical_metadata": {
+        "schema_version": 1
+      },
+      "root_collection_sizes": {
+        "unit_tests": 5,
+        "node_contracts": 3,
+        "critical_surface": 5,
+        "coverage_files": 25,
+        "real_browser_collection": 5,
+        "toolchain": 3,
+        "upload_controller": 5,
+        "runtime_smoke": 13,
+        "runtime_image_scan": 5,
+        "dependency_audit": 5,
+        "focus_followup": 10
+      }
+    },
+    {
+      "path": "docs/remediation/frontend-render-error-browser-evidence.json",
+      "sha256": "b3d353752a95d95565141a900f3b50dfa1033ef3dc33f1ef9a4e35e5174af99b",
+      "bytes": 2060,
+      "physical_lines": 58,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "scope",
+        "frontend_image",
+        "backend_image",
+        "browsers"
+      ],
+      "root_items": 4,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "browsers": 3
+      }
+    },
+    {
+      "path": "docs/remediation/frontend-typecheck-final.txt",
+      "sha256": "9454c3f1e6dd0b35a44cd34b78d3a60b348f85fde420b2665f190a84b5597031",
+      "bytes": 126,
+      "physical_lines": 6,
+      "suffix": ".txt",
+      "line_classes": {
+        "blank": 2,
+        "headings": 0,
+        "pass_summary_lines": 0
+      }
+    },
+    {
+      "path": "docs/remediation/full-image-audit-evidence.json",
+      "sha256": "779dc4d7ab4678152568ac5be2e8970ca33f9644ddae5686c76d9b472a038a22",
+      "bytes": 5391,
+      "physical_lines": 159,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "result",
+        "scope",
+        "scanner",
+        "scanner_version",
+        "source_image_id",
+        "scanned_on",
+        "severity_counts",
+        "high_critical_matches",
+        "unique_high_critical_advisories",
+        "packages",
+        "examples",
+        "all_matches_exploitability_validated",
+        "suppression_added",
+        "production_promotion_gate"
+      ],
+      "root_items": 14,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "severity_counts": 6,
+        "packages": 34,
+        "examples": 8
+      }
+    },
+    {
+      "path": "docs/remediation/github-protection-evidence.json",
+      "sha256": "96ed6718a1f784e14be96fa767c0a56311b71a746c5f33ff0ff4ba105cbf30cb",
+      "bytes": 1691,
+      "physical_lines": 47,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "result",
+        "recorded_at_utc",
+        "repository",
+        "applied_by",
+        "before",
+        "after",
+        "raw_readback_sha256",
+        "limitations"
+      ],
+      "root_items": 8,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "before": 3,
+        "after": 3,
+        "limitations": 4
+      }
+    },
+    {
+      "path": "docs/remediation/image-advisory-matrix.json",
+      "sha256": "9f583e160ce4c85294aac63acc68eb9edc9bce111f8740187f546cbfc3d7a785",
+      "bytes": 28152,
+      "physical_lines": 816,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "verified_on",
+        "candidate_image_id",
+        "candidate_manifest",
+        "scanner",
+        "package_matches",
+        "advisory_ids",
+        "findings",
+        "limitation",
+        "candidate_config_sha256",
+        "previous_runtime_candidate",
+        "final_scan_raw_sha256",
+        "final_disposition_receipt"
+      ],
+      "root_items": 12,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "scanner": 5,
+        "findings": 19,
+        "previous_runtime_candidate": 2
+      }
+    },
+    {
+      "path": "docs/remediation/kvm4-tooling-final-evidence.json",
+      "sha256": "1841f6530820cf8fe6cbd99239d602942d62108271470557d7f359ebed4756e8",
+      "bytes": 1978,
+      "physical_lines": 27,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "result",
+        "command",
+        "tests",
+        "duration_seconds",
+        "failures",
+        "errors",
+        "source_sha256",
+        "raw_log_sha256",
+        "additional_checks",
+        "limits"
+      ],
+      "root_items": 10,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "source_sha256": 7,
+        "additional_checks": 3,
+        "limits": 2
+      }
+    },
+    {
+      "path": "docs/remediation/kvm4-two-extraction-memory-evidence.json",
+      "sha256": "da823d64d56d6d49f5eb79873fa0e89ccdffb93c281c043bc2a7fa1e2962eeee",
+      "bytes": 5296,
+      "physical_lines": 125,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "status",
+        "measured_at_utc",
+        "profile",
+        "production_data_accessed",
+        "production_resource_caps_changed_by_probes",
+        "live_worker_pause",
+        "budget",
+        "extraction",
+        "postgres",
+        "source_sha256",
+        "limitations"
+      ],
+      "root_items": 11,
+      "declared_historical_metadata": {
+        "status": "bounded_resource_delta_passed"
+      },
+      "root_collection_sizes": {
+        "live_worker_pause": 3,
+        "budget": 8,
+        "extraction": 19,
+        "postgres": 21,
+        "source_sha256": 3,
+        "limitations": 8
+      }
+    },
+    {
+      "path": "docs/remediation/manual-review-postgresql-final.txt",
+      "sha256": "63184953b803b9b17495309a062fbb655e77da655bf66067eb58fbdd66caf6bd",
+      "bytes": 112,
+      "physical_lines": 2,
+      "suffix": ".txt",
+      "line_classes": {
+        "blank": 0,
+        "headings": 0,
+        "pass_summary_lines": 1
+      }
+    },
+    {
+      "path": "docs/remediation/monitoring-rules-final.txt",
+      "sha256": "2c823ec531199d3e51746611a3ce73c1d0b4bafd49d30542a664e083a7d0a0b5",
+      "bytes": 10,
+      "physical_lines": 1,
+      "suffix": ".txt",
+      "line_classes": {
+        "blank": 0,
+        "headings": 0,
+        "pass_summary_lines": 1
+      }
+    },
+    {
+      "path": "docs/remediation/native-capacity-activation-evidence.json",
+      "sha256": "cf7da54f50758bd3aa54a877b90aca25427366842a7fac0ff66f1a88d3c56c2a",
+      "bytes": 5171,
+      "physical_lines": 133,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "result",
+        "project",
+        "image_id",
+        "idle_before",
+        "post_replacement_control_counts",
+        "memory_caps_mib",
+        "business_counts_preserved",
+        "container_inventory",
+        "dependency_and_volume_identities_preserved",
+        "limit",
+        "production_changed",
+        "existing_data_deleted"
+      ],
+      "root_items": 12,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "idle_before": 4,
+        "post_replacement_control_counts": 4,
+        "memory_caps_mib": 4,
+        "business_counts_preserved": 4,
+        "container_inventory": 14
+      }
+    },
+    {
+      "path": "docs/remediation/native-image-admission-evidence.json",
+      "sha256": "ce21a4fcfa75ee783074f325bc13cb5573151834748798093fe43d6c14fd6b1e",
+      "bytes": 5593,
+      "physical_lines": 119,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "schema_version",
+        "recorded_date",
+        "status",
+        "finding",
+        "policy",
+        "source_sha256_receipt",
+        "verification",
+        "limitations"
+      ],
+      "root_items": 8,
+      "declared_historical_metadata": {
+        "schema_version": 1,
+        "status": "source_and_native_api_image_qualification_passed"
+      },
+      "root_collection_sizes": {
+        "finding": 4,
+        "policy": 10,
+        "verification": 6,
+        "limitations": 5
+      }
+    },
+    {
+      "path": "docs/remediation/native-image-coverage.json",
+      "sha256": "d455f1e2fd3119f705cbb798e741440c8b4eb6d115079ed1fbde2ca51e30e735",
+      "bytes": 14479,
+      "physical_lines": 1,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "meta",
+        "files",
+        "totals"
+      ],
+      "root_items": 3,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "meta": 5,
+        "files": 2,
+        "totals": 14
+      }
+    },
+    {
+      "path": "docs/remediation/native-image-source-sha256.json",
+      "sha256": "fddfa69bd7d2ad714efee9191d9f205a7e2441e9be17c060dced4744e148c489",
+      "bytes": 1430,
+      "physical_lines": 13,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "backend/app/core/native_image_admission.py",
+        "backend/app/domain/exceptions/resource_capacity.py",
+        "backend/app/presentation/middleware/error_handler.py",
+        "backend/app/infrastructure/security/upload_validator.py",
+        "backend/app/infrastructure/imaging/passport_image_cropper.py",
+        "backend/app/infrastructure/ai/gemini_ecr_service.py",
+        "backend/app/infrastructure/ai/gemini_visa_image_edit_service.py",
+        "backend/app/infrastructure/ecr/runtime.py",
+        "backend/app/infrastructure/ecr/passport_runtime.py",
+        "backend/app/infrastructure/visa_ai_image_jobs/runtime.py",
+        "backend/app/infrastructure/repositories/passport_visa_ai_image_job_repository.py"
+      ],
+      "root_items": 11,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {}
+    },
+    {
+      "path": "docs/remediation/node-toolchain-evidence.json",
+      "sha256": "efbadeb792716478cfb383c9c1d22bae146515130b935da361b7bb80ac70b27b",
+      "bytes": 3262,
+      "physical_lines": 85,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "result",
+        "verified_at_utc",
+        "scope",
+        "node",
+        "npm",
+        "node_windows_archive_url",
+        "node_windows_archive_sha256",
+        "node_executable_sha256",
+        "npm_registry_integrity",
+        "node_release_source",
+        "npm_metadata_source",
+        "scanner",
+        "inventory_sha256",
+        "scan_sha256",
+        "comparison",
+        "negative_tests",
+        "limitation"
+      ],
+      "root_items": 17,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "comparison": 2
+      }
+    },
+    {
+      "path": "docs/remediation/operational-evidence-open.txt",
+      "sha256": "ca47adcc23ee6ec353071107a8c3cbfa7f60e4de993a69c2d0892563455b2138",
+      "bytes": 1690,
+      "physical_lines": 25,
+      "suffix": ".txt",
+      "line_classes": {
+        "blank": 0,
+        "headings": 0,
+        "pass_summary_lines": 3
+      }
+    },
+    {
+      "path": "docs/remediation/operator-safety-unit-tests.txt",
+      "sha256": "4164b2c2aaf40a726fe7743f9291af800b34b6f9b6c7320a65265bdae6fdbcdb",
+      "bytes": 288,
+      "physical_lines": 5,
+      "suffix": ".txt",
+      "line_classes": {
+        "blank": 1,
+        "headings": 0,
+        "pass_summary_lines": 0
+      }
+    },
+    {
+      "path": "docs/remediation/pdf-checking-eight-worker-evidence.json",
+      "sha256": "21da9a4027566e1091b1542c31c55376af0ecac9d5602b4272f6b58db69e589b",
+      "bytes": 7465,
+      "physical_lines": 246,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "version",
+        "date",
+        "kind",
+        "backend_base_image",
+        "memory_limit_mib",
+        "maximum_parser_processes",
+        "source_sha256",
+        "redis_weighted_admission",
+        "outcomes",
+        "owned_containers_removed",
+        "production_changed_by_probe",
+        "planned_serving_limits_mib",
+        "host_physical_mib",
+        "host_reserve_mib",
+        "paused_services",
+        "shared_scheduler",
+        "limitations",
+        "scheduler_isolated_smoke"
+      ],
+      "root_items": 18,
+      "declared_historical_metadata": {
+        "date": "2026-10-17"
+      },
+      "root_collection_sizes": {
+        "source_sha256": 4,
+        "outcomes": 4,
+        "paused_services": 3,
+        "limitations": 5,
+        "scheduler_isolated_smoke": 5
+      }
+    },
+    {
+      "path": "docs/remediation/persistent-release-evidence.json",
+      "sha256": "48f98ff8b0dca012d71a32b0e27a24e8c778f120a5bdad8b906e029f8e01bace",
+      "bytes": 2488,
+      "physical_lines": 82,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "status",
+        "project",
+        "production_changes",
+        "database_before",
+        "database_after",
+        "redis",
+        "interruption_recovery",
+        "all_persistent_stages_complete",
+        "archive_fully_decoded",
+        "volumes_and_database_retained",
+        "limitations"
+      ],
+      "root_items": 11,
+      "declared_historical_metadata": {
+        "status": "passed"
+      },
+      "root_collection_sizes": {
+        "database_before": 4,
+        "database_after": 4,
+        "redis": 4,
+        "interruption_recovery": 2,
+        "limitations": 4
+      }
+    },
+    {
+      "path": "docs/remediation/persistent-service-memory-evidence.json",
+      "sha256": "3a3d3d1f97e6b45624a48a2368b206e45d81a075cd8bb50b465607572c2a0c04",
+      "bytes": 9528,
+      "physical_lines": 240,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "date",
+        "redis",
+        "clamav",
+        "full_vps_profile_qualified",
+        "production_changes",
+        "clamav_three_engine_stress"
+      ],
+      "root_items": 6,
+      "declared_historical_metadata": {
+        "date": "2026-09-27"
+      },
+      "root_collection_sizes": {
+        "redis": 3,
+        "clamav": 3,
+        "clamav_three_engine_stress": 3
+      }
+    },
+    {
+      "path": "docs/remediation/phase-two-data-migration.json",
+      "sha256": "7a08659ab9f30d7ac16ac6506a470010b46d09a1220a196dc47fe82c930f5ce9",
+      "bytes": 1639,
+      "physical_lines": 49,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "scope",
+        "from",
+        "to",
+        "invalid_upgrade_probes",
+        "retained_table_digests",
+        "validated_constraints",
+        "rows_deleted",
+        "production_changed"
+      ],
+      "root_items": 8,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "invalid_upgrade_probes": 10,
+        "retained_table_digests": 5,
+        "validated_constraints": 6
+      }
+    },
+    {
+      "path": "docs/remediation/populated-search-roster-migration.json",
+      "sha256": "d124ff144f5e2da2c095acb984f920f7f6885d56f6e46859f7b9bac7cf8c6597",
+      "bytes": 19042,
+      "physical_lines": 551,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "scope",
+        "database",
+        "result",
+        "populated_passports",
+        "table_digests",
+        "business_data_unchanged",
+        "tables_dropped",
+        "rows_deleted",
+        "lock_timeout_rejection_preserved_revision_and_records",
+        "schema_metadata_parity",
+        "timings",
+        "limits"
+      ],
+      "root_items": 12,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "table_digests": 124,
+        "timings": 5
+      }
+    },
+    {
+      "path": "docs/remediation/proxy-error-evidence.json",
+      "sha256": "f18edf3fe57749fe56dbcc60e47f799ea3de9387be8868bda27f861077b16ffa",
+      "bytes": 573,
+      "physical_lines": 18,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "image",
+        "checks",
+        "scope"
+      ],
+      "root_items": 3,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "checks": 12
+      }
+    },
+    {
+      "path": "docs/remediation/qualification-browser-all.txt",
+      "sha256": "debcea08d56b9fbd3bd14cb845c547bc8914533fbd5819a3470b5ebb3aa87571",
+      "bytes": 997,
+      "physical_lines": 14,
+      "suffix": ".txt",
+      "line_classes": {
+        "blank": 3,
+        "headings": 0,
+        "pass_summary_lines": 1
+      }
+    },
+    {
+      "path": "docs/remediation/qualification-browser-final.txt",
+      "sha256": "90592b1a75923e5960912b240055546716232af163d65a29cda1a41323aed1af",
+      "bytes": 999,
+      "physical_lines": 14,
+      "suffix": ".txt",
+      "line_classes": {
+        "blank": 3,
+        "headings": 0,
+        "pass_summary_lines": 1
+      }
+    },
+    {
+      "path": "docs/remediation/qualification-joined-final.txt",
+      "sha256": "bea7ce3ebb9994a2089fc3233beffd7f237fa301fca57695ee4fe1ab3f225352",
+      "bytes": 89,
+      "physical_lines": 1,
+      "suffix": ".txt",
+      "line_classes": {
+        "blank": 0,
+        "headings": 0,
+        "pass_summary_lines": 1
+      }
+    },
+    {
+      "path": "docs/remediation/qualification-recovery-final.txt",
+      "sha256": "dedb5c6b97d6cd01ec65446ea2b64e4b3efc95bd4765597d32e5efbb1de49166",
+      "bytes": 70,
+      "physical_lines": 1,
+      "suffix": ".txt",
+      "line_classes": {
+        "blank": 0,
+        "headings": 0,
+        "pass_summary_lines": 1
+      }
+    },
+    {
+      "path": "docs/remediation/qualification-restored-object-reads.txt",
+      "sha256": "4a1fe4c0e08dd672e377039f9b2e59fd91ebb0cd90c1762f30085382c44a9f45",
+      "bytes": 1425,
+      "physical_lines": 3,
+      "suffix": ".txt",
+      "line_classes": {
+        "blank": 0,
+        "headings": 0,
+        "pass_summary_lines": 0
+      }
+    },
+    {
+      "path": "docs/remediation/redis-dataset-transition-evidence.json",
+      "sha256": "dabaf449a03dafa03e4979f7e66311a2b8e8c35a36729d4cd7bbfbb86cc8f87e",
+      "bytes": 3383,
+      "physical_lines": 80,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "date_utc",
+        "production_changes",
+        "scope",
+        "cleanup",
+        "admission_refusals",
+        "initial_host_available_gib",
+        "final_host_available_gib",
+        "rows",
+        "limitations",
+        "source_sha256"
+      ],
+      "root_items": 10,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "admission_refusals": 1,
+        "rows": 2,
+        "limitations": 2,
+        "source_sha256": 11
+      }
+    },
+    {
+      "path": "docs/remediation/redis-large-inventory-evidence.json",
+      "sha256": "0fe73f2a8b4a27c77e9c21a46cbdd33b78b1e0d8c1bb98b4514058dd6f5fafde",
+      "bytes": 1732,
+      "physical_lines": 59,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "date_utc",
+        "passed",
+        "source_sha256",
+        "max_keys_synthetic_override",
+        "image",
+        "keys_seeded",
+        "value_bytes_each",
+        "initial_host_available_gib",
+        "final_host_available_gib",
+        "elapsed_seconds",
+        "operator_python_peak_rss_bytes",
+        "result",
+        "production_changes",
+        "provider_calls",
+        "owned_resources_removed",
+        "limitations"
+      ],
+      "root_items": 16,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "result": 16,
+        "limitations": 2
+      }
+    },
+    {
+      "path": "docs/remediation/registry-preflight-evidence.json",
+      "sha256": "95dd1b485cf33485c5152615819f0b66fcf90c9329826fae6f9a98be2420863d",
+      "bytes": 2263,
+      "physical_lines": 37,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "result",
+        "created_at",
+        "test_count",
+        "source_sha256",
+        "assertions",
+        "read_only_remote_observation",
+        "limitations",
+        "sources",
+        "published",
+        "production_changed"
+      ],
+      "root_items": 10,
+      "declared_historical_metadata": {
+        "created_at": "2026-09-26T22:11:36.202494+00:00"
+      },
+      "root_collection_sizes": {
+        "source_sha256": 3,
+        "assertions": 7,
+        "read_only_remote_observation": 3,
+        "limitations": 4,
+        "sources": 3
+      }
+    },
+    {
+      "path": "docs/remediation/release-db-boundary-tests.txt",
+      "sha256": "7ce9a604b4b4d5473eba5747229c00d62473db5a8e36b6c1dd15e8b4ae655c21",
+      "bytes": 18736,
+      "physical_lines": 104,
+      "suffix": ".txt",
+      "line_classes": {
+        "blank": 2,
+        "headings": 0,
+        "pass_summary_lines": 0
+      }
+    },
+    {
+      "path": "docs/remediation/reliability-joined-evidence.json",
+      "sha256": "b1097780333e5ac055e1bbf13d5fda1739c1b505bbfa07ec087f8690faffb4f4",
+      "bytes": 4458,
+      "physical_lines": 129,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "finished_at",
+        "synthetic",
+        "application",
+        "ecr_fault",
+        "worker",
+        "ecr_durable_result",
+        "alert_firing",
+        "alert_resolution",
+        "production_fault_injected",
+        "external_ai_readiness_available",
+        "command",
+        "browser_sessions",
+        "image_ids",
+        "working_tree_evidence",
+        "signed_build_attestation",
+        "source_artifact_sha256",
+        "evidence_note"
+      ],
+      "root_items": 17,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "application": 5,
+        "ecr_fault": 4,
+        "worker": 6,
+        "ecr_durable_result": 4,
+        "alert_firing": 7,
+        "alert_resolution": 7,
+        "browser_sessions": 10,
+        "image_ids": 2,
+        "working_tree_evidence": 3
+      }
+    },
+    {
+      "path": "docs/remediation/reliability-recovery-evidence.json",
+      "sha256": "51c54d0de6d01bd5ada475d3996c7ead7e907f007c4868299f8eb7305b1e905d",
+      "bytes": 1699,
+      "physical_lines": 34,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "finished_at",
+        "scope",
+        "schema_revision",
+        "table_count_and_hashes",
+        "duration_seconds",
+        "object_version_recovery",
+        "production_resilience_proof",
+        "restored_application_object_reconciliation",
+        "off_host_backup_proof",
+        "pitr_proof",
+        "representative_rpo_rto_proof",
+        "restore_target",
+        "application_object_reconciliation",
+        "source_artifact_sha256",
+        "command",
+        "evidence_note"
+      ],
+      "root_items": 16,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "table_count_and_hashes": 10,
+        "application_object_reconciliation": 4
+      }
+    },
+    {
+      "path": "docs/remediation/reliability-regression-evidence.json",
+      "sha256": "6733fabb17e3ccbca5bf12e67631ae6250add0813123476d6914a06cfdbb9756",
+      "bytes": 6606,
+      "physical_lines": 173,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "recorded_at",
+        "scope",
+        "runtime",
+        "full_regression",
+        "additional_sqlite_constraint_tests",
+        "real_service_lane",
+        "coverage",
+        "boundaries",
+        "database_role_qualification",
+        "unique_backend_cases_evidenced_across_lanes"
+      ],
+      "root_items": 10,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "full_regression": 9,
+        "additional_sqlite_constraint_tests": 4,
+        "real_service_lane": 8,
+        "coverage": 12,
+        "boundaries": 3,
+        "database_role_qualification": 5
+      }
+    },
+    {
+      "path": "docs/remediation/retained-redis-transition-evidence.json",
+      "sha256": "6d7d030c93b66452b8f727802185d26a7fcba095783d1a4b5d5b450b96ec3e5c",
+      "bytes": 1835,
+      "physical_lines": 49,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "initial_host_available_gib",
+        "final_host_available_gib",
+        "rows",
+        "production_changes",
+        "provider_calls",
+        "recorded_at_utc",
+        "scope",
+        "limitations",
+        "source_sha256"
+      ],
+      "root_items": 9,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "rows": 2,
+        "limitations": 3,
+        "source_sha256": 2
+      }
+    },
+    {
+      "path": "docs/remediation/roster-performance-evidence.json",
+      "sha256": "7d24a520daf687038dec9a37827833d7b0cea8ce83c501248545ca9dbd95e6ef",
+      "bytes": 4057,
+      "physical_lines": 94,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "cases",
+        "scope",
+        "result",
+        "qualification",
+        "image_id",
+        "image",
+        "database_revision",
+        "total_warm_samples",
+        "warm_projection_calls",
+        "seeded_passports",
+        "private_credentials_or_customer_data",
+        "source_note",
+        "measurement_limits"
+      ],
+      "root_items": 13,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "cases": 4,
+        "measurement_limits": 5
+      }
+    },
+    {
+      "path": "docs/remediation/search-plan-evidence.json",
+      "sha256": "192495fee040c382b0fe0490274efa1dc6d3e4d624f2a44688e677a9e5dbc634",
+      "bytes": 319471,
+      "physical_lines": 5075,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "database",
+        "rows",
+        "samples_per_case",
+        "limits",
+        "index_bytes",
+        "cases"
+      ],
+      "root_items": 6,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "index_bytes": 2,
+        "cases": 5
+      }
+    },
+    {
+      "path": "docs/remediation/service-integration-evidence.json",
+      "sha256": "84a16b8a61e57d014577da40616c37a06b4c5b12cdc3987316fe65e474bc291e",
+      "bytes": 3364,
+      "physical_lines": 75,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "date",
+        "scope",
+        "docker_project",
+        "postgresql",
+        "schema",
+        "alembic_check",
+        "storage",
+        "queue",
+        "python_full_lane",
+        "pytest",
+        "pytest_asyncio",
+        "pytest_cov",
+        "initial_full_run",
+        "subsequent_passing_runs",
+        "final_unique_cases_with_passing_evidence",
+        "remaining_failed_cases",
+        "remaining_skipped_cases",
+        "single_all_green_full_run",
+        "database_role_qualification",
+        "native_application_sources_modified",
+        "production_data_used",
+        "production_deployment",
+        "off_host_recovery_proved",
+        "human_alert_receipt_proved"
+      ],
+      "root_items": 24,
+      "declared_historical_metadata": {
+        "date": "2026-09-26"
+      },
+      "root_collection_sizes": {
+        "initial_full_run": 8,
+        "subsequent_passing_runs": 3,
+        "database_role_qualification": 6
+      }
+    },
+    {
+      "path": "docs/remediation/service-integration-phase2-evidence.json",
+      "sha256": "738d4ea171b5bca3a4537b2bc921cbdd3e2ee4589777f37a9771e92244ed8a39",
+      "bytes": 7682,
+      "physical_lines": 124,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "completed_at_utc",
+        "result",
+        "scope",
+        "docker_project",
+        "schema",
+        "migrations",
+        "python",
+        "pytest",
+        "pytest_asyncio",
+        "coverage",
+        "runtime_base_image_id",
+        "test_image_id",
+        "test_dependency_lock_sha256",
+        "runtime_dependencies_preserved",
+        "read_only_source_mounts",
+        "source_manifest_entries",
+        "source_manifest_sha256",
+        "source_files_changed_during_complete_run",
+        "uncollected_unit_test_overlap",
+        "overlapping_changes",
+        "source_after_manifest_sha256",
+        "tests",
+        "service_image_ids",
+        "database_role_qualification",
+        "retained_postgres_and_storage_container_and_volume_identity_unchanged",
+        "first_run",
+        "fixture_changes",
+        "raw_logs",
+        "production_deployment",
+        "production_data_used",
+        "native_application_sources_modified",
+        "provider_notification_delivery",
+        "limitation"
+      ],
+      "root_items": 33,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "source_files_changed_during_complete_run": 2,
+        "tests": 8,
+        "service_image_ids": 6,
+        "database_role_qualification": 8,
+        "first_run": 8,
+        "raw_logs": 7
+      }
+    },
+    {
+      "path": "docs/remediation/storage-combined-tests.txt",
+      "sha256": "b988fb68a718c0d775dd7f8643e008015cf7c670ea0829dca733a21470d09da1",
+      "bytes": 11821,
+      "physical_lines": 68,
+      "suffix": ".txt",
+      "line_classes": {
+        "blank": 2,
+        "headings": 0,
+        "pass_summary_lines": 0
+      }
+    },
+    {
+      "path": "docs/remediation/storage-copy-process-evidence.json",
+      "sha256": "dde20820a8a56e70f2cc498cd11133fcaedc80e674e9a2b73776c512f779b484",
+      "bytes": 213,
+      "physical_lines": 8,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "synthetic",
+        "detached_process_outlived_client",
+        "verified_exact_process_stopped",
+        "auto_removed_after_stop",
+        "network",
+        "source_or_target_data_used"
+      ],
+      "root_items": 6,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {}
+    },
+    {
+      "path": "docs/remediation/storage-integrity-guard-tests.txt",
+      "sha256": "d03c31b4154c36ce4144e5210835792728d3b2b9a861b612336a41acebeb5fdd",
+      "bytes": 2414,
+      "physical_lines": 17,
+      "suffix": ".txt",
+      "line_classes": {
+        "blank": 2,
+        "headings": 0,
+        "pass_summary_lines": 0
+      }
+    },
+    {
+      "path": "docs/remediation/storage-migration-evidence.json",
+      "sha256": "c45e7befd78119adc830d656db661bc9884c793459fe60cd8b970de30ed24fa8",
+      "bytes": 3247,
+      "physical_lines": 81,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "version",
+        "bucket",
+        "source_endpoint",
+        "destination_endpoint",
+        "source_digest",
+        "versions_including_delete_markers",
+        "bytes",
+        "every_copied_body_sha256_verified",
+        "source_deleted",
+        "preserved_original_version_ids_in_journal",
+        "synthetic",
+        "repeat_idempotent",
+        "source_change_rejected",
+        "unexpected_destination_rejected",
+        "current_delete_state_preserved",
+        "qualification_complete",
+        "qualification_cases"
+      ],
+      "root_items": 17,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "qualification_cases": 5
+      }
+    },
+    {
+      "path": "docs/remediation/storage-protocol-ci-evidence.json",
+      "sha256": "7af60ce2ec23bb229bbc54911eb06464245f9d71c756b554be736e326d961b29",
+      "bytes": 3581,
+      "physical_lines": 89,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "version",
+        "bucket",
+        "source_endpoint",
+        "destination_endpoint",
+        "source_digest",
+        "versions_including_delete_markers",
+        "bytes",
+        "every_copied_body_sha256_verified",
+        "source_deleted",
+        "preserved_original_version_ids_in_journal",
+        "synthetic",
+        "source_provider",
+        "repeat_idempotent",
+        "source_change_rejected",
+        "unexpected_destination_rejected",
+        "current_delete_state_preserved",
+        "qualification_complete",
+        "qualification_cases"
+      ],
+      "root_items": 18,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "qualification_cases": 6
+      }
+    },
+    {
+      "path": "docs/remediation/storage-release-tests.txt",
+      "sha256": "e240d73f302297ce28db0ef5693056c8c47b1433ee42fc662ad77a6ec85b4a87",
+      "bytes": 3265,
+      "physical_lines": 22,
+      "suffix": ".txt",
+      "line_classes": {
+        "blank": 2,
+        "headings": 0,
+        "pass_summary_lines": 0
+      }
+    },
+    {
+      "path": "docs/remediation/storage-writer-fence-tests.txt",
+      "sha256": "65577b236d9b521a724912660d6d0ee91dedbe00aaafe652be810a75f011584c",
+      "bytes": 3670,
+      "physical_lines": 25,
+      "suffix": ".txt",
+      "line_classes": {
+        "blank": 2,
+        "headings": 0,
+        "pass_summary_lines": 0
+      }
+    },
+    {
+      "path": "docs/remediation/tooling-bootstrap-evidence.json",
+      "sha256": "477315f25cd35af8e05ba72ca002c87a4f4871bee0c69b077e1c2df0d9e5712b",
+      "bytes": 1558,
+      "physical_lines": 39,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "result",
+        "scope",
+        "verified_on",
+        "windows",
+        "linux",
+        "tools",
+        "runtime_and_development_install_require_hashes",
+        "node_host_check",
+        "unsupported_python_3_10_3_12_3_13_refusal_tests"
+      ],
+      "root_items": 9,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "windows": 6,
+        "linux": 7,
+        "tools": 8,
+        "node_host_check": 3
+      }
+    },
+    {
+      "path": "docs/remediation/traveller-document-postgresql-final.txt",
+      "sha256": "43bab91c6d9755dfb7a00388f9a8e98a55c4b5ad4104a770c4760eb9324f354a",
+      "bytes": 112,
+      "physical_lines": 2,
+      "suffix": ".txt",
+      "line_classes": {
+        "blank": 0,
+        "headings": 0,
+        "pass_summary_lines": 1
+      }
+    },
+    {
+      "path": "docs/remediation/workload-capacity-evidence.json",
+      "sha256": "70a8cfa349a08f7b1c892968971a0cfb5e73127a731552b9e6a4856c75b8cd02",
+      "bytes": 77353,
+      "physical_lines": 2612,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "result",
+        "failed_gates",
+        "finished_at",
+        "run_id",
+        "image_id",
+        "source_revision_label",
+        "dataset",
+        "stages",
+        "stage_windows",
+        "request_samples_file",
+        "slowest_requests",
+        "cohort_results",
+        "cross_tenant_negative_checks",
+        "budgets_ms_p95_p99",
+        "overload_budgets_ms_p95_p99",
+        "queue_budgets",
+        "workload",
+        "resource_samples",
+        "durable_verification",
+        "limits",
+        "production_changed",
+        "existing_data_deleted"
+      ],
+      "root_items": 22,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "failed_gates": 0,
+        "dataset": 11,
+        "stages": 4,
+        "stage_windows": 4,
+        "slowest_requests": 4,
+        "cohort_results": 4,
+        "budgets_ms_p95_p99": 6,
+        "overload_budgets_ms_p95_p99": 2,
+        "queue_budgets": 5,
+        "workload": 15,
+        "resource_samples": 110,
+        "durable_verification": 6,
+        "limits": 6
+      }
+    },
+    {
+      "path": "docs/remediation/zlib-source-evidence.json",
+      "sha256": "2a0b757af36fbbb293f944b1af7ed5c8155a375fc97834c69d2924ffadb00679",
+      "bytes": 2190,
+      "physical_lines": 36,
+      "suffix": ".json",
+      "valid_json": true,
+      "root_type": "dict",
+      "root_fields": [
+        "result",
+        "advisory",
+        "official_inputs",
+        "upstream_v1_3_1_byte_identical_gz_files",
+        "debian_patch_series_empty",
+        "affected_nonblocking_state_absent",
+        "introduced_by",
+        "fixed_by",
+        "limitation",
+        "actual_installed_and_official_deb_library_sha256",
+        "official_deb_extraction_compared_inside_candidate"
+      ],
+      "root_items": 11,
+      "declared_historical_metadata": {},
+      "root_collection_sizes": {
+        "official_inputs": 4,
+        "upstream_v1_3_1_byte_identical_gz_files": 5
+      }
+    }
+  ]
+}

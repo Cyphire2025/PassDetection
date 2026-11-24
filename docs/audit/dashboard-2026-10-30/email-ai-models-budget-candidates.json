@@ -1,0 +1,152 @@
+{
+  "proposed_only": true,
+  "shared_gate_edited": false,
+  "normal_candidates": [
+    {
+      "path": "app/infrastructure/database/email_ai_models.py",
+      "baseline_lines": 45,
+      "maximum_lines": 50,
+      "baseline_max_function_complexity": 1,
+      "maximum_function_complexity": 2,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_email_ai_models/__init__.py",
+      "baseline_lines": 7,
+      "maximum_lines": 10,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 1,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_email_ai_models/rollout.py",
+      "baseline_lines": 119,
+      "maximum_lines": 120,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 1,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_email_ai_models/analyses.py",
+      "baseline_lines": 149,
+      "maximum_lines": 150,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 1,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_email_ai_models/deadlines.py",
+      "baseline_lines": 111,
+      "maximum_lines": 120,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 1,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_email_ai_models/proposals.py",
+      "baseline_lines": 128,
+      "maximum_lines": 130,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 1,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_email_ai_models/drafts.py",
+      "baseline_lines": 103,
+      "maximum_lines": 110,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 1,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_email_ai_models/feedback.py",
+      "baseline_lines": 90,
+      "maximum_lines": 90,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 1,
+      "minimum_coverage_percent": 95
+    }
+  ],
+  "critical_candidates": [],
+  "measurements": [
+    {
+      "path": "app/infrastructure/database/email_ai_models.py",
+      "lines": 45,
+      "max_function_complexity": 1,
+      "most_complex_function": "_utcnow",
+      "coverage_percent": 100.0,
+      "branch_count": 0,
+      "branch_coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/database/_email_ai_models/__init__.py",
+      "lines": 7,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "coverage_percent": 100.0,
+      "branch_count": 0,
+      "branch_coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/database/_email_ai_models/rollout.py",
+      "lines": 119,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "coverage_percent": 100.0,
+      "branch_count": 0,
+      "branch_coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/database/_email_ai_models/analyses.py",
+      "lines": 149,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "coverage_percent": 100.0,
+      "branch_count": 0,
+      "branch_coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/database/_email_ai_models/deadlines.py",
+      "lines": 111,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "coverage_percent": 100.0,
+      "branch_count": 0,
+      "branch_coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/database/_email_ai_models/proposals.py",
+      "lines": 128,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "coverage_percent": 100.0,
+      "branch_count": 0,
+      "branch_coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/database/_email_ai_models/drafts.py",
+      "lines": 103,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "coverage_percent": 100.0,
+      "branch_count": 0,
+      "branch_coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/database/_email_ai_models/feedback.py",
+      "lines": 90,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "coverage_percent": 100.0,
+      "branch_count": 0,
+      "branch_coverage_percent": null
+    }
+  ],
+  "original_family_normal_membership": [],
+  "original_family_critical_membership": [],
+  "preserved_global_floors": {
+    "minimum_line_percent": 75,
+    "minimum_branch_percent": 58
+  },
+  "notes": "Eight normal95line proposals measured from one fresh unmixed50case affected selection. Model declarations/bootstrap are not critical behavior gates. Existing meaningful migration/metadata/persistence/owner-first controls remain in CI; no floors/caps changed here."
+}

@@ -1,0 +1,39 @@
+{
+  "cwd": "backend",
+  "test_files": [
+    "tests/unit/presentation/test_email_ai_inbox_protocol.py",
+    "tests/unit/presentation/test_email_ai_inbox_isolation.py",
+    "tests/integration/test_client_group_reopen.py",
+    "tests/unit/application/test_import_only_client_groups.py",
+    "tests/integration/test_import_only_group_workflow.py",
+    "tests/unit/presentation/test_email_integration_contract.py",
+    "tests/unit/presentation/test_email_ai_rollout_admin.py",
+    "tests/unit/application/test_email_ai_evaluation_fixture.py",
+    "tests/unit/presentation/test_client_group_storage_cleanup.py",
+    "tests/unit/presentation/test_passport_roster_resolution_routes.py",
+    "tests/unit/presentation/test_group_whatsapp_links.py",
+    "tests/unit/application/test_retained_data_authorization.py",
+    "tests/unit/presentation/test_api_pagination_contract.py",
+    "tests/unit/presentation/test_passport_crop_lifecycle_contract.py",
+    "tests/integration/test_collection_reliability.py",
+    "tests/unit/presentation/test_public_flow_telemetry.py",
+    "tests/unit/presentation/test_client_group_creation_authorization.py",
+    "tests/unit/presentation/test_whatsapp_recipient_capacity.py",
+    "tests/integration/test_qualifier_selection_api.py",
+    "tests/unit/application/test_qualifier_selection_flow.py",
+    "tests/unit/application/test_client_group_field_options.py",
+    "tests/integration/test_mcp_group_creation.py",
+    "tests/integration/test_mcp_excel_group_link_journey.py",
+    "tests/unit/presentation/test_client_group_route_boundaries.py",
+    "tests/integration/test_group_company_assignment_http.py"
+  ],
+  "new_node_ids": [
+    "tests/unit/presentation/test_email_ai_inbox_protocol.py::test_cursor_roundtrip_preserves_priority_time_and_tie_break",
+    "tests/unit/presentation/test_email_ai_inbox_protocol.py::test_malformed_cursor_has_a_static_validation_error",
+    "tests/unit/presentation/test_email_ai_inbox_protocol.py::test_projection_preserves_safe_actions_visibility_and_provider_data_boundaries",
+    "tests/unit/presentation/test_passport_roster_resolution_routes.py::test_rejection_preserves_unmatched_guard_replay_and_post_write_hooks",
+    "tests/unit/presentation/test_client_group_route_boundaries.py::test_retention_rejects_unscoped_or_missing_groups_before_mutation",
+    "tests/unit/presentation/test_client_group_route_boundaries.py::test_group_listing_preserves_agency_and_deleted_data_visibility",
+    "tests/unit/presentation/test_client_group_route_boundaries.py::test_replacement_candidates_merge_same_person_across_linked_broadcasts"
+  ]
+}

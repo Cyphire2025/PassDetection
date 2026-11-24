@@ -1,0 +1,47 @@
+[
+  {
+    "path": "scripts/test_image_advisory_policy.py",
+    "sha256": "52c515af4377c2b9c458dbb31764fbf6ef8db1675fdcfbdb1a5ca52e45df65e6",
+    "physical_lines": 92,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole92lines. Exact scanned config bytes/image digest/layers/platform/runtime config identity with only reviewed legacy defaults, strict advisory/package/version/time/owner/evidence/executable conditions and retired exception refusal reviewed. Synthetic reports plus policy-source reads; no vulnerability scan, exception update or installed image qualification. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "scripts/test_image_runtime_policy.py",
+    "sha256": "0af2f823eae92b66f10a98afe48862bf1a98af060912928221c72236b2197dd4",
+    "physical_lines": 143,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole143lines. Per-process exact commands/nonroot/capability/confinement, rejects shell/entrypoint/env/code/mount/device/host escape, exact readonly credential mount, storage-copy privileged helper restricted to protected evidence mount with Compose omitted-false compatibility reviewed. Synthetic compose dictionaries only, no runtime confinement or deployment action. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "scripts/test_native_allocator_policy.py",
+    "sha256": "7f114332f946a0b381294d7e2ffc22e26ffbce38e35088794a4c287b5f07d0dc",
+    "physical_lines": 62,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole62lines. Complete LF-normalized source/path plus independent FFI function/signature pins, rejects extra calls/comment drift, noncanonical paths, alternate symbol/library/arguments despite file-pin update reviewed. Existing shared image worker malloc_trim compatibility only; no FFI/native allocation or pin change performed. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "scripts/test_postgresql_client_qualification.py",
+    "sha256": "434a29c75d19801ec3728654a5356c3f25a4637d6a07f36b0d02041ae901ae3d",
+    "physical_lines": 128,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole128lines. Key chmod precedes ownership loss, actual certificate-error discrimination, safe timeout/command diagnostics, exact runtime source/hash/SCRAM/TLS proof fields, image revision preflight, invocation owner+immutable-ID cleanup and partial startup drain, bounded readiness and synthetic private TLS root/hostname controls reviewed. Authored mock Docker and generated temp certificates only; no server, container or PostgreSQL qualification now. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "scripts/test_postgresql_client_security.py",
+    "sha256": "866501f766d5ad0c1dc2bde7b017f90123f1cd22cc74ebeae6c4c0ea2d075048",
+    "physical_lines": 157,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole157lines. Exact source digest/bounded exclusive download, only libpq runtime staging incl symlink inventory, strict OpenSSL/no private or unneeded auth dependencies, verified TLS+SCRAM+channel binding and no weaker retry reviewed. Synthetic filesystem/linkage/HTTP/driver mocks; no source fetch, compiled library, FFI or database connection executed. Complete current physical test-source read; no new execution/source fix/validated defect."
+  }
+]

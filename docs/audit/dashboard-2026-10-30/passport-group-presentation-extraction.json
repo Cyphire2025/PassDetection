@@ -1,0 +1,59 @@
+{
+  "note": "Post-accessibility-fix sources. Function/JSX movement is separate from the deliberate Link/Button correction; submitted re-extraction admission remains unchanged.",
+  "origins": [
+    {
+      "path": "frontend/features/passports/components/passport-group-model.tsx",
+      "sha256": "69a2982f22f25eac3e418d22f831c700ad1f2fd6f1eb97a1a66bb87929ce5dd5"
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-roster-panel.tsx",
+      "sha256": "c9e4539ec8e4fd124c1c9968b1d1efdb9b4d9358e6e7a9f7d29cf1642917d0fd"
+    }
+  ],
+  "owners": [
+    {
+      "path": "frontend/features/passports/components/passport-group-duplicates.tsx",
+      "functions": [
+        "isDuplicatePassport",
+        "isDuplicateClusterStart",
+        "DuplicateClusterHeader"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/components/passport-mobile-card.tsx",
+      "functions": [
+        "PassportMobileCard"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/components/reextract-passport-control.tsx",
+      "functions": [
+        "ReextractPassportControl"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-fields.tsx",
+      "functions": [
+        "hasRealPassportFront",
+        "getDashboardFields",
+        "getDashboardCountry",
+        "getDashboardPassportDate",
+        "getExtractionConflictCount",
+        "getStringField",
+        "InfoPair",
+        "StatusBadge"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-feedback.ts",
+      "functions": [
+        "createExportRequestId",
+        "mutationErrorMessage"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-roster-table.tsx",
+      "jsx_original_sha256": "61c81e6f93ccb8874631bcca7fc262d5cd531e5c334e6f7957e277f46647a87f"
+    }
+  ]
+}

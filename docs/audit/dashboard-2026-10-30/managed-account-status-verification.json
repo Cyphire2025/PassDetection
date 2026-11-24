@@ -1,0 +1,24 @@
+{
+  "status": "passed narrow persisted-status fix; architecture follow-through remains open",
+  "before": {
+    "actual_failures": 4,
+    "valid_controls": 4,
+    "evidence": "managed-account-status-before.txt"
+  },
+  "after": {
+    "cases": 20,
+    "evidence": "managed-account-status-after.txt",
+    "strict_mypy_source_files": 1
+  },
+  "whole_module_AST_exact_after_declared_three_changes": true,
+  "intentional_changes": [
+    "The existing session fence returns its already-loaded and locked security-state object.",
+    "Status handler captures that return instead of discarding it.",
+    "Response projection receives the persisted credential state rather than its active default."
+  ],
+  "preserved": "All queries, grants, session-version increments, refresh/mobile revocation, audit events and public endpoint/schema signatures remain exact; no extra query or credential activation introduced.",
+  "source_sha256": "a3ac40bca674175d323dbb8998f51716fd5be6de42950b70a291c1b0dfc3f3e2",
+  "physical_lines": 623,
+  "test_sha256": "d2fd69a13b86b0cb372b03bad86fe7e9cdf5741c0074bc9bf4c706d093698ed4",
+  "limits": "Real isolated SQLite persistence and existing unit controls; no PostgreSQL/VPS/provider claim. The mixed managed-account owner still requires structure work."
+}

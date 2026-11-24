@@ -1,0 +1,38 @@
+[
+  {
+    "path": "backend/tests/integration/test_mcp_announcements.py",
+    "sha256": "c9b866736243c50ecfd53804b75c3644e1e5fe65c6201a4ae20371089435c746",
+    "physical_lines": 260,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete authored announcement creation, replay, revision, current scope and inspection assertions; append-only draft state, prior published/draft preservation, rollback and actual SDK declaration/dispatch semantics reviewed. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/service_integration/test_mcp_announcements_postgresql.py",
+    "sha256": "918ee609d8cb8e6a756da70da85480814ec41ee6977ba94cf5de24c809f8d48c",
+    "physical_lines": 203,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete PostgreSQL test protocols for immutable same-key intent, revision conflicts, website edit/push/group-access lock ordering and identity reconciliation reviewed; held provider is synthetic and no database concurrency was executed. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_office_changes.py",
+    "sha256": "352ffb9963c256fbd0acff838a2cf0dca10e5746f0d8a54edcacde9147f538d3",
+    "physical_lines": 374,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete four canonical office creation fixture/tool paths, sparse inputs and revision snapshots, current agency/group/parent authority on replay and inspect, cross-grant idempotency, unsupported input no-write, audit rollback and actual SDK dispatch commit assertions reviewed. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/service_integration/test_mcp_office_postgresql.py",
+    "sha256": "07ee28bed98963f90f00530e60a51fc76bd382136d428170ca8dbb2c83012b59",
+    "physical_lines": 205,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete isolated PostgreSQL fixture and concurrent same-intent creation, stale parent-revision single winner and distinct meal-plan preservation protocols reviewed; source asserts exact audit/entry counts with bounded waits and rollback, no service executed. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  }
+]

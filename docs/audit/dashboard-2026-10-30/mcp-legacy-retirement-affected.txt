@@ -1,0 +1,26 @@
+
+ RUN  v4.1.12 C:/Users/nipun/Desktop/PassDetection/frontend
+
+ ❯ features/mcp/components/mcp-simple-access.test.tsx (12 tests | 1 failed) 841ms
+   × shows the native URL instructions and copies the URL without granting access 50ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  features/mcp/components/mcp-simple-access.test.tsx > shows the native URL instructions and copies the URL without granting access
+TypeError: undefined is not a spy or a call to a spy!
+ ❯ features/mcp/components/mcp-simple-access.test.tsx:74:119
+     73|   await waitFor(() => expect(writeText).toHaveBeenCalledWith(overview.…
+     74|   for (const method of [mcpApi.approveRequest, mcpApi.rejectRequest, m…
+     75|     mcpApi.control, mcpApi.deleteConnection, mcpApi.setConnectionAcces…
+       |                        ^
+     76| });
+     77|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 17 passed (18)
+      Tests  1 failed | 179 passed (180)
+   Start at  02:06:29
+   Duration  35.41s (transform 669ms, setup 4.43s, import 3.54s, tests 8.70s, environment 15.95s)
+

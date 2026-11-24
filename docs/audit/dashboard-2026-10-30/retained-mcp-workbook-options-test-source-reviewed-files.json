@@ -1,0 +1,29 @@
+[
+  {
+    "path": "backend/tests/integration/test_mcp_excel_options.py",
+    "sha256": "6a3e6e4f1ccd2b368a2ec668771219605e5cb38fb8f3ca7d480abfd9c5be3760",
+    "physical_lines": 450,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete read-only option discovery parity with canonical website single/selected groups, empty/import-only sources and complete catalog union/collision labels, explicit IDs/current grants, privacy defaults and safe HTTP metadata, separate catalog/grouping/response bounds, no render/storage/history/provider effects reviewed. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/service_integration/test_mcp_excel_options_postgresql.py",
+    "sha256": "46a2725bd335cb41c5bf5242e1675c156d551bb4759a27a036bac93333119828",
+    "physical_lines": 244,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete isolated retained PostgreSQL options fixture, canonical website parity, combined source row and UTF8 byte measurement before ORM hydration, busy lock/retry fresh catalog, exact source counts and no generation/message receipts reviewed; no workload/capacity or live service qualification claimed. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_group_workbook_import.py",
+    "sha256": "eebedbfd0e4ecd2665b06531d8e9819f920c0ced4679f922c71ac569b2f72eb3",
+    "physical_lines": 535,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete original workbook hash/native purpose/group/grant/user/security/size/media binding, explicit original bytes stream outside DB transaction, canonical sparse identity merge preserving images/QR/staff data, retained source/preview/replay, post-read authority, capacity/audit atomicity, duplicate identity and actual SDK metadata-only commit controls reviewed. Transport expiry versus workbook lifetime and explicit source claim semantics examined. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  }
+]

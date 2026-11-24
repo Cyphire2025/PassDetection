@@ -1,0 +1,11 @@
+[
+  {
+    "path": "backend/scripts/register_my_photos_manifest.py",
+    "sha256": "5775acc23a5dcfb910a63d178319a1c156d32f8d4c2025a5c66499bdfb2b4adc",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "fixed",
+    "lines": 334,
+    "notes": "Full physical original/current source read, including CLIcommands, localfilelimits, credentials/TOTP/state replay, provider construction and durable progress. Proven stat/open growth bypass fixed by actual bounded read;3affected localfixture cases/Ruff pass. No real credentials/provider/cloud call. Exact only _load_manifest moduleASTchange proven; directoryenumeration and independentCLIengine privacy are separate unvalidated follow-ups."
+  }
+]

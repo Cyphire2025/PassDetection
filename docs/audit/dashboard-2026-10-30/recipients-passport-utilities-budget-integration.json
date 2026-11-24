@@ -1,0 +1,12 @@
+{
+  "candidates": "docs/audit/dashboard-2026-10-30/recipients-passport-utilities-budget-candidates.json",
+  "before_sha256": "6db22ebbf1d36566de3eab23c8a536931b2ae54a804d0686cfa0c3edf7ad5f79",
+  "sha256": "7c78f7aaaee5cab57a29d80b03a81cc88bd7a120996b622b88b02063b5562018",
+  "lf_normalized_sha256": "623a01cefcf709e2884a652ac229fdef75889fec1823d2b9fa924121cd2cf73b",
+  "added": 17,
+  "updated_existing": 0,
+  "lowered_existing": 0,
+  "lowered_existing_paths": [],
+  "existing_ceilings_preserved": true,
+  "previous_ceilings_sha256": "ab45e39e46b3e37d05cef6e47011a64ee54329a62b473c3f6fcb3670a18b5a12"
+}

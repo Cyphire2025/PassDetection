@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, expect, it, vi } from "vitest";
 import { useAuthStore } from "@/stores/auth.store";
 import type { User } from "@/types";
@@ -46,4 +46,32 @@ it("allows super-admin policy saves and immediately removes editing after a role
   act(() => useAuthStore.setState({ user: admin }));
   expect(name).toBeDisabled();
   expect(screen.getByRole("button", { name: "Save policies" })).toBeDisabled();
+});
+
+it("keeps data deletion unavailable when the authoritative settings load fails", async () => {
+  client.get.mockRejectedValueOnce(new Error("unavailable"));
+  render(<PlatformSettingsPanel section="data" />);
+  const retry = await screen.findByRole("button", { name: "Retry loading settings" });
+  expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
+  expect(client.delete).not.toHaveBeenCalled();
+  fireEvent.click(retry);
+  expect(await screen.findByRole("textbox")).toBeEnabled();
+  expect(screen.getByRole("button", { name: "Delete All Data" })).toBeDisabled();
+});
+
+it("requires both the exact phrase and the confirmation dialog before deleting", async () => {
+  client.delete.mockResolvedValueOnce({ data: { deleted_client_groups: 1 } });
+  render(<PlatformSettingsPanel section="data" />);
+  const confirmation = await screen.findByRole("textbox");
+  const remove = screen.getByRole("button", { name: "Delete All Data" });
+  fireEvent.change(confirmation, { target: { value: "delete all data" } });
+  expect(remove).toBeDisabled();
+  fireEvent.change(confirmation, { target: { value: "DELETE ALL DATA" } });
+  fireEvent.click(remove);
+  const dialog = screen.getByRole("dialog");
+  expect(client.delete).not.toHaveBeenCalled();
+  fireEvent.click(within(dialog).getByRole("button", { name: "Delete All Data" }));
+  await waitFor(() => expect(client.delete).toHaveBeenCalledExactlyOnceWith("/api/v1/admin/passport-data"));
+  await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+  expect(confirmation).toHaveValue("");
 });

@@ -1,0 +1,58 @@
+I001 [*] Import block is un-sorted or un-formatted
+  --> tests\unit\presentation\test_document_import_preview_boundary.py:3:1
+   |
+ 1 |   """Preview does not trust mismatched or duplicate extractor output or unreadable spools."""
+ 2 |
+ 3 | / import io
+ 4 | | from types import SimpleNamespace
+ 5 | |
+ 6 | | import pytest
+ 7 | | from app.infrastructure.imports.passport_document_importer import (
+ 8 | |     PassportDocumentFile,
+ 9 | |     PassportDocumentImportWorkspace,
+10 | | )
+11 | | from app.infrastructure.security.upload_validator import ValidatedUpload
+12 | | from app.presentation.api.v1.routes.passport_routes import document_import_preview as owner
+13 | | from fastapi import UploadFile
+14 | | from tests.unit.presentation.passport_document_import_fixture import install_import_context
+   | |___________________________________________________________________________________________^
+   |
+help: Organize imports
+   |
+6  | import pytest
+7  + from fastapi import UploadFile
+8  +
+9  | from app.infrastructure.imports.passport_document_importer import (
+--------------------------------------------------------------------------------
+14 | from app.presentation.api.v1.routes.passport_routes import document_import_preview as owner
+   - from fastapi import UploadFile
+15 | from tests.unit.presentation.passport_document_import_fixture import install_import_context
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> tests\unit\presentation\test_document_import_retained_sources.py:3:1
+  |
+1 |   """A successful replacement preserves original evidence and removes only derivatives."""
+2 |
+3 | / from app.infrastructure.database.models import PassportImageCropModel, PassportSubmissionModel
+4 | | from app.infrastructure.database.passport_image_library_model import PassportImageLibraryItemModel
+5 | | from sqlalchemy import select, update
+6 | | from tests.unit.presentation.document_import_authority_fixture import (
+7 | |     perform_held_import,
+8 | |     prepare_authority_import,
+9 | | )
+  | |_^
+  |
+help: Organize imports
+  |
+2 |
+3 + from sqlalchemy import select, update
+4 +
+5 | from app.infrastructure.database.models import PassportImageCropModel, PassportSubmissionModel
+6 | from app.infrastructure.database.passport_image_library_model import PassportImageLibraryItemModel
+  - from sqlalchemy import select, update
+7 | from tests.unit.presentation.document_import_authority_fixture import (
+  |
+
+Found 2 errors.
+[*] 2 fixable with the `--fix` option.

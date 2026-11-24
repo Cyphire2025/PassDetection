@@ -1,0 +1,8 @@
+........................................................................ [ 36%]
+........................................................................ [ 73%]
+...................................................                      [100%]
+
+---------- coverage: platform win32, python 3.11.15-final-0 ----------
+Coverage JSON written to file C:\Users\nipun\Desktop\PassDetection\docs\audit\dashboard-2026-10-30\admin-current-coverage.json
+
+195 passed in 422.90s (0:07:02)

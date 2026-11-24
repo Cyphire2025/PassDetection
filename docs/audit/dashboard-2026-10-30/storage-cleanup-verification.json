@@ -1,0 +1,234 @@
+{
+  "status": "frozen",
+  "source_fence": {
+    "backend/app/infrastructure/documents/storage_cleanup.py": "7672203e61851b5de3158a5da5e48d97095d2c282c2b666c42a8e5919d5fba47",
+    "backend/app/infrastructure/documents/storage_cleanup_cipher.py": "611238ff8b55d99ebc628b522a3e81a816bc56a5e94c1b63c43e7d7ef2ca9428",
+    "backend/app/infrastructure/documents/storage_cleanup_execution.py": "c06b2b610a50d661e06b8f1a7f168c3880807e2cd0eb5dabf802ca5f20489398",
+    "backend/app/infrastructure/documents/storage_cleanup_leases.py": "d52d5e3a28db1fd3dee5a288f51be78c0fb6b6e8b105df7ecb6806c00bf75a66",
+    "backend/app/infrastructure/documents/storage_cleanup_policy.py": "0ce27cd07e1116f98219c8564e512ed10faf3e7a9b92fd0c28bfa95e11062646",
+    "backend/app/infrastructure/documents/storage_cleanup_staging.py": "d89d422e7903e69e28d2e7c1ec74fdfc04fd187bd477493e277f20c8221ad257",
+    "backend/app/infrastructure/documents/storage_cleanup_types.py": "8de4a03d402c856a7f4adbcc19b10f4bc4907d29f01ffe2fe1650334c0b47330",
+    "backend/tests/unit/infrastructure/test_storage_cleanup.py": "33c3fce4b7527887f3e83e3b88eaaee175877731b2a4f2976bf00976cea0007e",
+    "backend/tests/unit/infrastructure/test_storage_cleanup_passport_covers.py": "49fd8500a5c919f6e1e5a2ce27e5e1128046d16c9e8ab4e71ab2e6c087315676",
+    "backend/tests/unit/infrastructure/test_storage_cleanup_migration.py": "57631a82e243e065f484976031d4c72ccd642dc74aadc0a6e1dd3e63a2964ae5",
+    "backend/tests/unit/infrastructure/test_document_cleanup_task_diagnostics.py": "2eb37f217f744e51622c663abab2b46128bb493cb310b613dd5a432a1517f231",
+    "backend/tests/unit/infrastructure/test_passport_import_compensation.py": "8833679959268b118603244d1de977d5908d5486aeefa003f4ca6f08b66c401d",
+    "backend/tests/unit/infrastructure/test_document_orphan_reconciliation.py": "4dfd54838bfdf8b0c9b8ea2305896ea5e1dac3455d6b90808db277833f1ac7ed",
+    "backend/tests/unit/presentation/test_admin_passport_storage_cleanup.py": "63697734ba4571a70b10518b768c365279fc7d5b98264de34a4357c14234c763",
+    "backend/tests/unit/presentation/test_passport_deletion_support.py": "72f1d08b4e3095350904c40f9f625182462a3225564746498e1c1a5080a47939",
+    "backend/tests/integration/test_traveller_draft_runtime.py": "4bd3e855892e2c1030c1480930a388d47d6cf75da8cbd59ae73ecd47def4c51c",
+    "backend/tests/unit/infrastructure/test_storage_cleanup_persistence.py": "4090cf388f291d90a7c26016f22bcab332efd8953599b71f813bb6c4c21d0cd2"
+  },
+  "runtime_owners": 7,
+  "source_measurements": [
+    {
+      "path": "backend/app/infrastructure/documents/storage_cleanup.py",
+      "lines": 67,
+      "complexity": 0,
+      "coverage": {
+        "covered_lines": 54,
+        "num_statements": 54,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 0,
+        "num_partial_branches": 0,
+        "covered_branches": 0,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      }
+    },
+    {
+      "path": "backend/app/infrastructure/documents/storage_cleanup_cipher.py",
+      "lines": 118,
+      "complexity": 7,
+      "coverage": {
+        "covered_lines": 66,
+        "num_statements": 73,
+        "percent_covered": 85.26315789473684,
+        "percent_covered_display": "85",
+        "missing_lines": 7,
+        "excluded_lines": 0,
+        "percent_statements_covered": 90.41095890410959,
+        "percent_statements_covered_display": "90",
+        "num_branches": 22,
+        "num_partial_branches": 7,
+        "covered_branches": 15,
+        "missing_branches": 7,
+        "percent_branches_covered": 68.18181818181819,
+        "percent_branches_covered_display": "68"
+      }
+    },
+    {
+      "path": "backend/app/infrastructure/documents/storage_cleanup_execution.py",
+      "lines": 169,
+      "complexity": 8,
+      "coverage": {
+        "covered_lines": 57,
+        "num_statements": 58,
+        "percent_covered": 97.05882352941177,
+        "percent_covered_display": "97",
+        "missing_lines": 1,
+        "excluded_lines": 0,
+        "percent_statements_covered": 98.27586206896552,
+        "percent_statements_covered_display": "98",
+        "num_branches": 10,
+        "num_partial_branches": 1,
+        "covered_branches": 9,
+        "missing_branches": 1,
+        "percent_branches_covered": 90.0,
+        "percent_branches_covered_display": "90"
+      }
+    },
+    {
+      "path": "backend/app/infrastructure/documents/storage_cleanup_leases.py",
+      "lines": 171,
+      "complexity": 6,
+      "coverage": {
+        "covered_lines": 55,
+        "num_statements": 56,
+        "percent_covered": 95.45454545454545,
+        "percent_covered_display": "95",
+        "missing_lines": 1,
+        "excluded_lines": 0,
+        "percent_statements_covered": 98.21428571428571,
+        "percent_statements_covered_display": "98",
+        "num_branches": 10,
+        "num_partial_branches": 2,
+        "covered_branches": 8,
+        "missing_branches": 2,
+        "percent_branches_covered": 80.0,
+        "percent_branches_covered_display": "80"
+      }
+    },
+    {
+      "path": "backend/app/infrastructure/documents/storage_cleanup_policy.py",
+      "lines": 115,
+      "complexity": 10,
+      "coverage": {
+        "covered_lines": 28,
+        "num_statements": 32,
+        "percent_covered": 83.33333333333333,
+        "percent_covered_display": "83",
+        "missing_lines": 4,
+        "excluded_lines": 0,
+        "percent_statements_covered": 87.5,
+        "percent_statements_covered_display": "88",
+        "num_branches": 10,
+        "num_partial_branches": 3,
+        "covered_branches": 7,
+        "missing_branches": 3,
+        "percent_branches_covered": 70.0,
+        "percent_branches_covered_display": "70"
+      }
+    },
+    {
+      "path": "backend/app/infrastructure/documents/storage_cleanup_staging.py",
+      "lines": 164,
+      "complexity": 8,
+      "coverage": {
+        "covered_lines": 43,
+        "num_statements": 45,
+        "percent_covered": 92.15686274509804,
+        "percent_covered_display": "92",
+        "missing_lines": 2,
+        "excluded_lines": 0,
+        "percent_statements_covered": 95.55555555555556,
+        "percent_statements_covered_display": "96",
+        "num_branches": 6,
+        "num_partial_branches": 2,
+        "covered_branches": 4,
+        "missing_branches": 2,
+        "percent_branches_covered": 66.66666666666667,
+        "percent_branches_covered_display": "67"
+      }
+    },
+    {
+      "path": "backend/app/infrastructure/documents/storage_cleanup_types.py",
+      "lines": 55,
+      "complexity": 0,
+      "coverage": {
+        "covered_lines": 37,
+        "num_statements": 37,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 0,
+        "num_partial_branches": 0,
+        "covered_branches": 0,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      }
+    }
+  ],
+  "before": "storage-cleanup-before-command.json",
+  "after": "storage-cleanup-qualified2-command.json",
+  "baseline_and_unchanged_selection": "60 affected tests in9files pass before and after",
+  "final_selection": "64 affected tests in10files pass after4additional real-persistence controls",
+  "additional_controls": "Bounded real transaction batch, redacted completion audits, retained trip object protection, durable blocked/deferred encrypted payloads without busy retry.",
+  "fixture_correction": "First new real-persistence run62pass/2fail: both tests synchronously read expired ORM fixture attributes. Cache immutable IDs and explicitly await protected asset reload; all assertions retained. Failed qualified-command/log/coverage remain separate.",
+  "metadata_correction": "Initial scoped mypy found two descriptor attribute diagnostics. Actual class __dict__ descriptor access preserves identical function objects/metadata; sealed and qualified2 runs pass.",
+  "proof": "storage-cleanup-extraction-proof.json",
+  "proof_sha256": "8d5335aa4503c506fa4ac53bd8f7a50cb92e6ae728dbe83ba254065c83bb9341",
+  "checks": [
+    {
+      "name": "types",
+      "argv": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "mypy",
+        "app/infrastructure/documents/storage_cleanup.py",
+        "app/infrastructure/documents/storage_cleanup_cipher.py",
+        "app/infrastructure/documents/storage_cleanup_execution.py",
+        "app/infrastructure/documents/storage_cleanup_leases.py",
+        "app/infrastructure/documents/storage_cleanup_policy.py",
+        "app/infrastructure/documents/storage_cleanup_staging.py",
+        "app/infrastructure/documents/storage_cleanup_types.py"
+      ],
+      "exit_code": 0,
+      "output": "storage-cleanup-types.txt"
+    },
+    {
+      "name": "lint",
+      "argv": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "ruff",
+        "check",
+        "--no-fix",
+        "app/infrastructure/documents/storage_cleanup.py",
+        "app/infrastructure/documents/storage_cleanup_cipher.py",
+        "app/infrastructure/documents/storage_cleanup_execution.py",
+        "app/infrastructure/documents/storage_cleanup_leases.py",
+        "app/infrastructure/documents/storage_cleanup_policy.py",
+        "app/infrastructure/documents/storage_cleanup_staging.py",
+        "app/infrastructure/documents/storage_cleanup_types.py",
+        "tests/unit/infrastructure/test_storage_cleanup.py",
+        "tests/unit/infrastructure/test_storage_cleanup_passport_covers.py",
+        "tests/unit/infrastructure/test_storage_cleanup_persistence.py"
+      ],
+      "exit_code": 0,
+      "output": "storage-cleanup-lint.txt"
+    }
+  ],
+  "coverage_json": "storage-cleanup-qualified2-coverage.json",
+  "coverage_xml": "storage-cleanup-qualified2-coverage.xml",
+  "budget_candidates": "storage-cleanup-budget-candidates.json",
+  "critical_candidates": "storage-cleanup-critical-candidates.json",
+  "critical_responsibility": "Original facade85L/60B membership retained; five actual crypto/policy/staging/lease/execution owners each retain at least85L/60B. No declaration-only branch responsibility invented.",
+  "full_reads": 10,
+  "focused_reads": 7,
+  "limitations": [
+    "No runtime behavior change beyond moving identical declarations and preserving legacy metadata.",
+    "No live PostgreSQL skip-locked/concurrency, Redis, private storage or VPS qualification.",
+    "Earlier image/orphan receipts retain their frozen runtime/test hashes; this companion explicitly supersedes only the cleanup facade/test binding architecture."
+  ]
+}

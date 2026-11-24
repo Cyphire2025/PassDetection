@@ -1,0 +1,9 @@
+[
+  {
+    "path": "features/documents/components/document-group-list.tsx",
+    "baselineLines": 262,
+    "maximumLines": 280,
+    "baselineMaxFunctionComplexity": 27,
+    "maximumFunctionComplexity": 28
+  }
+]

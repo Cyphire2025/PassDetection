@@ -1,35 +1,13 @@
 "use client";
 
-import { X, Copy, Check, UploadCloud } from "lucide-react";
-import Link from "next/link";
-import { useForm, useWatch } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useCallback, useEffect, useId, useRef, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import { ImageUploadField } from "@/features/branding/components/image-upload-field";
-import { invalidateBrandingImages, saveBrandingImage, type ImageDraft } from "@/features/branding/api/branding-images.api";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { copyTextToClipboard } from "@/lib/utils/clipboard";
-import { canAccessWhatsAppBroadcasts } from "@/lib/utils/role-access";
-import { selectUser, selectUserRole, useAuthStore } from "@/stores/auth.store";
-import { CompanyPicker } from "@/features/companies/components/company-picker";
+import { X } from "lucide-react";
 import { CompanyWorkspaceFeedback } from "@/features/companies/components/company-agency-scope";
 import { useCompanyWorkspace, type CompanyWorkspace } from "@/features/companies/hooks/use-company-workspace";
-import type { CompanyReference } from "@/features/companies/types";
-import {
-  getPassportUploadTargets,
-  type PassportUploadTarget,
-} from "@/lib/utils/public-url";
-import { createUploadLinkSchema, type CreateUploadLinkFormData, type CreateUploadLinkFormInput } from "../schemas/upload-link.schema";
-import { useCreateUploadLink } from "../hooks/use-upload-links";
-import { getUploadLinkSettings, getUploadLinkSettingsError, UploadLinkSettings, type UploadLinkSettingsValue } from "./upload-link-settings";
-import { WhatsAppBroadcastSelector } from "./whatsapp-broadcast-selector";
-import { TripTimeZoneField } from "./trip-timezone-field";
-import { useModalKeyboardBoundary } from "@/components/ui/modal";
-import { DEFAULT_TRIP_TIMEZONE } from "../utils/trip-timezone";
+import { useCreateUploadLinkForm } from "./use-create-upload-link-form";
+import { CreateUploadLinkDetails } from "./create-upload-link-details";
+import { CreateUploadLinkResult } from "./create-upload-link-result";
 
-interface CreateUploadLinkModalProps {
+export interface CreateUploadLinkModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
@@ -42,163 +20,19 @@ export function CreateUploadLinkModal(props: CreateUploadLinkModalProps) {
 }
 
 function CreateUploadLinkForm({ isOpen, onClose, workspace }: CreateUploadLinkModalProps & { workspace: CompanyWorkspace }) {
-  const role = useAuthStore(selectUserRole);
-  const user = useAuthStore(selectUser);
-  const [company, setCompany] = useState<CompanyReference | null>(null);
-  const agencyId = workspace.agencyId;
-  const canAccessWhatsApp = canAccessWhatsAppBroadcasts(role);
-  const [generatedTargets, setGeneratedTargets] = useState<PassportUploadTarget[]>([]);
-  const [createdImportGroupId, setCreatedImportGroupId] = useState<string | null>(null);
-  const [copiedTargetKey, setCopiedTargetKey] = useState<string | null>(null);
-  const [actionError, setActionError] = useState<string | null>(null);
-  const [banner, setBanner] = useState<ImageDraft>();
-  const [savingBanner, setSavingBanner] = useState(false);
-  const [bannerRetryGroupId, setBannerRetryGroupId] = useState<string | null>(null);
-  const queryClient = useQueryClient();
-  const copiedTimerRef = useRef<number | null>(null);
-  const titleId = useId();
-  const { tryEnter: tryEnterCreate, leave: leaveCreate } = useSingleFlightGate();
-  const { mutateAsync: createUploadLink, isPending: creating } = useCreateUploadLink();
-  const isPending = creating || savingBanner;
-
+  const state = useCreateUploadLinkForm({ isOpen, onClose, workspace });
   const {
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    control,
-    formState: { errors },
-  } = useForm<CreateUploadLinkFormInput, unknown, CreateUploadLinkFormData>({
-    resolver: zodResolver(createUploadLinkSchema),
-    defaultValues: {
-      company_id: "",
-      import_only: false,
-      name: "",
-      destination: "",
-      travel_date: "",
-      return_date: "",
-      timezone: DEFAULT_TRIP_TIMEZONE,
-      departure_cities: [],
-      base_city_enabled: false,
-      nearest_international_airport_enabled: false,
-      staff_code_enabled: false,
-      agent_employee_code_enabled: false,
-      meal_preference_enabled: false,
-      require_selfie: false,
-      allow_files_from_device: true,
-      ask_nearest_domestic_airport: false,
-      relation_with_qualifier_enabled: false,
-      designation_enabled: false,
-      agency_dealership_name_enabled: false,
-      custom_questions: [],
-      custom_details: [],
-      whatsapp_broadcast_group_ids: [],
-      matching_fields_by_broadcast: {},
-      upload_configuration: getUploadLinkSettings({}).upload_configuration,
-    },
-  });
-  const importOnly = useWatch({ control, name: "import_only" }) === true;
-  const settings = useWatch({ control, compute: (values) => getUploadLinkSettings("upload_configuration" in values ? values : {}) });
-  const whatsappBroadcastGroupIds = useWatch({
-    control,
-    name: "whatsapp_broadcast_group_ids",
-  }) ?? [];
-  const matchingFieldsByBroadcast = useWatch({
-    control,
-    name: "matching_fields_by_broadcast",
-  }) ?? {};
-
-  useEffect(() => () => {
-    if (copiedTimerRef.current !== null) window.clearTimeout(copiedTimerRef.current);
-  }, []);
-
-  const handleClose = useCallback(() => {
-    if (isPending) return;
-    if (copiedTimerRef.current !== null) {
-      window.clearTimeout(copiedTimerRef.current);
-      copiedTimerRef.current = null;
-    }
-    reset();
-    setCompany(null);
-    setGeneratedTargets([]);
-    setCreatedImportGroupId(null);
-    setCopiedTargetKey(null);
-    setActionError(null);
-    setBanner(undefined);
-    setBannerRetryGroupId(null);
-    onClose();
-  }, [isPending, onClose, reset]);
-
-  const dialogRef = useRef<HTMLDivElement>(null);
-  const handleKeyDown = useModalKeyboardBoundary({ dialogRef, isOpen, canClose: !isPending, onClose: handleClose });
-
-  const onSubmit = async (data: CreateUploadLinkFormData) => {
-    if (!agencyId || isPending || !tryEnterCreate()) return;
-    setActionError(null);
-    try {
-      const result = await createUploadLink({
-        ...data,
-        ...(user?.role === "super_admin" && agencyId ? { agency_id: agencyId } : {}),
-        name: data.name.trim(),
-        destination: data.destination.trim(),
-        travel_date: data.travel_date,
-        return_date: data.return_date,
-        departure_cities: data.nearest_international_airport_enabled
-          ? normalizeCities(data.departure_cities)
-          : [],
-        whatsapp_broadcast_group_ids: canAccessWhatsApp
-          ? data.whatsapp_broadcast_group_ids
-          : [],
-        matching_fields_by_broadcast: canAccessWhatsApp
-          ? data.matching_fields_by_broadcast
-          : {},
-      });
-      if (banner instanceof File) {
-        setSavingBanner(true);
-        try {
-          await saveBrandingImage("group-banner", result.id, agencyId, banner);
-          await invalidateBrandingImages(queryClient);
-        } catch {
-          setBannerRetryGroupId(result.id);
-          setActionError("Your group was created, but the banner could not be uploaded. Retry below or add it later from the group header.");
-        } finally { setSavingBanner(false); }
-      }
-      if (data.import_only) {
-        setCreatedImportGroupId(result.id);
-      } else {
-        setGeneratedTargets(getPassportUploadTargets(result.token));
-      }
-    } catch {
-      setActionError(
-        "The upload link could not be created. Check your connection and try again.",
-      );
-    } finally {
-      leaveCreate();
-    }
-  };
-
-  const copyTarget = async (target: PassportUploadTarget) => {
-    setActionError(null);
-    try {
-      await copyTextToClipboard(target.url);
-      setCopiedTargetKey(target.key);
-      if (copiedTimerRef.current !== null) window.clearTimeout(copiedTimerRef.current);
-      copiedTimerRef.current = window.setTimeout(() => {
-        setCopiedTargetKey((current) => current === target.key ? null : current);
-        copiedTimerRef.current = null;
-      }, 2000);
-    } catch {
-      setActionError(
-        "The link could not be copied automatically. Select the link text and copy it manually.",
-      );
-    }
-  };
-
-  const hasGeneratedTargets = generatedTargets.length > 0;
-  const isCreated = hasGeneratedTargets || createdImportGroupId !== null;
-
+    dialogRef,
+    handleKeyDown,
+    titleId,
+    isPending,
+    createdImportGroupId,
+    hasGeneratedTargets,
+    handleClose,
+    agencyId,
+    isCreated
+  } = state;
   if (!isOpen) return null;
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm">
       <div
@@ -228,234 +62,12 @@ function CreateUploadLinkForm({ isOpen, onClose, workspace }: CreateUploadLinkMo
 
         <div className="max-h-[calc(90vh-73px)] overflow-y-auto p-6">
           {!agencyId ? <CompanyWorkspaceFeedback workspace={workspace} /> : isCreated ? (
-            <div className="space-y-6">
-              <div role="status" className="rounded-lg border border-green-100 bg-green-50 p-4 text-sm text-green-800">
-                {createdImportGroupId
-                  ? "Your group is ready. Open the group and choose Import Excel to upload your final passenger list."
-                  : "Success. The public client link is ready for sharing."}
-              </div>
-
-              {createdImportGroupId && (
-                <Link
-                  href={`/passports/groups/${createdImportGroupId}`}
-                  className={`${buttonVariants()} w-full`}
-                  onClick={handleClose}
-                >
-                  <UploadCloud className="h-4 w-4" aria-hidden="true" />
-                  Open group to import Excel
-                </Link>
-              )}
-
-              <div className="space-y-4">
-                {generatedTargets.map((target) => (
-                  <div key={target.key} className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                    <div className="mb-2 flex items-center justify-between">
-                      <div>
-                        <div className="text-sm font-semibold text-slate-900">{target.label} Link</div>
-                        <div className="text-xs text-slate-500">{target.description}</div>
-                      </div>
-                      <Button
-                        type="button"
-                        onClick={() => copyTarget(target)}
-                        variant="secondary"
-                        className="min-w-28"
-                      >
-                        {copiedTargetKey === target.key ? (
-                          <>
-                            <Check className="h-4 w-4 text-green-600" /> Copied
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="h-4 w-4 text-slate-600" /> Copy
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                    <Input
-                      readOnly
-                      value={target.url}
-                      aria-label={`${target.label} upload link`}
-                      className="bg-white"
-                    />
-                  </div>
-                ))}
-              </div>
-
-              {actionError && (
-                <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-                  {actionError}
-                </div>
-              )}
-
-              {bannerRetryGroupId && <div className="space-y-3">
-                <ImageUploadField kind="banner" value={banner} onChange={setBanner} disabled={isPending} />
-                <Button type="button" variant="secondary" isLoading={savingBanner} disabled={banner === undefined} onClick={async () => {
-                  if (savingBanner || banner === undefined) return;
-                  setSavingBanner(true);
-                  try {
-                    await saveBrandingImage("group-banner", bannerRetryGroupId, agencyId ?? undefined, banner);
-                    await invalidateBrandingImages(queryClient);
-                    setBannerRetryGroupId(null); setActionError(null);
-                  } catch { setActionError("The banner could not be uploaded. Retry when ready; your group is already saved."); }
-                  finally { setSavingBanner(false); }
-                }}>Retry banner upload</Button>
-              </div>}
-
-              <Button onClick={handleClose} className="w-full">
-                Done
-              </Button>
-            </div>
+            <CreateUploadLinkResult state={state} />
           ) : (
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <fieldset disabled={isPending} className="space-y-2">
-                <legend className="mb-2 text-sm font-semibold text-slate-900">Group purpose</legend>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <label className={`flex cursor-pointer items-start gap-3 rounded-lg border p-4 ${!importOnly ? "border-blue-500 bg-blue-50" : "border-slate-200"}`}>
-                    <input type="radio" name="group-purpose" checked={!importOnly} onChange={() => setValue("import_only", false, { shouldDirty: true, shouldValidate: true })} className="mt-1" />
-                    <span><span className="block text-sm font-medium text-slate-900">Collect documents</span><span className="mt-1 block text-xs text-slate-600">Share a link for passengers to submit their details.</span></span>
-                  </label>
-                  <label className={`flex cursor-pointer items-start gap-3 rounded-lg border p-4 ${importOnly ? "border-blue-500 bg-blue-50" : "border-slate-200"}`}>
-                    <input type="radio" name="group-purpose" checked={importOnly} onChange={() => setValue("import_only", true, { shouldDirty: true, shouldValidate: true })} className="mt-1" />
-                    <span><span className="block text-sm font-medium text-slate-900">Import data</span><span className="mt-1 block text-xs text-slate-600">Create a group for your final Excel list. You can import after creation.</span></span>
-                  </label>
-                </div>
-              </fieldset>
-              <h3 className="text-sm font-semibold text-slate-900">Group Details</h3>
-              <CompanyPicker agencyId={agencyId} value={company} onChange={(selected) => {
-                setCompany(selected);
-                setValue("company_id", selected.id, { shouldDirty: true, shouldValidate: true });
-              }} disabled={isPending || !agencyId} required error={errors.company_id?.message} />
-              <Input
-                label="Group Name"
-                placeholder="e.g. Summer Europe Tour 2026"
-                {...register("name")}
-                error={errors.name?.message}
-                data-dialog-initial-focus
-              />
-              <ImageUploadField kind="banner" value={banner} onChange={setBanner} disabled={isPending} />
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Input
-                  label="Destination"
-                  placeholder="e.g. Dubai"
-                  {...register("destination")}
-                  error={errors.destination?.message}
-                  required
-                />
-                <Input
-                  label="Travel/Departure Date"
-                  type="date"
-                  {...register("travel_date")}
-                  error={errors.travel_date?.message}
-                  required
-                />
-                <Input
-                  label="Return Date"
-                  type="date"
-                  {...register("return_date")}
-                  error={errors.return_date?.message}
-                  required
-                />
-                <TripTimeZoneField
-                  {...register("timezone")}
-                  error={errors.timezone?.message}
-                  required
-                />
-              </div>
-
-              {!importOnly && <UploadLinkSettings
-                value={settings}
-                disabled={isPending}
-                error={
-                  ("upload_configuration" in errors && errors.upload_configuration)
-                    || ("departure_cities" in errors && errors.departure_cities)
-                    || ("custom_questions" in errors && errors.custom_questions)
-                    || ("custom_details" in errors && errors.custom_details)
-                    ? getUploadLinkSettingsError(settings)
-                    : undefined
-                }
-                onChange={(patch) => {
-                  for (const [key, value] of Object.entries(patch)) {
-                    setValue(key as keyof UploadLinkSettingsValue, value, { shouldDirty: true, shouldValidate: true });
-                  }
-                }}
-              />}
-
-              {!importOnly && canAccessWhatsApp && (
-                <WhatsAppBroadcastSelector
-                  selectedIds={whatsappBroadcastGroupIds}
-                  onChange={(ids) => setValue(
-                    "whatsapp_broadcast_group_ids",
-                    ids,
-                    { shouldDirty: true, shouldValidate: true },
-                  )}
-                  selectedMatchingFields={matchingFieldsByBroadcast}
-                  onMatchingFieldsChange={(fields) => setValue(
-                    "matching_fields_by_broadcast",
-                    fields,
-                    { shouldDirty: true, shouldValidate: true },
-                  )}
-                  disabled={isPending}
-                  description="Optional. Link the group to one or more existing broadcasts now so recipient submissions can be tracked from the beginning."
-                />
-              )}
-
-              <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
-                {importOnly ? "Only the group details above are needed. After creation, import your Excel file from the group workspace." : <>
-                  This will generate:
-                  <div className="mt-2">1. An upload link for clients on phones or browsers</div>
-                </>}
-              </div>
-
-              {actionError && (
-                <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-                  {actionError}
-                </div>
-              )}
-
-              <div className="flex justify-end gap-3 pt-4">
-                <Button type="button" variant="secondary" onClick={handleClose} disabled={isPending}>
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={isPending || !agencyId}>
-                  {isPending ? "Creating..." : importOnly ? "Create Group" : "Generate Links"}
-                </Button>
-              </div>
-            </form>
+            <CreateUploadLinkDetails state={state} />
           )}
         </div>
       </div>
     </div>
   );
-}
-
-function normalizeCity(value: string) {
-  return value.trim().replace(/\s+/g, " ").slice(0, 120);
-}
-
-function normalizeCities(values: string[]) {
-  const seen = new Set<string>();
-  const cities: string[] = [];
-  for (const value of values) {
-    const city = normalizeCity(value);
-    if (!city) continue;
-    const key = city.toLowerCase();
-    if (seen.has(key)) continue;
-    seen.add(key);
-    cities.push(city);
-  }
-  return cities;
-}
-
-function useSingleFlightGate() {
-  const inFlightRef = useRef(false);
-  const tryEnter = useCallback(() => {
-    if (inFlightRef.current) return false;
-    inFlightRef.current = true;
-    return true;
-  }, []);
-  const leave = useCallback(() => {
-    inFlightRef.current = false;
-  }, []);
-  return { tryEnter, leave };
 }

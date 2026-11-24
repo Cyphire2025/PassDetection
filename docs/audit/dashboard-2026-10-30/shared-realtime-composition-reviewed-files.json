@@ -1,0 +1,131 @@
+{
+  "stage": "composition after separately sealed deliberate behavior checkpoint",
+  "files": [
+    {
+      "path": "backend/app/infrastructure/mobile_realtime.py",
+      "sha256": "522f09695a6505fde44a5b490e78b39606df4c55308bad9798e0874eb666c21a",
+      "physical_lines": 223,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Complete original/current source reviewed. Public concrete composition facade owns lifecycle tasks, postcommit registration and safe health/readiness projection. Public exports/default factory/signature/type-hint/singleton/metrics identity preserved;12 actual runtime signature/hint controls and125 original/current output states match. Deliberate private/module metadata and component counter ownership changes documented, not a whole-class mechanical claim."
+    },
+    {
+      "path": "backend/app/infrastructure/mobile_realtime_capacity.py",
+      "sha256": "1e29d7a946046066c677e7a58ce07a7fdc21be0a284aed1abd91103abe304d17",
+      "physical_lines": 174,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Complete authored/current source read: two-phase reserve\u2192bounded global acquire\u2192live locked activation; cancellation/rejection removal, unregister, live renewal intersection, fail-closed eviction, type-only diagnostics. Expanded original source blocks/order and real deferred admission/unregister/stop controls preserved."
+    },
+    {
+      "path": "backend/app/infrastructure/mobile_realtime_connection.py",
+      "sha256": "aa4623acff1649feac6f50d40b0663ddcbddce6d3100dec5e4571b81ffee5ed3",
+      "physical_lines": 73,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Complete exact whole-class AST relocation read: bounded trip coalescing, max cursor/invalidation combination, slow consumer close1013 and wakeup/clear semantics unchanged."
+    },
+    {
+      "path": "backend/app/infrastructure/mobile_realtime_contracts.py",
+      "sha256": "1bcc4988950fc38baff8163e8e3e5032e4dddcf48bef52de23c5e54b5ae1047e",
+      "physical_lines": 101,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Complete config/protocol/error declarations exactly relocated/read. Frozen dataclass settings/defaults/namespace, factory and status aliases preserved. New minimal read-only availability protocol makes registry dependency explicit, no callback bag."
+    },
+    {
+      "path": "backend/app/infrastructure/mobile_realtime_lease_store.py",
+      "sha256": "e6d08e13b82b3fdfbd41f768727d225638c2021ce90a1c1d7a24dfe2d51c3290",
+      "physical_lines": 100,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Complete source read: atomic unchanged Lua scripts invoked with identical scope/namespace/TTL/batch/timeouts; renewal result and UUID validation fail closed. Original capacity preconditions/catch/eviction policy stays manager; actual I/O body+result source-expanded proof preserved."
+    },
+    {
+      "path": "backend/app/infrastructure/mobile_realtime_registry.py",
+      "sha256": "7153cb96d9235713c117adc805891a4db896c34ed9f05538cb4bd2067e2f4832",
+      "physical_lines": 229,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Complete source read: concrete owner of lock, local connection/session/auth reservations, leased-ID sets and tenant/trip index. Exact moved removal/update/fanout/index bodies; expanded reserve/activation/drain/renew checks preserve original lock and await boundaries. Immutable clear snapshot adds only bounded unused lease-ID tuple metadata on failure path."
+    },
+    {
+      "path": "backend/app/infrastructure/mobile_realtime_resources.py",
+      "sha256": "023947d7269c41a1b8528a9d50aa4c620abf59b2cc0b3b5c1b5f1b8aecafb3ae",
+      "physical_lines": 37,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Complete exact behavior-checkpoint helpers read: owned shielded cleanup task completes through repeated caller cancellation and failed/cancelled resource closes, caller cancellation then propagates. New critical95L90B candidate protects actual relocated cleanup implementation."
+    },
+    {
+      "path": "backend/app/infrastructure/mobile_realtime_transport.py",
+      "sha256": "6526b37299ace415283ef01f53aa023c738c0cff7de796ae421ab3db10a6300c",
+      "physical_lines": 269,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Complete source read: actual Redis/PubSub/lock/event-loop/publication queue and reconnect state/counters owner. Exact moved connection/close/publisher/enqueue bodies plus explicit concrete registry subscriber collaborator. Real protocol read/publish/start/reconnect failure recovery and cancellation/private-diagnostic controls; no live Redis/FD claim."
+    },
+    {
+      "path": "backend/app/infrastructure/mobile_realtime_wire.py",
+      "sha256": "88abe50692fbbb35a494d3788d152b43aa7f2aaea81d51b5eadd12698c936f2d",
+      "physical_lines": 122,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Complete exact bounded parser/channel/size/backoff/batch/three Lua declaration relocation read. Existing deliberate string-before-membership fix follows actual implementation. No protocol/schema/channel/version/TTL change."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_mobile_realtime_hub.py",
+      "sha256": "5df63e6918d359b4d76e8bf41e2e924e17e4935cebf3ecf49092230afd62046d",
+      "physical_lines": 549,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Original549-line physical read +actual import-only parser-owner retarget reread. Whole original assertions/fixtures/module nonimport AST preserved exactly; no useful assertion removed."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_realtime_subscriber_lifetime.py",
+      "sha256": "07eaf678c562127518c80c18bb31e27ad5fef339efbb5160f6990ecced4998f1",
+      "physical_lines": 256,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Complete original/current authored regression source read. Only parser import retarget after immutable behavior checkpoint; all11 tests/fixtures/assertions exact. Covers original8fails/1valid control and follow-through closes/cancellation/type-only logging."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_realtime_composition_admission.py",
+      "sha256": "0aee88d77e8b921a7793ea3d49b6c60f2b3d669bdc6c032ff7be6633ecdafe21",
+      "physical_lines": 231,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Complete authored/read test source. Six real public-flow controls execute both frozen original Hub and current Hub: local bounded reservation not indexed until global success, cancel/retry connection/auth slots, concurrent unregister/renew missing lease intersection, late global acquire after shutdown cannot reactivate; plus actual public export/default/hint controls."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_realtime_transport_boundaries.py",
+      "sha256": "98bc7f53027955218cab18d0485bb10cd34dfc5d082b76154f375f742ca2b28d",
+      "physical_lines": 199,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Complete authored/read11-case source: real subscriber read-failure/reconnect/delivery, publish loss then next-commit recovery, optional startup/reconnect failure recovery, malformed renewal result eviction and all6 authentication-boundary fields. Synthetic bounded protocol resources/private diagnostic content only."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_mobile_realtime_proxy_contract.py",
+      "sha256": "6f20e30fe09ee1e46cb673f9836cb5536ab783a809dcbb4ec1d31927941ef09a",
+      "physical_lines": 97,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Complete97-line physical source read: exact native and dashboard Nginx upgrade/auth/cookie/timeouts/frame bounds and FD configuration source assertions. Read as shared deployment boundary support, no native feature change; not executed in this affected batch."
+    }
+  ]
+}

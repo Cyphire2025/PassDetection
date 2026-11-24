@@ -1,0 +1,32 @@
+{
+  "status": "complete current physical retained test-source review only",
+  "files": 11,
+  "physical_lines": 1952,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-identity-test-source-reviewed-files.json",
+    "sha256": "d31caee4504ae83ba5a5b2c22390682a6717cfffff5848b71c03fb262b955a78"
+  },
+  "source_before_equals_after": true,
+  "source_fence": {
+    "backend/tests/unit/infrastructure/test_identity_notifications.py": "f5a60ed58b6dc180e5583ab03eefbcce6e2e93e862c016b6a114b4c52df96da8",
+    "backend/tests/unit/infrastructure/test_identity_rate_limiters.py": "5abcbdbb4af99f31e883e88521c7fb2cdfaf46f1b3b12ba2ec3f298abdbd8b10",
+    "backend/tests/unit/infrastructure/test_identity_retention.py": "02f8f43fdea084aa9c383549210d5b539c12573e0f0478e398e745fc36a9127f",
+    "backend/tests/unit/infrastructure/test_identity_security_repository.py": "6c5f0ffdebbe3ea247e656c3a0d2708de3b1f856b6785d93a96477977299721a",
+    "backend/tests/unit/infrastructure/test_identity_task_routing.py": "4da0bb769b8c11aaf3fe656d204a238502df385e6c63c41389b0f38055d1c575",
+    "backend/tests/unit/infrastructure/test_login_attempt_limiter.py": "7e5159674c47c385b4f830215ba253eefaa18ea47ee4af50fda916a5912e5c94",
+    "backend/tests/unit/infrastructure/test_otp_limiter_pool_lifetime.py": "ef2aafa0b7c0ac08c66ded382a5fbab7d3fde12e731e658c48765d26bc3b47c3",
+    "backend/tests/unit/infrastructure/test_public_upload_otp_rate_limiter.py": "811b44068da9418ec477eca543fcf24fbac115624cf2d821c4b90549cc68abf3",
+    "backend/tests/unit/infrastructure/test_traveller_request_rate_limiter.py": "db5e1817e9b43da034e490c1b107ec3be5384a13909f9fdf31c5f9c2e5767fea",
+    "backend/tests/unit/infrastructure/test_seed_admin.py": "f6800b0e9fe1617d474227a47c3e664958613beacc1077fca1c16525bc66505f",
+    "backend/tests/unit/infrastructure/test_coordinator_assignment_tasks.py": "b937da4af5b611bf3b7875bdd54290989dbc47a8cf15f446b59c983077ad5a57"
+  },
+  "new_execution": false,
+  "runtime_mutation": false,
+  "new_validated_findings": [],
+  "scope": "Shared retained dashboard authentication/identity/recovery/quota/worker contracts. Transactional recovery notification is not Operations Inbox; shared OTP compatibility is not dedicatednative application audit.",
+  "limits": [
+    "Reading test source adds no new passing tests/coverage/privacy/service qualification.",
+    "Actual SQLite contender design, mockLua/Redis and synthetic providers are not livePG/Redis/provider execution.",
+    "No private environment/credentials or productionseed/action touched."
+  ]
+}

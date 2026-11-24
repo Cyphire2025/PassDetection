@@ -1,0 +1,9 @@
+{
+  "complete_postfix_definitions_or_bodies_ast_identical": 26,
+  "intentional_fixes_before_extraction": [
+    "bounded successful provider streaming, identity encoding, redirectsoff and no error-body downloads",
+    "postsubmit explicit noncompletion cannot approve"
+  ],
+  "compatibility": "Original service classes/private method signatures and injected agent symbols retained. Extraction logger is passed at calltime so the original facade patch remains authoritative.",
+  "limits": "AST proof starts after explicit fixes. Synthetic provider/worker tests do not qualify live provider or real PostgreSQL behavior."
+}

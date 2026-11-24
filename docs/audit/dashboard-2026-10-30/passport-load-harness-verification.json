@@ -1,0 +1,50 @@
+{
+  "status": "frozen; focused actual-script synthetic regression qualified",
+  "before": {
+    "cases": 5,
+    "failed": 4,
+    "healthy_replay_control": 1,
+    "source_sha256": "58f84d794121fb1aaea9ee4da8917b9ddfd6ad1c9554498d1f3edfa657faee55",
+    "proof": "Same complete script body under explicit synthetic k6 ports; original key is27-29chars for normal VUs, status header is public UUID, same-clock attempt key collides, no metric system-tag allowlist. No real credential/metric leak or network traffic claimed.",
+    "actual_100_VU_key_length_range": [
+      27,
+      29
+    ]
+  },
+  "after": {
+    "cases": 5,
+    "passed": 5,
+    "source_fence": {
+      "load-tests/k6/passport-extraction.js": "cf621699a475e89ede8f523d5aa8cbf81e1e04fbcbde7b2d77f990a918a5767e",
+      "load-tests/k6/passport-extraction.test.mjs": "ea6ff8eab388dfdaed699f023b4c6793dfb51a52ab044accdb3fc70f1977d54f",
+      "load-tests/k6/README.md": "0df602830a90a0bb127193bc17c4a3d98bf182da4b12ad96e48aba2ade5cbf18",
+      "backend/app/core/security/upload_session.py": "37199b6b3df90894959d11c46af966aad8f65a4fe757e0374b34717ad6967993",
+      "backend/app/presentation/api/v1/routes/passport_routes/public_security.py": "4347718f49a11282e0cc5d83fb726cc10e89a12db9d194c434ad09a732b9e629",
+      "backend/app/presentation/api/v1/routes/passport_routes/public_upload_status.py": "402392e3f03b55060b0d39e991193ab136f46ca8560bd53646bb26c7dc94b674",
+      "backend/app/presentation/api/v1/routes/passport_routes/public_upload_submission.py": "6639f322a898f1689186c8300eaedcbe330b04d6e58403ae4c0dfab5b5243dbf"
+    },
+    "fence_count": 7,
+    "stable": true,
+    "node_syntax_sources": 2,
+    "ci_supply_chain_policy": "passed; read-only actual verifier",
+    "CI_regression_command_added": true
+  },
+  "behavior": "One cryptographically random32-byte capability encoded43URL-safe characters is reused by initial upload/status/replay. Request metrics use fixed names and explicit system tags excluding rawURL/error. Existing100-VU/one-iteration stages, thresholds, payloads, idempotent replay frequency, HTTP timeouts, terminal/outcome definitions and counters unchanged. No backend permission/API change.",
+  "source_equivalence": "Whole original normalized source exactly restored after only imports/random capability/status credential/system tags/fixed metric names are reversed; CI whole original raw bytes exactly restored after removing the one added offline command.",
+  "primary_sources": [
+    "https://grafana.com/docs/k6/latest/javascript-api/k6-crypto/randombytes/",
+    "https://grafana.com/docs/k6/latest/javascript-api/k6-encoding/b64encode/",
+    "https://grafana.com/docs/k6/latest/using-k6/tags-and-groups/"
+  ],
+  "limits": [
+    "Node vm executes actual full workload body with module declarations adapted and synthetic HTTP/metrics/clock/fixtures. No k6 binary/load/browser/provider/AI/DB/HTTP call occurred.",
+    "Existing actual backend capability/length source was inspected, unchanged. No new backend source or service qualification claimed.",
+    "No new staging-identity preflight was added in this bounded fix; explicit approved staging use remains the documented operator responsibility.",
+    "Metric custom counter/tag meanings and capacity thresholds are retained. Some external collectors may require disabled system tags; use an approved sink that does not require bearer URLs, not an assertion of sink certification."
+  ],
+  "artifacts": {
+    "passport-load-harness-before-command.json": "9fdb9831cf9f8ee646d8cc193dd6fe4996d1c19fe29465b2842454c7e2f09c88",
+    "passport-load-harness-after-command.json": "dbf52b268a58cd76c3d7c2eea6f473438208c129e81b09b37376e7b8dca134c1",
+    "passport-load-harness-ci-proof.json": "4a1375cc4c0d58d36045a36d17a320b901ef8d026ade30d34a338c8e891c3ffd"
+  }
+}

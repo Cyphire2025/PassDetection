@@ -1,0 +1,17 @@
+{
+  "basis": "Closed unused CompanyTravellers view has no inbound import or dynamic call; current CompanyAllData/CompanyPersonPage and CompanyPassports remain live. Only its dedicated travellers transport and unused DTO are removed; history transport remains live.",
+  "files": [
+    {
+      "path": "frontend/features/companies/components/company-travellers.tsx",
+      "before_sha256": "671b492c542d1eb2c137f2610b6ba52d0aa2ebd838ce8573a04c55c9f711186b"
+    },
+    {
+      "path": "frontend/features/companies/api/companies.api.ts",
+      "before_sha256": "2f8f0ef4b5ae9cd2c1144f6b16c150480251cfb26f17cb5b73113d8ce61ff011"
+    },
+    {
+      "path": "frontend/features/companies/types.ts",
+      "before_sha256": "672742fb31693a23e57ec0816028ddaaafbe2a7f837550a0b63c42484639b94e"
+    }
+  ]
+}

@@ -1,0 +1,91 @@
+{
+  "files": [
+    {
+      "path": "scripts/test_release_mcp_admin_approval_contract.py",
+      "sha256": "b2dbd244afd17fdf3c737f91bf3fb2ceb022be714aabd54dfe80d83fb188d36c",
+      "physical_lines": 153,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Full153physicalsource read0-83+83-EOF. Isolated fixture manifest/defaultschema strings and copied originalone migration protect exact newkind/parent/hash/policy includingstrictboolvsint, disabledinitialauthority, no retainedstate discard and historicalexecutor refusal. Planner must fail beforecommands/fences/reads/files for unsupportedkind. Real source validators called; checked-in .env.example only, no realenv read/provider calls."
+    },
+    {
+      "path": "scripts/test_release_mcp_contract.py",
+      "sha256": "0a8a1482789774073898304095ef642b7946d185ab2106095eb1b417b29c5a73",
+      "physical_lines": 103,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Full103physicalsource read. Temporary root copies exact historical migration bytes and constructs isolated originalrelease manifest; mutation tests protect retention, disabled initialcapabilities, exactchain/order/ancestry/path/hash/source/target/unknownkeys and same-schema refusal. Actual pure sourcecontract/validator called; no deployment/import ofmigration code asserted."
+    },
+    {
+      "path": "scripts/test_release_mcp_database.py",
+      "sha256": "531c406b5884e2ffd818260a56e2b8bdf1aa97a7d89c75b3743f5ee1a5990240",
+      "physical_lines": 217,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Full217physicalsource read0-120+120-EOF. Callback command/fence/schema stubs exercise real planner and local exclusive receipts/backups, sourcebindings/checkpoint order/partialretention/PGDMPmetadata/decode request/targetretry/refusal/staticerror redaction. Synthetic PGDMP bytes and callback pg_restore output do not prove actualbackupdecode/restore/PostgreSQL/durability. POSIX0600 assertions intentionallyconditional; Windowsfilemode not certified. Inimage helper import calls verify_sources only, no main/provider/deploy."
+    },
+    {
+      "path": "scripts/test_release_mcp_direct_devices_contract.py",
+      "sha256": "0360629dbb2b08a7128167bf0dce431459217f653f3b397a9cf6f3438d1e9d9a",
+      "physical_lines": 155,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Full155physicalsource read0-80+80-EOF. Historicalsourcefixture intentionally independentcurrentmanifest. Onepath/parent/hash/defaults+policy/currentauthorityretention typedmutants, historicalreadOnly/additivehelper refusal, and no-command unsupportedplanner controls meaningful. Actualpure validator/verify_sources calls do notqualify realdatabase migration/deviceauth/liveconnections."
+    },
+    {
+      "path": "scripts/test_release_mcp_read_only_contract.py",
+      "sha256": "28cb5b4278c9b92801bb597af07e50deebb64ad00688b198944779d38a0d4b52",
+      "physical_lines": 178,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Full178physicalsource read0-105+105-EOF. Isolated historicalmanifest/copiedmigration, disabledwrite/export/grantexpansion/cleanup/downgrade/source/path policy, exact dedicatedhelper planning usingexclusive syntheticarchive, fencebeforecommand, sourceverification andsame-schemarefusal. NoSQL/provider/realDocker executed by fixtures; callback output is deliberately notbackuprestore evidence."
+    },
+    {
+      "path": "scripts/release_mcp_database.py",
+      "sha256": "7340c8eb32e2863889c2c2d74f7a542c28f172d89a658a512225871ad4b45eb7",
+      "physical_lines": 294,
+      "reviewer": "branding_visuals",
+      "review_scope": "partial",
+      "status": "reviewed",
+      "notes": "Only70-210 actual constructor/checkpoint/command/backup/earlyreceiptvalidation regions physicallyread here. Exactunsupportedkindallowlist refusesadmin/directkinds beforechecks/commands. Existing rootcomplete review independent; no new whole-sourcecredit."
+    },
+    {
+      "path": "scripts/release_mcp_contract.py",
+      "sha256": "6d50e090d975235c7f8542115ece3b90bb7f4f7cf1003e71aa0a780995ac460e",
+      "physical_lines": 250,
+      "reviewer": "branding_visuals",
+      "review_scope": "partial",
+      "status": "reviewed",
+      "notes": "Only0-40 and235-EOF +targeted dispatchreferences. Canonicalkind dispatch andsame-schema refusal actualwiring traced. No whole-sourcecredit; parent owns priorfull review."
+    },
+    {
+      "path": "scripts/release_mcp_admin_approval_contract.py",
+      "sha256": "b07240b1800429b9166d437975ee028760e7ae50f9e6169a4e12b44f7ca5d49e",
+      "physical_lines": 111,
+      "reviewer": "branding_visuals",
+      "review_scope": "partial",
+      "status": "reviewed",
+      "notes": "Only85-EOF validate_contract body physicallyread here. Strictvalue type+equality/singlepath/hash policies match tests. Earlierparentfullsourceproof remains independent."
+    },
+    {
+      "path": "scripts/release_mcp_direct_devices_contract.py",
+      "sha256": "83ee1d95676dbb5cb313642c178fee516eb908e7517290d263204fc164ae9c25",
+      "physical_lines": 110,
+      "reviewer": "branding_visuals",
+      "review_scope": "partial",
+      "status": "reviewed",
+      "notes": "Only84-EOF validate_contract body physicallyread here. Strictbool/int policy andsinglemigration identity checked. No whole-sourcecredit."
+    }
+  ],
+  "new_complete_test_files": 5,
+  "new_complete_test_lines": 806,
+  "independent_runtime_read_credit": false,
+  "reference_discovery_only_not_review_credit": [
+    "scripts/release_mcp_read_only_contract.py (only function/reference search; root owns actual full source review)"
+  ]
+}

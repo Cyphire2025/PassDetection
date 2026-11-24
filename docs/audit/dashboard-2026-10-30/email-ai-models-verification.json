@@ -1,0 +1,183 @@
+{
+  "status": "complete; sources frozen; exact protected admissions and normal candidates pending integration",
+  "source_manifest": {
+    "path": "docs/audit/dashboard-2026-10-30/email-ai-models-source-manifest.json",
+    "sha256": "b766d5d4b85a4777fdc183c13181fc54ad5edba0d4eafb726af556305b6fd97f"
+  },
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/email-ai-models-reviewed-files.json",
+    "sha256": "245ac7b56d9b4aab332961ac82971d89bf17c869b56f693960d02fc850221207"
+  },
+  "candidates": {
+    "path": "docs/audit/dashboard-2026-10-30/email-ai-models-budget-candidates.json",
+    "sha256": "d9d63db2261743bf4842f8f3f6b82f2da0a8a685c470dd6b3390080e517f8b05"
+  },
+  "followups": {
+    "path": "docs/audit/dashboard-2026-10-30/email-ai-models-followups.json",
+    "sha256": "3cda1485bf902f962719f7599de87348e637a469e3fd61366725b7f91c180a48"
+  },
+  "artifacts": [
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-ai-models-original-source.json",
+      "sha256": "c03c001ed7914d771d6288fe6bc68138f92d9470a79d5028fd8fbdf0b6fce92d"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-ai-models-extraction-proof.json",
+      "sha256": "c3bf9fcbeb0f7e39d61c744335fc95922d9725e39d452b8c35db54f1088118cc"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-ai-models-before-public-metadata.json",
+      "sha256": "56e0ffdda73e9057ec2abe38cc070771c42daabe0dd91e85ade3460a2503e75f"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-ai-models-before-registry-metadata.json",
+      "sha256": "f2d68aaf6ff534a363b5d3d3ad621c9826df4c84aa9b0f6cecd355fa4d85f465"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-ai-models-after-email_ai_models-metadata.json",
+      "sha256": "56e0ffdda73e9057ec2abe38cc070771c42daabe0dd91e85ade3460a2503e75f"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-ai-models-after-model_registry-metadata.json",
+      "sha256": "f2d68aaf6ff534a363b5d3d3ad621c9826df4c84aa9b0f6cecd355fa4d85f465"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-ai-models-final-checks.json",
+      "sha256": "12b9918db4b84f1ddcc2d1044cf2868ab49851e848dee8e7360b929b513b1969"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-ai-models-final-coverage.json",
+      "sha256": "407baa623cb449c8d85dda35e38b4d1a9c93e92185ccc630e83a35413d3be055"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-ai-models-final-coverage.xml",
+      "sha256": "34e5b6e05279da6ae02a9ff44a9c2d5837158edeb38feb488d2cf29ba4354181"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-ai-models-baseline-checks.json",
+      "sha256": "f4b7e6911e004835a5d417ee7e813c2b3187b9d05e262430a53ad645fc39aa70"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-ai-models-source-locations.json",
+      "sha256": "f684be3ec373d86c61e1cdde843e414924fd694a0d94dfcd1a35ebc6ecfbc25b"
+    }
+  ],
+  "original630_to_runtime_owner_lines": [
+    45,
+    7,
+    119,
+    149,
+    111,
+    128,
+    103,
+    90
+  ],
+  "original6model_classes_and_clock_ast_exact": true,
+  "actual_metadata": {
+    "tables": 174,
+    "mappers": 174,
+    "compile_errors": 0,
+    "separate_public_and_registry_startup_before_after_exact": true,
+    "actual_runtime_caller_class_bindings": 83,
+    "original_imported_objects": 21,
+    "evaluated_class_and_clock_hints": 7,
+    "callable_defaults": 30,
+    "actual_6cold_owner_first_cases_pass": true
+  },
+  "tests": {
+    "pre_edit_cases": 38,
+    "post_edit_cases": 50,
+    "new_persistence": 9,
+    "new_compatibility_and_owner_first": 12,
+    "existing_tests_unchanged": true,
+    "current56path_fence_unchanged": true,
+    "one_fresh_unmixed_isolated_coverage_run": true
+  },
+  "static_checks": {
+    "ruff_files": 10,
+    "ruff_exit_code": 0,
+    "mypy_files": 8,
+    "mypy_exit_code": 0,
+    "observed_tool_chunk": "93d4a5"
+  },
+  "owner_coverage": [
+    {
+      "path": "app/infrastructure/database/email_ai_models.py",
+      "lines": 45,
+      "max_function_complexity": 1,
+      "most_complex_function": "_utcnow",
+      "coverage_percent": 100.0,
+      "branch_count": 0,
+      "branch_coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/database/_email_ai_models/__init__.py",
+      "lines": 7,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "coverage_percent": 100.0,
+      "branch_count": 0,
+      "branch_coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/database/_email_ai_models/rollout.py",
+      "lines": 119,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "coverage_percent": 100.0,
+      "branch_count": 0,
+      "branch_coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/database/_email_ai_models/analyses.py",
+      "lines": 149,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "coverage_percent": 100.0,
+      "branch_count": 0,
+      "branch_coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/database/_email_ai_models/deadlines.py",
+      "lines": 111,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "coverage_percent": 100.0,
+      "branch_count": 0,
+      "branch_coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/database/_email_ai_models/proposals.py",
+      "lines": 128,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "coverage_percent": 100.0,
+      "branch_count": 0,
+      "branch_coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/database/_email_ai_models/drafts.py",
+      "lines": 103,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "coverage_percent": 100.0,
+      "branch_count": 0,
+      "branch_coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/database/_email_ai_models/feedback.py",
+      "lines": 90,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "coverage_percent": 100.0,
+      "branch_count": 0,
+      "branch_coverage_percent": null
+    }
+  ],
+  "normal_candidates": 8,
+  "critical_candidates": 0,
+  "frozen_published_migration_and_prior_source_count": 210,
+  "existing_budgets_global_floors_and_release_baselines_untouched": true,
+  "no_broad_suites_builds_browser_provider_sends_or_deployment": true,
+  "notes": "Metadata/compiledDDL/mapper/default/relationship/runtime aliases and actualSQLite persistence are independent controls; AST equality is not sole schema evidence. No newly invented vulnerability/policy fix or new model critical gate."
+}

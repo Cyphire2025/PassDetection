@@ -1,0 +1,47 @@
+{
+  "status": "Bounded read-only retained HTTP/privacy/dashboard admin source cohort complete; broader audit active",
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-http-boundary-unit-source-reviewed-files.json",
+    "sha256": "ef8f5922184b54829ed1ded75307a859a82a3be04802a066576644e130acfd21"
+  },
+  "new_current_full_tests": 12,
+  "test_physical_lines": 1082,
+  "supporting_full_rows": 3,
+  "focused_rows": 8,
+  "source_fence": {
+    "backend/tests/unit/presentation/test_client_group_creation_authorization.py": "cbb40692413d8d97c0c4e5454612c749165ef4bfe52451cf2d476229d4ce2d3a",
+    "backend/tests/unit/presentation/test_client_group_route_boundaries.py": "00067d432f3b30c869a523d33a9630b7c96ff2a650a1821d08485412348595e1",
+    "backend/tests/unit/presentation/test_destructive_error_contract.py": "216fa3741fda37f8d892a6765a0ee5bbee9fe704395b85f8c1011922c3b21e2b",
+    "backend/tests/unit/presentation/test_frontend_error_ingestion.py": "d0856181a960af647a71eeb5cdff4b31efe48c00c83158b1e7c876b5865ed020",
+    "backend/tests/unit/presentation/test_legacy_passport_query_auditing.py": "c9b892384d51438c2dbfcf45f89d0a0e51098ce1156a50384dba1b3c98e364d6",
+    "backend/tests/unit/presentation/test_passport_cover_access.py": "772630effd93b8ecf49cfaaf5e11aef77a3ef62aa6b2ce12ac164779759e3826",
+    "backend/tests/unit/presentation/test_passport_crop_lifecycle_contract.py": "3d2495d0eedf4e4f68a3796b4d5304fff4ec3af6ac698d64639c481b5373a30e",
+    "backend/tests/unit/presentation/test_qr_token_security.py": "86905c5c67b1741ad3fe0e331d425b63bb7b59c0433b2381078eb4764147dc8d",
+    "backend/tests/unit/presentation/test_safe_gzip_middleware.py": "45bce4e9ef6b94d274248331df39b27c0292696ad455c5fc11c7a2307c47f577",
+    "backend/tests/unit/presentation/test_saved_notification_deletion.py": "bb2fe6ed653f88893fc9fec23cd0be3087cc0711c5eb4a57b4381048bffd11c8",
+    "backend/tests/unit/presentation/test_superadmin_access_level_identity.py": "aeab34a80a0fc8a1fb89877fbcfcbabdee208b8ed96f5680bb9fcbd2049122dd",
+    "backend/tests/unit/presentation/test_trusted_client_ip.py": "c52c7ebbdca88c7446eda0e2cd2b726fadac32126e52aea1a5dddf9973c36db5",
+    "backend/app/presentation/middleware/safe_gzip.py": "29d82ff40605058dc4ca46566db13a77e38ee4466d26600686498a8627dc768c",
+    "backend/app/presentation/security/client_ip.py": "a34fe467e3bee2845e6f8b4194309f9c4047b678c8b159cafe6edb3109662a9c",
+    "backend/app/presentation/api/v1/routes/passport_routes/covers.py": "cb198e068daf86be101b7c30f5047c762431fbfc8588fac3f63e2ce34441489e",
+    "backend/app/presentation/api/v1/routes/frontend_errors.py": "aaa3769183ca3b8e304ca13389c9d32cd48b840acb45604442887ba3cd7a6d32",
+    "backend/app/presentation/api/v1/routes/gc_notifications.py": "e7d5a2b651995eed575cb15554ad9f713035a530f1270dbd62dbdb7e41ea9fed",
+    "backend/app/application/mobile/authored_notification_drafts.py": "a9a941c466adbf1ef31ceb90369bccabc479deeb9627928fa75039e2a1aa2dd1",
+    "backend/app/presentation/api/v1/routes/client_group_access.py": "4173a6728343c7762a8f17f5013d9f83db12fb387a13ba71c6f5f659564c4bd8",
+    "backend/app/presentation/api/v1/routes/client_groups.py": "b48a7e4843e9f1b8d48d7a3483e5ad4d52eac984e65c05a9b78b716559b13179",
+    "backend/app/presentation/api/v1/routes/passport_routes/queries.py": "800f98cf5ccf8cfb8fc624ba33f8f7befbb995bbd929dbfe86833558df759d4f",
+    "backend/app/presentation/api/v1/routes/passport_routes/document_import_preview.py": "4fe70fde54aa40be11051b8824388129936b4250131b2a97c7e196b154655695",
+    "backend/app/presentation/api/v1/routes/admin.py": "d6cef1f7db8cc08202866b7d93e0a1b3feb91b69ddb49a25687850b9f5cc36c4"
+  },
+  "checks_run": [],
+  "changes": [],
+  "findings": [],
+  "scope_clarification": "Parent explicitly retained saved GC dashboard-admin notification list/delete/publication/shared tables. Native Expo/ingress/device features remain excluded; selected device=False deletion tests do not establish provider/device behavior.",
+  "proof_gaps": [
+    "Source fixtures/assertions and actual hook/import/query consumers were inspected, without any executed/passing app-test claim.",
+    "Mock storage/admission/session/claims are not real PostgreSQL/Redis/private object-store/browser transport or native provider proof.",
+    "Source-inspection crop/deletion architecture guards are not behavior or all-failure cleanup qualification, and partial current callers remain focused.",
+    "No meaningful ordinary defect reproduced in this read-only cohort; no cosmetic test/schema/code changes justified."
+  ],
+  "scope": "Retained dashboard HTTP/privacy/group/admin/export access only, all existing sources/test/config/providers untouched; no broad suite/build/browser/scanner."
+}

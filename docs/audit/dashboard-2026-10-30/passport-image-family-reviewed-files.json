@@ -1,0 +1,314 @@
+[
+  {
+    "path": "backend/app/application/travellers/asset_policy.py",
+    "sha256": "e5a15a5687e2e259b901631023dd573faafd854e6890e7b05b2918f47b44e647",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+  },
+  {
+    "path": "backend/app/application/travellers/snapshot_access.py",
+    "sha256": "88f5ddb022c01904f7309ea5933785482c3f8f8d5d999f7d93c05631f5d0d76f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_image_library.py",
+    "sha256": "3384131d33cebaf71fb8036b95a7710b663ec88773d4db2bd5302c4ec0d7285e",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_image_library_authority.py",
+    "sha256": "1a3f020f32134e9eab62ccd3f24e116648af90e2f34f238b2813fa5129a6e390",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_image_library_manual.py",
+    "sha256": "688f966d72482c4ed19f0b2c558a3d31db83aae44e75301dff7579e5576bd6bc",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_image_library_reads.py",
+    "sha256": "c30bf3950088011d42655ea7b4f6390e88e01ca7615e1a3e9a9b15afe0cea478",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_image_library_responses.py",
+    "sha256": "7192583ac9d2fef50efeb37ad39b9e5368c384d4748e9ccabe43f2e0e81aad5f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_image_library_selection.py",
+    "sha256": "9e0f598d9fe96328858c0845fb3495f6c7a3dda4ac8d6eb8fc72694261066a3d",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_image_mutation.py",
+    "sha256": "af4270cf475d6d72a42aec31d8ffcaf832b8f5662f7eee16c8042099d2a8bb2c",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_image_storage_write.py",
+    "sha256": "11b12fdbb9b053c2b26f87d21ef97f3ce87490c3751c0a6c1d4922259ee804f7",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/image_support.py",
+    "sha256": "bb7f17f95e18abf65436f6e7ad71be2ce25926b04ced89b1382ae27334ee3e9f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/images.py",
+    "sha256": "6a5858948bf8fb6a3c45b51b10934f381c1965bcf22f67cbbce648fab76e3b34",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/images_crop.py",
+    "sha256": "29d2098f013b7994df9d531ffaa17922fb8f0aa931f55b46ca9dcb574a03da1f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/images_reads.py",
+    "sha256": "f4ba7cb5c72664d1858b35d096e46be96bcdbbcc5fa3d8b7514192e3a2ab6688",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/images_reset.py",
+    "sha256": "736c527fe10bb536c780e1b4a97f63b25dde48deff53f5a21fb93027f6777619",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_edits.py",
+    "sha256": "5f853cb838a381cf9dda1e3e3eb83ac364d48120baba63ce3c5d0155e86b3841",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_edits_apply.py",
+    "sha256": "24d1563a569c39261179a09a26976fa01028fee4126531796d715bc65ac0670f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_edits_preview.py",
+    "sha256": "0bc67dafcc56074e5dc4ca5d766403dd9b9148554f631dc0b8d72f2b95bfe93b",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library.py",
+    "sha256": "161c17e2131ec908028e29ec1ace999687280b0f9001e742a9c80c3225987f97",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library_generation.py",
+    "sha256": "769c3819f227f4efb7bb6dc19fcd799bf53a2e706d7fbe272e685c4f61197cd8",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library_reads.py",
+    "sha256": "f8136ae728752aec0222e58ee7674476e316c8e5148579140d6ed06f96c65cab",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library_selection.py",
+    "sha256": "b64648afc2ad09952fbbbe384b60fabc9302f0adabb8f360749b10a76acaf685",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+  },
+  {
+    "path": "backend/tests/passport_image_mutations.py",
+    "sha256": "fceefc1ce5c57969627ddadc7d481470cd8aba31041704a0cf226bc598ce4679",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+  },
+  {
+    "path": "backend/tests/route_dependencies.py",
+    "sha256": "36ab3ffd5c252f94e5137925158c7dfc4ec5ac4c05d482c7d826ae0cfd40e5a9",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+  },
+  {
+    "path": "backend/tests/unit/application/test_traveller_enrollment.py",
+    "sha256": "53cabc722aba47b6d02f1293b77221f3c6725ef2e45b1d99cfdaa04267018628",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "needs-follow-up",
+    "notes": "Only imports, _fixture and _source through line82 read; imported setup used by actual retained-image controls. No entire enrollment module-read or test-execution credit."
+  },
+  {
+    "path": "backend/tests/unit/application/test_traveller_snapshot_access.py",
+    "sha256": "e51e5372587a57df916a96479c302338f9763562971365066d30db45e962d13c",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_image_crop_routes.py",
+    "sha256": "2a9f6650cf4499438f02d7cf1c0ca34a780f179a9dffdc82f6a37611b48e1343",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_image_library_authority.py",
+    "sha256": "7f60b2f7949366c76ee5d497f63d339603f8a456ab245fa2d935b117c101deca",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_image_library_cancellation.py",
+    "sha256": "f689be6d76e04cff246956ee17be9f4dca573b5f50b40fe4f885eee603a24a43",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_image_library_commit_outcomes.py",
+    "sha256": "fcdfa283fd33a4f4a3b0ebfbc8b5daf3d7d620a24bb7d6e306a8d8c2df7de71f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_image_library_routes.py",
+    "sha256": "834bda1d53bdf2e200ef889a22ddb25981b69ad743844092bdcd2a786f5b7045",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_image_library_stream.py",
+    "sha256": "43e55b809f82306a27e1bd1f9a3bae201ad2a1131995bfb8c176634e352e94ba",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_image_mutation_authority.py",
+    "sha256": "7f13b174a03eb2511425241ff53305a5e7cf57ba7e8665f17a5275687afe33a4",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_image_mutation_cancellation.py",
+    "sha256": "cd5748a3fbf8bc069a63c6f543ad55af045a9426d087fb0f52659275a84e88cc",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_image_mutation_cleanup.py",
+    "sha256": "142f7a86ed6fd364c1bee8562a11c7dd0dc1fd625bb72cd480b0385a74476f67",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_image_mutation_commit_outcomes.py",
+    "sha256": "439a934843acad14260a56eaa7de412ea80fa1c7869f334e88784753db921c95",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_image_read_routes.py",
+    "sha256": "a6ec7db374632890af647265e49ea6efb525e48c57a4adef5393a32d27334d26",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_image_retained_authority.py",
+    "sha256": "9c0b919c2fbaba3e1963631bf541feb9e69755d37cc22bf187d4a8099d2828ae",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_image_storage_write.py",
+    "sha256": "28ae066a497c9a07f6b5f78ff697c9fe0690798fd5570e46fd732e24e679b872",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete reviewed source accounted for through full original body reads and exact whole-declaration/current-import proofs for moved owners; new helper/test code reviewed. Current174-case13-file affected selection is fenced across39direct source/test paths; actual FK-enabled SQLite actor/group/retained authority, independent commit observers, synthetic raster/provider/storage. Retained boundary has16actual purge/hard-delete failures corrected with8lawfulwithdrawal controls retained. See family/sibling/retained proofs for explicit allowed deltas, including2augmented scope dependencies; no broad current application/live-service claim. Independent private-image crash/orphan cleanup remains assigned and open."
+  }
+]

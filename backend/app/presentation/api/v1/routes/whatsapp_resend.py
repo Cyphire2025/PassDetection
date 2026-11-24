@@ -1,80 +1,139 @@
-"""Whatsapp: resend."""
+"""Public single-recipient resend scope and explicit phase composition."""
 
 from __future__ import annotations
 
-import uuid
-from datetime import UTC, datetime
+import uuid as uuid
+from datetime import UTC as UTC
+from datetime import datetime as datetime
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
-from sqlalchemy import select, update
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter as APIRouter
+from fastapi import Depends as Depends
+from fastapi import HTTPException as HTTPException
+from fastapi import Request as Request
+from fastapi import status as status
+from sqlalchemy import select as select
+from sqlalchemy import update as update
+from sqlalchemy.exc import IntegrityError as IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession as AsyncSession
 
-from app.core.config.settings import get_settings
-from app.domain.entities.entities import User
+from app.core.config.settings import get_settings as get_settings
+from app.domain.entities.entities import User as User
 from app.infrastructure.database.models import (
-    WhatsAppBroadcastGroupModel,
-    WhatsAppBroadcastRecipientModel,
-    WhatsAppMessageLogModel,
-    WhatsAppRecipientMessageStateModel,
+    WhatsAppBroadcastGroupModel as WhatsAppBroadcastGroupModel,
 )
-from app.infrastructure.database.session import get_db_session
-from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
+from app.infrastructure.database.models import (
+    WhatsAppBroadcastRecipientModel as WhatsAppBroadcastRecipientModel,
+)
+from app.infrastructure.database.models import WhatsAppMessageLogModel as WhatsAppMessageLogModel
+from app.infrastructure.database.models import (
+    WhatsAppRecipientMessageStateModel as WhatsAppRecipientMessageStateModel,
+)
+from app.infrastructure.database.session import get_db_session as get_db_session
+from app.infrastructure.repositories.audit_log_repository import (
+    AuditLogRepository as AuditLogRepository,
+)
 from app.infrastructure.repositories.passport_roster_resolution_repository import (
-    active_replacement_resolution_id_for_recipient,
+    active_replacement_resolution_id_for_recipient as active_replacement_resolution_id_for_recipient,
 )
 from app.infrastructure.whatsapp.group_invite_policy import (
-    group_invite_block_message,
-    group_invite_blocking_statuses,
-    message_phone_blocking_statuses,
-    passport_link_block_message,
+    group_invite_block_message as group_invite_block_message,
+)
+from app.infrastructure.whatsapp.group_invite_policy import (
+    group_invite_blocking_statuses as group_invite_blocking_statuses,
+)
+from app.infrastructure.whatsapp.group_invite_policy import (
+    message_phone_blocking_statuses as message_phone_blocking_statuses,
+)
+from app.infrastructure.whatsapp.group_invite_policy import (
+    passport_link_block_message as passport_link_block_message,
 )
 from app.infrastructure.whatsapp.publication import (
-    fail_unclaimed_broadcast_rows,
-    publish_whatsapp_task,
+    fail_unclaimed_broadcast_rows as fail_unclaimed_broadcast_rows,
 )
-from app.presentation.api.v1.routes.whatsapp_archive_policy import require_active_broadcast
+from app.infrastructure.whatsapp.publication import publish_whatsapp_task as publish_whatsapp_task
+from app.presentation.api.v1.routes.whatsapp_archive_policy import (
+    require_active_broadcast as require_active_broadcast,
+)
 from app.presentation.api.v1.routes.whatsapp_history_resend import (
-    frozen_resend_values,
-    historical_resend_batch,
-    replay_historical_resend,
-    saved_resend_source,
-    saved_template_name,
+    frozen_resend_values as frozen_resend_values,
+)
+from app.presentation.api.v1.routes.whatsapp_history_resend import (
+    historical_resend_batch as historical_resend_batch,
+)
+from app.presentation.api.v1.routes.whatsapp_history_resend import (
+    replay_historical_resend as replay_historical_resend,
+)
+from app.presentation.api.v1.routes.whatsapp_history_resend import (
+    saved_resend_source as saved_resend_source,
+)
+from app.presentation.api.v1.routes.whatsapp_history_resend import (
+    saved_template_name as saved_template_name,
 )
 from app.presentation.api.v1.routes.whatsapp_phone_welcome import (
-    claim_resend_welcome_or_reject,
-    enforce_broadcast_welcome_prerequisite,
+    claim_resend_welcome_or_reject as claim_resend_welcome_or_reject,
 )
+from app.presentation.api.v1.routes.whatsapp_phone_welcome import (
+    enforce_broadcast_welcome_prerequisite as enforce_broadcast_welcome_prerequisite,
+)
+from app.presentation.api.v1.routes.whatsapp_resend_claims import read_resend_claim
 from app.presentation.api.v1.routes.whatsapp_resend_payload import (
     resend_task_payload as resend_task_payload,
 )
+from app.presentation.api.v1.routes.whatsapp_resend_preparation import prepare_resend_attempt
+from app.presentation.api.v1.routes.whatsapp_resend_publication import publish_resend_attempt
 from app.presentation.api.v1.routes.whatsapp_shared import (
-    WHATSAPP_ACCEPTED_STATUSES,
-    WHATSAPP_EXPLICIT_RESEND_BLOCKING_STATUSES,
-    WHATSAPP_ROLES,
-    WHATSAPP_STALE_CLAIM_AGE,
-    _agency_filter,
-    _as_message_type,
-    _merge_composer_snapshot,
-    _message_values,
-    _resolve_message_links,
-    _resolve_send_header_image,
-    _resolve_send_message_content,
-    _resolve_send_passport_intro,
-    _select_support_contacts,
-    _snapshot_template_language,
-    _support_contacts_for_group,
-    logger,
+    WHATSAPP_ACCEPTED_STATUSES as WHATSAPP_ACCEPTED_STATUSES,
+)
+from app.presentation.api.v1.routes.whatsapp_shared import (
+    WHATSAPP_EXPLICIT_RESEND_BLOCKING_STATUSES as WHATSAPP_EXPLICIT_RESEND_BLOCKING_STATUSES,
+)
+from app.presentation.api.v1.routes.whatsapp_shared import WHATSAPP_ROLES as WHATSAPP_ROLES
+from app.presentation.api.v1.routes.whatsapp_shared import (
+    WHATSAPP_STALE_CLAIM_AGE as WHATSAPP_STALE_CLAIM_AGE,
+)
+from app.presentation.api.v1.routes.whatsapp_shared import _agency_filter as _agency_filter
+from app.presentation.api.v1.routes.whatsapp_shared import _as_message_type as _as_message_type
+from app.presentation.api.v1.routes.whatsapp_shared import (
+    _merge_composer_snapshot as _merge_composer_snapshot,
+)
+from app.presentation.api.v1.routes.whatsapp_shared import _message_values as _message_values
+from app.presentation.api.v1.routes.whatsapp_shared import (
+    _resolve_message_links as _resolve_message_links,
+)
+from app.presentation.api.v1.routes.whatsapp_shared import (
+    _resolve_send_header_image as _resolve_send_header_image,
+)
+from app.presentation.api.v1.routes.whatsapp_shared import (
+    _resolve_send_message_content as _resolve_send_message_content,
+)
+from app.presentation.api.v1.routes.whatsapp_shared import (
+    _resolve_send_passport_intro as _resolve_send_passport_intro,
+)
+from app.presentation.api.v1.routes.whatsapp_shared import (
+    _select_support_contacts as _select_support_contacts,
+)
+from app.presentation.api.v1.routes.whatsapp_shared import (
+    _snapshot_template_language as _snapshot_template_language,
+)
+from app.presentation.api.v1.routes.whatsapp_shared import (
+    _support_contacts_for_group as _support_contacts_for_group,
+)
+from app.presentation.api.v1.routes.whatsapp_shared import logger as logger
+from app.presentation.api.v1.schemas.whatsapp_schemas import (
+    WhatsAppResendRequest as WhatsAppResendRequest,
 )
 from app.presentation.api.v1.schemas.whatsapp_schemas import (
-    WhatsAppResendRequest,
-    WhatsAppSendRequest,
-    WhatsAppSendResponse,
-    WhatsAppSendResult,
+    WhatsAppSendRequest as WhatsAppSendRequest,
 )
-from app.presentation.dependencies.auth import require_role
-from app.presentation.dependencies.csrf import require_cookie_csrf
-from app.presentation.security.client_ip import trusted_client_ip
+from app.presentation.api.v1.schemas.whatsapp_schemas import (
+    WhatsAppSendResponse as WhatsAppSendResponse,
+)
+from app.presentation.api.v1.schemas.whatsapp_schemas import (
+    WhatsAppSendResult as WhatsAppSendResult,
+)
+from app.presentation.dependencies.auth import require_role as require_role
+from app.presentation.dependencies.csrf import require_cookie_csrf as require_cookie_csrf
+from app.presentation.security.client_ip import trusted_client_ip as trusted_client_ip
 
 router = APIRouter()
 
@@ -112,7 +171,6 @@ async def resend_recipient_message(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Recipient WhatsApp opt-in has not been confirmed for this list",
         )
-
     recipient_result = await session.execute(
         select(WhatsAppBroadcastRecipientModel)
         .where(
@@ -128,8 +186,12 @@ async def resend_recipient_message(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="WhatsApp recipient not found",
         )
-    history_batch = historical_resend_batch(body, user_id=current_user.id, group_id=group.id, recipient_id=recipient.id)
-    replay = await replay_historical_resend(session, batch_id=history_batch, group_id=group.id, recipient_id=recipient.id)
+    history_batch = historical_resend_batch(
+        body, user_id=current_user.id, group_id=group.id, recipient_id=recipient.id
+    )
+    replay = await replay_historical_resend(
+        session, batch_id=history_batch, group_id=group.id, recipient_id=recipient.id
+    )
     if replay is not None:
         return replay
     if await active_replacement_resolution_id_for_recipient(
@@ -148,285 +210,24 @@ async def resend_recipient_message(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="A resend can only target its selected recipient",
         )
-
     message_type = _as_message_type(body.message_type)
-    if message_type == "group_invite":
-        invite_blocks = await group_invite_blocking_statuses(session, [recipient])
-        if recipient.id in invite_blocks:
-            raise HTTPException(
-                status_code=409, detail=group_invite_block_message(invite_blocks[recipient.id])
-            )
-    await enforce_broadcast_welcome_prerequisite(
+    claim = await read_resend_claim(session, group, recipient, message_type)
+    prepared = await prepare_resend_attempt(
         session,
-        agency_id=group.agency_id,
-        message_type=message_type,
-        recipients=[recipient],
-    )
-    state_result = await session.execute(
-        select(WhatsAppRecipientMessageStateModel)
-        .where(
-            WhatsAppRecipientMessageStateModel.recipient_id == recipient.id,
-            WhatsAppRecipientMessageStateModel.message_type == message_type,
-        )
-        .with_for_update()
-    )
-    delivery_state = state_result.scalar_one_or_none()
-    is_retry = bool(delivery_state and delivery_state.status == "failed")
-    if not delivery_state or (
-        delivery_state.status not in WHATSAPP_ACCEPTED_STATUSES and not is_retry
-    ):
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=(
-                "Only a successfully submitted message can be resent, and only a "
-                "failed message can be retried."
-            ),
-        )
-
-    now = datetime.now(tz=UTC)
-    stale_cutoff = now - WHATSAPP_STALE_CLAIM_AGE
-    await session.execute(
-        update(WhatsAppMessageLogModel)
-        .where(
-            WhatsAppMessageLogModel.recipient_id == recipient.id,
-            WhatsAppMessageLogModel.message_type == message_type,
-            WhatsAppMessageLogModel.is_explicit_resend.is_(True),
-            WhatsAppMessageLogModel.status == "queued",
-            WhatsAppMessageLogModel.message_type != "group_invite",
-            WhatsAppMessageLogModel.status_updated_at < stale_cutoff,
-        )
-        .values(
-            status="failed",
-            status_updated_at=now,
-            error_message="Explicit resend claim expired before provider submission",
-        )
-        .execution_options(synchronize_session=False)
-    )
-    await session.execute(
-        update(WhatsAppMessageLogModel)
-        .where(
-            WhatsAppMessageLogModel.recipient_id == recipient.id,
-            WhatsAppMessageLogModel.message_type == message_type,
-            WhatsAppMessageLogModel.is_explicit_resend.is_(True),
-            WhatsAppMessageLogModel.status == "processing",
-            WhatsAppMessageLogModel.status_updated_at < stale_cutoff,
-        )
-        .values(
-            status="delivery_unknown",
-            status_updated_at=now,
-            error_message=(
-                "Explicit resend outcome is unknown after a worker interruption; "
-                "another resend is blocked"
-            ),
-        )
-        .execution_options(synchronize_session=False)
-    )
-    active_resend_result = await session.execute(
-        select(WhatsAppMessageLogModel).where(
-            WhatsAppMessageLogModel.recipient_id == recipient.id,
-            WhatsAppMessageLogModel.message_type == message_type,
-            WhatsAppMessageLogModel.is_explicit_resend.is_(True),
-            WhatsAppMessageLogModel.status.in_(WHATSAPP_EXPLICIT_RESEND_BLOCKING_STATUSES),
-        )
-    )
-    active_resend = active_resend_result.scalar_one_or_none()
-    if active_resend:
-        detail = (
-            "The previous resend has an unknown delivery outcome. "
-            "Verify it with the recipient before attempting another resend."
-            if active_resend.status == "delivery_unknown"
-            else "A resend of this message is already in progress for this recipient."
-        )
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=detail,
-        )
-
-    if message_type == "passport_link":
-        phone_blocks = await message_phone_blocking_statuses(
-            session, [recipient], message_type=message_type, include_accepted=is_retry,
-        )
-        if recipient.id in phone_blocks:
-            raise HTTPException(
-                status_code=409, detail=passport_link_block_message(phone_blocks[recipient.id]),
-            )
-
-    source_log, source_snapshot = await saved_resend_source(session, group_id=group.id,
-        recipient_id=recipient.id, message_type=message_type, is_retry=is_retry,
-        source_message_log_id=body.source_message_log_id)
-
-    settings = get_settings()
-    if not settings.whatsapp_access_token or not settings.whatsapp_phone_number_id:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="WhatsApp Cloud API credentials are incomplete",
-        )
-    effective_template_name = await saved_template_name(session, message_type, body, source_log)
-    merged_body = _merge_composer_snapshot(body, source_snapshot)
-    header_image_id = _resolve_send_header_image(
+        group,
+        recipient,
+        body,
         message_type,
-        merged_body.header_image_id,
-        resend=True,
+        history_batch,
+        claim,
     )
-    support_contacts = _select_support_contacts(
-        await _support_contacts_for_group(session, group.id),
-        merged_body.support_contact_ids,
-        message_type=message_type,
-    )
-    if message_type == "passport_link" and not support_contacts:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Add customer support contacts before resending this message",
-        )
-    message_content = _resolve_send_message_content(
+    return await publish_resend_attempt(
+        session,
+        request,
+        current_user,
+        group,
+        recipient,
         message_type,
-        merged_body.message_content,
-        group_name=group.name,
-    )
-    passport_intro = (
-        _resolve_send_passport_intro(
-            merged_body.passport_intro,
-            group_name=group.name,
-        )
-        if message_type == "passport_link"
-        else None
-    )
-    passport_link, group_invite_link = _resolve_message_links(merged_body)
-    resolved_body = WhatsAppSendRequest(
-        message_type=message_type,
-        passport_intro=passport_intro,
-        passport_link=passport_link,
-        message_content=message_content,
-        group_invite_link=group_invite_link,
-        header_image_id=header_image_id,
-        recipient_ids=merged_body.recipient_ids,
-        support_contact_ids=merged_body.support_contact_ids,
-    )
-    rendered_message: str | None
-    (
-        _,
-        _,
-        _,
-        _,
-        _,
-        rendered_message,
-        header_parameters,
-        parameters,
-    ) = _message_values(
-        group=group,
-        recipient=recipient,
-        support_contacts=support_contacts,
-        body=resolved_body,
-    )
-    template_name = effective_template_name.strip()
-    if not template_name:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=f"WhatsApp {message_type} template name is not configured",
-        )
-
-    template_name, header_parameters, parameters, rendered_message = frozen_resend_values(
-        body, source_log, template_name, header_parameters, parameters, rendered_message)
-    batch_id = history_batch or uuid.uuid4()
-    resend_log = WhatsAppMessageLogModel(
-        id=uuid.uuid4(),
-        normalized_phone_number=recipient.normalized_phone_number,
-        batch_id=batch_id,
-        broadcast_group_id=group.id,
-        recipient_id=recipient.id,
-        agency_id=recipient.agency_id,
-        message_type=message_type,
-        status="queued",
-        status_updated_at=now,
-        provider_message_id=None,
-        error_message=None,
-        template_name=template_name,
-        template_language=_snapshot_template_language(settings, message_type, source_log),
-        rendered_message=rendered_message,
-        header_parameter_values=header_parameters,
-        template_parameter_values=parameters,
-        is_explicit_resend=not is_retry,
-        created_at=now,
-    )
-    await claim_resend_welcome_or_reject(session, resend_log)
-    session.add(resend_log)
-    if is_retry:
-        delivery_state.status = "queued"
-        delivery_state.batch_id = batch_id
-        delivery_state.submitted_at = None
-        delivery_state.provider_status_at = None
-        delivery_state.status_updated_at = now
-        delivery_state.updated_at = now
-    try:
-        await session.flush()
-    except IntegrityError as exc:
-        await session.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="A resend of this message is already active for this recipient.",
-        ) from exc
-
-    await AuditLogRepository(session).record(
-        action=(
-            "whatsapp_recipient_message_retry_requested"
-            if is_retry
-            else "whatsapp_recipient_message_resend_requested"
-        ),
-        entity_type="whatsapp_broadcast_recipient",
-        entity_id=str(recipient.id),
-        agency_id=group.agency_id,
-        user_id=current_user.id,
-        actor_email=current_user.email,
-        ip_address=trusted_client_ip(request),
-        metadata={
-            "broadcast_group_id": str(group.id),
-            "message_type": message_type,
-            "source_message_log_id": str(source_log.id),
-            "resend_batch_id": str(batch_id),
-            "source_status": source_log.status,
-        },
-    )
-    await session.commit()
-
-    from app.infrastructure.whatsapp.tasks import process_whatsapp_broadcast
-
-    try:
-        await publish_whatsapp_task(
-            process_whatsapp_broadcast,
-            payload=resend_task_payload(batch_id, message_type, parameters, header_parameters),
-        )
-    except Exception as exc:  # noqa: BLE001 - broker failure is surfaced and persisted.
-        logger.error(
-            "whatsapp_resend_queue_unavailable",
-            extra={
-                "batch_id": str(batch_id),
-                "recipient_id": str(recipient.id),
-                "error_type": type(exc).__name__,
-            },
-        )
-        await fail_unclaimed_broadcast_rows(
-            session,
-            batch_id=batch_id,
-            error_message=(
-                "WHATSAPP_QUEUE_UNAVAILABLE: WhatsApp delivery queue is temporarily unavailable"
-            ),
-        )
-        await session.commit()
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="WhatsApp delivery queue is unavailable",
-        ) from exc
-
-    return WhatsAppSendResponse(
-        batch_id=batch_id,
-        queued=1,
-        sent=0,
-        failed=0,
-        results=[
-            WhatsAppSendResult(
-                recipient_id=recipient.id,
-                phone_number=recipient.normalized_phone_number,
-                status="queued",
-            )
-        ],
+        claim,
+        prepared,
     )

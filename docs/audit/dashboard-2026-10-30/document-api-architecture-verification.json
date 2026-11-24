@@ -1,0 +1,174 @@
+{
+  "recorded_at": "2026-10-31T07:32:33.209Z",
+  "status": "focused-feature-source-frozen-awaiting-parent-integration",
+  "source_paths": [
+    {
+      "path": "frontend/features/documents/api/document-distribution.api.ts",
+      "sha256": "29b422e32c2515d910fc7fa7e50aa137045b6695718bc50ed63e46796cdec7a8"
+    },
+    {
+      "path": "frontend/features/documents/api/document-review.api.ts",
+      "sha256": "0e65fec9713722a3a2fb684f751a3c0054176a08802434df069d5b6ec45a3325"
+    },
+    {
+      "path": "frontend/features/documents/api/document-verification.api.ts",
+      "sha256": "f07dcb1a9e9131ed9f4b5e58c9ff6bf93074c27a888395c3b7317c8e6c2304d6"
+    },
+    {
+      "path": "frontend/features/documents/api/document-batches.api.ts",
+      "sha256": "0d811cd76a73c62b47a299762cb14a4792a9bffc769f0e33e110c898d8108a1b"
+    },
+    {
+      "path": "frontend/features/documents/api/document-delivery.api.ts",
+      "sha256": "4bd918f76bb2847b975adc2eea2ab49649993b0d1d38d06760949ed602f791f9"
+    },
+    {
+      "path": "frontend/features/documents/api/document-distribution.types.ts",
+      "sha256": "5d026f0150a4855d078f7956011ec18c6bf0e57d1b95ce4c83bf0e0443818b25"
+    },
+    {
+      "path": "frontend/features/documents/services/document-filename-replacements.ts",
+      "sha256": "bdcaed2ce12db58ea63115554231b5f5e8cf286c4f6fe63d240374556ececa85"
+    },
+    {
+      "path": "frontend/features/documents/api/document-verification.api.test.ts",
+      "sha256": "383fbf60a6fc16741d2af942145c609c0bb5d6e015371cc0d340c9991818d4f3"
+    },
+    {
+      "path": "frontend/features/documents/api/document-batches.api.test.ts",
+      "sha256": "f73dfe211da565d2a03e7788279a27fa23c024d99e7cc47492f92a8aa011d7d8"
+    },
+    {
+      "path": "frontend/features/documents/components/document-api-source.contract-helper.mjs",
+      "sha256": "865233c61df3cd0435fe4ee15290b9690b6437d0f8f791bdd23fc6ad862745bb"
+    },
+    {
+      "path": "frontend/features/documents/components/document-bulk-upload.contract.test.mjs",
+      "sha256": "93bada2d280c3b20b83988ed3d74baae44029f65583f423813c7d5aadada3e7d"
+    },
+    {
+      "path": "frontend/features/documents/components/document-group-search.contract.test.mjs",
+      "sha256": "21272b21a58492047953323f636e3ea31c720e8e85b69d8d268ec3377ee35c29"
+    },
+    {
+      "path": "frontend/features/documents/components/document-assignment-export.contract.test.mjs",
+      "sha256": "be68addddb0914d37787dc5390a97d55a9e3b5557cf5320bf2bdcc4e14622c9e"
+    },
+    {
+      "path": "frontend/features/documents/components/document-whatsapp-delivery.contract.test.mjs",
+      "sha256": "2b69b084fef923e4f0ce1a8e109a28524293c11c45edbe09bb499bdb53432794"
+    }
+  ],
+  "baseline": {
+    "files": 1,
+    "tests": 3,
+    "passed": 2,
+    "failed": 1,
+    "pending": 0
+  },
+  "indexed_controls": {
+    "files": 1,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "pending": 0
+  },
+  "affected_feature_run": {
+    "files": 18,
+    "tests": 81,
+    "passed": 81,
+    "failed": 0,
+    "pending": 0
+  },
+  "latest_api_controls": {
+    "files": 2,
+    "tests": 11,
+    "passed": 11,
+    "failed": 0,
+    "pending": 0
+  },
+  "scope_note": "The81-case18-file run preceded two added accepted-without-passenger guards and count-only console measurement. Final11case/two-file API run includes these guards. All7runtime hashes are identical across both runs, verified against the earlier formatting/source fence. Counts are reported separately, not summed into a fictional complete run.",
+  "checks": {
+    "node_contracts": {
+      "files": 4,
+      "tests": 32,
+      "passed": 32
+    },
+    "typescript": "passed",
+    "eslint": "14changed paths pass; later added API guards/count diagnostic receive supplemental lint pass",
+    "existing_budgets": "549passed; parent-owned script unchanged",
+    "movement": "All15method/signature ASTs exact from indexed checkpoint;14original unaffected methods,2public types,private filename helper and ordered facade preserved."
+  },
+  "workload": {
+    "actual_entry": "documentDistributionApi.verifyDocuments with real current chunk/manifest helpers and synthetic HTTP only",
+    "selected_files": 512,
+    "replacements": 512,
+    "requests": 32,
+    "old_filename_property_reads": 81920,
+    "current_filename_property_reads": 1024,
+    "reduction_factor": 80,
+    "asserted_upper_bound": 4096,
+    "observables": "Verification order/counts, durable receipts, manual candidate file indices/reference identity, bounded progress and capability stripping checked; duplicate cross-chunk names, Unicode/case and replacement order controls pass.",
+    "limits": "Property-read workload, not production throughput, memory-capacity or server/provider benchmark. Auxiliary indexes use linear space in input/chunk-name associations; repeated output for duplicate cross-chunk names remains output-size work."
+  },
+  "responsibilities": {
+    "original_api_critical_include": false,
+    "current_critical_config_sha256": "43f8ef71f59df34257e296abc4e2d6181105066af32a39c66bf2dcca6268d37d",
+    "overlap": [],
+    "notes": "No configured critical owner or coverage floor moved; existing frontend thresholds/config unchanged. Seven measured module candidates proposed separately."
+  },
+  "open_followups": [
+    {
+      "kind": "candidate-not-proven",
+      "scope": "private document mutations",
+      "notes": "Actual workspace/manual callers abort on session reset/unmount and check post-await signals; queued-start actor/lifetime concern needs a normal-path regression beyond those safeguards. This architecture/performance batch neither changes private authority semantics nor closes that follow-up."
+    }
+  ],
+  "raw_receipts": [
+    {
+      "path": "docs/audit/dashboard-2026-10-30/document-api-architecture-verification-before.json",
+      "sha256": "ec3db435d173daec5ac2475525e227b15bc12001af19239dd617246b5a8ab57d"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/document-api-architecture-verification-indexed.json",
+      "sha256": "fdb9b440d76710ca838e3492ce85274fc8f2705e3fd6df42b800be0958275bb4"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/document-api-architecture-verification-after-extraction.json",
+      "sha256": "d4b111eb88028136ed812eeb594381f8f9cac7f49aa966b49dd1edfb57385289"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/document-api-architecture-final-affected-unit.json",
+      "sha256": "0dcdf2b40357991eca94f92f88a2a939b2953c56e6c302c8c582cc5d83296587"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/document-api-architecture-final-api-unit.json",
+      "sha256": "46b122c56f624403c78ecc9dd2cca91c7a3c44b0502e8f4d5d8b92e01f581e77"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/document-api-architecture-workload-measurement.txt",
+      "sha256": "3918dded25f4fa2bb6a70790ef714924b14da876b4b208726ae9da6ca30f2fca"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/document-api-architecture-node-stage1.txt",
+      "sha256": "0e3da12736c149b9a10e7c2dc1887dc9b2cb024d2b624d7d1410adcd22931b11"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/document-api-architecture-final-types.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/document-api-architecture-final-lint.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/document-api-architecture-final-supplemental-lint.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/document-api-architecture-final-existing-budgets.txt",
+      "sha256": "571f5453863e94075f6b46c69481fe23418a47f639f32abe2da5df1c324bbc0b"
+    }
+  ],
+  "limits": "No backend/provider sends, production documents, schema/HTTP DTO changes, mobile edits, package/config changes, broad app build or whole app suite. Prior sk5Gr2SBpAGsBdGnFXb9g21-browser checkpoint remains historical and does not qualify these later API source changes."
+}

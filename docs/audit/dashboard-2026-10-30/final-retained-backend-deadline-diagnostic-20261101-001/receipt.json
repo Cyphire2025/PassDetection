@@ -1,0 +1,28 @@
+{
+  "authority": "Explicit root narrow diagnostic while original combined run continues unchanged",
+  "command": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-vv",
+    "--tb=long",
+    "-o",
+    "addopts=",
+    "--no-cov",
+    "tests/unit/infrastructure/test_traveller_reconciliation_runtime.py::test_burst_deadline_also_cancels_blocked_admission",
+    "--junitxml=C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\final-retained-backend-deadline-diagnostic-20261101-001\\junit.xml"
+  ],
+  "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection\\backend",
+  "exit_code": 0,
+  "seconds": 14.39,
+  "same_guard_and_minimal_environment": true,
+  "coverage_disabled": true,
+  "no_selection_plugin_for_exact_retained_ID": true,
+  "original_source_fence_exact_before_after": true,
+  "stdout_sha256": "9a88b34ba9dbfb79642bc4d67896aaeb0adce9a5a574e4851556dc8e2e558c57",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "limits": [
+    "Standalone diagnostic has fresh process/module state; it cannot replace failed combined evidence.",
+    "No source changes or coverage merging."
+  ]
+}

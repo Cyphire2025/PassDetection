@@ -1,0 +1,58 @@
+[
+  {
+    "path": "app/application/use_cases/passports/submission_view.py",
+    "baseline_lines": 174,
+    "maximum_lines": 180,
+    "baseline_max_function_complexity": 21,
+    "maximum_function_complexity": 21,
+    "minimum_coverage_percent": 95
+  },
+  {
+    "path": "app/application/use_cases/passports/submission_view_types.py",
+    "baseline_lines": 93,
+    "maximum_lines": 100,
+    "baseline_max_function_complexity": 3,
+    "maximum_function_complexity": 3,
+    "minimum_coverage_percent": 95
+  },
+  {
+    "path": "app/application/use_cases/passports/submission_view_fields.py",
+    "baseline_lines": 120,
+    "maximum_lines": 120,
+    "baseline_max_function_complexity": 19,
+    "maximum_function_complexity": 19,
+    "minimum_coverage_percent": 80
+  },
+  {
+    "path": "app/application/use_cases/passports/submission_view_clustering.py",
+    "baseline_lines": 119,
+    "maximum_lines": 120,
+    "baseline_max_function_complexity": 31,
+    "maximum_function_complexity": 31,
+    "minimum_coverage_percent": 90
+  },
+  {
+    "path": "app/application/use_cases/passports/submission_view_ordering.py",
+    "baseline_lines": 97,
+    "maximum_lines": 100,
+    "baseline_max_function_complexity": 7,
+    "maximum_function_complexity": 7,
+    "minimum_coverage_percent": 95
+  },
+  {
+    "path": "app/application/use_cases/passports/submission_view_pagination.py",
+    "baseline_lines": 57,
+    "maximum_lines": 60,
+    "baseline_max_function_complexity": 7,
+    "maximum_function_complexity": 7,
+    "minimum_coverage_percent": 95
+  },
+  {
+    "path": "app/application/use_cases/passports/submission_view_expiry.py",
+    "baseline_lines": 57,
+    "maximum_lines": 60,
+    "baseline_max_function_complexity": 8,
+    "maximum_function_complexity": 8,
+    "minimum_coverage_percent": 95
+  }
+]

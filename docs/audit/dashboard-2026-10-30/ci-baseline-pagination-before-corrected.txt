@@ -1,0 +1,44 @@
+======================================================================
+FAIL: test_a_full_page_cannot_hide_an_unobserved_later_completed_gate (test_ci_pipeline.PushBaselineTests.test_a_full_page_cannot_hide_an_unobserved_later_completed_gate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_ci_pipeline.py", line 215, in test_a_full_page_cannot_hide_an_unobserved_later_completed_gate
+    self.assertFalse(qualified_push_base(api, self.repository, 2, SOURCE, "main"))
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_unknown_or_inconsistent_run_counts_require_fresh_checks (test_ci_pipeline.PushBaselineTests.test_unknown_or_inconsistent_run_counts_require_fresh_checks) (count=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_ci_pipeline.py", line 229, in test_unknown_or_inconsistent_run_counts_require_fresh_checks
+    self.assertFalse(qualified_push_base(api, self.repository, 2, SOURCE, "main"))
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_unknown_or_inconsistent_run_counts_require_fresh_checks (test_ci_pipeline.PushBaselineTests.test_unknown_or_inconsistent_run_counts_require_fresh_checks) (count=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_ci_pipeline.py", line 229, in test_unknown_or_inconsistent_run_counts_require_fresh_checks
+    self.assertFalse(qualified_push_base(api, self.repository, 2, SOURCE, "main"))
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_unknown_or_inconsistent_run_counts_require_fresh_checks (test_ci_pipeline.PushBaselineTests.test_unknown_or_inconsistent_run_counts_require_fresh_checks) (count=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_ci_pipeline.py", line 229, in test_unknown_or_inconsistent_run_counts_require_fresh_checks
+    self.assertFalse(qualified_push_base(api, self.repository, 2, SOURCE, "main"))
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_unknown_or_inconsistent_run_counts_require_fresh_checks (test_ci_pipeline.PushBaselineTests.test_unknown_or_inconsistent_run_counts_require_fresh_checks) (count=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_ci_pipeline.py", line 229, in test_unknown_or_inconsistent_run_counts_require_fresh_checks
+    self.assertFalse(qualified_push_base(api, self.repository, 2, SOURCE, "main"))
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.002s
+
+FAILED (failures=5)

@@ -1,0 +1,14 @@
+[
+  {
+    "path": "backend/requirements.txt",
+    "normalized_sha256": "ba9cbd3b577b316b1262c2f5ce6cd14f8d2cf5c9347df152f75bc252a42ad31c"
+  },
+  {
+    "path": "backend/requirements.lock",
+    "normalized_sha256": "1fe14679cfb5a5dce7043966982e4b348c5861d9d952dfc32183eea7ce1e2bd0"
+  },
+  {
+    "path": "backend/requirements-dev.lock",
+    "normalized_sha256": "fa496ac3b66cb786678e2d68d5dd105b06e1f111c909334848a93f29c17c7e1f"
+  }
+]

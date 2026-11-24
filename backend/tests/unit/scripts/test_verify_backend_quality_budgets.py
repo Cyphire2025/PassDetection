@@ -7,11 +7,7 @@ from pathlib import Path
 
 import pytest
 
-SCRIPT_PATH = (
-    Path(__file__).resolve().parents[3]
-    / "scripts"
-    / "verify_backend_quality_budgets.py"
-)
+SCRIPT_PATH = Path(__file__).resolve().parents[3] / "scripts" / "verify_backend_quality_budgets.py"
 SPEC = importlib.util.spec_from_file_location("verify_backend_quality_budgets", SCRIPT_PATH)
 assert SPEC is not None and SPEC.loader is not None
 quality = importlib.util.module_from_spec(SPEC)
@@ -53,11 +49,7 @@ def test_evaluate_budgets_rejects_size_complexity_coverage_and_untracked_module(
     app = tmp_path / "app"
     app.mkdir()
     (app / "large.py").write_text(
-        "def risky(a, b):\n"
-        "    if a and b:\n"
-        "        return 1\n"
-        "    return 0\n"
-        "\n",
+        "def risky(a, b):\n    if a and b:\n        return 1\n    return 0\n\n",
         encoding="utf-8",
     )
     (app / "untracked.py").write_text("one = 1\ntwo = 2\nthree = 3\n", encoding="utf-8")
@@ -92,20 +84,36 @@ def test_load_coverage_normalizes_app_source_root(tmp_path: Path) -> None:
 
 def _coverage_gate_files(tmp_path: Path, *, measured_branches: int = 10) -> tuple[Path, Path]:
     budget = tmp_path / "budgets.json"
-    budget.write_text(json.dumps({"coverage_gates": {
-        "global": {"minimum_line_percent": 70, "minimum_branch_percent": 60},
-        "critical_modules": [{"path": "app/security.py", "minimum_line_percent": 90, "minimum_branch_percent": 85}],
-    }}), encoding="utf-8")
+    budget.write_text(
+        json.dumps(
+            {
+                "coverage_gates": {
+                    "global": {"minimum_line_percent": 70, "minimum_branch_percent": 60},
+                    "critical_modules": [
+                        {
+                            "path": "app/security.py",
+                            "minimum_line_percent": 90,
+                            "minimum_branch_percent": 85,
+                        }
+                    ],
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
     coverage = tmp_path / "coverage.xml"
     coverage.write_text(
         f'<coverage line-rate="0.80" branch-rate="0.70" branches-valid="{measured_branches}">'
         '<packages><package><classes><class filename="security.py" line-rate="0.99" branch-rate="0.80"/>'
-        '</classes></package></packages></coverage>', encoding="utf-8",
+        "</classes></package></packages></coverage>",
+        encoding="utf-8",
     )
     return budget, coverage
 
 
-def test_critical_branch_regression_fails_even_when_lines_and_global_coverage_pass(tmp_path: Path) -> None:
+def test_critical_branch_regression_fails_even_when_lines_and_global_coverage_pass(
+    tmp_path: Path,
+) -> None:
     budget, coverage = _coverage_gate_files(tmp_path)
     assert quality.evaluate_coverage_gates(budget, coverage) == [
         "app/security.py: branch coverage 80.00% is below reviewed floor 85.00%"
@@ -121,7 +129,9 @@ def test_statement_only_report_cannot_satisfy_branch_gate(tmp_path: Path) -> Non
 
 def test_global_regression_and_missing_critical_module_fail(tmp_path: Path) -> None:
     budget, coverage = _coverage_gate_files(tmp_path)
-    coverage.write_text('<coverage line-rate="0.69" branch-rate="0.59" branches-valid="10"/>', encoding="utf-8")
+    coverage.write_text(
+        '<coverage line-rate="0.69" branch-rate="0.59" branches-valid="10"/>', encoding="utf-8"
+    )
     violations = quality.evaluate_coverage_gates(budget, coverage)
     assert len(violations) == 3
     assert any("Repository: line coverage" in value for value in violations)
@@ -136,3 +146,79 @@ def test_nonfinite_coverage_floor_is_rejected(tmp_path: Path) -> None:
     budget.write_text(json.dumps(document), encoding="utf-8")
     with pytest.raises(ValueError, match="invalid line coverage floor"):
         quality.evaluate_coverage_gates(budget, coverage)
+
+
+def test_data_only_zero_complexity_budget_rejects_introduced_function(tmp_path: Path) -> None:
+    app = tmp_path / "app"
+    app.mkdir()
+    source = app / "settings.py"
+    source.write_text("class Settings:\n    timeout = 30\n", encoding="utf-8")
+    budget_file = tmp_path / "budgets.json"
+    budget_file.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "untracked_module_line_threshold": 100,
+                "modules": [
+                    {
+                        "path": "app/settings.py",
+                        "baseline_lines": 2,
+                        "maximum_lines": 10,
+                        "baseline_max_function_complexity": 0,
+                        "maximum_function_complexity": 0,
+                        "minimum_coverage_percent": 75,
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    threshold, budgets = quality.load_budget_file(budget_file)
+    measurements, violations = quality.evaluate_budgets(
+        backend_root=tmp_path,
+        threshold=threshold,
+        budgets=budgets,
+    )
+    assert measurements[0].max_function_complexity == 0
+    assert violations == []
+
+    source.write_text(
+        "class Settings:\n    def timeout(self):\n        return 30\n", encoding="utf-8"
+    )
+    measurements, violations = quality.evaluate_budgets(
+        backend_root=tmp_path,
+        threshold=threshold,
+        budgets=budgets,
+    )
+    assert measurements[0].max_function_complexity == 1
+    assert violations == [
+        "app/settings.py:timeout: complexity 1 exceeds reviewed ceiling 0",
+    ]
+
+
+@pytest.mark.parametrize("baseline,ceiling", [(-1, 0), (0, -1)])
+def test_negative_complexity_budget_is_rejected(
+    tmp_path: Path, baseline: int, ceiling: int
+) -> None:
+    budget_file = tmp_path / "budgets.json"
+    budget_file.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "untracked_module_line_threshold": 100,
+                "modules": [
+                    {
+                        "path": "app/settings.py",
+                        "baseline_lines": 2,
+                        "maximum_lines": 10,
+                        "baseline_max_function_complexity": baseline,
+                        "maximum_function_complexity": ceiling,
+                        "minimum_coverage_percent": 75,
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="Invalid complexity budget"):
+        quality.load_budget_file(budget_file)

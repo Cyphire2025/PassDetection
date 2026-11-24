@@ -1,0 +1,106 @@
+[
+  {
+    "check": "release-bindings",
+    "exit_code": 0,
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      ".tmp/verify-current-release-bindings.py"
+    ],
+    "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection"
+  },
+  {
+    "check": "static-budgets",
+    "exit_code": 0,
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "scripts/verify_backend_quality_budgets.py"
+    ],
+    "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection\\backend"
+  },
+  {
+    "check": "operator-checks",
+    "exit_code": 0,
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "scripts",
+      "-p",
+      "test_release_workspace_branding.py"
+    ],
+    "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection"
+  },
+  {
+    "check": "inventory-check",
+    "exit_code": 0,
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "scripts/mcp_inventory.py",
+      "--check"
+    ],
+    "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection"
+  },
+  {
+    "check": "architecture-check",
+    "exit_code": 0,
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "scripts/verify_architecture_boundaries.py"
+    ],
+    "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection\\backend"
+  },
+  {
+    "check": "mypy",
+    "exit_code": 0,
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "-m",
+      "mypy",
+      "app/infrastructure/my_photos/aws_client_runtime.py",
+      "app/infrastructure/my_photos/aws_face_results.py",
+      "app/infrastructure/my_photos/aws_face_search.py",
+      "app/infrastructure/my_photos/aws_liveness.py",
+      "app/infrastructure/my_photos/aws_media_delivery.py",
+      "app/infrastructure/my_photos/aws_media_location.py",
+      "app/infrastructure/my_photos/aws_media_metadata.py",
+      "app/infrastructure/my_photos/aws_provider_config.py",
+      "app/infrastructure/my_photos/aws_providers.py",
+      "app/infrastructure/my_photos/aws_references.py",
+      "app/infrastructure/my_photos/delivery_assets.py",
+      "app/infrastructure/my_photos/delivery_authorizations.py",
+      "app/infrastructure/my_photos/delivery_context.py",
+      "app/infrastructure/my_photos/delivery_downloads.py",
+      "app/infrastructure/my_photos/delivery_plan.py",
+      "app/infrastructure/my_photos/delivery_policy.py",
+      "app/infrastructure/my_photos/delivery_preparation.py",
+      "app/infrastructure/my_photos/delivery_previews.py",
+      "app/infrastructure/my_photos/delivery_projection.py",
+      "app/infrastructure/my_photos/delivery_provider.py",
+      "app/infrastructure/my_photos/delivery_service.py",
+      "app/infrastructure/my_photos/operational_runtime.py",
+      "app/infrastructure/my_photos/recovery_runtime.py",
+      "app/infrastructure/my_photos/revision_runtime.py"
+    ],
+    "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection\\backend"
+  },
+  {
+    "check": "api-check",
+    "exit_code": 0,
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "scripts/export_api_contract.py"
+    ],
+    "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection\\backend"
+  },
+  {
+    "check": "mobile-api-check",
+    "exit_code": 0,
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "scripts/export_mobile_openapi_contract.py"
+    ],
+    "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection\\backend"
+  }
+]

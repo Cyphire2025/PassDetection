@@ -1,0 +1,134 @@
+{
+  "status": "candidate cleared in tested normal native lifecycle; no production defect or security fix claimed",
+  "cases": 6,
+  "browser": "151.0.7922.34",
+  "source_fence": [
+    {
+      "path": "frontend/features/operations/components/dashboard-realtime-attendance-bridge.tsx",
+      "sha256": "391ed735d019c52acd992207906f9e22646f8e5db687decdfd12aabe3c32970a"
+    },
+    {
+      "path": "frontend/features/operations/services/dashboard-realtime.ts",
+      "sha256": "b8b9b8ce444d06e0a92c6af9d448833e3eab4d46b3d5c19553e7faafe3ae68d9"
+    },
+    {
+      "path": "frontend/features/operations/services/attendance-invalidation.ts",
+      "sha256": "f70a7b59ac666b6cc0bc0c1571b3c3cf6bea7fdcef93dbdc04e172f67759abbd"
+    },
+    {
+      "path": "frontend/features/auth/components/authenticated-content.tsx",
+      "sha256": "2a6b961e1c3aed8a9fce536a1a08aefe4f68a6699271581ad65c1e1aa1c76d4d"
+    },
+    {
+      "path": "frontend/stores/auth.store.ts",
+      "sha256": "788cdfd0ed8072ce1191d863759bed359b3a38de35a0aeeb1cc744c3e11f58e9"
+    },
+    {
+      "path": "frontend/features/auth/services/session-state.ts",
+      "sha256": "6f8077d093be0f9c9ecdb3340a18870802cb10c6e280b7d48c24d7bcf99330a8"
+    },
+    {
+      "path": "frontend/features/auth/services/session-continuity.ts",
+      "sha256": "cdb69ae93f3884102bb475cb090e3f7fb796fe6e7b1cb87eced8106dda00ffcc"
+    },
+    {
+      "path": "frontend/providers/session-lifecycle.tsx",
+      "sha256": "0b7250386cdbfd7875aa5ece83ba023490fabfb3465b23cd0005d69d7066005d"
+    }
+  ],
+  "bundle_sha256": "a6e3d1c8d678634f6e1a92f5eb6e3d1c0a35f2e8087d5352a73f49246a82621d",
+  "actual_cases": [
+    {
+      "name": "actual healthy socket hint and query invalidation",
+      "status": "passed"
+    },
+    {
+      "name": "queued old frame across actual setSession and authority remount",
+      "status": "passed"
+    },
+    {
+      "name": "same actor changed agency drops native old socket frames",
+      "status": "passed"
+    },
+    {
+      "name": "valid same-authority profile revalidation continues hints",
+      "status": "passed"
+    },
+    {
+      "name": "actual expired-session clear closes native socket and stops hints",
+      "status": "passed"
+    },
+    {
+      "name": "actual React root unmount suppresses closing-socket callbacks",
+      "status": "passed"
+    }
+  ],
+  "observations": [
+    "Unchanged production Bridge+AuthenticatedContent+AuthStore+SessionLifecycle and actual QueryClient run in Chromium with actual WebSocket transport/events.",
+    "Server writes old text frames while browser native old socket is CLOSING and holds close handshakes; native dispatch suppresses these frames. Normal close response then reaches CLOSED without an extra reconnect.",
+    "Queued frame at account switch was delivered under original actor before change; no old native message dispatch under replacement actor. New current socket hints and invalidation still work.",
+    "Same-id agency change, valid same-authority profile revalidation, actual expired-session clear and actual React root unmount behave correctly.",
+    "Actual production consumer sources use scoped effect subscriptions inside authority-key boundary. Global fixture observer was corrected to this lifetime; queued same-document BroadcastChannel notifications outside that boundary are not an application leak claim."
+  ],
+  "runtime_or_test_edits": [],
+  "qualification_limits": [
+    "Actual Chromium WebSocket and actual component/auth store/key remount/SessionLifecycle; synthetic manual RFC6455 server, no backend authorization or live API claim.",
+    "Only next/navigation router is an inert fixture recording redirects. All transport/events and application owners are actual.",
+    "Vite isolated envDir and unique envPrefix prevent importing checkout .env; only synthetic public API path and production NODE_ENV are provided.",
+    "No Next production build, broad browser journeys, external requests or user/private data.",
+    "Component Vite bundle only, not production Next artifact or broad e2e qualification.",
+    "No exhausted universal scheduling claim; source-backed candidate cleared within actual current native close/remount contracts and six qualified controls.",
+    "Initial harness navigation global/property and library env setup errors are retained as fixture failures, not application failures.",
+    "Existing unbounded Fake.receive is not valid evidence for dispatch after native close. Approved test-only fixture correction follows in a separate checkpoint."
+  ],
+  "ledger": {
+    "path": "docs/audit/dashboard-2026-10-30/dashboard-realtime-callback-clearance-reviewed-files.json",
+    "sha256": "af8cccc22e248ae7fc4882d2ff1ceae2677a278edc47e3eb98cdad505a10ed76"
+  },
+  "artifacts": [
+    {
+      "path": ".tmp/realtime-client-lifetime/result.json",
+      "sha256": "ae082b2e9bacd0d5f82fe954da3abb3719ba42dc21c44532df7f191bedc86af8"
+    },
+    {
+      "path": ".tmp/realtime-client-lifetime/run.txt",
+      "sha256": "4d349623a6da861b440d29a322474a3830f75117c8fa543072efffbf952f28b7"
+    },
+    {
+      "path": ".tmp/realtime-client-lifetime/verify.mjs",
+      "sha256": "cb756997f44a447fc7be8468c7a7a575960492552e837abc2ba152a691263a33"
+    },
+    {
+      "path": ".tmp/realtime-client-lifetime/entry.tsx",
+      "sha256": "6924518a1236e46c16aebe3f27f95a2125f345be2612524f0e6417c767a1e725"
+    },
+    {
+      "path": ".tmp/realtime-client-lifetime/navigation.ts",
+      "sha256": "31fc89cbefc77e2c4ddaeb6db12007f4f3e46eee80413ed8f7260073845fb0cc"
+    },
+    {
+      "path": ".tmp/realtime-client-lifetime/initial-fixture-failure.txt",
+      "sha256": "fd881667d8af3fad385b77fa440328563f74939d4b9332acd7d048af3bfc4b84"
+    },
+    {
+      "path": ".tmp/realtime-client-lifetime/fixture-env-failure.txt",
+      "sha256": "753e236d479a03ea08ad64b1d24f3cd2d1839b6f89e300bee92136328bc976aa"
+    },
+    {
+      "path": ".tmp/realtime-client-lifetime/fixture-lib-env-failure.txt",
+      "sha256": "753e236d479a03ea08ad64b1d24f3cd2d1839b6f89e300bee92136328bc976aa"
+    },
+    {
+      "path": ".tmp/realtime-client-lifetime/fixture-navigation-failure.txt",
+      "sha256": "23d493b3ad33499507062aba6796f9052b07e842a329332c162276f1e056a158"
+    },
+    {
+      "path": ".tmp/realtime-client-lifetime/native-socket-controls-initial.json",
+      "sha256": "40a6a0eaf3dcc4ea2e44c845904128d4585fa4f283f05221d6d6f98b48e4575a"
+    },
+    {
+      "path": ".tmp/realtime-client-lifetime/native-socket-scoped-observer-before-seal.json",
+      "sha256": "05f57030465abba771e2d871a3e8d4b691aad75589c51d2089b1b7cd7ff04dba"
+    }
+  ]
+}

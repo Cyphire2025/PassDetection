@@ -1,0 +1,17 @@
+{
+  "command": [
+    "node",
+    "--test",
+    "features/upload/components/visa-selfie-camera.contract.test.mjs",
+    "features/upload/components/camera-accessibility.contract.test.mjs",
+    "features/upload/services/visa-selfie-runtime.test.mjs",
+    "features/passports/components/passport-group-detail.contract.test.mjs",
+    "features/passports/components/passport-group-detail-boundaries.contract.test.mjs",
+    "features/passports/components/trip-timezone.contract.test.mjs",
+    "features/passports/components/create-upload-link-modal.contract.test.mjs",
+    "features/passports/api/passport-export-history.contract.test.mjs"
+  ],
+  "exit_code": 0,
+  "duration_seconds": 0.56,
+  "output": "docs/audit/dashboard-2026-10-30/camera-gc-checkpoint-contracts.txt"
+}

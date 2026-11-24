@@ -1,0 +1,11 @@
+{
+  "first_build_rewrites": {
+    "beforeFiles": [],
+    "afterFiles": [],
+    "fallback": []
+  },
+  "probe_failure": "Build omitted API_BASE_URL, so the optional Next-side proxy was absent. Production normally uses same-origin Nginx; standalone synthetic routing probe requires explicit loopback upstream at build time.",
+  "first_browser_result": "8passed1failed; login/title and full credential/logout journey passed.",
+  "next_build_api_base_url": "http://127.0.0.1:3199",
+  "runtime_source_change": false
+}

@@ -1,0 +1,231 @@
+{
+  "status": "verified and frozen",
+  "source_manifest": {
+    "path": "docs/audit/dashboard-2026-10-30/ecr-checker-final-source-manifest.json",
+    "sha256": "c678551ea2465b795fc51dc91c42583634fe7cae6f1b78dd44392b1ed1fb5891"
+  },
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/ecr-checker-final-reviewed-files.json",
+    "sha256": "569d81942ebb5da117af47e737aaede658699f25de4702f7afe6fa7fbebb44a2"
+  },
+  "budget_candidates": {
+    "path": "docs/audit/dashboard-2026-10-30/ecr-checker-final-budget-candidates.json",
+    "sha256": "0a228c1b672d536c213b9365fd7b7444d7f34e28f8b69b0b04b64b18b6ea5c89"
+  },
+  "change": "Seven cohesive API composition/batch/upload/action/support/input/staging owners replace mixed523-line route module. Original upload158lines/MCC34 becomes75lines/MCC14 orchestration, with three named typed read/stage/locked-acceptance phases. No business-policy correction, concurrency/await reordering, new provider capability or performance-speedup claim.",
+  "source_proof": {
+    "path": "docs/audit/dashboard-2026-10-30/ecr-checker-final-acceptance-expanded-source-proof.json",
+    "sha256": "fa3bf65658212dd250d7d999e8d3fcdef36f35589bb98650b2608ba7122d6a2d"
+  },
+  "runtime_proof": {
+    "path": "docs/audit/dashboard-2026-10-30/ecr-checker-final-acceptance-runtime-owner-proof.json",
+    "sha256": "544dec341880ab07f052206675e4874a75704c5b88cdee8b2c43a50d2f0f4775"
+  },
+  "original_runtime_contract": {
+    "path": "docs/audit/dashboard-2026-10-30/ecr-checker-before-runtime-contract.json",
+    "sha256": "c39dc8fca84fbc968089fad17e49d2103af61c92f92210fa2fd0934e07384bd6"
+  },
+  "final_runtime_contract": {
+    "path": "docs/audit/dashboard-2026-10-30/ecr-checker-final-acceptance-runtime-contract.json",
+    "sha256": "c39dc8fca84fbc968089fad17e49d2103af61c92f92210fa2fd0934e07384bd6"
+  },
+  "proof_counts": {
+    "original_full_functions": 17,
+    "unmodified_functions": 16,
+    "full_upload_function_AST_exact_after_typed_expansion": true,
+    "typed_phase_functions": 3,
+    "purpose_specific_data_fields": [
+      5,
+      3
+    ],
+    "original_import_identities": 55,
+    "actual_global_bindings_total": 89,
+    "original_facade_global_identities": 84,
+    "original_unit_assertions_AST_and_literal_source_unchanged": 65,
+    "original_postgresql_assertions_AST_and_literal_source_unchanged": 37,
+    "raw_openapi_route_order_defaults_signatures_hints_exact": true,
+    "logger": "Actual owner/facade logger alias identity, original lazy logger factory/context/name preserved; independent archived wrappers are not required to be identical objects."
+  },
+  "checks": {
+    "original_focused23": {
+      "path": "docs/audit/dashboard-2026-10-30/ecr-checker-before-focused-command.json",
+      "sha256": "b90640727fb12868a734a2b8496a6f64801e14ce1dcbcf782714a7ffbdba2988"
+    },
+    "mechanical_focused23": {
+      "path": "docs/audit/dashboard-2026-10-30/ecr-checker-mechanical-focused-command.json",
+      "sha256": "5a08ff20c95a893c2b796108de349f5cbc9fd138680906be6ba89b779c860bb9"
+    },
+    "original_before_phase_controls26": {
+      "path": "docs/audit/dashboard-2026-10-30/ecr-checker-phase-controls-before-focused-command.json",
+      "sha256": "a0c99e2e3d6a9afe7c3ec3d61637970199a4cb9e980d4a18bf5db702c91bc18a"
+    },
+    "archived_original_outcomes14": {
+      "path": "docs/audit/dashboard-2026-10-30/ecr-checker-original-outcomes-focused-command.json",
+      "sha256": "6c1e9492cee6f9056c90dae625660897f308e540c8c5fddb90c20e2d435537c2"
+    },
+    "final_focused37": {
+      "path": "docs/audit/dashboard-2026-10-30/ecr-checker-final-acceptance-focused-command.json",
+      "sha256": "f5d0ac27a3db02055166e07aadb4e4337095a770d543ddef6b4a6b7ccc4671cd"
+    },
+    "current_only_coverage_json": {
+      "path": "docs/audit/dashboard-2026-10-30/ecr-checker-final-acceptance-coverage.json",
+      "sha256": "c85a9b7bcf5d63005e3d779e08a72edd6e68691f7b92cfad70baad24f054fcc3"
+    },
+    "current_only_coverage_xml": {
+      "path": "docs/audit/dashboard-2026-10-30/ecr-checker-final-acceptance-coverage.xml",
+      "sha256": "e8e17de9d970656b2ff6fa22cc6f6358f403b6000601ad79fe55a022512864c7"
+    },
+    "scoped_ruff": {
+      "runtime_files": 7,
+      "test_files": 3,
+      "exit_code": 0,
+      "tool_chunk": "3c1c8d"
+    },
+    "scoped_mypy": {
+      "runtime_files": 7,
+      "exit_code": 0,
+      "tool_chunk": "d44341"
+    },
+    "postgresql_service_run": false
+  },
+  "measurements": {
+    "backend/app/presentation/api/v1/routes/ecr_checker.py": {
+      "sha256": "6a10b853b8ecb15371dd770f80f27abd201a812d0cc48948fb65981d2d998726",
+      "physical_lines": 122,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "line_percent": 100.0,
+      "branch_percent": 100.0,
+      "statements": 48,
+      "branches": 2,
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    "backend/app/presentation/api/v1/routes/ecr_checker_actions.py": {
+      "sha256": "58b5fec6fb013d7b89115cb00070059b9b36e8876a025ee6e73f7da5b8e40119",
+      "physical_lines": 112,
+      "max_function_complexity": 7,
+      "most_complex_function": "retry_ecr_batch",
+      "line_percent": 100.0,
+      "branch_percent": 100.0,
+      "statements": 53,
+      "branches": 12,
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    "backend/app/presentation/api/v1/routes/ecr_checker_batches.py": {
+      "sha256": "3b785bd4319187d78ba24b51c8295a5f0df1812d3f3f153298036f0e67d70007",
+      "physical_lines": 81,
+      "max_function_complexity": 5,
+      "most_complex_function": "list_ecr_batches",
+      "line_percent": 100.0,
+      "branch_percent": 100.0,
+      "statements": 26,
+      "branches": 2,
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    "backend/app/presentation/api/v1/routes/ecr_checker_inputs.py": {
+      "sha256": "1753457d06b683a4f93a48cd3c5ca932e1366fd3831d1af80e598cb588a64e3e",
+      "physical_lines": 102,
+      "max_function_complexity": 10,
+      "most_complex_function": "read_ecr_uploads",
+      "line_percent": 100.0,
+      "branch_percent": 100.0,
+      "statements": 62,
+      "branches": 12,
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    "backend/app/presentation/api/v1/routes/ecr_checker_staging.py": {
+      "sha256": "01f95a3aa223649522389ccfb50108ba8737d47fddfb7f77dbca629e337ff141",
+      "physical_lines": 115,
+      "max_function_complexity": 8,
+      "most_complex_function": "accept_staged_ecr_items",
+      "line_percent": 98.11320754716981,
+      "branch_percent": 93.75,
+      "statements": 53,
+      "branches": 16,
+      "missing_lines": [
+        109
+      ],
+      "missing_branches": [
+        [
+          108,
+          109
+        ]
+      ]
+    },
+    "backend/app/presentation/api/v1/routes/ecr_checker_support.py": {
+      "sha256": "8dd4485b7d11562ff0a0946182dd22fbb443b96e4bf4b1060b0929889f36036c",
+      "physical_lines": 137,
+      "max_function_complexity": 6,
+      "most_complex_function": "_summary",
+      "line_percent": 100.0,
+      "branch_percent": 100.0,
+      "statements": 51,
+      "branches": 6,
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    "backend/app/presentation/api/v1/routes/ecr_checker_upload.py": {
+      "sha256": "4cbb51f86dbaff18129c84c42d484a586d3b851f9800952cc4e4d574ddff3036",
+      "physical_lines": 139,
+      "max_function_complexity": 14,
+      "most_complex_function": "_upload_ecr_items_admitted",
+      "line_percent": 100.0,
+      "branch_percent": 100.0,
+      "statements": 67,
+      "branches": 16,
+      "missing_lines": [],
+      "missing_branches": []
+    }
+  },
+  "upload_geometry": {
+    "path": "backend/app/presentation/api/v1/routes/ecr_checker_upload.py",
+    "function": "_upload_ecr_items_admitted",
+    "start_line": 65,
+    "end_line": 139,
+    "physical_function_lines": 75
+  },
+  "preserved_invariants": [
+    "Original7HTTP routes remain in3+1+3 composition order; native schema, expected-count/page limits, CSRF/auth dependencies, headers and workbook fields unchanged. Current progress uses polling GET, no SSE implementation exists to move.",
+    "The existing gate retains one admitted operation per event loop; caller cancellation settles decoder/staging before admission release. UUID parsing, per-file/aggregate byte limits and file-close finally remain in original expanded order.",
+    "Same original scan-before-normalize/native-before-storage order, provider-independent metadata stripping, attempt-unique keys, invalid-image rows, current-authority recheck, locked batch/replay/capacity tests, commit_started marker, rollback and safe cleanup preserved.",
+    "Three fields carry actual mutable attempt-owned resources. No callbacks/proxy/mixins, duplicate provider framework, published migration/schema/driver/dependency/native/parser policy change.",
+    "All original public function aliases/module/qualnames/pickle/evaluated hints remain. Private instrumentation retargets the real owners explicitly and every102existing assertion source/AST stays unchanged."
+  ],
+  "historical_evidence": {
+    "mechanical_source_proof": {
+      "path": "docs/audit/dashboard-2026-10-30/ecr-checker-mechanical-source-proof.json",
+      "sha256": "98ed215239d0b44dc437b8e70ee0c86fd499f9a2180967bdd4317c7f3633f1ba"
+    },
+    "earlier_two_phase_source_proof": {
+      "path": "docs/audit/dashboard-2026-10-30/ecr-checker-final-expanded-source-proof.json",
+      "sha256": "72801ead34da17cad4aa3ff39a3866fd0bb853b2f1b7753d33dd4bee0f5605d8"
+    },
+    "earlier_two_phase26run": {
+      "path": "docs/audit/dashboard-2026-10-30/ecr-checker-final-qualified-focused-command.json",
+      "sha256": "000694a1af7eba2b7386ec75d116163cfdd155168b771732e122b366adedb5b4"
+    },
+    "failed_probe": {
+      "path": "docs/audit/dashboard-2026-10-30/ecr-checker-final-focused-command.json",
+      "sha256": "7678b564fa589ecdea102d9d6fbc3f32560eb0621dd54618700b1b51f4df6a12"
+    },
+    "failed_probe_reason": "Disposable contract harness demanded identical structlog lazy-wrapper object IDs after independently executing archived get_logger; stopped before collection. Corrected only probe to actual equal factory/context/name and actual owner alias identity. Product source was unchanged for that correction; raw failed log and initial harness retained.",
+    "initial_probe_snapshot": ".tmp/ecr_checker_qualified_contract_plugin_initial.py",
+    "qualification_note": "Earlier2phase26coverage/source proofs are historical; final3phase37coverage is freshly instrumented for all7current owners. No stale coverage merged. One old source-proof stdout still says typed2phases; the final artifact lists all3 helper bindings plus the DATA state and this receipt states the actual count."
+  },
+  "remaining_follow_through": [
+    "Staging one inherited late locked batch-status rejection is unhit: current line109 and branch108\u2192109. It remains implemented and whole expanded AST-exact;98.11%line/93.75%branch qualification is stated precisely.",
+    "Actual PostgreSQL row-lock/service behavior, broker/object-store integrations, production/browser smoothness and release qualification remain for the final combined checkpoint; local SQLite, mocked services and compiled/type/source contracts do not establish those outcomes.",
+    "Shared AI/native decoder/runtime/model policies remain independently frozen; prior full-source AI ledgers are referenced without crediting this lane with unread provider/worker source. Operations Inbox-specific work remains deferred by explicit user scope.",
+    "Current142migration files mean141committed HEAD migrations plus reviewed additive0142. Publication/application of0142 is not established; metadata-only erratum preserves original fences/read partitions."
+  ],
+  "publication_erratum": {
+    "path": "docs/audit/dashboard-2026-10-30/published-migration-publication-status-erratum.json",
+    "sha256": "6d8f897f02f0416720468532a2b8e69a92f22e262138df7dd50fab6a5a768824"
+  },
+  "shared_gates_release_config_edits": false,
+  "freeze": "All7runtime owners and3owned/retargeted tests frozen; root/AI may integrate only final measured candidates and current source hashes."
+}

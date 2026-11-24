@@ -1,0 +1,78 @@
+{
+  "recorded_at": "2026-10-31T09:04:59.866097+00:00",
+  "method": "Separate source-read completion from current unresolved architecture/lifecycle/caller candidates. Candidate is not a validated vulnerability.",
+  "followups": [
+    {
+      "path": "frontend/features/documents/hooks/use-ecr-workspace.ts",
+      "status": "fixed-focused-verification-frozen",
+      "finding": "Start has controller lifetime abort but post-await cache updates; retry/export have no explicit original operation authority. Trace actual reset/remount/real-adapter timing before any privacy claim or fix.",
+      "review_scope": "full",
+      "original_candidate_sha256": "a5d982ca696a803ccbca832dcd03ca4da09e3d0e12b22b7512dc04ee767f18fe",
+      "current_sha256": "530fc5554a6d22abbf2b26a4ca413ab1ad49c7374936428f32e763324ce6b5a0",
+      "resolution_receipt": "ecr-workspace-authority-verification.json",
+      "resolution": "Actual normal-path post-acknowledgement remount/reset regressions proved stale selection/cache publication; narrow original-authority/lifetime guards now pass affected17 cases. This does not qualify a live server or whole production artifact."
+    },
+    {
+      "path": "frontend/features/documents/services/document-upload-batching.ts",
+      "status": "restructured-focused-verification-frozen",
+      "finding": "633-line session factories, concurrent verification/drain, sequential raw/staged finalization and retries need cohesive owners. Preserve every public export, exact original thresholds/order/IDs/abort/receipt-release/progress semantics and actual Node safety tests.",
+      "review_scope": "full",
+      "original_candidate_sha256": "9c31e0dd473a89f3e70555dfb7d0ba8f3b7b6bb4826d320c8eba82609f12ff3c",
+      "current_sha256": "d4c95c411e9e9d82c7573f42c55a67532ca1b3c213cec73db98c3df6ae963d8e",
+      "resolution_receipt": "document-batching-architecture-verification.json",
+      "resolution": "31exact original declarations split into6focused owners plus compatible facade; original23Node cases and4new safety controls follow actual graph,27affected API/recovery/rename cases pass; original critical include did not include this file, all existing30include/floors untouched."
+    },
+    {
+      "path": "frontend/features/documents/components/document-workspace-review.tsx",
+      "status": "restructured-focused-verification-frozen",
+      "finding": "476-line verification selection, portalled action-menu and status badges have coherent extraction seams. Preserve menu modal-host/focus/anchor cleanup and eligible manual approval gates.",
+      "review_scope": "full",
+      "original_candidate_sha256": "bfa8a3e1a28bc73f1b191ccbf087d44fe8cd3c1e540288b187dd783a7f765610",
+      "current_sha256": "6f8ae8c3da389fa524286a90cd24b9c2b8e9288780fa84c6fd254386c0eec0e4",
+      "resolution_receipt": "document-review-architecture-verification.json",
+      "resolution": "All9whole original typed declarations/JSX moved exactly into3cohesive owners, public4component facade stable;18rendered baseline/24final and11Node checks/types/lint pass. No browser qualification claimed."
+    },
+    {
+      "path": "frontend/features/upload/components/upload-contact-verification.tsx",
+      "status": "retired-after-typed-closure-and-current-obligation-migration",
+      "finding": "Source search found production imports only validContactEmail; UploadContactVerification UI referenced only in its dedicated test. Prove typed/dynamic closed declaration, retain validator/public API contracts, migrate all meaningful legacy OTP safety assertions to actual Fresh owners before retirement.",
+      "review_scope": "full-original-retired",
+      "original_sha256": "b4d925237294c1e316d40c9282b00518e63405a743752a856b66b450a2f6d557",
+      "resolution_receipt": "fresh-contact-verification.json",
+      "retirement_manifest": "legacy-contact-retirement-manifest.json",
+      "resolution": "Only active email validator moved exactly to pure service; closed185lineUI and123linetest retired after all6meaningful responsibilities executed on current Fresh owners. Two actual current duplicate/cooldown bugs fixed; original and newly extracted critical owner samefloors measured, parent include integration pending."
+    },
+    {
+      "path": "frontend/features/documents/components/saved-rename-batches.tsx",
+      "status": "fixed-measured-focused-verification-frozen",
+      "finding": "Repeated visibleBatchIds/activeSelectedIds.includes across saved list and deletion callbacks remains. Measure real rendered workload and exact duplicate/order semantics before indexing.",
+      "review_scope": "full",
+      "original_candidate_sha256": "55527b26d468dacdba270cb2c3b759272d969ce7f007e2589f929b8010baf322",
+      "current_sha256": "a523e8b9a5fded4881f280e1e9c3c29b5d6e5636da69f629e336a99254206e38",
+      "resolution_receipt": "rename-controls-verification.json",
+      "resolution": "Actual512-row component probes262656\u21921024indexed membership-array reads while original order/duplicate/stale/pending semantics remain; no wall-clock speed claim."
+    },
+    {
+      "path": "frontend/features/documents/components/rename-results.tsx",
+      "status": "fixed-native-keyboard-focused-verification-frozen",
+      "finding": "Inherited anchors wrap Button controls; same markup in saved-rename-batches. Verify actual Tab focus sequence/native link activation before improving semantics, retain downloads/labels/workflows.",
+      "review_scope": "full",
+      "original_candidate_sha256": "ffc0760accb98d4823a2bed25f0424bb120af239c5c027565a7ae1e0afe6309e",
+      "current_sha256": "819555f3908739b21bbd4de58ab98d55b91db1c29a1c3c0fa7d6f0ca82027acc",
+      "resolution_receipt": "rename-controls-verification.json",
+      "resolution": "Actual native Chromium390/1440 Tab sequence proved3nested button stops; now0with exact original styling classes and ZIP destination. Static unhydrated keyboard fixture, not production layout qualification."
+    },
+    {
+      "path": "frontend/README.md",
+      "status": "documentation-updated",
+      "finding": "Generic starter instructions advertise default ports/Vercel deployment rather than reviewed project toolchain/VPS workflow. Replace with project-specific commands and link root release guidance; avoid deployment setup changes.",
+      "review_scope": "full",
+      "original_sha256": "60b55ff7df79af72590f9524208e46642bc32bdc175cdad41349681c0e2f958f",
+      "current_sha256": "d289440d2516265dcbdc0f0ea13588c2f9bf016f17e94e7534c1e9914b55eda5",
+      "resolution_receipt": "frontend-readme-reviewed-files.json",
+      "resolution": "Generic package-manager/Vercel starter content replaced with current project ownership, reviewed npm toolchain, focused/integration verification and existing isolated-browser/VPS procedures. No checks for doc-only change."
+    }
+  ],
+  "reconciled_at": "2026-10-31T10:10:12.758269+00:00",
+  "resolution_scope": "All7findings in this mutable residual ledger have current-source or validated-retirement evidence; whole-codebase and final combined production verification remain separate. No independent finding is closed just because another narrow same-file fix passed."
+}

@@ -1,0 +1,196 @@
+{
+  "sealed_at_utc": "2026-10-31T08:32:13.538950+00:00",
+  "reviewer": "document_ui_architecture",
+  "status": "Core model ownership split complete; all runtime and test sources frozen for integration.",
+  "scope": "Core ORM ownership only: stable models.py facade,14 new private package files and one new focused compatibility test. Shared Base/registry/JSONB/clock, published migrations, existing tests and all other runtime/configuration/dependency sources unedited. No broad suite/build/browser, scanner, provider send, real service, production data or deployment activity.",
+  "source_manifest": {
+    "path": "docs/audit/dashboard-2026-10-30/core-models-source-manifest.json",
+    "sha256": "dee663f59afb072be682d1a4b6a1374498902c243e8dccf507f8fb3784cf4899"
+  },
+  "original_source_sha256": "cca0de0deb12e7cdc7368501e8a3ac0012e513d691ddcf10a3ead67ec4ec2ed0",
+  "runtime_files": 15,
+  "new_runtime_files": 14,
+  "new_focused_test_files": 1,
+  "original_lines": 1762,
+  "facade_lines": 198,
+  "owner_count": 13,
+  "mapped_class_movements": 21,
+  "public_typed_contract": "PlatformSettingsValue retained with its exact original class AST in models.py",
+  "owner_size_exception": "The focused passport owner is326 lines, including one complete287-line declaration, imports and legacy module identity. No arbitrary mixins or higher preexisting caps were introduced.",
+  "whole_class_source_proof": {
+    "class_ast_equal_except_explicit_legacy_module_assignment": 21,
+    "typed_contract_ast_exact": true,
+    "declaration_registration_order_exact": true,
+    "original_import_bindings_exact": true,
+    "original_external_alias_statements_exact": 41,
+    "actual_expression_dependency_identity_bindings": 264,
+    "unchanged_published_migrations": 142
+  },
+  "actual_metadata_and_schema_proof": {
+    "tables": 174,
+    "mappers": 174,
+    "columns": 2727,
+    "constraints": 1447,
+    "indexes": 509,
+    "relationships": 19,
+    "dialects": [
+      "sqlite",
+      "postgresql"
+    ],
+    "compile_errors": 0,
+    "actual_ddl_defaults_conditions_module_pickle_hints_and_relationship_snapshots_equal": true
+  },
+  "identity_and_annotation_controls": {
+    "class_public_alias_and_table_identity": true,
+    "legacy_module_qualname_mro_constructor_and_pickle": true,
+    "qualified_sqlalchemy_module_registry_lookup": true,
+    "before_and_after_default_get_type_hints": "21 successful core class/type lookups and the identical preexisting ClientGroupModel NameError for ClientOrganizationModel",
+    "fresh_private_owner_first_processes": 13,
+    "each_fresh_entry_compared_full_metadata_and_both_dialect_ddl": true,
+    "actual_missing_or_duplicate_mappers": 0
+  },
+  "developer_source_inspection_tradeoff": {
+    "observed": "Class __module__ remains the required legacy public path. inspect.getfile(mapped_class) therefore reports models.py and inspect.getsource(mapped_class) raises OSError for moved declarations. Each owner module remains source-inspectable and the exact owner/class path is in the manifest.",
+    "actual_source_lookup_errors": 21,
+    "repository_orm_source_lookup_consumer_found": false,
+    "no_inspect_monkeypatch_proxy_or_duplicate_class_source": true,
+    "qualification_claim_scope": "Module/qualname/MRO/signature/pickling/registry/get_type_hints contracts specifically; no blanket claim that every source-inspection API is unchanged."
+  },
+  "focused_checks": {
+    "existing_before_cases": 14,
+    "existing_before_subtests": 5,
+    "after_cases": 49,
+    "after_subtests": 5,
+    "new_compatibility_cases": 35,
+    "after_test_files": 4,
+    "mypy": "15 current runtime source files passed",
+    "ruff": "16 current runtime/test paths passed with --no-fix",
+    "coverage": "All15 runtime declaration modules have100% statements and measured branches. Declaration coverage does not replace the actual mapper/metadata/DDL and constraint controls.",
+    "sqlite_execution": "Existing isolated in-memory qualifier constraint persistence tests passed",
+    "postgresql_execution": "Compiled complete DDL/index/constraint/default snapshots only; no live PostgreSQL connection or schema application",
+    "broad_verification": "Deferred to parent's single final combined verification after all outstanding work."
+  },
+  "full_read_files": 19,
+  "full_read_current_physical_lines": 2619,
+  "partial_context": "Prior read-only model preflight records shared-registry/repository/migration context and explicit partial scopes separately. Additional companies rehearsal source encountered a truncated middle and receives no full-file credit here; it was not executed.",
+  "corrected_validation_setup_issues": [
+    "Initial capture assumed a TypedDict constructor had an inspect signature; it actually has the same preexisting ValueError as dict. Snapshot now records successful or unavailable signature behavior explicitly.",
+    "Initial lint found16 import-format findings plus one static ClientOrganizationModel import omitted by the source generator's quoted-annotation analysis. Added TYPE_CHECKING-only import in its owner; runtime annotation namespace/results unchanged. Final scoped lint and mypy pass; initial lint output is retained."
+  ],
+  "remaining_followthrough": [
+    "AI gate owner to admit only the exact14 new runtime and one test paths from the SHA/LF/Git-absent manifest and integrate measured candidates without weakening any existing floor/cap or original release baseline.",
+    "Single final combined verification remains pending until all audit implementation batches complete; no per-batch broad check requested.",
+    "The preexisting unresolved ClientOrganizationModel default Python annotation and documented developer class-source inspection limitation remain explicit. ORM relationships configure and all existing runtime/schema contracts checked here remain compatible.",
+    "No measured throughput or latency improvement is claimed. This batch separates unrelated table ownership and improves reviewability without changing schema or workflows."
+  ],
+  "artifacts": [
+    {
+      "path": "docs/audit/dashboard-2026-10-30/core-models-original-source.json",
+      "sha256": "db1f87ab9e7632a200f9726f5c52450a93287f4b9f1dafeb118fb6fb60469c27"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/core-models-owner-map.json",
+      "sha256": "bb28611b606b11b7df219ba4a68dcf3a5fdc1e9de9898e34cef4ad660033d62f"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/core-models-source-manifest.json",
+      "sha256": "dee663f59afb072be682d1a4b6a1374498902c243e8dccf507f8fb3784cf4899"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/core-models-budget-candidates.json",
+      "sha256": "e2cb04b2039902ff1f8244d2a9bc074e976665dc0979cb9272b3ae77c5f60cc7"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/core-models-extraction-proof.json",
+      "sha256": "3baac5e2d8c02f24ca9192a764336458f0c63fe5a668f049e5c56eb1ee02a88b"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/core-models-extraction-proof.log",
+      "sha256": "20cd88e4a885cfe50ed19dab79ac958fc896877a9baa162a92704dfb1b9f5387"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/core-models-before-public-metadata.json",
+      "sha256": "abcd48501b5240ad213c26f30fada29ff7309b66ea952a9fbb543b26a96b520f"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/core-models-before-registry-metadata.json",
+      "sha256": "5b5bd46a04ac8b03c0fd174b5d663ab3e65f499af812060dbe662b241d088051"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/core-models-before-registry.log",
+      "sha256": "4128d4ffe2ac15735f381fad31f5550fb18173db2bc2abe43191f3a31dd33926"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/core-models-before-public.log",
+      "sha256": "50d1e95dfb8dbbc1021fe2c2cd8e031158ffdfee4d80da1cdce77e3fb2b5cc94"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/core-models-after-model_registry-metadata.json",
+      "sha256": "5b5bd46a04ac8b03c0fd174b5d663ab3e65f499af812060dbe662b241d088051"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/core-models-after-models-metadata.json",
+      "sha256": "abcd48501b5240ad213c26f30fada29ff7309b66ea952a9fbb543b26a96b520f"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/core-models-after-passport-metadata.json",
+      "sha256": "abcd48501b5240ad213c26f30fada29ff7309b66ea952a9fbb543b26a96b520f"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/core-models-after-registry.log",
+      "sha256": "dbc2de372e1c0df93bf381137343c6f699e26ec821bbeef95ae1d898eb34c679"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/core-models-after-public.log",
+      "sha256": "b183615d111c23e957e88717bf0ddd35ce173c4d8cda7935263a7be0e5b7d744"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/core-models-after-owner-first.log",
+      "sha256": "46e6ede339fc5da8a785c23eeb452ea4616b92aa676e91bc622a39fbacd52227"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/core-models-owner-first-verification.json",
+      "sha256": "9d51f6379687b28752f8b4696169c0c3c0aedcfbad99733472a8211a700ab7fb"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/core-models-owner-first-verification.log",
+      "sha256": "94885db906e05e76f9c6cd15a8b7d2fad1f5fce884db0079a63fc0505f010637"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/core-models-source-locations.json",
+      "sha256": "02343252990ca4cbb2a89a4ae59cfecb087d6ffa37be27826ca93fc6b0c76da6"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/core-models-before-tests.log",
+      "sha256": "af182b130ea8d4e35b274cacce407b1e9ee95bdee87749dcdd200d65cd43a677"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/core-models-after-tests.log",
+      "sha256": "6bcd3ef705eef441a74264b77afa036869bc2df7c5a4306d54a0e26a01abf093"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/core-models-after-coverage.json",
+      "sha256": "34c670e7cc21894c74c6a4d8927719857649b07461f3e7907b106e46ef934442"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/core-models-initial-lint.log",
+      "sha256": "aac314a69850ce376a3aa4debba18ee809ae6ffee74c31de1f105ed4a239c3c3"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/core-models-lint.log",
+      "sha256": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/core-models-types.log",
+      "sha256": "61a62a318fa6bf09a97778c351a33c9175e14fc182f248ae957f3efef9249a7b"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/core-models-reviewed-files.json",
+      "sha256": "208faf028a5743ff08b5d4b258de39e22847714d92ab8431a26d2f2d52078795"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/core-models-proof-programs.json",
+      "sha256": "ec8efd46ad227cc900887fde4beeba1700e781857a7f5bbcfe92f09991e948c7"
+    }
+  ]
+}

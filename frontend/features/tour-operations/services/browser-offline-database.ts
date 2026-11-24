@@ -20,17 +20,25 @@ export const SYNC_STATE_INDEX = "sync-state";
  */
 export function openBrowserOfflineDatabase(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
+    let failed = false;
+    const fail = (error: Error | DOMException) => {
+      failed = true;
+      reject(error);
+    };
     const request = indexedDB.open(BROWSER_OFFLINE_DB_NAME, BROWSER_OFFLINE_DB_VERSION);
     request.onupgradeneeded = () => upgradeBrowserOfflineDatabase(request);
     request.onsuccess = () => {
       const database = request.result;
+      // A blocked open cannot be cancelled. If it later completes, its caller
+      // already rejected and nobody owns the resulting connection.
+      if (failed) { database.close(); return; }
       database.onversionchange = () => database.close();
       resolve(database);
     };
-    request.onerror = () => reject(
+    request.onerror = () => fail(
       request.error ?? new Error("Coordinator offline database could not be opened."),
     );
-    request.onblocked = () => reject(
+    request.onblocked = () => fail(
       new Error("Coordinator offline database upgrade is blocked by another tab."),
     );
   });

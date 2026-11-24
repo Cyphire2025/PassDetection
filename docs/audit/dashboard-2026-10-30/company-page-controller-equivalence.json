@@ -1,0 +1,27 @@
+{
+  "basis": "Original current guarded page state -> focused hooks, compared as exact emitted JS AST. Directory sort/filter annotations preserve original literal domains. The person tab calculation moved to content; the policy useId remains presentation-owned. Toggle UI callback and presentation wiring were separately physically reviewed and exercised in current affected tests.",
+  "controllers": [
+    {
+      "source": "components/company-all-data.tsx",
+      "destination": "hooks/use-company-directory-state.ts",
+      "exact_runtime_statements": 15,
+      "explicit_relocated_state": []
+    },
+    {
+      "source": "components/company-person-page.tsx",
+      "destination": "hooks/use-company-person-page.ts",
+      "exact_runtime_statements": 14,
+      "explicit_relocated_state": [
+        "tab"
+      ]
+    },
+    {
+      "source": "components/company-settings.tsx",
+      "destination": "hooks/use-company-reuse-policy.ts",
+      "exact_runtime_statements": 6,
+      "explicit_relocated_state": [
+        "descriptionId"
+      ]
+    }
+  ]
+}

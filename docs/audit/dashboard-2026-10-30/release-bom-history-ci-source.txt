@@ -1,0 +1,1 @@
+CI supply-chain policy passed: actions are immutable and SBOM gates are present.

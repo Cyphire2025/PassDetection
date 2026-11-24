@@ -1,0 +1,93 @@
+{
+  "proposed_only": true,
+  "shared_gate_edited": false,
+  "normal_candidates": [
+    {
+      "path": "app/infrastructure/export/passport_excel_columns.py",
+      "baseline_lines": 216,
+      "maximum_lines": 220,
+      "baseline_max_function_complexity": 21,
+      "maximum_function_complexity": 22,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/export/passport_excel_values.py",
+      "baseline_lines": 120,
+      "maximum_lines": 130,
+      "baseline_max_function_complexity": 6,
+      "maximum_function_complexity": 7,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/export/passport_excel_rows.py",
+      "baseline_lines": 275,
+      "maximum_lines": 280,
+      "baseline_max_function_complexity": 27,
+      "maximum_function_complexity": 28,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/export/passport_excel_workbook.py",
+      "baseline_lines": 74,
+      "maximum_lines": 80,
+      "baseline_max_function_complexity": 10,
+      "maximum_function_complexity": 11,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/export/passport_excel_exporter.py",
+      "baseline_lines": 267,
+      "maximum_lines": 270,
+      "baseline_max_function_complexity": 40,
+      "maximum_function_complexity": 41,
+      "minimum_coverage_percent": 95
+    }
+  ],
+  "critical_candidates": [],
+  "measurements": [
+    {
+      "path": "app/infrastructure/export/passport_excel_columns.py",
+      "lines": 216,
+      "max_function_complexity": 21,
+      "most_complex_function": "_custom_fields",
+      "coverage_percent": 98.7,
+      "within_proposed_caps_and_floor": true
+    },
+    {
+      "path": "app/infrastructure/export/passport_excel_values.py",
+      "lines": 120,
+      "max_function_complexity": 6,
+      "most_complex_function": "passport_age_group",
+      "coverage_percent": 98.65,
+      "within_proposed_caps_and_floor": true
+    },
+    {
+      "path": "app/infrastructure/export/passport_excel_rows.py",
+      "lines": 275,
+      "max_function_complexity": 27,
+      "most_complex_function": "_submission_values",
+      "coverage_percent": 98.92,
+      "within_proposed_caps_and_floor": true
+    },
+    {
+      "path": "app/infrastructure/export/passport_excel_workbook.py",
+      "lines": 74,
+      "max_function_complexity": 10,
+      "most_complex_function": "finalize_passport_workbook",
+      "coverage_percent": 100.0,
+      "within_proposed_caps_and_floor": true
+    },
+    {
+      "path": "app/infrastructure/export/passport_excel_exporter.py",
+      "lines": 267,
+      "max_function_complexity": 40,
+      "most_complex_function": "export_group",
+      "coverage_percent": 100.0,
+      "within_proposed_caps_and_floor": true
+    }
+  ],
+  "original_exporter_was_budgeted": false,
+  "original_exporter_had_critical_gate": false,
+  "existing_budgets_and_floors_unchanged": true,
+  "basis": "Actual existing measure_source/load_coverage_percentages functions on5frozen owners and fresh qualified final coverage; no whole-app budget scan."
+}

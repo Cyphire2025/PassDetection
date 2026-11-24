@@ -1,0 +1,20 @@
+{
+  "candidates": "docs/audit/dashboard-2026-10-30/passport-group-ui-budget-candidates.json",
+  "before_sha256": "be523ca85b11e5cd1a10fd2d9f79ac1a8cfa0806dbe0ec39dcae100f8f77e030",
+  "sha256": "c31d8c11d6ab4267a38580776c4c0b87feb64fa82afecc7dabe466fcf06554c9",
+  "lf_normalized_sha256": "6ee56b2ae3d23589489203cd07f72221962253ca1e831563e05625ec2869c647",
+  "added": 32,
+  "updated_existing": 7,
+  "lowered_existing": 7,
+  "lowered_existing_paths": [
+    "features/passports/components/use-passport-group-controller.tsx",
+    "features/passports/components/passport-group-model.tsx",
+    "features/passports/components/passport-group-roster-panel.tsx",
+    "features/passports/components/group-whatsapp-broadcast-panel.tsx",
+    "features/passports/components/group-whatsapp-dialogs.tsx",
+    "features/passports/components/group-whatsapp-tracking-table.tsx",
+    "features/passports/components/group-whatsapp-tracking-model.ts"
+  ],
+  "existing_ceilings_preserved": true,
+  "previous_ceilings_sha256": "17769b1116eca6d0788a0db6daaf2f63eac8f12ea1971f3f515dc63235701252"
+}

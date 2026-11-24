@@ -1,0 +1,52 @@
+{
+  "argv": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "--tb=short",
+    "-o",
+    "addopts=",
+    "tests/unit/presentation/test_staff_approval_route.py",
+    "tests/unit/presentation/test_passport_ai_retry_route.py",
+    "tests/unit/presentation/test_client_submit_cleanup_order.py",
+    "tests/unit/presentation/test_sensitive_read_audit.py",
+    "tests/unit/presentation/test_configured_public_upload.py",
+    "tests/unit/presentation/test_public_upload_contact_otp.py",
+    "tests/unit/presentation/test_passport_route_decomposition.py",
+    "tests/unit/application/test_retained_data_authorization.py",
+    "tests/unit/application/test_post_submission_verification_workflow.py"
+  ],
+  "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection\\backend",
+  "exit_code": 0,
+  "before": {
+    "backend/app/presentation/api/v1/routes/passport_routes/submission_review.py": "7313b9394687f38ef67a1bd833b0b01d0b749e49a09eaa6367f9c60844060312",
+    "backend/app/presentation/api/v1/routes/passport_routes/submission_execution.py": "a957c616f167e6858369ef0eb3da503e272df696a45f945494f49d0987f09239",
+    "backend/tests/route_dependencies.py": "36ab3ffd5c252f94e5137925158c7dfc4ec5ac4c05d482c7d826ae0cfd40e5a9",
+    "backend/tests/unit/presentation/test_staff_approval_route.py": "e6c88fa4a7b1e1b07475d17b7fc6191de14c63002d24a9814b7bb3f938ea2bff",
+    "backend/tests/unit/presentation/test_passport_ai_retry_route.py": "0543110fb7e37e55b7978df1190cefd1c71187d18f839158484300e280b14e5a",
+    "backend/tests/unit/presentation/test_client_submit_cleanup_order.py": "61548b5879cef73c189567b015f4bc20a2e20d9a368c30c4a4dbf5b06af4fd8c",
+    "backend/tests/unit/presentation/test_sensitive_read_audit.py": "166a666c085a7f4b8433410c88e3648263fa2d3f72975df834acbe2953be864d",
+    "backend/tests/unit/presentation/test_configured_public_upload.py": "41b85fcf951228f78b91b1acdae947f86d6f276d8e6984d2f3f2164b4f6e7d8a",
+    "backend/tests/unit/presentation/test_public_upload_contact_otp.py": "a3a13a19ac9a8a7665e7ce2a68d53af3b7c0a448adad271b6b7bc106c6d981ee",
+    "backend/tests/unit/presentation/test_passport_route_decomposition.py": "7b1ee92647844d22d84a29cc90180c58c1888c51c1cfbb1b0a0751d6efafec49",
+    "backend/tests/unit/application/test_retained_data_authorization.py": "375475747413fd7304340286f9506374eeb96540701f4ea9f1c353020e6771e6",
+    "backend/tests/unit/application/test_post_submission_verification_workflow.py": "ab94c73631caa5ef7fc66e8782bedaf12fa05d05631d298382557229b24d55bb"
+  },
+  "after": {
+    "backend/app/presentation/api/v1/routes/passport_routes/submission_review.py": "7313b9394687f38ef67a1bd833b0b01d0b749e49a09eaa6367f9c60844060312",
+    "backend/app/presentation/api/v1/routes/passport_routes/submission_execution.py": "a957c616f167e6858369ef0eb3da503e272df696a45f945494f49d0987f09239",
+    "backend/tests/route_dependencies.py": "36ab3ffd5c252f94e5137925158c7dfc4ec5ac4c05d482c7d826ae0cfd40e5a9",
+    "backend/tests/unit/presentation/test_staff_approval_route.py": "e6c88fa4a7b1e1b07475d17b7fc6191de14c63002d24a9814b7bb3f938ea2bff",
+    "backend/tests/unit/presentation/test_passport_ai_retry_route.py": "0543110fb7e37e55b7978df1190cefd1c71187d18f839158484300e280b14e5a",
+    "backend/tests/unit/presentation/test_client_submit_cleanup_order.py": "61548b5879cef73c189567b015f4bc20a2e20d9a368c30c4a4dbf5b06af4fd8c",
+    "backend/tests/unit/presentation/test_sensitive_read_audit.py": "166a666c085a7f4b8433410c88e3648263fa2d3f72975df834acbe2953be864d",
+    "backend/tests/unit/presentation/test_configured_public_upload.py": "41b85fcf951228f78b91b1acdae947f86d6f276d8e6984d2f3f2164b4f6e7d8a",
+    "backend/tests/unit/presentation/test_public_upload_contact_otp.py": "a3a13a19ac9a8a7665e7ce2a68d53af3b7c0a448adad271b6b7bc106c6d981ee",
+    "backend/tests/unit/presentation/test_passport_route_decomposition.py": "7b1ee92647844d22d84a29cc90180c58c1888c51c1cfbb1b0a0751d6efafec49",
+    "backend/tests/unit/application/test_retained_data_authorization.py": "375475747413fd7304340286f9506374eeb96540701f4ea9f1c353020e6771e6",
+    "backend/tests/unit/application/test_post_submission_verification_workflow.py": "ab94c73631caa5ef7fc66e8782bedaf12fa05d05631d298382557229b24d55bb"
+  },
+  "source_frozen": true,
+  "output": "submission-review-before-tests.txt"
+}

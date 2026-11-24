@@ -1,0 +1,262 @@
+{
+  "original_imported_objects": 37,
+  "original_imported_names": [
+    "annotations",
+    "uuid",
+    "UTC",
+    "datetime",
+    "timedelta",
+    "APIRouter",
+    "Depends",
+    "HTTPException",
+    "status",
+    "select",
+    "AsyncSession",
+    "AuthorizationPolicy",
+    "get_settings",
+    "User",
+    "UserRole",
+    "EmailActivityEventModel",
+    "EmailArtifactModel",
+    "EmailMessageModel",
+    "EmailReviewItemModel",
+    "ClientGroupModel",
+    "PassportSubmissionModel",
+    "get_db_session",
+    "mark_message_unrelated",
+    "ingest_reviewed_artifact",
+    "refresh_message_processing_state",
+    "AuditLogRepository",
+    "MinioStorageRepository",
+    "_policy_support",
+    "_review_support",
+    "EmailReviewActionResponse",
+    "ResolveEmailReviewRequest",
+    "require_cookie_csrf",
+    "_ACTIVE_REVIEW_STATUSES",
+    "_current_email_user",
+    "_email_owner_filters",
+    "_enqueue_connection_sync",
+    "_owned_connection"
+  ],
+  "actual_original_global_bindings": [
+    {
+      "owner": "route",
+      "name": "AuditLogRepository",
+      "actual_identity": true
+    },
+    {
+      "owner": "route",
+      "name": "EmailActivityEventModel",
+      "actual_identity": true
+    },
+    {
+      "owner": "route",
+      "name": "EmailReviewActionResponse",
+      "actual_identity": true
+    },
+    {
+      "owner": "route",
+      "name": "HTTPException",
+      "actual_identity": true
+    },
+    {
+      "owner": "route",
+      "name": "MinioStorageRepository",
+      "actual_identity": true
+    },
+    {
+      "owner": "route",
+      "name": "UTC",
+      "actual_identity": true
+    },
+    {
+      "owner": "route",
+      "name": "_enqueue_connection_sync",
+      "actual_identity": true
+    },
+    {
+      "owner": "route",
+      "name": "_require_feature",
+      "actual_identity": true
+    },
+    {
+      "owner": "route",
+      "name": "datetime",
+      "actual_identity": true
+    },
+    {
+      "owner": "route",
+      "name": "get_settings",
+      "actual_identity": true
+    },
+    {
+      "owner": "route",
+      "name": "refresh_message_processing_state",
+      "actual_identity": true
+    },
+    {
+      "owner": "route",
+      "name": "status",
+      "actual_identity": true
+    },
+    {
+      "owner": "route",
+      "name": "uuid",
+      "actual_identity": true
+    },
+    {
+      "owner": "locked_context",
+      "name": "EmailArtifactModel",
+      "actual_identity": true
+    },
+    {
+      "owner": "locked_context",
+      "name": "EmailMessageModel",
+      "actual_identity": true
+    },
+    {
+      "owner": "locked_context",
+      "name": "EmailReviewItemModel",
+      "actual_identity": true
+    },
+    {
+      "owner": "locked_context",
+      "name": "HTTPException",
+      "actual_identity": true
+    },
+    {
+      "owner": "locked_context",
+      "name": "_ACTIVE_REVIEW_STATUSES",
+      "actual_identity": true
+    },
+    {
+      "owner": "locked_context",
+      "name": "_allowed_review_actions",
+      "actual_identity": true
+    },
+    {
+      "owner": "locked_context",
+      "name": "_email_owner_filters",
+      "actual_identity": true
+    },
+    {
+      "owner": "locked_context",
+      "name": "_owned_connection",
+      "actual_identity": true
+    },
+    {
+      "owner": "locked_context",
+      "name": "select",
+      "actual_identity": true
+    },
+    {
+      "owner": "locked_context",
+      "name": "status",
+      "actual_identity": true
+    },
+    {
+      "owner": "validated_action",
+      "name": "AuthorizationPolicy",
+      "actual_identity": true
+    },
+    {
+      "owner": "validated_action",
+      "name": "ClientGroupModel",
+      "actual_identity": true
+    },
+    {
+      "owner": "validated_action",
+      "name": "HTTPException",
+      "actual_identity": true
+    },
+    {
+      "owner": "validated_action",
+      "name": "PassportSubmissionModel",
+      "actual_identity": true
+    },
+    {
+      "owner": "validated_action",
+      "name": "UserRole",
+      "actual_identity": true
+    },
+    {
+      "owner": "validated_action",
+      "name": "ingest_reviewed_artifact",
+      "actual_identity": true
+    },
+    {
+      "owner": "validated_action",
+      "name": "mark_message_unrelated",
+      "actual_identity": true
+    },
+    {
+      "owner": "validated_action",
+      "name": "select",
+      "actual_identity": true
+    },
+    {
+      "owner": "validated_action",
+      "name": "status",
+      "actual_identity": true
+    },
+    {
+      "owner": "validated_action",
+      "name": "timedelta",
+      "actual_identity": true
+    }
+  ],
+  "actual_original_global_binding_count": 33,
+  "actual_new_helper_and_facade_export_identities": 3,
+  "evaluated_hint_objects": {
+    "resolve_email_review": {
+      "review_id": "<class 'uuid.UUID'>",
+      "payload": "<class 'app.presentation.api.v1.schemas.email_integration_schemas.ResolveEmailReviewRequest'>",
+      "current_user": "<class 'app.domain.entities.identity.User'>",
+      "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+      "return": "<class 'app.presentation.api.v1.schemas.email_integration_schemas.EmailReviewActionResponse'>"
+    },
+    "_lock_email_review": {
+      "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+      "review_id": "<class 'uuid.UUID'>",
+      "payload": "<class 'app.presentation.api.v1.schemas.email_integration_schemas.ResolveEmailReviewRequest'>",
+      "current_user": "<class 'app.domain.entities.identity.User'>",
+      "return": "<class 'app.presentation.api.v1.routes.email_review_context.LockedEmailReview'>"
+    },
+    "LockedEmailReview": {
+      "connection": "<class 'app.infrastructure.database.email_models.EmailConnectionModel'>",
+      "message": "<class 'app.infrastructure.database.email_models.EmailMessageModel'>",
+      "artifact": "app.infrastructure.database.email_models.EmailArtifactModel | None",
+      "review": "<class 'app.infrastructure.database.email_models.EmailReviewItemModel'>",
+      "agency_id": "<class 'uuid.UUID'>"
+    },
+    "_apply_email_review_action": {
+      "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+      "locked": "<class 'app.presentation.api.v1.routes.email_review_context.LockedEmailReview'>",
+      "payload": "<class 'app.presentation.api.v1.schemas.email_integration_schemas.ResolveEmailReviewRequest'>",
+      "current_user": "<class 'app.domain.entities.identity.User'>",
+      "now": "<class 'datetime.datetime'>",
+      "return": "<class 'app.presentation.api.v1.routes.email_review_actions.EmailReviewActionOutcome'>"
+    },
+    "EmailReviewActionOutcome": {
+      "should_queue_retry": "<class 'bool'>",
+      "created_storage_keys": "list[str]",
+      "result_message": "<class 'str'>"
+    }
+  },
+  "typed_data_fields": {
+    "locked_context": 5,
+    "action_outcome": 3
+  },
+  "frozen_slots_verified": true,
+  "no_callback_fields": true,
+  "actual_public_api_contract_equal": true,
+  "http_operations": 1,
+  "openapi_paths": 1,
+  "facade_route_order_count": 18,
+  "process_signature_memory_addresses_only_normalized": true,
+  "raw_before_after_retained": true,
+  "raw_before_sha256": "8e7d75f0994b014734a8e1539f1a0c45dcd75cbfea95cf2727949dff003a3e05",
+  "raw_after_sha256": "fdd9a3a43e7e6e165f51ada3786e8f84d3e0d9ee2503ad1e619924afdd1884c3",
+  "introspection_tradeoff": "No legacy class moved; newly introduced typed dataclasses retain their actual owner module. Existing public function still defined in original module; complete expanded body separately proved."
+}

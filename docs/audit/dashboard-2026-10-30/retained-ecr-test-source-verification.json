@@ -1,0 +1,25 @@
+{
+  "status": "complete current physical retained test-source review only",
+  "files": 4,
+  "physical_lines": 2005,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-ecr-test-source-reviewed-files.json",
+    "sha256": "f32a99d6783b51efceb28089856bdee2e3a248d6db5e64e408ffde66ac199223"
+  },
+  "source_before_equals_after": true,
+  "source_fence": {
+    "backend/tests/unit/infrastructure/test_ecr_readiness.py": "bf0b8b8f98057f268c3e87d07424cf07bed1ec05b0efe97fccb8743f86d597d7",
+    "backend/tests/unit/infrastructure/test_ecr_runtime.py": "b86e04b94259e6f1ca0c68847e4fd259521166f12956f7db627a5e61c45384f0",
+    "backend/tests/unit/infrastructure/test_gemini_ecr_service.py": "1bd8d9f770f33f284ed411d8d4ddc2acab765bc389f70fad99a7351c92f77e78",
+    "backend/tests/unit/infrastructure/test_passport_ecr_runtime.py": "a3f791ae460bd86332481349968b39689ba82a3355b1a1fbd424f537d445d1b1"
+  },
+  "new_execution": false,
+  "runtime_mutation": false,
+  "new_validated_findings": [],
+  "scope": "Retained dashboard/passport ECR worker/provider readiness, resource admission and current-source classification tests. Dedicated email AI/OAuth/ingestion test sources excluded.",
+  "limits": [
+    "Physical test-source read is not execution or provider classification accuracy/live service qualification.",
+    "Thread/storage/HTTP and mockRedis controls have per-test design scope, no PG/platform/throughput assertion invented.",
+    "All old behavior/equivalence/coverage receipts remain independent and unchanged."
+  ]
+}

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="3" time="0.552" timestamp="2026-10-31T10:40:32.623245+05:30" hostname="Nipun5070ti"><testcase classname="tests.unit.presentation.test_document_rename_compensation" name="test_precommit_actor_rejection_cleans_owned_upload_despite_rollback_failure[None]" time="0.078"><failure message="TypeError: ClassifiedDocument.__init__() missing 5 required positional arguments: 'accepted', 'reason', 'text', 'extracted_passport_number', and 'extracted_reference'">backend\tests\unit\presentation\test_document_rename_compensation.py:77: in test_precommit_actor_rejection_cleans_owned_upload_despite_rollback_failure
+    await document_rename.analyze_and_rename_documents(
+backend\app\presentation\api\v1\routes\document_rename.py:652: in analyze_and_rename_documents
+    classifications = await asyncio.to_thread(
+..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\asyncio\threads.py:25: in to_thread
+    return await loop.run_in_executor(None, func_call)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\concurrent\futures\thread.py:58: in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\unit\presentation\test_document_rename_compensation.py:61: in &lt;lambda&gt;
+    ClassifiedDocument(
+E   TypeError: ClassifiedDocument.__init__() missing 5 required positional arguments: 'accepted', 'reason', 'text', 'extracted_passport_number', and 'extracted_reference'</failure></testcase><testcase classname="tests.unit.presentation.test_document_rename_compensation" name="test_precommit_actor_rejection_cleans_owned_upload_despite_rollback_failure[RuntimeError]" time="0.004"><failure message="TypeError: ClassifiedDocument.__init__() missing 5 required positional arguments: 'accepted', 'reason', 'text', 'extracted_passport_number', and 'extracted_reference'">backend\tests\unit\presentation\test_document_rename_compensation.py:77: in test_precommit_actor_rejection_cleans_owned_upload_despite_rollback_failure
+    await document_rename.analyze_and_rename_documents(
+backend\app\presentation\api\v1\routes\document_rename.py:652: in analyze_and_rename_documents
+    classifications = await asyncio.to_thread(
+..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\asyncio\threads.py:25: in to_thread
+    return await loop.run_in_executor(None, func_call)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\concurrent\futures\thread.py:58: in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\unit\presentation\test_document_rename_compensation.py:61: in &lt;lambda&gt;
+    ClassifiedDocument(
+E   TypeError: ClassifiedDocument.__init__() missing 5 required positional arguments: 'accepted', 'reason', 'text', 'extracted_passport_number', and 'extracted_reference'</failure></testcase><testcase classname="tests.unit.presentation.test_document_rename_compensation" name="test_precommit_actor_rejection_cleans_owned_upload_despite_rollback_failure[CancelledError]" time="0.004"><failure message="TypeError: ClassifiedDocument.__init__() missing 5 required positional arguments: 'accepted', 'reason', 'text', 'extracted_passport_number', and 'extracted_reference'">backend\tests\unit\presentation\test_document_rename_compensation.py:77: in test_precommit_actor_rejection_cleans_owned_upload_despite_rollback_failure
+    await document_rename.analyze_and_rename_documents(
+backend\app\presentation\api\v1\routes\document_rename.py:652: in analyze_and_rename_documents
+    classifications = await asyncio.to_thread(
+..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\asyncio\threads.py:25: in to_thread
+    return await loop.run_in_executor(None, func_call)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\concurrent\futures\thread.py:58: in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\unit\presentation\test_document_rename_compensation.py:61: in &lt;lambda&gt;
+    ClassifiedDocument(
+E   TypeError: ClassifiedDocument.__init__() missing 5 required positional arguments: 'accepted', 'reason', 'text', 'extracted_passport_number', and 'extracted_reference'</failure></testcase></testsuite></testsuites>

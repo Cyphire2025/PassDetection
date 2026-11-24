@@ -22,6 +22,7 @@ from app.presentation.api.v1.routes.passport_routes.public_upload_documents impo
     validate_public_upload_documents,
 )
 from app.presentation.middleware.rate_limit import RateLimitMiddleware
+from tests.route_dependencies import set_route_dependency
 
 
 def _group(**kwargs):
@@ -55,10 +56,10 @@ async def test_parallel_previews_leave_connections_for_security_evidence(monkeyp
             await evidence.commit()
         return ValidatedUpload(b"jpeg", "image/jpeg", "page.jpg", 120, 160, "JPEG")
 
-    monkeypatch.setattr(public_upload, "ClientGroupRepository", lambda session: Mock(
+    set_route_dependency(monkeypatch, public_upload, "ClientGroupRepository", lambda session: Mock(
         get_by_token=lambda _token: lookup(session),
     ))
-    monkeypatch.setattr(public_upload, "_validated_upload_file", validate)
+    set_route_dependency(monkeypatch, public_upload, "_validated_upload_file", validate)
 
     async def prepare():
         async with sessions() as session:
@@ -83,9 +84,9 @@ async def test_prepare_rejects_invalid_token_before_file_read_or_decode(monkeypa
     group = _group()
     group.status = state
     groups = Mock(get_by_token=AsyncMock(return_value=group if state else None))
-    monkeypatch.setattr(public_upload, "ClientGroupRepository", lambda _: groups)
+    set_route_dependency(monkeypatch, public_upload, "ClientGroupRepository", lambda _: groups)
     decoder = AsyncMock()
-    monkeypatch.setattr(public_upload, "_validated_upload_file", decoder)
+    set_route_dependency(monkeypatch, public_upload, "_validated_upload_file", decoder)
     upload = _file()
     with pytest.raises(HTTPException) as exc:
         await public_upload.prepare_public_upload_file(
@@ -99,9 +100,9 @@ async def test_prepare_rejects_invalid_token_before_file_read_or_decode(monkeypa
 @pytest.mark.parametrize("purpose", ["passport", "visa"])
 async def test_prepare_respects_disabled_upload_method(monkeypatch, purpose):
     group = _group(upload_configuration={"passport_enabled": False, "visa_photo_upload": False})
-    monkeypatch.setattr(public_upload, "ClientGroupRepository", lambda _: Mock(get_by_token=AsyncMock(return_value=group)))
+    set_route_dependency(monkeypatch, public_upload, "ClientGroupRepository", lambda _: Mock(get_by_token=AsyncMock(return_value=group)))
     decoder = AsyncMock()
-    monkeypatch.setattr(public_upload, "_validated_upload_file", decoder)
+    set_route_dependency(monkeypatch, public_upload, "_validated_upload_file", decoder)
     with pytest.raises(HTTPException) as exc:
         await public_upload.prepare_public_upload_file(
             token=group.token, file=_file(), purpose=purpose, upload_session_id="a" * 40, session=AsyncMock(),
@@ -113,10 +114,10 @@ async def test_prepare_respects_disabled_upload_method(monkeypatch, purpose):
 @pytest.mark.parametrize("purpose", ["passport", "visa"])
 async def test_prepare_multipart_contract_returns_private_jpeg(monkeypatch, purpose):
     group = _group()
-    monkeypatch.setattr(public_upload, "ClientGroupRepository", lambda _: Mock(get_by_token=AsyncMock(return_value=group)))
+    set_route_dependency(monkeypatch, public_upload, "ClientGroupRepository", lambda _: Mock(get_by_token=AsyncMock(return_value=group)))
     result = ValidatedUpload(b"jpeg-pixels", "image/jpeg", "page.jpg", 120, 160, "JPEG")
     decoder = AsyncMock(return_value=result)
-    monkeypatch.setattr(public_upload, "_validated_upload_file", decoder)
+    set_route_dependency(monkeypatch, public_upload, "_validated_upload_file", decoder)
     app = FastAPI()
     app.include_router(public_upload.router)
     app.dependency_overrides[public_upload.get_db_session] = lambda: AsyncMock()

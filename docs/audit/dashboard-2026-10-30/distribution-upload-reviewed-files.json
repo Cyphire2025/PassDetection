@@ -1,0 +1,122 @@
+[
+  {
+    "path": "backend/app/presentation/api/v1/routes/document_distribution_upload.py",
+    "sha256": "785af8f7ca63812a9ed52c2caae016e3ec3d39940ee58e94fff5c75003a49b18",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All physical runtime source read; complete original46statement controller and3transaction hooks reconstruct exactly. Actual imported dependencies/public route/hints/default dependency objects/OpenAPI preserved.91 focused cases/7files pass, including14lock/state/actor controls and6flush/commit/cleanup controls. No live PostgreSQL/storage/provider qualification."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/document_distribution_upload_content.py",
+    "sha256": "10c94f1f6eb6fd920e85dafd0114065c7a46a1e0157e4d5d06bd4b450609e58f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All physical runtime source read; complete original46statement controller and3transaction hooks reconstruct exactly. Actual imported dependencies/public route/hints/default dependency objects/OpenAPI preserved.91 focused cases/7files pass, including14lock/state/actor controls and6flush/commit/cleanup controls. No live PostgreSQL/storage/provider qualification."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/document_distribution_upload_chunk_state.py",
+    "sha256": "bdc91348c034db5edb2b4fbe77a7cb9db85c54fd0cb7c9c412f2d1f4bbe198b6",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All physical runtime source read; complete original46statement controller and3transaction hooks reconstruct exactly. Actual imported dependencies/public route/hints/default dependency objects/OpenAPI preserved.91 focused cases/7files pass, including14lock/state/actor controls and6flush/commit/cleanup controls. No live PostgreSQL/storage/provider qualification."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/document_distribution_upload_persistence_scope.py",
+    "sha256": "22dc6c290c106063f0d5c2f7dc09a1bd8d2ede9c8a7be9041b69ecf161c9166e",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All physical runtime source read; complete original46statement controller and3transaction hooks reconstruct exactly. Actual imported dependencies/public route/hints/default dependency objects/OpenAPI preserved.91 focused cases/7files pass, including14lock/state/actor controls and6flush/commit/cleanup controls. No live PostgreSQL/storage/provider qualification."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/document_distribution_upload_commit.py",
+    "sha256": "d6393043a46777e003a31f0a98c278a721ce38e1021f84a0763ecb33c8c38eb5",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All physical runtime source read; complete original46statement controller and3transaction hooks reconstruct exactly. Actual imported dependencies/public route/hints/default dependency objects/OpenAPI preserved.91 focused cases/7files pass, including14lock/state/actor controls and6flush/commit/cleanup controls. No live PostgreSQL/storage/provider qualification."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/document_distribution_upload_workflow.py",
+    "sha256": "79bea355820360e3645a28f3039146c738b92a91a7c0f99a68d6ef008cd4f014",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All physical runtime source read; complete original46statement controller and3transaction hooks reconstruct exactly. Actual imported dependencies/public route/hints/default dependency objects/OpenAPI preserved.91 focused cases/7files pass, including14lock/state/actor controls and6flush/commit/cleanup controls. No live PostgreSQL/storage/provider qualification."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/document_distribution_upload_match_scope.py",
+    "sha256": "e591b524a5a6501ef2e1accc8aa3eeae782b28c80883197bf4ee4f1373d1184e",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All physical runtime source read; complete original46statement controller and3transaction hooks reconstruct exactly. Actual imported dependencies/public route/hints/default dependency objects/OpenAPI preserved.91 focused cases/7files pass, including14lock/state/actor controls and6flush/commit/cleanup controls. No live PostgreSQL/storage/provider qualification."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/document_distribution_upload_response.py",
+    "sha256": "ee0e5277132af22da41bd9041f08dfaa176ac60241e415e45fb3a20c25f67dc3",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All physical runtime source read; complete original46statement controller and3transaction hooks reconstruct exactly. Actual imported dependencies/public route/hints/default dependency objects/OpenAPI preserved.91 focused cases/7files pass, including14lock/state/actor controls and6flush/commit/cleanup controls. No live PostgreSQL/storage/provider qualification."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_document_chunk_uploads.py",
+    "sha256": "ab8dfbbad5c33998d1c622f5e9bf27635abb449623fe121e822d404e9b1b2ff9",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "needs-follow-up",
+    "notes": "Focused91case run includes all cases in this file; loader/monkeypatch targets follow actual owners and prior behavioral assertions remain. Full physical read is recorded only where completed; chunk protocol test has an independent final full-read follow-up."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_document_distribution_upload_abort.py",
+    "sha256": "1d5138d363656a87ca9733fc7957980920f4173a568c8ce41ab854ab910e704c",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Focused91case run includes all cases in this file; loader/monkeypatch targets follow actual owners and prior behavioral assertions remain. Full physical read is recorded only where completed; chunk protocol test has an independent final full-read follow-up."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_document_distribution_staging_routes.py",
+    "sha256": "9ed52130c26879815757d7f224476e3fcf72a19d3e3ad7f1157f78489724d04a",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Focused91case run includes all cases in this file; loader/monkeypatch targets follow actual owners and prior behavioral assertions remain. Full physical read is recorded only where completed; chunk protocol test has an independent final full-read follow-up."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_pdf_upload_security_errors.py",
+    "sha256": "e890fd8aecc6b734e8762702419f7573a607da699ab20476993b60153e197929",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Focused91case run includes all cases in this file; loader/monkeypatch targets follow actual owners and prior behavioral assertions remain. Full physical read is recorded only where completed; chunk protocol test has an independent final full-read follow-up."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_document_distribution_route_decomposition.py",
+    "sha256": "7f18a4f9055bde011fe0fd2cf456e2585057a05a378d05140676d0a54de71188",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Focused91case run includes all cases in this file; loader/monkeypatch targets follow actual owners and prior behavioral assertions remain. Full physical read is recorded only where completed; chunk protocol test has an independent final full-read follow-up."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_document_upload_persistence_hooks.py",
+    "sha256": "a1fcdd7b9fe4c9ebee2219cea110bf850cb5ede4db17f5de05f6cf70ab5d0db4",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Focused91case run includes all cases in this file; loader/monkeypatch targets follow actual owners and prior behavioral assertions remain. Full physical read is recorded only where completed; chunk protocol test has an independent final full-read follow-up."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_document_upload_commit.py",
+    "sha256": "78f7b6fb8bc4a4cb38ee8b6ebc9b6d9f1f33f998421dc2c6911d1ccbb273aa16",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Focused91case run includes all cases in this file; loader/monkeypatch targets follow actual owners and prior behavioral assertions remain. Full physical read is recorded only where completed; chunk protocol test has an independent final full-read follow-up."
+  }
+]

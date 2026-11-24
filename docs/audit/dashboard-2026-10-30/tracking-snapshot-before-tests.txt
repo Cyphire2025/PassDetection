@@ -1,0 +1,14 @@
+FF                                                                       [100%]
+================================== FAILURES ===================================
+__ test_actual_tracking_preparation_avoids_canonical_source_deepcopies[None] __
+tests\integration\test_tracking_snapshot_admission.py:56: in test_actual_tracking_preparation_avoids_canonical_source_deepcopies
+    assert canonical_copy_calls == 0
+E   assert 209 == 0
+___ test_actual_tracking_preparation_avoids_canonical_source_deepcopies[1] ____
+tests\integration\test_tracking_snapshot_admission.py:56: in test_actual_tracking_preparation_avoids_canonical_source_deepcopies
+    assert canonical_copy_calls == 0
+E   assert 209 == 0
+=========================== short test summary info ===========================
+FAILED tests/integration/test_tracking_snapshot_admission.py::test_actual_tracking_preparation_avoids_canonical_source_deepcopies[None]
+FAILED tests/integration/test_tracking_snapshot_admission.py::test_actual_tracking_preparation_avoids_canonical_source_deepcopies[1]
+2 failed in 1.47s

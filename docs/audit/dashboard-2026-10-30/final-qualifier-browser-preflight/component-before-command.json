@@ -1,0 +1,18 @@
+{
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "features/upload/components/fresh-qualifier.test.tsx",
+    "--maxWorkers=1",
+    "--pool=threads",
+    "-t",
+    "restores saved Other before"
+  ],
+  "cwd": "frontend",
+  "exit_code": 1,
+  "seconds": 6.453,
+  "runtime_before_hash": "9b4ad522682c3c5891545c62f80e836eb43d20f1d0fb21578bcef53fedcb91b8",
+  "test_hash": "c756a5869b26832741f86198fc8bb7b2d6392a16cce11e3b0cf83b9b667dec0d",
+  "scope": "One actual component regression case before runtime fix; expected saved Other assertion failure, not a claimed pass."
+}

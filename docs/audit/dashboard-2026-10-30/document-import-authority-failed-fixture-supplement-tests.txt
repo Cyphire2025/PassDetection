@@ -1,0 +1,93 @@
+F...                                                                     [100%]
+================================== FAILURES ===================================
+_ test_original_library_hold_and_both_crop_derivatives_survive_the_new_phase_boundary _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000001913EF8E5D0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001913EF99410>
+test_settings = Settings(app_env='development', app_debug=True, app_version='1.0.0', app_revision='unknown', expected_database_schema_...me='qrcode_v1', whatsapp_otp_template_name='', whatsapp_otp_template_language='en_US', whatsapp_delivery_concurrency=4)
+
+    async def test_original_library_hold_and_both_crop_derivatives_survive_the_new_phase_boundary(
+        db_session,
+        monkeypatch,
+        test_settings,
+    ):
+        context = await prepare_authority_import(
+            db_session,
+            monkeypatch,
+            test_settings,
+            "unchanged",
+            "put",
+        )
+        original = f"front/{context.passenger_id}.jpg"
+        derived = f"passport-crops/{context.passenger_id}/prior.jpg"
+        edited = f"passport-edits/{context.passenger_id}/prior.jpg"
+        await db_session.execute(
+            update(PassportSubmissionModel)
+            .where(
+                PassportSubmissionModel.id == context.passenger_id,
+            )
+            .values(image_s3_key=original)
+        )
+        db_session.add(
+            PassportImageCropModel(
+                submission_id=context.passenger_id,
+                image_type="passport_front",
+                active=True,
+                source_storage_key=original,
+                derived_storage_key=derived,
+                edit_source_storage_key=edited,
+                crop_x=0,
+                crop_y=0,
+                crop_width=1,
+                crop_height=1,
+                source_width=800,
+                source_height=600,
+            )
+        )
+        await db_session.commit()
+        context.objects.update(
+            {original: b"original-evidence", derived: b"old-crop", edited: b"old-edit"}
+        )
+        deleted = []
+    
+        def delete_objects(*, Delete, **_kwargs):
+            for value in Delete["Objects"]:
+                deleted.append(value["Key"])
+                context.objects.pop(value["Key"])
+            return {"Errors": []}
+    
+        monkeypatch.setattr(context.client, "delete_objects", delete_objects, raising=False)
+        result = await perform_held_import(context, db_session, "put")
+        assert not isinstance(result, BaseException), repr(result)
+        assert result.saved_count == 1
+        async with context.factory() as fresh:
+            model = await fresh.get(PassportSubmissionModel, context.passenger_id)
+            crop = await fresh.scalar(
+                select(PassportImageCropModel).where(
+                    PassportImageCropModel.submission_id == context.passenger_id,
+                    PassportImageCropModel.image_type == "passport_front",
+                )
+            )
+            retained = await fresh.scalar(
+                select(PassportImageLibraryItemModel).where(
+                    PassportImageLibraryItemModel.submission_id == context.passenger_id,
+                    PassportImageLibraryItemModel.storage_key == original,
+                )
+            )
+        assert retained is not None and retained.original_source_storage_key == original
+        assert model.image_s3_key != original and model.image_s3_key in context.objects
+        assert context.objects[original] == b"original-evidence"
+        assert set(deleted) == {derived, edited}
+>       assert crop.revision == 1 and not crop.active
+E       assert (2 == 1)
+E        +  where 2 = <app.infrastructure.database.models.PassportImageCropModel object at 0x0000019140F45450>.revision
+
+tests\unit\presentation\test_document_import_retained_sources.py:84: AssertionError
+
+---------- coverage: platform win32, python 3.11.15-final-0 ----------
+Coverage XML written to file ../docs/audit/dashboard-2026-10-30/document-import-authority-final-coverage.xml
+Coverage JSON written to file ../docs/audit/dashboard-2026-10-30/document-import-authority-final-coverage.json
+
+=========================== short test summary info ===========================
+FAILED tests/unit/presentation/test_document_import_retained_sources.py::test_original_library_hold_and_both_crop_derivatives_survive_the_new_phase_boundary
+1 failed, 3 passed in 2.16s

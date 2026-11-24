@@ -1,13 +1,23 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import apiClient from "@/lib/api/client";
 import { notificationsApi } from "./notifications.api";
-import { agencyId, draft, preview, batch } from "./notification-test-fixtures";
+import { agencyId, actorId, draft, preview, batch } from "./notification-test-fixtures";
 
 vi.mock("@/lib/api/client", () => ({ default: { get: vi.fn(), post: vi.fn(), patch: vi.fn(), delete: vi.fn() } }));
 beforeEach(() => vi.clearAllMocks());
 const root = "/api/v1/gc-app/admin/notifications";
 
 describe("Authored notification API boundaries", () => {
+  it("forwards the operation's original actor precondition on preview and explicit send recovery", async () => {
+    vi.mocked(apiClient.post).mockResolvedValue({ data: preview() });
+    vi.mocked(apiClient.get).mockResolvedValue({ data: batch });
+    await notificationsApi.preview(agencyId, draft, actorId);
+    await notificationsApi.byRequest(agencyId, batch.request_id, draft.id, actorId);
+    expect(apiClient.post).toHaveBeenCalledWith(`${root}/${draft.id}/preview`, { expected_revision: draft.revision },
+      { expectedOwnerUserId: actorId, params: { agency_id: agencyId } });
+    expect(apiClient.get).toHaveBeenCalledWith(`${root}/batches/by-request/${batch.request_id}`,
+      { expectedOwnerUserId: actorId, params: { agency_id: agencyId, draft_id: draft.id } });
+  });
   it("deletes only the selected saved revision within the agency", async () => {
     vi.mocked(apiClient.delete).mockResolvedValue({ status: 204 });
     await notificationsApi.deleteDraft(agencyId, draft);

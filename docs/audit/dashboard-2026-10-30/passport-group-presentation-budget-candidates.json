@@ -1,0 +1,58 @@
+[
+  {
+    "path": "features/passports/components/passport-group-model.tsx",
+    "baselineLines": 21,
+    "maximumLines": 30,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/passports/components/passport-group-duplicates.tsx",
+    "baselineLines": 53,
+    "maximumLines": 60,
+    "baselineMaxFunctionComplexity": 5,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/passports/components/passport-mobile-card.tsx",
+    "baselineLines": 116,
+    "maximumLines": 130,
+    "baselineMaxFunctionComplexity": 11,
+    "maximumFunctionComplexity": 12
+  },
+  {
+    "path": "features/passports/components/reextract-passport-control.tsx",
+    "baselineLines": 111,
+    "maximumLines": 120,
+    "baselineMaxFunctionComplexity": 26,
+    "maximumFunctionComplexity": 27
+  },
+  {
+    "path": "features/passports/components/passport-group-fields.tsx",
+    "baselineLines": 68,
+    "maximumLines": 80,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/passports/components/passport-group-feedback.ts",
+    "baselineLines": 17,
+    "maximumLines": 30,
+    "baselineMaxFunctionComplexity": 8,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/passports/components/passport-group-roster-panel.tsx",
+    "baselineLines": 164,
+    "maximumLines": 170,
+    "baselineMaxFunctionComplexity": 17,
+    "maximumFunctionComplexity": 17
+  },
+  {
+    "path": "features/passports/components/passport-group-roster-table.tsx",
+    "baselineLines": 216,
+    "maximumLines": 230,
+    "baselineMaxFunctionComplexity": 9,
+    "maximumFunctionComplexity": 10
+  }
+]

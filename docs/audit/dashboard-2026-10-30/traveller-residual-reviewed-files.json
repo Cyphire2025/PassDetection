@@ -1,0 +1,218 @@
+[
+  {
+    "path": "frontend/features/travellers/api/draft-image-lifecycle.api.ts",
+    "sha256": "003cc3c4e939455412b07c768942f0babd5833331b1a22d0a76db6625bbdbb11",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All current physical source read; truncated aggregate output was completed with specific missing ranges before this ledger. Public traveller claim/draft cookies remain server-authoritative; explicit draft/session IDs, expected revisions, upload idempotency keys, typed known document sides and signal forwarding inspected. Pure readiness/three-way-merge/digest helpers each have one cohesive responsibility. No new code changes or suite run solely for this read."
+  },
+  {
+    "path": "frontend/features/travellers/api/draft-upload-body.ts",
+    "sha256": "9e313dfa18ce95e9505364f7653e205a0cbc67764eb8e1c87499bd90783d76a1",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All current physical source read; truncated aggregate output was completed with specific missing ranges before this ledger. Public traveller claim/draft cookies remain server-authoritative; explicit draft/session IDs, expected revisions, upload idempotency keys, typed known document sides and signal forwarding inspected. Pure readiness/three-way-merge/digest helpers each have one cohesive responsibility. No new code changes or suite run solely for this read."
+  },
+  {
+    "path": "frontend/features/travellers/api/returning-draft.api.ts",
+    "sha256": "0d79b44dc5da5ac87bd9cbf8a1c91f4258a1071ae054810c97b55887faef8a2f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All current physical source read; truncated aggregate output was completed with specific missing ranges before this ledger. Public traveller claim/draft cookies remain server-authoritative; explicit draft/session IDs, expected revisions, upload idempotency keys, typed known document sides and signal forwarding inspected. Pure readiness/three-way-merge/digest helpers each have one cohesive responsibility. No new code changes or suite run solely for this read."
+  },
+  {
+    "path": "frontend/features/travellers/api/returning.api.ts",
+    "sha256": "0bd1cdf414148b032f5e7d8871801548333a4b66f5e031c3f2ce72c23e9c4b7f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All current physical source read; truncated aggregate output was completed with specific missing ranges before this ledger. Public traveller claim/draft cookies remain server-authoritative; explicit draft/session IDs, expected revisions, upload idempotency keys, typed known document sides and signal forwarding inspected. Pure readiness/three-way-merge/digest helpers each have one cohesive responsibility. No new code changes or suite run solely for this read."
+  },
+  {
+    "path": "frontend/features/travellers/hooks/use-draft-autosave.ts",
+    "sha256": "7f9cc523bcf376400842cae6e3f77ecb8ad3810050dffb7d41455cdab80d8b73",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All current physical source read; truncated aggregate output was completed with specific missing ranges before this ledger. Public traveller claim/draft cookies remain server-authoritative; explicit draft/session IDs, expected revisions, upload idempotency keys, typed known document sides and signal forwarding inspected. Pure readiness/three-way-merge/digest helpers each have one cohesive responsibility. No new code changes or suite run solely for this read."
+  },
+  {
+    "path": "frontend/features/travellers/hooks/use-returning-capabilities.ts",
+    "sha256": "71efab69e501d1d3c292f1a8151fb1e15315cd50b6420f2faece1b5177c14e9a",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All current physical source read; truncated aggregate output was completed with specific missing ranges before this ledger. Public traveller claim/draft cookies remain server-authoritative; explicit draft/session IDs, expected revisions, upload idempotency keys, typed known document sides and signal forwarding inspected. Pure readiness/three-way-merge/digest helpers each have one cohesive responsibility. No new code changes or suite run solely for this read."
+  },
+  {
+    "path": "frontend/features/travellers/hooks/use-returning-claim.ts",
+    "sha256": "6bbee8286214f1b18980b091c6fa32eac391d98357eef4f8dd6ac8711c00fe41",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "needs-follow-up",
+    "notes": "All current physical source read; truncated aggregate output was completed with specific missing ranges before this ledger. Public traveller claim/draft cookies remain server-authoritative; explicit draft/session IDs, expected revisions, upload idempotency keys, typed known document sides and signal forwarding inspected. Pure readiness/three-way-merge/digest helpers each have one cohesive responsibility. No new code changes or suite run solely for this read. Follow-through remains open: expand dense JSX/state ordering, inspect actual token/draft/key lifetime boundaries and repeated automatic transition bounds with real callers before ruling out stale display or declaring a defect. Source patterns alone are not a finding or deletion authorization."
+  },
+  {
+    "path": "frontend/features/travellers/components/returning-challenge.tsx",
+    "sha256": "719cefca721d5b7fd58d09f78ab0a391d9d5140d2e5e1e0a51b4ad4a770f3fdf",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All current physical source read; truncated aggregate output was completed with specific missing ranges before this ledger. Public traveller claim/draft cookies remain server-authoritative; explicit draft/session IDs, expected revisions, upload idempotency keys, typed known document sides and signal forwarding inspected. Pure readiness/three-way-merge/digest helpers each have one cohesive responsibility. No new code changes or suite run solely for this read."
+  },
+  {
+    "path": "frontend/features/travellers/components/returning-collection.tsx",
+    "sha256": "12781b16ceeaf126afb046aa74c573c230b73a6628932f6d984a994d148e0ad2",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All current physical source read; truncated aggregate output was completed with specific missing ranges before this ledger. Public traveller claim/draft cookies remain server-authoritative; explicit draft/session IDs, expected revisions, upload idempotency keys, typed known document sides and signal forwarding inspected. Pure readiness/three-way-merge/digest helpers each have one cohesive responsibility. No new code changes or suite run solely for this read."
+  },
+  {
+    "path": "frontend/features/travellers/components/returning-contact-dialog.tsx",
+    "sha256": "68b2d407803af17481ad20938f516ff5d55aad852fa447eb7542f2d35b4a9ef6",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "needs-follow-up",
+    "notes": "All current physical source read; truncated aggregate output was completed with specific missing ranges before this ledger. Public traveller claim/draft cookies remain server-authoritative; explicit draft/session IDs, expected revisions, upload idempotency keys, typed known document sides and signal forwarding inspected. Pure readiness/three-way-merge/digest helpers each have one cohesive responsibility. No new code changes or suite run solely for this read. Follow-through remains open: expand dense JSX/state ordering, inspect actual token/draft/key lifetime boundaries and repeated automatic transition bounds with real callers before ruling out stale display or declaring a defect. Source patterns alone are not a finding or deletion authorization."
+  },
+  {
+    "path": "frontend/features/travellers/components/returning-current-details.tsx",
+    "sha256": "da04f2892ce7208554bbc39144fdcda772bd2467f2f91b1ba895db42c28daf2f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All current physical source read; truncated aggregate output was completed with specific missing ranges before this ledger. Public traveller claim/draft cookies remain server-authoritative; explicit draft/session IDs, expected revisions, upload idempotency keys, typed known document sides and signal forwarding inspected. Pure readiness/three-way-merge/digest helpers each have one cohesive responsibility. No new code changes or suite run solely for this read."
+  },
+  {
+    "path": "frontend/features/travellers/components/returning-draft-images.tsx",
+    "sha256": "4d45daab342868110b0a832bb054515858a05227c8ba089acd0dba771b7bd90d",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All current physical source read; truncated aggregate output was completed with specific missing ranges before this ledger. Public traveller claim/draft cookies remain server-authoritative; explicit draft/session IDs, expected revisions, upload idempotency keys, typed known document sides and signal forwarding inspected. Pure readiness/three-way-merge/digest helpers each have one cohesive responsibility. No new code changes or suite run solely for this read."
+  },
+  {
+    "path": "frontend/features/travellers/components/returning-fields.tsx",
+    "sha256": "f3d4e254ce2192f9963ae3e69465b50d354ae95878c575a7e7f022c053a76e0c",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All current physical source read; truncated aggregate output was completed with specific missing ranges before this ledger. Public traveller claim/draft cookies remain server-authoritative; explicit draft/session IDs, expected revisions, upload idempotency keys, typed known document sides and signal forwarding inspected. Pure readiness/three-way-merge/digest helpers each have one cohesive responsibility. No new code changes or suite run solely for this read."
+  },
+  {
+    "path": "frontend/features/travellers/components/returning-flow.tsx",
+    "sha256": "336a3b4589785f6113334b3780af7d7c06c7ac47ee6e6cc1172e44372e50f970",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "needs-follow-up",
+    "notes": "All current physical source read; truncated aggregate output was completed with specific missing ranges before this ledger. Public traveller claim/draft cookies remain server-authoritative; explicit draft/session IDs, expected revisions, upload idempotency keys, typed known document sides and signal forwarding inspected. Pure readiness/three-way-merge/digest helpers each have one cohesive responsibility. No new code changes or suite run solely for this read. Follow-through remains open: expand dense JSX/state ordering, inspect actual token/draft/key lifetime boundaries and repeated automatic transition bounds with real callers before ruling out stale display or declaring a defect. Source patterns alone are not a finding or deletion authorization."
+  },
+  {
+    "path": "frontend/features/travellers/components/returning-offer.tsx",
+    "sha256": "cabb37d14e557d8f1b6e8b4ffb9c8a3ef76a670214781cba11b1e63858d0d8df",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "needs-follow-up",
+    "notes": "All current physical source read; truncated aggregate output was completed with specific missing ranges before this ledger. Public traveller claim/draft cookies remain server-authoritative; explicit draft/session IDs, expected revisions, upload idempotency keys, typed known document sides and signal forwarding inspected. Pure readiness/three-way-merge/digest helpers each have one cohesive responsibility. No new code changes or suite run solely for this read. Follow-through remains open: expand dense JSX/state ordering, inspect actual token/draft/key lifetime boundaries and repeated automatic transition bounds with real callers before ruling out stale display or declaring a defect. Source patterns alone are not a finding or deletion authorization."
+  },
+  {
+    "path": "frontend/features/travellers/components/returning-phone.tsx",
+    "sha256": "af0d17cddd603de1843deef34275ff571e3ba10c02d094237fa03511d957434a",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All current physical source read; truncated aggregate output was completed with specific missing ranges before this ledger. Public traveller claim/draft cookies remain server-authoritative; explicit draft/session IDs, expected revisions, upload idempotency keys, typed known document sides and signal forwarding inspected. Pure readiness/three-way-merge/digest helpers each have one cohesive responsibility. No new code changes or suite run solely for this read."
+  },
+  {
+    "path": "frontend/features/travellers/components/returning-resume.tsx",
+    "sha256": "54e96cbb354b75b645b6859cf1739e79b9fe130f05c2e95a32e08f1c4ffaf01f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "needs-follow-up",
+    "notes": "All current physical source read; truncated aggregate output was completed with specific missing ranges before this ledger. Public traveller claim/draft cookies remain server-authoritative; explicit draft/session IDs, expected revisions, upload idempotency keys, typed known document sides and signal forwarding inspected. Pure readiness/three-way-merge/digest helpers each have one cohesive responsibility. No new code changes or suite run solely for this read. Follow-through remains open: expand dense JSX/state ordering, inspect actual token/draft/key lifetime boundaries and repeated automatic transition bounds with real callers before ruling out stale display or declaring a defect. Source patterns alone are not a finding or deletion authorization."
+  },
+  {
+    "path": "frontend/features/travellers/components/returning-review.tsx",
+    "sha256": "baeaf7a47e40984791c30f7695ddf972ef49e5d170bd53550e039399e266f57d",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "needs-follow-up",
+    "notes": "All current physical source read; truncated aggregate output was completed with specific missing ranges before this ledger. Public traveller claim/draft cookies remain server-authoritative; explicit draft/session IDs, expected revisions, upload idempotency keys, typed known document sides and signal forwarding inspected. Pure readiness/three-way-merge/digest helpers each have one cohesive responsibility. No new code changes or suite run solely for this read. Follow-through remains open: expand dense JSX/state ordering, inspect actual token/draft/key lifetime boundaries and repeated automatic transition bounds with real callers before ruling out stale display or declaring a defect. Source patterns alone are not a finding or deletion authorization."
+  },
+  {
+    "path": "frontend/features/travellers/components/traveller-document.tsx",
+    "sha256": "665ac1d9cf382c5b402fd47b28e152cfef7794ef5c07ab2cbd8a4f0fe7196bb4",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "needs-follow-up",
+    "notes": "All current physical source read; truncated aggregate output was completed with specific missing ranges before this ledger. Public traveller claim/draft cookies remain server-authoritative; explicit draft/session IDs, expected revisions, upload idempotency keys, typed known document sides and signal forwarding inspected. Pure readiness/three-way-merge/digest helpers each have one cohesive responsibility. No new code changes or suite run solely for this read. Follow-through remains open: expand dense JSX/state ordering, inspect actual token/draft/key lifetime boundaries and repeated automatic transition bounds with real callers before ruling out stale display or declaring a defect. Source patterns alone are not a finding or deletion authorization."
+  },
+  {
+    "path": "frontend/features/travellers/services/draft-check-state.ts",
+    "sha256": "dbd959e4b51a8a1200136cc4815fbc3df65729f223a958943b0f742e9112913a",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All current physical source read; truncated aggregate output was completed with specific missing ranges before this ledger. Public traveller claim/draft cookies remain server-authoritative; explicit draft/session IDs, expected revisions, upload idempotency keys, typed known document sides and signal forwarding inspected. Pure readiness/three-way-merge/digest helpers each have one cohesive responsibility. No new code changes or suite run solely for this read."
+  },
+  {
+    "path": "frontend/features/travellers/services/draft-document-requirements.ts",
+    "sha256": "e753a32b9c8a94ea9cdbe11d5bad5498cf2bc68177777a766a1edeaa74412755",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All current physical source read; truncated aggregate output was completed with specific missing ranges before this ledger. Public traveller claim/draft cookies remain server-authoritative; explicit draft/session IDs, expected revisions, upload idempotency keys, typed known document sides and signal forwarding inspected. Pure readiness/three-way-merge/digest helpers each have one cohesive responsibility. No new code changes or suite run solely for this read."
+  },
+  {
+    "path": "frontend/features/travellers/services/draft-field-value.ts",
+    "sha256": "0c13123f8dffa6588cf8c27567341a64823ea3bde1d5f176b2805d18fd7480f8",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All current physical source read; truncated aggregate output was completed with specific missing ranges before this ledger. Public traveller claim/draft cookies remain server-authoritative; explicit draft/session IDs, expected revisions, upload idempotency keys, typed known document sides and signal forwarding inspected. Pure readiness/three-way-merge/digest helpers each have one cohesive responsibility. No new code changes or suite run solely for this read."
+  },
+  {
+    "path": "frontend/features/travellers/services/draft-file-identity.ts",
+    "sha256": "3bc08a00f1b5c90a67da4f9300a9f04699e6b5cb8d98224cb8411746d35626ca",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All current physical source read; truncated aggregate output was completed with specific missing ranges before this ledger. Public traveller claim/draft cookies remain server-authoritative; explicit draft/session IDs, expected revisions, upload idempotency keys, typed known document sides and signal forwarding inspected. Pure readiness/three-way-merge/digest helpers each have one cohesive responsibility. No new code changes or suite run solely for this read."
+  },
+  {
+    "path": "frontend/features/travellers/services/draft-passport-identity.ts",
+    "sha256": "c275f2616ff9eb297f10c56d3f317c2ad4a63bed9942cdbf73fda2a8f1d4eaff",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All current physical source read; truncated aggregate output was completed with specific missing ranges before this ledger. Public traveller claim/draft cookies remain server-authoritative; explicit draft/session IDs, expected revisions, upload idempotency keys, typed known document sides and signal forwarding inspected. Pure readiness/three-way-merge/digest helpers each have one cohesive responsibility. No new code changes or suite run solely for this read."
+  },
+  {
+    "path": "frontend/features/travellers/services/draft-readiness.ts",
+    "sha256": "864ec487bb528f53780320ec13a7e68789845caa407040696d5a8a897cd21afd",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All current physical source read; truncated aggregate output was completed with specific missing ranges before this ledger. Public traveller claim/draft cookies remain server-authoritative; explicit draft/session IDs, expected revisions, upload idempotency keys, typed known document sides and signal forwarding inspected. Pure readiness/three-way-merge/digest helpers each have one cohesive responsibility. No new code changes or suite run solely for this read."
+  },
+  {
+    "path": "frontend/features/travellers/services/draft-reconcile.ts",
+    "sha256": "024fb2e87bdaeda65042a410e4bed0f08f9cacf66e0478df5788abdcde5bc258",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All current physical source read; truncated aggregate output was completed with specific missing ranges before this ledger. Public traveller claim/draft cookies remain server-authoritative; explicit draft/session IDs, expected revisions, upload idempotency keys, typed known document sides and signal forwarding inspected. Pure readiness/three-way-merge/digest helpers each have one cohesive responsibility. No new code changes or suite run solely for this read."
+  },
+  {
+    "path": "frontend/features/travellers/types.ts",
+    "sha256": "1de922d3be591c4c4f69505e7947a61c03ba7eaf8f785bb46bbd0c52fd9a885f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All current physical source read; truncated aggregate output was completed with specific missing ranges before this ledger. Public traveller claim/draft cookies remain server-authoritative; explicit draft/session IDs, expected revisions, upload idempotency keys, typed known document sides and signal forwarding inspected. Pure readiness/three-way-merge/digest helpers each have one cohesive responsibility. No new code changes or suite run solely for this read."
+  }
+]

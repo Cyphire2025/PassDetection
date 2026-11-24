@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "status": "retired",
+  "closed_entry_count": 1,
+  "binary_payloads_embedded": false,
+  "files": [
+    {
+      "original_path": "backend/placeholder.txt",
+      "archive_path": "Not related to project/retired-unused-placeholder/backend/placeholder.txt",
+      "bytes": 77,
+      "sha256": "e75af093bc98e9535ae0e2e547b2e551eb0c4fc7e694295a7e150103170913e3",
+      "archive_sha256": "e75af093bc98e9535ae0e2e547b2e551eb0c4fc7e694295a7e150103170913e3",
+      "reason": "One unused Dockerfile docstring placeholder. No source/docs/build/release filename consumer found; backend Dockerfile remains separately retained. One file moved without modifying its bytes.",
+      "path_boundaries_verified": true,
+      "content_changed": false,
+      "prior_attempt": "Split-Path parameter-set failure occurred before any move; source remained intact. Corrected directory-name lookup and fail-fast native file operations.",
+      "path": "backend/placeholder.txt",
+      "status": "retired",
+      "asset_metadata_only": true,
+      "physical_lines": 1
+    }
+  ],
+  "move_receipt": "unused-placeholder-retirement-original-move-receipt.json"
+}

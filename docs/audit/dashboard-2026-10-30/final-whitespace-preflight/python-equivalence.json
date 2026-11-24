@@ -1,0 +1,38 @@
+[
+  {
+    "path": "backend/app/application/use_cases/passports/process_passport_submission_job_use_case.py",
+    "python_ast_including_all_location_attributes_exact": true,
+    "ast_including_attributes_sha256": "b64ecfb8410490deda2854b1d519e3c435f8a9d2a20b7ad832fe15cebc463842",
+    "non_blank_line_tokens_exact": true,
+    "imports_including_attributes_exact": true,
+    "import_nodes": 17,
+    "literal_values_exact_via_complete_AST": true
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_bulk_delete_route.py",
+    "python_ast_including_all_location_attributes_exact": true,
+    "ast_including_attributes_sha256": "bdb4bb6b439fd2e2f0b7c327acf0550a93059b75e1d34025052ea2f51b4a53a3",
+    "non_blank_line_tokens_exact": true,
+    "imports_including_attributes_exact": true,
+    "import_nodes": 16,
+    "literal_values_exact_via_complete_AST": true
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py",
+    "python_ast_including_all_location_attributes_exact": true,
+    "ast_including_attributes_sha256": "f45a3172895d5bd6cd1f5218540fce6f1c179240e9570724bb51fafeee7ca687",
+    "non_blank_line_tokens_exact": true,
+    "imports_including_attributes_exact": true,
+    "import_nodes": 18,
+    "literal_values_exact_via_complete_AST": true
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_public_passport_capabilities.py",
+    "python_ast_including_all_location_attributes_exact": true,
+    "ast_including_attributes_sha256": "4d9e111cdfd7596d88fb6c9433b55ea4e0ebe82891dfd18e7becb6ea3a9231e0",
+    "non_blank_line_tokens_exact": true,
+    "imports_including_attributes_exact": true,
+    "import_nodes": 11,
+    "literal_values_exact_via_complete_AST": true
+  }
+]

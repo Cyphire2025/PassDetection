@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "status": "retained read-only cohort complete; no proven runtime defect",
+  "ledger": "backend-dtos-interfaces-reviewed-files.json",
+  "source_fence": "backend-dtos-interfaces-source-fence.json",
+  "target_files": 16,
+  "target_physical_lines": 931,
+  "full_source_files": 27,
+  "partial_support_files": 14,
+  "runtime_changes": [],
+  "checks_run": [],
+  "no_checks_reason": "Full physical source review only. User requests focused changed-behavior verification during work and one final combined round; no broad suites/build/browser/provider calls for read-only batches.",
+  "conclusions": [
+    "Auth response projection omits internal session tokens; inspected operational log call sites do not serialize sensitive DTOs. No actual sink disclosure claimed from repr alone.",
+    "Passport response schema omits internal cleanup/promoted storage lists and idempotent replay fields. Public status uses existing owned-token/header path and disables document URLs; no claim that this cohort fully revalidated every authorization path.",
+    "Notifications use explicit agency/role/revision/request boundaries and aggregate history without raw push tokens. Tracker/qualifier contracts retain existing ownership and selection bounds.",
+    "MRZ parser and field validator are active AI verification dependencies; preserve returned MRZ/checksum and validation contracts.",
+    "Outgoing recovery notification interface is retained; dedicated Operations Inbox interfaces are deferred without removing completed work."
+  ],
+  "followups": [
+    {
+      "id": "DT01",
+      "status": "candidate; not yet qualified for deletion",
+      "paths": [
+        "backend/app/application/dtos/whatsapp_dtos.py",
+        "backend/app/application/interfaces/whatsapp_provider.py",
+        "backend/app/application/use_cases/whatsapp/plan_group_broadcast_use_case.py",
+        "backend/app/infrastructure/whatsapp/pricing.py",
+        "backend/app/infrastructure/whatsapp/noop_provider.py"
+      ],
+      "evidence": "Exact Python reference search plus full planner/DTO/interface reads show documented disconnected legacy foundation. test_whatsapp_message_templates still tests planner. Full maintained dynamic/type/caller/test closure and root WhatsApp owner coordination are required before any removal; no provider/SDK contract changed."
+    },
+    {
+      "id": "DT02",
+      "status": "cleared by active source",
+      "paths": [
+        "backend/app/application/interfaces/mrz_parser.py",
+        "backend/app/application/interfaces/passport_field_validator.py"
+      ],
+      "evidence": "accepted_source uses TD3 parser for saved AI MRZ; passport_extraction_fields invokes actual validator and Gemini verification imports it. Not dead OCR extraction."
+    }
+  ],
+  "limits": [
+    "No live PostgreSQL, provider send, native-device/vault or production response/log qualification performed.",
+    "Supporting partial files are not promoted to full by imports or caller searches.",
+    "Independent previously open architecture/lifecycle followups are not closed by this read-only cohort."
+  ]
+}

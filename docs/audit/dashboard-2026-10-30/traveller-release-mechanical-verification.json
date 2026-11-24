@@ -1,0 +1,78 @@
+{
+  "status": "mechanical checkpoint frozen; separately labeled strict-type/malformed-input follow-up authorized next",
+  "original_lines": 690,
+  "runtime_owners": 6,
+  "current_owner_lines": {
+    "scripts/release_traveller_whatsapp.py": 87,
+    "scripts/traveller_release_contract.py": 112,
+    "scripts/traveller_release_host.py": 223,
+    "scripts/traveller_release_readiness.py": 116,
+    "scripts/traveller_release_preparation.py": 81,
+    "scripts/traveller_release_lifecycle.py": 248
+  },
+  "proof": {
+    "whole_original_methods": 25,
+    "whole_original_helpers_CLI_lock": 5,
+    "constant_AST_and_values": 12,
+    "actual_global_bindings": 45,
+    "constructor_lifecycle_bodies_and_all_method_signatures_hints_decorators_exact": true,
+    "class_runtime_type_hints_equal_empty": true,
+    "static_descriptors_aliases_pickle_exact": true,
+    "new_private_MRO_bases": [
+      "_ReleasePreparation",
+      "_ReleaseReadiness",
+      "_ReleaseHost"
+    ],
+    "runtime_new_base_constructors_fields_slots_getattr": false,
+    "class_dictionary_layout_and_internal_code_owner_names_changed": true,
+    "class_source_introspection": {
+      "Release": "OSError: legacy public alias points to facade, actual class owner is focused module",
+      "ReleaseError": "OSError: legacy public alias points to facade, actual class owner is focused module"
+    },
+    "no_introspection_monkeypatch": true
+  },
+  "checks": {
+    "existing_shared_operator_cases": 68,
+    "new_controls": 6,
+    "qualification_source_cases": 29,
+    "unique_selected_cases": 103,
+    "separate_invocations": 3,
+    "not_one_combined_or_deployment_suite": true,
+    "basic_body_mypy_sources": 6,
+    "Ruff_format_files": 7,
+    "Linux_strict_legacy_diagnostics": 4,
+    "standalone_CLI": "Actual help/unknown option processes from unrelated cwd, only PATH/SYSTEMROOT and empty Python path/no operational credentials.",
+    "effects": "Synthetic host/worker/receipt data and temp files; no live Docker, providers, production credentials or deployments."
+  },
+  "qualification": "Six individually pinned shared source paths added, all original entries retained; real source-hash function notices a changed owner and rejects missing owner. Qualifier source restores byte-for-byte after only removing3new tuple lines. No source/resource/host validation weakened.",
+  "source_sha256": {
+    "scripts/release_traveller_whatsapp.py": "457f805b900300d4816f44c4d5b7acad903ec9d4aff129f8ca0d631a438999e8",
+    "scripts/traveller_release_contract.py": "73d9424ff0eb8e43f8f016134c1c25b8c93fb3b37e6cc44737d638d695275c70",
+    "scripts/traveller_release_host.py": "9d8064805c01c9841bc2fb1f1066cdbea1cedda451f08cf433e8431b9fa16fed",
+    "scripts/traveller_release_readiness.py": "8d29593a1ee8608ba1582ef173dceddd04f10a8fe6ce7d7fa2eb83d2835522a2",
+    "scripts/traveller_release_preparation.py": "a4ff288d0c9154dda7207f2dc71c7d2edc7cfe5c719aca25dba4458129dacfca",
+    "scripts/traveller_release_lifecycle.py": "2c16a67c382037afab7c98ac28832493982514c0901938b6260c42f8a87d128d",
+    "scripts/release_document_resources.py": "6be3fcab032898193fb9ac4715755f26edaa27d3f63032d3bb5ac6eb257a326a",
+    "scripts/test_traveller_release_owners.py": "98b7370c682a5305a2804836e7119a11590feb01a40988834b9f2fc3eeab7776"
+  },
+  "artifacts": {
+    "release-inheritance-preflight.json": "7b75f8d4be7955d27b4324b55ffd17d16bce29e4ea2c2d478fb196d8bd97c32a",
+    "traveller-release-extraction-proof.json": "f5f5f7d65f99d6d687af0851ec4af30bcd76966689cbd4bc0b022535980888e9",
+    "traveller-release-original-sources.json": "f4d817b4b76e46e5842a654414729ac0ed8a66c3fc57a1653d9fa672bc3f0b16",
+    "traveller-release-mechanical-reviewed-files.json": "60b5846cccb5934acf498c50c75104fa7a4ec171ad457bcc6e69cfa2d33c4967",
+    "traveller-release-extracted-tests.txt": "f4e1dc530f4d727b8703d2f4343ce35dbfb4b6164a938e8a516f0a99d51c0e7e",
+    "traveller-release-qualification-owner-tests.txt": "77ec0ec345712922d304e188c6aba61c241d68a597f27f684a2ec6fcff1e7491",
+    "traveller-release-resource-tests.txt": "386c21cf6f4e07e49c3a1146e1a0256179f76edb8cb2405b8ad4c7cbd1c53018",
+    "traveller-release-basic-mypy.txt": "90377c8fd97127580c93ac5740d596c9ebc9db94dafa6560ee11fe16b4460c62",
+    "traveller-release-mechanical-ruff.txt": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0",
+    "traveller-release-mechanical-format.txt": "9fa2e30088122b883ebbf1c300359d4a0c9d09c988b20631e8625a40425a9723",
+    "traveller-release-strict-type-followups.txt": "81cf27735f4cad25658892a9a547f2162265f1299dd6a6ff4a47d480d4a0bdca"
+  },
+  "remaining": [
+    "Malformed decoded JSON/ID strict boundary follow-up is separate; do not relabel this mechanical proof after those edits.",
+    "Retained597 operator architecture remains open.",
+    "Live service/VPS release qualification remains separate and unexecuted.",
+    "Root shared budget/admission current678/99/FE656/111 is historical before AQ03 FE657/template scope drift; no requalification run for this root-operator-only partition.",
+    "Inbox feature work deferred by user; only generic shared release behavior exercised."
+  ]
+}

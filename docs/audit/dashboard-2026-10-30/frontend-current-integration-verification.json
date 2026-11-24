@@ -1,0 +1,48 @@
+{
+  "status": "browser-failure-open",
+  "source_checkpoint_files": 1338,
+  "source_unchanged_through_unit_checks_and_build": true,
+  "unit_files_passed": 237,
+  "unit_tests_passed": 1543,
+  "node_contract_tests_passed": 671,
+  "required_type_check": "passed",
+  "lint": "passed; one warning in local temporary coverage configuration",
+  "module_budgets": {
+    "passed": 208,
+    "ceilings_or_coverage_floors_relaxed": false
+  },
+  "production_build": "passed",
+  "critical_owner_coverage_percent": {
+    "lines": 97.69,
+    "statements": 92.44,
+    "functions": 91.57,
+    "branches": 87.02,
+    "branchesTrue": 100
+  },
+  "coverage_scope": "Configured critical owners only; not entire-codebase coverage.",
+  "optional_unused_flags": "Two diagnostics in generated .next/dev/types/validator.ts only; this optional command did not pass. Required type-check passed.",
+  "production_browser_stats": {
+    "startTime": "2026-10-30T18:27:11.767Z",
+    "duration": 53613.019,
+    "expected": 8,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  },
+  "browser_failure": "Login title expected Sign In | Global Connects Dashboard, received Sign In. Assertion precedes credential submission, so the complete sign-in/logout journey was not verified in this run.",
+  "follow_up": "Remove redundant intermediate auth layout title which resets the inherited template; give recovery/restoration their own titles. Source changed after this checkpoint. Rebuild and verify the exact title plus full journey in the next production checkpoint.",
+  "receipts_sha256": {
+    "frontend-current-integration-source-checkpoint.json": "acb6f70e7474f838b152352790e6bcae24abddccdde802e5fd6f91d970eee62c",
+    "frontend-current-integration-source-verification.json": "0a69373a161bd18f79475680f939dfe01286d3a2c42c28964fe28b8bad801508",
+    "frontend-current-build-source-verification.json": "4dc9f33c81e88d36aa21f24897b80b2a5ce9a56d1ad6118b5c301187a99e8509",
+    "frontend-current-integration-unit.txt": "62b423a0f91a78cff0fd4f3835bd470ced6c670da15d36978a0e9f2679507f1f",
+    "frontend-current-integration-standard-types.txt": "9454c3f1e6dd0b35a44cd34b78d3a60b348f85fde420b2665f190a84b5597031",
+    "frontend-current-integration-types.txt": "cee64d9529594a1d4cd9ffca27aff2657b5bb9a88765889faec86e2dbee1dfe6",
+    "frontend-current-integration-lint.txt": "0261b78fc8f7e55db83536b03ced360910648603424db653cca8bd168a8bc2ed",
+    "frontend-current-integration-budgets.txt": "94b158c68c4999ba5bf446d1cae1c121ffe31d245a498bb74f57165af7f513b0",
+    "frontend-current-integration-build.txt": "94b663cde025231e75ef3fbc18677dd4149e7630898325f9c52e13ecebeecd5d",
+    "frontend-current-node-contracts.txt": "9ba267f373c6f6d69446495864a77f0cf5bb7c3ffb10f6d5484f4a5457f37724",
+    "frontend-current-production-browser.json": "ef4a3535b079f9489e033caba1084dacb325edc2225cd29673c461e93a71a51d"
+  },
+  "limits": "Frontend resumed after this frozen checkpoint. Not a certification of current subsequent edits, whole repository review, real service integration, or VPS release."
+}

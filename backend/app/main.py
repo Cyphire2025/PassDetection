@@ -132,8 +132,8 @@ def create_application(
         title=settings.app_name,
         version=settings.app_version,
         description=(
-            "Passport MRZ Processing Platform with secure upload links, "
-            "passport MRZ extraction, client review, Excel export, analytics, "
+            "Global Connects Dashboard with upload links, "
+            "AI passport extraction, client review, Excel export, analytics, "
             "audit logging, and agency notifications."
         ),
         contact={"name": "Global Connects Dashboard Engineering"},

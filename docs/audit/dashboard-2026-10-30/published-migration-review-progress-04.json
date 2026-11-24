@@ -1,0 +1,21 @@
+{
+  "status": "read-only review continues",
+  "new_full_migrations": 16,
+  "new_full_lines": 2221,
+  "cumulative_new_full_migrations": 60,
+  "prior_full_migrations": 2,
+  "total_current_full_migrations": 62,
+  "total_migrations": 142,
+  "remaining_unread_migrations": 80,
+  "remaining_inbox_deferred_by_user": 2,
+  "remaining_retained_before_mobile_partition": 78,
+  "mobile_partition": "pending actual dedicated-domain classification; not complete",
+  "ledger": {
+    "path": "docs/audit/dashboard-2026-10-30/published-migration-cohort-04-reviewed-files.json",
+    "sha256": "e5a88e9cccd5e8d846336f08920fbcb29da2f0cb628e15ee993e436f2e6c8d0a"
+  },
+  "findings": {
+    "path": "docs/audit/dashboard-2026-10-30/published-migration-cohort-04-findings.json",
+    "sha256": "8897c78373442a771bddfb8a44ad9a85bf64e41be9faee9fc7ffb9095caa8eaa"
+  }
+}

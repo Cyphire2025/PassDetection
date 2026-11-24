@@ -1,0 +1,72 @@
+"""Fail-closed source admission for the reviewed live baseline and branding patch."""
+from __future__ import annotations
+
+import hashlib
+import json
+import subprocess
+from pathlib import Path
+
+from mcp_direct_build import command
+from release_code_update import COMPATIBILITY_PATHS, task_contract
+from release_retained_update import (
+    ADDITIONAL_CONTRACT_PATHS,
+    ROUTE_ALLOWLIST,
+    require,
+    validate_route_allowlist,
+)
+from release_workspace_branding_bindings import load_bindings
+from release_workspace_branding_contract import SOURCE, TARGET, source_contract
+
+BASE = '98f4fb4f7ba982fc46f917d24db63d59993a74a8'
+BASE_0141 = '875d17b25da2687b5673148fabe9d10346ae0e4a'
+# Exact reviewed data remains digest-pinned; new source paths require explicit review.
+BINDINGS_SHA256 = 'cdac254b1fba4d15d92728870aea8da984648ad1100ba9a671d1ad227bd17631'
+BINDINGS_COUNT = 144
+REVIEWED_FILES, BASELINE_0141_FILES = load_bindings(
+    Path(__file__).with_name('release_workspace_branding_bindings.json'),
+    BINDINGS_SHA256,
+    BINDINGS_COUNT,
+)
+
+
+def digest(raw: str) -> str:
+    return hashlib.sha256(raw.replace('\r\n', '\n').encode('utf-8')).hexdigest()
+
+
+def validate_source(source: Path, previous: str, revision: str, source_schema: str = SOURCE) -> None:
+    def git(*args):
+        if args[0] == 'show':
+            return subprocess.check_output(['git', '-C', str(source), *args], timeout=60).decode('utf-8')
+        return command('git', '-C', str(source), *args)
+    expected_revision = BASE if source_schema == SOURCE else BASE_0141 if source_schema == '0141_workspace_branding' else None
+    require(expected_revision is not None and previous == expected_revision, 'exact_installed_branding_baseline_required')
+    require(git('rev-parse', 'HEAD') == revision and not git('status', '--porcelain', '--untracked-files=all'),
+            'clean_exact_branding_source_required')
+    git('merge-base', '--is-ancestor', previous, revision)
+    paths = set(git('diff', '--name-only', previous, revision, '--',
+                    *COMPATIBILITY_PATHS, *ADDITIONAL_CONTRACT_PATHS).splitlines())
+    require(paths <= set(REVIEWED_FILES) | {ROUTE_ALLOWLIST}, 'unreviewed_branding_persistent_source')
+    for path, (before, after) in REVIEWED_FILES.items():
+        if source_schema != SOURCE:
+            before = BASELINE_0141_FILES[path]
+        old = git('show', f'{previous}:{path}') if before is not None else ''
+        candidate = source / path
+        require(candidate.is_file() and not candidate.is_symlink(), 'regular_branding_contract_file_required')
+        require((before is None or digest(old) == before)
+                and digest(candidate.read_text('utf-8')) == after, 'reviewed_branding_source_changed')
+    validate_route_allowlist(source)
+    manifest = json.loads((source / 'backend/app/core/config/release_manifest.json').read_text())
+    require(manifest['schema_revision'] == TARGET, 'exact_branding_target_required')
+    source_contract(source, source_schema)
+    for path in git('diff', '--name-only', previous, revision, '--', 'backend/app').splitlines():
+        if not path.endswith('.py'):
+            continue
+        old = git('show', f'{previous}:{path}') if git('ls-tree', '--name-only', previous, '--', path) else ''
+        new = (source / path).read_text('utf-8') if (source / path).exists() else ''
+        if source_schema == SOURCE and path == 'backend/app/infrastructure/whatsapp/tasks.py':
+            # Existing queued payloads omit this optional keyword and retain
+            # their previous behavior. No task name, queue or retry changes.
+            declaration = '    group_invite_link: str | None = None,'
+            require(old.count(declaration) == 1, 'original_broadcast_signature_changed')
+            old = old.replace(declaration, declaration + '\n    include_previous_recipients: bool = False,')
+        require(task_contract(old) == task_contract(new), 'unreviewed_branding_task_contract')

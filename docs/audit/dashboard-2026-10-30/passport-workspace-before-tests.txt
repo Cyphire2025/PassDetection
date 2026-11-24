@@ -1,0 +1,27 @@
+.......FFF....F                                                          [100%]
+================================== FAILURES ===================================
+_ test_workspace_drains_all_actual_disk_spools_and_preserves_first_close_error[failures1] _
+tests\unit\infrastructure\test_passport_document_workspace_cleanup.py:61: in test_workspace_drains_all_actual_disk_spools_and_preserves_first_close_error
+    assert all(stream.stream.closed for stream in streams)
+E   assert False
+E    +  where False = all(<generator object test_workspace_drains_all_actual_disk_spools_and_preserves_first_close_error.<locals>.<genexpr> at 0x000001CE3D892190>)
+_ test_workspace_drains_all_actual_disk_spools_and_preserves_first_close_error[failures2] _
+tests\unit\infrastructure\test_passport_document_workspace_cleanup.py:61: in test_workspace_drains_all_actual_disk_spools_and_preserves_first_close_error
+    assert all(stream.stream.closed for stream in streams)
+E   assert False
+E    +  where False = all(<generator object test_workspace_drains_all_actual_disk_spools_and_preserves_first_close_error.<locals>.<genexpr> at 0x000001CE3EA176B0>)
+_ test_workspace_drains_all_actual_disk_spools_and_preserves_first_close_error[failures3] _
+tests\unit\infrastructure\test_passport_document_workspace_cleanup.py:61: in test_workspace_drains_all_actual_disk_spools_and_preserves_first_close_error
+    assert all(stream.stream.closed for stream in streams)
+E   assert False
+E    +  where False = all(<generator object test_workspace_drains_all_actual_disk_spools_and_preserves_first_close_error.<locals>.<genexpr> at 0x000001CE3EA53030>)
+____________ test_crop_routes_do_not_mutate_original_storage_keys _____________
+tests\unit\presentation\test_passport_crop_lifecycle_contract.py:54: in test_crop_routes_do_not_mutate_original_storage_keys
+    assert "upload_file" in update_source
+E   assert 'upload_file' in '@router.put(\n    "/{submission_id}/images/{image_type}/crop",\n    response_model=PassportImageCropResponse,\n    st...ssion.id,\n        image_type=image_type,\n        crop_row=crop_row,\n        source_storage_key=source_key,\n    )\n'
+=========================== short test summary info ===========================
+FAILED tests/unit/infrastructure/test_passport_document_workspace_cleanup.py::test_workspace_drains_all_actual_disk_spools_and_preserves_first_close_error[failures1]
+FAILED tests/unit/infrastructure/test_passport_document_workspace_cleanup.py::test_workspace_drains_all_actual_disk_spools_and_preserves_first_close_error[failures2]
+FAILED tests/unit/infrastructure/test_passport_document_workspace_cleanup.py::test_workspace_drains_all_actual_disk_spools_and_preserves_first_close_error[failures3]
+FAILED tests/unit/presentation/test_passport_crop_lifecycle_contract.py::test_crop_routes_do_not_mutate_original_storage_keys
+4 failed, 11 passed in 0.69s

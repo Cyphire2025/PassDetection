@@ -1,0 +1,480 @@
+{
+  "recorded_at": "2026-10-30T23:47:22.531Z",
+  "records": [
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-routes.ts",
+      "name": "PassportGroupViewMode",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-routes.ts",
+      "name": "PassportGroupViewState",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-routes.ts",
+      "name": "PassportDetailNavigationState",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-routes.ts",
+      "name": "DEFAULT_VIEW_STATE",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-routes.ts",
+      "name": "SUBMISSION_FILTERS",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-routes.ts",
+      "name": "SORT_FIELDS",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-routes.ts",
+      "name": "SORT_ORDERS",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-routes.ts",
+      "name": "VIEW_MODES",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-routes.ts",
+      "name": "TOKEN_PATTERN",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": true
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-routes.ts",
+      "name": "UUID_PATTERN",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-routes.ts",
+      "name": "SearchParamsReader",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-routes.ts",
+      "name": "parsePassportGroupViewState",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-routes.ts",
+      "name": "buildPassportGroupHref",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-routes.ts",
+      "name": "buildPassportDetailNavigationHref",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-routes.ts",
+      "name": "parsePassportDetailNavigation",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-routes.ts",
+      "name": "serializeViewState",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-routes.ts",
+      "name": "readEnum",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-routes.ts",
+      "name": "readPositiveInteger",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-routes.ts",
+      "name": "isUuid",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": true
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-routes.ts",
+      "name": "isValidViewState",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": true
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-storage.ts",
+      "name": "StoredPassportNavigationContext",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-storage.ts",
+      "name": "STORAGE_PREFIX",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-storage.ts",
+      "name": "CONTEXT_TTL_MS",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-storage.ts",
+      "name": "MAX_NAVIGATION_ITEMS",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-storage.ts",
+      "name": "storePassportNavigationContext",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-storage.ts",
+      "name": "readPassportNavigationContext",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-storage.ts",
+      "name": "navigationStorageKey",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-storage.ts",
+      "name": "pruneExpiredNavigationContexts",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "name": "createPassportNavigationToken",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "name": "isPassportNavigationKeyboardTarget",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-review-fields.ts",
+      "name": "PASSPORT_REVIEW_FIELDS",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-review-fields.ts",
+      "name": "PassportReviewFieldName",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-review-fields.ts",
+      "name": "PassportFieldReview",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-staff-approval.ts",
+      "name": "StaffApprovalFeedbackKind",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-staff-approval.ts",
+      "name": "StaffApprovalFeedback",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-staff-approval.ts",
+      "name": "cleanPassportReviewFields",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-staff-approval.ts",
+      "name": "buildStaffApprovalRequest",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-staff-approval.ts",
+      "name": "getStaffApprovalOutcomeFeedback",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-staff-approval.ts",
+      "name": "getStaffApprovalErrorFeedback",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-verification-review.ts",
+      "name": "VerificationSource",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-verification-review.ts",
+      "name": "RETRYABLE_AI_PROVIDER_STATUSES",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-verification-review.ts",
+      "name": "canRetryPassportAiVerification",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-verification-review.ts",
+      "name": "getPassportFieldReview",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-verification-review.ts",
+      "name": "validationIssueMatchesField",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-review-presentation.ts",
+      "name": "ReviewerSource",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-review-presentation.ts",
+      "name": "NO_READABLE_EVIDENCE_REASON_CODES",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-review-presentation.ts",
+      "name": "getPassportFieldReviewClassName",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-review-presentation.ts",
+      "name": "formatPassportFieldReviewConfidence",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-review-presentation.ts",
+      "name": "getPassportVerificationConfidence",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-review-presentation.ts",
+      "name": "getPassportReviewActionState",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-review-presentation.ts",
+      "name": "getPassportReviewerLabel",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-review-presentation.ts",
+      "name": "formatPassportVerificationReason",
+      "exact_AST_ignoring_module_export_modifier": true,
+      "shared_module_export_added": false
+    }
+  ],
+  "facades": [
+    {
+      "path": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "before": [
+        "PassportDetailNavigationState",
+        "PassportGroupViewMode",
+        "PassportGroupViewState",
+        "StoredPassportNavigationContext",
+        "buildPassportDetailNavigationHref",
+        "buildPassportGroupHref",
+        "createPassportNavigationToken",
+        "isPassportNavigationKeyboardTarget",
+        "parsePassportDetailNavigation",
+        "parsePassportGroupViewState",
+        "readPassportNavigationContext",
+        "storePassportNavigationContext"
+      ],
+      "after": [
+        "PassportDetailNavigationState",
+        "PassportGroupViewMode",
+        "PassportGroupViewState",
+        "StoredPassportNavigationContext",
+        "buildPassportDetailNavigationHref",
+        "buildPassportGroupHref",
+        "createPassportNavigationToken",
+        "isPassportNavigationKeyboardTarget",
+        "parsePassportDetailNavigation",
+        "parsePassportGroupViewState",
+        "readPassportNavigationContext",
+        "storePassportNavigationContext"
+      ],
+      "unchanged": true
+    },
+    {
+      "path": "frontend/features/passports/utils/passport-review.ts",
+      "before": [
+        "PASSPORT_REVIEW_FIELDS",
+        "PassportFieldReview",
+        "PassportReviewFieldName",
+        "StaffApprovalFeedback",
+        "StaffApprovalFeedbackKind",
+        "buildStaffApprovalRequest",
+        "canRetryPassportAiVerification",
+        "cleanPassportReviewFields",
+        "formatPassportFieldReviewConfidence",
+        "formatPassportVerificationReason",
+        "getPassportFieldReview",
+        "getPassportFieldReviewClassName",
+        "getPassportReviewActionState",
+        "getPassportReviewerLabel",
+        "getPassportVerificationConfidence",
+        "getStaffApprovalErrorFeedback",
+        "getStaffApprovalOutcomeFeedback"
+      ],
+      "after": [
+        "PASSPORT_REVIEW_FIELDS",
+        "PassportFieldReview",
+        "PassportReviewFieldName",
+        "StaffApprovalFeedback",
+        "StaffApprovalFeedbackKind",
+        "buildStaffApprovalRequest",
+        "canRetryPassportAiVerification",
+        "cleanPassportReviewFields",
+        "formatPassportFieldReviewConfidence",
+        "formatPassportVerificationReason",
+        "getPassportFieldReview",
+        "getPassportFieldReviewClassName",
+        "getPassportReviewActionState",
+        "getPassportReviewerLabel",
+        "getPassportVerificationConfidence",
+        "getStaffApprovalErrorFeedback",
+        "getStaffApprovalOutcomeFeedback"
+      ],
+      "unchanged": true
+    }
+  ],
+  "files": [
+    {
+      "path": "frontend/features/passports/utils/passport-navigation-routes.ts",
+      "sha256": "3a261deb26bf0b1da43b72b92319287930652ad5be265e21ee25935e51b8813b"
+    },
+    {
+      "path": "frontend/features/passports/utils/passport-navigation-storage.ts",
+      "sha256": "bf61eef3970098a8bfa5fe741bf5c7e759c86ea6909ae41944a1cd99885be2b9"
+    },
+    {
+      "path": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "sha256": "923f7038548eb4abfd96fdbd9314108491a8275968c09516f3f4beba06abd4dd"
+    },
+    {
+      "path": "frontend/features/passports/utils/passport-review-fields.ts",
+      "sha256": "744112871b383b6a98540fd5306e30d0b142b14a585414124447953d98738e15"
+    },
+    {
+      "path": "frontend/features/passports/utils/passport-staff-approval.ts",
+      "sha256": "45e004e2fcd057adaf93d63679f1b223cfee58f4ec1ece0049f1ff8a6b5ebb13"
+    },
+    {
+      "path": "frontend/features/passports/utils/passport-verification-review.ts",
+      "sha256": "65b4c8fcd7894a68fc76d58c5ea89cbb72fb0e799e1e519d65b8d5a7818b88e9"
+    },
+    {
+      "path": "frontend/features/passports/utils/passport-review-presentation.ts",
+      "sha256": "a0dff75adbfb4e48e1b0bb792d81e21702395cd4a083eb2bbabbef4f9544a49c"
+    },
+    {
+      "path": "frontend/features/passports/utils/passport-review.ts",
+      "sha256": "eca11576ad7af8a91b35d45abdb86d95ae2283f635a21f0dc2a783770d0540cb"
+    }
+  ],
+  "basis": "All52 original declarations retain their complete AST; only three internal route/storage shared export modifiers added. Both original public facade export name sets unchanged. No business policy or navigation storage/route schema normalization."
+}

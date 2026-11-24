@@ -75,23 +75,23 @@ async def test_enabling_my_photos_creates_placeholder_and_journals_without_refen
 
     with (
         patch(
-            "app.presentation.api.v1.routes.gc_app._get_group",
+            "app.presentation.api.v1.routes.gc_app_group_settings._get_group",
             new=AsyncMock(return_value=group),
         ),
         patch(
-            "app.presentation.api.v1.routes.gc_app._get_group_access",
+            "app.presentation.api.v1.routes.gc_app_group_settings._get_group_access",
             new=AsyncMock(return_value=access),
         ),
         patch(
-            "app.presentation.api.v1.routes.gc_app.append_mobile_sync_change",
+            "app.presentation.api.v1.routes.gc_app_group_settings.append_mobile_sync_change",
             new=AsyncMock(),
         ) as append_change,
         patch(
-            "app.presentation.api.v1.routes.gc_app._audit",
+            "app.presentation.api.v1.routes.gc_app_group_settings._audit",
             new=AsyncMock(),
         ) as audit,
         patch(
-            "app.presentation.api.v1.routes.gc_app._group_access_response",
+            "app.presentation.api.v1.routes.gc_app_group_settings._group_access_response",
             new=AsyncMock(return_value=response),
         ),
     ):
@@ -143,23 +143,23 @@ async def test_disabling_my_photos_is_optimistic_and_keeps_sessions_valid() -> N
 
     with (
         patch(
-            "app.presentation.api.v1.routes.gc_app._get_group",
+            "app.presentation.api.v1.routes.gc_app_group_settings._get_group",
             new=AsyncMock(return_value=SimpleNamespace(status="active")),
         ),
         patch(
-            "app.presentation.api.v1.routes.gc_app._get_group_access",
+            "app.presentation.api.v1.routes.gc_app_group_settings._get_group_access",
             new=AsyncMock(return_value=access),
         ),
         patch(
-            "app.presentation.api.v1.routes.gc_app.append_mobile_sync_change",
+            "app.presentation.api.v1.routes.gc_app_group_settings.append_mobile_sync_change",
             new=AsyncMock(),
         ) as append_change,
         patch(
-            "app.presentation.api.v1.routes.gc_app._audit",
+            "app.presentation.api.v1.routes.gc_app_group_settings._audit",
             new=AsyncMock(),
         ) as audit,
         patch(
-            "app.presentation.api.v1.routes.gc_app._group_access_response",
+            "app.presentation.api.v1.routes.gc_app_group_settings._group_access_response",
             new=AsyncMock(return_value=SimpleNamespace(my_photos_enabled=False)),
         ),
     ):
@@ -187,11 +187,11 @@ async def test_my_photos_toggle_rejects_stale_revision_before_writing() -> None:
 
     with (
         patch(
-            "app.presentation.api.v1.routes.gc_app._get_group",
+            "app.presentation.api.v1.routes.gc_app_group_settings._get_group",
             new=AsyncMock(return_value=SimpleNamespace(status="active")),
         ),
         patch(
-            "app.presentation.api.v1.routes.gc_app._get_group_access",
+            "app.presentation.api.v1.routes.gc_app_group_settings._get_group_access",
             new=AsyncMock(return_value=access),
         ),
         pytest.raises(HTTPException) as captured,
@@ -224,23 +224,23 @@ async def test_my_photos_toggle_is_idempotent_without_version_or_journal_churn()
 
     with (
         patch(
-            "app.presentation.api.v1.routes.gc_app._get_group",
+            "app.presentation.api.v1.routes.gc_app_group_settings._get_group",
             new=AsyncMock(return_value=SimpleNamespace(status="active")),
         ),
         patch(
-            "app.presentation.api.v1.routes.gc_app._get_group_access",
+            "app.presentation.api.v1.routes.gc_app_group_settings._get_group_access",
             new=AsyncMock(return_value=access),
         ),
         patch(
-            "app.presentation.api.v1.routes.gc_app.append_mobile_sync_change",
+            "app.presentation.api.v1.routes.gc_app_group_settings.append_mobile_sync_change",
             new=AsyncMock(),
         ) as append_change,
         patch(
-            "app.presentation.api.v1.routes.gc_app._audit",
+            "app.presentation.api.v1.routes.gc_app_group_settings._audit",
             new=AsyncMock(),
         ) as audit,
         patch(
-            "app.presentation.api.v1.routes.gc_app._group_access_response",
+            "app.presentation.api.v1.routes.gc_app_group_settings._group_access_response",
             new=AsyncMock(return_value=SimpleNamespace(my_photos_enabled=True)),
         ),
     ):

@@ -1,0 +1,250 @@
+{
+  "files": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_verification.py",
+      "sha256": "601f00c01107efbd20a707aea7d81fd6b56dc51fa9e2a943a3e1aef3060487cf",
+      "physical_lines": 312,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full312 physical-line read. Receipt/source/publication state, persisted verification ownership, fresh actor/scope and supersession checks traced. Existing bounds/policies retained; no new behavior claim or arbitrary split."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_manual_verification.py",
+      "sha256": "502ec9c4fea6798d93ede6690873db1765a340c97b0a8f114502acd3f2e7196f",
+      "physical_lines": 260,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full260 physical-line read. Explicit manual review receipt, scope/lock ordering and durable verification transitions traced. Matching/classification validators remain active and unchanged."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_manual_upload.py",
+      "sha256": "c8fe9462b8f9cd872c4326940f502444c2323e13ee058d4a11dcaf0ed31a31aa",
+      "physical_lines": 271,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full original182/current271 physical reads. Staff-selected add/replace authorization, fresh locked roster, original document version/capacity/order and commit boundary retained. New precommit compensation fixes ambient cancellation; entire function AST inverse proves sole intended change outside readable formatter expansion; C14 unchanged."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_manual_replacement.py",
+      "sha256": "955bc03c2256fedae16accea853992fb7a292765fd5753f04dbe187ec796adef",
+      "physical_lines": 63,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full63 physical-line read. Exact owned saved document/version/passenger replacement selection and supersession propagation traced; canonical shared downstream validators retained."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_reupload.py",
+      "sha256": "63ff9508a4bee8dd0b0f50ae850595a3cccd0fa7aaabb699a6207f0849b67523",
+      "physical_lines": 248,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full original245/current248 physical reads. Actual ORM rollback-expiry failure fixed by capturing initial authorized agency UUID before rollback. Precommit compensation now handles cancellation, preserving ambiguous postcommit objects, fresh role/roster/source checks and exception semantics. Full inverse/API/type proof and actual SQLite normal-route regressions."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_upload_abort.py",
+      "sha256": "335ce9f1657d02c8c325326d3e8f3ecdcffc55bcda176c9ba5059eb8d8b349da",
+      "physical_lines": 284,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full284 physical-line read. Owned active chunk/batch manifests, processing/commit ambiguity, abort cleanup authorization and persisted cleanup boundaries traced. No generic email/import namespace rejection introduced."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_abort_cleanup.py",
+      "sha256": "3b8dd14de77a0c22c34811b8fd0304e6b3332a9dde706b4a9973e486ddb2170a",
+      "physical_lines": 36,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full36 physical-line read. Narrow upload abort cleanup delegates existing owned storage cleanup; unchanged. Separate precommit compensation owner does not replace postcommit/abort semantics."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_match_source.py",
+      "sha256": "4d0e6038fd2b1d47a2dcfaf9e1afa3d624654ce819e5c3d10b51b74b60c403cc",
+      "physical_lines": 187,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full187 physical-line read. Linked broadcast/link/recipient source ownership, frozen identifier configuration and tenant-scoped source revisions traced; active matching compatibility retained."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_match_policy.py",
+      "sha256": "2667d5fb0350e45c2cd0caf236de7f745422d2c335f548e6f7a5aed85f25f0ec",
+      "physical_lines": 65,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full65 physical-line read. Explicit source/config comparison policy and snapshot semantics retained without deduplicating distinct matching rules."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_save.py",
+      "sha256": "50a56cd284fbf83e0df2dd08f09054f3a5e21af877d8a66a6fea95b5295259c8",
+      "physical_lines": 96,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full original92/current96 physical reads. Existing ordered group/agency/type FOR UPDATE read now refreshes ORM identity-map state before processing rejection. Stale draft/saved negatives and healthy status/foreign/MCP controls run; transaction owner and all predicates/order unchanged."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_upload_inputs.py",
+      "sha256": "78ba720f4b9be8f9719d063815eb693dee56333bb236f1ffc884852cee840558",
+      "physical_lines": 51,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full51 physical-line read. Canonical upload input bounds, supported document types and staged metadata preserved. No validator removed."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_partial_upload.py",
+      "sha256": "dc61d553d3cd982324e3393922477729215fef6ffe707cfe31c4d40110d5303b",
+      "physical_lines": 80,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full80 physical-line read. Partial-batch/staged upload limits, original source compatibility and completion/retention state traced; unchanged."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_rejections.py",
+      "sha256": "d2535d932bd856943f90fadbc3bf005cfd062c03bdd75a8a60590b2df8e7881b",
+      "physical_lines": 31,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full31 physical-line read. Rejection projection/redaction and response ordering remain coherent; no arbitrary catalog split."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_compensation.py",
+      "sha256": "d98fca40ceeff7d2072101550c267520eda03e1865658706fa0fb7dea6aa89c3",
+      "physical_lines": 48,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full authored/current48 physical-line read. Explicit-data document-specific precommit rollback then owned object cleanup. AnyIO shield plus existing native cancellation drain protects actual ambient and repeated cancellation; original root identity or existing rollback/cleanup failure precedence preserved. Empty keys cause no storage construction. Only precommit callers; actual100L/100B focused coverage."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_distribution_residual_lifecycle.py",
+      "sha256": "dd7a76a31545d81fb2f6fe87deca7482bac35d20bc56cf90b5f2d4b129294956",
+      "physical_lines": 185,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full authored/current physical read. Synthetic real SQLite ORM/current policy route or direct compensation controls. No external provider/storage service, real PostgreSQL locking, malicious-file scanner or production behavior claim. Post-run formatting of one lifecycle call is entire-AST exact in source equivalence receipt."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_distribution_reupload_lifetime.py",
+      "sha256": "3aa39116ccbb8f6cdc62e7a7643ae1380ce3b0f97d4a27f494e5375e8d4f2331",
+      "physical_lines": 237,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full authored/current physical read. Synthetic real SQLite ORM/current policy route or direct compensation controls. No external provider/storage service, real PostgreSQL locking, malicious-file scanner or production behavior claim. Post-run formatting of one lifecycle call is entire-AST exact in source equivalence receipt."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_distribution_compensation.py",
+      "sha256": "66567d2b532bb63ff03c8f19729a8bc4f1b50ba99a4f38c767bbffa96e3f2036",
+      "physical_lines": 63,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full authored/current physical read. Synthetic real SQLite ORM/current policy route or direct compensation controls. No external provider/storage service, real PostgreSQL locking, malicious-file scanner or production behavior claim. Post-run formatting of one lifecycle call is entire-AST exact in source equivalence receipt."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_scope.py",
+      "sha256": "92faa69c9f13af427dd128c72aac3a99518be701db40990b6d32155aa8cb11a9",
+      "physical_lines": 270,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "needs-follow-up",
+      "notes": "Complete270 physical source read supporting original read-only auth versus later lock ordering. Prior current full review reused; this reread does not close independent prior needs-follow-up findings or imply >5000 roster behavior qualification."
+    },
+    {
+      "path": "backend/app/infrastructure/documents/storage_transfers.py",
+      "sha256": "a15cde9b255188896500d54e4de7faf9dafbbe332f13f3163b1590f38a1c58d1",
+      "physical_lines": 71,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Only cancellation-drain primitive region read here; prior security full ledger is independent. No edits."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_distribution_matching.py",
+      "sha256": "5793652d336623a30e860bf9c81b7a5cfbbea1f113f86469c89d0dba57d411a0",
+      "physical_lines": 1223,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Only first110,1090-1175 and relevant selected foreign-save assertion read; no whole-file credit. One selected existing control executed."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_distribution_staging_routes.py",
+      "sha256": "9ed52130c26879815757d7f224476e3fcf72a19d3e3ad7f1157f78489724d04a",
+      "physical_lines": 851,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "First185 lines only for fixture/caller tracing; no whole-file credit."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_distribution_upload_abort.py",
+      "sha256": "1d5138d363656a87ca9733fc7957980920f4173a568c8ce41ab854ab910e704c",
+      "physical_lines": 397,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "First155 lines only here; prior root full review attribution remains separate."
+    },
+    {
+      "path": "backend/tests/integration/test_mcp_dashboard_edits.py",
+      "sha256": "0558cbd0b3772faba12d1936726a03a38f59cfba6fff925b4aa93455e2961f4e",
+      "physical_lines": 194,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Selected145-210 actual saved-lane control only; passing selected case does not establish full-file source review."
+    },
+    {
+      "path": "backend/app/presentation/mcp/document_assignment_tools.py",
+      "sha256": "bee51117fcc6cff7e0d15689328f5dfdc36a38764379376e392da3efebab1e8d",
+      "physical_lines": 121,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Selected35-100 canonical save capture/caller trace only; actual imported save alias identity verified."
+    }
+  ],
+  "historical_files": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_reupload.py",
+      "sha256": "39ce6895cacfb7b9015d64adcd1fa3d7d439c5fa4723f4c6bbf30b8a641c2a5e",
+      "physical_lines": 245,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "historical",
+      "notes": "Complete original physical read before narrow fixes. Original bytes preserved in ignored local proof snapshot; current row and intentional behavior inverse are separate."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_manual_upload.py",
+      "sha256": "0486204e0c6913a3a2ca0e19977ed67c4ca8fc87e66730293fc97281beb56903",
+      "physical_lines": 182,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "historical",
+      "notes": "Complete original physical read before narrow fixes. Original bytes preserved in ignored local proof snapshot; current row and intentional behavior inverse are separate."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_save.py",
+      "sha256": "295624fe0e04c7ccf02af624bd79f65276d5a90e6c068b4033f268724f9656da",
+      "physical_lines": 92,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "historical",
+      "notes": "Complete original physical read before narrow fixes. Original bytes preserved in ignored local proof snapshot; current row and intentional behavior inverse are separate."
+    }
+  ],
+  "reused_current_full": "document-distribution-review-final-reviewed-files.json: responses/queries/replacements/storage/shared/main; no new manual credit from execution or import graph"
+}

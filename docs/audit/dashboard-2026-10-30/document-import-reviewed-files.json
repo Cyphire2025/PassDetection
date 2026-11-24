@@ -1,0 +1,65 @@
+[
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/document_import.py",
+    "sha256": "7b61af41d2d04bef87fff08c24211b35cf26d6684ca5b85581e526feec18b3c8",
+    "physical_lines": 431,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "needs-follow-up",
+    "notes": "Complete original434 and final431-line source read; cancellation ownership fix + typed failure boundary extraction. Existing staff matching, sequential uploads, crop resets, original library references, AI staging/publication and HTTP paths preserved. Whole module inverse after explicit drain/cleanup changes;7 original evaluated signatures/decorators/hints/module identities and2 complete OpenAPI operations exact. Final71 focused cases pass. File remains a mixed large route/workflow owner, with short-lock/post-await fresh actor admission and process-crash passport-bulk namespace cleanup only unvalidated follow-up candidates; no architecture/security completeness claim."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/document_import_failure.py",
+    "sha256": "fbfb911e4513f49f71fa87f5fd2169a6567ced166e988117bfd0b395fc7a83bf",
+    "physical_lines": 49,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete authored49-line compensation owner read: explicit typed session/agency/import/key/commit/error inputs; shield rollback and independent committed-reference inspection under repeated cancellation; ordinary errors retain existing HTTP503; cancellation remains cancellation. Actual SQLite precommit/lostACK reference controls + real Minio-to_thread synthetic IO;100line/100branch. No live PostgreSQL/VPS claim."
+  },
+  {
+    "path": "backend/tests/unit/presentation/passport_document_import_fixture.py",
+    "sha256": "2fab208bdbef62855be32c679d121dfb614d461c6cd46742ec1b61f750b54f46",
+    "physical_lines": 146,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete authored synthetic boundary fixture read. Actual request importer spools/native executor remain active; authorization, audit, propagation and AI sends isolated explicitly. NativeBarrier always releases worker and joins completion; no real accounts/credentials/providers."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_document_import_cancellation.py",
+    "sha256": "fa2bc760cf8817c8f678c21526a035cff894281072b5e05b0e2e6b5658da635f",
+    "physical_lines": 98,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete authored regression file read: ten held source-measure/collect/read one/two-cancellation cases, two ordinary endpoint controls and cancellation during locked DB lookup.13 cases; all were exercised before fix (11fail/2pass) and final pass."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_document_import_storage_outcomes.py",
+    "sha256": "4a38f7bd0740f8a97b922dddbb7a4991806c8f8d0af24ff1beeea7269f63f08a",
+    "physical_lines": 237,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete authored final237-line test read. Actual FK-enabled SQLite data + actual Minio repository/to_thread with synthetic S3 client;4 held PUT completion/failure cases,5 ordinary/precommit/lostACK error/cancel outcomes, repeated cleanup cancellation, rollback ACK failure.11 final cases pass. Initial invalid fixture attempts retained separately; those are not product failures."
+  },
+  {
+    "path": "backend/app/infrastructure/documents/storage_transfers.py",
+    "sha256": "a15cde9b255188896500d54e4de7faf9dafbbe332f13f3163b1590f38a1c58d1",
+    "physical_lines": 71,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete current71-line physical source read, unchanged by this batch. Existing bounded-operation shield/drain handles repeated cancellation and consumes native outcomes; cleanup task remains shielded. Reused as existing canonical helper, no duplicate cancellation infrastructure."
+  },
+  {
+    "path": "backend/app/infrastructure/documents/passport_import_compensation.py",
+    "sha256": "b0eb8569e9937629ebe007e87bdb0c1fcd1979cb188de8f8eff52ca1c8014f76",
+    "physical_lines": 73,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete current73-line physical source read, unchanged. Independent session checks committed import front/photo/back and library references, stages only unreferenced attempt keys, retains uncertain data if lookup unavailable; logs bounded error type and counts, not raw documents. Caller now shields this existing boundary on cancellation."
+  }
+]

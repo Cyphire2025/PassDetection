@@ -1,0 +1,134 @@
+{
+  "status": "frozen-focused-qualified",
+  "source_fence": [
+    {
+      "path": "docker-compose.audit.yml",
+      "sha256": "1213ea13750c871a1f1e298c598dc3d7437c61f8bbeba4a53d5f22c403ce8d31",
+      "physical_lines": 121,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full121 physical source read before/after. Synthetic isolated names/credentials/loopback-only host ports and dependency order traced. Actual alembic upgrade-head disagreed with old explicit0093 expected revision; remove only obsolete override to inherit packaged current manifest. Actual Settings/SQLite/schema-helper2negative+3control proof. No running Docker or healthy-whole-stack claim."
+    },
+    {
+      "path": "docker-compose.kvm4.yml",
+      "sha256": "60029459198bf0080fe3f6e270612fe51473a19088882c0818e97bbe66aeccb0",
+      "physical_lines": 128,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full128 physical source read. Explicit per-service memory/worker/pool/queue limits, no-swap limits and Redis eviction split traced. Retained deployment resource-profile caller selects exact overlay only through guarded current-release lifecycle. Queue operational identities remain unchanged, including legacy named passport_ocr; no provider throughput/capacity or live host qualification."
+    },
+    {
+      "path": "docker-compose.qualification.yml",
+      "sha256": "8e9f0ae281370fcd466b406faa874454e8b7dada414be9c2c551491e67e4f4bd",
+      "physical_lines": 147,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full147 physical source read. Fixed synthetic disposable project, digest-pinned images, isolated storage-internal network, loopback HTTPS and public deterministic signing fixtures traced to actual orchestrator. APP_ENV production is intentional fixture behavior, not production credentials. No live Docker/readiness/crypto claim or new fixture/key setup."
+    },
+    {
+      "path": "docker-compose.storage-production.yml",
+      "sha256": "c682928e8c432c5cb12c548394762b9c2ccbe8352bae444982c7d9775ecc014f",
+      "physical_lines": 109,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full109 physical source read. Existing minio DNS/port and separate verified data volume retained; exact operator-provided identity/cutover proof mounts require existing paths. Anonymous TCP-only health probe correctly distinguished from authenticated app bucket-readiness gate. Maintenance staging/copy is guarded by existing release helper. No storage migration, volume mutation or credential access performed."
+    },
+    {
+      "path": "nginx/conf.d/includes/api-error-locations.inc",
+      "sha256": "c91a52430c45efa9f0d8fe2559b5c2ac76b709d3764a113c915e98046871deca",
+      "physical_lines": 82,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full82 physical source read. Eight literal JSON error bodies do not interpolate URI/query/upstream/exception values; no-store, request correlation and security response headers present. Exact include is loaded by active TLS server; explicit named handlers preserve generated status, while proxy interception remains off for upstream workflow errors. Existing actual container verifier supports repeated source use; not run in this read-only configuration cohort."
+    },
+    {
+      "path": "nginx/conf.d/includes/api-error-pages.inc",
+      "sha256": "ce2b2ea624c80b63bc8332762eb62d4ace2fb482ff6a1747c9381e13208bb414",
+      "physical_lines": 10,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full10 physical source read. Eight generated-error mappings correspond to literal named handlers;408 explicitly excluded because connection is terminated before error_page. Active server/location include use and existing verifier408/business-response controls traced. No Nginx syntax/network execution claim."
+    },
+    {
+      "path": "monitoring/alerts.test.yml",
+      "sha256": "26cf619af59db04ae6052f802682e795176919b64d953c6fd8a4151b3ac4e678",
+      "physical_lines": 79,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full79 physical source read. Existing synthetic time-series firing/resolution cases traced against actual alerts.yml and CI pinned promtool invocation. Missing probe/recovery evidence, absent ECR metrics, ECR downtime recovery/backlog and collection absence remain meaningful. Operational alert names/owners unchanged; no external alerts sent or promtool execution here."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_audit_compose_schema.py",
+      "sha256": "f0a4d766c22af976e047fc275c4ad1e13a950ea6966c21c973722649b2a89151",
+      "physical_lines": 52,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Five actual local schema readiness controls."
+    }
+  ],
+  "change": {
+    "path": "docker-compose.audit.yml",
+    "original_sha256": "b6b30b767120a5889541b09d4b827ec937301fda30317c66158c07a6cbad600d",
+    "current_sha256": "1213ea13750c871a1f1e298c598dc3d7437c61f8bbeba4a53d5f22c403ce8d31",
+    "whole_source_exact_after_single_line_inverse": true,
+    "whole_byte_source_exact_after_single_line_inverse": true,
+    "parsed_yaml_exact_after_only_expected_schema_key_removal": true,
+    "production_deployment_sources_changed": false
+  },
+  "regression": {
+    "before": "2failed3passed3.73s",
+    "after": "5passed2.61s",
+    "negative_cases": [
+      "Current migration head rejected by stale explicit audit schema.",
+      "Old0093 schema accepted by stale explicit audit schema."
+    ],
+    "controls": [
+      "Actual ScriptDirectory single head equals packaged release manifest.",
+      "Empty version table fails missing.",
+      "Multiple heads fail closed."
+    ],
+    "command": "cd backend; python -m pytest -q -o addopts='' tests/unit/infrastructure/test_audit_compose_schema.py",
+    "actual_boundaries": "Actual parsed audit YAML, actual Settings default and runtime _schema_readiness; real local SQLite version table, no provider/service."
+  },
+  "checks": {
+    "ruff_no_fix": "All checks passed for new test",
+    "format": "1file already formatted",
+    "no_package_lock_budget_model_policy_edits": true
+  },
+  "raw_evidence": [
+    {
+      "path": ".tmp/audit-compose-schema-before.txt",
+      "sha256": "6eaecf10ffd7375ab82714a8dcd6631d50b5afcc529f461d634dac5cffa960ed"
+    },
+    {
+      "path": ".tmp/deployment-config-audit/schema-after.txt",
+      "sha256": "043540bb484e69edbb17264252a513cc6718f04ae7c1f8da33a8c08ecce0c79f"
+    }
+  ],
+  "followups": [
+    {
+      "status": "open-documentation-candidate",
+      "paths": [
+        "docs/UPLOAD_LINK_CONFIGURATION.md:38",
+        "docs/WHATSAPP_MATCHING_AND_REMINDERS.md:137",
+        "docs/architecture/traveller-whatsapp-delivery.md:99"
+      ],
+      "notes": "Legacy migration sections describe readiness0093 as current; distinguish migration history/legacy operator contracts from current packaged release expectation before a coordinated documentation edit. No legacy release constants modified."
+    }
+  ],
+  "limits": [
+    "No Docker Compose render/start/service or Nginx execution performed.",
+    "No promtool local executable available; existing CI pin and actual rules/tests physically traced, not newly executed.",
+    "Local schema check does not establish full HTTP200 stack readiness, native PostgreSQL schema/migrations or production host qualification.",
+    "No actual credentials/private data/provider calls/external alerts, production env or volumes touched."
+  ],
+  "no_processes_or_services_running": true
+}

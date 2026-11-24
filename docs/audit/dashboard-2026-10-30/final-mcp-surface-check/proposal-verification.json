@@ -1,0 +1,103 @@
+{
+  "status": "audit-only candidate ready for root review; actual matrix remains failing pending reviewed application",
+  "summary": {
+    "historical_surfaces": 1990,
+    "current_discovered_surfaces": 2036,
+    "exact_common_rows": 1792,
+    "drift_total": 411,
+    "drift_actions": {
+      "added": 213,
+      "changed": 31,
+      "retired_inventory_id": 167
+    },
+    "drift_categories": {
+      "frontend-export-owner-relocation": 78,
+      "synthetic-test-fixture-discovery-false-positive": 6,
+      "privacy-safe-local-discard-helper": 1,
+      "new-purpose-owner-api-fingerprint": 11,
+      "existing-api-transport-lifecycle-fingerprint": 2,
+      "router-registration-fingerprint-reconciliation": 15,
+      "new-purpose-owner-registration-metadata": 45,
+      "decorated-route-owner-relocation": 72,
+      "registered-handler-owner-metadata": 14,
+      "inventory-id-relocated-not-workflow-removal": 150,
+      "still-exported-compatibility-facade-not-discovered": 17
+    },
+    "drift_scope_by_action": {
+      "added": {
+        "retained": 203,
+        "Inbox-deferred": 10
+      },
+      "retired_inventory_id": {
+        "retained": 161,
+        "Inbox-deferred": 6
+      },
+      "changed": {
+        "retained": 30,
+        "Inbox-deferred": 1
+      }
+    },
+    "historical_implementation_statuses": {
+      "not_applicable": 801,
+      "implemented_unverified": 281,
+      "planned": 908
+    },
+    "candidate_active_implementation_statuses": {
+      "not_applicable": 857,
+      "implemented_unverified": 281,
+      "planned": 898
+    },
+    "retained_compatibility_implementation_statuses": {
+      "planned": 10,
+      "not_applicable": 7
+    },
+    "implementation_statuses_renewed": 0,
+    "existing_implementation_objects_changed": 0,
+    "new_internal_dependency_not_applicable_rows": 63,
+    "all_historical_workflow_policies_preserved_in_active_or_compatibility": true,
+    "current_actual_cli_exit_code": 1,
+    "candidate_in_memory_validator_errors": [],
+    "actual_matrix_written": false,
+    "runtime_source_config_tests_modified": false
+  },
+  "command_receipt": "command-verification.json",
+  "input_source_fence_rechecked": 3294,
+  "all_input_sources_and_actual_matrix_unchanged": true,
+  "validator": {
+    "module": "scripts/mcp_inventory.py",
+    "module_sha256": "2da78b6aa2501f37a45cd4d38408c7a351e07028c459b593127d5244a74003b8",
+    "function": "validate",
+    "app_imported": false,
+    "candidate_surface_rows": 2036,
+    "errors": []
+  },
+  "artifacts": {
+    "proposed-mcp-workflow-coverage.json": {
+      "sha256": "37097632cd2b3174126ac67a54e8b3f86a9b7732090f17825935ec62807684b1",
+      "bytes": 2263042
+    },
+    "drift-classification.json": {
+      "sha256": "1de5d9c142a9ab4c904feea2fc0df09faea1d5ff85293aea9b2ccb1d3262ec91",
+      "bytes": 1069044
+    },
+    "retired-inventory-history.json": {
+      "sha256": "f14a2c7d3593cb5f31a0618920cce2e830496abf4bd0b759be93511c3751a732",
+      "bytes": 190819
+    },
+    "compatibility-aliases.json": {
+      "sha256": "987a312070e4bbd45380474017ae3611da73c4528c1bbd6854124abb86ee5c6a",
+      "bytes": 83217
+    },
+    "current-source-receipts.json": {
+      "sha256": "1c4ea22244cd70c4858e6e493592255cac2d42a5d4df4855717ce177f194646a",
+      "bytes": 111652
+    }
+  },
+  "limits": [
+    "Structured generated-matrix/provenance review; no fabricated full 48000-line review.",
+    "No runtime, connector, service, provider, UI, production or full API-schema verification was performed by this inventory reconciliation.",
+    "OpenAPI discovery compares selected operation fields, not the complete schema. No new operation IDs or selected operation-field drift appears.",
+    "Six test-fixture false positives remain explicitly classified because scripts/mcp_inventory.py is frozen; optional future filter change is not required for matrix-only validation.",
+    "All prior source review receipts are provenance only and do not renew MCP implementation states or proof."
+  ]
+}

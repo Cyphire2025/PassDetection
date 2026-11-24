@@ -1,0 +1,9 @@
+[
+  {
+    "path": "features/documents/hooks/use-document-distribution.ts",
+    "baselineLines": 286,
+    "maximumLines": 300,
+    "baselineMaxFunctionComplexity": 4,
+    "maximumFunctionComplexity": 5
+  }
+]

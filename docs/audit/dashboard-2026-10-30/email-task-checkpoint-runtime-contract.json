@@ -1,0 +1,181 @@
+{
+  "exitstatus": 0,
+  "functions": {
+    "_claim_due_dispatches": {
+      "signature": "() -> 'list[EmailSyncTaskEnvelope]'",
+      "module": "app.infrastructure.email.tasks",
+      "qualname": "_claim_due_dispatches",
+      "hints": {
+        "return": "list[app.infrastructure.email.tasks.EmailSyncTaskEnvelope]"
+      }
+    },
+    "_apply_email_retention": {
+      "signature": "() -> 'int'",
+      "module": "app.infrastructure.email.tasks",
+      "qualname": "_apply_email_retention",
+      "hints": {
+        "return": "<class 'int'>"
+      }
+    },
+    "_reconcile_orphaned_email_storage": {
+      "signature": "(*, storage: 'MinioStorageRepository', now: 'datetime') -> 'int'",
+      "module": "app.infrastructure.email.tasks",
+      "qualname": "_reconcile_orphaned_email_storage",
+      "hints": {
+        "storage": "<class 'app.infrastructure.storage.minio_repository.MinioStorageRepository'>",
+        "now": "<class 'datetime.datetime'>",
+        "return": "<class 'int'>"
+      }
+    },
+    "_delete_unreferenced_email_storage_keys": {
+      "signature": "(*, storage: 'MinioStorageRepository', candidate_keys: 'list[str]') -> 'int'",
+      "module": "app.infrastructure.email.tasks",
+      "qualname": "_delete_unreferenced_email_storage_keys",
+      "hints": {
+        "storage": "<class 'app.infrastructure.storage.minio_repository.MinioStorageRepository'>",
+        "candidate_keys": "list[str]",
+        "return": "<class 'int'>"
+      }
+    },
+    "_storage_object_is_older_than": {
+      "signature": "(modified_at: 'datetime | None', *, cutoff: 'datetime') -> 'bool'",
+      "module": "app.infrastructure.email.tasks",
+      "qualname": "_storage_object_is_older_than",
+      "hints": {
+        "modified_at": "datetime.datetime | None",
+        "cutoff": "<class 'datetime.datetime'>",
+        "return": "<class 'bool'>"
+      }
+    }
+  },
+  "envelope": {
+    "signature": "(connection_id: 'uuid.UUID', agency_id: 'uuid.UUID', owner_user_id: 'uuid.UUID', provider_account_id: 'str', sync_generation: 'int') -> None",
+    "module": "app.infrastructure.email.tasks",
+    "qualname": "EmailSyncTaskEnvelope",
+    "hints": {
+      "connection_id": "<class 'uuid.UUID'>",
+      "agency_id": "<class 'uuid.UUID'>",
+      "owner_user_id": "<class 'uuid.UUID'>",
+      "provider_account_id": "<class 'str'>",
+      "sync_generation": "<class 'int'>"
+    }
+  },
+  "method": {
+    "signature": "(self) -> 'dict[str, str | int]'",
+    "module": "app.infrastructure.email.tasks",
+    "qualname": "EmailSyncTaskEnvelope.task_kwargs",
+    "hints": {
+      "return": "dict[str, str | int]"
+    }
+  },
+  "fields": [
+    [
+      "connection_id",
+      "'uuid.UUID'"
+    ],
+    [
+      "agency_id",
+      "'uuid.UUID'"
+    ],
+    [
+      "owner_user_id",
+      "'uuid.UUID'"
+    ],
+    [
+      "provider_account_id",
+      "'str'"
+    ],
+    [
+      "sync_generation",
+      "'int'"
+    ]
+  ],
+  "frozen": true,
+  "kwargs": {
+    "connection_id": "00000000-0000-0000-0000-000000000001",
+    "agency_id": "00000000-0000-0000-0000-000000000002",
+    "owner_user_id": "00000000-0000-0000-0000-000000000003",
+    "provider_account_id": "synthetic",
+    "sync_generation": 4
+  },
+  "pickle_round_trip": true,
+  "jobs": [
+    {
+      "export": "sync_email_connection",
+      "name": "email.sync_connection",
+      "queue": "email_integrations",
+      "max_retries": 0,
+      "run": {
+        "signature": "(*, connection_id: 'str | uuid.UUID', agency_id: 'str | uuid.UUID | None' = None, owner_user_id: 'str | uuid.UUID | None' = None, provider_account_id: 'str | None' = None, sync_generation: 'int | str | None' = None, provider_message_id: 'str | None' = None) -> 'None'",
+        "module": "app.infrastructure.email.tasks",
+        "qualname": "sync_email_connection",
+        "hints": {
+          "self": "<class 'object'>",
+          "connection_id": "str | uuid.UUID",
+          "agency_id": "str | uuid.UUID | None",
+          "owner_user_id": "str | uuid.UUID | None",
+          "provider_account_id": "str | None",
+          "sync_generation": "int | str | None",
+          "provider_message_id": "str | None",
+          "return": "<class 'NoneType'>"
+        }
+      },
+      "registered_class_module": "celery.local",
+      "registered_class_name": "PromiseProxy"
+    },
+    {
+      "export": "dispatch_due_email_connections",
+      "name": "email.dispatch_due_connections",
+      "queue": "email_integrations",
+      "max_retries": 0,
+      "run": {
+        "signature": "() -> 'int'",
+        "module": "app.infrastructure.email.tasks",
+        "qualname": "dispatch_due_email_connections",
+        "hints": {
+          "self": "<class 'object'>",
+          "return": "<class 'int'>"
+        }
+      },
+      "registered_class_module": "celery.local",
+      "registered_class_name": "PromiseProxy"
+    },
+    {
+      "export": "apply_email_retention",
+      "name": "email.apply_retention",
+      "queue": "email_integrations",
+      "max_retries": 0,
+      "run": {
+        "signature": "() -> 'int'",
+        "module": "app.infrastructure.email.tasks",
+        "qualname": "apply_email_retention",
+        "hints": {
+          "self": "<class 'object'>",
+          "return": "<class 'int'>"
+        }
+      },
+      "registered_class_module": "celery.local",
+      "registered_class_name": "PromiseProxy"
+    },
+    {
+      "export": "record_email_scheduler_heartbeat",
+      "name": "email.scheduler_heartbeat",
+      "queue": "email_integrations",
+      "max_retries": 0,
+      "run": {
+        "signature": "() -> 'None'",
+        "module": "app.infrastructure.email.tasks",
+        "qualname": "record_email_scheduler_heartbeat",
+        "hints": {
+          "self": "<class 'object'>",
+          "return": "<class 'NoneType'>"
+        }
+      },
+      "registered_class_module": "celery.local",
+      "registered_class_name": "PromiseProxy"
+    }
+  ],
+  "class_inspect_status": "OSError",
+  "class_inspect_source": "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\infrastructure\\email\\tasks.py",
+  "class_source": null
+}

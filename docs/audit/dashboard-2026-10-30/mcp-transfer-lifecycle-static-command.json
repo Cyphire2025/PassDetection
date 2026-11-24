@@ -1,0 +1,20 @@
+{
+  "working_directory": "frontend",
+  "checks": [
+    {
+      "command": "node node_modules/typescript/bin/tsc -p ../.tmp/mcp-transfer-lifecycle-tsconfig.json",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "scope": "4 selected test modules and their actual5runtime import graph; explicit frontend typeRoots in ignored local config"
+    },
+    {
+      "command": "node node_modules/eslint/bin/eslint.js features/mcp/hooks/use-mcp-file-transfer.ts features/mcp/hooks/use-mcp-file-transfer.test.tsx features/mcp/utils/file-transfer.ts features/mcp/utils/file-transfer.test.ts features/mcp/utils/read-transfer-body.ts features/mcp/utils/save-transfer-file.ts features/mcp/utils/save-transfer-file.test.ts features/mcp/api/mcp-transfer.api.ts features/mcp/api/mcp-transfer.api.test.ts --max-warnings=0",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "scope": "9ownedruntime/testpaths"
+    }
+  ],
+  "record_basis": "Actual exec results both exit0 with no output. PowerShell Tee-Object did not create a file for empty streams; this is a command/outcome receipt, not invented raw log output."
+}

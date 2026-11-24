@@ -18,6 +18,9 @@ class _AtomicCounterRedis:
         self.eval_calls: list[tuple[str, str]] = []
         self.fail = fail
 
+    async def aclose(self) -> None:
+        pass
+
     async def eval(
         self,
         script: str,

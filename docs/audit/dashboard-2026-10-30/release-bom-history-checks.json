@@ -1,0 +1,52 @@
+[
+  {
+    "name": "ci-source",
+    "exit_code": 0,
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "scripts/verify_ci_supply_chain.py"
+    ]
+  },
+  {
+    "name": "ci-tests",
+    "exit_code": 0,
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "scripts",
+      "-p",
+      "test_ci*.py"
+    ]
+  },
+  {
+    "name": "release-tests",
+    "exit_code": 0,
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "scripts",
+      "-p",
+      "test_release_code_update.py"
+    ]
+  },
+  {
+    "name": "branding-tests",
+    "exit_code": 1,
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "scripts",
+      "-p",
+      "test_release_workspace_branding*.py"
+    ]
+  }
+]

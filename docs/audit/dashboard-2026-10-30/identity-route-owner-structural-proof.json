@@ -1,0 +1,91 @@
+{
+  "basis": "Complete fixed operation bodies moved without algorithm changes. Facade keeps original function declarations and call-time seams; typed explicit dependencies avoid circular imports. Snapshot taken after independently reproduced and verified mutation/assurance fixes, before extraction.",
+  "snapshot_sha256": "aa1b5688a7c779734319498cb5b86779386315637ef215ef9942e987b90bed36",
+  "unchanged_facade_helpers": [
+    "_request_hash",
+    "_login_use_case",
+    "_auth_response",
+    "begin_dashboard_mfa_challenge",
+    "_existing_session_deadline",
+    "_issue_authenticated_session",
+    "_validate_mfa_code",
+    "_deny_mfa_verification",
+    "activate_dashboard_account",
+    "complete_password_recovery"
+  ],
+  "moved_functions": [
+    {
+      "function": "verify_dashboard_mfa",
+      "owner": "backend/app/presentation/api/v1/routes/auth_identity_verification.py",
+      "complete_body_ast_identical": true,
+      "facade_signature_and_decorators_identical": true
+    },
+    {
+      "function": "step_up_dashboard_session",
+      "owner": "backend/app/presentation/api/v1/routes/auth_identity_step_up.py",
+      "complete_body_ast_identical": true,
+      "facade_signature_and_decorators_identical": true
+    },
+    {
+      "function": "request_password_recovery",
+      "owner": "backend/app/presentation/api/v1/routes/auth_identity_recovery.py",
+      "complete_body_ast_identical": true,
+      "facade_signature_and_decorators_identical": true
+    },
+    {
+      "function": "_complete_identity_action",
+      "owner": "backend/app/presentation/api/v1/routes/auth_identity_actions.py",
+      "complete_body_ast_identical": true,
+      "facade_signature_and_decorators_identical": true
+    },
+    {
+      "function": "change_dashboard_password",
+      "owner": "backend/app/presentation/api/v1/routes/auth_identity_account.py",
+      "complete_body_ast_identical": true,
+      "facade_signature_and_decorators_identical": true
+    },
+    {
+      "function": "regenerate_mfa_recovery_codes",
+      "owner": "backend/app/presentation/api/v1/routes/auth_identity_account.py",
+      "complete_body_ast_identical": true,
+      "facade_signature_and_decorators_identical": true
+    }
+  ],
+  "sources": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/auth_identity.py",
+      "sha256": "e0491c9ba285605f0dca33536435f7d149eedce4311988b71e55a71b307c5aef",
+      "lines": 439
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/auth_identity_account.py",
+      "sha256": "6a81ba13dc35384e525af466dbe3f8d8378ba00901092efe0c87e0953bd20578",
+      "lines": 176
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/auth_identity_actions.py",
+      "sha256": "70e71e7d79682c1e532c350076f7b3ef231a53977d41df43d431e12133844d3f",
+      "lines": 199
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/auth_identity_dependencies.py",
+      "sha256": "a34df50acc82598958ebbbbf0d375bec0637ec0cc7a6e33f7d3b86c14bf7389f",
+      "lines": 67
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/auth_identity_recovery.py",
+      "sha256": "422caca899fab26bd330fcf573db97bacbd374c4e9de1ec57dc51099c090c804",
+      "lines": 138
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/auth_identity_step_up.py",
+      "sha256": "e748311e50ee9c47ce1df2596ec2b5d4ea0f9c96c2240aaf80a4ee91c30c7639",
+      "lines": 188
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/auth_identity_verification.py",
+      "sha256": "d81331a9d79ab28335c74a9e87917fb74641b12dca95beec3f4bc34a6c8b1d54",
+      "lines": 135
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "current_runtime_defects_proved": [],
+  "compatibility_obligations": [
+    {
+      "path": "backend/alembic/versions/0087_enterprise_hardening.py",
+      "evidence": "Downgrade restores legacy audit FKs after retained principal deletion, and restores account-level checkpoint uniqueness after runtime-level checkpoint support.",
+      "qualification": "Source-only supported rollback preconditions, no populated DB failure/release impact demonstrated; published history immutable."
+    }
+  ],
+  "preserved_invariants": [
+    "Disabled My Photos exposure by default, tenant/group/passenger composite scope and consent/deletion lifecycle metadata.",
+    "Explicit sibling merge without rewriting parents.",
+    "Append-only audit snapshots intentionally retain historical identifiers; external immutability not claimed.",
+    "Irreversible revocation for refresh values failing format gate.",
+    "Qualifier downgrade refuses incompatible stored answers before DDL.",
+    "Phone-welcome migration uses only unambiguous stored current-attempt binding."
+  ],
+  "open_evidence": [
+    "Actual populated Postgres DDL/trigger/index/transaction behavior.",
+    "Current crypto, authorization, provider deletion and retention enforcement beyond schemas.",
+    "Workload capacity and biometric/provider integration excluded from source-only proof."
+  ]
+}

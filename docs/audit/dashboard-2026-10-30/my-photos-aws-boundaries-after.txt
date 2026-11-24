@@ -1,0 +1,243 @@
+.....................FFFF..............                                  [100%]
+================================== FAILURES ===================================
+_ test_s3_media_accepts_real_botocore_auto_presigned_location_for_ap_south_1 __
+
+    @pytest.mark.asyncio
+    async def test_s3_media_accepts_real_botocore_auto_presigned_location_for_ap_south_1() -> None:
+        s3 = FakeS3()
+        provider = S3DirectMediaDeliveryProvider(
+            s3_client=s3,
+            config=aws_provider_config(_settings()),
+            clock=lambda: NOW,
+        )
+        raw_reference, request, authorization = await _authorized_media(
+            provider,
+            s3,
+            asset_identity="real-presigner-asset",
+        )
+>       s3.presigned_location = _real_auto_presigned_location(
+            media_key=raw_reference,
+            version_id="media-version-one",
+        )
+
+tests\unit\infrastructure\test_my_photos_aws_providers.py:1070: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\unit\infrastructure\test_my_photos_aws_providers.py:835: in _real_auto_presigned_location
+    with patch("botocore.auth.get_current_datetime", return_value=NOW):
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\unittest\mock.py:1446: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <unittest.mock._patch object at 0x0000025AA7CE6990>
+
+    def get_original(self):
+        target = self.getter()
+        name = self.attribute
+    
+        original = DEFAULT
+        local = False
+    
+        try:
+            original = target.__dict__[name]
+        except (AttributeError, KeyError):
+            original = getattr(target, name, DEFAULT)
+        else:
+            local = True
+    
+        if name in _builtins and isinstance(target, ModuleType):
+            self.create = True
+    
+        if not self.create and original is DEFAULT:
+>           raise AttributeError(
+                "%s does not have the attribute %r" % (target, name)
+            )
+E           AttributeError: <module 'botocore.auth' from 'C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Lib\\site-packages\\botocore\\auth.py'> does not have the attribute 'get_current_datetime'
+
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\unittest\mock.py:1419: AttributeError
+____ test_s3_media_rejects_mutated_real_botocore_presigned_location[host] _____
+
+invalid_part = 'host'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("invalid_part", ["host", "port", "path"])
+    async def test_s3_media_rejects_mutated_real_botocore_presigned_location(
+        invalid_part: str,
+    ) -> None:
+        s3 = FakeS3()
+        provider = S3DirectMediaDeliveryProvider(
+            s3_client=s3,
+            config=aws_provider_config(_settings()),
+            clock=lambda: NOW,
+        )
+        raw_reference, request, authorization = await _authorized_media(
+            provider,
+            s3,
+            asset_identity=f"real-presigner-negative-{invalid_part}",
+        )
+>       valid_location = _real_auto_presigned_location(
+            media_key=raw_reference,
+            version_id="media-version-one",
+        )
+
+tests\unit\infrastructure\test_my_photos_aws_providers.py:1115: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\unit\infrastructure\test_my_photos_aws_providers.py:835: in _real_auto_presigned_location
+    with patch("botocore.auth.get_current_datetime", return_value=NOW):
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\unittest\mock.py:1446: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <unittest.mock._patch object at 0x0000025AA7382E10>
+
+    def get_original(self):
+        target = self.getter()
+        name = self.attribute
+    
+        original = DEFAULT
+        local = False
+    
+        try:
+            original = target.__dict__[name]
+        except (AttributeError, KeyError):
+            original = getattr(target, name, DEFAULT)
+        else:
+            local = True
+    
+        if name in _builtins and isinstance(target, ModuleType):
+            self.create = True
+    
+        if not self.create and original is DEFAULT:
+>           raise AttributeError(
+                "%s does not have the attribute %r" % (target, name)
+            )
+E           AttributeError: <module 'botocore.auth' from 'C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Lib\\site-packages\\botocore\\auth.py'> does not have the attribute 'get_current_datetime'
+
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\unittest\mock.py:1419: AttributeError
+____ test_s3_media_rejects_mutated_real_botocore_presigned_location[port] _____
+
+invalid_part = 'port'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("invalid_part", ["host", "port", "path"])
+    async def test_s3_media_rejects_mutated_real_botocore_presigned_location(
+        invalid_part: str,
+    ) -> None:
+        s3 = FakeS3()
+        provider = S3DirectMediaDeliveryProvider(
+            s3_client=s3,
+            config=aws_provider_config(_settings()),
+            clock=lambda: NOW,
+        )
+        raw_reference, request, authorization = await _authorized_media(
+            provider,
+            s3,
+            asset_identity=f"real-presigner-negative-{invalid_part}",
+        )
+>       valid_location = _real_auto_presigned_location(
+            media_key=raw_reference,
+            version_id="media-version-one",
+        )
+
+tests\unit\infrastructure\test_my_photos_aws_providers.py:1115: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\unit\infrastructure\test_my_photos_aws_providers.py:835: in _real_auto_presigned_location
+    with patch("botocore.auth.get_current_datetime", return_value=NOW):
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\unittest\mock.py:1446: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <unittest.mock._patch object at 0x0000025AA5828A50>
+
+    def get_original(self):
+        target = self.getter()
+        name = self.attribute
+    
+        original = DEFAULT
+        local = False
+    
+        try:
+            original = target.__dict__[name]
+        except (AttributeError, KeyError):
+            original = getattr(target, name, DEFAULT)
+        else:
+            local = True
+    
+        if name in _builtins and isinstance(target, ModuleType):
+            self.create = True
+    
+        if not self.create and original is DEFAULT:
+>           raise AttributeError(
+                "%s does not have the attribute %r" % (target, name)
+            )
+E           AttributeError: <module 'botocore.auth' from 'C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Lib\\site-packages\\botocore\\auth.py'> does not have the attribute 'get_current_datetime'
+
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\unittest\mock.py:1419: AttributeError
+____ test_s3_media_rejects_mutated_real_botocore_presigned_location[path] _____
+
+invalid_part = 'path'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("invalid_part", ["host", "port", "path"])
+    async def test_s3_media_rejects_mutated_real_botocore_presigned_location(
+        invalid_part: str,
+    ) -> None:
+        s3 = FakeS3()
+        provider = S3DirectMediaDeliveryProvider(
+            s3_client=s3,
+            config=aws_provider_config(_settings()),
+            clock=lambda: NOW,
+        )
+        raw_reference, request, authorization = await _authorized_media(
+            provider,
+            s3,
+            asset_identity=f"real-presigner-negative-{invalid_part}",
+        )
+>       valid_location = _real_auto_presigned_location(
+            media_key=raw_reference,
+            version_id="media-version-one",
+        )
+
+tests\unit\infrastructure\test_my_photos_aws_providers.py:1115: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\unit\infrastructure\test_my_photos_aws_providers.py:835: in _real_auto_presigned_location
+    with patch("botocore.auth.get_current_datetime", return_value=NOW):
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\unittest\mock.py:1446: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <unittest.mock._patch object at 0x0000025AA719DC50>
+
+    def get_original(self):
+        target = self.getter()
+        name = self.attribute
+    
+        original = DEFAULT
+        local = False
+    
+        try:
+            original = target.__dict__[name]
+        except (AttributeError, KeyError):
+            original = getattr(target, name, DEFAULT)
+        else:
+            local = True
+    
+        if name in _builtins and isinstance(target, ModuleType):
+            self.create = True
+    
+        if not self.create and original is DEFAULT:
+>           raise AttributeError(
+                "%s does not have the attribute %r" % (target, name)
+            )
+E           AttributeError: <module 'botocore.auth' from 'C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Lib\\site-packages\\botocore\\auth.py'> does not have the attribute 'get_current_datetime'
+
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\unittest\mock.py:1419: AttributeError
+=========================== short test summary info ===========================
+FAILED tests/unit/infrastructure/test_my_photos_aws_providers.py::test_s3_media_accepts_real_botocore_auto_presigned_location_for_ap_south_1
+FAILED tests/unit/infrastructure/test_my_photos_aws_providers.py::test_s3_media_rejects_mutated_real_botocore_presigned_location[host]
+FAILED tests/unit/infrastructure/test_my_photos_aws_providers.py::test_s3_media_rejects_mutated_real_botocore_presigned_location[port]
+FAILED tests/unit/infrastructure/test_my_photos_aws_providers.py::test_s3_media_rejects_mutated_real_botocore_presigned_location[path]
+4 failed, 35 passed in 1.33s

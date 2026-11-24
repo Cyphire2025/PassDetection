@@ -1,0 +1,42 @@
+[
+  {
+    "path": "features/auth/services/session-state.ts",
+    "lines": 218,
+    "maxFunctionComplexity": 9
+  },
+  {
+    "path": "features/auth/services/session-continuity.ts",
+    "lines": 20,
+    "maxFunctionComplexity": 2
+  },
+  {
+    "path": "lib/api/request-owner.ts",
+    "lines": 99,
+    "maxFunctionComplexity": 11
+  },
+  {
+    "path": "stores/auth.store.ts",
+    "lines": 224,
+    "maxFunctionComplexity": 16
+  },
+  {
+    "path": "features/whatsapp/hooks/use-normal-send.ts",
+    "lines": 29,
+    "maxFunctionComplexity": 3
+  },
+  {
+    "path": "features/whatsapp/hooks/use-broadcast-group-mutations.ts",
+    "lines": 75,
+    "maxFunctionComplexity": 2
+  },
+  {
+    "path": "features/whatsapp/hooks/use-broadcast-recipient-mutations.ts",
+    "lines": 126,
+    "maxFunctionComplexity": 2
+  },
+  {
+    "path": "features/auth/components/account-security-panel.tsx",
+    "lines": 166,
+    "maxFunctionComplexity": 14
+  }
+]

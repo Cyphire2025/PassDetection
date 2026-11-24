@@ -1,0 +1,337 @@
+{
+  "files": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_inbox.py",
+      "review_status": "full",
+      "sha256": "cf5b74004005bbf7f6e517e0819d68bc9203085bb0639f8876a274ee91b4ceea",
+      "lines": 277,
+      "notes": "Original module reviewed line by line. Extracted body reviewed by exact AST equivalence plus manual responsibility/import/callback/authorization/transaction review; final handler declarations preserve dependencies and order. No provider calls or transaction-boundary changes introduced."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_inbox_activity.py",
+      "review_status": "full",
+      "sha256": "50816954321e3c62b411cc031657ea0bcdc2921175ca1dbf2075539c65425012",
+      "lines": 193,
+      "notes": "Original module reviewed line by line. Extracted body reviewed by exact AST equivalence plus manual responsibility/import/callback/authorization/transaction review; final handler declarations preserve dependencies and order. No provider calls or transaction-boundary changes introduced."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_inbox_attention.py",
+      "review_status": "full",
+      "sha256": "ffb13b1d609a18547c93379039ff3729bc36609ca9ffe7a665342b4c47fd3592",
+      "lines": 85,
+      "notes": "Original module reviewed line by line. Extracted body reviewed by exact AST equivalence plus manual responsibility/import/callback/authorization/transaction review; final handler declarations preserve dependencies and order. No provider calls or transaction-boundary changes introduced."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_inbox_corrections.py",
+      "review_status": "full",
+      "sha256": "be5a11830558a428ad5381686d0b562d2a9a6ea505d43cf2719296236e95717e",
+      "lines": 345,
+      "notes": "Original module reviewed line by line. Extracted body reviewed by exact AST equivalence plus manual responsibility/import/callback/authorization/transaction review; final handler declarations preserve dependencies and order. No provider calls or transaction-boundary changes introduced."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_inbox_cursor.py",
+      "review_status": "full",
+      "sha256": "643454aa8c429069b6c6b164684c0642c94847b8ba31762a47728ad9073434fa",
+      "lines": 49,
+      "notes": "Original module reviewed line by line. Extracted body reviewed by exact AST equivalence plus manual responsibility/import/callback/authorization/transaction review; final handler declarations preserve dependencies and order. No provider calls or transaction-boundary changes introduced."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_inbox_decisions.py",
+      "review_status": "full",
+      "sha256": "321f19e7ee888d6c1a82bbc1c14df8b6f7c55b364eedcad4da2fa3dad00fe4b5",
+      "lines": 377,
+      "notes": "Original module reviewed line by line. Extracted body reviewed by exact AST equivalence plus manual responsibility/import/callback/authorization/transaction review; final handler declarations preserve dependencies and order. No provider calls or transaction-boundary changes introduced."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_inbox_feedback.py",
+      "review_status": "full",
+      "sha256": "abe79041f5e4bb4541eed7af7068c567ef2e41eb4824b04f1f850457970c377b",
+      "lines": 269,
+      "notes": "Original module reviewed line by line. Extracted body reviewed by exact AST equivalence plus manual responsibility/import/callback/authorization/transaction review; final handler declarations preserve dependencies and order. No provider calls or transaction-boundary changes introduced."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_inbox_queries.py",
+      "review_status": "full",
+      "sha256": "a5ea53dc63d834f38eb9f09cd369855ecb2ff1e2dd131e12fb215b54b23ee74e",
+      "lines": 210,
+      "notes": "Original module reviewed line by line. Extracted body reviewed by exact AST equivalence plus manual responsibility/import/callback/authorization/transaction review; final handler declarations preserve dependencies and order. No provider calls or transaction-boundary changes introduced."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_inbox_reads.py",
+      "review_status": "full",
+      "sha256": "3d86796ac136853b5226252095c10d92b323225131cd55da14880681ef239920",
+      "lines": 225,
+      "notes": "Original module reviewed line by line. Extracted body reviewed by exact AST equivalence plus manual responsibility/import/callback/authorization/transaction review; final handler declarations preserve dependencies and order. No provider calls or transaction-boundary changes introduced."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_inbox_responses.py",
+      "review_status": "full",
+      "sha256": "9fdd56675dc99ca01d0df8e5493c3aa327a5bc2f48f72d3548e6376fc7b18848",
+      "lines": 245,
+      "notes": "Original module reviewed line by line. Extracted body reviewed by exact AST equivalence plus manual responsibility/import/callback/authorization/transaction review; final handler declarations preserve dependencies and order. No provider calls or transaction-boundary changes introduced."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_inbox_retry.py",
+      "review_status": "full",
+      "sha256": "87910879e80c679ae54e45369547ea731d633502e8561b4b34563da7927d4dd0",
+      "lines": 197,
+      "notes": "Original module reviewed line by line. Extracted body reviewed by exact AST equivalence plus manual responsibility/import/callback/authorization/transaction review; final handler declarations preserve dependencies and order. No provider calls or transaction-boundary changes introduced."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_inbox_scope.py",
+      "review_status": "full",
+      "sha256": "0b45609f263242b151bcaaef5cac07cf199f20edf6ae2a7c123830da2ef661fc",
+      "lines": 36,
+      "notes": "Original module reviewed line by line. Extracted body reviewed by exact AST equivalence plus manual responsibility/import/callback/authorization/transaction review; final handler declarations preserve dependencies and order. No provider calls or transaction-boundary changes introduced."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_inbox_types.py",
+      "review_status": "full",
+      "sha256": "a54966053b2992286ff59e96170e5dac399b535feb3b8e3fda9fffffd57bd314",
+      "lines": 27,
+      "notes": "Original module reviewed line by line. Extracted body reviewed by exact AST equivalence plus manual responsibility/import/callback/authorization/transaction review; final handler declarations preserve dependencies and order. No provider calls or transaction-boundary changes introduced."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_inbox_visibility.py",
+      "review_status": "full",
+      "sha256": "e85996e0796b051b113e6e0c23a711831d7e173911f23dadd4cf4ed297e59b3b",
+      "lines": 251,
+      "notes": "Original module reviewed line by line. Extracted body reviewed by exact AST equivalence plus manual responsibility/import/callback/authorization/transaction review; final handler declarations preserve dependencies and order. No provider calls or transaction-boundary changes introduced."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_access.py",
+      "review_status": "full",
+      "sha256": "4173a6728343c7762a8f17f5013d9f83db12fb387a13ba71c6f5f659564c4bd8",
+      "lines": 110,
+      "notes": "Original module reviewed line by line. Extracted body reviewed by exact AST equivalence plus manual responsibility/import/callback/authorization/transaction review; final handler declarations preserve dependencies and order. No provider calls or transaction-boundary changes introduced."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_broadcast_links.py",
+      "review_status": "full",
+      "sha256": "f57b2716757141d86364dadfb155d22dabd4222a6e01620c58b61370f3059925",
+      "lines": 271,
+      "notes": "Original module reviewed line by line. Extracted body reviewed by exact AST equivalence plus manual responsibility/import/callback/authorization/transaction review; final handler declarations preserve dependencies and order. No provider calls or transaction-boundary changes introduced."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_configuration.py",
+      "review_status": "full",
+      "sha256": "925faec9ce0fcaad02be70b0207ce7339fa9e941a6ae28f2131cf30b18a1f993",
+      "lines": 302,
+      "notes": "Original module reviewed line by line. Extracted body reviewed by exact AST equivalence plus manual responsibility/import/callback/authorization/transaction review; final handler declarations preserve dependencies and order. No provider calls or transaction-boundary changes introduced."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_link_operations.py",
+      "review_status": "full",
+      "sha256": "07fcf9c399905f1ead0b851acb0d37f99149642fea2add2041210edfed6a1351",
+      "lines": 245,
+      "notes": "Original module reviewed line by line. Extracted body reviewed by exact AST equivalence plus manual responsibility/import/callback/authorization/transaction review; final handler declarations preserve dependencies and order. No provider calls or transaction-boundary changes introduced."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_match_queries.py",
+      "review_status": "full",
+      "sha256": "14e31dd945a0f7a0ea04e6d2c2fa79dbb7e0a64cca45d05071a1942811b39566",
+      "lines": 77,
+      "notes": "Original module reviewed line by line. Extracted body reviewed by exact AST equivalence plus manual responsibility/import/callback/authorization/transaction review; final handler declarations preserve dependencies and order. No provider calls or transaction-boundary changes introduced."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_operation_dependencies.py",
+      "review_status": "full",
+      "sha256": "5cad8a644b7dde547c40f1e970968f15b3a3f7b8684fa1a6233f61bbef25a3b5",
+      "lines": 252,
+      "notes": "Original module reviewed line by line. Extracted body reviewed by exact AST equivalence plus manual responsibility/import/callback/authorization/transaction review; final handler declarations preserve dependencies and order. Typed callable seam reviewed with strict mypy and all statically located existing patch-point fixtures."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_permanent_delete.py",
+      "review_status": "full",
+      "sha256": "9f810b49e60bd869b5fb1f875dc05386d369924743263ce46708df4263e6b36c",
+      "lines": 298,
+      "notes": "Original module reviewed line by line. Extracted body reviewed by exact AST equivalence plus manual responsibility/import/callback/authorization/transaction review; final handler declarations preserve dependencies and order. No provider calls or transaction-boundary changes introduced."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_public_collection.py",
+      "review_status": "full",
+      "sha256": "accb96e643cabdf450bc456fca5284e4a0007c490abac2b74630540f10c77bd6",
+      "lines": 137,
+      "notes": "Original module reviewed line by line. Extracted body reviewed by exact AST equivalence plus manual responsibility/import/callback/authorization/transaction review; final handler declarations preserve dependencies and order. No provider calls or transaction-boundary changes introduced."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_reads.py",
+      "review_status": "full",
+      "sha256": "a6408175a9493cb740a72e8ceeb10a6e2a1741a46686b2f3a7878663427c59af",
+      "lines": 128,
+      "notes": "Original module reviewed line by line. Extracted body reviewed by exact AST equivalence plus manual responsibility/import/callback/authorization/transaction review; final handler declarations preserve dependencies and order. No provider calls or transaction-boundary changes introduced."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_rejection_resolution.py",
+      "review_status": "full",
+      "sha256": "cce152527474d69a78ded89500cf5a82dcc59db1127b10c6002cdb963397fed8",
+      "lines": 175,
+      "notes": "Original module reviewed line by line. Extracted body reviewed by exact AST equivalence plus manual responsibility/import/callback/authorization/transaction review; final handler declarations preserve dependencies and order. No provider calls or transaction-boundary changes introduced."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_replacement_resolution.py",
+      "review_status": "full",
+      "sha256": "38f01e5f29be51833743f7c73b591d71fcc6e9b0d541bf3dea893924b15470f1",
+      "lines": 365,
+      "notes": "Original module reviewed line by line. Extracted body reviewed by exact AST equivalence plus manual responsibility/import/callback/authorization/transaction review; final handler declarations preserve dependencies and order. No provider calls or transaction-boundary changes introduced."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_resolution_restore.py",
+      "review_status": "full",
+      "sha256": "f2bd17b57b1cc3e7f81e1e92e3e41338991d84aaa88117aa990541aa77de794a",
+      "lines": 214,
+      "notes": "Original module reviewed line by line. Extracted body reviewed by exact AST equivalence plus manual responsibility/import/callback/authorization/transaction review; final handler declarations preserve dependencies and order. No provider calls or transaction-boundary changes introduced."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_retention.py",
+      "review_status": "full",
+      "sha256": "88b5a3cef1b849b79e8eb8b169d65e35d90ed65d95470b75fcf5ae347b677e8a",
+      "lines": 148,
+      "notes": "Original module reviewed line by line. Extracted body reviewed by exact AST equivalence plus manual responsibility/import/callback/authorization/transaction review; final handler declarations preserve dependencies and order. No provider calls or transaction-boundary changes introduced."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_groups.py",
+      "review_status": "full",
+      "sha256": "b48a7e4843e9f1b8d48d7a3483e5ad4d52eac984e65c05a9b78b716559b13179",
+      "lines": 859,
+      "notes": "Original module reviewed line by line. Extracted body reviewed by exact AST equivalence plus manual responsibility/import/callback/authorization/transaction review; final handler declarations preserve dependencies and order. No provider calls or transaction-boundary changes introduced."
+    },
+    {
+      "path": "backend/app/application/dtos/client_group_dtos.py",
+      "review_status": "full",
+      "sha256": "08e3ca1d8d5bf1d632ed4abe7799d6ffecd89da9cf57b11523ec87fa8c22b418",
+      "lines": 166,
+      "notes": "Reviewed field projection and normalization; public notes suppression occurs at public use case, preserving authenticated DTOs and stored values."
+    },
+    {
+      "path": "backend/app/application/security/authorization_policy.py",
+      "review_status": "full",
+      "sha256": "6a1ee49097b124715ce52fb5810387c6be5a3a5e18f4896676340c6e6dabe663",
+      "lines": 362,
+      "notes": "Reviewed every role/group visibility, explicit retained-data, company and edit/delete authorization predicate and fail-closed scope path."
+    },
+    {
+      "path": "backend/app/presentation/dependencies/auth.py",
+      "review_status": "full",
+      "sha256": "5e1641d51673dcbcd1c2cbc8d6ceac397147de52ec4e100bae285ba115d5fefb",
+      "lines": 201,
+      "notes": "Reviewed bearer/cookie/session admission, active-user and effective-role gates, CSRF dependency and recent-MFA claims/age checks; no changes. Integration reread: optional X-Expected-Actor-Id is checked only after actual authenticated session/version/credential validation, rejects only mismatches with409, and grants no authority. Reviewed manual_security guard diff and attributed its12 ASGI/CSRF/role tests."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/client_group_schemas.py",
+      "review_status": "full",
+      "sha256": "75d3656f60914fca553c593e16b0ab08deddb4354d427bfd6439ffa82a5da58e",
+      "lines": 645,
+      "notes": "Reviewed all request/response bounds, import-only normalization, unknown-field rejection, matching-field membership, qualifier choices and fixed-enum public telemetry; no changes."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/client_group_repository.py",
+      "review_status": "full",
+      "sha256": "66064e771138181d5be51bd1708e2104b3ff944b3a4e517d5bce770912a1453d",
+      "lines": 361,
+      "notes": "Reviewed complete model/entity conversion, owner/tenant scopes, retained-data row locks, list ordering, update fields and company attachment; no changes."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_broadcast_configuration.py",
+      "review_status": "full",
+      "sha256": "77703a723d1f91059f1ac2f8bfd0d85bef2b4ab0b6dc3cb32d10a1c6428cfa16",
+      "lines": 202,
+      "notes": "Reviewed complete tenant-scoped summary queries and matching-field validation; Ruff formatting only, AST equal to HEAD."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_whatsapp_match_support.py",
+      "review_status": "full",
+      "sha256": "091a92a1824f3f88caed7a8248b7f7ae261f50b0f35dfcb23acd0f8cd485cdcd",
+      "lines": 410,
+      "notes": "Reviewed complete persisted-resolution validation, loaded tenant/group filtering, suppression/exclusion behavior and bounded-page projection; Ruff formatting only, AST equal to HEAD."
+    },
+    {
+      "path": "backend/app/application/use_cases/client_groups/create_client_group_use_case.py",
+      "review_status": "full",
+      "sha256": "f758e4a725b3e022d1f1a796b618a750f642ab11eff839195b80860edd889a1e",
+      "lines": 108,
+      "notes": "Reviewed complete use-case state/ownership/tenant/expiry and import-only boundaries; behavior unchanged."
+    },
+    {
+      "path": "backend/app/application/use_cases/client_groups/get_client_group_by_token_use_case.py",
+      "review_status": "full",
+      "sha256": "e17e26def53c028f5203192068fd77cf772ded76350c846b46212e82210db46b",
+      "lines": 45,
+      "notes": "Reviewed complete use-case state/ownership/tenant/expiry and import-only boundaries. Public token DTO now replaces notes with None without modifying saved entity or authenticated responses."
+    },
+    {
+      "path": "backend/app/application/use_cases/client_groups/list_client_groups_use_case.py",
+      "review_status": "full",
+      "sha256": "15cea067e3a881a5d92c6553877eb8dc69e875bfa2a71517eb799629b0a8835d",
+      "lines": 44,
+      "notes": "Reviewed complete use-case state/ownership/tenant/expiry and import-only boundaries; behavior unchanged."
+    },
+    {
+      "path": "backend/app/application/use_cases/client_groups/create_qualifier_selection_use_case.py",
+      "review_status": "full",
+      "sha256": "a1728ffa9e42ef3548017dfe1dc515fed229fb6ea33ebefccc8552b9027e994f",
+      "lines": 89,
+      "notes": "Reviewed complete use-case state/ownership/tenant/expiry and import-only boundaries; behavior unchanged."
+    },
+    {
+      "path": "backend/app/application/use_cases/client_groups/get_qualifier_selection_use_case.py",
+      "review_status": "full",
+      "sha256": "30fa653479f7917ec0e5cc6b60f87e342b972da52f38c3ea0f3012c8abb37a9c",
+      "lines": 67,
+      "notes": "Reviewed complete use-case state/ownership/tenant/expiry and import-only boundaries; behavior unchanged."
+    },
+    {
+      "path": "backend/app/application/use_cases/client_groups/delete_client_group_use_case.py",
+      "review_status": "full",
+      "sha256": "425a5dabb9ab25a203a472cc7045af469565f124651660d81a495711015235c4",
+      "lines": 58,
+      "notes": "Reviewed complete use-case state/ownership/tenant/expiry and import-only boundaries; behavior unchanged."
+    },
+    {
+      "path": "backend/app/application/use_cases/client_groups/revoke_client_group_use_case.py",
+      "review_status": "full",
+      "sha256": "d5e00bdc31d9ce061ebbd8e37cbb3322dcbd9bb522c7c89b1a29f8c7f416b73b",
+      "lines": 62,
+      "notes": "Reviewed complete use-case state/ownership/tenant/expiry and import-only boundaries; behavior unchanged."
+    },
+    {
+      "path": "backend/app/application/use_cases/client_groups/restore_client_group_use_case.py",
+      "review_status": "full",
+      "sha256": "1eda69ab875d5b5a77d6f608647a714c6559e7ded46b17393fec98e0ad92c6c1",
+      "lines": 46,
+      "notes": "Reviewed complete use-case state/ownership/tenant/expiry and import-only boundaries; behavior unchanged."
+    },
+    {
+      "path": "backend/app/application/security/destructive_mutation_policy.py",
+      "review_status": "partial",
+      "sha256": "f079cc649898f399d8c0347e67638aadaff4d9336235d878e7d8ab8f9f97c171",
+      "lines": 422,
+      "notes": "Reviewed group-route call contract, action/fingerprint/replay and audit-failure callback signatures; complete policy implementation not reread in this lane."
+    },
+    {
+      "path": "backend/app/infrastructure/documents/storage_cleanup.py",
+      "review_status": "partial",
+      "sha256": "f32585bd082b07e0788a75948b2ca1300857f8adeda7f6c76e94468fb4898d5d",
+      "lines": 632,
+      "notes": "Reviewed bounded tombstone staging signature and group deletion staging/commit contract; complete worker/cipher implementation not reread in this lane."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_roster_resolution_repository.py",
+      "review_status": "partial",
+      "sha256": "e59711dd43d2d310fe69b5b28ecf3b6ac4ab7de836067425b28d51ddb3614811",
+      "lines": 259,
+      "notes": "Reviewed lock/suppression callback signatures and group-route lock order/call sites; full repository body remains outside this lane review."
+    },
+    {
+      "path": "backend/app/application/mobile/passenger_change_propagation.py",
+      "review_status": "partial",
+      "sha256": "b95718038524772f7f5413ba41fa8a2dc3efb4e8ed455eea6d0f75e5b8df7fef",
+      "lines": 500,
+      "notes": "Reviewed shared dashboard callback signature and mutation-call placement only; native mobile application remains excluded."
+    }
+  ],
+  "limitations": [
+    "Full review records describe this lane only, not repository-wide completion. Exact source hashes bind all review claims.",
+    "Original full review plus exact-body proof underlies extracted-owner coverage. Shared external service/provider implementations are not implied fully reviewed."
+  ]
+}

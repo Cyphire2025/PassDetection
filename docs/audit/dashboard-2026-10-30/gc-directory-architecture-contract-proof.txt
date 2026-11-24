@@ -1,0 +1,5 @@
+tests/unit/presentation/test_gc_legacy_router_exports.py::test_legacy_router_exports_the_registered_endpoint_identity[gc_app-expected0]
+tests/unit/presentation/test_gc_legacy_router_exports.py::test_legacy_router_exports_the_registered_endpoint_identity[gc_app_content-expected1]
+PROVED whole original20statement/nonimport-module inverse; public2metadata/OpenAPI; SQL cohorts 144
+
+2 tests collected in 1.99s

@@ -1,0 +1,337 @@
+{
+  "stage": "mechanical extraction; before any deliberate runtime behavior change",
+  "original_source_sha256": "86ebedc0a97af8de6a994ffbacf3b4aa1e8277ca2c8bc032eac4198b65f1052b",
+  "declarations": [
+    {
+      "declaration": "GENERAL_PROCESSING_QUEUE",
+      "kind": "Assign",
+      "original_path": "backend/app/infrastructure/runtime_readiness.py",
+      "original_line": 40,
+      "current_path": "backend/app/infrastructure/runtime_readiness_contracts.py",
+      "current_line": 7,
+      "whole_ast_exact": true
+    },
+    {
+      "declaration": "PLATFORM_SCHEDULER_HEARTBEAT_KEY",
+      "kind": "Assign",
+      "original_path": "backend/app/infrastructure/runtime_readiness.py",
+      "original_line": 41,
+      "current_path": "backend/app/infrastructure/runtime_readiness_contracts.py",
+      "current_line": 10,
+      "whole_ast_exact": true
+    },
+    {
+      "declaration": "READINESS_CACHE_SECONDS",
+      "kind": "Assign",
+      "original_path": "backend/app/infrastructure/runtime_readiness.py",
+      "original_line": 44,
+      "current_path": "backend/app/infrastructure/runtime_readiness_contracts.py",
+      "current_line": 13,
+      "whole_ast_exact": true
+    },
+    {
+      "declaration": "READINESS_REFRESH_TIMEOUT_SECONDS",
+      "kind": "Assign",
+      "original_path": "backend/app/infrastructure/runtime_readiness.py",
+      "original_line": 45,
+      "current_path": "backend/app/infrastructure/runtime_readiness_contracts.py",
+      "current_line": 16,
+      "whole_ast_exact": true
+    },
+    {
+      "declaration": "BLOCKING_PROBE_TIMEOUT_SECONDS",
+      "kind": "Assign",
+      "original_path": "backend/app/infrastructure/runtime_readiness.py",
+      "original_line": 46,
+      "current_path": "backend/app/infrastructure/runtime_readiness_contracts.py",
+      "current_line": 19,
+      "whole_ast_exact": true
+    },
+    {
+      "declaration": "STORAGE_CLEANUP_WARNING_COUNT",
+      "kind": "Assign",
+      "original_path": "backend/app/infrastructure/runtime_readiness.py",
+      "original_line": 47,
+      "current_path": "backend/app/infrastructure/runtime_readiness_contracts.py",
+      "current_line": 22,
+      "whole_ast_exact": true
+    },
+    {
+      "declaration": "STORAGE_CLEANUP_CRITICAL_AGE_SECONDS",
+      "kind": "Assign",
+      "original_path": "backend/app/infrastructure/runtime_readiness.py",
+      "original_line": 48,
+      "current_path": "backend/app/infrastructure/runtime_readiness_contracts.py",
+      "current_line": 25,
+      "whole_ast_exact": true
+    },
+    {
+      "declaration": "RuntimeCapabilitySnapshot",
+      "kind": "ClassDef",
+      "original_path": "backend/app/infrastructure/runtime_readiness.py",
+      "original_line": 52,
+      "current_path": "backend/app/infrastructure/runtime_readiness_contracts.py",
+      "current_line": 29,
+      "whole_ast_exact": true
+    },
+    {
+      "declaration": "_BlockingSnapshot",
+      "kind": "ClassDef",
+      "original_path": "backend/app/infrastructure/runtime_readiness.py",
+      "original_line": 59,
+      "current_path": "backend/app/infrastructure/runtime_readiness_contracts.py",
+      "current_line": 36,
+      "whole_ast_exact": true
+    },
+    {
+      "declaration": "_CleanupBacklog",
+      "kind": "ClassDef",
+      "original_path": "backend/app/infrastructure/runtime_readiness.py",
+      "original_line": 72,
+      "current_path": "backend/app/infrastructure/runtime_readiness_contracts.py",
+      "current_line": 49,
+      "whole_ast_exact": true
+    },
+    {
+      "declaration": "_schema_readiness",
+      "kind": "AsyncFunctionDef",
+      "original_path": "backend/app/infrastructure/runtime_readiness.py",
+      "original_line": 218,
+      "current_path": "backend/app/infrastructure/runtime_readiness_database.py",
+      "current_line": 12,
+      "whole_ast_exact": true
+    },
+    {
+      "declaration": "_cleanup_backlog",
+      "kind": "AsyncFunctionDef",
+      "original_path": "backend/app/infrastructure/runtime_readiness.py",
+      "original_line": 239,
+      "current_path": "backend/app/infrastructure/runtime_readiness_database.py",
+      "current_line": 33,
+      "whole_ast_exact": true
+    },
+    {
+      "declaration": "_probe_ecr_worker",
+      "kind": "FunctionDef",
+      "original_path": "backend/app/infrastructure/runtime_readiness.py",
+      "original_line": 333,
+      "current_path": "backend/app/infrastructure/runtime_readiness_probes.py",
+      "current_line": 28,
+      "whole_ast_exact": true
+    },
+    {
+      "declaration": "_security_redis_required",
+      "kind": "FunctionDef",
+      "original_path": "backend/app/infrastructure/runtime_readiness.py",
+      "original_line": 339,
+      "current_path": "backend/app/infrastructure/runtime_readiness_probes.py",
+      "current_line": 34,
+      "whole_ast_exact": true
+    },
+    {
+      "declaration": "_probe_security_redis",
+      "kind": "FunctionDef",
+      "original_path": "backend/app/infrastructure/runtime_readiness.py",
+      "original_line": 347,
+      "current_path": "backend/app/infrastructure/runtime_readiness_probes.py",
+      "current_line": 44,
+      "whole_ast_exact": true
+    },
+    {
+      "declaration": "_probe_object_storage",
+      "kind": "FunctionDef",
+      "original_path": "backend/app/infrastructure/runtime_readiness.py",
+      "original_line": 361,
+      "current_path": "backend/app/infrastructure/runtime_readiness_probes.py",
+      "current_line": 58,
+      "whole_ast_exact": true
+    },
+    {
+      "declaration": "_probe_malware_scanner",
+      "kind": "FunctionDef",
+      "original_path": "backend/app/infrastructure/runtime_readiness.py",
+      "original_line": 366,
+      "current_path": "backend/app/infrastructure/runtime_readiness_probes.py",
+      "current_line": 63,
+      "whole_ast_exact": true
+    },
+    {
+      "declaration": "_probe_worker_and_scheduler",
+      "kind": "FunctionDef",
+      "original_path": "backend/app/infrastructure/runtime_readiness.py",
+      "original_line": 378,
+      "current_path": "backend/app/infrastructure/runtime_readiness_probes.py",
+      "current_line": 75,
+      "whole_ast_exact": true
+    },
+    {
+      "declaration": "_probe_my_photos",
+      "kind": "FunctionDef",
+      "original_path": "backend/app/infrastructure/runtime_readiness.py",
+      "original_line": 393,
+      "current_path": "backend/app/infrastructure/runtime_readiness_probes.py",
+      "current_line": 90,
+      "whole_ast_exact": true
+    },
+    {
+      "declaration": "_platform_scheduler_heartbeat_exists",
+      "kind": "FunctionDef",
+      "original_path": "backend/app/infrastructure/runtime_readiness.py",
+      "original_line": 423,
+      "current_path": "backend/app/infrastructure/runtime_readiness_probes.py",
+      "current_line": 118,
+      "whole_ast_exact": true
+    },
+    {
+      "declaration": "_my_photos_selected",
+      "kind": "FunctionDef",
+      "original_path": "backend/app/infrastructure/runtime_readiness.py",
+      "original_line": 437,
+      "current_path": "backend/app/infrastructure/runtime_readiness_probes.py",
+      "current_line": 132,
+      "whole_ast_exact": true
+    },
+    {
+      "declaration": "_refresh_blocking_capabilities",
+      "kind": "AsyncFunctionDef",
+      "original_path": "backend/app/infrastructure/runtime_readiness.py",
+      "original_line": 280,
+      "current_path": "backend/app/infrastructure/runtime_readiness_capabilities.py",
+      "current_line": 24,
+      "whole_ast_exact": true
+    },
+    {
+      "declaration": "_probe_result",
+      "kind": "FunctionDef",
+      "original_path": "backend/app/infrastructure/runtime_readiness.py",
+      "original_line": 449,
+      "current_path": "backend/app/infrastructure/runtime_readiness_capabilities.py",
+      "current_line": 114,
+      "whole_ast_exact": true
+    },
+    {
+      "declaration": "_timed_out_snapshot",
+      "kind": "FunctionDef",
+      "original_path": "backend/app/infrastructure/runtime_readiness.py",
+      "original_line": 482,
+      "current_path": "backend/app/infrastructure/runtime_readiness_capabilities.py",
+      "current_line": 126,
+      "whole_ast_exact": true
+    },
+    {
+      "declaration": "_capability",
+      "kind": "FunctionDef",
+      "original_path": "backend/app/infrastructure/runtime_readiness.py",
+      "original_line": 507,
+      "current_path": "backend/app/infrastructure/runtime_readiness_capabilities.py",
+      "current_line": 149,
+      "whole_ast_exact": true
+    },
+    {
+      "declaration": "RuntimeReadinessProbe",
+      "kind": "ClassDef",
+      "original_path": "backend/app/infrastructure/runtime_readiness.py",
+      "original_line": 78,
+      "current_path": "backend/app/infrastructure/runtime_readiness.py",
+      "current_line": 104,
+      "whole_ast_exact": true
+    },
+    {
+      "declaration": "_settings_cache_key",
+      "kind": "FunctionDef",
+      "original_path": "backend/app/infrastructure/runtime_readiness.py",
+      "original_line": 461,
+      "current_path": "backend/app/infrastructure/runtime_readiness.py",
+      "current_line": 240,
+      "whole_ast_exact": true
+    },
+    {
+      "declaration": "_runtime_probe",
+      "kind": "Assign",
+      "original_path": "backend/app/infrastructure/runtime_readiness.py",
+      "original_line": 522,
+      "current_path": "backend/app/infrastructure/runtime_readiness.py",
+      "current_line": 261,
+      "whole_ast_exact": true
+    },
+    {
+      "declaration": "runtime_capability_readiness",
+      "kind": "AsyncFunctionDef",
+      "original_path": "backend/app/infrastructure/runtime_readiness.py",
+      "original_line": 525,
+      "current_path": "backend/app/infrastructure/runtime_readiness.py",
+      "current_line": 264,
+      "whole_ast_exact": true
+    },
+    {
+      "declaration": "__all__",
+      "kind": "Assign",
+      "original_path": "backend/app/infrastructure/runtime_readiness.py",
+      "original_line": 533,
+      "current_path": "backend/app/infrastructure/runtime_readiness.py",
+      "current_line": 272,
+      "whole_ast_exact": true
+    }
+  ],
+  "all_original_declarations_exactly_partitioned": true,
+  "whole_class_and_function_asts_exact": true,
+  "sql_and_default_signature_literals_exact": true,
+  "public_all_literal_exact": true,
+  "tests": [
+    {
+      "path": "backend/tests/unit/infrastructure/test_runtime_readiness.py",
+      "all_assertions_inputs_bodies_exact_after_only_patch_owner_inverse": true
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_health_readiness_deadline.py",
+      "all_assertions_inputs_bodies_exact_after_only_patch_owner_inverse": true
+    }
+  ],
+  "unchanged_supporting_sources": [
+    "backend/app/infrastructure/readiness_executor.py",
+    "backend/app/presentation/api/v1/routes/health.py",
+    "backend/app/infrastructure/ai_priority/worker_readiness.py",
+    "backend/tests/unit/presentation/test_health_readiness.py",
+    "backend/tests/unit/infrastructure/test_readiness_executor.py"
+  ],
+  "critical_obligation_transfer": {
+    "original_path": "app/infrastructure/runtime_readiness.py",
+    "minimum_line_percent": 88,
+    "minimum_branch_percent": 63,
+    "owners": [
+      "app/infrastructure/runtime_readiness_contracts.py",
+      "app/infrastructure/runtime_readiness_database.py",
+      "app/infrastructure/runtime_readiness_probes.py",
+      "app/infrastructure/runtime_readiness_capabilities.py",
+      "app/infrastructure/runtime_readiness.py"
+    ],
+    "note": "Qualify actual relocated logic owners with old88/63floor; facade-only measurement is insufficient. AIowns gate integration; no config edit by this lane."
+  },
+  "current_sources": [
+    {
+      "path": "backend/app/infrastructure/runtime_readiness_contracts.py",
+      "sha256": "29b1aaa8a64ccfe32ab571d8ebb512a9ae600ad5bcacb681a83d927057e3462d",
+      "physical_lines": 52
+    },
+    {
+      "path": "backend/app/infrastructure/runtime_readiness_database.py",
+      "sha256": "d5096be39d581b39834a7a732cdf421bdb370c7d02e8bd41666932243e35f8bf",
+      "physical_lines": 71
+    },
+    {
+      "path": "backend/app/infrastructure/runtime_readiness_probes.py",
+      "sha256": "37dbb8ff36d5e19cad2afe0ba523030ac9bbc0c5e43df15e5b624fb1b2a63bf0",
+      "physical_lines": 141
+    },
+    {
+      "path": "backend/app/infrastructure/runtime_readiness_capabilities.py",
+      "sha256": "bc1904a1aada151631034e8fb60b5d366da1e5049fa019b6a03813f9866ab439",
+      "physical_lines": 161
+    },
+    {
+      "path": "backend/app/infrastructure/runtime_readiness.py",
+      "sha256": "b439d9d4174e8c0b1ae096a4f0f23c96ae7e10c6e2f0d636a0509a7c5f9783f0",
+      "physical_lines": 278
+    }
+  ]
+}

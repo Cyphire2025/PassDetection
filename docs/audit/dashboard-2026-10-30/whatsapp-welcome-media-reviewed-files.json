@@ -1,0 +1,35 @@
+{
+  "files": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_composer.py",
+      "sha256": "df96370146f2f39152bf3ce3549c27237d3e38fa369c39a5eb3fbcd5b2be3901",
+      "physical_lines": 373,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "needs-follow-up",
+      "notes": "Complete current physical source read. The upload current-authority correction is qualified separately; preview and existing large composition responsibilities retain explicit architecture/correctness follow-up. No whole-module coverage closure claimed."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_welcome_media_authority.py",
+      "sha256": "384a601014b11651d73f1b46dc01dbfdf8568c8efcc2ed84fddf46151af2029c",
+      "physical_lines": 92,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read. Guarded actual synthetic SQLite authority changes, healthy/profile/legacy/global/restricted-role controls and owned provider-operation success/error/cancellation are qualified; no real provider/scanner/storage or PostgreSQL lock proof."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_welcome_media_authority.py",
+      "sha256": "d9cf27397b93661801b72a1daf96f4d25e724f83dfa1e47209dee0be780134a8",
+      "physical_lines": 339,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read. Guarded actual synthetic SQLite authority changes, healthy/profile/legacy/global/restricted-role controls and owned provider-operation success/error/cancellation are qualified; no real provider/scanner/storage or PostgreSQL lock proof."
+    }
+  ],
+  "original_full_preflight": {
+    "path": "docs/audit/dashboard-2026-10-30/whatsapp-composer-preflight-reviewed-files.json",
+    "sha256": "e76b5cf86151e7f1288bbdb63252d61895e8a66ee46ecef11302eb03a50697db"
+  }
+}

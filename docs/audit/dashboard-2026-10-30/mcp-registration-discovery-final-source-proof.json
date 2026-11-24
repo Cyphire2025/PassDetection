@@ -1,0 +1,376 @@
+{
+  "status": "passed static-only actual-source comparison; matrix unchanged",
+  "added_relative_to_old_blind_scanner": [
+    "route:backend/app/presentation/api/v1/routes/mcp_admin.py:activity:GET:/activity",
+    "route:backend/app/presentation/api/v1/routes/mcp_admin.py:approve_connection_request:POST:/connection-requests/{request_id}/approve",
+    "route:backend/app/presentation/api/v1/routes/mcp_admin.py:authorize:POST:/authorize",
+    "route:backend/app/presentation/api/v1/routes/mcp_admin.py:connection_requests:GET:/connection-requests",
+    "route:backend/app/presentation/api/v1/routes/mcp_admin.py:connections:GET:/connections",
+    "route:backend/app/presentation/api/v1/routes/mcp_admin.py:control:PUT:/control",
+    "route:backend/app/presentation/api/v1/routes/mcp_admin.py:delete_connection:DELETE:/connections/{connection_id}",
+    "route:backend/app/presentation/api/v1/routes/mcp_admin.py:inventory:GET:/inventory",
+    "route:backend/app/presentation/api/v1/routes/mcp_admin.py:operations:GET:/operations",
+    "route:backend/app/presentation/api/v1/routes/mcp_admin.py:overview:GET:",
+    "route:backend/app/presentation/api/v1/routes/mcp_admin.py:reject_connection_request:POST:/connection-requests/{request_id}/reject",
+    "route:backend/app/presentation/api/v1/routes/mcp_admin.py:revoke:POST:/connections/{connection_id}/revoke",
+    "route:backend/app/presentation/api/v1/routes/mcp_admin.py:set_connection_access:PATCH:/connections/{connection_id}/access",
+    "route:backend/app/presentation/api/v1/routes/mcp_admin.py:update_connection:PATCH:/connections/{connection_id}"
+  ],
+  "original14route_contracts_equal_except_reviewed_implementation_source": true,
+  "all_other_preexisting_discovery_rows_unchanged": 880,
+  "only_changed_registration": [
+    "registration:backend/app/presentation/api/v1/routes/mcp_admin.py"
+  ],
+  "no_retired_routes": true,
+  "old_scanner_source_rows_on_current_tree": 881,
+  "current_scanner_source_rows_on_current_tree": 895,
+  "row_count_scope": "Only discover_source_routes results, including registrations and tool declarations. Not complete workflow matrix or qualification count.",
+  "whole_module_inverse_exact_HEAD_AST": true,
+  "HEAD_source_LF_sha256": "6094a836ee0239392bc3cd8ce27e3cb75639e546fb653dc52c9d7cceb9f14a82",
+  "original_admin_source_sha256": "b5115f728b87c6c79841d37e6d8de3d83a640742df32d863c269265846510748",
+  "all14existing_classification_permission_adapter_values": {
+    "route:backend/app/presentation/api/v1/routes/mcp_admin.py:activity:GET:/activity": {
+      "workflow": "mcp.connection-management.activity",
+      "disposition": "implement",
+      "phase": 2,
+      "rationale": "Superadmin browser connection management or OAuth protocol, never exposed as a tool that can change its own authority.",
+      "adapter_requirements": [
+        "active_superadmin",
+        "recent_mfa",
+        "csrf_and_oauth_origin_policy",
+        "atomic_revocation",
+        "never_proxy_management_as_tool"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/api/v1/routes/mcp_admin.py",
+        "evidence": [
+          "backend/app/presentation/dependencies/mcp.py",
+          "backend/tests/integration/test_mcp_authorization.py",
+          "frontend/features/mcp/components/mcp-admin-page.tsx",
+          "frontend/features/mcp/components/mcp-administration.test.tsx",
+          "frontend/e2e/mcp-administration.spec.ts",
+          "docs/implementation/mcp-administration-coverage-checkpoint.md"
+        ]
+      }
+    },
+    "route:backend/app/presentation/api/v1/routes/mcp_admin.py:approve_connection_request:POST:/connection-requests/{request_id}/approve": {
+      "workflow": "mcp.connection-management.request_approval",
+      "disposition": "server_control",
+      "phase": null,
+      "rationale": "Superadmin browser-only pending-request review and approval/rejection, protected by recent MFA and cookie CSRF. Compare requester intent before delegation. Approval stores a decision without issuing a grant or code; only the original requester capability can finalize after current account/security-version/scope checks. Never exposed as an authority-changing MCP tool.",
+      "adapter_requirements": [
+        "active_superadmin",
+        "recent_mfa",
+        "cookie_csrf",
+        "comparison_code_intent_check",
+        "decision_only_approval",
+        "row_lock_serialization",
+        "current_account_security_version_scope_checks",
+        "never_proxy_management_as_tool"
+      ],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": [
+          "backend/tests/integration/test_mcp_connection_requests.py",
+          "backend/tests/service_integration/test_mcp_connection_requests_postgresql.py",
+          "frontend/e2e/mcp-administration.spec.ts",
+          "docs/implementation/mcp-admin-approval.md"
+        ]
+      },
+      "exclusion_boundary": "no_server_control"
+    },
+    "route:backend/app/presentation/api/v1/routes/mcp_admin.py:authorize:POST:/authorize": {
+      "workflow": "mcp.connection-management.authorize",
+      "disposition": "implement",
+      "phase": 2,
+      "rationale": "Superadmin browser connection management or OAuth protocol, never exposed as a tool that can change its own authority.",
+      "adapter_requirements": [
+        "active_superadmin",
+        "recent_mfa",
+        "csrf_and_oauth_origin_policy",
+        "atomic_revocation",
+        "never_proxy_management_as_tool"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/api/v1/routes/mcp_admin.py",
+        "evidence": [
+          "backend/app/presentation/dependencies/mcp.py",
+          "backend/tests/integration/test_mcp_authorization.py",
+          "backend/tests/integration/test_dashboard_step_up_refresh.py",
+          "backend/tests/service_integration/test_dashboard_step_up_postgresql.py",
+          "frontend/features/mcp/components/mcp-consent-page.tsx",
+          "frontend/features/mcp/components/mcp-administration.test.tsx",
+          "frontend/features/mcp/utils/consent.test.ts",
+          "frontend/e2e/mcp-administration.spec.ts",
+          "docs/implementation/mcp-administration-coverage-checkpoint.md"
+        ]
+      }
+    },
+    "route:backend/app/presentation/api/v1/routes/mcp_admin.py:connection_requests:GET:/connection-requests": {
+      "workflow": "mcp.connection-management.request_approval",
+      "disposition": "server_control",
+      "phase": null,
+      "rationale": "Superadmin browser-only pending-request review and approval/rejection, protected by recent MFA and cookie CSRF. Compare requester intent before delegation. Approval stores a decision without issuing a grant or code; only the original requester capability can finalize after current account/security-version/scope checks. Never exposed as an authority-changing MCP tool.",
+      "adapter_requirements": [
+        "active_superadmin",
+        "recent_mfa",
+        "cookie_csrf",
+        "comparison_code_intent_check",
+        "decision_only_approval",
+        "row_lock_serialization",
+        "current_account_security_version_scope_checks",
+        "never_proxy_management_as_tool"
+      ],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": [
+          "backend/tests/integration/test_mcp_connection_requests.py",
+          "backend/tests/service_integration/test_mcp_connection_requests_postgresql.py",
+          "frontend/e2e/mcp-administration.spec.ts",
+          "docs/implementation/mcp-admin-approval.md"
+        ]
+      },
+      "exclusion_boundary": "no_server_control"
+    },
+    "route:backend/app/presentation/api/v1/routes/mcp_admin.py:connections:GET:/connections": {
+      "workflow": "mcp.connection-management.connections",
+      "disposition": "implement",
+      "phase": 2,
+      "rationale": "Superadmin browser connection management or OAuth protocol, never exposed as a tool that can change its own authority.",
+      "adapter_requirements": [
+        "active_superadmin",
+        "recent_mfa",
+        "csrf_and_oauth_origin_policy",
+        "atomic_revocation",
+        "never_proxy_management_as_tool"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/api/v1/routes/mcp_admin.py",
+        "evidence": [
+          "backend/app/presentation/dependencies/mcp.py",
+          "backend/tests/integration/test_mcp_authorization.py",
+          "backend/tests/integration/test_mcp_phase2_http_boundaries.py",
+          "frontend/features/mcp/components/mcp-connection-card.tsx",
+          "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+          "frontend/e2e/mcp-administration.spec.ts",
+          "docs/implementation/mcp-administration-coverage-checkpoint.md"
+        ]
+      }
+    },
+    "route:backend/app/presentation/api/v1/routes/mcp_admin.py:control:PUT:/control": {
+      "workflow": "mcp.connection-management.control",
+      "disposition": "implement",
+      "phase": 2,
+      "rationale": "Superadmin browser connection management or OAuth protocol, never exposed as a tool that can change its own authority.",
+      "adapter_requirements": [
+        "active_superadmin",
+        "recent_mfa",
+        "csrf_and_oauth_origin_policy",
+        "atomic_revocation",
+        "never_proxy_management_as_tool"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/api/v1/routes/mcp_admin.py",
+        "evidence": [
+          "backend/app/presentation/dependencies/mcp.py",
+          "backend/tests/integration/test_mcp_authorization.py",
+          "frontend/features/mcp/components/mcp-admin-page.tsx",
+          "frontend/features/mcp/components/mcp-administration.test.tsx",
+          "frontend/e2e/mcp-administration.spec.ts",
+          "docs/implementation/mcp-administration-coverage-checkpoint.md"
+        ]
+      }
+    },
+    "route:backend/app/presentation/api/v1/routes/mcp_admin.py:delete_connection:DELETE:/connections/{connection_id}": {
+      "workflow": "mcp.connection-management.delete_connection",
+      "disposition": "server_control",
+      "phase": null,
+      "rationale": "Superadmin browser-only removal from Devices with recent MFA and cookie CSRF. Revoke authority and archive the grant atomically, preserve linked history, serialize duplicate requests and refresh, and record one chained removal audit. Never exposed as an authority-changing MCP tool.",
+      "exclusion_boundary": "no_server_control",
+      "adapter_requirements": [
+        "active_superadmin",
+        "recent_mfa",
+        "cookie_csrf",
+        "atomic_revocation_and_archive",
+        "row_lock_serialization",
+        "chained_audit",
+        "preserve_history",
+        "never_proxy_management_as_tool"
+      ],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": [
+          "backend/tests/integration/test_mcp_connection_delete.py",
+          "backend/tests/service_integration/test_mcp_connection_delete_postgresql.py",
+          "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+          "frontend/e2e/mcp-administration.spec.ts",
+          "docs/implementation/mcp-device-delete.md"
+        ]
+      }
+    },
+    "route:backend/app/presentation/api/v1/routes/mcp_admin.py:inventory:GET:/inventory": {
+      "workflow": "mcp.admin.inventory",
+      "disposition": "implement",
+      "phase": 2,
+      "rationale": "Superadmin management view of actual registered capabilities or durable operation/artifact records; no MCP self-authority change. Integrated UI/live deployment qualification remains separate.",
+      "adapter_requirements": [
+        "live_superadmin_management_authority",
+        "bounded_results_and_no_credentials"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/api/v1/routes/mcp_admin.py",
+        "evidence": []
+      }
+    },
+    "route:backend/app/presentation/api/v1/routes/mcp_admin.py:operations:GET:/operations": {
+      "workflow": "mcp.admin.operations",
+      "disposition": "implement",
+      "phase": 2,
+      "rationale": "Superadmin management view of actual registered capabilities or durable operation/artifact records; no MCP self-authority change. Integrated UI/live deployment qualification remains separate.",
+      "adapter_requirements": [
+        "live_superadmin_management_authority",
+        "bounded_results_and_no_credentials"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/api/v1/routes/mcp_admin.py",
+        "evidence": []
+      }
+    },
+    "route:backend/app/presentation/api/v1/routes/mcp_admin.py:overview:GET:": {
+      "workflow": "mcp.connection-management.overview",
+      "disposition": "implement",
+      "phase": 2,
+      "rationale": "Superadmin browser connection management or OAuth protocol, never exposed as a tool that can change its own authority.",
+      "adapter_requirements": [
+        "active_superadmin",
+        "recent_mfa",
+        "csrf_and_oauth_origin_policy",
+        "atomic_revocation",
+        "never_proxy_management_as_tool"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/api/v1/routes/mcp_admin.py",
+        "evidence": [
+          "backend/app/presentation/dependencies/mcp.py",
+          "backend/tests/integration/test_mcp_authorization.py",
+          "frontend/features/mcp/components/mcp-admin-page.tsx",
+          "frontend/features/mcp/components/mcp-administration.test.tsx",
+          "frontend/e2e/mcp-administration.spec.ts",
+          "docs/implementation/mcp-administration-coverage-checkpoint.md"
+        ]
+      }
+    },
+    "route:backend/app/presentation/api/v1/routes/mcp_admin.py:reject_connection_request:POST:/connection-requests/{request_id}/reject": {
+      "workflow": "mcp.connection-management.request_approval",
+      "disposition": "server_control",
+      "phase": null,
+      "rationale": "Superadmin browser-only pending-request review and approval/rejection, protected by recent MFA and cookie CSRF. Compare requester intent before delegation. Approval stores a decision without issuing a grant or code; only the original requester capability can finalize after current account/security-version/scope checks. Never exposed as an authority-changing MCP tool.",
+      "adapter_requirements": [
+        "active_superadmin",
+        "recent_mfa",
+        "cookie_csrf",
+        "comparison_code_intent_check",
+        "decision_only_approval",
+        "row_lock_serialization",
+        "current_account_security_version_scope_checks",
+        "never_proxy_management_as_tool"
+      ],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": [
+          "backend/tests/integration/test_mcp_connection_requests.py",
+          "backend/tests/service_integration/test_mcp_connection_requests_postgresql.py",
+          "frontend/e2e/mcp-administration.spec.ts",
+          "docs/implementation/mcp-admin-approval.md"
+        ]
+      },
+      "exclusion_boundary": "no_server_control"
+    },
+    "route:backend/app/presentation/api/v1/routes/mcp_admin.py:revoke:POST:/connections/{connection_id}/revoke": {
+      "workflow": "mcp.connection-management.revoke",
+      "disposition": "implement",
+      "phase": 2,
+      "rationale": "Superadmin browser connection management or OAuth protocol, never exposed as a tool that can change its own authority.",
+      "adapter_requirements": [
+        "active_superadmin",
+        "recent_mfa",
+        "csrf_and_oauth_origin_policy",
+        "atomic_revocation",
+        "never_proxy_management_as_tool"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/api/v1/routes/mcp_admin.py",
+        "evidence": [
+          "backend/app/presentation/dependencies/mcp.py",
+          "backend/tests/integration/test_mcp_authorization.py",
+          "backend/tests/integration/test_mcp_phase2_http_boundaries.py",
+          "frontend/features/mcp/components/mcp-connection-card.tsx",
+          "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+          "frontend/e2e/mcp-administration.spec.ts",
+          "docs/implementation/mcp-administration-coverage-checkpoint.md"
+        ]
+      }
+    },
+    "route:backend/app/presentation/api/v1/routes/mcp_admin.py:set_connection_access:PATCH:/connections/{connection_id}/access": {
+      "workflow": "mcp.connection-management.device_access",
+      "disposition": "server_control",
+      "phase": null,
+      "rationale": "Superadmin browser-only control of an independently authorized connection, protected by recent MFA and cookie CSRF. Changing MCP authority is excluded from the MCP tool catalog; this route is never proxied as a business tool.",
+      "exclusion_boundary": "no_server_control",
+      "adapter_requirements": [
+        "active_superadmin",
+        "recent_mfa",
+        "cookie_csrf",
+        "independent_grant_fence",
+        "never_proxy_management_as_tool"
+      ],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": [
+          "backend/tests/integration/test_mcp_device_access.py",
+          "frontend/features/mcp/components/mcp-devices.test.tsx",
+          "docs/implementation/mcp-direct-devices-inventory-checkpoint.md"
+        ]
+      }
+    },
+    "route:backend/app/presentation/api/v1/routes/mcp_admin.py:update_connection:PATCH:/connections/{connection_id}": {
+      "workflow": "mcp.connection-management.update_connection",
+      "disposition": "implement",
+      "phase": 2,
+      "rationale": "Superadmin browser connection management or OAuth protocol, never exposed as a tool that can change its own authority.",
+      "adapter_requirements": [
+        "active_superadmin",
+        "recent_mfa",
+        "csrf_and_oauth_origin_policy",
+        "atomic_revocation",
+        "never_proxy_management_as_tool"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/api/v1/routes/mcp_admin.py",
+        "evidence": [
+          "backend/app/presentation/dependencies/mcp.py",
+          "backend/tests/integration/test_mcp_authorization.py",
+          "frontend/features/mcp/components/mcp-connection-card.tsx",
+          "frontend/features/mcp/components/mcp-administration.test.tsx",
+          "frontend/e2e/mcp-administration.spec.ts",
+          "docs/implementation/mcp-administration-coverage-checkpoint.md"
+        ]
+      }
+    }
+  },
+  "matrix_source_sha256_unchanged": "0655e79c9e009dc9d01b41cf7507f3609b7b30f2daf979a982e98c1342636523"
+}

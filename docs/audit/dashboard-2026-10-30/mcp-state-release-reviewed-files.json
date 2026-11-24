@@ -1,0 +1,39 @@
+{
+  "files": [
+    {
+      "path": "scripts/mcp_direct_state.py",
+      "sha256": "61a40f56b409431fc899d4412d5dcaa90276a746b27f2ee973cdfcd82fd3c744",
+      "physical_lines": 196,
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "notes": "Complete195-line prior source and exact file-kind branch follow-through read. Exclusive receipts, source identity, baseline/schema/containers and retention boundaries traced; only intended special-file rejection changed. Broader decoded/public typing remains unqualified, not silently certified."
+    },
+    {
+      "path": "scripts/mcp_direct_release.py",
+      "sha256": "1d74a7889f251d836fb946df1fdd5b5db72b4a648ea402c7ec4ec6306746440a",
+      "physical_lines": 318,
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "reviewed",
+      "notes": "Complete318-line shared release/CLI/idle/build/resume source read. Exact identity, worker idle deadline/selection, source-schema-only recovery, helper fencing and private bounded error projection traced. No source changes or test rerun credit for this read alone."
+    },
+    {
+      "path": "scripts/test_mcp_source_file_kinds.py",
+      "sha256": "cb9f74e5cd027d1842e5eaa5993b8bbaf12d68802c937a5a4dca14c5a00cdabc",
+      "physical_lines": 70,
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "notes": "Complete authored/read four-test module. Actual regular files/directories and existing symlink rejection pass; synthetic FIFO/socket/character/block kinds reject before read. Actual mkfifo control is POSIX-only and skipped on this Windows host."
+    }
+  ],
+  "pending": [
+    "Real Linux FIFO test/platform qualification",
+    "Unproven subprocess capture memory candidate",
+    "Full strict typing of state/release support owners not established here"
+  ]
+}

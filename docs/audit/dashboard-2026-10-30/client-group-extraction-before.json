@@ -1,0 +1,396 @@
+[
+  {
+    "function": "_owner_scope_for",
+    "destination": "backend/app/presentation/api/v1/routes/client_group_access.py",
+    "body_ast_sha256": "3a660952b678306e6299ace6dcd36caa328fc6689b213238918b2be0ef66ec49",
+    "http_arguments_ast": "arguments(posonlyargs=[], args=[arg(arg='user', annotation=Name(id='User', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[])",
+    "http_decorators_ast": [],
+    "call_time_dependencies": []
+  },
+  {
+    "function": "_require_whatsapp_broadcast_access",
+    "destination": "backend/app/presentation/api/v1/routes/client_group_access.py",
+    "body_ast_sha256": "88e8ef7001cc479c25a3e1099cfee2b792c3ca6d426230a82a69179a7ad04199",
+    "http_arguments_ast": "arguments(posonlyargs=[], args=[arg(arg='user', annotation=Name(id='User', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[])",
+    "http_decorators_ast": [],
+    "call_time_dependencies": []
+  },
+  {
+    "function": "_require_client_group_creation_access",
+    "destination": "backend/app/presentation/api/v1/routes/client_group_access.py",
+    "body_ast_sha256": "44a33d303f02cb3930d3a96b560bae7e2354d7f46c7d021863308a84abfefb07",
+    "http_arguments_ast": "arguments(posonlyargs=[], args=[arg(arg='user', annotation=Name(id='User', ctx=Load())), arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[])",
+    "http_decorators_ast": [],
+    "call_time_dependencies": []
+  },
+  {
+    "function": "_require_managed_group",
+    "destination": "backend/app/presentation/api/v1/routes/client_group_access.py",
+    "body_ast_sha256": "f845a5818a682dae14ce9a9769e167289d138ae418d473afaa4ed98c1fe56118",
+    "http_arguments_ast": "arguments(posonlyargs=[], args=[arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load())), arg(arg='current_user', annotation=Name(id='User', ctx=Load())), arg(arg='link_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load()))], kwonlyargs=[arg(arg='lock', annotation=Name(id='bool', ctx=Load()))], kw_defaults=[Constant(value=False)], defaults=[])",
+    "http_decorators_ast": [],
+    "call_time_dependencies": []
+  },
+  {
+    "function": "_require_viewable_group",
+    "destination": "backend/app/presentation/api/v1/routes/client_group_access.py",
+    "body_ast_sha256": "72b863b67e61616c691c35836ca70b3bc5e58bf3cca228dba9f0a073bdf7cff1",
+    "http_arguments_ast": "arguments(posonlyargs=[], args=[arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load())), arg(arg='current_user', annotation=Name(id='User', ctx=Load())), arg(arg='link_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[])",
+    "http_decorators_ast": [],
+    "call_time_dependencies": []
+  },
+  {
+    "function": "_validate_broadcast_ids",
+    "destination": "backend/app/presentation/api/v1/routes/client_group_broadcast_links.py",
+    "body_ast_sha256": "083e4ab16766c11853a7c81245f577a1af103f07b90346a0aea97af5ffbb1361",
+    "http_arguments_ast": "arguments(posonlyargs=[], args=[arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load()))], kwonlyargs=[arg(arg='agency_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='broadcast_ids', annotation=Subscript(value=Name(id='list', ctx=Load()), slice=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load()), ctx=Load())), arg(arg='allowed_archived_ids', annotation=BinOp(left=Subscript(value=Name(id='list', ctx=Load()), slice=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load()), ctx=Load()), op=BitOr(), right=Constant(value=None)))], kw_defaults=[None, None, Constant(value=None)], defaults=[])",
+    "http_decorators_ast": [],
+    "call_time_dependencies": []
+  },
+  {
+    "function": "_replace_whatsapp_links",
+    "destination": "backend/app/presentation/api/v1/routes/client_group_broadcast_links.py",
+    "body_ast_sha256": "e05c03d9b869b034988e2029f6781aba7b3829780dd72766257e2289a893a10a",
+    "http_arguments_ast": "arguments(posonlyargs=[], args=[arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load()))], kwonlyargs=[arg(arg='group_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='agency_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='created_by_user_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='broadcast_ids', annotation=Subscript(value=Name(id='list', ctx=Load()), slice=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load()), ctx=Load())), arg(arg='matching_fields_by_broadcast', annotation=BinOp(left=Subscript(value=Name(id='dict', ctx=Load()), slice=Tuple(elts=[Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load()), Subscript(value=Name(id='list', ctx=Load()), slice=Name(id='str', ctx=Load()), ctx=Load())], ctx=Load()), ctx=Load()), op=BitOr(), right=Constant(value=None)))], kw_defaults=[None, None, None, None, Constant(value=None)], defaults=[])",
+    "http_decorators_ast": [],
+    "call_time_dependencies": [
+      "_validate_broadcast_ids",
+      "lock_whatsapp_broadcast_groups",
+      "prepare_private_delivery_identity_mutation",
+      "reconcile_mobile_passenger_access_for_group",
+      "suppress_active_replacement_recipients",
+      "sync_group_broadcast_contacts"
+    ]
+  },
+  {
+    "function": "_unique_linked_recipient_count",
+    "destination": "backend/app/presentation/api/v1/routes/client_group_broadcast_links.py",
+    "body_ast_sha256": "edf27912d2326677ac22607b61e092318743567d8194f6e6bdc1d56ada321191",
+    "http_arguments_ast": "arguments(posonlyargs=[], args=[arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load()))], kwonlyargs=[arg(arg='group_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='agency_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load()))], kw_defaults=[None, None], defaults=[])",
+    "http_decorators_ast": [],
+    "call_time_dependencies": []
+  },
+  {
+    "function": "_linked_broadcast_names_for_group",
+    "destination": "backend/app/presentation/api/v1/routes/client_group_match_queries.py",
+    "body_ast_sha256": "76ac7edcf54381607a950d6e0c2cd12e4af8333e7f0734ac6e5efff77dc26afc",
+    "http_arguments_ast": "arguments(posonlyargs=[], args=[arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load()))], kwonlyargs=[arg(arg='group_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='agency_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load()))], kw_defaults=[None, None], defaults=[])",
+    "http_decorators_ast": [],
+    "call_time_dependencies": []
+  },
+  {
+    "function": "_linked_broadcast_matching_fields_for_group",
+    "destination": "backend/app/presentation/api/v1/routes/client_group_match_queries.py",
+    "body_ast_sha256": "73fd03b9d1f1172b410a6e6390e87666d1c0130f898c475b586e8251e161ec97",
+    "http_arguments_ast": "arguments(posonlyargs=[], args=[arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load()))], kwonlyargs=[arg(arg='group_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='agency_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load()))], kw_defaults=[None, None], defaults=[])",
+    "http_decorators_ast": [],
+    "call_time_dependencies": []
+  },
+  {
+    "function": "_current_unresolved_match_context",
+    "destination": "backend/app/presentation/api/v1/routes/client_group_match_queries.py",
+    "body_ast_sha256": "b2bbb9bbc73695dfcac2abb70af0e7215f24faea36d472e0315dda065c89e61d",
+    "http_arguments_ast": "arguments(posonlyargs=[], args=[arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load()))], kwonlyargs=[arg(arg='group_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='agency_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load()))], kw_defaults=[None, None], defaults=[])",
+    "http_decorators_ast": [],
+    "call_time_dependencies": []
+  },
+  {
+    "function": "get_client_group_by_token",
+    "destination": "backend/app/presentation/api/v1/routes/client_group_public_collection.py",
+    "body_ast_sha256": "581df46a57948e2c2e59229cd01af79d836538673365fec31ee99a8428f7890b",
+    "http_arguments_ast": "arguments(posonlyargs=[], args=[arg(arg='token', annotation=Name(id='str', ctx=Load())), arg(arg='use_case', annotation=Name(id='GetClientGroupByTokenUseCase', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='_get_get_by_token_use_case', ctx=Load())], keywords=[])])",
+    "http_decorators_ast": [
+      "Call(func=Attribute(value=Name(id='router', ctx=Load()), attr='get', ctx=Load()), args=[Constant(value='/token/{token}')], keywords=[keyword(arg='response_model', value=Name(id='ClientGroupResponse', ctx=Load())), keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_200_OK', ctx=Load())), keyword(arg='summary', value=Constant(value='Retrieve and validate upload link details by token (Public)'))])"
+    ],
+    "call_time_dependencies": []
+  },
+  {
+    "function": "record_public_flow_telemetry",
+    "destination": "backend/app/presentation/api/v1/routes/client_group_public_collection.py",
+    "body_ast_sha256": "3b630951f9fcba1e003fd8753460bdbbf78027566cd01d3ea7a1a1a1909c011f",
+    "http_arguments_ast": "arguments(posonlyargs=[], args=[arg(arg='token', annotation=Name(id='str', ctx=Load())), arg(arg='body', annotation=Name(id='PublicFlowTelemetryRequest', ctx=Load())), arg(arg='upload_session_id', annotation=Name(id='str', ctx=Load())), arg(arg='use_case', annotation=Name(id='GetClientGroupByTokenUseCase', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[Call(func=Name(id='Header', ctx=Load()), args=[Constant(value=Ellipsis)], keywords=[keyword(arg='alias', value=Constant(value='X-Upload-Session-ID')), keyword(arg='min_length', value=Constant(value=8)), keyword(arg='max_length', value=Constant(value=128))]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='_get_get_by_token_use_case', ctx=Load())], keywords=[])])",
+    "http_decorators_ast": [
+      "Call(func=Attribute(value=Name(id='router', ctx=Load()), attr='post', ctx=Load()), args=[Constant(value='/token/{token}/telemetry')], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_204_NO_CONTENT', ctx=Load())), keyword(arg='summary', value=Constant(value='Record a bounded public upload quality signal'))])"
+    ],
+    "call_time_dependencies": []
+  },
+  {
+    "function": "create_qualifier_selection",
+    "destination": "backend/app/presentation/api/v1/routes/client_group_public_collection.py",
+    "body_ast_sha256": "59b18c0abc7f0e8fd3df9bbb4397c6f1bd5640452ec190f4d98f68ed789c90d6",
+    "http_arguments_ast": "arguments(posonlyargs=[], args=[arg(arg='token', annotation=Name(id='str', ctx=Load())), arg(arg='request', annotation=Name(id='CreateQualifierSelectionRequest', ctx=Load())), arg(arg='use_case', annotation=Name(id='CreateQualifierSelectionUseCase', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='_get_create_qualifier_selection_use_case', ctx=Load())], keywords=[])])",
+    "http_decorators_ast": [
+      "Call(func=Attribute(value=Name(id='router', ctx=Load()), attr='post', ctx=Load()), args=[Constant(value='/token/{token}/qualifier-selection')], keywords=[keyword(arg='response_model', value=Name(id='CreateQualifierSelectionResponse', ctx=Load())), keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_201_CREATED', ctx=Load())), keyword(arg='summary', value=Constant(value='Persist a Relation with Qualifier choice before upload (Public)'))])"
+    ],
+    "call_time_dependencies": []
+  },
+  {
+    "function": "get_qualifier_selection",
+    "destination": "backend/app/presentation/api/v1/routes/client_group_public_collection.py",
+    "body_ast_sha256": "02c06b23d3716c5283b802c5f014bf5c6140710b58fad21a4472261fcba10dad",
+    "http_arguments_ast": "arguments(posonlyargs=[], args=[arg(arg='token', annotation=Name(id='str', ctx=Load())), arg(arg='qualifier_selection_token', annotation=Name(id='str', ctx=Load())), arg(arg='use_case', annotation=Name(id='GetQualifierSelectionUseCase', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[Call(func=Name(id='Header', ctx=Load()), args=[Constant(value=Ellipsis)], keywords=[keyword(arg='alias', value=Constant(value='X-Qualifier-Selection-Token')), keyword(arg='min_length', value=Constant(value=32)), keyword(arg='max_length', value=Constant(value=256))]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='_get_qualifier_selection_use_case', ctx=Load())], keywords=[])])",
+    "http_decorators_ast": [
+      "Call(func=Attribute(value=Name(id='router', ctx=Load()), attr='get', ctx=Load()), args=[Constant(value='/token/{token}/qualifier-selection')], keywords=[keyword(arg='response_model', value=Name(id='QualifierSelectionStateResponse', ctx=Load())), keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_200_OK', ctx=Load())), keyword(arg='summary', value=Constant(value='Resume a persisted Relation with Qualifier choice (Public)'))])"
+    ],
+    "call_time_dependencies": []
+  },
+  {
+    "function": "list_client_groups",
+    "destination": "backend/app/presentation/api/v1/routes/client_group_reads.py",
+    "body_ast_sha256": "c8d4abb2fbb84c81db8364a4e506c27eb86b845b397d20e80bd3a3c82b7ca97d",
+    "http_arguments_ast": "arguments(posonlyargs=[], args=[arg(arg='skip', annotation=Name(id='PageOffset', ctx=Load())), arg(arg='limit', annotation=Name(id='PageSize', ctx=Load())), arg(arg='status_filter', annotation=BinOp(left=Name(id='str', ctx=Load()), op=BitOr(), right=Constant(value=None))), arg(arg='current_user', annotation=Name(id='User', ctx=Load())), arg(arg='use_case', annotation=Name(id='ListClientGroupsUseCase', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[Constant(value=0), Constant(value=50), Constant(value=None), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_current_active_user', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='_get_list_use_case', ctx=Load())], keywords=[])])",
+    "http_decorators_ast": [
+      "Call(func=Attribute(value=Name(id='router', ctx=Load()), attr='get', ctx=Load()), args=[Constant(value='')], keywords=[keyword(arg='response_model', value=Subscript(value=Name(id='list', ctx=Load()), slice=Name(id='ClientGroupResponse', ctx=Load()), ctx=Load())), keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_200_OK', ctx=Load())), keyword(arg='summary', value=Constant(value=\"List upload links for the current user's agency\"))])"
+    ],
+    "call_time_dependencies": [
+      "_owner_scope_for"
+    ]
+  },
+  {
+    "function": "list_whatsapp_broadcast_options_for_create",
+    "destination": "backend/app/presentation/api/v1/routes/client_group_reads.py",
+    "body_ast_sha256": "5b2ed5839514e7163455f6b246d8788585cc0f37395d548c16baeee3e3341b6d",
+    "http_arguments_ast": "arguments(posonlyargs=[], args=[arg(arg='current_user', annotation=Name(id='User', ctx=Load())), arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_current_active_user', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_db_session', ctx=Load())], keywords=[])])",
+    "http_decorators_ast": [
+      "Call(func=Attribute(value=Name(id='router', ctx=Load()), attr='get', ctx=Load()), args=[Constant(value='/whatsapp-broadcast-options')], keywords=[keyword(arg='response_model', value=Subscript(value=Name(id='list', ctx=Load()), slice=Name(id='WhatsAppBroadcastSummaryResponse', ctx=Load()), ctx=Load())), keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_200_OK', ctx=Load())), keyword(arg='summary', value=Constant(value='List same-agency WhatsApp broadcasts available to new groups'))])"
+    ],
+    "call_time_dependencies": [
+      "_require_whatsapp_broadcast_access"
+    ]
+  },
+  {
+    "function": "list_whatsapp_broadcast_options_for_group",
+    "destination": "backend/app/presentation/api/v1/routes/client_group_reads.py",
+    "body_ast_sha256": "5bc5f16afcaf1c481c97e17464085e831a87f62942981e1f9fa08d5401faa0d0",
+    "http_arguments_ast": "arguments(posonlyargs=[], args=[arg(arg='link_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='current_user', annotation=Name(id='User', ctx=Load())), arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_current_active_user', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_db_session', ctx=Load())], keywords=[])])",
+    "http_decorators_ast": [
+      "Call(func=Attribute(value=Name(id='router', ctx=Load()), attr='get', ctx=Load()), args=[Constant(value='/{link_id}/whatsapp-broadcast-options')], keywords=[keyword(arg='response_model', value=Subscript(value=Name(id='list', ctx=Load()), slice=Name(id='WhatsAppBroadcastSummaryResponse', ctx=Load()), ctx=Load())), keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_200_OK', ctx=Load())), keyword(arg='summary', value=Constant(value='List WhatsApp broadcasts available to an existing group'))])"
+    ],
+    "call_time_dependencies": [
+      "_require_managed_group",
+      "_require_whatsapp_broadcast_access"
+    ]
+  },
+  {
+    "function": "get_client_group_whatsapp_links",
+    "destination": "backend/app/presentation/api/v1/routes/client_group_reads.py",
+    "body_ast_sha256": "8d9313a03c208e3f5c0f0b532f7150ce551e22df65eaf7c5ca0239434eae36a4",
+    "http_arguments_ast": "arguments(posonlyargs=[], args=[arg(arg='link_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='current_user', annotation=Name(id='User', ctx=Load())), arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_current_active_user', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_db_session', ctx=Load())], keywords=[])])",
+    "http_decorators_ast": [
+      "Call(func=Attribute(value=Name(id='router', ctx=Load()), attr='get', ctx=Load()), args=[Constant(value='/{link_id}/whatsapp-links')], keywords=[keyword(arg='response_model', value=Name(id='ClientGroupWhatsAppLinksResponse', ctx=Load())), keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_200_OK', ctx=Load())), keyword(arg='summary', value=Constant(value='Get WhatsApp broadcasts linked to an upload group'))])"
+    ],
+    "call_time_dependencies": [
+      "_require_viewable_group",
+      "_require_whatsapp_broadcast_access",
+      "_unique_linked_recipient_count"
+    ]
+  },
+  {
+    "function": "replace_client_group_whatsapp_links",
+    "destination": "backend/app/presentation/api/v1/routes/client_group_link_operations.py",
+    "body_ast_sha256": "18dad2522e7d5e261efdc72983603209db914eb9672cf638efd729ef788a3f37",
+    "http_arguments_ast": "arguments(posonlyargs=[], args=[arg(arg='link_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='body', annotation=Name(id='ReplaceWhatsAppBroadcastLinksRequest', ctx=Load())), arg(arg='current_user', annotation=Name(id='User', ctx=Load())), arg(arg='_csrf', annotation=Constant(value=None)), arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_current_active_user', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='require_cookie_csrf', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_db_session', ctx=Load())], keywords=[])])",
+    "http_decorators_ast": [
+      "Call(func=Attribute(value=Name(id='router', ctx=Load()), attr='put', ctx=Load()), args=[Constant(value='/{link_id}/whatsapp-links')], keywords=[keyword(arg='response_model', value=Name(id='ClientGroupWhatsAppLinksResponse', ctx=Load())), keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_200_OK', ctx=Load())), keyword(arg='summary', value=Constant(value='Replace WhatsApp broadcasts linked to an upload group'))])"
+    ],
+    "call_time_dependencies": [
+      "_replace_whatsapp_links",
+      "_require_managed_group",
+      "_require_whatsapp_broadcast_access",
+      "_unique_linked_recipient_count",
+      "AuditLogRepository"
+    ]
+  },
+  {
+    "function": "get_client_group_whatsapp_matches",
+    "destination": "backend/app/presentation/api/v1/routes/client_group_link_operations.py",
+    "body_ast_sha256": "d0db034b2d14603fc45b04c858f7d7394a61541117359b7e9d84fe13c42c592e",
+    "http_arguments_ast": "arguments(posonlyargs=[], args=[arg(arg='link_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='broadcast_id', annotation=BinOp(left=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load()), op=BitOr(), right=Constant(value=None))), arg(arg='match_status', annotation=Subscript(value=Name(id='Literal', ctx=Load()), slice=Tuple(elts=[Constant(value='all'), Constant(value='submitted'), Constant(value='not_submitted'), Constant(value='multiple_submissions'), Constant(value='needs_review'), Constant(value='unmatched_submission'), Constant(value='replacement'), Constant(value='rejected_upload')], ctx=Load()), ctx=Load())), arg(arg='sort_by', annotation=Subscript(value=Name(id='Literal', ctx=Load()), slice=Tuple(elts=[Constant(value='name'), Constant(value='phone'), Constant(value='status'), Constant(value='broadcast'), Constant(value='updated_at')], ctx=Load()), ctx=Load())), arg(arg='sort_order', annotation=Subscript(value=Name(id='Literal', ctx=Load()), slice=Tuple(elts=[Constant(value='asc'), Constant(value='desc')], ctx=Load()), ctx=Load())), arg(arg='page', annotation=Name(id='int', ctx=Load())), arg(arg='page_size', annotation=Name(id='int', ctx=Load())), arg(arg='current_user', annotation=Name(id='User', ctx=Load())), arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[Constant(value=None), Call(func=Name(id='Query', ctx=Load()), args=[], keywords=[keyword(arg='default', value=Constant(value='all')), keyword(arg='alias', value=Constant(value='status'))]), Constant(value='name'), Constant(value='asc'), Call(func=Name(id='Query', ctx=Load()), args=[], keywords=[keyword(arg='default', value=Constant(value=1)), keyword(arg='ge', value=Constant(value=1))]), Call(func=Name(id='Query', ctx=Load()), args=[], keywords=[keyword(arg='default', value=Constant(value=100)), keyword(arg='ge', value=Constant(value=1)), keyword(arg='le', value=Constant(value=200))]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_current_active_user', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_db_session', ctx=Load())], keywords=[])])",
+    "http_decorators_ast": [
+      "Call(func=Attribute(value=Name(id='router', ctx=Load()), attr='get', ctx=Load()), args=[Constant(value='/{link_id}/whatsapp-matches')], keywords=[keyword(arg='response_model', value=Name(id='ClientGroupWhatsAppMatchesResponse', ctx=Load())), keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_200_OK', ctx=Load())), keyword(arg='summary', value=Constant(value='Compare linked WhatsApp recipients with passport submissions'))])"
+    ],
+    "call_time_dependencies": [
+      "_linked_broadcast_matching_fields_for_group",
+      "_linked_broadcast_names_for_group",
+      "_require_viewable_group",
+      "_require_whatsapp_broadcast_access"
+    ]
+  },
+  {
+    "function": "list_replacement_candidates",
+    "destination": "backend/app/presentation/api/v1/routes/client_group_link_operations.py",
+    "body_ast_sha256": "56cddf17a8e98f433bb281f49bdb5e37a497b6f4e204e3646f9ca6a57cfbeb81",
+    "http_arguments_ast": "arguments(posonlyargs=[], args=[arg(arg='link_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='current_user', annotation=Name(id='User', ctx=Load())), arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_current_active_user', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_db_session', ctx=Load())], keywords=[])])",
+    "http_decorators_ast": [
+      "Call(func=Attribute(value=Name(id='router', ctx=Load()), attr='get', ctx=Load()), args=[Constant(value='/{link_id}/replacement-candidates')], keywords=[keyword(arg='response_model', value=Name(id='ReplacementCandidateListResponse', ctx=Load())), keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_200_OK', ctx=Load())), keyword(arg='summary', value=Constant(value='List active linked recipients that an unidentified upload can replace'))])"
+    ],
+    "call_time_dependencies": [
+      "_linked_broadcast_names_for_group",
+      "_require_managed_group",
+      "_require_whatsapp_broadcast_access"
+    ]
+  },
+  {
+    "function": "resolve_unidentified_as_replacement",
+    "destination": "backend/app/presentation/api/v1/routes/client_group_replacement_resolution.py",
+    "body_ast_sha256": "bda9757b45f72e231998589054babe4c7d863f50b99027491a72fd89183dae1b",
+    "http_arguments_ast": "arguments(posonlyargs=[], args=[arg(arg='link_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='submission_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='body', annotation=Name(id='ResolveUnidentifiedReplacementRequest', ctx=Load())), arg(arg='current_user', annotation=Name(id='User', ctx=Load())), arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load())), arg(arg='_csrf', annotation=Constant(value=None))], kwonlyargs=[], kw_defaults=[], defaults=[Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_current_active_user', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_db_session', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='require_cookie_csrf', ctx=Load())], keywords=[])])",
+    "http_decorators_ast": [
+      "Call(func=Attribute(value=Name(id='router', ctx=Load()), attr='post', ctx=Load()), args=[Constant(value='/{link_id}/unidentified/{submission_id}/replacement')], keywords=[keyword(arg='response_model', value=Name(id='PassportRosterResolutionResponse', ctx=Load())), keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_201_CREATED', ctx=Load())), keyword(arg='summary', value=Constant(value='Mark an unidentified passport upload as a recipient replacement'))])"
+    ],
+    "call_time_dependencies": [
+      "_current_unresolved_match_context",
+      "_require_managed_group",
+      "_require_matching_roster_resolution_replay",
+      "_require_whatsapp_broadcast_access",
+      "lock_whatsapp_broadcast_groups",
+      "reconcile_mobile_passenger_access_for_group",
+      "suppress_active_replacement_recipients",
+      "sync_group_broadcast_contacts",
+      "AuditLogRepository"
+    ]
+  },
+  {
+    "function": "_require_matching_roster_resolution_replay",
+    "destination": "backend/app/presentation/api/v1/routes/client_group_replacement_resolution.py",
+    "body_ast_sha256": "0fbaee080a329288f48074733cd52ff48274a77ad1e6229123fd87f16ccb06d7",
+    "http_arguments_ast": "arguments(posonlyargs=[], args=[arg(arg='resolution', annotation=Name(id='PassportRosterResolutionModel', ctx=Load()))], kwonlyargs=[arg(arg='client_group_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='submission_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='resolution_type', annotation=Subscript(value=Name(id='Literal', ctx=Load()), slice=Tuple(elts=[Constant(value='replacement'), Constant(value='rejected')], ctx=Load()), ctx=Load())), arg(arg='broadcast_recipient_id', annotation=BinOp(left=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load()), op=BitOr(), right=Constant(value=None))), arg(arg='conflict_detail', annotation=Name(id='str', ctx=Load()))], kw_defaults=[None, None, None, None, None], defaults=[])",
+    "http_decorators_ast": [],
+    "call_time_dependencies": []
+  },
+  {
+    "function": "reject_unidentified_upload",
+    "destination": "backend/app/presentation/api/v1/routes/client_group_rejection_resolution.py",
+    "body_ast_sha256": "76f1d52eaa35e4ae57ddf0953e052a4ec7892a530cf20765a9295efd0d5d76fe",
+    "http_arguments_ast": "arguments(posonlyargs=[], args=[arg(arg='link_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='submission_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='body', annotation=Name(id='RejectUnidentifiedUploadRequest', ctx=Load())), arg(arg='current_user', annotation=Name(id='User', ctx=Load())), arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load())), arg(arg='_csrf', annotation=Constant(value=None))], kwonlyargs=[], kw_defaults=[], defaults=[Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_current_active_user', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_db_session', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='require_cookie_csrf', ctx=Load())], keywords=[])])",
+    "http_decorators_ast": [
+      "Call(func=Attribute(value=Name(id='router', ctx=Load()), attr='post', ctx=Load()), args=[Constant(value='/{link_id}/unidentified/{submission_id}/reject')], keywords=[keyword(arg='response_model', value=Name(id='PassportRosterResolutionResponse', ctx=Load())), keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_201_CREATED', ctx=Load())), keyword(arg='summary', value=Constant(value='Reject an unidentified passport upload from the active roster'))])"
+    ],
+    "call_time_dependencies": [
+      "_current_unresolved_match_context",
+      "_require_managed_group",
+      "_require_matching_roster_resolution_replay",
+      "_require_whatsapp_broadcast_access",
+      "reconcile_mobile_passenger_access_for_group",
+      "sync_group_broadcast_contacts",
+      "AuditLogRepository"
+    ]
+  },
+  {
+    "function": "restore_roster_resolution",
+    "destination": "backend/app/presentation/api/v1/routes/client_group_resolution_restore.py",
+    "body_ast_sha256": "406a5734089cccfac58b0cf098e31a0d8e4477a72ab258cfd4c4547ad6442dce",
+    "http_arguments_ast": "arguments(posonlyargs=[], args=[arg(arg='link_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='resolution_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='current_user', annotation=Name(id='User', ctx=Load())), arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load())), arg(arg='_csrf', annotation=Constant(value=None))], kwonlyargs=[], kw_defaults=[], defaults=[Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_current_active_user', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_db_session', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='require_cookie_csrf', ctx=Load())], keywords=[])])",
+    "http_decorators_ast": [
+      "Call(func=Attribute(value=Name(id='router', ctx=Load()), attr='post', ctx=Load()), args=[Constant(value='/{link_id}/roster-resolutions/{resolution_id}/restore')], keywords=[keyword(arg='response_model', value=Name(id='PassportRosterResolutionResponse', ctx=Load())), keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_200_OK', ctx=Load())), keyword(arg='summary', value=Constant(value='Restore a replaced recipient or rejected unidentified upload'))])"
+    ],
+    "call_time_dependencies": [
+      "_require_managed_group",
+      "_require_whatsapp_broadcast_access",
+      "lock_whatsapp_broadcast_groups",
+      "reconcile_mobile_passenger_access_for_group",
+      "require_locked_broadcast_recipient_capacity",
+      "suppress_active_replacement_recipients",
+      "sync_group_broadcast_contacts",
+      "AuditLogRepository"
+    ]
+  },
+  {
+    "function": "create_client_group",
+    "destination": "backend/app/presentation/api/v1/routes/client_group_configuration.py",
+    "body_ast_sha256": "b280a9df85bbbe5a47515fe7946ef3a8105ead8409131c2d97923f4998d380da",
+    "http_arguments_ast": "arguments(posonlyargs=[], args=[arg(arg='request', annotation=Name(id='CreateClientGroupRequest', ctx=Load())), arg(arg='current_user', annotation=Name(id='User', ctx=Load())), arg(arg='use_case', annotation=Name(id='CreateClientGroupUseCase', ctx=Load())), arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_current_active_user', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='_get_create_use_case', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_db_session', ctx=Load())], keywords=[])])",
+    "http_decorators_ast": [
+      "Call(func=Attribute(value=Name(id='router', ctx=Load()), attr='post', ctx=Load()), args=[Constant(value='')], keywords=[keyword(arg='response_model', value=Name(id='ClientGroupResponse', ctx=Load())), keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_201_CREATED', ctx=Load())), keyword(arg='summary', value=Constant(value='Create a secure, time-limited upload link'))])"
+    ],
+    "call_time_dependencies": [
+      "_replace_whatsapp_links",
+      "_require_client_group_creation_access",
+      "_require_whatsapp_broadcast_access",
+      "_validate_broadcast_ids",
+      "AuditLogRepository"
+    ]
+  },
+  {
+    "function": "assign_client_group_company",
+    "destination": "backend/app/presentation/api/v1/routes/client_group_configuration.py",
+    "body_ast_sha256": "33dc8240ed3bd9230d91d784448bbfdca48a5bcb27b19249135e783a2ddd8667",
+    "http_arguments_ast": "arguments(posonlyargs=[], args=[arg(arg='link_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='body', annotation=Name(id='CompanyAssignmentRequest', ctx=Load())), arg(arg='agency_id', annotation=BinOp(left=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load()), op=BitOr(), right=Constant(value=None))), arg(arg='current_user', annotation=Name(id='User', ctx=Load())), arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[Constant(value=None), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_current_active_user', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_db_session', ctx=Load())], keywords=[])])",
+    "http_decorators_ast": [
+      "Call(func=Attribute(value=Name(id='router', ctx=Load()), attr='patch', ctx=Load()), args=[Constant(value='/{link_id}/company')], keywords=[keyword(arg='response_model', value=Name(id='ClientGroupResponse', ctx=Load())), keyword(arg='dependencies', value=List(elts=[Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='require_cookie_csrf', ctx=Load())], keywords=[])], ctx=Load()))])"
+    ],
+    "call_time_dependencies": []
+  },
+  {
+    "function": "update_client_group",
+    "destination": "backend/app/presentation/api/v1/routes/client_group_configuration.py",
+    "body_ast_sha256": "b7493f09b5749b54cdc7a12cd111b8b042ffcb9d7adc2d00e8a261f5d6f21790",
+    "http_arguments_ast": "arguments(posonlyargs=[], args=[arg(arg='link_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='request', annotation=Name(id='UpdateClientGroupRequest', ctx=Load())), arg(arg='current_user', annotation=Name(id='User', ctx=Load())), arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_current_active_user', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_db_session', ctx=Load())], keywords=[])])",
+    "http_decorators_ast": [
+      "Call(func=Attribute(value=Name(id='router', ctx=Load()), attr='patch', ctx=Load()), args=[Constant(value='/{link_id}')], keywords=[keyword(arg='response_model', value=Name(id='ClientGroupResponse', ctx=Load())), keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_200_OK', ctx=Load())), keyword(arg='summary', value=Constant(value='Rename a client group'))])"
+    ],
+    "call_time_dependencies": [
+      "_replace_whatsapp_links",
+      "_require_whatsapp_broadcast_access",
+      "sync_group_broadcast_contacts",
+      "AuditLogRepository"
+    ]
+  },
+  {
+    "function": "revoke_client_group",
+    "destination": "backend/app/presentation/api/v1/routes/client_group_retention.py",
+    "body_ast_sha256": "813f241337f0bdcdf5227c2b09f7aec892d7b38fda50435fa74be1c8abdb3e97",
+    "http_arguments_ast": "arguments(posonlyargs=[], args=[arg(arg='link_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='current_user', annotation=Name(id='User', ctx=Load())), arg(arg='use_case', annotation=Name(id='RevokeClientGroupUseCase', ctx=Load())), arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_current_active_user', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='_get_revoke_use_case', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_db_session', ctx=Load())], keywords=[])])",
+    "http_decorators_ast": [
+      "Call(func=Attribute(value=Name(id='router', ctx=Load()), attr='post', ctx=Load()), args=[Constant(value='/{link_id}/revoke')], keywords=[keyword(arg='response_model', value=Name(id='ClientGroupResponse', ctx=Load())), keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_200_OK', ctx=Load())), keyword(arg='summary', value=Constant(value='Revoke an upload link'))])"
+    ],
+    "call_time_dependencies": []
+  },
+  {
+    "function": "delete_client_group",
+    "destination": "backend/app/presentation/api/v1/routes/client_group_retention.py",
+    "body_ast_sha256": "f6e4c66a84767be100146839973c3eb042865385ab1e6487632b8c52ee4431cf",
+    "http_arguments_ast": "arguments(posonlyargs=[], args=[arg(arg='link_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='current_user', annotation=Name(id='User', ctx=Load())), arg(arg='use_case', annotation=Name(id='DeleteClientGroupUseCase', ctx=Load())), arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_current_active_user', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='_get_delete_use_case', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_db_session', ctx=Load())], keywords=[])])",
+    "http_decorators_ast": [
+      "Call(func=Attribute(value=Name(id='router', ctx=Load()), attr='delete', ctx=Load()), args=[Constant(value='/{link_id}')], keywords=[keyword(arg='response_model', value=Name(id='ClientGroupResponse', ctx=Load())), keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_200_OK', ctx=Load())), keyword(arg='summary', value=Constant(value='Archive a client group'))])"
+    ],
+    "call_time_dependencies": []
+  },
+  {
+    "function": "restore_client_group",
+    "destination": "backend/app/presentation/api/v1/routes/client_group_retention.py",
+    "body_ast_sha256": "511b05231aa5ab7abb3459d52f6121aff995fa4ac12dcccac5d8bc8db7465c99",
+    "http_arguments_ast": "arguments(posonlyargs=[], args=[arg(arg='link_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='current_user', annotation=Name(id='User', ctx=Load())), arg(arg='use_case', annotation=Name(id='RestoreClientGroupUseCase', ctx=Load())), arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_current_active_user', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='_get_restore_use_case', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_db_session', ctx=Load())], keywords=[])])",
+    "http_decorators_ast": [
+      "Call(func=Attribute(value=Name(id='router', ctx=Load()), attr='post', ctx=Load()), args=[Constant(value='/{link_id}/restore')], keywords=[keyword(arg='response_model', value=Name(id='ClientGroupResponse', ctx=Load())), keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_200_OK', ctx=Load())), keyword(arg='summary', value=Constant(value='Reopen a closed link or restore an archived or retained deleted client group'))])"
+    ],
+    "call_time_dependencies": [
+      "sync_group_broadcast_contacts"
+    ]
+  },
+  {
+    "function": "permanently_delete_client_group",
+    "destination": "backend/app/presentation/api/v1/routes/client_group_permanent_delete.py",
+    "body_ast_sha256": "282098db1cd1f295fa2bd0ba892fe96c5b7d4ac29b8e255b276ec4ad4686010d",
+    "http_arguments_ast": "arguments(posonlyargs=[], args=[arg(arg='link_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='retain_records', annotation=Name(id='bool', ctx=Load())), arg(arg='current_user', annotation=Name(id='User', ctx=Load())), arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[Constant(value=True), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='require_recent_mfa', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_db_session', ctx=Load())], keywords=[])])",
+    "http_decorators_ast": [
+      "Call(func=Attribute(value=Name(id='router', ctx=Load()), attr='delete', ctx=Load()), args=[Constant(value='/{link_id}/permanent')], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_200_OK', ctx=Load())), keyword(arg='summary', value=Constant(value='Permanently delete an archived client group')), keyword(arg='dependencies', value=List(elts=[Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='require_cookie_csrf', ctx=Load())], keywords=[])], ctx=Load()))])"
+    ],
+    "call_time_dependencies": [
+      "lock_linked_whatsapp_broadcast_groups",
+      "prepare_private_delivery_identity_mutation",
+      "record_destructive_failure",
+      "stage_storage_cleanup_jobs",
+      "sync_group_broadcast_contacts",
+      "AuditLogRepository"
+    ]
+  },
+  {
+    "function": "_delete_by_ids",
+    "destination": "backend/app/presentation/api/v1/routes/client_group_permanent_delete.py",
+    "body_ast_sha256": "f535b74278a731d94e7fe846dac80001f40595c55b68a82130447b6d52d98c83",
+    "http_arguments_ast": "arguments(posonlyargs=[], args=[arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load())), arg(arg='model', annotation=BinOp(left=Subscript(value=Name(id='type', ctx=Load()), slice=Name(id='PassportProcessingJobModel', ctx=Load()), ctx=Load()), op=BitOr(), right=Subscript(value=Name(id='type', ctx=Load()), slice=Name(id='PassportSubmissionModel', ctx=Load()), ctx=Load()))), arg(arg='column', annotation=Subscript(value=Name(id='InstrumentedAttribute', ctx=Load()), slice=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load()), ctx=Load())), arg(arg='ids', annotation=Subscript(value=Name(id='list', ctx=Load()), slice=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load()), ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[])",
+    "http_decorators_ast": [],
+    "call_time_dependencies": []
+  }
+]

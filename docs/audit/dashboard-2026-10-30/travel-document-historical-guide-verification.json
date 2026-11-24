@@ -1,0 +1,8 @@
+{
+  "status": "Historical rollout framing only; no runtime/configuration commands executed",
+  "path": "docs/architecture/travel-document-production-rollout.md",
+  "before_sha256": "9aaf78a8c123cbeef87f72453c84847956b77197e755bc5d351208e0a1004034",
+  "after_sha256": "3fd0dfd187dfde4b3c7a2759452b7b8d64d488b8cc43a516def43463aaa686b5",
+  "all_other_normalized_body_and_fenced_commands_exact": true,
+  "scope": "Clarifies retired local passport OCR and old release versions, preserving historical document/worker/resource/security contract"
+}

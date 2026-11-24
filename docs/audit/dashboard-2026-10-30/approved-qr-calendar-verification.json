@@ -1,0 +1,31 @@
+{
+  "scope": "Dashboard approved-passenger QR issuance; no native ingress feature changes",
+  "defect": "Accepted persisted return dates9999-12-30/31 overflowed while adding two grace days",
+  "before": {
+    "new_cases": 7,
+    "actual_failures": 2,
+    "healthy_controls": 5,
+    "log": "approved-qr-calendar-before.txt"
+  },
+  "change": "Cap two-day grace at representable date ceiling before combining UTC time.max. Ordinary return-date/365day fallback policy unchanged; no timestamp later than original mathematical expiry.",
+  "after": {
+    "affected_cases": 14,
+    "files": 3,
+    "passed": true,
+    "elapsed_seconds": 4.41,
+    "log": "approved-qr-calendar-after.txt",
+    "strict_mypy_owned_files": 1,
+    "ruff_no_fix_files": 2,
+    "source_fence_unchanged": 6
+  },
+  "equivalence": "approved-qr-calendar-source-proof.json",
+  "format_check": {
+    "passed": false,
+    "notes": "New test is formatted. Existing issuer format debt was reported at unchanged qr_status and approval-query/status expressions; no unrelated formatting applied. Ruff lint and owned strict types pass."
+  },
+  "limits": [
+    "Actual local SQLite and accepted request/domain data; no PostgreSQL concurrency or VPS execution",
+    "No native issuer behavior/permission change",
+    "No whole current-tree qualification inferred"
+  ]
+}

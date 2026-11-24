@@ -1,0 +1,7 @@
+{
+  "calendar_addition_actual_original_current_parity_cases": 630,
+  "assessment_actual_original_current_parity_cases": 4236,
+  "old_two_test_files_byte_exact": true,
+  "scope": "Valid original-result scenarios including leap/month ends, year1/year9998, operational inclusivity, lifecycle/acceptance/availability/context ordering, configured rule deadlines/issue ages. Beyond-ceiling deliberate corrections are separate actual regression cases.",
+  "current_runtime_sha256": "eaec54fb85922579d26e450aa8a170fe4cea1e0a2c3e27adbe8c45a31ed0a35c"
+}

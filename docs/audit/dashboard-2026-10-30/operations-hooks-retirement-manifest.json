@@ -1,0 +1,124 @@
+{
+  "phase": "Bounded closed-declaration cleanup after exact mechanical split and intentional mutation wrapper fix.",
+  "original_source": {
+    "path": "frontend/features/operations/hooks/use-operations.ts",
+    "sha256": "cc0e4bc344b5cac65e7912bbc534e58bd7ab5e3304ad419bdd2ac15e8969ba73",
+    "physical_lines": 752
+  },
+  "historical_complete_mechanical_proof": "operations-hooks-mechanical-provenance.json",
+  "caller_closure": "operations-unused-hook-closure.json",
+  "traversal": {
+    "source_files": 1662,
+    "runtime_namespace_or_literal_dynamic_imports": 0,
+    "ambiguous_runtime_references": 0
+  },
+  "retired": [
+    {
+      "id": "frontend/features/operations/hooks/use-admin-operations.ts#useAdminOverview",
+      "path": "frontend/features/operations/hooks/use-admin-operations.ts",
+      "name": "useAdminOverview",
+      "sha256": "55c0be9fbb93bfcf5c678825265cddae3bf7d4f89a23b2890e1556f0d6e901a2",
+      "originalDefinition": "export function useAdminOverview() {\r\n  return useQuery({\r\n    queryKey: QUERY_KEYS.operations.adminOverview,\r\n    queryFn: operationsApi.adminOverview,\r\n  });\r\n}",
+      "original_unsafe_definition_sha256": "55c0be9fbb93bfcf5c678825265cddae3bf7d4f89a23b2890e1556f0d6e901a2",
+      "original_unsafe_definition": "export function useAdminOverview() {\r\n  return useQuery({\r\n    queryKey: QUERY_KEYS.operations.adminOverview,\r\n    queryFn: operationsApi.adminOverview,\r\n  });\r\n}",
+      "caller_evidence": "operations-unused-hook-closure.json:allPublicReferences.useAdminOverview",
+      "facade_forwarding_retired": true,
+      "runtime_callers": 0,
+      "api_methods_and_dtos_retained": true
+    },
+    {
+      "id": "frontend/features/operations/hooks/use-admin-operations.ts#useAssignManagerGroups",
+      "path": "frontend/features/operations/hooks/use-admin-operations.ts",
+      "name": "useAssignManagerGroups",
+      "sha256": "509b2e3bd3cb58b9a2f6fb23c2bc66420894c48d6d44e4e1c3436a5991fd18ac",
+      "originalDefinition": "export function useAssignManagerGroups() {\r\n  const queryClient = useQueryClient();\r\n\r\n  return usePrivateMutation({\r\n    mutationFn: ({ managerId, groupIds }: { managerId: string; groupIds: string[] }) =>\r\n      operationsApi.assignManagerGroups(managerId, groupIds),\r\n    onSuccess: () => {\r\n      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.operations.managers });\r\n      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.operations.adminGroups });\r\n      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard.stats });\r\n    },\r\n  });\r\n}",
+      "original_unsafe_definition_sha256": "bc89cf1628716993f421c5ac0f361b6cc3d39b76f473cb240b68dda50168cd4a",
+      "original_unsafe_definition": "export function useAssignManagerGroups() {\r\n  const queryClient = useQueryClient();\r\n\r\n  return useMutation({\r\n    mutationFn: ({ managerId, groupIds }: { managerId: string; groupIds: string[] }) =>\r\n      operationsApi.assignManagerGroups(managerId, groupIds),\r\n    onSuccess: () => {\r\n      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.operations.managers });\r\n      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.operations.adminGroups });\r\n      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard.stats });\r\n    },\r\n  });\r\n}",
+      "caller_evidence": "operations-unused-hook-closure.json:allPublicReferences.useAssignManagerGroups",
+      "facade_forwarding_retired": true,
+      "runtime_callers": 0,
+      "api_methods_and_dtos_retained": true
+    },
+    {
+      "id": "frontend/features/operations/hooks/use-managed-accounts.ts#useManagedAccounts",
+      "path": "frontend/features/operations/hooks/use-managed-accounts.ts",
+      "name": "useManagedAccounts",
+      "sha256": "8640c4cf95b8781872f8954bf5919ea68ba3fd8426d680822cabc2eb02fda4f1",
+      "originalDefinition": "export function useManagedAccounts() {\r\n  return useQuery({\r\n    queryKey: MANAGED_ACCOUNTS_QUERY_KEY,\r\n    queryFn: operationsApi.managedAccounts,\r\n    retry: false,\r\n  });\r\n}",
+      "original_unsafe_definition_sha256": "8640c4cf95b8781872f8954bf5919ea68ba3fd8426d680822cabc2eb02fda4f1",
+      "original_unsafe_definition": "export function useManagedAccounts() {\r\n  return useQuery({\r\n    queryKey: MANAGED_ACCOUNTS_QUERY_KEY,\r\n    queryFn: operationsApi.managedAccounts,\r\n    retry: false,\r\n  });\r\n}",
+      "caller_evidence": "operations-unused-hook-closure.json:allPublicReferences.useManagedAccounts",
+      "facade_forwarding_retired": true,
+      "runtime_callers": 0,
+      "api_methods_and_dtos_retained": true
+    },
+    {
+      "id": "frontend/features/operations/hooks/use-managed-accounts.ts#useStaffAccounts",
+      "path": "frontend/features/operations/hooks/use-managed-accounts.ts",
+      "name": "useStaffAccounts",
+      "sha256": "1f7aac979ab54d48c01acff3ef5c3ecf304dd9e28f0f327c369147ac9ff758d8",
+      "originalDefinition": "export function useStaffAccounts() {\r\n  return useQuery({\r\n    queryKey: STAFF_ACCOUNTS_QUERY_KEY,\r\n    queryFn: operationsApi.staffAccounts,\r\n    retry: false,\r\n  });\r\n}",
+      "original_unsafe_definition_sha256": "1f7aac979ab54d48c01acff3ef5c3ecf304dd9e28f0f327c369147ac9ff758d8",
+      "original_unsafe_definition": "export function useStaffAccounts() {\r\n  return useQuery({\r\n    queryKey: STAFF_ACCOUNTS_QUERY_KEY,\r\n    queryFn: operationsApi.staffAccounts,\r\n    retry: false,\r\n  });\r\n}",
+      "caller_evidence": "operations-unused-hook-closure.json:allPublicReferences.useStaffAccounts",
+      "facade_forwarding_retired": true,
+      "runtime_callers": 0,
+      "api_methods_and_dtos_retained": true
+    },
+    {
+      "id": "frontend/features/operations/hooks/use-tour-operations.ts#useTourOperationsArchitecture",
+      "path": "frontend/features/operations/hooks/use-tour-operations.ts",
+      "name": "useTourOperationsArchitecture",
+      "sha256": "b72a6160eba84c9eadf790df89b3043bc5dc2f311c74fd2e9cd802daaa82ce3b",
+      "originalDefinition": "export function useTourOperationsArchitecture() {\r\n  return useQuery({\r\n    queryKey: QUERY_KEYS.operations.tourOperationsArchitecture,\r\n    queryFn: operationsApi.tourOperationsArchitecture,\r\n  });\r\n}",
+      "original_unsafe_definition_sha256": "b72a6160eba84c9eadf790df89b3043bc5dc2f311c74fd2e9cd802daaa82ce3b",
+      "original_unsafe_definition": "export function useTourOperationsArchitecture() {\r\n  return useQuery({\r\n    queryKey: QUERY_KEYS.operations.tourOperationsArchitecture,\r\n    queryFn: operationsApi.tourOperationsArchitecture,\r\n  });\r\n}",
+      "caller_evidence": "operations-unused-hook-closure.json:allPublicReferences.useTourOperationsArchitecture",
+      "facade_forwarding_retired": true,
+      "runtime_callers": 0,
+      "api_methods_and_dtos_retained": true
+    },
+    {
+      "id": "frontend/features/operations/hooks/use-coordinator-attendance.ts#useScanMyAttendanceSession",
+      "path": "frontend/features/operations/hooks/use-coordinator-attendance.ts",
+      "name": "useScanMyAttendanceSession",
+      "sha256": "0972133f446dd122f2addf996ffa204802a6595157a235855a5e591f93ac70bf",
+      "originalDefinition": "export function useScanMyAttendanceSession() {\r\n  const queryClient = useQueryClient();\r\n\r\n  return usePrivateMutation({\r\n    mutationFn: operationsApi.scanMyAttendanceSession,\r\n    onSuccess: () => {\r\n      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.operations.tourGroups });\r\n    },\r\n  });\r\n}",
+      "original_unsafe_definition_sha256": "39a46094326c7a6ce9e89fdb02eac2306d6578993370cda9e1d70819aa569ba1",
+      "original_unsafe_definition": "export function useScanMyAttendanceSession() {\r\n  const queryClient = useQueryClient();\r\n\r\n  return useMutation({\r\n    mutationFn: operationsApi.scanMyAttendanceSession,\r\n    onSuccess: () => {\r\n      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.operations.tourGroups });\r\n    },\r\n  });\r\n}",
+      "caller_evidence": "operations-unused-hook-closure.json:allPublicReferences.useScanMyAttendanceSession",
+      "facade_forwarding_retired": true,
+      "runtime_callers": 0,
+      "api_methods_and_dtos_retained": true
+    },
+    {
+      "id": "frontend/features/operations/hooks/use-managed-attendance.ts#useGroupAttendanceOverview",
+      "path": "frontend/features/operations/hooks/use-managed-attendance.ts",
+      "name": "useGroupAttendanceOverview",
+      "sha256": "c1e698363709315e9c65ee5568bcd46a6e8a6b6cbc4cb90ed704b60bb9de59cc",
+      "originalDefinition": "export function useGroupAttendanceOverview(groupId: string) {\r\n  const accessScope = useAuthenticatedQueryScope();\r\n  return useQuery({\r\n    queryKey: [\"operations\", \"tour-operations\", \"groups\", groupId, \"attendance\"],\r\n    queryFn: () => operationsApi.groupAttendanceOverview(groupId),\r\n    refetchInterval: (query) => attendanceRepairIntervalMs({\r\n      groupId,\r\n      accessScope,\r\n      hasActiveSession: query.state.data?.sessions.some(\r\n        (session) => session.status === \"draft\" || session.status === \"active\",\r\n      ) ?? false,\r\n    }),\r\n    refetchIntervalInBackground: false,\r\n    refetchOnReconnect: \"always\",\r\n    refetchOnWindowFocus: \"always\",\r\n    retry: false,\r\n  });\r\n}",
+      "original_unsafe_definition_sha256": "c1e698363709315e9c65ee5568bcd46a6e8a6b6cbc4cb90ed704b60bb9de59cc",
+      "original_unsafe_definition": "export function useGroupAttendanceOverview(groupId: string) {\r\n  const accessScope = useAuthenticatedQueryScope();\r\n  return useQuery({\r\n    queryKey: [\"operations\", \"tour-operations\", \"groups\", groupId, \"attendance\"],\r\n    queryFn: () => operationsApi.groupAttendanceOverview(groupId),\r\n    refetchInterval: (query) => attendanceRepairIntervalMs({\r\n      groupId,\r\n      accessScope,\r\n      hasActiveSession: query.state.data?.sessions.some(\r\n        (session) => session.status === \"draft\" || session.status === \"active\",\r\n      ) ?? false,\r\n    }),\r\n    refetchIntervalInBackground: false,\r\n    refetchOnReconnect: \"always\",\r\n    refetchOnWindowFocus: \"always\",\r\n    retry: false,\r\n  });\r\n}",
+      "caller_evidence": "operations-unused-hook-closure.json:allPublicReferences.useGroupAttendanceOverview",
+      "facade_forwarding_retired": true,
+      "runtime_callers": 0,
+      "api_methods_and_dtos_retained": true
+    }
+  ],
+  "runtime_files_deleted": [],
+  "obsolete_test_cases": {
+    "removed_table_entries": [
+      "assignManagerGroups",
+      "scanMyAttendanceSession"
+    ],
+    "removed_implementation_only_cases": 4,
+    "rationale": "Only hooks without any production caller retired; existing direct scan/batch owner/ETag/cursor/API tests and active offline queue are retained. All remaining26 private mutation cases keep both actor-change and same-authority controls."
+  },
+  "api": {
+    "path": "frontend/features/operations/api/operations.api.ts",
+    "sha256": "7a686e1546a5235b19567421afc23c8bce0cccd550f5f619208e807b67da677d",
+    "physical_lines": 1200
+  },
+  "api_whole_file_byte_identical": true,
+  "limits": "Closed source graph evidence concerns this dashboard working copy; no API/backend capability/permission removed. Query-key invalidation families remain for compatibility."
+}

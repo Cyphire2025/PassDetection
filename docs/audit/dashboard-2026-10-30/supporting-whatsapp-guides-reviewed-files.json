@@ -1,0 +1,76 @@
+{
+  "files": [
+    {
+      "path": "docs/WHATSAPP_BROADCAST_WORKSPACE.md",
+      "sha256": "6aa4562ccfbd533048c43bf44aba31cf26084777068bc241067447e0d67d9092",
+      "physical_lines": 60,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete authored guide physically read. Broadcast route/editor/history/selection/private-file/filter/export/template/destination/idempotency/unknown-outcome claims assessed against earlier reviewed source owner context; source-only vs synthetic/service/provider caveats retained. Historical validation/source-integration claims are not rerun, authenticated, promoted to current qualification or treated as instructions."
+    },
+    {
+      "path": "docs/architecture/whatsapp-broadcast-performance.md",
+      "sha256": "debd8b410f0e7d46f3230065a376db74b7fc1d874d9136e46e1de2d3eebdb83d",
+      "physical_lines": 66,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete authored guide physically read. Broadcast route/editor/history/selection/private-file/filter/export/template/destination/idempotency/unknown-outcome claims assessed against earlier reviewed source owner context; source-only vs synthetic/service/provider caveats retained. Historical validation/source-integration claims are not rerun, authenticated, promoted to current qualification or treated as instructions."
+    },
+    {
+      "path": "docs/architecture/whatsapp-delivery-history.md",
+      "sha256": "371ab33df826aef2156e06bde57dab9a877510d5dd98f69cfdea518874d2967b",
+      "physical_lines": 74,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete authored guide physically read. Broadcast route/editor/history/selection/private-file/filter/export/template/destination/idempotency/unknown-outcome claims assessed against earlier reviewed source owner context; source-only vs synthetic/service/provider caveats retained. Historical validation/source-integration claims are not rerun, authenticated, promoted to current qualification or treated as instructions."
+    },
+    {
+      "path": "docs/architecture/whatsapp-filter-exports.md",
+      "sha256": "b891b67cdabc213fd0284d188ad6add8758d98702f513c955f8216ff842fd07f",
+      "physical_lines": 62,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete authored guide physically read. Broadcast route/editor/history/selection/private-file/filter/export/template/destination/idempotency/unknown-outcome claims assessed against earlier reviewed source owner context; source-only vs synthetic/service/provider caveats retained. Historical validation/source-integration claims are not rerun, authenticated, promoted to current qualification or treated as instructions."
+    },
+    {
+      "path": "docs/architecture/whatsapp-approved-template-rollout.md",
+      "sha256": "d841cef569e8b60b3cfafa88635b1d9c2ed5f09c048690147625b016ddaab929",
+      "physical_lines": 133,
+      "review_scope": "full",
+      "status": "reviewed-and-documented",
+      "reviewer": "branding_visuals",
+      "notes": "Complete authored guide physically read. Broadcast route/editor/history/selection/private-file/filter/export/template/destination/idempotency/unknown-outcome claims assessed against earlier reviewed source owner context; source-only vs synthetic/service/provider caveats retained. Historical validation/source-integration claims are not rerun, authenticated, promoted to current qualification or treated as instructions. Only seven\u2192nine corrected from actual nine-entry TEMPLATE_REGISTRY and current settings guide. Entire other text and all original component/template/ENV/rollout/rollback blocks byte-content exact."
+    },
+    {
+      "path": "docs/architecture/whatsapp-group-invites.md",
+      "sha256": "c3da3f6ae8850de102f3d0a430e02487d9cee491f5832072dc8e506a739543c1",
+      "physical_lines": 92,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete authored guide physically read. Broadcast route/editor/history/selection/private-file/filter/export/template/destination/idempotency/unknown-outcome claims assessed against earlier reviewed source owner context; source-only vs synthetic/service/provider caveats retained. Historical validation/source-integration claims are not rerun, authenticated, promoted to current qualification or treated as instructions."
+    },
+    {
+      "path": "docs/architecture/whatsapp-passenger-otp.md",
+      "sha256": "4b5d8c405eee351424c804fe030db4cb184e22c4a5333250d8147c0537eccc4f",
+      "physical_lines": 195,
+      "review_scope": "full",
+      "status": "reviewed-and-documented",
+      "reviewer": "branding_visuals",
+      "notes": "Complete authored guide physically read. Broadcast route/editor/history/selection/private-file/filter/export/template/destination/idempotency/unknown-outcome claims assessed against earlier reviewed source owner context; source-only vs synthetic/service/provider caveats retained. Historical validation/source-integration claims are not rerun, authenticated, promoted to current qualification or treated as instructions. Current retained fresh-upload lane corrected from actual normal hook/API/router/dependency chain: public-drafts contact+completion, HttpOnly draft cookie plus per-member X-Upload-Session-ID; legacy submission endpoints preserved explicitly.0102 rollout labelled historical; original native-client Meta setup copied unchanged as historical shared-provider context, no native app/current Meta/provider behavior audited or executed."
+    },
+    {
+      "path": "docs/architecture/whatsapp-shared-phone-corrections.md",
+      "sha256": "126b4b59116f12b766eab1468749127c89ef95e18f7f8a75fe9929a6953afab7",
+      "physical_lines": 47,
+      "review_scope": "full",
+      "status": "reviewed-and-documented",
+      "reviewer": "branding_visuals",
+      "notes": "Complete authored guide physically read. Broadcast route/editor/history/selection/private-file/filter/export/template/destination/idempotency/unknown-outcome claims assessed against earlier reviewed source owner context; source-only vs synthetic/service/provider caveats retained. Historical validation/source-integration claims are not rerun, authenticated, promoted to current qualification or treated as instructions. Current deployment guidance now distinguishes original0105 override from qualified manifest selector. Every identity/merge/source-fingerprint/uncertain delivery/history/per-assigned-PDF safety rule retained, no runtime mutation."
+    }
+  ]
+}

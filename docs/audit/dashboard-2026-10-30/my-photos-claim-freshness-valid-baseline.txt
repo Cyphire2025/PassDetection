@@ -1,0 +1,252 @@
+FFFF                                                                     [100%]
+================================== FAILURES ===================================
+_ test_late_provider_result_rechecks_durable_authority[claim_replaced-creation] _
+
+photo_database = namespace(sessions=async_sessionmaker(class_='AsyncSession', bind=<sqlalchemy.ext.asyncio.engine.AsyncEngine object at...nections=16), app_secret_key='synthetic-photo-cursor-secret'), gallery_id=UUID('6ad96f3c-a5ec-4858-a4d0-be4fa50013f1'))
+phase = 'creation', change = 'claim_replaced'
+
+    @pytest.mark.parametrize("phase", ["creation", "completion"])
+    @pytest.mark.parametrize("change", ["claim_replaced", "feature_disabled"])
+    async def test_late_provider_result_rechecks_durable_authority(photo_database, phase, change):
+        env = photo_database
+        replacement = "replacement-claim-owner"
+    
+        async def change_durable_state():
+            async with env.sessions() as session, session.begin():
+                if change == "claim_replaced":
+                    await session.execute(
+                        update(MyPhotoLivenessSessionModel).values(
+                            provider_claim_token=replacement,
+                            provider_claim_expires_at=datetime.now(UTC) + timedelta(seconds=30),
+                        )
+                    )
+                else:
+                    await session.execute(
+                        update(MyPhotoGalleryModel)
+                        .where(
+                            MyPhotoGalleryModel.id == env.gallery_id,
+                        )
+                        .values(feature_enabled=False)
+                    )
+    
+        class Provider:
+            ready = True
+            client_flow = "development_simulator"
+    
+            async def create_session(self, request):
+                if phase == "creation":
+                    await change_durable_state()
+                return LivenessSessionHandle("synthetic-provider-session", request.expires_at)
+    
+            async def get_result(self, _reference):
+                await change_durable_state()
+                return LivenessResult("passed", reference_face_handle="synthetic-old-reference")
+    
+        providers = SimpleNamespace(
+            provider_name="development", liveness=Provider(), face_search=SimpleNamespace(ready=True)
+        )
+        expected = MyPhotosConflict if change == "claim_replaced" else MyPhotosUnavailable
+        async with env.sessions() as session:
+            service = MyPhotosService(session, settings=env.settings, providers=providers)
+            start = MyPhotosLivenessStartRequest(
+                challenge_mode="movement_only", idempotency_key="synthetic-start"
+            )
+            if phase == "completion":
+                created = await service.start_liveness(
+                    claims=env.passenger.claims, trip=env.passenger.trip, request=start
+                )
+                await session.commit()
+            try:
+>               with pytest.raises(expected):
+E               Failed: DID NOT RAISE <class 'app.application.my_photos.errors.MyPhotosConflict'>
+
+tests\integration\test_my_photos_provider_claim_freshness.py:133: Failed
+_ test_late_provider_result_rechecks_durable_authority[claim_replaced-completion] _
+
+photo_database = namespace(sessions=async_sessionmaker(class_='AsyncSession', bind=<sqlalchemy.ext.asyncio.engine.AsyncEngine object at...nections=16), app_secret_key='synthetic-photo-cursor-secret'), gallery_id=UUID('23b1d095-34c1-4e15-a6c2-5369374b5358'))
+phase = 'completion', change = 'claim_replaced'
+
+    @pytest.mark.parametrize("phase", ["creation", "completion"])
+    @pytest.mark.parametrize("change", ["claim_replaced", "feature_disabled"])
+    async def test_late_provider_result_rechecks_durable_authority(photo_database, phase, change):
+        env = photo_database
+        replacement = "replacement-claim-owner"
+    
+        async def change_durable_state():
+            async with env.sessions() as session, session.begin():
+                if change == "claim_replaced":
+                    await session.execute(
+                        update(MyPhotoLivenessSessionModel).values(
+                            provider_claim_token=replacement,
+                            provider_claim_expires_at=datetime.now(UTC) + timedelta(seconds=30),
+                        )
+                    )
+                else:
+                    await session.execute(
+                        update(MyPhotoGalleryModel)
+                        .where(
+                            MyPhotoGalleryModel.id == env.gallery_id,
+                        )
+                        .values(feature_enabled=False)
+                    )
+    
+        class Provider:
+            ready = True
+            client_flow = "development_simulator"
+    
+            async def create_session(self, request):
+                if phase == "creation":
+                    await change_durable_state()
+                return LivenessSessionHandle("synthetic-provider-session", request.expires_at)
+    
+            async def get_result(self, _reference):
+                await change_durable_state()
+                return LivenessResult("passed", reference_face_handle="synthetic-old-reference")
+    
+        providers = SimpleNamespace(
+            provider_name="development", liveness=Provider(), face_search=SimpleNamespace(ready=True)
+        )
+        expected = MyPhotosConflict if change == "claim_replaced" else MyPhotosUnavailable
+        async with env.sessions() as session:
+            service = MyPhotosService(session, settings=env.settings, providers=providers)
+            start = MyPhotosLivenessStartRequest(
+                challenge_mode="movement_only", idempotency_key="synthetic-start"
+            )
+            if phase == "completion":
+                created = await service.start_liveness(
+                    claims=env.passenger.claims, trip=env.passenger.trip, request=start
+                )
+                await session.commit()
+            try:
+>               with pytest.raises(expected):
+E               Failed: DID NOT RAISE <class 'app.application.my_photos.errors.MyPhotosConflict'>
+
+tests\integration\test_my_photos_provider_claim_freshness.py:133: Failed
+_ test_late_provider_result_rechecks_durable_authority[feature_disabled-creation] _
+
+photo_database = namespace(sessions=async_sessionmaker(class_='AsyncSession', bind=<sqlalchemy.ext.asyncio.engine.AsyncEngine object at...nections=16), app_secret_key='synthetic-photo-cursor-secret'), gallery_id=UUID('4390795d-ad29-41ad-a5df-8013f4d611e6'))
+phase = 'creation', change = 'feature_disabled'
+
+    @pytest.mark.parametrize("phase", ["creation", "completion"])
+    @pytest.mark.parametrize("change", ["claim_replaced", "feature_disabled"])
+    async def test_late_provider_result_rechecks_durable_authority(photo_database, phase, change):
+        env = photo_database
+        replacement = "replacement-claim-owner"
+    
+        async def change_durable_state():
+            async with env.sessions() as session, session.begin():
+                if change == "claim_replaced":
+                    await session.execute(
+                        update(MyPhotoLivenessSessionModel).values(
+                            provider_claim_token=replacement,
+                            provider_claim_expires_at=datetime.now(UTC) + timedelta(seconds=30),
+                        )
+                    )
+                else:
+                    await session.execute(
+                        update(MyPhotoGalleryModel)
+                        .where(
+                            MyPhotoGalleryModel.id == env.gallery_id,
+                        )
+                        .values(feature_enabled=False)
+                    )
+    
+        class Provider:
+            ready = True
+            client_flow = "development_simulator"
+    
+            async def create_session(self, request):
+                if phase == "creation":
+                    await change_durable_state()
+                return LivenessSessionHandle("synthetic-provider-session", request.expires_at)
+    
+            async def get_result(self, _reference):
+                await change_durable_state()
+                return LivenessResult("passed", reference_face_handle="synthetic-old-reference")
+    
+        providers = SimpleNamespace(
+            provider_name="development", liveness=Provider(), face_search=SimpleNamespace(ready=True)
+        )
+        expected = MyPhotosConflict if change == "claim_replaced" else MyPhotosUnavailable
+        async with env.sessions() as session:
+            service = MyPhotosService(session, settings=env.settings, providers=providers)
+            start = MyPhotosLivenessStartRequest(
+                challenge_mode="movement_only", idempotency_key="synthetic-start"
+            )
+            if phase == "completion":
+                created = await service.start_liveness(
+                    claims=env.passenger.claims, trip=env.passenger.trip, request=start
+                )
+                await session.commit()
+            try:
+>               with pytest.raises(expected):
+E               Failed: DID NOT RAISE <class 'app.application.my_photos.errors.MyPhotosUnavailable'>
+
+tests\integration\test_my_photos_provider_claim_freshness.py:133: Failed
+_ test_late_provider_result_rechecks_durable_authority[feature_disabled-completion] _
+
+photo_database = namespace(sessions=async_sessionmaker(class_='AsyncSession', bind=<sqlalchemy.ext.asyncio.engine.AsyncEngine object at...nections=16), app_secret_key='synthetic-photo-cursor-secret'), gallery_id=UUID('490e5cf4-3bc6-4262-acb7-34c4a1422899'))
+phase = 'completion', change = 'feature_disabled'
+
+    @pytest.mark.parametrize("phase", ["creation", "completion"])
+    @pytest.mark.parametrize("change", ["claim_replaced", "feature_disabled"])
+    async def test_late_provider_result_rechecks_durable_authority(photo_database, phase, change):
+        env = photo_database
+        replacement = "replacement-claim-owner"
+    
+        async def change_durable_state():
+            async with env.sessions() as session, session.begin():
+                if change == "claim_replaced":
+                    await session.execute(
+                        update(MyPhotoLivenessSessionModel).values(
+                            provider_claim_token=replacement,
+                            provider_claim_expires_at=datetime.now(UTC) + timedelta(seconds=30),
+                        )
+                    )
+                else:
+                    await session.execute(
+                        update(MyPhotoGalleryModel)
+                        .where(
+                            MyPhotoGalleryModel.id == env.gallery_id,
+                        )
+                        .values(feature_enabled=False)
+                    )
+    
+        class Provider:
+            ready = True
+            client_flow = "development_simulator"
+    
+            async def create_session(self, request):
+                if phase == "creation":
+                    await change_durable_state()
+                return LivenessSessionHandle("synthetic-provider-session", request.expires_at)
+    
+            async def get_result(self, _reference):
+                await change_durable_state()
+                return LivenessResult("passed", reference_face_handle="synthetic-old-reference")
+    
+        providers = SimpleNamespace(
+            provider_name="development", liveness=Provider(), face_search=SimpleNamespace(ready=True)
+        )
+        expected = MyPhotosConflict if change == "claim_replaced" else MyPhotosUnavailable
+        async with env.sessions() as session:
+            service = MyPhotosService(session, settings=env.settings, providers=providers)
+            start = MyPhotosLivenessStartRequest(
+                challenge_mode="movement_only", idempotency_key="synthetic-start"
+            )
+            if phase == "completion":
+                created = await service.start_liveness(
+                    claims=env.passenger.claims, trip=env.passenger.trip, request=start
+                )
+                await session.commit()
+            try:
+>               with pytest.raises(expected):
+E               Failed: DID NOT RAISE <class 'app.application.my_photos.errors.MyPhotosUnavailable'>
+
+tests\integration\test_my_photos_provider_claim_freshness.py:133: Failed
+=========================== short test summary info ===========================
+FAILED tests/integration/test_my_photos_provider_claim_freshness.py::test_late_provider_result_rechecks_durable_authority[claim_replaced-creation]
+FAILED tests/integration/test_my_photos_provider_claim_freshness.py::test_late_provider_result_rechecks_durable_authority[claim_replaced-completion]
+FAILED tests/integration/test_my_photos_provider_claim_freshness.py::test_late_provider_result_rechecks_durable_authority[feature_disabled-creation]
+FAILED tests/integration/test_my_photos_provider_claim_freshness.py::test_late_provider_result_rechecks_durable_authority[feature_disabled-completion]
+4 failed in 8.26s

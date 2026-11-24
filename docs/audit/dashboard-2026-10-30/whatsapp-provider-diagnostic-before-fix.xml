@@ -1,0 +1,733 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="12" skipped="0" tests="12" time="0.970" timestamp="2026-10-31T01:42:05.737670+05:30" hostname="Nipun5070ti"><testcase classname="tests.unit.infrastructure.test_whatsapp_provider_diagnostic_privacy" name="test_malformed_error_identifiers_do_not_echo_private_response_text[400-template]" time="0.009"><failure message="AssertionError: assert 'synthetic-p...ot-be-logged' not in 'WHATSAPP_PR...t-be-logged)'&#10;  &#10;  'synthetic-passport...hould-not-be-logged' is contained here:&#10;  ?          ----------&#10;    Meta code synthetic-passport-AB123456&#10;    synthetic-credential-should-not-be-logged, subcode synthetic-passport-AB123456&#10;    synthetic-credential-should-not-be-logged)">operation = 'template', status = 400
+caplog = &lt;_pytest.logging.LogCaptureFixture object at 0x000001A9F99FEC50&gt;
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("operation", ["template", "document", "qr", "upload"])
+    @pytest.mark.parametrize("status", [400, 429, 500])
+    async def test_malformed_error_identifiers_do_not_echo_private_response_text(
+        operation: str, status: int, caplog: pytest.LogCaptureFixture,
+    ) -&gt; None:
+        private = "synthetic-passport-AB123456\nsynthetic-credential-should-not-be-logged"
+        settings = SimpleNamespace(
+            whatsapp_access_token="synthetic-provider-token",
+            whatsapp_phone_number_id="123456789",
+            whatsapp_api_version="v25.0",
+            whatsapp_template_language="en_US",
+        )
+        requests: list[httpx.Request] = []
+    
+        def respond(request: httpx.Request) -&gt; httpx.Response:
+            requests.append(request)
+            return httpx.Response(status, json={"error": {
+                "code": private, "error_subcode": private,
+                "message": private, "error_data": {"details": private},
+            }})
+    
+        async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
+            common = {"client": client, "settings": settings}
+            with pytest.raises(WhatsAppCloudApiError) as failure:
+                if operation == "upload":
+                    await upload_whatsapp_document(
+                        **common, file_name="synthetic.pdf", file_content=b"%PDF-synthetic",
+                        content_type="application/pdf",
+                    )
+                elif operation == "template":
+                    await send_whatsapp_template(
+                        **common, to_number="+919999999999", template_name="welcome",
+                        message_type="welcome", parameters=["Reviewed trip statement"],
+                        header_parameters=["synthetic-media"],
+                    )
+                elif operation == "document":
+                    await send_whatsapp_document_template(
+                        **common, to_number="+919999999999", template_name="documents_v1",
+                        media_id="synthetic-media", filename="synthetic.pdf",
+                        parameters=["Attached travel document", "Please check your details"],
+                    )
+                else:
+                    await send_whatsapp_qr_template(
+                        **common, to_number="+919999999999", template_name="qr_v1",
+                        media_id="synthetic-media", parameters=["Save your trip QR"],
+                    )
+    
+        assert len(requests) == 1
+&gt;       assert private not in failure.value.persistence_message
+E       AssertionError: assert 'synthetic-p...ot-be-logged' not in 'WHATSAPP_PR...t-be-logged)'
+E         
+E         'synthetic-passport...hould-not-be-logged' is contained here:
+E         ?          ----------
+E           Meta code synthetic-passport-AB123456
+E           synthetic-credential-should-not-be-logged, subcode synthetic-passport-AB123456
+E           synthetic-credential-should-not-be-logged)
+
+tests\unit\infrastructure\test_whatsapp_provider_diagnostic_privacy.py:68: AssertionError</failure></testcase><testcase classname="tests.unit.infrastructure.test_whatsapp_provider_diagnostic_privacy" name="test_malformed_error_identifiers_do_not_echo_private_response_text[400-document]" time="0.004"><failure message="AssertionError: assert 'synthetic-p...ot-be-logged' not in 'WHATSAPP_PR...t-be-logged)'&#10;  &#10;  'synthetic-passport...hould-not-be-logged' is contained here:&#10;  ?          ----------&#10;    Meta code synthetic-passport-AB123456&#10;    synthetic-credential-should-not-be-logged, subcode synthetic-passport-AB123456&#10;    synthetic-credential-should-not-be-logged)">operation = 'document', status = 400
+caplog = &lt;_pytest.logging.LogCaptureFixture object at 0x000001A9F99FE990&gt;
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("operation", ["template", "document", "qr", "upload"])
+    @pytest.mark.parametrize("status", [400, 429, 500])
+    async def test_malformed_error_identifiers_do_not_echo_private_response_text(
+        operation: str, status: int, caplog: pytest.LogCaptureFixture,
+    ) -&gt; None:
+        private = "synthetic-passport-AB123456\nsynthetic-credential-should-not-be-logged"
+        settings = SimpleNamespace(
+            whatsapp_access_token="synthetic-provider-token",
+            whatsapp_phone_number_id="123456789",
+            whatsapp_api_version="v25.0",
+            whatsapp_template_language="en_US",
+        )
+        requests: list[httpx.Request] = []
+    
+        def respond(request: httpx.Request) -&gt; httpx.Response:
+            requests.append(request)
+            return httpx.Response(status, json={"error": {
+                "code": private, "error_subcode": private,
+                "message": private, "error_data": {"details": private},
+            }})
+    
+        async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
+            common = {"client": client, "settings": settings}
+            with pytest.raises(WhatsAppCloudApiError) as failure:
+                if operation == "upload":
+                    await upload_whatsapp_document(
+                        **common, file_name="synthetic.pdf", file_content=b"%PDF-synthetic",
+                        content_type="application/pdf",
+                    )
+                elif operation == "template":
+                    await send_whatsapp_template(
+                        **common, to_number="+919999999999", template_name="welcome",
+                        message_type="welcome", parameters=["Reviewed trip statement"],
+                        header_parameters=["synthetic-media"],
+                    )
+                elif operation == "document":
+                    await send_whatsapp_document_template(
+                        **common, to_number="+919999999999", template_name="documents_v1",
+                        media_id="synthetic-media", filename="synthetic.pdf",
+                        parameters=["Attached travel document", "Please check your details"],
+                    )
+                else:
+                    await send_whatsapp_qr_template(
+                        **common, to_number="+919999999999", template_name="qr_v1",
+                        media_id="synthetic-media", parameters=["Save your trip QR"],
+                    )
+    
+        assert len(requests) == 1
+&gt;       assert private not in failure.value.persistence_message
+E       AssertionError: assert 'synthetic-p...ot-be-logged' not in 'WHATSAPP_PR...t-be-logged)'
+E         
+E         'synthetic-passport...hould-not-be-logged' is contained here:
+E         ?          ----------
+E           Meta code synthetic-passport-AB123456
+E           synthetic-credential-should-not-be-logged, subcode synthetic-passport-AB123456
+E           synthetic-credential-should-not-be-logged)
+
+tests\unit\infrastructure\test_whatsapp_provider_diagnostic_privacy.py:68: AssertionError</failure></testcase><testcase classname="tests.unit.infrastructure.test_whatsapp_provider_diagnostic_privacy" name="test_malformed_error_identifiers_do_not_echo_private_response_text[400-qr]" time="0.003"><failure message="AssertionError: assert 'synthetic-p...ot-be-logged' not in 'WHATSAPP_PR...t-be-logged)'&#10;  &#10;  'synthetic-passport...hould-not-be-logged' is contained here:&#10;  ?          ----------&#10;    Meta code synthetic-passport-AB123456&#10;    synthetic-credential-should-not-be-logged, subcode synthetic-passport-AB123456&#10;    synthetic-credential-should-not-be-logged)">operation = 'qr', status = 400
+caplog = &lt;_pytest.logging.LogCaptureFixture object at 0x000001A9F99FE450&gt;
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("operation", ["template", "document", "qr", "upload"])
+    @pytest.mark.parametrize("status", [400, 429, 500])
+    async def test_malformed_error_identifiers_do_not_echo_private_response_text(
+        operation: str, status: int, caplog: pytest.LogCaptureFixture,
+    ) -&gt; None:
+        private = "synthetic-passport-AB123456\nsynthetic-credential-should-not-be-logged"
+        settings = SimpleNamespace(
+            whatsapp_access_token="synthetic-provider-token",
+            whatsapp_phone_number_id="123456789",
+            whatsapp_api_version="v25.0",
+            whatsapp_template_language="en_US",
+        )
+        requests: list[httpx.Request] = []
+    
+        def respond(request: httpx.Request) -&gt; httpx.Response:
+            requests.append(request)
+            return httpx.Response(status, json={"error": {
+                "code": private, "error_subcode": private,
+                "message": private, "error_data": {"details": private},
+            }})
+    
+        async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
+            common = {"client": client, "settings": settings}
+            with pytest.raises(WhatsAppCloudApiError) as failure:
+                if operation == "upload":
+                    await upload_whatsapp_document(
+                        **common, file_name="synthetic.pdf", file_content=b"%PDF-synthetic",
+                        content_type="application/pdf",
+                    )
+                elif operation == "template":
+                    await send_whatsapp_template(
+                        **common, to_number="+919999999999", template_name="welcome",
+                        message_type="welcome", parameters=["Reviewed trip statement"],
+                        header_parameters=["synthetic-media"],
+                    )
+                elif operation == "document":
+                    await send_whatsapp_document_template(
+                        **common, to_number="+919999999999", template_name="documents_v1",
+                        media_id="synthetic-media", filename="synthetic.pdf",
+                        parameters=["Attached travel document", "Please check your details"],
+                    )
+                else:
+                    await send_whatsapp_qr_template(
+                        **common, to_number="+919999999999", template_name="qr_v1",
+                        media_id="synthetic-media", parameters=["Save your trip QR"],
+                    )
+    
+        assert len(requests) == 1
+&gt;       assert private not in failure.value.persistence_message
+E       AssertionError: assert 'synthetic-p...ot-be-logged' not in 'WHATSAPP_PR...t-be-logged)'
+E         
+E         'synthetic-passport...hould-not-be-logged' is contained here:
+E         ?          ----------
+E           Meta code synthetic-passport-AB123456
+E           synthetic-credential-should-not-be-logged, subcode synthetic-passport-AB123456
+E           synthetic-credential-should-not-be-logged)
+
+tests\unit\infrastructure\test_whatsapp_provider_diagnostic_privacy.py:68: AssertionError</failure></testcase><testcase classname="tests.unit.infrastructure.test_whatsapp_provider_diagnostic_privacy" name="test_malformed_error_identifiers_do_not_echo_private_response_text[400-upload]" time="0.004"><failure message="AssertionError: assert 'synthetic-p...ot-be-logged' not in 'WHATSAPP_DO...nd try again'&#10;  &#10;  'synthetic-passport...hould-not-be-logged' is contained here:&#10;  ?          ----------&#10;    Meta code synthetic-passport-AB123456&#10;    synthetic-credential-should-not-be-logged, subcode synthetic-passport-AB123456&#10;    synthetic-credential-should-not-be-logged); verify the PDF and try again">operation = 'upload', status = 400
+caplog = &lt;_pytest.logging.LogCaptureFixture object at 0x000001A9F99FEC90&gt;
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("operation", ["template", "document", "qr", "upload"])
+    @pytest.mark.parametrize("status", [400, 429, 500])
+    async def test_malformed_error_identifiers_do_not_echo_private_response_text(
+        operation: str, status: int, caplog: pytest.LogCaptureFixture,
+    ) -&gt; None:
+        private = "synthetic-passport-AB123456\nsynthetic-credential-should-not-be-logged"
+        settings = SimpleNamespace(
+            whatsapp_access_token="synthetic-provider-token",
+            whatsapp_phone_number_id="123456789",
+            whatsapp_api_version="v25.0",
+            whatsapp_template_language="en_US",
+        )
+        requests: list[httpx.Request] = []
+    
+        def respond(request: httpx.Request) -&gt; httpx.Response:
+            requests.append(request)
+            return httpx.Response(status, json={"error": {
+                "code": private, "error_subcode": private,
+                "message": private, "error_data": {"details": private},
+            }})
+    
+        async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
+            common = {"client": client, "settings": settings}
+            with pytest.raises(WhatsAppCloudApiError) as failure:
+                if operation == "upload":
+                    await upload_whatsapp_document(
+                        **common, file_name="synthetic.pdf", file_content=b"%PDF-synthetic",
+                        content_type="application/pdf",
+                    )
+                elif operation == "template":
+                    await send_whatsapp_template(
+                        **common, to_number="+919999999999", template_name="welcome",
+                        message_type="welcome", parameters=["Reviewed trip statement"],
+                        header_parameters=["synthetic-media"],
+                    )
+                elif operation == "document":
+                    await send_whatsapp_document_template(
+                        **common, to_number="+919999999999", template_name="documents_v1",
+                        media_id="synthetic-media", filename="synthetic.pdf",
+                        parameters=["Attached travel document", "Please check your details"],
+                    )
+                else:
+                    await send_whatsapp_qr_template(
+                        **common, to_number="+919999999999", template_name="qr_v1",
+                        media_id="synthetic-media", parameters=["Save your trip QR"],
+                    )
+    
+        assert len(requests) == 1
+&gt;       assert private not in failure.value.persistence_message
+E       AssertionError: assert 'synthetic-p...ot-be-logged' not in 'WHATSAPP_DO...nd try again'
+E         
+E         'synthetic-passport...hould-not-be-logged' is contained here:
+E         ?          ----------
+E           Meta code synthetic-passport-AB123456
+E           synthetic-credential-should-not-be-logged, subcode synthetic-passport-AB123456
+E           synthetic-credential-should-not-be-logged); verify the PDF and try again
+
+tests\unit\infrastructure\test_whatsapp_provider_diagnostic_privacy.py:68: AssertionError</failure></testcase><testcase classname="tests.unit.infrastructure.test_whatsapp_provider_diagnostic_privacy" name="test_malformed_error_identifiers_do_not_echo_private_response_text[429-template]" time="0.003"><failure message="AssertionError: assert 'synthetic-p...ot-be-logged' not in 'WHATSAPP_PR...t-be-logged)'&#10;  &#10;  'synthetic-passport...hould-not-be-logged' is contained here:&#10;  ?          ----------&#10;    Meta code synthetic-passport-AB123456&#10;    synthetic-credential-should-not-be-logged, subcode synthetic-passport-AB123456&#10;    synthetic-credential-should-not-be-logged)">operation = 'template', status = 429
+caplog = &lt;_pytest.logging.LogCaptureFixture object at 0x000001A9F99FFE50&gt;
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("operation", ["template", "document", "qr", "upload"])
+    @pytest.mark.parametrize("status", [400, 429, 500])
+    async def test_malformed_error_identifiers_do_not_echo_private_response_text(
+        operation: str, status: int, caplog: pytest.LogCaptureFixture,
+    ) -&gt; None:
+        private = "synthetic-passport-AB123456\nsynthetic-credential-should-not-be-logged"
+        settings = SimpleNamespace(
+            whatsapp_access_token="synthetic-provider-token",
+            whatsapp_phone_number_id="123456789",
+            whatsapp_api_version="v25.0",
+            whatsapp_template_language="en_US",
+        )
+        requests: list[httpx.Request] = []
+    
+        def respond(request: httpx.Request) -&gt; httpx.Response:
+            requests.append(request)
+            return httpx.Response(status, json={"error": {
+                "code": private, "error_subcode": private,
+                "message": private, "error_data": {"details": private},
+            }})
+    
+        async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
+            common = {"client": client, "settings": settings}
+            with pytest.raises(WhatsAppCloudApiError) as failure:
+                if operation == "upload":
+                    await upload_whatsapp_document(
+                        **common, file_name="synthetic.pdf", file_content=b"%PDF-synthetic",
+                        content_type="application/pdf",
+                    )
+                elif operation == "template":
+                    await send_whatsapp_template(
+                        **common, to_number="+919999999999", template_name="welcome",
+                        message_type="welcome", parameters=["Reviewed trip statement"],
+                        header_parameters=["synthetic-media"],
+                    )
+                elif operation == "document":
+                    await send_whatsapp_document_template(
+                        **common, to_number="+919999999999", template_name="documents_v1",
+                        media_id="synthetic-media", filename="synthetic.pdf",
+                        parameters=["Attached travel document", "Please check your details"],
+                    )
+                else:
+                    await send_whatsapp_qr_template(
+                        **common, to_number="+919999999999", template_name="qr_v1",
+                        media_id="synthetic-media", parameters=["Save your trip QR"],
+                    )
+    
+        assert len(requests) == 1
+&gt;       assert private not in failure.value.persistence_message
+E       AssertionError: assert 'synthetic-p...ot-be-logged' not in 'WHATSAPP_PR...t-be-logged)'
+E         
+E         'synthetic-passport...hould-not-be-logged' is contained here:
+E         ?          ----------
+E           Meta code synthetic-passport-AB123456
+E           synthetic-credential-should-not-be-logged, subcode synthetic-passport-AB123456
+E           synthetic-credential-should-not-be-logged)
+
+tests\unit\infrastructure\test_whatsapp_provider_diagnostic_privacy.py:68: AssertionError</failure></testcase><testcase classname="tests.unit.infrastructure.test_whatsapp_provider_diagnostic_privacy" name="test_malformed_error_identifiers_do_not_echo_private_response_text[429-document]" time="0.002"><failure message="AssertionError: assert 'synthetic-p...ot-be-logged' not in 'WHATSAPP_PR...t-be-logged)'&#10;  &#10;  'synthetic-passport...hould-not-be-logged' is contained here:&#10;  ?          ----------&#10;    Meta code synthetic-passport-AB123456&#10;    synthetic-credential-should-not-be-logged, subcode synthetic-passport-AB123456&#10;    synthetic-credential-should-not-be-logged)">operation = 'document', status = 429
+caplog = &lt;_pytest.logging.LogCaptureFixture object at 0x000001A9F997BA10&gt;
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("operation", ["template", "document", "qr", "upload"])
+    @pytest.mark.parametrize("status", [400, 429, 500])
+    async def test_malformed_error_identifiers_do_not_echo_private_response_text(
+        operation: str, status: int, caplog: pytest.LogCaptureFixture,
+    ) -&gt; None:
+        private = "synthetic-passport-AB123456\nsynthetic-credential-should-not-be-logged"
+        settings = SimpleNamespace(
+            whatsapp_access_token="synthetic-provider-token",
+            whatsapp_phone_number_id="123456789",
+            whatsapp_api_version="v25.0",
+            whatsapp_template_language="en_US",
+        )
+        requests: list[httpx.Request] = []
+    
+        def respond(request: httpx.Request) -&gt; httpx.Response:
+            requests.append(request)
+            return httpx.Response(status, json={"error": {
+                "code": private, "error_subcode": private,
+                "message": private, "error_data": {"details": private},
+            }})
+    
+        async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
+            common = {"client": client, "settings": settings}
+            with pytest.raises(WhatsAppCloudApiError) as failure:
+                if operation == "upload":
+                    await upload_whatsapp_document(
+                        **common, file_name="synthetic.pdf", file_content=b"%PDF-synthetic",
+                        content_type="application/pdf",
+                    )
+                elif operation == "template":
+                    await send_whatsapp_template(
+                        **common, to_number="+919999999999", template_name="welcome",
+                        message_type="welcome", parameters=["Reviewed trip statement"],
+                        header_parameters=["synthetic-media"],
+                    )
+                elif operation == "document":
+                    await send_whatsapp_document_template(
+                        **common, to_number="+919999999999", template_name="documents_v1",
+                        media_id="synthetic-media", filename="synthetic.pdf",
+                        parameters=["Attached travel document", "Please check your details"],
+                    )
+                else:
+                    await send_whatsapp_qr_template(
+                        **common, to_number="+919999999999", template_name="qr_v1",
+                        media_id="synthetic-media", parameters=["Save your trip QR"],
+                    )
+    
+        assert len(requests) == 1
+&gt;       assert private not in failure.value.persistence_message
+E       AssertionError: assert 'synthetic-p...ot-be-logged' not in 'WHATSAPP_PR...t-be-logged)'
+E         
+E         'synthetic-passport...hould-not-be-logged' is contained here:
+E         ?          ----------
+E           Meta code synthetic-passport-AB123456
+E           synthetic-credential-should-not-be-logged, subcode synthetic-passport-AB123456
+E           synthetic-credential-should-not-be-logged)
+
+tests\unit\infrastructure\test_whatsapp_provider_diagnostic_privacy.py:68: AssertionError</failure></testcase><testcase classname="tests.unit.infrastructure.test_whatsapp_provider_diagnostic_privacy" name="test_malformed_error_identifiers_do_not_echo_private_response_text[429-qr]" time="0.002"><failure message="AssertionError: assert 'synthetic-p...ot-be-logged' not in 'WHATSAPP_PR...t-be-logged)'&#10;  &#10;  'synthetic-passport...hould-not-be-logged' is contained here:&#10;  ?          ----------&#10;    Meta code synthetic-passport-AB123456&#10;    synthetic-credential-should-not-be-logged, subcode synthetic-passport-AB123456&#10;    synthetic-credential-should-not-be-logged)">operation = 'qr', status = 429
+caplog = &lt;_pytest.logging.LogCaptureFixture object at 0x000001A9F9945250&gt;
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("operation", ["template", "document", "qr", "upload"])
+    @pytest.mark.parametrize("status", [400, 429, 500])
+    async def test_malformed_error_identifiers_do_not_echo_private_response_text(
+        operation: str, status: int, caplog: pytest.LogCaptureFixture,
+    ) -&gt; None:
+        private = "synthetic-passport-AB123456\nsynthetic-credential-should-not-be-logged"
+        settings = SimpleNamespace(
+            whatsapp_access_token="synthetic-provider-token",
+            whatsapp_phone_number_id="123456789",
+            whatsapp_api_version="v25.0",
+            whatsapp_template_language="en_US",
+        )
+        requests: list[httpx.Request] = []
+    
+        def respond(request: httpx.Request) -&gt; httpx.Response:
+            requests.append(request)
+            return httpx.Response(status, json={"error": {
+                "code": private, "error_subcode": private,
+                "message": private, "error_data": {"details": private},
+            }})
+    
+        async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
+            common = {"client": client, "settings": settings}
+            with pytest.raises(WhatsAppCloudApiError) as failure:
+                if operation == "upload":
+                    await upload_whatsapp_document(
+                        **common, file_name="synthetic.pdf", file_content=b"%PDF-synthetic",
+                        content_type="application/pdf",
+                    )
+                elif operation == "template":
+                    await send_whatsapp_template(
+                        **common, to_number="+919999999999", template_name="welcome",
+                        message_type="welcome", parameters=["Reviewed trip statement"],
+                        header_parameters=["synthetic-media"],
+                    )
+                elif operation == "document":
+                    await send_whatsapp_document_template(
+                        **common, to_number="+919999999999", template_name="documents_v1",
+                        media_id="synthetic-media", filename="synthetic.pdf",
+                        parameters=["Attached travel document", "Please check your details"],
+                    )
+                else:
+                    await send_whatsapp_qr_template(
+                        **common, to_number="+919999999999", template_name="qr_v1",
+                        media_id="synthetic-media", parameters=["Save your trip QR"],
+                    )
+    
+        assert len(requests) == 1
+&gt;       assert private not in failure.value.persistence_message
+E       AssertionError: assert 'synthetic-p...ot-be-logged' not in 'WHATSAPP_PR...t-be-logged)'
+E         
+E         'synthetic-passport...hould-not-be-logged' is contained here:
+E         ?          ----------
+E           Meta code synthetic-passport-AB123456
+E           synthetic-credential-should-not-be-logged, subcode synthetic-passport-AB123456
+E           synthetic-credential-should-not-be-logged)
+
+tests\unit\infrastructure\test_whatsapp_provider_diagnostic_privacy.py:68: AssertionError</failure></testcase><testcase classname="tests.unit.infrastructure.test_whatsapp_provider_diagnostic_privacy" name="test_malformed_error_identifiers_do_not_echo_private_response_text[429-upload]" time="0.002"><failure message="AssertionError: assert 'synthetic-p...ot-be-logged' not in 'WHATSAPP_DO...nd try again'&#10;  &#10;  'synthetic-passport...hould-not-be-logged' is contained here:&#10;  ?          ----------&#10;    Meta code synthetic-passport-AB123456&#10;    synthetic-credential-should-not-be-logged, subcode synthetic-passport-AB123456&#10;    synthetic-credential-should-not-be-logged); verify the PDF and try again">operation = 'upload', status = 429
+caplog = &lt;_pytest.logging.LogCaptureFixture object at 0x000001A9F990F510&gt;
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("operation", ["template", "document", "qr", "upload"])
+    @pytest.mark.parametrize("status", [400, 429, 500])
+    async def test_malformed_error_identifiers_do_not_echo_private_response_text(
+        operation: str, status: int, caplog: pytest.LogCaptureFixture,
+    ) -&gt; None:
+        private = "synthetic-passport-AB123456\nsynthetic-credential-should-not-be-logged"
+        settings = SimpleNamespace(
+            whatsapp_access_token="synthetic-provider-token",
+            whatsapp_phone_number_id="123456789",
+            whatsapp_api_version="v25.0",
+            whatsapp_template_language="en_US",
+        )
+        requests: list[httpx.Request] = []
+    
+        def respond(request: httpx.Request) -&gt; httpx.Response:
+            requests.append(request)
+            return httpx.Response(status, json={"error": {
+                "code": private, "error_subcode": private,
+                "message": private, "error_data": {"details": private},
+            }})
+    
+        async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
+            common = {"client": client, "settings": settings}
+            with pytest.raises(WhatsAppCloudApiError) as failure:
+                if operation == "upload":
+                    await upload_whatsapp_document(
+                        **common, file_name="synthetic.pdf", file_content=b"%PDF-synthetic",
+                        content_type="application/pdf",
+                    )
+                elif operation == "template":
+                    await send_whatsapp_template(
+                        **common, to_number="+919999999999", template_name="welcome",
+                        message_type="welcome", parameters=["Reviewed trip statement"],
+                        header_parameters=["synthetic-media"],
+                    )
+                elif operation == "document":
+                    await send_whatsapp_document_template(
+                        **common, to_number="+919999999999", template_name="documents_v1",
+                        media_id="synthetic-media", filename="synthetic.pdf",
+                        parameters=["Attached travel document", "Please check your details"],
+                    )
+                else:
+                    await send_whatsapp_qr_template(
+                        **common, to_number="+919999999999", template_name="qr_v1",
+                        media_id="synthetic-media", parameters=["Save your trip QR"],
+                    )
+    
+        assert len(requests) == 1
+&gt;       assert private not in failure.value.persistence_message
+E       AssertionError: assert 'synthetic-p...ot-be-logged' not in 'WHATSAPP_DO...nd try again'
+E         
+E         'synthetic-passport...hould-not-be-logged' is contained here:
+E         ?          ----------
+E           Meta code synthetic-passport-AB123456
+E           synthetic-credential-should-not-be-logged, subcode synthetic-passport-AB123456
+E           synthetic-credential-should-not-be-logged); verify the PDF and try again
+
+tests\unit\infrastructure\test_whatsapp_provider_diagnostic_privacy.py:68: AssertionError</failure></testcase><testcase classname="tests.unit.infrastructure.test_whatsapp_provider_diagnostic_privacy" name="test_malformed_error_identifiers_do_not_echo_private_response_text[500-template]" time="0.002"><failure message="AssertionError: assert 'synthetic-p...ot-be-logged' not in 'WHATSAPP_DE...t-be-logged)'&#10;  &#10;  'synthetic-passport...hould-not-be-logged' is contained here:&#10;  ?          ----------&#10;    Meta code synthetic-passport-AB123456&#10;    synthetic-credential-should-not-be-logged, subcode synthetic-passport-AB123456&#10;    synthetic-credential-should-not-be-logged)">operation = 'template', status = 500
+caplog = &lt;_pytest.logging.LogCaptureFixture object at 0x000001A9F98DFED0&gt;
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("operation", ["template", "document", "qr", "upload"])
+    @pytest.mark.parametrize("status", [400, 429, 500])
+    async def test_malformed_error_identifiers_do_not_echo_private_response_text(
+        operation: str, status: int, caplog: pytest.LogCaptureFixture,
+    ) -&gt; None:
+        private = "synthetic-passport-AB123456\nsynthetic-credential-should-not-be-logged"
+        settings = SimpleNamespace(
+            whatsapp_access_token="synthetic-provider-token",
+            whatsapp_phone_number_id="123456789",
+            whatsapp_api_version="v25.0",
+            whatsapp_template_language="en_US",
+        )
+        requests: list[httpx.Request] = []
+    
+        def respond(request: httpx.Request) -&gt; httpx.Response:
+            requests.append(request)
+            return httpx.Response(status, json={"error": {
+                "code": private, "error_subcode": private,
+                "message": private, "error_data": {"details": private},
+            }})
+    
+        async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
+            common = {"client": client, "settings": settings}
+            with pytest.raises(WhatsAppCloudApiError) as failure:
+                if operation == "upload":
+                    await upload_whatsapp_document(
+                        **common, file_name="synthetic.pdf", file_content=b"%PDF-synthetic",
+                        content_type="application/pdf",
+                    )
+                elif operation == "template":
+                    await send_whatsapp_template(
+                        **common, to_number="+919999999999", template_name="welcome",
+                        message_type="welcome", parameters=["Reviewed trip statement"],
+                        header_parameters=["synthetic-media"],
+                    )
+                elif operation == "document":
+                    await send_whatsapp_document_template(
+                        **common, to_number="+919999999999", template_name="documents_v1",
+                        media_id="synthetic-media", filename="synthetic.pdf",
+                        parameters=["Attached travel document", "Please check your details"],
+                    )
+                else:
+                    await send_whatsapp_qr_template(
+                        **common, to_number="+919999999999", template_name="qr_v1",
+                        media_id="synthetic-media", parameters=["Save your trip QR"],
+                    )
+    
+        assert len(requests) == 1
+&gt;       assert private not in failure.value.persistence_message
+E       AssertionError: assert 'synthetic-p...ot-be-logged' not in 'WHATSAPP_DE...t-be-logged)'
+E         
+E         'synthetic-passport...hould-not-be-logged' is contained here:
+E         ?          ----------
+E           Meta code synthetic-passport-AB123456
+E           synthetic-credential-should-not-be-logged, subcode synthetic-passport-AB123456
+E           synthetic-credential-should-not-be-logged)
+
+tests\unit\infrastructure\test_whatsapp_provider_diagnostic_privacy.py:68: AssertionError</failure></testcase><testcase classname="tests.unit.infrastructure.test_whatsapp_provider_diagnostic_privacy" name="test_malformed_error_identifiers_do_not_echo_private_response_text[500-document]" time="0.002"><failure message="AssertionError: assert 'synthetic-p...ot-be-logged' not in 'WHATSAPP_DE...t-be-logged)'&#10;  &#10;  'synthetic-passport...hould-not-be-logged' is contained here:&#10;  ?          ----------&#10;    Meta code synthetic-passport-AB123456&#10;    synthetic-credential-should-not-be-logged, subcode synthetic-passport-AB123456&#10;    synthetic-credential-should-not-be-logged)">operation = 'document', status = 500
+caplog = &lt;_pytest.logging.LogCaptureFixture object at 0x000001A9F99113D0&gt;
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("operation", ["template", "document", "qr", "upload"])
+    @pytest.mark.parametrize("status", [400, 429, 500])
+    async def test_malformed_error_identifiers_do_not_echo_private_response_text(
+        operation: str, status: int, caplog: pytest.LogCaptureFixture,
+    ) -&gt; None:
+        private = "synthetic-passport-AB123456\nsynthetic-credential-should-not-be-logged"
+        settings = SimpleNamespace(
+            whatsapp_access_token="synthetic-provider-token",
+            whatsapp_phone_number_id="123456789",
+            whatsapp_api_version="v25.0",
+            whatsapp_template_language="en_US",
+        )
+        requests: list[httpx.Request] = []
+    
+        def respond(request: httpx.Request) -&gt; httpx.Response:
+            requests.append(request)
+            return httpx.Response(status, json={"error": {
+                "code": private, "error_subcode": private,
+                "message": private, "error_data": {"details": private},
+            }})
+    
+        async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
+            common = {"client": client, "settings": settings}
+            with pytest.raises(WhatsAppCloudApiError) as failure:
+                if operation == "upload":
+                    await upload_whatsapp_document(
+                        **common, file_name="synthetic.pdf", file_content=b"%PDF-synthetic",
+                        content_type="application/pdf",
+                    )
+                elif operation == "template":
+                    await send_whatsapp_template(
+                        **common, to_number="+919999999999", template_name="welcome",
+                        message_type="welcome", parameters=["Reviewed trip statement"],
+                        header_parameters=["synthetic-media"],
+                    )
+                elif operation == "document":
+                    await send_whatsapp_document_template(
+                        **common, to_number="+919999999999", template_name="documents_v1",
+                        media_id="synthetic-media", filename="synthetic.pdf",
+                        parameters=["Attached travel document", "Please check your details"],
+                    )
+                else:
+                    await send_whatsapp_qr_template(
+                        **common, to_number="+919999999999", template_name="qr_v1",
+                        media_id="synthetic-media", parameters=["Save your trip QR"],
+                    )
+    
+        assert len(requests) == 1
+&gt;       assert private not in failure.value.persistence_message
+E       AssertionError: assert 'synthetic-p...ot-be-logged' not in 'WHATSAPP_DE...t-be-logged)'
+E         
+E         'synthetic-passport...hould-not-be-logged' is contained here:
+E         ?          ----------
+E           Meta code synthetic-passport-AB123456
+E           synthetic-credential-should-not-be-logged, subcode synthetic-passport-AB123456
+E           synthetic-credential-should-not-be-logged)
+
+tests\unit\infrastructure\test_whatsapp_provider_diagnostic_privacy.py:68: AssertionError</failure></testcase><testcase classname="tests.unit.infrastructure.test_whatsapp_provider_diagnostic_privacy" name="test_malformed_error_identifiers_do_not_echo_private_response_text[500-qr]" time="0.002"><failure message="AssertionError: assert 'synthetic-p...ot-be-logged' not in 'WHATSAPP_DE...t-be-logged)'&#10;  &#10;  'synthetic-passport...hould-not-be-logged' is contained here:&#10;  ?          ----------&#10;    Meta code synthetic-passport-AB123456&#10;    synthetic-credential-should-not-be-logged, subcode synthetic-passport-AB123456&#10;    synthetic-credential-should-not-be-logged)">operation = 'qr', status = 500
+caplog = &lt;_pytest.logging.LogCaptureFixture object at 0x000001A9F98FC1D0&gt;
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("operation", ["template", "document", "qr", "upload"])
+    @pytest.mark.parametrize("status", [400, 429, 500])
+    async def test_malformed_error_identifiers_do_not_echo_private_response_text(
+        operation: str, status: int, caplog: pytest.LogCaptureFixture,
+    ) -&gt; None:
+        private = "synthetic-passport-AB123456\nsynthetic-credential-should-not-be-logged"
+        settings = SimpleNamespace(
+            whatsapp_access_token="synthetic-provider-token",
+            whatsapp_phone_number_id="123456789",
+            whatsapp_api_version="v25.0",
+            whatsapp_template_language="en_US",
+        )
+        requests: list[httpx.Request] = []
+    
+        def respond(request: httpx.Request) -&gt; httpx.Response:
+            requests.append(request)
+            return httpx.Response(status, json={"error": {
+                "code": private, "error_subcode": private,
+                "message": private, "error_data": {"details": private},
+            }})
+    
+        async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
+            common = {"client": client, "settings": settings}
+            with pytest.raises(WhatsAppCloudApiError) as failure:
+                if operation == "upload":
+                    await upload_whatsapp_document(
+                        **common, file_name="synthetic.pdf", file_content=b"%PDF-synthetic",
+                        content_type="application/pdf",
+                    )
+                elif operation == "template":
+                    await send_whatsapp_template(
+                        **common, to_number="+919999999999", template_name="welcome",
+                        message_type="welcome", parameters=["Reviewed trip statement"],
+                        header_parameters=["synthetic-media"],
+                    )
+                elif operation == "document":
+                    await send_whatsapp_document_template(
+                        **common, to_number="+919999999999", template_name="documents_v1",
+                        media_id="synthetic-media", filename="synthetic.pdf",
+                        parameters=["Attached travel document", "Please check your details"],
+                    )
+                else:
+                    await send_whatsapp_qr_template(
+                        **common, to_number="+919999999999", template_name="qr_v1",
+                        media_id="synthetic-media", parameters=["Save your trip QR"],
+                    )
+    
+        assert len(requests) == 1
+&gt;       assert private not in failure.value.persistence_message
+E       AssertionError: assert 'synthetic-p...ot-be-logged' not in 'WHATSAPP_DE...t-be-logged)'
+E         
+E         'synthetic-passport...hould-not-be-logged' is contained here:
+E         ?          ----------
+E           Meta code synthetic-passport-AB123456
+E           synthetic-credential-should-not-be-logged, subcode synthetic-passport-AB123456
+E           synthetic-credential-should-not-be-logged)
+
+tests\unit\infrastructure\test_whatsapp_provider_diagnostic_privacy.py:68: AssertionError</failure></testcase><testcase classname="tests.unit.infrastructure.test_whatsapp_provider_diagnostic_privacy" name="test_malformed_error_identifiers_do_not_echo_private_response_text[500-upload]" time="0.002"><failure message="AssertionError: assert 'synthetic-p...ot-be-logged' not in 'WHATSAPP_DO...nd try again'&#10;  &#10;  'synthetic-passport...hould-not-be-logged' is contained here:&#10;  ?          ----------&#10;    Meta code synthetic-passport-AB123456&#10;    synthetic-credential-should-not-be-logged, subcode synthetic-passport-AB123456&#10;    synthetic-credential-should-not-be-logged); verify the PDF and try again">operation = 'upload', status = 500
+caplog = &lt;_pytest.logging.LogCaptureFixture object at 0x000001A9F9A13B90&gt;
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("operation", ["template", "document", "qr", "upload"])
+    @pytest.mark.parametrize("status", [400, 429, 500])
+    async def test_malformed_error_identifiers_do_not_echo_private_response_text(
+        operation: str, status: int, caplog: pytest.LogCaptureFixture,
+    ) -&gt; None:
+        private = "synthetic-passport-AB123456\nsynthetic-credential-should-not-be-logged"
+        settings = SimpleNamespace(
+            whatsapp_access_token="synthetic-provider-token",
+            whatsapp_phone_number_id="123456789",
+            whatsapp_api_version="v25.0",
+            whatsapp_template_language="en_US",
+        )
+        requests: list[httpx.Request] = []
+    
+        def respond(request: httpx.Request) -&gt; httpx.Response:
+            requests.append(request)
+            return httpx.Response(status, json={"error": {
+                "code": private, "error_subcode": private,
+                "message": private, "error_data": {"details": private},
+            }})
+    
+        async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
+            common = {"client": client, "settings": settings}
+            with pytest.raises(WhatsAppCloudApiError) as failure:
+                if operation == "upload":
+                    await upload_whatsapp_document(
+                        **common, file_name="synthetic.pdf", file_content=b"%PDF-synthetic",
+                        content_type="application/pdf",
+                    )
+                elif operation == "template":
+                    await send_whatsapp_template(
+                        **common, to_number="+919999999999", template_name="welcome",
+                        message_type="welcome", parameters=["Reviewed trip statement"],
+                        header_parameters=["synthetic-media"],
+                    )
+                elif operation == "document":
+                    await send_whatsapp_document_template(
+                        **common, to_number="+919999999999", template_name="documents_v1",
+                        media_id="synthetic-media", filename="synthetic.pdf",
+                        parameters=["Attached travel document", "Please check your details"],
+                    )
+                else:
+                    await send_whatsapp_qr_template(
+                        **common, to_number="+919999999999", template_name="qr_v1",
+                        media_id="synthetic-media", parameters=["Save your trip QR"],
+                    )
+    
+        assert len(requests) == 1
+&gt;       assert private not in failure.value.persistence_message
+E       AssertionError: assert 'synthetic-p...ot-be-logged' not in 'WHATSAPP_DO...nd try again'
+E         
+E         'synthetic-passport...hould-not-be-logged' is contained here:
+E         ?          ----------
+E           Meta code synthetic-passport-AB123456
+E           synthetic-credential-should-not-be-logged, subcode synthetic-passport-AB123456
+E           synthetic-credential-should-not-be-logged); verify the PDF and try again
+
+tests\unit\infrastructure\test_whatsapp_provider_diagnostic_privacy.py:68: AssertionError</failure></testcase></testsuite></testsuites>

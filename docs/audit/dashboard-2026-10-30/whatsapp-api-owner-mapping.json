@@ -1,0 +1,334 @@
+{
+  "before_sha256": "1dc705fbe98cab11fd1e19c8fd191a8b5b513393d74cf18ec2be69288681c212",
+  "original_lines": 809,
+  "methods": [
+    {
+      "name": "previewContacts",
+      "from": "frontend/features/whatsapp/api/whatsapp.api.ts",
+      "to": "frontend/features/whatsapp/api/broadcast-groups.api.ts",
+      "method_ast_identical": true
+    },
+    {
+      "name": "groups",
+      "from": "frontend/features/whatsapp/api/whatsapp.api.ts",
+      "to": "frontend/features/whatsapp/api/broadcast-groups.api.ts",
+      "method_ast_identical": true
+    },
+    {
+      "name": "archiveGroup",
+      "from": "frontend/features/whatsapp/api/whatsapp.api.ts",
+      "to": "frontend/features/whatsapp/api/broadcast-groups.api.ts",
+      "method_ast_identical": true
+    },
+    {
+      "name": "restoreGroup",
+      "from": "frontend/features/whatsapp/api/whatsapp.api.ts",
+      "to": "frontend/features/whatsapp/api/broadcast-groups.api.ts",
+      "method_ast_identical": true
+    },
+    {
+      "name": "group",
+      "from": "frontend/features/whatsapp/api/whatsapp.api.ts",
+      "to": "frontend/features/whatsapp/api/broadcast-groups.api.ts",
+      "method_ast_identical": true
+    },
+    {
+      "name": "createGroup",
+      "from": "frontend/features/whatsapp/api/whatsapp.api.ts",
+      "to": "frontend/features/whatsapp/api/broadcast-groups.api.ts",
+      "method_ast_identical": true
+    },
+    {
+      "name": "updateGroup",
+      "from": "frontend/features/whatsapp/api/whatsapp.api.ts",
+      "to": "frontend/features/whatsapp/api/broadcast-groups.api.ts",
+      "method_ast_identical": true
+    },
+    {
+      "name": "deleteGroup",
+      "from": "frontend/features/whatsapp/api/whatsapp.api.ts",
+      "to": "frontend/features/whatsapp/api/broadcast-groups.api.ts",
+      "method_ast_identical": true
+    },
+    {
+      "name": "recipientRoster",
+      "from": "frontend/features/whatsapp/api/whatsapp.api.ts",
+      "to": "frontend/features/whatsapp/api/broadcast-recipients.api.ts",
+      "method_ast_identical": true
+    },
+    {
+      "name": "restoreReplacedRecipient",
+      "from": "frontend/features/whatsapp/api/whatsapp.api.ts",
+      "to": "frontend/features/whatsapp/api/broadcast-recipients.api.ts",
+      "method_ast_identical": true
+    },
+    {
+      "name": "addRecipients",
+      "from": "frontend/features/whatsapp/api/whatsapp.api.ts",
+      "to": "frontend/features/whatsapp/api/broadcast-recipients.api.ts",
+      "method_ast_identical": true
+    },
+    {
+      "name": "rejectedContacts",
+      "from": "frontend/features/whatsapp/api/whatsapp.api.ts",
+      "to": "frontend/features/whatsapp/api/broadcast-recipients.api.ts",
+      "method_ast_identical": true
+    },
+    {
+      "name": "resolveRejectedContact",
+      "from": "frontend/features/whatsapp/api/whatsapp.api.ts",
+      "to": "frontend/features/whatsapp/api/broadcast-recipients.api.ts",
+      "method_ast_identical": true
+    },
+    {
+      "name": "deleteRecipient",
+      "from": "frontend/features/whatsapp/api/whatsapp.api.ts",
+      "to": "frontend/features/whatsapp/api/broadcast-recipients.api.ts",
+      "method_ast_identical": true
+    },
+    {
+      "name": "updateRecipientPhone",
+      "from": "frontend/features/whatsapp/api/whatsapp.api.ts",
+      "to": "frontend/features/whatsapp/api/broadcast-recipients.api.ts",
+      "method_ast_identical": true
+    },
+    {
+      "name": "updateRecipientDetails",
+      "from": "frontend/features/whatsapp/api/whatsapp.api.ts",
+      "to": "frontend/features/whatsapp/api/broadcast-recipients.api.ts",
+      "method_ast_identical": true
+    },
+    {
+      "name": "previewRecipientsResend",
+      "from": "frontend/features/whatsapp/api/whatsapp.api.ts",
+      "to": "frontend/features/whatsapp/api/broadcast-message-reads.api.ts",
+      "method_ast_identical": true
+    },
+    {
+      "name": "previewMessage",
+      "from": "frontend/features/whatsapp/api/whatsapp.api.ts",
+      "to": "frontend/features/whatsapp/api/broadcast-message-reads.api.ts",
+      "method_ast_identical": true
+    },
+    {
+      "name": "batchStatus",
+      "from": "frontend/features/whatsapp/api/whatsapp.api.ts",
+      "to": "frontend/features/whatsapp/api/broadcast-message-reads.api.ts",
+      "method_ast_identical": true
+    },
+    {
+      "name": "batchSummary",
+      "from": "frontend/features/whatsapp/api/whatsapp.api.ts",
+      "to": "frontend/features/whatsapp/api/broadcast-message-reads.api.ts",
+      "method_ast_identical": true
+    },
+    {
+      "name": "resendRecipientMessage",
+      "from": "frontend/features/whatsapp/api/whatsapp.api.ts",
+      "to": "frontend/features/whatsapp/api/broadcast-resends.api.ts",
+      "method_ast_identical": true
+    },
+    {
+      "name": "resendRecipientsMessage",
+      "from": "frontend/features/whatsapp/api/whatsapp.api.ts",
+      "to": "frontend/features/whatsapp/api/broadcast-resends.api.ts",
+      "method_ast_identical": true
+    },
+    {
+      "name": "sendWelcome",
+      "from": "frontend/features/whatsapp/api/whatsapp.api.ts",
+      "to": "frontend/features/whatsapp/api/broadcast-sends.api.ts",
+      "method_ast_identical": true
+    },
+    {
+      "name": "sendPassportLink",
+      "from": "frontend/features/whatsapp/api/whatsapp.api.ts",
+      "to": "frontend/features/whatsapp/api/broadcast-sends.api.ts",
+      "method_ast_identical": true
+    },
+    {
+      "name": "sendReminder",
+      "from": "frontend/features/whatsapp/api/whatsapp.api.ts",
+      "to": "frontend/features/whatsapp/api/broadcast-sends.api.ts",
+      "method_ast_identical": true
+    },
+    {
+      "name": "sendGroupInvite",
+      "from": "frontend/features/whatsapp/api/whatsapp.api.ts",
+      "to": "frontend/features/whatsapp/api/broadcast-sends.api.ts",
+      "method_ast_identical": true
+    }
+  ],
+  "facade": "frontend/features/whatsapp/api/whatsapp.api.ts",
+  "preserved_public_methods": 27,
+  "note": "All26 object-property method ASTs preserved from the independently reviewed actor-fixed checkpoint. The shared media function and payload validators are moved without body changes; runtime facade keeps all27public methods and all DTO exports. Backend endpoints and native protocols unchanged.",
+  "helper_proofs": [
+    {
+      "name": "uploadWelcomeImage",
+      "to": "frontend/features/whatsapp/api/broadcast-media.api.ts",
+      "body_and_parameters_ast_identical": true
+    },
+    {
+      "name": "bulkResendOverridesPayload",
+      "to": "frontend/features/whatsapp/api/broadcast-resend-payload.ts",
+      "body_and_parameters_ast_identical": true
+    },
+    {
+      "name": "validateBulkRecipientSelection",
+      "to": "frontend/features/whatsapp/api/broadcast-resend-payload.ts",
+      "body_and_parameters_ast_identical": true
+    },
+    {
+      "name": "postNormalSend",
+      "to": "frontend/features/whatsapp/api/broadcast-sends.api.ts",
+      "body_and_parameters_ast_identical": true
+    }
+  ],
+  "dto_proofs": [
+    {
+      "name": "WhatsAppRecipientInput",
+      "to": "frontend/features/whatsapp/types/recipients.ts",
+      "declaration_ast_identical": true
+    },
+    {
+      "name": "WhatsAppRecipientDetailsEdit",
+      "to": "frontend/features/whatsapp/types/recipients.ts",
+      "declaration_ast_identical": true
+    },
+    {
+      "name": "WhatsAppSupportContactInput",
+      "to": "frontend/features/whatsapp/types/recipients.ts",
+      "declaration_ast_identical": true
+    },
+    {
+      "name": "WhatsAppRecipient",
+      "to": "frontend/features/whatsapp/types/recipients.ts",
+      "declaration_ast_identical": true
+    },
+    {
+      "name": "WhatsAppRejectedContactInput",
+      "to": "frontend/features/whatsapp/types/recipients.ts",
+      "declaration_ast_identical": true
+    },
+    {
+      "name": "WhatsAppRejectedContact",
+      "to": "frontend/features/whatsapp/types/recipients.ts",
+      "declaration_ast_identical": true
+    },
+    {
+      "name": "WhatsAppRejectedContactPage",
+      "to": "frontend/features/whatsapp/types/recipients.ts",
+      "declaration_ast_identical": true
+    },
+    {
+      "name": "WhatsAppReplacedRecipient",
+      "to": "frontend/features/whatsapp/types/recipients.ts",
+      "declaration_ast_identical": true
+    },
+    {
+      "name": "WhatsAppUnidentifiedUpload",
+      "to": "frontend/features/whatsapp/types/recipients.ts",
+      "declaration_ast_identical": true
+    },
+    {
+      "name": "WhatsAppRecipientRosterItem",
+      "to": "frontend/features/whatsapp/types/recipients.ts",
+      "declaration_ast_identical": true
+    },
+    {
+      "name": "WhatsAppRecipientRosterResponse",
+      "to": "frontend/features/whatsapp/types/recipients.ts",
+      "declaration_ast_identical": true
+    },
+    {
+      "name": "WhatsAppContactPreviewResponse",
+      "to": "frontend/features/whatsapp/types/recipients.ts",
+      "declaration_ast_identical": true
+    },
+    {
+      "name": "WhatsAppRecipientMessageStatus",
+      "to": "frontend/features/whatsapp/types/recipients.ts",
+      "declaration_ast_identical": true
+    },
+    {
+      "name": "WhatsAppSupportContact",
+      "to": "frontend/features/whatsapp/types/recipients.ts",
+      "declaration_ast_identical": true
+    },
+    {
+      "name": "WhatsAppBroadcastGroup",
+      "to": "frontend/features/whatsapp/types/groups.ts",
+      "declaration_ast_identical": true
+    },
+    {
+      "name": "WhatsAppMatchingFieldOption",
+      "to": "frontend/features/whatsapp/types/groups.ts",
+      "declaration_ast_identical": true
+    },
+    {
+      "name": "WhatsAppLinkedClientGroup",
+      "to": "frontend/features/whatsapp/types/groups.ts",
+      "declaration_ast_identical": true
+    },
+    {
+      "name": "WhatsAppBroadcastGroupDetail",
+      "to": "frontend/features/whatsapp/types/groups.ts",
+      "declaration_ast_identical": true
+    },
+    {
+      "name": "WhatsAppMessageType",
+      "to": "frontend/features/whatsapp/types/messages.ts",
+      "declaration_ast_identical": true
+    },
+    {
+      "name": "WhatsAppReminderAudience",
+      "to": "frontend/features/whatsapp/types/messages.ts",
+      "declaration_ast_identical": true
+    },
+    {
+      "name": "WhatsAppMessageDraft",
+      "to": "frontend/features/whatsapp/types/messages.ts",
+      "declaration_ast_identical": true
+    },
+    {
+      "name": "WhatsAppPreviewResponse",
+      "to": "frontend/features/whatsapp/types/messages.ts",
+      "declaration_ast_identical": true
+    },
+    {
+      "name": "WhatsAppSendResponse",
+      "to": "frontend/features/whatsapp/types/messages.ts",
+      "declaration_ast_identical": true
+    },
+    {
+      "name": "WhatsAppBatchSummary",
+      "to": "frontend/features/whatsapp/types/messages.ts",
+      "declaration_ast_identical": true
+    },
+    {
+      "name": "WhatsAppBulkResendMessageType",
+      "to": "frontend/features/whatsapp/types/messages.ts",
+      "declaration_ast_identical": true
+    },
+    {
+      "name": "WhatsAppBulkResendOverrides",
+      "to": "frontend/features/whatsapp/types/messages.ts",
+      "declaration_ast_identical": true
+    },
+    {
+      "name": "WhatsAppBulkResendPreviewResponse",
+      "to": "frontend/features/whatsapp/types/messages.ts",
+      "declaration_ast_identical": true
+    },
+    {
+      "name": "WhatsAppBulkResendResponse",
+      "to": "frontend/features/whatsapp/types/messages.ts",
+      "declaration_ast_identical": true
+    },
+    {
+      "name": "WhatsAppWelcomeMediaResponse",
+      "to": "frontend/features/whatsapp/types/messages.ts",
+      "declaration_ast_identical": true
+    }
+  ]
+}

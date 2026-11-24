@@ -1,0 +1,112 @@
+{
+  "origin_path": "frontend/features/passports/components/group-whatsapp-broadcast-panel.tsx",
+  "origin_sha256": "924d3ed2f9c2efa429fbd67292154e08b1b042d7f24e065976d0262e71413e7b",
+  "backup": ".tmp/group-whatsapp-workspace-before-decomposition.tsx",
+  "hook_statement_count": 22,
+  "model_fields": [
+    "groupId",
+    "matchFilter",
+    "setMatchFilter",
+    "broadcastFilter",
+    "setBroadcastFilter",
+    "matchPage",
+    "setMatchPage",
+    "isManaging",
+    "setIsManaging",
+    "replacementRow",
+    "setReplacementRow",
+    "rejectRow",
+    "setRejectRow",
+    "rejectRequestId",
+    "setRejectRequestId",
+    "restoreRow",
+    "setRestoreRow",
+    "resolutionError",
+    "setResolutionError",
+    "matchPageSize",
+    "links",
+    "linksLoading",
+    "linksError",
+    "hasLinkedBroadcasts",
+    "canManage",
+    "rejectUpload",
+    "restoreResolution",
+    "exportTracking",
+    "matchesQuery",
+    "totalRecipientCount",
+    "submittedRecipientCount",
+    "submissionRate"
+  ],
+  "owners": [
+    {
+      "path": "frontend/features/passports/components/group-whatsapp-tracking-stats.tsx",
+      "props": [
+        "matchesQuery",
+        "totalRecipientCount",
+        "submittedRecipientCount",
+        "submissionRate"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/components/group-whatsapp-tracking-filters.tsx",
+      "props": [
+        "groupId",
+        "matchFilter",
+        "setMatchFilter",
+        "broadcastFilter",
+        "setBroadcastFilter",
+        "setMatchPage",
+        "links",
+        "exportTracking",
+        "matchesQuery"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/components/group-whatsapp-comparison-panel.tsx",
+      "props": [
+        "groupId",
+        "matchFilter",
+        "setMatchFilter",
+        "broadcastFilter",
+        "setBroadcastFilter",
+        "matchPage",
+        "setMatchPage",
+        "setReplacementRow",
+        "setRejectRow",
+        "setRejectRequestId",
+        "setRestoreRow",
+        "resolutionError",
+        "setResolutionError",
+        "links",
+        "canManage",
+        "rejectUpload",
+        "restoreResolution",
+        "exportTracking",
+        "matchesQuery"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/components/group-whatsapp-resolution-dialogs.tsx",
+      "props": [
+        "groupId",
+        "setMatchFilter",
+        "setMatchPage",
+        "isManaging",
+        "setIsManaging",
+        "replacementRow",
+        "setReplacementRow",
+        "rejectRow",
+        "setRejectRow",
+        "rejectRequestId",
+        "setRejectRequestId",
+        "restoreRow",
+        "setRestoreRow",
+        "setResolutionError",
+        "links",
+        "rejectUpload",
+        "restoreResolution"
+      ]
+    }
+  ],
+  "note": "Query/state/effects move to a private hook; original stats/filter/comparison/resolution JSX moves to focused owners. Public wrappers and tracking page guard remain. No API/config/payload or scope changes."
+}

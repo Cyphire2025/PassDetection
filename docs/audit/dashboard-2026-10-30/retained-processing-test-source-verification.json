@@ -1,0 +1,41 @@
+{
+  "status": "Bounded source-only processing/verification cohort complete; infrastructure ownership handed to AI and broader audit active",
+  "new_current_full_tests": 9,
+  "test_physical_lines": 1156,
+  "supporting_full_rows": 7,
+  "focused_rows": 3,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-processing-test-source-reviewed-files.json",
+    "sha256": "b7f2b4eb93a5f63e632f03cb7ea995c6cf1f25a238c15c4fcf1e358023890e5a"
+  },
+  "source_fence": {
+    "backend/tests/unit/application/test_reconcile_passport_upload_use_case.py": "ca422a1067ca158218bd95115298ae113f09b8c9552d5a349f1d22bdea814b8d",
+    "backend/tests/unit/application/test_verify_submitted_passport_use_case.py": "2306401b5be996c767ab8b281c987ddcf81456a9c8801b68a48d8e38154c19fe",
+    "backend/tests/unit/application/test_retry_post_submission_verification_use_case.py": "f0247edbe2f9f7d73769c8fd9dfa0d507783a224645808326b62ec242a4b18e6",
+    "backend/tests/unit/infrastructure/test_post_submission_verification_runtime.py": "1f9930da34bd2b9134e6405f43716f1ecf573ae4bca1c54117b88f72bc4f92cb",
+    "backend/tests/unit/infrastructure/test_post_submission_verification_task_budget.py": "d56d96f0fb69160061fd7235ef08cb6d50902e497dfaf369ff0e2d5101a69ba8",
+    "backend/tests/unit/infrastructure/test_verification_delivery_binding.py": "52116f171f8fddcdede51cd84a2f80cf175d12333461f0804d39d994248e5553",
+    "backend/tests/unit/infrastructure/test_processing_dispatcher.py": "9997c9c253713194a0a5505beb121515b936c7334c4056dc4a1580357f37e811",
+    "backend/tests/unit/infrastructure/test_processing_job_busy_claim.py": "d5f1452f2f439a12457299022a4f4dac4d1ba07b4a961dc08035738adfffb651",
+    "backend/tests/unit/infrastructure/test_processing_delivery_watchdog.py": "b02f800bcf2f3b859d5a162703d2bc6246ba31ffa129aebf49dcd7dda192a24a",
+    "backend/app/application/use_cases/passports/reconcile_passport_upload_use_case.py": "7a93a639b10148589d2bf5925fc31c032ad4ef82174f01b84ae8a82124929f8a",
+    "backend/app/application/use_cases/passports/retry_post_submission_verification_use_case.py": "d833985834f261af50e4048beb2a6872f8c9f57ffbda8ad0a9af25cdd07f8e0c",
+    "backend/app/application/use_cases/passports/verify_submitted_passport_use_case.py": "8f6c266b0356dc877c92707733509bb9186189db0d3f0c97cf8b9849b545e5cd",
+    "backend/app/infrastructure/processing/tasks.py": "3b0c253f7585b016e5f27172754d479320453c3213c0dbb16f2831e32b701769",
+    "backend/app/infrastructure/verification/tasks.py": "6c93e37549729dd1be037bd2877c01190d8ad032154afe888bec76caa0cc6bde",
+    "backend/app/infrastructure/processing/delivery_watchdog.py": "27a494e2046a2d760d56f6a1d2d5e1a5e50c26195e41c8892fdca041b3637e3e",
+    "backend/app/infrastructure/processing/dispatcher.py": "6e31aa4b8be8d82edd2a79a85f5d0833d39a83c8555d50ef595cdd3d6d3517ae",
+    "backend/app/infrastructure/verification/runtime.py": "bde2ed55836312685572f5294feb522639ce5f35a0436562f8a6029e81d23499",
+    "backend/app/infrastructure/processing/job_repository.py": "cb6a2c126b1e4da14e07d6e872671456cac286f6c1ea8745715e5f691d4c2176",
+    "backend/app/infrastructure/verification/job_repository.py": "08d701d797fa46f783ac6939c5652a1d19c04f05a5e0ded5cfb3ce37929c9210"
+  },
+  "checks_run": [],
+  "changes": [],
+  "findings": [],
+  "proof_gaps": [
+    "No tests, worker imports at runtime, queue/probe/provider/storage or real DB execution for source credit.",
+    "Mock rows and temporary SQLite source assertions do not establish real PG locks/unknown broker outcomes or capacity.",
+    "Provider/service fallback source values do not revive retired MRZ/OCR path or recommend current models.",
+    "Partial runtime/repository slices remain partial; frozen source/policy/attempt/queue/idempotency workflows untouched."
+  ]
+}

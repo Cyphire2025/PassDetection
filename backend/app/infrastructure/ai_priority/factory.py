@@ -1,7 +1,7 @@
 """Default Redis coordinator factory.
 
-Only the existing Redis URL is consumed here.  New limit settings are not read
-until the settings/deployment checkpoint is explicitly resumed.
+The reviewed application settings supply the Redis URL and global workload
+limits; constructing this adapter does not open a provider connection.
 """
 
 from __future__ import annotations

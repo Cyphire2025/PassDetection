@@ -1,0 +1,114 @@
+{
+  "files": [
+    {
+      "path": "scripts/release_retained_update.py",
+      "sha256": "f000107c2ce6a03653dbc03e83e04311514bac16c4bba07f17e1301c8a9c8cd4",
+      "physical_lines": 165,
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "review_method": "Previously complete manual source read retained with precise annotation/one-guard follow-through and entire module inverse",
+      "notes": "Explicit annotation metadata extension; runtime call names/order/defaults/body semantics preserved except named full-manifest invariant recheck.23changed callable hint projections and38actual hint evaluations recorded.66current synthetic affected tests pass; six retained owners strict-pass, FastBuild retains one explicit inherited interface mismatch. No service calls or typing suppression."
+    },
+    {
+      "path": "scripts/retained_release_contract.py",
+      "sha256": "fca45150ed25f983a99fd993059a515e7766bb0e01715e6e387d1e3c11022b41",
+      "physical_lines": 228,
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "review_method": "Previously complete manual source read retained with precise annotation/one-guard follow-through and entire module inverse",
+      "notes": "Explicit annotation metadata extension; runtime call names/order/defaults/body semantics preserved except named full-manifest invariant recheck.23changed callable hint projections and38actual hint evaluations recorded.66current synthetic affected tests pass; six retained owners strict-pass, FastBuild retains one explicit inherited interface mismatch. No service calls or typing suppression."
+    },
+    {
+      "path": "scripts/retained_release_fast.py",
+      "sha256": "3e95c32ac14972eadfc54edbe93912396b98904de6f55af09b8990ec8ca7df22",
+      "physical_lines": 70,
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "review_method": "Previously complete manual source read retained with precise annotation/one-guard follow-through and entire module inverse",
+      "notes": "Explicit annotation metadata extension; runtime call names/order/defaults/body semantics preserved except named full-manifest invariant recheck.23changed callable hint projections and38actual hint evaluations recorded.66current synthetic affected tests pass; six retained owners strict-pass, FastBuild retains one explicit inherited interface mismatch. No service calls or typing suppression."
+    },
+    {
+      "path": "scripts/retained_release_host.py",
+      "sha256": "b190ca7f5906fc2e6a2a41b0b1e2c9a61aeaacbab9e7006bc7968544f6b6c48d",
+      "physical_lines": 231,
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "review_method": "Previously complete manual source read retained with precise annotation/one-guard follow-through and entire module inverse",
+      "notes": "Explicit annotation metadata extension; runtime call names/order/defaults/body semantics preserved except named full-manifest invariant recheck.23changed callable hint projections and38actual hint evaluations recorded.66current synthetic affected tests pass; six retained owners strict-pass, FastBuild retains one explicit inherited interface mismatch. No service calls or typing suppression."
+    },
+    {
+      "path": "scripts/retained_release_runtime.py",
+      "sha256": "a3e3e820a2458eb216addc096885109f5cedd8076d2dd110d40592b8c14f2685",
+      "physical_lines": 228,
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "review_method": "Previously complete manual source read retained with precise annotation/one-guard follow-through and entire module inverse",
+      "notes": "Explicit annotation metadata extension; runtime call names/order/defaults/body semantics preserved except named full-manifest invariant recheck.23changed callable hint projections and38actual hint evaluations recorded.66current synthetic affected tests pass; six retained owners strict-pass, FastBuild retains one explicit inherited interface mismatch. No service calls or typing suppression."
+    },
+    {
+      "path": "scripts/retained_release_build.py",
+      "sha256": "4716c93c90f5cacd0e7fb30dbb1f1158869d5307a88f1856571eaf3531609a12",
+      "physical_lines": 58,
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "review_method": "Previously complete manual source read retained with precise annotation/one-guard follow-through and entire module inverse",
+      "notes": "Explicit annotation metadata extension; runtime call names/order/defaults/body semantics preserved except named full-manifest invariant recheck.23changed callable hint projections and38actual hint evaluations recorded.66current synthetic affected tests pass; six retained owners strict-pass, FastBuild retains one explicit inherited interface mismatch. No service calls or typing suppression."
+    },
+    {
+      "path": "scripts/retained_release_lifecycle.py",
+      "sha256": "6e671ab05a4e31cec39ac001894ed1357b1fcc62064e9f1a366f10497b787f30",
+      "physical_lines": 233,
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "review_method": "Previously complete manual source read retained with precise annotation/one-guard follow-through and entire module inverse",
+      "notes": "Explicit annotation metadata extension; runtime call names/order/defaults/body semantics preserved except named full-manifest invariant recheck.23changed callable hint projections and38actual hint evaluations recorded.66current synthetic affected tests pass; six retained owners strict-pass, FastBuild retains one explicit inherited interface mismatch. No service calls or typing suppression."
+    },
+    {
+      "path": "scripts/mcp_direct_containers.py",
+      "sha256": "6004d6b434a01467cd8c62625829e6791bc7ab02e17ac03f76c37a936d65a4e7",
+      "physical_lines": 167,
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "review_method": "Previously complete manual source read retained with precise annotation/one-guard follow-through and entire module inverse",
+      "notes": "Explicit annotation metadata extension; runtime call names/order/defaults/body semantics preserved except named full-manifest invariant recheck.23changed callable hint projections and38actual hint evaluations recorded.66current synthetic affected tests pass; six retained owners strict-pass, FastBuild retains one explicit inherited interface mismatch. No service calls or typing suppression."
+    },
+    {
+      "path": "scripts/release_document_retained_update.py",
+      "sha256": "602c697e721cc9dddd26779997bd54c3b6cfbda5fcb447ed61da19526be1fb48",
+      "physical_lines": 416,
+      "reviewer": "ai_extraction",
+      "review_scope": "partial",
+      "review_status": "partial",
+      "status": "verified-focused",
+      "review_method": "Constructor declaration/body and immediate public factory/super caller seams only; no full420-line module review claim",
+      "notes": "Explicit annotation metadata extension; runtime call names/order/defaults/body semantics preserved except named full-manifest invariant recheck.23changed callable hint projections and38actual hint evaluations recorded.66current synthetic affected tests pass; six retained owners strict-pass, FastBuild retains one explicit inherited interface mismatch. No service calls or typing suppression."
+    },
+    {
+      "path": "scripts/test_retained_release_manifest_admission.py",
+      "sha256": "d940a2365bff7f9e907c56d3ec8e3f32da6c052f881ec4f83280c6eeca3e0984",
+      "physical_lines": 87,
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "notes": "Complete authored/read synthetic actual run-method controls: valid Full exact signed-manifest call, valid Fast path, invalid in-memory Full missing artifact blocked before verifier. All downstream Docker/provider functions are synthetic; positive/negative effects checked."
+    }
+  ],
+  "source_review_scope": "Nine full current source/test records and one partial constructor seam. Earlier mechanical and decoded-boundary receipts remain historical."
+}

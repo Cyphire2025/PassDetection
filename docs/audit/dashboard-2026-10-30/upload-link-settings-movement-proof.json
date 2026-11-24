@@ -1,0 +1,42 @@
+{
+  "original_path": "frontend/features/passports/components/upload-link-settings.tsx",
+  "original_sha256": "f9d4158c45ed1ed5cc74c075a3ae90be496d217bde3e5f711809ce49705a7ecc",
+  "records": [
+    {
+      "declaration": "UploadLinkSettingsValue",
+      "to": "frontend/features/passports/components/upload-link-settings-model.ts",
+      "exact_AST": true
+    },
+    {
+      "declaration": "getUploadLinkSettings",
+      "to": "frontend/features/passports/components/upload-link-settings-model.ts",
+      "exact_AST": true
+    },
+    {
+      "declaration": "getUploadLinkSettingsError",
+      "to": "frontend/features/passports/components/upload-link-settings-model.ts",
+      "exact_AST": true
+    },
+    {
+      "declaration": "UploadLinkSettings",
+      "to": "frontend/features/passports/components/upload-link-settings.tsx",
+      "exact_AST": true
+    },
+    {
+      "declaration": "SettingsSection",
+      "to": "frontend/features/passports/components/upload-link-settings.tsx",
+      "exact_AST": true
+    }
+  ],
+  "files": [
+    {
+      "path": "frontend/features/passports/components/upload-link-settings.tsx",
+      "sha256": "e59b417f5e02aa82b04d2cfd096badea8cb8dade47de5e4c40ed6fd4286eaae2"
+    },
+    {
+      "path": "frontend/features/passports/components/upload-link-settings-model.ts",
+      "sha256": "3dc2cb460261f616c2ef05c79e90f48c9ebbbeec7c17c6638519efa35b71ceaa"
+    }
+  ],
+  "basis": "Three complete model declarations and two unchanged UI function declarations checked; only imports and stable reexports changed."
+}

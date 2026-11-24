@@ -1,0 +1,178 @@
+[
+  {
+    "path": "frontend/components/brand/brand-logo.tsx",
+    "sha256": "e57ec6a72b6700f26d19603823e25ee0160d9182ad7e7dc18e53c379b8779caa",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full current physical source read, including full runtime callbacks/effects/cleanup or all pure type/CSS declarations. Browser-only helpers preserve their existing client boundary; asset artwork and cohesive type interfaces do not require arbitrary extra splitting. No read-only source change, new application suite or production browser qualification claimed."
+  },
+  {
+    "path": "frontend/components/pwa/pwa-registrar.tsx",
+    "sha256": "69151e04357ff40419710cedf74116e3591767ae1779f235bb811a1d61799d2b",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full current physical source read, including full runtime callbacks/effects/cleanup or all pure type/CSS declarations. Browser-only helpers preserve their existing client boundary; asset artwork and cohesive type interfaces do not require arbitrary extra splitting. No read-only source change, new application suite or production browser qualification claimed. Service-worker registration has disposed state, coalesced update promise and online/visibility listener cleanup; no response/data cache policy is inferred from registrar alone."
+  },
+  {
+    "path": "frontend/components/shared/error-boundary.tsx",
+    "sha256": "faab1b3de61d50a4ecc303a804d7cc387162d5b434e30a882c115a8ea7f86407",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full current physical source read, including full runtime callbacks/effects/cleanup or all pure type/CSS declarations. Browser-only helpers preserve their existing client boundary; asset artwork and cohesive type interfaces do not require arbitrary extra splitting. No read-only source change, new application suite or production browser qualification claimed. Actual render-error sender traced: messages/stacks/URL parameters excluded, bounded route-metadata reports and late report generation guard retained."
+  },
+  {
+    "path": "frontend/components/shared/index.ts",
+    "sha256": "19e61b5dc8f5335af0354e58723595db09c333a8489ce11bd0a7c486f4f1cb0b",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full current physical source read, including full runtime callbacks/effects/cleanup or all pure type/CSS declarations. Browser-only helpers preserve their existing client boundary; asset artwork and cohesive type interfaces do not require arbitrary extra splitting. No read-only source change, new application suite or production browser qualification claimed."
+  },
+  {
+    "path": "frontend/components/shared/intent-prefetch-link.tsx",
+    "sha256": "6c4fb062083d4f2bc22b2e18301e6f62ebf9401b3a97fe6ce7479521b83769e5",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full current physical source read, including full runtime callbacks/effects/cleanup or all pure type/CSS declarations. Browser-only helpers preserve their existing client boundary; asset artwork and cohesive type interfaces do not require arbitrary extra splitting. No read-only source change, new application suite or production browser qualification claimed."
+  },
+  {
+    "path": "frontend/components/shared/loading-spinner.tsx",
+    "sha256": "967bed42c89b655ea72a9c3dc016540b63ef0895ce5a59decb7b98e05fa4f08d",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full current physical source read, including full runtime callbacks/effects/cleanup or all pure type/CSS declarations. Browser-only helpers preserve their existing client boundary; asset artwork and cohesive type interfaces do not require arbitrary extra splitting. No read-only source change, new application suite or production browser qualification claimed."
+  },
+  {
+    "path": "frontend/components/shared/page-header.tsx",
+    "sha256": "47a38aa60c56016d79a33bcc02b5242f2cd83722807a7faf1fdf15b17abb4b49",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full current physical source read, including full runtime callbacks/effects/cleanup or all pure type/CSS declarations. Browser-only helpers preserve their existing client boundary; asset artwork and cohesive type interfaces do not require arbitrary extra splitting. No read-only source change, new application suite or production browser qualification claimed."
+  },
+  {
+    "path": "frontend/features/branding/components/company-logo.tsx",
+    "sha256": "2cedbf3616ead0a9b72f96066f1f5d3ac2449e613782393dbcf26d5de0ff7c60",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full current physical source read, including full runtime callbacks/effects/cleanup or all pure type/CSS declarations. Browser-only helpers preserve their existing client boundary; asset artwork and cohesive type interfaces do not require arbitrary extra splitting. No read-only source change, new application suite or production browser qualification claimed. Modal keyboard boundary and portal/close/image-error path physically traced; original supplied image URLs and aspect ratio retained."
+  },
+  {
+    "path": "frontend/features/branding/components/image-lightbox.tsx",
+    "sha256": "6e60637beb6f9d8bf093d083d85ee1645b30647e74cebbe4522693ec96004fc3",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full current physical source read, including full runtime callbacks/effects/cleanup or all pure type/CSS declarations. Browser-only helpers preserve their existing client boundary; asset artwork and cohesive type interfaces do not require arbitrary extra splitting. No read-only source change, new application suite or production browser qualification claimed. Modal keyboard boundary and portal/close/image-error path physically traced; original supplied image URLs and aspect ratio retained."
+  },
+  {
+    "path": "frontend/components/shared/passport-date-input.tsx",
+    "sha256": "b02e9f7b8fd991d611398b647b1043273b54841e3a4adc36e7c43d5c7dec408a",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full current physical source read, including full runtime callbacks/effects/cleanup or all pure type/CSS declarations. Browser-only helpers preserve their existing client boundary; asset artwork and cohesive type interfaces do not require arbitrary extra splitting. No read-only source change, new application suite or production browser qualification claimed."
+  },
+  {
+    "path": "frontend/components/shared/processing-motion.tsx",
+    "sha256": "e4e23ad656db71d1fb034b5bd06971f34a35b1d3f50e4264a7a87b762129b61f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full current physical source read, including full runtime callbacks/effects/cleanup or all pure type/CSS declarations. Browser-only helpers preserve their existing client boundary; asset artwork and cohesive type interfaces do not require arbitrary extra splitting. No read-only source change, new application suite or production browser qualification claimed."
+  },
+  {
+    "path": "frontend/components/shared/processing-motion.module.css",
+    "sha256": "3eeb14ccbd0639be3a7a3ecf3866a84940c6e6f297dfdc8d24fab07057ad6ea7",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full current physical source read, including full runtime callbacks/effects/cleanup or all pure type/CSS declarations. Browser-only helpers preserve their existing client boundary; asset artwork and cohesive type interfaces do not require arbitrary extra splitting. No read-only source change, new application suite or production browser qualification claimed."
+  },
+  {
+    "path": "frontend/components/ui/liquid-sculpture/sculpture.module.css",
+    "sha256": "5ce7818af876f67e593939ae39428f2163b07f851e765ecaaed734729569c37a",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full current physical source read, including full runtime callbacks/effects/cleanup or all pure type/CSS declarations. Browser-only helpers preserve their existing client boundary; asset artwork and cohesive type interfaces do not require arbitrary extra splitting. No read-only source change, new application suite or production browser qualification claimed."
+  },
+  {
+    "path": "frontend/features/upload/components/traveller-landing.module.css",
+    "sha256": "a61d1a8d2caf40519e22c5009dd69789b2322c981d7cc65c9c547551e0a86d7d",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full current physical source read, including full runtime callbacks/effects/cleanup or all pure type/CSS declarations. Browser-only helpers preserve their existing client boundary; asset artwork and cohesive type interfaces do not require arbitrary extra splitting. No read-only source change, new application suite or production browser qualification claimed."
+  },
+  {
+    "path": "frontend/e2e-real-stack/workflow-support.ts",
+    "sha256": "d87c3caf9529d4752cb65f4a608765e4c9695e6cd577258cdc63658190216102",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full current physical source read, including full runtime callbacks/effects/cleanup or all pure type/CSS declarations. Browser-only helpers preserve their existing client boundary; asset artwork and cohesive type interfaces do not require arbitrary extra splitting. No read-only source change, new application suite or production browser qualification claimed. Synthetic qualification-only OTP substitution and generated camera/PDF image fixtures inspected; command uses fixed isolated compose project, argv and JSON stdin. Service stack was not run locally."
+  },
+  {
+    "path": "frontend/types/api.types.ts",
+    "sha256": "45793f2725ca6897c1a6ff1b3d1e2eb5378c6d36f7acd73c2bab656b3b7cedb4",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full current physical source read, including full runtime callbacks/effects/cleanup or all pure type/CSS declarations. Browser-only helpers preserve their existing client boundary; asset artwork and cohesive type interfaces do not require arbitrary extra splitting. No read-only source change, new application suite or production browser qualification claimed."
+  },
+  {
+    "path": "frontend/types/auth.types.ts",
+    "sha256": "8b92edcf662c9f6c3bd9f955e68cfdb1bcf37ec648d60317b2c4c376b9ee98dc",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full current physical source read, including full runtime callbacks/effects/cleanup or all pure type/CSS declarations. Browser-only helpers preserve their existing client boundary; asset artwork and cohesive type interfaces do not require arbitrary extra splitting. No read-only source change, new application suite or production browser qualification claimed."
+  },
+  {
+    "path": "frontend/types/document-distribution.types.ts",
+    "sha256": "c4f9fd838f5704df37800e71e5f2cf6482cad011614a11e82c508b1d0a55978d",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full current physical source read, including full runtime callbacks/effects/cleanup or all pure type/CSS declarations. Browser-only helpers preserve their existing client boundary; asset artwork and cohesive type interfaces do not require arbitrary extra splitting. No read-only source change, new application suite or production browser qualification claimed."
+  },
+  {
+    "path": "frontend/types/document-rename.types.ts",
+    "sha256": "795eb91550a456692867a5579733e9be78d8ec3f898933f7aa41acecfb485671",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full current physical source read, including full runtime callbacks/effects/cleanup or all pure type/CSS declarations. Browser-only helpers preserve their existing client boundary; asset artwork and cohesive type interfaces do not require arbitrary extra splitting. No read-only source change, new application suite or production browser qualification claimed."
+  },
+  {
+    "path": "frontend/types/ecr-checker.types.ts",
+    "sha256": "b32f2389ef9585bc38267cd557839c267ea35b0b3857a7c8367b4444cbebfb97",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full current physical source read, including full runtime callbacks/effects/cleanup or all pure type/CSS declarations. Browser-only helpers preserve their existing client boundary; asset artwork and cohesive type interfaces do not require arbitrary extra splitting. No read-only source change, new application suite or production browser qualification claimed."
+  },
+  {
+    "path": "frontend/types/index.ts",
+    "sha256": "29b1df7161dce0a835bf1c0c076c2cc1fe0e91f4dd0b88f7e8d1865319ddabc0",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full current physical source read, including full runtime callbacks/effects/cleanup or all pure type/CSS declarations. Browser-only helpers preserve their existing client boundary; asset artwork and cohesive type interfaces do not require arbitrary extra splitting. No read-only source change, new application suite or production browser qualification claimed."
+  },
+  {
+    "path": "mcp-connector/pyproject.toml",
+    "sha256": "a08d193925d35d9df65e4b2b76c26047232a8b73c913eafaa25d60af874793f1",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full30-line connector package/build metadata read. Existing pinned Python3.11, published connector entry point/package name and Windows-only vault dependency identities retained. Earlier connector runtime receipts do not newly verify these dependencies by this read."
+  }
+]

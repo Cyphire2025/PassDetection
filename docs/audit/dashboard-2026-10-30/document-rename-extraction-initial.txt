@@ -1,0 +1,13 @@
+...............................F...........                              [100%]
+================================== FAILURES ===================================
+_ test_advisory_lock_is_stable_transaction_scoped_and_precedes_final_rereads __
+backend\tests\unit\presentation\test_document_chunk_uploads.py:158: in test_advisory_lock_is_stable_transaction_scoped_and_precedes_final_rereads
+    source.index("acquire_document_upload_advisory_lock")
+E   ValueError: substring not found
+---------------------------- Captured stdout setup ----------------------------
+2026-10-31T05:15:38.485731Z [debug    ] Using proactor: IocpProactor   [asyncio]
+----------------------------- Captured log setup ------------------------------
+DEBUG    asyncio:proactor_events.py:633 Using proactor: IocpProactor
+=========================== short test summary info ===========================
+FAILED backend\tests\unit\presentation\test_document_chunk_uploads.py::test_advisory_lock_is_stable_transaction_scoped_and_precedes_final_rereads
+1 failed, 42 passed in 1.04s

@@ -1,0 +1,282 @@
+[
+  {
+    "path": "frontend/features/companies/api/companies.api.ts",
+    "sha256": "18ee51e907f2149e832cd83a94f5d1fd6258d8ffe8de3d18bb57559f2f7529ba",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Full logical/physical source inspected in the original company pass and this coherent follow-through: all intentional authority/config, extracted state, props and presentation wiring read. Pure source formatting/line-ending edits retain emitted JavaScript/JSX text; ten moved hook declarations retain exact TS AST,35page-state statements retain exact emitted AST. Nine private queued-write paths now use initiating-owner capture. Existing cursor/page sizes, source/revision/evidence/acknowledgement/idempotency/private-image/modal and export workflows retained. The100-case affected suite uses22physical testfiles; executing those files is not a claim all22test sources were physically read. No browser latency/frame-rate or full-repository certification."
+  },
+  {
+    "path": "frontend/features/companies/api/company-matching.api.ts",
+    "sha256": "a766c07dda2a2ea048be7d74c6cd2499e4248fd21a0066b928fb7bb2e6a80835",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Full logical/physical source inspected in the original company pass and this coherent follow-through: all intentional authority/config, extracted state, props and presentation wiring read. Pure source formatting/line-ending edits retain emitted JavaScript/JSX text; ten moved hook declarations retain exact TS AST,35page-state statements retain exact emitted AST. Nine private queued-write paths now use initiating-owner capture. Existing cursor/page sizes, source/revision/evidence/acknowledgement/idempotency/private-image/modal and export workflows retained. The100-case affected suite uses22physical testfiles; executing those files is not a claim all22test sources were physically read. No browser latency/frame-rate or full-repository certification."
+  },
+  {
+    "path": "frontend/features/companies/api/company-passports.api.ts",
+    "sha256": "4ef113124fb03f4abaca0c47b70c1596f1f7a27995671096ae3ea8614a2a491a",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Full logical/physical source inspected in the original company pass and this coherent follow-through: all intentional authority/config, extracted state, props and presentation wiring read. Pure source formatting/line-ending edits retain emitted JavaScript/JSX text; ten moved hook declarations retain exact TS AST,35page-state statements retain exact emitted AST. Nine private queued-write paths now use initiating-owner capture. Existing cursor/page sizes, source/revision/evidence/acknowledgement/idempotency/private-image/modal and export workflows retained. The100-case affected suite uses22physical testfiles; executing those files is not a claim all22test sources were physically read. No browser latency/frame-rate or full-repository certification."
+  },
+  {
+    "path": "frontend/features/companies/api/company-data-exports.api.ts",
+    "sha256": "3524194cea45dc5d042f86bbb714711f1e51f158e0ed2c65301d5c63ebea9b67",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Full logical/physical source inspected in the original company pass and this coherent follow-through: all intentional authority/config, extracted state, props and presentation wiring read. Pure source formatting/line-ending edits retain emitted JavaScript/JSX text; ten moved hook declarations retain exact TS AST,35page-state statements retain exact emitted AST. Nine private queued-write paths now use initiating-owner capture. Existing cursor/page sizes, source/revision/evidence/acknowledgement/idempotency/private-image/modal and export workflows retained. The100-case affected suite uses22physical testfiles; executing those files is not a claim all22test sources were physically read. No browser latency/frame-rate or full-repository certification."
+  },
+  {
+    "path": "frontend/features/companies/api/reuse-setup.api.ts",
+    "sha256": "53d977bcb544fb94f04a6df6a51daae2e1d1914cc9b0af15fc44b43a629b7d9c",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Full logical/physical source inspected in the original company pass and this coherent follow-through: all intentional authority/config, extracted state, props and presentation wiring read. Pure source formatting/line-ending edits retain emitted JavaScript/JSX text; ten moved hook declarations retain exact TS AST,35page-state statements retain exact emitted AST. Nine private queued-write paths now use initiating-owner capture. Existing cursor/page sizes, source/revision/evidence/acknowledgement/idempotency/private-image/modal and export workflows retained. The100-case affected suite uses22physical testfiles; executing those files is not a claim all22test sources were physically read. No browser latency/frame-rate or full-repository certification."
+  },
+  {
+    "path": "frontend/features/companies/hooks/use-companies.ts",
+    "sha256": "005c40a44385c7fe3fbaa82c32eedcca7e75097919ca590366bb1bc5056bdb28",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Full logical/physical source inspected in the original company pass and this coherent follow-through: all intentional authority/config, extracted state, props and presentation wiring read. Pure source formatting/line-ending edits retain emitted JavaScript/JSX text; ten moved hook declarations retain exact TS AST,35page-state statements retain exact emitted AST. Nine private queued-write paths now use initiating-owner capture. Existing cursor/page sizes, source/revision/evidence/acknowledgement/idempotency/private-image/modal and export workflows retained. The100-case affected suite uses22physical testfiles; executing those files is not a claim all22test sources were physically read. No browser latency/frame-rate or full-repository certification."
+  },
+  {
+    "path": "frontend/features/companies/hooks/use-company-data-exports.ts",
+    "sha256": "5a4c0f83f0417ff2609b69f61415a67f278991a9f4f6cb03d5c1379d8e27dae6",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Full logical/physical source inspected in the original company pass and this coherent follow-through: all intentional authority/config, extracted state, props and presentation wiring read. Pure source formatting/line-ending edits retain emitted JavaScript/JSX text; ten moved hook declarations retain exact TS AST,35page-state statements retain exact emitted AST. Nine private queued-write paths now use initiating-owner capture. Existing cursor/page sizes, source/revision/evidence/acknowledgement/idempotency/private-image/modal and export workflows retained. The100-case affected suite uses22physical testfiles; executing those files is not a claim all22test sources were physically read. No browser latency/frame-rate or full-repository certification."
+  },
+  {
+    "path": "frontend/features/companies/components/company-matching-dialog.tsx",
+    "sha256": "44394b68b7dc10004471a37c65e1e55d821844b0d2d75ea2112d6e84f04d0076",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Full logical/physical source inspected in the original company pass and this coherent follow-through: all intentional authority/config, extracted state, props and presentation wiring read. Pure source formatting/line-ending edits retain emitted JavaScript/JSX text; ten moved hook declarations retain exact TS AST,35page-state statements retain exact emitted AST. Nine private queued-write paths now use initiating-owner capture. Existing cursor/page sizes, source/revision/evidence/acknowledgement/idempotency/private-image/modal and export workflows retained. The100-case affected suite uses22physical testfiles; executing those files is not a claim all22test sources were physically read. No browser latency/frame-rate or full-repository certification."
+  },
+  {
+    "path": "frontend/features/companies/components/company-match-resolution.tsx",
+    "sha256": "23e7454bb014fb83b824d557ebb8e6d21b7beffc868a64811e79a52ef7041a01",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Full logical/physical source inspected in the original company pass and this coherent follow-through: all intentional authority/config, extracted state, props and presentation wiring read. Pure source formatting/line-ending edits retain emitted JavaScript/JSX text; ten moved hook declarations retain exact TS AST,35page-state statements retain exact emitted AST. Nine private queued-write paths now use initiating-owner capture. Existing cursor/page sizes, source/revision/evidence/acknowledgement/idempotency/private-image/modal and export workflows retained. The100-case affected suite uses22physical testfiles; executing those files is not a claim all22test sources were physically read. No browser latency/frame-rate or full-repository certification."
+  },
+  {
+    "path": "frontend/features/companies/components/company-passports.tsx",
+    "sha256": "f9f4d89d57db074a702d8be1b66bbdea1ba0e13e3538decb3916e24feb01c983",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Full logical/physical source inspected in the original company pass and this coherent follow-through: all intentional authority/config, extracted state, props and presentation wiring read. Pure source formatting/line-ending edits retain emitted JavaScript/JSX text; ten moved hook declarations retain exact TS AST,35page-state statements retain exact emitted AST. Nine private queued-write paths now use initiating-owner capture. Existing cursor/page sizes, source/revision/evidence/acknowledgement/idempotency/private-image/modal and export workflows retained. The100-case affected suite uses22physical testfiles; executing those files is not a claim all22test sources were physically read. No browser latency/frame-rate or full-repository certification."
+  },
+  {
+    "path": "frontend/features/companies/components/company-settings.tsx",
+    "sha256": "1a1fda0c68b92f32ce1c8207d890a0f5a94bfdc4937df4726ef8b3212a3324e3",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Full logical/physical source inspected in the original company pass and this coherent follow-through: all intentional authority/config, extracted state, props and presentation wiring read. Pure source formatting/line-ending edits retain emitted JavaScript/JSX text; ten moved hook declarations retain exact TS AST,35page-state statements retain exact emitted AST. Nine private queued-write paths now use initiating-owner capture. Existing cursor/page sizes, source/revision/evidence/acknowledgement/idempotency/private-image/modal and export workflows retained. The100-case affected suite uses22physical testfiles; executing those files is not a claim all22test sources were physically read. No browser latency/frame-rate or full-repository certification."
+  },
+  {
+    "path": "frontend/features/companies/components/company-reassignment-dialog.tsx",
+    "sha256": "96044f6c4eb9e82d6d663f29618c0e5dc4957b59ad12ecb8f90f915e8315ad88",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Full logical/physical source inspected in the original company pass and this coherent follow-through: all intentional authority/config, extracted state, props and presentation wiring read. Pure source formatting/line-ending edits retain emitted JavaScript/JSX text; ten moved hook declarations retain exact TS AST,35page-state statements retain exact emitted AST. Nine private queued-write paths now use initiating-owner capture. Existing cursor/page sizes, source/revision/evidence/acknowledgement/idempotency/private-image/modal and export workflows retained. The100-case affected suite uses22physical testfiles; executing those files is not a claim all22test sources were physically read. No browser latency/frame-rate or full-repository certification."
+  },
+  {
+    "path": "frontend/features/companies/components/company-all-data.tsx",
+    "sha256": "40afb4f0da3614a83d21f84fed374f8bba5e8b2bd0edaec79fa0ceeac3bdeca2",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Full logical/physical source inspected in the original company pass and this coherent follow-through: all intentional authority/config, extracted state, props and presentation wiring read. Pure source formatting/line-ending edits retain emitted JavaScript/JSX text; ten moved hook declarations retain exact TS AST,35page-state statements retain exact emitted AST. Nine private queued-write paths now use initiating-owner capture. Existing cursor/page sizes, source/revision/evidence/acknowledgement/idempotency/private-image/modal and export workflows retained. The100-case affected suite uses22physical testfiles; executing those files is not a claim all22test sources were physically read. No browser latency/frame-rate or full-repository certification."
+  },
+  {
+    "path": "frontend/features/companies/components/company-directory.tsx",
+    "sha256": "df0c6bfc8c6aa45129f76c77d3693c4d8ef1544055d2c00915a94ad4606e32c1",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Full logical/physical source inspected in the original company pass and this coherent follow-through: all intentional authority/config, extracted state, props and presentation wiring read. Pure source formatting/line-ending edits retain emitted JavaScript/JSX text; ten moved hook declarations retain exact TS AST,35page-state statements retain exact emitted AST. Nine private queued-write paths now use initiating-owner capture. Existing cursor/page sizes, source/revision/evidence/acknowledgement/idempotency/private-image/modal and export workflows retained. The100-case affected suite uses22physical testfiles; executing those files is not a claim all22test sources were physically read. No browser latency/frame-rate or full-repository certification."
+  },
+  {
+    "path": "frontend/features/companies/components/company-person-page.tsx",
+    "sha256": "73a699590cd9ae2f1862dd59dafcdc12d7b3db7f81b93f25ea19cff4ecb54795",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Full logical/physical source inspected in the original company pass and this coherent follow-through: all intentional authority/config, extracted state, props and presentation wiring read. Pure source formatting/line-ending edits retain emitted JavaScript/JSX text; ten moved hook declarations retain exact TS AST,35page-state statements retain exact emitted AST. Nine private queued-write paths now use initiating-owner capture. Existing cursor/page sizes, source/revision/evidence/acknowledgement/idempotency/private-image/modal and export workflows retained. The100-case affected suite uses22physical testfiles; executing those files is not a claim all22test sources were physically read. No browser latency/frame-rate or full-repository certification."
+  },
+  {
+    "path": "frontend/features/companies/components/company-picker.tsx",
+    "sha256": "e5e675b5c33a3f31798ff0b7cbbf560eff2fa4b36255753232df1054d7af3686",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Full logical/physical source inspected in the original company pass and this coherent follow-through: all intentional authority/config, extracted state, props and presentation wiring read. Pure source formatting/line-ending edits retain emitted JavaScript/JSX text; ten moved hook declarations retain exact TS AST,35page-state statements retain exact emitted AST. Nine private queued-write paths now use initiating-owner capture. Existing cursor/page sizes, source/revision/evidence/acknowledgement/idempotency/private-image/modal and export workflows retained. The100-case affected suite uses22physical testfiles; executing those files is not a claim all22test sources were physically read. No browser latency/frame-rate or full-repository certification."
+  },
+  {
+    "path": "frontend/features/companies/api/company-request-config.ts",
+    "sha256": "062371a85ed1ebca8185d88b81dc754ca83e6b82658e28c707f5e299837dcfc3",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Full logical/physical source inspected in the original company pass and this coherent follow-through: all intentional authority/config, extracted state, props and presentation wiring read. Pure source formatting/line-ending edits retain emitted JavaScript/JSX text; ten moved hook declarations retain exact TS AST,35page-state statements retain exact emitted AST. Nine private queued-write paths now use initiating-owner capture. Existing cursor/page sizes, source/revision/evidence/acknowledgement/idempotency/private-image/modal and export workflows retained. The100-case affected suite uses22physical testfiles; executing those files is not a claim all22test sources were physically read. No browser latency/frame-rate or full-repository certification."
+  },
+  {
+    "path": "frontend/features/companies/hooks/company-query-state.ts",
+    "sha256": "fb6557cb497ff2ac377c3795ac1d8095446de7a3dbddcae06f664b96d772ba44",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Full logical/physical source inspected in the original company pass and this coherent follow-through: all intentional authority/config, extracted state, props and presentation wiring read. Pure source formatting/line-ending edits retain emitted JavaScript/JSX text; ten moved hook declarations retain exact TS AST,35page-state statements retain exact emitted AST. Nine private queued-write paths now use initiating-owner capture. Existing cursor/page sizes, source/revision/evidence/acknowledgement/idempotency/private-image/modal and export workflows retained. The100-case affected suite uses22physical testfiles; executing those files is not a claim all22test sources were physically read. No browser latency/frame-rate or full-repository certification."
+  },
+  {
+    "path": "frontend/features/companies/hooks/use-company-queries.ts",
+    "sha256": "f5874240b0539820954be15ea66eab9596eb1fe3ed34506009537bb4a51e3acd",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Full logical/physical source inspected in the original company pass and this coherent follow-through: all intentional authority/config, extracted state, props and presentation wiring read. Pure source formatting/line-ending edits retain emitted JavaScript/JSX text; ten moved hook declarations retain exact TS AST,35page-state statements retain exact emitted AST. Nine private queued-write paths now use initiating-owner capture. Existing cursor/page sizes, source/revision/evidence/acknowledgement/idempotency/private-image/modal and export workflows retained. The100-case affected suite uses22physical testfiles; executing those files is not a claim all22test sources were physically read. No browser latency/frame-rate or full-repository certification."
+  },
+  {
+    "path": "frontend/features/companies/hooks/use-company-mutations.ts",
+    "sha256": "5cca17266ce8149129c37c0327b7d6766c3053025bb8135cd3d621624248f5b7",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Full logical/physical source inspected in the original company pass and this coherent follow-through: all intentional authority/config, extracted state, props and presentation wiring read. Pure source formatting/line-ending edits retain emitted JavaScript/JSX text; ten moved hook declarations retain exact TS AST,35page-state statements retain exact emitted AST. Nine private queued-write paths now use initiating-owner capture. Existing cursor/page sizes, source/revision/evidence/acknowledgement/idempotency/private-image/modal and export workflows retained. The100-case affected suite uses22physical testfiles; executing those files is not a claim all22test sources were physically read. No browser latency/frame-rate or full-repository certification."
+  },
+  {
+    "path": "frontend/features/companies/hooks/use-company-reuse-policy.ts",
+    "sha256": "41d41a631363296387250161fe9a9e1c8ddde1d9c604fbd08adf34e5c247ea5f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Full logical/physical source inspected in the original company pass and this coherent follow-through: all intentional authority/config, extracted state, props and presentation wiring read. Pure source formatting/line-ending edits retain emitted JavaScript/JSX text; ten moved hook declarations retain exact TS AST,35page-state statements retain exact emitted AST. Nine private queued-write paths now use initiating-owner capture. Existing cursor/page sizes, source/revision/evidence/acknowledgement/idempotency/private-image/modal and export workflows retained. The100-case affected suite uses22physical testfiles; executing those files is not a claim all22test sources were physically read. No browser latency/frame-rate or full-repository certification."
+  },
+  {
+    "path": "frontend/features/companies/hooks/use-company-directory-state.ts",
+    "sha256": "d5195a52f34b7e741edbe267b8cf17ba23b189cc5fc5b56ae71ab2dc296d95d5",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Full logical/physical source inspected in the original company pass and this coherent follow-through: all intentional authority/config, extracted state, props and presentation wiring read. Pure source formatting/line-ending edits retain emitted JavaScript/JSX text; ten moved hook declarations retain exact TS AST,35page-state statements retain exact emitted AST. Nine private queued-write paths now use initiating-owner capture. Existing cursor/page sizes, source/revision/evidence/acknowledgement/idempotency/private-image/modal and export workflows retained. The100-case affected suite uses22physical testfiles; executing those files is not a claim all22test sources were physically read. No browser latency/frame-rate or full-repository certification."
+  },
+  {
+    "path": "frontend/features/companies/hooks/use-company-person-page.ts",
+    "sha256": "1d496a5cf76e41e6f1c97de8b7e772ec21e34133e34dd45f70fbbd431b9e5b9a",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Full logical/physical source inspected in the original company pass and this coherent follow-through: all intentional authority/config, extracted state, props and presentation wiring read. Pure source formatting/line-ending edits retain emitted JavaScript/JSX text; ten moved hook declarations retain exact TS AST,35page-state statements retain exact emitted AST. Nine private queued-write paths now use initiating-owner capture. Existing cursor/page sizes, source/revision/evidence/acknowledgement/idempotency/private-image/modal and export workflows retained. The100-case affected suite uses22physical testfiles; executing those files is not a claim all22test sources were physically read. No browser latency/frame-rate or full-repository certification."
+  },
+  {
+    "path": "frontend/features/companies/components/company-reuse-policy-card.tsx",
+    "sha256": "657b1c1e43c6c363ea99528691778dc49936e1d25c4f7d25444346e816c8ece1",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Full logical/physical source inspected in the original company pass and this coherent follow-through: all intentional authority/config, extracted state, props and presentation wiring read. Pure source formatting/line-ending edits retain emitted JavaScript/JSX text; ten moved hook declarations retain exact TS AST,35page-state statements retain exact emitted AST. Nine private queued-write paths now use initiating-owner capture. Existing cursor/page sizes, source/revision/evidence/acknowledgement/idempotency/private-image/modal and export workflows retained. The100-case affected suite uses22physical testfiles; executing those files is not a claim all22test sources were physically read. No browser latency/frame-rate or full-repository certification."
+  },
+  {
+    "path": "frontend/features/companies/components/company-people-directory.tsx",
+    "sha256": "9ec769a064fa9d58c2376a8167de4fa70af63a9816f6608dbb0cd03140ddf205",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Full logical/physical source inspected in the original company pass and this coherent follow-through: all intentional authority/config, extracted state, props and presentation wiring read. Pure source formatting/line-ending edits retain emitted JavaScript/JSX text; ten moved hook declarations retain exact TS AST,35page-state statements retain exact emitted AST. Nine private queued-write paths now use initiating-owner capture. Existing cursor/page sizes, source/revision/evidence/acknowledgement/idempotency/private-image/modal and export workflows retained. The100-case affected suite uses22physical testfiles; executing those files is not a claim all22test sources were physically read. No browser latency/frame-rate or full-repository certification."
+  },
+  {
+    "path": "frontend/features/companies/components/company-person-header.tsx",
+    "sha256": "bb6b486fc1a5c8bae05441a6db39cea4b0712873154a35e38b21c1f27727b24a",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Full logical/physical source inspected in the original company pass and this coherent follow-through: all intentional authority/config, extracted state, props and presentation wiring read. Pure source formatting/line-ending edits retain emitted JavaScript/JSX text; ten moved hook declarations retain exact TS AST,35page-state statements retain exact emitted AST. Nine private queued-write paths now use initiating-owner capture. Existing cursor/page sizes, source/revision/evidence/acknowledgement/idempotency/private-image/modal and export workflows retained. The100-case affected suite uses22physical testfiles; executing those files is not a claim all22test sources were physically read. No browser latency/frame-rate or full-repository certification."
+  },
+  {
+    "path": "frontend/features/companies/components/company-person-content.tsx",
+    "sha256": "f4da1b39259d7007c376abb9e9c9a916b29443f34b85ef0e39e4fc2929c0e50d",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Full logical/physical source inspected in the original company pass and this coherent follow-through: all intentional authority/config, extracted state, props and presentation wiring read. Pure source formatting/line-ending edits retain emitted JavaScript/JSX text; ten moved hook declarations retain exact TS AST,35page-state statements retain exact emitted AST. Nine private queued-write paths now use initiating-owner capture. Existing cursor/page sizes, source/revision/evidence/acknowledgement/idempotency/private-image/modal and export workflows retained. The100-case affected suite uses22physical testfiles; executing those files is not a claim all22test sources were physically read. No browser latency/frame-rate or full-repository certification."
+  },
+  {
+    "path": "frontend/features/companies/test-support/mutation-authority.tsx",
+    "sha256": "28efc08682153b57c9aa6f053d566c6abbb0e78f979e55cd4c061130f923f07e",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full logical/physical source inspected in the original company pass and this coherent follow-through: all intentional authority/config, extracted state, props and presentation wiring read. Pure source formatting/line-ending edits retain emitted JavaScript/JSX text; ten moved hook declarations retain exact TS AST,35page-state statements retain exact emitted AST. Nine private queued-write paths now use initiating-owner capture. Existing cursor/page sizes, source/revision/evidence/acknowledgement/idempotency/private-image/modal and export workflows retained. The100-case affected suite uses22physical testfiles; executing those files is not a claim all22test sources were physically read. No browser latency/frame-rate or full-repository certification."
+  },
+  {
+    "path": "frontend/features/companies/hooks/company-mutation-authority.test.tsx",
+    "sha256": "64b00d0e420b35aa60f14716344fcaeae15f4b721eeb2a54c6aa01bb48315bde",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full logical/physical source inspected in the original company pass and this coherent follow-through: all intentional authority/config, extracted state, props and presentation wiring read. Pure source formatting/line-ending edits retain emitted JavaScript/JSX text; ten moved hook declarations retain exact TS AST,35page-state statements retain exact emitted AST. Nine private queued-write paths now use initiating-owner capture. Existing cursor/page sizes, source/revision/evidence/acknowledgement/idempotency/private-image/modal and export workflows retained. The100-case affected suite uses22physical testfiles; executing those files is not a claim all22test sources were physically read. No browser latency/frame-rate or full-repository certification."
+  },
+  {
+    "path": "frontend/features/companies/components/company-mutation-authority.test.tsx",
+    "sha256": "a0c8d52868ed4251a0c26ddf89192e07b46a4667bc1d5fbc5640eaeae3b8d31c",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full logical/physical source inspected in the original company pass and this coherent follow-through: all intentional authority/config, extracted state, props and presentation wiring read. Pure source formatting/line-ending edits retain emitted JavaScript/JSX text; ten moved hook declarations retain exact TS AST,35page-state statements retain exact emitted AST. Nine private queued-write paths now use initiating-owner capture. Existing cursor/page sizes, source/revision/evidence/acknowledgement/idempotency/private-image/modal and export workflows retained. The100-case affected suite uses22physical testfiles; executing those files is not a claim all22test sources were physically read. No browser latency/frame-rate or full-repository certification."
+  },
+  {
+    "path": "frontend/features/companies/components/company-agency-scope.test.tsx",
+    "sha256": "f136b714661cbb81ecd7ce417fe390483a857466f9b4d19eb15522f4baa7ac22",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full logical/physical source inspected in the original company pass and this coherent follow-through: all intentional authority/config, extracted state, props and presentation wiring read. Pure source formatting/line-ending edits retain emitted JavaScript/JSX text; ten moved hook declarations retain exact TS AST,35page-state statements retain exact emitted AST. Nine private queued-write paths now use initiating-owner capture. Existing cursor/page sizes, source/revision/evidence/acknowledgement/idempotency/private-image/modal and export workflows retained. The100-case affected suite uses22physical testfiles; executing those files is not a claim all22test sources were physically read. No browser latency/frame-rate or full-repository certification."
+  },
+  {
+    "path": "frontend/features/companies/components/company-matching-dialog.test.tsx",
+    "sha256": "6fa03a7c616e1c1d7b8c7adf3a6ef2cea5a708edd4c09260be0e01b591641787",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full logical/physical source inspected in the original company pass and this coherent follow-through: all intentional authority/config, extracted state, props and presentation wiring read. Pure source formatting/line-ending edits retain emitted JavaScript/JSX text; ten moved hook declarations retain exact TS AST,35page-state statements retain exact emitted AST. Nine private queued-write paths now use initiating-owner capture. Existing cursor/page sizes, source/revision/evidence/acknowledgement/idempotency/private-image/modal and export workflows retained. The100-case affected suite uses22physical testfiles; executing those files is not a claim all22test sources were physically read. No browser latency/frame-rate or full-repository certification."
+  },
+  {
+    "path": "frontend/features/companies/components/company-passports.test.tsx",
+    "sha256": "0752232398c7207663b947133411d9d76744cadf7e8197a72b68bb5fba5e031f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full logical/physical source inspected in the original company pass and this coherent follow-through: all intentional authority/config, extracted state, props and presentation wiring read. Pure source formatting/line-ending edits retain emitted JavaScript/JSX text; ten moved hook declarations retain exact TS AST,35page-state statements retain exact emitted AST. Nine private queued-write paths now use initiating-owner capture. Existing cursor/page sizes, source/revision/evidence/acknowledgement/idempotency/private-image/modal and export workflows retained. The100-case affected suite uses22physical testfiles; executing those files is not a claim all22test sources were physically read. No browser latency/frame-rate or full-repository certification."
+  },
+  {
+    "path": "frontend/features/companies/components/company-settings.test.tsx",
+    "sha256": "a8d4766d0fb85fd699f110117227ce44d73c2b93391b53e2e7f1a74a94eeee24",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full logical/physical source inspected in the original company pass and this coherent follow-through: all intentional authority/config, extracted state, props and presentation wiring read. Pure source formatting/line-ending edits retain emitted JavaScript/JSX text; ten moved hook declarations retain exact TS AST,35page-state statements retain exact emitted AST. Nine private queued-write paths now use initiating-owner capture. Existing cursor/page sizes, source/revision/evidence/acknowledgement/idempotency/private-image/modal and export workflows retained. The100-case affected suite uses22physical testfiles; executing those files is not a claim all22test sources were physically read. No browser latency/frame-rate or full-repository certification."
+  },
+  {
+    "path": "frontend/features/companies/components/group-company-assignment.test.tsx",
+    "sha256": "56629b64b4c9965b48038a33b6b913c274b1cc069de55bb9fc421eeedf024a89",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full logical/physical source inspected in the original company pass and this coherent follow-through: all intentional authority/config, extracted state, props and presentation wiring read. Pure source formatting/line-ending edits retain emitted JavaScript/JSX text; ten moved hook declarations retain exact TS AST,35page-state statements retain exact emitted AST. Nine private queued-write paths now use initiating-owner capture. Existing cursor/page sizes, source/revision/evidence/acknowledgement/idempotency/private-image/modal and export workflows retained. The100-case affected suite uses22physical testfiles; executing those files is not a claim all22test sources were physically read. No browser latency/frame-rate or full-repository certification."
+  }
+]

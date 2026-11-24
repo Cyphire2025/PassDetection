@@ -126,6 +126,8 @@ def _parse_excel_contact_bytes(
         sheet_rows: list[tuple[str, list[tuple[Any, ...]]]] = []
         total_rows = 0
         for sheet in worksheets:
+            # Actual XML cells, rather than untrusted dimensions, define the rows.
+            sheet.reset_dimensions()
             remaining_rows = MAX_WHATSAPP_EXCEL_ROWS - total_rows
             rows = list(
                 islice(

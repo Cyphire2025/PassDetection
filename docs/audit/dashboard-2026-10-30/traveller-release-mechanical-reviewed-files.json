@@ -1,0 +1,77 @@
+{
+  "files": [
+    {
+      "path": "scripts/release_traveller_whatsapp.py",
+      "sha256": "457f805b900300d4816f44c4d5b7acad903ec9d4aff129f8ca0d631a438999e8",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "verified-focused",
+      "lines": 87,
+      "notes": "Original690-line public operator whole-source review retained; current focused owners, imports, static-only contracts and legacy aliases authored/read.25method/5helper ASTs, method signatures/hints/decorators and45actual globals preserved;3new private MRO bases, moved class-dictionary/internal code owner names and class getsource OSError tradeoff explicit. No constructor/runtime fake fields/proxies/callback bags; targeted synthetic subclass/CLI/descriptor/pickle/qualification controls pass."
+    },
+    {
+      "path": "scripts/traveller_release_contract.py",
+      "sha256": "73d9424ff0eb8e43f8f016134c1c25b8c93fb3b37e6cc44737d638d695275c70",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "verified-focused",
+      "lines": 112,
+      "notes": "Original690-line public operator whole-source review retained; current focused owners, imports, static-only contracts and legacy aliases authored/read.25method/5helper ASTs, method signatures/hints/decorators and45actual globals preserved;3new private MRO bases, moved class-dictionary/internal code owner names and class getsource OSError tradeoff explicit. No constructor/runtime fake fields/proxies/callback bags; targeted synthetic subclass/CLI/descriptor/pickle/qualification controls pass."
+    },
+    {
+      "path": "scripts/traveller_release_host.py",
+      "sha256": "9d8064805c01c9841bc2fb1f1066cdbea1cedda451f08cf433e8431b9fa16fed",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "verified-focused",
+      "lines": 223,
+      "notes": "Original690-line public operator whole-source review retained; current focused owners, imports, static-only contracts and legacy aliases authored/read.25method/5helper ASTs, method signatures/hints/decorators and45actual globals preserved;3new private MRO bases, moved class-dictionary/internal code owner names and class getsource OSError tradeoff explicit. No constructor/runtime fake fields/proxies/callback bags; targeted synthetic subclass/CLI/descriptor/pickle/qualification controls pass."
+    },
+    {
+      "path": "scripts/traveller_release_readiness.py",
+      "sha256": "8d29593a1ee8608ba1582ef173dceddd04f10a8fe6ce7d7fa2eb83d2835522a2",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "verified-focused",
+      "lines": 116,
+      "notes": "Original690-line public operator whole-source review retained; current focused owners, imports, static-only contracts and legacy aliases authored/read.25method/5helper ASTs, method signatures/hints/decorators and45actual globals preserved;3new private MRO bases, moved class-dictionary/internal code owner names and class getsource OSError tradeoff explicit. No constructor/runtime fake fields/proxies/callback bags; targeted synthetic subclass/CLI/descriptor/pickle/qualification controls pass."
+    },
+    {
+      "path": "scripts/traveller_release_preparation.py",
+      "sha256": "a4ff288d0c9154dda7207f2dc71c7d2edc7cfe5c719aca25dba4458129dacfca",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "verified-focused",
+      "lines": 81,
+      "notes": "Original690-line public operator whole-source review retained; current focused owners, imports, static-only contracts and legacy aliases authored/read.25method/5helper ASTs, method signatures/hints/decorators and45actual globals preserved;3new private MRO bases, moved class-dictionary/internal code owner names and class getsource OSError tradeoff explicit. No constructor/runtime fake fields/proxies/callback bags; targeted synthetic subclass/CLI/descriptor/pickle/qualification controls pass."
+    },
+    {
+      "path": "scripts/traveller_release_lifecycle.py",
+      "sha256": "2c16a67c382037afab7c98ac28832493982514c0901938b6260c42f8a87d128d",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "verified-focused",
+      "lines": 248,
+      "notes": "Original690-line public operator whole-source review retained; current focused owners, imports, static-only contracts and legacy aliases authored/read.25method/5helper ASTs, method signatures/hints/decorators and45actual globals preserved;3new private MRO bases, moved class-dictionary/internal code owner names and class getsource OSError tradeoff explicit. No constructor/runtime fake fields/proxies/callback bags; targeted synthetic subclass/CLI/descriptor/pickle/qualification controls pass."
+    },
+    {
+      "path": "scripts/release_document_resources.py",
+      "sha256": "6be3fcab032898193fb9ac4715755f26edaa27d3f63032d3bb5ac6eb257a326a",
+      "reviewer": "ai_extraction",
+      "review_scope": "partial",
+      "status": "verified-focused",
+      "lines": 321,
+      "notes": "Only qualification source-hash function/list and related caller controls reviewed; whole resource-transition owner not independently fully read."
+    },
+    {
+      "path": "scripts/test_traveller_release_owners.py",
+      "sha256": "98b7370c682a5305a2804836e7119a11590feb01a40988834b9f2fc3eeab7776",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "verified-focused",
+      "lines": 216,
+      "notes": "Original690-line public operator whole-source review retained; current focused owners, imports, static-only contracts and legacy aliases authored/read.25method/5helper ASTs, method signatures/hints/decorators and45actual globals preserved;3new private MRO bases, moved class-dictionary/internal code owner names and class getsource OSError tradeoff explicit. No constructor/runtime fake fields/proxies/callback bags; targeted synthetic subclass/CLI/descriptor/pickle/qualification controls pass."
+    }
+  ],
+  "scope": "Shared project-wide release base, not dedicated Inbox/email feature implementation.7full current sources/tests +1partial qualifier-source binding owner."
+}

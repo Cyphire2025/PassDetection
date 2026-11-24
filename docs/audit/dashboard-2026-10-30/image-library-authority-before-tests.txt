@@ -1,0 +1,65 @@
+....FFFFFFFFFFFF                                                         [100%]
+================================== FAILURES ===================================
+_ test_current_authority_is_rechecked_after_image_storage_work[deactivate-manual] _
+tests\unit\presentation\test_passport_image_library_authority.py:123: in test_current_authority_is_rechecked_after_image_storage_work
+    with pytest.raises(HTTPException) as denied:
+E   Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+_ test_current_authority_is_rechecked_after_image_storage_work[deactivate-select] _
+tests\unit\presentation\test_passport_image_library_authority.py:123: in test_current_authority_is_rechecked_after_image_storage_work
+    with pytest.raises(HTTPException) as denied:
+E   Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+__ test_current_authority_is_rechecked_after_image_storage_work[role-manual] __
+tests\unit\presentation\test_passport_image_library_authority.py:123: in test_current_authority_is_rechecked_after_image_storage_work
+    with pytest.raises(HTTPException) as denied:
+E   Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+__ test_current_authority_is_rechecked_after_image_storage_work[role-select] __
+tests\unit\presentation\test_passport_image_library_authority.py:123: in test_current_authority_is_rechecked_after_image_storage_work
+    with pytest.raises(HTTPException) as denied:
+E   Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+_ test_current_authority_is_rechecked_after_image_storage_work[agency-manual] _
+tests\unit\presentation\test_passport_image_library_authority.py:123: in test_current_authority_is_rechecked_after_image_storage_work
+    with pytest.raises(HTTPException) as denied:
+E   Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+_ test_current_authority_is_rechecked_after_image_storage_work[agency-select] _
+tests\unit\presentation\test_passport_image_library_authority.py:123: in test_current_authority_is_rechecked_after_image_storage_work
+    with pytest.raises(HTTPException) as denied:
+E   Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+_ test_current_authority_is_rechecked_after_image_storage_work[session-manual] _
+tests\unit\presentation\test_passport_image_library_authority.py:123: in test_current_authority_is_rechecked_after_image_storage_work
+    with pytest.raises(HTTPException) as denied:
+E   Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+_ test_current_authority_is_rechecked_after_image_storage_work[session-select] _
+tests\unit\presentation\test_passport_image_library_authority.py:123: in test_current_authority_is_rechecked_after_image_storage_work
+    with pytest.raises(HTTPException) as denied:
+E   Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+_ test_current_authority_is_rechecked_after_image_storage_work[agency-inactive-manual] _
+tests\unit\presentation\test_passport_image_library_authority.py:123: in test_current_authority_is_rechecked_after_image_storage_work
+    with pytest.raises(HTTPException) as denied:
+E   Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+_ test_current_authority_is_rechecked_after_image_storage_work[agency-inactive-select] _
+tests\unit\presentation\test_passport_image_library_authority.py:123: in test_current_authority_is_rechecked_after_image_storage_work
+    with pytest.raises(HTTPException) as denied:
+E   Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+_ test_current_authority_is_rechecked_after_image_storage_work[group-deleted-manual] _
+tests\unit\presentation\test_passport_image_library_authority.py:123: in test_current_authority_is_rechecked_after_image_storage_work
+    with pytest.raises(HTTPException) as denied:
+E   Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+_ test_current_authority_is_rechecked_after_image_storage_work[group-deleted-select] _
+tests\unit\presentation\test_passport_image_library_authority.py:123: in test_current_authority_is_rechecked_after_image_storage_work
+    with pytest.raises(HTTPException) as denied:
+E   Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+=========================== short test summary info ===========================
+FAILED tests/unit/presentation/test_passport_image_library_authority.py::test_current_authority_is_rechecked_after_image_storage_work[deactivate-manual]
+FAILED tests/unit/presentation/test_passport_image_library_authority.py::test_current_authority_is_rechecked_after_image_storage_work[deactivate-select]
+FAILED tests/unit/presentation/test_passport_image_library_authority.py::test_current_authority_is_rechecked_after_image_storage_work[role-manual]
+FAILED tests/unit/presentation/test_passport_image_library_authority.py::test_current_authority_is_rechecked_after_image_storage_work[role-select]
+FAILED tests/unit/presentation/test_passport_image_library_authority.py::test_current_authority_is_rechecked_after_image_storage_work[agency-manual]
+FAILED tests/unit/presentation/test_passport_image_library_authority.py::test_current_authority_is_rechecked_after_image_storage_work[agency-select]
+FAILED tests/unit/presentation/test_passport_image_library_authority.py::test_current_authority_is_rechecked_after_image_storage_work[session-manual]
+FAILED tests/unit/presentation/test_passport_image_library_authority.py::test_current_authority_is_rechecked_after_image_storage_work[session-select]
+FAILED tests/unit/presentation/test_passport_image_library_authority.py::test_current_authority_is_rechecked_after_image_storage_work[agency-inactive-manual]
+FAILED tests/unit/presentation/test_passport_image_library_authority.py::test_current_authority_is_rechecked_after_image_storage_work[agency-inactive-select]
+FAILED tests/unit/presentation/test_passport_image_library_authority.py::test_current_authority_is_rechecked_after_image_storage_work[group-deleted-manual]
+FAILED tests/unit/presentation/test_passport_image_library_authority.py::test_current_authority_is_rechecked_after_image_storage_work[group-deleted-select]
+12 failed, 4 passed in 6.24s
+

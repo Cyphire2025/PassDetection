@@ -1,0 +1,39 @@
+{
+  "scope": "Read-only actual dashboard parser resource probe; no app source changed",
+  "archive_admission": {
+    "payload_bytes": 1117802,
+    "existing_member_limit": 2000,
+    "actual_ZipInfo_constructions_before_HTTP400": 10000,
+    "error": "The Excel contact file contains too many archive entries"
+  },
+  "worksheet_admission": [
+    {
+      "label": "healthy",
+      "payload_bytes": 5027,
+      "actual_row_materializations": 64,
+      "materialized_value_slots": 128,
+      "maximum_row_width": 2,
+      "recipient_count": 1
+    },
+    {
+      "label": "forged_dimension",
+      "payload_bytes": 5031,
+      "actual_row_materializations": 64,
+      "materialized_value_slots": 1048576,
+      "maximum_row_width": 16384,
+      "recipient_count": 1
+    }
+  ],
+  "same_complete_parse_result": true,
+  "source_fence": {
+    "backend/app/presentation/api/v1/routes/whatsapp_contact_import.py": "d627dcea775c7302cd0680e77cb6a7c8f1d3b8bea479b3865d318af1dd6bf1c8",
+    "backend/app/presentation/api/v1/routes/whatsapp_contact_values.py": "3a6c521cbd30e24af2492d3807d398b61c028ec305b5f66368b84e427da713a3",
+    "backend/app/application/use_cases/whatsapp/spreadsheet_values.py": "9b3a824b2f5dd1c40592a417ee51b0b4538fb9155c01cefb4985c6101816326c",
+    "backend/app/infrastructure/imports/passport_zip_admission.py": "b534f8d9c02733c4a378e11ce74770b906c5dcea37984c5bf138930504e3486d"
+  },
+  "limits": [
+    "Measured actual ZipInfo construction counts and tuple value slots over real openpyxl parser; not peak RSS/production concurrency/latency proof",
+    "Forged64row dimension only; no2000row large allocation run or extrapolated memory claim",
+    "Input synthetic, no private files/provider/deploy calls; no source-policy correction adopted yet"
+  ]
+}

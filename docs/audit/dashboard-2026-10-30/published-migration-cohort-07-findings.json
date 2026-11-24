@@ -1,0 +1,15 @@
+{
+  "current_runtime_defects_proved": [],
+  "preserved_release_semantics": [
+    "Authored notification history/removal/archive/import-only downgrades fail closed to prevent resurrected exposure or dispatch.",
+    "Dashboard refresh cutover revokes all prior credentials while retaining tombstones.",
+    "Explicit writer-quiescence requirement for transactional search index builds.",
+    "Passport same-group agency constraint strengthens early schema without data reassignment.",
+    "Cover/follow-up downgrade locks+preflight preserve stored work."
+  ],
+  "remaining_evidence": [
+    "Actual populated PG upgrade/rollback/trigger and serviceprovider qualification remain independent.",
+    "Early relational-domain/source checks do not replace actual authorization/crypto/retention runtime proof.",
+    "Historical migration graph source review is not current deployed migration-state evidence."
+  ]
+}

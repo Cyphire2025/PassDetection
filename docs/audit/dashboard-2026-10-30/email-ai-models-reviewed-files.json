@@ -1,0 +1,562 @@
+{
+  "files": [
+    {
+      "path": "backend/app/infrastructure/database/email_ai_models.py",
+      "sha256": "6c61c0e776c096ea56f26e853fbfcfd05054f099b7d3d1f73f6e238a87174c10",
+      "physical_lines": 45,
+      "review_scope": "full",
+      "reviewer": "document_ui_architecture",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "runtime",
+      "notes": "Complete current physical read. Six whole model ASTs exact except legacy __module__ assignment before mapping; original _utcnow whole function and actual default identity preserved. Both actual174table/mapper startup snapshots, PostgreSQL+SQLite compiledDDL/index/constraint/relationship/default/deferred metadata exact;83actual runtime caller references/21old imported objects/6class evaluated hints+clock preserved. Focused50cases, strict8types/Ruff10pass; normal95proposals only. No migrations/schema/policy edits."
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_ai_models/__init__.py",
+      "sha256": "1dec3465188dd0ec7c96ab35d20fa4fd28150756355e34637ae574578318c2dc",
+      "physical_lines": 7,
+      "review_scope": "full",
+      "reviewer": "document_ui_architecture",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "runtime",
+      "notes": "Complete current physical read. Six whole model ASTs exact except legacy __module__ assignment before mapping; original _utcnow whole function and actual default identity preserved. Both actual174table/mapper startup snapshots, PostgreSQL+SQLite compiledDDL/index/constraint/relationship/default/deferred metadata exact;83actual runtime caller references/21old imported objects/6class evaluated hints+clock preserved. Focused50cases, strict8types/Ruff10pass; normal95proposals only. No migrations/schema/policy edits."
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_ai_models/rollout.py",
+      "sha256": "d0ca6a17300c86ca1b4cf945b5babf4f5e3e550cd75340dfb6e808d243602725",
+      "physical_lines": 119,
+      "review_scope": "full",
+      "reviewer": "document_ui_architecture",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "runtime",
+      "notes": "Complete current physical read. Six whole model ASTs exact except legacy __module__ assignment before mapping; original _utcnow whole function and actual default identity preserved. Both actual174table/mapper startup snapshots, PostgreSQL+SQLite compiledDDL/index/constraint/relationship/default/deferred metadata exact;83actual runtime caller references/21old imported objects/6class evaluated hints+clock preserved. Focused50cases, strict8types/Ruff10pass; normal95proposals only. No migrations/schema/policy edits."
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_ai_models/analyses.py",
+      "sha256": "152526fe868170a5d12ce353d1f990d6a4098364662a1725a04994eb9769d872",
+      "physical_lines": 149,
+      "review_scope": "full",
+      "reviewer": "document_ui_architecture",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "runtime",
+      "notes": "Complete current physical read. Six whole model ASTs exact except legacy __module__ assignment before mapping; original _utcnow whole function and actual default identity preserved. Both actual174table/mapper startup snapshots, PostgreSQL+SQLite compiledDDL/index/constraint/relationship/default/deferred metadata exact;83actual runtime caller references/21old imported objects/6class evaluated hints+clock preserved. Focused50cases, strict8types/Ruff10pass; normal95proposals only. No migrations/schema/policy edits."
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_ai_models/deadlines.py",
+      "sha256": "25b2192f32a5ef2fcd5764e9e7092016ea7848a8bbd283292159254558d2d0dd",
+      "physical_lines": 111,
+      "review_scope": "full",
+      "reviewer": "document_ui_architecture",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "runtime",
+      "notes": "Complete current physical read. Six whole model ASTs exact except legacy __module__ assignment before mapping; original _utcnow whole function and actual default identity preserved. Both actual174table/mapper startup snapshots, PostgreSQL+SQLite compiledDDL/index/constraint/relationship/default/deferred metadata exact;83actual runtime caller references/21old imported objects/6class evaluated hints+clock preserved. Focused50cases, strict8types/Ruff10pass; normal95proposals only. No migrations/schema/policy edits."
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_ai_models/proposals.py",
+      "sha256": "2f43bd6295e9b37a4889296b37a6af1edf1548e2794eeab2d0f4cc612106a1aa",
+      "physical_lines": 128,
+      "review_scope": "full",
+      "reviewer": "document_ui_architecture",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "runtime",
+      "notes": "Complete current physical read. Six whole model ASTs exact except legacy __module__ assignment before mapping; original _utcnow whole function and actual default identity preserved. Both actual174table/mapper startup snapshots, PostgreSQL+SQLite compiledDDL/index/constraint/relationship/default/deferred metadata exact;83actual runtime caller references/21old imported objects/6class evaluated hints+clock preserved. Focused50cases, strict8types/Ruff10pass; normal95proposals only. No migrations/schema/policy edits."
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_ai_models/drafts.py",
+      "sha256": "75c30c385d04d40661d1bcdfca237b18e1647fde4d8f49141199087bae8de6cd",
+      "physical_lines": 103,
+      "review_scope": "full",
+      "reviewer": "document_ui_architecture",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "runtime",
+      "notes": "Complete current physical read. Six whole model ASTs exact except legacy __module__ assignment before mapping; original _utcnow whole function and actual default identity preserved. Both actual174table/mapper startup snapshots, PostgreSQL+SQLite compiledDDL/index/constraint/relationship/default/deferred metadata exact;83actual runtime caller references/21old imported objects/6class evaluated hints+clock preserved. Focused50cases, strict8types/Ruff10pass; normal95proposals only. No migrations/schema/policy edits."
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_ai_models/feedback.py",
+      "sha256": "2ec1a4e4dd4f5f41fa8cc7e34c6d670b836fdd79a1eab60b33f8623a9048d44d",
+      "physical_lines": 90,
+      "review_scope": "full",
+      "reviewer": "document_ui_architecture",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "runtime",
+      "notes": "Complete current physical read. Six whole model ASTs exact except legacy __module__ assignment before mapping; original _utcnow whole function and actual default identity preserved. Both actual174table/mapper startup snapshots, PostgreSQL+SQLite compiledDDL/index/constraint/relationship/default/deferred metadata exact;83actual runtime caller references/21old imported objects/6class evaluated hints+clock preserved. Focused50cases, strict8types/Ruff10pass; normal95proposals only. No migrations/schema/policy edits."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_email_ai_model_persistence.py",
+      "sha256": "1e533fe49804078a8ba4696dc521f362cb28d82b73f06a444eb163dc6d907084",
+      "physical_lines": 174,
+      "review_scope": "full",
+      "reviewer": "document_ui_architecture",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "test",
+      "notes": "Complete current physical read. New9actualSQLite ORM/Core defaults/updates/composite-owner/JSON independence controls passed before/after;12class/default/pickle/qualified-registry/owner-first compatibility controls pass after. Existing affected tests unchanged; no real provider or service actions."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_email_ai_model_compatibility.py",
+      "sha256": "94e52b0b8b6db677ca82e233f2b50493908a2cffe6669e16df5ae5f6c7481bc6",
+      "physical_lines": 98,
+      "review_scope": "full",
+      "reviewer": "document_ui_architecture",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "test",
+      "notes": "Complete current physical read. New9actualSQLite ORM/Core defaults/updates/composite-owner/JSON independence controls passed before/after;12class/default/pickle/qualified-registry/owner-first compatibility controls pass after. Existing affected tests unchanged; no real provider or service actions."
+    },
+    {
+      "path": "backend/app/infrastructure/database/model_registry.py",
+      "sha256": "226b2b4c321e3b231222355d9f6752d945dd2e160324b7a3685c4b37865b9ec5",
+      "physical_lines": 27,
+      "review_scope": "full",
+      "reviewer": "document_ui_architecture",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "runtime",
+      "notes": "Complete27line physical source read. Actual registry imports email_ai_models before email_models/generic models; both startup-entry metadata snapshots independently capture exact original global table order. No registry edit."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_inbox_feedback.py",
+      "sha256": "abe79041f5e4bb4541eed7af7068c567ef2e41eb4824b04f1f850457970c377b",
+      "physical_lines": 269,
+      "review_scope": "full",
+      "reviewer": "document_ui_architecture",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "runtime",
+      "notes": "Complete269line physical source read. FiveAI class imports preserved; owner+status+optimistic timestamp checks and typed correction/confirmation/dismissal side effects traced. No source change or newly inferred behavior defect; other inbox sources remain separate coverage obligations."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_ai_travel_inbox_migration.py",
+      "sha256": "e0b8c0369a70d20dac86aeaf102e74d8595c22fe2a274312b49a1e054bbddc64",
+      "physical_lines": 356,
+      "review_scope": "full",
+      "reviewer": "document_ui_architecture",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "test",
+      "notes": "Complete356line physical read. Eight unchanged tests assert published migration shape, same-owner cleanup/order, PostgreSQL column/server-default/constraint/index parity and downgrade order. All8pass before/after; no migration writes."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_email_ai_rollout_admin.py",
+      "sha256": "a2148b43ae041dfc6c47760fed61fd4cd69621818708284fa12caacae97ec690",
+      "physical_lines": 429,
+      "review_scope": "full",
+      "reviewer": "document_ui_architecture",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "test",
+      "notes": "Complete429line physical read. Three actualSQLite list/inherited deny, scoped-target404 and audited optimistic-update workflows pass before/after. Source unchanged. Runtime admin565 ownership follow-through remains OPEN."
+    }
+  ],
+  "current_full_files": 14,
+  "current_full_physical_lines": 2105,
+  "prior_current_full_context_reused": [
+    {
+      "path": "backend/app/application/use_cases/email_integrations/rollout_policy.py",
+      "sha256": "742101916bb990b85e37df339ec38a29be7b12b21c5880b0b92211fdaa1685fa",
+      "existing_current_full_ledgers": [
+        "email-ai-reviewed-files.json",
+        "email-deadline-reviewed-files.json"
+      ],
+      "new_unique_read_credit": false
+    },
+    {
+      "path": "backend/app/infrastructure/email/account_removal_plan.py",
+      "sha256": "3db39a863e8e5f6151ceaca2cac22dd71b90c2446e20bc591eb659d4bc1d7f6c",
+      "existing_current_full_ledgers": [
+        "email-oauth-removal-reviewed-files.json"
+      ],
+      "new_unique_read_credit": false
+    },
+    {
+      "path": "backend/app/infrastructure/email/account_removal_records.py",
+      "sha256": "146210f1d120d31497b20a4e900d6abae383759db84f297f78e611e0e0f90eb2",
+      "existing_current_full_ledgers": [
+        "email-oauth-removal-reviewed-files.json"
+      ],
+      "new_unique_read_credit": false
+    },
+    {
+      "path": "backend/app/infrastructure/email/ai_claim_query.py",
+      "sha256": "7ae95c8332d9ce8b7e7e602cc24a3e3fdb142a9c288401404c575efdae168587",
+      "existing_current_full_ledgers": [
+        "email-ai-reviewed-files.json"
+      ],
+      "new_unique_read_credit": false
+    },
+    {
+      "path": "backend/app/infrastructure/email/ai_claim_repository.py",
+      "sha256": "74e60842f62fd1e66febf42b02599cdc3fcc38394499dd1546eece247ae969a6",
+      "existing_current_full_ledgers": [
+        "email-ai-reviewed-files.json"
+      ],
+      "new_unique_read_credit": false
+    },
+    {
+      "path": "backend/app/infrastructure/email/ai_dispatch.py",
+      "sha256": "db7a56277838c6af29f4df227cfea27c408aa62c6fca9e4528e14b3f15e14bd8",
+      "existing_current_full_ledgers": [
+        "email-ai-reviewed-files.json"
+      ],
+      "new_unique_read_credit": false
+    },
+    {
+      "path": "backend/app/infrastructure/email/ai_notifications.py",
+      "sha256": "111fe6fb53a6cbad20ff30516bdbd6d69f6abec908fda3dcc24478bd532061c4",
+      "existing_current_full_ledgers": [
+        "email-ai-reviewed-files.json"
+      ],
+      "new_unique_read_credit": false
+    },
+    {
+      "path": "backend/app/infrastructure/email/ai_result_records.py",
+      "sha256": "7220d9ecc56f7be2cbe04cb24fc32d261b0830215e7bca9468813bf030b0998b",
+      "existing_current_full_ledgers": [
+        "email-ai-reviewed-files.json"
+      ],
+      "new_unique_read_credit": false
+    },
+    {
+      "path": "backend/app/infrastructure/email/ai_runtime.py",
+      "sha256": "c0df0f57423cc18dd2fa25749489d8dc0d5302e22ed4fba47a5d5ac5ba1f5e4e",
+      "existing_current_full_ledgers": [
+        "email-ai-reviewed-files.json"
+      ],
+      "new_unique_read_credit": false
+    },
+    {
+      "path": "backend/app/infrastructure/email/ai_runtime_dependencies.py",
+      "sha256": "f691a230887b959419b5c8b2730f2996b40f4fcde79e3883a8f9ef992f404130",
+      "existing_current_full_ledgers": [
+        "email-ai-reviewed-files.json"
+      ],
+      "new_unique_read_credit": false
+    },
+    {
+      "path": "backend/app/infrastructure/email/ai_seed_query.py",
+      "sha256": "808abbd8b0509e8c582e2518d399c2f57e41475281301e894e29e3ec144b5f52",
+      "existing_current_full_ledgers": [
+        "email-ai-reviewed-files.json"
+      ],
+      "new_unique_read_credit": false
+    },
+    {
+      "path": "backend/app/infrastructure/email/ai_values.py",
+      "sha256": "c5a10b922d8b3fe4c503ed7949c808e643f873d41b7d245fb5dac44724a3bc34",
+      "existing_current_full_ledgers": [
+        "email-ai-reviewed-files.json"
+      ],
+      "new_unique_read_credit": false
+    },
+    {
+      "path": "backend/app/infrastructure/email/deadline_notifications.py",
+      "sha256": "173d7b875eb937f21b867e155c20827f5a039a81990ce8afdccfcaa4078bfda9",
+      "existing_current_full_ledgers": [
+        "email-deadline-reviewed-files.json"
+      ],
+      "new_unique_read_credit": false
+    },
+    {
+      "path": "backend/app/infrastructure/email/deadline_notification_coverage.py",
+      "sha256": "2d5c73b23edd340873d335c8bb98fa5bbbe39f0d17535c26a3bb60aaadab1f23",
+      "existing_current_full_ledgers": [
+        "email-deadline-reviewed-files.json"
+      ],
+      "new_unique_read_credit": false
+    },
+    {
+      "path": "backend/app/infrastructure/email/deadline_notification_policy.py",
+      "sha256": "a8c849c0f7d567b5a57cfbc3d5017b9ca6668e84799c5f4a2edacad31c59c8e7",
+      "existing_current_full_ledgers": [
+        "email-deadline-reviewed-files.json"
+      ],
+      "new_unique_read_credit": false
+    },
+    {
+      "path": "backend/app/infrastructure/email/deadline_notification_visibility.py",
+      "sha256": "4cb991f01ca3ceb7852388ee8135d6fbb58cd99b9500fe16ca4a1e1ea64831dd",
+      "existing_current_full_ledgers": [
+        "email-deadline-reviewed-files.json"
+      ],
+      "new_unique_read_credit": false
+    },
+    {
+      "path": "backend/app/infrastructure/email/review_decisions.py",
+      "sha256": "4b49c01db5e0a7e439d2a91264e2731c3d5769ce7b3c7380ebd3ccc1157ccd41",
+      "existing_current_full_ledgers": [
+        "email-task-residual-reviewed-files.json"
+      ],
+      "new_unique_read_credit": false
+    },
+    {
+      "path": "backend/app/infrastructure/email/tasks.py",
+      "sha256": "8f6f1ffaeef887685738600dfedb599683b2c029e526829686557b3c9c30f186",
+      "existing_current_full_ledgers": [
+        "email-task-residual-reviewed-files.json"
+      ],
+      "new_unique_read_credit": false
+    },
+    {
+      "path": "backend/app/infrastructure/email/task_retention.py",
+      "sha256": "8993ffeaf443ba7702d5dfcb8b82bd92ccb3f1a01c6fa56352826f1bd4c6a740",
+      "existing_current_full_ledgers": [
+        "email-task-residual-reviewed-files.json"
+      ],
+      "new_unique_read_credit": false
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_rollout_admin.py",
+      "sha256": "767500a1b9f4dd113b41bcefc0ea90fbebe984f34829b1ada8cd4ccbc24a51c3",
+      "existing_current_full_ledgers": [
+        "email-task-residual-reviewed-files.json",
+        "email-task-residual-reviewed-files.json"
+      ],
+      "new_unique_read_credit": false
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_connection_ai_settings.py",
+      "sha256": "dc0843deb74e38e5436042f97de8dfb8a2b0ba7d18810626a4fddbba17462f07",
+      "existing_current_full_ledgers": [
+        "email-connections-reviewed-files.json"
+      ],
+      "new_unique_read_credit": false
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_email_account_removal.py",
+      "sha256": "c7ed670c76a462b836494224f0f72118852499d8e1919dc961eb39267f6078ee",
+      "existing_current_full_ledgers": [
+        "email-connections-reviewed-files.json",
+        "email-oauth-removal-reviewed-files.json"
+      ],
+      "new_unique_read_credit": false
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_email_ai_claim_lifecycle.py",
+      "sha256": "30cc16614848c1c8a920afdfb5b57e8b09462029596a942983efbcb9fc53ebc8",
+      "existing_current_full_ledgers": [
+        "email-ai-reviewed-files.json"
+      ],
+      "new_unique_read_credit": false
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_email_ai_deadline_notifications.py",
+      "sha256": "e8e1c40f7fdc717829dfe4fc1b5382ecbceeab692a04829eb87e7e567ce13778",
+      "existing_current_full_ledgers": [
+        "email-deadline-reviewed-files.json"
+      ],
+      "new_unique_read_credit": false
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_email_deadline_batches.py",
+      "sha256": "d0246674d0e62b519750979986afc5a54fbd1ee4ffee0461cd0f032480582cf5",
+      "existing_current_full_ledgers": [
+        "email-deadline-reviewed-files.json"
+      ],
+      "new_unique_read_credit": false
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_email_deadline_coverage.py",
+      "sha256": "b3ce799c131b63ec7fccc45bc2354ee36fc297ea32408caa212efba4860d0714",
+      "existing_current_full_ledgers": [
+        "email-deadline-reviewed-files.json"
+      ],
+      "new_unique_read_credit": false
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_email_deadline_visibility.py",
+      "sha256": "0d45ddc5c089e4a08ad07303cb1a277d25e2adee7bfdbce728a285ac6c85e8b4",
+      "existing_current_full_ledgers": [
+        "email-deadline-reviewed-files.json"
+      ],
+      "new_unique_read_credit": false
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_email_retention_persistence.py",
+      "sha256": "fe7fed7f5c2941b588f7e617818ebe6ad3edfb603f0e0bdd73c293b629634dfb",
+      "existing_current_full_ledgers": [
+        "email-task-residual-reviewed-files.json"
+      ],
+      "new_unique_read_credit": false
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_email_ai_inbox_isolation.py",
+      "sha256": "5e8ac0d2db1cd7d29af3bbdd4cfe864295563f1a77dcf5405d2574bf88e13a8c",
+      "existing_current_full_ledgers": [
+        "email-connections-reviewed-files.json"
+      ],
+      "new_unique_read_credit": false
+    }
+  ],
+  "support_context_reused": [
+    {
+      "path": "backend/app/infrastructure/database/email_models.py",
+      "sha256": "7b0ee596fea8b7c43d92315038b1e14893d1fd865a32f0adee477fd3bb762e2d",
+      "physical_lines": 86,
+      "new_unique_read_credit": false,
+      "notes": "Existing frozen core/email-model support fully reviewed in earlier sealed cohort; immediate context reread here, no duplicate manual full coverage credit."
+    },
+    {
+      "path": "backend/app/infrastructure/database/models.py",
+      "sha256": "685526fd00128c49052195d84ac17d7e1ad66ace8e43dbcd70e260435be24c16",
+      "physical_lines": 198,
+      "new_unique_read_credit": false,
+      "notes": "Existing frozen core/email-model support fully reviewed in earlier sealed cohort; immediate context reread here, no duplicate manual full coverage credit."
+    },
+    {
+      "path": "backend/tests/email_model_persistence_fixtures.py",
+      "sha256": "bab1b399c9501f6ea03c6aadaa2b317d1c977ff602eebd87e6721bd391f45ad0",
+      "physical_lines": 71,
+      "new_unique_read_credit": false,
+      "notes": "Existing frozen core/email-model support fully reviewed in earlier sealed cohort; immediate context reread here, no duplicate manual full coverage credit."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_email_model_persistence_contracts.py",
+      "sha256": "a5b5ce9277abc04af2a4357efd9487b395c79f4fe6813964625d5d860d6f9a5f",
+      "physical_lines": 112,
+      "new_unique_read_credit": false,
+      "notes": "Existing frozen core/email-model support fully reviewed in earlier sealed cohort; immediate context reread here, no duplicate manual full coverage credit."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_email_model_owner_compatibility.py",
+      "sha256": "44d46732e7654d5f16e2eeb94693cbc4c8f063a141f5432ef67f62180d899051",
+      "physical_lines": 89,
+      "new_unique_read_credit": false,
+      "notes": "Existing frozen core/email-model support fully reviewed in earlier sealed cohort; immediate context reread here, no duplicate manual full coverage credit."
+    }
+  ],
+  "partial_context": [
+    {
+      "path": "backend/tests/unit/infrastructure/test_email_ai_runtime.py",
+      "sha256": "5a90f6cbe290cb90fb6df985999dd55739fe6bdf2d8f808e2990b4acd12e2d76",
+      "physical_lines": 1793,
+      "review_scope": "partial",
+      "read_ranges": [
+        [
+          1,
+          111
+        ],
+        [
+          1046,
+          1282
+        ]
+      ],
+      "notes": "Normal startup fixture/imports plus complete selected actual claim\u2192proposal/deadline/draft/notification workflow, syntheticprovideronly. One selected case passes before/after; remainder of1793line test not newly full-read/credited."
+    },
+    {
+      "path": "backend/scripts/verify_backend_quality_budgets.py",
+      "sha256": "2baf94d493a068bd1aed0258f4627aed47fe0845e6764fd0310cbf84f57794a9",
+      "physical_lines": 309,
+      "review_scope": "partial",
+      "read_ranges": [
+        [
+          1,
+          160
+        ]
+      ],
+      "notes": "Known measurement helper reused from preceding task tranche; no new manual full credit or shared budget edit."
+    }
+  ],
+  "original630source_full_read": {
+    "path": "backend/app/infrastructure/database/email_ai_models.py",
+    "sha256": "e9c03b48898c5a05f7e96bafbc96ccec06ec7d2702c47e55f9b4c80a5eff482f",
+    "physical_lines": 630,
+    "review_scope": "full",
+    "existing_prior_full_ledger": "email-task-residual-reviewed-files.json",
+    "new_unique_read_credit": false,
+    "source_archive": "email-ai-models-original-source.json"
+  },
+  "other_caller_imports_source_resolution_only": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_inbox.py",
+      "sha256": "cf5b74004005bbf7f6e517e0819d68bc9203085bb0639f8876a274ee91b4ceea",
+      "physical_lines": 277,
+      "matching_current_explicit_full_ledgers": []
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_inbox_activity.py",
+      "sha256": "50816954321e3c62b411cc031657ea0bcdc2921175ca1dbf2075539c65425012",
+      "physical_lines": 193,
+      "matching_current_explicit_full_ledgers": []
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_inbox_attention.py",
+      "sha256": "ffb13b1d609a18547c93379039ff3729bc36609ca9ffe7a665342b4c47fd3592",
+      "physical_lines": 85,
+      "matching_current_explicit_full_ledgers": []
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_inbox_corrections.py",
+      "sha256": "be5a11830558a428ad5381686d0b562d2a9a6ea505d43cf2719296236e95717e",
+      "physical_lines": 345,
+      "matching_current_explicit_full_ledgers": []
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_inbox_decisions.py",
+      "sha256": "321f19e7ee888d6c1a82bbc1c14df8b6f7c55b364eedcad4da2fa3dad00fe4b5",
+      "physical_lines": 377,
+      "matching_current_explicit_full_ledgers": []
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_inbox_queries.py",
+      "sha256": "a5ea53dc63d834f38eb9f09cd369855ecb2ff1e2dd131e12fb215b54b23ee74e",
+      "physical_lines": 210,
+      "matching_current_explicit_full_ledgers": []
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_inbox_reads.py",
+      "sha256": "3d86796ac136853b5226252095c10d92b323225131cd55da14880681ef239920",
+      "physical_lines": 225,
+      "matching_current_explicit_full_ledgers": []
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_inbox_responses.py",
+      "sha256": "9fdd56675dc99ca01d0df8e5493c3aa327a5bc2f48f72d3548e6376fc7b18848",
+      "physical_lines": 245,
+      "matching_current_explicit_full_ledgers": []
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_inbox_retry.py",
+      "sha256": "87910879e80c679ae54e45369547ea731d633502e8561b4b34563da7927d4dd0",
+      "physical_lines": 197,
+      "matching_current_explicit_full_ledgers": []
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_inbox_scope.py",
+      "sha256": "0b45609f263242b151bcaaef5cac07cf199f20edf6ae2a7c123830da2ef661fc",
+      "physical_lines": 36,
+      "matching_current_explicit_full_ledgers": []
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_inbox_types.py",
+      "sha256": "a54966053b2992286ff59e96170e5dac399b535feb3b8e3fda9fffffd57bd314",
+      "physical_lines": 27,
+      "matching_current_explicit_full_ledgers": []
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_inbox_visibility.py",
+      "sha256": "e85996e0796b051b113e6e0c23a711831d7e173911f23dadd4cf4ed297e59b3b",
+      "physical_lines": 251,
+      "matching_current_explicit_full_ledgers": []
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_email_ai_runtime.py",
+      "sha256": "5a90f6cbe290cb90fb6df985999dd55739fe6bdf2d8f808e2990b4acd12e2d76",
+      "physical_lines": 1793,
+      "matching_current_explicit_full_ledgers": []
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_email_ai_inbox_protocol.py",
+      "sha256": "b16ee137720e9499b44e361fbb1455e9d9ff7ce5ceddd95be4098c72ed850e5f",
+      "physical_lines": 151,
+      "matching_current_explicit_full_ledgers": []
+    }
+  ],
+  "notes": "Only physical complete current reads get newfull records. Exact-current previous full contexts reused separately; actual83binding/import proof is not a full read of every caller. Source review does not establish PostgreSQL/provider/capacity qualification."
+}

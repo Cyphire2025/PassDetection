@@ -1,0 +1,13 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+import { currentUploadSources as source, readUploadSource } from "./current-upload-source.contract-helper.mjs";
+
+test("each active private member saves its own validated qualifier selection", () => {
+  const qualifier = readUploadSource("./fresh-qualifier.tsx");
+  assert.match(qualifier, /buildQualifierSelectionRequest\(/);
+  assert.match(qualifier, /if \(!choice\) return/);
+  assert.match(qualifier, /state\.api\.qualifier\(choice, signal\)/);
+  assert.match(qualifier, /state\.collection\(\{ qualifier_selection_token: result\.selection_token \}\)/);
+  assert.match(source.validation, /!payload\.collection\?\.qualifier_selection_token/);
+  assert.match(source.fresh, /key=\{resume\.members\[resume\.active\]\.sessionId\}/);
+});

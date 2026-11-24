@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import unittest
+from contextlib import asynccontextmanager
 
 import httpx
 
@@ -113,6 +114,28 @@ def _response(
 
 
 class GeminiPostSubmissionVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
+    async def test_explicit_incomplete_provider_completion_never_approves_fields(self) -> None:
+        for finish_reason in ("SAFETY", "MAX_TOKENS", "RECITATION", "OTHER"):
+            with self.subTest(finish_reason=finish_reason):
+                payload = _response(_provider_fields()).json()
+                payload["candidates"][0]["finishReason"] = finish_reason
+                async with httpx.AsyncClient(
+                    transport=httpx.MockTransport(
+                        lambda request: httpx.Response(200, json=payload),
+                    )
+                ) as client:
+                    result = await GeminiPostSubmissionVerificationService(
+                        settings=_settings(),
+                        http_client=client,
+                    ).verify(
+                        b"synthetic-passport",
+                        content_type="image/jpeg",
+                        submitted_fields=_submitted_fields(),
+                    )
+                self.assertEqual(result.decision.value, "needs_review")
+                self.assertEqual(result.provider_status, "invalid_response")
+                self.assertEqual(result.reason_code, "invalid_provider_response")
+
     async def test_place_of_issue_is_compared_as_visible_free_text(self) -> None:
         async def handler(_request: httpx.Request) -> httpx.Response:
             return _response(_provider_fields())
@@ -157,9 +180,7 @@ class GeminiPostSubmissionVerificationServiceTests(unittest.IsolatedAsyncioTestC
                 submitted_fields=_submitted_fields(),
             )
 
-        place_result = next(
-            field for field in result.fields if field.field == "place_of_issue"
-        )
+        place_result = next(field for field in result.fields if field.field == "place_of_issue")
         self.assertEqual(result.decision.value, "needs_review")
         self.assertEqual(result.to_dict()["incorrect_fields"], ["place_of_issue"])
         self.assertEqual(place_result.observed_value, "BENGALURU")
@@ -935,7 +956,9 @@ class GeminiPostSubmissionVerificationServiceTests(unittest.IsolatedAsyncioTestC
                 self.payload_ids: list[int] = []
                 self.prompt_lengths: list[int] = []
 
-            async def post(self, _endpoint: str, **kwargs) -> httpx.Response:  # type: ignore[no-untyped-def]
+            @asynccontextmanager
+            async def stream(self, method: str, endpoint: str, **kwargs):  # type: ignore[no-untyped-def]
+                assert method == "POST"
                 payload = kwargs["json"]
                 self.payload_ids.append(id(payload))
                 submitted = json.loads(payload["contents"][0]["parts"][0]["text"])[
@@ -943,8 +966,14 @@ class GeminiPostSubmissionVerificationServiceTests(unittest.IsolatedAsyncioTestC
                 ]
                 self.prompt_lengths.append(len(submitted["surname"]))
                 if len(self.payload_ids) == 1:
-                    return httpx.Response(503)
-                return _response(_provider_fields())
+                    response = httpx.Response(503)
+                else:
+                    response = _response(_provider_fields())
+                response.request = httpx.Request(method, endpoint)
+                try:
+                    yield response
+                finally:
+                    await response.aclose()
 
         client = Client()
         shared_metrics = InMemoryAiMetricsStore()

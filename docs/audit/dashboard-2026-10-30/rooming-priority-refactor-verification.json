@@ -1,0 +1,86 @@
+{
+  "scope": "Focused backend Rooming priority-field architecture/performance tranche; direct manual source review, no Codex Security tools/scans, no native mobile edits.",
+  "source": [
+    {
+      "path": "backend/app/infrastructure/rooming/priority_field_catalog.py",
+      "sha256": "6ddf90261c444e4e6427d993bcc8fa0dbd51c9b6e6b60f7a49a71fd01dc59f04",
+      "lines": 137,
+      "status": "refactored",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "notes": "Complete original 679-line source read and complete physical current owner read. Privacy/field-key rules retained exact; only recipient projection loop changes work complexity. Tenant queries, link scoping, matcher seam and resolve_values/lock behavior unchanged. AST scope and focused affected tests bound in verification receipt; no deployed-service certification."
+    },
+    {
+      "path": "backend/app/infrastructure/rooming/priority_field_policy.py",
+      "sha256": "64598228c747cc778f034c60488f55faad7c10b3d0d40fcd377d16df9715861a",
+      "lines": 263,
+      "status": "refactored",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "notes": "Complete original 679-line source read and complete physical current owner read. Privacy/field-key rules retained exact; only recipient projection loop changes work complexity. Tenant queries, link scoping, matcher seam and resolve_values/lock behavior unchanged. AST scope and focused affected tests bound in verification receipt; no deployed-service certification."
+    },
+    {
+      "path": "backend/app/infrastructure/rooming/priority_field_values.py",
+      "sha256": "62715fc8274962cca138efe57cdfcba4ba05e173f5f36262d86231be2cddc868",
+      "lines": 103,
+      "status": "refactored",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "notes": "Complete original 679-line source read and complete physical current owner read. Privacy/field-key rules retained exact; only recipient projection loop changes work complexity. Tenant queries, link scoping, matcher seam and resolve_values/lock behavior unchanged. AST scope and focused affected tests bound in verification receipt; no deployed-service certification."
+    },
+    {
+      "path": "backend/app/infrastructure/rooming/priority_fields.py",
+      "sha256": "29d0ee199c2f9966e06dd96ede4cd9e3bc24ac21b0079aed4dbaf3fd656f5a0a",
+      "lines": 231,
+      "status": "refactored",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "notes": "Complete original 679-line source read and complete physical current owner read. Privacy/field-key rules retained exact; only recipient projection loop changes work complexity. Tenant queries, link scoping, matcher seam and resolve_values/lock behavior unchanged. AST scope and focused affected tests bound in verification receipt; no deployed-service certification."
+    }
+  ],
+  "test_source": {
+    "path": "backend/tests/unit/infrastructure/test_rooming_priority_work.py",
+    "sha256": "a6011bb23fbd0f6ba1917b065cd90c7ebaf94e9870496fef3520a25daf179fef"
+  },
+  "finding": {
+    "before": "Each selected WhatsApp field sorted recipient sets and normalized every header again. Actual orchestrator work-counter regression failed for six selected keys (528 header normalizations) and all 64 available keys (4356), across 66 source fields.",
+    "after": "One recipient sort and one header pass resolve all requested keys. Real counter tests pass a 264-normalization bound including catalog work; exact values retained. Single projection complexity O(R log R + F + K), auxiliary value state O(K), with R recipient field sets, F source headers and K requested keys.",
+    "preserved": "First cleaned literal among casefold-equivalent values by recipient UUID order; conflicts stay None even if later sources repeat the first literal; null/empty markers ignored; tenant/link/query/lock/matcher behavior unchanged."
+  },
+  "architecture": "679-line mixed source becomes four owners (231/137/263/103 lines): orchestration with original dataclass and patch seam, catalog, privacy policy, and value projection. All old aliases remain available. Ten original definitions and all seven constants exact AST; orchestrator only one expression changed; single-key helper delegates.",
+  "verification": {
+    "passing_executions": 56,
+    "unique_passing_cases": 54,
+    "focused_reports": [
+      "rooming-priority-affected-tests.xml",
+      "rooming-priority-ambiguity-tests.xml"
+    ],
+    "ruff": "Four runtime owners and new test pass --no-fix.",
+    "mypy": "Four runtime owners pass.",
+    "architecture_boundary_check": "Pass.",
+    "whole_backend_suite_or_service_tests": "Not run for this coherent focused batch; no live PostgreSQL/Redis/object-storage/provider claims."
+  },
+  "remaining": [
+    "build_rooming_priority_context pre-existing complexity 46; _submission_field_values complexity 23 retained, not solved by file extraction.",
+    "Operations tranche has 26 source paths still pending; full project audit remains open.",
+    "No API or persisted schema change, deployment or new VPS setup."
+  ],
+  "artifacts": {
+    "rooming-priority-reviewed-files.json": "384bd3e2c369ca73fbc94a3fc9260fedd8ebe048c256d80377d867b6d282c8cb",
+    "rooming-priority-budget-candidates.json": "bd5c605c764839622881786f8460b8155323eac6c76ac7ea68db97efe8031d3e",
+    "rooming-priority-extraction-proof.json": "3c40ae7dcad7dd63c98ce81b95318239a7d1a5a9bff096ebdf3f0a35d19b00cc",
+    "rooming-priority-coverage.json": "73c9093a9f2116b2e5bf14b55a240f1b899fa47b5244f0700a3ad5450499da3e",
+    "rooming-priority-coverage.xml": "baf062b4c92bb8a1b770599ec01bb6e27ed5402d0caf1e780b05d5f1a0eb6954",
+    "rooming-priority-work-before-fix.xml": "d38327d01a4f382a97537d1f8879deba8f80e278b2876b8274e01db466b4fdd0",
+    "rooming-priority-affected-tests.xml": "83203cc7a1f8f5fe777fb00c68860caccd1fc6c70863317299025dd9f560b253",
+    "rooming-priority-ambiguity-tests.xml": "d28fc6d48f331554b2d014e42b3f8b46c7ac9581eb2b868e92f37ef96dbf3b73"
+  },
+  "central_budgets": "Four additive measured candidates queued for AI owner; existing caps/floors not edited by this tranche.",
+  "ledger_scope_counts": {
+    "('reviewed', 'full')": 13,
+    "('matching-full-review', 'full')": 12,
+    "('pending', 'pending')": 26,
+    "('refactored', 'full')": 2,
+    "('fixed', 'full')": 1
+  }
+}

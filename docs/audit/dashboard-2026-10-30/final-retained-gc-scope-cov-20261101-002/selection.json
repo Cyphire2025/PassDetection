@@ -1,0 +1,43 @@
+{
+  "actual_selected": [
+    {
+      "nodeid": "tests/unit/presentation/test_gc_content_dashboard_scope.py::test_dashboard_content_rejects_ambiguous_or_foreign_agency_before_queries[super_admin-False-False-422-agency_id is required]",
+      "path": "backend/tests/unit/presentation/test_gc_content_dashboard_scope.py",
+      "originalname": "test_dashboard_content_rejects_ambiguous_or_foreign_agency_before_queries"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_gc_content_dashboard_scope.py::test_dashboard_content_rejects_ambiguous_or_foreign_agency_before_queries[agency_admin-False-False-403-Account has no agency]",
+      "path": "backend/tests/unit/presentation/test_gc_content_dashboard_scope.py",
+      "originalname": "test_dashboard_content_rejects_ambiguous_or_foreign_agency_before_queries"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_gc_content_dashboard_scope.py::test_dashboard_content_rejects_ambiguous_or_foreign_agency_before_queries[agency_manager-True-True-403-Agency scope mismatch]",
+      "path": "backend/tests/unit/presentation/test_gc_content_dashboard_scope.py",
+      "originalname": "test_dashboard_content_rejects_ambiguous_or_foreign_agency_before_queries"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_gc_content_dashboard_scope.py::test_dashboard_content_does_not_disclose_a_real_group_from_another_agency",
+      "path": "backend/tests/unit/presentation/test_gc_content_dashboard_scope.py",
+      "originalname": "test_dashboard_content_does_not_disclose_a_real_group_from_another_agency"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_gc_content_dashboard_scope.py::test_dashboard_preview_returns_its_own_unsent_itinerary_draft",
+      "path": "backend/tests/unit/presentation/test_gc_content_dashboard_scope.py",
+      "originalname": "test_dashboard_preview_returns_its_own_unsent_itinerary_draft"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_gc_content_dashboard_scope.py::test_dashboard_unpublish_returns_retired_content_and_records_only_scoped_audit[itinerary]",
+      "path": "backend/tests/unit/presentation/test_gc_content_dashboard_scope.py",
+      "originalname": "test_dashboard_unpublish_returns_retired_content_and_records_only_scoped_audit"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_gc_content_dashboard_scope.py::test_dashboard_unpublish_returns_retired_content_and_records_only_scoped_audit[common_document]",
+      "path": "backend/tests/unit/presentation/test_gc_content_dashboard_scope.py",
+      "originalname": "test_dashboard_unpublish_returns_retired_content_and_records_only_scoped_audit"
+    }
+  ],
+  "selected_count": 7,
+  "declared_files": [
+    "backend/tests/unit/presentation/test_gc_content_dashboard_scope.py"
+  ]
+}

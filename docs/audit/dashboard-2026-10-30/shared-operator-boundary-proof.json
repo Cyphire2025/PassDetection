@@ -1,0 +1,93 @@
+{
+  "whole_five_modules_restore_after_only_named_guard_local_and_annotation_deltas": true,
+  "explicit_annotation_metadata_extensions": [
+    {
+      "path": "scripts/image_runtime_policy.py",
+      "function": "validate_process_command",
+      "before": {
+        "name": "str",
+        "service": "dict",
+        "return": "None"
+      },
+      "after": {
+        "name": "str",
+        "service": "dict[str, Any]",
+        "return": "None"
+      }
+    },
+    {
+      "path": "scripts/image_runtime_policy.py",
+      "function": "validate_code_boundary",
+      "before": {
+        "name": "str",
+        "service": "dict",
+        "return": "None"
+      },
+      "after": {
+        "name": "str",
+        "service": "dict[str, Any]",
+        "return": "None"
+      }
+    },
+    {
+      "path": "scripts/image_runtime_policy.py",
+      "function": "validate_process_isolation",
+      "before": {
+        "services": "dict",
+        "storage_directory": "str | None",
+        "return": "None"
+      },
+      "after": {
+        "services": "dict[str, Any]",
+        "storage_directory": "str | None",
+        "return": "None"
+      }
+    },
+    {
+      "path": "scripts/verify_deployment_resource_budget.py",
+      "function": "_replicas",
+      "before": {
+        "service": "dict",
+        "return": "int"
+      },
+      "after": {
+        "service": "dict[str, Any]",
+        "return": "int"
+      }
+    },
+    {
+      "path": "scripts/verify_database_deployment_budget.py",
+      "function": "calculate",
+      "before": {
+        "config": "dict",
+        "policy": "dict",
+        "return": "dict"
+      },
+      "after": {
+        "config": "dict[str, Any]",
+        "policy": "dict[str, Any]",
+        "return": "dict[str, Any]"
+      }
+    },
+    {
+      "path": "scripts/verify_database_deployment_budget.py",
+      "function": "capacity_markdown",
+      "before": {
+        "report": "dict",
+        "return": "str"
+      },
+      "after": {
+        "report": "dict[str, Any]",
+        "return": "str"
+      }
+    }
+  ],
+  "call_argument_names_defaults_and_runtime_normal_values_preserved": true,
+  "allowed_runtime_changes": [
+    "Release manifest must be an object; schema revisions must be strings before existing regex",
+    "Worker shell program must be a string; impossible absent reviewed command has bounded rejection",
+    "Credential preparation requires matched environment declaration before regex group access"
+  ],
+  "local_type_refinement": "Worker process-count local renamed then assigned after existing None rejection; no capacity policy change",
+  "configuration_queue_service_resource_limits_unchanged": true
+}

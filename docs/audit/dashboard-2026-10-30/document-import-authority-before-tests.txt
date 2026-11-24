@@ -1,0 +1,1844 @@
+FFFFFFFFFFFFFFFFFFFF                                                     [100%]
+================================== FAILURES ===================================
+_ test_inflight_import_uses_current_persisted_authority_before_publication[put-unchanged] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000024B58787ED0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000024B570CAED0>
+test_settings = Settings(app_env='development', app_debug=True, app_version='1.0.0', app_revision='unknown', expected_database_schema_...me='qrcode_v1', whatsapp_otp_template_name='', whatsapp_otp_template_language='en_US', whatsapp_delivery_concurrency=4)
+phase = 'put', transition = 'unchanged'
+
+    @pytest.mark.parametrize("phase,transition", CASES)
+    async def test_inflight_import_uses_current_persisted_authority_before_publication(
+        db_session, monkeypatch, test_settings, phase, transition,
+    ):
+>       context = await prepare_authority_import(
+            db_session, monkeypatch, test_settings, transition, phase,
+        )
+
+tests\unit\presentation\test_document_import_authority.py:41: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\unit\presentation\document_import_authority_fixture.py:100: in prepare_authority_import
+    qr_id=qr.id, qr_hash=qr.token_hash, transition=transition,
+          ^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:566: in __get__
+    return self.impl.get(state, dict_)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1086: in get
+    value = self._fire_loader_callables(state, key, passive)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1116: in _fire_loader_callables
+    return state._load_expired(state, passive)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\state.py:803: in _load_expired
+    self.manager.expired_attribute_loader(self, toload, passive)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:1670: in load_scalar_attributes
+    result = load_on_ident(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:509: in load_on_ident
+    return load_on_pk_identity(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:694: in load_on_pk_identity
+    session.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2351: in execute
+    return self._execute_internal(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2236: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\context.py:293: in orm_execute_statement
+    result = conn.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1418: in execute
+    return meth(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\sql\elements.py:515: in _execute_on_connection
+    return connection._execute_clauseelement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1640: in _execute_clauseelement
+    ret = self._execute_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:2356: in _handle_dbapi_exception
+    raise exc_info[1].with_traceback(exc_info[2])
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:147: in execute
+    self._adapt_connection._handle_exception(error)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:298: in _handle_exception
+    raise error
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:124: in execute
+    _cursor = self.await_(self._connection.cursor())
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+awaitable = <aiosqlite.context.Result object at 0x0000024B58F2EE90>
+
+    def await_only(awaitable: Awaitable[_T]) -> _T:
+        """Awaits an async function in a sync method.
+    
+        The sync method must be inside a :func:`greenlet_spawn` context.
+        :func:`await_only` calls cannot be nested.
+    
+        :param awaitable: The coroutine to call.
+    
+        """
+        # this is called in the context greenlet while running fn
+        current = getcurrent()
+        if not getattr(current, "__sqlalchemy_greenlet_provider__", False):
+            _safe_cancel_awaitable(awaitable)
+    
+>           raise exc.MissingGreenlet(
+                "greenlet_spawn has not been called; can't call await_only() "
+                "here. Was IO attempted in an unexpected place?"
+            )
+E           sqlalchemy.exc.MissingGreenlet: greenlet_spawn has not been called; can't call await_only() here. Was IO attempted in an unexpected place? (Background on this error at: https://sqlalche.me/e/20/xd2s)
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:123: MissingGreenlet
+_ test_inflight_import_uses_current_persisted_authority_before_publication[put-profile_refresh] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000024B5AD71750>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000024B57382C10>
+test_settings = Settings(app_env='development', app_debug=True, app_version='1.0.0', app_revision='unknown', expected_database_schema_...me='qrcode_v1', whatsapp_otp_template_name='', whatsapp_otp_template_language='en_US', whatsapp_delivery_concurrency=4)
+phase = 'put', transition = 'profile_refresh'
+
+    @pytest.mark.parametrize("phase,transition", CASES)
+    async def test_inflight_import_uses_current_persisted_authority_before_publication(
+        db_session, monkeypatch, test_settings, phase, transition,
+    ):
+>       context = await prepare_authority_import(
+            db_session, monkeypatch, test_settings, transition, phase,
+        )
+
+tests\unit\presentation\test_document_import_authority.py:41: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\unit\presentation\document_import_authority_fixture.py:100: in prepare_authority_import
+    qr_id=qr.id, qr_hash=qr.token_hash, transition=transition,
+          ^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:566: in __get__
+    return self.impl.get(state, dict_)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1086: in get
+    value = self._fire_loader_callables(state, key, passive)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1116: in _fire_loader_callables
+    return state._load_expired(state, passive)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\state.py:803: in _load_expired
+    self.manager.expired_attribute_loader(self, toload, passive)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:1670: in load_scalar_attributes
+    result = load_on_ident(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:509: in load_on_ident
+    return load_on_pk_identity(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:694: in load_on_pk_identity
+    session.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2351: in execute
+    return self._execute_internal(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2236: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\context.py:293: in orm_execute_statement
+    result = conn.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1418: in execute
+    return meth(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\sql\elements.py:515: in _execute_on_connection
+    return connection._execute_clauseelement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1640: in _execute_clauseelement
+    ret = self._execute_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:2356: in _handle_dbapi_exception
+    raise exc_info[1].with_traceback(exc_info[2])
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:147: in execute
+    self._adapt_connection._handle_exception(error)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:298: in _handle_exception
+    raise error
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:124: in execute
+    _cursor = self.await_(self._connection.cursor())
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+awaitable = <aiosqlite.context.Result object at 0x0000024B5935B070>
+
+    def await_only(awaitable: Awaitable[_T]) -> _T:
+        """Awaits an async function in a sync method.
+    
+        The sync method must be inside a :func:`greenlet_spawn` context.
+        :func:`await_only` calls cannot be nested.
+    
+        :param awaitable: The coroutine to call.
+    
+        """
+        # this is called in the context greenlet while running fn
+        current = getcurrent()
+        if not getattr(current, "__sqlalchemy_greenlet_provider__", False):
+            _safe_cancel_awaitable(awaitable)
+    
+>           raise exc.MissingGreenlet(
+                "greenlet_spawn has not been called; can't call await_only() "
+                "here. Was IO attempted in an unexpected place?"
+            )
+E           sqlalchemy.exc.MissingGreenlet: greenlet_spawn has not been called; can't call await_only() here. Was IO attempted in an unexpected place? (Background on this error at: https://sqlalche.me/e/20/xd2s)
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:123: MissingGreenlet
+_ test_inflight_import_uses_current_persisted_authority_before_publication[put-legacy_no_state] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000024B5B510310>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000024B57383210>
+test_settings = Settings(app_env='development', app_debug=True, app_version='1.0.0', app_revision='unknown', expected_database_schema_...me='qrcode_v1', whatsapp_otp_template_name='', whatsapp_otp_template_language='en_US', whatsapp_delivery_concurrency=4)
+phase = 'put', transition = 'legacy_no_state'
+
+    @pytest.mark.parametrize("phase,transition", CASES)
+    async def test_inflight_import_uses_current_persisted_authority_before_publication(
+        db_session, monkeypatch, test_settings, phase, transition,
+    ):
+>       context = await prepare_authority_import(
+            db_session, monkeypatch, test_settings, transition, phase,
+        )
+
+tests\unit\presentation\test_document_import_authority.py:41: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\unit\presentation\document_import_authority_fixture.py:100: in prepare_authority_import
+    qr_id=qr.id, qr_hash=qr.token_hash, transition=transition,
+          ^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:566: in __get__
+    return self.impl.get(state, dict_)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1086: in get
+    value = self._fire_loader_callables(state, key, passive)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1116: in _fire_loader_callables
+    return state._load_expired(state, passive)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\state.py:803: in _load_expired
+    self.manager.expired_attribute_loader(self, toload, passive)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:1670: in load_scalar_attributes
+    result = load_on_ident(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:509: in load_on_ident
+    return load_on_pk_identity(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:694: in load_on_pk_identity
+    session.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2351: in execute
+    return self._execute_internal(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2236: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\context.py:293: in orm_execute_statement
+    result = conn.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1418: in execute
+    return meth(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\sql\elements.py:515: in _execute_on_connection
+    return connection._execute_clauseelement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1640: in _execute_clauseelement
+    ret = self._execute_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:2356: in _handle_dbapi_exception
+    raise exc_info[1].with_traceback(exc_info[2])
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:147: in execute
+    self._adapt_connection._handle_exception(error)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:298: in _handle_exception
+    raise error
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:124: in execute
+    _cursor = self.await_(self._connection.cursor())
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+awaitable = <aiosqlite.context.Result object at 0x0000024B5938E260>
+
+    def await_only(awaitable: Awaitable[_T]) -> _T:
+        """Awaits an async function in a sync method.
+    
+        The sync method must be inside a :func:`greenlet_spawn` context.
+        :func:`await_only` calls cannot be nested.
+    
+        :param awaitable: The coroutine to call.
+    
+        """
+        # this is called in the context greenlet while running fn
+        current = getcurrent()
+        if not getattr(current, "__sqlalchemy_greenlet_provider__", False):
+            _safe_cancel_awaitable(awaitable)
+    
+>           raise exc.MissingGreenlet(
+                "greenlet_spawn has not been called; can't call await_only() "
+                "here. Was IO attempted in an unexpected place?"
+            )
+E           sqlalchemy.exc.MissingGreenlet: greenlet_spawn has not been called; can't call await_only() here. Was IO attempted in an unexpected place? (Background on this error at: https://sqlalche.me/e/20/xd2s)
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:123: MissingGreenlet
+_ test_inflight_import_uses_current_persisted_authority_before_publication[put-manager_unassigned] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000024B5759DAD0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000024B5B641950>
+test_settings = Settings(app_env='development', app_debug=True, app_version='1.0.0', app_revision='unknown', expected_database_schema_...me='qrcode_v1', whatsapp_otp_template_name='', whatsapp_otp_template_language='en_US', whatsapp_delivery_concurrency=4)
+phase = 'put', transition = 'manager_unassigned'
+
+    @pytest.mark.parametrize("phase,transition", CASES)
+    async def test_inflight_import_uses_current_persisted_authority_before_publication(
+        db_session, monkeypatch, test_settings, phase, transition,
+    ):
+>       context = await prepare_authority_import(
+            db_session, monkeypatch, test_settings, transition, phase,
+        )
+
+tests\unit\presentation\test_document_import_authority.py:41: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\unit\presentation\document_import_authority_fixture.py:100: in prepare_authority_import
+    qr_id=qr.id, qr_hash=qr.token_hash, transition=transition,
+          ^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:566: in __get__
+    return self.impl.get(state, dict_)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1086: in get
+    value = self._fire_loader_callables(state, key, passive)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1116: in _fire_loader_callables
+    return state._load_expired(state, passive)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\state.py:803: in _load_expired
+    self.manager.expired_attribute_loader(self, toload, passive)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:1670: in load_scalar_attributes
+    result = load_on_ident(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:509: in load_on_ident
+    return load_on_pk_identity(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:694: in load_on_pk_identity
+    session.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2351: in execute
+    return self._execute_internal(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2236: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\context.py:293: in orm_execute_statement
+    result = conn.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1418: in execute
+    return meth(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\sql\elements.py:515: in _execute_on_connection
+    return connection._execute_clauseelement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1640: in _execute_clauseelement
+    ret = self._execute_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:2356: in _handle_dbapi_exception
+    raise exc_info[1].with_traceback(exc_info[2])
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:147: in execute
+    self._adapt_connection._handle_exception(error)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:298: in _handle_exception
+    raise error
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:124: in execute
+    _cursor = self.await_(self._connection.cursor())
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+awaitable = <aiosqlite.context.Result object at 0x0000024B5937E710>
+
+    def await_only(awaitable: Awaitable[_T]) -> _T:
+        """Awaits an async function in a sync method.
+    
+        The sync method must be inside a :func:`greenlet_spawn` context.
+        :func:`await_only` calls cannot be nested.
+    
+        :param awaitable: The coroutine to call.
+    
+        """
+        # this is called in the context greenlet while running fn
+        current = getcurrent()
+        if not getattr(current, "__sqlalchemy_greenlet_provider__", False):
+            _safe_cancel_awaitable(awaitable)
+    
+>           raise exc.MissingGreenlet(
+                "greenlet_spawn has not been called; can't call await_only() "
+                "here. Was IO attempted in an unexpected place?"
+            )
+E           sqlalchemy.exc.MissingGreenlet: greenlet_spawn has not been called; can't call await_only() here. Was IO attempted in an unexpected place? (Background on this error at: https://sqlalche.me/e/20/xd2s)
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:123: MissingGreenlet
+_ test_inflight_import_uses_current_persisted_authority_before_publication[put-group_archived] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000024B57352890>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000024B56BC4650>
+test_settings = Settings(app_env='development', app_debug=True, app_version='1.0.0', app_revision='unknown', expected_database_schema_...me='qrcode_v1', whatsapp_otp_template_name='', whatsapp_otp_template_language='en_US', whatsapp_delivery_concurrency=4)
+phase = 'put', transition = 'group_archived'
+
+    @pytest.mark.parametrize("phase,transition", CASES)
+    async def test_inflight_import_uses_current_persisted_authority_before_publication(
+        db_session, monkeypatch, test_settings, phase, transition,
+    ):
+>       context = await prepare_authority_import(
+            db_session, monkeypatch, test_settings, transition, phase,
+        )
+
+tests\unit\presentation\test_document_import_authority.py:41: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\unit\presentation\document_import_authority_fixture.py:100: in prepare_authority_import
+    qr_id=qr.id, qr_hash=qr.token_hash, transition=transition,
+          ^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:566: in __get__
+    return self.impl.get(state, dict_)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1086: in get
+    value = self._fire_loader_callables(state, key, passive)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1116: in _fire_loader_callables
+    return state._load_expired(state, passive)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\state.py:803: in _load_expired
+    self.manager.expired_attribute_loader(self, toload, passive)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:1670: in load_scalar_attributes
+    result = load_on_ident(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:509: in load_on_ident
+    return load_on_pk_identity(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:694: in load_on_pk_identity
+    session.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2351: in execute
+    return self._execute_internal(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2236: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\context.py:293: in orm_execute_statement
+    result = conn.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1418: in execute
+    return meth(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\sql\elements.py:515: in _execute_on_connection
+    return connection._execute_clauseelement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1640: in _execute_clauseelement
+    ret = self._execute_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:2356: in _handle_dbapi_exception
+    raise exc_info[1].with_traceback(exc_info[2])
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:147: in execute
+    self._adapt_connection._handle_exception(error)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:298: in _handle_exception
+    raise error
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:124: in execute
+    _cursor = self.await_(self._connection.cursor())
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+awaitable = <aiosqlite.context.Result object at 0x0000024B586C9720>
+
+    def await_only(awaitable: Awaitable[_T]) -> _T:
+        """Awaits an async function in a sync method.
+    
+        The sync method must be inside a :func:`greenlet_spawn` context.
+        :func:`await_only` calls cannot be nested.
+    
+        :param awaitable: The coroutine to call.
+    
+        """
+        # this is called in the context greenlet while running fn
+        current = getcurrent()
+        if not getattr(current, "__sqlalchemy_greenlet_provider__", False):
+            _safe_cancel_awaitable(awaitable)
+    
+>           raise exc.MissingGreenlet(
+                "greenlet_spawn has not been called; can't call await_only() "
+                "here. Was IO attempted in an unexpected place?"
+            )
+E           sqlalchemy.exc.MissingGreenlet: greenlet_spawn has not been called; can't call await_only() here. Was IO attempted in an unexpected place? (Background on this error at: https://sqlalche.me/e/20/xd2s)
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:123: MissingGreenlet
+_ test_inflight_import_uses_current_persisted_authority_before_publication[put-reduced_superadmin] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000024B56ACE310>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000024B5B7AF150>
+test_settings = Settings(app_env='development', app_debug=True, app_version='1.0.0', app_revision='unknown', expected_database_schema_...me='qrcode_v1', whatsapp_otp_template_name='', whatsapp_otp_template_language='en_US', whatsapp_delivery_concurrency=4)
+phase = 'put', transition = 'reduced_superadmin'
+
+    @pytest.mark.parametrize("phase,transition", CASES)
+    async def test_inflight_import_uses_current_persisted_authority_before_publication(
+        db_session, monkeypatch, test_settings, phase, transition,
+    ):
+>       context = await prepare_authority_import(
+            db_session, monkeypatch, test_settings, transition, phase,
+        )
+
+tests\unit\presentation\test_document_import_authority.py:41: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\unit\presentation\document_import_authority_fixture.py:100: in prepare_authority_import
+    qr_id=qr.id, qr_hash=qr.token_hash, transition=transition,
+          ^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:566: in __get__
+    return self.impl.get(state, dict_)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1086: in get
+    value = self._fire_loader_callables(state, key, passive)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1116: in _fire_loader_callables
+    return state._load_expired(state, passive)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\state.py:803: in _load_expired
+    self.manager.expired_attribute_loader(self, toload, passive)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:1670: in load_scalar_attributes
+    result = load_on_ident(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:509: in load_on_ident
+    return load_on_pk_identity(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:694: in load_on_pk_identity
+    session.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2351: in execute
+    return self._execute_internal(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2236: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\context.py:293: in orm_execute_statement
+    result = conn.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1418: in execute
+    return meth(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\sql\elements.py:515: in _execute_on_connection
+    return connection._execute_clauseelement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1640: in _execute_clauseelement
+    ret = self._execute_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:2356: in _handle_dbapi_exception
+    raise exc_info[1].with_traceback(exc_info[2])
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:147: in execute
+    self._adapt_connection._handle_exception(error)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:298: in _handle_exception
+    raise error
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:124: in execute
+    _cursor = self.await_(self._connection.cursor())
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+awaitable = <aiosqlite.context.Result object at 0x0000024B586C9810>
+
+    def await_only(awaitable: Awaitable[_T]) -> _T:
+        """Awaits an async function in a sync method.
+    
+        The sync method must be inside a :func:`greenlet_spawn` context.
+        :func:`await_only` calls cannot be nested.
+    
+        :param awaitable: The coroutine to call.
+    
+        """
+        # this is called in the context greenlet while running fn
+        current = getcurrent()
+        if not getattr(current, "__sqlalchemy_greenlet_provider__", False):
+            _safe_cancel_awaitable(awaitable)
+    
+>           raise exc.MissingGreenlet(
+                "greenlet_spawn has not been called; can't call await_only() "
+                "here. Was IO attempted in an unexpected place?"
+            )
+E           sqlalchemy.exc.MissingGreenlet: greenlet_spawn has not been called; can't call await_only() here. Was IO attempted in an unexpected place? (Background on this error at: https://sqlalche.me/e/20/xd2s)
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:123: MissingGreenlet
+_ test_inflight_import_uses_current_persisted_authority_before_publication[put-agency_changed] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000024B5A56B810>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000024B56BA7E90>
+test_settings = Settings(app_env='development', app_debug=True, app_version='1.0.0', app_revision='unknown', expected_database_schema_...me='qrcode_v1', whatsapp_otp_template_name='', whatsapp_otp_template_language='en_US', whatsapp_delivery_concurrency=4)
+phase = 'put', transition = 'agency_changed'
+
+    @pytest.mark.parametrize("phase,transition", CASES)
+    async def test_inflight_import_uses_current_persisted_authority_before_publication(
+        db_session, monkeypatch, test_settings, phase, transition,
+    ):
+>       context = await prepare_authority_import(
+            db_session, monkeypatch, test_settings, transition, phase,
+        )
+
+tests\unit\presentation\test_document_import_authority.py:41: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\unit\presentation\document_import_authority_fixture.py:100: in prepare_authority_import
+    qr_id=qr.id, qr_hash=qr.token_hash, transition=transition,
+          ^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:566: in __get__
+    return self.impl.get(state, dict_)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1086: in get
+    value = self._fire_loader_callables(state, key, passive)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1116: in _fire_loader_callables
+    return state._load_expired(state, passive)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\state.py:803: in _load_expired
+    self.manager.expired_attribute_loader(self, toload, passive)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:1670: in load_scalar_attributes
+    result = load_on_ident(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:509: in load_on_ident
+    return load_on_pk_identity(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:694: in load_on_pk_identity
+    session.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2351: in execute
+    return self._execute_internal(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2236: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\context.py:293: in orm_execute_statement
+    result = conn.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1418: in execute
+    return meth(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\sql\elements.py:515: in _execute_on_connection
+    return connection._execute_clauseelement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1640: in _execute_clauseelement
+    ret = self._execute_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:2356: in _handle_dbapi_exception
+    raise exc_info[1].with_traceback(exc_info[2])
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:147: in execute
+    self._adapt_connection._handle_exception(error)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:298: in _handle_exception
+    raise error
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:124: in execute
+    _cursor = self.await_(self._connection.cursor())
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+awaitable = <aiosqlite.context.Result object at 0x0000024B59317480>
+
+    def await_only(awaitable: Awaitable[_T]) -> _T:
+        """Awaits an async function in a sync method.
+    
+        The sync method must be inside a :func:`greenlet_spawn` context.
+        :func:`await_only` calls cannot be nested.
+    
+        :param awaitable: The coroutine to call.
+    
+        """
+        # this is called in the context greenlet while running fn
+        current = getcurrent()
+        if not getattr(current, "__sqlalchemy_greenlet_provider__", False):
+            _safe_cancel_awaitable(awaitable)
+    
+>           raise exc.MissingGreenlet(
+                "greenlet_spawn has not been called; can't call await_only() "
+                "here. Was IO attempted in an unexpected place?"
+            )
+E           sqlalchemy.exc.MissingGreenlet: greenlet_spawn has not been called; can't call await_only() here. Was IO attempted in an unexpected place? (Background on this error at: https://sqlalche.me/e/20/xd2s)
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:123: MissingGreenlet
+_ test_inflight_import_uses_current_persisted_authority_before_publication[put-assignment_revoked] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000024B5888B7D0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000024B56B9BC10>
+test_settings = Settings(app_env='development', app_debug=True, app_version='1.0.0', app_revision='unknown', expected_database_schema_...me='qrcode_v1', whatsapp_otp_template_name='', whatsapp_otp_template_language='en_US', whatsapp_delivery_concurrency=4)
+phase = 'put', transition = 'assignment_revoked'
+
+    @pytest.mark.parametrize("phase,transition", CASES)
+    async def test_inflight_import_uses_current_persisted_authority_before_publication(
+        db_session, monkeypatch, test_settings, phase, transition,
+    ):
+>       context = await prepare_authority_import(
+            db_session, monkeypatch, test_settings, transition, phase,
+        )
+
+tests\unit\presentation\test_document_import_authority.py:41: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\unit\presentation\document_import_authority_fixture.py:100: in prepare_authority_import
+    qr_id=qr.id, qr_hash=qr.token_hash, transition=transition,
+          ^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:566: in __get__
+    return self.impl.get(state, dict_)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1086: in get
+    value = self._fire_loader_callables(state, key, passive)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1116: in _fire_loader_callables
+    return state._load_expired(state, passive)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\state.py:803: in _load_expired
+    self.manager.expired_attribute_loader(self, toload, passive)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:1670: in load_scalar_attributes
+    result = load_on_ident(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:509: in load_on_ident
+    return load_on_pk_identity(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:694: in load_on_pk_identity
+    session.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2351: in execute
+    return self._execute_internal(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2236: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\context.py:293: in orm_execute_statement
+    result = conn.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1418: in execute
+    return meth(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\sql\elements.py:515: in _execute_on_connection
+    return connection._execute_clauseelement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1640: in _execute_clauseelement
+    ret = self._execute_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:2356: in _handle_dbapi_exception
+    raise exc_info[1].with_traceback(exc_info[2])
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:147: in execute
+    self._adapt_connection._handle_exception(error)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:298: in _handle_exception
+    raise error
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:124: in execute
+    _cursor = self.await_(self._connection.cursor())
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+awaitable = <aiosqlite.context.Result object at 0x0000024B5AFAC9B0>
+
+    def await_only(awaitable: Awaitable[_T]) -> _T:
+        """Awaits an async function in a sync method.
+    
+        The sync method must be inside a :func:`greenlet_spawn` context.
+        :func:`await_only` calls cannot be nested.
+    
+        :param awaitable: The coroutine to call.
+    
+        """
+        # this is called in the context greenlet while running fn
+        current = getcurrent()
+        if not getattr(current, "__sqlalchemy_greenlet_provider__", False):
+            _safe_cancel_awaitable(awaitable)
+    
+>           raise exc.MissingGreenlet(
+                "greenlet_spawn has not been called; can't call await_only() "
+                "here. Was IO attempted in an unexpected place?"
+            )
+E           sqlalchemy.exc.MissingGreenlet: greenlet_spawn has not been called; can't call await_only() here. Was IO attempted in an unexpected place? (Background on this error at: https://sqlalche.me/e/20/xd2s)
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:123: MissingGreenlet
+_ test_inflight_import_uses_current_persisted_authority_before_publication[put-credential_reset] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000024B5B1D9F90>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000024B5ABC2050>
+test_settings = Settings(app_env='development', app_debug=True, app_version='1.0.0', app_revision='unknown', expected_database_schema_...me='qrcode_v1', whatsapp_otp_template_name='', whatsapp_otp_template_language='en_US', whatsapp_delivery_concurrency=4)
+phase = 'put', transition = 'credential_reset'
+
+    @pytest.mark.parametrize("phase,transition", CASES)
+    async def test_inflight_import_uses_current_persisted_authority_before_publication(
+        db_session, monkeypatch, test_settings, phase, transition,
+    ):
+>       context = await prepare_authority_import(
+            db_session, monkeypatch, test_settings, transition, phase,
+        )
+
+tests\unit\presentation\test_document_import_authority.py:41: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\unit\presentation\document_import_authority_fixture.py:100: in prepare_authority_import
+    qr_id=qr.id, qr_hash=qr.token_hash, transition=transition,
+          ^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:566: in __get__
+    return self.impl.get(state, dict_)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1086: in get
+    value = self._fire_loader_callables(state, key, passive)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1116: in _fire_loader_callables
+    return state._load_expired(state, passive)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\state.py:803: in _load_expired
+    self.manager.expired_attribute_loader(self, toload, passive)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:1670: in load_scalar_attributes
+    result = load_on_ident(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:509: in load_on_ident
+    return load_on_pk_identity(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:694: in load_on_pk_identity
+    session.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2351: in execute
+    return self._execute_internal(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2236: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\context.py:293: in orm_execute_statement
+    result = conn.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1418: in execute
+    return meth(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\sql\elements.py:515: in _execute_on_connection
+    return connection._execute_clauseelement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1640: in _execute_clauseelement
+    ret = self._execute_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:2356: in _handle_dbapi_exception
+    raise exc_info[1].with_traceback(exc_info[2])
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:147: in execute
+    self._adapt_connection._handle_exception(error)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:298: in _handle_exception
+    raise error
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:124: in execute
+    _cursor = self.await_(self._connection.cursor())
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+awaitable = <aiosqlite.context.Result object at 0x0000024B5710C370>
+
+    def await_only(awaitable: Awaitable[_T]) -> _T:
+        """Awaits an async function in a sync method.
+    
+        The sync method must be inside a :func:`greenlet_spawn` context.
+        :func:`await_only` calls cannot be nested.
+    
+        :param awaitable: The coroutine to call.
+    
+        """
+        # this is called in the context greenlet while running fn
+        current = getcurrent()
+        if not getattr(current, "__sqlalchemy_greenlet_provider__", False):
+            _safe_cancel_awaitable(awaitable)
+    
+>           raise exc.MissingGreenlet(
+                "greenlet_spawn has not been called; can't call await_only() "
+                "here. Was IO attempted in an unexpected place?"
+            )
+E           sqlalchemy.exc.MissingGreenlet: greenlet_spawn has not been called; can't call await_only() here. Was IO attempted in an unexpected place? (Background on this error at: https://sqlalche.me/e/20/xd2s)
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:123: MissingGreenlet
+_ test_inflight_import_uses_current_persisted_authority_before_publication[put-group_deleted] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000024B5A90B950>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000024B57063810>
+test_settings = Settings(app_env='development', app_debug=True, app_version='1.0.0', app_revision='unknown', expected_database_schema_...me='qrcode_v1', whatsapp_otp_template_name='', whatsapp_otp_template_language='en_US', whatsapp_delivery_concurrency=4)
+phase = 'put', transition = 'group_deleted'
+
+    @pytest.mark.parametrize("phase,transition", CASES)
+    async def test_inflight_import_uses_current_persisted_authority_before_publication(
+        db_session, monkeypatch, test_settings, phase, transition,
+    ):
+>       context = await prepare_authority_import(
+            db_session, monkeypatch, test_settings, transition, phase,
+        )
+
+tests\unit\presentation\test_document_import_authority.py:41: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\unit\presentation\document_import_authority_fixture.py:100: in prepare_authority_import
+    qr_id=qr.id, qr_hash=qr.token_hash, transition=transition,
+          ^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:566: in __get__
+    return self.impl.get(state, dict_)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1086: in get
+    value = self._fire_loader_callables(state, key, passive)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1116: in _fire_loader_callables
+    return state._load_expired(state, passive)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\state.py:803: in _load_expired
+    self.manager.expired_attribute_loader(self, toload, passive)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:1670: in load_scalar_attributes
+    result = load_on_ident(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:509: in load_on_ident
+    return load_on_pk_identity(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:694: in load_on_pk_identity
+    session.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2351: in execute
+    return self._execute_internal(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2236: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\context.py:293: in orm_execute_statement
+    result = conn.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1418: in execute
+    return meth(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\sql\elements.py:515: in _execute_on_connection
+    return connection._execute_clauseelement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1640: in _execute_clauseelement
+    ret = self._execute_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:2356: in _handle_dbapi_exception
+    raise exc_info[1].with_traceback(exc_info[2])
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:147: in execute
+    self._adapt_connection._handle_exception(error)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:298: in _handle_exception
+    raise error
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:124: in execute
+    _cursor = self.await_(self._connection.cursor())
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+awaitable = <aiosqlite.context.Result object at 0x0000024B5AFD8640>
+
+    def await_only(awaitable: Awaitable[_T]) -> _T:
+        """Awaits an async function in a sync method.
+    
+        The sync method must be inside a :func:`greenlet_spawn` context.
+        :func:`await_only` calls cannot be nested.
+    
+        :param awaitable: The coroutine to call.
+    
+        """
+        # this is called in the context greenlet while running fn
+        current = getcurrent()
+        if not getattr(current, "__sqlalchemy_greenlet_provider__", False):
+            _safe_cancel_awaitable(awaitable)
+    
+>           raise exc.MissingGreenlet(
+                "greenlet_spawn has not been called; can't call await_only() "
+                "here. Was IO attempted in an unexpected place?"
+            )
+E           sqlalchemy.exc.MissingGreenlet: greenlet_spawn has not been called; can't call await_only() here. Was IO attempted in an unexpected place? (Background on this error at: https://sqlalche.me/e/20/xd2s)
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:123: MissingGreenlet
+_ test_inflight_import_uses_current_persisted_authority_before_publication[put-inactive] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000024B5ADCA190>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000024B5BC711D0>
+test_settings = Settings(app_env='development', app_debug=True, app_version='1.0.0', app_revision='unknown', expected_database_schema_...me='qrcode_v1', whatsapp_otp_template_name='', whatsapp_otp_template_language='en_US', whatsapp_delivery_concurrency=4)
+phase = 'put', transition = 'inactive'
+
+    @pytest.mark.parametrize("phase,transition", CASES)
+    async def test_inflight_import_uses_current_persisted_authority_before_publication(
+        db_session, monkeypatch, test_settings, phase, transition,
+    ):
+>       context = await prepare_authority_import(
+            db_session, monkeypatch, test_settings, transition, phase,
+        )
+
+tests\unit\presentation\test_document_import_authority.py:41: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\unit\presentation\document_import_authority_fixture.py:100: in prepare_authority_import
+    qr_id=qr.id, qr_hash=qr.token_hash, transition=transition,
+          ^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:566: in __get__
+    return self.impl.get(state, dict_)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1086: in get
+    value = self._fire_loader_callables(state, key, passive)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1116: in _fire_loader_callables
+    return state._load_expired(state, passive)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\state.py:803: in _load_expired
+    self.manager.expired_attribute_loader(self, toload, passive)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:1670: in load_scalar_attributes
+    result = load_on_ident(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:509: in load_on_ident
+    return load_on_pk_identity(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:694: in load_on_pk_identity
+    session.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2351: in execute
+    return self._execute_internal(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2236: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\context.py:293: in orm_execute_statement
+    result = conn.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1418: in execute
+    return meth(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\sql\elements.py:515: in _execute_on_connection
+    return connection._execute_clauseelement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1640: in _execute_clauseelement
+    ret = self._execute_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:2356: in _handle_dbapi_exception
+    raise exc_info[1].with_traceback(exc_info[2])
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:147: in execute
+    self._adapt_connection._handle_exception(error)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:298: in _handle_exception
+    raise error
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:124: in execute
+    _cursor = self.await_(self._connection.cursor())
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+awaitable = <aiosqlite.context.Result object at 0x0000024B5A723930>
+
+    def await_only(awaitable: Awaitable[_T]) -> _T:
+        """Awaits an async function in a sync method.
+    
+        The sync method must be inside a :func:`greenlet_spawn` context.
+        :func:`await_only` calls cannot be nested.
+    
+        :param awaitable: The coroutine to call.
+    
+        """
+        # this is called in the context greenlet while running fn
+        current = getcurrent()
+        if not getattr(current, "__sqlalchemy_greenlet_provider__", False):
+            _safe_cancel_awaitable(awaitable)
+    
+>           raise exc.MissingGreenlet(
+                "greenlet_spawn has not been called; can't call await_only() "
+                "here. Was IO attempted in an unexpected place?"
+            )
+E           sqlalchemy.exc.MissingGreenlet: greenlet_spawn has not been called; can't call await_only() here. Was IO attempted in an unexpected place? (Background on this error at: https://sqlalche.me/e/20/xd2s)
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:123: MissingGreenlet
+_ test_inflight_import_uses_current_persisted_authority_before_publication[put-owned_group_revoked] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000024B5B143110>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000024B5ADBB510>
+test_settings = Settings(app_env='development', app_debug=True, app_version='1.0.0', app_revision='unknown', expected_database_schema_...me='qrcode_v1', whatsapp_otp_template_name='', whatsapp_otp_template_language='en_US', whatsapp_delivery_concurrency=4)
+phase = 'put', transition = 'owned_group_revoked'
+
+    @pytest.mark.parametrize("phase,transition", CASES)
+    async def test_inflight_import_uses_current_persisted_authority_before_publication(
+        db_session, monkeypatch, test_settings, phase, transition,
+    ):
+>       context = await prepare_authority_import(
+            db_session, monkeypatch, test_settings, transition, phase,
+        )
+
+tests\unit\presentation\test_document_import_authority.py:41: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\unit\presentation\document_import_authority_fixture.py:100: in prepare_authority_import
+    qr_id=qr.id, qr_hash=qr.token_hash, transition=transition,
+          ^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:566: in __get__
+    return self.impl.get(state, dict_)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1086: in get
+    value = self._fire_loader_callables(state, key, passive)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1116: in _fire_loader_callables
+    return state._load_expired(state, passive)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\state.py:803: in _load_expired
+    self.manager.expired_attribute_loader(self, toload, passive)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:1670: in load_scalar_attributes
+    result = load_on_ident(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:509: in load_on_ident
+    return load_on_pk_identity(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:694: in load_on_pk_identity
+    session.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2351: in execute
+    return self._execute_internal(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2236: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\context.py:293: in orm_execute_statement
+    result = conn.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1418: in execute
+    return meth(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\sql\elements.py:515: in _execute_on_connection
+    return connection._execute_clauseelement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1640: in _execute_clauseelement
+    ret = self._execute_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:2356: in _handle_dbapi_exception
+    raise exc_info[1].with_traceback(exc_info[2])
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:147: in execute
+    self._adapt_connection._handle_exception(error)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:298: in _handle_exception
+    raise error
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:124: in execute
+    _cursor = self.await_(self._connection.cursor())
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+awaitable = <aiosqlite.context.Result object at 0x0000024B5A88E710>
+
+    def await_only(awaitable: Awaitable[_T]) -> _T:
+        """Awaits an async function in a sync method.
+    
+        The sync method must be inside a :func:`greenlet_spawn` context.
+        :func:`await_only` calls cannot be nested.
+    
+        :param awaitable: The coroutine to call.
+    
+        """
+        # this is called in the context greenlet while running fn
+        current = getcurrent()
+        if not getattr(current, "__sqlalchemy_greenlet_provider__", False):
+            _safe_cancel_awaitable(awaitable)
+    
+>           raise exc.MissingGreenlet(
+                "greenlet_spawn has not been called; can't call await_only() "
+                "here. Was IO attempted in an unexpected place?"
+            )
+E           sqlalchemy.exc.MissingGreenlet: greenlet_spawn has not been called; can't call await_only() here. Was IO attempted in an unexpected place? (Background on this error at: https://sqlalche.me/e/20/xd2s)
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:123: MissingGreenlet
+_ test_inflight_import_uses_current_persisted_authority_before_publication[put-role_changed] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000024B56B67AD0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000024B5ADBA750>
+test_settings = Settings(app_env='development', app_debug=True, app_version='1.0.0', app_revision='unknown', expected_database_schema_...me='qrcode_v1', whatsapp_otp_template_name='', whatsapp_otp_template_language='en_US', whatsapp_delivery_concurrency=4)
+phase = 'put', transition = 'role_changed'
+
+    @pytest.mark.parametrize("phase,transition", CASES)
+    async def test_inflight_import_uses_current_persisted_authority_before_publication(
+        db_session, monkeypatch, test_settings, phase, transition,
+    ):
+>       context = await prepare_authority_import(
+            db_session, monkeypatch, test_settings, transition, phase,
+        )
+
+tests\unit\presentation\test_document_import_authority.py:41: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\unit\presentation\document_import_authority_fixture.py:100: in prepare_authority_import
+    qr_id=qr.id, qr_hash=qr.token_hash, transition=transition,
+          ^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:566: in __get__
+    return self.impl.get(state, dict_)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1086: in get
+    value = self._fire_loader_callables(state, key, passive)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1116: in _fire_loader_callables
+    return state._load_expired(state, passive)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\state.py:803: in _load_expired
+    self.manager.expired_attribute_loader(self, toload, passive)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:1670: in load_scalar_attributes
+    result = load_on_ident(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:509: in load_on_ident
+    return load_on_pk_identity(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:694: in load_on_pk_identity
+    session.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2351: in execute
+    return self._execute_internal(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2236: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\context.py:293: in orm_execute_statement
+    result = conn.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1418: in execute
+    return meth(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\sql\elements.py:515: in _execute_on_connection
+    return connection._execute_clauseelement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1640: in _execute_clauseelement
+    ret = self._execute_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:2356: in _handle_dbapi_exception
+    raise exc_info[1].with_traceback(exc_info[2])
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:147: in execute
+    self._adapt_connection._handle_exception(error)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:298: in _handle_exception
+    raise error
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:124: in execute
+    _cursor = self.await_(self._connection.cursor())
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+awaitable = <aiosqlite.context.Result object at 0x0000024B5A88B340>
+
+    def await_only(awaitable: Awaitable[_T]) -> _T:
+        """Awaits an async function in a sync method.
+    
+        The sync method must be inside a :func:`greenlet_spawn` context.
+        :func:`await_only` calls cannot be nested.
+    
+        :param awaitable: The coroutine to call.
+    
+        """
+        # this is called in the context greenlet while running fn
+        current = getcurrent()
+        if not getattr(current, "__sqlalchemy_greenlet_provider__", False):
+            _safe_cancel_awaitable(awaitable)
+    
+>           raise exc.MissingGreenlet(
+                "greenlet_spawn has not been called; can't call await_only() "
+                "here. Was IO attempted in an unexpected place?"
+            )
+E           sqlalchemy.exc.MissingGreenlet: greenlet_spawn has not been called; can't call await_only() here. Was IO attempted in an unexpected place? (Background on this error at: https://sqlalche.me/e/20/xd2s)
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:123: MissingGreenlet
+_ test_inflight_import_uses_current_persisted_authority_before_publication[put-sessions_revoked] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000024B5B2C15D0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000024B5B79C1D0>
+test_settings = Settings(app_env='development', app_debug=True, app_version='1.0.0', app_revision='unknown', expected_database_schema_...me='qrcode_v1', whatsapp_otp_template_name='', whatsapp_otp_template_language='en_US', whatsapp_delivery_concurrency=4)
+phase = 'put', transition = 'sessions_revoked'
+
+    @pytest.mark.parametrize("phase,transition", CASES)
+    async def test_inflight_import_uses_current_persisted_authority_before_publication(
+        db_session, monkeypatch, test_settings, phase, transition,
+    ):
+>       context = await prepare_authority_import(
+            db_session, monkeypatch, test_settings, transition, phase,
+        )
+
+tests\unit\presentation\test_document_import_authority.py:41: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\unit\presentation\document_import_authority_fixture.py:100: in prepare_authority_import
+    qr_id=qr.id, qr_hash=qr.token_hash, transition=transition,
+          ^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:566: in __get__
+    return self.impl.get(state, dict_)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1086: in get
+    value = self._fire_loader_callables(state, key, passive)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1116: in _fire_loader_callables
+    return state._load_expired(state, passive)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\state.py:803: in _load_expired
+    self.manager.expired_attribute_loader(self, toload, passive)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:1670: in load_scalar_attributes
+    result = load_on_ident(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:509: in load_on_ident
+    return load_on_pk_identity(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:694: in load_on_pk_identity
+    session.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2351: in execute
+    return self._execute_internal(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2236: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\context.py:293: in orm_execute_statement
+    result = conn.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1418: in execute
+    return meth(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\sql\elements.py:515: in _execute_on_connection
+    return connection._execute_clauseelement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1640: in _execute_clauseelement
+    ret = self._execute_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:2356: in _handle_dbapi_exception
+    raise exc_info[1].with_traceback(exc_info[2])
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:147: in execute
+    self._adapt_connection._handle_exception(error)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:298: in _handle_exception
+    raise error
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:124: in execute
+    _cursor = self.await_(self._connection.cursor())
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+awaitable = <aiosqlite.context.Result object at 0x0000024B5A9B1180>
+
+    def await_only(awaitable: Awaitable[_T]) -> _T:
+        """Awaits an async function in a sync method.
+    
+        The sync method must be inside a :func:`greenlet_spawn` context.
+        :func:`await_only` calls cannot be nested.
+    
+        :param awaitable: The coroutine to call.
+    
+        """
+        # this is called in the context greenlet while running fn
+        current = getcurrent()
+        if not getattr(current, "__sqlalchemy_greenlet_provider__", False):
+            _safe_cancel_awaitable(awaitable)
+    
+>           raise exc.MissingGreenlet(
+                "greenlet_spawn has not been called; can't call await_only() "
+                "here. Was IO attempted in an unexpected place?"
+            )
+E           sqlalchemy.exc.MissingGreenlet: greenlet_spawn has not been called; can't call await_only() here. Was IO attempted in an unexpected place? (Background on this error at: https://sqlalche.me/e/20/xd2s)
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:123: MissingGreenlet
+_ test_inflight_import_uses_current_persisted_authority_before_publication[validation-unchanged] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000024B5BDF0D90>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000024B5ACDA090>
+test_settings = Settings(app_env='development', app_debug=True, app_version='1.0.0', app_revision='unknown', expected_database_schema_...me='qrcode_v1', whatsapp_otp_template_name='', whatsapp_otp_template_language='en_US', whatsapp_delivery_concurrency=4)
+phase = 'validation', transition = 'unchanged'
+
+    @pytest.mark.parametrize("phase,transition", CASES)
+    async def test_inflight_import_uses_current_persisted_authority_before_publication(
+        db_session, monkeypatch, test_settings, phase, transition,
+    ):
+>       context = await prepare_authority_import(
+            db_session, monkeypatch, test_settings, transition, phase,
+        )
+
+tests\unit\presentation\test_document_import_authority.py:41: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\unit\presentation\document_import_authority_fixture.py:100: in prepare_authority_import
+    qr_id=qr.id, qr_hash=qr.token_hash, transition=transition,
+          ^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:566: in __get__
+    return self.impl.get(state, dict_)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1086: in get
+    value = self._fire_loader_callables(state, key, passive)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1116: in _fire_loader_callables
+    return state._load_expired(state, passive)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\state.py:803: in _load_expired
+    self.manager.expired_attribute_loader(self, toload, passive)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:1670: in load_scalar_attributes
+    result = load_on_ident(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:509: in load_on_ident
+    return load_on_pk_identity(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:694: in load_on_pk_identity
+    session.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2351: in execute
+    return self._execute_internal(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2236: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\context.py:293: in orm_execute_statement
+    result = conn.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1418: in execute
+    return meth(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\sql\elements.py:515: in _execute_on_connection
+    return connection._execute_clauseelement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1640: in _execute_clauseelement
+    ret = self._execute_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:2356: in _handle_dbapi_exception
+    raise exc_info[1].with_traceback(exc_info[2])
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:147: in execute
+    self._adapt_connection._handle_exception(error)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:298: in _handle_exception
+    raise error
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:124: in execute
+    _cursor = self.await_(self._connection.cursor())
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+awaitable = <aiosqlite.context.Result object at 0x0000024B5A9F6710>
+
+    def await_only(awaitable: Awaitable[_T]) -> _T:
+        """Awaits an async function in a sync method.
+    
+        The sync method must be inside a :func:`greenlet_spawn` context.
+        :func:`await_only` calls cannot be nested.
+    
+        :param awaitable: The coroutine to call.
+    
+        """
+        # this is called in the context greenlet while running fn
+        current = getcurrent()
+        if not getattr(current, "__sqlalchemy_greenlet_provider__", False):
+            _safe_cancel_awaitable(awaitable)
+    
+>           raise exc.MissingGreenlet(
+                "greenlet_spawn has not been called; can't call await_only() "
+                "here. Was IO attempted in an unexpected place?"
+            )
+E           sqlalchemy.exc.MissingGreenlet: greenlet_spawn has not been called; can't call await_only() here. Was IO attempted in an unexpected place? (Background on this error at: https://sqlalche.me/e/20/xd2s)
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:123: MissingGreenlet
+_ test_inflight_import_uses_current_persisted_authority_before_publication[validation-profile_refresh] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000024B5BC90350>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000024B5A62D7D0>
+test_settings = Settings(app_env='development', app_debug=True, app_version='1.0.0', app_revision='unknown', expected_database_schema_...me='qrcode_v1', whatsapp_otp_template_name='', whatsapp_otp_template_language='en_US', whatsapp_delivery_concurrency=4)
+phase = 'validation', transition = 'profile_refresh'
+
+    @pytest.mark.parametrize("phase,transition", CASES)
+    async def test_inflight_import_uses_current_persisted_authority_before_publication(
+        db_session, monkeypatch, test_settings, phase, transition,
+    ):
+>       context = await prepare_authority_import(
+            db_session, monkeypatch, test_settings, transition, phase,
+        )
+
+tests\unit\presentation\test_document_import_authority.py:41: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\unit\presentation\document_import_authority_fixture.py:100: in prepare_authority_import
+    qr_id=qr.id, qr_hash=qr.token_hash, transition=transition,
+          ^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:566: in __get__
+    return self.impl.get(state, dict_)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1086: in get
+    value = self._fire_loader_callables(state, key, passive)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1116: in _fire_loader_callables
+    return state._load_expired(state, passive)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\state.py:803: in _load_expired
+    self.manager.expired_attribute_loader(self, toload, passive)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:1670: in load_scalar_attributes
+    result = load_on_ident(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:509: in load_on_ident
+    return load_on_pk_identity(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:694: in load_on_pk_identity
+    session.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2351: in execute
+    return self._execute_internal(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2236: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\context.py:293: in orm_execute_statement
+    result = conn.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1418: in execute
+    return meth(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\sql\elements.py:515: in _execute_on_connection
+    return connection._execute_clauseelement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1640: in _execute_clauseelement
+    ret = self._execute_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:2356: in _handle_dbapi_exception
+    raise exc_info[1].with_traceback(exc_info[2])
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:147: in execute
+    self._adapt_connection._handle_exception(error)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:298: in _handle_exception
+    raise error
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:124: in execute
+    _cursor = self.await_(self._connection.cursor())
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+awaitable = <aiosqlite.context.Result object at 0x0000024B5AE69180>
+
+    def await_only(awaitable: Awaitable[_T]) -> _T:
+        """Awaits an async function in a sync method.
+    
+        The sync method must be inside a :func:`greenlet_spawn` context.
+        :func:`await_only` calls cannot be nested.
+    
+        :param awaitable: The coroutine to call.
+    
+        """
+        # this is called in the context greenlet while running fn
+        current = getcurrent()
+        if not getattr(current, "__sqlalchemy_greenlet_provider__", False):
+            _safe_cancel_awaitable(awaitable)
+    
+>           raise exc.MissingGreenlet(
+                "greenlet_spawn has not been called; can't call await_only() "
+                "here. Was IO attempted in an unexpected place?"
+            )
+E           sqlalchemy.exc.MissingGreenlet: greenlet_spawn has not been called; can't call await_only() here. Was IO attempted in an unexpected place? (Background on this error at: https://sqlalche.me/e/20/xd2s)
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:123: MissingGreenlet
+_ test_inflight_import_uses_current_persisted_authority_before_publication[validation-legacy_no_state] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000024B5AA1B850>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000024B5BBEB2D0>
+test_settings = Settings(app_env='development', app_debug=True, app_version='1.0.0', app_revision='unknown', expected_database_schema_...me='qrcode_v1', whatsapp_otp_template_name='', whatsapp_otp_template_language='en_US', whatsapp_delivery_concurrency=4)
+phase = 'validation', transition = 'legacy_no_state'
+
+    @pytest.mark.parametrize("phase,transition", CASES)
+    async def test_inflight_import_uses_current_persisted_authority_before_publication(
+        db_session, monkeypatch, test_settings, phase, transition,
+    ):
+>       context = await prepare_authority_import(
+            db_session, monkeypatch, test_settings, transition, phase,
+        )
+
+tests\unit\presentation\test_document_import_authority.py:41: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\unit\presentation\document_import_authority_fixture.py:100: in prepare_authority_import
+    qr_id=qr.id, qr_hash=qr.token_hash, transition=transition,
+          ^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:566: in __get__
+    return self.impl.get(state, dict_)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1086: in get
+    value = self._fire_loader_callables(state, key, passive)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1116: in _fire_loader_callables
+    return state._load_expired(state, passive)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\state.py:803: in _load_expired
+    self.manager.expired_attribute_loader(self, toload, passive)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:1670: in load_scalar_attributes
+    result = load_on_ident(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:509: in load_on_ident
+    return load_on_pk_identity(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:694: in load_on_pk_identity
+    session.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2351: in execute
+    return self._execute_internal(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2236: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\context.py:293: in orm_execute_statement
+    result = conn.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1418: in execute
+    return meth(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\sql\elements.py:515: in _execute_on_connection
+    return connection._execute_clauseelement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1640: in _execute_clauseelement
+    ret = self._execute_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:2356: in _handle_dbapi_exception
+    raise exc_info[1].with_traceback(exc_info[2])
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:147: in execute
+    self._adapt_connection._handle_exception(error)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:298: in _handle_exception
+    raise error
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:124: in execute
+    _cursor = self.await_(self._connection.cursor())
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+awaitable = <aiosqlite.context.Result object at 0x0000024B5AE3C730>
+
+    def await_only(awaitable: Awaitable[_T]) -> _T:
+        """Awaits an async function in a sync method.
+    
+        The sync method must be inside a :func:`greenlet_spawn` context.
+        :func:`await_only` calls cannot be nested.
+    
+        :param awaitable: The coroutine to call.
+    
+        """
+        # this is called in the context greenlet while running fn
+        current = getcurrent()
+        if not getattr(current, "__sqlalchemy_greenlet_provider__", False):
+            _safe_cancel_awaitable(awaitable)
+    
+>           raise exc.MissingGreenlet(
+                "greenlet_spawn has not been called; can't call await_only() "
+                "here. Was IO attempted in an unexpected place?"
+            )
+E           sqlalchemy.exc.MissingGreenlet: greenlet_spawn has not been called; can't call await_only() here. Was IO attempted in an unexpected place? (Background on this error at: https://sqlalche.me/e/20/xd2s)
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:123: MissingGreenlet
+_ test_inflight_import_uses_current_persisted_authority_before_publication[validation-sessions_revoked] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000024B5B6DF590>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000024B5BE82CD0>
+test_settings = Settings(app_env='development', app_debug=True, app_version='1.0.0', app_revision='unknown', expected_database_schema_...me='qrcode_v1', whatsapp_otp_template_name='', whatsapp_otp_template_language='en_US', whatsapp_delivery_concurrency=4)
+phase = 'validation', transition = 'sessions_revoked'
+
+    @pytest.mark.parametrize("phase,transition", CASES)
+    async def test_inflight_import_uses_current_persisted_authority_before_publication(
+        db_session, monkeypatch, test_settings, phase, transition,
+    ):
+>       context = await prepare_authority_import(
+            db_session, monkeypatch, test_settings, transition, phase,
+        )
+
+tests\unit\presentation\test_document_import_authority.py:41: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\unit\presentation\document_import_authority_fixture.py:100: in prepare_authority_import
+    qr_id=qr.id, qr_hash=qr.token_hash, transition=transition,
+          ^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:566: in __get__
+    return self.impl.get(state, dict_)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1086: in get
+    value = self._fire_loader_callables(state, key, passive)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1116: in _fire_loader_callables
+    return state._load_expired(state, passive)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\state.py:803: in _load_expired
+    self.manager.expired_attribute_loader(self, toload, passive)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:1670: in load_scalar_attributes
+    result = load_on_ident(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:509: in load_on_ident
+    return load_on_pk_identity(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:694: in load_on_pk_identity
+    session.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2351: in execute
+    return self._execute_internal(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2236: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\context.py:293: in orm_execute_statement
+    result = conn.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1418: in execute
+    return meth(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\sql\elements.py:515: in _execute_on_connection
+    return connection._execute_clauseelement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1640: in _execute_clauseelement
+    ret = self._execute_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:2356: in _handle_dbapi_exception
+    raise exc_info[1].with_traceback(exc_info[2])
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:147: in execute
+    self._adapt_connection._handle_exception(error)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:298: in _handle_exception
+    raise error
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:124: in execute
+    _cursor = self.await_(self._connection.cursor())
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+awaitable = <aiosqlite.context.Result object at 0x0000024B5B6A4500>
+
+    def await_only(awaitable: Awaitable[_T]) -> _T:
+        """Awaits an async function in a sync method.
+    
+        The sync method must be inside a :func:`greenlet_spawn` context.
+        :func:`await_only` calls cannot be nested.
+    
+        :param awaitable: The coroutine to call.
+    
+        """
+        # this is called in the context greenlet while running fn
+        current = getcurrent()
+        if not getattr(current, "__sqlalchemy_greenlet_provider__", False):
+            _safe_cancel_awaitable(awaitable)
+    
+>           raise exc.MissingGreenlet(
+                "greenlet_spawn has not been called; can't call await_only() "
+                "here. Was IO attempted in an unexpected place?"
+            )
+E           sqlalchemy.exc.MissingGreenlet: greenlet_spawn has not been called; can't call await_only() here. Was IO attempted in an unexpected place? (Background on this error at: https://sqlalche.me/e/20/xd2s)
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:123: MissingGreenlet
+_ test_inflight_import_uses_current_persisted_authority_before_publication[validation-assignment_revoked] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000024B5B60A890>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000024B5B6DE3D0>
+test_settings = Settings(app_env='development', app_debug=True, app_version='1.0.0', app_revision='unknown', expected_database_schema_...me='qrcode_v1', whatsapp_otp_template_name='', whatsapp_otp_template_language='en_US', whatsapp_delivery_concurrency=4)
+phase = 'validation', transition = 'assignment_revoked'
+
+    @pytest.mark.parametrize("phase,transition", CASES)
+    async def test_inflight_import_uses_current_persisted_authority_before_publication(
+        db_session, monkeypatch, test_settings, phase, transition,
+    ):
+>       context = await prepare_authority_import(
+            db_session, monkeypatch, test_settings, transition, phase,
+        )
+
+tests\unit\presentation\test_document_import_authority.py:41: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\unit\presentation\document_import_authority_fixture.py:100: in prepare_authority_import
+    qr_id=qr.id, qr_hash=qr.token_hash, transition=transition,
+          ^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:566: in __get__
+    return self.impl.get(state, dict_)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1086: in get
+    value = self._fire_loader_callables(state, key, passive)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1116: in _fire_loader_callables
+    return state._load_expired(state, passive)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\state.py:803: in _load_expired
+    self.manager.expired_attribute_loader(self, toload, passive)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:1670: in load_scalar_attributes
+    result = load_on_ident(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:509: in load_on_ident
+    return load_on_pk_identity(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:694: in load_on_pk_identity
+    session.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2351: in execute
+    return self._execute_internal(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2236: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\context.py:293: in orm_execute_statement
+    result = conn.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1418: in execute
+    return meth(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\sql\elements.py:515: in _execute_on_connection
+    return connection._execute_clauseelement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1640: in _execute_clauseelement
+    ret = self._execute_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:2356: in _handle_dbapi_exception
+    raise exc_info[1].with_traceback(exc_info[2])
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:147: in execute
+    self._adapt_connection._handle_exception(error)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:298: in _handle_exception
+    raise error
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:124: in execute
+    _cursor = self.await_(self._connection.cursor())
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+awaitable = <aiosqlite.context.Result object at 0x0000024B5B02E710>
+
+    def await_only(awaitable: Awaitable[_T]) -> _T:
+        """Awaits an async function in a sync method.
+    
+        The sync method must be inside a :func:`greenlet_spawn` context.
+        :func:`await_only` calls cannot be nested.
+    
+        :param awaitable: The coroutine to call.
+    
+        """
+        # this is called in the context greenlet while running fn
+        current = getcurrent()
+        if not getattr(current, "__sqlalchemy_greenlet_provider__", False):
+            _safe_cancel_awaitable(awaitable)
+    
+>           raise exc.MissingGreenlet(
+                "greenlet_spawn has not been called; can't call await_only() "
+                "here. Was IO attempted in an unexpected place?"
+            )
+E           sqlalchemy.exc.MissingGreenlet: greenlet_spawn has not been called; can't call await_only() here. Was IO attempted in an unexpected place? (Background on this error at: https://sqlalche.me/e/20/xd2s)
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:123: MissingGreenlet
+_ test_inflight_import_uses_current_persisted_authority_before_publication[validation-group_deleted] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000024B5ADB79D0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000024B5ADB7510>
+test_settings = Settings(app_env='development', app_debug=True, app_version='1.0.0', app_revision='unknown', expected_database_schema_...me='qrcode_v1', whatsapp_otp_template_name='', whatsapp_otp_template_language='en_US', whatsapp_delivery_concurrency=4)
+phase = 'validation', transition = 'group_deleted'
+
+    @pytest.mark.parametrize("phase,transition", CASES)
+    async def test_inflight_import_uses_current_persisted_authority_before_publication(
+        db_session, monkeypatch, test_settings, phase, transition,
+    ):
+>       context = await prepare_authority_import(
+            db_session, monkeypatch, test_settings, transition, phase,
+        )
+
+tests\unit\presentation\test_document_import_authority.py:41: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\unit\presentation\document_import_authority_fixture.py:100: in prepare_authority_import
+    qr_id=qr.id, qr_hash=qr.token_hash, transition=transition,
+          ^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:566: in __get__
+    return self.impl.get(state, dict_)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1086: in get
+    value = self._fire_loader_callables(state, key, passive)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1116: in _fire_loader_callables
+    return state._load_expired(state, passive)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\state.py:803: in _load_expired
+    self.manager.expired_attribute_loader(self, toload, passive)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:1670: in load_scalar_attributes
+    result = load_on_ident(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:509: in load_on_ident
+    return load_on_pk_identity(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:694: in load_on_pk_identity
+    session.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2351: in execute
+    return self._execute_internal(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2236: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\context.py:293: in orm_execute_statement
+    result = conn.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1418: in execute
+    return meth(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\sql\elements.py:515: in _execute_on_connection
+    return connection._execute_clauseelement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1640: in _execute_clauseelement
+    ret = self._execute_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:2356: in _handle_dbapi_exception
+    raise exc_info[1].with_traceback(exc_info[2])
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:147: in execute
+    self._adapt_connection._handle_exception(error)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:298: in _handle_exception
+    raise error
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:124: in execute
+    _cursor = self.await_(self._connection.cursor())
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+awaitable = <aiosqlite.context.Result object at 0x0000024B5A9B3ED0>
+
+    def await_only(awaitable: Awaitable[_T]) -> _T:
+        """Awaits an async function in a sync method.
+    
+        The sync method must be inside a :func:`greenlet_spawn` context.
+        :func:`await_only` calls cannot be nested.
+    
+        :param awaitable: The coroutine to call.
+    
+        """
+        # this is called in the context greenlet while running fn
+        current = getcurrent()
+        if not getattr(current, "__sqlalchemy_greenlet_provider__", False):
+            _safe_cancel_awaitable(awaitable)
+    
+>           raise exc.MissingGreenlet(
+                "greenlet_spawn has not been called; can't call await_only() "
+                "here. Was IO attempted in an unexpected place?"
+            )
+E           sqlalchemy.exc.MissingGreenlet: greenlet_spawn has not been called; can't call await_only() here. Was IO attempted in an unexpected place? (Background on this error at: https://sqlalche.me/e/20/xd2s)
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:123: MissingGreenlet
+=========================== short test summary info ===========================
+FAILED tests/unit/presentation/test_document_import_authority.py::test_inflight_import_uses_current_persisted_authority_before_publication[put-unchanged]
+FAILED tests/unit/presentation/test_document_import_authority.py::test_inflight_import_uses_current_persisted_authority_before_publication[put-profile_refresh]
+FAILED tests/unit/presentation/test_document_import_authority.py::test_inflight_import_uses_current_persisted_authority_before_publication[put-legacy_no_state]
+FAILED tests/unit/presentation/test_document_import_authority.py::test_inflight_import_uses_current_persisted_authority_before_publication[put-manager_unassigned]
+FAILED tests/unit/presentation/test_document_import_authority.py::test_inflight_import_uses_current_persisted_authority_before_publication[put-group_archived]
+FAILED tests/unit/presentation/test_document_import_authority.py::test_inflight_import_uses_current_persisted_authority_before_publication[put-reduced_superadmin]
+FAILED tests/unit/presentation/test_document_import_authority.py::test_inflight_import_uses_current_persisted_authority_before_publication[put-agency_changed]
+FAILED tests/unit/presentation/test_document_import_authority.py::test_inflight_import_uses_current_persisted_authority_before_publication[put-assignment_revoked]
+FAILED tests/unit/presentation/test_document_import_authority.py::test_inflight_import_uses_current_persisted_authority_before_publication[put-credential_reset]
+FAILED tests/unit/presentation/test_document_import_authority.py::test_inflight_import_uses_current_persisted_authority_before_publication[put-group_deleted]
+FAILED tests/unit/presentation/test_document_import_authority.py::test_inflight_import_uses_current_persisted_authority_before_publication[put-inactive]
+FAILED tests/unit/presentation/test_document_import_authority.py::test_inflight_import_uses_current_persisted_authority_before_publication[put-owned_group_revoked]
+FAILED tests/unit/presentation/test_document_import_authority.py::test_inflight_import_uses_current_persisted_authority_before_publication[put-role_changed]
+FAILED tests/unit/presentation/test_document_import_authority.py::test_inflight_import_uses_current_persisted_authority_before_publication[put-sessions_revoked]
+FAILED tests/unit/presentation/test_document_import_authority.py::test_inflight_import_uses_current_persisted_authority_before_publication[validation-unchanged]
+FAILED tests/unit/presentation/test_document_import_authority.py::test_inflight_import_uses_current_persisted_authority_before_publication[validation-profile_refresh]
+FAILED tests/unit/presentation/test_document_import_authority.py::test_inflight_import_uses_current_persisted_authority_before_publication[validation-legacy_no_state]
+FAILED tests/unit/presentation/test_document_import_authority.py::test_inflight_import_uses_current_persisted_authority_before_publication[validation-sessions_revoked]
+FAILED tests/unit/presentation/test_document_import_authority.py::test_inflight_import_uses_current_persisted_authority_before_publication[validation-assignment_revoked]
+FAILED tests/unit/presentation/test_document_import_authority.py::test_inflight_import_uses_current_persisted_authority_before_publication[validation-group_deleted]
+20 failed in 14.97s

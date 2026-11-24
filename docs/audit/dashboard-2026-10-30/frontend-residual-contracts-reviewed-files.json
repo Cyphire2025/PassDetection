@@ -1,0 +1,48 @@
+{
+  "recorded_at": "2026-10-31T06:09:52.297196+00:00",
+  "records": [
+    {
+      "path": "frontend/lib/api/endpoints.ts",
+      "sha256": "259dbe7b67f391ea7268abab003c4d91439bcf99dd13ca0b70a40508cd6a6385",
+      "physical_lines": 463,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Read all 463 physical lines: returning/company/MCP/health/dashboard/search/notifications/auth/agencies/users/upload links/WhatsApp/email/passports/documents/rename/ECR/tour/rooming/menu/admin/analytics/audit endpoint families. Catalog contains same-origin relative URL strings and typed URL builders, no token persistence, provider fetch, authorization decision or runtime output serialization. Actual consumers returningApi/publicUploadLinkApi/passportsApi and document-distribution use these builders. Encoding differences are not by themselves evidence of an authorization defect; no new defect reproduced. Coherent registry retained rather than split for size alone. Two retired welcome URL builders have name-reference hits only in declarations; pending compatibility/whole-program caller check before any removal, not a security finding.",
+      "verification": "Read-only full physical source and bounded immediate consumer/response trace; no app tests/builds or API/provider calls performed for this review."
+    },
+    {
+      "path": "frontend/types/passport.types.ts",
+      "sha256": "7393b6de3b7cce04ba339f0e53cfd46111f9acee551015aa217ce08ce6ea43e2",
+      "physical_lines": 301,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Read all 301 physical lines: image/status/extraction unions, flexible extracted fields, validation/provenance/AI metadata, conflicts/verification/confidence, private submission fields, approval types, group summary and upload link contracts. Traced PassportSubmission use in passport review model and stable passports facade, and compared submission fields/nullability to actual backend PassportSubmissionResponse excerpt. MRZ/legacy issuing-country fields remain persisted/read compatibility data, not evidence of an OCR runtime; retained. Type declarations do not enforce authorization or validate runtime payloads. No demonstrated defect found; no type/catalog split needed solely for line count.",
+      "verification": "Read-only full physical source and bounded immediate consumer/response trace; no app tests/builds or API/provider calls performed for this review."
+    }
+  ],
+  "supporting_traces": [
+    {
+      "path": "frontend/features/passports/api/public-upload-link.api.ts",
+      "scope": "full physical supporting read; current main source record already exists, no extra coverage credited here"
+    },
+    {
+      "path": "frontend/features/passports/components/passport-review-model.ts",
+      "scope": "focused supporting excerpt lines1-85; no whole-file review credited by this pass"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/passport_schemas.py",
+      "scope": "focused supporting excerpt lines488-592 including PassportSubmissionResponse and view-item fields; no whole-file review credited"
+    }
+  ],
+  "remaining_followups": [
+    {
+      "path": "frontend/lib/api/endpoints.ts",
+      "kind": "cleanup-candidate",
+      "finding": "travellerWelcomePreview/travellerWelcomeSend show declaration-only direct/literal-name references in frontend source. No removal during freeze; whole-program alias/compatibility and MCP binding check still required.",
+      "status": "not-proven-runtime-bug"
+    }
+  ],
+  "runtime_changes": false
+}

@@ -1,0 +1,53 @@
+{
+  "status": "coherent-composer-batch-frozen-and-affected-checks-pass",
+  "runtime_owners": 13,
+  "sizes": {
+    "controller_before": 363,
+    "controller_after": 77,
+    "view_before": 381,
+    "view_after": 47,
+    "audience_before": 313,
+    "audience_after": 168,
+    "largest_current_owner": 203,
+    "preview_complexity_after_additional_extraction": 25
+  },
+  "measured_improvement": {
+    "scope": "Actual useMessageComposer renderHook,512eligible recipients and reverse selection order; Proxy counts actual indexed reads of the supplied selection array. JSON serialization remains in the count.",
+    "before_indexed_reads": 131840,
+    "after_asserted_upper_bound": 2048,
+    "same_output": "Exact original audience order, same original selectedIds array identity and send-ready state asserted.",
+    "complexity": "Repeated array membership O(N*M) becomes O(N+M) expected selection membership work with Set; extra O(M)references. No production latency/frame-rate benchmark claim."
+  },
+  "preserved": "36moved declaration statements,3retained parent declarations,32public return properties and public state interface exact; image URL cleanup effect exact. Four original JSX subtrees retain text, attributes and handlers. Field and draft logic are pure owners; preview query options, cancellation/debounce/key and send admission/recovery/idempotent request payloads unchanged. Hook declarations are unconditionally composed; router/activity context ownership moves explicitly.",
+  "checks": {
+    "first_coherent_stage": "61cases across4files passed plus scopedTypeScript/lint before pure field/draft follow-through.",
+    "final_changed_path": "16actual composer cases passed after field/draft extraction;45unchanged idempotency/audience/document controls from prior coherent run remain separate evidence, not recounted. Total61distinct affected cases across the tranche.",
+    "current_node_contracts": "17/17 across3files, original business assertions retained and read helpers follow actual wired owners.",
+    "current_types": "WhatsApp scoped TypeScript passes; one accidentally omitted type-only WhatsAppMessageDraft import was restored, failed log retained separately. No runtime change for that correction.",
+    "current_lint": "13owners/newtest/sourcecontracts pass; final type-only import owner lint supplemented.",
+    "budgets": "Coherent composer12+upload-helper10 merge445\u2192466; final pure draft adds1owner and tightens prior preview cap/complexity, current467allpass. No old ceiling raised.",
+    "final_source": "All13hashes match current direct extraction proof. Original11owner origin and intermediate measurements remain historical. No broad frontend suite/build triggered by these edits."
+  },
+  "open_scope": "Remaining WhatsApp documents/recipient views and data ownership/polling review continue; final combined current-source production build/browser qualification remains open. No provider sends, publish/deploy or new VPS setup.",
+  "receipts_sha256": {
+    "message-composer-membership-before.json": "a40e7fa7f93e9e667eb51dcdbcacecfabd8f8d28f8f8bbd77d04318925a02420",
+    "message-composer-membership-after.json": "b173b556f6b1b0eafd7e418838f998cf1aeb6f3bd531d6f01418fbbd2475f2cf",
+    "message-composer-hook-extraction-origin.json": "a1df097ca507e5814f2e190a9ec9632985ef274891d39fcd70fd0dcd2278fdfd",
+    "message-composer-view-extraction-origin.json": "07fc455af81b2e2b0decdca3edb5d440250e474cd144ecb0575e9a0d7967bebe",
+    "message-composer-format-equivalence.json": "e1683271820af0b1ff6ad47d70cd51f9d21dd6d319b4ecec3ad50840c1698bf4",
+    "message-composer-final-format-equivalence.json": "9171d5fee4a49401d559358d20413cdaa5fedb36b1d81bbbfa28fcab603cff56",
+    "message-composer-complete-format-equivalence.json": "ede87818bbb152d9daeb792493dd49a4987af37a4764efcb5ce8138d8616d35e",
+    "message-composer-current-extraction-proof.json": "8344c933b6a639b1e25027bffd0ef9a0f35da1aa4a3b376781c4979b83795b01",
+    "message-composer-first-unit.json": "0157ded1a2c28275354d486d6230cf224b6a6aa8078dffef03651c87f53c757f",
+    "message-composer-complete-unit.json": "b8321e06679eb3b9a1349aa2f0c5345e2abb29d547395976d21c094aab2831e8",
+    "message-composer-current-types.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "message-composer-complete-lint.txt": "75d7f0d7cc69f3c747ee7897c99ecd7731dc589317bc664ca3a68ef2502a2958",
+    "message-composer-preview-current-lint.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "message-composer-complete-node-contracts.txt": "d91fe5dd735bb5dae715302ca176666b865f4e0ace52c50126a91e8048e42862",
+    "message-composer-current-budget-candidates.json": "3ed0acf1747cd2bb79ce404841f8df3ba7cf6fc930156efea2d1bf83e5f34867",
+    "message-composer-final-budget-integration.json": "d1d7e7f44a83280b8fd67a25bf2fd0fbeec33625cb623caf4fbae81e8a538581",
+    "composer-upload-helper-budget-integration.json": "6f5e34e1b255f60638f40e01e4ae225fcb252da5d75251dd540ddb45202a347c",
+    "message-composer-current-budgets.txt": "7fca298bcceaf34dc8e74b9aef6a826d2268efd270476fb98eb4e490a0725869",
+    "message-composer-reviewed-files.json": "b836599656c2a6f9e7089bb3c8160fbc0aa26bcff15708fc1afbc410fbb890c8"
+  }
+}

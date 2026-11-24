@@ -1,0 +1,607 @@
+All 12 collected tests are assigned exactly once across 4 shards.
+{"phase": "building", "family": "ownership", "container_id": "0000000000000000000000000000000000000000000000000000000000000001"}
+{"phase": "building", "family": "ownership", "container_id": "0000000000000000000000000000000000000000000000000000000000000001"}
+{"phase": "building", "family": "validation", "container_id": "0000000000000000000000000000000000000000000000000000000000000002"}
+{"phase": "building", "family": "ownership", "container_id": "0000000000000000000000000000000000000000000000000000000000000001"}
+{"phase": "building", "family": "validation", "container_id": "0000000000000000000000000000000000000000000000000000000000000002"}
+{"phase": "building", "family": "ownership", "container_id": "0000000000000000000000000000000000000000000000000000000000000001"}
+{"phase": "building", "family": "validation", "container_id": "0000000000000000000000000000000000000000000000000000000000000002"}
+............................................................................................................................................................s...................................................................................................................................s......................................ss...........................................s....................................................................................E........EEEEEEEE...E..EEE............................................................E...E...................E..........................................................................................................................................................................E...........................................EEEEEEEEEEEEEEEEEEE..E..................................................................
+======================================================================
+ERROR: test_current_contract_and_packaged_helper_share_exact_policy (test_release_companies_traveller_contract.CompanyTravellerReleaseTests.test_current_contract_and_packaged_helper_share_exact_policy)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_release_companies_traveller_contract.py", line 38, in test_current_contract_and_packaged_helper_share_exact_policy
+    verify_source_defaults()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 60, in verify_source_defaults
+    raise ValueError(f"{filename}: schema default differs from release manifest")
+ValueError: .env.example: schema default differs from release manifest
+
+======================================================================
+ERROR: test_actual_helper_start_refuses_unrelated_live_host_overcommit (test_release_current.CurrentReleaseTests.test_actual_helper_start_refuses_unrelated_live_host_overcommit)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_release_current.py", line 347, in test_actual_helper_start_refuses_unrelated_live_host_overcommit
+    self.release.prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 180, in prepare
+    super().prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_traveller_whatsapp.py", line 334, in prepare
+    config = self.preflight()
+             ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 291, in preflight
+    verify_source_defaults(self.root)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 60, in verify_source_defaults
+    raise ValueError(f"{filename}: schema default differs from release manifest")
+ValueError: .env.example: schema default differs from release manifest
+
+======================================================================
+ERROR: test_actual_outer_lifecycle_orders_fence_archive_storage_and_migration (test_release_current.CurrentReleaseTests.test_actual_outer_lifecycle_orders_fence_archive_storage_and_migration)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_release_current.py", line 323, in test_actual_outer_lifecycle_orders_fence_archive_storage_and_migration
+    self.release.prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 180, in prepare
+    super().prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_traveller_whatsapp.py", line 334, in prepare
+    config = self.preflight()
+             ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 291, in preflight
+    verify_source_defaults(self.root)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 60, in verify_source_defaults
+    raise ValueError(f"{filename}: schema default differs from release manifest")
+ValueError: .env.example: schema default differs from release manifest
+
+======================================================================
+ERROR: test_actual_stale_env_is_not_masked_by_candidate_override (test_release_current.CurrentReleaseTests.test_actual_stale_env_is_not_masked_by_candidate_override)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_release_current.py", line 460, in test_actual_stale_env_is_not_masked_by_candidate_override
+    self.release.prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 180, in prepare
+    super().prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_traveller_whatsapp.py", line 334, in prepare
+    config = self.preflight()
+             ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 291, in preflight
+    verify_source_defaults(self.root)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 60, in verify_source_defaults
+    raise ValueError(f"{filename}: schema default differs from release manifest")
+ValueError: .env.example: schema default differs from release manifest
+
+======================================================================
+ERROR: test_archive_failure_keeps_resource_fence_and_never_activates (test_release_current.CurrentReleaseTests.test_archive_failure_keeps_resource_fence_and_never_activates)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_release_current.py", line 337, in test_archive_failure_keeps_resource_fence_and_never_activates
+    self.release.prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 180, in prepare
+    super().prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_traveller_whatsapp.py", line 334, in prepare
+    config = self.preflight()
+             ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 291, in preflight
+    verify_source_defaults(self.root)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 60, in verify_source_defaults
+    raise ValueError(f"{filename}: schema default differs from release manifest")
+ValueError: .env.example: schema default differs from release manifest
+
+======================================================================
+ERROR: test_backup_precedes_role_provision_and_migration_then_all_eight_workers (test_release_current.CurrentReleaseTests.test_backup_precedes_role_provision_and_migration_then_all_eight_workers)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_release_current.py", line 375, in test_backup_precedes_role_provision_and_migration_then_all_eight_workers
+    self.release.prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 180, in prepare
+    super().prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_traveller_whatsapp.py", line 334, in prepare
+    config = self.preflight()
+             ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 291, in preflight
+    verify_source_defaults(self.root)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 60, in verify_source_defaults
+    raise ValueError(f"{filename}: schema default differs from release manifest")
+ValueError: .env.example: schema default differs from release manifest
+
+======================================================================
+ERROR: test_bad_backup_never_provisions_or_activates (test_release_current.CurrentReleaseTests.test_bad_backup_never_provisions_or_activates)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_release_current.py", line 422, in test_bad_backup_never_provisions_or_activates
+    self.release.prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 180, in prepare
+    super().prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_traveller_whatsapp.py", line 334, in prepare
+    config = self.preflight()
+             ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 291, in preflight
+    verify_source_defaults(self.root)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 60, in verify_source_defaults
+    raise ValueError(f"{filename}: schema default differs from release manifest")
+ValueError: .env.example: schema default differs from release manifest
+
+======================================================================
+ERROR: test_failed_provision_never_migrates_or_restarts (test_release_current.CurrentReleaseTests.test_failed_provision_never_migrates_or_restarts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_release_current.py", line 450, in test_failed_provision_never_migrates_or_restarts
+    self.release.prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 180, in prepare
+    super().prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_traveller_whatsapp.py", line 334, in prepare
+    config = self.preflight()
+             ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 291, in preflight
+    verify_source_defaults(self.root)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 60, in verify_source_defaults
+    raise ValueError(f"{filename}: schema default differs from release manifest")
+ValueError: .env.example: schema default differs from release manifest
+
+======================================================================
+ERROR: test_maintenance_target_drift_prevents_backup_provision_and_restart (test_release_current.CurrentReleaseTests.test_maintenance_target_drift_prevents_backup_provision_and_restart)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_release_current.py", line 531, in test_maintenance_target_drift_prevents_backup_provision_and_restart
+    self.release.prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 180, in prepare
+    super().prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_traveller_whatsapp.py", line 334, in prepare
+    config = self.preflight()
+             ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 291, in preflight
+    verify_source_defaults(self.root)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 60, in verify_source_defaults
+    raise ValueError(f"{filename}: schema default differs from release manifest")
+ValueError: .env.example: schema default differs from release manifest
+
+======================================================================
+ERROR: test_privileged_candidate_refused_before_backup_or_activation (test_release_current.CurrentReleaseTests.test_privileged_candidate_refused_before_backup_or_activation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_release_current.py", line 396, in test_privileged_candidate_refused_before_backup_or_activation
+    self.release.prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 180, in prepare
+    super().prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_traveller_whatsapp.py", line 334, in prepare
+    config = self.preflight()
+             ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 291, in preflight
+    verify_source_defaults(self.root)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 60, in verify_source_defaults
+    raise ValueError(f"{filename}: schema default differs from release manifest")
+ValueError: .env.example: schema default differs from release manifest
+
+======================================================================
+ERROR: test_retry_after_new_backend_and_failed_frontend_preserves_new_network_binding (test_release_current.CurrentReleaseTests.test_retry_after_new_backend_and_failed_frontend_preserves_new_network_binding)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_release_current.py", line 359, in test_retry_after_new_backend_and_failed_frontend_preserves_new_network_binding
+    self.release.prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 180, in prepare
+    super().prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_traveller_whatsapp.py", line 334, in prepare
+    config = self.preflight()
+             ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 291, in preflight
+    verify_source_defaults(self.root)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 60, in verify_source_defaults
+    raise ValueError(f"{filename}: schema default differs from release manifest")
+ValueError: .env.example: schema default differs from release manifest
+
+======================================================================
+ERROR: test_target_schema_retry_requires_the_preserved_pre_migration_archive (test_release_current.CurrentReleaseTests.test_target_schema_retry_requires_the_preserved_pre_migration_archive)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_release_current.py", line 431, in test_target_schema_retry_requires_the_preserved_pre_migration_archive
+    self.release.prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 180, in prepare
+    super().prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_traveller_whatsapp.py", line 334, in prepare
+    config = self.preflight()
+             ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 291, in preflight
+    verify_source_defaults(self.root)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 60, in verify_source_defaults
+    raise ValueError(f"{filename}: schema default differs from release manifest")
+ValueError: .env.example: schema default differs from release manifest
+
+======================================================================
+ERROR: test_target_schema_without_preserved_archive_refuses_retry (test_release_current.CurrentReleaseTests.test_target_schema_without_preserved_archive_refuses_retry)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_release_current.py", line 442, in test_target_schema_without_preserved_archive_refuses_retry
+    self.release.prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 180, in prepare
+    super().prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_traveller_whatsapp.py", line 334, in prepare
+    config = self.preflight()
+             ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 291, in preflight
+    verify_source_defaults(self.root)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 60, in verify_source_defaults
+    raise ValueError(f"{filename}: schema default differs from release manifest")
+ValueError: .env.example: schema default differs from release manifest
+
+======================================================================
+ERROR: test_current_source_and_rendered_configuration_agree (test_release_manifest.ReleaseManifestTests.test_current_source_and_rendered_configuration_agree)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_release_manifest.py", line 25, in test_current_source_and_rendered_configuration_agree
+    verify_source_defaults()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 60, in verify_source_defaults
+    raise ValueError(f"{filename}: schema default differs from release manifest")
+ValueError: .env.example: schema default differs from release manifest
+
+======================================================================
+ERROR: test_current_manifest_and_defaults_bind_exact_one_migration (test_release_mcp_admin_approval_contract.AdminApprovalContractTests.test_current_manifest_and_defaults_bind_exact_one_migration)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_release_mcp_admin_approval_contract.py", line 60, in test_current_manifest_and_defaults_bind_exact_one_migration
+    verify_source_defaults(self.root)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 60, in verify_source_defaults
+    raise ValueError(f"{filename}: schema default differs from release manifest")
+ValueError: .env.example: schema default differs from release manifest
+
+======================================================================
+ERROR: test_current_manifest_and_defaults_bind_exact_one_migration (test_release_mcp_direct_devices_contract.DirectDeviceContractTests.test_current_manifest_and_defaults_bind_exact_one_migration)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_release_mcp_direct_devices_contract.py", line 62, in test_current_manifest_and_defaults_bind_exact_one_migration
+    verify_source_defaults(self.root)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 60, in verify_source_defaults
+    raise ValueError(f"{filename}: schema default differs from release manifest")
+ValueError: .env.example: schema default differs from release manifest
+
+======================================================================
+ERROR: test_exact_single_migration_and_packaged_helper_policy (test_release_travel_tracker_contract.TrackerContractTests.test_exact_single_migration_and_packaged_helper_policy)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_release_travel_tracker_contract.py", line 50, in test_exact_single_migration_and_packaged_helper_policy
+    verify_source_defaults()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 60, in verify_source_defaults
+    raise ValueError(f"{filename}: schema default differs from release manifest")
+ValueError: .env.example: schema default differs from release manifest
+
+======================================================================
+ERROR: test_active_maintained_provider_requires_exact_readonly_identity_mount (test_storage_release.StorageReleaseTests.test_active_maintained_provider_requires_exact_readonly_identity_mount)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_storage_release.py", line 336, in test_active_maintained_provider_requires_exact_readonly_identity_mount
+    self.release.prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 180, in prepare
+    super().prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_traveller_whatsapp.py", line 334, in prepare
+    config = self.preflight()
+             ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 291, in preflight
+    verify_source_defaults(self.root)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 60, in verify_source_defaults
+    raise ValueError(f"{filename}: schema default differs from release manifest")
+ValueError: .env.example: schema default differs from release manifest
+
+======================================================================
+ERROR: test_backup_then_provision_then_fence_copy_stage_stop_and_provider_cutover (test_storage_release.StorageReleaseTests.test_backup_then_provision_then_fence_copy_stage_stop_and_provider_cutover)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_storage_release.py", line 100, in test_backup_then_provision_then_fence_copy_stage_stop_and_provider_cutover
+    self.release.prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 180, in prepare
+    super().prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_traveller_whatsapp.py", line 334, in prepare
+    config = self.preflight()
+             ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 291, in preflight
+    verify_source_defaults(self.root)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 60, in verify_source_defaults
+    raise ValueError(f"{filename}: schema default differs from release manifest")
+ValueError: .env.example: schema default differs from release manifest
+
+======================================================================
+ERROR: test_copy_failure_restarts_exact_old_processes_and_preserves_both_volumes (test_storage_release.StorageReleaseTests.test_copy_failure_restarts_exact_old_processes_and_preserves_both_volumes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_storage_release.py", line 217, in test_copy_failure_restarts_exact_old_processes_and_preserves_both_volumes
+    self.release.prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 180, in prepare
+    super().prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_traveller_whatsapp.py", line 334, in prepare
+    config = self.preflight()
+             ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 291, in preflight
+    verify_source_defaults(self.root)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 60, in verify_source_defaults
+    raise ValueError(f"{filename}: schema default differs from release manifest")
+ValueError: .env.example: schema default differs from release manifest
+
+======================================================================
+ERROR: test_copy_that_cannot_stop_keeps_old_writers_fenced_and_blocks_prepare (test_storage_release.StorageReleaseTests.test_copy_that_cannot_stop_keeps_old_writers_fenced_and_blocks_prepare)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_storage_release.py", line 243, in test_copy_that_cannot_stop_keeps_old_writers_fenced_and_blocks_prepare
+    self.release.prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 180, in prepare
+    super().prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_traveller_whatsapp.py", line 334, in prepare
+    config = self.preflight()
+             ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 291, in preflight
+    verify_source_defaults(self.root)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 60, in verify_source_defaults
+    raise ValueError(f"{filename}: schema default differs from release manifest")
+ValueError: .env.example: schema default differs from release manifest
+
+======================================================================
+ERROR: test_copy_timeout_stops_surviving_container_before_restoring_old_processes (test_storage_release.StorageReleaseTests.test_copy_timeout_stops_surviving_container_before_restoring_old_processes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_storage_release.py", line 228, in test_copy_timeout_stops_surviving_container_before_restoring_old_processes
+    self.release.prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 180, in prepare
+    super().prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_traveller_whatsapp.py", line 334, in prepare
+    config = self.preflight()
+             ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 291, in preflight
+    verify_source_defaults(self.root)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 60, in verify_source_defaults
+    raise ValueError(f"{filename}: schema default differs from release manifest")
+ValueError: .env.example: schema default differs from release manifest
+
+======================================================================
+ERROR: test_identity_tamper_stops_activation_before_backup_or_fencing (test_storage_release.StorageReleaseTests.test_identity_tamper_stops_activation_before_backup_or_fencing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_storage_release.py", line 166, in test_identity_tamper_stops_activation_before_backup_or_fencing
+    self.release.prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 180, in prepare
+    super().prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_traveller_whatsapp.py", line 334, in prepare
+    config = self.preflight()
+             ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 291, in preflight
+    verify_source_defaults(self.root)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 60, in verify_source_defaults
+    raise ValueError(f"{filename}: schema default differs from release manifest")
+ValueError: .env.example: schema default differs from release manifest
+
+======================================================================
+ERROR: test_maintained_provider_requires_matching_proof_and_does_not_copy_again (test_storage_release.StorageReleaseTests.test_maintained_provider_requires_matching_proof_and_does_not_copy_again)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_storage_release.py", line 318, in test_maintained_provider_requires_matching_proof_and_does_not_copy_again
+    self.release.prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 180, in prepare
+    super().prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_traveller_whatsapp.py", line 334, in prepare
+    config = self.preflight()
+             ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 291, in preflight
+    verify_source_defaults(self.root)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 60, in verify_source_defaults
+    raise ValueError(f"{filename}: schema default differs from release manifest")
+ValueError: .env.example: schema default differs from release manifest
+
+======================================================================
+ERROR: test_prepare_after_uncertain_copy_uses_a_fresh_isolated_target (test_storage_release.StorageReleaseTests.test_prepare_after_uncertain_copy_uses_a_fresh_isolated_target)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_storage_release.py", line 302, in test_prepare_after_uncertain_copy_uses_a_fresh_isolated_target
+    self.release.prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 180, in prepare
+    super().prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_traveller_whatsapp.py", line 334, in prepare
+    config = self.preflight()
+             ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 291, in preflight
+    verify_source_defaults(self.root)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 60, in verify_source_defaults
+    raise ValueError(f"{filename}: schema default differs from release manifest")
+ValueError: .env.example: schema default differs from release manifest
+
+======================================================================
+ERROR: test_prepare_preserves_running_provider_and_allocates_a_separate_target (test_storage_release.StorageReleaseTests.test_prepare_preserves_running_provider_and_allocates_a_separate_target)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_storage_release.py", line 87, in test_prepare_preserves_running_provider_and_allocates_a_separate_target
+    self.release.prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 180, in prepare
+    super().prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_traveller_whatsapp.py", line 334, in prepare
+    config = self.preflight()
+             ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 291, in preflight
+    verify_source_defaults(self.root)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 60, in verify_source_defaults
+    raise ValueError(f"{filename}: schema default differs from release manifest")
+ValueError: .env.example: schema default differs from release manifest
+
+======================================================================
+ERROR: test_prepared_target_volume_and_readonly_identity_mount_are_required (test_storage_release.StorageReleaseTests.test_prepared_target_volume_and_readonly_identity_mount_are_required)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_storage_release.py", line 180, in test_prepared_target_volume_and_readonly_identity_mount_are_required
+    self.release.prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 180, in prepare
+    super().prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_traveller_whatsapp.py", line 334, in prepare
+    config = self.preflight()
+             ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 291, in preflight
+    verify_source_defaults(self.root)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 60, in verify_source_defaults
+    raise ValueError(f"{filename}: schema default differs from release manifest")
+ValueError: .env.example: schema default differs from release manifest
+
+======================================================================
+ERROR: test_provider_operator_requires_no_chown_and_sets_real_readonly_mode (test_storage_release.StorageReleaseTests.test_provider_operator_requires_no_chown_and_sets_real_readonly_mode)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_storage_release.py", line 54, in test_provider_operator_requires_no_chown_and_sets_real_readonly_mode
+    self.release.prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 180, in prepare
+    super().prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_traveller_whatsapp.py", line 334, in prepare
+    config = self.preflight()
+             ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 291, in preflight
+    verify_source_defaults(self.root)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 60, in verify_source_defaults
+    raise ValueError(f"{filename}: schema default differs from release manifest")
+ValueError: .env.example: schema default differs from release manifest
+
+======================================================================
+ERROR: test_root_operator_assigns_provider_ownership_and_real_readonly_mode (test_storage_release.StorageReleaseTests.test_root_operator_assigns_provider_ownership_and_real_readonly_mode)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_storage_release.py", line 46, in test_root_operator_assigns_provider_ownership_and_real_readonly_mode
+    self.release.prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 180, in prepare
+    super().prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_traveller_whatsapp.py", line 334, in prepare
+    config = self.preflight()
+             ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 291, in preflight
+    verify_source_defaults(self.root)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 60, in verify_source_defaults
+    raise ValueError(f"{filename}: schema default differs from release manifest")
+ValueError: .env.example: schema default differs from release manifest
+
+======================================================================
+ERROR: test_source_admin_and_volume_mismatch_stop_before_fencing (test_storage_release.StorageReleaseTests.test_source_admin_and_volume_mismatch_stop_before_fencing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_storage_release.py", line 140, in test_source_admin_and_volume_mismatch_stop_before_fencing
+    self.release.prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 180, in prepare
+    super().prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_traveller_whatsapp.py", line 334, in prepare
+    config = self.preflight()
+             ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 291, in preflight
+    verify_source_defaults(self.root)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 60, in verify_source_defaults
+    raise ValueError(f"{filename}: schema default differs from release manifest")
+ValueError: .env.example: schema default differs from release manifest
+
+======================================================================
+ERROR: test_source_bucket_endpoint_and_credentials_mismatch_stop_before_fencing (test_storage_release.StorageReleaseTests.test_source_bucket_endpoint_and_credentials_mismatch_stop_before_fencing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_storage_release.py", line 129, in test_source_bucket_endpoint_and_credentials_mismatch_stop_before_fencing
+    self.release.prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 180, in prepare
+    super().prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_traveller_whatsapp.py", line 334, in prepare
+    config = self.preflight()
+             ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 291, in preflight
+    verify_source_defaults(self.root)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 60, in verify_source_defaults
+    raise ValueError(f"{filename}: schema default differs from release manifest")
+ValueError: .env.example: schema default differs from release manifest
+
+======================================================================
+ERROR: test_stage_start_failure_restarts_original_processes_without_copy (test_storage_release.StorageReleaseTests.test_stage_start_failure_restarts_original_processes_without_copy)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_storage_release.py", line 285, in test_stage_start_failure_restarts_original_processes_without_copy
+    self.release.prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 180, in prepare
+    super().prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_traveller_whatsapp.py", line 334, in prepare
+    config = self.preflight()
+             ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 291, in preflight
+    verify_source_defaults(self.root)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 60, in verify_source_defaults
+    raise ValueError(f"{filename}: schema default differs from release manifest")
+ValueError: .env.example: schema default differs from release manifest
+
+======================================================================
+ERROR: test_storage_service_network_and_live_network_must_match (test_storage_release.StorageReleaseTests.test_storage_service_network_and_live_network_must_match)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_storage_release.py", line 152, in test_storage_service_network_and_live_network_must_match
+    self.release.prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 180, in prepare
+    super().prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_traveller_whatsapp.py", line 334, in prepare
+    config = self.preflight()
+             ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 291, in preflight
+    verify_source_defaults(self.root)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 60, in verify_source_defaults
+    raise ValueError(f"{filename}: schema default differs from release manifest")
+ValueError: .env.example: schema default differs from release manifest
+
+======================================================================
+ERROR: test_unclean_stage_never_replaces_provider_and_restores_original_processes (test_storage_release.StorageReleaseTests.test_unclean_stage_never_replaces_provider_and_restores_original_processes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_storage_release.py", line 276, in test_unclean_stage_never_replaces_provider_and_restores_original_processes
+    self.release.prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 180, in prepare
+    super().prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_traveller_whatsapp.py", line 334, in prepare
+    config = self.preflight()
+             ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 291, in preflight
+    verify_source_defaults(self.root)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 60, in verify_source_defaults
+    raise ValueError(f"{filename}: schema default differs from release manifest")
+ValueError: .env.example: schema default differs from release manifest
+
+======================================================================
+ERROR: test_unclean_writer_prevents_stage_and_copy_then_restarts_original_processes (test_storage_release.StorageReleaseTests.test_unclean_writer_prevents_stage_and_copy_then_restarts_original_processes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_storage_release.py", line 266, in test_unclean_writer_prevents_stage_and_copy_then_restarts_original_processes
+    self.release.prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 180, in prepare
+    super().prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_traveller_whatsapp.py", line 334, in prepare
+    config = self.preflight()
+             ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 291, in preflight
+    verify_source_defaults(self.root)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 60, in verify_source_defaults
+    raise ValueError(f"{filename}: schema default differs from release manifest")
+ValueError: .env.example: schema default differs from release manifest
+
+======================================================================
+ERROR: test_unreadable_capacity_prevents_copy_and_restores_original_processes (test_storage_release.StorageReleaseTests.test_unreadable_capacity_prevents_copy_and_restores_original_processes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_storage_release.py", line 294, in test_unreadable_capacity_prevents_copy_and_restores_original_processes
+    self.release.prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 180, in prepare
+    super().prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_traveller_whatsapp.py", line 334, in prepare
+    config = self.preflight()
+             ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 291, in preflight
+    verify_source_defaults(self.root)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 60, in verify_source_defaults
+    raise ValueError(f"{filename}: schema default differs from release manifest")
+ValueError: .env.example: schema default differs from release manifest
+
+======================================================================
+ERROR: test_unverified_copy_report_never_replaces_provider (test_storage_release.StorageReleaseTests.test_unverified_copy_report_never_replaces_provider)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_storage_release.py", line 258, in test_unverified_copy_report_never_replaces_provider
+    self.release.prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 180, in prepare
+    super().prepare()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_traveller_whatsapp.py", line 334, in prepare
+    config = self.preflight()
+             ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_current.py", line 291, in preflight
+    verify_source_defaults(self.root)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 60, in verify_source_defaults
+    raise ValueError(f"{filename}: schema default differs from release manifest")
+ValueError: .env.example: schema default differs from release manifest
+
+----------------------------------------------------------------------
+Ran 870 tests in 63.562s
+
+FAILED (errors=37, skipped=5)

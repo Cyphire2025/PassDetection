@@ -1,0 +1,101 @@
+{
+  "status": "passed affected source checks; combined qualification remains open",
+  "reviewed_runtime_owners": 9,
+  "changed_runtime_owners": 4,
+  "new_actual_component_cases": 8,
+  "final_affected_cases": 21,
+  "final_test_files": 5,
+  "current_measurements": [
+    {
+      "path": "features/settings/components/whatsapp-template-settings-panel.tsx",
+      "baselineLines": 79,
+      "maximumLines": 80,
+      "baselineMaxFunctionComplexity": 7,
+      "maximumFunctionComplexity": 8
+    },
+    {
+      "path": "features/settings/components/whatsapp-template-name-field.tsx",
+      "baselineLines": 71,
+      "maximumLines": 80,
+      "baselineMaxFunctionComplexity": 18,
+      "maximumFunctionComplexity": 19
+    },
+    {
+      "path": "features/settings/components/whatsapp-template-save-feedback.tsx",
+      "baselineLines": 34,
+      "maximumLines": 40,
+      "baselineMaxFunctionComplexity": 8,
+      "maximumFunctionComplexity": 9
+    },
+    {
+      "path": "features/settings/hooks/use-whatsapp-template-settings.ts",
+      "baselineLines": 171,
+      "maximumLines": 180,
+      "baselineMaxFunctionComplexity": 16,
+      "maximumFunctionComplexity": 17
+    },
+    {
+      "path": "features/settings/components/appearance-settings.tsx",
+      "baselineLines": 185,
+      "maximumLines": 190,
+      "baselineMaxFunctionComplexity": 3,
+      "maximumFunctionComplexity": 4
+    },
+    {
+      "path": "features/settings/components/dashboard-settings-page.tsx",
+      "baselineLines": 176,
+      "maximumLines": 180,
+      "baselineMaxFunctionComplexity": 7,
+      "maximumFunctionComplexity": 7
+    },
+    {
+      "path": "features/settings/dashboard-preferences.ts",
+      "baselineLines": 66,
+      "maximumLines": 70,
+      "baselineMaxFunctionComplexity": 4,
+      "maximumFunctionComplexity": 5
+    },
+    {
+      "path": "features/settings/platform-settings-policy.ts",
+      "baselineLines": 67,
+      "maximumLines": 70,
+      "baselineMaxFunctionComplexity": 5,
+      "maximumFunctionComplexity": 6
+    },
+    {
+      "path": "features/settings/whatsapp-template-settings.ts",
+      "baselineLines": 46,
+      "maximumLines": 50,
+      "baselineMaxFunctionComplexity": 5,
+      "maximumFunctionComplexity": 6
+    }
+  ],
+  "source_sha256": {
+    "frontend/features/settings/components/whatsapp-template-settings-panel.tsx": "9fa5bf0b8bea481657bcd4ef268f1fb3734f258c521d5722ae21978cfe103b92",
+    "frontend/features/settings/components/whatsapp-template-name-field.tsx": "4c14d5d77655dd5b764ec4955dd2d6ec8d27620a42f80b6fc664192aac247045",
+    "frontend/features/settings/components/whatsapp-template-save-feedback.tsx": "c63c8cac47cebb6dc95265a1d082770ff6b1fe498819915397f7b1f8d37608a6",
+    "frontend/features/settings/hooks/use-whatsapp-template-settings.ts": "e0babde62cb4ceeea0b324df6170d4548edeb0123a06d2e29dd0d103fbd7f809",
+    "frontend/features/settings/components/appearance-settings.tsx": "28a6f67aea812bae41e011ecdcec99a29195520f0ac253416431165a903e7bbb",
+    "frontend/features/settings/components/dashboard-settings-page.tsx": "9bd812fbd7b01f407b65dfdd1857e7af996528650d8676d409d9eb4f19b9c916",
+    "frontend/features/settings/dashboard-preferences.ts": "95a5c838507f952408f713933d824b8fafdb92494e98d354905b8460e3d1213b",
+    "frontend/features/settings/platform-settings-policy.ts": "e80c95699eccaa0bca53686e1dacb6a87bb1a252eb527c9cfd0b9d0116e7b9f4",
+    "frontend/features/settings/whatsapp-template-settings.ts": "8d566e371a18783a3f8641f0d7faab241833e7c1281c8fa86376a4c89d4b7b5a",
+    "frontend/features/settings/components/whatsapp-template-settings-panel.test.tsx": "e32a33f0ac725065740f965b4c7eccac5f92da207bd14b3286b5b60fdb569ee4"
+  },
+  "evidence_sha256": {
+    "docs/audit/dashboard-2026-10-30/template-settings-current-extraction-proof.json": "4f89965e1b5d9cabc14c68f95942e7a661e5e507c16139a3476499eff9b9f25d",
+    "docs/audit/dashboard-2026-10-30/template-settings-format-equivalence.json": "6b336f991bd4a0f6861aca0c7c0bdb7b16850472eef8e596b4efe4ac5e97e39b",
+    "docs/audit/dashboard-2026-10-30/template-settings-before-unit.txt": "1e6810b33e59312db87da7c36e970a7cd42179e0d2934165a2ba0ec9ff6c1331",
+    "docs/audit/dashboard-2026-10-30/template-settings-after-unit.txt": "d6590a6bab5d8adb45a1cbe91fa8e3fab21f11aa7aaaf7bd66d403341b54ab0d",
+    "docs/audit/dashboard-2026-10-30/template-settings-types.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/audit/dashboard-2026-10-30/template-settings-lint.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/audit/dashboard-2026-10-30/template-settings-budget-candidates.json": "626079e0da7e3e406c6d25770b4d6d9599efd2b37261ebe47a8bc549ab577288",
+    "docs/audit/dashboard-2026-10-30/template-settings-reviewed-files.json": "cbb63f1048e2658995df2031690bdc351ccdd28d22a043b1efa057ac2b87db57"
+  },
+  "limits": [
+    "Pure extraction with no intentional workflow/permission/revision/cache/cancellation change. Exact source proof binds final comments-only follow-through to tested runtime AST.",
+    "No cross-account disclosure established: source trace includes actual dashboard authority remount and owner-bound request adapter, not a component-only mock claim.",
+    "Configured template-name overrides remain global; backend role validation remains authoritative. No provider send or operational setting mutation executed.",
+    "No production browser or build invoked for this affected-only tranche."
+  ]
+}

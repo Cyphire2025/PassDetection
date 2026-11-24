@@ -1,0 +1,521 @@
+{
+  "actual_selected": [
+    {
+      "nodeid": "tests/unit/infrastructure/test_traveller_reconciliation_runtime.py::test_burst_stops_after_40_pages_without_competing_for_worker_connection",
+      "path": "backend/tests/unit/infrastructure/test_traveller_reconciliation_runtime.py",
+      "originalname": "test_burst_stops_after_40_pages_without_competing_for_worker_connection"
+    },
+    {
+      "nodeid": "tests/unit/infrastructure/test_traveller_reconciliation_runtime.py::test_deadline_rechecked_before_admitting_another_page",
+      "path": "backend/tests/unit/infrastructure/test_traveller_reconciliation_runtime.py",
+      "originalname": "test_deadline_rechecked_before_admitting_another_page"
+    },
+    {
+      "nodeid": "tests/unit/infrastructure/test_traveller_reconciliation_runtime.py::test_idle_or_denied_slots_end_burst_without_repeated_polling",
+      "path": "backend/tests/unit/infrastructure/test_traveller_reconciliation_runtime.py",
+      "originalname": "test_idle_or_denied_slots_end_burst_without_repeated_polling"
+    },
+    {
+      "nodeid": "tests/unit/infrastructure/test_traveller_reconciliation_runtime.py::test_burst_deadline_also_cancels_blocked_admission",
+      "path": "backend/tests/unit/infrastructure/test_traveller_reconciliation_runtime.py",
+      "originalname": "test_burst_deadline_also_cancels_blocked_admission"
+    },
+    {
+      "nodeid": "tests/unit/infrastructure/test_traveller_reconciliation_runtime.py::test_exhausted_initial_burst_budget_never_starts_work",
+      "path": "backend/tests/unit/infrastructure/test_traveller_reconciliation_runtime.py",
+      "originalname": "test_exhausted_initial_burst_budget_never_starts_work"
+    },
+    {
+      "nodeid": "tests/unit/infrastructure/test_traveller_reconciliation_runtime.py::test_postgresql_advisory_fence_denial_releases_claim_without_processing",
+      "path": "backend/tests/unit/infrastructure/test_traveller_reconciliation_runtime.py",
+      "originalname": "test_postgresql_advisory_fence_denial_releases_claim_without_processing"
+    },
+    {
+      "nodeid": "tests/unit/infrastructure/test_traveller_reconciliation_runtime.py::test_page_failure_requeues_in_separate_failure_transaction",
+      "path": "backend/tests/unit/infrastructure/test_traveller_reconciliation_runtime.py",
+      "originalname": "test_page_failure_requeues_in_separate_failure_transaction"
+    },
+    {
+      "nodeid": "tests/unit/infrastructure/test_traveller_reconciliation_runtime.py::test_failure_preserves_dirty_refresh_and_clears_lease",
+      "path": "backend/tests/unit/infrastructure/test_traveller_reconciliation_runtime.py",
+      "originalname": "test_failure_preserves_dirty_refresh_and_clears_lease"
+    },
+    {
+      "nodeid": "tests/unit/infrastructure/test_traveller_reconciliation_runtime.py::test_busy_slot_returns_claim_without_using_retry_budget",
+      "path": "backend/tests/unit/infrastructure/test_traveller_reconciliation_runtime.py",
+      "originalname": "test_busy_slot_returns_claim_without_using_retry_budget"
+    },
+    {
+      "nodeid": "tests/unit/infrastructure/test_traveller_reconciliation_runtime.py::test_stale_claim_does_not_release_or_fail_a_new_reservation",
+      "path": "backend/tests/unit/infrastructure/test_traveller_reconciliation_runtime.py",
+      "originalname": "test_stale_claim_does_not_release_or_fail_a_new_reservation"
+    },
+    {
+      "nodeid": "tests/unit/infrastructure/test_traveller_reconciliation_runtime.py::test_failure_diagnostics_never_include_exception_text_or_sql_parameters[42P01-42P01]",
+      "path": "backend/tests/unit/infrastructure/test_traveller_reconciliation_runtime.py",
+      "originalname": "test_failure_diagnostics_never_include_exception_text_or_sql_parameters"
+    },
+    {
+      "nodeid": "tests/unit/infrastructure/test_traveller_reconciliation_runtime.py::test_failure_diagnostics_never_include_exception_text_or_sql_parameters[private-database-detail-None]",
+      "path": "backend/tests/unit/infrastructure/test_traveller_reconciliation_runtime.py",
+      "originalname": "test_failure_diagnostics_never_include_exception_text_or_sql_parameters"
+    },
+    {
+      "nodeid": "tests/unit/infrastructure/test_traveller_reconciliation_runtime.py::test_failure_diagnostics_never_include_exception_text_or_sql_parameters[None-None]",
+      "path": "backend/tests/unit/infrastructure/test_traveller_reconciliation_runtime.py",
+      "originalname": "test_failure_diagnostics_never_include_exception_text_or_sql_parameters"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_rate_limit_middleware.py::PublicUploadRateLimitTests::test_aggregate_guard_still_caps_rotating_sessions",
+      "path": "backend/tests/unit/presentation/test_rate_limit_middleware.py",
+      "originalname": "test_aggregate_guard_still_caps_rotating_sessions"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_rate_limit_middleware.py::PublicUploadRateLimitTests::test_application_factory_injects_its_settings_into_rate_limiter",
+      "path": "backend/tests/unit/presentation/test_rate_limit_middleware.py",
+      "originalname": "test_application_factory_injects_its_settings_into_rate_limiter"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_rate_limit_middleware.py::PublicUploadRateLimitTests::test_authenticated_dashboard_limit_is_per_verified_account",
+      "path": "backend/tests/unit/presentation/test_rate_limit_middleware.py",
+      "originalname": "test_authenticated_dashboard_limit_is_per_verified_account"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_rate_limit_middleware.py::PublicUploadRateLimitTests::test_contact_otp_routes_use_public_upload_session_guards",
+      "path": "backend/tests/unit/presentation/test_rate_limit_middleware.py",
+      "originalname": "test_contact_otp_routes_use_public_upload_session_guards"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_rate_limit_middleware.py::PublicUploadRateLimitTests::test_covers_and_editor_sources_share_only_the_media_budget",
+      "path": "backend/tests/unit/presentation/test_rate_limit_middleware.py",
+      "originalname": "test_covers_and_editor_sources_share_only_the_media_budget"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_rate_limit_middleware.py::PublicUploadRateLimitTests::test_document_images_use_an_independent_authenticated_budget",
+      "path": "backend/tests/unit/presentation/test_rate_limit_middleware.py",
+      "originalname": "test_document_images_use_an_independent_authenticated_budget"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_rate_limit_middleware.py::PublicUploadRateLimitTests::test_document_thumbnail_uses_media_budget_and_burst_headers",
+      "path": "backend/tests/unit/presentation/test_rate_limit_middleware.py",
+      "originalname": "test_document_thumbnail_uses_media_budget_and_burst_headers"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_rate_limit_middleware.py::PublicUploadRateLimitTests::test_followup_requires_separate_upload_credential",
+      "path": "backend/tests/unit/presentation/test_rate_limit_middleware.py",
+      "originalname": "test_followup_requires_separate_upload_credential"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_rate_limit_middleware.py::PublicUploadRateLimitTests::test_initial_upload_requires_a_valid_session_header",
+      "path": "backend/tests/unit/presentation/test_rate_limit_middleware.py",
+      "originalname": "test_initial_upload_requires_a_valid_session_header"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_rate_limit_middleware.py::PublicUploadRateLimitTests::test_invalid_access_token_uses_untrusted_ip_fallback",
+      "path": "backend/tests/unit/presentation/test_rate_limit_middleware.py",
+      "originalname": "test_invalid_access_token_uses_untrusted_ip_fallback"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_rate_limit_middleware.py::PublicUploadRateLimitTests::test_one_hundred_bootstrap_flows_share_one_nat",
+      "path": "backend/tests/unit/presentation/test_rate_limit_middleware.py",
+      "originalname": "test_one_hundred_bootstrap_flows_share_one_nat"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_rate_limit_middleware.py::PublicUploadRateLimitTests::test_one_hundred_client_submits_share_followup_budget",
+      "path": "backend/tests/unit/presentation/test_rate_limit_middleware.py",
+      "originalname": "test_one_hundred_client_submits_share_followup_budget"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_rate_limit_middleware.py::PublicUploadRateLimitTests::test_one_hundred_initial_uploads_behind_one_nat_are_allowed",
+      "path": "backend/tests/unit/presentation/test_rate_limit_middleware.py",
+      "originalname": "test_one_hundred_initial_uploads_behind_one_nat_are_allowed"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_rate_limit_middleware.py::PublicUploadRateLimitTests::test_one_session_cannot_consume_the_shared_nat_budget",
+      "path": "backend/tests/unit/presentation/test_rate_limit_middleware.py",
+      "originalname": "test_one_session_cannot_consume_the_shared_nat_budget"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_rate_limit_middleware.py::PublicUploadRateLimitTests::test_options_preflight_never_requires_or_consumes_a_session",
+      "path": "backend/tests/unit/presentation/test_rate_limit_middleware.py",
+      "originalname": "test_options_preflight_never_requires_or_consumes_a_session"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_rate_limit_middleware.py::PublicUploadRateLimitTests::test_public_upload_fails_closed_when_redis_is_unavailable",
+      "path": "backend/tests/unit/presentation/test_rate_limit_middleware.py",
+      "originalname": "test_public_upload_fails_closed_when_redis_is_unavailable"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_rate_limit_middleware.py::PublicUploadRateLimitTests::test_reconciliation_put_uses_the_bound_initial_upload_budget",
+      "path": "backend/tests/unit/presentation/test_rate_limit_middleware.py",
+      "originalname": "test_reconciliation_put_uses_the_bound_initial_upload_budget"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_rate_limit_middleware.py::PublicUploadRateLimitTests::test_twenty_verified_accounts_on_one_ip_have_independent_bursts",
+      "path": "backend/tests/unit/presentation/test_rate_limit_middleware.py",
+      "originalname": "test_twenty_verified_accounts_on_one_ip_have_independent_bursts"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_rate_limit_middleware.py::PublicUploadRateLimitTests::test_unapproved_origin_is_not_reflected_on_error",
+      "path": "backend/tests/unit/presentation/test_rate_limit_middleware.py",
+      "originalname": "test_unapproved_origin_is_not_reflected_on_error"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_rate_limit_middleware.py::PublicUploadRateLimitTests::test_upload_header_is_bound_exactly_to_idempotency_key",
+      "path": "backend/tests/unit/presentation/test_rate_limit_middleware.py",
+      "originalname": "test_upload_header_is_bound_exactly_to_idempotency_key"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_rate_limit_middleware.py::PublicUploadRateLimitTests::test_x_forwarded_for_is_ignored_and_counter_keys_are_opaque",
+      "path": "backend/tests/unit/presentation/test_rate_limit_middleware.py",
+      "originalname": "test_x_forwarded_for_is_ignored_and_counter_keys_are_opaque"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_rate_limit_middleware.py::PublicUploadProxyContractTests::test_gc_common_document_router_and_edge_pattern_stay_aligned",
+      "path": "backend/tests/unit/presentation/test_rate_limit_middleware.py",
+      "originalname": "test_gc_common_document_router_and_edge_pattern_stay_aligned"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_rate_limit_middleware.py::PublicUploadProxyContractTests::test_nginx_and_browser_client_keep_the_two_tier_contract",
+      "path": "backend/tests/unit/presentation/test_rate_limit_middleware.py",
+      "originalname": "test_nginx_and_browser_client_keep_the_two_tier_contract"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_rate_limit_middleware.py::PublicUploadProxyContractTests::test_nginx_contact_otp_uses_public_followup_limits_and_submission_fallback",
+      "path": "backend/tests/unit/presentation/test_rate_limit_middleware.py",
+      "originalname": "test_nginx_contact_otp_uses_public_followup_limits_and_submission_fallback"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_whatsapp_composer_persistence.py::test_custom_recipient_selection_is_optional_and_group_scoped",
+      "path": "backend/tests/unit/presentation/test_whatsapp_composer_persistence.py",
+      "originalname": "test_custom_recipient_selection_is_optional_and_group_scoped"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_whatsapp_composer_persistence.py::test_passport_support_selection_is_optional_and_group_scoped",
+      "path": "backend/tests/unit/presentation/test_whatsapp_composer_persistence.py",
+      "originalname": "test_passport_support_selection_is_optional_and_group_scoped"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_whatsapp_composer_persistence.py::test_passport_support_selection_accepts_only_one_contact",
+      "path": "backend/tests/unit/presentation/test_whatsapp_composer_persistence.py",
+      "originalname": "test_passport_support_selection_accepts_only_one_contact"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_whatsapp_composer_persistence.py::test_passport_snapshot_restores_every_editable_composer_field",
+      "path": "backend/tests/unit/presentation/test_whatsapp_composer_persistence.py",
+      "originalname": "test_passport_snapshot_restores_every_editable_composer_field"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_whatsapp_composer_persistence.py::test_reminder_audience_survives_composer_snapshot_merge",
+      "path": "backend/tests/unit/presentation/test_whatsapp_composer_persistence.py",
+      "originalname": "test_reminder_audience_survives_composer_snapshot_merge"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_whatsapp_composer_persistence.py::test_not_submitted_audience_retains_explicit_recipient_ids[WhatsAppSendRequest]",
+      "path": "backend/tests/unit/presentation/test_whatsapp_composer_persistence.py",
+      "originalname": "test_not_submitted_audience_retains_explicit_recipient_ids"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_whatsapp_composer_persistence.py::test_not_submitted_audience_retains_explicit_recipient_ids[WhatsAppPreviewRequest]",
+      "path": "backend/tests/unit/presentation/test_whatsapp_composer_persistence.py",
+      "originalname": "test_not_submitted_audience_retains_explicit_recipient_ids"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_whatsapp_composer_persistence.py::test_non_reminder_rejects_targeted_audience",
+      "path": "backend/tests/unit/presentation/test_whatsapp_composer_persistence.py",
+      "originalname": "test_non_reminder_rejects_targeted_audience"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_whatsapp_composer_persistence.py::test_send_request_rejects_unknown_audience_fields",
+      "path": "backend/tests/unit/presentation/test_whatsapp_composer_persistence.py",
+      "originalname": "test_send_request_rejects_unknown_audience_fields"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_whatsapp_composer_persistence.py::test_resend_request_rejects_not_submitted_audience",
+      "path": "backend/tests/unit/presentation/test_whatsapp_composer_persistence.py",
+      "originalname": "test_resend_request_rejects_not_submitted_audience"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_whatsapp_composer_persistence.py::test_resend_preview_rejects_not_submitted_audience",
+      "path": "backend/tests/unit/presentation/test_whatsapp_composer_persistence.py",
+      "originalname": "test_resend_preview_rejects_not_submitted_audience"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_whatsapp_composer_persistence.py::test_new_sends_require_nonempty_passport_intro_and_image_header",
+      "path": "backend/tests/unit/presentation/test_whatsapp_composer_persistence.py",
+      "originalname": "test_new_sends_require_nonempty_passport_intro_and_image_header"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_whatsapp_composer_persistence.py::test_group_snapshot_is_successful_non_resend_and_authored_ordered",
+      "path": "backend/tests/unit/presentation/test_whatsapp_composer_persistence.py",
+      "originalname": "test_group_snapshot_is_successful_non_resend_and_authored_ordered"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_whatsapp_composer_persistence.py::test_group_preview_reuses_latest_group_snapshot_not_preview_recipient",
+      "path": "backend/tests/unit/presentation/test_whatsapp_composer_persistence.py",
+      "originalname": "test_group_preview_reuses_latest_group_snapshot_not_preview_recipient"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_whatsapp_composer_persistence.py::test_resend_preview_is_scoped_to_one_recipient_and_latest_recipient_content",
+      "path": "backend/tests/unit/presentation/test_whatsapp_composer_persistence.py",
+      "originalname": "test_resend_preview_is_scoped_to_one_recipient_and_latest_recipient_content"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_whatsapp_composer_persistence.py::test_failed_message_preview_reuses_saved_content_for_one_person_retry",
+      "path": "backend/tests/unit/presentation/test_whatsapp_composer_persistence.py",
+      "originalname": "test_failed_message_preview_reuses_saved_content_for_one_person_retry"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_whatsapp_composer_persistence.py::test_fresh_passport_send_rejects_missing_image_header",
+      "path": "backend/tests/unit/presentation/test_whatsapp_composer_persistence.py",
+      "originalname": "test_fresh_passport_send_rejects_missing_image_header"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_whatsapp_composer_persistence.py::test_missing_passport_link_stays_null_while_preview_renders_placeholder",
+      "path": "backend/tests/unit/presentation/test_whatsapp_composer_persistence.py",
+      "originalname": "test_missing_passport_link_stays_null_while_preview_renders_placeholder"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_whatsapp_composer_persistence.py::test_old_passport_snapshot_prefills_current_image_template_resend",
+      "path": "backend/tests/unit/presentation/test_whatsapp_composer_persistence.py",
+      "originalname": "test_old_passport_snapshot_prefills_current_image_template_resend"
+    },
+    {
+      "nodeid": "tests/integration/test_broadcast_incremental_matching.py::test_second_import_assigns_new_person_without_relink_and_preserves_first_snapshot",
+      "path": "backend/tests/integration/test_broadcast_incremental_matching.py",
+      "originalname": "test_second_import_assigns_new_person_without_relink_and_preserves_first_snapshot"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_access_level_mutation_actors.py::test_locked_mutation_retains_selected_level_and_real_identity[approval-agency_manager]",
+      "path": "backend/tests/unit/presentation/test_access_level_mutation_actors.py",
+      "originalname": "test_locked_mutation_retains_selected_level_and_real_identity"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_access_level_mutation_actors.py::test_locked_mutation_retains_selected_level_and_real_identity[approval-agency_staff]",
+      "path": "backend/tests/unit/presentation/test_access_level_mutation_actors.py",
+      "originalname": "test_locked_mutation_retains_selected_level_and_real_identity"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_access_level_mutation_actors.py::test_locked_mutation_retains_selected_level_and_real_identity[whatsapp-agency_manager]",
+      "path": "backend/tests/unit/presentation/test_access_level_mutation_actors.py",
+      "originalname": "test_locked_mutation_retains_selected_level_and_real_identity"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_access_level_mutation_actors.py::test_locked_mutation_retains_selected_level_and_real_identity[whatsapp-agency_staff]",
+      "path": "backend/tests/unit/presentation/test_access_level_mutation_actors.py",
+      "originalname": "test_locked_mutation_retains_selected_level_and_real_identity"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_access_level_mutation_actors.py::test_locked_mutation_retains_selected_level_and_real_identity[distribution-agency_manager]",
+      "path": "backend/tests/unit/presentation/test_access_level_mutation_actors.py",
+      "originalname": "test_locked_mutation_retains_selected_level_and_real_identity"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_access_level_mutation_actors.py::test_locked_mutation_retains_selected_level_and_real_identity[distribution-agency_staff]",
+      "path": "backend/tests/unit/presentation/test_access_level_mutation_actors.py",
+      "originalname": "test_locked_mutation_retains_selected_level_and_real_identity"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_access_level_mutation_actors.py::test_locked_mutation_retains_selected_level_and_real_identity[rename-agency_manager]",
+      "path": "backend/tests/unit/presentation/test_access_level_mutation_actors.py",
+      "originalname": "test_locked_mutation_retains_selected_level_and_real_identity"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_access_level_mutation_actors.py::test_locked_mutation_retains_selected_level_and_real_identity[rename-agency_staff]",
+      "path": "backend/tests/unit/presentation/test_access_level_mutation_actors.py",
+      "originalname": "test_locked_mutation_retains_selected_level_and_real_identity"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_access_level_mutation_actors.py::test_locked_mutation_retains_selected_level_and_real_identity[excel-agency_manager]",
+      "path": "backend/tests/unit/presentation/test_access_level_mutation_actors.py",
+      "originalname": "test_locked_mutation_retains_selected_level_and_real_identity"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_access_level_mutation_actors.py::test_locked_mutation_retains_selected_level_and_real_identity[excel-agency_staff]",
+      "path": "backend/tests/unit/presentation/test_access_level_mutation_actors.py",
+      "originalname": "test_locked_mutation_retains_selected_level_and_real_identity"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_access_level_mutation_actors.py::test_reloading_superadmin_does_not_bypass_staff_group_scope[distribution]",
+      "path": "backend/tests/unit/presentation/test_access_level_mutation_actors.py",
+      "originalname": "test_reloading_superadmin_does_not_bypass_staff_group_scope"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_access_level_mutation_actors.py::test_reloading_superadmin_does_not_bypass_staff_group_scope[excel]",
+      "path": "backend/tests/unit/presentation/test_access_level_mutation_actors.py",
+      "originalname": "test_reloading_superadmin_does_not_bypass_staff_group_scope"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_access_level_mutation_actors.py::test_actor_refresh_rejects_changed_real_identity[role]",
+      "path": "backend/tests/unit/presentation/test_access_level_mutation_actors.py",
+      "originalname": "test_actor_refresh_rejects_changed_real_identity"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_access_level_mutation_actors.py::test_actor_refresh_rejects_changed_real_identity[agency_id]",
+      "path": "backend/tests/unit/presentation/test_access_level_mutation_actors.py",
+      "originalname": "test_actor_refresh_rejects_changed_real_identity"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_access_level_mutation_actors.py::test_actor_refresh_rejects_changed_real_identity[is_active]",
+      "path": "backend/tests/unit/presentation/test_access_level_mutation_actors.py",
+      "originalname": "test_actor_refresh_rejects_changed_real_identity"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_access_level_mutation_actors.py::test_actor_refresh_rejects_changed_real_identity[session_version]",
+      "path": "backend/tests/unit/presentation/test_access_level_mutation_actors.py",
+      "originalname": "test_actor_refresh_rejects_changed_real_identity"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_access_level_mutation_actors.py::test_actor_refresh_rejects_changed_real_identity[credential_state]",
+      "path": "backend/tests/unit/presentation/test_access_level_mutation_actors.py",
+      "originalname": "test_actor_refresh_rejects_changed_real_identity"
+    },
+    {
+      "nodeid": "tests/integration/test_company_people.py::test_current_edit_is_idempotent_revokes_access_and_preserves_trip_sources",
+      "path": "backend/tests/integration/test_company_people.py",
+      "originalname": "test_current_edit_is_idempotent_revokes_access_and_preserves_trip_sources"
+    },
+    {
+      "nodeid": "tests/integration/test_company_people.py::test_directory_deduplicates_person_and_flags_resolved_possible_duplicate",
+      "path": "backend/tests/integration/test_company_people.py",
+      "originalname": "test_directory_deduplicates_person_and_flags_resolved_possible_duplicate"
+    },
+    {
+      "nodeid": "tests/integration/test_company_people.py::test_reviewed_upload_keeps_v1_and_retry_reuses_v2_receipt",
+      "path": "backend/tests/integration/test_company_people.py",
+      "originalname": "test_reviewed_upload_keeps_v1_and_retry_reuses_v2_receipt"
+    },
+    {
+      "nodeid": "tests/integration/test_company_people.py::test_upload_cannot_take_another_person_passport",
+      "path": "backend/tests/integration/test_company_people.py",
+      "originalname": "test_upload_cannot_take_another_person_passport"
+    },
+    {
+      "nodeid": "tests/integration/test_company_people.py::test_staged_scan_cannot_publish_over_a_newer_staff_edit",
+      "path": "backend/tests/integration/test_company_people.py",
+      "originalname": "test_staged_scan_cannot_publish_over_a_newer_staff_edit"
+    },
+    {
+      "nodeid": "tests/integration/test_company_people.py::test_private_history_staff_upload_never_fabricates_personal_consent",
+      "path": "backend/tests/integration/test_company_people.py",
+      "originalname": "test_private_history_staff_upload_never_fabricates_personal_consent"
+    },
+    {
+      "nodeid": "tests/integration/test_company_people.py::test_original_field_fallback_is_scoped_and_does_not_promote_reuse",
+      "path": "backend/tests/integration/test_company_people.py",
+      "originalname": "test_original_field_fallback_is_scoped_and_does_not_promote_reuse"
+    },
+    {
+      "nodeid": "tests/integration/test_company_people.py::test_original_fallback_uses_source_chronology_not_registration_order",
+      "path": "backend/tests/integration/test_company_people.py",
+      "originalname": "test_original_fallback_uses_source_chronology_not_registration_order"
+    },
+    {
+      "nodeid": "tests/integration/test_company_people.py::test_staff_copy_rechecks_parent_scope_retention_and_withdrawal",
+      "path": "backend/tests/integration/test_company_people.py",
+      "originalname": "test_staff_copy_rechecks_parent_scope_retention_and_withdrawal"
+    },
+    {
+      "nodeid": "tests/integration/test_company_people_http.py::test_original_sources_are_lazy_private_and_person_scoped",
+      "path": "backend/tests/integration/test_company_people_http.py",
+      "originalname": "test_original_sources_are_lazy_private_and_person_scoped"
+    },
+    {
+      "nodeid": "tests/integration/test_company_people_http.py::test_export_download_is_streamed_attachment_private_and_actor_bound",
+      "path": "backend/tests/integration/test_company_people_http.py",
+      "originalname": "test_export_download_is_streamed_attachment_private_and_actor_bound"
+    },
+    {
+      "nodeid": "tests/integration/test_company_people_http.py::test_lost_image_write_response_keeps_old_current_and_retries_same_version",
+      "path": "backend/tests/integration/test_company_people_http.py",
+      "originalname": "test_lost_image_write_response_keeps_old_current_and_retries_same_version"
+    },
+    {
+      "nodeid": "tests/integration/test_company_people_http.py::test_people_and_versions_http_cursors_are_scoped_and_lazy",
+      "path": "backend/tests/integration/test_company_people_http.py",
+      "originalname": "test_people_and_versions_http_cursors_are_scoped_and_lazy"
+    },
+    {
+      "nodeid": "tests/integration/test_company_people_http.py::test_withdrawn_unreferenced_retained_image_is_denied_but_trip_copy_remains",
+      "path": "backend/tests/integration/test_company_people_http.py",
+      "originalname": "test_withdrawn_unreferenced_retained_image_is_denied_but_trip_copy_remains"
+    },
+    {
+      "nodeid": "tests/integration/test_company_directory_index.py::test_prefix_search_is_bounded_encrypted_scoped_and_intersects_words",
+      "path": "backend/tests/integration/test_company_directory_index.py",
+      "originalname": "test_prefix_search_is_bounded_encrypted_scoped_and_intersects_words"
+    },
+    {
+      "nodeid": "tests/integration/test_company_directory_index.py::test_newest_means_latest_original_submission_and_cursors_are_bound",
+      "path": "backend/tests/integration/test_company_directory_index.py",
+      "originalname": "test_newest_means_latest_original_submission_and_cursors_are_bound"
+    },
+    {
+      "nodeid": "tests/integration/test_company_directory_index.py::test_counts_exclude_retained_snapshots_and_other_company_groups",
+      "path": "backend/tests/integration/test_company_directory_index.py",
+      "originalname": "test_counts_exclude_retained_snapshots_and_other_company_groups"
+    },
+    {
+      "nodeid": "tests/integration/test_company_directory_index.py::test_admission_coalesces_is_transactional_and_backfill_resumes",
+      "path": "backend/tests/integration/test_company_directory_index.py",
+      "originalname": "test_admission_coalesces_is_transactional_and_backfill_resumes"
+    },
+    {
+      "nodeid": "tests/integration/test_company_directory_index.py::test_local_rank_rebalance_preserves_names_and_all_rows",
+      "path": "backend/tests/integration/test_company_directory_index.py",
+      "originalname": "test_local_rank_rebalance_preserves_names_and_all_rows"
+    },
+    {
+      "nodeid": "tests/integration/test_company_directory_index.py::test_worker_is_bounded_replay_safe_and_reports_exhausted_retry",
+      "path": "backend/tests/integration/test_company_directory_index.py",
+      "originalname": "test_worker_is_bounded_replay_safe_and_reports_exhausted_retry"
+    },
+    {
+      "nodeid": "tests/integration/test_company_directory_index.py::test_hundred_person_pages_have_constant_queries_and_no_tenant_overlap",
+      "path": "backend/tests/integration/test_company_directory_index.py",
+      "originalname": "test_hundred_person_pages_have_constant_queries_and_no_tenant_overlap"
+    },
+    {
+      "nodeid": "tests/integration/test_company_directory_index.py::test_group_scope_change_and_case_reassignment_refresh_old_counters",
+      "path": "backend/tests/integration/test_company_directory_index.py",
+      "originalname": "test_group_scope_change_and_case_reassignment_refresh_old_counters"
+    },
+    {
+      "nodeid": "tests/integration/test_company_directory_index.py::test_out_of_order_rank_insertion_rename_and_deleted_profile",
+      "path": "backend/tests/integration/test_company_directory_index.py",
+      "originalname": "test_out_of_order_rank_insertion_rename_and_deleted_profile"
+    },
+    {
+      "nodeid": "tests/integration/test_company_directory_index.py::test_failed_refresh_retries_without_losing_work_or_logging_identity",
+      "path": "backend/tests/integration/test_company_directory_index.py",
+      "originalname": "test_failed_refresh_retries_without_losing_work_or_logging_identity"
+    },
+    {
+      "nodeid": "tests/integration/test_company_people_integrity_boundaries.py::test_corrupt_retained_fields_never_escape_as_a_person_record",
+      "path": "backend/tests/integration/test_company_people_integrity_boundaries.py",
+      "originalname": "test_corrupt_retained_fields_never_escape_as_a_person_record"
+    },
+    {
+      "nodeid": "tests/integration/test_company_people_integrity_boundaries.py::test_missing_reuse_keys_return_safe_unavailable_response",
+      "path": "backend/tests/integration/test_company_people_integrity_boundaries.py",
+      "originalname": "test_missing_reuse_keys_return_safe_unavailable_response"
+    },
+    {
+      "nodeid": "tests/integration/test_company_people_integrity_boundaries.py::test_directory_edit_invalidates_old_http_cursor_and_allows_restart",
+      "path": "backend/tests/integration/test_company_people_integrity_boundaries.py",
+      "originalname": "test_directory_edit_invalidates_old_http_cursor_and_allows_restart"
+    }
+  ],
+  "selected_count": 101,
+  "declared_files": [
+    "backend/tests/integration/test_broadcast_incremental_matching.py",
+    "backend/tests/integration/test_company_directory_index.py",
+    "backend/tests/integration/test_company_people.py",
+    "backend/tests/integration/test_company_people_http.py",
+    "backend/tests/integration/test_company_people_integrity_boundaries.py",
+    "backend/tests/unit/infrastructure/test_traveller_reconciliation_runtime.py",
+    "backend/tests/unit/presentation/test_access_level_mutation_actors.py",
+    "backend/tests/unit/presentation/test_rate_limit_middleware.py",
+    "backend/tests/unit/presentation/test_whatsapp_composer_persistence.py"
+  ]
+}

@@ -1,0 +1,104 @@
+{
+  "scope": "Full physical source reads in current operator lane, including unchanged reused cleanup helper and docstring-only initializers. Existing workload/fixture source reads were completed before context continuation; final diffs reread. Tests use synthetic I/O and two standalone networkless Python CLI processes.",
+  "files": [
+    {
+      "path": "scripts/qa/qualify_workload_capacity.py",
+      "sha256": "a3217d6482e698d28c2ae2c81d6dc2beef2e532ba047862b5e56638164ef562a",
+      "lines": 737,
+      "review_status": "full",
+      "reviewer": "ai_extraction",
+      "notes": "Observer lifecycle/await bounds/import contracts; no real Docker, providers or credentials accessed."
+    },
+    {
+      "path": "scripts/qa/capacity_fixtures.py",
+      "sha256": "bc5a0715e703368b23ad208a972ff7f0a656632105a7ccef12b43390d4210053",
+      "lines": 492,
+      "review_status": "full",
+      "reviewer": "ai_extraction",
+      "notes": "Observer lifecycle/await bounds/import contracts; no real Docker, providers or credentials accessed."
+    },
+    {
+      "path": "scripts/qa/qualification_application_journey.py",
+      "sha256": "772d601da4734f7f3c4563d1169727f1cfff623daab7c78118fd3cb794db9226",
+      "lines": 185,
+      "review_status": "full",
+      "reviewer": "ai_extraction",
+      "notes": "Observer lifecycle/await bounds/import contracts; no real Docker, providers or credentials accessed."
+    },
+    {
+      "path": "scripts/qa/capacity_observer_lifecycle.py",
+      "sha256": "658e046fd2be95462d1212c26d7700cdb0a595f60c13e591dadd68175e80cd16",
+      "lines": 45,
+      "review_status": "full",
+      "reviewer": "ai_extraction",
+      "notes": "Observer lifecycle/await bounds/import contracts; no real Docker, providers or credentials accessed."
+    },
+    {
+      "path": "scripts/qa/test_capacity_observer_lifecycle.py",
+      "sha256": "8364160a90322925637918c22fdae31e46f1aedeba81b0ced607fa958ea6c975",
+      "lines": 196,
+      "review_status": "full",
+      "reviewer": "ai_extraction",
+      "notes": "Observer lifecycle/await bounds/import contracts; no real Docker, providers or credentials accessed."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_capacity_observer_reader_bounds.py",
+      "sha256": "66389ed589b644f670e2cb8a3819a36cd16241f1c4d7f45c960ab6a1c1655418",
+      "lines": 112,
+      "review_status": "full",
+      "reviewer": "ai_extraction",
+      "notes": "Observer lifecycle/await bounds/import contracts; no real Docker, providers or credentials accessed."
+    },
+    {
+      "path": "scripts/qa/test_workload_capacity.py",
+      "sha256": "a0e1be994d760740c23a8dfa0373816211db47dc70b93f712352a73297ed118b",
+      "lines": 260,
+      "review_status": "full",
+      "reviewer": "ai_extraction",
+      "notes": "Observer lifecycle/await bounds/import contracts; no real Docker, providers or credentials accessed."
+    },
+    {
+      "path": "scripts/qa/test_mcp_capacity_profile.py",
+      "sha256": "e18ef81199a70a87bbaacbb02f8af00b1bfb1362576a57ab13db1bb3542620e1",
+      "lines": 105,
+      "review_status": "full",
+      "reviewer": "ai_extraction",
+      "notes": "Observer lifecycle/await bounds/import contracts; no real Docker, providers or credentials accessed."
+    },
+    {
+      "path": "backend/app/infrastructure/documents/storage_transfers.py",
+      "sha256": "a15cde9b255188896500d54e4de7faf9dafbbe332f13f3163b1590f38a1c58d1",
+      "lines": 71,
+      "review_status": "full",
+      "reviewer": "ai_extraction",
+      "notes": "Observer lifecycle/await bounds/import contracts; no real Docker, providers or credentials accessed."
+    },
+    {
+      "path": "backend/app/__init__.py",
+      "sha256": "f7f0ae580a55bd07e427d55d2982e40d12a2cd590386d85e583db5d77f8fdb0b",
+      "lines": 1,
+      "review_status": "full",
+      "reviewer": "ai_extraction",
+      "notes": "Observer lifecycle/await bounds/import contracts; no real Docker, providers or credentials accessed."
+    },
+    {
+      "path": "backend/app/infrastructure/__init__.py",
+      "sha256": "f7f0ae580a55bd07e427d55d2982e40d12a2cd590386d85e583db5d77f8fdb0b",
+      "lines": 1,
+      "review_status": "full",
+      "reviewer": "ai_extraction",
+      "notes": "Observer lifecycle/await bounds/import contracts; no real Docker, providers or credentials accessed."
+    },
+    {
+      "path": "backend/app/infrastructure/documents/__init__.py",
+      "sha256": "ab8acea9fe1e3e7fa631a8ed64ebdd61d8bb6553a977649e80d8804dab04147f",
+      "lines": 1,
+      "review_status": "full",
+      "reviewer": "ai_extraction",
+      "notes": "Observer lifecycle/await bounds/import contracts; no real Docker, providers or credentials accessed."
+    }
+  ],
+  "pending": [
+    "Workload qualifier and capacity fixture architecture remain mixed and large; no complete architecture closure is claimed."
+  ]
+}

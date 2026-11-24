@@ -1,0 +1,26 @@
+[
+  {
+    "source": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\public\\assets\\upload-samples\\passport-front-cover.png",
+    "destination": "C:\\Users\\nipun\\Desktop\\PassDetection\\Not related to project\\retired-upload-samples\\passport-front-cover.png",
+    "sha256": "a86f5fcf2944bae30009226d54a030a502e3ed74bd999d21c489028b633f7753",
+    "bytes": 2872523
+  },
+  {
+    "source": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\public\\assets\\upload-samples\\passport-back-cover.png",
+    "destination": "C:\\Users\\nipun\\Desktop\\PassDetection\\Not related to project\\retired-upload-samples\\passport-back-cover.png",
+    "sha256": "e103ead81bf77949073b9b298013ae8deccf5aaaf22b6b65835f81841e2b210b",
+    "bytes": 2509557
+  },
+  {
+    "source": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\public\\assets\\upload-samples\\visa-photo.png",
+    "destination": "C:\\Users\\nipun\\Desktop\\PassDetection\\Not related to project\\retired-upload-samples\\visa-photo.png",
+    "sha256": "20b4d984d63cab7930c9ba3f722b37766495bd1f3a707e8dca98849862c2f85b",
+    "bytes": 117057
+  },
+  {
+    "source": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\public\\assets\\upload-samples\\README.md",
+    "destination": "C:\\Users\\nipun\\Desktop\\PassDetection\\Not related to project\\retired-upload-samples\\README.md",
+    "sha256": "218fb1193c1e8aef0ed071ca005fcc1712ff2da1684b5dcd8a79f270f5284117",
+    "bytes": 1650
+  }
+]

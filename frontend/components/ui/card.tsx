@@ -10,6 +10,7 @@ type CardProps = React.HTMLAttributes<HTMLDivElement>;
 const Card = React.forwardRef<HTMLDivElement, CardProps>(
   ({ className, ...props }, ref) => (
     <div
+      data-workspace-card=""
       ref={ref}
       className={cn(
         "rounded-xl border border-slate-200 bg-white shadow-sm",

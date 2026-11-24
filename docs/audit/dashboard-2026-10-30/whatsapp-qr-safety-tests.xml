@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="9" time="6.958" timestamp="2026-10-31T02:18:32.358720+05:30" hostname="Nipun5070ti"><testcase classname="tests.unit.infrastructure.test_qr_worker_delivery_safety" name="test_qr_changed_during_upload_is_never_sent[revoked]" time="0.681" /><testcase classname="tests.unit.infrastructure.test_qr_worker_delivery_safety" name="test_qr_changed_during_upload_is_never_sent[rotated]" time="0.587"><failure message="sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: passenger_qr_tokens.passenger_id&#10;[SQL: INSERT INTO passenger_qr_tokens (id, agency_id, passenger_id, token_hash, qr_payload, token_version, is_active, created_by_user_id, revoked_at, expires_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]&#10;[parameters: ('83ca7aa00efb4640b7101b99fa0a75ea', 'b9f6d1d3500d4499b86d4b1fe986c0ae', '83734934cbeb4a08bac4bf65aeb6a29c', 'new-synthetic-token-hash', 'pdatt:BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB', 2, 1, None, None, '2026-10-31 20:48:33.727435', '2026-10-30 20:48:33.728437', '2026-10-30 20:48:33.728437')]&#10;(Background on this error at: https://sqlalche.me/e/20/gkpj)">self = &lt;sqlalchemy.engine.base.Connection object at 0x0000021DF5BFBB50&gt;
+dialect = &lt;sqlalchemy.dialects.sqlite.aiosqlite.SQLiteDialect_aiosqlite object at 0x0000021DF4007750&gt;
+context = &lt;sqlalchemy.dialects.sqlite.aiosqlite.SQLiteExecutionContext_aiosqlite object at 0x0000021DF5C01E50&gt;
+statement = &lt;sqlalchemy.dialects.sqlite.base.SQLiteCompiler object at 0x0000021DF5C01E90&gt;
+parameters = [('83ca7aa00efb4640b7101b99fa0a75ea', 'b9f6d1d3500d4499b86d4b1fe986c0ae', '83734934cbeb4a08bac4bf65aeb6a29c', 'new-synthetic-token-hash', 'pdatt:BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB', 2, ...)]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -&gt; CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+&gt;                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\engine\default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:147: in execute
+    self._adapt_connection._handle_exception(error)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:298: in _handle_exception
+    raise error
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:129: in execute
+    self.await_(_cursor.execute(operation, parameters))
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+            ^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\aiosqlite\cursor.py:48: in execute
+    await self._execute(self._cursor.execute, sql, parameters)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\aiosqlite\cursor.py:40: in _execute
+    return await self._conn._execute(fn, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\aiosqlite\core.py:132: in _execute
+    return await future
+           ^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;Connection(Thread-3, started daemon 37940)&gt;
+
+    def run(self) -&gt; None:
+        """
+        Execute function calls on a separate thread.
+    
+        :meta private:
+        """
+        while True:
+            # Continues running until all queue items are processed,
+            # even after connection is closed (so we can finalize all
+            # futures)
+    
+            tx_item = self._tx.get()
+            if tx_item is _STOP_RUNNING_SENTINEL:
+                break
+    
+            future, function = tx_item
+    
+            try:
+                LOG.debug("executing %s", function)
+&gt;               result = function()
+                         ^^^^^^^^^^
+E               sqlite3.IntegrityError: UNIQUE constraint failed: passenger_qr_tokens.passenger_id
+
+..\.tmp\dashboard-audit-venv\Lib\site-packages\aiosqlite\core.py:115: IntegrityError
+
+The above exception was the direct cause of the following exception:
+
+qr_work = namespace(context={'agency': &lt;app.infrastructure.database.models.AgencyModel object at 0x0000021DF4060F10&gt;, 'group': &lt;...ck id='2327671160208'&gt;, send=&lt;AsyncMock id='2327667410704'&gt;, run=&lt;function qr_work.&lt;locals&gt;.run at 0x0000021DF3EE54E0&gt;)
+change = 'rotated'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("change", ["revoked", "rotated"])
+    async def test_qr_changed_during_upload_is_never_sent(qr_work, change):
+        work = qr_work
+        token_id = work.context["token"].id
+    
+        async def change_after_media_upload(**_kwargs):
+            async with work.factory() as session:
+                token = await session.get(PassengerQRTokenModel, token_id)
+                if change == "revoked":
+                    token.is_active = False
+                else:
+                    session.add(
+                        PassengerQRTokenModel(
+                            agency_id=token.agency_id,
+                            passenger_id=token.passenger_id,
+                            token_hash="new-synthetic-token-hash",
+                            token_version=2,
+                            qr_payload="pdatt:" + "B" * 43,
+                            is_active=True,
+                            expires_at=datetime.now(tz=UTC) + timedelta(days=1),
+                        )
+                    )
+                await session.commit()
+            return "already-uploaded-media"
+    
+        work.upload.side_effect = change_after_media_upload
+&gt;       await work.run()
+
+tests\unit\infrastructure\test_qr_worker_delivery_safety.py:98: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\unit\infrastructure\test_qr_worker_delivery_safety.py:52: in run
+    await runtime.run_qr_whatsapp_broadcast(
+app\infrastructure\whatsapp\qr_delivery_runtime.py:205: in run_qr_whatsapp_broadcast
+    media_id = await prepare_qr_delivery_media(
+app\infrastructure\whatsapp\qr_delivery_media.py:89: in prepare_qr_delivery_media
+    media_id = await callbacks.upload(
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\unittest\mock.py:2251: in _execute_mock_call
+    result = await effect(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\infrastructure\test_qr_worker_delivery_safety.py:94: in change_after_media_upload
+    await session.commit()
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\ext\asyncio\session.py:1009: in commit
+    await greenlet_spawn(self.sync_session.commit)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:203: in greenlet_spawn
+    result = context.switch(value)
+             ^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\orm\session.py:2017: in commit
+    trans.commit(_to_root=True)
+&lt;string&gt;:2: in commit
+    ???
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:139: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\orm\session.py:1302: in commit
+    self._prepare_impl()
+&lt;string&gt;:2: in _prepare_impl
+    ???
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:139: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\orm\session.py:1277: in _prepare_impl
+    self.session.flush()
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\orm\session.py:4341: in flush
+    self._flush(objects)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\orm\session.py:4476: in _flush
+    with util.safe_reraise():
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:146: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\orm\session.py:4437: in _flush
+    flush_context.execute()
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:466: in execute
+    rec.execute(self)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\orm\persistence.py:93: in save_obj
+    _emit_insert_statements(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\orm\persistence.py:1233: in _emit_insert_statements
+    result = connection.execute(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\engine\base.py:1418: in execute
+    return meth(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\sql\elements.py:515: in _execute_on_connection
+    return connection._execute_clauseelement(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\engine\base.py:1640: in _execute_clauseelement
+    ret = self._execute_context(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\engine\base.py:2353: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\engine\default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:147: in execute
+    self._adapt_connection._handle_exception(error)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:298: in _handle_exception
+    raise error
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:129: in execute
+    self.await_(_cursor.execute(operation, parameters))
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+            ^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\aiosqlite\cursor.py:48: in execute
+    await self._execute(self._cursor.execute, sql, parameters)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\aiosqlite\cursor.py:40: in _execute
+    return await self._conn._execute(fn, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\aiosqlite\core.py:132: in _execute
+    return await future
+           ^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;Connection(Thread-3, started daemon 37940)&gt;
+
+    def run(self) -&gt; None:
+        """
+        Execute function calls on a separate thread.
+    
+        :meta private:
+        """
+        while True:
+            # Continues running until all queue items are processed,
+            # even after connection is closed (so we can finalize all
+            # futures)
+    
+            tx_item = self._tx.get()
+            if tx_item is _STOP_RUNNING_SENTINEL:
+                break
+    
+            future, function = tx_item
+    
+            try:
+                LOG.debug("executing %s", function)
+&gt;               result = function()
+                         ^^^^^^^^^^
+E               sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: passenger_qr_tokens.passenger_id
+E               [SQL: INSERT INTO passenger_qr_tokens (id, agency_id, passenger_id, token_hash, qr_payload, token_version, is_active, created_by_user_id, revoked_at, expires_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]
+E               [parameters: ('83ca7aa00efb4640b7101b99fa0a75ea', 'b9f6d1d3500d4499b86d4b1fe986c0ae', '83734934cbeb4a08bac4bf65aeb6a29c', 'new-synthetic-token-hash', 'pdatt:BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB', 2, 1, None, None, '2026-10-31 20:48:33.727435', '2026-10-30 20:48:33.728437', '2026-10-30 20:48:33.728437')]
+E               (Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+..\.tmp\dashboard-audit-venv\Lib\site-packages\aiosqlite\core.py:115: IntegrityError</failure></testcase><testcase classname="tests.unit.infrastructure.test_qr_worker_delivery_safety" name="test_retried_claim_never_repeats_media_or_provider_send[submitted]" time="0.670" /><testcase classname="tests.unit.infrastructure.test_qr_worker_delivery_safety" name="test_retried_claim_never_repeats_media_or_provider_send[delivered]" time="0.640" /><testcase classname="tests.unit.infrastructure.test_qr_worker_delivery_safety" name="test_retried_claim_never_repeats_media_or_provider_send[processing]" time="0.433" /><testcase classname="tests.unit.infrastructure.test_qr_worker_delivery_safety" name="test_ambiguous_provider_outcome_is_persisted_once_without_unsafe_error[True]" time="0.522" /><testcase classname="tests.unit.infrastructure.test_qr_worker_delivery_safety" name="test_ambiguous_provider_outcome_is_persisted_once_without_unsafe_error[False]" time="0.544" /><testcase classname="tests.unit.infrastructure.test_qr_worker_delivery_safety" name="test_known_rate_limit_retries_same_frozen_qr_payload" time="0.570" /><testcase classname="tests.unit.infrastructure.test_qr_worker_delivery_safety" name="test_invalid_reconstruction_never_uploads_or_sends" time="0.492" /></testsuite></testsuites>

@@ -1,0 +1,78 @@
+{
+  "runtime_raw_source_exact_after_removing_one_tuple_entry_and_restoring_docstring": true,
+  "engine_and_task_raw_source_equal_original_orphan_checkpoint": true,
+  "reference_columns_unchanged": 20,
+  "query_bindings_max_unchanged": 980,
+  "query_keys_unchanged": 49,
+  "grace_hours_unchanged": 24,
+  "page_per_namespace_unchanged": 2000,
+  "delete_batch_unchanged": 250,
+  "new_fixed_namespace": "drafts/",
+  "total_fixed_namespaces": 7,
+  "maximum_objects_per_invocation": 14000,
+  "returning_drafts_canonical_travellers_not_scanned": true,
+  "fixture_old_default_raw_source_restored_except_import_order": true,
+  "import_sort_executable_AST_and_import_statement_sets_exact": true,
+  "source_sha256": {
+    "backend/app/infrastructure/documents/passport_orphan_reconciliation.py": "9c64d48c060800206ed9a0455b9f1570b284e5fd87a68811bb4b0afd43a362b1",
+    "backend/app/infrastructure/documents/orphan_reconciliation.py": "7458b420372052de441f45b4349c440eb59464b78d7d5a6dc9da89356dae26a2",
+    "backend/app/infrastructure/documents/cleanup_tasks.py": "39c6acc102334472316a68f88cc2b57cd9cd9a4115318a7596ed632c1df56517",
+    "backend/tests/integration/passport_orphan_fixtures.py": "cd765e1056ce494eccfa91df8c1c555d014775a8810dcdb236dea58d5bfed1d0",
+    "backend/tests/integration/test_passport_draft_orphan_reconciliation.py": "a074f7b914dbfb80ca1efa75a4d146bd9999d6ecf1bb6fe5126c910bddd13dc5",
+    "backend/tests/integration/test_passport_orphan_reconciliation.py": "f830e3dd04d0b20e72afa084a91a09fe135b99a5669be37367387add874649ba",
+    "backend/tests/unit/infrastructure/test_passport_orphan_bounds.py": "aa84ebf9999e431ec17d3f2969e136537e19ae12d690db339729607127560b23",
+    "backend/tests/unit/infrastructure/test_document_orphan_reconciliation.py": "4dfd54838bfdf8b0c9b8ea2305896ea5e1dac3455d6b90808db277833f1ac7ed",
+    "backend/tests/unit/infrastructure/test_document_cleanup_task_diagnostics.py": "2eb37f217f744e51622c663abab2b46128bb493cb310b613dd5a432a1517f231"
+  },
+  "measurements": [
+    {
+      "path": "app/infrastructure/documents/cleanup_tasks.py",
+      "line_percent": 100.0,
+      "branch_percent": null,
+      "covered_branches": 0,
+      "branches": 0,
+      "existing_critical": null
+    },
+    {
+      "path": "app/infrastructure/documents/orphan_reconciliation.py",
+      "line_percent": 100.0,
+      "branch_percent": 95.0,
+      "covered_branches": 19,
+      "branches": 20,
+      "existing_critical": {
+        "path": "app/infrastructure/documents/orphan_reconciliation.py",
+        "minimum_line_percent": 95,
+        "minimum_branch_percent": 90
+      }
+    },
+    {
+      "path": "app/infrastructure/documents/passport_orphan_reconciliation.py",
+      "line_percent": 100.0,
+      "branch_percent": 100.0,
+      "covered_branches": 8,
+      "branches": 8,
+      "existing_critical": {
+        "path": "app/infrastructure/documents/passport_orphan_reconciliation.py",
+        "minimum_line_percent": 95,
+        "minimum_branch_percent": 95
+      }
+    }
+  ],
+  "normal_candidate": {
+    "path": "app/infrastructure/documents/passport_orphan_reconciliation.py",
+    "baseline_lines": 110,
+    "maximum_lines": 110,
+    "baseline_max_function_complexity": 8,
+    "maximum_function_complexity": 8,
+    "minimum_coverage_percent": 100
+  },
+  "old_normal_budget": {
+    "path": "app/infrastructure/documents/passport_orphan_reconciliation.py",
+    "baseline_lines": 108,
+    "maximum_lines": 110,
+    "baseline_max_function_complexity": 8,
+    "maximum_function_complexity": 8,
+    "minimum_coverage_percent": 100
+  },
+  "no_new_or_changed_critical_gates": true
+}

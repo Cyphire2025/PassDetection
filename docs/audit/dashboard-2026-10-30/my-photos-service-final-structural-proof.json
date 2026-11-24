@@ -1,0 +1,332 @@
+{
+  "basis": "Full physical original source review; this baseline already contains the eight independently reproduced/fixed provider-await freshness regressions. New composition/typed context is explicit and not equivalence with the original checkout.",
+  "preimage_sha256": "8019f7ba419f93b83922a57c522fcf954d4d1fbb8614a4c6af9cd31a598c2e8c",
+  "historical_mechanical_proof": "my-photos-service-extraction-proof.json (38normalized declarations before four additional reference/failure negatives and canonical lock-order follow-through)",
+  "final_normalized_declarations": [
+    {
+      "name": "_gallery",
+      "owner": "backend/app/infrastructure/my_photos/context.py",
+      "normalized_complete_declaration_unchanged": true,
+      "original_ast_sha256": "681ef26d52ac6b8fcd1d3de78e64de20010ae5cd7c76f0d3b566ca594cc673e4",
+      "current_normalized_ast_sha256": "681ef26d52ac6b8fcd1d3de78e64de20010ae5cd7c76f0d3b566ca594cc673e4",
+      "intentional_fix": null
+    },
+    {
+      "name": "_ready_gallery",
+      "owner": "backend/app/infrastructure/my_photos/context.py",
+      "normalized_complete_declaration_unchanged": true,
+      "original_ast_sha256": "bffd38eec80d8f356b2fbdd1bb6d22566b7f4d23bbd4202ce41a8a3a640265cd",
+      "current_normalized_ast_sha256": "bffd38eec80d8f356b2fbdd1bb6d22566b7f4d23bbd4202ce41a8a3a640265cd",
+      "intentional_fix": null
+    },
+    {
+      "name": "_gallery_window_state",
+      "owner": "backend/app/infrastructure/my_photos/context.py",
+      "normalized_complete_declaration_unchanged": true,
+      "original_ast_sha256": "fed7271d2b53640c50549f9b2ec8df576ebb8c907c60a3b8cd409e90f2efa514",
+      "current_normalized_ast_sha256": "fed7271d2b53640c50549f9b2ec8df576ebb8c907c60a3b8cd409e90f2efa514",
+      "intentional_fix": null
+    },
+    {
+      "name": "_enrollment",
+      "owner": "backend/app/infrastructure/my_photos/context.py",
+      "normalized_complete_declaration_unchanged": true,
+      "original_ast_sha256": "4c19b423016cc1e88255878c448f6b589d398ae168aee7311f6baa66e6425ece",
+      "current_normalized_ast_sha256": "4c19b423016cc1e88255878c448f6b589d398ae168aee7311f6baa66e6425ece",
+      "intentional_fix": null
+    },
+    {
+      "name": "_lock_passenger_identity",
+      "owner": "backend/app/infrastructure/my_photos/context.py",
+      "normalized_complete_declaration_unchanged": true,
+      "original_ast_sha256": "617aee2e78f5f8d7d95a7d88d8114775b43646ea78fbe534411dd74792573587",
+      "current_normalized_ast_sha256": "617aee2e78f5f8d7d95a7d88d8114775b43646ea78fbe534411dd74792573587",
+      "intentional_fix": null
+    },
+    {
+      "name": "_required_current_enrollment",
+      "owner": "backend/app/infrastructure/my_photos/context.py",
+      "normalized_complete_declaration_unchanged": true,
+      "original_ast_sha256": "cddfb0b07104b4676766546a901ddc947180fc8567267858841cd6e96e90b3e0",
+      "current_normalized_ast_sha256": "cddfb0b07104b4676766546a901ddc947180fc8567267858841cd6e96e90b3e0",
+      "intentional_fix": null
+    },
+    {
+      "name": "_latest_search",
+      "owner": "backend/app/infrastructure/my_photos/context.py",
+      "normalized_complete_declaration_unchanged": true,
+      "original_ast_sha256": "d22c165dd6969473671f949e6cc9527fd54bc0d7c66be363f52d2c5efe6d404b",
+      "current_normalized_ast_sha256": "d22c165dd6969473671f949e6cc9527fd54bc0d7c66be363f52d2c5efe6d404b",
+      "intentional_fix": null
+    },
+    {
+      "name": "_require_face_providers",
+      "owner": "backend/app/infrastructure/my_photos/context.py",
+      "normalized_complete_declaration_unchanged": true,
+      "original_ast_sha256": "2eeb323b09131ec5614b6a7c25731ea197514f9dd77babe3776940f09b8f24da",
+      "current_normalized_ast_sha256": "2eeb323b09131ec5614b6a7c25731ea197514f9dd77babe3776940f09b8f24da",
+      "intentional_fix": null
+    },
+    {
+      "name": "_require_passenger",
+      "owner": "backend/app/infrastructure/my_photos/context.py",
+      "normalized_complete_declaration_unchanged": true,
+      "original_ast_sha256": "b7717b7025d9d58d3bab3410de3124f845cc1207fb9a0482211eb0861e69f69c",
+      "current_normalized_ast_sha256": "b7717b7025d9d58d3bab3410de3124f845cc1207fb9a0482211eb0861e69f69c",
+      "intentional_fix": null
+    },
+    {
+      "name": "_deletion_response",
+      "owner": "backend/app/infrastructure/my_photos/reference_lifecycle.py",
+      "normalized_complete_declaration_unchanged": true,
+      "original_ast_sha256": "d4dedfb966b0a07c6248ca973e493aee415b3bf81d24037cefe8715d7ec47a4e",
+      "current_normalized_ast_sha256": "d4dedfb966b0a07c6248ca973e493aee415b3bf81d24037cefe8715d7ec47a4e",
+      "intentional_fix": null
+    },
+    {
+      "name": "_mark_provider_deletion_pending",
+      "owner": "backend/app/infrastructure/my_photos/reference_lifecycle.py",
+      "normalized_complete_declaration_unchanged": false,
+      "original_ast_sha256": "d58146313028e4fa03a240dcb5fd4fcffce89c9ac628f92e86679f71f92ca6a5",
+      "current_normalized_ast_sha256": "8adab33fde2da368cb2f9799d081b61fc79f77a27ee0f74ad31a91eb13c13a52",
+      "intentional_fix": "Fresh locked state and exact expected provider reference guard; old failure cannot consume a new reference retry budget."
+    },
+    {
+      "name": "_delete_superseded_reference",
+      "owner": "backend/app/infrastructure/my_photos/reference_lifecycle.py",
+      "normalized_complete_declaration_unchanged": false,
+      "original_ast_sha256": "0ab2addecfd229b96954fae0d090311b5e528baab508ecce2f6d6e9f676ec504",
+      "current_normalized_ast_sha256": "f4d5202ad9e41245929c18a0fbb7ce06ef81c37768d94fa7eeeb812c1c91acc6",
+      "intentional_fix": "Fresh locked state preserves any newer pending reference after provider await."
+    },
+    {
+      "name": "_complete_provider_deletion",
+      "owner": "backend/app/infrastructure/my_photos/reference_lifecycle.py",
+      "normalized_complete_declaration_unchanged": false,
+      "original_ast_sha256": "53cfc3f436af54fc8315201620794bdd3ee97d2335ce4d8abedc6bd3fe0a3495",
+      "current_normalized_ast_sha256": "259762a6f5b2ae3f6ad6be2d75ce02f692a90452343c9646ef51e4d86384d4ea",
+      "intentional_fix": "Fresh locked state checks the actual current reference before clearing it."
+    },
+    {
+      "name": "_create_search_run",
+      "owner": "backend/app/infrastructure/my_photos/liveness_store.py",
+      "normalized_complete_declaration_unchanged": true,
+      "original_ast_sha256": "9846ec79ce8a8d9f9814f4a848d3c04639dbbf1fa99699824b39a3347b02585b",
+      "current_normalized_ast_sha256": "9846ec79ce8a8d9f9814f4a848d3c04639dbbf1fa99699824b39a3347b02585b",
+      "intentional_fix": null
+    },
+    {
+      "name": "_apply_liveness_cooldown",
+      "owner": "backend/app/infrastructure/my_photos/liveness_store.py",
+      "normalized_complete_declaration_unchanged": true,
+      "original_ast_sha256": "631823b7094e533eb5a862888837b17e31d781627b5e940af9c8fbcf26c23f74",
+      "current_normalized_ast_sha256": "631823b7094e533eb5a862888837b17e31d781627b5e940af9c8fbcf26c23f74",
+      "intentional_fix": null
+    },
+    {
+      "name": "_finalize_liveness_result",
+      "owner": "backend/app/infrastructure/my_photos/liveness_store.py",
+      "normalized_complete_declaration_unchanged": false,
+      "original_ast_sha256": "bb447cee315cf81dba01f4e133f40b96b80d6ac52253fcaf8b1aefb5a215c390",
+      "current_normalized_ast_sha256": "13ae574148b74ab83503ba44e15055db395980c647d3c983bdd6346c56968bf9",
+      "intentional_fix": "Known immutable enrollment ID binds context; canonical identity\u2192enrollment\u2192liveness order; tenant/claim/expiry/consent gates retained."
+    },
+    {
+      "name": "_fail_liveness_creation",
+      "owner": "backend/app/infrastructure/my_photos/liveness_store.py",
+      "normalized_complete_declaration_unchanged": false,
+      "original_ast_sha256": "45df50a4dcbe84b2050dcb4a5467f5f951f476f5bd0f9b3f36f5a9acd08be4e3",
+      "current_normalized_ast_sha256": "9ee56bfa9b25b170066a5fe75efcb7d5cec80f37e45f417df0fc5b5594651078",
+      "intentional_fix": "Fresh enrollment and terminal-state preservation; enrollment lock precedes liveness subset lock."
+    },
+    {
+      "name": "_complete_liveness_creation",
+      "owner": "backend/app/infrastructure/my_photos/liveness_store.py",
+      "normalized_complete_declaration_unchanged": true,
+      "original_ast_sha256": "a3e183aa68c994a4502100713c1f7519d5e7fd41b17ba491ad26425a55b65fab",
+      "current_normalized_ast_sha256": "a3e183aa68c994a4502100713c1f7519d5e7fd41b17ba491ad26425a55b65fab",
+      "intentional_fix": null
+    },
+    {
+      "name": "_release_liveness_result_claim",
+      "owner": "backend/app/infrastructure/my_photos/liveness_store.py",
+      "normalized_complete_declaration_unchanged": true,
+      "original_ast_sha256": "788282c1dc416d7616e5005b2cfa3c792919074ba730862136e04fdaf5af483c",
+      "current_normalized_ast_sha256": "788282c1dc416d7616e5005b2cfa3c792919074ba730862136e04fdaf5af483c",
+      "intentional_fix": null
+    },
+    {
+      "name": "_liveness_session_response",
+      "owner": "backend/app/infrastructure/my_photos/liveness_store.py",
+      "normalized_complete_declaration_unchanged": true,
+      "original_ast_sha256": "8c4db4752e0e58907a3eb1d39fb04c2ac28e4a7db66937f2aa7109a3f507c28c",
+      "current_normalized_ast_sha256": "8c4db4752e0e58907a3eb1d39fb04c2ac28e4a7db66937f2aa7109a3f507c28c",
+      "intentional_fix": null
+    },
+    {
+      "name": "start_liveness",
+      "owner": "backend/app/infrastructure/my_photos/liveness_service.py",
+      "normalized_complete_declaration_unchanged": false,
+      "original_ast_sha256": "0d532d3a1c82d5e105b7437dfae9becd039b0efb492dfcab8086920dbd89bafc",
+      "current_normalized_ast_sha256": "c8b48ee8f75e7500f3485b6a29e083985c4c41cb06d8005f77064c06612e7ed2",
+      "intentional_fix": "Post-provider creation reacquires identity/enrollment before locking/promoting the liveness row."
+    },
+    {
+      "name": "complete_liveness",
+      "owner": "backend/app/infrastructure/my_photos/liveness_service.py",
+      "normalized_complete_declaration_unchanged": false,
+      "original_ast_sha256": "ad051a510a800d660ed44b305eeb05dc9c28d2254cd67acdbd0690b6ae3b1380",
+      "current_normalized_ast_sha256": "8d4617ed93ec93b330120129ba72d69713e44bc095e8387c3092a6f170cbcb70",
+      "intentional_fix": "Initial identity lock precedes enrollment/session; immutable enrollment ID passed to finalizer."
+    },
+    {
+      "name": "accept_consent",
+      "owner": "backend/app/infrastructure/my_photos/enrollment_service.py",
+      "normalized_complete_declaration_unchanged": true,
+      "original_ast_sha256": "66729dbe1cd0cfeb6030dbe86b8fbfd403238d844d61a1439a6bf08f793f4cb4",
+      "current_normalized_ast_sha256": "66729dbe1cd0cfeb6030dbe86b8fbfd403238d844d61a1439a6bf08f793f4cb4",
+      "intentional_fix": null
+    },
+    {
+      "name": "delete_enrollment",
+      "owner": "backend/app/infrastructure/my_photos/enrollment_service.py",
+      "normalized_complete_declaration_unchanged": false,
+      "original_ast_sha256": "bf2d652fa3646cb084bc904df0d2a907d823653a831aaec6abad0eeaf9ce0c6d",
+      "current_normalized_ast_sha256": "68742a7ccd8dfd22981ef9d3453f3d7d0ba32461b5131936c5b481259f1855c5",
+      "intentional_fix": "Passes the exact previously attempted provider reference to the failure marker; public payload/signature unchanged."
+    },
+    {
+      "name": "photo_page",
+      "owner": "backend/app/infrastructure/my_photos/catalog_service.py",
+      "normalized_complete_declaration_unchanged": true,
+      "original_ast_sha256": "f29a239d5b9b7ccf26379b790001c7f7d349287cd49c1a000b92ce12e5cb7831",
+      "current_normalized_ast_sha256": "f29a239d5b9b7ccf26379b790001c7f7d349287cd49c1a000b92ce12e5cb7831",
+      "intentional_fix": null
+    },
+    {
+      "name": "record_feedback",
+      "owner": "backend/app/infrastructure/my_photos/catalog_service.py",
+      "normalized_complete_declaration_unchanged": true,
+      "original_ast_sha256": "985b0245e1558824676005b9c7a1b30334d2998902b5f5cceec49caeda7c4b98",
+      "current_normalized_ast_sha256": "985b0245e1558824676005b9c7a1b30334d2998902b5f5cceec49caeda7c4b98",
+      "intentional_fix": null
+    },
+    {
+      "name": "_search_response",
+      "owner": "backend/app/infrastructure/my_photos/responses.py",
+      "normalized_complete_declaration_unchanged": true,
+      "original_ast_sha256": "1878ae1a5b1071fff65b50ca0a426e39a709403814b8c8c3f485e085c79b74d0",
+      "current_normalized_ast_sha256": "6542ab95a749db42a50e4bf37ee07f21f6d05100ce9bc54234801313815fb587",
+      "intentional_fix": null
+    },
+    {
+      "name": "_completion_response",
+      "owner": "backend/app/infrastructure/my_photos/responses.py",
+      "normalized_complete_declaration_unchanged": true,
+      "original_ast_sha256": "240beb288c6703b0dc1cfe5867bf9009aa066ed52768be1ab92a0f71d8cb5907",
+      "current_normalized_ast_sha256": "a0550e92c757bac3f10ef8b78ea3521c73fe5ed2c8533937828576beaea379dc",
+      "intentional_fix": null
+    },
+    {
+      "name": "summary",
+      "owner": "backend/app/infrastructure/my_photos/service.py",
+      "normalized_complete_declaration_unchanged": true
+    },
+    {
+      "name": "search_status",
+      "owner": "backend/app/infrastructure/my_photos/service.py",
+      "normalized_complete_declaration_unchanged": true
+    },
+    {
+      "name": "prepare_media",
+      "owner": "backend/app/infrastructure/my_photos/service.py",
+      "normalized_complete_declaration_unchanged": true
+    },
+    {
+      "name": "authorize_downloads",
+      "owner": "backend/app/infrastructure/my_photos/service.py",
+      "normalized_complete_declaration_unchanged": true
+    },
+    {
+      "name": "download_plan",
+      "owner": "backend/app/infrastructure/my_photos/service.py",
+      "normalized_complete_declaration_unchanged": true
+    },
+    {
+      "name": "development_download_content",
+      "owner": "backend/app/infrastructure/my_photos/service.py",
+      "normalized_complete_declaration_unchanged": true
+    },
+    {
+      "name": "production_download_location",
+      "owner": "backend/app/infrastructure/my_photos/service.py",
+      "normalized_complete_declaration_unchanged": true
+    },
+    {
+      "name": "download_content_or_location",
+      "owner": "backend/app/infrastructure/my_photos/service.py",
+      "normalized_complete_declaration_unchanged": true
+    },
+    {
+      "name": "development_preview_content",
+      "owner": "backend/app/infrastructure/my_photos/service.py",
+      "normalized_complete_declaration_unchanged": true
+    },
+    {
+      "name": "preview_content_or_location",
+      "owner": "backend/app/infrastructure/my_photos/service.py",
+      "normalized_complete_declaration_unchanged": true
+    }
+  ],
+  "unchanged_count": 30,
+  "intentional_fix_declarations": {
+    "_mark_provider_deletion_pending": "Fresh locked state and exact expected provider reference guard; old failure cannot consume a new reference retry budget.",
+    "_delete_superseded_reference": "Fresh locked state preserves any newer pending reference after provider await.",
+    "_complete_provider_deletion": "Fresh locked state checks the actual current reference before clearing it.",
+    "_fail_liveness_creation": "Fresh enrollment and terminal-state preservation; enrollment lock precedes liveness subset lock.",
+    "_finalize_liveness_result": "Known immutable enrollment ID binds context; canonical identity\u2192enrollment\u2192liveness order; tenant/claim/expiry/consent gates retained.",
+    "start_liveness": "Post-provider creation reacquires identity/enrollment before locking/promoting the liveness row.",
+    "complete_liveness": "Initial identity lock precedes enrollment/session; immutable enrollment ID passed to finalizer.",
+    "delete_enrollment": "Passes the exact previously attempted provider reference to the failure marker; public payload/signature unchanged."
+  },
+  "public_names_signatures_returns_and_decorators_unchanged": 16,
+  "constructor_signature_unchanged": true,
+  "retired_closed_private_helpers": [
+    {
+      "name": "_search_by_id",
+      "ast_sha256": "38a485c102e6b49d1eff1bc47cf7ce46c14e4504186831c28b69b8c86f5c76df"
+    },
+    {
+      "name": "_search_job",
+      "ast_sha256": "1980ec0e67c0188c4e4b070af2ec5158c6f720492e9e5985d2b4cee8719f4cdf"
+    },
+    {
+      "name": "_fail_search",
+      "ast_sha256": "7869727cbce5627f3efb59d81ef6146dd855fb5d2b8ada38b372086402260fe5"
+    }
+  ],
+  "retired_current_source_reference_search": {
+    "directories": [
+      "backend/app",
+      "backend/tests",
+      "scripts",
+      "frontend",
+      "mobile",
+      "mcp-connector"
+    ],
+    "rg_exit_code": 1,
+    "matches": []
+  },
+  "current_sha256": {
+    "backend/app/infrastructure/my_photos/context.py": "5882eafd5f6279d7069588ef3f151a7e3aad3f811330b4c0293bbdefcf71f178",
+    "backend/app/infrastructure/my_photos/reference_lifecycle.py": "92eefe82dd72e6ea6cfb334a61d8397166f11da607a3c68487bcd4b9460e6f54",
+    "backend/app/infrastructure/my_photos/liveness_store.py": "c8b40f0851212897368909288ff614abc57d43012b59d3a72371000d74f95fb5",
+    "backend/app/infrastructure/my_photos/liveness_service.py": "e89205578fabce3fe0e9399e62725dac8c5c5b34366e68c40d4b4b346080ce20",
+    "backend/app/infrastructure/my_photos/enrollment_service.py": "58d3f2cd10df3657ee83a3c00a132098268fb79eb08285ba83d9c21bb92bea62",
+    "backend/app/infrastructure/my_photos/catalog_service.py": "d01b169cd6c52ab08342588dc91fea5adb1564643e990825361a148ae47f3e77",
+    "backend/app/infrastructure/my_photos/responses.py": "91fcb27b1bfd60b05d2d37da07ad16bce187a00ad508a4a0daa8a39bcc218331",
+    "backend/app/infrastructure/my_photos/service.py": "5b4bc5722156a745c37ab20205506baa319961cf94e35c40d9ab47704c99775e",
+    "backend/app/infrastructure/my_photos/liveness_validation.py": "8e016d8ad12f6a6c76b55d86ceaff9e188d92873b01625045a7a1d0b8bf93cf4"
+  },
+  "limits": "Equivalent receiver rewrites and explicit fixes are distinguished. Actual PostgreSQL concurrency/deadlock qualification remains unrun; lock-order evidence is from executed ORM statements compiled with PostgreSQL dialect, alongside SQLite transaction tests. No entire MyPhotos/runtime audit closure claimed."
+}

@@ -1,0 +1,16 @@
+{
+  "command": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "-p",
+    "closed_artifact_history_before_plugin",
+    "tests/unit/scripts/test_dashboard_audit_artifact_retirement.py"
+  ],
+  "exit_code": 1,
+  "method": "Actual collected testcase module identity patched to separately reconstructed/hash-matched original script module; project runtime files unchanged.",
+  "earlier_attempt": "Old hook imported the package-qualified testcase copy rather than pytest collected module; its12passes exercised current source, not original. Raw log and previous command retained. Corrected only audit hook; no reason to rerun unchanged current119cases."
+}

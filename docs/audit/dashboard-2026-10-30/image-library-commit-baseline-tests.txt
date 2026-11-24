@@ -1,0 +1,48 @@
+....FFFF                                                                 [100%]
+================================== FAILURES ===================================
+_ test_committed_library_and_crop_objects_survive_lost_acknowledgement[lost-ack-passport_front-manual] _
+tests\unit\presentation\test_passport_image_library_commit_outcomes.py:151: in test_committed_library_and_crop_objects_survive_lost_acknowledgement
+    assert references <= storage.objects.keys(), "Committed passport image references lost their stored bytes"
+E   AssertionError: Committed passport image references lost their stored bytes
+E   assert {'front/synthetic-front.jpg', 'passport-crops/67b71105-ad21-4a56-90b8-1cc6b6f18c1b/70771a00-28b0-477c-8f1c-eb82e3f05cb...a56-90b8-1cc6b6f18c1b/70771a00-28b0-477c-8f1c-eb82e3f05cb5/passport_front/manual/6280779ff2b74a3d95d52a71981bccbe.jpg'} <= dict_keys(['front/synthetic-front.jpg'])
+E    +  where dict_keys(['front/synthetic-front.jpg']) = <built-in method keys of dict object at 0x0000029683852040>()
+E    +    where <built-in method keys of dict object at 0x0000029683852040> = {'front/synthetic-front.jpg': b'canonical-source'}.keys
+E    +      where {'front/synthetic-front.jpg': b'canonical-source'} = <test_passport_image_library_commit_outcomes.ImageStorage object at 0x00000296836B0C50>.objects
+---------------------------- Captured stdout call -----------------------------
+2026-10-31T08:43:11.944088Z [info     ] passport_reextraction_queued   [app.application.use_cases.passports.reextract_passport_submission_use_case] agency_id=67b71105-ad21-4a56-90b8-1cc6b6f18c1b group_id=30870e88-b437-49f6-a4a7-61ca8b32360c job_id=38f926de-8b8e-4fc5-8744-9b5a40fe1021 submission_id=70771a00-28b0-477c-8f1c-eb82e3f05cb5
+------------------------------ Captured log call ------------------------------
+INFO     app.application.use_cases.passports.reextract_passport_submission_use_case:reextract_passport_submission_use_case.py:65 {'submission_id': '70771a00-28b0-477c-8f1c-eb82e3f05cb5', 'job_id': '38f926de-8b8e-4fc5-8744-9b5a40fe1021', 'group_id': '30870e88-b437-49f6-a4a7-61ca8b32360c', 'agency_id': '67b71105-ad21-4a56-90b8-1cc6b6f18c1b', 'event': 'passport_reextraction_queued', 'logger': 'app.application.use_cases.passports.reextract_passport_submission_use_case', 'level': 'info', 'timestamp': '2026-10-31T08:43:11.944088Z'}
+_ test_committed_library_and_crop_objects_survive_lost_acknowledgement[lost-ack-passport_front-select] _
+tests\unit\presentation\test_passport_image_library_commit_outcomes.py:151: in test_committed_library_and_crop_objects_survive_lost_acknowledgement
+    assert references <= storage.objects.keys(), "Committed passport image references lost their stored bytes"
+E   AssertionError: Committed passport image references lost their stored bytes
+E   assert {'passport-crops/b5f45394-0fc7-4d8b-b45b-708b958d2aa3/186a6ac6-507a-4ec4-902a-c32c13cf79e2/passport_front/ea413c8f377e...-library/b5f45394-0fc7-4d8b-b45b-708b958d2aa3/186a6ac6-507a-4ec4-902a-c32c13cf79e2/passport_front/manual/existing.jpg'} <= dict_keys(['front/synthetic-front.jpg', 'passport-image-library/b5f45394-0fc7-4d8b-b45b-708b958d2aa3/186a6ac6-507a-4ec4-902a-c32c13cf79e2/passport_front/manual/existing.jpg'])
+E    +  where dict_keys(['front/synthetic-front.jpg', 'passport-image-library/b5f45394-0fc7-4d8b-b45b-708b958d2aa3/186a6ac6-507a-4ec4-902a-c32c13cf79e2/passport_front/manual/existing.jpg']) = <built-in method keys of dict object at 0x0000029683B135C0>()
+E    +    where <built-in method keys of dict object at 0x0000029683B135C0> = {'front/synthetic-front.jpg': b'canonical-source', 'passport-image-library/b5f45394-0fc7-4d8b-b45b-708b958d2aa3/186a6ac6-507a-4ec4-902a-c32c13cf79e2/passport_front/manual/existing.jpg': b'canonical-existing'}.keys
+E    +      where {'front/synthetic-front.jpg': b'canonical-source', 'passport-image-library/b5f45394-0fc7-4d8b-b45b-708b958d2aa3/186a6ac6-507a-4ec4-902a-c32c13cf79e2/passport_front/manual/existing.jpg': b'canonical-existing'} = <test_passport_image_library_commit_outcomes.ImageStorage object at 0x0000029683B0DD90>.objects
+---------------------------- Captured stdout call -----------------------------
+2026-10-31T08:43:12.579038Z [info     ] passport_reextraction_queued   [app.application.use_cases.passports.reextract_passport_submission_use_case] agency_id=b5f45394-0fc7-4d8b-b45b-708b958d2aa3 group_id=4282cd00-48ab-442b-8d8c-7423dba32c10 job_id=47805f4a-c53e-461c-9f45-17748251a69f submission_id=186a6ac6-507a-4ec4-902a-c32c13cf79e2
+------------------------------ Captured log call ------------------------------
+INFO     app.application.use_cases.passports.reextract_passport_submission_use_case:reextract_passport_submission_use_case.py:65 {'submission_id': '186a6ac6-507a-4ec4-902a-c32c13cf79e2', 'job_id': '47805f4a-c53e-461c-9f45-17748251a69f', 'group_id': '4282cd00-48ab-442b-8d8c-7423dba32c10', 'agency_id': 'b5f45394-0fc7-4d8b-b45b-708b958d2aa3', 'event': 'passport_reextraction_queued', 'logger': 'app.application.use_cases.passports.reextract_passport_submission_use_case', 'level': 'info', 'timestamp': '2026-10-31T08:43:12.579038Z'}
+_ test_committed_library_and_crop_objects_survive_lost_acknowledgement[lost-ack-passport_back_cover-manual] _
+tests\unit\presentation\test_passport_image_library_commit_outcomes.py:151: in test_committed_library_and_crop_objects_survive_lost_acknowledgement
+    assert references <= storage.objects.keys(), "Committed passport image references lost their stored bytes"
+E   AssertionError: Committed passport image references lost their stored bytes
+E   assert {'back/synthetic-cover.jpg', 'passport-crops/3d5f1a68-7b38-4fa2-a2c3-f8d10c3c6724/582bab1d-83f3-48fb-b49c-696e83d1599b...2c3-f8d10c3c6724/582bab1d-83f3-48fb-b49c-696e83d1599b/passport_back_cover/manual/1aec02482fe2494ab08ce810b67b4ccd.jpg'} <= dict_keys(['back/synthetic-cover.jpg'])
+E    +  where dict_keys(['back/synthetic-cover.jpg']) = <built-in method keys of dict object at 0x0000029683BC8180>()
+E    +    where <built-in method keys of dict object at 0x0000029683BC8180> = {'back/synthetic-cover.jpg': b'canonical-source'}.keys
+E    +      where {'back/synthetic-cover.jpg': b'canonical-source'} = <test_passport_image_library_commit_outcomes.ImageStorage object at 0x00000296836C9850>.objects
+_ test_committed_library_and_crop_objects_survive_lost_acknowledgement[lost-ack-passport_back_cover-select] _
+tests\unit\presentation\test_passport_image_library_commit_outcomes.py:151: in test_committed_library_and_crop_objects_survive_lost_acknowledgement
+    assert references <= storage.objects.keys(), "Committed passport image references lost their stored bytes"
+E   AssertionError: Committed passport image references lost their stored bytes
+E   assert {'back/synthetic-cover.jpg', 'passport-crops/251a0115-abe8-4602-b576-51d3fb3f322b/1df12fec-fef3-46bb-b7d8-faa374b79c4a...ary/251a0115-abe8-4602-b576-51d3fb3f322b/1df12fec-fef3-46bb-b7d8-faa374b79c4a/passport_back_cover/manual/existing.jpg'} <= dict_keys(['back/synthetic-cover.jpg', 'passport-image-library/251a0115-abe8-4602-b576-51d3fb3f322b/1df12fec-fef3-46bb-b7d8-faa374b79c4a/passport_back_cover/manual/existing.jpg'])
+E    +  where dict_keys(['back/synthetic-cover.jpg', 'passport-image-library/251a0115-abe8-4602-b576-51d3fb3f322b/1df12fec-fef3-46bb-b7d8-faa374b79c4a/passport_back_cover/manual/existing.jpg']) = <built-in method keys of dict object at 0x0000029683C65040>()
+E    +    where <built-in method keys of dict object at 0x0000029683C65040> = {'back/synthetic-cover.jpg': b'canonical-source', 'passport-image-library/251a0115-abe8-4602-b576-51d3fb3f322b/1df12fec-fef3-46bb-b7d8-faa374b79c4a/passport_back_cover/manual/existing.jpg': b'canonical-existing'}.keys
+E    +      where {'back/synthetic-cover.jpg': b'canonical-source', 'passport-image-library/251a0115-abe8-4602-b576-51d3fb3f322b/1df12fec-fef3-46bb-b7d8-faa374b79c4a/passport_back_cover/manual/existing.jpg': b'canonical-existing'} = <test_passport_image_library_commit_outcomes.ImageStorage object at 0x0000029683C0B610>.objects
+=========================== short test summary info ===========================
+FAILED tests/unit/presentation/test_passport_image_library_commit_outcomes.py::test_committed_library_and_crop_objects_survive_lost_acknowledgement[lost-ack-passport_front-manual]
+FAILED tests/unit/presentation/test_passport_image_library_commit_outcomes.py::test_committed_library_and_crop_objects_survive_lost_acknowledgement[lost-ack-passport_front-select]
+FAILED tests/unit/presentation/test_passport_image_library_commit_outcomes.py::test_committed_library_and_crop_objects_survive_lost_acknowledgement[lost-ack-passport_back_cover-manual]
+FAILED tests/unit/presentation/test_passport_image_library_commit_outcomes.py::test_committed_library_and_crop_objects_survive_lost_acknowledgement[lost-ack-passport_back_cover-select]
+4 failed, 4 passed in 3.05s

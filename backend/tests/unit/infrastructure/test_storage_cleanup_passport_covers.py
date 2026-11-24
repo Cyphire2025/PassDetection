@@ -13,6 +13,7 @@ from app.application.use_cases.passports.client_submit_passport_use_case import 
 )
 from app.domain.entities.entities import ClientGroup, PassportSubmission
 from app.infrastructure.documents import storage_cleanup
+from app.infrastructure.documents import storage_cleanup_execution as cleanup_execution
 from app.infrastructure.documents.storage_cleanup import (
     StorageCleanupCipher,
     StorageCleanupClaim,
@@ -87,9 +88,9 @@ async def test_cleanup_accepts_cover_keys_from_real_client_submission(
         agency_id=group.agency_id,
     )
     complete, defer = AsyncMock(), AsyncMock()
-    monkeypatch.setattr(storage_cleanup, "_claim_storage_cleanup_job", AsyncMock(return_value=claim))
-    monkeypatch.setattr(storage_cleanup, "_complete_storage_cleanup_job", complete)
-    monkeypatch.setattr(storage_cleanup, "_defer_storage_cleanup_job", defer)
+    monkeypatch.setattr(cleanup_execution, "_claim_storage_cleanup_job", AsyncMock(return_value=claim))
+    monkeypatch.setattr(cleanup_execution, "_complete_storage_cleanup_job", complete)
+    monkeypatch.setattr(cleanup_execution, "_defer_storage_cleanup_job", defer)
     storage.delete_files.return_value = len(keys)
     session_factory = MagicMock()
     result = await storage_cleanup.process_storage_cleanup_job(

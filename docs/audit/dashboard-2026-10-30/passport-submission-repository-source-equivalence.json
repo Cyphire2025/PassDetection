@@ -1,0 +1,291 @@
+{
+  "schema_version": 1,
+  "original": {
+    "path": "backend/app/infrastructure/repositories/passport_submission_repository.py",
+    "sha256": "86d3e08deca66ccc621be769e73a2e8df822c0f540be5779467c8e0cab3379c2",
+    "lines": 901
+  },
+  "proof_basis": "Complete25 moved declarations, explicit self._session\u2192session and helper-call receiver conversion; constructor exact; every actual public/private facade signature/default and runtime get_type_hints exact; original imported object bindings exact.",
+  "moved_methods": [
+    {
+      "original_method": "_to_entity",
+      "actual_owner": "backend/app/infrastructure/repositories/passport_submission_mapping.py",
+      "actual_function": "_to_entity",
+      "complete_declaration_ast_equal_after_explicit_receiver_conversion": true,
+      "facade_signature_defaults_hints_exact": true
+    },
+    {
+      "original_method": "_to_model",
+      "actual_owner": "backend/app/infrastructure/repositories/passport_submission_mapping.py",
+      "actual_function": "_to_model",
+      "complete_declaration_ast_equal_after_explicit_receiver_conversion": true,
+      "facade_signature_defaults_hints_exact": true
+    },
+    {
+      "original_method": "get_by_id",
+      "actual_owner": "backend/app/infrastructure/repositories/passport_submission_reads.py",
+      "actual_function": "get_by_id",
+      "complete_declaration_ast_equal_after_explicit_receiver_conversion": true,
+      "facade_signature_defaults_hints_exact": true
+    },
+    {
+      "original_method": "get_by_upload_idempotency_key",
+      "actual_owner": "backend/app/infrastructure/repositories/passport_submission_reads.py",
+      "actual_function": "get_by_upload_idempotency_key",
+      "complete_declaration_ast_equal_after_explicit_receiver_conversion": true,
+      "facade_signature_defaults_hints_exact": true
+    },
+    {
+      "original_method": "get_by_id_for_update",
+      "actual_owner": "backend/app/infrastructure/repositories/passport_submission_reads.py",
+      "actual_function": "get_by_id_for_update",
+      "complete_declaration_ast_equal_after_explicit_receiver_conversion": true,
+      "facade_signature_defaults_hints_exact": true
+    },
+    {
+      "original_method": "save",
+      "actual_owner": "backend/app/infrastructure/repositories/passport_submission_persistence.py",
+      "actual_function": "save",
+      "complete_declaration_ast_equal_after_explicit_receiver_conversion": true,
+      "facade_signature_defaults_hints_exact": true
+    },
+    {
+      "original_method": "save_idempotent",
+      "actual_owner": "backend/app/infrastructure/repositories/passport_submission_persistence.py",
+      "actual_function": "save_idempotent",
+      "complete_declaration_ast_equal_after_explicit_receiver_conversion": true,
+      "facade_signature_defaults_hints_exact": true
+    },
+    {
+      "original_method": "update",
+      "actual_owner": "backend/app/infrastructure/repositories/passport_submission_persistence.py",
+      "actual_function": "update",
+      "complete_declaration_ast_equal_after_explicit_receiver_conversion": true,
+      "facade_signature_defaults_hints_exact": true
+    },
+    {
+      "original_method": "apply_extraction_result",
+      "actual_owner": "backend/app/infrastructure/repositories/passport_submission_processing.py",
+      "actual_function": "apply_extraction_result",
+      "complete_declaration_ast_equal_after_explicit_receiver_conversion": true,
+      "facade_signature_defaults_hints_exact": true
+    },
+    {
+      "original_method": "apply_extraction_failure",
+      "actual_owner": "backend/app/infrastructure/repositories/passport_submission_processing.py",
+      "actual_function": "apply_extraction_failure",
+      "complete_declaration_ast_equal_after_explicit_receiver_conversion": true,
+      "facade_signature_defaults_hints_exact": true
+    },
+    {
+      "original_method": "apply_post_submission_verification",
+      "actual_owner": "backend/app/infrastructure/repositories/passport_submission_processing.py",
+      "actual_function": "apply_post_submission_verification",
+      "complete_declaration_ast_equal_after_explicit_receiver_conversion": true,
+      "facade_signature_defaults_hints_exact": true
+    },
+    {
+      "original_method": "_apply_extraction_fields",
+      "actual_owner": "backend/app/infrastructure/repositories/passport_submission_mapping.py",
+      "actual_function": "_apply_extraction_fields",
+      "complete_declaration_ast_equal_after_explicit_receiver_conversion": true,
+      "facade_signature_defaults_hints_exact": true
+    },
+    {
+      "original_method": "delete",
+      "actual_owner": "backend/app/infrastructure/repositories/passport_submission_persistence.py",
+      "actual_function": "delete_submission",
+      "complete_declaration_ast_equal_after_explicit_receiver_conversion": true,
+      "facade_signature_defaults_hints_exact": true
+    },
+    {
+      "original_method": "_office_visible_statuses",
+      "actual_owner": "backend/app/infrastructure/repositories/passport_submission_queries.py",
+      "actual_function": "_office_visible_statuses",
+      "complete_declaration_ast_equal_after_explicit_receiver_conversion": true,
+      "facade_signature_defaults_hints_exact": true
+    },
+    {
+      "original_method": "_status_filter_values",
+      "actual_owner": "backend/app/infrastructure/repositories/passport_submission_queries.py",
+      "actual_function": "_status_filter_values",
+      "complete_declaration_ast_equal_after_explicit_receiver_conversion": true,
+      "facade_signature_defaults_hints_exact": true
+    },
+    {
+      "original_method": "_apply_manager_group_scope",
+      "actual_owner": "backend/app/infrastructure/repositories/passport_submission_queries.py",
+      "actual_function": "_apply_manager_group_scope",
+      "complete_declaration_ast_equal_after_explicit_receiver_conversion": true,
+      "facade_signature_defaults_hints_exact": true
+    },
+    {
+      "original_method": "list_by_agency",
+      "actual_owner": "backend/app/infrastructure/repositories/passport_submission_reads.py",
+      "actual_function": "list_by_agency",
+      "complete_declaration_ast_equal_after_explicit_receiver_conversion": true,
+      "facade_signature_defaults_hints_exact": true
+    },
+    {
+      "original_method": "_agency_scope",
+      "actual_owner": "backend/app/infrastructure/repositories/passport_submission_queries.py",
+      "actual_function": "_agency_scope",
+      "complete_declaration_ast_equal_after_explicit_receiver_conversion": true,
+      "facade_signature_defaults_hints_exact": true
+    },
+    {
+      "original_method": "list_recent_dashboard_submissions",
+      "actual_owner": "backend/app/infrastructure/repositories/passport_submission_reads.py",
+      "actual_function": "list_recent_dashboard_submissions",
+      "complete_declaration_ast_equal_after_explicit_receiver_conversion": true,
+      "facade_signature_defaults_hints_exact": true
+    },
+    {
+      "original_method": "_group_scope",
+      "actual_owner": "backend/app/infrastructure/repositories/passport_submission_queries.py",
+      "actual_function": "_group_scope",
+      "complete_declaration_ast_equal_after_explicit_receiver_conversion": true,
+      "facade_signature_defaults_hints_exact": true
+    },
+    {
+      "original_method": "list_by_group",
+      "actual_owner": "backend/app/infrastructure/repositories/passport_submission_reads.py",
+      "actual_function": "list_by_group",
+      "complete_declaration_ast_equal_after_explicit_receiver_conversion": true,
+      "facade_signature_defaults_hints_exact": true
+    },
+    {
+      "original_method": "_apply_search",
+      "actual_owner": "backend/app/infrastructure/repositories/passport_submission_queries.py",
+      "actual_function": "_apply_search",
+      "complete_declaration_ast_equal_after_explicit_receiver_conversion": true,
+      "facade_signature_defaults_hints_exact": true
+    },
+    {
+      "original_method": "list_group_summaries_by_agency",
+      "actual_owner": "backend/app/infrastructure/repositories/passport_submission_groups.py",
+      "actual_function": "list_group_summaries_by_agency",
+      "complete_declaration_ast_equal_after_explicit_receiver_conversion": true,
+      "facade_signature_defaults_hints_exact": true
+    },
+    {
+      "original_method": "exists_contact_in_group",
+      "actual_owner": "backend/app/infrastructure/repositories/passport_submission_contacts.py",
+      "actual_function": "exists_contact_in_group",
+      "complete_declaration_ast_equal_after_explicit_receiver_conversion": true,
+      "facade_signature_defaults_hints_exact": true
+    },
+    {
+      "original_method": "count_by_agency",
+      "actual_owner": "backend/app/infrastructure/repositories/passport_submission_reads.py",
+      "actual_function": "count_by_agency",
+      "complete_declaration_ast_equal_after_explicit_receiver_conversion": true,
+      "facade_signature_defaults_hints_exact": true
+    }
+  ],
+  "preserved_import_bindings": [
+    "hashlib",
+    "uuid",
+    "Sequence",
+    "Any",
+    "Literal",
+    "Select",
+    "and_",
+    "case",
+    "delete",
+    "func",
+    "or_",
+    "select",
+    "IntegrityError",
+    "AsyncSession",
+    "AuthorizationPolicy",
+    "get_logger",
+    "CONFIRMED_PASSPORT_STATUS_VALUES",
+    "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+    "PENDING_REVIEW_PASSPORT_STATUS_VALUES",
+    "GroupStatus",
+    "PassportExtractionStatus",
+    "PassportProcessingStatus",
+    "PassportSubmission",
+    "User",
+    "EntityNotFoundError",
+    "IPassportSubmissionRepository",
+    "PassportSubmissionGroupSummary",
+    "RECENT_DASHBOARD_LIMIT",
+    "RECENT_DASHBOARD_TEXT_LIMIT",
+    "DashboardProjectionLimitError",
+    "DashboardRecentSubmission",
+    "normalize_phone_number",
+    "phone_storage_variants",
+    "ClientGroupModel",
+    "ManagerGroupAccessModel",
+    "PassportSubmissionModel",
+    "passport_search_fields",
+    "substring_predicate",
+    "operational_roster_member",
+    "PostSubmissionVerificationJobRepository"
+  ],
+  "fixtures": [
+    {
+      "path": "backend/tests/unit/infrastructure/test_passport_staff_approval_repository.py",
+      "original_sha256": "30548b9cba60bfaebd5ff825c7710338cf106e9c6c630d45061b4cccce5059e9",
+      "current_sha256": "579f9ea523f92f9c856d2a02c0f6295bc84fc99b0ccad2fee662c4f36cc5c06c",
+      "all_original_source_restored_by_exact_fixture_target_inverse": true,
+      "assertions_unchanged": true
+    },
+    {
+      "path": "backend/tests/unit/application/test_passport_reextraction_conflicts.py",
+      "original_sha256": "61a559317dec93e48e0101ac12f78ae1afd2c00926ffc36e4c05fbfaccc76aa7",
+      "current_sha256": "675c5e559e4ef9a8d6f9f325df6ecae7d13a27242b2c4f15f58083f99c00bd65",
+      "all_original_source_restored_by_exact_fixture_target_inverse": true,
+      "assertions_unchanged": true
+    }
+  ],
+  "metadata_tradeoffs": [
+    "Moved static helper __module__/__qualname identify the actual owner; original class attributes/import path remain. Internal helpers no longer dispatch through facade private monkeypatches; two existing tests now instrument the actual owners with exact source inverse.",
+    "Original logger category is preserved as the literal original module name in the persistence owner.",
+    "No model/schema/shared authorization changes, no commits/rollbacks added, no threshold or SQL normalization."
+  ],
+  "current_runtime": [
+    {
+      "path": "backend/app/infrastructure/repositories/passport_submission_repository.py",
+      "sha256": "3aa855541a75e4efddeebb35f639bfa6ba4026152d38f8e255e0634e98a919b0",
+      "lines": 384
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_submission_mapping.py",
+      "sha256": "df419cb06bc2915c0642e5541ec49d3c4a633df54ef23291774abccdf0a26552",
+      "lines": 147
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_submission_persistence.py",
+      "sha256": "0c759e6b16f4a6659e1ac9394b39917b4d0fb2ae986faddf5de6b11b497aacfd",
+      "lines": 142
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_submission_processing.py",
+      "sha256": "3391aa1e39f14c06d698b704b92151561cc45754aa0d6bd27ad0881c342dab3a",
+      "lines": 148
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_submission_queries.py",
+      "sha256": "742694def1423be8b4ac175063f8d63cd1bd9c050b04e19e491d5e3751f059b2",
+      "lines": 122
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_submission_reads.py",
+      "sha256": "d7a140c34de53e971655d032cbdc185da126cb13bb8e1daff7e1ac778df7b20c",
+      "lines": 208
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_submission_groups.py",
+      "sha256": "21f669d09021264cffd029f90d3f9ff4d706f5bae44cdf5773e8d1ce3ff30078",
+      "lines": 183
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_submission_contacts.py",
+      "sha256": "c61b10a39d982e25d86ca25e720056960308d90f23b7625de4ff06ef07730346",
+      "lines": 79
+    }
+  ]
+}

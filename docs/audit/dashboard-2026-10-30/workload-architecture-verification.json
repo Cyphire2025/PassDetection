@@ -1,0 +1,72 @@
+{
+  "status": "frozen-focused",
+  "original_lines_before_architecture": 737,
+  "runtime_owners": 7,
+  "current_runtime_lines": {
+    "scripts/qa/qualify_workload_capacity.py": 109,
+    "scripts/qa/workload_capacity_contract.py": 47,
+    "scripts/qa/workload_capacity_gates.py": 129,
+    "scripts/qa/workload_capacity_measurements.py": 142,
+    "scripts/qa/workload_capacity_resources.py": 80,
+    "scripts/qa/workload_capacity_run.py": 255,
+    "scripts/qa/workload_capacity_traffic.py": 171
+  },
+  "public_entrypoint": "scripts/qa/qualify_workload_capacity.py remains same direct CLI, no target/credential/budget overrides; main is direct alias to run owner.",
+  "proofs": {
+    "mechanical_whole_declarations": 17,
+    "final_whole_declarations_exact": 15,
+    "explicit_final_type_followthrough_declarations": 2,
+    "actual_global_bindings_equal": 103,
+    "constant_AST_and_values_exact": 14,
+    "all17_public_signatures_evaluated_hints_module_qualname_direct_alias_pickle_exact": true,
+    "observer_test_raw_source_preserved_except_one_actual_owner_import": true
+  },
+  "checks": {
+    "focused_cases": 32,
+    "files": 4,
+    "seconds": 1.796,
+    "Ruff_files": 9,
+    "format_files": 9,
+    "basic_body_mypy_sources": 7,
+    "type_options": "--check-untyped-defs --follow-imports=silent --platform linux; existing public generic annotations retained, not strict-mode certification.",
+    "standalone_cli": "Two actual fresh Python help/unknown-argument processes, unrelated cwd, cleared Python path and no operational credentials. No Docker or provider calls."
+  },
+  "source_sha256": {
+    "scripts/qa/qualify_workload_capacity.py": "ef67abbde653927b30fe191067cde38eedc06244aaa6955a5b29a82c75fdc4bb",
+    "scripts/qa/test_capacity_observer_lifecycle.py": "cdea0abebb404e413fa1fd0221f9140f7806731ec0b6f9c180e371e7c5bab35e",
+    "scripts/qa/test_mcp_capacity_profile.py": "e18ef81199a70a87bbaacbb02f8af00b1bfb1362576a57ab13db1bb3542620e1",
+    "scripts/qa/test_workload_capacity.py": "a0e1be994d760740c23a8dfa0373816211db47dc70b93f712352a73297ed118b",
+    "scripts/qa/test_workload_capacity_owners.py": "9dca3a95236c91e9b2ac9aac933841724997a7ca0cc89bab60cf4ef2293fa616",
+    "scripts/qa/workload_capacity_contract.py": "0b08119561bda6eb47d15843da63bc6af9f838a784707aa015508d3af1f1e743",
+    "scripts/qa/workload_capacity_gates.py": "b4de49ccedbbc05e1686b3be7fab2207f7bfb1bc5c58eacc7b233887b9c72f6f",
+    "scripts/qa/workload_capacity_measurements.py": "0fef0bd1c2c90e33046aae59c8de09f554051d66aa55379ed060384d851bc70b",
+    "scripts/qa/workload_capacity_resources.py": "bef9f6afc679413e818bc7fded99b1cdd858c6f46e6d5456a892fc98ca4b0747",
+    "scripts/qa/workload_capacity_run.py": "1a03b1d0303e9a1733d8f344af2b6810e5929c047e57548c4ea071bc3faa7d90",
+    "scripts/qa/workload_capacity_traffic.py": "3b77ec36912a1df4dca13ed566cd51dcf67bac684c01dbf65d816b67d44df250"
+  },
+  "artifacts": {
+    "workload-architecture-mechanical-proof.json": "332dab72ab0f8ae39e622114996b7049338056a7aec3b11451c0f60b9055d428",
+    "workload-architecture-final-proof.json": "e93e706aa412b0f29c0242f98e650605d82a675c959d907a2a519edff1480626",
+    "workload-architecture-original-source.json": "483def85772f9e7f19535c007194289b18e4b877b074e21e4fd9e8d2bbd1a546",
+    "workload-architecture-reviewed-files.json": "555ec20f47fd8363e10ddfe013c010dc6e09f922d3e04308a44d6bcf60ed3a37",
+    "workload-architecture-final-current-tests.txt": "606a3699eff5d3618d791ada389e953a55d0d1d9dc3a90a9f417b65e50fd9994",
+    "workload-architecture-final-current-ruff.txt": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0",
+    "workload-architecture-final-current-format.txt": "38e84e0948ed804ef5b17840dd465124bf6e79a3716b4cdf09673cd6837f2df5",
+    "workload-architecture-qualified-basic-mypy.txt": "e2702f9afc4c0f80ff1e8624f77af7a7d2689ca184512114aae5967a76229ba8",
+    "workload-architecture-basic-mypy.txt": "303a64970023725c970f44a39bb44af37865e5397c6a418a9a50e6ea62b2ea48",
+    "workload-actorless-controls-before.txt": "3385f7090e9785e44f5d5b518c0e55b231763b718dce3bb3591e2959cf14005c",
+    "workload-architecture-typing-history.txt": "e35bf1d0dc03f569b7b41545d8559ff9a9f8e495b5e9c1bf747f5cf2e64f332d"
+  },
+  "history": [
+    "Behavior checkpoint capacity-observer-verification.json retained immutable and explicitly precedes this partition.",
+    "First source proof used inspect.getclosurevars and saw attribute json as global; corrected actual LOAD_GLOBAL traversal verifies103 bindings without adding unused imports.",
+    "First size assertion assumed738 lines; actual frozen source737. Pre-edit check failed safely; changed to exact prior source digest before writing.",
+    "Initial five basic type diagnostics plus two inferred local stream diagnostics fixed with actorless-invalid guards, local annotations and two-reference variable rename. Control tests demonstrate actorless behavior before/after; no new security vulnerability claim."
+  ],
+  "remaining": [
+    "Capacity fixture492 mixed seeding/observation/verification architecture, retained597 and traveller690 operator architecture remain open.",
+    "Twenty-five imported/platform type diagnostics remain tracked separately.",
+    "No live Docker, Redis, PostgreSQL, object-storage, Celery or production/VPS performance qualification.",
+    "All release source baselines and existing quality/security/workflow gates unchanged by this root QA source-only partition; MCP matrix remains historical/deferred."
+  ]
+}

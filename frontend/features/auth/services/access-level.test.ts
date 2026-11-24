@@ -75,4 +75,19 @@ describe("access level session reconciliation", () => {
     expect(useAuthStore.getState().user?.id).toBe("other-owner");
     expect(effects.navigate).not.toHaveBeenCalled();
   });
+
+  it("does not clear the new account's cache or change its access level after awaiting old query cancellation", async () => {
+    let finishCancellation!: () => void;
+    const client = new QueryClient();
+    vi.spyOn(client, "cancelQueries").mockImplementation(() => new Promise<void>((resolve) => { finishCancellation = resolve; }));
+    const clear = vi.spyOn(client, "clear");
+    const switching = changeAccessLevel("agency_staff", client);
+    useAuthStore.getState().setSession({ ...owner, id: "replacement-owner" });
+    finishCancellation();
+    await switching;
+    expect(effects.change).not.toHaveBeenCalled();
+    expect(effects.reset).not.toHaveBeenCalled();
+    expect(clear).not.toHaveBeenCalled();
+    expect(useAuthStore.getState().user?.id).toBe("replacement-owner");
+  });
 });

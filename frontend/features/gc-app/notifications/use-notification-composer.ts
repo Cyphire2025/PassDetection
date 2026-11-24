@@ -1,8 +1,8 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { notificationsApi } from "./notifications.api";
+import { notificationOperation, type NotificationOperation } from "./notification-operation";
 import { isDeletedWithoutSend, isNotFound, isRejectedBeforeSend, notificationError } from "./notification-errors";
 import { clearPendingSend, pendingSendKey, persistPendingSend, readPendingSend } from "./pending-send";
 import { NOTIFICATION_BODY_LIMIT, NOTIFICATION_TITLE_LIMIT, type NotificationBatch, type NotificationDraft, type NotificationDraftInput, type NotificationPreview, type NotificationSendInput } from "./notification-types";
@@ -27,15 +27,21 @@ export function useNotificationComposer(agencyId: string, actorId: string) {
   const [resending, setResending] = useState(false);
   const [editorOpen, setEditorOpen] = useState(false);
   const running = useRef(false);
+  const mounted = useRef(false);
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
   const hasEdits = draft ? !sameInput(form, draft) : Boolean(form.title || form.body || form.group_ids.length || form.audience === "all_active_trips");
 
   const refreshLists = () => { void queryClient.invalidateQueries({ queryKey: ["gc-app", agencyId, "notifications"] }).catch(() => undefined); };
-  const run = async (operation: () => Promise<void>, fallback: string) => {
+  const run = async (operation: (owner: NotificationOperation) => Promise<void>, fallback: string) => {
     if (running.current) return;
     running.current = true;
     setBusy(true);
     setError(null);
-    try { await operation(); }
+    try {
+      const owner = notificationOperation(agencyId, actorId, () => mounted.current);
+      owner.assertCurrent();
+      await operation(owner);
+    }
     catch (cause) { setError(notificationError(cause, fallback)); }
     finally { running.current = false; setBusy(false); }
   };
@@ -63,14 +69,15 @@ export function useNotificationComposer(agencyId: string, actorId: string) {
     setEditorOpen(true);
     return true;
   };
-  const saveCurrent = async (): Promise<NotificationDraft> => {
+  const saveCurrent = async (owner: NotificationOperation): Promise<NotificationDraft> => {
     const input = { ...form, title: form.title.trim(), body: form.body.trim(), group_ids: [...form.group_ids].sort() };
     if (!input.title || !input.body) throw new Error("Enter a notification title and message.");
     if (input.title.length > NOTIFICATION_TITLE_LIMIT || input.body.length > NOTIFICATION_BODY_LIMIT) throw new Error("Shorten the notification to the displayed character limits.");
     if (input.audience === "selected_groups" && input.group_ids.length === 0) throw new Error("Choose at least one active trip.");
     const saved = draft && sameInput(input, draft) ? draft : draft
-      ? await notificationsApi.updateDraft(agencyId, draft, input)
-      : await notificationsApi.createDraft(agencyId, input);
+      ? await owner.updateDraft(draft, input)
+      : await owner.createDraft(input);
+    owner.assertCurrent();
     setDraft(saved);
     setForm(inputFrom(saved));
     applyNames(saved);
@@ -84,21 +91,23 @@ export function useNotificationComposer(agencyId: string, actorId: string) {
     setReview(null);
     setNotice(null);
   };
-  const save = () => run(async () => {
+  const save = () => run(async (owner) => {
     if (pending) return;
-    await saveCurrent();
+    await saveCurrent(owner);
+    owner.assertCurrent();
     setEditorOpen(false);
     setNotice("Message saved. This action did not send a phone notification.");
   }, "The notification draft could not be saved.");
-  const prepareReview = () => run(async () => {
+  const prepareReview = () => run(async (owner) => {
     if (pending) return;
-    const saved = await saveCurrent();
-    const preview = await notificationsApi.preview(agencyId, saved);
+    const saved = await saveCurrent(owner);
+    const preview = await owner.preview(saved);
+    owner.assertCurrent();
     setReview({ draft: saved, preview });
     setNotice(null);
   }, "The audience could not be reviewed. Nothing has been sent.");
 
-  const send = () => run(async () => {
+  const send = () => run(async (owner) => {
     if (!review || pending) return;
     const requestId = crypto.randomUUID();
     const marker = { request_id: requestId, draft_id: review.draft.id };
@@ -107,7 +116,7 @@ export function useNotificationComposer(agencyId: string, actorId: string) {
     catch { throw new Error("This browser could not keep the send-recovery reference. Allow session storage before sending."); }
     setPending(marker);
     setSendInput(input);
-    try { accept(await notificationsApi.send(agencyId, marker.draft_id, input)); }
+    try { const batch = await owner.send(marker.draft_id, input); owner.assertCurrent(); accept(batch); }
     catch (cause) {
       setReview(null);
       if (releaseRejectedSend(cause)) throw cause;
@@ -116,9 +125,9 @@ export function useNotificationComposer(agencyId: string, actorId: string) {
     }
   }, "The send could not be confirmed. Check its recorded outcome before starting another send.");
 
-  const checkPending = () => run(async () => {
+  const checkPending = () => run(async (owner) => {
     if (!pending) return;
-    try { accept(await notificationsApi.byRequest(agencyId, pending.request_id, pending.draft_id)); }
+    try { const batch = await owner.byRequest(pending.request_id, pending.draft_id); owner.assertCurrent(); accept(batch); }
     catch (cause) {
       if (releaseDeletedSend(cause)) return;
       if (!isNotFound(cause)) throw cause;
@@ -126,12 +135,13 @@ export function useNotificationComposer(agencyId: string, actorId: string) {
     }
   }, "The recorded send could not be checked. Keep this recovery reference and try again.");
 
-  const reviewPending = () => run(async () => {
+  const reviewPending = () => run(async (owner) => {
     if (!pending) return;
-    try { accept(await notificationsApi.byRequest(agencyId, pending.request_id, pending.draft_id)); return; }
+    try { const batch = await owner.byRequest(pending.request_id, pending.draft_id); owner.assertCurrent(); accept(batch); return; }
     catch (cause) { if (releaseDeletedSend(cause)) return; if (!isNotFound(cause)) throw cause; }
-    const saved = await notificationsApi.getDraft(agencyId, pending.draft_id);
-    const preview = await notificationsApi.preview(agencyId, saved);
+    const saved = await owner.getDraft(pending.draft_id);
+    const preview = await owner.preview(saved);
+    owner.assertCurrent();
     setDraft(saved);
     setForm(inputFrom(saved));
     applyNames(saved);
@@ -140,9 +150,9 @@ export function useNotificationComposer(agencyId: string, actorId: string) {
     setNotice("Review the saved message and current audience. Retrying uses the original send reference to prevent another send from being created.");
   }, "The previous send could not be reviewed. Its recovery reference is kept.");
 
-  const retryPending = () => run(async () => {
+  const retryPending = () => run(async (owner) => {
     if (!pending || !sendInput || !review) return;
-    try { accept(await notificationsApi.send(agencyId, pending.draft_id, sendInput)); }
+    try { const batch = await owner.send(pending.draft_id, sendInput); owner.assertCurrent(); accept(batch); }
     catch (cause) { setReview(null); releaseRejectedSend(cause); throw cause; }
   }, "This send is still unconfirmed. Check again before starting another notification.");
 

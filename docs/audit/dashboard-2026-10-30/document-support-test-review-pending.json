@@ -1,0 +1,66 @@
+{
+  "basis": "Automated hash/full-ledger triage only, zero physical read credit; excludes active document-import owner scope.",
+  "pending": [
+    {
+      "path": "backend/tests/unit/presentation/test_document_rename_compensation.py",
+      "sha256": "7c2f7b723b4df42e567ba4d8926db5ce5dc61913d4ae85c4d14151aea9fcdb68",
+      "lines": 111,
+      "matching_full": []
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_rename_rejection.py",
+      "sha256": "75c1eda43d60017ab7cb5f3726b23cc5942232687bd2e12407cbaedb7acf5ccc",
+      "lines": 1142,
+      "matching_full": []
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_uploads.py",
+      "sha256": "156a3e8965dd85a3ced35ff693ca627178ca0e89616d9dbf84f42237d21958ff",
+      "lines": 232,
+      "matching_full": []
+    }
+  ],
+  "skipped_current_full": [
+    {
+      "path": "backend/tests/unit/presentation/test_document_chunk_uploads.py",
+      "sha256": "ab8dfbbad5c33998d1c622f5e9bf27635abb449623fe121e822d404e9b1b2ff9",
+      "lines": 480,
+      "matching_full": [
+        "audit-review-resolution-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_rename_archive_native_cancellation.py",
+      "sha256": "6143a014370844e3cbaebb6992d5eabeb583ac9803ee193fa1972d48f764d325",
+      "lines": 117,
+      "matching_full": [
+        "document-rename-native-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_rename_chunk_workflow.py",
+      "sha256": "ac15ac9243ccde212c0894a6ed27a0c0a2bd50e3b7b054ee11eb63bbaa323c31",
+      "lines": 267,
+      "matching_full": [
+        "document-matcher-affected-workflow-reviewed-files.json",
+        "document-matcher-final-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_upload_commit.py",
+      "sha256": "78f7b6fb8bc4a4cb38ee8b6ebc9b6d9f1f33f998421dc2c6911d1ccbb273aa16",
+      "lines": 142,
+      "matching_full": [
+        "distribution-upload-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_upload_persistence_hooks.py",
+      "sha256": "a1fcdd7b9fe4c9ebee2219cea110bf850cb5ede4db17f5de05f6cf70ab5d0db4",
+      "lines": 212,
+      "matching_full": [
+        "distribution-upload-reviewed-files.json"
+      ]
+    }
+  ]
+}

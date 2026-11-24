@@ -1,0 +1,211 @@
+{
+  "files": [
+    {
+      "path": "backend/app/infrastructure/export/document_assignment_excel_exporter.py",
+      "sha256": "97a743b2ee2e22059ff38968306b693c75698c5635251516972710e93b9d460e",
+      "physical_lines": 146,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete physical current source read in bounded untruncated output; changed import regions reread after final reader placement, current whole declarations/bodies read. Unchanged preflight sources retain their exact physically read hashes; this is not a claim of21 newly unique unreviewed files. Original12 review/router/workbook test assertions and complete source bytes remain unchanged. New DB fixtures/control bodies also fully read. Operations Inbox/native/mobile-only/repository/MCP work is outside this tranche; shared artifact provenance and existing propagation call sites were read only for retained dashboard compatibility. Separate coverage/service/unconfirmed-source follow-ups remain in the final receipt."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution.py",
+      "sha256": "eceb978c0e6faca96b335cd0f91cb7fd48be5b8a1216f15816cddd9ae51fe7b0",
+      "physical_lines": 388,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete physical current source read in bounded untruncated output; changed import regions reread after final reader placement, current whole declarations/bodies read. Unchanged preflight sources retain their exact physically read hashes; this is not a claim of21 newly unique unreviewed files. Original12 review/router/workbook test assertions and complete source bytes remain unchanged. New DB fixtures/control bodies also fully read. Operations Inbox/native/mobile-only/repository/MCP work is outside this tranche; shared artifact provenance and existing propagation call sites were read only for retained dashboard compatibility. Separate coverage/service/unconfirmed-source follow-ups remain in the final receipt."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_assignment_delete.py",
+      "sha256": "574e94e2c4474cb365a2a6d12205466f9368e5bec9da45e110c90898c9b495cc",
+      "physical_lines": 214,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete physical current source read in bounded untruncated output; changed import regions reread after final reader placement, current whole declarations/bodies read. Unchanged preflight sources retain their exact physically read hashes; this is not a claim of21 newly unique unreviewed files. Original12 review/router/workbook test assertions and complete source bytes remain unchanged. New DB fixtures/control bodies also fully read. Operations Inbox/native/mobile-only/repository/MCP work is outside this tranche; shared artifact provenance and existing propagation call sites were read only for retained dashboard compatibility. Separate coverage/service/unconfirmed-source follow-ups remain in the final receipt."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_assignment_review.py",
+      "sha256": "0ab4e9167616f93a73fd118fde6add59279901069d719628bca97f6147137d50",
+      "physical_lines": 48,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete physical current source read in bounded untruncated output; changed import regions reread after final reader placement, current whole declarations/bodies read. Unchanged preflight sources retain their exact physically read hashes; this is not a claim of21 newly unique unreviewed files. Original12 review/router/workbook test assertions and complete source bytes remain unchanged. New DB fixtures/control bodies also fully read. Operations Inbox/native/mobile-only/repository/MCP work is outside this tranche; shared artifact provenance and existing propagation call sites were read only for retained dashboard compatibility. Separate coverage/service/unconfirmed-source follow-ups remain in the final receipt."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_assignment_unassign.py",
+      "sha256": "24d74b8f73c6ffbc626c877291544246f77c112c00caac37b4a36ea1fed5b688",
+      "physical_lines": 187,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete physical current source read in bounded untruncated output; changed import regions reread after final reader placement, current whole declarations/bodies read. Unchanged preflight sources retain their exact physically read hashes; this is not a claim of21 newly unique unreviewed files. Original12 review/router/workbook test assertions and complete source bytes remain unchanged. New DB fixtures/control bodies also fully read. Operations Inbox/native/mobile-only/repository/MCP work is outside this tranche; shared artifact provenance and existing propagation call sites were read only for retained dashboard compatibility. Separate coverage/service/unconfirmed-source follow-ups remain in the final receipt."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_assignments.py",
+      "sha256": "136de40db054a6f757af621486d49296aac5feab7f38684fb65581e76d91d49a",
+      "physical_lines": 101,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete physical current source read in bounded untruncated output; changed import regions reread after final reader placement, current whole declarations/bodies read. Unchanged preflight sources retain their exact physically read hashes; this is not a claim of21 newly unique unreviewed files. Original12 review/router/workbook test assertions and complete source bytes remain unchanged. New DB fixtures/control bodies also fully read. Operations Inbox/native/mobile-only/repository/MCP work is outside this tranche; shared artifact provenance and existing propagation call sites were read only for retained dashboard compatibility. Separate coverage/service/unconfirmed-source follow-ups remain in the final receipt."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_queries.py",
+      "sha256": "48c7a0da6dd868cc244541bed3c6661046c6b8933e2fe49fc2db16d82021645f",
+      "physical_lines": 213,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete physical current source read in bounded untruncated output; changed import regions reread after final reader placement, current whole declarations/bodies read. Unchanged preflight sources retain their exact physically read hashes; this is not a claim of21 newly unique unreviewed files. Original12 review/router/workbook test assertions and complete source bytes remain unchanged. New DB fixtures/control bodies also fully read. Operations Inbox/native/mobile-only/repository/MCP work is outside this tranche; shared artifact provenance and existing propagation call sites were read only for retained dashboard compatibility. Separate coverage/service/unconfirmed-source follow-ups remain in the final receipt."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_replacements.py",
+      "sha256": "aab482bc2b7e1dc046c13c84897206f39423cf7aa430011d50a1c7ea70ade929",
+      "physical_lines": 287,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete physical current source read in bounded untruncated output; changed import regions reread after final reader placement, current whole declarations/bodies read. Unchanged preflight sources retain their exact physically read hashes; this is not a claim of21 newly unique unreviewed files. Original12 review/router/workbook test assertions and complete source bytes remain unchanged. New DB fixtures/control bodies also fully read. Operations Inbox/native/mobile-only/repository/MCP work is outside this tranche; shared artifact provenance and existing propagation call sites were read only for retained dashboard compatibility. Separate coverage/service/unconfirmed-source follow-ups remain in the final receipt."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_responses.py",
+      "sha256": "6f4dbf8d10308e38f7c19917499d466a99a497d633490a9fe1302e3d376bc0d6",
+      "physical_lines": 235,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete physical current source read in bounded untruncated output; changed import regions reread after final reader placement, current whole declarations/bodies read. Unchanged preflight sources retain their exact physically read hashes; this is not a claim of21 newly unique unreviewed files. Original12 review/router/workbook test assertions and complete source bytes remain unchanged. New DB fixtures/control bodies also fully read. Operations Inbox/native/mobile-only/repository/MCP work is outside this tranche; shared artifact provenance and existing propagation call sites were read only for retained dashboard compatibility. Separate coverage/service/unconfirmed-source follow-ups remain in the final receipt."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_review_export.py",
+      "sha256": "30bda9448f33ee5f779f686943bb8c83e341ccdfc6cfc544afb6edceecfa481f",
+      "physical_lines": 115,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete physical current source read in bounded untruncated output; changed import regions reread after final reader placement, current whole declarations/bodies read. Unchanged preflight sources retain their exact physically read hashes; this is not a claim of21 newly unique unreviewed files. Original12 review/router/workbook test assertions and complete source bytes remain unchanged. New DB fixtures/control bodies also fully read. Operations Inbox/native/mobile-only/repository/MCP work is outside this tranche; shared artifact provenance and existing propagation call sites were read only for retained dashboard compatibility. Separate coverage/service/unconfirmed-source follow-ups remain in the final receipt."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_review_projection.py",
+      "sha256": "370a18facc3860ba3e089e09707603d4f6641de9a6c36de211c0702fdaa6481b",
+      "physical_lines": 164,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete physical current source read in bounded untruncated output; changed import regions reread after final reader placement, current whole declarations/bodies read. Unchanged preflight sources retain their exact physically read hashes; this is not a claim of21 newly unique unreviewed files. Original12 review/router/workbook test assertions and complete source bytes remain unchanged. New DB fixtures/control bodies also fully read. Operations Inbox/native/mobile-only/repository/MCP work is outside this tranche; shared artifact provenance and existing propagation call sites were read only for retained dashboard compatibility. Separate coverage/service/unconfirmed-source follow-ups remain in the final receipt."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_review_snapshots.py",
+      "sha256": "df956aea04733bfab98bb68ec45782684c324b92d62c02e9af9ecbb2687c6683",
+      "physical_lines": 168,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete physical current source read in bounded untruncated output; changed import regions reread after final reader placement, current whole declarations/bodies read. Unchanged preflight sources retain their exact physically read hashes; this is not a claim of21 newly unique unreviewed files. Original12 review/router/workbook test assertions and complete source bytes remain unchanged. New DB fixtures/control bodies also fully read. Operations Inbox/native/mobile-only/repository/MCP work is outside this tranche; shared artifact provenance and existing propagation call sites were read only for retained dashboard compatibility. Separate coverage/service/unconfirmed-source follow-ups remain in the final receipt."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_review_support.py",
+      "sha256": "6d70d0a8d7b1e452093ac3935f4ba591413522e2534a2480b455fe0a867bff58",
+      "physical_lines": 97,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete physical current source read in bounded untruncated output; changed import regions reread after final reader placement, current whole declarations/bodies read. Unchanged preflight sources retain their exact physically read hashes; this is not a claim of21 newly unique unreviewed files. Original12 review/router/workbook test assertions and complete source bytes remain unchanged. New DB fixtures/control bodies also fully read. Operations Inbox/native/mobile-only/repository/MCP work is outside this tranche; shared artifact provenance and existing propagation call sites were read only for retained dashboard compatibility. Separate coverage/service/unconfirmed-source follow-ups remain in the final receipt."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_shared.py",
+      "sha256": "90e1f22463437f267663ff4ec20220cf8115cea1f3b8c7a0db824ab81d48beb6",
+      "physical_lines": 86,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete physical current source read in bounded untruncated output; changed import regions reread after final reader placement, current whole declarations/bodies read. Unchanged preflight sources retain their exact physically read hashes; this is not a claim of21 newly unique unreviewed files. Original12 review/router/workbook test assertions and complete source bytes remain unchanged. New DB fixtures/control bodies also fully read. Operations Inbox/native/mobile-only/repository/MCP work is outside this tranche; shared artifact provenance and existing propagation call sites were read only for retained dashboard compatibility. Separate coverage/service/unconfirmed-source follow-ups remain in the final receipt."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_storage.py",
+      "sha256": "9ef92ffee5bb4d624286ea60741a3c0ca4a77ce3541b1e65e33caab5ae56b2f5",
+      "physical_lines": 141,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete physical current source read in bounded untruncated output; changed import regions reread after final reader placement, current whole declarations/bodies read. Unchanged preflight sources retain their exact physically read hashes; this is not a claim of21 newly unique unreviewed files. Original12 review/router/workbook test assertions and complete source bytes remain unchanged. New DB fixtures/control bodies also fully read. Operations Inbox/native/mobile-only/repository/MCP work is outside this tranche; shared artifact provenance and existing propagation call sites were read only for retained dashboard compatibility. Separate coverage/service/unconfirmed-source follow-ups remain in the final receipt."
+    },
+    {
+      "path": "backend/tests/document_assignment_fixtures.py",
+      "sha256": "bd1686e40d3d3086258ec904a7052812c1da44256cd403271eb062f65ce32db0",
+      "physical_lines": 151,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete physical current source read in bounded untruncated output; changed import regions reread after final reader placement, current whole declarations/bodies read. Unchanged preflight sources retain their exact physically read hashes; this is not a claim of21 newly unique unreviewed files. Original12 review/router/workbook test assertions and complete source bytes remain unchanged. New DB fixtures/control bodies also fully read. Operations Inbox/native/mobile-only/repository/MCP work is outside this tranche; shared artifact provenance and existing propagation call sites were read only for retained dashboard compatibility. Separate coverage/service/unconfirmed-source follow-ups remain in the final receipt."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_document_assignment_excel_exporter.py",
+      "sha256": "11536462bc878377e76f254da1213609218a4a4e925f0d2c3151e9d9e2658d6f",
+      "physical_lines": 133,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete physical current source read in bounded untruncated output; changed import regions reread after final reader placement, current whole declarations/bodies read. Unchanged preflight sources retain their exact physically read hashes; this is not a claim of21 newly unique unreviewed files. Original12 review/router/workbook test assertions and complete source bytes remain unchanged. New DB fixtures/control bodies also fully read. Operations Inbox/native/mobile-only/repository/MCP work is outside this tranche; shared artifact provenance and existing propagation call sites were read only for retained dashboard compatibility. Separate coverage/service/unconfirmed-source follow-ups remain in the final receipt."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_distribution_assignments.py",
+      "sha256": "277feab0aeb95a6a00ed64101471827b79d77dcc40456a8697d7e4a79cc5f762",
+      "physical_lines": 239,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete physical current source read in bounded untruncated output; changed import regions reread after final reader placement, current whole declarations/bodies read. Unchanged preflight sources retain their exact physically read hashes; this is not a claim of21 newly unique unreviewed files. Original12 review/router/workbook test assertions and complete source bytes remain unchanged. New DB fixtures/control bodies also fully read. Operations Inbox/native/mobile-only/repository/MCP work is outside this tranche; shared artifact provenance and existing propagation call sites were read only for retained dashboard compatibility. Separate coverage/service/unconfirmed-source follow-ups remain in the final receipt."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_distribution_match_source.py",
+      "sha256": "574591893d593cef9422f107071d97c48126d96b078af6c213058d5254685ea5",
+      "physical_lines": 38,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete physical current source read in bounded untruncated output; changed import regions reread after final reader placement, current whole declarations/bodies read. Unchanged preflight sources retain their exact physically read hashes; this is not a claim of21 newly unique unreviewed files. Original12 review/router/workbook test assertions and complete source bytes remain unchanged. New DB fixtures/control bodies also fully read. Operations Inbox/native/mobile-only/repository/MCP work is outside this tranche; shared artifact provenance and existing propagation call sites were read only for retained dashboard compatibility. Separate coverage/service/unconfirmed-source follow-ups remain in the final receipt."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_distribution_review_rows.py",
+      "sha256": "d62e2289db4672db2dd940ecb4906dff5df1a04670b73cbe0f84a05765b31723",
+      "physical_lines": 258,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete physical current source read in bounded untruncated output; changed import regions reread after final reader placement, current whole declarations/bodies read. Unchanged preflight sources retain their exact physically read hashes; this is not a claim of21 newly unique unreviewed files. Original12 review/router/workbook test assertions and complete source bytes remain unchanged. New DB fixtures/control bodies also fully read. Operations Inbox/native/mobile-only/repository/MCP work is outside this tranche; shared artifact provenance and existing propagation call sites were read only for retained dashboard compatibility. Separate coverage/service/unconfirmed-source follow-ups remain in the final receipt."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_distribution_route_decomposition.py",
+      "sha256": "7f18a4f9055bde011fe0fd2cf456e2585057a05a378d05140676d0a54de71188",
+      "physical_lines": 168,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete physical current source read in bounded untruncated output; changed import regions reread after final reader placement, current whole declarations/bodies read. Unchanged preflight sources retain their exact physically read hashes; this is not a claim of21 newly unique unreviewed files. Original12 review/router/workbook test assertions and complete source bytes remain unchanged. New DB fixtures/control bodies also fully read. Operations Inbox/native/mobile-only/repository/MCP work is outside this tranche; shared artifact provenance and existing propagation call sites were read only for retained dashboard compatibility. Separate coverage/service/unconfirmed-source follow-ups remain in the final receipt."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_scope.py",
+      "sha256": "92faa69c9f13af427dd128c72aac3a99518be701db40990b6d32155aa8cb11a9",
+      "physical_lines": 270,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "needs-follow-up",
+      "notes": "This tranche physically read only1\u2013205 and241\u2013270. Actual complete selected linked-source/snapshot/churn controls read and qualified. Do not upgrade the rest of the source from imports, AST metadata or passing tests; independent prior current-full records stay independent."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_distribution_matching.py",
+      "sha256": "5793652d336623a30e860bf9c81b7a5cfbbea1f113f86469c89d0dba57d411a0",
+      "physical_lines": 1223,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "needs-follow-up",
+      "notes": "This tranche physically read only1\u2013130,548\u2013670 and706\u2013775. Actual complete selected linked-source/snapshot/churn controls read and qualified. Do not upgrade the rest of the source from imports, AST metadata or passing tests; independent prior current-full records stay independent."
+    }
+  ]
+}

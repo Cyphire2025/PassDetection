@@ -1,0 +1,864 @@
+FFF                                                                      [100%]
+================================== FAILURES ===================================
+_ test_catalog_pages_are_revision_bound_and_exclude_removed_or_future_assets[best] _
+
+self = <sqlalchemy.engine.base.Connection object at 0x000001E9F786A0D0>
+dialect = <sqlalchemy.dialects.sqlite.aiosqlite.SQLiteDialect_aiosqlite object at 0x000001E9F5AFE910>
+context = <sqlalchemy.dialects.sqlite.aiosqlite.SQLiteExecutionContext_aiosqlite object at 0x000001E9F78C6B50>
+statement = <sqlalchemy.dialects.sqlite.base.SQLiteCompiler object at 0x000001E9F78C6BD0>
+parameters = [('3f34088ee83b4de2b7d58bfdf59f3f28', '6738ef3f805449108ae19ddbaae5e92a', '13c3a46005bb4600972016647d813b86', 'f46e000fbf28460289d9f7d8f5605af2', 'f5876d693d6f4df0a79309f9b85e3a45', 'e911feeed05e4bb783340a5f8d9f8667', ...)]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1967: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:147: in execute
+    self._adapt_connection._handle_exception(error)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:298: in _handle_exception
+    raise error
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:129: in execute
+    self.await_(_cursor.execute(operation, parameters))
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+            ^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\cursor.py:48: in execute
+    await self._execute(self._cursor.execute, sql, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\cursor.py:40: in _execute
+    return await self._conn._execute(fn, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\core.py:132: in _execute
+    return await future
+           ^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <Connection(Thread-4, stopped daemon 29776)>
+
+    def run(self) -> None:
+        """
+        Execute function calls on a separate thread.
+    
+        :meta private:
+        """
+        while True:
+            # Continues running until all queue items are processed,
+            # even after connection is closed (so we can finalize all
+            # futures)
+    
+            tx_item = self._tx.get()
+            if tx_item is _STOP_RUNNING_SENTINEL:
+                break
+    
+            future, function = tx_item
+    
+            try:
+                LOG.debug("executing %s", function)
+>               result = function()
+                         ^^^^^^^^^^
+E               sqlite3.IntegrityError: NOT NULL constraint failed: my_photo_search_runs.correlation_id
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\core.py:115: IntegrityError
+
+The above exception was the direct cause of the following exception:
+
+photo_database = namespace(sessions=async_sessionmaker(class_='AsyncSession', bind=<sqlalchemy.ext.asyncio.engine.AsyncEngine object at...re.database.gc_mobile_models.MobilePassengerIdentityModel object at 0x000001E9F7809F50>, client_manager_profile=None)))
+match_filter = 'best'
+
+    @pytest.mark.parametrize("match_filter", ["best", "all"])
+    async def test_catalog_pages_are_revision_bound_and_exclude_removed_or_future_assets(
+        photo_database, match_filter
+    ):
+        env = photo_database
+>       visible = await seed_catalog(env)
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\integration\test_my_photos_catalog.py:139: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\integration\test_my_photos_catalog.py:99: in seed_catalog
+    await session.flush()
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\ext\asyncio\session.py:800: in flush
+    await greenlet_spawn(self.sync_session.flush, objects=objects)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:203: in greenlet_spawn
+    result = context.switch(value)
+             ^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:4341: in flush
+    self._flush(objects)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:4476: in _flush
+    with util.safe_reraise():
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\langhelpers.py:146: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:4437: in _flush
+    flush_context.execute()
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\unitofwork.py:466: in execute
+    rec.execute(self)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\persistence.py:93: in save_obj
+    _emit_insert_statements(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\persistence.py:1233: in _emit_insert_statements
+    result = connection.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1418: in execute
+    return meth(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\sql\elements.py:515: in _execute_on_connection
+    return connection._execute_clauseelement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1640: in _execute_clauseelement
+    ret = self._execute_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:2353: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:147: in execute
+    self._adapt_connection._handle_exception(error)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:298: in _handle_exception
+    raise error
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:129: in execute
+    self.await_(_cursor.execute(operation, parameters))
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+            ^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\cursor.py:48: in execute
+    await self._execute(self._cursor.execute, sql, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\cursor.py:40: in _execute
+    return await self._conn._execute(fn, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\core.py:132: in _execute
+    return await future
+           ^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <Connection(Thread-4, stopped daemon 29776)>
+
+    def run(self) -> None:
+        """
+        Execute function calls on a separate thread.
+    
+        :meta private:
+        """
+        while True:
+            # Continues running until all queue items are processed,
+            # even after connection is closed (so we can finalize all
+            # futures)
+    
+            tx_item = self._tx.get()
+            if tx_item is _STOP_RUNNING_SENTINEL:
+                break
+    
+            future, function = tx_item
+    
+            try:
+                LOG.debug("executing %s", function)
+>               result = function()
+                         ^^^^^^^^^^
+E               sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) NOT NULL constraint failed: my_photo_search_runs.correlation_id
+E               [SQL: INSERT INTO my_photo_search_runs (id, enrollment_id, passenger_identity_id, gallery_id, agency_id, group_id, gallery_revision, face_index_version, enrollment_version, idempotency_key, status, processed_face_count, total_face_count, matched_asset_count, best_match_count, possible_match_count, attempt_count, max_attempts, checkpoint_cursor, lease_owner, lease_expires_at, heartbeat_at, stable_error_code, correlation_id, started_at, completed_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]
+E               [parameters: ('3f34088ee83b4de2b7d58bfdf59f3f28', '6738ef3f805449108ae19ddbaae5e92a', '13c3a46005bb4600972016647d813b86', 'f46e000fbf28460289d9f7d8f5605af2', 'f5876d693d6f4df0a79309f9b85e3a45', 'e911feeed05e4bb783340a5f8d9f8667', 1, 1, 1, 'synthetic-complete-search', 'complete', 3, 3, 3, 3, 0, 0, 5, None, None, None, None, None, None, None, None, '2026-10-30 22:41:50.634991', '2026-10-30 22:41:50.634991')]
+E               (Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\core.py:115: IntegrityError
+_ test_catalog_pages_are_revision_bound_and_exclude_removed_or_future_assets[all] _
+
+self = <sqlalchemy.engine.base.Connection object at 0x000001E9F8F64450>
+dialect = <sqlalchemy.dialects.sqlite.aiosqlite.SQLiteDialect_aiosqlite object at 0x000001E9F8FDBCD0>
+context = <sqlalchemy.dialects.sqlite.aiosqlite.SQLiteExecutionContext_aiosqlite object at 0x000001E9F82ACF90>
+statement = <sqlalchemy.dialects.sqlite.base.SQLiteCompiler object at 0x000001E9F82AF550>
+parameters = [('aaaa167bffcc44a289b71e1002c791a4', 'ec3baadf99324427b48adb310499272b', 'ca921ef9a70842869c507adaf9fd571a', 'a3ec5c5b9cc54e868f6d0d901fe7de99', '9174cb1dc84a4fd9bbe5e7513561c764', '657e19d130d243a38cc3193d6bf8e604', ...)]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1967: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:147: in execute
+    self._adapt_connection._handle_exception(error)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:298: in _handle_exception
+    raise error
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:129: in execute
+    self.await_(_cursor.execute(operation, parameters))
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+            ^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\cursor.py:48: in execute
+    await self._execute(self._cursor.execute, sql, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\cursor.py:40: in _execute
+    return await self._conn._execute(fn, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\core.py:132: in _execute
+    return await future
+           ^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <Connection(Thread-8, stopped daemon 19164)>
+
+    def run(self) -> None:
+        """
+        Execute function calls on a separate thread.
+    
+        :meta private:
+        """
+        while True:
+            # Continues running until all queue items are processed,
+            # even after connection is closed (so we can finalize all
+            # futures)
+    
+            tx_item = self._tx.get()
+            if tx_item is _STOP_RUNNING_SENTINEL:
+                break
+    
+            future, function = tx_item
+    
+            try:
+                LOG.debug("executing %s", function)
+>               result = function()
+                         ^^^^^^^^^^
+E               sqlite3.IntegrityError: NOT NULL constraint failed: my_photo_search_runs.correlation_id
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\core.py:115: IntegrityError
+
+The above exception was the direct cause of the following exception:
+
+photo_database = namespace(sessions=async_sessionmaker(class_='AsyncSession', bind=<sqlalchemy.ext.asyncio.engine.AsyncEngine object at...re.database.gc_mobile_models.MobilePassengerIdentityModel object at 0x000001E9F8F67610>, client_manager_profile=None)))
+match_filter = 'all'
+
+    @pytest.mark.parametrize("match_filter", ["best", "all"])
+    async def test_catalog_pages_are_revision_bound_and_exclude_removed_or_future_assets(
+        photo_database, match_filter
+    ):
+        env = photo_database
+>       visible = await seed_catalog(env)
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\integration\test_my_photos_catalog.py:139: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\integration\test_my_photos_catalog.py:99: in seed_catalog
+    await session.flush()
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\ext\asyncio\session.py:800: in flush
+    await greenlet_spawn(self.sync_session.flush, objects=objects)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:203: in greenlet_spawn
+    result = context.switch(value)
+             ^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:4341: in flush
+    self._flush(objects)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:4476: in _flush
+    with util.safe_reraise():
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\langhelpers.py:146: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:4437: in _flush
+    flush_context.execute()
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\unitofwork.py:466: in execute
+    rec.execute(self)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\persistence.py:93: in save_obj
+    _emit_insert_statements(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\persistence.py:1233: in _emit_insert_statements
+    result = connection.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1418: in execute
+    return meth(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\sql\elements.py:515: in _execute_on_connection
+    return connection._execute_clauseelement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1640: in _execute_clauseelement
+    ret = self._execute_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:2353: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:147: in execute
+    self._adapt_connection._handle_exception(error)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:298: in _handle_exception
+    raise error
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:129: in execute
+    self.await_(_cursor.execute(operation, parameters))
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+            ^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\cursor.py:48: in execute
+    await self._execute(self._cursor.execute, sql, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\cursor.py:40: in _execute
+    return await self._conn._execute(fn, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\core.py:132: in _execute
+    return await future
+           ^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <Connection(Thread-8, stopped daemon 19164)>
+
+    def run(self) -> None:
+        """
+        Execute function calls on a separate thread.
+    
+        :meta private:
+        """
+        while True:
+            # Continues running until all queue items are processed,
+            # even after connection is closed (so we can finalize all
+            # futures)
+    
+            tx_item = self._tx.get()
+            if tx_item is _STOP_RUNNING_SENTINEL:
+                break
+    
+            future, function = tx_item
+    
+            try:
+                LOG.debug("executing %s", function)
+>               result = function()
+                         ^^^^^^^^^^
+E               sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) NOT NULL constraint failed: my_photo_search_runs.correlation_id
+E               [SQL: INSERT INTO my_photo_search_runs (id, enrollment_id, passenger_identity_id, gallery_id, agency_id, group_id, gallery_revision, face_index_version, enrollment_version, idempotency_key, status, processed_face_count, total_face_count, matched_asset_count, best_match_count, possible_match_count, attempt_count, max_attempts, checkpoint_cursor, lease_owner, lease_expires_at, heartbeat_at, stable_error_code, correlation_id, started_at, completed_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]
+E               [parameters: ('aaaa167bffcc44a289b71e1002c791a4', 'ec3baadf99324427b48adb310499272b', 'ca921ef9a70842869c507adaf9fd571a', 'a3ec5c5b9cc54e868f6d0d901fe7de99', '9174cb1dc84a4fd9bbe5e7513561c764', '657e19d130d243a38cc3193d6bf8e604', 1, 1, 1, 'synthetic-complete-search', 'complete', 3, 3, 3, 3, 0, 0, 5, None, None, None, None, None, None, None, None, '2026-10-30 22:41:53.424219', '2026-10-30 22:41:53.424219')]
+E               (Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\core.py:115: IntegrityError
+____ test_feedback_is_owned_and_idempotent_and_all_photos_can_be_disabled _____
+
+self = <sqlalchemy.engine.base.Connection object at 0x000001E9F8AF8ED0>
+dialect = <sqlalchemy.dialects.sqlite.aiosqlite.SQLiteDialect_aiosqlite object at 0x000001E9F8DE4990>
+context = <sqlalchemy.dialects.sqlite.aiosqlite.SQLiteExecutionContext_aiosqlite object at 0x000001E9F83DA390>
+statement = <sqlalchemy.dialects.sqlite.base.SQLiteCompiler object at 0x000001E9F83D9510>
+parameters = [('f1575262fa4647c2aa4eefc71b24367d', 'ace963bbfe3c4d7c9ed8c0577e11c733', '3b70822db55f45b5b706bfc067bd4488', '295b96ee75a845f0940bc3f46564be23', 'ff893633572547049ec359b242587811', 'ef3eea08abab4585aa7ac3e6ba5463a9', ...)]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1967: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:147: in execute
+    self._adapt_connection._handle_exception(error)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:298: in _handle_exception
+    raise error
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:129: in execute
+    self.await_(_cursor.execute(operation, parameters))
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+            ^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\cursor.py:48: in execute
+    await self._execute(self._cursor.execute, sql, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\cursor.py:40: in _execute
+    return await self._conn._execute(fn, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\core.py:132: in _execute
+    return await future
+           ^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <Connection(Thread-12, stopped daemon 10504)>
+
+    def run(self) -> None:
+        """
+        Execute function calls on a separate thread.
+    
+        :meta private:
+        """
+        while True:
+            # Continues running until all queue items are processed,
+            # even after connection is closed (so we can finalize all
+            # futures)
+    
+            tx_item = self._tx.get()
+            if tx_item is _STOP_RUNNING_SENTINEL:
+                break
+    
+            future, function = tx_item
+    
+            try:
+                LOG.debug("executing %s", function)
+>               result = function()
+                         ^^^^^^^^^^
+E               sqlite3.IntegrityError: NOT NULL constraint failed: my_photo_search_runs.correlation_id
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\core.py:115: IntegrityError
+
+The above exception was the direct cause of the following exception:
+
+photo_database = namespace(sessions=async_sessionmaker(class_='AsyncSession', bind=<sqlalchemy.ext.asyncio.engine.AsyncEngine object at...re.database.gc_mobile_models.MobilePassengerIdentityModel object at 0x000001E9F8DE7910>, client_manager_profile=None)))
+
+    async def test_feedback_is_owned_and_idempotent_and_all_photos_can_be_disabled(photo_database):
+        env = photo_database
+>       visible = await seed_catalog(env)
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\integration\test_my_photos_catalog.py:182: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\integration\test_my_photos_catalog.py:99: in seed_catalog
+    await session.flush()
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\ext\asyncio\session.py:800: in flush
+    await greenlet_spawn(self.sync_session.flush, objects=objects)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:203: in greenlet_spawn
+    result = context.switch(value)
+             ^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:4341: in flush
+    self._flush(objects)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:4476: in _flush
+    with util.safe_reraise():
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\langhelpers.py:146: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:4437: in _flush
+    flush_context.execute()
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\unitofwork.py:466: in execute
+    rec.execute(self)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\persistence.py:93: in save_obj
+    _emit_insert_statements(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\persistence.py:1233: in _emit_insert_statements
+    result = connection.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1418: in execute
+    return meth(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\sql\elements.py:515: in _execute_on_connection
+    return connection._execute_clauseelement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1640: in _execute_clauseelement
+    ret = self._execute_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:2353: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:147: in execute
+    self._adapt_connection._handle_exception(error)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:298: in _handle_exception
+    raise error
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:129: in execute
+    self.await_(_cursor.execute(operation, parameters))
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+            ^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\cursor.py:48: in execute
+    await self._execute(self._cursor.execute, sql, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\cursor.py:40: in _execute
+    return await self._conn._execute(fn, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\core.py:132: in _execute
+    return await future
+           ^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <Connection(Thread-12, stopped daemon 10504)>
+
+    def run(self) -> None:
+        """
+        Execute function calls on a separate thread.
+    
+        :meta private:
+        """
+        while True:
+            # Continues running until all queue items are processed,
+            # even after connection is closed (so we can finalize all
+            # futures)
+    
+            tx_item = self._tx.get()
+            if tx_item is _STOP_RUNNING_SENTINEL:
+                break
+    
+            future, function = tx_item
+    
+            try:
+                LOG.debug("executing %s", function)
+>               result = function()
+                         ^^^^^^^^^^
+E               sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) NOT NULL constraint failed: my_photo_search_runs.correlation_id
+E               [SQL: INSERT INTO my_photo_search_runs (id, enrollment_id, passenger_identity_id, gallery_id, agency_id, group_id, gallery_revision, face_index_version, enrollment_version, idempotency_key, status, processed_face_count, total_face_count, matched_asset_count, best_match_count, possible_match_count, attempt_count, max_attempts, checkpoint_cursor, lease_owner, lease_expires_at, heartbeat_at, stable_error_code, correlation_id, started_at, completed_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]
+E               [parameters: ('f1575262fa4647c2aa4eefc71b24367d', 'ace963bbfe3c4d7c9ed8c0577e11c733', '3b70822db55f45b5b706bfc067bd4488', '295b96ee75a845f0940bc3f46564be23', 'ff893633572547049ec359b242587811', 'ef3eea08abab4585aa7ac3e6ba5463a9', 1, 1, 1, 'synthetic-complete-search', 'complete', 3, 3, 3, 3, 0, 0, 5, None, None, None, None, None, None, None, None, '2026-10-30 22:41:55.484710', '2026-10-30 22:41:55.484710')]
+E               (Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\core.py:115: IntegrityError
+=========================== short test summary info ===========================
+FAILED tests/integration/test_my_photos_catalog.py::test_catalog_pages_are_revision_bound_and_exclude_removed_or_future_assets[best]
+FAILED tests/integration/test_my_photos_catalog.py::test_catalog_pages_are_revision_bound_and_exclude_removed_or_future_assets[all]
+FAILED tests/integration/test_my_photos_catalog.py::test_feedback_is_owned_and_idempotent_and_all_photos_can_be_disabled
+3 failed in 7.54s

@@ -1,4 +1,5 @@
 import type { McpFileTransfer } from "../api/mcp-transfer.api";
+import { readTransferBody } from "./read-transfer-body";
 
 export const MCP_TRANSFER_ID = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
 export const MAX_BROWSER_TRANSFER_BYTES = 128 * 1024 * 1024;
@@ -45,19 +46,22 @@ export function samePreparedTransfer(left: McpFileTransfer, right: McpFileTransf
     .every((key) => left[key as keyof McpFileTransfer] === right[key as keyof McpFileTransfer]);
 }
 
-export async function verifyTransferBytes(blob: Blob, ticket: McpFileTransfer) {
+export async function verifyTransferBytes(blob: Blob, ticket: McpFileTransfer, signal?: AbortSignal) {
+  signal?.throwIfAborted();
   if (blob.size !== ticket.byte_size) throw new Error("This file’s size does not match the prepared transfer.");
   const bytes = await blob.arrayBuffer();
+  signal?.throwIfAborted();
   const digest = await crypto.subtle.digest("SHA-256", bytes);
+  signal?.throwIfAborted();
   const hash = [...new Uint8Array(digest)].map((value) => value.toString(16).padStart(2, "0")).join("");
   if (hash.toLowerCase() !== ticket.sha256.toLowerCase()) throw new Error("This file does not match the prepared transfer.");
 }
 
-export async function verifySelectedFile(file: File, ticket: McpFileTransfer) {
+export async function verifySelectedFile(file: File, ticket: McpFileTransfer, signal?: AbortSignal) {
   const extension = ticket.kind === "upload_workbook" ? "xlsx" : "pdf";
   if (fileExtension(file.name) !== extension || (file.type && file.type.toLowerCase() !== ticket.media_type))
     throw new Error(`Choose the prepared ${extension.toUpperCase()} file for this transfer.`);
-  await verifyTransferBytes(file, ticket);
+  await verifyTransferBytes(file, ticket, signal);
 }
 
 function attachmentFilename(header: string | null) {
@@ -69,24 +73,17 @@ function attachmentFilename(header: string | null) {
   catch { return null; }
 }
 
-export async function verifiedDownload(response: Response, ticket: McpFileTransfer): Promise<Blob> {
+export async function verifiedDownload(response: Response, ticket: McpFileTransfer, signal?: AbortSignal): Promise<Blob> {
+  if (signal?.aborted) {
+    await response.body?.cancel().catch(() => undefined);
+    signal.throwIfAborted();
+  }
   if (response.headers.get("Content-Type")?.split(";")[0].trim().toLowerCase() !== ticket.media_type
-    || attachmentFilename(response.headers.get("Content-Disposition")) !== ticket.filename)
+    || attachmentFilename(response.headers.get("Content-Disposition")) !== ticket.filename) {
+    await response.body?.cancel().catch(() => undefined);
     throw new Error("The returned file did not match this transfer. Ask your app for a new link.");
-  const reader = response.body?.getReader();
-  if (!reader) throw new Error("The file could not be read. Try the download again.");
-  const chunks: Uint8Array<ArrayBuffer>[] = [];
-  let size = 0;
-  try {
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      size += value.byteLength;
-      if (size > ticket.byte_size) throw new Error("The returned file is larger than this transfer allows.");
-      chunks.push(new Uint8Array(value));
-    }
-  } catch (error) { await reader.cancel().catch(() => undefined); throw error; }
-  const blob = new Blob(chunks, { type: ticket.media_type });
-  await verifyTransferBytes(blob, ticket);
+  }
+  const blob = await readTransferBody(response.body, ticket.byte_size, ticket.media_type, signal);
+  await verifyTransferBytes(blob, ticket, signal);
   return blob;
 }

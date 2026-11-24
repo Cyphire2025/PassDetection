@@ -1,0 +1,2876 @@
+{
+  "basis": "Manual production caller/render-condition proof plus current TypeScript module resolution, all incoming runtime/type/literal dynamic import edges and repository source string searches. Static unreachability alone was not used as proof.",
+  "conditional_invariant": [
+    "TravellerPortal is the only production caller of UploadFlow.",
+    "Both observe the same upload-links/token query key under the same QueryClient provider.",
+    "Parent renders legacy child only for error or missing group; child checks that same failure before happy-path stages.",
+    "On successful recovery the parent renders current portal/Fresh/returning and unmounts legacy child.",
+    "Lean fallback uses primary error/isFetching/refetch directly and never reads/writes private recovery records."
+  ],
+  "retired": [
+    {
+      "path": "frontend/features/travellers/components/detected-history-offer.tsx",
+      "sha256": "12759a1f24b0150cc86e867f5f49a81a8b489699ac1c7d0d40a938a6d1a59f05",
+      "physicalLines": 20,
+      "inbound": [
+        {
+          "from": "frontend/features/upload/components/upload-flow-review-stage.tsx",
+          "to": "frontend/features/travellers/components/detected-history-offer.tsx",
+          "specifier": "@/features/travellers/components/detected-history-offer",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 3
+        }
+      ],
+      "outbound": [
+        {
+          "from": "frontend/features/travellers/components/detected-history-offer.tsx",
+          "to": "frontend/components/ui/button.tsx",
+          "specifier": "@/components/ui/button",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 4
+        },
+        {
+          "from": "frontend/features/travellers/components/detected-history-offer.tsx",
+          "to": "frontend/features/travellers/api/returning.api.ts",
+          "specifier": "../api/returning.api",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 5
+        }
+      ],
+      "kind": "runtime",
+      "reason": "Reachable only through the portal legacy fallback edge; all incoming runtime/type edges are inside the retired closure except its removed entry edge. Error-first render invariant prevents legacy happy-path commit."
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-replacement-status.tsx",
+      "sha256": "2146cb27e88e2b168a22f33ac47f5ced6eb45fc60a33823fa773a3662979d4f1",
+      "physicalLines": 24,
+      "inbound": [
+        {
+          "from": "frontend/features/upload/hooks/use-returning-upload.tsx",
+          "to": "frontend/features/travellers/components/returning-replacement-status.tsx",
+          "specifier": "@/features/travellers/components/returning-replacement-status",
+          "kind": "dynamic-import",
+          "typeOnly": false,
+          "line": 17
+        }
+      ],
+      "outbound": [
+        {
+          "from": "frontend/features/travellers/components/returning-replacement-status.tsx",
+          "to": "frontend/components/ui/button.tsx",
+          "specifier": "@/components/ui/button",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 4
+        },
+        {
+          "from": "frontend/features/travellers/components/returning-replacement-status.tsx",
+          "to": "frontend/types/passport.types.ts",
+          "specifier": "@/types/passport.types",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 5
+        },
+        {
+          "from": "frontend/features/travellers/components/returning-replacement-status.tsx",
+          "to": "frontend/features/travellers/api/returning.api.ts",
+          "specifier": "../api/returning.api",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 6
+        },
+        {
+          "from": "frontend/features/travellers/components/returning-replacement-status.tsx",
+          "to": "frontend/features/travellers/types.ts",
+          "specifier": "../types",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 7
+        }
+      ],
+      "kind": "runtime",
+      "reason": "Reachable only through the portal legacy fallback edge; all incoming runtime/type edges are inside the retired closure except its removed entry edge. Error-first render invariant prevents legacy happy-path commit."
+    },
+    {
+      "path": "frontend/features/upload/components/extraction-polling.ts",
+      "sha256": "bb95748351ef786dd7a98bfe1f68b526f292871b74925b8fb85714af31e248b7",
+      "physicalLines": 38,
+      "inbound": [
+        {
+          "from": "frontend/features/upload/services/saved-passport-extraction.ts",
+          "to": "frontend/features/upload/components/extraction-polling.ts",
+          "specifier": "../components/extraction-polling",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 3
+        }
+      ],
+      "outbound": [],
+      "kind": "runtime",
+      "reason": "Reachable only through the portal legacy fallback edge; all incoming runtime/type edges are inside the retired closure except its removed entry edge. Error-first render invariant prevents legacy happy-path commit."
+    },
+    {
+      "path": "frontend/features/upload/components/instruction-language-selector.tsx",
+      "sha256": "9fe344f0011d346b490b4029d4ec8edfb0c5c4e60ba49c6c1ba408ff679737e1",
+      "physicalLines": 22,
+      "inbound": [
+        {
+          "from": "frontend/features/upload/components/passport-upload-page.tsx",
+          "to": "frontend/features/upload/components/instruction-language-selector.tsx",
+          "specifier": "./instruction-language-selector",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 13
+        },
+        {
+          "from": "frontend/features/upload/components/visa-photo-upload.tsx",
+          "to": "frontend/features/upload/components/instruction-language-selector.tsx",
+          "specifier": "./instruction-language-selector",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 18
+        }
+      ],
+      "outbound": [
+        {
+          "from": "frontend/features/upload/components/instruction-language-selector.tsx",
+          "to": "frontend/features/passports/types/instruction-language.ts",
+          "specifier": "@/features/passports/types/instruction-language",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 4
+        },
+        {
+          "from": "frontend/features/upload/components/instruction-language-selector.tsx",
+          "to": "frontend/features/upload/hooks/use-instruction-language.ts",
+          "specifier": "../hooks/use-instruction-language",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 5
+        }
+      ],
+      "kind": "runtime",
+      "reason": "Reachable only through the portal legacy fallback edge; all incoming runtime/type edges are inside the retired closure except its removed entry edge. Error-first render invariant prevents legacy happy-path commit."
+    },
+    {
+      "path": "frontend/features/upload/components/passport-upload-page.tsx",
+      "sha256": "eb5e3f02f14c5d23b8b3ef288db224774f23de2c07e990ca19fcc8e677fd8f8e",
+      "physicalLines": 199,
+      "inbound": [
+        {
+          "from": "frontend/features/upload/components/upload-flow-capture-stage.tsx",
+          "to": "frontend/features/upload/components/passport-upload-page.tsx",
+          "specifier": "./passport-upload-page",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 5
+        }
+      ],
+      "outbound": [
+        {
+          "from": "frontend/features/upload/components/passport-upload-page.tsx",
+          "to": "frontend/components/ui/button.tsx",
+          "specifier": "@/components/ui/button",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 6
+        },
+        {
+          "from": "frontend/features/upload/components/passport-upload-page.tsx",
+          "to": "frontend/features/passports/types/upload-configuration.ts",
+          "specifier": "@/features/passports/types/upload-configuration",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 7
+        },
+        {
+          "from": "frontend/features/upload/components/passport-upload-page.tsx",
+          "to": "frontend/features/upload/services/configured-upload.ts",
+          "specifier": "../services/configured-upload",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 8
+        },
+        {
+          "from": "frontend/features/upload/components/passport-upload-page.tsx",
+          "to": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "specifier": "../services/upload-flow-helpers",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 9
+        },
+        {
+          "from": "frontend/features/upload/components/passport-upload-page.tsx",
+          "to": "frontend/features/upload/services/public-upload-file.ts",
+          "specifier": "../services/public-upload-file",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 10
+        },
+        {
+          "from": "frontend/features/upload/components/passport-upload-page.tsx",
+          "to": "frontend/features/upload/components/upload-flow.constants.ts",
+          "specifier": "./upload-flow.constants",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 11
+        },
+        {
+          "from": "frontend/features/upload/components/passport-upload-page.tsx",
+          "to": "frontend/features/upload/components/upload-flow.types.ts",
+          "specifier": "./upload-flow.types",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 12
+        },
+        {
+          "from": "frontend/features/upload/components/passport-upload-page.tsx",
+          "to": "frontend/features/upload/components/instruction-language-selector.tsx",
+          "specifier": "./instruction-language-selector",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 13
+        },
+        {
+          "from": "frontend/features/upload/components/passport-upload-page.tsx",
+          "to": "frontend/features/upload/hooks/use-instruction-language.ts",
+          "specifier": "../hooks/use-instruction-language",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 14
+        },
+        {
+          "from": "frontend/features/upload/components/passport-upload-page.tsx",
+          "to": "frontend/features/upload/config/instruction-translations.ts",
+          "specifier": "../config/instruction-translations",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 15
+        }
+      ],
+      "kind": "runtime",
+      "reason": "Reachable only through the portal legacy fallback edge; all incoming runtime/type edges are inside the retired closure except its removed entry edge. Error-first render invariant prevents legacy happy-path commit."
+    },
+    {
+      "path": "frontend/features/upload/components/protected-upload-document-image.tsx",
+      "sha256": "13f8124289e28cc01194e574b3d0e04a2d2ea7543b6ab63d72a3e25b9b8deac3",
+      "physicalLines": 146,
+      "inbound": [
+        {
+          "from": "frontend/features/upload/components/saved-upload-documents.tsx",
+          "to": "frontend/features/upload/components/protected-upload-document-image.tsx",
+          "specifier": "./protected-upload-document-image",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 2
+        }
+      ],
+      "outbound": [
+        {
+          "from": "frontend/features/upload/components/protected-upload-document-image.tsx",
+          "to": "frontend/features/travellers/services/private-preview-queue.ts",
+          "specifier": "@/features/travellers/services/private-preview-queue",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 4
+        },
+        {
+          "from": "frontend/features/upload/components/protected-upload-document-image.tsx",
+          "to": "frontend/features/upload/api/upload.api.ts",
+          "specifier": "../api/upload.api",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 5
+        }
+      ],
+      "kind": "runtime",
+      "reason": "Reachable only through the portal legacy fallback edge; all incoming runtime/type edges are inside the retired closure except its removed entry edge. Error-first render invariant prevents legacy happy-path commit."
+    },
+    {
+      "path": "frontend/features/upload/components/saved-upload-documents.tsx",
+      "sha256": "e114f75a13607b9007781f68cf927ac280ed0161ebf6578b8d674aecbafeaec8",
+      "physicalLines": 25,
+      "inbound": [
+        {
+          "from": "frontend/features/upload/components/upload-review-panels.tsx",
+          "to": "frontend/features/upload/components/saved-upload-documents.tsx",
+          "specifier": "./saved-upload-documents",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 15
+        }
+      ],
+      "outbound": [
+        {
+          "from": "frontend/features/upload/components/saved-upload-documents.tsx",
+          "to": "frontend/types/passport.types.ts",
+          "specifier": "@/types/passport.types",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 1
+        },
+        {
+          "from": "frontend/features/upload/components/saved-upload-documents.tsx",
+          "to": "frontend/features/upload/components/protected-upload-document-image.tsx",
+          "specifier": "./protected-upload-document-image",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 2
+        },
+        {
+          "from": "frontend/features/upload/components/saved-upload-documents.tsx",
+          "to": "frontend/features/upload/components/upload-flow-review.tsx",
+          "specifier": "./upload-flow-review",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 3
+        }
+      ],
+      "kind": "runtime",
+      "reason": "Reachable only through the portal legacy fallback edge; all incoming runtime/type edges are inside the retired closure except its removed entry edge. Error-first render invariant prevents legacy happy-path commit."
+    },
+    {
+      "path": "frontend/features/upload/components/upload-acquisition-actions.ts",
+      "sha256": "22350f4ba1e1040fe28db80534e4594cb24f2614d211242be4068017f8865a35",
+      "physicalLines": 113,
+      "inbound": [
+        {
+          "from": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "to": "frontend/features/upload/components/upload-acquisition-actions.ts",
+          "specifier": "../components/upload-acquisition-actions",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 25
+        }
+      ],
+      "outbound": [
+        {
+          "from": "frontend/features/upload/components/upload-acquisition-actions.ts",
+          "to": "frontend/features/passports/types/upload-configuration.ts",
+          "specifier": "@/features/passports/types/upload-configuration",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 1
+        },
+        {
+          "from": "frontend/features/upload/components/upload-acquisition-actions.ts",
+          "to": "frontend/features/upload/services/family-upload-state.ts",
+          "specifier": "../services/family-upload-state",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 2
+        },
+        {
+          "from": "frontend/features/upload/components/upload-acquisition-actions.ts",
+          "to": "frontend/features/upload/components/upload-flow.types.ts",
+          "specifier": "./upload-flow.types",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 3
+        },
+        {
+          "from": "frontend/features/upload/components/upload-acquisition-actions.ts",
+          "to": "frontend/features/upload/hooks/use-upload-documents.ts",
+          "specifier": "../hooks/use-upload-documents",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 4
+        },
+        {
+          "from": "frontend/features/upload/components/upload-acquisition-actions.ts",
+          "to": "frontend/features/upload/services/configured-upload.ts",
+          "specifier": "../services/configured-upload",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 5
+        },
+        {
+          "from": "frontend/features/upload/components/upload-acquisition-actions.ts",
+          "to": "frontend/features/upload/services/passport-capture-transition.ts",
+          "specifier": "../services/passport-capture-transition",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 6
+        },
+        {
+          "from": "frontend/features/upload/components/upload-acquisition-actions.ts",
+          "to": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "specifier": "../services/upload-flow-helpers",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 7
+        }
+      ],
+      "kind": "runtime",
+      "reason": "Reachable only through the portal legacy fallback edge; all incoming runtime/type edges are inside the retired closure except its removed entry edge. Error-first render invariant prevents legacy happy-path commit."
+    },
+    {
+      "path": "frontend/features/upload/components/upload-flow-capture-stage.tsx",
+      "sha256": "8ecc9056475f85557c9091a939083df39005aad2dac6effb4a5380dd4a6ef286",
+      "physicalLines": 123,
+      "inbound": [
+        {
+          "from": "frontend/features/upload/components/upload-flow-screen.tsx",
+          "to": "frontend/features/upload/components/upload-flow-capture-stage.tsx",
+          "specifier": "./upload-flow-capture-stage",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 8
+        }
+      ],
+      "outbound": [
+        {
+          "from": "frontend/features/upload/components/upload-flow-capture-stage.tsx",
+          "to": "frontend/features/upload/services/upload-flow-session.ts",
+          "specifier": "../services/upload-flow-session",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 4
+        },
+        {
+          "from": "frontend/features/upload/components/upload-flow-capture-stage.tsx",
+          "to": "frontend/features/upload/components/passport-upload-page.tsx",
+          "specifier": "./passport-upload-page",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 5
+        },
+        {
+          "from": "frontend/features/upload/components/upload-flow-capture-stage.tsx",
+          "to": "frontend/features/upload/components/upload-flow-shell.tsx",
+          "specifier": "./upload-flow-shell",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 6
+        },
+        {
+          "from": "frontend/features/upload/components/upload-flow-capture-stage.tsx",
+          "to": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "specifier": "../hooks/use-upload-flow-controller",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 7
+        },
+        {
+          "from": "frontend/features/upload/components/upload-flow-capture-stage.tsx",
+          "to": "frontend/features/upload/components/smart-camera.tsx",
+          "specifier": "./smart-camera",
+          "kind": "dynamic-import",
+          "typeOnly": false,
+          "line": 10
+        },
+        {
+          "from": "frontend/features/upload/components/upload-flow-capture-stage.tsx",
+          "to": "frontend/features/upload/components/visa-photo-upload.tsx",
+          "specifier": "./visa-photo-upload",
+          "kind": "dynamic-import",
+          "typeOnly": false,
+          "line": 14
+        },
+        {
+          "from": "frontend/features/upload/components/upload-flow-capture-stage.tsx",
+          "to": "frontend/features/upload/components/visa-selfie-camera.tsx",
+          "specifier": "./visa-selfie-camera",
+          "kind": "dynamic-import",
+          "typeOnly": false,
+          "line": 18
+        }
+      ],
+      "kind": "runtime",
+      "reason": "Reachable only through the portal legacy fallback edge; all incoming runtime/type edges are inside the retired closure except its removed entry edge. Error-first render invariant prevents legacy happy-path commit."
+    },
+    {
+      "path": "frontend/features/upload/components/upload-flow-document-options.tsx",
+      "sha256": "0e315f54802ac4fff322fc5b7d36c29567d4e380430ad63448bb9eeec6e49c0a",
+      "physicalLines": 42,
+      "inbound": [
+        {
+          "from": "frontend/features/upload/components/upload-flow-selection-stage.tsx",
+          "to": "frontend/features/upload/components/upload-flow-document-options.tsx",
+          "specifier": "./upload-flow-document-options",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 8
+        }
+      ],
+      "outbound": [
+        {
+          "from": "frontend/features/upload/components/upload-flow-document-options.tsx",
+          "to": "frontend/components/ui/button.tsx",
+          "specifier": "@/components/ui/button",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 2
+        },
+        {
+          "from": "frontend/features/upload/components/upload-flow-document-options.tsx",
+          "to": "frontend/features/passports/types/upload-configuration.ts",
+          "specifier": "@/features/passports/types/upload-configuration",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 3
+        },
+        {
+          "from": "frontend/features/upload/components/upload-flow-document-options.tsx",
+          "to": "frontend/features/upload/components/upload-flow-fields.tsx",
+          "specifier": "./upload-flow-fields",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 4
+        },
+        {
+          "from": "frontend/features/upload/components/upload-flow-document-options.tsx",
+          "to": "frontend/features/upload/components/upload-flow-passport-picker.tsx",
+          "specifier": "./upload-flow-passport-picker",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 5
+        },
+        {
+          "from": "frontend/features/upload/components/upload-flow-document-options.tsx",
+          "to": "frontend/features/upload/components/upload-flow.types.ts",
+          "specifier": "./upload-flow.types",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 6
+        }
+      ],
+      "kind": "runtime",
+      "reason": "Reachable only through the portal legacy fallback edge; all incoming runtime/type edges are inside the retired closure except its removed entry edge. Error-first render invariant prevents legacy happy-path commit."
+    },
+    {
+      "path": "frontend/features/upload/components/upload-flow-passport-picker.tsx",
+      "sha256": "faaf8b3e206f225775bcc8fed34579bc8743bc1c96c4112bb205e5a856c77d2c",
+      "physicalLines": 411,
+      "inbound": [
+        {
+          "from": "frontend/features/upload/components/upload-flow-selection-stage.tsx",
+          "to": "frontend/features/upload/components/upload-flow-passport-picker.tsx",
+          "specifier": "./upload-flow-passport-picker",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 10
+        },
+        {
+          "from": "frontend/features/upload/components/upload-flow-document-options.tsx",
+          "to": "frontend/features/upload/components/upload-flow-passport-picker.tsx",
+          "specifier": "./upload-flow-passport-picker",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 5
+        }
+      ],
+      "outbound": [
+        {
+          "from": "frontend/features/upload/components/upload-flow-passport-picker.tsx",
+          "to": "frontend/components/ui/button.tsx",
+          "specifier": "@/components/ui/button",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 14
+        },
+        {
+          "from": "frontend/features/upload/components/upload-flow-passport-picker.tsx",
+          "to": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "specifier": "../services/upload-flow-helpers",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 15
+        },
+        {
+          "from": "frontend/features/upload/components/upload-flow-passport-picker.tsx",
+          "to": "frontend/features/upload/components/upload-flow.constants.ts",
+          "specifier": "./upload-flow.constants",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 16
+        },
+        {
+          "from": "frontend/features/upload/components/upload-flow-passport-picker.tsx",
+          "to": "frontend/features/upload/components/upload-flow.types.ts",
+          "specifier": "./upload-flow.types",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 17
+        }
+      ],
+      "kind": "runtime",
+      "reason": "Reachable only through the portal legacy fallback edge; all incoming runtime/type edges are inside the retired closure except its removed entry edge. Error-first render invariant prevents legacy happy-path commit."
+    },
+    {
+      "path": "frontend/features/upload/components/upload-flow-review-stage.tsx",
+      "sha256": "ad23ae436c9b0f7b5c61bcb02565d58842a981abf178929f45125308a489dbd0",
+      "physicalLines": 165,
+      "inbound": [
+        {
+          "from": "frontend/features/upload/components/upload-flow-screen.tsx",
+          "to": "frontend/features/upload/components/upload-flow-review-stage.tsx",
+          "specifier": "./upload-flow-review-stage",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 9
+        }
+      ],
+      "outbound": [
+        {
+          "from": "frontend/features/upload/components/upload-flow-review-stage.tsx",
+          "to": "frontend/features/travellers/components/detected-history-offer.tsx",
+          "specifier": "@/features/travellers/components/detected-history-offer",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 3
+        },
+        {
+          "from": "frontend/features/upload/components/upload-flow-review-stage.tsx",
+          "to": "frontend/features/upload/services/passport-document-verification.ts",
+          "specifier": "../services/passport-document-verification",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 4
+        },
+        {
+          "from": "frontend/features/upload/components/upload-flow-review-stage.tsx",
+          "to": "frontend/features/upload/components/upload-review-panels.tsx",
+          "specifier": "./upload-review-panels",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 5
+        },
+        {
+          "from": "frontend/features/upload/components/upload-flow-review-stage.tsx",
+          "to": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "specifier": "../hooks/use-upload-flow-controller",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 6
+        }
+      ],
+      "kind": "runtime",
+      "reason": "Reachable only through the portal legacy fallback edge; all incoming runtime/type edges are inside the retired closure except its removed entry edge. Error-first render invariant prevents legacy happy-path commit."
+    },
+    {
+      "path": "frontend/features/upload/components/upload-flow-screen.tsx",
+      "sha256": "7b5a9272c174ccd98529de1b1856a0e152db6ee32df10b002e5693930e3cefee",
+      "physicalLines": 98,
+      "inbound": [
+        {
+          "from": "frontend/features/upload/components/upload-flow.tsx",
+          "to": "frontend/features/upload/components/upload-flow-screen.tsx",
+          "specifier": "./upload-flow-screen",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 4
+        }
+      ],
+      "outbound": [
+        {
+          "from": "frontend/features/upload/components/upload-flow-screen.tsx",
+          "to": "frontend/features/upload/hooks/use-returning-upload.tsx",
+          "specifier": "../hooks/use-returning-upload",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 3
+        },
+        {
+          "from": "frontend/features/upload/components/upload-flow-screen.tsx",
+          "to": "frontend/features/upload/components/upload-link-error-screen.tsx",
+          "specifier": "./upload-link-error-screen",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 4
+        },
+        {
+          "from": "frontend/features/upload/components/upload-flow-screen.tsx",
+          "to": "frontend/features/upload/components/upload-flow-shell.tsx",
+          "specifier": "./upload-flow-shell",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 5
+        },
+        {
+          "from": "frontend/features/upload/components/upload-flow-screen.tsx",
+          "to": "frontend/features/upload/components/upload-flow-status.tsx",
+          "specifier": "./upload-flow-status",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 6
+        },
+        {
+          "from": "frontend/features/upload/components/upload-flow-screen.tsx",
+          "to": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "specifier": "../hooks/use-upload-flow-controller",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 7
+        },
+        {
+          "from": "frontend/features/upload/components/upload-flow-screen.tsx",
+          "to": "frontend/features/upload/components/upload-flow-capture-stage.tsx",
+          "specifier": "./upload-flow-capture-stage",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 8
+        },
+        {
+          "from": "frontend/features/upload/components/upload-flow-screen.tsx",
+          "to": "frontend/features/upload/components/upload-flow-review-stage.tsx",
+          "specifier": "./upload-flow-review-stage",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 9
+        },
+        {
+          "from": "frontend/features/upload/components/upload-flow-screen.tsx",
+          "to": "frontend/features/upload/components/upload-flow-selection-stage.tsx",
+          "specifier": "./upload-flow-selection-stage",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 10
+        }
+      ],
+      "kind": "runtime",
+      "reason": "Reachable only through the portal legacy fallback edge; all incoming runtime/type edges are inside the retired closure except its removed entry edge. Error-first render invariant prevents legacy happy-path commit."
+    },
+    {
+      "path": "frontend/features/upload/components/upload-flow-selection-stage.tsx",
+      "sha256": "6990c01cc037ad31cb168f559feed8ae8acd576f448d9e85dac07a341fa4fc73",
+      "physicalLines": 285,
+      "inbound": [
+        {
+          "from": "frontend/features/upload/components/upload-flow-screen.tsx",
+          "to": "frontend/features/upload/components/upload-flow-selection-stage.tsx",
+          "specifier": "./upload-flow-selection-stage",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 10
+        }
+      ],
+      "outbound": [
+        {
+          "from": "frontend/features/upload/components/upload-flow-selection-stage.tsx",
+          "to": "frontend/components/ui/button.tsx",
+          "specifier": "@/components/ui/button",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 3
+        },
+        {
+          "from": "frontend/features/upload/components/upload-flow-selection-stage.tsx",
+          "to": "frontend/components/ui/input.tsx",
+          "specifier": "@/components/ui/input",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 4
+        },
+        {
+          "from": "frontend/features/upload/components/upload-flow-selection-stage.tsx",
+          "to": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "specifier": "../services/upload-flow-helpers",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 6
+        },
+        {
+          "from": "frontend/features/upload/components/upload-flow-selection-stage.tsx",
+          "to": "frontend/features/upload/components/relation-qualifier-step.tsx",
+          "specifier": "./relation-qualifier-step",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 7
+        },
+        {
+          "from": "frontend/features/upload/components/upload-flow-selection-stage.tsx",
+          "to": "frontend/features/upload/components/upload-flow-document-options.tsx",
+          "specifier": "./upload-flow-document-options",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 8
+        },
+        {
+          "from": "frontend/features/upload/components/upload-flow-selection-stage.tsx",
+          "to": "frontend/features/upload/components/upload-flow-fields.tsx",
+          "specifier": "./upload-flow-fields",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 9
+        },
+        {
+          "from": "frontend/features/upload/components/upload-flow-selection-stage.tsx",
+          "to": "frontend/features/upload/components/upload-flow-passport-picker.tsx",
+          "specifier": "./upload-flow-passport-picker",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 10
+        },
+        {
+          "from": "frontend/features/upload/components/upload-flow-selection-stage.tsx",
+          "to": "frontend/features/upload/components/upload-flow-shell.tsx",
+          "specifier": "./upload-flow-shell",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 11
+        },
+        {
+          "from": "frontend/features/upload/components/upload-flow-selection-stage.tsx",
+          "to": "frontend/features/upload/components/upload-flow.constants.ts",
+          "specifier": "./upload-flow.constants",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 12
+        },
+        {
+          "from": "frontend/features/upload/components/upload-flow-selection-stage.tsx",
+          "to": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "specifier": "../hooks/use-upload-flow-controller",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 13
+        }
+      ],
+      "kind": "runtime",
+      "reason": "Reachable only through the portal legacy fallback edge; all incoming runtime/type edges are inside the retired closure except its removed entry edge. Error-first render invariant prevents legacy happy-path commit."
+    },
+    {
+      "path": "frontend/features/upload/components/upload-flow-status.tsx",
+      "sha256": "beb6379a78a2256494197bbd6825e623cb3c3151fb7731c38e225e48d7372290",
+      "physicalLines": 89,
+      "inbound": [
+        {
+          "from": "frontend/features/upload/components/upload-flow-screen.tsx",
+          "to": "frontend/features/upload/components/upload-flow-status.tsx",
+          "specifier": "./upload-flow-status",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 6
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-returning-upload.tsx",
+          "to": "frontend/features/upload/components/upload-flow-status.tsx",
+          "specifier": "../components/upload-flow-status",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 8
+        }
+      ],
+      "outbound": [
+        {
+          "from": "frontend/features/upload/components/upload-flow-status.tsx",
+          "to": "frontend/components/ui/button.tsx",
+          "specifier": "@/components/ui/button",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 2
+        },
+        {
+          "from": "frontend/features/upload/components/upload-flow-status.tsx",
+          "to": "frontend/types/passport.types.ts",
+          "specifier": "@/types/passport.types",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 3
+        },
+        {
+          "from": "frontend/features/upload/components/upload-flow-status.tsx",
+          "to": "frontend/features/upload/components/upload-flow-shell.tsx",
+          "specifier": "./upload-flow-shell",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 4
+        },
+        {
+          "from": "frontend/features/upload/components/upload-flow-status.tsx",
+          "to": "frontend/features/upload/components/upload-flow.types.ts",
+          "specifier": "./upload-flow.types",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 5
+        }
+      ],
+      "kind": "runtime",
+      "reason": "Reachable only through the portal legacy fallback edge; all incoming runtime/type edges are inside the retired closure except its removed entry edge. Error-first render invariant prevents legacy happy-path commit."
+    },
+    {
+      "path": "frontend/features/upload/components/upload-flow.tsx",
+      "sha256": "f1cecafc1afb705b29d5b710d96d5b70488d92f52f58c4f4703a9c116faf927b",
+      "physicalLines": 13,
+      "inbound": [
+        {
+          "from": "frontend/features/upload/components/traveller-portal.tsx",
+          "to": "frontend/features/upload/components/upload-flow.tsx",
+          "specifier": "./upload-flow",
+          "kind": "dynamic-import",
+          "typeOnly": false,
+          "line": 16
+        }
+      ],
+      "outbound": [
+        {
+          "from": "frontend/features/upload/components/upload-flow.tsx",
+          "to": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "specifier": "../hooks/use-upload-flow-controller",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 3
+        },
+        {
+          "from": "frontend/features/upload/components/upload-flow.tsx",
+          "to": "frontend/features/upload/components/upload-flow-screen.tsx",
+          "specifier": "./upload-flow-screen",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 4
+        }
+      ],
+      "kind": "runtime",
+      "reason": "Reachable only through the portal legacy fallback edge; all incoming runtime/type edges are inside the retired closure except its removed entry edge. Error-first render invariant prevents legacy happy-path commit."
+    },
+    {
+      "path": "frontend/features/upload/components/upload-review-panels.tsx",
+      "sha256": "6411902a244484e80a7445d185a3abf44d45ff1f2db526b8512b8a2b4740d334",
+      "physicalLines": 302,
+      "inbound": [
+        {
+          "from": "frontend/features/upload/components/upload-flow-review-stage.tsx",
+          "to": "frontend/features/upload/components/upload-review-panels.tsx",
+          "specifier": "./upload-review-panels",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 5
+        }
+      ],
+      "outbound": [
+        {
+          "from": "frontend/features/upload/components/upload-review-panels.tsx",
+          "to": "frontend/components/shared/processing-motion.tsx",
+          "specifier": "@/components/shared/processing-motion",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 2
+        },
+        {
+          "from": "frontend/features/upload/components/upload-review-panels.tsx",
+          "to": "frontend/components/ui/button.tsx",
+          "specifier": "@/components/ui/button",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 3
+        },
+        {
+          "from": "frontend/features/upload/components/upload-review-panels.tsx",
+          "to": "frontend/features/passports/types/upload-configuration.ts",
+          "specifier": "@/features/passports/types/upload-configuration",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 4
+        },
+        {
+          "from": "frontend/features/upload/components/upload-review-panels.tsx",
+          "to": "frontend/types/passport.types.ts",
+          "specifier": "@/types/passport.types",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 5
+        },
+        {
+          "from": "frontend/features/upload/components/upload-review-panels.tsx",
+          "to": "frontend/features/upload/hooks/use-upload-contact-verification.tsx",
+          "specifier": "../hooks/use-upload-contact-verification",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 8
+        },
+        {
+          "from": "frontend/features/upload/components/upload-review-panels.tsx",
+          "to": "frontend/features/upload/hooks/use-upload-documents.ts",
+          "specifier": "../hooks/use-upload-documents",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 9
+        },
+        {
+          "from": "frontend/features/upload/components/upload-review-panels.tsx",
+          "to": "frontend/features/upload/services/configured-upload.ts",
+          "specifier": "../services/configured-upload",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 10
+        },
+        {
+          "from": "frontend/features/upload/components/upload-review-panels.tsx",
+          "to": "frontend/features/upload/services/family-upload-state.ts",
+          "specifier": "../services/family-upload-state",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 11
+        },
+        {
+          "from": "frontend/features/upload/components/upload-review-panels.tsx",
+          "to": "frontend/features/upload/services/passport-document-verification.ts",
+          "specifier": "../services/passport-document-verification",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 12
+        },
+        {
+          "from": "frontend/features/upload/components/upload-review-panels.tsx",
+          "to": "frontend/features/upload/services/review-submission-validation.ts",
+          "specifier": "../services/review-submission-validation",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 13
+        },
+        {
+          "from": "frontend/features/upload/components/upload-review-panels.tsx",
+          "to": "frontend/features/upload/services/family-returning.ts",
+          "specifier": "../services/family-returning",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 14
+        },
+        {
+          "from": "frontend/features/upload/components/upload-review-panels.tsx",
+          "to": "frontend/features/upload/components/saved-upload-documents.tsx",
+          "specifier": "./saved-upload-documents",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 15
+        },
+        {
+          "from": "frontend/features/upload/components/upload-review-panels.tsx",
+          "to": "frontend/features/upload/components/upload-contact-verification.tsx",
+          "specifier": "./upload-contact-verification",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 16
+        },
+        {
+          "from": "frontend/features/upload/components/upload-review-panels.tsx",
+          "to": "frontend/features/upload/components/upload-flow-fields.tsx",
+          "specifier": "./upload-flow-fields",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 17
+        },
+        {
+          "from": "frontend/features/upload/components/upload-review-panels.tsx",
+          "to": "frontend/features/upload/components/upload-flow-review.tsx",
+          "specifier": "./upload-flow-review",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 18
+        },
+        {
+          "from": "frontend/features/upload/components/upload-review-panels.tsx",
+          "to": "frontend/features/upload/components/upload-flow-shell.tsx",
+          "specifier": "./upload-flow-shell",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 19
+        },
+        {
+          "from": "frontend/features/upload/components/upload-review-panels.tsx",
+          "to": "frontend/features/upload/components/upload-flow.types.ts",
+          "specifier": "./upload-flow.types",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 20
+        }
+      ],
+      "kind": "runtime",
+      "reason": "Reachable only through the portal legacy fallback edge; all incoming runtime/type edges are inside the retired closure except its removed entry edge. Error-first render invariant prevents legacy happy-path commit."
+    },
+    {
+      "path": "frontend/features/upload/components/visa-photo-guidelines.tsx",
+      "sha256": "1a0951bba8622ad93b51ff97ff95f5918e68fd8c3f69a16986ab713922bd718a",
+      "physicalLines": 49,
+      "inbound": [
+        {
+          "from": "frontend/features/upload/components/visa-photo-upload.tsx",
+          "to": "frontend/features/upload/components/visa-photo-guidelines.tsx",
+          "specifier": "./visa-photo-guidelines",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 17
+        }
+      ],
+      "outbound": [
+        {
+          "from": "frontend/features/upload/components/visa-photo-guidelines.tsx",
+          "to": "frontend/features/passports/types/instruction-language.ts",
+          "specifier": "@/features/passports/types/instruction-language",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 3
+        },
+        {
+          "from": "frontend/features/upload/components/visa-photo-guidelines.tsx",
+          "to": "frontend/features/upload/config/visa-photo-guidelines.ts",
+          "specifier": "../config/visa-photo-guidelines",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 4
+        }
+      ],
+      "kind": "runtime",
+      "reason": "Reachable only through the portal legacy fallback edge; all incoming runtime/type edges are inside the retired closure except its removed entry edge. Error-first render invariant prevents legacy happy-path commit."
+    },
+    {
+      "path": "frontend/features/upload/components/visa-photo-sample.tsx",
+      "sha256": "19679b9497f1348b59110e24c5dc157f46b311e32051f294e4cb89e3dd070e27",
+      "physicalLines": 17,
+      "inbound": [
+        {
+          "from": "frontend/features/upload/components/visa-photo-upload.tsx",
+          "to": "frontend/features/upload/components/visa-photo-sample.tsx",
+          "specifier": "./visa-photo-sample",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 16
+        }
+      ],
+      "outbound": [],
+      "kind": "runtime",
+      "reason": "Reachable only through the portal legacy fallback edge; all incoming runtime/type edges are inside the retired closure except its removed entry edge. Error-first render invariant prevents legacy happy-path commit."
+    },
+    {
+      "path": "frontend/features/upload/components/visa-photo-upload.tsx",
+      "sha256": "5d7426ec3284850c6bcf376b5734a722d6e2dcfe1fa91aa9edf63de695c2d7ba",
+      "physicalLines": 271,
+      "inbound": [
+        {
+          "from": "frontend/features/upload/components/upload-flow-capture-stage.tsx",
+          "to": "frontend/features/upload/components/visa-photo-upload.tsx",
+          "specifier": "./visa-photo-upload",
+          "kind": "dynamic-import",
+          "typeOnly": false,
+          "line": 14
+        }
+      ],
+      "outbound": [
+        {
+          "from": "frontend/features/upload/components/visa-photo-upload.tsx",
+          "to": "frontend/components/ui/button.tsx",
+          "specifier": "@/components/ui/button",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 14
+        },
+        {
+          "from": "frontend/features/upload/components/visa-photo-upload.tsx",
+          "to": "frontend/components/ui/modal.tsx",
+          "specifier": "@/components/ui/modal",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 15
+        },
+        {
+          "from": "frontend/features/upload/components/visa-photo-upload.tsx",
+          "to": "frontend/features/upload/components/visa-photo-sample.tsx",
+          "specifier": "./visa-photo-sample",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 16
+        },
+        {
+          "from": "frontend/features/upload/components/visa-photo-upload.tsx",
+          "to": "frontend/features/upload/components/visa-photo-guidelines.tsx",
+          "specifier": "./visa-photo-guidelines",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 17
+        },
+        {
+          "from": "frontend/features/upload/components/visa-photo-upload.tsx",
+          "to": "frontend/features/upload/components/instruction-language-selector.tsx",
+          "specifier": "./instruction-language-selector",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 18
+        },
+        {
+          "from": "frontend/features/upload/components/visa-photo-upload.tsx",
+          "to": "frontend/features/upload/config/instruction-translations.ts",
+          "specifier": "../config/instruction-translations",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 19
+        },
+        {
+          "from": "frontend/features/upload/components/visa-photo-upload.tsx",
+          "to": "frontend/features/upload/hooks/use-instruction-language.ts",
+          "specifier": "../hooks/use-instruction-language",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 20
+        },
+        {
+          "from": "frontend/features/upload/components/visa-photo-upload.tsx",
+          "to": "frontend/features/upload/services/public-upload-file.ts",
+          "specifier": "../services/public-upload-file",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 21
+        },
+        {
+          "from": "frontend/features/upload/components/visa-photo-upload.tsx",
+          "to": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "specifier": "../services/upload-flow-helpers",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 22
+        }
+      ],
+      "kind": "runtime",
+      "reason": "Reachable only through the portal legacy fallback edge; all incoming runtime/type edges are inside the retired closure except its removed entry edge. Error-first render invariant prevents legacy happy-path commit."
+    },
+    {
+      "path": "frontend/features/upload/config/instruction-translations.ts",
+      "sha256": "b6123cadc963b1c64f4a0ab68c50e34c0c009701e3c14bb7474e31ce715fe0ca",
+      "physicalLines": 103,
+      "inbound": [
+        {
+          "from": "frontend/features/upload/components/passport-upload-page.tsx",
+          "to": "frontend/features/upload/config/instruction-translations.ts",
+          "specifier": "../config/instruction-translations",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 15
+        },
+        {
+          "from": "frontend/features/upload/components/visa-photo-upload.tsx",
+          "to": "frontend/features/upload/config/instruction-translations.ts",
+          "specifier": "../config/instruction-translations",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 19
+        }
+      ],
+      "outbound": [
+        {
+          "from": "frontend/features/upload/config/instruction-translations.ts",
+          "to": "frontend/features/passports/types/instruction-language.ts",
+          "specifier": "@/features/passports/types/instruction-language",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 1
+        }
+      ],
+      "kind": "runtime",
+      "reason": "Reachable only through the portal legacy fallback edge; all incoming runtime/type edges are inside the retired closure except its removed entry edge. Error-first render invariant prevents legacy happy-path commit."
+    },
+    {
+      "path": "frontend/features/upload/config/visa-photo-guidelines.ts",
+      "sha256": "f32ddb78e80d43f2b480e8a4332b963a09b2a4147d4dc437c583977cc3491e64",
+      "physicalLines": 333,
+      "inbound": [
+        {
+          "from": "frontend/features/upload/components/visa-photo-guidelines.tsx",
+          "to": "frontend/features/upload/config/visa-photo-guidelines.ts",
+          "specifier": "../config/visa-photo-guidelines",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 4
+        }
+      ],
+      "outbound": [
+        {
+          "from": "frontend/features/upload/config/visa-photo-guidelines.ts",
+          "to": "frontend/features/passports/types/instruction-language.ts",
+          "specifier": "@/features/passports/types/instruction-language",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 1
+        }
+      ],
+      "kind": "runtime",
+      "reason": "Reachable only through the portal legacy fallback edge; all incoming runtime/type edges are inside the retired closure except its removed entry edge. Error-first render invariant prevents legacy happy-path commit."
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-instruction-language.ts",
+      "sha256": "18838bf72960d2c8ddd15b5fcb775716522baf4d2442f59055ed77cc85c868a8",
+      "physicalLines": 50,
+      "inbound": [
+        {
+          "from": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "to": "frontend/features/upload/hooks/use-instruction-language.ts",
+          "specifier": "../hooks/use-instruction-language",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 7
+        },
+        {
+          "from": "frontend/features/upload/components/instruction-language-selector.tsx",
+          "to": "frontend/features/upload/hooks/use-instruction-language.ts",
+          "specifier": "../hooks/use-instruction-language",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 5
+        },
+        {
+          "from": "frontend/features/upload/components/passport-upload-page.tsx",
+          "to": "frontend/features/upload/hooks/use-instruction-language.ts",
+          "specifier": "../hooks/use-instruction-language",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 14
+        },
+        {
+          "from": "frontend/features/upload/components/visa-photo-upload.tsx",
+          "to": "frontend/features/upload/hooks/use-instruction-language.ts",
+          "specifier": "../hooks/use-instruction-language",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 20
+        }
+      ],
+      "outbound": [
+        {
+          "from": "frontend/features/upload/hooks/use-instruction-language.ts",
+          "to": "frontend/features/passports/types/instruction-language.ts",
+          "specifier": "@/features/passports/types/instruction-language",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 4
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-instruction-language.ts",
+          "to": "frontend/features/passports/types/upload-configuration.ts",
+          "specifier": "@/features/passports/types/upload-configuration",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 5
+        }
+      ],
+      "kind": "runtime",
+      "reason": "Reachable only through the portal legacy fallback edge; all incoming runtime/type edges are inside the retired closure except its removed entry edge. Error-first render invariant prevents legacy happy-path commit."
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-public-flow-telemetry.ts",
+      "sha256": "5c131fb3247e901beac1ec5a7cbe9d0728cb9f22d687ca5f63aa7d1adf95aa1e",
+      "physicalLines": 178,
+      "inbound": [
+        {
+          "from": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "to": "frontend/features/upload/hooks/use-public-flow-telemetry.ts",
+          "specifier": "../hooks/use-public-flow-telemetry",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 8
+        }
+      ],
+      "outbound": [
+        {
+          "from": "frontend/features/upload/hooks/use-public-flow-telemetry.ts",
+          "to": "frontend/features/passports/api/upload-links.api.ts",
+          "specifier": "@/features/passports/api/upload-links.api",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 4
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-public-flow-telemetry.ts",
+          "to": "frontend/features/upload/services/public-flow-telemetry.ts",
+          "specifier": "../services/public-flow-telemetry",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 5
+        }
+      ],
+      "kind": "runtime",
+      "reason": "Reachable only through the portal legacy fallback edge; all incoming runtime/type edges are inside the retired closure except its removed entry edge. Error-first render invariant prevents legacy happy-path commit."
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-returning-family.tsx",
+      "sha256": "c1d10343ac2adae6d0a008eb5a9de5990c69a49824fa35d9a3e0aa384e1ba0f5",
+      "physicalLines": 48,
+      "inbound": [
+        {
+          "from": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "to": "frontend/features/upload/hooks/use-returning-family.tsx",
+          "specifier": "../hooks/use-returning-family",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 10
+        }
+      ],
+      "outbound": [
+        {
+          "from": "frontend/features/upload/hooks/use-returning-family.tsx",
+          "to": "frontend/features/passports/api/upload-links.api.ts",
+          "specifier": "@/features/passports/api/upload-links.api",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 5
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-returning-family.tsx",
+          "to": "frontend/features/travellers/api/returning.api.ts",
+          "specifier": "@/features/travellers/api/returning.api",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 6
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-returning-family.tsx",
+          "to": "frontend/features/travellers/types.ts",
+          "specifier": "@/features/travellers/types",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 7
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-returning-family.tsx",
+          "to": "frontend/features/upload/components/upload-flow.types.ts",
+          "specifier": "../components/upload-flow.types",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 8
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-returning-family.tsx",
+          "to": "frontend/features/upload/services/family-upload-state.ts",
+          "specifier": "../services/family-upload-state",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 9
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-returning-family.tsx",
+          "to": "frontend/features/upload/services/family-returning.ts",
+          "specifier": "../services/family-returning",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 10
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-returning-family.tsx",
+          "to": "frontend/features/upload/components/upload-flow-shell.tsx",
+          "specifier": "../components/upload-flow-shell",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 11
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-returning-family.tsx",
+          "to": "frontend/features/travellers/components/returning-flow.tsx",
+          "specifier": "@/features/travellers/components/returning-flow",
+          "kind": "dynamic-import",
+          "typeOnly": false,
+          "line": 13
+        }
+      ],
+      "kind": "runtime",
+      "reason": "Reachable only through the portal legacy fallback edge; all incoming runtime/type edges are inside the retired closure except its removed entry edge. Error-first render invariant prevents legacy happy-path commit."
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-returning-upload.tsx",
+      "sha256": "22cb28f6358f913e30f4289d7758b4d3bc7aa7731214ebe558349515201762b7",
+      "physicalLines": 61,
+      "inbound": [
+        {
+          "from": "frontend/features/upload/components/upload-flow-screen.tsx",
+          "to": "frontend/features/upload/hooks/use-returning-upload.tsx",
+          "specifier": "../hooks/use-returning-upload",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 3
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "to": "frontend/features/upload/hooks/use-returning-upload.tsx",
+          "specifier": "../hooks/use-returning-upload",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 9
+        }
+      ],
+      "outbound": [
+        {
+          "from": "frontend/features/upload/hooks/use-returning-upload.tsx",
+          "to": "frontend/features/passports/api/upload-links.api.ts",
+          "specifier": "@/features/passports/api/upload-links.api",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 5
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-returning-upload.tsx",
+          "to": "frontend/features/travellers/types.ts",
+          "specifier": "@/features/travellers/types",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 6
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-returning-upload.tsx",
+          "to": "frontend/features/upload/components/upload-flow-shell.tsx",
+          "specifier": "../components/upload-flow-shell",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 7
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-returning-upload.tsx",
+          "to": "frontend/features/upload/components/upload-flow-status.tsx",
+          "specifier": "../components/upload-flow-status",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 8
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-returning-upload.tsx",
+          "to": "frontend/features/upload/components/upload-flow.types.ts",
+          "specifier": "../components/upload-flow.types",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 9
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-returning-upload.tsx",
+          "to": "frontend/features/upload/services/upload-flow-session.ts",
+          "specifier": "../services/upload-flow-session",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 10
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-returning-upload.tsx",
+          "to": "frontend/features/travellers/components/returning-flow.tsx",
+          "specifier": "@/features/travellers/components/returning-flow",
+          "kind": "dynamic-import",
+          "typeOnly": false,
+          "line": 13
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-returning-upload.tsx",
+          "to": "frontend/features/travellers/components/returning-replacement-status.tsx",
+          "specifier": "@/features/travellers/components/returning-replacement-status",
+          "kind": "dynamic-import",
+          "typeOnly": false,
+          "line": 17
+        }
+      ],
+      "kind": "runtime",
+      "reason": "Reachable only through the portal legacy fallback edge; all incoming runtime/type edges are inside the retired closure except its removed entry edge. Error-first render invariant prevents legacy happy-path commit."
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-upload-contact-verification.tsx",
+      "sha256": "92df31edba9bbceabd4fdc24e38eb8961e6216cc7e16baf026411e4e69dddd8e",
+      "physicalLines": 103,
+      "inbound": [
+        {
+          "from": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "to": "frontend/features/upload/hooks/use-upload-contact-verification.tsx",
+          "specifier": "../hooks/use-upload-contact-verification",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 12
+        },
+        {
+          "from": "frontend/features/upload/components/upload-review-panels.tsx",
+          "to": "frontend/features/upload/hooks/use-upload-contact-verification.tsx",
+          "specifier": "../hooks/use-upload-contact-verification",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 8
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-submission.ts",
+          "to": "frontend/features/upload/hooks/use-upload-contact-verification.tsx",
+          "specifier": "./use-upload-contact-verification",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 13
+        }
+      ],
+      "outbound": [
+        {
+          "from": "frontend/features/upload/hooks/use-upload-contact-verification.tsx",
+          "to": "frontend/types/passport.types.ts",
+          "specifier": "@/types/passport.types",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 2
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-contact-verification.tsx",
+          "to": "frontend/lib/utils/phone-number.ts",
+          "specifier": "@/lib/utils/phone-number",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 3
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-contact-verification.tsx",
+          "to": "frontend/features/upload/components/upload-contact-verification.tsx",
+          "specifier": "../components/upload-contact-verification",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 4
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-contact-verification.tsx",
+          "to": "frontend/features/upload/components/upload-flow.types.ts",
+          "specifier": "../components/upload-flow.types",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 5
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-contact-verification.tsx",
+          "to": "frontend/features/upload/services/family-returning.ts",
+          "specifier": "../services/family-returning",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 6
+        }
+      ],
+      "kind": "runtime",
+      "reason": "Reachable only through the portal legacy fallback edge; all incoming runtime/type edges are inside the retired closure except its removed entry edge. Error-first render invariant prevents legacy happy-path commit."
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-upload-documents.ts",
+      "sha256": "35a14f8a9fdbbce266d1b6d298bcb096ac8105813718655158361f7433a27744",
+      "physicalLines": 445,
+      "inbound": [
+        {
+          "from": "frontend/features/upload/components/upload-acquisition-actions.ts",
+          "to": "frontend/features/upload/hooks/use-upload-documents.ts",
+          "specifier": "../hooks/use-upload-documents",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 4
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "to": "frontend/features/upload/hooks/use-upload-documents.ts",
+          "specifier": "../hooks/use-upload-documents",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 13
+        },
+        {
+          "from": "frontend/features/upload/components/upload-review-panels.tsx",
+          "to": "frontend/features/upload/hooks/use-upload-documents.ts",
+          "specifier": "../hooks/use-upload-documents",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 9
+        }
+      ],
+      "outbound": [
+        {
+          "from": "frontend/features/upload/hooks/use-upload-documents.ts",
+          "to": "frontend/features/passports/types/upload-configuration.ts",
+          "specifier": "@/features/passports/types/upload-configuration",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 3
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-documents.ts",
+          "to": "frontend/types/passport.types.ts",
+          "specifier": "@/types/passport.types",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 4
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-documents.ts",
+          "to": "frontend/features/upload/api/upload.api.ts",
+          "specifier": "../api/upload.api",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 6
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-documents.ts",
+          "to": "frontend/features/upload/components/upload-flow.types.ts",
+          "specifier": "../components/upload-flow.types",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 7
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-documents.ts",
+          "to": "frontend/features/upload/services/passport-perspective-correction.ts",
+          "specifier": "../services/passport-perspective-correction",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 8
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-documents.ts",
+          "to": "frontend/features/upload/services/saved-passport-extraction.ts",
+          "specifier": "../services/saved-passport-extraction",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 9
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-documents.ts",
+          "to": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "specifier": "../services/upload-flow-helpers",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 10
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-documents.ts",
+          "to": "frontend/features/upload/services/upload-flow-session.ts",
+          "specifier": "../services/upload-flow-session",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 11
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-documents.ts",
+          "to": "frontend/features/upload/services/upload-recovery.ts",
+          "specifier": "../services/upload-recovery",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 12
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-documents.ts",
+          "to": "frontend/features/upload/hooks/use-upload.ts",
+          "specifier": "./use-upload",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 13
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-documents.ts",
+          "to": "frontend/features/upload/hooks/use-upload-operation.ts",
+          "specifier": "./use-upload-operation",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 14
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-documents.ts",
+          "to": "frontend/features/upload/services/family-upload-state.ts",
+          "specifier": "../services/family-upload-state",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 16
+        }
+      ],
+      "kind": "runtime",
+      "reason": "Reachable only through the portal legacy fallback edge; all incoming runtime/type edges are inside the retired closure except its removed entry edge. Error-first render invariant prevents legacy happy-path commit."
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-upload-family.ts",
+      "sha256": "62430b1a06bf45309d4d9dc83b88948bc427c7c4a5013197567120239580b7b3",
+      "physicalLines": 23,
+      "inbound": [
+        {
+          "from": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "to": "frontend/features/upload/hooks/use-upload-family.ts",
+          "specifier": "../hooks/use-upload-family",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 14
+        }
+      ],
+      "outbound": [
+        {
+          "from": "frontend/features/upload/hooks/use-upload-family.ts",
+          "to": "frontend/features/upload/components/upload-flow.constants.ts",
+          "specifier": "../components/upload-flow.constants",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 4
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-family.ts",
+          "to": "frontend/features/upload/services/family-upload-state.ts",
+          "specifier": "../services/family-upload-state",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 5
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-family.ts",
+          "to": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "specifier": "../services/upload-flow-helpers",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 6
+        }
+      ],
+      "kind": "runtime",
+      "reason": "Reachable only through the portal legacy fallback edge; all incoming runtime/type edges are inside the retired closure except its removed entry edge. Error-first render invariant prevents legacy happy-path commit."
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-upload-flow-bootstrap.ts",
+      "sha256": "8a3bf2e179d9c87d0473fc3737157e6891f22c8bff9528229b54e0698aabd8c7",
+      "physicalLines": 104,
+      "inbound": [
+        {
+          "from": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "to": "frontend/features/upload/hooks/use-upload-flow-bootstrap.ts",
+          "specifier": "./use-upload-flow-bootstrap",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 19
+        }
+      ],
+      "outbound": [
+        {
+          "from": "frontend/features/upload/hooks/use-upload-flow-bootstrap.ts",
+          "to": "frontend/features/upload/services/upload-flow-bootstrap.ts",
+          "specifier": "../services/upload-flow-bootstrap",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 4
+        }
+      ],
+      "kind": "runtime",
+      "reason": "Reachable only through the portal legacy fallback edge; all incoming runtime/type edges are inside the retired closure except its removed entry edge. Error-first render invariant prevents legacy happy-path commit."
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+      "sha256": "1e0a0de5772636386b8ca9f446f19623c51f8a48b67abae8cca4e041f7f61ac0",
+      "physicalLines": 279,
+      "inbound": [
+        {
+          "from": "frontend/features/upload/components/upload-flow-capture-stage.tsx",
+          "to": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "specifier": "../hooks/use-upload-flow-controller",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 7
+        },
+        {
+          "from": "frontend/features/upload/components/upload-flow-review-stage.tsx",
+          "to": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "specifier": "../hooks/use-upload-flow-controller",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 6
+        },
+        {
+          "from": "frontend/features/upload/components/upload-flow-screen.tsx",
+          "to": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "specifier": "../hooks/use-upload-flow-controller",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 7
+        },
+        {
+          "from": "frontend/features/upload/components/upload-flow-selection-stage.tsx",
+          "to": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "specifier": "../hooks/use-upload-flow-controller",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 13
+        },
+        {
+          "from": "frontend/features/upload/components/upload-flow.tsx",
+          "to": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "specifier": "../hooks/use-upload-flow-controller",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 3
+        }
+      ],
+      "outbound": [
+        {
+          "from": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "to": "frontend/features/passports/hooks/use-upload-links.ts",
+          "specifier": "@/features/passports/hooks/use-upload-links",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 3
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "to": "frontend/features/passports/types/upload-configuration.ts",
+          "specifier": "@/features/passports/types/upload-configuration",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 4
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "to": "frontend/types/passport.types.ts",
+          "specifier": "@/types/passport.types",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 5
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "to": "frontend/features/upload/hooks/use-instruction-language.ts",
+          "specifier": "../hooks/use-instruction-language",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 7
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "to": "frontend/features/upload/hooks/use-public-flow-telemetry.ts",
+          "specifier": "../hooks/use-public-flow-telemetry",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 8
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "to": "frontend/features/upload/hooks/use-returning-upload.tsx",
+          "specifier": "../hooks/use-returning-upload",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 9
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "to": "frontend/features/upload/hooks/use-returning-family.tsx",
+          "specifier": "../hooks/use-returning-family",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 10
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "to": "frontend/features/upload/services/family-returning.ts",
+          "specifier": "../services/family-returning",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 11
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "to": "frontend/features/upload/hooks/use-upload-contact-verification.tsx",
+          "specifier": "../hooks/use-upload-contact-verification",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 12
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "to": "frontend/features/upload/hooks/use-upload-documents.ts",
+          "specifier": "../hooks/use-upload-documents",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 13
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "to": "frontend/features/upload/hooks/use-upload-family.ts",
+          "specifier": "../hooks/use-upload-family",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 14
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "to": "frontend/features/upload/hooks/use-upload-operation.ts",
+          "specifier": "../hooks/use-upload-operation",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 15
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "to": "frontend/features/upload/hooks/use-upload-submission.ts",
+          "specifier": "../hooks/use-upload-submission",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 16
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "to": "frontend/features/upload/services/configured-upload.ts",
+          "specifier": "../services/configured-upload",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 17
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "to": "frontend/features/upload/services/passport-document-verification.ts",
+          "specifier": "../services/passport-document-verification",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 18
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "to": "frontend/features/upload/hooks/use-upload-flow-bootstrap.ts",
+          "specifier": "./use-upload-flow-bootstrap",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 19
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "to": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "specifier": "../services/upload-flow-helpers",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 20
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "to": "frontend/features/upload/services/upload-flow-session.ts",
+          "specifier": "../services/upload-flow-session",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 21
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "to": "frontend/features/upload/components/upload-flow.types.ts",
+          "specifier": "../components/upload-flow.types",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 22
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "to": "frontend/features/upload/hooks/use-upload-traveller-draft.ts",
+          "specifier": "./use-upload-traveller-draft",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 23
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "to": "frontend/features/upload/hooks/use-upload-qualifier.ts",
+          "specifier": "./use-upload-qualifier",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 24
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "to": "frontend/features/upload/components/upload-acquisition-actions.ts",
+          "specifier": "../components/upload-acquisition-actions",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 25
+        }
+      ],
+      "kind": "runtime",
+      "reason": "Reachable only through the portal legacy fallback edge; all incoming runtime/type edges are inside the retired closure except its removed entry edge. Error-first render invariant prevents legacy happy-path commit."
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-upload-operation.ts",
+      "sha256": "7dde454f33b33cf94a924c1a346c2d93011a77f5af873c1834d30b67e7689d64",
+      "physicalLines": 43,
+      "inbound": [
+        {
+          "from": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "to": "frontend/features/upload/hooks/use-upload-operation.ts",
+          "specifier": "../hooks/use-upload-operation",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 15
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-documents.ts",
+          "to": "frontend/features/upload/hooks/use-upload-operation.ts",
+          "specifier": "./use-upload-operation",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 14
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-submission.ts",
+          "to": "frontend/features/upload/hooks/use-upload-operation.ts",
+          "specifier": "./use-upload-operation",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 14
+        }
+      ],
+      "outbound": [
+        {
+          "from": "frontend/features/upload/hooks/use-upload-operation.ts",
+          "to": "frontend/features/upload/services/upload-operation-state.ts",
+          "specifier": "../services/upload-operation-state",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 4
+        }
+      ],
+      "kind": "runtime",
+      "reason": "Reachable only through the portal legacy fallback edge; all incoming runtime/type edges are inside the retired closure except its removed entry edge. Error-first render invariant prevents legacy happy-path commit."
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-upload-qualifier.ts",
+      "sha256": "155944a37ceb67f3018c1ece45085fc0941b06bd66e8e636d9dba915fdf37c4a",
+      "physicalLines": 98,
+      "inbound": [
+        {
+          "from": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "to": "frontend/features/upload/hooks/use-upload-qualifier.ts",
+          "specifier": "./use-upload-qualifier",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 24
+        }
+      ],
+      "outbound": [
+        {
+          "from": "frontend/features/upload/hooks/use-upload-qualifier.ts",
+          "to": "frontend/features/passports/api/upload-links.api.ts",
+          "specifier": "@/features/passports/api/upload-links.api",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 4
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-qualifier.ts",
+          "to": "frontend/features/passports/types/upload-configuration.ts",
+          "specifier": "@/features/passports/types/upload-configuration",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 5
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-qualifier.ts",
+          "to": "frontend/features/upload/components/upload-flow.types.ts",
+          "specifier": "../components/upload-flow.types",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 6
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-qualifier.ts",
+          "to": "frontend/features/upload/services/relation-qualifier.ts",
+          "specifier": "../services/relation-qualifier",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 7
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-qualifier.ts",
+          "to": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "specifier": "../services/upload-flow-helpers",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 8
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-qualifier.ts",
+          "to": "frontend/features/upload/services/upload-flow-session.ts",
+          "specifier": "../services/upload-flow-session",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 9
+        }
+      ],
+      "kind": "runtime",
+      "reason": "Reachable only through the portal legacy fallback edge; all incoming runtime/type edges are inside the retired closure except its removed entry edge. Error-first render invariant prevents legacy happy-path commit."
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-upload-submission.ts",
+      "sha256": "7343d758aa7a106525a5ce58dfd19b3537cc6cc21bf51a08e6ad21907525f19e",
+      "physicalLines": 170,
+      "inbound": [
+        {
+          "from": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "to": "frontend/features/upload/hooks/use-upload-submission.ts",
+          "specifier": "../hooks/use-upload-submission",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 16
+        }
+      ],
+      "outbound": [
+        {
+          "from": "frontend/features/upload/hooks/use-upload-submission.ts",
+          "to": "frontend/features/passports/api/upload-links.api.ts",
+          "specifier": "@/features/passports/api/upload-links.api",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 3
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-submission.ts",
+          "to": "frontend/features/passports/utils/passport-review.ts",
+          "specifier": "@/features/passports/utils/passport-review",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 4
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-submission.ts",
+          "to": "frontend/lib/api/error-status.ts",
+          "specifier": "@/lib/api/error-status",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 5
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-submission.ts",
+          "to": "frontend/types/passport.types.ts",
+          "specifier": "@/types/passport.types",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 6
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-submission.ts",
+          "to": "frontend/features/upload/components/upload-flow.types.ts",
+          "specifier": "../components/upload-flow.types",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 8
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-submission.ts",
+          "to": "frontend/features/upload/services/configured-upload.ts",
+          "specifier": "../services/configured-upload",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 9
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-submission.ts",
+          "to": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "specifier": "../services/upload-flow-helpers",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 10
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-submission.ts",
+          "to": "frontend/features/upload/services/family-returning.ts",
+          "specifier": "../services/family-returning",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 11
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-submission.ts",
+          "to": "frontend/features/upload/hooks/use-upload.ts",
+          "specifier": "./use-upload",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 12
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-submission.ts",
+          "to": "frontend/features/upload/hooks/use-upload-contact-verification.tsx",
+          "specifier": "./use-upload-contact-verification",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 13
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-submission.ts",
+          "to": "frontend/features/upload/hooks/use-upload-operation.ts",
+          "specifier": "./use-upload-operation",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 14
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-submission.ts",
+          "to": "frontend/features/upload/services/review-submission-validation.ts",
+          "specifier": "../services/review-submission-validation",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 16
+        }
+      ],
+      "kind": "runtime",
+      "reason": "Reachable only through the portal legacy fallback edge; all incoming runtime/type edges are inside the retired closure except its removed entry edge. Error-first render invariant prevents legacy happy-path commit."
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-upload-traveller-draft.ts",
+      "sha256": "5ecded2f2489770bc377b7132c14fc44881cff99d2ed0ba3b968f36face50bee",
+      "physicalLines": 59,
+      "inbound": [
+        {
+          "from": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+          "to": "frontend/features/upload/hooks/use-upload-traveller-draft.ts",
+          "specifier": "./use-upload-traveller-draft",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 23
+        }
+      ],
+      "outbound": [
+        {
+          "from": "frontend/features/upload/hooks/use-upload-traveller-draft.ts",
+          "to": "frontend/features/upload/components/upload-flow.types.ts",
+          "specifier": "../components/upload-flow.types",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 4
+        }
+      ],
+      "kind": "runtime",
+      "reason": "Reachable only through the portal legacy fallback edge; all incoming runtime/type edges are inside the retired closure except its removed entry edge. Error-first render invariant prevents legacy happy-path commit."
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-upload.ts",
+      "sha256": "d672c004d451f30971afc431a4bdeeb2a2bda66ca4cf01744f7f65a7e6909c6c",
+      "physicalLines": 131,
+      "inbound": [
+        {
+          "from": "frontend/features/upload/hooks/use-upload-documents.ts",
+          "to": "frontend/features/upload/hooks/use-upload.ts",
+          "specifier": "./use-upload",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 13
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-submission.ts",
+          "to": "frontend/features/upload/hooks/use-upload.ts",
+          "specifier": "./use-upload",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 12
+        }
+      ],
+      "outbound": [
+        {
+          "from": "frontend/features/upload/hooks/use-upload.ts",
+          "to": "frontend/features/upload/api/upload.api.ts",
+          "specifier": "../api/upload.api",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 2
+        }
+      ],
+      "kind": "runtime",
+      "reason": "Reachable only through the portal legacy fallback edge; all incoming runtime/type edges are inside the retired closure except its removed entry edge. Error-first render invariant prevents legacy happy-path commit."
+    },
+    {
+      "path": "frontend/features/upload/services/family-upload-state.ts",
+      "sha256": "ffc4cad73160b2dd8dc85364574a9e1bc985526751aab0c2a318f6b966cdb56c",
+      "physicalLines": 39,
+      "inbound": [
+        {
+          "from": "frontend/features/upload/components/upload-acquisition-actions.ts",
+          "to": "frontend/features/upload/services/family-upload-state.ts",
+          "specifier": "../services/family-upload-state",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 2
+        },
+        {
+          "from": "frontend/features/upload/components/upload-review-panels.tsx",
+          "to": "frontend/features/upload/services/family-upload-state.ts",
+          "specifier": "../services/family-upload-state",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 11
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-returning-family.tsx",
+          "to": "frontend/features/upload/services/family-upload-state.ts",
+          "specifier": "../services/family-upload-state",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 9
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-documents.ts",
+          "to": "frontend/features/upload/services/family-upload-state.ts",
+          "specifier": "../services/family-upload-state",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 16
+        },
+        {
+          "from": "frontend/features/upload/hooks/use-upload-family.ts",
+          "to": "frontend/features/upload/services/family-upload-state.ts",
+          "specifier": "../services/family-upload-state",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 5
+        }
+      ],
+      "outbound": [
+        {
+          "from": "frontend/features/upload/services/family-upload-state.ts",
+          "to": "frontend/features/upload/components/upload-flow.constants.ts",
+          "specifier": "../components/upload-flow.constants",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 1
+        },
+        {
+          "from": "frontend/features/upload/services/family-upload-state.ts",
+          "to": "frontend/features/upload/components/upload-flow.types.ts",
+          "specifier": "../components/upload-flow.types",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 2
+        }
+      ],
+      "kind": "runtime",
+      "reason": "Reachable only through the portal legacy fallback edge; all incoming runtime/type edges are inside the retired closure except its removed entry edge. Error-first render invariant prevents legacy happy-path commit."
+    },
+    {
+      "path": "frontend/features/upload/services/passport-capture-transition.ts",
+      "sha256": "3ca4018bbcf6c1d337331c6d4285b4b9420a574f0ea888e2894cdc683c9b2c27",
+      "physicalLines": 22,
+      "inbound": [
+        {
+          "from": "frontend/features/upload/components/upload-acquisition-actions.ts",
+          "to": "frontend/features/upload/services/passport-capture-transition.ts",
+          "specifier": "../services/passport-capture-transition",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 6
+        }
+      ],
+      "outbound": [
+        {
+          "from": "frontend/features/upload/services/passport-capture-transition.ts",
+          "to": "frontend/features/upload/components/upload-flow.types.ts",
+          "specifier": "../components/upload-flow.types",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 1
+        }
+      ],
+      "kind": "runtime",
+      "reason": "Reachable only through the portal legacy fallback edge; all incoming runtime/type edges are inside the retired closure except its removed entry edge. Error-first render invariant prevents legacy happy-path commit."
+    },
+    {
+      "path": "frontend/features/upload/services/saved-passport-extraction.ts",
+      "sha256": "a1a28154372d3508affab280af96be017ffb05aab92a9959bc44de40ca9a7924",
+      "physicalLines": 73,
+      "inbound": [
+        {
+          "from": "frontend/features/upload/hooks/use-upload-documents.ts",
+          "to": "frontend/features/upload/services/saved-passport-extraction.ts",
+          "specifier": "../services/saved-passport-extraction",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 9
+        }
+      ],
+      "outbound": [
+        {
+          "from": "frontend/features/upload/services/saved-passport-extraction.ts",
+          "to": "frontend/types/passport.types.ts",
+          "specifier": "@/types/passport.types",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 1
+        },
+        {
+          "from": "frontend/features/upload/services/saved-passport-extraction.ts",
+          "to": "frontend/features/upload/components/upload-flow.types.ts",
+          "specifier": "../components/upload-flow.types",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 2
+        },
+        {
+          "from": "frontend/features/upload/services/saved-passport-extraction.ts",
+          "to": "frontend/features/upload/components/extraction-polling.ts",
+          "specifier": "../components/extraction-polling",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 3
+        },
+        {
+          "from": "frontend/features/upload/services/saved-passport-extraction.ts",
+          "to": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "specifier": "./upload-flow-helpers",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 4
+        }
+      ],
+      "kind": "runtime",
+      "reason": "Reachable only through the portal legacy fallback edge; all incoming runtime/type edges are inside the retired closure except its removed entry edge. Error-first render invariant prevents legacy happy-path commit."
+    },
+    {
+      "path": "frontend/features/upload/services/upload-flow-bootstrap.ts",
+      "sha256": "61631acc412027bc6e2e4190a04d847056d36a4dbd7e01f8b9d2f4a2e403387c",
+      "physicalLines": 301,
+      "inbound": [
+        {
+          "from": "frontend/features/upload/hooks/use-upload-flow-bootstrap.ts",
+          "to": "frontend/features/upload/services/upload-flow-bootstrap.ts",
+          "specifier": "../services/upload-flow-bootstrap",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 4
+        }
+      ],
+      "outbound": [
+        {
+          "from": "frontend/features/upload/services/upload-flow-bootstrap.ts",
+          "to": "frontend/features/passports/api/upload-links.api.ts",
+          "specifier": "@/features/passports/api/upload-links.api",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 1
+        },
+        {
+          "from": "frontend/features/upload/services/upload-flow-bootstrap.ts",
+          "to": "frontend/types/passport.types.ts",
+          "specifier": "@/types/passport.types",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 2
+        },
+        {
+          "from": "frontend/features/upload/services/upload-flow-bootstrap.ts",
+          "to": "frontend/features/upload/api/upload.api.ts",
+          "specifier": "../api/upload.api",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 3
+        },
+        {
+          "from": "frontend/features/upload/services/upload-flow-bootstrap.ts",
+          "to": "frontend/features/upload/services/relation-qualifier.ts",
+          "specifier": "./relation-qualifier",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 4
+        },
+        {
+          "from": "frontend/features/upload/services/upload-flow-bootstrap.ts",
+          "to": "frontend/features/upload/services/upload-recovery.ts",
+          "specifier": "./upload-recovery",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 5
+        },
+        {
+          "from": "frontend/features/upload/services/upload-flow-bootstrap.ts",
+          "to": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "specifier": "./upload-flow-helpers",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 10
+        },
+        {
+          "from": "frontend/features/upload/services/upload-flow-bootstrap.ts",
+          "to": "frontend/features/upload/services/upload-flow-session.ts",
+          "specifier": "./upload-flow-session",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 20
+        },
+        {
+          "from": "frontend/features/upload/services/upload-flow-bootstrap.ts",
+          "to": "frontend/features/upload/components/upload-flow.types.ts",
+          "specifier": "../components/upload-flow.types",
+          "kind": "import",
+          "typeOnly": true,
+          "line": 29
+        }
+      ],
+      "kind": "runtime",
+      "reason": "Reachable only through the portal legacy fallback edge; all incoming runtime/type edges are inside the retired closure except its removed entry edge. Error-first render invariant prevents legacy happy-path commit."
+    },
+    {
+      "path": "frontend/features/upload/services/upload-operation-state.ts",
+      "sha256": "5c326cc44feb81a06610a35c948976c129283c66284aa77345f1e53a54704dcc",
+      "physicalLines": 19,
+      "inbound": [
+        {
+          "from": "frontend/features/upload/hooks/use-upload-operation.ts",
+          "to": "frontend/features/upload/services/upload-operation-state.ts",
+          "specifier": "../services/upload-operation-state",
+          "kind": "import",
+          "typeOnly": false,
+          "line": 4
+        }
+      ],
+      "outbound": [],
+      "kind": "runtime",
+      "reason": "Reachable only through the portal legacy fallback edge; all incoming runtime/type edges are inside the retired closure except its removed entry edge. Error-first render invariant prevents legacy happy-path commit."
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-upload-qualifier.test.tsx",
+      "kind": "implementation-test-or-helper",
+      "sha256": "cac2a039061f6f7eaf18e9f265b8d0cb673f6f02ede421c9b5fa8d0981e2d481",
+      "physicalLines": 63,
+      "reason": "Exercises only the retired legacy implementation; equivalent current safety responsibilities are mapped in legacy-upload-coverage-responsibilities.json. Current migrated12browser, fallback4 and Fresh4 are retained."
+    },
+    {
+      "path": "frontend/features/travellers/components/detected-history-offer.test.tsx",
+      "kind": "implementation-test-or-helper",
+      "sha256": "78e815908fc6243880e5f58ef2d32716560e62360f18ceddde5345fbbf18dc6a",
+      "physicalLines": 29,
+      "reason": "Exercises only the retired legacy implementation; equivalent current safety responsibilities are mapped in legacy-upload-coverage-responsibilities.json. Current migrated12browser, fallback4 and Fresh4 are retained."
+    },
+    {
+      "path": "frontend/features/upload/components/extraction-polling.test.mjs",
+      "kind": "implementation-test-or-helper",
+      "sha256": "555b1e03949525e7a49184d0275b110e1083336dc273c7fa02a741aca8b26f2a",
+      "physicalLines": 42,
+      "reason": "Exercises only the retired legacy implementation; equivalent current safety responsibilities are mapped in legacy-upload-coverage-responsibilities.json. Current migrated12browser, fallback4 and Fresh4 are retained."
+    },
+    {
+      "path": "frontend/features/upload/components/instruction-language.test.tsx",
+      "kind": "implementation-test-or-helper",
+      "sha256": "620407e89a7c5bee35ccf6e55e006f4bc7a76cc1dac89dc2039bf8ec5066bfc3",
+      "physicalLines": 131,
+      "reason": "Exercises only the retired legacy implementation; equivalent current safety responsibilities are mapped in legacy-upload-coverage-responsibilities.json. Current migrated12browser, fallback4 and Fresh4 are retained."
+    },
+    {
+      "path": "frontend/features/upload/components/upload-flow-bootstrap.contract.test.mjs",
+      "kind": "implementation-test-or-helper",
+      "sha256": "cfadbfe9da763c7cecd6478e2f236121b8c4096c1fa6208242cceaebd4921ce3",
+      "physicalLines": 93,
+      "reason": "Exercises only the retired legacy implementation; equivalent current safety responsibilities are mapped in legacy-upload-coverage-responsibilities.json. Current migrated12browser, fallback4 and Fresh4 are retained."
+    },
+    {
+      "path": "frontend/features/upload/components/upload-flow-configured.test.tsx",
+      "kind": "implementation-test-or-helper",
+      "sha256": "90d37b1b2604f5e8fe37734755cd5c0305b8ee1c11274ad29d149811514a4f69",
+      "physicalLines": 308,
+      "reason": "Exercises only the retired legacy implementation; equivalent current safety responsibilities are mapped in legacy-upload-coverage-responsibilities.json. Current migrated12browser, fallback4 and Fresh4 are retained."
+    },
+    {
+      "path": "frontend/features/upload/components/upload-flow-document-options.test.tsx",
+      "kind": "implementation-test-or-helper",
+      "sha256": "58aeac27928de6826cb8445cfefe87633652618d878e285182d1e8dd5bc688f2",
+      "physicalLines": 62,
+      "reason": "Exercises only the retired legacy implementation; equivalent current safety responsibilities are mapped in legacy-upload-coverage-responsibilities.json. Current migrated12browser, fallback4 and Fresh4 are retained."
+    },
+    {
+      "path": "frontend/features/upload/components/upload-processing-motion.test.tsx",
+      "kind": "implementation-test-or-helper",
+      "sha256": "437d44df36cbb841c5b3fe67935b5fc5b269e89395323132c1784b1d893692b9",
+      "physicalLines": 252,
+      "reason": "Exercises only the retired legacy implementation; equivalent current safety responsibilities are mapped in legacy-upload-coverage-responsibilities.json. Current migrated12browser, fallback4 and Fresh4 are retained."
+    },
+    {
+      "path": "frontend/features/upload/components/upload-review-panels.test.tsx",
+      "kind": "implementation-test-or-helper",
+      "sha256": "2fa02d682893aa01fcbd1e390ab3c770660f84e6474bc9b9e6742582bd95d1ee",
+      "physicalLines": 105,
+      "reason": "Exercises only the retired legacy implementation; equivalent current safety responsibilities are mapped in legacy-upload-coverage-responsibilities.json. Current migrated12browser, fallback4 and Fresh4 are retained."
+    },
+    {
+      "path": "frontend/features/upload/components/visa-photo-upload.test.tsx",
+      "kind": "implementation-test-or-helper",
+      "sha256": "4d69f3d9019ca3b3b277179398cc995c63f05dfa0b21a33690140122e2c96f86",
+      "physicalLines": 112,
+      "reason": "Exercises only the retired legacy implementation; equivalent current safety responsibilities are mapped in legacy-upload-coverage-responsibilities.json. Current migrated12browser, fallback4 and Fresh4 are retained."
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-returning-family.test.tsx",
+      "kind": "implementation-test-or-helper",
+      "sha256": "5e918d00190f5998a3c1c48e6e06998bb2b8e1987d7e625e4366cbd35fe87d25",
+      "physicalLines": 64,
+      "reason": "Exercises only the retired legacy implementation; equivalent current safety responsibilities are mapped in legacy-upload-coverage-responsibilities.json. Current migrated12browser, fallback4 and Fresh4 are retained."
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-upload-contact-verification.test.tsx",
+      "kind": "implementation-test-or-helper",
+      "sha256": "111466ee5deab01f089813fd56e54215616dfe752005444ea7c92a4a5ee2a4d3",
+      "physicalLines": 84,
+      "reason": "Exercises only the retired legacy implementation; equivalent current safety responsibilities are mapped in legacy-upload-coverage-responsibilities.json. Current migrated12browser, fallback4 and Fresh4 are retained."
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-upload-documents.test.tsx",
+      "kind": "implementation-test-or-helper",
+      "sha256": "901a21469e081d426ebcd5e83319b8e8ce6d2d0dca13677c8d49d902395b32d5",
+      "physicalLines": 203,
+      "reason": "Exercises only the retired legacy implementation; equivalent current safety responsibilities are mapped in legacy-upload-coverage-responsibilities.json. Current migrated12browser, fallback4 and Fresh4 are retained."
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-upload-family.test.tsx",
+      "kind": "implementation-test-or-helper",
+      "sha256": "4dec0aad90075d072685d7c6bfc9494704496e9e51f9dea98cedc71176ead4bd",
+      "physicalLines": 24,
+      "reason": "Exercises only the retired legacy implementation; equivalent current safety responsibilities are mapped in legacy-upload-coverage-responsibilities.json. Current migrated12browser, fallback4 and Fresh4 are retained."
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-upload-operation.test.tsx",
+      "kind": "implementation-test-or-helper",
+      "sha256": "801244c5775b038cdff38b7867f5e0f2acfb4c1de990aab12bc41275d14efca7",
+      "physicalLines": 47,
+      "reason": "Exercises only the retired legacy implementation; equivalent current safety responsibilities are mapped in legacy-upload-coverage-responsibilities.json. Current migrated12browser, fallback4 and Fresh4 are retained."
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-upload-submission.test.tsx",
+      "kind": "implementation-test-or-helper",
+      "sha256": "ae196ea92e4bf4cd168847099426a75c9b25ff58d1187653aca6654d6c381d4c",
+      "physicalLines": 134,
+      "reason": "Exercises only the retired legacy implementation; equivalent current safety responsibilities are mapped in legacy-upload-coverage-responsibilities.json. Current migrated12browser, fallback4 and Fresh4 are retained."
+    },
+    {
+      "path": "frontend/features/upload/services/family-upload-state.test.ts",
+      "kind": "implementation-test-or-helper",
+      "sha256": "74ae3ec953032156457a530bc578b025f1579713a07f6979676a054e749d97a5",
+      "physicalLines": 48,
+      "reason": "Exercises only the retired legacy implementation; equivalent current safety responsibilities are mapped in legacy-upload-coverage-responsibilities.json. Current migrated12browser, fallback4 and Fresh4 are retained."
+    },
+    {
+      "path": "frontend/features/upload/services/passport-capture-transition.test.ts",
+      "kind": "implementation-test-or-helper",
+      "sha256": "779826e048db1f02d415aefa1ab4d0d6852f1bd95233e11b18b2a3e8cd9ab4b7",
+      "physicalLines": 29,
+      "reason": "Exercises only the retired legacy implementation; equivalent current safety responsibilities are mapped in legacy-upload-coverage-responsibilities.json. Current migrated12browser, fallback4 and Fresh4 are retained."
+    },
+    {
+      "path": "frontend/features/upload/services/saved-passport-extraction.test.ts",
+      "kind": "implementation-test-or-helper",
+      "sha256": "1539705ba17a1ecacffcb3ce9eb1ac7e083712eeec68e08eb4f22a32f4b0f9bb",
+      "physicalLines": 81,
+      "reason": "Exercises only the retired legacy implementation; equivalent current safety responsibilities are mapped in legacy-upload-coverage-responsibilities.json. Current migrated12browser, fallback4 and Fresh4 are retained."
+    },
+    {
+      "path": "frontend/features/upload/services/upload-flow-bootstrap.test.ts",
+      "kind": "implementation-test-or-helper",
+      "sha256": "24dfa8518e266975755b2a97b8736c623908ec6f5f09c5df029a067a106389cc",
+      "physicalLines": 139,
+      "reason": "Exercises only the retired legacy implementation; equivalent current safety responsibilities are mapped in legacy-upload-coverage-responsibilities.json. Current migrated12browser, fallback4 and Fresh4 are retained."
+    },
+    {
+      "path": "frontend/e2e/public-instruction-languages.spec.ts",
+      "kind": "implementation-test-or-helper",
+      "sha256": "95ed46b98d2bb9a5a79690b100afe624ddb3690db9be2cd8a350d944ed4fdcfa",
+      "physicalLines": 89,
+      "reason": "Exercises only the retired legacy implementation; equivalent current safety responsibilities are mapped in legacy-upload-coverage-responsibilities.json. Current migrated12browser, fallback4 and Fresh4 are retained."
+    },
+    {
+      "path": "frontend/features/upload/components/upload-flow-source.contract-helper.mjs",
+      "kind": "implementation-test-or-helper",
+      "sha256": "2fc941d8a6db7ba562f85b5642b88ed72b32fcc7def4f5bf03bc82f14a0cdcee",
+      "physicalLines": 45,
+      "reason": "Exercises only the retired legacy implementation; equivalent current safety responsibilities are mapped in legacy-upload-coverage-responsibilities.json. Current migrated12browser, fallback4 and Fresh4 are retained."
+    },
+    {
+      "path": "frontend/features/upload/services/family-returning.ts",
+      "kind": "runtime",
+      "sha256": "7c14b1a6144fe019e6abb06c0e7c3dd68e7aea0bea82336d5ffc773c4d58c759",
+      "physicalLines": 13,
+      "inbound": [],
+      "reason": "Stage2 complete caller/source read: no current app/framework graph inbound/type edge; repository module/export searches find only self/implementation tests. Old family helper lost its last caller with retired validators; current returning uses shared private draft preview/inline collection instead of these old wrappers.",
+      "evidence": "frontend-import-graph-after-legacy.json; full physical source and remaining tests read."
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-update-dialog.tsx",
+      "kind": "runtime",
+      "sha256": "631fcf19ba028838d26a9cef6a8402d4d59d53f7a078120e988efa5b8a5da557",
+      "physicalLines": 20,
+      "inbound": [],
+      "reason": "Stage2 complete caller/source read: no current app/framework graph inbound/type edge; repository module/export searches find only self/implementation tests. Old family helper lost its last caller with retired validators; current returning uses shared private draft preview/inline collection instead of these old wrappers.",
+      "evidence": "frontend-import-graph-after-legacy.json; full physical source and remaining tests read."
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-document-preview.tsx",
+      "kind": "runtime",
+      "sha256": "f41d38e5bcedef8de833ecc87d6e0bef34fcac5235eaf5e841449fce1c0bb4bd",
+      "physicalLines": 37,
+      "inbound": [],
+      "reason": "Stage2 complete caller/source read: no current app/framework graph inbound/type edge; repository module/export searches find only self/implementation tests. Old family helper lost its last caller with retired validators; current returning uses shared private draft preview/inline collection instead of these old wrappers.",
+      "evidence": "frontend-import-graph-after-legacy.json; full physical source and remaining tests read."
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-replacement.test.tsx",
+      "kind": "implementation-test-or-helper",
+      "sha256": "8f84626a0bc47e6bebfec280ce913ec3f40e7e9a87edb317809ea05084736fbb",
+      "physicalLines": 16,
+      "inbound": null,
+      "reason": "Stage2 complete caller/source read: no current app/framework graph inbound/type edge; repository module/export searches find only self/implementation tests. Old family helper lost its last caller with retired validators; current returning uses shared private draft preview/inline collection instead of these old wrappers.",
+      "evidence": "frontend-import-graph-after-legacy.json; full physical source and remaining tests read."
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-document-preview.test.tsx",
+      "kind": "implementation-test-or-helper",
+      "sha256": "6e2007f488a62e973afe628ac5a3e280397c257f2b303c0e6ef379f1324b47cc",
+      "physicalLines": 46,
+      "inbound": null,
+      "reason": "Stage2 complete caller/source read: no current app/framework graph inbound/type edge; repository module/export searches find only self/implementation tests. Old family helper lost its last caller with retired validators; current returning uses shared private draft preview/inline collection instead of these old wrappers.",
+      "evidence": "frontend-import-graph-after-legacy.json; full physical source and remaining tests read."
+    }
+  ],
+  "mixed_sources_rewritten": [
+    {
+      "path": "frontend/features/upload/components/configured-passport-upload.test.tsx",
+      "original_sha256": "7505a79674aef5e4c2c0b16db59c553b1bc6c25611f655419a070f824631a994",
+      "final_status": "retained-current"
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-replacement.test.tsx",
+      "original_sha256": "d677ceb3e4d71b0979d48bce21131fa8a799a1ac3bceeca900161f6db8ffae36",
+      "final_status": "retired"
+    },
+    {
+      "path": "frontend/features/upload/components/passport-camera-final-validation.contract.test.mjs",
+      "original_sha256": "e2ef0523e99eb0b721d2bf1e75a3942dd8d1da78073d93b23a2f098b8d1b59e2",
+      "final_status": "retained-current"
+    },
+    {
+      "path": "frontend/features/upload/components/protected-upload-document-image.contract.test.mjs",
+      "original_sha256": "8480800e780b8a54a5c4044f415921d0deaed7e245e9703b1381b3fe7c272821",
+      "final_status": "retained-current"
+    },
+    {
+      "path": "frontend/features/upload/components/relation-qualifier-step.contract.test.mjs",
+      "original_sha256": "b17343f78cb4d2c53d978f80635931f15c2f136d5050e6cabcad7b2c0fc0f7de",
+      "final_status": "retained-current"
+    },
+    {
+      "path": "frontend/features/upload/components/upload-flow-boundaries.contract.test.mjs",
+      "original_sha256": "5b10a98824a917972807ab6e8ff81706439ec237c852d7160a245c7acbfb05b0",
+      "final_status": "retained-current"
+    },
+    {
+      "path": "frontend/features/upload/components/upload-flow-reliability.contract.test.mjs",
+      "original_sha256": "58a4397743665d196ae0f648b37a44881c4d6267703aaf8138e60875ed3f4efe",
+      "final_status": "retained-current"
+    },
+    {
+      "path": "frontend/features/upload/components/visa-photo-upload.contract.test.mjs",
+      "original_sha256": "8ff360d9c9f52cef8d4d99829514cd9d0711c740bb06db3122ddf2bef37f0d16",
+      "final_status": "retained-current"
+    },
+    {
+      "path": "frontend/features/upload/api/upload-reconciliation-contract.test.mjs",
+      "original_sha256": "187f567cb36c026dc6641cf2b1be3d49eb0c5a9217f684de254b7991855d0e1c",
+      "final_status": "retained-current"
+    },
+    {
+      "path": "frontend/features/passports/api/public-flow-telemetry-contract.test.mjs",
+      "original_sha256": "15a82e0fcdfe52f7ee67263cc543ba11795645804e668e93ea601bd3de73ce63",
+      "final_status": "retained-current"
+    },
+    {
+      "path": "frontend/features/upload/services/review-submission-validation.ts",
+      "original_sha256": "7ea48a716152e4d3c0b3b0052ae7ed9edd17108961aa2867d7d897d15644560c",
+      "retired_exports": [
+        "validateSingleReview",
+        "validateFamilyReview",
+        "SingleReviewDraft"
+      ],
+      "evidence": "Fresh validation imports only configuredReviewError. All original production named imports of retired validators came from the retired legacy handlers/review views.",
+      "final_status": "retained-current"
+    },
+    {
+      "path": "frontend/features/upload/services/review-submission-validation.test.ts",
+      "original_sha256": "742c23e4a80156c49fff5fe3159a91e4a114048c6a35b352923513e108afc535",
+      "retired_exports": [
+        "validateSingleReview",
+        "validateFamilyReview",
+        "SingleReviewDraft"
+      ],
+      "evidence": "Fresh validation imports only configuredReviewError. All original production named imports of retired validators came from the retired legacy handlers/review views.",
+      "final_status": "retained-current"
+    }
+  ],
+  "retained_api_contracts": [
+    "frontend/features/upload/api/upload.api.ts",
+    "frontend/features/passports/api/upload-links.api.ts",
+    "All backend public upload, draft and contact endpoints remain unchanged."
+  ],
+  "retired_api_identities": [],
+  "stage2_note": "Three orphan helpers/views were verified separately after the original41closure. The remaining one dialog assertion was also dormant and was retired rather than called current coverage. No current PDF-view acknowledgement or update-dialog workflow was introduced or removed; current returning already uses shared private draft components."
+}

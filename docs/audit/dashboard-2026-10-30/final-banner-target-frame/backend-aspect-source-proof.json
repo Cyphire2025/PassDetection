@@ -1,0 +1,14 @@
+{
+  "source_hashes": {
+    "backend/app/presentation/api/v1/routes/branding_images.py": "9b5c671e49300a11d91fdb27d2cc52563e35ee5b941ce2c29e06b62d96414627",
+    "backend/app/infrastructure/security/upload_security.py": "293afb52d404d9dc96dd0d303620891274d8654d1e21c2d81ccc844c2d5e4102",
+    "backend/app/infrastructure/security/upload_validator.py": "dfb2683e620bcc1a3a5d4f97f5cb4c1cfda20105e493f6070e63b8574c11c73f"
+  },
+  "scope": "Read-only directcallee trace, no newfullbackendreadcredit for partial securityservice/validator supporting reads.",
+  "call_chain": [
+    "branding_images.upload_image calls UploadSecurityService.validate_image max_dimension2560 forgroupbanner/background anduploadsvalidated.content",
+    "UploadSecurityService.validate_image passes max_dimension unchanged toUploadValidator.validate viaasyncio.to_thread",
+    "UploadValidator.validate usesPillowthumbnail((max_dimension,max_dimension)) thenEXIFtranspose/RGB/JPEG; no fixedratio/fit/crop. Canonicaldimensions capturedaftertransform."
+  ],
+  "limits": "Source proof only, no liveobjectstore/provider/daemon/postgres test, no backendsourcechanges."
+}

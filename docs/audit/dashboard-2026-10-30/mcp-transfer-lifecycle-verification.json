@@ -1,0 +1,87 @@
+{
+  "status": "verified focused lifecycle checkpoint; parent budget integration pending",
+  "runtime_sources": [
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp-file-transfer.ts",
+      "sha256": "8d85a56f49754664bc389f8db71554b2f75f8ba90f494f7b1c465f11ca7ff862"
+    },
+    {
+      "path": "frontend/features/mcp/api/mcp-transfer.api.ts",
+      "sha256": "cf7a4a0a95df4e944d3d60bc144130b513f49ce7d7b69745769790f130dc2aab"
+    },
+    {
+      "path": "frontend/features/mcp/utils/file-transfer.ts",
+      "sha256": "79e3413c12bfab33c3369d0bd345c4154d0f90083aa24116bb99ae29af82dee0"
+    },
+    {
+      "path": "frontend/features/mcp/utils/read-transfer-body.ts",
+      "sha256": "53fc62863d8575b1d5a1213c90e2973a6b844a0f1ee5949b12fc29de1386dc16"
+    },
+    {
+      "path": "frontend/features/mcp/utils/save-transfer-file.ts",
+      "sha256": "d240c76cc5295ffc3be65626be1e2d15d1e9748ba0c3c95d11d91fa08b7449e3"
+    }
+  ],
+  "baseline": {
+    "cases": 6,
+    "failed": 4,
+    "healthy_StrictMode_controls": 2
+  },
+  "final": {
+    "affected_cases": 34,
+    "test_files": 4,
+    "hook_cases": 8,
+    "scoped_types_exit_code": 0,
+    "scoped_lint_exit_code": 0
+  },
+  "source_fence": {
+    "frontend/features/mcp/hooks/use-mcp-file-transfer.ts": "8d85a56f49754664bc389f8db71554b2f75f8ba90f494f7b1c465f11ca7ff862",
+    "frontend/features/mcp/api/mcp-transfer.api.ts": "cf7a4a0a95df4e944d3d60bc144130b513f49ce7d7b69745769790f130dc2aab",
+    "frontend/features/mcp/utils/file-transfer.ts": "79e3413c12bfab33c3369d0bd345c4154d0f90083aa24116bb99ae29af82dee0",
+    "frontend/features/mcp/utils/read-transfer-body.ts": "53fc62863d8575b1d5a1213c90e2973a6b844a0f1ee5949b12fc29de1386dc16",
+    "frontend/features/mcp/utils/save-transfer-file.ts": "d240c76cc5295ffc3be65626be1e2d15d1e9748ba0c3c95d11d91fa08b7449e3",
+    "frontend/features/mcp/hooks/use-mcp-file-transfer.test.tsx": "f719f5e1585bb75aa34057c5627f92b67363fdc27c5989685b14ab15de924dce",
+    "frontend/features/mcp/utils/file-transfer.test.ts": "3597aca541bb93c33a7163e2eb2c86d39af0a5275f0a51e107a1b17db8fe1d67",
+    "frontend/features/mcp/utils/save-transfer-file.test.ts": "74a249dd5513ec46ba5a693306b4641aaa9231640e5cd69b6cd07f21aff7d4e5",
+    "frontend/features/mcp/api/mcp-transfer.api.test.ts": "2847f9d0216d591901b1d621ded686cdb17dd765ab82687553839d87ee099bf5"
+  },
+  "behavior": [
+    "One current route AbortController shared by all initiated operations; StrictMode setup creates a fresh open lifetime without recapturing scrubbed token",
+    "Checks after uncancellable arrayBuffer/digest/picker/writer completion prevent late subsequent side effects",
+    "Pending reader cancels and releases lock; staged writable aborts after its pending operation drains; closed local files are not claimed rolled back",
+    "Already dispatched fetch receives best-effort abort; no server rollback or never-uploaded guarantee"
+  ],
+  "standalone_authority": "Fragment bearer only, credentials:omit. No staff identity precondition added; no cross-account/server authorization bypass claim.",
+  "workflows_preserved": [
+    "Memory-only token capture+history scrub",
+    "Exact immutable ticket/128MiB/file size/SHA256/media/filename/destination validation",
+    "Same mounted route exact upload and native writer-close acknowledgement",
+    "Anchor fallback requires separate explicit user confirmation"
+  ],
+  "source_proof": {
+    "path": "mcp-transfer-lifecycle-source-proof.json",
+    "sha256": "930e00e9200aacc24a4b5fe868498edf56bd3ffdc6b7e83d2dee5a0249bd65a5"
+  },
+  "original_history": {
+    "path": "mcp-transfer-lifecycle-original-sources.json",
+    "sha256": "4d15932451025a4c1d194848a7c07cee7e1e17a830feb14569523ea1a97996c0"
+  },
+  "candidate": {
+    "path": "mcp-transfer-lifecycle-budget-candidates.json",
+    "sha256": "8c03470b0e88d15368b34b02c28f43c80a2a53c63ca230afce1af249d9b8ed7e"
+  },
+  "limits": [
+    "Already dispatched requests or completed file close can finish despite cancellation; no remote/local rollback claim",
+    "Local file reads/digests/native picker/write promises cannot be forcibly interrupted; post-await checks stop the next side effect",
+    "No broad suite/build/browser rerun per user cadence; final combined qualification remains pending",
+    "Initial temporary scoped-tsconfig typeRoots omission is preserved as tooling failure; corrected local config passes, no app config/dependency change",
+    "MCP classifications/permissions unchanged; acknowledge existing identity fingerprint extends optional signal only; readTransferBody is internal resource helper"
+  ],
+  "artifacts": {
+    "mcp-transfer-lifecycle-before-tests.txt": "a4895c017072c938ba1fcf74bafa1415efa93678d3f240f33ebaf6db600652e4",
+    "mcp-transfer-lifecycle-after-tests.txt": "20d5aab77eb1999838a2afdde0754624b94da325f498f7392c021402521b9700",
+    "mcp-transfer-lifecycle-final-tests.txt": "36407423422f99082438da4a59ecf85fedd675e4308647cf603f7cca16fe5e11",
+    "mcp-transfer-lifecycle-static-command.json": "8bcca5046005b3e838b8b1587318cfdf1c608e801bca2d3cb0a194d240c2efe6",
+    "mcp-transfer-lifecycle-reviewed-files.json": "dd43b2797a48670956166d3f04ba845343ceb24d6a780c000752ad20eeb23fa7"
+  }
+}

@@ -1,0 +1,44 @@
+FFFFFFFF                                                                 [100%]
+================================== FAILURES ===================================
+_ test_nonblank_search_key_is_normalized_once_for_the_full_roster[missing-synthetic-token-0] _
+tests\unit\application\test_submission_view_work.py:52: in test_nonblank_search_key_is_normalized_once_for_the_full_roster
+    assert calls == 1
+E   assert 512 == 1
+__ test_nonblank_search_key_is_normalized_once_for_the_full_roster[----512] ___
+tests\unit\application\test_submission_view_work.py:52: in test_nonblank_search_key_is_normalized_once_for_the_full_roster
+    assert calls == 1
+E   assert 512 == 1
+_ test_sort_partition_reads_each_key_at_most_once_before_each_sort[asc-name] __
+tests\unit\application\test_submission_view_work.py:86: in test_sort_partition_reads_each_key_at_most_once_before_each_sort
+    assert calls <= 2 * (512 + populated)
+E   assert 3072 <= (2 * (512 + 512))
+_ test_sort_partition_reads_each_key_at_most_once_before_each_sort[asc-verification_confidence] _
+tests\unit\application\test_submission_view_work.py:86: in test_sort_partition_reads_each_key_at_most_once_before_each_sort
+    assert calls <= 2 * (512 + populated)
+E   assert 2560 <= (2 * (512 + 256))
+_ test_sort_partition_reads_each_key_at_most_once_before_each_sort[asc-updated_at] _
+tests\unit\application\test_submission_view_work.py:86: in test_sort_partition_reads_each_key_at_most_once_before_each_sort
+    assert calls <= 2 * (512 + populated)
+E   assert 3072 <= (2 * (512 + 512))
+_ test_sort_partition_reads_each_key_at_most_once_before_each_sort[desc-name] _
+tests\unit\application\test_submission_view_work.py:86: in test_sort_partition_reads_each_key_at_most_once_before_each_sort
+    assert calls <= 2 * (512 + populated)
+E   assert 3072 <= (2 * (512 + 512))
+_ test_sort_partition_reads_each_key_at_most_once_before_each_sort[desc-verification_confidence] _
+tests\unit\application\test_submission_view_work.py:86: in test_sort_partition_reads_each_key_at_most_once_before_each_sort
+    assert calls <= 2 * (512 + populated)
+E   assert 2560 <= (2 * (512 + 256))
+_ test_sort_partition_reads_each_key_at_most_once_before_each_sort[desc-updated_at] _
+tests\unit\application\test_submission_view_work.py:86: in test_sort_partition_reads_each_key_at_most_once_before_each_sort
+    assert calls <= 2 * (512 + populated)
+E   assert 3072 <= (2 * (512 + 512))
+=========================== short test summary info ===========================
+FAILED tests/unit/application/test_submission_view_work.py::test_nonblank_search_key_is_normalized_once_for_the_full_roster[missing-synthetic-token-0]
+FAILED tests/unit/application/test_submission_view_work.py::test_nonblank_search_key_is_normalized_once_for_the_full_roster[----512]
+FAILED tests/unit/application/test_submission_view_work.py::test_sort_partition_reads_each_key_at_most_once_before_each_sort[asc-name]
+FAILED tests/unit/application/test_submission_view_work.py::test_sort_partition_reads_each_key_at_most_once_before_each_sort[asc-verification_confidence]
+FAILED tests/unit/application/test_submission_view_work.py::test_sort_partition_reads_each_key_at_most_once_before_each_sort[asc-updated_at]
+FAILED tests/unit/application/test_submission_view_work.py::test_sort_partition_reads_each_key_at_most_once_before_each_sort[desc-name]
+FAILED tests/unit/application/test_submission_view_work.py::test_sort_partition_reads_each_key_at_most_once_before_each_sort[desc-verification_confidence]
+FAILED tests/unit/application/test_submission_view_work.py::test_sort_partition_reads_each_key_at_most_once_before_each_sort[desc-updated_at]
+8 failed in 0.55s

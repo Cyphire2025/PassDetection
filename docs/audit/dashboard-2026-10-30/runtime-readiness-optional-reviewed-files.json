@@ -1,0 +1,41 @@
+{
+  "stage": "deliberate RR01 fix; historical mechanical source ledger remains immutable",
+  "files": [
+    {
+      "path": "backend/app/infrastructure/runtime_readiness_database.py",
+      "sha256": "e8d95878c10be43b82e7ade8a9b304c1c3825608365508be2d3985ac8c2ac71b",
+      "physical_lines": 73,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "fixed",
+      "notes": "Complete original/current owner source physically read/authored after exact mechanical checkpoint. Only optional cleanup query/mapping work gets an async savepoint; no blanket outer rollback. Whole module AST equals mechanical owner after only savepoint inverse and SQL raw indentation normalization. Query filters/quoted values/output/signatures/defaults preserved; real health helper orchestration +explicit synthetic failed-transaction/savepoint/cancellation model proves isolation. No nativePG qualification."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_health_optional_probe_isolation.py",
+      "sha256": "4e4a0d376f411cfcbd5168d68e101479a24c8dca2e8651f49bcf2fc66d906cab",
+      "physical_lines": 180,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-regression-source",
+      "notes": "Complete new source physically read/authored: explicit PostgreSQL-shaped SQLAlchemy DBAPIError and failedstatement/savepoint state fixture; real health/runtime/schema/cleanup/ECR pipeline with synthetic network dependencies. Original3negativecases+1healthycontrol retains everyassertion and nowpasses. Checks independent ECR availability, cleanup nongatingHTTP200, outer changes/no blanketrollback, continuedSQL/cancellation cleanup/private diagnostic omission. Uses SCHEMA_REVISION/current Settings default, not productiondata."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_runtime_readiness.py",
+      "sha256": "7eb48ca33e298b980e15b71fdb74c2a5fd1b05dff6e21354a304631a5ebc8234",
+      "physical_lines": 411,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-regression-source",
+      "notes": "Complete original/current tests read: mechanical patch-owner retarget followed only by asyncsession begin_nested protocol support in old _Database double. Existing assertions/inputs/other bodyAST preserved by inverse; no original test weakened."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_runtime_readiness_guards.py",
+      "sha256": "0dbeca65559eb44c3249cdb1ae1305a5f30a7c075b66ba6220fc4efd3b585e65",
+      "physical_lines": 169,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-regression-source",
+      "notes": "Complete new/current guard source read: mechanical alias/hints/cache/Redis/scanner/malformedresult/DB error controls retained; only added passthrough begin_nested protocol to failing DB double after real helper gained savepoint. All assertions unchanged."
+    }
+  ]
+}

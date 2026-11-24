@@ -1,0 +1,70 @@
+{
+  "status": "Menu/export implementation tranche frozen and focused-verified; full operations audit remains open",
+  "changes": [
+    "Menu1162-line mixed module becomes134-line alias/composition facade+11cohesive owners (36\u2013213lines) plus56-line detached/drained export helper. Exact36function ASTs preserved from post-offload snapshot; no cross-domain policy merge.",
+    "Meal-plan native XLSX render moves off the API event loop after a typed detached snapshot; an authenticated actualHTTP Event-gated test first failed then passes with identical bytes/status/header shape.",
+    "Both rooming web exports use existing PreparedRoomingExcel.render() instead of naive to_thread. Two actual route-coroutine Event-gated cancellation tests first fail then pass; original post-render scope/authorization and audit order preserved."
+  ],
+  "verification": {
+    "unique_affected_testcases_passed": 92,
+    "reports": [
+      "operations-menu-export-tests.xml",
+      "operations-menu-lifecycle-tests.xml"
+    ],
+    "result_reconciliation": "Initial90-case run had89pass and one old source-contract assertion still searching directto_thread. That assertion now checks canonical render/drain composition, preserving all original order/detached assertions;9-case added/replayed lifecycle/contract run passes. Latest outcome per testcase:92pass. No further full affected rerun or whole-backend run required for this test-owner migration.",
+    "contract_proof": "Actual complete menu OpenAPI identical across13operations, canonicalSHA855655c7c5136da68fa7d7a18bf363819a354875eba837d24a3ba9c214b18eb8; includes request/response schemas, paths/methods/statuses/operation IDs/security metadata.",
+    "source_proof": "36whole function-definition ASTs including decorators/signatures/bodies unchanged at extraction and after formatting. Facade reexports are the exact canonical functions. Router composition for empty workspace path transfers that APIRoute directly before the outer /menu prefix; initial nested includeRouter import failure was fixed and actual full contract reverified.",
+    "ruff": "14runtime owners+4affected test files pass --no-fix",
+    "mypy": "14runtime owners pass",
+    "architecture_boundaries": "pass",
+    "coverage": "Isolated branch coverage initial90cases plus only meaningful added lifecycle/foreign-ID/contract cases appended;14changed owners observed90.48\u2013100%line.14new/ratcheted candidates proposed at minimum90line, existing caps/floors not raised/lowered."
+  },
+  "read_coverage": {
+    "original_scope_paths": 53,
+    "current_direct_full_original_reads": 13,
+    "unchanged_matching_prior_full_records": 12,
+    "matching_records_at_tranche_start": 13,
+    "original_pending_paths": 28,
+    "new_owners_full_reads": 12
+  },
+  "limits": [
+    "Remaining28original operations/menu/rooming/repository source files need current full physical review; shared operations_models.py1182lines is a newly identified supporting model hotspot, not yet fully reviewed in this tranche.",
+    "Workspace currently materializes all saved plans/entries for an agency. No endpoint payload was truncated or workflow changed; profile and reconcile a compatible bounded listing separately rather than claim this decomposition solves all scaling.",
+    "The canonical offload/drain helper bounds this operation's fan-out and waits for native completion; it does not introduce a new host-wide workbook admission policy or certify global throughput.",
+    "No live PostgreSQL locks/Redis/provider/storage services exercised; SQLite HTTP/MCP behavior does not certify those integrations.",
+    "Meal/category/plan feature selection, tenant/global namespace, revision rules, CSRF, no-repeat guarantees, saved snapshots and export bytes remain existing workflows. This is not a claim every whole-dashboard file or every operations repository has been audited.",
+    "Canonical helpers now resolve globals from their focused owner modules; complete source search found no live facade-global monkeypatch seam beyond shared exporterclass/method aliases retained. Public/private defined function imports and MCP canonical support aliases are preserved."
+  ],
+  "source_sha256": {
+    "backend/app/presentation/api/v1/routes/menu.py": "a59bf39c2d021567aeb098fbaa74307e38a3820440ce121b5495793395221fb8",
+    "backend/app/presentation/api/v1/routes/menu_categories.py": "c52e3fbf50d3445c0326664cf2041cb7957213e86e5704763c4530789c70ca41",
+    "backend/app/presentation/api/v1/routes/menu_common.py": "a8c83fc43b472447611b522254b6a453522658a1775300ed07523ad61738aeac",
+    "backend/app/presentation/api/v1/routes/menu_creation_support.py": "74d94491b839c7ae7b9b8043eb7d261fd7217f27d79e12b90f67d63fd74430ad",
+    "backend/app/presentation/api/v1/routes/menu_dishes.py": "dfc98627e1173d24e0dea223f34d0ab77e5f4f8d56c8db499c646ac0cb9b6460",
+    "backend/app/presentation/api/v1/routes/menu_exports.py": "631b77aea299db2168b3c6652147fe892b7cce3e28d2f70755bfcc0f262722c0",
+    "backend/app/presentation/api/v1/routes/menu_export_support.py": "64b5983b4d5028e0153f8b486cf3db9cbf90251bf99dad105444406c79bb8e60",
+    "backend/app/presentation/api/v1/routes/menu_planner.py": "c4998f5f7f952075f2cc8eb396e44386785f3e10d3e0f39aa1e8954d3d6d1d0e",
+    "backend/app/presentation/api/v1/routes/menu_plans.py": "2614750d467f2971a0ca8867d97722b129dd0a55885c8453ba2f3ae51e9d7872",
+    "backend/app/presentation/api/v1/routes/menu_plan_entries.py": "6fcbdcd00279115393e30a8a44e69826a4238c747866a58e99a2ce3c71836bb6",
+    "backend/app/presentation/api/v1/routes/menu_presenters.py": "a431ef3db23dc5631d2184862a9d8448c5b83403de9c727b0b3df6229115ba9b",
+    "backend/app/presentation/api/v1/routes/menu_queries.py": "7732012a3261e46ad44bce3e5ff491fbb06689e1701c13363fe665b33f98aea4",
+    "backend/app/presentation/api/v1/routes/menu_workspace.py": "b53765981a1855d48717f3bf77f449065a4e55e243c70cecad472e09eab94459",
+    "backend/app/presentation/api/v1/routes/rooming_exports.py": "77abd1be6ecaaa91de1377c61dd769e7811fc66b1ce57b90bfd2294b03a0990e",
+    "backend/tests/integration/test_menu_export_responsiveness.py": "0b4dd0ea10af9465257abc1c6b60a6a3c5c3ae8c833968a9e9de40af83828d9f",
+    "backend/tests/integration/test_menu_revision_lifecycle.py": "647406f3be4325dabd8395566adb59e7951243cafd8ad121eff9ce221db5a558",
+    "backend/tests/unit/presentation/test_rooming_export_native_drain.py": "cbfdb6a6f04cc8dc7f1dd0522dc856a5bb6db4ab7df61f9e3604f50e041dc94e",
+    "backend/tests/unit/presentation/test_rooming_runtime_hardening.py": "65a660870ce3fe76a70ed454bd508a9b74eaf0d892f6ccb93e007e5dd0407612"
+  },
+  "artifact_sha256": {
+    "menu-route-extraction-proof.json": "0db739c615081d4d1186c1934bd31e2b82fd57fb42d9ecb25ff36d040b44c62e",
+    "menu-route-openapi-proof.json": "d1f9a2ff450334c68446edebfa6866880746325dfb4d7f4860721ebcbf41bc2b",
+    "operations-export-native-before-fix.xml": "7c35991b3dbc491e0fac93bb00d8c71a82996ec548b8bc0f077cbe8c6779ba57",
+    "operations-export-native-after-fix.xml": "5e1471a1e485bc92451b98514e22093b2b51f2363014f9e602de2e1ea1cbc448",
+    "operations-menu-export-tests.xml": "f4115ed9859a274b9a0e9d50ee92e9a1386827020fbaf399a095048994d85549",
+    "operations-menu-lifecycle-tests.xml": "5c9c018e50beb4e7b5fc94a19d937e4097f1000a4b2319b64270d1be5cf9508f",
+    "operations-menu-export-coverage.json": "3fc9a2ab7a2c7aad33fdecf47f76c2742e52c9fbac8d73dbbc1040df409cdb10",
+    "operations-menu-export-coverage.xml": "ab7dcf083bf18613a0dc5cbbf8b3cefab616fc2fbe8fd8ddc0e165c64bccad14",
+    "menu-export-budget-candidates.json": "ca2d1170e1c4d8a8073a437ebb1342deebf165b2a87185d4f711be47a96a7bbc",
+    "menu-export-reviewed-files.json": "d25f2a7daac610eabab79b660669bb27c2bca31283d34ee2fe05604accf29a3c"
+  }
+}

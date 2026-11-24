@@ -1,0 +1,55 @@
+test_clean_checkout_renders_without_creating_repository_env (test_compose_render_fixture.ComposeRenderFixtureTests.test_clean_checkout_renders_without_creating_repository_env) ... ok
+test_decoded_configuration_preserves_valid_mapping_values (test_compose_render_fixture.ComposeRenderFixtureTests.test_decoded_configuration_preserves_valid_mapping_values) ... ok
+test_existing_private_environment_is_not_read_or_replaced (test_compose_render_fixture.ComposeRenderFixtureTests.test_existing_private_environment_is_not_read_or_replaced) ... ok
+test_non_object_json_fails_at_the_decoded_configuration_boundary (test_compose_render_fixture.ComposeRenderFixtureTests.test_non_object_json_fails_at_the_decoded_configuration_boundary) ... 
+  test_non_object_json_fails_at_the_decoded_configuration_boundary (test_compose_render_fixture.ComposeRenderFixtureTests.test_non_object_json_fails_at_the_decoded_configuration_boundary) (output='[]') ... FAIL
+  test_non_object_json_fails_at_the_decoded_configuration_boundary (test_compose_render_fixture.ComposeRenderFixtureTests.test_non_object_json_fails_at_the_decoded_configuration_boundary) (output='null') ... FAIL
+  test_non_object_json_fails_at_the_decoded_configuration_boundary (test_compose_render_fixture.ComposeRenderFixtureTests.test_non_object_json_fails_at_the_decoded_configuration_boundary) (output='"synthetic"') ... FAIL
+  test_non_object_json_fails_at_the_decoded_configuration_boundary (test_compose_render_fixture.ComposeRenderFixtureTests.test_non_object_json_fails_at_the_decoded_configuration_boundary) (output='3') ... FAIL
+  test_non_object_json_fails_at_the_decoded_configuration_boundary (test_compose_render_fixture.ComposeRenderFixtureTests.test_non_object_json_fails_at_the_decoded_configuration_boundary) (output='true') ... FAIL
+test_render_failure_is_not_ignored_and_cleans_fixture (test_compose_render_fixture.ComposeRenderFixtureTests.test_render_failure_is_not_ignored_and_cleans_fixture) ... ok
+
+======================================================================
+FAIL: test_non_object_json_fails_at_the_decoded_configuration_boundary (test_compose_render_fixture.ComposeRenderFixtureTests.test_non_object_json_fails_at_the_decoded_configuration_boundary) (output='[]')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_compose_render_fixture.py", line 69, in test_non_object_json_fails_at_the_decoded_configuration_boundary
+    with self.subTest(output=output), self.assertRaisesRegex(
+AssertionError: RuntimeError not raised
+
+======================================================================
+FAIL: test_non_object_json_fails_at_the_decoded_configuration_boundary (test_compose_render_fixture.ComposeRenderFixtureTests.test_non_object_json_fails_at_the_decoded_configuration_boundary) (output='null')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_compose_render_fixture.py", line 69, in test_non_object_json_fails_at_the_decoded_configuration_boundary
+    with self.subTest(output=output), self.assertRaisesRegex(
+AssertionError: RuntimeError not raised
+
+======================================================================
+FAIL: test_non_object_json_fails_at_the_decoded_configuration_boundary (test_compose_render_fixture.ComposeRenderFixtureTests.test_non_object_json_fails_at_the_decoded_configuration_boundary) (output='"synthetic"')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_compose_render_fixture.py", line 69, in test_non_object_json_fails_at_the_decoded_configuration_boundary
+    with self.subTest(output=output), self.assertRaisesRegex(
+AssertionError: RuntimeError not raised
+
+======================================================================
+FAIL: test_non_object_json_fails_at_the_decoded_configuration_boundary (test_compose_render_fixture.ComposeRenderFixtureTests.test_non_object_json_fails_at_the_decoded_configuration_boundary) (output='3')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_compose_render_fixture.py", line 69, in test_non_object_json_fails_at_the_decoded_configuration_boundary
+    with self.subTest(output=output), self.assertRaisesRegex(
+AssertionError: RuntimeError not raised
+
+======================================================================
+FAIL: test_non_object_json_fails_at_the_decoded_configuration_boundary (test_compose_render_fixture.ComposeRenderFixtureTests.test_non_object_json_fails_at_the_decoded_configuration_boundary) (output='true')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_compose_render_fixture.py", line 69, in test_non_object_json_fails_at_the_decoded_configuration_boundary
+    with self.subTest(output=output), self.assertRaisesRegex(
+AssertionError: RuntimeError not raised
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.035s
+
+FAILED (failures=5)

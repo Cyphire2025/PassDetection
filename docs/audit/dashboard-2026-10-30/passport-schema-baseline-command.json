@@ -1,0 +1,50 @@
+{
+  "argv": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "--tb=short",
+    "tests/unit/domain/test_phone_number.py",
+    "tests/unit/presentation/test_passport_submission_view_schema.py",
+    "tests/unit/presentation/test_passport_response_support.py",
+    "tests/unit/presentation/test_staff_approval_route.py",
+    "tests/unit/presentation/test_passport_image_crop_routes.py",
+    "tests/unit/presentation/test_selected_passport_image_export.py",
+    "tests/unit/presentation/test_selected_groups_export.py",
+    "tests/unit/presentation/test_passport_upload_reconciliation_route.py",
+    "--cov=app/presentation/api/v1/schemas",
+    "--cov-branch",
+    "--cov-fail-under=0",
+    "--cov-report=json:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\passport-schema-baseline-coverage.json",
+    "--cov-report=xml:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\passport-schema-baseline-coverage.xml",
+    "--cov-report="
+  ],
+  "exit_code": 0,
+  "before": {
+    "backend/app/presentation/api/v1/schemas/passport_schemas.py": "f2c10f862e344d3aa84c7608d0c8a86ad19f29e3f6cdf1dbb7730e392dd102f6",
+    "backend/tests/unit/domain/test_phone_number.py": "6153360303ebcb869f7d929e8e03a8f0115ca1f354b781a4eca297b48b8d431a",
+    "backend/tests/unit/presentation/test_passport_submission_view_schema.py": "fbdfd1f233d7298b2aacaddd6df41ca81aab4f76961b859e88f009c321d80983",
+    "backend/tests/unit/presentation/test_passport_response_support.py": "d2f4f431021110f6f68f971a277f98fbbb4b15e07e07f358c9ee524cb18c25a6",
+    "backend/tests/unit/presentation/test_staff_approval_route.py": "7c4f7ad03c84ee67df04c7116ea5ff21b51881f7d5aa4fa2c3b5916a2a77a86f",
+    "backend/tests/unit/presentation/test_passport_image_crop_routes.py": "2a9f6650cf4499438f02d7cf1c0ca34a780f179a9dffdc82f6a37611b48e1343",
+    "backend/tests/unit/presentation/test_selected_passport_image_export.py": "28a63bea5771e02c68b597348dec77743f6e5cf5d0f4f5c0fd14c0519b3d761e",
+    "backend/tests/unit/presentation/test_selected_groups_export.py": "e8f1d33df3ba15d3dafa173c4b5e013a3de9ab8fdbee2eb55ce42323c6888019",
+    "backend/tests/unit/presentation/test_passport_upload_reconciliation_route.py": "d898d2c6cbe2641375f102e0d7d6936693c354a87ba899d1d6bd27a2649f0790"
+  },
+  "after": {
+    "backend/app/presentation/api/v1/schemas/passport_schemas.py": "f2c10f862e344d3aa84c7608d0c8a86ad19f29e3f6cdf1dbb7730e392dd102f6",
+    "backend/tests/unit/domain/test_phone_number.py": "6153360303ebcb869f7d929e8e03a8f0115ca1f354b781a4eca297b48b8d431a",
+    "backend/tests/unit/presentation/test_passport_submission_view_schema.py": "fbdfd1f233d7298b2aacaddd6df41ca81aab4f76961b859e88f009c321d80983",
+    "backend/tests/unit/presentation/test_passport_response_support.py": "d2f4f431021110f6f68f971a277f98fbbb4b15e07e07f358c9ee524cb18c25a6",
+    "backend/tests/unit/presentation/test_staff_approval_route.py": "7c4f7ad03c84ee67df04c7116ea5ff21b51881f7d5aa4fa2c3b5916a2a77a86f",
+    "backend/tests/unit/presentation/test_passport_image_crop_routes.py": "2a9f6650cf4499438f02d7cf1c0ca34a780f179a9dffdc82f6a37611b48e1343",
+    "backend/tests/unit/presentation/test_selected_passport_image_export.py": "28a63bea5771e02c68b597348dec77743f6e5cf5d0f4f5c0fd14c0519b3d761e",
+    "backend/tests/unit/presentation/test_selected_groups_export.py": "e8f1d33df3ba15d3dafa173c4b5e013a3de9ab8fdbee2eb55ce42323c6888019",
+    "backend/tests/unit/presentation/test_passport_upload_reconciliation_route.py": "d898d2c6cbe2641375f102e0d7d6936693c354a87ba899d1d6bd27a2649f0790"
+  },
+  "source_frozen": true,
+  "output": "passport-schema-baseline-tests.txt"
+}

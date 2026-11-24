@@ -1,0 +1,19 @@
+{
+  "current_validated_defects": [],
+  "fixed_shared_tooling_defect": {
+    "path": "docs/audit/dashboard-2026-10-30/migration-template-verification.json",
+    "sha256": "1e2ac8f75893cc9c0ac6ea39cf11da9d622bd25f805f13566baac4e5b6397f18"
+  },
+  "historical_compatibility_candidate": {
+    "path": "backend/alembic/versions/0002_client_groups.py",
+    "sha256": "81b224688f5de2dd04a1717965d3f9e2638ce0b47dd99c7dac387e6d5c77d224",
+    "evidence": "Direct upgrade table drops destroy populated0001passport/upload-link rows; downgrade does not restore0001tables. Sourceconfirmed operation, not a reproduced current-supported release failure.",
+    "limitation": "Supported published rollback/populatedlegacy boundary not established here; later release baselines may never traverse this boundary with live data. Never rewrite published0002."
+  },
+  "obligations": [
+    "Trace later invariant/security/retention migrations before treating earlycolumn/FK/token declarations as current vulnerabilities.",
+    "Service-dependent Postgres enumtransaction, locking, populated upgrade, data retention and rollback behavior not qualified by source reads.",
+    "Do not count deferredInbox0061/0065 as reviewed/complete from automated selection metadata.",
+    "No migration/data/provider/scanner/broadsuite execution in manual cohort."
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "implemented": [
+    "Separated target queries/typed rows from inherited policy loading/response mapping and endpoint auth/locks/audit orchestration."
+  ],
+  "validated_new_behavior_defects": [],
+  "unmodified_behavior": [
+    "SuperAdminrole factory/HTTP dependency and cookieCSRF declarations, current actor mailbox visibility, office/active filters, stableordering/search/offset/limit and200item cap.",
+    "Namespace\u2192policyrow locks, expected timestamp conflicts, ownershipscope and audit/flush order. No added commit/task/provider transition.",
+    "Direct MCP3helper exports and actual next_offset mapping; private class slots/frozen/pickle/module/qualnames and generatedmethod metadata."
+  ],
+  "remaining": [
+    "email_integration_review_decisions.py367 locked context/action architecture follow-through next.",
+    "ActualPostgres namespace-rowlock/concurrent update semantics and service workload/latency remain unqualified; SQLite/mocks/OpenAPI do not establish those.",
+    "Legacy class inspect.getsource now OSError; actual definition email_rollout_targets.py. No inspect monkeypatch or transparent proxy.",
+    "No asymptotic/runtime performance improvement claimed; broader file audit and one final combined verification remain open."
+  ],
+  "initial_failed_checkpoint": "Initial baseline had1fixture constraint error from missing disconnected_at and15pass. Set required timestamp only, corrected16baseline passed before runtime movement; all receipts/logs retained."
+}

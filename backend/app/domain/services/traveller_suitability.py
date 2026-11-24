@@ -22,10 +22,15 @@ class SuitabilityOutcome(StrEnum):
     CANNOT_ASSESS = "cannot_assess"
 
 
-def add_calendar_months(value: date, months: int) -> date:
+def _calendar_month_parts(value: date, months: int) -> tuple[int, int, int]:
+    """Retain a comparable deadline even when its year exceeds date.max."""
     year, month_zero = divmod(value.year * 12 + value.month - 1 + months, 12)
     month = month_zero + 1
-    return date(year, month, min(value.day, calendar.monthrange(year, month)[1]))
+    return year, month, min(value.day, calendar.monthrange(year, month)[1])
+
+
+def add_calendar_months(value: date, months: int) -> date:
+    return date(*_calendar_month_parts(value, months))
 
 
 @dataclass(frozen=True, slots=True)
@@ -78,7 +83,8 @@ def assess_document(
         return SuitabilityResult(SuitabilityOutcome.REPLACEMENT_REQUIRED, ("scan_unavailable",), ())
     if document.expiry_date is None or travel_date is None:
         return SuitabilityResult(SuitabilityOutcome.CANNOT_ASSESS, ("dates_missing",), ())
-    if document.expiry_date <= max(today, add_calendar_months(travel_date, 6)):
+    expiry_parts = (document.expiry_date.year, document.expiry_date.month, document.expiry_date.day)
+    if document.expiry_date <= today or expiry_parts <= _calendar_month_parts(travel_date, 6):
         return SuitabilityResult(
             SuitabilityOutcome.REPLACEMENT_REQUIRED, ("operational_six_month_rule",), (),
         )
@@ -109,16 +115,16 @@ def assess_document(
             raise ValueError("invalid destination rule")
         versions.append(rule.version)
         anchor = rule.arrival if rule.anchor == "arrival" else rule.departure
-        if document.expiry_date < add_calendar_months(anchor, rule.validity_months):
+        if expiry_parts < _calendar_month_parts(anchor, rule.validity_months):
             return SuitabilityResult(
                 SuitabilityOutcome.REPLACEMENT_REQUIRED, ("destination_validity_rule",), tuple(versions),
             )
         if rule.maximum_issue_age_months is not None:
             if document.issue_date is None:
                 reasons.append("issue_date_missing")
-            elif document.issue_date > rule.arrival or rule.arrival >= add_calendar_months(
-                document.issue_date, rule.maximum_issue_age_months,
-            ):
+            elif document.issue_date > rule.arrival or (
+                rule.arrival.year, rule.arrival.month, rule.arrival.day
+            ) >= _calendar_month_parts(document.issue_date, rule.maximum_issue_age_months):
                 return SuitabilityResult(
                     SuitabilityOutcome.REPLACEMENT_REQUIRED, ("destination_issue_age_rule",), tuple(versions),
                 )

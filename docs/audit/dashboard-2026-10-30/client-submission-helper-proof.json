@@ -1,0 +1,13 @@
+{
+  "helper_bodies_ast_identical": 7,
+  "execute_ast_identical_after_exact_unreachable_removal": true,
+  "removed_checks": [
+    "If(test=BoolOp(op=And(), values=[Attribute(value=Name(id='policies', ctx=Load()), attr='require_client_email', ctx=Load()), UnaryOp(op=Not(), operand=Name(id='normalized_email', ctx=Load()))]), body=[Raise(exc=Call(func=Name(id='ValidationError', ctx=Load()), args=[Constant(value='Enter a valid email address.')], keywords=[keyword(arg='field', value=Constant(value='client_email'))]))], orelse=[])",
+    "If(test=BoolOp(op=And(), values=[Name(id='client_email', ctx=Load()), UnaryOp(op=Not(), operand=Name(id='normalized_email', ctx=Load()))]), body=[Raise(exc=Call(func=Name(id='ValidationError', ctx=Load()), args=[Constant(value='Enter a valid email address.')], keywords=[keyword(arg='field', value=Constant(value='client_email'))]))], orelse=[])",
+    "If(test=BoolOp(op=And(), values=[Attribute(value=Name(id='policies', ctx=Load()), attr='require_client_phone', ctx=Load()), UnaryOp(op=Not(), operand=Name(id='normalized_phone', ctx=Load()))]), body=[Raise(exc=Call(func=Name(id='ValidationError', ctx=Load()), args=[Constant(value='Enter a valid phone number.')], keywords=[keyword(arg='field', value=Constant(value='client_phone'))]))], orelse=[])",
+    "If(test=BoolOp(op=And(), values=[Name(id='client_phone', ctx=Load()), UnaryOp(op=Not(), operand=Name(id='normalized_phone', ctx=Load()))]), body=[Raise(exc=Call(func=Name(id='ValidationError', ctx=Load()), args=[Constant(value='Enter a valid phone number.')], keywords=[keyword(arg='field', value=Constant(value='client_phone'))]))], orelse=[])",
+    "If(test=BoolOp(op=And(), values=[Name(id='client_phone', ctx=Load()), UnaryOp(op=Not(), operand=Name(id='normalized_phone', ctx=Load()))]), body=[Raise(exc=Call(func=Name(id='ValidationError', ctx=Load()), args=[Constant(value='Enter a valid family member phone number.')], keywords=[keyword(arg='field', value=Constant(value='client_phone'))]))], orelse=[])"
+  ],
+  "reason": "Both normalized_email and normalized_phone must be truthy at earlier mandatory guards for every mode. These five later checks require their negation and are unreachable. No family-head checks or mandatory guards removed.",
+  "compatibility": "Original private helper lookup names remain on ClientSubmitPassportUseCase as typed staticmethod aliases; bound phone helper wrapper retains its signature."
+}

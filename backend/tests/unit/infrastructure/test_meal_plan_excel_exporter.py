@@ -3,9 +3,10 @@ from __future__ import annotations
 import io
 import uuid
 from datetime import date, datetime
+from typing import Iterator
 from zipfile import ZipFile
 
-from openpyxl import load_workbook
+from openpyxl import Workbook, load_workbook
 
 from app.infrastructure.export.meal_plan_excel_exporter import (
     MealPlanExcelExporter,
@@ -106,3 +107,51 @@ def test_excel_text_is_not_interpreted_as_a_formula() -> None:
     )
     assert _safe_excel_text("Butter Chicken") == "Butter Chicken"
     assert _safe_excel_text(None) is None
+
+
+def test_dish_list_groups_days_in_one_pass_and_preserves_entry_order() -> None:
+    class CountedEntries(list[MealPlanExportEntry]):
+        visited = 0
+
+        def __iter__(self) -> Iterator[MealPlanExportEntry]:
+            for entry in super().__iter__():
+                self.visited += 1
+                yield entry
+
+    # Interleave days to exercise grouping independently of export's sorting.
+    entries = CountedEntries(
+        MealPlanExportEntry(
+            day_number=day,
+            meal_type=meal,
+            category_id=uuid.uuid4(),
+            category_name="Category",
+            dish_name=f"Day {day} {meal}",
+        )
+        for meal in ("dinner", "lunch")
+        for day in reversed(range(1, 41))
+    )
+    workbook = Workbook()
+    worksheet = workbook.active
+    assert worksheet is not None
+
+    MealPlanExcelExporter._build_detail_sheet(
+        worksheet, start_date=date(2026, 7, 1), entries=entries
+    )
+
+    assert entries.visited == len(entries)
+    rendered_dishes = [
+        row[4].value
+        for row in worksheet.iter_rows(min_row=2)
+        if row[4].value is not None
+    ]
+    assert rendered_dishes == [
+        f"Day {day} {meal}"
+        for day in range(1, 41)
+        for meal in ("dinner", "lunch")
+    ]
+    assert worksheet["A2"].value == "Day 1"
+    assert worksheet["B2"].value == date(2026, 7, 1)
+    assert "A2:A3" in worksheet.merged_cells
+    assert worksheet.row_dimensions[4].height == 8
+    assert worksheet["A5"].value == "Day 2"
+    workbook.close()

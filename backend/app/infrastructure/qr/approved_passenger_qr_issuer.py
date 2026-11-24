@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import secrets
 import uuid
-from datetime import UTC, datetime, time, timedelta
+from datetime import UTC, date, datetime, time, timedelta
 from hashlib import sha256
 
 from sqlalchemy import select
@@ -43,7 +43,9 @@ def qr_status(
     current_time = now or datetime.now(tz=UTC)
     if token.revoked_at is not None:
         return "revoked"
-    expires_at = token.expires_at if token.expires_at.tzinfo else token.expires_at.replace(tzinfo=UTC)
+    expires_at = (
+        token.expires_at if token.expires_at.tzinfo else token.expires_at.replace(tzinfo=UTC)
+    )
     if expires_at <= current_time:
         return "expired"
     return "active" if token.is_active else "inactive"
@@ -54,8 +56,10 @@ def qr_expires_at_for_group(
     now: datetime | None = None,
 ) -> datetime:
     if group.return_date:
+        # Keep the grace period within the timestamp range accepted by storage.
+        grace = min(timedelta(days=QR_RETURN_GRACE_DAYS), date.max - group.return_date)
         return datetime.combine(
-            group.return_date + timedelta(days=QR_RETURN_GRACE_DAYS),
+            group.return_date + grace,
             time.max,
             tzinfo=UTC,
         )
@@ -108,9 +112,7 @@ async def ensure_approved_passenger_qr(
         )
         .where(
             PassportSubmissionModel.id == submission_id,
-            PassportSubmissionModel.status.in_(
-                OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES
-            ),
+            PassportSubmissionModel.status.in_(OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES),
             operational_roster_member(),
         )
         .with_for_update(of=PassportSubmissionModel)
@@ -120,10 +122,7 @@ async def ensure_approved_passenger_qr(
         return None
     submission, group = row
     # Defense in depth for test doubles and any dialect-specific filtering.
-    if (
-        submission.status
-        not in OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES
-    ):
+    if submission.status not in OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES:
         return None
 
     existing_result = await session.execute(
@@ -169,9 +168,7 @@ async def ensure_approved_passenger_qrs(
         .join(ClientGroupModel, ClientGroupModel.id == PassportSubmissionModel.group_id)
         .where(
             PassportSubmissionModel.id.in_(ordered_ids),
-            PassportSubmissionModel.status.in_(
-                OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES
-            ),
+            PassportSubmissionModel.status.in_(OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES),
             operational_roster_member(),
         )
         .order_by(PassportSubmissionModel.id)

@@ -1,0 +1,118 @@
+[
+  {
+    "path": "backend/tests/unit/infrastructure/test_runtime_readiness.py",
+    "patch_owner_edits": [
+      {
+        "before": "\"app.infrastructure.runtime_readiness.readiness_probe_executor\"",
+        "after": "\"app.infrastructure.runtime_readiness_capabilities.readiness_probe_executor\""
+      },
+      {
+        "before": "\"app.infrastructure.runtime_readiness._probe_object_storage\"",
+        "after": "\"app.infrastructure.runtime_readiness_capabilities._probe_object_storage\""
+      },
+      {
+        "before": "\"app.infrastructure.runtime_readiness._probe_security_redis\"",
+        "after": "\"app.infrastructure.runtime_readiness_capabilities._probe_security_redis\""
+      },
+      {
+        "before": "\"app.infrastructure.runtime_readiness._probe_object_storage\"",
+        "after": "\"app.infrastructure.runtime_readiness_capabilities._probe_object_storage\""
+      },
+      {
+        "before": "\"app.infrastructure.runtime_readiness._probe_object_storage\"",
+        "after": "\"app.infrastructure.runtime_readiness_capabilities._probe_object_storage\""
+      },
+      {
+        "before": "\"app.infrastructure.runtime_readiness._probe_object_storage\"",
+        "after": "\"app.infrastructure.runtime_readiness_capabilities._probe_object_storage\""
+      },
+      {
+        "before": "\"app.infrastructure.runtime_readiness._probe_object_storage\"",
+        "after": "\"app.infrastructure.runtime_readiness_capabilities._probe_object_storage\""
+      },
+      {
+        "before": "runtime_readiness",
+        "after": "runtime_readiness_capabilities"
+      },
+      {
+        "before": "runtime_readiness",
+        "after": "runtime_readiness_probes"
+      },
+      {
+        "before": "runtime_readiness",
+        "after": "runtime_readiness_probes"
+      },
+      {
+        "before": "runtime_readiness",
+        "after": "runtime_readiness_probes"
+      },
+      {
+        "before": "runtime_readiness",
+        "after": "runtime_readiness_probes"
+      },
+      {
+        "before": "runtime_readiness",
+        "after": "runtime_readiness_probes"
+      },
+      {
+        "before": "runtime_readiness",
+        "after": "runtime_readiness_capabilities"
+      },
+      {
+        "before": "runtime_readiness",
+        "after": "runtime_readiness_capabilities"
+      },
+      {
+        "before": "runtime_readiness",
+        "after": "runtime_readiness_capabilities"
+      },
+      {
+        "before": "runtime_readiness",
+        "after": "runtime_readiness_capabilities"
+      },
+      {
+        "before": "runtime_readiness",
+        "after": "runtime_readiness_capabilities"
+      },
+      {
+        "before": "runtime_readiness",
+        "after": "runtime_readiness_capabilities"
+      }
+    ],
+    "assertions_or_inputs_modified": false
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_health_readiness_deadline.py",
+    "patch_owner_edits": [
+      {
+        "before": "runtime_readiness",
+        "after": "runtime_readiness_capabilities"
+      },
+      {
+        "before": "runtime_readiness",
+        "after": "runtime_readiness_capabilities"
+      },
+      {
+        "before": "runtime_readiness",
+        "after": "runtime_readiness_capabilities"
+      },
+      {
+        "before": "runtime_readiness",
+        "after": "runtime_readiness_capabilities"
+      },
+      {
+        "before": "runtime_readiness",
+        "after": "runtime_readiness_capabilities"
+      },
+      {
+        "before": "runtime_readiness",
+        "after": "runtime_readiness_capabilities"
+      },
+      {
+        "before": "runtime_readiness",
+        "after": "runtime_readiness_capabilities"
+      }
+    ],
+    "assertions_or_inputs_modified": false
+  }
+]

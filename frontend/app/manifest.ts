@@ -3,8 +3,8 @@ import type { MetadataRoute } from "next";
 export default function manifest(): MetadataRoute.Manifest {
   return {
     id: "/coordinator",
-    name: "Global Connects Coordinator",
-    short_name: "Tour Ops",
+    name: "Group Companion",
+    short_name: "Group Companion",
     description: "Fast mobile tour attendance and hotel check-in workflows for coordinators.",
     start_url: "/coordinator",
     scope: "/",

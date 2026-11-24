@@ -1,0 +1,168 @@
+{
+  "status": "verified and frozen",
+  "source_manifest": {
+    "path": "docs/audit/dashboard-2026-10-30/whatsapp-activity-final-source-manifest.json",
+    "sha256": "2b228f7a7d6fa2b5f2c1fb4c61312dbf1b974a78b721baa1f5d23d25fc97522d"
+  },
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/whatsapp-activity-final-reviewed-files.json",
+    "sha256": "671259e421231a49dcaaca61c23262bcbbe1d087e2cef38dabb3ab0252914fa9"
+  },
+  "budget_candidates": {
+    "path": "docs/audit/dashboard-2026-10-30/whatsapp-activity-final-budget-candidates.json",
+    "sha256": "bf12ce0b716631f32ca67910294ef67bb9d9003642d00896399d87c16fef8677"
+  },
+  "change": "Cohesive role/group-visibility, status-SQL, aggregate-query, document-query and failure-query owners replace the mixed562-line route module. Current HTTP/response mapping owner292lines. All original19 functions and9 assignments remain whole AST-exact, no business-policy/SQL/schema/API mutation change or performance-speedup claim.",
+  "proof": {
+    "path": "docs/audit/dashboard-2026-10-30/whatsapp-activity-qualified-source-proof.json",
+    "sha256": "84f638e75314f111c8965d4d080231199f89448f74b6c2443981f9f6448e9c6b"
+  },
+  "qualified_original_contract": {
+    "path": "docs/audit/dashboard-2026-10-30/whatsapp-activity-qualified-original-contract.json",
+    "sha256": "0f14ef6c67ec4396b4c1f284723f6e0dadebfdd7fbb53b4a5d599b7c238681e1"
+  },
+  "qualified_current_contract": {
+    "path": "docs/audit/dashboard-2026-10-30/whatsapp-activity-qualified-current-contract.json",
+    "sha256": "0f14ef6c67ec4396b4c1f284723f6e0dadebfdd7fbb53b4a5d599b7c238681e1"
+  },
+  "proof_counts": {
+    "whole_declarations": 28,
+    "original_import_identities": 36,
+    "actual_global_alias_bindings": 95,
+    "evaluated_function_annotations_and_signatures": 19,
+    "raw_openapi_equal": true,
+    "dependency_role_closures_equal": true,
+    "sql_variants_equal": 50
+  },
+  "checks": {
+    "original_focused30": {
+      "path": "docs/audit/dashboard-2026-10-30/whatsapp-activity-before-corrected-focused-command.json",
+      "sha256": "2ae217872450681a744de2855cbcd32998414d2456a5fa6cef3a134e8f9c4ad7"
+    },
+    "after_focused30": {
+      "path": "docs/audit/dashboard-2026-10-30/whatsapp-activity-after-focused-command.json",
+      "sha256": "280d84c38e3fcdb506891d29cb6ccd83b67f69c72b804040c96225d4ec3790aa"
+    },
+    "final_focused36": {
+      "path": "docs/audit/dashboard-2026-10-30/whatsapp-activity-final-focused-command.json",
+      "sha256": "e0740c3c81cfe404b6b62614641742453b57050f19c4d174f92d60d2dfc8f011"
+    },
+    "coverage_json": {
+      "path": "docs/audit/dashboard-2026-10-30/whatsapp-activity-final-coverage.json",
+      "sha256": "dbc714bda4447c030fc19acf38a0c9a7695fa38646806c1f5856e66c7db12261"
+    },
+    "coverage_xml": {
+      "path": "docs/audit/dashboard-2026-10-30/whatsapp-activity-final-coverage.xml",
+      "sha256": "4bfb419299cdd55856fa8554138b7ed26adfaf87a081e7cb785f768d7e79629e"
+    },
+    "scoped_ruff": {
+      "exit_code": 0,
+      "runtime_files": 6,
+      "test_files": 2,
+      "tool_chunk": "91fac7"
+    },
+    "scoped_mypy": {
+      "exit_code": 0,
+      "runtime_files": 6,
+      "tool_chunk": "1b7f6b"
+    }
+  },
+  "measurements": {
+    "backend/app/presentation/api/v1/routes/whatsapp_activity.py": {
+      "sha256": "06bc0b05081180d73b24ae35a0718018f1344cf72a24f8a009e41d4e016de47f",
+      "physical_lines": 292,
+      "max_function_complexity": 6,
+      "most_complex_function": "get_whatsapp_activity_summary",
+      "covered_lines": 74,
+      "num_statements": 74,
+      "covered_branches": 22,
+      "num_branches": 22,
+      "line_percent": 100.0,
+      "branch_percent": 100.0
+    },
+    "backend/app/presentation/api/v1/routes/whatsapp_activity_access.py": {
+      "sha256": "e9d3f4431e7039e99a31013a9dd0691fa48efd9b60d54d37f99514ac00b50753",
+      "physical_lines": 31,
+      "max_function_complexity": 3,
+      "most_complex_function": "_ensure_kind_access",
+      "covered_lines": 13,
+      "num_statements": 13,
+      "covered_branches": 2,
+      "num_branches": 2,
+      "line_percent": 100.0,
+      "branch_percent": 100.0
+    },
+    "backend/app/presentation/api/v1/routes/whatsapp_activity_document_queries.py": {
+      "sha256": "c3c009bfd7fc66b55580696b04d962660a2f4a3e3439a220ae49de1dce932e54",
+      "physical_lines": 74,
+      "max_function_complexity": 5,
+      "most_complex_function": "_document_activity_status_predicate",
+      "covered_lines": 25,
+      "num_statements": 25,
+      "covered_branches": 8,
+      "num_branches": 8,
+      "line_percent": 100.0,
+      "branch_percent": 100.0
+    },
+    "backend/app/presentation/api/v1/routes/whatsapp_activity_failure_queries.py": {
+      "sha256": "1819db2d3ba194a172f11add3b00e63768a046518a9ae1bd4979eb93199690e7",
+      "physical_lines": 96,
+      "max_function_complexity": 2,
+      "most_complex_function": "_broadcast_failures_statement",
+      "covered_lines": 19,
+      "num_statements": 19,
+      "covered_branches": 2,
+      "num_branches": 2,
+      "line_percent": 100.0,
+      "branch_percent": 100.0
+    },
+    "backend/app/presentation/api/v1/routes/whatsapp_activity_status.py": {
+      "sha256": "1decabea2e92dd3f4cded7b1d81fdb55a0d82aad9a0e7b7025de70626ce9abd9",
+      "physical_lines": 66,
+      "max_function_complexity": 3,
+      "most_complex_function": "_status_aggregates",
+      "covered_lines": 22,
+      "num_statements": 22,
+      "covered_branches": 0,
+      "num_branches": 0,
+      "line_percent": 100.0,
+      "branch_percent": 100.0
+    },
+    "backend/app/presentation/api/v1/routes/whatsapp_activity_summary_queries.py": {
+      "sha256": "c8a6d7375e95b8df076cde3d8763cf4043b35d71d4450d00cbb4bbf72f9086ff",
+      "physical_lines": 128,
+      "max_function_complexity": 2,
+      "most_complex_function": "_broadcast_activity_statement",
+      "covered_lines": 20,
+      "num_statements": 20,
+      "covered_branches": 2,
+      "num_branches": 2,
+      "line_percent": 100.0,
+      "branch_percent": 100.0
+    }
+  },
+  "historical_failures": [
+    {
+      "artifact": {
+        "path": "docs/audit/dashboard-2026-10-30/whatsapp-activity-before-focused-command.json",
+        "sha256": "10a07d482e7da5ce4897b81eabc58e4ad13fa2db53f77ef5a6fbb8fe35e7b2f4"
+      },
+      "result": "Initial new assigned-staff fixture omitted required manager_group_access.agency_id;27passed/1fixturefailed before runtime edits. Corrected fixture with agency identity and added2 other-engine real-DB cases; original30passed. Not a product failure."
+    },
+    {
+      "result": "Initial mechanical extraction script used CRLF-sensitive string insertion and missed facade helper imports; scoped Ruff detected undefined names before app execution. Fixed owned facade imports and normalized owned sources to UTF8 LF. Original archive and initial script retained; no unrelated edits."
+    },
+    {
+      "result": "Initial separate-process metadata artifacts differ only by dependency function memory addresses and5 coordinator visibility clock parameter values. Historical raw artifacts retained; final same-process original/live comparison fixes only that external proof clock, compares raw OpenAPI arrays/order and role closures unchanged and canonicalizes unordered SQL IN parameters only."
+    }
+  ],
+  "remaining_follow_through": [
+    "The native failure endpoint intentionally returns the complete failed batch on expansion; this pure extraction preserves that workflow. Any paging/capacity redesign requires actual workload/contract evidence, not a claimed performance gain from moving code.",
+    "Broadcast/QR and document failure joins use existing group-id visibility shapes while document aggregate/page joins also check agency equality. Normally-created rows copy authorized group and agency together; no ordinary cross-tenant defect was reproduced and no speculative behavior/schema change is claimed. Legacy malformed-data existence was not investigated.",
+    "inspect.getsource/getsourcefile for13 moved helpers points to actual owner files; legacy function module/qualname/pickle/export identities and actual caller seams remain. Rebinding a private facade global is not promised to rewrite a relocated function global namespace; no actual caller/test relied on that instrumentation seam.",
+    "Real PostgreSQL/provider/browser/release verification belongs to the final combined checkpoint; isolated SQLite and compiled SQL are qualified only as such.",
+    "Operations Inbox remains deferred by explicit user request; no new dedicated Inbox work. Root owns the separate communications model architecture tranche; the declaration-free552-line WhatsApp compatibility aggregator is retained intentionally."
+  ],
+  "shared_budget_release_config_edits": false,
+  "freeze": "All6 runtime owners and2 owned tests are frozen after this receipt; final36 coverage is current-source only, no old source coverage merge."
+}

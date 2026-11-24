@@ -1,0 +1,22 @@
+[
+  {
+    "path": "app/application/use_cases/passports/submit_passport_use_case.py",
+    "minimum_line_percent": 85,
+    "minimum_branch_percent": 80
+  },
+  {
+    "path": "app/application/use_cases/passports/passport_upload_plan.py",
+    "minimum_line_percent": 85,
+    "minimum_branch_percent": 80
+  },
+  {
+    "path": "app/application/use_cases/passports/passport_upload_selection.py",
+    "minimum_line_percent": 85,
+    "minimum_branch_percent": 80
+  },
+  {
+    "path": "app/application/use_cases/passports/passport_upload_submission.py",
+    "minimum_line_percent": 85,
+    "minimum_branch_percent": 80
+  }
+]

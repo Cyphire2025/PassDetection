@@ -1,0 +1,158 @@
+{
+  "files": [
+    {
+      "path": "backend/tests/integration/test_qualifier_selection_api.py",
+      "sha256": "123009f2089808e669ce44ec3d874930668a3f8029f639b252decede0acc62ca",
+      "physical_lines": 169,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete169-line read. Retained public dashboard upload-link configured qualifier create/resume, normal listed vs explicit Other paths, hashed persisted selection bearer, no bearer returned on resume, disabled methods/parent and exact-exclusive422. HTTP/source assertions only, no service execution."
+    },
+    {
+      "path": "backend/tests/unit/application/test_qualifier_entry_options.py",
+      "sha256": "0047be9f36e847fc3f5e7e61bd19e3c7d1a8d9975fc875fb50d41f8f88153fd3",
+      "physical_lines": 123,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete123-line read. Real model/entity configuration mapping, legacy listed-only default, parent-disabled options, require one entry method, current creation/resume enablement, NFC custom label100-length/control-character policy and consumed historical label preservation. Existing regression data read only, no new payload campaign."
+    },
+    {
+      "path": "backend/tests/unit/domain/test_custom_questions.py",
+      "sha256": "4e557fa359b82a8f2202610109e11f44be2c80ad6fd62e0f71df462c4fa68c34",
+      "physical_lines": 140,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete140-line read. Bounded canonical choice/detail definitions, casefold duplicate rules, stable historical labels, required-by-default/individually optional and disabled questions, unknown IDs and optional invalid options rejected. Whole current pure validation owner read; HTTP admission cardinality/service paths not covered here."
+    },
+    {
+      "path": "backend/tests/unit/domain/test_qualifier_relations.py",
+      "sha256": "24e63026e0386eab408e26304f3ce29e4ce05ab44a98f82d6ff8ee55b0a680c6",
+      "physical_lines": 71,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete71-line read. Canonical stable enum/options/labels, family allowlist, Self exclusive path and qualifier bearer hashing/length checks. Whole current value-object consumer read; assertions not statistical cryptographic/service proof."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_qualifier_other_migration.py",
+      "sha256": "169e46901df4f594a829acfa7110bdc3fdc25777783a3cf626668ceb758b928a",
+      "physical_lines": 58,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete58-line read. Current0091 predecessor, offline PostgreSQL DDL for expanded text/Other constraints without rewriting data, downgrade refuses before DDL for stored custom/long answers and checks both tables. Mock/offline assertions do not establish populated database migration proof; published source untouched."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_relation_qualifier_migration.py",
+      "sha256": "c7ce0847bead26d56bcedfd241ccc941fd64976eb81fb82a7e0a3b91ea45c8f6",
+      "physical_lines": 63,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete63-line read. Historical0037 predecessor and same-group composite RESTRICT FK/counted creation/drop calls. Misnamed historical current-head test checks predecessor only, not actual present migration topology; no data/DDL execution."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_qualifier_schemas.py",
+      "sha256": "d8bb96b60af4a8f5da7426a27eff442f82d9b04d054fed1c9f3cf94f43d4e392",
+      "physical_lines": 84,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete84-line read. Existing group destination/date/default flag and one-of qualifier request/unknown-field/entry-method schema guards; actual current qualifier request model read. No schema changes or public/native ingress work."
+    },
+    {
+      "path": "backend/app/application/use_cases/client_groups/create_qualifier_selection_use_case.py",
+      "sha256": "a1728ffa9e42ef3548017dfe1dc515fed229fb6ea33ebefccc8552b9027e994f",
+      "physical_lines": 89,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole current source read. Active/import-only/group-parent/config validation, fresh high-entropy short-lived bearer hashed before save, safe group/selection-only logs and create-only token DTO. Repository supplied by actual route dependency; no provider/network action."
+    },
+    {
+      "path": "backend/app/application/use_cases/client_groups/get_qualifier_selection_use_case.py",
+      "sha256": "30fa653479f7917ec0e5cc6b60f87e342b972da52f38c3ea0f3012c8abb37a9c",
+      "physical_lines": 67,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole current source read. Same-group hashed selection lookup, consumed-before-expired status precedence and current settings recheck only active choice. Resume DTO does not return bearer; legacy historical answers retained."
+    },
+    {
+      "path": "backend/app/domain/value_objects/qualifier_relations.py",
+      "sha256": "9f50acde7e0eede23f2a39fbfced5bb3afab73fb7788d53b76e7ab1a0b919520",
+      "physical_lines": 152,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole current source read. Ordered immutable relation-code catalog/options copies, NFC and category/length/exclusive path validation, current parent/entry-method gate and normalized bounded bearer hash. Existing policy preserved without new adversarial inputs."
+    },
+    {
+      "path": "backend/app/domain/value_objects/custom_questions.py",
+      "sha256": "c2a92a0a801a7651dadf243adba4e250ce0041f1a8b01271a61a90c93d065ebb",
+      "physical_lines": 265,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole current source read. Purpose-specific typed definitions and answer snapshots with ID/casefold/limits/required/default checks, validated current definitions, unknown/duplicate answer rejection and canonical historical labels. Legitimate cohesive validation owner; no forced split or invented optimization."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/qualifier_selection_repository.py",
+      "sha256": "f69195cc4735695efe1ac03db4104ee1efb04941d2b93822b542f53fbc93446f",
+      "physical_lines": 85,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole current source read. Same-group AND hashed-token SQL with optional lock, UTC compatibility mapping, explicit flush-save and consumption ID projection. Read claim only, no live PostgreSQL/locking concurrency qualification."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/client_group_qualifier_schemas.py",
+      "sha256": "5360d1e3c4a935df8e9b6b1a210be2dc79b0e45d26310b9095f802475c11e59b",
+      "physical_lines": 71,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole current source read. Forbid extra fields, one-of typed input with NFC Other normalization/domain-policy reuse and create-only token response vs safe resumable state projection."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_groups.py",
+      "sha256": "b48a7e4843e9f1b8d48d7a3483e5ad4d52eac984e65c05a9b78b716559b13179",
+      "physical_lines": 859,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physically read179-196 actual two qualifier dependency factories and489-523 public create/get route decorators/forwarding/header aliases and bounds. Other facade/import catalog not fully read here; no other workflow edits."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_public_collection.py",
+      "sha256": "accb96e643cabdf450bc456fca5284e4a0007c490abac2b74630540f10c77bd6",
+      "physical_lines": 137,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physically read89-end, including complete qualifier create/resume HTTP/domain error mapping and safe DTO validation; preceding group/reopen/telemetry not wholly read here."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/client_group_schemas.py",
+      "sha256": "3c4e4bcc5c3d84548c5b2be38a5464b5a5bece5879306b4604cf9fc9c123c96b",
+      "physical_lines": 89,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical48-65 selected qualifier schema reexports only; broader schema catalog not full read here."
+    },
+    {
+      "path": "backend/app/domain/value_objects/upload_configuration.py",
+      "sha256": "c0037adcd30fdfd24dabf764882ddd8d23733d67d22438d1ac50d2d1d8e4f119",
+      "physical_lines": 162,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical89-112 focused normalize/configuration parent-entry-method validation and adjacent capture prefix; two49-50 default declarations located by rg. Remaining collection/native policy not audited or changed."
+    }
+  ],
+  "scope": "Seven newly current-full test files, six whole supporting sources (prior review credit separate), four focused actual consumers. Retained web/dashboard qualifier/custom question flow; published migrations immutable; no native ingress or Operations Inbox."
+}

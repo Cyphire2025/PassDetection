@@ -1,0 +1,166 @@
+{
+  "files": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_composer_support.py",
+      "sha256": "6cc3a753b6ad7b746a3707ae743f158307a8a3779d9b9f29402da08deaef5018",
+      "physical_lines": 511,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "needs-follow-up",
+      "notes": "Complete current physical source read in bounded, untruncated chunks. Architecture/action-lifetime follow-through remains independent of read coverage. No app checks or runtime/test changes in this preflight."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_composer.py",
+      "sha256": "29651e2747c95b9fd257458ea54fa89b93e3fba98c3d95b6bf7961eb52f726bf",
+      "physical_lines": 360,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "needs-follow-up",
+      "notes": "Complete current physical source read in bounded, untruncated chunks. Architecture/action-lifetime follow-through remains independent of read coverage. No app checks or runtime/test changes in this preflight."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_resend.py",
+      "sha256": "1af6956e51c098a8b6ffa3e160c875f88b525b217508309cc832d0ab32b25bb2",
+      "physical_lines": 432,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "needs-follow-up",
+      "notes": "Complete current physical source read in bounded, untruncated chunks. Architecture/action-lifetime follow-through remains independent of read coverage. No app checks or runtime/test changes in this preflight."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend.py",
+      "sha256": "df04ecaf6aa190eea5091e6ffd6d153e3ca069e218dcc44a51df61192b37f8f2",
+      "physical_lines": 343,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "needs-follow-up",
+      "notes": "Complete current physical source read in bounded, untruncated chunks. Architecture/action-lifetime follow-through remains independent of read coverage. No app checks or runtime/test changes in this preflight."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_shared.py",
+      "sha256": "a0350f00c141d9e44eb016e6dcf7090bea09ce47201dcb190228e30425466ccc",
+      "physical_lines": 220,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded, untruncated chunks. Architecture/action-lifetime follow-through remains independent of read coverage. No app checks or runtime/test changes in this preflight."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_composer.py",
+      "sha256": "ab61255d40c486c7ffa28aaa3fee83d6cb8c1fba4c35cbb2eccc6d55a922ea3d",
+      "physical_lines": 202,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded, untruncated chunks. Architecture/action-lifetime follow-through remains independent of read coverage. No app checks or runtime/test changes in this preflight."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_support.py",
+      "sha256": "d4ecbe74c00180af07966d9018e0b12e922df57cd7660ebc1bc4881248b0e4a6",
+      "physical_lines": 330,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded, untruncated chunks. Architecture/action-lifetime follow-through remains independent of read coverage. No app checks or runtime/test changes in this preflight."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_resend_payload.py",
+      "sha256": "d404e35dfb0eec737193e29f24de045324f456fe871f4048dbf851459c1e5789",
+      "physical_lines": 21,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded, untruncated chunks. Architecture/action-lifetime follow-through remains independent of read coverage. No app checks or runtime/test changes in this preflight."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_history_resend.py",
+      "sha256": "b7e6738492ef0ce1ced89877335662de95116be8b690dec954e7052ed6c3ceb2",
+      "physical_lines": 180,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded, untruncated chunks. Architecture/action-lifetime follow-through remains independent of read coverage. No app checks or runtime/test changes in this preflight."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_archive_policy.py",
+      "sha256": "d1cda4800cc392ba5949e982eda4a96aad50bed6a2fccf7b9625a4e17d0b755e",
+      "physical_lines": 13,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded, untruncated chunks. Architecture/action-lifetime follow-through remains independent of read coverage. No app checks or runtime/test changes in this preflight."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_composer_persistence.py",
+      "sha256": "3a92afe90bb8c2daa6156426295669135303dde0de7767eea0012c879cb181cd",
+      "physical_lines": 677,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded, untruncated chunks. Architecture/action-lifetime follow-through remains independent of read coverage. No app checks or runtime/test changes in this preflight."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_bulk_resend.py",
+      "sha256": "d5710134692635a759d5665fff99aceb536c4c5e112cbb3c7c5837475f57dd07",
+      "physical_lines": 554,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded, untruncated chunks. Architecture/action-lifetime follow-through remains independent of read coverage. No app checks or runtime/test changes in this preflight."
+    },
+    {
+      "path": "frontend/features/whatsapp/api/broadcast-media.api.ts",
+      "sha256": "9a6c38817ca9e0ec4214eb84260e866852565546a7ed4b6ff773091bb6ab5165",
+      "physical_lines": 17,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded, untruncated chunks. Architecture/action-lifetime follow-through remains independent of read coverage. No app checks or runtime/test changes in this preflight."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_scope.py",
+      "sha256": "31d4d2d26d1057b267463fe0116a3faee14a6cdecf08773bc9a22dd6acf4868f",
+      "physical_lines": 178,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "needs-follow-up",
+      "notes": "Lines1\u2013131: complete existing actor-lock/statement/release-auth owners. Remaining template/scope source not read in this tranche."
+    },
+    {
+      "path": "backend/app/infrastructure/security/upload_security.py",
+      "sha256": "293afb52d404d9dc96dd0d303620891274d8654d1e21c2d81ccc844c2d5e4102",
+      "physical_lines": 451,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "needs-follow-up",
+      "notes": "Lines63\u2013201: validate_image complete and early public-file helper. Independent scanner/evidence/storage owners remain prior scopes; no new whole-source credit."
+    },
+    {
+      "path": "backend/app/infrastructure/security/upload_validator.py",
+      "sha256": "1594a12c88f7f1e9eb0f7527ab99603f92830c4fb8f4e5c4920c878fbf94e49b",
+      "physical_lines": 338,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "needs-follow-up",
+      "notes": "Lines1\u201370: actual ValidatedUpload DATA contract/imports only, no native/decoder policy review credit."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/user_repository.py",
+      "sha256": "a91bd9de4ef129c714c39cbda7ddc3d782fe7b3474fcb8f65837642fa5cb4737",
+      "physical_lines": 140,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "needs-follow-up",
+      "notes": "Lines1\u2013115: complete current get_by_id and mapping credential/session defaults; remaining repository not read in this tranche."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_import_transactions.py",
+      "sha256": "c45ee8f2800eb2d8736000b785cd60086d2ad232ed41fe52dcab26422690d4ba",
+      "physical_lines": 312,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "needs-follow-up",
+      "notes": "Lines1\u201387: existing active actor/agency lock SQL instrumentation. Remaining import tests not read in this tranche."
+    }
+  ]
+}

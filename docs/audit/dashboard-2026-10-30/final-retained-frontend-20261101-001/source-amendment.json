@@ -1,0 +1,21 @@
+{
+  "reason": "Actual failed final Node contract and production build. Only stale QR owner assertions and pixel-preserving ICO encoding/decoder contract change.",
+  "changes": {
+    "frontend/app/favicon.ico": {
+      "before": "4d31aaecf1864449db9a2c4322930e406b598813c5de73f19028f1cd953217f2",
+      "after": "f39b336c2e0ff18a1122aa2b262452f8805172f5f765dceb61491d42892e1c3e"
+    },
+    "frontend/components/brand/favicon-asset.test.mjs": {
+      "before": "4c7ddb9b1276bd31413d970cb9c237248b7bba4131fc20a3e1caf444a343b89d",
+      "after": "8bb94cd0a2eb18e03f0a404edadf04c7b74effd0f1e2c3c9e164ce6c92ccdebe"
+    },
+    "frontend/features/whatsapp/components/whatsapp-activity-tracker.contract.test.mjs": {
+      "before": "ee30f4aed57fd6c8fcf569c2ec3fdeee4297f79eba112861475e5f828a6cb791",
+      "after": "76da046d16820ebcb8bab2f76bea17e718cc4ad1832dd9edc8d8b6dff69a75bd"
+    }
+  },
+  "unchanged_original_paths": 1793,
+  "original_results_preserved": "results.json",
+  "original_vitest_coverage_preserved": true,
+  "continuity": "All application TS/TSX/JS/CSS, Vitest tests/config, coverage owners/thresholds, budgets, dependencies and lock files remain byte-exact. Existing2048unit results/current coverage are retained at their exact tested source; no recomputation or date renewal."
+}

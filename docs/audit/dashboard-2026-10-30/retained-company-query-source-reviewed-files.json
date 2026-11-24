@@ -1,0 +1,59 @@
+{
+  "status": "Retained company directory/index and staff people history source cohort; physical reads complete",
+  "files": [
+    {
+      "path": "backend/tests/integration/test_company_directory.py",
+      "sha256": "027f4bd3a96847532ad621162c9ae4c17eb8e93c98c1344a3392f020c47aa3fd",
+      "physical_lines": 299,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-299. Tenant-scoped normalized company uniqueness and DB composite reference, revision conflict/status/name stability, staff lookup cannot view history, keyset beyond old cap/cursor scope binding. New public/import-only group requires same-tenant active company, company-only reassignment leaves closed/archive/token/purge state unchanged and grants no GC access. Populated move requires reviewed roster revision, frozen prior participation/profile stays source company, active claim revoked and durable reconciliation target exact. Deleted-company tombstone preserves people history. Existing relational fixtures only read, no DB/test execution."
+    },
+    {
+      "path": "backend/tests/integration/test_company_directory_index.py",
+      "sha256": "0fdd08766a595472d0460e8de2cc0178ef5b19c381e8a68d00353219169e6f0e",
+      "physical_lines": 279,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-279. Scoped encrypted prefix intersection search bounded tokens/name parts and opaque numeric rank, source chronology rather than registration age, generation-bound keyset and page-size cutoff. Visible-source counters exclude retained snapshots/other-company groups; projection admission coalesces transactionally, rollback and resumable backfill preserve queue work. Local rebalance/rename/delete keeps source rows; exhausted retry private error code only.103-person paged query-count contract is existing assertion, not newly measured performance. No SQL/service/test execution."
+    },
+    {
+      "path": "backend/tests/integration/test_company_people.py",
+      "sha256": "e76274f1b0544d4b3d813887bd44db994c942a2b0cb31ab35d335fe88e2c0537",
+      "physical_lines": 288,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-288. Synthetic staff master edits remain idempotent and revoke grants while preserving immutable trips/source fields; directory deduplicates and exposes last4 without object keys. Owned candidate upload only promotes after saved receipt/revision checks, rejects cross-person identity and newer edit, staff private-history authority never fabricates personal consent. Original-source fallback honors office visibility and trusted source chronology, staff-copy authority rechecks exact tenant/person/version/retention/withdrawal/provenance. No storage/provider/publish/test execution or root workflow changes."
+    },
+    {
+      "path": "backend/app/application/companies/document_publication.py",
+      "sha256": "3666febf0a0b0480d367c5c9d6b6e5d11208227a7f72fdc175783d61b04ff0ec",
+      "physical_lines": 94,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-94. Current caller-held person lock/owned upload contract, retained authority withdrawal and exact tenant/person receipt join, actor/purge/candidate/revision/passport guards, idempotent already-available result. Publication/promotion/inherited-side pending/canonical identity revision/revocation/event/audit/flush ordering retained. Existing root behavior not reopened; no storage/provider calls."
+    },
+    {
+      "path": "backend/app/application/companies/directory_query.py",
+      "sha256": "29d0f3493f9670dfc89ac65d440b0ff1b3f251e8469e4d6c325e0cfe16927752",
+      "physical_lines": 115,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "focused",
+      "notes": "Physical61-115 only. Actual generation/actor/company/search/sort/filter cursor and profile/key-version projection filter, visible-source grouping and manager-specific chronology, +1 page, opaque next key and indexing status. Does not imply full import/helper review or fresh query-count proof."
+    },
+    {
+      "path": "backend/app/application/companies/current_record.py",
+      "sha256": "f712f0c6a9f174c438baca87b0c6fc45186b7fee46d5662af0a59d32f370053a",
+      "physical_lines": 181,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "focused",
+      "notes": "Physical53-115 only. Actual caller-owned record lock, scoped idempotency digest/revision, reviewed field correction, current contact transition, unverified staff phone evidence, canonical identity/version/revocation/event/audit/flush. No whole181-line source credit or changes to root frozen authority policies."
+    }
+  ]
+}

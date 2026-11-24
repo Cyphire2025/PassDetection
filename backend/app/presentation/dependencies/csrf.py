@@ -12,10 +12,13 @@ _CSRF_FAILURE_DETAIL = "Cross-site request validation failed."
 
 
 def _normalized_origin(value: str) -> tuple[str, str, int | None] | None:
-    parsed = urlsplit(value.strip())
+    try:
+        parsed = urlsplit(value.strip())
+        port = parsed.port
+    except ValueError:
+        return None
     if parsed.scheme not in {"http", "https"} or not parsed.hostname:
         return None
-    port = parsed.port
     if (parsed.scheme == "http" and port == 80) or (
         parsed.scheme == "https" and port == 443
     ):

@@ -102,7 +102,7 @@ class GateTests(unittest.TestCase):
                 "completed_at": "2026-10-01T00:50:00Z"}
 
         def api(_):
-            return {"workflow_runs": [run]} if "/workflows/" in _ else {"total_count": 1, "jobs": [gate]}
+            return {"total_count": 1, "workflow_runs": [run]} if "/workflows/" in _ else {"total_count": 1, "jobs": [gate]}
 
         self.assertTrue(qualified_push_base(api, repository, 2, SOURCE, "main"))
         for field, value in (("status", "in_progress"), ("head_branch", "develop"),
@@ -132,7 +132,7 @@ class PushBaselineTests(unittest.TestCase):
     def api(self, path):
         self.paths.append(path)
         if "/workflows/" in path:
-            return {"workflow_runs": self.runs}
+            return {"total_count": len(self.runs), "workflow_runs": self.runs}
         identifier = int(path.split("/runs/")[1].split("/")[0])
         return {"total_count": len(self.jobs[identifier]), "jobs": self.jobs[identifier]}
 
@@ -197,6 +197,36 @@ class PushBaselineTests(unittest.TestCase):
         self.assertFalse(self.qualified())
         other["updated_at"] = None
         self.assertFalse(self.qualified())
+
+    def test_a_full_page_cannot_hide_an_unobserved_later_completed_gate(self):
+        self.runs = []
+        for index in range(20):
+            identifier = 100 + index
+            self.runs.append({**self.run, "id": identifier})
+            self.jobs[identifier] = [{**self.gate, "id": 1000 + index, "run_id": identifier}]
+
+        def api(path):
+            if "/workflows/" in path:
+                # The omitted21st run may have started earlier and finished later.
+                # Twenty visible successes cannot establish its gate outcome.
+                return {"total_count": 21, "workflow_runs": self.runs}
+            return self.api(path)
+
+        self.assertFalse(qualified_push_base(api, self.repository, 2, SOURCE, "main"))
+        self.assertTrue(self.qualified(), "A complete bounded20-run history remains eligible")
+
+    def test_unknown_or_inconsistent_run_counts_require_fresh_checks(self):
+        for count in (None, True, 0, 2):
+            with self.subTest(count=count):
+                def api(path, count=count):
+                    if "/workflows/" in path:
+                        result = {"workflow_runs": self.runs}
+                        if count is not None:
+                            result["total_count"] = count
+                        return result
+                    return self.api(path)
+
+                self.assertFalse(qualified_push_base(api, self.repository, 2, SOURCE, "main"))
 
 
 class ProvenanceTests(unittest.TestCase):

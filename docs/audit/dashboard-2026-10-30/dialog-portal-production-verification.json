@@ -1,0 +1,71 @@
+{
+  "status": "passed portal-specific runtime/browser checkpoint; separate text-wrapping follow-through active",
+  "frozen_runtime_inclusive_files": 1634,
+  "excluded_verifier_tools": "Exactly seven independently source-fenced active browser-verifier/operator helpers plus their documentation; see manifest.",
+  "build_id": "ZVLp8MXKE6IoTayf51zGq",
+  "affected_unit_cases": 55,
+  "affected_unit_files": 7,
+  "new_shared_dialog_cases": 5,
+  "node_contracts": 36,
+  "existing_module_budgets": 526,
+  "critical_production_browser_cases": 9,
+  "portal_geometry": [
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overlay": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 844
+      },
+      "dialog": {
+        "x": 16,
+        "y": 138.5,
+        "width": 358,
+        "height": 567
+      },
+      "body_portal": true
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overlay": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 1000
+      },
+      "dialog": {
+        "x": 336,
+        "y": 282.5,
+        "width": 768,
+        "height": 435
+      },
+      "body_portal": true
+    }
+  ],
+  "current_feature_browser_bundle": "Separate qualified verifier receipt preserves responsiveFresh6+4,composers6,roster/history/recovery3 and actualmodel/CSP/scalar/SIMD/failure controls; do not add overlapping cases to oldercheckpoint totals.",
+  "fresh_build_and_runtime_source_binding": "839402186eb82b93b694e4adda93bf65d1ff3d1e96681bd4cfca7a9b0993ce1a",
+  "receipts_sha256": {
+    "dialog-portal-production-source-checkpoint.json": "33c26efc562b3225459e654c11293013b503ce1ebcf6c74ed26cc6372284df85",
+    "dialog-portal-production-source-verification.json": "a59638267369dfe9349428d59cc42e1d6aada7ed083c23aaa56a19bebca99acc",
+    "dialog-portal-production-build.txt": "4ca9b9380825a02026669bddb6f2b0eee2ebb80d70d5df7696f409f5390929fc",
+    "dialog-portal-production-artifact.json": "c18eec4e44d1ffbf211e601e5ada8021cc2d8c0bd6995fa01a969a15d9a59993",
+    "dialog-portal-production-browser.json": "78c1799bc4a4dd541757fcb743722d68039039c2b6e572668ace5fece4143a33",
+    "frontend-verifier-migration-verification.json": "ed5da96cd741413b633930467297822fa0e6b0fb44c78d4169535a974eec7979",
+    "frontend-dialog-portal-production-geometry.json": "742b6f6d6f3f665b937c4ee9ab71cad9703bb247d6fa2ff94f4a7ccf727adc9f",
+    "frontend-review-message-inner-overflow-before.json": "bd2c85089d53de9b1638fdaacb6fb5f7cb891e8fc29dae4430553bd37dba0622",
+    "dialog-portal-reviewed-files.json": "45cc9a97c48ebf26136e75ce2e98387772cc530cef2ca17275528877a66dd7fe"
+  },
+  "limits": [
+    "This receipt qualifies the archived portal/runtime artifact. Further real text-wrapping changes require their own actual rendered/current-build evidence.",
+    "No whole1829-case suite was repeated for this narrow runtime correction after55affected cases passed. Final whole-dashboard combined qualification remains open.",
+    "Mocked private API fixtures prove UI contracts and contain sends; they do not establish provider delivery or server authorization. Real model diagnostic assertions are labeled separately.",
+    "No real-service or VPS deployment qualification; no commit/push/deploy/provider send."
+  ]
+}

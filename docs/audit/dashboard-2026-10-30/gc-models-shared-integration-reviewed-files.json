@@ -1,0 +1,26 @@
+[
+  {
+    "path": "backend/backend_quality_budgets.json",
+    "sha256": "5b4249b233c075481e258760b8721462f2190e4754312e361b05349aaf2cde46",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Generated policy/data integration reviewed against original exactvalues, measured19-owner99.81floor and275sourcefence. Current900static/wholearchitecture/144AFTER+288actualGitBEFORE/14strictloadercases+335separatesubtests pass. All881otheroldnormal/165critical/global/126BEFOREpairs/124otherAFTERrows exact; only18measurednewnormal/18absent-baselinebindingrows plusGCfacade/budgetAFTER changes. Policyrawinverseonlydigest/count126to144 exact. No schema/provider/native/Inbox/image/service/production/clean-release certification. See gc-models-shared-integration-verification.json."
+  },
+  {
+    "path": "scripts/release_workspace_branding_bindings.json",
+    "sha256": "cdac254b1fba4d15d92728870aea8da984648ad1100ba9a671d1ad227bd17631",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Generated policy/data integration reviewed against original exactvalues, measured19-owner99.81floor and275sourcefence. Current900static/wholearchitecture/144AFTER+288actualGitBEFORE/14strictloadercases+335separatesubtests pass. All881otheroldnormal/165critical/global/126BEFOREpairs/124otherAFTERrows exact; only18measurednewnormal/18absent-baselinebindingrows plusGCfacade/budgetAFTER changes. Policyrawinverseonlydigest/count126to144 exact. No schema/provider/native/Inbox/image/service/production/clean-release certification. See gc-models-shared-integration-verification.json."
+  },
+  {
+    "path": "scripts/release_workspace_branding_policy.py",
+    "sha256": "3710f25e35696b6c8859b248e4f74b8d3221ea5a39f794b9f9813be00286cb90",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Generated policy/data integration reviewed against original exactvalues, measured19-owner99.81floor and275sourcefence. Current900static/wholearchitecture/144AFTER+288actualGitBEFORE/14strictloadercases+335separatesubtests pass. All881otheroldnormal/165critical/global/126BEFOREpairs/124otherAFTERrows exact; only18measurednewnormal/18absent-baselinebindingrows plusGCfacade/budgetAFTER changes. Policyrawinverseonlydigest/count126to144 exact. No schema/provider/native/Inbox/image/service/production/clean-release certification. See gc-models-shared-integration-verification.json."
+  }
+]

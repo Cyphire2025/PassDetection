@@ -1,0 +1,176 @@
+{
+  "method": "Full original1200line API read followed by full authored/current physical domain reads; typed AST/actual compiler bindings/type-equality and execution proof supplement manual review.",
+  "files": [
+    {
+      "path": "frontend/features/operations/api/operations.api.ts",
+      "sha256": "b17508f7b25e0e442b24fc4fdc420e469975d76943c13c157e730f9122a984c4",
+      "physical_lines": 150,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-restructured",
+      "notes": "Full original1200/current facade read. All61original methods and64types remain in original public order; direct function references preserve identity/descriptors without proxy/wrapper/this assumptions."
+    },
+    {
+      "path": "frontend/features/operations/api/operations-accounts.api.ts",
+      "sha256": "3f20bb6cfe3bb4e791023cdaac89efec5d08b18cb5f27e73b2470fbd652d962c",
+      "physical_lines": 101,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-restructured",
+      "notes": "Full original/current focused transport source read. All61typed arrow properties retain exact typed syntax/bindings/defaults/body order/signals/owner metadata. Three minified checkin methods formatted only after exact mechanical proof; no SDK behavior change."
+    },
+    {
+      "path": "frontend/features/operations/api/operations-audit.api.ts",
+      "sha256": "0241f0a107c2aa4071053a685fd5919950736ef03800af426ede9f3f505848cf",
+      "physical_lines": 57,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-restructured",
+      "notes": "Full original/current focused transport source read. All61typed arrow properties retain exact typed syntax/bindings/defaults/body order/signals/owner metadata. Three minified checkin methods formatted only after exact mechanical proof; no SDK behavior change."
+    },
+    {
+      "path": "frontend/features/operations/api/operations-tour.api.ts",
+      "sha256": "bb81e64d34b8b38399f63be3e299ba5b1697aca9156c5e49910518534bffa572",
+      "physical_lines": 75,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-restructured",
+      "notes": "Full original/current focused transport source read. All61typed arrow properties retain exact typed syntax/bindings/defaults/body order/signals/owner metadata. Three minified checkin methods formatted only after exact mechanical proof; no SDK behavior change."
+    },
+    {
+      "path": "frontend/features/operations/api/operations-rooming.api.ts",
+      "sha256": "4fd943882cf3599e5f0a02919fff9c233cab949e417615dfc8e36421e7eefc54",
+      "physical_lines": 106,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-restructured",
+      "notes": "Full original/current focused transport source read. All61typed arrow properties retain exact typed syntax/bindings/defaults/body order/signals/owner metadata. Three minified checkin methods formatted only after exact mechanical proof; no SDK behavior change."
+    },
+    {
+      "path": "frontend/features/operations/api/operations-checkin.api.ts",
+      "sha256": "b6e228ed910022835b618345ebe8a80a51116e8c1b2b992365b0841b209c65ea",
+      "physical_lines": 56,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-restructured",
+      "notes": "Full original/current focused transport source read. All61typed arrow properties retain exact typed syntax/bindings/defaults/body order/signals/owner metadata. Three minified checkin methods formatted only after exact mechanical proof; no SDK behavior change."
+    },
+    {
+      "path": "frontend/features/operations/api/operations-attendance.api.ts",
+      "sha256": "e5fcb39fa2768ad5aea25e34f3f2c352afa8ad89ce46c4aacc8f35ea8a06bf0b",
+      "physical_lines": 210,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-restructured",
+      "notes": "Full original/current focused transport source read. All61typed arrow properties retain exact typed syntax/bindings/defaults/body order/signals/owner metadata. Three minified checkin methods formatted only after exact mechanical proof; no SDK behavior change."
+    },
+    {
+      "path": "frontend/features/operations/api/operations-qr.api.ts",
+      "sha256": "5d0a0502b976c7e4cafb4370052ac811c04844e0e90be26d5b51eab423ac61d6",
+      "physical_lines": 62,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-restructured",
+      "notes": "Full original/current focused transport source read. All61typed arrow properties retain exact typed syntax/bindings/defaults/body order/signals/owner metadata. Three minified checkin methods formatted only after exact mechanical proof; no SDK behavior change."
+    },
+    {
+      "path": "frontend/features/operations/api/operations-accounts.types.ts",
+      "sha256": "85009b02c244c5012f4d2b932552dc5f4822f535b70172bc510d0e4e46be49e4",
+      "physical_lines": 87,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-restructured",
+      "notes": "Full original/current domain DTO/type declarations physically read. All64types retain exact typed syntax and actual definition bindings; two minified checkin interfaces formatted only after exact mechanical proof."
+    },
+    {
+      "path": "frontend/features/operations/api/operations-audit.types.ts",
+      "sha256": "924b8d50da9c8e5c650ff7ec913c98ab015e647603433b41a9a10eafba36e447",
+      "physical_lines": 39,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-restructured",
+      "notes": "Full original/current domain DTO/type declarations physically read. All64types retain exact typed syntax and actual definition bindings; two minified checkin interfaces formatted only after exact mechanical proof."
+    },
+    {
+      "path": "frontend/features/operations/api/operations-tour.types.ts",
+      "sha256": "cb678caa14c6b2b1a06bd799d6448a2549c6236f35774b61ddc2cef2fe5f53ad",
+      "physical_lines": 91,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-restructured",
+      "notes": "Full original/current domain DTO/type declarations physically read. All64types retain exact typed syntax and actual definition bindings; two minified checkin interfaces formatted only after exact mechanical proof."
+    },
+    {
+      "path": "frontend/features/operations/api/operations-rooming.types.ts",
+      "sha256": "1eb2015b246c11dc14193335842ef35fac0ac9e143ac9d17e65519dc35766917",
+      "physical_lines": 121,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-restructured",
+      "notes": "Full original/current domain DTO/type declarations physically read. All64types retain exact typed syntax and actual definition bindings; two minified checkin interfaces formatted only after exact mechanical proof."
+    },
+    {
+      "path": "frontend/features/operations/api/operations-checkin.types.ts",
+      "sha256": "4d42d4b8a9e0cc74a1e4e9afb1ec8a0caa43dfb279d0ec97fe8024e7e4cc9e12",
+      "physical_lines": 46,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-restructured",
+      "notes": "Full original/current domain DTO/type declarations physically read. All64types retain exact typed syntax and actual definition bindings; two minified checkin interfaces formatted only after exact mechanical proof."
+    },
+    {
+      "path": "frontend/features/operations/api/operations-attendance.types.ts",
+      "sha256": "ee3c7f2cae67bacd11d124cb1eb2db61b1bd67ca53a136f9886f71e88086f4d3",
+      "physical_lines": 192,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-restructured",
+      "notes": "Full original/current domain DTO/type declarations physically read. All64types retain exact typed syntax and actual definition bindings; two minified checkin interfaces formatted only after exact mechanical proof."
+    },
+    {
+      "path": "frontend/features/operations/api/operations-qr.types.ts",
+      "sha256": "c0d6d5af5f58de01da3d0a10bc5e0819856edb5d6db59a6430f17dc5b1039d18",
+      "physical_lines": 78,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-restructured",
+      "notes": "Full original/current domain DTO/type declarations physically read. All64types retain exact typed syntax and actual definition bindings; two minified checkin interfaces formatted only after exact mechanical proof."
+    },
+    {
+      "path": "frontend/features/operations/api/operations-api-source.contract-helper.mjs",
+      "sha256": "dda3678c55cc5a17456c6247173a3a6aed141bc0d6f4d77245104ad0d705c92e",
+      "physical_lines": 33,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-restructured",
+      "notes": "Full authored/read actual facade import/property/type export ownership helper;61method references and64real declarations resolve to14current domain sources, no historical source injection."
+    },
+    {
+      "path": "frontend/features/operations/components/qr-whatsapp-delivery.contract.test.mjs",
+      "sha256": "b195a31ed836e7cc52b33e8eb2e305d73606591b331ea69dcf80505d3c577ff0",
+      "physical_lines": 34,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-restructured",
+      "notes": "Full prior/current contract source read; import/loader only retargeted to actual facade/direct owner graph. Every current test body byte-identical; previous hook-wrapper forbidden-action strengthening remains intact."
+    },
+    {
+      "path": "frontend/features/operations/components/rooming-redesign.contract.test.mjs",
+      "sha256": "2be5fd64e061a7673100a184643c397f307a29c04c4e7ff39feca01bea5e5435",
+      "physical_lines": 230,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-restructured",
+      "notes": "Full prior/current contract source read; import/loader only retargeted to actual facade/direct owner graph. Every current test body byte-identical; previous hook-wrapper forbidden-action strengthening remains intact."
+    },
+    {
+      "path": "frontend/features/tour-operations/components/coordinator-pwa.contract.test.mjs",
+      "sha256": "a818de296469b7db13657fbf76ab0e8ba02222ab34c985883288bc11a550fffc",
+      "physical_lines": 450,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-restructured",
+      "notes": "Full prior/current contract source read; import/loader only retargeted to actual facade/direct owner graph. Every current test body byte-identical; previous hook-wrapper forbidden-action strengthening remains intact."
+    }
+  ]
+}

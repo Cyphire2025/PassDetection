@@ -1,0 +1,74 @@
+[
+  {
+    "path": "backend/app/infrastructure/database/attendance_activity_models.py",
+    "sha256": "032b369aa88cd7dce0d19d6d19c2905f3e3cab16fa4a9bd8de25ef57d073b9b5",
+    "lines": 205,
+    "review_scope": "full",
+    "reviewer": "manual_security",
+    "status": "refactored",
+    "notes": "Complete original 1182-line model source read and complete physical current owner read. All16 original class ASTs unchanged through extraction; registered mapper/table metadata, column defaults/onupdate, constraints/indexes and PostgreSQL/SQLite DDL match in fresh processes. Original operations_models and database/models facade aliases retain identical class objects. No schema/migration/VPS setup/data operation."
+  },
+  {
+    "path": "backend/app/infrastructure/database/attendance_batch_models.py",
+    "sha256": "06eb473f6507d08e49d25acb2e4c68e62c4550bb70486a2c886203bff8f08ae7",
+    "lines": 171,
+    "review_scope": "full",
+    "reviewer": "manual_security",
+    "status": "refactored",
+    "notes": "Complete original 1182-line model source read and complete physical current owner read. All16 original class ASTs unchanged through extraction; registered mapper/table metadata, column defaults/onupdate, constraints/indexes and PostgreSQL/SQLite DDL match in fresh processes. Original operations_models and database/models facade aliases retain identical class objects. No schema/migration/VPS setup/data operation."
+  },
+  {
+    "path": "backend/app/infrastructure/database/attendance_closeout_models.py",
+    "sha256": "affc03c86907ae04fefb57be8920593393a6e2818837d6a9b816be63ff615878",
+    "lines": 243,
+    "review_scope": "full",
+    "reviewer": "manual_security",
+    "status": "refactored",
+    "notes": "Complete original 1182-line model source read and complete physical current owner read. All16 original class ASTs unchanged through extraction; registered mapper/table metadata, column defaults/onupdate, constraints/indexes and PostgreSQL/SQLite DDL match in fresh processes. Original operations_models and database/models facade aliases retain identical class objects. No schema/migration/VPS setup/data operation."
+  },
+  {
+    "path": "backend/app/infrastructure/database/attendance_runtime_models.py",
+    "sha256": "1798faed32a3c2528659180f3e8910b1ad0e9615299393caa1aa7556cf8739f5",
+    "lines": 211,
+    "review_scope": "full",
+    "reviewer": "manual_security",
+    "status": "refactored",
+    "notes": "Complete original 1182-line model source read and complete physical current owner read. All16 original class ASTs unchanged through extraction; registered mapper/table metadata, column defaults/onupdate, constraints/indexes and PostgreSQL/SQLite DDL match in fresh processes. Original operations_models and database/models facade aliases retain identical class objects. No schema/migration/VPS setup/data operation."
+  },
+  {
+    "path": "backend/app/infrastructure/database/operations_models.py",
+    "sha256": "c1b7d9231eca989eb9abd5a7d6bba605650b66bd7d9aba73abe2208519fe59f8",
+    "lines": 54,
+    "review_scope": "full",
+    "reviewer": "manual_security",
+    "status": "refactored",
+    "notes": "Complete original 1182-line model source read and complete physical current owner read. All16 original class ASTs unchanged through extraction; registered mapper/table metadata, column defaults/onupdate, constraints/indexes and PostgreSQL/SQLite DDL match in fresh processes. Original operations_models and database/models facade aliases retain identical class objects. No schema/migration/VPS setup/data operation."
+  },
+  {
+    "path": "backend/app/infrastructure/database/passenger_qr_models.py",
+    "sha256": "e815d9390a4a5c9544e43b2384f3791b4cb4d429a4b18bb7da7e37b897421d24",
+    "lines": 184,
+    "review_scope": "full",
+    "reviewer": "manual_security",
+    "status": "refactored",
+    "notes": "Complete original 1182-line model source read and complete physical current owner read. All16 original class ASTs unchanged through extraction; registered mapper/table metadata, column defaults/onupdate, constraints/indexes and PostgreSQL/SQLite DDL match in fresh processes. Original operations_models and database/models facade aliases retain identical class objects. No schema/migration/VPS setup/data operation."
+  },
+  {
+    "path": "backend/app/infrastructure/database/rooming_allocation_models.py",
+    "sha256": "a61c374e76078f8aa6f58f740b2c1415a3b20dcdd9d863b7a07465d6c376315f",
+    "lines": 139,
+    "review_scope": "full",
+    "reviewer": "manual_security",
+    "status": "refactored",
+    "notes": "Complete original 1182-line model source read and complete physical current owner read. All16 original class ASTs unchanged through extraction; registered mapper/table metadata, column defaults/onupdate, constraints/indexes and PostgreSQL/SQLite DDL match in fresh processes. Original operations_models and database/models facade aliases retain identical class objects. No schema/migration/VPS setup/data operation."
+  },
+  {
+    "path": "backend/app/infrastructure/database/rooming_property_models.py",
+    "sha256": "600b2c10646a400307fb2935a2785424b4a4e85aee77032581cb7435891ae839",
+    "lines": 154,
+    "review_scope": "full",
+    "reviewer": "manual_security",
+    "status": "refactored",
+    "notes": "Complete original 1182-line model source read and complete physical current owner read. All16 original class ASTs unchanged through extraction; registered mapper/table metadata, column defaults/onupdate, constraints/indexes and PostgreSQL/SQLite DDL match in fresh processes. Original operations_models and database/models facade aliases retain identical class objects. No schema/migration/VPS setup/data operation."
+  }
+]

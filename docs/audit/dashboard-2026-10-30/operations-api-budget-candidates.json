@@ -1,0 +1,107 @@
+[
+  {
+    "path": "features/operations/api/operations.api.ts",
+    "baselineLines": 150,
+    "maximumLines": 150,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/operations/api/operations-accounts.api.ts",
+    "baselineLines": 101,
+    "maximumLines": 110,
+    "baselineMaxFunctionComplexity": 1,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/operations/api/operations-audit.api.ts",
+    "baselineLines": 57,
+    "maximumLines": 60,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/operations/api/operations-tour.api.ts",
+    "baselineLines": 75,
+    "maximumLines": 80,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/operations/api/operations-rooming.api.ts",
+    "baselineLines": 106,
+    "maximumLines": 110,
+    "baselineMaxFunctionComplexity": 1,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/operations/api/operations-checkin.api.ts",
+    "baselineLines": 56,
+    "maximumLines": 60,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/operations/api/operations-attendance.api.ts",
+    "baselineLines": 210,
+    "maximumLines": 210,
+    "baselineMaxFunctionComplexity": 4,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/operations/api/operations-qr.api.ts",
+    "baselineLines": 62,
+    "maximumLines": 70,
+    "baselineMaxFunctionComplexity": 1,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/operations/api/operations-accounts.types.ts",
+    "baselineLines": 87,
+    "maximumLines": 90,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/operations/api/operations-audit.types.ts",
+    "baselineLines": 39,
+    "maximumLines": 40,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/operations/api/operations-tour.types.ts",
+    "baselineLines": 91,
+    "maximumLines": 100,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/operations/api/operations-rooming.types.ts",
+    "baselineLines": 121,
+    "maximumLines": 130,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/operations/api/operations-checkin.types.ts",
+    "baselineLines": 46,
+    "maximumLines": 50,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/operations/api/operations-attendance.types.ts",
+    "baselineLines": 192,
+    "maximumLines": 200,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/operations/api/operations-qr.types.ts",
+    "baselineLines": 78,
+    "maximumLines": 80,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  }
+]

@@ -1,0 +1,72 @@
+[
+  {
+    "path": "features/mcp/api/mcp.api.ts",
+    "baselineLines": 145,
+    "maximumLines": 160,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/mcp/api/mcp.types.ts",
+    "baselineLines": 183,
+    "maximumLines": 200,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/mcp/api/mcp-capabilities.ts",
+    "baselineLines": 28,
+    "maximumLines": 40,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/mcp/api/mcp-request.api.ts",
+    "baselineLines": 23,
+    "maximumLines": 40,
+    "baselineMaxFunctionComplexity": 8,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/mcp/hooks/use-mcp.ts",
+    "baselineLines": 25,
+    "maximumLines": 40,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/mcp/hooks/mcp-query-keys.ts",
+    "baselineLines": 1,
+    "maximumLines": 20,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/mcp/hooks/use-mcp-queries.ts",
+    "baselineLines": 89,
+    "maximumLines": 100,
+    "baselineMaxFunctionComplexity": 6,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/mcp/hooks/use-mcp-policy-mutations.ts",
+    "baselineLines": 56,
+    "maximumLines": 70,
+    "baselineMaxFunctionComplexity": 1,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/mcp/hooks/use-mcp-connection-mutations.ts",
+    "baselineLines": 53,
+    "maximumLines": 70,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/mcp/utils/consent.ts",
+    "baselineLines": 36,
+    "maximumLines": 50,
+    "baselineMaxFunctionComplexity": 22,
+    "maximumFunctionComplexity": 23
+  }
+]

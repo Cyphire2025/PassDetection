@@ -1,0 +1,28 @@
+{
+  "evidence": "docs/audit/dashboard-2026-10-30/legacy-upload-ratchet-changes.json",
+  "before_sha256": "9eaed7030aba5a06f4035b3ad93cb9aebab51210b31dc3c3bef0d877f0e52ff6",
+  "retired_paths": [
+    "features/upload/components/upload-flow-screen.tsx",
+    "features/upload/components/upload-flow-capture-stage.tsx",
+    "features/upload/components/upload-flow-review-stage.tsx",
+    "features/upload/components/upload-flow-selection-stage.tsx",
+    "features/upload/components/upload-acquisition-actions.ts",
+    "features/upload/hooks/use-upload-flow-controller.ts",
+    "features/upload/hooks/use-upload-traveller-draft.ts",
+    "features/upload/hooks/use-upload-qualifier.ts",
+    "features/upload/hooks/use-upload-flow-bootstrap.ts",
+    "features/upload/hooks/use-returning-family.tsx",
+    "features/upload/services/saved-passport-extraction.ts",
+    "features/upload/components/upload-flow.tsx",
+    "features/upload/components/upload-review-panels.tsx",
+    "features/upload/hooks/use-upload-documents.ts",
+    "features/upload/hooks/use-upload-submission.ts",
+    "features/upload/hooks/use-upload-operation.ts",
+    "features/upload/hooks/use-upload-family.ts",
+    "features/upload/services/upload-operation-state.ts",
+    "features/upload/services/family-upload-state.ts"
+  ],
+  "sha256_after_removals": "51843268b32de19eee788fa554f6951815903e467d53c0316e6125525b3bdbdc",
+  "preserved_surviving_budgets": 175,
+  "note": "Every removed budget source is absent; all surviving ceilings are unchanged. Active candidates are merged separately with measured-source checks."
+}

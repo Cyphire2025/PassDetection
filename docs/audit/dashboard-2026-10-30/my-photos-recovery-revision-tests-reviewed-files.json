@@ -1,0 +1,60 @@
+{
+  "files": [
+    {
+      "path": "backend/tests/integration/test_my_photos_refresh_authority.py",
+      "sha256": "af5f8655e992583aa285d44b01fcab51a13c2b8ec3590722881d681dbbd49b26",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Authored/manual full review: real SQLite FK/lease/order/bounded checkpoint or synthetic native Event/typed policy/serialization controls. No real provider, vault or production data."
+    },
+    {
+      "path": "backend/tests/integration/test_my_photos_recovery_lock_order.py",
+      "sha256": "b80cf44801e98e295eba13ceb76d18e935d60ab432d355944ed49148c67ea5ce",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Authored/manual full review: real SQLite FK/lease/order/bounded checkpoint or synthetic native Event/typed policy/serialization controls. No real provider, vault or production data."
+    },
+    {
+      "path": "backend/tests/integration/test_my_photos_recovery_dispatch_bounds.py",
+      "sha256": "a44966454802f598c974668ca8cadd204b97816e7910d5d9a993a5c203ce866a",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Authored/manual full review: real SQLite FK/lease/order/bounded checkpoint or synthetic native Event/typed policy/serialization controls. No real provider, vault or production data."
+    },
+    {
+      "path": "backend/tests/integration/test_my_photos_refresh_checkpoint.py",
+      "sha256": "dd8249160d3c4346981ce06dd20ec50dea33c88d6e4f3919ddab9a8b38f20ba6",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Authored/manual full review: real SQLite FK/lease/order/bounded checkpoint or synthetic native Event/typed policy/serialization controls. No real provider, vault or production data."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_my_photos_recovery_native_lifetime.py",
+      "sha256": "ea6453450bfba4f7caeffefde163a5e0431a40b506546c2241866d8e81d9398c",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Authored/manual full review: real SQLite FK/lease/order/bounded checkpoint or synthetic native Event/typed policy/serialization controls. No real provider, vault or production data."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_my_photos_recovery_owner_compatibility.py",
+      "sha256": "343487d861980aa55e051445fbdc34f9740ac9e210894e3c477d3977b2924524",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Authored/manual full review: real SQLite FK/lease/order/bounded checkpoint or synthetic native Event/typed policy/serialization controls. No real provider, vault or production data."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_my_photos_summary_projection.py",
+      "sha256": "e2768b4a72c5339fd352527a75338ff76dd2b92f38d7ba2886187d518f2fffed",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Authored/manual full review: real SQLite FK/lease/order/bounded checkpoint or synthetic native Event/typed policy/serialization controls. No real provider, vault or production data."
+    }
+  ]
+}

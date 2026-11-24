@@ -1,0 +1,660 @@
+FFFF..                                                                   [100%]
+================================== FAILURES ===================================
+_ test_actual_persisted_batch_status_keeps_age_counts_and_tenant_scope[queued-1-queued-1-0] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x00000221DF8ECBD0>
+stored_status = 'queued', minutes_old = 1, expected_status = 'queued'
+queued = 1, uncertain = 0
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("stored_status", "minutes_old", "expected_status", "queued", "uncertain"),
+        [
+            ("queued", 1, "queued", 1, 0),
+            ("queued", 60, "stalled", 0, 1),
+            ("processing", 1, "processing", 1, 0),
+            ("processing", 60, "stalled", 0, 1),
+            ("delivered", 60, "delivered", 0, 0),
+            ("failed", 60, "failed", 0, 0),
+        ],
+    )
+    async def test_actual_persisted_batch_status_keeps_age_counts_and_tenant_scope(
+        db_session: AsyncSession,
+        stored_status: str,
+        minutes_old: int,
+        expected_status: str,
+        queued: int,
+        uncertain: int,
+    ) -> None:
+        agency_id, group_id, recipient_id, batch_id = (uuid.uuid4() for _ in range(4))
+        actor = User(
+            id=uuid.uuid4(), email="staff@example.test", hashed_password="unused",
+            full_name="Staff", role=UserRole.AGENCY_STAFF, agency_id=agency_id,
+        )
+        db_session.add(AgencyModel(id=agency_id, name="Agency", email="agency@example.test"))
+        await db_session.flush()
+        db_session.add(WhatsAppBroadcastGroupModel(id=group_id, agency_id=agency_id, name="List"))
+        await db_session.flush()
+        db_session.add(WhatsAppBroadcastRecipientModel(
+            id=recipient_id, agency_id=agency_id, broadcast_group_id=group_id,
+            phone_number="9876543210", normalized_phone_number="+919876543210",
+        ))
+        await db_session.flush()
+        db_session.add(WhatsAppMessageLogModel(
+            agency_id=agency_id, broadcast_group_id=group_id, recipient_id=recipient_id,
+            batch_id=batch_id, message_type="reminder", status=stored_status,
+            status_updated_at=datetime.now(UTC) - timedelta(minutes=minutes_old),
+        ))
+        await db_session.commit()
+        db_session.expunge_all()
+        app = FastAPI()
+        app.include_router(router, prefix="/whatsapp")
+        app.dependency_overrides[get_current_active_user] = lambda: actor
+        app.dependency_overrides[get_db_session] = lambda: db_session
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+>           detail = await client.get(f"/whatsapp/batches/{batch_id}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\unit\presentation\test_whatsapp_batch_status_persistence.py:71: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\httpx\_client.py:1801: in get
+    return await self.request(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\httpx\_client.py:1574: in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\httpx\_client.py:1661: in send
+    response = await self._send_handling_auth(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\httpx\_client.py:1689: in _send_handling_auth
+    response = await self._send_handling_redirects(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\httpx\_client.py:1726: in _send_handling_redirects
+    response = await self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\httpx\_client.py:1763: in _send_single_request
+    response = await transport.handle_async_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\httpx\_transports\asgi.py:164: in handle_async_request
+    await self.app(scope, receive, send)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\fastapi\applications.py:1160: in __call__
+    await super().__call__(scope, receive, send)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\applications.py:90: in __call__
+    await self.middleware_stack(scope, receive, send)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\middleware\errors.py:186: in __call__
+    raise exc
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\middleware\errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\middleware\exceptions.py:63: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\fastapi\middleware\asyncexitstack.py:18: in __call__
+    await self.app(scope, receive, send)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\routing.py:660: in __call__
+    await self.middleware_stack(scope, receive, send)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\routing.py:680: in app
+    await route.handle(scope, receive, send)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\routing.py:276: in handle
+    await self.app(scope, receive, send)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\fastapi\routing.py:119: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\fastapi\routing.py:105: in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\fastapi\routing.py:431: in app
+    raw_response = await run_endpoint_function(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\fastapi\routing.py:313: in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+batch_id = UUID('cf27bbf0-2784-4fb3-a0d3-8284e0fb83f7')
+current_user = User(id=UUID('6d4b3474-b582-46fc-8ff8-7e9f0ef8494d'), email='staff@example.test', hashed_password='unused', full_name=...rsion=1, mfa_required=False, mfa_enabled=False, actual_role=None, actual_agency_id=None, access_level_agency_name=None)
+session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x00000221DF8ECBD0>
+
+    @router.get("/batches/{batch_id}", response_model=WhatsAppSendResponse)
+    async def get_broadcast_batch_status(
+        batch_id: uuid.UUID,
+        current_user: User = Depends(require_role(WHATSAPP_ROLES)),
+        session: AsyncSession = Depends(get_db_session),
+    ) -> WhatsAppSendResponse:
+        result = await session.execute(
+            select(
+                WhatsAppMessageLogModel.recipient_id,
+                WhatsAppBroadcastRecipientModel.normalized_phone_number,
+                WhatsAppMessageLogModel.status,
+                WhatsAppMessageLogModel.status_updated_at,
+                WhatsAppMessageLogModel.provider_message_id,
+                WhatsAppMessageLogModel.error_message,
+            )
+            .join(
+                WhatsAppBroadcastRecipientModel,
+                WhatsAppBroadcastRecipientModel.id == WhatsAppMessageLogModel.recipient_id,
+            )
+            .join(
+                WhatsAppBroadcastGroupModel,
+                WhatsAppBroadcastGroupModel.id == WhatsAppMessageLogModel.broadcast_group_id,
+            )
+            .where(
+                WhatsAppMessageLogModel.batch_id == batch_id,
+                *_agency_filter(current_user),
+            )
+            .order_by(WhatsAppMessageLogModel.created_at.asc())
+        )
+        rows = list(result.all())
+        if not rows:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="WhatsApp broadcast batch not found",
+            )
+    
+        queued_statuses = {"queued", "processing"}
+        successful_statuses = {"submitted", "sent", "delivered", "read"}
+        uncertain_statuses = {"delivery_unknown", "stalled"}
+        stale_cutoff = datetime.now(tz=UTC) - timedelta(minutes=30)
+        results: list[WhatsAppSendResult] = []
+        for row in rows:
+>           is_stalled = row.status in queued_statuses and row.status_updated_at < stale_cutoff
+                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           TypeError: can't compare offset-naive and offset-aware datetimes
+
+app\presentation\api\v1\routes\whatsapp_batch_status.py:110: TypeError
+_ test_actual_persisted_batch_status_keeps_age_counts_and_tenant_scope[queued-60-stalled-0-1] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x00000221DF48CED0>
+stored_status = 'queued', minutes_old = 60, expected_status = 'stalled'
+queued = 0, uncertain = 1
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("stored_status", "minutes_old", "expected_status", "queued", "uncertain"),
+        [
+            ("queued", 1, "queued", 1, 0),
+            ("queued", 60, "stalled", 0, 1),
+            ("processing", 1, "processing", 1, 0),
+            ("processing", 60, "stalled", 0, 1),
+            ("delivered", 60, "delivered", 0, 0),
+            ("failed", 60, "failed", 0, 0),
+        ],
+    )
+    async def test_actual_persisted_batch_status_keeps_age_counts_and_tenant_scope(
+        db_session: AsyncSession,
+        stored_status: str,
+        minutes_old: int,
+        expected_status: str,
+        queued: int,
+        uncertain: int,
+    ) -> None:
+        agency_id, group_id, recipient_id, batch_id = (uuid.uuid4() for _ in range(4))
+        actor = User(
+            id=uuid.uuid4(), email="staff@example.test", hashed_password="unused",
+            full_name="Staff", role=UserRole.AGENCY_STAFF, agency_id=agency_id,
+        )
+        db_session.add(AgencyModel(id=agency_id, name="Agency", email="agency@example.test"))
+        await db_session.flush()
+        db_session.add(WhatsAppBroadcastGroupModel(id=group_id, agency_id=agency_id, name="List"))
+        await db_session.flush()
+        db_session.add(WhatsAppBroadcastRecipientModel(
+            id=recipient_id, agency_id=agency_id, broadcast_group_id=group_id,
+            phone_number="9876543210", normalized_phone_number="+919876543210",
+        ))
+        await db_session.flush()
+        db_session.add(WhatsAppMessageLogModel(
+            agency_id=agency_id, broadcast_group_id=group_id, recipient_id=recipient_id,
+            batch_id=batch_id, message_type="reminder", status=stored_status,
+            status_updated_at=datetime.now(UTC) - timedelta(minutes=minutes_old),
+        ))
+        await db_session.commit()
+        db_session.expunge_all()
+        app = FastAPI()
+        app.include_router(router, prefix="/whatsapp")
+        app.dependency_overrides[get_current_active_user] = lambda: actor
+        app.dependency_overrides[get_db_session] = lambda: db_session
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+>           detail = await client.get(f"/whatsapp/batches/{batch_id}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\unit\presentation\test_whatsapp_batch_status_persistence.py:71: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\httpx\_client.py:1801: in get
+    return await self.request(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\httpx\_client.py:1574: in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\httpx\_client.py:1661: in send
+    response = await self._send_handling_auth(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\httpx\_client.py:1689: in _send_handling_auth
+    response = await self._send_handling_redirects(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\httpx\_client.py:1726: in _send_handling_redirects
+    response = await self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\httpx\_client.py:1763: in _send_single_request
+    response = await transport.handle_async_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\httpx\_transports\asgi.py:164: in handle_async_request
+    await self.app(scope, receive, send)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\fastapi\applications.py:1160: in __call__
+    await super().__call__(scope, receive, send)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\applications.py:90: in __call__
+    await self.middleware_stack(scope, receive, send)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\middleware\errors.py:186: in __call__
+    raise exc
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\middleware\errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\middleware\exceptions.py:63: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\fastapi\middleware\asyncexitstack.py:18: in __call__
+    await self.app(scope, receive, send)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\routing.py:660: in __call__
+    await self.middleware_stack(scope, receive, send)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\routing.py:680: in app
+    await route.handle(scope, receive, send)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\routing.py:276: in handle
+    await self.app(scope, receive, send)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\fastapi\routing.py:119: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\fastapi\routing.py:105: in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\fastapi\routing.py:431: in app
+    raw_response = await run_endpoint_function(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\fastapi\routing.py:313: in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+batch_id = UUID('a147b987-1ec0-455f-9778-40bf59faa188')
+current_user = User(id=UUID('ff54f3c0-cb9e-4497-8fb4-099a5614a992'), email='staff@example.test', hashed_password='unused', full_name=...rsion=1, mfa_required=False, mfa_enabled=False, actual_role=None, actual_agency_id=None, access_level_agency_name=None)
+session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x00000221DF48CED0>
+
+    @router.get("/batches/{batch_id}", response_model=WhatsAppSendResponse)
+    async def get_broadcast_batch_status(
+        batch_id: uuid.UUID,
+        current_user: User = Depends(require_role(WHATSAPP_ROLES)),
+        session: AsyncSession = Depends(get_db_session),
+    ) -> WhatsAppSendResponse:
+        result = await session.execute(
+            select(
+                WhatsAppMessageLogModel.recipient_id,
+                WhatsAppBroadcastRecipientModel.normalized_phone_number,
+                WhatsAppMessageLogModel.status,
+                WhatsAppMessageLogModel.status_updated_at,
+                WhatsAppMessageLogModel.provider_message_id,
+                WhatsAppMessageLogModel.error_message,
+            )
+            .join(
+                WhatsAppBroadcastRecipientModel,
+                WhatsAppBroadcastRecipientModel.id == WhatsAppMessageLogModel.recipient_id,
+            )
+            .join(
+                WhatsAppBroadcastGroupModel,
+                WhatsAppBroadcastGroupModel.id == WhatsAppMessageLogModel.broadcast_group_id,
+            )
+            .where(
+                WhatsAppMessageLogModel.batch_id == batch_id,
+                *_agency_filter(current_user),
+            )
+            .order_by(WhatsAppMessageLogModel.created_at.asc())
+        )
+        rows = list(result.all())
+        if not rows:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="WhatsApp broadcast batch not found",
+            )
+    
+        queued_statuses = {"queued", "processing"}
+        successful_statuses = {"submitted", "sent", "delivered", "read"}
+        uncertain_statuses = {"delivery_unknown", "stalled"}
+        stale_cutoff = datetime.now(tz=UTC) - timedelta(minutes=30)
+        results: list[WhatsAppSendResult] = []
+        for row in rows:
+>           is_stalled = row.status in queued_statuses and row.status_updated_at < stale_cutoff
+                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           TypeError: can't compare offset-naive and offset-aware datetimes
+
+app\presentation\api\v1\routes\whatsapp_batch_status.py:110: TypeError
+_ test_actual_persisted_batch_status_keeps_age_counts_and_tenant_scope[processing-1-processing-1-0] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x00000221DF6F6250>
+stored_status = 'processing', minutes_old = 1, expected_status = 'processing'
+queued = 1, uncertain = 0
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("stored_status", "minutes_old", "expected_status", "queued", "uncertain"),
+        [
+            ("queued", 1, "queued", 1, 0),
+            ("queued", 60, "stalled", 0, 1),
+            ("processing", 1, "processing", 1, 0),
+            ("processing", 60, "stalled", 0, 1),
+            ("delivered", 60, "delivered", 0, 0),
+            ("failed", 60, "failed", 0, 0),
+        ],
+    )
+    async def test_actual_persisted_batch_status_keeps_age_counts_and_tenant_scope(
+        db_session: AsyncSession,
+        stored_status: str,
+        minutes_old: int,
+        expected_status: str,
+        queued: int,
+        uncertain: int,
+    ) -> None:
+        agency_id, group_id, recipient_id, batch_id = (uuid.uuid4() for _ in range(4))
+        actor = User(
+            id=uuid.uuid4(), email="staff@example.test", hashed_password="unused",
+            full_name="Staff", role=UserRole.AGENCY_STAFF, agency_id=agency_id,
+        )
+        db_session.add(AgencyModel(id=agency_id, name="Agency", email="agency@example.test"))
+        await db_session.flush()
+        db_session.add(WhatsAppBroadcastGroupModel(id=group_id, agency_id=agency_id, name="List"))
+        await db_session.flush()
+        db_session.add(WhatsAppBroadcastRecipientModel(
+            id=recipient_id, agency_id=agency_id, broadcast_group_id=group_id,
+            phone_number="9876543210", normalized_phone_number="+919876543210",
+        ))
+        await db_session.flush()
+        db_session.add(WhatsAppMessageLogModel(
+            agency_id=agency_id, broadcast_group_id=group_id, recipient_id=recipient_id,
+            batch_id=batch_id, message_type="reminder", status=stored_status,
+            status_updated_at=datetime.now(UTC) - timedelta(minutes=minutes_old),
+        ))
+        await db_session.commit()
+        db_session.expunge_all()
+        app = FastAPI()
+        app.include_router(router, prefix="/whatsapp")
+        app.dependency_overrides[get_current_active_user] = lambda: actor
+        app.dependency_overrides[get_db_session] = lambda: db_session
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+>           detail = await client.get(f"/whatsapp/batches/{batch_id}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\unit\presentation\test_whatsapp_batch_status_persistence.py:71: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\httpx\_client.py:1801: in get
+    return await self.request(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\httpx\_client.py:1574: in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\httpx\_client.py:1661: in send
+    response = await self._send_handling_auth(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\httpx\_client.py:1689: in _send_handling_auth
+    response = await self._send_handling_redirects(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\httpx\_client.py:1726: in _send_handling_redirects
+    response = await self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\httpx\_client.py:1763: in _send_single_request
+    response = await transport.handle_async_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\httpx\_transports\asgi.py:164: in handle_async_request
+    await self.app(scope, receive, send)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\fastapi\applications.py:1160: in __call__
+    await super().__call__(scope, receive, send)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\applications.py:90: in __call__
+    await self.middleware_stack(scope, receive, send)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\middleware\errors.py:186: in __call__
+    raise exc
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\middleware\errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\middleware\exceptions.py:63: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\fastapi\middleware\asyncexitstack.py:18: in __call__
+    await self.app(scope, receive, send)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\routing.py:660: in __call__
+    await self.middleware_stack(scope, receive, send)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\routing.py:680: in app
+    await route.handle(scope, receive, send)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\routing.py:276: in handle
+    await self.app(scope, receive, send)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\fastapi\routing.py:119: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\fastapi\routing.py:105: in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\fastapi\routing.py:431: in app
+    raw_response = await run_endpoint_function(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\fastapi\routing.py:313: in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+batch_id = UUID('b7421e20-329f-47ac-9eef-ed4338fe3ec8')
+current_user = User(id=UUID('c15dc8f7-f8e8-47bf-9be5-eb2ae6695978'), email='staff@example.test', hashed_password='unused', full_name=...rsion=1, mfa_required=False, mfa_enabled=False, actual_role=None, actual_agency_id=None, access_level_agency_name=None)
+session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x00000221DF6F6250>
+
+    @router.get("/batches/{batch_id}", response_model=WhatsAppSendResponse)
+    async def get_broadcast_batch_status(
+        batch_id: uuid.UUID,
+        current_user: User = Depends(require_role(WHATSAPP_ROLES)),
+        session: AsyncSession = Depends(get_db_session),
+    ) -> WhatsAppSendResponse:
+        result = await session.execute(
+            select(
+                WhatsAppMessageLogModel.recipient_id,
+                WhatsAppBroadcastRecipientModel.normalized_phone_number,
+                WhatsAppMessageLogModel.status,
+                WhatsAppMessageLogModel.status_updated_at,
+                WhatsAppMessageLogModel.provider_message_id,
+                WhatsAppMessageLogModel.error_message,
+            )
+            .join(
+                WhatsAppBroadcastRecipientModel,
+                WhatsAppBroadcastRecipientModel.id == WhatsAppMessageLogModel.recipient_id,
+            )
+            .join(
+                WhatsAppBroadcastGroupModel,
+                WhatsAppBroadcastGroupModel.id == WhatsAppMessageLogModel.broadcast_group_id,
+            )
+            .where(
+                WhatsAppMessageLogModel.batch_id == batch_id,
+                *_agency_filter(current_user),
+            )
+            .order_by(WhatsAppMessageLogModel.created_at.asc())
+        )
+        rows = list(result.all())
+        if not rows:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="WhatsApp broadcast batch not found",
+            )
+    
+        queued_statuses = {"queued", "processing"}
+        successful_statuses = {"submitted", "sent", "delivered", "read"}
+        uncertain_statuses = {"delivery_unknown", "stalled"}
+        stale_cutoff = datetime.now(tz=UTC) - timedelta(minutes=30)
+        results: list[WhatsAppSendResult] = []
+        for row in rows:
+>           is_stalled = row.status in queued_statuses and row.status_updated_at < stale_cutoff
+                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           TypeError: can't compare offset-naive and offset-aware datetimes
+
+app\presentation\api\v1\routes\whatsapp_batch_status.py:110: TypeError
+_ test_actual_persisted_batch_status_keeps_age_counts_and_tenant_scope[processing-60-stalled-0-1] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x00000221E2E7E8D0>
+stored_status = 'processing', minutes_old = 60, expected_status = 'stalled'
+queued = 0, uncertain = 1
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("stored_status", "minutes_old", "expected_status", "queued", "uncertain"),
+        [
+            ("queued", 1, "queued", 1, 0),
+            ("queued", 60, "stalled", 0, 1),
+            ("processing", 1, "processing", 1, 0),
+            ("processing", 60, "stalled", 0, 1),
+            ("delivered", 60, "delivered", 0, 0),
+            ("failed", 60, "failed", 0, 0),
+        ],
+    )
+    async def test_actual_persisted_batch_status_keeps_age_counts_and_tenant_scope(
+        db_session: AsyncSession,
+        stored_status: str,
+        minutes_old: int,
+        expected_status: str,
+        queued: int,
+        uncertain: int,
+    ) -> None:
+        agency_id, group_id, recipient_id, batch_id = (uuid.uuid4() for _ in range(4))
+        actor = User(
+            id=uuid.uuid4(), email="staff@example.test", hashed_password="unused",
+            full_name="Staff", role=UserRole.AGENCY_STAFF, agency_id=agency_id,
+        )
+        db_session.add(AgencyModel(id=agency_id, name="Agency", email="agency@example.test"))
+        await db_session.flush()
+        db_session.add(WhatsAppBroadcastGroupModel(id=group_id, agency_id=agency_id, name="List"))
+        await db_session.flush()
+        db_session.add(WhatsAppBroadcastRecipientModel(
+            id=recipient_id, agency_id=agency_id, broadcast_group_id=group_id,
+            phone_number="9876543210", normalized_phone_number="+919876543210",
+        ))
+        await db_session.flush()
+        db_session.add(WhatsAppMessageLogModel(
+            agency_id=agency_id, broadcast_group_id=group_id, recipient_id=recipient_id,
+            batch_id=batch_id, message_type="reminder", status=stored_status,
+            status_updated_at=datetime.now(UTC) - timedelta(minutes=minutes_old),
+        ))
+        await db_session.commit()
+        db_session.expunge_all()
+        app = FastAPI()
+        app.include_router(router, prefix="/whatsapp")
+        app.dependency_overrides[get_current_active_user] = lambda: actor
+        app.dependency_overrides[get_db_session] = lambda: db_session
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+>           detail = await client.get(f"/whatsapp/batches/{batch_id}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\unit\presentation\test_whatsapp_batch_status_persistence.py:71: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\httpx\_client.py:1801: in get
+    return await self.request(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\httpx\_client.py:1574: in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\httpx\_client.py:1661: in send
+    response = await self._send_handling_auth(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\httpx\_client.py:1689: in _send_handling_auth
+    response = await self._send_handling_redirects(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\httpx\_client.py:1726: in _send_handling_redirects
+    response = await self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\httpx\_client.py:1763: in _send_single_request
+    response = await transport.handle_async_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\httpx\_transports\asgi.py:164: in handle_async_request
+    await self.app(scope, receive, send)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\fastapi\applications.py:1160: in __call__
+    await super().__call__(scope, receive, send)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\applications.py:90: in __call__
+    await self.middleware_stack(scope, receive, send)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\middleware\errors.py:186: in __call__
+    raise exc
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\middleware\errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\middleware\exceptions.py:63: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\fastapi\middleware\asyncexitstack.py:18: in __call__
+    await self.app(scope, receive, send)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\routing.py:660: in __call__
+    await self.middleware_stack(scope, receive, send)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\routing.py:680: in app
+    await route.handle(scope, receive, send)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\routing.py:276: in handle
+    await self.app(scope, receive, send)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\fastapi\routing.py:119: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\fastapi\routing.py:105: in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\fastapi\routing.py:431: in app
+    raw_response = await run_endpoint_function(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\fastapi\routing.py:313: in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+batch_id = UUID('1cba18b8-f6c4-428a-95f2-6ab3b889ba33')
+current_user = User(id=UUID('6399e0c7-9400-4ce6-9284-05df9c4e2c09'), email='staff@example.test', hashed_password='unused', full_name=...rsion=1, mfa_required=False, mfa_enabled=False, actual_role=None, actual_agency_id=None, access_level_agency_name=None)
+session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x00000221E2E7E8D0>
+
+    @router.get("/batches/{batch_id}", response_model=WhatsAppSendResponse)
+    async def get_broadcast_batch_status(
+        batch_id: uuid.UUID,
+        current_user: User = Depends(require_role(WHATSAPP_ROLES)),
+        session: AsyncSession = Depends(get_db_session),
+    ) -> WhatsAppSendResponse:
+        result = await session.execute(
+            select(
+                WhatsAppMessageLogModel.recipient_id,
+                WhatsAppBroadcastRecipientModel.normalized_phone_number,
+                WhatsAppMessageLogModel.status,
+                WhatsAppMessageLogModel.status_updated_at,
+                WhatsAppMessageLogModel.provider_message_id,
+                WhatsAppMessageLogModel.error_message,
+            )
+            .join(
+                WhatsAppBroadcastRecipientModel,
+                WhatsAppBroadcastRecipientModel.id == WhatsAppMessageLogModel.recipient_id,
+            )
+            .join(
+                WhatsAppBroadcastGroupModel,
+                WhatsAppBroadcastGroupModel.id == WhatsAppMessageLogModel.broadcast_group_id,
+            )
+            .where(
+                WhatsAppMessageLogModel.batch_id == batch_id,
+                *_agency_filter(current_user),
+            )
+            .order_by(WhatsAppMessageLogModel.created_at.asc())
+        )
+        rows = list(result.all())
+        if not rows:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="WhatsApp broadcast batch not found",
+            )
+    
+        queued_statuses = {"queued", "processing"}
+        successful_statuses = {"submitted", "sent", "delivered", "read"}
+        uncertain_statuses = {"delivery_unknown", "stalled"}
+        stale_cutoff = datetime.now(tz=UTC) - timedelta(minutes=30)
+        results: list[WhatsAppSendResult] = []
+        for row in rows:
+>           is_stalled = row.status in queued_statuses and row.status_updated_at < stale_cutoff
+                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           TypeError: can't compare offset-naive and offset-aware datetimes
+
+app\presentation\api\v1\routes\whatsapp_batch_status.py:110: TypeError
+=========================== short test summary info ===========================
+FAILED tests/unit/presentation/test_whatsapp_batch_status_persistence.py::test_actual_persisted_batch_status_keeps_age_counts_and_tenant_scope[queued-1-queued-1-0]
+FAILED tests/unit/presentation/test_whatsapp_batch_status_persistence.py::test_actual_persisted_batch_status_keeps_age_counts_and_tenant_scope[queued-60-stalled-0-1]
+FAILED tests/unit/presentation/test_whatsapp_batch_status_persistence.py::test_actual_persisted_batch_status_keeps_age_counts_and_tenant_scope[processing-1-processing-1-0]
+FAILED tests/unit/presentation/test_whatsapp_batch_status_persistence.py::test_actual_persisted_batch_status_keeps_age_counts_and_tenant_scope[processing-60-stalled-0-1]
+4 failed, 2 passed in 5.68s

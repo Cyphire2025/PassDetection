@@ -1,0 +1,26 @@
+{
+  "original_authority_statement_indices": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "responsibility": "Current grant/owned-source authorization and displayed policy/review-version validation, before document suitability and answer publication.",
+  "new_owner": "app/application/travellers/completion_review.py",
+  "outputs": [
+    "original ReviewContext",
+    "same loaded PlatformPolicies",
+    "same projected review dictionary"
+  ],
+  "extra_internal_operation": "Main repeats read-only original ReviewContext tuple unpack after helper returns; original public clock/UUID/hash/idempotency/source/publication remain main.",
+  "intermediate_main_sha256": "482e64c87c350ad1989ccf8ba4d4489d158a638733460e4416054e2a25f03e37",
+  "intermediate_qualification": "46PASS,16sourcefence,strict3/Ruff3; superseded only for changed main source by next final4-owner qualification.",
+  "additional_architecture_subset": [
+    "app.infrastructure.repositories.platform_policy_repository",
+    "app.infrastructure.repositories.platform_policy_repository.PlatformPolicyRepository"
+  ],
+  "goal": "Reduce main C39 further while keeping four coherent owners under280L and no generic state/callback bag."
+}

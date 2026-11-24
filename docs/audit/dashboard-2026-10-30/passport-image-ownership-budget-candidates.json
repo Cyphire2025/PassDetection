@@ -1,0 +1,43 @@
+{
+  "source_manifest": {
+    "path": "docs/audit/dashboard-2026-10-30/passport-image-ownership-final-source-manifest.json",
+    "sha256": "24f445dae01a81370809a172baff704a5b64a69f993d8be6629f32a787d3c62f"
+  },
+  "normal_module_candidates": [
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/image_exports.py",
+      "sha256": "583c82d4547b2500c98b0f01a4ccab88d0bb7ae9f0cd5613fd24da4a1fab59bc",
+      "previous": {
+        "path": "app/presentation/api/v1/routes/passport_routes/image_exports.py",
+        "minimum_coverage_percent": 47,
+        "baseline_lines": 279,
+        "maximum_lines": 700,
+        "baseline_max_function_complexity": 14,
+        "maximum_function_complexity": 14
+      },
+      "baseline_lines": 247,
+      "maximum_lines": 250,
+      "baseline_max_function_complexity": 14,
+      "maximum_function_complexity": 14,
+      "minimum_coverage_percent": 75
+    }
+  ],
+  "critical_module_candidates": [],
+  "coverage": {
+    "covered_lines": 76,
+    "num_statements": 98,
+    "percent_covered": 75.47169811320755,
+    "percent_covered_display": "75",
+    "missing_lines": 22,
+    "excluded_lines": 0,
+    "percent_statements_covered": 77.55102040816327,
+    "percent_statements_covered_display": "78",
+    "num_branches": 8,
+    "num_partial_branches": 4,
+    "covered_branches": 4,
+    "missing_branches": 4,
+    "percent_branches_covered": 50.0,
+    "percent_branches_covered_display": "50"
+  },
+  "scope": "Tighten existing normal700-line cap to250 and measured47 coverage floor to75; preserve existing maximum complexity14. All reproduced cleanup paths measured; uncovered route auth/preparation error paths remain recorded. No declaration-only critical addition/shared gate edit."
+}

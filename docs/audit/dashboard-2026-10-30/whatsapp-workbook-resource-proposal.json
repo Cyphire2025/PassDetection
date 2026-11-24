@@ -1,0 +1,58 @@
+{
+  "status": "actual allocation probes passed; source correction proposed, no runtime edits yet",
+  "probe": {
+    "path": "whatsapp-workbook-resource-probe.json",
+    "sha256": "a00d3b73f29b7ed502046ed6ddcd2729116edeb9a43cde07e6445abce2d7a0a4"
+  },
+  "exclusive_proposed_paths": [
+    "backend/app/core/zip_directory_admission.py",
+    "backend/app/infrastructure/imports/passport_zip_admission.py",
+    "backend/app/application/use_cases/whatsapp/spreadsheet_values.py",
+    "backend/app/presentation/api/v1/routes/whatsapp_contact_import.py"
+  ],
+  "source_before": {
+    "backend/app/core/zip_directory_admission.py": null,
+    "backend/app/infrastructure/imports/passport_zip_admission.py": "b534f8d9c02733c4a378e11ce74770b906c5dcea37984c5bf138930504e3486d",
+    "backend/app/application/use_cases/whatsapp/spreadsheet_values.py": "9b3a824b2f5dd1c40592a417ee51b0b4538fb9155c01cefb4985c6101816326c",
+    "backend/app/presentation/api/v1/routes/whatsapp_contact_import.py": "d627dcea775c7302cd0680e77cb6a7c8f1d3b8bea479b3865d318af1dd6bf1c8"
+  },
+  "neutral_owner": {
+    "path": "backend/app/core/zip_directory_admission.py",
+    "responsibility": "One pure stdlib fixed-record ZIP directory preallocation checker. Move existing pinned CPython3.11 _EndRecData/actual-central-header counting algorithm intact, with generic ZipDirectoryMemberLimitError and check_zip_directory(stream,max_members). The check consumes its internal cursor; no provider/config/route policy or infrastructure dependency.",
+    "no_duplicate_or_inverted_dependency": "Application spreadsheet_values imports core; infrastructure passport guard imports same core. No application-to-infrastructure/route import or new architecture allowlist. No generic callback/context/error-class parameter.",
+    "passport_compatibility": "Keep PassportZipMemberLimitError local identity and original public admit_passport_zip_directory signature/evaluated hints/whole cursor-finally body. Existing private _check_directory becomes explicit translation wrapper around neutral check, preserving original PassportZipMemberLimitError message/type. Preserve legacy public importer aliases. New generic cause is explicit implementation metadata; no promise of byte-identical cause chain.",
+    "policy": "Passport retains max_members supplied by importer (5000); WA retains2000. Neutral engine has no product default quota. ZIP64/prepended-data/comment/actualcount/forgedcount/malformed/truncation and cursor protocols retain actual existing tests. All downstream compressed/total/per-member ratio/encryption/localheader/nested-name/staff-code/canonical-image policies remain untouched."
+  },
+  "whatsapp_archive_admission": "Within existing validate_excel_archive, construct one BytesIO, call neutral checker before ZipFile allocates ZipInfo. Translate only neutral member limit to existing SpreadsheetArchiveCapacityError and exact old message. Then run unchanged original actual-entry/aggregate uncompressed/per-member ratio checks and exception responses; no reuse of passport business quotas or image policy.",
+  "worksheet_change": "Before existing iter_rows(), call sheet.reset_dimensions(), as the existing retained ContactSpreadsheetSecurity.snapshot_workbook already does. Use actual XML cell coordinates/rows, preserving name/header/phone/orientation/source row/sheet/file/field normalization and actual wide columns. Do not add a column cap or silently truncate actual cells. Existing row/sheet/byte/rejection/recipient limits remain exact.",
+  "proof_plan": [
+    "Create ordinary actual parser regressions before edits:10000member<=5MiB archive rejects before ZipInfo allocations, exact2000member admitted structural check, positiveZIP64/prepended/comment/forged advertisedcount and original error controls",
+    "Real64row workbook overstates width XFD: measured1048576actualtuple slots before vs<=128 after, same complete parse result; normal64row control plus actualwide phone/name columns retain full values",
+    "Understated A1:A1 dimensions must retain actual phone cells/rows (currently dropped); compare to same healthy actual XML workbook result rather than claiming parity with incorrect old loss",
+    "Current normal text/numeric phone/given-surname/headerless/multisheet/source metadata and JSON response parity against archived original; distinguish deliberate malformed dimension correction",
+    "Neutral algorithm complete AST inverse after module/class/function renames and error ownership; original public passport admission cursor body exact, class/signature/hints/pickle aliases verified. Both product downstream validation loops full module inverse outside explicit preflight/reset calls/imports",
+    "Focused current parser/workbook/security/importer tests, fresh owner branch coverage and strict/Ruff/architecture; preserve old passport90L80B gate on facade and transfer to actual neutral behavior owner, no lowered cap or baseline. No broad suite/build/provider calls"
+  ],
+  "existing_gates": {
+    "passport_guard": {
+      "maximum_lines": 80,
+      "maximum_function_complexity": 13,
+      "minimum_coverage_percent": 90,
+      "critical_line": 90,
+      "critical_branch": 80
+    },
+    "whatsapp_parser": {
+      "maximum_lines": 440,
+      "maximum_function_complexity": 37,
+      "minimum_coverage_percent": 84
+    },
+    "spreadsheet_values": "No old normal/critical membership"
+  },
+  "caller_closure": [
+    "passport_zip_reader imports/calls existing passport public guard and catches original PassportZipMemberLimitError; passport_document_importer reexports same two original objects",
+    "test_passport_zip_member_admission imports original public guard/type and exercises real importer, cursor, encrypted/malformed/name/image policies in support tests; no maintained external private _check_directory callers found",
+    "spreadsheet_values.validate_excel_archive consumed by whatsapp_contact_values wrapper, ContactSpreadsheetSecurity._safe_archive and existing MCP contact-import structural tests; pure excel_cell_text also retained, signature/behavior unchanged",
+    "Dashboard actual preview/create/addition parse path bounded upload bytes and owned-byte worker remains; this batch does not rework cancellation or grant authority"
+  ],
+  "limits": "Only actual allocation counts/tuple slots measured, not RSS/concurrent production capacity. Current source and all old receipts stay frozen until parent adopts this exact cohesive owner plan."
+}

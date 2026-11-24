@@ -1,0 +1,51 @@
+{
+  "files": [
+    {
+      "path": "frontend/features/documents/components/document-row-action-menu.test.tsx",
+      "sha256": "d7c790f4c34e93659ad7f40e0165de79c0657a5b37c1873a8b2d3a48cc2a2da8",
+      "physical_lines": 82,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "reviewer": "branding_visuals",
+      "notes": [
+        "Complete original physical test source read in final-frozen-fixture-warning triage; current source composed from that full read plus exact bounded fixture-only delta and byte inverse. Every original assertion retained.",
+        "Applied only parent-approved complete DOMRect or existing synthetic permissionFixture response. Real component/hook owner wiring unchanged.",
+        "Focused current29-case plus scoped lint/types qualification. No claim that earlier whole303-file/2086-case result executed these changed bytes. This narrow fixture fix does not close any independent architecture/lifetime finding."
+      ],
+      "before_sha256": "93f6e65c4cdb791e1dd6d0628c237e1214c8d50311d5a0357c26f84abb162aca"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+      "sha256": "a40215a22b53c47180107d5cfd9b08a9e9bb3a2b5e869d6714dc378bcb203596",
+      "physical_lines": 223,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "reviewer": "branding_visuals",
+      "notes": [
+        "Complete original physical test source read in final-frozen-fixture-warning triage; current source composed from that full read plus exact bounded fixture-only delta and byte inverse. Every original assertion retained.",
+        "Applied only parent-approved complete DOMRect or existing synthetic permissionFixture response. Real component/hook owner wiring unchanged.",
+        "Focused current29-case plus scoped lint/types qualification. No claim that earlier whole303-file/2086-case result executed these changed bytes. This narrow fixture fix does not close any independent architecture/lifetime finding."
+      ],
+      "before_sha256": "07e866b8fcb0c3e0eb2a2eb53258e951de8e2165019e337e93713a7842b040a1"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-simple-access.test.tsx",
+      "sha256": "b026f08adcf28eb319fb5922b104ab0af465992acb259106812417b6f8e04c37",
+      "physical_lines": 101,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "reviewer": "branding_visuals",
+      "notes": [
+        "Complete original physical test source read in final-frozen-fixture-warning triage; current source composed from that full read plus exact bounded fixture-only delta and byte inverse. Every original assertion retained.",
+        "Applied only parent-approved complete DOMRect or existing synthetic permissionFixture response. Real component/hook owner wiring unchanged.",
+        "Focused current29-case plus scoped lint/types qualification. No claim that earlier whole303-file/2086-case result executed these changed bytes. This narrow fixture fix does not close any independent architecture/lifetime finding."
+      ],
+      "before_sha256": "36b85b4095967c5ddb4f8f02bdb52c79b6d68baafa7554f963770fe9ea971662"
+    }
+  ],
+  "prior_full_review": {
+    "path": "docs/audit/dashboard-2026-10-30/final-frozen-fixture-warning-reviewed-files.json",
+    "sha256": "c35740e16645c385f9b63cf592d8fa4cccf25247ee8c0830ec571317ad571944"
+  },
+  "finding_scope": "Only fixture noise corrected; no runtime defect or unrelated finding closure claimed."
+}

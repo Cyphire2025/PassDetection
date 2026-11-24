@@ -69,4 +69,23 @@ describe("AuthHydrator renewal scheduling", () => {
     expect(useAuthStore.getState().sessionVersion).toBe(1);
     view.unmount();
   });
+
+  it("does not restore stale authority from a profile request started before an access switch", async () => {
+    refresh.mockResolvedValue({ user, access_token_expires_at: "2099-09-01T00:00:00Z" });
+    const view = render(<AuthHydrator />);
+    await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+    let finish!: (value: User) => void;
+    getMe.mockImplementation(() => new Promise<User>((resolve) => { finish = resolve; }));
+    await act(async () => { await vi.advanceTimersByTimeAsync(61_000); window.dispatchEvent(new Event("focus")); });
+    expect(getMe).toHaveBeenCalledOnce();
+    expect(getMe.mock.calls[0][0]).toBeInstanceOf(AbortSignal);
+    act(() => {
+      useAuthStore.getState().beginAccessLevelChange();
+      useAuthStore.getState().setSession({ ...user, role: "agency_staff", agency_id: "agency-b" });
+    });
+    await act(async () => finish(user));
+    expect(useAuthStore.getState().user?.role).toBe("agency_staff");
+    expect(useAuthStore.getState().user?.agency_id).toBe("agency-b");
+    view.unmount();
+  });
 });

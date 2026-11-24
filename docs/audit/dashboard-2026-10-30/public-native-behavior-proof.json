@@ -1,0 +1,19 @@
+{
+  "whole_original_module_and_class_ast_restored_after_only_two_declared_behavior_changes": true,
+  "changes": [
+    "Only cancellation now completes existing unique-key compensation before propagation.",
+    "One unchanged ordered <=5-page write specification dispatched through existing shielded/draining helper; same bound method/keyword values/order."
+  ],
+  "native_s3_adapter_and_shared_helper_source_bytes_unchanged": true,
+  "original_three_case_regression_test_source_restores_after_only_repeat_cancel_matrix_and_persistence_control": true,
+  "old_assertions_retained": 11,
+  "normal_upload_specs_values_order_and_first_error_selection_preserved": true,
+  "new_dependencies_only": [
+    "functools.partial",
+    "existing storage transfer helper pair"
+  ],
+  "limitations": [
+    "Initial actual baseline1passed/2failed; extra repeated-cancel and persistence controls are additional current checks, not relabeled as baseline failures.",
+    "Native S3 client itself is synthetic and performs no network/provider call."
+  ]
+}

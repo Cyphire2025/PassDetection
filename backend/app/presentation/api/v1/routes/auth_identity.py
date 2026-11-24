@@ -2,20 +2,15 @@
 
 from __future__ import annotations
 
-import uuid
 from dataclasses import replace
-from datetime import UTC, datetime, timedelta
-from types import SimpleNamespace
-from typing import Literal
+from datetime import UTC, datetime
+from typing import Literal, NoReturn
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.dtos.auth_dtos import AuthResponseDTO
-from app.application.interfaces.identity_notification_provider import (
-    IdentityNotificationDeliveryDisabled,
-)
 from app.application.security.access_level_actor import actual_user_agency_id, actual_user_role
 from app.application.use_cases.auth.login_use_case import LoginUseCase
 from app.core.config.settings import get_settings
@@ -25,39 +20,33 @@ from app.core.security.identity_security import (
     decrypt_mfa_secret,
     encrypt_mfa_secret,
     generate_mfa_secret,
-    generate_recovery_codes,
     hash_identity_value,
-    reencrypt_mfa_secret_if_needed,
     verify_totp,
 )
-from app.core.security.jwt import create_access_token
-from app.core.security.password import hash_password, run_password_work, verify_password
-from app.domain.entities.entities import User, UserRole
+from app.core.security.password import run_password_work
+from app.core.security.password import verify_password as verify_password
+from app.domain.entities.entities import User
 from app.infrastructure.database.models import UserModel, UserSecurityStateModel
 from app.infrastructure.database.session import get_db_session
-from app.infrastructure.observability.metrics import metrics
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
-from app.infrastructure.repositories.dashboard_step_up_repository import lock_step_up_session
 from app.infrastructure.repositories.identity_security_repository import (
     IdentitySecurityRepository,
     role_requires_dashboard_mfa,
 )
-from app.infrastructure.repositories.mobile_session_security import revoke_user_mobile_sessions
 from app.infrastructure.repositories.refresh_token_repository import RefreshTokenRepository
 from app.infrastructure.repositories.user_repository import UserRepository
-from app.infrastructure.security.identity_notifications import (
-    identity_notification_provider,
-    stage_password_recovery_notification,
-)
 from app.infrastructure.security.identity_recovery_rate_limiter import (
-    IdentityRecoveryRateLimited,
     IdentityRecoveryRateLimiter,
-    IdentityRecoveryRateLimiterUnavailable,
 )
 from app.infrastructure.security.mfa_step_up_rate_limiter import (
-    MFAStepUpLimiterUnavailable,
-    MFAStepUpLocked,
     MFAStepUpRateLimiter,
+)
+from app.presentation.api.v1.routes import (
+    auth_identity_account,
+    auth_identity_actions,
+    auth_identity_recovery,
+    auth_identity_step_up,
+    auth_identity_verification,
 )
 from app.presentation.api.v1.schemas.auth_schemas import (
     AuthChallengeResponse,
@@ -76,8 +65,6 @@ from app.presentation.dependencies.auth import get_current_active_user, require_
 from app.presentation.dependencies.csrf import require_cookie_csrf, require_trusted_request_origin
 from app.presentation.security.access_level import clear_access_level_cookie
 from app.presentation.security.auth_cookies import (
-    clear_auth_cookies,
-    set_access_cookie,
     set_auth_cookies,
 )
 from app.presentation.security.auth_user_response import user_response as _user_response
@@ -85,7 +72,6 @@ from app.presentation.security.client_ip import trusted_client_ip
 
 router = APIRouter()
 
-_IDENTITY_ACTION_FAILURE = "The link is invalid, expired, or has already been used"
 _MFA_CHALLENGE_FAILURE = "The verification challenge is invalid or expired"
 
 
@@ -202,8 +188,12 @@ async def _issue_authenticated_session(
     user.mfa_enabled = state.mfa_enabled_at is not None
     methods = ("pwd", method) if mfa_at is not None else (method,)
     user = replace(
-        user, role=actual_user_role(user), agency_id=actual_user_agency_id(user),
-        actual_role=None, actual_agency_id=None, access_level_agency_name=None,
+        user,
+        role=actual_user_role(user),
+        agency_id=actual_user_agency_id(user),
+        actual_role=None,
+        actual_agency_id=None,
+        access_level_agency_name=None,
     )
     result = await _login_use_case(session).issue_session(
         user,
@@ -256,6 +246,12 @@ async def _validate_mfa_code(
     return False, "totp", None
 
 
+async def _deny_mfa_verification(session: AsyncSession) -> NoReturn:
+    """Keep guarded denial state durable when the request dependency rolls back."""
+    await session.commit()
+    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=_MFA_CHALLENGE_FAILURE)
+
+
 @router.post(
     "/mfa/verify",
     response_model=MFAEnrollmentResult | AuthResponse,
@@ -267,96 +263,17 @@ async def verify_dashboard_mfa(
     response: Response,
     session: AsyncSession = Depends(get_db_session),
 ) -> MFAEnrollmentResult | AuthResponse:
-    repository = IdentitySecurityRepository(session)
-    challenge = await repository.get_pending_auth_challenge(
-        raw_token=body.challenge_token,
-    )
-    now = datetime.now(tz=UTC)
-    if challenge is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=_MFA_CHALLENGE_FAILURE)
-    if challenge.request_ip_hash != _request_hash(
-        request, "ip"
-    ) or challenge.user_agent_hash != _request_hash(request, "user-agent"):
-        challenge.status = "cancelled"
-        challenge.updated_at = now
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=_MFA_CHALLENGE_FAILURE)
-
-    state = await repository.get_state(challenge.user_id, lock=True)
-    if state is None or state.credential_state != "active":
-        challenge.status = "cancelled"
-        challenge.updated_at = now
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=_MFA_CHALLENGE_FAILURE)
-    user = await UserRepository(session).get_by_id(challenge.user_id)
-    if user is None or not user.is_active:
-        challenge.status = "cancelled"
-        challenge.updated_at = now
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=_MFA_CHALLENGE_FAILURE)
-
-    secret_ciphertext = (
-        challenge.pending_secret_ciphertext
-        if challenge.purpose == "mfa_enrollment"
-        else state.mfa_secret_ciphertext
-    )
-    if secret_ciphertext is None:
-        challenge.status = "cancelled"
-        challenge.updated_at = now
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=_MFA_CHALLENGE_FAILURE)
-    valid, method, counter = await _validate_mfa_code(
-        repository=repository,
-        state=state,
-        code=body.code,
-        secret_ciphertext=secret_ciphertext,
-        now=now,
-        allow_recovery=challenge.purpose == "mfa_login",
-    )
-    if not valid:
-        challenge.attempt_count += 1
-        challenge.updated_at = now
-        if challenge.attempt_count >= challenge.max_attempts:
-            challenge.status = "locked"
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=_MFA_CHALLENGE_FAILURE)
-
-    recovery_codes: list[str] = []
-    if challenge.purpose == "mfa_enrollment":
-        state.mfa_secret_ciphertext = secret_ciphertext
-        state.mfa_enabled_at = now
-        state.session_version += 1
-        recovery_codes = generate_recovery_codes()
-        await repository.replace_recovery_codes(user_id=user.id, raw_codes=recovery_codes, now=now)
-    elif state.mfa_secret_ciphertext is not None:
-        # Successful verification is the safest lazy-rotation point: the state
-        # row is locked and the old key has just authenticated one real factor.
-        state.mfa_secret_ciphertext = reencrypt_mfa_secret_if_needed(state.mfa_secret_ciphertext)
-    state.mfa_last_counter = counter if counter is not None else state.mfa_last_counter
-    state.updated_at = now
-    challenge.status = "consumed"
-    challenge.consumed_at = now
-    challenge.updated_at = now
-    auth_response = await _issue_authenticated_session(
-        user=user,
-        state=state,
+    return await auth_identity_verification.verify_dashboard_mfa(
+        body=body,
         request=request,
         response=response,
         session=session,
-        method=method,
-        mfa_at=now,
+        datetime=datetime,
+        _request_hash=_request_hash,
+        _validate_mfa_code=_validate_mfa_code,
+        _issue_authenticated_session=_issue_authenticated_session,
+        _deny_mfa_verification=_deny_mfa_verification,
     )
-    await AuditLogRepository(session).record(
-        action="auth.mfa_enrolled" if recovery_codes else "auth.mfa_verified",
-        entity_type="user_account",
-        agency_id=user.agency_id,
-        user_id=user.id,
-        actor_email=user.email,
-        entity_id=str(user.id),
-        ip_address=trusted_client_ip(request),
-        metadata={"method": method},
-    )
-    # Publish cookies only after factor consumption, session, and audit are
-    # durable together; request-scoped dependency teardown follows the response.
-    await session.commit()
-    if recovery_codes:
-        return MFAEnrollmentResult(**auth_response.model_dump(), recovery_codes=recovery_codes)
-    return auth_response
 
 
 @router.post(
@@ -371,135 +288,17 @@ async def step_up_dashboard_session(
     current_user: User = Depends(get_current_active_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> AuthResponse:
-    client_ip = trusted_client_ip(request)
-    limiter = MFAStepUpRateLimiter()
-    try:
-        await limiter.ensure_available(user_id=current_user.id, ip_address=client_ip)
-    except MFAStepUpLocked:
-        await limiter.close()
-        await AuditLogRepository(session).record(
-            action="auth.step_up_blocked",
-            entity_type="user_account",
-            agency_id=current_user.agency_id,
-            user_id=current_user.id,
-            actor_email=current_user.email,
-            entity_id=str(current_user.id),
-            ip_address=client_ip,
-            result="blocked",
-            metadata={"reason": "temporary_backoff"},
-        )
-        await session.commit()
-        raise HTTPException(
-            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            detail="Verification is temporarily unavailable after repeated attempts",
-            headers={"Retry-After": str(get_settings().mfa_step_up_lock_seconds)},
-        ) from None
-    except MFAStepUpLimiterUnavailable:
-        await limiter.close()
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Verification is temporarily unavailable",
-            headers={"Retry-After": "30"},
-        ) from None
-
-    repository = IdentitySecurityRepository(session)
-    try:
-        stepped_session = await lock_step_up_session(
-            session, user_id=current_user.id,
-            session_id=uuid.UUID(request.state.auth_claims["sid"]),
-            session_version=request.state.auth_claims["sv"],
-            deadline=_existing_session_deadline(request),
-        )
-    except Exception:
-        await limiter.close()
-        raise
-    state = stepped_session.state
-    now = datetime.now(tz=UTC)
-    if state is None or state.mfa_secret_ciphertext is None or state.mfa_enabled_at is None:
-        await limiter.close()
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="MFA enrollment is required"
-        )
-    valid, method, counter = await _validate_mfa_code(
-        repository=repository,
-        state=state,
-        code=body.code,
-        secret_ciphertext=state.mfa_secret_ciphertext,
-        now=now,
-        allow_recovery=True,
-    )
-    if not valid:
-        temporarily_locked = False
-        try:
-            await limiter.record_failure(user_id=current_user.id, ip_address=client_ip)
-        except MFAStepUpLocked:
-            temporarily_locked = True
-        except MFAStepUpLimiterUnavailable:
-            # The factor still failed. Preserve that safe decision and report a
-            # generic outage rather than allowing unbounded guesses.
-            temporarily_locked = True
-        await limiter.close()
-        await AuditLogRepository(session).record(
-            action="auth.step_up_failed",
-            entity_type="user_account",
-            agency_id=current_user.agency_id,
-            user_id=current_user.id,
-            actor_email=current_user.email,
-            entity_id=str(current_user.id),
-            ip_address=client_ip,
-            result="failed",
-            metadata={"temporary_backoff": temporarily_locked},
-        )
-        await session.commit()
-        if temporarily_locked:
-            raise HTTPException(
-                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-                detail="Verification is temporarily unavailable after repeated attempts",
-                headers={"Retry-After": str(get_settings().mfa_step_up_lock_seconds)},
-            ) from None
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Verification code is invalid",
-        )
-    await limiter.clear(user_id=current_user.id, ip_address=client_ip)
-    await limiter.close()
-    state.mfa_secret_ciphertext = reencrypt_mfa_secret_if_needed(state.mfa_secret_ciphertext)
-    state.mfa_last_counter = counter if counter is not None else state.mfa_last_counter
-    state.updated_at = now
-    stepped_session.record_assurance(method=method, now=now)
-    # A fresh factor authorizes this action; it must not extend the browser's
-    # sign-in deadline. Legacy access tokens retain their existing expiry.
-    access_token, access_expires = create_access_token(
-        user_id=current_user.id,
-        role=actual_user_role(current_user).value,
-        agency_id=actual_user_agency_id(current_user),
-        session_version=state.session_version,
-        authentication_methods=("pwd", method),
-        mfa_authenticated_at=now,
-        session_expires_at=stepped_session.deadline,
-        session_id=uuid.UUID(request.state.auth_claims["sid"]),
-    )
-    await AuditLogRepository(session).record(
-        action="auth.step_up_completed",
-        entity_type="user_account",
-        agency_id=current_user.agency_id,
-        user_id=current_user.id,
-        actor_email=current_user.email,
-        entity_id=str(current_user.id),
-        ip_address=client_ip,
-        metadata={"method": method},
-    )
-    # Factor consumption, refresh assurance and audit must be durable before
-    # the response can publish a cookie asserting that verification succeeded.
-    await session.commit()
-    set_access_cookie(response, access_token=access_token, expires_at=access_expires)
-    response.headers["Cache-Control"] = "private, no-store, max-age=0"
-    values = dict(vars(current_user))
-    values["mfa_required"] = state.mfa_required
-    values["mfa_enabled"] = state.mfa_enabled_at is not None
-    return AuthResponse(
-        user=_user_response(SimpleNamespace(**values)),
-        access_token_expires_at=access_expires,
+    return await auth_identity_step_up.step_up_dashboard_session(
+        body=body,
+        request=request,
+        response=response,
+        current_user=current_user,
+        session=session,
+        datetime=datetime,
+        get_settings=get_settings,
+        MFAStepUpRateLimiter=MFAStepUpRateLimiter,
+        _existing_session_deadline=_existing_session_deadline,
+        _validate_mfa_code=_validate_mfa_code,
     )
 
 
@@ -537,94 +336,15 @@ async def request_password_recovery(
     response: Response,
     session: AsyncSession = Depends(get_db_session),
 ) -> PasswordRecoveryRequestResponse:
-    settings = get_settings()
-    response.headers["Cache-Control"] = "private, no-store, max-age=0"
-    response.headers["Pragma"] = "no-cache"
-    neutral_response = PasswordRecoveryRequestResponse(development_recovery_token=None)
-    limiter = IdentityRecoveryRateLimiter()
-    try:
-        await limiter.consume_network(
-            ip_address=trusted_client_ip(request),
-            risk_context=_request_hash(request, "user-agent"),
-        )
-        # Provider construction performs configuration validation without
-        # delivering anything. A disabled/misconfigured production integration
-        # must never mint a raw token that nobody can receive.
-        identity_notification_provider(settings)
-    except (
-        IdentityNotificationDeliveryDisabled,
-        IdentityRecoveryRateLimited,
-        IdentityRecoveryRateLimiterUnavailable,
-    ):
-        metrics.increment("identity.password_recovery.request_suppressed")
-        await limiter.close()
-        return neutral_response
-
-    email = str(body.email).lower().strip()
-    user = (
-        await session.execute(
-            select(UserModel).where(
-                UserModel.email == email,
-                UserModel.is_active.is_(True),
-                UserModel.deleted_at.is_(None),
-                UserModel.role != UserRole.CLIENT_MANAGER.value,
-            )
-        )
-    ).scalar_one_or_none()
-    development_token: str | None = None
-    if user is not None:
-        account_limiter = IdentityRecoveryRateLimiter()
-        try:
-            await account_limiter.consume_account(user_id=user.id, agency_id=user.agency_id)
-        except (IdentityRecoveryRateLimited, IdentityRecoveryRateLimiterUnavailable):
-            # Preserve any previously issued link. This suppression is audited
-            # internally but remains indistinguishable to the requester.
-            await AuditLogRepository(session).record(
-                action="auth.password_recovery_suppressed",
-                entity_type="user_account",
-                agency_id=user.agency_id,
-                user_id=user.id,
-                entity_id=str(user.id),
-                ip_address=trusted_client_ip(request),
-                result="blocked",
-                metadata={"reason": "bounded_rate_limit"},
-            )
-            metrics.increment("identity.password_recovery.account_suppressed")
-            await limiter.close()
-            return neutral_response
-        repository = IdentitySecurityRepository(session)
-        state = await repository.ensure_state(user)
-        if state.credential_state == "active":
-            action_token, raw_token = await repository.issue_action_token(
-                user_id=user.id,
-                purpose="password_recovery",
-                expires_in=timedelta(minutes=settings.password_recovery_token_ttl_minutes),
-                request_ip_hash=_request_hash(request, "ip"),
-            )
-            stage_password_recovery_notification(
-                session,
-                user=user,
-                action_token=action_token,
-                raw_token=raw_token,
-                settings=settings,
-            )
-            if settings.is_development and settings.password_recovery_development_expose_token:
-                development_token = raw_token
-            await AuditLogRepository(session).record(
-                action="auth.password_recovery_requested",
-                entity_type="user_account",
-                agency_id=user.agency_id,
-                user_id=user.id,
-                actor_email=user.email,
-                entity_id=str(user.id),
-                ip_address=trusted_client_ip(request),
-                metadata={
-                    "delivery_staged": True,
-                    "expires_in_minutes": settings.password_recovery_token_ttl_minutes,
-                },
-            )
-    await limiter.close()
-    return PasswordRecoveryRequestResponse(development_recovery_token=development_token)
+    return await auth_identity_recovery.request_password_recovery(
+        body=body,
+        request=request,
+        response=response,
+        session=session,
+        get_settings=get_settings,
+        IdentityRecoveryRateLimiter=IdentityRecoveryRateLimiter,
+        _request_hash=_request_hash,
+    )
 
 
 @router.post(
@@ -657,149 +377,16 @@ async def _complete_identity_action(
     session: AsyncSession,
     purpose: str,
 ) -> AuthResponse | AuthChallengeResponse | IdentityActionCompletedResponse:
-    repository = IdentitySecurityRepository(session)
-    now = datetime.now(tz=UTC)
-    token = await repository.get_valid_action_token(raw_token=body.token, purpose=purpose, now=now)
-    if token is None:
-        metrics.increment("identity.action.redemption_rejected")
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail=_IDENTITY_ACTION_FAILURE
-        )
-    user = (
-        await session.execute(
-            select(UserModel)
-            .where(
-                UserModel.id == token.user_id,
-                UserModel.is_active.is_(True),
-                UserModel.deleted_at.is_(None),
-                UserModel.role != UserRole.CLIENT_MANAGER.value,
-            )
-            .with_for_update()
-        )
-    ).scalar_one_or_none()
-    state = await repository.get_state(token.user_id, lock=True)
-    if user is None or state is None:
-        token.invalidated_at = now
-        await AuditLogRepository(session).record(
-            action="auth.identity_action_blocked",
-            entity_type="identity_action",
-            agency_id=user.agency_id if user is not None else None,
-            user_id=token.user_id,
-            entity_id=str(token.id),
-            ip_address=trusted_client_ip(request),
-            result="blocked",
-            metadata={"purpose": purpose, "reason": "account_not_eligible"},
-        )
-        # The request must fail, but the authoritative invalidation and its
-        # privacy-safe evidence must not be rolled back with the HTTP error.
-        await session.commit()
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail=_IDENTITY_ACTION_FAILURE
-        )
-    if purpose == "activation" and state.credential_state != "invited":
-        token.invalidated_at = now
-        await AuditLogRepository(session).record(
-            action="auth.identity_action_blocked",
-            entity_type="identity_action",
-            agency_id=user.agency_id,
-            user_id=user.id,
-            actor_email=user.email,
-            entity_id=str(token.id),
-            ip_address=trusted_client_ip(request),
-            result="blocked",
-            metadata={"purpose": purpose, "reason": "credential_state_mismatch"},
-        )
-        await session.commit()
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail=_IDENTITY_ACTION_FAILURE
-        )
-    if await run_password_work(verify_password, body.new_password, user.hashed_password):
-        await AuditLogRepository(session).record(
-            action="auth.identity_action_failed",
-            entity_type="identity_action",
-            agency_id=user.agency_id,
-            user_id=user.id,
-            actor_email=user.email,
-            entity_id=str(token.id),
-            ip_address=trusted_client_ip(request),
-            result="failed",
-            metadata={"purpose": purpose, "reason": "password_reuse"},
-        )
-        await session.commit()
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-            detail="Choose a password you have not just used",
-        )
-    if not await repository.consume_action_token(
-        token_id=token.id,
-        purpose=purpose,
-        now=now,
-    ):
-        metrics.increment("identity.action.concurrent_redemption_rejected")
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=_IDENTITY_ACTION_FAILURE,
-        )
-    user.hashed_password = await run_password_work(hash_password, body.new_password)
-    user.updated_at = now
-    state.credential_state = "active"
-    state.password_changed_at = now
-    state.session_version += 1
-    state.updated_at = now
-    token.consumed_at = now
-    await RefreshTokenRepository(session).revoke_all_for_user(user.id)
-    if user.role == UserRole.AGENCY_COORDINATOR.value and user.agency_id is not None:
-        await revoke_user_mobile_sessions(
-            session,
-            agency_id=user.agency_id,
-            user_id=user.id,
-            subject_role="coordinator",
-            reason=f"{purpose}_completed",
-            now=now,
-        )
-    await session.flush()
-    domain_user = await UserRepository(session).get_by_id(user.id)
-    if domain_user is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail=_IDENTITY_ACTION_FAILURE
-        )
-    await AuditLogRepository(session).record(
-        action="auth.account_activated" if purpose == "activation" else "auth.password_recovered",
-        entity_type="user_account",
-        agency_id=user.agency_id,
-        user_id=user.id,
-        actor_email=user.email,
-        entity_id=str(user.id),
-        ip_address=trusted_client_ip(request),
-        metadata={"sessions_revoked": True},
-    )
-    if domain_user.role == UserRole.AGENCY_COORDINATOR:
-        clear_auth_cookies(response)
-        response.headers["Cache-Control"] = "private, no-store, max-age=0"
-        response.headers["Pragma"] = "no-cache"
-        return IdentityActionCompletedResponse(
-            message=(
-                "Your account is active. Return to the coordinator app and sign in with "
-                "your new password."
-            )
-        )
-    challenge = await begin_dashboard_mfa_challenge(
-        user=domain_user,
-        request=request,
-        session=session,
-    )
-    if challenge is not None:
-        response.headers["Cache-Control"] = "private, no-store, max-age=0"
-        response.headers["Pragma"] = "no-cache"
-        return challenge
-    return await _issue_authenticated_session(
-        user=domain_user,
-        state=state,
+    return await auth_identity_actions._complete_identity_action(
+        body=body,
         request=request,
         response=response,
         session=session,
-        method=purpose,
-        mfa_at=None,
+        purpose=purpose,
+        datetime=datetime,
+        run_password_work=run_password_work,
+        begin_dashboard_mfa_challenge=begin_dashboard_mfa_challenge,
+        _issue_authenticated_session=_issue_authenticated_session,
     )
 
 
@@ -816,55 +403,16 @@ async def change_dashboard_password(
     current_user: User = Depends(require_recent_mfa),
     session: AsyncSession = Depends(get_db_session),
 ) -> Response:
-    user = (
-        await session.execute(
-            select(UserModel).where(UserModel.id == current_user.id).with_for_update()
-        )
-    ).scalar_one()
-    if not await run_password_work(verify_password, body.current_password, user.hashed_password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Current password is incorrect"
-        )
-    if await run_password_work(verify_password, body.new_password, user.hashed_password):
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-            detail="The new password must be different from the current password",
-        )
-    repository = IdentitySecurityRepository(session)
-    state = await repository.get_state(user.id, lock=True)
-    if state is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Session is no longer valid"
-        )
-    now = datetime.now(tz=UTC)
-    user.hashed_password = await run_password_work(hash_password, body.new_password)
-    user.updated_at = now
-    state.password_changed_at = now
-    state.session_version += 1
-    state.updated_at = now
-    await RefreshTokenRepository(session).revoke_all_for_user(user.id)
-    if current_user.role == UserRole.AGENCY_COORDINATOR and user.agency_id is not None:
-        await revoke_user_mobile_sessions(
-            session,
-            agency_id=user.agency_id,
-            user_id=user.id,
-            subject_role="coordinator",
-            reason="password_changed",
-            now=now,
-        )
-    await AuditLogRepository(session).record(
-        action="auth.password_changed",
-        entity_type="user_account",
-        agency_id=current_user.agency_id,
-        user_id=current_user.id,
-        actor_email=current_user.email,
-        entity_id=str(current_user.id),
-        ip_address=trusted_client_ip(request),
-        metadata={"sessions_revoked": True},
+    return await auth_identity_account.change_dashboard_password(
+        body=body,
+        request=request,
+        response=response,
+        current_user=current_user,
+        session=session,
+        datetime=datetime,
+        run_password_work=run_password_work,
+        _existing_session_deadline=_existing_session_deadline,
     )
-    clear_auth_cookies(response)
-    response.status_code = status.HTTP_204_NO_CONTENT
-    return response
 
 
 @router.post(
@@ -878,54 +426,15 @@ async def regenerate_mfa_recovery_codes(
     current_user: User = Depends(require_recent_mfa),
     session: AsyncSession = Depends(get_db_session),
 ) -> MFARecoveryCodesResponse:
-    repository = IdentitySecurityRepository(session)
-    state = await repository.get_state(current_user.id, lock=True)
-    if state is None or state.mfa_enabled_at is None:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="MFA is not enabled")
-    now = datetime.now(tz=UTC)
-    codes = generate_recovery_codes()
-    await repository.replace_recovery_codes(
-        user_id=current_user.id,
-        raw_codes=codes,
-        now=now,
-    )
-    # Recovery codes are authentication factors. Rotate the session generation
-    # and revoke every existing refresh token when they change, then mint one
-    # replacement session for the recently MFA-verified caller.
-    state.session_version += 1
-    state.updated_at = now
-    await RefreshTokenRepository(session).revoke_all_for_user(current_user.id)
-    auth_claims = getattr(request.state, "auth_claims", {})
-    authentication_methods = auth_claims.get("amr") if isinstance(auth_claims, dict) else None
-    factor_method = (
-        "recovery_code"
-        if isinstance(authentication_methods, list) and "recovery_code" in authentication_methods
-        else "totp"
-    )
-    await _issue_authenticated_session(
-        user=current_user,
-        state=state,
+    return await auth_identity_account.regenerate_mfa_recovery_codes(
         request=request,
         response=response,
+        current_user=current_user,
         session=session,
-        method=factor_method,
-        mfa_at=now,
-        session_expires_at=_existing_session_deadline(request),
+        datetime=datetime,
+        _existing_session_deadline=_existing_session_deadline,
+        _issue_authenticated_session=_issue_authenticated_session,
     )
-    await AuditLogRepository(session).record(
-        action="auth.mfa_recovery_codes_regenerated",
-        entity_type="user_account",
-        agency_id=current_user.agency_id,
-        user_id=current_user.id,
-        actor_email=current_user.email,
-        entity_id=str(current_user.id),
-        ip_address=trusted_client_ip(request),
-        metadata={"sessions_revoked": True, "current_session_rotated": True},
-    )
-    await session.commit()
-    response.headers["Cache-Control"] = "private, no-store, max-age=0"
-    response.headers["Pragma"] = "no-cache"
-    return MFARecoveryCodesResponse(recovery_codes=codes)
 
 
 __all__ = ["begin_dashboard_mfa_challenge", "router"]

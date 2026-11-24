@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "--tb=short",
+    "tests/unit/application/test_platform_policies.py"
+  ],
+  "exit_code": 0,
+  "before": {
+    "backend/app/application/platform_policies.py": "514ecdb31d8f22614489b51ebaec0687b0c6d27244f66fb907addd430f170968",
+    "backend/tests/unit/application/test_platform_policies.py": "276b92897f44680a9ef57b45bd68182ae47c9648682043b59c605ee3db662b8e"
+  },
+  "after": {
+    "backend/app/application/platform_policies.py": "514ecdb31d8f22614489b51ebaec0687b0c6d27244f66fb907addd430f170968",
+    "backend/tests/unit/application/test_platform_policies.py": "276b92897f44680a9ef57b45bd68182ae47c9648682043b59c605ee3db662b8e"
+  },
+  "source_frozen": true,
+  "output": "platform-policy-shape-final-tests.txt"
+}

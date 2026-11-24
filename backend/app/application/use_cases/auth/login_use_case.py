@@ -1,23 +1,10 @@
-"""
-Login Use Case
-==============
-Orchestrates the user login flow.
-
-Steps:
-  1. Look up user by email.
-  2. Verify password.
-  3. Check account is active.
-  4. Record last login timestamp.
-  5. Issue access token + refresh token.
-  6. Persist refresh token.
-  7. Return AuthResponseDTO.
-"""
+"""Verify dashboard credentials and issue sessions after authentication gates."""
 
 from __future__ import annotations
 
 from datetime import datetime, timedelta
 
-from app.application.dtos.auth_dtos import AuthResponseDTO, LoginInputDTO, UserOutputDTO
+from app.application.dtos.auth_dtos import AuthResponseDTO, LoginInputDTO, user_output_from_entity
 from app.core.config.settings import get_settings
 from app.core.logging.logger import get_logger
 from app.core.security.jwt import create_access_token, create_refresh_token
@@ -36,14 +23,7 @@ _DUMMY_PASSWORD_HASH = "$2b$12$UNslkxiKhfVqyfCKD8VxsuRfyiTkzySdJYnzFZNrMWNTVfgCC
 
 
 class LoginUseCase:
-    """
-    Authenticates a user and issues a token pair.
-
-    Depends on:
-      - IUserRepository (domain interface — never the ORM directly)
-      - RefreshTokenRepository (infrastructure — acceptable here as it
-        has no domain logic, only persistence)
-    """
+    """Authenticate credentials separately from the final session issuance."""
 
     def __init__(
         self,
@@ -51,7 +31,7 @@ class LoginUseCase:
         refresh_token_repository: RefreshTokenRepository,
         login_attempt_limiter: LoginAttemptLimiter | None = None,
     ) -> None:
-        self._user_repo  = user_repository
+        self._user_repo = user_repository
         self._token_repo = refresh_token_repository
         self._limiter = login_attempt_limiter
         self._owns_limiter = login_attempt_limiter is None
@@ -95,7 +75,6 @@ class LoginUseCase:
         limiter = self._attempt_limiter()
         await limiter.check_allowed(email=dto.email, ip_address=client_ip)
 
-        # 1. Fetch user
         user = await self._user_repo.get_by_email(dto.email)
         if not user:
             # Match the expensive verification work performed for known users.
@@ -103,13 +82,11 @@ class LoginUseCase:
             await limiter.record_failure(email=dto.email, ip_address=client_ip)
             raise AuthenticationError("Invalid email or password")
 
-        # 2. Verify password
         if not await run_password_work(verify_password, dto.password, user.hashed_password):
             logger.warning("login_failed_bad_password", user_id=str(user.id))
             await limiter.record_failure(email=dto.email, ip_address=client_ip)
             raise AuthenticationError("Invalid email or password")
 
-        # 3. Check active
         if not user.is_active:
             logger.warning("login_failed_inactive", user_id=str(user.id))
             await limiter.record_failure(email=dto.email, ip_address=client_ip)
@@ -143,19 +120,19 @@ class LoginUseCase:
     ) -> AuthResponseDTO:
         """Mint a session only after every required authentication gate passes."""
 
-        # 4. Record login
         user.record_login()
         await self._user_repo.update(user)
 
-        # 5. Issue tokens
         mfa_deadline = (
             mfa_authenticated_at + timedelta(days=get_settings().jwt.refresh_token_expire_days)
-            if mfa_authenticated_at is not None else None
+            if mfa_authenticated_at is not None
+            else None
         )
         if session_expires_at is not None:
-            mfa_deadline = min(mfa_deadline, session_expires_at) if mfa_deadline else session_expires_at
+            mfa_deadline = (
+                min(mfa_deadline, session_expires_at) if mfa_deadline else session_expires_at
+            )
         refresh_token, refresh_expires = create_refresh_token(expires_at=mfa_deadline)
-        # 6. Persist refresh token
         stored = await self._token_repo.save(
             token=refresh_token,
             user_id=user.id,
@@ -167,29 +144,19 @@ class LoginUseCase:
         )
 
         access_token, access_expires = create_access_token(
-            user_id=user.id, role=user.role.value, agency_id=user.agency_id,
-            session_version=session_version, authentication_methods=authentication_methods,
-            mfa_authenticated_at=mfa_authenticated_at, session_expires_at=refresh_expires,
+            user_id=user.id,
+            role=user.role.value,
+            agency_id=user.agency_id,
+            session_version=session_version,
+            authentication_methods=authentication_methods,
+            mfa_authenticated_at=mfa_authenticated_at,
+            session_expires_at=refresh_expires,
             session_id=stored.session_id,
         )
         logger.info("login_success", user_id=str(user.id), role=user.role.value)
 
-        # 7. Return response DTO
         return AuthResponseDTO(
-            user=UserOutputDTO(
-                id=user.id,
-                email=user.email,
-                full_name=user.full_name,
-                role=user.role.value,
-                agency_id=user.agency_id,
-                is_active=user.is_active,
-                last_login_at=user.last_login_at,
-                created_at=user.created_at,
-                updated_at=user.updated_at,
-                credential_state=user.credential_state,
-                mfa_required=user.mfa_required,
-                mfa_enabled=user.mfa_enabled,
-            ),
+            user=user_output_from_entity(user),
             access_token=access_token,
             refresh_token=refresh_token,
             access_token_expires_at=access_expires,

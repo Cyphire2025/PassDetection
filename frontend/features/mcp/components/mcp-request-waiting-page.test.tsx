@@ -10,7 +10,7 @@ import { McpRequestWaitingPage } from "./mcp-request-waiting-page";
 
 vi.mock("../api/mcp-request.api", async (original) => {
   const actual = await original<typeof import("../api/mcp-request.api")>();
-  return { ...actual, mcpRequestApi: { status: vi.fn(), finalize: vi.fn(), update: vi.fn() } };
+  return { ...actual, mcpRequestApi: { status: vi.fn(), finalize: vi.fn() } };
 });
 const id = "eaf5b697-d6ca-4a86-bf09-3b9780139fb1";
 const request: McpConnectionRequest = { id, name: "Codex device", device_platform: "Windows", client_name: "Codex", comparison_code: "V8M-2QK",
@@ -101,4 +101,27 @@ it("removes stale pending copy after the browser loses its request cookie", asyn
   expect(screen.queryByText(/Your access request is awaiting administrator approval/)).not.toBeInTheDocument();
   expect(screen.queryByText(request.comparison_code)).not.toBeInTheDocument();
   expect(mcpRequestApi.finalize).not.toHaveBeenCalled();
+});
+
+it("does not redirect a departed request page when its finalization resolves late", async () => {
+  let release!: (value: McpRequestCallback) => void;
+  vi.mocked(mcpRequestApi.status).mockResolvedValue({ ...request, status: "approved" });
+  vi.mocked(mcpRequestApi.finalize).mockImplementationOnce(() => new Promise(resolve => { release = resolve; }));
+  const view = renderWaiting();
+  await waitFor(() => expect(mcpRequestApi.finalize).toHaveBeenCalledOnce());
+  view.unmount();
+  await act(async () => { release(callback); });
+  expect(mcpClientNavigation.assign).not.toHaveBeenCalled();
+});
+
+it("keeps the same finalization alive across a status refresh in StrictMode", async () => {
+  let release!: (value: McpRequestCallback) => void;
+  vi.mocked(mcpRequestApi.status).mockResolvedValue({ ...request, status: "approved" });
+  vi.mocked(mcpRequestApi.finalize).mockImplementationOnce(() => new Promise(resolve => { release = resolve; }));
+  const view = renderWaiting();
+  await waitFor(() => expect(mcpRequestApi.finalize).toHaveBeenCalledOnce());
+  await act(async () => { await view.client.invalidateQueries({ queryKey: ["mcp-requester", id] }); });
+  await act(async () => { release(callback); });
+  expect(mcpRequestApi.finalize).toHaveBeenCalledOnce();
+  expect(mcpClientNavigation.assign).toHaveBeenCalledExactlyOnceWith(callback.redirect_url);
 });

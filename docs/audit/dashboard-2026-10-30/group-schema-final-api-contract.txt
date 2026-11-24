@@ -1,0 +1,33 @@
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\backend\scripts\export_api_contract.py", line 74, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\scripts\export_api_contract.py", line 58, in main
+    json.dumps(application_contract(), ensure_ascii=False, sort_keys=True, indent=2) + "\n"
+               ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\scripts\export_api_contract.py", line 45, in application_contract
+    return create_application(settings, initialize_rate_limit_redis=False).openapi()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\api\v1\openapi_contract.py", line 29, in schema
+    document = get_openapi(
+               ^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\fastapi\openapi\utils.py", line 517, in get_openapi
+    field_mapping, definitions = get_definitions(
+                                 ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\fastapi\_compat\v2.py", line 323, in get_definitions
+    field_mapping, definitions = schema_generator.generate_definitions(inputs=inputs)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\pydantic\json_schema.py", line 379, in generate_definitions
+    self.generate_inner(schema)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\pydantic\json_schema.py", line 459, in generate_inner
+    if 'ref' in schema:
+       ^^^^^^^^^^^^^^^
+  File "<frozen _collections_abc>", line 780, in __contains__
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\pydantic\_internal\_mock_val_ser.py", line 41, in __getitem__
+    return self._get_built().__getitem__(key)
+           ^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\pydantic\_internal\_mock_val_ser.py", line 58, in _get_built
+    raise PydanticUserError(self._error_message, code=self._code)
+pydantic.errors.PydanticUserError: `TypeAdapter[typing.Annotated[app.presentation.api.v1.schemas.client_group_match_schemas.ReplacementCandidateListResponse, FieldInfo(annotation=NoneType, required=True)]]` is not fully defined; you should define `typing.Annotated[app.presentation.api.v1.schemas.client_group_match_schemas.ReplacementCandidateListResponse, FieldInfo(annotation=NoneType, required=True)]` and all referenced types, then call `.rebuild()` on the instance.
+
+For further information visit https://errors.pydantic.dev/2.12/u/class-not-fully-defined

@@ -1,0 +1,9 @@
+{
+  "candidates": "docs/audit/dashboard-2026-10-30/whatsapp-budget-candidates.json",
+  "before_sha256": "104fecd006dd128f6cc4783b31ca0c1654449df65d0b1a87807264ab6af51334",
+  "sha256": "9979ca54a408240fdd49d194a56149d96f33dfbb512198378cc7a257c75dfc72",
+  "lf_normalized_sha256": "658555172b41690d504bf3fce6754c6828d9a3a2f21752e2c409c980f3d51266",
+  "added": 21,
+  "lowered_existing": 0,
+  "existing_ceilings_preserved": true
+}

@@ -1,0 +1,245 @@
+[
+  {
+    "path": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+    "sha256": "a4d55abbfe19c27d2f5f992525572bb2bb62461c276a6753f28f9ba39b12b69e",
+    "physical_lines": 20,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full original physical source read and focused owner authored/reviewed. Exact normalized method/function movement is independently recorded in gc-admin-decomposition-equivalence.json; newly authored import/wiring and local behavior changes inspected. This is separate from automated classification/test execution."
+  },
+  {
+    "path": "frontend/features/gc-app/api/gc-app-wire.types.ts",
+    "sha256": "89fed20ed03858ad5840f3a8fdb11b65f43bae67c00dd98bf12ac37c845c874f",
+    "physical_lines": 145,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full original physical source read and focused owner authored/reviewed. Exact normalized method/function movement is independently recorded in gc-admin-decomposition-equivalence.json; newly authored import/wiring and local behavior changes inspected. This is separate from automated classification/test execution."
+  },
+  {
+    "path": "frontend/features/gc-app/api/gc-app-directory.api.ts",
+    "sha256": "4ba9ce7f17bb651183e667c6d0c3dee7c3f7384f40eb9f4661d63fafa9385e51",
+    "physical_lines": 93,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full original physical source read and focused owner authored/reviewed. Exact normalized method/function movement is independently recorded in gc-admin-decomposition-equivalence.json; newly authored import/wiring and local behavior changes inspected. This is separate from automated classification/test execution."
+  },
+  {
+    "path": "frontend/features/gc-app/api/gc-app-managers.api.ts",
+    "sha256": "530eea92e22bab090fe5b3da1904cf54df26a2461a6f5972e9a13b53a59bd91f",
+    "physical_lines": 155,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full original physical source read and focused owner authored/reviewed. Exact normalized method/function movement is independently recorded in gc-admin-decomposition-equivalence.json; newly authored import/wiring and local behavior changes inspected. This is separate from automated classification/test execution."
+  },
+  {
+    "path": "frontend/features/gc-app/api/gc-app-groups.api.ts",
+    "sha256": "742e84370a2d4157ee6cbadfc4d37498e150747ab1a52bbf2c521dfedb7a2737",
+    "physical_lines": 170,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full original physical source read and focused owner authored/reviewed. Exact normalized method/function movement is independently recorded in gc-admin-decomposition-equivalence.json; newly authored import/wiring and local behavior changes inspected. This is separate from automated classification/test execution."
+  },
+  {
+    "path": "frontend/features/gc-app/api/gc-app-documents.api.ts",
+    "sha256": "0d409c68f34db37e0fb0a6083e2d164af5e5f49ffae083c92a790731041ba27e",
+    "physical_lines": 122,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full original physical source read and focused owner authored/reviewed. Exact normalized method/function movement is independently recorded in gc-admin-decomposition-equivalence.json; newly authored import/wiring and local behavior changes inspected. This is separate from automated classification/test execution."
+  },
+  {
+    "path": "frontend/features/gc-app/api/gc-app-itineraries.api.ts",
+    "sha256": "b1371566daaa921158f706b8a4eae4821bdfa896df79411e2eb70804d10bd54e",
+    "physical_lines": 65,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full original physical source read and focused owner authored/reviewed. Exact normalized method/function movement is independently recorded in gc-admin-decomposition-equivalence.json; newly authored import/wiring and local behavior changes inspected. This is separate from automated classification/test execution."
+  },
+  {
+    "path": "frontend/features/gc-app/api/gc-app-announcements.api.ts",
+    "sha256": "4d0d5ed7e7aed4e6c9bcc309e8cc7040061ad82e896df17828649c4f6105830b",
+    "physical_lines": 90,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full original physical source read and focused owner authored/reviewed. Exact normalized method/function movement is independently recorded in gc-admin-decomposition-equivalence.json; newly authored import/wiring and local behavior changes inspected. This is separate from automated classification/test execution."
+  },
+  {
+    "path": "frontend/features/gc-app/api/gc-app-audit.api.ts",
+    "sha256": "2ffd9bc269c993b01fe2d258d394be1d7dc5424036bb2549ac887140fb27fea5",
+    "physical_lines": 44,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full original physical source read and focused owner authored/reviewed. Exact normalized method/function movement is independently recorded in gc-admin-decomposition-equivalence.json; newly authored import/wiring and local behavior changes inspected. This is separate from automated classification/test execution. Two duplicated event projections consolidated; bounded endpoints, signals and allowlisted private-field projection behavior tested."
+  },
+  {
+    "path": "frontend/features/gc-app/api/gc-app-transport.ts",
+    "sha256": "e6ee9a0b8b2d483a6dde636e1883734930f1dd6d345164b65ff1c40522d07681",
+    "physical_lines": 53,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full original physical source read and focused owner authored/reviewed. Exact normalized method/function movement is independently recorded in gc-admin-decomposition-equivalence.json; newly authored import/wiring and local behavior changes inspected. This is separate from automated classification/test execution."
+  },
+  {
+    "path": "frontend/features/gc-app/api/gc-app-account-mappers.ts",
+    "sha256": "0b5446f5f836b63582f7e24a3181da62efaec9415cc5a44d1b0a9f1c60e6f48b",
+    "physical_lines": 108,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full original physical source read and focused owner authored/reviewed. Exact normalized method/function movement is independently recorded in gc-admin-decomposition-equivalence.json; newly authored import/wiring and local behavior changes inspected. This is separate from automated classification/test execution."
+  },
+  {
+    "path": "frontend/features/gc-app/api/gc-app-content-mappers.ts",
+    "sha256": "6e00cbcd498b7402d1908a8f67f85fd5f3292cbf3dcd73ec07f4b008110b045f",
+    "physical_lines": 81,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full original physical source read and focused owner authored/reviewed. Exact normalized method/function movement is independently recorded in gc-admin-decomposition-equivalence.json; newly authored import/wiring and local behavior changes inspected. This is separate from automated classification/test execution."
+  },
+  {
+    "path": "frontend/features/gc-app/hooks/use-gc-app-admin.ts",
+    "sha256": "6b3c0cf720fc93f24a3044b48152a05d8d26696739451c64194955bdb6740cf2",
+    "physical_lines": 18,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full original physical source read and focused owner authored/reviewed. Exact normalized method/function movement is independently recorded in gc-admin-decomposition-equivalence.json; newly authored import/wiring and local behavior changes inspected. This is separate from automated classification/test execution."
+  },
+  {
+    "path": "frontend/features/gc-app/hooks/gc-app-query-config.ts",
+    "sha256": "8769b0ac107d33a4cac4067dfaaade631fe63902d0983c5f835f62c2f9796ec7",
+    "physical_lines": 47,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full original physical source read and focused owner authored/reviewed. Exact normalized method/function movement is independently recorded in gc-admin-decomposition-equivalence.json; newly authored import/wiring and local behavior changes inspected. This is separate from automated classification/test execution."
+  },
+  {
+    "path": "frontend/features/gc-app/hooks/use-gc-client-directory.ts",
+    "sha256": "f4a43646fe2f9cb13ef6c8098d0e580005617eadb00c3d0f11fba19b72fdc3c8",
+    "physical_lines": 57,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full original physical source read and focused owner authored/reviewed. Exact normalized method/function movement is independently recorded in gc-admin-decomposition-equivalence.json; newly authored import/wiring and local behavior changes inspected. This is separate from automated classification/test execution."
+  },
+  {
+    "path": "frontend/features/gc-app/hooks/use-gc-client-managers.ts",
+    "sha256": "076f3bd971bafbf4adf5acdcaa5c39362382b433fd052f7d30a96bbd5a000378",
+    "physical_lines": 104,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full original physical source read and focused owner authored/reviewed. Exact normalized method/function movement is independently recorded in gc-admin-decomposition-equivalence.json; newly authored import/wiring and local behavior changes inspected. This is separate from automated classification/test execution."
+  },
+  {
+    "path": "frontend/features/gc-app/hooks/use-gc-group-queries.ts",
+    "sha256": "bdcadd50ce40a5484ff7eb254563d91c8baf059432cb126d76806723d408f1c8",
+    "physical_lines": 68,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full original physical source read and focused owner authored/reviewed. Exact normalized method/function movement is independently recorded in gc-admin-decomposition-equivalence.json; newly authored import/wiring and local behavior changes inspected. This is separate from automated classification/test execution."
+  },
+  {
+    "path": "frontend/features/gc-app/hooks/use-gc-group-mutations.ts",
+    "sha256": "d7d6510746d5cba13b3dab3a51cd7e76428308ca5be862f78b1c57f437d93ffc",
+    "physical_lines": 206,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full original physical source read and focused owner authored/reviewed. Exact normalized method/function movement is independently recorded in gc-admin-decomposition-equivalence.json; newly authored import/wiring and local behavior changes inspected. This is separate from automated classification/test execution."
+  },
+  {
+    "path": "frontend/features/gc-app/components/app-controls-page.tsx",
+    "sha256": "eb162b026387f023e5e4b3ea20cdfbeeea2b440a793ad4b24bf0e3263a0fe027",
+    "physical_lines": 132,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full original physical source read and focused owner authored/reviewed. Exact normalized method/function movement is independently recorded in gc-admin-decomposition-equivalence.json; newly authored import/wiring and local behavior changes inspected. This is separate from automated classification/test execution."
+  },
+  {
+    "path": "frontend/features/gc-app/components/add-gc-app-group-dialog.tsx",
+    "sha256": "a41d1d91136683a6bc1219b304df924c0b3cd929588a52f6a311e8e9f3ed6910",
+    "physical_lines": 238,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full original physical source read and focused owner authored/reviewed. Exact normalized method/function movement is independently recorded in gc-admin-decomposition-equivalence.json; newly authored import/wiring and local behavior changes inspected. This is separate from automated classification/test execution. Existing picker state stays unconditionally mounted inside agency-keyed workspace; query enablement, page/search/selection persistence and exact-name removal confirmation retained."
+  },
+  {
+    "path": "frontend/features/gc-app/hooks/use-gc-group-picker.ts",
+    "sha256": "f1ac8115c202c323cecef825c68990c0299ecc63c4b545e7c492748a9add6cc2",
+    "physical_lines": 86,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full original physical source read and focused owner authored/reviewed. Exact normalized method/function movement is independently recorded in gc-admin-decomposition-equivalence.json; newly authored import/wiring and local behavior changes inspected. This is separate from automated classification/test execution. Existing picker state stays unconditionally mounted inside agency-keyed workspace; query enablement, page/search/selection persistence and exact-name removal confirmation retained."
+  },
+  {
+    "path": "frontend/features/gc-app/components/common-documents-panel.tsx",
+    "sha256": "197d601a609524e90b2ded0201ea96d7ffa895ddcb584caff7864d5f2a33c076",
+    "physical_lines": 275,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full original physical source read and focused owner authored/reviewed. Exact normalized method/function movement is independently recorded in gc-admin-decomposition-equivalence.json; newly authored import/wiring and local behavior changes inspected. This is separate from automated classification/test execution."
+  },
+  {
+    "path": "frontend/features/gc-app/components/common-document-upload-form.tsx",
+    "sha256": "822f50bb9c633223e09fc1decc3272357b914304e22e145758009faa459ab909",
+    "physical_lines": 155,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full original physical source read and focused owner authored/reviewed. Exact normalized method/function movement is independently recorded in gc-admin-decomposition-equivalence.json; newly authored import/wiring and local behavior changes inspected. This is separate from automated classification/test execution. Same-turn duplicate upload reproduced (2 calls before fix) and blocked by synchronous in-flight guard; failed upload retains selected file and does not retry."
+  },
+  {
+    "path": "frontend/features/gc-app/components/common-document-rows.tsx",
+    "sha256": "f5f5f41a7e062d8b7dfa28773de5ac087e6bd74c9a2e222c25051f32c49ad6cd",
+    "physical_lines": 63,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full original physical source read and focused owner authored/reviewed. Exact normalized method/function movement is independently recorded in gc-admin-decomposition-equivalence.json; newly authored import/wiring and local behavior changes inspected. This is separate from automated classification/test execution."
+  },
+  {
+    "path": "frontend/features/gc-app/components/client-manager-details-dialog.tsx",
+    "sha256": "5c0aff4e1445c1f8aba6ab32a379d248fcd308ebff94d36f3b4b9c2a2e905ce5",
+    "physical_lines": 277,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full original physical source read and focused owner authored/reviewed. Exact normalized method/function movement is independently recorded in gc-admin-decomposition-equivalence.json; newly authored import/wiring and local behavior changes inspected. This is separate from automated classification/test execution. State/security controller extracted without changing revision/confirmation/one-time credential semantics. Roving ArrowLeft/Right/Home/End tabs now linked to named visible panels; new keyboard negative failed before correction."
+  },
+  {
+    "path": "frontend/features/gc-app/components/client-manager-details.types.ts",
+    "sha256": "8b7f9aa264a1427a6d04990cf9ef01f72ef65273def16a76e9abe3d326c721f1",
+    "physical_lines": 14,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full original physical source read and focused owner authored/reviewed. Exact normalized method/function movement is independently recorded in gc-admin-decomposition-equivalence.json; newly authored import/wiring and local behavior changes inspected. This is separate from automated classification/test execution. State/security controller extracted without changing revision/confirmation/one-time credential semantics. Roving ArrowLeft/Right/Home/End tabs now linked to named visible panels; new keyboard negative failed before correction."
+  },
+  {
+    "path": "frontend/features/gc-app/hooks/use-client-manager-details.ts",
+    "sha256": "5206a2147bddc54cce283bd4ae8b677f6e4655006d8a1544745dbda44d80cf17",
+    "physical_lines": 122,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full original physical source read and focused owner authored/reviewed. Exact normalized method/function movement is independently recorded in gc-admin-decomposition-equivalence.json; newly authored import/wiring and local behavior changes inspected. This is separate from automated classification/test execution. State/security controller extracted without changing revision/confirmation/one-time credential semantics. Roving ArrowLeft/Right/Home/End tabs now linked to named visible panels; new keyboard negative failed before correction."
+  }
+]

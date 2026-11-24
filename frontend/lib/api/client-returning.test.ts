@@ -10,6 +10,7 @@ vi.mock("@/features/auth/services/refresh-coordinator", () => ({ readRefreshEpoc
 describe("returning proof errors", () => {
   it.each(["detail", "error"])("decodes a protected blob %s failure while retaining cookie scope, cancellation and retry advice", async (envelope) => {
     vi.stubGlobal("Blob", NodeBlob);
+    const readBlob = vi.spyOn(NodeBlob.prototype, "text");
     const controller = new AbortController();
     const post = vi.spyOn(axios, "post");
     const adapter = (config: InternalAxiosRequestConfig) => {
@@ -25,7 +26,20 @@ describe("returning proof errors", () => {
       await expect(apiClient.get("/api/v1/returning/documents/synthetic-asset", { responseType: "blob", signal: controller.signal, adapter })).rejects.toMatchObject({ status: 429, code: "verification_cooldown", message: "Please wait before trying again.", retryAfterMs: 30_000 });
       expect(post).not.toHaveBeenCalled();
       expect(stepUp).not.toHaveBeenCalled();
-    } finally { post.mockRestore(); vi.unstubAllGlobals(); }
+      expect(readBlob).toHaveBeenCalledTimes(1);
+    } finally { post.mockRestore(); readBlob.mockRestore(); vi.unstubAllGlobals(); }
+  });
+  it("does not allocate an unbounded text copy of an oversized download error", async () => {
+    vi.stubGlobal("Blob", NodeBlob);
+    const readBlob = vi.spyOn(NodeBlob.prototype, "text");
+    const adapter = (config: InternalAxiosRequestConfig) => Promise.reject(new AxiosError(
+      "Gateway unavailable", "ERR_BAD_RESPONSE", config, undefined,
+      { data: new NodeBlob(["x".repeat(65 * 1024)]), status: 503, statusText: "Unavailable", headers: new AxiosHeaders({ "retry-after": "15" }), config },
+    ));
+    try {
+      await expect(apiClient.get("/api/v1/returning/documents/synthetic-asset", { responseType: "blob", adapter })).rejects.toMatchObject({ code: "HTTP_503", status: 503, retryAfterMs: 15_000 });
+      expect(readBlob).not.toHaveBeenCalled();
+    } finally { readBlob.mockRestore(); vi.unstubAllGlobals(); }
   });
   it.each([[401, "/api/v1/returning/passport"], [403, "/api/v1/returning/passport"], [401, "/api/v1/public-drafts/trip"], [403, "/api/v1/public-drafts/trip/documents/front"]] as const)("does not refresh or step up a staff session for public proof status %s at %s", async (status, path) => {
     const post = vi.spyOn(axios, "post");

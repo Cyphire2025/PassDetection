@@ -1,0 +1,11 @@
+# Residual deployment configuration review
+
+Seven previously unreviewed sources were physically read in full: four Compose overlays, two nginx API error includes, and the alert-rule fixture file. They total 676 physical lines. Current hashes, complete supporting source reads, and explicitly partial caller traces are recorded in `deployment-config-reviewed-files.json`.
+
+The audit-only Compose environment pinned readiness to `0093_phone_welcome` while its backend command upgrades the database to the current head. Two actual local schema regressions showed the current head rejected and the older revision accepted. Removing that obsolete override makes the isolated stack inherit the packaged release contract. The five-case selection then passed in 2.61 seconds. It uses real Settings, the real readiness helper, a real SQLite version table, and the actual single Alembic migration head. It does not qualify a complete running stack or PostgreSQL migration/locking behavior.
+
+Only that one Compose line changed, becoming an explanatory comment. The exact complete-line inverse restores the original source bytes; whole parsed YAML is identical after removing only the old key, including its anchored backend environment. Production overlays, service/queue/project identities, commands, synthetic credentials, mounts, and host ports are preserved. No package, gate, model or architecture policy changed.
+
+The active nginx includes return literal nonreflective JSON errors with no-store headers. Their server/location imports and the existing isolated container verifier were traced; the verifier was not run. Alert test scenarios were compared to the actual rule expressions and pinned CI promtool invocation; no local promtool or nginx executable was available, and no Docker or external monitoring action was performed. Existing operational names are retained.
+
+The frozen receipt is `deployment-config-verification.json`. Exact protected-file admission is delegated to the central release owner using both actual Git baselines and the reviewed current hash; no null baseline or qualification is inferred. Three legacy migration documents still describe the old schema as current; those precise documentation candidates remain separate from intentionally old release-operator contracts.

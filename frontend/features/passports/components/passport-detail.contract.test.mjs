@@ -1,13 +1,11 @@
+import { passportHooksSource as hooksSource } from "../hooks/passport-hooks-source.contract-helper.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-const source = ["passport-detail.tsx", "use-passport-detail-navigation.ts"]
+const source = ["passport-detail.tsx", "use-passport-detail-navigation.ts", "use-passport-detail-controller.ts", "passport-review-card.tsx", "use-passport-field-review.ts", "passport-review-actions.tsx", "passport-review-fields.tsx", "passport-review-status.tsx", "passport-review-model.ts"]
   .map((name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8")).join("\n");
-const hooksSource = readFileSync(
-  new URL("../hooks/use-passports.ts", import.meta.url),
-  "utf8",
-);
+
 const clientDetailsSource = readFileSync(
   new URL("./client-provided-fields-card.tsx", import.meta.url),
   "utf8",

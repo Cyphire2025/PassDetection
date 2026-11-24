@@ -1,0 +1,18 @@
+2026-10-31T05:44:08.897093Z [debug    ] Initializing server 'Global Connects' [mcp.server.lowlevel.server]
+{
+  "checks": 58,
+  "workload": {
+    "declared_unique_headings": 3000,
+    "returned_keys": 256,
+    "same_output": true,
+    "before": {
+      "peak_normalized_keys": 3000,
+      "string_equality_comparisons": 4498500
+    },
+    "after": {
+      "peak_normalized_keys": 257,
+      "string_equality_comparisons": 0
+    },
+    "additional_output_parity_cohorts": 7
+  }
+}

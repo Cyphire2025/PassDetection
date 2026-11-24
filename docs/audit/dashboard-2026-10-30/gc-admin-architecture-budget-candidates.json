@@ -1,0 +1,191 @@
+[
+  {
+    "path": "features/gc-app/api/gc-app-admin.api.ts",
+    "baselineLines": 20,
+    "maximumLines": 30,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/gc-app/api/gc-app-wire.types.ts",
+    "baselineLines": 145,
+    "maximumLines": 150,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/gc-app/api/gc-app-directory.api.ts",
+    "baselineLines": 93,
+    "maximumLines": 100,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/gc-app/api/gc-app-managers.api.ts",
+    "baselineLines": 155,
+    "maximumLines": 160,
+    "baselineMaxFunctionComplexity": 4,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/gc-app/api/gc-app-groups.api.ts",
+    "baselineLines": 170,
+    "maximumLines": 180,
+    "baselineMaxFunctionComplexity": 4,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/gc-app/api/gc-app-documents.api.ts",
+    "baselineLines": 122,
+    "maximumLines": 130,
+    "baselineMaxFunctionComplexity": 5,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/gc-app/api/gc-app-itineraries.api.ts",
+    "baselineLines": 65,
+    "maximumLines": 70,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/gc-app/api/gc-app-announcements.api.ts",
+    "baselineLines": 90,
+    "maximumLines": 100,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/gc-app/api/gc-app-audit.api.ts",
+    "baselineLines": 44,
+    "maximumLines": 50,
+    "baselineMaxFunctionComplexity": 1,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/gc-app/api/gc-app-transport.ts",
+    "baselineLines": 53,
+    "maximumLines": 60,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/gc-app/api/gc-app-account-mappers.ts",
+    "baselineLines": 108,
+    "maximumLines": 120,
+    "baselineMaxFunctionComplexity": 25,
+    "maximumFunctionComplexity": 26
+  },
+  {
+    "path": "features/gc-app/api/gc-app-content-mappers.ts",
+    "baselineLines": 81,
+    "maximumLines": 90,
+    "baselineMaxFunctionComplexity": 4,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/gc-app/hooks/use-gc-app-admin.ts",
+    "baselineLines": 18,
+    "maximumLines": 30,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/gc-app/hooks/gc-app-query-config.ts",
+    "baselineLines": 47,
+    "maximumLines": 60,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/gc-app/hooks/use-gc-client-directory.ts",
+    "baselineLines": 57,
+    "maximumLines": 70,
+    "baselineMaxFunctionComplexity": 1,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/gc-app/hooks/use-gc-client-managers.ts",
+    "baselineLines": 104,
+    "maximumLines": 110,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/gc-app/hooks/use-gc-group-queries.ts",
+    "baselineLines": 68,
+    "maximumLines": 80,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/gc-app/hooks/use-gc-group-mutations.ts",
+    "baselineLines": 206,
+    "maximumLines": 220,
+    "baselineMaxFunctionComplexity": 4,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/gc-app/components/app-controls-page.tsx",
+    "baselineLines": 132,
+    "maximumLines": 140,
+    "baselineMaxFunctionComplexity": 19,
+    "maximumFunctionComplexity": 20
+  },
+  {
+    "path": "features/gc-app/components/add-gc-app-group-dialog.tsx",
+    "baselineLines": 238,
+    "maximumLines": 250,
+    "baselineMaxFunctionComplexity": 15,
+    "maximumFunctionComplexity": 16
+  },
+  {
+    "path": "features/gc-app/hooks/use-gc-group-picker.ts",
+    "baselineLines": 86,
+    "maximumLines": 100,
+    "baselineMaxFunctionComplexity": 6,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/gc-app/components/common-documents-panel.tsx",
+    "baselineLines": 275,
+    "maximumLines": 280,
+    "baselineMaxFunctionComplexity": 12,
+    "maximumFunctionComplexity": 13
+  },
+  {
+    "path": "features/gc-app/components/common-document-upload-form.tsx",
+    "baselineLines": 155,
+    "maximumLines": 160,
+    "baselineMaxFunctionComplexity": 19,
+    "maximumFunctionComplexity": 20
+  },
+  {
+    "path": "features/gc-app/components/common-document-rows.tsx",
+    "baselineLines": 63,
+    "maximumLines": 70,
+    "baselineMaxFunctionComplexity": 4,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/gc-app/components/client-manager-details-dialog.tsx",
+    "baselineLines": 277,
+    "maximumLines": 290,
+    "baselineMaxFunctionComplexity": 30,
+    "maximumFunctionComplexity": 31
+  },
+  {
+    "path": "features/gc-app/components/client-manager-details.types.ts",
+    "baselineLines": 14,
+    "maximumLines": 20,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/gc-app/hooks/use-client-manager-details.ts",
+    "baselineLines": 122,
+    "maximumLines": 130,
+    "baselineMaxFunctionComplexity": 9,
+    "maximumFunctionComplexity": 10
+  }
+]

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.436" timestamp="2026-10-31T05:17:16.754405+05:30" hostname="Nipun5070ti"><testcase classname="tests.unit.application.test_attendance_read_contract_aliases" name="test_shared_read_contracts_preserve_single_identity_pickle_and_type_resolution" time="0.002"><failure message="NameError: name 'datetime' is not defined">tests\unit\application\test_attendance_read_contract_aliases.py:45: in test_shared_read_contracts_preserve_single_identity_pickle_and_type_resolution
+    assert set(get_type_hints(kind)) == {field.name for field in dataclasses.fields(kind)}
+               ^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\typing.py:2377: in get_type_hints
+    value = _eval_type(value, base_globals, base_locals)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\typing.py:395: in _eval_type
+    return t._evaluate(globalns, localns, recursive_guard)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\typing.py:905: in _evaluate
+    eval(self.__forward_code__, globalns, localns),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+&lt;string&gt;:1: in &lt;module&gt;
+    ???
+E   NameError: name 'datetime' is not defined</failure></testcase></testsuite></testsuites>

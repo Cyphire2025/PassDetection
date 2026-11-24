@@ -1,0 +1,101 @@
+[
+  {
+    "path": "backend/tests/unit/infrastructure/test_identity_notifications.py",
+    "sha256": "f5a60ed58b6dc180e5583ab03eefbcce6e2e93e862c016b6a114b4c52df96da8",
+    "physical_lines": 345,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole345lines. Transactional password-recovery identity delivery, not Operations Inbox: deterministic safe development adapter/production refusal, encrypted recipient/payload in durable outbox, dedupe, backoff/deadletter/timeout, inactive action and expired final lease refusal plus old-key decryption rotation reviewed. Actual local DB design with synthetic capturing/failing providers; no notification delivery or new test execution. Complete physical current source read; unchanged bytes, no new execution/fix/validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_identity_rate_limiters.py",
+    "sha256": "5abcbdbb4af99f31e883e88521c7fb2cdfaf46f1b3b12ba2ec3f298abdbd8b10",
+    "physical_lines": 210,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole210lines. Independent recovery network/risk/account/tenant budgets resist context/IP rotation, requiredRedis failure closed, account-wide bounded MFA lock acrossIP, other-account isolation/expiry and successful clear. UnavailableRedis deterministic fixtures, not actual distributedRedis/lock capacity qualification. Complete physical current source read; unchanged bytes, no new execution/fix/validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_identity_retention.py",
+    "sha256": "02f8f43fdea084aa9c383549210d5b539c12573e0f0478e398e745fc36a9127f",
+    "physical_lines": 369,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole369lines. Shared auth action/challenge/recovery-code/outbox retention exact cutoff and microsecond controls preserve active/fresh rows; tenant-bounded10/2/0 restart/idempotent batch and active-token redemption survive cleanup. Email channel is transactional password recovery only, no dedicated Inbox retention audit. No cleanup/DB operation actually executed now. Complete physical current source read; unchanged bytes, no new execution/fix/validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_identity_security_repository.py",
+    "sha256": "6c5f0ffdebbe3ea247e656c3a0d2708de3b1f856b6785d93a96477977299721a",
+    "physical_lines": 331,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole331lines. Action token hashing/supersession/single-use, atomic recovery-code consumption, resetMFA artifacts/session generation, exact-final consume guard, two independent SQLite contender design, superseded outbox terminalization and priorHMACkey rotation reviewed. SQLite contender source does not establish actualPostgres concurrency; no app/import/test execution. Complete physical current source read; unchanged bytes, no new execution/fix/validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_identity_task_routing.py",
+    "sha256": "4da0bb769b8c11aaf3fe656d204a238502df385e6c63c41389b0f38055d1c575",
+    "physical_lines": 100,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole100lines. Shared identity delivery/retention durable periodic passport_ocr routes, returned bounded cleanup counters, coroutine closure in mockedruntime and failure propagation for retry/observability reviewed. Task constants/routing source only, no beat/broker/task execution. Complete physical current source read; unchanged bytes, no new execution/fix/validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_login_attempt_limiter.py",
+    "sha256": "7e5159674c47c385b4f830215ba253eefaa18ea47ee4af50fda916a5912e5c94",
+    "physical_lines": 246,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole246lines. Single atomicTTL eval preservesexistingTTL, mandatoryRedis configuration/runtime/eval failures closed with pool cleanup, explicit idempotent close, boundedlocal fallback and normalized private account/IP key separation reviewed. Lua string assertions/memoryRedis are not actual Redis-server qualification. Complete physical current source read; unchanged bytes, no new execution/fix/validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_otp_limiter_pool_lifetime.py",
+    "sha256": "ef2aafa0b7c0ac08c66ded382a5fbab7d3fde12e731e658c48765d26bc3b47c3",
+    "physical_lines": 58,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole58lines. Shared request-quota client pool cleanup across accepted/denied/unavailable/cancelled/cleanup-failure outcomes for returning/public upload and shared underlying OTP adapter, preserving original decision. Native class appears solely same shared cleanup contract compatibility; no dedicatednative feature/source audit. AsyncMockRedis only. Complete physical current source read; unchanged bytes, no new execution/fix/validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_public_upload_otp_rate_limiter.py",
+    "sha256": "811b44068da9418ec477eca543fcf24fbac115624cf2d821c4b90549cc68abf3",
+    "physical_lines": 45,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole45lines. Retained family upload quota30phone/60IP admission, exact overlimit, hashednamespaced key and independent mobile allowance under same localdict reviewed as sharedcompatibility only. No OTP/provider requests or native UI implementation examined. Complete physical current source read; unchanged bytes, no new execution/fix/validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_traveller_request_rate_limiter.py",
+    "sha256": "db5e1817e9b43da034e490c1b107ec3be5384a13909f9fdf31c5f9c2e5767fea",
+    "physical_lines": 88,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole88lines. Independent network/session counters, privatehashedkeys, productionRedis failure closed/no localfallback, localcapacity never evicts livecounter, atomic60sTTL and explicitpoolclose; returningOTP production cannot inherit relaxed mobileRedis flag. PureRedis doubles, no network or nativefeature audit. Complete physical current source read; unchanged bytes, no new execution/fix/validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_seed_admin.py",
+    "sha256": "f6800b0e9fe1617d474227a47c3e664958613beacc1077fca1c16525bc66505f",
+    "physical_lines": 107,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole107lines. Synthetic explicit credential normalization/validation before settings/database, secret-safe repr, existingadmin unchanged and onlymissingadmin createdsuper via mockedrepository/hash reviewed. No seed script import/execution or real environment/password access occurred. Complete physical current source read; unchanged bytes, no new execution/fix/validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_coordinator_assignment_tasks.py",
+    "sha256": "b937da4af5b611bf3b7875bdd54290989dbc47a8cf15f446b59c983077ad5a57",
+    "physical_lines": 53,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole53lines. Retained dashboard shared coordinator assignment expiry minute route/expiration/resourcebounds and worker commitversusrollback completebatch count projection reviewed. Mocked session and expirycall, no actual schedule/provider/nativeUI/service changes. Complete physical current source read; unchanged bytes, no new execution/fix/validated defect."
+  }
+]

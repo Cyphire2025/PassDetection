@@ -1,0 +1,41 @@
+{
+  "status": "focused readiness-admission behavior checkpoint complete; architecture follow-through pending",
+  "source_sha256": {
+    "scripts/mcp_direct_activate.py": "d9f6f235c1d15eed4c7a28519ab6489c771bb306b49a8c00755395ac68c318e0",
+    "scripts/test_mcp_direct_health_admission.py": "29edc53aec774e60555f0ebe85eacb2aeb7e29281d81d8e283fbf7812a09869c",
+    "scripts/test_mcp_direct_activate.py": "0d742df8a7551e36a72480ef20dff5eebcd109b8f47f68d3ab9961f9b4df94f0",
+    "scripts/mcp_direct_retry.py": "7e8ff8eb0c8452b009c9194aaf0796ecf62ba976ecea44b4498056f9750c57e1",
+    "scripts/mcp_direct_state.py": "7ad7fee19d2e0bcc1216e32258b5fc1b6a75a4969525d1e3bb2fa0c1c531b8ee",
+    "scripts/mcp_direct_release.py": "1d74a7889f251d836fb946df1fdd5b5db72b4a648ea402c7ec4ec6306746440a"
+  },
+  "proof": {
+    "whole_module_AST_restores_after_only_healthcheck_status_and_post_round_deadline_guards": true,
+    "all_original_public_method_args_decorators_annotations_constants_imports_and_other_bodies_unchanged": true,
+    "missing_status_policy": "Configured active healthchecks must report healthy; missing/unknown status cannot authorize candidate cutover",
+    "deadline_policy": "A blocking inspection round cannot authorize readiness after the declared deadline; this does not cancel or shorten an already-running Docker inspect",
+    "preserved": "Absent/null/disabled healthcheck admission, starting poll3seconds, immediate unhealthy/exit/OOM/restart rejection",
+    "prior_source_sha256": "303be129f601a263710382e98faa7de4e5bdb9231577ba5e9ecbc64d5e54f3c5",
+    "current_source_sha256": "d9f6f235c1d15eed4c7a28519ab6489c771bb306b49a8c00755395ac68c318e0"
+  },
+  "checks": {
+    "before": "Six methods:3actual false-admission failures across2negative methods;4ordinary/control methods pass",
+    "after": "35affected cases/4files PASS0.338seconds",
+    "Ruff": "2changed owned paths pass explicit repositoryconfig",
+    "scope": "Actual health gate and existing activation/identity/retry synthetic fixtures; no liveDocker/provider/VPS or broad application suite"
+  },
+  "not_claimed": [
+    "Live production rollout qualification",
+    "Healthy Docker inspections finish within timeout: only admission after deadline is prevented",
+    "Source symlink disclosure: candidate cleared by actual source-inventory boundary",
+    "Database capture memory vulnerability: candidate remains unproven",
+    "Full architecture completion or full strict typing of legacy625 owner"
+  ],
+  "artifacts": {
+    "mcp-direct-activation-original-source.json": "792785b5462f9106b4531fbceaef08052f042a314d61d990bf9b0ad94a0274cf",
+    "mcp-direct-health-proof.json": "6b4d77510491f0f75ba3552b71c2b39a989936a1e40886f02a8a2aa147c19a51",
+    "mcp-direct-health-reviewed-files.json": "bd37b7b652264f80459b5b4fe9570ae78666c6d8e41f8183e001f86446636c37",
+    "mcp-direct-health-before.txt": "4c5460d47051aa0507ae8b9ea28b911361b689b6c7be45b32bbf9ddda7098cea",
+    "mcp-direct-health-after.txt": "bb02da731ab314997debd78588a6f09f945469b8f85db5f5a7b5228d8f80e611",
+    "mcp-direct-health-ruff.txt": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0"
+  }
+}

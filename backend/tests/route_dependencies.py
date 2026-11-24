@@ -14,7 +14,17 @@ from types import ModuleType
 from unittest.mock import patch
 
 PREFIX = "app.presentation.api.v1.routes."
-FACADES = (PREFIX + "whatsapp", PREFIX + "document_distribution")
+FACADES = (
+    PREFIX + "whatsapp",
+    PREFIX + "document_distribution",
+    PREFIX + "passport_image_library",
+    PREFIX + "passport_routes.images",
+    PREFIX + "passport_routes.visa_ai_library",
+    PREFIX + "passport_routes.visa_ai_edits",
+    PREFIX + "passport_routes.submission_review",
+    PREFIX + "passport_routes.public_upload",
+    PREFIX + "passport_routes.bulk_actions",
+)
 
 
 def _consumers(module: ModuleType, name: str):

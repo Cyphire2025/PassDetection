@@ -1,0 +1,8 @@
+...................................................... [ 53%]
+...............................................                          [100%]
+
+---------- coverage: platform win32, python 3.11.15-final-0 ----------
+Coverage XML written to file C:\Users\nipun\Desktop\PassDetection\docs\audit\dashboard-2026-10-30\final-retained-company-fixture-cov-20261101-001\coverage.xml
+Coverage JSON written to file C:\Users\nipun\Desktop\PassDetection\docs\audit\dashboard-2026-10-30\final-retained-company-fixture-cov-20261101-001\coverage.json
+
+101 passed, 18 subtests passed in 66.14s (0:01:06)

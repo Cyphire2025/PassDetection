@@ -1,0 +1,51 @@
+{
+  "status": "Read-only retained slices complete; not a whole-file full review",
+  "new_current_full_tests": 0,
+  "new_focused_test_files": 1,
+  "test_physical_lines": 2115,
+  "retained_test_lines": 2081,
+  "excluded_native_test_lines": 34,
+  "supporting_full_rows": 0,
+  "focused_rows": 4,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-delivery-ledger-source-reviewed-files.json",
+    "sha256": "f4bbcbbf6032ede03dbc224e9b0b22e14d687c6de49509162c4936894b2392c4"
+  },
+  "source_fence": {
+    "backend/tests/unit/presentation/test_whatsapp_delivery_ledger.py": "c0b534ee0e5a15b1aca8587c31ef45d4bbd8a0dd3d7ed1249b83023331732ac5",
+    "backend/app/infrastructure/whatsapp/worker_runtime.py": "bd7c038c5ec22a548cd1142c135b529d9c7c6798594f7e4cd7be74c3af95cae1",
+    "backend/app/presentation/api/v1/routes/whatsapp_delivery_support.py": "11584385a6d8d16124e39d5e029c3aa4908b1044b1c7df7861461c93a32b82f0",
+    "backend/app/presentation/api/v1/routes/whatsapp_resend.py": "e695316fe49e51e51f8d1c3cc45f6db84c5bed82287bf3344f93259a4b1b64ff"
+  },
+  "previous_current_full_support": [
+    {
+      "path": "backend/app/infrastructure/whatsapp/worker_runtime.py",
+      "sha256": "bd7c038c5ec22a548cd1142c135b529d9c7c6798594f7e4cd7be74c3af95cae1",
+      "ledgers": [
+        "whatsapp-backend-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_delivery_support.py",
+      "sha256": "11584385a6d8d16124e39d5e029c3aa4908b1044b1c7df7861461c93a32b82f0",
+      "ledgers": [
+        "whatsapp-retained-routes-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_resend.py",
+      "sha256": "e695316fe49e51e51f8d1c3cc45f6db84c5bed82287bf3344f93259a4b1b64ff",
+      "ledgers": [
+        "whatsapp-composition-final-reviewed-files.json"
+      ]
+    }
+  ],
+  "checks_run": [],
+  "changes": [],
+  "findings": [],
+  "limitations": [
+    "Native OTP webhook1978-2011 expressly excluded, not a whole-file full read claim despite all bytes displayed.",
+    "No app/test/workbook/database/worker/provider/network/credential/scanner execution; mocked MCP admission hooks do not qualify actual MCP authority.",
+    "Long test file receives no cosmetic split or test rewrite; current frozen runtime seams remain unchanged."
+  ]
+}

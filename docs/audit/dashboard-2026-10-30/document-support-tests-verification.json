@@ -1,0 +1,191 @@
+{
+  "status": "complete-source-review-no-runtime-mutation",
+  "source_fence": [
+    {
+      "path": "backend/tests/unit/presentation/test_document_distribution_delivery_policy.py",
+      "sha256": "d5512707bca33e2ee4e878b878fed37328930fa386cadb4df3f9b03fa60d67c1",
+      "physical_lines": 57,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete57 physical source read. Three direct calls reach canonical decision helper through shared/facade aliases, with no mocked decision implementation. Accepted history requires explicit resend even when newestfailed; definitive firstfailure retryable; unknownoutcome suppressesresend. SimpleNamespace provides exactly modelattributes read. This pure policy coverage does not establish routeauthorization/provider outcomes."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_rename_compensation.py",
+      "sha256": "7c2f7b723b4df42e567ba4d8926db5ce5dc61913d4ae85c4d14151aea9fcdb68",
+      "physical_lines": 111,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete111 physical source read. Synthetic producer/store dictionary records owned upload/deletion; parametrized rollback none/error/cancel reaches actual route/finalization compensation and asserts no commit/staging. Cleanupfailure durable job fixture tests exact source/context/keys and caplog excludes privatekey. Framework authorization/PDF/security/store are purposefully isolated; not native DB/AnyIO scope/provider qualification."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_rename_rejection.py",
+      "sha256": "75c1eda43d60017ab7cb5f3726b23cc5942232687bd2e12407cbaedb7acf5ccc",
+      "physical_lines": 1142,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete1142 physical source read in contiguous0-180/180-385/385-590/590-790/790-990/990-EOF batches. Actual routefacade passes patched callable values into typed per-call owners, so parser/storage/audit/actor/admission patches remain effective. Assertions protect rejectedPII/storage exclusion, healthy renamedPDFs, rollback-beforeupload/freshauthorization, ambiguousCOMMIT retention, owned-key/siblingdrain, locked currentrole, postcommit cleanupjobs, privatequery filters/headers, boundedZIP/admission/stream cleanup. Fake sessions/storage and deterministic security fixture explicit; no native scanner/PostgreSQL/concurrency/provider claim. No new check or sourcechange from source review."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_uploads.py",
+      "sha256": "156a3e8965dd85a3ced35ff693ca627178ca0e89616d9dbf84f42237d21958ff",
+      "physical_lines": 232,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete232 physical source read first135+135-EOF. Actual bounded reader tests physical/declared individual andaggregate/countlimits, filenamebasename, scan-originalbytes ordering, allhandlesclosed on read/config/scannerfailure, exactHTTP422/503/413/400 mappings. Autouse service intentionally calls synthetic scanner rather than realdurable securityvalidation; no AV/nativePDF/storage/evidence claim. Actual sharedscanner developmentNoop/disabled gates traced withoutcalls."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_delivery_support.py",
+      "sha256": "27f98eb8f1a469edb45459de6d806a67abaf3816acd42894e7ff45f00b53050c",
+      "physical_lines": 182,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete current source support read0-145+145-EOF. Canonical helper gate/historyprecedence/polling/messagepair/processing projection traced; previouslyreviewedruntime reread adds no newpendingcredit or independentfollowupclosure."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_rename_cleanup.py",
+      "sha256": "32a074de366f9055fe1f211009ce49bf3873ea300afd1ce6aaf5d7e16b6c64bd",
+      "physical_lines": 45,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete current45line support read. Bounded owned-key deletion and durable fallback use count/type-only logs. Prioractual runtime qualification remains separate; no sourcechange."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_rename_staging.py",
+      "sha256": "d65eda600998b2c4efab4ab925ed44fa430ac417610caf28ba9f1663d8aa0f56",
+      "physical_lines": 145,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete current source support read. Typed services pass actualpatchedcallables; preclaimedkeys, bounded storage group and cleanup on producerfailure traced. No new runtime qualification or independent lifecycle candidate adoption."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_rename_finalization.py",
+      "sha256": "f4bb970777c1a6793ac383f71a8aa447c4016239e049b4ac2ee7c5d6c8635c2d",
+      "physical_lines": 120,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete current source support read. Original freshactor/chunk/commit/compensation/response ownership traced for testvalidity; existing AnyIO versus asyncio cancellation followups notclosed by a mockedrollbacktest."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/document_uploads.py",
+      "sha256": "485c99329ef227ed1531978fca48e7f9b013a2f585fe4d6423dcd1fcedf7781b",
+      "physical_lines": 177,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete current source support read0-160+160-EOF. Deterministic testservice is intentionally narrower than realUploadSecurityService; count/bytes/read/error/finally close logic really executes. Existing sharedruntime earlierfullattribution preserved."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_delivery_preview.py",
+      "sha256": "b5001bcb988c5111f4ed6b2de1936a708ca03acf899924b805f36418fd2b57d0",
+      "physical_lines": 271,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Only83-162/162-224 immediate caller regions and history ordering references physicallyread. Exactgroup/agency/docscope, savedstate and currentdestinationblocker precedence observed; no whole-file credit."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution.py",
+      "sha256": "eceb978c0e6faca96b335cd0f91cb7fd48be5b8a1216f15816cddd9ae51fe7b0",
+      "physical_lines": 388,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Only260-276 facade alias region this tranche; no whole-file credit."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_shared.py",
+      "sha256": "90e1f22463437f267663ff4ec20220cf8115cea1f3b8c7a0db824ab81d48beb6",
+      "physical_lines": 86,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Only30-46 helperalias region this tranche; no whole-file credit."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_rename.py",
+      "sha256": "1a67a5554ad321e041c3fdb52658a52ee2178e930614dd9181c9712695c6d8f4",
+      "physical_lines": 284,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Only90-255 current typed-servicefacade/stream regions +defreferences physicallyread; no whole-file credit."
+    },
+    {
+      "path": "backend/tests/conftest.py",
+      "sha256": "b60a174b1656f30e36d6c748fc1b967c17804b9ef733911f6ff211e9e4d23abe",
+      "physical_lines": 161,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Only0-124 support fixture/environment regions; initial outputclipped some85-111 and recovered84-124. SyntheticEd25519/env/default settings, SQLite schema fixture setup traced; no whole-file credit."
+    },
+    {
+      "path": "backend/app/infrastructure/security/upload_validator.py",
+      "sha256": "dfb2683e620bcc1a3a5d4f97f5cb4c1cfda20105e493f6070e63b8574c11c73f",
+      "physical_lines": 345,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Only164-230 shared scannerfactory/readiness region physicallyread this tranche; no whole-file credit or new scanner test."
+    }
+  ],
+  "initial_triage": [
+    {
+      "path": "document-distribution-test-review-pending.json",
+      "sha256": "f376c091ad2eba2026237ecc5ae4837ceea1273be3bb52823c9ef5d8aea5910b",
+      "initial_pending_paths": [
+        "backend/tests/unit/presentation/test_document_distribution_delivery_policy.py"
+      ],
+      "skipped_current_full_paths": [
+        "backend/tests/unit/presentation/test_document_distribution_assignments.py",
+        "backend/tests/unit/presentation/test_document_distribution_compensation.py",
+        "backend/tests/unit/presentation/test_document_distribution_match_source.py",
+        "backend/tests/unit/presentation/test_document_distribution_matching.py",
+        "backend/tests/unit/presentation/test_document_distribution_residual_lifecycle.py",
+        "backend/tests/unit/presentation/test_document_distribution_reupload_lifetime.py",
+        "backend/tests/unit/presentation/test_document_distribution_review_rows.py",
+        "backend/tests/unit/presentation/test_document_distribution_route_decomposition.py",
+        "backend/tests/unit/presentation/test_document_distribution_staging_routes.py",
+        "backend/tests/unit/presentation/test_document_distribution_upload_abort.py"
+      ]
+    },
+    {
+      "path": "document-support-test-review-pending.json",
+      "sha256": "742161f8bf84c0d64973ca0338c682b6256ecbce5614aa7b9e80d3cd38f6b3e6",
+      "initial_pending_paths": [
+        "backend/tests/unit/presentation/test_document_rename_compensation.py",
+        "backend/tests/unit/presentation/test_document_rename_rejection.py",
+        "backend/tests/unit/presentation/test_document_uploads.py"
+      ],
+      "skipped_current_full_paths": [
+        "backend/tests/unit/presentation/test_document_chunk_uploads.py",
+        "backend/tests/unit/presentation/test_document_rename_archive_native_cancellation.py",
+        "backend/tests/unit/presentation/test_document_rename_chunk_workflow.py",
+        "backend/tests/unit/presentation/test_document_upload_commit.py",
+        "backend/tests/unit/presentation/test_document_upload_persistence_hooks.py"
+      ]
+    }
+  ],
+  "initial_pending_now_physically_complete": [
+    "backend/tests/unit/presentation/test_document_distribution_delivery_policy.py",
+    "backend/tests/unit/presentation/test_document_rename_compensation.py",
+    "backend/tests/unit/presentation/test_document_rename_rejection.py",
+    "backend/tests/unit/presentation/test_document_uploads.py"
+  ],
+  "checks_run": [],
+  "source_or_test_changes": [],
+  "findings": "No concrete current fixture/wiring correctness defect adopted. Meaningful pure/routecontrols remain; gaps in a testcohort are explicitly not runtime vulnerability proof. No duplicatedexecution for readcredit.",
+  "limits": [
+    "Source review only; no tests/provider/network/browser/build invoked.",
+    "Synthetic fake sessions/storage and mocked security validation intentionally narrower than real authorization/AV/PDF/receipt/DB isolation.",
+    "Existing runtime resource/architecture findings are independent of testsource fullread."
+  ]
+}

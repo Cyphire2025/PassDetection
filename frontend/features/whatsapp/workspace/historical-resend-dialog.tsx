@@ -58,7 +58,7 @@ export function HistoricalResend({
             {workspaceDate(entry.created_at)}
           </span>
         </p>
-        <div className="max-h-80 overflow-y-auto rounded-xl bg-emerald-50 p-5 text-sm leading-6 text-slate-800 whitespace-pre-wrap">
+        <div className="max-h-80 overflow-y-auto rounded-xl bg-emerald-50 p-5 text-sm leading-6 text-slate-800 whitespace-pre-wrap [overflow-wrap:anywhere]">
           {recipient.rendered_message || entry.message_preview}
         </div>
         {mutation.error && (

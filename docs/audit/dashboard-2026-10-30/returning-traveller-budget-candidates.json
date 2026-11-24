@@ -1,0 +1,114 @@
+[
+  {
+    "path": "features/travellers/hooks/use-returning-claim.ts",
+    "baselineLines": 78,
+    "maximumLines": 80,
+    "baselineMaxFunctionComplexity": 9,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/travellers/services/resolve-returning-transition.ts",
+    "baselineLines": 55,
+    "maximumLines": 60,
+    "baselineMaxFunctionComplexity": 13,
+    "maximumFunctionComplexity": 14
+  },
+  {
+    "path": "features/travellers/components/returning-review.tsx",
+    "baselineLines": 166,
+    "maximumLines": 170,
+    "baselineMaxFunctionComplexity": 11,
+    "maximumFunctionComplexity": 12
+  },
+  {
+    "path": "features/travellers/components/returning-review-header.tsx",
+    "baselineLines": 89,
+    "maximumLines": 90,
+    "baselineMaxFunctionComplexity": 8,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/travellers/components/returning-review-fields.tsx",
+    "baselineLines": 111,
+    "maximumLines": 120,
+    "baselineMaxFunctionComplexity": 4,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/travellers/components/returning-review-confirmation.tsx",
+    "baselineLines": 83,
+    "maximumLines": 90,
+    "baselineMaxFunctionComplexity": 8,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/travellers/components/returning-resume.tsx",
+    "baselineLines": 8,
+    "maximumLines": 10,
+    "baselineMaxFunctionComplexity": 1,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/travellers/components/returning-resume-content.tsx",
+    "baselineLines": 35,
+    "maximumLines": 40,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/travellers/hooks/use-returning-resume.ts",
+    "baselineLines": 19,
+    "maximumLines": 20,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/travellers/components/traveller-document.tsx",
+    "baselineLines": 8,
+    "maximumLines": 10,
+    "baselineMaxFunctionComplexity": 1,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/travellers/components/traveller-document-content.tsx",
+    "baselineLines": 41,
+    "maximumLines": 50,
+    "baselineMaxFunctionComplexity": 8,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/travellers/hooks/use-traveller-document-preview.ts",
+    "baselineLines": 47,
+    "maximumLines": 50,
+    "baselineMaxFunctionComplexity": 5,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/travellers/components/returning-contact-dialog.tsx",
+    "baselineLines": 103,
+    "maximumLines": 110,
+    "baselineMaxFunctionComplexity": 12,
+    "maximumFunctionComplexity": 13
+  },
+  {
+    "path": "features/travellers/hooks/use-returning-contact.ts",
+    "baselineLines": 53,
+    "maximumLines": 60,
+    "baselineMaxFunctionComplexity": 15,
+    "maximumFunctionComplexity": 16
+  },
+  {
+    "path": "features/travellers/components/returning-flow.tsx",
+    "baselineLines": 188,
+    "maximumLines": 190,
+    "baselineMaxFunctionComplexity": 30,
+    "maximumFunctionComplexity": 31
+  },
+  {
+    "path": "features/travellers/components/returning-offer.tsx",
+    "baselineLines": 100,
+    "maximumLines": 110,
+    "baselineMaxFunctionComplexity": 9,
+    "maximumFunctionComplexity": 10
+  }
+]

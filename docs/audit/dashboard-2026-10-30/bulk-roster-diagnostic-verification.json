@@ -1,0 +1,56 @@
+{
+  "status": "frozen-source-diagnostic-hardening",
+  "source_fence": {
+    "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions.py": "a6f4dc210dd2dfaea0ab81b6d47b2af3c48b0eb8442ed815c80b111cd97864a8",
+    "backend/app/presentation/api/v1/routes/passport_routes/export_context.py": "ce172b2f3c0bf0c02a79a83937a239bb4dddfabc2e4fc913190cbeacd67371ee",
+    "backend/tests/unit/presentation/test_bulk_roster_reference_boundary.py": "0b4a20bc47c41b7923545f7e886ffc0e54926e69598f2ed843c4c979f51e3f87",
+    "backend/tests/unit/presentation/test_passport_export_history_routes.py": "b2b95a05310c6824b182dcb524199a44455932f075edf1b255fb130b3e751f6f",
+    "backend/app/infrastructure/database/_core_models/roster.py": "6fbdd6446f17e92e4cbeee06e757a95bfba49d42192c7ff3860c8c0773214793"
+  },
+  "baselines": [
+    {
+      "output": "bulk-roster-before-tests.txt",
+      "result": "1actualSQLite scoped-referencecontrolPASS/1rawdiagnosticargumentcontrolFAIL"
+    },
+    {
+      "output": "bulk-roster-export-before-tests.txt",
+      "result": "2currentcontrolsPASS/1siblingrawdiagnosticargumentcontrolFAIL"
+    }
+  ],
+  "qualified_checks": [
+    {
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "--tb=short",
+        "tests/unit/presentation/test_bulk_roster_reference_boundary.py",
+        "tests/unit/presentation/test_passport_export_history_routes.py"
+      ],
+      "exit_code": 0,
+      "result": "16passed/2.16s"
+    },
+    {
+      "name": "Ruff",
+      "exit_code": 0,
+      "files": 3
+    },
+    {
+      "name": "strictmypy",
+      "exit_code": 0,
+      "files": 2
+    }
+  ],
+  "exact_inverse": "Each entire runtime module restores after replacing only one value_type=type(value).__name__ diagnostic keyword with its original value=str(value). No response/query/authorization/deletion/export statement changed.",
+  "test_asts": "Current3-case test module exact vs siblingbaseline snapshot; original2complete test functions retained unchanged when adding sibling control.",
+  "scope": "Deletion uses real FKSQLite active/restored/foreigngroup/agency scope. Sibling export uses narrow row fixture and retains its existing skip-invalid-reference behavior.",
+  "calibration": "This removes unneeded raw metadata from logger-call arguments. It is a source privacy hardening; tests do not claim an attacker can write a corrupt row or a proven production logging-sink disclosure.",
+  "command_source_evidence": "Commands observed directly through tool outputs; sourcequalified by whole-module inverse proofs. No automatic before/after process hash fence is claimed for this small plain test run.",
+  "limitations": [
+    "No new live provider, PostgreSQL race or production qualification.",
+    "Long bulk controllers remain architecture follow-up."
+  ]
+}

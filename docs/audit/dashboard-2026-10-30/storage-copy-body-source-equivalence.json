@@ -1,0 +1,6 @@
+{
+  "whole_module_ast_inverse_exact": true,
+  "only_delta": "Enter existing source StreamingBody closing scope immediately after get_object, covering metadata/tag request and tag encoding before existing TemporaryFile/read/put operations. Restore original contexts by merging closing+temporary items and moving preparation statements back before that context.",
+  "old_runtime_import_order_exact": true,
+  "current_source_sha256": "f98d341fd6efa67afc79820bf2dbb9e63550665703fe776141a810aaa500b217"
+}

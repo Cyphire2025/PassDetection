@@ -1,0 +1,41 @@
+{
+  "status": "Read-only bounded company/history/retention source cohort complete; broader audit active",
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-company-unit-source-reviewed-files.json",
+    "sha256": "3e1e2d7fbcd0523c8c27eb95ee6ccc2d99b16b465734e398b377ddf45520a537"
+  },
+  "new_current_full_tests": 11,
+  "test_physical_lines": 1359,
+  "supporting_full_rows": 2,
+  "supporting_full_lines": 145,
+  "focused_rows": 4,
+  "source_fence": {
+    "backend/tests/unit/application/test_company_history_jobs.py": "c7e020fd64a779d8343d9dff33edb16d9c3c658fbc58ab52d8114f9d5374c5f6",
+    "backend/tests/unit/application/test_company_history_roster_retry.py": "f5c7afc0f8795a56a68b342c82fce035fdaa0592932ef72982d418f900e18393",
+    "backend/tests/unit/application/test_historical_document_generation.py": "5a93cec26450dc9f7f8a43ed8d16b9627df5ae30bb1a4251467a14a3f652abd9",
+    "backend/tests/unit/application/test_incremental_company_history.py": "617085abed4a50c107f787a0cbdbf1853df229c285b131dc7f2fc948ec076ce6",
+    "backend/tests/unit/application/test_retained_authority.py": "87488c977f184ddb8c0b8cd512e7f448dde3d9faa215c99ab7a99cf7e9aa54fa",
+    "backend/tests/unit/application/test_traveller_accepted_source.py": "8e89194b7950b806e50ad6837ae89f5c5da12082f453cb83c6f53900f5d027be",
+    "backend/tests/unit/application/test_traveller_reconciliation.py": "3183e3f319fd23c68379928dfc678b903b8cd00f5ffecb22e00d5ad6370a6568",
+    "backend/tests/unit/application/test_traveller_requirements.py": "85a65f0a4199e01d15e8a53f7bc188fc84ac40bae2e067a5046fdd1ee918fe9d",
+    "backend/tests/unit/application/test_traveller_roster_reconciliation.py": "1ecab5c075a1a1526fc3170b1299facb8c209782e6ad0f713fbe118d03c934ff",
+    "backend/tests/unit/application/test_traveller_enrollment.py": "53cabc722aba47b6d02f1293b77221f3c6725ef2e45b1d99cfdaa04267018628",
+    "backend/tests/unit/application/test_company_history_registration.py": "345655fdb366262c98c9fc1b2244b5113a73ea11d2ab9302994e49b6f94249bd",
+    "backend/app/application/travellers/history_schedule.py": "d577286fcf48b2ef367c19c342e04a0a5089ec66dcacdb5602c90666bfc9c1f3",
+    "backend/app/application/travellers/requirements.py": "03f35fbc7d91443fec5f423c530ba0024dc4e6f5988d2f4fd5ab7ea150792562",
+    "backend/app/application/travellers/reconciliation.py": "2a3126138910a5bf3a0764922b85cafb80cd240edef2e4b675c9de41b4f484c1",
+    "backend/app/application/travellers/company_history_jobs.py": "af993d639cb35c42dafb072a8af48612338f9164ae205d4195c75ae1507e7bfb",
+    "backend/app/infrastructure/travellers/asset_copy.py": "8459bb8fc0850257586438d6b32cf463b59943c86e0687db605fafb4267a7a18",
+    "backend/app/application/travellers/enrollment.py": "cc10c65c84ce2290bbf57614228c4442e8ae80c2f2246f1721ae7d1c507c9a5a"
+  },
+  "checks_run": [],
+  "changes": [],
+  "findings": [],
+  "proof_gaps": [
+    "Existing700-row/query/coalescer controls were read, not executed or newly benchmarked. Source assertions do not establish current performance or passing behavior.",
+    "Synthetic encrypted scope/SQLite transactions/callbacks/metadata mocks do not establish actual PostgreSQL lock ordering, provider deadlines or private object-store copy/integrity service behavior.",
+    "Saved-MRZ historical acceptance tests preserve legacy provenance only; retired extraction stays retired and no new adversarial payload/provider campaign was run.",
+    "Focused enrollment/reconciliation/copy/job modules remain partial and do not close their whole architecture/security follow-ups. Supporting whole runtime rereads get no duplicate current-full credit where prior ledgers already match."
+  ],
+  "scope": "Retained dashboard staff/company history/reuse/copy workflows only, native ingress/UI and Operations Inbox excluded/deferred; existing sources byte-unmodified."
+}

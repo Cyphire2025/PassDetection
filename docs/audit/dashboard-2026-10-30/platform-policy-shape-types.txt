@@ -1,0 +1,3 @@
+app\application\platform_policies.py:73: error: Argument "duplicate_contact_policy" to "PlatformPolicies" has incompatible type "str"; expected "Literal['block_same_group', 'allow', 'block_all']"  [arg-type]
+app\application\platform_policies.py:74: error: Argument "default_group_status" to "PlatformPolicies" has incompatible type "str"; expected "Literal['active', 'closed']"  [arg-type]
+Found 2 errors in 1 file (checked 1 source file)

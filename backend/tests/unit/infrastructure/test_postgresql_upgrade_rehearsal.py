@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import inspect
 import json
 from pathlib import Path
 from types import ModuleType
@@ -73,7 +74,14 @@ def test_destructive_database_operations_require_explicit_acknowledgement() -> N
 
 def test_rehearsal_contract_is_previous_release_populated_and_evidence_oriented() -> None:
     rehearsal = _load_script()
-    source = SCRIPT_PATH.read_text(encoding="utf-8")
+    source = "\n".join(
+        inspect.getsource(function)
+        for function in (
+            rehearsal._seed_previous_release,
+            rehearsal._verify_upgraded_database,
+            rehearsal.rehearse,
+        )
+    )
     workflow = (REPOSITORY_ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
 
     assert rehearsal.PREVIOUS_RELEASE_REVISION == "0085_platform_retention_controls"
@@ -111,7 +119,11 @@ def test_rehearsal_rejects_stale_or_unreviewed_database_head(
     monkeypatch: pytest.MonkeyPatch, actual_revision: str
 ) -> None:
     rehearsal = _load_script()
-    monkeypatch.setattr(rehearsal, "_revision", lambda _connection: actual_revision)
+    from scripts import postgresql_rehearsal_verification
+
+    monkeypatch.setattr(
+        postgresql_rehearsal_verification, "_revision", lambda _connection: actual_revision
+    )
 
     with pytest.raises(AssertionError, match="did not reach the reviewed merge head"):
         rehearsal._verify_upgraded_database(None)

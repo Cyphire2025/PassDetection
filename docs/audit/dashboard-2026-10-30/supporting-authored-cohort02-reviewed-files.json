@@ -1,0 +1,40 @@
+{
+  "files": [
+    {
+      "path": "docs/DASHBOARD_REMEDIATION_2026-09-05.md",
+      "sha256": "8a438289229eb81b2e4c23a8afb4c3f382893a8b340229bf567d1937acc39521",
+      "physical_lines": 114,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete dated authored remediation record physically read in bounded source windows, including explicit rereads of every clipped interval. Historical published/source/image/test/performance/CI/host evidence assertions assessed as records with stated source/mock/service/production limits; none rerun, independently authenticated, promoted to current qualification or rewritten. Generic mobile/Inbox mentions read only as mixed historical register context, no excluded native-client/Inbox runtime feature audit."
+    },
+    {
+      "path": "docs/DASHBOARD_UPLOAD_FOLLOWUP_2026-09-05.md",
+      "sha256": "21acdd7efd98bf99c77cf3f97bba53a9814f542d6608c72f796d79218a7309ce",
+      "physical_lines": 33,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete dated authored remediation record physically read in bounded source windows, including explicit rereads of every clipped interval. Historical published/source/image/test/performance/CI/host evidence assertions assessed as records with stated source/mock/service/production limits; none rerun, independently authenticated, promoted to current qualification or rewritten. Generic mobile/Inbox mentions read only as mixed historical register context, no excluded native-client/Inbox runtime feature audit."
+    },
+    {
+      "path": "docs/ENTERPRISE_APP_AUDIT_REMEDIATION_2026-08-25.md",
+      "sha256": "45baddcc0180dc1b3b7ee6c35205b01b98f260d2a8cabc4af112d5f8d4c1ac53",
+      "physical_lines": 166,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete dated authored remediation record physically read in bounded source windows, including explicit rereads of every clipped interval. Historical published/source/image/test/performance/CI/host evidence assertions assessed as records with stated source/mock/service/production limits; none rerun, independently authenticated, promoted to current qualification or rewritten. Generic mobile/Inbox mentions read only as mixed historical register context, no excluded native-client/Inbox runtime feature audit."
+    },
+    {
+      "path": "docs/PRODUCTION_RESILIENCE_AND_DR.md",
+      "sha256": "4fc7645114a5dba0914e3d0c982a413c21a4aae95853fdd0890c64ec87a06af0",
+      "physical_lines": 317,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "All317 authored physical lines read. Explicit source/CI/staging/production evidence classes, proposed-not-promised RPO/RTO, distinct PostgreSQL/object/Redis/security recovery policies, no destructive downgrade/live overwrite, private inventory/key/account/retention boundaries and UTC evidence/drill cadence assessed.0085branch merge remains historical topology with later reviewed descendants admitted; no source/artifact promises manufacture actual DR/HA/PITR proof. No external infrastructure, private backup or customer contents accessed, no commands executed."
+    }
+  ]
+}

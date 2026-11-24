@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import test from "node:test";
+import { readDocumentRenameSource } from "./document-rename-source.contract-helper.mjs";
 
-const page = readFileSync(new URL("./document-rename-page.tsx", import.meta.url), "utf8");
+const page = readDocumentRenameSource();
 
 test("all-rejected rename batches do not expose empty ZIP downloads", () => {
   assert.match(page, /batch\.visa_count \+ batch\.ticket_count > 0/);

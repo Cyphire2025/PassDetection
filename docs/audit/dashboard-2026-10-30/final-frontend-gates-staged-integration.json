@@ -1,0 +1,118 @@
+{
+  "status": "reviewed-additive-frontend-gate-integration-applied; loader qualification pending",
+  "normal_before": 661,
+  "normal_after": 669,
+  "all661_old_rows_and_numerical_caps_exact": true,
+  "candidate_receipts": [
+    {
+      "path": "docs/audit/dashboard-2026-10-30/final-qualifier-manual-reselection/quality-budget-candidates.json",
+      "sha256": "694c0c4235f771e3ea01cc5e16e83a27c3bc4c0ec87a90eee4e55d26260c3893",
+      "admitted_paths": [
+        "features/upload/components/fresh-qualifier-editor.tsx",
+        "features/upload/hooks/use-qualifier-selection-editor.ts"
+      ]
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/final-branding-save-authority/quality-budget-candidates.json",
+      "sha256": "c6d09aa434f1674c0360e2ffb77d6bb1f3308db85169a9a2b1ec509de65a6723",
+      "admitted_paths": [
+        "features/branding/components/group-banner.tsx",
+        "features/branding/components/group-banner-action.tsx",
+        "features/branding/components/group-image-dialog.tsx",
+        "features/branding/components/group-banner-frame.ts",
+        "features/branding/components/use-group-image-aspect.ts",
+        "features/branding/api/branding-images.api.ts"
+      ]
+    }
+  ],
+  "new_normal_rows": [
+    {
+      "path": "features/upload/components/fresh-qualifier-editor.tsx",
+      "baselineLines": 86,
+      "maximumLines": 90,
+      "baselineMaxFunctionComplexity": 6,
+      "maximumFunctionComplexity": 7
+    },
+    {
+      "path": "features/upload/hooks/use-qualifier-selection-editor.ts",
+      "baselineLines": 96,
+      "maximumLines": 100,
+      "baselineMaxFunctionComplexity": 9,
+      "maximumFunctionComplexity": 10
+    },
+    {
+      "path": "features/branding/components/group-banner.tsx",
+      "baselineLines": 41,
+      "maximumLines": 50,
+      "baselineMaxFunctionComplexity": 8,
+      "maximumFunctionComplexity": 9
+    },
+    {
+      "path": "features/branding/components/group-banner-action.tsx",
+      "baselineLines": 25,
+      "maximumLines": 30,
+      "baselineMaxFunctionComplexity": 7,
+      "maximumFunctionComplexity": 8
+    },
+    {
+      "path": "features/branding/components/group-image-dialog.tsx",
+      "baselineLines": 95,
+      "maximumLines": 100,
+      "baselineMaxFunctionComplexity": 11,
+      "maximumFunctionComplexity": 12
+    },
+    {
+      "path": "features/branding/components/group-banner-frame.ts",
+      "baselineLines": 12,
+      "maximumLines": 20,
+      "baselineMaxFunctionComplexity": 0,
+      "maximumFunctionComplexity": 1
+    },
+    {
+      "path": "features/branding/components/use-group-image-aspect.ts",
+      "baselineLines": 59,
+      "maximumLines": 60,
+      "baselineMaxFunctionComplexity": 9,
+      "maximumFunctionComplexity": 10
+    },
+    {
+      "path": "features/branding/api/branding-images.api.ts",
+      "baselineLines": 45,
+      "maximumLines": 50,
+      "baselineMaxFunctionComplexity": 3,
+      "maximumFunctionComplexity": 4
+    }
+  ],
+  "UI_critical_before": 31,
+  "UI_critical_after": 34,
+  "all_old_includes_and_thresholds_raw_inverse_exact": true,
+  "new_critical_includes": [
+    "features/upload/components/fresh-qualifier.tsx",
+    "features/upload/components/fresh-qualifier-editor.tsx",
+    "features/upload/hooks/use-qualifier-selection-editor.ts"
+  ],
+  "bindings_count_unchanged": 144,
+  "only_one_AFTER_row_changed": "frontend/scripts/verify-frontend-module-budgets.mjs",
+  "all144_BEFOREpairs_and143_other_AFTERrows_exact": true,
+  "actual144_AFTER_and288_git_BEFORE_matches": true,
+  "backend900_critical165_global_and_architecture_unchanged": true,
+  "raw_controls_before": {
+    "frontend/scripts/verify-frontend-module-budgets.mjs": "cb39d6c6ee5351e9fa166d560dd62c58a3b1b20021fc38a7c2a52d1017d94ff7",
+    "scripts/release_workspace_branding_bindings.json": "cdac254b1fba4d15d92728870aea8da984648ad1100ba9a671d1ad227bd17631",
+    "scripts/release_workspace_branding_policy.py": "3710f25e35696b6c8859b248e4f74b8d3221ea5a39f794b9f9813be00286cb90"
+  },
+  "raw_controls_after": {
+    "frontend/scripts/verify-frontend-module-budgets.mjs": "45ddf8fd2ae390af222eb72f224d4b513368470a82ddcf083b69088827febde6",
+    "scripts/release_workspace_branding_bindings.json": "b98d6e57df317ad83f602a529634ac01410eaa5c7689b26b51102778bd944f48",
+    "scripts/release_workspace_branding_policy.py": "f9aa29d4e02812dbc044916e32e919a6e36a5a105a465e66654bc2fcd9d7bd1b"
+  },
+  "verifier_canonical_source_after": "13f252c5ec63f9b0906c77d5cdaf47bd6dce01580cd074728a2aa65e60f097f7",
+  "historical_qualification_stamps_renewed": 0,
+  "no_application_runtime_edited_by_integration": true,
+  "current_controls": {
+    "frontend/scripts/verify-frontend-module-budgets.mjs": "45ddf8fd2ae390af222eb72f224d4b513368470a82ddcf083b69088827febde6",
+    "scripts/release_workspace_branding_bindings.json": "b98d6e57df317ad83f602a529634ac01410eaa5c7689b26b51102778bd944f48",
+    "scripts/release_workspace_branding_policy.py": "f9aa29d4e02812dbc044916e32e919a6e36a5a105a465e66654bc2fcd9d7bd1b",
+    "frontend/vitest.config.mts": "5e80c5305955ce1a682aefbf65a53f7d12aea50c103235299474460b6dd5d20c"
+  }
+}

@@ -1,0 +1,11 @@
+[
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_export_support.py",
+    "sha256": "9676378c6dc9c6fbeec996bac5de58481e6d142c9fd18c23d028eccd74ebbe99",
+    "lines": 1374,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete original physical source read before cohesive passport-export helper extraction; actual caller/tenant/archive traces continue separately."
+  }
+]

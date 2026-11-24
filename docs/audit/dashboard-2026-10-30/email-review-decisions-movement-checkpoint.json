@@ -1,0 +1,32 @@
+{
+  "runtime": [
+    "backend/app/presentation/api/v1/routes/email_integration_review_decisions.py",
+    "backend/app/presentation/api/v1/routes/email_review_context.py",
+    "backend/app/presentation/api/v1/routes/email_review_actions.py"
+  ],
+  "corrected_baseline_fixture_source": "\"\"\"Synthetic persisted mailbox, staged artifact and permitted passenger for decisions.\"\"\"\n\nfrom __future__ import annotations\n\nimport uuid\nfrom datetime import UTC, datetime\nfrom types import SimpleNamespace\nfrom unittest.mock import AsyncMock, Mock\n\nfrom app.domain.entities.entities import User, UserRole\nfrom app.infrastructure.database.email_models import (\n    EmailArtifactModel,\n    EmailConnectionModel,\n    EmailMessageModel,\n    EmailReviewItemModel,\n)\nfrom app.infrastructure.database.models import (\n    AgencyModel,\n    ClientGroupModel,\n    PassportSubmissionModel,\n    UserModel,\n)\nfrom app.infrastructure.email.sync_contracts import ReviewedArtifactIngestionResult\nfrom app.presentation.api.v1.routes import email_integration_review_decisions as decisions\n\n\nasync def persist_email_review(session, monkeypatch):\n    agency = AgencyModel(\n        id=uuid.uuid4(), name=\"Synthetic review agency\", email=\"agency@example.test\"\n    )\n    session.add(agency)\n    await session.flush()\n    owner = UserModel(\n        id=uuid.uuid4(),\n        agency_id=agency.id,\n        email=\"owner@example.test\",\n        full_name=\"Owner\",\n        role=\"agency_staff\",\n        hashed_password=\"unused\",\n    )\n    session.add(owner)\n    await session.flush()\n    connection = EmailConnectionModel(\n        agency_id=agency.id,\n        owner_user_id=owner.id,\n        provider=\"gmail\",\n        provider_account_id=\"synthetic-account\",\n        email_address=owner.email,\n        status=\"active\",\n    )\n    group = ClientGroupModel(\n        agency_id=agency.id,\n        name=\"Synthetic group\",\n        token=uuid.uuid4().hex,\n        created_by_user_id=owner.id,\n    )\n    session.add_all([connection, group])\n    await session.flush()\n    message = EmailMessageModel(\n        agency_id=agency.id,\n        owner_user_id=owner.id,\n        connection_id=connection.id,\n        provider_message_id=\"synthetic-message\",\n        received_at=datetime.now(UTC),\n        processing_status=\"review_required\",\n    )\n    passenger = PassportSubmissionModel(\n        agency_id=agency.id,\n        group_id=group.id,\n        client_name=\"Synthetic passenger\",\n        image_s3_key=\"tests/synthetic-passport.jpg\",\n    )\n    session.add_all([message, passenger])\n    await session.flush()\n    artifact = EmailArtifactModel(\n        agency_id=agency.id,\n        owner_user_id=owner.id,\n        message_id=message.id,\n        provider_artifact_id=\"synthetic-attachment\",\n        kind=\"attachment\",\n        storage_key=\"email-integrations/staged.pdf\",\n        detected_type=\"visa\",\n        retrieval_status=\"retrieved\",\n        processing_status=\"review_required\",\n    )\n    session.add(artifact)\n    await session.flush()\n    review = EmailReviewItemModel(\n        agency_id=agency.id,\n        owner_user_id=owner.id,\n        message_id=message.id,\n        artifact_id=artifact.id,\n        review_type=\"processing_failure\",\n        status=\"open\",\n        proposed_action=\"retry\",\n        candidate_group_id=group.id,\n        candidate_passenger_id=passenger.id,\n        revision=1,\n    )\n    session.add(review)\n    await session.commit()\n    settings = SimpleNamespace(email_integrations_enabled=True, email_sync_enabled=True)\n    monkeypatch.setattr(decisions, \"get_settings\", lambda: settings)\n    ingest = AsyncMock(\n        return_value=ReviewedArtifactIngestionResult(\n            document_ids=(),\n            storage_keys=(\"email-integrations-canonical/synthetic.pdf\",),\n            duplicate=False,\n        )\n    )\n    enqueue = Mock(return_value=True)\n    storage = SimpleNamespace(delete_files=AsyncMock(return_value=1))\n    monkeypatch.setattr(decisions, \"ingest_reviewed_artifact\", ingest)\n    monkeypatch.setattr(decisions, \"_enqueue_connection_sync\", enqueue)\n    monkeypatch.setattr(decisions, \"MinioStorageRepository\", lambda: storage)\n    return SimpleNamespace(\n        agency=agency,\n        owner=owner,\n        connection=connection,\n        group=group,\n        message=message,\n        passenger=passenger,\n        artifact=artifact,\n        review=review,\n        settings=settings,\n        ingest=ingest,\n        enqueue=enqueue,\n        storage=storage,\n        user=User(\n            id=owner.id,\n            email=owner.email,\n            full_name=owner.full_name,\n            hashed_password=\"unused\",\n            role=UserRole.AGENCY_STAFF,\n            agency_id=agency.id,\n        ),\n    )\n",
+  "corrected_baseline_fixture_sha256": "df0cbf732b22dde763ab2a8577958a40c9e6d1b1fa8b5a954744bf62c0960dbe",
+  "only_test_dependency_retarget": "fixture ingest_reviewed_artifact patch moves to actual action owner",
+  "statement_partition": {
+    "prefix": [
+      0,
+      2
+    ],
+    "locked_context": [
+      3,
+      14
+    ],
+    "clock": [
+      15,
+      15
+    ],
+    "action": [
+      16,
+      18
+    ],
+    "route_orchestration": [
+      19,
+      26
+    ]
+  }
+}

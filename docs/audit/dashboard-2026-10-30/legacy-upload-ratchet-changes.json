@@ -1,0 +1,41 @@
+{
+  "retiredBudgetPaths": [
+    "features/upload/components/upload-flow-screen.tsx",
+    "features/upload/components/upload-flow-capture-stage.tsx",
+    "features/upload/components/upload-flow-review-stage.tsx",
+    "features/upload/components/upload-flow-selection-stage.tsx",
+    "features/upload/components/upload-acquisition-actions.ts",
+    "features/upload/hooks/use-upload-flow-controller.ts",
+    "features/upload/hooks/use-upload-traveller-draft.ts",
+    "features/upload/hooks/use-upload-qualifier.ts",
+    "features/upload/hooks/use-upload-flow-bootstrap.ts",
+    "features/upload/hooks/use-returning-family.tsx",
+    "features/upload/services/saved-passport-extraction.ts",
+    "features/upload/components/upload-flow.tsx",
+    "features/upload/components/upload-review-panels.tsx",
+    "features/upload/hooks/use-upload-documents.ts",
+    "features/upload/hooks/use-upload-submission.ts",
+    "features/upload/hooks/use-upload-operation.ts",
+    "features/upload/hooks/use-upload-family.ts",
+    "features/upload/services/upload-operation-state.ts",
+    "features/upload/services/family-upload-state.ts"
+  ],
+  "currentCandidates": [
+    {
+      "path": "features/upload/components/traveller-portal.tsx",
+      "baselineLines": 50,
+      "maximumLines": 50,
+      "baselineMaxFunctionComplexity": 9,
+      "maximumFunctionComplexity": 9
+    },
+    {
+      "path": "features/upload/services/review-submission-validation.ts",
+      "baselineLines": 27,
+      "maximumLines": 30,
+      "baselineMaxFunctionComplexity": 4,
+      "maximumFunctionComplexity": 6
+    }
+  ],
+  "retiredFrontendApiIdentities": [],
+  "apiContracts": "All existing frontend API facades and backend public/draft/contact endpoints retained unchanged."
+}

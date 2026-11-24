@@ -1,0 +1,9 @@
+{
+  "retired_source_sha256": "61ef866c94b1a7ce10ac9ffd66a4831b9aa44447a21d3654d098b9efaaada1b0",
+  "current_source_sha256": "e1e440bdc8168d3831477874c5e3cb0dc65a0d676463bac06c10e07230f59c4d",
+  "exact_reversible_fixture_only_port_matches_original": true,
+  "matched_line_endings": [
+    "CRLF"
+  ],
+  "case_definitions_and_assertions": "Unchanged; only imports, describe label and fixture setup/DTO conversion target actual current hook/API.42expanded behaviors pass before deleting old runtime wrappers."
+}

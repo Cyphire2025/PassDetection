@@ -1,0 +1,62 @@
+[
+  {
+    "path": "backend/tests/unit/presentation/test_rate_limit_middleware.py",
+    "sha256": "98e6cff02ba803e4c852d5fe2c3915f520d903b427626b19a54cd60cadf9c2a5",
+    "reviewer": "qualification_plan",
+    "review_scope": "full",
+    "status": "verified",
+    "prior_full_read": {
+      "ledger": "security-reviewed-files.json",
+      "ledger_sha256": "524bfd63088ada96cb5afe2b2266035144cea0d75eb46f6dad08a5cd7d005e04",
+      "source_sha256": "5818e5b8fd2f861747ec8a90c71e67a1b12ca4019ec8c53c093335dd1cc7a02b"
+    },
+    "notes": "Composed current full-source continuity: named prior ledger fully reviewed exact BEFORE bytes; manually reviewed authorized delta and independently proved whole namespace/method AST inverse before application. All original assertions/workflow controls preserved; deadline adds initial-expiry counter, composer patches actual owner, canonical actor comes from real repository, rate contract follows exact wired frontend owner. Current affected whole-file cohort101primary+18subtests and explicit no-fixRuff pass. Backend/app1823 source hashes remain original; original4failed combined outcomes retained. See final-retained-backend-test-repairs-20261101-001/verification.json."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_whatsapp_composer_persistence.py",
+    "sha256": "38b78b67bb469668fcb076e8bce3635d1e2b346e467cb89e0d118d9f60cba5da",
+    "reviewer": "qualification_plan",
+    "review_scope": "full",
+    "status": "verified",
+    "prior_full_read": {
+      "ledger": "whatsapp-composition-final-reviewed-files.json",
+      "ledger_sha256": "d5756fc812f88106d6dbc228b6f921ab695aa16b632d75f9cf4eb7c39ee6e7ee",
+      "source_sha256": "28c491d3d7fba80d5e028de835118ffcf36c58165d67cecf554ca0b80b615af7"
+    },
+    "notes": "Composed current full-source continuity: named prior ledger fully reviewed exact BEFORE bytes; manually reviewed authorized delta and independently proved whole namespace/method AST inverse before application. All original assertions/workflow controls preserved; deadline adds initial-expiry counter, composer patches actual owner, canonical actor comes from real repository, rate contract follows exact wired frontend owner. Current affected whole-file cohort101primary+18subtests and explicit no-fixRuff pass. Backend/app1823 source hashes remain original; original4failed combined outcomes retained. See final-retained-backend-test-repairs-20261101-001/verification.json."
+  },
+  {
+    "path": "backend/tests/integration/test_broadcast_incremental_matching.py",
+    "sha256": "1e28dc326b0df1ac0c98e315479c308786e1d67130ce8a2e63154fc08463ccb3",
+    "reviewer": "qualification_plan",
+    "review_scope": "full",
+    "status": "verified",
+    "prior_full_read": {
+      "ledger": "retained-public-roster-source-reviewed-files.json",
+      "ledger_sha256": "7dc64ea69cbf99b37da9f531b97ee1a979baea0a6079f6ea05beed6b48d15107",
+      "source_sha256": "a7e0de80508375d35cc2b890ccf3ca35cfc8a9306bb7b84d8f3db50d57d73bf8"
+    },
+    "notes": "Composed current full-source continuity: named prior ledger fully reviewed exact BEFORE bytes; manually reviewed authorized delta and independently proved whole namespace/method AST inverse before application. All original assertions/workflow controls preserved; deadline adds initial-expiry counter, composer patches actual owner, canonical actor comes from real repository, rate contract follows exact wired frontend owner. Current affected whole-file cohort101primary+18subtests and explicit no-fixRuff pass. Backend/app1823 source hashes remain original; original4failed combined outcomes retained. See final-retained-backend-test-repairs-20261101-001/verification.json."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_traveller_reconciliation_runtime.py",
+    "sha256": "a4f94884189dbbfec16be987a4b8e866b9569e5faa02cac017bfa8aa5663c134",
+    "reviewer": "qualification_plan",
+    "review_scope": "full",
+    "status": "verified",
+    "prior_full_read": {
+      "ledger": "retained-lifecycle-test-source-reviewed-files.json",
+      "ledger_sha256": "49b5c990715d4795f47b1b443b717bc48e341597891f8822a1d045b479b28c89",
+      "source_sha256": "842d4f4b41cbb99e637763f7de93ee9c778df67431436916d75262c4e1b3d9c7"
+    },
+    "notes": "Composed current full-source continuity: named prior ledger fully reviewed exact BEFORE bytes; manually reviewed authorized delta and independently proved whole namespace/method AST inverse before application. All original assertions/workflow controls preserved; deadline adds initial-expiry counter, composer patches actual owner, canonical actor comes from real repository, rate contract follows exact wired frontend owner. Current affected whole-file cohort101primary+18subtests and explicit no-fixRuff pass. Backend/app1823 source hashes remain original; original4failed combined outcomes retained. See final-retained-backend-test-repairs-20261101-001/verification.json."
+  },
+  {
+    "path": "backend/tests/integration/test_company_people_integrity_boundaries.py",
+    "sha256": "4855789d24578f90c37ba18efe921e026c49429308fc38c221eee06d9f9a02bd",
+    "reviewer": "qualification_plan",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Authored and physically reviewed whole3-case integration source. Real encrypted retained-record corruption is rejected without plaintext exposure; actual missing crypto configuration yields safeHTTP503; real indexed name edit invalidates oldHTTPcursor409 then fresh restart returns both people. Uses existing synthetic realSQLite/HTTP/crypto fixtures and unmodified app. All3 current cases, related company cohorts, fixture repair files and independent actor controls pass101primary+18subtests; no-fixRuff pass. Same-app wholecoverage union closes both95companyfloors without changing source/thresholds."
+  }
+]

@@ -1,0 +1,62 @@
+[
+  {
+    "path": "features/whatsapp/hooks/use-whatsapp.ts",
+    "lines": 11,
+    "maxFunctionComplexity": 0
+  },
+  {
+    "path": "features/whatsapp/hooks/use-broadcast-queries.ts",
+    "lines": 40,
+    "maxFunctionComplexity": 2
+  },
+  {
+    "path": "features/whatsapp/hooks/use-broadcast-group-mutations.ts",
+    "lines": 75,
+    "maxFunctionComplexity": 2
+  },
+  {
+    "path": "features/whatsapp/hooks/use-broadcast-recipient-mutations.ts",
+    "lines": 126,
+    "maxFunctionComplexity": 2
+  },
+  {
+    "path": "features/whatsapp/hooks/whatsapp-query-keys.ts",
+    "lines": 6,
+    "maxFunctionComplexity": 1
+  },
+  {
+    "path": "features/whatsapp/hooks/use-normal-send.ts",
+    "lines": 29,
+    "maxFunctionComplexity": 3
+  },
+  {
+    "path": "features/whatsapp/api/whatsapp.api.ts",
+    "lines": 16,
+    "maxFunctionComplexity": 0
+  },
+  {
+    "path": "features/whatsapp/api/broadcast-message-reads.api.ts",
+    "lines": 18,
+    "maxFunctionComplexity": 1
+  },
+  {
+    "path": "features/whatsapp/api/broadcast-recipients.api.ts",
+    "lines": 125,
+    "maxFunctionComplexity": 5
+  },
+  {
+    "path": "features/whatsapp/types/messages.ts",
+    "lines": 82,
+    "maxFunctionComplexity": 0
+  },
+  {
+    "path": "features/whatsapp/types/recipients.ts",
+    "lines": 129,
+    "maxFunctionComplexity": 0
+  },
+  {
+    "path": "features/whatsapp/utils/normal-send-intent.ts",
+    "lines": 52,
+    "maxFunctionComplexity": 3
+  }
+]

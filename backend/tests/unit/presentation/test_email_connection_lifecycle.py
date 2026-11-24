@@ -16,6 +16,7 @@ from app.core.config.settings import Settings
 from app.domain.entities.entities import User, UserRole
 from app.infrastructure.database.email_models import EmailConnectionModel, EmailOAuthStateModel
 from app.infrastructure.email.token_encryption import EmailTokenCipher, EncryptedToken
+from app.presentation.api.v1.routes import email_connection_disconnect, email_connection_removal
 from app.presentation.api.v1.routes import (
     email_integration_connections as connections,
 )
@@ -76,13 +77,18 @@ async def test_disconnect_and_removal_commit_fence_before_remote_revoke(
 ) -> None:
     actor = _actor()
     connection = _connection(actor)
+    route_owner = (
+        email_connection_disconnect if operation == "disconnect" else email_connection_removal
+    )
     events: list[str] = []
     session = Mock(
-        commit=AsyncMock(side_effect=lambda: events.append("commit")), rollback=AsyncMock()
+        commit=AsyncMock(side_effect=lambda: events.append("commit")),
+        rollback=AsyncMock(),
+        refresh=AsyncMock(),
     )
     owned = AsyncMock(return_value=connection)
-    monkeypatch.setattr(connections, "_owned_connection", owned)
-    monkeypatch.setattr(connections, "revocation_credential", lambda *_: ("synthetic-token", False))
+    monkeypatch.setattr(route_owner, "_owned_connection", owned)
+    monkeypatch.setattr(route_owner, "revocation_credential", lambda *_: ("synthetic-token", False))
     provider = Mock(supports_remote_token_revocation=True)
 
     async def revoke(*, token):
@@ -99,9 +105,9 @@ async def test_disconnect_and_removal_commit_fence_before_remote_revoke(
             )
 
     provider.revoke_token = AsyncMock(side_effect=revoke)
-    monkeypatch.setattr(connections, "_provider_instance", lambda *_: provider)
+    monkeypatch.setattr(route_owner, "_provider_instance", lambda *_: provider)
     audit = AsyncMock(side_effect=lambda **_: events.append("audit"))
-    monkeypatch.setattr(connections, "AuditLogRepository", lambda _: SimpleNamespace(record=audit))
+    monkeypatch.setattr(route_owner, "AuditLogRepository", lambda _: SimpleNamespace(record=audit))
     removal = SimpleNamespace(
         connection_id=connection.id,
         message_count=1,
@@ -113,7 +119,7 @@ async def test_disconnect_and_removal_commit_fence_before_remote_revoke(
         storage_keys=(),
     )
     purge = AsyncMock(return_value=removal)
-    monkeypatch.setattr(connections, "purge_email_connection_records", purge)
+    monkeypatch.setattr(email_connection_removal, "purge_email_connection_records", purge)
 
     async def invoke():
         if operation == "disconnect":

@@ -1,0 +1,128 @@
+[
+  {
+    "path": "backend/app/infrastructure/ai_priority/__init__.py",
+    "sha256": "435bbdd406d21cc18a599151f0629df067e8a9c982485defa8e6af51101dc1ce",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "read-only-preflight",
+    "physical_lines": 38,
+    "notes": "Complete current physical source read. Traced hashed job/lifecycle identities, extraction fail-open versus verification fail-closed, generation/lease transitions, fixed metric categories, bounded sample/LRU/circuit policy, Lua atomic keys/time, readiness cache, thread handoff and retry budget as applicable. No runtime edit or test/production qualification claimed from this read."
+  },
+  {
+    "path": "backend/app/infrastructure/ai_priority/config.py",
+    "sha256": "a257d7d145d006d6de6f41b8758bfbb92394820a0d21fe2eab2f526c59b312f4",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "read-only-preflight",
+    "physical_lines": 81,
+    "notes": "Complete current physical source read. Traced hashed job/lifecycle identities, extraction fail-open versus verification fail-closed, generation/lease transitions, fixed metric categories, bounded sample/LRU/circuit policy, Lua atomic keys/time, readiness cache, thread handoff and retry budget as applicable. No runtime edit or test/production qualification claimed from this read."
+  },
+  {
+    "path": "backend/app/infrastructure/ai_priority/coordinator.py",
+    "sha256": "26e71733ed9f0c04c1942505d34fa35ddee17e8063e2dcb241083b2257bf29fd",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "read-only-preflight",
+    "physical_lines": 471,
+    "notes": "Complete current physical source read. Traced hashed job/lifecycle identities, extraction fail-open versus verification fail-closed, generation/lease transitions, fixed metric categories, bounded sample/LRU/circuit policy, Lua atomic keys/time, readiness cache, thread handoff and retry budget as applicable. No runtime edit or test/production qualification claimed from this read."
+  },
+  {
+    "path": "backend/app/infrastructure/ai_priority/factory.py",
+    "sha256": "2431422c07d70b306a2216954ab256efb068c85d4122d2618771173716d50d7c",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "read-only-preflight",
+    "physical_lines": 36,
+    "notes": "Complete current physical source read. Traced hashed job/lifecycle identities, extraction fail-open versus verification fail-closed, generation/lease transitions, fixed metric categories, bounded sample/LRU/circuit policy, Lua atomic keys/time, readiness cache, thread handoff and retry budget as applicable. No runtime edit or test/production qualification claimed from this read."
+  },
+  {
+    "path": "backend/app/infrastructure/ai_priority/identity.py",
+    "sha256": "55c1c4bc29b2215bab07f1e386ec7f628f97ac67db4989cb88ea32fee91e60fc",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "read-only-preflight",
+    "physical_lines": 116,
+    "notes": "Complete current physical source read. Traced hashed job/lifecycle identities, extraction fail-open versus verification fail-closed, generation/lease transitions, fixed metric categories, bounded sample/LRU/circuit policy, Lua atomic keys/time, readiness cache, thread handoff and retry budget as applicable. No runtime edit or test/production qualification claimed from this read."
+  },
+  {
+    "path": "backend/app/infrastructure/ai_priority/metrics.py",
+    "sha256": "a01049cd6ca2030cc991e40193cbdafbb9630167983e01099f5ad814675e50cc",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "read-only-preflight",
+    "physical_lines": 941,
+    "notes": "Complete current physical source read. Traced hashed job/lifecycle identities, extraction fail-open versus verification fail-closed, generation/lease transitions, fixed metric categories, bounded sample/LRU/circuit policy, Lua atomic keys/time, readiness cache, thread handoff and retry budget as applicable. No runtime edit or test/production qualification claimed from this read."
+  },
+  {
+    "path": "backend/app/infrastructure/ai_priority/redis_store.py",
+    "sha256": "d4ccbfb6910d73ad981ccd06b7153bb4fe14c6d8171aa1dd79acce5158b858f6",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "read-only-preflight",
+    "physical_lines": 399,
+    "notes": "Complete current physical source read. Traced hashed job/lifecycle identities, extraction fail-open versus verification fail-closed, generation/lease transitions, fixed metric categories, bounded sample/LRU/circuit policy, Lua atomic keys/time, readiness cache, thread handoff and retry budget as applicable. No runtime edit or test/production qualification claimed from this read."
+  },
+  {
+    "path": "backend/app/infrastructure/ai_priority/retry.py",
+    "sha256": "5a0e7a5bfec2f0720e5cf8a9608584e8ae78603162d880c64b905d5bacc57a8e",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "read-only-preflight",
+    "physical_lines": 66,
+    "notes": "Complete current physical source read. Traced hashed job/lifecycle identities, extraction fail-open versus verification fail-closed, generation/lease transitions, fixed metric categories, bounded sample/LRU/circuit policy, Lua atomic keys/time, readiness cache, thread handoff and retry budget as applicable. No runtime edit or test/production qualification claimed from this read."
+  },
+  {
+    "path": "backend/app/infrastructure/ai_priority/runtime.py",
+    "sha256": "af1137c6f828eec0e6e3e64e9e0c524ee6646d21c38202aca1acdf7039d82f1f",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "read-only-preflight",
+    "physical_lines": 61,
+    "notes": "Complete current physical source read. Traced hashed job/lifecycle identities, extraction fail-open versus verification fail-closed, generation/lease transitions, fixed metric categories, bounded sample/LRU/circuit policy, Lua atomic keys/time, readiness cache, thread handoff and retry budget as applicable. No runtime edit or test/production qualification claimed from this read."
+  },
+  {
+    "path": "backend/app/infrastructure/ai_priority/state.py",
+    "sha256": "3f183ae70c49e4b37f6bea3ca356ae68831b471ff61f6f163ed972c2f8176124",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "read-only-preflight",
+    "physical_lines": 87,
+    "notes": "Complete current physical source read. Traced hashed job/lifecycle identities, extraction fail-open versus verification fail-closed, generation/lease transitions, fixed metric categories, bounded sample/LRU/circuit policy, Lua atomic keys/time, readiness cache, thread handoff and retry budget as applicable. No runtime edit or test/production qualification claimed from this read."
+  },
+  {
+    "path": "backend/app/infrastructure/ai_priority/worker_healthcheck.py",
+    "sha256": "9abcd403552e07a0aa26075b00aa81b14c1fd6fa2dc80b9a046dd6bf9629a068",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "read-only-preflight",
+    "physical_lines": 48,
+    "notes": "Complete current physical source read. Traced hashed job/lifecycle identities, extraction fail-open versus verification fail-closed, generation/lease transitions, fixed metric categories, bounded sample/LRU/circuit policy, Lua atomic keys/time, readiness cache, thread handoff and retry budget as applicable. No runtime edit or test/production qualification claimed from this read."
+  },
+  {
+    "path": "backend/app/infrastructure/ai_priority/worker_readiness.py",
+    "sha256": "4768c464dead1fa83aa3842863a8bfe057826be558c68eb1180338160268a8ee",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "read-only-preflight",
+    "physical_lines": 183,
+    "notes": "Complete current physical source read. Traced hashed job/lifecycle identities, extraction fail-open versus verification fail-closed, generation/lease transitions, fixed metric categories, bounded sample/LRU/circuit policy, Lua atomic keys/time, readiness cache, thread handoff and retry budget as applicable. No runtime edit or test/production qualification claimed from this read."
+  },
+  {
+    "path": "backend/app/infrastructure/ai/passport_extraction_transport.py",
+    "sha256": "a893e4e784e175b9639d7c72918459b4de4da385efb7565e5765090d2a2e87a6",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "read-only-direct-caller-review",
+    "physical_lines": 277,
+    "notes": "Complete current source read across first-to-last batches. Traced direct async-provider telemetry call sites or safe aggregate registry/snapshot dispatch. Provider request/retry/acceptance and observability behavior not changed. Prior review attribution is separate; this read establishes only current source coverage, not a new runtime finding."
+  },
+  {
+    "path": "backend/app/infrastructure/observability/metrics.py",
+    "sha256": "62dbb6b6319c694293c59e0fb8a682c4ca4963c0a55cc79b13b531e11d5fd773",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "read-only-direct-caller-review",
+    "physical_lines": 202,
+    "notes": "Complete current source read across first-to-last batches. Traced direct async-provider telemetry call sites or safe aggregate registry/snapshot dispatch. Provider request/retry/acceptance and observability behavior not changed. Prior review attribution is separate; this read establishes only current source coverage, not a new runtime finding."
+  }
+]

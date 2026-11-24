@@ -1,9 +1,10 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
+import { useAuthStore } from "@/stores/auth.store";
 import { mcpApi, type McpConnectionRequest, type McpOverview } from "../api/mcp.api";
 import { McpRequests } from "./mcp-requests";
-import { permissionFixture } from "../utils/permissions.test-fixture";
+import { mcpAdminFixture, permissionFixture } from "../utils/permissions.test-fixture";
 
 vi.mock("../api/mcp.api", async (original) => {
   const actual = await original<typeof import("../api/mcp.api")>();
@@ -22,7 +23,12 @@ function renderRequests(value = overview) {
   const view = render(<QueryClientProvider client={client}><McpRequests overview={value} unavailable={false} /></QueryClientProvider>);
   return { client, ...view };
 }
-beforeEach(() => { vi.clearAllMocks(); vi.mocked(mcpApi.requests).mockResolvedValue({ items: [request], next_offset: null }); vi.mocked(mcpApi.permissions).mockResolvedValue(permissionFixture()); });
+beforeEach(() => {
+  vi.clearAllMocks();
+  useAuthStore.setState({ user: mcpAdminFixture(), isAuthenticated: true });
+  vi.mocked(mcpApi.requests).mockResolvedValue({ items: [request], next_offset: null });
+  vi.mocked(mcpApi.permissions).mockResolvedValue(permissionFixture());
+});
 afterEach(() => { cleanup(); clients.splice(0).forEach((client) => client.clear()); });
 
 it("shows the matching code and reviews only currently permitted requested scopes", async () => {
@@ -51,6 +57,19 @@ it("does not repeat a pending approval or claim success after cancelled identity
   await act(async () => fail({ code: "STEP_UP_CANCELLED", message: "Identity confirmation was cancelled." }));
   expect(await within(row).findByRole("alert")).toHaveTextContent("Identity confirmation was cancelled.");
   expect(mcpApi.approveRequest).toHaveBeenCalledOnce(); expect(within(row).getByText("Pending", { exact: true })).toBeVisible();
+});
+
+it("requires a nonblank reviewed device name and preserves only requested scopes", async () => {
+  renderRequests();
+  const row = await screen.findByRole("article", { name: request.name });
+  fireEvent.click(within(row).getByRole("button", { name: "Approve" }));
+  fireEvent.change(within(row).getByRole("textbox", { name: "Device name" }), { target: { value: "   " } });
+  const submit = within(row).getByRole("button", { name: "Approve connection" });
+  expect(submit).toBeDisabled();
+  fireEvent.submit(submit.closest("form")!);
+  expect(mcpApi.approveRequest).not.toHaveBeenCalled();
+  expect(within(row).getAllByRole("checkbox")).toHaveLength(1);
+  expect(within(row).getByRole("checkbox")).toBeChecked();
 });
 
 it("requires deliberate rejection and shows the server decision after it succeeds", async () => {

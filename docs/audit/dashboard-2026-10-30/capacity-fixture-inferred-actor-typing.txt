@@ -1,0 +1,2 @@
+capacity_fixture_seed.py:192: error: Argument 1 to "UUID" has incompatible type "object"; expected "str | None"  [arg-type]
+Found 1 error in 1 file (checked 5 source files)

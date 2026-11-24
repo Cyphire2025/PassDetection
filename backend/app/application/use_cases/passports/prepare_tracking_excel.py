@@ -2,19 +2,20 @@
 
 from __future__ import annotations
 
-import hashlib
-import json
 import uuid
 from dataclasses import dataclass
 from typing import Any, Callable, Literal
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.use_cases.passports.excel_snapshot import (
+    ExcelSnapshotTooLarge,
+    snapshot_digest,
+)
 from app.application.use_cases.passports.prepare_group_excel import (
     ExcelPreparationError,
     ExcelPreparationSupport,
     PreparedGroupExcel,
-    _canonical,
 )
 from app.domain.entities.entities import ClientGroup, PassportSubmission
 
@@ -90,26 +91,19 @@ async def prepare_tracking_excel(
     }
     # Include the whole comparison source, not just currently selected rows: a
     # changed resolution can move a traveller into or out of a status filter.
-    snapshot = _canonical(
-        {
-            "group": group,
-            "submissions": submissions,
-            "linked": linked,
-            "rows": rows,
-            "status": tracking_status,
-            "broadcast_id": broadcast_id,
-            "arguments": arguments,
-        }
-    )
-    digest, byte_count = hashlib.sha256(), 0
-    for part in json.JSONEncoder(sort_keys=True, separators=(",", ":"), allow_nan=False).iterencode(
-        snapshot
-    ):
-        encoded = part.encode()
-        byte_count += len(encoded)
-        if maximum_snapshot_bytes is not None and byte_count > maximum_snapshot_bytes:
-            raise ExcelPreparationError(
-                status_code=413, detail="Tracking exceeds the snapshot size limit"
-            )
-        digest.update(encoded)
-    return PreparedGroupExcel(selected, arguments, {}, digest.hexdigest(), catalog)
+    snapshot = {
+        "group": group,
+        "submissions": submissions,
+        "linked": linked,
+        "rows": rows,
+        "status": tracking_status,
+        "broadcast_id": broadcast_id,
+        "arguments": arguments,
+    }
+    try:
+        revision = snapshot_digest(snapshot, maximum_bytes=maximum_snapshot_bytes)
+    except ExcelSnapshotTooLarge as exc:
+        raise ExcelPreparationError(
+            status_code=413, detail="Tracking exceeds the snapshot size limit"
+        ) from exc
+    return PreparedGroupExcel(selected, arguments, {}, revision, catalog)

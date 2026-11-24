@@ -1,0 +1,181 @@
+{
+  "recorded_at": "2026-10-30T21:33:36.127224+00:00",
+  "status": "planned-only-frontend-freeze-preserved",
+  "private_mutation_count": 28,
+  "hook_to_api_mapping": {
+    "frontend/features/passports/hooks/use-passports.ts": {
+      "useExportPassportGroup": "exportGroup",
+      "useExportPassportGroupImages": "exportGroupImages",
+      "useExportWhatsAppTracking": "exportWhatsAppTracking",
+      "useImportPassportGroup": "importGroup",
+      "usePreviewPassportDocuments": "previewPassportDocuments",
+      "useSavePassportDocuments": "savePassportDocumentsInChunks",
+      "useExportSelectedPassports": "exportSelectedPassports",
+      "useExportSelectedPassportImages": "exportSelectedGroupImages",
+      "useBulkDocumentFollowUp": "bulkDocumentFollowUp",
+      "useBulkDeletePassportSubmissions": "bulkDelete",
+      "useBulkStaffApprovePassportSubmissions": "bulkStaffApprove",
+      "useExportSelectedGroups": "exportSelectedGroups",
+      "useConfirmPassportSubmission": "confirm",
+      "useStaffApprovePassportSubmission": "staffApprove",
+      "useRetryPassportAiVerification": "retryAiVerification",
+      "useReextractPassportSubmission": "reextract"
+    },
+    "frontend/features/passports/hooks/use-upload-links.ts": {
+      "useCreateUploadLink": "create",
+      "useRevokeUploadLink": "revoke",
+      "useDeleteUploadLink": "delete",
+      "useUpdateUploadLink": "update",
+      "useUpdateGroupWhatsAppLinks": "updateWhatsAppLinks",
+      "useResolveUnidentifiedReplacement": "resolveUnidentifiedReplacement",
+      "useRejectUnidentifiedUpload": "rejectUnidentifiedUpload",
+      "useRestoreRosterResolution": "restoreRosterResolution",
+      "usePermanentlyDeleteUploadLink": "permanentDelete",
+      "useRestoreUploadLink": "restore"
+    },
+    "frontend/features/passports/hooks/use-client-details.ts": {
+      "useUpdateClientDetails": "clientDetailsApi.update"
+    },
+    "frontend/features/passports/hooks/use-display-name.ts": {
+      "useDisplayNameEditor": "updateDisplayName"
+    }
+  },
+  "source_records": [
+    {
+      "path": "frontend/features/passports/hooks/use-passports.ts",
+      "sha256": "91a52e9a748f4f562059fd3828c4ddac9f4d2e635bf36dba393f8790564c31d8",
+      "physical_lines": 349,
+      "review_scope": "full",
+      "review_method": "Current full physical source read during the read-only mutation-plan pass."
+    },
+    {
+      "path": "frontend/features/passports/hooks/use-upload-links.ts",
+      "sha256": "4ba2545c4e4a304177a3462590ec58a08bccaa5660f536ee9e9b67e172326fe1",
+      "physical_lines": 303,
+      "review_scope": "full",
+      "review_method": "Current full physical source read during the read-only mutation-plan pass."
+    },
+    {
+      "path": "frontend/features/passports/hooks/use-client-details.ts",
+      "sha256": "dfac333cc47041838fd4d83302ff29ebfaf7dd03d4a155a7c3a1b1380d2532ef",
+      "physical_lines": 36,
+      "review_scope": "full",
+      "review_method": "Current full physical source read during the read-only mutation-plan pass."
+    },
+    {
+      "path": "frontend/features/passports/hooks/use-display-name.ts",
+      "sha256": "dcff9754d198a98f0fb074c43005a720705c2d19c7757e636a141fc4f1b84e5e",
+      "physical_lines": 30,
+      "review_scope": "full",
+      "review_method": "Current full physical source read during the read-only mutation-plan pass."
+    },
+    {
+      "path": "frontend/hooks/use-private-mutation.ts",
+      "sha256": "0e282bc7638a1c404fd07936d5e267f05cdb9d4a66c25cb1e4074f9232820250",
+      "physical_lines": 113,
+      "review_scope": "full",
+      "review_method": "Current full physical source read during the read-only mutation-plan pass."
+    },
+    {
+      "path": "frontend/hooks/use-private-mutation.test.tsx",
+      "sha256": "4e733ec8fd4f6e22fde8a11b486e05762635331ab2a7ed19ff56ba9350ca692b",
+      "physical_lines": 129,
+      "review_scope": "full",
+      "review_method": "Current full physical source read during the read-only mutation-plan pass."
+    },
+    {
+      "path": "frontend/lib/api/request-owner.ts",
+      "sha256": "dc504d23f73182988fa2d0093fb7954c57fa9a7118f6ce1859eb00df2fe54ac2",
+      "physical_lines": 99,
+      "review_scope": "full",
+      "review_method": "Current full physical source read during the read-only mutation-plan pass."
+    },
+    {
+      "path": "frontend/features/passports/api/passport-records.api.ts",
+      "sha256": "976bd9d42cd455d2bdb97fe245f481a6f42a46918bddd66b89dfd47dffb03262",
+      "physical_lines": 161,
+      "review_scope": "full",
+      "review_method": "Current full physical source read during the read-only mutation-plan pass."
+    },
+    {
+      "path": "frontend/features/passports/api/passport-imports.api.ts",
+      "sha256": "829562dd0ad993c745e326c95607b67b54f2b84be8708b8b0ddc04d026b1cfb6",
+      "physical_lines": 127,
+      "review_scope": "full",
+      "review_method": "Current full physical source read during the read-only mutation-plan pass."
+    },
+    {
+      "path": "frontend/features/passports/api/passport-group-exports.api.ts",
+      "sha256": "b76293292523d942c23a505bba7d14db0bd793bd774067a53517428976ad09fe",
+      "physical_lines": 142,
+      "review_scope": "full",
+      "review_method": "Current full physical source read during the read-only mutation-plan pass."
+    },
+    {
+      "path": "frontend/features/passports/api/passport-selection-exports.api.ts",
+      "sha256": "f5dbfe3c2ca02b1a1e460f40d257fefb5fb8f8b812c0eecfc8176076cfe5f52a",
+      "physical_lines": 61,
+      "review_scope": "full",
+      "review_method": "Current full physical source read during the read-only mutation-plan pass."
+    },
+    {
+      "path": "frontend/features/passports/api/passport-export-download.ts",
+      "sha256": "dc8e342a9833ff763747d0db73f70a63b9a608b66d2e3b25609dcd86a10faf02",
+      "physical_lines": 63,
+      "review_scope": "full",
+      "review_method": "Current full physical source read during the read-only mutation-plan pass."
+    },
+    {
+      "path": "frontend/features/passports/api/passport-operation-owner.test.ts",
+      "sha256": "2c9dd6c23690157b79a0524cb092e4785d03df9a19698c91e40cb9d696f0a7b8",
+      "physical_lines": 75,
+      "review_scope": "full",
+      "review_method": "Current full physical source read during the read-only mutation-plan pass."
+    },
+    {
+      "path": "frontend/features/passports/api/client-details.api.ts",
+      "sha256": "7e58b9c4c7e30049092acd32e0f3495ce23673ce5a410e8c23ce1a1658b99edd",
+      "physical_lines": 47,
+      "review_scope": "full",
+      "review_method": "Current full physical source read during the read-only mutation-plan pass."
+    },
+    {
+      "path": "frontend/features/passports/api/display-name.api.ts",
+      "sha256": "cdb2eec38a5e7e418e1e6885df2680c2550baa86a879389c7cb36fec5cdbbd12",
+      "physical_lines": 19,
+      "review_scope": "full",
+      "review_method": "Current full physical source read during the read-only mutation-plan pass."
+    },
+    {
+      "path": "frontend/features/gc-app/hooks/use-gc-group-mutations.ts",
+      "sha256": "d7d6510746d5cba13b3dab3a51cd7e76428308ca5be862f78b1c57f437d93ffc",
+      "physical_lines": 206,
+      "review_scope": "full",
+      "review_method": "Current full physical source read during the read-only mutation-plan pass."
+    }
+  ],
+  "negative_proofs_before_runtime_changes": [
+    "Parameterize all28 actual hooks under a real QueryClient/MutationCache with a deferred global onMutate. Invoke with exact synthetic variables as actor A, observe entered global callback, change to B, then release. Current baseline should reach the mocked API; fixed hooks must reject AUTH_REQUEST_OWNER_CHANGED without dispatch, cache changes or per-call success.",
+    "Representative same-user role and agency changes before queued dispatch must fail; same id/role/agency with profile/sessionVersion renewal must remain successful.",
+    "Complete a deferred private API call after actor/authority changes and ensure returned private data cannot overwrite B cache or trigger success/error/settled feature effects. Keep original-variable/context/value assertions.",
+    "Exercise re-extraction progress and chunked import using initiating request config, proving no second poll/chunk/progress after authority changes. Retain existing successful ordering and no-throw stale browser progress behavior.",
+    "Export proofs retain Save As cancellation retry, picker/resource lifetime, streamed history-id header validation and completion POST only after successful original-owner download.",
+    "Keep public token remount recovery plus terminal/transient retry tests. Public telemetry/qualifier payload/headers/keepalive are exact-preservation controls, not candidates for private mutation wrapping."
+  ],
+  "implementation_sequence": [
+    "After parent release, add exact actual-hook negative regressions and collect bounded baseline failure receipts.",
+    "Reuse frozen usePrivateMutation; no generic helper or request-owner semantic edits needed. Capture at mutate/mutateAsync invocation, pass owner.requestConfig from mutationFn and retain public variables/context/callback options and retry policy.",
+    "Add optional trailing original-owner request configuration only to affected private API methods; retain legacy no-config invocation shape where compatibility tests require it. Keep owner metadata outside JSON/FormData payloads.",
+    "For existing multi-step operations, validate supplied initial config before capturing/constructing the operation owner and before first transport. Preserve one initiating authority through polling/chunks/progress/download completion; do not recapture replacement identity after awaits.",
+    "Guard feature cache effects with the captured owner. Reassert after any callback-owned await before later side effects; retain ordinary failure reconciliation for current owner, including partial import onSettled invalidation.",
+    "Decompose the two large hook owners into stable public barrels plus cohesive query/review/export/import/roster mutation owners. Decompose upload-links API typed contracts and private/public transport owners only after preserving the exact facade and endpoint matrix.",
+    "Run affected regressions/shared helper/API compatibility suites and existing public retry, approval revision, roster matching, retention and export cancellation checks; run scoped lint/typecheck/maintainability once at coherent batch. Send exact source hashes and additive/lowered budget candidates to parent, no package/lock/shared-budget edits."
+  ],
+  "invariants": [
+    "No public token/telemetry/qualifier authentication change.",
+    "No JSON/FormData, revision, idempotency/request-id, retention-choice or endpoint changes.",
+    "No quality/manual capture thresholds, camera lifetime, signed/private media, export completion or modal pending-safe behavior changes.",
+    "No floor/ceiling relaxation; shared budget remains parent-owned."
+  ],
+  "execution_this_pass": "None. This file is a plan, not a passing regression receipt."
+}

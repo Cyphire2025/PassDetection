@@ -1,0 +1,43 @@
+{
+  "status": "Read-only current source cohort complete; broader audit active",
+  "new_current_full_tests": 3,
+  "test_physical_lines": 1465,
+  "supporting_full_rows": 1,
+  "focused_rows": 2,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-deletion-storage-source-reviewed-files.json",
+    "sha256": "c0e25da8d007ab80fff3aef640af97c68d30580bcf2451b14045126a2f2cf1b0"
+  },
+  "source_fence": {
+    "backend/tests/unit/presentation/test_client_group_storage_cleanup.py": "b22d9e7f1f02a90af2943aab92f56a3bf8c84020eee6a97c1475412632fcda0a",
+    "backend/tests/unit/presentation/test_passport_submission_delete_access.py": "5848bdbdec5005e834af0c49cedc68f373985258f88b72faef65930ae1510d05",
+    "backend/tests/unit/presentation/test_passport_bulk_delete_route.py": "f04b6d8acee374694823a556e1eb8fb0b75cbdb295c87e99ea2a2da628c759b9",
+    "backend/app/presentation/api/v1/routes/client_group_permanent_delete.py": "7bca9c679fe968144e0ca24759cd4115c459d9b0a47c10fceee7ba9614b42818",
+    "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions.py": "c7f71262abc162e63839c977f407770a2837651f8995472ef52154f990334d40",
+    "backend/app/presentation/api/v1/routes/client_groups.py": "b48a7e4843e9f1b8d48d7a3483e5ad4d52eac984e65c05a9b78b716559b13179"
+  },
+  "previous_current_full_support": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions_delete.py",
+      "sha256": "3ebfce47110e3e562639e5d520a3b95fcb945a25468c082d0dfbe131cd53dece",
+      "ledgers": [
+        "bulk-architecture-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/storage/passport_object_keys.py",
+      "sha256": "4b48560ab98d04153ecfdf1ee41b011d050c2295fc3f0badc72629ba84710c61",
+      "ledgers": [
+        "small-backend-cohort-01-reviewed-files.json"
+      ]
+    }
+  ],
+  "checks_run": [],
+  "changes": [],
+  "findings": [],
+  "limitations": [
+    "No app/test/database/provider/network/credential/scanner execution for source-read credit.",
+    "Previously full implementation owners and imported fixtures are not automatically new physical-read credit; focused slices remain focused.",
+    "No new architecture/security/performance claim based on source length or existing test names."
+  ]
+}

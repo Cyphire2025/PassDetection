@@ -1,0 +1,24 @@
+F.                                                                       [100%]
+================================== FAILURES ===================================
+__________ test_close_releases_streaming_rows_and_temp_files[False] ___________
+
+finished = False
+
+    @pytest.mark.parametrize("finished", [False, True])
+    def test_close_releases_streaming_rows_and_temp_files(finished):
+        assembly = WorkbookAssembly()
+        xml_path = Path(assembly.sheet._writer.out)
+        directory = Path(assembly.directory.name)
+        try:
+            if finished:
+                assert assembly.finish().startswith(b"PK")
+            assembly.close()
+>           assert assembly.sheet.closed
+E           assert False
+E            +  where False = <WriteOnlyWorksheet "Current people">.closed
+E            +    where <WriteOnlyWorksheet "Current people"> = <app.infrastructure.travellers.company_export_render.WorkbookAssembly object at 0x0000022944C80A50>.sheet
+
+tests\unit\infrastructure\test_company_export_workbook_lifetime.py:19: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/unit/infrastructure/test_company_export_workbook_lifetime.py::test_close_releases_streaming_rows_and_temp_files[False]
+1 failed, 1 passed in 0.75s

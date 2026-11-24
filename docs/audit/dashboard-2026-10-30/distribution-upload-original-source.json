@@ -1,0 +1,694 @@
+{
+  "source": "\"\"\"Document distribution: upload.\"\"\"\n\nfrom __future__ import annotations\n\nimport uuid\nfrom typing import Annotated\n\nfrom fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status\nfrom sqlalchemy import select\nfrom sqlalchemy.ext.asyncio import AsyncSession\n\nfrom app.core.config.settings import get_settings\nfrom app.domain.entities.entities import User\nfrom app.infrastructure.database.models import (\n    DistributedDocumentModel,\n    DocumentDistributionBatchModel,\n    DocumentUploadChunkModel,\n)\nfrom app.infrastructure.database.session import get_db_session\nfrom app.infrastructure.documents.distribution_capacity import DocumentDistributionCapacityError\nfrom app.infrastructure.documents.distribution_ingestion import (\n    TravelDocumentFile,\n    TravelDocumentIngestionService,\n)\nfrom app.infrastructure.documents.document_matcher import (\n    ClassifiedDocument,\n    DocumentMatcher,\n    DocumentParserUnavailableError,\n    UnsupportedDocumentBatchFormatError,\n)\nfrom app.infrastructure.documents.pdf_parser_sandbox import bounded_pdf_batch_timeout_seconds\nfrom app.infrastructure.documents.storage_cleanup import process_storage_cleanup_job\nfrom app.infrastructure.documents.storage_transfers import finish_cleanup_despite_cancellation\nfrom app.infrastructure.documents.verification_staging import (\n    StagedDocumentReceipt,\n    VerificationReceiptBatchTooLargeError,\n    VerificationReceiptError,\n    VerificationReceiptExpiredError,\n    VerificationReceiptScopeChangedError,\n    decode_verification_receipts,\n    staged_document_chunk_fingerprint,\n    validate_verification_receipt_token_batch,\n    verification_scope_fingerprints,\n)\nfrom app.infrastructure.security.upload_security import UploadSecurityContext\nfrom app.presentation.api.v1.document_chunk_uploads import (\n    acquire_document_upload_advisory_lock,\n    acquire_document_upload_scope_advisory_lock,\n    document_chunk_fingerprint,\n    new_document_chunk_receipt,\n    resolve_concurrent_document_chunk_replay,\n    resolve_document_chunk_metadata,\n    validate_document_chunk_size,\n    validate_existing_document_chunk,\n    validate_next_document_chunk,\n)\nfrom app.presentation.api.v1.document_uploads import (\n    MAX_DOCUMENT_BATCH_BYTES,\n    read_bounded_document_uploads,\n)\nfrom app.presentation.api.v1.routes.document_distribution_matching import (\n    _linked_document_match_identifiers,\n    _read_linked_document_match_source,\n)\nfrom app.presentation.api.v1.routes.document_distribution_queries import (\n    _all_group_documents,\n    _enforce_group_document_assignment_capacity,\n    _first_blocking_processing_upload_id,\n)\nfrom app.presentation.api.v1.routes.document_distribution_replacements import (\n    MAX_FILENAME_REPLACEMENTS_LENGTH,\n    apply_filename_replacements,\n    parse_filename_replacements,\n    replacement_chunk_fingerprint,\n)\nfrom app.presentation.api.v1.routes.document_distribution_responses import _batch_response\nfrom app.presentation.api.v1.routes.document_distribution_scope import (\n    _detach_distribution_batch_before_long_processing,\n    _get_authorized_group,\n    _group_passengers,\n    _lock_and_validate_document_match_scope,\n)\nfrom app.presentation.api.v1.routes.document_distribution_shared import (\n    _document_match_roster_snapshot,\n    _processing_batch_response,\n    logger,\n)\nfrom app.presentation.api.v1.routes.document_distribution_storage import (\n    _cleanup_distribution_storage_keys,\n    _cleanup_remembered_request_staging,\n    _ConcurrentDocumentChunkReplay,\n    _remember_request_staging_keys,\n    _with_staging_cleanup,\n)\nfrom app.presentation.api.v1.routes.document_distribution_upload_inputs import (\n    validate_staging_receipt_batch as validate_staging_receipt_batch,\n)\nfrom app.presentation.api.v1.routes.document_distribution_upload_inputs import (\n    validated_distribution_upload_inputs as validated_distribution_upload_inputs,\n)\nfrom app.presentation.api.v1.schemas.document_distribution_schemas import (\n    DocumentBatchResponse,\n    RejectedDocumentResponse,\n)\nfrom app.presentation.dependencies.auth import get_current_active_user\nfrom app.presentation.dependencies.csrf import require_cookie_csrf\n\nrouter = APIRouter()\n\n\n@router.post(\n    \"/groups/{group_id}/{document_type}/upload\",\n    response_model=DocumentBatchResponse,\n    status_code=status.HTTP_201_CREATED,\n    dependencies=[Depends(require_cookie_csrf)],\n)\n@_with_staging_cleanup\nasync def upload_documents(\n    group_id: uuid.UUID,\n    document_type: str,\n    files: Annotated[list[UploadFile] | None, File()] = None,\n    staging_receipts: Annotated[list[str] | None, Form()] = None,\n    upload_id: Annotated[uuid.UUID | None, Form()] = None,\n    chunk_id: Annotated[uuid.UUID | None, Form()] = None,\n    chunk_index: Annotated[int | None, Form()] = None,\n    expected_chunk_count: Annotated[int | None, Form()] = None,\n    expected_file_count: Annotated[int | None, Form()] = None,\n    filename_replacements: Annotated[\n        str | None, Form(max_length=MAX_FILENAME_REPLACEMENTS_LENGTH)\n    ] = None,\n    current_user: User = Depends(get_current_active_user),\n    session: AsyncSession = Depends(get_db_session),\n) -> DocumentBatchResponse:\n    uploaded_files, receipt_tokens = validated_distribution_upload_inputs(\n        document_type, upload_id, chunk_id, files, staging_receipts,\n    )\n    incoming_file_count = len(receipt_tokens) if receipt_tokens else len(uploaded_files)\n    chunk_metadata = resolve_document_chunk_metadata(\n        upload_id=upload_id,\n        chunk_id=chunk_id,\n        chunk_index=chunk_index,\n        expected_chunk_count=expected_chunk_count,\n        expected_file_count=expected_file_count,\n    )\n    validate_document_chunk_size(chunk_metadata, file_count=incoming_file_count)\n    if receipt_tokens and chunk_metadata is None:\n        raise HTTPException(\n            status_code=status.HTTP_400_BAD_REQUEST,\n            detail=\"Verified staging receipts require an upload session\",\n        )\n    if receipt_tokens:\n        validate_staging_receipt_batch(receipt_tokens, validate_verification_receipt_token_batch)\n    authorized_group = await _get_authorized_group(\n        group_id,\n        current_user=current_user,\n        session=session,\n    )\n    if chunk_metadata is not None and chunk_metadata.chunk_index == 0:\n        blocking_upload_id = await _first_blocking_processing_upload_id(\n            session,\n            group_id=group_id,\n            agency_id=authorized_group.agency_id,\n            document_type=document_type,\n            exclude_upload_id=chunk_metadata.upload_id,\n        )\n        if blocking_upload_id is not None:\n            raise HTTPException(\n                status_code=status.HTTP_409_CONFLICT,\n                detail=(\n                    \"Discard or resume the existing incomplete upload before starting another one\"\n                ),\n            )\n    initial_passengers = await _group_passengers(\n        group_id,\n        current_user=current_user,\n        session=session,\n    )\n    if not initial_passengers:\n        raise HTTPException(\n            status_code=status.HTTP_400_BAD_REQUEST,\n            detail=\"This group has no passengers to match documents against\",\n        )\n    matcher = DocumentMatcher()\n    group = authorized_group\n    passengers = initial_passengers\n    linked_source = await _read_linked_document_match_source(\n        session,\n        group=group,\n        lock=False,\n    )\n    supplemental_identifiers = await _linked_document_match_identifiers(\n        session,\n        group=group,\n        passengers=passengers,\n        matcher=matcher,\n        source=linked_source,\n    )\n    agency_id = group.agency_id\n    roster_fingerprint, source_fingerprint, identifiers_fingerprint = (\n        verification_scope_fingerprints(\n            roster_snapshot=_document_match_roster_snapshot(passengers),\n            source_snapshot=linked_source.snapshot,\n            identifiers=supplemental_identifiers,\n        )\n    )\n    await session.rollback()\n\n    staged_receipt_models: list[StagedDocumentReceipt] = []\n    preclassified_documents: list[ClassifiedDocument] | None = None\n    staged_storage_keys: list[str | None] | None = None\n    if receipt_tokens:\n        assert chunk_metadata is not None\n        try:\n            staged_receipt_models = decode_verification_receipts(\n                receipt_tokens,\n                agency_id=agency_id,\n                actor_id=current_user.id,\n                group_id=group_id,\n                upload_id=chunk_metadata.upload_id,\n                chunk_id=chunk_metadata.chunk_id,\n                document_type=document_type,\n                roster_fingerprint=roster_fingerprint,\n                source_fingerprint=source_fingerprint,\n                identifiers_fingerprint=identifiers_fingerprint,\n            )\n        except (VerificationReceiptExpiredError, VerificationReceiptScopeChangedError) as exc:\n            _remember_request_staging_keys(exc.storage_keys)\n            await finish_cleanup_despite_cancellation(_cleanup_remembered_request_staging())\n            raise HTTPException(\n                status_code=(\n                    status.HTTP_410_GONE\n                    if isinstance(exc, VerificationReceiptExpiredError)\n                    else status.HTTP_409_CONFLICT\n                ),\n                detail=str(exc),\n            ) from exc\n        except VerificationReceiptBatchTooLargeError as exc:\n            raise HTTPException(status_code=413, detail=str(exc)) from exc\n        except VerificationReceiptError as exc:\n            raise HTTPException(\n                status_code=status.HTTP_409_CONFLICT,\n                detail=str(exc),\n            ) from exc\n\n        chunk_byte_count = sum(receipt.byte_count for receipt in staged_receipt_models)\n        _remember_request_staging_keys([receipt.storage_key for receipt in staged_receipt_models])\n        per_file_limit = get_settings().upload_max_file_size_bytes\n        if chunk_byte_count > MAX_DOCUMENT_BATCH_BYTES or any(\n            receipt.byte_count > per_file_limit for receipt in staged_receipt_models\n        ):\n            await finish_cleanup_despite_cancellation(_cleanup_remembered_request_staging())\n            raise HTTPException(\n                status_code=413,\n                detail=\"The verified PDF upload exceeds the active size limit\",\n            )\n        fingerprint = (\n            staged_document_chunk_fingerprint(staged_receipt_models) if chunk_metadata else None\n        )\n        file_payloads = [\n            TravelDocumentFile(\n                filename=receipt.filename,\n                content=b\"\",\n                content_type=receipt.content_type,\n            )\n            for receipt in staged_receipt_models\n        ]\n        preclassified_documents = [receipt.classification for receipt in staged_receipt_models]\n        staged_storage_keys = [receipt.storage_key for receipt in staged_receipt_models]\n    else:\n        uploads = await read_bounded_document_uploads(\n            uploaded_files,\n            security_context=UploadSecurityContext(\n                ingestion_flow=\"document_distribution_upload\",\n                agency_id=agency_id,\n                user_id=current_user.id,\n            ),\n        )\n        chunk_byte_count = sum(len(upload.content) for upload in uploads)\n        fingerprint = document_chunk_fingerprint(uploads) if chunk_metadata else None\n        file_payloads = [\n            TravelDocumentFile(\n                filename=upload.filename,\n                content=upload.content,\n                content_type=upload.content_type,\n            )\n            for upload in uploads\n        ]\n\n    replacement_decisions = parse_filename_replacements(\n        filename_replacements,\n        incoming_filenames=[file.filename for file in file_payloads],\n    )\n    fingerprint = replacement_chunk_fingerprint(fingerprint, replacement_decisions)\n    replacement_cleanup_ids: list[uuid.UUID] = []\n    replacement_actor_id = current_user.id\n    replacement_actor_email = current_user.email\n\n    async def cleanup_request_staging() -> None:\n        await _cleanup_remembered_request_staging()\n\n    existing_batch: DocumentDistributionBatchModel | None = None\n    existing_receipts: list[DocumentUploadChunkModel] = []\n    chunk_completes_upload = True\n    if chunk_metadata is not None:\n        batch_result = await session.execute(\n            select(DocumentDistributionBatchModel).where(\n                DocumentDistributionBatchModel.id == chunk_metadata.upload_id,\n                DocumentDistributionBatchModel.agency_id == agency_id,\n                DocumentDistributionBatchModel.group_id == group_id,\n                DocumentDistributionBatchModel.document_type == document_type,\n            )\n        )\n        existing_batch = batch_result.scalar_one_or_none()\n        if existing_batch is None:\n            collision_result = await session.execute(\n                select(DocumentDistributionBatchModel.id).where(\n                    DocumentDistributionBatchModel.id == chunk_metadata.upload_id\n                )\n            )\n            if collision_result.scalar_one_or_none() is not None:\n                raise HTTPException(\n                    status_code=status.HTTP_409_CONFLICT,\n                    detail=\"The upload session is not available to this group\",\n                )\n        receipt_result = await session.execute(\n            select(DocumentUploadChunkModel).where(\n                DocumentUploadChunkModel.id == chunk_metadata.chunk_id\n            )\n        )\n        existing_receipt = receipt_result.scalar_one_or_none()\n        if existing_receipt is not None:\n            assert fingerprint is not None\n            validate_existing_document_chunk(\n                existing_receipt,\n                metadata=chunk_metadata,\n                agency_id=agency_id,\n                workflow=\"distribution\",\n                group_id=group_id,\n                document_type=document_type,\n                fingerprint=fingerprint,\n                file_count=incoming_file_count,\n                byte_count=chunk_byte_count,\n            )\n            if existing_batch is None:\n                raise HTTPException(\n                    status_code=status.HTTP_409_CONFLICT,\n                    detail=\"The upload session is not available to this group\",\n                )\n            if existing_batch.status == \"processing\":\n                await finish_cleanup_despite_cancellation(cleanup_request_staging())\n                return _processing_batch_response(existing_batch)\n            documents = await _all_group_documents(\n                session,\n                group_id=group_id,\n                agency_id=agency_id,\n                document_type=document_type,\n            )\n            replay_response = await _batch_response(\n                session=session,\n                group_id=group_id,\n                agency_id=agency_id,\n                document_type=document_type,\n                passengers=passengers,\n                batch=existing_batch,\n                documents=documents,\n            )\n            await finish_cleanup_despite_cancellation(cleanup_request_staging())\n            return replay_response\n        receipts_result = await session.execute(\n            select(DocumentUploadChunkModel)\n            .where(\n                DocumentUploadChunkModel.upload_id == chunk_metadata.upload_id,\n                DocumentUploadChunkModel.agency_id == agency_id,\n                DocumentUploadChunkModel.workflow == \"distribution\",\n                DocumentUploadChunkModel.group_id == group_id,\n                DocumentUploadChunkModel.document_type == document_type,\n            )\n            .order_by(DocumentUploadChunkModel.chunk_index.asc())\n        )\n        existing_receipts = list(receipts_result.scalars().all())\n        if (existing_batch is None) != (len(existing_receipts) == 0):\n            raise HTTPException(\n                status_code=status.HTTP_409_CONFLICT,\n                detail=\"The upload session is incomplete and requires administrator review\",\n            )\n        if existing_batch is not None and existing_batch.status != \"processing\":\n            raise HTTPException(\n                status_code=status.HTTP_409_CONFLICT,\n                detail=\"This upload session is already complete\",\n            )\n        chunk_completes_upload = validate_next_document_chunk(\n            existing_receipts,\n            metadata=chunk_metadata,\n            incoming_file_count=incoming_file_count,\n            incoming_byte_count=chunk_byte_count,\n        )\n    roster_snapshot = _document_match_roster_snapshot(passengers)\n    if existing_batch is not None:\n        # Keep the already-loaded cumulative counters available without\n        # retaining a database transaction during untrusted PDF parsing.\n        _detach_distribution_batch_before_long_processing(session, existing_batch)\n    await session.rollback()\n\n    async def reauthorize_before_persistence() -> tuple[uuid.UUID | None, str | None]:\n        nonlocal replacement_actor_id, replacement_actor_email\n        actor, _ = await _lock_and_validate_document_match_scope(\n            session,\n            current_user=current_user,\n            group_id=group_id,\n            agency_id=agency_id,\n            matcher=matcher,\n            expected_roster_snapshot=roster_snapshot,\n            expected_source_snapshot=linked_source.snapshot,\n            expected_supplemental_identifiers=supplemental_identifiers,\n        )\n        await acquire_document_upload_scope_advisory_lock(\n            session,\n            agency_id=agency_id,\n            group_id=group_id,\n            document_type=document_type,\n        )\n        # Use the same batch-before-document order as Save/Delete. This also\n        # serializes replacement against document assignment and draft edits.\n        await session.execute(\n            select(DocumentDistributionBatchModel.id)\n            .where(\n                DocumentDistributionBatchModel.agency_id == agency_id,\n                DocumentDistributionBatchModel.group_id == group_id,\n                DocumentDistributionBatchModel.document_type == document_type,\n            )\n            .order_by(DocumentDistributionBatchModel.id)\n            .with_for_update()\n        )\n        if chunk_metadata is not None:\n            await acquire_document_upload_advisory_lock(\n                session,\n                workflow=\"distribution\",\n                upload_id=chunk_metadata.upload_id,\n            )\n            serialized_batch_result = await session.execute(\n                select(DocumentDistributionBatchModel)\n                .where(DocumentDistributionBatchModel.id == chunk_metadata.upload_id)\n                .with_for_update()\n                .execution_options(populate_existing=True)\n            )\n            serialized_batch = serialized_batch_result.scalar_one_or_none()\n            if serialized_batch is not None and (\n                serialized_batch.agency_id != agency_id\n                or serialized_batch.group_id != group_id\n                or serialized_batch.document_type != document_type\n            ):\n                raise HTTPException(\n                    status_code=status.HTTP_409_CONFLICT,\n                    detail=\"The upload session is not available to this group\",\n                )\n            if (\n                chunk_metadata.chunk_index == 0\n                and serialized_batch is None\n                and await _first_blocking_processing_upload_id(\n                    session,\n                    group_id=group_id,\n                    agency_id=agency_id,\n                    document_type=document_type,\n                    exclude_upload_id=chunk_metadata.upload_id,\n                    lock=True,\n                )\n                is not None\n            ):\n                raise HTTPException(\n                    status_code=status.HTTP_409_CONFLICT,\n                    detail=(\n                        \"Discard or resume the existing incomplete upload before \"\n                        \"starting another one\"\n                    ),\n                )\n            locked_receipts_result = await session.execute(\n                select(DocumentUploadChunkModel)\n                .where(\n                    DocumentUploadChunkModel.upload_id == chunk_metadata.upload_id,\n                    DocumentUploadChunkModel.workflow == \"distribution\",\n                )\n                .order_by(DocumentUploadChunkModel.chunk_index.asc())\n                .with_for_update()\n            )\n            locked_receipts = list(locked_receipts_result.scalars().all())\n            assert fingerprint is not None\n            if (\n                resolve_concurrent_document_chunk_replay(\n                    locked_receipts,\n                    metadata=chunk_metadata,\n                    agency_id=agency_id,\n                    workflow=\"distribution\",\n                    group_id=group_id,\n                    document_type=document_type,\n                    fingerprint=fingerprint,\n                    file_count=incoming_file_count,\n                    byte_count=chunk_byte_count,\n                )\n                is not None\n            ):\n                raise _ConcurrentDocumentChunkReplay\n            if serialized_batch is not None and existing_batch is None:\n                raise HTTPException(\n                    status_code=status.HTTP_409_CONFLICT,\n                    detail=\"The upload session is incomplete and requires administrator review\",\n                )\n            if serialized_batch is None and existing_batch is not None:\n                raise HTTPException(\n                    status_code=status.HTTP_409_CONFLICT,\n                    detail=\"The upload session is no longer available\",\n                )\n            if serialized_batch is not None and serialized_batch.status != \"processing\":\n                raise HTTPException(\n                    status_code=status.HTTP_409_CONFLICT,\n                    detail=(\n                        \"This upload was completed or closed while the PDFs were being processed. \"\n                        \"Check the remaining PDFs in a new upload.\"\n                    ),\n                )\n            validate_next_document_chunk(\n                locked_receipts,\n                metadata=chunk_metadata,\n                incoming_file_count=incoming_file_count,\n                incoming_byte_count=chunk_byte_count,\n            )\n        replacement_actor_id = actor.id\n        replacement_actor_email = actor.email\n        return actor.id, actor.email\n\n    async def enforce_capacity_before_persistence(incoming_rows: int) -> None:\n        await _enforce_group_document_assignment_capacity(\n            session,\n            group_id=group_id,\n            agency_id=agency_id,\n            document_type=document_type,\n            incoming_rows=incoming_rows,\n        )\n\n    async def replace_successfully_stored_documents(\n        documents: list[DistributedDocumentModel],\n    ) -> None:\n        replacement_cleanup_ids.extend(\n            await apply_filename_replacements(\n                session,\n                agency_id=agency_id,\n                group_id=group_id,\n                document_type=document_type,\n                new_documents=documents,\n                replacements=replacement_decisions,\n                actor_id=replacement_actor_id,\n                actor_email=replacement_actor_email,\n            )\n        )\n\n    try:\n        ingestion = await TravelDocumentIngestionService(session, matcher=matcher).ingest(\n            agency_id=agency_id,\n            group_id=group_id,\n            document_type=document_type,\n            passengers=passengers,\n            files=file_payloads,\n            created_by_user_id=current_user.id,\n            actor_email=current_user.email,\n            existing_batch=existing_batch,\n            batch_id=chunk_metadata.upload_id if chunk_metadata else None,\n            supplemental_identifiers=supplemental_identifiers,\n            isolate_pdf_parsing=True,\n            parser_batch_timeout_seconds=(\n                bounded_pdf_batch_timeout_seconds(incoming_file_count)\n                if chunk_metadata is not None\n                else None\n            ),\n            reject_common_unsupported_format=True,\n            preclassified_documents=preclassified_documents,\n            staged_storage_keys=staged_storage_keys,\n            require_passenger_match=True,\n            before_persistence=reauthorize_before_persistence,\n            before_persistence_capacity=enforce_capacity_before_persistence,\n            before_persistence_documents=replace_successfully_stored_documents,\n        )\n    except UnsupportedDocumentBatchFormatError as exc:\n        raise HTTPException(\n            status_code=422,\n            detail=str(exc),\n        ) from exc\n    except _ConcurrentDocumentChunkReplay:\n        await finish_cleanup_despite_cancellation(cleanup_request_staging())\n        assert chunk_metadata is not None\n        replay_batch_result = await session.execute(\n            select(DocumentDistributionBatchModel).where(\n                DocumentDistributionBatchModel.id == chunk_metadata.upload_id,\n                DocumentDistributionBatchModel.agency_id == agency_id,\n                DocumentDistributionBatchModel.group_id == group_id,\n                DocumentDistributionBatchModel.document_type == document_type,\n            )\n        )\n        replay_batch = replay_batch_result.scalar_one_or_none()\n        if replay_batch is None:\n            raise HTTPException(\n                status_code=status.HTTP_409_CONFLICT,\n                detail=\"The committed upload session is no longer available\",\n            )\n        if replay_batch.status == \"processing\":\n            return _processing_batch_response(replay_batch)\n        documents = await _all_group_documents(\n            session,\n            group_id=group_id,\n            agency_id=agency_id,\n            document_type=document_type,\n        )\n        return await _batch_response(\n            session=session,\n            group_id=group_id,\n            agency_id=agency_id,\n            document_type=document_type,\n            passengers=passengers,\n            batch=replay_batch,\n            documents=documents,\n        )\n    except DocumentParserUnavailableError as exc:\n        raise HTTPException(\n            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,\n            detail=str(exc),\n            headers={\"Retry-After\": \"1\"},\n        ) from exc\n    except DocumentDistributionCapacityError as exc:\n        await finish_cleanup_despite_cancellation(cleanup_request_staging())\n        raise HTTPException(\n            status_code=413,\n            detail=str(exc),\n        ) from exc\n    if chunk_metadata is not None:\n        ingestion.batch.status = \"draft\" if chunk_completes_upload else \"processing\"\n        assert fingerprint is not None\n        session.add(\n            new_document_chunk_receipt(\n                metadata=chunk_metadata,\n                agency_id=agency_id,\n                workflow=\"distribution\",\n                group_id=group_id,\n                document_type=document_type,\n                fingerprint=fingerprint,\n                file_count=incoming_file_count,\n                byte_count=chunk_byte_count,\n                accepted_count=incoming_file_count - len(ingestion.rejected),\n                rejected_count=len(ingestion.rejected),\n                rejected_documents=[\n                    {\n                        \"filename\": item.filename,\n                        \"detected_type\": item.detected_type,\n                        \"reason\": item.reason,\n                    }\n                    for item in ingestion.rejected\n                ],\n            )\n        )\n        try:\n            await session.flush()\n        except BaseException:\n            await session.rollback()\n            await _cleanup_distribution_storage_keys(\n                list(ingestion.created_storage_keys),\n                agency_id=agency_id,\n                group_id=group_id,\n                document_type=document_type,\n            )\n            raise\n    try:\n        await session.commit()\n    except BaseException:\n        # COMMIT acknowledgement can be lost after PostgreSQL made the rows\n        # durable. Keep objects that those rows may reference for safe\n        # operational reconciliation; remove only proven orphaned keys.\n        await session.rollback()\n        logger.warning(\n            \"document_distribution_commit_outcome_ambiguous\",\n            group_id=str(group_id),\n            document_type=document_type,\n            object_count=len(ingestion.created_storage_keys),\n        )\n        raise\n    await finish_cleanup_despite_cancellation(cleanup_request_staging())\n    for cleanup_id in replacement_cleanup_ids:\n        try:\n            await process_storage_cleanup_job(cleanup_id)\n        except Exception as exc:\n            logger.warning(\n                \"document_distribution_replacement_cleanup_deferred\",\n                cleanup_job_id=str(cleanup_id),\n                error_type=type(exc).__name__,\n            )\n    if ingestion.batch.status == \"processing\":\n        return _processing_batch_response(ingestion.batch)\n    documents = await _all_group_documents(\n        session,\n        group_id=group_id,\n        agency_id=agency_id,\n        document_type=document_type,\n    )\n    return await _batch_response(\n        session=session,\n        group_id=group_id,\n        agency_id=agency_id,\n        document_type=document_type,\n        passengers=passengers,\n        batch=ingestion.batch,\n        documents=documents,\n        rejected_documents=(\n            [\n                RejectedDocumentResponse(\n                    filename=item.filename,\n                    detected_type=item.detected_type,\n                    reason=item.reason,\n                )\n                for item in ingestion.rejected\n            ]\n            if chunk_metadata is None\n            else None\n        ),\n    )\n",
+  "sha256": "a76545ac1fdbf5d9ce08a85373fff357eca4e6e8c724264de0d95e16dfd6a0c0",
+  "signature": "(group_id: 'uuid.UUID', document_type: 'str', files: 'Annotated[list[UploadFile] | None, File()]' = None, staging_receipts: 'Annotated[list[str] | None, Form()]' = None, upload_id: 'Annotated[uuid.UUID | None, Form()]' = None, chunk_id: 'Annotated[uuid.UUID | None, Form()]' = None, chunk_index: 'Annotated[int | None, Form()]' = None, expected_chunk_count: 'Annotated[int | None, Form()]' = None, expected_file_count: 'Annotated[int | None, Form()]' = None, filename_replacements: 'Annotated[str | None, Form(max_length=MAX_FILENAME_REPLACEMENTS_LENGTH)]' = None, current_user: 'User' = Depends(dependency=<function get_current_active_user at 0x000001E5D46FD580>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x000001E5A30ED9E0>, use_cache=True, scope=None)) -> 'DocumentBatchResponse'",
+  "hints": {
+    "group_id": "<class 'uuid.UUID'>",
+    "document_type": "<class 'str'>",
+    "files": "list[fastapi.datastructures.UploadFile] | None",
+    "staging_receipts": "list[str] | None",
+    "upload_id": "uuid.UUID | None",
+    "chunk_id": "uuid.UUID | None",
+    "chunk_index": "int | None",
+    "expected_chunk_count": "int | None",
+    "expected_file_count": "int | None",
+    "filename_replacements": "str | None",
+    "current_user": "<class 'app.domain.entities.identity.User'>",
+    "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+    "return": "<class 'app.presentation.api.v1.schemas.document_distribution_schemas.DocumentBatchResponse'>"
+  },
+  "openapi": {
+    "openapi": "3.1.0",
+    "info": {
+      "title": "FastAPI",
+      "version": "0.1.0"
+    },
+    "paths": {
+      "/distribution/groups/{group_id}/{document_type}/upload": {
+        "post": {
+          "summary": "Upload Documents",
+          "operationId": "upload_documents_distribution_groups__group_id___document_type__upload_post",
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "group_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Group Id"
+              }
+            },
+            {
+              "name": "document_type",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "title": "Document Type"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "$ref": "#/components/schemas/Body_upload_documents_distribution_groups__group_id___document_type__upload_post"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/DocumentBatchResponse"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "Body_upload_documents_distribution_groups__group_id___document_type__upload_post": {
+          "properties": {
+            "files": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string",
+                    "contentMediaType": "application/octet-stream"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Files"
+            },
+            "staging_receipts": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Staging Receipts"
+            },
+            "upload_id": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Upload Id"
+            },
+            "chunk_id": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Chunk Id"
+            },
+            "chunk_index": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Chunk Index"
+            },
+            "expected_chunk_count": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Expected Chunk Count"
+            },
+            "expected_file_count": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Expected File Count"
+            },
+            "filename_replacements": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 524288
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Filename Replacements"
+            }
+          },
+          "type": "object",
+          "title": "Body_upload_documents_distribution_groups__group_id___document_type__upload_post"
+        },
+        "DistributedDocumentResponse": {
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id"
+            },
+            "original_filename": {
+              "type": "string",
+              "title": "Original Filename"
+            },
+            "updated_at": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Updated At"
+            },
+            "document_type": {
+              "type": "string",
+              "title": "Document Type"
+            },
+            "detected_type": {
+              "type": "string",
+              "title": "Detected Type"
+            },
+            "manual_type_approved": {
+              "type": "boolean",
+              "title": "Manual Type Approved",
+              "default": false
+            },
+            "match_status": {
+              "type": "string",
+              "title": "Match Status"
+            },
+            "match_confidence": {
+              "type": "number",
+              "title": "Match Confidence"
+            },
+            "match_reason": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Match Reason"
+            },
+            "extracted_name": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Extracted Name"
+            },
+            "extracted_passport_number": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Extracted Passport Number"
+            },
+            "extracted_reference": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Extracted Reference"
+            },
+            "source": {
+              "type": "string",
+              "title": "Source",
+              "default": "manual"
+            },
+            "delivery_status": {
+              "type": "string",
+              "title": "Delivery Status",
+              "default": "not_sent"
+            },
+            "sent_to": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Sent To"
+            },
+            "last_sent_at": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Last Sent At"
+            },
+            "can_resend": {
+              "type": "boolean",
+              "title": "Can Resend",
+              "default": false
+            },
+            "url": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Url"
+            }
+          },
+          "type": "object",
+          "required": [
+            "id",
+            "original_filename",
+            "document_type",
+            "detected_type",
+            "match_status",
+            "match_confidence"
+          ],
+          "title": "DistributedDocumentResponse"
+        },
+        "DocumentAssignmentIssueResponse": {
+          "properties": {
+            "document_id": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Document Id"
+            },
+            "original_filename": {
+              "type": "string",
+              "title": "Original Filename"
+            },
+            "code": {
+              "type": "string",
+              "title": "Code"
+            },
+            "reason": {
+              "type": "string",
+              "title": "Reason"
+            },
+            "url": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Url"
+            }
+          },
+          "type": "object",
+          "required": [
+            "document_id",
+            "original_filename",
+            "code",
+            "reason"
+          ],
+          "title": "DocumentAssignmentIssueResponse",
+          "description": "One verified, stored physical PDF that still has no passenger assignment."
+        },
+        "DocumentBatchResponse": {
+          "properties": {
+            "batch_id": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Batch Id"
+            },
+            "group_id": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Group Id"
+            },
+            "document_type": {
+              "type": "string",
+              "title": "Document Type"
+            },
+            "status": {
+              "type": "string",
+              "title": "Status",
+              "default": "draft"
+            },
+            "uploaded_count": {
+              "type": "integer",
+              "title": "Uploaded Count",
+              "default": 0
+            },
+            "rejected_count": {
+              "type": "integer",
+              "title": "Rejected Count",
+              "default": 0
+            },
+            "matched_count": {
+              "type": "integer",
+              "title": "Matched Count",
+              "default": 0
+            },
+            "physical_file_count": {
+              "type": "integer",
+              "title": "Physical File Count",
+              "default": 0
+            },
+            "assigned_file_count": {
+              "type": "integer",
+              "title": "Assigned File Count",
+              "default": 0
+            },
+            "assigned_passenger_count": {
+              "type": "integer",
+              "title": "Assigned Passenger Count",
+              "default": 0
+            },
+            "needs_assignment_count": {
+              "type": "integer",
+              "title": "Needs Assignment Count",
+              "default": 0
+            },
+            "processing_upload_ids": {
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "type": "array",
+              "title": "Processing Upload Ids"
+            },
+            "saved_at": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Saved At"
+            },
+            "created_at": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Created At"
+            },
+            "review_rows": {
+              "items": {
+                "$ref": "#/components/schemas/DocumentPassengerReviewRow"
+              },
+              "type": "array",
+              "title": "Review Rows"
+            },
+            "unmatched_documents": {
+              "items": {
+                "$ref": "#/components/schemas/DistributedDocumentResponse"
+              },
+              "type": "array",
+              "title": "Unmatched Documents"
+            },
+            "assignment_issues": {
+              "items": {
+                "$ref": "#/components/schemas/DocumentAssignmentIssueResponse"
+              },
+              "type": "array",
+              "title": "Assignment Issues"
+            },
+            "rejected_documents": {
+              "items": {
+                "$ref": "#/components/schemas/RejectedDocumentResponse"
+              },
+              "type": "array",
+              "title": "Rejected Documents"
+            }
+          },
+          "type": "object",
+          "required": [
+            "group_id",
+            "document_type"
+          ],
+          "title": "DocumentBatchResponse"
+        },
+        "DocumentPassengerReviewRow": {
+          "properties": {
+            "passenger_id": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Passenger Id"
+            },
+            "passenger_name": {
+              "type": "string",
+              "title": "Passenger Name"
+            },
+            "passport_number": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Passport Number"
+            },
+            "departure_city": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Departure City"
+            },
+            "document": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/DistributedDocumentResponse"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "documents": {
+              "items": {
+                "$ref": "#/components/schemas/DistributedDocumentResponse"
+              },
+              "type": "array",
+              "title": "Documents"
+            },
+            "assigned_pdf_count": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0.0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Assigned Pdf Count"
+            },
+            "shared_pdf_count": {
+              "type": "integer",
+              "minimum": 0.0,
+              "title": "Shared Pdf Count",
+              "default": 0
+            }
+          },
+          "type": "object",
+          "required": [
+            "passenger_id",
+            "passenger_name"
+          ],
+          "title": "DocumentPassengerReviewRow"
+        },
+        "HTTPValidationError": {
+          "properties": {
+            "detail": {
+              "items": {
+                "$ref": "#/components/schemas/ValidationError"
+              },
+              "type": "array",
+              "title": "Detail"
+            }
+          },
+          "type": "object",
+          "title": "HTTPValidationError"
+        },
+        "RejectedDocumentResponse": {
+          "properties": {
+            "filename": {
+              "type": "string",
+              "title": "Filename"
+            },
+            "detected_type": {
+              "type": "string",
+              "title": "Detected Type"
+            },
+            "reason": {
+              "type": "string",
+              "title": "Reason"
+            }
+          },
+          "type": "object",
+          "required": [
+            "filename",
+            "detected_type",
+            "reason"
+          ],
+          "title": "RejectedDocumentResponse"
+        },
+        "ValidationError": {
+          "properties": {
+            "loc": {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ]
+              },
+              "type": "array",
+              "title": "Location"
+            },
+            "msg": {
+              "type": "string",
+              "title": "Message"
+            },
+            "type": {
+              "type": "string",
+              "title": "Error Type"
+            },
+            "input": {
+              "title": "Input"
+            },
+            "ctx": {
+              "type": "object",
+              "title": "Context"
+            }
+          },
+          "type": "object",
+          "required": [
+            "loc",
+            "msg",
+            "type"
+          ],
+          "title": "ValidationError"
+        }
+      },
+      "securitySchemes": {
+        "HTTPBearer": {
+          "type": "http",
+          "scheme": "bearer"
+        }
+      }
+    }
+  },
+  "route": [
+    {
+      "path": "/groups/{group_id}/{document_type}/upload",
+      "methods": [
+        "POST"
+      ],
+      "name": "upload_documents",
+      "status_code": 201,
+      "dependency_names": [
+        "require_cookie_csrf",
+        "get_current_active_user",
+        "get_db_session"
+      ]
+    }
+  ]
+}

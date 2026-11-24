@@ -1,0 +1,104 @@
+{
+  "before_sha256": "5ae330d0d4ac44b1a678e65e4bfc91e56f89a7c388ceb4fa6f0fc7f600c2a87c",
+  "unchanged_function_bodies": [
+    {
+      "name": "useWhatsAppGroups",
+      "owner": "use-broadcast-queries.ts",
+      "body_sha256": "f818e79a2d715d4e130a62d5160a2994974bcae25ddad3eb3b33e6918f60137a"
+    },
+    {
+      "name": "useWhatsAppGroup",
+      "owner": "use-broadcast-queries.ts",
+      "body_sha256": "ef23ff4be6ff2eda8664511370d21e37b34464a322f44fea4d152fb7394b8322"
+    },
+    {
+      "name": "useWhatsAppRecipientRoster",
+      "owner": "use-broadcast-queries.ts",
+      "body_sha256": "8e1564599daf1c68e562b9bb5833aaf91f516949bfe0fa46eb5ea0639ecf262f"
+    },
+    {
+      "name": "useWhatsAppArchiveMutation",
+      "owner": "use-broadcast-group-mutations.ts",
+      "body_sha256": "48fc1047060c0c50b25c833f81be24feac66c9ec252b304e7daee7628e810bb3"
+    },
+    {
+      "name": "useArchiveWhatsAppGroup",
+      "owner": "use-broadcast-group-mutations.ts",
+      "body_sha256": "1b178510d789060e800394fb37d1f240e689a629caff769b72db6ce8490b20dd"
+    },
+    {
+      "name": "useRestoreWhatsAppGroup",
+      "owner": "use-broadcast-group-mutations.ts",
+      "body_sha256": "0d28c195bcadc190a16db75ec302f873b1efb4d0866a4ec57344cc5cce343009"
+    },
+    {
+      "name": "useCreateWhatsAppGroup",
+      "owner": "use-broadcast-group-mutations.ts",
+      "body_sha256": "ece00661e9d44c85fac227f9128dbde9c54a668663029cb972c374a548b79bb0"
+    },
+    {
+      "name": "useUpdateWhatsAppGroup",
+      "owner": "use-broadcast-group-mutations.ts",
+      "body_sha256": "08bd8c09ee20becf459dcf2d8e9c55fa18b12db6b49aa99455fd413b229e5d4b"
+    },
+    {
+      "name": "useDeleteWhatsAppGroup",
+      "owner": "use-broadcast-group-mutations.ts",
+      "body_sha256": "e5dbfb2f67e02722ec187ed0822543ccfc04a02266b70281953f500c2b52f9f4"
+    },
+    {
+      "name": "useResolveWhatsAppRejectedContact",
+      "owner": "use-broadcast-recipient-mutations.ts",
+      "body_sha256": "5c87e417856b0e44991c2ecba2cb65d62a57bd4bb18426f174fe439237e53e77"
+    },
+    {
+      "name": "useRestoreWhatsAppReplacedRecipient",
+      "owner": "use-broadcast-recipient-mutations.ts",
+      "body_sha256": "0d7bfef82a479a8c5c00e96ada640f3163c748e39bb5c899f24a3930a76316b7"
+    },
+    {
+      "name": "useAddWhatsAppRecipients",
+      "owner": "use-broadcast-recipient-mutations.ts",
+      "body_sha256": "0114b5279c03510fbdd5c9858b1c8dc5b3aaff252684fce479dd3880e4c0dcc6"
+    },
+    {
+      "name": "useDeleteWhatsAppRecipient",
+      "owner": "use-broadcast-recipient-mutations.ts",
+      "body_sha256": "1094547e1f9896f0508db092f5fe432531ba0da5a051d582897c11239528b78f"
+    },
+    {
+      "name": "useUpdateWhatsAppRecipientPhone",
+      "owner": "use-broadcast-recipient-mutations.ts",
+      "body_sha256": "871c1706241bab90c6ebd8faeadbf8d35ba8025838e7ee7d2fe160ef3abe7e54"
+    },
+    {
+      "name": "useUpdateWhatsAppRecipientDetails",
+      "owner": "use-broadcast-recipient-mutations.ts",
+      "body_sha256": "bd48e78765385bb2ab752307688d259a34b9fef1f9718dd67f58413ad09c0bb8"
+    }
+  ],
+  "retired_functions": [
+    "useWhatsAppRejectedContacts",
+    "useResendWhatsAppRecipientMessage",
+    "useResendWhatsAppRecipientsMessage",
+    "whatsappBatchErrorStatus",
+    "isMissingWhatsAppBatchError",
+    "useWhatsAppBatchStatus",
+    "usePreviewWhatsAppBulkResendMessage",
+    "usePreviewWhatsAppMessage",
+    "useSendWhatsAppWelcome",
+    "useSendWhatsAppReminder",
+    "useSendWhatsAppPassportLink",
+    "useSendWhatsAppGroupInvite"
+  ],
+  "proof_stage": "Historical extraction checkpoint before later invocation-owner security fixes. These15body hashes establish the mechanical move at that stage, not current byte identity.",
+  "subsequent_reviewed_change": "Ten live mutation call expressions changed from useMutation to shared usePrivateMutation after actual global onMutate/onSuccess negative reproductions. Imports changed accordingly; public variables/cache keys/payloads retained. Query owners remain unchanged.",
+  "current_owner_sha256": {
+    "frontend/features/whatsapp/hooks/use-whatsapp.ts": "9a3a652af5257804a9f2d14b8187b6173c264bb4fa9104749f3122c57b352143",
+    "frontend/features/whatsapp/hooks/use-broadcast-queries.ts": "0e57a119c496b241c6aaaf3c0b149051dd8d191931c67a2ca6cf645e51817f19",
+    "frontend/features/whatsapp/hooks/use-broadcast-group-mutations.ts": "3503395d827fa977393de7b1f27757fd86c2a907fd4c866bf778c50c37851ca2",
+    "frontend/features/whatsapp/hooks/use-broadcast-recipient-mutations.ts": "8af3113f464e9af2714cf1f3c37f0388334415d21e8b6ae9366970de3e7eb880",
+    "frontend/features/whatsapp/hooks/whatsapp-query-keys.ts": "f7b290da19d3789f993577b78793a9147914efc3f497d88939cd78842e5e0f39",
+    "frontend/features/whatsapp/hooks/use-normal-send.ts": "09827e3d90d5c90fda0ec883f9db8f83d7d994c23b5cef20fc44b02cac1822a7"
+  }
+}

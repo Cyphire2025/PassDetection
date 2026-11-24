@@ -1,0 +1,119 @@
+{
+  "originalSource": {
+    "path": "frontend/features/operations/components/tour-group-qr-codes-page.tsx",
+    "sha256": "64ae6364bd00603b36c69f208d916ff537adcbf1571e33f5c6f98633daaac6d4",
+    "lines": 899
+  },
+  "intentionalFixSnapshotSha256": "e0d33e16ab7b38b6d5af02eb022531c9b76a7226e602716c972e86ac7aef578d",
+  "originalPublicPageParameterExact": true,
+  "completeMovedTypedDeclarations": [
+    {
+      "name": "QrDeliveryPreviewDialog",
+      "owner": "frontend/features/operations/components/qr-delivery-preview-dialog.tsx",
+      "wholeTypedDeclarationTextExact": true
+    },
+    {
+      "name": "PassengerQrCard",
+      "owner": "frontend/features/operations/components/passenger-qr-card.tsx",
+      "wholeTypedDeclarationTextExact": true
+    },
+    {
+      "name": "QrDeliverySummary",
+      "owner": "frontend/features/operations/components/qr-delivery-status.tsx",
+      "wholeTypedDeclarationTextExact": true
+    },
+    {
+      "name": "QrDeliveryPreviewStatus",
+      "owner": "frontend/features/operations/components/qr-delivery-status.tsx",
+      "wholeTypedDeclarationTextExact": true
+    },
+    {
+      "name": "formatQrStatus",
+      "owner": "frontend/features/operations/components/qr-status.ts",
+      "wholeTypedDeclarationTextExact": true
+    },
+    {
+      "name": "statusVariant",
+      "owner": "frontend/features/operations/components/qr-status.ts",
+      "wholeTypedDeclarationTextExact": true
+    },
+    {
+      "name": "QrImageMap",
+      "owner": "frontend/features/operations/components/group-qr-model.ts",
+      "wholeTypedDeclarationTextExactExceptInternalExport": true
+    },
+    {
+      "name": "QrStatusFilter",
+      "owner": "frontend/features/operations/components/group-qr-model.ts",
+      "wholeTypedDeclarationTextExactExceptInternalExport": true
+    },
+    {
+      "name": "INITIAL_QR_CARD_LIMIT",
+      "owner": "frontend/features/operations/components/group-qr-model.ts",
+      "wholeTypedDeclarationTextExactExceptInternalExport": true
+    }
+  ],
+  "wholeRetainedControllerStatements": 31,
+  "wholeMovedImageStateDeclarations": 4,
+  "wholeImageEffectCallbackBodiesExact": 2,
+  "stableSetterDependencyAdditions": {
+    "first": [
+      "setPrintRequested",
+      "setActionError"
+    ],
+    "second": [
+      "setPrintRequested",
+      "setRenderLimit"
+    ],
+    "source": "Only caller passes the unchanged React useState setters directly via shorthand; identity remains stable."
+  },
+  "wholeOriginalHeaderJSXTreesExact": 3,
+  "wholeRemainingPageJSXNodesExact": 7,
+  "allHeaderEventsAndRemainingViewEventsExact": true,
+  "viewModelShorthandProjection": [
+    "data",
+    "isLoading",
+    "error",
+    "refetch",
+    "activeCount",
+    "summaryUnavailable",
+    "passengerCount",
+    "notGeneratedCount",
+    "attentionCount",
+    "setDeliveryFeedback",
+    "setSelectedQrTokenIds",
+    "setMessageContent",
+    "sendQrBroadcast",
+    "setIsSendPreviewOpen",
+    "setActionError",
+    "setPrintRequested",
+    "setRenderLimit",
+    "printRequested",
+    "actionError",
+    "qrGenerationFailureCount",
+    "deliveryFeedback",
+    "query",
+    "setQuery",
+    "statusFilter",
+    "setStatusFilter",
+    "displayedPassengers",
+    "filteredPassengers",
+    "qrImages",
+    "visiblePayloads",
+    "pendingPassengerId",
+    "revealToken",
+    "updateLifecycle",
+    "isSendPreviewOpen",
+    "deliveryPreview",
+    "effectiveSelectedQrTokenIds",
+    "effectiveMessageContent",
+    "defaultSelectedQrTokenIds",
+    "registerActivity",
+    "groupId"
+  ],
+  "actualCompilerDefinitionBindingsPreserved": 1648,
+  "unboundIdentifiersCompared": 0,
+  "noRawHTMLPrintSinkInActualOwnedGraph": true,
+  "printSource": "Existingwindow.print renders currentReactDOM; names/messages are React text, imagepayloads use unchangedQRencoder; RAF/AbortController/cache/dependency bodies exact.",
+  "limits": "Mechanical movement qualified relative to the intentional two-bug fixed snapshot. Original->fix differences are deliberate and separately reproduced, not claimed byte-identical. Compiler/source proof is not production/browser/live provider qualification."
+}

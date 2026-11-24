@@ -7,7 +7,7 @@ export function useGroupUpdateAudience(groupId: string | undefined, documentType
   return useQuery({
     queryKey: ["group-update-preview", groupId, audience],
     queryFn: ({ signal }) => groupUpdatesApi.preview(groupId!, audience, signal),
-    enabled: Boolean(groupId), staleTime: 0,
-    refetchInterval: query => query.state.data?.recipients.some(row => ["queued", "processing", "submitted", "sent", "delivered"].includes(row.latest_update_status ?? "")) ? 5000 : false,
+    enabled: Boolean(groupId), staleTime: 0, gcTime: 0, retry: false,
+    refetchInterval: query => query.state.status === "success" && query.state.data?.recipients.some(row => ["queued", "processing", "submitted", "sent", "delivered"].includes(row.latest_update_status ?? "")) ? 5000 : false,
   });
 }

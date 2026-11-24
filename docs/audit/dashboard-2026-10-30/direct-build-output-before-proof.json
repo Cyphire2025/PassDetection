@@ -1,0 +1,26 @@
+{
+  "status": "Actual maintained execute and command source exercised with synthetic transport; not Docker",
+  "before": [
+    {
+      "output_bytes": 128,
+      "accepted": true,
+      "retained_log_bytes": 128,
+      "python_traced_peak_bytes": 54664
+    },
+    {
+      "output_bytes": 16777216,
+      "accepted": true,
+      "retained_log_bytes": 16777216,
+      "python_traced_peak_bytes": 33590458
+    }
+  ],
+  "source": {
+    "scripts/mcp_direct_build.py": "36b7d2e46b25e19332864d9b6d7b2acf9af220b7bc5e8c938b42598e868aeba2"
+  },
+  "proposed_limit_bytes": 8388608,
+  "limits": [
+    "Python tracemalloc observation only, not RSS or production peak",
+    "No build/container/network/provider or real credentials used",
+    "Injected port replaces Docker state transport; actual ordinary execute/log write and actual child command run unchanged"
+  ]
+}

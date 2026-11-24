@@ -1,0 +1,60 @@
+{
+  "scope": "Actual new owner instrumentation imports/monkeypatch targets only, plus old facade aliases bound to identical actual mocks where existing assertions observe those aliases; every existing assertion and exception control remains AST/text exact after explicit CRLF-to-LF normalization. Raw file bytes differ where line endings were normalized; do not claim raw assertion bytes are identical.",
+  "files": [
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_composer_persistence.py",
+      "archived_before": ".tmp/whatsapp-composer-current/test_whatsapp_composer_persistence.py",
+      "before_sha256": "3a92afe90bb8c2daa6156426295669135303dde0de7767eea0012c879cb181cd",
+      "after_sha256": "28c491d3d7fba80d5e028de835118ffcf36c58165d67cecf554ca0b80b615af7",
+      "all_original_assertions_and_pytest_raises_calls_ast_and_newline_normalized_source_exact": true,
+      "raw_CRLF_before": 677,
+      "raw_CRLF_after": 0,
+      "assertions": 57,
+      "exception_controls": 10
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_bulk_resend.py",
+      "archived_before": ".tmp/whatsapp-composer-current/test_whatsapp_bulk_resend.py",
+      "before_sha256": "d5710134692635a759d5665fff99aceb536c4c5e112cbb3c7c5837475f57dd07",
+      "after_sha256": "607cfe85ba777cbcb723175962f5b7e27e8cfa0842b213090e2cd5f33722dad4",
+      "all_original_assertions_and_pytest_raises_calls_ast_and_newline_normalized_source_exact": true,
+      "raw_CRLF_before": 554,
+      "raw_CRLF_after": 562,
+      "assertions": 59,
+      "exception_controls": 7
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_group_invite.py",
+      "archived_before": ".tmp/whatsapp-composer-current/test_whatsapp_group_invite.py",
+      "before_sha256": "68a7110be74c76cdf1136b57457347b42f9ab34f28fac78accd90dc4517557ee",
+      "after_sha256": "21da00839f108f8ad10e83097609326412f4dd8da86a6a981dc081cccda902ea",
+      "all_original_assertions_and_pytest_raises_calls_ast_and_newline_normalized_source_exact": true,
+      "raw_CRLF_before": 354,
+      "raw_CRLF_after": 0,
+      "assertions": 62,
+      "exception_controls": 8
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_bulk_resend_preview.py",
+      "archived_before": ".tmp/whatsapp-composer-current/test_whatsapp_bulk_resend_preview.py",
+      "before_sha256": "4b476effb382da3564111022b76af0feaaa0256ca76d209b77ac51909b1daefb",
+      "after_sha256": "46095b940459dcb93b7cc523ad7883a4daa33eaa61010932a88267975830b480",
+      "all_original_assertions_and_pytest_raises_calls_ast_and_newline_normalized_source_exact": true,
+      "raw_CRLF_before": 511,
+      "raw_CRLF_after": 512,
+      "assertions": 69,
+      "exception_controls": 7
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_welcome_media_authority.py",
+      "archived_before": ".tmp/whatsapp-composer-current/test_whatsapp_welcome_media_authority-authority-qualified.py",
+      "before_sha256": "d9cf27397b93661801b72a1daf96f4d25e724f83dfa1e47209dee0be780134a8",
+      "after_sha256": "20023aa08d040d1f4fe74c1d200d3204b3c237a1e3a0481002178203e76301a0",
+      "all_original_assertions_and_pytest_raises_calls_ast_and_newline_normalized_source_exact": true,
+      "raw_CRLF_before": 0,
+      "raw_CRLF_after": 0,
+      "assertions": 17,
+      "exception_controls": 4
+    }
+  ]
+}

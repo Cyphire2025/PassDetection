@@ -1,0 +1,19 @@
+{
+  "before": {
+    "backend/app/infrastructure/qr/approved_passenger_qr_issuer.py": "d9744ccfea83504818f80a7b082f5799f62c46fabad1e0f3bc7fae0d7683b008",
+    "backend/tests/integration/test_approved_qr_calendar_boundary.py": "3af945f355c62492c1b26173a88eceb14636c8d522c1ad275130241361895f34",
+    "backend/tests/unit/infrastructure/test_approved_passenger_qr_issuer.py": "e0a106a59cbdcde22246f2461b8236d917698de90cbe925a38bd64f515b0a3ba",
+    "backend/tests/unit/presentation/test_group_passenger_qr_identity.py": "b0beee8238a887bc186d4287836dcdc42c77b449d851a9e34511f07fa1944e9e",
+    "backend/tests/unit/application/test_traveller_reconciliation.py": "3183e3f319fd23c68379928dfc678b903b8cd00f5ffecb22e00d5ad6370a6568",
+    "backend/app/presentation/api/v1/routes/tour_operations_qr_helpers.py": "055accca5d35ca8b94a0efa8e4d0a5576e806837b68d552284cf1e588e43f0af"
+  },
+  "after": {
+    "backend/app/infrastructure/qr/approved_passenger_qr_issuer.py": "d9744ccfea83504818f80a7b082f5799f62c46fabad1e0f3bc7fae0d7683b008",
+    "backend/tests/integration/test_approved_qr_calendar_boundary.py": "3af945f355c62492c1b26173a88eceb14636c8d522c1ad275130241361895f34",
+    "backend/tests/unit/infrastructure/test_approved_passenger_qr_issuer.py": "e0a106a59cbdcde22246f2461b8236d917698de90cbe925a38bd64f515b0a3ba",
+    "backend/tests/unit/presentation/test_group_passenger_qr_identity.py": "b0beee8238a887bc186d4287836dcdc42c77b449d851a9e34511f07fa1944e9e",
+    "backend/tests/unit/application/test_traveller_reconciliation.py": "3183e3f319fd23c68379928dfc678b903b8cd00f5ffecb22e00d5ad6370a6568",
+    "backend/app/presentation/api/v1/routes/tour_operations_qr_helpers.py": "055accca5d35ca8b94a0efa8e4d0a5576e806837b68d552284cf1e588e43f0af"
+  },
+  "unchanged_during_affected_tests": true
+}

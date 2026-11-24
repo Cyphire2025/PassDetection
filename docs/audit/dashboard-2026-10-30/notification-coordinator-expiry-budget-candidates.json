@@ -1,0 +1,49 @@
+{
+  "status": "frozen old owner tightened plus one additive read owner; AI integrates",
+  "budget_before_sha256": "f8a46aa8aa1b1e477e84e70d07dade06e5b1fd38899dec318b8ade1bf944a79b",
+  "original_row": {
+    "path": "app/application/mobile/notification_authority.py",
+    "baseline_lines": 230,
+    "maximum_lines": 230,
+    "baseline_max_function_complexity": 26,
+    "maximum_function_complexity": 26,
+    "minimum_coverage_percent": 80
+  },
+  "modules": [
+    {
+      "path": "app/application/mobile/notification_authority.py",
+      "source_sha256": "256d49c099af6fdcbd890188c2377a33654098c96ae720c8d5f824eecf823c8f",
+      "baseline_lines": 85,
+      "maximum_lines": 90,
+      "baseline_max_function_complexity": 12,
+      "maximum_function_complexity": 12,
+      "minimum_coverage_percent": 80
+    },
+    {
+      "path": "app/application/mobile/notification_group_authority.py",
+      "source_sha256": "9ce27a54edbb03114908fcd54816565a90a05e561c51f15d8cd2db50d899f66a",
+      "baseline_lines": 174,
+      "maximum_lines": 180,
+      "baseline_max_function_complexity": 15,
+      "maximum_function_complexity": 15,
+      "minimum_coverage_percent": 80
+    }
+  ],
+  "no_old_cap_or_floor_relaxed": true,
+  "current_hash_only_measurements": [
+    {
+      "path": "app/application/mobile/notification_authority.py",
+      "line_percent": 90.625,
+      "branch_percent": 80.0,
+      "lines": 85,
+      "complexity": 12
+    },
+    {
+      "path": "app/application/mobile/notification_group_authority.py",
+      "line_percent": 97.29729729729729,
+      "branch_percent": 87.5,
+      "lines": 174,
+      "complexity": 15
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "status": "Focused provider/worker/QR implementation tranche verified and source-frozen; whole dashboard audit remains open",
+  "manual_coverage": {
+    "original_paths": 58,
+    "new_direct_physical_original_reads": 55,
+    "matching_prior_full_records": 3,
+    "new_extracted_owners": 19,
+    "current_exact_sha_full_records": 77,
+    "ledger": "docs/audit/dashboard-2026-10-30/whatsapp-backend-reviewed-files.json"
+  },
+  "changes": [
+    "Provider691-line mixed module becomes53-line compatibility entry with typed diagnostics, media, payload, message-composition and shared HTTP outcome owners. Document/QR wire payloads and fixed family diagnostics remain exact.",
+    "Broadcast643-line mixed worker becomes329-line orchestrator plus current-recipient policy, durable state and provider-attempt owners; original call-time facade session/provider/authority/state seams and transaction/claim ordering retained.",
+    "QR552-line mixed worker becomes246-line coordinator plus media, locked dispatch, receipt-state and dependency owners. Source fence, bounded recursion/client sharing, per-item claims, final QR/recipient locks and receipt commit ordering retained.",
+    "Malformed external Meta code/subcode text cannot enter diagnostic logs or persistence; only bounded decimal codes admitted.12actualMockTransport expected-red cases qualify the correction.",
+    "Unexpected broadcast provider exception text no longer enters stored staff-visible delivery errors; safe fixed diagnostic preserves delivery_unknown and automatic resend suppression. ActualDB regression first failed then passed."
+  ],
+  "proofs": [
+    "whatsapp-provider-extraction-proof.json",
+    "whatsapp-worker-extraction-proof.json",
+    "whatsapp-qr-extraction-proof.json"
+  ],
+  "proof_limits": "Normalized statement AST comparisons verify only the enumerated extracted statements/whole definitions. Added wrappers, signatures, policy objects and three intentional shared transport changes are not described as whole-AST identical. Actual wire/negative/persistence tests independently qualify behavior.",
+  "verification": {
+    "affected_reports": [
+      {
+        "path": "docs/audit/dashboard-2026-10-30/whatsapp-provider-worker-qr-tests.xml",
+        "passed": 326
+      },
+      {
+        "path": "docs/audit/dashboard-2026-10-30/whatsapp-worker-qr-failure-tests.xml",
+        "passed": 22
+      },
+      {
+        "path": "docs/audit/dashboard-2026-10-30/whatsapp-provider-failure-tests.xml",
+        "passed": 21
+      },
+      {
+        "path": "docs/audit/dashboard-2026-10-30/whatsapp-receipt-claim-fence-tests.xml",
+        "passed": 6
+      }
+    ],
+    "passing_test_executions": 375,
+    "unique_passing_testcases": 366,
+    "coverage": "Isolated branch coverage from initial326affected tests plus only meaningful added failure/receipt/claim tests appended; unchanged runtime across all append jobs. No full backend suite rerun.",
+    "ruff": "All15runtime owners and all6owned regression test files pass --no-fix",
+    "mypy": "All15runtime owners pass",
+    "architecture": "Existing architecture boundaries verifier passes",
+    "budget_candidates": "15additive candidates only; central211existing caps/floors untouched by this agent. Observed line floors13at90, worker85, recipientpolicy80; measured branch percentages remain explicit."
+  },
+  "privacy_source_to_sink": [
+    "External provider JSON error.code/error_subcode -> _meta_error_reference -> provider log extras / WhatsAppCloudApiError.persistence_message -> worker message/delivery error persistence; now decimal-only metadata.",
+    "Unexpected send_whatsapp_template exception -> worker generic exception handler -> WhatsAppMessageLogModel.error_message -> whatsapp_history.py MessageHistoryRecipient.error_message / whatsapp_activity.py failures. Stored raw exception text removed."
+  ],
+  "limits_and_open_work": [
+    "No real Meta sends, broker publication, external object-store or live PostgreSQL row-lock tests. SQLite verifies actual persistence/queries but does not certify PostgreSQL lock behavior.",
+    "SQLite fixture explicitly reproduces the existing PostgreSQL one-active-token partial-index predicate; the production model/migrations are unchanged.",
+    "Remaining task/Celery automatic exception/traceback/result/kwargs sinks are independently reproduced in whatsapp-celery-privacy-probe.json and OPEN for coordinated mitigation. This tranche does not claim all logs/DB details are private.",
+    "Existing provider full-response buffering and permissive success-ID coercion remain recorded follow-ups without a proved attacker-controlled exploit in this tranche.",
+    "Matcher47/27complexity, current-recipient policy25 and QR final fence28 remain explicit maintainability debt; smaller modules do not imply every function was simplified.",
+    "Legacy planner/no-op/pricing retirement remains pending complete reachability proof; unrelated dashboard runtime still needs continued manual review/implementation."
+  ],
+  "source_sha256": {
+    "backend/app/infrastructure/whatsapp/cloud_api_provider.py": "1609a10ee69a14ac9647ebf8b40227f1dba95f908a69d9a8d21b6296e58ae78c",
+    "backend/app/infrastructure/whatsapp/provider_errors.py": "4c02727abd437502c0ba08f6f79f49442ce3439bb43df1614b4e2335a1502b11",
+    "backend/app/infrastructure/whatsapp/provider_payloads.py": "fb25ffeca9f1f2611839015d73800dec80325878fe1041a642eeb7e3bdeb0677",
+    "backend/app/infrastructure/whatsapp/provider_media.py": "b6b8d365bd633d0f595275913480df34d03fd934655440f2fee064e471b5224e",
+    "backend/app/infrastructure/whatsapp/provider_transport.py": "af003278470e812545dbc126818e85b0b3018de1f9c2c6e80d77c41559a6e23b",
+    "backend/app/infrastructure/whatsapp/provider_messages.py": "d99963e638323121343c1e017011f4318a0197b3cd384d2d9e3a5d0876ca29d7",
+    "backend/app/infrastructure/whatsapp/worker_runtime.py": "bd7c038c5ec22a548cd1142c135b529d9c7c6798594f7e4cd7be74c3af95cae1",
+    "backend/app/infrastructure/whatsapp/broadcast_worker_policy.py": "a31eb59c7aa6e36de3c92adb32636969eadecbfba43b8a6bb1ef0fbe21b4c45a",
+    "backend/app/infrastructure/whatsapp/broadcast_worker_state.py": "1ff39963c73a9712e414038d4709716437da9c1104129efae2f0754fb92e498c",
+    "backend/app/infrastructure/whatsapp/broadcast_worker_provider.py": "b97ecbe09e1186ae4360deacc6e45bc3754ada62211f992608c203072dbf1a29",
+    "backend/app/infrastructure/whatsapp/qr_delivery_runtime.py": "f2784c5dc6e5fb9525e80cc58677de8d3dd1065985efb7169a6c6862cd961714",
+    "backend/app/infrastructure/whatsapp/qr_delivery_types.py": "f95d5ec0e58d4bc5f9f2df38eb01c772ad611cd7d13327441dd3bee11a9c1bb1",
+    "backend/app/infrastructure/whatsapp/qr_delivery_state.py": "79d203828d1af3291ff9bd1906a2771d09f405930e600bf45e8f8cb8cbd4f7fc",
+    "backend/app/infrastructure/whatsapp/qr_delivery_media.py": "9dcec1cd2491e26e17af9785b1ddb87ceee6e492aef9634af16ed399a33b20bb",
+    "backend/app/infrastructure/whatsapp/qr_delivery_dispatch.py": "ddd52c441cde5215800dad9d7dd5ce6df42275f160e08aa7a1e79fb1e657b9b6",
+    "backend/tests/unit/infrastructure/test_whatsapp_provider_diagnostic_privacy.py": "128d4af6a159d1cfeef7a2854625d61b740d2ef7ce95f975b491e8af218397a5",
+    "backend/tests/unit/infrastructure/test_whatsapp_provider_wire_payloads.py": "7fa4fede204255e4950f4a0639b56afeb8e273b2e1c49701ea622ecefc23add8",
+    "backend/tests/unit/infrastructure/test_whatsapp_worker_diagnostic_privacy.py": "c2e3935eaeb1beb652c9ef0cb10e52ebc6fbb22f0cd2b00696de7faa9eed4865",
+    "backend/tests/unit/infrastructure/test_whatsapp_worker_failure_safety.py": "a839db4159e33fcb404c18ae5849da861d681138597bca3541e51d7c184c839b",
+    "backend/tests/unit/infrastructure/test_whatsapp_provider_failure_boundaries.py": "53cb635b2f07df3b9d20c71ac5d2995ed6ce17567376ade63eff47867bfdb4cf",
+    "backend/tests/unit/infrastructure/test_qr_worker_delivery_safety.py": "f1fcbb79a71c220ab2d37b803b38140b3f8896c59a1cbed129e60b346f6bdc3d"
+  },
+  "artifact_sha256": {
+    "whatsapp-provider-extraction-proof.json": "70226c5a111f81be6f74d94973eb94db0d4c31d2bcf56b45a5ba9a423336a6b2",
+    "whatsapp-worker-extraction-proof.json": "d8106c2f6af2c59c0cb807aec4cfbb435ae8ae03de9e1d282f3fa21f1396ef49",
+    "whatsapp-qr-extraction-proof.json": "ae0d959d7e35b8482eb7a0d3871a423a05fe150bb348d36043c120739698333b",
+    "whatsapp-provider-worker-qr-coverage.json": "fccb392f98522f4ce7125a90cbf83b353a4a2fb2f76b3b75914e14ef2bea666c",
+    "whatsapp-provider-worker-qr-coverage.xml": "8936a4d5333c9c5d34faebb0869e0454dd2a945691fe315550264d4193034aeb",
+    "whatsapp-provider-worker-qr-budget-candidates.json": "b42f7ab42e23925df396a465ee55beb9723c67befbd5f0b703e37feffbcc877d"
+  }
+}

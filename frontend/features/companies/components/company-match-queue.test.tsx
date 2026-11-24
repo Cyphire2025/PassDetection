@@ -52,3 +52,17 @@ it("hides cached selectable groups and paging when refreshed access is denied", 
   expect(screen.queryByRole("button", { name: "Next page" })).not.toBeInTheDocument();
   expect(screen.getByRole("alert")).toHaveTextContent("Groups could not be loaded");
 });
+
+it("restores the picker keyboard boundary when a selected group's background query fails", async () => {
+  const client = mount();
+  fireEvent.click(screen.getByRole("button", { name: "Review matches" }));
+  fireEvent.click(await screen.findByRole("button", { name: "Review matches for Autumn trip" }));
+  await screen.findByRole("heading", { name: "Review traveller matches" });
+  vi.mocked(companiesApi.groups).mockRejectedValue({ status: 403 });
+  await act(async () => { await client.invalidateQueries(); });
+  const picker = await screen.findByRole("dialog", { name: "Review matches" });
+  expect(document.body.style.overflow).toBe("hidden");
+  fireEvent.keyDown(picker, { key: "Escape" });
+  await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+  expect(document.body.style.overflow).not.toBe("hidden");
+});

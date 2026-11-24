@@ -1,0 +1,123 @@
+{
+  "scope": "Coherent dashboard/shared-backend attendance runtime, audit repository and dashboard projection tranche. Native application excluded; no security scanners.",
+  "source_state": "frozen for integration",
+  "source_sha256": {
+    "backend/app/infrastructure/repositories/audit_log_repository.py": "53119144537401e6f37e37df076fbf33882ebc73c5c98d3c42cb6b4a7c653113",
+    "backend/app/infrastructure/repositories/audit_chain_verification.py": "7c655639c88bcd0c4a48d02b60281cc48fe81f200203bff31d3a6069ec3f6d21",
+    "backend/app/infrastructure/repositories/audit_log_integrity.py": "5714830391e62418e107267f76dd302194fc7194dd982e5eba403904bbcbf8de",
+    "backend/app/infrastructure/repositories/audit_log_paging.py": "327336b7fe986f2c0ebe863d2265ded49e61e12d9da3f70116e48da055bdc027",
+    "backend/app/infrastructure/repositories/audit_log_types.py": "fad5cf66159b26ff6ed1cc096ecfc768fdc91e7dc73a57aa3ecb4334dcdaf79f",
+    "backend/app/infrastructure/repositories/audit_log_values.py": "a95a8ba16fc3527c4b391e6183e9b37166589585026c218ef0cbb5942868895b",
+    "backend/app/presentation/api/v1/routes/attendance_runtime.py": "e79350bce11c8c4f09be713a59ca126e3b5edf96c769c6fbd5840e714faa94da",
+    "backend/app/presentation/api/v1/routes/attendance_runtime_dependencies.py": "46ef6b1d6b886cbda99cfbdb169d93e7069fcc48d7b78fb585adfe4591665a44",
+    "backend/app/presentation/api/v1/routes/attendance_offline_authorization.py": "175732a8661c1dd09b79859e88c0ab4366aa7e299cdc4ab2b2fdbe417e96ac14",
+    "backend/app/presentation/api/v1/routes/attendance_offline_sources.py": "f9fbdda766e31757d1403537627aea938d6298b060f955ec9a06c2c67e6fe9cc",
+    "backend/app/presentation/api/v1/routes/attendance_discard_sync.py": "ff5e43c01c49cb6249f042ed76e3b167ccbd5f9569818a69c65354553d409a65",
+    "backend/app/application/use_cases/attendance_dashboard.py": "a0a9bc46d730af826b51aaa6dcb6291105874e561216fb12a3561575de957bea",
+    "backend/app/application/use_cases/attendance_dashboard_types.py": "ec6d377105b63c72db95e506b422db4222f7519b6d270468856a3da7648410d3",
+    "backend/app/application/use_cases/attendance_dashboard_revision.py": "151500666ad5119bb04f875a74d34dcfd0894ca3ac2f65420a306206f2bcb9b0",
+    "backend/app/application/use_cases/attendance_dashboard_projection.py": "b251c379590c46963d7d327dedff37bc53115272115f8118be2f1a56868c2fe8",
+    "backend/app/application/attendance_read_contracts.py": "24079d9b86046e0729b6514579ef38ea4df8cde3a32a184208edeb6072786b06",
+    "backend/app/application/attendance_closeout_read_contracts.py": "eceee8ea40cdce476d227da492a4157f4f0ab17a577d2b4f241f774a0cd381ee",
+    "backend/app/infrastructure/repositories/attendance_dashboard_repository.py": "19ccb290e3f0b9faa454d0c2fe3686b8db8d8dce6137018a07430ed1a191d279",
+    "backend/app/infrastructure/repositories/attendance_closeout_types.py": "dfc7430bd708f2584a70c1bb010aa20cffb987101acd261aaf99de7c9be60cb6"
+  },
+  "manual_coverage": {
+    "original_full_files": 9,
+    "original_physical_lines": 2320,
+    "current_primary_runtime_files": 25,
+    "support_runtime_files": 2,
+    "full_test_and_test_support_files": 6,
+    "ledger_records": 33,
+    "ledger": "attendance-adjacent-reviewed-files.json"
+  },
+  "fixed_issue": {
+    "trigger": "One discard group mixes new event IDs with a reused ID carrying different evidence",
+    "before": "Repository inserted fresh IDs before mismatch; route rejected all group events but request commit retained the new rows",
+    "after": "One per-group nested transaction rolls back all this group's inserts on content mismatch, retaining other accepted groups and exact response/retry semantics",
+    "proof": [
+      "attendance-discard-atomicity-before.xml",
+      "attendance-discard-atomicity-after.xml"
+    ],
+    "qualification": "Real authenticated ASGI with production-style committing request dependency, SQLite foreign keys/checks and independent committed reads; PG named conflict targets translated explicitly in test fixture. Not live PostgreSQL."
+  },
+  "architecture": {
+    "runtime": "618 to335 lines plus four explicit dependencies/offline authorization/source/discard owners",
+    "audit_repository": "554 to243 lines plus five chain/hash/paging/types/value owners",
+    "dashboard": "436 to250 lines plus three projection/revision/type owners",
+    "read_contracts": "Six dashboard and two closeout immutable dataclasses now owned by two pure application contracts with exact original aliases and legacy module/pickle/type-hint identities",
+    "structural": "attendance-adjacent-structural-proof.json",
+    "exact_checks": 46,
+    "contract_metadata_proof": "attendance-read-contracts-structural-proof.json",
+    "contract_classes": 8,
+    "contract_ordered_fields": 48,
+    "api": "Five route OpenAPI equality measured before pure contract move; presentation source hashes unchanged afterward. No whole API repeat."
+  },
+  "checks": {
+    "runs": [
+      {
+        "junit": "attendance-adjacent-affected-tests.xml",
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "183",
+        "time": "276.545",
+        "timestamp": "2026-10-31T05:08:43.397819+05:30",
+        "hostname": "Nipun5070ti",
+        "unique_case_identities": 183
+      },
+      {
+        "junit": "attendance-read-contracts-affected-tests.xml",
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "33",
+        "time": "8.505",
+        "timestamp": "2026-10-31T05:20:21.947957+05:30",
+        "hostname": "Nipun5070ti",
+        "unique_case_identities": 33
+      }
+    ],
+    "passing_executions": 216,
+    "unique_cases": 205,
+    "overlap_cases": 11,
+    "coverage": "attendance-adjacent-source-fenced-coverage.json",
+    "coverage_rule": "Twelve unchanged owners use183-case source fence; seven current shared-contract owners use33-case supplement. Changed owners never inherit stale prior coverage.",
+    "ruff": "attendance-adjacent-final-ruff.txt:19runtime+4newtest files pass",
+    "mypy": "attendance-adjacent-final-mypy.txt:7current shared-contract dependency sources pass; original15-owner dependency check passed before contract-only move",
+    "architecture": "attendance-adjacent-final-architecture.txt:pass using unchanged checker/policy, no extra exceptions",
+    "commands": [
+      "attendance-adjacent-test-command.json",
+      "attendance-read-contracts-test-command.json"
+    ]
+  },
+  "preserved_failed_history": {
+    "attendance-discard-atomicity-before.xml": "One expected application regression failure plus two controls before SAVEPOINT fix",
+    "attendance-browser-focused.xml": "Two test-fixture-only failures: wrong unique target translation included runtime_kind; corrected to actual model columns, then both flows pass final run",
+    "attendance-read-contract-introspection-before.xml": "One intermediate refactor failure: legacy get_type_hints datetime lookup; explicit legacy datetime/Literal exports fixed and final test passes"
+  },
+  "remaining_limits": [
+    "No live PostgreSQL/Redis/object storage/provider sends or deployed service/VPS qualification",
+    "Audit paging/chain/value branch gaps are retained explicitly; whole-chain memory/read-committed behavior unchanged",
+    "Synthetic offline signing checks do not establish full deployed storage/database integration",
+    "Current candidate list proposes only measured additions/tightening; shared gate floors, release bindings and MCP classifications are integrated by their owner",
+    "Whole repository review remains open; test conftest and unrelated partially read caller modules are not promoted to full review"
+  ],
+  "artifacts_sha256": {
+    "attendance-adjacent-reviewed-files.json": "b4e4790522a05f15906008b8721623d31eb634ba10d7b9aad52cc82cf2497a3e",
+    "attendance-adjacent-budget-candidates.json": "8597bc2e4f052035bf575bf3a3673796dbdfec9b9af31d9fe4d8540e9c955f6b",
+    "attendance-adjacent-source-fenced-coverage.json": "3ceebc1799d91941b4457b95583063cb994be11ac3d74fb3ae968c8ea2fa22e0",
+    "attendance-adjacent-before-reviewed-files.json": "56876c3ba99a17b958a40dbe29ae947fe631c28eff95be7106d88c1166741000",
+    "attendance-adjacent-structural-proof.json": "869f785377d57f804234cb86980a857c1cce413159daebca74bf1b83526fc881",
+    "attendance-read-contracts-structural-proof.json": "2d56db80839088c3d841363cd52349618861cc736b86ef01230c136bcc0ea3ab",
+    "attendance-adjacent-affected-tests.xml": "c426a2dc3aabe811a16d8648588eb3dbb1cad6116e8191bde760242acb2f3539",
+    "attendance-read-contracts-affected-tests.xml": "bfef01363a317e826e3f666d0a86d8ccc61073882c2c207c1af1b1912a8e492c",
+    "attendance-adjacent-test-command.json": "bc0597c390b91f7590ef3ed28ca04dc558e7e1a6c307222485a9f6442727a5e1",
+    "attendance-read-contracts-test-command.json": "830f50e48e870795347d181e14b2ee39ac6ec5d9dfced427ff79f2044c4f9219",
+    "attendance-adjacent-final-ruff.txt": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0",
+    "attendance-adjacent-final-mypy.txt": "e2702f9afc4c0f80ff1e8624f77af7a7d2689ca184512114aae5967a76229ba8",
+    "attendance-adjacent-final-architecture.txt": "895bfbeca4c78591066dcf214c4bfe9de43b5d7ed5d3f518fe398563a7bcc992"
+  }
+}

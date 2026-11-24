@@ -1,0 +1,50 @@
+{
+  "status": "Frozen actual migration machine-stream deadline fix qualified; whole dashboard audit remains open",
+  "before_probe": "migration-output-deadline-before-probe.json",
+  "before": {
+    "actual_configured_timeout_seconds": 0.4,
+    "actual_returned_success_seconds": 1.6720000000059372,
+    "actual_direct_child_exit_code": 0,
+    "cause": "Direct child exited while descendant retained stdout; blocking reader/join admitted late output",
+    "permanent_new_baseline": "1failed2healthy controls; migration-output-deadline-before-tests.txt"
+  },
+  "change": "Reuse neutral publicasyncio transport with an owned BytesIO sink instead of separate blockingreader/thread. New optional stderr discard and stdin redirection preserve migration DEVNULL/rawbyte/stdout-only32KiB semantics. Static quota discriminator retains old safeerror names; default QAmerge/MCPcombinedcount unchanged.",
+  "current": {
+    "unique_affected_cases": 75,
+    "test_files": 8,
+    "new_cases": 4,
+    "elapsed_seconds": 7.476,
+    "log": "migration-output-final-tests.txt",
+    "same_source_fence": 14,
+    "strict_runtime_sources": 4,
+    "strict_log": "migration-output-final-types-corrected.txt",
+    "ruff_no_fix_paths": 4,
+    "format_check_paths": 4,
+    "source_fence": "migration-output-final-source-fence.json"
+  },
+  "preserved": [
+    "migration_stdout signature/returnannotation/doc; raw bytes including invalidUTF8 and CR/LF, discarded131072stderrbytes do notconsume32KiBstdout quota",
+    "Exact32768byte limit and32769failure, nonzero/timeout/readfailure/staticprivate messages and JSONoneobject/status/field allowlist",
+    "All9 original streamtestmethods and11businessassertcalls ASTexact; actualexecutionfixture retargeted to newcapture owner",
+    "Original helper/container/credential/fence/backup/migration request/retention declarations unchanged; whole neutralmodule inverse exact outsideexplicitoptionalIO/float/discriminator extensions",
+    "Original62 QA/MCP/contact/credential affected controls included within75, not added asanother62currentunique"
+  ],
+  "source_equivalence": "migration-output-source-equivalence.json",
+  "current_source_hashes": {
+    "scripts/bounded_command_output.py": "9f4b0a539e9756a3d47be47017c4bfc83823a85c8ee60957354f4879dcc84bb0",
+    "scripts/release_companies_runtime.py": "3ecd9ffdf0c1e0de2f74ce4145d8c73833a15ad68fb59860558772882f2fb763",
+    "scripts/test_release_companies_runtime.py": "65d544624f33a2d923dd337c2c40f884d8e230ad54d6c47be04e87ba6cf46e74",
+    "scripts/test_migration_output_deadline.py": "eca8412aeec11e83c830236b3fbb21bddeb6de425e9e12499da9656885b6c385"
+  },
+  "invocation_corrections": [
+    "One newtest importorder issue corrected before final75; no fixmode used",
+    "Firstrootcwd mypy invocation saw sameQA module under two names; failed logmigration-output-final-types.txt preserved. Correctedscriptscwd/explicitpackagebases+ownedfollowimports-silent strict4passes. No code/config/warnings relaxed for modulemapping."
+  ],
+  "limits": [
+    "Local Windows/Python3.11 actualprocess pipes; no liveDocker/logcontainer/database/provider/VPS or Linuxproof",
+    "Only directchild terminated/reaped. Bounded testdescendants exitnaturally; no arbitrarydescendant termination claim",
+    "Existing10second cleanupgrace preserved; configureddeadline coversprocessandpipeEOF, not an absolutezero-grace kill promise",
+    "Generic direct-build capture/database_command subprocess output remains a separatelyunvalidated resource concern; not partofthisfix",
+    "Historical62 and32 receipts/fences preserved, not source/stamp repinned; this does not qualify currentwholepipeline"
+  ]
+}

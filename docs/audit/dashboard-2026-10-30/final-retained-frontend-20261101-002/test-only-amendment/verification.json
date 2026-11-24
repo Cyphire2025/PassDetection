@@ -1,0 +1,40 @@
+{
+  "status": "Four reviewed test-only repairs qualified; current all Node contracts and new production build passed",
+  "original_full_run_results_sha256": "e01748fc039f3a037d355ba57e39aab56682ce396ad8c4edc171b19fcf237082",
+  "original_303_files_2086_unit_cases_preserved": true,
+  "all_original_non_Node_build_commands_passed": true,
+  "application_source_changes": 0,
+  "test_only_source_delta": {
+    "frontend/features/documents/components/document-row-action-menu.test.tsx": {
+      "before": "93f6e65c4cdb791e1dd6d0628c237e1214c8d50311d5a0357c26f84abb162aca",
+      "after": "d7c790f4c34e93659ad7f40e0165de79c0657a5b37c1873a8b2d3a48cc2a2da8"
+    },
+    "frontend/features/mcp/components/mcp-read-access.test.tsx": {
+      "before": "07e866b8fcb0c3e0eb2a2eb53258e951de8e2165019e337e93713a7842b040a1",
+      "after": "a40215a22b53c47180107d5cfd9b08a9e9bb3a2b5e869d6714dc378bcb203596"
+    },
+    "frontend/features/mcp/components/mcp-simple-access.test.tsx": {
+      "before": "36b85b4095967c5ddb4f8f02bdb52c79b6d68baafa7554f963770fe9ea971662",
+      "after": "b026f08adcf28eb319fb5922b104ab0af465992acb259106812417b6f8e04c37"
+    },
+    "frontend/features/upload/components/relation-qualifier-step.contract.test.mjs": {
+      "before": "0aa359c5f6ce6a511024f9df9365bb965de59c8564309c2f5843e05f7ebde181",
+      "after": "7d20ce1a88ae4cf7ce4f9f5671366bdb922698544cd2c4573da0f42bbc38bdd9"
+    }
+  },
+  "qualified_test_receipts": [
+    {
+      "path": "docs/audit/dashboard-2026-10-30/final-fixture-warning-repair/verification.json",
+      "sha256": "484e74129133cc1883d5ed968b98ae26915a909e2ab8d95d83eadf1c08873d17"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/final-qualifier-node-contract-owner-repair/verification.json",
+      "sha256": "40e8ec486a21cc17d776f66b226ddfe0b2d06baa003dd69d366e10f0656ff6bb"
+    }
+  ],
+  "all_commands_passed": true,
+  "source_fence_sha256": "3fa14a064e6506a475d7031e5ebd53327b72ef8bb464303fe65c63418eb9952a",
+  "all1803_current_frontend_paths_stable": true,
+  "build_id": "SpoGDo7wxNT9DCsgfUntN",
+  "scope": "Original failed Node contract and skipped build remain unchanged. Targeted test repairs qualify current fixtures; no full unit rerun or production/browser result inferred."
+}

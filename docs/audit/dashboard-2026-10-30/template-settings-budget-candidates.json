@@ -1,0 +1,65 @@
+[
+  {
+    "path": "features/settings/components/whatsapp-template-settings-panel.tsx",
+    "baselineLines": 79,
+    "maximumLines": 80,
+    "baselineMaxFunctionComplexity": 7,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/settings/components/whatsapp-template-name-field.tsx",
+    "baselineLines": 71,
+    "maximumLines": 80,
+    "baselineMaxFunctionComplexity": 18,
+    "maximumFunctionComplexity": 19
+  },
+  {
+    "path": "features/settings/components/whatsapp-template-save-feedback.tsx",
+    "baselineLines": 34,
+    "maximumLines": 40,
+    "baselineMaxFunctionComplexity": 8,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/settings/hooks/use-whatsapp-template-settings.ts",
+    "baselineLines": 171,
+    "maximumLines": 180,
+    "baselineMaxFunctionComplexity": 16,
+    "maximumFunctionComplexity": 17
+  },
+  {
+    "path": "features/settings/components/appearance-settings.tsx",
+    "baselineLines": 185,
+    "maximumLines": 190,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/settings/components/dashboard-settings-page.tsx",
+    "baselineLines": 176,
+    "maximumLines": 180,
+    "baselineMaxFunctionComplexity": 7,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/settings/dashboard-preferences.ts",
+    "baselineLines": 66,
+    "maximumLines": 70,
+    "baselineMaxFunctionComplexity": 4,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/settings/platform-settings-policy.ts",
+    "baselineLines": 67,
+    "maximumLines": 70,
+    "baselineMaxFunctionComplexity": 5,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/settings/whatsapp-template-settings.ts",
+    "baselineLines": 46,
+    "maximumLines": 50,
+    "baselineMaxFunctionComplexity": 5,
+    "maximumFunctionComplexity": 6
+  }
+]

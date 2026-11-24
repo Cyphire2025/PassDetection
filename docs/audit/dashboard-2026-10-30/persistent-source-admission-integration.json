@@ -1,0 +1,571 @@
+{
+  "old_exact_binding_count": 40,
+  "current_exact_binding_count": 79,
+  "all_original40_before_values_unchanged": true,
+  "original40_after_values_unchanged_except_exact_reviewed_verifier": true,
+  "reviewed_after_updates": [
+    {
+      "path": "frontend/scripts/verify-whatsapp-recipient-bulk-browser.mjs",
+      "previous_after": "99c936a2da8696e77d8f986700f91058070479b7f2bbe9a67b0bb6b0e04f7ab5",
+      "after": "115e4f7f7ec0d16873d4e445d92fa6a2b061548579e3730ca469b6cd7da607de",
+      "full_review_provenance": "frontend-verifier-migration-reviewed-files.json",
+      "current_browser_qualification": "frontend-verifier-migration-verification.json, new production build ZVLp8MXKE6IoTayf51zGq"
+    }
+  ],
+  "original_baselines": [
+    "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+    "875d17b25da2687b5673148fabe9d10346ae0e4a"
+  ],
+  "digest_and_validate_source_function_asts_unchanged": true,
+  "new_manifest_sha256": "064a4216a06896a38a82eb0bc887a1b84e4aa79e2b045148295932540ee0b707",
+  "new_paths": [
+    {
+      "path": "backend/app/domain/entities/__init__.py",
+      "before_0140": "f7f0ae580a55bd07e427d55d2982e40d12a2cd590386d85e583db5d77f8fdb0b",
+      "before_0141": "f7f0ae580a55bd07e427d55d2982e40d12a2cd590386d85e583db5d77f8fdb0b",
+      "after": "5cc58c46b7ce501cf98e236127603629092da502b29a510a5f19e368b537b0bd",
+      "raw_sha256": "5cc58c46b7ce501cf98e236127603629092da502b29a510a5f19e368b537b0bd",
+      "full_review_provenance": [
+        {
+          "ledger": "release-admission-support-reviewed-files.json",
+          "reviewer": "ai_extraction",
+          "notes": "Complete physical current source is one package docstring, no imports or executable behavior. Read directly during exact admission review; not attributed to root domain29 ledger."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/domain/entities/client_group.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "3611455105d0b61425774efb899b883fe9d4e3e192b4e3ca39330c955d5b50f2",
+      "raw_sha256": "3611455105d0b61425774efb899b883fe9d4e3e192b4e3ca39330c955d5b50f2",
+      "full_review_provenance": [
+        {
+          "ledger": "domain-group-schema-reviewed-files.json",
+          "reviewer": "root",
+          "notes": "Current domain/schema coherent batch. All original entity/port/schema lines read; focused owners and facade imports reviewed. Exact ordered22entity/port metadata contracts, two complete trip-method ASTs after shared-rule expansion,30schema declarations with documented guard/compatibility exceptions,52unchanged model JSON schemas. Real HTTP invalid-list negative and valid-flow controls; no identity, permission or workflow retirement. Historical source receipts retained separately."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/domain/entities/client_group_configuration.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "3486a83b66db4ec1658e74ba47bdd0052423d7a122fb5cc6bcbbb5fc633606db",
+      "raw_sha256": "3486a83b66db4ec1658e74ba47bdd0052423d7a122fb5cc6bcbbb5fc633606db",
+      "full_review_provenance": [
+        {
+          "ledger": "domain-group-schema-reviewed-files.json",
+          "reviewer": "root",
+          "notes": "Current domain/schema coherent batch. All original entity/port/schema lines read; focused owners and facade imports reviewed. Exact ordered22entity/port metadata contracts, two complete trip-method ASTs after shared-rule expansion,30schema declarations with documented guard/compatibility exceptions,52unchanged model JSON schemas. Real HTTP invalid-list negative and valid-flow controls; no identity, permission or workflow retirement. Historical source receipts retained separately."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/domain/entities/client_group_lifecycle.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "30910eb18732f1174995da1a49b021b6658d3acef96ab9253f9c2ddeeb51f55a",
+      "raw_sha256": "30910eb18732f1174995da1a49b021b6658d3acef96ab9253f9c2ddeeb51f55a",
+      "full_review_provenance": [
+        {
+          "ledger": "domain-group-schema-reviewed-files.json",
+          "reviewer": "root",
+          "notes": "Current domain/schema coherent batch. All original entity/port/schema lines read; focused owners and facade imports reviewed. Exact ordered22entity/port metadata contracts, two complete trip-method ASTs after shared-rule expansion,30schema declarations with documented guard/compatibility exceptions,52unchanged model JSON schemas. Real HTTP invalid-list negative and valid-flow controls; no identity, permission or workflow retirement. Historical source receipts retained separately."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/domain/entities/client_group_state.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "00d98b8ee7c09f2604903f2b6be2cbfff8b4a30679c645f9a7ae656d3244592b",
+      "raw_sha256": "00d98b8ee7c09f2604903f2b6be2cbfff8b4a30679c645f9a7ae656d3244592b",
+      "full_review_provenance": [
+        {
+          "ledger": "domain-group-schema-reviewed-files.json",
+          "reviewer": "root",
+          "notes": "Current domain/schema coherent batch. All original entity/port/schema lines read; focused owners and facade imports reviewed. Exact ordered22entity/port metadata contracts, two complete trip-method ASTs after shared-rule expansion,30schema declarations with documented guard/compatibility exceptions,52unchanged model JSON schemas. Real HTTP invalid-list negative and valid-flow controls; no identity, permission or workflow retirement. Historical source receipts retained separately."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/domain/entities/enums.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "4ef547c3c578e0c44d40ce03f8deaa0059077af2c59a78df40946b134ad88324",
+      "raw_sha256": "4ef547c3c578e0c44d40ce03f8deaa0059077af2c59a78df40946b134ad88324",
+      "full_review_provenance": [
+        {
+          "ledger": "domain-group-schema-reviewed-files.json",
+          "reviewer": "root",
+          "notes": "Current domain/schema coherent batch. All original entity/port/schema lines read; focused owners and facade imports reviewed. Exact ordered22entity/port metadata contracts, two complete trip-method ASTs after shared-rule expansion,30schema declarations with documented guard/compatibility exceptions,52unchanged model JSON schemas. Real HTTP invalid-list negative and valid-flow controls; no identity, permission or workflow retirement. Historical source receipts retained separately."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/domain/entities/factories.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "b74b82177ea101abeafdd188d5c197a9f6ea01f49e56ad06b438bbb491220950",
+      "raw_sha256": "b74b82177ea101abeafdd188d5c197a9f6ea01f49e56ad06b438bbb491220950",
+      "full_review_provenance": [
+        {
+          "ledger": "domain-group-schema-reviewed-files.json",
+          "reviewer": "root",
+          "notes": "Current domain/schema coherent batch. All original entity/port/schema lines read; focused owners and facade imports reviewed. Exact ordered22entity/port metadata contracts, two complete trip-method ASTs after shared-rule expansion,30schema declarations with documented guard/compatibility exceptions,52unchanged model JSON schemas. Real HTTP invalid-list negative and valid-flow controls; no identity, permission or workflow retirement. Historical source receipts retained separately."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/domain/entities/identity.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "4e60b4cc3d4759f1c2b12b34984a4300ae388055694cf46581be33f632b94d9e",
+      "raw_sha256": "4e60b4cc3d4759f1c2b12b34984a4300ae388055694cf46581be33f632b94d9e",
+      "full_review_provenance": [
+        {
+          "ledger": "domain-group-schema-reviewed-files.json",
+          "reviewer": "root",
+          "notes": "Current domain/schema coherent batch. All original entity/port/schema lines read; focused owners and facade imports reviewed. Exact ordered22entity/port metadata contracts, two complete trip-method ASTs after shared-rule expansion,30schema declarations with documented guard/compatibility exceptions,52unchanged model JSON schemas. Real HTTP invalid-list negative and valid-flow controls; no identity, permission or workflow retirement. Historical source receipts retained separately."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/domain/entities/passport_client_review.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "591e2d935dd68ee27e7cfef3229b8080eb590f9e3fed2600cbe1ecb3b014f7cb",
+      "raw_sha256": "591e2d935dd68ee27e7cfef3229b8080eb590f9e3fed2600cbe1ecb3b014f7cb",
+      "full_review_provenance": [
+        {
+          "ledger": "domain-group-schema-reviewed-files.json",
+          "reviewer": "root",
+          "notes": "Current domain/schema coherent batch. All original entity/port/schema lines read; focused owners and facade imports reviewed. Exact ordered22entity/port metadata contracts, two complete trip-method ASTs after shared-rule expansion,30schema declarations with documented guard/compatibility exceptions,52unchanged model JSON schemas. Real HTTP invalid-list negative and valid-flow controls; no identity, permission or workflow retirement. Historical source receipts retained separately."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/domain/entities/passport_extraction.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "e745eb8f9d1b0827bf9bdeb2f8076ed898588fb0f3d1a0cb6c5baf5abc0d3cf1",
+      "raw_sha256": "e745eb8f9d1b0827bf9bdeb2f8076ed898588fb0f3d1a0cb6c5baf5abc0d3cf1",
+      "full_review_provenance": [
+        {
+          "ledger": "domain-group-schema-reviewed-files.json",
+          "reviewer": "root",
+          "notes": "Current domain/schema coherent batch. All original entity/port/schema lines read; focused owners and facade imports reviewed. Exact ordered22entity/port metadata contracts, two complete trip-method ASTs after shared-rule expansion,30schema declarations with documented guard/compatibility exceptions,52unchanged model JSON schemas. Real HTTP invalid-list negative and valid-flow controls; no identity, permission or workflow retirement. Historical source receipts retained separately."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/domain/entities/passport_staff_review.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "3e93dfe727f18b35556bcd2522607d169d297cfa194d2ae1e62e90c6f6439e76",
+      "raw_sha256": "3e93dfe727f18b35556bcd2522607d169d297cfa194d2ae1e62e90c6f6439e76",
+      "full_review_provenance": [
+        {
+          "ledger": "domain-group-schema-reviewed-files.json",
+          "reviewer": "root",
+          "notes": "Current domain/schema coherent batch. All original entity/port/schema lines read; focused owners and facade imports reviewed. Exact ordered22entity/port metadata contracts, two complete trip-method ASTs after shared-rule expansion,30schema declarations with documented guard/compatibility exceptions,52unchanged model JSON schemas. Real HTTP invalid-list negative and valid-flow controls; no identity, permission or workflow retirement. Historical source receipts retained separately."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/domain/entities/passport_state.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "acdd388a8baab76b6a2f0436b3e34ab364605532b192d80d37d2bada30d21e4c",
+      "raw_sha256": "acdd388a8baab76b6a2f0436b3e34ab364605532b192d80d37d2bada30d21e4c",
+      "full_review_provenance": [
+        {
+          "ledger": "domain-group-schema-reviewed-files.json",
+          "reviewer": "root",
+          "notes": "Current domain/schema coherent batch. All original entity/port/schema lines read; focused owners and facade imports reviewed. Exact ordered22entity/port metadata contracts, two complete trip-method ASTs after shared-rule expansion,30schema declarations with documented guard/compatibility exceptions,52unchanged model JSON schemas. Real HTTP invalid-list negative and valid-flow controls; no identity, permission or workflow retirement. Historical source receipts retained separately."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/domain/entities/passport_submission.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "b46b0a5e20840b903f9b9e4f9e5ba089f66e3f0857937b2eaa1475ccf97b63b2",
+      "raw_sha256": "b46b0a5e20840b903f9b9e4f9e5ba089f66e3f0857937b2eaa1475ccf97b63b2",
+      "full_review_provenance": [
+        {
+          "ledger": "domain-group-schema-reviewed-files.json",
+          "reviewer": "root",
+          "notes": "Current domain/schema coherent batch. All original entity/port/schema lines read; focused owners and facade imports reviewed. Exact ordered22entity/port metadata contracts, two complete trip-method ASTs after shared-rule expansion,30schema declarations with documented guard/compatibility exceptions,52unchanged model JSON schemas. Real HTTP invalid-list negative and valid-flow controls; no identity, permission or workflow retirement. Historical source receipts retained separately."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/domain/entities/qualifier_selection.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "79088b2e146a88ca46b17f4f716be932ca0aa37fcdadb6dd191e811761da67f4",
+      "raw_sha256": "79088b2e146a88ca46b17f4f716be932ca0aa37fcdadb6dd191e811761da67f4",
+      "full_review_provenance": [
+        {
+          "ledger": "domain-group-schema-reviewed-files.json",
+          "reviewer": "root",
+          "notes": "Current domain/schema coherent batch. All original entity/port/schema lines read; focused owners and facade imports reviewed. Exact ordered22entity/port metadata contracts, two complete trip-method ASTs after shared-rule expansion,30schema declarations with documented guard/compatibility exceptions,52unchanged model JSON schemas. Real HTTP invalid-list negative and valid-flow controls; no identity, permission or workflow retirement. Historical source receipts retained separately."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/database/attendance_activity_models.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "043f2f294ffa5080a9c9e644966712fa9cb721da4f8052215097d3e1b3125322",
+      "raw_sha256": "032b369aa88cd7dce0d19d6d19c2905f3e3cab16fa4a9bd8de25ef57d073b9b5",
+      "full_review_provenance": [
+        {
+          "ledger": "operations-model-reviewed-files.json",
+          "reviewer": "manual_security",
+          "notes": "Complete original 1182-line model source read and complete physical current owner read. All16 original class ASTs unchanged through extraction; registered mapper/table metadata, column defaults/onupdate, constraints/indexes and PostgreSQL/SQLite DDL match in fresh processes. Original operations_models and database/models facade aliases retain identical class objects. No schema/migration/VPS setup/data operation."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/database/attendance_batch_models.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "d597b978a39b4fee5c328f1cc86de60754dcc21d4274c4c1cf46aaaf3ebc9c5b",
+      "raw_sha256": "06eb473f6507d08e49d25acb2e4c68e62c4550bb70486a2c886203bff8f08ae7",
+      "full_review_provenance": [
+        {
+          "ledger": "operations-model-reviewed-files.json",
+          "reviewer": "manual_security",
+          "notes": "Complete original 1182-line model source read and complete physical current owner read. All16 original class ASTs unchanged through extraction; registered mapper/table metadata, column defaults/onupdate, constraints/indexes and PostgreSQL/SQLite DDL match in fresh processes. Original operations_models and database/models facade aliases retain identical class objects. No schema/migration/VPS setup/data operation."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/database/attendance_closeout_models.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "c6a78703fe756dbf0afc0a7480274b4489c58cb025473fbdb16b506406d3871a",
+      "raw_sha256": "affc03c86907ae04fefb57be8920593393a6e2818837d6a9b816be63ff615878",
+      "full_review_provenance": [
+        {
+          "ledger": "operations-model-reviewed-files.json",
+          "reviewer": "manual_security",
+          "notes": "Complete original 1182-line model source read and complete physical current owner read. All16 original class ASTs unchanged through extraction; registered mapper/table metadata, column defaults/onupdate, constraints/indexes and PostgreSQL/SQLite DDL match in fresh processes. Original operations_models and database/models facade aliases retain identical class objects. No schema/migration/VPS setup/data operation."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/database/attendance_runtime_models.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "574e87e93d3ad90882de7fdbe1ba068ebaac1a7d7b4f2e6c549d4046d5c8e289",
+      "raw_sha256": "1798faed32a3c2528659180f3e8910b1ad0e9615299393caa1aa7556cf8739f5",
+      "full_review_provenance": [
+        {
+          "ledger": "operations-model-reviewed-files.json",
+          "reviewer": "manual_security",
+          "notes": "Complete original 1182-line model source read and complete physical current owner read. All16 original class ASTs unchanged through extraction; registered mapper/table metadata, column defaults/onupdate, constraints/indexes and PostgreSQL/SQLite DDL match in fresh processes. Original operations_models and database/models facade aliases retain identical class objects. No schema/migration/VPS setup/data operation."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/database/my_photo_delivery_models.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "5a7678b5516cb4d422d68c0d0ca5adde98a666aff4983a6deb4946c28908e1a8",
+      "raw_sha256": "53f6c59cf80557b2637dac2ee695fc3fc289404cc9adb65d76f3c1fa2abf1372",
+      "full_review_provenance": [
+        {
+          "ledger": "my-photos-model-reviewed-files.json",
+          "reviewer": "ai_extraction",
+          "notes": "Complete original1437-line physical model review plus authored cohesive owner/import wiring; all12 class ASTs unchanged. Actual fresh174table/mapper registry,12PG/SQLite table/index/FK/default/ordered mapper/legacy alias snapshots byte-equal.32actual SQLite workflow cases pass. No sharedmodel/modelregistry/base edits, schema/data/migration change or live PostgreSQL qualification. Unchanged original class bodies are attributed to original full read and exact equivalence, not claimed as a duplicate new physical read."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/database/my_photo_enrollment_models.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "2fc6c4dc3c0e9c3ac4d3a753d2bf5a5cd4d4922da9649adfc014cd2cb4812eda",
+      "raw_sha256": "12c5485971cb84d4352aa9da033093e5b45a06620b1a57c3c9f690c186367092",
+      "full_review_provenance": [
+        {
+          "ledger": "my-photos-model-reviewed-files.json",
+          "reviewer": "ai_extraction",
+          "notes": "Complete original1437-line physical model review plus authored cohesive owner/import wiring; all12 class ASTs unchanged. Actual fresh174table/mapper registry,12PG/SQLite table/index/FK/default/ordered mapper/legacy alias snapshots byte-equal.32actual SQLite workflow cases pass. No sharedmodel/modelregistry/base edits, schema/data/migration change or live PostgreSQL qualification. Unchanged original class bodies are attributed to original full read and exact equivalence, not claimed as a duplicate new physical read."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/database/my_photo_face_models.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "5762fcc8503674c2596404868d11ccb327b897c26ebf6ff94f08bfd7cdc9a654",
+      "raw_sha256": "815ac41087eb0de4d91e2866a13aa09b86fd76fb95b278b21dce3e7f2c6d1e53",
+      "full_review_provenance": [
+        {
+          "ledger": "my-photos-model-reviewed-files.json",
+          "reviewer": "ai_extraction",
+          "notes": "Complete original1437-line physical model review plus authored cohesive owner/import wiring; all12 class ASTs unchanged. Actual fresh174table/mapper registry,12PG/SQLite table/index/FK/default/ordered mapper/legacy alias snapshots byte-equal.32actual SQLite workflow cases pass. No sharedmodel/modelregistry/base edits, schema/data/migration change or live PostgreSQL qualification. Unchanged original class bodies are attributed to original full read and exact equivalence, not claimed as a duplicate new physical read."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/database/my_photo_gallery_models.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "ff685c2c81777b0a7469ac29e52e3274fcc16add312a5d7a6320e86497849e81",
+      "raw_sha256": "85a36a0d57fcf4785ec99c91197c7d1f1069ba9c8b9b303800285021093ea1f7",
+      "full_review_provenance": [
+        {
+          "ledger": "my-photos-model-reviewed-files.json",
+          "reviewer": "ai_extraction",
+          "notes": "Complete original1437-line physical model review plus authored cohesive owner/import wiring; all12 class ASTs unchanged. Actual fresh174table/mapper registry,12PG/SQLite table/index/FK/default/ordered mapper/legacy alias snapshots byte-equal.32actual SQLite workflow cases pass. No sharedmodel/modelregistry/base edits, schema/data/migration change or live PostgreSQL qualification. Unchanged original class bodies are attributed to original full read and exact equivalence, not claimed as a duplicate new physical read."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/database/my_photo_job_models.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "d05e08b0f92db539d508346fa20efa72dfa178e5c6a342aa5e989473624cf9fb",
+      "raw_sha256": "1c058f8337a89b3e9b33beeca07ac5bff03f08e7f95140a0d80ad620cdf253c0",
+      "full_review_provenance": [
+        {
+          "ledger": "my-photos-model-reviewed-files.json",
+          "reviewer": "ai_extraction",
+          "notes": "Complete original1437-line physical model review plus authored cohesive owner/import wiring; all12 class ASTs unchanged. Actual fresh174table/mapper registry,12PG/SQLite table/index/FK/default/ordered mapper/legacy alias snapshots byte-equal.32actual SQLite workflow cases pass. No sharedmodel/modelregistry/base edits, schema/data/migration change or live PostgreSQL qualification. Unchanged original class bodies are attributed to original full read and exact equivalence, not claimed as a duplicate new physical read."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/database/my_photo_liveness_models.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "715b592b3f5efc81722dae77c818a795149505d29060cbc76f478851cbcec259",
+      "raw_sha256": "9940d1ee388d9e6026e9e096c5b6421187a9e1547f8d04a4a5bfffef10c022fd",
+      "full_review_provenance": [
+        {
+          "ledger": "my-photos-model-reviewed-files.json",
+          "reviewer": "ai_extraction",
+          "notes": "Complete original1437-line physical model review plus authored cohesive owner/import wiring; all12 class ASTs unchanged. Actual fresh174table/mapper registry,12PG/SQLite table/index/FK/default/ordered mapper/legacy alias snapshots byte-equal.32actual SQLite workflow cases pass. No sharedmodel/modelregistry/base edits, schema/data/migration change or live PostgreSQL qualification. Unchanged original class bodies are attributed to original full read and exact equivalence, not claimed as a duplicate new physical read."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/database/my_photo_media_models.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "97b42531db5a6559e077e3e9142def20c0c02a1804c18770a0f87908a3469a7a",
+      "raw_sha256": "f2553c9fc595913e71a896e91dadc2755bda211459cc61bc53c42dff799844a6",
+      "full_review_provenance": [
+        {
+          "ledger": "my-photos-model-reviewed-files.json",
+          "reviewer": "ai_extraction",
+          "notes": "Complete original1437-line physical model review plus authored cohesive owner/import wiring; all12 class ASTs unchanged. Actual fresh174table/mapper registry,12PG/SQLite table/index/FK/default/ordered mapper/legacy alias snapshots byte-equal.32actual SQLite workflow cases pass. No sharedmodel/modelregistry/base edits, schema/data/migration change or live PostgreSQL qualification. Unchanged original class bodies are attributed to original full read and exact equivalence, not claimed as a duplicate new physical read."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/database/my_photo_search_models.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "042d6321afd562ae64bcfe3632ff3d067cb6c6a51f0f8b9320c9a4431daad849",
+      "raw_sha256": "8e20ef722c49997afc5f7ac857609cd142ebc16baa848ffd570138c7e2c05a67",
+      "full_review_provenance": [
+        {
+          "ledger": "my-photos-model-reviewed-files.json",
+          "reviewer": "ai_extraction",
+          "notes": "Complete original1437-line physical model review plus authored cohesive owner/import wiring; all12 class ASTs unchanged. Actual fresh174table/mapper registry,12PG/SQLite table/index/FK/default/ordered mapper/legacy alias snapshots byte-equal.32actual SQLite workflow cases pass. No sharedmodel/modelregistry/base edits, schema/data/migration change or live PostgreSQL qualification. Unchanged original class bodies are attributed to original full read and exact equivalence, not claimed as a duplicate new physical read."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/database/my_photos_models.py",
+      "before_0140": "946142be0d6d85dddfa7a45b7e71dfb7186b8d5ed69055744f1c876d2d263704",
+      "before_0141": "946142be0d6d85dddfa7a45b7e71dfb7186b8d5ed69055744f1c876d2d263704",
+      "after": "aca22d028095e0de7f440dcb896cbfee4510a3006c59f538c95aa5423e76a98d",
+      "raw_sha256": "4b0e472e09be93233015330d740be5951cf0327bba7d3d64a6ceb40435bee93f",
+      "full_review_provenance": [
+        {
+          "ledger": "my-photos-model-reviewed-files.json",
+          "reviewer": "ai_extraction",
+          "notes": "Complete original1437-line physical model review plus authored cohesive owner/import wiring; all12 class ASTs unchanged. Actual fresh174table/mapper registry,12PG/SQLite table/index/FK/default/ordered mapper/legacy alias snapshots byte-equal.32actual SQLite workflow cases pass. No sharedmodel/modelregistry/base edits, schema/data/migration change or live PostgreSQL qualification. Unchanged original class bodies are attributed to original full read and exact equivalence, not claimed as a duplicate new physical read."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/database/operations_models.py",
+      "before_0140": "5241d15febee31cf52feac5c45d1146200ec71332fbf4294173efd88afe1dbba",
+      "before_0141": "5241d15febee31cf52feac5c45d1146200ec71332fbf4294173efd88afe1dbba",
+      "after": "c7de0dbae6ad793799fcdc9645b813e95e9d4ded354bc00a50cbfb3a985d4402",
+      "raw_sha256": "c1b7d9231eca989eb9abd5a7d6bba605650b66bd7d9aba73abe2208519fe59f8",
+      "full_review_provenance": [
+        {
+          "ledger": "operations-model-reviewed-files.json",
+          "reviewer": "manual_security",
+          "notes": "Complete original 1182-line model source read and complete physical current owner read. All16 original class ASTs unchanged through extraction; registered mapper/table metadata, column defaults/onupdate, constraints/indexes and PostgreSQL/SQLite DDL match in fresh processes. Original operations_models and database/models facade aliases retain identical class objects. No schema/migration/VPS setup/data operation."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/database/passenger_qr_models.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "d57eaab27cc3636c19efb17dd6c702abdeeea31b85ae4e426523c2ad933a75bc",
+      "raw_sha256": "e815d9390a4a5c9544e43b2384f3791b4cb4d429a4b18bb7da7e37b897421d24",
+      "full_review_provenance": [
+        {
+          "ledger": "operations-model-reviewed-files.json",
+          "reviewer": "manual_security",
+          "notes": "Complete original 1182-line model source read and complete physical current owner read. All16 original class ASTs unchanged through extraction; registered mapper/table metadata, column defaults/onupdate, constraints/indexes and PostgreSQL/SQLite DDL match in fresh processes. Original operations_models and database/models facade aliases retain identical class objects. No schema/migration/VPS setup/data operation."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/database/rooming_allocation_models.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "68f96b41b11265f190e15bc57834c240dff1e91e4e2832d3154b4073f31f9ab9",
+      "raw_sha256": "a61c374e76078f8aa6f58f740b2c1415a3b20dcdd9d863b7a07465d6c376315f",
+      "full_review_provenance": [
+        {
+          "ledger": "operations-model-reviewed-files.json",
+          "reviewer": "manual_security",
+          "notes": "Complete original 1182-line model source read and complete physical current owner read. All16 original class ASTs unchanged through extraction; registered mapper/table metadata, column defaults/onupdate, constraints/indexes and PostgreSQL/SQLite DDL match in fresh processes. Original operations_models and database/models facade aliases retain identical class objects. No schema/migration/VPS setup/data operation."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/database/rooming_property_models.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "cefceafa65038c418430d6e64cbebf7e17537cf33183bd64980bd590b4fb59db",
+      "raw_sha256": "600b2c10646a400307fb2935a2785424b4a4e85aee77032581cb7435891ae839",
+      "full_review_provenance": [
+        {
+          "ledger": "operations-model-reviewed-files.json",
+          "reviewer": "manual_security",
+          "notes": "Complete original 1182-line model source read and complete physical current owner read. All16 original class ASTs unchanged through extraction; registered mapper/table metadata, column defaults/onupdate, constraints/indexes and PostgreSQL/SQLite DDL match in fresh processes. Original operations_models and database/models facade aliases retain identical class objects. No schema/migration/VPS setup/data operation."
+        }
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/database/session.py",
+      "before_0140": "bcb8f16506d95ea2e73cb355fa877e7c5a18735fc2d4e71bf2f8bcb33eb00451",
+      "before_0141": "bcb8f16506d95ea2e73cb355fa877e7c5a18735fc2d4e71bf2f8bcb33eb00451",
+      "after": "e5b4d5b41740661ae1f527eb7077d712a71e5210158098527003ef415a64e4cd",
+      "raw_sha256": "ffe7cb50459ed4c30754455477b86b47d67e8de2233aa430fe370e808f63f296",
+      "full_review_provenance": [
+        {
+          "ledger": "database-privacy-reviewed-files.json",
+          "reviewer": "root",
+          "notes": "Complete current source read. Runtimeengine hide_parameters nowprevents boundvalue rendering in SQLAlchemySQLlogs/string/traceback, proven6actualSQLiteconstraint negatives\u219240focused privacy/deadline/rolepolicy tests pass. Transaction/pool/DSN/currentrole/deadline semantics unchanged. PostgreSQLdriver-generated DETAIL and Celery exception args/result sinks are separate open follow-ups; this flag does not redact arbitrary DB-origin messages. No actualPostgreSQL/service claim."
+        }
+      ]
+    },
+    {
+      "path": "frontend/scripts/browser-verification-local-fixture.mjs",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "247b49a075c86a09f03b88e20284b66bafb8de9bf2deadabfa0ca7610ea2f727",
+      "raw_sha256": "9577f6eb9ab08b28de8ca7152ccdd88ad85cabd7a027781ed54947cb56e923ae",
+      "full_review_provenance": [
+        {
+          "ledger": "frontend-verifier-migration-reviewed-files.json",
+          "reviewer": "branding_visuals",
+          "notes": "Full physical source read/authored; current Fresh private draft and route-owned broadcast/history callers traced. Synthetic per-context API responses, external/non-API mutation denial and WebSocket closure; canonical public portrait has pinned SHA and recorded provenance. File is a verifier or focused regression, not production API/permission behavior."
+        }
+      ]
+    },
+    {
+      "path": "frontend/scripts/browser-verification-portrait.mjs",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "534b119869f906a6f3153aaf0d992d554ff6dce80039cdcf3416401cf6f51ff7",
+      "raw_sha256": "eb2eb3ab49a95c68d549ca33d32a724d5d19630eac77792c647d28dcb3bed6ed",
+      "full_review_provenance": [
+        {
+          "ledger": "frontend-verifier-migration-reviewed-files.json",
+          "reviewer": "branding_visuals",
+          "notes": "Full physical source read/authored; current Fresh private draft and route-owned broadcast/history callers traced. Synthetic per-context API responses, external/non-API mutation denial and WebSocket closure; canonical public portrait has pinned SHA and recorded provenance. File is a verifier or focused regression, not production API/permission behavior."
+        }
+      ]
+    },
+    {
+      "path": "frontend/scripts/browser-verification-whatsapp-fixture.mjs",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "ba8cc40f6376db7d57f4cfbc02dcab585b443bdc59dbdb81d4931c5d91c4d304",
+      "raw_sha256": "82e164faac714e0151c63003f753d5d7d97fb649710364a21b5dcf9c57b3eb3c",
+      "full_review_provenance": [
+        {
+          "ledger": "frontend-verifier-migration-reviewed-files.json",
+          "reviewer": "branding_visuals",
+          "notes": "Full physical source read/authored; current Fresh private draft and route-owned broadcast/history callers traced. Synthetic per-context API responses, external/non-API mutation denial and WebSocket closure; canonical public portrait has pinned SHA and recorded provenance. File is a verifier or focused regression, not production API/permission behavior."
+        }
+      ]
+    },
+    {
+      "path": "frontend/scripts/verify-access-level-browser.mjs",
+      "before_0140": "3a36a163a25bd4b2e756b63573553831ecf366c612fb6439af060ca4c8427b2d",
+      "before_0141": "3a36a163a25bd4b2e756b63573553831ecf366c612fb6439af060ca4c8427b2d",
+      "after": "c3b0794fee6ff06f6e865b14fec3b49a2e64b97d68839c4c6d3465ea0ee0764c",
+      "raw_sha256": "c3b0794fee6ff06f6e865b14fec3b49a2e64b97d68839c4c6d3465ea0ee0764c",
+      "full_review_provenance": [
+        {
+          "ledger": "residual-frontend-tooling-reviewed-files.json",
+          "reviewer": "root",
+          "notes": "All current physical source read; aggregate-output omissions were reread separately. Fixed loopback-only synthetic browser contexts abort foreign origins and unplanned mutations; no provider messages or production environments were accessed. Tooling templates are data/source being reviewed, not instructions to execute. No browser execution is inferred from this read. Removed categorical production-build label from its report because the caller-provided loopback origin alone cannot establish build provenance; external checkpoint records still own exact build/source identity. Only a reporting string changed; no test expectations/browser interactions changed."
+        }
+      ]
+    },
+    {
+      "path": "frontend/scripts/verify-upload-options-browser.mjs",
+      "before_0140": "793e4f32fddf6a6993d0ac28976754a8ab639c468b35656700d97b50c7da3d40",
+      "before_0141": "793e4f32fddf6a6993d0ac28976754a8ab639c468b35656700d97b50c7da3d40",
+      "after": "b8ddd9961a025076a5d7b8563494a4ae87fa355dda8f03db63fddc6c30df275f",
+      "raw_sha256": "c471557bf7b73839ba43dcf17c80a995b69a6545e237cfda159246f1f01d85e9",
+      "full_review_provenance": [
+        {
+          "ledger": "frontend-verifier-migration-reviewed-files.json",
+          "reviewer": "branding_visuals",
+          "notes": "Full physical source read/authored; current Fresh private draft and route-owned broadcast/history callers traced. Synthetic per-context API responses, external/non-API mutation denial and WebSocket closure; canonical public portrait has pinned SHA and recorded provenance. File is a verifier or focused regression, not production API/permission behavior."
+        }
+      ]
+    },
+    {
+      "path": "frontend/scripts/verify-visa-photo-browser.mjs",
+      "before_0140": "57b510c551e9d8265c493fdd44e16c095ab78624c78184d24144784dd4e47abd",
+      "before_0141": "57b510c551e9d8265c493fdd44e16c095ab78624c78184d24144784dd4e47abd",
+      "after": "3a606c70411b68c7c9585b623a0b7f059b85983353f0dae4fddc492ffad2b192",
+      "raw_sha256": "10802b6f7e1c964e705ba2be07bde3a12a17f09459ec70f35689f901ad03076d",
+      "full_review_provenance": [
+        {
+          "ledger": "frontend-verifier-migration-reviewed-files.json",
+          "reviewer": "branding_visuals",
+          "notes": "Full physical source read/authored; current Fresh private draft and route-owned broadcast/history callers traced. Synthetic per-context API responses, external/non-API mutation denial and WebSocket closure; canonical public portrait has pinned SHA and recorded provenance. File is a verifier or focused regression, not production API/permission behavior."
+        }
+      ]
+    },
+    {
+      "path": "frontend/scripts/verify-whatsapp-composer-browser.mjs",
+      "before_0140": "51e966d9e5b24e360d664a1b35ef50a8734e68db6dab23ee6a1e485ef42e5c01",
+      "before_0141": "51e966d9e5b24e360d664a1b35ef50a8734e68db6dab23ee6a1e485ef42e5c01",
+      "after": "3598dc4ce5f83f692e219b5fe08d732d38bcf5c3222392b0d0109fac4f6bf987",
+      "raw_sha256": "fd4118228b9d09d828286dc69be7376837f574f1d7e8a54b3adb45732c1d045a",
+      "full_review_provenance": [
+        {
+          "ledger": "frontend-verifier-migration-reviewed-files.json",
+          "reviewer": "branding_visuals",
+          "notes": "Full physical source read/authored; current Fresh private draft and route-owned broadcast/history callers traced. Synthetic per-context API responses, external/non-API mutation denial and WebSocket closure; canonical public portrait has pinned SHA and recorded provenance. File is a verifier or focused regression, not production API/permission behavior."
+        }
+      ]
+    }
+  ],
+  "distribution": "Helper and JSON are adjacent release source files included by full Git checkout. The existing release operator uses that checkout; no service identity/environment/schema setup changed.",
+  "limits": "Static exact source admission and attributed full-review/equivalence evidence. Clean committed source and all real service/catalog/rehearsal qualifications remain required. No VPS readiness or deployment is inferred."
+}

@@ -112,3 +112,76 @@ async def test_session_claim_cannot_be_rebound_to_other_user(client, db_session)
     other, _, _, _ = await create_session(db_session)
     wrong = create_access_token(other.id, other.role, other.agency_id, session_id=family)[0]
     assert (await client.get("/api/v1/auth/me", headers={"Authorization": f"Bearer {wrong}"})).status_code == 401
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("endpoint,credential", [
+    ("logout", "body"), ("logout", "cookie"), ("logout", "access"),
+    ("refresh", "body"), ("refresh", "cookie"),
+])
+async def test_expected_actor_mismatch_keeps_newer_session_and_cookies(
+    client, db_session, test_settings, endpoint, credential,
+):
+    user, refresh, access, family_id = await create_session(db_session)
+    headers = {"X-Expected-Actor-Id": str(uuid.uuid4())}
+    body = None
+    if credential == "cookie":
+        client.cookies.set(test_settings.jwt.refresh_cookie_name, refresh, path="/api/v1/auth")
+        headers["Origin"] = test_settings.allowed_origins[0]
+    elif credential == "access":
+        headers["Authorization"] = f"Bearer {access}"
+    else:
+        body = {"refresh_token": refresh}
+    response = await client.post(f"/api/v1/auth/{endpoint}", json=body, headers=headers)
+    assert response.status_code == 409
+    assert response.json()["error"]["code"] == "AUTH_REQUEST_OWNER_CHANGED"
+    assert response.headers.get_list("set-cookie") == []
+    assert await RefreshTokenRepository(db_session).get_valid_token(refresh) is not None
+    assert (await db_session.get(DashboardSessionModel, family_id)).revoked_at is None
+    client.cookies.clear()
+    assert (await client.get("/api/v1/auth/me", headers={"Authorization": f"Bearer {access}"})).status_code == 200
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("endpoint", ["logout", "refresh"])
+async def test_matching_actor_precondition_preserves_normal_session_command(client, db_session, endpoint):
+    user, refresh, access, family_id = await create_session(db_session)
+    response = await client.post(f"/api/v1/auth/{endpoint}", json={"refresh_token": refresh},
+                                 headers={"X-Expected-Actor-Id": str(user.id)})
+    assert response.status_code == (204 if endpoint == "logout" else 200)
+    assert response.headers.get_list("set-cookie")
+    family = await db_session.get(DashboardSessionModel, family_id)
+    assert (family.revoked_at is not None) == (endpoint == "logout")
+
+
+@pytest.mark.asyncio
+async def test_stale_actor_cannot_revoke_newer_family_through_consumed_refresh_replay(client, db_session):
+    user, original, access, family_id = await create_session(db_session)
+    rotated = await client.post("/api/v1/auth/refresh", json={"refresh_token": original})
+    assert rotated.status_code == 200
+    successor = rotated.cookies["refresh_token"]
+    client.cookies.clear()
+    response = await client.post("/api/v1/auth/refresh", json={"refresh_token": original},
+                                 headers={"X-Expected-Actor-Id": str(uuid.uuid4())})
+    assert response.status_code == 409
+    assert response.json()["error"]["code"] == "AUTH_REQUEST_OWNER_CHANGED"
+    assert response.headers.get_list("set-cookie") == []
+    assert await RefreshTokenRepository(db_session).get_valid_token(successor) is not None
+    assert (await db_session.get(DashboardSessionModel, family_id)).revoked_at is None
+    assert not (await db_session.scalars(select(AuditLogModel).where(
+        AuditLogModel.action == "auth.refresh_reuse_detected",
+    ))).all()
+
+
+@pytest.mark.asyncio
+async def test_mixed_logout_credentials_are_checked_before_either_family_is_revoked(client, db_session):
+    first, first_refresh, _, first_family = await create_session(db_session)
+    second, second_refresh, second_access, second_family = await create_session(db_session)
+    response = await client.post("/api/v1/auth/logout", json={"refresh_token": first_refresh}, headers={
+        "Authorization": f"Bearer {second_access}", "X-Expected-Actor-Id": str(first.id),
+    })
+    assert response.status_code == 409
+    assert response.headers.get_list("set-cookie") == []
+    for refresh, family_id in [(first_refresh, first_family), (second_refresh, second_family)]:
+        assert await RefreshTokenRepository(db_session).get_valid_token(refresh) is not None
+        assert (await db_session.get(DashboardSessionModel, family_id)).revoked_at is None

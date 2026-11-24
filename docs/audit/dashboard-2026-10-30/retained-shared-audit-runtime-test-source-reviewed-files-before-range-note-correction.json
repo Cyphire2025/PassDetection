@@ -1,0 +1,83 @@
+[
+  {
+    "path": "backend/tests/unit/infrastructure/test_audit_integrity.py",
+    "sha256": "326ed0fd738aa3f51cde047e765c7b8927a5accce43fc28d1159e710844f3843",
+    "physical_lines": 206,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole206-line physical source read. Canonical UUID/date/datetime/Decimal metadata hashing, tenant chain/head success and tampered metadata mismatch plus nonfinite rejection reviewed. Fake verification session bypasses actual SQL/locks, and test asserts safe reason fields without a full arbitrary-result disclosure proof; no live chain/concurrency qualification from read. Source unchanged; no new execution, runtime mutation or validated defect claimed."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_audit_log_pagination.py",
+    "sha256": "4396a391f6121ce93b5ae526e9f6f185c217f5e76512270fc3797c3a3416b1be",
+    "physical_lines": 147,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole147-line physical source read. Snapshot/last datetime+UUID tiebreaker, authorized filter-bound cursor rejected before query, malformed/base64/version errors and fingerprint result changes reviewed. Fake session captures SQL; UTC-equivalence example uses same UTC zone, not independent cross-offset runtime proof. Source unchanged; no new execution, runtime mutation or validated defect claimed."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_dashboard_audit_auth_regressions.py",
+    "sha256": "abd146962c8f50a3c20189e888950ec028d37a089f9c5fd5809187569c9ef50d",
+    "physical_lines": 98,
+    "reviewer": "ai_extraction",
+    "review_scope": "partial",
+    "status": "reviewed",
+    "notes": "Whole98 physical lines encountered in mixed source, but retained review scope is only imports/_account and first3 database refresh/logout tests through line75: stored digest not usable as bearer, plaintext legacy rejection, single-use consume and logout-all security generation/refresh revocation. Dedicated Gmail/Outlook OAuth browser-binding cases later in file remain deferred; incidental text read is not independently audited Inbox coverage. No function execution performed. Source unchanged; no new execution, runtime mutation or validated defect claimed."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_log_privacy.py",
+    "sha256": "2e29ab3b0cc8c009d2109fedfddefb0d4091a3a78224da551efa067187140850",
+    "physical_lines": 94,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole94-line physical source read. AST-based repository logging controls match direct Name logger calls, sensitive keyword names and direct str(exc/error), logger.exception/exc_info forms. Structural checks do not prove arbitrary formatted strings, aliases, transitive libraries or actual output sinks private; prior sink behavior receipts remain independently scoped. No tree scan test run for read credit. Source unchanged; no new execution, runtime mutation or validated defect claimed."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_operational_event_metrics.py",
+    "sha256": "440afb82f25769dc07fb31c6e830d821eae45cfda162371ac36df4003760487d",
+    "physical_lines": 133,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole133-line physical source read. Fixed event/reason counters, arbitrary reason collapse, local counter retained on synthetic shared-store failure, positive amount and client-family/event-specific parser admission reviewed. Synthetic authored passport/email strings are negative fixtures, not actual user data; no Redis/export/provider call executed. Source unchanged; no new execution, runtime mutation or validated defect claimed."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_statsd_metrics_export.py",
+    "sha256": "77d15799816eecdfd0e7d575a8d66b2f65d727df7c1ac9138028c4d6b73275bf",
+    "physical_lines": 105,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole105-line physical source read. Mock DNS/socket/nonblocking flag, exact counter/histogram/gauge datagrams, local-state preservation on send failure, malformed-name sanitization/nonfinite rejection and closed-socket drop count reviewed. This is source of fake UDP controls, not an actual UDP/collector qualification. Source unchanged; no new execution, runtime mutation or validated defect claimed."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_celery_async_runtime.py",
+    "sha256": "108ca851f2e8204c07c7f826dab09c05a5483788b2b742b6361317ac03013216",
+    "physical_lines": 73,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole73-line physical source read. Shared process event loop for sequential jobs and loop-bound future, contextvar isolation, explicit runtime shutdown/cleanup/closed-loop and preinitialization shutdown control reviewed. Resource handles are synthetic and source-only; no worker process or new cancellation qualification. Source unchanged; no new execution, runtime mutation or validated defect claimed."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_celery_resource_guardrails.py",
+    "sha256": "f18384742b9a7ce9836fa4bab6d9b22b0ebca882b235d5d2bb49ef83f232fe13",
+    "physical_lines": 57,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole57-line physical source read as shared worker resource contract. Finite global/individual task soft-hard limits, memory/task recycling, connection-loss cancellation, start tracking and scheduled lifecycle queue checked. Existing Inbox/mobile task names appear only in shared envelope catalog; no dedicated feature implementation or tests extended/audited. Source unchanged; no new execution, runtime mutation or validated defect claimed."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_backend_runtime_contract.py",
+    "sha256": "1b051b440f06cc3d29db95b7cedd29024d641c7ba65cd6eef2b5040cd8e9555c",
+    "physical_lines": 56,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole56-line physical source read. Supported CPython3.11 ABI/base identity, exact tooling/runtime/dependency pins/hash-lock/CI install assertions traced as source. No dependencies installed/regenerated and no Docker/CI invocation; string/source contracts do not claim actual supported-platform deployment. Source unchanged; no new execution, runtime mutation or validated defect claimed."
+  }
+]

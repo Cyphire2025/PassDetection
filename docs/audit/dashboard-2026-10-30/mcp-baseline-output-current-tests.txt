@@ -1,0 +1,11 @@
+.C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\tempfile.py:500: ResourceWarning: unclosed file <_io.TextIOWrapper name='C:\\Users\\nipun\\AppData\\Local\\Temp\\tmp7imgjh4d' encoding='cp1252'>
+  return func(*args, **kwargs)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+....C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\tempfile.py:500: ResourceWarning: unclosed file <_io.TextIOWrapper name='C:\\Users\\nipun\\AppData\\Local\\Temp\\tmpjw98k5q6' encoding='cp1252'>
+  return func(*args, **kwargs)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.
+----------------------------------------------------------------------
+Ran 6 tests in 0.575s
+
+OK

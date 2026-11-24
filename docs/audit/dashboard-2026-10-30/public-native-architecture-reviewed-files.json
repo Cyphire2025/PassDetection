@@ -1,0 +1,26 @@
+[
+  {
+    "path": "backend/architecture-dependencies.json",
+    "sha256": "a58f5de184c44cb91adcc26f9c26b256412510e249bc25caba9d3201203444ef",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Exact single-entry policy review and before/after inverse proof; no full policy-document read credit."
+  },
+  {
+    "path": "backend/scripts/verify_architecture_boundaries.py",
+    "sha256": "bc1a580902fc60808c0d01c3b0fa6d7cde4820a0eba13c8a70b782186821bcb0",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete checker/test source physically read. Existing4positive/negative boundary controls and static repository check pass after exactly3qualified helper import edges; no forbidden rule or blanket exception added."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_architecture_boundaries.py",
+    "sha256": "d4b854368767d0746a3052988095712b665ff95f37da128a12d98d8326380ff0",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete checker/test source physically read. Existing4positive/negative boundary controls and static repository check pass after exactly3qualified helper import edges; no forbidden rule or blanket exception added."
+  }
+]

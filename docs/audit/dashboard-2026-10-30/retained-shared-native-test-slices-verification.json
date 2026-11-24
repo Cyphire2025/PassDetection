@@ -1,0 +1,27 @@
+{
+  "status": "All nine proposed shared/mixed files reviewed at exact retained source scope; native sections excluded explicitly",
+  "proposal": "remaining-native-test-scope-proposal.json",
+  "proposal_sha256": "86dcd767fee316a9d5881f04f0105775fb11baa4a9e83179ca58adf1506bd515",
+  "ledger": "retained-shared-native-test-slices-reviewed-files.json",
+  "ledger_sha256": "c37ad950ce368b2c8a2441824c0d81d6307f47d00d16d334cc5295dd915083cb",
+  "full_shared_files": 3,
+  "full_shared_physical_lines": 248,
+  "focused_mixed_files": 6,
+  "retained_ranges_completed_for_all_nine": true,
+  "current_source_hashes": {
+    "backend/tests/unit/application/test_mobile_otp_provider.py": "e40683b3847dfc6c89e636d65ce946de996741b05aac5407cbcbc15da60f9d03",
+    "backend/tests/unit/application/test_passenger_session_authority.py": "c97dcff8ac4db6e3dceba59dd5ec656268e334d331c1bed8a1278d4286426940",
+    "backend/tests/unit/application/test_mobile_realtime_authorization.py": "4e32a7bcc92c2887cfb020ddb0b7a24999e84b3708c91570280b19366e4ec8fd",
+    "backend/tests/unit/application/test_mobile_push_provider.py": "fbb59b5991842620a2a1e3a202f378229b80d4caa9754479438df27dd672a9f4",
+    "backend/tests/unit/presentation/test_mobile_authorization_matrix.py": "cee8f3d80aa744ca0121ccd493a12d214d1e0b01bd476c3f5d9376cba0540999",
+    "backend/tests/unit/presentation/test_mobile_historical_access_sync.py": "ba7a2ad7c5db9421801e244b9bdcd03d3164197cfab882c37da8dbcd1ed99cc1",
+    "backend/tests/unit/presentation/test_mobile_ops.py": "512c33736a7d3b458ded87f17d2d2dffa9d7b2662fbf7ee9fc1434d7cfade755",
+    "backend/tests/unit/presentation/test_mobile_route_type_boundaries.py": "ce05d9ea8dc60a03ebbb037bae5f9c3334a4e508ba0dc1fb4ca13e25f7a99128",
+    "backend/tests/unit/presentation/test_mobile_submitted_phone_auth.py": "b21a9c43707088e10a287a1522d8e4f9d6ffd4bff7147188eacfd6d6734c1078"
+  },
+  "new_tests_executed": 0,
+  "runtime_or_test_edits": 0,
+  "new_validated_runtime_findings": 0,
+  "scope_policy_inventory_resolver_gates_bindings_stamps_changed": false,
+  "limits": "Source-only assertion review is not passing-test or native-feature qualification. Mixed files receive only focused credit with exact retained slices; native adapter/provider-specific methods remain outside this audit. Canonical policy checks do not establish a universal agency suspension requirement. Existing independent findings and unqualified service/concurrency limits remain visible."
+}

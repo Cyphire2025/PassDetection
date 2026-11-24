@@ -1,0 +1,6 @@
+{
+  "changed_source": "backend/app/presentation/api/v1/schemas/client_group_request_validation.py",
+  "current_sha256": "23e0b23716c88c8dfc29c795c49d4291934c2679763e1a804ef6ec31fb6bc525",
+  "purged_owner": "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\schemas\\client_group_request_validation.py",
+  "retained_observations": "All other current-runtime owner hashes unchanged; no old validation-owner observations admitted."
+}

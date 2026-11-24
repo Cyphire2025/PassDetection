@@ -1,0 +1,20 @@
+[
+  {
+    "path": "frontend/app/globals.css",
+    "sha256": "0f4824b7cdd9a13496a195717819eaf8093313c429e0641d0aaf598ab70cb965",
+    "physical_lines": 274,
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Complete current physical source reviewed in explicit untruncated intervals. Exact before/current inverse and reproduced actual banner-only border failure retained in banner-header-controls-source-verification.json. CSS override scoped to image-enabled header, interactive controls remain focusable; existing private image/storage/current-version/synthetic fixture assertions preserved. No new production browser success inferred before final build."
+  },
+  {
+    "path": "frontend/e2e/workspace-branding.spec.ts",
+    "sha256": "f28fde78ae9b150528cdd0c17faa4f81db1fe55714ddf9946089da235565efda",
+    "physical_lines": 298,
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Complete current physical source reviewed in explicit untruncated intervals. Exact before/current inverse and reproduced actual banner-only border failure retained in banner-header-controls-source-verification.json. CSS override scoped to image-enabled header, interactive controls remain focusable; existing private image/storage/current-version/synthetic fixture assertions preserved. No new production browser success inferred before final build."
+  }
+]

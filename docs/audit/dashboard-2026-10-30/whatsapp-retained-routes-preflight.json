@@ -1,0 +1,78 @@
+{
+  "selected": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_groups_archive.py",
+      "sha256": "fd5a33d29929bba93d4944eb5e1166cda0d8423be78a19f6f164096fb2c80698",
+      "physical_lines": 117,
+      "inventory_status": "inventoried",
+      "inventory_scope": "unreviewed",
+      "matching_current_full_records": []
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_groups_read.py",
+      "sha256": "21d3a332823747925f2d2707725c7237c9191d103918f8e86dc2dee8d15d81aa",
+      "physical_lines": 89,
+      "inventory_status": "inventoried",
+      "inventory_scope": "unreviewed",
+      "matching_current_full_records": []
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_groups_delete.py",
+      "sha256": "3b57c65ed6af310566e44149764e826d8e2d256f648a31c5697a9cc8a883400c",
+      "physical_lines": 166,
+      "inventory_status": "inventoried",
+      "inventory_scope": "unreviewed",
+      "matching_current_full_records": []
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_batch_status.py",
+      "sha256": "2e4f9e560c8b2bfb76409359c206767618fbd1428948742167732e8055ebe5a8",
+      "physical_lines": 138,
+      "inventory_status": "inventoried",
+      "inventory_scope": "unreviewed",
+      "matching_current_full_records": []
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_catalog.py",
+      "sha256": "a035f25086984006cb4081645627bf78a637c782cf269ddffaecb5145c2ff550",
+      "physical_lines": 115,
+      "inventory_status": "inventoried",
+      "inventory_scope": "unreviewed",
+      "matching_current_full_records": []
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_history.py",
+      "sha256": "7bc42e0f850d8ab664483e42f5926127ccb2cca4f15b491a7c65df2ffc826dd8",
+      "physical_lines": 234,
+      "inventory_status": "inventoried",
+      "inventory_scope": "unreviewed",
+      "matching_current_full_records": []
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_history_queries.py",
+      "sha256": "73bfdeb539ebfc046a01fe42ccfedd6828c71dd4281b022b3ea963a0883b996b",
+      "physical_lines": 66,
+      "inventory_status": "inventoried",
+      "inventory_scope": "unreviewed",
+      "matching_current_full_records": []
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_type_history.py",
+      "sha256": "b227e5123e1ce8d1b03ec13770df81287fbfbf2ad0ba0ad9ec6d9f451710a74d",
+      "physical_lines": 197,
+      "inventory_status": "inventoried",
+      "inventory_scope": "unreviewed",
+      "matching_current_full_records": []
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_type_history_queries.py",
+      "sha256": "f82401f1b3e467ffc49fcf71e9844d58b865229c048c29c2bf9c77a9324ab892",
+      "physical_lines": 162,
+      "inventory_status": "inventoried",
+      "inventory_scope": "unreviewed",
+      "matching_current_full_records": []
+    }
+  ],
+  "basis": "Explicit currentSHA full-ledger lookup only; this preflight does not credit physical reads yet",
+  "excluded": "Frozen composition24, document distribution and deferred Inbox"
+}

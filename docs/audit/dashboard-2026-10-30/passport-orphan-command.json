@@ -1,0 +1,29 @@
+{
+  "pytest_exit_code": 0,
+  "command": [
+    "-q",
+    "-o",
+    "addopts=",
+    "--cov",
+    "--cov-config=../.tmp/passport-orphans.coveragerc",
+    "--cov-report=json:../docs/audit/dashboard-2026-10-30/passport-orphan-coverage.json",
+    "--cov-report=xml:../docs/audit/dashboard-2026-10-30/passport-orphan-coverage.xml",
+    "--cov-report=",
+    "tests/integration/test_passport_orphan_reconciliation.py",
+    "tests/unit/infrastructure/test_passport_orphan_bounds.py",
+    "tests/unit/infrastructure/test_document_orphan_reconciliation.py",
+    "tests/unit/infrastructure/test_document_cleanup_task_diagnostics.py"
+  ],
+  "sha256": {
+    "backend/app/infrastructure/documents/orphan_reconciliation.py": "7458b420372052de441f45b4349c440eb59464b78d7d5a6dc9da89356dae26a2",
+    "backend/app/infrastructure/documents/passport_orphan_reconciliation.py": "386437eba16ef0ce7ad40ddf6bfa9542ba55c23ce2797c42413d090201d854ca",
+    "backend/app/infrastructure/documents/cleanup_tasks.py": "39c6acc102334472316a68f88cc2b57cd9cd9a4115318a7596ed632c1df56517",
+    "backend/tests/integration/test_passport_orphan_reconciliation.py": "f830e3dd04d0b20e72afa084a91a09fe135b99a5669be37367387add874649ba",
+    "backend/tests/unit/infrastructure/test_passport_orphan_bounds.py": "aa84ebf9999e431ec17d3f2969e136537e19ae12d690db339729607127560b23",
+    "backend/tests/unit/infrastructure/test_document_orphan_reconciliation.py": "4dfd54838bfdf8b0c9b8ea2305896ea5e1dac3455d6b90808db277833f1ac7ed",
+    "backend/tests/unit/infrastructure/test_document_cleanup_task_diagnostics.py": "2eb37f217f744e51622c663abab2b46128bb493cb310b613dd5a432a1517f231",
+    "backend/tests/integration/passport_orphan_fixtures.py": "e9d489fb2050cf07ef04f6886686e994da3f46c0901f4d40cdc033816f7712e3"
+  },
+  "runtime_count": 3,
+  "test_and_fixture_count": 5
+}

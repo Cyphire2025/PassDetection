@@ -1,0 +1,63 @@
+{
+  "method": "Immediate caller/test metadata only; no new manual credit",
+  "targets": [
+    {
+      "path": "backend/app/application/travellers/fresh_contact.py",
+      "sha256": "3fe3eff3481dd9d8b88139aa196c164c94130b4e563ebf9755e38612d36609f6",
+      "physical_lines": 110,
+      "current_full_records": [
+        "company-backend-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/contact_verification.py",
+      "sha256": "f44ded4789d0886c91c2612485d761e5d453f6e813e5b2386df925e671649ae5",
+      "physical_lines": 364,
+      "current_full_records": []
+    },
+    {
+      "path": "backend/app/infrastructure/security/upload_security.py",
+      "sha256": "293afb52d404d9dc96dd0d303620891274d8654d1e21c2d81ccc844c2d5e4102",
+      "physical_lines": 451,
+      "current_full_records": [
+        "security-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "backend/app/application/mcp/export_capacity.py",
+      "sha256": "15d193ab89252bd45154506727950657bba25270b5dee6c0d7bc7f43aceda04d",
+      "physical_lines": 30,
+      "current_full_records": [
+        "backend-mcp-application-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "backend/app/application/mcp/authorization.py",
+      "sha256": "8e9b9b9d95392262d07dd60184397779e0898bb2b1e543737fff6eb0192ac56f",
+      "physical_lines": 349,
+      "current_full_records": [
+        "backend-mcp-application-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "backend/app/core/native_image_admission.py",
+      "sha256": "8ec758c93c7424730e115d99dcbbdc5f3a0835534465f5380c0c2bbccd633e09",
+      "physical_lines": 194,
+      "current_full_records": [
+        "auth-security-support-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "backend/tests/unit/core/test_mcp_export_admission.py",
+      "sha256": "b95a7f3cb8e5d9aec004936bc395f6b7113706d0ba46c71d78805aa5f931e1d1",
+      "physical_lines": 177,
+      "current_full_records": []
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_public_upload_pdf.py",
+      "sha256": "a11a90d60ce7cdf9bd6844d1a4d2f5cda1f9e44b06b9cc6b34a3c4f79aaeb265",
+      "physical_lines": 161,
+      "current_full_records": []
+    }
+  ]
+}

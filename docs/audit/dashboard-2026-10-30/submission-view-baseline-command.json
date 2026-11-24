@@ -1,0 +1,50 @@
+{
+  "argv": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "--tb=short",
+    "tests/unit/application/test_submission_view.py",
+    "tests/unit/infrastructure/test_roster_cache.py",
+    "tests/unit/presentation/test_passport_view_page_hydration.py",
+    "tests/integration/test_passport_view_search_projection.py",
+    "tests/unit/presentation/test_passport_bulk_staff_approval_route.py",
+    "tests/unit/presentation/test_passport_submission_view_schema.py",
+    "--cov=app/application/use_cases/passports",
+    "--cov-branch",
+    "--cov-fail-under=0",
+    "--cov-report=json:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\submission-view-baseline-coverage.json",
+    "--cov-report=xml:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\submission-view-baseline-coverage.xml",
+    "--cov-report="
+  ],
+  "exit_code": 0,
+  "before": {
+    "backend/app/application/use_cases/passports/submission_view.py": "8ecbd81dc34c60e60660ed9be6138ee144031b192d67af4de11875cbbc5bd6be",
+    "backend/app/infrastructure/passports/roster_view_service.py": "54600492420b5bf44825f4719be6ecad8ab476db8861030a487ae215dedb9e09",
+    "backend/app/infrastructure/passports/roster_cache.py": "8eaba82501192453e1fa6dd8ab6aee880524dfe4673e2c6e64f898bbefc8b239",
+    "backend/app/infrastructure/passports/roster_cache_codec.py": "e9d1632d324053b7fef0ee5d0289aa7ab815f5ffe3a4c948e9c5f03955a62d8c",
+    "backend/tests/unit/application/test_submission_view.py": "9c81bc89e0155e89f55fa4479c1ed1c488220885d31124ddf7c2090250126f32",
+    "backend/tests/unit/infrastructure/test_roster_cache.py": "3bf08ec8693fe1841bb2666349f344f6fd2700618033e25aef781f2bb50d7d7b",
+    "backend/tests/unit/presentation/test_passport_view_page_hydration.py": "9e9327224159d6604c918bdb48ffc18fc6e4e087d079a310321b8a354a831cba",
+    "backend/tests/integration/test_passport_view_search_projection.py": "93e9406007405a82c1de337b4fff4a85c7ace0c40da2c10d27c6efbce47755e3",
+    "backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py": "9641b67bc05ad710f7f34dedfb801c69e4a8367dce317cf86477c61a75b58706",
+    "backend/tests/unit/presentation/test_passport_submission_view_schema.py": "fbdfd1f233d7298b2aacaddd6df41ca81aab4f76961b859e88f009c321d80983"
+  },
+  "after": {
+    "backend/app/application/use_cases/passports/submission_view.py": "8ecbd81dc34c60e60660ed9be6138ee144031b192d67af4de11875cbbc5bd6be",
+    "backend/app/infrastructure/passports/roster_view_service.py": "54600492420b5bf44825f4719be6ecad8ab476db8861030a487ae215dedb9e09",
+    "backend/app/infrastructure/passports/roster_cache.py": "8eaba82501192453e1fa6dd8ab6aee880524dfe4673e2c6e64f898bbefc8b239",
+    "backend/app/infrastructure/passports/roster_cache_codec.py": "e9d1632d324053b7fef0ee5d0289aa7ab815f5ffe3a4c948e9c5f03955a62d8c",
+    "backend/tests/unit/application/test_submission_view.py": "9c81bc89e0155e89f55fa4479c1ed1c488220885d31124ddf7c2090250126f32",
+    "backend/tests/unit/infrastructure/test_roster_cache.py": "3bf08ec8693fe1841bb2666349f344f6fd2700618033e25aef781f2bb50d7d7b",
+    "backend/tests/unit/presentation/test_passport_view_page_hydration.py": "9e9327224159d6604c918bdb48ffc18fc6e4e087d079a310321b8a354a831cba",
+    "backend/tests/integration/test_passport_view_search_projection.py": "93e9406007405a82c1de337b4fff4a85c7ace0c40da2c10d27c6efbce47755e3",
+    "backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py": "9641b67bc05ad710f7f34dedfb801c69e4a8367dce317cf86477c61a75b58706",
+    "backend/tests/unit/presentation/test_passport_submission_view_schema.py": "fbdfd1f233d7298b2aacaddd6df41ca81aab4f76961b859e88f009c321d80983"
+  },
+  "source_frozen": true,
+  "output": "submission-view-baseline-tests.txt"
+}

@@ -1,0 +1,9 @@
+{
+  "method": "Reconstructed exact immediate prior source by reversing only reviewed added literal constants/two validators/two hardcoded manifest branches. Raw identity independently matched last pre-edit file-inventory SHA (not a raw snapshot captured before edits).",
+  "original_sha256": "2b30a6f5b0b779c66d1c410c668aa474b8aea6e841f03a8c8f4a8d22695ce3e3",
+  "after_sha256": "5d0d7cf8cfb0f0e5050d98e146ec91ad0589fb24a1ddbbbba41d423e0beb4f7c",
+  "all_original_raw_source_restores_exact": true,
+  "new_accepted_paths": 6,
+  "new_arbitrary_path_patterns": false,
+  "ignored_archive_payloads_opened": false
+}

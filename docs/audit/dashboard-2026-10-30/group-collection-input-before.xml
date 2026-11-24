@@ -1,0 +1,607 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="20" skipped="0" tests="25" time="0.514" timestamp="2026-10-31T04:07:39.605239+05:30" hostname="Nipun5070ti"><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_collection_lists_reject_malformed_or_over_limit_json_before_side_effects[string-departure_cities-/create]" time="0.007"><failure message="AssertionError: {&quot;cities&quot;:[&quot;S&quot;,&quot;Y&quot;,&quot;N&quot;,&quot;T&quot;,&quot;H&quot;,&quot;E&quot;,&quot;I&quot;,&quot;C&quot;,&quot;_&quot;,&quot;P&quot;,&quot;R&quot;,&quot;V&quot;,&quot;A&quot;,&quot;U&quot;],&quot;questions&quot;:[]}&#10;assert 201 == 422&#10; +  where 201 = &lt;Response [201 Created]&gt;.status_code">path = '/create', field = 'departure_cities', value = 'SYNTHETIC_PRIVATE_INPUT'
+
+    @pytest.mark.parametrize("path", ["/create", "/update"])
+    @pytest.mark.parametrize("field", ["departure_cities", "options"])
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "SYNTHETIC_PRIVATE_INPUT",
+            {"SYNTHETIC_PRIVATE_KEY": "A", "B": "C"},
+            [None, "A"],
+            [1, 2],
+            ["A", "B"] * 26,
+        ],
+        ids=["string", "object", "null-member", "number-member", "raw-over-limit"],
+    )
+    async def test_collection_lists_reject_malformed_or_over_limit_json_before_side_effects(
+        path: str, field: str, value: object,
+    ) -&gt; None:
+        app, saved = application()
+        body = payload()
+        body[field if field == "departure_cities" else "custom_questions"] = (
+            value if field == "departure_cities" else [question(value)]
+        )
+        async with AsyncClient(transport=ASGITransport(app), base_url="http://test") as client:
+            response = await client.post(path, json=body)
+&gt;       assert response.status_code == 422, response.text
+E       AssertionError: {"cities":["S","Y","N","T","H","E","I","C","_","P","R","V","A","U"],"questions":[]}
+E       assert 201 == 422
+E        +  where 201 = &lt;Response [201 Created]&gt;.status_code
+
+tests\unit\presentation\test_group_collection_input_contract.py:77: AssertionError</failure></testcase><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_collection_lists_reject_malformed_or_over_limit_json_before_side_effects[string-departure_cities-/update]" time="0.004"><failure message="AssertionError: {&quot;cities&quot;:[&quot;S&quot;,&quot;Y&quot;,&quot;N&quot;,&quot;T&quot;,&quot;H&quot;,&quot;E&quot;,&quot;I&quot;,&quot;C&quot;,&quot;_&quot;,&quot;P&quot;,&quot;R&quot;,&quot;V&quot;,&quot;A&quot;,&quot;U&quot;],&quot;questions&quot;:null}&#10;assert 201 == 422&#10; +  where 201 = &lt;Response [201 Created]&gt;.status_code">path = '/update', field = 'departure_cities', value = 'SYNTHETIC_PRIVATE_INPUT'
+
+    @pytest.mark.parametrize("path", ["/create", "/update"])
+    @pytest.mark.parametrize("field", ["departure_cities", "options"])
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "SYNTHETIC_PRIVATE_INPUT",
+            {"SYNTHETIC_PRIVATE_KEY": "A", "B": "C"},
+            [None, "A"],
+            [1, 2],
+            ["A", "B"] * 26,
+        ],
+        ids=["string", "object", "null-member", "number-member", "raw-over-limit"],
+    )
+    async def test_collection_lists_reject_malformed_or_over_limit_json_before_side_effects(
+        path: str, field: str, value: object,
+    ) -&gt; None:
+        app, saved = application()
+        body = payload()
+        body[field if field == "departure_cities" else "custom_questions"] = (
+            value if field == "departure_cities" else [question(value)]
+        )
+        async with AsyncClient(transport=ASGITransport(app), base_url="http://test") as client:
+            response = await client.post(path, json=body)
+&gt;       assert response.status_code == 422, response.text
+E       AssertionError: {"cities":["S","Y","N","T","H","E","I","C","_","P","R","V","A","U"],"questions":null}
+E       assert 201 == 422
+E        +  where 201 = &lt;Response [201 Created]&gt;.status_code
+
+tests\unit\presentation\test_group_collection_input_contract.py:77: AssertionError</failure></testcase><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_collection_lists_reject_malformed_or_over_limit_json_before_side_effects[string-options-/create]" time="0.003"><failure message="AssertionError: {&quot;cities&quot;:[&quot;Delhi&quot;],&quot;questions&quot;:[{&quot;id&quot;:&quot;22222222-2222-4222-8222-222222222222&quot;,&quot;label&quot;:&quot;Synthetic preference&quot;,&quot;options&quot;:[&quot;S&quot;,&quot;Y&quot;,&quot;N&quot;,&quot;T&quot;,&quot;H&quot;,&quot;E&quot;,&quot;I&quot;,&quot;C&quot;,&quot;_&quot;,&quot;P&quot;,&quot;R&quot;,&quot;V&quot;,&quot;A&quot;,&quot;U&quot;],&quot;enabled&quot;:true,&quot;required&quot;:true}]}&#10;assert 201 == 422&#10; +  where 201 = &lt;Response [201 Created]&gt;.status_code">path = '/create', field = 'options', value = 'SYNTHETIC_PRIVATE_INPUT'
+
+    @pytest.mark.parametrize("path", ["/create", "/update"])
+    @pytest.mark.parametrize("field", ["departure_cities", "options"])
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "SYNTHETIC_PRIVATE_INPUT",
+            {"SYNTHETIC_PRIVATE_KEY": "A", "B": "C"},
+            [None, "A"],
+            [1, 2],
+            ["A", "B"] * 26,
+        ],
+        ids=["string", "object", "null-member", "number-member", "raw-over-limit"],
+    )
+    async def test_collection_lists_reject_malformed_or_over_limit_json_before_side_effects(
+        path: str, field: str, value: object,
+    ) -&gt; None:
+        app, saved = application()
+        body = payload()
+        body[field if field == "departure_cities" else "custom_questions"] = (
+            value if field == "departure_cities" else [question(value)]
+        )
+        async with AsyncClient(transport=ASGITransport(app), base_url="http://test") as client:
+            response = await client.post(path, json=body)
+&gt;       assert response.status_code == 422, response.text
+E       AssertionError: {"cities":["Delhi"],"questions":[{"id":"22222222-2222-4222-8222-222222222222","label":"Synthetic preference","options":["S","Y","N","T","H","E","I","C","_","P","R","V","A","U"],"enabled":true,"required":true}]}
+E       assert 201 == 422
+E        +  where 201 = &lt;Response [201 Created]&gt;.status_code
+
+tests\unit\presentation\test_group_collection_input_contract.py:77: AssertionError</failure></testcase><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_collection_lists_reject_malformed_or_over_limit_json_before_side_effects[string-options-/update]" time="0.003"><failure message="AssertionError: {&quot;cities&quot;:[&quot;Delhi&quot;],&quot;questions&quot;:[{&quot;id&quot;:&quot;22222222-2222-4222-8222-222222222222&quot;,&quot;label&quot;:&quot;Synthetic preference&quot;,&quot;options&quot;:[&quot;S&quot;,&quot;Y&quot;,&quot;N&quot;,&quot;T&quot;,&quot;H&quot;,&quot;E&quot;,&quot;I&quot;,&quot;C&quot;,&quot;_&quot;,&quot;P&quot;,&quot;R&quot;,&quot;V&quot;,&quot;A&quot;,&quot;U&quot;],&quot;enabled&quot;:true,&quot;required&quot;:true}]}&#10;assert 201 == 422&#10; +  where 201 = &lt;Response [201 Created]&gt;.status_code">path = '/update', field = 'options', value = 'SYNTHETIC_PRIVATE_INPUT'
+
+    @pytest.mark.parametrize("path", ["/create", "/update"])
+    @pytest.mark.parametrize("field", ["departure_cities", "options"])
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "SYNTHETIC_PRIVATE_INPUT",
+            {"SYNTHETIC_PRIVATE_KEY": "A", "B": "C"},
+            [None, "A"],
+            [1, 2],
+            ["A", "B"] * 26,
+        ],
+        ids=["string", "object", "null-member", "number-member", "raw-over-limit"],
+    )
+    async def test_collection_lists_reject_malformed_or_over_limit_json_before_side_effects(
+        path: str, field: str, value: object,
+    ) -&gt; None:
+        app, saved = application()
+        body = payload()
+        body[field if field == "departure_cities" else "custom_questions"] = (
+            value if field == "departure_cities" else [question(value)]
+        )
+        async with AsyncClient(transport=ASGITransport(app), base_url="http://test") as client:
+            response = await client.post(path, json=body)
+&gt;       assert response.status_code == 422, response.text
+E       AssertionError: {"cities":["Delhi"],"questions":[{"id":"22222222-2222-4222-8222-222222222222","label":"Synthetic preference","options":["S","Y","N","T","H","E","I","C","_","P","R","V","A","U"],"enabled":true,"required":true}]}
+E       assert 201 == 422
+E        +  where 201 = &lt;Response [201 Created]&gt;.status_code
+
+tests\unit\presentation\test_group_collection_input_contract.py:77: AssertionError</failure></testcase><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_collection_lists_reject_malformed_or_over_limit_json_before_side_effects[object-departure_cities-/create]" time="0.003"><failure message="AssertionError: {&quot;cities&quot;:[&quot;SYNTHETIC_PRIVATE_KEY&quot;,&quot;B&quot;],&quot;questions&quot;:[]}&#10;assert 201 == 422&#10; +  where 201 = &lt;Response [201 Created]&gt;.status_code">path = '/create', field = 'departure_cities'
+value = {'B': 'C', 'SYNTHETIC_PRIVATE_KEY': 'A'}
+
+    @pytest.mark.parametrize("path", ["/create", "/update"])
+    @pytest.mark.parametrize("field", ["departure_cities", "options"])
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "SYNTHETIC_PRIVATE_INPUT",
+            {"SYNTHETIC_PRIVATE_KEY": "A", "B": "C"},
+            [None, "A"],
+            [1, 2],
+            ["A", "B"] * 26,
+        ],
+        ids=["string", "object", "null-member", "number-member", "raw-over-limit"],
+    )
+    async def test_collection_lists_reject_malformed_or_over_limit_json_before_side_effects(
+        path: str, field: str, value: object,
+    ) -&gt; None:
+        app, saved = application()
+        body = payload()
+        body[field if field == "departure_cities" else "custom_questions"] = (
+            value if field == "departure_cities" else [question(value)]
+        )
+        async with AsyncClient(transport=ASGITransport(app), base_url="http://test") as client:
+            response = await client.post(path, json=body)
+&gt;       assert response.status_code == 422, response.text
+E       AssertionError: {"cities":["SYNTHETIC_PRIVATE_KEY","B"],"questions":[]}
+E       assert 201 == 422
+E        +  where 201 = &lt;Response [201 Created]&gt;.status_code
+
+tests\unit\presentation\test_group_collection_input_contract.py:77: AssertionError</failure></testcase><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_collection_lists_reject_malformed_or_over_limit_json_before_side_effects[object-departure_cities-/update]" time="0.003"><failure message="AssertionError: {&quot;cities&quot;:[&quot;SYNTHETIC_PRIVATE_KEY&quot;,&quot;B&quot;],&quot;questions&quot;:null}&#10;assert 201 == 422&#10; +  where 201 = &lt;Response [201 Created]&gt;.status_code">path = '/update', field = 'departure_cities'
+value = {'B': 'C', 'SYNTHETIC_PRIVATE_KEY': 'A'}
+
+    @pytest.mark.parametrize("path", ["/create", "/update"])
+    @pytest.mark.parametrize("field", ["departure_cities", "options"])
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "SYNTHETIC_PRIVATE_INPUT",
+            {"SYNTHETIC_PRIVATE_KEY": "A", "B": "C"},
+            [None, "A"],
+            [1, 2],
+            ["A", "B"] * 26,
+        ],
+        ids=["string", "object", "null-member", "number-member", "raw-over-limit"],
+    )
+    async def test_collection_lists_reject_malformed_or_over_limit_json_before_side_effects(
+        path: str, field: str, value: object,
+    ) -&gt; None:
+        app, saved = application()
+        body = payload()
+        body[field if field == "departure_cities" else "custom_questions"] = (
+            value if field == "departure_cities" else [question(value)]
+        )
+        async with AsyncClient(transport=ASGITransport(app), base_url="http://test") as client:
+            response = await client.post(path, json=body)
+&gt;       assert response.status_code == 422, response.text
+E       AssertionError: {"cities":["SYNTHETIC_PRIVATE_KEY","B"],"questions":null}
+E       assert 201 == 422
+E        +  where 201 = &lt;Response [201 Created]&gt;.status_code
+
+tests\unit\presentation\test_group_collection_input_contract.py:77: AssertionError</failure></testcase><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_collection_lists_reject_malformed_or_over_limit_json_before_side_effects[object-options-/create]" time="0.002"><failure message="AssertionError: {&quot;cities&quot;:[&quot;Delhi&quot;],&quot;questions&quot;:[{&quot;id&quot;:&quot;22222222-2222-4222-8222-222222222222&quot;,&quot;label&quot;:&quot;Synthetic preference&quot;,&quot;options&quot;:[&quot;SYNTHETIC_PRIVATE_KEY&quot;,&quot;B&quot;],&quot;enabled&quot;:true,&quot;required&quot;:true}]}&#10;assert 201 == 422&#10; +  where 201 = &lt;Response [201 Created]&gt;.status_code">path = '/create', field = 'options'
+value = {'B': 'C', 'SYNTHETIC_PRIVATE_KEY': 'A'}
+
+    @pytest.mark.parametrize("path", ["/create", "/update"])
+    @pytest.mark.parametrize("field", ["departure_cities", "options"])
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "SYNTHETIC_PRIVATE_INPUT",
+            {"SYNTHETIC_PRIVATE_KEY": "A", "B": "C"},
+            [None, "A"],
+            [1, 2],
+            ["A", "B"] * 26,
+        ],
+        ids=["string", "object", "null-member", "number-member", "raw-over-limit"],
+    )
+    async def test_collection_lists_reject_malformed_or_over_limit_json_before_side_effects(
+        path: str, field: str, value: object,
+    ) -&gt; None:
+        app, saved = application()
+        body = payload()
+        body[field if field == "departure_cities" else "custom_questions"] = (
+            value if field == "departure_cities" else [question(value)]
+        )
+        async with AsyncClient(transport=ASGITransport(app), base_url="http://test") as client:
+            response = await client.post(path, json=body)
+&gt;       assert response.status_code == 422, response.text
+E       AssertionError: {"cities":["Delhi"],"questions":[{"id":"22222222-2222-4222-8222-222222222222","label":"Synthetic preference","options":["SYNTHETIC_PRIVATE_KEY","B"],"enabled":true,"required":true}]}
+E       assert 201 == 422
+E        +  where 201 = &lt;Response [201 Created]&gt;.status_code
+
+tests\unit\presentation\test_group_collection_input_contract.py:77: AssertionError</failure></testcase><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_collection_lists_reject_malformed_or_over_limit_json_before_side_effects[object-options-/update]" time="0.003"><failure message="AssertionError: {&quot;cities&quot;:[&quot;Delhi&quot;],&quot;questions&quot;:[{&quot;id&quot;:&quot;22222222-2222-4222-8222-222222222222&quot;,&quot;label&quot;:&quot;Synthetic preference&quot;,&quot;options&quot;:[&quot;SYNTHETIC_PRIVATE_KEY&quot;,&quot;B&quot;],&quot;enabled&quot;:true,&quot;required&quot;:true}]}&#10;assert 201 == 422&#10; +  where 201 = &lt;Response [201 Created]&gt;.status_code">path = '/update', field = 'options'
+value = {'B': 'C', 'SYNTHETIC_PRIVATE_KEY': 'A'}
+
+    @pytest.mark.parametrize("path", ["/create", "/update"])
+    @pytest.mark.parametrize("field", ["departure_cities", "options"])
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "SYNTHETIC_PRIVATE_INPUT",
+            {"SYNTHETIC_PRIVATE_KEY": "A", "B": "C"},
+            [None, "A"],
+            [1, 2],
+            ["A", "B"] * 26,
+        ],
+        ids=["string", "object", "null-member", "number-member", "raw-over-limit"],
+    )
+    async def test_collection_lists_reject_malformed_or_over_limit_json_before_side_effects(
+        path: str, field: str, value: object,
+    ) -&gt; None:
+        app, saved = application()
+        body = payload()
+        body[field if field == "departure_cities" else "custom_questions"] = (
+            value if field == "departure_cities" else [question(value)]
+        )
+        async with AsyncClient(transport=ASGITransport(app), base_url="http://test") as client:
+            response = await client.post(path, json=body)
+&gt;       assert response.status_code == 422, response.text
+E       AssertionError: {"cities":["Delhi"],"questions":[{"id":"22222222-2222-4222-8222-222222222222","label":"Synthetic preference","options":["SYNTHETIC_PRIVATE_KEY","B"],"enabled":true,"required":true}]}
+E       assert 201 == 422
+E        +  where 201 = &lt;Response [201 Created]&gt;.status_code
+
+tests\unit\presentation\test_group_collection_input_contract.py:77: AssertionError</failure></testcase><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_collection_lists_reject_malformed_or_over_limit_json_before_side_effects[null-member-departure_cities-/create]" time="0.002"><failure message="AssertionError: {&quot;cities&quot;:[&quot;None&quot;,&quot;A&quot;],&quot;questions&quot;:[]}&#10;assert 201 == 422&#10; +  where 201 = &lt;Response [201 Created]&gt;.status_code">path = '/create', field = 'departure_cities', value = [None, 'A']
+
+    @pytest.mark.parametrize("path", ["/create", "/update"])
+    @pytest.mark.parametrize("field", ["departure_cities", "options"])
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "SYNTHETIC_PRIVATE_INPUT",
+            {"SYNTHETIC_PRIVATE_KEY": "A", "B": "C"},
+            [None, "A"],
+            [1, 2],
+            ["A", "B"] * 26,
+        ],
+        ids=["string", "object", "null-member", "number-member", "raw-over-limit"],
+    )
+    async def test_collection_lists_reject_malformed_or_over_limit_json_before_side_effects(
+        path: str, field: str, value: object,
+    ) -&gt; None:
+        app, saved = application()
+        body = payload()
+        body[field if field == "departure_cities" else "custom_questions"] = (
+            value if field == "departure_cities" else [question(value)]
+        )
+        async with AsyncClient(transport=ASGITransport(app), base_url="http://test") as client:
+            response = await client.post(path, json=body)
+&gt;       assert response.status_code == 422, response.text
+E       AssertionError: {"cities":["None","A"],"questions":[]}
+E       assert 201 == 422
+E        +  where 201 = &lt;Response [201 Created]&gt;.status_code
+
+tests\unit\presentation\test_group_collection_input_contract.py:77: AssertionError</failure></testcase><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_collection_lists_reject_malformed_or_over_limit_json_before_side_effects[null-member-departure_cities-/update]" time="0.003"><failure message="AssertionError: {&quot;cities&quot;:[&quot;None&quot;,&quot;A&quot;],&quot;questions&quot;:null}&#10;assert 201 == 422&#10; +  where 201 = &lt;Response [201 Created]&gt;.status_code">path = '/update', field = 'departure_cities', value = [None, 'A']
+
+    @pytest.mark.parametrize("path", ["/create", "/update"])
+    @pytest.mark.parametrize("field", ["departure_cities", "options"])
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "SYNTHETIC_PRIVATE_INPUT",
+            {"SYNTHETIC_PRIVATE_KEY": "A", "B": "C"},
+            [None, "A"],
+            [1, 2],
+            ["A", "B"] * 26,
+        ],
+        ids=["string", "object", "null-member", "number-member", "raw-over-limit"],
+    )
+    async def test_collection_lists_reject_malformed_or_over_limit_json_before_side_effects(
+        path: str, field: str, value: object,
+    ) -&gt; None:
+        app, saved = application()
+        body = payload()
+        body[field if field == "departure_cities" else "custom_questions"] = (
+            value if field == "departure_cities" else [question(value)]
+        )
+        async with AsyncClient(transport=ASGITransport(app), base_url="http://test") as client:
+            response = await client.post(path, json=body)
+&gt;       assert response.status_code == 422, response.text
+E       AssertionError: {"cities":["None","A"],"questions":null}
+E       assert 201 == 422
+E        +  where 201 = &lt;Response [201 Created]&gt;.status_code
+
+tests\unit\presentation\test_group_collection_input_contract.py:77: AssertionError</failure></testcase><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_collection_lists_reject_malformed_or_over_limit_json_before_side_effects[null-member-options-/create]" time="0.002"><failure message="AssertionError: {&quot;cities&quot;:[&quot;Delhi&quot;],&quot;questions&quot;:[{&quot;id&quot;:&quot;22222222-2222-4222-8222-222222222222&quot;,&quot;label&quot;:&quot;Synthetic preference&quot;,&quot;options&quot;:[&quot;None&quot;,&quot;A&quot;],&quot;enabled&quot;:true,&quot;required&quot;:true}]}&#10;assert 201 == 422&#10; +  where 201 = &lt;Response [201 Created]&gt;.status_code">path = '/create', field = 'options', value = [None, 'A']
+
+    @pytest.mark.parametrize("path", ["/create", "/update"])
+    @pytest.mark.parametrize("field", ["departure_cities", "options"])
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "SYNTHETIC_PRIVATE_INPUT",
+            {"SYNTHETIC_PRIVATE_KEY": "A", "B": "C"},
+            [None, "A"],
+            [1, 2],
+            ["A", "B"] * 26,
+        ],
+        ids=["string", "object", "null-member", "number-member", "raw-over-limit"],
+    )
+    async def test_collection_lists_reject_malformed_or_over_limit_json_before_side_effects(
+        path: str, field: str, value: object,
+    ) -&gt; None:
+        app, saved = application()
+        body = payload()
+        body[field if field == "departure_cities" else "custom_questions"] = (
+            value if field == "departure_cities" else [question(value)]
+        )
+        async with AsyncClient(transport=ASGITransport(app), base_url="http://test") as client:
+            response = await client.post(path, json=body)
+&gt;       assert response.status_code == 422, response.text
+E       AssertionError: {"cities":["Delhi"],"questions":[{"id":"22222222-2222-4222-8222-222222222222","label":"Synthetic preference","options":["None","A"],"enabled":true,"required":true}]}
+E       assert 201 == 422
+E        +  where 201 = &lt;Response [201 Created]&gt;.status_code
+
+tests\unit\presentation\test_group_collection_input_contract.py:77: AssertionError</failure></testcase><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_collection_lists_reject_malformed_or_over_limit_json_before_side_effects[null-member-options-/update]" time="0.003"><failure message="AssertionError: {&quot;cities&quot;:[&quot;Delhi&quot;],&quot;questions&quot;:[{&quot;id&quot;:&quot;22222222-2222-4222-8222-222222222222&quot;,&quot;label&quot;:&quot;Synthetic preference&quot;,&quot;options&quot;:[&quot;None&quot;,&quot;A&quot;],&quot;enabled&quot;:true,&quot;required&quot;:true}]}&#10;assert 201 == 422&#10; +  where 201 = &lt;Response [201 Created]&gt;.status_code">path = '/update', field = 'options', value = [None, 'A']
+
+    @pytest.mark.parametrize("path", ["/create", "/update"])
+    @pytest.mark.parametrize("field", ["departure_cities", "options"])
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "SYNTHETIC_PRIVATE_INPUT",
+            {"SYNTHETIC_PRIVATE_KEY": "A", "B": "C"},
+            [None, "A"],
+            [1, 2],
+            ["A", "B"] * 26,
+        ],
+        ids=["string", "object", "null-member", "number-member", "raw-over-limit"],
+    )
+    async def test_collection_lists_reject_malformed_or_over_limit_json_before_side_effects(
+        path: str, field: str, value: object,
+    ) -&gt; None:
+        app, saved = application()
+        body = payload()
+        body[field if field == "departure_cities" else "custom_questions"] = (
+            value if field == "departure_cities" else [question(value)]
+        )
+        async with AsyncClient(transport=ASGITransport(app), base_url="http://test") as client:
+            response = await client.post(path, json=body)
+&gt;       assert response.status_code == 422, response.text
+E       AssertionError: {"cities":["Delhi"],"questions":[{"id":"22222222-2222-4222-8222-222222222222","label":"Synthetic preference","options":["None","A"],"enabled":true,"required":true}]}
+E       assert 201 == 422
+E        +  where 201 = &lt;Response [201 Created]&gt;.status_code
+
+tests\unit\presentation\test_group_collection_input_contract.py:77: AssertionError</failure></testcase><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_collection_lists_reject_malformed_or_over_limit_json_before_side_effects[number-member-departure_cities-/create]" time="0.002"><failure message="AssertionError: {&quot;cities&quot;:[&quot;1&quot;,&quot;2&quot;],&quot;questions&quot;:[]}&#10;assert 201 == 422&#10; +  where 201 = &lt;Response [201 Created]&gt;.status_code">path = '/create', field = 'departure_cities', value = [1, 2]
+
+    @pytest.mark.parametrize("path", ["/create", "/update"])
+    @pytest.mark.parametrize("field", ["departure_cities", "options"])
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "SYNTHETIC_PRIVATE_INPUT",
+            {"SYNTHETIC_PRIVATE_KEY": "A", "B": "C"},
+            [None, "A"],
+            [1, 2],
+            ["A", "B"] * 26,
+        ],
+        ids=["string", "object", "null-member", "number-member", "raw-over-limit"],
+    )
+    async def test_collection_lists_reject_malformed_or_over_limit_json_before_side_effects(
+        path: str, field: str, value: object,
+    ) -&gt; None:
+        app, saved = application()
+        body = payload()
+        body[field if field == "departure_cities" else "custom_questions"] = (
+            value if field == "departure_cities" else [question(value)]
+        )
+        async with AsyncClient(transport=ASGITransport(app), base_url="http://test") as client:
+            response = await client.post(path, json=body)
+&gt;       assert response.status_code == 422, response.text
+E       AssertionError: {"cities":["1","2"],"questions":[]}
+E       assert 201 == 422
+E        +  where 201 = &lt;Response [201 Created]&gt;.status_code
+
+tests\unit\presentation\test_group_collection_input_contract.py:77: AssertionError</failure></testcase><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_collection_lists_reject_malformed_or_over_limit_json_before_side_effects[number-member-departure_cities-/update]" time="0.002"><failure message="AssertionError: {&quot;cities&quot;:[&quot;1&quot;,&quot;2&quot;],&quot;questions&quot;:null}&#10;assert 201 == 422&#10; +  where 201 = &lt;Response [201 Created]&gt;.status_code">path = '/update', field = 'departure_cities', value = [1, 2]
+
+    @pytest.mark.parametrize("path", ["/create", "/update"])
+    @pytest.mark.parametrize("field", ["departure_cities", "options"])
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "SYNTHETIC_PRIVATE_INPUT",
+            {"SYNTHETIC_PRIVATE_KEY": "A", "B": "C"},
+            [None, "A"],
+            [1, 2],
+            ["A", "B"] * 26,
+        ],
+        ids=["string", "object", "null-member", "number-member", "raw-over-limit"],
+    )
+    async def test_collection_lists_reject_malformed_or_over_limit_json_before_side_effects(
+        path: str, field: str, value: object,
+    ) -&gt; None:
+        app, saved = application()
+        body = payload()
+        body[field if field == "departure_cities" else "custom_questions"] = (
+            value if field == "departure_cities" else [question(value)]
+        )
+        async with AsyncClient(transport=ASGITransport(app), base_url="http://test") as client:
+            response = await client.post(path, json=body)
+&gt;       assert response.status_code == 422, response.text
+E       AssertionError: {"cities":["1","2"],"questions":null}
+E       assert 201 == 422
+E        +  where 201 = &lt;Response [201 Created]&gt;.status_code
+
+tests\unit\presentation\test_group_collection_input_contract.py:77: AssertionError</failure></testcase><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_collection_lists_reject_malformed_or_over_limit_json_before_side_effects[number-member-options-/create]" time="0.002"><failure message="AssertionError: {&quot;cities&quot;:[&quot;Delhi&quot;],&quot;questions&quot;:[{&quot;id&quot;:&quot;22222222-2222-4222-8222-222222222222&quot;,&quot;label&quot;:&quot;Synthetic preference&quot;,&quot;options&quot;:[&quot;1&quot;,&quot;2&quot;],&quot;enabled&quot;:true,&quot;required&quot;:true}]}&#10;assert 201 == 422&#10; +  where 201 = &lt;Response [201 Created]&gt;.status_code">path = '/create', field = 'options', value = [1, 2]
+
+    @pytest.mark.parametrize("path", ["/create", "/update"])
+    @pytest.mark.parametrize("field", ["departure_cities", "options"])
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "SYNTHETIC_PRIVATE_INPUT",
+            {"SYNTHETIC_PRIVATE_KEY": "A", "B": "C"},
+            [None, "A"],
+            [1, 2],
+            ["A", "B"] * 26,
+        ],
+        ids=["string", "object", "null-member", "number-member", "raw-over-limit"],
+    )
+    async def test_collection_lists_reject_malformed_or_over_limit_json_before_side_effects(
+        path: str, field: str, value: object,
+    ) -&gt; None:
+        app, saved = application()
+        body = payload()
+        body[field if field == "departure_cities" else "custom_questions"] = (
+            value if field == "departure_cities" else [question(value)]
+        )
+        async with AsyncClient(transport=ASGITransport(app), base_url="http://test") as client:
+            response = await client.post(path, json=body)
+&gt;       assert response.status_code == 422, response.text
+E       AssertionError: {"cities":["Delhi"],"questions":[{"id":"22222222-2222-4222-8222-222222222222","label":"Synthetic preference","options":["1","2"],"enabled":true,"required":true}]}
+E       assert 201 == 422
+E        +  where 201 = &lt;Response [201 Created]&gt;.status_code
+
+tests\unit\presentation\test_group_collection_input_contract.py:77: AssertionError</failure></testcase><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_collection_lists_reject_malformed_or_over_limit_json_before_side_effects[number-member-options-/update]" time="0.003"><failure message="AssertionError: {&quot;cities&quot;:[&quot;Delhi&quot;],&quot;questions&quot;:[{&quot;id&quot;:&quot;22222222-2222-4222-8222-222222222222&quot;,&quot;label&quot;:&quot;Synthetic preference&quot;,&quot;options&quot;:[&quot;1&quot;,&quot;2&quot;],&quot;enabled&quot;:true,&quot;required&quot;:true}]}&#10;assert 201 == 422&#10; +  where 201 = &lt;Response [201 Created]&gt;.status_code">path = '/update', field = 'options', value = [1, 2]
+
+    @pytest.mark.parametrize("path", ["/create", "/update"])
+    @pytest.mark.parametrize("field", ["departure_cities", "options"])
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "SYNTHETIC_PRIVATE_INPUT",
+            {"SYNTHETIC_PRIVATE_KEY": "A", "B": "C"},
+            [None, "A"],
+            [1, 2],
+            ["A", "B"] * 26,
+        ],
+        ids=["string", "object", "null-member", "number-member", "raw-over-limit"],
+    )
+    async def test_collection_lists_reject_malformed_or_over_limit_json_before_side_effects(
+        path: str, field: str, value: object,
+    ) -&gt; None:
+        app, saved = application()
+        body = payload()
+        body[field if field == "departure_cities" else "custom_questions"] = (
+            value if field == "departure_cities" else [question(value)]
+        )
+        async with AsyncClient(transport=ASGITransport(app), base_url="http://test") as client:
+            response = await client.post(path, json=body)
+&gt;       assert response.status_code == 422, response.text
+E       AssertionError: {"cities":["Delhi"],"questions":[{"id":"22222222-2222-4222-8222-222222222222","label":"Synthetic preference","options":["1","2"],"enabled":true,"required":true}]}
+E       assert 201 == 422
+E        +  where 201 = &lt;Response [201 Created]&gt;.status_code
+
+tests\unit\presentation\test_group_collection_input_contract.py:77: AssertionError</failure></testcase><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_collection_lists_reject_malformed_or_over_limit_json_before_side_effects[raw-over-limit-departure_cities-/create]" time="0.002"><failure message="AssertionError: {&quot;cities&quot;:[&quot;A&quot;,&quot;B&quot;],&quot;questions&quot;:[]}&#10;assert 201 == 422&#10; +  where 201 = &lt;Response [201 Created]&gt;.status_code">path = '/create', field = 'departure_cities'
+value = ['A', 'B', 'A', 'B', 'A', 'B', ...]
+
+    @pytest.mark.parametrize("path", ["/create", "/update"])
+    @pytest.mark.parametrize("field", ["departure_cities", "options"])
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "SYNTHETIC_PRIVATE_INPUT",
+            {"SYNTHETIC_PRIVATE_KEY": "A", "B": "C"},
+            [None, "A"],
+            [1, 2],
+            ["A", "B"] * 26,
+        ],
+        ids=["string", "object", "null-member", "number-member", "raw-over-limit"],
+    )
+    async def test_collection_lists_reject_malformed_or_over_limit_json_before_side_effects(
+        path: str, field: str, value: object,
+    ) -&gt; None:
+        app, saved = application()
+        body = payload()
+        body[field if field == "departure_cities" else "custom_questions"] = (
+            value if field == "departure_cities" else [question(value)]
+        )
+        async with AsyncClient(transport=ASGITransport(app), base_url="http://test") as client:
+            response = await client.post(path, json=body)
+&gt;       assert response.status_code == 422, response.text
+E       AssertionError: {"cities":["A","B"],"questions":[]}
+E       assert 201 == 422
+E        +  where 201 = &lt;Response [201 Created]&gt;.status_code
+
+tests\unit\presentation\test_group_collection_input_contract.py:77: AssertionError</failure></testcase><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_collection_lists_reject_malformed_or_over_limit_json_before_side_effects[raw-over-limit-departure_cities-/update]" time="0.002"><failure message="AssertionError: {&quot;cities&quot;:[&quot;A&quot;,&quot;B&quot;],&quot;questions&quot;:null}&#10;assert 201 == 422&#10; +  where 201 = &lt;Response [201 Created]&gt;.status_code">path = '/update', field = 'departure_cities'
+value = ['A', 'B', 'A', 'B', 'A', 'B', ...]
+
+    @pytest.mark.parametrize("path", ["/create", "/update"])
+    @pytest.mark.parametrize("field", ["departure_cities", "options"])
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "SYNTHETIC_PRIVATE_INPUT",
+            {"SYNTHETIC_PRIVATE_KEY": "A", "B": "C"},
+            [None, "A"],
+            [1, 2],
+            ["A", "B"] * 26,
+        ],
+        ids=["string", "object", "null-member", "number-member", "raw-over-limit"],
+    )
+    async def test_collection_lists_reject_malformed_or_over_limit_json_before_side_effects(
+        path: str, field: str, value: object,
+    ) -&gt; None:
+        app, saved = application()
+        body = payload()
+        body[field if field == "departure_cities" else "custom_questions"] = (
+            value if field == "departure_cities" else [question(value)]
+        )
+        async with AsyncClient(transport=ASGITransport(app), base_url="http://test") as client:
+            response = await client.post(path, json=body)
+&gt;       assert response.status_code == 422, response.text
+E       AssertionError: {"cities":["A","B"],"questions":null}
+E       assert 201 == 422
+E        +  where 201 = &lt;Response [201 Created]&gt;.status_code
+
+tests\unit\presentation\test_group_collection_input_contract.py:77: AssertionError</failure></testcase><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_collection_lists_reject_malformed_or_over_limit_json_before_side_effects[raw-over-limit-options-/create]" time="0.002"><failure message="AssertionError: {&quot;cities&quot;:[&quot;Delhi&quot;],&quot;questions&quot;:[{&quot;id&quot;:&quot;22222222-2222-4222-8222-222222222222&quot;,&quot;label&quot;:&quot;Synthetic preference&quot;,&quot;options&quot;:[&quot;A&quot;,&quot;B&quot;],&quot;enabled&quot;:true,&quot;required&quot;:true}]}&#10;assert 201 == 422&#10; +  where 201 = &lt;Response [201 Created]&gt;.status_code">path = '/create', field = 'options', value = ['A', 'B', 'A', 'B', 'A', 'B', ...]
+
+    @pytest.mark.parametrize("path", ["/create", "/update"])
+    @pytest.mark.parametrize("field", ["departure_cities", "options"])
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "SYNTHETIC_PRIVATE_INPUT",
+            {"SYNTHETIC_PRIVATE_KEY": "A", "B": "C"},
+            [None, "A"],
+            [1, 2],
+            ["A", "B"] * 26,
+        ],
+        ids=["string", "object", "null-member", "number-member", "raw-over-limit"],
+    )
+    async def test_collection_lists_reject_malformed_or_over_limit_json_before_side_effects(
+        path: str, field: str, value: object,
+    ) -&gt; None:
+        app, saved = application()
+        body = payload()
+        body[field if field == "departure_cities" else "custom_questions"] = (
+            value if field == "departure_cities" else [question(value)]
+        )
+        async with AsyncClient(transport=ASGITransport(app), base_url="http://test") as client:
+            response = await client.post(path, json=body)
+&gt;       assert response.status_code == 422, response.text
+E       AssertionError: {"cities":["Delhi"],"questions":[{"id":"22222222-2222-4222-8222-222222222222","label":"Synthetic preference","options":["A","B"],"enabled":true,"required":true}]}
+E       assert 201 == 422
+E        +  where 201 = &lt;Response [201 Created]&gt;.status_code
+
+tests\unit\presentation\test_group_collection_input_contract.py:77: AssertionError</failure></testcase><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_collection_lists_reject_malformed_or_over_limit_json_before_side_effects[raw-over-limit-options-/update]" time="0.002"><failure message="AssertionError: {&quot;cities&quot;:[&quot;Delhi&quot;],&quot;questions&quot;:[{&quot;id&quot;:&quot;22222222-2222-4222-8222-222222222222&quot;,&quot;label&quot;:&quot;Synthetic preference&quot;,&quot;options&quot;:[&quot;A&quot;,&quot;B&quot;],&quot;enabled&quot;:true,&quot;required&quot;:true}]}&#10;assert 201 == 422&#10; +  where 201 = &lt;Response [201 Created]&gt;.status_code">path = '/update', field = 'options', value = ['A', 'B', 'A', 'B', 'A', 'B', ...]
+
+    @pytest.mark.parametrize("path", ["/create", "/update"])
+    @pytest.mark.parametrize("field", ["departure_cities", "options"])
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "SYNTHETIC_PRIVATE_INPUT",
+            {"SYNTHETIC_PRIVATE_KEY": "A", "B": "C"},
+            [None, "A"],
+            [1, 2],
+            ["A", "B"] * 26,
+        ],
+        ids=["string", "object", "null-member", "number-member", "raw-over-limit"],
+    )
+    async def test_collection_lists_reject_malformed_or_over_limit_json_before_side_effects(
+        path: str, field: str, value: object,
+    ) -&gt; None:
+        app, saved = application()
+        body = payload()
+        body[field if field == "departure_cities" else "custom_questions"] = (
+            value if field == "departure_cities" else [question(value)]
+        )
+        async with AsyncClient(transport=ASGITransport(app), base_url="http://test") as client:
+            response = await client.post(path, json=body)
+&gt;       assert response.status_code == 422, response.text
+E       AssertionError: {"cities":["Delhi"],"questions":[{"id":"22222222-2222-4222-8222-222222222222","label":"Synthetic preference","options":["A","B"],"enabled":true,"required":true}]}
+E       assert 201 == 422
+E        +  where 201 = &lt;Response [201 Created]&gt;.status_code
+
+tests\unit\presentation\test_group_collection_input_contract.py:77: AssertionError</failure></testcase><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_valid_choices_keep_first_spelling_and_existing_normalization[/create]" time="0.002" /><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_valid_choices_keep_first_spelling_and_existing_normalization[/update]" time="0.003" /><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_disabled_airport_choice_still_accepts_null_as_empty[/create]" time="0.002" /><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_disabled_airport_choice_still_accepts_null_as_empty[/update]" time="0.002" /><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_import_creation_keeps_discarding_disabled_collection_fields" time="0.003" /></testsuite></testsuites>

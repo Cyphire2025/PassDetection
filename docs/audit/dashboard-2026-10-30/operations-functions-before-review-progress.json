@@ -1,0 +1,911 @@
+{
+  "scope": "Backend dashboard operations/menu/rooming and supporting repositories; native mobile application excluded. Mixed attendance repositories are reviewed for dashboard use with shared backend invariants preserved.",
+  "files": [
+    {
+      "path": "backend/app/application/use_cases/menu/__init__.py",
+      "sha256": "992e86fd264bb63831cb653f5a5e8c995f3186bb8c3ce78824f63b2e7d8e9cf2",
+      "lines": 1,
+      "status": "reviewed",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "review_provenance": [],
+      "notes": "Complete current physical read. Caller authorization/tenant scope and effect/export paths being traced across the coherent operations tranche; no transitive certification. No runtime changes yet."
+    },
+    {
+      "path": "backend/app/application/use_cases/menu/create_menu.py",
+      "sha256": "41041f696f55331c5312a3c946eea3e592e01147834944b4c5589c24a2e4d913",
+      "lines": 168,
+      "status": "reviewed",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "review_provenance": [],
+      "notes": "Complete current physical read. Caller authorization/tenant scope and effect/export paths being traced across the coherent operations tranche; no transitive certification. No runtime changes yet."
+    },
+    {
+      "path": "backend/app/application/use_cases/menu/meal_plan_generator.py",
+      "sha256": "cf21a19c28c2c86e0859be5b837ff68d7b0d6e758dc88be62fb59d2042c7fd36",
+      "lines": 136,
+      "status": "reviewed",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "review_provenance": [],
+      "notes": "Complete current physical read. Caller authorization/tenant scope and effect/export paths being traced across the coherent operations tranche; no transitive certification. No runtime changes yet."
+    },
+    {
+      "path": "backend/app/application/use_cases/rooming/__init__.py",
+      "sha256": "4426e8592aa2ec49526a061b81b81a4b300dbe480aa46577d9de7bc9a9402542",
+      "lines": 1,
+      "status": "reviewed",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "review_provenance": [],
+      "notes": "Complete current physical read. Caller authorization/tenant scope and effect/export paths being traced across the coherent operations tranche; no transitive certification. No runtime changes yet."
+    },
+    {
+      "path": "backend/app/application/use_cases/rooming/auto_allocator.py",
+      "sha256": "89f84ad56a706a799b8ff6e6fedfae3bf35524c1714214f9df8bef834e3b1f94",
+      "lines": 237,
+      "status": "reviewed",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "review_provenance": [],
+      "notes": "Complete current physical read. Caller authorization/tenant scope and effect/export paths being traced across the coherent operations tranche; no transitive certification. No runtime changes yet."
+    },
+    {
+      "path": "backend/app/application/use_cases/rooming/create_hotel.py",
+      "sha256": "af4b1dd48f96b11a64ca5a0392155b5bc0f2413be5173b570b15af628b9b2122",
+      "lines": 40,
+      "status": "reviewed",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "review_provenance": [],
+      "notes": "Complete current physical read. Caller authorization/tenant scope and effect/export paths being traced across the coherent operations tranche; no transitive certification. No runtime changes yet."
+    },
+    {
+      "path": "backend/app/application/use_cases/rooming/prepare_excel.py",
+      "sha256": "31a3dbaa56a8a81e96daa60ea3e265713268116553f86070e3310ea2096d42cd",
+      "lines": 338,
+      "status": "reviewed",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "review_provenance": [],
+      "notes": "Complete current physical read. Caller authorization/tenant scope and effect/export paths being traced across the coherent operations tranche; no transitive certification. No runtime changes yet."
+    },
+    {
+      "path": "backend/app/infrastructure/database/menu_models.py",
+      "sha256": "eddbdd4f11d125ddac7636a3ba8eec9eb8a9e550d27dd23aaf8f7f9c0a1909fc",
+      "lines": 298,
+      "status": "reviewed",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "review_provenance": [],
+      "notes": "Complete physical current read. Category/dish name uniqueness, agency/global scopes, trip-day constraints and saved plan entry SET NULL snapshot behavior inspected; actual HTTP lifecycle verifies retained dish/category names through deletion. No schema/migration edits."
+    },
+    {
+      "path": "backend/app/infrastructure/export/meal_plan_excel_exporter.py",
+      "sha256": "ab27b43b6851d63087af46368443e3c73e5b1171270259383fdc32c046c63cb4",
+      "lines": 368,
+      "status": "matching-full-review",
+      "review_scope": "full",
+      "reviewer": "prior reviewed record",
+      "review_provenance": [
+        {
+          "ledger": "security-reviewed-files.json",
+          "reviewer": "unspecified",
+          "status": "fixed"
+        }
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/export/rooming_excel_exporter.py",
+      "sha256": "877bba594f55701c19e4fd139b0d964ce6f31ba9b5046efe6952003bdb44b102",
+      "lines": 377,
+      "status": "matching-full-review",
+      "review_scope": "full",
+      "reviewer": "prior reviewed record",
+      "review_provenance": [
+        {
+          "ledger": "security-reviewed-files.json",
+          "reviewer": "unspecified",
+          "status": "reviewed"
+        }
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/attendance_closeout_repository.py",
+      "sha256": "ab5b342a2927957397dcf88e2d47cf8a947f99a24a60819e7567da037ca3e0cf",
+      "lines": 519,
+      "status": "fixed",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "review_provenance": [],
+      "notes": "Complete original/current source read. Full participant/runtime/checkpoint classification, tenant-scoped reads and bounded optional materialization reviewed. Duplicate participant write now uses canonical atomic min/max helper to avoid clock-skewed scan/checkpoint constraint failure; publication role/scope, original flush/commit, legacy no-runtime conflict target and count evidence retained. Large statuses classifier remains architecture follow-up."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/attendance_dashboard_repository.py",
+      "sha256": "a1e5ccb3f24c097cc581ad3027667250c3917f9714d0513fccf5afed059db940",
+      "lines": 375,
+      "status": "reviewed",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "review_provenance": [],
+      "notes": "Full source read: tenant/group canonical aggregates, bounded coordinator count, first logical scan window ranking, keyset+limit+1 missing passenger search with escaped LIKE wildcards. Fixed SQLAlchemy query shapes and minimal display projection; no SQL injection or cross-tenant read established."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/attendance_discard_repository.py",
+      "sha256": "53d0535c024120e161fcfdb920a1e851590c6663274e0cb803404eff8d3ffa08",
+      "lines": 185,
+      "status": "fixed",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "review_provenance": [],
+      "notes": "Complete original/current physical source read. Bounded count/hash/reason evidence, scoped idempotency receipts and mismatch rejection; no raw QR/passenger PII. Allowed future client timestamps caused DB check failure; after original-order validation, allowed future capture/discard values cap at true server receipt, past values preserved. Five-minute rejection bound and receipt time/retention remain unchanged; actual constraints/idempotent retry tested."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/attendance_projection_reads.py",
+      "sha256": "5f1b6c4c582e4a12151d9cfba4503e2d66a6794da93b2229cc3ea581a2c98eb4",
+      "lines": 45,
+      "status": "reviewed",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "review_provenance": [],
+      "notes": "Full source read: fixed projections/limit+1 before Python materialization, per-field truncation+overflow rejection and safe typed limit error. Optional limits intentionally preserve ordinary website behavior; no arbitrary SQL/text interpolation."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/attendance_runtime_repository.py",
+      "sha256": "f9285528b2325afcfb9fa74235f52952303812dee29d435dad48ea5dce7eb9ae",
+      "lines": 246,
+      "status": "fixed",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "review_provenance": [],
+      "notes": "Complete original/current physical source read. Purpose-bound high-entropy hashed browser identity; tenant/user/kind/status/expiry query, explicit revocation, revoked runtime not reactivated. Evidenced out-of-order event constraint failure fixed through shared atomic participation helper; caller UTC normalization and original flush/commit seams retained."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/mcp_operations_read_repository.py",
+      "sha256": "494637fa37d6e1f9a456d4a8844c288ba66ce82a93cec6f111653740ccfbe0cc",
+      "lines": 197,
+      "status": "reviewed",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "review_provenance": [],
+      "notes": "Full source read: fixed query shapes only, tenant/group scoped joins, minimal contact projection opt-in, canonical read_page cursor/cutoff bounded downstream. Repository accepts internal kind strings; command-level kind/authority validation remains caller contract. No write helper or signed private URL returned."
+    },
+    {
+      "path": "backend/app/infrastructure/rooming/__init__.py",
+      "sha256": "a4bcc9dd76f850ad5f1952617cd30531ab6e8cfb339d6bae82a7e1fcc30cf79d",
+      "lines": 1,
+      "status": "reviewed",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "review_provenance": [],
+      "notes": "Complete current physical read. Caller authorization/tenant scope and effect/export paths being traced across the coherent operations tranche; no transitive certification. No runtime changes yet."
+    },
+    {
+      "path": "backend/app/infrastructure/rooming/priority_fields.py",
+      "sha256": "29d0ee199c2f9966e06dd96ede4cd9e3bc24ac21b0079aed4dbaf3fd656f5a0a",
+      "lines": 231,
+      "status": "refactored",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "review_provenance": [],
+      "notes": "Complete original 679-line source read and complete physical current owner read. Privacy/field-key rules retained exact; only recipient projection loop changes work complexity. Tenant queries, link scoping, matcher seam and resolve_values/lock behavior unchanged. AST scope and focused affected tests bound in verification receipt; no deployed-service certification."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/menu.py",
+      "sha256": "a59bf39c2d021567aeb098fbaa74307e38a3820440ce121b5495793395221fb8",
+      "lines": 134,
+      "status": "refactored",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "review_provenance": [],
+      "notes": "Complete physical current source read; original menu1162lines fully read. All36original definition ASTs/decorators/signatures copied exactly from the post-offload pre-extraction snapshot; generated owner imports and composition directly inspected. Complete actual OpenAPI matches13operations. Canonical tenant/revision/CSRF/audit/no-repeat behavior covered by affected HTTP/MCP tests.",
+      "previous_review_sha256": "0a6c577909621a18fa9a2b4f87a47e2b477b04feec0251c311498b5e306662a2"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/rooming.py",
+      "sha256": "645af85577b9f9f5d0c1f5a9afbcadc7f2311f416bb9655d1e66236344a363aa",
+      "lines": 136,
+      "status": "matching-full-review",
+      "review_scope": "full",
+      "reviewer": "prior reviewed record",
+      "review_provenance": [
+        {
+          "ledger": "security-reviewed-files.json",
+          "reviewer": "unspecified",
+          "status": "fixed"
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/rooming_access.py",
+      "sha256": "0b8bc65bfb18473222245af2601a11f8b2e385e74c014b47695d18a4a0e5bc3e",
+      "lines": 323,
+      "status": "matching-full-review",
+      "review_scope": "full",
+      "reviewer": "prior reviewed record",
+      "review_provenance": [
+        {
+          "ledger": "security-reviewed-files.json",
+          "reviewer": "unspecified",
+          "status": "fixed"
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/rooming_allocation_support.py",
+      "sha256": "23f6981113fa5150676d3ea35c73e6d283b1e46ede666d403e8f3de9fc983661",
+      "lines": 346,
+      "status": "reviewed",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "review_provenance": [],
+      "notes": "Complete current physical read. Group/hotel revision lock order, bounded delta projections, sensitive priority descriptor filtering and current linked-source resolution traced; caller/source-to-effect review continues. No runtime edits yet."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/rooming_auto_allocation.py",
+      "sha256": "8378025bb31cf9ca4c25e2861f478e158646904dee636be3b29d8980c14bc142",
+      "lines": 279,
+      "status": "matching-full-review",
+      "review_scope": "full",
+      "reviewer": "prior reviewed record",
+      "review_provenance": [
+        {
+          "ledger": "security-reviewed-files.json",
+          "reviewer": "unspecified",
+          "status": "fixed"
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/rooming_checkin_reads.py",
+      "sha256": "87446353d21bb46bacd1f6c0b9c49731b57efb30934538fda812d368026988d0",
+      "lines": 192,
+      "status": "matching-full-review",
+      "review_scope": "full",
+      "reviewer": "prior reviewed record",
+      "review_provenance": [
+        {
+          "ledger": "security-reviewed-files.json",
+          "reviewer": "unspecified",
+          "status": "fixed"
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/rooming_checkins.py",
+      "sha256": "01367da07d9744aa8be38a4a90ffdc273e559d147f881dfe59541b9d45222fca",
+      "lines": 247,
+      "status": "matching-full-review",
+      "review_scope": "full",
+      "reviewer": "prior reviewed record",
+      "review_provenance": [
+        {
+          "ledger": "security-reviewed-files.json",
+          "reviewer": "unspecified",
+          "status": "fixed"
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/rooming_exports.py",
+      "sha256": "77abd1be6ecaaa91de1377c61dd769e7811fc66b1ce57b90bfd2294b03a0990e",
+      "lines": 196,
+      "status": "fixed",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "review_provenance": [
+        {
+          "ledger": "security-reviewed-files.json",
+          "reviewer": "unspecified",
+          "status": "fixed"
+        }
+      ],
+      "notes": "Complete current route source read; previously matched full-read record reused before narrow change. Both direct native thread calls now use the existing PreparedRoomingExcel.render cancellation-drain boundary; all original rollback/detached-input/post-render authorization/snapshot/audit guards retained. Two actual coroutine Event-gated regressions fail before and pass after; original static source contract retargeted without dropping assertions.",
+      "previous_review_sha256": "41feebb85e3ed8d8c109127e0fb2f27d6348cfd032638035818b9fc34720c571"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/rooming_hotels.py",
+      "sha256": "92d4dce6ecef1203c83e87c956ed033119508c1087eff5eaa8660f918e691cd8",
+      "lines": 224,
+      "status": "matching-full-review",
+      "review_scope": "full",
+      "reviewer": "prior reviewed record",
+      "review_provenance": [
+        {
+          "ledger": "security-reviewed-files.json",
+          "reviewer": "unspecified",
+          "status": "fixed"
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/rooming_policy.py",
+      "sha256": "a1d4ffb4f717cb7ed0ae16ae051cf9dd8fe54ff233b558c1f6fe1359d7ecbe33",
+      "lines": 12,
+      "status": "matching-full-review",
+      "review_scope": "full",
+      "reviewer": "prior reviewed record",
+      "review_provenance": [
+        {
+          "ledger": "security-reviewed-files.json",
+          "reviewer": "unspecified",
+          "status": "fixed"
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/rooming_presenters.py",
+      "sha256": "474bb74dcba8abc3f284780c72ba6fb071d0cde20cbe516f211caca50a4c989c",
+      "lines": 149,
+      "status": "matching-full-review",
+      "review_scope": "full",
+      "reviewer": "prior reviewed record",
+      "review_provenance": [
+        {
+          "ledger": "security-reviewed-files.json",
+          "reviewer": "unspecified",
+          "status": "fixed"
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/rooming_selection.py",
+      "sha256": "0bb43ba0578c03d91e1a231a3782eb39ae90b19e654fb875f76b351ae5d009da",
+      "lines": 273,
+      "status": "matching-full-review",
+      "review_scope": "full",
+      "reviewer": "prior reviewed record",
+      "review_provenance": [
+        {
+          "ledger": "security-reviewed-files.json",
+          "reviewer": "unspecified",
+          "status": "fixed"
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/rooming_workspace.py",
+      "sha256": "19144c4de1f7d23157cc3cc83a90da00095211a147f8433cdd54276b6af0880e",
+      "lines": 318,
+      "status": "matching-full-review",
+      "review_scope": "full",
+      "reviewer": "prior reviewed record",
+      "review_provenance": [
+        {
+          "ledger": "security-reviewed-files.json",
+          "reviewer": "unspecified",
+          "status": "fixed"
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations.py",
+      "sha256": "c7e461f12d7a650ea8468bafc128f81f5367dd6a941a77bc205701117694fae5",
+      "lines": 305,
+      "status": "reviewed",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "review_provenance": [],
+      "notes": "Full physical source read of 305-line compatibility facade: explicit imports/aliases, fixed ordered endpoint composition and __all__, no new authority or dynamic imports. Actual endpoint handlers reviewed in separate per-path records; not treated as transitive full coverage."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_access.py",
+      "sha256": "0d4ee6504bf8fc11ac8b9796d96cf89d8e64a217f9b72a9d2881793e97985810",
+      "lines": 267,
+      "status": "reviewed",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "review_provenance": [],
+      "notes": "Role groups, tenant scoping, staff manageable-group policy, canonical session joins/locks, coordinator current-assignment and lifecycle filters fully read. Supporting AuthorizationPolicy coordinator filter/has_group traced in current source; no bypass established. Authentication dependency calls cookie CSRF for unsafe cookie-authenticated requests even where route has no explicit extra dependency."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_accounts.py",
+      "sha256": "ced6d681454ffb4a75338487b06faf9f340660e2d1e228037808f3e81236091c",
+      "lines": 265,
+      "status": "reviewed",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "review_provenance": [],
+      "notes": "Full source read: privileged coordinator creation, normalized email/global uniqueness, bounded strength-validated password hashing offloop, fixed agency scope and audit. Coordinator listing excludes deleted rows and scopes non-super-admin agency. Architecture endpoint returns fixed static data; no credentials."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_activity_lifecycle.py",
+      "sha256": "483549c8139c1c6489d17598e4eb31ef30ffb947d07a0dd4e7cf00b3b2ffcd0f",
+      "lines": 167,
+      "status": "reviewed",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "review_provenance": [],
+      "notes": "Full source read: tenant-owned non-deleted group lock serializes activity admission, canonical normalized-name resolution and configured session capacity; PostgreSQL unique-conflict fallback bounded. No new lock/schema change or live PostgreSQL qualification."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_activity_resolution.py",
+      "sha256": "a3e6f0cb4425f290c0bafd0d1ca2770c3403b3afdaa0895307da6bec81354c29",
+      "lines": 104,
+      "status": "reviewed",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "review_provenance": [],
+      "notes": "Full source read: strict additive creation cannot mutate mismatching existing state/schedule; website draft activation and initial-only schedule behavior preserved. UTC comparison and safe fixed conflict messages inspected."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_assignments.py",
+      "sha256": "8c695bd1cbd7a032badcb7c6bb8dc5fd51df39956ccaf8b754a7e7ffeae194c9",
+      "lines": 362,
+      "status": "reviewed",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "review_provenance": [],
+      "notes": "Full source read: manageable group lock/policy, tenant+active coordinator validation, parameterized deduplicated assignments, submitted operational roster filter, current group assignment for coordinator reads. Legacy per-passenger writer retained explicitly for rollback; route/schema unchanged. Detail contract intentionally projects assigned group passport fields; this is existing authorized workflow, not a raw document URL grant."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_attendance_batch_support.py",
+      "sha256": "8fd7647012b1c3679cbf9fa4c5cd3b841c108e321ef3b6aa07f26a941731e8b2",
+      "lines": 412,
+      "status": "reviewed",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "review_provenance": [],
+      "notes": "Full source read: bounded schema, stable SHA fingerprints with ordered items, tenant/group/session/user/runtime/fingerprint batch binding locked before replay, event-scoped terminal receipt rows, nested savepoint isolates item failures. Retriable errors not persisted as terminal; safe fixed response/log classification and current counts reconstructed. Replay passenger-name lookup assumes internally minted same-scope receipt; no attacker-writable cross-scope receipt path established. Large mixed receipt/orchestration owner remains follow-up."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_attendance_closeout.py",
+      "sha256": "d22b043dfb8eedb320a079950213112603d63d48da74d4224ec8aa11513d611d",
+      "lines": 308,
+      "status": "reviewed",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "review_provenance": [],
+      "notes": "Complete physical source read: coordinator count checkpoint requires runtime-cookie consistency, assigned group and canonical scoped active session. Coordinator close always forbidden. Manager close locks manageable group/session, requires recent MFA for explicit override, durably records blocked attempt and audits allowed exception; clean closeout enforced otherwise. Fixed no-grant status output. No role/lock/transaction changes."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_attendance_dashboard.py",
+      "sha256": "a91d5e190950a85b8a53f698ad45b28eda5e1653ba041c593912b6ffa5230a7f",
+      "lines": 151,
+      "status": "reviewed",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "review_provenance": [],
+      "notes": "Full source read: office group policy precedes all summary/missing projections; revision-fenced keyset missing page has 1..100 bound and search120. Private no-cache ETag response, safe fixed404/409 data. No unbounded raw passenger reads on summary path."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_attendance_projection_support.py",
+      "sha256": "c7b419919fc10b54fb426f9c31a3923256421e044f9a95e97cd51bbc420d378b",
+      "lines": 196,
+      "status": "reviewed",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "review_provenance": [],
+      "notes": "Full source read: count-only closeout projections/audit, closure requires clean evidence or audited exception, only authorized caller triggers active-to-completed state. Private cache headers/ETag and snapshot-conflict errors are safe fixed projections; no public cache grant."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_attendance_scan_support.py",
+      "sha256": "fa7c6195b64ce0e603765c622d4d139853a54af4004faac9e12544fbc1da1daf",
+      "lines": 488,
+      "status": "reviewed",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "review_provenance": [],
+      "notes": "Full source read: canonical activity/alias idempotency for passenger/event, operational approved roster, QR fixed payload hash/token expiry/revocation/group checks, audit and shared journal. Completed activities only admit saved pre-close offline events. Passed client scan timestamp feeds runtime participant bounds; actual out-of-order persistence issue fixed at repository helper. No generic future-scan policy redesigned in this tranche."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_attendance_scans.py",
+      "sha256": "a4ab0f98d34fbda912f3cf842c86300788a8a6368cd0ad5ee06a6126756dcd6a",
+      "lines": 146,
+      "status": "reviewed",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "review_provenance": [],
+      "notes": "Full source read: authenticated coordinator/cookie CSRF boundary, runtime cookie resolution and explicit runtime mismatch, scoped canonical activity shared locks, fixed dependency wiring and bounded batch schema. Existing optional-runtime compatibility preserved, no native app edit."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_attendance_sessions.py",
+      "sha256": "7e43516d0d82c55bd4921aec9eddc1b4408bdd2465f795aff63a1dd2e97784f9",
+      "lines": 243,
+      "status": "reviewed",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "review_provenance": [],
+      "notes": "Full source read: deprecated coordinator creation always rejected after scope resolution; manager creation/schedule requires privileged role+CSRF+manageable locked group. Canonical-session list/details stay assignment scoped; schedule change bumps version and rejects closed state. Audit/journal effects observed."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_attendance_views.py",
+      "sha256": "6ef40ad23041742f255d6ad32165607277004542b3be57a049c0e21f3f393b2f",
+      "lines": 415,
+      "status": "reviewed",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "review_provenance": [],
+      "notes": "Full source read: legacy overview/detail explicit PII projections only after scoped route helpers, current approved roster, canonical alias dedup, batched coordinator assignments and shared closeout state. Summary polling now uses separate aggregate repository; legacy overview still materializes session-by-passenger output and remains scaling/architecture follow-up. Several helpers rely on trusted authorized group/session IDs rather than independently authorizing; no public direct helper exposure established."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_passenger_views.py",
+      "sha256": "1c80705ad869df45d0b11eba99b99a0549d3c07b5532bcd5741a5c74f63dcd52",
+      "lines": 120,
+      "status": "reviewed",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "review_provenance": [],
+      "notes": "Full source read: explicit passenger projection used by actual assignments/UI; tenant/group/operational roster joins, family-size labels and no QR token payload. Retained as canonical live projection; duplicate unused response_support chain retired with reachability proof and affected tests."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_qr.py",
+      "sha256": "067379429327158e35a6dad06db90e3dbea29e24d26fe5689dcbb73285943f2c",
+      "lines": 267,
+      "status": "reviewed",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "review_provenance": [],
+      "notes": "Full source read: staff/manager role+manageable group and submitted passenger scope before token mutation, cookie CSRF, token locks, invalid reactivation blocked, immutable revoked token rule, safe lifecycle audit. Existing expiration accepts naive value as UTC by compatibility; not changed. No provider calls or public QR grant added."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_qr_delivery.py",
+      "sha256": "a65ca1f4b9c0fb0de069df0a2e6d3dcdb2ad7760799c3c517e6ff4de8ddb4037",
+      "lines": 187,
+      "status": "refactored",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "review_provenance": [],
+      "notes": "Complete original 696-line QR route source read and full physical current owner read. Tenant/role/consent/welcome/private-destination/token/receipt/admission/publication/compensation paths traced through existing worker boundary. Exact AST ranges, explicit call-time settings/status seams and complete OpenAPI equality established. No real provider calls or authority/schema change. Preview function retains complexity48 as explicit follow-up."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_qr_helpers.py",
+      "sha256": "055accca5d35ca8b94a0efa8e4d0a5576e806837b68d552284cf1e588e43f0af",
+      "lines": 271,
+      "status": "reviewed",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "review_provenance": [],
+      "notes": "Full source read: tenant/group/approved roster query, high-entropy canonical issuer/hash and expiry, passenger-row lock before version mint, token deactivation/regeneration and scoped caller preconditions. Group read may intentionally mint missing tokens; large first-load missing-token fan-out remains performance follow-up, not changed without workflow proof. Safe audit omits raw payload; private QR payload is intentional authorized response."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_response_support.py",
+      "sha256": "e4e9e4bbe4e6f733bedfb3859153ba6fa9aea26f606a1e5ac2ef5afaf7dfa299",
+      "lines": 174,
+      "status": "refactored",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "review_provenance": [],
+      "notes": "Full original and current source read. Retired four closed duplicate passenger/family projection exports; accounts/assignments/facade import only two unchanged coordinator/group response functions. Those two complete definition ASTs unchanged; named/module/computed reachability proof and 28 affected tests recorded separately."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/menu_schemas.py",
+      "sha256": "6cc94e55f6fc804c0004ef7c6e434d679740ace998267e4e0e0c03886a72001e",
+      "lines": 193,
+      "status": "reviewed",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "review_provenance": [],
+      "notes": "Complete current physical read. Caller authorization/tenant scope and effect/export paths being traced across the coherent operations tranche; no transitive certification. No runtime changes yet."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/rooming_schemas.py",
+      "sha256": "c36ac90303de31db1ae652a045751397600eaf06e3e9afdbe40a4e77e4f51e9e",
+      "lines": 317,
+      "status": "reviewed",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "review_provenance": [],
+      "notes": "Complete physical current read. Menu CRUD/revision/tenant scope, detached workbook preparation and renderer boundary traced; menu route decomposition and evidenced async export responsiveness follow-up planned. No runtime edits yet."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/tour_operations_schemas.py",
+      "sha256": "fd7ecf986739deee381054c462fee4afb9b83efd483473b8025bc58ac682bee0",
+      "lines": 187,
+      "status": "refactored",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "review_provenance": [],
+      "notes": "Complete original541-line schema source and complete physical current owner read. All42 class/validator declaration ASTs and two constant assignments exact; all41model classes' validation+serialization JSON schemas equal in82comparisons. Original scan limit namespace retained and its live mutation test passes. Existing public class/validator aliases remain. No payload/type/default/limit/validation rule change. Full API snapshot has independently identified concurrent non-tour drift; mobile reviewed snapshot passes."
+    },
+    {
+      "path": "backend/app/infrastructure/database/operations_models.py",
+      "sha256": "c1b7d9231eca989eb9abd5a7d6bba605650b66bd7d9aba73abe2208519fe59f8",
+      "lines": 54,
+      "review_scope": "full",
+      "status": "refactored",
+      "reviewer": "manual_security",
+      "notes": "Complete original 1182-line model source read and complete physical current owner read. All16 original class ASTs unchanged through extraction; registered mapper/table metadata, column defaults/onupdate, constraints/indexes and PostgreSQL/SQLite DDL match in fresh processes. Original operations_models and database/models facade aliases retain identical class objects. No schema/migration/VPS setup/data operation."
+    }
+  ],
+  "current_full_records_reused": 12,
+  "new_full_physical_reads": 15,
+  "partial_reads": [
+    {
+      "path": "backend/app/infrastructure/database/operations_models.py",
+      "lines": "1-260"
+    }
+  ],
+  "extracted_owners": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/menu_categories.py",
+      "sha256": "c52e3fbf50d3445c0326664cf2041cb7957213e86e5704763c4530789c70ca41",
+      "lines": 158,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete physical current source read; original menu1162lines fully read. All36original definition ASTs/decorators/signatures copied exactly from the post-offload pre-extraction snapshot; generated owner imports and composition directly inspected. Complete actual OpenAPI matches13operations. Canonical tenant/revision/CSRF/audit/no-repeat behavior covered by affected HTTP/MCP tests."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/menu_common.py",
+      "sha256": "a8c83fc43b472447611b522254b6a453522658a1775300ed07523ad61738aeac",
+      "lines": 149,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete physical current source read; original menu1162lines fully read. All36original definition ASTs/decorators/signatures copied exactly from the post-offload pre-extraction snapshot; generated owner imports and composition directly inspected. Complete actual OpenAPI matches13operations. Canonical tenant/revision/CSRF/audit/no-repeat behavior covered by affected HTTP/MCP tests."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/menu_creation_support.py",
+      "sha256": "74d94491b839c7ae7b9b8043eb7d261fd7217f27d79e12b90f67d63fd74430ad",
+      "lines": 36,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete physical current source read; original menu1162lines fully read. All36original definition ASTs/decorators/signatures copied exactly from the post-offload pre-extraction snapshot; generated owner imports and composition directly inspected. Complete actual OpenAPI matches13operations. Canonical tenant/revision/CSRF/audit/no-repeat behavior covered by affected HTTP/MCP tests."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/menu_dishes.py",
+      "sha256": "dfc98627e1173d24e0dea223f34d0ab77e5f4f8d56c8db499c646ac0cb9b6460",
+      "lines": 168,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete physical current source read; original menu1162lines fully read. All36original definition ASTs/decorators/signatures copied exactly from the post-offload pre-extraction snapshot; generated owner imports and composition directly inspected. Complete actual OpenAPI matches13operations. Canonical tenant/revision/CSRF/audit/no-repeat behavior covered by affected HTTP/MCP tests."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/menu_export_support.py",
+      "sha256": "64b5983b4d5028e0153f8b486cf3db9cbf90251bf99dad105444406c79bb8e60",
+      "lines": 56,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "fixed",
+      "notes": "Complete physical current source read. Typed snapshot detaches every ORM value before worker dispatch; existing bounded native/storage drain helper runs the stateless XLSX exporter off the event loop and waits for native completion on cancellation. Actual authenticated HTTP Event-gated negative proves scheduler progress; no new export policy, record mutation or host-wide capacity setup."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/menu_exports.py",
+      "sha256": "631b77aea299db2168b3c6652147fe892b7cce3e28d2f70755bfcc0f262722c0",
+      "lines": 41,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete physical current source read; original menu1162lines fully read. All36original definition ASTs/decorators/signatures copied exactly from the post-offload pre-extraction snapshot; generated owner imports and composition directly inspected. Complete actual OpenAPI matches13operations. Canonical tenant/revision/CSRF/audit/no-repeat behavior covered by affected HTTP/MCP tests."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/menu_plan_entries.py",
+      "sha256": "6fcbdcd00279115393e30a8a44e69826a4238c747866a58e99a2ce3c71836bb6",
+      "lines": 130,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete physical current source read; original menu1162lines fully read. All36original definition ASTs/decorators/signatures copied exactly from the post-offload pre-extraction snapshot; generated owner imports and composition directly inspected. Complete actual OpenAPI matches13operations. Canonical tenant/revision/CSRF/audit/no-repeat behavior covered by affected HTTP/MCP tests."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/menu_planner.py",
+      "sha256": "c4998f5f7f952075f2cc8eb396e44386785f3e10d3e0f39aa1e8954d3d6d1d0e",
+      "lines": 141,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete physical current source read; original menu1162lines fully read. All36original definition ASTs/decorators/signatures copied exactly from the post-offload pre-extraction snapshot; generated owner imports and composition directly inspected. Complete actual OpenAPI matches13operations. Canonical tenant/revision/CSRF/audit/no-repeat behavior covered by affected HTTP/MCP tests."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/menu_plans.py",
+      "sha256": "2614750d467f2971a0ca8867d97722b129dd0a55885c8453ba2f3ae51e9d7872",
+      "lines": 213,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete physical current source read; original menu1162lines fully read. All36original definition ASTs/decorators/signatures copied exactly from the post-offload pre-extraction snapshot; generated owner imports and composition directly inspected. Complete actual OpenAPI matches13operations. Canonical tenant/revision/CSRF/audit/no-repeat behavior covered by affected HTTP/MCP tests."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/menu_presenters.py",
+      "sha256": "a431ef3db23dc5631d2184862a9d8448c5b83403de9c727b0b3df6229115ba9b",
+      "lines": 120,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete physical current source read; original menu1162lines fully read. All36original definition ASTs/decorators/signatures copied exactly from the post-offload pre-extraction snapshot; generated owner imports and composition directly inspected. Complete actual OpenAPI matches13operations. Canonical tenant/revision/CSRF/audit/no-repeat behavior covered by affected HTTP/MCP tests."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/menu_queries.py",
+      "sha256": "7732012a3261e46ad44bce3e5ff491fbb06689e1701c13363fe665b33f98aea4",
+      "lines": 133,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete physical current source read; original menu1162lines fully read. All36original definition ASTs/decorators/signatures copied exactly from the post-offload pre-extraction snapshot; generated owner imports and composition directly inspected. Complete actual OpenAPI matches13operations. Canonical tenant/revision/CSRF/audit/no-repeat behavior covered by affected HTTP/MCP tests."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/menu_workspace.py",
+      "sha256": "b53765981a1855d48717f3bf77f449065a4e55e243c70cecad472e09eab94459",
+      "lines": 63,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete physical current source read; original menu1162lines fully read. All36original definition ASTs/decorators/signatures copied exactly from the post-offload pre-extraction snapshot; generated owner imports and composition directly inspected. Complete actual OpenAPI matches13operations. Canonical tenant/revision/CSRF/audit/no-repeat behavior covered by affected HTTP/MCP tests."
+    },
+    {
+      "path": "backend/app/infrastructure/rooming/priority_field_catalog.py",
+      "sha256": "6ddf90261c444e4e6427d993bcc8fa0dbd51c9b6e6b60f7a49a71fd01dc59f04",
+      "lines": 137,
+      "status": "refactored",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "notes": "Complete original 679-line source read and complete physical current owner read. Privacy/field-key rules retained exact; only recipient projection loop changes work complexity. Tenant queries, link scoping, matcher seam and resolve_values/lock behavior unchanged. AST scope and focused affected tests bound in verification receipt; no deployed-service certification."
+    },
+    {
+      "path": "backend/app/infrastructure/rooming/priority_field_policy.py",
+      "sha256": "64598228c747cc778f034c60488f55faad7c10b3d0d40fcd377d16df9715861a",
+      "lines": 263,
+      "status": "refactored",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "notes": "Complete original 679-line source read and complete physical current owner read. Privacy/field-key rules retained exact; only recipient projection loop changes work complexity. Tenant queries, link scoping, matcher seam and resolve_values/lock behavior unchanged. AST scope and focused affected tests bound in verification receipt; no deployed-service certification."
+    },
+    {
+      "path": "backend/app/infrastructure/rooming/priority_field_values.py",
+      "sha256": "62715fc8274962cca138efe57cdfcba4ba05e173f5f36262d86231be2cddc868",
+      "lines": 103,
+      "status": "refactored",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "notes": "Complete original 679-line source read and complete physical current owner read. Privacy/field-key rules retained exact; only recipient projection loop changes work complexity. Tenant queries, link scoping, matcher seam and resolve_values/lock behavior unchanged. AST scope and focused affected tests bound in verification receipt; no deployed-service certification."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/attendance_participation.py",
+      "sha256": "059365ff5dee629551568adf958a74607ca5c98e6f04a8e9af0b1ceca06b3b4b",
+      "lines": 58,
+      "status": "fixed",
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "notes": "New canonical atomic participant insert/upsert fully read: tenant/session/user/runtime and latest-arrival source preserved, event first=min/last=max using locked-row CASE, no separate read/race, caller retains authority and flush/commit. Actual SQLite constraints with only named-conflict target translation tested; no real PostgreSQL concurrency claim."
+    },
+    {
+      "path": "backend/app/infrastructure/database/attendance_activity_models.py",
+      "sha256": "032b369aa88cd7dce0d19d6d19c2905f3e3cab16fa4a9bd8de25ef57d073b9b5",
+      "lines": 205,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete original 1182-line model source read and complete physical current owner read. All16 original class ASTs unchanged through extraction; registered mapper/table metadata, column defaults/onupdate, constraints/indexes and PostgreSQL/SQLite DDL match in fresh processes. Original operations_models and database/models facade aliases retain identical class objects. No schema/migration/VPS setup/data operation."
+    },
+    {
+      "path": "backend/app/infrastructure/database/attendance_batch_models.py",
+      "sha256": "06eb473f6507d08e49d25acb2e4c68e62c4550bb70486a2c886203bff8f08ae7",
+      "lines": 171,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete original 1182-line model source read and complete physical current owner read. All16 original class ASTs unchanged through extraction; registered mapper/table metadata, column defaults/onupdate, constraints/indexes and PostgreSQL/SQLite DDL match in fresh processes. Original operations_models and database/models facade aliases retain identical class objects. No schema/migration/VPS setup/data operation."
+    },
+    {
+      "path": "backend/app/infrastructure/database/attendance_closeout_models.py",
+      "sha256": "affc03c86907ae04fefb57be8920593393a6e2818837d6a9b816be63ff615878",
+      "lines": 243,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete original 1182-line model source read and complete physical current owner read. All16 original class ASTs unchanged through extraction; registered mapper/table metadata, column defaults/onupdate, constraints/indexes and PostgreSQL/SQLite DDL match in fresh processes. Original operations_models and database/models facade aliases retain identical class objects. No schema/migration/VPS setup/data operation."
+    },
+    {
+      "path": "backend/app/infrastructure/database/attendance_runtime_models.py",
+      "sha256": "1798faed32a3c2528659180f3e8910b1ad0e9615299393caa1aa7556cf8739f5",
+      "lines": 211,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete original 1182-line model source read and complete physical current owner read. All16 original class ASTs unchanged through extraction; registered mapper/table metadata, column defaults/onupdate, constraints/indexes and PostgreSQL/SQLite DDL match in fresh processes. Original operations_models and database/models facade aliases retain identical class objects. No schema/migration/VPS setup/data operation."
+    },
+    {
+      "path": "backend/app/infrastructure/database/passenger_qr_models.py",
+      "sha256": "e815d9390a4a5c9544e43b2384f3791b4cb4d429a4b18bb7da7e37b897421d24",
+      "lines": 184,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete original 1182-line model source read and complete physical current owner read. All16 original class ASTs unchanged through extraction; registered mapper/table metadata, column defaults/onupdate, constraints/indexes and PostgreSQL/SQLite DDL match in fresh processes. Original operations_models and database/models facade aliases retain identical class objects. No schema/migration/VPS setup/data operation."
+    },
+    {
+      "path": "backend/app/infrastructure/database/rooming_allocation_models.py",
+      "sha256": "a61c374e76078f8aa6f58f740b2c1415a3b20dcdd9d863b7a07465d6c376315f",
+      "lines": 139,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete original 1182-line model source read and complete physical current owner read. All16 original class ASTs unchanged through extraction; registered mapper/table metadata, column defaults/onupdate, constraints/indexes and PostgreSQL/SQLite DDL match in fresh processes. Original operations_models and database/models facade aliases retain identical class objects. No schema/migration/VPS setup/data operation."
+    },
+    {
+      "path": "backend/app/infrastructure/database/rooming_property_models.py",
+      "sha256": "600b2c10646a400307fb2935a2785424b4a4e85aee77032581cb7435891ae839",
+      "lines": 154,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete original 1182-line model source read and complete physical current owner read. All16 original class ASTs unchanged through extraction; registered mapper/table metadata, column defaults/onupdate, constraints/indexes and PostgreSQL/SQLite DDL match in fresh processes. Original operations_models and database/models facade aliases retain identical class objects. No schema/migration/VPS setup/data operation."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_qr_delivery_policy.py",
+      "sha256": "647846a7e4a3384954920280cbe46acc63555085680cb340be3148c5f6cbbf68",
+      "lines": 142,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete original 696-line QR route source read and full physical current owner read. Tenant/role/consent/welcome/private-destination/token/receipt/admission/publication/compensation paths traced through existing worker boundary. Exact AST ranges, explicit call-time settings/status seams and complete OpenAPI equality established. No real provider calls or authority/schema change. Preview function retains complexity48 as explicit follow-up."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_qr_delivery_preview.py",
+      "sha256": "3147020f9cf13b5dd58dee5ba6eae73ad8203371044dadc463ffb2823e319a0f",
+      "lines": 204,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete original 696-line QR route source read and full physical current owner read. Tenant/role/consent/welcome/private-destination/token/receipt/admission/publication/compensation paths traced through existing worker boundary. Exact AST ranges, explicit call-time settings/status seams and complete OpenAPI equality established. No real provider calls or authority/schema change. Preview function retains complexity48 as explicit follow-up."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_qr_delivery_queue.py",
+      "sha256": "526a2201c2015a668b4a6b52b9892b6ee076e05ccf9a9ec91606f73ba951169f",
+      "lines": 123,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete original 696-line QR route source read and full physical current owner read. Tenant/role/consent/welcome/private-destination/token/receipt/admission/publication/compensation paths traced through existing worker boundary. Exact AST ranges, explicit call-time settings/status seams and complete OpenAPI equality established. No real provider calls or authority/schema change. Preview function retains complexity48 as explicit follow-up."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_qr_delivery_roster.py",
+      "sha256": "5f5aaba4ae811aad884334238a01dec2d0e21ec577ac702b5eec234946540701",
+      "lines": 147,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete original 696-line QR route source read and full physical current owner read. Tenant/role/consent/welcome/private-destination/token/receipt/admission/publication/compensation paths traced through existing worker boundary. Exact AST ranges, explicit call-time settings/status seams and complete OpenAPI equality established. No real provider calls or authority/schema change. Preview function retains complexity48 as explicit follow-up."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/tour_activity_schemas.py",
+      "sha256": "d7264fa118d2ac9966be93fd1b17912fcbf7a1cd9888a228371832c594eecc29",
+      "lines": 97,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete original541-line schema source and complete physical current owner read. All42 class/validator declaration ASTs and two constant assignments exact; all41model classes' validation+serialization JSON schemas equal in82comparisons. Original scan limit namespace retained and its live mutation test passes. Existing public class/validator aliases remain. No payload/type/default/limit/validation rule change. Full API snapshot has independently identified concurrent non-tour drift; mobile reviewed snapshot passes."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/tour_attendance_projection_schemas.py",
+      "sha256": "ad6a3c2fbe1183fd23a6e5b6c984c5ce921e6b40a6ab38d46af046555a602554",
+      "lines": 143,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete original541-line schema source and complete physical current owner read. All42 class/validator declaration ASTs and two constant assignments exact; all41model classes' validation+serialization JSON schemas equal in82comparisons. Original scan limit namespace retained and its live mutation test passes. Existing public class/validator aliases remain. No payload/type/default/limit/validation rule change. Full API snapshot has independently identified concurrent non-tour drift; mobile reviewed snapshot passes."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/tour_coordinator_schemas.py",
+      "sha256": "1ce8e157f43fa0ab827a960f10341a376f00a2ed100795203a6423ee203c315e",
+      "lines": 119,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete original541-line schema source and complete physical current owner read. All42 class/validator declaration ASTs and two constant assignments exact; all41model classes' validation+serialization JSON schemas equal in82comparisons. Original scan limit namespace retained and its live mutation test passes. Existing public class/validator aliases remain. No payload/type/default/limit/validation rule change. Full API snapshot has independently identified concurrent non-tour drift; mobile reviewed snapshot passes."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/tour_qr_schemas.py",
+      "sha256": "62399206edc4abbb006acb56fd1bfcb33ec9ba14250b99e198003bed51680c5b",
+      "lines": 102,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete original541-line schema source and complete physical current owner read. All42 class/validator declaration ASTs and two constant assignments exact; all41model classes' validation+serialization JSON schemas equal in82comparisons. Original scan limit namespace retained and its live mutation test passes. Existing public class/validator aliases remain. No payload/type/default/limit/validation rule change. Full API snapshot has independently identified concurrent non-tour drift; mobile reviewed snapshot passes."
+    }
+  ],
+  "read_phase_status": "54 original/supporting paths:42 direct full+12 exact prior full records,0 pending; 31 new owners separately full. Operations model/QR delivery/tour schema module hotspots decomposed with structural/contract proofs. Remaining function-level and legacy scaling work open.",
+  "open_followups": [
+    "All54 selected operations paths full. Remaining architecture work: closeout statuses function, Rooming priority complexity46, QR preview complexity48 and legacy full-overview/source fan-out scaling. Mixed model/QR/schema files decomposed; function-level debt remains explicit.",
+    "Workspace currently materializes all saved plans/entries for an agency. No endpoint payload was truncated or workflow changed; profile and reconcile a compatible bounded listing separately rather than claim this decomposition solves all scaling.",
+    "The canonical offload/drain helper bounds this operation's fan-out and waits for native completion; it does not introduce a new host-wide workbook admission policy or certify global throughput.",
+    "No live PostgreSQL locks/Redis/provider/storage services exercised; SQLite HTTP/MCP behavior does not certify those integrations.",
+    "Rooming priority orchestrator retains pre-existing complexity 46, and collected-value projection complexity 23. Their responsibilities moved into coherent owners, but those function-level debts are not reported as reduced.",
+    "Existing activity schedule invalid-input branches are not all exercised by this affected selection (69.70%statement/22.22%branch); exact validator AST and schemas retained. New additive floor65 preserves current measured evidence, with all existing critical/global/module thresholds unchanged."
+  ],
+  "reused_at_tranche_start": 13
+}

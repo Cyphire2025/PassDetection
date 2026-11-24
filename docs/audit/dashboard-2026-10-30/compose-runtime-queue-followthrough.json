@@ -1,0 +1,20 @@
+{
+  "basis": "Supplement AFTER exact mechanical102statement relocation checkpoint. Original source semantics are preserved except explicit exactqueue admission strengthening.",
+  "historical_mechanical_proof": "compose-runtime-extraction-proof.json",
+  "current_workers_sha256": "13e906a71f218a6990f48bdb4de872487ddbc9c9a907287a508b45d05e44ef7b",
+  "mechanical_workers_sha256": "39e9c121e4ae21fee8a251d47f911c370dac620006fd0d4f8cb71bca90c33f66",
+  "entire_workers_module_AST_restores_after_removing_only_new_shlex_import_helper_and_one_exact_guard": true,
+  "old_guards_and_policy_order_retained": true,
+  "before": {
+    "failed": 2,
+    "positive_and_existing_controls_passed": 8,
+    "log": "compose-runtime-policy-before.txt"
+  },
+  "after": {
+    "unittest_methods_passed": 12,
+    "log": "compose-runtime-policy-after.txt",
+    "supported_queue_option_shapes": 7,
+    "invalid_option_shapes": 7
+  },
+  "scope": "Synthetic source-policy guard only; no deployed queue defect, actualworker failure or Docker/service execution proven."
+}

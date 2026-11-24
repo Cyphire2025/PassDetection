@@ -1,0 +1,189 @@
+{
+  "basis": "Final guards/typing follow-through after immutable mechanical checkpoint; no relabeling of its 25 whole-method proof.",
+  "methods": [
+    {
+      "name": "run",
+      "owner": "scripts/traveller_release_host.py",
+      "whole_AST_exact_to_original": true,
+      "signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "dc",
+      "owner": "scripts/traveller_release_host.py",
+      "whole_AST_exact_to_original": true,
+      "signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "inspect",
+      "owner": "scripts/traveller_release_host.py",
+      "whole_AST_exact_to_original": true,
+      "signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "say",
+      "owner": "scripts/traveller_release_host.py",
+      "whole_AST_exact_to_original": true,
+      "signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "verify_checkout",
+      "owner": "scripts/traveller_release_host.py",
+      "whole_AST_exact_to_original": true,
+      "signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "verify_running_project",
+      "owner": "scripts/traveller_release_host.py",
+      "whole_AST_exact_to_original": true,
+      "signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "preflight",
+      "owner": "scripts/traveller_release_host.py",
+      "whole_AST_exact_to_original": false,
+      "signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "config_fingerprint",
+      "owner": "scripts/traveller_release_host.py",
+      "whole_AST_exact_to_original": true,
+      "signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "write_private",
+      "owner": "scripts/traveller_release_host.py",
+      "whole_AST_exact_to_original": true,
+      "signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "sync_directory",
+      "owner": "scripts/traveller_release_host.py",
+      "whole_AST_exact_to_original": true,
+      "signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "verify_image",
+      "owner": "scripts/traveller_release_host.py",
+      "whole_AST_exact_to_original": false,
+      "signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "container",
+      "owner": "scripts/traveller_release_readiness.py",
+      "whole_AST_exact_to_original": true,
+      "signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "worker_probe",
+      "owner": "scripts/traveller_release_readiness.py",
+      "whole_AST_exact_to_original": true,
+      "signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "verify_containers",
+      "owner": "scripts/traveller_release_readiness.py",
+      "whole_AST_exact_to_original": true,
+      "signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "schema",
+      "owner": "scripts/traveller_release_readiness.py",
+      "whole_AST_exact_to_original": false,
+      "signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "prepare",
+      "owner": "scripts/traveller_release_preparation.py",
+      "whole_AST_exact_to_original": true,
+      "signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "prepare_images",
+      "owner": "scripts/traveller_release_preparation.py",
+      "whole_AST_exact_to_original": true,
+      "signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "__init__",
+      "owner": "scripts/traveller_release_lifecycle.py",
+      "whole_AST_exact_to_original": true,
+      "signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "prepare_recovery",
+      "owner": "scripts/traveller_release_lifecycle.py",
+      "whole_AST_exact_to_original": true,
+      "signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "before_migration",
+      "owner": "scripts/traveller_release_lifecycle.py",
+      "whole_AST_exact_to_original": true,
+      "signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "resume_maintenance",
+      "owner": "scripts/traveller_release_lifecycle.py",
+      "whole_AST_exact_to_original": true,
+      "signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "begin_maintenance",
+      "owner": "scripts/traveller_release_lifecycle.py",
+      "whole_AST_exact_to_original": true,
+      "signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "complete_activation",
+      "owner": "scripts/traveller_release_lifecycle.py",
+      "whole_AST_exact_to_original": true,
+      "signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "pinned_services",
+      "owner": "scripts/traveller_release_lifecycle.py",
+      "whole_AST_exact_to_original": true,
+      "signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "activate",
+      "owner": "scripts/traveller_release_lifecycle.py",
+      "whole_AST_exact_to_original": true,
+      "signature_evaluated_hints_pickle_exact": true
+    }
+  ],
+  "whole_original_methods_exact": 22,
+  "explicit_inverse_qualified_changes": [
+    "preflight: reject non-dict decoded Compose JSON before mapping access",
+    "verify_image: reject non-str decoded image ID before regex",
+    "schema: local list[str] annotation only",
+    "release_lock: Iterator[None] return annotation +its import only"
+  ],
+  "whole_changed_modules_restore_after_only_named_inverse": true,
+  "all25_method_args_decorators_signatures_evaluated_hints_and_pickle_preserved": true,
+  "constructor_and_lifecycle_bodies_exact": true,
+  "public_and_private_class_runtime_hints_still_empty": true,
+  "lock_helper_return_hint_extension": "Iterator[None] (decorator/args/body unchanged)",
+  "mechanical_checkpoint_sha256": "3694aed5b07d834113c0cf97f2da0c9bd3953f1efc804ad994c5d9012b3f3597",
+  "private_MRO_and_class_source_tradeoff": {
+    "whole_original_methods": 25,
+    "whole_original_helpers_CLI_lock": 5,
+    "constant_AST_and_values": 12,
+    "actual_global_bindings": 45,
+    "constructor_lifecycle_bodies_and_all_method_signatures_hints_decorators_exact": true,
+    "class_runtime_type_hints_equal_empty": true,
+    "static_descriptors_aliases_pickle_exact": true,
+    "new_private_MRO_bases": [
+      "_ReleasePreparation",
+      "_ReleaseReadiness",
+      "_ReleaseHost"
+    ],
+    "runtime_new_base_constructors_fields_slots_getattr": false,
+    "class_dictionary_layout_and_internal_code_owner_names_changed": true,
+    "class_source_introspection": {
+      "Release": "OSError: legacy public alias points to facade, actual class owner is focused module",
+      "ReleaseError": "OSError: legacy public alias points to facade, actual class owner is focused module"
+    },
+    "no_introspection_monkeypatch": true
+  }
+}

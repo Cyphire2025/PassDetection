@@ -1,0 +1,28 @@
+{
+  "status": "additive-exact-four-source-bound-handoff-not-review",
+  "source_partition": "docs/audit/dashboard-2026-10-30/supporting-markdown-resume-partition.json",
+  "source_partition_sha256": "8a0cc71e54bd19d7779273ac8b3730c851b1da1c4cb33e56e5c30005fd347d91",
+  "files": [
+    {
+      "path": "docs/architecture/group-companion-enterprise-hardening.md",
+      "sha256": "e8822c3a5a0a9985a5e5507012e7adbca68249745953b3a5c9e41b796187b79a",
+      "lines": 513
+    },
+    {
+      "path": "docs/architecture/group-companion-mobile.md",
+      "sha256": "298dbc4d7b2cc31b0cc4ecade8ebf0645f579748526bfd85e1ca85427547df10",
+      "lines": 360
+    },
+    {
+      "path": "docs/MOBILE_ENTERPRISE_IMPLEMENTATION_PLAN.md",
+      "sha256": "ea6cbf77b612a09f2c8d02c20e32f5019cf92b996388d2b7d65f175d87d2e37b",
+      "lines": 214
+    },
+    {
+      "path": "docs/MY_PHOTOS_IMPLEMENTATION.md",
+      "sha256": "e33080300e5f27a558cb7308b13043db82bd3943a3a618a593e659905bfecc8b",
+      "lines": 609
+    }
+  ],
+  "scope": "Retained shared dashboard/backend/privacy/release reference review; native UX/device/provideractivation remains reference-only. Historical content is not current authorization. No changes/tests/services."
+}

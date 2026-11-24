@@ -1,0 +1,58 @@
+[
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_recipient_claims.py",
+    "sha256": "74485a30dbbc4e0dae5582ca56bdde9198cc3fb5132e19dc02b26a18d3a23a56",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical72line owner read: one conflict-targeted atomic claim INSERT/UPDATE with stalequeued restriction, invite/reminder exclusions, provider-status reset and returnedclaimedIDs. Authorization/group-recipient admission remains maintained caller responsibility. No query/role/provider change or new testexecution. DedicatedInbox remains deferred."
+  },
+  {
+    "path": ".node-version",
+    "sha256": "04d43a993a37e6543c8b1cc37d498fa4a10250034ab922207b1a6a1e41e216da",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete one-line toolchain pin read:24.21.0 matches reviewed reproducible runtime. DedicatedInbox remains deferred."
+  },
+  {
+    "path": ".python-version",
+    "sha256": "db82937e1f1830581a9553c7814f5c5fcacb6dfdef8310b43e9a812c887acaf5",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete one-line toolchain pin read:3.11.15 stays in requiredCPython3.11 series; no runtimeinstallationchange. DedicatedInbox remains deferred."
+  },
+  {
+    "path": "frontend/fixture-results/.last-run.json",
+    "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "generated-artifact-verified",
+    "notes": "Complete tiny generated fixture result read as artifact only. Actual playwright.fixtures.config.ts outputDir and mainCI artifact upload retain this folder, so it is related and remains. Its passed marker is historical localrun metadata, not currentfullsuite verification. DedicatedInbox remains deferred."
+  },
+  {
+    "path": "backend/app/infrastructure/security/certificates/apple_root_ca_g3.pem",
+    "sha256": "41ddf6dd15521acc31f098280e65f42df0531be3659b84f705e534c2a5c87456",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "asset-metadata-reviewed",
+    "notes": "Complete13line publicPEM physically read. Onlymaintained source reference is native-only AppleAppAttest verifier already excluded by user; no privatekey present. Retained native supportasset; no new certificate authenticity/trust/native-feature security qualification claimed. DedicatedInbox remains deferred."
+  },
+  {
+    "path": "deploy/minio/app-policy.template.json",
+    "sha256": "68a494052008b7ad674c736d715042408626f121c89f6a4557e2d85aa5754d41",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete17line policy template read: applicationbucket-only location/list plus objectGet/Put/Delete, no administration/publicpolicy/credentialpermissions. Bucketplaceholder scope and exactprivatebackend storage boundaries retained; no IAM/providercall or deployedpolicy claim. DedicatedInbox remains deferred."
+  },
+  {
+    "path": "monitoring/operational-evidence.example.json",
+    "sha256": "9d3e448d25c9f574ed57d9f3d9d352946b9c7a58d51880e15645fd95718b7207",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete35line example read: monitoring/recovery reviewers/times/failure-domain/receipt/checksum/RPO/RTO fields are unset placeholders. Not evidence that productionmonitoring/backups/recoveryhavebeenqualified. No actualexternalreceipt/privatevalueopened. DedicatedInbox remains deferred."
+  }
+]

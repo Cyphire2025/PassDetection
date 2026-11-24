@@ -1,0 +1,63 @@
+.............................................INTERNALERROR> Traceback (most recent call last):
+INTERNALERROR>   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\pluggy\_callers.py", line 43, in run_old_style_hookwrapper
+INTERNALERROR>     teardown.send(result)
+INTERNALERROR>   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\pytest_cov\plugin.py", line 339, in pytest_runtestloop
+INTERNALERROR>     self.cov_controller.finish()
+INTERNALERROR>   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\pytest_cov\engine.py", line 46, in ensure_topdir_wrapper
+INTERNALERROR>     return meth(self, *args, **kwargs)
+INTERNALERROR>            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+INTERNALERROR>   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\pytest_cov\engine.py", line 256, in finish
+INTERNALERROR>     self.cov.save()
+INTERNALERROR>   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\coverage\control.py", line 864, in save
+INTERNALERROR>     data = self.get_data()
+INTERNALERROR>            ^^^^^^^^^^^^^^^
+INTERNALERROR>   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\coverage\control.py", line 945, in get_data
+INTERNALERROR>     self._post_save_work()
+INTERNALERROR>   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\coverage\control.py", line 963, in _post_save_work
+INTERNALERROR>     self._inorout.warn_unimported_source()
+INTERNALERROR>   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\coverage\inorout.py", line 548, in warn_unimported_source
+INTERNALERROR>     self._warn_about_unmeasured_code(pkg)
+INTERNALERROR>   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\coverage\inorout.py", line 558, in _warn_about_unmeasured_code
+INTERNALERROR>     self.warn(f"Module {pkg} was never imported.", slug="module-not-imported")
+INTERNALERROR>   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\coverage\control.py", line 495, in _warn
+INTERNALERROR>     warnings.warn(msg, category=CoverageWarning, stacklevel=2)
+INTERNALERROR> coverage.exceptions.CoverageWarning: Module app.presentation.api.v1/schemas/client_group_match_schemas was never imported. (module-not-imported); see https://coverage.readthedocs.io/en/7.16.1/messages.html#warning-module-not-imported
+INTERNALERROR> 
+INTERNALERROR> During handling of the above exception, another exception occurred:
+INTERNALERROR> 
+INTERNALERROR> Traceback (most recent call last):
+INTERNALERROR>   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\_pytest\main.py", line 318, in wrap_session
+INTERNALERROR>     session.exitstatus = doit(config, session) or 0
+INTERNALERROR>                          ^^^^^^^^^^^^^^^^^^^^^
+INTERNALERROR>   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\_pytest\main.py", line 372, in _main
+INTERNALERROR>     config.hook.pytest_runtestloop(session=session)
+INTERNALERROR>   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\pluggy\_hooks.py", line 512, in __call__
+INTERNALERROR>     return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+INTERNALERROR>            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+INTERNALERROR>   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\pluggy\_manager.py", line 120, in _hookexec
+INTERNALERROR>     return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+INTERNALERROR>            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+INTERNALERROR>   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\pluggy\_callers.py", line 167, in _multicall
+INTERNALERROR>     raise exception
+INTERNALERROR>   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\pluggy\_callers.py", line 139, in _multicall
+INTERNALERROR>     teardown.throw(exception)
+INTERNALERROR>   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\_pytest\logging.py", line 801, in pytest_runtestloop
+INTERNALERROR>     return (yield)  # Run all the tests.
+INTERNALERROR>             ^^^^^
+INTERNALERROR>   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\pluggy\_callers.py", line 139, in _multicall
+INTERNALERROR>     teardown.throw(exception)
+INTERNALERROR>   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\_pytest\terminal.py", line 707, in pytest_runtestloop
+INTERNALERROR>     result = yield
+INTERNALERROR>              ^^^^^
+INTERNALERROR>   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\pluggy\_callers.py", line 152, in _multicall
+INTERNALERROR>     teardown.send(result)
+INTERNALERROR>   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\pluggy\_callers.py", line 47, in run_old_style_hookwrapper
+INTERNALERROR>     _warn_teardown_exception(hook_name, hook_impl, e)
+INTERNALERROR>   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\pluggy\_callers.py", line 73, in _warn_teardown_exception
+INTERNALERROR>     warnings.warn(PluggyTeardownRaisedWarning(msg), stacklevel=6)
+INTERNALERROR> pluggy.PluggyTeardownRaisedWarning: A plugin raised an exception during an old-style hookwrapper teardown.
+INTERNALERROR> Plugin: _cov, Hook: pytest_runtestloop
+INTERNALERROR> CoverageWarning: Module app.presentation.api.v1/schemas/client_group_match_schemas was never imported. (module-not-imported); see https://coverage.readthedocs.io/en/7.16.1/messages.html#warning-module-not-imported
+INTERNALERROR> For more information see https://pluggy.readthedocs.io/en/stable/api_reference.html#pluggy.PluggyTeardownRaisedWarning
+
+45 passed in 13.15s

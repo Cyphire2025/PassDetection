@@ -1,0 +1,170 @@
+[
+  {
+    "path": "features/whatsapp/workspace/broadcast-documents-page.tsx",
+    "baselineLines": 107,
+    "maximumLines": 110,
+    "baselineMaxFunctionComplexity": 9,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/whatsapp/workspace/use-broadcast-documents.ts",
+    "baselineLines": 93,
+    "maximumLines": 100,
+    "baselineMaxFunctionComplexity": 5,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/whatsapp/workspace/broadcast-documents-model.ts",
+    "baselineLines": 87,
+    "maximumLines": 90,
+    "baselineMaxFunctionComplexity": 23,
+    "maximumFunctionComplexity": 24
+  },
+  {
+    "path": "features/whatsapp/workspace/broadcast-document-controls.tsx",
+    "baselineLines": 76,
+    "maximumLines": 80,
+    "baselineMaxFunctionComplexity": 6,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/whatsapp/workspace/broadcast-document-table.tsx",
+    "baselineLines": 125,
+    "maximumLines": 130,
+    "baselineMaxFunctionComplexity": 5,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/passports/components/upload-link-list.tsx",
+    "baselineLines": 26,
+    "maximumLines": 40,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/passports/components/use-upload-link-list.ts",
+    "baselineLines": 127,
+    "maximumLines": 140,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/passports/components/use-upload-link-copy.ts",
+    "baselineLines": 37,
+    "maximumLines": 50,
+    "baselineMaxFunctionComplexity": 4,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/passports/components/upload-link-list-header.tsx",
+    "baselineLines": 41,
+    "maximumLines": 50,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/passports/components/upload-link-list-summary.tsx",
+    "baselineLines": 58,
+    "maximumLines": 70,
+    "baselineMaxFunctionComplexity": 8,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/passports/components/upload-link-list-sections.tsx",
+    "baselineLines": 235,
+    "maximumLines": 240,
+    "baselineMaxFunctionComplexity": 24,
+    "maximumFunctionComplexity": 25
+  },
+  {
+    "path": "features/passports/components/upload-link-list-dialogs.tsx",
+    "baselineLines": 73,
+    "maximumLines": 80,
+    "baselineMaxFunctionComplexity": 10,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/passports/components/upload-link-table.tsx",
+    "baselineLines": 143,
+    "maximumLines": 150,
+    "baselineMaxFunctionComplexity": 4,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/passports/components/upload-link-actions.tsx",
+    "baselineLines": 92,
+    "maximumLines": 100,
+    "baselineMaxFunctionComplexity": 20,
+    "maximumFunctionComplexity": 21
+  },
+  {
+    "path": "features/passports/components/group-delete-retention-dialog.tsx",
+    "baselineLines": 118,
+    "maximumLines": 130,
+    "baselineMaxFunctionComplexity": 4,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/passports/components/upload-link-filter.ts",
+    "baselineLines": 17,
+    "maximumLines": 30,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/passports/components/passport-export-dialog.tsx",
+    "baselineLines": 90,
+    "maximumLines": 100,
+    "baselineMaxFunctionComplexity": 5,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/passports/components/use-passport-export-dialog.ts",
+    "baselineLines": 101,
+    "maximumLines": 110,
+    "baselineMaxFunctionComplexity": 11,
+    "maximumFunctionComplexity": 12
+  },
+  {
+    "path": "features/passports/components/passport-export-fields.tsx",
+    "baselineLines": 39,
+    "maximumLines": 50,
+    "baselineMaxFunctionComplexity": 5,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/passports/components/passport-export-history-detail.tsx",
+    "baselineLines": 70,
+    "maximumLines": 80,
+    "baselineMaxFunctionComplexity": 6,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/passports/components/passport-export-options.tsx",
+    "baselineLines": 195,
+    "maximumLines": 200,
+    "baselineMaxFunctionComplexity": 12,
+    "maximumFunctionComplexity": 13
+  },
+  {
+    "path": "features/passports/components/passport-export-footer.tsx",
+    "baselineLines": 92,
+    "maximumLines": 100,
+    "baselineMaxFunctionComplexity": 10,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/passports/components/upload-link-settings.tsx",
+    "baselineLines": 223,
+    "maximumLines": 230,
+    "baselineMaxFunctionComplexity": 13,
+    "maximumFunctionComplexity": 14
+  },
+  {
+    "path": "features/passports/components/upload-link-settings-model.ts",
+    "baselineLines": 89,
+    "maximumLines": 100,
+    "baselineMaxFunctionComplexity": 25,
+    "maximumFunctionComplexity": 26
+  }
+]

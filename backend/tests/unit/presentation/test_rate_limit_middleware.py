@@ -913,8 +913,21 @@ class PublicUploadProxyContractTests(unittest.TestCase):
             / "api"
             / "upload-links.api.ts"
         ).read_text(encoding="utf-8")
+        self.assertIn(
+            'import { publicUploadLinkApi } from "./public-upload-link.api";',
+            upload_links_api,
+        )
+        self.assertIn("...publicUploadLinkApi,", upload_links_api)
+        public_upload_api = (
+            repo_root
+            / "frontend"
+            / "features"
+            / "passports"
+            / "api"
+            / "public-upload-link.api.ts"
+        ).read_text(encoding="utf-8")
         self.assertGreaterEqual(
-            upload_links_api.count("publicUploadHeaders(token)"),
+            public_upload_api.count("publicUploadHeaders(token)"),
             3,
         )
 

@@ -2,6 +2,15 @@
 const fs=require('node:fs');const path=require('node:path');const{spawn}=require('node:child_process');const{once}=require('node:events');
 const{createCanvas}=require('@napi-rs/canvas');const{render,DURATION}=require('./scene.cjs');
 const root=path.resolve(__dirname,'..'),args=process.argv.slice(2);const arg=(s,d)=>{const i=args.indexOf(s);return i>=0?args[i+1]:d;};
+async function waitForEncoderClose(closed, milliseconds) {
+ let timer;
+ try {
+  return await Promise.race([
+   closed.then(() => true),
+   new Promise(resolve => { timer=setTimeout(() => resolve(false),milliseconds); }),
+  ]);
+ } finally { clearTimeout(timer); }
+}
 async function main(){
  if(args.includes('--stills')){
   const times=[0,4,8.4,11,16,20.3];
@@ -22,8 +31,35 @@ async function main(){
   ctx.drawImage(render(time,artWidth,artHeight),Math.round((width-artWidth)/2),Math.round((height-artHeight)/2));return frame;
  };
  const ffmpeg=process.env.FFMPEG_PATH||'ffmpeg';const proc=spawn(ffmpeg,['-hide_banner','-loglevel','warning','-y','-f','rawvideo','-pixel_format','rgba','-video_size',`${width}x${height}`,'-framerate',String(fps),'-i','pipe:0','-an','-vf','scale=out_color_matrix=bt709:out_range=full,setparams=range=full:color_primaries=bt709:color_trc=iec61966-2-1:colorspace=bt709','-c:v','libx264','-preset','slow','-crf',crf,'-pix_fmt','yuvj420p','-color_range','pc','-color_primaries','bt709','-color_trc','iec61966-2-1','-colorspace','bt709','-movflags','+faststart','-metadata','title=Global Connect Travels | Move People. Create Moments.',out],{stdio:['pipe','ignore','pipe'],windowsHide:true});
+ let encoderClosed=false;
+ const closed=new Promise(resolve => proc.once('close',() => { encoderClosed=true;resolve(); }));
  let err='';proc.stderr.on('data',d=>err+=d);proc.stdin.on('error',()=>{});const done=new Promise((res,rej)=>{proc.on('error',rej);proc.on('close',c=>c===0?res():rej(new Error(err)))}),start=Date.now();
- for(let i=0;i<DURATION*fps;i++){if(!proc.stdin.write(renderFrame(i/fps).data()))await once(proc.stdin,'drain');if(i%fps===0)console.log(`${i/fps}/${DURATION} seconds (${((Date.now()-start)/1000).toFixed(1)} seconds elapsed)`);}
- proc.stdin.end();await done;console.log(`Wrote ${out}`);
+ // Observe early encoder failures even while the producer is waiting on drain.
+ void done.catch(() => {});
+ try {
+  for(let i=0;i<DURATION*fps;i++){
+   if(!proc.stdin.write(renderFrame(i/fps).data())) {
+    await Promise.race([
+     once(proc.stdin,'drain'),
+     done.then(() => { throw new Error('Encoder closed before input completed'); }),
+    ]);
+   }
+   if(i%fps===0)console.log(`${i/fps}/${DURATION} seconds (${((Date.now()-start)/1000).toFixed(1)} seconds elapsed)`);
+  }
+  proc.stdin.end();await done;
+ } catch(error) {
+  try { proc.stdin.destroy(); }
+  catch { console.warn('Encoder input cleanup failed'); }
+  if(!encoderClosed) {
+   for(const signal of ['SIGTERM','SIGKILL']) {
+    try { proc.kill(signal); }
+    catch { console.warn('Owned encoder stop signal failed'); }
+    if(await waitForEncoderClose(closed,5000))break;
+   }
+   if(!encoderClosed)console.warn('Owned encoder close could not be verified');
+  }
+  throw error;
+ }
+ console.log(`Wrote ${out}`);
 }
 main().catch(e=>{console.error(e);process.exitCode=1;});

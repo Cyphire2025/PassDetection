@@ -1,0 +1,213 @@
+{
+  "post_behavior_whole_declarations": [
+    {
+      "function": "_library_image_url",
+      "owner": "app.presentation.api.v1.routes.passport_image_library_responses",
+      "whole_ast_exact": true,
+      "signature_and_evaluated_hints_exact": true,
+      "actual_facade_alias": true
+    },
+    {
+      "function": "_library_item_response",
+      "owner": "app.presentation.api.v1.routes.passport_image_library_responses",
+      "whole_ast_exact": true,
+      "signature_and_evaluated_hints_exact": true,
+      "actual_facade_alias": true
+    },
+    {
+      "function": "_ensure_original_item",
+      "owner": "app.presentation.api.v1.routes.passport_image_library_reads",
+      "whole_ast_exact": true,
+      "signature_and_evaluated_hints_exact": true,
+      "actual_facade_alias": true
+    },
+    {
+      "function": "list_passport_image_library",
+      "owner": "app.presentation.api.v1.routes.passport_image_library_reads",
+      "whole_ast_exact": true,
+      "signature_and_evaluated_hints_exact": true,
+      "actual_facade_alias": true
+    },
+    {
+      "function": "get_passport_image_library_item",
+      "owner": "app.presentation.api.v1.routes.passport_image_library_reads",
+      "whole_ast_exact": true,
+      "signature_and_evaluated_hints_exact": true,
+      "actual_facade_alias": true
+    },
+    {
+      "function": "upload_passport_image_library_item",
+      "owner": "app.presentation.api.v1.routes.passport_image_library_manual",
+      "whole_ast_exact": true,
+      "signature_and_evaluated_hints_exact": true,
+      "actual_facade_alias": true
+    },
+    {
+      "function": "use_passport_image_library_item",
+      "owner": "app.presentation.api.v1.routes.passport_image_library_selection",
+      "whole_ast_exact": true,
+      "signature_and_evaluated_hints_exact": true,
+      "actual_facade_alias": true
+    }
+  ],
+  "actual_dependency_bindings": [
+    {
+      "function": "_library_image_url",
+      "actual_global_identities": [
+        "PassportImageType",
+        "get_settings",
+        "uuid"
+      ]
+    },
+    {
+      "function": "_library_item_response",
+      "actual_global_identities": [
+        "PassportImageLibraryItem",
+        "PassportImageLibraryItemResponse"
+      ]
+    },
+    {
+      "function": "_ensure_original_item",
+      "actual_global_identities": [
+        "AsyncSession",
+        "PassportImageLibraryRepository",
+        "PassportImageType"
+      ]
+    },
+    {
+      "function": "list_passport_image_library",
+      "actual_global_identities": [
+        "AsyncSession",
+        "Depends",
+        "PassportImageCropRepository",
+        "PassportImageLibraryListResponse",
+        "PassportImageLibraryRepository",
+        "PassportImageType",
+        "User",
+        "_authorized_staff_passport_image",
+        "_effective_crop",
+        "get_current_active_user",
+        "get_db_session",
+        "status",
+        "uuid"
+      ]
+    },
+    {
+      "function": "get_passport_image_library_item",
+      "actual_global_identities": [
+        "AsyncSession",
+        "Depends",
+        "HTTPException",
+        "MinioStorageRepository",
+        "PassportImageLibraryRepository",
+        "PassportImageType",
+        "Response",
+        "StorageError",
+        "StreamingResponse",
+        "User",
+        "_authorized_staff_passport_image",
+        "binary_responses",
+        "get_current_active_user",
+        "get_db_session",
+        "io",
+        "mimetypes",
+        "status",
+        "uuid"
+      ]
+    },
+    {
+      "function": "upload_passport_image_library_item",
+      "actual_global_identities": [
+        "AsyncSession",
+        "AuditLogRepository",
+        "BackgroundTasks",
+        "Depends",
+        "File",
+        "Form",
+        "HTTPException",
+        "MinioStorageRepository",
+        "PassportImageCropError",
+        "PassportImageCropRepository",
+        "PassportImageCropRevisionConflict",
+        "PassportImageLibraryItemResponse",
+        "PassportImageLibraryRepository",
+        "PassportImageType",
+        "PassportProcessingJobRepository",
+        "PassportSubmissionRepository",
+        "ReextractPassportSubmissionUseCase",
+        "UploadFile",
+        "User",
+        "_delete_crop_derivative_best_effort",
+        "_delete_ephemeral_edit_source_best_effort",
+        "_dispatch_processing_job",
+        "_resolve_authorized_staff_passport_image",
+        "_validated_upload_file",
+        "asyncio",
+        "compensate_passport_image_failure",
+        "get_current_active_user",
+        "get_db_session",
+        "hashlib",
+        "lock_passport_image_mutation",
+        "propagate_mobile_passenger_change",
+        "render_passport_image_crop",
+        "require_cookie_csrf",
+        "status",
+        "uuid",
+        "write_passport_image_objects"
+      ]
+    },
+    {
+      "function": "use_passport_image_library_item",
+      "actual_global_identities": [
+        "AsyncSession",
+        "AuditLogRepository",
+        "BackgroundTasks",
+        "Depends",
+        "HTTPException",
+        "MinioStorageRepository",
+        "PassportImageCropError",
+        "PassportImageCropRepository",
+        "PassportImageCropResponse",
+        "PassportImageCropRevisionConflict",
+        "PassportImageLibraryRepository",
+        "PassportImageType",
+        "PassportProcessingJobRepository",
+        "PassportSubmissionRepository",
+        "PassportVisaAiImageUseRequest",
+        "ReextractPassportSubmissionUseCase",
+        "StorageError",
+        "User",
+        "_crop_response",
+        "_delete_crop_derivative_best_effort",
+        "_delete_ephemeral_edit_source_best_effort",
+        "_dispatch_processing_job",
+        "_resolve_authorized_staff_passport_image",
+        "asyncio",
+        "compensate_passport_image_failure",
+        "get_current_active_user",
+        "get_db_session",
+        "lock_passport_image_mutation",
+        "propagate_mobile_passenger_change",
+        "render_passport_image_crop",
+        "require_cookie_csrf",
+        "status",
+        "uuid",
+        "write_passport_image_objects"
+      ]
+    }
+  ],
+  "binding_count": 109,
+  "four_route_order_schema_dependencies_actual_aliases_equal": true,
+  "shared_original_read_helper_signature_and_expanded_body_exact": true,
+  "shared_authorization_and_read_audit_separated": "Image mutations release read transactions before external work; successful authorized-read audit is recorded after actor/group/target locks and current policy. Existing read callers keep the same wrapper/default signature.",
+  "source_sha256": {
+    "backend/app/presentation/api/v1/routes/passport_image_library.py": "d936d8892bdabc826671ea5a37bfd1c8acac083c4ff9d367587d12e8db7b2d6d",
+    "backend/app/presentation/api/v1/routes/passport_image_library_responses.py": "7192583ac9d2fef50efeb37ad39b9e5368c384d4748e9ccabe43f2e0e81aad5f",
+    "backend/app/presentation/api/v1/routes/passport_image_library_reads.py": "c30bf3950088011d42655ea7b4f6390e88e01ca7615e1a3e9a9b15afe0cea478",
+    "backend/app/presentation/api/v1/routes/passport_image_library_manual.py": "8e5301f7e72de74aa0a5df100544230f847eed3e88ff5c1feb9bf416b00cfd07",
+    "backend/app/presentation/api/v1/routes/passport_image_library_selection.py": "5b68cff3bed59aa26a0ad432e141a71b5cab119b5a54aac07731fe4c1e00256a",
+    "backend/app/presentation/api/v1/routes/passport_image_library_authority.py": "1a3f020f32134e9eab62ccd3f24e116648af90e2f34f238b2813fa5129a6e390",
+    "backend/app/presentation/api/v1/routes/passport_image_storage_write.py": "11b12fdbb9b053c2b26f87d21ef97f3ce87490c3751c0a6c1d4922259ee804f7",
+    "backend/app/presentation/api/v1/routes/passport_routes/image_support.py": "bb7f17f95e18abf65436f6e7ad71be2ce25926b04ced89b1382ae27334ee3e9f"
+  }
+}

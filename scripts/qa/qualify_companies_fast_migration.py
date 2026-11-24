@@ -52,6 +52,9 @@ REHEARSAL_FILES = (
     "companies_restore_comparison.py", "companies_client_data_fixture.py",
     "companies_traveller_release_schema.py", "companies_traveller_reuse_release.py",
     "rehearse_postgresql_upgrade.py", "release_companies_traveller_upgrade.py", "release_travel_tracker_upgrade.py",
+    "postgresql_rehearsal_contract.py", "postgresql_rehearsal_client.py",
+    "postgresql_rehearsal_fixture.py", "postgresql_rehearsal_snapshot.py",
+    "postgresql_rehearsal_verification.py", "postgresql_rehearsal_runner.py",
 )
 INNER = r"""
 import hashlib, json, sys

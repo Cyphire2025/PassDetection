@@ -1,0 +1,10 @@
+[
+  {
+    "path": "docs/implementation/mcp-workflow-coverage.json",
+    "sha256": "0655e79c9e009dc9d01b41cf7507f3609b7b30f2daf979a982e98c1342636523",
+    "reviewer": "gc_models_finish",
+    "review_scope": "focused",
+    "status": "generated-metadata-reviewed",
+    "notes": "Parsed complete schema_version1 matrix structure and all1990surface records for inventory/classification provenance, exact historical implementation statuses/dates/evidence and current discovery drift. Ran actual CLI --check once:411classified drift, exit1. Prepared audit-only2036surface proposal with zero existing-validator errors and0implementation renewals; actual matrix unchanged. Original full167inventory-retired records and17still-live facade policy/binding maps preserved in companion audit artifacts. Current3294input fence and89exact-hash source review receipts retained. No claimed fresh whole48000line source read, runtime/API-schema/provider/production validation or workflow implementation verification. proposal-verification.json SHA2eb5e30ae52266bcb00103cfded9e2522fc87b631b444a09c457c6f86e708590."
+  }
+]

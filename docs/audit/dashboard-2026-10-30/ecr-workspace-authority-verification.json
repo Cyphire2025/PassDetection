@@ -1,0 +1,77 @@
+{
+  "recorded_at": "2026-10-31T09:25:23.220717+00:00",
+  "status": "frozen",
+  "source_fence": [
+    {
+      "path": "frontend/features/documents/hooks/use-ecr-workspace.ts",
+      "sha256": "530fc5554a6d22abbf2b26a4ca413ab1ad49c7374936428f32e763324ce6b5a0"
+    },
+    {
+      "path": "frontend/features/documents/components/ecr-workspace-authority.test.tsx",
+      "sha256": "ef1f3df3f72a00f3a72e0f412e26d784f6cf8e5a9c17f20f930c1e587de3cf2d"
+    },
+    {
+      "path": "frontend/features/documents/test-support/ecr-authority.test-fixture.tsx",
+      "sha256": "08c964dfab41436f98530b0c4df041aeef063e1a2ad69095036c24f676f3382d"
+    }
+  ],
+  "original_hook": {
+    "path": "frontend/features/documents/hooks/use-ecr-workspace.ts",
+    "sha256": "a5d982ca696a803ccbca832dcd03ca4da09e3d0e12b22b7512dc04ee767f18fe",
+    "snapshot": ".tmp/ecr-authority/use-ecr-workspace.ts"
+  },
+  "actual_negative_proof": {
+    "corrected_baseline": ".tmp/frontend-residual-coverage/ecr-authority-baseline-corrected.json",
+    "passed": 2,
+    "failed": 2,
+    "observed": [
+      "Post-create normal account cleanup/remount was followed by restoring A selection client IDs/fingerprints into sessionStorage.",
+      "Post-retry normal account cleanup/remount was followed by publishing A private batch into the cleared query cache while synthetic B batch GET returned404."
+    ],
+    "controls": "Both same-authority profile-refresh create/retry controls passed before fix.",
+    "initial_fixture_correction": "Initial baseline JSON retained separately: synthetic GET always returned completed status after start, causing an extra invalid profile-control failure. Fixture was corrected to persist synthetic phase state before the clean2-failure baseline.",
+    "limits": "No B-bound second write or live backend authorization bypass claimed. Actual client/owner adapter prevented cross-owner in-flight HTTP and start AbortController blocked subsequent HTTP; missing post-await publication fences were reproduced separately."
+  },
+  "fix": "Capture initiating owner synchronously before first await; suppress stale post-await cache/recovery/history/progress/error/finally publications, assert owner and abort before each chunk/start, retain unmount abort and export picker/body authority protections.",
+  "compatibility": {
+    "original_hook_parameters_unchanged": true,
+    "return_object_byte_text_identical": true,
+    "api_and_page_byte_identical": [
+      {
+        "path": "frontend/features/documents/api/ecr-checker.api.ts",
+        "sha256": "6b08f38492bd5407b446a096f876d9de373887dddf53ec31433d8a17479f29a3"
+      },
+      {
+        "path": "frontend/features/documents/components/ecr-checker-page.tsx",
+        "sha256": "9bc339f2e08c7be518a02c5f89b9576b125f212c8adb8e5385471757d6f3c78a"
+      }
+    ],
+    "api7_frozen_facade_unmodified": true,
+    "no_mutation_wrapper_or_public_variable_callback_context_change": true,
+    "no_original_coverage_threshold_changes": true
+  },
+  "affected_checks": {
+    "vitest": {
+      "passed": 17,
+      "failed": 0,
+      "files": 3,
+      "raw_json": ".tmp/frontend-residual-coverage/ecr-authority-final.json",
+      "composition": "8new normal-page authority cases +6existing upload algorithm cases +3existing ECR result UI cases"
+    },
+    "types": {
+      "exit_code": 0,
+      "raw_log": ".tmp/frontend-residual-coverage/ecr-authority-types.txt"
+    },
+    "scoped_eslint": {
+      "exit_code": 0,
+      "warnings": 0,
+      "raw_log": ".tmp/frontend-residual-coverage/ecr-authority-lint.txt"
+    }
+  },
+  "budget_candidates": "ecr-workspace-authority-budget-candidates.json",
+  "scope_limits": [
+    "No whole app suite/coverage/build or browser run.",
+    "No real ECR AI/provider request or production data.",
+    "Original selection storage format, batching thresholds/client IDs, resume behavior, query keys and SDK HTTP methods/signatures/DTOs unchanged."
+  ]
+}

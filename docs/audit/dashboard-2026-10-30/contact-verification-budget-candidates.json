@@ -1,0 +1,144 @@
+{
+  "shared_budget_file_edited": false,
+  "measurements": [
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/contact_challenges.py",
+      "lines": 57,
+      "max_function_complexity": 5,
+      "most_complex_function": "_locked_upload",
+      "coverage_percent": null
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/contact_completion.py",
+      "lines": 73,
+      "max_function_complexity": 17,
+      "most_complex_function": "verify_public_contact_otp",
+      "coverage_percent": null
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/contact_family.py",
+      "lines": 80,
+      "max_function_complexity": 16,
+      "most_complex_function": "require_verified_family_head",
+      "coverage_percent": null
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/contact_issuance.py",
+      "lines": 152,
+      "max_function_complexity": 21,
+      "most_complex_function": "request_public_contact_otp",
+      "coverage_percent": null
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/contact_submission_proof.py",
+      "lines": 67,
+      "max_function_complexity": 16,
+      "most_complex_function": "require_public_contact_proof",
+      "coverage_percent": null
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/contact_verification.py",
+      "lines": 17,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "coverage_percent": null
+    }
+  ],
+  "prior_size_budgets": {
+    "app/presentation/api/v1/routes/passport_routes/contact_challenges.py": null,
+    "app/presentation/api/v1/routes/passport_routes/contact_completion.py": null,
+    "app/presentation/api/v1/routes/passport_routes/contact_family.py": null,
+    "app/presentation/api/v1/routes/passport_routes/contact_issuance.py": null,
+    "app/presentation/api/v1/routes/passport_routes/contact_submission_proof.py": null,
+    "app/presentation/api/v1/routes/passport_routes/contact_verification.py": null
+  },
+  "existing_original_coverage_gates": [
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/contact_verification.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 92
+    }
+  ],
+  "proposed_coverage_floors": [
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/contact_challenges.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 92
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/contact_completion.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 92
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/contact_family.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 92
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/contact_issuance.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 92
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/contact_submission_proof.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 92
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/contact_verification.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 92
+    }
+  ],
+  "candidates": [
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/contact_challenges.py",
+      "baseline_lines": 57,
+      "maximum_lines": 57,
+      "baseline_max_function_complexity": 5,
+      "maximum_function_complexity": 5,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/contact_completion.py",
+      "baseline_lines": 73,
+      "maximum_lines": 73,
+      "baseline_max_function_complexity": 17,
+      "maximum_function_complexity": 17,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/contact_family.py",
+      "baseline_lines": 80,
+      "maximum_lines": 80,
+      "baseline_max_function_complexity": 16,
+      "maximum_function_complexity": 16,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/contact_issuance.py",
+      "baseline_lines": 152,
+      "maximum_lines": 152,
+      "baseline_max_function_complexity": 21,
+      "maximum_function_complexity": 21,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/contact_submission_proof.py",
+      "baseline_lines": 67,
+      "maximum_lines": 67,
+      "baseline_max_function_complexity": 16,
+      "maximum_function_complexity": 16,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/contact_verification.py",
+      "baseline_lines": 17,
+      "maximum_lines": 17,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 95
+    }
+  ]
+}

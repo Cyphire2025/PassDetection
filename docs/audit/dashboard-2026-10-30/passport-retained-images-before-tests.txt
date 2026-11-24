@@ -1,0 +1,84 @@
+........FFFFFFFFFFFFFFFF                                                 [100%]
+================================== FAILURES ===================================
+_____ test_retained_image_authority_after_external_work[asset-purge-crop] _____
+tests\unit\presentation\test_passport_image_retained_authority.py:218: in test_retained_image_authority_after_external_work
+    with pytest.raises(HTTPException) as caught:
+E   Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+___ test_retained_image_authority_after_external_work[asset-purge-generate] ___
+tests\unit\presentation\test_passport_image_retained_authority.py:218: in test_retained_image_authority_after_external_work
+    with pytest.raises(HTTPException) as caught:
+E   Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+__ test_retained_image_authority_after_external_work[asset-purge-select-ai] ___
+tests\unit\presentation\test_passport_image_retained_authority.py:218: in test_retained_image_authority_after_external_work
+    with pytest.raises(HTTPException) as caught:
+E   Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+___ test_retained_image_authority_after_external_work[asset-purge-apply-ai] ___
+tests\unit\presentation\test_passport_image_retained_authority.py:218: in test_retained_image_authority_after_external_work
+    with pytest.raises(HTTPException) as caught:
+E   Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+___ test_retained_image_authority_after_external_work[asset-purge-preview] ____
+tests\unit\presentation\test_passport_image_retained_authority.py:218: in test_retained_image_authority_after_external_work
+    with pytest.raises(HTTPException) as caught:
+E   Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+____ test_retained_image_authority_after_external_work[asset-purge-reset] _____
+tests\unit\presentation\test_passport_image_retained_authority.py:218: in test_retained_image_authority_after_external_work
+    with pytest.raises(HTTPException) as caught:
+E   Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+_ test_retained_image_authority_after_external_work[asset-purge-manual-library] _
+tests\unit\presentation\test_passport_image_retained_authority.py:218: in test_retained_image_authority_after_external_work
+    with pytest.raises(HTTPException) as caught:
+E   Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+_ test_retained_image_authority_after_external_work[asset-purge-select-library] _
+tests\unit\presentation\test_passport_image_retained_authority.py:218: in test_retained_image_authority_after_external_work
+    with pytest.raises(HTTPException) as caught:
+E   Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+___ test_retained_image_authority_after_external_work[profile-delete-crop] ____
+tests\unit\presentation\test_passport_image_retained_authority.py:218: in test_retained_image_authority_after_external_work
+    with pytest.raises(HTTPException) as caught:
+E   Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+_ test_retained_image_authority_after_external_work[profile-delete-generate] __
+tests\unit\presentation\test_passport_image_retained_authority.py:218: in test_retained_image_authority_after_external_work
+    with pytest.raises(HTTPException) as caught:
+E   Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+_ test_retained_image_authority_after_external_work[profile-delete-select-ai] _
+tests\unit\presentation\test_passport_image_retained_authority.py:218: in test_retained_image_authority_after_external_work
+    with pytest.raises(HTTPException) as caught:
+E   Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+_ test_retained_image_authority_after_external_work[profile-delete-apply-ai] __
+tests\unit\presentation\test_passport_image_retained_authority.py:218: in test_retained_image_authority_after_external_work
+    with pytest.raises(HTTPException) as caught:
+E   Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+__ test_retained_image_authority_after_external_work[profile-delete-preview] __
+tests\unit\presentation\test_passport_image_retained_authority.py:218: in test_retained_image_authority_after_external_work
+    with pytest.raises(HTTPException) as caught:
+E   Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+___ test_retained_image_authority_after_external_work[profile-delete-reset] ___
+tests\unit\presentation\test_passport_image_retained_authority.py:218: in test_retained_image_authority_after_external_work
+    with pytest.raises(HTTPException) as caught:
+E   Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+_ test_retained_image_authority_after_external_work[profile-delete-manual-library] _
+tests\unit\presentation\test_passport_image_retained_authority.py:218: in test_retained_image_authority_after_external_work
+    with pytest.raises(HTTPException) as caught:
+E   Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+_ test_retained_image_authority_after_external_work[profile-delete-select-library] _
+tests\unit\presentation\test_passport_image_retained_authority.py:218: in test_retained_image_authority_after_external_work
+    with pytest.raises(HTTPException) as caught:
+E   Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+=========================== short test summary info ===========================
+FAILED tests/unit/presentation/test_passport_image_retained_authority.py::test_retained_image_authority_after_external_work[asset-purge-crop]
+FAILED tests/unit/presentation/test_passport_image_retained_authority.py::test_retained_image_authority_after_external_work[asset-purge-generate]
+FAILED tests/unit/presentation/test_passport_image_retained_authority.py::test_retained_image_authority_after_external_work[asset-purge-select-ai]
+FAILED tests/unit/presentation/test_passport_image_retained_authority.py::test_retained_image_authority_after_external_work[asset-purge-apply-ai]
+FAILED tests/unit/presentation/test_passport_image_retained_authority.py::test_retained_image_authority_after_external_work[asset-purge-preview]
+FAILED tests/unit/presentation/test_passport_image_retained_authority.py::test_retained_image_authority_after_external_work[asset-purge-reset]
+FAILED tests/unit/presentation/test_passport_image_retained_authority.py::test_retained_image_authority_after_external_work[asset-purge-manual-library]
+FAILED tests/unit/presentation/test_passport_image_retained_authority.py::test_retained_image_authority_after_external_work[asset-purge-select-library]
+FAILED tests/unit/presentation/test_passport_image_retained_authority.py::test_retained_image_authority_after_external_work[profile-delete-crop]
+FAILED tests/unit/presentation/test_passport_image_retained_authority.py::test_retained_image_authority_after_external_work[profile-delete-generate]
+FAILED tests/unit/presentation/test_passport_image_retained_authority.py::test_retained_image_authority_after_external_work[profile-delete-select-ai]
+FAILED tests/unit/presentation/test_passport_image_retained_authority.py::test_retained_image_authority_after_external_work[profile-delete-apply-ai]
+FAILED tests/unit/presentation/test_passport_image_retained_authority.py::test_retained_image_authority_after_external_work[profile-delete-preview]
+FAILED tests/unit/presentation/test_passport_image_retained_authority.py::test_retained_image_authority_after_external_work[profile-delete-reset]
+FAILED tests/unit/presentation/test_passport_image_retained_authority.py::test_retained_image_authority_after_external_work[profile-delete-manual-library]
+FAILED tests/unit/presentation/test_passport_image_retained_authority.py::test_retained_image_authority_after_external_work[profile-delete-select-library]
+16 failed, 8 passed in 10.87s

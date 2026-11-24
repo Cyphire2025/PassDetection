@@ -159,14 +159,4 @@ export function deadlineActionLabel(action: EmailDeadlineDecisionAction) {
   return "Dismiss";
 }
 
-export function readActionError(error: unknown, fallback: string) {
-  if (
-    typeof error === "object" &&
-    error !== null &&
-    "message" in error &&
-    typeof error.message === "string"
-  ) {
-    return error.message.slice(0, 300);
-  }
-  return fallback;
-}
+export { readEmailActionError as readActionError } from "../utils/email-integrations";

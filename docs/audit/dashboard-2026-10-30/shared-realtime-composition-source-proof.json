@@ -1,0 +1,107 @@
+{
+  "status": "passed",
+  "before_behavior_sha256": "e17a12bafc8856fc3751cbd93b59f9454166b2e3ab0fcafbed0f564e6d0fa32e",
+  "exact_complete_declarations": [
+    "RealtimeRedisPubSub",
+    "RealtimeRedis",
+    "RedisFactory",
+    "RealtimeStatus",
+    "MobileRealtimeConfig",
+    "MobileRealtimeCapacityError",
+    "MobileRealtimeConnectionClosed",
+    "_CHANNEL",
+    "_MAX_REDIS_MESSAGE_BYTES",
+    "_RECONNECT_BASE_SECONDS",
+    "_RECONNECT_MAX_SECONDS",
+    "_LEASE_BATCH_SIZE",
+    "_LEASE_ACQUIRE_SCRIPT",
+    "_LEASE_RENEW_SCRIPT",
+    "_LEASE_RELEASE_SCRIPT",
+    "_INVALIDATIONS",
+    "_parse_redis_hint",
+    "MobileRealtimeConnection",
+    "_complete_cleanup",
+    "_close_redis_resources",
+    "_default_redis_factory",
+    "registry._remove_authorization_reservation",
+    "registry._remove_connection",
+    "registry.update_authorization",
+    "registry.fanout",
+    "registry._index_connection",
+    "registry._deindex_connection",
+    "transport.submit_post_commit",
+    "transport._enqueue_hints",
+    "transport._connect_redis",
+    "transport._close_redis",
+    "transport._close_redis_unlocked",
+    "transport._publisher_loop",
+    "Hub.stop"
+  ],
+  "attribute_or_call_projection_complete_methods": [
+    "capacity._release_owned_leases",
+    "capacity.end_authorization",
+    "capacity.unregister",
+    "capacity._lease_renewal_loop",
+    "store._lease_key",
+    "store._release_leases",
+    "store._renew_leases",
+    "Hub.readiness",
+    "transport._subscriber_loop"
+  ],
+  "expanded_wiring_from_actual_source": [
+    "register",
+    "begin_authorization",
+    "_acquire_lease",
+    "_clear_and_close",
+    "_handle_capacity_backend_failure (extra immutable unused lease snapshot metadata explicitly excluded)",
+    "_renew_capacity_leases_once",
+    "start"
+  ],
+  "public_signatures_defaults_annotations_ast_preserved": true,
+  "original_tests_assertion_fixture_ast_preserved": true,
+  "explicit_composition_changes": [
+    "Public Hub delegates to concrete transport, registry, store and capacity owners; private layout/module identity changes intentionally.",
+    "Registry snapshot is an immutable value; capacity failure additionally captures but does not use bounded lease-ID tuples.",
+    "Shared dropped counter is partitioned into transport/registry ownership and recombined for exact health output; validated by actual original/current health-state controls.",
+    "Live activation guard uses explicit read-only availability collaborator under the same registry lock; normalized guarded early bool return replaces local release_lease flag.",
+    "No whole-module/class or all-method AST identity claimed. Behavior fixes belong to the earlier immutable receipt."
+  ],
+  "sources": [
+    {
+      "path": "backend/app/infrastructure/mobile_realtime.py",
+      "sha256": "522f09695a6505fde44a5b490e78b39606df4c55308bad9798e0874eb666c21a"
+    },
+    {
+      "path": "backend/app/infrastructure/mobile_realtime_capacity.py",
+      "sha256": "1e29d7a946046066c677e7a58ce07a7fdc21be0a284aed1abd91103abe304d17"
+    },
+    {
+      "path": "backend/app/infrastructure/mobile_realtime_connection.py",
+      "sha256": "aa4623acff1649feac6f50d40b0663ddcbddce6d3100dec5e4571b81ffee5ed3"
+    },
+    {
+      "path": "backend/app/infrastructure/mobile_realtime_contracts.py",
+      "sha256": "1bcc4988950fc38baff8163e8e3e5032e4dddcf48bef52de23c5e54b5ae1047e"
+    },
+    {
+      "path": "backend/app/infrastructure/mobile_realtime_lease_store.py",
+      "sha256": "e6d08e13b82b3fdfbd41f768727d225638c2021ce90a1c1d7a24dfe2d51c3290"
+    },
+    {
+      "path": "backend/app/infrastructure/mobile_realtime_registry.py",
+      "sha256": "7153cb96d9235713c117adc805891a4db896c34ed9f05538cb4bd2067e2f4832"
+    },
+    {
+      "path": "backend/app/infrastructure/mobile_realtime_resources.py",
+      "sha256": "023947d7269c41a1b8528a9d50aa4c620abf59b2cc0b3b5c1b5f1b8aecafb3ae"
+    },
+    {
+      "path": "backend/app/infrastructure/mobile_realtime_transport.py",
+      "sha256": "6526b37299ace415283ef01f53aa023c738c0cff7de796ae421ab3db10a6300c"
+    },
+    {
+      "path": "backend/app/infrastructure/mobile_realtime_wire.py",
+      "sha256": "88abe50692fbbb35a494d3788d152b43aa7f2aaea81d51b5eadd12698c936f2d"
+    }
+  ]
+}

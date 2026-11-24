@@ -26,6 +26,8 @@ const archivedGroup: UploadLinkResponse = {
   deleted_at: null, deleted_passport_count: 0, deletion_retained_records: false,
 };
 
+const ownerConfig = { expectedOwnerUserId: "admin", expectedAuthorityKey: '["admin","agency_admin","agency"]' };
+
 function renderList(role: UserRole = "agency_admin") {
   useAuthStore.setState({
     user: { id: "admin", role, agency_id: "agency", is_active: true } as User,
@@ -115,7 +117,7 @@ describe("archived group deletion feedback", () => {
     fireEvent.click(within(dialog).getByRole("button", { name: /^Delete passport records/ }));
     expect(await within(dialog).findByRole("alert")).toHaveTextContent(error.message);
     expect(dialog).toBeInTheDocument();
-    expect(uploadLinksApi.permanentDelete).toHaveBeenCalledExactlyOnceWith("archived-group", false);
+    expect(uploadLinksApi.permanentDelete).toHaveBeenCalledExactlyOnceWith("archived-group", false, ownerConfig);
     expect(within(dialog).getByRole("button", { name: "Cancel" })).toBeEnabled();
   });
 
@@ -133,7 +135,7 @@ describe("archived group deletion feedback", () => {
     const dialog = await openDeleteDialog();
     fireEvent.click(within(dialog).getByRole("button", { name: /^Keep passport records/ }));
     expect(await within(dialog).findByRole("alert")).toHaveTextContent("different retention choice");
-    expect(uploadLinksApi.permanentDelete).toHaveBeenCalledExactlyOnceWith("archived-group", true);
+    expect(uploadLinksApi.permanentDelete).toHaveBeenCalledExactlyOnceWith("archived-group", true, ownerConfig);
     fireEvent.click(within(dialog).getByRole("button", { name: "Close dialog" }));
     const reopened = await openDeleteDialog();
     expect(within(reopened).queryByRole("alert")).not.toBeInTheDocument();

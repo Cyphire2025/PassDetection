@@ -1,0 +1,62 @@
+[
+  {
+    "path": "frontend/features/companies/api/companies.api.ts",
+    "before_sha256": "a88caa0248d6ac9ef92618421e98b8ceab77f4e18fe734aac707fe7aab9135b2",
+    "after_sha256": "f30f784c2849a37d347550d61ebddf7879c51dcd87a9e2d9b617682086c2d461"
+  },
+  {
+    "path": "frontend/features/companies/api/company-matching.api.ts",
+    "before_sha256": "5a35df7d7c10b08ee473a01174af5543bb04ed2f6c320ccc179de5d94527c877",
+    "after_sha256": "151e0ef040e8c4653b7431d2a49a32dd51720565ebc14ef7b7fb1c6c799ce6f7"
+  },
+  {
+    "path": "frontend/features/companies/api/company-passports.api.ts",
+    "before_sha256": "53f8396226ceef7e822dc1e57d4b81be53d5625b7329648757dedd8106750788",
+    "after_sha256": "dfa4dffd4692d817f9daee585973480c579575d8cc684f7ac71c51b4a03c21ee"
+  },
+  {
+    "path": "frontend/features/companies/api/company-data-exports.api.ts",
+    "before_sha256": "a871990869a9cd560f4c9f42a158408698574b98619d5b3db1d37bb72231e27a",
+    "after_sha256": "5c27c485091134677b40a08e26ce52e94ddd1a2558db2ae3951eb6eed4cfbbc8"
+  },
+  {
+    "path": "frontend/features/companies/api/reuse-setup.api.ts",
+    "before_sha256": "ea23c6a3f5f1131c2a55a77b480cbecf9eb7aa5719592ee120450e03aec44c74",
+    "after_sha256": "7e4d993d2bfcb626e6456853c63ab9b381dba1fe9408c136727f24ee7fce8f09"
+  },
+  {
+    "path": "frontend/features/companies/hooks/use-companies.ts",
+    "before_sha256": "fcad852c6bb6b676233dbf60420438bf0c418bc1ff35a784ba20ab8295bb828c",
+    "after_sha256": "0d2b27047f8950c8443e4c46da74765294d721a4baf256d5cbf18a1539fbc89c"
+  },
+  {
+    "path": "frontend/features/companies/hooks/use-company-data-exports.ts",
+    "before_sha256": "c79279aae4f0d9bfc47628d6d7b3fef5e848acf0b8eebfeb5cf22820525e06ce",
+    "after_sha256": "cc278fb270f5d685914aa681dbf7a7b3e67c3ae52e6da96674a4f582f4358492"
+  },
+  {
+    "path": "frontend/features/companies/components/company-matching-dialog.tsx",
+    "before_sha256": "92bb8eeba9b0dffc5b54df9825d01febf696f329e960f99700e58a54e3abe45e",
+    "after_sha256": "b707d469ba31e4d1420cdc846f8528a152ce0e0debacd1b6d8eece582016f2dd"
+  },
+  {
+    "path": "frontend/features/companies/components/company-match-resolution.tsx",
+    "before_sha256": "d1609c9677ab6680d13315bd040fa8f8ee6f98b413f079abb40b6d0a3bf31ca0",
+    "after_sha256": "6da34f49bdd27b99a01a977f470babbee01c4d77e5c7bbdb92819b545cd74fe4"
+  },
+  {
+    "path": "frontend/features/companies/components/company-passports.tsx",
+    "before_sha256": "a9751f7b43e42f65856760bb0b7ce634c7173055e16e92e549f74485c7e548df",
+    "after_sha256": "a112a25eb2986c594d6d2c6a4f940d229216c2387ed27cf75744179205afed6a"
+  },
+  {
+    "path": "frontend/features/companies/components/company-settings.tsx",
+    "before_sha256": "83a4f7d2d1d3f3c4d9b6e7b6130f74d62358488fe82bcc0d3fbc98f0d9d09310",
+    "after_sha256": "565e17daa866bc29ee44f9b13c1db5f9a03ec2083f309b0fda0f5754608f73f8"
+  },
+  {
+    "path": "frontend/features/companies/components/company-reassignment-dialog.tsx",
+    "before_sha256": "96e4be21757ec63820c19a33629e08d40b3b17cc1df6aa51e5b4ab42554b7481",
+    "after_sha256": "8e069610cf4536fac324861686905f5134df071e5aa637e33bdf600410b2e5c1"
+  }
+]

@@ -1,0 +1,23 @@
+{
+  "origin_records": [
+    {
+      "path": "frontend/features/passports/components/passport-group-feedback.ts",
+      "sha256": "a46804d47cdaabf623bea9cc80969a73871ed49af0e0f89450635d20ad0332e8"
+    },
+    {
+      "path": "frontend/features/passports/components/group-whatsapp-tracking-model.ts",
+      "sha256": "9832c865556f737a2fe839b8439a5bfb8bb80a5fc669bcdea6da3ed18ada4055"
+    }
+  ],
+  "new_owner": "frontend/features/passports/utils/passport-request-id.ts",
+  "original_bodies_identical": true,
+  "body_ast_sha256": "475cc2e99724085c640523b10ac4eae0dd38951c87ac10f0483ae6b15c8a2c2f",
+  "method": "Identical recursive TypeScript body kind/text/children before movement. Preserve literal values/operators, randomUUID preference, getRandomValues fallback and Math.random compatibility fallback. Both public caller names remain aliases.",
+  "callers": [
+    "createExportRequestId",
+    "createRosterRequestId"
+  ],
+  "passed": true,
+  "current_owner_sha256": "5527502b6951703fdd2e39cff7e3216dcb0d76c73520c2e7f48c283ad90a3c84",
+  "new_body_matches_original": true
+}

@@ -1,0 +1,144 @@
+{
+  "files": [
+    {
+      "path": "mcp-connector/src/gc_mcp_connector/__init__.py",
+      "sha256": "1ff9d3dc744dc77b0823a05cc2f41da55644c27704331fdadaece1cc0ab7ec76",
+      "review_status": "full",
+      "lines": 3,
+      "notes": "Reviewed package version/display boundary; no credential or import side effects."
+    },
+    {
+      "path": "mcp-connector/src/gc_mcp_connector/__main__.py",
+      "sha256": "c13eb66970ae37b8b044f428b309e67868814b90a8bb408806f3316ce4dfbc5b",
+      "review_status": "full",
+      "lines": 3,
+      "notes": "Reviewed CLI entry point delegation and no additional runtime behavior."
+    },
+    {
+      "path": "mcp-connector/src/gc_mcp_connector/artifacts.py",
+      "sha256": "e035e944e186b01e14030457bd71842875fced60065cb8e770bde6699516fe4d",
+      "review_status": "full",
+      "lines": 281,
+      "notes": "Reviewed fixed typed artifact routes, bounded scoped metadata, headers/size/SHA validation, redirect rejection, verified export publication and narrowly bounded idempotent acknowledgement retry."
+    },
+    {
+      "path": "mcp-connector/src/gc_mcp_connector/auth.py",
+      "sha256": "09d1c43cf383a5cc5e6210550f9dabd8d1af5be70f021da4b300cddb8baeda5c",
+      "review_status": "full",
+      "lines": 108,
+      "notes": "Reviewed serialized refresh rotation, cancellation/uncertain-token fences, successor persistence, exact-resource bearer boundary and no transparent write retry."
+    },
+    {
+      "path": "mcp-connector/src/gc_mcp_connector/cli.py",
+      "sha256": "e5188d53d8beec487d75e3e429988a761854ca2541436397b87bff8db45c233e",
+      "review_status": "full",
+      "lines": 156,
+      "notes": "Reviewed command routing, safe output/logging, explicit path choices and authorization preflight. Fixed malformed-credential forget dead end; other command preflight preserved."
+    },
+    {
+      "path": "mcp-connector/src/gc_mcp_connector/config.py",
+      "sha256": "0fd67dec2f04dd94ba25ac8508e7cab05da9948b011b77d028dcd818581af84d",
+      "review_status": "full",
+      "lines": 53,
+      "notes": "Reviewed ASCII origin validation, loopback-only HTTP, URL/userinfo/path restrictions, resource and hashed dedicated vault target."
+    },
+    {
+      "path": "mcp-connector/src/gc_mcp_connector/contact_errors.py",
+      "sha256": "aa9ccd4d706c25df6445332caee46e26bce10c2301720fbc3997e0f7c164a61d",
+      "review_status": "full",
+      "lines": 75,
+      "notes": "Reviewed bounded known-code workbook errors and local static guidance; remote free-form details never reflected."
+    },
+    {
+      "path": "mcp-connector/src/gc_mcp_connector/contact_uploads.py",
+      "sha256": "a4d9381af4f13d178a2273446f03ecc3defd162a4dbd563face0969059fd5e64",
+      "review_status": "full",
+      "lines": 89,
+      "notes": "Reviewed XLSX selection/size and receipt scope/hash validation, bounded worksheet metadata and filtering of extra response fields. Formatted with pinned Ruff0.16.0; ast.dump excluding position attributes identical before/after. Focused contact-upload/error35tests pass."
+    },
+    {
+      "path": "mcp-connector/src/gc_mcp_connector/file_tools.py",
+      "sha256": "6f8f0e7035ebf5e950251ce942ce9f98e177cb39c443f53d2764c56fb41ab5ec",
+      "review_status": "full",
+      "lines": 280,
+      "notes": "Reviewed startup-selected path authority, Codex credential/config exclusion, opaque IDs, validated tool schemas, download filename/folder boundaries, current capability checks and transfer backpressure."
+    },
+    {
+      "path": "mcp-connector/src/gc_mcp_connector/files.py",
+      "sha256": "758e4c3943a2310219345d2f120e792f71f8043f4769c08b3f740c6fbcc19078",
+      "review_status": "full",
+      "lines": 121,
+      "notes": "Reviewed exact authorized regular-file reads, inode/size/change checks, bounded chunks, verified-size/SHA atomic no-overwrite hard-link publication and temporary cleanup."
+    },
+    {
+      "path": "mcp-connector/src/gc_mcp_connector/oauth.py",
+      "sha256": "2052c9cafd0b9c48b91b5c7e32e37283c5a1d6a48fa56fbdab118900e16b2d5c",
+      "review_status": "full",
+      "lines": 280,
+      "notes": "Reviewed fixed-origin discovery/exchange, PKCE/state/issuer/Host/duplicate callback validation, bounded responses, listener cancellation cleanup and safe logging."
+    },
+    {
+      "path": "mcp-connector/src/gc_mcp_connector/proxy.py",
+      "sha256": "f2b5334976f712ac037ada2897c1d7cf9e60dcc7543cd9aecb2d6f17df9ba56a",
+      "review_status": "full",
+      "lines": 178,
+      "notes": "Reviewed current remote catalog enforcement in read-only calls, reserved tool-name collision rejection, bounded parallelism, safe errors and no write replay."
+    },
+    {
+      "path": "mcp-connector/src/gc_mcp_connector/vault.py",
+      "sha256": "77a9dfa19d229090e4ec246fa3f3bffddde671db247c9e423202b8d5a079ac9b",
+      "review_status": "full",
+      "lines": 133,
+      "notes": "Reviewed dedicated Windows credential entry, no plaintext fallback, blob parsing, safe errors, refresh-only persistence, named mutex acquisition/cleanup. No actual vault calls made."
+    },
+    {
+      "path": "mcp-connector/src/gc_mcp_connector/whatsapp_media_uploads.py",
+      "sha256": "1cc2a53dd7d4e429670c5c2f379d3510d40cd087ccf30dc27672c7c3b86c93b9",
+      "review_status": "full",
+      "lines": 219,
+      "notes": "Reviewed explicit upload authority, stable key, signature/size/hash checks, scoped receipts, unknown-outcome guidance and recovery without new provider upload."
+    },
+    {
+      "path": "mcp-connector/tests/test_cli.py",
+      "sha256": "f7b6bd7fa3083e4d7e9c43b76c5a7078c6afeac0b3fe7540053cc29425be1ca9",
+      "review_status": "full",
+      "notes": "Three new synthetic regression tests reviewed: malformed credential explicit forget, delete failure with no success claim, unchanged failing-vault sign-in preflight. Fake vault/lock and forbidden transport; no native credential access."
+    },
+    {
+      "path": "mcp-connector/tests/test_auth.py",
+      "sha256": "c085541f7c18a0357260b3d174ebfe2e4ab93346b0ef72569b93ce7db66b2ffb",
+      "review_status": "partial",
+      "notes": "Reviewed fixture/test boundaries relevant to credential, callback, cancellation or scoped transport coverage; focused tests executed. Not an exhaustive test-source audit."
+    },
+    {
+      "path": "mcp-connector/tests/test_callback.py",
+      "sha256": "04c549e335f6918febf11e32b9438e392e18eed15981ea1e5a402d5baaa18c09",
+      "review_status": "partial",
+      "notes": "Reviewed fixture/test boundaries relevant to credential, callback, cancellation or scoped transport coverage; focused tests executed. Not an exhaustive test-source audit."
+    },
+    {
+      "path": "mcp-connector/tests/test_oauth_lifecycle.py",
+      "sha256": "9006e8733419de97e773ebe7497ef36cca66dc242c1f1f2bfbeb973db5bcd063",
+      "review_status": "partial",
+      "notes": "Reviewed fixture/test boundaries relevant to credential, callback, cancellation or scoped transport coverage; focused tests executed. Not an exhaustive test-source audit."
+    },
+    {
+      "path": "mcp-connector/tests/test_refresh_cancellation.py",
+      "sha256": "3f0b91d74317718326c077d9358a51f11647b6dbc002bdb85809a4a49a617ea6",
+      "review_status": "partial",
+      "notes": "Reviewed fixture/test boundaries relevant to credential, callback, cancellation or scoped transport coverage; focused tests executed. Not an exhaustive test-source audit."
+    },
+    {
+      "path": "mcp-connector/tests/test_file_tools.py",
+      "sha256": "9da84dd92b7cbe060f18a8438192e65e3eedbe10970086a7501be1cfcb7b08c5",
+      "review_status": "partial",
+      "notes": "Reviewed fixture/test boundaries relevant to credential, callback, cancellation or scoped transport coverage; focused tests executed. Not an exhaustive test-source audit."
+    },
+    {
+      "path": "mcp-connector/tests/test_proxy.py",
+      "sha256": "29db79b1081b8affc4f41ee60ae06453a35005faf309a6a95899f04d9e58d44c",
+      "review_status": "partial",
+      "notes": "Reviewed fixture/test boundaries relevant to credential, callback, cancellation or scoped transport coverage; focused tests executed. Not an exhaustive test-source audit."
+    }
+  ]
+}

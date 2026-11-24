@@ -2,11 +2,11 @@
 
 import copy
 import json
-import subprocess
 import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+from bounded_command_output import CommandOutputError
 from mcp_production_baseline import (
     DIRECTORY,
     PROJECT,
@@ -110,8 +110,8 @@ class BaselineTests(unittest.TestCase):
             memory_snapshot("MemTotal: 16384000 kB")
 
     def test_raw_probe_errors_never_reach_the_caller(self):
-        failed = subprocess.CompletedProcess(("docker", "inspect"), 1, "private-config", "private-password")
-        with patch("mcp_production_baseline.subprocess.run", return_value=failed), self.assertRaises(BaselineError) as error:
+        failed = CommandOutputError("command_failed")
+        with patch("mcp_production_baseline.capture_command", side_effect=failed), self.assertRaises(BaselineError) as error:
             run("docker", "inspect", "1" * 64)
         self.assertNotIn("private-", str(error.exception))
 

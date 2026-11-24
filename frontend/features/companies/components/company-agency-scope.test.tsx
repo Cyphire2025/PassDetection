@@ -41,7 +41,7 @@ describe("direct client-company workspace", () => {
     const dialog = screen.getByRole("dialog", { name: "Add client company" });
     fireEvent.change(within(dialog).getByLabelText(/Client company name/), { target: { value: "New Client" } });
     fireEvent.click(within(dialog).getByRole("button", { name: "Add client company" }));
-    await waitFor(() => expect(apiClient.post).toHaveBeenCalledWith("/api/v1/companies", { name: "New Client", external_reference: null }, { params: { agency_id: "resolved-agency" } }));
+    await waitFor(() => expect(apiClient.post).toHaveBeenCalledWith("/api/v1/companies", { name: "New Client", external_reference: null }, { params: { agency_id: "resolved-agency" }, expectedOwnerUserId: user.id, expectedAuthorityKey: JSON.stringify([user.id, user.role, user.agency_id]) }));
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
   });
 

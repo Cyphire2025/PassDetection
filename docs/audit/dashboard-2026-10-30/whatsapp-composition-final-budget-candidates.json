@@ -1,0 +1,956 @@
+{
+  "source_manifest": {
+    "path": "docs/audit/dashboard-2026-10-30/whatsapp-composition-final-source-manifest.json",
+    "sha256": "6485b5eab04fd2aa6e14e4aff892ccddd07e205a8dfed406f777035c4529fb1c"
+  },
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/whatsapp-composition-final-reviewed-files.json",
+    "sha256": "d5756fc812f88106d6dbc228b6f921ab695aa16b632d75f9cf4eb7c39ee6e7ee"
+  },
+  "normal_module_candidates": [
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_composer.py",
+      "sha256": "8ffe7f51d1bf42bf82a3d2df3b17e45283dd98b0432c45cc860d65f5a5f920b2",
+      "previous": {
+        "path": "app/presentation/api/v1/routes/whatsapp_composer.py",
+        "baseline_lines": 330,
+        "maximum_lines": 360,
+        "baseline_max_function_complexity": 31,
+        "maximum_function_complexity": 31,
+        "minimum_coverage_percent": 60
+      },
+      "baseline_lines": 149,
+      "maximum_lines": 150,
+      "baseline_max_function_complexity": 1,
+      "maximum_function_complexity": 2,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_composer_support.py",
+      "sha256": "1bdaa9f902ea5054f80cb1edf701720a63f461cfa5cb5efcf922073fccb20fca",
+      "previous": null,
+      "baseline_lines": 134,
+      "maximum_lines": 140,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_composer_content.py",
+      "sha256": "920f7c816e41d3726049ff7dbb973d741a21d20602ca6ca87ecb8f3273449bf8",
+      "previous": null,
+      "baseline_lines": 184,
+      "maximum_lines": 190,
+      "baseline_max_function_complexity": 7,
+      "maximum_function_complexity": 8,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_composer_rendering.py",
+      "sha256": "f28546ca8349a35fb307ee04fdd330a84f5eeb94b117042c80ef5d8009893784",
+      "previous": null,
+      "baseline_lines": 95,
+      "maximum_lines": 100,
+      "baseline_max_function_complexity": 4,
+      "maximum_function_complexity": 5,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_composer_legacy.py",
+      "sha256": "01c45bce092c04f6e8a1b581d2bd60583ef9e5b5cc393494225c94e2936a8c27",
+      "previous": null,
+      "baseline_lines": 122,
+      "maximum_lines": 130,
+      "baseline_max_function_complexity": 14,
+      "maximum_function_complexity": 15,
+      "minimum_coverage_percent": 75
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_composer_snapshots.py",
+      "sha256": "cd0995a829e55ee8e02a15357a05c6cb0a88361e51a0fe75842eb197d81e46ca",
+      "previous": null,
+      "baseline_lines": 203,
+      "maximum_lines": 210,
+      "baseline_max_function_complexity": 11,
+      "maximum_function_complexity": 12,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_composer_media.py",
+      "sha256": "76be5978b5a0dc68cbc04bbc5746187b0991a70e9df30b04334bb9ba068c2d12",
+      "previous": null,
+      "baseline_lines": 156,
+      "maximum_lines": 160,
+      "baseline_max_function_complexity": 12,
+      "maximum_function_complexity": 13,
+      "minimum_coverage_percent": 80
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_composer_preview.py",
+      "sha256": "e46be0a3c2166c1650c52591852ce33589e3a030edd3c6fd7d7089618ee8ff1e",
+      "previous": null,
+      "baseline_lines": 179,
+      "maximum_lines": 180,
+      "baseline_max_function_complexity": 13,
+      "maximum_function_complexity": 14,
+      "minimum_coverage_percent": 85
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_composer_preview_response.py",
+      "sha256": "2ba3704eb3085a3c59a8f85b1326add1cca81a72e905cd09237a86c33901e957",
+      "previous": null,
+      "baseline_lines": 127,
+      "maximum_lines": 130,
+      "baseline_max_function_complexity": 6,
+      "maximum_function_complexity": 7,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_resend.py",
+      "sha256": "e695316fe49e51e51f8d1c3cc45f6db84c5bed82287bf3344f93259a4b1b64ff",
+      "previous": {
+        "path": "app/presentation/api/v1/routes/whatsapp_resend.py",
+        "baseline_lines": 419,
+        "maximum_lines": 450,
+        "baseline_max_function_complexity": 31,
+        "maximum_function_complexity": 31,
+        "minimum_coverage_percent": 85
+      },
+      "baseline_lines": 233,
+      "maximum_lines": 240,
+      "baseline_max_function_complexity": 8,
+      "maximum_function_complexity": 9,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_resend_claims.py",
+      "sha256": "cac51751dda4d3124233f2c54f889882ecdcd0663b1a0a21f70e0dcd4fa92fe8",
+      "previous": null,
+      "baseline_lines": 150,
+      "maximum_lines": 150,
+      "baseline_max_function_complexity": 11,
+      "maximum_function_complexity": 12,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_resend_preparation.py",
+      "sha256": "3e3dabb7374324e38d37f8cf8e194eb647779a0cb702f9c2758e738870675c15",
+      "previous": null,
+      "baseline_lines": 181,
+      "maximum_lines": 190,
+      "baseline_max_function_complexity": 10,
+      "maximum_function_complexity": 11,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_resend_publication.py",
+      "sha256": "589c7b567df25e42437e13293b4273d16d9271a2c35da2ffc53d620887b9b1ea",
+      "previous": null,
+      "baseline_lines": 106,
+      "maximum_lines": 110,
+      "baseline_max_function_complexity": 3,
+      "maximum_function_complexity": 4,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend.py",
+      "sha256": "7d87f7da345264d54c1e14ef7e2c6e2e216e92d6921e876dfab1d18f2ea5f3ae",
+      "previous": null,
+      "baseline_lines": 150,
+      "maximum_lines": 150,
+      "baseline_max_function_complexity": 4,
+      "maximum_function_complexity": 5,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend_selection.py",
+      "sha256": "f23a5a32a53c98344caf3fbef41f6b3112e2d0a5ddfc9eb9241afb6981eafb0e",
+      "previous": null,
+      "baseline_lines": 103,
+      "maximum_lines": 110,
+      "baseline_max_function_complexity": 6,
+      "maximum_function_complexity": 7,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend_inputs.py",
+      "sha256": "b2a94f63ffe356dd88be7cb94d04cc7a2311aae9c9d8ee229d611bde5cae7e68",
+      "previous": null,
+      "baseline_lines": 75,
+      "maximum_lines": 80,
+      "baseline_max_function_complexity": 6,
+      "maximum_function_complexity": 7,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend_claims.py",
+      "sha256": "2833bbbdde3be16143c738ac423c20c2c195c7a86627ac1837f681c09f0b36c7",
+      "previous": null,
+      "baseline_lines": 160,
+      "maximum_lines": 160,
+      "baseline_max_function_complexity": 14,
+      "maximum_function_complexity": 15,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend_publication.py",
+      "sha256": "088449d63afee2a8d1bbd4c9e15dfbc54ec6a4c723e66a66aa0f5050913ad0af",
+      "previous": null,
+      "baseline_lines": 106,
+      "maximum_lines": 110,
+      "baseline_max_function_complexity": 11,
+      "maximum_function_complexity": 12,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend_support.py",
+      "sha256": "5e5005c5e9363de6f38e795d4d19c4640623eae3ff403ad36df49fab6bc6b326",
+      "previous": null,
+      "baseline_lines": 179,
+      "maximum_lines": 180,
+      "baseline_max_function_complexity": 16,
+      "maximum_function_complexity": 17,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend_history.py",
+      "sha256": "7aa092010e4484daa6acfe2952c3d23b0c1869d3418e6befdbcdc94d75863f9c",
+      "previous": null,
+      "baseline_lines": 182,
+      "maximum_lines": 190,
+      "baseline_max_function_complexity": 20,
+      "maximum_function_complexity": 21,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend_results.py",
+      "sha256": "a51ac1a8e56e844051c652837d464d763413ba43aa457ece15af57960dee1430",
+      "previous": null,
+      "baseline_lines": 88,
+      "maximum_lines": 90,
+      "baseline_max_function_complexity": 9,
+      "maximum_function_complexity": 10,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend_composer.py",
+      "sha256": "c0092665a99fceef9dc464469c84a33ca89609b8d2f75304db6c2ae8ba8ebe78",
+      "previous": null,
+      "baseline_lines": 246,
+      "maximum_lines": 250,
+      "baseline_max_function_complexity": 19,
+      "maximum_function_complexity": 20,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend_preview.py",
+      "sha256": "a31bbf1e65f3ab58f5509bec48b2b9daf7c8cc45df5b6fad2cc1043ddffbfe6b",
+      "previous": null,
+      "baseline_lines": 137,
+      "maximum_lines": 140,
+      "baseline_max_function_complexity": 6,
+      "maximum_function_complexity": 7,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend_preview_values.py",
+      "sha256": "22578dd2b40732b222d39ff358deb09db16ea062fe07fda967ef5f62c509e213",
+      "previous": null,
+      "baseline_lines": 183,
+      "maximum_lines": 190,
+      "baseline_max_function_complexity": 15,
+      "maximum_function_complexity": 16,
+      "minimum_coverage_percent": 95
+    }
+  ],
+  "critical_module_candidates": [],
+  "original_critical_membership_in24": [],
+  "existing_authority_guard": "Frozen existing95%line/90%branch critical obligation is preserved unchanged; actual current guard37/37lines and8/8branches. No facade-only or declaration-only new critical gate.",
+  "effective_original_resend_floor": "Original85 line floor preserved/tightened on facade and every real claim/preparation/publication owner (90/90/90/95); publication's ordinary broker-failure control was additionally qualified on unchanged source.",
+  "measurements": [
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_composer.py",
+      "sha256": "8ffe7f51d1bf42bf82a3d2df3b17e45283dd98b0432c45cc860d65f5a5f920b2",
+      "physical_lines": 149,
+      "max_function_complexity": 1,
+      "most_complex_function": "preview_broadcast_message",
+      "covered_lines": 65,
+      "executable_lines": 65,
+      "line_percent": 100.0,
+      "covered_branches": 0,
+      "branches": 0,
+      "branch_percent": null,
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_composer_support.py",
+      "sha256": "1bdaa9f902ea5054f80cb1edf701720a63f461cfa5cb5efcf922073fccb20fca",
+      "physical_lines": 134,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "covered_lines": 53,
+      "executable_lines": 53,
+      "line_percent": 100.0,
+      "covered_branches": 0,
+      "branches": 0,
+      "branch_percent": null,
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_composer_content.py",
+      "sha256": "920f7c816e41d3726049ff7dbb973d741a21d20602ca6ca87ecb8f3273449bf8",
+      "physical_lines": 184,
+      "max_function_complexity": 7,
+      "most_complex_function": "_preview_message_metadata",
+      "covered_lines": 88,
+      "executable_lines": 88,
+      "line_percent": 100.0,
+      "covered_branches": 34,
+      "branches": 34,
+      "branch_percent": 100.0,
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_composer_rendering.py",
+      "sha256": "f28546ca8349a35fb307ee04fdd330a84f5eeb94b117042c80ef5d8009893784",
+      "physical_lines": 95,
+      "max_function_complexity": 4,
+      "most_complex_function": "_message_values",
+      "covered_lines": 18,
+      "executable_lines": 18,
+      "line_percent": 100.0,
+      "covered_branches": 0,
+      "branches": 0,
+      "branch_percent": null,
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_composer_legacy.py",
+      "sha256": "01c45bce092c04f6e8a1b581d2bd60583ef9e5b5cc393494225c94e2936a8c27",
+      "physical_lines": 122,
+      "max_function_complexity": 14,
+      "most_complex_function": "_decode_legacy_template_snapshot",
+      "covered_lines": 43,
+      "executable_lines": 54,
+      "line_percent": 79.62962962962963,
+      "covered_branches": 13,
+      "branches": 22,
+      "branch_percent": 59.09090909090909,
+      "missing_lines": [
+        24,
+        39,
+        42,
+        50,
+        67,
+        71,
+        72,
+        84,
+        88,
+        90,
+        112
+      ],
+      "missing_branches": [
+        [
+          23,
+          24
+        ],
+        [
+          38,
+          39
+        ],
+        [
+          41,
+          42
+        ],
+        [
+          49,
+          50
+        ],
+        [
+          66,
+          67
+        ],
+        [
+          79,
+          84
+        ],
+        [
+          87,
+          88
+        ],
+        [
+          89,
+          90
+        ],
+        [
+          111,
+          112
+        ]
+      ]
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_composer_snapshots.py",
+      "sha256": "cd0995a829e55ee8e02a15357a05c6cb0a88361e51a0fe75842eb197d81e46ca",
+      "physical_lines": 203,
+      "max_function_complexity": 11,
+      "most_complex_function": "_merge_composer_snapshot",
+      "covered_lines": 65,
+      "executable_lines": 71,
+      "line_percent": 91.54929577464789,
+      "covered_branches": 15,
+      "branches": 20,
+      "branch_percent": 75.0,
+      "missing_lines": [
+        43,
+        55,
+        106,
+        113,
+        128,
+        129
+      ],
+      "missing_branches": [
+        [
+          42,
+          43
+        ],
+        [
+          54,
+          55
+        ],
+        [
+          105,
+          106
+        ],
+        [
+          112,
+          113
+        ],
+        [
+          114,
+          116
+        ]
+      ]
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_composer_media.py",
+      "sha256": "76be5978b5a0dc68cbc04bbc5746187b0991a70e9df30b04334bb9ba068c2d12",
+      "physical_lines": 156,
+      "max_function_complexity": 12,
+      "most_complex_function": "upload_welcome_media",
+      "covered_lines": 51,
+      "executable_lines": 61,
+      "line_percent": 83.60655737704919,
+      "covered_branches": 5,
+      "branches": 8,
+      "branch_percent": 62.5,
+      "missing_lines": [
+        63,
+        70,
+        81,
+        82,
+        93,
+        94,
+        101,
+        102,
+        116,
+        122
+      ],
+      "missing_branches": [
+        [
+          62,
+          63
+        ],
+        [
+          69,
+          70
+        ],
+        [
+          80,
+          81
+        ]
+      ]
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_composer_preview.py",
+      "sha256": "e46be0a3c2166c1650c52591852ce33589e3a030edd3c6fd7d7089618ee8ff1e",
+      "physical_lines": 179,
+      "max_function_complexity": 13,
+      "most_complex_function": "load_preview_snapshot",
+      "covered_lines": 65,
+      "executable_lines": 73,
+      "line_percent": 89.04109589041096,
+      "covered_branches": 17,
+      "branches": 26,
+      "branch_percent": 65.38461538461539,
+      "missing_lines": [
+        73,
+        85,
+        112,
+        134,
+        135,
+        136,
+        150,
+        175
+      ],
+      "missing_branches": [
+        [
+          72,
+          73
+        ],
+        [
+          84,
+          85
+        ],
+        [
+          107,
+          112
+        ],
+        [
+          133,
+          134
+        ],
+        [
+          135,
+          136
+        ],
+        [
+          135,
+          139
+        ],
+        [
+          146,
+          150
+        ],
+        [
+          163,
+          165
+        ],
+        [
+          174,
+          175
+        ]
+      ]
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_composer_preview_response.py",
+      "sha256": "2ba3704eb3085a3c59a8f85b1326add1cca81a72e905cd09237a86c33901e957",
+      "physical_lines": 127,
+      "max_function_complexity": 6,
+      "most_complex_function": "build_preview_response",
+      "covered_lines": 33,
+      "executable_lines": 33,
+      "line_percent": 100.0,
+      "covered_branches": 2,
+      "branches": 2,
+      "branch_percent": 100.0,
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_resend.py",
+      "sha256": "e695316fe49e51e51f8d1c3cc45f6db84c5bed82287bf3344f93259a4b1b64ff",
+      "physical_lines": 233,
+      "max_function_complexity": 8,
+      "most_complex_function": "resend_recipient_message",
+      "covered_lines": 83,
+      "executable_lines": 89,
+      "line_percent": 93.25842696629213,
+      "covered_branches": 6,
+      "branches": 12,
+      "branch_percent": 50.0,
+      "missing_lines": [
+        164,
+        170,
+        185,
+        196,
+        201,
+        209
+      ],
+      "missing_branches": [
+        [
+          163,
+          164
+        ],
+        [
+          169,
+          170
+        ],
+        [
+          184,
+          185
+        ],
+        [
+          195,
+          196
+        ],
+        [
+          197,
+          201
+        ],
+        [
+          208,
+          209
+        ]
+      ]
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_resend_claims.py",
+      "sha256": "cac51751dda4d3124233f2c54f889882ecdcd0663b1a0a21f70e0dcd4fa92fe8",
+      "physical_lines": 150,
+      "max_function_complexity": 11,
+      "most_complex_function": "read_resend_claim",
+      "covered_lines": 37,
+      "executable_lines": 41,
+      "line_percent": 90.2439024390244,
+      "covered_branches": 9,
+      "branches": 12,
+      "branch_percent": 75.0,
+      "missing_lines": [
+        73,
+        128,
+        134,
+        146
+      ],
+      "missing_branches": [
+        [
+          70,
+          73
+        ],
+        [
+          127,
+          128
+        ],
+        [
+          145,
+          146
+        ]
+      ]
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_resend_preparation.py",
+      "sha256": "3e3dabb7374324e38d37f8cf8e194eb647779a0cb702f9c2758e738870675c15",
+      "physical_lines": 181,
+      "max_function_complexity": 10,
+      "most_complex_function": "prepare_resend_attempt",
+      "covered_lines": 54,
+      "executable_lines": 60,
+      "line_percent": 90.0,
+      "covered_branches": 5,
+      "branches": 8,
+      "branch_percent": 62.5,
+      "missing_lines": [
+        73,
+        90,
+        136,
+        175,
+        176,
+        177
+      ],
+      "missing_branches": [
+        [
+          72,
+          73
+        ],
+        [
+          89,
+          90
+        ],
+        [
+          135,
+          136
+        ]
+      ]
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_resend_publication.py",
+      "sha256": "589c7b567df25e42437e13293b4273d16d9271a2c35da2ffc53d620887b9b1ea",
+      "physical_lines": 106,
+      "max_function_complexity": 3,
+      "most_complex_function": "publish_resend_attempt",
+      "covered_lines": 31,
+      "executable_lines": 31,
+      "line_percent": 100.0,
+      "covered_branches": 0,
+      "branches": 0,
+      "branch_percent": null,
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend.py",
+      "sha256": "7d87f7da345264d54c1e14ef7e2c6e2e216e92d6921e876dfab1d18f2ea5f3ae",
+      "physical_lines": 150,
+      "max_function_complexity": 4,
+      "most_complex_function": "resend_selected_recipient_messages",
+      "covered_lines": 71,
+      "executable_lines": 71,
+      "line_percent": 100.0,
+      "covered_branches": 6,
+      "branches": 6,
+      "branch_percent": 100.0,
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend_selection.py",
+      "sha256": "f23a5a32a53c98344caf3fbef41f6b3112e2d0a5ddfc9eb9241afb6981eafb0e",
+      "physical_lines": 103,
+      "max_function_complexity": 6,
+      "most_complex_function": "replay_bulk_resend_request",
+      "covered_lines": 28,
+      "executable_lines": 28,
+      "line_percent": 100.0,
+      "covered_branches": 6,
+      "branches": 6,
+      "branch_percent": 100.0,
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend_inputs.py",
+      "sha256": "b2a94f63ffe356dd88be7cb94d04cc7a2311aae9c9d8ee229d611bde5cae7e68",
+      "physical_lines": 75,
+      "max_function_complexity": 6,
+      "most_complex_function": "read_bulk_resend_inputs",
+      "covered_lines": 30,
+      "executable_lines": 31,
+      "line_percent": 96.7741935483871,
+      "covered_branches": 5,
+      "branches": 6,
+      "branch_percent": 83.33333333333333,
+      "missing_lines": [
+        65
+      ],
+      "missing_branches": [
+        [
+          61,
+          65
+        ]
+      ]
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend_claims.py",
+      "sha256": "2833bbbdde3be16143c738ac423c20c2c195c7a86627ac1837f681c09f0b36c7",
+      "physical_lines": 160,
+      "max_function_complexity": 14,
+      "most_complex_function": "claim_bulk_resend_rows",
+      "covered_lines": 66,
+      "executable_lines": 69,
+      "line_percent": 95.65217391304348,
+      "covered_branches": 12,
+      "branches": 14,
+      "branch_percent": 85.71428571428571,
+      "missing_lines": [
+        58,
+        140,
+        148
+      ],
+      "missing_branches": [
+        [
+          57,
+          58
+        ],
+        [
+          139,
+          140
+        ]
+      ]
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend_publication.py",
+      "sha256": "088449d63afee2a8d1bbd4c9e15dfbc54ec6a4c723e66a66aa0f5050913ad0af",
+      "physical_lines": 106,
+      "max_function_complexity": 11,
+      "most_complex_function": "publish_bulk_resend",
+      "covered_lines": 51,
+      "executable_lines": 51,
+      "line_percent": 100.0,
+      "covered_branches": 8,
+      "branches": 8,
+      "branch_percent": 100.0,
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend_support.py",
+      "sha256": "5e5005c5e9363de6f38e795d4d19c4640623eae3ff403ad36df49fab6bc6b326",
+      "physical_lines": 179,
+      "max_function_complexity": 16,
+      "most_complex_function": "recipient_skip_reason",
+      "covered_lines": 59,
+      "executable_lines": 62,
+      "line_percent": 95.16129032258064,
+      "covered_branches": 18,
+      "branches": 22,
+      "branch_percent": 81.81818181818181,
+      "missing_lines": [
+        130,
+        134,
+        135
+      ],
+      "missing_branches": [
+        [
+          129,
+          130
+        ],
+        [
+          133,
+          134
+        ],
+        [
+          134,
+          135
+        ],
+        [
+          134,
+          136
+        ]
+      ]
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend_history.py",
+      "sha256": "7aa092010e4484daa6acfe2952c3d23b0c1869d3418e6befdbcdc94d75863f9c",
+      "physical_lines": 182,
+      "max_function_complexity": 20,
+      "most_complex_function": "selection_delivery_maps",
+      "covered_lines": 43,
+      "executable_lines": 46,
+      "line_percent": 93.47826086956522,
+      "covered_branches": 15,
+      "branches": 20,
+      "branch_percent": 75.0,
+      "missing_lines": [
+        44,
+        149,
+        170
+      ],
+      "missing_branches": [
+        [
+          43,
+          44
+        ],
+        [
+          128,
+          139
+        ],
+        [
+          137,
+          139
+        ],
+        [
+          148,
+          149
+        ],
+        [
+          169,
+          170
+        ]
+      ]
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend_results.py",
+      "sha256": "a51ac1a8e56e844051c652837d464d763413ba43aa457ece15af57960dee1430",
+      "physical_lines": 88,
+      "max_function_complexity": 9,
+      "most_complex_function": "refresh_batch_response",
+      "covered_lines": 27,
+      "executable_lines": 27,
+      "line_percent": 100.0,
+      "covered_branches": 5,
+      "branches": 6,
+      "branch_percent": 83.33333333333333,
+      "missing_lines": [],
+      "missing_branches": [
+        [
+          66,
+          82
+        ]
+      ]
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend_composer.py",
+      "sha256": "c0092665a99fceef9dc464469c84a33ca89609b8d2f75304db6c2ae8ba8ebe78",
+      "physical_lines": 246,
+      "max_function_complexity": 19,
+      "most_complex_function": "resolve_saved_resend_snapshot",
+      "covered_lines": 90,
+      "executable_lines": 95,
+      "line_percent": 94.73684210526316,
+      "covered_branches": 38,
+      "branches": 44,
+      "branch_percent": 86.36363636363636,
+      "missing_lines": [
+        63,
+        85,
+        110,
+        152,
+        213
+      ],
+      "missing_branches": [
+        [
+          62,
+          63
+        ],
+        [
+          84,
+          85
+        ],
+        [
+          109,
+          110
+        ],
+        [
+          151,
+          152
+        ],
+        [
+          205,
+          207
+        ],
+        [
+          207,
+          213
+        ]
+      ]
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend_preview.py",
+      "sha256": "a31bbf1e65f3ab58f5509bec48b2b9daf7c8cc45df5b6fad2cc1043ddffbfe6b",
+      "physical_lines": 137,
+      "max_function_complexity": 6,
+      "most_complex_function": "preview_selected_recipient_messages",
+      "covered_lines": 53,
+      "executable_lines": 53,
+      "line_percent": 100.0,
+      "covered_branches": 6,
+      "branches": 6,
+      "branch_percent": 100.0,
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend_preview_values.py",
+      "sha256": "22578dd2b40732b222d39ff358deb09db16ea062fe07fda967ef5f62c509e213",
+      "physical_lines": 183,
+      "max_function_complexity": 15,
+      "most_complex_function": "collect_bulk_preview_snapshots",
+      "covered_lines": 66,
+      "executable_lines": 68,
+      "line_percent": 97.05882352941177,
+      "covered_branches": 12,
+      "branches": 12,
+      "branch_percent": 100.0,
+      "missing_lines": [
+        111,
+        112
+      ],
+      "missing_branches": []
+    }
+  ],
+  "proposals_only_no_shared_gate_write": true,
+  "coverage_provenance": "Actual180 current tests plus one existing broker test; both full59-source before/after fences identical. Combined only those actual current coverage databases; no stale source or old-source totals. Coverage JSON/XML rendered from backend cwd for canonical app/ paths."
+}

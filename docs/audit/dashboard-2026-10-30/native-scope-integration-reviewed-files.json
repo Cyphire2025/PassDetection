@@ -1,0 +1,167 @@
+{
+  "method": "Full original/current physical reads or authored narrow deltas only for named records. Large native route/support proposal files remain purpose/caller classification-only; no AST/import graph full semantic credit. User-native exclusions preserve historical review history.",
+  "files": [
+    {
+      "path": "scripts/dashboard_audit_inventory.py",
+      "sha256": "a33455037a16929ee8d9f859a6593a049fef8c878817478df8b7265c834f5a14",
+      "physical_lines": 397,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "fixed",
+      "notes": "Complete current tool physical source read plus narrow authored helper/classify/refresh deltas. Native exact-set loader rejects glob/absolute/traversal/duplicate/noncanonical paths; existing classify keyword defaults and deferred_scope_rules two-tuple unchanged. Historical row status/hash/read/finding merge remains intact; only active scope differs."
+    },
+    {
+      "path": "backend/tests/unit/scripts/test_dashboard_audit_scope.py",
+      "sha256": "022c1e11abca15212575de631699bd0e893ecda5233bd170494db40ef2181609",
+      "physical_lines": 260,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "fixed",
+      "notes": "Complete current source physically read/authored. Original59 scope+resolution obligations preserved;21 added native classification/false-positive/historical finding+hash preservation/malformed literal list checks qualify current change."
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/audit-scope.json",
+      "sha256": "5d25fb5fb9dafe73bcefc84ee9e4bfad6f9631fbf48244f53330e49d95b41222",
+      "physical_lines": 95,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "fixed",
+      "notes": "Complete original policy read plus authored exact24 approved literal path entries and separate reason. Inbox deferrals and retained overrides unchanged; no native/mobile glob, no deletion or new app-semantic review credit."
+    },
+    {
+      "path": "backend/app/presentation/dependencies/mobile_auth.py",
+      "sha256": "e15e6efb5660026543df7efc2f0569ccec3c5401e07ded630d7d22ac9cfe9ee9",
+      "physical_lines": 158,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full current source up to175lines physically read: bearer-only native session/generation/account/identity/user/profile validation and bounded activity update. Conservatively retained with mobile_ops bridge; no source change or execution claim."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_integrity.py",
+      "sha256": "e257991c804ad81087fc064e29dd4f3c78836bc51eabbb6ef7452a84886f7573",
+      "physical_lines": 129,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full129line current source physically read in bounded contiguous groups: native challenge/key registration dependencies and fixed no-store/rejection/unavailable projection. Purpose-classified native only; no provider execution."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_journey.py",
+      "sha256": "82b7989828742cb1643d09b69a1d899335ba3aa3406e2046f860d7f1a5d188d1",
+      "physical_lines": 36,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full36line native-only route read: existing trip authorization, snapshot saved destination, rollback then resolver, no-store. No dashboard route/caller and no production change."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_sync_projection.py",
+      "sha256": "621e62f9ff69dff633b2e1514a547e447d4252968d17b8bfbb9d1ea7fec99cb0",
+      "physical_lines": 63,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full63line sync projection read: native legacy operation/authority projection without changing underlying journal row/IDs/cursors. No source change."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_associations.py",
+      "sha256": "2123adb69b3badba6061278bfecc2a51d4065615e1fedf2422da7687a749436c",
+      "physical_lines": 126,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full126line native association source read: public iOS/Android signing identity allowlist projection with bounded cache and unavailable behavior. No credential data/source edit or external verification."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_realtime.py",
+      "sha256": "df33f428d83cb7d3a23674ad60b8683349daf57491af1ca512fa2157f6f82ccd",
+      "physical_lines": 196,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full196line native-only socket source read: header bearer/no query, origin gate, auth reservation/update/close and shared socket delegation. Shared hub/auth/heartbeat components remain retained for dashboard callers; no runtime change."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_auth_phone_support.py",
+      "sha256": "740488919bbed6fdfa44c8bd597836be75126819263c306ec32c9cf82d7b6768",
+      "physical_lines": 149,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full149line native phone lookup/support source read: parameterized candidate SQL then canonical ownership check, bounded overflow, hash verification and non-identifying guidance. Shared passenger phone authority remains retained."
+    },
+    {
+      "path": "backend/app/infrastructure/security/public_upload_otp_rate_limiter.py",
+      "sha256": "f1f362ae09c72d38e58ce3f68676562e1441aa58eac71a93b09f7dd5f15548fc",
+      "physical_lines": 25,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full current supporting source read: subclasses MobileOTPRateLimiter and overrides public-upload quotas and HMAC key namespace. Clears false native-only classification for shared mobile limiter."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_mobile_auth_reconciliation.py",
+      "sha256": "eb058860490341af9a6037c18bf313872038ef64a623002c66e1095ce943fdc1",
+      "physical_lines": 58,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full58line test source read: bounded phone/GC reconciliation SQL and existing binding reconciliation target native ingress but touch shared identity invariants; conservatively retained, no test execution."
+    },
+    {
+      "path": "backend/tests/unit/application/test_mobile_app_integrity.py",
+      "sha256": "4ab69d101cac62c654c473a449b3d0994111a5831b9409322a7119278f717b53",
+      "physical_lines": 170,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete current test physical source read for purpose/caller classification: exclusively native app integrity/association/journey or credential/claim-resolution entrypoints. Proposed+approved audit exclusion only; existing assertions/source untouched, no execution or production qualification claim."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_mobile_associations.py",
+      "sha256": "5416585ce720820f086a468c1cac8792b15d7fbc68519e13800147ba691c04f4",
+      "physical_lines": 84,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete current test physical source read for purpose/caller classification: exclusively native app integrity/association/journey or credential/claim-resolution entrypoints. Proposed+approved audit exclusion only; existing assertions/source untouched, no execution or production qualification claim."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_mobile_integrity_route.py",
+      "sha256": "08f07513d3eaff28e0c169e0df096d54683c49e2ba6811299ebd591e0d323bd0",
+      "physical_lines": 172,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete current test physical source read for purpose/caller classification: exclusively native app integrity/association/journey or credential/claim-resolution entrypoints. Proposed+approved audit exclusion only; existing assertions/source untouched, no execution or production qualification claim."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_mobile_journey.py",
+      "sha256": "3b2343218e70e0d85fd62f59c59c72359c68963276a2ec5fb325dfefada8afc7",
+      "physical_lines": 198,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete current test physical source read for purpose/caller classification: exclusively native app integrity/association/journey or credential/claim-resolution entrypoints. Proposed+approved audit exclusion only; existing assertions/source untouched, no execution or production qualification claim."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_mobile_login_password_work.py",
+      "sha256": "0ae255ef14cddd2d392a3d86954df6ffe163ac3264e95a3199b3d9daa99f698e",
+      "physical_lines": 33,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete current test physical source read for purpose/caller classification: exclusively native app integrity/association/journey or credential/claim-resolution entrypoints. Proposed+approved audit exclusion only; existing assertions/source untouched, no execution or production qualification claim."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_mobile_passenger_claim_resolution.py",
+      "sha256": "81c3eb86db2b0db749f5f37962a5897eded76e495904c87f42ee1a17c34c80f0",
+      "physical_lines": 80,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete current test physical source read for purpose/caller classification: exclusively native app integrity/association/journey or credential/claim-resolution entrypoints. Proposed+approved audit exclusion only; existing assertions/source untouched, no execution or production qualification claim."
+    }
+  ]
+}

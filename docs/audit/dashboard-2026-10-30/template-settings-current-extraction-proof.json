@@ -1,0 +1,14 @@
+{
+  "basis": "Pure responsibility extraction: all24 original query/state/effect/save/reload statements exact, draft interface and original panel public props/authorization guard exact. All six original field statements including complete JSX retain exact AST. Actual keyed row props and map receiver/parameter verified before expanding the pure row owner; actual footer and hook are imported/invoked with their real controller. Entire expanded rendered tree exact; all consumed controller properties explicitly returned. Existing authenticated root remount/request-adapter controls traced; no cross-account vulnerability was established or claimed.",
+  "exact_controller_statements": 24,
+  "exact_field_statements": 6,
+  "whole_expanded_view_AST_exact": true,
+  "original_public_props_exact": true,
+  "original_draft_interface_exact": true,
+  "source_sha256": {
+    "frontend/features/settings/components/whatsapp-template-settings-panel.tsx": "9fa5bf0b8bea481657bcd4ef268f1fb3734f258c521d5722ae21978cfe103b92",
+    "frontend/features/settings/components/whatsapp-template-name-field.tsx": "4c14d5d77655dd5b764ec4955dd2d6ec8d27620a42f80b6fc664192aac247045",
+    "frontend/features/settings/components/whatsapp-template-save-feedback.tsx": "c63c8cac47cebb6dc95265a1d082770ff6b1fe498819915397f7b1f8d37608a6",
+    "frontend/features/settings/hooks/use-whatsapp-template-settings.ts": "e0babde62cb4ceeea0b324df6170d4548edeb0123a06d2e29dd0d103fbd7f809"
+  }
+}

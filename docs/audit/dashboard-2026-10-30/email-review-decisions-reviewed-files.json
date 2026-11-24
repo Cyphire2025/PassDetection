@@ -1,0 +1,245 @@
+{
+  "files": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_review_decisions.py",
+      "sha256": "c42a2e6cc6bd7e9137cc9e106c35114dd95a608def14154aaaac63f053d83bd1",
+      "physical_lines": 184,
+      "review_scope": "full",
+      "reviewer": "document_ui_architecture",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "runtime",
+      "notes": "Complete current physical source read. Typed5field locked context and3field action result; complete expanded27statement public handler AST/decorators/signature and actual parameter/attribute wiring exact.37old imported objects/33actual global bindings/5evaluated hint objects,1HTTP operation+OpenAPI path and18facade route order exact.31focusedcases, strict3types/effectiveRuff6pass; normal95proposals only. Audit/flush/rollback/ambiguouscommit/cleanup/queue ownership stays in public route; no behavior/security policy change."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_review_context.py",
+      "sha256": "7f09eb79d73d14c2816417d675c48f2b35b9d4acb581e49c3566f87908b3b066",
+      "physical_lines": 154,
+      "review_scope": "full",
+      "reviewer": "document_ui_architecture",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "runtime",
+      "notes": "Complete current physical source read. Typed5field locked context and3field action result; complete expanded27statement public handler AST/decorators/signature and actual parameter/attribute wiring exact.37old imported objects/33actual global bindings/5evaluated hint objects,1HTTP operation+OpenAPI path and18facade route order exact.31focusedcases, strict3types/effectiveRuff6pass; normal95proposals only. Audit/flush/rollback/ambiguouscommit/cleanup/queue ownership stays in public route; no behavior/security policy change."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_review_actions.py",
+      "sha256": "6c27816ec4946d43dc5340334fe7da50896fe3085de4768abc200ae9b1844f98",
+      "physical_lines": 166,
+      "review_scope": "full",
+      "reviewer": "document_ui_architecture",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "runtime",
+      "notes": "Complete current physical source read. Typed5field locked context and3field action result; complete expanded27statement public handler AST/decorators/signature and actual parameter/attribute wiring exact.37old imported objects/33actual global bindings/5evaluated hint objects,1HTTP operation+OpenAPI path and18facade route order exact.31focusedcases, strict3types/effectiveRuff6pass; normal95proposals only. Audit/flush/rollback/ambiguouscommit/cleanup/queue ownership stays in public route; no behavior/security policy change."
+    },
+    {
+      "path": "backend/tests/email_review_decision_fixtures.py",
+      "sha256": "6fc758bbaf9634e41e677802294e320ea19f659df109f11b7bcfcf26de8fb026",
+      "physical_lines": 138,
+      "review_scope": "full",
+      "reviewer": "document_ui_architecture",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "test-support",
+      "notes": "Complete current physical read.23new actualSQLite/synthetic-provider action/assignment/owner/revision/feature/storage/commit cases passed corrected before/after baseline;2appended unavailable-row contract cases pass and verify compiledPGscoped lock order. One ingestion patch retarget only; alloriginal test-function ASTs/assertions preserved. Initial active-state fixture correction predates runtime movement; failed28pass/1fixturefail log retained."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_email_review_decision_paths.py",
+      "sha256": "ad6830dac2027adac05dba25ba252f1d463bd575ad9c0b2c8b7e5e4cb0afffe4",
+      "physical_lines": 176,
+      "review_scope": "full",
+      "reviewer": "document_ui_architecture",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "test",
+      "notes": "Complete current physical read.23new actualSQLite/synthetic-provider action/assignment/owner/revision/feature/storage/commit cases passed corrected before/after baseline;2appended unavailable-row contract cases pass and verify compiledPGscoped lock order. One ingestion patch retarget only; alloriginal test-function ASTs/assertions preserved. Initial active-state fixture correction predates runtime movement; failed28pass/1fixturefail log retained."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_email_review_decision_storage.py",
+      "sha256": "c35d977b0aae6e287a8853c9be66c7d028a274829b089c50749c99fee4669a28",
+      "physical_lines": 109,
+      "review_scope": "full",
+      "reviewer": "document_ui_architecture",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "test",
+      "notes": "Complete current physical read.23new actualSQLite/synthetic-provider action/assignment/owner/revision/feature/storage/commit cases passed corrected before/after baseline;2appended unavailable-row contract cases pass and verify compiledPGscoped lock order. One ingestion patch retarget only; alloriginal test-function ASTs/assertions preserved. Initial active-state fixture correction predates runtime movement; failed28pass/1fixturefail log retained."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_review_support.py",
+      "sha256": "c672bb02aef392d12e0f709a0864149191f0e1c6cbba8ddd34b34079960b8b0c",
+      "physical_lines": 151,
+      "review_scope": "full",
+      "reviewer": "document_ui_architecture",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "runtime",
+      "notes": "Complete151line physical read. Assignability/action policy, bounded activity display values, allowlisted provider URL quoting and masked passport hints traced. Existing allowed-action and request controls pass; source unchanged, no new lifecycle/capacity claim."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_email_storage_reconciliation.py",
+      "sha256": "384497a0f255ac76da008f2e1dc7a17d3ae05552798a80d7691b898f167b12ff",
+      "physical_lines": 58,
+      "review_scope": "full",
+      "reviewer": "document_ui_architecture",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "test",
+      "notes": "Complete58line physical read only of existing boundedMinio list/continuation and empty-prefix controls. Existing6409inventory source SHA384497... confirmed; source was discovered, never newly created or edited. Not separately executed in this read-only support review; task4Minio callable identity proof remains independent."
+    }
+  ],
+  "current_full_files": 8,
+  "current_full_physical_lines": 1136,
+  "original367source_full_read": {
+    "path": "backend/app/presentation/api/v1/routes/email_integration_review_decisions.py",
+    "sha256": "591fb3b3b30248d2c2fd1f40ea6eb90cc6232c47833a3cea8f5e3950923ecb77",
+    "physical_lines": 367,
+    "review_scope": "full",
+    "existing_prior_full_ledger": "email-task-residual-reviewed-files.json",
+    "new_unique_read_credit": false
+  },
+  "reused_current_full_context": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integrations.py",
+      "sha256": "6b8b8df006d06009b7202f030b91d0f884eed7dcc6880416e04aa0db512d26bf",
+      "physical_lines": 155,
+      "existing_current_full_ledgers": [
+        "email-connections-reviewed-files.json",
+        "security-reviewed-files.json"
+      ],
+      "new_unique_read_credit": false,
+      "notes": "Whole facade reread but already current/full; no duplicate credit. Actual18route ordering and public endpoint identity verified before/after."
+    },
+    {
+      "path": "backend/app/infrastructure/email/review_decisions.py",
+      "sha256": "4b49c01db5e0a7e439d2a91264e2731c3d5769ce7b3c7380ebd3ccc1157ccd41",
+      "physical_lines": 158,
+      "existing_current_full_ledger": "email-task-residual-reviewed-files.json",
+      "new_unique_read_credit": false,
+      "notes": "Current158line full support source reused, no edit; real mark-unrelated flow continues to revoke in-flight AI claim in existing selected case."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_email_ai_inbox_isolation.py",
+      "sha256": "5e8ac0d2db1cd7d29af3bbdd4cfe864295563f1a77dcf5405d2574bf88e13a8c",
+      "physical_lines": 1769,
+      "existing_current_full_ledger": "email-connections-reviewed-files.json",
+      "new_unique_read_credit": false,
+      "notes": "Prior complete current1769line full source record reused; only relevant1621\u2013EOFcontext reread and1public route case run, no whole-file runtime qualification or source edits."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_email_integration_route_decomposition.py",
+      "sha256": "7a0dc81a5b12e9f3a95b70aaf149976051b82c0ed06f981d47bbd5a7faf4ebf4",
+      "physical_lines": 142,
+      "existing_current_full_ledger": "email-connections-reviewed-files.json",
+      "new_unique_read_credit": false,
+      "notes": "Current full caller contract reused;3unchanged cases pass."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_email_integration_contract.py",
+      "sha256": "90600186690bfeb92fa3abeee378c071c8227a1dcb8dea82be958daecfc80c2f",
+      "physical_lines": 303,
+      "existing_current_full_ledger": "email-connections-reviewed-files.json",
+      "new_unique_read_credit": false,
+      "notes": "Current full contract source reused; selected2allowed-action/request cases pass, not allfile cases in this selection."
+    }
+  ],
+  "partial_context": [
+    {
+      "path": "backend/app/infrastructure/email/sync_contracts.py",
+      "sha256": "c38193441cc07f711fd5e481ced8a4867a9fba53e982dde24e1a06c689580bb7",
+      "physical_lines": 97,
+      "review_scope": "partial",
+      "read_ranges": [
+        [
+          1,
+          85
+        ]
+      ],
+      "notes": "Actual immutable3field ingestion-result DTO and worker-claim contracts prefix only."
+    },
+    {
+      "path": "backend/app/infrastructure/email/sync_review_ingestion.py",
+      "sha256": "a5463a49be576ba5607d617d664e40b614570c791de91940caff325e4d9c80cc",
+      "physical_lines": 237,
+      "review_scope": "partial",
+      "read_ranges": [
+        [
+          1,
+          75
+        ]
+      ],
+      "notes": "Actual reviewed-artifact owner/revalidation/API/return type prefix; no integration provider sends or full new source credit."
+    },
+    {
+      "path": "backend/app/infrastructure/email/sync_events.py",
+      "sha256": "b435c6f0d0a5c190fc03b1d947bf5c0678f2d02986776a6f3339c01048886d50",
+      "physical_lines": 158,
+      "review_scope": "partial",
+      "read_ranges": [
+        [
+          1,
+          110
+        ]
+      ],
+      "notes": "Real message-count/processing refresh and advisory-lock source prefix only, not full file."
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/passport.py",
+      "sha256": "6c5db24c2bb231c3f9e191879cedb21dbf25d5502985b538db90f30c8cfaf44d",
+      "physical_lines": 326,
+      "review_scope": "partial",
+      "read_ranges": [
+        [
+          38,
+          102
+        ],
+        [
+          151,
+          230
+        ]
+      ],
+      "notes": "Existing frozen model constraints/required fixture fields ranges only, not duplicate model full-read credit."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/email_integration_schemas.py",
+      "sha256": "a0017a85105e7b2935ed41429f68210b7a6964820738ed980d344925070ca76c",
+      "physical_lines": 233,
+      "review_scope": "partial",
+      "read_ranges": [
+        [
+          141,
+          233
+        ]
+      ],
+      "notes": "Review/action DTO and adjacent schemas range only; actual OpenAPI/hints independently verified."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_access.py",
+      "sha256": "78fc9344b18d976143a137c02d8b073be5516d4738162376218132a0c5074f5e",
+      "physical_lines": 174,
+      "review_scope": "partial",
+      "read_ranges": [
+        [
+          1,
+          132
+        ]
+      ],
+      "notes": "Owner filters, worker enqueue and locking source context reused from prior full source review; no new complete-file credit."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_email_sync_service.py",
+      "sha256": "dfe71e5be41b9b1a80b832e5a424a7617818527ab7b26d6ca4d4a3b195ba3f65",
+      "physical_lines": 409,
+      "review_scope": "partial",
+      "read_ranges": [
+        [
+          1,
+          105
+        ]
+      ],
+      "notes": "Existing typed fixture/provider boundary prefix only, no test execution or full new source credit."
+    }
+  ],
+  "credit_limit": "Only physical current complete reads get newfull credit; previous full records, partials, searches, API/schema metadata, compilation and passing tests are distinct. Architecture implementation is closed for this3owner tranche, broader audit and service qualification remain open."
+}

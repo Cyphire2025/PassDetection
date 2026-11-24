@@ -1,0 +1,70 @@
+{
+  "candidate_file_sha256": "929597b13723dcd849e2536212976f13ea79c68f9b9bb5b0f0449aaa8ea957a3",
+  "shared_gates_edited": false,
+  "scope": "Only nine changed email runtime paths; no repository-wide budget run.",
+  "checks": [
+    {
+      "path": "app/infrastructure/database/email_models.py",
+      "lines": 86,
+      "complexity": 4,
+      "line_coverage_percent": 98.0,
+      "proposed_normal_budget_passed": true
+    },
+    {
+      "path": "app/infrastructure/database/_email_models/__init__.py",
+      "lines": 7,
+      "complexity": 0,
+      "line_coverage_percent": 100.0,
+      "proposed_normal_budget_passed": true
+    },
+    {
+      "path": "app/infrastructure/database/_email_models/connections.py",
+      "lines": 262,
+      "complexity": 0,
+      "line_coverage_percent": 100.0,
+      "proposed_normal_budget_passed": true
+    },
+    {
+      "path": "app/infrastructure/database/_email_models/oauth.py",
+      "lines": 147,
+      "complexity": 0,
+      "line_coverage_percent": 100.0,
+      "proposed_normal_budget_passed": true
+    },
+    {
+      "path": "app/infrastructure/database/_email_models/messages.py",
+      "lines": 222,
+      "complexity": 0,
+      "line_coverage_percent": 100.0,
+      "proposed_normal_budget_passed": true
+    },
+    {
+      "path": "app/infrastructure/database/_email_models/artifacts.py",
+      "lines": 286,
+      "complexity": 0,
+      "line_coverage_percent": 100.0,
+      "proposed_normal_budget_passed": true
+    },
+    {
+      "path": "app/infrastructure/database/_email_models/documents.py",
+      "lines": 105,
+      "complexity": 0,
+      "line_coverage_percent": 100.0,
+      "proposed_normal_budget_passed": true
+    },
+    {
+      "path": "app/infrastructure/database/_email_models/reviews.py",
+      "lines": 268,
+      "complexity": 0,
+      "line_coverage_percent": 100.0,
+      "proposed_normal_budget_passed": true
+    },
+    {
+      "path": "app/infrastructure/database/_email_models/activity.py",
+      "lines": 233,
+      "complexity": 0,
+      "line_coverage_percent": 100.0,
+      "proposed_normal_budget_passed": true
+    }
+  ]
+}

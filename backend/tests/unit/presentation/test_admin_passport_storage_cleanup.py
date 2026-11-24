@@ -205,11 +205,11 @@ async def test_manager_owned_data_deletion_removes_every_passport_object(legacy_
             AsyncMock(return_value=[edit_source_key]),
         ),
         patch(
-            "app.presentation.api.v1.routes.admin._delete_entity_rows",
+            "app.presentation.api.v1.routes.admin_manager_deletion._delete_entity_rows",
             AsyncMock(return_value=1),
         ),
         patch(
-            "app.presentation.api.v1.routes.admin._delete_by_ids",
+            "app.presentation.api.v1.routes.admin_manager_deletion._delete_by_ids",
             AsyncMock(side_effect=[1, 1, 1]),
         ),
         patch.object(
@@ -218,11 +218,11 @@ async def test_manager_owned_data_deletion_removes_every_passport_object(legacy_
             AsyncMock(return_value=None),
         ),
         patch(
-            "app.presentation.api.v1.routes.admin.stage_storage_cleanup_jobs",
+            "app.presentation.api.v1.routes.admin_manager_deletion.stage_storage_cleanup_jobs",
             return_value=(cleanup_job,),
         ) as stage_cleanup,
         patch(
-            "app.presentation.api.v1.routes.admin.process_storage_cleanup_job",
+            "app.presentation.api.v1.routes.admin_manager_deletion.process_storage_cleanup_job",
             AsyncMock(side_effect=process_cleanup),
         ),
     ):
@@ -275,7 +275,7 @@ async def test_manager_with_an_owned_mailbox_is_disabled_instead_of_hard_deleted
     with (
         patch.object(AuditLogRepository, "record", AsyncMock(return_value=None)),
         patch(
-            "app.presentation.api.v1.routes.admin.hash_password",
+            "app.presentation.api.v1.routes.admin_manager_deletion.hash_password",
             return_value="revoked-password-hash",
         ),
     ):
@@ -338,20 +338,20 @@ async def test_manager_storage_failure_keeps_committed_cleanup_tombstone() -> No
             AsyncMock(return_value=["passport-edits/manager/photo/1.jpg"]),
         ),
         patch(
-            "app.presentation.api.v1.routes.admin._delete_entity_rows",
+            "app.presentation.api.v1.routes.admin_manager_deletion._delete_entity_rows",
             delete_entity_rows,
         ),
         patch(
-            "app.presentation.api.v1.routes.admin._delete_by_ids",
+            "app.presentation.api.v1.routes.admin_manager_deletion._delete_by_ids",
             delete_by_ids,
         ),
         patch.object(AuditLogRepository, "record", audit_record),
         patch(
-            "app.presentation.api.v1.routes.admin.stage_storage_cleanup_jobs",
+            "app.presentation.api.v1.routes.admin_manager_deletion.stage_storage_cleanup_jobs",
             return_value=(cleanup_job,),
         ),
         patch(
-            "app.presentation.api.v1.routes.admin.process_storage_cleanup_job",
+            "app.presentation.api.v1.routes.admin_manager_deletion.process_storage_cleanup_job",
             process_cleanup,
         ),
     ):
@@ -414,24 +414,24 @@ async def test_manager_commit_failure_never_starts_object_cleanup() -> None:
             AsyncMock(return_value=[]),
         ),
         patch(
-            "app.presentation.api.v1.routes.admin._delete_entity_rows",
+            "app.presentation.api.v1.routes.admin_manager_deletion._delete_entity_rows",
             AsyncMock(return_value=1),
         ),
         patch(
-            "app.presentation.api.v1.routes.admin._delete_by_ids",
+            "app.presentation.api.v1.routes.admin_manager_deletion._delete_by_ids",
             AsyncMock(side_effect=[1, 1, 1]),
         ),
         patch.object(AuditLogRepository, "record", AsyncMock()),
         patch(
-            "app.presentation.api.v1.routes.admin.stage_storage_cleanup_jobs",
+            "app.presentation.api.v1.routes.admin_manager_deletion.stage_storage_cleanup_jobs",
             return_value=(cleanup_job,),
         ),
         patch(
-            "app.presentation.api.v1.routes.admin.process_storage_cleanup_job",
+            "app.presentation.api.v1.routes.admin_manager_deletion.process_storage_cleanup_job",
             process_cleanup,
         ),
         patch(
-            "app.presentation.api.v1.routes.admin.record_destructive_failure",
+            "app.presentation.api.v1.routes.admin_manager_deletion.record_destructive_failure",
             record_failure,
         ),
         pytest.raises(RuntimeError, match="commit failed"),
@@ -488,19 +488,19 @@ async def test_manager_database_mutation_failure_never_starts_object_cleanup() -
             AsyncMock(return_value=[]),
         ),
         patch(
-            "app.presentation.api.v1.routes.admin._delete_entity_rows",
+            "app.presentation.api.v1.routes.admin_manager_deletion._delete_entity_rows",
             AsyncMock(return_value=1),
         ),
         patch(
-            "app.presentation.api.v1.routes.admin._delete_by_ids",
+            "app.presentation.api.v1.routes.admin_manager_deletion._delete_by_ids",
             AsyncMock(side_effect=RuntimeError("database write failed")),
         ),
         patch(
-            "app.presentation.api.v1.routes.admin.stage_storage_cleanup_jobs",
+            "app.presentation.api.v1.routes.admin_manager_deletion.stage_storage_cleanup_jobs",
             return_value=(cleanup_job,),
         ),
         patch(
-            "app.presentation.api.v1.routes.admin.process_storage_cleanup_job",
+            "app.presentation.api.v1.routes.admin_manager_deletion.process_storage_cleanup_job",
             process_cleanup,
         ),
         pytest.raises(RuntimeError, match="database write failed"),
@@ -616,15 +616,15 @@ async def test_global_passport_data_purge_removes_every_passport_object(legacy_h
             AsyncMock(return_value=[edit_source_key]),
         ),
         patch(
-            "app.presentation.api.v1.routes.admin._delete_entity_rows",
+            "app.presentation.api.v1.routes.admin_passport_purge._delete_entity_rows",
             AsyncMock(return_value=1),
         ),
         patch(
-            "app.presentation.api.v1.routes.admin._delete_by_ids",
+            "app.presentation.api.v1.routes.admin_passport_purge._delete_by_ids",
             AsyncMock(side_effect=[1, 1, 1]),
         ),
         patch(
-            "app.presentation.api.v1.routes.admin._delete_whatsapp_broadcast_data",
+            "app.presentation.api.v1.routes.admin_passport_purge._delete_whatsapp_broadcast_data",
             AsyncMock(
                 return_value=_WhatsAppPurgeCounts(
                     broadcast_groups=0,
@@ -642,7 +642,7 @@ async def test_global_passport_data_purge_removes_every_passport_object(legacy_h
             AsyncMock(return_value=None),
         ),
         patch(
-            "app.presentation.api.v1.routes.admin.process_storage_cleanup_job",
+            "app.presentation.api.v1.routes.admin_passport_purge.process_storage_cleanup_job",
             AsyncMock(
                 return_value=SimpleNamespace(completed=True, deleted_count=6)
             ),
@@ -690,15 +690,15 @@ async def test_agency_purge_scopes_submissions_through_authorized_groups() -> No
             AsyncMock(return_value=[]),
         ),
         patch(
-            "app.presentation.api.v1.routes.admin._delete_entity_rows",
+            "app.presentation.api.v1.routes.admin_passport_purge._delete_entity_rows",
             AsyncMock(return_value=0),
         ),
         patch(
-            "app.presentation.api.v1.routes.admin._delete_by_ids",
+            "app.presentation.api.v1.routes.admin_passport_purge._delete_by_ids",
             AsyncMock(side_effect=[1, 1, 1]),
         ),
         patch(
-            "app.presentation.api.v1.routes.admin._delete_whatsapp_broadcast_data",
+            "app.presentation.api.v1.routes.admin_passport_purge._delete_whatsapp_broadcast_data",
             AsyncMock(
                 return_value=_WhatsAppPurgeCounts(
                     broadcast_groups=0,
@@ -716,7 +716,7 @@ async def test_agency_purge_scopes_submissions_through_authorized_groups() -> No
             AsyncMock(return_value=None),
         ),
         patch(
-            "app.presentation.api.v1.routes.admin.process_storage_cleanup_job",
+            "app.presentation.api.v1.routes.admin_passport_purge.process_storage_cleanup_job",
             AsyncMock(
                 return_value=SimpleNamespace(completed=True, deleted_count=4)
             ),
@@ -776,20 +776,20 @@ async def test_global_purge_commits_rows_and_defers_cleanup_after_storage_failur
             AsyncMock(return_value=["passport-edits/global/photo/1.jpg"]),
         ),
         patch(
-            "app.presentation.api.v1.routes.admin._delete_entity_rows",
+            "app.presentation.api.v1.routes.admin_passport_purge._delete_entity_rows",
             delete_entity_rows,
         ),
         patch(
-            "app.presentation.api.v1.routes.admin._delete_by_ids",
+            "app.presentation.api.v1.routes.admin_passport_purge._delete_by_ids",
             delete_by_ids,
         ),
         patch(
-            "app.presentation.api.v1.routes.admin._delete_whatsapp_broadcast_data",
+            "app.presentation.api.v1.routes.admin_passport_purge._delete_whatsapp_broadcast_data",
             delete_whatsapp_data,
         ),
         patch.object(AuditLogRepository, "record", audit_record),
         patch(
-            "app.presentation.api.v1.routes.admin.process_storage_cleanup_job",
+            "app.presentation.api.v1.routes.admin_passport_purge.process_storage_cleanup_job",
             AsyncMock(side_effect=StorageError("storage unavailable")),
         ),
     ):
@@ -867,24 +867,24 @@ async def test_global_purge_never_starts_object_cleanup_when_database_commit_fai
             AsyncMock(return_value=[]),
         ),
         patch(
-            "app.presentation.api.v1.routes.admin._delete_entity_rows",
+            "app.presentation.api.v1.routes.admin_passport_purge._delete_entity_rows",
             AsyncMock(return_value=0),
         ),
         patch(
-            "app.presentation.api.v1.routes.admin._delete_by_ids",
+            "app.presentation.api.v1.routes.admin_passport_purge._delete_by_ids",
             AsyncMock(side_effect=[1, 1, 1]),
         ),
         patch(
-            "app.presentation.api.v1.routes.admin._delete_whatsapp_broadcast_data",
+            "app.presentation.api.v1.routes.admin_passport_purge._delete_whatsapp_broadcast_data",
             AsyncMock(return_value=_WhatsAppPurgeCounts(0, 0, 0, 0, 0, 0)),
         ),
         patch.object(AuditLogRepository, "record", AsyncMock(return_value=None)),
         patch(
-            "app.presentation.api.v1.routes.admin.process_storage_cleanup_job",
+            "app.presentation.api.v1.routes.admin_passport_purge.process_storage_cleanup_job",
             process_cleanup,
         ),
         patch(
-            "app.presentation.api.v1.routes.admin.record_destructive_failure",
+            "app.presentation.api.v1.routes.admin_passport_purge.record_destructive_failure",
             record_failure,
         ),
         pytest.raises(RuntimeError, match="commit failed"),
@@ -927,14 +927,14 @@ async def test_global_purge_stops_before_row_deletion_when_tombstone_staging_fai
             AsyncMock(return_value=[]),
         ),
         patch(
-            "app.presentation.api.v1.routes.admin.stage_storage_cleanup_jobs",
+            "app.presentation.api.v1.routes.admin_passport_purge.stage_storage_cleanup_jobs",
             side_effect=RuntimeError("tombstone unavailable"),
         ),
         patch(
-            "app.presentation.api.v1.routes.admin._delete_entity_rows",
+            "app.presentation.api.v1.routes.admin_passport_purge._delete_entity_rows",
             delete_entity_rows,
         ),
-        patch("app.presentation.api.v1.routes.admin._delete_by_ids", delete_by_ids),
+        patch("app.presentation.api.v1.routes.admin_passport_purge._delete_by_ids", delete_by_ids),
         pytest.raises(RuntimeError, match="tombstone unavailable"),
     ):
         await purge_passport_data(

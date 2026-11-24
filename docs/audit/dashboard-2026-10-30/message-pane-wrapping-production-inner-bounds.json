@@ -1,0 +1,78 @@
+{
+  "passed": true,
+  "buildId": "jmn7rIY1ck17GZ_tqrKAH",
+  "results": [
+    {
+      "pane": "review",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "geometry": {
+        "clientWidth": 308,
+        "scrollWidth": 308,
+        "x": 41,
+        "width": 308,
+        "viewport": 390,
+        "whiteSpace": "pre-wrap",
+        "overflowWrap": "anywhere"
+      },
+      "text": "Dear AlexandraSyntheticLongRecipientNameForResponsivePreviewVerification,\n\nPlease check the synthetic trip details for Synthetic International Partner Recognition Programme — November 2026.",
+      "screenshot": "../.tmp/message-pane-wrapping/production-review-after-390.png"
+    },
+    {
+      "pane": "historical",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "geometry": {
+        "clientWidth": 308,
+        "scrollWidth": 308,
+        "x": 41,
+        "width": 308,
+        "viewport": 390,
+        "whiteSpace": "pre-wrap",
+        "overflowWrap": "anywhere"
+      },
+      "text": "Dear AlexandraSyntheticLongRecipientNameForResponsivePreviewVerification,\nhttps://travel.example.test/private/synthetic-alex/synthetic-personal-token\nSaved for this recipient only.",
+      "screenshot": "../.tmp/message-pane-wrapping/production-historical-after-390.png"
+    },
+    {
+      "pane": "review",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "geometry": {
+        "clientWidth": 718,
+        "scrollWidth": 718,
+        "x": 361,
+        "width": 718,
+        "viewport": 1440,
+        "whiteSpace": "pre-wrap",
+        "overflowWrap": "anywhere"
+      },
+      "text": "Dear AlexandraSyntheticLongRecipientNameForResponsivePreviewVerification,\n\nPlease check the synthetic trip details for Synthetic International Partner Recognition Programme — November 2026.",
+      "screenshot": "../.tmp/message-pane-wrapping/production-review-after-1440.png"
+    },
+    {
+      "pane": "historical",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "geometry": {
+        "clientWidth": 718,
+        "scrollWidth": 718,
+        "x": 361,
+        "width": 718,
+        "viewport": 1440,
+        "whiteSpace": "pre-wrap",
+        "overflowWrap": "anywhere"
+      },
+      "text": "Dear AlexandraSyntheticLongRecipientNameForResponsivePreviewVerification,\nhttps://travel.example.test/private/synthetic-alex/synthetic-personal-token\nSaved for this recipient only.",
+      "screenshot": "../.tmp/message-pane-wrapping/production-historical-after-1440.png"
+    }
+  ]
+}

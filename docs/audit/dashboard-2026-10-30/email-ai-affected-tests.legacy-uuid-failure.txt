@@ -1,0 +1,27 @@
+........................................................................ [ 52%]
+.......F.........................................................        [100%]
+================================== FAILURES ===================================
+_ test_claim_task_boundary_preserves_single_class_identity_and_original_module _
+tests\unit\infrastructure\test_email_ai_architecture_compatibility.py:26: in test_claim_task_boundary_preserves_single_class_identity_and_original_module
+    assert list(get_type_hints(type(claim))) == [field.name for field in dataclasses.fields(claim)]
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\typing.py:2377: in get_type_hints
+    value = _eval_type(value, base_globals, base_locals)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\typing.py:395: in _eval_type
+    return t._evaluate(globalns, localns, recursive_guard)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\typing.py:905: in _evaluate
+    eval(self.__forward_code__, globalns, localns),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<string>:1: in <module>
+    ???
+E   NameError: name 'uuid' is not defined
+
+---------- coverage: platform win32, python 3.11.15-final-0 ----------
+Coverage XML written to file C:\Users\nipun\Desktop\PassDetection\docs\audit\dashboard-2026-10-30\email-ai-coverage.xml
+Coverage JSON written to file C:\Users\nipun\Desktop\PassDetection\docs\audit\dashboard-2026-10-30\email-ai-coverage.json
+
+=========================== short test summary info ===========================
+FAILED tests/unit/infrastructure/test_email_ai_architecture_compatibility.py::test_claim_task_boundary_preserves_single_class_identity_and_original_module
+1 failed, 136 passed in 45.82s

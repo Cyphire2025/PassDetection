@@ -1,0 +1,152 @@
+{
+  "status": "completed-focused-integration",
+  "before_modules": 685,
+  "after_modules": 688,
+  "normal_additions": 3,
+  "existing_update": {
+    "path": "app/application/use_cases/passports/submit_passport_use_case.py",
+    "before": {
+      "path": "app/application/use_cases/passports/submit_passport_use_case.py",
+      "baseline_lines": 451,
+      "maximum_lines": 460,
+      "baseline_max_function_complexity": 46,
+      "maximum_function_complexity": 46,
+      "minimum_coverage_percent": 85
+    },
+    "after": {
+      "path": "app/application/use_cases/passports/submit_passport_use_case.py",
+      "baseline_lines": 369,
+      "maximum_lines": 380,
+      "baseline_max_function_complexity": 35,
+      "maximum_function_complexity": 35,
+      "minimum_coverage_percent": 85
+    }
+  },
+  "other684normal_rows_unchanged": true,
+  "critical_before": 99,
+  "critical_after": 102,
+  "all99oldcritical_rows_unchanged": true,
+  "three_actual_logic_owners_inherit_original85line80branch": true,
+  "all_global_floors_caps_and_other_policy_unchanged": true,
+  "measurements": [
+    {
+      "path": "app/application/use_cases/passports/submit_passport_use_case.py",
+      "sha256": "5f90f8fa82761c68ccef7ef729824609a182b60c7ce4413916f2e4bee356883b",
+      "lines": 369,
+      "complexity": 35,
+      "statement_percent": 91.40625,
+      "branch_percent": 83.33333333333333,
+      "budget": {
+        "path": "app/application/use_cases/passports/submit_passport_use_case.py",
+        "baseline_lines": 369,
+        "maximum_lines": 380,
+        "baseline_max_function_complexity": 35,
+        "maximum_function_complexity": 35,
+        "minimum_coverage_percent": 85
+      },
+      "critical": {
+        "path": "app/application/use_cases/passports/submit_passport_use_case.py",
+        "minimum_line_percent": 85,
+        "minimum_branch_percent": 80
+      }
+    },
+    {
+      "path": "app/application/use_cases/passports/passport_upload_plan.py",
+      "sha256": "10282725c29a67620a46067f9a9b95902df614b21495561e0d98971d19864fe3",
+      "lines": 79,
+      "complexity": 5,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "budget": {
+        "path": "app/application/use_cases/passports/passport_upload_plan.py",
+        "baseline_lines": 79,
+        "maximum_lines": 85,
+        "baseline_max_function_complexity": 5,
+        "maximum_function_complexity": 5,
+        "minimum_coverage_percent": 85
+      },
+      "critical": {
+        "path": "app/application/use_cases/passports/passport_upload_plan.py",
+        "minimum_line_percent": 85,
+        "minimum_branch_percent": 80
+      }
+    },
+    {
+      "path": "app/application/use_cases/passports/passport_upload_selection.py",
+      "sha256": "932ba6cd69071edc17c3080279670c001bb566864bdc2ba4c94d01c3af90913b",
+      "lines": 68,
+      "complexity": 11,
+      "statement_percent": 92.0,
+      "branch_percent": 85.71428571428571,
+      "budget": {
+        "path": "app/application/use_cases/passports/passport_upload_selection.py",
+        "baseline_lines": 68,
+        "maximum_lines": 75,
+        "baseline_max_function_complexity": 11,
+        "maximum_function_complexity": 11,
+        "minimum_coverage_percent": 85
+      },
+      "critical": {
+        "path": "app/application/use_cases/passports/passport_upload_selection.py",
+        "minimum_line_percent": 85,
+        "minimum_branch_percent": 80
+      }
+    },
+    {
+      "path": "app/application/use_cases/passports/passport_upload_submission.py",
+      "sha256": "1a5637b651289c3d0b92fa940fb7e319e866dc69c9200cb3c8d3a84312a8a777",
+      "lines": 47,
+      "complexity": 8,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "budget": {
+        "path": "app/application/use_cases/passports/passport_upload_submission.py",
+        "baseline_lines": 47,
+        "maximum_lines": 55,
+        "baseline_max_function_complexity": 8,
+        "maximum_function_complexity": 8,
+        "minimum_coverage_percent": 85
+      },
+      "critical": {
+        "path": "app/application/use_cases/passports/passport_upload_submission.py",
+        "minimum_line_percent": 85,
+        "minimum_branch_percent": 80
+      }
+    }
+  ],
+  "source_provenance": "Peer sealed source/expanded-AST/current raw coverage evidence used with attribution; not a new independent full-source review or broad test run",
+  "release": {
+    "paths_before_and_after": 112,
+    "all112oldBEFORE_pairs_and111otherAFTER_values_unchanged": true,
+    "only_known_backend_budget_AFTER_updated": true,
+    "after_backend_budget_sha256": "4052d455986bdac50517432e6f8ba575aff905dccca649f24796214429dc23b3",
+    "after_bindings_sha256": "a9f39335d3ccdae1c3e1594d1cf6521136ef3156eb41990c931ee1f87f76cf78"
+  },
+  "artifacts": {
+    "submit-architecture-previous-values.json": "2ee298544de4bd278aa33869d95896b90322653e95ea8fe906a325bcd8c38ef8",
+    "submit-architecture-verification.json": "6bd2fedfa5c3f1df03311ab2301479d0832468f17d1534e98170d0f0bad273b6",
+    "submit-architecture-budget-candidates.json": "af2c2ca386a79bfcdc51c13b922442aef200de8a3e1b4cb92d24150e11dc9e44",
+    "submit-architecture-critical-candidates.json": "2ffdc1c565047cbf671d6973c5f65a5e1f6b8c5ac540d7fc8446ee4f77469455",
+    "submit-architecture-qualified-coverage.json": "df2bd6bfa44c67e4c0cab9ef50581e5cfc167a24a71f6aef8161ff3625054f47",
+    "submit-architecture-budgets.txt": "db49a3baef8c9be712b48cecf17c549d612bfad1b6aaddf4c5618a2eb02a35b2",
+    "submit-architecture-bindings.txt": "f54c10cf450d188033872f3961608251fe4fbe8f99b1c206caa9e645fcd1771f",
+    "submit-architecture-loader-tests.txt": "6573712d30fb6f79ed128ec8ded86c2de003084c98c1249a6abb504c64f6c258",
+    "submit-architecture-exact-bindings.json": "eb6f3b56aa42f4c34891900329d25b61d1c7fd845521452795ff12751a647329"
+  },
+  "limits": [
+    "No broad application/build/browser/live-service qualification",
+    "MCP1990 remains historical pending source-owner reconciliation",
+    "Retained operator strict-interface typing remains explicitly open"
+  ],
+  "checks": {
+    "backend_static": "PASS688 normal/102critical",
+    "all112AFTER_and_both_actual_baselines": "PASS",
+    "focused_loader": "PASS14cases7.465seconds",
+    "no_broad_app_or_live_services": true
+  },
+  "current_control_source_sha256": {
+    "backend/backend_quality_budgets.json": "4052d455986bdac50517432e6f8ba575aff905dccca649f24796214429dc23b3",
+    "scripts/release_workspace_branding_bindings.json": "a9f39335d3ccdae1c3e1594d1cf6521136ef3156eb41990c931ee1f87f76cf78",
+    "scripts/release_workspace_branding_policy.py": "7d4b25a356c540991d9f84f537e102ba16429a6eef4938499423ad1b3472e16f"
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "status": "retired",
+  "reviewer": "branding_visuals",
+  "source_cohort": "assets/branding/global-connect/journey-film/qa/browser-color-probes",
+  "closed_entry_count": 5,
+  "approved_proposal": "journey-color-probes-retirement-plan.json",
+  "approved_proposal_sha256": "83d1b7f670bafdc4408d55e678e824a7234d18a022c2549eecf0f411812f68ca",
+  "files": [
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/browser-color-probes/full-srgb.mp4",
+      "original_path": "assets/branding/global-connect/journey-film/qa/browser-color-probes/full-srgb.mp4",
+      "archive_path": "Not related to project/retired-branding-experiments/assets/branding/global-connect/journey-film/qa/browser-color-probes/full-srgb.mp4",
+      "sha256": "a8fd820f0a5fc763cbc69e45c4b6e9485e26d2e19bf9ab8e3909a333a3b5a9e4",
+      "archive_sha256": "a8fd820f0a5fc763cbc69e45c4b6e9485e26d2e19bf9ab8e3909a333a3b5a9e4",
+      "bytes": 57477,
+      "status": "retired",
+      "asset_metadata_only": true,
+      "review_scope": "reference-closure-and-byte-metadata",
+      "reason": "Closed temporary local four-video color comparison +index only; active film/web/poster/shared geography/producers/masters/other QA retained."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/browser-color-probes/index.html",
+      "original_path": "assets/branding/global-connect/journey-film/qa/browser-color-probes/index.html",
+      "archive_path": "Not related to project/retired-branding-experiments/assets/branding/global-connect/journey-film/qa/browser-color-probes/index.html",
+      "sha256": "af6e1431d71391c18afe684fc65e01180344a60db1ca8a75e46d2d3016dcbf26",
+      "archive_sha256": "af6e1431d71391c18afe684fc65e01180344a60db1ca8a75e46d2d3016dcbf26",
+      "bytes": 1249,
+      "status": "retired",
+      "asset_metadata_only": true,
+      "review_scope": "reference-closure-and-byte-metadata",
+      "reason": "Closed temporary local four-video color comparison +index only; active film/web/poster/shared geography/producers/masters/other QA retained."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/browser-color-probes/limited-709.mp4",
+      "original_path": "assets/branding/global-connect/journey-film/qa/browser-color-probes/limited-709.mp4",
+      "archive_path": "Not related to project/retired-branding-experiments/assets/branding/global-connect/journey-film/qa/browser-color-probes/limited-709.mp4",
+      "sha256": "1a934b02cc187ee01ffd5f1ec88f531239b2d0fedd375912b24357cbac998c2d",
+      "archive_sha256": "1a934b02cc187ee01ffd5f1ec88f531239b2d0fedd375912b24357cbac998c2d",
+      "bytes": 56614,
+      "status": "retired",
+      "asset_metadata_only": true,
+      "review_scope": "reference-closure-and-byte-metadata",
+      "reason": "Closed temporary local four-video color comparison +index only; active film/web/poster/shared geography/producers/masters/other QA retained."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/browser-color-probes/limited-srgb.mp4",
+      "original_path": "assets/branding/global-connect/journey-film/qa/browser-color-probes/limited-srgb.mp4",
+      "archive_path": "Not related to project/retired-branding-experiments/assets/branding/global-connect/journey-film/qa/browser-color-probes/limited-srgb.mp4",
+      "sha256": "166812ecff18495b10f331e1253aa10f9eafb9db017d056f10fe71554ccd968a",
+      "archive_sha256": "166812ecff18495b10f331e1253aa10f9eafb9db017d056f10fe71554ccd968a",
+      "bytes": 56614,
+      "status": "retired",
+      "asset_metadata_only": true,
+      "review_scope": "reference-closure-and-byte-metadata",
+      "reason": "Closed temporary local four-video color comparison +index only; active film/web/poster/shared geography/producers/masters/other QA retained."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/browser-color-probes/limited-unspecified.mp4",
+      "original_path": "assets/branding/global-connect/journey-film/qa/browser-color-probes/limited-unspecified.mp4",
+      "archive_path": "Not related to project/retired-branding-experiments/assets/branding/global-connect/journey-film/qa/browser-color-probes/limited-unspecified.mp4",
+      "sha256": "7430093f8c56471e0d3afa70a04bc0c8acf1757cb422669cb8a4c63e68abc965",
+      "archive_sha256": "7430093f8c56471e0d3afa70a04bc0c8acf1757cb422669cb8a4c63e68abc965",
+      "bytes": 56593,
+      "status": "retired",
+      "asset_metadata_only": true,
+      "review_scope": "reference-closure-and-byte-metadata",
+      "reason": "Closed temporary local four-video color comparison +index only; active film/web/poster/shared geography/producers/masters/other QA retained."
+    }
+  ],
+  "binary_payloads_embedded": false,
+  "exact_filename_allowlist": [
+    "full-srgb.mp4",
+    "index.html",
+    "limited-709.mp4",
+    "limited-srgb.mp4",
+    "limited-unspecified.mp4"
+  ],
+  "scope": "Only these5 exact original paths; no blanket asset/branding/folder retirement admission.",
+  "path_safety": "Absolute source/destination resolved and verified within workspace and intended ignored archive before native PowerShell Move-Item; all5 exactbyte hashes/sizes rechecked afterward. Initial unsupported Split-Path parameter combination failed before mutation; corrected GetDirectoryName +ErrorActionPreference Stop completed move, no data loss/overwrite.",
+  "incoming_reference_closure": [
+    "Current Journey Pavilion README final paragraph names temporary comparison directory; will update only local provenance navigation.",
+    "index.html contains exactly four local video src names in same folder, no external resources, scripts or app imports.",
+    "Maintained auth layout\u2192CompanyJourneyFilm consumes only web.mp4/poster.jpg, both current hashes match active originals.",
+    "No build/release/runtime caller for temporary probe folder discovered; frontend Docker copies public only, probes already absent from public.",
+    "Whole source cohort30 metadata preserved separately; shared source/ne_110m_land.geojson is also consumed by active login-background generator, retained."
+  ],
+  "retained_assets": "Active source originals and public web/poster hashes unchanged; all source/masters/other QA/geography kept. README final paragraph alone redirects local provenance navigation."
+}

@@ -1,0 +1,6 @@
+{
+  "operation_count": 2,
+  "complete_openapi_equivalent": true,
+  "canonical_sha256": "8e3cc395955cacb5d7abce12dbcc67fba0ef61dece62d4418be89cf250d4ec01",
+  "scope": "Fresh Python processes: complete actual FastAPI paths/operations/parameters/response schemas/security components identical before/after source extraction. No deployed service/network claim."
+}

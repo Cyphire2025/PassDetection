@@ -1,0 +1,68 @@
+{
+  "status": "qualified resource admission; importer architecture open",
+  "source_fence": {
+    "backend/app/infrastructure/imports/passport_document_importer.py": "2ae9f4a2425372326259810f40c6f718e2b596f3163ef3876d51686b3e7d35e6",
+    "backend/tests/unit/infrastructure/test_passport_document_import_staging.py": "c2e218d272359f43aeed99d60b3abddfdd9f6ab876f0f72d4dff6d0e2f507f49",
+    "backend/tests/unit/infrastructure/test_passport_document_workspace_cleanup.py": "49ffef50613d62a8b202e482a93a80017696e5098205d75d75d282f60944f778",
+    "backend/tests/unit/presentation/test_passport_document_import_staging_route.py": "ad5ab7c3f362624f15332afe51832d5b65ab690d00b8d4d113076fa4a0506e63",
+    "backend/tests/unit/presentation/test_passport_crop_lifecycle_contract.py": "b935560711758ef7dc8e8561f72c45d9a7c43fded3a3d128613cf39771a8eb96",
+    "backend/app/infrastructure/imports/passport_zip_admission.py": "b534f8d9c02733c4a378e11ce74770b906c5dcea37984c5bf138930504e3486d",
+    "backend/tests/unit/infrastructure/test_passport_zip_member_admission.py": "a0975f2180c69445f3e167808192a304d8028b8b4d507717ba2af6a4fad1b3e4"
+  },
+  "baseline": {
+    "command": "passport-zip-admission-before-command.json",
+    "result": "7 allocation-count failures /5 controls passed; original12 cases"
+  },
+  "final": {
+    "command": "passport-zip-admission-final-command.json",
+    "result": "33 passed/5 test files/0.86s;18 new admission cases +15 affected existing cases"
+  },
+  "checks": {
+    "types": "2 source files PASS",
+    "lint": "7 source/test files PASS",
+    "format": "2 new files unchanged"
+  },
+  "proof": {
+    "whole_importer": "Original module AST restored after removing exactly one explicit import, one admission call and one quota exception handler. Existing parsed-member postcondition and all other validation/staging/error logic remain intact.",
+    "tests": "Every original baseline function AST unchanged (12 parameterized cases); six additional malformed-bound/cursor/empty controls. Four existing test file hashes unchanged from original snapshot.",
+    "algorithm": "Stream actual fixed central records before ZipFile construction. Count does not trust advertised entries. Constant working memory; at most max_members complete headers before excess rejection. No decompression or complete central-directory allocation in admission helper.",
+    "private_seam": "Sole private seam is pinned CPython zipfile._EndRecData, reused for ZIP64/comment/prepended-data location semantics. Unsupported metadata fails closed; no alternate interpreter support claim."
+  },
+  "work_count": {
+    "entries": 10000,
+    "before_source_bytes": 1117802,
+    "current_source_bytes": 1117802,
+    "before_ZipInfo_objects": 10000,
+    "after_ZipInfo_objects": 0,
+    "same_rejection": "ZIP contains more than 5000 entries",
+    "before_receipt": "passport-zip-member-admission-preflight.json",
+    "limits": "Real stdlib ZIP and importer with synthetic entries. No decompression, peak-memory, OOM or production latency measurement."
+  },
+  "helper_coverage": {
+    "covered_lines": 48,
+    "num_statements": 51,
+    "percent_covered": 91.30434782608695,
+    "percent_covered_display": "91",
+    "missing_lines": 3,
+    "excluded_lines": 0,
+    "percent_statements_covered": 94.11764705882354,
+    "percent_statements_covered_display": "94",
+    "num_branches": 18,
+    "num_partial_branches": 3,
+    "covered_branches": 15,
+    "missing_branches": 3,
+    "percent_branches_covered": 83.33333333333333,
+    "percent_branches_covered_display": "83"
+  },
+  "limits": [
+    "The original 128MB source and other request/member/ratio/staging quotas remain unchanged. The fix moves member admission before per-entry metadata allocation; it does not establish an observed exploit or memory exhaustion.",
+    "Valid archives preserve image bytes/order/rejections. Malformed directory bounds are deliberately rejected, including an oversized filename span that a lenient standard reader may tolerate; no claim every malformed byte sequence keeps the identical rejection reason.",
+    "Admission adds a bounded central-record pass to valid ZIP processing. No valid-import wall-clock speedup or changed asymptotic sorting/decompression claim.",
+    "Three unsupported private-reader/metadata fallback lines are not covered by synthetic ABI substitution. Actual helper coverage is retained honestly.",
+    "Importer architecture remains open and no broad suite/build/browser qualification is attributed to this focused batch."
+  ],
+  "pre_handoff_wording_correction": {
+    "draft_sha256": "9207f2d22c4ce95f7898d9d19208db9032d4c1fed0ce01acdd027918b6a9c5b5",
+    "reason": "Original12 denotes parameterized cases, not12 function declarations. Underlying AST comparison and source/tests unchanged."
+  }
+}

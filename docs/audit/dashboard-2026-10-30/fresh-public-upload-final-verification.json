@@ -1,0 +1,38 @@
+{
+  "review_date": "2026-10-30",
+  "status": "frozen; focused verification passed",
+  "browser": {
+    "migrated_specs": {
+      "passed": 12,
+      "failed": 0,
+      "seconds": 31.3,
+      "output": "C:/Users/nipun/Desktop/PassDetection/.tmp/current-public-draft-migrated-final"
+    },
+    "combined_frozen_runtime": {
+      "passed": 20,
+      "failed": 0,
+      "seconds": 59.6,
+      "output": "C:/Users/nipun/Desktop/PassDetection/.tmp/current-public-draft-browser-frozen"
+    }
+  },
+  "unit": {
+    "files": 4,
+    "passed": 19,
+    "failed": 0,
+    "new_proof_regressions": 3
+  },
+  "typescript": "passed",
+  "scoped_eslint": "passed",
+  "source_candidates": "fresh-contact-budget-candidates.json",
+  "review_manifest": "fresh-public-upload-reviewed-files.json",
+  "limits": [
+    "Isolated mocked API browser tests; no real OTP send/provider or backend/storage deployment qualification.",
+    "Current AI verification gate preserved; no unsupported legacy manual bypass introduced.",
+    "141 of 209 passport/upload runtime files remain without matching full-source review evidence."
+  ],
+  "fingerprints": {
+    "fresh-contact-budget-candidates.json": "5a1e9fb3b8c7a488f0186002870feb1e421491ca07c06bd7de8d13d06290435c",
+    "fresh-public-upload-reviewed-files.json": "291a4157776842eb7cad4133a1723f21316bbbb91a5cc7538354753ebb0b72bc",
+    "public-upload-browser-coverage-mapping.json": "5256787b8cf60094e794a1d4bb42f75313698a0a5764d5cec528f5cd6d43158c"
+  }
+}

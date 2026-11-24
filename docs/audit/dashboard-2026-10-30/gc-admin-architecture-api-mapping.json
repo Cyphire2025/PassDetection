@@ -1,0 +1,218 @@
+[
+  {
+    "public_facade": "gcAppAdminApi.listAgencies",
+    "path": "frontend/features/gc-app/api/gc-app-directory.api.ts",
+    "permission_change": false,
+    "implementation_projection_change": false
+  },
+  {
+    "public_facade": "gcAppAdminApi.searchCompanies",
+    "path": "frontend/features/gc-app/api/gc-app-directory.api.ts",
+    "permission_change": false,
+    "implementation_projection_change": false
+  },
+  {
+    "public_facade": "gcAppAdminApi.createClientOrganization",
+    "path": "frontend/features/gc-app/api/gc-app-directory.api.ts",
+    "permission_change": false,
+    "implementation_projection_change": false
+  },
+  {
+    "public_facade": "gcAppAdminApi.removeClientOrganization",
+    "path": "frontend/features/gc-app/api/gc-app-directory.api.ts",
+    "permission_change": false,
+    "implementation_projection_change": false
+  },
+  {
+    "public_facade": "gcAppAdminApi.listClientManagers",
+    "path": "frontend/features/gc-app/api/gc-app-managers.api.ts",
+    "permission_change": false,
+    "implementation_projection_change": false
+  },
+  {
+    "public_facade": "gcAppAdminApi.createClientManager",
+    "path": "frontend/features/gc-app/api/gc-app-managers.api.ts",
+    "permission_change": false,
+    "implementation_projection_change": false
+  },
+  {
+    "public_facade": "gcAppAdminApi.updateClientManager",
+    "path": "frontend/features/gc-app/api/gc-app-managers.api.ts",
+    "permission_change": false,
+    "implementation_projection_change": false
+  },
+  {
+    "public_facade": "gcAppAdminApi.setClientManagerStatus",
+    "path": "frontend/features/gc-app/api/gc-app-managers.api.ts",
+    "permission_change": false,
+    "implementation_projection_change": false
+  },
+  {
+    "public_facade": "gcAppAdminApi.resetClientManagerPassword",
+    "path": "frontend/features/gc-app/api/gc-app-managers.api.ts",
+    "permission_change": false,
+    "implementation_projection_change": false
+  },
+  {
+    "public_facade": "gcAppAdminApi.revokeClientManagerSessions",
+    "path": "frontend/features/gc-app/api/gc-app-managers.api.ts",
+    "permission_change": false,
+    "implementation_projection_change": false
+  },
+  {
+    "public_facade": "gcAppAdminApi.softDeleteClientManager",
+    "path": "frontend/features/gc-app/api/gc-app-managers.api.ts",
+    "permission_change": false,
+    "implementation_projection_change": false
+  },
+  {
+    "public_facade": "gcAppAdminApi.listClientManagerSessions",
+    "path": "frontend/features/gc-app/api/gc-app-managers.api.ts",
+    "permission_change": false,
+    "implementation_projection_change": false
+  },
+  {
+    "public_facade": "gcAppAdminApi.searchGroups",
+    "path": "frontend/features/gc-app/api/gc-app-groups.api.ts",
+    "permission_change": false,
+    "implementation_projection_change": false
+  },
+  {
+    "public_facade": "gcAppAdminApi.listGroups",
+    "path": "frontend/features/gc-app/api/gc-app-groups.api.ts",
+    "permission_change": false,
+    "implementation_projection_change": false
+  },
+  {
+    "public_facade": "gcAppAdminApi.getGroupControl",
+    "path": "frontend/features/gc-app/api/gc-app-groups.api.ts",
+    "permission_change": false,
+    "implementation_projection_change": false
+  },
+  {
+    "public_facade": "gcAppAdminApi.addGroup",
+    "path": "frontend/features/gc-app/api/gc-app-groups.api.ts",
+    "permission_change": false,
+    "implementation_projection_change": false
+  },
+  {
+    "public_facade": "gcAppAdminApi.removeGroup",
+    "path": "frontend/features/gc-app/api/gc-app-groups.api.ts",
+    "permission_change": false,
+    "implementation_projection_change": false
+  },
+  {
+    "public_facade": "gcAppAdminApi.updateGroupControl",
+    "path": "frontend/features/gc-app/api/gc-app-groups.api.ts",
+    "permission_change": false,
+    "implementation_projection_change": false
+  },
+  {
+    "public_facade": "gcAppAdminApi.setMyPhotosEnabled",
+    "path": "frontend/features/gc-app/api/gc-app-groups.api.ts",
+    "permission_change": false,
+    "implementation_projection_change": false
+  },
+  {
+    "public_facade": "gcAppAdminApi.revokeGroupAccess",
+    "path": "frontend/features/gc-app/api/gc-app-groups.api.ts",
+    "permission_change": false,
+    "implementation_projection_change": false
+  },
+  {
+    "public_facade": "gcAppAdminApi.getGroupContent",
+    "path": "frontend/features/gc-app/api/gc-app-documents.api.ts",
+    "permission_change": false,
+    "implementation_projection_change": false
+  },
+  {
+    "public_facade": "gcAppAdminApi.uploadCommonDocument",
+    "path": "frontend/features/gc-app/api/gc-app-documents.api.ts",
+    "permission_change": false,
+    "implementation_projection_change": false
+  },
+  {
+    "public_facade": "gcAppAdminApi.setCommonDocumentPublished",
+    "path": "frontend/features/gc-app/api/gc-app-documents.api.ts",
+    "permission_change": false,
+    "implementation_projection_change": false
+  },
+  {
+    "public_facade": "gcAppAdminApi.previewCommonDocument",
+    "path": "frontend/features/gc-app/api/gc-app-documents.api.ts",
+    "permission_change": false,
+    "implementation_projection_change": false
+  },
+  {
+    "public_facade": "gcAppAdminApi.reorderCommonDocuments",
+    "path": "frontend/features/gc-app/api/gc-app-documents.api.ts",
+    "permission_change": false,
+    "implementation_projection_change": false
+  },
+  {
+    "public_facade": "gcAppAdminApi.deleteCommonDocument",
+    "path": "frontend/features/gc-app/api/gc-app-documents.api.ts",
+    "permission_change": false,
+    "implementation_projection_change": false
+  },
+  {
+    "public_facade": "gcAppAdminApi.saveItineraryDraft",
+    "path": "frontend/features/gc-app/api/gc-app-itineraries.api.ts",
+    "permission_change": false,
+    "implementation_projection_change": false
+  },
+  {
+    "public_facade": "gcAppAdminApi.publishItinerary",
+    "path": "frontend/features/gc-app/api/gc-app-itineraries.api.ts",
+    "permission_change": false,
+    "implementation_projection_change": false
+  },
+  {
+    "public_facade": "gcAppAdminApi.unpublishItinerary",
+    "path": "frontend/features/gc-app/api/gc-app-itineraries.api.ts",
+    "permission_change": false,
+    "implementation_projection_change": false
+  },
+  {
+    "public_facade": "gcAppAdminApi.listAnnouncements",
+    "path": "frontend/features/gc-app/api/gc-app-announcements.api.ts",
+    "permission_change": false,
+    "implementation_projection_change": false
+  },
+  {
+    "public_facade": "gcAppAdminApi.createAnnouncement",
+    "path": "frontend/features/gc-app/api/gc-app-announcements.api.ts",
+    "permission_change": false,
+    "implementation_projection_change": false
+  },
+  {
+    "public_facade": "gcAppAdminApi.updateAnnouncement",
+    "path": "frontend/features/gc-app/api/gc-app-announcements.api.ts",
+    "permission_change": false,
+    "implementation_projection_change": false
+  },
+  {
+    "public_facade": "gcAppAdminApi.setAnnouncementPublished",
+    "path": "frontend/features/gc-app/api/gc-app-announcements.api.ts",
+    "permission_change": false,
+    "implementation_projection_change": false
+  },
+  {
+    "public_facade": "gcAppAdminApi.deleteAnnouncement",
+    "path": "frontend/features/gc-app/api/gc-app-announcements.api.ts",
+    "permission_change": false,
+    "implementation_projection_change": false
+  },
+  {
+    "public_facade": "gcAppAdminApi.listClientManagerAudit",
+    "path": "frontend/features/gc-app/api/gc-app-audit.api.ts",
+    "permission_change": false,
+    "implementation_projection_change": true
+  },
+  {
+    "public_facade": "gcAppAdminApi.listGroupAudit",
+    "path": "frontend/features/gc-app/api/gc-app-audit.api.ts",
+    "permission_change": false,
+    "implementation_projection_change": true
+  }
+]

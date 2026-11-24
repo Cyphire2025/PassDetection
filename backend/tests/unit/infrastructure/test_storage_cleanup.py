@@ -10,6 +10,8 @@ from pydantic import SecretStr
 from sqlalchemy.dialects import postgresql
 
 from app.infrastructure.documents import storage_cleanup
+from app.infrastructure.documents import storage_cleanup_cipher as cleanup_cipher
+from app.infrastructure.documents import storage_cleanup_execution as cleanup_execution
 from app.infrastructure.documents.storage_cleanup import (
     StorageCleanupCipher,
     StorageCleanupClaim,
@@ -83,6 +85,40 @@ def test_cleanup_tombstone_encrypts_keys_and_supports_key_rotation() -> None:
     session.add.assert_called_once_with(job)
 
 
+@pytest.mark.parametrize("namespace", ["passport-ai-library", "passport-image-library"])
+def test_passport_library_artifacts_are_scoped_to_passport_deletion_cleanup(namespace) -> None:
+    agency_id, submission_id = uuid.uuid4(), uuid.uuid4()
+    key = f"{namespace}/{agency_id}/{submission_id}/visa_photo/{uuid.uuid4().hex}.jpg"
+    cipher = StorageCleanupCipher("synthetic-cleanup-secret-123456")
+    session = MagicMock()
+    job = stage_storage_cleanup_job(
+        session,
+        agency_id=agency_id,
+        source="passport_submission_delete",
+        context_id=f"passport:{submission_id}",
+        storage_keys=[key],
+        cipher=cipher,
+    )
+    assert job is not None
+    assert cipher.decrypt(job.storage_keys_ciphertext, key_version=job.encryption_key_version) == (
+        key,
+    )
+    for source, other_key in [
+        ("branding_image", key),
+        ("document_distribution_delete", key),
+        ("passport_submission_delete", f"{namespace}-unrelated/private.jpg"),
+    ]:
+        with pytest.raises(StorageCleanupPayloadError):
+            stage_storage_cleanup_job(
+                MagicMock(),
+                agency_id=agency_id,
+                source=source,
+                context_id="synthetic",
+                storage_keys=[other_key],
+                cipher=cipher,
+            )
+
+
 def test_bulk_cleanup_tombstones_chunk_3000_keys_deterministically() -> None:
     cipher = StorageCleanupCipher("cleanup-secret-123456789")
     session = MagicMock()
@@ -127,7 +163,7 @@ def test_cleanup_cipher_loads_active_and_fallback_versions_from_settings(monkeyp
     old_cipher = StorageCleanupCipher("old-cleanup-secret-123456", key_version=1)
     ciphertext = old_cipher.encrypt(["document-rename/batch/visa.pdf"])
     monkeypatch.setattr(
-        storage_cleanup,
+        cleanup_cipher,
         "get_settings",
         lambda: SimpleNamespace(
             app_secret_key="unused-app-secret-123456",
@@ -324,7 +360,7 @@ async def test_cleanup_storage_failure_schedules_retry_without_logging_keys(
         attempts=1,
     )
     defer = AsyncMock(return_value=False)
-    monkeypatch.setattr(storage_cleanup, "_defer_storage_cleanup_job", defer)
+    monkeypatch.setattr(cleanup_execution, "_defer_storage_cleanup_job", defer)
     warning = MagicMock()
     monkeypatch.setattr(storage_cleanup.logger, "warning", warning)
     storage = MagicMock()
@@ -434,7 +470,7 @@ async def test_cleanup_success_removes_tombstone_after_idempotent_delete(
         attempts=1,
     )
     complete = AsyncMock()
-    monkeypatch.setattr(storage_cleanup, "_complete_storage_cleanup_job", complete)
+    monkeypatch.setattr(cleanup_execution, "_complete_storage_cleanup_job", complete)
     storage = MagicMock()
     storage.delete_files = AsyncMock(return_value=2)
     session_factory = MagicMock()
@@ -502,9 +538,7 @@ def test_cleanup_task_is_registered_and_scheduled_on_general_worker() -> None:
     assert celery_app.conf.task_routes[DOCUMENT_STORAGE_ORPHAN_RECONCILIATION_TASK] == {
         "queue": "passport_ocr"
     }
-    orphan_schedule = celery_app.conf.beat_schedule[
-        "reconcile-orphaned-document-storage"
-    ]
+    orphan_schedule = celery_app.conf.beat_schedule["reconcile-orphaned-document-storage"]
     assert orphan_schedule["task"] == DOCUMENT_STORAGE_ORPHAN_RECONCILIATION_TASK
     assert orphan_schedule["schedule"] == 3_600.0
     assert orphan_schedule["options"] == {"queue": "passport_ocr"}

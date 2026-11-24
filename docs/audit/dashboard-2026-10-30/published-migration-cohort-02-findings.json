@@ -1,0 +1,18 @@
+{
+  "current_runtime_defects_proved": [],
+  "historical_conditional_compatibility_candidates": [
+    {
+      "path": "backend/alembic/versions/0018_rooming_room_vip_tag.py",
+      "sha256": "815f48be50e2dd449a9539d094ae811b728631b8a9bdc900f856c2363bf322c5",
+      "evidence": "Downgrade restores pre-vip check without converting persisted vip tags; such rows would conflict with the narrowed check.",
+      "qualification": "Source operation review only, no actual database execution or supported rollback promise established. Published history is immutable; do not rewrite."
+    }
+  ],
+  "security_and_retention_obligations": [
+    "Trace later current-schema invariants and actual runtime before claiming cross-tenant violation from individual early FKs.",
+    "Persisted QR reprint bearer payload requires current authorization/retention evidence independent of historical revocation and nullable column.",
+    "Document object-store cleanup cannot be inferred from relational CASCADE.",
+    "Published upgrade/downgrade SQL execution, PostgreSQL locking, populated data compatibility and provider behavior were not qualified here."
+  ],
+  "notes": "Historical destructive schema transitions and irreversible enum labels are explicitly separated from new active runtime vulnerabilities."
+}

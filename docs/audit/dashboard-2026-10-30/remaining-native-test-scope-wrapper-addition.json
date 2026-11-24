@@ -1,0 +1,35 @@
+{
+  "status": "Additive exact native-only test scope proposal; no source/policy/test execution",
+  "supersedes_nothing": true,
+  "parent_proposal": {
+    "path": "docs/audit/dashboard-2026-10-30/remaining-native-test-scope-proposal.json",
+    "sha256": "86dcd767fee316a9d5881f04f0105775fb11baa4a9e83179ca58adf1506bd515"
+  },
+  "additional_paths": [
+    {
+      "path": "backend/tests/service_integration/test_mobile_refresh_trip_fallback_postgresql.py",
+      "sha256": "16b2a78341f7e47f33bb6f435fca00dceb36ff6710ae9b502d3ebbf5d288953e",
+      "physical_lines": 31,
+      "review_scope": "classification-and-caller-trace-only",
+      "purpose": "Whole31-line wrapper physically inspected for purpose only. It reexports exactly4 tests from the proposed native refresh-fallback unit module, adds only service/async/opt-in skip marks and isolated pg_factory fixture. No separate admin mutation/assertion or application owner exists here; imported tests assert only native refresh/token/bearer/trip fallback consequences after a reused removal fixture.",
+      "actual_test_owner": {
+        "path": "backend/tests/unit/presentation/test_mobile_refresh_trip_fallback.py",
+        "sha256": "936d5aaa41dec10e2ae997dbfcdbf411397d6ffc19eaa52075d71e2c6a616180",
+        "proposal": "remaining-native-test-scope-proposal.json"
+      },
+      "native_runtime_owner": {
+        "path": "backend/app/presentation/api/v1/routes/mobile_auth.py",
+        "sha256": "138bd3a289b4e8320565557a4d8ebf969cd02da6d10e2cc9e4cfe39c50453db5",
+        "already_literal_excluded": true
+      },
+      "retained_fixture": "tests.service_integration.test_fcm_dispatch_postgresql.pg_factory remains retained; do not exclude shared provider/DB fixture",
+      "historical_full_records_preserved": true
+    }
+  ],
+  "changes": [],
+  "checks_run": [],
+  "limitations": [
+    "Purpose classification only; do not claim a fresh full native feature/locking/service audit.",
+    "No PostgreSQL environment, credentials or service actions; previous full review evidence remains historical."
+  ]
+}

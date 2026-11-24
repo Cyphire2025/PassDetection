@@ -1,0 +1,58 @@
+{
+  "method": "Actual configured application logger + registered FastAPI exception handler + RequestID middleware + installed Uvicorn H11 RequestResponseCycle, with synthetic in-memory h11 transport; no listening sockets, database, provider or production data.",
+  "limits": "Driver/provider-shaped exceptions are synthetic controls. Default Uvicorn stderr is executed; Linux Gunicorn process integration is a source trace only, not executed here.",
+  "records": [
+    {
+      "mode": "application-root-json",
+      "kind": "database-driver-shaped",
+      "database_control": "synthetic SQLAlchemy IntegrityError with hide_parameters=True; no PostgreSQL connection",
+      "application_unhandled_event_private_message_present": false,
+      "client_response_private_message_present": false,
+      "configured_application_stdout_private_message_present": false,
+      "configured_uvicorn_stderr_private_message_present": false,
+      "outer_server_error_logged": true,
+      "application_stdout": "{\"error_type\": \"IntegrityError\", \"request_id\": \"a76e1f43-2ec9-403c-b1ff-ec3f39e49d0e\", \"event\": \"unhandled_exception\", \"method\": \"GET\", \"path\": \"/synthetic-failure\", \"logger\": \"app.presentation.middleware.error_handler\", \"level\": \"error\", \"timestamp\": \"2026-10-31T06:58:14.159709Z\"}\n{\"event\": \"ASGI application failure: sqlalchemy.exc.IntegrityError; request_id=a76e1f43-2ec9-403c-b1ff-ec3f39e49d0e; frames=starlette.middleware.base:call_next:168\\nstarlette.middleware.base:coro:144\\nstarlette.middleware.exceptions:__call__:63\\nstarlette._exception_handler:wrapped_app:53\\nstarlette._exception_handler:wrapped_app:42\\nfastapi.middleware.asyncexitstack:__call__:18\\nstarlette.routing:__call__:660\\nstarlette.routing:app:680\\nstarlette.routing:handle:276\\nfastapi.routing:app:119\\nstarlette._exception_handler:wrapped_app:53\\nstarlette._exception_handler:wrapped_app:42\\nfastapi.routing:app:105\\nfastapi.routing:app:431\\nfastapi.routing:run_endpoint_function:313\\n__main__:fail:71\", \"request_id\": \"a76e1f43-2ec9-403c-b1ff-ec3f39e49d0e\", \"method\": \"GET\", \"path\": \"/synthetic-failure\", \"logger\": \"uvicorn.error\", \"level\": \"error\", \"timestamp\": \"2026-10-31T06:58:14.159709Z\"}\n",
+      "uvicorn_stderr": "",
+      "http_wire": "HTTP/1.1 500 Internal Server Error\r\ncache-control: no-store\r\nx-request-id: a76e1f43-2ec9-403c-b1ff-ec3f39e49d0e\r\ncontent-length: 102\r\ncontent-type: application/json\r\n\r\n{\"error\":{\"code\":\"INTERNAL_SERVER_ERROR\",\"message\":\"An unexpected error occurred. Please try again.\"}}"
+    },
+    {
+      "mode": "application-root-json",
+      "kind": "provider-shaped",
+      "database_control": null,
+      "application_unhandled_event_private_message_present": false,
+      "client_response_private_message_present": false,
+      "configured_application_stdout_private_message_present": false,
+      "configured_uvicorn_stderr_private_message_present": false,
+      "outer_server_error_logged": true,
+      "application_stdout": "{\"error_type\": \"RuntimeError\", \"request_id\": \"7fee3f3f-22e8-4783-9f7d-79fa5d2fe841\", \"event\": \"unhandled_exception\", \"method\": \"GET\", \"path\": \"/synthetic-failure\", \"logger\": \"app.presentation.middleware.error_handler\", \"level\": \"error\", \"timestamp\": \"2026-10-31T06:58:14.160703Z\"}\n{\"event\": \"ASGI application failure: builtins.RuntimeError; request_id=7fee3f3f-22e8-4783-9f7d-79fa5d2fe841; frames=starlette.middleware.base:call_next:168\\nstarlette.middleware.base:coro:144\\nstarlette.middleware.exceptions:__call__:63\\nstarlette._exception_handler:wrapped_app:53\\nstarlette._exception_handler:wrapped_app:42\\nfastapi.middleware.asyncexitstack:__call__:18\\nstarlette.routing:__call__:660\\nstarlette.routing:app:680\\nstarlette.routing:handle:276\\nfastapi.routing:app:119\\nstarlette._exception_handler:wrapped_app:53\\nstarlette._exception_handler:wrapped_app:42\\nfastapi.routing:app:105\\nfastapi.routing:app:431\\nfastapi.routing:run_endpoint_function:313\\n__main__:fail:71\", \"request_id\": \"7fee3f3f-22e8-4783-9f7d-79fa5d2fe841\", \"method\": \"GET\", \"path\": \"/synthetic-failure\", \"logger\": \"uvicorn.error\", \"level\": \"error\", \"timestamp\": \"2026-10-31T06:58:14.160703Z\"}\n",
+      "uvicorn_stderr": "",
+      "http_wire": "HTTP/1.1 500 Internal Server Error\r\ncache-control: no-store\r\nx-request-id: 7fee3f3f-22e8-4783-9f7d-79fa5d2fe841\r\ncontent-length: 102\r\ncontent-type: application/json\r\n\r\n{\"error\":{\"code\":\"INTERNAL_SERVER_ERROR\",\"message\":\"An unexpected error occurred. Please try again.\"}}"
+    },
+    {
+      "mode": "uvicorn-default-stderr",
+      "kind": "database-driver-shaped",
+      "database_control": "synthetic SQLAlchemy IntegrityError with hide_parameters=True; no PostgreSQL connection",
+      "application_unhandled_event_private_message_present": false,
+      "client_response_private_message_present": false,
+      "configured_application_stdout_private_message_present": false,
+      "configured_uvicorn_stderr_private_message_present": false,
+      "outer_server_error_logged": true,
+      "application_stdout": "{\"error_type\": \"IntegrityError\", \"request_id\": \"a2b46e1f-a8c0-4fcf-bbeb-1cc23b937a69\", \"event\": \"unhandled_exception\", \"method\": \"GET\", \"path\": \"/synthetic-failure\", \"logger\": \"app.presentation.middleware.error_handler\", \"level\": \"error\", \"timestamp\": \"2026-10-31T06:58:14.161705Z\"}\n",
+      "uvicorn_stderr": "ERROR:    ASGI application failure: sqlalchemy.exc.IntegrityError; request_id=a2b46e1f-a8c0-4fcf-bbeb-1cc23b937a69; frames=starlette.middleware.base:call_next:168\nstarlette.middleware.base:coro:144\nstarlette.middleware.exceptions:__call__:63\nstarlette._exception_handler:wrapped_app:53\nstarlette._exception_handler:wrapped_app:42\nfastapi.middleware.asyncexitstack:__call__:18\nstarlette.routing:__call__:660\nstarlette.routing:app:680\nstarlette.routing:handle:276\nfastapi.routing:app:119\nstarlette._exception_handler:wrapped_app:53\nstarlette._exception_handler:wrapped_app:42\nfastapi.routing:app:105\nfastapi.routing:app:431\nfastapi.routing:run_endpoint_function:313\n__main__:fail:71\n",
+      "http_wire": "HTTP/1.1 500 Internal Server Error\r\ncache-control: no-store\r\nx-request-id: a2b46e1f-a8c0-4fcf-bbeb-1cc23b937a69\r\ncontent-length: 102\r\ncontent-type: application/json\r\n\r\n{\"error\":{\"code\":\"INTERNAL_SERVER_ERROR\",\"message\":\"An unexpected error occurred. Please try again.\"}}"
+    },
+    {
+      "mode": "uvicorn-default-stderr",
+      "kind": "provider-shaped",
+      "database_control": null,
+      "application_unhandled_event_private_message_present": false,
+      "client_response_private_message_present": false,
+      "configured_application_stdout_private_message_present": false,
+      "configured_uvicorn_stderr_private_message_present": false,
+      "outer_server_error_logged": true,
+      "application_stdout": "{\"error_type\": \"RuntimeError\", \"request_id\": \"7689e4dc-0129-4462-ad7c-9f0521bf7181\", \"event\": \"unhandled_exception\", \"method\": \"GET\", \"path\": \"/synthetic-failure\", \"logger\": \"app.presentation.middleware.error_handler\", \"level\": \"error\", \"timestamp\": \"2026-10-31T06:58:14.162706Z\"}\n",
+      "uvicorn_stderr": "ERROR:    ASGI application failure: builtins.RuntimeError; request_id=7689e4dc-0129-4462-ad7c-9f0521bf7181; frames=starlette.middleware.base:call_next:168\nstarlette.middleware.base:coro:144\nstarlette.middleware.exceptions:__call__:63\nstarlette._exception_handler:wrapped_app:53\nstarlette._exception_handler:wrapped_app:42\nfastapi.middleware.asyncexitstack:__call__:18\nstarlette.routing:__call__:660\nstarlette.routing:app:680\nstarlette.routing:handle:276\nfastapi.routing:app:119\nstarlette._exception_handler:wrapped_app:53\nstarlette._exception_handler:wrapped_app:42\nfastapi.routing:app:105\nfastapi.routing:app:431\nfastapi.routing:run_endpoint_function:313\n__main__:fail:71\n",
+      "http_wire": "HTTP/1.1 500 Internal Server Error\r\ncache-control: no-store\r\nx-request-id: 7689e4dc-0129-4462-ad7c-9f0521bf7181\r\ncontent-length: 102\r\ncontent-type: application/json\r\n\r\n{\"error\":{\"code\":\"INTERNAL_SERVER_ERROR\",\"message\":\"An unexpected error occurred. Please try again.\"}}"
+    }
+  ]
+}

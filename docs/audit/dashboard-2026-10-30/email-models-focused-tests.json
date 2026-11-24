@@ -1,0 +1,19 @@
+{
+  "command": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "tests/unit/infrastructure/test_email_models.py",
+    "tests/unit/infrastructure/test_email_integrations_migration.py",
+    "tests/unit/presentation/test_email_oauth_persistence.py",
+    "tests/unit/infrastructure/test_email_model_persistence_contracts.py",
+    "tests/unit/infrastructure/test_email_model_owner_compatibility.py"
+  ],
+  "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection\\backend",
+  "exit_code": 0,
+  "stdout": "...........................................................              [100%]\n59 passed in 14.10s\n",
+  "stderr": ""
+}

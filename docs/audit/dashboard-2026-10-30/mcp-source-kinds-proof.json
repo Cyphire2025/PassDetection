@@ -1,0 +1,7 @@
+{
+  "whole_module_AST_restores_after_only_source_inventory_file_kind_branch": true,
+  "regular_files_paths_hashes_order_directory_omission_and_symlink_rejection_preserved": true,
+  "intended_guard_correction": "Path.is_file is already a regular-file check, so nested nonregular rejection was unreachable for FIFO/socket/device entries. Now directories skip explicitly and all other nonregular entries reject before read.",
+  "native_platform_limit": "Windows here lacks socket.AF_UNIX and os.mkfifo. Four kind controls use explicit synthetic filesystem stat results; actual regular directory/file hashing runs. Real POSIX FIFO test is present and skipped here.",
+  "no_remote_exploit_claim": true
+}

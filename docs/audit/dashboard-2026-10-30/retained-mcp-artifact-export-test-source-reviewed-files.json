@@ -1,0 +1,56 @@
+[
+  {
+    "path": "backend/tests/integration/test_mcp_artifacts.py",
+    "sha256": "663c2dc5097a4af09456c4ce369ce9e937c0bdf908e678bdc96eba50006b41a4",
+    "physical_lines": 584,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all584 physical lines in three contiguous segments: actual SQL/HTTP staging, isolated scanner/evidence/in-memory storage fixture, current file authority, PDF hash/media/size/group/scan admission without ingestion, foreign grant/read denial, delayed exact ack/history idempotency, interrupted/corrupt stream and expiry/capacity fail-closed. Temporary-file and real native-thread synthetic PUT cancellation controls drain before source close; conditional writes never overwrite. Test byte buffers are not claimed production memory bounds. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_exports.py",
+    "sha256": "826d874fdcf57ab4afdd517ad883a871b96180355f3f10a80acbde9025741808",
+    "physical_lines": 306,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all306 physical lines: shared canonical XLSX/website value parity, incremental and exact selection/history only after saved-copy ack, durable queued receipt retry/new-grant access handles share one physical artifact, DB-only preparation never renders/initializes storage, revision changes and storage failures preserve retry, retained/deleted source checks and legacy locator/source-expiry behavior. Workbook helper compares real local XLSX bytes; no cloud work executed. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/service_integration/test_mcp_artifacts_postgresql.py",
+    "sha256": "0d40e6894ca976379821837bcf32c3403e47806d5c9744964ed75b798eceed41",
+    "physical_lines": 146,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all146 physical lines: isolated PG real export acknowledgement contention yields one history audit/timestamp; grant revocation holds exact lock then rejects waiting acknowledgement, no delivered marker. SQL listener and pending task clean up in finally; no service run here. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/service_integration/test_mcp_exports_postgresql.py",
+    "sha256": "27fe726f90917c985157402c78674a21e1ccaf52d0a98eeea8f87c4b36d113be",
+    "physical_lines": 219,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all219 physical lines: independent grants share current capacity admission and retry one history/workbook, passport writer lock NOWAIT avoids lock inversion before revision mismatch, revocation wins generation barrier before storage. Exact scoped listener/temporary task teardown; no actual PostgreSQL race qualified by reading. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_export_capacity.py",
+    "sha256": "623a12395f35c39a1b86287151582aa720d2c5634f77bbdf5c089a194de95191",
+    "physical_lines": 272,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all272 physical lines: cross-family early shared admission, streamed canonical digest exact-byte boundaries, snapshot/catalog/cell/column/output quotas, post-admission current grant checks, held real native render/PUT cancellation keeps resource lease until worker drains, temporary XML cleanup and retained historical JSON not rewritten. Explicit orphaned completed PUT is left to existing TTL policy; no remote lifecycle qualification claimed. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_export_failure_diagnostics.py",
+    "sha256": "efd1a6e230cc5149dc320f94871670ade33f3a7f857b4e50670cc8a213aa0f32",
+    "physical_lines": 126,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all126 physical lines: real synthetic structured/stdlog diagnostic paths for explicit/implicit/suppressed exception chains, value-free type/ID projection, rollback to exact queued input/revision/workflow, safe audit identity and retry without new storage. Synthetic retained secret is purpose-built source sentinel, not operational data. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  }
+]

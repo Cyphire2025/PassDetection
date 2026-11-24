@@ -23,16 +23,12 @@ from app.core.logging.logger import get_logger
 from app.domain.exceptions.exceptions import (
     AuthenticationError,
     AuthorizationError,
-    ClientGroupUsedError,
     ConflictError,
     DependencyUnavailableError,
     DuplicateEntityError,
     EntityNotFoundError,
     GroupClosedError,
     ImageValidationError,
-    LowConfidenceError,
-    MRZParsingError,
-    OCREngineError,
     PassDetectionError,
     RateLimitExceededError,
     StorageError,
@@ -157,9 +153,6 @@ def register_exception_handlers(app: FastAPI) -> None:
     ) -> JSONResponse:
         return _error_response(exc.code, exc.message, status.HTTP_410_GONE)
 
-    @app.exception_handler(ClientGroupUsedError)
-    async def link_used_handler(request: Request, exc: ClientGroupUsedError) -> JSONResponse:
-        return _error_response(exc.code, exc.message, status.HTTP_410_GONE)
 
     @app.exception_handler(RateLimitExceededError)
     async def rate_limit_handler(request: Request, exc: RateLimitExceededError) -> JSONResponse:
@@ -172,23 +165,12 @@ def register_exception_handlers(app: FastAPI) -> None:
         logger.error("required_dependency_unavailable", code=exc.code)
         return _error_response(exc.code, exc.message, status.HTTP_503_SERVICE_UNAVAILABLE)
 
-    @app.exception_handler(OCREngineError)
-    async def ocr_engine_handler(request: Request, exc: OCREngineError) -> JSONResponse:
-        logger.error("ocr_engine_failed", engine=exc.engine, code=exc.code)
-        return _error_response(exc.code, exc.message, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @app.exception_handler(StorageError)
     async def storage_handler(request: Request, exc: StorageError) -> JSONResponse:
         logger.error("storage_error", code=exc.code)
         return _error_response(exc.code, exc.message, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    @app.exception_handler(MRZParsingError)
-    async def mrz_handler(request: Request, exc: MRZParsingError) -> JSONResponse:
-        return _error_response(exc.code, exc.message, status.HTTP_422_UNPROCESSABLE_CONTENT)
-
-    @app.exception_handler(LowConfidenceError)
-    async def low_confidence_handler(request: Request, exc: LowConfidenceError) -> JSONResponse:
-        return _error_response(exc.code, exc.message, status.HTTP_422_UNPROCESSABLE_CONTENT)
 
     @app.exception_handler(PassDetectionError)
     async def generic_domain_handler(request: Request, exc: PassDetectionError) -> JSONResponse:

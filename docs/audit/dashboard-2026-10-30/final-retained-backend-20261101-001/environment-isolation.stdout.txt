@@ -1,0 +1,1 @@
+Environment isolation verified: synthetic dotenv allowed; checkout dotenv read skipped; private open event blocked.

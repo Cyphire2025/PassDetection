@@ -1,0 +1,74 @@
+{
+  "status": "Read-only exact later-owner supersession; no inventory or source/gate/stamp changes",
+  "prior_reconciliation": {
+    "path": "current-followups-reconciliation.json",
+    "sha256": "6acdb880d40e89c4a3939ca7047a9360c42e26714725aa1b8ece37e864c84367"
+  },
+  "later_root_receipt": {
+    "path": "direct-build-output-verification.json",
+    "sha256": "23d8f8e09f44de2e5c3c1fe904e6bcdeaedf5cd1ec1c07d6c8bd6e2559d921e7"
+  },
+  "issue": "Exact direct-build command capture candidate is now reproduced and corrected by later root52case+61subtest source-bound receipt; old unproven note remains historical. No broad resource-lifetime or Docker/release qualification implied.",
+  "current_fence": {
+    "scripts/mcp_direct_build.py": {
+      "expected": "72f880a173cc252abe47ce0a9f51602122b8ad0682794f49c1bd7ecddec6f780",
+      "current": "72f880a173cc252abe47ce0a9f51602122b8ad0682794f49c1bd7ecddec6f780",
+      "matches": true
+    },
+    "scripts/bounded_command_output.py": {
+      "expected": "d190aeabcbf00b2fdec0652e4cf6fa7b57bf13b4f3d7e572ea7eab58e69b9c7b",
+      "current": "d190aeabcbf00b2fdec0652e4cf6fa7b57bf13b4f3d7e572ea7eab58e69b9c7b",
+      "matches": true
+    },
+    "scripts/test_mcp_direct_output.py": {
+      "expected": "864548e27066750e4dff5e35c97e86df783e71825b82dd485804d1e5e419aff1",
+      "current": "864548e27066750e4dff5e35c97e86df783e71825b82dd485804d1e5e419aff1",
+      "matches": true
+    },
+    "scripts/test_mcp_direct_build.py": {
+      "expected": "44b63548dfdf72f81c4768aa472081c52324118a6a173fc65df6cf89836552dc",
+      "current": "44b63548dfdf72f81c4768aa472081c52324118a6a173fc65df6cf89836552dc",
+      "matches": true
+    },
+    "scripts/test_bounded_qualification_output.py": {
+      "expected": "20c6f8551ca2511c0d51b24a6fb0151fc1d2433fb6a33e821192e34ecbb541a1",
+      "current": "20c6f8551ca2511c0d51b24a6fb0151fc1d2433fb6a33e821192e34ecbb541a1",
+      "matches": true
+    },
+    "scripts/test_release_companies_runtime.py": {
+      "expected": "65d544624f33a2d923dd337c2c40f884d8e230ad54d6c47be04e87ba6cf46e74",
+      "current": "65d544624f33a2d923dd337c2c40f884d8e230ad54d6c47be04e87ba6cf46e74",
+      "matches": true
+    },
+    "scripts/test_mcp_production_baseline.py": {
+      "expected": "4eeebc2762934d0c1e58f666104f5e2049ddcac3ce130e15027e13b356663b66",
+      "current": "4eeebc2762934d0c1e58f666104f5e2049ddcac3ce130e15027e13b356663b66",
+      "matches": true
+    },
+    "scripts/release_companies_runtime.py": {
+      "expected": "3ecd9ffdf0c1e0de2f74ce4145d8c73833a15ad68fb59860558772882f2fb763",
+      "current": "3ecd9ffdf0c1e0de2f74ce4145d8c73833a15ad68fb59860558772882f2fb763",
+      "matches": true
+    },
+    "scripts/qa/bounded_qualification_output.py": {
+      "expected": "a3f94f996defdb506fbfd24262065fda74fa9fedcdf2292f284424f8fc9e1a28",
+      "current": "a3f94f996defdb506fbfd24262065fda74fa9fedcdf2292f284424f8fc9e1a28",
+      "matches": true
+    },
+    "scripts/mcp_production_baseline.py": {
+      "expected": "21c4ca665fd5968cd31d3e8e653f66a16e92e1b325150b3b902b49302f06a130",
+      "current": "21c4ca665fd5968cd31d3e8e653f66a16e92e1b325150b3b902b49302f06a130",
+      "matches": true
+    }
+  },
+  "exact_release_binding_check": {
+    "path": "scripts/release_workspace_branding_bindings.json",
+    "sha256": "6c5298ac2283a687d54fd1a90c6e1f094942617bc10d073856b0441c886aacc5",
+    "literal_path_rows": {
+      "scripts/mcp_direct_build.py": [],
+      "scripts/bounded_command_output.py": []
+    },
+    "repin_required": false
+  },
+  "partial_or_full_finding_resolutions_applied": 0
+}

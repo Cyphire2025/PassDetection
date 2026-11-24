@@ -1,0 +1,74 @@
+{
+  "status": "focused verification passed",
+  "root_cause": "Actual retained execute captured arbitrary build log output into memory before writing its log.",
+  "before": {
+    "actual_maintained_execute": true,
+    "synthetic_output_bytes": 16777216,
+    "accepted": true,
+    "healthy128byte_control": true,
+    "python_traced_peak_bytes": 33590458
+  },
+  "after_supplemental_same_route_observation": {
+    "static_failure": "direct_build_command_output_limit",
+    "python_traced_peak_bytes": 9283669,
+    "retained_output_log_bytes": 0
+  },
+  "intentional_changes": [
+    "8MiB combined stdout/stderr safety rail; oversize output fails with a static error and no success receipt",
+    "Optional separately budgeted stderr sink preserves stdout-then-stderr log order",
+    "Additive timed_out flag retains existing TimeoutExpired and retained-builder recovery without command/output diagnostics"
+  ],
+  "preservation": {
+    "whole_build_module_AST_except_command_newimports_constant_exact": true,
+    "old_capture_defaults_and_static_reason_values_exact": true,
+    "all_three_existing_capture_callers_unchanged": true,
+    "command_signature_60second_default_text_locale_universal_newlines_strip_and_log_order_preserved": true,
+    "build_execute_and_all_container_state_actions_unchanged": true
+  },
+  "qualification": {
+    "pytest_cases": 52,
+    "subtests_separate": 61,
+    "junit_tests_including_subtests": 113,
+    "seconds": 7.64,
+    "selected_files": [
+      "scripts/test_mcp_direct_output.py",
+      "scripts/test_mcp_direct_build.py",
+      "scripts/test_bounded_qualification_output.py",
+      "scripts/test_release_companies_runtime.py",
+      "scripts/test_mcp_production_baseline.py"
+    ],
+    "checks": [
+      "Explicit no-fix Ruff3 files passes",
+      "Strict mypy --explicit-package-bases neutral helper passes",
+      "Format check2 files passes"
+    ]
+  },
+  "source_fence": {
+    "scripts/mcp_direct_build.py": "72f880a173cc252abe47ce0a9f51602122b8ad0682794f49c1bd7ecddec6f780",
+    "scripts/bounded_command_output.py": "d190aeabcbf00b2fdec0652e4cf6fa7b57bf13b4f3d7e572ea7eab58e69b9c7b",
+    "scripts/test_mcp_direct_output.py": "864548e27066750e4dff5e35c97e86df783e71825b82dd485804d1e5e419aff1",
+    "scripts/test_mcp_direct_build.py": "44b63548dfdf72f81c4768aa472081c52324118a6a173fc65df6cf89836552dc",
+    "scripts/test_bounded_qualification_output.py": "20c6f8551ca2511c0d51b24a6fb0151fc1d2433fb6a33e821192e34ecbb541a1",
+    "scripts/test_release_companies_runtime.py": "65d544624f33a2d923dd337c2c40f884d8e230ad54d6c47be04e87ba6cf46e74",
+    "scripts/test_mcp_production_baseline.py": "4eeebc2762934d0c1e58f666104f5e2049ddcac3ce130e15027e13b356663b66",
+    "scripts/release_companies_runtime.py": "3ecd9ffdf0c1e0de2f74ce4145d8c73833a15ad68fb59860558772882f2fb763",
+    "scripts/qa/bounded_qualification_output.py": "a3f94f996defdb506fbfd24262065fda74fa9fedcdf2292f284424f8fc9e1a28",
+    "scripts/mcp_production_baseline.py": "21c4ca665fd5968cd31d3e8e653f66a16e92e1b325150b3b902b49302f06a130"
+  },
+  "limits": [
+    "Synthetic local child with injected Docker state responses only; no Docker/build/provider/network/live credentials/VPS or release run",
+    "8MiB is a deliberate operator safety limit; larger captures fail for inspection while builder is retained",
+    "Python tracemalloc observations are supplemental, not RSS/production peak or benchmark claims; corrected seal repeated only that short synthetic observation, never the52case suite",
+    "No descendant process-tree termination or real Docker recovery qualification",
+    "Prior75case migration-output and other exact-source receipts remain immutable historical records; current52case transitive-capture selection is separate",
+    "Initial new test SIM117 lint corrected before tests; first strict command used wrong root cwd, corrected to scripts with no source mutation",
+    "Initial seal assumed JUnit tests omitted61subtests; actual113aggregate and52testcase nodes reconciled before writing this receipt"
+  ],
+  "artifacts": {
+    "direct-build-output-before-proof.json": "754c72b04ebb5838e9eb9ad21b109f20b310d8d12d568d87961a5afb920bcd95",
+    "direct-build-output-current-tests.txt": "d945983c49501ff5f27b3003901f28d1d9b1300757648fad13d172b6a6b87fd3",
+    "direct-build-output-current-junit.xml": "a0baa9e594e09d3bb1f621367a7d1331fc2692b135d6575ceb015d6bfddbe8b9",
+    "mcp_direct_build-bounded-original-source.txt": "36b7d2e46b25e19332864d9b6d7b2acf9af220b7bc5e8c938b42598e868aeba2",
+    "bounded_command_output-bounded-original-source.txt": "9f4b0a539e9756a3d47be47017c4bfc83823a85c8ee60957354f4879dcc84bb0"
+  }
+}

@@ -1,0 +1,229 @@
+{
+  "basis": "Full physical original source review; this baseline already contains the eight independently reproduced/fixed provider-await freshness regressions. New composition/typed context is explicit and not equivalence with the original checkout.",
+  "preimage_sha256": "8019f7ba419f93b83922a57c522fcf954d4d1fbb8614a4c6af9cd31a598c2e8c",
+  "normalized_equivalent_declarations": [
+    {
+      "name": "_gallery",
+      "owner": "backend/app/infrastructure/my_photos/context.py",
+      "normalized_ast_unchanged": true
+    },
+    {
+      "name": "_ready_gallery",
+      "owner": "backend/app/infrastructure/my_photos/context.py",
+      "normalized_ast_unchanged": true
+    },
+    {
+      "name": "_gallery_window_state",
+      "owner": "backend/app/infrastructure/my_photos/context.py",
+      "normalized_ast_unchanged": true
+    },
+    {
+      "name": "_enrollment",
+      "owner": "backend/app/infrastructure/my_photos/context.py",
+      "normalized_ast_unchanged": true
+    },
+    {
+      "name": "_lock_passenger_identity",
+      "owner": "backend/app/infrastructure/my_photos/context.py",
+      "normalized_ast_unchanged": true
+    },
+    {
+      "name": "_required_current_enrollment",
+      "owner": "backend/app/infrastructure/my_photos/context.py",
+      "normalized_ast_unchanged": true
+    },
+    {
+      "name": "_latest_search",
+      "owner": "backend/app/infrastructure/my_photos/context.py",
+      "normalized_ast_unchanged": true
+    },
+    {
+      "name": "_require_face_providers",
+      "owner": "backend/app/infrastructure/my_photos/context.py",
+      "normalized_ast_unchanged": true
+    },
+    {
+      "name": "_require_passenger",
+      "owner": "backend/app/infrastructure/my_photos/context.py",
+      "normalized_ast_unchanged": true
+    },
+    {
+      "name": "_deletion_response",
+      "owner": "backend/app/infrastructure/my_photos/reference_lifecycle.py",
+      "normalized_ast_unchanged": true
+    },
+    {
+      "name": "_mark_provider_deletion_pending",
+      "owner": "backend/app/infrastructure/my_photos/reference_lifecycle.py",
+      "normalized_ast_unchanged": true
+    },
+    {
+      "name": "_delete_superseded_reference",
+      "owner": "backend/app/infrastructure/my_photos/reference_lifecycle.py",
+      "normalized_ast_unchanged": true
+    },
+    {
+      "name": "_complete_provider_deletion",
+      "owner": "backend/app/infrastructure/my_photos/reference_lifecycle.py",
+      "normalized_ast_unchanged": true
+    },
+    {
+      "name": "_create_search_run",
+      "owner": "backend/app/infrastructure/my_photos/liveness_store.py",
+      "normalized_ast_unchanged": true
+    },
+    {
+      "name": "_apply_liveness_cooldown",
+      "owner": "backend/app/infrastructure/my_photos/liveness_store.py",
+      "normalized_ast_unchanged": true
+    },
+    {
+      "name": "_finalize_liveness_result",
+      "owner": "backend/app/infrastructure/my_photos/liveness_store.py",
+      "normalized_ast_unchanged": true
+    },
+    {
+      "name": "_fail_liveness_creation",
+      "owner": "backend/app/infrastructure/my_photos/liveness_store.py",
+      "normalized_ast_unchanged": true
+    },
+    {
+      "name": "_complete_liveness_creation",
+      "owner": "backend/app/infrastructure/my_photos/liveness_store.py",
+      "normalized_ast_unchanged": true
+    },
+    {
+      "name": "_release_liveness_result_claim",
+      "owner": "backend/app/infrastructure/my_photos/liveness_store.py",
+      "normalized_ast_unchanged": true
+    },
+    {
+      "name": "_liveness_session_response",
+      "owner": "backend/app/infrastructure/my_photos/liveness_store.py",
+      "normalized_ast_unchanged": true
+    },
+    {
+      "name": "start_liveness",
+      "owner": "backend/app/infrastructure/my_photos/liveness_service.py",
+      "normalized_ast_unchanged": true
+    },
+    {
+      "name": "complete_liveness",
+      "owner": "backend/app/infrastructure/my_photos/liveness_service.py",
+      "normalized_ast_unchanged": true
+    },
+    {
+      "name": "accept_consent",
+      "owner": "backend/app/infrastructure/my_photos/enrollment_service.py",
+      "normalized_ast_unchanged": true
+    },
+    {
+      "name": "delete_enrollment",
+      "owner": "backend/app/infrastructure/my_photos/enrollment_service.py",
+      "normalized_ast_unchanged": true
+    },
+    {
+      "name": "photo_page",
+      "owner": "backend/app/infrastructure/my_photos/catalog_service.py",
+      "normalized_ast_unchanged": true
+    },
+    {
+      "name": "record_feedback",
+      "owner": "backend/app/infrastructure/my_photos/catalog_service.py",
+      "normalized_ast_unchanged": true
+    },
+    {
+      "name": "_search_response",
+      "owner": "backend/app/infrastructure/my_photos/responses.py",
+      "normalized_ast_unchanged": true
+    },
+    {
+      "name": "_completion_response",
+      "owner": "backend/app/infrastructure/my_photos/responses.py",
+      "normalized_ast_unchanged": true
+    },
+    {
+      "name": "summary",
+      "owner": "backend/app/infrastructure/my_photos/service.py",
+      "normalized_ast_unchanged": true
+    },
+    {
+      "name": "search_status",
+      "owner": "backend/app/infrastructure/my_photos/service.py",
+      "normalized_ast_unchanged": true
+    },
+    {
+      "name": "prepare_media",
+      "owner": "backend/app/infrastructure/my_photos/service.py",
+      "normalized_ast_unchanged": true
+    },
+    {
+      "name": "authorize_downloads",
+      "owner": "backend/app/infrastructure/my_photos/service.py",
+      "normalized_ast_unchanged": true
+    },
+    {
+      "name": "download_plan",
+      "owner": "backend/app/infrastructure/my_photos/service.py",
+      "normalized_ast_unchanged": true
+    },
+    {
+      "name": "development_download_content",
+      "owner": "backend/app/infrastructure/my_photos/service.py",
+      "normalized_ast_unchanged": true
+    },
+    {
+      "name": "production_download_location",
+      "owner": "backend/app/infrastructure/my_photos/service.py",
+      "normalized_ast_unchanged": true
+    },
+    {
+      "name": "download_content_or_location",
+      "owner": "backend/app/infrastructure/my_photos/service.py",
+      "normalized_ast_unchanged": true
+    },
+    {
+      "name": "development_preview_content",
+      "owner": "backend/app/infrastructure/my_photos/service.py",
+      "normalized_ast_unchanged": true
+    },
+    {
+      "name": "preview_content_or_location",
+      "owner": "backend/app/infrastructure/my_photos/service.py",
+      "normalized_ast_unchanged": true
+    }
+  ],
+  "count": 38,
+  "pure_stable_category_body_identical": true,
+  "public_method_names_signatures_return_annotations_and_decorators_unchanged": true,
+  "new_bodies": [
+    "constructor typed composition",
+    "six exact argument-forwarding public delegates",
+    "legacy private completion-response forwarding seam"
+  ],
+  "retired_closed_private_helpers": [
+    {
+      "name": "_search_by_id",
+      "ast_sha256": "38a485c102e6b49d1eff1bc47cf7ce46c14e4504186831c28b69b8c86f5c76df"
+    },
+    {
+      "name": "_search_job",
+      "ast_sha256": "1980ec0e67c0188c4e4b070af2ec5158c6f720492e9e5985d2b4cee8719f4cdf"
+    },
+    {
+      "name": "_fail_search",
+      "ast_sha256": "7869727cbce5627f3efb59d81ef6146dd855fb5d2b8ada38b372086402260fe5"
+    }
+  ],
+  "current_sha256": {
+    "backend/app/infrastructure/my_photos/context.py": "5882eafd5f6279d7069588ef3f151a7e3aad3f811330b4c0293bbdefcf71f178",
+    "backend/app/infrastructure/my_photos/reference_lifecycle.py": "f265bcbbf402866c942aea56286f9451f24e39b81d5a5be7b66f2c13ab621b95",
+    "backend/app/infrastructure/my_photos/liveness_store.py": "1fc274341316b941282a1587ad6038144f3a89f0293d0f4f5dc73e08f6a47975",
+    "backend/app/infrastructure/my_photos/liveness_service.py": "ca66fb902cdf751606d8e8097448a6f33718da27a6b59c3095e7036293b4669a",
+    "backend/app/infrastructure/my_photos/enrollment_service.py": "9411397116e103b3a9f34028ad980daaaf798e06b04bec2e5873cf6eabe4a4e9",
+    "backend/app/infrastructure/my_photos/catalog_service.py": "d01b169cd6c52ab08342588dc91fea5adb1564643e990825361a148ae47f3e77",
+    "backend/app/infrastructure/my_photos/responses.py": "91fcb27b1bfd60b05d2d37da07ad16bce187a00ad508a4a0daa8a39bcc218331",
+    "backend/app/infrastructure/my_photos/service.py": "5b4bc5722156a745c37ab20205506baa319961cf94e35c40d9ab47704c99775e",
+    "backend/app/infrastructure/my_photos/liveness_validation.py": "8e016d8ad12f6a6c76b55d86ceaff9e188d92873b01625045a7a1d0b8bf93cf4"
+  }
+}

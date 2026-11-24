@@ -1,0 +1,229 @@
+{
+  "status": "passed",
+  "complete_spreadsheet_declarations_exact": [
+    {
+      "name": "MAX_UPLOAD_BYTES",
+      "owner": "spreadsheet_values"
+    },
+    {
+      "name": "MAX_IMPORT_ROWS",
+      "owner": "spreadsheet_values"
+    },
+    {
+      "name": "MAX_EXPORT_ROWS",
+      "owner": "spreadsheet_values"
+    },
+    {
+      "name": "MAX_COLUMNS",
+      "owner": "spreadsheet_values"
+    },
+    {
+      "name": "TrackerSpreadsheetError",
+      "owner": "spreadsheet_values"
+    },
+    {
+      "name": "field_values",
+      "owner": "spreadsheet_values"
+    },
+    {
+      "name": "text_value",
+      "owner": "spreadsheet_values"
+    },
+    {
+      "name": "full_name",
+      "owner": "spreadsheet_values"
+    },
+    {
+      "name": "normalized_name",
+      "owner": "spreadsheet_values"
+    },
+    {
+      "name": "normalized_passport",
+      "owner": "spreadsheet_values"
+    },
+    {
+      "name": "_header",
+      "owner": "spreadsheet_reader"
+    },
+    {
+      "name": "_HEADERS",
+      "owner": "spreadsheet_reader"
+    },
+    {
+      "name": "_bounded_rows",
+      "owner": "spreadsheet_reader"
+    },
+    {
+      "name": "read_rows",
+      "owner": "spreadsheet_reader"
+    },
+    {
+      "name": "match_rows",
+      "owner": "spreadsheet_matching"
+    },
+    {
+      "name": "_safe",
+      "owner": "spreadsheet_export"
+    },
+    {
+      "name": "build_export",
+      "owner": "spreadsheet_export"
+    }
+  ],
+  "original_spreadsheet_declarations": 17,
+  "service_constructor_exact": true,
+  "service_methods_complete_after_explicit_value_call_projection": [
+    {
+      "public_method": "_require_role",
+      "owner": "queries",
+      "helper": "require_role",
+      "prefix": [
+        "user"
+      ]
+    },
+    {
+      "public_method": "_group_query",
+      "owner": "queries",
+      "helper": "group_query",
+      "prefix": [
+        "user",
+        "allowed_group_ids"
+      ]
+    },
+    {
+      "public_method": "_group",
+      "owner": "queries",
+      "helper": "load_group",
+      "prefix": [
+        "session",
+        "user",
+        "allowed_group_ids"
+      ]
+    },
+    {
+      "public_method": "_join",
+      "owner": "queries",
+      "helper": "tracker_join",
+      "prefix": []
+    },
+    {
+      "public_method": "_roster",
+      "owner": "queries",
+      "helper": "roster",
+      "prefix": []
+    },
+    {
+      "public_method": "_validate_filters",
+      "owner": "queries",
+      "helper": "validate_filters",
+      "prefix": []
+    },
+    {
+      "public_method": "_page",
+      "owner": "queries",
+      "helper": "validate_page",
+      "prefix": []
+    },
+    {
+      "public_method": "_field_expression",
+      "owner": "queries",
+      "helper": "field_expression",
+      "prefix": []
+    },
+    {
+      "public_method": "_filter",
+      "owner": "queries",
+      "helper": "filter_roster",
+      "prefix": []
+    },
+    {
+      "public_method": "_summary",
+      "owner": "queries",
+      "helper": "group_summary",
+      "prefix": [
+        "session"
+      ]
+    },
+    {
+      "public_method": "_counts",
+      "owner": "projections",
+      "helper": "counts",
+      "prefix": []
+    },
+    {
+      "public_method": "_passenger",
+      "owner": "projections",
+      "helper": "project_passenger",
+      "prefix": []
+    },
+    {
+      "public_method": "list_groups",
+      "owner": "reads",
+      "helper": "list_groups",
+      "prefix": [
+        "session",
+        "user",
+        "allowed_group_ids"
+      ]
+    },
+    {
+      "public_method": "workspace",
+      "owner": "reads",
+      "helper": "workspace",
+      "prefix": [
+        "session",
+        "user",
+        "allowed_group_ids"
+      ]
+    },
+    {
+      "public_method": "mark",
+      "owner": "changes",
+      "helper": "mark_authorized",
+      "prefix": [
+        "session",
+        "user",
+        "allowed_group_ids"
+      ]
+    },
+    {
+      "public_method": "export",
+      "owner": "files",
+      "helper": "export",
+      "prefix": [
+        "session",
+        "user",
+        "allowed_group_ids"
+      ]
+    },
+    {
+      "public_method": "preview",
+      "owner": "files",
+      "helper": "preview",
+      "prefix": [
+        "session",
+        "user",
+        "allowed_group_ids"
+      ]
+    }
+  ],
+  "public_private_signatures_defaults_decorators_preserved": true,
+  "actor_preflight_SHARE_skip_order_preserved": true,
+  "role_constant_exact": true,
+  "worker_behavior_checkpoint_byte_identical": true,
+  "old_test_assertions_and_fixtures_preserved": true,
+  "unchanged_support_sources": [
+    "backend/app/infrastructure/travel_tracker/actor.py",
+    "backend/app/infrastructure/travel_tracker/__init__.py",
+    "backend/tests/unit/infrastructure/test_travel_tracker_spreadsheets.py",
+    "backend/tests/unit/presentation/test_travel_tracker.py",
+    "backend/app/presentation/api/v1/routes/travel_tracker.py"
+  ],
+  "deliberate_composition_metadata": [
+    "Public/private bound methods now forward explicit current session/user/group-allowlist values to focused owners; no request callback/Facade object is passed.",
+    "Original service constructor and mark current-actor assignment/role checks/SHARE-lock skip remain at facade in original order.",
+    "Function module metadata changes on relocation; spreadsheet facade reexports actual original-shape implementation objects.",
+    "Production service instances are local to request/MCP operation scopes and do not support concurrent AsyncSession use; no new mutable shared service state introduced.",
+    "No whole-class/source identity claimed for service facade; full body AST equality is proved only after explicit argument/call restoration."
+  ]
+}

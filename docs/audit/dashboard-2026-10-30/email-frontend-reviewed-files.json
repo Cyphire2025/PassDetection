@@ -1,0 +1,330 @@
+[
+  {
+    "path": "frontend/features/email-integrations/api/email-integrations.api.ts",
+    "sha256": "bb79893ba728c99db2ff47e381c4df2f95cd105f9679f553df2d6150a6159253",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete email dashboard runtime source read; original source and current extracted owners reviewed for owner/role gates, callback URLs, text-only content, immutable decision revisions, polling/history bounds, confirmations, unused exports and render work. Does not establish backend authorization or device frame-time assurance. Narrow fixes/refactors and verification in email-frontend-progress.md."
+  },
+  {
+    "path": "frontend/features/email-integrations/components/activity-page.tsx",
+    "sha256": "3d61fd4a93772853c944686c1d7000c0e29e4616a918fe750dcd5ffbd9370b29",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete email dashboard runtime source read; original source and current extracted owners reviewed for owner/role gates, callback URLs, text-only content, immutable decision revisions, polling/history bounds, confirmations, unused exports and render work. Does not establish backend authorization or device frame-time assurance. Narrow fixes/refactors and verification in email-frontend-progress.md."
+  },
+  {
+    "path": "frontend/features/email-integrations/components/connections-page.tsx",
+    "sha256": "e60a94cbef68400b717fc6e208c7930ce3afff831853e1e550156d4c54760fa0",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete email dashboard runtime source read; original source and current extracted owners reviewed for owner/role gates, callback URLs, text-only content, immutable decision revisions, polling/history bounds, confirmations, unused exports and render work. Does not establish backend authorization or device frame-time assurance. Narrow fixes/refactors and verification in email-frontend-progress.md."
+  },
+  {
+    "path": "frontend/features/email-integrations/components/email-ai-rollout-control.tsx",
+    "sha256": "076d0457a26a1562095b6100b00f870b74e69f8027b0404f49919cd5308752ce",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete email dashboard runtime source read; original source and current extracted owners reviewed for owner/role gates, callback URLs, text-only content, immutable decision revisions, polling/history bounds, confirmations, unused exports and render work. Does not establish backend authorization or device frame-time assurance. Narrow fixes/refactors and verification in email-frontend-progress.md."
+  },
+  {
+    "path": "frontend/features/email-integrations/components/email-connection-card.tsx",
+    "sha256": "9046dc475bd14ad19f606bdd01442fdbd2b7611ebe55b8c7bfa65bc902cc5a4c",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete email dashboard runtime source read; original source and current extracted owners reviewed for owner/role gates, callback URLs, text-only content, immutable decision revisions, polling/history bounds, confirmations, unused exports and render work. Does not establish backend authorization or device frame-time assurance. Narrow fixes/refactors and verification in email-frontend-progress.md."
+  },
+  {
+    "path": "frontend/features/email-integrations/components/email-connection-dialogs.tsx",
+    "sha256": "d8a425599804fcfde91373e48b5f3b1b8b1fe598a02e1c17ae1b1212d81152b2",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete email dashboard runtime source read; original source and current extracted owners reviewed for owner/role gates, callback URLs, text-only content, immutable decision revisions, polling/history bounds, confirmations, unused exports and render work. Does not establish backend authorization or device frame-time assurance. Narrow fixes/refactors and verification in email-frontend-progress.md."
+  },
+  {
+    "path": "frontend/features/email-integrations/components/email-connection-summary.tsx",
+    "sha256": "d9c058a292777a3c5c4d8c3e27775f696ab00823e5b006e787465ca7ad717e03",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete email dashboard runtime source read; original source and current extracted owners reviewed for owner/role gates, callback URLs, text-only content, immutable decision revisions, polling/history bounds, confirmations, unused exports and render work. Does not establish backend authorization or device frame-time assurance. Narrow fixes/refactors and verification in email-frontend-progress.md."
+  },
+  {
+    "path": "frontend/features/email-integrations/components/email-integrations-shell.tsx",
+    "sha256": "776d3b43401b4ab43f8979ee59d1f3e46d303dd023db2e6e57d7ad2cfb37e731",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete email dashboard runtime source read; original source and current extracted owners reviewed for owner/role gates, callback URLs, text-only content, immutable decision revisions, polling/history bounds, confirmations, unused exports and render work. Does not establish backend authorization or device frame-time assurance. Narrow fixes/refactors and verification in email-frontend-progress.md."
+  },
+  {
+    "path": "frontend/features/email-integrations/components/email-integrations-ui.tsx",
+    "sha256": "75d8b337af55a327c74e861822be26246163545b72c285c1e8cf2c7f03ea29c4",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete email dashboard runtime source read; original source and current extracted owners reviewed for owner/role gates, callback URLs, text-only content, immutable decision revisions, polling/history bounds, confirmations, unused exports and render work. Does not establish backend authorization or device frame-time assurance. Narrow fixes/refactors and verification in email-frontend-progress.md."
+  },
+  {
+    "path": "frontend/features/email-integrations/components/email-review-card.tsx",
+    "sha256": "6050df5c622d9da1244ec8926fb9924fb0d8a307bdb8554a7252441d004791ed",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete email dashboard runtime source read; original source and current extracted owners reviewed for owner/role gates, callback URLs, text-only content, immutable decision revisions, polling/history bounds, confirmations, unused exports and render work. Does not establish backend authorization or device frame-time assurance. Narrow fixes/refactors and verification in email-frontend-progress.md."
+  },
+  {
+    "path": "frontend/features/email-integrations/components/email-rollout-decision.tsx",
+    "sha256": "b330769c097135e3ad3036e27f6210fec2ddfcd70af3efe36d80aec6309f3e68",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete email dashboard runtime source read; original source and current extracted owners reviewed for owner/role gates, callback URLs, text-only content, immutable decision revisions, polling/history bounds, confirmations, unused exports and render work. Does not establish backend authorization or device frame-time assurance. Narrow fixes/refactors and verification in email-frontend-progress.md."
+  },
+  {
+    "path": "frontend/features/email-integrations/components/email-rollout-model.ts",
+    "sha256": "95618d8a63beaeec344fcad47493dc0b17f3097d5b31226f524e9dbf1233fc1a",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete email dashboard runtime source read; original source and current extracted owners reviewed for owner/role gates, callback URLs, text-only content, immutable decision revisions, polling/history bounds, confirmations, unused exports and render work. Does not establish backend authorization or device frame-time assurance. Narrow fixes/refactors and verification in email-frontend-progress.md."
+  },
+  {
+    "path": "frontend/features/email-integrations/components/email-rollout-target.tsx",
+    "sha256": "8efa750dc56bef905e169d42b602248f621c207192da301143d4723999bc8951",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete email dashboard runtime source read; original source and current extracted owners reviewed for owner/role gates, callback URLs, text-only content, immutable decision revisions, polling/history bounds, confirmations, unused exports and render work. Does not establish backend authorization or device frame-time assurance. Narrow fixes/refactors and verification in email-frontend-progress.md."
+  },
+  {
+    "path": "frontend/features/email-integrations/components/match-review-dialog.tsx",
+    "sha256": "e31d2a716843b836c09fec9051793b9b8da27cc5fd4880ebd2bc16c6f8228609",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete email dashboard runtime source read; original source and current extracted owners reviewed for owner/role gates, callback URLs, text-only content, immutable decision revisions, polling/history bounds, confirmations, unused exports and render work. Does not establish backend authorization or device frame-time assurance. Narrow fixes/refactors and verification in email-frontend-progress.md."
+  },
+  {
+    "path": "frontend/features/email-integrations/components/message-activity-model.ts",
+    "sha256": "3a9f966fa52c43425b2223a6ff099496ac254c5fd24492b6b3cb0dcfecec8793",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete email dashboard runtime source read; original source and current extracted owners reviewed for owner/role gates, callback URLs, text-only content, immutable decision revisions, polling/history bounds, confirmations, unused exports and render work. Does not establish backend authorization or device frame-time assurance. Narrow fixes/refactors and verification in email-frontend-progress.md."
+  },
+  {
+    "path": "frontend/features/email-integrations/components/message-activity-page.tsx",
+    "sha256": "0fd60372e47807f5f20beb691ed780917bca981fc2b5452e0aefffce7a9819d7",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete email dashboard runtime source read; original source and current extracted owners reviewed for owner/role gates, callback URLs, text-only content, immutable decision revisions, polling/history bounds, confirmations, unused exports and render work. Does not establish backend authorization or device frame-time assurance. Narrow fixes/refactors and verification in email-frontend-progress.md."
+  },
+  {
+    "path": "frontend/features/email-integrations/components/message-deadline-decisions.tsx",
+    "sha256": "89bd882a1637ef21fbd54d6dafcb34ea2ba65cd38357c0e43dd3964ad3e24319",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete email dashboard runtime source read; original source and current extracted owners reviewed for owner/role gates, callback URLs, text-only content, immutable decision revisions, polling/history bounds, confirmations, unused exports and render work. Does not establish backend authorization or device frame-time assurance. Narrow fixes/refactors and verification in email-frontend-progress.md."
+  },
+  {
+    "path": "frontend/features/email-integrations/components/message-draft-editor.tsx",
+    "sha256": "10ecff5affec36e429601b73f96f1d8ffb24a006ebb5b9802eef703a92048a6a",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete email dashboard runtime source read; original source and current extracted owners reviewed for owner/role gates, callback URLs, text-only content, immutable decision revisions, polling/history bounds, confirmations, unused exports and render work. Does not establish backend authorization or device frame-time assurance. Narrow fixes/refactors and verification in email-frontend-progress.md."
+  },
+  {
+    "path": "frontend/features/email-integrations/components/message-feedback-correction-dialog.tsx",
+    "sha256": "c071b8ea3e1d46c7a1ce1fff98fab081be5369ef6cb8aa1b3c338bf98046bff4",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete email dashboard runtime source read; original source and current extracted owners reviewed for owner/role gates, callback URLs, text-only content, immutable decision revisions, polling/history bounds, confirmations, unused exports and render work. Does not establish backend authorization or device frame-time assurance. Narrow fixes/refactors and verification in email-frontend-progress.md."
+  },
+  {
+    "path": "frontend/features/email-integrations/components/message-feedback-deadline.tsx",
+    "sha256": "add7e32acb3a06fae0ff053e76545a9ad16f736c6f051f21cb8807e41cefe5d6",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete email dashboard runtime source read; original source and current extracted owners reviewed for owner/role gates, callback URLs, text-only content, immutable decision revisions, polling/history bounds, confirmations, unused exports and render work. Does not establish backend authorization or device frame-time assurance. Narrow fixes/refactors and verification in email-frontend-progress.md."
+  },
+  {
+    "path": "frontend/features/email-integrations/components/message-feedback-links.tsx",
+    "sha256": "02729ddb339b5b4003f04af3a95389fea376f4949acf559bc758e1ece3719f8d",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete email dashboard runtime source read; original source and current extracted owners reviewed for owner/role gates, callback URLs, text-only content, immutable decision revisions, polling/history bounds, confirmations, unused exports and render work. Does not establish backend authorization or device frame-time assurance. Narrow fixes/refactors and verification in email-frontend-progress.md."
+  },
+  {
+    "path": "frontend/features/email-integrations/components/message-intelligence-brief.tsx",
+    "sha256": "9ad69d5cadac8359cbd00947a1833d93c7139b990e483cc1c8f8705c006ced70",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete email dashboard runtime source read; original source and current extracted owners reviewed for owner/role gates, callback URLs, text-only content, immutable decision revisions, polling/history bounds, confirmations, unused exports and render work. Does not establish backend authorization or device frame-time assurance. Narrow fixes/refactors and verification in email-frontend-progress.md."
+  },
+  {
+    "path": "frontend/features/email-integrations/components/message-intelligence-feedback.tsx",
+    "sha256": "b08e23cbf55e4678be72cf1391169688bc2e4270eac7157112c241b5dd77ac07",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete email dashboard runtime source read; original source and current extracted owners reviewed for owner/role gates, callback URLs, text-only content, immutable decision revisions, polling/history bounds, confirmations, unused exports and render work. Does not establish backend authorization or device frame-time assurance. Narrow fixes/refactors and verification in email-frontend-progress.md."
+  },
+  {
+    "path": "frontend/features/email-integrations/components/message-proposal-decisions.tsx",
+    "sha256": "64f40313ddc3c346a309013fdfca0dc82bb9bfce767f890474a8c819dc85ac52",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete email dashboard runtime source read; original source and current extracted owners reviewed for owner/role gates, callback URLs, text-only content, immutable decision revisions, polling/history bounds, confirmations, unused exports and render work. Does not establish backend authorization or device frame-time assurance. Narrow fixes/refactors and verification in email-frontend-progress.md."
+  },
+  {
+    "path": "frontend/features/email-integrations/components/operational-inbox-card.tsx",
+    "sha256": "183fed16aafafefcde5fde8d3167d91979f09f6d4b1b76c9ab5d7b98ec0c714b",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete email dashboard runtime source read; original source and current extracted owners reviewed for owner/role gates, callback URLs, text-only content, immutable decision revisions, polling/history bounds, confirmations, unused exports and render work. Does not establish backend authorization or device frame-time assurance. Narrow fixes/refactors and verification in email-frontend-progress.md."
+  },
+  {
+    "path": "frontend/features/email-integrations/components/operational-inbox-page.tsx",
+    "sha256": "b9d9856abfc77fd9f201e1be3f21c2d34898360098cf4b9a56e38111efab25ff",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete email dashboard runtime source read; original source and current extracted owners reviewed for owner/role gates, callback URLs, text-only content, immutable decision revisions, polling/history bounds, confirmations, unused exports and render work. Does not establish backend authorization or device frame-time assurance. Narrow fixes/refactors and verification in email-frontend-progress.md."
+  },
+  {
+    "path": "frontend/features/email-integrations/components/operational-inbox-views.ts",
+    "sha256": "2f97835999031467133f2453508fc93925657cfdf9602406e55c1714a53e54cb",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete email dashboard runtime source read; original source and current extracted owners reviewed for owner/role gates, callback URLs, text-only content, immutable decision revisions, polling/history bounds, confirmations, unused exports and render work. Does not establish backend authorization or device frame-time assurance. Narrow fixes/refactors and verification in email-frontend-progress.md."
+  },
+  {
+    "path": "frontend/features/email-integrations/components/review-queue-page.tsx",
+    "sha256": "58a421fa8b783c8e8c2a05b01dfd3935fe379df1a2fa49ff9dbdffd76b05bbf8",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete email dashboard runtime source read; original source and current extracted owners reviewed for owner/role gates, callback URLs, text-only content, immutable decision revisions, polling/history bounds, confirmations, unused exports and render work. Does not establish backend authorization or device frame-time assurance. Narrow fixes/refactors and verification in email-frontend-progress.md."
+  },
+  {
+    "path": "frontend/features/email-integrations/components/use-message-feedback-controller.ts",
+    "sha256": "2c15347ee7c4896d84c2aeaec4a7cee8fca4651b1b2e28019b82a88e1ed874cb",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete email dashboard runtime source read; original source and current extracted owners reviewed for owner/role gates, callback URLs, text-only content, immutable decision revisions, polling/history bounds, confirmations, unused exports and render work. Does not establish backend authorization or device frame-time assurance. Narrow fixes/refactors and verification in email-frontend-progress.md."
+  },
+  {
+    "path": "frontend/features/email-integrations/hooks/use-email-connections-controller.ts",
+    "sha256": "9c825bbfb91a6d83a6df1c6b8927b0982d341239a9225b3f0fd9e6694713a933",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete email dashboard runtime source read; original source and current extracted owners reviewed for owner/role gates, callback URLs, text-only content, immutable decision revisions, polling/history bounds, confirmations, unused exports and render work. Does not establish backend authorization or device frame-time assurance. Narrow fixes/refactors and verification in email-frontend-progress.md."
+  },
+  {
+    "path": "frontend/features/email-integrations/hooks/use-email-integrations.ts",
+    "sha256": "6eb1a461743a92393c9bb9a05ee69ea478c497b53888ddec13fd4da375e83173",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete email dashboard runtime source read; original source and current extracted owners reviewed for owner/role gates, callback URLs, text-only content, immutable decision revisions, polling/history bounds, confirmations, unused exports and render work. Does not establish backend authorization or device frame-time assurance. Narrow fixes/refactors and verification in email-frontend-progress.md."
+  },
+  {
+    "path": "frontend/features/email-integrations/hooks/use-email-rollout-controller.ts",
+    "sha256": "e05b986a503c2d30afd35e588d7aa2e1114cef319705e4c9c2db9e5416b95c6f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete email dashboard runtime source read; original source and current extracted owners reviewed for owner/role gates, callback URLs, text-only content, immutable decision revisions, polling/history bounds, confirmations, unused exports and render work. Does not establish backend authorization or device frame-time assurance. Narrow fixes/refactors and verification in email-frontend-progress.md."
+  },
+  {
+    "path": "frontend/features/email-integrations/services/email-refresh-policy.ts",
+    "sha256": "c3d74e569f6927713f76578196636890319ced68fa0ab6661a10a2fd4f1304e2",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete email dashboard runtime source read; original source and current extracted owners reviewed for owner/role gates, callback URLs, text-only content, immutable decision revisions, polling/history bounds, confirmations, unused exports and render work. Does not establish backend authorization or device frame-time assurance. Narrow fixes/refactors and verification in email-frontend-progress.md."
+  },
+  {
+    "path": "frontend/features/email-integrations/types.ts",
+    "sha256": "02e9dff83e7e9fdf5237160830518a0dd0b766df6819fe7be67d10c48c2a3c83",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete email dashboard runtime source read; original source and current extracted owners reviewed for owner/role gates, callback URLs, text-only content, immutable decision revisions, polling/history bounds, confirmations, unused exports and render work. Does not establish backend authorization or device frame-time assurance. Narrow fixes/refactors and verification in email-frontend-progress.md."
+  },
+  {
+    "path": "frontend/features/email-integrations/utils/email-integrations.ts",
+    "sha256": "84ebff26eded32d516aee846012ca529a87d1d52f0e5aa41030194f59b756ae1",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete email dashboard runtime source read; original source and current extracted owners reviewed for owner/role gates, callback URLs, text-only content, immutable decision revisions, polling/history bounds, confirmations, unused exports and render work. Does not establish backend authorization or device frame-time assurance. Narrow fixes/refactors and verification in email-frontend-progress.md."
+  },
+  {
+    "path": "frontend/features/email-integrations/hooks/use-email-connections-controller.test.tsx",
+    "sha256": "227a86a3956042d26b15bedbcd37f350465a2efafe46b3bcb1a676cab37710b5",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Behavior/contract tests executed after the final email source checkpoint; source-owner assertions now cover live extracted owners. See recorded test receipts."
+  },
+  {
+    "path": "frontend/features/email-integrations/components/email-ai-rollout-control.test.tsx",
+    "sha256": "5f8fbe90d418b6a159b48562bcb36b713b3d4637c79e9e21c11c96f2ebb02805",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Behavior/contract tests executed after the final email source checkpoint; source-owner assertions now cover live extracted owners. See recorded test receipts."
+  },
+  {
+    "path": "frontend/features/email-integrations/email-integrations.contract.test.mjs",
+    "sha256": "fb230eda9ea95191fe2978a8fb0e5b82006ca2c15f6ef0d0fb094f1303a920bd",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Behavior/contract tests executed after the final email source checkpoint; source-owner assertions now cover live extracted owners. See recorded test receipts."
+  },
+  {
+    "path": "frontend/features/email-integrations/components/email-ai-rollout-control.contract.test.mjs",
+    "sha256": "04fe69a742c4f65a5188b30e723b576ff065dcccb50eec5f08b7633bc178607e",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Behavior/contract tests executed after the final email source checkpoint; source-owner assertions now cover live extracted owners. See recorded test receipts."
+  },
+  {
+    "path": "frontend/features/email-integrations/utils/email-integrations.test.mjs",
+    "sha256": "42548b33d6a4f0b1d83042a79b6d5d1f552af8f3f99b27fd9f3184d9479c7e95",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Behavior/contract tests executed after the final email source checkpoint; source-owner assertions now cover live extracted owners. See recorded test receipts."
+  },
+  {
+    "path": "frontend/features/email-integrations/services/email-refresh-policy.test.ts",
+    "sha256": "b04d4939713a5cdf13c5f62da358f40161620ad4122be7afdaffdde5a8376d28",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Behavior/contract tests executed after the final email source checkpoint; source-owner assertions now cover live extracted owners. See recorded test receipts."
+  }
+]

@@ -1,0 +1,24 @@
+{
+  "modules": [
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/document_import_authority.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 90,
+      "source_sha256": "73a0a685a17eb592a944db685de700c9fa120828451d7e0a832ef6114654bd82"
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/document_import_persistence.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 90,
+      "source_sha256": "8683b7909356c0036d32493f4739e30d3466fc7a5c4130f662e03918788a9a97"
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/document_import_staging.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 90,
+      "source_sha256": "e2af270a396ab3c58ea785d08b68ae2d5d3219e874f3ce5ce8432d83d78e1974"
+    }
+  ],
+  "existing_failure95line90branch_retained": true,
+  "status": "three actual-work additions proposed to parent"
+}

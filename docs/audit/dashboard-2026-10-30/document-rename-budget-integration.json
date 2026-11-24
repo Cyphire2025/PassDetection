@@ -1,0 +1,12 @@
+{
+  "candidates": "docs/audit/dashboard-2026-10-30/document-rename-budget-candidates.json",
+  "before_sha256": "7366ad6d5f394908c5deb660d25622d5bf1acf46ca049df99644880225432590",
+  "sha256": "045a0bcd3870e2bde80367dfda45b3aa9f8f02d6ad47016942267d66f8909814",
+  "lf_normalized_sha256": "be5fd9130c93a5816ce23f2f8c283278d85cfdaaf77e0ad1af4ffb731288618e",
+  "added": 7,
+  "updated_existing": 0,
+  "lowered_existing": 0,
+  "lowered_existing_paths": [],
+  "existing_ceilings_preserved": true,
+  "previous_ceilings_sha256": "93a9b5c846b0822b2ec39cbcd522e5c737f3c416de41458c43bd6be5237fcc52"
+}

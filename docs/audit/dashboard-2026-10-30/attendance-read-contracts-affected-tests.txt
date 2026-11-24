@@ -1,0 +1,7 @@
+.................................                                        [100%]
+
+---------- coverage: platform win32, python 3.11.15-final-0 ----------
+Coverage XML written to file C:\Users\nipun\Desktop\PassDetection\docs\audit\dashboard-2026-10-30\attendance-read-contracts-coverage.xml
+Coverage JSON written to file C:\Users\nipun\Desktop\PassDetection\docs\audit\dashboard-2026-10-30\attendance-read-contracts-coverage.json
+
+33 passed in 8.51s

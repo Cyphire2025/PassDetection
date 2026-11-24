@@ -6,7 +6,9 @@ function read(relativePath) {
   return readFileSync(new URL(relativePath, import.meta.url), "utf8");
 }
 
-const component = read("./email-ai-rollout-control.tsx");
+const component = ["./email-ai-rollout-control.tsx", "./email-rollout-target.tsx",
+  "./email-rollout-decision.tsx", "./email-rollout-model.ts", "../hooks/use-email-rollout-controller.ts"]
+  .map(read).join("\n");
 const connections = read("./connections-page.tsx");
 const api = read("../api/email-integrations.api.ts");
 const hooks = read("../hooks/use-email-integrations.ts");

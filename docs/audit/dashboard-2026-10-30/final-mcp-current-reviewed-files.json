@@ -1,0 +1,10 @@
+[
+  {
+    "path": "docs/implementation/mcp-workflow-coverage.json",
+    "sha256": "37097632cd2b3174126ac67a54e8b3f86a9b7732090f17825935ec62807684b1",
+    "reviewer": "root; gc_models_finish",
+    "review_scope": "focused",
+    "status": "generated-metadata-reviewed",
+    "notes": "Current2036surface generated matrix structurally/provenance reviewed, all411drifts individually classified. Root independently checked1823common policies,150relocations,17live facade policies,63non-workflow internal metadata rows,89current source/receipt hashes and exact current discovery. Existing actual CLI --check passes. All oldtop-level date/status/evidence remain historical; full original bytes and167retired rows retained. No new whole48000line physical read, runtime/feature/provider or production qualification. See final-mcp-surface-check/applied-verification.json."
+  }
+]

@@ -1,0 +1,860 @@
+{
+  "scope": [
+    "backend/app/application/use_cases/whatsapp",
+    "backend/app/infrastructure/whatsapp"
+  ],
+  "files": [
+    {
+      "path": "backend/app/application/use_cases/whatsapp/__init__.py",
+      "sha256": "445f2187b6bc304eabce6c2a1551f6013b97d9d7064eb0e91988db84b90a4def",
+      "lines": 1,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Every physical line read; application input/identity/template/persistence bounds and provider transport audited. Live caller trace/actual negative behavior follow-up remains in progress; no transitive assurance."
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/contact_import_limits.py",
+      "sha256": "004c196f9379aec1df84e0696046494b01c156776b05de8b9ae74e5acc1e9990",
+      "lines": 6,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Every physical line read; application input/identity/template/persistence bounds and provider transport audited. Live caller trace/actual negative behavior follow-up remains in progress; no transitive assurance."
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/contact_normalization.py",
+      "sha256": "554c21f551ea4d733d04156812ea90a381c58f6eae7fe42378c46763b46b7a51",
+      "lines": 23,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Every physical line read; application input/identity/template/persistence bounds and provider transport audited. Live caller trace/actual negative behavior follow-up remains in progress; no transitive assurance."
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/document_templates.py",
+      "sha256": "c145570c4362a2d27a5e236490600ca1a5ab535991b8175f99d7d55f9b8add83",
+      "lines": 81,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Every physical line read; application input/identity/template/persistence bounds and provider transport audited. Live caller trace/actual negative behavior follow-up remains in progress; no transitive assurance."
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/document_updates.py",
+      "sha256": "532e0fffaa8840625214d9bd9b4140b76a3d521f9d85826f62de7203e86a8213",
+      "lines": 22,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Every physical line read; application input/identity/template/persistence bounds and provider transport audited. Live caller trace/actual negative behavior follow-up remains in progress; no transitive assurance."
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/group_submission_matching.py",
+      "sha256": "dc85ecd81a87dd90451b9558d40a5007d338d93c3af30570cbff7d92b6ceb2e3",
+      "lines": 201,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "refactored",
+      "reviewer": "manual_security",
+      "notes": "Complete original1343physical read plus exact46definition extraction proof; current201line compatibility facade directly read. Canonical selected-field parsing hoist isolated to new normalization owner; no policy/domain merge."
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/group_submission_policy.py",
+      "sha256": "db0d11c4c77755003ba6a0f6bc8bc18790dde9199cad4bede579308db41c045a",
+      "lines": 60,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Every physical line read; application input/identity/template/persistence bounds and provider transport audited. Live caller trace/actual negative behavior follow-up remains in progress; no transitive assurance."
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/group_updates.py",
+      "sha256": "21fedeb3de24aea185f6891e8234811acb375e8af120906fe326d9ea401ea9b5",
+      "lines": 56,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Every physical line read; application input/identity/template/persistence bounds and provider transport audited. Live caller trace/actual negative behavior follow-up remains in progress; no transitive assurance."
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/imported_broadcast_phone.py",
+      "sha256": "8a0e9ecc7ebc83168abd106f8e270ee836b775117193c0e0a51ede74bbea198e",
+      "lines": 74,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Every physical line read; application input/identity/template/persistence bounds and provider transport audited. Live caller trace/actual negative behavior follow-up remains in progress; no transitive assurance."
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/message_templates.py",
+      "sha256": "7374c3fdbaa533e9d9f0ee83bb41a0029db4bd5b91b70317223a269d2ee0cc88",
+      "lines": 269,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Every physical line read; application input/identity/template/persistence bounds and provider transport audited. Live caller trace/actual negative behavior follow-up remains in progress; no transitive assurance."
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/plan_group_broadcast_use_case.py",
+      "sha256": "739f646c16b48cfc9102a9ed2513bfe78607ab77ae555e47b1ef1c213c639533",
+      "lines": 96,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Every physical line read; application input/identity/template/persistence bounds and provider transport audited. Live caller trace/actual negative behavior follow-up remains in progress; no transitive assurance."
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/private_delivery_identity.py",
+      "sha256": "07d1d03caf28648a0b59a4378bead83e74144a81600db57f0128856e443da3f5",
+      "lines": 47,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Every physical line read; application input/identity/template/persistence bounds and provider transport audited. Live caller trace/actual negative behavior follow-up remains in progress; no transitive assurance."
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/qr_templates.py",
+      "sha256": "bfa78d9e057f84c723c60a7c58aac413cfe686d0ce7702db7ccbdec4c51c99cd",
+      "lines": 33,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Every physical line read; application input/identity/template/persistence bounds and provider transport audited. Live caller trace/actual negative behavior follow-up remains in progress; no transitive assurance."
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/recipient_capacity.py",
+      "sha256": "c78934bed1c992e220fc49c5666c54e07aff26193a9a3d5d526e19528e3b71d9",
+      "lines": 41,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Every physical line read; application input/identity/template/persistence bounds and provider transport audited. Live caller trace/actual negative behavior follow-up remains in progress; no transitive assurance."
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/source_group_contacts.py",
+      "sha256": "af6ec9c7113479c734be7068e1c27e8a4c96f8637c3e23ed6186788e467817c0",
+      "lines": 110,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Every physical line read; application input/identity/template/persistence bounds and provider transport audited. Live caller trace/actual negative behavior follow-up remains in progress; no transitive assurance."
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/spreadsheet_values.py",
+      "sha256": "9b3a824b2f5dd1c40592a417ee51b0b4538fb9155c01cefb4985c6101816326c",
+      "lines": 52,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Every physical line read; application input/identity/template/persistence bounds and provider transport audited. Live caller trace/actual negative behavior follow-up remains in progress; no transitive assurance."
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/template_text.py",
+      "sha256": "949478864a0fd8819a54732d1f2feca7a5dd3446feb5a21679ec104cfb74fa33",
+      "lines": 10,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Every physical line read; application input/identity/template/persistence bounds and provider transport audited. Live caller trace/actual negative behavior follow-up remains in progress; no transitive assurance."
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/welcome_policy.py",
+      "sha256": "41f3d5b89c15ef2177bcdb91e5f8d3b55735e5c6de5f74dbdd0ed69c58d2d389",
+      "lines": 8,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Every physical line read; application input/identity/template/persistence bounds and provider transport audited. Live caller trace/actual negative behavior follow-up remains in progress; no transitive assurance."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/__init__.py",
+      "sha256": "c755e315a6ff25731e547cad0415f0161a51a79d22c3ef69ef0d3e52ead55ac4",
+      "lines": 1,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Every physical line read; application input/identity/template/persistence bounds and provider transport audited. Live caller trace/actual negative behavior follow-up remains in progress; no transitive assurance."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/bounded_delivery.py",
+      "sha256": "47e20b22051fda438c43316b3ae67f5dbf1f72ab07f74ead1a456484018d0dba",
+      "lines": 66,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Every physical line read; application input/identity/template/persistence bounds and provider transport audited. Live caller trace/actual negative behavior follow-up remains in progress; no transitive assurance."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/broadcast_welcome.py",
+      "sha256": "cfb5009bd2cf410bf06a274b0fb5c151e4c0580d14d28410e06a12cd222d6a05",
+      "lines": 69,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Every physical line read; application input/identity/template/persistence bounds and provider transport audited. Live caller trace/actual negative behavior follow-up remains in progress; no transitive assurance."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/cloud_api_provider.py",
+      "sha256": "1609a10ee69a14ac9647ebf8b40227f1dba95f908a69d9a8d21b6296e58ae78c",
+      "lines": 53,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete original691-line physical read plus current53-line compatibility facade reread. Public/private named helper aliases retained. Provider11 unchanged definition ASTs proved separately; three intentional HTTP consolidation paths wire-tested. Numeric provider-code diagnostic privacy correction carries forward."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/document_delivery_runtime.py",
+      "sha256": "995e3c43450e9ab3e6a82789c7df4456f0c02eb3f7280efbb49468c74d4a358a",
+      "lines": 812,
+      "matching_full_read": [
+        {
+          "ledger": "security-reviewed-files.json",
+          "reviewer": "unspecified"
+        }
+      ],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "unspecified",
+      "notes": "Reused only exact current SHA full physical source receipt; no new physical read inferred.",
+      "review_provenance": [
+        {
+          "ledger": "security-reviewed-files.json",
+          "reviewer": "unspecified"
+        }
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/document_update_provider_wave.py",
+      "sha256": "8181e6f410164c5696f01d97a69e4d7f80d675a5e8cb5b7de529465feb721339",
+      "lines": 68,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Every physical line read in bounded complete chunks; authority/destination, exact-match/private-evidence policy, receipt binding, current source, claim/retry, compensation and stable error boundaries inspected. Source/caller-specific follow-through documented separately, no service certification."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/document_update_runtime.py",
+      "sha256": "1151e4106599f23168c08a8db1a9c8e1243aeb522ad0dd007261505be03bb45e",
+      "lines": 345,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Every physical line read in bounded complete chunks; authority/destination, exact-match/private-evidence policy, receipt binding, current source, claim/retry, compensation and stable error boundaries inspected. Source/caller-specific follow-through documented separately, no service certification."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/group_invite_policy.py",
+      "sha256": "9e8ffb220a8b8672fe5d421d9c4ae66da3010ca4e9d2fb60df15d83d82741900",
+      "lines": 183,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Every physical line read in bounded complete chunks; authority/destination, exact-match/private-evidence policy, receipt binding, current source, claim/retry, compensation and stable error boundaries inspected. Source/caller-specific follow-through documented separately, no service certification."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/group_update_audience.py",
+      "sha256": "17341ab7a6b7971d58533bbed1f639de5fc3286fbc8b4b9db05b3acda9915ee4",
+      "lines": 174,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Every physical line read in bounded complete chunks; authority/destination, exact-match/private-evidence policy, receipt binding, current source, claim/retry, compensation and stable error boundaries inspected. Source/caller-specific follow-through documented separately, no service certification."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/group_update_contacts.py",
+      "sha256": "99db813f0e5a1eafd684016e57590d6f01ee8c5cc757919f3695f04e4a1e1963",
+      "lines": 50,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Every physical line read in bounded complete chunks; authority/destination, exact-match/private-evidence policy, receipt binding, current source, claim/retry, compensation and stable error boundaries inspected. Source/caller-specific follow-through documented separately, no service certification."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/group_update_dispatch.py",
+      "sha256": "5badea183b0969519ec6d946b263d84f84e483d3e9d5d24457f9842b7f5243a5",
+      "lines": 66,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Every physical line read in bounded complete chunks; authority/destination, exact-match/private-evidence policy, receipt binding, current source, claim/retry, compensation and stable error boundaries inspected. Source/caller-specific follow-through documented separately, no service certification."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/mcp_dispatch.py",
+      "sha256": "3cef0e52832389c652847023ba151c2d3b97c7026b95819a1cb8a442c8b6ac2d",
+      "lines": 106,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Complete physical source read. Durable admission/claim/scope/media/source/receipt/publication and conservative retry semantics traced within file. Caller and transitive service coverage not inferred."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/mcp_document_dispatch.py",
+      "sha256": "910e4f1706facf80c1ccfedf128887e5324d2f02e47069eb392abf8fb82ab9c4",
+      "lines": 145,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Complete physical source read. Durable admission/claim/scope/media/source/receipt/publication and conservative retry semantics traced within file. Caller and transitive service coverage not inferred."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/mcp_document_progress.py",
+      "sha256": "c2d413920f8afdcb8082cf352f0c4dc04600ea7d858d9cedcac52e0fa578dd97",
+      "lines": 54,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Complete physical source read. Durable admission/claim/scope/media/source/receipt/publication and conservative retry semantics traced within file. Caller and transitive service coverage not inferred."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/mcp_document_publication.py",
+      "sha256": "4913e8378a56b549d76a46abceee8a3f0d363b0de02d18b8e4bc0e4d39c54201",
+      "lines": 128,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Complete physical source read. Durable admission/claim/scope/media/source/receipt/publication and conservative retry semantics traced within file. Caller and transitive service coverage not inferred."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/mcp_media_dispatch.py",
+      "sha256": "d339a7f02a47b267fd0da1f823dd270d46bc8d26434e3c587ce08bd1aeca9764",
+      "lines": 133,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Complete physical source read. Durable admission/claim/scope/media/source/receipt/publication and conservative retry semantics traced within file. Caller and transitive service coverage not inferred."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/mcp_progress.py",
+      "sha256": "223c258de5225f05f1f8b0d41c8027522796106635c40629607de9c7b09e0df4",
+      "lines": 102,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Complete physical source read. Durable admission/claim/scope/media/source/receipt/publication and conservative retry semantics traced within file. Caller and transitive service coverage not inferred."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/mcp_publication.py",
+      "sha256": "1a816588cd8007429cbc158642ced4cf2459a2f014d22093ebc6ef1bccdc0b42",
+      "lines": 192,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Complete physical source read. Durable admission/claim/scope/media/source/receipt/publication and conservative retry semantics traced within file. Caller and transitive service coverage not inferred."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/noop_provider.py",
+      "sha256": "dd3ad353ad9977aedec8ab24d4c48405b2ef0a9eac505fa6de5de60ab81eaded",
+      "lines": 20,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Every physical line read; application input/identity/template/persistence bounds and provider transport audited. Live caller trace/actual negative behavior follow-up remains in progress; no transitive assurance."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/otp_provider.py",
+      "sha256": "0ddafa67ddbcddd1b5be9e43e3bd8b9ae4f9d8e8be4d934967f7a39763aff534",
+      "lines": 108,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Every physical line read; application input/identity/template/persistence bounds and provider transport audited. Live caller trace/actual negative behavior follow-up remains in progress; no transitive assurance."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/phone_overrides.py",
+      "sha256": "669da158e86223949b2543d4b8106005ee4c958f8015894537eca09983b6fc27",
+      "lines": 328,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Every physical line read in bounded complete chunks; authority/destination, exact-match/private-evidence policy, receipt binding, current source, claim/retry, compensation and stable error boundaries inspected. Source/caller-specific follow-through documented separately, no service certification."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/phone_welcome.py",
+      "sha256": "1a2051eddc9fdfcebee335187da3aa46aafcb0b0eba601b5e834b9de99838c21",
+      "lines": 326,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Every physical line read in bounded complete chunks; authority/destination, exact-match/private-evidence policy, receipt binding, current source, claim/retry, compensation and stable error boundaries inspected. Source/caller-specific follow-through documented separately, no service certification."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/pricing.py",
+      "sha256": "ab2921e69e394bc4e0240735f7a17e98d1e71cdecef476e9e0a13a84fd3a27ab",
+      "lines": 52,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Every physical line read; application input/identity/template/persistence bounds and provider transport audited. Live caller trace/actual negative behavior follow-up remains in progress; no transitive assurance."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/private_delivery_policy.py",
+      "sha256": "bed4893e0328209032e17a7e13292fc6ee2029b562e6b69e4cd0586fba04b34b",
+      "lines": 442,
+      "matching_full_read": [
+        {
+          "ledger": "security-reviewed-files.json",
+          "reviewer": "unspecified"
+        }
+      ],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "unspecified",
+      "notes": "Reused only exact current SHA full physical source receipt; no new physical read inferred.",
+      "review_provenance": [
+        {
+          "ledger": "security-reviewed-files.json",
+          "reviewer": "unspecified"
+        }
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/publication.py",
+      "sha256": "b5ceb5197b6c04b908c15de40dc47f285cd162624b167c61d48d677c534e78ef",
+      "lines": 60,
+      "matching_full_read": [
+        {
+          "ledger": "security-reviewed-files.json",
+          "reviewer": "unspecified"
+        }
+      ],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "unspecified",
+      "notes": "Reused only exact current SHA full physical source receipt; no new physical read inferred.",
+      "review_provenance": [
+        {
+          "ledger": "security-reviewed-files.json",
+          "reviewer": "unspecified"
+        }
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/qr_delivery_runtime.py",
+      "sha256": "f2784c5dc6e5fb9525e80cc58677de8d3dd1065985efb7169a6c6862cd961714",
+      "lines": 246,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete original552-line physical read plus full current246-line coordinator reread. Source fence, recursive bounded fan-out, shared client and per-item claim AST unchanged; facade call-time callbacks remain patchable. New phases retain original transaction/lock ordering."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/receipt_bindings.py",
+      "sha256": "c2c710fd6719084e80e559273649f9d4c31af1c67c344cec4ac0e4cc26ebcab7",
+      "lines": 208,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Complete physical source read. Durable admission/claim/scope/media/source/receipt/publication and conservative retry semantics traced within file. Caller and transitive service coverage not inferred."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/receipt_inbox.py",
+      "sha256": "73f91c4f3a326634b0ba64e78fbc9cb479fadb295a1536e6a279612574fb834c",
+      "lines": 156,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Complete physical source read. Durable admission/claim/scope/media/source/receipt/publication and conservative retry semantics traced within file. Caller and transitive service coverage not inferred."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/receipt_retention.py",
+      "sha256": "1e95f903800a67b965d446b2fe20a0423c947727442226f91c5eafb178ad4581",
+      "lines": 130,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Every physical line read in bounded complete chunks; authority/destination, exact-match/private-evidence policy, receipt binding, current source, claim/retry, compensation and stable error boundaries inspected. Source/caller-specific follow-through documented separately, no service certification."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/receipt_runtime.py",
+      "sha256": "19b356ab48ee3ea6c34d91e14aa5ede416342fb8dc6143782dc53e5c1c6cad8e",
+      "lines": 412,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Every physical line read in bounded complete chunks; authority/destination, exact-match/private-evidence policy, receipt binding, current source, claim/retry, compensation and stable error boundaries inspected. Source/caller-specific follow-through documented separately, no service certification."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/source_group_backfill.py",
+      "sha256": "cdef905101e759b72fb8dfa25742a0f0fa6c16505846fafbe8f06359fcc4ff93",
+      "lines": 64,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Every physical line read in bounded complete chunks; authority/destination, exact-match/private-evidence policy, receipt binding, current source, claim/retry, compensation and stable error boundaries inspected. Source/caller-specific follow-through documented separately, no service certification."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/source_group_sync.py",
+      "sha256": "18532630c79f6b0c65e42750877560930d5b5685936f52d5ee0317569e2a7f24",
+      "lines": 321,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Every physical line read in bounded complete chunks; authority/destination, exact-match/private-evidence policy, receipt binding, current source, claim/retry, compensation and stable error boundaries inspected. Source/caller-specific follow-through documented separately, no service certification."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/tasks.py",
+      "sha256": "d38d0d3d7303cddd1b36a7933f91244a3f4f9c34ccf90d04d92af0b26d9a7916",
+      "lines": 244,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Every physical line read in bounded complete chunks; authority/destination, exact-match/private-evidence policy, receipt binding, current source, claim/retry, compensation and stable error boundaries inspected. Source/caller-specific follow-through documented separately, no service certification."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/template_settings.py",
+      "sha256": "9ecc8e05705dbea514b712d0bf8c2517d82fb0423b1a64ee16f5edaebdaa034b",
+      "lines": 103,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Every physical line read in bounded complete chunks; authority/destination, exact-match/private-evidence policy, receipt binding, current source, claim/retry, compensation and stable error boundaries inspected. Source/caller-specific follow-through documented separately, no service certification."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/traveller_destinations.py",
+      "sha256": "17dfeb7e334094cec983674d0df704b30ad9ef55770ea097c4823cea8f200946",
+      "lines": 300,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Every physical line read in bounded complete chunks; authority/destination, exact-match/private-evidence policy, receipt binding, current source, claim/retry, compensation and stable error boundaries inspected. Source/caller-specific follow-through documented separately, no service certification."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/traveller_welcome_runtime.py",
+      "sha256": "6509ed2f490d502163c209b91101ceb9b50c3bbb65c074c3ad380f7c94504c07",
+      "lines": 410,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Every physical line read in bounded complete chunks; authority/destination, exact-match/private-evidence policy, receipt binding, current source, claim/retry, compensation and stable error boundaries inspected. Source/caller-specific follow-through documented separately, no service certification."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/web_publication.py",
+      "sha256": "d5132698ea97f869e6add9b5df5fbc8b78ece0cac4b664e3458d28e0294cf0ee",
+      "lines": 133,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Complete physical source read. Durable admission/claim/scope/media/source/receipt/publication and conservative retry semantics traced within file. Caller and transitive service coverage not inferred."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/welcome_recovery.py",
+      "sha256": "c58aebf88ddc0b5de940fbd50f3070be954860cb6e6038b39bf4de87bc048c21",
+      "lines": 110,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Every physical line read in bounded complete chunks; authority/destination, exact-match/private-evidence policy, receipt binding, current source, claim/retry, compensation and stable error boundaries inspected. Source/caller-specific follow-through documented separately, no service certification."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/worker_recovery.py",
+      "sha256": "3f754affa5afc06adcf3ed69c5b212d471e1a930fb6c005402bf9800cf36634f",
+      "lines": 40,
+      "matching_full_read": [],
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Complete physical source read. Durable admission/claim/scope/media/source/receipt/publication and conservative retry semantics traced within file. Caller and transitive service coverage not inferred."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/worker_runtime.py",
+      "sha256": "bd7c038c5ec22a548cd1142c135b529d9c7c6798594f7e4cd7be74c3af95cae1",
+      "lines": 329,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete original643-line physical read plus full current facade reread. Main orchestration AST unchanged after retry-loop delegation expansion; runtime session/provider/authority/state callback bindings retain current facade monkeypatch seams. Current329 lines; claims, heartbeat, frozen template and transaction order preserved."
+    }
+  ],
+  "new_physical_reads": [
+    "backend/app/application/use_cases/whatsapp/__init__.py",
+    "backend/app/application/use_cases/whatsapp/contact_import_limits.py",
+    "backend/app/application/use_cases/whatsapp/contact_normalization.py",
+    "backend/app/application/use_cases/whatsapp/document_templates.py",
+    "backend/app/application/use_cases/whatsapp/document_updates.py",
+    "backend/app/application/use_cases/whatsapp/group_submission_policy.py",
+    "backend/app/application/use_cases/whatsapp/group_updates.py",
+    "backend/app/application/use_cases/whatsapp/imported_broadcast_phone.py",
+    "backend/app/application/use_cases/whatsapp/message_templates.py",
+    "backend/app/application/use_cases/whatsapp/plan_group_broadcast_use_case.py",
+    "backend/app/application/use_cases/whatsapp/private_delivery_identity.py",
+    "backend/app/application/use_cases/whatsapp/qr_templates.py",
+    "backend/app/application/use_cases/whatsapp/recipient_capacity.py",
+    "backend/app/application/use_cases/whatsapp/source_group_contacts.py",
+    "backend/app/application/use_cases/whatsapp/spreadsheet_values.py",
+    "backend/app/application/use_cases/whatsapp/template_text.py",
+    "backend/app/application/use_cases/whatsapp/welcome_policy.py",
+    "backend/app/infrastructure/whatsapp/__init__.py",
+    "backend/app/infrastructure/whatsapp/bounded_delivery.py",
+    "backend/app/infrastructure/whatsapp/broadcast_welcome.py",
+    "backend/app/infrastructure/whatsapp/cloud_api_provider.py",
+    "backend/app/infrastructure/whatsapp/noop_provider.py",
+    "backend/app/infrastructure/whatsapp/otp_provider.py",
+    "backend/app/infrastructure/whatsapp/pricing.py",
+    "backend/app/infrastructure/whatsapp/mcp_dispatch.py",
+    "backend/app/infrastructure/whatsapp/mcp_document_dispatch.py",
+    "backend/app/infrastructure/whatsapp/mcp_document_progress.py",
+    "backend/app/infrastructure/whatsapp/mcp_document_publication.py",
+    "backend/app/infrastructure/whatsapp/mcp_media_dispatch.py",
+    "backend/app/infrastructure/whatsapp/mcp_progress.py",
+    "backend/app/infrastructure/whatsapp/mcp_publication.py",
+    "backend/app/infrastructure/whatsapp/receipt_bindings.py",
+    "backend/app/infrastructure/whatsapp/receipt_inbox.py",
+    "backend/app/infrastructure/whatsapp/web_publication.py",
+    "backend/app/infrastructure/whatsapp/worker_recovery.py",
+    "backend/app/infrastructure/whatsapp/worker_runtime.py",
+    "backend/app/application/use_cases/whatsapp/group_submission_matching.py",
+    "backend/app/infrastructure/whatsapp/document_update_provider_wave.py",
+    "backend/app/infrastructure/whatsapp/document_update_runtime.py",
+    "backend/app/infrastructure/whatsapp/group_invite_policy.py",
+    "backend/app/infrastructure/whatsapp/group_update_audience.py",
+    "backend/app/infrastructure/whatsapp/group_update_contacts.py",
+    "backend/app/infrastructure/whatsapp/group_update_dispatch.py",
+    "backend/app/infrastructure/whatsapp/phone_overrides.py",
+    "backend/app/infrastructure/whatsapp/phone_welcome.py",
+    "backend/app/infrastructure/whatsapp/qr_delivery_runtime.py",
+    "backend/app/infrastructure/whatsapp/receipt_retention.py",
+    "backend/app/infrastructure/whatsapp/receipt_runtime.py",
+    "backend/app/infrastructure/whatsapp/source_group_backfill.py",
+    "backend/app/infrastructure/whatsapp/source_group_sync.py",
+    "backend/app/infrastructure/whatsapp/tasks.py",
+    "backend/app/infrastructure/whatsapp/template_settings.py",
+    "backend/app/infrastructure/whatsapp/traveller_destinations.py",
+    "backend/app/infrastructure/whatsapp/traveller_welcome_runtime.py",
+    "backend/app/infrastructure/whatsapp/welcome_recovery.py"
+  ],
+  "read_phase_status": "All58 original paths complete:55direct physical reads+3matching prior full records. All19extracted owners physically reviewed;77current exact-SHA full records. Matcher/provider/worker/QR tranche source-frozen with focused evidence; Celery privacy mitigation and listed architecture/reachability follow-ups remain OPEN. Whole dashboard audit not complete.",
+  "extracted_owners": [
+    {
+      "path": "backend/app/application/use_cases/whatsapp/group_match_coordinator.py",
+      "sha256": "d409da422bab1a779bf75a3b4c10e98e0ec5b036735d5161d11af5f35fb7f76f",
+      "lines": 188,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete original definitions physically read, copied with exact AST proof; generated imports reviewed/typechecked. The single intentional normalization work delta has expected-red and semantic/performance regressions."
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/group_match_evidence.py",
+      "sha256": "cf662891cd0d635b070cc93a5a68de3b2e660421e7b37545510d8dfd03aefb8b",
+      "lines": 295,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete original definitions physically read, copied with exact AST proof; generated imports reviewed/typechecked. The single intentional normalization work delta has expected-red and semantic/performance regressions."
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/group_match_fields.py",
+      "sha256": "43ff801155b533fbf5b3c5a1172dd18c9bc4748d191e24433d8dde6582573a17",
+      "lines": 161,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete original definitions physically read, copied with exact AST proof; generated imports reviewed/typechecked. The single intentional normalization work delta has expected-red and semantic/performance regressions."
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/group_match_normalization.py",
+      "sha256": "5b6d8982eb966989959ac6c8995b0b3278f1a20594e5aa375a001f06c1118f34",
+      "lines": 172,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "fixed",
+      "notes": "Complete original definitions physically read, copied with exact AST proof; generated imports reviewed/typechecked. The single intentional normalization work delta has expected-red and semantic/performance regressions."
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/group_match_profiles.py",
+      "sha256": "fc8a2101cf3abc2bc1b2df737e6572b540faa32b5c353c572e90b14f09afd900",
+      "lines": 297,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete original definitions physically read, copied with exact AST proof; generated imports reviewed/typechecked. The single intentional normalization work delta has expected-red and semantic/performance regressions."
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/group_match_rows.py",
+      "sha256": "8c712fa4e4529434139a45acba392f9119ac842191154d0bf62caa101a732369",
+      "lines": 231,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete original definitions physically read, copied with exact AST proof; generated imports reviewed/typechecked. The single intentional normalization work delta has expected-red and semantic/performance regressions."
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/group_match_types.py",
+      "sha256": "fc8546d246a221ed0dcf6834aa753e1b51fa877dffd2029e522e5f6ce4dfcf1f",
+      "lines": 155,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete original definitions physically read, copied with exact AST proof; generated imports reviewed/typechecked. The single intentional normalization work delta has expected-red and semantic/performance regressions."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/broadcast_worker_policy.py",
+      "sha256": "a31eb59c7aa6e36de3c92adb32636969eadecbfba43b8a6bb1ef0fbe21b4c45a",
+      "lines": 179,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Full current physical read. Current authority/phone/claim checks and frozen template snapshots extracted without statement changes after explicit call-time callback normalization. Distinct welcome/invite/passport-link policies preserved;25-complexity recipient policy remains explicit maintainability debt."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/broadcast_worker_provider.py",
+      "sha256": "b97ecbe09e1186ae4360deacc6e45bc3754ada62211f992608c203072dbf1a29",
+      "lines": 185,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "fixed",
+      "notes": "Full current physical read. Original retry-loop statement AST preserved after explicit callback/constant normalization except proven privacy correction: unexpected exception strings no longer enter stored message errors. Actual DB regression first failed, then passes while unknown outcome/resend suppression remains intact."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/broadcast_worker_state.py",
+      "sha256": "1ff39963c73a9712e414038d4709716437da9c1104129efae2f0754fb92e498c",
+      "lines": 153,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Full current physical read. Durable ledger predicates and batch recovery bodies preserved after explicit session/state callback normalization; heartbeat AST unchanged. Provider acceptance cannot release/overwrite a newer claim or regress advanced states."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/provider_errors.py",
+      "sha256": "4c02727abd437502c0ba08f6f79f49442ce3439bb43df1614b4e2335a1502b11",
+      "lines": 92,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "fixed",
+      "notes": "Full current physical read. Bounded ASCII decimal Meta code/subcode extraction prevents arbitrary external response text entering logs or staff-visible persisted errors; safe diagnostic policy family names/messages preserve prior behavior. Original error class/normalizer AST unchanged from post-fix pre-extraction snapshot."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/provider_media.py",
+      "sha256": "b6b8d365bd633d0f595275913480df34d03fd934655440f2fee064e471b5224e",
+      "lines": 156,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Full current physical read. Both original upload definition ASTs unchanged; fixed Graph host, existing credentials, payload/size checks and retry classifications retained. Original logger namespace preserved. External response buffering remains a recorded follow-up, not a validated exploit."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/provider_messages.py",
+      "sha256": "d99963e638323121343c1e017011f4318a0197b3cd384d2d9e3a5d0876ca29d7",
+      "lines": 251,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Full current physical read. Template validation/composition separate from HTTP. Authentication/ordinary/update definitions unchanged AST; document and QR preserve upfront credentials/parameter checks and exact wire payload while delegating outcome handling. No real provider sends."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/provider_payloads.py",
+      "sha256": "fb25ffeca9f1f2611839015d73800dec80325878fe1041a642eeb7e3bdeb0677",
+      "lines": 20,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Full current physical read. Original exact text/image/document parameter dictionary definitions unchanged by AST comparison. No IO, remote URLs or authority grants introduced."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/provider_transport.py",
+      "sha256": "af003278470e812545dbc126818e85b0b3018de1f9c2c6e80d77c41559a6e23b",
+      "lines": 121,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Full current physical read. Consolidates repeated message HTTP/outcome handling with frozen family diagnostics while preserving Graph request JSON, header shape, numeric diagnostics, rejection events, accepted-without-ID unknown classification and retry suppression. Actual MockTransport wire/privacy regressions cover the boundary."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/qr_delivery_dispatch.py",
+      "sha256": "ddd52c441cde5215800dad9d7dd5ce6df42275f160e08aa7a1e79fb1e657b9b6",
+      "lines": 224,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Full current physical read. Original final recipient/welcome/current-token/queued-identity fence, retry and receipt-commit phase AST preserved after dependency normalization and continue-to-return conversion. Actual DB tests revoke/rotate a QR after upload and observe no provider send.28-complexity final fence remains explicit debt."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/qr_delivery_media.py",
+      "sha256": "9dcec1cd2491e26e17af9785b1ddb87ceee6e492aef9634af16ed399a33b20bb",
+      "lines": 111,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Full current physical read. Original media reconstruction/active-latest-token/upload phase statement AST unchanged after explicit dependency normalization and outer-iteration continue-to-return conversion. Render/upload failure text remains safe; media retries precede final locked validation."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/qr_delivery_state.py",
+      "sha256": "79d203828d1af3291ff9bd1906a2771d09f405930e600bf45e8f8cb8cbd4f7fc",
+      "lines": 97,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Full current physical read. Receipt reducer definition AST unchanged. Delivery/batch persistence bodies unchanged after session-factory normalization. Public facade signatures preserved; interrupted processing remains delivery_unknown and queued remains safely failed."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/qr_delivery_types.py",
+      "sha256": "f95d5ec0e58d4bc5f9f2df38eb01c772ad611cd7d13327441dd3bee11a9c1bb1",
+      "lines": 40,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Full current physical read. Explicit typed call-time dependencies only; reuses existing private recipient-validation contract, no new grants or external IO."
+    }
+  ],
+  "open_followups": [
+    "Original task/Celery exception traceback/result/args sinks can retain original exception detail or task payloads; parent owns shared logger follow-up. Database hide_parameters alone does not redact DB-origin DETAIL.",
+    "Existing provider response buffering and permissive non-string success message-ID conversion are recorded boundaries; no active attacker-controlled exploit proved in this tranche.",
+    "Matcher47/27, broadcast recipient policy25 and final QR fence28 function complexities remain explicit maintainability debt; extraction is not a claim all functions became simple.",
+    "Legacy planner/no-op/pricing removal requires closed import/computed/escaped-call reachability proof before retirement.",
+    "SQLite functional checks do not establish real PostgreSQL row-lock behavior, broker publication or Meta integration. No production fixtures or provider sends used."
+  ],
+  "latest_verification": {
+    "path": "docs/audit/dashboard-2026-10-30/whatsapp-provider-worker-qr-verification.json",
+    "sha256": "e48280fb601f127fe3e07897c40321d754e80b6ef9ec5605d111855cd9731601"
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "status": "Retained selected/pending passenger workbook and frozen download history source cohort; physical reads complete",
+  "files": [
+    {
+      "path": "backend/tests/unit/presentation/test_selected_groups_export.py",
+      "sha256": "e8f1d33df3ba15d3dafa173c4b5e013a3de9ab8fdbee2eb55ce42323c6888019",
+      "physical_lines": 479,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-479 in bounded1-240/241-479. Selected-group workbook source fixtures preserve requested group order while configured grouping orders rows, common supplemental fields precede group-specific fields and colliding labels stay distinct. Pending-only groups retain name/contact/source metadata, selected zone omission explicit, defaults/airport fixed grouping preserved, formatted pending rows and workbook table range checked. Existing workbook/test/SQL fixture code only physically read; no export execution or formula policy change."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_passport_export_history_routes.py",
+      "sha256": "b2b95a05310c6824b182dcb524199a44455932f075edf1b255fb130b3e751f6f",
+      "physical_lines": 541,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-541 in bounded1-200/201-390/391-541. Browser confirmation header exposed, history UUID/count uniqueness/integrity and frozen people order validated; exact current-set difference preserves order, incompatible/missing/corrupt/exhausted baseline statuses stable. Active replacement/rejected uploads filtered and corrupted roster references fail closed. Download completion scoped to actor/tenant/group commits/audits once; replay does not mutate, frozen historical identity remains after source deletion. No route/test/workbook/service execution."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_passport_group_pending_export_helpers.py",
+      "sha256": "1887e6829b5136ccf7e223face8e00f1d3bbe22fcfb6f42bd2aee3e0b4b8cb81",
+      "physical_lines": 922,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-922 in bounded1-235/236-465/466-700/701-922. Duplicate conflicting metadata/contact values stay blank, equivalent values deduplicate, pending and every explicit tracking filter preserve selected current ID order/candidate semantics. Export catalog excludes actual phone aliases/source metadata without filtering unrelated words; configured agency unique similarity/fallback, old-name/contact provenance and unmatched recipient exclusion retained. Current custom matching field selection controls both pending and tracking acquisition; grouping default versus explicit none distinct. Existing source/workbook/matching behavior read only; no threshold/private visibility or provider changes."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/selected_exports.py",
+      "sha256": "1af700103fda455214e6bcf8934714746ad93758663fbf9b5315e0c50deb04a3",
+      "physical_lines": 248,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "focused",
+      "notes": "Physical163-248 only. Actual selected-context scope uses canonical group visibility, all requested groups or404, stable ID dedup/order, office submitted status/operational roster and manager visibility, +1 overflow bound1500; purpose-specific prepare/render and existing binary response. Current whole-file full ledgers reused, not reopened."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/export_history.py",
+      "sha256": "ad4ed57b819b8f246d91a3d2b04d0cc6ff7cfd34851b39b0d2d356bdc58ed59d",
+      "physical_lines": 306,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "focused",
+      "notes": "Physical251-306 only. Actual completion route cookie CSRF, tenant/group/export authorization, actor-owned prepared history lookup, existing use-case conflict translation and commit only on transition; response uses validated kind and committed completion. No whole-file reread credit."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/constants.py",
+      "sha256": "fde4a454674243207fe194ab20cd456ca3b341dfd6e9c99d2f06e1b77d13bffc",
+      "physical_lines": 72,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-72 reread. Stable actual export/import public aliases preserve actual leaf values and established upload/selection/combined/archive resource bounds. Meaningful facade compatibility, no cosmetic split or duplicate implementation finding; existing prior full ledger remains historical."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_export_support.py",
+      "sha256": "3bf9cd6a6c6854971df328266b2f2610ad0bfa18bb83cdbeab1bed8ea426bd13",
+      "physical_lines": 133,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-133 in1-130/131-133 reads. Exact public/private export aliases trace actual agency/catalog/provenance/pending/contact/tracking leaves and history value owners. Sole thin legacy async zone helper acquires current rows then pure zone projection. No wrappers/proxies added or actual owner methods modified."
+    }
+  ]
+}

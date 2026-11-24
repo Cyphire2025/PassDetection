@@ -1,0 +1,177 @@
+{
+  "status": "Scoped worker/provider ownership tranche sealed; remaining MyPhotos architecture and lifecycle audit stays open.",
+  "runtime_owners": 12,
+  "original_worker_lines": 1057,
+  "current_worker_facade_lines": 65,
+  "largest_worker_owner_lines": 202,
+  "tests": {
+    "unique_passing_cases": 191,
+    "separate_scoped_passing_selections": [
+      170,
+      17,
+      4
+    ],
+    "initial_negative_controls": {
+      "stale_error_authority": "8 failed/4 passed",
+      "native_sibling_ownership": "4 failed"
+    },
+    "fixture_failures_retained": [
+      "operational-worker-supplement-fixture-failure.txt:8 failed/9 passed; expired static availability window and unsupported batch_size1 corrected to current window/minimum10.",
+      "operational-worker-checkpoint-recovery-fixture-failure.txt:1 failed/3 passed; recovered counters claimed indexed data while fixture asset still processing. Consistent indexed asset fixed; actual publication coverage gate correctly rejected inconsistent fixture."
+    ]
+  },
+  "changes": [
+    "Two post-provider failure handlers now use the same fresh gallery/job/asset status, lease expiry/owner and cancellation checks as success; late errors cannot change stale jobs/assets.",
+    "One concrete provider batch owner cancels and drains started siblings, preserving first error and input order. Reused by media/index and the preceding gallery cancellation implementation; no duplicate cancellation loop.",
+    "Original1057-line worker split into typed context/contracts, admission, lifecycle, pure provider policy, current queries, media execution, index execution and publication. Public dispatch and call-time session-factory seam retained."
+  ],
+  "equivalence": "24 original declarations unchanged after explicit context normalization;3 exact tested delta restorations. Basis already includes earlier media and index fixes, not original checkout. Both complete prior AWS/gallery source byte identities recover after reversing only documented imports/batch calls, including original CRLF.",
+  "compatibility": "Original public execute arguments, original dataclass aliases/__module__/get_type_hints/pickle and call-time facade factory override preserved; no route, HTTP, schema, task payload or configuration contract change.",
+  "current_runtime_sha256": {
+    "backend/app/infrastructure/my_photos/aws_face_search.py": "f5c1d90678c307d99d8ee1966975c7012a30bb9b32b15c69583957c945672ff5",
+    "backend/app/infrastructure/my_photos/gallery_manifest_providers.py": "302457c64fceeb254c0d1fed006f86e9a6da37e01b1764a3f3d8c11015a52e19",
+    "backend/app/infrastructure/my_photos/operational_index_jobs.py": "ec6f22a6219d32364903fa3b91def695095bbb32996e08e5e43109ed24eafeb3",
+    "backend/app/infrastructure/my_photos/operational_index_publication.py": "f16ac652055a36e19611d212304907f2287633ee4e99c0fe2a9f498786b5a54f",
+    "backend/app/infrastructure/my_photos/operational_job_claims.py": "29449ee1905ce2a2371e1d84463a9235e1ebcfe82b7d90618531dfb6cf383cca",
+    "backend/app/infrastructure/my_photos/operational_job_contracts.py": "3785947c91564a0b8cc4c77c62ba0ba46542af19b067370ebc9d4e740727bb7f",
+    "backend/app/infrastructure/my_photos/operational_job_lifecycle.py": "73c399ca4a004b77c735ea686ce7ad728704989a28ec2a5499b787182844b3e6",
+    "backend/app/infrastructure/my_photos/operational_job_policy.py": "2e3df8a42a1c086b87909be0446704a9385f84ebf4e504fb0a5561cea0456636",
+    "backend/app/infrastructure/my_photos/operational_job_queries.py": "6822aaad4b591795a2c345d7193989df9f0549800dd3c93b4456652443965f20",
+    "backend/app/infrastructure/my_photos/operational_media_jobs.py": "d0c29dac99f160e5c421bd6a7ef1a066381f37b051aa97c72e690563248a2e2b",
+    "backend/app/infrastructure/my_photos/operational_runtime.py": "c178e781b9f62a0e415bdbecf8c9c9b02a263f8d6726080090cc92845e5af2cb",
+    "backend/app/infrastructure/my_photos/provider_tasks.py": "f5da388cd882e778fcf7873abccf8bb6bb186cf8c6c493d30ab41ddce0cfa434"
+  },
+  "coverage": [
+    {
+      "path": "app/infrastructure/my_photos/aws_face_search.py",
+      "sha256": "f5c1d90678c307d99d8ee1966975c7012a30bb9b32b15c69583957c945672ff5",
+      "lines": 380,
+      "complexity": 18,
+      "statement_percent": 71.34502923976608,
+      "branch_percent": 48.275862068965516,
+      "branches": 58,
+      "existing_row_retained_verbatim": true
+    },
+    {
+      "path": "app/infrastructure/my_photos/gallery_manifest_providers.py",
+      "sha256": "302457c64fceeb254c0d1fed006f86e9a6da37e01b1764a3f3d8c11015a52e19",
+      "lines": 179,
+      "complexity": 8,
+      "statement_percent": 85.0,
+      "branch_percent": 62.5,
+      "branches": 8,
+      "existing_row_retained_verbatim": true
+    },
+    {
+      "path": "app/infrastructure/my_photos/operational_index_jobs.py",
+      "sha256": "ec6f22a6219d32364903fa3b91def695095bbb32996e08e5e43109ed24eafeb3",
+      "lines": 131,
+      "complexity": 13,
+      "statement_percent": 86.27450980392157,
+      "branch_percent": 57.142857142857146,
+      "branches": 14,
+      "existing_row_retained_verbatim": false
+    },
+    {
+      "path": "app/infrastructure/my_photos/operational_index_publication.py",
+      "sha256": "f16ac652055a36e19611d212304907f2287633ee4e99c0fe2a9f498786b5a54f",
+      "lines": 177,
+      "complexity": 17,
+      "statement_percent": 98.83720930232558,
+      "branch_percent": 95.83333333333333,
+      "branches": 24,
+      "existing_row_retained_verbatim": false
+    },
+    {
+      "path": "app/infrastructure/my_photos/operational_job_claims.py",
+      "sha256": "29449ee1905ce2a2371e1d84463a9235e1ebcfe82b7d90618531dfb6cf383cca",
+      "lines": 123,
+      "complexity": 21,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "branches": 20,
+      "existing_row_retained_verbatim": false
+    },
+    {
+      "path": "app/infrastructure/my_photos/operational_job_contracts.py",
+      "sha256": "3785947c91564a0b8cc4c77c62ba0ba46542af19b067370ebc9d4e740727bb7f",
+      "lines": 55,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_percent": null,
+      "branches": 0,
+      "existing_row_retained_verbatim": false
+    },
+    {
+      "path": "app/infrastructure/my_photos/operational_job_lifecycle.py",
+      "sha256": "73c399ca4a004b77c735ea686ce7ad728704989a28ec2a5499b787182844b3e6",
+      "lines": 118,
+      "complexity": 9,
+      "statement_percent": 98.38709677419355,
+      "branch_percent": 83.33333333333333,
+      "branches": 18,
+      "existing_row_retained_verbatim": false
+    },
+    {
+      "path": "app/infrastructure/my_photos/operational_job_policy.py",
+      "sha256": "2e3df8a42a1c086b87909be0446704a9385f84ebf4e504fb0a5561cea0456636",
+      "lines": 148,
+      "complexity": 18,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "branches": 24,
+      "existing_row_retained_verbatim": false
+    },
+    {
+      "path": "app/infrastructure/my_photos/operational_job_queries.py",
+      "sha256": "6822aaad4b591795a2c345d7193989df9f0549800dd3c93b4456652443965f20",
+      "lines": 152,
+      "complexity": 6,
+      "statement_percent": 97.29729729729729,
+      "branch_percent": 90.0,
+      "branches": 10,
+      "existing_row_retained_verbatim": false
+    },
+    {
+      "path": "app/infrastructure/my_photos/operational_media_jobs.py",
+      "sha256": "d0c29dac99f160e5c421bd6a7ef1a066381f37b051aa97c72e690563248a2e2b",
+      "lines": 202,
+      "complexity": 13,
+      "statement_percent": 95.50561797752809,
+      "branch_percent": 77.27272727272727,
+      "branches": 22,
+      "existing_row_retained_verbatim": false
+    },
+    {
+      "path": "app/infrastructure/my_photos/operational_runtime.py",
+      "sha256": "c178e781b9f62a0e415bdbecf8c9c9b02a263f8d6726080090cc92845e5af2cb",
+      "lines": 65,
+      "complexity": 11,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "branches": 6,
+      "existing_row_retained_verbatim": false
+    },
+    {
+      "path": "app/infrastructure/my_photos/provider_tasks.py",
+      "sha256": "f5da388cd882e778fcf7873abccf8bb6bb186cf8c6c493d30ab41ddce0cfa434",
+      "lines": 29,
+      "complexity": 4,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "branches": 2,
+      "existing_row_retained_verbatim": false
+    }
+  ],
+  "source_binding": "All12 runtime hashes identical across initial170 and17+4 supplements. Test-only fixture corrections retain the initial media helper body; all affected supplements replayed passing. Coverage includes no different-runtime-version line/arc data.",
+  "checks": "12-source mypy/Ruff, affected tests, architecture and pre-existing502 budget checks passed; four new critical guards and existing gallery75/53 obligation pass actual Cobertura evaluator on scoped coverage. New candidate integration separately recorded.",
+  "remaining": [
+    "Gallery and individual AWS native dispatch ownership fixed at tested seams. Index/media preparation/recovery gather sibling ownership and late rejected liveness reference cleanup remain separate caller-proof investigations.",
+    "Post-provider derivative/version mutation edges beyond tested13guards remain explicit future investigation.",
+    "Directory metadata enumeration resolves/sorts allmatching localJSON paths before its50unique-file cap; trusted interactiveoperator resource follow-through remains open. DedicatedCLIengine also lacks the mainfactory hide_parameters setting; no actual parameter-leak sink reproduced here.",
+    "Operational pre-claim lock order remains a separate open candidate: job is locked before a later gallery/asset terminalization path, whereas cancellation locks gallery before job. Compiled post-provider lock ordering and SQLite tests do not establish live PostgreSQL concurrency qualification.",
+    "Operational AWS adapter currently71.35% statements/48.28% branches and index admission86.27%/57.14% in focused selection; retained70 and new85 statement floors pass, but uncovered error/recovery branches remain explicit test debt.",
+    "Provider batches retain local native ownership until return; network timeout or hard process death can still leave remote effects whose provider-side evidence/cleanup needs separate lifecycle review."
+  ],
+  "limits": "Actual SQLite persisted-state, compiled PostgreSQL lock syntax and native threads use synthetic fixtures. No provider sends, live PostgreSQL/Redis/S3, hard process termination, deployment or whole-backend qualification."
+}

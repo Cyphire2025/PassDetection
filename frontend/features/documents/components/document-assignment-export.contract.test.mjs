@@ -1,3 +1,5 @@
+import { readDocumentWorkspaceSource } from "./document-workspace-source.contract-helper.mjs";
+import { readDocumentDistributionSource } from "./document-api-source.contract-helper.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -5,9 +7,9 @@ import test from "node:test";
 const read = (relativePath) =>
   readFileSync(new URL(relativePath, import.meta.url), "utf8");
 
-const workspace = read("./document-workspace.tsx");
+const workspace = readDocumentWorkspaceSource();
 const controls = read("./document-workspace-review-controls.tsx");
-const api = read("../api/document-distribution.api.ts");
+const api = readDocumentDistributionSource();
 const hooks = read("../hooks/use-document-distribution.ts");
 const endpoints = read("../../../lib/api/endpoints.ts");
 const streamedDownload = read("../../../lib/api/streamed-download.ts");

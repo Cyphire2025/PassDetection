@@ -1,0 +1,274 @@
+[
+  {
+    "path": "backend/app/infrastructure/repositories/passport_whatsapp_matching_repository.py",
+    "sha256": "fb4c0c77ef572e171220c867bd79c202c507ac8a19248d884913d512da7f65cc",
+    "lines": 222,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete original615-line physical read, then complete current facade read. Authoritative full loader AST unchanged. Original public signatures/model projection aliases/typed context identities and live comparator/token/round limit seams retained. Tenant/group and active-resolution filters preserved; no proven scope/data leak.",
+    "verification": "matching-repository-verification.json"
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/passport_whatsapp_match_evidence.py",
+    "sha256": "95a129253bb13ea044c07afa3cafdc6618cee4e8f3f8a09aa354a91a832f2a5f",
+    "lines": 83,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current source read. Evidence union and SQL corpus/regex helpers exact AST; ASCII token builder only substitutes explicit current facade limits. Token count/bytes/short/non-ASCII fallback remains fail closed; regex tokens stay alphanumeric and parameterized.",
+    "verification": "matching-repository-verification.json"
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/passport_whatsapp_match_expansion.py",
+    "sha256": "0fc4b00ff43da4d81f4d401725903e00bcd9923949636cd32421879b2178fc65",
+    "lines": 112,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current source read. Original recipient and submission candidate query/exact intersection/merge statements preserved whole blocks. Same token snapshot per round and recipient-before-submission order; row/combined limits cannot emit partial context.",
+    "verification": "matching-repository-verification.json"
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/passport_whatsapp_match_projection.py",
+    "sha256": "51d13234f9948b37baa82962ff00804d1369b8c5be6a9fe4b843e9fd47da88f2",
+    "lines": 225,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current source read. Original protocol/dataclass/projection/policy decoder declarations exact AST; builder exclusion/sort/compare/return body exact after callback injection. Legacy class module identities retained once through facade aliases.",
+    "verification": "matching-repository-verification.json"
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/passport_whatsapp_match_sources.py",
+    "sha256": "0b965403ff5c03b39be84fc81c342ef164cdf3b20d3834048ef07a245db9b8f1",
+    "lines": 149,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current source read. Every extracted link/seed/resolution statement and overflow guard exact AST blocks. Link+recipient+submission+resolution agency/group policy preserved; custom/corrupt link policy requests full authoritative fallback.",
+    "verification": "matching-repository-verification.json"
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/passport_whatsapp_match_targeted.py",
+    "sha256": "10b853e7a253674046ae8010044defec5fcc7e48282f58b971921302b21c0bda",
+    "lines": 155,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current source read. Bounded orchestration now explicit dependencies; dialect/seed/round/token/component completeness guards retained. 24 same-output negative cases/33 identical compiled queries plus two existing multiround context assertions each old/current.",
+    "verification": "matching-repository-verification.json"
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/passport_whatsapp_comparison_cache.py",
+    "sha256": "c0bca7ed44d99453693f2dfb1f78b4865e884e9586605ff1d2d524dff30a5d34",
+    "lines": 55,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical read of exact-input per-slice cache. Agency/group key and recursively copied full domain projections prevent cross-scope/stale nested JSON reuse; callers receive isolated cached result copies. No session/ORM crosses to_thread; no global persistence.",
+    "verification": "matching-repository-verification.json"
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/passport_roster_resolution_repository.py",
+    "sha256": "e59711dd43d2d310fe69b5b28ecf3b6ac4ab7de836067425b28d51ddb3614811",
+    "lines": 259,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical read. Stable ordered tenant-scoped broadcast locks; active resolution joins/current phone identity preserved. Recipient IDs for queued message/state updates derive only from scoped locked selections; immutable UUID identity makes additional unrelated query predicates unnecessary. No provider send performed.",
+    "verification": "matching-repository-verification.json"
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/passport_export_history_repository.py",
+    "sha256": "5a3726ce317c6f588c9cb1f039eccd6ee1a4a2fb74bdbc869bbf138cfcc4bc78",
+    "lines": 225,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical read. Agency/group/kind/version/completed filters and optional creator restrictions preserved; completion is creator-bound and row locked. Canonical unique/subset/people snapshot validation before persistence. HTTP trace confirms require_export_data and owner filter before history reads/completion.",
+    "verification": "matching-repository-verification.json"
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/notification_repository.py",
+    "sha256": "d19a72107423edd79e3992ca68d2a120fa9701d6ab4ecde402d5e594a0cb067e",
+    "lines": 229,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical read. Direct feed/acknowledgement bounded by actual recipient plus agency except intentional superadmin personal cross-agency scope. Legacy agency-wide read bit remains shared legacy behavior; direct feed excludes broadcast rows. No arbitrary recipient choice in HTTP handlers. Dedupe key only targets known current user; metadata create callers traced without secrets found.",
+    "verification": "matching-repository-verification.json"
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/notification_projection_repository.py",
+    "sha256": "7a48db796bd3343639574339c3efbdc76f2b4a02a18996b1bcbefcb3d2d67dfd",
+    "lines": 64,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical read. Bounded scalar columns and three type-checked metadata projections only, oversize fails before partial response; cursor/count predicates share direct recipient scope. No full ORM metadata/private provider credential hydration.",
+    "verification": "matching-repository-verification.json"
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/notification_feed_queries.py",
+    "sha256": "57a7df490f09b112d05824b86b2ba359080f9d931ce8ca0bd03e9a72119009d1",
+    "lines": 43,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical read. Shared exact user/optionalagency predicates, stable timestamp/UUID keyset ordering and limit+1; unread count intentionally ignores current page/priority filters but remains owner-bound.",
+    "verification": "matching-repository-verification.json"
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/qualifier_selection_repository.py",
+    "sha256": "f69195cc4735695efe1ac03db4104ee1efb04941d2b93822b542f53fbc93446f",
+    "lines": 85,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical read, no edits. Hash+group lookup optional row lock, UTC entity normalization and immutable selection IDs; submission lookup is internal ID-only and relies on already authorized group-bound selection (caller chain identified, not fully reread here). No candidate proven from this file.",
+    "verification": "matching-repository-verification.json"
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/passport_analytics_repository.py",
+    "sha256": "9591789ed43bb9cd4542ead353648264050c08ae541fa786393d910f0de8db35",
+    "lines": 67,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical read, no edits. Three scalar queries share visible status/optional agency predicates and optional day-group admission; actual HTTP/usecase role scope fully traced. Confidence0.8995 gap is explicitly preserved by existing parity test, not changed during architecture audit.",
+    "verification": "matching-repository-verification.json"
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/whatsapp_recipient_capacity_repository.py",
+    "sha256": "3e9aee556add29992934ee661066b78943ac007f693fadfdb2601a2f219e2bb8",
+    "lines": 65,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical read, no edits. Positive activations must be subset of caller-locked broadcast set; aggregate active count agency-scoped and current policy applied in sorted order in caller transaction. No schema or capacity policy change.",
+    "verification": "matching-repository-verification.json"
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/ecr_read_repository.py",
+    "sha256": "7e18f91591f42ac8787a767abfc533858d10273dbfce6f3d4ca1ef4dc07b6863",
+    "lines": 182,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical read, no edits. Agency active existence+allowed roles+staff creator filters shared by batch/item scalar projections. Counts accept only caller-supplied authorized batch IDs (HTTP/MCP caller sites identified); this file does not claim independent authorization for raw count helper.",
+    "verification": "matching-repository-verification.json"
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/email_summary_repository.py",
+    "sha256": "fe3bd2f54085f7dbdf2f77caec31b145e520f227ac75e5bb37d46508e0bc82fe",
+    "lines": 58,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical read, no edits. Seven scalar counts consistently use shared current actor owner/agency filters; no content/credential/locator hydration. Existing midnight/no-upper-cutoff and boolean JSON semantics preserved.",
+    "verification": "matching-repository-verification.json"
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/admin_overview_repository.py",
+    "sha256": "8247062fb1d644a69b59e75cda41f5601dbc872dfe230633f38d64c2fbf89cc2",
+    "lines": 53,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical read, no edits. Seven scalar count projections; non-superadmin uses exact agency including IS NULL rather than global omission. Role admission belongs to transport and was not newly altered/fully certified by this read.",
+    "verification": "matching-repository-verification.json"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/notifications.py",
+    "sha256": "ac355bc922da15810b550d450904f91353b37bd149a89f7f39079d0a75615f32",
+    "lines": 170,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical read of authenticated list/feed/read/read-all routes. Agency-less non-superadmin empty/404; intentional superadmin personal cross-agency scope remains recipient-bound. Cursor1000/page100 and CSRF mutation gates present.",
+    "verification": "matching-repository-verification.json"
+  },
+  {
+    "path": "backend/app/application/use_cases/notifications/scope.py",
+    "sha256": "593191bb328ca3a3e9ca7825289a404edd5c4b205305572fdad8a56cf366d36b",
+    "lines": 11,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical read. None agency scope only returned intentionally for superadmins; caller rejects non-superadmin missing agency. No arbitrary scope input.",
+    "verification": "matching-repository-verification.json"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/client_group_match_queries.py",
+    "sha256": "14e31dd945a0f7a0ea04e6d2c2fa79dbb7e0a64cca45d05071a1942811b39566",
+    "lines": 77,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical read. Group link names and matching field policies filter agency/group; delegated full matcher remains exact tenant scope. No public route registration added.",
+    "verification": "matching-repository-verification.json"
+  },
+  {
+    "path": "backend/app/application/mcp/notification_changes.py",
+    "sha256": "6999715d58172dc93aae7bd75ad769314a1d5cef87b2e058a7ec9ecf6ddb6c71",
+    "lines": 83,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical read. Exact payload/UUID validation, current principal scope, nowait personal-row lock, monotonic acknowledgement and operation replay receipt reauthorization. Public errors static, audit metadata IDs/count boolean only, no provider effects.",
+    "verification": "matching-repository-verification.json"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/submission_side_effects.py",
+    "sha256": "ce3e283b228fe3ff26f2f466fe4aaeab50d3e31461c316091603d7ea91adf145",
+    "lines": 102,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical read, no edits. Final submission proof consumption/work staging/audit/notification share caller transaction. Notification content generic, audit values nonsecret IDs/mode, storage cleanup staged not immediate provider delete. This shared backend owner remains branding agent's implementation lane.",
+    "verification": "matching-repository-verification.json"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/analytics.py",
+    "sha256": "eb0446f539e3132e8a1f771df8b2f49c093c26a10fbfc16f4e1b3ca39afaacf7",
+    "lines": 40,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical read, no edits. HTTP restricts superadmin/agency admin and delegates shared bounded-days/user scope; no direct arbitrary agency input.",
+    "verification": "matching-repository-verification.json"
+  },
+  {
+    "path": "backend/app/application/use_cases/passports/passport_analytics.py",
+    "sha256": "c27b2f32e541600a1b6b1ea5268534427725918f96cef84becaf3f86c7bbde0f",
+    "lines": 29,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical read, no edits. Days clamped1..365; non-superadmin without agency returns empty, only superadmin passes global None scope. Reader projection contract retained.",
+    "verification": "matching-repository-verification.json"
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_passport_whatsapp_matching_repository.py",
+    "sha256": "70dc97f736058e2f89289cd5399922c5c74b5f157bb64deac0290fdfc9061c30",
+    "lines": 203,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "kind": "test",
+    "notes": "Complete physical source/patch read. Original positive multiround and SQL-scope assertions retained; new24 fail-closed behavior cases test actual facade/delegation and bound fallback without live providers.",
+    "verification": "matching-repository-verification.json"
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_passport_whatsapp_match_fail_closed.py",
+    "sha256": "dcf44489b3555e40d48ce78d84f9b4d49360164245d024ed15d291a6a4550300",
+    "lines": 227,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "kind": "test",
+    "notes": "Complete physical source/patch read. Original positive multiround and SQL-scope assertions retained; new24 fail-closed behavior cases test actual facade/delegation and bound fallback without live providers.",
+    "verification": "matching-repository-verification.json"
+  }
+]

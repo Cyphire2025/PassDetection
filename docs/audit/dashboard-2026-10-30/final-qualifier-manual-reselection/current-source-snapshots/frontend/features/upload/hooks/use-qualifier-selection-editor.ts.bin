@@ -1,0 +1,96 @@
+"use client";
+
+import { useLayoutEffect, useRef, useState } from "react";
+import { publicUploadLinkApi } from "@/features/passports/api/public-upload-link.api";
+import type { QualifierSelectionState } from "@/features/passports/api/upload-link.types";
+import type { QualifierPath } from "../services/relation-qualifier";
+
+interface EditorState {
+  path: QualifierPath;
+  relation: string;
+  other: string;
+  editing: boolean;
+  restoring: boolean;
+  error?: string;
+}
+
+function emptyEditor(): EditorState {
+  return {
+    path: null, relation: "", other: "",
+    editing: false, restoring: false,
+  };
+}
+
+function restoredChoice(saved: QualifierSelectionState): Pick<EditorState, "path" | "relation" | "other"> {
+  if (saved.is_self) {
+    return { path: "self", relation: "", other: "" };
+  }
+  if (saved.relation_code === "other") {
+    return { path: "other", relation: "", other: saved.relation_label };
+  }
+  return { path: "relation", relation: saved.relation_code ?? "", other: "" };
+}
+
+/** The wrapper keys this editor to one group and proof; reads stay in memory. */
+export function useQualifierSelectionEditor(groupToken: string, savedToken?: string | null) {
+  const selectionToken = savedToken ?? null;
+  const [current, setCurrent] = useState(emptyEditor);
+  const request = useRef<AbortController | null>(null);
+
+  useLayoutEffect(() => () => {
+    request.current?.abort();
+    request.current = null;
+  }, [groupToken, selectionToken]);
+
+  const update = (patch: Partial<EditorState>) => {
+    setCurrent(previous => ({ ...previous, ...patch }));
+  };
+  const chooseAnother = () => {
+    request.current?.abort();
+    request.current = null;
+    update({ ...emptyEditor(), editing: true, error: undefined });
+  };
+  const restore = async () => {
+    if (!selectionToken) return;
+    request.current?.abort();
+    const controller = new AbortController();
+    request.current = controller;
+    const ownsResponse = () => request.current === controller && !controller.signal.aborted;
+    update({ restoring: true });
+    try {
+      const saved = await publicUploadLinkApi.getQualifierSelection(groupToken, selectionToken, controller.signal);
+      if (!ownsResponse()) return;
+      const expires = Date.parse(saved.expires_at);
+      if (saved.status !== "active" || !Number.isFinite(expires) || expires <= Date.now()) {
+        update({
+          path: null, relation: "", other: "", editing: true, restoring: false,
+          error: "This saved relationship is no longer active. Choose it again.",
+        });
+        return;
+      }
+      update({
+        ...restoredChoice(saved),
+        editing: true, restoring: false, error: undefined,
+      });
+    } catch {
+      if (ownsResponse()) {
+        update({
+          restoring: false,
+          error: "We couldn't restore this relationship. Please try Change again.",
+        });
+      }
+    } finally {
+      if (request.current === controller) request.current = null;
+    }
+  };
+
+  return {
+    ...current,
+    restore,
+    chooseAnother,
+    setPath: (path: Exclude<QualifierPath, null>) => update({ path, error: undefined }),
+    setRelation: (relation: string) => update({ relation, error: undefined }),
+    setOther: (other: string) => update({ other, error: undefined }),
+    close: () => update({ editing: false, error: undefined }),
+  };
+}

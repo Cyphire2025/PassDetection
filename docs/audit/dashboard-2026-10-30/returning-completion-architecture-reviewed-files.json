@@ -1,0 +1,34 @@
+[
+  {
+    "path": "backend/app/application/travellers/completion.py",
+    "sha256": "ec518377e326fb2965e1bcefb53ce0124d267f2619394258e2f31940cf0cf627",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Full original/current purpose-owner source read; whole expanded50-statement original function and nonimport module AST exact,28old import identities/public hints/defaults/consumer aliases/legacy pickle preserved; final46SQLite affected cases/17pathfence/strict4/explicitno-fixRuff4 pass. Main source is formatted and splits actual authority/review, pure normalization and historical source protection; no policy/performance claim. Shared boundary/gates pending."
+  },
+  {
+    "path": "backend/app/application/travellers/completion_review.py",
+    "sha256": "28cfc1db0388e2fa29880f64d2be0df35fe3c306b5d171679534dddcf2af6f78",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Full original/current purpose-owner source read; whole expanded50-statement original function and nonimport module AST exact,28old import identities/public hints/defaults/consumer aliases/legacy pickle preserved; final46SQLite affected cases/17pathfence/strict4/explicitno-fixRuff4 pass. Main source is formatted and splits actual authority/review, pure normalization and historical source protection; no policy/performance claim. Shared boundary/gates pending."
+  },
+  {
+    "path": "backend/app/application/travellers/completion_answers.py",
+    "sha256": "b41cda386f09511f35665db73417e3634e080258a64a20718233ce6e1235596e",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Full original/current purpose-owner source read; whole expanded50-statement original function and nonimport module AST exact,28old import identities/public hints/defaults/consumer aliases/legacy pickle preserved; final46SQLite affected cases/17pathfence/strict4/explicitno-fixRuff4 pass. Main source is formatted and splits actual authority/review, pure normalization and historical source protection; no policy/performance claim. Shared boundary/gates pending."
+  },
+  {
+    "path": "backend/app/application/travellers/completion_source.py",
+    "sha256": "9860abbdfe7144b1f66005a410c86c5738264e72a3ced079be405268e35e6ea8",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Full original/current purpose-owner source read; whole expanded50-statement original function and nonimport module AST exact,28old import identities/public hints/defaults/consumer aliases/legacy pickle preserved; final46SQLite affected cases/17pathfence/strict4/explicitno-fixRuff4 pass. Main source is formatted and splits actual authority/review, pure normalization and historical source protection; no policy/performance claim. Shared boundary/gates pending."
+  }
+]

@@ -1,0 +1,203 @@
+{
+  "method": "Actual full original/current physical reads/authoredsource; typedcontroller/expandedJSX/binding and rendered evidence supplements manualcoverage. No full credit inferred from partialsupportingreads; their remainingsegments were physically completed.",
+  "files": [
+    {
+      "path": "frontend/features/menu/components/menu-library.tsx",
+      "sha256": "2add43b09390947540269f7b5089db78cb1352d87b9f9fc149e911e538a06983",
+      "physical_lines": 10,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full original716/current entry source read. Publiccategories prop/signature/import path unchanged; delegates to current controller/view under original useclient boundary."
+    },
+    {
+      "path": "frontend/features/menu/hooks/use-menu-library-controller.ts",
+      "sha256": "189f942fb78ca10df7d4355645d76f7b4cbb52545a583fcaf4bea8d394649fef",
+      "physical_lines": 253,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full current source read; all28complete statements match the deliberately fixed reference. Atomicdishdraft identity prevents stale completion clearing newerfields/formscope, edit completion clears only submitted object, category name/navigation generation retain newerintent. Originalvalidsaveclear/trim/notes/revision mutations/feedback/deleteconfirm behavior retained."
+    },
+    {
+      "path": "frontend/features/menu/types/menu-library.ts",
+      "sha256": "7e5a4c77d9c21816960d87b4e76f29fbe3ee64dd35e5cae6eefa9e406244a6ba",
+      "physical_lines": 14,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full original/current shared DeleteTarget/Feedback/CATEGORY_TONES declarations physically read; exact bodies except requiredinternalexports."
+    },
+    {
+      "path": "frontend/features/menu/components/menu-library-view.tsx",
+      "sha256": "5eb69bf0937598101a5f0397548ca97a4df49628709659a415158927cebef4cc",
+      "physical_lines": 83,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full current source read; heading/feedback/categorycolumns and saved-plan-preserving deletion confirmation remain in the expanded typed JSX. No rawHTMLsink/newDOMwrapper."
+    },
+    {
+      "path": "frontend/features/menu/components/menu-category-rail.tsx",
+      "sha256": "16f6b0253bf0286e1c4c5ed857d336823be1e037d9e573cb18d17517fb80a027",
+      "physical_lines": 115,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full current source read; exactcategorynavigation/name/count/aria-current/addform/class/text semantics, proper localindentation. Categoryselection uses the same controllerintent boundary."
+    },
+    {
+      "path": "frontend/features/menu/components/menu-category-workspace.tsx",
+      "sha256": "4fd3d4f3996656652439825de440b93d4711dc5595b779142e84879c22839edf",
+      "physical_lines": 57,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full current source read; selectedcategory guarded once, exactempty/create/list transitions and real childcomponent bindings. Explicit category/dish props preserve originating values."
+    },
+    {
+      "path": "frontend/features/menu/components/menu-category-header.tsx",
+      "sha256": "69df2f05edde3114122b5e3248f25e4bdb655d9516069af4e3046100b72b875d",
+      "physical_lines": 124,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full current source read; originaleditablecategoryheader, actions, pending/save/cancel, tone palette and deletiontarget body retained."
+    },
+    {
+      "path": "frontend/features/menu/components/menu-dish-create-form.tsx",
+      "sha256": "a1065238d6dd678aa34d8fc4b9ebf96e3f848a94701db74f32e0bff8bb8eb649",
+      "physical_lines": 59,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full current source read; originalfieldlabels/lengthlimits/optionalnotes/autofocus andsubmit/cancel gates; handlers reference currentatomicdraft."
+    },
+    {
+      "path": "frontend/features/menu/components/menu-library-dish-row.tsx",
+      "sha256": "86af8c90528d8a7039c56e3de42d3d50d396cb97918a6607f4434f638173a0b1",
+      "physical_lines": 160,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full current source read; exactnativerow/dishedit/pause/activate/delete UI and handlers. Bothcomponentarraykey andoriginalrootlikey retained; privateDTOs rendered asReacttext."
+    },
+    {
+      "path": "frontend/features/menu/hooks/use-menu.ts",
+      "sha256": "84cc85d9379fbcc34f0da39839156f25f170d5ef8875d63cc05f972d194d89e5",
+      "physical_lines": 311,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full original/current311line hook source read. All19complete typedfunction declarations exact after12intentionaluseMutation→usePrivateMutation substitutions. Currentworkspace/category/dish/plan preconditions, authoritative revision DTOs/defaultcategoryselection/cachepatch/onSettled bodies retained. No SDK method/config change."
+    },
+    {
+      "path": "frontend/features/menu/components/menu-library.test.tsx",
+      "sha256": "339179f0ef38816afbcaf36577abb19202e197c4b15c00405897f2dc828f1b12",
+      "physical_lines": 136,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full authored/current rendered/hook regressions read; actualactor/profile controls,12queuedmutation/revision/publicvariable/callback/reset pairs,9normal/deferreddraftform scenarios. Synthetic SDK/transport boundaries are qualified separately."
+    },
+    {
+      "path": "frontend/features/menu/hooks/use-menu-authority.test.tsx",
+      "sha256": "8e89177e29cf9de7b33af7b6d0a359339c27b208f96f2d8adfa54e9d697e2685",
+      "physical_lines": 52,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full authored/current rendered/hook regressions read; actualactor/profile controls,12queuedmutation/revision/publicvariable/callback/reset pairs,9normal/deferreddraftform scenarios. Synthetic SDK/transport boundaries are qualified separately."
+    },
+    {
+      "path": "frontend/features/menu/hooks/use-menu-mutations.test.tsx",
+      "sha256": "2a23916788aa57aab702fdf85ffbb03f9ffc7490aea5486da8f87b4df88916d7",
+      "physical_lines": 138,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full authored/current rendered/hook regressions read; actualactor/profile controls,12queuedmutation/revision/publicvariable/callback/reset pairs,9normal/deferreddraftform scenarios. Synthetic SDK/transport boundaries are qualified separately."
+    },
+    {
+      "path": "frontend/features/menu/test-support/menu-authority.test-fixture.tsx",
+      "sha256": "2fe0e7d0e3f6c9d658b37e1c3157fb2581a64fa49b834ab60706a6d528b507d9",
+      "physical_lines": 62,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full authored/read synthetic fixture. ActualMenuPage→lazyMenuLibrary, realquery/privatehooks/API/clientowneradapter, AuthenticatedContent remount andSessionLifecycle cache reset. Onlyfinalnetworkadapter synthetic; isolatedReact.lazy bridges Nextdynamic injsdom; no productionloader/browser claim."
+    },
+    {
+      "path": "frontend/features/menu/components/menu-library-source.contract-helper.mjs",
+      "sha256": "ca7e1a68e60918367e5db09acc9728ea12df6cfdc4a9d7952f9266bf43d09e93",
+      "physical_lines": 35,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full authored/read helper verifies actual entry/controller/model/categoryrail/workspace/header/createform/row imports and renderer edges; no historical source injection."
+    },
+    {
+      "path": "frontend/features/menu/components/menu-page.contract.test.mjs",
+      "sha256": "fba7ad5a7400800fc9468dde4f5164042ed3a4cd1250917c30a28691a275f4e2",
+      "physical_lines": 65,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full original/current sourcecontract read; loader/import only retargeted to current reachable owners. All5originaltest bodies/assertions byte-identical."
+    },
+    {
+      "path": "frontend/features/menu/api/menu.api.ts",
+      "sha256": "02263f3a5a00d7963389c4d57b4f56b38162d1fade2329fb5fb4364238b51699",
+      "physical_lines": 300,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full original/current API source physically read; byte-identical snapshot. EveryHTTP method/download begins synchronously before firstawait, so existingprivate invocation fence closes queued-start gap withoutSDKmetadata/body changes. Filename sanitizer and streamed-download reuse retained."
+    },
+    {
+      "path": "frontend/features/menu/components/menu-page.tsx",
+      "sha256": "ebbe75b6e843888e2ad0f8b76e20bf2cae8187b33dea6511dd63d81eec9f5ec8",
+      "physical_lines": 322,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full actual current caller source read; query/error/loading/capacity/tabs/lazy preloads and exactMenuLibrary categories prop unchanged. Actual source query and library form used by owner fixture; Nextloader bridge is test-only."
+    },
+    {
+      "path": "frontend/features/menu/hooks/use-meal-planner.ts",
+      "sha256": "948de19240fe50a1641e0982bb93efce70b962dc693f8ca1bdbad70767d19bf0",
+      "physical_lines": 292,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full current immediate mutation-consumer hook source read after completinginitialpartial segment. Allgeneration/no-repeat/replacement/revision/exportcancellation/delete/copy/details workflows unchanged; domainhook publicvariables/defaults preserved by privateboundary tests. No independent lifecycle finding inferred from a pattern."
+    },
+    {
+      "path": "frontend/features/menu/components/meal-planner.test.tsx",
+      "sha256": "26a27535c192ee40e109543493df858c6c8c1edd17894bc087e898b66b3e4b77",
+      "physical_lines": 124,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full unchanged current test source read. Five actualrendered generation/shortage/activeunusedreplacement/pausedcurrentdish/details/exportcancellation/delete-retry/selected-plan-fallback controls retained and executed in final affected suite."
+    },
+    {
+      "path": "frontend/features/menu/utils/menu-errors.ts",
+      "sha256": "b84aac738756b2570b8fd81ca97cd339b486e5993f4807e3509675ac504ec446",
+      "physical_lines": 11,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full unchanged pureerror projection source read; bounded existing UI text fallback, no newlogging/provider requests."
+    },
+    {
+      "path": "frontend/app/(dashboard)/menu/page.tsx",
+      "sha256": "6b228ad276b0fbd4c506343c1ae41136d100a305cb706176a321cf1fd46a2f42",
+      "physical_lines": 10,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full unchanged actualroutewrapper/metadata read; MenuPage rootcaller retained."
+    }
+  ]
+}

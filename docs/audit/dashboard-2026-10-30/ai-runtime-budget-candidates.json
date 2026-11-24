@@ -1,0 +1,240 @@
+{
+  "basis": "Final measured candidates for root to merge by exact module path; 39 focused files passed 516 tests/67 subtests. Keep existing global and critical floors unchanged. Add the two critical helper entries at the original client-submit floor so extraction does not reduce gate scope. Pure schema/prompt modules have zero function complexity and are reviewed separately. This focused coverage report does not satisfy unrelated whole-backend coverage floors.",
+  "modules": [
+    {
+      "path": "app/infrastructure/ai/gemini_passport_verification_service.py",
+      "baseline_lines": 390,
+      "maximum_lines": 400,
+      "baseline_max_function_complexity": 14,
+      "maximum_function_complexity": 14,
+      "minimum_coverage_percent": 75
+    },
+    {
+      "path": "app/infrastructure/ai/gemini_post_submission_verification_service.py",
+      "baseline_lines": 453,
+      "maximum_lines": 470,
+      "baseline_max_function_complexity": 35,
+      "maximum_function_complexity": 35,
+      "minimum_coverage_percent": 75
+    },
+    {
+      "path": "app/infrastructure/ai/bounded_vision_http.py",
+      "baseline_lines": 68,
+      "maximum_lines": 80,
+      "baseline_max_function_complexity": 9,
+      "maximum_function_complexity": 9,
+      "minimum_coverage_percent": 75
+    },
+    {
+      "path": "app/infrastructure/ai/passport_extraction_codec.py",
+      "baseline_lines": 256,
+      "maximum_lines": 270,
+      "baseline_max_function_complexity": 28,
+      "maximum_function_complexity": 28,
+      "minimum_coverage_percent": 75
+    },
+    {
+      "path": "app/infrastructure/ai/passport_extraction_fields.py",
+      "baseline_lines": 207,
+      "maximum_lines": 220,
+      "baseline_max_function_complexity": 54,
+      "maximum_function_complexity": 54,
+      "minimum_coverage_percent": 75
+    },
+    {
+      "path": "app/infrastructure/ai/passport_extraction_transport.py",
+      "baseline_lines": 277,
+      "maximum_lines": 290,
+      "baseline_max_function_complexity": 21,
+      "maximum_function_complexity": 21,
+      "minimum_coverage_percent": 75
+    },
+    {
+      "path": "app/infrastructure/ai/post_submission_decision_policy.py",
+      "baseline_lines": 84,
+      "maximum_lines": 100,
+      "baseline_max_function_complexity": 12,
+      "maximum_function_complexity": 12,
+      "minimum_coverage_percent": 75
+    },
+    {
+      "path": "app/infrastructure/ai/post_submission_document_policy.py",
+      "baseline_lines": 124,
+      "maximum_lines": 140,
+      "baseline_max_function_complexity": 15,
+      "maximum_function_complexity": 15,
+      "minimum_coverage_percent": 75
+    },
+    {
+      "path": "app/infrastructure/ai/post_submission_field_policy.py",
+      "baseline_lines": 213,
+      "maximum_lines": 230,
+      "baseline_max_function_complexity": 46,
+      "maximum_function_complexity": 46,
+      "minimum_coverage_percent": 75
+    },
+    {
+      "path": "app/infrastructure/ai/post_submission_provider_codec.py",
+      "baseline_lines": 131,
+      "maximum_lines": 150,
+      "baseline_max_function_complexity": 19,
+      "maximum_function_complexity": 19,
+      "minimum_coverage_percent": 75
+    },
+    {
+      "path": "app/infrastructure/ai/post_submission_result_formatter.py",
+      "baseline_lines": 68,
+      "maximum_lines": 80,
+      "baseline_max_function_complexity": 10,
+      "maximum_function_complexity": 10,
+      "minimum_coverage_percent": 75
+    },
+    {
+      "path": "app/infrastructure/ai/gemini_ecr_service.py",
+      "baseline_lines": 420,
+      "maximum_lines": 430,
+      "baseline_max_function_complexity": 29,
+      "maximum_function_complexity": 29,
+      "minimum_coverage_percent": 75
+    },
+    {
+      "path": "app/infrastructure/ai/gemini_visa_image_edit_service.py",
+      "baseline_lines": 511,
+      "maximum_lines": 530,
+      "baseline_max_function_complexity": 12,
+      "maximum_function_complexity": 12,
+      "minimum_coverage_percent": 75
+    },
+    {
+      "path": "app/application/use_cases/passports/client_submission_values.py",
+      "baseline_lines": 117,
+      "maximum_lines": 130,
+      "baseline_max_function_complexity": 12,
+      "maximum_function_complexity": 12,
+      "minimum_coverage_percent": 85
+    },
+    {
+      "path": "app/application/use_cases/passports/client_submission_replay.py",
+      "baseline_lines": 52,
+      "maximum_lines": 70,
+      "baseline_max_function_complexity": 19,
+      "maximum_function_complexity": 19,
+      "minimum_coverage_percent": 85
+    },
+    {
+      "path": "app/application/use_cases/passports/client_submit_passport_use_case.py",
+      "baseline_lines": 521,
+      "maximum_lines": 540,
+      "baseline_max_function_complexity": 87,
+      "maximum_function_complexity": 87,
+      "minimum_coverage_percent": 85
+    },
+    {
+      "path": "app/infrastructure/visa_ai_image_jobs/runtime.py",
+      "baseline_lines": 356,
+      "maximum_lines": 370,
+      "baseline_max_function_complexity": 24,
+      "maximum_function_complexity": 24,
+      "minimum_coverage_percent": 75
+    }
+  ],
+  "additional_critical_modules": [
+    {
+      "path": "app/application/use_cases/passports/client_submission_values.py",
+      "minimum_line_percent": 85,
+      "minimum_branch_percent": 76
+    },
+    {
+      "path": "app/application/use_cases/passports/client_submission_replay.py",
+      "minimum_line_percent": 85,
+      "minimum_branch_percent": 76
+    }
+  ],
+  "targeted_measurements": [
+    {
+      "path": "app/infrastructure/ai/gemini_passport_verification_service.py",
+      "line_percent": 94.7,
+      "branch_percent": 78.57
+    },
+    {
+      "path": "app/infrastructure/ai/gemini_post_submission_verification_service.py",
+      "line_percent": 86.42,
+      "branch_percent": 61.54
+    },
+    {
+      "path": "app/infrastructure/ai/bounded_vision_http.py",
+      "line_percent": 96.0,
+      "branch_percent": 91.67
+    },
+    {
+      "path": "app/infrastructure/ai/passport_extraction_codec.py",
+      "line_percent": 85.98,
+      "branch_percent": 69.23
+    },
+    {
+      "path": "app/infrastructure/ai/passport_extraction_fields.py",
+      "line_percent": 91.3,
+      "branch_percent": 83.33
+    },
+    {
+      "path": "app/infrastructure/ai/passport_extraction_transport.py",
+      "line_percent": 87.74,
+      "branch_percent": 83.33
+    },
+    {
+      "path": "app/infrastructure/ai/post_submission_decision_policy.py",
+      "line_percent": 94.59,
+      "branch_percent": 95.0
+    },
+    {
+      "path": "app/infrastructure/ai/post_submission_document_policy.py",
+      "line_percent": 98.08,
+      "branch_percent": 95.0
+    },
+    {
+      "path": "app/infrastructure/ai/post_submission_field_policy.py",
+      "line_percent": 88.79,
+      "branch_percent": 81.03
+    },
+    {
+      "path": "app/infrastructure/ai/post_submission_provider_codec.py",
+      "line_percent": 79.66,
+      "branch_percent": 60.0
+    },
+    {
+      "path": "app/infrastructure/ai/post_submission_result_formatter.py",
+      "line_percent": 100.0,
+      "branch_percent": 100.0
+    },
+    {
+      "path": "app/infrastructure/ai/gemini_ecr_service.py",
+      "line_percent": 93.59,
+      "branch_percent": 86.49
+    },
+    {
+      "path": "app/infrastructure/ai/gemini_visa_image_edit_service.py",
+      "line_percent": 86.44,
+      "branch_percent": 75.0
+    },
+    {
+      "path": "app/application/use_cases/passports/client_submission_values.py",
+      "line_percent": 94.03,
+      "branch_percent": 90.0
+    },
+    {
+      "path": "app/application/use_cases/passports/client_submission_replay.py",
+      "line_percent": 100.0,
+      "branch_percent": 100
+    },
+    {
+      "path": "app/application/use_cases/passports/client_submit_passport_use_case.py",
+      "line_percent": 88.7,
+      "branch_percent": 77.03
+    },
+    {
+      "path": "app/infrastructure/visa_ai_image_jobs/runtime.py",
+      "line_percent": 88.89,
+      "branch_percent": 68.75
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\verify-current-release-bindings.py", line 14, in <module>
+    assert actual == after, (path, actual, after)
+           ^^^^^^^^^^^^^^^
+AssertionError: ('frontend/package.json', '408dad065be30f21a2344af398a32238ac72250a778e363977fab10ba247ff81', '5de0ee57a35e13692336a9f2821504061aae67cc2df94e428fdc411b73c5fca8')

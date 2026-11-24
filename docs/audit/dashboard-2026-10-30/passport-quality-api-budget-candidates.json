@@ -1,0 +1,366 @@
+[
+  {
+    "path": "features/passports/api/passport-export-download.ts",
+    "baselineLines": 63,
+    "maximumLines": 70,
+    "baselineMaxFunctionComplexity": 4,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/passports/api/passport-exports.types.ts",
+    "baselineLines": 130,
+    "maximumLines": 140,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/passports/api/passport-group-exports.api.ts",
+    "baselineLines": 142,
+    "maximumLines": 150,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/passports/api/passport-images.api.ts",
+    "baselineLines": 117,
+    "maximumLines": 130,
+    "baselineMaxFunctionComplexity": 1,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/passports/api/passport-images.types.ts",
+    "baselineLines": 90,
+    "maximumLines": 100,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/passports/api/passport-imports.api.ts",
+    "baselineLines": 127,
+    "maximumLines": 140,
+    "baselineMaxFunctionComplexity": 6,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/passports/api/passport-imports.types.ts",
+    "baselineLines": 42,
+    "maximumLines": 50,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/passports/api/passport-records.api.ts",
+    "baselineLines": 161,
+    "maximumLines": 170,
+    "baselineMaxFunctionComplexity": 7,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/passports/api/passport-records.types.ts",
+    "baselineLines": 106,
+    "maximumLines": 120,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/passports/api/passport-selection-exports.api.ts",
+    "baselineLines": 61,
+    "maximumLines": 70,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/passports/api/passport-visa-ai.api.ts",
+    "baselineLines": 126,
+    "maximumLines": 140,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/passports/api/passports.api.ts",
+    "baselineLines": 74,
+    "maximumLines": 80,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/upload/components/visa-selfie-quality.ts",
+    "baselineLines": 22,
+    "maximumLines": 30,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/upload/services/camera-pixel-math.ts",
+    "baselineLines": 23,
+    "maximumLines": 30,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/upload/services/passport-correction-content.ts",
+    "baselineLines": 120,
+    "maximumLines": 130,
+    "baselineMaxFunctionComplexity": 7,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/upload/services/passport-final-analysis.ts",
+    "baselineLines": 225,
+    "maximumLines": 230,
+    "baselineMaxFunctionComplexity": 39,
+    "maximumFunctionComplexity": 40
+  },
+  {
+    "path": "features/upload/services/passport-final-boundaries.ts",
+    "baselineLines": 126,
+    "maximumLines": 140,
+    "baselineMaxFunctionComplexity": 8,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/upload/services/passport-final-policy.ts",
+    "baselineLines": 41,
+    "maximumLines": 50,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/upload/services/passport-final-quality.ts",
+    "baselineLines": 81,
+    "maximumLines": 90,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/upload/services/passport-final-region-rules.ts",
+    "baselineLines": 38,
+    "maximumLines": 50,
+    "baselineMaxFunctionComplexity": 4,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/upload/services/passport-final-regions.ts",
+    "baselineLines": 109,
+    "maximumLines": 120,
+    "baselineMaxFunctionComplexity": 11,
+    "maximumFunctionComplexity": 12
+  },
+  {
+    "path": "features/upload/services/passport-final-result.ts",
+    "baselineLines": 73,
+    "maximumLines": 80,
+    "baselineMaxFunctionComplexity": 6,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/upload/services/passport-final-screen.ts",
+    "baselineLines": 108,
+    "maximumLines": 120,
+    "baselineMaxFunctionComplexity": 19,
+    "maximumFunctionComplexity": 20
+  },
+  {
+    "path": "features/upload/services/passport-final.types.ts",
+    "baselineLines": 64,
+    "maximumLines": 70,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/upload/services/passport-homography.ts",
+    "baselineLines": 44,
+    "maximumLines": 50,
+    "baselineMaxFunctionComplexity": 9,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/upload/services/passport-image-encoding.ts",
+    "baselineLines": 22,
+    "maximumLines": 30,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/upload/services/passport-line-fitting.ts",
+    "baselineLines": 48,
+    "maximumLines": 60,
+    "baselineMaxFunctionComplexity": 5,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/upload/services/passport-live-analysis.ts",
+    "baselineLines": 121,
+    "maximumLines": 130,
+    "baselineMaxFunctionComplexity": 28,
+    "maximumFunctionComplexity": 29
+  },
+  {
+    "path": "features/upload/services/passport-live-boundary-evidence.ts",
+    "baselineLines": 162,
+    "maximumLines": 170,
+    "baselineMaxFunctionComplexity": 14,
+    "maximumFunctionComplexity": 15
+  },
+  {
+    "path": "features/upload/services/passport-live-boundary-search.ts",
+    "baselineLines": 127,
+    "maximumLines": 140,
+    "baselineMaxFunctionComplexity": 16,
+    "maximumFunctionComplexity": 17
+  },
+  {
+    "path": "features/upload/services/passport-live-detail.ts",
+    "baselineLines": 127,
+    "maximumLines": 140,
+    "baselineMaxFunctionComplexity": 5,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/upload/services/passport-live-frame-adapter.ts",
+    "baselineLines": 119,
+    "maximumLines": 130,
+    "baselineMaxFunctionComplexity": 8,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/upload/services/passport-live-geometry.ts",
+    "baselineLines": 177,
+    "maximumLines": 190,
+    "baselineMaxFunctionComplexity": 16,
+    "maximumFunctionComplexity": 17
+  },
+  {
+    "path": "features/upload/services/passport-live-pixels.ts",
+    "baselineLines": 101,
+    "maximumLines": 110,
+    "baselineMaxFunctionComplexity": 8,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/upload/services/passport-live-policy.ts",
+    "baselineLines": 52,
+    "maximumLines": 60,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/upload/services/passport-live.types.ts",
+    "baselineLines": 54,
+    "maximumLines": 60,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/upload/services/passport-normalization.types.ts",
+    "baselineLines": 24,
+    "maximumLines": 30,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/upload/services/passport-perspective-correction.ts",
+    "baselineLines": 78,
+    "maximumLines": 90,
+    "baselineMaxFunctionComplexity": 9,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/upload/services/passport-perspective-warp.ts",
+    "baselineLines": 90,
+    "maximumLines": 100,
+    "baselineMaxFunctionComplexity": 6,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/upload/services/passport-quad-detection.ts",
+    "baselineLines": 99,
+    "maximumLines": 110,
+    "baselineMaxFunctionComplexity": 9,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/upload/services/passport-quad-geometry.ts",
+    "baselineLines": 54,
+    "maximumLines": 60,
+    "baselineMaxFunctionComplexity": 6,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/upload/services/passport-rectangular-frame-detector.ts",
+    "baselineLines": 47,
+    "maximumLines": 60,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/upload/services/visa-quality-background-mask.ts",
+    "baselineLines": 95,
+    "maximumLines": 100,
+    "baselineMaxFunctionComplexity": 9,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/upload/services/visa-quality-background.ts",
+    "baselineLines": 285,
+    "maximumLines": 290,
+    "baselineMaxFunctionComplexity": 53,
+    "maximumFunctionComplexity": 54
+  },
+  {
+    "path": "features/upload/services/visa-quality-camera.ts",
+    "baselineLines": 55,
+    "maximumLines": 60,
+    "baselineMaxFunctionComplexity": 5,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/upload/services/visa-quality-clarity.ts",
+    "baselineLines": 129,
+    "maximumLines": 140,
+    "baselineMaxFunctionComplexity": 22,
+    "maximumFunctionComplexity": 23
+  },
+  {
+    "path": "features/upload/services/visa-quality-encoding.ts",
+    "baselineLines": 20,
+    "maximumLines": 30,
+    "baselineMaxFunctionComplexity": 4,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/upload/services/visa-quality-face.ts",
+    "baselineLines": 91,
+    "maximumLines": 100,
+    "baselineMaxFunctionComplexity": 10,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/upload/services/visa-quality-final.ts",
+    "baselineLines": 265,
+    "maximumLines": 270,
+    "baselineMaxFunctionComplexity": 23,
+    "maximumFunctionComplexity": 24
+  },
+  {
+    "path": "features/upload/services/visa-quality-live-background.ts",
+    "baselineLines": 54,
+    "maximumLines": 60,
+    "baselineMaxFunctionComplexity": 13,
+    "maximumFunctionComplexity": 14
+  },
+  {
+    "path": "features/upload/services/visa-quality-policy.ts",
+    "baselineLines": 133,
+    "maximumLines": 140,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/upload/services/visa-quality.types.ts",
+    "baselineLines": 92,
+    "maximumLines": 100,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  }
+]

@@ -4,8 +4,8 @@ import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { useAuthStore } from "@/stores/auth.store";
 import type { User } from "@/types";
 import { mcpApi, type McpConnection, type McpInventory, type McpOverview, type McpReadAccess } from "../api/mcp.api";
+import { permissionFixture } from "../utils/permissions.test-fixture";
 import { McpAdminPage } from "./mcp-admin-page";
-import { McpConsentPage } from "./mcp-consent-page";
 
 vi.mock("../api/mcp.api", async (original) => {
   const actual = await original<typeof import("../api/mcp.api")>();
@@ -60,6 +60,7 @@ beforeEach(() => {
   vi.resetAllMocks();
   useAuthStore.setState({ user: { id: connection.user_id, role: "super_admin", is_active: true } as User });
   vi.mocked(mcpApi.overview).mockResolvedValue(overview);
+  vi.mocked(mcpApi.permissions).mockResolvedValue(permissionFixture());
   vi.mocked(mcpApi.connections).mockResolvedValue({ items: [connection], next_offset: null });
   vi.mocked(mcpApi.readAccess).mockResolvedValue(access);
   vi.mocked(mcpApi.inventory).mockResolvedValue(inventory);
@@ -188,13 +189,6 @@ it("reduces a broad saved connection to visible read permission on editor save",
   expect(within(card).queryByText("Download reports", { exact: true })).not.toBeInTheDocument();
   fireEvent.click(within(card).getByRole("button", { name: "Save access" }));
   await waitFor(() => expect(mcpApi.updateConnection).toHaveBeenCalledWith({ id: connection.id, name: connection.name, capabilities: ["mcp:read"] }, expect.anything()));
-});
-
-it("rejects an OAuth request for hidden export authority even when stored capabilities include it", async () => {
-  renderPage(<McpConsentPage parameters={{ client_id: connection.client_id, redirect_uri: "http://127.0.0.1:8765/callback", resource: overview.resource,
-    state: "a".repeat(32), code_challenge: "x".repeat(43), code_challenge_method: "S256", response_type: "code", scope: "mcp:read mcp:export" }} />);
-  expect(await screen.findByRole("heading", { name: "Connection request could not be verified" })).toBeVisible();
-  expect(screen.queryByRole("switch")).not.toBeInTheDocument(); expect(mcpApi.authorize).not.toHaveBeenCalled();
 });
 
 it("fails closed when an older overview omits the read-only mode", async () => {

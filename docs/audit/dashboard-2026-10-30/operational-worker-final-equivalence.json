@@ -1,0 +1,247 @@
+{
+  "basis": "Post earlier actual media-authority and index-publication fixes, immediately before owner extraction; not original checkout. Original 27-unchanged extraction receipt remains historical.",
+  "basis_sha256": "4ee848212fc0093dc207670fa27aa726bd796135d3462caf47ff20b8a8f72225",
+  "original_declarations": 27,
+  "unchanged_context_normalized": 24,
+  "explicit_delta_restorations": [
+    "_execute_media_job",
+    "_retry_or_fail",
+    "_terminal_claim"
+  ],
+  "failure_authority_delta": "Only the initial job lookup in two failure handlers now uses the same fresh gallery/job/asset lease and cancellation gates as success. Eight actual independent-session negatives failed before; all remaining retry/terminal statements match.",
+  "provider_ownership_delta": "Only the media gather expression delegates to a concrete ordered cancel-and-drain provider owner. Four actual native sibling negatives in media/index callers failed before. Inputs, per-call timeouts, errors, variant order and success publication statements remain equal.",
+  "context": "Single typed immutable session-factory dependency, captured from original facade at public invocation; no circular lookup or callback bag.",
+  "public_entry_signature_exact": true,
+  "entry_dispatch_context_only": true,
+  "original_class_aliases_module_annotations_pickle": true,
+  "declarations": [
+    {
+      "name": "OperationalState",
+      "path": "backend/app/infrastructure/my_photos/operational_job_contracts.py",
+      "context_parameter": false,
+      "new_contract": false,
+      "unchanged_after_context_normalization": true,
+      "explicit_tested_delta_restoration_equal": false
+    },
+    {
+      "name": "OperationalJobType",
+      "path": "backend/app/infrastructure/my_photos/operational_job_contracts.py",
+      "context_parameter": false,
+      "new_contract": false,
+      "unchanged_after_context_normalization": true,
+      "explicit_tested_delta_restoration_equal": false
+    },
+    {
+      "name": "MediaVariant",
+      "path": "backend/app/infrastructure/my_photos/operational_job_contracts.py",
+      "context_parameter": false,
+      "new_contract": false,
+      "unchanged_after_context_normalization": true,
+      "explicit_tested_delta_restoration_equal": false
+    },
+    {
+      "name": "OperationalJobResult",
+      "path": "backend/app/infrastructure/my_photos/operational_job_contracts.py",
+      "context_parameter": false,
+      "new_contract": false,
+      "unchanged_after_context_normalization": true,
+      "explicit_tested_delta_restoration_equal": false
+    },
+    {
+      "name": "_OperationalClaim",
+      "path": "backend/app/infrastructure/my_photos/operational_job_contracts.py",
+      "context_parameter": false,
+      "new_contract": false,
+      "unchanged_after_context_normalization": true,
+      "explicit_tested_delta_restoration_equal": false
+    },
+    {
+      "name": "_validated_media_result",
+      "path": "backend/app/infrastructure/my_photos/operational_job_policy.py",
+      "context_parameter": false,
+      "new_contract": false,
+      "unchanged_after_context_normalization": true,
+      "explicit_tested_delta_restoration_equal": false
+    },
+    {
+      "name": "_validated_index_result",
+      "path": "backend/app/infrastructure/my_photos/operational_job_policy.py",
+      "context_parameter": false,
+      "new_contract": false,
+      "unchanged_after_context_normalization": true,
+      "explicit_tested_delta_restoration_equal": false
+    },
+    {
+      "name": "_validate_occurrence",
+      "path": "backend/app/infrastructure/my_photos/operational_job_policy.py",
+      "context_parameter": false,
+      "new_contract": false,
+      "unchanged_after_context_normalization": true,
+      "explicit_tested_delta_restoration_equal": false
+    },
+    {
+      "name": "_retry_delay",
+      "path": "backend/app/infrastructure/my_photos/operational_job_policy.py",
+      "context_parameter": false,
+      "new_contract": false,
+      "unchanged_after_context_normalization": true,
+      "explicit_tested_delta_restoration_equal": false
+    },
+    {
+      "name": "_valid_opaque",
+      "path": "backend/app/infrastructure/my_photos/operational_job_policy.py",
+      "context_parameter": false,
+      "new_contract": false,
+      "unchanged_after_context_normalization": true,
+      "explicit_tested_delta_restoration_equal": false
+    },
+    {
+      "name": "_valid_error",
+      "path": "backend/app/infrastructure/my_photos/operational_job_policy.py",
+      "context_parameter": false,
+      "new_contract": false,
+      "unchanged_after_context_normalization": true,
+      "explicit_tested_delta_restoration_equal": false
+    },
+    {
+      "name": "_index_publication_allowed",
+      "path": "backend/app/infrastructure/my_photos/operational_job_policy.py",
+      "context_parameter": false,
+      "new_contract": false,
+      "unchanged_after_context_normalization": true,
+      "explicit_tested_delta_restoration_equal": false
+    },
+    {
+      "name": "_utc",
+      "path": "backend/app/infrastructure/my_photos/operational_job_policy.py",
+      "context_parameter": false,
+      "new_contract": false,
+      "unchanged_after_context_normalization": true,
+      "explicit_tested_delta_restoration_equal": false
+    },
+    {
+      "name": "_locked_current_job_scope",
+      "path": "backend/app/infrastructure/my_photos/operational_job_queries.py",
+      "context_parameter": false,
+      "new_contract": false,
+      "unchanged_after_context_normalization": true,
+      "explicit_tested_delta_restoration_equal": false
+    },
+    {
+      "name": "_locked_job_and_asset",
+      "path": "backend/app/infrastructure/my_photos/operational_job_queries.py",
+      "context_parameter": false,
+      "new_contract": false,
+      "unchanged_after_context_normalization": true,
+      "explicit_tested_delta_restoration_equal": false
+    },
+    {
+      "name": "_latest_ready_analysis_variants",
+      "path": "backend/app/infrastructure/my_photos/operational_job_queries.py",
+      "context_parameter": false,
+      "new_contract": false,
+      "unchanged_after_context_normalization": true,
+      "explicit_tested_delta_restoration_equal": false
+    },
+    {
+      "name": "_retry_or_fail",
+      "path": "backend/app/infrastructure/my_photos/operational_job_lifecycle.py",
+      "context_parameter": true,
+      "new_contract": false,
+      "unchanged_after_context_normalization": false,
+      "explicit_tested_delta_restoration_equal": true
+    },
+    {
+      "name": "_retry_locked_job",
+      "path": "backend/app/infrastructure/my_photos/operational_job_lifecycle.py",
+      "context_parameter": false,
+      "new_contract": false,
+      "unchanged_after_context_normalization": true,
+      "explicit_tested_delta_restoration_equal": false
+    },
+    {
+      "name": "_terminal_claim",
+      "path": "backend/app/infrastructure/my_photos/operational_job_lifecycle.py",
+      "context_parameter": true,
+      "new_contract": false,
+      "unchanged_after_context_normalization": false,
+      "explicit_tested_delta_restoration_equal": true
+    },
+    {
+      "name": "_terminal_job",
+      "path": "backend/app/infrastructure/my_photos/operational_job_lifecycle.py",
+      "context_parameter": false,
+      "new_contract": false,
+      "unchanged_after_context_normalization": true,
+      "explicit_tested_delta_restoration_equal": false
+    },
+    {
+      "name": "_terminalize_job",
+      "path": "backend/app/infrastructure/my_photos/operational_job_lifecycle.py",
+      "context_parameter": false,
+      "new_contract": false,
+      "unchanged_after_context_normalization": true,
+      "explicit_tested_delta_restoration_equal": false
+    },
+    {
+      "name": "_claim_job",
+      "path": "backend/app/infrastructure/my_photos/operational_job_claims.py",
+      "context_parameter": true,
+      "new_contract": false,
+      "unchanged_after_context_normalization": true,
+      "explicit_tested_delta_restoration_equal": false
+    },
+    {
+      "name": "_execute_media_job",
+      "path": "backend/app/infrastructure/my_photos/operational_media_jobs.py",
+      "context_parameter": true,
+      "new_contract": false,
+      "unchanged_after_context_normalization": false,
+      "explicit_tested_delta_restoration_equal": true
+    },
+    {
+      "name": "_finalize_media",
+      "path": "backend/app/infrastructure/my_photos/operational_media_jobs.py",
+      "context_parameter": true,
+      "new_contract": false,
+      "unchanged_after_context_normalization": true,
+      "explicit_tested_delta_restoration_equal": false
+    },
+    {
+      "name": "_execute_index_batch",
+      "path": "backend/app/infrastructure/my_photos/operational_index_jobs.py",
+      "context_parameter": true,
+      "new_contract": false,
+      "unchanged_after_context_normalization": true,
+      "explicit_tested_delta_restoration_equal": false
+    },
+    {
+      "name": "_finalize_index_batch",
+      "path": "backend/app/infrastructure/my_photos/operational_index_publication.py",
+      "context_parameter": true,
+      "new_contract": false,
+      "unchanged_after_context_normalization": true,
+      "explicit_tested_delta_restoration_equal": false
+    },
+    {
+      "name": "_publish_index_if_complete",
+      "path": "backend/app/infrastructure/my_photos/operational_index_publication.py",
+      "context_parameter": true,
+      "new_contract": false,
+      "unchanged_after_context_normalization": true,
+      "explicit_tested_delta_restoration_equal": false
+    }
+  ],
+  "runtime_sha256": {
+    "backend/app/infrastructure/my_photos/operational_index_jobs.py": "ec6f22a6219d32364903fa3b91def695095bbb32996e08e5e43109ed24eafeb3",
+    "backend/app/infrastructure/my_photos/operational_index_publication.py": "f16ac652055a36e19611d212304907f2287633ee4e99c0fe2a9f498786b5a54f",
+    "backend/app/infrastructure/my_photos/operational_job_claims.py": "29449ee1905ce2a2371e1d84463a9235e1ebcfe82b7d90618531dfb6cf383cca",
+    "backend/app/infrastructure/my_photos/operational_job_contracts.py": "3785947c91564a0b8cc4c77c62ba0ba46542af19b067370ebc9d4e740727bb7f",
+    "backend/app/infrastructure/my_photos/operational_job_lifecycle.py": "73c399ca4a004b77c735ea686ce7ad728704989a28ec2a5499b787182844b3e6",
+    "backend/app/infrastructure/my_photos/operational_job_policy.py": "2e3df8a42a1c086b87909be0446704a9385f84ebf4e504fb0a5561cea0456636",
+    "backend/app/infrastructure/my_photos/operational_job_queries.py": "6822aaad4b591795a2c345d7193989df9f0549800dd3c93b4456652443965f20",
+    "backend/app/infrastructure/my_photos/operational_media_jobs.py": "d0c29dac99f160e5c421bd6a7ef1a066381f37b051aa97c72e690563248a2e2b",
+    "backend/app/infrastructure/my_photos/operational_runtime.py": "c178e781b9f62a0e415bdbecf8c9c9b02a263f8d6726080090cc92845e5af2cb"
+  },
+  "limits": "Explicit structural and runtime metadata proof only; affected behavior evidence recorded separately. No real provider, PostgreSQL or VPS qualification."
+}

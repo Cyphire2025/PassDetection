@@ -17,16 +17,15 @@ from app.application.use_cases.whatsapp.message_templates import (
     template_parameters,
     validate_template_parameters,
 )
-from app.application.use_cases.whatsapp.plan_group_broadcast_use_case import (
-    template_for_intent,
+from app.infrastructure.whatsapp.template_settings import (
+    TemplateSettingsSnapshot,
+    template_language,
 )
 
 
 class WhatsAppMessageTemplateTests(unittest.TestCase):
     def test_welcome_message_matches_approved_copy_without_recipient_or_company(self) -> None:
-        support = format_support_contacts(
-            [("Yogesh Kumar Vashistha", "+91 98187 52221")]
-        )
+        support = format_support_contacts([("Yogesh Kumar Vashistha", "+91 98187 52221")])
         message_content = default_message_content(
             "welcome",
             group_name="Thailand Leadership Trip",
@@ -230,22 +229,25 @@ class WhatsAppMessageTemplateTests(unittest.TestCase):
                 body_parameters=["intro", "https://example.test", "instructions"],
             )
 
-    def test_planner_uses_central_runtime_names_and_language(self) -> None:
+    def test_live_resolver_uses_central_runtime_names_and_language(self) -> None:
         with patch(
-            "app.application.use_cases.whatsapp.plan_group_broadcast_use_case.get_settings",
+            "app.infrastructure.whatsapp.template_settings.get_settings",
             return_value=SimpleNamespace(
                 whatsapp_welcome_template_name="approved_welcome",
                 whatsapp_passport_link_template_name="approved_passport",
                 whatsapp_template_language="en_US",
             ),
         ):
-            welcome = template_for_intent("welcome")
-            passport = template_for_intent("passport_upload_link")
+            snapshot = TemplateSettingsSnapshot(0, None, {})
+            welcome = snapshot.name("welcome")
+            passport = snapshot.name("passport_link")
+            welcome_language = template_language("welcome")
+            passport_language = template_language("passport_link")
 
-        self.assertEqual(welcome.template_name, "approved_welcome")
-        self.assertEqual(passport.template_name, "approved_passport")
-        self.assertEqual(welcome.language_code, "en_US")
-        self.assertEqual(passport.language_code, "en_US")
+        self.assertEqual(welcome, "approved_welcome")
+        self.assertEqual(passport, "approved_passport")
+        self.assertEqual(welcome_language, "en_US")
+        self.assertEqual(passport_language, "en_US")
 
 
 if __name__ == "__main__":

@@ -291,13 +291,15 @@ class MealPlanExcelExporter:
             cell.border = THIN_BORDER
         worksheet.row_dimensions[1].height = 24
 
-        day_numbers = sorted({entry.day_number for entry in entries})
+        entries_by_day: dict[int, list[MealPlanExportEntry]] = {}
+        for entry in entries:
+            entries_by_day.setdefault(entry.day_number, []).append(entry)
+        day_numbers = sorted(entries_by_day)
         day_row_ranges: list[tuple[int, int]] = []
         gap_rows: list[int] = []
         for day_index, day_number in enumerate(day_numbers):
-            day_entries = [entry for entry in entries if entry.day_number == day_number]
             day_start_row = worksheet.max_row + 1
-            for entry in day_entries:
+            for entry in entries_by_day[day_number]:
                 meal_date = (
                     start_date + timedelta(days=entry.day_number - 1) if start_date else None
                 )

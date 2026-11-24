@@ -1,0 +1,12 @@
+{
+  "candidates": "docs/audit/dashboard-2026-10-30/document-group-states-budget-candidates.json",
+  "before_sha256": "045a0bcd3870e2bde80367dfda45b3aa9f8f02d6ad47016942267d66f8909814",
+  "sha256": "7d6805124d09449651aafc4a7ac02a0cba8b0b23e4a09c3b1a6d27d1f6af5740",
+  "lf_normalized_sha256": "b239be1c69ac58b906fffc75c5915854df64cd88f6f3e51c06ac585f62a146fc",
+  "added": 1,
+  "updated_existing": 0,
+  "lowered_existing": 0,
+  "lowered_existing_paths": [],
+  "existing_ceilings_preserved": true,
+  "previous_ceilings_sha256": "3a3c6b72e0aea2a5604344ffd0277c3fc7b6266bbfe0e5b50de4bdd599f04b43"
+}

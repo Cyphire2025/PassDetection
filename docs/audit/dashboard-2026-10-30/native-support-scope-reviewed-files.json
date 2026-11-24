@@ -1,0 +1,18 @@
+[
+  {
+    "path": "scripts/dashboard_audit_inventory.py",
+    "sha256": "2b30a6f5b0b779c66d1c410c668aa474b8aea6e841f03a8c8f4a8d22695ce3e3",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified-focused",
+    "notes": "Reviewed exact native-support loader delta against original complete module AST;107 existing+new tooling controls pass. Only5 explicit native CI/k6 support paths additionally admissible;31backend literals/Inbox rules/otherclassification/imports/functions exact. Existing full-review attribution is not recreated by a reference count."
+  },
+  {
+    "path": "backend/tests/unit/scripts/test_dashboard_audit_scope.py",
+    "sha256": "22d06b709801fedbcc9391648c180f1291fd7d880c10b50a62aa19f832aa6e64",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified-focused",
+    "notes": "Read native-scope test section/newcontrols and proved whole original test-module AST after only explicit5support,3failclosed,36total/31backend changes;107 controls pass. Remaining test sections retain prior source provenance, no new full physical-read claim."
+  }
+]

@@ -1,0 +1,100 @@
+[
+  {
+    "path": "backend/tests/unit/core/test_mcp_release_envelope.py",
+    "sha256": "5b53d0c4bce640e2d5c8f375a9615b2014ced7c20c95dc92e1ecc8dd9f1944d8",
+    "physical_lines": 48,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all48 physical lines: exact export-family discovery/operation omission, empty allowlist behavior and bounded settings validation; existing history read tools remain independently exposed. No arbitrary family grant inferred. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_source_admission.py",
+    "sha256": "f6db705fcaafe15c96530bad42551070387898e3ccbd3ae6aaa8bcba218ccfb5",
+    "physical_lines": 40,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all40 physical lines: isolated ORM load event forbids full large source construction, three configured JSON/row capacity variants and listener removal in finally. Actual export inspect bound is exercised by source assertions, no run here. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_conversation_contract.py",
+    "sha256": "812957f99cbdb6d511d4e019eadf02da4554da5f0a7723cc9fe2176e5cd11898",
+    "physical_lines": 53,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all53 physical lines: SDK guidance separates document text, opt-in, exact hash/final approval, idempotency and uncertainty; tool schema/meta/annotations constrain final confirmation and preview. No text instruction alone is counted as server authorization. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_diagnostic_mount.py",
+    "sha256": "fdd2584da0a84f699c21e8b686f4e1138d69141ce13f673335d96f61bcea19fe",
+    "physical_lines": 43,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all43 physical lines: explicit absolute sealed diagnostic mount setting, actual authenticated SDK dispatch, collector match/coverage metadata and tampered manifest unavailable projection. Fixtures are synthetic sealed temporary files. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_dashboard_workflow_metadata.py",
+    "sha256": "f280a3117696abbadefbf01b87ef0463a326e4a0c0fdcf3dbbe18ff503e05e2e",
+    "physical_lines": 64,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all64 physical lines: actual registered SDK workflow choices intersect device/global sections; safe configuration revision/current metadata hides upload token and deleted parent group denies. Session/token replacement is isolated synthetic fixture only. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_audit_fixture_isolation.py",
+    "sha256": "0df0c2bddc6a5ed2e20117d0e87208089515fc265ce4f651b14020fa65761b08",
+    "physical_lines": 84,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all84 physical lines: independent audit DB/chain, durable denial without business transaction commit, temporary path isolation and explicit fail-closed missing audit fixture. Pending synthetic user/audit state is rolled back and verified unchanged. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_permission_listing.py",
+    "sha256": "ffda1238c8e12b03005017cb721ca5bfb5ff759d9d66eeb4c45200e0cd5625d0",
+    "physical_lines": 126,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all126 physical lines: actual discovery policy intersection covers independent read/write, section/capability/export inspection, immediate device/global/release narrowing and reviewed registry exclusion of unknown adapters. No general tool grant or ignored directory. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_admin_files.py",
+    "sha256": "d5aa6997e3c56b7cea3583d5b7ab45d2ad85fcdb5d2425657e4ace2f62acb50b",
+    "physical_lines": 116,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all116 physical lines: cross-source global pagination metadata allowlist, no private storage/handle/workbook/provider fields, truthful retained import/unknown media status after expiry and current active superadmin admission. Synthetic ORM rows only. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_content_read_http.py",
+    "sha256": "31c1bb61f19c50ae3110b764ff252d1a28453d58c3977940ffa05bf114ef37b0",
+    "physical_lines": 47,
+    "reviewer": "ai_extraction",
+    "review_scope": "focused",
+    "status": "needs-follow-up",
+    "notes": "Retained GC/notification SDK registration, group/agency synthetic fixture, safe result envelope and scope-denial portions traced. Shared function also constructs a mailbox connection and runs dedicated Inbox tools; those portions were identified only for scope classification and are not audited or executed. No whole mixed-file review credit. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data.",
+    "retained_ranges": [
+      "1-7",
+      "10-25",
+      "29-33",
+      "35-40 for retained GC/notification loop variants only",
+      "45-47"
+    ],
+    "deferred_scope": "EmailConnection fixture lines26-27 and list_email_records dedicated mailbox variants/assertions at34 and41-44 remain user-deferred."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_document_http.py",
+    "sha256": "6d25bdba39a2d118fb30e9ea4416d3f3e8664b406e9c988b2af77c4e2d1f06ed",
+    "physical_lines": 57,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all57 physical lines: authenticated SDK metadata/job reads conceal synthetic upload/storage/passport/error sentinels, produce safe provenance envelope and deny invalid document type or diagnose-only scope. Actual document read assertions retained; no service qualification. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  }
+]

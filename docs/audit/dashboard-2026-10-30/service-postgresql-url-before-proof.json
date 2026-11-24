@@ -1,0 +1,56 @@
+{
+  "status": "actual original helper AST executed offline",
+  "cases": [
+    {
+      "source": "backend/tests/service_integration/test_real_service_contracts.py",
+      "case": "ordinary",
+      "correct_fields": true,
+      "error_type_only": null
+    },
+    {
+      "source": "backend/tests/service_integration/test_real_service_contracts.py",
+      "case": "delimiter",
+      "correct_fields": false,
+      "error_type_only": null
+    },
+    {
+      "source": "backend/tests/service_integration/test_real_service_contracts.py",
+      "case": "username",
+      "correct_fields": true,
+      "error_type_only": null
+    },
+    {
+      "source": "backend/tests/service_integration/test_real_service_contracts.py",
+      "case": "ipv6",
+      "correct_fields": false,
+      "error_type_only": "ValueError"
+    },
+    {
+      "source": "backend/tests/service_integration/test_my_photos_postgresql_contracts.py",
+      "case": "ordinary",
+      "correct_fields": true,
+      "error_type_only": null
+    },
+    {
+      "source": "backend/tests/service_integration/test_my_photos_postgresql_contracts.py",
+      "case": "delimiter",
+      "correct_fields": false,
+      "error_type_only": null
+    },
+    {
+      "source": "backend/tests/service_integration/test_my_photos_postgresql_contracts.py",
+      "case": "username",
+      "correct_fields": true,
+      "error_type_only": null
+    },
+    {
+      "source": "backend/tests/service_integration/test_my_photos_postgresql_contracts.py",
+      "case": "ipv6",
+      "correct_fields": false,
+      "error_type_only": "ValueError"
+    }
+  ],
+  "no_credentials_or_raw_urls_recorded": true,
+  "no_engine_or_database_connection": true,
+  "first_probe_note": "Initial expected total assertion was too strict because username-at-sign is accepted by this parser; no source edits or wrong baseline claims occurred."
+}

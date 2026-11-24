@@ -1,0 +1,55 @@
+{
+  "status": "Bounded read-only source cohort complete; broader runtime/security/architecture review remains separate",
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-draft-test-source-reviewed-files.json",
+    "sha256": "d296e8d0743cf078da0a063b4a74b7605f34677a1ee4536b3ed60eed82d4fec5"
+  },
+  "full_read_count": 13,
+  "full_read_physical_lines": 1483,
+  "new_current_full_tests": 12,
+  "prior_full_fixture_rereads": 1,
+  "focused_dependencies": 3,
+  "source_fence": {
+    "backend/tests/integration/test_draft_ecr.py": "016d694f91b9f667011b28019f9fd2f97dea18a07ee0574c28e4169c5c3a1ca3",
+    "backend/tests/integration/test_draft_expiry_sessions.py": "257c80dff9d7e7c0dbc0016e2e83fd5909ac4b05e82a2c3e5d2ca979b766e276",
+    "backend/tests/integration/test_draft_extraction_retry.py": "1d90b08314159a6a7a104cab20a6fddb21ec5671bbee19484fb3a145e98f3f1d",
+    "backend/tests/integration/test_draft_production_sessions.py": "18d8f04cb4860e431c42e0e694935d7e4223db33a08605858097233851dc7fbc",
+    "backend/tests/integration/test_draft_replacement_resume.py": "6a6381cfe0d7156633d93272dc4e0e0d27a4fb13e41eb78145775e93610abcad",
+    "backend/tests/integration/test_draft_retention.py": "8b405421dac0ba90951cb05474a9f47b6a7118ac27345b41bbcb77c51a0221c2",
+    "backend/tests/integration/test_draft_upload_cleanup_lifetime.py": "56b595321e5c9cf888f1b4a90d75d42aa72c64f68d2e03780f77436fd54c8673",
+    "backend/tests/integration/test_draft_upload_races.py": "0a57653a0590cd66b3c80f733943a938a95922e19a852871ab1c9fcc89e771c5",
+    "backend/tests/integration/test_returning_owned_extraction.py": "91dfdf3798eb84ee8f5e964efec0fb768bc5a0c918d9bec898c3b0cfca4c624a",
+    "backend/tests/integration/test_returning_legacy_approval.py": "d52fe7559d4673ab01097e9409b05a65dbeb08a104d229282599dac2949e66da",
+    "backend/tests/integration/test_returning_replacement.py": "f682261fcd450a5f70cf679ed98c0ac6aa1f183688fee3ac8f29c4e30524280a",
+    "backend/tests/integration/test_traveller_draft_runtime.py": "4bd3e855892e2c1030c1480930a388d47d6cf75da8cbd59ae73ecd47def4c51c",
+    "backend/tests/integration/traveller_reuse_fixtures.py": "9ccb9c675db6dff12324374e4fc08cffb55ec33037361c39f69f0f3284a207b7",
+    "backend/app/infrastructure/travellers/draft_runtime.py": "0d2919cf84fcd8f7f25c20f36b4ca22f8dcd26de33beb26f6766e371ff9e6b3e",
+    "backend/app/application/travellers/draft_uploads.py": "8b0c1414943e07d89e24f68bab728ffd6009232e9a0eb07225f37fa35761f008",
+    "backend/tests/integration/test_returning_drafts.py": "b68bffa5b0275eb8811b28a7e30b1289bf49982d833ef8eb3d49f33c63d4b32d"
+  },
+  "snapshots": {
+    ".tmp/draft-test-source-cohort/test_draft_ecr.py": "016d694f91b9f667011b28019f9fd2f97dea18a07ee0574c28e4169c5c3a1ca3",
+    ".tmp/draft-test-source-cohort/test_draft_expiry_sessions.py": "257c80dff9d7e7c0dbc0016e2e83fd5909ac4b05e82a2c3e5d2ca979b766e276",
+    ".tmp/draft-test-source-cohort/test_draft_extraction_retry.py": "1d90b08314159a6a7a104cab20a6fddb21ec5671bbee19484fb3a145e98f3f1d",
+    ".tmp/draft-test-source-cohort/test_draft_production_sessions.py": "18d8f04cb4860e431c42e0e694935d7e4223db33a08605858097233851dc7fbc",
+    ".tmp/draft-test-source-cohort/test_draft_replacement_resume.py": "6a6381cfe0d7156633d93272dc4e0e0d27a4fb13e41eb78145775e93610abcad",
+    ".tmp/draft-test-source-cohort/test_draft_retention.py": "8b405421dac0ba90951cb05474a9f47b6a7118ac27345b41bbcb77c51a0221c2",
+    ".tmp/draft-test-source-cohort/test_draft_upload_cleanup_lifetime.py": "56b595321e5c9cf888f1b4a90d75d42aa72c64f68d2e03780f77436fd54c8673",
+    ".tmp/draft-test-source-cohort/test_draft_upload_races.py": "0a57653a0590cd66b3c80f733943a938a95922e19a852871ab1c9fcc89e771c5",
+    ".tmp/draft-test-source-cohort/test_returning_legacy_approval.py": "d52fe7559d4673ab01097e9409b05a65dbeb08a104d229282599dac2949e66da",
+    ".tmp/draft-test-source-cohort/test_returning_owned_extraction.py": "91dfdf3798eb84ee8f5e964efec0fb768bc5a0c918d9bec898c3b0cfca4c624a",
+    ".tmp/draft-test-source-cohort/test_returning_replacement.py": "f682261fcd450a5f70cf679ed98c0ac6aa1f183688fee3ac8f29c4e30524280a",
+    ".tmp/draft-test-source-cohort/test_traveller_draft_runtime.py": "4bd3e855892e2c1030c1480930a388d47d6cf75da8cbd59ae73ecd47def4c51c",
+    ".tmp/draft-test-source-cohort/traveller_reuse_fixtures.py": "9ccb9c675db6dff12324374e4fc08cffb55ec33037361c39f69f0f3284a207b7"
+  },
+  "findings": [],
+  "changes": [],
+  "checks_run": [],
+  "proof_gaps": [
+    "Source inspection verifies test assertions/instrumentation target actual callbacks; it does not establish those tests pass now. No checks run merely for read-only source coverage.",
+    "SQLite/session/callback synthetic concurrency controls do not establish PostgreSQL row locking, real Redis presence or object-store late-write behavior.",
+    "Timeout/thread fixture has bounded synchronization assumptions; no ordinary failure was reproduced, so no timing or runtime policy change is justified.",
+    "Runtime dependencies receive only listed partial source credit; provider/native/retention security or architecture closure cannot be inferred from imports/test assertions."
+  ],
+  "scope": "Retained dashboard draft/returning workflows only. All sources byte-unmodified by this cohort; no broad suites/build/browser/scanner or real services."
+}

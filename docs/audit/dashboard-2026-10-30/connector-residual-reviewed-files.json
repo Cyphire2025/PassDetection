@@ -1,0 +1,193 @@
+{
+  "method": "19currenthash residualfiles physically read in complete bounded groups; no execution/triage-as-full credit. One complete small pyproject support file, one explicitly partial runtime transport trace. No broader connector runtime credit from tests.",
+  "files": [
+    {
+      "path": "mcp-connector/.gitignore",
+      "sha256": "8f3cdd6b593096ded1c3ef61660eed47107d9ce90398954e84a5bd133e9ccaef",
+      "physical_lines": 7,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full7line ignore file: dedicated environment/build/egg/test/lint/Python cache exclusions; no secret or runtime behavior is introduced."
+    },
+    {
+      "path": "mcp-connector/README.md",
+      "sha256": "58d3953fede096d025d9887525cec149ff61274fda500dece9ffdad1ead05ec6",
+      "physical_lines": 151,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full151line Windows0.2.4 instructions read. Separate environment/hash lock, fixedorigin/loopback callback, nativevault-only storage, read-only currentcatalog, exact selected-file authority, atomic verified delivery/ack recovery and unchanged retry keys clearly described. Qualification limits explicitly distinguish mockedTCP/SQLite/nativevault/productionCodex/provider. Current version/dependencies cross-checked with actual pyproject. Test availability/read is not a fresh execution result."
+    },
+    {
+      "path": "mcp-connector/requirements.txt",
+      "sha256": "131794d24c4dcb2e6afd27a08bbe9769d5e63943d0c161d8bf2ca0740e3d8707",
+      "physical_lines": 4,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full4line runtime summary read: MCP2.2.0/httpx2 2.13.1/Windows pywin32312 match current pyproject; directs installing hash-verified lock first. Generated full lock not inferred manually read from this summary."
+    },
+    {
+      "path": "mcp-connector/tests/test_artifacts.py",
+      "sha256": "060881dc1403977e6c3c30202b2086e89ffe24febdb4ba2bef101f1c908f7049",
+      "physical_lines": 170,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full170line actual tests: fixed authenticated content/metadata/delivery routes ignore hostile remote filenames/URLs; verify local content before acknowledgement; corrupt/redirect/header mismatches never publish/ack; failed acknowledgement retains exactfile for explicitly selected recovery; upload group/hash/size selection bounds. MockTransport only; not live storage authority/real PDF parsing/tenant proof."
+    },
+    {
+      "path": "mcp-connector/tests/test_backend_tcp.py",
+      "sha256": "dee6ee013efc50d02aa5af26d6f4c6af02b63e480ed76af71f481284cfc0d642",
+      "physical_lines": 374,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full374line actual fixture/twoTCP cases: tmp cwd/env synthetic credentials, ephemeral bound loopback socket, isolatedSQLite+canonicalOAuth/MCProuters and explicit fakeMFA superadmin grant. Real SDK discovery/PKCE/refresh/revoke and token/audit privacy assertions; staged syntheticPDF security scan, workbook delivery and idempotent acknowledgement/history. Fake vault/storage/lock; no browserMFA, native vault, PostgreSQL or provider proof. Teardown closes task/socket/engine on yielded-test paths."
+    },
+    {
+      "path": "mcp-connector/tests/test_contact_errors.py",
+      "sha256": "06af9d928fe237eaeee432b9a1040e26b467276113cecceb4b9e53e958eb41a2",
+      "physical_lines": 197,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full197line tests: backend/connector fixed correction mapping equality, actual localSDK fixed-message-only errors, hostile unknown/malformed/detail payload suppression, exactroute/status/authority mapping, bounded error-body stream, unsupportedcontent/encoding not consumed and no automatic upload retry. Backend/source lookup is supporting contract input; no runtime full-read credit inferred."
+    },
+    {
+      "path": "mcp-connector/tests/test_contact_uploads.py",
+      "sha256": "376322af9ffc7b9819e01d459777d178f367c83b188760c13f114e5e947c35aa",
+      "physical_lines": 83,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full83line tests: exact fixed authenticated agency-only XLSX route/body/hash/type, validated scope/checksum/size/locator/worksheet receipt, extra remote action/URL discarded, explicit-file/5MiB denial beforetransfer. Synthetic transport bytes are not a valid workbook/security scanner qualification."
+    },
+    {
+      "path": "mcp-connector/tests/test_conversation_instructions.py",
+      "sha256": "b186f1d2ae1071a994048ca008c9c034a88658fe791e911768f055268490cfc7",
+      "physical_lines": 88,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full88line protocol tests: local SDK legacy/auto initialization publishes fixed guidance without remote/file actions; returned malicious workbook/tool text stays data and cannot replace init instruction authority. Explicitly does not establish a model follows guidance or authorize sending."
+    },
+    {
+      "path": "mcp-connector/tests/test_document_exports_tcp.py",
+      "sha256": "57463b875f74f86980ca4652db2eea8c834a694d791ea0e05c790781e6a2e91a",
+      "physical_lines": 90,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full90line canonical review workbook over realSDK/TCP fixture: explicitinspect revision/idempotency, retained singleartifact download/ack/resume, expectedreviewcontents, no passporthistory/messagesideeffects. SQLite/privateStoragefixture; not independent tenant/isolation negative coverage."
+    },
+    {
+      "path": "mcp-connector/tests/test_exports_tcp.py",
+      "sha256": "55d5ee4d7274ebb8886d58f44ecd6e58c4173bd3d5d03ca7272d70cbd587d4d7",
+      "physical_lines": 151,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full151line canonical Excel SDK/TCP controls: capacitybusy returnsbounded error+audit withoutoperation, inspectrevision/retryretainsoperation/artifact, preparedhistory only completes afterverifiedlocaldelivery and explicitack. Syntheticperson/privateStorage; no PG/adversarialstorage/provider qualification."
+    },
+    {
+      "path": "mcp-connector/tests/test_files.py",
+      "sha256": "d2751a3f6ea7099844627967e2f0e6151df7ae9d67c8d8eb7b34759bb08acffe",
+      "physical_lines": 113,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full113line file-boundary tests: verified size/hash save nooverwrite, corrupt/short streams cleanup, racedestinationretained, exactprovidedregularfile selection/bounds, interruptedgenerator cleans onlyprivatepart. RuntimeError interruption case is not a claim of CancelledError/processkill coverage."
+    },
+    {
+      "path": "mcp-connector/tests/test_image_exports_tcp.py",
+      "sha256": "52c793a25ba114981d2159a3faf997ca5f6489d9e8d3b19f1b6eb214e7da21e1",
+      "physical_lines": 79,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full79line SDK/TCP canonical ZIP: originalsyntheticfront/back preserved, explicitrevision/idempotentprepare, historypreparedbeforeverifieddelivery, contentsoriginal and onecompletedhistoryafterack/resume. Sourceimagesyntheticstorage; no liveS3/version/PG claim."
+    },
+    {
+      "path": "mcp-connector/tests/test_pdf_ingestion_tcp.py",
+      "sha256": "fa4c3ab1be15ea527ead8ce66ee8f212ce9f91b6e13f39635011abca1faccf3f",
+      "physical_lines": 84,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full84line SDK/TCP PDF stage/inspect/ingest/retry/resume: valid syntheticPDF, actualcanonicalservices with scanner/storage doubles, expectedretained draft records and ingestionoperation link; no duplicatebusinessrecords/sourcechange. No liveprovider or newacceptancepolicy implied."
+    },
+    {
+      "path": "mcp-connector/tests/test_read_only_proxy.py",
+      "sha256": "072534deb442d39199f3b2113da8765641dc91453f426e8560928f8bad4abec3",
+      "physical_lines": 119,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full119line tests: only strict mcp:read+trueannotation tools, local/direct calls denied evenwithout discovery, catalogrevocation rechecked percall, boundedpagination preserved/repeatedcursor failsclosed and neverdispatches. Mockremote/protocolguards; backendtenant enforcement remains separate."
+    },
+    {
+      "path": "mcp-connector/tests/test_rooming_exports_tcp.py",
+      "sha256": "e47ff05be3fde56962ad60e2678350a0e2ab7a9a4bc25b98360b898cf5ada499",
+      "physical_lines": 92,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full92line SDK/TCP roominglist/checkin-control variants: exact hotel/revision/idempotency, canonicalworkbook/resume/delivery, no passporthistory/messagesideeffects. Fake storage+SQLite; assertions here do not independently prove all allocation/read-only mutations absent."
+    },
+    {
+      "path": "mcp-connector/tests/test_tracking_exports_tcp.py",
+      "sha256": "6880ff41a2081a8a3acdf479ba9c1bf51623e56403b6f6d8443cfb61830e7de0",
+      "physical_lines": 86,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full86line SDK/TCP tracking export: status/broadcast filter expectedincluded/excludedsyntheticpassenger, expectedrevision/idempotency, artifactdelivery/resume and no passporthistory/message sideeffects. Does not send provider messages or prove livebackend tenant isolation."
+    },
+    {
+      "path": "mcp-connector/tests/test_whatsapp_media_tcp.py",
+      "sha256": "286cddd4d61a5ac0eb963f8114ad3142989915a923dfa0942154447d40d37015",
+      "physical_lines": 111,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full111line SDK/TCP ready/unknown header cases: explicitfake communicategrant, canonicalscan/normalize/claim with mockedprovider, stablekeyreplay once, scopedinspection/recoveryonlyready, zero message logs, originalimage unchanged and protectedIDs hidden. No actual provider upload/send or nativevault proof."
+    },
+    {
+      "path": "mcp-connector/tests/test_whatsapp_media_uploads.py",
+      "sha256": "18fca8bee451f16d4b4b4a26e61e58b37eac71613f48e6d4b406f5b7af55154a",
+      "physical_lines": 346,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full346line actual protocol cases: exacthost/agency/broadcast/bothcapabilities preflight before selectedfile read; signature/type/5MiB/key/path bounds; originalstablekey/body retained; ready/staged/uploading/unknown/failed receipt sanitization; bad scope/size/hash/handle/status/messagecount uncertain; redirect/disconnectdenied nofollow/retry; metadataonly exactscope inspection/recovery. Synthetic signatureprefix bytes are deliberately not native image decode/scan."
+    },
+    {
+      "path": "mcp-connector/tests/test_windows_vault_native.py",
+      "sha256": "885f05a67c17dc9118df9e4702838a490abf224269d55151e2359cb5bca80e75",
+      "physical_lines": 86,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full86line nativeWindows qualificationsource: unique absent syntheticcredentialtarget, crossprocessread, ownentrycleanup; separate native lock test explicitly kills/waitschild finally. First test lacks child termination/drain if wait_for communicate timesout/cancels; candidate recorded, not reproduced and no nativevault/process test run in this read-only pass."
+    },
+    {
+      "path": "mcp-connector/pyproject.toml",
+      "sha256": "a08d193925d35d9df65e4b2b76c26047232a8b73c913eafaa25d60af874793f1",
+      "physical_lines": 30,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full32line actualpackage/test/lint configuration source cross-check: CPython3.11, version0.2.4, pinnedSDK/httpx2/Windowsvault dependencies, existingCLIentry, src package discovery, perfunctionasyncfixtures and Ruffscope. No edits/execution."
+    },
+    {
+      "path": "mcp-connector/src/gc_mcp_connector/proxy.py",
+      "sha256": "f2b5334976f712ac037ada2897c1d7cf9e60dcc7543cd9aecb2d6f17df9ba56a",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Partial immediate support only: physical35-61segment around strict readannotation and remote_session actual httpx2 client. trust_env:false/follow_redirects:false, fixedresource, terminate_on_close:false and SDK identity traced. Does not upgrade runtime module to full coverage."
+    }
+  ]
+}

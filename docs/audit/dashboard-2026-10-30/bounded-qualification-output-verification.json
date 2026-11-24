@@ -1,0 +1,57 @@
+{
+  "status": "fixed-and-verified-local",
+  "runtime": {
+    "path": "scripts/qa/bounded_qualification_output.py",
+    "sha256": "ef4a3176df0d90a337f6e7e21950c97ef4a7c0902a74c9f40677e3f7510c05f9",
+    "physical_lines": 95
+  },
+  "baseline": {
+    "actual_probe": {
+      "configured_timeout_seconds": 1,
+      "descendant_sleep_seconds": 3,
+      "observed_elapsed_seconds": 3.203,
+      "outcome": "incorrect success after complete descendant sleep"
+    },
+    "new_cases": 6,
+    "failed_negatives": 2,
+    "passing_controls": 4,
+    "log": "bounded-qualification-output-baseline.log"
+  },
+  "current": {
+    "unique_cases": 32,
+    "test_files": 3,
+    "new_test_methods": 7,
+    "existing_test_methods": 25,
+    "log": "bounded-qualification-output-final32.log",
+    "source_fence": "bounded-qualification-output-source-fence.json",
+    "strict_mypy_owned_sources": 1,
+    "ruff_owned_sources": 2
+  },
+  "preserved": {
+    "capture_arguments_defaults_annotations_ast": true,
+    "private_exclusive_binary_open_context_ast": true,
+    "successful_flush_fsync_seek_decode_tail_ast": true,
+    "existing_error_classes_and_bounded_reason_strings": true,
+    "combined_stdout_stderr_bytes_exact_limit_and_replacement_decode": true,
+    "two_maintained_callers_unchanged": true,
+    "existing_two_test_files_unchanged": true
+  },
+  "implementation": "Public asyncio subprocess transport/protocol replaces a blocking reader thread. One monotonic async deadline includes spawn, process exit and pipe EOF; bounded synchronous private file writes never exceed the configured byte quota. Closing the transport closes local pipes and kills/reaps a still-running direct child; cleanup has a separate10-second bound. Real transports are observed without replacing actual subprocess execution in success/overflow/timeout controls.",
+  "limitations": [
+    "Actual subprocess controls ran on Windows CPython3.11.15; Linux/real Docker attachment was not exercised in this batch.",
+    "The helper closes local pipes and manages its direct child; it does not terminate arbitrary descendants or remote containers. Existing qualification callers retain ownership/cleanup of their labeled Docker resources.",
+    "Local fixed output quota bounds captured data, not the child process own memory or application performance.",
+    "Initial owned typing error arose from BinaryIO versus Windows TemporaryFile wrapper stubs; final narrow write-only structural protocol passes strict checking.",
+    "No global/current release source pin was refreshed by this batch; historical qualified source digests remain historical/failclosed until an actual qualification."
+  ],
+  "documentation": [
+    {
+      "title": "Python3.11 subprocess transports/protocols",
+      "url": "https://docs.python.org/3.11/library/asyncio-protocol.html"
+    },
+    {
+      "title": "Python3.11 subprocess and Windows support",
+      "url": "https://docs.python.org/3.11/library/asyncio-subprocess.html"
+    }
+  ]
+}

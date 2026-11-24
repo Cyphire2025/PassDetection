@@ -47,7 +47,14 @@ export function CoordinatorPassengerDetailPage({ groupId, passengerId }: { group
 
   useEffect(() => {
     if (!passengerQuery.isSuccess || !passengerQuery.data) return;
-    const nextPassengers = cachedPassengers.some((item) => item.id === passengerQuery.data?.id)
+    const saved = cachedPassengers.find((item) => item.id === passengerQuery.data?.id);
+    // Rehydration emits a fresh array after this write. Compare only the fields
+    // retained in the offline roster so that notification cannot start a loop.
+    if (saved
+      && saved.client_name === passengerQuery.data.client_name
+      && (saved.departure_city ?? null) === (passengerQuery.data.departure_city ?? null)
+      && saved.status === passengerQuery.data.status) return;
+    const nextPassengers = saved
       ? cachedPassengers.map((item) => item.id === passengerQuery.data?.id ? passengerQuery.data : item)
       : [...cachedPassengers, passengerQuery.data];
     void writeOfflineSnapshot(offlineSnapshotKeys.myPassengers(groupId), nextPassengers);

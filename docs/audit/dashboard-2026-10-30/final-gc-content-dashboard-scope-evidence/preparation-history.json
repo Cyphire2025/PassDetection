@@ -1,0 +1,48 @@
+{
+  "status": "Preparation/history provenance only; current002qualification still running. No failed dataset is merge-authorized.",
+  "target": "backend/app/presentation/api/v1/routes/gc_app_content_scope.py",
+  "target_raw_sha256": "ee1b01c9543593b6600aedde21acd5e6b7c6082a8b58320729f6799b4acab2d8",
+  "original_statement_coverage": 83.09859154929578,
+  "original_missing_lines": [
+    44,
+    51,
+    103,
+    160,
+    163,
+    164,
+    165,
+    175,
+    176,
+    177,
+    178,
+    179
+  ],
+  "retained_normal_floor": 90,
+  "original_coverage_JSON": {
+    "path": "docs/audit/dashboard-2026-10-30/final-retained-backend-20261101-001/coverage.json",
+    "sha256": "65c4bc2fe6d158043dc9000b1d70d448b59e54c8d1c350cc5efa608cb6719626"
+  },
+  "original_all1823_app_hashes_match_current": true,
+  "BOM_preparation_failure": {
+    "attempt": "Initial001 invocation beforeoutputcreation/collection",
+    "exception": "SyntaxError: invalid non-printable character U+FEFF at tests/__init__.py while audit-only dependencywalker parsed UTF-8 text.",
+    "source_BOM_preserved": true,
+    "guard_owner_fix": "qualification_plan changed only audit-only walker to UTF-8-sig, no app/test package bytes changed.",
+    "chronology": "Owner explicitly authorized same001 reuse before later fresh002steering arrived; actual001alreadyrunning was reported and root accepted no stop/rename. No prior001outputs existed when its actual fence/run were created."
+  },
+  "failed_actual001": {
+    "directory": "docs/audit/dashboard-2026-10-30/final-retained-gc-scope-cov-20261101-001",
+    "receipt_sha256": "1026c5707124f63109352cf71dc9f8293910e695cf4cbd61b705d0efc31407b8",
+    "call_outcomes": {
+      "passed": 6,
+      "failed": 1
+    },
+    "fixture_failure": "Synthetic published common document lacked a visibility audience, rejected by existing ck_gc_common_doc_audience before route execution.",
+    "correction": "Only passenger_visible=True added to synthetic published common document fixture, retaining existing constraint and app logic.",
+    "coverage_data_sha256": "7eacc24b9fe9fc22b047bd6d64f7285d5d3586dd86972e83732875d75cfe73d5",
+    "excluded_from_merge": true,
+    "raw_output_overwrites": false
+  },
+  "current_authorized_run": "final-retained-gc-scope-cov-20261101-002",
+  "app_gate_floor_or_shared_helper_edits_by_agent": false
+}

@@ -1,0 +1,100 @@
+.....................................................................F.. [ 66%]
+.....................................                                    [100%]
+================================== FAILURES ===================================
+____ test_replacement_invalidates_old_token_and_terminalizes_old_delivery _____
+
+client = <httpx.AsyncClient object at 0x0000026DA0577810>
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000026D9EE97810>
+test_settings = Settings(app_env='development', app_debug=True, app_version='1.0.0', app_revision='unknown', expected_database_schema_...me='qrcode_v1', whatsapp_otp_template_name='', whatsapp_otp_template_language='en_US', whatsapp_delivery_concurrency=4)
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000026D9A771D90>
+
+    @pytest.mark.asyncio
+    async def test_replacement_invalidates_old_token_and_terminalizes_old_delivery(
+        client: AsyncClient,
+        db_session: AsyncSession,
+        test_settings: Settings,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        user, _ = await _create_staff(db_session, email="replacement-recovery@example.com")
+        settings = test_settings.model_copy(
+            update={
+                "password_recovery_delivery_provider": "development",
+                "password_recovery_development_expose_token": True,
+            }
+        )
+        _install_recovery_settings(monkeypatch, settings)
+    
+        # Timestamp ties and random UUID order do not identify issuance order.
+        # Force the newer token/outbox to sort first so that association assertions
+        # cannot accidentally depend on timestamp or primary-key ordering again.
+        issued_at = datetime.now(tz=UTC).replace(microsecond=0)
+    
+        class TiedDateTime(datetime):
+            @classmethod
+            def now(cls, tz=None):
+                return issued_at.astimezone(tz) if tz else issued_at.replace(tzinfo=None)
+    
+        for module, identifiers in (
+            (identity_security_repository, (
+                uuid.UUID("ffffffff-ffff-4fff-8fff-fffffffffff2"),
+                uuid.UUID("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1"),
+            )),
+            (identity_notifications, (
+                uuid.UUID("eeeeeeee-eeee-4eee-8eee-eeeeeeeeeee4"),
+                uuid.UUID("bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb3"),
+            )),
+        ):
+            monkeypatch.setattr(module, "datetime", TiedDateTime)
+            monkeypatch.setattr(module, "uuid", SimpleNamespace(UUID=uuid.UUID, uuid4=iter(identifiers).__next__))
+    
+        first_response = await client.post(
+            "/api/v1/auth/password/recovery/request",
+            json={"email": user.email},
+        )
+        assert first_response.status_code == 202
+        first_raw = first_response.json()["development_recovery_token"]
+        second_response = await client.post(
+            "/api/v1/auth/password/recovery/request",
+            json={"email": user.email},
+        )
+        assert second_response.status_code == 202
+        second_raw = second_response.json()["development_recovery_token"]
+    
+        assert isinstance(first_raw, str) and isinstance(second_raw, str)
+        assert first_raw != second_raw
+        tokens = (
+            (
+                await db_session.execute(
+                    select(IdentityActionTokenModel)
+                    .where(IdentityActionTokenModel.user_id == user.id)
+                )
+            )
+            .scalars()
+            .all()
+        )
+        assert len(tokens) == 2
+        tokens_by_hash = {(row.token_key_id, row.token_hash): row for row in tokens}
+    
+        def issued_token(raw: str) -> IdentityActionTokenModel:
+            matches = [tokens_by_hash[key] for key in identity_action_token_hash_candidates(
+                raw, purpose="password_recovery",
+            ) if key in tokens_by_hash]
+            assert len(matches) == 1
+            return matches[0]
+    
+        first_token, second_token = issued_token(first_raw), issued_token(second_raw)
+        assert first_token.created_at == second_token.created_at
+>       assert first_token.id > second_token.id
+E       AssertionError: assert UUID('87e4c74f-9ad5-45de-9b4b-22435da56226') > UUID('ec331948-4f5c-4c95-b38a-5744e4751a90')
+E        +  where UUID('87e4c74f-9ad5-45de-9b4b-22435da56226') = <app.infrastructure.database.identity_security_models.IdentityActionTokenModel object at 0x0000026D9EC82B50>.id
+E        +  and   UUID('ec331948-4f5c-4c95-b38a-5744e4751a90') = <app.infrastructure.database.identity_security_models.IdentityActionTokenModel object at 0x0000026D9EC81090>.id
+
+tests\integration\test_password_recovery_delivery.py:254: AssertionError
+
+---------- coverage: platform win32, python 3.11.15-final-0 ----------
+Coverage XML written to file ../docs/audit/dashboard-2026-10-30/identity-checkpoint-coverage.xml
+Coverage JSON written to file ../docs/audit/dashboard-2026-10-30/identity-checkpoint-coverage.json
+
+=========================== short test summary info ===========================
+FAILED tests/integration/test_password_recovery_delivery.py::test_replacement_invalidates_old_token_and_terminalizes_old_delivery
+1 failed, 108 passed in 322.49s (0:05:22)

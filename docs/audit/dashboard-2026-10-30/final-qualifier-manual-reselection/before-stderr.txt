@@ -1,0 +1,71 @@
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  features/upload/components/fresh-qualifier.test.tsx > fresh qualifier selection restoration > allows an explicit current-config replacement after a rejected restore without losing the old proof
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "Choose another relationship"
+
+Here are the accessible roles:
+
+  button:
+
+  Name "Change":
+  [36m<button[39m
+    [33maria-busy[39m=[32m"false"[39m
+    [33mclass[39m=[32m"inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap bg-white text-slate-700 border border-slate-300 shadow-sm hover:bg-slate-50 active:bg-slate-100 h-9 px-4 py-2"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  alert:
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"mt-2 text-red-700"[39m
+    [33mrole[39m=[32m"alert"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"rounded-xl bg-blue-50 p-3 text-sm text-blue-900"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex items-center justify-between gap-3"[39m
+      [36m>[39m
+        [36m<span>[39m
+          [0mQualifier relationship saved[0m
+        [36m</span>[39m
+        [36m<button[39m
+          [33maria-busy[39m=[32m"false"[39m
+          [33mclass[39m=[32m"inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap bg-white text-slate-700 border border-slate-300 shadow-sm hover:bg-slate-50 active:bg-slate-100 h-9 px-4 py-2"[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [0mChange[0m
+        [36m</button>[39m
+      [36m</div>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"mt-2 text-red-700"[39m
+        [33mrole[39m=[32m"alert"[39m
+      [36m>[39m
+        [0mWe couldn't restore this relationship. Please try Change again.[0m
+      [36m</p>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ features/upload/components/fresh-qualifier.test.tsx:99:19
+     97|     fireEvent.click(screen.getByRole("button", { name: "Change" }));
+     98|     await screen.findByRole("alert");
+     99|     expect(screen.getByRole("button", { name: "Choose another relation…
+       |                   ^
+    100|     fireEvent.click(screen.getByRole("button", { name: "Change" }));
+    101|     const signal = transport.getQualifierSelection.mock.calls[1][2] as…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+

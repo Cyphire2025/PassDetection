@@ -1,0 +1,7 @@
+{
+  "original_named_imports_examined": 14,
+  "named_alias_imports": [],
+  "production_escapes_verified_type_only": 6,
+  "computed_test_use": "mcpApi[flow], flow iterates only requests/operations",
+  "basis": "Original compiled declaration/escape report plus archived original source lines. No name-only import alias was omitted from its identifier traversal."
+}

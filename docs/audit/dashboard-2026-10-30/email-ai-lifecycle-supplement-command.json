@@ -1,0 +1,24 @@
+{
+  "command": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-audit-venv\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "--tb=short",
+    "tests/unit/infrastructure/test_email_ai_claim_lifecycle.py",
+    "--cov=app/infrastructure/email",
+    "--cov-branch",
+    "--junitxml=C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\email-ai-lifecycle-supplement.xml",
+    "--cov-report=json:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\email-ai-lifecycle-supplement-coverage.json"
+  ],
+  "cwd": "backend",
+  "source_sha256": {
+    "backend/app/infrastructure/email/ai_claim_lifecycle.py": "407c5565a92cd1975138a7fea4248ae236c9afab1b8435507e289c3abf8ace6d",
+    "backend/app/infrastructure/email/ai_runtime.py": "c0df0f57423cc18dd2fa25749489d8dc0d5302e22ed4fba47a5d5ac5ba1f5e4e"
+  },
+  "test_sha256": {
+    "backend/tests/unit/infrastructure/test_email_ai_claim_lifecycle.py": "30cc16614848c1c8a920afdfb5b57e8b09462029596a942983efbcb9fc53ebc8"
+  }
+}

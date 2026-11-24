@@ -1,0 +1,199 @@
+{
+  "source_manifest": {
+    "path": "docs/audit/dashboard-2026-10-30/ecr-checker-final-source-manifest.json",
+    "sha256": "c678551ea2465b795fc51dc91c42583634fe7cae6f1b78dd44392b1ed1fb5891"
+  },
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/ecr-checker-final-reviewed-files.json",
+    "sha256": "569d81942ebb5da117af47e737aaede658699f25de4702f7afe6fa7fbebb44a2"
+  },
+  "normal_module_candidates": [
+    {
+      "path": "app/presentation/api/v1/routes/ecr_checker.py",
+      "sha256": "6a10b853b8ecb15371dd770f80f27abd201a812d0cc48948fb65981d2d998726",
+      "previous": null,
+      "baseline_lines": 122,
+      "maximum_lines": 130,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 1,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/ecr_checker_actions.py",
+      "sha256": "58b5fec6fb013d7b89115cb00070059b9b36e8876a025ee6e73f7da5b8e40119",
+      "previous": null,
+      "baseline_lines": 112,
+      "maximum_lines": 120,
+      "baseline_max_function_complexity": 7,
+      "maximum_function_complexity": 8,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/ecr_checker_batches.py",
+      "sha256": "3b785bd4319187d78ba24b51c8295a5f0df1812d3f3f153298036f0e67d70007",
+      "previous": null,
+      "baseline_lines": 81,
+      "maximum_lines": 90,
+      "baseline_max_function_complexity": 5,
+      "maximum_function_complexity": 6,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/ecr_checker_inputs.py",
+      "sha256": "1753457d06b683a4f93a48cd3c5ca932e1366fd3831d1af80e598cb588a64e3e",
+      "previous": null,
+      "baseline_lines": 102,
+      "maximum_lines": 110,
+      "baseline_max_function_complexity": 10,
+      "maximum_function_complexity": 11,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/ecr_checker_staging.py",
+      "sha256": "01f95a3aa223649522389ccfb50108ba8737d47fddfb7f77dbca629e337ff141",
+      "previous": null,
+      "baseline_lines": 115,
+      "maximum_lines": 125,
+      "baseline_max_function_complexity": 8,
+      "maximum_function_complexity": 9,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/ecr_checker_support.py",
+      "sha256": "8dd4485b7d11562ff0a0946182dd22fbb443b96e4bf4b1060b0929889f36036c",
+      "previous": null,
+      "baseline_lines": 137,
+      "maximum_lines": 145,
+      "baseline_max_function_complexity": 6,
+      "maximum_function_complexity": 7,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/ecr_checker_upload.py",
+      "sha256": "4cbb51f86dbaff18129c84c42d484a586d3b851f9800952cc4e4d574ddff3036",
+      "previous": null,
+      "baseline_lines": 139,
+      "maximum_lines": 150,
+      "baseline_max_function_complexity": 14,
+      "maximum_function_complexity": 15,
+      "minimum_coverage_percent": 95
+    }
+  ],
+  "critical_gate_candidates": [
+    {
+      "path": "app/presentation/api/v1/routes/ecr_checker_upload.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 90,
+      "sha256": "4cbb51f86dbaff18129c84c42d484a586d3b851f9800952cc4e4d574ddff3036"
+    },
+    {
+      "path": "app/presentation/api/v1/routes/ecr_checker_staging.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 90,
+      "sha256": "01f95a3aa223649522389ccfb50108ba8737d47fddfb7f77dbca629e337ff141"
+    }
+  ],
+  "critical_qualification": "Proposed for root/AI adoption: two effective behavior guards over actual fresh-authority/commit/cleanup/replay code, not the declaration-only facade.37affected cases qualify100/100upload and98.11/93.75staging. No original ECR checker normal/critical membership or any existing cap/global/critical floor changed.",
+  "measurements": {
+    "backend/app/presentation/api/v1/routes/ecr_checker.py": {
+      "sha256": "6a10b853b8ecb15371dd770f80f27abd201a812d0cc48948fb65981d2d998726",
+      "physical_lines": 122,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "line_percent": 100.0,
+      "branch_percent": 100.0,
+      "statements": 48,
+      "branches": 2,
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    "backend/app/presentation/api/v1/routes/ecr_checker_actions.py": {
+      "sha256": "58b5fec6fb013d7b89115cb00070059b9b36e8876a025ee6e73f7da5b8e40119",
+      "physical_lines": 112,
+      "max_function_complexity": 7,
+      "most_complex_function": "retry_ecr_batch",
+      "line_percent": 100.0,
+      "branch_percent": 100.0,
+      "statements": 53,
+      "branches": 12,
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    "backend/app/presentation/api/v1/routes/ecr_checker_batches.py": {
+      "sha256": "3b785bd4319187d78ba24b51c8295a5f0df1812d3f3f153298036f0e67d70007",
+      "physical_lines": 81,
+      "max_function_complexity": 5,
+      "most_complex_function": "list_ecr_batches",
+      "line_percent": 100.0,
+      "branch_percent": 100.0,
+      "statements": 26,
+      "branches": 2,
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    "backend/app/presentation/api/v1/routes/ecr_checker_inputs.py": {
+      "sha256": "1753457d06b683a4f93a48cd3c5ca932e1366fd3831d1af80e598cb588a64e3e",
+      "physical_lines": 102,
+      "max_function_complexity": 10,
+      "most_complex_function": "read_ecr_uploads",
+      "line_percent": 100.0,
+      "branch_percent": 100.0,
+      "statements": 62,
+      "branches": 12,
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    "backend/app/presentation/api/v1/routes/ecr_checker_staging.py": {
+      "sha256": "01f95a3aa223649522389ccfb50108ba8737d47fddfb7f77dbca629e337ff141",
+      "physical_lines": 115,
+      "max_function_complexity": 8,
+      "most_complex_function": "accept_staged_ecr_items",
+      "line_percent": 98.11320754716981,
+      "branch_percent": 93.75,
+      "statements": 53,
+      "branches": 16,
+      "missing_lines": [
+        109
+      ],
+      "missing_branches": [
+        [
+          108,
+          109
+        ]
+      ]
+    },
+    "backend/app/presentation/api/v1/routes/ecr_checker_support.py": {
+      "sha256": "8dd4485b7d11562ff0a0946182dd22fbb443b96e4bf4b1060b0929889f36036c",
+      "physical_lines": 137,
+      "max_function_complexity": 6,
+      "most_complex_function": "_summary",
+      "line_percent": 100.0,
+      "branch_percent": 100.0,
+      "statements": 51,
+      "branches": 6,
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    "backend/app/presentation/api/v1/routes/ecr_checker_upload.py": {
+      "sha256": "4cbb51f86dbaff18129c84c42d484a586d3b851f9800952cc4e4d574ddff3036",
+      "physical_lines": 139,
+      "max_function_complexity": 14,
+      "most_complex_function": "_upload_ecr_items_admitted",
+      "line_percent": 100.0,
+      "branch_percent": 100.0,
+      "statements": 67,
+      "branches": 16,
+      "missing_lines": [],
+      "missing_branches": []
+    }
+  },
+  "qualification": {
+    "path": "docs/audit/dashboard-2026-10-30/ecr-checker-final-acceptance-focused-command.json",
+    "sha256": "f5d0ac27a3db02055166e07aadb4e4337095a770d543ddef6b4a6b7ccc4671cd"
+  },
+  "coverage": {
+    "path": "docs/audit/dashboard-2026-10-30/ecr-checker-final-acceptance-coverage.json",
+    "sha256": "c85a9b7bcf5d63005e3d779e08a72edd6e68691f7b92cfad70baad24f054fcc3"
+  },
+  "shared_files_written": false
+}

@@ -1,0 +1,22 @@
+{
+  "original_methods": 65,
+  "identical_method_ast": 63,
+  "identity_limit_dependency_rebindings": [
+    "build_index",
+    "_identifier_aliases"
+  ],
+  "all_original_algorithm_asts_verified_after_normalizing_explicit_limit_binding": true,
+  "native_pdf_wrappers_unchanged": true,
+  "batch_sandbox_identity": "facade passes the exact DocumentMatcher class explicitly; override/subclass guard retained",
+  "module_lines": {
+    "document_text_normalization.py": 49,
+    "document_match_resolution.py": 354,
+    "document_batch_classification.py": 215,
+    "document_text_fields.py": 261,
+    "document_identity_limits.py": 13,
+    "document_identity_aliases.py": 210,
+    "document_type_detection.py": 241,
+    "document_passenger_index.py": 167,
+    "document_matcher.py": 668
+  }
+}

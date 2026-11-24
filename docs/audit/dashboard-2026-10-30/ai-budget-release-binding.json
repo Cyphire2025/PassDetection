@@ -1,0 +1,8 @@
+{
+  "path": "backend/backend_quality_budgets.json",
+  "before_after_binding": "14d337337fadea23570e6a7d15bde9534e2057e7daccc3dcc93aa8049ef02e85",
+  "current_after_binding": "8b8e4da21e7e8b15c53f78ecc5a702744743565dfadaf0eca2b063eb49682e5f",
+  "raw_budget_sha256": "45355a8a85f6fbf074509ae14fd0ed2e0dcd18e0f7a30cbca0c7828e5317e88e",
+  "policy_ast_changed_only_exact_after_digest": true,
+  "both_original_baselines_preserved": true
+}

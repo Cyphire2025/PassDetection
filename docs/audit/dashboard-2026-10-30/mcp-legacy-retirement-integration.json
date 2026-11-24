@@ -1,0 +1,95 @@
+{
+  "status": "applied-affected-checks-passed;featurearchitecturecontinues",
+  "safety_port": "mcp-current-safety-port-before-retirement.json",
+  "proof": "mcp-legacy-declaration-reference-proof.json",
+  "removed_symbols": [
+    "McpConsentPage",
+    "McpAccessExamples",
+    "useMcpAuthorize",
+    "useMcpRevoke",
+    "mcpApi.authorize",
+    "mcpApi.revoke",
+    "mcpRequestApi.update",
+    "parseMcpAuthorization",
+    "approvedCallback",
+    "McpConsentRequest",
+    "McpAuthorizationParameters",
+    "McpAuthorizationRequest",
+    "API_ENDPOINTS.mcp.authorize",
+    "API_ENDPOINTS.mcp.revoke"
+  ],
+  "changed_files": [
+    {
+      "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+      "before_sha256": "668a8fd351ed79b4f391d7a0f6d99ed865c582fa3cde24070edfba74050db25b",
+      "sha256": "53d688360e0e4b0c2295d2c0dafa8bc8b98cdfe822dfb77c0cf7ae940b6438c5"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+      "before_sha256": "6ee2bc11423bb64c18047afa5873a1c17c5cdf9f41f56c6339004513f62e33a1",
+      "sha256": "a90bfa94b10db2acb543f3ba8fda3b58501e4fc314d6141ea6f90cd114b5d031"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+      "before_sha256": "f5e472966642621db109f049cf646e0f82b113e4b2c283ee461db0699dd328ae",
+      "sha256": "ffccf1f6091a4d16feefbc81e62527d92e4f435e83d5c0bc765072ea16a888cd"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-devices.test.tsx",
+      "before_sha256": "97eea13b68c1e2233557dfcb42a2a08d22dfa71675f8064e8aa2c619c2018318",
+      "sha256": "ebd0fa1cef03da770e68840abb9aa02bd86d321f2a3530afb2b7c728973c98f1"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-request-waiting-page.test.tsx",
+      "before_sha256": "c781785e6f5e94e7e2e031a9954e9132b1c1f33d64d3c8c5731bc37e3f1675f0",
+      "sha256": "47cc8119568a1daa98aa113c8b64686d1f5d15855654ccffc46012e869a95d24"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp.ts",
+      "before_sha256": "fa113ac01eb6f800d41220929ee0da7d9e7ef61904b517f44a37b8251da1b817",
+      "sha256": "16232327d70380ecf154ad6c334427b6a75b18a057885802637678cad3f493f1"
+    },
+    {
+      "path": "frontend/features/mcp/api/mcp.api.ts",
+      "before_sha256": "800f0ecdb1d6f995143eeee2f6fb36b2ef1cc40abdcf749fbc7208f511c500a3",
+      "sha256": "980076419a1643b976dc20333231270647b3a922202feddd2dae6bc1ed6f8182"
+    },
+    {
+      "path": "frontend/features/mcp/api/mcp-request.api.ts",
+      "before_sha256": "a7881b27520706949317a1528979664ccb9052e1e412876d38701a49a0d743b6",
+      "sha256": "b17f80a24888e59de80c68684354939d34aef3cc6e0fc3db6f4f3280dfce693a"
+    },
+    {
+      "path": "frontend/lib/api/endpoints.ts",
+      "before_sha256": "ba21978b83b0808062782562726df9d14eb3080f858f7b5078fd4e4febd51f34",
+      "sha256": "259dbe7b67f391ea7268abab003c4d91439bcf99dd13ca0b70a40508cd6a6385"
+    },
+    {
+      "path": "frontend/features/mcp/utils/consent.ts",
+      "before_sha256": "9cb31b5af1a6e499182ee36c64f42098b11fd05bd4210948cf83288878eb8837",
+      "sha256": "6c497ae4ccfc6126aed32c049ed110627da9f3e10c461791d85fb12b7922ab20"
+    },
+    {
+      "path": "frontend/features/mcp/utils/consent.test.ts",
+      "before_sha256": "eb688e22d3822523549efc6d7fe5219114479336b8d45a88b617304c68d26762",
+      "sha256": "19b642fac40d07abf42cdd6701f669b47958139e94c699b862fe25a208912c73"
+    }
+  ],
+  "retired": [
+    {
+      "path": "frontend/features/mcp/components/mcp-consent-page.tsx",
+      "sha256": "fb9a145e02d4bee24d0131753b9d379f4341defdda29d5b19f747c711225d8ee",
+      "physicalLines": 104,
+      "status": "retired_closed_chain",
+      "reason": "Declaration, computed access, facade escape and framework roots reviewed; meaningful native approval/callback/role/PKCE/scope controls verified and ported before retirement. Backend/native endpoints retained."
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-access-examples.tsx",
+      "sha256": "7cc24a102a91e085b7b7c160ad558a893e87c0031ce52933349691643227fd5b",
+      "physicalLines": 45,
+      "status": "retired_closed_chain",
+      "reason": "Declaration, computed access, facade escape and framework roots reviewed; meaningful native approval/callback/role/PKCE/scope controls verified and ported before retirement. Backend/native endpoints retained."
+    }
+  ],
+  "subsequent_checkpoint": "mcp-architecture-verification.json"
+}

@@ -1,0 +1,82 @@
+[
+  {
+    "title": "native before existing banner at 1440",
+    "status": "failed",
+    "geometry": {
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "existing": true,
+      "previewAspect": 4,
+      "actualImageBounds": {
+        "x": 289,
+        "y": 101,
+        "width": 1105,
+        "height": 301.171875
+      },
+      "actualImageAspect": 3.669001297016861
+    },
+    "error": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m0.005\u001b[39m\nReceived:    \u001b[31m0.33099870298313894\u001b[39m"
+  },
+  {
+    "title": "native before firstAdd banner at 1440",
+    "status": "failed",
+    "geometry": {
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "existing": false,
+      "previewAspect": 4,
+      "actualImageBounds": {
+        "x": 289,
+        "y": 101,
+        "width": 1105,
+        "height": 301.171875
+      },
+      "actualImageAspect": 3.669001297016861
+    },
+    "error": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m0.005\u001b[39m\nReceived:    \u001b[31m0.33099870298313894\u001b[39m"
+  },
+  {
+    "title": "native before existing banner at 390",
+    "status": "failed",
+    "geometry": {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "existing": true,
+      "previewAspect": 4,
+      "actualImageBounds": {
+        "x": 17,
+        "y": 93,
+        "width": 351,
+        "height": 600.375
+      },
+      "actualImageAspect": 0.584634603372892
+    },
+    "error": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m0.005\u001b[39m\nReceived:    \u001b[31m3.415365396627108\u001b[39m"
+  },
+  {
+    "title": "native before firstAdd banner at 390",
+    "status": "failed",
+    "geometry": {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "existing": false,
+      "previewAspect": 4,
+      "actualImageBounds": {
+        "x": 17,
+        "y": 93,
+        "width": 351,
+        "height": 600.375
+      },
+      "actualImageAspect": 0.584634603372892
+    },
+    "error": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m0.005\u001b[39m\nReceived:    \u001b[31m3.415365396627108\u001b[39m"
+  }
+]

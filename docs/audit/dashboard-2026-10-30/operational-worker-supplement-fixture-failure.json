@@ -1,0 +1,32 @@
+{
+  "command": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "tests/integration/test_my_photos_index_lifecycle.py",
+    "tests/integration/test_my_photos_operational_dispatch.py",
+    "--cov=app.infrastructure.my_photos.operational_index_jobs",
+    "--cov=app.infrastructure.my_photos.operational_index_publication",
+    "--cov=app.infrastructure.my_photos.operational_job_claims",
+    "--cov=app.infrastructure.my_photos.operational_job_contracts",
+    "--cov=app.infrastructure.my_photos.operational_job_lifecycle",
+    "--cov=app.infrastructure.my_photos.operational_job_policy",
+    "--cov=app.infrastructure.my_photos.operational_job_queries",
+    "--cov=app.infrastructure.my_photos.operational_media_jobs",
+    "--cov=app.infrastructure.my_photos.operational_runtime",
+    "--cov=app.infrastructure.my_photos.provider_tasks",
+    "--cov=app.infrastructure.my_photos.aws_face_search",
+    "--cov=app.infrastructure.my_photos.gallery_manifest_providers",
+    "--cov-branch",
+    "--cov-append",
+    "--cov-report=json:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\operational-worker-combined-coverage.json",
+    "--cov-report=xml:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\operational-worker-combined-coverage.xml"
+  ],
+  "exit_code": 1,
+  "same12_runtime_hashes_verified_before_and_after": true,
+  "earlier_fixture_media_scope_exact_prefix_preserved": true,
+  "append_basis": "Only unchanged runtime source SHA data retained from initial170 cases; new17 current affected cases supplement those same owners. No source-version coverage merge."
+}

@@ -1,0 +1,112 @@
+[
+  {
+    "path": "backend/tests/unit/presentation/test_staff_approval_route.py",
+    "kind": "start-stop-patcher-actual-owner",
+    "target": "app.presentation.api.v1.routes.passport_routes.submission_review.propagate_mobile_passenger_change"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_staff_approval_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.submission_review.AuthorizationPolicy"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_staff_approval_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.submission_review.AuditLogRepository"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_staff_approval_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.submission_review._ensure_submission_qr"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_staff_approval_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.submission_review._response_from_dto"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_staff_approval_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.submission_review.AuthorizationPolicy"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_staff_approval_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.submission_review.AuditLogRepository"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_staff_approval_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.submission_review._ensure_submission_qr"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_staff_approval_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.submission_review._response_from_dto"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_staff_approval_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.submission_review.AuthorizationPolicy"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_staff_approval_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.submission_review.AuthorizationPolicy"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_ai_retry_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.submission_review.AuthorizationPolicy"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_ai_retry_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.submission_review.PostSubmissionVerificationJobRepository"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_ai_retry_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.submission_review.AuditLogRepository"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_ai_retry_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.submission_review.PostSubmissionVerificationDispatcher"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_ai_retry_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.submission_review._response_from_dto"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_client_submit_cleanup_order.py",
+    "kind": "monkeypatch-fans-explicit-imports",
+    "name": "'dispatch_passport_ecr_checks'"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_client_submit_cleanup_order.py",
+    "kind": "monkeypatch-fans-explicit-imports",
+    "name": "'require_verified_submission_contact'"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_client_submit_cleanup_order.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.submission_review.process_storage_cleanup_job"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_client_submit_cleanup_order.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.submission_review.process_storage_cleanup_job"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_sensitive_read_audit.py",
+    "kind": "monkeypatch-fans-explicit-imports",
+    "name": "'_response_from_dto'"
+  },
+  {
+    "path": "backend/tests/unit/application/test_retained_data_authorization.py",
+    "kind": "monkeypatch-fans-explicit-imports",
+    "name": "'_response_from_dto'"
+  }
+]

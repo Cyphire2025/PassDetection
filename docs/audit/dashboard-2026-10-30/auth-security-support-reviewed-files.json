@@ -1,0 +1,319 @@
+{
+  "created_at_utc": "2026-10-30T20:02:57.712557+00:00",
+  "files": [
+    {
+      "path": "backend/app/core/security/__init__.py",
+      "sha256": "f7f0ae580a55bd07e427d55d2982e40d12a2cd590386d85e583db5d77f8fdb0b",
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Package-only file. Native mobile-only JWT/offline lease/push primitives excluded from this dashboard pass."
+    },
+    {
+      "path": "backend/app/core/security/jwt.py",
+      "sha256": "1a1e2ff5b2c962f744a9d5c8fe10631b2e7d33c848783453cceacbdc8c1ec17d",
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Full source read: fixed configured signature algorithm; access type, TTL and fixed-session-deadline issuance; opaque random refresh ID stored via keyed digest. Dashboard use additionally requires durable current family, user/session generation and active route dependency."
+    },
+    {
+      "path": "backend/app/core/security/identity_security.py",
+      "sha256": "934568c0909e067de6b064ec4b3bcdd3ea6f8b61e9c4bf91026f55dc8fefe84d",
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Full source read: purpose-separated action/recovery HMACs, bounded active/previous key selection, authenticated versioned MFA encryption, CSPRNG TOTP/recovery secrets, ASCII bounded code and replay-counter return. Source mutation/attempt durability remains identity route/repo ownership, independently handled by ai_extraction."
+    },
+    {
+      "path": "backend/app/core/security/password.py",
+      "sha256": "824e24005074924475fbaff4d1b3d5a93204b89a429e678fa6cc153507bf8eca",
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Full source read: bounded4worker admission, outside-loop bcrypt, cancellation drains native worker before releasing slot, new password byte bound rejects truncation while existing hashes retain explicit historical72byte verification equivalence. No credential logging."
+    },
+    {
+      "path": "backend/app/core/security/access_level.py",
+      "sha256": "8bc28ec926d176facf3385817f5aaad316d66a65852932359feea516ef185669",
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Full source read: signed reduced-role mode, real active superadmin condition, subject/session version/credential-generation/deadline binding; invalid role/agency/type rejected. Existing server-side tenant authorization still owns resources."
+    },
+    {
+      "path": "backend/app/core/security/passport_ai_edit_token.py",
+      "sha256": "c900b3f936700c91566c2dcd57ba8eefdc3769f1d0d540efd06b083cda28cc6d",
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Full source read: bounded token, signature before parsed authority, actor/submission/type/revision/source/prompt/pixel/model/expiry binding; route preview/apply trace partial only. Raw source key/prompt are hashed. No evidenced exploitable leak in primitive."
+    },
+    {
+      "path": "backend/app/core/security/upload_session.py",
+      "sha256": "37199b6b3df90894959d11c46af966aad8f65a4fe757e0374b34717ad6967993",
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Full source read: bounded ASCII session/credential patterns, durable secret equality via constant-time comparison; entropy must be provided by caller minting, not pattern itself."
+    },
+    {
+      "path": "backend/app/presentation/dependencies/auth.py",
+      "sha256": "5e1641d51673dcbcd1c2cbc8d6ceac397147de52ec4e100bae285ba115d5fefb",
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Full current source read: cookie mutation CSRF, signature plus durable session before actor lookup, current credential/session generation, CLIENT_MANAGER exclusion, optional actor-only rejection, signed access reduction, active/role/recent-MFA gates. Same user server-side expected agency is not claimed."
+    },
+    {
+      "path": "backend/app/presentation/dependencies/csrf.py",
+      "sha256": "dfc552ab80bd41ab4128ef5971bf6c0f99243ec824fd55cd7059b1056a86625a",
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Full source read: configured exact normalized origins, origin/referer enforcement for ambient auth cookies, trusted pre-auth browser signals, headerless API compatibility. CORS/reverse proxy are separate deployment boundaries."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/dashboard_session_repository.py",
+      "sha256": "8b9d43bcad2e486316fa83c7aef0f634e12407a09ec1d911229ab6a0863e8914",
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Full source read: sid/sub UUID plus matching family owner/generation, nonrevoked and future expiry. No mutation or log; normal auth/realtime use it before read."
+    },
+    {
+      "path": "backend/app/presentation/security/access_level.py",
+      "sha256": "e75baffb6b181823d547a02ff69da4a6835dd1d04bdfb373ce792c3ae7523171",
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Full source read: backend-signed selected context expiry bounded to validated session deadline; secure+HttpOnly+SameSite transport and exact cookie delete path preserved."
+    },
+    {
+      "path": "backend/app/application/security/access_level_actor.py",
+      "sha256": "3a8eec715f67356a378986999a012723bdd21f5510518ee7320ce7d0809013a6",
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Full source read: reloaded active real account must retain identity/role/agency/credential/session generation before reapplying reduced effective role; no grants to new principal."
+    },
+    {
+      "path": "backend/app/presentation/security/auth_cookies.py",
+      "sha256": "3d6fed44c2d311709523e9d18e4e2240fcaa5e0ab6bb4b726c95a96d21ef35e9",
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Full source read: access/refresh explicit TTL, HttpOnly+secure in production, refresh auth-only path, exact path/attribute deletion includes selected mode, OAuth bindings and attendance capability."
+    },
+    {
+      "path": "backend/app/presentation/security/auth_user_response.py",
+      "sha256": "7554f7ba97edc0f7ced90f0c47b86f52e0caecce39d834ae2f13d6e9cb55811c",
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Full source read: explicit UserResponse schema serialization drops hashed-password/internal fields; capabilities and switch availability derived from active effective/base role."
+    },
+    {
+      "path": "backend/app/presentation/security/email_oauth_binding.py",
+      "sha256": "772bc3d17ee25273a95c36634b156045a0ae3202c27566708a424fb8df1be665",
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Full source read: random browser nonce bound to real user/session generation, constant-time digest equality, current credential state; post-provider persistence locks live actor and rechecks agency/role/suspension. Provider text/credentials not logged."
+    },
+    {
+      "path": "backend/app/presentation/security/client_ip.py",
+      "sha256": "a34fe467e3bee2845e6f8b4194309f9c4047b678c8b159cafe6edb3109662a9c",
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Full source read: canonical direct IP, forwarded X-Real-IP only if direct peer in explicit configured CIDR, no arbitrary forwarded chain identity; bounded CIDR cache."
+    },
+    {
+      "path": "backend/app/presentation/security/attendance_runtime.py",
+      "sha256": "28e02f6c7d17467a9dfdeda9a019ae75dd1fdc3fd5b6d01c9065dfecba9ca17f",
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Full source read: strict version/kind/43char secret parse, delegates lookup with explicit current agency/coordinator/kind and required lock, generic428 on absent/invalid capability. Repository transitive review not newly counted."
+    },
+    {
+      "path": "backend/app/application/dashboard_realtime_authorization.py",
+      "sha256": "71533cd163b346d3f48b4c28a7b3126ecb9003f9e45b872bfefbc0fdcbb8a195",
+      "review_scope": "full",
+      "status": "needs_followup",
+      "reviewer": "manual_security",
+      "notes": "Full source read: signed claim type parsing and durable family, live account/credential/generation, current role+tenant match, effective reduced role, exact assigned/owned trip set and bounded maximum. Agency-suspension invalidation not explicitly checked in this file; leave as scope-policy follow-up rather than certify."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/dashboard_realtime.py",
+      "sha256": "28cc9940fda8101a50a45967c56467f7e97928843e49d17c020a8093ea65a5c9",
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Full source read: ambient cookie only, no query/header credentials; strict configured same-host origin, cookie bounds, current authorization periodic refresh, bounded hub admission, generic safe exception types. Payload fanout/supporting hub implementation not newly counted."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/agency_repository.py",
+      "sha256": "fa927acb3c55b92c7c91d6f02ee77dcab6501a950a1d90ebb6ebe3ce1c35aedb",
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Full source read as supporting caller trace: parameterized reads/updates, normalized email, ID-only creation log. No active agency suspension writer was found in dashboard call search; suspension semantics remain follow-up for realtime."
+    },
+    {
+      "path": "backend/tests/unit/core/test_password_work_budget.py",
+      "sha256": "5ed63b08d2db97bc5f0cb6e3585f66cc424993743848b594152e550fdada3ca3",
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Full physical read existing focused tests; exact bytes and historical retained hash, no-loop blocking/admission and native-cancellation drain behavior."
+    },
+    {
+      "path": "backend/tests/unit/core/test_identity_security.py",
+      "sha256": "824ddaa1c798f25165cb6be975eef4a4da757fb0dda6ee008f388c8ba8f8dddb",
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Full physical read existing focus: drift/replay, encrypted/domain-separated credentials, keyring migration/rollback/corruption/ambiguity/bounds, development-only exposure."
+    },
+    {
+      "path": "backend/tests/unit/core/test_passport_ai_edit_token.py",
+      "sha256": "451956ac2c5436c36ebb71208ff7fc249f6ef718e7225ae377001974d087866c",
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Full physical read existing focus: actor/revision/prompt/source/pixels/model binding and expiry; no caller/backend integration certification."
+    },
+    {
+      "path": "backend/tests/unit/application/test_dashboard_realtime_authorization.py",
+      "sha256": "9b391bb0b017ac0922af42f99eb11f22eecccbc59dc362cef5778392a6c0278b",
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Full physical read existing cases: tenant/ownership/assignment/session epoch, reduced superadmin effective grants/base identity, no unscoped superadmin subscription."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_edits.py",
+      "sha256": "ab2ccb9edbd3028f14223b15159538a77ae2ff4db244228d350f0817eb036cff",
+      "review_scope": "full",
+      "status": "needs_followup",
+      "reviewer": "manual_security",
+      "notes": "Full source read now completed. Bounded apply input; signed actor/submission/revision/source/prompt/pixel proof; canonicalization, generated scoped keys, source+revision-locked persistence, safe audit metadata and rollback cleanup. Authorization is initial snapshot; current actor/group revalidation after provider/image/storage awaits needs a real concurrency workflow probe before any claim or patch."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/image_support.py",
+      "sha256": "95885e4a2c966a6efba14c872703024eaaa135b9ba4821e80c14eb0867fcd0a5",
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Full source reread completed: object-level tenant/visibility/editor policy plus retained-snapshot key check before storage use, private API response URLs, retention/library-aware cleanup, thumbnail budget and effective crop source resolution. Policy is visibility snapshot; no final actor lock claimed."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_image_crop_repository.py",
+      "sha256": "ab9eb177615d85eb42e9b15f00a94a3cd7a9e10dc9dda15d6db918ebb2e7f9b7",
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Full source read: per-submission/type lock and optimistic revision guard, explicit source keys/metadata, monotone revisions, reset idempotence, deduplicated active/library source enumeration. Resource authority belongs caller."
+    },
+    {
+      "path": "backend/app/application/security/authorization_policy.py",
+      "sha256": "6a1ee49097b124715ce52fb5810387c6be5a3a5e18f4896676340c6e6dabe663",
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Full physical reread of all methods: tenant/lifecycle plus ownership/assignments/correlated passport scope, coordinator expiry, explicit delete/export/confirm capabilities. No row locks/current-user refresh provided by this policy; mutation callers own final authority locking."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/sensitive_read_audit.py",
+      "sha256": "706ee94b136574f8099232390ea21203ae187879b78e44ee7c25bb8bef140b39",
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Full source reread: authorized read evidence contains IDs/kind/count only, no search/document attributes; participates in caller transaction; no claim bytes delivered."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library.py",
+      "sha256": "dbd2c873b802e10d653ac41b90d955d125b3e68aa7d8085adc7d0ce59e03a91b",
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Full source read: each library read/use independently authorizes submission; generation lookup scoped to submission, private streaming; generated key server-derived, source/revision locked, rollback cleanup. Delayed requester revocation policy remains unestablished, not called a vulnerability."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_jobs.py",
+      "sha256": "e13c49e4f57a16fbcd1c4eb5d7eeb5fcccac88d88cb78c60294143e56f19f1d4",
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Full source read: editor/submission authorization on enqueue and every resumed/polled lookup, normalized prompt/config preconditions, durable job/source/crop metadata; dispatch response exposes typed private API DTO rather than object key."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_support.py",
+      "sha256": "a874b39f44bf812b9cdc1727da052984b0490ce48e988b5047c42a2ff358891c",
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Full source read: fixed safe domain-error mappings, submission-scoped result lookup, commit durable queue row before publication, retry queued publication and recover stale running row; no implicit provider send."
+    },
+    {
+      "path": "backend/app/infrastructure/visa_ai_image_jobs/runtime.py",
+      "sha256": "cdad55895fb8a92ad83fd1a8f6bbfee6a88574e72250de2d124a848d00b97d3d",
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Full source read: claim attempt fenced pre/post provider and at durable publication, source identity checked, fresh short sessions, private generated keys, encrypted cleanup tombstone before upload and atomic tombstone cancellation with publication; no raw image/prompt/provider text logs. Accepted job completion owns source/claim, no immediate requester revocation guarantee inferred."
+    },
+    {
+      "path": "backend/app/domain/value_objects/passport_visa_ai_image_job.py",
+      "sha256": "7281a9768cbc62a8dbdd236a6777c846571c4a62b0ceb048151c276bbc216b6f",
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Full source read typed immutable durable job metadata; API response owner omits internal source/input keys and requester bookkeeping."
+    },
+    {
+      "path": "backend/app/infrastructure/ai/gemini_visa_image_edit_service.py",
+      "sha256": "8158a196cb6b9bb733edce4a9bc3bed646dcb7a9b031964b4f306cafd991158c",
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Full source read: bounded configured model identifiers, fixed configured endpoint+header credential, bounded HTTP helper, safe fixed public errors, no echoed provider body in persisted job errors/logs, operation/attempt deadlines, global semaphore, canonical pixel admission and target dimensions. Identity-preservation prompt is product guidance, not biometric attestation. Resize/save exception lifetime remains resource follow-up, no exploit asserted."
+    },
+    {
+      "path": "backend/app/infrastructure/ai/bounded_vision_http.py",
+      "sha256": "8a66e9bc0f728cee96334bbfcdacbe2f681c373268e730d0e6eff1424ae447a3",
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Full source read: no redirects, identity encoding, response Content-Length and streamedbytes caps before JSON, body discarded for non2xx including redirects; provider failure body cannot echo private input into service error."
+    },
+    {
+      "path": "backend/app/core/native_image_admission.py",
+      "sha256": "8ec758c93c7424730e115d99dcbbdc5f3a0835534465f5380c0c2bbccd633e09",
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Full source read: process/thread-reentrant kernel admission held by actual synchronous worker, bounded ticket/wait, safe directory/file ownership/mode/no-follow checks, fork descriptor cleanup, heap release before lock release. Linux allocator semantics not qualified by current Windows run."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_visa_ai_image_job_repository.py",
+      "sha256": "81084044e3a0398c71df647ceeba67fae0faa068f3081a33ee05f5cc9c67ce75",
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "manual_security",
+      "notes": "Full source read: submission-scoped lookup, bounded attempts, locked populate-existing claim/recovery/version checks; savepoint duplicate enqueue recovery; terminal/queued states retained. Authority remains route admission policy."
+    }
+  ],
+  "partial_supporting_traces": [
+    {
+      "path": "backend/app/core/config/settings.py",
+      "review_scope": "partial",
+      "sha256": "b8b8d867d9ded6cac14c5c3dfd67311031038305bb9a46add70059299dc036be",
+      "ranges": "446-495;601-675",
+      "notes": "Identity key fields and validate_identity_security_configuration: active-key duplicate and bounded previous ring rejected, raw recovery exposure development-only. Whole large settings file not counted."
+    }
+  ],
+  "source_changes": []
+}

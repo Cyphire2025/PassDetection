@@ -1,0 +1,17 @@
+{
+  "activity_count": 16,
+  "participant_rows": 32,
+  "checkpoint_rows": 32,
+  "before_activity_key_reads": 1056,
+  "after_activity_key_reads": 64,
+  "query_count_before_after": [
+    4,
+    4
+  ],
+  "same_output_assertions": "All16 activities retain exact expected runtime+legacy coordinator order, active/ready/missing/unresolved counts and oldest-age values through actual repository/loader/classifier path.",
+  "work_scope": "Only activity-key projection visits measured, not wall time or live DB load. Repeated per-activity scans of unrelated participant/checkpoint rows become one index pass. Per-activity assignment/output work and sorting remain required.",
+  "complexity": "Evidence scan O(S*(P+C)) becomes O(P+C) index creation and visits to only each activity's evidence; unavoidable activity-by-assignment/output and classifier sorting work remains. Additional index memory O(P+C) stores references, not duplicated private payloads.",
+  "admission_unchanged": "Existing require_work(activity_count, assignment_rows+checkpoints+participants) policy retained exactly before classification; no limit relaxation.",
+  "test_sha256": "12ab9cd7847a6293b557c3281066798608f5a0a9d8358c05a2201bcd8374096f",
+  "limits": "Synthetic fixed SQL results with PostgreSQL-compiled query comparison; no live PostgreSQL concurrency or throughput certification."
+}

@@ -13,10 +13,11 @@ MANIFEST_PATH = ROOT / "backend/app/core/config/release_manifest.json"
 
 def load_release_manifest(path: Path = MANIFEST_PATH) -> dict[str, Any]:
     manifest = json.loads(path.read_text(encoding="utf-8"))
-    if manifest.get("version") != 1:
+    if not isinstance(manifest, dict) or manifest.get("version") != 1:
         raise ValueError("Unsupported release manifest")
     for key in ("schema_revision", "previous_schema_revision"):
-        if not re.fullmatch(r"[0-9]{4}_[A-Za-z0-9_]{1,27}", manifest.get(key, "")):
+        value = manifest.get(key, "")
+        if not isinstance(value, str) or not re.fullmatch(r"[0-9]{4}_[A-Za-z0-9_]{1,27}", value):
             raise ValueError(f"Invalid release manifest {key}")
     nodes = manifest.get("worker_nodes")
     if not isinstance(nodes, dict) or not nodes:
@@ -71,4 +72,11 @@ if __name__ == "__main__":
         verify_rendered_release(
             json.loads(args.rendered_config.read_text(encoding="utf-8")), load_release_manifest()
         )
-    print("Release contract verified" + (" against actual rendered configuration" if args.rendered_config else " (source defaults only)"))
+    print(
+        "Release contract verified"
+        + (
+            " against actual rendered configuration"
+            if args.rendered_config
+            else " (source defaults only)"
+        )
+    )

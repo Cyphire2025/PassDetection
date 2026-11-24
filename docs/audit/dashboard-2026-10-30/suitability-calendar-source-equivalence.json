@@ -1,0 +1,12 @@
+{
+  "whole_module_ast_inverse_exact": true,
+  "explicit_deltas": [
+    "calendar_month_parts pure comparable tuple; public add_calendar_months reconstructs date with existing range errors",
+    "expiry_parts cached once after existing missing-date guard",
+    "same inclusive operational comparison against today or six-month tuple",
+    "same strict destination-expiry comparison",
+    "same inclusive maximum-issue-age comparison"
+  ],
+  "current_runtime_sha256": "eaec54fb85922579d26e450aa8a170fe4cea1e0a2c3e27adbe8c45a31ed0a35c",
+  "all_other_rules_reason_codes_validation_return_order_and_class_declarations_exact": true
+}

@@ -1,0 +1,115 @@
+
+> frontend@0.1.0 prebuild
+> node scripts/patch-mediapipe-csp.mjs --check
+
+MediaPipe CSP bindings verified; detection graph, model, and WASM are unchanged.
+
+> frontend@0.1.0 build
+> next build
+
+▲ Next.js 16.4.3 (Turbopack)
+- Environments: .env.local
+✓ Running next.config.ts took 23ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 2.2s
+  Running TypeScript ...
+  Finished TypeScript in 4.4s ...
+  Collecting page data using 31 workers ...
+  Generating static pages using 31 workers (0/56) ...
+  Generating static pages using 31 workers (14/56) 
+  Generating static pages using 31 workers (28/56) 
+  Generating static pages using 31 workers (42/56) 
+✓ Generating static pages using 31 workers (56/56) in 270ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ƒ /
+├ ƒ /_not-found
+├ ƒ /activate
+├ ƒ /admin
+├ ƒ /admin/mcp
+├ ƒ /admin/mcp/connect
+├ ƒ /admin/mcp/requests
+├ ƒ /admin/mcp/settings
+├ ƒ /admin/mcp/setup
+├ ƒ /ai
+├ ƒ /analytics
+├ ƒ /audit-logs
+├ ƒ /companies
+├ ƒ /companies/[companyId]
+├ ƒ /companies/[companyId]/people/[personId]
+├ ƒ /coordinator
+├ ƒ /coordinator/groups/[groupId]
+├ ƒ /coordinator/groups/[groupId]/hotel-checkin
+├ ƒ /coordinator/groups/[groupId]/passengers/[passengerId]
+├ ƒ /coordinator/groups/[groupId]/scanner
+├ ƒ /dashboard
+├ ƒ /documents
+├ ƒ /documents/[groupId]
+├ ƒ /documents/distribution
+├ ƒ /documents/distribution/[groupId]
+├ ƒ /documents/distribution/flight-tickets
+├ ƒ /documents/distribution/flight-tickets/[groupId]
+├ ƒ /documents/distribution/flight-tickets/[groupId]/[scope]/[leg]
+├ ƒ /documents/distribution/visa
+├ ƒ /documents/distribution/visa/[groupId]
+├ ƒ /documents/ecr-checker
+├ ƒ /documents/rename
+├ ƒ /documents/tracker
+├ ƒ /documents/tracker/[groupId]
+├ ƒ /email-automation
+├ ƒ /email-integrations
+├ ƒ /email-integrations/activity
+├ ƒ /email-integrations/activity/[messageId]
+├ ƒ /email-integrations/inbox
+├ ƒ /email-integrations/review
+├ ƒ /forgot-password
+├ ƒ /gc-app
+├ ƒ /gc-app/app-controls
+├ ƒ /gc-app/app-controls/[groupId]
+├ ƒ /gc-app/client-manager-accounts
+├ ƒ /gc-app/notifications
+├ ƒ /gc-app/notifications/history
+├ ƒ /gc/activate
+├ ƒ /login
+├ ○ /manifest.webmanifest
+├ ƒ /mcp/connect
+├ ƒ /mcp/file-transfer/[id]
+├ ƒ /menu
+├ ƒ /old-data
+├ ƒ /passports
+├ ƒ /passports/[id]
+├ ƒ /passports/groups/[groupId]
+├ ƒ /passports/groups/[groupId]/whatsapp
+├ ƒ /privacy-policy
+├ ƒ /recover
+├ ƒ /rooming
+├ ƒ /rooming/[groupId]
+├ ƒ /session-restore
+├ ƒ /settings
+├ ƒ /staff
+├ ƒ /terms
+├ ƒ /tour-operations
+├ ƒ /tour-operations/coordinators
+├ ƒ /tour-operations/group-assignments
+├ ƒ /tour-operations/groups/[groupId]
+├ ƒ /tour-operations/groups/[groupId]/attendance
+├ ƒ /tour-operations/groups/[groupId]/qr-codes
+├ ƒ /tour-operations/scanner-proof
+├ ƒ /tour-scanner
+├ ƒ /upload-links
+├ ƒ /upload/[token]
+├ ƒ /whatsapp
+├ ƒ /whatsapp/[broadcastId]
+├ ƒ /whatsapp/[broadcastId]/details
+├ ƒ /whatsapp/[broadcastId]/documents
+├ ƒ /whatsapp/[broadcastId]/history
+└ ƒ /whatsapp/[broadcastId]/recipients
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

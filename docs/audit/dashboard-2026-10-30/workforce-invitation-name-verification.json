@@ -1,0 +1,20 @@
+{
+  "status": "passed focused input-normalization correction",
+  "source_sha256": "9d7c26f70829c07b0b7d1df72b4fe60c2d5d6a9929c8c1bfd6cfaea45cba929e",
+  "actual_regressions_before": 6,
+  "controls_before": 10,
+  "focused_after_cases": 32,
+  "schemas_exact": [
+    "CreateManagerRequest",
+    "CreateStaffRequest"
+  ],
+  "whole_module_AST_exact_after_removing_declared_helper_and_two_validators": true,
+  "raw_minimum_and_maximum_constraints_preserved": true,
+  "scope": "After original raw2..255string field validation, trim surrounding whitespace and enforce the same minimum on stored/displayed name. Unicode and raw maximum255remain protected. Both constructors reuse one validator; no route/auth/session/DTOshape/package/config changes.",
+  "evidence": [
+    "workforce-invitation-names-before.txt",
+    "workforce-invitation-names-after.txt",
+    "workforce-invitation-schema-before.json"
+  ],
+  "runtime_type_hints_evaluated": true
+}

@@ -1,0 +1,66 @@
+{
+  "baseline": true,
+  "fixture": {
+    "url": "https://storage.googleapis.com/mediapipe-assets/portrait.jpg",
+    "sha256": "a6f11efaa834706db23f275b6115058fa87fc7f14362681e6abe14e82749de3e"
+  },
+  "csp": "default-src 'self'; script-src 'self' 'nonce-isDtH1IIVo1xJtEXO/qKiT8PiLGPwYLl' 'strict-dynamic' 'wasm-unsafe-eval'; script-src-attr 'none'; style-src 'self' 'nonce-isDtH1IIVo1xJtEXO/qKiT8PiLGPwYLl'; style-src-attr 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; font-src 'self'; connect-src 'self'; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; frame-src 'self'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'",
+  "results": [
+    {
+      "kind": "raw-detector",
+      "mode": "simd",
+      "error": "EvalError: Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: script-src 'self' 'nonce-isDtH1IIVo1xJtEXO/qKiT8PiLGPwYLl' 'strict-dynamic' 'wasm-unsafe-eval'\".\n",
+      "elapsedMs": 33.40000000037253,
+      "violations": [
+        {
+          "directive": "script-src",
+          "blocked": "eval"
+        }
+      ],
+      "errors": [],
+      "assets": [
+        {
+          "requested": "/mediapipe/face_detection/face_detection_short.binarypb",
+          "served": "face_detection_short.binarypb"
+        },
+        {
+          "requested": "/mediapipe/face_detection/face_detection_short_range.tflite",
+          "served": "face_detection_short_range.tflite"
+        },
+        {
+          "requested": "/mediapipe/face_detection/face_detection_solution_simd_wasm_bin.js",
+          "served": "face_detection_solution_simd_wasm_bin.js"
+        }
+      ]
+    },
+    {
+      "kind": "raw-detector",
+      "mode": "scalar",
+      "error": "EvalError: Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: script-src 'self' 'nonce-isDtH1IIVo1xJtEXO/qKiT8PiLGPwYLl' 'strict-dynamic' 'wasm-unsafe-eval'\".\n",
+      "elapsedMs": 25.40000000037253,
+      "violations": [
+        {
+          "directive": "script-src",
+          "blocked": "eval"
+        }
+      ],
+      "errors": [],
+      "assets": [
+        {
+          "requested": "/mediapipe/face_detection/face_detection_short.binarypb",
+          "served": "face_detection_short.binarypb"
+        },
+        {
+          "requested": "/mediapipe/face_detection/face_detection_short_range.tflite",
+          "served": "face_detection_short_range.tflite"
+        },
+        {
+          "requested": "/mediapipe/face_detection/face_detection_solution_simd_wasm_bin.js",
+          "served": "face_detection_solution_wasm_bin.js"
+        }
+      ]
+    }
+  ],
+  "browser": "151.0.7922.34",
+  "passed": true
+}

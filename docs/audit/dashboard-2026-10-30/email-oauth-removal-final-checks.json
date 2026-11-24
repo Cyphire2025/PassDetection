@@ -1,0 +1,92 @@
+{
+  "source_fence_paths_unchanged": 40,
+  "frozen_connection_and_deadline_runtime_sources_unchanged": 11,
+  "actual8owners_only_qualified": [
+    "backend/app/presentation/api/v1/routes/email_integration_gmail.py",
+    "backend/app/presentation/api/v1/routes/email_integration_outlook.py",
+    "backend/app/presentation/api/v1/routes/email_oauth_actor.py",
+    "backend/app/presentation/api/v1/routes/email_oauth_grant.py",
+    "backend/app/infrastructure/email/account_removal.py",
+    "backend/app/infrastructure/email/account_removal_plan.py",
+    "backend/app/infrastructure/email/account_removal_records.py",
+    "backend/app/infrastructure/email/account_removal_storage.py"
+  ],
+  "one_fresh_run_no_merge_append": true,
+  "commands": [
+    {
+      "label": "lint",
+      "command": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "ruff",
+        "check",
+        "--no-fix",
+        "app/presentation/api/v1/routes/email_integration_gmail.py",
+        "app/presentation/api/v1/routes/email_integration_outlook.py",
+        "app/presentation/api/v1/routes/email_oauth_actor.py",
+        "app/presentation/api/v1/routes/email_oauth_grant.py",
+        "app/infrastructure/email/account_removal.py",
+        "app/infrastructure/email/account_removal_plan.py",
+        "app/infrastructure/email/account_removal_records.py",
+        "app/infrastructure/email/account_removal_storage.py",
+        "tests/unit/presentation/test_email_oauth_callback_edges.py",
+        "tests/unit/presentation/test_email_oauth_actor_policy.py",
+        "tests/unit/infrastructure/test_email_account_removal_paths.py"
+      ],
+      "exit_code": 0,
+      "log": "docs/audit/dashboard-2026-10-30/email-oauth-removal-final-lint.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "label": "types",
+      "command": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "mypy",
+        "app/presentation/api/v1/routes/email_integration_gmail.py",
+        "app/presentation/api/v1/routes/email_integration_outlook.py",
+        "app/presentation/api/v1/routes/email_oauth_actor.py",
+        "app/presentation/api/v1/routes/email_oauth_grant.py",
+        "app/infrastructure/email/account_removal.py",
+        "app/infrastructure/email/account_removal_plan.py",
+        "app/infrastructure/email/account_removal_records.py",
+        "app/infrastructure/email/account_removal_storage.py"
+      ],
+      "exit_code": 0,
+      "log": "docs/audit/dashboard-2026-10-30/email-oauth-removal-final-types.log",
+      "sha256": "157a09cfcdfdfb5977479c5a1c08345149263a3e990a2ec976ef28aaeec9cae6"
+    },
+    {
+      "label": "tests",
+      "command": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/unit/presentation/test_email_oauth_callback_edges.py",
+        "tests/unit/presentation/test_email_oauth_actor_policy.py",
+        "tests/unit/infrastructure/test_email_account_removal_paths.py",
+        "tests/unit/presentation/test_email_oauth_persistence.py",
+        "tests/unit/presentation/test_email_oauth_generation_race.py",
+        "tests/unit/presentation/test_email_connection_lifecycle.py",
+        "tests/unit/presentation/test_email_integration_route_decomposition.py",
+        "tests/unit/presentation/test_email_integration_contract.py",
+        "tests/unit/presentation/test_email_connection_revocation_races.py",
+        "tests/unit/presentation/test_email_connection_removal_outcomes.py",
+        "tests/unit/infrastructure/test_email_account_removal.py",
+        "tests/unit/infrastructure/test_email_oauth_security.py",
+        "--cov=app/presentation/api/v1/routes",
+        "--cov=app/infrastructure/email",
+        "--cov-branch",
+        "--cov-report=",
+        "--cov-report=json:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\email-oauth-removal-final-coverage.json",
+        "--cov-report=xml:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\email-oauth-removal-final-coverage.xml"
+      ],
+      "exit_code": 0,
+      "log": "docs/audit/dashboard-2026-10-30/email-oauth-removal-final-tests.log",
+      "sha256": "09640d1ebe77dce0230c2afaa37c7e57cdd630e4b10cec6273c701ec43338c5d"
+    }
+  ]
+}

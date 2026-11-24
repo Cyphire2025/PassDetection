@@ -1,0 +1,22 @@
+{
+  "architecture": {
+    "status": "implemented and focused-verified",
+    "original": "780line mixed catalog/display/value/pending/table/serialization owner; export_group MCC49.",
+    "result": "Six cohesive owners; one typed row base and a four-field frozen column plan with two actual policy methods. Final exporter231lines/MCC18, familymax275lines/MCC27. No mixin chain, callbacks/proxy framework or line compression.",
+    "equivalence": "26whole moved declaration ASTs, HEADERS AST,10plan/7finalizer expanded statements exact; original collection identities, hook invocation and argument order retained."
+  },
+  "security_correctness": {
+    "new_validated_defects": [],
+    "preserved": "Formula/date/phone provenance, ECR trusted verdicts, group/identity metadata, canonical labels/order/grouping/pending styles, workbook bounds/temporary XML cleanup and caller authorization/offload/render-drain semantics unchanged. Existing formula cases reused; no new adversarial campaign or provider call."
+  },
+  "introspection": {
+    "accepted_limit": "Legacy dataclass __module__/qualname/pickle/evaluated annotations retained by direct facade alias. inspect.getsource(_ExportColumn) cannot find its class declaration in the facade; actual declaration source is passport_excel_columns.py. No inspect monkeypatch.",
+    "preserved": "Public class/dataclass aliases, function and10method module/qualnames, descriptor kinds, signatures/evaluated hints and pickling;3actual workbook readback/style/table cases plus3capacity errors equal original runtime snapshot. Four new plan/Protocol annotations resolve and actual public exporter builds the plan."
+  },
+  "remaining": [
+    "Existing prepare_group_excel.py fixed21Callable[...,Any] support bundle remains a separate typing/architecture assessment, with complete source read retained. No new runtime/security flaw inferred.",
+    "Three preserved legacy statement lines remain uncovered (empty detail fallback, NOT_ENABLED ECR sentinel, datetime fallback); all6normal95line floors exceeded, not100%claim.",
+    "No end-to-end real PostgreSQL/provider/browser/VPS or latency/throughput improvement claimed. Existing worksheet extent work-counter controls preserved; this is measured maintainability and ownership improvement.",
+    "Parent/AI owns exact normal6budget/protected-source admissions and final combined repository verification; no shared gate/release/strict Git baseline changes by this lane."
+  ]
+}

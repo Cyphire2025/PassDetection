@@ -1,0 +1,122 @@
+{
+  "status": "Bounded retained traveller document source cohort complete; broader audit active",
+  "files": [
+    {
+      "path": "backend/tests/integration/test_current_document_consumers.py",
+      "sha256": "04e5213f1811f24edcffa979236bf3443e85c7b4fc00bd96eb8c294971a940f3",
+      "physical_lines": 235,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical source read. Six placeholder/new-real states align profile, Excel and passport-choice current evidence; trip reference stays frozen. Scope mutations block projection. Impact ignores metadata-only shadow, retains real pending replacement; original image pages preserve sides and hide unavailable/rejected locators. HTTP no-match/no-document responses stay private and avoid eager storage construction. SQLite/synthetic fixture source only; no test run."
+    },
+    {
+      "path": "backend/tests/integration/test_traveller_document_impact.py",
+      "sha256": "cb38d52e29503799ed157dd3901900b603f87532b199a8a7d9a61a86e614e7a0",
+      "physical_lines": 177,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical source read, including explicit reread60-80 after first tool elided70-77. 205 participations paginate at31 with frozen answers/document references, rollback retains idempotence, durable impact lease exhausts afterfive failures. Resolution compares task and participation revision and admin scope. Commit-sequence change pages include late old-timestamp event and bind actor/checkpoint, emitting references without passport/object scalars. No PostgreSQL lease/service proof claimed."
+    },
+    {
+      "path": "backend/tests/unit/application/test_manual_passport_staff_review.py",
+      "sha256": "b122ba5713acad9ae0c4cfce8c2586f7f87bb4f33c3913cfac55bb827132732e",
+      "physical_lines": 242,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical source read. Server current provider-failure evidence permits submitted/pending independent AI verification, never operational approval; rejected/unknown/stale/processing/cancelled evidence cannot bypass admission. Replay preserves revisions and avoids image promotion duplication; legacy requires matching dead-letter job. Late extraction rejected, staff approval revision-fenced/idempotent, request cannot assert eligibility, direct callers retain phone validation. Mock provider/storage only; no invocation."
+    },
+    {
+      "path": "backend/tests/unit/application/test_traveller_document_selection.py",
+      "sha256": "2bd0edb448ae8407698434a493574e246c79f111f39db2d3342ee17e07d01ac1",
+      "physical_lines": 230,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical source read. Real available front/back fixture plus historical metadata-only revision controls; SQL alias and source-proof selection agree. Newer real pending/unreadable/missing/expired/corrected evidence cannot fall back. Bounded window and tenant/company/person scope fail closed; populate-existing catches stale source generation; newly selected default passport cannot fall back. Existing historical fixtures are controls, not new payload construction."
+    },
+    {
+      "path": "backend/tests/unit/application/test_traveller_legacy_approval.py",
+      "sha256": "3baf5e4a64ecc91155b749656894e47885aea562fc55a8d34d9de693c9e935a4",
+      "physical_lines": 249,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical source read. Current complete nine-field AI proof accepts missing issuer as UNK without nationality inference; established sex equivalents compared without rewriting source. Missing/conflicting/duplicate/unknown observations, stale approval time/revision and changed inputs cannot become reliable identity. Explicit absent surname supported; retained-copy digest rejects later source mutation including semantically equal changed source bytes. No OCR/provider work executed."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_traveller_document_workflow.py",
+      "sha256": "6d23403bd34237f8106cdc37bca834b69a8c7348eb5fc1f151358a176a9f7e41",
+      "physical_lines": 199,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical source read. Actual HTTP fixture distinguishes qualifier family phone from entered passenger destination. Parent documents independent of welcome delivery; shared entered phone deduplicates, missing phone blocked, stale review409 queues none. Original text/header substitutions preserved, linked source selection stable, all unconfirmed welcome states allow direct document send. Provider task publication mocked; source review does not establish real sends."
+    },
+    {
+      "path": "backend/app/application/travellers/document_selection.py",
+      "sha256": "11921b74328306fc73f0a48eaf2b457b5f03dd6aa0d8d9c6f097eb8f1a62efe9",
+      "physical_lines": 96,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-96. Scoped correlated current-document SQL caps16 accepted revisions; metadata-only exclusion narrowly targets frozen staff-accepted import placeholders, real latest remains authoritative. Frozen proof rechecks selected/skipped source scope/revision/digest with populate_existing. No query plan/service execution."
+    },
+    {
+      "path": "backend/app/application/travellers/impact.py",
+      "sha256": "1a9882dd24266d81ecbce11d73848291778598c481c0a5a5c5acc242a34d6823",
+      "physical_lines": 83,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-83. Locks event; bounded100 ordered participation page advances cursor atomically, deduplicates event/participation review records, active group/company/status gates preserve frozen trip source. Unsupported/already processed event exits, state resets only per existing flow. No service concurrency proof."
+    },
+    {
+      "path": "backend/app/application/travellers/change_feed.py",
+      "sha256": "db01c3a3db8d42f7f324f6853ef017985509eb7a37230ce6ab06ce7c0d12e37d",
+      "physical_lines": 98,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-98. Per-company counter row serializes committed feed sequence with dialect insert; bounded pages and extra-row has-more, membership visibility filtering still advances scan checkpoint. Signed actor/company/agency checkpoint refreshed seven days and references omit identity/image scalars. No runtime/broker/provider qualification."
+    },
+    {
+      "path": "backend/app/application/travellers/legacy_source_acceptance.py",
+      "sha256": "8386e8db64b4b210c87e9622ea7e6a5027de38a9804f4f24b632ffdf2bc151f5",
+      "physical_lines": 76,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-76. Purpose-specific stored current AI acceptance with complete bounded field set, duplicate/missing/incorrect/suspicious/time/status defenses, conservative exact identity/date checks and explicit absent surname/sex-equivalence policy. No provider/OCR/country inference."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/company_review_tasks.py",
+      "sha256": "b7fbcbfcd4f9ce51da472207eaf13b2350e73e489586a0a7f1f173f8ec89f9c6",
+      "physical_lines": 171,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-171. Private response dependency, admin/company/group visibility, signed keyset cursor status binding and100 max. CSRF-protected mutation locks participation+task, checks both revisions/pending, records audit and flushes without rewriting participation; reference change route wraps validation422."
+    },
+    {
+      "path": "backend/tests/traveller_delivery_fixtures.py",
+      "sha256": "680276094d7e399072d352079c934ddbc9b83944e4eb13595bc270b5e16bb162",
+      "physical_lines": 86,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-86. Synthetic company qualifier plus travelling parent records and actual isolated dashboard bearer issuance; deterministic original welcome text and header fixtures, separate passenger destinations, committed batch/document relations. No real credentials or provider actions."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/response_support.py",
+      "sha256": "3982f9979db2de63d23aee12bda3143c06f580eb0f640a86a016345075f7eef5",
+      "physical_lines": 298,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical240-256 only: manual-review response projects unchanged server eligibility with job revision/status into explicit reason; remaining image/QR/manager response helpers not reviewed in this cohort. No whole-file credit."
+    }
+  ]
+}

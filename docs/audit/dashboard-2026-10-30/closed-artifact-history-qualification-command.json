@@ -1,0 +1,48 @@
+{
+  "before_command": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "-p",
+    "closed_artifact_history_before_plugin",
+    "tests/unit/scripts/test_dashboard_audit_artifact_retirement.py"
+  ],
+  "before_exit_code": 0,
+  "before_method": "Exact prior original source independently hash-matched to pre-edit inventory, loaded in isolated temporary module only for12new artifact cases. No actual project source replaced or archive content opened.",
+  "current_command": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "--junitxml=C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\closed-artifact-history-current-junit.xml",
+    "tests/unit/scripts/test_dashboard_audit_scope.py",
+    "tests/unit/scripts/test_dashboard_audit_review_resolutions.py",
+    "tests/unit/scripts/test_dashboard_audit_artifact_retirement.py"
+  ],
+  "current_exit_code": 0,
+  "seconds": 11.687999999994645,
+  "fence_before": {
+    "scripts/dashboard_audit_inventory.py": "5d0d7cf8cfb0f0e5050d98e146ec91ad0589fb24a1ddbbbba41d423e0beb4f7c",
+    "backend/tests/unit/scripts/test_dashboard_audit_scope.py": "9c251b8c9f9a15e3d6c918aa5872309c990ea0387c2dbc935c2043851b90893e",
+    "backend/tests/unit/scripts/test_dashboard_audit_review_resolutions.py": "516f40f6a05fc0e6f37f6618f225a819146d344ccf4dcda5a0e9a4fe796c6dd7",
+    "backend/tests/unit/scripts/test_dashboard_audit_artifact_retirement.py": "bf2f4e0fa2fb7bc1e2e98e2ddb7ede518cbd224a12f791e12900a26830d38aea",
+    "docs/audit/dashboard-2026-10-30/audit-scope.json": "9c427138be39ebb2fcbf37d4804e331d2f2e2a30b2157814ec4ef7874784a5f0",
+    "docs/audit/dashboard-2026-10-30/journey-color-probes-retirement-manifest.json": "2bdf19311a4899a7007568dd19f92381600259c9311d6e8b4f1f16662f70f8f7",
+    "docs/audit/dashboard-2026-10-30/unused-placeholder-retirement-manifest.json": "0a424883ad8e9c1d0d45c7930bc82fad3449b417072efdce17ca84bb061609bf"
+  },
+  "fence_after": {
+    "scripts/dashboard_audit_inventory.py": "5d0d7cf8cfb0f0e5050d98e146ec91ad0589fb24a1ddbbbba41d423e0beb4f7c",
+    "backend/tests/unit/scripts/test_dashboard_audit_scope.py": "9c251b8c9f9a15e3d6c918aa5872309c990ea0387c2dbc935c2043851b90893e",
+    "backend/tests/unit/scripts/test_dashboard_audit_review_resolutions.py": "516f40f6a05fc0e6f37f6618f225a819146d344ccf4dcda5a0e9a4fe796c6dd7",
+    "backend/tests/unit/scripts/test_dashboard_audit_artifact_retirement.py": "bf2f4e0fa2fb7bc1e2e98e2ddb7ede518cbd224a12f791e12900a26830d38aea",
+    "docs/audit/dashboard-2026-10-30/audit-scope.json": "9c427138be39ebb2fcbf37d4804e331d2f2e2a30b2157814ec4ef7874784a5f0",
+    "docs/audit/dashboard-2026-10-30/journey-color-probes-retirement-manifest.json": "2bdf19311a4899a7007568dd19f92381600259c9311d6e8b4f1f16662f70f8f7",
+    "docs/audit/dashboard-2026-10-30/unused-placeholder-retirement-manifest.json": "0a424883ad8e9c1d0d45c7930bc82fad3449b417072efdce17ca84bb061609bf"
+  },
+  "fence_unchanged": true
+}

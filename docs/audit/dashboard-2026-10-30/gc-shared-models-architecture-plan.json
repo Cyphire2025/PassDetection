@@ -1,0 +1,422 @@
+{
+  "status": "Read-only architecture proposal; requires parent scope adoption before runtime edits",
+  "source": {
+    "path": "backend/app/infrastructure/database/gc_mobile_models.py",
+    "sha256": "994c6db9ecbb0d5a23bec8ffd3318a2e64b87dbe6582ef277edb098431ac0e33",
+    "physical_lines": 2540,
+    "archive": ".tmp/gc-shared-models-preflight/gc_mobile_models.py"
+  },
+  "scope": "Preserve all shared schema declarations and excluded native schema compatibility; no native feature behavior, Operations Inbox or migrations changes",
+  "decision": "Feasible and justified:23 classes span distinct company/grant/content/identity/session/notification/sync responsibilities. Whole declaration movement into17 contiguous purpose-specific owners preserves original registration order without factories/mixins/proxies/callback bags.",
+  "owners": [
+    {
+      "proposed_path": "backend/app/infrastructure/database/_gc_models/organizations.py",
+      "purpose": "Tenant company directory and client-manager profile lifecycle",
+      "declarations": [
+        {
+          "name": "ClientOrganizationModel",
+          "table": "client_organizations",
+          "source_range": [
+            46,
+            124
+          ],
+          "physical_declaration_lines": 79,
+          "ast_sha256": "4e2bc0266306ae67696c59a69e8d670a81b3f6900edcd5309d47782d42eaabdb"
+        },
+        {
+          "name": "ClientManagerProfileModel",
+          "table": "client_manager_profiles",
+          "source_range": [
+            127,
+            239
+          ],
+          "physical_declaration_lines": 113,
+          "ast_sha256": "e29ed6248e87e125bc37755ecf2152c606fdd29e7521e4a112c8daecca2bd974"
+        }
+      ],
+      "body_lines": 192,
+      "status": "proposal-only-no-runtime-file-created"
+    },
+    {
+      "proposed_path": "backend/app/infrastructure/database/_gc_models/group_access.py",
+      "purpose": "Group availability/version anchor and explicit manager group grant",
+      "declarations": [
+        {
+          "name": "GCGroupAccessModel",
+          "table": "gc_group_access",
+          "source_range": [
+            242,
+            373
+          ],
+          "physical_declaration_lines": 132,
+          "ast_sha256": "a31f6eded93524082c519cdff541dbb9a1e2b38cf25a28a6246871d9cb08575b"
+        },
+        {
+          "name": "ClientManagerGroupAssignmentModel",
+          "table": "client_manager_group_assignments",
+          "source_range": [
+            376,
+            461
+          ],
+          "physical_declaration_lines": 86,
+          "ast_sha256": "0aef4713de552c68bf89bee5ed00e4d4738163489d5f68aef960e936686797e7"
+        }
+      ],
+      "body_lines": 218,
+      "status": "proposal-only-no-runtime-file-created"
+    },
+    {
+      "proposed_path": "backend/app/infrastructure/database/_gc_models/common_documents.py",
+      "purpose": "Immutable group common-document publication catalog",
+      "declarations": [
+        {
+          "name": "GCCommonDocumentModel",
+          "table": "gc_common_documents",
+          "source_range": [
+            464,
+            597
+          ],
+          "physical_declaration_lines": 134,
+          "ast_sha256": "7de882dcfa9807abd1de4ea7bb46919cc2afcb535236888708a211c02f2b1b99"
+        }
+      ],
+      "body_lines": 134,
+      "status": "proposal-only-no-runtime-file-created"
+    },
+    {
+      "proposed_path": "backend/app/infrastructure/database/_gc_models/itineraries.py",
+      "purpose": "One coherent version/day/item schedule hierarchy; preserve catalog together rather than split only to force an arbitrary line cap",
+      "declarations": [
+        {
+          "name": "GCItineraryVersionModel",
+          "table": "gc_itinerary_versions",
+          "source_range": [
+            600,
+            698
+          ],
+          "physical_declaration_lines": 99,
+          "ast_sha256": "d06e0fc4fb78e55331dfea455aeb72cf000a8a43aaad2bf208ff07308554cbb9"
+        },
+        {
+          "name": "GCItineraryDayModel",
+          "table": "gc_itinerary_days",
+          "source_range": [
+            701,
+            767
+          ],
+          "physical_declaration_lines": 67,
+          "ast_sha256": "3ecc7334ca113de886e384033377fea515f0464ab6b11b55833a9700a5f1e11c"
+        },
+        {
+          "name": "GCItineraryItemModel",
+          "table": "gc_itinerary_items",
+          "source_range": [
+            770,
+            868
+          ],
+          "physical_declaration_lines": 99,
+          "ast_sha256": "2159a629c4ec48609510ee309b4213b27c4ac7479f2bbe27cab773d1a7a24485"
+        }
+      ],
+      "body_lines": 265,
+      "status": "proposal-only-no-runtime-file-created"
+    },
+    {
+      "proposed_path": "backend/app/infrastructure/database/_gc_models/announcements.py",
+      "purpose": "Versioned role-targeted group announcement publication",
+      "declarations": [
+        {
+          "name": "GCAnnouncementModel",
+          "table": "gc_announcements",
+          "source_range": [
+            871,
+            1001
+          ],
+          "physical_declaration_lines": 131,
+          "ast_sha256": "8818b0901de0dead3a128594d00c81c346a02bb7ee4cd476b4a0e0213296d01d"
+        }
+      ],
+      "body_lines": 131,
+      "status": "proposal-only-no-runtime-file-created"
+    },
+    {
+      "proposed_path": "backend/app/infrastructure/database/_gc_models/passenger_identities.py",
+      "purpose": "Shared dashboard reconciled trip/contact identity binding",
+      "declarations": [
+        {
+          "name": "MobilePassengerIdentityModel",
+          "table": "mobile_passenger_identities",
+          "source_range": [
+            1004,
+            1145
+          ],
+          "physical_declaration_lines": 142,
+          "ast_sha256": "098c73bb597885f807564e47a9d18399bd86e02e67758cfa848f2f186668eb12"
+        }
+      ],
+      "body_lines": 142,
+      "status": "proposal-only-no-runtime-file-created"
+    },
+    {
+      "proposed_path": "backend/app/infrastructure/database/_gc_models/document_cache.py",
+      "purpose": "Unchanged derived personal-document metadata schema; native consumer behavior excluded",
+      "declarations": [
+        {
+          "name": "MobileDocumentMetadataCacheModel",
+          "table": "mobile_document_metadata_cache",
+          "source_range": [
+            1148,
+            1247
+          ],
+          "physical_declaration_lines": 100,
+          "ast_sha256": "24f4434378ed883d7411699af64c873cb3a7498084e89d329221a92fda0a1a2e"
+        }
+      ],
+      "body_lines": 100,
+      "status": "proposal-only-no-runtime-file-created"
+    },
+    {
+      "proposed_path": "backend/app/infrastructure/database/_gc_models/otp_challenges.py",
+      "purpose": "Unchanged hash-only challenge schema; native OTP behavior excluded",
+      "declarations": [
+        {
+          "name": "MobileOTPChallengeModel",
+          "table": "mobile_otp_challenges",
+          "source_range": [
+            1250,
+            1357
+          ],
+          "physical_declaration_lines": 108,
+          "ast_sha256": "d3e85d80fcc8f93df2c40892a89463414358fbd2b5b05b276df6612b30a16ec0"
+        }
+      ],
+      "body_lines": 108,
+      "status": "proposal-only-no-runtime-file-created"
+    },
+    {
+      "proposed_path": "backend/app/infrastructure/database/_gc_models/sessions.py",
+      "purpose": "Shared revocable session and exact authorized identity join schema",
+      "declarations": [
+        {
+          "name": "MobileDeviceSessionModel",
+          "table": "mobile_device_sessions",
+          "source_range": [
+            1360,
+            1523
+          ],
+          "physical_declaration_lines": 164,
+          "ast_sha256": "c3fe5d533e773cf8941703be17648ae055e8d38ade09aa012a3bfff0a5fed61a"
+        },
+        {
+          "name": "MobilePassengerSessionIdentityModel",
+          "table": "mobile_passenger_session_identities",
+          "source_range": [
+            1526,
+            1586
+          ],
+          "physical_declaration_lines": 61,
+          "ast_sha256": "14950dbf405523f334424a67cd8dd925af06168459b6e9041da5b3f534b2520d"
+        }
+      ],
+      "body_lines": 225,
+      "status": "proposal-only-no-runtime-file-created"
+    },
+    {
+      "proposed_path": "backend/app/infrastructure/database/_gc_models/attestation.py",
+      "purpose": "Unchanged attestation-key persistence schema; native integrity behavior excluded",
+      "declarations": [
+        {
+          "name": "MobileAppAttestKeyModel",
+          "table": "mobile_app_attest_keys",
+          "source_range": [
+            1589,
+            1693
+          ],
+          "physical_declaration_lines": 105,
+          "ast_sha256": "eab24f68645e22df7beda4a874f6e4e995e504ab6d44feeb37fd7466d1ec57c5"
+        }
+      ],
+      "body_lines": 105,
+      "status": "proposal-only-no-runtime-file-created"
+    },
+    {
+      "proposed_path": "backend/app/infrastructure/database/_gc_models/refresh_tokens.py",
+      "purpose": "Unchanged session-family token rotation schema; native token behavior excluded",
+      "declarations": [
+        {
+          "name": "MobileRefreshTokenModel",
+          "table": "mobile_refresh_tokens",
+          "source_range": [
+            1696,
+            1781
+          ],
+          "physical_declaration_lines": 86,
+          "ast_sha256": "c9ec0a6f1b4b30dff5ac6eeabebb434d037008634f866d6448bd0a7886f302e0"
+        }
+      ],
+      "body_lines": 86,
+      "status": "proposal-only-no-runtime-file-created"
+    },
+    {
+      "proposed_path": "backend/app/infrastructure/database/_gc_models/push_transport.py",
+      "purpose": "Unchanged encrypted provider registration and durable receipt schema; actual provider behavior excluded",
+      "declarations": [
+        {
+          "name": "MobilePushRegistrationModel",
+          "table": "mobile_push_registrations",
+          "source_range": [
+            1784,
+            1866
+          ],
+          "physical_declaration_lines": 83,
+          "ast_sha256": "0832a1fb66c88c3971dc4a4abf3afdaf55e08d1be33c8d865f3f86a9dec45618"
+        },
+        {
+          "name": "MobilePushDeliveryModel",
+          "table": "mobile_push_deliveries",
+          "source_range": [
+            1869,
+            1979
+          ],
+          "physical_declaration_lines": 111,
+          "ast_sha256": "98ca1301b7f2cc3ca96b426fdbf1dc3d0c65eca2d1cc40892db78a6b0bc03a33"
+        }
+      ],
+      "body_lines": 194,
+      "status": "proposal-only-no-runtime-file-created"
+    },
+    {
+      "proposed_path": "backend/app/infrastructure/database/_gc_models/notifications.py",
+      "purpose": "Shared dashboard-authored recipient notification/read-state schema",
+      "declarations": [
+        {
+          "name": "MobileNotificationModel",
+          "table": "mobile_notifications",
+          "source_range": [
+            1982,
+            2139
+          ],
+          "physical_declaration_lines": 158,
+          "ast_sha256": "916351828df17e6998be44cbe14e3f4f5f00ce451a529e2ecf6d5553057df01b"
+        }
+      ],
+      "body_lines": 158,
+      "status": "proposal-only-no-runtime-file-created"
+    },
+    {
+      "proposed_path": "backend/app/infrastructure/database/_gc_models/sync_changes.py",
+      "purpose": "Shared dashboard durable ordered mutation journal schema",
+      "declarations": [
+        {
+          "name": "MobileSyncChangeModel",
+          "table": "mobile_sync_changes",
+          "source_range": [
+            2142,
+            2232
+          ],
+          "physical_declaration_lines": 91,
+          "ast_sha256": "7981b1f6ecb4a0b126248248bcf80506d9b6245175ca5cd2fe592c41380399a4"
+        }
+      ],
+      "body_lines": 91,
+      "status": "proposal-only-no-runtime-file-created"
+    },
+    {
+      "proposed_path": "backend/app/infrastructure/database/_gc_models/family_delegations.py",
+      "purpose": "Unchanged explicit dependent-grant schema; no inference or native feature work",
+      "declarations": [
+        {
+          "name": "PassengerFamilyDelegationModel",
+          "table": "passenger_family_delegations",
+          "source_range": [
+            2235,
+            2340
+          ],
+          "physical_declaration_lines": 106,
+          "ast_sha256": "13db69d84a1a460580e03149b4834c6be80d9560913c5cce68194d53485aed1c"
+        }
+      ],
+      "body_lines": 106,
+      "status": "proposal-only-no-runtime-file-created"
+    },
+    {
+      "proposed_path": "backend/app/infrastructure/database/_gc_models/idempotency_receipts.py",
+      "purpose": "Unchanged native mutation receipt schema; native mutation behavior excluded",
+      "declarations": [
+        {
+          "name": "MobileIdempotencyReceiptModel",
+          "table": "mobile_idempotency_receipts",
+          "source_range": [
+            2343,
+            2415
+          ],
+          "physical_declaration_lines": 73,
+          "ast_sha256": "6942c9c3f89b5e590e63714e2f508d1abe3695a295975cdd07683ea34e338995"
+        }
+      ],
+      "body_lines": 73,
+      "status": "proposal-only-no-runtime-file-created"
+    },
+    {
+      "proposed_path": "backend/app/infrastructure/database/_gc_models/incidents.py",
+      "purpose": "Unchanged native incident persistence schema; native endpoint behavior excluded",
+      "declarations": [
+        {
+          "name": "MobileIncidentModel",
+          "table": "mobile_incidents",
+          "source_range": [
+            2418,
+            2514
+          ],
+          "physical_declaration_lines": 97,
+          "ast_sha256": "4a6706558e26925dada18990c1f69a0a9509a1bcd925fe6ff0373191223ae79f"
+        }
+      ],
+      "body_lines": 97,
+      "status": "proposal-only-no-runtime-file-created"
+    }
+  ],
+  "bootstrap": {
+    "public_facade": "backend/app/infrastructure/database/gc_mobile_models.py",
+    "proposed_primer": "backend/app/infrastructure/database/_gc_models/__init__.py",
+    "rules": [
+      "Keep original imported primitive globals, gc_notification_models eager import, original local _utcnow definition and exact __all__ in public facade before ordered leaf imports.",
+      "Primer imports public module object before leaf mapping. Leaves use only predeclared primitives/shared Base and exact public _utcnow, never partially initialized class exports.",
+      "Set original class __module__ INSIDE each class body before SQLAlchemy constructs/registers it; no posthoc-only class retag. Preserve qualname and original table/mapper alias identity.",
+      "Preserve ClientOrganization.logo_url getter metadata and lazy branding import; record inspect.getsource physical leaf-location tradeoff honestly, no monkeypatch.",
+      "Do not group noncontiguous original declarations: that would register later tables early. Preserve exact17 owner import/class construction sequence."
+    ]
+  },
+  "static_facts": {
+    "mapped_classes": 23,
+    "relationships_calls": 0,
+    "eager_python_cross_class_dependencies": 0,
+    "runtime_importers": 116,
+    "note": "Consumer map is complete static AST import metadata only; no automatic physical consumer audit or dynamic import/dead-code proof.",
+    "consumer_map": {
+      "path": "docs/audit/dashboard-2026-10-30/gc-shared-models-consumer-map.json",
+      "sha256": "29a85836fbdee0f5778726ef21cb09b0bf3cc0dd54a17e386a1c2f87c4bbc47b"
+    }
+  },
+  "validation_required_before_claiming_equivalence": [
+    "Archive actual original/current source and capture original fresh-process full registry/table order, all mapper qualified registry keys, class/module/qualname/constructor/pickle/aliases and evaluated annotations including any baseline failures.",
+    "Capture actual complete application metadata and SQLite/PostgreSQL compiled CreateTable/CreateIndex, conditional DDL guards, composite FK names/options, uniqueness/check/default/onupdate/identity/deferred column flags, relationship metadata and public Base/JSONB/default object identities.",
+    "Original/public-first and corresponding current public/registry/each direct-owner-first entry modes must preserve exact metadata/registration order and qualified class-registry mapping.",
+    "Prove all23 class ASTs identical after removing only explicit legacy __module__ insertion; original helper/property signature/body/lazy import/default dispatch retained. No published migration byte changed.",
+    "Use focused affected model/admin/company/content/notification/journal cases plus meaningful metadata/default/deferred/pickle regression controls, no broad app suite/build/provider/native feature execution.",
+    "Propose measured normal budgets using actual current focused owner coverage; no declaration-only critical gates and no shared budget/strict-pin writes by this agent."
+  ],
+  "checks_run": [],
+  "changes": [],
+  "findings": [
+    {
+      "kind": "architecture",
+      "status": "proposed",
+      "detail": "Current2540-line owner mixes23different schema responsibilities; exact17 contiguous owner plan is source-backed. No security defect or performance improvement claimed from size."
+    }
+  ],
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/gc-shared-models-preflight-reviewed-files.json",
+    "sha256": "39b66ea398bc66b160159f1b38c5bab1d46c7b1ed2c57d2e8588bcc996448278"
+  }
+}

@@ -1,0 +1,480 @@
+FFFFFFFFFF                                                               [100%]
+================================== FAILURES ===================================
+____ test_delivery_rechecks_scope_after_provider_await[disabled-download] _____
+
+photo_database = namespace(sessions=async_sessionmaker(class_='AsyncSession', bind=<sqlalchemy.ext.asyncio.engine.AsyncEngine object at...re.database.gc_mobile_models.MobilePassengerIdentityModel object at 0x00000191B72E2750>, client_manager_profile=None)))
+mode = 'download', change = 'disabled'
+
+    @pytest.mark.parametrize("mode", ["download", "preview"])
+    @pytest.mark.parametrize("change", ["disabled", "window_expired", "asset_removed"])
+    async def test_delivery_rechecks_scope_after_provider_await(photo_database, mode, change):
+        env = photo_database
+        seeded = await _seed_delivery(env)
+    
+        class Provider:
+            async def authorize(self, request):
+                return _authorization(request)
+    
+            async def resolve(self, request):
+                async with env.sessions() as session, session.begin():
+                    if change == "asset_removed":
+                        await session.execute(
+                            update(MyPhotoMediaAssetModel)
+                            .where(
+                                MyPhotoMediaAssetModel.id == seeded.asset_id,
+                            )
+                            .values(processing_state="removed", availability_state="removed")
+                        )
+                    else:
+                        values = (
+                            {"feature_enabled": False}
+                            if change == "disabled"
+                            else {"availability_ends_at": datetime.now(UTC) - timedelta(seconds=1)}
+                        )
+                        await session.execute(
+                            update(MyPhotoGalleryModel)
+                            .where(
+                                MyPhotoGalleryModel.id == env.gallery_id,
+                            )
+                            .values(**values)
+                        )
+                return DeliveryResolution(
+                    "https://storage.example.test/private", request.expires_at, True
+                )
+    
+        providers = SimpleNamespace(provider_name="aws", media=Provider())
+        async with env.sessions() as session:
+            service = MyPhotosService(session, settings=env.settings, providers=providers)
+>           with pytest.raises((MyPhotosUnavailable, EntityNotFoundError)):
+E           Failed: DID NOT RAISE any of (<class 'app.application.my_photos.errors.MyPhotosUnavailable'>, <class 'app.domain.exceptions.exceptions.EntityNotFoundError'>)
+
+tests\integration\test_my_photos_delivery_freshness.py:168: Failed
+_____ test_delivery_rechecks_scope_after_provider_await[disabled-preview] _____
+
+photo_database = namespace(sessions=async_sessionmaker(class_='AsyncSession', bind=<sqlalchemy.ext.asyncio.engine.AsyncEngine object at...re.database.gc_mobile_models.MobilePassengerIdentityModel object at 0x00000191B75D4E50>, client_manager_profile=None)))
+mode = 'preview', change = 'disabled'
+
+    @pytest.mark.parametrize("mode", ["download", "preview"])
+    @pytest.mark.parametrize("change", ["disabled", "window_expired", "asset_removed"])
+    async def test_delivery_rechecks_scope_after_provider_await(photo_database, mode, change):
+        env = photo_database
+        seeded = await _seed_delivery(env)
+    
+        class Provider:
+            async def authorize(self, request):
+                return _authorization(request)
+    
+            async def resolve(self, request):
+                async with env.sessions() as session, session.begin():
+                    if change == "asset_removed":
+                        await session.execute(
+                            update(MyPhotoMediaAssetModel)
+                            .where(
+                                MyPhotoMediaAssetModel.id == seeded.asset_id,
+                            )
+                            .values(processing_state="removed", availability_state="removed")
+                        )
+                    else:
+                        values = (
+                            {"feature_enabled": False}
+                            if change == "disabled"
+                            else {"availability_ends_at": datetime.now(UTC) - timedelta(seconds=1)}
+                        )
+                        await session.execute(
+                            update(MyPhotoGalleryModel)
+                            .where(
+                                MyPhotoGalleryModel.id == env.gallery_id,
+                            )
+                            .values(**values)
+                        )
+                return DeliveryResolution(
+                    "https://storage.example.test/private", request.expires_at, True
+                )
+    
+        providers = SimpleNamespace(provider_name="aws", media=Provider())
+        async with env.sessions() as session:
+            service = MyPhotosService(session, settings=env.settings, providers=providers)
+>           with pytest.raises((MyPhotosUnavailable, EntityNotFoundError)):
+E           Failed: DID NOT RAISE any of (<class 'app.application.my_photos.errors.MyPhotosUnavailable'>, <class 'app.domain.exceptions.exceptions.EntityNotFoundError'>)
+
+tests\integration\test_my_photos_delivery_freshness.py:168: Failed
+_ test_delivery_rechecks_scope_after_provider_await[window_expired-download] __
+
+photo_database = namespace(sessions=async_sessionmaker(class_='AsyncSession', bind=<sqlalchemy.ext.asyncio.engine.AsyncEngine object at...re.database.gc_mobile_models.MobilePassengerIdentityModel object at 0x00000191B768E550>, client_manager_profile=None)))
+mode = 'download', change = 'window_expired'
+
+    @pytest.mark.parametrize("mode", ["download", "preview"])
+    @pytest.mark.parametrize("change", ["disabled", "window_expired", "asset_removed"])
+    async def test_delivery_rechecks_scope_after_provider_await(photo_database, mode, change):
+        env = photo_database
+        seeded = await _seed_delivery(env)
+    
+        class Provider:
+            async def authorize(self, request):
+                return _authorization(request)
+    
+            async def resolve(self, request):
+                async with env.sessions() as session, session.begin():
+                    if change == "asset_removed":
+                        await session.execute(
+                            update(MyPhotoMediaAssetModel)
+                            .where(
+                                MyPhotoMediaAssetModel.id == seeded.asset_id,
+                            )
+                            .values(processing_state="removed", availability_state="removed")
+                        )
+                    else:
+                        values = (
+                            {"feature_enabled": False}
+                            if change == "disabled"
+                            else {"availability_ends_at": datetime.now(UTC) - timedelta(seconds=1)}
+                        )
+                        await session.execute(
+                            update(MyPhotoGalleryModel)
+                            .where(
+                                MyPhotoGalleryModel.id == env.gallery_id,
+                            )
+                            .values(**values)
+                        )
+                return DeliveryResolution(
+                    "https://storage.example.test/private", request.expires_at, True
+                )
+    
+        providers = SimpleNamespace(provider_name="aws", media=Provider())
+        async with env.sessions() as session:
+            service = MyPhotosService(session, settings=env.settings, providers=providers)
+>           with pytest.raises((MyPhotosUnavailable, EntityNotFoundError)):
+E           Failed: DID NOT RAISE any of (<class 'app.application.my_photos.errors.MyPhotosUnavailable'>, <class 'app.domain.exceptions.exceptions.EntityNotFoundError'>)
+
+tests\integration\test_my_photos_delivery_freshness.py:168: Failed
+__ test_delivery_rechecks_scope_after_provider_await[window_expired-preview] __
+
+photo_database = namespace(sessions=async_sessionmaker(class_='AsyncSession', bind=<sqlalchemy.ext.asyncio.engine.AsyncEngine object at...re.database.gc_mobile_models.MobilePassengerIdentityModel object at 0x00000191B76EB290>, client_manager_profile=None)))
+mode = 'preview', change = 'window_expired'
+
+    @pytest.mark.parametrize("mode", ["download", "preview"])
+    @pytest.mark.parametrize("change", ["disabled", "window_expired", "asset_removed"])
+    async def test_delivery_rechecks_scope_after_provider_await(photo_database, mode, change):
+        env = photo_database
+        seeded = await _seed_delivery(env)
+    
+        class Provider:
+            async def authorize(self, request):
+                return _authorization(request)
+    
+            async def resolve(self, request):
+                async with env.sessions() as session, session.begin():
+                    if change == "asset_removed":
+                        await session.execute(
+                            update(MyPhotoMediaAssetModel)
+                            .where(
+                                MyPhotoMediaAssetModel.id == seeded.asset_id,
+                            )
+                            .values(processing_state="removed", availability_state="removed")
+                        )
+                    else:
+                        values = (
+                            {"feature_enabled": False}
+                            if change == "disabled"
+                            else {"availability_ends_at": datetime.now(UTC) - timedelta(seconds=1)}
+                        )
+                        await session.execute(
+                            update(MyPhotoGalleryModel)
+                            .where(
+                                MyPhotoGalleryModel.id == env.gallery_id,
+                            )
+                            .values(**values)
+                        )
+                return DeliveryResolution(
+                    "https://storage.example.test/private", request.expires_at, True
+                )
+    
+        providers = SimpleNamespace(provider_name="aws", media=Provider())
+        async with env.sessions() as session:
+            service = MyPhotosService(session, settings=env.settings, providers=providers)
+>           with pytest.raises((MyPhotosUnavailable, EntityNotFoundError)):
+E           Failed: DID NOT RAISE any of (<class 'app.application.my_photos.errors.MyPhotosUnavailable'>, <class 'app.domain.exceptions.exceptions.EntityNotFoundError'>)
+
+tests\integration\test_my_photos_delivery_freshness.py:168: Failed
+__ test_delivery_rechecks_scope_after_provider_await[asset_removed-download] __
+
+photo_database = namespace(sessions=async_sessionmaker(class_='AsyncSession', bind=<sqlalchemy.ext.asyncio.engine.AsyncEngine object at...re.database.gc_mobile_models.MobilePassengerIdentityModel object at 0x00000191B77F1FD0>, client_manager_profile=None)))
+mode = 'download', change = 'asset_removed'
+
+    @pytest.mark.parametrize("mode", ["download", "preview"])
+    @pytest.mark.parametrize("change", ["disabled", "window_expired", "asset_removed"])
+    async def test_delivery_rechecks_scope_after_provider_await(photo_database, mode, change):
+        env = photo_database
+        seeded = await _seed_delivery(env)
+    
+        class Provider:
+            async def authorize(self, request):
+                return _authorization(request)
+    
+            async def resolve(self, request):
+                async with env.sessions() as session, session.begin():
+                    if change == "asset_removed":
+                        await session.execute(
+                            update(MyPhotoMediaAssetModel)
+                            .where(
+                                MyPhotoMediaAssetModel.id == seeded.asset_id,
+                            )
+                            .values(processing_state="removed", availability_state="removed")
+                        )
+                    else:
+                        values = (
+                            {"feature_enabled": False}
+                            if change == "disabled"
+                            else {"availability_ends_at": datetime.now(UTC) - timedelta(seconds=1)}
+                        )
+                        await session.execute(
+                            update(MyPhotoGalleryModel)
+                            .where(
+                                MyPhotoGalleryModel.id == env.gallery_id,
+                            )
+                            .values(**values)
+                        )
+                return DeliveryResolution(
+                    "https://storage.example.test/private", request.expires_at, True
+                )
+    
+        providers = SimpleNamespace(provider_name="aws", media=Provider())
+        async with env.sessions() as session:
+            service = MyPhotosService(session, settings=env.settings, providers=providers)
+>           with pytest.raises((MyPhotosUnavailable, EntityNotFoundError)):
+E           Failed: DID NOT RAISE any of (<class 'app.application.my_photos.errors.MyPhotosUnavailable'>, <class 'app.domain.exceptions.exceptions.EntityNotFoundError'>)
+
+tests\integration\test_my_photos_delivery_freshness.py:168: Failed
+__ test_delivery_rechecks_scope_after_provider_await[asset_removed-preview] ___
+
+photo_database = namespace(sessions=async_sessionmaker(class_='AsyncSession', bind=<sqlalchemy.ext.asyncio.engine.AsyncEngine object at...re.database.gc_mobile_models.MobilePassengerIdentityModel object at 0x00000191B7899C10>, client_manager_profile=None)))
+mode = 'preview', change = 'asset_removed'
+
+    @pytest.mark.parametrize("mode", ["download", "preview"])
+    @pytest.mark.parametrize("change", ["disabled", "window_expired", "asset_removed"])
+    async def test_delivery_rechecks_scope_after_provider_await(photo_database, mode, change):
+        env = photo_database
+        seeded = await _seed_delivery(env)
+    
+        class Provider:
+            async def authorize(self, request):
+                return _authorization(request)
+    
+            async def resolve(self, request):
+                async with env.sessions() as session, session.begin():
+                    if change == "asset_removed":
+                        await session.execute(
+                            update(MyPhotoMediaAssetModel)
+                            .where(
+                                MyPhotoMediaAssetModel.id == seeded.asset_id,
+                            )
+                            .values(processing_state="removed", availability_state="removed")
+                        )
+                    else:
+                        values = (
+                            {"feature_enabled": False}
+                            if change == "disabled"
+                            else {"availability_ends_at": datetime.now(UTC) - timedelta(seconds=1)}
+                        )
+                        await session.execute(
+                            update(MyPhotoGalleryModel)
+                            .where(
+                                MyPhotoGalleryModel.id == env.gallery_id,
+                            )
+                            .values(**values)
+                        )
+                return DeliveryResolution(
+                    "https://storage.example.test/private", request.expires_at, True
+                )
+    
+        providers = SimpleNamespace(provider_name="aws", media=Provider())
+        async with env.sessions() as session:
+            service = MyPhotosService(session, settings=env.settings, providers=providers)
+>           with pytest.raises((MyPhotosUnavailable, EntityNotFoundError)):
+E           Failed: DID NOT RAISE any of (<class 'app.application.my_photos.errors.MyPhotosUnavailable'>, <class 'app.domain.exceptions.exceptions.EntityNotFoundError'>)
+
+tests\integration\test_my_photos_delivery_freshness.py:168: Failed
+___ test_delivery_deadline_does_not_exceed_gallery_access_window[download] ____
+
+photo_database = namespace(sessions=async_sessionmaker(class_='AsyncSession', bind=<sqlalchemy.ext.asyncio.engine.AsyncEngine object at...re.database.gc_mobile_models.MobilePassengerIdentityModel object at 0x00000191B7953950>, client_manager_profile=None)))
+mode = 'download'
+
+    @pytest.mark.parametrize("mode", ["download", "preview"])
+    async def test_delivery_deadline_does_not_exceed_gallery_access_window(photo_database, mode):
+        env = photo_database
+        seeded = await _seed_delivery(env)
+        requests = []
+    
+        class Provider:
+            async def authorize(self, request):
+                return _authorization(request)
+    
+            async def resolve(self, request):
+                requests.append(request)
+                return DeliveryResolution(
+                    "https://storage.example.test/private", request.expires_at, True
+                )
+    
+        providers = SimpleNamespace(provider_name="aws", media=Provider())
+        async with env.sessions() as session:
+            service = MyPhotosService(session, settings=env.settings, providers=providers)
+            response = await _resolve(service, env, seeded, mode)
+>       assert requests[0].expires_at <= seeded.end
+E       AssertionError: assert datetime.datetime(2026, 10, 30, 23, 46, 0, 744114, tzinfo=datetime.timezone.utc) <= datetime.datetime(2026, 10, 30, 23, 41, 30, 744114, tzinfo=datetime.timezone.utc)
+E        +  where datetime.datetime(2026, 10, 30, 23, 46, 0, 744114, tzinfo=datetime.timezone.utc) = DeliveryResolutionRequest(tenant_scope='e865f9b2-eaef-4a34-936e-a3bc2e4b54af', group_scope='4871cca9-d6c1-4df8-af93-8e...content_type='image/jpeg', expires_at=datetime.datetime(2026, 10, 30, 23, 46, 0, 744114, tzinfo=datetime.timezone.utc)).expires_at
+E        +  and   datetime.datetime(2026, 10, 30, 23, 41, 30, 744114, tzinfo=datetime.timezone.utc) = namespace(asset_id=UUID('9e5be8fb-e3f8-4054-9923-ee37305ebf9b'), grant_id=UUID('dbf3a11a-0695-494f-acae-508c96e7a5ad'), end=datetime.datetime(2026, 10, 30, 23, 41, 30, 744114, tzinfo=datetime.timezone.utc)).end
+
+tests\integration\test_my_photos_delivery_freshness.py:192: AssertionError
+____ test_delivery_deadline_does_not_exceed_gallery_access_window[preview] ____
+
+photo_database = namespace(sessions=async_sessionmaker(class_='AsyncSession', bind=<sqlalchemy.ext.asyncio.engine.AsyncEngine object at...re.database.gc_mobile_models.MobilePassengerIdentityModel object at 0x00000191B7660E50>, client_manager_profile=None)))
+mode = 'preview'
+
+    @pytest.mark.parametrize("mode", ["download", "preview"])
+    async def test_delivery_deadline_does_not_exceed_gallery_access_window(photo_database, mode):
+        env = photo_database
+        seeded = await _seed_delivery(env)
+        requests = []
+    
+        class Provider:
+            async def authorize(self, request):
+                return _authorization(request)
+    
+            async def resolve(self, request):
+                requests.append(request)
+                return DeliveryResolution(
+                    "https://storage.example.test/private", request.expires_at, True
+                )
+    
+        providers = SimpleNamespace(provider_name="aws", media=Provider())
+        async with env.sessions() as session:
+            service = MyPhotosService(session, settings=env.settings, providers=providers)
+            response = await _resolve(service, env, seeded, mode)
+>       assert requests[0].expires_at <= seeded.end
+E       AssertionError: assert datetime.datetime(2026, 10, 30, 23, 46, 1, 602608, tzinfo=datetime.timezone.utc) <= datetime.datetime(2026, 10, 30, 23, 41, 32, 578727, tzinfo=datetime.timezone.utc)
+E        +  where datetime.datetime(2026, 10, 30, 23, 46, 1, 602608, tzinfo=datetime.timezone.utc) = DeliveryResolutionRequest(tenant_scope='acf0504c-fc0c-4d7e-a48a-ff034639e758', group_scope='395ed577-c579-4059-902d-7f...content_type='image/jpeg', expires_at=datetime.datetime(2026, 10, 30, 23, 46, 1, 602608, tzinfo=datetime.timezone.utc)).expires_at
+E        +  and   datetime.datetime(2026, 10, 30, 23, 41, 32, 578727, tzinfo=datetime.timezone.utc) = namespace(asset_id=UUID('3acd21f2-2c1e-442f-9c07-f87336c8a3c5'), grant_id=UUID('7ada85f0-1539-4488-bb02-ae743fcff88a'), end=datetime.datetime(2026, 10, 30, 23, 41, 32, 578727, tzinfo=datetime.timezone.utc)).end
+
+tests\integration\test_my_photos_delivery_freshness.py:192: AssertionError
+__ test_delivery_authorization_cannot_publish_over_a_changed_claim[replaced] __
+
+photo_database = namespace(sessions=async_sessionmaker(class_='AsyncSession', bind=<sqlalchemy.ext.asyncio.engine.AsyncEngine object at...re.database.gc_mobile_models.MobilePassengerIdentityModel object at 0x00000191B52A4890>, client_manager_profile=None)))
+change = 'replaced'
+
+    @pytest.mark.parametrize("change", ["replaced", "expired"])
+    async def test_delivery_authorization_cannot_publish_over_a_changed_claim(photo_database, change):
+        env = photo_database
+        seeded = await _seed_delivery(env)
+        async with env.sessions() as session, session.begin():
+            await session.delete(await session.get(MyPhotoDeliveryAuthorizationModel, seeded.grant_id))
+    
+        class Provider:
+            async def authorize(self, request):
+                async with env.sessions() as session, session.begin():
+                    values = (
+                        {"claim_token": "synthetic-new-owner"}
+                        if change == "replaced"
+                        else {"claim_expires_at": datetime.now(UTC) - timedelta(seconds=1)}
+                    )
+                    await session.execute(
+                        update(MyPhotoDeliveryAuthorizationModel)
+                        .where(
+                            MyPhotoDeliveryAuthorizationModel.media_asset_id == seeded.asset_id,
+                        )
+                        .values(**values)
+                    )
+                return _authorization(request)
+    
+        providers = SimpleNamespace(provider_name="aws", media=Provider())
+        request = MyPhotosDownloadAuthorizationRequest(
+            idempotency_key="synthetic-new-download",
+            items=[{"asset_id": seeded.asset_id, "quality": "original"}],
+        )
+        async with env.sessions() as session:
+            service = MyPhotosService(session, settings=env.settings, providers=providers)
+            await service.authorize_downloads(
+                claims=env.passenger.claims,
+                trip=env.passenger.trip,
+                request=request,
+            )
+            await session.commit()
+        async with env.sessions() as session:
+            row = await session.scalar(
+                select(MyPhotoDeliveryAuthorizationModel).where(
+                    MyPhotoDeliveryAuthorizationModel.media_asset_id == seeded.asset_id,
+                )
+            )
+>           assert row.status == "authorizing"
+E           AssertionError: assert 'available' == 'authorizing'
+E             
+E             - authorizing
+E             + available
+
+tests\integration\test_my_photos_delivery_freshness.py:239: AssertionError
+__ test_delivery_authorization_cannot_publish_over_a_changed_claim[expired] ___
+
+photo_database = namespace(sessions=async_sessionmaker(class_='AsyncSession', bind=<sqlalchemy.ext.asyncio.engine.AsyncEngine object at...re.database.gc_mobile_models.MobilePassengerIdentityModel object at 0x00000191B7A43550>, client_manager_profile=None)))
+change = 'expired'
+
+    @pytest.mark.parametrize("change", ["replaced", "expired"])
+    async def test_delivery_authorization_cannot_publish_over_a_changed_claim(photo_database, change):
+        env = photo_database
+        seeded = await _seed_delivery(env)
+        async with env.sessions() as session, session.begin():
+            await session.delete(await session.get(MyPhotoDeliveryAuthorizationModel, seeded.grant_id))
+    
+        class Provider:
+            async def authorize(self, request):
+                async with env.sessions() as session, session.begin():
+                    values = (
+                        {"claim_token": "synthetic-new-owner"}
+                        if change == "replaced"
+                        else {"claim_expires_at": datetime.now(UTC) - timedelta(seconds=1)}
+                    )
+                    await session.execute(
+                        update(MyPhotoDeliveryAuthorizationModel)
+                        .where(
+                            MyPhotoDeliveryAuthorizationModel.media_asset_id == seeded.asset_id,
+                        )
+                        .values(**values)
+                    )
+                return _authorization(request)
+    
+        providers = SimpleNamespace(provider_name="aws", media=Provider())
+        request = MyPhotosDownloadAuthorizationRequest(
+            idempotency_key="synthetic-new-download",
+            items=[{"asset_id": seeded.asset_id, "quality": "original"}],
+        )
+        async with env.sessions() as session:
+            service = MyPhotosService(session, settings=env.settings, providers=providers)
+            await service.authorize_downloads(
+                claims=env.passenger.claims,
+                trip=env.passenger.trip,
+                request=request,
+            )
+            await session.commit()
+        async with env.sessions() as session:
+            row = await session.scalar(
+                select(MyPhotoDeliveryAuthorizationModel).where(
+                    MyPhotoDeliveryAuthorizationModel.media_asset_id == seeded.asset_id,
+                )
+            )
+>           assert row.status == "authorizing"
+E           AssertionError: assert 'available' == 'authorizing'
+E             
+E             - authorizing
+E             + available
+
+tests\integration\test_my_photos_delivery_freshness.py:239: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/integration/test_my_photos_delivery_freshness.py::test_delivery_rechecks_scope_after_provider_await[disabled-download]
+FAILED tests/integration/test_my_photos_delivery_freshness.py::test_delivery_rechecks_scope_after_provider_await[disabled-preview]
+FAILED tests/integration/test_my_photos_delivery_freshness.py::test_delivery_rechecks_scope_after_provider_await[window_expired-download]
+FAILED tests/integration/test_my_photos_delivery_freshness.py::test_delivery_rechecks_scope_after_provider_await[window_expired-preview]
+FAILED tests/integration/test_my_photos_delivery_freshness.py::test_delivery_rechecks_scope_after_provider_await[asset_removed-download]
+FAILED tests/integration/test_my_photos_delivery_freshness.py::test_delivery_rechecks_scope_after_provider_await[asset_removed-preview]
+FAILED tests/integration/test_my_photos_delivery_freshness.py::test_delivery_deadline_does_not_exceed_gallery_access_window[download]
+FAILED tests/integration/test_my_photos_delivery_freshness.py::test_delivery_deadline_does_not_exceed_gallery_access_window[preview]
+FAILED tests/integration/test_my_photos_delivery_freshness.py::test_delivery_authorization_cannot_publish_over_a_changed_claim[replaced]
+FAILED tests/integration/test_my_photos_delivery_freshness.py::test_delivery_authorization_cannot_publish_over_a_changed_claim[expired]
+10 failed in 19.72s

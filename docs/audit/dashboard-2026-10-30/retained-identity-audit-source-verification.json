@@ -1,0 +1,32 @@
+{
+  "status": "Bounded source-only identity/audit cohort complete; broader audit active",
+  "new_current_full_tests": 4,
+  "test_physical_lines": 614,
+  "supporting_full_rows": 3,
+  "focused_rows": 3,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-identity-audit-source-reviewed-files.json",
+    "sha256": "b2f9df8c95f7f5c74a2dda24ced26613fa5dc84319fd4ce13fe820280ac0a8ee"
+  },
+  "source_fence": {
+    "backend/tests/integration/test_identity_action_boundaries.py": "0e2e9b60b14744dc8f7531eca37f378252d31bef16229844ccca754b28fe053a",
+    "backend/tests/integration/test_recovery_code_assurance.py": "46ef80ef445b630965df20cdb521bb3fcd57f437be532a8c730313568eaef750",
+    "backend/tests/unit/presentation/test_audit_log_routes.py": "56a372745c53c4372d883f47f3e1078a5882231dac647b11118cc0f306e3cd95",
+    "backend/tests/unit/presentation/test_identity_step_up.py": "2e418e18e49ad4a7047c7596582881d16bb5892a56432e3352750f72cf44d8c3",
+    "backend/app/presentation/api/v1/routes/auth_identity_step_up.py": "e748311e50ee9c47ce1df2596ec2b5d4ea0f9c96c2240aaf80a4ee91c30c7639",
+    "backend/app/infrastructure/repositories/identity_action_token_repository.py": "0cfc0cb594e048ad9c81f77430f2cc676db35bc72841c863f2421eb8f8a7c90a",
+    "backend/app/presentation/api/v1/routes/audit_logs.py": "d40421d8cd5220df82e79f2c36adf41b28302cb18ad53738bc14e5983cfb49c6",
+    "backend/app/presentation/api/v1/routes/auth_identity.py": "daa6e8b3fc67dd9cda2c784d0330fddecb05105e8b0e7b3651b8c6a2936f6e37",
+    "backend/app/presentation/api/v1/routes/auth_identity_account.py": "c47ddd2d9969dcd1ce03e293ba35d31cbc902fc5954decd867fc0bd7a09f569d",
+    "backend/app/infrastructure/repositories/identity_security_repository.py": "cb748a2dc68051430b6eb60c5983c5551ec7fee2d27fbfe45df9237c50daad6c"
+  },
+  "checks_run": [],
+  "changes": [],
+  "findings": [],
+  "proof_gaps": [
+    "No tests/real secrets/providers/Redis/PG/browser transport or SQL export workload executed for read credit.",
+    "Current role/factor/session source controls and synthetic clock/limiter/keyring assertions are not independent live-service security qualification.",
+    "Outgoing identity activation/recovery supersession is retained shared workflow, no dedicated Operations Inbox work resumed.",
+    "Audit HTTP/CSV/filter responsibility split remains an optional architecture follow-up; source read alone does not close it."
+  ]
+}

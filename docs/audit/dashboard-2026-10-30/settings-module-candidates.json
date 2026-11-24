@@ -1,0 +1,50 @@
+{
+  "basis": "Additive measured candidates; preserve all existing global/critical coverage floors and module ceilings. Original declarations copied exactly after intentional repr-only redaction, AST proof12declarations. Focused execution217pass5skip; no coverage claim from that run.",
+  "modules": [
+    {
+      "path": "app/core/config/database_settings.py",
+      "lines": 111,
+      "max_function_complexity": 7,
+      "most_complex_function": "validate_connection_reserve",
+      "coverage_percent": null,
+      "maximum_lines": 130,
+      "maximum_function_complexity": 8
+    },
+    {
+      "path": "app/core/config/redis_settings.py",
+      "lines": 188,
+      "max_function_complexity": 8,
+      "most_complex_function": "validate_domain_isolation",
+      "coverage_percent": null,
+      "maximum_lines": 200,
+      "maximum_function_complexity": 9
+    },
+    {
+      "path": "app/core/config/jwt_settings.py",
+      "lines": 28,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "coverage_percent": null,
+      "maximum_lines": 40,
+      "maximum_function_complexity": 1
+    },
+    {
+      "path": "app/core/config/s3_settings.py",
+      "lines": 24,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "coverage_percent": null,
+      "maximum_lines": 40,
+      "maximum_function_complexity": 1
+    },
+    {
+      "path": "app/core/config/my_photos_settings.py",
+      "lines": 411,
+      "max_function_complexity": 47,
+      "most_complex_function": "validate_production_provider_shape",
+      "coverage_percent": null,
+      "maximum_lines": 430,
+      "maximum_function_complexity": 48
+    }
+  ]
+}

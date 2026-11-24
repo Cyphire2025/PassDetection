@@ -1,0 +1,164 @@
+.............................F....                                       [100%]
+================================== FAILURES ===================================
+___ test_gallery_revision_publication_is_atomic_and_queues_bounded_refresh ____
+
+    @pytest.mark.asyncio
+    async def test_gallery_revision_publication_is_atomic_and_queues_bounded_refresh() -> None:
+        gallery = MyPhotoGalleryModel(
+            id=uuid.uuid4(),
+            agency_id=uuid.uuid4(),
+            group_id=uuid.uuid4(),
+            feature_enabled=True,
+            status="indexing",
+            media_version=2,
+            face_index_version=2,
+            published_revision=1,
+            total_asset_count=5_000,
+            indexed_asset_count=5_002,
+            failed_asset_count=1,
+        )
+        index_job = MyPhotoJobModel(
+            gallery_id=gallery.id,
+            agency_id=gallery.agency_id,
+            group_id=gallery.group_id,
+            job_type="index_gallery",
+            status="running",
+            idempotency_key="index-revision-2",
+            target_revision=2,
+            max_attempts=5,
+            processed_count=3,
+            total_count=3,
+            succeeded_count=2,
+            failed_count=1,
+            correlation_id="revision-correlation",
+        )
+        coverage = SimpleNamespace(one=lambda: (3, 2, 1))
+        total = SimpleNamespace(scalar_one=lambda: 5_003)
+        eligible = SimpleNamespace(scalar_one=lambda: 2)
+        refresh_id = uuid.uuid4()
+    
+        def assign_refresh_id(job: MyPhotoJobModel) -> None:
+            job.id = refresh_id
+    
+        session = SimpleNamespace(
+            execute=AsyncMock(side_effect=(coverage, total, eligible)),
+            add=MagicMock(side_effect=assign_refresh_id),
+            flush=AsyncMock(),
+        )
+        published_at = datetime.now(tz=UTC)
+    
+>       published_refresh_id = await publish_gallery_revision(
+            session,  # type: ignore[arg-type]
+            gallery=gallery,
+            index_job=index_job,
+            settings=SimpleNamespace(  # type: ignore[arg-type]
+                my_photos=SimpleNamespace(consent_version="consent-v1", job_max_attempts=5)
+            ),
+            published_at=published_at,
+        )
+
+tests\unit\infrastructure\test_my_photos_contracts.py:674: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+session = namespace(execute=<AsyncMock id='1653320347920'>, add=<MagicMock id='1653318885712'>, flush=<AsyncMock id='1653320345936'>)
+
+    async def publish_gallery_revision(
+        session: AsyncSession,
+        *,
+        gallery: MyPhotoGalleryModel,
+        index_job: MyPhotoJobModel,
+        settings: Settings,
+        published_at: datetime,
+    ) -> uuid.UUID | None:
+        """Publish exactly the indexed target and durably schedule bounded refresh fan-out."""
+    
+        target_revision = index_job.target_revision
+        if target_revision is None or target_revision != gallery.published_revision + 1:
+            raise ValueError("Gallery publication target is stale")
+    
+        manifest: MyPhotoGalleryManifestModel | None = None
+        if getattr(index_job, "request_fingerprint", None) is not None:
+            manifest = (
+                await session.execute(
+                    select(MyPhotoGalleryManifestModel)
+                    .where(
+                        MyPhotoGalleryManifestModel.gallery_id == gallery.id,
+                        MyPhotoGalleryManifestModel.agency_id == gallery.agency_id,
+                        MyPhotoGalleryManifestModel.group_id == gallery.group_id,
+                        MyPhotoGalleryManifestModel.manifest_identity == index_job.idempotency_key,
+                        MyPhotoGalleryManifestModel.target_revision == target_revision,
+                        MyPhotoGalleryManifestModel.content_fingerprint
+                        == index_job.request_fingerprint,
+                        MyPhotoGalleryManifestModel.status == "indexing",
+                    )
+                    .with_for_update()
+                )
+            ).scalar_one_or_none()
+            if manifest is None or manifest.total_asset_count != index_job.total_count:
+                raise ValueError("Gallery publication manifest is invalid")
+    
+        coverage = (
+            await session.execute(
+                select(
+                    func.count(MyPhotoMediaAssetModel.id),
+                    func.count(MyPhotoMediaAssetModel.id).filter(
+                        MyPhotoMediaAssetModel.processing_state == "indexed"
+                    ),
+                    func.count(MyPhotoMediaAssetModel.id).filter(
+                        MyPhotoMediaAssetModel.processing_state == "failed"
+                    ),
+                ).where(
+                    MyPhotoMediaAssetModel.gallery_id == gallery.id,
+                    MyPhotoMediaAssetModel.published_revision == target_revision,
+                    MyPhotoMediaAssetModel.processing_state != "removed",
+                )
+            )
+        ).one()
+        if (
+            int(coverage[0]) != index_job.total_count
+            or int(coverage[1]) != index_job.succeeded_count
+            or int(coverage[2]) != index_job.failed_count
+            or int(coverage[1]) + int(coverage[2]) != int(coverage[0])
+        ):
+            raise ValueError("Gallery publication coverage is incomplete")
+    
+        if manifest is not None:
+            gallery.media_version = target_revision
+            gallery.face_index_version = target_revision
+            gallery.all_group_photos_enabled = manifest.all_group_photos_enabled
+            gallery.provider_collection_reference = manifest.provider_collection_reference
+            gallery.provider_name = "aws"
+            gallery.index_model_version = manifest.provider_model_version
+            gallery.match_config_version = manifest.match_config_version
+            gallery.retention_policy_version = manifest.retention_policy_version
+            gallery.retention_days = manifest.retention_days
+            gallery.availability_starts_at = manifest.availability_starts_at
+            gallery.availability_ends_at = manifest.availability_ends_at
+            manifest.status = "finalized"
+        gallery.published_revision = target_revision
+        gallery.status = "ready"
+        gallery.published_at = published_at
+        published_counts = (
+            await session.execute(
+                select(
+                    func.count(MyPhotoMediaAssetModel.id),
+                    func.count(MyPhotoMediaAssetModel.id).filter(
+                        MyPhotoMediaAssetModel.processing_state == "indexed"
+                    ),
+                    func.count(MyPhotoMediaAssetModel.id).filter(
+                        MyPhotoMediaAssetModel.processing_state == "failed"
+                    ),
+                ).where(
+                    MyPhotoMediaAssetModel.gallery_id == gallery.id,
+                    MyPhotoMediaAssetModel.published_revision <= target_revision,
+                    MyPhotoMediaAssetModel.processing_state != "removed",
+                )
+            )
+>       ).one()
+          ^^^
+E       AttributeError: 'types.SimpleNamespace' object has no attribute 'one'
+
+app\infrastructure\my_photos\revision_runtime.py:126: AttributeError
+=========================== short test summary info ===========================
+FAILED tests/unit/infrastructure/test_my_photos_contracts.py::test_gallery_revision_publication_is_atomic_and_queues_bounded_refresh
+1 failed, 33 passed in 21.90s

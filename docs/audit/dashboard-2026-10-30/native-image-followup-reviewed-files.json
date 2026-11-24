@@ -1,0 +1,26 @@
+[
+  {
+    "path": "backend/app/core/native_image_admission.py",
+    "sha256": "8ec758c93c7424730e115d99dcbbdc5f3a0835534465f5380c0c2bbccd633e09",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current source read. Suspected cancelled-render admission release is cleared by actual decorator/worker-owned kernel lock binding. Existing real native cancellation control ran1PASS locally; no code changes, no CPU throughput or live Linux capacity claim. The worker keeps native_image_slot until its own finally closes pixels/reclaims heap, independently of cancelled async callers. See native-image-followup-verification.json; test run was not wrapped in a contemporaneous before/after source fence."
+  },
+  {
+    "path": "backend/app/infrastructure/imaging/passport_image_cropper.py",
+    "sha256": "a180838f516f7c317f18850c3e6f79f6ad923135adc25d090b8f871fbb403fda",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current source read. Suspected cancelled-render admission release is cleared by actual decorator/worker-owned kernel lock binding. Existing real native cancellation control ran1PASS locally; no code changes, no CPU throughput or live Linux capacity claim. The worker keeps native_image_slot until its own finally closes pixels/reclaims heap, independently of cancelled async callers. See native-image-followup-verification.json; test run was not wrapped in a contemporaneous before/after source fence."
+  },
+  {
+    "path": "backend/tests/unit/core/test_native_image_admission.py",
+    "sha256": "77d66db5c5b4fb3a5dfddbc8e110db2aa4cb92384f2625fdfc6d939967cb57dd",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current source read. Suspected cancelled-render admission release is cleared by actual decorator/worker-owned kernel lock binding. Existing real native cancellation control ran1PASS locally; no code changes, no CPU throughput or live Linux capacity claim. The worker keeps native_image_slot until its own finally closes pixels/reclaims heap, independently of cancelled async callers. See native-image-followup-verification.json; test run was not wrapped in a contemporaneous before/after source fence."
+  }
+]

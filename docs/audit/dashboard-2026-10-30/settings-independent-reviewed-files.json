@@ -1,0 +1,106 @@
+[
+  {
+    "path": "backend/app/core/config/runtime_settings_fields.py",
+    "sha256": "dd324d05455e837d57ca26aa4dba1f8a0e712214c544fbdc50aab21cd7495a86",
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Independent complete physical read of current source. Reviewed public field/environment/config/validator wiring, secret repr metadata and AWS admission split. No evidenced defect. Focused synthetic before/after wiring probe is settings-independent-wiring-verification.json; root owns runtime."
+  },
+  {
+    "path": "backend/app/core/config/request_settings_fields.py",
+    "sha256": "f7dbe65f066e304ee089241e7709f14246801039aeee25ba6f91f474fa38468b",
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Independent complete physical read of current source. Reviewed public field/environment/config/validator wiring, secret repr metadata and AWS admission split. No evidenced defect. Focused synthetic before/after wiring probe is settings-independent-wiring-verification.json; root owns runtime."
+  },
+  {
+    "path": "backend/app/core/config/ingestion_settings_fields.py",
+    "sha256": "b4b3f161aa7dd3350d077dd20e4880dcca69439f853cccb63bec8d82338e2788",
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Independent complete physical read of current source. Reviewed public field/environment/config/validator wiring, secret repr metadata and AWS admission split. No evidenced defect. Focused synthetic before/after wiring probe is settings-independent-wiring-verification.json; root owns runtime."
+  },
+  {
+    "path": "backend/app/core/config/ai_settings_fields.py",
+    "sha256": "2d7c876502cf60b435b12bd8b33823e91877e8082057f7d16a976b4b51705ad3",
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Independent complete physical read of current source. Reviewed public field/environment/config/validator wiring, secret repr metadata and AWS admission split. No evidenced defect. Focused synthetic before/after wiring probe is settings-independent-wiring-verification.json; root owns runtime."
+  },
+  {
+    "path": "backend/app/core/config/email_settings_fields.py",
+    "sha256": "ae471aa0f319c27390953546c57f385ea6bb9cb88f6d6bf6e4bc6aae52f45e95",
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Independent complete physical read of current source. Reviewed public field/environment/config/validator wiring, secret repr metadata and AWS admission split. No evidenced defect. Focused synthetic before/after wiring probe is settings-independent-wiring-verification.json; root owns runtime."
+  },
+  {
+    "path": "backend/app/core/config/identity_settings_fields.py",
+    "sha256": "1aaa228536583a4e8f023f4a350d2652139b2f0aa1dfd34316656d55f972afae",
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Independent complete physical read of current source. Reviewed public field/environment/config/validator wiring, secret repr metadata and AWS admission split. No evidenced defect. Focused synthetic before/after wiring probe is settings-independent-wiring-verification.json; root owns runtime."
+  },
+  {
+    "path": "backend/app/core/config/whatsapp_settings_fields.py",
+    "sha256": "3a0844b5cc46ff1693f4386df51c8f1c53e4cde1e86ef579abe4f4dbc6eb21bf",
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Independent complete physical read of current source. Reviewed public field/environment/config/validator wiring, secret repr metadata and AWS admission split. No evidenced defect. Focused synthetic before/after wiring probe is settings-independent-wiring-verification.json; root owns runtime."
+  },
+  {
+    "path": "backend/app/core/config/settings_deployment_policy.py",
+    "sha256": "966075f95b4c23faf2f6da0260587e9f40a2cca9fcdeaaaa9dd30aad06522123",
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Independent complete physical read of current source. Reviewed public field/environment/config/validator wiring, secret repr metadata and AWS admission split. No evidenced defect. Focused synthetic before/after wiring probe is settings-independent-wiring-verification.json; root owns runtime."
+  },
+  {
+    "path": "backend/app/core/config/settings_identity_policy.py",
+    "sha256": "a3d1c6c91dec985a044fd5140cea479b3703f023e8fb84d960711e387538814c",
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Independent complete physical read of current source. Reviewed public field/environment/config/validator wiring, secret repr metadata and AWS admission split. No evidenced defect. Focused synthetic before/after wiring probe is settings-independent-wiring-verification.json; root owns runtime."
+  },
+  {
+    "path": "backend/app/core/config/settings_mobile_policy.py",
+    "sha256": "01faa1d917fb7f47fa18e4b0acc7c3e8d7e538f5a10175ff14f625fec447c546",
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Independent complete physical read of current source. Reviewed public field/environment/config/validator wiring, secret repr metadata and AWS admission split. No evidenced defect. Focused synthetic before/after wiring probe is settings-independent-wiring-verification.json; root owns runtime."
+  },
+  {
+    "path": "backend/app/core/config/settings.py",
+    "sha256": "6c5485def68a3d76a27260fbce57bfb2321b241787b769ce0738d63fccc8fef3",
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Independent complete physical read of current source. Reviewed public field/environment/config/validator wiring, secret repr metadata and AWS admission split. No evidenced defect. Focused synthetic before/after wiring probe is settings-independent-wiring-verification.json; root owns runtime."
+  },
+  {
+    "path": "backend/app/core/config/my_photos_settings.py",
+    "sha256": "e30629c3d3803355ba4484d55f97c08e1857cc75ea7e1a52e83849b601cd7f17",
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Independent complete physical read of current source. Reviewed public field/environment/config/validator wiring, secret repr metadata and AWS admission split. No evidenced defect. Focused synthetic before/after wiring probe is settings-independent-wiring-verification.json; root owns runtime."
+  },
+  {
+    "path": "backend/app/core/config/my_photos_aws_policy.py",
+    "sha256": "bf72bbe93b00bc98c589cde717c4e80676114d869095d4787b6276696aa65492",
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Independent complete physical read of current source. Reviewed public field/environment/config/validator wiring, secret repr metadata and AWS admission split. No evidenced defect. Focused synthetic before/after wiring probe is settings-independent-wiring-verification.json; root owns runtime."
+  }
+]

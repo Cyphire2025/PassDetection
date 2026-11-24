@@ -1,0 +1,16 @@
+[
+  {
+    "path": "features/documents/components/saved-rename-batches.tsx",
+    "baselineLines": 147,
+    "maximumLines": 150,
+    "baselineMaxFunctionComplexity": 10,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/documents/components/rename-results.tsx",
+    "baselineLines": 182,
+    "maximumLines": 190,
+    "baselineMaxFunctionComplexity": 9,
+    "maximumFunctionComplexity": 10
+  }
+]

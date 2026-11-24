@@ -1,0 +1,29 @@
+{
+  "command": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "tests/unit/presentation/test_email_review_decision_paths.py",
+    "tests/unit/presentation/test_email_review_decision_storage.py",
+    "tests/unit/presentation/test_email_ai_inbox_isolation.py::test_marking_message_unrelated_revokes_an_inflight_ai_claim",
+    "tests/unit/presentation/test_email_integration_route_decomposition.py",
+    "tests/unit/presentation/test_email_integration_contract.py::test_review_actions_require_a_staged_assignable_document",
+    "tests/unit/presentation/test_email_integration_contract.py::test_human_review_can_supply_a_supported_document_type"
+  ],
+  "exit_code": 0,
+  "log": "docs/audit/dashboard-2026-10-30/email-review-decisions-baseline-corrected-tests.log",
+  "sha256": "46d818afac35f55ed824c2ce977ddfe42000cbf8c89ec254f83cbc9e5ee4f848",
+  "source_fence": {
+    "backend/app/presentation/api/v1/routes/email_integration_review_decisions.py": "591fb3b3b30248d2c2fd1f40ea6eb90cc6232c47833a3cea8f5e3950923ecb77",
+    "backend/app/presentation/api/v1/routes/email_integrations.py": "6b8b8df006d06009b7202f030b91d0f884eed7dcc6880416e04aa0db512d26bf",
+    "backend/tests/email_review_decision_fixtures.py": "df0cbf732b22dde763ab2a8577958a40c9e6d1b1fa8b5a954744bf62c0960dbe",
+    "backend/tests/unit/presentation/test_email_ai_inbox_isolation.py": "5e8ac0d2db1cd7d29af3bbdd4cfe864295563f1a77dcf5405d2574bf88e13a8c",
+    "backend/tests/unit/presentation/test_email_integration_contract.py": "90600186690bfeb92fa3abeee378c071c8227a1dcb8dea82be958daecfc80c2f",
+    "backend/tests/unit/presentation/test_email_integration_route_decomposition.py": "7a0dc81a5b12e9f3a95b70aaf149976051b82c0ed06f981d47bbd5a7faf4ebf4",
+    "backend/tests/unit/presentation/test_email_review_decision_paths.py": "71f42a1adf4117bb3e171b7537ec17dcfed5f6b508b5d69550d8e20e13a071c9",
+    "backend/tests/unit/presentation/test_email_review_decision_storage.py": "c35d977b0aae6e287a8853c9be66c7d028a274829b089c50749c99fee4669a28"
+  }
+}

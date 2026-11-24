@@ -1,0 +1,44 @@
+{
+  "status": "qualified tracking canonical snapshot streaming reuse",
+  "source_fence": {
+    "backend/app/application/use_cases/passports/prepare_tracking_excel.py": "6b864d3cb293037a29fe95e4f68daa0d75fb0e58b5516545dfb7c86cfd12ea62",
+    "backend/app/application/use_cases/passports/excel_snapshot.py": "0930c4bb75499c084bb45197c7e514b2879f3f559a86b0d02cdd23e845764613",
+    "backend/app/application/use_cases/passports/prepare_group_excel.py": "50cf87b65201eb33673f3658f6bbe1d3da6e665fe357bb80302a01feb01a20c7",
+    "backend/tests/integration/test_mcp_tracking_exports.py": "9e6cb179fdda7e4b47b29c5c692af562e22ad6a68393ba7619eb2953f7bbfb7a",
+    "backend/tests/integration/test_mcp_export_capacity.py": "623a12395f35c39a1b86287151582aa720d2c5634f77bbdf5c089a194de95191",
+    "backend/tests/integration/test_tracking_snapshot_admission.py": "4e531548dc4a95e4c52e2bb2ea60f3b744066854530f791b2a3b45eb052e0436"
+  },
+  "before": "tracking-snapshot-before-command.json:2 actual resource-count failures after all business/status assertions passed;209 deep-copy calls both unlimited and one-byte quota cases",
+  "after": "tracking-snapshot-final-command.json:56 passed/3 files/19.95s;10 new controls and46 existing affected cases",
+  "checks": {
+    "types": "1 changed source PASS",
+    "lint": "2 source/test files PASS"
+  },
+  "proof": {
+    "whole_module_inverse": "Every non-import module AST is exact after restoring only the canonical snapshot/hash block; imports change only hashlib/json/private canonical to the existing digest/error owner. Exact raw snapshot keys/values retained, including all comparison rows and unselected sources.",
+    "public_contract": "Original complete prepare_tracking_excel signature and evaluated hint shapes unchanged. The unchanged support dataclass AST is proved first; only the temporary replay module's separate support-class identity is normalized through explicit localns, with all other actual hint identities unchanged.",
+    "original_negative_assertions": "Recorded real baseline test hash was exactly reconstructed after removing only appended parity controls/imports; every original helper/test body/decorator/assertion AST unchanged.",
+    "byte_contract": "8 real SQLite status/broadcast combinations compare actual prepared revisions to the existing canonical JSON format, accept exactlyN encoded bytes and rejectN-1 with the same413/detail; no artifact is written.",
+    "unchanged_dependencies": [
+      "backend/app/application/use_cases/passports/excel_snapshot.py",
+      "backend/app/application/use_cases/passports/prepare_group_excel.py",
+      "backend/tests/integration/test_mcp_tracking_exports.py",
+      "backend/tests/integration/test_mcp_export_capacity.py"
+    ]
+  },
+  "work_count": {
+    "synthetic_database_passengers": 2,
+    "unlimited_before": 209,
+    "unlimited_after": 0,
+    "one_byte_limit_before": 209,
+    "one_byte_limit_after": 0,
+    "basis": "Actual canonical deepcopy operations observed inside real shared tracking preparation; scope/selection and exact413 control assert before work count."
+  },
+  "limits": [
+    "Removes one redundant full normalized source graph and its deepcopy work. Hashing and source/render-input preparation remain synchronous/linear in payload size; sorted mappings retain their existing storage needs. No changed asymptotic complexity, measured peak-RAM bound, request-latency improvement or production-capacity claim.",
+    "The legacy _canonical helper remains used by image and rooming preparation and test oracles; it was deliberately retained after complete reference search.",
+    "Existing digest/group helper and two original test files are byte-identical. No auth, permission, data selection, SQL, query ordering, ECR reads, rendering, artifact/history writes or transport behavior changed.",
+    "Only the two resource cases ran before the correction; eight added parity controls are current-source functional evidence, not represented as pre-fix executions.",
+    "No broad build/browser/service or live PostgreSQL qualification is attributed to this focused batch. No quality budget or release binding was modified by root."
+  ]
+}

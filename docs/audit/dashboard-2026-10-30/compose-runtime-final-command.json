@@ -1,0 +1,93 @@
+{
+  "checks": [
+    {
+      "check": "unit",
+      "argv": [
+        "-m",
+        "unittest",
+        "test_compose_runtime_policies",
+        "test_compose_render_fixture"
+      ],
+      "exit_code": 0
+    },
+    {
+      "check": "ruff",
+      "argv": [
+        "-m",
+        "ruff",
+        "check",
+        "--config",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\pyproject.toml",
+        "--no-fix",
+        "verify_compose_runtime.py",
+        "compose_runtime_capacity.py",
+        "compose_runtime_clients.py",
+        "compose_runtime_contract.py",
+        "compose_runtime_services.py",
+        "compose_runtime_values.py",
+        "compose_runtime_workers.py",
+        "test_compose_runtime_policies.py",
+        "test_compose_render_fixture.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "check": "format",
+      "argv": [
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "--config",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\pyproject.toml",
+        "verify_compose_runtime.py",
+        "compose_runtime_capacity.py",
+        "compose_runtime_clients.py",
+        "compose_runtime_contract.py",
+        "compose_runtime_services.py",
+        "compose_runtime_values.py",
+        "compose_runtime_workers.py",
+        "test_compose_runtime_policies.py",
+        "test_compose_render_fixture.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "check": "mypy",
+      "argv": [
+        "-m",
+        "mypy",
+        "--follow-imports=silent",
+        "--platform",
+        "linux",
+        "verify_compose_runtime.py",
+        "compose_runtime_capacity.py",
+        "compose_runtime_clients.py",
+        "compose_runtime_contract.py",
+        "compose_runtime_services.py",
+        "compose_runtime_values.py",
+        "compose_runtime_workers.py"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "sha256": {
+    "scripts/verify_compose_runtime.py": "fc40628ad8ee060c34574e1d624d36f20fa1ead9e498dad4bf6c7067fae9e5e8",
+    "scripts/compose_runtime_capacity.py": "5261ea747dc77062c2b6d4c13ff617c0df6ab72c7e3a003410b5bd0c364ae979",
+    "scripts/compose_runtime_clients.py": "0e542244be82084f49bb558c3500c1a51fb97f8e7f8f367a75dd54f679768d93",
+    "scripts/compose_runtime_contract.py": "12c0fe4ac2368f4ed6120d68d8c7224f2402a3b8b65d9075e507fdc55edcb3e3",
+    "scripts/compose_runtime_services.py": "698b1cdbda38eaa96a5fb08377c90bb4a2ecedcb620f5f073fc3d01c1aae2d43",
+    "scripts/compose_runtime_values.py": "fba60e039015fd050fd7048f490a33da69fa6f9654d1297768ac01ff7799e4de",
+    "scripts/compose_runtime_workers.py": "13e906a71f218a6990f48bdb4de872487ddbc9c9a907287a508b45d05e44ef7b",
+    "scripts/test_compose_runtime_policies.py": "7b1c614c2d65cd1eca9f7538dbe6349edf9e26a6368528c43b0ccb1bdad77830",
+    "scripts/test_compose_render_fixture.py": "9fca05ccd7addadb69bcb2a7a431b1a335ea5541484518c2f2ba31822e530f64",
+    "backend/Dockerfile": "10895b26619bfee4e3f93426a3a8f4c3859a805442fcf63427adf12a0b429e6e",
+    "backend/gunicorn.conf.py": "5d309d16336290af027ad235a9c6b8b7110661d78e84d6823a62890b797d44c4",
+    "backend/.dockerignore": "b1ccfa9fa13ed96a2b0ab4671a27e4b3e0ef4f6a9d478a1ddc519bbdc01a1645",
+    "frontend/.dockerignore": "6a4024fa246fe813bedec0eaf950776f99b7a83d00e3c8abc10d67acb5dccce2"
+  },
+  "owned_runtime_count": 7,
+  "test_files": 2,
+  "support_files": 4,
+  "typecheck_scope": "Only7ownedmodules. Correct scripts cwd matches existing standalone CLI import layout; imported source bodies intentionally not re-typechecked. Earlier broad Windows import walk reported11pre-existing/unrelated/platform type diagnostics, not claimed green."
+}

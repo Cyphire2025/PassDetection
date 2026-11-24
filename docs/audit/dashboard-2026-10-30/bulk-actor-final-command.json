@@ -1,0 +1,50 @@
+{
+  "argv": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "--tb=short",
+    "tests/unit/presentation/test_bulk_approval_session_fence.py",
+    "tests/unit/presentation/test_passport_bulk_staff_approval_route.py",
+    "tests/unit/presentation/test_passport_bulk_delete_route.py",
+    "tests/unit/presentation/test_passport_submission_delete_access.py",
+    "tests/unit/presentation/test_passport_deletion_support.py",
+    "tests/unit/presentation/test_superadmin_access_level.py",
+    "--cov=app/presentation/api/v1/routes/passport_routes",
+    "--cov-branch",
+    "--cov-fail-under=0",
+    "--cov-report=json:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\bulk-actor-coverage.json",
+    "--cov-report=xml:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\bulk-actor-coverage.xml",
+    "--cov-report="
+  ],
+  "before": {
+    "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions.py": "aad1b4a3b41c0d831f7b2aa06063be18bab9584ba59defd57573cd3c0349e820",
+    "backend/app/application/security/access_level_actor.py": "3a8eec715f67356a378986999a012723bdd21f5510518ee7320ce7d0809013a6",
+    "backend/app/presentation/api/v1/routes/managed_account_sessions.py": "64828e2872daadeaee2362b07c4a353f43c6408e4598e59e7287ebb96b628043",
+    "backend/app/presentation/api/v1/routes/managed_account_credentials.py": "067cfca4e972d2caaff00aa6b2dc81fbe3bcff6f2bb7bb39b0c4a5fee114a778",
+    "backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py": "845f15f3cab392384ca306a3d76cda56375c160c80237ee3825fc6b5dd8e9e7e",
+    "backend/tests/unit/presentation/test_bulk_approval_session_fence.py": "2563a81c6a4edb1551550792ba8c106f4adfd6f76bf5b34e18f152c952c12cc0",
+    "backend/tests/unit/presentation/test_passport_bulk_delete_route.py": "458b2b2c710475ed9513d44128f2fd95318998995092da1adf91c7c371bbd1a8",
+    "backend/tests/unit/presentation/test_passport_submission_delete_access.py": "a00bdacedbd40ed4f612ff7f2b4af090bfbee2bb6edfbc6e8dce750439984b7a",
+    "backend/tests/unit/presentation/test_passport_deletion_support.py": "72f1d08b4e3095350904c40f9f625182462a3225564746498e1c1a5080a47939",
+    "backend/tests/unit/presentation/test_superadmin_access_level.py": "6db299d16c4955822c37a1c7852a42d5348bb04eb7afc3c06c57beb9e27d4d04"
+  },
+  "after": {
+    "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions.py": "aad1b4a3b41c0d831f7b2aa06063be18bab9584ba59defd57573cd3c0349e820",
+    "backend/app/application/security/access_level_actor.py": "3a8eec715f67356a378986999a012723bdd21f5510518ee7320ce7d0809013a6",
+    "backend/app/presentation/api/v1/routes/managed_account_sessions.py": "64828e2872daadeaee2362b07c4a353f43c6408e4598e59e7287ebb96b628043",
+    "backend/app/presentation/api/v1/routes/managed_account_credentials.py": "067cfca4e972d2caaff00aa6b2dc81fbe3bcff6f2bb7bb39b0c4a5fee114a778",
+    "backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py": "845f15f3cab392384ca306a3d76cda56375c160c80237ee3825fc6b5dd8e9e7e",
+    "backend/tests/unit/presentation/test_bulk_approval_session_fence.py": "2563a81c6a4edb1551550792ba8c106f4adfd6f76bf5b34e18f152c952c12cc0",
+    "backend/tests/unit/presentation/test_passport_bulk_delete_route.py": "458b2b2c710475ed9513d44128f2fd95318998995092da1adf91c7c371bbd1a8",
+    "backend/tests/unit/presentation/test_passport_submission_delete_access.py": "a00bdacedbd40ed4f612ff7f2b4af090bfbee2bb6edfbc6e8dce750439984b7a",
+    "backend/tests/unit/presentation/test_passport_deletion_support.py": "72f1d08b4e3095350904c40f9f625182462a3225564746498e1c1a5080a47939",
+    "backend/tests/unit/presentation/test_superadmin_access_level.py": "6db299d16c4955822c37a1c7852a42d5348bb04eb7afc3c06c57beb9e27d4d04"
+  },
+  "source_frozen": true,
+  "exit_code": 0,
+  "output": "bulk-actor-final-tests.txt"
+}

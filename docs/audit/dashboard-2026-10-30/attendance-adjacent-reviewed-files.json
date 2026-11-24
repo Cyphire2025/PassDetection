@@ -1,0 +1,416 @@
+[
+  {
+    "path": "backend/app/infrastructure/repositories/audit_log_repository.py",
+    "sha256": "53119144537401e6f37e37df076fbf33882ebc73c5c98d3c42cb6b4a7c653113",
+    "lines": 243,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Agency-scoped filters, bounded cursor pages, insertion/hash chain and export reads traced. Original repository method bodies retained; live facade hash callback preserved for verifier. No new authorization grant.",
+    "verification": "attendance-adjacent-verification.json",
+    "review_provenance": {
+      "basis": "Complete physical source reads during this coherent tranche; retained-current source hashes checked again at sealing",
+      "structural_proof": "attendance-adjacent-structural-proof.json"
+    }
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/audit_chain_verification.py",
+    "sha256": "7c655639c88bcd0c4a48d02b60281cc48fe81f200203bff31d3a6069ec3f6d21",
+    "lines": 113,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete prior chain verifier body retained with explicit session/hash callback. Broken/checkpoint/truncated chain behavior covered. Whole-chain memory/read-committed semantics remain unchanged debt, not an established disclosure.",
+    "verification": "attendance-adjacent-verification.json",
+    "review_provenance": {
+      "basis": "Complete physical source reads during this coherent tranche; retained-current source hashes checked again at sealing",
+      "structural_proof": "attendance-adjacent-structural-proof.json"
+    }
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/audit_log_integrity.py",
+    "sha256": "5714830391e62418e107267f76dd302194fc7194dd982e5eba403904bbcbf8de",
+    "lines": 64,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Canonical hash scope and metadata hash inputs unchanged. PII is not introduced into export projection; existing response envelope redacts server errors.",
+    "verification": "attendance-adjacent-verification.json",
+    "review_provenance": {
+      "basis": "Complete physical source reads during this coherent tranche; retained-current source hashes checked again at sealing",
+      "structural_proof": "attendance-adjacent-structural-proof.json"
+    }
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/audit_log_paging.py",
+    "sha256": "327336b7fe986f2c0ebe863d2265ded49e61e12d9da3f70116e48da055bdc027",
+    "lines": 98,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Bound cursor decode, UTC dates, filter fingerprints, SQL predicates and escaped LIKE values read. Parameterized queries and tenant filters preserved. Remaining branch gaps recorded in coverage.",
+    "verification": "attendance-adjacent-verification.json",
+    "review_provenance": {
+      "basis": "Complete physical source reads during this coherent tranche; retained-current source hashes checked again at sealing",
+      "structural_proof": "attendance-adjacent-structural-proof.json"
+    }
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/audit_log_types.py",
+    "sha256": "fad5cf66159b26ff6ed1cc096ecfc768fdc91e7dc73a57aa3ecb4334dcdaf79f",
+    "lines": 69,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Frozen filters/page/verification/cursor shapes and filter fingerprint preserved; public facade aliases remain the same class objects.",
+    "verification": "attendance-adjacent-verification.json",
+    "review_provenance": {
+      "basis": "Complete physical source reads during this coherent tranche; retained-current source hashes checked again at sealing",
+      "structural_proof": "attendance-adjacent-structural-proof.json"
+    }
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/audit_log_values.py",
+    "sha256": "a95a8ba16fc3527c4b391e6183e9b37166589585026c218ef0cbb5942868895b",
+    "lines": 58,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Canonical scalar/datetime/UUID/list/dict conversion, timezone validation and cursor/date primitives retained whole AST. No new permissive parsing or data sink.",
+    "verification": "attendance-adjacent-verification.json",
+    "review_provenance": {
+      "basis": "Complete physical source reads during this coherent tranche; retained-current source hashes checked again at sealing",
+      "structural_proof": "attendance-adjacent-structural-proof.json"
+    }
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/attendance_runtime.py",
+    "sha256": "e79350bce11c8c4f09be713a59ca126e3b5edf96c769c6fbd5840e714faa94da",
+    "lines": 335,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All five browser routes read and retained exact signatures/decorators; runtime registration/revocation/disposition original bodies intact. Agency/user/runtime-cookie gates, manager MFA and original call-time services preserved.",
+    "verification": "attendance-adjacent-verification.json",
+    "review_provenance": {
+      "basis": "Complete physical source reads during this coherent tranche; retained-current source hashes checked again at sealing",
+      "structural_proof": "attendance-adjacent-structural-proof.json"
+    }
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/attendance_runtime_dependencies.py",
+    "sha256": "46ef6b1d6b886cbda99cfbdb169d93e7069fcc48d7b78fb585adfe4591665a44",
+    "lines": 81,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Typed immutable dependency records contain explicit original call-time services, not grants or global mutable state. Protocol annotations preserve resolver/revision/session contracts.",
+    "verification": "attendance-adjacent-verification.json",
+    "review_provenance": {
+      "basis": "Complete physical source reads during this coherent tranche; retained-current source hashes checked again at sealing",
+      "structural_proof": "attendance-adjacent-structural-proof.json"
+    }
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/attendance_offline_authorization.py",
+    "sha256": "175732a8661c1dd09b79859e88c0ab4366aa7e299cdc4ab2b2fdbe417e96ac14",
+    "lines": 158,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Offline grant authorization, readiness denial, signing, participant registration and metadata-only audit traced. Explicit roster/activity limits and private response headers retained. Unit signing uses a synthetic key, not live storage/provider credentials.",
+    "verification": "attendance-adjacent-verification.json",
+    "review_provenance": {
+      "basis": "Complete physical source reads during this coherent tranche; retained-current source hashes checked again at sealing",
+      "structural_proof": "attendance-adjacent-structural-proof.json"
+    }
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/attendance_offline_sources.py",
+    "sha256": "f9fbdda766e31757d1403537627aea938d6298b060f955ec9a06c2c67e6fe9cc",
+    "lines": 162,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Bounded group/agency/active-roster/activity queries, schedule and complete-QR checks preserved; original count/clock/query ordering unchanged. Synthetic compiled query and denial tests cover shape, not live PostgreSQL behavior.",
+    "verification": "attendance-adjacent-verification.json",
+    "review_provenance": {
+      "basis": "Complete physical source reads during this coherent tranche; retained-current source hashes checked again at sealing",
+      "structural_proof": "attendance-adjacent-structural-proof.json"
+    }
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/attendance_discard_sync.py",
+    "sha256": "ff5e43c01c49cb6249f042ed76e3b167ccbd5f9569818a69c65354553d409a65",
+    "lines": 130,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Fixed durable consistency bug: one per-group SAVEPOINT now rolls back fresh event inserts when reused event content rejects the group. Other accepted groups, receipts, authorization and retry/idempotency semantics preserved. Actual authenticated ASGI/committing SQLite regressions.",
+    "verification": "attendance-adjacent-verification.json",
+    "review_provenance": {
+      "basis": "Complete physical source reads during this coherent tranche; retained-current source hashes checked again at sealing",
+      "structural_proof": "attendance-adjacent-structural-proof.json"
+    }
+  },
+  {
+    "path": "backend/app/application/use_cases/attendance_dashboard.py",
+    "sha256": "a0a9bc46d730af826b51aaa6dcb6291105874e561216fb12a3561575de957bea",
+    "lines": 250,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Service class and visible-coordinator policy retained whole AST. Summary/missing pagination, snapshot revision, agency scope and authority callers traced. Public compatibility imports and live original MAX constant seam retained.",
+    "verification": "attendance-adjacent-verification.json",
+    "review_provenance": {
+      "basis": "Complete physical source reads during this coherent tranche; retained-current source hashes checked again at sealing",
+      "structural_proof": "attendance-adjacent-structural-proof.json"
+    }
+  },
+  {
+    "path": "backend/app/application/use_cases/attendance_dashboard_types.py",
+    "sha256": "ec6d377105b63c72db95e506b422db4222f7519b6d270468856a3da7648410d3",
+    "lines": 80,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Immutable dashboard projections/errors unchanged. Read-only annotation dependencies now point to application-owned immutable contracts; no infrastructure/HTTP dependency exception added.",
+    "verification": "attendance-adjacent-verification.json",
+    "review_provenance": {
+      "basis": "Complete physical source reads during this coherent tranche; retained-current source hashes checked again at sealing",
+      "structural_proof": "attendance-adjacent-structural-proof.json"
+    }
+  },
+  {
+    "path": "backend/app/application/use_cases/attendance_dashboard_revision.py",
+    "sha256": "151500666ad5119bb04f875a74d34dcfd0894ca3ac2f65420a306206f2bcb9b0",
+    "lines": 62,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Activity selection, stable opaque revision and UTC normalization unchanged whole AST; pure application read-contract annotations replace infra dependency.",
+    "verification": "attendance-adjacent-verification.json",
+    "review_provenance": {
+      "basis": "Complete physical source reads during this coherent tranche; retained-current source hashes checked again at sealing",
+      "structural_proof": "attendance-adjacent-structural-proof.json"
+    }
+  },
+  {
+    "path": "backend/app/application/use_cases/attendance_dashboard_projection.py",
+    "sha256": "b251c379590c46963d7d327dedff37bc53115272115f8118be2f1a56868c2fe8",
+    "lines": 121,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Aggregate-to-dashboard shaping unchanged whole AST, including closeout/absent/evidence semantics; source is pure application contract projection without SQL.",
+    "verification": "attendance-adjacent-verification.json",
+    "review_provenance": {
+      "basis": "Complete physical source reads during this coherent tranche; retained-current source hashes checked again at sealing",
+      "structural_proof": "attendance-adjacent-structural-proof.json"
+    }
+  },
+  {
+    "path": "backend/app/application/attendance_read_contracts.py",
+    "sha256": "24079d9b86046e0729b6514579ef38ea4df8cde3a32a184208edeb6072786b06",
+    "lines": 73,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Six existing immutable dataclasses moved once to application ownership. All ordered fields/metadata/class AST/frozen slots/constructor signatures match original. Legacy module identity, alias identity, pickle and get_type_hints tested.",
+    "verification": "attendance-adjacent-verification.json",
+    "review_provenance": {
+      "basis": "Complete physical source reads during this coherent tranche; retained-current source hashes checked again at sealing",
+      "structural_proof": "attendance-adjacent-structural-proof.json"
+    }
+  },
+  {
+    "path": "backend/app/application/attendance_closeout_read_contracts.py",
+    "sha256": "eceee8ea40cdce476d227da492a4157f4f0ab17a577d2b4f241f774a0cd381ee",
+    "lines": 48,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Two existing immutable closeout status dataclasses moved once to application ownership. Ordered fields/metadata/class AST/frozen slots/signatures/legacy import-pickle identities preserved; no constants or policy moved.",
+    "verification": "attendance-adjacent-verification.json",
+    "review_provenance": {
+      "basis": "Complete physical source reads during this coherent tranche; retained-current source hashes checked again at sealing",
+      "structural_proof": "attendance-adjacent-structural-proof.json"
+    }
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/attendance_dashboard_repository.py",
+    "sha256": "19ccb290e3f0b9faa454d0c2fe3686b8db8d8dce6137018a07430ed1a191d279",
+    "lines": 345,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical reread after contract move. All SQL, methods and constants exact AST; six original named aliases remain same classes. Explicit legacy datetime export preserves type-hint resolution.",
+    "verification": "attendance-adjacent-verification.json",
+    "review_provenance": {
+      "basis": "Complete physical source reads during this coherent tranche; retained-current source hashes checked again at sealing",
+      "structural_proof": "attendance-adjacent-structural-proof.json"
+    }
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/attendance_closeout_types.py",
+    "sha256": "dfc7430bd708f2584a70c1bb010aa20cffb987101acd261aaf99de7c9be60cb6",
+    "lines": 47,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical reread after contract move. Only two immutable status definitions moved; Counts/AssignmentCheckpoint/TTL constant unchanged. Original aliases and explicit Literal export retain introspection semantics.",
+    "verification": "attendance-adjacent-verification.json",
+    "review_provenance": {
+      "basis": "Complete physical source reads during this coherent tranche; retained-current source hashes checked again at sealing",
+      "structural_proof": "attendance-adjacent-structural-proof.json"
+    }
+  },
+  {
+    "path": "backend/app/presentation/api/v1/schemas/attendance_runtime_schemas.py",
+    "sha256": "d6a63d149118db4a7c711f7d5e8f940f24e52b13cffa9d4166fe7255de946e7d",
+    "lines": 244,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Unchanged exact original SHA after complete physical read of schema bounds/validators, roster membership/assignment lifecycle or shared QR evidence as applicable. Shared backend only; native application source excluded. No evidenced defect in this file.",
+    "verification": "attendance-adjacent-verification.json"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/schemas/attendance_closeout_schemas.py",
+    "sha256": "8d0ae0839744210762ae747f1c4ae1a146e0628cfeedeaa7365dcc57cca92e60",
+    "lines": 92,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Unchanged exact original SHA after complete physical read of schema bounds/validators, roster membership/assignment lifecycle or shared QR evidence as applicable. Shared backend only; native application source excluded. No evidenced defect in this file.",
+    "verification": "attendance-adjacent-verification.json"
+  },
+  {
+    "path": "backend/app/application/use_cases/attendance_projection.py",
+    "sha256": "8d4b499b968e6c6abfc95e91db921d3e86aa5bfac96b03d2dbe5720906a07ed7",
+    "lines": 36,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Unchanged exact original SHA after complete physical read of schema bounds/validators, roster membership/assignment lifecycle or shared QR evidence as applicable. Shared backend only; native application source excluded. No evidenced defect in this file.",
+    "verification": "attendance-adjacent-verification.json"
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/coordinator_assignment_lifecycle.py",
+    "sha256": "0a7ec89144ce7a41c5e67ab5454e5eae1d17669b5de1b52bb8404b8cda6dfbb9",
+    "lines": 156,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Unchanged exact original SHA after complete physical read of schema bounds/validators, roster membership/assignment lifecycle or shared QR evidence as applicable. Shared backend only; native application source excluded. No evidenced defect in this file.",
+    "verification": "attendance-adjacent-verification.json"
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/operational_roster.py",
+    "sha256": "96bc197d330b0ab314334e37e4de726b5224529432b1ff08d89367f4033532eb",
+    "lines": 67,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Unchanged exact original SHA after complete physical read of schema bounds/validators, roster membership/assignment lifecycle or shared QR evidence as applicable. Shared backend only; native application source excluded. No evidenced defect in this file.",
+    "verification": "attendance-adjacent-verification.json"
+  },
+  {
+    "path": "backend/app/application/mobile/attendance_qr_evidence.py",
+    "sha256": "e63fc500f290fbda49f869639a72779ade2719c4e7d164c2bfdd7ea1c555cdf9",
+    "lines": 117,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Unchanged exact original SHA after complete physical read of schema bounds/validators, roster membership/assignment lifecycle or shared QR evidence as applicable. Shared backend only; native application source excluded. No evidenced defect in this file.",
+    "verification": "attendance-adjacent-verification.json"
+  },
+  {
+    "path": "backend/app/presentation/security/attendance_runtime.py",
+    "sha256": "28e02f6c7d17467a9dfdeda9a019ae75dd1fdc3fd5b6d01c9065dfecba9ca17f",
+    "lines": 92,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "kind": "runtime",
+    "notes": "Complete physical source read tracing runtime cookie and browser/mobile token identification, current agency/user scoped runtime lookup and signing. No native app source review claim.",
+    "verification": "attendance-adjacent-verification.json"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/audit_logs.py",
+    "sha256": "d40421d8cd5220df82e79f2c36adf41b28302cb18ad53738bc14e5983cfb49c6",
+    "lines": 394,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "kind": "runtime",
+    "notes": "Complete physical source read tracing superadmin/global vs agency-admin tenant authorization, bounded cursor filters, safe CSV export projection and formula escaping. Agency-less admin and foreign agency deny; global access is intentional superadmin policy.",
+    "verification": "attendance-adjacent-verification.json"
+  },
+  {
+    "path": "backend/tests/persistence.py",
+    "sha256": "8aa77a2c165209a196f454245bf5cc4286902c51c0db6388ff79c257ff64db70",
+    "lines": 45,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "kind": "test",
+    "notes": "Complete test-support read: committing SQLite sessions/foreign-key enforcement and explicit synthetic persistence setup; no real provider/service qualification.",
+    "verification": "attendance-adjacent-verification.json"
+  },
+  {
+    "path": "backend/tests/dashboard_session_fixtures.py",
+    "sha256": "c43ce6a77f492ee957fb71a97bf35bae0bb72a0b982438a0e335ffa350b50350",
+    "lines": 17,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "kind": "test",
+    "notes": "Complete test-support read: synthetic dashboard session issuance and recent MFA controls. No production credentials or live business accounts.",
+    "verification": "attendance-adjacent-verification.json"
+  },
+  {
+    "path": "backend/tests/integration/test_browser_attendance_discard_atomicity.py",
+    "sha256": "d8083ad1cdc404e7e9b687a83bb9e0fdc495a04b3ddd93a98415f20bf01dab9d",
+    "lines": 261,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "kind": "test",
+    "notes": "Complete test read: actual authenticated ASGI cookie workflow, real committing SQLite storage and independent postcommit assertions. Explicit test-only PG named-conflict mapping matches real unique columns; failed fixture history retained.",
+    "verification": "attendance-adjacent-verification.json"
+  },
+  {
+    "path": "backend/tests/integration/test_browser_attendance_runtime_routes.py",
+    "sha256": "128afffbbcb22b4007f74a793ac80b8e03dfc9fabb7fb4defd0a8f958995b594",
+    "lines": 174,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "kind": "test",
+    "notes": "Complete test read including final no-recent-MFA denial case. New/renew/replaced runtime, cookie ownership/revocation, foreign coordinator denial and positive/negative manager MFA behavior exercised against committing ASGI sessions.",
+    "verification": "attendance-adjacent-verification.json"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_browser_offline_authorization.py",
+    "sha256": "d6b694a6c999acf4061f8de2109cd42463b7460cfbc4f27592dba60189f04c8e",
+    "lines": 216,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "kind": "test",
+    "notes": "Complete test read: nine tests exercise original facade call-time dependency seams, synthetic Ed25519 signing, scoped query shape, minimal signed payload/private cache response, readiness bounds and early denial. Not a live database/provider signing certification.",
+    "verification": "attendance-adjacent-verification.json"
+  },
+  {
+    "path": "backend/tests/unit/application/test_attendance_read_contract_aliases.py",
+    "sha256": "b3c2c3be7597dd7011c88e2722bd90bd6573a67f55bd670c8f7cb4a61dec6960",
+    "lines": 46,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "kind": "test",
+    "notes": "Complete current test read: eight single class identities, legacy original-module aliases, pickle roundtrips, resolved ordered fields, immutable slot shapes. Intermediate missing-datetime introspection regression retained and fixed.",
+    "verification": "attendance-adjacent-verification.json"
+  }
+]

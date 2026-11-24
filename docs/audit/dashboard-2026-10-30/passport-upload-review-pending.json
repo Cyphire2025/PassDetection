@@ -1,0 +1,779 @@
+[
+  {
+    "path": "frontend/features/passports/api/client-details.api.ts",
+    "review_scope": "pending",
+    "sha256": "7e58b9c4c7e30049092acd32e0f3495ce23673ce5a410e8c23ce1a1658b99edd",
+    "physical_lines": 47,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/api/display-name.api.ts",
+    "review_scope": "pending",
+    "sha256": "cdb2eec38a5e7e418e1e6885df2680c2550baa86a879389c7cb36fec5cdbbd12",
+    "physical_lines": 19,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/api/passports.api.ts",
+    "review_scope": "pending",
+    "sha256": "2371181220d9f2febfb4872e6b2d697e06a48ac3e56f7dc94c824d56b59bb4e4",
+    "physical_lines": 1049,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/api/staff-approval-contract.ts",
+    "review_scope": "pending",
+    "sha256": "7e11093c76bb38e09691d7302b82ee4751f5bb83ce27eccf7b8f9e4ed80b87ee",
+    "physical_lines": 38,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/api/upload-links.api.ts",
+    "review_scope": "pending",
+    "sha256": "7cae53e363364d45600a5f3279c1ca0387acb29a0c27a6d14319e15e70b1a233",
+    "physical_lines": 473,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/client-details-edit-dialog.tsx",
+    "review_scope": "pending",
+    "sha256": "fb57ee95cad9708a1fec2faf9df19d002d2c75267afcf551f87ef75a0a066bbc",
+    "physical_lines": 138,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/client-provided-fields-card.tsx",
+    "review_scope": "pending",
+    "sha256": "0c243b7a704bbde74688b5d423a28b46c35f950e9f26c96cc0a23186929c338f",
+    "physical_lines": 57,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/compact-passport-image.tsx",
+    "review_scope": "pending",
+    "sha256": "775ea9455b4ed763d08cbf2feba250143be8867b9d660778a19a43626391e719",
+    "physical_lines": 18,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/create-upload-link-modal.tsx",
+    "review_scope": "pending",
+    "sha256": "cfb42c21d28d5821ab682f858a1833e418266debe39a48b24e2e380730cdca93",
+    "physical_lines": 461,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/custom-detail-builder.tsx",
+    "review_scope": "pending",
+    "sha256": "d2feba4fad88b59cf229bb80475c30dc02fff79d1265c38232f3a4730e552c05",
+    "physical_lines": 113,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/custom-question-builder.tsx",
+    "review_scope": "pending",
+    "sha256": "60fc053988d854e893ed1a42279ca5a6f159b334df39cb40ee274667da340d8d",
+    "physical_lines": 162,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/document-thumbnail-cache-provider.tsx",
+    "review_scope": "pending",
+    "sha256": "c9429c32b68fa3d2a2aef6dbd1fb910d1a3a2942ea2d01d2356bf98014aba10f",
+    "physical_lines": 20,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/edit-group-dialog.tsx",
+    "review_scope": "pending",
+    "sha256": "46f6592a9f84f8ef3e74d15892084bad48663b480eeedb1473e4a33cf3505c39",
+    "physical_lines": 130,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/group-document-delivery-panel.tsx",
+    "review_scope": "pending",
+    "sha256": "6cf7c37043f26a257afd14e62a8b77ea3ab49c3b5006308d8b00d941d363c094",
+    "physical_lines": 121,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/group-option-toggle.tsx",
+    "review_scope": "pending",
+    "sha256": "4e79fd28d459e39736cd34c18b8b8b20912bfc2a496586d5214d755a5d010409",
+    "physical_lines": 68,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/group-whatsapp-broadcast-panel.tsx",
+    "review_scope": "pending",
+    "sha256": "924d3ed2f9c2efa429fbd67292154e08b1b042d7f24e065976d0262e71413e7b",
+    "physical_lines": 622,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/group-whatsapp-dialogs.tsx",
+    "review_scope": "pending",
+    "sha256": "323588909da2d41c4e98e35d9a69acdddb38d07726cd5e4843c2123d832a51e7",
+    "physical_lines": 421,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/group-whatsapp-summary.tsx",
+    "review_scope": "pending",
+    "sha256": "95c5bfd2fb746df163d0682e47c9813a0ee7b544ba531ee26edcdc5b9ba5b34d",
+    "physical_lines": 69,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/group-whatsapp-tracking-gate.tsx",
+    "review_scope": "pending",
+    "sha256": "7bb590d4ba4ead63601163c0ab5297d7263b64aca3ba6aa4fb64e7c0ad8140b6",
+    "physical_lines": 34,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/group-whatsapp-tracking-model.ts",
+    "review_scope": "pending",
+    "sha256": "9832c865556f737a2fe839b8439a5bfb8bb80a5fc669bcdea6da3ed18ada4055",
+    "physical_lines": 163,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/group-whatsapp-tracking-table.tsx",
+    "review_scope": "pending",
+    "sha256": "53ebfb142703b4fc7f8d6ca837c8ecb7aa85524c5b3fd175f6333600165ecfff",
+    "physical_lines": 417,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-display-name-action.tsx",
+    "review_scope": "pending",
+    "sha256": "8c67ed03b652acccf963fac453b630c5f374db5da4944c47b560fbbae4ab0f97",
+    "physical_lines": 13,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-display-name-dialog.tsx",
+    "review_scope": "pending",
+    "sha256": "c0de3b8f430dc103b9facb6293a8830efc525e74d5f078cf601159a98ad7f30e",
+    "physical_lines": 101,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-document-cell.tsx",
+    "review_scope": "pending",
+    "sha256": "2f08cfae1b0c5a989be60a4633b33de986d0fe621f3c89bbe97231bdd3c88196",
+    "physical_lines": 241,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-document-follow-up.tsx",
+    "review_scope": "pending",
+    "sha256": "da8d1c33f50b9664ba8ff52f95f8d7c94e5784e3868fe2c97c0130cab4547fe9",
+    "physical_lines": 42,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-document-import-dialog.tsx",
+    "review_scope": "pending",
+    "sha256": "df201d30d99842763b8b0331da977433b322638b3c7da13ad8690852a1f94940",
+    "physical_lines": 205,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-document-matrix.tsx",
+    "review_scope": "pending",
+    "sha256": "2324e7e490a300891825e5952f0cb65e45d0fb1629d4be5a8e00e9f5131c213e",
+    "physical_lines": 206,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-excel-field-chooser.tsx",
+    "review_scope": "pending",
+    "sha256": "48115578aa327f1bd00ab625f32b042630cd91839cfa8e216bd8e8cb41f76b70",
+    "physical_lines": 211,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-export-dialog.tsx",
+    "review_scope": "pending",
+    "sha256": "c0faeffcd5403b69e85c4708aa2314b26db602f0f41db209cf9ad4170b6c40aa",
+    "physical_lines": 478,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-group-bindings.tsx",
+    "review_scope": "pending",
+    "sha256": "8b55821cc566f6a4fa44db4e22fa259da48eb01eb643558ebfb2850a804fd903",
+    "physical_lines": 93,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-group-dialogs.tsx",
+    "review_scope": "pending",
+    "sha256": "5cfc0c83d33adab6d255b286f0e86aa8127158ffd4ede718e55095c559221428",
+    "physical_lines": 323,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-group-header-panel.tsx",
+    "review_scope": "pending",
+    "sha256": "f1c587d43cc93a4d4bb2fd232ee1fb96532d795f3467188cac424f2ed2bd2ba2",
+    "physical_lines": 300,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-group-import-panel.tsx",
+    "review_scope": "pending",
+    "sha256": "694c902f99a52f38293e7e57e96747e62474068d35dda0302e224a13aab95309",
+    "physical_lines": 173,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-group-model.tsx",
+    "review_scope": "pending",
+    "sha256": "2accc9cbb27095d413480e1992057816ebe6546fc3c688a2ea3607c1dcefa2f2",
+    "physical_lines": 386,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-group-overview-panel.tsx",
+    "review_scope": "pending",
+    "sha256": "f5418759de9658f1e5c3d6d248f2eb686d20d41bf2ede034c6e10c868e2c88c6",
+    "physical_lines": 285,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-group-readiness.tsx",
+    "review_scope": "pending",
+    "sha256": "1b9120f33df899b5139acde49fcef9fbf926cc2c49b58f6296fa5fc56f902e3c",
+    "physical_lines": 15,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-group-roster-panel.tsx",
+    "review_scope": "pending",
+    "sha256": "0862246bb52bd3f25e1f2ad98c4e657533c9ad41c774affc4182b62b38a6440e",
+    "physical_lines": 349,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-group-selection-toolbar.tsx",
+    "review_scope": "pending",
+    "sha256": "2afdefd3960e5a1848b3447720b1475fd8c4fef8a07ebd900f6de95b2139d1f8",
+    "physical_lines": 364,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-group-update-action.tsx",
+    "review_scope": "pending",
+    "sha256": "f0bf4d83f7569e9bc76fc49a8eae4d36595cc6fa9f99db74e4673ff5fbf7db5e",
+    "physical_lines": 22,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-image-preview.tsx",
+    "review_scope": "pending",
+    "sha256": "12ced98eef4628598c423048d9adc6008d22d129225565aa3b68bc588a9c95a6",
+    "physical_lines": 126,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-list.tsx",
+    "review_scope": "pending",
+    "sha256": "d80483e20fdc44e33e666cced491bd3fe29cc2d27491e02d00c7306398c912db",
+    "physical_lines": 503,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-selected-groups-export-dialog.tsx",
+    "review_scope": "pending",
+    "sha256": "37689fddd33e04bbd0ce0b78862ed8c7a7d6a231aa45cc9a2300789a38ab1a22",
+    "physical_lines": 165,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-trip-details-dialog.tsx",
+    "review_scope": "pending",
+    "sha256": "e85ed9f897dcd9251951fd392c072b7447435f520dbb307577519e1b2806bb3d",
+    "physical_lines": 112,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/trip-timezone-field.tsx",
+    "review_scope": "pending",
+    "sha256": "54d02fa6a8e7b707e2cb777cf0a6a6f77a50d77ede591c4d8dc60e130cad1ae3",
+    "physical_lines": 87,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/upload-link-list.tsx",
+    "review_scope": "pending",
+    "sha256": "7076f6d875be5a455335f2eefbad1bdbf3f05ba6f41b0087f23835110ca4810c",
+    "physical_lines": 717,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/upload-link-settings.tsx",
+    "review_scope": "pending",
+    "sha256": "f9d4158c45ed1ed5cc74c075a3ae90be496d217bde3e5f711809ce49705a7ecc",
+    "physical_lines": 310,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/use-passport-document-follow-up.ts",
+    "review_scope": "pending",
+    "sha256": "2fe2e9367c78952e78399dc3f186fb7d04dec6ca90688fbefa9cc14fef847236",
+    "physical_lines": 69,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/use-passport-group-controller.tsx",
+    "review_scope": "pending",
+    "sha256": "9eded5c8115c83d0fb1d2b610383427b88a9bda155476da93507a7683f1385a2",
+    "physical_lines": 722,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/whatsapp-broadcast-selector.tsx",
+    "review_scope": "pending",
+    "sha256": "893ea76099b56227494811b98b66058e0c095f3cffd90ac9eff58f9a382332a2",
+    "physical_lines": 206,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/whatsapp-match-description.ts",
+    "review_scope": "pending",
+    "sha256": "990bd5d38acbfcd9cb70b7f61ca1353698ced1322c9ddbb3e473e592e527e9c8",
+    "physical_lines": 25,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/whatsapp-match-evidence.ts",
+    "review_scope": "pending",
+    "sha256": "52c1a7dd75efc5506f2d626c7d0f9bc0afa033ed104ab571e778b54d25e01b69",
+    "physical_lines": 49,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/components/whatsapp-match-field-selector.tsx",
+    "review_scope": "pending",
+    "sha256": "7f1905a9fea3961602287295e0aa71f03cfaee4286d40fc0dc892c5c9f378197",
+    "physical_lines": 289,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/hooks/use-client-details.ts",
+    "review_scope": "pending",
+    "sha256": "dfac333cc47041838fd4d83302ff29ebfaf7dd03d4a155a7c3a1b1380d2532ef",
+    "physical_lines": 36,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/hooks/use-display-name.ts",
+    "review_scope": "pending",
+    "sha256": "dcff9754d198a98f0fb074c43005a720705c2d19c7757e636a141fc4f1b84e5e",
+    "physical_lines": 30,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/hooks/use-passports.ts",
+    "review_scope": "pending",
+    "sha256": "91a52e9a748f4f562059fd3828c4ddac9f4d2e635bf36dba393f8790564c31d8",
+    "physical_lines": 349,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/schemas/upload-link.schema.ts",
+    "review_scope": "pending",
+    "sha256": "5cf5fa7e7be00aee2cbdf6d3ac377c9032f621b9534664d8cf0945575b7a7825",
+    "physical_lines": 215,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/services/document-thumbnail-cache.ts",
+    "review_scope": "pending",
+    "sha256": "9fbb4de5e4d15f906c021494582f4a210bb8952344eb1f252b620663493f1866",
+    "physical_lines": 51,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/services/document-thumbnail-loader.ts",
+    "review_scope": "pending",
+    "sha256": "f07d33059c5f232765e2bd9f20a8764b0a6247e62320ba4465373544493ba6c6",
+    "physical_lines": 46,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/services/document-thumbnail-scheduler.ts",
+    "review_scope": "pending",
+    "sha256": "aeeb084eee3187fe1949aa8c5358dd7123ba03e5d1f45e1f074e64c2ce908b9c",
+    "physical_lines": 129,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/types/instruction-language.ts",
+    "review_scope": "pending",
+    "sha256": "4cda1d2c062af768f415a3064a012291b48bac28d922a7e74cfb9f480bd456a2",
+    "physical_lines": 16,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/types/upload-configuration.ts",
+    "review_scope": "pending",
+    "sha256": "ccbc3c2f267f3e8a8e4fb6c695b56f8516ea4c2e32f4dc80a25777a043b7ef0c",
+    "physical_lines": 52,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/utils/client-details-editor.ts",
+    "review_scope": "pending",
+    "sha256": "f176154251fb5e290e865ec0131bac3524a973f409ea400389ac2d7f583c797a",
+    "physical_lines": 65,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/utils/passport-document-import.ts",
+    "review_scope": "pending",
+    "sha256": "08efb66907827ade33a6e435fa704686b65f78d0b59d628eabfe1efe6d564372",
+    "physical_lines": 29,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/utils/passport-group-navigation.ts",
+    "review_scope": "pending",
+    "sha256": "884ff3bf97ff5dbbcf9bda22c3660c440f61d226bf5ea31647bc458218e57e18",
+    "physical_lines": 307,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/utils/passport-group-trip.ts",
+    "review_scope": "pending",
+    "sha256": "82da2b5b5b359846e25284c4164f7d1bfbd9eadc814ab60fbb44dc2f594a6a29",
+    "physical_lines": 17,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/utils/passport-image-crop-geometry.ts",
+    "review_scope": "pending",
+    "sha256": "441d7b62c9f915e59c172865c9192bb2159bb34fed818adb5a0f30ac8132f2a4",
+    "physical_lines": 108,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/utils/passport-image-crop-permissions.ts",
+    "review_scope": "pending",
+    "sha256": "66b182cfc792f2bca9cb9b4b58ca7b748074bef9b0899518a4c63d1ea0dcee05",
+    "physical_lines": 13,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/utils/passport-image-editor-viewport.ts",
+    "review_scope": "pending",
+    "sha256": "8ba45a5de73415bad8f358e772d1c5984a11ff079653219f42181cb69d6198ce",
+    "physical_lines": 57,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/utils/passport-image-library.ts",
+    "review_scope": "pending",
+    "sha256": "5d5c3dcf7feb7bbab88421574aecf3c52dbd0fcca9d9abbd55e373a0bbe6f82d",
+    "physical_lines": 51,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/utils/passport-image-revisions.ts",
+    "review_scope": "pending",
+    "sha256": "be6a7da2ec154d7158e870fb0ab2ae4be0d9b1b919be4c7b05fc27857e60c4d6",
+    "physical_lines": 5,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/utils/passport-reextract.ts",
+    "review_scope": "pending",
+    "sha256": "f57a1fc65a052c25ca48623a652f97d9329dbf84f7305c30b28ac206aeb236a7",
+    "physical_lines": 62,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/utils/passport-review.ts",
+    "review_scope": "pending",
+    "sha256": "b77ebb9be8153af5d0839f0539050e77e690c30aea89f41294d30e34bb98c99d",
+    "physical_lines": 389,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/utils/passport-workflow.ts",
+    "review_scope": "pending",
+    "sha256": "aba10e9ae36e1c957862cbf278a39f8495a9fbf3658f498a9f2149274f484378",
+    "physical_lines": 19,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/passports/utils/trip-timezone.ts",
+    "review_scope": "pending",
+    "sha256": "d6deb03c163b4c0a48bea438b854f97f7ece97b0342ea059aa2fff6fde93e178",
+    "physical_lines": 40,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/upload/api/upload.api.ts",
+    "review_scope": "pending",
+    "sha256": "0ca9f7f88e5749d126eac16b9c3777dd312d125737e558e920e59843d19eaeac",
+    "physical_lines": 213,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/upload/components/document-processing-frame.tsx",
+    "review_scope": "pending",
+    "sha256": "34d0768d0babd7839ea1e9c467441dfdf761d9d56d2ab239ab6cf6e428dcdfa0",
+    "physical_lines": 12,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/upload/components/fresh-qualifier.tsx",
+    "review_scope": "pending",
+    "sha256": "9b4ad522682c3c5891545c62f80e836eb43d20f1d0fb21578bcef53fedcb91b8",
+    "physical_lines": 24,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/upload/components/passport-detail-samples-original.tsx",
+    "review_scope": "pending",
+    "sha256": "070e05e4667f669d5f29dc98a95457776fbe4f11cf2e2fc26da1877a2f8dbe9b",
+    "physical_lines": 12,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/upload/components/relation-qualifier-step.tsx",
+    "review_scope": "pending",
+    "sha256": "c366541184c5bc8c329f4d377e3ca1e686f574415748678050c6f4aa0be19e8a",
+    "physical_lines": 243,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/upload/components/selected-document-preview.tsx",
+    "review_scope": "pending",
+    "sha256": "1b690f4028086aa8d3b3d77381218a4b4dc683b4b358c9e69c0f764e954afb65",
+    "physical_lines": 20,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/upload/components/smart-camera.tsx",
+    "review_scope": "pending",
+    "sha256": "7370f49de41955365f8973cdaa1e5cf6ebf8fdb6dd0017245bd69c962f4201bb",
+    "physical_lines": 694,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/upload/components/traveller-entry-choice.tsx",
+    "review_scope": "pending",
+    "sha256": "2d6aef62c41a4cbc88dd56f88189f5aa62df3defd8676c85b1003a3777539630",
+    "physical_lines": 11,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/upload/components/traveller-shell.tsx",
+    "review_scope": "pending",
+    "sha256": "55e4f7876e159f9a92b74dc716500a405e9b7e207f787f4f8ef8b0d1bc10d47d",
+    "physical_lines": 13,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/upload/components/upload-contact-verification.tsx",
+    "review_scope": "pending",
+    "sha256": "b4d925237294c1e316d40c9282b00518e63405a743752a856b66b450a2f6d557",
+    "physical_lines": 185,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/upload/components/upload-flow-fields.tsx",
+    "review_scope": "pending",
+    "sha256": "7def6b3a17f61905a109a410937547bab11edb6f9a01e284ac4c40329c9aee22",
+    "physical_lines": 425,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/upload/components/upload-flow-review.tsx",
+    "review_scope": "pending",
+    "sha256": "a44601e4c856bdf31e802faeb990c941eee4e6ec8ff708fbeda7661dd03668e7",
+    "physical_lines": 226,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/upload/components/upload-flow.constants.ts",
+    "review_scope": "pending",
+    "sha256": "eebfb2fbf6f4bb4864d898c5970f7f005cfb6439b82f00b99696e54769c7b4fe",
+    "physical_lines": 41,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/upload/components/upload-flow.types.ts",
+    "review_scope": "pending",
+    "sha256": "749ff8370e128e44a2098346cd51295e49b6f054ed861c81daba513460bee764",
+    "physical_lines": 68,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/upload/components/visa-selfie-camera.tsx",
+    "review_scope": "pending",
+    "sha256": "1989736c3f6cc3315401807879485f3bc023091bcf1b150bb9eacff94168a07e",
+    "physical_lines": 1439,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/upload/components/visa-selfie-compatibility.ts",
+    "review_scope": "pending",
+    "sha256": "de3eca89cf3ea3501f558d6f1f6ef338f37259438b8e618168310557fd6f60e4",
+    "physical_lines": 160,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/upload/components/visa-selfie-quality.ts",
+    "review_scope": "pending",
+    "sha256": "a0a205e41f6ea4506d2d941dda4830a89f2bde38729307adc13732cfc652ebe8",
+    "physical_lines": 1115,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/upload/hooks/use-passport-frame-detection.ts",
+    "review_scope": "pending",
+    "sha256": "ee3a50411b50361bb9334988dc38db4d68abeff3c14b4666245a1cac5ddf0703",
+    "physical_lines": 132,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/upload/hooks/use-stable-telemetry-reason.ts",
+    "review_scope": "pending",
+    "sha256": "61cf1e841f2ba6966f3900064e52d29c0eb54f26eb2841c06741440f0fe671fc",
+    "physical_lines": 56,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/upload/services/camera-capture.ts",
+    "review_scope": "pending",
+    "sha256": "ca807e9ce63901133608be6be254f1931d01bf42892d7d64688c73d2c1455381",
+    "physical_lines": 177,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/upload/services/camera-quality-policy.ts",
+    "review_scope": "pending",
+    "sha256": "062413935879653abf8dfeaf9302f6b4d6bb6b8afa4a070529c37f7621fa7790",
+    "physical_lines": 84,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/upload/services/contact-verification.ts",
+    "review_scope": "pending",
+    "sha256": "409fd3b7c4a3e8a60b270da52f483cc3c6b8d0cb6f042e25df8cea0086e50c84",
+    "physical_lines": 11,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/upload/services/document-preview-order.ts",
+    "review_scope": "pending",
+    "sha256": "84ccf064e6d9e05b9e3945f6fc5259cf55dce212598e4075d9643ad825220df9",
+    "physical_lines": 15,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/upload/services/draft-input-contract.ts",
+    "review_scope": "pending",
+    "sha256": "13cd8a8db8ceefb89c3d4bb8e846de83effcb73ddfad0d0276a31ec8db11e200",
+    "physical_lines": 12,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/upload/services/passport-document-verification.ts",
+    "review_scope": "pending",
+    "sha256": "da99bc779ff893b2dcfcc26b366351367f153a01ee1d15b30862890b4bab7ec5",
+    "physical_lines": 79,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/upload/services/passport-final-quality.ts",
+    "review_scope": "pending",
+    "sha256": "641686f9d382884957f8deaae07755cb7a7ec8a69fa8594c5127741ec8fc20b5",
+    "physical_lines": 865,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/upload/services/passport-perspective-correction.ts",
+    "review_scope": "pending",
+    "sha256": "8221680ee25badce665e8a4aae611a85897a4b44eb390efb83a08d0bb298022e",
+    "physical_lines": 575,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/upload/services/passport-rectangular-frame-detector.ts",
+    "review_scope": "pending",
+    "sha256": "854ca1afe4d2fd15f388853824d23a7dd08541c450e15f1b8ab6c0b4feab1457",
+    "physical_lines": 1077,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/upload/services/public-flow-telemetry.ts",
+    "review_scope": "pending",
+    "sha256": "97c2adad6f01e83d68f60068a0a0b12f8d4a410700a74fd5a903ec92ce11c08a",
+    "physical_lines": 282,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/upload/services/public-upload-file.ts",
+    "review_scope": "pending",
+    "sha256": "3d178d68b75a87f459655a4a7d16cae22c54db485cf1c6f04e79b130293c6075",
+    "physical_lines": 66,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/upload/services/relation-qualifier.ts",
+    "review_scope": "pending",
+    "sha256": "dae62cf8a502d725b0ed52da453ae56fd7c19961f00200e7585324caf3a45617",
+    "physical_lines": 66,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+    "review_scope": "pending",
+    "sha256": "87ad595aaa0f39735b0393e23b1d3a4db05f3e7f09b36080ff5f1297f05c2258",
+    "physical_lines": 322,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/upload/services/upload-recovery.ts",
+    "review_scope": "pending",
+    "sha256": "286805b05dd5a7000fa060e44629e1bf4e1b349161deeda8785a423600207cde",
+    "physical_lines": 82,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/upload/services/visa-face-detection-loader.ts",
+    "review_scope": "pending",
+    "sha256": "0dd93722b6823605a965c860cb27d1b2b2b413bc8782042b9f0ff7a8c1fc1f24",
+    "physical_lines": 50,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/upload/services/visa-photo-upload-detector.ts",
+    "review_scope": "pending",
+    "sha256": "ba25e2c0042dacfd988333b956f8f461470c7252ca5f322bb2ecd90abb73895d",
+    "physical_lines": 167,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/upload/services/visa-photo-upload-validation.ts",
+    "review_scope": "pending",
+    "sha256": "7cb1490a343b2da1b7108bf4a4525d7806a220e286a8709f5cbcf38e7c1ad192",
+    "physical_lines": 297,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  },
+  {
+    "path": "frontend/features/upload/services/visa-selfie-runtime.ts",
+    "review_scope": "pending",
+    "sha256": "38898f95c820df28b734718cd9e4319403cde19b4535818675dba07f50448ff7",
+    "physical_lines": 123,
+    "reason": "Current physical source has no matching full-scope manual review record. Tests/import reachability do not imply full source review."
+  }
+]

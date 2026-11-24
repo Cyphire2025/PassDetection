@@ -1,0 +1,11 @@
+test_private_bases_have_no_runtime_fake_fields_or_constructors (test_traveller_release_owners.ReleaseOwnerTests.test_private_bases_have_no_runtime_fake_fields_or_constructors) ... ok
+test_qualification_binds_each_real_shared_operator_owner_and_rejects_missing_source (test_traveller_release_owners.ReleaseOwnerTests.test_qualification_binds_each_real_shared_operator_owner_and_rejects_missing_source) ... ok
+test_real_subclass_super_and_virtual_recovery_hook_dispatch_are_preserved (test_traveller_release_owners.ReleaseOwnerTests.test_real_subclass_super_and_virtual_recovery_hook_dispatch_are_preserved) ... ok
+test_real_subclass_super_container_still_uses_overridden_host_run (test_traveller_release_owners.ReleaseOwnerTests.test_real_subclass_super_container_still_uses_overridden_host_run) ... ok
+test_standalone_cli_imports_from_unrelated_cwd_without_operational_credentials (test_traveller_release_owners.ReleaseOwnerTests.test_standalone_cli_imports_from_unrelated_cwd_without_operational_credentials) ... ok
+test_static_descriptor_and_legacy_pickle_names_remain_usable (test_traveller_release_owners.ReleaseOwnerTests.test_static_descriptor_and_legacy_pickle_names_remain_usable) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.520s
+
+OK

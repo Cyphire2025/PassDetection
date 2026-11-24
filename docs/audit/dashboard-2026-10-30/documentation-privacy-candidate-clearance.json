@@ -1,0 +1,16 @@
+{
+  "status": "candidate-cleared-source-only",
+  "evidence_path": "docs/remediation/ci-rehearsal-head-evidence.json",
+  "evidence_sha256": "3b28a933dadefdd68132c2856f6e5d5b201e3aab93309b80efbec59af2bad0eb",
+  "fixture_source_path": "backend/scripts/postgresql_rehearsal_fixture.py",
+  "fixture_source_sha256": "1f60400f7f47ea387fa7e38caab3e2d35e151073adc11fdd924bb197959095ee",
+  "checks": [
+    "Two nonempty passport_number JSON fields match one exact fixed literal in the synthetic PostgreSQL rehearsal fixture.",
+    "Fixture is explicitly synthetic and uses CI-only identities, example.invalid contacts, synthetic password material, ci-only object key and synthetic:true passport metadata.",
+    "Evidence scope explicitly says synthetic CI restore/forward-upgrade; production_resilience_proof is false.",
+    "Literal value was redacted from tool output and is omitted here. No customer credential or production archive was opened."
+  ],
+  "scope_limit": "Focused key/value-shape review of parseable non-audit JSON docs, plus a narrow source token-pattern filename search; absence of these patterns is not a whole-repository secrets/PII clearance. No Codex Security tool used.",
+  "runtime_or_evidence_bytes_changed": false,
+  "no_database_provider_or_production_action": true
+}

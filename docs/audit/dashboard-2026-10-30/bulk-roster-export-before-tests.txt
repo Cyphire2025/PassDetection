@@ -1,0 +1,12 @@
+..F                                                                      [100%]
+================================== FAILURES ===================================
+_____ test_export_corrupt_roster_diagnostic_keeps_existing_skip_behavior ______
+tests\unit\presentation\test_bulk_roster_reference_boundary.py:89: in test_export_corrupt_roster_diagnostic_keeps_existing_skip_behavior
+    assert marker not in repr(warning.call_args)
+E   assert 'synthetic-p...rt-reference' not in "call('passp...-reference')"
+E     
+E     'synthetic-private-export-reference' is contained here:
+E       ', value='synthetic-private-export-reference')
+=========================== short test summary info ===========================
+FAILED tests/unit/presentation/test_bulk_roster_reference_boundary.py::test_export_corrupt_roster_diagnostic_keeps_existing_skip_behavior
+1 failed, 2 passed in 1.37s

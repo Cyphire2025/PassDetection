@@ -1,0 +1,37 @@
+s.FFFF.
+======================================================================
+FAIL: test_nonregular_nondirectory_kind_is_rejected_before_reading (test_mcp_source_file_kinds.SourceFileKinds.test_nonregular_nondirectory_kind_is_rejected_before_reading) (kind=4096)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_mcp_source_file_kinds.py", line 44, in test_nonregular_nondirectory_kind_is_rejected_before_reading
+    with self.assertRaisesRegex(BuildError, "^source_special_file_forbidden$"):
+AssertionError: BuildError not raised
+
+======================================================================
+FAIL: test_nonregular_nondirectory_kind_is_rejected_before_reading (test_mcp_source_file_kinds.SourceFileKinds.test_nonregular_nondirectory_kind_is_rejected_before_reading) (kind=49152)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_mcp_source_file_kinds.py", line 44, in test_nonregular_nondirectory_kind_is_rejected_before_reading
+    with self.assertRaisesRegex(BuildError, "^source_special_file_forbidden$"):
+AssertionError: BuildError not raised
+
+======================================================================
+FAIL: test_nonregular_nondirectory_kind_is_rejected_before_reading (test_mcp_source_file_kinds.SourceFileKinds.test_nonregular_nondirectory_kind_is_rejected_before_reading) (kind=8192)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_mcp_source_file_kinds.py", line 44, in test_nonregular_nondirectory_kind_is_rejected_before_reading
+    with self.assertRaisesRegex(BuildError, "^source_special_file_forbidden$"):
+AssertionError: BuildError not raised
+
+======================================================================
+FAIL: test_nonregular_nondirectory_kind_is_rejected_before_reading (test_mcp_source_file_kinds.SourceFileKinds.test_nonregular_nondirectory_kind_is_rejected_before_reading) (kind=24576)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_mcp_source_file_kinds.py", line 44, in test_nonregular_nondirectory_kind_is_rejected_before_reading
+    with self.assertRaisesRegex(BuildError, "^source_special_file_forbidden$"):
+AssertionError: BuildError not raised
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.018s
+
+FAILED (failures=4, skipped=1)

@@ -105,12 +105,6 @@ export const emailIntegrationsApi = {
     return data;
   },
 
-  disconnectConnection: async (connectionId: string): Promise<void> => {
-    await apiClient.delete(
-      API_ENDPOINTS.emailIntegrations.connection(connectionId),
-    );
-  },
-
   summary: async (): Promise<EmailIntegrationSummary> => {
     const { data } = await apiClient.get<EmailIntegrationSummary>(
       API_ENDPOINTS.emailIntegrations.summary,

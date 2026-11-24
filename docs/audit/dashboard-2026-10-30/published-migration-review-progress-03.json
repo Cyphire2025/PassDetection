@@ -1,0 +1,21 @@
+{
+  "status": "read-only review continues",
+  "new_full_migrations": 16,
+  "new_full_lines": 1604,
+  "cumulative_new_full_migrations": 44,
+  "prior_full_migrations": 2,
+  "total_current_full_migrations": 46,
+  "total_migrations": 142,
+  "remaining_unread_migrations": 96,
+  "remaining_inbox_deferred_by_user": 2,
+  "remaining_retained_before_mobile_partition": 94,
+  "mobile_partition": "pending; not complete by inventory metadata",
+  "ledger": {
+    "path": "docs/audit/dashboard-2026-10-30/published-migration-cohort-03-reviewed-files.json",
+    "sha256": "c0a19227cb9586eafc7508174a28fb15b88da2575f119784a4bd16f26e9d7f52"
+  },
+  "findings": {
+    "path": "docs/audit/dashboard-2026-10-30/published-migration-cohort-03-findings.json",
+    "sha256": "1febafb60cd2d1c405994016edcc2fe59b4039a9b6f43ccf2d943bc34d204441"
+  }
+}

@@ -1,0 +1,1279 @@
+{
+  "reviewed_binding_count": 40,
+  "prospective_untracked_count": 45,
+  "per_baseline_counts": {
+    "98f4fb4f7ba982fc46f917d24db63d59993a74a8": 71,
+    "875d17b25da2687b5673148fabe9d10346ae0e4a": 66
+  },
+  "missing_admission_paths": [
+    "backend/app/domain/entities/__init__.py",
+    "backend/app/domain/entities/client_group.py",
+    "backend/app/domain/entities/client_group_configuration.py",
+    "backend/app/domain/entities/client_group_lifecycle.py",
+    "backend/app/domain/entities/client_group_state.py",
+    "backend/app/domain/entities/enums.py",
+    "backend/app/domain/entities/factories.py",
+    "backend/app/domain/entities/identity.py",
+    "backend/app/domain/entities/passport_client_review.py",
+    "backend/app/domain/entities/passport_extraction.py",
+    "backend/app/domain/entities/passport_staff_review.py",
+    "backend/app/domain/entities/passport_state.py",
+    "backend/app/domain/entities/passport_submission.py",
+    "backend/app/domain/entities/qualifier_selection.py",
+    "backend/app/infrastructure/database/attendance_activity_models.py",
+    "backend/app/infrastructure/database/attendance_batch_models.py",
+    "backend/app/infrastructure/database/attendance_closeout_models.py",
+    "backend/app/infrastructure/database/attendance_runtime_models.py",
+    "backend/app/infrastructure/database/my_photo_delivery_models.py",
+    "backend/app/infrastructure/database/my_photo_enrollment_models.py",
+    "backend/app/infrastructure/database/my_photo_face_models.py",
+    "backend/app/infrastructure/database/my_photo_gallery_models.py",
+    "backend/app/infrastructure/database/my_photo_job_models.py",
+    "backend/app/infrastructure/database/my_photo_liveness_models.py",
+    "backend/app/infrastructure/database/my_photo_media_models.py",
+    "backend/app/infrastructure/database/my_photo_search_models.py",
+    "backend/app/infrastructure/database/my_photos_models.py",
+    "backend/app/infrastructure/database/operations_models.py",
+    "backend/app/infrastructure/database/passenger_qr_models.py",
+    "backend/app/infrastructure/database/rooming_allocation_models.py",
+    "backend/app/infrastructure/database/rooming_property_models.py",
+    "backend/app/infrastructure/database/session.py",
+    "frontend/scripts/verify-access-level-browser.mjs"
+  ],
+  "deleted_paths": [],
+  "rows": [
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/alembic/versions/0141_workspace_branding.py",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "f511c957f633c5bf3c2065b80270f61f89b4d4d75e5c4c3ca1e3c71f3b2d4567",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/alembic/versions/0142_group_background.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "171477cb03f92d19b65b26c1c1580a23dc95e3a3c462732aa7c58914f0fb0af0",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/core/config/ai_settings_fields.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "2d7c876502cf60b435b12bd8b33823e91877e8082057f7d16a976b4b51705ad3",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/core/config/database_settings.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "b1aea142b4edf33cc0f62130fa6e6cbb094bad6bd5182beed3ec02fa3d8e9c7c",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/core/config/email_settings_fields.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "ae471aa0f319c27390953546c57f385ea6bb9cb88f6d6bf6e4bc6aae52f45e95",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/core/config/frontend_route_templates.json",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "5bf3e6d978e740935e10bb1a452e62fe0274e2c33b86487316c3c1e04e1552d4",
+      "already_reviewed": false,
+      "route_allowlist": true
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/core/config/identity_settings_fields.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "1aaa228536583a4e8f023f4a350d2652139b2f0aa1dfd34316656d55f972afae",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/core/config/ingestion_settings_fields.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "b4b3f161aa7dd3350d077dd20e4880dcca69439f853cccb63bec8d82338e2788",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/core/config/jwt_settings.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "5532603ab49b586e31886a25748be40789117583a6df76764398368338b49873",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/core/config/my_photos_aws_policy.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "bf72bbe93b00bc98c589cde717c4e80676114d869095d4787b6276696aa65492",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/core/config/my_photos_settings.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "e30629c3d3803355ba4484d55f97c08e1857cc75ea7e1a52e83849b601cd7f17",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/core/config/redis_settings.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "31526ee021d0e65f8e75e22d72cb46aa9394a0e64c6b26570e62553d21577eae",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/core/config/release_manifest.json",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "122e7b38970b18609cf46b20b99d4b2c093c4f8b471bcd484b8c59a7080c6119",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/core/config/request_settings_fields.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "f7dbe65f066e304ee089241e7709f14246801039aeee25ba6f91f474fa38468b",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/core/config/runtime_settings_fields.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "dd324d05455e837d57ca26aa4dba1f8a0e712214c544fbdc50aab21cd7495a86",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/core/config/s3_settings.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "0879bfc320da8cd7905bbc468046c7c975cb93c8f6019204d7735f4a2db6ceed",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/core/config/settings.py",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "6c5485def68a3d76a27260fbce57bfb2321b241787b769ce0738d63fccc8fef3",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/core/config/settings_deployment_policy.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "966075f95b4c23faf2f6da0260587e9f40a2cca9fcdeaaaa9dd30aad06522123",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/core/config/settings_identity_policy.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "a3d1c6c91dec985a044fd5140cea479b3703f023e8fb84d960711e387538814c",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/core/config/settings_mobile_policy.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "01faa1d917fb7f47fa18e4b0acc7c3e8d7e538f5a10175ff14f625fec447c546",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/core/config/whatsapp_settings_fields.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "3a0844b5cc46ff1693f4386df51c8f1c53e4cde1e86ef579abe4f4dbc6eb21bf",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/domain/entities/__init__.py",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "5cc58c46b7ce501cf98e236127603629092da502b29a510a5f19e368b537b0bd",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/domain/entities/client_group.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "3611455105d0b61425774efb899b883fe9d4e3e192b4e3ca39330c955d5b50f2",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/domain/entities/client_group_configuration.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "3486a83b66db4ec1658e74ba47bdd0052423d7a122fb5cc6bcbbb5fc633606db",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/domain/entities/client_group_lifecycle.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "30910eb18732f1174995da1a49b021b6658d3acef96ab9253f9c2ddeeb51f55a",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/domain/entities/client_group_state.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "00d98b8ee7c09f2604903f2b6be2cbfff8b4a30679c645f9a7ae656d3244592b",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/domain/entities/entities.py",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "6e632388e2e0074771f336a1459c86d6a0712a3d0a93e14def7b2062270bf6fa",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/domain/entities/enums.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "4ef547c3c578e0c44d40ce03f8deaa0059077af2c59a78df40946b134ad88324",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/domain/entities/factories.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "b74b82177ea101abeafdd188d5c197a9f6ea01f49e56ad06b438bbb491220950",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/domain/entities/identity.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "4e60b4cc3d4759f1c2b12b34984a4300ae388055694cf46581be33f632b94d9e",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/domain/entities/passport_client_review.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "591e2d935dd68ee27e7cfef3229b8080eb590f9e3fed2600cbe1ecb3b014f7cb",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/domain/entities/passport_extraction.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "e745eb8f9d1b0827bf9bdeb2f8076ed898588fb0f3d1a0cb6c5baf5abc0d3cf1",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/domain/entities/passport_staff_review.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "3e93dfe727f18b35556bcd2522607d169d297cfa194d2ae1e62e90c6f6439e76",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/domain/entities/passport_state.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "acdd388a8baab76b6a2f0436b3e34ab364605532b192d80d37d2bada30d21e4c",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/domain/entities/passport_submission.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "b46b0a5e20840b903f9b9e4f9e5ba089f66e3f0857937b2eaa1475ccf97b63b2",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/domain/entities/qualifier_selection.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "79088b2e146a88ca46b17f4f716be932ca0aa37fcdadb6dd191e811761da67f4",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/infrastructure/database/attendance_activity_models.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "032b369aa88cd7dce0d19d6d19c2905f3e3cab16fa4a9bd8de25ef57d073b9b5",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/infrastructure/database/attendance_batch_models.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "06eb473f6507d08e49d25acb2e4c68e62c4550bb70486a2c886203bff8f08ae7",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/infrastructure/database/attendance_closeout_models.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "affc03c86907ae04fefb57be8920593393a6e2818837d6a9b816be63ff615878",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/infrastructure/database/attendance_runtime_models.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "1798faed32a3c2528659180f3e8910b1ad0e9615299393caa1aa7556cf8739f5",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/infrastructure/database/communications_models.py",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "4a4224948d99b7ba12382ba679973f318734ff3c71b27f47e7757f2b07bcf7b3",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/infrastructure/database/gc_mobile_models.py",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "994c6db9ecbb0d5a23bec8ffd3318a2e64b87dbe6582ef277edb098431ac0e33",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/infrastructure/database/models.py",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "cca0de0deb12e7cdc7368501e8a3ac0012e513d691ddcf10a3ead67ec4ec2ed0",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/infrastructure/database/my_photo_delivery_models.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "53f6c59cf80557b2637dac2ee695fc3fc289404cc9adb65d76f3c1fa2abf1372",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/infrastructure/database/my_photo_enrollment_models.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "12c5485971cb84d4352aa9da033093e5b45a06620b1a57c3c9f690c186367092",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/infrastructure/database/my_photo_face_models.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "815ac41087eb0de4d91e2866a13aa09b86fd76fb95b278b21dce3e7f2c6d1e53",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/infrastructure/database/my_photo_gallery_models.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "85a36a0d57fcf4785ec99c91197c7d1f1069ba9c8b9b303800285021093ea1f7",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/infrastructure/database/my_photo_job_models.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "1c058f8337a89b3e9b33beeca07ac5bff03f08e7f95140a0d80ad620cdf253c0",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/infrastructure/database/my_photo_liveness_models.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "9940d1ee388d9e6026e9e096c5b6421187a9e1547f8d04a4a5bfffef10c022fd",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/infrastructure/database/my_photo_media_models.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "f2553c9fc595913e71a896e91dadc2755bda211459cc61bc53c42dff799844a6",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/infrastructure/database/my_photo_search_models.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "8e20ef722c49997afc5f7ac857609cd142ebc16baa848ffd570138c7e2c05a67",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/infrastructure/database/my_photos_models.py",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "4b0e472e09be93233015330d740be5951cf0327bba7d3d64a6ceb40435bee93f",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/infrastructure/database/operations_models.py",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "c1b7d9231eca989eb9abd5a7d6bba605650b66bd7d9aba73abe2208519fe59f8",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/infrastructure/database/passenger_qr_models.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "e815d9390a4a5c9544e43b2384f3791b4cb4d429a4b18bb7da7e37b897421d24",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/infrastructure/database/rooming_allocation_models.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "a61c374e76078f8aa6f58f740b2c1415a3b20dcdd9d863b7a07465d6c376315f",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/infrastructure/database/rooming_property_models.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "600b2c10646a400307fb2935a2785424b4a4e85aee77032581cb7435891ae839",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/infrastructure/database/session.py",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "ffe7cb50459ed4c30754455477b86b47d67e8de2233aa430fe370e808f63f296",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/infrastructure/processing/celery_app.py",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "402830e148bc2745e7d05837ec10d81db4ed54bb9f6ab293d9cca60ae0f4a9e3",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/infrastructure/storage/branding_urls.py",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "9b75c427c919f2a0ed48bb99979ccd69bc7a3ba94d9514e7b45ba5a52d838b29",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/app/infrastructure/storage/minio_repository.py",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "f31fe249d63c18ea0e400bae0ee3161eb05db6b194527e2bdab39bf88626180c",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/requirements-dev.lock",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "fa496ac3b66cb786678e2d68d5dd105b06e1f111c909334848a93f29c17c7e1f",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/requirements.lock",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "1fe14679cfb5a5dce7043966982e4b348c5861d9d952dfc32183eea7ce1e2bd0",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "backend/requirements.txt",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "72328798fd7fdb7a17b9f514fceb3ee437af4870f1692a63e27b61d40ed0e7f7",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "docker-compose.yml",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "918eb4fc3eccecb7c68ad56ab66b36a976754b3f0b1f0ce7a04081c8e309a357",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "frontend/package-lock.json",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "566c274823b6a1d7223afbe17b0159839f090d46eb0ea9cea833543af5962f91",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "frontend/package.json",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "8c8e2c46658b76bb4b0c7578330ba610d4741be63f30943d5fb262ed73030463",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "frontend/scripts/verify-access-level-browser.mjs",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "c3b0794fee6ff06f6e865b14fec3b49a2e64b97d68839c4c6d3465ea0ee0764c",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "frontend/scripts/verify-frontend-module-budgets.mjs",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "c3ed06873fbb0916dfb2c3094c1521dbec3279d5d5df3350110fe608ac53fb8d",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "frontend/scripts/verify-whatsapp-recipient-bulk-browser.mjs",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "decdafeeabe7683926f6f726cc6a4955806134836855ef5293af79f4f4328b39",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "nginx/conf.d/default.conf",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "fbdfc76a569b0484464b9f4a7fd6d7e80aa40911418ca96aee5a6ba99dac3963",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "path": "nginx/nginx.conf",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "2a9515f14744385154c5169c47f07cd87dbf8a36d713037fd7fae599ee1aaa5f",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/alembic/versions/0142_group_background.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "171477cb03f92d19b65b26c1c1580a23dc95e3a3c462732aa7c58914f0fb0af0",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/core/config/ai_settings_fields.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "2d7c876502cf60b435b12bd8b33823e91877e8082057f7d16a976b4b51705ad3",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/core/config/database_settings.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "b1aea142b4edf33cc0f62130fa6e6cbb094bad6bd5182beed3ec02fa3d8e9c7c",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/core/config/email_settings_fields.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "ae471aa0f319c27390953546c57f385ea6bb9cb88f6d6bf6e4bc6aae52f45e95",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/core/config/identity_settings_fields.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "1aaa228536583a4e8f023f4a350d2652139b2f0aa1dfd34316656d55f972afae",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/core/config/ingestion_settings_fields.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "b4b3f161aa7dd3350d077dd20e4880dcca69439f853cccb63bec8d82338e2788",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/core/config/jwt_settings.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "5532603ab49b586e31886a25748be40789117583a6df76764398368338b49873",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/core/config/my_photos_aws_policy.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "bf72bbe93b00bc98c589cde717c4e80676114d869095d4787b6276696aa65492",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/core/config/my_photos_settings.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "e30629c3d3803355ba4484d55f97c08e1857cc75ea7e1a52e83849b601cd7f17",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/core/config/redis_settings.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "31526ee021d0e65f8e75e22d72cb46aa9394a0e64c6b26570e62553d21577eae",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/core/config/release_manifest.json",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "122e7b38970b18609cf46b20b99d4b2c093c4f8b471bcd484b8c59a7080c6119",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/core/config/request_settings_fields.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "f7dbe65f066e304ee089241e7709f14246801039aeee25ba6f91f474fa38468b",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/core/config/runtime_settings_fields.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "dd324d05455e837d57ca26aa4dba1f8a0e712214c544fbdc50aab21cd7495a86",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/core/config/s3_settings.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "0879bfc320da8cd7905bbc468046c7c975cb93c8f6019204d7735f4a2db6ceed",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/core/config/settings.py",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "6c5485def68a3d76a27260fbce57bfb2321b241787b769ce0738d63fccc8fef3",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/core/config/settings_deployment_policy.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "966075f95b4c23faf2f6da0260587e9f40a2cca9fcdeaaaa9dd30aad06522123",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/core/config/settings_identity_policy.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "a3d1c6c91dec985a044fd5140cea479b3703f023e8fb84d960711e387538814c",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/core/config/settings_mobile_policy.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "01faa1d917fb7f47fa18e4b0acc7c3e8d7e538f5a10175ff14f625fec447c546",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/core/config/whatsapp_settings_fields.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "3a0844b5cc46ff1693f4386df51c8f1c53e4cde1e86ef579abe4f4dbc6eb21bf",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/domain/entities/__init__.py",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "5cc58c46b7ce501cf98e236127603629092da502b29a510a5f19e368b537b0bd",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/domain/entities/client_group.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "3611455105d0b61425774efb899b883fe9d4e3e192b4e3ca39330c955d5b50f2",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/domain/entities/client_group_configuration.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "3486a83b66db4ec1658e74ba47bdd0052423d7a122fb5cc6bcbbb5fc633606db",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/domain/entities/client_group_lifecycle.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "30910eb18732f1174995da1a49b021b6658d3acef96ab9253f9c2ddeeb51f55a",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/domain/entities/client_group_state.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "00d98b8ee7c09f2604903f2b6be2cbfff8b4a30679c645f9a7ae656d3244592b",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/domain/entities/entities.py",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "6e632388e2e0074771f336a1459c86d6a0712a3d0a93e14def7b2062270bf6fa",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/domain/entities/enums.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "4ef547c3c578e0c44d40ce03f8deaa0059077af2c59a78df40946b134ad88324",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/domain/entities/factories.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "b74b82177ea101abeafdd188d5c197a9f6ea01f49e56ad06b438bbb491220950",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/domain/entities/identity.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "4e60b4cc3d4759f1c2b12b34984a4300ae388055694cf46581be33f632b94d9e",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/domain/entities/passport_client_review.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "591e2d935dd68ee27e7cfef3229b8080eb590f9e3fed2600cbe1ecb3b014f7cb",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/domain/entities/passport_extraction.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "e745eb8f9d1b0827bf9bdeb2f8076ed898588fb0f3d1a0cb6c5baf5abc0d3cf1",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/domain/entities/passport_staff_review.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "3e93dfe727f18b35556bcd2522607d169d297cfa194d2ae1e62e90c6f6439e76",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/domain/entities/passport_state.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "acdd388a8baab76b6a2f0436b3e34ab364605532b192d80d37d2bada30d21e4c",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/domain/entities/passport_submission.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "b46b0a5e20840b903f9b9e4f9e5ba089f66e3f0857937b2eaa1475ccf97b63b2",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/domain/entities/qualifier_selection.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "79088b2e146a88ca46b17f4f716be932ca0aa37fcdadb6dd191e811761da67f4",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/infrastructure/database/attendance_activity_models.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "032b369aa88cd7dce0d19d6d19c2905f3e3cab16fa4a9bd8de25ef57d073b9b5",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/infrastructure/database/attendance_batch_models.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "06eb473f6507d08e49d25acb2e4c68e62c4550bb70486a2c886203bff8f08ae7",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/infrastructure/database/attendance_closeout_models.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "affc03c86907ae04fefb57be8920593393a6e2818837d6a9b816be63ff615878",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/infrastructure/database/attendance_runtime_models.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "1798faed32a3c2528659180f3e8910b1ad0e9615299393caa1aa7556cf8739f5",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/infrastructure/database/models.py",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "cca0de0deb12e7cdc7368501e8a3ac0012e513d691ddcf10a3ead67ec4ec2ed0",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/infrastructure/database/my_photo_delivery_models.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "53f6c59cf80557b2637dac2ee695fc3fc289404cc9adb65d76f3c1fa2abf1372",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/infrastructure/database/my_photo_enrollment_models.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "12c5485971cb84d4352aa9da033093e5b45a06620b1a57c3c9f690c186367092",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/infrastructure/database/my_photo_face_models.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "815ac41087eb0de4d91e2866a13aa09b86fd76fb95b278b21dce3e7f2c6d1e53",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/infrastructure/database/my_photo_gallery_models.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "85a36a0d57fcf4785ec99c91197c7d1f1069ba9c8b9b303800285021093ea1f7",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/infrastructure/database/my_photo_job_models.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "1c058f8337a89b3e9b33beeca07ac5bff03f08e7f95140a0d80ad620cdf253c0",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/infrastructure/database/my_photo_liveness_models.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "9940d1ee388d9e6026e9e096c5b6421187a9e1547f8d04a4a5bfffef10c022fd",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/infrastructure/database/my_photo_media_models.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "f2553c9fc595913e71a896e91dadc2755bda211459cc61bc53c42dff799844a6",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/infrastructure/database/my_photo_search_models.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "8e20ef722c49997afc5f7ac857609cd142ebc16baa848ffd570138c7e2c05a67",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/infrastructure/database/my_photos_models.py",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "4b0e472e09be93233015330d740be5951cf0327bba7d3d64a6ceb40435bee93f",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/infrastructure/database/operations_models.py",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "c1b7d9231eca989eb9abd5a7d6bba605650b66bd7d9aba73abe2208519fe59f8",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/infrastructure/database/passenger_qr_models.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "e815d9390a4a5c9544e43b2384f3791b4cb4d429a4b18bb7da7e37b897421d24",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/infrastructure/database/rooming_allocation_models.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "a61c374e76078f8aa6f58f740b2c1415a3b20dcdd9d863b7a07465d6c376315f",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/infrastructure/database/rooming_property_models.py",
+      "prospective_untracked": true,
+      "exists": true,
+      "current_sha256": "600b2c10646a400307fb2935a2785424b4a4e85aee77032581cb7435891ae839",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/infrastructure/database/session.py",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "ffe7cb50459ed4c30754455477b86b47d67e8de2233aa430fe370e808f63f296",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/infrastructure/processing/celery_app.py",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "402830e148bc2745e7d05837ec10d81db4ed54bb9f6ab293d9cca60ae0f4a9e3",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/infrastructure/storage/branding_urls.py",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "9b75c427c919f2a0ed48bb99979ccd69bc7a3ba94d9514e7b45ba5a52d838b29",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/app/infrastructure/storage/minio_repository.py",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "f31fe249d63c18ea0e400bae0ee3161eb05db6b194527e2bdab39bf88626180c",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/requirements-dev.lock",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "fa496ac3b66cb786678e2d68d5dd105b06e1f111c909334848a93f29c17c7e1f",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/requirements.lock",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "1fe14679cfb5a5dce7043966982e4b348c5861d9d952dfc32183eea7ce1e2bd0",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "backend/requirements.txt",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "72328798fd7fdb7a17b9f514fceb3ee437af4870f1692a63e27b61d40ed0e7f7",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "docker-compose.yml",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "918eb4fc3eccecb7c68ad56ab66b36a976754b3f0b1f0ce7a04081c8e309a357",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "frontend/package-lock.json",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "566c274823b6a1d7223afbe17b0159839f090d46eb0ea9cea833543af5962f91",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "frontend/package.json",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "8c8e2c46658b76bb4b0c7578330ba610d4741be63f30943d5fb262ed73030463",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "frontend/scripts/verify-access-level-browser.mjs",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "c3b0794fee6ff06f6e865b14fec3b49a2e64b97d68839c4c6d3465ea0ee0764c",
+      "already_reviewed": false,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "frontend/scripts/verify-frontend-module-budgets.mjs",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "c3ed06873fbb0916dfb2c3094c1521dbec3279d5d5df3350110fe608ac53fb8d",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "nginx/conf.d/default.conf",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "fbdfc76a569b0484464b9f4a7fd6d7e80aa40911418ca96aee5a6ba99dac3963",
+      "already_reviewed": true,
+      "route_allowlist": false
+    },
+    {
+      "baseline": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "path": "nginx/nginx.conf",
+      "prospective_untracked": false,
+      "exists": true,
+      "current_sha256": "2a9515f14744385154c5169c47f07cd87dbf8a36d713037fd7fae599ee1aaa5f",
+      "already_reviewed": true,
+      "route_allowlist": false
+    }
+  ]
+}

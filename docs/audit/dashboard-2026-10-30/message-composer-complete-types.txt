@@ -1,0 +1,1 @@
+features/whatsapp/workspace/use-message-composer-preview.ts(42,54): error TS2304: Cannot find name 'WhatsAppMessageDraft'.

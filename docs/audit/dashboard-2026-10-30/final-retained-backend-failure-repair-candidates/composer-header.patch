@@ -1,0 +1,11 @@
+--- a/backend/tests/unit/presentation/test_whatsapp_composer_persistence.py
++++ b/backend/tests/unit/presentation/test_whatsapp_composer_persistence.py
+@@ -451,7 +451,7 @@
+ async def test_fresh_passport_send_rejects_missing_image_header(
+     monkeypatch: pytest.MonkeyPatch,
+ ) -> None:
+-    monkeypatch.setattr("app.presentation.api.v1.routes.whatsapp_send.enforce_broadcast_welcome_prerequisite", AsyncMock())
++    monkeypatch.setattr("app.presentation.api.v1.routes.whatsapp_send_preparation.enforce_broadcast_welcome_prerequisite", AsyncMock())
+ 
+     group_id = uuid.uuid4()
+     group_result = MagicMock()

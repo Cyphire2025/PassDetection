@@ -1,0 +1,274 @@
+{
+  "sealed_at": "2026-10-31T12:56:55.877102+00:00",
+  "status": "eight runtime owners and three new focused test files frozen; follow-up architecture and affected qualification complete",
+  "original_primary_sources": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_gmail.py",
+      "sha256": "8fd4a780cf4040c1a0188e50b635ce1935aed85f5b29b4d25d9683a8b22b2b49",
+      "physical_lines": 299
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_outlook.py",
+      "sha256": "46835a02f003132af36e3524de6e16d5fa6c11a4bd425f0245a78689314ead8a",
+      "physical_lines": 328
+    },
+    {
+      "path": "backend/app/infrastructure/email/account_removal.py",
+      "sha256": "7e2798de81ff286f7b63f29daef17d1bd1416fd7b696db3c5b01ccd54f09f4ad",
+      "physical_lines": 339
+    }
+  ],
+  "current_owner_lines": {
+    "backend/app/presentation/api/v1/routes/email_integration_gmail.py": 260,
+    "backend/app/presentation/api/v1/routes/email_integration_outlook.py": 288,
+    "backend/app/presentation/api/v1/routes/email_oauth_actor.py": 39,
+    "backend/app/presentation/api/v1/routes/email_oauth_grant.py": 79,
+    "backend/app/infrastructure/email/account_removal.py": 66,
+    "backend/app/infrastructure/email/account_removal_plan.py": 170,
+    "backend/app/infrastructure/email/account_removal_records.py": 182,
+    "backend/app/infrastructure/email/account_removal_storage.py": 43
+  },
+  "focused_cases_passed": 129,
+  "new_cases": 55,
+  "existing_cases_unchanged": 74,
+  "mypy_runtime_files": 8,
+  "ruff_owned_files": 11,
+  "fresh_actual_owner_coverage": [
+    {
+      "path": "app/presentation/api/v1/routes/email_integration_gmail.py",
+      "lines": 260,
+      "max_function_complexity": 31,
+      "most_complex_function": "gmail_oauth_callback",
+      "coverage_percent": 99.17,
+      "branch_coverage_percent": 96.875,
+      "branch_count": 32,
+      "within_proposed_caps_and_floor": true
+    },
+    {
+      "path": "app/presentation/api/v1/routes/email_integration_outlook.py",
+      "lines": 288,
+      "max_function_complexity": 30,
+      "most_complex_function": "outlook_oauth_callback",
+      "coverage_percent": 99.13,
+      "branch_coverage_percent": 96.66666666666667,
+      "branch_count": 30,
+      "within_proposed_caps_and_floor": true
+    },
+    {
+      "path": "app/presentation/api/v1/routes/email_oauth_actor.py",
+      "lines": 39,
+      "max_function_complexity": 1,
+      "most_complex_function": "_oauth_actor_is_authorized",
+      "coverage_percent": 100.0,
+      "branch_coverage_percent": 100.0,
+      "branch_count": 0,
+      "within_proposed_caps_and_floor": true
+    },
+    {
+      "path": "app/presentation/api/v1/routes/email_oauth_grant.py",
+      "lines": 79,
+      "max_function_complexity": 3,
+      "most_complex_function": "_apply_encrypted_oauth_grant",
+      "coverage_percent": 100.0,
+      "branch_coverage_percent": 100.0,
+      "branch_count": 2,
+      "within_proposed_caps_and_floor": true
+    },
+    {
+      "path": "app/infrastructure/email/account_removal.py",
+      "lines": 66,
+      "max_function_complexity": 1,
+      "most_complex_function": "purge_email_connection_records",
+      "coverage_percent": 100.0,
+      "branch_coverage_percent": 100.0,
+      "branch_count": 0,
+      "within_proposed_caps_and_floor": true
+    },
+    {
+      "path": "app/infrastructure/email/account_removal_plan.py",
+      "lines": 170,
+      "max_function_complexity": 12,
+      "most_complex_function": "_collect_email_account_removal_plan",
+      "coverage_percent": 100.0,
+      "branch_coverage_percent": 100.0,
+      "branch_count": 8,
+      "within_proposed_caps_and_floor": true
+    },
+    {
+      "path": "app/infrastructure/email/account_removal_records.py",
+      "lines": 182,
+      "max_function_complexity": 12,
+      "most_complex_function": "_delete_email_account_records",
+      "coverage_percent": 100.0,
+      "branch_coverage_percent": 100.0,
+      "branch_count": 16,
+      "within_proposed_caps_and_floor": true
+    },
+    {
+      "path": "app/infrastructure/email/account_removal_storage.py",
+      "lines": 43,
+      "max_function_complexity": 4,
+      "most_complex_function": "_unreferenced_email_storage_keys",
+      "coverage_percent": 100.0,
+      "branch_coverage_percent": 100.0,
+      "branch_count": 2,
+      "within_proposed_caps_and_floor": true
+    }
+  ],
+  "source_fence_paths_unchanged": 40,
+  "prior_owned_runtime_sources_unchanged": 11,
+  "entire4OAuth_functions_expand_AST_exact": true,
+  "entire_removal_function_expands_AST_exact": true,
+  "common_grant_statements_exact": 20,
+  "original_global_identity_checks": 97,
+  "shared_helper_identities": 9,
+  "function_class_runtime_hints_resolved": 14,
+  "public_result_class_source_getfile_getsource_pickle_preserved": true,
+  "complete18route16path_OpenAPI_metadata_equal_to_original": true,
+  "actual_removal_query_parity": {
+    "compiled_dialect_queries": 52,
+    "executed_SQLite_statements": 27,
+    "source_whole_statement_and_ordinary_DB_control_independent": true,
+    "consistent_fixture_UUID_and_timestamp_normalization_explicit": true
+  },
+  "normal_budget_additions": 6,
+  "normal_tightened": 2,
+  "all_proposed_normal_line_floors": 95,
+  "new_critical_rows": 0,
+  "original_callback85floors_and_MCC33_32_caps_not_relaxed": true,
+  "manual_review": {
+    "current_full_files": 19,
+    "current_full_physical_lines": 3511,
+    "reused_current_full_context_not_new_credit": 11,
+    "partials_separate": true
+  },
+  "historical_instrumentation": "Prior source-fenced95case current connection run reused as baseline for unchanged primary/closure paths, no broad repeat. Existing normal46OAuth/lifecycle controls pass after shared extraction; initial43new+expanded55new controls pass. Before removal trace existing DB test passes; after raw trace comparison fails only at hook teardown because model Column UUID defaults were captured before body patch. Both raw observations/failed log retained; consistent bijective ID normalization proves full query/order/result equivalence; final129run executes unchanged real DB assertion case without trace plugin. No failed instrumentation log reclassified as passing app run.",
+  "scope_limits": [
+    "No new behavior/security flaw claimed; this batch removes exact duplication and separates real owners while preserving whole expanded statements.",
+    "No real provider/OAuth/storage/broker actions, production credentials/data, scanner, new adversarial campaign, dependency/model/schema/migration/config/gate/release/strict baseline edits or deployment/push.",
+    "No whole application suite, production build, browser round or broad shared budget scan. Dedicated COVERAGE_FILE avoids parent's default backend coverage data.",
+    "No provider-side grant effects, real PostgreSQL concurrency or production memory/latency/capacity conclusions. Separate open workload/lifetime/test architecture/audit obligations retained."
+  ],
+  "artifacts": [
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-oauth-removal-reviewed-files.json",
+      "sha256": "e1fd099bcef24e373519a002f376ceb428c41e5d7c2263ecedc6f69f573f948d"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-oauth-removal-source-manifest.json",
+      "sha256": "91ad9a3c2f235aa7754ab78be870eb2b61f454e53f4d34ebbc0a8f6209a97f3d"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-oauth-removal-findings-and-follow-ups.json",
+      "sha256": "e5c6ebe8cf58224ded4045338973bec110c4d0a76d1f60f5dabc38a1978f0c38"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-oauth-removal-original-sources.json",
+      "sha256": "82ac49915ac3dc36418feb6766a7ed471d2e7b576b6c3f95e93cc6aad2edf274"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-oauth-shared-movement.json",
+      "sha256": "65cbbde254abdf35b85f5743243ce5aaf5b9f2733de464913ca3c9e864719787"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-removal-movement.json",
+      "sha256": "75f1a6fc639d9ed2bb8b2499eca51b396e41893916cd5b98cf3a103a53990d27"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-oauth-removal-extraction-proof.json",
+      "sha256": "33be9b510c8d649d1c84710858894b317a35d5cf89cec863abb8df0a94c1833b"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-oauth-removal-runtime-bindings.json",
+      "sha256": "04ca58839549f92eb31eee776c88daa6cd7c07608f0d20552f15bf466ed21ae9"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-removal-before-actual-query-trace.json",
+      "sha256": "876d85562870454b57921d53cd08be186591163a0bd7f29128037b7c0f1be5c1"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-removal-after-actual-query-trace.json",
+      "sha256": "0fe5e82e2b9d9dcb2618286ca1b0730eb5e8f26282e6e60a994a43bcbf5ce7d0"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-removal-actual-query-equivalence.json",
+      "sha256": "d4a16e3406ea8c93583332314732fb844b2cfdecd555863ecd734a335bda110c"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-removal-before-query-control.log",
+      "sha256": "f08039cade0d7c8f1ca199dfff2ef472f62a8cb94ccb3f2d83daa38527ae1446"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-removal-after-query-control.log",
+      "sha256": "7cc05be976156128a91497fb5fe3aac0cd7bffefe96fbdeb0204f28076906fc8"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-oauth-shared-initial-tests.log",
+      "sha256": "b4c60aa503ece2f6cc82a7834e7ec00a78fd223e6d9e31dc850e7ebe259ebd10"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-oauth-shared-initial-types.log",
+      "sha256": "d9a5631f7d87a741fbecc3236286d1792d22d349ff13846d71cdc9217307bb76"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-oauth-shared-added-tests.log",
+      "sha256": "3b37807bcba77d1521cf885973b05f2b60dfcf6731db1041af067bd7ed8c05bf"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-oauth-removal-added-tests.log",
+      "sha256": "83abf42bce712d65128c10eed2b8d643c5d92180c27f1576261d74837cf553b9"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-removal-initial-types.log",
+      "sha256": "d9a5631f7d87a741fbecc3236286d1792d22d349ff13846d71cdc9217307bb76"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-oauth-removal-final-source-fence.json",
+      "sha256": "e040d2e4e9eded3d6ce3aeef5d3fe464395c89e53b3e792366ed1f9cd91248b6"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-oauth-removal-final-checks.json",
+      "sha256": "8cb649e3b0bd5b99f52489f7a40d56448c5f37bd512fa9891bc11ab9206ddff7"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-oauth-removal-final-tests.log",
+      "sha256": "09640d1ebe77dce0230c2afaa37c7e57cdd630e4b10cec6273c701ec43338c5d"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-oauth-removal-final-lint.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-oauth-removal-final-types.log",
+      "sha256": "157a09cfcdfdfb5977479c5a1c08345149263a3e990a2ec976ef28aaeec9cae6"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-oauth-removal-final-coverage.json",
+      "sha256": "4be32944e9e77a99c0e87d6054cbbdadb74c195883756828144b74310c89559d"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-oauth-removal-final-coverage.xml",
+      "sha256": "7d728bbcd811684733937a4ec48cb38198f2eb4968ad4dcfb1f11e43a5d16e53"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-oauth-removal-owner-coverage.json",
+      "sha256": "7e08c4c23d8fc7d11fb37f548ddbec70db6e4ce168d679e766a07fa557530290"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-oauth-removal-owner-coverage.xml",
+      "sha256": "69194246e26807b9b1b0bbfa9b7a9b59bee3bdd7b0f0733e85a7a5f553bf1c53"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-oauth-removal-budget-candidates.json",
+      "sha256": "10da4167dd28be8af49fe29d669190e0d45f157a2d6754d4e6e541fb24485439"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-connections-after-oauth-shared-runtime-contracts.json",
+      "sha256": "c6dbd1f6b8c40862bf7d5a52442203f91986fb74c06c3c6896b43e1cfb1bac25"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-connections-after-oauth-removal-final-runtime-contracts.json",
+      "sha256": "c6dbd1f6b8c40862bf7d5a52442203f91986fb74c06c3c6896b43e1cfb1bac25"
+    }
+  ]
+}

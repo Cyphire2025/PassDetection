@@ -1,0 +1,157 @@
+{
+  "source_manifest": {
+    "path": "docs/audit/dashboard-2026-10-30/whatsapp-activity-final-source-manifest.json",
+    "sha256": "2b228f7a7d6fa2b5f2c1fb4c61312dbf1b974a78b721baa1f5d23d25fc97522d"
+  },
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/whatsapp-activity-final-reviewed-files.json",
+    "sha256": "671259e421231a49dcaaca61c23262bcbbe1d087e2cef38dabb3ab0252914fa9"
+  },
+  "normal_module_candidates": [
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_activity.py",
+      "sha256": "06bc0b05081180d73b24ae35a0718018f1344cf72a24f8a009e41d4e016de47f",
+      "previous": null,
+      "baseline_lines": 292,
+      "maximum_lines": 300,
+      "baseline_max_function_complexity": 6,
+      "maximum_function_complexity": 7,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_activity_access.py",
+      "sha256": "e9d3f4431e7039e99a31013a9dd0691fa48efd9b60d54d37f99514ac00b50753",
+      "previous": null,
+      "baseline_lines": 31,
+      "maximum_lines": 40,
+      "baseline_max_function_complexity": 3,
+      "maximum_function_complexity": 4,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_activity_document_queries.py",
+      "sha256": "c3c009bfd7fc66b55580696b04d962660a2f4a3e3439a220ae49de1dce932e54",
+      "previous": null,
+      "baseline_lines": 74,
+      "maximum_lines": 80,
+      "baseline_max_function_complexity": 5,
+      "maximum_function_complexity": 6,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_activity_failure_queries.py",
+      "sha256": "1819db2d3ba194a172f11add3b00e63768a046518a9ae1bd4979eb93199690e7",
+      "previous": null,
+      "baseline_lines": 96,
+      "maximum_lines": 105,
+      "baseline_max_function_complexity": 2,
+      "maximum_function_complexity": 3,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_activity_status.py",
+      "sha256": "1decabea2e92dd3f4cded7b1d81fdb55a0d82aad9a0e7b7025de70626ce9abd9",
+      "previous": null,
+      "baseline_lines": 66,
+      "maximum_lines": 75,
+      "baseline_max_function_complexity": 3,
+      "maximum_function_complexity": 4,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_activity_summary_queries.py",
+      "sha256": "c8a6d7375e95b8df076cde3d8763cf4043b35d71d4450d00cbb4bbf72f9086ff",
+      "previous": null,
+      "baseline_lines": 128,
+      "maximum_lines": 135,
+      "baseline_max_function_complexity": 2,
+      "maximum_function_complexity": 3,
+      "minimum_coverage_percent": 95
+    }
+  ],
+  "critical_gate_candidates": [],
+  "original_critical_membership": "No original activity row or critical coverage-gate membership exists. No existing caps/global/critical floors changed; these6 are additive normal source-size/complexity/coverage ratchets.",
+  "measurements": {
+    "backend/app/presentation/api/v1/routes/whatsapp_activity.py": {
+      "sha256": "06bc0b05081180d73b24ae35a0718018f1344cf72a24f8a009e41d4e016de47f",
+      "physical_lines": 292,
+      "max_function_complexity": 6,
+      "most_complex_function": "get_whatsapp_activity_summary",
+      "covered_lines": 74,
+      "num_statements": 74,
+      "covered_branches": 22,
+      "num_branches": 22,
+      "line_percent": 100.0,
+      "branch_percent": 100.0
+    },
+    "backend/app/presentation/api/v1/routes/whatsapp_activity_access.py": {
+      "sha256": "e9d3f4431e7039e99a31013a9dd0691fa48efd9b60d54d37f99514ac00b50753",
+      "physical_lines": 31,
+      "max_function_complexity": 3,
+      "most_complex_function": "_ensure_kind_access",
+      "covered_lines": 13,
+      "num_statements": 13,
+      "covered_branches": 2,
+      "num_branches": 2,
+      "line_percent": 100.0,
+      "branch_percent": 100.0
+    },
+    "backend/app/presentation/api/v1/routes/whatsapp_activity_document_queries.py": {
+      "sha256": "c3c009bfd7fc66b55580696b04d962660a2f4a3e3439a220ae49de1dce932e54",
+      "physical_lines": 74,
+      "max_function_complexity": 5,
+      "most_complex_function": "_document_activity_status_predicate",
+      "covered_lines": 25,
+      "num_statements": 25,
+      "covered_branches": 8,
+      "num_branches": 8,
+      "line_percent": 100.0,
+      "branch_percent": 100.0
+    },
+    "backend/app/presentation/api/v1/routes/whatsapp_activity_failure_queries.py": {
+      "sha256": "1819db2d3ba194a172f11add3b00e63768a046518a9ae1bd4979eb93199690e7",
+      "physical_lines": 96,
+      "max_function_complexity": 2,
+      "most_complex_function": "_broadcast_failures_statement",
+      "covered_lines": 19,
+      "num_statements": 19,
+      "covered_branches": 2,
+      "num_branches": 2,
+      "line_percent": 100.0,
+      "branch_percent": 100.0
+    },
+    "backend/app/presentation/api/v1/routes/whatsapp_activity_status.py": {
+      "sha256": "1decabea2e92dd3f4cded7b1d81fdb55a0d82aad9a0e7b7025de70626ce9abd9",
+      "physical_lines": 66,
+      "max_function_complexity": 3,
+      "most_complex_function": "_status_aggregates",
+      "covered_lines": 22,
+      "num_statements": 22,
+      "covered_branches": 0,
+      "num_branches": 0,
+      "line_percent": 100.0,
+      "branch_percent": 100.0
+    },
+    "backend/app/presentation/api/v1/routes/whatsapp_activity_summary_queries.py": {
+      "sha256": "c8a6d7375e95b8df076cde3d8763cf4043b35d71d4450d00cbb4bbf72f9086ff",
+      "physical_lines": 128,
+      "max_function_complexity": 2,
+      "most_complex_function": "_broadcast_activity_statement",
+      "covered_lines": 20,
+      "num_statements": 20,
+      "covered_branches": 2,
+      "num_branches": 2,
+      "line_percent": 100.0,
+      "branch_percent": 100.0
+    }
+  },
+  "qualification": {
+    "path": "docs/audit/dashboard-2026-10-30/whatsapp-activity-final-focused-command.json",
+    "sha256": "e0740c3c81cfe404b6b62614641742453b57050f19c4d174f92d60d2dfc8f011"
+  },
+  "coverage": {
+    "path": "docs/audit/dashboard-2026-10-30/whatsapp-activity-final-coverage.json",
+    "sha256": "dbc714bda4447c030fc19acf38a0c9a7695fa38646806c1f5856e66c7db12261"
+  },
+  "shared_files_written": false
+}

@@ -1,0 +1,57 @@
+{
+  "modules": [
+    {
+      "path": "features/mcp/hooks/use-mcp-file-transfer.ts",
+      "source_sha256": "8d85a56f49754664bc389f8db71554b2f75f8ba90f494f7b1c465f11ca7ff862",
+      "baselineLines": 96,
+      "maximumLines": 100,
+      "baselineMaxFunctionComplexity": 10,
+      "maximumFunctionComplexity": 11,
+      "previous": null
+    },
+    {
+      "path": "features/mcp/api/mcp-transfer.api.ts",
+      "source_sha256": "cf7a4a0a95df4e944d3d60bc144130b513f49ce7d7b69745769790f130dc2aab",
+      "baselineLines": 45,
+      "maximumLines": 50,
+      "baselineMaxFunctionComplexity": 6,
+      "maximumFunctionComplexity": 7,
+      "previous": null
+    },
+    {
+      "path": "features/mcp/utils/file-transfer.ts",
+      "source_sha256": "79e3413c12bfab33c3369d0bd345c4154d0f90083aa24116bb99ae29af82dee0",
+      "baselineLines": 89,
+      "maximumLines": 90,
+      "baselineMaxFunctionComplexity": 38,
+      "maximumFunctionComplexity": 39,
+      "previous": {
+        "path": "features/mcp/utils/file-transfer.ts",
+        "baselineLines": 99,
+        "maximumLines": 110,
+        "baselineMaxFunctionComplexity": 38,
+        "maximumFunctionComplexity": 39
+      }
+    },
+    {
+      "path": "features/mcp/utils/read-transfer-body.ts",
+      "source_sha256": "53fc62863d8575b1d5a1213c90e2973a6b844a0f1ee5949b12fc29de1386dc16",
+      "baselineLines": 32,
+      "maximumLines": 40,
+      "baselineMaxFunctionComplexity": 6,
+      "maximumFunctionComplexity": 7,
+      "previous": null
+    },
+    {
+      "path": "features/mcp/utils/save-transfer-file.ts",
+      "source_sha256": "d240c76cc5295ffc3be65626be1e2d15d1e9748ba0c3c95d11d91fa08b7449e3",
+      "baselineLines": 29,
+      "maximumLines": 30,
+      "baselineMaxFunctionComplexity": 3,
+      "maximumFunctionComplexity": 4,
+      "previous": null
+    }
+  ],
+  "original_ceilings_preserved": true,
+  "note": "Parent exclusively owns frontend ratchets. Five current owners, one existing metadata helper tightened and four additive candidates. No coverage floor/critical config edits."
+}

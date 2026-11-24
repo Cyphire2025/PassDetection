@@ -1,0 +1,23 @@
+{
+  "files": 5646,
+  "scope": {
+    "operations-and-tooling": 319,
+    "mobile-excluded": 789,
+    "supporting-material": 468,
+    "backend": 2384,
+    "frontend": 1644,
+    "mcp-connector": 42
+  },
+  "status": {
+    "needs-follow-up": 111,
+    "reviewed": 1338,
+    "inventoried": 2861,
+    "fixed": 226,
+    "excluded": 787,
+    "verified": 78,
+    "needs_followup": 2,
+    "removed-in-working-tree": 201,
+    "refactored": 20,
+    "changed-needs-recheck": 22
+  }
+}

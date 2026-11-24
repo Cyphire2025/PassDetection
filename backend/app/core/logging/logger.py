@@ -25,6 +25,11 @@ except ModuleNotFoundError:  # pragma: no cover - exercised in lightweight local
     structlog = None  # type: ignore[assignment]
 
 from app.core.config.settings import get_settings
+from app.core.logging.celery_diagnostics import (
+    CeleryTaskDiagnosticFilter,
+    install_celery_diagnostic_filters,
+)
+from app.core.logging.server_diagnostics import install_server_diagnostic_filter
 
 _HANDLER_NAME = "passdetection.application.stdout"
 _HANDLER_LOCK = Lock()
@@ -41,6 +46,7 @@ def _configure_root_handler(formatter: logging.Formatter, level: int) -> None:
         handler = logging.StreamHandler(sys.stdout)
         handler.set_name(_HANDLER_NAME)
         handler.setFormatter(formatter)
+        handler.addFilter(CeleryTaskDiagnosticFilter())
         root_logger.addHandler(handler)
         root_logger.setLevel(level)
 
@@ -51,6 +57,8 @@ def configure_logging() -> None:
 
     Safe to call for each application created in the same process.
     """
+    install_celery_diagnostic_filters()
+    install_server_diagnostic_filter()
     # HTTPX includes the complete APNs device-token URL at INFO; HTTP/2 debug
     # traces can include authentication headers. Keep transport internals quiet
     # even in debug builds. Application delivery logs use bounded identifiers.

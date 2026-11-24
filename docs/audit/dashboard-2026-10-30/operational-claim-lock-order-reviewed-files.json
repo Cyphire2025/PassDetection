@@ -1,0 +1,18 @@
+[
+  {
+    "path": "backend/app/infrastructure/my_photos/operational_job_claims.py",
+    "sha256": "1f5edabf89fa84508e2ff065f3e373ebfb0ae0467643aaa46abf7ea83711c281",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Full prior/current admission owner read, authored coherent immutable-scope query and gallery eligibility owner, plus exact original function AST restoration for only the lock/row-predicate delta. Original claim cap21 and95line/90branch retained; new helper inherits95/90 and measures100/100. Three actual ORM/compiled PostgreSQL ordering controls failed before; first40 affected cases pass, then final15 actual admission/order/deletion controls replay both owners after predicate extraction. Both changed owners old arcs purged before final supplement;11 other runtime hashes unchanged. No live PostgreSQL deadlock/throughput qualification."
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/operational_claim_queries.py",
+    "sha256": "1d940f703dacd0f18031ab9cbe72f22f7a2841b02f482ee1013f3f635973d5da",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Full prior/current admission owner read, authored coherent immutable-scope query and gallery eligibility owner, plus exact original function AST restoration for only the lock/row-predicate delta. Original claim cap21 and95line/90branch retained; new helper inherits95/90 and measures100/100. Three actual ORM/compiled PostgreSQL ordering controls failed before; first40 affected cases pass, then final15 actual admission/order/deletion controls replay both owners after predicate extraction. Both changed owners old arcs purged before final supplement;11 other runtime hashes unchanged. No live PostgreSQL deadlock/throughput qualification."
+  }
+]

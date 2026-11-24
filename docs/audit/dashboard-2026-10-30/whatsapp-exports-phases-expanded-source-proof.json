@@ -1,0 +1,157 @@
+{
+  "original_sha256": "4c719c70041d102ee6b96af13394442bd468032f53dd236ae7331095d2885aaa",
+  "whole_declarations_exact": [
+    "_stale_rows",
+    "_roster_identity",
+    "_exportable_links",
+    "_latest_attempt_values",
+    "_delivery_values",
+    "_broadcast_import_contact_values",
+    "export_broadcast_filter"
+  ],
+  "gather_complete_expanded_function_ast_exact": true,
+  "all_original_statement_order_branch_await_continue_quota_and_return_ast_exact": true,
+  "purpose_specific_data_fields": {
+    "ExportSelection": [
+      "links",
+      "groups",
+      "source_visible_ids",
+      "roster_by_id",
+      "selected_recipient_ids"
+    ],
+    "ExportSources": [
+      "source_by_key",
+      "sources_by_recipient",
+      "required_sources",
+      "current_source_keys",
+      "displaced_source_keys",
+      "match_rows_by_group",
+      "matched_source_keys"
+    ],
+    "HydratedExportSources": [
+      "entities",
+      "source_contacts",
+      "source_zones"
+    ],
+    "ExportDelivery": [
+      "recipients",
+      "merged_contacts",
+      "latest_attempts"
+    ],
+    "SelectedExportValues": [
+      "values",
+      "imported_fields",
+      "source_keys",
+      "delivery_recipient_id"
+    ]
+  },
+  "phase_bindings": [
+    {
+      "phase": "select_export_rows",
+      "initial_data_aliases": [],
+      "return_record": "ExportSelection"
+    },
+    {
+      "phase": "load_durable_sources",
+      "initial_data_aliases": [
+        "groups = selection.groups",
+        "source_visible_ids = selection.source_visible_ids",
+        "selected_recipient_ids = selection.selected_recipient_ids"
+      ],
+      "return_record": "ExportSources"
+    },
+    {
+      "phase": "add_phone_override_sources",
+      "initial_data_aliases": [
+        "sources_by_recipient = sources.sources_by_recipient",
+        "required_sources = sources.required_sources",
+        "current_source_keys = sources.current_source_keys"
+      ],
+      "return_record": null
+    },
+    {
+      "phase": "add_manual_match_sources",
+      "initial_data_aliases": [
+        "sources_by_recipient = sources.sources_by_recipient",
+        "required_sources = sources.required_sources",
+        "current_source_keys = sources.current_source_keys",
+        "match_rows_by_group = sources.match_rows_by_group",
+        "matched_source_keys = sources.matched_source_keys"
+      ],
+      "return_record": null
+    },
+    {
+      "phase": "add_displaced_sources",
+      "initial_data_aliases": [
+        "sources_by_recipient = sources.sources_by_recipient",
+        "required_sources = sources.required_sources",
+        "displaced_source_keys = sources.displaced_source_keys"
+      ],
+      "return_record": null
+    },
+    {
+      "phase": "add_unidentified_sources",
+      "initial_data_aliases": [
+        "required_sources = sources.required_sources",
+        "current_source_keys = sources.current_source_keys"
+      ],
+      "return_record": null
+    },
+    {
+      "phase": "hydrate_export_sources",
+      "initial_data_aliases": [
+        "required_sources = sources.required_sources",
+        "displaced_source_keys = sources.displaced_source_keys",
+        "current_source_keys = sources.current_source_keys",
+        "match_rows_by_group = sources.match_rows_by_group"
+      ],
+      "return_record": "HydratedExportSources"
+    },
+    {
+      "phase": "load_export_delivery",
+      "initial_data_aliases": [],
+      "return_record": "ExportDelivery"
+    },
+    {
+      "phase": "select_export_values",
+      "initial_data_aliases": [
+        "source_by_key = sources.source_by_key",
+        "sources_by_recipient = sources.sources_by_recipient",
+        "recipients = delivery.recipients",
+        "latest_attempts = delivery.latest_attempts"
+      ],
+      "return_record": "SelectedExportValues"
+    },
+    {
+      "phase": "append_merged_contact_rows",
+      "initial_data_aliases": [
+        "values = selected.values",
+        "delivery_recipient_id = selected.delivery_recipient_id"
+      ],
+      "return_record": null
+    },
+    {
+      "phase": "append_source_rows",
+      "initial_data_aliases": [
+        "values = selected.values",
+        "imported_fields = selected.imported_fields",
+        "source_keys = selected.source_keys",
+        "source_by_key = sources.source_by_key",
+        "matched_source_keys = sources.matched_source_keys",
+        "entities = hydrated.entities",
+        "source_contacts = hydrated.source_contacts",
+        "source_zones = hydrated.source_zones"
+      ],
+      "return_record": null
+    }
+  ],
+  "source": {
+    "backend/app/presentation/api/v1/routes/whatsapp_exports.py": "d205033cf09a5e9700ca8a69fe442d0746abc3e1f27d8d96efef741e07fbd413",
+    "backend/app/presentation/api/v1/routes/whatsapp_export_hydration.py": "81b7ca7b933e77e0544cf625c6161005c70fc267dccbe461e9e82c61b2e2b288",
+    "backend/app/presentation/api/v1/routes/whatsapp_export_matching.py": "5629130dd850e98c531f76aa020aa70b3194b887ee7824097335c9c89453e6d5",
+    "backend/app/presentation/api/v1/routes/whatsapp_export_projection.py": "113e8e2c30234079fbb172466469a8f1d43eee6468da2fd2ccd9daf432fa28de",
+    "backend/app/presentation/api/v1/routes/whatsapp_export_selection.py": "19bfd1f654bb0c3484bc36af1ee759f0551a5d334052089a4cadac0d8a7b8e9c",
+    "backend/app/presentation/api/v1/routes/whatsapp_export_sources.py": "3f1af44c7b37cb8a93a306262643ed4bb7f689605fb29fd93ea2bdc7459847b2",
+    "backend/app/presentation/api/v1/routes/whatsapp_export_support.py": "e69b75a0b214ac678244b06b7888df8c8c01ba098fc6718666361a700fe5f410"
+  }
+}

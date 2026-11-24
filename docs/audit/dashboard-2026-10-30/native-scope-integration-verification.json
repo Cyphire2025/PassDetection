@@ -1,0 +1,65 @@
+{
+  "status": "frozen; root-owned scope/inventory handoff",
+  "proposal": "native-backend-scope-proposal.json",
+  "approved_native_runtime": 18,
+  "approved_native_tests": 6,
+  "policy_key": "native_app_only_paths",
+  "scope_only": true,
+  "source_or_test_removals": [],
+  "runtime_changes": [],
+  "changed_tooling": [
+    {
+      "path": "scripts/dashboard_audit_inventory.py",
+      "sha256": "a33455037a16929ee8d9f859a6593a049fef8c878817478df8b7265c834f5a14"
+    },
+    {
+      "path": "backend/tests/unit/scripts/test_dashboard_audit_scope.py",
+      "sha256": "022c1e11abca15212575de631699bd0e893ecda5233bd170494db40ef2181609"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/audit-scope.json",
+      "sha256": "5d25fb5fb9dafe73bcefc84ee9e4bfad6f9631fbf48244f53330e49d95b41222"
+    }
+  ],
+  "checks": [
+    {
+      "name": "New native controls before fix",
+      "result": "21failed27deselected",
+      "raw": ".tmp/whatsapp-foundation/native-scope-baseline.txt"
+    },
+    {
+      "name": "Scope +resolution +retirement affected group",
+      "result": "80passed",
+      "raw": ".tmp/whatsapp-foundation/native-scope-affected.txt"
+    },
+    {
+      "name": "Pinned repository-config Ruff",
+      "result": "pass",
+      "command": "python -m ruff check --no-fix --config backend/pyproject.toml scripts/dashboard_audit_inventory.py backend/tests/unit/scripts/test_dashboard_audit_scope.py"
+    },
+    {
+      "name": "Actual inventory refresh",
+      "result": "pass24exact approved paths mobile-excluded;10named shared false-positive controls backend",
+      "raw": ".tmp/whatsapp-foundation/native-scope-refresh.txt"
+    }
+  ],
+  "retained_false_positive_controls": [
+    "backend/app/core/security/mobile_offline_lease.py",
+    "backend/app/core/security/mobile_jwt.py",
+    "backend/app/infrastructure/security/mobile_otp_rate_limiter.py",
+    "backend/app/infrastructure/mobile_push/fcm_provider.py",
+    "backend/app/application/mobile/group_capacity.py",
+    "backend/app/application/mobile/passenger_change_propagation.py",
+    "backend/app/application/mobile/notification_service.py",
+    "backend/app/presentation/api/v1/routes/mobile_ops.py",
+    "backend/app/presentation/dependencies/mobile_auth.py",
+    "backend/app/presentation/api/v1/routes/gc_notifications.py"
+  ],
+  "historical_records": "Original hash/status/full-read/independent-finding records remain. Synthetic full-followup case proves no history erased; scope classification does not create semantic review credit.",
+  "unchanged_semantics": [
+    "Inbox exact deferred rules/retained overrides and deferred_scope_rules existing2tuple API",
+    "Classify default keyword/API behavior for all existing callers",
+    "Published routes, all native/dashboard runtime/test assertions, private keys, provider/worker configuration, shared schema/model/migration contracts"
+  ],
+  "remaining_scope_work": "Other14 native-looking tests in proposal remain unapproved classification triage only; shared or uncertain owners remain active by default. No broad tests/build/browser/provider calls."
+}

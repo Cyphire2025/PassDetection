@@ -1,0 +1,98 @@
+[
+  {
+    "path": "backend/app/infrastructure/my_photos/aws_face_search.py",
+    "sha256": "f5c1d90678c307d99d8ee1966975c7012a30bb9b32b15c69583957c945672ff5",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Original source fully physically reviewed; current owned worker/helper source and explicit dependency/import wiring read completely. For the two existing AWS/gallery owners, full prior reads plus exact narrow current delta review are bound by complete previous-byte restoration, not claimed as a second independent full read. Worker27 original declarations retain24 context-normalized bodies and3 exact tested delta restorations. Typed session factory remains authoritative at legacy facade invocation; public signature, original class aliases, evaluated annotations and pickle identities preserved.191 unique cases verified across170+17+4 scoped passing selections at identical12 runtime hashes. Late error authority and native sibling ownership fixes have actual8+4 failing baseline cases. No real provider, PostgreSQL or VPS qualification."
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/gallery_manifest_providers.py",
+    "sha256": "302457c64fceeb254c0d1fed006f86e9a6da37e01b1764a3f3d8c11015a52e19",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Original source fully physically reviewed; current owned worker/helper source and explicit dependency/import wiring read completely. For the two existing AWS/gallery owners, full prior reads plus exact narrow current delta review are bound by complete previous-byte restoration, not claimed as a second independent full read. Worker27 original declarations retain24 context-normalized bodies and3 exact tested delta restorations. Typed session factory remains authoritative at legacy facade invocation; public signature, original class aliases, evaluated annotations and pickle identities preserved.191 unique cases verified across170+17+4 scoped passing selections at identical12 runtime hashes. Late error authority and native sibling ownership fixes have actual8+4 failing baseline cases. No real provider, PostgreSQL or VPS qualification."
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/operational_index_jobs.py",
+    "sha256": "ec6f22a6219d32364903fa3b91def695095bbb32996e08e5e43109ed24eafeb3",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Original source fully physically reviewed; current owned worker/helper source and explicit dependency/import wiring read completely. For the two existing AWS/gallery owners, full prior reads plus exact narrow current delta review are bound by complete previous-byte restoration, not claimed as a second independent full read. Worker27 original declarations retain24 context-normalized bodies and3 exact tested delta restorations. Typed session factory remains authoritative at legacy facade invocation; public signature, original class aliases, evaluated annotations and pickle identities preserved.191 unique cases verified across170+17+4 scoped passing selections at identical12 runtime hashes. Late error authority and native sibling ownership fixes have actual8+4 failing baseline cases. No real provider, PostgreSQL or VPS qualification."
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/operational_index_publication.py",
+    "sha256": "f16ac652055a36e19611d212304907f2287633ee4e99c0fe2a9f498786b5a54f",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Original source fully physically reviewed; current owned worker/helper source and explicit dependency/import wiring read completely. For the two existing AWS/gallery owners, full prior reads plus exact narrow current delta review are bound by complete previous-byte restoration, not claimed as a second independent full read. Worker27 original declarations retain24 context-normalized bodies and3 exact tested delta restorations. Typed session factory remains authoritative at legacy facade invocation; public signature, original class aliases, evaluated annotations and pickle identities preserved.191 unique cases verified across170+17+4 scoped passing selections at identical12 runtime hashes. Late error authority and native sibling ownership fixes have actual8+4 failing baseline cases. No real provider, PostgreSQL or VPS qualification."
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/operational_job_claims.py",
+    "sha256": "29449ee1905ce2a2371e1d84463a9235e1ebcfe82b7d90618531dfb6cf383cca",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Original source fully physically reviewed; current owned worker/helper source and explicit dependency/import wiring read completely. For the two existing AWS/gallery owners, full prior reads plus exact narrow current delta review are bound by complete previous-byte restoration, not claimed as a second independent full read. Worker27 original declarations retain24 context-normalized bodies and3 exact tested delta restorations. Typed session factory remains authoritative at legacy facade invocation; public signature, original class aliases, evaluated annotations and pickle identities preserved.191 unique cases verified across170+17+4 scoped passing selections at identical12 runtime hashes. Late error authority and native sibling ownership fixes have actual8+4 failing baseline cases. No real provider, PostgreSQL or VPS qualification."
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/operational_job_contracts.py",
+    "sha256": "3785947c91564a0b8cc4c77c62ba0ba46542af19b067370ebc9d4e740727bb7f",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Original source fully physically reviewed; current owned worker/helper source and explicit dependency/import wiring read completely. For the two existing AWS/gallery owners, full prior reads plus exact narrow current delta review are bound by complete previous-byte restoration, not claimed as a second independent full read. Worker27 original declarations retain24 context-normalized bodies and3 exact tested delta restorations. Typed session factory remains authoritative at legacy facade invocation; public signature, original class aliases, evaluated annotations and pickle identities preserved.191 unique cases verified across170+17+4 scoped passing selections at identical12 runtime hashes. Late error authority and native sibling ownership fixes have actual8+4 failing baseline cases. No real provider, PostgreSQL or VPS qualification."
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/operational_job_lifecycle.py",
+    "sha256": "73c399ca4a004b77c735ea686ce7ad728704989a28ec2a5499b787182844b3e6",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Original source fully physically reviewed; current owned worker/helper source and explicit dependency/import wiring read completely. For the two existing AWS/gallery owners, full prior reads plus exact narrow current delta review are bound by complete previous-byte restoration, not claimed as a second independent full read. Worker27 original declarations retain24 context-normalized bodies and3 exact tested delta restorations. Typed session factory remains authoritative at legacy facade invocation; public signature, original class aliases, evaluated annotations and pickle identities preserved.191 unique cases verified across170+17+4 scoped passing selections at identical12 runtime hashes. Late error authority and native sibling ownership fixes have actual8+4 failing baseline cases. No real provider, PostgreSQL or VPS qualification."
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/operational_job_policy.py",
+    "sha256": "2e3df8a42a1c086b87909be0446704a9385f84ebf4e504fb0a5561cea0456636",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Original source fully physically reviewed; current owned worker/helper source and explicit dependency/import wiring read completely. For the two existing AWS/gallery owners, full prior reads plus exact narrow current delta review are bound by complete previous-byte restoration, not claimed as a second independent full read. Worker27 original declarations retain24 context-normalized bodies and3 exact tested delta restorations. Typed session factory remains authoritative at legacy facade invocation; public signature, original class aliases, evaluated annotations and pickle identities preserved.191 unique cases verified across170+17+4 scoped passing selections at identical12 runtime hashes. Late error authority and native sibling ownership fixes have actual8+4 failing baseline cases. No real provider, PostgreSQL or VPS qualification."
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/operational_job_queries.py",
+    "sha256": "6822aaad4b591795a2c345d7193989df9f0549800dd3c93b4456652443965f20",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Original source fully physically reviewed; current owned worker/helper source and explicit dependency/import wiring read completely. For the two existing AWS/gallery owners, full prior reads plus exact narrow current delta review are bound by complete previous-byte restoration, not claimed as a second independent full read. Worker27 original declarations retain24 context-normalized bodies and3 exact tested delta restorations. Typed session factory remains authoritative at legacy facade invocation; public signature, original class aliases, evaluated annotations and pickle identities preserved.191 unique cases verified across170+17+4 scoped passing selections at identical12 runtime hashes. Late error authority and native sibling ownership fixes have actual8+4 failing baseline cases. No real provider, PostgreSQL or VPS qualification."
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/operational_media_jobs.py",
+    "sha256": "d0c29dac99f160e5c421bd6a7ef1a066381f37b051aa97c72e690563248a2e2b",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Original source fully physically reviewed; current owned worker/helper source and explicit dependency/import wiring read completely. For the two existing AWS/gallery owners, full prior reads plus exact narrow current delta review are bound by complete previous-byte restoration, not claimed as a second independent full read. Worker27 original declarations retain24 context-normalized bodies and3 exact tested delta restorations. Typed session factory remains authoritative at legacy facade invocation; public signature, original class aliases, evaluated annotations and pickle identities preserved.191 unique cases verified across170+17+4 scoped passing selections at identical12 runtime hashes. Late error authority and native sibling ownership fixes have actual8+4 failing baseline cases. No real provider, PostgreSQL or VPS qualification."
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/operational_runtime.py",
+    "sha256": "c178e781b9f62a0e415bdbecf8c9c9b02a263f8d6726080090cc92845e5af2cb",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Original source fully physically reviewed; current owned worker/helper source and explicit dependency/import wiring read completely. For the two existing AWS/gallery owners, full prior reads plus exact narrow current delta review are bound by complete previous-byte restoration, not claimed as a second independent full read. Worker27 original declarations retain24 context-normalized bodies and3 exact tested delta restorations. Typed session factory remains authoritative at legacy facade invocation; public signature, original class aliases, evaluated annotations and pickle identities preserved.191 unique cases verified across170+17+4 scoped passing selections at identical12 runtime hashes. Late error authority and native sibling ownership fixes have actual8+4 failing baseline cases. No real provider, PostgreSQL or VPS qualification."
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/provider_tasks.py",
+    "sha256": "f5da388cd882e778fcf7873abccf8bb6bb186cf8c6c493d30ab41ddce0cfa434",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Original source fully physically reviewed; current owned worker/helper source and explicit dependency/import wiring read completely. For the two existing AWS/gallery owners, full prior reads plus exact narrow current delta review are bound by complete previous-byte restoration, not claimed as a second independent full read. Worker27 original declarations retain24 context-normalized bodies and3 exact tested delta restorations. Typed session factory remains authoritative at legacy facade invocation; public signature, original class aliases, evaluated annotations and pickle identities preserved.191 unique cases verified across170+17+4 scoped passing selections at identical12 runtime hashes. Late error authority and native sibling ownership fixes have actual8+4 failing baseline cases. No real provider, PostgreSQL or VPS qualification."
+  }
+]

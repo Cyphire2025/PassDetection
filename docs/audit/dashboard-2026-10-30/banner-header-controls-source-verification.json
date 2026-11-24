@@ -1,0 +1,15 @@
+{
+  "status": "reproduced-and-corrected-source; current-build-browser-check-pending",
+  "before_css_sha256": "56a67f55d9b640b1a7aea2851c45d61bd7a2b7ba52a3ff221091e6ed9eb39c9b",
+  "after_css_sha256": "0f4824b7cdd9a13496a195717819eaf8093313c429e0641d0aaf598ab70cb965",
+  "css_inverse_reconstructs_all_original_bytes": true,
+  "css_changes": "Three banner-only selector specificity corrections; explicit visible keyboard outline for image-enabled header controls. All other CSS bytes preserved, no image filter/overlay introduced.",
+  "before_test_sha256": "94a0caf04605ca9c0d907eec3f8388087a10a8b419587c2f5417bd39c8427d8d",
+  "after_test_sha256": "f28fde78ae9b150528cdd0c17faa4f81db1fe55714ddf9946089da235565efda",
+  "test_inverse_reconstructs_original": true,
+  "test_changes": "Four actual header controls: normal/hover background and border transparency, no shadow, native Tab focus and visible2px outline. All six old workflows/assertions remain.",
+  "before_actual_failure": "banner-header-controls-before-command.json",
+  "before_failure_assertion": "border-top-color expected transparent; actual globaldashboardlightborder wins",
+  "scope": "Only globals.css and workspace-branding.spec.ts; no route/authorization/data/schema/provider/dependency changes.",
+  "local_eslint": "workspace-branding.spec.ts passed; final combined checks remain pending"
+}

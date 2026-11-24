@@ -215,10 +215,16 @@ async def refresh_token(
         clear_auth_cookies(failure)
         return failure
     try:
-        result = await use_case.execute(
-            dto=RefreshTokenInputDTO(refresh_token=refresh_value),
-            client_ip=client_ip,
-        )
+        expected_actor_id = request.headers.get("X-Expected-Actor-Id")
+        if expected_actor_id is None:
+            result = await use_case.execute(
+                dto=RefreshTokenInputDTO(refresh_token=refresh_value), client_ip=client_ip,
+            )
+        else:
+            result = await use_case.execute(
+                dto=RefreshTokenInputDTO(refresh_token=refresh_value), client_ip=client_ip,
+                expected_actor_id=expected_actor_id,
+            )
     except ConflictError as exc:
         if exc.code != "REFRESH_IN_PROGRESS":
             raise
@@ -265,7 +271,13 @@ async def logout(
     authorization = request.headers.get("authorization", "")
     access_value = (authorization[7:] if authorization.lower().startswith("bearer ")
                     else request.cookies.get(get_settings().jwt.access_cookie_name))
-    await use_case.execute(refresh_token=refresh_value, access_token=access_value)
+    expected_actor_id = request.headers.get("X-Expected-Actor-Id")
+    if expected_actor_id is None:
+        await use_case.execute(refresh_token=refresh_value, access_token=access_value)
+    else:
+        await use_case.execute(
+            refresh_token=refresh_value, access_token=access_value, expected_actor_id=expected_actor_id,
+        )
     clear_auth_cookies(response)
     response.status_code = status.HTTP_204_NO_CONTENT
     return response

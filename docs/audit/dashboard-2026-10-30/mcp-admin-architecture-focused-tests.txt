@@ -1,0 +1,9 @@
+........................................................................ [ 45%]
+........................................................................ [ 91%]
+.............                                                            [100%]
+
+---------- coverage: platform win32, python 3.11.15-final-0 ----------
+Coverage XML written to file ../docs/audit/dashboard-2026-10-30/mcp-admin-architecture-coverage.xml
+Coverage JSON written to file ../docs/audit/dashboard-2026-10-30/mcp-admin-architecture-coverage.json
+
+157 passed in 1009.67s (0:16:49)

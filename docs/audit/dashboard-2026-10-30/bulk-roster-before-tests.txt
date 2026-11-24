@@ -1,0 +1,14 @@
+.F [100%]
+
+================================== FAILURES ===================================
+_____ test_corrupt_roster_diagnostic_contains_type_and_resolution_id_only _____
+tests\unit\presentation\test_bulk_roster_reference_boundary.py:70: in test_corrupt_roster_diagnostic_contains_type_and_resolution_id_only
+    assert marker not in repr(warning.call_args)
+E   assert 'synthetic-p...er-reference' not in "call('passp...-reference')"
+E     
+E     'synthetic-private-passenger-reference' is contained here:
+E       ', value='synthetic-private-passenger-reference')
+=========================== short test summary info ===========================
+FAILED tests/unit/presentation/test_bulk_roster_reference_boundary.py::test_corrupt_roster_diagnostic_contains_type_and_resolution_id_only
+1 failed, 1 passed in 1.42s
+

@@ -1,0 +1,21 @@
+{
+  "status": "Complete physical source-only review of listed retained files; mixed scope explicitly focused",
+  "ledger": "retained-mcp-whatsapp-read-message-test-source-reviewed-files.json",
+  "ledger_sha256": "a7ea7b7c962b3b56bee905d6c72fd5e07271a4ea590902a99919763f1cae1f32",
+  "full_files": 5,
+  "full_physical_lines": 1098,
+  "focused_files": 0,
+  "current_source_hashes": {
+    "backend/tests/integration/test_mcp_whatsapp_configuration_errors.py": "3d7a04bdb3235ecfdf7630e58dd3b99d4c2803260ab80269b36cf7f2d4c18c6f",
+    "backend/tests/integration/test_mcp_whatsapp_http.py": "b781e07755043da931637c48011a9dd65f179edec17f7845355e01d5d041b59a",
+    "backend/tests/integration/test_mcp_whatsapp_support_selection.py": "c13e2ee479021f472db0e2adae7facdb7ea93c363bdd5bdcdd5b1b27bd13e610",
+    "backend/tests/integration/test_mcp_whatsapp_messages.py": "12cfc6f8de2f78656ff9f903f55b16c0b920cc90630abd86b85a8ebe5f051bf5",
+    "backend/tests/integration/test_mcp_whatsapp_reads.py": "ab9e94663efabab1bbf7936ed34e3cdbdb47f3299b84d54a8da578529fc8e299"
+  },
+  "source_unchanged_since_discovery": true,
+  "new_tests_executed": 0,
+  "runtime_or_test_edits": 0,
+  "new_validated_runtime_findings": 0,
+  "existing_full_findings_automatically_closed": false,
+  "limits": "Text review verifies source assertions and fixture boundaries only; does not establish those tests pass, actual PostgreSQL/Redis/storage concurrency, provider output, browser/native transport or deployed behavior. Inbox assertions in mixed files remain deferred. No gate/binding/stamp/MCP1990 refresh."
+}

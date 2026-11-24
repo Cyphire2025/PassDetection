@@ -1,0 +1,14 @@
+.F                                                                       [100%]
+================================== FAILURES ===================================
+_ test_passport_library_artifacts_are_scoped_to_passport_deletion_cleanup[passport-image-library] _
+tests\unit\infrastructure\test_storage_cleanup.py:92: in test_passport_library_artifacts_are_scoped_to_passport_deletion_cleanup
+    job = stage_storage_cleanup_job(
+app\infrastructure\documents\storage_cleanup.py:284: in stage_storage_cleanup_job
+    keys = _validated_storage_keys(source=source, storage_keys=unique_keys)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\infrastructure\documents\storage_cleanup.py:216: in _validated_storage_keys
+    raise StorageCleanupPayloadError("Storage cleanup object scope is invalid")
+E   app.infrastructure.documents.storage_cleanup.StorageCleanupPayloadError: Storage cleanup object scope is invalid
+=========================== short test summary info ===========================
+FAILED tests/unit/infrastructure/test_storage_cleanup.py::test_passport_library_artifacts_are_scoped_to_passport_deletion_cleanup[passport-image-library]
+1 failed, 1 passed, 16 deselected in 0.55s

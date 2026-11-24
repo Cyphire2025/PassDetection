@@ -1,0 +1,51 @@
+{
+  "status": "coherent-domain-and-group-schema-batch-frozen; affected-checks-pass",
+  "runtime_owners": 29,
+  "current_source_manifest": "domain-group-schema-current-source.json",
+  "source_changes": "Current19domain core owners plus one shared pure trip rule owner and nine schema owners. Two original domain normalization bodies are exact after shared-prefix expansion, public ordered dataclass/port contracts22unchanged. The645line schema facade is89lines, largest request owner221; domain largest246. Closed six registry-free tour domain types are documented in prior core receipt; active ORM tour/QR flows retained.",
+  "input_defects": {
+    "collection_before": "20failed negative cases,5positive controls passed; strings/maps/nontext members and raw-count bypass were admitted before normalization.",
+    "broadcast_before": "9failed of21actual HTTP cases: six nested list/object inputs caused500, three51repeat raw arrays bypassed the50bound.12negative/positive controls already passed.",
+    "fixed": "Raw declared bounds/type checked before ordered normalization/dedup; create/import-only and update null semantics retained; error envelopes do not echo synthetic private values. New55HTTP cases include unchanged malformed-match contract coverage."
+  },
+  "checks": {
+    "final_supplement": "106cases+2subtests passed across4affected test files; covers changed validation owner, qualifier paths and actual existing group broadcast handler flows.",
+    "earlier_wider_scope": "176cases+11subtests behavioral pass; pytest invocation failed at coverage report teardown due to deleted intermediate owner. It is not a successful invocation. Metadata compatibility first45case behavioral pass also failed instrumentation because of a mistyped --cov module; corrected5case current-owner HTTP run passed.",
+    "coverage": "Changed core/validation/match owners purged and remeasured; retained17core owner hashes verified exact. Report omit is only absent intermediate group_trip_settings owner, whose original bytes/relocation proof are archived. No warnings suppressed or active owners omitted. All29candidates satisfy proposed retained/additive floors; ten new owners measured90.32\u2013100line%.",
+    "schema": "30moved declarations reviewed:28exact,1exact after explicit published __module__ metadata,1intentional subsequent broadcast input guard.26classes\u00d72modes=52model JSON schemas unchanged. Complete API and mobile contract checks pass on final current source; snapshots untouched.",
+    "types": "12current runtime files pass mypy",
+    "lint": "current callers/value/schema/test scopes pass Ruff --no-fix",
+    "architecture": "pass; last check before broadcast helper body-only guard, unchanged import dependencies",
+    "public_metadata": "22entity/port ordered field/default/factory/constructor/public method/enum contracts unchanged",
+    "global_suite": "No repeated whole-backend suite for this feature batch."
+  },
+  "candidate_integration": "Final29candidate bundle replaces held19candidate bundle. Original19candidate floors are retained; size/complexity ceilings retained or tightened. Central budget/binding owner will integrate this exact bundle. No original baseline or BEFORE hash edited.",
+  "limits": "Synthetic model/error-handler HTTP tests do not establish auth/DB behavior of production endpoints. Existing live handler tests are separate. Real PostgreSQL, Redis, private object storage, production providers and VPS qualification remain unverified locally. No native mobile feature edits or deployment setup changes.",
+  "receipts_sha256": {
+    "domain-core-verification.json": "fce48198be7aae8a36201e815a3075ef00d4a43f4605333fe04f07d6e12d226f",
+    "domain-group-normalization-current-equivalence.json": "4ad492da395ffb596e0ffe84d7f9e3f3542f5a120436b3cc00a44983c448a771",
+    "domain-core-shape-before.json": "a2d54b0143ef6d66f078dac9b23d92729de5cd0f0fc9cabe106dbea866ad2ff1",
+    "domain-core-shape-after.json": "a2d54b0143ef6d66f078dac9b23d92729de5cd0f0fc9cabe106dbea866ad2ff1",
+    "group-schema-extraction-origin.json": "d80a0c9738e40422ed6b7a5d9d5715c82c1fa43499778f5425978bed1201a2b8",
+    "group-schema-current-extraction-proof.json": "6a95a81acfdb4e86b410dea76ce89086cb60a39479cd4830201002e749c6b4d2",
+    "group-schema-current-tests.xml": "0731f39909897ada11ec7966ac72f05a5174073acfc7c091d1eaa95b8767d605",
+    "group-schema-source-checkpoint.json": "5ae8b2efc74dffcbbb27a3067641a6c20bb6ad34281d24fe15fc4242f346ee09",
+    "group-schema-compatibility-coverage-purge.json": "049a67717b237f2570828753cb9ca88950b203dd1ff887a3ad6a65cd407a921d",
+    "group-schema-compatibility-current-tests.xml": "18f113d624e5de731a2b97580df644603dbac0f778ac6c9699ef7bbbb39944bb",
+    "group-schema-coverage-report-repair.json": "3c5c10691bef07121bdfef31c59125e67be4bda02b3da247a61f90f6e0b966e6",
+    "group-broadcast-input-before.xml": "9d58655bbd83a065fcbe231e8053d755de753df515c8dab06827ebeac7b3331b",
+    "group-broadcast-coverage-owner-purge.json": "f13b868bf0a1898566d502cedacce2ff8677d381bf0862b7849ba2c7756fa666",
+    "group-schema-final-supplement.xml": "9b4061ce396d7f42f228dcd6e12dc6a043a373ad247902b2327d6198484237c7",
+    "group-schema-final-coverage.json": "ed3a2f8e2de31e9cb6b7998e2ef93cfe12213a54ad7da5d15ba597ee08903c88",
+    "group-schema-final-coverage.xml": "6b77f54e076d4faa5be552026eb30ac8c459e8e19ad843916a509a59541c6dac",
+    "group-schema-final-types.txt": "99774ae94d9c061d2ee8a3c00a79bb1c6dfd2b0998f7cb389be50e19a0dc7d15",
+    "group-schema-final-ruff.txt": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0",
+    "group-schema-final-architecture.txt": "895bfbeca4c78591066dcf214c4bfe9de43b5d7ed5d3f518fe398563a7bcc992",
+    "group-schema-current-api-contract.txt": "2915ff948d9df9f416031a0e1256a14fa9c04d08a26dbf09b2f3ccfff3be9bb6",
+    "group-schema-current-mobile-contract.txt": "105b01148caabae3108fa7be123122c045ccbfb394db218dd6dd3960175e169b",
+    "domain-group-schema-budget-candidates.json": "f456221ccaa5997074ef6046de1851e3ff5108f74970e63b7226ac5363d5932e",
+    "domain-group-schema-source-measurements.json": "02eda9381624a7568b133a202ac8d38d4080c81823e75473c2c07bb985baeed5",
+    "domain-group-schema-reviewed-files.json": "7c79bd48df40c04eeafbb40cf6097a49a51b7c6daf9bb91af6066f67ff83f86a",
+    "domain-group-schema-current-source.json": "71473bd23e791f844b096fe2df858d3c4e7acd69416057fa2a9ea6f6ca00a5e0"
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "scope": "Rendered Compose source qualifier, sameCLI andfixedsettings/resource/admission contracts; nocontainers/network/provider actions.",
+  "files": [
+    {
+      "path": "scripts/verify_compose_runtime.py",
+      "sha256": "fc40628ad8ee060c34574e1d624d36f20fa1ead9e498dad4bf6c7067fae9e5e8",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 215,
+      "notes": "Original731line operator source completely physically read; every moved statement/declaration/constant compared exactly through102statement expansion, current typed composition/imports and queue helper authored/read. Actual13synthetic policy/render methods,2prior false-negative queue controls, publicaliases/pickle/hints, scopedtypes7/Ruff9 pass. Existing render fixture format-only AST exact. No independent second reviewer/liveDocker qualification claim."
+    },
+    {
+      "path": "scripts/compose_runtime_capacity.py",
+      "sha256": "5261ea747dc77062c2b6d4c13ff617c0df6ab72c7e3a003410b5bd0c364ae979",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 208,
+      "notes": "Original731line operator source completely physically read; every moved statement/declaration/constant compared exactly through102statement expansion, current typed composition/imports and queue helper authored/read. Actual13synthetic policy/render methods,2prior false-negative queue controls, publicaliases/pickle/hints, scopedtypes7/Ruff9 pass. Existing render fixture format-only AST exact. No independent second reviewer/liveDocker qualification claim."
+    },
+    {
+      "path": "scripts/compose_runtime_clients.py",
+      "sha256": "0e542244be82084f49bb558c3500c1a51fb97f8e7f8f367a75dd54f679768d93",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 120,
+      "notes": "Original731line operator source completely physically read; every moved statement/declaration/constant compared exactly through102statement expansion, current typed composition/imports and queue helper authored/read. Actual13synthetic policy/render methods,2prior false-negative queue controls, publicaliases/pickle/hints, scopedtypes7/Ruff9 pass. Existing render fixture format-only AST exact. No independent second reviewer/liveDocker qualification claim."
+    },
+    {
+      "path": "scripts/compose_runtime_contract.py",
+      "sha256": "12c0fe4ac2368f4ed6120d68d8c7224f2402a3b8b65d9075e507fdc55edcb3e3",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 132,
+      "notes": "Original731line operator source completely physically read; every moved statement/declaration/constant compared exactly through102statement expansion, current typed composition/imports and queue helper authored/read. Actual13synthetic policy/render methods,2prior false-negative queue controls, publicaliases/pickle/hints, scopedtypes7/Ruff9 pass. Existing render fixture format-only AST exact. No independent second reviewer/liveDocker qualification claim."
+    },
+    {
+      "path": "scripts/compose_runtime_services.py",
+      "sha256": "698b1cdbda38eaa96a5fb08377c90bb4a2ecedcb620f5f073fc3d01c1aae2d43",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 138,
+      "notes": "Original731line operator source completely physically read; every moved statement/declaration/constant compared exactly through102statement expansion, current typed composition/imports and queue helper authored/read. Actual13synthetic policy/render methods,2prior false-negative queue controls, publicaliases/pickle/hints, scopedtypes7/Ruff9 pass. Existing render fixture format-only AST exact. No independent second reviewer/liveDocker qualification claim."
+    },
+    {
+      "path": "scripts/compose_runtime_values.py",
+      "sha256": "fba60e039015fd050fd7048f490a33da69fa6f9654d1297768ac01ff7799e4de",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 58,
+      "notes": "Original731line operator source completely physically read; every moved statement/declaration/constant compared exactly through102statement expansion, current typed composition/imports and queue helper authored/read. Actual13synthetic policy/render methods,2prior false-negative queue controls, publicaliases/pickle/hints, scopedtypes7/Ruff9 pass. Existing render fixture format-only AST exact. No independent second reviewer/liveDocker qualification claim."
+    },
+    {
+      "path": "scripts/compose_runtime_workers.py",
+      "sha256": "13e906a71f218a6990f48bdb4de872487ddbc9c9a907287a508b45d05e44ef7b",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 175,
+      "notes": "Original731line operator source completely physically read; every moved statement/declaration/constant compared exactly through102statement expansion, current typed composition/imports and queue helper authored/read. Actual13synthetic policy/render methods,2prior false-negative queue controls, publicaliases/pickle/hints, scopedtypes7/Ruff9 pass. Existing render fixture format-only AST exact. No independent second reviewer/liveDocker qualification claim."
+    },
+    {
+      "path": "scripts/test_compose_runtime_policies.py",
+      "sha256": "7b1c614c2d65cd1eca9f7538dbe6349edf9e26a6368528c43b0ccb1bdad77830",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 156,
+      "notes": "Original731line operator source completely physically read; every moved statement/declaration/constant compared exactly through102statement expansion, current typed composition/imports and queue helper authored/read. Actual13synthetic policy/render methods,2prior false-negative queue controls, publicaliases/pickle/hints, scopedtypes7/Ruff9 pass. Existing render fixture format-only AST exact. No independent second reviewer/liveDocker qualification claim."
+    },
+    {
+      "path": "scripts/test_compose_render_fixture.py",
+      "sha256": "9fca05ccd7addadb69bcb2a7a431b1a335ea5541484518c2f2ba31822e530f64",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 69,
+      "notes": "Original731line operator source completely physically read; every moved statement/declaration/constant compared exactly through102statement expansion, current typed composition/imports and queue helper authored/read. Actual13synthetic policy/render methods,2prior false-negative queue controls, publicaliases/pickle/hints, scopedtypes7/Ruff9 pass. Existing render fixture format-only AST exact. No independent second reviewer/liveDocker qualification claim."
+    }
+  ]
+}

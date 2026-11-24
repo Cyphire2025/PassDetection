@@ -1,14 +1,21 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { usePrivateMutation } from "@/hooks/use-private-mutation";
 import { Check, Copy, KeyRound, ShieldCheck } from "lucide-react";
 import { Button, Card, CardContent, PasswordInput } from "@/components/ui";
 import { selectUser, useAuthStore } from "@/stores/auth.store";
 import { authApi } from "../api/auth.api";
+import type { User } from "@/types";
+import { cookieCoordinationFailureMessage } from "../services/cookie-mutation";
+import { privateAuthorityKey } from "../services/session-continuity";
 
 export function AccountSecurityPanel() {
   const user = useAuthStore(selectUser);
+  return <AccountSecurityControls key={privateAuthorityKey(user)} user={user} />;
+}
+
+function AccountSecurityControls({ user }: { user: User | null }) {
   const clearSession = useAuthStore((state) => state.clearSession);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -17,7 +24,7 @@ export function AccountSecurityPanel() {
   const [recoveryCodes, setRecoveryCodes] = useState<string[]>([]);
   const [codesCopied, setCodesCopied] = useState(false);
 
-  const passwordChange = useMutation({
+  const passwordChange = usePrivateMutation({
     mutationFn: () => authApi.changePassword(currentPassword, newPassword),
     onSuccess: async () => {
       setCurrentPassword("");
@@ -29,7 +36,7 @@ export function AccountSecurityPanel() {
       });
     },
   });
-  const recoveryCodeRegeneration = useMutation({
+  const recoveryCodeRegeneration = usePrivateMutation({
     mutationFn: authApi.regenerateMfaRecoveryCodes,
     onSuccess: (codes) => {
       setRecoveryCodes(codes);
@@ -98,7 +105,7 @@ export function AccountSecurityPanel() {
           </p>
           {(validationError || passwordChange.error) && (
             <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-              {validationError ?? "The password could not be changed. Check your current password and try again."}
+              {validationError ?? cookieCoordinationFailureMessage(passwordChange.error) ?? "The password could not be changed. Check your current password and try again."}
             </div>
           )}
           <Button

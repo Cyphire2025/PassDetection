@@ -1,0 +1,33 @@
+[
+  {
+    "path": "backend/tests/unit/presentation/test_document_chunk_uploads.py",
+    "sha256": "ab8dfbbad5c33998d1c622f5e9bf27635abb449623fe121e822d404e9b1b2ff9",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Completed the remaining physical source read of the chunk protocol tests. Existing route-CSRF, logical/file/byte bounds, advisory ordering, exact replay, immutable manifest and database constraint assertions retained. All cases already passed in the91-case frozen upload selection; no product/test source edit or repeat app check for this final read.",
+    "resolves_partial_reviews": [
+      {
+        "ledger": "distribution-upload-reviewed-files.json",
+        "record_sha256": "8f373f6c4105fab6b5f4e96161cbfff0bdd964e496c4729f5ddec478570f74a5",
+        "reason": "Completed the previously outstanding full physical read at the identical source digest; this resolves only that partial-read entry."
+      }
+    ]
+  },
+  {
+    "path": "scripts/dashboard_audit_inventory.py",
+    "sha256": "ffde99d121f92ca6795f9ad23d7358d16e011259bcf65d8774ce304a52150bfe",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "All physical source read. Exact explicit partial-review record references require same source path/hash, concrete reason and a completed full read. No automatic latest-review override; independent full-review security/architecture tasks remain open. Ten focused tooling controls pass, including rejected mismatches and immutable-ledger preservation."
+  },
+  {
+    "path": "backend/tests/unit/scripts/test_dashboard_audit_review_resolutions.py",
+    "sha256": "ad54f856bf475aec172c76015e028c6967101c3d1a46d35aeadebe7123cee2dc",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "All physical source read. Exact explicit partial-review record references require same source path/hash, concrete reason and a completed full read. No automatic latest-review override; independent full-review security/architecture tasks remain open. Ten focused tooling controls pass, including rejected mismatches and immutable-ledger preservation."
+  }
+]

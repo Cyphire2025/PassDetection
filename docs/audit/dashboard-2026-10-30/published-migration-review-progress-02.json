@@ -1,0 +1,22 @@
+{
+  "status": "read-only migration review continues",
+  "new_current_full_migrations": 16,
+  "new_current_full_lines": 819,
+  "cumulative_new_full_migrations": 28,
+  "prior_full_migrations": 2,
+  "total_current_full_migrations": 30,
+  "total_migrations": 142,
+  "remaining_unread_migrations": 112,
+  "remaining_inbox_deferred_by_user": 2,
+  "remaining_retained_before_mobile_scope_partition": 110,
+  "mobile_scope_partition": "pending actual narrow domain classification; no false completion",
+  "current_hash_ledger": {
+    "path": "docs/audit/dashboard-2026-10-30/published-migration-cohort-02-reviewed-files.json",
+    "sha256": "5e1a66e9e57363d428f504e830f0f5f172faa2f348c792a7e1c630d0a1acd620"
+  },
+  "findings": {
+    "path": "docs/audit/dashboard-2026-10-30/published-migration-cohort-02-findings.json",
+    "sha256": "07a5907e59bfa519b0a33797f4dee6b4f8c4017b36f103931c8a165c67ff6c3d"
+  },
+  "no_published_source_changes": true
+}

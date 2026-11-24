@@ -1,0 +1,135 @@
+{
+  "files": [
+    {
+      "path": "scripts/mcp_direct_activate.py",
+      "sha256": "a81319bf3c2b00df04153d6fadce82d3cda1f4285abe25445e2bf090e5ce50c2",
+      "physical_lines": 75,
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "notes": "Whole prior post-health source read retained plus all current owner/import/alias/static-hook glue authored/read.14wholemethod/4helper/3constant/92actualglobals and36publicsymbols exact; old two test modules wholeAST restore after deliberate owner retargets. Four privateMRO bases/no runtime state constructors; actual constructor/super/MethodType override/overlay hash/CLI controls pass. No liveDocker or deployment qualification. Final explicit public annotation metadata and one decoded-receipt mapping guard are separately qualified by full seven-module inverse; all7strict source types and73current affected cases pass. Whole mechanical method AST claim remains historical, not relabeled after metadata changes."
+    },
+    {
+      "path": "scripts/mcp_activation_contract.py",
+      "sha256": "08f490a85d73dcbeffcb700be095e1006a766254cd56c3e8c62a65bb739d5344",
+      "physical_lines": 82,
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "notes": "Whole prior post-health source read retained plus all current owner/import/alias/static-hook glue authored/read.14wholemethod/4helper/3constant/92actualglobals and36publicsymbols exact; old two test modules wholeAST restore after deliberate owner retargets. Four privateMRO bases/no runtime state constructors; actual constructor/super/MethodType override/overlay hash/CLI controls pass. No liveDocker or deployment qualification. Final explicit public annotation metadata and one decoded-receipt mapping guard are separately qualified by full seven-module inverse; all7strict source types and73current affected cases pass. Whole mechanical method AST claim remains historical, not relabeled after metadata changes."
+    },
+    {
+      "path": "scripts/mcp_activation_identity.py",
+      "sha256": "f739ce24eef7bf17e18c28bd24869ff76fe794e32bea042414fe3309e3c5a706",
+      "physical_lines": 71,
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "notes": "Whole prior post-health source read retained plus all current owner/import/alias/static-hook glue authored/read.14wholemethod/4helper/3constant/92actualglobals and36publicsymbols exact; old two test modules wholeAST restore after deliberate owner retargets. Four privateMRO bases/no runtime state constructors; actual constructor/super/MethodType override/overlay hash/CLI controls pass. No liveDocker or deployment qualification. Final explicit public annotation metadata and one decoded-receipt mapping guard are separately qualified by full seven-module inverse; all7strict source types and73current affected cases pass. Whole mechanical method AST claim remains historical, not relabeled after metadata changes."
+    },
+    {
+      "path": "scripts/mcp_activation_staging.py",
+      "sha256": "74857f9b1ead60a609b3bebe5448658a16f37f7259acd2caea2e85c00bfeb80f",
+      "physical_lines": 122,
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "notes": "Whole prior post-health source read retained plus all current owner/import/alias/static-hook glue authored/read.14wholemethod/4helper/3constant/92actualglobals and36publicsymbols exact; old two test modules wholeAST restore after deliberate owner retargets. Four privateMRO bases/no runtime state constructors; actual constructor/super/MethodType override/overlay hash/CLI controls pass. No liveDocker or deployment qualification. Final explicit public annotation metadata and one decoded-receipt mapping guard are separately qualified by full seven-module inverse; all7strict source types and73current affected cases pass. Whole mechanical method AST claim remains historical, not relabeled after metadata changes."
+    },
+    {
+      "path": "scripts/mcp_activation_database.py",
+      "sha256": "65cb96a19b7a4690944b1f514bc59b9993f50c4ac952abf58b806baf69496e17",
+      "physical_lines": 178,
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "notes": "Whole prior post-health source read retained plus all current owner/import/alias/static-hook glue authored/read.14wholemethod/4helper/3constant/92actualglobals and36publicsymbols exact; old two test modules wholeAST restore after deliberate owner retargets. Four privateMRO bases/no runtime state constructors; actual constructor/super/MethodType override/overlay hash/CLI controls pass. No liveDocker or deployment qualification. Final explicit public annotation metadata and one decoded-receipt mapping guard are separately qualified by full seven-module inverse; all7strict source types and73current affected cases pass. Whole mechanical method AST claim remains historical, not relabeled after metadata changes."
+    },
+    {
+      "path": "scripts/mcp_activation_readiness.py",
+      "sha256": "1e06e3bf5ba3fce63e4a06acc5ef42a777b9c009c7ba2b6a14850ff1823de910",
+      "physical_lines": 150,
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "notes": "Whole prior post-health source read retained plus all current owner/import/alias/static-hook glue authored/read.14wholemethod/4helper/3constant/92actualglobals and36publicsymbols exact; old two test modules wholeAST restore after deliberate owner retargets. Four privateMRO bases/no runtime state constructors; actual constructor/super/MethodType override/overlay hash/CLI controls pass. No liveDocker or deployment qualification. Final explicit public annotation metadata and one decoded-receipt mapping guard are separately qualified by full seven-module inverse; all7strict source types and73current affected cases pass. Whole mechanical method AST claim remains historical, not relabeled after metadata changes."
+    },
+    {
+      "path": "scripts/mcp_activation_lifecycle.py",
+      "sha256": "dce5962d26764266fa666df29b2281bbe4b1193fc7d4c42c154ff4187a2e3f9b",
+      "physical_lines": 124,
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "notes": "Whole prior post-health source read retained plus all current owner/import/alias/static-hook glue authored/read.14wholemethod/4helper/3constant/92actualglobals and36publicsymbols exact; old two test modules wholeAST restore after deliberate owner retargets. Four privateMRO bases/no runtime state constructors; actual constructor/super/MethodType override/overlay hash/CLI controls pass. No liveDocker or deployment qualification. Final explicit public annotation metadata and one decoded-receipt mapping guard are separately qualified by full seven-module inverse; all7strict source types and73current affected cases pass. Whole mechanical method AST claim remains historical, not relabeled after metadata changes."
+    },
+    {
+      "path": "scripts/mcp_direct_retry.py",
+      "sha256": "a42814682db1b5e7686e3dac239b519b65241731a13a783718ac714770e21754",
+      "physical_lines": 202,
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "notes": "Whole prior post-health source read retained plus all current owner/import/alias/static-hook glue authored/read.14wholemethod/4helper/3constant/92actualglobals and36publicsymbols exact; old two test modules wholeAST restore after deliberate owner retargets. Four privateMRO bases/no runtime state constructors; actual constructor/super/MethodType override/overlay hash/CLI controls pass. No liveDocker or deployment qualification. Final explicit public annotation metadata and one decoded-receipt mapping guard are separately qualified by full seven-module inverse; all7strict source types and73current affected cases pass. Whole mechanical method AST claim remains historical, not relabeled after metadata changes."
+    },
+    {
+      "path": "scripts/release_document_resources.py",
+      "sha256": "46eec295cf594bd7fb9c683a7b4378e0e15a1edb8f24b4cbd71889121f7c971f",
+      "physical_lines": 328,
+      "reviewer": "ai_extraction",
+      "review_scope": "partial",
+      "review_status": "partial",
+      "status": "verified-focused",
+      "notes": "Only exact source list/hash qualifier boundary examined; whole resource-transition implementation not fully reviewed here."
+    },
+    {
+      "path": "scripts/test_mcp_direct_activate.py",
+      "sha256": "65e5a39dd055c1392eca6a9879281b6cd7a15aa08f1a696ccc8bb2ea164683c0",
+      "physical_lines": 347,
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "notes": "Whole prior post-health source read retained plus all current owner/import/alias/static-hook glue authored/read.14wholemethod/4helper/3constant/92actualglobals and36publicsymbols exact; old two test modules wholeAST restore after deliberate owner retargets. Four privateMRO bases/no runtime state constructors; actual constructor/super/MethodType override/overlay hash/CLI controls pass. No liveDocker or deployment qualification. Final explicit public annotation metadata and one decoded-receipt mapping guard are separately qualified by full seven-module inverse; all7strict source types and73current affected cases pass. Whole mechanical method AST claim remains historical, not relabeled after metadata changes."
+    },
+    {
+      "path": "scripts/test_mcp_direct_health_admission.py",
+      "sha256": "25629e1a7c41e5a796a0abc1005966c341b257363c6bd54ba002bf7686800159",
+      "physical_lines": 78,
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "notes": "Whole prior post-health source read retained plus all current owner/import/alias/static-hook glue authored/read.14wholemethod/4helper/3constant/92actualglobals and36publicsymbols exact; old two test modules wholeAST restore after deliberate owner retargets. Four privateMRO bases/no runtime state constructors; actual constructor/super/MethodType override/overlay hash/CLI controls pass. No liveDocker or deployment qualification. Final explicit public annotation metadata and one decoded-receipt mapping guard are separately qualified by full seven-module inverse; all7strict source types and73current affected cases pass. Whole mechanical method AST claim remains historical, not relabeled after metadata changes."
+    },
+    {
+      "path": "scripts/test_mcp_activation_owners.py",
+      "sha256": "78b1349a1513b9475f005cc695055e7665641d53bdb1ae297ec8fc76cceb04c8",
+      "physical_lines": 197,
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "notes": "Whole prior post-health source read retained plus all current owner/import/alias/static-hook glue authored/read.14wholemethod/4helper/3constant/92actualglobals and36publicsymbols exact; old two test modules wholeAST restore after deliberate owner retargets. Four privateMRO bases/no runtime state constructors; actual constructor/super/MethodType override/overlay hash/CLI controls pass. No liveDocker or deployment qualification. Final explicit public annotation metadata and one decoded-receipt mapping guard are separately qualified by full seven-module inverse; all7strict source types and73current affected cases pass. Whole mechanical method AST claim remains historical, not relabeled after metadata changes."
+    },
+    {
+      "path": "scripts/test_mcp_activation_io_boundaries.py",
+      "sha256": "f41a92d0d4356b4c67a8314ab02de5740b75af45058ee4713d6c7e19041b1570",
+      "physical_lines": 87,
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "notes": "Complete authored/read6 actual-method controls. Synthetic receipt/tmp files and mocked subprocess: normal/incomplete/nonmapping receipts, exact scoped command/deadline, binary handles, and existing post-capture size/error rejection. No realDocker/provider calls or memory-cap claim."
+    }
+  ],
+  "scope": "Twelve full current source/test records and one partial resource qualifier source boundary"
+}

@@ -1,0 +1,52 @@
+{
+  "policy_before_sha256": "3681bf6ca3b2bab52dcde5d0adbb4921cc8dd54771411193c2553ddaceb08b6e",
+  "original_main_path": "app/application/mobile/passenger_change_propagation.py",
+  "original_main_row_unchanged": {
+    "owner": "repository maintainers",
+    "review_by": "2026-12-31",
+    "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit.",
+    "imports": [
+      "app.infrastructure.database.gc_mobile_models",
+      "app.infrastructure.database.gc_mobile_models.GCGroupAccessModel",
+      "app.infrastructure.database.gc_mobile_models.MobilePassengerIdentityModel",
+      "app.infrastructure.database.gc_mobile_models.MobileSyncChangeModel",
+      "app.infrastructure.database.models",
+      "app.infrastructure.database.models.ClientGroupWhatsAppBroadcastLinkModel",
+      "app.infrastructure.whatsapp.source_group_sync",
+      "app.infrastructure.whatsapp.source_group_sync.sync_group_broadcast_contacts"
+    ]
+  },
+  "additive_actual_owner_rows": {
+    "app/application/mobile/passenger_change_identities.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.GCGroupAccessModel",
+        "app.infrastructure.database.gc_mobile_models.MobilePassengerIdentityModel"
+      ]
+    },
+    "app/application/mobile/passenger_change_journal.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.GCGroupAccessModel",
+        "app.infrastructure.database.gc_mobile_models.MobileSyncChangeModel"
+      ]
+    }
+  },
+  "new_edges_are_strict_subsets_of_original": true,
+  "combined_infrastructure_edge_union_unchanged": true,
+  "source": {
+    "backend/app/application/mobile/passenger_change_identities.py": "0e663f42d3f78ab195b2cda8b51b7021a8a231f9dcdd3098a3f989e3921bbd7d",
+    "backend/app/application/mobile/passenger_change_journal.py": "dee981f849e150af11a70bf3d7d3db990d4eb6b885ce293372e2f4b0ab37ce16"
+  },
+  "source_manifest": {
+    "path": "docs/audit/dashboard-2026-10-30/passenger-propagation-final-source-manifest.json",
+    "sha256": "e07956d5aac6f100cf003ca7a944dbe8a9c528c4067cdb82aef2e303eca9db48"
+  },
+  "proof": "Exact AST import collection uses existing boundary verifier imports(); original public facade keeps all existing compatibility imports, therefore its old reviewed row remains byte/content unchanged. New actual phase owners receive only strict subsets of already reviewed original transaction edges; owner, reason and review_by identical, no wildcard/additional service grant. AI owns shared policy mutation."
+}

@@ -1,12 +1,4 @@
-"""
-Auth Application DTOs
-=====================
-Data Transfer Objects for auth use cases.
-
-DTOs are the input/output contracts of use cases.
-They are NOT domain entities and NOT HTTP schemas.
-They carry only the data each use case needs.
-"""
+"""Authentication inputs and public account/session results."""
 
 from __future__ import annotations
 
@@ -14,11 +6,13 @@ import uuid
 from dataclasses import dataclass
 from datetime import datetime
 
-# ── Input DTOs (Use Case arguments) ──────────────────────────────────────────
+from app.domain.entities.entities import User
+
 
 @dataclass(frozen=True)
 class LoginInputDTO:
     """Input for LoginUseCase."""
+
     email: str
     password: str
 
@@ -26,14 +20,14 @@ class LoginInputDTO:
 @dataclass(frozen=True)
 class RefreshTokenInputDTO:
     """Input for RefreshTokenUseCase."""
+
     refresh_token: str
 
-
-# ── Output DTOs (Use Case return values) ──────────────────────────────────────
 
 @dataclass(frozen=True)
 class UserOutputDTO:
     """Represents a user as returned to the presentation layer."""
+
     id: uuid.UUID
     email: str
     full_name: str
@@ -48,9 +42,28 @@ class UserOutputDTO:
     mfa_enabled: bool = False
 
 
+def user_output_from_entity(user: User) -> UserOutputDTO:
+    """Project the same public account fields for login, refresh and profile reads."""
+    return UserOutputDTO(
+        id=user.id,
+        email=user.email,
+        full_name=user.full_name,
+        role=user.role.value,
+        agency_id=user.agency_id,
+        is_active=user.is_active,
+        last_login_at=user.last_login_at,
+        created_at=user.created_at,
+        updated_at=user.updated_at,
+        credential_state=user.credential_state,
+        mfa_required=user.mfa_required,
+        mfa_enabled=user.mfa_enabled,
+    )
+
+
 @dataclass(frozen=True)
 class AuthResponseDTO:
     """Returned by LoginUseCase and RefreshTokenUseCase."""
+
     user: UserOutputDTO
     access_token: str
     refresh_token: str

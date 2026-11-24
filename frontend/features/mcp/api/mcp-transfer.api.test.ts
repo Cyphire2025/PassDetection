@@ -23,3 +23,18 @@ it("reports bounded errors without rendering a sensitive server response body", 
   vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("private server details", { status: 403 })));
   await expect(mcpTransferApi.status(ticket.id, token)).rejects.toThrow("expired or is no longer allowed");
 });
+
+it("forwards the same optional lifetime signal through all four credential-scoped transports", async () => {
+  const signal = new AbortController().signal;
+  const fetch = vi.fn().mockImplementation(async () => new Response(JSON.stringify(ticket)));
+  vi.stubGlobal("fetch", fetch);
+  await mcpTransferApi.status(ticket.id, token, signal);
+  await mcpTransferApi.download(ticket.id, token, signal);
+  await mcpTransferApi.upload(ticket, token, new Blob(["bytes"]), signal);
+  await mcpTransferApi.acknowledge(ticket, token, signal);
+  expect(fetch).toHaveBeenCalledTimes(4);
+  for (const [, options] of fetch.mock.calls) {
+    expect(options.signal).toBe(signal);
+    expect(options.credentials).toBe("omit");
+  }
+});

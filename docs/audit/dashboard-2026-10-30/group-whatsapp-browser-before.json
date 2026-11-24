@@ -1,0 +1,234 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Users\\nipun\\AppData\\Local\\Programs\\node-v24.21.0-win-x64\\node.exe",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config=../.tmp/ui-pwa-batch/playwright.group-whatsapp.config.ts"
+    ],
+    "configFile": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\ui-pwa-batch\\playwright.group-whatsapp.config.ts",
+    "rootDir": "C:/Users/nipun/Desktop/PassDetection/frontend/e2e-fixtures",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/nipun/Desktop/PassDetection/.tmp/ui-pwa-batch/group-whatsapp-browser-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/Users/nipun/Desktop/PassDetection/frontend/e2e-fixtures",
+        "testIgnore": [],
+        "testMatch": [
+          "group-whatsapp-replacement.spec.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\group-whatsapp-browser-before.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.62.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "group-whatsapp-replacement.spec.ts",
+      "file": "group-whatsapp-replacement.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "native recipient keyboard and long-name layout at 1440px",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 698,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m671\u001b[39m\nReceived:    \u001b[31m2059\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m671\u001b[39m\nReceived:    \u001b[31m2059\u001b[39m\n    at C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\group-whatsapp-replacement.spec.ts:46:33",
+                    "location": {
+                      "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\group-whatsapp-replacement.spec.ts",
+                      "column": 33,
+                      "line": 46
+                    },
+                    "snippet": "  44 |     const bounds = await name.evaluate((element) => ({ width: element.clientWidth, contentWidth: element.scrollWidth }));\n  45 |     await page.screenshot({ path: resolve(__dirname, `../../.tmp/ui-pwa-batch/replacement-${viewport.width}.png`), fullPage: true });\n> 46 |     expect(bounds.contentWidth).toBeLessThanOrEqual(bounds.width + 1);\n     |                                 ^\n  47 |     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);\n  48 |     expect(network).toEqual([]);\n  49 |   });"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\group-whatsapp-replacement.spec.ts",
+                        "column": 33,
+                        "line": 46
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m671\u001b[39m\nReceived:    \u001b[31m2059\u001b[39m\n\n  44 |     const bounds = await name.evaluate((element) => ({ width: element.clientWidth, contentWidth: element.scrollWidth }));\n  45 |     await page.screenshot({ path: resolve(__dirname, `../../.tmp/ui-pwa-batch/replacement-${viewport.width}.png`), fullPage: true });\n> 46 |     expect(bounds.contentWidth).toBeLessThanOrEqual(bounds.width + 1);\n     |                                 ^\n  47 |     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);\n  48 |     expect(network).toEqual([]);\n  49 |   });\n    at C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\group-whatsapp-replacement.spec.ts:46:33"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T22:40:21.845Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\ui-pwa-batch\\group-whatsapp-browser-results\\group-whatsapp-replacement-878fc--long-name-layout-at-1440px-chromium\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\ui-pwa-batch\\group-whatsapp-browser-results\\group-whatsapp-replacement-878fc--long-name-layout-at-1440px-chromium\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\ui-pwa-batch\\group-whatsapp-browser-results\\group-whatsapp-replacement-878fc--long-name-layout-at-1440px-chromium\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\group-whatsapp-replacement.spec.ts",
+                    "column": 33,
+                    "line": 46
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "c4e8ce44aa8e9c3da947-5c08421c6759358d0d36",
+          "file": "group-whatsapp-replacement.spec.ts",
+          "line": 27,
+          "column": 7
+        },
+        {
+          "title": "native recipient keyboard and long-name layout at 390px",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 342,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m293\u001b[39m\nReceived:    \u001b[31m2059\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m293\u001b[39m\nReceived:    \u001b[31m2059\u001b[39m\n    at C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\group-whatsapp-replacement.spec.ts:46:33",
+                    "location": {
+                      "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\group-whatsapp-replacement.spec.ts",
+                      "column": 33,
+                      "line": 46
+                    },
+                    "snippet": "  44 |     const bounds = await name.evaluate((element) => ({ width: element.clientWidth, contentWidth: element.scrollWidth }));\n  45 |     await page.screenshot({ path: resolve(__dirname, `../../.tmp/ui-pwa-batch/replacement-${viewport.width}.png`), fullPage: true });\n> 46 |     expect(bounds.contentWidth).toBeLessThanOrEqual(bounds.width + 1);\n     |                                 ^\n  47 |     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);\n  48 |     expect(network).toEqual([]);\n  49 |   });"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\group-whatsapp-replacement.spec.ts",
+                        "column": 33,
+                        "line": 46
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m293\u001b[39m\nReceived:    \u001b[31m2059\u001b[39m\n\n  44 |     const bounds = await name.evaluate((element) => ({ width: element.clientWidth, contentWidth: element.scrollWidth }));\n  45 |     await page.screenshot({ path: resolve(__dirname, `../../.tmp/ui-pwa-batch/replacement-${viewport.width}.png`), fullPage: true });\n> 46 |     expect(bounds.contentWidth).toBeLessThanOrEqual(bounds.width + 1);\n     |                                 ^\n  47 |     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);\n  48 |     expect(network).toEqual([]);\n  49 |   });\n    at C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\group-whatsapp-replacement.spec.ts:46:33"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T22:40:26.685Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\ui-pwa-batch\\group-whatsapp-browser-results\\group-whatsapp-replacement-6a70f-d-long-name-layout-at-390px-chromium\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\ui-pwa-batch\\group-whatsapp-browser-results\\group-whatsapp-replacement-6a70f-d-long-name-layout-at-390px-chromium\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\ui-pwa-batch\\group-whatsapp-browser-results\\group-whatsapp-replacement-6a70f-d-long-name-layout-at-390px-chromium\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\group-whatsapp-replacement.spec.ts",
+                    "column": 33,
+                    "line": 46
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "c4e8ce44aa8e9c3da947-a6ec3505e9ab8d7aa3c2",
+          "file": "group-whatsapp-replacement.spec.ts",
+          "line": 27,
+          "column": 7
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-30T22:40:21.554Z",
+    "duration": 6392.982999999999,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

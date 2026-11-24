@@ -12,11 +12,15 @@ if _SPEC is None or _SPEC.loader is None:
 _POLICY = importlib.util.module_from_spec(_SPEC)
 _SPEC.loader.exec_module(_POLICY)
 SOURCE, TARGET, KIND = _POLICY.SOURCE, _POLICY.TARGET, _POLICY.KIND
+BASELINES, CHAIN = _POLICY.BASELINES, _POLICY.CHAIN
 validate_contract = _POLICY.validate_contract
 
 
-def source_contract(root: Path) -> dict:
+def source_contract(root: Path, source_schema: str = SOURCE) -> dict:
     manifest = json.loads((root / 'backend/app/core/config/release_manifest.json').read_text('utf-8'))
     if (manifest.get('deployment_kind'), manifest.get('previous_schema_revision'), manifest.get('schema_revision')) != (KIND, SOURCE, TARGET):
         raise ValueError('exact_workspace_branding_release_required')
-    return {**_POLICY.POLICY, 'migrations': _POLICY.migration_entries(root / 'backend')}
+    value = {**_POLICY.POLICY, 'source_schema': source_schema,
+             'migrations': _POLICY.migration_entries(root / 'backend', source_schema)}
+    validate_contract(value, TARGET)
+    return value

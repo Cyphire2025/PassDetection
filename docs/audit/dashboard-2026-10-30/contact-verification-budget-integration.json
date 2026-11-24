@@ -1,0 +1,57 @@
+{
+  "before_modules": 496,
+  "after_modules": 502,
+  "new_modules": 6,
+  "all496existing_budget_rows_retained_verbatim": true,
+  "before_critical_entries": 38,
+  "after_critical_entries": 43,
+  "all38existing_critical_entries_retained_verbatim": true,
+  "global_and_other_gates_unchanged": true,
+  "review_provenance": "document_ui_architecture: contact-verification-verification.json; six current full physical source records and exact source/function/wiring proofs. Integration does not claim a second physical review.",
+  "coverage_evidence": "Exact digest-verified current raw Coverage.py JSON from the same 99 cases before/after; all six statement sets and 32 measured branches covered. Numeric existing 95 line / 92 branch obligation transferred to all five logic owners; original facade gate retained.",
+  "observed_coverage": [
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/contact_challenges.py",
+      "line_percent": 100.0,
+      "branch_percent": 100.0,
+      "branches": 4
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/contact_completion.py",
+      "line_percent": 100.0,
+      "branch_percent": 100.0,
+      "branches": 6
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/contact_family.py",
+      "line_percent": 100.0,
+      "branch_percent": 100.0,
+      "branches": 8
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/contact_issuance.py",
+      "line_percent": 100.0,
+      "branch_percent": 100.0,
+      "branches": 12
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/contact_submission_proof.py",
+      "line_percent": 100.0,
+      "branch_percent": 100.0,
+      "branches": 2
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/contact_verification.py",
+      "line_percent": 100.0,
+      "branch_percent": 100,
+      "branches": 0
+    }
+  ],
+  "before_budget_sha256": "6b7e04f2807a1bc7e19dbba48febb6e82c1798a6cdba94c558f23be23acfc5df",
+  "after_budget_sha256": "0225cd42cb89143a42c82fca145afc2a749a8059b46fc1bb4d58554022a6c352",
+  "before_exact_manifest_sha256": "cdb3af76fd0e675a5708b17cbee6bdb1f85a2ef2d382736dd1faf1ca2aeb550a",
+  "after_exact_manifest_sha256": "9f0608356ae73efec7edf88b589aaf0a9cdabf5fd8af84b31b90d2f77d032222",
+  "only_known_backend_budget_after_updated": true,
+  "all79both_before_sets_unchanged": true,
+  "limits": "Source, actual measurement and data integration only. No live PostgreSQL, Redis, provider or VPS qualification. No whole-backend coverage gate pass claimed from this scoped JSON."
+}

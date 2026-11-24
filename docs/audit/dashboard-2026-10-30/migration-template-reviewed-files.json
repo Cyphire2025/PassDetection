@@ -1,0 +1,44 @@
+{
+  "files": [
+    {
+      "path": "backend/alembic/script.py.mako",
+      "sha256": "9a5507bcc1a059bdc43463b420539e0c1d6050bdf7d796293cd81b2f70329567",
+      "physical_lines": 26,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "migration-template",
+      "notes": "Complete26line final physical read. Restored installed pinnedAlembic1.13.2 generictemplate exactly apart from accurateSequence merge-parent annotation and whitespace ending; normalrevision failure reproduced before edit. Four actual isolated generation/import/metadata/merge/render controls pass, no env/DB/app/provider actions or published migration edits."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_migration_revision_template.py",
+      "sha256": "bb4481e2abce892863a3745c4b861af3aea009e973ef3c6f3be5d5418fe6aee6",
+      "physical_lines": 138,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "test",
+      "notes": "Complete138line current physical read. Four unittest controls use real command.revision/merge/ScriptDirectory.generate_revision in verified OS-temp childdirectories; hard run_env guard never called, noSQLAlchemyURL/env.py, operation bodies mocked only at actualDB side-effect boundary. Each case preserves published filename/hash map."
+    }
+  ],
+  "current_full_files": 2,
+  "current_full_physical_lines": 164,
+  "original_template": {
+    "path": "backend/alembic/script.py.mako",
+    "sha256": "e3ab701a79eb8e2a2c2f212ea11f62368ff629244cdf3714b23c70383f0d4ee6",
+    "physical_lines": 3,
+    "source": "\"\"\"\nGeneric mako template for Alembic migration files.\n\"\"\"\n",
+    "review_scope": "full",
+    "status": "historical superseded source"
+  },
+  "external_primary_source": {
+    "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Lib\\site-packages\\alembic\\templates\\generic\\script.py.mako",
+    "sha256": "304a8bfb6a804e5493f5300e79882c70c9f5bb2e87512f4d16f0e097dddd323f",
+    "alembic_version": "1.13.2",
+    "mako_version": "1.4.1",
+    "scope": "Installed generictemplate read completely; ScriptDirectory.generate_revision and command.merge function source read completely; module files not credited as repositorymanualcoverage."
+  },
+  "limitations": "No real DB migration execution/autogenerate/populated upgrade or migrationservice proof. Only future revision generation restored; all142published migration bytes and literal revision graph unchanged."
+}

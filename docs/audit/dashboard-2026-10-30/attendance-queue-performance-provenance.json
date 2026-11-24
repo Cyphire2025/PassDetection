@@ -1,0 +1,108 @@
+{
+  "method": "All14complete original/current module ASTs compared. Only replay selector import/initializer and closeout oldest initializer inversions allowed. Comments ignored; storage comment is the only other source change. Full five-operand selected-row condition exact, preserving short-circuit order. No moved public facade/HTTP/schema/crypto functions.",
+  "modules": [
+    {
+      "path": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+      "original_sha256": "b647f8ae7070c661497c9f3620460318a70d117db6eb2da37f1112d5497b6911",
+      "current_sha256": "b647f8ae7070c661497c9f3620460318a70d117db6eb2da37f1112d5497b6911",
+      "whole_module_ast_exact_after_only_listed_delta_inversion": true,
+      "deltas": []
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-contracts.ts",
+      "original_sha256": "1334b70770246b7a59ea3b531aa63c0f3fd809ebafa88f21ccc85a0dd649fc15",
+      "current_sha256": "1334b70770246b7a59ea3b531aa63c0f3fd809ebafa88f21ccc85a0dd649fc15",
+      "whole_module_ast_exact_after_only_listed_delta_inversion": true,
+      "deltas": []
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-runtime.ts",
+      "original_sha256": "b3791303f7115ceb2d353a91cced27c72ecb30e4733ea783dd3c2d0525ecdaea",
+      "current_sha256": "b3791303f7115ceb2d353a91cced27c72ecb30e4733ea783dd3c2d0525ecdaea",
+      "whole_module_ast_exact_after_only_listed_delta_inversion": true,
+      "deltas": []
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-idb.ts",
+      "original_sha256": "b4a7403688262a48d77216f7e0547f0fda92e3da926551b95e504567848e0ed0",
+      "current_sha256": "b4a7403688262a48d77216f7e0547f0fda92e3da926551b95e504567848e0ed0",
+      "whole_module_ast_exact_after_only_listed_delta_inversion": true,
+      "deltas": []
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-codec.ts",
+      "original_sha256": "8094218879c61759c06210dd193b2da1a752e8d8ca8eb08b168661652e8c65d8",
+      "current_sha256": "8094218879c61759c06210dd193b2da1a752e8d8ca8eb08b168661652e8c65d8",
+      "whole_module_ast_exact_after_only_listed_delta_inversion": true,
+      "deltas": []
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-migration.ts",
+      "original_sha256": "3748c778c5b8dd3174688d46dec93a5dc1fbb1351041a1412d7db6a927c55e00",
+      "current_sha256": "3748c778c5b8dd3174688d46dec93a5dc1fbb1351041a1412d7db6a927c55e00",
+      "whole_module_ast_exact_after_only_listed_delta_inversion": true,
+      "deltas": []
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-storage.ts",
+      "original_sha256": "ef0226dac386b8d437548f238f422775d8bca29e52f0203a66d8b2114f817427",
+      "current_sha256": "20edfaa36bb6a0bc041fce0a5c6f0943b0ad3ea4b18de1c744a826bf23ff432f",
+      "whole_module_ast_exact_after_only_listed_delta_inversion": true,
+      "deltas": []
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-delivery-state.ts",
+      "original_sha256": "6d6d70b058d524e2d4de674d0f2607374597a3c8f8180a764b48bb28f38f6f36",
+      "current_sha256": "6d6d70b058d524e2d4de674d0f2607374597a3c8f8180a764b48bb28f38f6f36",
+      "whole_module_ast_exact_after_only_listed_delta_inversion": true,
+      "deltas": []
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-commands.ts",
+      "original_sha256": "28b502f45eed14bce8480d1e6d8556660b543db3d9164b133b69a7e5a3847863",
+      "current_sha256": "28b502f45eed14bce8480d1e6d8556660b543db3d9164b133b69a7e5a3847863",
+      "whole_module_ast_exact_after_only_listed_delta_inversion": true,
+      "deltas": []
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-discards.ts",
+      "original_sha256": "70cacfa4648d3b6b688c6ca4ce63ff49cd21bcc544ad6a3da39982f53623db3f",
+      "current_sha256": "70cacfa4648d3b6b688c6ca4ce63ff49cd21bcc544ad6a3da39982f53623db3f",
+      "whole_module_ast_exact_after_only_listed_delta_inversion": true,
+      "deltas": []
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-replay.ts",
+      "original_sha256": "4d6ec7784798237bdf7451a58d7e6eafd891b967f3bd7193d7af6a4151b0722a",
+      "current_sha256": "28bc21ce06138b80e0aceba0831198dd4527e8962862f7a3413cd6552f1352ad",
+      "whole_module_ast_exact_after_only_listed_delta_inversion": true,
+      "deltas": [
+        "Replace full filter then slice50 with fresh bounded first50 selector; all current predicates retained"
+      ]
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-outcomes.ts",
+      "original_sha256": "7120de1f770357faf0c883893c77af0809cd6a85f0a162f1c7a00c478e22bf9f",
+      "current_sha256": "7120de1f770357faf0c883893c77af0809cd6a85f0a162f1c7a00c478e22bf9f",
+      "whole_module_ast_exact_after_only_listed_delta_inversion": true,
+      "deltas": []
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-errors.ts",
+      "original_sha256": "2d64d7da2d55c2685655b833041db51791b7ee7d2f67b4a7b171aec2f0841234",
+      "current_sha256": "2d64d7da2d55c2685655b833041db51791b7ee7d2f67b4a7b171aec2f0841234",
+      "whole_module_ast_exact_after_only_listed_delta_inversion": true,
+      "deltas": []
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-closeout.ts",
+      "original_sha256": "027e03352706fdfa08ddd554b9044361e9f5923aa7543dab5e2eb3eba8a0ac71",
+      "current_sha256": "dabad7e8478072fe909b2708e2dea18fc68220e85c353ec5be3fd2c2493f1e9e",
+      "whole_module_ast_exact_after_only_listed_delta_inversion": true,
+      "deltas": [
+        "Read first row of actual verified ascending storage order instead of allocating/sorting same timestamps again"
+      ]
+    }
+  ],
+  "selection_condition_exact": true
+}

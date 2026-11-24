@@ -1,0 +1,492 @@
+..FFFFFFFF..                                                             [100%]
+================================== FAILURES ===================================
+_ test_provider_failure_cannot_change_stale_job_or_asset[expired-unavailable] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000023245747150>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000023243BDD8D0>
+error_kind = 'unavailable', change = 'expired'
+
+    @pytest.mark.parametrize("error_kind", ["unavailable", "invalid"])
+    @pytest.mark.parametrize("change", [None, "expired", "cancelled", "disabled", "removed", "reassigned"])
+    async def test_provider_failure_cannot_change_stale_job_or_asset(
+        db_session, monkeypatch, error_kind, change
+    ):
+        scope = await operational_media_scope(db_session, monkeypatch)
+    
+        class Media:
+            async def prepare(self, _request):
+                async with scope.sessions() as session, session.begin():
+                    if change == "disabled":
+                        await session.execute(
+                            update(MyPhotoGalleryModel)
+                            .where(MyPhotoGalleryModel.id == scope.gallery_id)
+                            .values(feature_enabled=False)
+                        )
+                    elif change == "removed":
+                        await session.execute(
+                            update(MyPhotoMediaAssetModel)
+                            .where(MyPhotoMediaAssetModel.id == scope.asset_id)
+                            .values(processing_state="removed", availability_state="removed")
+                        )
+                    elif change is not None:
+                        values = {
+                            "expired": {"lease_expires_at": datetime.now(UTC) - timedelta(seconds=1)},
+                            "cancelled": {"cancellation_requested_at": datetime.now(UTC)},
+                            "reassigned": {"lease_owner": "synthetic-new-worker"},
+                        }[change]
+                        await session.execute(
+                            update(MyPhotoJobModel)
+                            .where(MyPhotoJobModel.id == scope.job_id)
+                            .values(**values)
+                        )
+                if error_kind == "invalid":
+                    raise ValueError("synthetic invalid provider response")
+                raise MyPhotosUnavailable("MY_PHOTOS_PROVIDER_UNAVAILABLE", "Synthetic failure.")
+    
+        result = await operational_runtime.execute_operational_job(
+            scope.job_id,
+            settings=scope.settings,
+            providers=SimpleNamespace(media=Media()),
+            lease_owner="synthetic-first-worker",
+        )
+        async with scope.sessions() as session:
+            job = await session.get(MyPhotoJobModel, scope.job_id)
+            asset = await session.get(MyPhotoMediaAssetModel, scope.asset_id)
+            if change is not None:
+>               assert result.state == "lease_lost"
+E               AssertionError: assert 'retrying' == 'lease_lost'
+E                 
+E                 - lease_lost
+E                 + retrying
+
+tests\integration\test_my_photos_operational_failure_authority.py:66: AssertionError
+___ test_provider_failure_cannot_change_stale_job_or_asset[expired-invalid] ___
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000002324576C290>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000232437FA310>
+error_kind = 'invalid', change = 'expired'
+
+    @pytest.mark.parametrize("error_kind", ["unavailable", "invalid"])
+    @pytest.mark.parametrize("change", [None, "expired", "cancelled", "disabled", "removed", "reassigned"])
+    async def test_provider_failure_cannot_change_stale_job_or_asset(
+        db_session, monkeypatch, error_kind, change
+    ):
+        scope = await operational_media_scope(db_session, monkeypatch)
+    
+        class Media:
+            async def prepare(self, _request):
+                async with scope.sessions() as session, session.begin():
+                    if change == "disabled":
+                        await session.execute(
+                            update(MyPhotoGalleryModel)
+                            .where(MyPhotoGalleryModel.id == scope.gallery_id)
+                            .values(feature_enabled=False)
+                        )
+                    elif change == "removed":
+                        await session.execute(
+                            update(MyPhotoMediaAssetModel)
+                            .where(MyPhotoMediaAssetModel.id == scope.asset_id)
+                            .values(processing_state="removed", availability_state="removed")
+                        )
+                    elif change is not None:
+                        values = {
+                            "expired": {"lease_expires_at": datetime.now(UTC) - timedelta(seconds=1)},
+                            "cancelled": {"cancellation_requested_at": datetime.now(UTC)},
+                            "reassigned": {"lease_owner": "synthetic-new-worker"},
+                        }[change]
+                        await session.execute(
+                            update(MyPhotoJobModel)
+                            .where(MyPhotoJobModel.id == scope.job_id)
+                            .values(**values)
+                        )
+                if error_kind == "invalid":
+                    raise ValueError("synthetic invalid provider response")
+                raise MyPhotosUnavailable("MY_PHOTOS_PROVIDER_UNAVAILABLE", "Synthetic failure.")
+    
+        result = await operational_runtime.execute_operational_job(
+            scope.job_id,
+            settings=scope.settings,
+            providers=SimpleNamespace(media=Media()),
+            lease_owner="synthetic-first-worker",
+        )
+        async with scope.sessions() as session:
+            job = await session.get(MyPhotoJobModel, scope.job_id)
+            asset = await session.get(MyPhotoMediaAssetModel, scope.asset_id)
+            if change is not None:
+>               assert result.state == "lease_lost"
+E               AssertionError: assert 'failed' == 'lease_lost'
+E                 
+E                 - lease_lost
+E                 + failed
+
+tests\integration\test_my_photos_operational_failure_authority.py:66: AssertionError
+_ test_provider_failure_cannot_change_stale_job_or_asset[cancelled-unavailable] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000023245CBFD50>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000023245BA2DD0>
+error_kind = 'unavailable', change = 'cancelled'
+
+    @pytest.mark.parametrize("error_kind", ["unavailable", "invalid"])
+    @pytest.mark.parametrize("change", [None, "expired", "cancelled", "disabled", "removed", "reassigned"])
+    async def test_provider_failure_cannot_change_stale_job_or_asset(
+        db_session, monkeypatch, error_kind, change
+    ):
+        scope = await operational_media_scope(db_session, monkeypatch)
+    
+        class Media:
+            async def prepare(self, _request):
+                async with scope.sessions() as session, session.begin():
+                    if change == "disabled":
+                        await session.execute(
+                            update(MyPhotoGalleryModel)
+                            .where(MyPhotoGalleryModel.id == scope.gallery_id)
+                            .values(feature_enabled=False)
+                        )
+                    elif change == "removed":
+                        await session.execute(
+                            update(MyPhotoMediaAssetModel)
+                            .where(MyPhotoMediaAssetModel.id == scope.asset_id)
+                            .values(processing_state="removed", availability_state="removed")
+                        )
+                    elif change is not None:
+                        values = {
+                            "expired": {"lease_expires_at": datetime.now(UTC) - timedelta(seconds=1)},
+                            "cancelled": {"cancellation_requested_at": datetime.now(UTC)},
+                            "reassigned": {"lease_owner": "synthetic-new-worker"},
+                        }[change]
+                        await session.execute(
+                            update(MyPhotoJobModel)
+                            .where(MyPhotoJobModel.id == scope.job_id)
+                            .values(**values)
+                        )
+                if error_kind == "invalid":
+                    raise ValueError("synthetic invalid provider response")
+                raise MyPhotosUnavailable("MY_PHOTOS_PROVIDER_UNAVAILABLE", "Synthetic failure.")
+    
+        result = await operational_runtime.execute_operational_job(
+            scope.job_id,
+            settings=scope.settings,
+            providers=SimpleNamespace(media=Media()),
+            lease_owner="synthetic-first-worker",
+        )
+        async with scope.sessions() as session:
+            job = await session.get(MyPhotoJobModel, scope.job_id)
+            asset = await session.get(MyPhotoMediaAssetModel, scope.asset_id)
+            if change is not None:
+>               assert result.state == "lease_lost"
+E               AssertionError: assert 'retrying' == 'lease_lost'
+E                 
+E                 - lease_lost
+E                 + retrying
+
+tests\integration\test_my_photos_operational_failure_authority.py:66: AssertionError
+__ test_provider_failure_cannot_change_stale_job_or_asset[cancelled-invalid] __
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000023245969950>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000023245D0DD50>
+error_kind = 'invalid', change = 'cancelled'
+
+    @pytest.mark.parametrize("error_kind", ["unavailable", "invalid"])
+    @pytest.mark.parametrize("change", [None, "expired", "cancelled", "disabled", "removed", "reassigned"])
+    async def test_provider_failure_cannot_change_stale_job_or_asset(
+        db_session, monkeypatch, error_kind, change
+    ):
+        scope = await operational_media_scope(db_session, monkeypatch)
+    
+        class Media:
+            async def prepare(self, _request):
+                async with scope.sessions() as session, session.begin():
+                    if change == "disabled":
+                        await session.execute(
+                            update(MyPhotoGalleryModel)
+                            .where(MyPhotoGalleryModel.id == scope.gallery_id)
+                            .values(feature_enabled=False)
+                        )
+                    elif change == "removed":
+                        await session.execute(
+                            update(MyPhotoMediaAssetModel)
+                            .where(MyPhotoMediaAssetModel.id == scope.asset_id)
+                            .values(processing_state="removed", availability_state="removed")
+                        )
+                    elif change is not None:
+                        values = {
+                            "expired": {"lease_expires_at": datetime.now(UTC) - timedelta(seconds=1)},
+                            "cancelled": {"cancellation_requested_at": datetime.now(UTC)},
+                            "reassigned": {"lease_owner": "synthetic-new-worker"},
+                        }[change]
+                        await session.execute(
+                            update(MyPhotoJobModel)
+                            .where(MyPhotoJobModel.id == scope.job_id)
+                            .values(**values)
+                        )
+                if error_kind == "invalid":
+                    raise ValueError("synthetic invalid provider response")
+                raise MyPhotosUnavailable("MY_PHOTOS_PROVIDER_UNAVAILABLE", "Synthetic failure.")
+    
+        result = await operational_runtime.execute_operational_job(
+            scope.job_id,
+            settings=scope.settings,
+            providers=SimpleNamespace(media=Media()),
+            lease_owner="synthetic-first-worker",
+        )
+        async with scope.sessions() as session:
+            job = await session.get(MyPhotoJobModel, scope.job_id)
+            asset = await session.get(MyPhotoMediaAssetModel, scope.asset_id)
+            if change is not None:
+>               assert result.state == "lease_lost"
+E               AssertionError: assert 'failed' == 'lease_lost'
+E                 
+E                 - lease_lost
+E                 + failed
+
+tests\integration\test_my_photos_operational_failure_authority.py:66: AssertionError
+_ test_provider_failure_cannot_change_stale_job_or_asset[disabled-unavailable] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000023245E8BAD0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000023245D6F510>
+error_kind = 'unavailable', change = 'disabled'
+
+    @pytest.mark.parametrize("error_kind", ["unavailable", "invalid"])
+    @pytest.mark.parametrize("change", [None, "expired", "cancelled", "disabled", "removed", "reassigned"])
+    async def test_provider_failure_cannot_change_stale_job_or_asset(
+        db_session, monkeypatch, error_kind, change
+    ):
+        scope = await operational_media_scope(db_session, monkeypatch)
+    
+        class Media:
+            async def prepare(self, _request):
+                async with scope.sessions() as session, session.begin():
+                    if change == "disabled":
+                        await session.execute(
+                            update(MyPhotoGalleryModel)
+                            .where(MyPhotoGalleryModel.id == scope.gallery_id)
+                            .values(feature_enabled=False)
+                        )
+                    elif change == "removed":
+                        await session.execute(
+                            update(MyPhotoMediaAssetModel)
+                            .where(MyPhotoMediaAssetModel.id == scope.asset_id)
+                            .values(processing_state="removed", availability_state="removed")
+                        )
+                    elif change is not None:
+                        values = {
+                            "expired": {"lease_expires_at": datetime.now(UTC) - timedelta(seconds=1)},
+                            "cancelled": {"cancellation_requested_at": datetime.now(UTC)},
+                            "reassigned": {"lease_owner": "synthetic-new-worker"},
+                        }[change]
+                        await session.execute(
+                            update(MyPhotoJobModel)
+                            .where(MyPhotoJobModel.id == scope.job_id)
+                            .values(**values)
+                        )
+                if error_kind == "invalid":
+                    raise ValueError("synthetic invalid provider response")
+                raise MyPhotosUnavailable("MY_PHOTOS_PROVIDER_UNAVAILABLE", "Synthetic failure.")
+    
+        result = await operational_runtime.execute_operational_job(
+            scope.job_id,
+            settings=scope.settings,
+            providers=SimpleNamespace(media=Media()),
+            lease_owner="synthetic-first-worker",
+        )
+        async with scope.sessions() as session:
+            job = await session.get(MyPhotoJobModel, scope.job_id)
+            asset = await session.get(MyPhotoMediaAssetModel, scope.asset_id)
+            if change is not None:
+>               assert result.state == "lease_lost"
+E               AssertionError: assert 'retrying' == 'lease_lost'
+E                 
+E                 - lease_lost
+E                 + retrying
+
+tests\integration\test_my_photos_operational_failure_authority.py:66: AssertionError
+__ test_provider_failure_cannot_change_stale_job_or_asset[disabled-invalid] ___
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000023245D6DE90>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000023245EE08D0>
+error_kind = 'invalid', change = 'disabled'
+
+    @pytest.mark.parametrize("error_kind", ["unavailable", "invalid"])
+    @pytest.mark.parametrize("change", [None, "expired", "cancelled", "disabled", "removed", "reassigned"])
+    async def test_provider_failure_cannot_change_stale_job_or_asset(
+        db_session, monkeypatch, error_kind, change
+    ):
+        scope = await operational_media_scope(db_session, monkeypatch)
+    
+        class Media:
+            async def prepare(self, _request):
+                async with scope.sessions() as session, session.begin():
+                    if change == "disabled":
+                        await session.execute(
+                            update(MyPhotoGalleryModel)
+                            .where(MyPhotoGalleryModel.id == scope.gallery_id)
+                            .values(feature_enabled=False)
+                        )
+                    elif change == "removed":
+                        await session.execute(
+                            update(MyPhotoMediaAssetModel)
+                            .where(MyPhotoMediaAssetModel.id == scope.asset_id)
+                            .values(processing_state="removed", availability_state="removed")
+                        )
+                    elif change is not None:
+                        values = {
+                            "expired": {"lease_expires_at": datetime.now(UTC) - timedelta(seconds=1)},
+                            "cancelled": {"cancellation_requested_at": datetime.now(UTC)},
+                            "reassigned": {"lease_owner": "synthetic-new-worker"},
+                        }[change]
+                        await session.execute(
+                            update(MyPhotoJobModel)
+                            .where(MyPhotoJobModel.id == scope.job_id)
+                            .values(**values)
+                        )
+                if error_kind == "invalid":
+                    raise ValueError("synthetic invalid provider response")
+                raise MyPhotosUnavailable("MY_PHOTOS_PROVIDER_UNAVAILABLE", "Synthetic failure.")
+    
+        result = await operational_runtime.execute_operational_job(
+            scope.job_id,
+            settings=scope.settings,
+            providers=SimpleNamespace(media=Media()),
+            lease_owner="synthetic-first-worker",
+        )
+        async with scope.sessions() as session:
+            job = await session.get(MyPhotoJobModel, scope.job_id)
+            asset = await session.get(MyPhotoMediaAssetModel, scope.asset_id)
+            if change is not None:
+>               assert result.state == "lease_lost"
+E               AssertionError: assert 'failed' == 'lease_lost'
+E                 
+E                 - lease_lost
+E                 + failed
+
+tests\integration\test_my_photos_operational_failure_authority.py:66: AssertionError
+_ test_provider_failure_cannot_change_stale_job_or_asset[removed-unavailable] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000023245D56510>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000023245EC7B50>
+error_kind = 'unavailable', change = 'removed'
+
+    @pytest.mark.parametrize("error_kind", ["unavailable", "invalid"])
+    @pytest.mark.parametrize("change", [None, "expired", "cancelled", "disabled", "removed", "reassigned"])
+    async def test_provider_failure_cannot_change_stale_job_or_asset(
+        db_session, monkeypatch, error_kind, change
+    ):
+        scope = await operational_media_scope(db_session, monkeypatch)
+    
+        class Media:
+            async def prepare(self, _request):
+                async with scope.sessions() as session, session.begin():
+                    if change == "disabled":
+                        await session.execute(
+                            update(MyPhotoGalleryModel)
+                            .where(MyPhotoGalleryModel.id == scope.gallery_id)
+                            .values(feature_enabled=False)
+                        )
+                    elif change == "removed":
+                        await session.execute(
+                            update(MyPhotoMediaAssetModel)
+                            .where(MyPhotoMediaAssetModel.id == scope.asset_id)
+                            .values(processing_state="removed", availability_state="removed")
+                        )
+                    elif change is not None:
+                        values = {
+                            "expired": {"lease_expires_at": datetime.now(UTC) - timedelta(seconds=1)},
+                            "cancelled": {"cancellation_requested_at": datetime.now(UTC)},
+                            "reassigned": {"lease_owner": "synthetic-new-worker"},
+                        }[change]
+                        await session.execute(
+                            update(MyPhotoJobModel)
+                            .where(MyPhotoJobModel.id == scope.job_id)
+                            .values(**values)
+                        )
+                if error_kind == "invalid":
+                    raise ValueError("synthetic invalid provider response")
+                raise MyPhotosUnavailable("MY_PHOTOS_PROVIDER_UNAVAILABLE", "Synthetic failure.")
+    
+        result = await operational_runtime.execute_operational_job(
+            scope.job_id,
+            settings=scope.settings,
+            providers=SimpleNamespace(media=Media()),
+            lease_owner="synthetic-first-worker",
+        )
+        async with scope.sessions() as session:
+            job = await session.get(MyPhotoJobModel, scope.job_id)
+            asset = await session.get(MyPhotoMediaAssetModel, scope.asset_id)
+            if change is not None:
+>               assert result.state == "lease_lost"
+E               AssertionError: assert 'retrying' == 'lease_lost'
+E                 
+E                 - lease_lost
+E                 + retrying
+
+tests\integration\test_my_photos_operational_failure_authority.py:66: AssertionError
+___ test_provider_failure_cannot_change_stale_job_or_asset[removed-invalid] ___
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000002324594C650>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000023245EBBFD0>
+error_kind = 'invalid', change = 'removed'
+
+    @pytest.mark.parametrize("error_kind", ["unavailable", "invalid"])
+    @pytest.mark.parametrize("change", [None, "expired", "cancelled", "disabled", "removed", "reassigned"])
+    async def test_provider_failure_cannot_change_stale_job_or_asset(
+        db_session, monkeypatch, error_kind, change
+    ):
+        scope = await operational_media_scope(db_session, monkeypatch)
+    
+        class Media:
+            async def prepare(self, _request):
+                async with scope.sessions() as session, session.begin():
+                    if change == "disabled":
+                        await session.execute(
+                            update(MyPhotoGalleryModel)
+                            .where(MyPhotoGalleryModel.id == scope.gallery_id)
+                            .values(feature_enabled=False)
+                        )
+                    elif change == "removed":
+                        await session.execute(
+                            update(MyPhotoMediaAssetModel)
+                            .where(MyPhotoMediaAssetModel.id == scope.asset_id)
+                            .values(processing_state="removed", availability_state="removed")
+                        )
+                    elif change is not None:
+                        values = {
+                            "expired": {"lease_expires_at": datetime.now(UTC) - timedelta(seconds=1)},
+                            "cancelled": {"cancellation_requested_at": datetime.now(UTC)},
+                            "reassigned": {"lease_owner": "synthetic-new-worker"},
+                        }[change]
+                        await session.execute(
+                            update(MyPhotoJobModel)
+                            .where(MyPhotoJobModel.id == scope.job_id)
+                            .values(**values)
+                        )
+                if error_kind == "invalid":
+                    raise ValueError("synthetic invalid provider response")
+                raise MyPhotosUnavailable("MY_PHOTOS_PROVIDER_UNAVAILABLE", "Synthetic failure.")
+    
+        result = await operational_runtime.execute_operational_job(
+            scope.job_id,
+            settings=scope.settings,
+            providers=SimpleNamespace(media=Media()),
+            lease_owner="synthetic-first-worker",
+        )
+        async with scope.sessions() as session:
+            job = await session.get(MyPhotoJobModel, scope.job_id)
+            asset = await session.get(MyPhotoMediaAssetModel, scope.asset_id)
+            if change is not None:
+>               assert result.state == "lease_lost"
+E               AssertionError: assert 'failed' == 'lease_lost'
+E                 
+E                 - lease_lost
+E                 + failed
+
+tests\integration\test_my_photos_operational_failure_authority.py:66: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/integration/test_my_photos_operational_failure_authority.py::test_provider_failure_cannot_change_stale_job_or_asset[expired-unavailable]
+FAILED tests/integration/test_my_photos_operational_failure_authority.py::test_provider_failure_cannot_change_stale_job_or_asset[expired-invalid]
+FAILED tests/integration/test_my_photos_operational_failure_authority.py::test_provider_failure_cannot_change_stale_job_or_asset[cancelled-unavailable]
+FAILED tests/integration/test_my_photos_operational_failure_authority.py::test_provider_failure_cannot_change_stale_job_or_asset[cancelled-invalid]
+FAILED tests/integration/test_my_photos_operational_failure_authority.py::test_provider_failure_cannot_change_stale_job_or_asset[disabled-unavailable]
+FAILED tests/integration/test_my_photos_operational_failure_authority.py::test_provider_failure_cannot_change_stale_job_or_asset[disabled-invalid]
+FAILED tests/integration/test_my_photos_operational_failure_authority.py::test_provider_failure_cannot_change_stale_job_or_asset[removed-unavailable]
+FAILED tests/integration/test_my_photos_operational_failure_authority.py::test_provider_failure_cannot_change_stale_job_or_asset[removed-invalid]
+8 failed, 4 passed in 4.89s

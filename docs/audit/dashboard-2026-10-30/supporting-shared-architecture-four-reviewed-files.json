@@ -1,0 +1,44 @@
+{
+  "files": [
+    {
+      "path": "docs/architecture/group-companion-enterprise-hardening.md",
+      "sha256": "e8822c3a5a0a9985a5e5507012e7adbca68249745953b3a5c9e41b796187b79a",
+      "physical_lines": 513,
+      "physical_text_read": "complete",
+      "review_scope": "focused",
+      "status": "reviewed-focused",
+      "reviewer": "branding_visuals",
+      "notes": "Complete513physicaltextread (1\u2013180,181\u2013360,361\u2013513), focused retained shared GCdashboard controls, leastprivilege server projections, tenant ownership constraints, passenger mutation propagation, shared limiterprivacy, boundedstream/sessionrelease, countdown dispatch authority and historical release/evidence semantics. Native SQLCipher/Keystore/Expo app/screenshot/device/biometric/build assertions are reference context only, not mobile feature audit or current physical/runtime qualification. Aug4 snapshot, old0076head/commands/provider defaults and evidence remain unedited historical; no currentadvisory renewal or productionsetup inferred."
+    },
+    {
+      "path": "docs/architecture/group-companion-mobile.md",
+      "sha256": "298dbc4d7b2cc31b0cc4ecade8ebf0645f579748526bfd85e1ca85427547df10",
+      "physical_lines": 360,
+      "physical_text_read": "complete",
+      "review_scope": "focused",
+      "status": "reviewed-focused",
+      "reviewer": "branding_visuals",
+      "notes": "Complete360physicaltextread (1\u2013180,181\u2013360), focused canonical platform sourceoftruth, locatorsvs server tenant/group/role/passenger/delegation authorization, clientmanager explicitassignment/privacy, GCaccessrevision/lifecycle/revocation, transactional publication/journal/audit and dashboard CSRF/capabilities, bounded metadata/directbinary/grants and safe shared rollback. Native navigation/tokenstorage/cache/vault/QRbackground/device details not independently qualified; this implementationcontract does not prove current native generation or all stated freshness targets."
+    },
+    {
+      "path": "docs/MOBILE_ENTERPRISE_IMPLEMENTATION_PLAN.md",
+      "sha256": "ea6cbf77b612a09f2c8d02c20e32f5019cf92b996388d2b7d65f175d87d2e37b",
+      "physical_lines": 214,
+      "physical_text_read": "complete",
+      "review_scope": "focused",
+      "status": "reviewed-focused",
+      "reviewer": "branding_visuals",
+      "notes": "Complete214physicaltextread, focused retained shared server/dashboard input/security/data-creation capacity, postcommit/invalidation/snapshot boundaries, noPII telemetry and explicit source/automatedvs external release evidence. Historical Aug19F01\u2013F32 chosen development statuses/SLOtargets are not currentclaims or closure of independent auditfollowups; nativedevice/Expo/attestation/provider/store/legal acceptance remains outside scope and no old everychange suiteinstruction adopted over current usercadence."
+    },
+    {
+      "path": "docs/MY_PHOTOS_IMPLEMENTATION.md",
+      "sha256": "e33080300e5f27a558cb7308b13043db82bd3943a3a618a593e659905bfecc8b",
+      "physical_lines": 609,
+      "physical_text_read": "complete",
+      "review_scope": "focused",
+      "status": "reviewed-focused",
+      "reviewer": "branding_visuals",
+      "notes": "Complete609physicaltextread (1\u2013200,201\u2013400,401\u2013609), focused shared backend/dashboard inactivecapability, tenant/group/passenger authority, provider modelisolation, immutable asset/indexrevision, exactversion/checksum/KMS/URL grant boundaries, sanitizedmetrics, durablejobs/publication, operator manifest/idempotency/compensation and explicit activationgates. NativeUX/livenessbridge/device encryptedqueue and externalAWS/provider/pilot/biometric/legal claims are referencecontext only. No AWS/vendorrequest, face/image/customerdata, credentials, nativeexecution, thresholds, activation, approval or currentqualification performed."
+    }
+  ]
+}

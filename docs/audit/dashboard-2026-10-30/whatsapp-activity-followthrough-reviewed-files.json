@@ -1,0 +1,239 @@
+{
+  "files": [
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-activity-tracker.tsx",
+      "sha256": "6e0d45060f8ede7bdfb15f06a5e32a87d38ae5e2140b1709c145c211db17f359",
+      "physical_lines": 36,
+      "review_scope": "full",
+      "reviewer": "/root/document_ui_architecture",
+      "status": "reviewed",
+      "notes": "Complete36-line current source read; prior current full record whatsapp-current-reviewed-files retained. Provider composes context/overlay; does not add backend paging. No new unique inventory credit."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/activity-tracker/row.tsx",
+      "sha256": "e027d5478b923099b0d7052caa0dce5fcc79fa1300f5c3b7f108ac34acab8965",
+      "physical_lines": 264,
+      "review_scope": "full",
+      "reviewer": "/root/document_ui_architecture",
+      "status": "reviewed",
+      "notes": "Complete264-line current source physically read. Failure query is enabled only on expansion when failed>0; while expanded and queued>0 it refetches every2s. No paging/cursor handling. Prior current full whatsapp-current ledger retained, no new unique credit."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/activity-tracker/failure-recipients.tsx",
+      "sha256": "1fabc6e3601b6d08b8ba3db26d2eb820d0a882f308b53cd56414ac25f625a49e",
+      "physical_lines": 77,
+      "review_scope": "full",
+      "reviewer": "/root/document_ui_architecture",
+      "status": "reviewed",
+      "notes": "Complete77-line source physically read. Consumes the complete native failure array and maps all rows inside max-h48 scrolling list; scroll bounds visual height, not mounted row count. Prior current full ledger retained; no benchmark or UI smoothness claim."
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/recipient_capacity.py",
+      "sha256": "c78934bed1c992e220fc49c5666c54e07aff26193a9a3d5d526e19528e3b71d9",
+      "physical_lines": 41,
+      "review_scope": "full",
+      "reviewer": "/root/document_ui_architecture",
+      "status": "reviewed",
+      "notes": "Complete41-line canonical capacity policy read. MAX_WHATSAPP_RECIPIENTS1500, checked by normal broadcast queue before insertion. Existing full whatsapp-backend ledger retained, no new unique credit."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_qr_delivery_preview.py",
+      "sha256": "58a71834a0c04725243e69ce2ea10e28d408776ec01c2ba239e90fe1daff7031",
+      "physical_lines": 152,
+      "review_scope": "full",
+      "reviewer": "/root/document_ui_architecture",
+      "status": "reviewed",
+      "notes": "Complete152-line source read of ordinary QR preview composition/eligibility. Prior current full operations ledgers retained, no new unique read credit or provider invocation."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_qr_preview_sources.py",
+      "sha256": "75e1b3919c7dd0946f5c4ec3635a65ea32efa369145633a3349ed925f4867845",
+      "physical_lines": 65,
+      "review_scope": "full",
+      "reviewer": "/root/document_ui_architecture",
+      "status": "reviewed",
+      "notes": "Complete65-line source read. Passenger source constrained by group+agency+approved/operational roster; latest token and delivery lookups use these passenger/token IDs. Prior current full operations ledgers retained."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_groups_manage.py",
+      "sha256": "6c48d2e6838d056e9d83db1266521c09ca50a1eda61430c9922bfd93d8c1e924",
+      "physical_lines": 228,
+      "review_scope": "full",
+      "reviewer": "/root/document_ui_architecture",
+      "status": "reviewed",
+      "notes": "Complete228-line source read over bounded chunks1\u2013105/106\u2013228. Create reauthorizes/locks actor then copies agency; update only changes named content/support fields and does not reassign broadcast agency. Prior current full whatsapp-contact ledger retained."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_scope.py",
+      "sha256": "31d4d2d26d1057b267463fe0116a3faee14a6cdecf08773bc9a22dd6acf4868f",
+      "physical_lines": 178,
+      "review_scope": "full",
+      "reviewer": "/root/document_ui_architecture",
+      "status": "reviewed",
+      "notes": "Complete178-line source physically read. Actual actor reauthorization, agency/group lock and removable-recipient group+agency equality boundaries inspected. No source edits, broad workflow assertions or provider execution."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_delivery_selection.py",
+      "sha256": "dc357ebc3270241b34ac2d0cde457ce8f5bf84d44904847e4d1d000a3ba60d69",
+      "physical_lines": 62,
+      "review_scope": "full",
+      "reviewer": "/root/document_ui_architecture",
+      "status": "reviewed",
+      "notes": "Complete62-line source physically read. document_ids=None intentionally chooses all eligible preview rows; explicit resends must be selected and preview-authorized. No universal native send-count cap inferred from explicit-array schema limits."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_send.py",
+      "sha256": "787bdb0c731bd73589666d39e39196c57e3bd2eaa3c8af1b28a965d0d7e1f670",
+      "physical_lines": 427,
+      "review_scope": "focused",
+      "reviewer": "/root/document_ui_architecture",
+      "status": "focused",
+      "notes": "Focused121\u2013195 actual queue admission read: authorized group row locked; active/opt-in gate; existing recipients; canonical1500 capacity enforced before selection; no provider invoked in source review.",
+      "read_ranges": [
+        [
+          121,
+          195
+        ]
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_roster_support.py",
+      "sha256": "91ae572d7825dafff8ccea8254023fb9924fd58266df0ac1b8d7f61a8e99c23f",
+      "physical_lines": 400,
+      "review_scope": "focused",
+      "reviewer": "/root/document_ui_architecture",
+      "status": "focused",
+      "notes": "Focused246\u2013320 actual recipient selection/suppression and optional chosen-id subset validation read. Does not establish every historical row is tenant-aligned; no blanket malformed-data safety claim.",
+      "read_ranges": [
+        [
+          246,
+          320
+        ]
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_qr_delivery.py",
+      "sha256": "a65ca1f4b9c0fb0de069df0a2e6d3dcdb2ad7760799c3c517e6ff4de8ddb4037",
+      "physical_lines": 187,
+      "review_scope": "focused",
+      "reviewer": "/root/document_ui_architecture",
+      "status": "focused",
+      "notes": "Focused96\u2013180 public send flow read: authorized manageable group/lock, current preview, eligible selected rows, fresh send UUID, group-scope queue owner, commit before synthetic broker boundary. None selection intentionally includes eligible full preview.",
+      "read_ranges": [
+        [
+          96,
+          180
+        ]
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_qr_delivery_roster.py",
+      "sha256": "5f5aaba4ae811aad884334238a01dec2d0e21ec577ac702b5eec234946540701",
+      "physical_lines": 147,
+      "review_scope": "focused",
+      "reviewer": "/root/document_ui_architecture",
+      "status": "focused",
+      "notes": "Focused1\u2013125 QR linked roster source read. Link agency/group/broadcast equality and recipient agency/link membership applied; remainder not credited full.",
+      "read_ranges": [
+        [
+          1,
+          125
+        ]
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/tour_qr_schemas.py",
+      "sha256": "62399206edc4abbb006acb56fd1bfcb33ec9ba14250b99e198003bed51680c5b",
+      "physical_lines": 102,
+      "review_scope": "focused",
+      "reviewer": "/root/document_ui_architecture",
+      "status": "focused",
+      "notes": "Focused71\u201393 send-request/response declarations read. Explicit qr_token_ids max500, defaultNone; not a universal cap for the whole-preview native send path.",
+      "read_ranges": [
+        [
+          71,
+          93
+        ]
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/document_distribution_schemas.py",
+      "sha256": "be98d75f4f37f62735ba7d5c3efac5b37d386bb9f286e87b347b907da219e4f9",
+      "physical_lines": 250,
+      "review_scope": "focused",
+      "reviewer": "/root/document_ui_architecture",
+      "status": "focused",
+      "notes": "Focused201\u2013224 schema declarations read. Explicit document/resend arrays max1500; defaultNone all-preview behavior inspected separately, so no global batch cap asserted.",
+      "read_ranges": [
+        [
+          201,
+          224
+        ]
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_delivery.py",
+      "sha256": "bcc8368940d02278f1a1248ac428a83b12872b2628500658f92e0d6536b1e24e",
+      "physical_lines": 503,
+      "review_scope": "focused",
+      "reviewer": "/root/document_ui_architecture",
+      "status": "focused",
+      "notes": "Focused154\u2013245 real authorized document queue admission read; matched batch/group, active actor lock, group/type serialization, preview eligibility, selected documents additionally group+agency scoped. Prior250\u2013357 construction read retained in activity final ledger.",
+      "read_ranges": [
+        [
+          154,
+          245
+        ]
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_configuration.py",
+      "sha256": "925faec9ce0fcaad02be70b0207ce7339fa9e941a6ae28f2131cf30b18a1f993",
+      "physical_lines": 302,
+      "review_scope": "focused",
+      "reviewer": "/root/document_ui_architecture",
+      "status": "focused",
+      "notes": "Focused126\u2013309 actual shared group company/config update read. request.agency_id is an agency-scope argument for company assignment, not a reassignment of group.agency_id; normal configuration update keeps tenant ownership. No whole-file read credit.",
+      "read_ranges": [
+        [
+          126,
+          309
+        ]
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/client_group_request_schemas.py",
+      "sha256": "05119ad00c36913fca7f40df7c8e466a017661f7bbc14a0512d0a2c357667e82",
+      "physical_lines": 221,
+      "review_scope": "focused",
+      "reviewer": "/root/document_ui_architecture",
+      "status": "focused",
+      "notes": "Focused127\u2013222 UpdateClientGroupRequest fields/validators read. Agency field presence alone is not a tenant-transfer path; actual company/config caller inspected. Remaining schemas not credited full.",
+      "read_ranges": [
+        [
+          127,
+          222
+        ]
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_groups.py",
+      "sha256": "b48a7e4843e9f1b8d48d7a3483e5ad4d52eac984e65c05a9b78b716559b13179",
+      "physical_lines": 859,
+      "review_scope": "focused",
+      "reviewer": "/root/document_ui_architecture",
+      "status": "focused",
+      "notes": "Focused767\u2013816 public client-group configuration/archive facade read. Delegates named dependencies to shared owner; no whole large module audit credit.",
+      "read_ranges": [
+        [
+          767,
+          816
+        ]
+      ]
+    }
+  ],
+  "full_files_physically_read": 9,
+  "full_lines_physically_read": 1103,
+  "prior_current_full_rows_reaffirmed": 7,
+  "note": "Repeated full sources retain provenance and are deduplicated by current path/hash. Focused callers and ordinary source traces do not credit whole-file coverage or production-data validation."
+}

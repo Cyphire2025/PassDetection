@@ -1,0 +1,16 @@
+[
+  {
+    "path": "features/passports/components/upload-link-settings.tsx",
+    "baselineLines": 223,
+    "maximumLines": 230,
+    "baselineMaxFunctionComplexity": 13,
+    "maximumFunctionComplexity": 14
+  },
+  {
+    "path": "features/passports/components/upload-link-settings-model.ts",
+    "baselineLines": 89,
+    "maximumLines": 100,
+    "baselineMaxFunctionComplexity": 25,
+    "maximumFunctionComplexity": 26
+  }
+]

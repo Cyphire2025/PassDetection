@@ -1,0 +1,122 @@
+[
+  {
+    "path": "app/presentation/api/v1/routes/passport_image_library.py",
+    "baseline_lines": 80,
+    "maximum_lines": 80,
+    "baseline_max_function_complexity": 0,
+    "maximum_function_complexity": 1,
+    "minimum_coverage_percent": 100,
+    "observed_statement_coverage": 100.0,
+    "observed_branch_coverage": 100,
+    "sha256": "d936d8892bdabc826671ea5a37bfd1c8acac083c4ff9d367587d12e8db7b2d6d",
+    "coverage_evidence": "image-library-final-coverage.json",
+    "source_fence_evidence": "image-library-final-command.json"
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_image_library_responses.py",
+    "baseline_lines": 51,
+    "maximum_lines": 60,
+    "baseline_max_function_complexity": 3,
+    "maximum_function_complexity": 3,
+    "minimum_coverage_percent": 100,
+    "observed_statement_coverage": 100.0,
+    "observed_branch_coverage": 100,
+    "sha256": "7192583ac9d2fef50efeb37ad39b9e5368c384d4748e9ccabe43f2e0e81aad5f",
+    "coverage_evidence": "image-library-final-coverage.json",
+    "source_fence_evidence": "image-library-final-command.json"
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_image_library_reads.py",
+    "baseline_lines": 156,
+    "maximum_lines": 160,
+    "baseline_max_function_complexity": 5,
+    "maximum_function_complexity": 5,
+    "minimum_coverage_percent": 95,
+    "observed_statement_coverage": 97.87234042553192,
+    "observed_branch_coverage": 75.0,
+    "sha256": "c30bf3950088011d42655ea7b4f6390e88e01ca7615e1a3e9a9b15afe0cea478",
+    "coverage_evidence": "image-library-final-coverage.json",
+    "source_fence_evidence": "image-library-final-command.json"
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_image_library_manual.py",
+    "baseline_lines": 279,
+    "maximum_lines": 280,
+    "baseline_max_function_complexity": 13,
+    "maximum_function_complexity": 13,
+    "minimum_coverage_percent": 90,
+    "observed_statement_coverage": 92.5,
+    "observed_branch_coverage": 83.33333333333333,
+    "sha256": "8e5301f7e72de74aa0a5df100544230f847eed3e88ff5c1feb9bf416b00cfd07",
+    "coverage_evidence": "image-library-final-coverage.json",
+    "source_fence_evidence": "image-library-final-command.json",
+    "proposed_critical_coverage_gate": {
+      "minimum_line_percent": 90,
+      "minimum_branch_percent": 80
+    }
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_image_library_selection.py",
+    "baseline_lines": 272,
+    "maximum_lines": 280,
+    "baseline_max_function_complexity": 16,
+    "maximum_function_complexity": 16,
+    "minimum_coverage_percent": 85,
+    "observed_statement_coverage": 88.75,
+    "observed_branch_coverage": 78.57142857142857,
+    "sha256": "5b68cff3bed59aa26a0ad432e141a71b5cab119b5a54aac07731fe4c1e00256a",
+    "coverage_evidence": "image-library-final-coverage.json",
+    "source_fence_evidence": "image-library-final-command.json",
+    "proposed_critical_coverage_gate": {
+      "minimum_line_percent": 85,
+      "minimum_branch_percent": 75
+    }
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_image_library_authority.py",
+    "baseline_lines": 139,
+    "maximum_lines": 140,
+    "baseline_max_function_complexity": 14,
+    "maximum_function_complexity": 14,
+    "minimum_coverage_percent": 95,
+    "observed_statement_coverage": 97.5,
+    "observed_branch_coverage": 91.66666666666667,
+    "sha256": "1a3f020f32134e9eab62ccd3f24e116648af90e2f34f238b2813fa5129a6e390",
+    "coverage_evidence": "image-library-final-coverage.json",
+    "source_fence_evidence": "image-library-final-command.json",
+    "proposed_critical_coverage_gate": {
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 90
+    }
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_image_storage_write.py",
+    "baseline_lines": 72,
+    "maximum_lines": 80,
+    "baseline_max_function_complexity": 3,
+    "maximum_function_complexity": 3,
+    "minimum_coverage_percent": 95,
+    "observed_statement_coverage": 100.0,
+    "observed_branch_coverage": 100.0,
+    "sha256": "11b12fdbb9b053c2b26f87d21ef97f3ce87490c3751c0a6c1d4922259ee804f7",
+    "coverage_evidence": "image-library-final-coverage.json",
+    "source_fence_evidence": "image-library-final-command.json",
+    "proposed_critical_coverage_gate": {
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    }
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/image_support.py",
+    "baseline_lines": 289,
+    "maximum_lines": 290,
+    "baseline_max_function_complexity": 10,
+    "maximum_function_complexity": 10,
+    "minimum_coverage_percent": 72,
+    "observed_statement_coverage": 73.91304347826087,
+    "observed_branch_coverage": 57.142857142857146,
+    "sha256": "bb7f17f95e18abf65436f6e7ad71be2ce25926b04ced89b1382ae27334ee3e9f",
+    "coverage_evidence": "image-library-final-coverage.json",
+    "source_fence_evidence": "image-library-final-command.json"
+  }
+]

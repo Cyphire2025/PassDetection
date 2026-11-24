@@ -68,19 +68,19 @@ async def test_draft_delete_commits_before_object_cleanup() -> None:
 
     with (
         patch(
-            "app.presentation.api.v1.routes.gc_app_content._admin_access_context",
+            "app.presentation.api.v1.routes.gc_app_common_publication._admin_access_context",
             new=AsyncMock(return_value=(access, group)),
         ),
         patch(
-            "app.presentation.api.v1.routes.gc_app_content._get_common_document",
+            "app.presentation.api.v1.routes.gc_app_common_publication._get_common_document",
             new=AsyncMock(return_value=document),
         ),
         patch(
-            "app.presentation.api.v1.routes.gc_app_content._content_audit",
+            "app.presentation.api.v1.routes.gc_app_common_publication._content_audit",
             new=AsyncMock(side_effect=lambda *_args, **_kwargs: events.append("audit")),
         ),
         patch(
-            "app.presentation.api.v1.routes.gc_app_content.MinioStorageRepository",
+            "app.presentation.api.v1.routes.gc_app_common_publication.MinioStorageRepository",
             return_value=storage,
         ),
     ):
@@ -111,19 +111,19 @@ async def test_draft_delete_commit_failure_preserves_object() -> None:
 
     with (
         patch(
-            "app.presentation.api.v1.routes.gc_app_content._admin_access_context",
+            "app.presentation.api.v1.routes.gc_app_common_publication._admin_access_context",
             new=AsyncMock(return_value=(access, group)),
         ),
         patch(
-            "app.presentation.api.v1.routes.gc_app_content._get_common_document",
+            "app.presentation.api.v1.routes.gc_app_common_publication._get_common_document",
             new=AsyncMock(return_value=document),
         ),
         patch(
-            "app.presentation.api.v1.routes.gc_app_content._content_audit",
+            "app.presentation.api.v1.routes.gc_app_common_publication._content_audit",
             new=AsyncMock(),
         ),
         patch(
-            "app.presentation.api.v1.routes.gc_app_content.MinioStorageRepository",
+            "app.presentation.api.v1.routes.gc_app_common_publication.MinioStorageRepository",
             return_value=storage,
         ),
     ):
@@ -170,15 +170,15 @@ async def test_common_document_preview_streams_without_materializing_full_pdf() 
 
     with (
         patch(
-            "app.presentation.api.v1.routes.gc_app_content._admin_access_context",
+            "app.presentation.api.v1.routes.gc_app_common_preview._admin_access_context",
             new=AsyncMock(return_value=(access, group)),
         ),
         patch(
-            "app.presentation.api.v1.routes.gc_app_content._get_common_document",
+            "app.presentation.api.v1.routes.gc_app_common_preview._get_common_document",
             new=AsyncMock(return_value=document),
         ),
         patch(
-            "app.presentation.api.v1.routes.gc_app_content.MinioStorageRepository",
+            "app.presentation.api.v1.routes.gc_app_common_preview.MinioStorageRepository",
             return_value=storage,
         ),
     ):
@@ -234,15 +234,15 @@ async def test_common_document_preview_cancellation_closes_storage_stream() -> N
 
     with (
         patch(
-            "app.presentation.api.v1.routes.gc_app_content._admin_access_context",
+            "app.presentation.api.v1.routes.gc_app_common_preview._admin_access_context",
             new=AsyncMock(return_value=(access, group)),
         ),
         patch(
-            "app.presentation.api.v1.routes.gc_app_content._get_common_document",
+            "app.presentation.api.v1.routes.gc_app_common_preview._get_common_document",
             new=AsyncMock(return_value=document),
         ),
         patch(
-            "app.presentation.api.v1.routes.gc_app_content.MinioStorageRepository",
+            "app.presentation.api.v1.routes.gc_app_common_preview.MinioStorageRepository",
             return_value=storage,
         ),
     ):
@@ -287,23 +287,27 @@ async def test_common_document_storage_finishes_before_access_row_lock() -> None
 
     with (
         patch(
-            "app.presentation.api.v1.routes.gc_app_content._admin_access_context",
+            "app.presentation.api.v1.routes.gc_app_common_staging.require_current_common_document_actor",
+            new=AsyncMock(side_effect=lambda _session, user: user),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.gc_app_common_staging._admin_access_context",
             side_effect=access_context,
         ),
         patch(
-            "app.presentation.api.v1.routes.gc_app_content._validated_common_pdf",
+            "app.presentation.api.v1.routes.gc_app_common_staging._validated_common_pdf",
             side_effect=validate,
         ),
         patch(
-            "app.presentation.api.v1.routes.gc_app_content.MinioStorageRepository",
+            "app.presentation.api.v1.routes.gc_app_common_staging.MinioStorageRepository",
             return_value=storage,
         ),
         patch(
-            "app.presentation.api.v1.routes.gc_app_content._content_audit",
+            "app.presentation.api.v1.routes.gc_app_common_staging._content_audit",
             new=AsyncMock(),
         ),
         patch(
-            "app.presentation.api.v1.routes.gc_app_content._common_document_response",
+            "app.presentation.api.v1.routes.gc_app_common_staging._common_document_response",
             return_value=SimpleNamespace(id="response"),
         ),
     ):
@@ -349,23 +353,27 @@ async def test_common_document_commit_failure_deletes_only_staged_object() -> No
 
     with (
         patch(
-            "app.presentation.api.v1.routes.gc_app_content._admin_access_context",
+            "app.presentation.api.v1.routes.gc_app_common_staging.require_current_common_document_actor",
+            new=AsyncMock(side_effect=lambda _session, user: user),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.gc_app_common_staging._admin_access_context",
             side_effect=access_context,
         ),
         patch(
-            "app.presentation.api.v1.routes.gc_app_content._validated_common_pdf",
+            "app.presentation.api.v1.routes.gc_app_common_staging._validated_common_pdf",
             new=AsyncMock(return_value=_validated_pdf()),
         ),
         patch(
-            "app.presentation.api.v1.routes.gc_app_content.MinioStorageRepository",
+            "app.presentation.api.v1.routes.gc_app_common_staging.MinioStorageRepository",
             return_value=storage,
         ),
         patch(
-            "app.presentation.api.v1.routes.gc_app_content._content_audit",
+            "app.presentation.api.v1.routes.gc_app_common_staging._content_audit",
             new=AsyncMock(),
         ),
         patch(
-            "app.presentation.api.v1.routes.gc_app_content._common_document_response",
+            "app.presentation.api.v1.routes.gc_app_common_staging._common_document_response",
             return_value=SimpleNamespace(id="response"),
         ),
     ):
@@ -384,9 +392,7 @@ async def test_common_document_commit_failure_deletes_only_staged_object() -> No
             )
 
     uploaded_key = storage.upload_file.await_args.args[1]
-    assert uploaded_key.startswith(
-        f"gc-app/{initial.agency_id}/{initial.group_id}/common/"
-    )
+    assert uploaded_key.startswith(f"gc-app/{initial.agency_id}/{initial.group_id}/common/")
     storage.delete_files.assert_awaited_once_with([uploaded_key])
     # One rollback closes the authorization read; the second clears the failed
     # relational commit before object compensation.
@@ -412,15 +418,19 @@ async def test_revision_conflict_after_staging_rolls_back_and_deletes_object() -
 
     with (
         patch(
-            "app.presentation.api.v1.routes.gc_app_content._admin_access_context",
+            "app.presentation.api.v1.routes.gc_app_common_staging.require_current_common_document_actor",
+            new=AsyncMock(side_effect=lambda _session, user: user),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.gc_app_common_staging._admin_access_context",
             side_effect=access_context,
         ),
         patch(
-            "app.presentation.api.v1.routes.gc_app_content._validated_common_pdf",
+            "app.presentation.api.v1.routes.gc_app_common_staging._validated_common_pdf",
             new=AsyncMock(return_value=_validated_pdf()),
         ),
         patch(
-            "app.presentation.api.v1.routes.gc_app_content.MinioStorageRepository",
+            "app.presentation.api.v1.routes.gc_app_common_staging.MinioStorageRepository",
             return_value=storage,
         ),
     ):
@@ -440,9 +450,7 @@ async def test_revision_conflict_after_staging_rolls_back_and_deletes_object() -
 
     assert exc_info.value.status_code == 409
     assert "refresh and retry" in str(exc_info.value.detail)
-    storage.delete_files.assert_awaited_once_with(
-        [storage.upload_file.await_args.args[1]]
-    )
+    storage.delete_files.assert_awaited_once_with([storage.upload_file.await_args.args[1]])
     session.add.assert_not_called()
     session.commit.assert_not_awaited()
     assert session.rollback.await_count == 2
@@ -481,27 +489,31 @@ async def test_replacement_allocates_version_only_after_row_lock() -> None:
 
     with (
         patch(
-            "app.presentation.api.v1.routes.gc_app_content._admin_access_context",
+            "app.presentation.api.v1.routes.gc_app_common_staging.require_current_common_document_actor",
+            new=AsyncMock(side_effect=lambda _session, user: user),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.gc_app_common_staging._admin_access_context",
             side_effect=access_context,
         ),
         patch(
-            "app.presentation.api.v1.routes.gc_app_content._get_common_document",
+            "app.presentation.api.v1.routes.gc_app_common_staging._get_common_document",
             side_effect=get_document,
         ),
         patch(
-            "app.presentation.api.v1.routes.gc_app_content._validated_common_pdf",
+            "app.presentation.api.v1.routes.gc_app_common_staging._validated_common_pdf",
             new=AsyncMock(return_value=_validated_pdf()),
         ),
         patch(
-            "app.presentation.api.v1.routes.gc_app_content.MinioStorageRepository",
+            "app.presentation.api.v1.routes.gc_app_common_staging.MinioStorageRepository",
             return_value=storage,
         ),
         patch(
-            "app.presentation.api.v1.routes.gc_app_content._content_audit",
+            "app.presentation.api.v1.routes.gc_app_common_staging._content_audit",
             new=AsyncMock(),
         ),
         patch(
-            "app.presentation.api.v1.routes.gc_app_content._common_document_response",
+            "app.presentation.api.v1.routes.gc_app_common_staging._common_document_response",
             return_value=SimpleNamespace(id="response"),
         ),
     ):

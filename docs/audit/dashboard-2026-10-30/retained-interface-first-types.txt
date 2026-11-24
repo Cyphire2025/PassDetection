@@ -1,0 +1,10 @@
+retained_release_fast.py:14: error: Signature of "backend" incompatible with supertype "mcp_direct_build.RetainedBuild"  [override]
+retained_release_fast.py:14: note:      Superclass:
+retained_release_fast.py:14: note:          def backend(self, base_image: str, previous_lock: Path) -> dict[Any, Any]
+retained_release_fast.py:14: note:      Subclass:
+retained_release_fast.py:14: note:          def backend(self, base_image: str) -> dict[str, Any]
+retained_release_contract.py:88: error: Invalid type comment or annotation  [valid-type]
+retained_release_contract.py:192: error: Invalid type comment or annotation  [valid-type]
+retained_release_runtime.py:141: error: Invalid type comment or annotation  [valid-type]
+retained_release_lifecycle.py:145: error: Argument 1 to "verify_manifest" has incompatible type "Path | None"; expected "Path"  [arg-type]
+Found 5 errors in 4 files (checked 7 source files)

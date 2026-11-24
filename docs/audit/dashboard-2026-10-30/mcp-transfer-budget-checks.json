@@ -1,0 +1,21 @@
+[
+  {
+    "name": "unit",
+    "argv": [
+      "node",
+      "--test",
+      "frontend/scripts/verify-frontend-module-budgets.test.mjs"
+    ],
+    "exit_code": 0,
+    "output": "mcp-transfer-budget-unit.txt"
+  },
+  {
+    "name": "static",
+    "argv": [
+      "node",
+      "frontend/scripts/verify-frontend-module-budgets.mjs"
+    ],
+    "exit_code": 0,
+    "output": "mcp-transfer-budget-static.txt"
+  }
+]

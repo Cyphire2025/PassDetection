@@ -1,0 +1,47 @@
+RUF022 [*] `__all__` is not sorted
+  --> scripts\ci_pipeline.py:26:11
+   |
+24 |   from ci_shards import collection_digest, verify_shards
+25 |
+26 |   __all__ = [
+   |  ___________^
+27 | |     "JOB_NAMES", "JOBS", "PROVENANCE_PATH", "REUSABLE_JOBS", "ROOT", "SHA",
+28 | |     "ancestor", "changed_paths", "collection_digest", "decide", "event_paths",
+29 | |     "git", "main", "make_plan", "qualified_push_base", "run_provenance",
+30 | |     "validate_gate", "verify_shards", "write_summary",
+31 | | ]
+   | |_^
+32 |
+33 |   ROOT = Path(__file__).resolve().parents[1]
+   |
+help: Apply an isort-style sorting to `__all__`
+   |
+26 | __all__ = [
+   -     "JOB_NAMES", "JOBS", "PROVENANCE_PATH", "REUSABLE_JOBS", "ROOT", "SHA",
+   -     "ancestor", "changed_paths", "collection_digest", "decide", "event_paths",
+   -     "git", "main", "make_plan", "qualified_push_base", "run_provenance",
+   -     "validate_gate", "verify_shards", "write_summary",
+27 +     "JOBS",
+28 +     "JOB_NAMES",
+29 +     "PROVENANCE_PATH",
+30 +     "REUSABLE_JOBS",
+31 +     "ROOT",
+32 +     "SHA",
+33 +     "ancestor",
+34 +     "changed_paths",
+35 +     "collection_digest",
+36 +     "decide",
+37 +     "event_paths",
+38 +     "git",
+39 +     "main",
+40 +     "make_plan",
+41 +     "qualified_push_base",
+42 +     "run_provenance",
+43 +     "validate_gate",
+44 +     "verify_shards",
+45 +     "write_summary",
+46 | ]
+   |
+
+Found 1 error.
+[*] 1 fixable with the `--fix` option.

@@ -1,0 +1,59 @@
+{
+  "status": "Retained WhatsApp privacy/archive/metadata source cohort complete",
+  "files": [
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_private_delivery_hardening.py",
+      "sha256": "032dd12da7d995b042c41117d869fc235877ebc3ffaae4fc6348193d56bc5ec2",
+      "physical_lines": 197,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-197. Actual router mutation/QR lifecycle CSRF dependency contracts versus nonmutating previews/webhook; pure matching controls shared family phone never selects first traveller, configured generic answer association does not authorize private QR, exact configured phone allowed. No provider/router/scanner/test execution; identity association and private delivery remain separate."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_archive.py",
+      "sha256": "b43fb185bb3564399722b7c03979056fbebc3ca263e51f2c5d18da21682c0bc4",
+      "physical_lines": 234,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-234. HTTP/SQLite archive/restore idempotent with tenant scope, contact/message history retained and original timestamp preserved; active queued/processing/unknown delivery or state prevents archiving. Archived lists reject send/resend/bulk resend/roster edits, worker rechecks archive before recipient/provider load after separately isolated origin guard. No messaging or test execution."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_recipient_details.py",
+      "sha256": "75531973d513a08da24724ec897f7e06732b3fa14004050e4edf7f198382bd0e",
+      "physical_lines": 263,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-263. Immutable original snapshot/provenance/phone while editing existing imported name/email/code, blank clears only target, forbidden new/reserved fields400. Stale/missing merged identity409, source-managed primary edits stay at source, merged manual snapshot preserves others/source ID; bounds/extras rejected. Actual route mocks preserve current actor/private delivery/source group/history guards, no mutation for archived/replacement/stale/private-send/missing scope. No API/provider operations run."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_recipient_details.py",
+      "sha256": "cbf2a7caef9dec783ffb6252f6e3aa5ca3c6108e7e19df9d2a6308d55f098b0e",
+      "physical_lines": 224,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole current224physical lines1-58/59-end. Pure copy-on-edit snapshot/name/existing-field validation preserves provenance/phone and source-managed rules; mutation locks current actor then sorted linked source/history/broadcast/recipient scope, no-op return before invalidation. Active replacement/private deliveries block; history flush/suppression/shared dashboard bridge refresh stay caller transaction. Existing qualified policy unchanged, no generic architecture defect inferred."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_groups_archive.py",
+      "sha256": "fd5a33d29929bba93d4944eb5e1166cda0d8423be78a19f6f164096fb2c80698",
+      "physical_lines": 117,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical61-117 only (requested end130, actual117 EOF). Complete archive/restore bodies: locked parent serializes pending checks across all five delivery tables, archives only after no blocking state; restore idempotent. Earlier imports/locked-group helper not reread, existing full ledgers retained, no whole-file credit."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_qr_delivery_roster.py",
+      "sha256": "5f5aaba4ae811aad884334238a01dec2d0e21ec577ac702b5eec234946540701",
+      "physical_lines": 147,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical84-147 only, whole private matched-recipient projection. Shared matcher duplicate party ambiguity and strict private-delivery identity gating before deterministic sorted recipient selection. Index0 is reached only after nonempty candidate guard and eligible private identity; no UI/provider/policy changes or whole-file credit."
+    }
+  ]
+}

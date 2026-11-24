@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="1" failures="0" skipped="0" tests="5" time="0.675" timestamp="2026-10-31T02:57:10.056262+05:30" hostname="Nipun5070ti"><testcase classname="tests.unit.infrastructure.test_private_celery_diagnostics" name="test_actual_received_strategy_event_never_exposes_old_headers[True]" time="0.043" /><testcase classname="tests.unit.infrastructure.test_private_celery_diagnostics" name="test_actual_received_strategy_event_never_exposes_old_headers[False]" time="0.014" /><testcase classname="tests.unit.infrastructure.test_private_celery_diagnostics" name="test_private_backend_preserves_existing_redis_connection_and_tls_parameters[redis://:synthetic-password@127.0.0.1:6379/2]" time="0.006" /><testcase classname="tests.unit.infrastructure.test_private_celery_diagnostics" name="test_private_backend_preserves_existing_redis_connection_and_tls_parameters[rediss://:synthetic-password@127.0.0.1:6380/3?ssl_cert_reqs=required]" time="0.005" /><testcase classname="pytest" name="internal" time="0.000"><error message="internal error">Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 43, in run_old_style_hookwrapper
+    teardown.send(result)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pytest_cov\plugin.py", line 339, in pytest_runtestloop
+    self.cov_controller.finish()
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pytest_cov\engine.py", line 46, in ensure_topdir_wrapper
+    return meth(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pytest_cov\engine.py", line 256, in finish
+    self.cov.save()
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\coverage\control.py", line 864, in save
+    data = self.get_data()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\coverage\control.py", line 945, in get_data
+    self._post_save_work()
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\coverage\control.py", line 963, in _post_save_work
+    self._inorout.warn_unimported_source()
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\coverage\inorout.py", line 548, in warn_unimported_source
+    self._warn_about_unmeasured_code(pkg)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\coverage\inorout.py", line 558, in _warn_about_unmeasured_code
+    self.warn(f"Module {pkg} was never imported.", slug="module-not-imported")
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\coverage\control.py", line 495, in _warn
+    warnings.warn(msg, category=CoverageWarning, stacklevel=2)
+coverage.exceptions.CoverageWarning: Module app.infrastructure.processing.private_task_loader was never imported. (module-not-imported); see https://coverage.readthedocs.io/en/7.16.1/messages.html#warning-module-not-imported
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\_pytest\main.py", line 318, in wrap_session
+    session.exitstatus = doit(config, session) or 0
+                         ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\_pytest\main.py", line 372, in _main
+    config.hook.pytest_runtestloop(session=session)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 167, in _multicall
+    raise exception
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 139, in _multicall
+    teardown.throw(exception)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\_pytest\logging.py", line 801, in pytest_runtestloop
+    return (yield)  # Run all the tests.
+            ^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 139, in _multicall
+    teardown.throw(exception)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\_pytest\terminal.py", line 707, in pytest_runtestloop
+    result = yield
+             ^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 152, in _multicall
+    teardown.send(result)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 47, in run_old_style_hookwrapper
+    _warn_teardown_exception(hook_name, hook_impl, e)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 73, in _warn_teardown_exception
+    warnings.warn(PluggyTeardownRaisedWarning(msg), stacklevel=6)
+pluggy.PluggyTeardownRaisedWarning: A plugin raised an exception during an old-style hookwrapper teardown.
+Plugin: _cov, Hook: pytest_runtestloop
+CoverageWarning: Module app.infrastructure.processing.private_task_loader was never imported. (module-not-imported); see https://coverage.readthedocs.io/en/7.16.1/messages.html#warning-module-not-imported
+For more information see https://pluggy.readthedocs.io/en/stable/api_reference.html#pluggy.PluggyTeardownRaisedWarning</error></testcase></testsuite></testsuites>

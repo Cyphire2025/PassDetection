@@ -1,0 +1,83 @@
+{
+  "basis": "Full physical original source review; this baseline already contains the eight independently reproduced/fixed provider-await freshness regressions. New composition/typed context is explicit and not equivalence with the original checkout.",
+  "before_sha256": "8019f7ba419f93b83922a57c522fcf954d4d1fbb8614a4c6af9cd31a598c2e8c",
+  "groups": {
+    "context": [
+      "_gallery",
+      "_ready_gallery",
+      "_gallery_window_state",
+      "_enrollment",
+      "_lock_passenger_identity",
+      "_required_current_enrollment",
+      "_latest_search",
+      "_require_face_providers",
+      "_require_passenger"
+    ],
+    "reference_lifecycle": [
+      "_deletion_response",
+      "_mark_provider_deletion_pending",
+      "_delete_superseded_reference",
+      "_complete_provider_deletion"
+    ],
+    "liveness_store": [
+      "_create_search_run",
+      "_apply_liveness_cooldown",
+      "_finalize_liveness_result",
+      "_fail_liveness_creation",
+      "_complete_liveness_creation",
+      "_release_liveness_result_claim",
+      "_liveness_session_response"
+    ],
+    "liveness_service": [
+      "start_liveness",
+      "complete_liveness"
+    ],
+    "enrollment_service": [
+      "accept_consent",
+      "delete_enrollment"
+    ],
+    "catalog_service": [
+      "photo_page",
+      "record_feedback"
+    ],
+    "responses": [
+      "_search_response",
+      "_completion_response"
+    ]
+  },
+  "retained_facade_methods": [
+    "summary",
+    "search_status",
+    "prepare_media",
+    "authorize_downloads",
+    "download_plan",
+    "development_download_content",
+    "production_download_location",
+    "download_content_or_location",
+    "development_preview_content",
+    "preview_content_or_location"
+  ],
+  "delegated_public_methods": {
+    "start_liveness": "_liveness",
+    "complete_liveness": "_liveness",
+    "accept_consent": "_enrollments",
+    "delete_enrollment": "_enrollments",
+    "photo_page": "_catalog",
+    "record_feedback": "_catalog"
+  },
+  "retired_private_helpers": [
+    {
+      "name": "_search_by_id",
+      "ast_sha256": "38a485c102e6b49d1eff1bc47cf7ce46c14e4504186831c28b69b8c86f5c76df"
+    },
+    {
+      "name": "_search_job",
+      "ast_sha256": "1980ec0e67c0188c4e4b070af2ec5158c6f720492e9e5985d2b4cee8719f4cdf"
+    },
+    {
+      "name": "_fail_search",
+      "ast_sha256": "7869727cbce5627f3efb59d81ef6146dd855fb5d2b8ada38b372086402260fe5"
+    }
+  ],
+  "normalization": "Only explicit self._context field/gate and focused state/reference receiver substitutions; standalone pure response/category methods remove unused self/staticmethod. Constructor/composition and six public delegating bodies are deliberately new; public args/returns/decorators must remain exact."
+}

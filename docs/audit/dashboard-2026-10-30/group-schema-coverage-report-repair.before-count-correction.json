@@ -1,0 +1,9 @@
+{
+  "explicitly_retired_intermediate_path": "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\domain\\entities\\group_trip_settings.py",
+  "why": "CoverageData.purge_files empties observations but retains a file-table row; default reporting still attempted to parse a source that was intentionally relocated. Report omission is limited to this absent intermediate owner, whose original bytes/relocation proof are archived. No active owner or floor is omitted; no warnings suppressed.",
+  "report_omit_patterns": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\domain\\entities\\group_trip_settings.py"
+  ],
+  "selected_module_typo": "The first metadata supplement used a slash in one --cov module name; warning-as-error retained. A corrected named-module run measured only the actual compatibility owner and existing live HTTP cases.",
+  "behavioral_results": "Initial176cases+11subtests and intermediate45cases passed; their reporting/instrumentation invocations failed and are retained separately. Final2current compatibility HTTP cases passed without a report override; repaired XML/JSON reporting now uses the same data and project configuration."
+}

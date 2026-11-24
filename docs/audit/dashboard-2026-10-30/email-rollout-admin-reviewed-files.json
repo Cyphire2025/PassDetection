@@ -1,0 +1,91 @@
+{
+  "files": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_rollout_admin.py",
+      "sha256": "85f6f022a1ca334c38a953b89b3b9690f11d264916059901a6b3aa6230285781",
+      "physical_lines": 246,
+      "review_scope": "full",
+      "reviewer": "document_ui_architecture",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "runtime",
+      "notes": "Complete current physical source read. Eleven whole declarations/decorators/SQL/role/lock/revision/audit/offset/limit bodies exact; purpose-specific query and policy-response owners with direct legacy API/MCP exports. Actual33imports/81global bindings/11hints/dataclass8method contracts/2HTTP operations on1OpenAPI path exact. Focused17cases, strict3types/scopedRuff5pass; normal95candidates only. No behavior or security policy change."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_rollout_targets.py",
+      "sha256": "fed2b11d70a9312e5160bc7f08644aa87ff18577697ea26df0a9f435ea44ccbd",
+      "physical_lines": 200,
+      "review_scope": "full",
+      "reviewer": "document_ui_architecture",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "runtime",
+      "notes": "Complete current physical source read. Eleven whole declarations/decorators/SQL/role/lock/revision/audit/offset/limit bodies exact; purpose-specific query and policy-response owners with direct legacy API/MCP exports. Actual33imports/81global bindings/11hints/dataclass8method contracts/2HTTP operations on1OpenAPI path exact. Focused17cases, strict3types/scopedRuff5pass; normal95candidates only. No behavior or security policy change."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_rollout_policy_mapping.py",
+      "sha256": "d3562d38a9da320c0ef07e7cd3fb9e0c85857201b9038370b5f249c4076f7eb7",
+      "physical_lines": 186,
+      "review_scope": "full",
+      "reviewer": "document_ui_architecture",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "runtime",
+      "notes": "Complete current physical source read. Eleven whole declarations/decorators/SQL/role/lock/revision/audit/offset/limit bodies exact; purpose-specific query and policy-response owners with direct legacy API/MCP exports. Actual33imports/81global bindings/11hints/dataclass8method contracts/2HTTP operations on1OpenAPI path exact. Focused17cases, strict3types/scopedRuff5pass; normal95candidates only. No behavior or security policy change."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_email_rollout_query_paths.py",
+      "sha256": "3a996d65c79c6762e172bbd27ae280af6e1fabd2bb11687d2ef5ecf3de5eeac8",
+      "physical_lines": 272,
+      "review_scope": "full",
+      "reviewer": "document_ui_architecture",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "test",
+      "notes": "Complete272line current physical read. Thirteen new ordinary pagination/current-office/empty/bounded-list/ancestor-policy/conflict controls passed before movement together with3existing tests;1actual MCPpagination/mapping case added after movement gives17passing. All10corrected baseline functions/fixtures AST exact, existing429line test bytes exact. Initial1fixture error lacked required disconnected_at; corrected before runtime edits, failed15pass/1fail log retained."
+    }
+  ],
+  "current_full_files": 4,
+  "current_full_physical_lines": 904,
+  "prior_source_full_read": {
+    "path": "backend/app/presentation/api/v1/routes/email_ai_rollout_admin.py",
+    "sha256": "767500a1b9f4dd113b41bcefc0ea90fbebe984f34829b1ada8cd4ccbc24a51c3",
+    "physical_lines": 565,
+    "review_scope": "full",
+    "existing_prior_full_ledger": "email-task-residual-reviewed-files.json",
+    "new_unique_read_credit": false
+  },
+  "prior_current_test_full_read_reused": {
+    "path": "backend/tests/unit/presentation/test_email_ai_rollout_admin.py",
+    "sha256": "a2148b43ae041dfc6c47760fed61fd4cd69621818708284fa12caacae97ec690",
+    "physical_lines": 429,
+    "existing_current_full_ledger": "email-ai-models-reviewed-files.json",
+    "new_unique_read_credit": false,
+    "notes": "Exact current429line complete test read in preceding sealed model cohort;3cases pass here without any edit. No duplicate manual credit."
+  },
+  "partial_context": [
+    {
+      "path": "backend/app/presentation/mcp/dashboard_read_adapters.py",
+      "sha256": "cf1ca7ba592f2b29d8e5609f4b0e2e263b8b728e5572fa2590b4826a398ab91a",
+      "physical_lines": 388,
+      "review_scope": "partial",
+      "read_ranges": [
+        [
+          226,
+          355
+        ]
+      ],
+      "notes": "Actual email_ai_rollout adapter current helper imports/search/owner/offset/limit+1/mapping read, plus adjacent context. Full file not credited; source unchanged and actual new reader case passes."
+    }
+  ],
+  "source_resolution_only": [
+    {
+      "path": "backend/app/presentation/api/v1/router.py",
+      "sha256": "1601724fbb3be3b3483987335c1e80bbcf8e8c8894cc5a8a5cc16d04955b9fc7",
+      "physical_lines": 273,
+      "review_scope": "focused",
+      "notes": "Search located original router import/prefix registration; exact unchanged source hash fenced. Not a full physical source read."
+    }
+  ],
+  "credit_limit": "Only physical complete current reads countfull. Original565, prior429currentfull, generatedOpenAPI, passingtests, boundimports and caller searches remain distinct; service/capacity and broader file audit remain open."
+}

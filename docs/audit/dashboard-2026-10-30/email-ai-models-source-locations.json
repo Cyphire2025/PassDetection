@@ -1,0 +1,55 @@
+{
+  "legacy_class_source_introspection_not_preserved": true,
+  "no_inspect_monkeypatch": true,
+  "actual_definition_paths": [
+    {
+      "class_name": "EmailAiRolloutPolicyModel",
+      "legacy_module": "app.infrastructure.database.email_ai_models",
+      "qualname": "EmailAiRolloutPolicyModel",
+      "inspect_getsource_result": "OSError",
+      "actual_definition": "backend/app/infrastructure/database/_email_ai_models/rollout.py",
+      "actual_source_sha256": "d0ca6a17300c86ca1b4cf945b5babf4f5e3e550cd75340dfb6e808d243602725"
+    },
+    {
+      "class_name": "EmailAiAnalysisModel",
+      "legacy_module": "app.infrastructure.database.email_ai_models",
+      "qualname": "EmailAiAnalysisModel",
+      "inspect_getsource_result": "OSError",
+      "actual_definition": "backend/app/infrastructure/database/_email_ai_models/analyses.py",
+      "actual_source_sha256": "152526fe868170a5d12ce353d1f990d6a4098364662a1725a04994eb9769d872"
+    },
+    {
+      "class_name": "EmailDetectedDeadlineModel",
+      "legacy_module": "app.infrastructure.database.email_ai_models",
+      "qualname": "EmailDetectedDeadlineModel",
+      "inspect_getsource_result": "OSError",
+      "actual_definition": "backend/app/infrastructure/database/_email_ai_models/deadlines.py",
+      "actual_source_sha256": "25b2192f32a5ef2fcd5764e9e7092016ea7848a8bbd283292159254558d2d0dd"
+    },
+    {
+      "class_name": "EmailActionProposalModel",
+      "legacy_module": "app.infrastructure.database.email_ai_models",
+      "qualname": "EmailActionProposalModel",
+      "inspect_getsource_result": "OSError",
+      "actual_definition": "backend/app/infrastructure/database/_email_ai_models/proposals.py",
+      "actual_source_sha256": "2f43bd6295e9b37a4889296b37a6af1edf1548e2794eeab2d0f4cc612106a1aa"
+    },
+    {
+      "class_name": "EmailReplyDraftModel",
+      "legacy_module": "app.infrastructure.database.email_ai_models",
+      "qualname": "EmailReplyDraftModel",
+      "inspect_getsource_result": "OSError",
+      "actual_definition": "backend/app/infrastructure/database/_email_ai_models/drafts.py",
+      "actual_source_sha256": "75c30c385d04d40661d1bcdfca237b18e1647fde4d8f49141199087bae8de6cd"
+    },
+    {
+      "class_name": "EmailAiFeedbackModel",
+      "legacy_module": "app.infrastructure.database.email_ai_models",
+      "qualname": "EmailAiFeedbackModel",
+      "inspect_getsource_result": "OSError",
+      "actual_definition": "backend/app/infrastructure/database/_email_ai_models/feedback.py",
+      "actual_source_sha256": "2ec1a4e4dd4f5f41fa8cc7e34c6d670b836fdd79a1eab60b33f8623a9048d44d"
+    }
+  ],
+  "notes": "Legacy public module/pickle/qualified mapper identities stay compatible. Source readers should inspect the explicitly recorded focused owner paths. The public original source remains archived verbatim."
+}

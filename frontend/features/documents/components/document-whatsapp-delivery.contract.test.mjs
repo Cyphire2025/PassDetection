@@ -1,19 +1,16 @@
+import { readDocumentDialogsSource } from "./document-dialogs-source.contract-helper.mjs";
+import { readDocumentDistributionSource } from "./document-api-source.contract-helper.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import { readDocumentWorkspaceSource } from "./document-workspace-source.contract-helper.mjs";
+import { readDocumentReviewSource } from "./document-review-source.contract-helper.mjs";
 
 const workspace = readDocumentWorkspaceSource();
-const workspaceDialogs = readFileSync(
-  new URL("./document-workspace-dialogs.tsx", import.meta.url),
-  "utf8",
-);
-const workspaceReview = readFileSync(
-  new URL("./document-workspace-review.tsx", import.meta.url),
-  "utf8",
-);
+const workspaceDialogs = readDocumentDialogsSource();
+const workspaceReview = readDocumentReviewSource();
 const hooks = readFileSync(new URL("../hooks/use-document-distribution.ts", import.meta.url), "utf8");
-const api = readFileSync(new URL("../api/document-distribution.api.ts", import.meta.url), "utf8");
+const api = readDocumentDistributionSource();
 const panel = readFileSync(new URL("../../passports/components/group-document-delivery-panel.tsx", import.meta.url), "utf8");
 import { passportGroupDetailSource as groupPage } from "../../passports/components/passport-group-detail-source.contract-helper.mjs";
 const endpoints = readFileSync(new URL("../../../lib/api/endpoints.ts", import.meta.url), "utf8");

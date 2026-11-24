@@ -1,0 +1,454 @@
+{
+  "scope": "Passport API ownership movement; original43 methods and7 helpers unchanged modulo export modifier and CRLF/LF. Original entry point/type exports preserved, method order is no business contract. No authorization or HTTP changes.",
+  "original_path": "frontend/features/passports/api/passports.api.ts",
+  "original_sha256": "f584da1814d38340a1da5b13935b8ad25201a5795718fd5774efbd71e29f37f7",
+  "method_count": 43,
+  "helper_count": 7,
+  "methods": [
+    {
+      "name": "listGroups",
+      "original_normalized_sha256": "eb1cf3eec95faa1776364c781eac491aa4b1bacb38c5c45bfdcf03a058a52744",
+      "owner": "frontend/features/passports/api/passport-records.api.ts",
+      "final_normalized_sha256": "eb1cf3eec95faa1776364c781eac491aa4b1bacb38c5c45bfdcf03a058a52744",
+      "unchanged": true,
+      "public_facade": "passportsApi.listGroups"
+    },
+    {
+      "name": "list",
+      "original_normalized_sha256": "fbeaeacc4e8b4959cc7d2b4ac25b6e84f48511a6db73a50d25e01893477fe6d1",
+      "owner": "frontend/features/passports/api/passport-records.api.ts",
+      "final_normalized_sha256": "fbeaeacc4e8b4959cc7d2b4ac25b6e84f48511a6db73a50d25e01893477fe6d1",
+      "unchanged": true,
+      "public_facade": "passportsApi.list"
+    },
+    {
+      "name": "listByGroup",
+      "original_normalized_sha256": "80d8d147ee313e01874450aa26a03682eefa604b038ea671fdcd74a27a0d8f8b",
+      "owner": "frontend/features/passports/api/passport-records.api.ts",
+      "final_normalized_sha256": "80d8d147ee313e01874450aa26a03682eefa604b038ea671fdcd74a27a0d8f8b",
+      "unchanged": true,
+      "public_facade": "passportsApi.listByGroup"
+    },
+    {
+      "name": "getById",
+      "original_normalized_sha256": "f4f33bc4920351443ade0f7f44067924c17ee8bf9dba3dc98fd2a115879bec06",
+      "owner": "frontend/features/passports/api/passport-records.api.ts",
+      "final_normalized_sha256": "f4f33bc4920351443ade0f7f44067924c17ee8bf9dba3dc98fd2a115879bec06",
+      "unchanged": true,
+      "public_facade": "passportsApi.getById"
+    },
+    {
+      "name": "confirm",
+      "original_normalized_sha256": "3d6da85cc856583cc17a517225e2debd26adc99bf7e06abb9d7b40b24404e8ff",
+      "owner": "frontend/features/passports/api/passport-records.api.ts",
+      "final_normalized_sha256": "3d6da85cc856583cc17a517225e2debd26adc99bf7e06abb9d7b40b24404e8ff",
+      "unchanged": true,
+      "public_facade": "passportsApi.confirm"
+    },
+    {
+      "name": "getImageCrop",
+      "original_normalized_sha256": "893491245ceff5fd4de5b4be76d2f3a475dde2f44378f0329cc7a5f10489d7ca",
+      "owner": "frontend/features/passports/api/passport-images.api.ts",
+      "final_normalized_sha256": "893491245ceff5fd4de5b4be76d2f3a475dde2f44378f0329cc7a5f10489d7ca",
+      "unchanged": true,
+      "public_facade": "passportsApi.getImageCrop"
+    },
+    {
+      "name": "getOriginalImage",
+      "original_normalized_sha256": "17d32c04cc4faef9d2a830f2f5ab2304fb548271b1d572c50b7c2b06edcd0252",
+      "owner": "frontend/features/passports/api/passport-images.api.ts",
+      "final_normalized_sha256": "17d32c04cc4faef9d2a830f2f5ab2304fb548271b1d572c50b7c2b06edcd0252",
+      "unchanged": true,
+      "public_facade": "passportsApi.getOriginalImage"
+    },
+    {
+      "name": "getEditableImage",
+      "original_normalized_sha256": "b34ea727ed1ef2aca5c57e625417316095d24bace86a57f447de427a984428a1",
+      "owner": "frontend/features/passports/api/passport-images.api.ts",
+      "final_normalized_sha256": "b34ea727ed1ef2aca5c57e625417316095d24bace86a57f447de427a984428a1",
+      "unchanged": true,
+      "public_facade": "passportsApi.getEditableImage"
+    },
+    {
+      "name": "listImageLibrary",
+      "original_normalized_sha256": "27f3579217432d4c4d8a15ce5615c67619fc131d8b9875f20809535877ef2779",
+      "owner": "frontend/features/passports/api/passport-images.api.ts",
+      "final_normalized_sha256": "27f3579217432d4c4d8a15ce5615c67619fc131d8b9875f20809535877ef2779",
+      "unchanged": true,
+      "public_facade": "passportsApi.listImageLibrary"
+    },
+    {
+      "name": "uploadImageLibraryImage",
+      "original_normalized_sha256": "a61183f875b715106f2a849d3fd4270cabdb0a08221538ebcf7447fb4a04a92b",
+      "owner": "frontend/features/passports/api/passport-images.api.ts",
+      "final_normalized_sha256": "a61183f875b715106f2a849d3fd4270cabdb0a08221538ebcf7447fb4a04a92b",
+      "unchanged": true,
+      "public_facade": "passportsApi.uploadImageLibraryImage"
+    },
+    {
+      "name": "useImageLibraryImage",
+      "original_normalized_sha256": "13d6afe544e1f4a585182e42b6dfe2d6bd0e3d722adea9eb1db45fe58ded2b7b",
+      "owner": "frontend/features/passports/api/passport-images.api.ts",
+      "final_normalized_sha256": "13d6afe544e1f4a585182e42b6dfe2d6bd0e3d722adea9eb1db45fe58ded2b7b",
+      "unchanged": true,
+      "public_facade": "passportsApi.useImageLibraryImage"
+    },
+    {
+      "name": "generateVisaAiPreview",
+      "original_normalized_sha256": "8e8fb929af204c4ebd819c8acf6a5cc2959130763bbd4591d04233dfbe1e6cef",
+      "owner": "frontend/features/passports/api/passport-visa-ai.api.ts",
+      "final_normalized_sha256": "8e8fb929af204c4ebd819c8acf6a5cc2959130763bbd4591d04233dfbe1e6cef",
+      "unchanged": true,
+      "public_facade": "passportsApi.generateVisaAiPreview"
+    },
+    {
+      "name": "applyVisaAiEdit",
+      "original_normalized_sha256": "aa2465f62333ecb76159fa1c8d4dd12a1266489d96a9480648cb36026cf69499",
+      "owner": "frontend/features/passports/api/passport-visa-ai.api.ts",
+      "final_normalized_sha256": "aa2465f62333ecb76159fa1c8d4dd12a1266489d96a9480648cb36026cf69499",
+      "unchanged": true,
+      "public_facade": "passportsApi.applyVisaAiEdit"
+    },
+    {
+      "name": "listVisaAiLibrary",
+      "original_normalized_sha256": "8fead20b17dab4cb69b546ca7c5a20022bc62b0fd6ffea4a30602f2a54bb2a09",
+      "owner": "frontend/features/passports/api/passport-visa-ai.api.ts",
+      "final_normalized_sha256": "8fead20b17dab4cb69b546ca7c5a20022bc62b0fd6ffea4a30602f2a54bb2a09",
+      "unchanged": true,
+      "public_facade": "passportsApi.listVisaAiLibrary"
+    },
+    {
+      "name": "generateVisaAiLibraryImage",
+      "original_normalized_sha256": "0d51bd8f226a73df14a21cf12a8f2751492d9079cf370e4eb28d5974ef2452d7",
+      "owner": "frontend/features/passports/api/passport-visa-ai.api.ts",
+      "final_normalized_sha256": "0d51bd8f226a73df14a21cf12a8f2751492d9079cf370e4eb28d5974ef2452d7",
+      "unchanged": true,
+      "public_facade": "passportsApi.generateVisaAiLibraryImage"
+    },
+    {
+      "name": "createVisaAiGenerationJob",
+      "original_normalized_sha256": "64207c4d5548fa6a57b8548edd0e1d1da85a3c13b0cae50b28c465a968377c97",
+      "owner": "frontend/features/passports/api/passport-visa-ai.api.ts",
+      "final_normalized_sha256": "64207c4d5548fa6a57b8548edd0e1d1da85a3c13b0cae50b28c465a968377c97",
+      "unchanged": true,
+      "public_facade": "passportsApi.createVisaAiGenerationJob"
+    },
+    {
+      "name": "getActiveVisaAiGenerationJob",
+      "original_normalized_sha256": "7218dc82eb7a81d04a6c16a01c3a44e330bf0667df690ba860f24bf5a5bf7e47",
+      "owner": "frontend/features/passports/api/passport-visa-ai.api.ts",
+      "final_normalized_sha256": "7218dc82eb7a81d04a6c16a01c3a44e330bf0667df690ba860f24bf5a5bf7e47",
+      "unchanged": true,
+      "public_facade": "passportsApi.getActiveVisaAiGenerationJob"
+    },
+    {
+      "name": "getVisaAiGenerationJob",
+      "original_normalized_sha256": "7fcdf70dd53c4eda7cbbb6db36d85afd2788062e97e7c76d16d0b04ca6628af4",
+      "owner": "frontend/features/passports/api/passport-visa-ai.api.ts",
+      "final_normalized_sha256": "7fcdf70dd53c4eda7cbbb6db36d85afd2788062e97e7c76d16d0b04ca6628af4",
+      "unchanged": true,
+      "public_facade": "passportsApi.getVisaAiGenerationJob"
+    },
+    {
+      "name": "useVisaAiLibraryImage",
+      "original_normalized_sha256": "237e6ee940bfd6c6b003caca49010591a7e1250dd139661893159ec110f43da8",
+      "owner": "frontend/features/passports/api/passport-visa-ai.api.ts",
+      "final_normalized_sha256": "237e6ee940bfd6c6b003caca49010591a7e1250dd139661893159ec110f43da8",
+      "unchanged": true,
+      "public_facade": "passportsApi.useVisaAiLibraryImage"
+    },
+    {
+      "name": "saveImageCrop",
+      "original_normalized_sha256": "6657ca5db957dbdc82e28f14c0403dbd6c0066b4b3adaefe577939329d385043",
+      "owner": "frontend/features/passports/api/passport-images.api.ts",
+      "final_normalized_sha256": "6657ca5db957dbdc82e28f14c0403dbd6c0066b4b3adaefe577939329d385043",
+      "unchanged": true,
+      "public_facade": "passportsApi.saveImageCrop"
+    },
+    {
+      "name": "resetImageCrop",
+      "original_normalized_sha256": "bc892b67c7a80a580916e5f3d12e23d9b82bec5311c91323209bd8656c3e0674",
+      "owner": "frontend/features/passports/api/passport-images.api.ts",
+      "final_normalized_sha256": "bc892b67c7a80a580916e5f3d12e23d9b82bec5311c91323209bd8656c3e0674",
+      "unchanged": true,
+      "public_facade": "passportsApi.resetImageCrop"
+    },
+    {
+      "name": "getGroupSubmissionsView",
+      "original_normalized_sha256": "41fffa01ee8c35a512ffd7b955e96e4218c910b0219402348755364bd0b4d66c",
+      "owner": "frontend/features/passports/api/passport-records.api.ts",
+      "final_normalized_sha256": "41fffa01ee8c35a512ffd7b955e96e4218c910b0219402348755364bd0b4d66c",
+      "unchanged": true,
+      "public_facade": "passportsApi.getGroupSubmissionsView"
+    },
+    {
+      "name": "staffApprove",
+      "original_normalized_sha256": "a949bef2867e2c9049dc3b6e1605a31ff12b958cbd2eb262ffd8af0e68467f65",
+      "owner": "frontend/features/passports/api/passport-records.api.ts",
+      "final_normalized_sha256": "a949bef2867e2c9049dc3b6e1605a31ff12b958cbd2eb262ffd8af0e68467f65",
+      "unchanged": true,
+      "public_facade": "passportsApi.staffApprove"
+    },
+    {
+      "name": "retryAiVerification",
+      "original_normalized_sha256": "d763ef77809126ef54b2caa4d5ee79875b7142406eff7ef6081ff203e04996f8",
+      "owner": "frontend/features/passports/api/passport-records.api.ts",
+      "final_normalized_sha256": "d763ef77809126ef54b2caa4d5ee79875b7142406eff7ef6081ff203e04996f8",
+      "unchanged": true,
+      "public_facade": "passportsApi.retryAiVerification"
+    },
+    {
+      "name": "reextract",
+      "original_normalized_sha256": "49069684c2b8b8aaf897dada9ae9634396cf0a70d557e7c808dce9a5d499291e",
+      "owner": "frontend/features/passports/api/passport-records.api.ts",
+      "final_normalized_sha256": "49069684c2b8b8aaf897dada9ae9634396cf0a70d557e7c808dce9a5d499291e",
+      "unchanged": true,
+      "public_facade": "passportsApi.reextract"
+    },
+    {
+      "name": "getGroupExportHistory",
+      "original_normalized_sha256": "8b5a06639c06ce9f0b36a22d84c3d6d0f66135881bfb559053ea950c7ebfd696",
+      "owner": "frontend/features/passports/api/passport-group-exports.api.ts",
+      "final_normalized_sha256": "8b5a06639c06ce9f0b36a22d84c3d6d0f66135881bfb559053ea950c7ebfd696",
+      "unchanged": true,
+      "public_facade": "passportsApi.getGroupExportHistory"
+    },
+    {
+      "name": "getGroupExportHistoryDetail",
+      "original_normalized_sha256": "62463b70019fdee04aacdb780848246a89d56f082bbf90e12908cb6a8231c7d9",
+      "owner": "frontend/features/passports/api/passport-group-exports.api.ts",
+      "final_normalized_sha256": "62463b70019fdee04aacdb780848246a89d56f082bbf90e12908cb6a8231c7d9",
+      "unchanged": true,
+      "public_facade": "passportsApi.getGroupExportHistoryDetail"
+    },
+    {
+      "name": "completeGroupExportHistory",
+      "original_normalized_sha256": "5c5c0a7eefd676051236f6c8dd5f74a57ab0537255773f29bf42d1a95e704a70",
+      "owner": "frontend/features/passports/api/passport-group-exports.api.ts",
+      "final_normalized_sha256": "5c5c0a7eefd676051236f6c8dd5f74a57ab0537255773f29bf42d1a95e704a70",
+      "unchanged": true,
+      "public_facade": "passportsApi.completeGroupExportHistory"
+    },
+    {
+      "name": "exportGroup",
+      "original_normalized_sha256": "169a7973909b49fc3fbe12bdd4c773d811f3160cfe5458ef1a4d66516d4f76a4",
+      "owner": "frontend/features/passports/api/passport-group-exports.api.ts",
+      "final_normalized_sha256": "169a7973909b49fc3fbe12bdd4c773d811f3160cfe5458ef1a4d66516d4f76a4",
+      "unchanged": true,
+      "public_facade": "passportsApi.exportGroup"
+    },
+    {
+      "name": "exportWhatsAppTracking",
+      "original_normalized_sha256": "67411d4880f241484f82dcb6b080811e42249de311824202743c2ecdc16e7e3c",
+      "owner": "frontend/features/passports/api/passport-group-exports.api.ts",
+      "final_normalized_sha256": "67411d4880f241484f82dcb6b080811e42249de311824202743c2ecdc16e7e3c",
+      "unchanged": true,
+      "public_facade": "passportsApi.exportWhatsAppTracking"
+    },
+    {
+      "name": "getGroupExportFields",
+      "original_normalized_sha256": "d4d831628bb9b66ef2db0458179a519b9729ddbd24f41dbc33c64c30c52fa288",
+      "owner": "frontend/features/passports/api/passport-group-exports.api.ts",
+      "final_normalized_sha256": "d4d831628bb9b66ef2db0458179a519b9729ddbd24f41dbc33c64c30c52fa288",
+      "unchanged": true,
+      "public_facade": "passportsApi.getGroupExportFields"
+    },
+    {
+      "name": "exportGroupImages",
+      "original_normalized_sha256": "6c14f5a53ba002cdc222ed586f49da825eaf58c752566e107856da66095b3d62",
+      "owner": "frontend/features/passports/api/passport-group-exports.api.ts",
+      "final_normalized_sha256": "6c14f5a53ba002cdc222ed586f49da825eaf58c752566e107856da66095b3d62",
+      "unchanged": true,
+      "public_facade": "passportsApi.exportGroupImages"
+    },
+    {
+      "name": "importGroup",
+      "original_normalized_sha256": "5852b442e57d7e492fd2bf8c6fb57994a53d0763705a3d50aa798e6cf4704e39",
+      "owner": "frontend/features/passports/api/passport-imports.api.ts",
+      "final_normalized_sha256": "5852b442e57d7e492fd2bf8c6fb57994a53d0763705a3d50aa798e6cf4704e39",
+      "unchanged": true,
+      "public_facade": "passportsApi.importGroup"
+    },
+    {
+      "name": "previewPassportDocuments",
+      "original_normalized_sha256": "c85c0f47169472dd5d34823d6b1bbcd3d9dd9daa56f815f428aa9731df896720",
+      "owner": "frontend/features/passports/api/passport-imports.api.ts",
+      "final_normalized_sha256": "c85c0f47169472dd5d34823d6b1bbcd3d9dd9daa56f815f428aa9731df896720",
+      "unchanged": true,
+      "public_facade": "passportsApi.previewPassportDocuments"
+    },
+    {
+      "name": "savePassportDocuments",
+      "original_normalized_sha256": "a78629f2c36a1c6f1ae1fb78ae3efca1505469a8a11aa06f918f416746562d87",
+      "owner": "frontend/features/passports/api/passport-imports.api.ts",
+      "final_normalized_sha256": "a78629f2c36a1c6f1ae1fb78ae3efca1505469a8a11aa06f918f416746562d87",
+      "unchanged": true,
+      "public_facade": "passportsApi.savePassportDocuments"
+    },
+    {
+      "name": "savePassportDocumentsInChunks",
+      "original_normalized_sha256": "835b69f9076f2284c9549708360981a32c500cf55dce2c4f371d1a831fc6ed0f",
+      "owner": "frontend/features/passports/api/passport-imports.api.ts",
+      "final_normalized_sha256": "835b69f9076f2284c9549708360981a32c500cf55dce2c4f371d1a831fc6ed0f",
+      "unchanged": true,
+      "public_facade": "passportsApi.savePassportDocumentsInChunks"
+    },
+    {
+      "name": "exportSelectedPassports",
+      "original_normalized_sha256": "433f3243f7aab1b48cdc976bf2e73b6e25834663ac1dc270a7392b9ef17b040f",
+      "owner": "frontend/features/passports/api/passport-selection-exports.api.ts",
+      "final_normalized_sha256": "433f3243f7aab1b48cdc976bf2e73b6e25834663ac1dc270a7392b9ef17b040f",
+      "unchanged": true,
+      "public_facade": "passportsApi.exportSelectedPassports"
+    },
+    {
+      "name": "exportSelectedGroupImages",
+      "original_normalized_sha256": "95195ecc237919257beec386d108585d3177a10ba49926e649f7cc253916928c",
+      "owner": "frontend/features/passports/api/passport-selection-exports.api.ts",
+      "final_normalized_sha256": "95195ecc237919257beec386d108585d3177a10ba49926e649f7cc253916928c",
+      "unchanged": true,
+      "public_facade": "passportsApi.exportSelectedGroupImages"
+    },
+    {
+      "name": "bulkDocumentFollowUp",
+      "original_normalized_sha256": "11fba6bc9584d0f4027be9a1b1dad303182c8a7b66d9197fb7645e4f0e5e8ec9",
+      "owner": "frontend/features/passports/api/passport-records.api.ts",
+      "final_normalized_sha256": "11fba6bc9584d0f4027be9a1b1dad303182c8a7b66d9197fb7645e4f0e5e8ec9",
+      "unchanged": true,
+      "public_facade": "passportsApi.bulkDocumentFollowUp"
+    },
+    {
+      "name": "bulkDelete",
+      "original_normalized_sha256": "f51cbe7a65dd3240828dafdfd14d57a1d8d533063634987bff2c9616f805e042",
+      "owner": "frontend/features/passports/api/passport-records.api.ts",
+      "final_normalized_sha256": "f51cbe7a65dd3240828dafdfd14d57a1d8d533063634987bff2c9616f805e042",
+      "unchanged": true,
+      "public_facade": "passportsApi.bulkDelete"
+    },
+    {
+      "name": "bulkStaffApprove",
+      "original_normalized_sha256": "e6c5ea6a830136b2a8a80f60000963d940a21e296f5f2d73d40457abb64761d9",
+      "owner": "frontend/features/passports/api/passport-records.api.ts",
+      "final_normalized_sha256": "e6c5ea6a830136b2a8a80f60000963d940a21e296f5f2d73d40457abb64761d9",
+      "unchanged": true,
+      "public_facade": "passportsApi.bulkStaffApprove"
+    },
+    {
+      "name": "getSelectedGroupsExportFields",
+      "original_normalized_sha256": "2a998a760ca01f68276bb0139416520cab35d75fd6831ad75c696cd260ebba1b",
+      "owner": "frontend/features/passports/api/passport-selection-exports.api.ts",
+      "final_normalized_sha256": "2a998a760ca01f68276bb0139416520cab35d75fd6831ad75c696cd260ebba1b",
+      "unchanged": true,
+      "public_facade": "passportsApi.getSelectedGroupsExportFields"
+    },
+    {
+      "name": "exportSelectedGroups",
+      "original_normalized_sha256": "add996d4d334e39d14d5fe55edafdb8f81c527b4a880b4603f591b3e855ef617",
+      "owner": "frontend/features/passports/api/passport-selection-exports.api.ts",
+      "final_normalized_sha256": "add996d4d334e39d14d5fe55edafdb8f81c527b4a880b4603f591b3e855ef617",
+      "unchanged": true,
+      "public_facade": "passportsApi.exportSelectedGroups"
+    }
+  ],
+  "functions": [
+    {
+      "name": "wait",
+      "original_normalized_sha256": "32fe81d1c7d67d70776f5a4e353e2175f35da2d0d16b55033795a98bfec7675f",
+      "owner": "frontend/features/passports/api/passport-records.api.ts",
+      "final_normalized_sha256": "32fe81d1c7d67d70776f5a4e353e2175f35da2d0d16b55033795a98bfec7675f",
+      "unchanged": true
+    },
+    {
+      "name": "chunkFilesForUpload",
+      "original_normalized_sha256": "4ea3c26b973b165bd121fe3f45e8ad7ffe6dd251806e8dd27e59868232381b0a",
+      "owner": "frontend/features/passports/api/passport-imports.api.ts",
+      "final_normalized_sha256": "4ea3c26b973b165bd121fe3f45e8ad7ffe6dd251806e8dd27e59868232381b0a",
+      "unchanged": true
+    },
+    {
+      "name": "completePreparedGroupExport",
+      "original_normalized_sha256": "4eff044fd5118556815161c512363034493b15987dd59cec3a46e45c16cfee4a",
+      "owner": "frontend/features/passports/api/passport-export-download.ts",
+      "final_normalized_sha256": "4eff044fd5118556815161c512363034493b15987dd59cec3a46e45c16cfee4a",
+      "unchanged": true
+    },
+    {
+      "name": "confirmStartedGroupExport",
+      "original_normalized_sha256": "24c938d0f8267cba95f5b41b95c83b68dbc4eeb8cb0bc4ece75aab6a32a76bb5",
+      "owner": "frontend/features/passports/api/passport-export-download.ts",
+      "final_normalized_sha256": "24c938d0f8267cba95f5b41b95c83b68dbc4eeb8cb0bc4ece75aab6a32a76bb5",
+      "unchanged": true
+    },
+    {
+      "name": "savePassportDocumentChunk",
+      "original_normalized_sha256": "10d2a61ab332809b90a13f6bd0c9b97c0524d6736ef746163adfcbd3c642bc0a",
+      "owner": "frontend/features/passports/api/passport-imports.api.ts",
+      "final_normalized_sha256": "10d2a61ab332809b90a13f6bd0c9b97c0524d6736ef746163adfcbd3c642bc0a",
+      "unchanged": true
+    },
+    {
+      "name": "requireExportHistoryId",
+      "original_normalized_sha256": "dcfe48b954bb8fdf15858dfb6df30ec2c87110f3aa99e35d4e2b2ca1f836a533",
+      "owner": "frontend/features/passports/api/passport-export-download.ts",
+      "final_normalized_sha256": "dcfe48b954bb8fdf15858dfb6df30ec2c87110f3aa99e35d4e2b2ca1f836a533",
+      "unchanged": true
+    },
+    {
+      "name": "passportImageDownloadFilename",
+      "original_normalized_sha256": "d779104c6c52f1e847f27cadecd09ab92e1dbc9a4014dc7c8020dbaf9607bd95",
+      "owner": "frontend/features/passports/api/passport-export-download.ts",
+      "final_normalized_sha256": "d779104c6c52f1e847f27cadecd09ab92e1dbc9a4014dc7c8020dbaf9607bd95",
+      "unchanged": true
+    }
+  ],
+  "source_files": [
+    {
+      "path": "frontend/features/passports/api/passports.api.ts",
+      "sha256": "4823f01ed23ccf13ae7a788e0870a85a93dfba32274de0ead2c68cfec7c82429"
+    },
+    {
+      "path": "frontend/features/passports/api/passport-records.api.ts",
+      "sha256": "976bd9d42cd455d2bdb97fe245f481a6f42a46918bddd66b89dfd47dffb03262"
+    },
+    {
+      "path": "frontend/features/passports/api/passport-images.api.ts",
+      "sha256": "1a340b447dcbdfb4b2e7b3a25570c6e8beb0173cbd6a97e454608b32646d9c3d"
+    },
+    {
+      "path": "frontend/features/passports/api/passport-visa-ai.api.ts",
+      "sha256": "4aabe5f89d6f57310645d2f400631b5964a6e2035fdd6975bdda85020616e9c2"
+    },
+    {
+      "path": "frontend/features/passports/api/passport-group-exports.api.ts",
+      "sha256": "b76293292523d942c23a505bba7d14db0bd793bd774067a53517428976ad09fe"
+    },
+    {
+      "path": "frontend/features/passports/api/passport-imports.api.ts",
+      "sha256": "829562dd0ad993c745e326c95607b67b54f2b84be8708b8b0ddc04d026b1cfb6"
+    },
+    {
+      "path": "frontend/features/passports/api/passport-selection-exports.api.ts",
+      "sha256": "f5dbfe3c2ca02b1a1e460f40d257fefb5fb8f8b812c0eecfc8176076cfe5f52a"
+    },
+    {
+      "path": "frontend/features/passports/api/passport-records.types.ts",
+      "sha256": "dc612b6a00f3489c8579db9a715eee7f75e628617664fab334fc3762f16bd544"
+    },
+    {
+      "path": "frontend/features/passports/api/passport-imports.types.ts",
+      "sha256": "7b972ef280a38fb4adecfdc65af6ee4de3dac6360dded2443893ad618eb9236a"
+    },
+    {
+      "path": "frontend/features/passports/api/passport-exports.types.ts",
+      "sha256": "0883441d66fa411e0b27a1067914dcaa54a04e1dda657f38d5596bb694611f77"
+    },
+    {
+      "path": "frontend/features/passports/api/passport-images.types.ts",
+      "sha256": "ea0b9e21602afe2f78040488af5c8d23226f172e45e8ab80d9f09681bac57ad1"
+    },
+    {
+      "path": "frontend/features/passports/api/passport-export-download.ts",
+      "sha256": "dc8e342a9833ff763747d0db73f70a63b9a608b66d2e3b25609dcd86a10faf02"
+    }
+  ]
+}

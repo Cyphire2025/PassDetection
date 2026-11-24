@@ -1,0 +1,20 @@
+{
+  "path": "docker-compose.audit.yml",
+  "current_raw": "1213ea13750c871a1f1e298c598dc3d7437c61f8bbeba4a53d5f22c403ce8d31",
+  "current_lf": "b356f5c9044d77cab626d4cba704c9f6b8d17ae290b8d7d563e402b8e105c38c",
+  "actual_git_baselines": {
+    "98f4fb4f7ba982fc46f917d24db63d59993a74a8": {
+      "exit_code": 0,
+      "raw_sha256": "eb2a6bb2f7aa0fc02a787c0d868002b80be9084bbcb2fc92becc5a902eda4057",
+      "lf_sha256": "eb2a6bb2f7aa0fc02a787c0d868002b80be9084bbcb2fc92becc5a902eda4057"
+    },
+    "875d17b25da2687b5673148fabe9d10346ae0e4a": {
+      "exit_code": 0,
+      "raw_sha256": "eb2a6bb2f7aa0fc02a787c0d868002b80be9084bbcb2fc92becc5a902eda4057",
+      "lf_sha256": "eb2a6bb2f7aa0fc02a787c0d868002b80be9084bbcb2fc92becc5a902eda4057"
+    }
+  },
+  "actual_baseline_whole_LF_inverse_exact": true,
+  "only_actual_baseline_change": "Replace obsolete expected0093 override with packaged-schema comment; all services, IDs, synthetic credentials, dependencies, commands and volumes exact",
+  "local_original_raw_eol_note": "Brand local b6b30 raw differs from actualGit LF digest only through CRLF; actual baseline-to-current completeLF inverse independently exact"
+}

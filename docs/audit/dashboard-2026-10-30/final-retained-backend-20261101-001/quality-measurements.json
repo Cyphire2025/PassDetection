@@ -1,0 +1,6302 @@
+[
+  {
+    "path": "app/application/attendance_closeout_read_contracts.py",
+    "lines": 48,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/application/attendance_read_contracts.py",
+    "lines": 73,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/application/companies/current_record.py",
+    "lines": 181,
+    "max_function_complexity": 16,
+    "most_complex_function": "edit_current_record",
+    "coverage_percent": 93.94
+  },
+  {
+    "path": "app/application/companies/data_exports.py",
+    "lines": 92,
+    "max_function_complexity": 6,
+    "most_complex_function": "request_export",
+    "coverage_percent": 96.49
+  },
+  {
+    "path": "app/application/companies/document_publication.py",
+    "lines": 94,
+    "max_function_complexity": 15,
+    "most_complex_function": "publish_document_upload",
+    "coverage_percent": 89.8
+  },
+  {
+    "path": "app/application/companies/document_upload.py",
+    "lines": 119,
+    "max_function_complexity": 26,
+    "most_complex_function": "prepare_document_upload",
+    "coverage_percent": 80.52
+  },
+  {
+    "path": "app/application/companies/export_source.py",
+    "lines": 147,
+    "max_function_complexity": 16,
+    "most_complex_function": "people_export_page",
+    "coverage_percent": 98.85000000000001
+  },
+  {
+    "path": "app/application/companies/original_record.py",
+    "lines": 64,
+    "max_function_complexity": 19,
+    "most_complex_function": "latest_original_records",
+    "coverage_percent": 92.11
+  },
+  {
+    "path": "app/application/companies/people.py",
+    "lines": 168,
+    "max_function_complexity": 7,
+    "most_complex_function": "current_person",
+    "coverage_percent": 94.74000000000001
+  },
+  {
+    "path": "app/application/companies/people_contracts.py",
+    "lines": 139,
+    "max_function_complexity": 4,
+    "most_complex_function": "bounded_fields",
+    "coverage_percent": 96.23
+  },
+  {
+    "path": "app/application/companies/removal.py",
+    "lines": 76,
+    "max_function_complexity": 10,
+    "most_complex_function": "detach_company_groups",
+    "coverage_percent": 87.5
+  },
+  {
+    "path": "app/application/companies/source_chronology.py",
+    "lines": 18,
+    "max_function_complexity": 4,
+    "most_complex_function": "source_page_cursor",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/application/companies/source_documents.py",
+    "lines": 50,
+    "max_function_complexity": 4,
+    "most_complex_function": "source_document_key",
+    "coverage_percent": 96.15
+  },
+  {
+    "path": "app/application/companies/trip_phase.py",
+    "lines": 18,
+    "max_function_complexity": 1,
+    "most_complex_function": "completed_company_trip",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/application/mobile/authored_notification_access.py",
+    "lines": 29,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/application/mobile/authored_notification_audience.py",
+    "lines": 286,
+    "max_function_complexity": 11,
+    "most_complex_function": "_passenger_grants",
+    "coverage_percent": 97.3
+  },
+  {
+    "path": "app/application/mobile/authored_notification_drafts.py",
+    "lines": 162,
+    "max_function_complexity": 6,
+    "most_complex_function": "save_notification_draft",
+    "coverage_percent": 98.28
+  },
+  {
+    "path": "app/application/mobile/authored_notification_grants.py",
+    "lines": 134,
+    "max_function_complexity": 16,
+    "most_complex_function": "retain_authorized_authored_notifications",
+    "coverage_percent": 93.47999999999999
+  },
+  {
+    "path": "app/application/mobile/authored_notification_preview.py",
+    "lines": 86,
+    "max_function_complexity": 7,
+    "most_complex_function": "read_preview_token",
+    "coverage_percent": 94.44
+  },
+  {
+    "path": "app/application/mobile/authored_notification_registrations.py",
+    "lines": 158,
+    "max_function_complexity": 17,
+    "most_complex_function": "registrations_for_grants",
+    "coverage_percent": 93.88
+  },
+  {
+    "path": "app/application/mobile/authored_notification_reviews.py",
+    "lines": 89,
+    "max_function_complexity": 8,
+    "most_complex_function": "preview_notification",
+    "coverage_percent": 96.67
+  },
+  {
+    "path": "app/application/mobile/authored_notification_send.py",
+    "lines": 205,
+    "max_function_complexity": 16,
+    "most_complex_function": "send_notification",
+    "coverage_percent": 90.14
+  },
+  {
+    "path": "app/application/mobile/authored_notification_service.py",
+    "lines": 18,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/application/mobile/authored_notification_targets.py",
+    "lines": 158,
+    "max_function_complexity": 14,
+    "most_complex_function": "load_authored_recipient_registrations",
+    "coverage_percent": 97.61999999999999
+  },
+  {
+    "path": "app/application/mobile/notification_announcements.py",
+    "lines": 279,
+    "max_function_complexity": 17,
+    "most_complex_function": "enqueue_announcement_notifications",
+    "coverage_percent": 98.25
+  },
+  {
+    "path": "app/application/mobile/notification_authority.py",
+    "lines": 85,
+    "max_function_complexity": 12,
+    "most_complex_function": "_retain_currently_authorized_notifications",
+    "coverage_percent": 93.75
+  },
+  {
+    "path": "app/application/mobile/notification_contracts.py",
+    "lines": 75,
+    "max_function_complexity": 1,
+    "most_complex_function": "total",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/application/mobile/notification_countdown_recipients.py",
+    "lines": 195,
+    "max_function_complexity": 6,
+    "most_complex_function": "_enqueue_countdown_pages",
+    "coverage_percent": 94.0
+  },
+  {
+    "path": "app/application/mobile/notification_countdown_schedule.py",
+    "lines": 223,
+    "max_function_complexity": 21,
+    "most_complex_function": "_cancel_stale_countdowns",
+    "coverage_percent": 92.22
+  },
+  {
+    "path": "app/application/mobile/notification_countdown_values.py",
+    "lines": 60,
+    "max_function_complexity": 3,
+    "most_complex_function": "_countdown_notification_values",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/application/mobile/notification_delivery_states.py",
+    "lines": 144,
+    "max_function_complexity": 22,
+    "most_complex_function": "_refresh_notification_delivery_states",
+    "coverage_percent": 96.1
+  },
+  {
+    "path": "app/application/mobile/notification_dispatch.py",
+    "lines": 141,
+    "max_function_complexity": 21,
+    "most_complex_function": "dispatch_mobile_push_batch",
+    "coverage_percent": 92.97999999999999
+  },
+  {
+    "path": "app/application/mobile/notification_dispatch_claims.py",
+    "lines": 83,
+    "max_function_complexity": 1,
+    "most_complex_function": "claim_due_push_notifications",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/application/mobile/notification_dispatch_results.py",
+    "lines": 107,
+    "max_function_complexity": 18,
+    "most_complex_function": "apply_push_tickets",
+    "coverage_percent": 78.95
+  },
+  {
+    "path": "app/application/mobile/notification_dispatch_targets.py",
+    "lines": 212,
+    "max_function_complexity": 35,
+    "most_complex_function": "prepare_push_targets",
+    "coverage_percent": 80.67999999999999
+  },
+  {
+    "path": "app/application/mobile/notification_document_changes.py",
+    "lines": 272,
+    "max_function_complexity": 12,
+    "most_complex_function": "enqueue_personal_document_change_notifications",
+    "coverage_percent": 95.24000000000001
+  },
+  {
+    "path": "app/application/mobile/notification_group_authority.py",
+    "lines": 174,
+    "max_function_complexity": 15,
+    "most_complex_function": "currently_authorized_group_recipients",
+    "coverage_percent": 97.3
+  },
+  {
+    "path": "app/application/mobile/notification_receipts.py",
+    "lines": 169,
+    "max_function_complexity": 33,
+    "most_complex_function": "reconcile_mobile_push_receipts",
+    "coverage_percent": 95.35
+  },
+  {
+    "path": "app/application/mobile/notification_registrations.py",
+    "lines": 135,
+    "max_function_complexity": 17,
+    "most_complex_function": "_load_recipient_registrations",
+    "coverage_percent": 95.12
+  },
+  {
+    "path": "app/application/mobile/notification_service.py",
+    "lines": 113,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/application/mobile/passenger_change_contracts.py",
+    "lines": 54,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/application/mobile/passenger_change_events.py",
+    "lines": 130,
+    "max_function_complexity": 14,
+    "most_complex_function": "plan_mobile_passenger_change_events",
+    "coverage_percent": 96.55
+  },
+  {
+    "path": "app/application/mobile/passenger_change_identities.py",
+    "lines": 85,
+    "max_function_complexity": 10,
+    "most_complex_function": "prepare_passenger_change_identities",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/application/mobile/passenger_change_journal.py",
+    "lines": 115,
+    "max_function_complexity": 12,
+    "most_complex_function": "append_passenger_change_events",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/application/mobile/passenger_change_propagation.py",
+    "lines": 299,
+    "max_function_complexity": 10,
+    "most_complex_function": "propagate_mobile_passenger_change",
+    "coverage_percent": 95.28999999999999
+  },
+  {
+    "path": "app/application/travellers/accepted_source.py",
+    "lines": 89,
+    "max_function_complexity": 19,
+    "most_complex_function": "validated_mrz_fields",
+    "coverage_percent": 98.48
+  },
+  {
+    "path": "app/application/travellers/broadcast_history_schedule.py",
+    "lines": 96,
+    "max_function_complexity": 15,
+    "most_complex_function": "prepare_broadcast_history_refresh",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/application/travellers/company_history_jobs.py",
+    "lines": 173,
+    "max_function_complexity": 15,
+    "most_complex_function": "process_company_history_page",
+    "coverage_percent": 98.95
+  },
+  {
+    "path": "app/application/travellers/completion.py",
+    "lines": 263,
+    "max_function_complexity": 32,
+    "most_complex_function": "complete_reuse",
+    "coverage_percent": 94.32000000000001
+  },
+  {
+    "path": "app/application/travellers/completion_answers.py",
+    "lines": 62,
+    "max_function_complexity": 6,
+    "most_complex_function": "normalize_reuse_answers",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/application/travellers/completion_review.py",
+    "lines": 66,
+    "max_function_complexity": 8,
+    "most_complex_function": "review_reuse_completion",
+    "coverage_percent": 96.3
+  },
+  {
+    "path": "app/application/travellers/completion_source.py",
+    "lines": 76,
+    "max_function_complexity": 17,
+    "most_complex_function": "locked_reuse_source",
+    "coverage_percent": 96.77
+  },
+  {
+    "path": "app/application/travellers/document_selection.py",
+    "lines": 96,
+    "max_function_complexity": 9,
+    "most_complex_function": "require_frozen_selection_proof",
+    "coverage_percent": 97.44
+  },
+  {
+    "path": "app/application/travellers/historical_identity.py",
+    "lines": 113,
+    "max_function_complexity": 18,
+    "most_complex_function": "refresh_registered_identity",
+    "coverage_percent": 93.44
+  },
+  {
+    "path": "app/application/travellers/historical_registration.py",
+    "lines": 236,
+    "max_function_complexity": 21,
+    "most_complex_function": "register_historical_source",
+    "coverage_percent": 95.61
+  },
+  {
+    "path": "app/application/travellers/history_schedule.py",
+    "lines": 74,
+    "max_function_complexity": 7,
+    "most_complex_function": "schedule_submission_history",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/application/travellers/identity_candidates.py",
+    "lines": 40,
+    "max_function_complexity": 2,
+    "most_complex_function": "identity_candidate_ids",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/application/travellers/identity_index.py",
+    "lines": 130,
+    "max_function_complexity": 14,
+    "most_complex_function": "find_exact_identity",
+    "coverage_percent": 93.51
+  },
+  {
+    "path": "app/application/travellers/incremental_history.py",
+    "lines": 190,
+    "max_function_complexity": 21,
+    "most_complex_function": "_validate_generation",
+    "coverage_percent": 96.69
+  },
+  {
+    "path": "app/application/travellers/legacy_source_acceptance.py",
+    "lines": 76,
+    "max_function_complexity": 16,
+    "most_complex_function": "_verified_field",
+    "coverage_percent": 97.96000000000001
+  },
+  {
+    "path": "app/application/travellers/legacy_staff_acceptance.py",
+    "lines": 81,
+    "max_function_complexity": 22,
+    "most_complex_function": "accepted_staff_fields",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/application/travellers/operational_autoassignment.py",
+    "lines": 194,
+    "max_function_complexity": 34,
+    "most_complex_function": "assign_operational_traveller",
+    "coverage_percent": 90.91
+  },
+  {
+    "path": "app/application/travellers/owned_extraction.py",
+    "lines": 34,
+    "max_function_complexity": 10,
+    "most_complex_function": "owned_extraction_candidate",
+    "coverage_percent": 95.0
+  },
+  {
+    "path": "app/application/travellers/passport_lookup.py",
+    "lines": 86,
+    "max_function_complexity": 6,
+    "most_complex_function": "passport_lookup_fingerprints",
+    "coverage_percent": 97.67
+  },
+  {
+    "path": "app/application/travellers/retained_authority.py",
+    "lines": 97,
+    "max_function_complexity": 12,
+    "most_complex_function": "has_retained_authority",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/application/travellers/source_acceptance_provenance.py",
+    "lines": 63,
+    "max_function_complexity": 14,
+    "most_complex_function": "source_is_current",
+    "coverage_percent": 95.35
+  },
+  {
+    "path": "app/application/travellers/submission_snapshot.py",
+    "lines": 36,
+    "max_function_complexity": 7,
+    "most_complex_function": "new_reuse_submission",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/application/travellers/versioning.py",
+    "lines": 57,
+    "max_function_complexity": 12,
+    "most_complex_function": "promote_default",
+    "coverage_percent": 93.75
+  },
+  {
+    "path": "app/application/use_cases/attendance_dashboard.py",
+    "lines": 250,
+    "max_function_complexity": 14,
+    "most_complex_function": "summary",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/application/use_cases/attendance_dashboard_projection.py",
+    "lines": 121,
+    "max_function_complexity": 15,
+    "most_complex_function": "_coordinator_summary",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/application/use_cases/attendance_dashboard_revision.py",
+    "lines": 62,
+    "max_function_complexity": 4,
+    "most_complex_function": "_find_activity",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/application/use_cases/attendance_dashboard_types.py",
+    "lines": 80,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/application/use_cases/passports/client_submission_replay.py",
+    "lines": 52,
+    "max_function_complexity": 19,
+    "most_complex_function": "_is_exact_replay",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/application/use_cases/passports/client_submission_values.py",
+    "lines": 117,
+    "max_function_complexity": 12,
+    "most_complex_function": "_normalize_departure_city",
+    "coverage_percent": 94.03
+  },
+  {
+    "path": "app/application/use_cases/passports/client_submit_passport_use_case.py",
+    "lines": 521,
+    "max_function_complexity": 87,
+    "most_complex_function": "execute",
+    "coverage_percent": 88.7
+  },
+  {
+    "path": "app/application/use_cases/passports/passport_upload_plan.py",
+    "lines": 79,
+    "max_function_complexity": 5,
+    "most_complex_function": "prepare_passport_uploads",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/application/use_cases/passports/passport_upload_selection.py",
+    "lines": 68,
+    "max_function_complexity": 11,
+    "most_complex_function": "require_qualifier_selection",
+    "coverage_percent": 96.0
+  },
+  {
+    "path": "app/application/use_cases/passports/passport_upload_submission.py",
+    "lines": 47,
+    "max_function_complexity": 8,
+    "most_complex_function": "prepare_passport_submission",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/application/use_cases/passports/submission_view.py",
+    "lines": 178,
+    "max_function_complexity": 21,
+    "most_complex_function": "prepare_submission_view",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/application/use_cases/passports/submission_view_clustering.py",
+    "lines": 119,
+    "max_function_complexity": 31,
+    "most_complex_function": "_build_blocks",
+    "coverage_percent": 95.83
+  },
+  {
+    "path": "app/application/use_cases/passports/submission_view_expiry.py",
+    "lines": 57,
+    "max_function_complexity": 8,
+    "most_complex_function": "_expiry_alerts",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/application/use_cases/passports/submission_view_fields.py",
+    "lines": 120,
+    "max_function_complexity": 19,
+    "most_complex_function": "_verification_confidence",
+    "coverage_percent": 81.94
+  },
+  {
+    "path": "app/application/use_cases/passports/submission_view_ordering.py",
+    "lines": 110,
+    "max_function_complexity": 6,
+    "most_complex_function": "_matches_normalized_search",
+    "coverage_percent": 95.74000000000001
+  },
+  {
+    "path": "app/application/use_cases/passports/submission_view_pagination.py",
+    "lines": 57,
+    "max_function_complexity": 7,
+    "most_complex_function": "_paginate_blocks",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/application/use_cases/passports/submission_view_types.py",
+    "lines": 93,
+    "max_function_complexity": 3,
+    "most_complex_function": "page",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/application/use_cases/passports/submit_passport_use_case.py",
+    "lines": 369,
+    "max_function_complexity": 35,
+    "most_complex_function": "execute",
+    "coverage_percent": 91.41
+  },
+  {
+    "path": "app/application/use_cases/whatsapp/group_match_coordinator.py",
+    "lines": 188,
+    "max_function_complexity": 47,
+    "most_complex_function": "compare_group_submissions",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/application/use_cases/whatsapp/group_match_evidence.py",
+    "lines": 295,
+    "max_function_complexity": 16,
+    "most_complex_function": "_pair_evidence",
+    "coverage_percent": 97.67
+  },
+  {
+    "path": "app/application/use_cases/whatsapp/group_match_fields.py",
+    "lines": 161,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/application/use_cases/whatsapp/group_match_normalization.py",
+    "lines": 172,
+    "max_function_complexity": 9,
+    "most_complex_function": "_selected_field_normalizer",
+    "coverage_percent": 91.35
+  },
+  {
+    "path": "app/application/use_cases/whatsapp/group_match_profiles.py",
+    "lines": 297,
+    "max_function_complexity": 27,
+    "most_complex_function": "_recipient_profile",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/application/use_cases/whatsapp/group_match_rows.py",
+    "lines": 231,
+    "max_function_complexity": 20,
+    "most_complex_function": "_recipient_row",
+    "coverage_percent": 93.47999999999999
+  },
+  {
+    "path": "app/application/use_cases/whatsapp/group_match_types.py",
+    "lines": 155,
+    "max_function_complexity": 3,
+    "most_complex_function": "all_values",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/application/use_cases/whatsapp/group_submission_matching.py",
+    "lines": 201,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/application/use_cases/whatsapp/spreadsheet_values.py",
+    "lines": 61,
+    "max_function_complexity": 9,
+    "most_complex_function": "validate_excel_archive",
+    "coverage_percent": 83.87
+  },
+  {
+    "path": "app/core/config/ai_settings_fields.py",
+    "lines": 97,
+    "max_function_complexity": 4,
+    "most_complex_function": "validate_gemini_image_model",
+    "coverage_percent": 96.23
+  },
+  {
+    "path": "app/core/config/database_settings.py",
+    "lines": 111,
+    "max_function_complexity": 7,
+    "most_complex_function": "validate_connection_reserve",
+    "coverage_percent": 96.67
+  },
+  {
+    "path": "app/core/config/email_settings_fields.py",
+    "lines": 119,
+    "max_function_complexity": 9,
+    "most_complex_function": "validate_email_provider_oauth_redirect_uri",
+    "coverage_percent": 84.06
+  },
+  {
+    "path": "app/core/config/identity_settings_fields.py",
+    "lines": 100,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/core/config/ingestion_settings_fields.py",
+    "lines": 59,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/core/config/jwt_settings.py",
+    "lines": 28,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/core/config/my_photos_aws_policy.py",
+    "lines": 209,
+    "max_function_complexity": 18,
+    "most_complex_function": "_validate_storage_origins",
+    "coverage_percent": 77.66999999999999
+  },
+  {
+    "path": "app/core/config/my_photos_settings.py",
+    "lines": 242,
+    "max_function_complexity": 10,
+    "most_complex_function": "validate_thresholds_and_pages",
+    "coverage_percent": 91.14999999999999
+  },
+  {
+    "path": "app/core/config/redis_settings.py",
+    "lines": 188,
+    "max_function_complexity": 8,
+    "most_complex_function": "validate_domain_isolation",
+    "coverage_percent": 92.86
+  },
+  {
+    "path": "app/core/config/request_settings_fields.py",
+    "lines": 93,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/core/config/runtime_settings_fields.py",
+    "lines": 88,
+    "max_function_complexity": 9,
+    "most_complex_function": "parse_cors_origins",
+    "coverage_percent": 92.0
+  },
+  {
+    "path": "app/core/config/s3_settings.py",
+    "lines": 24,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/core/config/settings.py",
+    "lines": 212,
+    "max_function_complexity": 6,
+    "most_complex_function": "validate_frontend_return_url",
+    "coverage_percent": 96.46000000000001
+  },
+  {
+    "path": "app/core/config/settings_deployment_policy.py",
+    "lines": 83,
+    "max_function_complexity": 7,
+    "most_complex_function": "validate_mcp_deployment",
+    "coverage_percent": 80.0
+  },
+  {
+    "path": "app/core/config/settings_identity_policy.py",
+    "lines": 76,
+    "max_function_complexity": 12,
+    "most_complex_function": "validate_identity_security_configuration",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/core/config/settings_mobile_policy.py",
+    "lines": 139,
+    "max_function_complexity": 15,
+    "most_complex_function": "validate_mobile_app_integrity_configuration",
+    "coverage_percent": 95.71
+  },
+  {
+    "path": "app/core/config/whatsapp_settings_fields.py",
+    "lines": 79,
+    "max_function_complexity": 7,
+    "most_complex_function": "validate_whatsapp_phone_number_id",
+    "coverage_percent": 93.22
+  },
+  {
+    "path": "app/core/logging/celery_diagnostics.py",
+    "lines": 120,
+    "max_function_complexity": 11,
+    "most_complex_function": "filter",
+    "coverage_percent": 93.33
+  },
+  {
+    "path": "app/core/logging/exception_diagnostics.py",
+    "lines": 28,
+    "max_function_complexity": 3,
+    "most_complex_function": "diagnostic_name",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/core/logging/logger.py",
+    "lines": 149,
+    "max_function_complexity": 5,
+    "most_complex_function": "configure_logging",
+    "coverage_percent": 95.0
+  },
+  {
+    "path": "app/core/logging/server_diagnostics.py",
+    "lines": 64,
+    "max_function_complexity": 10,
+    "most_complex_function": "filter",
+    "coverage_percent": 97.3
+  },
+  {
+    "path": "app/core/logging/task_diagnostics.py",
+    "lines": 78,
+    "max_function_complexity": 9,
+    "most_complex_function": "task_failure_diagnostic",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/core/native_image_admission.py",
+    "lines": 194,
+    "max_function_complexity": 13,
+    "most_complex_function": "native_image_slot",
+    "coverage_percent": 91.73
+  },
+  {
+    "path": "app/core/storage_write_budget.py",
+    "lines": 17,
+    "max_function_complexity": 2,
+    "most_complex_function": "s3_write_envelope_seconds",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/core/zip_directory_admission.py",
+    "lines": 65,
+    "max_function_complexity": 13,
+    "most_complex_function": "check_zip_directory",
+    "coverage_percent": 95.65
+  },
+  {
+    "path": "app/domain/entities/client_group.py",
+    "lines": 121,
+    "max_function_complexity": 11,
+    "most_complex_function": "create",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/domain/entities/client_group_configuration.py",
+    "lines": 119,
+    "max_function_complexity": 11,
+    "most_complex_function": "update_configuration",
+    "coverage_percent": 96.15
+  },
+  {
+    "path": "app/domain/entities/client_group_lifecycle.py",
+    "lines": 75,
+    "max_function_complexity": 5,
+    "most_complex_function": "schedule_passport_purge",
+    "coverage_percent": 95.45
+  },
+  {
+    "path": "app/domain/entities/client_group_state.py",
+    "lines": 75,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/domain/entities/entities.py",
+    "lines": 37,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/domain/entities/enums.py",
+    "lines": 109,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/domain/entities/factories.py",
+    "lines": 14,
+    "max_function_complexity": 1,
+    "most_complex_function": "_utcnow",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/domain/entities/identity.py",
+    "lines": 112,
+    "max_function_complexity": 3,
+    "most_complex_function": "can_manage_agency",
+    "coverage_percent": 92.58999999999999
+  },
+  {
+    "path": "app/domain/entities/passport_client_review.py",
+    "lines": 125,
+    "max_function_complexity": 31,
+    "most_complex_function": "submit_client_review",
+    "coverage_percent": 94.92
+  },
+  {
+    "path": "app/domain/entities/passport_extraction.py",
+    "lines": 246,
+    "max_function_complexity": 15,
+    "most_complex_function": "mark_review_required",
+    "coverage_percent": 96.63000000000001
+  },
+  {
+    "path": "app/domain/entities/passport_staff_review.py",
+    "lines": 217,
+    "max_function_complexity": 11,
+    "most_complex_function": "staff_approve_verification",
+    "coverage_percent": 94.57
+  },
+  {
+    "path": "app/domain/entities/passport_state.py",
+    "lines": 102,
+    "max_function_complexity": 1,
+    "most_complex_function": "manual_review_submission_allowed",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/domain/entities/passport_submission.py",
+    "lines": 144,
+    "max_function_complexity": 6,
+    "most_complex_function": "create",
+    "coverage_percent": 94.23
+  },
+  {
+    "path": "app/domain/entities/qualifier_selection.py",
+    "lines": 63,
+    "max_function_complexity": 2,
+    "most_complex_function": "create",
+    "coverage_percent": 96.15
+  },
+  {
+    "path": "app/domain/repositories/client_groups.py",
+    "lines": 73,
+    "max_function_complexity": 1,
+    "most_complex_function": "require_active_company",
+    "coverage_percent": 87.5
+  },
+  {
+    "path": "app/domain/repositories/identity.py",
+    "lines": 51,
+    "max_function_complexity": 1,
+    "most_complex_function": "get_by_id",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/domain/repositories/interfaces.py",
+    "lines": 23,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/domain/repositories/object_storage.py",
+    "lines": 29,
+    "max_function_complexity": 1,
+    "most_complex_function": "upload_file",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/domain/repositories/passport_submissions.py",
+    "lines": 196,
+    "max_function_complexity": 1,
+    "most_complex_function": "get_by_id",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/domain/services/identity_decisions.py",
+    "lines": 44,
+    "max_function_complexity": 21,
+    "most_complex_function": "compare_identity",
+    "coverage_percent": 96.77
+  },
+  {
+    "path": "app/domain/services/traveller_identity.py",
+    "lines": 127,
+    "max_function_complexity": 15,
+    "most_complex_function": "_raw_identity_fields",
+    "coverage_percent": 98.78
+  },
+  {
+    "path": "app/domain/services/traveller_names.py",
+    "lines": 18,
+    "max_function_complexity": 9,
+    "most_complex_function": "passport_holder_name",
+    "coverage_percent": 90.0
+  },
+  {
+    "path": "app/domain/value_objects/group_trip_settings.py",
+    "lines": 63,
+    "max_function_complexity": 12,
+    "most_complex_function": "normalize_group_trip_settings",
+    "coverage_percent": 90.32
+  },
+  {
+    "path": "app/infrastructure/ai/bounded_vision_http.py",
+    "lines": 68,
+    "max_function_complexity": 9,
+    "most_complex_function": "post_bounded_vision_response",
+    "coverage_percent": 96.0
+  },
+  {
+    "path": "app/infrastructure/ai/gemini_ecr_service.py",
+    "lines": 420,
+    "max_function_complexity": 29,
+    "most_complex_function": "_parse_classification",
+    "coverage_percent": 93.58999999999999
+  },
+  {
+    "path": "app/infrastructure/ai/gemini_email_analysis_service.py",
+    "lines": 320,
+    "max_function_complexity": 15,
+    "most_complex_function": "analyze",
+    "coverage_percent": 0.0
+  },
+  {
+    "path": "app/infrastructure/ai/gemini_email_codec.py",
+    "lines": 79,
+    "max_function_complexity": 16,
+    "most_complex_function": "parse_email_analysis_response",
+    "coverage_percent": 0.0
+  },
+  {
+    "path": "app/infrastructure/ai/gemini_email_facts.py",
+    "lines": 78,
+    "max_function_complexity": 14,
+    "most_complex_function": "_canonical_factual_anchor",
+    "coverage_percent": 0.0
+  },
+  {
+    "path": "app/infrastructure/ai/gemini_email_grounding.py",
+    "lines": 142,
+    "max_function_complexity": 7,
+    "most_complex_function": "reject_unsupported_display_facts",
+    "coverage_percent": 0.0
+  },
+  {
+    "path": "app/infrastructure/ai/gemini_email_patterns.py",
+    "lines": 110,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 0.0
+  },
+  {
+    "path": "app/infrastructure/ai/gemini_email_payload.py",
+    "lines": 113,
+    "max_function_complexity": 7,
+    "most_complex_function": "build_email_analysis_payload",
+    "coverage_percent": 0.0
+  },
+  {
+    "path": "app/infrastructure/ai/gemini_email_result.py",
+    "lines": 164,
+    "max_function_complexity": 14,
+    "most_complex_function": "_requires_review",
+    "coverage_percent": 0.0
+  },
+  {
+    "path": "app/infrastructure/ai/gemini_email_schema.py",
+    "lines": 158,
+    "max_function_complexity": 9,
+    "most_complex_function": "_response_schema",
+    "coverage_percent": 0.0
+  },
+  {
+    "path": "app/infrastructure/ai/gemini_email_text.py",
+    "lines": 115,
+    "max_function_complexity": 8,
+    "most_complex_function": "_trusted_fact_corpus",
+    "coverage_percent": 0.0
+  },
+  {
+    "path": "app/infrastructure/ai/gemini_passport_verification_service.py",
+    "lines": 390,
+    "max_function_complexity": 14,
+    "most_complex_function": "verify",
+    "coverage_percent": 94.69999999999999
+  },
+  {
+    "path": "app/infrastructure/ai/gemini_post_submission_verification_service.py",
+    "lines": 459,
+    "max_function_complexity": 35,
+    "most_complex_function": "verify",
+    "coverage_percent": 86.5
+  },
+  {
+    "path": "app/infrastructure/ai/gemini_visa_image_edit_service.py",
+    "lines": 511,
+    "max_function_complexity": 12,
+    "most_complex_function": "edit",
+    "coverage_percent": 86.44
+  },
+  {
+    "path": "app/infrastructure/ai/passport_extraction_codec.py",
+    "lines": 256,
+    "max_function_complexity": 28,
+    "most_complex_function": "_extract_provider_json",
+    "coverage_percent": 85.98
+  },
+  {
+    "path": "app/infrastructure/ai/passport_extraction_fields.py",
+    "lines": 207,
+    "max_function_complexity": 54,
+    "most_complex_function": "_merge",
+    "coverage_percent": 91.3
+  },
+  {
+    "path": "app/infrastructure/ai/passport_extraction_transport.py",
+    "lines": 284,
+    "max_function_complexity": 21,
+    "most_complex_function": "_request_with_retries",
+    "coverage_percent": 87.85
+  },
+  {
+    "path": "app/infrastructure/ai/post_submission_decision_policy.py",
+    "lines": 84,
+    "max_function_complexity": 12,
+    "most_complex_function": "decide",
+    "coverage_percent": 94.59
+  },
+  {
+    "path": "app/infrastructure/ai/post_submission_document_policy.py",
+    "lines": 124,
+    "max_function_complexity": 15,
+    "most_complex_function": "_review_reason_code",
+    "coverage_percent": 98.08
+  },
+  {
+    "path": "app/infrastructure/ai/post_submission_field_policy.py",
+    "lines": 213,
+    "max_function_complexity": 46,
+    "most_complex_function": "evaluate",
+    "coverage_percent": 88.79
+  },
+  {
+    "path": "app/infrastructure/ai/post_submission_provider_codec.py",
+    "lines": 131,
+    "max_function_complexity": 19,
+    "most_complex_function": "_extract_provider_json",
+    "coverage_percent": 81.36
+  },
+  {
+    "path": "app/infrastructure/ai/post_submission_result_formatter.py",
+    "lines": 68,
+    "max_function_complexity": 10,
+    "most_complex_function": "format",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/ai_priority/admission_context.py",
+    "lines": 34,
+    "max_function_complexity": 1,
+    "most_complex_function": "queue_extraction",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/ai_priority/config.py",
+    "lines": 80,
+    "max_function_complexity": 4,
+    "most_complex_function": "__post_init__",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/ai_priority/coordinator.py",
+    "lines": 240,
+    "max_function_complexity": 5,
+    "most_complex_function": "_decision",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/ai_priority/extraction_admission.py",
+    "lines": 197,
+    "max_function_complexity": 3,
+    "most_complex_function": "reserve_public_extraction",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/ai_priority/factory.py",
+    "lines": 36,
+    "max_function_complexity": 1,
+    "most_complex_function": "get_ai_priority_coordinator",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/ai_priority/metrics.py",
+    "lines": 241,
+    "max_function_complexity": 4,
+    "most_complex_function": "record_provider_event",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/ai_priority/metrics_contract.py",
+    "lines": 52,
+    "max_function_complexity": 1,
+    "most_complex_function": "increment",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/ai_priority/metrics_memory.py",
+    "lines": 144,
+    "max_function_complexity": 4,
+    "most_complex_function": "mark_started",
+    "coverage_percent": 97.47
+  },
+  {
+    "path": "app/infrastructure/ai_priority/metrics_policy.py",
+    "lines": 192,
+    "max_function_complexity": 9,
+    "most_complex_function": "_optional_float",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/ai_priority/metrics_redis.py",
+    "lines": 209,
+    "max_function_complexity": 12,
+    "most_complex_function": "snapshot",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/ai_priority/metrics_resilient.py",
+    "lines": 171,
+    "max_function_complexity": 4,
+    "most_complex_function": "snapshot",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/ai_priority/metrics_scripts.py",
+    "lines": 90,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/ai_priority/provider_metrics.py",
+    "lines": 28,
+    "max_function_complexity": 1,
+    "most_complex_function": "record_provider_event",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/ai_priority/runtime.py",
+    "lines": 71,
+    "max_function_complexity": 3,
+    "most_complex_function": "_stop_and_release",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/ai_priority/verification_admission.py",
+    "lines": 109,
+    "max_function_complexity": 3,
+    "most_complex_function": "try_start_verification",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/audit/s3_checkpoint_sink.py",
+    "lines": 229,
+    "max_function_complexity": 13,
+    "most_complex_function": "_read",
+    "coverage_percent": 92.91
+  },
+  {
+    "path": "app/infrastructure/bounded_uvicorn_worker.py",
+    "lines": 29,
+    "max_function_complexity": 1,
+    "most_complex_function": "__init__",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_communications_models/__init__.py",
+    "lines": 7,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_communications_models/broadcast.py",
+    "lines": 160,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_communications_models/delivery.py",
+    "lines": 157,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_communications_models/source.py",
+    "lines": 237,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_communications_models/welcome.py",
+    "lines": 98,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_core_models/__init__.py",
+    "lines": 8,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_core_models/access.py",
+    "lines": 125,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_core_models/audit.py",
+    "lines": 142,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_core_models/broadcast_links.py",
+    "lines": 81,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_core_models/exports.py",
+    "lines": 135,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_core_models/groups.py",
+    "lines": 225,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_core_models/identity.py",
+    "lines": 150,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_core_models/images.py",
+    "lines": 261,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_core_models/notifications.py",
+    "lines": 73,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_core_models/passport.py",
+    "lines": 326,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_core_models/platform.py",
+    "lines": 25,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_core_models/roster.py",
+    "lines": 141,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_core_models/upload_workflow.py",
+    "lines": 154,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_core_models/verification_jobs.py",
+    "lines": 80,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_document_models/__init__.py",
+    "lines": 7,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_document_models/cleanup.py",
+    "lines": 97,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_document_models/delivery.py",
+    "lines": 110,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_document_models/distribution.py",
+    "lines": 113,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_document_models/rename.py",
+    "lines": 80,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_document_models/upload_chunk.py",
+    "lines": 115,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_document_models/upload_scan.py",
+    "lines": 106,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_email_ai_models/__init__.py",
+    "lines": 7,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_email_ai_models/analyses.py",
+    "lines": 149,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_email_ai_models/deadlines.py",
+    "lines": 111,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_email_ai_models/drafts.py",
+    "lines": 103,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_email_ai_models/feedback.py",
+    "lines": 90,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_email_ai_models/proposals.py",
+    "lines": 128,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_email_ai_models/rollout.py",
+    "lines": 119,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_email_models/__init__.py",
+    "lines": 7,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_email_models/activity.py",
+    "lines": 233,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_email_models/artifacts.py",
+    "lines": 286,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_email_models/connections.py",
+    "lines": 262,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_email_models/documents.py",
+    "lines": 105,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_email_models/messages.py",
+    "lines": 222,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_email_models/oauth.py",
+    "lines": 147,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_email_models/reviews.py",
+    "lines": 268,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_gc_models/__init__.py",
+    "lines": 7,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_gc_models/announcements.py",
+    "lines": 160,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_gc_models/attestation.py",
+    "lines": 131,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_gc_models/common_documents.py",
+    "lines": 164,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_gc_models/document_cache.py",
+    "lines": 126,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_gc_models/family_delegations.py",
+    "lines": 133,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_gc_models/group_access.py",
+    "lines": 260,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_gc_models/idempotency_receipts.py",
+    "lines": 99,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_gc_models/incidents.py",
+    "lines": 125,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_gc_models/itineraries.py",
+    "lines": 304,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_gc_models/notifications.py",
+    "lines": 186,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_gc_models/organizations.py",
+    "lines": 235,
+    "max_function_complexity": 1,
+    "most_complex_function": "logo_url",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_gc_models/otp_challenges.py",
+    "lines": 133,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_gc_models/passenger_identities.py",
+    "lines": 170,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_gc_models/push_transport.py",
+    "lines": 227,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_gc_models/refresh_tokens.py",
+    "lines": 112,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_gc_models/sessions.py",
+    "lines": 256,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/_gc_models/sync_changes.py",
+    "lines": 120,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/attendance_activity_models.py",
+    "lines": 205,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/attendance_batch_models.py",
+    "lines": 171,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/attendance_closeout_models.py",
+    "lines": 243,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/attendance_runtime_models.py",
+    "lines": 211,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/communications_models.py",
+    "lines": 92,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/document_models.py",
+    "lines": 49,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/email_ai_models.py",
+    "lines": 45,
+    "max_function_complexity": 1,
+    "most_complex_function": "_utcnow",
+    "coverage_percent": 96.55
+  },
+  {
+    "path": "app/infrastructure/database/email_models.py",
+    "lines": 86,
+    "max_function_complexity": 4,
+    "most_complex_function": "_reject_email_owner_change",
+    "coverage_percent": 78.0
+  },
+  {
+    "path": "app/infrastructure/database/gc_mobile_models.py",
+    "lines": 110,
+    "max_function_complexity": 1,
+    "most_complex_function": "_utcnow",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/models.py",
+    "lines": 198,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/my_photo_delivery_models.py",
+    "lines": 181,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/my_photo_enrollment_models.py",
+    "lines": 292,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/my_photo_face_models.py",
+    "lines": 122,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/my_photo_gallery_models.py",
+    "lines": 336,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/my_photo_job_models.py",
+    "lines": 190,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/my_photo_liveness_models.py",
+    "lines": 153,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/my_photo_media_models.py",
+    "lines": 266,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/my_photo_search_models.py",
+    "lines": 308,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/my_photos_models.py",
+    "lines": 54,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/operations_models.py",
+    "lines": 54,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/passenger_qr_models.py",
+    "lines": 184,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/rooming_allocation_models.py",
+    "lines": 139,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/database/rooming_property_models.py",
+    "lines": 154,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/documents/cleanup_tasks.py",
+    "lines": 67,
+    "max_function_complexity": 2,
+    "most_complex_function": "cleanup_document_storage",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/documents/document_batch_classification.py",
+    "lines": 215,
+    "max_function_complexity": 27,
+    "most_complex_function": "_classify_unique_documents",
+    "coverage_percent": 93.51
+  },
+  {
+    "path": "app/infrastructure/documents/document_content_matching.py",
+    "lines": 117,
+    "max_function_complexity": 9,
+    "most_complex_function": "collect_secondary_content_evidence",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/documents/document_filename_matching.py",
+    "lines": 73,
+    "max_function_complexity": 14,
+    "most_complex_function": "match_filename_evidence",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/documents/document_identity_aliases.py",
+    "lines": 210,
+    "max_function_complexity": 16,
+    "most_complex_function": "_normalized_passenger_names",
+    "coverage_percent": 96.39999999999999
+  },
+  {
+    "path": "app/infrastructure/documents/document_identity_limits.py",
+    "lines": 13,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/documents/document_match_resolution.py",
+    "lines": 354,
+    "max_function_complexity": 25,
+    "most_complex_function": "_resolve_name_windows",
+    "coverage_percent": 95.89999999999999
+  },
+  {
+    "path": "app/infrastructure/documents/document_match_results.py",
+    "lines": 117,
+    "max_function_complexity": 17,
+    "most_complex_function": "resolve_content_evidence",
+    "coverage_percent": 97.96000000000001
+  },
+  {
+    "path": "app/infrastructure/documents/document_matcher.py",
+    "lines": 473,
+    "max_function_complexity": 11,
+    "most_complex_function": "match_all",
+    "coverage_percent": 92.64
+  },
+  {
+    "path": "app/infrastructure/documents/document_matcher_models.py",
+    "lines": 82,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/documents/document_passenger_index.py",
+    "lines": 167,
+    "max_function_complexity": 47,
+    "most_complex_function": "build_index",
+    "coverage_percent": 95.35
+  },
+  {
+    "path": "app/infrastructure/documents/document_text_fields.py",
+    "lines": 261,
+    "max_function_complexity": 13,
+    "most_complex_function": "_nearby_label_candidates",
+    "coverage_percent": 90.07
+  },
+  {
+    "path": "app/infrastructure/documents/document_text_normalization.py",
+    "lines": 49,
+    "max_function_complexity": 8,
+    "most_complex_function": "_normalize_identifier",
+    "coverage_percent": 85.28999999999999
+  },
+  {
+    "path": "app/infrastructure/documents/document_type_detection.py",
+    "lines": 241,
+    "max_function_complexity": 25,
+    "most_complex_function": "_detect_type",
+    "coverage_percent": 91.95
+  },
+  {
+    "path": "app/infrastructure/documents/orphan_reconciliation.py",
+    "lines": 226,
+    "max_function_complexity": 13,
+    "most_complex_function": "_reconcile_fixed_storage_namespaces",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/documents/passport_orphan_reconciliation.py",
+    "lines": 110,
+    "max_function_complexity": 8,
+    "most_complex_function": "_referenced_keys",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/documents/storage_cleanup.py",
+    "lines": 67,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/documents/storage_cleanup_cipher.py",
+    "lines": 118,
+    "max_function_complexity": 7,
+    "most_complex_function": "__init__",
+    "coverage_percent": 90.41
+  },
+  {
+    "path": "app/infrastructure/documents/storage_cleanup_execution.py",
+    "lines": 169,
+    "max_function_complexity": 8,
+    "most_complex_function": "_execute_storage_cleanup_claim",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/documents/storage_cleanup_leases.py",
+    "lines": 171,
+    "max_function_complexity": 6,
+    "most_complex_function": "_defer_storage_cleanup_job",
+    "coverage_percent": 98.21
+  },
+  {
+    "path": "app/infrastructure/documents/storage_cleanup_policy.py",
+    "lines": 115,
+    "max_function_complexity": 10,
+    "most_complex_function": "_validated_storage_keys",
+    "coverage_percent": 87.5
+  },
+  {
+    "path": "app/infrastructure/documents/storage_cleanup_staging.py",
+    "lines": 164,
+    "max_function_complexity": 8,
+    "most_complex_function": "stage_storage_cleanup_jobs",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/documents/storage_cleanup_types.py",
+    "lines": 55,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/documents/verification_receipt_cipher.py",
+    "lines": 96,
+    "max_function_complexity": 11,
+    "most_complex_function": "decrypt",
+    "coverage_percent": 96.0
+  },
+  {
+    "path": "app/infrastructure/documents/verification_receipt_models.py",
+    "lines": 94,
+    "max_function_complexity": 1,
+    "most_complex_function": "__init__",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/documents/verification_receipt_payload.py",
+    "lines": 162,
+    "max_function_complexity": 17,
+    "most_complex_function": "_receipt_from_payload",
+    "coverage_percent": 80.0
+  },
+  {
+    "path": "app/infrastructure/documents/verification_receipt_scope.py",
+    "lines": 153,
+    "max_function_complexity": 21,
+    "most_complex_function": "decode_verification_receipts",
+    "coverage_percent": 95.30999999999999
+  },
+  {
+    "path": "app/infrastructure/documents/verification_staging.py",
+    "lines": 247,
+    "max_function_complexity": 18,
+    "most_complex_function": "stage_verified_documents",
+    "coverage_percent": 94.57
+  },
+  {
+    "path": "app/infrastructure/email/account_removal.py",
+    "lines": 66,
+    "max_function_complexity": 1,
+    "most_complex_function": "purge_email_connection_records",
+    "coverage_percent": 83.33
+  },
+  {
+    "path": "app/infrastructure/email/account_removal_plan.py",
+    "lines": 170,
+    "max_function_complexity": 12,
+    "most_complex_function": "_collect_email_account_removal_plan",
+    "coverage_percent": 49.09
+  },
+  {
+    "path": "app/infrastructure/email/account_removal_records.py",
+    "lines": 182,
+    "max_function_complexity": 12,
+    "most_complex_function": "_delete_email_account_records",
+    "coverage_percent": 15.379999999999999
+  },
+  {
+    "path": "app/infrastructure/email/account_removal_storage.py",
+    "lines": 43,
+    "max_function_complexity": 4,
+    "most_complex_function": "_unreferenced_email_storage_keys",
+    "coverage_percent": 42.86
+  },
+  {
+    "path": "app/infrastructure/email/ai_claim.py",
+    "lines": 33,
+    "max_function_complexity": 1,
+    "most_complex_function": "task_kwargs",
+    "coverage_percent": 0.0
+  },
+  {
+    "path": "app/infrastructure/email/ai_claim_lifecycle.py",
+    "lines": 172,
+    "max_function_complexity": 5,
+    "most_complex_function": "release_email_ai_claim_after_error",
+    "coverage_percent": 0.0
+  },
+  {
+    "path": "app/infrastructure/email/ai_claim_query.py",
+    "lines": 181,
+    "max_function_complexity": 1,
+    "most_complex_function": "build_claim_query",
+    "coverage_percent": 0.0
+  },
+  {
+    "path": "app/infrastructure/email/ai_claim_repository.py",
+    "lines": 77,
+    "max_function_complexity": 2,
+    "most_complex_function": "_load_valid_claim",
+    "coverage_percent": 0.0
+  },
+  {
+    "path": "app/infrastructure/email/ai_dispatch.py",
+    "lines": 113,
+    "max_function_complexity": 6,
+    "most_complex_function": "seed_and_claim_work",
+    "coverage_percent": 0.0
+  },
+  {
+    "path": "app/infrastructure/email/ai_link_policy.py",
+    "lines": 169,
+    "max_function_complexity": 27,
+    "most_complex_function": "_canonical_link_ids",
+    "coverage_percent": 0.0
+  },
+  {
+    "path": "app/infrastructure/email/ai_notifications.py",
+    "lines": 143,
+    "max_function_complexity": 26,
+    "most_complex_function": "_create_attention_notification",
+    "coverage_percent": 0.0
+  },
+  {
+    "path": "app/infrastructure/email/ai_persistence.py",
+    "lines": 167,
+    "max_function_complexity": 11,
+    "most_complex_function": "_persist_analysis_result",
+    "coverage_percent": 0.0
+  },
+  {
+    "path": "app/infrastructure/email/ai_result_records.py",
+    "lines": 168,
+    "max_function_complexity": 7,
+    "most_complex_function": "stage_proposals",
+    "coverage_percent": 0.0
+  },
+  {
+    "path": "app/infrastructure/email/ai_runtime.py",
+    "lines": 356,
+    "max_function_complexity": 11,
+    "most_complex_function": "run_email_ai_claim",
+    "coverage_percent": 0.0
+  },
+  {
+    "path": "app/infrastructure/email/ai_runtime_dependencies.py",
+    "lines": 74,
+    "max_function_complexity": 1,
+    "most_complex_function": "__call__",
+    "coverage_percent": 0.0
+  },
+  {
+    "path": "app/infrastructure/email/ai_seed_query.py",
+    "lines": 161,
+    "max_function_complexity": 1,
+    "most_complex_function": "build_seed_query",
+    "coverage_percent": 0.0
+  },
+  {
+    "path": "app/infrastructure/email/ai_values.py",
+    "lines": 72,
+    "max_function_complexity": 10,
+    "most_complex_function": "_safe_reply_address",
+    "coverage_percent": 0.0
+  },
+  {
+    "path": "app/infrastructure/email/deadline_notification_coverage.py",
+    "lines": 89,
+    "max_function_complexity": 11,
+    "most_complex_function": "_stage_schedule_is_covered",
+    "coverage_percent": 0.0
+  },
+  {
+    "path": "app/infrastructure/email/deadline_notification_emit.py",
+    "lines": 216,
+    "max_function_complexity": 26,
+    "most_complex_function": "create_deadline_window_notifications",
+    "coverage_percent": 0.0
+  },
+  {
+    "path": "app/infrastructure/email/deadline_notification_initial.py",
+    "lines": 144,
+    "max_function_complexity": 18,
+    "most_complex_function": "mark_initial_deadline_window_coverage",
+    "coverage_percent": 0.0
+  },
+  {
+    "path": "app/infrastructure/email/deadline_notification_policy.py",
+    "lines": 163,
+    "max_function_complexity": 7,
+    "most_complex_function": "_notification_stage_message",
+    "coverage_percent": 0.0
+  },
+  {
+    "path": "app/infrastructure/email/deadline_notification_visibility.py",
+    "lines": 55,
+    "max_function_complexity": 10,
+    "most_complex_function": "_visible_linked_group_name",
+    "coverage_percent": 0.0
+  },
+  {
+    "path": "app/infrastructure/email/deadline_notifications.py",
+    "lines": 201,
+    "max_function_complexity": 4,
+    "most_complex_function": "scan_email_ai_deadline_notifications",
+    "coverage_percent": 0.0
+  },
+  {
+    "path": "app/infrastructure/email/review_decisions.py",
+    "lines": 158,
+    "max_function_complexity": 4,
+    "most_complex_function": "mark_message_unrelated",
+    "coverage_percent": 25.71
+  },
+  {
+    "path": "app/infrastructure/email/storage_reconciliation.py",
+    "lines": 113,
+    "max_function_complexity": 9,
+    "most_complex_function": "_reconcile_orphaned_email_storage",
+    "coverage_percent": 0.0
+  },
+  {
+    "path": "app/infrastructure/email/sync_service.py",
+    "lines": 307,
+    "max_function_complexity": 24,
+    "most_complex_function": "run_connection_sync",
+    "coverage_percent": 33.879999999999995
+  },
+  {
+    "path": "app/infrastructure/email/task_dispatch.py",
+    "lines": 93,
+    "max_function_complexity": 3,
+    "most_complex_function": "_claim_due_dispatches",
+    "coverage_percent": 0.0
+  },
+  {
+    "path": "app/infrastructure/email/task_retention.py",
+    "lines": 206,
+    "max_function_complexity": 11,
+    "most_complex_function": "_apply_email_retention",
+    "coverage_percent": 0.0
+  },
+  {
+    "path": "app/infrastructure/email/tasks.py",
+    "lines": 217,
+    "max_function_complexity": 12,
+    "most_complex_function": "sync_email_connection",
+    "coverage_percent": 0.0
+  },
+  {
+    "path": "app/infrastructure/export/passport_excel_columns.py",
+    "lines": 216,
+    "max_function_complexity": 21,
+    "most_complex_function": "_custom_fields",
+    "coverage_percent": 98.7
+  },
+  {
+    "path": "app/infrastructure/export/passport_excel_exporter.py",
+    "lines": 231,
+    "max_function_complexity": 18,
+    "most_complex_function": "export_group",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/export/passport_excel_plan.py",
+    "lines": 100,
+    "max_function_complexity": 23,
+    "most_complex_function": "build_passport_column_plan",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/export/passport_excel_rows.py",
+    "lines": 275,
+    "max_function_complexity": 27,
+    "most_complex_function": "_submission_values",
+    "coverage_percent": 98.92
+  },
+  {
+    "path": "app/infrastructure/export/passport_excel_values.py",
+    "lines": 120,
+    "max_function_complexity": 6,
+    "most_complex_function": "passport_age_group",
+    "coverage_percent": 98.65
+  },
+  {
+    "path": "app/infrastructure/export/passport_excel_workbook.py",
+    "lines": 74,
+    "max_function_complexity": 10,
+    "most_complex_function": "finalize_passport_workbook",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/imports/passport_document_images.py",
+    "lines": 66,
+    "max_function_complexity": 6,
+    "most_complex_function": "validate_passport_document_image",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/imports/passport_document_importer.py",
+    "lines": 246,
+    "max_function_complexity": 14,
+    "most_complex_function": "collect",
+    "coverage_percent": 95.15
+  },
+  {
+    "path": "app/infrastructure/imports/passport_document_streams.py",
+    "lines": 46,
+    "max_function_complexity": 7,
+    "most_complex_function": "_read_forward_stream_exact",
+    "coverage_percent": 96.3
+  },
+  {
+    "path": "app/infrastructure/imports/passport_document_workspace.py",
+    "lines": 131,
+    "max_function_complexity": 6,
+    "most_complex_function": "close",
+    "coverage_percent": 93.75
+  },
+  {
+    "path": "app/infrastructure/imports/passport_excel_catalog.py",
+    "lines": 228,
+    "max_function_complexity": 7,
+    "most_complex_function": "_build_header_alias_index",
+    "coverage_percent": 94.44
+  },
+  {
+    "path": "app/infrastructure/imports/passport_excel_formula.py",
+    "lines": 46,
+    "max_function_complexity": 4,
+    "most_complex_function": "worksheet_contains_formula",
+    "coverage_percent": 88.46000000000001
+  },
+  {
+    "path": "app/infrastructure/imports/passport_excel_importer.py",
+    "lines": 115,
+    "max_function_complexity": 13,
+    "most_complex_function": "import_rows",
+    "coverage_percent": 95.52000000000001
+  },
+  {
+    "path": "app/infrastructure/imports/passport_excel_limits.py",
+    "lines": 158,
+    "max_function_complexity": 13,
+    "most_complex_function": "_validate_archive",
+    "coverage_percent": 89.39
+  },
+  {
+    "path": "app/infrastructure/imports/passport_excel_records.py",
+    "lines": 52,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/imports/passport_excel_rows.py",
+    "lines": 264,
+    "max_function_complexity": 13,
+    "most_complex_function": "_confirmed_fields",
+    "coverage_percent": 94.53
+  },
+  {
+    "path": "app/infrastructure/imports/passport_excel_worksheets.py",
+    "lines": 256,
+    "max_function_complexity": 25,
+    "most_complex_function": "_collect_worksheet",
+    "coverage_percent": 90.8
+  },
+  {
+    "path": "app/infrastructure/imports/passport_zip_admission.py",
+    "lines": 53,
+    "max_function_complexity": 2,
+    "most_complex_function": "_check_directory",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/imports/passport_zip_members.py",
+    "lines": 66,
+    "max_function_complexity": 16,
+    "most_complex_function": "admit_passport_zip_member",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/imports/passport_zip_reader.py",
+    "lines": 101,
+    "max_function_complexity": 10,
+    "most_complex_function": "collect_passport_zip",
+    "coverage_percent": 97.56
+  },
+  {
+    "path": "app/infrastructure/mobile_realtime.py",
+    "lines": 223,
+    "max_function_complexity": 6,
+    "most_complex_function": "start",
+    "coverage_percent": 97.67
+  },
+  {
+    "path": "app/infrastructure/mobile_realtime_capacity.py",
+    "lines": 174,
+    "max_function_complexity": 6,
+    "most_complex_function": "_acquire_lease",
+    "coverage_percent": 91.23
+  },
+  {
+    "path": "app/infrastructure/mobile_realtime_connection.py",
+    "lines": 73,
+    "max_function_complexity": 5,
+    "most_complex_function": "offer",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/mobile_realtime_contracts.py",
+    "lines": 101,
+    "max_function_complexity": 1,
+    "most_complex_function": "subscribe",
+    "coverage_percent": 94.44
+  },
+  {
+    "path": "app/infrastructure/mobile_realtime_lease_store.py",
+    "lines": 100,
+    "max_function_complexity": 9,
+    "most_complex_function": "_renew_leases",
+    "coverage_percent": 95.56
+  },
+  {
+    "path": "app/infrastructure/mobile_realtime_registry.py",
+    "lines": 229,
+    "max_function_complexity": 7,
+    "most_complex_function": "fanout",
+    "coverage_percent": 95.54
+  },
+  {
+    "path": "app/infrastructure/mobile_realtime_resources.py",
+    "lines": 37,
+    "max_function_complexity": 4,
+    "most_complex_function": "_complete_cleanup",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/mobile_realtime_transport.py",
+    "lines": 269,
+    "max_function_complexity": 10,
+    "most_complex_function": "_subscriber_loop",
+    "coverage_percent": 90.23
+  },
+  {
+    "path": "app/infrastructure/mobile_realtime_wire.py",
+    "lines": 122,
+    "max_function_complexity": 14,
+    "most_complex_function": "_parse_redis_hint",
+    "coverage_percent": 83.87
+  },
+  {
+    "path": "app/infrastructure/my_photos/aws_client_runtime.py",
+    "lines": 88,
+    "max_function_complexity": 5,
+    "most_complex_function": "_required_text",
+    "coverage_percent": 76.74
+  },
+  {
+    "path": "app/infrastructure/my_photos/aws_face_results.py",
+    "lines": 167,
+    "max_function_complexity": 14,
+    "most_complex_function": "_indexed_occurrence",
+    "coverage_percent": 67.57
+  },
+  {
+    "path": "app/infrastructure/my_photos/aws_face_search.py",
+    "lines": 380,
+    "max_function_complexity": 18,
+    "most_complex_function": "delete_faces",
+    "coverage_percent": 71.35000000000001
+  },
+  {
+    "path": "app/infrastructure/my_photos/aws_liveness.py",
+    "lines": 378,
+    "max_function_complexity": 16,
+    "most_complex_function": "get_result",
+    "coverage_percent": 76.24
+  },
+  {
+    "path": "app/infrastructure/my_photos/aws_media_delivery.py",
+    "lines": 422,
+    "max_function_complexity": 9,
+    "most_complex_function": "resolve",
+    "coverage_percent": 79.72
+  },
+  {
+    "path": "app/infrastructure/my_photos/aws_media_location.py",
+    "lines": 120,
+    "max_function_complexity": 31,
+    "most_complex_function": "_validated_presigned_media_location",
+    "coverage_percent": 85.53
+  },
+  {
+    "path": "app/infrastructure/my_photos/aws_media_metadata.py",
+    "lines": 142,
+    "max_function_complexity": 14,
+    "most_complex_function": "_media_metadata",
+    "coverage_percent": 88.14
+  },
+  {
+    "path": "app/infrastructure/my_photos/aws_provider_config.py",
+    "lines": 82,
+    "max_function_complexity": 7,
+    "most_complex_function": "aws_provider_config",
+    "coverage_percent": 93.02
+  },
+  {
+    "path": "app/infrastructure/my_photos/aws_providers.py",
+    "lines": 140,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/my_photos/aws_references.py",
+    "lines": 222,
+    "max_function_complexity": 10,
+    "most_complex_function": "decode",
+    "coverage_percent": 80.95
+  },
+  {
+    "path": "app/infrastructure/my_photos/catalog_service.py",
+    "lines": 319,
+    "max_function_complexity": 20,
+    "most_complex_function": "photo_page",
+    "coverage_percent": 97.5
+  },
+  {
+    "path": "app/infrastructure/my_photos/context.py",
+    "lines": 177,
+    "max_function_complexity": 6,
+    "most_complex_function": "_ready_gallery",
+    "coverage_percent": 84.72
+  },
+  {
+    "path": "app/infrastructure/my_photos/delivery_assets.py",
+    "lines": 151,
+    "max_function_complexity": 5,
+    "most_complex_function": "_authorized_assets",
+    "coverage_percent": 91.43
+  },
+  {
+    "path": "app/infrastructure/my_photos/delivery_authorizations.py",
+    "lines": 379,
+    "max_function_complexity": 47,
+    "most_complex_function": "authorize_downloads",
+    "coverage_percent": 83.85000000000001
+  },
+  {
+    "path": "app/infrastructure/my_photos/delivery_context.py",
+    "lines": 36,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/my_photos/delivery_downloads.py",
+    "lines": 282,
+    "max_function_complexity": 27,
+    "most_complex_function": "production_download_location",
+    "coverage_percent": 77.08
+  },
+  {
+    "path": "app/infrastructure/my_photos/delivery_plan.py",
+    "lines": 246,
+    "max_function_complexity": 11,
+    "most_complex_function": "download_plan",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/my_photos/delivery_policy.py",
+    "lines": 112,
+    "max_function_complexity": 13,
+    "most_complex_function": "_preview_variant_is_downloadable",
+    "coverage_percent": 91.89
+  },
+  {
+    "path": "app/infrastructure/my_photos/delivery_preparation.py",
+    "lines": 137,
+    "max_function_complexity": 11,
+    "most_complex_function": "prepare_media",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/my_photos/delivery_previews.py",
+    "lines": 184,
+    "max_function_complexity": 17,
+    "most_complex_function": "production_preview_location",
+    "coverage_percent": 82.26
+  },
+  {
+    "path": "app/infrastructure/my_photos/delivery_projection.py",
+    "lines": 217,
+    "max_function_complexity": 38,
+    "most_complex_function": "photo_response",
+    "coverage_percent": 94.23
+  },
+  {
+    "path": "app/infrastructure/my_photos/delivery_provider.py",
+    "lines": 168,
+    "max_function_complexity": 24,
+    "most_complex_function": "_validated_delivery_authorization",
+    "coverage_percent": 86.21
+  },
+  {
+    "path": "app/infrastructure/my_photos/delivery_service.py",
+    "lines": 319,
+    "max_function_complexity": 2,
+    "most_complex_function": "preview_content_or_location",
+    "coverage_percent": 91.46
+  },
+  {
+    "path": "app/infrastructure/my_photos/enrollment_service.py",
+    "lines": 364,
+    "max_function_complexity": 23,
+    "most_complex_function": "delete_enrollment",
+    "coverage_percent": 84.81
+  },
+  {
+    "path": "app/infrastructure/my_photos/gallery_ingestion.py",
+    "lines": 50,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/my_photos/gallery_manifest_cancellation.py",
+    "lines": 248,
+    "max_function_complexity": 38,
+    "most_complex_function": "cancel_manifest",
+    "coverage_percent": 84.16
+  },
+  {
+    "path": "app/infrastructure/my_photos/gallery_manifest_cleanup.py",
+    "lines": 290,
+    "max_function_complexity": 10,
+    "most_complex_function": "_cancelled_media_batch",
+    "coverage_percent": 84.88
+  },
+  {
+    "path": "app/infrastructure/my_photos/gallery_manifest_context.py",
+    "lines": 17,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/my_photos/gallery_manifest_contracts.py",
+    "lines": 192,
+    "max_function_complexity": 11,
+    "most_complex_function": "validate_manifest_shape",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/my_photos/gallery_manifest_finalization.py",
+    "lines": 175,
+    "max_function_complexity": 20,
+    "most_complex_function": "finalize_manifest",
+    "coverage_percent": 82.26
+  },
+  {
+    "path": "app/infrastructure/my_photos/gallery_manifest_fingerprints.py",
+    "lines": 18,
+    "max_function_complexity": 1,
+    "most_complex_function": "_content_fingerprint",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/my_photos/gallery_manifest_persistence.py",
+    "lines": 143,
+    "max_function_complexity": 7,
+    "most_complex_function": "_persist_batch_assets",
+    "coverage_percent": 96.77
+  },
+  {
+    "path": "app/infrastructure/my_photos/gallery_manifest_policy.py",
+    "lines": 159,
+    "max_function_complexity": 10,
+    "most_complex_function": "_require_variant_match",
+    "coverage_percent": 83.67
+  },
+  {
+    "path": "app/infrastructure/my_photos/gallery_manifest_providers.py",
+    "lines": 179,
+    "max_function_complexity": 8,
+    "most_complex_function": "_ensure_collection",
+    "coverage_percent": 85.0
+  },
+  {
+    "path": "app/infrastructure/my_photos/gallery_manifest_queries.py",
+    "lines": 113,
+    "max_function_complexity": 3,
+    "most_complex_function": "_load_scope",
+    "coverage_percent": 97.06
+  },
+  {
+    "path": "app/infrastructure/my_photos/gallery_manifest_registration.py",
+    "lines": 223,
+    "max_function_complexity": 17,
+    "most_complex_function": "register_batch",
+    "coverage_percent": 83.56
+  },
+  {
+    "path": "app/infrastructure/my_photos/gallery_manifest_results.py",
+    "lines": 84,
+    "max_function_complexity": 7,
+    "most_complex_function": "_existing_batch_result",
+    "coverage_percent": 90.0
+  },
+  {
+    "path": "app/infrastructure/my_photos/gallery_manifest_service.py",
+    "lines": 95,
+    "max_function_complexity": 1,
+    "most_complex_function": "__init__",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/my_photos/gallery_manifest_status.py",
+    "lines": 92,
+    "max_function_complexity": 9,
+    "most_complex_function": "_status_snapshot",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/my_photos/liveness_service.py",
+    "lines": 433,
+    "max_function_complexity": 24,
+    "most_complex_function": "start_liveness",
+    "coverage_percent": 79.06
+  },
+  {
+    "path": "app/infrastructure/my_photos/liveness_store.py",
+    "lines": 398,
+    "max_function_complexity": 19,
+    "most_complex_function": "_finalize_liveness_result",
+    "coverage_percent": 89.47
+  },
+  {
+    "path": "app/infrastructure/my_photos/liveness_validation.py",
+    "lines": 127,
+    "max_function_complexity": 10,
+    "most_complex_function": "_validated_liveness_result",
+    "coverage_percent": 83.33
+  },
+  {
+    "path": "app/infrastructure/my_photos/operational_claim_queries.py",
+    "lines": 58,
+    "max_function_complexity": 4,
+    "most_complex_function": "locked_claim_candidate",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/my_photos/operational_index_jobs.py",
+    "lines": 131,
+    "max_function_complexity": 13,
+    "most_complex_function": "_execute_index_batch",
+    "coverage_percent": 86.27
+  },
+  {
+    "path": "app/infrastructure/my_photos/operational_index_publication.py",
+    "lines": 177,
+    "max_function_complexity": 17,
+    "most_complex_function": "_finalize_index_batch",
+    "coverage_percent": 98.83999999999999
+  },
+  {
+    "path": "app/infrastructure/my_photos/operational_job_claims.py",
+    "lines": 112,
+    "max_function_complexity": 21,
+    "most_complex_function": "_claim_job",
+    "coverage_percent": 98.31
+  },
+  {
+    "path": "app/infrastructure/my_photos/operational_job_contracts.py",
+    "lines": 55,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/my_photos/operational_job_lifecycle.py",
+    "lines": 118,
+    "max_function_complexity": 9,
+    "most_complex_function": "_terminalize_job",
+    "coverage_percent": 98.39
+  },
+  {
+    "path": "app/infrastructure/my_photos/operational_job_policy.py",
+    "lines": 148,
+    "max_function_complexity": 18,
+    "most_complex_function": "_validated_media_result",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/my_photos/operational_job_queries.py",
+    "lines": 152,
+    "max_function_complexity": 6,
+    "most_complex_function": "_locked_job_and_asset",
+    "coverage_percent": 97.3
+  },
+  {
+    "path": "app/infrastructure/my_photos/operational_media_jobs.py",
+    "lines": 202,
+    "max_function_complexity": 13,
+    "most_complex_function": "_execute_media_job",
+    "coverage_percent": 95.50999999999999
+  },
+  {
+    "path": "app/infrastructure/my_photos/operational_runtime.py",
+    "lines": 65,
+    "max_function_complexity": 11,
+    "most_complex_function": "execute_operational_job",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/my_photos/provider_tasks.py",
+    "lines": 29,
+    "max_function_complexity": 4,
+    "most_complex_function": "gather_provider_results",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/my_photos/recovery_contracts.py",
+    "lines": 59,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/my_photos/recovery_deletion_claims.py",
+    "lines": 129,
+    "max_function_complexity": 12,
+    "most_complex_function": "_claim_provider_deletions",
+    "coverage_percent": 97.14
+  },
+  {
+    "path": "app/infrastructure/my_photos/recovery_deletion_policy.py",
+    "lines": 118,
+    "max_function_complexity": 6,
+    "most_complex_function": "_reference_unchanged",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/my_photos/recovery_deletion_results.py",
+    "lines": 88,
+    "max_function_complexity": 11,
+    "most_complex_function": "_finalize_provider_deletions",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/my_photos/recovery_dispatch.py",
+    "lines": 154,
+    "max_function_complexity": 7,
+    "most_complex_function": "_due_dispatches",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/my_photos/recovery_runtime.py",
+    "lines": 137,
+    "max_function_complexity": 5,
+    "most_complex_function": "delete_one",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/my_photos/reference_lifecycle.py",
+    "lines": 254,
+    "max_function_complexity": 10,
+    "most_complex_function": "_deletion_response",
+    "coverage_percent": 82.65
+  },
+  {
+    "path": "app/infrastructure/my_photos/responses.py",
+    "lines": 55,
+    "max_function_complexity": 4,
+    "most_complex_function": "_search_response",
+    "coverage_percent": 80.0
+  },
+  {
+    "path": "app/infrastructure/my_photos/revision_contracts.py",
+    "lines": 25,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/my_photos/revision_policy.py",
+    "lines": 62,
+    "max_function_complexity": 7,
+    "most_complex_function": "_refresh_claim_current",
+    "coverage_percent": 95.12
+  },
+  {
+    "path": "app/infrastructure/my_photos/revision_publication.py",
+    "lines": 156,
+    "max_function_complexity": 12,
+    "most_complex_function": "publish_gallery_revision",
+    "coverage_percent": 95.74000000000001
+  },
+  {
+    "path": "app/infrastructure/my_photos/revision_refresh.py",
+    "lines": 186,
+    "max_function_complexity": 18,
+    "most_complex_function": "execute_refresh_fanout",
+    "coverage_percent": 98.61
+  },
+  {
+    "path": "app/infrastructure/my_photos/revision_runtime.py",
+    "lines": 44,
+    "max_function_complexity": 1,
+    "most_complex_function": "execute_refresh_fanout",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/my_photos/search_job_claims.py",
+    "lines": 195,
+    "max_function_complexity": 23,
+    "most_complex_function": "_claim_search",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/my_photos/search_job_contracts.py",
+    "lines": 52,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/my_photos/search_job_lifecycle.py",
+    "lines": 109,
+    "max_function_complexity": 4,
+    "most_complex_function": "_retry_or_fail",
+    "coverage_percent": 92.19000000000001
+  },
+  {
+    "path": "app/infrastructure/my_photos/search_job_policy.py",
+    "lines": 87,
+    "max_function_complexity": 19,
+    "most_complex_function": "_validated_provider_result",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/my_photos/search_job_publication.py",
+    "lines": 217,
+    "max_function_complexity": 15,
+    "most_complex_function": "_finalize_search",
+    "coverage_percent": 97.47
+  },
+  {
+    "path": "app/infrastructure/my_photos/search_job_queries.py",
+    "lines": 55,
+    "max_function_complexity": 7,
+    "most_complex_function": "_locked_claim_rows",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/my_photos/service.py",
+    "lines": 326,
+    "max_function_complexity": 3,
+    "most_complex_function": "__init__",
+    "coverage_percent": 84.15
+  },
+  {
+    "path": "app/infrastructure/my_photos/summary_counts.py",
+    "lines": 144,
+    "max_function_complexity": 11,
+    "most_complex_function": "active_result_counts",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/my_photos/summary_projector.py",
+    "lines": 206,
+    "max_function_complexity": 36,
+    "most_complex_function": "build",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/my_photos/summary_responses.py",
+    "lines": 118,
+    "max_function_complexity": 19,
+    "most_complex_function": "gallery_response",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/my_photos/summary_state.py",
+    "lines": 100,
+    "max_function_complexity": 9,
+    "most_complex_function": "_result_state",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/my_photos/worker_runtime.py",
+    "lines": 163,
+    "max_function_complexity": 13,
+    "most_complex_function": "execute_search_job",
+    "coverage_percent": 92.65
+  },
+  {
+    "path": "app/infrastructure/processing/celery_app.py",
+    "lines": 430,
+    "max_function_complexity": 1,
+    "most_complex_function": "initialize_worker_async_runtime",
+    "coverage_percent": 92.58999999999999
+  },
+  {
+    "path": "app/infrastructure/processing/private_result_backend.py",
+    "lines": 38,
+    "max_function_complexity": 3,
+    "most_complex_function": "store_result",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/processing/private_task.py",
+    "lines": 46,
+    "max_function_complexity": 1,
+    "most_complex_function": "apply_async",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/processing/private_task_loader.py",
+    "lines": 11,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/processing/private_task_request.py",
+    "lines": 51,
+    "max_function_complexity": 4,
+    "most_complex_function": "_capture_failure",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/repositories/attendance_closeout_policy.py",
+    "lines": 131,
+    "max_function_complexity": 14,
+    "most_complex_function": "_classify_checkpoint",
+    "coverage_percent": 97.87
+  },
+  {
+    "path": "app/infrastructure/repositories/attendance_closeout_projection.py",
+    "lines": 150,
+    "max_function_complexity": 7,
+    "most_complex_function": "activity_assignments",
+    "coverage_percent": 90.28
+  },
+  {
+    "path": "app/infrastructure/repositories/attendance_closeout_repository.py",
+    "lines": 176,
+    "max_function_complexity": 7,
+    "most_complex_function": "publish",
+    "coverage_percent": 88.46000000000001
+  },
+  {
+    "path": "app/infrastructure/repositories/attendance_closeout_sources.py",
+    "lines": 167,
+    "max_function_complexity": 5,
+    "most_complex_function": "load_closeout_sources",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/repositories/attendance_closeout_types.py",
+    "lines": 47,
+    "max_function_complexity": 1,
+    "most_complex_function": "delivery_count",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/repositories/attendance_dashboard_repository.py",
+    "lines": 345,
+    "max_function_complexity": 11,
+    "most_complex_function": "group_aggregate",
+    "coverage_percent": 98.53
+  },
+  {
+    "path": "app/infrastructure/repositories/attendance_discard_repository.py",
+    "lines": 185,
+    "max_function_complexity": 31,
+    "most_complex_function": "record_batch",
+    "coverage_percent": 93.24
+  },
+  {
+    "path": "app/infrastructure/repositories/attendance_participation.py",
+    "lines": 58,
+    "max_function_complexity": 1,
+    "most_complex_function": "record_runtime_participation",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/repositories/attendance_runtime_repository.py",
+    "lines": 246,
+    "max_function_complexity": 6,
+    "most_complex_function": "revoke",
+    "coverage_percent": 92.5
+  },
+  {
+    "path": "app/infrastructure/repositories/audit_chain_verification.py",
+    "lines": 113,
+    "max_function_complexity": 14,
+    "most_complex_function": "verify_audit_chain",
+    "coverage_percent": 86.21
+  },
+  {
+    "path": "app/infrastructure/repositories/audit_log_integrity.py",
+    "lines": 64,
+    "max_function_complexity": 3,
+    "most_complex_function": "audit_entry_hash",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/repositories/audit_log_paging.py",
+    "lines": 98,
+    "max_function_complexity": 10,
+    "most_complex_function": "_apply_filters",
+    "coverage_percent": 78.43
+  },
+  {
+    "path": "app/infrastructure/repositories/audit_log_repository.py",
+    "lines": 243,
+    "max_function_complexity": 9,
+    "most_complex_function": "list_page",
+    "coverage_percent": 86.83999999999999
+  },
+  {
+    "path": "app/infrastructure/repositories/audit_log_types.py",
+    "lines": 69,
+    "max_function_complexity": 2,
+    "most_complex_function": "fingerprint",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/repositories/audit_log_values.py",
+    "lines": 58,
+    "max_function_complexity": 13,
+    "most_complex_function": "_canonical_audit_value",
+    "coverage_percent": 90.48
+  },
+  {
+    "path": "app/infrastructure/repositories/dashboard_step_up_repository.py",
+    "lines": 92,
+    "max_function_complexity": 16,
+    "most_complex_function": "lock_step_up_session",
+    "coverage_percent": 96.0
+  },
+  {
+    "path": "app/infrastructure/repositories/identity_action_token_repository.py",
+    "lines": 202,
+    "max_function_complexity": 7,
+    "most_complex_function": "get_valid_action_token",
+    "coverage_percent": 94.0
+  },
+  {
+    "path": "app/infrastructure/repositories/identity_security_repository.py",
+    "lines": 345,
+    "max_function_complexity": 5,
+    "most_complex_function": "get_pending_auth_challenge",
+    "coverage_percent": 95.0
+  },
+  {
+    "path": "app/infrastructure/repositories/passport_submission_contacts.py",
+    "lines": 79,
+    "max_function_complexity": 18,
+    "most_complex_function": "exists_contact_in_group",
+    "coverage_percent": 94.44
+  },
+  {
+    "path": "app/infrastructure/repositories/passport_submission_groups.py",
+    "lines": 183,
+    "max_function_complexity": 11,
+    "most_complex_function": "list_group_summaries_by_agency",
+    "coverage_percent": 90.0
+  },
+  {
+    "path": "app/infrastructure/repositories/passport_submission_mapping.py",
+    "lines": 147,
+    "max_function_complexity": 4,
+    "most_complex_function": "_to_entity",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/repositories/passport_submission_persistence.py",
+    "lines": 142,
+    "max_function_complexity": 4,
+    "most_complex_function": "save_idempotent",
+    "coverage_percent": 96.94
+  },
+  {
+    "path": "app/infrastructure/repositories/passport_submission_processing.py",
+    "lines": 148,
+    "max_function_complexity": 4,
+    "most_complex_function": "apply_extraction_result",
+    "coverage_percent": 76.36
+  },
+  {
+    "path": "app/infrastructure/repositories/passport_submission_queries.py",
+    "lines": 122,
+    "max_function_complexity": 8,
+    "most_complex_function": "_agency_scope",
+    "coverage_percent": 95.92
+  },
+  {
+    "path": "app/infrastructure/repositories/passport_submission_reads.py",
+    "lines": 208,
+    "max_function_complexity": 6,
+    "most_complex_function": "list_recent_dashboard_submissions",
+    "coverage_percent": 98.0
+  },
+  {
+    "path": "app/infrastructure/repositories/passport_submission_repository.py",
+    "lines": 384,
+    "max_function_complexity": 1,
+    "most_complex_function": "__init__",
+    "coverage_percent": 96.88
+  },
+  {
+    "path": "app/infrastructure/repositories/passport_whatsapp_match_evidence.py",
+    "lines": 83,
+    "max_function_complexity": 14,
+    "most_complex_function": "_ascii_cluster_tokens",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/repositories/passport_whatsapp_match_expansion.py",
+    "lines": 112,
+    "max_function_complexity": 6,
+    "most_complex_function": "expand_targeted_recipients",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/repositories/passport_whatsapp_match_projection.py",
+    "lines": 225,
+    "max_function_complexity": 7,
+    "most_complex_function": "matching_field_keys_from_storage",
+    "coverage_percent": 97.96000000000001
+  },
+  {
+    "path": "app/infrastructure/repositories/passport_whatsapp_match_sources.py",
+    "lines": 149,
+    "max_function_complexity": 6,
+    "most_complex_function": "load_targeted_links",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/repositories/passport_whatsapp_match_targeted.py",
+    "lines": 155,
+    "max_function_complexity": 14,
+    "most_complex_function": "load_targeted_match_context",
+    "coverage_percent": 97.87
+  },
+  {
+    "path": "app/infrastructure/repositories/passport_whatsapp_matching_repository.py",
+    "lines": 222,
+    "max_function_complexity": 11,
+    "most_complex_function": "load_unresolved_passport_whatsapp_match_context",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/rooming/priority_context_fields.py",
+    "lines": 47,
+    "max_function_complexity": 8,
+    "most_complex_function": "imported_priority_fields",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/rooming/priority_context_sources.py",
+    "lines": 71,
+    "max_function_complexity": 4,
+    "most_complex_function": "load_priority_broadcasts",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/rooming/priority_field_catalog.py",
+    "lines": 137,
+    "max_function_complexity": 15,
+    "most_complex_function": "_base_field_definitions",
+    "coverage_percent": 97.83
+  },
+  {
+    "path": "app/infrastructure/rooming/priority_field_policy.py",
+    "lines": 263,
+    "max_function_complexity": 13,
+    "most_complex_function": "_is_unavailable_priority",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/rooming/priority_field_values.py",
+    "lines": 103,
+    "max_function_complexity": 23,
+    "most_complex_function": "_submission_field_values",
+    "coverage_percent": 97.83
+  },
+  {
+    "path": "app/infrastructure/rooming/priority_fields.py",
+    "lines": 146,
+    "max_function_complexity": 13,
+    "most_complex_function": "build_rooming_priority_context",
+    "coverage_percent": 98.44000000000001
+  },
+  {
+    "path": "app/infrastructure/runtime_readiness.py",
+    "lines": 278,
+    "max_function_complexity": 5,
+    "most_complex_function": "snapshot",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/runtime_readiness_capabilities.py",
+    "lines": 161,
+    "max_function_complexity": 5,
+    "most_complex_function": "_probe_result",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/runtime_readiness_contracts.py",
+    "lines": 52,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/runtime_readiness_database.py",
+    "lines": 73,
+    "max_function_complexity": 6,
+    "most_complex_function": "_schema_readiness",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/runtime_readiness_probes.py",
+    "lines": 141,
+    "max_function_complexity": 10,
+    "most_complex_function": "_probe_my_photos",
+    "coverage_percent": 97.00999999999999
+  },
+  {
+    "path": "app/infrastructure/security/upload_validator.py",
+    "lines": 345,
+    "max_function_complexity": 14,
+    "most_complex_function": "validate",
+    "coverage_percent": 94.57
+  },
+  {
+    "path": "app/infrastructure/travel_tracker/changes.py",
+    "lines": 113,
+    "max_function_complexity": 18,
+    "most_complex_function": "mark_authorized",
+    "coverage_percent": 92.31
+  },
+  {
+    "path": "app/infrastructure/travel_tracker/files.py",
+    "lines": 114,
+    "max_function_complexity": 5,
+    "most_complex_function": "export",
+    "coverage_percent": 86.96000000000001
+  },
+  {
+    "path": "app/infrastructure/travel_tracker/projections.py",
+    "lines": 43,
+    "max_function_complexity": 5,
+    "most_complex_function": "project_passenger",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/travel_tracker/queries.py",
+    "lines": 176,
+    "max_function_complexity": 7,
+    "most_complex_function": "group_summary",
+    "coverage_percent": 95.52000000000001
+  },
+  {
+    "path": "app/infrastructure/travel_tracker/reads.py",
+    "lines": 109,
+    "max_function_complexity": 5,
+    "most_complex_function": "list_groups",
+    "coverage_percent": 96.77
+  },
+  {
+    "path": "app/infrastructure/travel_tracker/service.py",
+    "lines": 183,
+    "max_function_complexity": 2,
+    "most_complex_function": "__init__",
+    "coverage_percent": 87.1
+  },
+  {
+    "path": "app/infrastructure/travel_tracker/spreadsheet_export.py",
+    "lines": 158,
+    "max_function_complexity": 51,
+    "most_complex_function": "build_export",
+    "coverage_percent": 96.88
+  },
+  {
+    "path": "app/infrastructure/travel_tracker/spreadsheet_matching.py",
+    "lines": 119,
+    "max_function_complexity": 27,
+    "most_complex_function": "match_rows",
+    "coverage_percent": 96.72
+  },
+  {
+    "path": "app/infrastructure/travel_tracker/spreadsheet_reader.py",
+    "lines": 151,
+    "max_function_complexity": 25,
+    "most_complex_function": "_bounded_rows",
+    "coverage_percent": 86.75
+  },
+  {
+    "path": "app/infrastructure/travel_tracker/spreadsheet_values.py",
+    "lines": 56,
+    "max_function_complexity": 6,
+    "most_complex_function": "full_name",
+    "coverage_percent": 96.3
+  },
+  {
+    "path": "app/infrastructure/travel_tracker/spreadsheets.py",
+    "lines": 25,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/travel_tracker/threading.py",
+    "lines": 36,
+    "max_function_complexity": 6,
+    "most_complex_function": "run_tracker_work",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/travellers/company_export_admission.py",
+    "lines": 160,
+    "max_function_complexity": 11,
+    "most_complex_function": "reserve_part",
+    "coverage_percent": 92.19000000000001
+  },
+  {
+    "path": "app/infrastructure/travellers/company_export_cleanup.py",
+    "lines": 37,
+    "max_function_complexity": 3,
+    "most_complex_function": "expire_export_parts",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/travellers/company_export_native_work.py",
+    "lines": 26,
+    "max_function_complexity": 6,
+    "most_complex_function": "run_export_native_work",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/travellers/company_export_page.py",
+    "lines": 159,
+    "max_function_complexity": 34,
+    "most_complex_function": "process_export_page",
+    "coverage_percent": 90.79
+  },
+  {
+    "path": "app/infrastructure/travellers/company_export_render.py",
+    "lines": 116,
+    "max_function_complexity": 12,
+    "most_complex_function": "read_rows",
+    "coverage_percent": 90.67
+  },
+  {
+    "path": "app/infrastructure/travellers/company_export_workbook.py",
+    "lines": 69,
+    "max_function_complexity": 8,
+    "most_complex_function": "assemble_workbook",
+    "coverage_percent": 96.97
+  },
+  {
+    "path": "app/infrastructure/travellers/company_export_workbook_render.py",
+    "lines": 59,
+    "max_function_complexity": 7,
+    "most_complex_function": "append",
+    "coverage_percent": 93.62
+  },
+  {
+    "path": "app/infrastructure/travellers/company_export_worker.py",
+    "lines": 147,
+    "max_function_complexity": 5,
+    "most_complex_function": "run_company_export_tick",
+    "coverage_percent": 97.72999999999999
+  },
+  {
+    "path": "app/infrastructure/travellers/staff_record_asset_copy.py",
+    "lines": 46,
+    "max_function_complexity": 16,
+    "most_complex_function": "has_staff_copy_authority",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/visa_ai_image_jobs/runtime.py",
+    "lines": 356,
+    "max_function_complexity": 24,
+    "most_complex_function": "run_visa_ai_image_job",
+    "coverage_percent": 88.89
+  },
+  {
+    "path": "app/infrastructure/whatsapp/broadcast_worker_policy.py",
+    "lines": 179,
+    "max_function_complexity": 25,
+    "most_complex_function": "_load_sendable_recipient",
+    "coverage_percent": 84.81
+  },
+  {
+    "path": "app/infrastructure/whatsapp/broadcast_worker_provider.py",
+    "lines": 185,
+    "max_function_complexity": 14,
+    "most_complex_function": "submit_broadcast_log",
+    "coverage_percent": 98.82
+  },
+  {
+    "path": "app/infrastructure/whatsapp/broadcast_worker_state.py",
+    "lines": 153,
+    "max_function_complexity": 9,
+    "most_complex_function": "_set_message_state",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/whatsapp/cloud_api_provider.py",
+    "lines": 53,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/whatsapp/provider_errors.py",
+    "lines": 92,
+    "max_function_complexity": 7,
+    "most_complex_function": "_meta_code",
+    "coverage_percent": 97.72999999999999
+  },
+  {
+    "path": "app/infrastructure/whatsapp/provider_media.py",
+    "lines": 156,
+    "max_function_complexity": 15,
+    "most_complex_function": "upload_whatsapp_document",
+    "coverage_percent": 98.0
+  },
+  {
+    "path": "app/infrastructure/whatsapp/provider_messages.py",
+    "lines": 251,
+    "max_function_complexity": 10,
+    "most_complex_function": "send_whatsapp_template",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/whatsapp/provider_payloads.py",
+    "lines": 20,
+    "max_function_complexity": 1,
+    "most_complex_function": "_text_parameter",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/whatsapp/provider_transport.py",
+    "lines": 121,
+    "max_function_complexity": 16,
+    "most_complex_function": "_send_whatsapp_template_payload",
+    "coverage_percent": 97.78
+  },
+  {
+    "path": "app/infrastructure/whatsapp/publication.py",
+    "lines": 60,
+    "max_function_complexity": 2,
+    "most_complex_function": "fail_unclaimed_broadcast_rows",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/whatsapp/qr_delivery_dispatch.py",
+    "lines": 224,
+    "max_function_complexity": 28,
+    "most_complex_function": "dispatch_qr_delivery",
+    "coverage_percent": 97.33000000000001
+  },
+  {
+    "path": "app/infrastructure/whatsapp/qr_delivery_media.py",
+    "lines": 111,
+    "max_function_complexity": 12,
+    "most_complex_function": "prepare_qr_delivery_media",
+    "coverage_percent": 95.35
+  },
+  {
+    "path": "app/infrastructure/whatsapp/qr_delivery_runtime.py",
+    "lines": 246,
+    "max_function_complexity": 12,
+    "most_complex_function": "run_qr_whatsapp_broadcast",
+    "coverage_percent": 96.1
+  },
+  {
+    "path": "app/infrastructure/whatsapp/qr_delivery_state.py",
+    "lines": 97,
+    "max_function_complexity": 11,
+    "most_complex_function": "apply_qr_provider_status",
+    "coverage_percent": 90.57
+  },
+  {
+    "path": "app/infrastructure/whatsapp/qr_delivery_types.py",
+    "lines": 40,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/whatsapp/worker_runtime.py",
+    "lines": 329,
+    "max_function_complexity": 16,
+    "most_complex_function": "run_whatsapp_broadcast",
+    "coverage_percent": 88.07000000000001
+  },
+  {
+    "path": "app/presentation/api/v1/routes/admin.py",
+    "lines": 97,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/admin_account_scope.py",
+    "lines": 42,
+    "max_function_complexity": 2,
+    "most_complex_function": "_manager_scope",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/admin_account_views.py",
+    "lines": 86,
+    "max_function_complexity": 7,
+    "most_complex_function": "_manager_response",
+    "coverage_percent": 95.24000000000001
+  },
+  {
+    "path": "app/presentation/api/v1/routes/admin_accounts.py",
+    "lines": 94,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/admin_deletion_queries.py",
+    "lines": 119,
+    "max_function_complexity": 6,
+    "most_complex_function": "_delete_entity_rows",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/admin_group_access.py",
+    "lines": 204,
+    "max_function_complexity": 9,
+    "most_complex_function": "assign_staff_groups",
+    "coverage_percent": 92.96
+  },
+  {
+    "path": "app/presentation/api/v1/routes/admin_group_projection.py",
+    "lines": 33,
+    "max_function_complexity": 5,
+    "most_complex_function": "index_account_groups",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/admin_manager_delete_replay.py",
+    "lines": 57,
+    "max_function_complexity": 5,
+    "most_complex_function": "_previous_manager_delete_result",
+    "coverage_percent": 88.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/admin_manager_deletion.py",
+    "lines": 273,
+    "max_function_complexity": 18,
+    "most_complex_function": "delete_manager",
+    "coverage_percent": 97.7
+  },
+  {
+    "path": "app/presentation/api/v1/routes/admin_passport_purge.py",
+    "lines": 252,
+    "max_function_complexity": 24,
+    "most_complex_function": "purge_passport_data",
+    "coverage_percent": 94.81
+  },
+  {
+    "path": "app/presentation/api/v1/routes/admin_platform_settings.py",
+    "lines": 146,
+    "max_function_complexity": 8,
+    "most_complex_function": "update_platform_settings",
+    "coverage_percent": 98.04
+  },
+  {
+    "path": "app/presentation/api/v1/routes/admin_retention.py",
+    "lines": 65,
+    "max_function_complexity": 2,
+    "most_complex_function": "get_group_passport_retention",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/admin_workforce.py",
+    "lines": 195,
+    "max_function_complexity": 10,
+    "most_complex_function": "list_managers",
+    "coverage_percent": 98.18
+  },
+  {
+    "path": "app/presentation/api/v1/routes/attendance_discard_sync.py",
+    "lines": 130,
+    "max_function_complexity": 14,
+    "most_complex_function": "synchronize_browser_discard_groups",
+    "coverage_percent": 97.56
+  },
+  {
+    "path": "app/presentation/api/v1/routes/attendance_offline_authorization.py",
+    "lines": 158,
+    "max_function_complexity": 8,
+    "most_complex_function": "build_browser_offline_authorization",
+    "coverage_percent": 94.44
+  },
+  {
+    "path": "app/presentation/api/v1/routes/attendance_offline_sources.py",
+    "lines": 162,
+    "max_function_complexity": 6,
+    "most_complex_function": "load_scheduled_offline_activities",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/attendance_runtime.py",
+    "lines": 335,
+    "max_function_complexity": 6,
+    "most_complex_function": "register_browser_attendance_runtime",
+    "coverage_percent": 98.75
+  },
+  {
+    "path": "app/presentation/api/v1/routes/attendance_runtime_dependencies.py",
+    "lines": 81,
+    "max_function_complexity": 1,
+    "most_complex_function": "__call__",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/auth_identity.py",
+    "lines": 440,
+    "max_function_complexity": 7,
+    "most_complex_function": "begin_dashboard_mfa_challenge",
+    "coverage_percent": 95.35
+  },
+  {
+    "path": "app/presentation/api/v1/routes/auth_identity_account.py",
+    "lines": 174,
+    "max_function_complexity": 8,
+    "most_complex_function": "regenerate_mfa_recovery_codes",
+    "coverage_percent": 92.65
+  },
+  {
+    "path": "app/presentation/api/v1/routes/auth_identity_actions.py",
+    "lines": 199,
+    "max_function_complexity": 15,
+    "most_complex_function": "_complete_identity_action",
+    "coverage_percent": 80.56
+  },
+  {
+    "path": "app/presentation/api/v1/routes/auth_identity_dependencies.py",
+    "lines": 67,
+    "max_function_complexity": 1,
+    "most_complex_function": "__call__",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/auth_identity_recovery.py",
+    "lines": 138,
+    "max_function_complexity": 7,
+    "most_complex_function": "request_password_recovery",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/auth_identity_step_up.py",
+    "lines": 188,
+    "max_function_complexity": 12,
+    "most_complex_function": "step_up_dashboard_session",
+    "coverage_percent": 79.45
+  },
+  {
+    "path": "app/presentation/api/v1/routes/auth_identity_verification.py",
+    "lines": 135,
+    "max_function_complexity": 17,
+    "most_complex_function": "verify_dashboard_mfa",
+    "coverage_percent": 95.24000000000001
+  },
+  {
+    "path": "app/presentation/api/v1/routes/client_group_access.py",
+    "lines": 110,
+    "max_function_complexity": 5,
+    "most_complex_function": "_require_client_group_creation_access",
+    "coverage_percent": 93.62
+  },
+  {
+    "path": "app/presentation/api/v1/routes/client_group_broadcast_links.py",
+    "lines": 271,
+    "max_function_complexity": 22,
+    "most_complex_function": "_replace_whatsapp_links",
+    "coverage_percent": 97.14
+  },
+  {
+    "path": "app/presentation/api/v1/routes/client_group_configuration.py",
+    "lines": 302,
+    "max_function_complexity": 17,
+    "most_complex_function": "update_client_group",
+    "coverage_percent": 79.41
+  },
+  {
+    "path": "app/presentation/api/v1/routes/client_group_link_operations.py",
+    "lines": 245,
+    "max_function_complexity": 12,
+    "most_complex_function": "list_replacement_candidates",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/client_group_match_queries.py",
+    "lines": 77,
+    "max_function_complexity": 2,
+    "most_complex_function": "_linked_broadcast_names_for_group",
+    "coverage_percent": 93.33
+  },
+  {
+    "path": "app/presentation/api/v1/routes/client_group_operation_dependencies.py",
+    "lines": 252,
+    "max_function_complexity": 1,
+    "most_complex_function": "__call__",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/client_group_permanent_delete.py",
+    "lines": 300,
+    "max_function_complexity": 13,
+    "most_complex_function": "permanently_delete_client_group",
+    "coverage_percent": 93.51
+  },
+  {
+    "path": "app/presentation/api/v1/routes/client_group_public_collection.py",
+    "lines": 137,
+    "max_function_complexity": 5,
+    "most_complex_function": "record_public_flow_telemetry",
+    "coverage_percent": 85.42
+  },
+  {
+    "path": "app/presentation/api/v1/routes/client_group_reads.py",
+    "lines": 128,
+    "max_function_complexity": 7,
+    "most_complex_function": "list_client_groups",
+    "coverage_percent": 97.06
+  },
+  {
+    "path": "app/presentation/api/v1/routes/client_group_rejection_resolution.py",
+    "lines": 175,
+    "max_function_complexity": 8,
+    "most_complex_function": "reject_unidentified_upload",
+    "coverage_percent": 82.22
+  },
+  {
+    "path": "app/presentation/api/v1/routes/client_group_replacement_resolution.py",
+    "lines": 365,
+    "max_function_complexity": 24,
+    "most_complex_function": "resolve_unidentified_as_replacement",
+    "coverage_percent": 82.5
+  },
+  {
+    "path": "app/presentation/api/v1/routes/client_group_resolution_restore.py",
+    "lines": 214,
+    "max_function_complexity": 17,
+    "most_complex_function": "restore_roster_resolution",
+    "coverage_percent": 92.65
+  },
+  {
+    "path": "app/presentation/api/v1/routes/client_group_retention.py",
+    "lines": 148,
+    "max_function_complexity": 7,
+    "most_complex_function": "restore_client_group",
+    "coverage_percent": 77.42
+  },
+  {
+    "path": "app/presentation/api/v1/routes/client_group_whatsapp_match_acquisition.py",
+    "lines": 132,
+    "max_function_complexity": 14,
+    "most_complex_function": "load_current_whatsapp_match_rows",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/client_group_whatsapp_match_resolutions.py",
+    "lines": 121,
+    "max_function_complexity": 17,
+    "most_complex_function": "include_active_resolution_rows",
+    "coverage_percent": 96.67
+  },
+  {
+    "path": "app/presentation/api/v1/routes/client_group_whatsapp_match_responses.py",
+    "lines": 214,
+    "max_function_complexity": 7,
+    "most_complex_function": "submission_detail_response",
+    "coverage_percent": 87.72
+  },
+  {
+    "path": "app/presentation/api/v1/routes/client_group_whatsapp_match_support.py",
+    "lines": 121,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/client_groups.py",
+    "lines": 859,
+    "max_function_complexity": 1,
+    "most_complex_function": "_get_create_use_case",
+    "coverage_percent": 96.25
+  },
+  {
+    "path": "app/presentation/api/v1/routes/company_data_exports.py",
+    "lines": 149,
+    "max_function_complexity": 5,
+    "most_complex_function": "list_exports",
+    "coverage_percent": 80.95
+  },
+  {
+    "path": "app/presentation/api/v1/routes/company_document_uploads.py",
+    "lines": 69,
+    "max_function_complexity": 5,
+    "most_complex_function": "upload_document_version",
+    "coverage_percent": 93.75
+  },
+  {
+    "path": "app/presentation/api/v1/routes/company_people.py",
+    "lines": 160,
+    "max_function_complexity": 4,
+    "most_complex_function": "person_documents",
+    "coverage_percent": 94.12
+  },
+  {
+    "path": "app/presentation/api/v1/routes/company_source_documents.py",
+    "lines": 117,
+    "max_function_complexity": 13,
+    "most_complex_function": "person_sources",
+    "coverage_percent": 83.82
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_distribution.py",
+    "lines": 388,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_distribution_assignment_delete.py",
+    "lines": 214,
+    "max_function_complexity": 16,
+    "most_complex_function": "delete_distribution_documents",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_distribution_assignment_review.py",
+    "lines": 48,
+    "max_function_complexity": 1,
+    "most_complex_function": "_current_assignment_batch_response",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_distribution_assignment_unassign.py",
+    "lines": 187,
+    "max_function_complexity": 10,
+    "most_complex_function": "unassign_distribution_documents",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_distribution_assignments.py",
+    "lines": 101,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_distribution_compensation.py",
+    "lines": 48,
+    "max_function_complexity": 3,
+    "most_complex_function": "compensate_uncommitted_document_upload",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_distribution_delivery.py",
+    "lines": 503,
+    "max_function_complexity": 32,
+    "most_complex_function": "queue_document_whatsapp_broadcast",
+    "coverage_percent": 66.91
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_distribution_delivery_preview.py",
+    "lines": 271,
+    "max_function_complexity": 51,
+    "most_complex_function": "_build_document_delivery_preview",
+    "coverage_percent": 90.82000000000001
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_distribution_groups_read.py",
+    "lines": 299,
+    "max_function_complexity": 14,
+    "most_complex_function": "list_document_groups",
+    "coverage_percent": 97.22
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_distribution_manual_upload.py",
+    "lines": 271,
+    "max_function_complexity": 14,
+    "most_complex_function": "manually_upload_passenger_document",
+    "coverage_percent": 94.51
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_distribution_matching.py",
+    "lines": 206,
+    "max_function_complexity": 23,
+    "most_complex_function": "_linked_document_match_identifiers",
+    "coverage_percent": 92.06
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_distribution_queries.py",
+    "lines": 213,
+    "max_function_complexity": 20,
+    "most_complex_function": "_refresh_distribution_batches",
+    "coverage_percent": 94.92
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_distribution_responses.py",
+    "lines": 235,
+    "max_function_complexity": 28,
+    "most_complex_function": "_batch_response",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_distribution_reupload.py",
+    "lines": 248,
+    "max_function_complexity": 12,
+    "most_complex_function": "reupload_passenger_document",
+    "coverage_percent": 89.74
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_distribution_review_export.py",
+    "lines": 115,
+    "max_function_complexity": 15,
+    "most_complex_function": "_assignment_export_matches_filter",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_distribution_review_projection.py",
+    "lines": 164,
+    "max_function_complexity": 21,
+    "most_complex_function": "_passenger_review_rows",
+    "coverage_percent": 95.30999999999999
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_distribution_review_snapshots.py",
+    "lines": 168,
+    "max_function_complexity": 20,
+    "most_complex_function": "_linked_document_match_source_from_models",
+    "coverage_percent": 97.61999999999999
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_distribution_review_support.py",
+    "lines": 97,
+    "max_function_complexity": 2,
+    "most_complex_function": "_owner_scope_for",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_distribution_save.py",
+    "lines": 96,
+    "max_function_complexity": 7,
+    "most_complex_function": "save_document_lane",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_distribution_scope.py",
+    "lines": 270,
+    "max_function_complexity": 10,
+    "most_complex_function": "_lock_and_validate_document_match_scope",
+    "coverage_percent": 89.87
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_distribution_shared.py",
+    "lines": 86,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_distribution_storage.py",
+    "lines": 141,
+    "max_function_complexity": 4,
+    "most_complex_function": "_cleanup_distribution_storage_keys",
+    "coverage_percent": 94.64
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_distribution_upload.py",
+    "lines": 73,
+    "max_function_complexity": 1,
+    "most_complex_function": "upload_documents",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_distribution_upload_abort.py",
+    "lines": 284,
+    "max_function_complexity": 11,
+    "most_complex_function": "abort_incomplete_distribution_upload",
+    "coverage_percent": 88.89
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_distribution_upload_chunk_state.py",
+    "lines": 163,
+    "max_function_complexity": 10,
+    "most_complex_function": "read_distribution_upload_chunk",
+    "coverage_percent": 73.58
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_distribution_upload_commit.py",
+    "lines": 103,
+    "max_function_complexity": 8,
+    "most_complex_function": "commit_distribution_upload",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_distribution_upload_content.py",
+    "lines": 151,
+    "max_function_complexity": 18,
+    "most_complex_function": "prepare_distribution_upload_content",
+    "coverage_percent": 94.23
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_distribution_upload_match_scope.py",
+    "lines": 125,
+    "max_function_complexity": 5,
+    "most_complex_function": "authorize_distribution_upload",
+    "coverage_percent": 97.61999999999999
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_distribution_upload_persistence_scope.py",
+    "lines": 220,
+    "max_function_complexity": 16,
+    "most_complex_function": "reauthorize_before_persistence",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_distribution_upload_response.py",
+    "lines": 67,
+    "max_function_complexity": 4,
+    "most_complex_function": "completed_distribution_upload_response",
+    "coverage_percent": 93.33
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_distribution_upload_workflow.py",
+    "lines": 318,
+    "max_function_complexity": 16,
+    "most_complex_function": "run_distribution_upload",
+    "coverage_percent": 76.09
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_distribution_verification.py",
+    "lines": 312,
+    "max_function_complexity": 43,
+    "most_complex_function": "verify_documents",
+    "coverage_percent": 93.17999999999999
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_rename.py",
+    "lines": 284,
+    "max_function_complexity": 3,
+    "most_complex_function": "analyze_and_rename_documents",
+    "coverage_percent": 98.89
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_rename_archive_io.py",
+    "lines": 51,
+    "max_function_complexity": 4,
+    "most_complex_function": "_stream_archive",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_rename_authority.py",
+    "lines": 98,
+    "max_function_complexity": 7,
+    "most_complex_function": "_lock_active_rename_actor",
+    "coverage_percent": 96.67
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_rename_batch_contracts.py",
+    "lines": 45,
+    "max_function_complexity": 1,
+    "most_complex_function": "__call__",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_rename_batches.py",
+    "lines": 166,
+    "max_function_complexity": 13,
+    "most_complex_function": "delete_rename_batches",
+    "coverage_percent": 96.43
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_rename_chunk_staging.py",
+    "lines": 152,
+    "max_function_complexity": 17,
+    "most_complex_function": "stage_rename_chunk",
+    "coverage_percent": 92.86
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_rename_cleanup.py",
+    "lines": 45,
+    "max_function_complexity": 4,
+    "most_complex_function": "_cleanup_owned_rename_storage",
+    "coverage_percent": 94.12
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_rename_download_contracts.py",
+    "lines": 36,
+    "max_function_complexity": 1,
+    "most_complex_function": "__call__",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_rename_downloads.py",
+    "lines": 193,
+    "max_function_complexity": 19,
+    "most_complex_function": "download_renamed_zip",
+    "coverage_percent": 91.01
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_rename_finalization.py",
+    "lines": 120,
+    "max_function_complexity": 17,
+    "most_complex_function": "finalize_rename_upload",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_rename_preparation.py",
+    "lines": 170,
+    "max_function_complexity": 21,
+    "most_complex_function": "prepare_rename_upload",
+    "coverage_percent": 90.74
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_rename_staging.py",
+    "lines": 145,
+    "max_function_complexity": 15,
+    "most_complex_function": "stage_rename_storage",
+    "coverage_percent": 98.28
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_rename_upload_contracts.py",
+    "lines": 123,
+    "max_function_complexity": 1,
+    "most_complex_function": "__call__",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/document_rename_values.py",
+    "lines": 108,
+    "max_function_complexity": 5,
+    "most_complex_function": "_reason",
+    "coverage_percent": 85.71
+  },
+  {
+    "path": "app/presentation/api/v1/routes/ecr_checker.py",
+    "lines": 122,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/ecr_checker_actions.py",
+    "lines": 112,
+    "max_function_complexity": 7,
+    "most_complex_function": "retry_ecr_batch",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/ecr_checker_batches.py",
+    "lines": 81,
+    "max_function_complexity": 5,
+    "most_complex_function": "list_ecr_batches",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/ecr_checker_inputs.py",
+    "lines": 102,
+    "max_function_complexity": 10,
+    "most_complex_function": "read_ecr_uploads",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/ecr_checker_staging.py",
+    "lines": 115,
+    "max_function_complexity": 8,
+    "most_complex_function": "accept_staged_ecr_items",
+    "coverage_percent": 98.11
+  },
+  {
+    "path": "app/presentation/api/v1/routes/ecr_checker_support.py",
+    "lines": 137,
+    "max_function_complexity": 6,
+    "most_complex_function": "_summary",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/ecr_checker_upload.py",
+    "lines": 139,
+    "max_function_complexity": 14,
+    "most_complex_function": "_upload_ecr_items_admitted",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/email_ai_inbox.py",
+    "lines": 277,
+    "max_function_complexity": 1,
+    "most_complex_function": "email_operations_inbox",
+    "coverage_percent": 90.42999999999999
+  },
+  {
+    "path": "app/presentation/api/v1/routes/email_ai_inbox_activity.py",
+    "lines": 193,
+    "max_function_complexity": 8,
+    "most_complex_function": "_passenger_snapshot_label",
+    "coverage_percent": 21.62
+  },
+  {
+    "path": "app/presentation/api/v1/routes/email_ai_inbox_attention.py",
+    "lines": 85,
+    "max_function_complexity": 21,
+    "most_complex_function": "_refresh_analysis_attention",
+    "coverage_percent": 34.78
+  },
+  {
+    "path": "app/presentation/api/v1/routes/email_ai_inbox_corrections.py",
+    "lines": 345,
+    "max_function_complexity": 26,
+    "most_complex_function": "_apply_typed_correction",
+    "coverage_percent": 14.17
+  },
+  {
+    "path": "app/presentation/api/v1/routes/email_ai_inbox_cursor.py",
+    "lines": 49,
+    "max_function_complexity": 4,
+    "most_complex_function": "_decode_cursor",
+    "coverage_percent": 36.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/email_ai_inbox_decisions.py",
+    "lines": 377,
+    "max_function_complexity": 7,
+    "most_complex_function": "decide_email_proposal",
+    "coverage_percent": 23.71
+  },
+  {
+    "path": "app/presentation/api/v1/routes/email_ai_inbox_feedback.py",
+    "lines": 269,
+    "max_function_complexity": 20,
+    "most_complex_function": "create_email_ai_feedback",
+    "coverage_percent": 24.14
+  },
+  {
+    "path": "app/presentation/api/v1/routes/email_ai_inbox_queries.py",
+    "lines": 210,
+    "max_function_complexity": 7,
+    "most_complex_function": "_inbox_counts",
+    "coverage_percent": 39.129999999999995
+  },
+  {
+    "path": "app/presentation/api/v1/routes/email_ai_inbox_reads.py",
+    "lines": 225,
+    "max_function_complexity": 9,
+    "most_complex_function": "email_operations_inbox",
+    "coverage_percent": 50.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/email_ai_inbox_responses.py",
+    "lines": 245,
+    "max_function_complexity": 23,
+    "most_complex_function": "_inbox_item",
+    "coverage_percent": 21.18
+  },
+  {
+    "path": "app/presentation/api/v1/routes/email_ai_inbox_retry.py",
+    "lines": 197,
+    "max_function_complexity": 15,
+    "most_complex_function": "retry_email_ai_analysis",
+    "coverage_percent": 30.43
+  },
+  {
+    "path": "app/presentation/api/v1/routes/email_ai_inbox_scope.py",
+    "lines": 36,
+    "max_function_complexity": 3,
+    "most_complex_function": "_owner_predicates",
+    "coverage_percent": 53.33
+  },
+  {
+    "path": "app/presentation/api/v1/routes/email_ai_inbox_visibility.py",
+    "lines": 251,
+    "max_function_complexity": 24,
+    "most_complex_function": "_load_visible_candidate_links",
+    "coverage_percent": 16.96
+  },
+  {
+    "path": "app/presentation/api/v1/routes/email_ai_rollout_admin.py",
+    "lines": 246,
+    "max_function_complexity": 12,
+    "most_complex_function": "update_email_ai_rollout_policy",
+    "coverage_percent": 59.089999999999996
+  },
+  {
+    "path": "app/presentation/api/v1/routes/email_connection_ai_settings.py",
+    "lines": 118,
+    "max_function_complexity": 11,
+    "most_complex_function": "update_connection_ai_settings",
+    "coverage_percent": 51.349999999999994
+  },
+  {
+    "path": "app/presentation/api/v1/routes/email_connection_disconnect.py",
+    "lines": 151,
+    "max_function_complexity": 9,
+    "most_complex_function": "disconnect_email_connection",
+    "coverage_percent": 28.07
+  },
+  {
+    "path": "app/presentation/api/v1/routes/email_connection_monitoring.py",
+    "lines": 171,
+    "max_function_complexity": 4,
+    "most_complex_function": "sync_connection",
+    "coverage_percent": 36.36
+  },
+  {
+    "path": "app/presentation/api/v1/routes/email_connection_removal.py",
+    "lines": 200,
+    "max_function_complexity": 10,
+    "most_complex_function": "remove_email_connection_and_data",
+    "coverage_percent": 33.82
+  },
+  {
+    "path": "app/presentation/api/v1/routes/email_integration_access.py",
+    "lines": 174,
+    "max_function_complexity": 5,
+    "most_complex_function": "_owned_connection",
+    "coverage_percent": 41.77
+  },
+  {
+    "path": "app/presentation/api/v1/routes/email_integration_activity.py",
+    "lines": 283,
+    "max_function_complexity": 12,
+    "most_complex_function": "email_message_detail",
+    "coverage_percent": 58.699999999999996
+  },
+  {
+    "path": "app/presentation/api/v1/routes/email_integration_connections.py",
+    "lines": 114,
+    "max_function_complexity": 5,
+    "most_complex_function": "list_email_connections",
+    "coverage_percent": 87.5
+  },
+  {
+    "path": "app/presentation/api/v1/routes/email_integration_credentials.py",
+    "lines": 68,
+    "max_function_complexity": 5,
+    "most_complex_function": "revocation_credential",
+    "coverage_percent": 24.240000000000002
+  },
+  {
+    "path": "app/presentation/api/v1/routes/email_integration_gmail.py",
+    "lines": 260,
+    "max_function_complexity": 31,
+    "most_complex_function": "gmail_oauth_callback",
+    "coverage_percent": 33.33
+  },
+  {
+    "path": "app/presentation/api/v1/routes/email_integration_oauth_start.py",
+    "lines": 122,
+    "max_function_complexity": 7,
+    "most_complex_function": "begin_provider_authorization",
+    "coverage_percent": 40.48
+  },
+  {
+    "path": "app/presentation/api/v1/routes/email_integration_outlook.py",
+    "lines": 288,
+    "max_function_complexity": 30,
+    "most_complex_function": "outlook_oauth_callback",
+    "coverage_percent": 35.65
+  },
+  {
+    "path": "app/presentation/api/v1/routes/email_integration_review_decisions.py",
+    "lines": 184,
+    "max_function_complexity": 14,
+    "most_complex_function": "resolve_email_review",
+    "coverage_percent": 51.160000000000004
+  },
+  {
+    "path": "app/presentation/api/v1/routes/email_integration_review_queries.py",
+    "lines": 311,
+    "max_function_complexity": 18,
+    "most_complex_function": "list_email_reviews",
+    "coverage_percent": 33.33
+  },
+  {
+    "path": "app/presentation/api/v1/routes/email_integrations.py",
+    "lines": 155,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/email_oauth_actor.py",
+    "lines": 39,
+    "max_function_complexity": 1,
+    "most_complex_function": "_oauth_actor_is_authorized",
+    "coverage_percent": 77.78
+  },
+  {
+    "path": "app/presentation/api/v1/routes/email_oauth_grant.py",
+    "lines": 79,
+    "max_function_complexity": 3,
+    "most_complex_function": "_apply_encrypted_oauth_grant",
+    "coverage_percent": 29.03
+  },
+  {
+    "path": "app/presentation/api/v1/routes/email_review_actions.py",
+    "lines": 166,
+    "max_function_complexity": 22,
+    "most_complex_function": "_apply_email_review_action",
+    "coverage_percent": 21.84
+  },
+  {
+    "path": "app/presentation/api/v1/routes/email_review_context.py",
+    "lines": 154,
+    "max_function_complexity": 8,
+    "most_complex_function": "_lock_email_review",
+    "coverage_percent": 50.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/email_rollout_policy_mapping.py",
+    "lines": 186,
+    "max_function_complexity": 10,
+    "most_complex_function": "_load_policy_map",
+    "coverage_percent": 44.190000000000005
+  },
+  {
+    "path": "app/presentation/api/v1/routes/email_rollout_targets.py",
+    "lines": 200,
+    "max_function_complexity": 16,
+    "most_complex_function": "_target_rows",
+    "coverage_percent": 45.16
+  },
+  {
+    "path": "app/presentation/api/v1/routes/gc_app.py",
+    "lines": 227,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/gc_app_account_support.py",
+    "lines": 121,
+    "max_function_complexity": 11,
+    "most_complex_function": "integrity_constraint_name",
+    "coverage_percent": 90.91
+  },
+  {
+    "path": "app/presentation/api/v1/routes/gc_app_announcement_publication.py",
+    "lines": 250,
+    "max_function_complexity": 3,
+    "most_complex_function": "publish_announcement",
+    "coverage_percent": 95.39999999999999
+  },
+  {
+    "path": "app/presentation/api/v1/routes/gc_app_announcements.py",
+    "lines": 293,
+    "max_function_complexity": 3,
+    "most_complex_function": "update_announcement",
+    "coverage_percent": 98.44000000000001
+  },
+  {
+    "path": "app/presentation/api/v1/routes/gc_app_common_authority.py",
+    "lines": 39,
+    "max_function_complexity": 4,
+    "most_complex_function": "require_current_common_document_actor",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/gc_app_common_documents.py",
+    "lines": 219,
+    "max_function_complexity": 5,
+    "most_complex_function": "reorder_common_documents",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/gc_app_common_preview.py",
+    "lines": 129,
+    "max_function_complexity": 5,
+    "most_complex_function": "preview_common_document_content",
+    "coverage_percent": 94.12
+  },
+  {
+    "path": "app/presentation/api/v1/routes/gc_app_common_publication.py",
+    "lines": 246,
+    "max_function_complexity": 4,
+    "most_complex_function": "delete_common_document",
+    "coverage_percent": 85.87
+  },
+  {
+    "path": "app/presentation/api/v1/routes/gc_app_common_staging.py",
+    "lines": 295,
+    "max_function_complexity": 6,
+    "most_complex_function": "_store_common_document_version",
+    "coverage_percent": 93.2
+  },
+  {
+    "path": "app/presentation/api/v1/routes/gc_app_content.py",
+    "lines": 206,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/gc_app_content_audit.py",
+    "lines": 71,
+    "max_function_complexity": 2,
+    "most_complex_function": "list_group_gc_audit",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/gc_app_content_lookup.py",
+    "lines": 110,
+    "max_function_complexity": 4,
+    "most_complex_function": "_latest_itinerary",
+    "coverage_percent": 78.38000000000001
+  },
+  {
+    "path": "app/presentation/api/v1/routes/gc_app_content_projection.py",
+    "lines": 125,
+    "max_function_complexity": 3,
+    "most_complex_function": "_itinerary_response",
+    "coverage_percent": 94.44
+  },
+  {
+    "path": "app/presentation/api/v1/routes/gc_app_content_scope.py",
+    "lines": 179,
+    "max_function_complexity": 11,
+    "most_complex_function": "_admin_access_context",
+    "coverage_percent": 83.1
+  },
+  {
+    "path": "app/presentation/api/v1/routes/gc_app_group_access_support.py",
+    "lines": 268,
+    "max_function_complexity": 11,
+    "most_complex_function": "configure_my_photos_feature",
+    "coverage_percent": 95.89
+  },
+  {
+    "path": "app/presentation/api/v1/routes/gc_app_group_directory.py",
+    "lines": 166,
+    "max_function_complexity": 6,
+    "most_complex_function": "list_gc_agencies",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/gc_app_group_removal.py",
+    "lines": 166,
+    "max_function_complexity": 4,
+    "most_complex_function": "emergency_revoke_gc_group_access",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/gc_app_group_settings.py",
+    "lines": 396,
+    "max_function_complexity": 30,
+    "most_complex_function": "configure_gc_group_access",
+    "coverage_percent": 87.96000000000001
+  },
+  {
+    "path": "app/presentation/api/v1/routes/gc_app_history_support.py",
+    "lines": 45,
+    "max_function_complexity": 3,
+    "most_complex_function": "gc_app_audit_responses",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/gc_app_itineraries.py",
+    "lines": 232,
+    "max_function_complexity": 3,
+    "most_complex_function": "publish_itinerary",
+    "coverage_percent": 82.67
+  },
+  {
+    "path": "app/presentation/api/v1/routes/gc_app_manager_access.py",
+    "lines": 229,
+    "max_function_complexity": 8,
+    "most_complex_function": "replace_client_manager_groups",
+    "coverage_percent": 98.02
+  },
+  {
+    "path": "app/presentation/api/v1/routes/gc_app_manager_creation.py",
+    "lines": 210,
+    "max_function_complexity": 14,
+    "most_complex_function": "create_client_manager",
+    "coverage_percent": 89.87
+  },
+  {
+    "path": "app/presentation/api/v1/routes/gc_app_manager_directory.py",
+    "lines": 210,
+    "max_function_complexity": 11,
+    "most_complex_function": "list_client_managers",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/gc_app_manager_profile.py",
+    "lines": 275,
+    "max_function_complexity": 8,
+    "most_complex_function": "update_client_manager",
+    "coverage_percent": 98.15
+  },
+  {
+    "path": "app/presentation/api/v1/routes/gc_app_manager_support.py",
+    "lines": 104,
+    "max_function_complexity": 4,
+    "most_complex_function": "_validate_manager_groups",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/gc_app_organizations.py",
+    "lines": 156,
+    "max_function_complexity": 4,
+    "most_complex_function": "search_client_organizations",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/gc_app_scope.py",
+    "lines": 192,
+    "max_function_complexity": 6,
+    "most_complex_function": "_tenant_id",
+    "coverage_percent": 97.14
+  },
+  {
+    "path": "app/presentation/api/v1/routes/gc_app_sessions.py",
+    "lines": 153,
+    "max_function_complexity": 5,
+    "most_complex_function": "_revoke_group_mobile_sessions",
+    "coverage_percent": 96.67
+  },
+  {
+    "path": "app/presentation/api/v1/routes/gc_group_directory_filters.py",
+    "lines": 94,
+    "max_function_complexity": 13,
+    "most_complex_function": "build_gc_group_directory_filters",
+    "coverage_percent": 97.06
+  },
+  {
+    "path": "app/presentation/api/v1/routes/gc_group_directory_projection.py",
+    "lines": 64,
+    "max_function_complexity": 8,
+    "most_complex_function": "project_gc_group_directory",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/gc_group_directory_query.py",
+    "lines": 144,
+    "max_function_complexity": 9,
+    "most_complex_function": "query_gc_group_directory",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/group_update_preview.py",
+    "lines": 111,
+    "max_function_complexity": 27,
+    "most_complex_function": "build_group_update_preview",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/managed_account_creation.py",
+    "lines": 101,
+    "max_function_complexity": 4,
+    "most_complex_function": "create_staff_account",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/managed_account_credentials.py",
+    "lines": 153,
+    "max_function_complexity": 2,
+    "most_complex_function": "reset_managed_account_password",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/managed_account_mutations.py",
+    "lines": 178,
+    "max_function_complexity": 7,
+    "most_complex_function": "delete_managed_account",
+    "coverage_percent": 98.33
+  },
+  {
+    "path": "app/presentation/api/v1/routes/managed_account_queries.py",
+    "lines": 87,
+    "max_function_complexity": 4,
+    "most_complex_function": "list_managed_accounts",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/managed_account_scope.py",
+    "lines": 65,
+    "max_function_complexity": 10,
+    "most_complex_function": "_get_manageable_account",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/managed_account_sessions.py",
+    "lines": 102,
+    "max_function_complexity": 3,
+    "most_complex_function": "_deactivate_coordinator_assignments",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/managed_account_values.py",
+    "lines": 73,
+    "max_function_complexity": 2,
+    "most_complex_function": "_validated_credential_state",
+    "coverage_percent": 94.44
+  },
+  {
+    "path": "app/presentation/api/v1/routes/mcp_admin.py",
+    "lines": 63,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/mcp_admin_authorization.py",
+    "lines": 186,
+    "max_function_complexity": 4,
+    "most_complex_function": "control",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/mcp_admin_connections.py",
+    "lines": 220,
+    "max_function_complexity": 7,
+    "most_complex_function": "connection_payload",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/mcp_admin_context.py",
+    "lines": 19,
+    "max_function_complexity": 1,
+    "most_complex_function": "_settings",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/mcp_admin_reads.py",
+    "lines": 143,
+    "max_function_complexity": 4,
+    "most_complex_function": "activity",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/menu.py",
+    "lines": 134,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/menu_categories.py",
+    "lines": 158,
+    "max_function_complexity": 1,
+    "most_complex_function": "create_menu_category",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/menu_common.py",
+    "lines": 149,
+    "max_function_complexity": 6,
+    "most_complex_function": "_require_current_category_revisions",
+    "coverage_percent": 94.34
+  },
+  {
+    "path": "app/presentation/api/v1/routes/menu_creation_support.py",
+    "lines": 36,
+    "max_function_complexity": 1,
+    "most_complex_function": "menu_creation_support",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/menu_dishes.py",
+    "lines": 168,
+    "max_function_complexity": 1,
+    "most_complex_function": "create_menu_dish",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/menu_export_support.py",
+    "lines": 56,
+    "max_function_complexity": 3,
+    "most_complex_function": "render_meal_plan_workbook",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/menu_exports.py",
+    "lines": 41,
+    "max_function_complexity": 1,
+    "most_complex_function": "export_meal_plan",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/menu_plan_entries.py",
+    "lines": 130,
+    "max_function_complexity": 11,
+    "most_complex_function": "update_meal_plan_entry",
+    "coverage_percent": 90.91
+  },
+  {
+    "path": "app/presentation/api/v1/routes/menu_planner.py",
+    "lines": 141,
+    "max_function_complexity": 16,
+    "most_complex_function": "_planner_categories",
+    "coverage_percent": 92.67999999999999
+  },
+  {
+    "path": "app/presentation/api/v1/routes/menu_plans.py",
+    "lines": 213,
+    "max_function_complexity": 5,
+    "most_complex_function": "regenerate_meal_plan",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/menu_presenters.py",
+    "lines": 120,
+    "max_function_complexity": 10,
+    "most_complex_function": "_plan_response",
+    "coverage_percent": 96.55
+  },
+  {
+    "path": "app/presentation/api/v1/routes/menu_queries.py",
+    "lines": 133,
+    "max_function_complexity": 4,
+    "most_complex_function": "_get_category",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/menu_workspace.py",
+    "lines": 63,
+    "max_function_complexity": 13,
+    "most_complex_function": "get_menu_workspace",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/mobile_ops.py",
+    "lines": 2457,
+    "max_function_complexity": 23,
+    "most_complex_function": "_mobile_operational_passenger_detail",
+    "coverage_percent": 39.550000000000004
+  },
+  {
+    "path": "app/presentation/api/v1/routes/mobile_resources.py",
+    "lines": 2779,
+    "max_function_complexity": 16,
+    "most_complex_function": "_mobile_manifest_versions",
+    "coverage_percent": 26.33
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_excel_identity.py",
+    "lines": 224,
+    "max_function_complexity": 24,
+    "most_complex_function": "_resolve_existing_passport_excel_submission",
+    "coverage_percent": 89.09
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_excel_import_support.py",
+    "lines": 58,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_excel_merge.py",
+    "lines": 103,
+    "max_function_complexity": 10,
+    "most_complex_function": "_apply_passport_excel_row_to_submission",
+    "coverage_percent": 93.33
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_excel_rows.py",
+    "lines": 136,
+    "max_function_complexity": 23,
+    "most_complex_function": "_deduplicate_passport_excel_rows",
+    "coverage_percent": 81.67
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_export_agency_matches.py",
+    "lines": 262,
+    "max_function_complexity": 17,
+    "most_complex_function": "_export_agency_matches",
+    "coverage_percent": 91.86999999999999
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_export_catalog.py",
+    "lines": 313,
+    "max_function_complexity": 19,
+    "most_complex_function": "_merge_export_field_catalogs",
+    "coverage_percent": 95.45
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_export_match_sources.py",
+    "lines": 124,
+    "max_function_complexity": 20,
+    "most_complex_function": "_export_whatsapp_match_rows",
+    "coverage_percent": 97.72999999999999
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_export_metadata.py",
+    "lines": 82,
+    "max_function_complexity": 6,
+    "most_complex_function": "_group_export_details",
+    "coverage_percent": 95.83
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_export_pending_rows.py",
+    "lines": 236,
+    "max_function_complexity": 23,
+    "most_complex_function": "_pending_recipient_export_rows",
+    "coverage_percent": 97.06
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_export_recipient_values.py",
+    "lines": 211,
+    "max_function_complexity": 15,
+    "most_complex_function": "_export_zone_names_from_match_rows",
+    "coverage_percent": 88.89
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_export_support.py",
+    "lines": 133,
+    "max_function_complexity": 1,
+    "most_complex_function": "_export_zone_names",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_export_tracking_rows.py",
+    "lines": 240,
+    "max_function_complexity": 32,
+    "most_complex_function": "_whatsapp_tracking_export_rows",
+    "coverage_percent": 92.31
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_image_library.py",
+    "lines": 80,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_image_library_authority.py",
+    "lines": 139,
+    "max_function_complexity": 14,
+    "most_complex_function": "lock_passport_image_mutation",
+    "coverage_percent": 97.5
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_image_library_manual.py",
+    "lines": 279,
+    "max_function_complexity": 13,
+    "most_complex_function": "upload_passport_image_library_item",
+    "coverage_percent": 92.5
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_image_library_reads.py",
+    "lines": 156,
+    "max_function_complexity": 5,
+    "most_complex_function": "get_passport_image_library_item",
+    "coverage_percent": 97.87
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_image_library_responses.py",
+    "lines": 51,
+    "max_function_complexity": 3,
+    "most_complex_function": "_library_item_response",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_image_library_selection.py",
+    "lines": 272,
+    "max_function_complexity": 16,
+    "most_complex_function": "use_passport_image_library_item",
+    "coverage_percent": 88.75
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_image_mutation.py",
+    "lines": 64,
+    "max_function_complexity": 3,
+    "most_complex_function": "lock_passport_image_mutation",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_image_storage_write.py",
+    "lines": 72,
+    "max_function_complexity": 3,
+    "most_complex_function": "write_passport_image_objects",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/bulk_actions.py",
+    "lines": 134,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/bulk_actions_actor.py",
+    "lines": 78,
+    "max_function_complexity": 5,
+    "most_complex_function": "_lock_active_bulk_approval_actor",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/bulk_actions_approval.py",
+    "lines": 230,
+    "max_function_complexity": 16,
+    "most_complex_function": "bulk_staff_approve_passport_submissions",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/bulk_actions_delete.py",
+    "lines": 289,
+    "max_function_complexity": 21,
+    "most_complex_function": "bulk_delete_passport_submissions",
+    "coverage_percent": 98.83999999999999
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/bulk_actions_roster.py",
+    "lines": 58,
+    "max_function_complexity": 5,
+    "most_complex_function": "_active_roster_resolution_references",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/bulk_actions_transitions.py",
+    "lines": 122,
+    "max_function_complexity": 6,
+    "most_complex_function": "_apply_bulk_staff_approvals",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/constants.py",
+    "lines": 72,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/contact_challenges.py",
+    "lines": 57,
+    "max_function_complexity": 5,
+    "most_complex_function": "_locked_upload",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/contact_completion.py",
+    "lines": 73,
+    "max_function_complexity": 17,
+    "most_complex_function": "verify_public_contact_otp",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/contact_family.py",
+    "lines": 80,
+    "max_function_complexity": 16,
+    "most_complex_function": "require_verified_family_head",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/contact_issuance.py",
+    "lines": 152,
+    "max_function_complexity": 21,
+    "most_complex_function": "request_public_contact_otp",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/contact_submission_proof.py",
+    "lines": 67,
+    "max_function_complexity": 16,
+    "most_complex_function": "require_public_contact_proof",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/contact_verification.py",
+    "lines": 17,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/dependencies.py",
+    "lines": 152,
+    "max_function_complexity": 1,
+    "most_complex_function": "_get_submit_passport_use_case",
+    "coverage_percent": 80.85
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/document_import.py",
+    "lines": 207,
+    "max_function_complexity": 11,
+    "most_complex_function": "save_passport_documents_by_group",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/document_import_authority.py",
+    "lines": 108,
+    "max_function_complexity": 7,
+    "most_complex_function": "lock_document_import_authority",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/document_import_failure.py",
+    "lines": 55,
+    "max_function_complexity": 2,
+    "most_complex_function": "compensate_failed_document_import",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/document_import_persistence.py",
+    "lines": 101,
+    "max_function_complexity": 15,
+    "most_complex_function": "apply_staged_document_import",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/document_import_preview.py",
+    "lines": 142,
+    "max_function_complexity": 7,
+    "most_complex_function": "_passport_document_preview",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/document_import_processing.py",
+    "lines": 77,
+    "max_function_complexity": 11,
+    "most_complex_function": "_stage_ocr_for_complete_staff_bundles",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/document_import_staging.py",
+    "lines": 80,
+    "max_function_complexity": 3,
+    "most_complex_function": "prepare_document_import_targets",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/excel_exports.py",
+    "lines": 350,
+    "max_function_complexity": 7,
+    "most_complex_function": "export_whatsapp_tracking_by_group",
+    "coverage_percent": 82.83
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/excel_import.py",
+    "lines": 363,
+    "max_function_complexity": 31,
+    "most_complex_function": "import_passports_by_group",
+    "coverage_percent": 83.45
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/export_context.py",
+    "lines": 189,
+    "max_function_complexity": 9,
+    "most_complex_function": "_without_rejected_roster_submissions",
+    "coverage_percent": 95.30999999999999
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/export_history.py",
+    "lines": 306,
+    "max_function_complexity": 12,
+    "most_complex_function": "list_passport_group_export_history",
+    "coverage_percent": 77.88000000000001
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/image_exports.py",
+    "lines": 247,
+    "max_function_complexity": 14,
+    "most_complex_function": "export_passport_images_by_group",
+    "coverage_percent": 77.55
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/image_support.py",
+    "lines": 289,
+    "max_function_complexity": 10,
+    "most_complex_function": "_load_effective_passport_image",
+    "coverage_percent": 81.74
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/images.py",
+    "lines": 99,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/images_crop.py",
+    "lines": 207,
+    "max_function_complexity": 12,
+    "most_complex_function": "update_passport_image_crop",
+    "coverage_percent": 91.53
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/images_reads.py",
+    "lines": 258,
+    "max_function_complexity": 5,
+    "most_complex_function": "get_passport_image_edit_source",
+    "coverage_percent": 97.3
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/images_reset.py",
+    "lines": 115,
+    "max_function_complexity": 4,
+    "most_complex_function": "reset_passport_image_crop",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/processing_support.py",
+    "lines": 59,
+    "max_function_complexity": 5,
+    "most_complex_function": "_dispatch_processing_job",
+    "coverage_percent": 39.129999999999995
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/public_security.py",
+    "lines": 111,
+    "max_function_complexity": 5,
+    "most_complex_function": "_validated_upload_file",
+    "coverage_percent": 75.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/public_upload.py",
+    "lines": 142,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/public_upload_discard.py",
+    "lines": 150,
+    "max_function_complexity": 15,
+    "most_complex_function": "discard_public_upload",
+    "coverage_percent": 93.75
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/public_upload_images.py",
+    "lines": 128,
+    "max_function_complexity": 4,
+    "most_complex_function": "get_public_upload_passport_document",
+    "coverage_percent": 67.74
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/public_upload_preparation.py",
+    "lines": 88,
+    "max_function_complexity": 10,
+    "most_complex_function": "prepare_public_upload_file",
+    "coverage_percent": 96.88
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/public_upload_scope.py",
+    "lines": 51,
+    "max_function_complexity": 5,
+    "most_complex_function": "_get_public_upload_submission",
+    "coverage_percent": 95.24000000000001
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/public_upload_status.py",
+    "lines": 213,
+    "max_function_complexity": 10,
+    "most_complex_function": "scan_again_public_upload",
+    "coverage_percent": 81.97
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/public_upload_submission.py",
+    "lines": 201,
+    "max_function_complexity": 14,
+    "most_complex_function": "upload_passport",
+    "coverage_percent": 78.33
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/queries.py",
+    "lines": 275,
+    "max_function_complexity": 14,
+    "most_complex_function": "list_passports_by_group_view",
+    "coverage_percent": 92.96
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/response_support.py",
+    "lines": 298,
+    "max_function_complexity": 7,
+    "most_complex_function": "_staff_image_urls",
+    "coverage_percent": 72.38
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/selected_exports.py",
+    "lines": 248,
+    "max_function_complexity": 9,
+    "most_complex_function": "_selected_groups_export_context",
+    "coverage_percent": 90.91
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/submission_execution.py",
+    "lines": 44,
+    "max_function_complexity": 5,
+    "most_complex_function": "execute_client_review",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/submission_review.py",
+    "lines": 161,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/submission_review_approval.py",
+    "lines": 181,
+    "max_function_complexity": 9,
+    "most_complex_function": "staff_approve_passport",
+    "coverage_percent": 91.53
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/submission_review_client.py",
+    "lines": 131,
+    "max_function_complexity": 13,
+    "most_complex_function": "client_submit_passport",
+    "coverage_percent": 86.53999999999999
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/submission_review_confirmation.py",
+    "lines": 116,
+    "max_function_complexity": 5,
+    "most_complex_function": "confirm_passport",
+    "coverage_percent": 60.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/submission_review_processing.py",
+    "lines": 238,
+    "max_function_complexity": 8,
+    "most_complex_function": "retry_post_submission_verification",
+    "coverage_percent": 77.78
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/submission_review_read.py",
+    "lines": 82,
+    "max_function_complexity": 5,
+    "most_complex_function": "get_passport",
+    "coverage_percent": 94.12
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/submission_review_support.py",
+    "lines": 135,
+    "max_function_complexity": 5,
+    "most_complex_function": "_dispatch_committed_verification",
+    "coverage_percent": 67.39
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/visa_ai_edits.py",
+    "lines": 100,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/visa_ai_edits_apply.py",
+    "lines": 271,
+    "max_function_complexity": 11,
+    "most_complex_function": "apply_visa_ai_image_edit",
+    "coverage_percent": 92.65
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/visa_ai_edits_preview.py",
+    "lines": 137,
+    "max_function_complexity": 4,
+    "most_complex_function": "preview_visa_ai_image_edit",
+    "coverage_percent": 91.3
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/visa_ai_jobs.py",
+    "lines": 190,
+    "max_function_complexity": 7,
+    "most_complex_function": "create_visa_ai_image_job",
+    "coverage_percent": 40.32
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/visa_ai_library.py",
+    "lines": 105,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/visa_ai_library_generation.py",
+    "lines": 160,
+    "max_function_complexity": 5,
+    "most_complex_function": "create_visa_ai_library_image",
+    "coverage_percent": 92.58999999999999
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/visa_ai_library_reads.py",
+    "lines": 111,
+    "max_function_complexity": 3,
+    "most_complex_function": "list_visa_ai_image_library",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/visa_ai_library_selection.py",
+    "lines": 216,
+    "max_function_complexity": 10,
+    "most_complex_function": "use_visa_ai_library_image",
+    "coverage_percent": 90.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/visa_ai_support.py",
+    "lines": 147,
+    "max_function_complexity": 8,
+    "most_complex_function": "_dispatch_queued_visa_ai_job",
+    "coverage_percent": 52.94
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passports.py",
+    "lines": 475,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/returning_detection.py",
+    "lines": 47,
+    "max_function_complexity": 3,
+    "most_complex_function": "detected_history",
+    "coverage_percent": 92.86
+  },
+  {
+    "path": "app/presentation/api/v1/routes/rooming.py",
+    "lines": 136,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/rooming_exports.py",
+    "lines": 196,
+    "max_function_complexity": 3,
+    "most_complex_function": "export_hotel_rooming_list",
+    "coverage_percent": 90.48
+  },
+  {
+    "path": "app/presentation/api/v1/routes/tour_operations.py",
+    "lines": 305,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/tour_operations_access.py",
+    "lines": 267,
+    "max_function_complexity": 6,
+    "most_complex_function": "_get_attendance_close_group_scope",
+    "coverage_percent": 67.39
+  },
+  {
+    "path": "app/presentation/api/v1/routes/tour_operations_accounts.py",
+    "lines": 265,
+    "max_function_complexity": 2,
+    "most_complex_function": "list_coordinators",
+    "coverage_percent": 72.5
+  },
+  {
+    "path": "app/presentation/api/v1/routes/tour_operations_activity_lifecycle.py",
+    "lines": 167,
+    "max_function_complexity": 5,
+    "most_complex_function": "_canonical_attendance_activity_admission",
+    "coverage_percent": 93.02
+  },
+  {
+    "path": "app/presentation/api/v1/routes/tour_operations_assignments.py",
+    "lines": 362,
+    "max_function_complexity": 7,
+    "most_complex_function": "assign_group_passengers",
+    "coverage_percent": 69.31
+  },
+  {
+    "path": "app/presentation/api/v1/routes/tour_operations_attendance_closeout.py",
+    "lines": 308,
+    "max_function_complexity": 8,
+    "most_complex_function": "publish_my_attendance_closeout_checkpoint",
+    "coverage_percent": 80.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/tour_operations_attendance_dashboard.py",
+    "lines": 151,
+    "max_function_complexity": 5,
+    "most_complex_function": "get_group_attendance_missing_passengers",
+    "coverage_percent": 91.11
+  },
+  {
+    "path": "app/presentation/api/v1/routes/tour_operations_attendance_scans.py",
+    "lines": 146,
+    "max_function_complexity": 4,
+    "most_complex_function": "record_my_attendance_scan",
+    "coverage_percent": 81.82000000000001
+  },
+  {
+    "path": "app/presentation/api/v1/routes/tour_operations_attendance_sessions.py",
+    "lines": 243,
+    "max_function_complexity": 6,
+    "most_complex_function": "update_managed_attendance_schedule",
+    "coverage_percent": 77.42
+  },
+  {
+    "path": "app/presentation/api/v1/routes/tour_operations_attendance_views.py",
+    "lines": 415,
+    "max_function_complexity": 12,
+    "most_complex_function": "_group_attendance_overview",
+    "coverage_percent": 83.33
+  },
+  {
+    "path": "app/presentation/api/v1/routes/tour_operations_passenger_views.py",
+    "lines": 120,
+    "max_function_complexity": 5,
+    "most_complex_function": "_family_group_label",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/tour_operations_qr.py",
+    "lines": 267,
+    "max_function_complexity": 7,
+    "most_complex_function": "set_passenger_qr_active",
+    "coverage_percent": 91.67
+  },
+  {
+    "path": "app/presentation/api/v1/routes/tour_operations_qr_delivery.py",
+    "lines": 187,
+    "max_function_complexity": 21,
+    "most_complex_function": "send_qr_whatsapp_broadcast",
+    "coverage_percent": 88.57000000000001
+  },
+  {
+    "path": "app/presentation/api/v1/routes/tour_operations_qr_delivery_policy.py",
+    "lines": 142,
+    "max_function_complexity": 4,
+    "most_complex_function": "_recover_stale_qr_deliveries",
+    "coverage_percent": 88.89
+  },
+  {
+    "path": "app/presentation/api/v1/routes/tour_operations_qr_delivery_preview.py",
+    "lines": 152,
+    "max_function_complexity": 13,
+    "most_complex_function": "_preview_recipient",
+    "coverage_percent": 95.12
+  },
+  {
+    "path": "app/presentation/api/v1/routes/tour_operations_qr_delivery_queue.py",
+    "lines": 123,
+    "max_function_complexity": 10,
+    "most_complex_function": "queue_qr_deliveries",
+    "coverage_percent": 94.55
+  },
+  {
+    "path": "app/presentation/api/v1/routes/tour_operations_qr_delivery_roster.py",
+    "lines": 147,
+    "max_function_complexity": 11,
+    "most_complex_function": "_matched_recipients",
+    "coverage_percent": 95.12
+  },
+  {
+    "path": "app/presentation/api/v1/routes/tour_operations_qr_eligibility.py",
+    "lines": 103,
+    "max_function_complexity": 14,
+    "most_complex_function": "qr_delivery_eligibility",
+    "coverage_percent": 82.98
+  },
+  {
+    "path": "app/presentation/api/v1/routes/tour_operations_qr_preview_sources.py",
+    "lines": 65,
+    "max_function_complexity": 7,
+    "most_complex_function": "load_qr_preview_sources",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/tour_operations_response_support.py",
+    "lines": 174,
+    "max_function_complexity": 11,
+    "most_complex_function": "group_responses",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp.py",
+    "lines": 552,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_activity.py",
+    "lines": 292,
+    "max_function_complexity": 6,
+    "most_complex_function": "get_whatsapp_activity_summary",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_activity_access.py",
+    "lines": 31,
+    "max_function_complexity": 3,
+    "most_complex_function": "_ensure_kind_access",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_activity_document_queries.py",
+    "lines": 74,
+    "max_function_complexity": 5,
+    "most_complex_function": "_document_activity_status_predicate",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_activity_failure_queries.py",
+    "lines": 96,
+    "max_function_complexity": 2,
+    "most_complex_function": "_broadcast_failures_statement",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_activity_status.py",
+    "lines": 66,
+    "max_function_complexity": 3,
+    "most_complex_function": "_status_aggregates",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_activity_summary_queries.py",
+    "lines": 128,
+    "max_function_complexity": 2,
+    "most_complex_function": "_broadcast_activity_statement",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_actor_credentials.py",
+    "lines": 34,
+    "max_function_complexity": 2,
+    "most_complex_function": "refresh_locked_whatsapp_credentials",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_batch_status.py",
+    "lines": 143,
+    "max_function_complexity": 15,
+    "most_complex_function": "get_broadcast_batch_status",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend.py",
+    "lines": 150,
+    "max_function_complexity": 4,
+    "most_complex_function": "resend_selected_recipient_messages",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend_claims.py",
+    "lines": 160,
+    "max_function_complexity": 14,
+    "most_complex_function": "claim_bulk_resend_rows",
+    "coverage_percent": 95.65
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend_composer.py",
+    "lines": 246,
+    "max_function_complexity": 19,
+    "most_complex_function": "resolve_saved_resend_snapshot",
+    "coverage_percent": 94.74000000000001
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend_history.py",
+    "lines": 182,
+    "max_function_complexity": 20,
+    "most_complex_function": "selection_delivery_maps",
+    "coverage_percent": 93.47999999999999
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend_inputs.py",
+    "lines": 75,
+    "max_function_complexity": 6,
+    "most_complex_function": "read_bulk_resend_inputs",
+    "coverage_percent": 96.77
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend_preview.py",
+    "lines": 137,
+    "max_function_complexity": 6,
+    "most_complex_function": "preview_selected_recipient_messages",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend_preview_values.py",
+    "lines": 183,
+    "max_function_complexity": 15,
+    "most_complex_function": "collect_bulk_preview_snapshots",
+    "coverage_percent": 97.06
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend_publication.py",
+    "lines": 106,
+    "max_function_complexity": 11,
+    "most_complex_function": "publish_bulk_resend",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend_results.py",
+    "lines": 88,
+    "max_function_complexity": 9,
+    "most_complex_function": "refresh_batch_response",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend_selection.py",
+    "lines": 103,
+    "max_function_complexity": 6,
+    "most_complex_function": "replay_bulk_resend_request",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend_support.py",
+    "lines": 179,
+    "max_function_complexity": 16,
+    "most_complex_function": "recipient_skip_reason",
+    "coverage_percent": 95.16
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_composer.py",
+    "lines": 149,
+    "max_function_complexity": 1,
+    "most_complex_function": "preview_broadcast_message",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_composer_content.py",
+    "lines": 184,
+    "max_function_complexity": 7,
+    "most_complex_function": "_preview_message_metadata",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_composer_legacy.py",
+    "lines": 122,
+    "max_function_complexity": 14,
+    "most_complex_function": "_decode_legacy_template_snapshot",
+    "coverage_percent": 79.63
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_composer_media.py",
+    "lines": 156,
+    "max_function_complexity": 12,
+    "most_complex_function": "upload_welcome_media",
+    "coverage_percent": 83.61
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_composer_preview.py",
+    "lines": 179,
+    "max_function_complexity": 13,
+    "most_complex_function": "load_preview_snapshot",
+    "coverage_percent": 90.41
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_composer_preview_response.py",
+    "lines": 127,
+    "max_function_complexity": 6,
+    "most_complex_function": "build_preview_response",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_composer_rendering.py",
+    "lines": 95,
+    "max_function_complexity": 4,
+    "most_complex_function": "_message_values",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_composer_snapshots.py",
+    "lines": 203,
+    "max_function_complexity": 11,
+    "most_complex_function": "_merge_composer_snapshot",
+    "coverage_percent": 91.55
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_composer_support.py",
+    "lines": 134,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_contact_excel.py",
+    "lines": 276,
+    "max_function_complexity": 22,
+    "most_complex_function": "_excel_name_from_row",
+    "coverage_percent": 98.13
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_contact_import.py",
+    "lines": 424,
+    "max_function_complexity": 35,
+    "most_complex_function": "_parse_excel_contact_bytes",
+    "coverage_percent": 95.3
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_contact_parse_result.py",
+    "lines": 24,
+    "max_function_complexity": 1,
+    "most_complex_function": "rejected_count",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_contact_rejections.py",
+    "lines": 150,
+    "max_function_complexity": 14,
+    "most_complex_function": "_parse_rejected_contacts",
+    "coverage_percent": 95.45
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_contact_responses.py",
+    "lines": 193,
+    "max_function_complexity": 19,
+    "most_complex_function": "_recipient_response",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_contact_support.py",
+    "lines": 189,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_contact_values.py",
+    "lines": 189,
+    "max_function_complexity": 3,
+    "most_complex_function": "_excel_field_key",
+    "coverage_percent": 98.18
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_export_hydration.py",
+    "lines": 161,
+    "max_function_complexity": 10,
+    "most_complex_function": "load_export_delivery",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_export_matching.py",
+    "lines": 132,
+    "max_function_complexity": 16,
+    "most_complex_function": "add_manual_match_sources",
+    "coverage_percent": 98.15
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_export_projection.py",
+    "lines": 246,
+    "max_function_complexity": 13,
+    "most_complex_function": "append_source_rows",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_export_selection.py",
+    "lines": 60,
+    "max_function_complexity": 12,
+    "most_complex_function": "select_export_rows",
+    "coverage_percent": 96.67
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_export_sources.py",
+    "lines": 201,
+    "max_function_complexity": 16,
+    "most_complex_function": "load_durable_sources",
+    "coverage_percent": 96.34
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_export_support.py",
+    "lines": 185,
+    "max_function_complexity": 9,
+    "most_complex_function": "_delivery_values",
+    "coverage_percent": 97.33000000000001
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_exports.py",
+    "lines": 265,
+    "max_function_complexity": 5,
+    "most_complex_function": "export_broadcast_filter",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_groups_delete.py",
+    "lines": 166,
+    "max_function_complexity": 6,
+    "most_complex_function": "delete_broadcast_group",
+    "coverage_percent": 97.37
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_groups_manage.py",
+    "lines": 228,
+    "max_function_complexity": 10,
+    "most_complex_function": "update_broadcast_group",
+    "coverage_percent": 96.1
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_groups_read.py",
+    "lines": 89,
+    "max_function_complexity": 3,
+    "most_complex_function": "list_broadcast_groups",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_imported_fields.py",
+    "lines": 186,
+    "max_function_complexity": 21,
+    "most_complex_function": "_safe_imported_fields",
+    "coverage_percent": 95.17999999999999
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_recipient_inputs.py",
+    "lines": 219,
+    "max_function_complexity": 12,
+    "most_complex_function": "_normalized_recipient_inputs",
+    "coverage_percent": 97.85000000000001
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_recipient_roster.py",
+    "lines": 372,
+    "max_function_complexity": 20,
+    "most_complex_function": "get_broadcast_recipient_roster",
+    "coverage_percent": 96.67
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_recipients.py",
+    "lines": 301,
+    "max_function_complexity": 22,
+    "most_complex_function": "update_broadcast_recipient_phone",
+    "coverage_percent": 93.81
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_rejected_contacts.py",
+    "lines": 291,
+    "max_function_complexity": 16,
+    "most_complex_function": "resolve_broadcast_rejected_contact",
+    "coverage_percent": 89.25
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_resend.py",
+    "lines": 233,
+    "max_function_complexity": 8,
+    "most_complex_function": "resend_recipient_message",
+    "coverage_percent": 94.38
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_resend_claims.py",
+    "lines": 150,
+    "max_function_complexity": 11,
+    "most_complex_function": "read_resend_claim",
+    "coverage_percent": 95.12
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_resend_preparation.py",
+    "lines": 181,
+    "max_function_complexity": 10,
+    "most_complex_function": "prepare_resend_attempt",
+    "coverage_percent": 90.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_resend_publication.py",
+    "lines": 106,
+    "max_function_complexity": 3,
+    "most_complex_function": "publish_resend_attempt",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_roster_order.py",
+    "lines": 126,
+    "max_function_complexity": 12,
+    "most_complex_function": "_roster_source_sort_key",
+    "coverage_percent": 93.33
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_scope.py",
+    "lines": 177,
+    "max_function_complexity": 3,
+    "most_complex_function": "_prepare_private_recipient_mutation",
+    "coverage_percent": 91.23
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_send.py",
+    "lines": 271,
+    "max_function_complexity": 7,
+    "most_complex_function": "queue_broadcast_message",
+    "coverage_percent": 94.25
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_send_claims.py",
+    "lines": 177,
+    "max_function_complexity": 14,
+    "most_complex_function": "claim_prepared_broadcast_send",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_send_preparation.py",
+    "lines": 172,
+    "max_function_complexity": 8,
+    "most_complex_function": "prepare_broadcast_send",
+    "coverage_percent": 94.74000000000001
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_send_projection.py",
+    "lines": 61,
+    "max_function_complexity": 1,
+    "most_complex_function": "build_broadcast_send_response",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_shared.py",
+    "lines": 220,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_source_groups.py",
+    "lines": 283,
+    "max_function_complexity": 19,
+    "most_complex_function": "get_broadcast_source_contacts",
+    "coverage_percent": 95.5
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_webhook.py",
+    "lines": 112,
+    "max_function_complexity": 9,
+    "most_complex_function": "receive_whatsapp_webhook",
+    "coverage_percent": 77.78
+  },
+  {
+    "path": "app/presentation/api/v1/routes/whatsapp_welcome_media_authority.py",
+    "lines": 92,
+    "max_function_complexity": 7,
+    "most_complex_function": "_require_current_media_scope",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/client_group_broadcast_schemas.py",
+    "lines": 71,
+    "max_function_complexity": 3,
+    "most_complex_function": "validate_matching_fields",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/client_group_collection_schemas.py",
+    "lines": 54,
+    "max_function_complexity": 5,
+    "most_complex_function": "normalize_options",
+    "coverage_percent": 97.37
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/client_group_match_schemas.py",
+    "lines": 148,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/client_group_qualifier_schemas.py",
+    "lines": 71,
+    "max_function_complexity": 11,
+    "most_complex_function": "validate_exactly_one_path",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/client_group_request_schemas.py",
+    "lines": 221,
+    "max_function_complexity": 16,
+    "most_complex_function": "validate_airport_configuration",
+    "coverage_percent": 95.07
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/client_group_request_validation.py",
+    "lines": 80,
+    "max_function_complexity": 14,
+    "most_complex_function": "_normalize_matching_fields_by_broadcast",
+    "coverage_percent": 98.25
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/client_group_response_schemas.py",
+    "lines": 63,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/client_group_schemas.py",
+    "lines": 89,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/passport_bulk_schemas.py",
+    "lines": 93,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/passport_collection_schemas.py",
+    "lines": 112,
+    "max_function_complexity": 4,
+    "most_complex_function": "normalize_contact_phone",
+    "coverage_percent": 97.06
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/passport_document_schemas.py",
+    "lines": 53,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/passport_editing_schemas.py",
+    "lines": 97,
+    "max_function_complexity": 3,
+    "most_complex_function": "validate_bounds",
+    "coverage_percent": 98.44000000000001
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/passport_export_schemas.py",
+    "lines": 116,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/passport_schemas.py",
+    "lines": 176,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/passport_summary_schemas.py",
+    "lines": 49,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/passport_verification_schemas.py",
+    "lines": 47,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/passport_view_schemas.py",
+    "lines": 163,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/public_flow_telemetry_schema.py",
+    "lines": 25,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/tour_activity_schemas.py",
+    "lines": 97,
+    "max_function_complexity": 16,
+    "most_complex_function": "_validate_attendance_schedule",
+    "coverage_percent": 83.33
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/tour_attendance_projection_schemas.py",
+    "lines": 143,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/tour_coordinator_schemas.py",
+    "lines": 119,
+    "max_function_complexity": 1,
+    "most_complex_function": "validate_password",
+    "coverage_percent": 96.77
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/tour_operations_schemas.py",
+    "lines": 187,
+    "max_function_complexity": 5,
+    "most_complex_function": "validate_unique_events_and_aggregate_size",
+    "coverage_percent": 100.0
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/tour_qr_schemas.py",
+    "lines": 102,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": 100.0
+  }
+]

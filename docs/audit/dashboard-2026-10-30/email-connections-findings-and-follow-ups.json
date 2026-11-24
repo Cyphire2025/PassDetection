@@ -1,0 +1,30 @@
+{
+  "fixed_issue": {
+    "status": "reproduced, fixed, local focused verified",
+    "trigger": "An authorized reconnect commits a new connection generation while an older disconnect/remove awaits synthetic provider revocation.",
+    "before": "Old disconnect overwrites renewed local grant; old remove deletes renewed connection after revoking only the previous synthetic credential. Two corrected ordinary cases fail, two unchanged-generation controls pass; original64affected cases pass.",
+    "after": "Capture committed fence generation, keep original second owned row-lock lookup, explicitly refresh only sync_generation, and return existing HTTPException409 before post-await writes/purge when changed. All4real SQLite public-route controls pass; same-owner unchanged-generation outputs/order retained.",
+    "query_cost": "One bounded fresh generation query after reacquiring row lock per non-short-circuited disconnect/removal. Shared _owned_connection signature/query unchanged; unrelated dirty attributes are not discarded.",
+    "limits": "Local database preservation only. Committed reconnect-shaped writer bypasses retained identity map; no real PostgreSQL concurrency/row-lock behavior, live OAuth or provider-side newer-grant survival claim. Old-token remote revocation may have provider-specific grant-family effects not established here."
+  },
+  "architecture": {
+    "status": "implemented and focused verified",
+    "original_lines": 604,
+    "result": "Five owners: current readiness/list facade114, monitoring171, disconnect151, permanent removal200, AI consent118. All8post-fix whole function ASTs/decorators retained; no callback/proxy/mixin framework or API/SDK/setup changes.",
+    "preserved": "All8signatures/evaluated hints/module/qualnames/pickles and direct facade/aggregate aliases;18route order/registration/CSRF metadata; complete16path OpenAPI;78original globals; same request/provider/commit/audit/object cleanup boundaries except validated stale-generation409.",
+    "complexity": "Original maximum11 remains family maximum11; no time-complexity or latency improvement claimed. Typed ownership isolates responsibilities without arbitrary splitting of cohesive model classes."
+  },
+  "gates": {
+    "proposed_only": true,
+    "normal": "4additions +1facade tightening, all95line floors >=old65, oldMCC11ceiling carried to every real owner; no old ceiling/floor relaxation.",
+    "critical": "Parent-authorized new95line/90branch guards on actual disconnect/removal code; real generation DB regression outcomes, not declaration/import-only checks. All original global/critical floors preserved.",
+    "owner_coverage": "Fresh95case source-fenced run, all5current owners100percent line/branch; branchless facade excluded from critical candidates. Same untouched run data re-reported app-relative owner view, no coverage merge."
+  },
+  "remaining": [
+    "Gmail299/Outlook328 callback duplication and provider-specific lifetime/cleanup semantics deserve a coherent typed callback architecture preflight; full source read and unchanged existing tests do not close that separate work.",
+    "account_removal.py339 is fully read and existing isolation control passes, but its collection/delete/unreferenced-key architecture remains open; no refactor or new security flaw claimed in that helper.",
+    "The1769line inbox test file now has a complete current manual read and precise unchanged assertion/source proofs; splitting its broader domain tests remains a separate maintainability task. Only first2connection opt-in tests rerun in this batch.",
+    "Provider-side reconnect/revocation effects and real PostgreSQL isolation/concurrency qualification remain service-dependent. No provider calls, production data/credentials or broad app suites/build/browser run.",
+    "AI/root owns exact five-owner normal/critical integration, protected-source bindings and final combined repository verification. This batch does not claim whole audit closure."
+  ]
+}

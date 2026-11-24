@@ -1,0 +1,223 @@
+{
+  "status": "qualified",
+  "source_fence": {
+    "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions.py": "c7f71262abc162e63839c977f407770a2837651f8995472ef52154f990334d40",
+    "backend/tests/route_dependencies.py": "3a077577b401c5d7819efde9d72104487c4089b12b2e9d9e151e8791f9594535",
+    "backend/tests/unit/presentation/test_bulk_approval_session_fence.py": "4fdf4d1162112b119695708f36fefc65f783b0bb7ff2fd364ae0453dea2f6271",
+    "backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py": "9641b67bc05ad710f7f34dedfb801c69e4a8367dce317cf86477c61a75b58706",
+    "backend/tests/unit/presentation/test_passport_bulk_delete_route.py": "f04b6d8acee374694823a556e1eb8fb0b75cbdb295c87e99ea2a2da628c759b9",
+    "backend/tests/unit/presentation/test_passport_submission_delete_access.py": "5848bdbdec5005e834af0c49cedc68f373985258f88b72faef65930ae1510d05",
+    "backend/tests/unit/presentation/test_passport_deletion_support.py": "72f1d08b4e3095350904c40f9f625182462a3225564746498e1c1a5080a47939",
+    "backend/tests/unit/presentation/test_superadmin_access_level.py": "ca1b62b1b71f8b2554d81f6065dd06c3fd31fe1efc610c75d361da436f6e5ff6",
+    "backend/tests/unit/presentation/test_bulk_roster_reference_boundary.py": "0b4a20bc47c41b7923545f7e886ffc0e54926e69598f2ed843c4c979f51e3f87",
+    "backend/tests/unit/presentation/test_passport_export_history_routes.py": "b2b95a05310c6824b182dcb524199a44455932f075edf1b255fb130b3e751f6f",
+    "backend/app/presentation/api/v1/routes/passports.py": "977089c9df210b7a7a92c39b5faaa2ae6cf872ed49df4b04fabe5ff483c03617",
+    "backend/app/presentation/api/v1/routes/passport_routes/export_context.py": "ce172b2f3c0bf0c02a79a83937a239bb4dddfabc2e4fc913190cbeacd67371ee",
+    "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions_actor.py": "b17bab6365d72f995763aaa43f17980ca241edea9f371f62e4fc225646f3ae0c",
+    "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions_approval.py": "c40650d432686c9be0c0fbee801c5aa9cd2699125859b0f84f1c4002e66d1810",
+    "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions_delete.py": "3ebfce47110e3e562639e5d520a3b95fcb945a25468c082d0dfbe131cd53dece",
+    "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions_roster.py": "5846b5e0180237cf408dce4c2196686a61a2eb44613e7dc2baab5f69b4ecfbd2",
+    "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions_transitions.py": "9ecf164ab748b59f5ce10fa780ed191e4452b4a087f67cbd58fcba05c57140b1"
+  },
+  "runtime_owners": [
+    "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions.py",
+    "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions_actor.py",
+    "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions_approval.py",
+    "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions_delete.py",
+    "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions_roster.py",
+    "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions_transitions.py"
+  ],
+  "source_measurements": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions.py",
+      "lines": 134,
+      "complexity": 0,
+      "coverage": {
+        "covered_lines": 70,
+        "num_statements": 70,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 0,
+        "num_partial_branches": 0,
+        "covered_branches": 0,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      }
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions_actor.py",
+      "lines": 78,
+      "complexity": 5,
+      "coverage": {
+        "covered_lines": 23,
+        "num_statements": 24,
+        "percent_covered": 92.85714285714286,
+        "percent_covered_display": "93",
+        "missing_lines": 1,
+        "excluded_lines": 0,
+        "percent_statements_covered": 95.83333333333333,
+        "percent_statements_covered_display": "96",
+        "num_branches": 4,
+        "num_partial_branches": 1,
+        "covered_branches": 3,
+        "missing_branches": 1,
+        "percent_branches_covered": 75.0,
+        "percent_branches_covered_display": "75"
+      }
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions_approval.py",
+      "lines": 230,
+      "complexity": 16,
+      "coverage": {
+        "covered_lines": 72,
+        "num_statements": 72,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 22,
+        "num_partial_branches": 0,
+        "covered_branches": 22,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      }
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions_delete.py",
+      "lines": 289,
+      "complexity": 21,
+      "coverage": {
+        "covered_lines": 85,
+        "num_statements": 86,
+        "percent_covered": 98.0,
+        "percent_covered_display": "98",
+        "missing_lines": 1,
+        "excluded_lines": 0,
+        "percent_statements_covered": 98.83720930232558,
+        "percent_statements_covered_display": "99",
+        "num_branches": 14,
+        "num_partial_branches": 1,
+        "covered_branches": 13,
+        "missing_branches": 1,
+        "percent_branches_covered": 92.85714285714286,
+        "percent_branches_covered_display": "93"
+      }
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions_roster.py",
+      "lines": 58,
+      "complexity": 5,
+      "coverage": {
+        "covered_lines": 21,
+        "num_statements": 21,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 4,
+        "num_partial_branches": 0,
+        "covered_branches": 4,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      }
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions_transitions.py",
+      "lines": 122,
+      "complexity": 6,
+      "coverage": {
+        "covered_lines": 45,
+        "num_statements": 45,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 3,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 8,
+        "num_partial_branches": 0,
+        "covered_branches": 8,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      }
+    }
+  ],
+  "tests": {
+    "command": "bulk-architecture-final-command.json",
+    "result": "99passed/8files/177.94s"
+  },
+  "proof": "bulk-architecture-extraction-proof.json",
+  "proof_sha256": "cc746dfaacba2bab96ef577ae73c449af49e221b4e6b3e79df2ee6c3c1bb612b",
+  "checks": [
+    {
+      "name": "types",
+      "argv": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "mypy",
+        "app/presentation/api/v1/routes/passport_routes/bulk_actions.py",
+        "app/presentation/api/v1/routes/passport_routes/bulk_actions_actor.py",
+        "app/presentation/api/v1/routes/passport_routes/bulk_actions_approval.py",
+        "app/presentation/api/v1/routes/passport_routes/bulk_actions_delete.py",
+        "app/presentation/api/v1/routes/passport_routes/bulk_actions_roster.py",
+        "app/presentation/api/v1/routes/passport_routes/bulk_actions_transitions.py"
+      ],
+      "exit_code": 0,
+      "output": "bulk-architecture-types.txt"
+    },
+    {
+      "name": "lint",
+      "argv": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "ruff",
+        "check",
+        "--no-fix",
+        "app/presentation/api/v1/routes/passport_routes/bulk_actions.py",
+        "app/presentation/api/v1/routes/passport_routes/bulk_actions_actor.py",
+        "app/presentation/api/v1/routes/passport_routes/bulk_actions_approval.py",
+        "app/presentation/api/v1/routes/passport_routes/bulk_actions_delete.py",
+        "app/presentation/api/v1/routes/passport_routes/bulk_actions_roster.py",
+        "app/presentation/api/v1/routes/passport_routes/bulk_actions_transitions.py",
+        "tests/route_dependencies.py",
+        "tests/unit/presentation/test_bulk_approval_session_fence.py",
+        "tests/unit/presentation/test_passport_bulk_delete_route.py",
+        "tests/unit/presentation/test_passport_bulk_staff_approval_route.py",
+        "tests/unit/presentation/test_passport_submission_delete_access.py",
+        "tests/unit/presentation/test_superadmin_access_level.py"
+      ],
+      "exit_code": 0,
+      "output": "bulk-architecture-lint.txt"
+    }
+  ],
+  "coverage_json": "bulk-architecture-coverage.json",
+  "coverage_xml": "bulk-architecture-coverage.xml",
+  "budget_candidates": "bulk-architecture-budget-candidates.json",
+  "floor_responsibility": "Original normal94 line floor transferred to every actual logic owner; no prior critical membership or global floor relaxed.",
+  "design": "Stable explicit facade; separate actor/roster guards, deletion transaction, approval orchestration and synchronous typed transition. Seven original statements moved unchanged; same mutable lists, timestamp point, transaction/order, payload and audit metadata.",
+  "test_binding_edits": {
+    "artifact": "bulk-architecture-test-binding-edits.json",
+    "edits": 37,
+    "files": 5,
+    "original_assertions": 329
+  },
+  "tooling_note": "Four mapped Windows test files rejected Ruff in-place --fix with E902. Ruff stdin import fixes were written only after its process ended; complete non-import module AST equality was verified. Final scoped lint/type results above are current.",
+  "limits": [
+    "Actual SQLite/session/adapter and route mocks in focused tests; no live PostgreSQL concurrency or provider claim.",
+    "The prior actor credential correction and diagnostic hardening remain separately evidenced behavior changes; this architecture checkpoint starts after them.",
+    "Private new result/helper use their actual private metadata; only the four pre-existing callable identities retain legacy module metadata."
+  ]
+}

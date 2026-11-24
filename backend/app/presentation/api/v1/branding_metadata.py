@@ -21,7 +21,7 @@ async def group_branding_metadata(session: AsyncSession, group_ids: Sequence[uui
     if not group_ids:
         return {}
     rows = (await session.execute(select(
-        ClientGroupModel.id, ClientGroupModel.agency_id, ClientGroupModel.banner_image_key,
+        ClientGroupModel.id, ClientGroupModel.agency_id, ClientGroupModel.banner_image_key, ClientGroupModel.background_image_key,
         ClientOrganizationModel.id.label("company_id"), ClientOrganizationModel.name,
         ClientOrganizationModel.logo_image_key,
     ).outerjoin(ClientOrganizationModel, and_(
@@ -33,4 +33,5 @@ async def group_branding_metadata(session: AsyncSession, group_ids: Sequence[uui
         "company_name": row["name"],
         "company_logo_url": branding_image_url("company-logo", row["company_id"], row["agency_id"], row["logo_image_key"]),
         "banner_url": branding_image_url("group-banner", row["id"], row["agency_id"], row["banner_image_key"]),
+        "background_url": branding_image_url("group-background", row["id"], row["agency_id"], row["background_image_key"]),
     } for row in rows}

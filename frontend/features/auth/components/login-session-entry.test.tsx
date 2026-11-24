@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { installBrowserLocks } from "@/test-support/browser-locks";
 import { useAuthStore } from "@/stores/auth.store";
 import { LoginSessionEntry } from "./login-session-entry";
 
@@ -20,13 +21,16 @@ function completeCheck(authenticated: boolean) {
 }
 
 describe("login session entry", () => {
+  let locks: ReturnType<typeof installBrowserLocks>;
   beforeEach(() => {
+    locks = installBrowserLocks();
     replace.mockReset();
     useAuthStore.setState({
       user: null, isAuthenticated: false, hasHydrated: false,
       restorationStatus: "restoring", sessionVersion: 0,
     });
   });
+  afterEach(() => locks.restore());
 
   it("checks saved cookies before offering password or MFA login", () => {
     render(<LoginSessionEntry />);
@@ -74,6 +78,15 @@ describe("login session entry", () => {
     expect(replace).not.toHaveBeenCalled();
     completeCheck(true);
     await waitFor(() => expect(replace).toHaveBeenCalledWith("/dashboard"));
+  });
+
+  it("keeps capability failures retryable and explains the secure-browser requirement", () => {
+    locks.restore();
+    render(<LoginSessionEntry />);
+    act(() => useAuthStore.getState().markTemporarilyUnavailable());
+    expect(screen.getByRole("alert")).toHaveTextContent("Use HTTPS or localhost in a supported browser");
+    expect(screen.getByRole("button", { name: "Retry connection" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Sign in form" })).not.toBeInTheDocument();
   });
 
   it.each(["https://elsewhere.test", "//elsewhere.test", "/session-restore?from=/login", "/login"])("cannot restore into an external or looping destination: %s", async from => {

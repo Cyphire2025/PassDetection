@@ -1,0 +1,66 @@
+{
+  "status": "frozen-focused",
+  "original_lines": 492,
+  "runtime_owners": 5,
+  "current_lines": {
+    "scripts/qa/capacity_fixture_contract.py": 18,
+    "scripts/qa/capacity_fixture_jobs.py": 142,
+    "scripts/qa/capacity_fixture_observer.py": 89,
+    "scripts/qa/capacity_fixture_seed.py": 260,
+    "scripts/qa/capacity_fixtures.py": 47
+  },
+  "proofs": {
+    "mechanical_whole_function_ASTs": 6,
+    "final_whole_function_ASTs": 5,
+    "one_seed_inverse_whole_module_after_only_local_type_annotations": true,
+    "static_import_origin_occurrences": 96,
+    "static_import_checks_are_not_runtime_identity_measurements": true,
+    "constant_ASTs_exact": 3,
+    "public_alias_pickle_hints_obligations_exercised": 6,
+    "original_public_signatures_and_annotation_ASTs_unchanged": true,
+    "same_original_CLI_description_admission_action_disposal_statements": true,
+    "original_reader_tests_raw_source_unchanged_except_dependency_owner_retarget": true
+  },
+  "checks": {
+    "focused_cases": 15,
+    "test_files": 2,
+    "seconds": 0.25,
+    "Ruff_files": 7,
+    "format_files": 7,
+    "basic_body_mypy_sources": 5,
+    "type_scope": "Basic check-untyped-defs/silent imported bodies/Linux with explicit MYPYPATH backend. Original generic public dict annotations preserved; no strict-mode certification.",
+    "effects": "Synthetic AsyncSession/Redis/command fixtures only. No real data seeding, database, storage, broker, provider or subprocess calls."
+  },
+  "source_sha256": {
+    "backend/tests/unit/infrastructure/test_capacity_fixture_owners.py": "dd09705fddc372587082d7bdbbe6f7d85bc2828865954d57a4bf8fbed4111d8f",
+    "backend/tests/unit/infrastructure/test_capacity_observer_reader_bounds.py": "4f7a76d81f247d2d0e6da876db59342ff15bdfb22c08ee421f209dbfd461996a",
+    "scripts/qa/capacity_fixture_contract.py": "4306af60d5a23b24c8a40fa108dcd5ce7b028bf77bd1d6e7d229520488ae0ec1",
+    "scripts/qa/capacity_fixture_jobs.py": "1fe0b25ec4cd8152d438bf5fb28e6feb144a9ed4da5568bc7b1f323bb20e13f5",
+    "scripts/qa/capacity_fixture_observer.py": "95876ee16d3ea8a8a4058d1181b844e0df0d86b3ced87c000c079c73ee9eb88b",
+    "scripts/qa/capacity_fixture_seed.py": "a0ef14e711ada098cfa413b680122e9d54ad8dccefa753c1e383402127d29623",
+    "scripts/qa/capacity_fixtures.py": "55271f5973045538cc88444abb3019986db59e02e07ea4345b69fa19f863c7db"
+  },
+  "artifacts": {
+    "capacity-fixture-mechanical-proof.json": "3fb31f13624a57f9842a0a310cff4628d33815357c57f396ce94e9afb8d80a2e",
+    "capacity-fixture-final-proof.json": "a810d7db2dae8fbd5bb9b15e04b68b451986399fa4d0d24581fb8780155b692d",
+    "capacity-fixture-original-source.json": "975a492aefe9ad945fcbb9c00104b8819a0aeb836301588238fea782903fb47c",
+    "capacity-fixture-architecture-reviewed-files.json": "96433bcbc506aff0df866724966622236f0866bf610141b3e3ba1a28b481f8d0",
+    "capacity-fixture-architecture-final-tests.txt": "aabc78fe0f23b11e078883b34071f8feabc3c321e252d856b9a152a2aa423c37",
+    "capacity-fixture-final-ruff.txt": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0",
+    "capacity-fixture-final-format.txt": "9fa2e30088122b883ebbf1c300359d4a0c9d09c988b20631e8625a40425a9723",
+    "capacity-fixture-final-basic-mypy.txt": "718df785efbbd4b57e63b5f64aff2c5b5592e433447681f759b307f97a3ec96a",
+    "capacity-fixture-basic-mypy.txt": "fcfb105d077a64ac3d080abaea0a061289949db4762ad4135825b73a9e423685",
+    "capacity-fixture-basic-path-mypy.txt": "6b869af40b6ae3c2734270839bb0fdc49fdc322df50c95a010ae170107ffcb5d",
+    "capacity-fixture-inferred-actor-typing.txt": "f8991eaa33919e352ec4d495113a9381fce6a72ad95f0e80e8901969638c747c"
+  },
+  "history": [
+    "Initial basic typecheck from scripts/qa lacked backend import path;19diagnostics retained separately from actualtwo local empty-list inference issues.",
+    "Explicit MYPYPATH backend reveals2collection diagnostics; annotations then expose1inferred actor object field diagnostic. All local annotations inverse-qualified; every failed log retained.",
+    "No guard or provider-policy change; reader connect5/read5/absolute seconds+10 semantics from preceding behavior checkpoint unchanged."
+  ],
+  "remaining": [
+    "Retained597/traveller690 release operator architecture and imported25 typing diagnostics remain open.",
+    "Real isolated-stack seeding, PostgreSQL/Redis/storage/Celery behavior and remote observer lifetime still require final service qualification.",
+    "Source/helper split does not qualify production/VPS capacity or dirty-tree deployment; no original release gates/pins changed here."
+  ]
+}

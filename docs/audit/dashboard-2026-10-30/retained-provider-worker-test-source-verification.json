@@ -1,0 +1,30 @@
+{
+  "status": "current complete physical test-source review only",
+  "files": 9,
+  "physical_lines": 1730,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-provider-worker-test-source-reviewed-files.json",
+    "sha256": "7e47853da93d11f1755e59f7e96c7dc0850ebb292bbd11d9efe19010bb389df3"
+  },
+  "source_before_equals_after": true,
+  "source_fence": {
+    "backend/tests/unit/infrastructure/test_whatsapp_cloud_api_provider.py": "b5f72e3984b51e01349328d4fbc040f285af83ea0e4c028ec67256cac5db2b58",
+    "backend/tests/unit/infrastructure/test_whatsapp_provider_diagnostic_privacy.py": "128d4af6a159d1cfeef7a2854625d61b740d2ef7ce95f975b491e8af218397a5",
+    "backend/tests/unit/infrastructure/test_whatsapp_provider_failure_boundaries.py": "53cb635b2f07df3b9d20c71ac5d2995ed6ce17567376ade63eff47867bfdb4cf",
+    "backend/tests/unit/infrastructure/test_whatsapp_provider_wire_payloads.py": "7fa4fede204255e4950f4a0639b56afeb8e273b2e1c49701ea622ecefc23add8",
+    "backend/tests/unit/infrastructure/test_whatsapp_worker_diagnostic_privacy.py": "c2e3935eaeb1beb652c9ef0cb10e52ebc6fbb22f0cd2b00696de7faa9eed4865",
+    "backend/tests/unit/infrastructure/test_whatsapp_worker_failure_safety.py": "a839db4159e33fcb404c18ae5849da861d681138597bca3541e51d7c184c839b",
+    "backend/tests/unit/infrastructure/test_whatsapp_retry_transactions.py": "fed5d4c9fa534841d8ba7bce58f51572d2981db8a85cd0652424e7a31bfb4822",
+    "backend/tests/unit/infrastructure/test_broadcast_welcome_scope.py": "f6efcf33b1795ef3a62e9a73fcd08c42f6492fcd88095ef4d82aad3887bf301e",
+    "backend/tests/unit/infrastructure/test_phone_welcome.py": "5fb9ce8ad6b5e15ddc2db3b1c3d627a11a83d5b15a2bc3bf32974a5c71a68fd7"
+  },
+  "new_execution": false,
+  "runtime_mutation": false,
+  "new_validated_findings": [],
+  "scope": "Retained dashboard WhatsApp provider/worker/welcome privacy, authorization/replay and shared wire compatibility. Dedicated Inbox/native-only test paths not selected.",
+  "limits": [
+    "Physical review adds no new passing execution/coverage/service receipt.",
+    "Synthetic provider and memory/SQLite fixtures do not establish actual Meta/broker/PG concurrency behavior.",
+    "Unrelated native/resource/source-authority obligations remain source-bound to their own receipts."
+  ]
+}

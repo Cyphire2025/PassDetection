@@ -144,38 +144,6 @@ class StorageError(PassDetectionError):
         super().__init__(message, code="STORAGE_ERROR")
 
 
-# ── OCR & Processing ──────────────────────────────────────────────────────────
-
-class OCREngineError(PassDetectionError):
-    """Raised when an OCR engine fails to process an image."""
-
-    def __init__(self, engine: str, reason: str) -> None:
-        super().__init__(
-            f"OCR engine '{engine}' failed: {reason}",
-            code="OCR_ENGINE_ERROR",
-        )
-        self.engine = engine
-
-
-class MRZParsingError(PassDetectionError):
-    """Raised when MRZ lines cannot be parsed from an image."""
-
-    def __init__(self, reason: str) -> None:
-        super().__init__(f"MRZ parsing failed: {reason}", code="MRZ_PARSING_ERROR")
-
-
-class LowConfidenceError(PassDetectionError):
-    """Raised when OCR confidence falls below acceptable threshold."""
-
-    def __init__(self, confidence: float, threshold: float) -> None:
-        super().__init__(
-            f"OCR confidence {confidence:.2f} is below threshold {threshold:.2f}",
-            code="LOW_CONFIDENCE",
-        )
-        self.confidence = confidence
-        self.threshold = threshold
-
-
 # ── Upload Links ──────────────────────────────────────────────────────────────
 
 class GroupClosedError(PassDetectionError):
@@ -183,13 +151,6 @@ class GroupClosedError(PassDetectionError):
 
     def __init__(self) -> None:
         super().__init__("This link is closed.", code="CLIENT_GROUP_CLOSED")
-
-
-class ClientGroupUsedError(PassDetectionError):
-    """Raised when a single-use upload link is re-used."""
-
-    def __init__(self) -> None:
-        super().__init__("Upload link has already been used", code="CLIENT_GROUP_USED")
 
 
 # ── Rate Limiting ─────────────────────────────────────────────────────────────

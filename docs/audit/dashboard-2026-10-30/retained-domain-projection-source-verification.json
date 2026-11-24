@@ -1,0 +1,46 @@
+{
+  "status": "Read-only domain/dashboard/tour projection cohort complete; broader audit active",
+  "new_current_full_tests": 8,
+  "test_physical_lines": 812,
+  "supporting_full_rows": 11,
+  "focused_rows": 5,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-domain-projection-source-reviewed-files.json",
+    "sha256": "54537a6e4c16654ed824a7db4cabcc0203a308a722d250e7e2c215d8f6de2e01"
+  },
+  "source_fence": {
+    "backend/tests/unit/application/test_dashboard_use_cases.py": "375add660a26eb8413add4d8abf506a8be56146db2671edc35df879447526eb1",
+    "backend/tests/unit/domain/test_entities.py": "21aae0b52e294215a47e739bcc1e9224d0672c10d26a510dd6b8a67a86734c5d",
+    "backend/tests/unit/domain/test_traveller_identity.py": "fc3468f54c9906ca718087694278949f1e92e7758f4ec198084b68212c753773",
+    "backend/tests/unit/domain/test_traveller_verification.py": "078fbec1e5bc4bdd7b8cb3cc348d1eff00cab94a69bad82ab9c10015f27b558e",
+    "backend/tests/unit/domain/test_travel_document_taxonomy.py": "f5061417ac5fa3d035a6376cfbee849b0abd36020d646ef63f0cdb04f41c3042",
+    "backend/tests/unit/domain/test_trip_lifecycle.py": "55a051ed7ea6e843be054165bc41d8810f9adbb6c0450797ad13b95578414957",
+    "backend/tests/unit/domain/test_trip_timezone.py": "ddb41af810095791a5c9e61224d3cdb219f4c814b86ead59eb3c2e6953bd7358",
+    "backend/tests/unit/presentation/test_tour_operation_projections.py": "04aaf9c4019ce1e6c989dfc8acafe4355f6b3b1fda922e14276c3f7c41e80fe4",
+    "backend/app/domain/value_objects/trip_lifecycle.py": "422f6cee772e139c76b17fa4c008a2acf369d7df52a5f52f120c3420faa65282",
+    "backend/app/domain/value_objects/trip_timezone.py": "ad2db08ea5d38e808fe47e58e4569886d03fef62ad58d81cf2afc3b167b34aed",
+    "backend/app/domain/value_objects/travel_document_taxonomy.py": "b4b453065c40c5957e3c40d933d1fb5c7215091bd96f9fd4c789f7e01a4f7948",
+    "backend/app/application/use_cases/dashboard/get_dashboard_stats_use_case.py": "a054a8620bdd6eac66055b0f51df024b97254f60121b03f28dafa35f3c86f89e",
+    "backend/app/presentation/api/v1/routes/dashboard.py": "425c3af29b4e35bb6ba49c5cd3c49ef1bb9e412781f2dfa303ed28817725b0d5",
+    "backend/app/domain/services/traveller_identity.py": "38a0bf308ae2f2a3dfe93d3c6ffc144b262d1ede9ca8c5ba6baa27f8b67b077c",
+    "backend/app/domain/services/identity_decisions.py": "fd9b777034eeba8f9b7951b447affc2f487b3262ad17b2511b6db2be77ebb863",
+    "backend/app/domain/services/traveller_names.py": "8068e69bdab8321fa3dafd3a5da0026bdd24da769a3d7f066367116650f3b413",
+    "backend/app/domain/services/traveller_verification.py": "dabe8235032ef32257f08cd90fa3b37412a7f5711c30004ced9f16365265f22b",
+    "backend/app/domain/entities/client_group_lifecycle.py": "30910eb18732f1174995da1a49b021b6658d3acef96ab9253f9c2ddeeb51f55a",
+    "backend/app/presentation/api/v1/routes/tour_operations_passenger_views.py": "1c80705ad869df45d0b11eba99b99a0549d3c07b5532bcd5741a5c74f63dcd52",
+    "backend/app/domain/entities/identity.py": "4e60b4cc3d4759f1c2b12b34984a4300ae388055694cf46581be33f632b94d9e",
+    "backend/app/domain/entities/passport_extraction.py": "e745eb8f9d1b0827bf9bdeb2f8076ed898588fb0f3d1a0cb6c5baf5abc0d3cf1",
+    "backend/app/domain/entities/passport_client_review.py": "591e2d935dd68ee27e7cfef3229b8080eb590f9e3fed2600cbe1ecb3b014f7cb",
+    "backend/app/presentation/api/v1/routes/tour_operations_assignments.py": "8c695bd1cbd7a032badcb7c6bb8dc5fd51df39956ccaf8b754a7e7ffeae194c9",
+    "backend/app/presentation/api/v1/routes/tour_operations_qr.py": "067379429327158e35a6dad06db90e3dbea29e24d26fe5689dcbb73285943f2c"
+  },
+  "checks_run": [],
+  "changes": [],
+  "findings": [],
+  "proof_gaps": [
+    "Source assertions and actual current consumers read only; no newly passing execution/test/service proof claimed.",
+    "Identity association never substitutes for disclosure authorization; mock tour management scope does not qualify persisted authority.",
+    "Installed timezone release/PG/Redis/private storage/provider/native/browser behavior not checked.",
+    "No validated new ordinary defect, no speculative policy/caching or cosmetic decomposition change."
+  ]
+}

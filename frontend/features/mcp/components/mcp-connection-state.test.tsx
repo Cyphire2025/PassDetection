@@ -9,7 +9,7 @@ import { McpAdminPage } from "./mcp-admin-page";
 
 vi.mock("../api/mcp.api", async (original) => {
   const actual = await original<typeof import("../api/mcp.api")>();
-  return { ...actual, mcpApi: { ...actual.mcpApi, overview: vi.fn(), connections: vi.fn(), inventory: vi.fn(), revoke: vi.fn(), deleteConnection: vi.fn(), setConnectionAccess: vi.fn() } };
+  return { ...actual, mcpApi: { ...actual.mcpApi, overview: vi.fn(), connections: vi.fn(), inventory: vi.fn(), deleteConnection: vi.fn(), setConnectionAccess: vi.fn() } };
 });
 
 const overview: McpOverview = {
@@ -57,7 +57,7 @@ it.each(["expired", "revoked"] as const)("retains %s connection metadata without
   expect(within(card).queryByRole("button", { name: "Edit access" })).not.toBeInTheDocument();
   expect(within(card).queryByRole("button", { name: "Manage" })).not.toBeInTheDocument();
   expect(within(card).getByRole("button", { name: "Delete" })).toBeEnabled();
-  expect(mcpApi.revoke).not.toHaveBeenCalled();
+  expect(mcpApi.setConnectionAccess).not.toHaveBeenCalled();
 });
 
 it.each([
@@ -72,7 +72,7 @@ it.each([
   expect(await screen.findByRole("alert")).toHaveTextContent(error.message);
   expect(within(screen.getByRole("region", { name: "MCP devices" })).getByText("Authorized", { exact: true })).toBeVisible();
   expect(mcpApi.deleteConnection).toHaveBeenCalledTimes(1);
-  expect(mcpApi.revoke).not.toHaveBeenCalled();
+  expect(mcpApi.setConnectionAccess).not.toHaveBeenCalled();
   expect(mcpApi.connections).toHaveBeenCalledTimes(1);
 });
 
@@ -88,7 +88,7 @@ it("removes a confirmed deletion from Devices instead of creating a disconnected
   await waitFor(() => expect(mcpApi.connections).toHaveBeenCalledTimes(2));
   expect(screen.getByText(/No approved devices yet/)).toBeVisible();
   expect(mcpApi.deleteConnection).toHaveBeenCalledWith(connection.id, expect.anything());
-  expect(mcpApi.revoke).not.toHaveBeenCalled();
+  expect(mcpApi.setConnectionAccess).not.toHaveBeenCalled();
 });
 
 it.each(["active", "disabled", "expired", "revoked"] as const)("deletes a confirmed %s connection from the list", async (status) => {
@@ -102,7 +102,7 @@ it.each(["active", "disabled", "expired", "revoked"] as const)("deletes a confir
   expect(mcpApi.deleteConnection).not.toHaveBeenCalled();
   fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Delete connection" }));
   await waitFor(() => expect(screen.queryByRole("article", { name: connection.name })).not.toBeInTheDocument());
-  expect(mcpApi.deleteConnection).toHaveBeenCalledOnce(); expect(mcpApi.revoke).not.toHaveBeenCalled();
+  expect(mcpApi.deleteConnection).toHaveBeenCalledOnce(); expect(mcpApi.setConnectionAccess).not.toHaveBeenCalled();
 });
 
 it("supports keyboard cancellation and confirmation with safe initial focus", async () => {
@@ -165,5 +165,5 @@ it("removes cached management content immediately when the active actor loses th
   expect(screen.getByRole("alert")).toHaveTextContent("active superadmin");
   expect(screen.queryByRole("article", { name: connection.name })).not.toBeInTheDocument();
   expect(mcpApi.connections).toHaveBeenCalledTimes(1);
-  expect(mcpApi.revoke).not.toHaveBeenCalled();
+  expect(mcpApi.setConnectionAccess).not.toHaveBeenCalled();
 });

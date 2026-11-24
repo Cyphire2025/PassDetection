@@ -1,0 +1,60 @@
+{
+  "scope": "Dashboard npm dependency remediation; not native mobile or production deployment",
+  "node": "24.21.0",
+  "npm": "11.20.0",
+  "versions": {
+    "next": "16.4.3",
+    "eslint-config-next": "16.4.3",
+    "zod": "4.6.6",
+    "follow-redirects": "1.16.1",
+    "vitest": "4.1.12",
+    "@vitest/coverage-v8": "4.1.12",
+    "vite": "8.2.4",
+    "undici": "8.12.2"
+  },
+  "package_sha256": "8c8e2c46658b76bb4b0c7578330ba610d4741be63f30943d5fb262ed73030463",
+  "lock_sha256": "566c274823b6a1d7223afbe17b0159839f090d46eb0ea9cea833543af5962f91",
+  "lock_records": 633,
+  "version_changes": 24,
+  "unrelated_records_preserved": true,
+  "checks": {
+    "clean_npm_ci": "passed",
+    "npm_ls": "passed",
+    "production_audit_vulnerabilities": 0,
+    "all_audit_vulnerabilities": 0,
+    "type_check": "passed",
+    "lint": "passed",
+    "unit": {
+      "files": 230,
+      "tests": 1554,
+      "status": "passed",
+      "seconds": 348.48
+    },
+    "coverage": {
+      "files": 230,
+      "tests": 1554,
+      "status": "passed",
+      "seconds": 358.98,
+      "statements": 93.77,
+      "branches": 87.77,
+      "functions": 94.89,
+      "lines": 97.23,
+      "thresholds_changed": false
+    },
+    "production_build": "passed",
+    "standalone_browser": {
+      "status": "passed",
+      "tests": 9,
+      "seconds": 26.3
+    },
+    "maintainability": {
+      "status": "passed",
+      "modules": 124
+    }
+  },
+  "limits": [
+    "No Linux container execution: local Docker daemon unavailable",
+    "No VPS deployment or live provider sends",
+    "Final source integration belongs to root after subsequent edits freeze"
+  ]
+}

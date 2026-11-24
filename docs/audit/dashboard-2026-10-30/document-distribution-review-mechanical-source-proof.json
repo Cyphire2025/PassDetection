@@ -1,0 +1,42 @@
+{
+  "all17_original_function_class_declarations_whole_ast_exact": [
+    "unassign_distribution_documents",
+    "delete_distribution_documents",
+    "_owner_scope_for",
+    "_submitted_statuses",
+    "_passport_number",
+    "_safe_filename",
+    "_joined_document_values",
+    "_document_assignment_export_rows",
+    "_LinkedDocumentMatchSource",
+    "_snapshot_value",
+    "_linked_document_match_source_from_models",
+    "_document_match_roster_snapshot",
+    "_passenger_review_rows",
+    "_physical_file_accounting",
+    "_document_response_snapshot",
+    "_document_response",
+    "_batch_response"
+  ],
+  "source": {
+    "backend/app/presentation/api/v1/routes/document_distribution_assignments.py": "136de40db054a6f757af621486d49296aac5feab7f38684fb65581e76d91d49a",
+    "backend/app/presentation/api/v1/routes/document_distribution_review_support.py": "6d70d0a8d7b1e452093ac3935f4ba591413522e2534a2480b455fe0a867bff58",
+    "backend/app/presentation/api/v1/routes/document_distribution_responses.py": "6f4dbf8d10308e38f7c19917499d466a99a497d633490a9fe1302e3d376bc0d6",
+    "backend/app/presentation/api/v1/routes/document_distribution_assignment_unassign.py": "89a1451362eec1ac6ba7492547028698451cb107a4404ecbb858189927b307cf",
+    "backend/app/presentation/api/v1/routes/document_distribution_assignment_delete.py": "bae2721a5b4eb7fd8a6fd2df98520bbc5cb198e648e483c1432327e69ad207a3",
+    "backend/app/presentation/api/v1/routes/document_distribution_review_snapshots.py": "df956aea04733bfab98bb68ec45782684c324b92d62c02e9af9ecbb2687c6683",
+    "backend/app/presentation/api/v1/routes/document_distribution_review_projection.py": "370a18facc3860ba3e089e09707603d4f6641de9a6c36de211c0702fdaa6481b",
+    "backend/app/presentation/api/v1/routes/document_distribution_review_export.py": "1e718d76d8092b844517ee806a84cc951f4442b82512f2e422a5e712cc67d968"
+  },
+  "mechanical_snapshots": {
+    ".tmp/document-distribution-review-mechanical/document_distribution_assignment_delete.py": "bae2721a5b4eb7fd8a6fd2df98520bbc5cb198e648e483c1432327e69ad207a3",
+    ".tmp/document-distribution-review-mechanical/document_distribution_assignment_unassign.py": "89a1451362eec1ac6ba7492547028698451cb107a4404ecbb858189927b307cf",
+    ".tmp/document-distribution-review-mechanical/document_distribution_assignments.py": "136de40db054a6f757af621486d49296aac5feab7f38684fb65581e76d91d49a",
+    ".tmp/document-distribution-review-mechanical/document_distribution_responses.py": "6f4dbf8d10308e38f7c19917499d466a99a497d633490a9fe1302e3d376bc0d6",
+    ".tmp/document-distribution-review-mechanical/document_distribution_review_export.py": "1e718d76d8092b844517ee806a84cc951f4442b82512f2e422a5e712cc67d968",
+    ".tmp/document-distribution-review-mechanical/document_distribution_review_projection.py": "370a18facc3860ba3e089e09707603d4f6641de9a6c36de211c0702fdaa6481b",
+    ".tmp/document-distribution-review-mechanical/document_distribution_review_snapshots.py": "df956aea04733bfab98bb68ec45782684c324b92d62c02e9af9ecbb2687c6683",
+    ".tmp/document-distribution-review-mechanical/document_distribution_review_support.py": "6d70d0a8d7b1e452093ac3935f4ba591413522e2534a2480b455fe0a867bff58"
+  },
+  "scope": "Whole-declaration move only. Exact original query/branch/await/lock/mutation/audit/cleanup/commit/response/export expressions remain. Named eligibility/projection and identical-response-block reuse follow separately."
+}

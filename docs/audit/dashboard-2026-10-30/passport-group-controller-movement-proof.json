@@ -1,0 +1,49 @@
+{
+  "origin_sha256": "0025bfbed511c96b662baceb6ed094b845d434ef6cde6bcac32c884534f39f9f",
+  "method": "Compare recursive TypeScript syntax kind/text/child trees for every physically moved statement, preserving literal values and operator tokens; ignore source positions/comments/formatting. One explicit group-name parameter alias is normalized.",
+  "results": [
+    {
+      "path": "frontend/features/passports/components/use-passport-group-view.ts",
+      "original_statements": 24,
+      "matched": 24,
+      "unmatched": [],
+      "deliberate_alias": null
+    },
+    {
+      "path": "frontend/features/passports/components/use-passport-group-metadata.ts",
+      "original_statements": 5,
+      "matched": 5,
+      "unmatched": [],
+      "deliberate_alias": null
+    },
+    {
+      "path": "frontend/features/passports/components/use-passport-group-menus.ts",
+      "original_statements": 11,
+      "matched": 11,
+      "unmatched": [],
+      "deliberate_alias": null
+    },
+    {
+      "path": "frontend/features/passports/components/use-passport-group-imports.ts",
+      "original_statements": 10,
+      "matched": 10,
+      "unmatched": [],
+      "deliberate_alias": null
+    },
+    {
+      "path": "frontend/features/passports/components/use-passport-group-dialog-state.ts",
+      "original_statements": 12,
+      "matched": 12,
+      "unmatched": [],
+      "deliberate_alias": null
+    },
+    {
+      "path": "frontend/features/passports/components/use-passport-selected-image-download.ts",
+      "original_statements": 3,
+      "matched": 3,
+      "unmatched": [],
+      "deliberate_alias": "groupDetails?.group_name becomes groupName parameter"
+    }
+  ],
+  "passed": true
+}

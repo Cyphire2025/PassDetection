@@ -1,0 +1,27 @@
+unformatted: File would be reformatted
+  --> test_compose_render_fixture.py:1:1
+   |
+28 |             self.assertEqual(self.fixture.read_bytes(), self.example)
+   -             self.assertEqual(command[command.index("--project-directory") + 1], str(self.fixture.parent))
+29 +             self.assertEqual(
+30 +                 command[command.index("--project-directory") + 1], str(self.fixture.parent)
+31 +             )
+32 |             self.assertEqual(command[command.index("-f") + 1], str(self.source))
+--------------------------------------------------------------------------------
+36 |             return subprocess.CompletedProcess(
+   -                 command, returncode, stdout=json.dumps({"services": {}}), stderr="synthetic render failure"
+37 +                 command,
+38 +                 returncode,
+39 +                 stdout=json.dumps({"services": {}}),
+40 +                 stderr="synthetic render failure",
+41 |             )
+42 |
+   -         with patch.object(compose, "ROOT", self.root), patch.object(compose.subprocess, "run", side_effect=process):
+43 +         with (
+44 +             patch.object(compose, "ROOT", self.root),
+45 +             patch.object(compose.subprocess, "run", side_effect=process),
+46 +         ):
+47 |             return compose._render_compose(self.source)
+   |
+
+1 file would be reformatted, 8 files already formatted

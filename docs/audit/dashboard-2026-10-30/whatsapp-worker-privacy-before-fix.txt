@@ -1,0 +1,42 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+____ test_unexpected_provider_error_is_safe_and_never_automatically_resent ____
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000001B98AA9A650>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001B98C9D32D0>
+
+    async def test_unexpected_provider_error_is_safe_and_never_automatically_resent(
+        db_session, monkeypatch,
+    ):
+        batch_id, _ = await _seed_batch(db_session, ["queued"])
+        secret = "synthetic-passport-P1234567-token-PRIVATE\nexternal-detail"
+    
+        @asynccontextmanager
+        async def session_factory():
+            yield db_session
+    
+        send = AsyncMock(side_effect=RuntimeError(secret))
+        monkeypatch.setattr(worker_runtime, "AsyncSessionFactory", session_factory)
+        monkeypatch.setattr(worker_runtime, "send_whatsapp_template", send)
+        options = dict(
+            batch_id=str(batch_id), message_type="welcome",
+            message_content="Synthetic update", passport_link=None,
+        )
+    
+        await worker_runtime.run_whatsapp_broadcast(**options)
+        await worker_runtime.run_whatsapp_broadcast(**options)
+    
+        saved = (await db_session.execute(select(WhatsAppMessageLogModel))).scalar_one()
+        assert saved.status == "delivery_unknown"
+        send.assert_awaited_once()
+>       assert secret not in saved.error_message
+E       AssertionError: assert 'synthetic-p...ernal-detail' not in 'WhatsApp de...ernal-detail'
+E         
+E         'synthetic-passport...TE\nexternal-detail' is contained here:
+E           WhatsApp delivery outcome is unknown: synthetic-passport-P1234567-token-PRIVATE
+E           external-detail
+
+tests\unit\infrastructure\test_whatsapp_worker_diagnostic_privacy.py:37: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/unit/infrastructure/test_whatsapp_worker_diagnostic_privacy.py::test_unexpected_provider_error_is_safe_and_never_automatically_resent
+1 failed in 1.86s

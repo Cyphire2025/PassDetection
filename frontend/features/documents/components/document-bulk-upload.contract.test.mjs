@@ -1,18 +1,16 @@
+import { readDocumentDialogsSource } from "./document-dialogs-source.contract-helper.mjs";
+import { readDocumentDistributionSource } from "./document-api-source.contract-helper.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import ts from "typescript";
+import * as batchingModule from "../services/document-upload-batching.ts";
+import { readDocumentBatchingSource } from "./document-batching-source.contract-helper.mjs";
 import { readDocumentWorkspaceSource } from "./document-workspace-source.contract-helper.mjs";
+import { readDocumentRenameSource } from "./document-rename-source.contract-helper.mjs";
 
-const batching = readFileSync(
-  new URL("../services/document-upload-batching.ts", import.meta.url),
-  "utf8",
-);
+const batching = readDocumentBatchingSource();
 const renameApi = readFileSync(new URL("../api/document-rename.api.ts", import.meta.url), "utf8");
-const distributionApi = readFileSync(
-  new URL("../api/document-distribution.api.ts", import.meta.url),
-  "utf8",
-);
+const distributionApi = readDocumentDistributionSource();
 const distributionHooks = readFileSync(
   new URL("../hooks/use-document-distribution.ts", import.meta.url),
   "utf8",
@@ -26,12 +24,9 @@ const distributionTypes = readFileSync(
   new URL("../../../types/document-distribution.types.ts", import.meta.url),
   "utf8",
 );
-const renamePage = readFileSync(new URL("./document-rename-page.tsx", import.meta.url), "utf8");
+const renamePage = readDocumentRenameSource();
 const workspace = readDocumentWorkspaceSource();
-const workspaceDialogs = readFileSync(
-  new URL("./document-workspace-dialogs.tsx", import.meta.url),
-  "utf8",
-);
+const workspaceDialogs = readDocumentDialogsSource();
 const uploadPanel = readFileSync(new URL("./document-upload-panel.tsx", import.meta.url), "utf8");
 const laneNavigation = readFileSync(
   new URL("./flight-ticket-lane-navigation.tsx", import.meta.url),
@@ -50,16 +45,6 @@ const distributionDeliverySupport = readFileSync(
     import.meta.url,
   ),
   "utf8",
-);
-const batchingModule = await import(
-  `data:text/javascript;base64,${Buffer.from(
-    ts.transpileModule(batching, {
-      compilerOptions: {
-        module: ts.ModuleKind.ESNext,
-        target: ts.ScriptTarget.ES2022,
-      },
-    }).outputText,
-  ).toString("base64")}`
 );
 const {
   MAX_DOCUMENT_VERIFICATION_CHUNK_FILES,

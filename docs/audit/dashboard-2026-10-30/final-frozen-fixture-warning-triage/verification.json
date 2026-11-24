@@ -1,0 +1,63 @@
+{
+  "status": "Read-only current source triage and unapplied test-only candidates. Parent final frozen verification remains running.",
+  "source_ledger": {
+    "path": "docs/audit/dashboard-2026-10-30/final-frozen-fixture-warning-reviewed-files.json",
+    "sha256": "c35740e16645c385f9b63cf592d8fa4cccf25247ee8c0830ec571317ad571944"
+  },
+  "observed_log": {
+    "path": "docs/audit/dashboard-2026-10-30/final-retained-frontend-20261101-002/vitest.log",
+    "state": "Parent-owned active log; no final whole-log hash claimed.",
+    "observed_lines": [
+      "106-109: mcp-read-access workflow transition, permissions undefined, all14 cases pass.",
+      "156-159: mcp-simple-access settings page, permissions undefined, all12 cases pass.",
+      "264-267: menu movement case, NaN left warning, all3 cases pass."
+    ]
+  },
+  "findings": [
+    {
+      "id": "FIXTURE-DOMRECT",
+      "classification": "Incomplete test geometry mock, no normal app defect evidenced",
+      "evidence": "Test line71 returns only left/top cast as DOMRect; reopens at74/77. Runtime lines112-118 requires right/bottom, so undefined produces NaN positioning. Native DOMRect supplies numeric derived edges even for zero-sized jsdom elements.",
+      "proposed": "new DOMRect(10,10,36,36); preserve every scroll/resize/removal assertion."
+    },
+    {
+      "id": "FIXTURE-MCP-PERMISSIONS",
+      "classification": "Two unconfigured API mocks, no runtime query defect evidenced",
+      "evidence": "Both suites replace all API methods with vi.fn; beforeEach never configures permissions. read_only_mode=false selects the intentionally retained shared hidden PermissionsPanel in McpSettings; useMcpPermissions directly returns this mock. Real facade awaits HTTP response.data.",
+      "proposed": "Reuse existing synthetic permissionFixture() in each suite; no runtime hook mock, console filtering, permission policy change or assertion removal."
+    }
+  ],
+  "candidates": {
+    "proposal_sha256": "ceb165537456eb01859ec4248c10e9e2ec6bb8ee002c8dbe1d054f9ca9b5d780",
+    "assertion_proof_sha256": "f73d7a17f2f2b5911025031bad0851d944d8209848c29294eb1525b86ac33035",
+    "location": ".tmp/final-fixture-warning-candidates/frontend/",
+    "applied": false,
+    "executed": false,
+    "exact_inverse": true,
+    "matcher_counts_unchanged": {
+      "document_menu": 18,
+      "mcp_read_access": 60,
+      "mcp_simple_access": 29
+    }
+  },
+  "banner_peer_review": {
+    "path": "frontend/e2e/workspace-branding.spec.ts",
+    "sha256": "cfe3e5af1c6b53ac01ef8c0323099a982f8263f005598673c71b018eafd11686",
+    "result": "No actionable issue found in new geometry helpers/cases.",
+    "details": [
+      "bannerAspect78-86 measures actual direct image bounds when present; prospective first-Add padding box subtracts all computed borders. Matches current authored frame/image layout.",
+      "expectBannerCrop89-99 polls actual preview DOM bounds against independent current target, tolerance0.005 and explicit <=53% viewport height.",
+      "Existing case188-197 checks1440 and390; first-Add235-259 checks both sizes, cancel restores plain/Add and performs zero writes, then final image ratio equals selected preview and exactly one PUT.",
+      "Original version-conflict/reopen/removal/persistence assertions remain; readonly peer did not change frozen source."
+    ],
+    "limits": [
+      "Browser execution and screenshots are still parent-owned pending fresh final artifact. Source review is not a passing browser claim.",
+      "Branding network fixtures return the synthetic SVG for image GET; these cases qualify frame geometry/workflow, not backend pixel round-trip. Existing crop math/source backend aspect preservation proof remains separately attributed."
+    ]
+  },
+  "source_unchanged_at_seal": true,
+  "limits": [
+    "No tests, builds, browsers or app/config/gate writes during this pass. Static candidate/assertion comparisons only.",
+    "API facade was read through permissions/request declarations only for this trace; no new full physical API-file credit."
+  ]
+}

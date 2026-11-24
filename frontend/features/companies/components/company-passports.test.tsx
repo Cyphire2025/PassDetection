@@ -2,11 +2,13 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import apiClient from "@/lib/api/client";
+import { useAuthStore } from "@/stores/auth.store";
+import { companyActor } from "../test-support/mutation-authority";
 import { CompanyPassports } from "./company-passports";
 
 vi.mock("@/lib/api/client", () => ({ default: { get: vi.fn(), patch: vi.fn() } }));
 vi.mock("../hooks/use-company-session", () => ({ useCompanySession: () => ({ key: "session", ready: true }) }));
-beforeEach(() => {
+beforeEach(() => { useAuthStore.setState({ user: companyActor, isChangingAccessLevel: false });
   vi.clearAllMocks();
   vi.mocked(apiClient.get).mockResolvedValue({ data: { items: [{ id: "passport", passport_hint: "********67", issuing_country: "IND", document_type: "P", status: "active", is_default: true, revision: 4, issue_date: "2020-01-01", expiry_date: "2030-01-01" }], profile_revision: 9, limit_reached: false } });
 });
@@ -25,7 +27,7 @@ describe("explicit passport status controls", () => {
     fireEvent.click(screen.getByRole("checkbox", { name: /verified this passport/ }));
     fireEvent.click(screen.getByRole("button", { name: "Confirm passport status" }));
     await screen.findByRole("status");
-    expect(apiClient.patch).toHaveBeenCalledWith("/api/v1/companies/company/travellers/traveller/passports/passport", { status: "cancelled", expected_profile_revision: 9, expected_passport_revision: 4 }, { params: { agency_id: "agency" } });
+    expect(apiClient.patch).toHaveBeenCalledWith("/api/v1/companies/company/travellers/traveller/passports/passport", { status: "cancelled", expected_profile_revision: 9, expected_passport_revision: 4 }, { params: { agency_id: "agency" }, expectedOwnerUserId: companyActor.id, expectedAuthorityKey: JSON.stringify([companyActor.id, companyActor.role, companyActor.agency_id]) });
     await waitFor(() => expect(apiClient.get).toHaveBeenCalledTimes(2));
   });
   it("retains the selected status and shows a concurrency error without claiming success", async () => {

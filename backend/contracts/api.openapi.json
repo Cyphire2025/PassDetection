@@ -5057,6 +5057,17 @@
             "title": "Ask Nearest Domestic Airport",
             "type": "boolean"
           },
+          "background_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Background Url"
+          },
           "banner_url": {
             "anyOf": [
               {
@@ -26245,6 +26256,17 @@
             "title": "Ask Nearest Domestic Airport",
             "type": "boolean"
           },
+          "background_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Background Url"
+          },
           "banner_url": {
             "anyOf": [
               {
@@ -39200,7 +39222,7 @@
     }
   },
   "info": {
-    "description": "Passport MRZ Processing Platform with secure upload links, passport MRZ extraction, client review, Excel export, analytics, audit logging, and agency notifications.",
+    "description": "Global Connects Dashboard with upload links, AI passport extraction, client review, Excel export, analytics, audit logging, and agency notifications.",
     "title": "Global Connects Dashboard",
     "version": "1.0.0"
   },
@@ -59457,7 +59479,8 @@
             "schema": {
               "enum": [
                 "company-logo",
-                "group-banner"
+                "group-banner",
+                "group-background"
               ],
               "title": "Kind",
               "type": "string"
@@ -59834,7 +59857,8 @@
             "schema": {
               "enum": [
                 "company-logo",
-                "group-banner"
+                "group-banner",
+                "group-background"
               ],
               "title": "Kind",
               "type": "string"
@@ -60206,7 +60230,8 @@
             "schema": {
               "enum": [
                 "company-logo",
-                "group-banner"
+                "group-banner",
+                "group-background"
               ],
               "title": "Kind",
               "type": "string"
@@ -159354,7 +159379,7 @@
             }
           }
         },
-        "summary": "Rerun fallback MRZ extraction for a public upload",
+        "summary": "Retry AI passport extraction for a public upload",
         "tags": [
           "Passports"
         ]

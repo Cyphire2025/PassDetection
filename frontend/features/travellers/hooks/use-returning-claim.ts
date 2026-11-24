@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { returningApi } from "../api/returning.api";
+import { resolveReturningTransition } from "../services/resolve-returning-transition";
 import type { ClaimStart, ClaimTransition, DocumentQuestion, MaskedCandidates, PassportProof, ReturningHistory } from "../types";
 
 /** The server selects the next verification stage. Client state never grants access. */
@@ -24,40 +25,35 @@ export function useReturningClaim() {
     active.current = controller;
     setPending(true);
     setError(undefined);
-    try { await operation(controller.signal); }
-    catch (cause) {
-      if (!controller.signal.aborted) setError(typeof cause === "object" && cause !== null && "message" in cause && typeof cause.message === "string" ? cause.message : "We could not complete this step. Please retry or upload current documents.");
+    try {
+      await operation(controller.signal);
+    } catch (cause) {
+      if (!controller.signal.aborted) {
+        const message = typeof cause === "object" && cause !== null && "message" in cause && typeof cause.message === "string"
+          ? cause.message
+          : "We could not complete this step. Please retry or upload current documents.";
+        setError(message);
+      }
     } finally {
       active.current = null;
       if (!controller.signal.aborted) setPending(false);
     }
   };
 
-  const accept = async (next: ClaimTransition, signal: AbortSignal): Promise<void> => {
-    if (signal.aborted) return;
-    setTransition(next);
-    if (next.stage === "confirm" || next.stage === "recovery") {
-      return accept(await returningApi.authorize(signal), signal);
-    }
-    if (next.stage === "identify") {
-      if (method.current === "passport") return accept(await returningApi.passport({}, signal), signal);
-      if (method.current === "code") { setTransition({ stage: "passport" }); return; }
-      const people = await returningApi.candidates(signal);
-      if (signal.aborted) return;
-      setCandidates(people);
-      setTransition({ stage: people.narrowing_required || people.items.length === 0 ? "passport" : "identify" });
-      return;
-    }
-    if (next.stage === "review") {
-      const details = await returningApi.history(signal, groupToken.current);
-      if (!signal.aborted) setHistory(details);
-    }
-    if (!signal.aborted) setTransition(next);
-  };
-
+  const accept = (next: ClaimTransition, signal: AbortSignal) => resolveReturningTransition(next, {
+    method: method.current,
+    groupToken: groupToken.current,
+    signal,
+    setTransition,
+    setCandidates,
+    setHistory,
+  });
   const sendOtp = async (signal: AbortSignal) => {
     const result = await returningApi.requestOtp(signal);
-    if (!signal.aborted) { setResendAt(Date.now() + result.resend_after_seconds * 1000); setOtpSent(true); }
+    if (!signal.aborted) {
+      setResendAt(Date.now() + result.resend_after_seconds * 1000);
+      setOtpSent(true);
+    }
   };
 
   return {
@@ -66,7 +62,7 @@ export function useReturningClaim() {
       method.current = body.method;
       groupToken.current = body.group_token;
       await accept(await returningApi.start(body, signal), signal);
-      if (body.method === "phone") await sendOtp(signal);
+      if (body.method === "phone" && !signal.aborted) await sendOtp(signal);
     }),
     requestOtp: () => run(sendOtp),
     verifyOtp: (code: string) => run(async (signal) => accept(await returningApi.verifyOtp(code, signal), signal)),
@@ -75,6 +71,8 @@ export function useReturningClaim() {
     challenge: (answers: Partial<Record<DocumentQuestion, string>>) => run(async (signal) => accept(await returningApi.challenge(answers, signal), signal)),
     changeQuestion: (field: DocumentQuestion) => run(async (signal) => accept(await returningApi.changeQuestion(field, signal), signal)),
     confirm: (recover: boolean, actingFor: "self" | "family") => run(async (signal) => accept(await returningApi.confirm(recover, actingFor, signal), signal)),
-    retryStage: () => run(async (signal) => { if (transition) await accept(transition, signal); }),
+    retryStage: () => run(async (signal) => {
+      if (transition) await accept(transition, signal);
+    }),
   };
 }

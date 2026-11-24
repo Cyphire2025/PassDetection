@@ -1,0 +1,41 @@
+{
+  "checkpoint": "2026-10-31-test-only-GC-authority-integration",
+  "changed_paths": [
+    {
+      "path": "frontend/features/gc-app/components/app-controls-removal.test.tsx",
+      "sha256": "45ca3161ef47e1657c39d952d51a5af831d280a824a27e01995cb7a5c109e01c"
+    },
+    {
+      "path": "frontend/features/gc-app/components/app-controls-page.test.tsx",
+      "sha256": "f8e55300bbb64412bf1515b38f489d39bda3abc9615a9b991eef6d4ee8a5cb6d"
+    },
+    {
+      "path": "frontend/features/gc-app/notifications/notifications-page.test.tsx",
+      "sha256": "155b0ed26a6829469ea4ef7c6594e3c46b93ec3b7586f612dd123517ddf0f400"
+    },
+    {
+      "path": "frontend/features/gc-app/gc-app-dashboard.contract.test.mjs",
+      "sha256": "bae2e542a558eff8cf794b18090f40c146b73883926a35dd9b9cb352a316151a"
+    }
+  ],
+  "runtime_changes": false,
+  "cause": "Prior fixtures lacked a real store getState/user, or never seeded an authenticated owner, after the active APIs/private mutation wrapper began capturing initiating authority. Broad source regex also matched _onMutateResult parameter rather than the optimistic option.",
+  "preserved": "All role denial, exact confirmation, revision conflict, lost response/no repeated DELETE, cross-agency late completion, pagination, separate send/preview and recovery assertions retained. Exact actor+authority metadata added outside JSON payloads; no mock bypass of owner checks.",
+  "verification": [
+    {
+      "command": "node node_modules/vitest/vitest.mjs run features/gc-app/components/app-controls-removal.test.tsx features/gc-app/components/app-controls-page.test.tsx features/gc-app/notifications/notifications-page.test.tsx --maxWorkers=1 --pool=threads",
+      "test_files": 3,
+      "tests": 22,
+      "exit_code": 0
+    },
+    {
+      "command": "node --test features/gc-app/gc-app-dashboard.contract.test.mjs",
+      "tests": 16,
+      "exit_code": 0
+    },
+    {
+      "command": "node node_modules/eslint/bin/eslint.js features/gc-app/components/app-controls-removal.test.tsx features/gc-app/components/app-controls-page.test.tsx features/gc-app/notifications/notifications-page.test.tsx features/gc-app/gc-app-dashboard.contract.test.mjs",
+      "exit_code": 0
+    }
+  ]
+}

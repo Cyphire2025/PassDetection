@@ -1,0 +1,83 @@
+{
+  "status": "approved-plan-baseline-source-unchanged",
+  "parent_approval": "Root approved cohesive owned_probe_container, exact returned-ID cleanup, explicit uniqueowner/image/name checks for ambiguous acquisition, boundedstop/readback, body-firsterrorpolicy; no liveDocker/sharedgate edits.",
+  "runtime_before": [
+    {
+      "path": "scripts/qa/qualify_api_native_memory.py",
+      "sha256": "87f3edbad942d423fd22808cc393f23ea9362b10680e3a26d77548ef5a7f7255",
+      "snapshot": ".tmp/qa-native-memory-lifecycle/api.before.py",
+      "physical_lines": 99
+    },
+    {
+      "path": "scripts/qa/qualify_bounded_memory.py",
+      "sha256": "dab547e32821ea1c30f750786610d7dfd6f6db85d189e5542fd7021d59a359d0",
+      "snapshot": ".tmp/qa-native-memory-lifecycle/bounded.before.py",
+      "physical_lines": 88
+    },
+    {
+      "path": "scripts/qa/probe_bounded_memory.py",
+      "sha256": "39c0a74e860f5de5c591a58ce3e2bc553913e01427d274b06f71a9e564fda9a5",
+      "snapshot": ".tmp/qa-native-memory-lifecycle/probe.before.py",
+      "physical_lines": 208
+    },
+    {
+      "path": "scripts/qa/qualify_postgres_memory.py",
+      "sha256": "50b12a4c912378be0ebd1e4250d1466cb3c41af4e1b8bbb1a58828c996ec06eb",
+      "snapshot": ".tmp/qa-native-memory-lifecycle/postgres.before.py",
+      "physical_lines": 115
+    }
+  ],
+  "baseline_test_sources": [
+    {
+      "path": "scripts/test_qa_native_memory_api.py",
+      "sha256": "0ca1fbdda7f327b4a88d443b8e58ca2740ec83d82e0f9eb2ae7af703e6e9993e"
+    },
+    {
+      "path": "scripts/test_qa_bounded_memory_lifetime.py",
+      "sha256": "4a7537244add403cbb98e43b494b1e17b2f6e464d9989fc2c0b718d031eac92c"
+    },
+    {
+      "path": "scripts/test_qa_postgres_memory_lifetime.py",
+      "sha256": "a28902e7ecf8a3174ed1c0b61c032319f8f8564e498e249d4d9864b4f1af32b9"
+    }
+  ],
+  "raw_before": [
+    {
+      "path": ".tmp/qa-native-memory-lifecycle/api-before.txt",
+      "sha256": "11b5232b90cd510d4b62d5b96ea56b9f5a4b88f1bbb64afaaa43061004e62f56"
+    },
+    {
+      "path": ".tmp/qa-native-memory-lifecycle/bounded-before.txt",
+      "sha256": "e10aa122515a025e1ab28d8e9f14dd045e9db21b9a299b9f0a4e26b964039f94"
+    },
+    {
+      "path": ".tmp/qa-native-memory-lifecycle/bounded-baseline.txt",
+      "sha256": "5160ab5117511b3d6886ea402baabab9fa8e37816b62523b27f22f05b6295435"
+    },
+    {
+      "path": ".tmp/qa-native-memory-lifecycle/postgres-before.txt",
+      "sha256": "94cf5dbc44a3c4d06a153765ff9f879e70822702e724e5bad38e0c4a0acf5135"
+    }
+  ],
+  "baseline_outcomes": {
+    "API": "4negativeassertions fail;1healthyoutcome passes across4methods/subcases.",
+    "bounded_corrected": "3negativeassertions fail;2healthyoutcomes pass across4methods/subcases.",
+    "Postgres": "2negativeassertions fail;1healthyoutcome passes across3methods.",
+    "total": "9negativeassertions +4healthyoutcomes across11testmethods (subcases explicit).",
+    "fixture_failure": "Initialbounded-before had1missing-synthetic-source fixtureerror; correctedbaseline retainedseparately. Never a productfinding."
+  },
+  "plan": [
+    "Add cohesive QA-owned-container datarecord with one typedcommandport, uniqueownerlabel and exactimage/name/fullID scope. Successful returnedfullID remainscleanupauthority if diagnostics fail; ambiguous acquisition may adopt only matchingowner/image/name.",
+    "Bounded graceful stop/readback, preserve exited/failedartifacts, no rm/prune/down/force-removal/broadnamecleanup. Preservebodyexceptionidentity, raise diagnostic-only/cleanup failures after best-effortdrain, retain type-only evidence of secondaryfailures.",
+    "API existing admission_sha256 records effective containerpathbytes; hostsource metadata separate whenuseful. Overlay flag remains explicit, no-overlay needs no host/imageequality assumption.",
+    "Boundedrunner timeout/cancel retains partialevidence andfinishesonlyexactownedcase. Generatedfixture andsuccessreceipt contracts remain.",
+    "Postgres cleanup attempts allcreatedconnections+observer andexactownedcontainer despite oneclosefailure; originalbodyerrorwins. Syntheticvolume retained.",
+    "Probeorchestrator failure drains allcreatedsiblings/readers withboundedterminate/join/kill fallback, preservingnormalresults/exitcodes/workloadvalidators."
+  ],
+  "scope_limits": [
+    "Actualmain/protocolfixtures use realtemporarysource/evidence files andstrictfakeDocker/driver/process protocols, notliveDocker/PG/nativeC/fork proof.",
+    "Source-admission/dependency/advisorypolicy/pins/exceptionwindows/nativeclient unchanged; rootowns officialresearch.",
+    "No global app/backend suites/build/browser; only meaningful affectedtests duringthiscohort."
+  ],
+  "source_movement": "No existing algorithm extraction. New actualsharedQAcontainerlifecycle owner isapprovedbeforeimplementation."
+}

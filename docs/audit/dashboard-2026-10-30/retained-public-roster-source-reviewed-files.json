@@ -1,0 +1,167 @@
+{
+  "files": [
+    {
+      "path": "backend/tests/integration/test_broadcast_incremental_matching.py",
+      "sha256": "a7e0de80508375d35cc2b890ccf3ca35cfc8a9306bb7b84d8f3db50d57d73bf8",
+      "physical_lines": 64,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete64-line physical read. Shared dashboard recipient addition reawakens completed linked roster job for second import, one durable job, preserved first trip snapshot and current independent identity evidence. Actual full flush-only recipient-addition owner read; mobile reconciling side effect intentionally stubbed, no native/provider feature work."
+    },
+    {
+      "path": "backend/tests/integration/test_collection_reliability.py",
+      "sha256": "65615ce94c94882fa93490a2553f03910190917f3ae0b9b8a061da83b1d4af1c",
+      "physical_lines": 48,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete48-line read. Current public closed-link structured410 and owned staff denied archive before use-case/commit. Actual public lookup error mapping/delete authorization slices read; dependency overrides not persisted authorization proof."
+    },
+    {
+      "path": "backend/tests/integration/test_public_draft_http.py",
+      "sha256": "40ea1774483f53ab7172ca6424bed85864e8134b2c79c436f6978369b9487d47",
+      "physical_lines": 43,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete43-line read. Returning browser shared-cookie context must match immutable displayed draft ID before read/write/private asset, no-store and exact fresh-draft session quota/path capability redaction. Actual binding helper/private boundary already read; no native ingress/browser/provider run."
+    },
+    {
+      "path": "backend/tests/unit/application/test_configured_public_collection.py",
+      "sha256": "5ffa14363cbf65b01dc395a1c472ba126fdf2b0fc9af257b1c798015bbd189b2",
+      "physical_lines": 285,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete285-line read. Authoritative configured web contact/page/capture/photo/qualifier/required-detail policies, disabled/optional no-image drafts create no job, retained covers promoted once, old consumed qualifier snapshot retained, present-front classification gate still required and stale disabled choices ignored. Current shared config and actual upload/review validation consumers traced; mock storage/job source controls not executed."
+    },
+    {
+      "path": "backend/tests/unit/application/test_group_submission_roster_parties.py",
+      "sha256": "7ab209d33504a6d79dd75fe9d21c1d0125447f248fe25abb37cb614b4f6f2ddf",
+      "physical_lines": 202,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete202-line read. Selected field OR party matching vs exact private phone identity, conservative duplicate passport/birth conflicts, unknowns cannot bridge, code prefix lossless and family/email/roster-unique alternate evidence review semantics. Whole actual coordinator owner read with original phases; association is not document access or private identity authority."
+    },
+    {
+      "path": "backend/tests/unit/application/test_import_only_client_groups.py",
+      "sha256": "0eda32c5f4b0947e4b9b8638807693d88f9db1c99449d67070e57dbc2a7a6dc5",
+      "physical_lines": 169,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete169-line read. Internal import group strips hidden invalid public settings while retaining trip validation/entity/model/DTO identity, cannot reenable public capabilities through edit; staff Excel still imports behind explicit auth/capacity/propagation stubs. Whole pure capability/import settings read; real import parsing/native/admission not run or claimed."
+    },
+    {
+      "path": "backend/app/application/security/public_upload_capability.py",
+      "sha256": "e8bfc23aa612e8bd3dc87bf87a9b60a4990687c1c03624ce5ad6a8a7b3d8908b",
+      "physical_lines": 23,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source physically read. Active lifecycle/nonimport/notdeleted required for every public capability, no retry retention grace beyond closed link; canonical exception response unchanged."
+    },
+    {
+      "path": "backend/app/domain/value_objects/import_group.py",
+      "sha256": "d0cf89d85fe2377451a2016806425b40a74697c333a85bf56226ff479468499d",
+      "physical_lines": 37,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source physically read. Fresh canonical hidden collection defaults for staff import groups without public collection/messaging/settings leakage; explicit scalar and nested config values preserved."
+    },
+    {
+      "path": "backend/app/domain/value_objects/upload_configuration.py",
+      "sha256": "c0037adcd30fdfd24dabf764882ddd8d23733d67d22438d1ac50d2d1d8e4f119",
+      "physical_lines": 162,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source physically read. Typed/ordered bounded pages/languages and legacy defaults, coherent capture/document/photo/optional requirement validators and exact retained-vs-new page semantics. No shared capture policy or native app feature changes."
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/group_match_coordinator.py",
+      "sha256": "d409da422bab1a779bf75a3b4c10e98e0ec5b036735d5161d11af5f35fb7f76f",
+      "physical_lines": 188,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source physically read;40-token truncated initial profile/index lines explicitly reread45-67. Deterministic logical recipients/profiles/index evidence, single ownership/conflict/selected-party/duplicate/unmatched output ordering and summary. Existing complex coordinator stays frozen, no caching/performance/architecture closure invented."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_recipient_additions.py",
+      "sha256": "278d992f0ac8343d4754aba07fd93c7412f5ff9003c8333d5aa42784b80800f4",
+      "physical_lines": 235,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source read1-146/147-end. Typed flush-only dashboard/MCP canonical addition: normalized opt-in/current actor/group/lifecycle/recipient capacity, group-before-history refresh, private identity mutation, stable display order, source fields, actual history restart and shared dashboard propagation. No provider sends or native ingress audit."
+    },
+    {
+      "path": "backend/app/presentation/middleware/request_path.py",
+      "sha256": "d49ef8512edf8455fef0e9502aa92bb34cbcdc04ffdb73d83eb91288a9415709",
+      "physical_lines": 40,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source read explicitly after truncated combined output. Exact public bearer/MCP asset redaction and matched-template or constant unmatched metrics label prevent raw path secret/cardinality retention. Shared MCP labels read solely compatibility context, source unchanged."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_retention.py",
+      "sha256": "88b5a3cef1b849b79e8eb8b169d65e35d90ed65d95470b75fcf5ae347b677e8a",
+      "physical_lines": 148,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Current whole physical read assembled from prior same-hash company HTTP1-72/98-end plus now71-101 retained delete method. Current manage-vs-delete authorization remains distinct, same group/use-case/DTO/error mapping and restore shared contacts. No destructive/DB/provider command performed."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/returning_draft.py",
+      "sha256": "5219f1ee19a684cda5cabca948e2e14c6784e02215b5f7bd4ec6293a633bebfe",
+      "physical_lines": 124,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical1-89 complete immutable displayed draft-ID/secret-hash+returning-mode dependency and begin/read/save/upload prefix. Other private assets/contact/completion routes not fully read."
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/group_submission_matching.py",
+      "sha256": "dc85ecd81a87dd90451b9558d40a5007d338d93c3af30570cbff7d92b6ceb2e3",
+      "physical_lines": 201,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical visible1-90 selected compatibility aliases including actual coordinator import; later facade sections not fully read. No fake full catalog credit or forced declaration split."
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/client_submit_passport_use_case.py",
+      "sha256": "aee3271b832c45f09989735136583602051456bd830a01c278a766b77b6bdc72",
+      "physical_lines": 521,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical1-87 imports/constructor/signature prefix and113-161 current row lock/same group/configured pages/qualifier/provider-failure gate. Large final submission remainder not fully read here and remains parent/shared workflow unchanged."
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/submit_passport_use_case.py",
+      "sha256": "5f90f8fa82761c68ccef7ef729824609a182b60c7ce4413916f2e4bee356883b",
+      "physical_lines": 369,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical132-173 existing idempotent/qualifier/active/mode/documents/photo gate and owned storage phase prefix only. No whole-file/native/source-policy claim."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_public_collection.py",
+      "sha256": "accb96e643cabdf450bc456fca5284e4a0007c490abac2b74630540f10c77bd6",
+      "physical_lines": 137,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical21-65 complete actual group lookup/structured closed410 mapping and fixed telemetry validation prefix. Other qualifier/telemetry paths full only where prior same-hash ledgers recorded, no whole-file credit here."
+    }
+  ],
+  "scope": "Six new current-full retained public collection/roster test sources811lines; seven full supporting reads and five explicit focused caller slices. Same-hash filled retention scope bound to earlier physical reads, no whole-file credit from mere import/tested paths."
+}

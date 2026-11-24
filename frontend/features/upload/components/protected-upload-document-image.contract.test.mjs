@@ -1,29 +1,21 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import test from "node:test";
+import { readUploadSource } from "./current-upload-source.contract-helper.mjs";
+const source = readUploadSource("./fresh-document-preview.tsx");
 
-const source = readFileSync(
-  new URL("./protected-upload-document-image.tsx", import.meta.url),
-  "utf8",
-);
-
-test("protected previews use credentialed blob requests and release resources", () => {
-  assert.match(
-    source,
-    /uploadApi\.getUploadDocument\(\s*token,\s*submissionId,\s*documentType,\s*uploadSessionId,/,
-  );
+test("current private draft previews fetch authenticated blobs and release resources", () => {
+  assert.match(source, /queuedPrivatePreview\(\(\) => api\.document\(id, controller\.signal\)/);
   assert.match(source, /URL\.createObjectURL\(blob\)/);
   assert.match(source, /controller\.abort\(\)/);
-  assert.match(source, /URL\.revokeObjectURL\(activeObjectUrl\)/);
+  assert.match(source, /URL\.revokeObjectURL\(objectUrl\)/);
+  assert.match(source, /blob\.size > 20 \* 1024 \* 1024/);
   assert.doesNotMatch(source, /<img[^>]+https?:\/\//);
 });
 
-test("protected preview loading and failures have distinct accessible states", () => {
-  assert.match(source, /role="status"[\s\S]*?Loading secure preview/);
-  assert.match(source, /role="alert"[\s\S]*?Secure preview is unavailable/);
-  assert.match(source, />\s*Retry preview\s*<\/button>/);
-  assert.match(
-    source,
-    /onClick=\{\(\) => setRetryVersion\(\(version\) => version \+ 1\)\}/,
-  );
+test("current preview loading, error and retry are distinct accessible states", () => {
+  assert.match(source, /role="status"[\s\S]*?Loading document/);
+  assert.match(source, /role="alert"/);
+  assert.match(source, /Retry preview/);
+  assert.match(source, /setAttempt\(\(value\) => value \+ 1\)/);
+  assert.match(source, /return \(\) => observer\.disconnect\(\)/);
 });

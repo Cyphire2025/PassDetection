@@ -1,0 +1,56 @@
+[
+  {
+    "path": "backend/app/infrastructure/database/email_models.py",
+    "before_sha256": "32a81aa48643647e4824e52fcdb9e0f4257743ddfe86c6de395979f127425f80",
+    "after_sha256": "7b0ee596fea8b7c43d92315038b1e14893d1fd865a32f0adee477fd3bb762e2d",
+    "ast_identical": true
+  },
+  {
+    "path": "backend/app/infrastructure/database/_email_models/__init__.py",
+    "before_sha256": "65cd01f934adfa7ece5ab4f50a45149c7e77c6b77436a24b6800b119ec1853e6",
+    "after_sha256": "65c72734aaf387cf30b89e1b390fd9c23259d1822449024d900f48ba9cef76f8",
+    "ast_identical": true
+  },
+  {
+    "path": "backend/app/infrastructure/database/_email_models/activity.py",
+    "before_sha256": "714dd1b409616b913a23da16ead69983fb6acd43ac660b74f379a5c69e4846cf",
+    "after_sha256": "ae00d24f812131dcdeae41d7a32d13b1744325f45e13fd61bff1c5255fb2f588",
+    "ast_identical": true
+  },
+  {
+    "path": "backend/app/infrastructure/database/_email_models/artifacts.py",
+    "before_sha256": "7d4474d422e6cda3cb53624d6d04d836f4866bb4e6778b538aa5acbd22ee4aef",
+    "after_sha256": "c761fc46dcd022d7afc0ac5dbbbdb7b28a931d9a5444ce581e968a2966a6fa32",
+    "ast_identical": true
+  },
+  {
+    "path": "backend/app/infrastructure/database/_email_models/connections.py",
+    "before_sha256": "9dcd5be5f425cc9c5e13ec923f8d3293f55b4aeb2c611ff820ab46ad1b8c70b9",
+    "after_sha256": "fb08f8be131213b1f3d778e089db69dcc82874cbd848e4d37b8e99cbb4ad65c9",
+    "ast_identical": true
+  },
+  {
+    "path": "backend/app/infrastructure/database/_email_models/documents.py",
+    "before_sha256": "e9931b4d41f4ea92ce3416a63f20121f6189e6c302da5e133017832bcc67a0ba",
+    "after_sha256": "4466f1e006d175e9ad98acca3518bc288e9b8c494daff026fa33484c8a4f3109",
+    "ast_identical": true
+  },
+  {
+    "path": "backend/app/infrastructure/database/_email_models/messages.py",
+    "before_sha256": "b1c99cf70266f258a714752105267adb5018dfccf7953914fdd4cfc7764ebfac",
+    "after_sha256": "d45ce4a5c27666eb3e376c5c7b3fa9f48a6297851374f21ec43cad74e7f01427",
+    "ast_identical": true
+  },
+  {
+    "path": "backend/app/infrastructure/database/_email_models/oauth.py",
+    "before_sha256": "975b7807e2c6f4a0542e5ec31b8b839ee2d4cb73fe9507c39190612a89637de7",
+    "after_sha256": "989bc18b71a0d543ae531500d01b92cd6ec41ceb8a132bb24fbd362ae1254ff9",
+    "ast_identical": true
+  },
+  {
+    "path": "backend/app/infrastructure/database/_email_models/reviews.py",
+    "before_sha256": "a5f7bf9ec9c011b87b7919046d2aa41722b9fcd883122481942d6fee73379dd8",
+    "after_sha256": "4d8214ce7f96b2dccf09da4cf7dd41dd95b59085c813b2421d75f24518194b84",
+    "ast_identical": true
+  }
+]

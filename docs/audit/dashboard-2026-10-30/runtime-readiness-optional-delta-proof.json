@@ -1,0 +1,33 @@
+{
+  "stage": "deliberate RR01 isolation fix AFTER immutable mechanical checkpoint",
+  "production_delta": {
+    "path": "backend/app/infrastructure/runtime_readiness_database.py",
+    "only_new_async_savepoint_wrapper": true,
+    "original_module_ast_exact_after_savepoint_inverse_and_sql_indentation_normalization": true,
+    "sql_content_exact_after_dedent": true,
+    "sql_raw_literal_note": "Wrapping original SQL in asyncwith adds source indentation only; query text/quoted values/filters/ordering unchanged. Raw string indentation is explicitly not claimed byte-identical.",
+    "no_blanket_outer_rollback": true,
+    "existing_signatures_defaults_statuses_exact": true
+  },
+  "other4runtime_owners_byte_unchanged": [
+    "backend/app/infrastructure/runtime_readiness_contracts.py",
+    "backend/app/infrastructure/runtime_readiness_probes.py",
+    "backend/app/infrastructure/runtime_readiness_capabilities.py",
+    "backend/app/infrastructure/runtime_readiness.py"
+  ],
+  "existing_test_protocol_support": [
+    {
+      "path": "backend/tests/unit/infrastructure/test_runtime_readiness.py",
+      "only_asyncsession_savepoint_protocol_support_added": true,
+      "existing_assertions_inputs_other_bodies_exact": true
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_runtime_readiness_guards.py",
+      "only_asyncsession_savepoint_protocol_support_added": true,
+      "existing_assertions_inputs_other_bodies_exact": true
+    }
+  ],
+  "regression_assertions_same_as_failed_baseline": true,
+  "regression_fixture_schema_note": "Hardcoded0142 fixture changed to existing SCHEMA_REVISION and actual Settings default; current input value unchanged and no production schema/config changes.",
+  "native_postgresql": "No local PATHbinary/runningserver; tests use explicit synthetic failed-statement/savepoint states with real health/runtime/SQLAlchemy-expression orchestration. No livePG proof or commit-error/data-loss claim."
+}

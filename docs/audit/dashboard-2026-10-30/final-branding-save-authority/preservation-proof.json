@@ -1,0 +1,25 @@
+{
+  "status": "All bounded preservation comparisons passed; authority and lifetime guards are deliberate behavioral changes, not mechanical equivalence.",
+  "tool": "Pinned project TypeScript parser/printer; comments and formatting excluded.",
+  "results": {
+    "dialog_return_jsx_ast_identical": true,
+    "dialog_public_parameters_ast_identical": true,
+    "dialog_source_crop_expression_ast_identical": true,
+    "dialog_image_crop_expression_ast_identical": true,
+    "whole_api_ast_identical_after_explicit_authority_metadata_inverse": true,
+    "whole_geometry_test_ast_identical_after_explicit_fixture_and_expected_config_inverse": true
+  },
+  "source_fence": {
+    "frontend/features/branding/components/group-image-dialog.tsx": "219fe7ee75ae4aef5121e87d43b5ee8a4a8d698b89117e22531cc5f3f82f3b0e",
+    "frontend/features/branding/api/branding-images.api.ts": "e168b6ea253acf3e4b85b54ff71abcfd80bf3c4bf21ab3d06e352ca4e70894c6",
+    "frontend/features/branding/components/group-image-dialog.test.tsx": "a0f431b50f8be41ef41fd9699403a43a8de00d3bf639f96075defe4bef1316e9",
+    ".tmp/branding-save-authority/before-source/frontend/features/branding/components/group-image-dialog.tsx": "da64396862a67e55104ecc8cc602d25f22c12975f58bcbb56c4ddaba0a320230",
+    ".tmp/branding-save-authority/before-source/frontend/features/branding/api/branding-images.api.ts": "2c6b39282474e505aa23f380693e910d59479cb2e5fbfb4578be862e24d20316"
+  },
+  "scope": [
+    "Dialog return JSX, public parameters, crop input expressions remain identical. Save orchestration and controller cleanup intentionally changed.",
+    "Whole API AST matches the original after only the explicit optional config/import/owner-freeze inverse. URL, params, FormData order, timeout, version, result, cache function and exported types therefore retain their original AST.",
+    "All geometry test declarations/assertions retained after only synthetic auth setup/cleanup and the strengthened API config expectation inverse.",
+    "Optional seventh API parameter changes reflected JavaScript function length; published positional default and six-argument calls remain accepted and tested. No claim of identical function metadata."
+  ]
+}

@@ -1,0 +1,21 @@
+✔ the primary portal query directly owns the recoverable error presentation (0.6085ms)
+✔ current Fresh, returning and camera entry points remain literal lazy boundaries (0.1378ms)
+✔ one revision queue serializes each current fresh and returning private draft (0.0997ms)
+✔ initialization shares StrictMode starts and cancels abandoned member visits (0.084ms)
+✔ browser resume storage retains only navigation and opaque operation identities (0.1184ms)
+✔ current draft submission validates documents and fields before any completion request (0.5975ms)
+✔ verification reads the authoritative revision before exposing a proof (0.094ms)
+✔ server-rejected proofs can be renewed without resetting private fields or final keys (0.1931ms)
+✔ latest edits save before upload and completion and uncertain operation keys remain stable (0.1049ms)
+✔ failed extraction stays fail-closed while users correct fields or replace images (0.1043ms)
+✔ current progress, errors and private save states remain accessible (0.4335ms)
+✔ shared current passport fields keep surname and issue date optional (0.2893ms)
+✔ current public header preserves the brand, travel details and bounded group name (0.1946ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 74.2805

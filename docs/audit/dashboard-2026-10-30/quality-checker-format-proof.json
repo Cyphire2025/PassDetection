@@ -1,0 +1,7 @@
+{
+  "path": "backend/scripts/verify_backend_quality_budgets.py",
+  "whole_file_ast_identical_during_formatting": true,
+  "before_raw_sha256": "ecf74b8c30ece4dd644216eb1f326b84f59610c5249bd9dd85291f5ac6004620",
+  "after_raw_sha256": "2baf94d493a068bd1aed0258f4627aed47fe0845e6764fd0310cbf84f57794a9",
+  "formatting_only_after_separately_tested_zero_complexity_boundary_change": true
+}

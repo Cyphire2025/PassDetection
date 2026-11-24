@@ -1,0 +1,17 @@
+{
+  "policy_inverse_all_old_values_exact": true,
+  "inventory_AST_inverse_only_exact_JSON_support_literal": true,
+  "test_AST_inverse_all_original_bodies_assertions_exact": true,
+  "new_native_paths": [
+    "backend/tests/unit/presentation/test_my_photos_dispatch_contract.py",
+    "backend/tests/unit/infrastructure/fixtures/mobile_journey_london_photon.json"
+  ],
+  "new_negative_policy_path": "backend/tests/unit/infrastructure/fixtures/mobile_journey_london_photon_extra.json",
+  "new_controls": "Two existing full/finding-history cases plus one exact-backend-JSON false-positive rejection",
+  "no_other_policy_values_changed": true,
+  "native_literals": 63,
+  "backend_native_literals": 49,
+  "backend_native_Python_literals": 48,
+  "backend_native_JSON_literals": 1,
+  "nonbackend_native_literals": 14
+}

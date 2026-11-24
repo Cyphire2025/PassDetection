@@ -23,6 +23,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.logging.logger import get_logger
 from app.core.security.jwt import hash_refresh_token
 from app.domain.exceptions.exceptions import AuthenticationError, ConflictError
+from app.domain.value_objects.request_actor import require_expected_actor
 from app.infrastructure.database.models import DashboardSessionModel, RefreshTokenModel, UserModel
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.infrastructure.repositories.notification_repository import NotificationRepository
@@ -85,7 +86,9 @@ class RefreshTokenRepository:
     async def _lock_account(self, user_id: uuid.UUID) -> None:
         await self._session.scalar(select(UserModel.id).where(UserModel.id == user_id).with_for_update())
 
-    async def claim_for_rotation(self, token: str) -> RefreshTokenModel | None:
+    async def claim_for_rotation(
+        self, token: str, *, expected_actor_id: str | None = None,
+    ) -> RefreshTokenModel | None:
         """Serialize rotation with logout and detect actual consumed-token reuse.
 
         The initial READ COMMITTED observation is the race boundary. A request
@@ -101,6 +104,9 @@ class RefreshTokenRepository:
         ).execution_options(populate_existing=True))
         if row is None:
             return None
+        # The opaque credential's persisted identity is authoritative. Reject
+        # stale intent before consumption or replay could revoke its new owner.
+        require_expected_actor(row.user_id, expected_actor_id)
         initially_valid = not row.is_revoked
         # Match identity fencing's lock order (account, then family). Auditing
         # a replay also references the user; reversing this order can deadlock
@@ -210,11 +216,12 @@ class RefreshTokenRepository:
             logger.info("refresh_token_consumed", user_id=str(consumed.user_id))
         return consumed
 
-    async def revoke(self, token: str) -> None:
+    async def revoke(self, token: str, *, expected_actor_id: str | None = None) -> None:
         """Revoke the corresponding family, including a racing successor."""
         hashed = hash_refresh_token(token)
         row = await self._session.scalar(select(RefreshTokenModel).where(RefreshTokenModel.token == hashed))
         if row is not None:
+            require_expected_actor(row.user_id, expected_actor_id)
             await self.revoke_session(row.session_id, user_id=row.user_id)
         logger.info("refresh_token_revoked")
 

@@ -1,0 +1,149 @@
+[
+  {
+    "path": "features/upload/hooks/use-visa-camera-controls.ts",
+    "baselineLines": 76,
+    "maximumLines": 80,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/upload/hooks/use-visa-camera-shutdown.ts",
+    "baselineLines": 98,
+    "maximumLines": 105,
+    "baselineMaxFunctionComplexity": 4,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/upload/hooks/use-visa-camera-state.ts",
+    "baselineLines": 177,
+    "maximumLines": 185,
+    "baselineMaxFunctionComplexity": 1,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/upload/hooks/use-visa-camera-stream.ts",
+    "baselineLines": 123,
+    "maximumLines": 130,
+    "baselineMaxFunctionComplexity": 11,
+    "maximumFunctionComplexity": 12
+  },
+  {
+    "path": "features/upload/hooks/use-visa-camera.ts",
+    "baselineLines": 94,
+    "maximumLines": 100,
+    "baselineMaxFunctionComplexity": 17,
+    "maximumFunctionComplexity": 18
+  },
+  {
+    "path": "features/upload/hooks/use-visa-detector.ts",
+    "baselineLines": 215,
+    "maximumLines": 220,
+    "baselineMaxFunctionComplexity": 23,
+    "maximumFunctionComplexity": 24
+  },
+  {
+    "path": "features/upload/hooks/use-visa-final-face-detection.ts",
+    "baselineLines": 75,
+    "maximumLines": 80,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/upload/hooks/use-visa-live-analysis.ts",
+    "baselineLines": 137,
+    "maximumLines": 145,
+    "baselineMaxFunctionComplexity": 8,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/upload/hooks/use-visa-photo-capture.ts",
+    "baselineLines": 214,
+    "maximumLines": 220,
+    "baselineMaxFunctionComplexity": 29,
+    "maximumFunctionComplexity": 30
+  },
+  {
+    "path": "features/upload/components/visa-camera-footer.tsx",
+    "baselineLines": 157,
+    "maximumLines": 165,
+    "baselineMaxFunctionComplexity": 16,
+    "maximumFunctionComplexity": 17
+  },
+  {
+    "path": "features/upload/components/visa-camera-view.tsx",
+    "baselineLines": 140,
+    "maximumLines": 145,
+    "baselineMaxFunctionComplexity": 13,
+    "maximumFunctionComplexity": 14
+  },
+  {
+    "path": "features/upload/components/visa-camera.constants.ts",
+    "baselineLines": 16,
+    "maximumLines": 20,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/upload/components/visa-camera.types.ts",
+    "baselineLines": 43,
+    "maximumLines": 50,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/upload/services/visa-camera-final-validation.ts",
+    "baselineLines": 73,
+    "maximumLines": 80,
+    "baselineMaxFunctionComplexity": 7,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/upload/services/visa-camera-frame-analysis.ts",
+    "baselineLines": 102,
+    "maximumLines": 110,
+    "baselineMaxFunctionComplexity": 10,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/upload/services/visa-camera-geometry.ts",
+    "baselineLines": 166,
+    "maximumLines": 170,
+    "baselineMaxFunctionComplexity": 6,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/upload/services/visa-camera-image-encoding.ts",
+    "baselineLines": 39,
+    "maximumLines": 45,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/upload/components/visa-selfie-camera.tsx",
+    "baselineLines": 10,
+    "maximumLines": 15,
+    "baselineMaxFunctionComplexity": 1,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/upload/hooks/use-camera-capture-lifecycle.ts",
+    "baselineLines": 28,
+    "maximumLines": 35,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/passports/utils/passport-group-update.ts",
+    "baselineLines": 36,
+    "maximumLines": 40,
+    "baselineMaxFunctionComplexity": 7,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/passports/components/passport-group-dialogs.tsx",
+    "baselineLines": 294,
+    "maximumLines": 300,
+    "baselineMaxFunctionComplexity": 11,
+    "maximumFunctionComplexity": 12
+  }
+]

@@ -1,0 +1,7613 @@
+{
+  "basis": "Explicit repository Python imports via rg --files; automatic caller inventory is not physical review coverage. Reflection/pickle text searches found no current entity-instance persistence or module-owner comparisons.",
+  "imports": [
+    {
+      "path": "backend/tests/mcp_admin_overview_fixtures.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportProcessingStatus",
+          "alias": null
+        }
+      ],
+      "line": 7
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_staff_group_visibility.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_staff_access_flow.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_source_groups.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 19
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_role_access.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 11
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_repeatable_reminders.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 17
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_reminder_audience.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 10
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_rejected_contacts.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_recipient_roster.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_recipient_details.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_recipient_capacity.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 19
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_phone_welcome_views.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_mutation_boundaries.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 16
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_message_content.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 15
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_matching_reminder_flow.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 17
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_import_transactions.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 11
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_group_invite.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 23
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_delivery_ledger.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 16
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_composer_persistence.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_bulk_resend.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 17
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_batch_summary.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 11
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_archive.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 17
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_activity_tracking.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 11
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_travel_tracker.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 16
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_traveller_enrollment_sources.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 8
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_tour_operation_projections.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 13
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_tour_operations_group_visibility.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_superadmin_access_level_identity.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 15
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_superadmin_access_level.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 17
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_staff_approval_route.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "StaffApprovalOutcome",
+          "alias": null
+        }
+      ],
+      "line": 17
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_shared_attendance.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 13
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_selected_passport_image_export.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 13
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_selected_groups_export.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "GroupStatus",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 16
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_saved_notification_deletion.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 8
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_rooming_runtime_hardening.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 11
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_public_upload_preparation.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "GroupStatus",
+          "alias": null
+        }
+      ],
+      "line": 17
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_public_upload_contact_otp.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "PassportProcessingStatus",
+          "alias": null
+        },
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 18
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_public_passport_capabilities.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "GroupStatus",
+          "alias": null
+        }
+      ],
+      "line": 11
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_public_extraction_admission.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 15
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_platform_settings_concurrency.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 13
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_pdf_upload_security_errors.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 15
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_passport_view_page_hydration.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 13
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_passport_submission_delete_access.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 18
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_passport_response_support.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportExtractionStatus",
+          "alias": null
+        },
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 11
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_passport_group_pending_export_helpers.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "GroupStatus",
+          "alias": null
+        }
+      ],
+      "line": 15
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_passport_export_offload.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 9
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_passport_export_history_routes.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_passport_document_follow_up.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_passport_display_name.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 13
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_passport_client_details_routes.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "GroupStatus",
+          "alias": null
+        },
+        {
+          "name": "PassportProcessingStatus",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 15
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_passport_client_details_flow.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 16
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "GroupStatus",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_passport_bulk_delete_route.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 10
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_mobile_otp_auth.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 22
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_legacy_passport_query_auditing.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 10
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_health_readiness.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 10
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_group_whatsapp_links.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 17
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_global_search_queries.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 7
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_authored_notifications.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 10
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_my_photos_feature.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_history_pagination.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_group_removal.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 16
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_emergency_revocation.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 7
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_closed_collection_groups.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 19
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_client_organizations.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 13
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_client_managers.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_email_integration_contract.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 11
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_email_connection_lifecycle.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 16
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_email_ai_rollout_admin.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 11
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_email_ai_inbox_isolation.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 11
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_ecr_checker.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 19
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_rename_rejection.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_distribution_staging_routes.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 13
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_distribution_matching.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_destructive_error_contract.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 11
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_dashboard_mobile_role_boundary.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 10
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_dashboard_expected_actor.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 13
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_dashboard_cookie_csrf.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 10
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_configured_public_upload.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        }
+      ],
+      "line": 13
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_client_group_storage_cleanup.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 11
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_client_group_route_boundaries.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_client_group_creation_authorization.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 8
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_audit_log_routes.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 17
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_attendance_scan_batch.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_api_pagination_contract.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 9
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_announcement_notification_diagnostics.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 19
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_admin_passport_storage_cleanup.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 10
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_admin_group_access.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "GroupStatus",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_admin_accounts.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 13
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_access_level_mutation_actors.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/scripts/seed_admin.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 71
+    },
+    {
+      "path": "backend/scripts/register_my_photos_manifest.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 24
+    },
+    {
+      "path": "backend/scripts/register_my_photos_manifest.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 171
+    },
+    {
+      "path": "backend/scripts/qualify_search_plans.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 25
+    },
+    {
+      "path": "backend/scripts/benchmark_passport_dashboard.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 35
+    },
+    {
+      "path": "backend/scripts/benchmark_company_records.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 42
+    },
+    {
+      "path": "backend/tests/integration/test_workspace_branding.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 18
+    },
+    {
+      "path": "backend/tests/integration/test_whatsapp_workspace.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 10
+    },
+    {
+      "path": "backend/tests/integration/test_whatsapp_send_intents.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 212
+    },
+    {
+      "path": "backend/tests/integration/test_whatsapp_export_reimport.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 9
+    },
+    {
+      "path": "backend/tests/integration/test_traveller_document_impact.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 13
+    },
+    {
+      "path": "backend/tests/integration/test_platform_retention_admin_controls.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 11
+    },
+    {
+      "path": "backend/tests/integration/test_passport_view_search_projection.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 13
+    },
+    {
+      "path": "backend/tests/integration/test_mcp_retention_reads.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 20
+    },
+    {
+      "path": "backend/tests/integration/test_mcp_rename_reads.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 15
+    },
+    {
+      "path": "backend/tests/integration/test_mcp_email_overview_reads.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 24
+    },
+    {
+      "path": "backend/tests/integration/test_mcp_ecr_reads.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 19
+    },
+    {
+      "path": "backend/tests/integration/test_mcp_dashboard_summary.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 19
+    },
+    {
+      "path": "backend/tests/service_integration/test_whatsapp_type_history_postgresql.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 9
+    },
+    {
+      "path": "backend/tests/service_integration/test_roster_cache_postgresql.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 15
+    },
+    {
+      "path": "backend/tests/service_integration/test_real_service_contracts.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 24
+    },
+    {
+      "path": "backend/tests/service_integration/test_mcp_retention_reads_postgresql.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 29
+    },
+    {
+      "path": "backend/tests/service_integration/test_mcp_rename_reads_postgresql.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 24
+    },
+    {
+      "path": "backend/tests/integration/test_mcp_analytics_reads.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 22
+    },
+    {
+      "path": "backend/tests/integration/test_mcp_admin_overview_reads.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 19
+    },
+    {
+      "path": "backend/tests/service_integration/test_mcp_export_history_postgresql.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "alias": null
+        }
+      ],
+      "line": 30
+    },
+    {
+      "path": "backend/tests/service_integration/test_mcp_email_overview_postgresql.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 30
+    },
+    {
+      "path": "backend/tests/service_integration/test_mcp_ecr_reads_postgresql.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 27
+    },
+    {
+      "path": "backend/tests/integration/test_import_only_group_workflow.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 18
+    },
+    {
+      "path": "backend/tests/integration/test_group_company_assignment_http.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "GroupStatus",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/tests/service_integration/test_mcp_dashboard_summary_postgresql.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "alias": null
+        }
+      ],
+      "line": 24
+    },
+    {
+      "path": "backend/tests/service_integration/test_mcp_analytics_reads_postgresql.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 27
+    },
+    {
+      "path": "backend/tests/service_integration/test_mcp_admin_overview_postgresql.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 30
+    },
+    {
+      "path": "backend/tests/service_integration/test_manual_review_postgresql.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 20
+    },
+    {
+      "path": "backend/tests/integration/test_company_workspace.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 20
+    },
+    {
+      "path": "backend/tests/integration/test_company_trip_phase.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "GroupStatus",
+          "alias": null
+        }
+      ],
+      "line": 9
+    },
+    {
+      "path": "backend/tests/integration/test_company_summary.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "alias": null
+        },
+        {
+          "name": "GroupStatus",
+          "alias": null
+        }
+      ],
+      "line": 9
+    },
+    {
+      "path": "backend/tests/integration/test_company_submissions.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 15
+    },
+    {
+      "path": "backend/tests/integration/test_company_reuse_setup.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 19
+    },
+    {
+      "path": "backend/tests/integration/test_company_people_http.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 152
+    },
+    {
+      "path": "backend/tests/integration/test_company_directory.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "GroupStatus",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 28
+    },
+    {
+      "path": "backend/tests/integration/test_collection_reliability.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/tests/integration/test_client_group_reopen.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "GroupStatus",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 22
+    },
+    {
+      "path": "backend/tests/integration/test_broadcast_incremental_matching.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 11
+    },
+    {
+      "path": "backend/tests/gc_app_workflow_fixtures.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 8
+    },
+    {
+      "path": "backend/tests/unit/domain/test_trip_timezone.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        }
+      ],
+      "line": 9
+    },
+    {
+      "path": "backend/tests/unit/domain/test_entities.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "GroupStatus",
+          "alias": null
+        },
+        {
+          "name": "PassportExtractionStatus",
+          "alias": null
+        },
+        {
+          "name": "PassportProcessingStatus",
+          "alias": null
+        },
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 9
+    },
+    {
+      "path": "backend/tests/unit/application/test_auth_use_cases.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 22
+    },
+    {
+      "path": "backend/tests/unit/application/test_authorization_policy.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/tests/unit/application/test_verify_submitted_passport_use_case.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportProcessingStatus",
+          "alias": null
+        },
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 20
+    },
+    {
+      "path": "backend/tests/unit/application/test_traveller_export_changes.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 15
+    },
+    {
+      "path": "backend/tests/unit/application/test_retry_post_submission_verification_use_case.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/tests/unit/application/test_retained_data_authorization.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 22
+    },
+    {
+      "path": "backend/tests/unit/application/test_refresh_token_rotation.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/tests/unit/application/test_reconcile_passport_upload_use_case.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 10
+    },
+    {
+      "path": "backend/tests/unit/application/test_qualifier_selection_flow.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        },
+        {
+          "name": "QualifierSelection",
+          "alias": null
+        }
+      ],
+      "line": 17
+    },
+    {
+      "path": "backend/tests/unit/application/test_qualifier_entry_options.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "QualifierSelection",
+          "alias": null
+        }
+      ],
+      "line": 17
+    },
+    {
+      "path": "backend/tests/unit/application/test_post_submission_verification_workflow.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportProcessingStatus",
+          "alias": null
+        },
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        },
+        {
+          "name": "StaffApprovalOutcome",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/tests/unit/application/test_passport_reextraction_conflicts.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportProcessingStatus",
+          "alias": null
+        },
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 10
+    },
+    {
+      "path": "backend/tests/unit/application/test_passport_processing_reliability.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 20
+    },
+    {
+      "path": "backend/tests/unit/application/test_passport_capture_fields.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportExtractionStatus",
+          "alias": null
+        },
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 10
+    },
+    {
+      "path": "backend/tests/unit/application/test_manual_passport_staff_review.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES",
+          "alias": null
+        },
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "PassportProcessingStatus",
+          "alias": null
+        },
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        },
+        {
+          "name": "StaffApprovalOutcome",
+          "alias": null
+        }
+      ],
+      "line": 17
+    },
+    {
+      "path": "backend/tests/unit/application/test_login_timing_hardening.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 11
+    },
+    {
+      "path": "backend/tests/unit/application/test_import_only_client_groups.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 23
+    },
+    {
+      "path": "backend/tests/unit/application/test_destructive_mutation_policy.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 17
+    },
+    {
+      "path": "backend/tests/unit/application/test_dashboard_use_cases.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportProcessingStatus",
+          "alias": null
+        },
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 18
+    },
+    {
+      "path": "backend/tests/unit/application/test_dashboard_realtime_authorization.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 17
+    },
+    {
+      "path": "backend/tests/unit/application/test_correct_client_details.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "PassportProcessingStatus",
+          "alias": null
+        },
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 20
+    },
+    {
+      "path": "backend/tests/unit/application/test_coordinator_trip_expiry_authorization.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 15
+    },
+    {
+      "path": "backend/tests/unit/application/test_configured_public_collection.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        },
+        {
+          "name": "QualifierSelection",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/tests/unit/application/test_client_group_field_options.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/app/presentation/security/email_oauth_binding.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 16
+    },
+    {
+      "path": "backend/app/presentation/security/auth_user_response.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 5
+    },
+    {
+      "path": "backend/app/presentation/security/access_level.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 19
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_whatsapp_source_group_sync.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 243
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_upload_link_features.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        }
+      ],
+      "line": 9
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_upload_configuration_storage.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 11
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_storage_cleanup_passport_covers.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_private_delivery_policy.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 16
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_passport_image_zip_exporter.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 9
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_passport_image_zip_crop_export.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 9
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_passport_excel_exporter.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 10
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_passport_ecr_export.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 10
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_my_photos_gallery_ingestion.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 21
+    },
+    {
+      "path": "backend/app/presentation/mcp/document_assignment_tools.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 27
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_write_support.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 25
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_read_adapters.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 18
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_edit_operations.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 21
+    },
+    {
+      "path": "backend/app/presentation/mcp/business_admin_tools.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 38
+    },
+    {
+      "path": "backend/app/core/security/access_level.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/app/presentation/dependencies/mobile_auth.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 16
+    },
+    {
+      "path": "backend/app/presentation/dependencies/mcp.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 11
+    },
+    {
+      "path": "backend/app/presentation/dependencies/auth.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 36
+    },
+    {
+      "path": "backend/app/presentation/dependencies/auth.py",
+      "module": "app.domain.repositories.interfaces",
+      "names": [
+        {
+          "name": "IUserRepository",
+          "alias": null
+        }
+      ],
+      "line": 42
+    },
+    {
+      "path": "backend/app/application/mcp/diagnostics.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 31
+    },
+    {
+      "path": "backend/app/application/mcp/client_detail_revisions.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 18
+    },
+    {
+      "path": "backend/app/application/mcp/client_detail_changes.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 27
+    },
+    {
+      "path": "backend/app/application/mcp/change_context.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/app/application/mcp/broadcast_link_source.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "alias": null
+        }
+      ],
+      "line": 18
+    },
+    {
+      "path": "backend/app/domain/value_objects/dashboard_summary.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportProcessingStatus",
+          "alias": null
+        }
+      ],
+      "line": 7
+    },
+    {
+      "path": "backend/app/application/mcp/artifacts.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 35
+    },
+    {
+      "path": "backend/app/application/mcp/analytics_reads.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "alias": null
+        }
+      ],
+      "line": 17
+    },
+    {
+      "path": "backend/app/application/mcp/admin_overview_reads.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/app/application/mcp/account_creation.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 23
+    },
+    {
+      "path": "backend/app/application/mcp/whatsapp_reads.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 13
+    },
+    {
+      "path": "backend/app/application/mcp/tracking_export_source.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 11
+    },
+    {
+      "path": "backend/app/application/mcp/tracking_exports.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 42
+    },
+    {
+      "path": "backend/app/application/mcp/tour_evidence_reads.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES",
+          "alias": null
+        },
+        {
+          "name": "ClientGroup",
+          "alias": null
+        }
+      ],
+      "line": 16
+    },
+    {
+      "path": "backend/app/application/mcp/tour_changes.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 24
+    },
+    {
+      "path": "backend/app/application/mcp/roster_reads.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 20
+    },
+    {
+      "path": "backend/app/application/mcp/rooming_exports.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 43
+    },
+    {
+      "path": "backend/app/application/mcp/retention_reads.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/app/application/mcp/rename_reads.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 18
+    },
+    {
+      "path": "backend/app/application/mcp/read_context.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 15
+    },
+    {
+      "path": "backend/app/application/dashboard_realtime_authorization.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "GroupStatus",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 15
+    },
+    {
+      "path": "backend/app/application/mcp/phone_difference_reads.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 22
+    },
+    {
+      "path": "backend/app/application/mcp/pdf_ingestion.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 39
+    },
+    {
+      "path": "backend/app/application/mcp/image_exports.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 36
+    },
+    {
+      "path": "backend/app/application/mcp/group_workbook_plan.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 20
+    },
+    {
+      "path": "backend/app/application/mcp/group_reads.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 21
+    },
+    {
+      "path": "backend/app/application/mcp/group_changes.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 24
+    },
+    {
+      "path": "backend/app/application/mcp/export_history_reads.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 26
+    },
+    {
+      "path": "backend/app/application/mcp/exports.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 50
+    },
+    {
+      "path": "backend/app/application/mcp/excel_options.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "alias": null
+        }
+      ],
+      "line": 31
+    },
+    {
+      "path": "backend/app/application/mcp/email_overview_reads.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 19
+    },
+    {
+      "path": "backend/app/application/mcp/ecr_reads.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 20
+    },
+    {
+      "path": "backend/app/application/mcp/document_reads.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 15
+    },
+    {
+      "path": "backend/app/application/mcp/document_export_source.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 13
+    },
+    {
+      "path": "backend/app/application/mcp/document_exports.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 42
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/verify_submitted_passport_use_case.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportProcessingStatus",
+          "alias": null
+        }
+      ],
+      "line": 18
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/verify_submitted_passport_use_case.py",
+      "module": "app.domain.repositories.interfaces",
+      "names": [
+        {
+          "name": "IObjectStorageRepository",
+          "alias": null
+        },
+        {
+          "name": "IPassportSubmissionRepository",
+          "alias": null
+        }
+      ],
+      "line": 19
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/submit_passport_use_case.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        },
+        {
+          "name": "QualifierSelection",
+          "alias": null
+        }
+      ],
+      "line": 18
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/submit_passport_use_case.py",
+      "module": "app.domain.repositories.interfaces",
+      "names": [
+        {
+          "name": "IClientGroupRepository",
+          "alias": null
+        },
+        {
+          "name": "IObjectStorageRepository",
+          "alias": null
+        },
+        {
+          "name": "IPassportSubmissionRepository",
+          "alias": null
+        },
+        {
+          "name": "IQualifierSelectionRepository",
+          "alias": null
+        }
+      ],
+      "line": 26
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/staff_approve_passport_use_case.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "StaffApprovalOutcome",
+          "alias": null
+        }
+      ],
+      "line": 13
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/staff_approve_passport_use_case.py",
+      "module": "app.domain.repositories.interfaces",
+      "names": [
+        {
+          "name": "IPassportSubmissionRepository",
+          "alias": null
+        }
+      ],
+      "line": 15
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/retry_public_passport_extraction_use_case.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportProcessingStatus",
+          "alias": null
+        }
+      ],
+      "line": 13
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/retry_public_passport_extraction_use_case.py",
+      "module": "app.domain.repositories.interfaces",
+      "names": [
+        {
+          "name": "IClientGroupRepository",
+          "alias": null
+        },
+        {
+          "name": "IPassportSubmissionRepository",
+          "alias": null
+        }
+      ],
+      "line": 15
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/retry_post_submission_verification_use_case.py",
+      "module": "app.domain.repositories.interfaces",
+      "names": [
+        {
+          "name": "IPassportSubmissionRepository",
+          "alias": null
+        }
+      ],
+      "line": 13
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/reextract_passport_submission_use_case.py",
+      "module": "app.domain.repositories.interfaces",
+      "names": [
+        {
+          "name": "IPassportSubmissionRepository",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/reconcile_passport_upload_use_case.py",
+      "module": "app.domain.repositories.interfaces",
+      "names": [
+        {
+          "name": "IClientGroupRepository",
+          "alias": null
+        },
+        {
+          "name": "IPassportSubmissionRepository",
+          "alias": null
+        }
+      ],
+      "line": 9
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/process_passport_submission_job_use_case.py",
+      "module": "app.domain.repositories.interfaces",
+      "names": [
+        {
+          "name": "IObjectStorageRepository",
+          "alias": null
+        },
+        {
+          "name": "IPassportSubmissionRepository",
+          "alias": null
+        }
+      ],
+      "line": 17
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/prepare_tracking_excel.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 19
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/prepare_selected_excel.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 16
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/prepare_image_export.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 16
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/prepare_image_export.py",
+      "module": "app.domain.repositories.interfaces",
+      "names": [
+        {
+          "name": "IObjectStorageRepository",
+          "alias": null
+        }
+      ],
+      "line": 17
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/prepare_group_excel.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 20
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/passport_analytics.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 7
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/list_passport_submissions_use_case.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/list_passport_submissions_use_case.py",
+      "module": "app.domain.repositories.interfaces",
+      "names": [
+        {
+          "name": "IPassportSubmissionRepository",
+          "alias": null
+        }
+      ],
+      "line": 15
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/list_passport_submissions_by_group_use_case.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/list_passport_submissions_by_group_use_case.py",
+      "module": "app.domain.repositories.interfaces",
+      "names": [
+        {
+          "name": "IPassportSubmissionRepository",
+          "alias": null
+        }
+      ],
+      "line": 15
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/list_passport_group_summaries_use_case.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 11
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/list_passport_group_summaries_use_case.py",
+      "module": "app.domain.repositories.interfaces",
+      "names": [
+        {
+          "name": "IPassportSubmissionRepository",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/get_passport_submission_use_case.py",
+      "module": "app.domain.repositories.interfaces",
+      "names": [
+        {
+          "name": "IPassportSubmissionRepository",
+          "alias": null
+        }
+      ],
+      "line": 15
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/export_changes.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 16
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/excel_export_options.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 11
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/correct_client_details.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 21
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/confirm_passport_submission_use_case.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportProcessingStatus",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/confirm_passport_submission_use_case.py",
+      "module": "app.domain.repositories.interfaces",
+      "names": [
+        {
+          "name": "IPassportSubmissionRepository",
+          "alias": null
+        }
+      ],
+      "line": 16
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/complete_export_delivery.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 8
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/client_submit_passport_use_case.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "alias": null
+        }
+      ],
+      "line": 27
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/client_submit_passport_use_case.py",
+      "module": "app.domain.repositories.interfaces",
+      "names": [
+        {
+          "name": "IClientGroupRepository",
+          "alias": null
+        },
+        {
+          "name": "IObjectStorageRepository",
+          "alias": null
+        },
+        {
+          "name": "IPassportSubmissionRepository",
+          "alias": null
+        }
+      ],
+      "line": 29
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/client_submission_replay.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 7
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/client_details_transaction.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "alias": null
+        },
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "GroupStatus",
+          "alias": null
+        },
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 17
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/client_details_fields.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 17
+    },
+    {
+      "path": "backend/app/application/use_cases/notifications/scope.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 5
+    },
+    {
+      "path": "backend/app/application/companies/traveller_metrics.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 19
+    },
+    {
+      "path": "backend/app/application/companies/summary.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 25
+    },
+    {
+      "path": "backend/app/application/companies/source_documents.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 10
+    },
+    {
+      "path": "backend/app/application/companies/reuse_setup.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 19
+    },
+    {
+      "path": "backend/app/application/companies/removal.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 17
+    },
+    {
+      "path": "backend/app/application/companies/reassignment.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 22
+    },
+    {
+      "path": "backend/app/application/companies/people.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 30
+    },
+    {
+      "path": "backend/app/application/companies/original_record.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/app/application/companies/export_source.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 17
+    },
+    {
+      "path": "backend/app/application/companies/export_source.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "alias": null
+        }
+      ],
+      "line": 79
+    },
+    {
+      "path": "backend/app/application/companies/directory_query.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 23
+    },
+    {
+      "path": "backend/app/application/companies/directory_counts.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 10
+    },
+    {
+      "path": "backend/app/application/companies/directory.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 24
+    },
+    {
+      "path": "backend/app/application/companies/data_exports.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 13
+    },
+    {
+      "path": "backend/app/application/companies/assignment.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 23
+    },
+    {
+      "path": "backend/app/application/companies/access.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/app/application/dtos/client_group_dtos.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/app/domain/repositories/interfaces.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "Agency",
+          "alias": null
+        },
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        },
+        {
+          "name": "QualifierSelection",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 23
+    },
+    {
+      "path": "backend/app/infrastructure/my_photos/gallery_ingestion.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 37
+    },
+    {
+      "path": "backend/app/application/use_cases/email_integrations/matching.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 10
+    },
+    {
+      "path": "backend/app/application/use_cases/auth/refresh_token_use_case.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 24
+    },
+    {
+      "path": "backend/app/application/use_cases/auth/refresh_token_use_case.py",
+      "module": "app.domain.repositories.interfaces",
+      "names": [
+        {
+          "name": "IUserRepository",
+          "alias": null
+        }
+      ],
+      "line": 26
+    },
+    {
+      "path": "backend/app/application/use_cases/auth/login_use_case.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 25
+    },
+    {
+      "path": "backend/app/application/use_cases/auth/login_use_case.py",
+      "module": "app.domain.repositories.interfaces",
+      "names": [
+        {
+          "name": "IUserRepository",
+          "alias": null
+        }
+      ],
+      "line": 27
+    },
+    {
+      "path": "backend/app/application/use_cases/auth/get_me_use_case.py",
+      "module": "app.domain.repositories.interfaces",
+      "names": [
+        {
+          "name": "IUserRepository",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/app/application/use_cases/document_rename/read_scope.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 5
+    },
+    {
+      "path": "backend/app/application/use_cases/dashboard/get_dashboard_stats_use_case.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportProcessingStatus",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/app/application/use_cases/dashboard/get_dashboard_stats_use_case.py",
+      "module": "app.domain.repositories.interfaces",
+      "names": [
+        {
+          "name": "IClientGroupRepository",
+          "alias": null
+        },
+        {
+          "name": "IPassportSubmissionRepository",
+          "alias": null
+        }
+      ],
+      "line": 15
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/traveller_destinations.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES",
+          "alias": null
+        },
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 23
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/source_group_sync.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "alias": null
+        }
+      ],
+      "line": 15
+    },
+    {
+      "path": "backend/app/infrastructure/documents/document_passenger_index.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 10
+    },
+    {
+      "path": "backend/app/infrastructure/documents/document_matcher_models.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 8
+    },
+    {
+      "path": "backend/app/infrastructure/documents/document_matcher.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 10
+    },
+    {
+      "path": "backend/app/infrastructure/documents/document_identity_aliases.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 10
+    },
+    {
+      "path": "backend/app/infrastructure/documents/distribution_ingestion.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 21
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/private_delivery_policy.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES",
+          "alias": null
+        }
+      ],
+      "line": 26
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/phone_overrides.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "alias": null
+        }
+      ],
+      "line": 25
+    },
+    {
+      "path": "backend/app/application/use_cases/client_groups/revoke_client_group_use_case.py",
+      "module": "app.domain.repositories.interfaces",
+      "names": [
+        {
+          "name": "IClientGroupRepository",
+          "alias": null
+        }
+      ],
+      "line": 16
+    },
+    {
+      "path": "backend/app/application/use_cases/client_groups/restore_client_group_use_case.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "GroupStatus",
+          "alias": null
+        }
+      ],
+      "line": 15
+    },
+    {
+      "path": "backend/app/application/use_cases/client_groups/restore_client_group_use_case.py",
+      "module": "app.domain.repositories.interfaces",
+      "names": [
+        {
+          "name": "IClientGroupRepository",
+          "alias": null
+        }
+      ],
+      "line": 17
+    },
+    {
+      "path": "backend/app/application/use_cases/client_groups/list_client_groups_use_case.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/app/application/use_cases/client_groups/list_client_groups_use_case.py",
+      "module": "app.domain.repositories.interfaces",
+      "names": [
+        {
+          "name": "IClientGroupRepository",
+          "alias": null
+        }
+      ],
+      "line": 15
+    },
+    {
+      "path": "backend/app/application/use_cases/client_groups/group_access.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "GroupStatus",
+          "alias": null
+        }
+      ],
+      "line": 10
+    },
+    {
+      "path": "backend/app/application/use_cases/client_groups/get_qualifier_selection_use_case.py",
+      "module": "app.domain.repositories.interfaces",
+      "names": [
+        {
+          "name": "IClientGroupRepository",
+          "alias": null
+        },
+        {
+          "name": "IQualifierSelectionRepository",
+          "alias": null
+        }
+      ],
+      "line": 9
+    },
+    {
+      "path": "backend/app/application/use_cases/client_groups/get_client_group_by_token_use_case.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "GroupStatus",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/app/application/use_cases/client_groups/get_client_group_by_token_use_case.py",
+      "module": "app.domain.repositories.interfaces",
+      "names": [
+        {
+          "name": "IClientGroupRepository",
+          "alias": null
+        }
+      ],
+      "line": 20
+    },
+    {
+      "path": "backend/app/application/use_cases/client_groups/delete_client_group_use_case.py",
+      "module": "app.domain.repositories.interfaces",
+      "names": [
+        {
+          "name": "IClientGroupRepository",
+          "alias": null
+        }
+      ],
+      "line": 17
+    },
+    {
+      "path": "backend/app/application/use_cases/client_groups/create_qualifier_selection_use_case.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "QualifierSelection",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/app/application/use_cases/client_groups/create_qualifier_selection_use_case.py",
+      "module": "app.domain.repositories.interfaces",
+      "names": [
+        {
+          "name": "IClientGroupRepository",
+          "alias": null
+        },
+        {
+          "name": "IQualifierSelectionRepository",
+          "alias": null
+        }
+      ],
+      "line": 18
+    },
+    {
+      "path": "backend/app/application/use_cases/client_groups/create_client_group_use_case.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "GroupStatus",
+          "alias": null
+        }
+      ],
+      "line": 18
+    },
+    {
+      "path": "backend/app/application/use_cases/client_groups/create_client_group_use_case.py",
+      "module": "app.domain.repositories.interfaces",
+      "names": [
+        {
+          "name": "IClientGroupRepository",
+          "alias": null
+        }
+      ],
+      "line": 20
+    },
+    {
+      "path": "backend/app/infrastructure/export/whatsapp_filter_excel_exporter.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 18
+    },
+    {
+      "path": "backend/app/infrastructure/export/passport_image_zip_exporter.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 16
+    },
+    {
+      "path": "backend/app/infrastructure/export/passport_image_zip_exporter.py",
+      "module": "app.domain.repositories.interfaces",
+      "names": [
+        {
+          "name": "IObjectStorageRepository",
+          "alias": null
+        }
+      ],
+      "line": 18
+    },
+    {
+      "path": "backend/app/infrastructure/export/passport_excel_exporter.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 21
+    },
+    {
+      "path": "backend/app/infrastructure/passports/roster_view_service.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 16
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/ecr_read_repository.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 13
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/document_rename_read_repository.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 11
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/document_rename_queries.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 8
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/client_group_repository.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "GroupStatus",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 16
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/client_group_repository.py",
+      "module": "app.domain.repositories.interfaces",
+      "names": [
+        {
+          "name": "IClientGroupRepository",
+          "alias": null
+        }
+      ],
+      "line": 18
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/attendance_dashboard_repository.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES",
+          "alias": null
+        }
+      ],
+      "line": 19
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/agency_repository.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "Agency",
+          "alias": null
+        }
+      ],
+      "line": 15
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/agency_repository.py",
+      "module": "app.domain.repositories.interfaces",
+      "names": [
+        {
+          "name": "IAgencyRepository",
+          "alias": null
+        }
+      ],
+      "line": 17
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/admin_overview_repository.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "alias": null
+        },
+        {
+          "name": "PENDING_REVIEW_PASSPORT_STATUS_VALUES",
+          "alias": null
+        },
+        {
+          "name": "PassportProcessingStatus",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 10
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/user_repository.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 21
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/user_repository.py",
+      "module": "app.domain.repositories.interfaces",
+      "names": [
+        {
+          "name": "IUserRepository",
+          "alias": null
+        }
+      ],
+      "line": 23
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/sensitive_read_audit.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 10
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/qualifier_selection_repository.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "QualifierSelection",
+          "alias": null
+        }
+      ],
+      "line": 11
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/qualifier_selection_repository.py",
+      "module": "app.domain.repositories.interfaces",
+      "names": [
+        {
+          "name": "IQualifierSelectionRepository",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_whatsapp_matching_repository.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "alias": null
+        }
+      ],
+      "line": 30
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_submission_view_repository.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 18
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_submission_repository.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "CONFIRMED_PASSPORT_STATUS_VALUES",
+          "alias": null
+        },
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "alias": null
+        },
+        {
+          "name": "PENDING_REVIEW_PASSPORT_STATUS_VALUES",
+          "alias": null
+        },
+        {
+          "name": "GroupStatus",
+          "alias": null
+        },
+        {
+          "name": "PassportExtractionStatus",
+          "alias": null
+        },
+        {
+          "name": "PassportProcessingStatus",
+          "alias": null
+        },
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 20
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_submission_repository.py",
+      "module": "app.domain.repositories.interfaces",
+      "names": [
+        {
+          "name": "IPassportSubmissionRepository",
+          "alias": null
+        },
+        {
+          "name": "PassportSubmissionGroupSummary",
+          "alias": null
+        }
+      ],
+      "line": 31
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_retention_repository.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 9
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_analytics_repository.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "alias": null
+        }
+      ],
+      "line": 10
+    },
+    {
+      "path": "backend/app/infrastructure/email/deadline_notifications.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 19
+    },
+    {
+      "path": "backend/app/infrastructure/email/ai_runtime.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 25
+    },
+    {
+      "path": "backend/app/infrastructure/email/ai_context.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 17
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/mcp_operations_read_repository.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES",
+          "alias": null
+        }
+      ],
+      "line": 16
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/mcp_group_read_repository.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 13
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/mcp_export_history_read_repository.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 15
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/mcp_document_read_repository.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/mcp_content_read_repository.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 13
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/identity_security_repository.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 16
+    },
+    {
+      "path": "backend/app/infrastructure/email/review_decisions.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 11
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/email_summary_repository.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/app/infrastructure/email/sync_contracts.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 13
+    },
+    {
+      "path": "backend/app/infrastructure/email/sync_connections.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 18
+    },
+    {
+      "path": "backend/app/infrastructure/qr/approved_passenger_qr_issuer.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "alias": null
+        },
+        {
+          "name": "OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES",
+          "alias": null
+        },
+        {
+          "name": "ClientGroup",
+          "alias": null
+        }
+      ],
+      "line": 13
+    },
+    {
+      "path": "backend/app/infrastructure/storage/minio_repository.py",
+      "module": "app.domain.repositories.interfaces",
+      "names": [
+        {
+          "name": "IObjectStorageRepository",
+          "alias": null
+        }
+      ],
+      "line": 21
+    },
+    {
+      "path": "backend/app/infrastructure/storage/mcp_image_export_storage.py",
+      "module": "app.domain.repositories.interfaces",
+      "names": [
+        {
+          "name": "IObjectStorageRepository",
+          "alias": null
+        }
+      ],
+      "line": 11
+    },
+    {
+      "path": "backend/app/application/travellers/historical_registration.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "alias": null
+        }
+      ],
+      "line": 31
+    },
+    {
+      "path": "backend/app/application/travellers/fresh_publication.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportExtractionStatus",
+          "alias": null
+        },
+        {
+          "name": "PassportProcessingStatus",
+          "alias": null
+        },
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 16
+    },
+    {
+      "path": "backend/app/application/travellers/export_authority.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 13
+    },
+    {
+      "path": "backend/app/application/travellers/draft_collection.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 6
+    },
+    {
+      "path": "backend/app/application/travellers/change_feed.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 21
+    },
+    {
+      "path": "backend/app/application/travellers/accepted_source.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "alias": null
+        }
+      ],
+      "line": 16
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_whatsapp_match_support.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "alias": null
+        }
+      ],
+      "line": 24
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_retention.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 20
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_resolution_restore.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 16
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_replacement_resolution.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_rejection_resolution.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 13
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_reads.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_permanent_delete.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 15
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_operation_dependencies.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 23
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_link_operations.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 17
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_configuration.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 21
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_access.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_groups.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 55
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/branding_images.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 20
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/auth_identity_step_up.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 17
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/auth_identity_recovery.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/auth_identity_dependencies.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 11
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/auth_identity_actions.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/auth_identity_account.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 15
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/auth_identity.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 28
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/auth_access_level.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 11
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/auth.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 30
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/audit_logs.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 17
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/attendance_runtime.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 18
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/analytics.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/admin_whatsapp_templates.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/admin_accounts.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 16
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/admin.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "GroupStatus",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 32
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_partial_upload.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 11
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_matching.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 17
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_manual_verification.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_manual_upload.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 15
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_manual_replacement.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_groups_read.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 15
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_delivery_preview.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 17
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_delivery.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 15
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_assignments.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 13
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_access.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 10
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 31
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/dashboard.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/company_traveller_history.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 25
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/company_submissions.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 28
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/company_source_documents.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 30
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/company_review_tasks.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 22
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/company_reuse_setup.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 20
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/company_reassignments.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 15
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/company_people.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 36
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/company_passports.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 19
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/company_match_review.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 21
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/company_document_uploads.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 17
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/company_data_exports.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 23
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/companies.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 33
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_inbox_visibility.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 13
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_inbox_scope.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 10
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_inbox_retry.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_inbox_reads.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_inbox_queries.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 13
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_inbox_feedback.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_inbox_decisions.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_inbox_corrections.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 15
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_inbox.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 11
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 28
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_updates.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 16
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_rename.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 33
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_verification.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 13
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_upload_abort.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 11
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_upload.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 13
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_scope.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 18
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_save.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_review_support.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES",
+          "alias": null
+        },
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_reupload.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 11
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_responses.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 11
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_group_access_support.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "GroupStatus",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 15
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_content_scope.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "GroupStatus",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 20
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_content_audit.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 15
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_common_staging.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 21
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_common_publication.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 20
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_common_preview.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 22
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_common_documents.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 24
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_announcement_publication.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 24
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_announcements.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 24
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_review_queries.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_review_decisions.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_outlook.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 18
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_oauth_start.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 13
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_gmail.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 18
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_connections.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 19
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_activity.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 13
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_access.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 23
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_rollout_admin.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 20
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/menu_exports.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 10
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/menu_dishes.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 11
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/menu_common.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 15
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/menu_categories.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 11
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mcp_read_access.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mcp_permissions.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mcp_admin.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 24
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/health.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 26
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/group_updates.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 16
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_notifications.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 23
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_scope.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_organizations.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_manager_profile.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 15
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_manager_directory.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_manager_creation.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 17
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_manager_access.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 15
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_itineraries.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 20
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_group_settings.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 24
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_group_removal.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 10
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_group_directory.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "GroupStatus",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 18
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_workspace_passengers.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 10
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_update_resend.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_update_audience.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 13
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_type_history.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 11
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_source_groups.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "alias": null
+        },
+        {
+          "name": "GroupStatus",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 23
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_send_intents.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 16
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_send.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 20
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_scope.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 18
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_roster_support.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 13
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_resend.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_reminder_audience.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_rejected_contacts.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 24
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_recipient_roster.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_recipient_details.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 21
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_recipient_additions.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 25
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_recipients.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 21
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_history.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 13
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_group_visibility.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "GroupStatus",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 8
+    },
+    {
+      "path": "backend/app/application/security/public_upload_capability.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        }
+      ],
+      "line": 7
+    },
+    {
+      "path": "backend/app/application/security/mobile_access_policy.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "GroupStatus",
+          "alias": null
+        }
+      ],
+      "line": 15
+    },
+    {
+      "path": "backend/app/application/security/email_scope.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 10
+    },
+    {
+      "path": "backend/app/application/security/destructive_mutation_policy.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 20
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_groups_read.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 11
+    },
+    {
+      "path": "backend/app/application/security/authorization_policy.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "GroupStatus",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_groups_manage.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/app/application/security/access_level_actor.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 10
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_groups_delete.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 15
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_groups_archive.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_exports.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 19
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_delivery_support.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_contact_import.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 20
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_composer.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_catalog.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 9
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_preview.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 16
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_batch_status.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_activity.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 49
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/travel_tracker.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/traveller_welcome.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 13
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/traveller_admin.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 26
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_qr_helpers.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_qr_delivery.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 22
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_qr.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_attendance_sessions.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 13
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_attendance_scan_support.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 17
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_attendance_scans.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 10
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_attendance_dashboard.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 16
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_attendance_closeout.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 11
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_attendance_batch_support.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 17
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_assignments.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_activity_lifecycle.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "GroupStatus",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_accounts.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 11
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_access.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "GroupStatus",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 13
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/search.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 18
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/rooming_workspace.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/rooming_selection.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 11
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/rooming_policy.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 3
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/rooming_hotels.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 11
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/rooming_exports.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 19
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/rooming_checkins.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/rooming_auto_allocation.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 19
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/rooming_access.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 16
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_auth_session_support.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "GroupStatus",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 19
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_auth_phone_support.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "alias": null
+        },
+        {
+          "name": "GroupStatus",
+          "alias": null
+        }
+      ],
+      "line": 18
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_auth_otp_support.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "GroupStatus",
+          "alias": null
+        }
+      ],
+      "line": 22
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_auth.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "GroupStatus",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 42
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/menu_workspace.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 10
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/menu_plan_entries.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 10
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/menu_plans.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 13
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_resources.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES",
+          "alias": null
+        },
+        {
+          "name": "GroupStatus",
+          "alias": null
+        }
+      ],
+      "line": 61
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_ops.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES",
+          "alias": null
+        }
+      ],
+      "line": 46
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passports.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "UserRole",
+          "alias": "UserRole"
+        }
+      ],
+      "line": 10
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/notifications.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_export_support.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 24
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_image_library.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 31
+    },
+    {
+      "path": "backend/app/infrastructure/travel_tracker/service.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 29
+    },
+    {
+      "path": "backend/app/infrastructure/travel_tracker/actor.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 11
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/covers.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/contact_verification.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "alias": null
+        },
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 35
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/client_details.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 19
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "GroupStatus",
+          "alias": null
+        },
+        {
+          "name": "PassportProcessingStatus",
+          "alias": null
+        },
+        {
+          "name": "StaffApprovalOutcome",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 24
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/document_import.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 19
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/document_follow_up.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 13
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/display_name.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 13
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/ecr_export_support.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        }
+      ],
+      "line": 10
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/excel_exports.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 28
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/excel_import.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 17
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/company_export_page.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 23
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/queries.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 20
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/company_export_admission.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 17
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/company_export_admission.py",
+      "module": "app.domain.repositories.interfaces",
+      "names": [
+        {
+          "name": "IUserRepository",
+          "alias": null
+        }
+      ],
+      "line": 18
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/public_upload_documents.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        }
+      ],
+      "line": 10
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/public_upload.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "alias": null
+        },
+        {
+          "name": "GroupStatus",
+          "alias": null
+        }
+      ],
+      "line": 37
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/submission_side_effects.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportProcessingStatus",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/image_support.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 17
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/image_exports.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 20
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/images.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 17
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/export_history.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 22
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/submission_review.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "StaffApprovalOutcome",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 36
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/export_context.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 13
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/selected_exports.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "ClientGroup",
+          "alias": null
+        },
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 25
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/response_support.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "alias": null
+        },
+        {
+          "name": "PassportSubmission",
+          "alias": null
+        },
+        {
+          "name": "User",
+          "alias": null
+        },
+        {
+          "name": "UserRole",
+          "alias": null
+        }
+      ],
+      "line": 17
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_jobs.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 11
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_edits.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 18
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/company_export_workbook.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 12
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/company_export_worker.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "User",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/app/application/mobile/realtime_authorization.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "GroupStatus",
+          "alias": null
+        }
+      ],
+      "line": 14
+    },
+    {
+      "path": "backend/app/application/mobile/passenger_phone_authority.py",
+      "module": "app.domain.entities.entities",
+      "names": [
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "alias": null
+        }
+      ],
+      "line": 8
+    }
+  ],
+  "module_escape_candidates": []
+}

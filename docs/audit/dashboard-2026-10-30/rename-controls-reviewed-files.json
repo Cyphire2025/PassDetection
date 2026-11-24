@@ -1,0 +1,31 @@
+{
+  "files": [
+    {
+      "path": "frontend/features/documents/components/saved-rename-batches.tsx",
+      "sha256": "a523e8b9a5fded4881f280e1e9c3c29b5d6e5636da69f629e336a99254206e38",
+      "physical_lines": 147,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-fixed",
+      "notes": "Complete original/current physical source read and narrow measured indexing/native-link correction. Original typed props, selected array order/duplicates/stale filtering and callback/pending semantics retained; only lookup membership uses two Sets. ZIP uses one native anchor with identical original Button utility classes/href/target/rel."
+    },
+    {
+      "path": "frontend/features/documents/components/rename-results.tsx",
+      "sha256": "819555f3908739b21bbd4de58ab98d55b91db1c29a1c3c0fa7d6f0ca82027acc",
+      "physical_lines": 182,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-fixed",
+      "notes": "Complete original/current physical source read; only ZIP/File nested Button wrappers replaced with styled native anchors. Four original filter/type/helper declarations exact; all public parameter types/filter/sort/status/callbacks and destinations retained."
+    },
+    {
+      "path": "frontend/features/documents/components/document-rename-list-controls.test.tsx",
+      "sha256": "ea516f902e69e3491921bab09669a9f519b32d4e5e259ebf4fcda04992c811e6",
+      "physical_lines": 95,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-fixed",
+      "notes": "Full authored actual-component regression source; native intermediate membership arrays observed without replacing their methods,512row outputs checked, duplicate/order/stale/pending callbacks exercised, real SSR output optionally emitted only under explicit fixture environment for isolated native keyboard checks. No production data/provider calls."
+    }
+  ]
+}

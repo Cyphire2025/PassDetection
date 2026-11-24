@@ -1,0 +1,50 @@
+{
+  "method": "Actual complete physical reads/authored source and focused real-state component/critical-coverage evidence.",
+  "files": [
+    {
+      "path": "frontend/features/upload/hooks/use-fresh-contact.ts",
+      "sha256": "ecfc375b9982d5fd6d4ec154db0537d378e3d559851cf0e231f2e8f1515dbd83",
+      "physical_lines": 35,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-fixed",
+      "notes": "Full original/current source read. Original proof/validity/authoritative verify/current-challenge/expiry declarations and public return object exact. Request/timer critical responsibilities deliberately moved with current generation/duplicate/cooldown fix; original owner remains critical."
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-fresh-contact-challenge.ts",
+      "sha256": "5b21efe2a732c978c0d21e7d1200cda81711952daacf258002d195ff9e4c442a",
+      "physical_lines": 72,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-fixed",
+      "notes": "Full authored current request/challenge owner. Locks synchronously before flush, ties operation to contact/lifetime epoch, blocks stale queued dispatch and response/error publication, only matching operation unlocks itself, validates existing ApiError.retryAfterMs and scopes failed-send deadline to current contact. Timer/challenge/code stays ephemeral; no provider calls outside existing serialized API method."
+    },
+    {
+      "path": "frontend/features/upload/components/fresh-contact.tsx",
+      "sha256": "59c1f7c10b6c22ff3c9cfc40f632bdbfc7d239d9990f71a519628dfb6b906dfd",
+      "physical_lines": 23,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-fixed",
+      "notes": "Full current component source read; only validator import moved to pure contact-verification service. Original labels/JSX/handlers/pending/proof workflow retained."
+    },
+    {
+      "path": "frontend/features/upload/services/contact-verification.ts",
+      "sha256": "832e6a28cbf06e700cc915b91f60621e3738467288b4ae066c78c5c1a9b439e5",
+      "physical_lines": 15,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-fixed",
+      "notes": "Full original/current pure service source read; exact unchanged email validator declaration moved out of retired UI while normalizeOtpPhone original country/length rules retained. No threshold unification."
+    },
+    {
+      "path": "frontend/features/upload/components/fresh-contact.test.tsx",
+      "sha256": "cdd02ebd5195af3f8893a0339a8c07da392274262cd8a2d35e146849977127ea",
+      "physical_lines": 176,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-fixed",
+      "notes": "Full authored current FreshContact/useFreshDraft actual serialized-queue component regressions. All6legacy responsibilities executed with current APIs/labels plus2queued/stale deadline controls. API responses synthetic; no provider/HTTP/backend or production browser claim. A test-only invalid extraction-status enum was corrected to none before final typecheck; original diagnostic retained."
+    }
+  ]
+}

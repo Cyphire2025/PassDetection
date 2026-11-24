@@ -1,0 +1,194 @@
+[
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/submission_review.py",
+    "sha256": "4448a7071295eb89fb960960c8e686c06ff0da7d44e7e1be952c3274a600d9d7",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete source read and original/current whole-declaration proof or new helper/test review."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/submission_execution.py",
+    "sha256": "0f94c81818d84f389b67e93543b83553b0846feb4f99373cc3155a3b6882ebd7",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete source read and original/current whole-declaration proof or new helper/test review."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/submission_review_approval.py",
+    "sha256": "0ab762a2dedf15458d2a122ae694673697b1886013e35d461d235aa6a09ceea4",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete source read and original/current whole-declaration proof or new helper/test review."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/submission_review_client.py",
+    "sha256": "ee16659a97152e26d852f44fd77f7a8ae1d75b3bdca52b14fefa0387dd0fdd77",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete source read and original/current whole-declaration proof or new helper/test review."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/submission_review_confirmation.py",
+    "sha256": "b5439cd454fe40ddefe19690f60e1665386a99048f7ac6607db5c8a160674b29",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete source read and original/current whole-declaration proof or new helper/test review."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/submission_review_processing.py",
+    "sha256": "9ea3488f3c1db847b128edb3dff59edd710b9aa5a1d5bc99f9a4d9f8c5a903b5",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete source read and original/current whole-declaration proof or new helper/test review."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/submission_review_read.py",
+    "sha256": "54f37e6940ca8abca757e3432fa2141ba994344a0030781c7d197ae289cb7931",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete source read and original/current whole-declaration proof or new helper/test review."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/submission_review_support.py",
+    "sha256": "85d293f81fe8fcd4bf0295fe6e30ab1fde8fbcd23b27d46c2a3d9c1047960970",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete source read and original/current whole-declaration proof or new helper/test review."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_staff_approval_route.py",
+    "sha256": "7c4f7ad03c84ee67df04c7116ea5ff21b51881f7d5aa4fa2c3b5916a2a77a86f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete source read and original/current whole-declaration proof or new helper/test review."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_ai_retry_route.py",
+    "sha256": "849fd696eb81222b35bcf90a975d501195c85d5c637f7ae6b2164967ab337c89",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete source read and original/current whole-declaration proof or new helper/test review."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_client_submit_cleanup_order.py",
+    "sha256": "e684910999cf8cfaf18d4a8bcc9c96f9198d96f3c5f228110a1b8a547a228e1e",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete source read and original/current whole-declaration proof or new helper/test review."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_sensitive_read_audit.py",
+    "sha256": "22af0386e46a5664771c6e2c8f0e164c0fb8d8de4bac285330071157b20f67a0",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete source read and original/current whole-declaration proof or new helper/test review."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_review_persistence.py",
+    "sha256": "986beaf037f24d4af8049a90a8e78a5db7cf6254fa4d642fdc7de3737f4724fc",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete source read and original/current whole-declaration proof or new helper/test review."
+  },
+  {
+    "path": "backend/tests/route_dependencies.py",
+    "sha256": "e80fe87973a7a26de0b4f3279397908dabb7bf6649b977cb74350a28dc6fe1b4",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete source read and original/current whole-declaration proof or new helper/test review."
+  },
+  {
+    "path": "backend/tests/passport_image_mutations.py",
+    "sha256": "fceefc1ce5c57969627ddadc7d481470cd8aba31041704a0cf226bc598ce4679",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete source read and original/current whole-declaration proof or new helper/test review."
+  },
+  {
+    "path": "backend/app/application/use_cases/passports/get_passport_submission_use_case.py",
+    "sha256": "9f11513e538be4bb142cf04f874ff27770d8d214c0a53488f04417f163b986c0",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete source read and original/current whole-declaration proof or new helper/test review."
+  },
+  {
+    "path": "backend/app/application/use_cases/passports/reextract_passport_submission_use_case.py",
+    "sha256": "576cd4ee0f7d5159987365caecd136e2ed25de7c9037b1027438e360ef7621a4",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete source read and original/current whole-declaration proof or new helper/test review."
+  },
+  {
+    "path": "backend/app/application/travellers/snapshot_access.py",
+    "sha256": "88f5ddb022c01904f7309ea5933785482c3f8f8d5d999f7d93c05631f5d0d76f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete source read and original/current whole-declaration proof or new helper/test review."
+  },
+  {
+    "path": "backend/tests/unit/application/test_traveller_snapshot_access.py",
+    "sha256": "e51e5372587a57df916a96479c302338f9763562971365066d30db45e962d13c",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete source read and original/current whole-declaration proof or new helper/test review."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_configured_public_upload.py",
+    "sha256": "41b85fcf951228f78b91b1acdae947f86d6f276d8e6984d2f3f2164b4f6e7d8a",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Affected test execution and exact retained test-body proof; no complete physical read credit in this batch."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_public_upload_contact_otp.py",
+    "sha256": "a3a13a19ac9a8a7665e7ce2a68d53af3b7c0a448adad271b6b7bc106c6d981ee",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Affected test execution and exact retained test-body proof; no complete physical read credit in this batch."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_route_decomposition.py",
+    "sha256": "7b1ee92647844d22d84a29cc90180c58c1888c51c1cfbb1b0a0751d6efafec49",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Affected test execution and exact retained test-body proof; no complete physical read credit in this batch."
+  },
+  {
+    "path": "backend/tests/unit/application/test_retained_data_authorization.py",
+    "sha256": "bec5c2212d70b651d04a40aed64c1f3ae4058be44472a75720c668cc8d958998",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Affected test execution and exact retained test-body proof; no complete physical read credit in this batch."
+  },
+  {
+    "path": "backend/tests/unit/application/test_post_submission_verification_workflow.py",
+    "sha256": "ab94c73631caa5ef7fc66e8782bedaf12fa05d05631d298382557229b24d55bb",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Affected test execution and exact retained test-body proof; no complete physical read credit in this batch."
+  }
+]

@@ -11,6 +11,7 @@ from app.application.use_cases.whatsapp.message_templates import (
     AUTOMATED_NOTICE,
     GREETING,
     STATIC_TEMPLATE_HEADER,
+    WhatsAppMessageType,
     format_support_contacts,
     render_message,
     validate_template_parameters,
@@ -70,7 +71,9 @@ async def validate_bulk_resend_edits(
             body.support_contact_ids,
         )
     ):
-        return BulkResendEdits(effective_template_name=effective_name, has_template_override=has_override)
+        return BulkResendEdits(
+            effective_template_name=effective_name, has_template_override=has_override
+        )
     if body.message_type != "passport_link" and (
         body.passport_intro is not None or body.support_contact_ids is not None
     ):
@@ -79,7 +82,10 @@ async def validate_bulk_resend_edits(
             detail="Passport introduction and support edits are only available for Passport Link messages",
         )
     if body.group_invite_link is not None and body.message_type != "group_invite":
-        raise HTTPException(status_code=400, detail="Group invite link edits are only available for Group Invite messages")
+        raise HTTPException(
+            status_code=400,
+            detail="Group invite link edits are only available for Group Invite messages",
+        )
     content = (
         _resolve_send_message_content(
             body.message_type, body.message_content, group_name=group.name
@@ -116,52 +122,30 @@ async def validate_bulk_resend_edits(
         )
     invite_link = (
         _validate_group_invite_link(body.group_invite_link)
-        if body.group_invite_link is not None else None
+        if body.group_invite_link is not None
+        else None
     )
     return BulkResendEdits(
-        content, intro, header, support_block, template_name, invite_link,
-        effective_template_name=effective_name, has_template_override=has_override,
+        content,
+        intro,
+        header,
+        support_block,
+        template_name,
+        invite_link,
+        effective_template_name=effective_name,
+        has_template_override=has_override,
     )
 
 
-def resolve_saved_resend_snapshot(
-    source: WhatsAppMessageLogModel, edits: BulkResendEdits | None = None,
-    *, preview: bool = False,
+def _apply_saved_resend_edits(
+    message_type: WhatsAppMessageType,
+    header: list[str],
+    parameters: list[str],
+    template_name: str,
+    edits: BulkResendEdits,
+    *,
+    preview: bool,
 ) -> SavedResendSnapshot:
-    """Apply only explicit edits; a passport link always comes from this source row."""
-    header, parameters = _template_snapshot_from_log(source)
-    if not source.template_name or not source.template_name.strip() or not source.rendered_message:
-        raise ValueError("The saved template or rendered message is missing")
-    message_type = _as_message_type(source.message_type)
-    template_name = source.template_name
-    legacy_text = message_type in {"welcome", "passport_link"} and not header
-    if edits is not None and edits.effective_template_name is not None:
-        if not legacy_text or edits.has_template_override or edits.header_image_id:
-            template_name = edits.effective_template_name
-        if legacy_text and edits.has_template_override and not edits.header_image_id and not preview:
-            raise HTTPException(
-                status_code=400,
-                detail="Upload an image before retrying this legacy message with the configured image template",
-            )
-    # HTTP callers always pass a resolved edits object, even with no content
-    # changes. Direct snapshot decoding stays pure and keeps the saved name.
-    if message_type == "passport_link":
-        try:
-            _validate_passport_link(parameters[1])
-        except HTTPException as exc:
-            raise ValueError("The saved passport link is invalid") from exc
-    if edits is None or all(value is None for value in (
-        edits.message_content, edits.passport_intro, edits.header_image_id,
-        edits.support_block, edits.group_invite_link,
-    )):
-        validate_template_parameters(
-            message_type=message_type, header_parameters=header, body_parameters=parameters,
-            allow_legacy_group_invite_header=preview,
-        )
-        return SavedResendSnapshot(
-            template_name, source.rendered_message, header, parameters
-        )
-
     if edits.header_image_id is not None:
         header = [edits.header_image_id]
         if not edits.media_template_name:
@@ -180,7 +164,9 @@ def resolve_saved_resend_snapshot(
     if message_type == "group_invite" and edits.group_invite_link is not None:
         parameters[1] = edits.group_invite_link
     validate_template_parameters(
-        message_type=message_type, header_parameters=header, body_parameters=parameters,
+        message_type=message_type,
+        header_parameters=header,
+        body_parameters=parameters,
         allow_legacy_group_invite_header=preview,
     )
     if message_type == "welcome" and not header and len(parameters) == 2:
@@ -200,3 +186,61 @@ def resolve_saved_resend_snapshot(
             group_invite_link=parameters[1] if message_type == "group_invite" else None,
         )
     return SavedResendSnapshot(template_name, rendered, header, parameters)
+
+
+def resolve_saved_resend_snapshot(
+    source: WhatsAppMessageLogModel,
+    edits: BulkResendEdits | None = None,
+    *,
+    preview: bool = False,
+) -> SavedResendSnapshot:
+    """Apply only explicit edits; a passport link always comes from this source row."""
+    header, parameters = _template_snapshot_from_log(source)
+    if not source.template_name or not source.template_name.strip() or not source.rendered_message:
+        raise ValueError("The saved template or rendered message is missing")
+    message_type = _as_message_type(source.message_type)
+    template_name = source.template_name
+    legacy_text = message_type in {"welcome", "passport_link"} and not header
+    if edits is not None and edits.effective_template_name is not None:
+        if not legacy_text or edits.has_template_override or edits.header_image_id:
+            template_name = edits.effective_template_name
+        if (
+            legacy_text
+            and edits.has_template_override
+            and not edits.header_image_id
+            and not preview
+        ):
+            raise HTTPException(
+                status_code=400,
+                detail="Upload an image before retrying this legacy message with the configured image template",
+            )
+    if message_type == "passport_link":
+        try:
+            _validate_passport_link(parameters[1])
+        except HTTPException as exc:
+            raise ValueError("The saved passport link is invalid") from exc
+    if edits is None or all(
+        value is None
+        for value in (
+            edits.message_content,
+            edits.passport_intro,
+            edits.header_image_id,
+            edits.support_block,
+            edits.group_invite_link,
+        )
+    ):
+        validate_template_parameters(
+            message_type=message_type,
+            header_parameters=header,
+            body_parameters=parameters,
+            allow_legacy_group_invite_header=preview,
+        )
+        return SavedResendSnapshot(template_name, source.rendered_message, header, parameters)
+    return _apply_saved_resend_edits(
+        message_type,
+        header,
+        parameters,
+        template_name,
+        edits,
+        preview=preview,
+    )

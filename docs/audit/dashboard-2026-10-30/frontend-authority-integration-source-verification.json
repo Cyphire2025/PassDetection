@@ -1,0 +1,10 @@
+{
+  "files": 1398,
+  "changed_paths": [
+    "frontend/next-env.d.ts"
+  ],
+  "unexpected_changed_paths": [],
+  "source_frozen": true,
+  "allowed_generated_next_type_entry": true,
+  "note": "Any allowed Next type entry change is recorded, never treated as an unreported runtime edit."
+}

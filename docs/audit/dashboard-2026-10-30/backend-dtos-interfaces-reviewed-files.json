@@ -1,0 +1,393 @@
+{
+  "schema_version": 1,
+  "method": "Physical complete source reads for the16 retained DTO/interface targets, plus individually named supporting full reads. Bounded supporting reads remain partial; searches/metadata/test execution are not full source credit. Truncated tool output was explicitly re-read in bounded calls or excluded. No runtime/test/config source edits and no verification suites were required for read-only review.",
+  "scope_policy": "docs/audit/dashboard-2026-10-30/audit-scope.json",
+  "target_full_count": 16,
+  "supporting_full_count": 11,
+  "partial_support_count": 14,
+  "files": [
+    {
+      "path": "backend/app/application/dtos/__init__.py",
+      "sha256": "f7f0ae580a55bd07e427d55d2982e40d12a2cd590386d85e583db5d77f8fdb0b",
+      "physical_lines": 1,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete package marker; no runtime behavior or exported private state."
+    },
+    {
+      "path": "backend/app/application/dtos/auth_dtos.py",
+      "sha256": "4c620891af40b1aa461e018704e7f538af949b5f9f27b3392ed1a57303b12f22",
+      "physical_lines": 59,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete frozen login/refresh/session/user dataclasses. Input passwords and internal access/refresh tokens remain sensitive. Explicit auth route projections and cookie establishment traced separately; no actual secret-bearing DTO logging sink found in the inspected callers. Safe user projection excludes hashes and MFA secrets. Default dataclass repr is not itself evidence of disclosure."
+    },
+    {
+      "path": "backend/app/application/dtos/dashboard_dtos.py",
+      "sha256": "68a98b8345b06e86efdaacff26f0c1e4fb81c6f383245eca02090a7eee5bcd34",
+      "physical_lines": 32,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete aggregate/recent-submission contracts; intended staff PII is explicit. Actual dashboard route/use-case full reads confirm current-user agency, staff ownership and visible-to-user scoping rather than DTO-level authorization."
+    },
+    {
+      "path": "backend/app/application/dtos/gc_notifications.py",
+      "sha256": "5544eb589c148984a6941466241b5171f99d4ddeb5567302a7713b6f776b7111",
+      "physical_lines": 131,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete bounded extra-forbid draft/preview/send/history Pydantic contracts; selected-group XOR, unique canonical UUIDs, revisions and request identity retained. Output contains aggregate counts, groups and authored text, not raw push registrations/tokens. Agency-scoped route and explicit batch history projections fully read."
+    },
+    {
+      "path": "backend/app/application/dtos/mobile_security.py",
+      "sha256": "441b4e92c54a671f90cad437c3b37de2fd01779af336df811933616900fa8922",
+      "physical_lines": 97,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete backend integrity/challenge/key-registration/push contracts. Canonical hashes, challenge/proof bounds, provider/platform/APNs environment/token checks retained. Actual push route and complete registration service traced; no native mobile source changes or provider invocation."
+    },
+    {
+      "path": "backend/app/application/dtos/passport_dtos.py",
+      "sha256": "805b3451c5178df54163d73ca34754e2f57cd50ce87b0f79f9ca6cc1c1a51ed3",
+      "physical_lines": 209,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete internal passport DTO and submission mapping. Cleanup/promoted-storage lists and idempotent-replay markers are internal; presentation model fields and actual model_validate boundary separately inspected. AI MRZ/checksum/provenance and extraction revision/manual-review mapping remain active and are preserved. Intended contact/family/staff/private storage fields require scoped callers, not deletion by name."
+    },
+    {
+      "path": "backend/app/application/dtos/qualifier_selection_dtos.py",
+      "sha256": "9363da2ff382529b306e2144e4ee846315dc1db517d6b3b25e982b30579787aa",
+      "physical_lines": 19,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete qualifier choice/expiry/selection-capability DTO. Full create/get use cases verify active upload group, group-scoped hashed selection lookup, short TTL, enabled relation choice and safe operational logging. Only creation returns the raw new selection token."
+    },
+    {
+      "path": "backend/app/application/dtos/travel_tracker.py",
+      "sha256": "833a1ff71bc6f450d893910a8f459b4a23d2ab4c129411a382d8f81d87d53796",
+      "physical_lines": 120,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete tracker roster/filter/selection/import/mark contracts. Explicit-vs-filtered selection validation, count limits, strict boolean and bounded search retained. Full route and partial actual service authorization/agency/group/passenger joins inspected; no live service qualification claimed."
+    },
+    {
+      "path": "backend/app/application/dtos/whatsapp_contact_dtos.py",
+      "sha256": "32ab92e8eebdd29ed59bc6a78002708f21ba34fc6802ff445ff2ad5d4bc11c32",
+      "physical_lines": 33,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete shared contact/rejected-row/support input contracts, phone/name/Excel-row/reason bounds. Actual imported metadata sanitizer and merging prefixes inspected separately: normalization, field/value/byte limits are downstream, so lack of DTO-level dictionary limits alone is not a demonstrated bug."
+    },
+    {
+      "path": "backend/app/application/dtos/whatsapp_dtos.py",
+      "sha256": "b85c66d809b2ec0a8352cc454af2da8fe5d23b00a8bbea569e5b68b51506b162",
+      "physical_lines": 60,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete documented disconnected legacy/future broadcast-planning dataclasses. Exact Python reference search finds planner/pricing/noop/interface and legacy planner test consumers; no active API instantiation found. Candidate DT01 requires whole maintained dynamic/caller/test closure and owner coordination before removal; no deletion in this cohort."
+    },
+    {
+      "path": "backend/app/application/interfaces/__init__.py",
+      "sha256": "f7f0ae580a55bd07e427d55d2982e40d12a2cd590386d85e583db5d77f8fdb0b",
+      "physical_lines": 1,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete package marker; no runtime behavior."
+    },
+    {
+      "path": "backend/app/application/interfaces/audit_integrity_sink.py",
+      "sha256": "ec2cfce1ac36cad1c89bc07895338e27d2312ced1c3538e8d68337e2a44f9b75",
+      "physical_lines": 34,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete external checkpoint/sink protocol: scope, sequence, hash/version/time; no raw audit payload. Full actual verifier/publisher service reads independent anchors, chains and head consistency before publication. Protocol stubs are intentional contracts, not dead implementation."
+    },
+    {
+      "path": "backend/app/application/interfaces/identity_notification_provider.py",
+      "sha256": "047878526ad7cfeaec1162e40cf3f43db30f0d8f4641383700bfb65c9c07845f",
+      "physical_lines": 45,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete retained outgoing recovery notification/delivery/error protocol, distinct from deferred Operations Inbox provider. Sensitive recipient/recovery URL input is internal. Actual adapter prefix shows encrypted outbox keyring and development adapter returning only deterministic message identity; SMTP adapter trace is partial, no external send."
+    },
+    {
+      "path": "backend/app/application/interfaces/mrz_parser.py",
+      "sha256": "7a37eff698173df230db518d93df86db2005432cc4668847f5faf12e07bc8a9a",
+      "physical_lines": 26,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete MRZ parser/result abstraction. Actual accepted_source full read calls TD3 parser on exact saved two-line AI MRZ and validates number/dates/issuer. This is active returned-AI-data validation; obsolete OCR extraction removal does not authorize deleting it."
+    },
+    {
+      "path": "backend/app/application/interfaces/passport_field_validator.py",
+      "sha256": "235f8721383910bf7e2d54c3f9c784becb31318bf85646e390bba336438d2012",
+      "physical_lines": 37,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete field validation result/protocol. Active passport_extraction_fields calls self._validator.validate and Gemini service imports concrete validator. Earlier unbound-foundation suspicion cleared from actual caller evidence; preserve validators and thresholds."
+    },
+    {
+      "path": "backend/app/application/interfaces/whatsapp_provider.py",
+      "sha256": "5d789d233ce3d222334277ed884ac600593092a03f471235552094032cb6affc",
+      "physical_lines": 27,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete documented future BSP protocol/result, presently used only by noop foundation in exact Python search. DT01 candidate only; no live delivery replacement, protocol-stub deletion or API change."
+    },
+    {
+      "path": "backend/app/application/use_cases/dashboard/get_dashboard_stats_use_case.py",
+      "sha256": "a054a8620bdd6eac66055b0f51df024b97254f60121b03f28dafa35f3c86f89e",
+      "physical_lines": 97,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete supporting physical read: agency/count/recent queries carry staff created-by and visible-to-user constraints, explicit recent-submission projection and bounded safe agency-only operational logging."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/dashboard.py",
+      "sha256": "425c3af29b4e35bb6ba49c5cd3c49ef1bb9e412781f2dfa303ed28817725b0d5",
+      "physical_lines": 79,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete supporting physical read: authenticated active user, empty no-agency behavior, scoped dashboard use case, explicit response construction."
+    },
+    {
+      "path": "backend/app/application/travellers/accepted_source.py",
+      "sha256": "7abecf156272742c1491e63838cf22810a5a28385216c8769b2034f8a13af4fc",
+      "physical_lines": 89,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete supporting physical read: exact saved AI MRZ validation with TD3, passport/date/issuer/document-kind acceptance and staff/AI source provenance. No OCR extraction engine invoked."
+    },
+    {
+      "path": "backend/app/application/use_cases/client_groups/get_qualifier_selection_use_case.py",
+      "sha256": "30fa653479f7917ec0e5cc6b60f87e342b972da52f38c3ea0f3012c8abb37a9c",
+      "physical_lines": 67,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete supporting read: active non-import public group, group-bound hashed capability lookup, consumed/expired/active state and enabled relation revalidation. Does not return raw selection token."
+    },
+    {
+      "path": "backend/app/application/use_cases/client_groups/create_qualifier_selection_use_case.py",
+      "sha256": "a1728ffa9e42ef3548017dfe1dc515fed229fb6ea33ebefccc8552b9027e994f",
+      "physical_lines": 89,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete supporting read: active enabled group, secure random token/hash persistence, two-hour expiry, relation validation, ID-only log and raw new token only in creation DTO."
+    },
+    {
+      "path": "backend/app/infrastructure/audit/checkpoint_service.py",
+      "sha256": "0c77dfbfbb0977da56da0b688adcc315e2ce675362d02dc5a90ff2fc6ce9bc6c",
+      "physical_lines": 80,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete supporting read: independent anchor matching, orphan detection, streamed sequence/content/hash verification, head consistency; publishes only after all chains verified. Transaction isolation documented by caller contract, not independently exercised here."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_notifications.py",
+      "sha256": "e7d5a2b651995eed575cb15554ad9f713035a530f1270dbd62dbdb7e41ea9fed",
+      "physical_lines": 286,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete supporting read: allowed admin/manager roles, mandatory super-admin agency or same-agency checks, agency predicates for draft/batch lookup, bounded keyset paging, CSRF on writes, revision/send request propagation and commit-before-ack."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/travel_tracker.py",
+      "sha256": "fe2b56936d219d382179246e6e51f87fd08b21a1ed62de29f73aacd272b61239",
+      "physical_lines": 139,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete supporting read: authenticated user, bounded paging/search and file read/close, CSRF on mutations, no-store responses, explicit service handoff/error and export MIME/header projection. Actual service group visibility traced separately as partial."
+    },
+    {
+      "path": "backend/app/application/mobile/authored_notification_history.py",
+      "sha256": "8b3a87b7324383525d919877c8c96735795bfde7b0468795875da6dbeb6d0300",
+      "physical_lines": 145,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete supporting read: validated timezone cursor, batched agency-joined recipient/device aggregation, explicit PII-free batch projection with counts/readiness rather than raw device tokens. Runtime database/provider behavior not executed."
+    },
+    {
+      "path": "backend/app/application/mobile/push_registration.py",
+      "sha256": "8d6ef4742b2a887ae2ad7dba333bb37d42f37ce062f17070f727c76fa6825148",
+      "physical_lines": 129,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete supporting read: installation hash binding, provider/platform match, row lock, same-installation transfer check, token encryption and hashed lookup, explicit registration metadata update and prior-session registration revocation; returns UUID only."
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/plan_group_broadcast_use_case.py",
+      "sha256": "739f646c16b48cfc9102a9ed2513bfe78607ab77ae555e47b1ef1c213c639533",
+      "physical_lines": 96,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete supporting read: explicitly documented legacy pure planner without live API caller, ENV defaults and filtered nonempty recipient phones; no provider call. DT01 remains a separate closure/retirement candidate, not a demonstrated live vulnerability."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/auth.py",
+      "sha256": "b3a10680eb335e589430dee4eba3fefa95d2fd54877682c15308b7e6e79177f8",
+      "physical_lines": 314,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "focused",
+      "notes": "Login and refresh response bodies explicitly construct safe AuthResponse; raw internal session tokens passed only to auth-cookie setter. MFA challenge branch commits and no-stores; refresh CSRF/expected-actor and conflict handling inspected. Full auth module not read in this cohort.",
+      "physical_read_lines": "124-277"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/auth_identity.py",
+      "sha256": "daa6e8b3fc67dd9cda2c784d0330fddecb05105e8b0e7b3651b8c6a2936f6e37",
+      "physical_lines": 440,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "focused",
+      "notes": "Identity session helper explicitly omits raw access/refresh tokens from AuthResponse; MFA challenge issuance prefix inspected. Remaining module not credited.",
+      "physical_read_lines": "87-160"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/passport_schemas.py",
+      "sha256": "f2c10f862e344d3aa84c7608d0c8a86ad19f29e3f6cdf1dbb7730e392dd102f6",
+      "physical_lines": 667,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "focused",
+      "notes": "Complete PassportSubmissionResponse declaration and following response prefix read: internal cleanup/promoted lists and replay marker absent; model_validate ignores extra internal DTO fields by BaseModel default. Stored AI MRZ and intended authenticated/owned PII fields retained. Full schema catalog not credited.",
+      "physical_read_lines": "488-662"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/response_support.py",
+      "sha256": "3982f9979db2de63d23aee12bda3143c06f580eb0f640a86a016345075f7eef5",
+      "physical_lines": 298,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "focused",
+      "notes": "Actual DTO-to-Pydantic projection and private route media URL construction/source-match logic inspected; authenticated staff versus traveller URL behavior traced. Final QR helper tail not read, no full-module credit.",
+      "physical_read_lines": "1-270"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/public_upload_status.py",
+      "sha256": "402392e3f03b55060b0d39e991193ab136f46ca8560bd53646bb26c7dc94b674",
+      "physical_lines": 213,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "focused",
+      "notes": "Owned public upload status dependency, token/submission/header parameters, DTO snapshot and response with document URLs disabled inspected. Ownership helper implementation not re-reviewed fully here.",
+      "physical_read_lines": "111-175"
+    },
+    {
+      "path": "backend/app/infrastructure/validation/passport_field_validator.py",
+      "sha256": "b422804416d97f81f3e72b165f99664050b9bdda8201638b2f279e3133d357ea",
+      "physical_lines": 140,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "focused",
+      "notes": "Concrete validator required fields and country/passport/date/sex warnings prefix read. Actual AI extraction validate call found; remaining methods not credited.",
+      "physical_read_lines": "1-100"
+    },
+    {
+      "path": "backend/app/infrastructure/ai/passport_extraction_fields.py",
+      "sha256": "411ee74a6755dbce2dd59e504d1eb7133c8e2a9031c0cf03d725270d166ae039",
+      "physical_lines": 207,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "focused",
+      "notes": "AI field merge contracts, duplicate/code/action/confidence checks, bounded values and actual concrete validator invocation read. Remaining normalization/helper bodies not credited.",
+      "physical_read_lines": "1-150"
+    },
+    {
+      "path": "backend/app/infrastructure/security/identity_notifications.py",
+      "sha256": "a312ad4594b2566c303e22a532cc7524afc91e7ef5bc23f3058c89ed15887d93",
+      "physical_lines": 558,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "focused",
+      "notes": "Actual outgoing provider/outbox encryption prefix, bounded keyring, deterministic development provider and SMTP message construction/starttls prefix inspected. No actual SMTP, credential or live recovery data access; remaining sink/worker code not credited.",
+      "physical_read_lines": "1-165"
+    },
+    {
+      "path": "backend/app/infrastructure/travel_tracker/service.py",
+      "sha256": "171444bfa92d48ab37321e0603282d5761cfe021c17c248426312b0ba3d50c23",
+      "physical_lines": 487,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "focused",
+      "notes": "Actual role whitelist, AuthorizationPolicy group visibility, optional grant group allowlist, group lookup/lock and agency/group-scoped roster join read. Remaining serialization/export/import/write owners not credited.",
+      "physical_read_lines": "1-145"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_ops.py",
+      "sha256": "9579d8a220f78d7d422be448f8165fae470f0b48122b141eb58c1ad114bf8b26",
+      "physical_lines": 2457,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "focused",
+      "notes": "Actual push/register body requires unrestricted mobile claims, current device session and complete registration service; returns registration UUID response only. No native application review implied.",
+      "physical_read_lines": "2105-2118"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_integrity.py",
+      "sha256": "e257991c804ad81087fc064e29dd4f3c78836bc51eabbb6ef7452a84886f7573",
+      "physical_lines": 129,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "focused",
+      "notes": "Authenticated challenge dependency/provider store/service wiring, no-store and typed status projection prefix read; endpoint/error helper tail not credited.",
+      "physical_read_lines": "1-82"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/whatsapp_schemas.py",
+      "sha256": "cef7cf3eb91069546503f79893dc5e38c140a3ac31ae144c78b1fa6a838f5ea6",
+      "physical_lines": 401,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "focused",
+      "notes": "Bounded existing send request/audience and resend prefix supporting shared-contact trace only. Complete schema not read here.",
+      "physical_read_lines": "208-255"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_imported_fields.py",
+      "sha256": "fc4ab60c67b8ba4da46dc0b50684264173f2af260696e138b1f40925049ba811",
+      "physical_lines": 186,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "focused",
+      "notes": "Actual imported metadata sanitizer complete function read: normalized keys/values, field/value/UTF-8 byte bounds and first value dedup. Remaining matching catalog functions not credited.",
+      "physical_read_lines": "1-103"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_recipient_inputs.py",
+      "sha256": "b36a54b257d60ba8825ae02f253aa7f7f63998c34bf06a678fd4ef88524ecee8",
+      "physical_lines": 219,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "focused",
+      "notes": "Actual merge input function prefix includes downstream imported metadata bounds, bounded duplicate alternates and conflict catalog. Remainder not credited.",
+      "physical_read_lines": "1-76"
+    }
+  ]
+}

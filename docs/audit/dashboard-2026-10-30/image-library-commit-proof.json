@@ -1,0 +1,11 @@
+{
+  "entire_original_module_ast_restored_after_six_declared_edits": true,
+  "two_functions": [
+    "upload_passport_image_library_item",
+    "use_passport_image_library_item"
+  ],
+  "public_signature_and_evaluated_hints": 7,
+  "entire_public_openapi_schema_exact": true,
+  "ordinary_four_controls_unchanged": true,
+  "new_object_keys_not_deleted_after_commit_attempt": true
+}

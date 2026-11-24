@@ -1,0 +1,11 @@
+{
+  "finding": "Late media preparation could write derivative rows and report success after lease expiry, gallerydisablement or assetremoval. Existing publicdelivery checks separately denyinvalidscope; no unauthorizeddelivery leak demonstrated.",
+  "before": "Corrected actualindependentsession fixtures:3failed(expired,disabled,removed),2passed(valid,cancelled). Initial5failures were invalidfixture missing required correlation_id and are not securityproof.",
+  "after": "13media+index cases pass; updated5media cases additionally verify actual ORM gallery\u2192job\u2192asset FORUPDATE querysequence using PostgreSQLcompilation, without livePGconcurrencyclaim.",
+  "implementation": "Reuse unchanged existing scopedgallery/job query and postlock expiry body under clearer private name _locked_current_job_scope; mediaasset lookup nowrequires currentgallery,nonfailed/nonremoved asset and postasset-lock leasevalidity. No duplicateauthorityquery or publicsignature/queue/revision/config/schema change.",
+  "ast_proof": "Entiremodule AST identical after normalizing only privatehelper rename+twoexistingindexcalls and restoring the one changed _locked_job_and_asset body.",
+  "source_sha256": "4ee848212fc0093dc207670fa27aa726bd796135d3462caf47ff20b8a8f72225",
+  "tests_sha256": "0d7b8f6f82abc93cca8eeb45a2aa095785cc98e63ba87b56a568558884bd51ee",
+  "checks": "Ruff/currentworker configuredmypy pass. Fullarchitecture split and broader affected worker/checkpoint coverage remain pending.",
+  "qualification_limits": "Actualsynthetic provider callbacks mutate through independent SQLite sessions; SQLcompiledFORUPDATE order is not realPostgreSQLdeadlock or throughput qualification."
+}

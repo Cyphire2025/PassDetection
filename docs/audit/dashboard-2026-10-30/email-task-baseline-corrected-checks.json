@@ -1,0 +1,19 @@
+{
+  "stage": "baseline-corrected",
+  "command": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "-p",
+    "email_task_contract_plugin",
+    "tests/unit/infrastructure/test_email_task_routing.py",
+    "tests/unit/infrastructure/test_email_task_outcomes.py",
+    "tests/unit/infrastructure/test_email_retention_persistence.py"
+  ],
+  "exit_code": 0,
+  "log": "docs/audit/dashboard-2026-10-30/email-task-baseline-corrected-tests.log",
+  "sha256": "38e9a68eb40975f859770144642cbc46d2122237633821a4bd3067a52d004278"
+}

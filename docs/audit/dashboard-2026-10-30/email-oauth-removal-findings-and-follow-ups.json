@@ -1,0 +1,42 @@
+{
+  "oauth_duplication": {
+    "status": "implemented and focused verified",
+    "before": "Gmail299/Outlook328 duplicate initial eligibility SQL, new connection constructor and20persisted encrypted grant field statements.",
+    "after": "Provider callbacks260/288 keep their own state/browser/replay/current-authority/provider/identity/offline grant/transaction/audit/queue/redirect/cleanup flow. Typed39line initial actor and79line grant owners remove exact duplicate rules. No generic provider framework, callback bag, SDK/setup or policy change.",
+    "proof": "All4whole callback/authorization functions expand exactly to original AST/decorators; constructor provider literal rebound exactly,20field updates/order exact. Original live actor query and helper-built query compile identically for PG/SQLite;11real SQLite role/scope controls plus normal provider fixture cases execute actual helpers.",
+    "provider_contracts": "Gmail's cleanup revokes on persistence rejection and safely handles cleanup failure; Outlook retains no remote revocation, rotating encrypted refresh grant and common bounded-lookback cursor behavior. Existing callback-global provider/cipher/browser/final-authority/owned/audit/queue/redirect seams remain intact."
+  },
+  "account_removal_architecture": {
+    "status": "implemented and focused verified",
+    "before": "One339line/MCC26 helper mixed attributable-record selection, relational deletes/counts and final unreferenced storage-key observation.",
+    "after": "Original public result dataclass and66line orchestration stay in account_removal.py;170line typed immutable11field plan/3count data owner,182line ordered delete owner and43line unreferenced-key owner. Family maximum182lines/MCC12; no arbitrary mixin or proxy.",
+    "proof": "Complete expanded public function AST exact; query/filter/delete/flush/key-order and public result class AST exact. Actual existing SQLite fixture records52compiled dialect statements/27executed SQLite statements, result/type/hints/pickle and operation order equal after consistent one-to-one fixture UUID/timestamp normalization.",
+    "controls": "Original same-owner/other mailbox/shared/manual document/audit retention case unchanged. Six new actual SQLite cases protect caller-owned commit/rollback, sparse/pending artifacts, sole batch cleanup/delivery detachment and live artifact/document object-key references.",
+    "performance_limit": "No query count or asymptotic improvement claimed; new frozen data holders retain existing tuples/IDs/keys and add bounded object overhead. Existing materialization/IN-query shapes preserved; large-mailbox memory/bind-count/latency capacity remains unmeasured."
+  },
+  "security_behavior": {
+    "new_validated_defects": [],
+    "behavior_changed": false,
+    "preserved": "All existing grant ownership/current actor/CSRF/browser/session/state replay/PKCE/token encryption/offline grant and connection generation fences retained. Published models/migrations, private content boundaries, delete/object cleanup/immutable audit semantics unchanged. No existing test source or assertion modified in this follow-up."
+  },
+  "verification": {
+    "focused_cases": 129,
+    "new_cases": 55,
+    "existing_cases": 74,
+    "types_runtime_paths": 8,
+    "ruff_owned_runtime_and_test_paths": 11,
+    "actual_global_identity_checks": 97,
+    "direct_shared_helper_bindings": 9,
+    "evaluated_function_class_hints": 14,
+    "source_fence_unchanged_paths": 40,
+    "old_frozen_runtime_owners_unchanged": 11,
+    "coverage": "Current8owners99.13\u2013100percent line coverage; callbackbranches96.67\u201396.88percent, other6owners100percent (two branchless). Fresh dedicated coverage file, no append/merge/default backend coverage collision."
+  },
+  "remaining": [
+    "Real PostgreSQL isolation/lock/concurrency and provider-specific live grant-family/revocation behavior remain service-dependent; no proof inferred from SQLite/dialect compilation/synthetic providers.",
+    "Large-mailbox deletion capacity and object-reference races across independent writers are separate workload/lifetime questions; no new defect or production capacity claim from unchanged query shapes.",
+    "Callback orchestration retains explicit cohesive provider-specific branch logic (MCC31/30); no extra splitting solely to lower a number. Main duplication/ownership follow-ups are closed by these proofs, while policy changes need separate evidence.",
+    "The earlier large inbox test maintainability follow-up and broader inventory/source audit remain open independently. Source read completion is not whole repository architecture/security closure.",
+    "AI/root owns proposed6new+2tightened normal95rows and exact source admissions, preserving all original floors/caps/global/critical gates; no shared gate writes by this lane. Final combined application/service/browser qualification remains parent-owned."
+  ]
+}

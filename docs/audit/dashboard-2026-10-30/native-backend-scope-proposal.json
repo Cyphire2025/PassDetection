@@ -1,0 +1,1131 @@
+{
+  "status": "proposal only; no scope policy or production source changes",
+  "method": "Current direct/relative typed imports and exact module-valued literals plus physically inspected native ingress/dependencies/fixed route mounts. This is a purpose/caller classification proposal, not full semantic source review for large files or automatic deletion. Native endpoints remain mounted and working. Root owns policy.",
+  "runtime_proposals": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_associations.py",
+      "sha256": "2123adb69b3badba6061278bfecc2a51d4065615e1fedf2422da7687a749436c",
+      "classification": "proposed-native-app-only; parent policy decision pending",
+      "review_scope": "classification-and-caller-trace-only",
+      "incoming_app_modules": [
+        "app.presentation.api.v1.router"
+      ],
+      "outside_proposed_modules": [],
+      "entrypoint": "Mounted only under /api/v1/mobile or /api/v1/mobile/auth; existing shared API router remains retained",
+      "routes": [
+        {
+          "function": "apple_app_site_association",
+          "line": 65,
+          "declaration": "router.api_route('/associations/apple', methods=['GET', 'HEAD'], include_in_schema=False, response_class=JSONResponse)"
+        },
+        {
+          "function": "android_asset_links",
+          "line": 102,
+          "declaration": "router.api_route('/associations/android', methods=['GET', 'HEAD'], include_in_schema=False, response_class=JSONResponse)"
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_auth.py",
+      "sha256": "138bd3a289b4e8320565557a4d8ebf969cd02da6d10e2cc9e4cfe39c50453db5",
+      "classification": "proposed-native-app-only; parent policy decision pending",
+      "review_scope": "classification-and-caller-trace-only",
+      "incoming_app_modules": [
+        "app.presentation.api.v1.router"
+      ],
+      "outside_proposed_modules": [],
+      "entrypoint": "Mounted only under /api/v1/mobile or /api/v1/mobile/auth; existing shared API router remains retained",
+      "routes": [
+        {
+          "function": "request_passenger_otp",
+          "line": 146,
+          "declaration": "router.post('/otp/request', response_model=MobileOTPRequestResponse, status_code=status.HTTP_202_ACCEPTED)"
+        },
+        {
+          "function": "verify_passenger_otp",
+          "line": 391,
+          "declaration": "router.post('/otp/verify', response_model=MobileOTPVerifyResponse)"
+        },
+        {
+          "function": "verify_passenger_claim",
+          "line": 456,
+          "declaration": "router.post('/claim/verify', response_model=MobileOTPVerifyResponse)"
+        },
+        {
+          "function": "mobile_credential_login",
+          "line": 546,
+          "declaration": "router.post('/login', response_model=MobileTokenResponse)"
+        },
+        {
+          "function": "activate_client_manager",
+          "line": 633,
+          "declaration": "router.post('/activate', response_model=MobileTokenResponse)"
+        },
+        {
+          "function": "refresh_mobile_session",
+          "line": 744,
+          "declaration": "router.post('/refresh', response_model=MobileTokenResponse)"
+        },
+        {
+          "function": "mobile_me",
+          "line": 887,
+          "declaration": "router.get('/me', response_model=MobilePrincipalResponse)"
+        },
+        {
+          "function": "switch_passenger_trip",
+          "line": 906,
+          "declaration": "router.post('/passenger/trip/switch', response_model=MobileTokenResponse)"
+        },
+        {
+          "function": "change_mobile_password",
+          "line": 1181,
+          "declaration": "router.post('/password/change', response_model=MobileTokenResponse)"
+        },
+        {
+          "function": "logout_mobile_session",
+          "line": 1261,
+          "declaration": "router.post('/logout', status_code=status.HTTP_204_NO_CONTENT, response_class=Response)"
+        },
+        {
+          "function": "logout_all_mobile_sessions",
+          "line": 1296,
+          "declaration": "router.post('/logout-all', status_code=status.HTTP_204_NO_CONTENT, response_class=Response)"
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_auth_otp_support.py",
+      "sha256": "15929311e71138705a1a658d67b5e4850f59f73e8425a1b51d83bb71261f4d1f",
+      "classification": "proposed-native-app-only; parent policy decision pending",
+      "review_scope": "classification-and-caller-trace-only",
+      "incoming_app_modules": [
+        "app.presentation.api.v1.routes.mobile_auth"
+      ],
+      "outside_proposed_modules": [],
+      "entrypoint": "Native authentication/integrity/journey support; incoming closure listed explicitly",
+      "routes": []
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_auth_phone_support.py",
+      "sha256": "740488919bbed6fdfa44c8bd597836be75126819263c306ec32c9cf82d7b6768",
+      "classification": "proposed-native-app-only; parent policy decision pending",
+      "review_scope": "classification-and-caller-trace-only",
+      "incoming_app_modules": [
+        "app.presentation.api.v1.routes.mobile_auth",
+        "app.presentation.api.v1.routes.mobile_auth_otp_support"
+      ],
+      "outside_proposed_modules": [],
+      "entrypoint": "Native authentication/integrity/journey support; incoming closure listed explicitly",
+      "routes": []
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_auth_session_support.py",
+      "sha256": "62a631194e658f23bb3f9aa4cc132bf9389698c412de20398d7209fa567678c4",
+      "classification": "proposed-native-app-only; parent policy decision pending",
+      "review_scope": "classification-and-caller-trace-only",
+      "incoming_app_modules": [
+        "app.presentation.api.v1.routes.mobile_auth"
+      ],
+      "outside_proposed_modules": [],
+      "entrypoint": "Native authentication/integrity/journey support; incoming closure listed explicitly",
+      "routes": []
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_integrity.py",
+      "sha256": "e257991c804ad81087fc064e29dd4f3c78836bc51eabbb6ef7452a84886f7573",
+      "classification": "proposed-native-app-only; parent policy decision pending",
+      "review_scope": "classification-and-caller-trace-only",
+      "incoming_app_modules": [
+        "app.presentation.api.v1.router",
+        "app.presentation.api.v1.routes.mobile_resources"
+      ],
+      "outside_proposed_modules": [],
+      "entrypoint": "Mounted only under /api/v1/mobile or /api/v1/mobile/auth; existing shared API router remains retained",
+      "routes": [
+        {
+          "function": "issue_mobile_integrity_challenge",
+          "line": 57,
+          "declaration": "router.post('/integrity/challenges', response_model=MobileIntegrityChallengeResponse)"
+        },
+        {
+          "function": "register_mobile_app_attest_key",
+          "line": 93,
+          "declaration": "router.post('/integrity/app-attest/keys/register', response_model=MobileAppAttestRegistrationResponse)"
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_journey.py",
+      "sha256": "82b7989828742cb1643d09b69a1d899335ba3aa3406e2046f860d7f1a5d188d1",
+      "classification": "proposed-native-app-only; parent policy decision pending",
+      "review_scope": "classification-and-caller-trace-only",
+      "incoming_app_modules": [
+        "app.presentation.api.v1.router"
+      ],
+      "outside_proposed_modules": [],
+      "entrypoint": "Mounted only under /api/v1/mobile or /api/v1/mobile/auth; existing shared API router remains retained",
+      "routes": [
+        {
+          "function": "get_mobile_journey_destination",
+          "line": 24,
+          "declaration": "router.get('/trips/{group_id}/journey-destination', response_model=MobileJourneyDestinationResponse)"
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_my_photos.py",
+      "sha256": "309371162e2aa9f6e0dad4a20b9a120f9b90b848afda6751c169f48a6f068cbd",
+      "classification": "proposed-native-app-only; parent policy decision pending",
+      "review_scope": "classification-and-caller-trace-only",
+      "incoming_app_modules": [
+        "app.presentation.api.v1.router"
+      ],
+      "outside_proposed_modules": [],
+      "entrypoint": "Mounted only under /api/v1/mobile or /api/v1/mobile/auth; existing shared API router remains retained",
+      "routes": [
+        {
+          "function": "get_my_photos_summary",
+          "line": 133,
+          "declaration": "router.get('/trips/{group_id}/my-photos', response_model=MyPhotosSummaryResponse)"
+        },
+        {
+          "function": "accept_my_photos_consent",
+          "line": 151,
+          "declaration": "router.post('/trips/{group_id}/my-photos/consent', response_model=MyPhotosSummaryResponse)"
+        },
+        {
+          "function": "start_my_photos_liveness",
+          "line": 170,
+          "declaration": "router.post('/trips/{group_id}/my-photos/liveness-sessions', response_model=MyPhotosLivenessSessionResponse, status_code=status.HTTP_201_CREATED)"
+        },
+        {
+          "function": "complete_my_photos_liveness",
+          "line": 192,
+          "declaration": "router.post('/trips/{group_id}/my-photos/liveness-sessions/{session_id}/complete', response_model=MyPhotosLivenessCompleteResponse, status_code=status.HTTP_202_ACCEPTED)"
+        },
+        {
+          "function": "get_my_photos_search",
+          "line": 224,
+          "declaration": "router.get('/trips/{group_id}/my-photos/search', response_model=MyPhotosSearchResponse)"
+        },
+        {
+          "function": "get_my_photos_page",
+          "line": 236,
+          "declaration": "router.get('/trips/{group_id}/my-photos/photos', response_model=MyPhotosPhotoPageResponse)"
+        },
+        {
+          "function": "put_my_photos_feedback",
+          "line": 261,
+          "declaration": "router.put('/trips/{group_id}/my-photos/photos/{asset_id}/feedback', response_model=MyPhotosFeedbackResponse)"
+        },
+        {
+          "function": "delete_my_photos_enrollment",
+          "line": 283,
+          "declaration": "router.delete('/trips/{group_id}/my-photos/enrollment', response_model=MyPhotosDeleteEnrollmentResponse)"
+        },
+        {
+          "function": "prepare_my_photos_media",
+          "line": 302,
+          "declaration": "router.post('/trips/{group_id}/my-photos/photos/{asset_id}/prepare', response_model=MyPhotosPrepareResponse, status_code=status.HTTP_202_ACCEPTED)"
+        },
+        {
+          "function": "authorize_my_photos_downloads",
+          "line": 329,
+          "declaration": "router.post('/trips/{group_id}/my-photos/download-authorizations', response_model=MyPhotosDownloadAuthorizationResponse)"
+        },
+        {
+          "function": "get_my_photos_download_plan",
+          "line": 348,
+          "declaration": "router.get('/trips/{group_id}/my-photos/download-plan', response_model=MyPhotosDownloadPlanResponse)"
+        },
+        {
+          "function": "get_my_photos_photo_content",
+          "line": 363,
+          "declaration": "router.get('/trips/{group_id}/my-photos/photos/{asset_id}/content/{variant}', response_class=Response)"
+        },
+        {
+          "function": "get_my_photos_download",
+          "line": 425,
+          "declaration": "router.get('/trips/{group_id}/my-photos/download-authorizations/{authorization_id}/content', response_class=Response, responses={**binary_responses('image/*', range_requests=True), 307: {'description': 'Short-lived authorized media redirect', 'headers': {'Location': {'schema': {'type': 'string', 'format': 'uri'}}}}, 416: {'description': 'Unsatisfiable byte range; no body'}})"
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_realtime.py",
+      "sha256": "df33f428d83cb7d3a23674ad60b8683349daf57491af1ca512fa2157f6f82ccd",
+      "classification": "proposed-native-app-only; parent policy decision pending",
+      "review_scope": "classification-and-caller-trace-only",
+      "incoming_app_modules": [
+        "app.presentation.api.v1.router"
+      ],
+      "outside_proposed_modules": [],
+      "entrypoint": "Mounted only under /api/v1/mobile or /api/v1/mobile/auth; existing shared API router remains retained",
+      "routes": [
+        {
+          "function": "mobile_realtime_socket",
+          "line": 125,
+          "declaration": "router.websocket('/realtime')"
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_resources.py",
+      "sha256": "5c94b9cac99b83ac04bd556643a64347d048cb96d8cd2b62acc37a8c868b1a9e",
+      "classification": "proposed-native-app-only; parent policy decision pending",
+      "review_scope": "classification-and-caller-trace-only",
+      "incoming_app_modules": [
+        "app.presentation.api.v1.router"
+      ],
+      "outside_proposed_modules": [],
+      "entrypoint": "Mounted only under /api/v1/mobile or /api/v1/mobile/auth; existing shared API router remains retained",
+      "routes": [
+        {
+          "function": "get_mobile_me",
+          "line": 218,
+          "declaration": "router.get('/me', response_model=MobilePrincipalResponse)"
+        },
+        {
+          "function": "list_mobile_trips",
+          "line": 294,
+          "declaration": "router.get('/trips', response_model=MobileTripsResponse)"
+        },
+        {
+          "function": "get_mobile_manifest",
+          "line": 419,
+          "declaration": "router.get('/trips/{group_id}/manifest', response_model=MobileManifestResponse)"
+        },
+        {
+          "function": "get_mobile_sync_snapshot",
+          "line": 456,
+          "declaration": "router.get('/sync/snapshot', response_model=MobileSyncSnapshotResponse)"
+        },
+        {
+          "function": "list_mobile_sync_changes",
+          "line": 514,
+          "declaration": "router.get('/sync/changes', response_model=MobileSyncPageResponse)"
+        },
+        {
+          "function": "acknowledge_mobile_sync",
+          "line": 647,
+          "declaration": "router.post('/sync/ack', response_model=MobileSyncAcknowledgementResponse)"
+        },
+        {
+          "function": "get_mobile_itinerary",
+          "line": 728,
+          "declaration": "router.get('/trips/{group_id}/itinerary', response_model=MobileItineraryResponse)"
+        },
+        {
+          "function": "list_mobile_announcements",
+          "line": 841,
+          "declaration": "router.get('/trips/{group_id}/announcements', response_model=MobileAnnouncementPageResponse)"
+        },
+        {
+          "function": "list_mobile_common_documents",
+          "line": 887,
+          "declaration": "router.get('/trips/{group_id}/common-documents', response_model=MobileCommonDocumentPageResponse)"
+        },
+        {
+          "function": "list_mobile_personal_documents",
+          "line": 944,
+          "declaration": "router.get('/trips/{group_id}/documents', response_model=MobilePersonalDocumentPageResponse)"
+        },
+        {
+          "function": "list_mobile_personal_documents",
+          "line": 944,
+          "declaration": "router.get('/trips/{group_id}/personal-documents', response_model=MobilePersonalDocumentPageResponse, include_in_schema=False)"
+        },
+        {
+          "function": "authorize_mobile_document_download",
+          "line": 999,
+          "declaration": "router.post('/trips/{group_id}/documents/{document_id}/authorize', response_model=MobileDocumentAuthorizationResponse)"
+        },
+        {
+          "function": "download_mobile_document_content",
+          "line": 1102,
+          "declaration": "router.get('/trips/{group_id}/documents/{document_id}/content', response_class=StreamingResponse, responses=binary_responses('application/pdf', 'image/*', range_requests=True))"
+        },
+        {
+          "function": "download_mobile_document_content",
+          "line": 1102,
+          "declaration": "router.get('/trips/{group_id}/common-documents/{document_id}/content', response_class=StreamingResponse, include_in_schema=False, responses=binary_responses('application/pdf', 'image/*', range_requests=True))"
+        },
+        {
+          "function": "download_mobile_document_content",
+          "line": 1102,
+          "declaration": "router.get('/trips/{group_id}/personal-documents/{document_id}/content', response_class=StreamingResponse, include_in_schema=False, responses=binary_responses('application/pdf', 'image/*', range_requests=True))"
+        },
+        {
+          "function": "get_mobile_room",
+          "line": 1237,
+          "declaration": "router.get('/trips/{group_id}/room', response_model=MobileRoomResponse)"
+        },
+        {
+          "function": "get_mobile_meals",
+          "line": 1306,
+          "declaration": "router.get('/trips/{group_id}/meals', response_model=MobileMealResponse)"
+        },
+        {
+          "function": "get_mobile_qr",
+          "line": 1344,
+          "declaration": "router.get('/trips/{group_id}/qr', response_model=MobileQRResponse)"
+        },
+        {
+          "function": "get_mobile_manager_readiness",
+          "line": 1406,
+          "declaration": "router.get('/manager/groups/{group_id}/readiness', response_model=MobileManagerReadinessResponse)"
+        }
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_sync_projection.py",
+      "sha256": "621e62f9ff69dff633b2e1514a547e447d4252968d17b8bfbb9d1ea7fec99cb0",
+      "classification": "proposed-native-app-only; parent policy decision pending",
+      "review_scope": "classification-and-caller-trace-only",
+      "incoming_app_modules": [
+        "app.presentation.api.v1.routes.mobile_resources"
+      ],
+      "outside_proposed_modules": [],
+      "entrypoint": "Native authentication/integrity/journey support; incoming closure listed explicitly",
+      "routes": []
+    },
+    {
+      "path": "backend/app/application/mobile/app_integrity.py",
+      "sha256": "2f926ed17fa4f26da0d74c847ce02733212738ac6070738b1e0e0c796aa29407",
+      "classification": "proposed-native-app-only; parent policy decision pending",
+      "review_scope": "classification-and-caller-trace-only",
+      "incoming_app_modules": [
+        "app.application.mobile.integrity_service",
+        "app.infrastructure.security.apple_app_attest_verifier",
+        "app.infrastructure.security.mobile_integrity_challenges",
+        "app.infrastructure.security.mobile_integrity_providers",
+        "app.presentation.api.v1.routes.mobile_integrity",
+        "app.presentation.api.v1.routes.mobile_resources"
+      ],
+      "outside_proposed_modules": [],
+      "entrypoint": "Native authentication/integrity/journey support; incoming closure listed explicitly",
+      "routes": []
+    },
+    {
+      "path": "backend/app/application/mobile/integrity_service.py",
+      "sha256": "d5f2bf7f28c114eb72d858be3c30be38434e625aa2ef2c6613e92d1925b0e6b1",
+      "classification": "proposed-native-app-only; parent policy decision pending",
+      "review_scope": "classification-and-caller-trace-only",
+      "incoming_app_modules": [
+        "app.presentation.api.v1.routes.mobile_integrity",
+        "app.presentation.api.v1.routes.mobile_resources"
+      ],
+      "outside_proposed_modules": [],
+      "entrypoint": "Native authentication/integrity/journey support; incoming closure listed explicitly",
+      "routes": []
+    },
+    {
+      "path": "backend/app/application/mobile/journey_destination.py",
+      "sha256": "e01746b76cebb3e5951a405ed22d5f63a7db1685365838eed27b674bd592c469",
+      "classification": "proposed-native-app-only; parent policy decision pending",
+      "review_scope": "classification-and-caller-trace-only",
+      "incoming_app_modules": [
+        "app.infrastructure.mobile_journey_geocoding",
+        "app.presentation.api.v1.routes.mobile_journey"
+      ],
+      "outside_proposed_modules": [],
+      "entrypoint": "Native authentication/integrity/journey support; incoming closure listed explicitly",
+      "routes": []
+    },
+    {
+      "path": "backend/app/infrastructure/mobile_journey_geocoding.py",
+      "sha256": "edb34c7e4bbdb039a0887aafe8aec66e4f9c9dda58cff6889594ae0f5f5ebe70",
+      "classification": "proposed-native-app-only; parent policy decision pending",
+      "review_scope": "classification-and-caller-trace-only",
+      "incoming_app_modules": [
+        "app.presentation.api.v1.routes.mobile_journey"
+      ],
+      "outside_proposed_modules": [],
+      "entrypoint": "Native authentication/integrity/journey support; incoming closure listed explicitly",
+      "routes": []
+    },
+    {
+      "path": "backend/app/infrastructure/security/apple_app_attest_verifier.py",
+      "sha256": "35f518a3b6c2d2a9748ebbe5523e616ba328f09fd8c03f084ce8eb312dbdb358",
+      "classification": "proposed-native-app-only; parent policy decision pending",
+      "review_scope": "classification-and-caller-trace-only",
+      "incoming_app_modules": [
+        "app.infrastructure.security.mobile_integrity_providers"
+      ],
+      "outside_proposed_modules": [],
+      "entrypoint": "Native authentication/integrity/journey support; incoming closure listed explicitly",
+      "routes": []
+    },
+    {
+      "path": "backend/app/infrastructure/security/mobile_integrity_providers.py",
+      "sha256": "f2ccd2ee8b98399905733cf2f88292bfbf6b4608a48ef23badd7774462fab6c3",
+      "classification": "proposed-native-app-only; parent policy decision pending",
+      "review_scope": "classification-and-caller-trace-only",
+      "incoming_app_modules": [
+        "app.application.mobile.integrity_service",
+        "app.presentation.api.v1.routes.mobile_integrity"
+      ],
+      "outside_proposed_modules": [],
+      "entrypoint": "Native authentication/integrity/journey support; incoming closure listed explicitly",
+      "routes": []
+    },
+    {
+      "path": "backend/app/infrastructure/security/mobile_integrity_challenges.py",
+      "sha256": "fb9bbb8b74f17fd91d8b6f832acefc0d284a6c518c80ea5809d9553f77a05f4c",
+      "classification": "proposed-native-app-only; parent policy decision pending",
+      "review_scope": "classification-and-caller-trace-only",
+      "incoming_app_modules": [
+        "app.application.mobile.integrity_service",
+        "app.presentation.api.v1.routes.mobile_integrity"
+      ],
+      "outside_proposed_modules": [],
+      "entrypoint": "Native authentication/integrity/journey support; incoming closure listed explicitly",
+      "routes": []
+    }
+  ],
+  "test_proposals": [
+    {
+      "path": "backend/tests/unit/application/test_mobile_app_integrity.py",
+      "sha256": "4ab69d101cac62c654c473a449b3d0994111a5831b9409322a7119278f717b53",
+      "direct_native_candidate_imports": [
+        "app.application.mobile.app_integrity",
+        "app.infrastructure.security.mobile_integrity_challenges"
+      ],
+      "other_app_imports": [],
+      "native_route_literals": [],
+      "test_names": [
+        "test_challenge_decoder_rejects_non_base64url_digest_even_at_correct_length",
+        "test_challenge_expiry_is_fail_closed_at_the_boundary",
+        "test_challenge_record_is_bounded_round_trippable_and_contains_no_raw_identity",
+        "test_challenge_rejects_cross_context_substitution",
+        "test_in_memory_challenge_is_one_time_and_expiry_bounded",
+        "test_request_hash_contracts_are_canonical_and_resource_bound"
+      ],
+      "classification": "proposed-native-app-only; parent policy decision pending",
+      "review_scope": "full physical test read; no execution or implementation claim"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_mobile_associations.py",
+      "sha256": "5416585ce720820f086a468c1cac8792b15d7fbc68519e13800147ba691c04f4",
+      "direct_native_candidate_imports": [
+        "app.presentation.api.v1.routes.mobile_associations"
+      ],
+      "other_app_imports": [
+        "app.core.config.settings"
+      ],
+      "native_route_literals": [],
+      "test_names": [
+        "test_android_association_converts_play_integrity_digests",
+        "test_apple_association_uses_server_enforced_application_identity",
+        "test_unconfigured_association_fails_closed"
+      ],
+      "classification": "proposed-native-app-only; parent policy decision pending",
+      "review_scope": "full physical test read; no execution or implementation claim"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_mobile_integrity_route.py",
+      "sha256": "08f07513d3eaff28e0c169e0df096d54683c49e2ba6811299ebd591e0d323bd0",
+      "direct_native_candidate_imports": [
+        "app.application.mobile.app_integrity",
+        "app.presentation.api.v1.routes.mobile_integrity"
+      ],
+      "other_app_imports": [
+        "app.core.security.mobile_jwt",
+        "app.presentation.api.v1.schemas.mobile_schemas"
+      ],
+      "native_route_literals": [
+        "app.presentation.api.v1.routes.mobile_integrity.get_settings"
+      ],
+      "test_names": [
+        "test_apple_registration_route_returns_only_fixed_success_state",
+        "test_challenge_route_is_no_store_and_reports_rollout_requirement",
+        "test_challenge_route_maps_rejection_and_outage_without_reason_disclosure",
+        "test_disabled_challenge_does_not_issue_replayable_state",
+        "test_integrity_router_exposes_only_challenge_and_key_registration"
+      ],
+      "classification": "proposed-native-app-only; parent policy decision pending",
+      "review_scope": "full physical test read; no execution or implementation claim"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_mobile_journey.py",
+      "sha256": "3b2343218e70e0d85fd62f59c59c72359c68963276a2ec5fb325dfefada8afc7",
+      "direct_native_candidate_imports": [
+        "app.application.mobile.journey_destination"
+      ],
+      "other_app_imports": [
+        "app.core.security.mobile_jwt",
+        "app.domain.exceptions.exceptions",
+        "app.infrastructure.database.session",
+        "app.presentation.api.v1.routes",
+        "app.presentation.dependencies.mobile_auth"
+      ],
+      "native_route_literals": [],
+      "test_names": [
+        "test_http_query_cannot_replace_authorized_saved_destination",
+        "test_journey_destination_denies_trip_before_releasing_or_resolving",
+        "test_journey_destination_keeps_missing_saved_destination",
+        "test_journey_destination_resolves_saved_trip_after_releasing_transaction",
+        "test_journey_destination_route_accepts_only_the_trip_locator"
+      ],
+      "classification": "proposed-native-app-only; parent policy decision pending",
+      "review_scope": "full physical test read; no execution or implementation claim"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_mobile_login_password_work.py",
+      "sha256": "0ae255ef14cddd2d392a3d86954df6ffe163ac3264e95a3199b3d9daa99f698e",
+      "direct_native_candidate_imports": [
+        "app.presentation.api.v1.routes.mobile_auth"
+      ],
+      "other_app_imports": [],
+      "native_route_literals": [
+        "app.presentation.api.v1.routes.mobile_auth.LoginAttemptLimiter",
+        "app.presentation.api.v1.routes.mobile_auth._require_mobile_enabled",
+        "app.presentation.api.v1.routes.mobile_auth.verify_password"
+      ],
+      "test_names": [
+        "test_mobile_failed_credentials_always_run_one_verifier"
+      ],
+      "classification": "proposed-native-app-only; parent policy decision pending",
+      "review_scope": "full physical test read; no execution or implementation claim"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_mobile_passenger_claim_resolution.py",
+      "sha256": "81c3eb86db2b0db749f5f37962a5897eded76e495904c87f42ee1a17c34c80f0",
+      "direct_native_candidate_imports": [
+        "app.presentation.api.v1.routes.mobile_auth"
+      ],
+      "other_app_imports": [
+        "app.core.security.mobile_jwt"
+      ],
+      "native_route_literals": [],
+      "test_names": [
+        "test_cross_group_phone_matches_require_factor_before_claim_selection",
+        "test_mixed_multi_match_never_accepts_factorless_identity_by_identifier",
+        "test_same_strong_factor_can_reveal_only_linked_trip_choices",
+        "test_single_unambiguous_phone_identity_needs_only_verified_otp"
+      ],
+      "classification": "proposed-native-app-only; parent policy decision pending",
+      "review_scope": "full physical test read; no execution or implementation claim"
+    }
+  ],
+  "other_test_candidates_not_approved": [
+    {
+      "path": "backend/tests/service_integration/test_mobile_phone_lookup_postgresql.py",
+      "sha256": "ea353c9507160a5f814fb628bb28576230752a1ef377b10e6fd874cb18142ac2",
+      "direct_native_candidate_imports": [
+        "app.presentation.api.v1.routes.mobile_auth_phone_support"
+      ],
+      "other_app_imports": [
+        "app.infrastructure.database.models"
+      ],
+      "native_route_literals": [],
+      "test_names": [
+        "test_submitted_phone_migration_and_custom_and_generic_plans_use_index"
+      ],
+      "classification": "candidate pending physical scope trace; not an approved exclusion",
+      "review_scope": "automated-reference-triage-only"
+    },
+    {
+      "path": "backend/tests/unit/application/test_mobile_integrity_service.py",
+      "sha256": "32b29cf1cfee7a08f04dda86ddde4df240de20bcac57574de24bea9ef717d4ec",
+      "direct_native_candidate_imports": [
+        "app.application.mobile.app_integrity",
+        "app.application.mobile.integrity_service",
+        "app.infrastructure.security.mobile_integrity_challenges",
+        "app.infrastructure.security.mobile_integrity_providers"
+      ],
+      "other_app_imports": [
+        "app.core.config.settings",
+        "app.core.security.mobile_jwt",
+        "app.presentation.api.v1.schemas.mobile_schemas"
+      ],
+      "native_route_literals": [],
+      "test_names": [
+        "test_apple_key_registration_persists_only_hash_and_verifier_material",
+        "test_enforcement_rejects_missing_proof_before_database_or_provider_work",
+        "test_non_enforcing_modes_preserve_action_when_proof_is_missing",
+        "test_play_proof_is_one_time_and_bound_to_server_recomputed_request",
+        "test_provider_outage_respects_rollout_mode",
+        "test_wrong_action_hash_consumes_challenge_and_never_calls_provider"
+      ],
+      "classification": "candidate pending physical scope trace; not an approved exclusion",
+      "review_scope": "automated-reference-triage-only"
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_apple_app_attest_verifier.py",
+      "sha256": "9d2130dbd724542eb149fe3d31e44fc1f166136a03e703238585210281c96707",
+      "direct_native_candidate_imports": [
+        "app.application.mobile.app_integrity",
+        "app.infrastructure.security.apple_app_attest_verifier"
+      ],
+      "other_app_imports": [
+        "app.core.config.settings"
+      ],
+      "native_route_literals": [],
+      "test_names": [
+        "test_assertion_distinguishes_server_material_or_policy_unavailability",
+        "test_assertion_rejects_noncanonical_base64_and_tampered_signature",
+        "test_assertion_rejects_policy_replay_shape_and_rp_id_mismatches",
+        "test_assertion_verifies_signature_rp_id_policy_and_increasing_counter",
+        "test_official_apple_2026_authenticator_sample_parses_exact_extensions",
+        "test_official_apple_2026_receipt_verifies_signature_path_and_bindings",
+        "test_verification_material_is_fixed_bounded_and_key_bound"
+      ],
+      "classification": "candidate pending physical scope trace; not an approved exclusion",
+      "review_scope": "automated-reference-triage-only"
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_mobile_integrity_providers.py",
+      "sha256": "07c6a5b566f141a14e814aca0d90e28f752a63511377cf03610757fb91cad948",
+      "direct_native_candidate_imports": [
+        "app.application.mobile.app_integrity",
+        "app.infrastructure.security.apple_app_attest_verifier",
+        "app.infrastructure.security.mobile_integrity_providers"
+      ],
+      "other_app_imports": [
+        "app.core.config.settings",
+        "app.infrastructure.security"
+      ],
+      "native_route_literals": [],
+      "test_names": [
+        "test_default_apple_adapter_never_accepts_a_client_verdict",
+        "test_default_registry_uses_authoritative_apple_verifier",
+        "test_play_integrity_rejects_each_required_verdict_boundary",
+        "test_play_integrity_uses_official_server_request_shape_and_checks_verdict",
+        "test_play_provider_outage_and_missing_enforcement_config_fail_closed"
+      ],
+      "classification": "candidate pending physical scope trace; not an approved exclusion",
+      "review_scope": "automated-reference-triage-only"
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_mobile_journey_geocoding.py",
+      "sha256": "861189c9191e5416131d9344ad09cfb1e6775b4b1fc5ecb7091f1a6bde811737",
+      "direct_native_candidate_imports": [
+        "app.infrastructure.mobile_journey_geocoding"
+      ],
+      "other_app_imports": [
+        "app.core.config.settings"
+      ],
+      "native_route_literals": [],
+      "test_names": [
+        "test_ambiguous_places_and_multistop_never_get_a_guessed_coordinate",
+        "test_bare_london_resolves_prominent_provider_city_independent_of_result_order",
+        "test_cached_places_are_shared_across_calls_and_aliases_without_upstream_repeats",
+        "test_city_prominence_cannot_override_competing_geographic_regions",
+        "test_city_prominence_is_not_a_london_name_or_country_override",
+        "test_city_prominence_requires_both_conservative_minimum_and_clear_lead",
+        "test_city_state_duplicate_and_city_country_duplicate_choose_appropriate_scope",
+        "test_country_or_state_is_not_replaced_with_same_named_village",
+        "test_country_preference_preserves_competing_state_even_with_city_homonym",
+        "test_country_resolution_ignores_old_ambiguous_cache_but_keeps_shared_upstream_lease",
+        "test_destination_edits_use_separate_cache_entries_and_restore_only_matching_place",
+        "test_exact_country_wins_over_foreign_locality_homonyms",
+        "test_exact_places_and_country_aliases_preserve_provider_coordinates",
+        "test_explicit_foreign_locality_qualifiers_override_country_homonym",
+        "test_failures_are_cached_without_redirects_or_immediate_retries",
+        "test_fuzzy_venue_and_incomplete_place_matches_are_rejected",
+        "test_hongkong_spelling_resolves_exact_provider_place_without_accepting_similar_names",
+        "test_hongkong_spellings_share_canonical_provider_query_and_cached_coordinates",
+        "test_invalid_coordinates_never_escape",
+        "test_invalid_destination_never_reaches_external_service",
+        "test_invalid_winner_or_competitor_importance_keeps_city_ambiguous",
+        "test_london_ignores_v2_ambiguity_and_caches_current_provider_selection",
+        "test_malformed_feature_properties_are_rejected",
+        "test_missing_or_invalid_prominence_metadata_keeps_city_ambiguous",
+        "test_multiple_exact_country_candidates_do_not_choose_first_provider_result",
+        "test_no_provider_request_without_shared_cache_and_admission",
+        "test_prominence_requires_unique_matching_osm_identity_and_place_context",
+        "test_provider_can_be_switched_or_disabled_and_aliases_use_hard_country_filter",
+        "test_qualified_city_ambiguity_cannot_be_overridden_by_importance",
+        "test_qualified_london_keeps_requested_location_despite_prominent_homonym",
+        "test_request_has_total_deadline_and_releases_admission_to_cooldown",
+        "test_separate_resolvers_cannot_send_concurrently_and_keep_cooldown",
+        "test_settings_allow_only_an_explicit_https_endpoint"
+      ],
+      "classification": "candidate pending physical scope trace; not an approved exclusion",
+      "review_scope": "automated-reference-triage-only"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_mobile_activation.py",
+      "sha256": "d1984c6286dd5b23dad03b8a0ab12475eab79cc063a27ecdcb4188c55a632c0a",
+      "direct_native_candidate_imports": [
+        "app.presentation.api.v1.routes.mobile_auth"
+      ],
+      "other_app_imports": [
+        "app.core.security.mobile_jwt",
+        "app.presentation.api.v1.schemas.mobile_schemas"
+      ],
+      "native_route_literals": [
+        "/api/v1/mobile/auth/activate",
+        "app.presentation.api.v1.routes.mobile_auth.LoginAttemptLimiter",
+        "app.presentation.api.v1.routes.mobile_auth._audit_mobile_auth",
+        "app.presentation.api.v1.routes.mobile_auth._issue_user_session",
+        "app.presentation.api.v1.routes.mobile_auth._require_mobile_enabled",
+        "app.presentation.api.v1.routes.mobile_auth._revoke_session_family",
+        "app.presentation.api.v1.routes.mobile_auth.hash_password",
+        "app.presentation.api.v1.routes.mobile_auth.verify_password"
+      ],
+      "test_names": [
+        "test_activation_route_is_registered_under_mobile_auth_router",
+        "test_client_manager_password_change_revokes_old_family_and_clears_invitation",
+        "test_invalid_and_expired_activation_tokens_share_generic_failure"
+      ],
+      "classification": "candidate pending physical scope trace; not an approved exclusion",
+      "review_scope": "automated-reference-triage-only"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_mobile_authorization_matrix.py",
+      "sha256": "cee8f3d80aa744ca0121ccd493a12d214d1e0b01bd476c3f5d9376cba0540999",
+      "direct_native_candidate_imports": [
+        "app.presentation.api.v1.routes.mobile_auth_session_support",
+        "app.presentation.api.v1.routes.mobile_resources"
+      ],
+      "other_app_imports": [
+        "app.application.mobile.realtime_authorization",
+        "app.application.security.mobile_access_policy",
+        "app.core.config.settings",
+        "app.core.security.mobile_jwt",
+        "app.domain.exceptions.exceptions",
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.models",
+        "app.presentation.api.v1.router",
+        "app.presentation.api.v1.routes",
+        "app.presentation.api.v1.routes.mobile_ops",
+        "app.presentation.dependencies.mobile_auth"
+      ],
+      "native_route_literals": [
+        "app.presentation.api.v1.routes.mobile_auth_session_support.ensure_current_passenger_session_bindings",
+        "app.presentation.api.v1.routes.mobile_resources.MobileAccessPolicy.require_trip_access",
+        "app.presentation.api.v1.routes.mobile_resources._resolve_mobile_document",
+        "app.presentation.dependencies.mobile_auth.decode_mobile_access_token"
+      ],
+      "test_names": [
+        "test_access_policy_and_realtime_deny_cross_scope_and_lifecycle_rows",
+        "test_document_authorization_denies_trip_before_integrity_or_object_lookup",
+        "test_every_mobile_http_route_has_an_explicit_authentication_classification",
+        "test_every_role_specific_ops_route_calls_its_shared_fail_closed_guard",
+        "test_live_dependency_rechecks_session_and_staff_account_state",
+        "test_manager_readiness_rejects_wrong_role_before_any_object_query",
+        "test_realtime_is_the_only_mobile_websocket_and_uses_custom_preaccept_auth",
+        "test_realtime_rejects_invalid_session_before_accepting_socket",
+        "test_refresh_fails_closed_on_missing_or_ambiguous_selected_trip_access",
+        "test_refresh_returns_the_exact_locked_access_used_for_offline_lease",
+        "test_role_guards_reject_before_any_object_query"
+      ],
+      "classification": "candidate pending physical scope trace; not an approved exclusion",
+      "review_scope": "automated-reference-triage-only"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_mobile_auth_reconciliation.py",
+      "sha256": "eb058860490341af9a6037c18bf313872038ef64a623002c66e1095ce943fdc1",
+      "direct_native_candidate_imports": [
+        "app.presentation.api.v1.routes.mobile_auth"
+      ],
+      "other_app_imports": [
+        "app.core.security.mobile_jwt",
+        "app.presentation.api.v1.routes"
+      ],
+      "native_route_literals": [],
+      "test_names": [
+        "test_already_known_legacy_binding_is_reconciled_instead_of_skipped",
+        "test_phone_candidate_reconciliation_is_bounded_and_gc_scoped"
+      ],
+      "classification": "candidate pending physical scope trace; not an approved exclusion",
+      "review_scope": "automated-reference-triage-only"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_mobile_historical_access_sync.py",
+      "sha256": "ba7a2ad7c5db9421801e244b9bdcd03d3164197cfab882c37da8dbcd1ed99cc1",
+      "direct_native_candidate_imports": [
+        "app.presentation.api.v1.routes.mobile_sync_projection"
+      ],
+      "other_app_imports": [
+        "app.application.security.mobile_access_policy",
+        "app.core.security.mobile_jwt",
+        "app.infrastructure.database.gc_mobile_models",
+        "app.presentation.api.v1.routes.gc_app",
+        "app.presentation.api.v1.schemas.gc_app_schemas"
+      ],
+      "native_route_literals": [
+        "/api/v1/mobile/sync/changes?trip_id=",
+        "/api/v1/mobile/trips/"
+      ],
+      "test_names": [
+        "test_current_revocation_is_denied_before_historical_projection",
+        "test_new_session_passes_historical_revokes_and_advances_without_rewriting_history",
+        "test_projection_keeps_unrelated_or_unknown_revocations",
+        "test_window_edit_invalidates_old_session_but_only_revokes_disabled_role"
+      ],
+      "classification": "candidate pending physical scope trace; not an approved exclusion",
+      "review_scope": "automated-reference-triage-only"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_mobile_otp_auth.py",
+      "sha256": "d7be1ffc375482960c1aa3d501f6fd068c0be47d856d533dafa9ca1a3aee6351",
+      "direct_native_candidate_imports": [
+        "app.presentation.api.v1.routes.mobile_auth"
+      ],
+      "other_app_imports": [
+        "app.application.mobile.otp_provider",
+        "app.core.security.mobile_jwt",
+        "app.domain.entities.entities",
+        "app.domain.exceptions.exceptions",
+        "app.presentation.api.v1.schemas.mobile_schemas",
+        "app.presentation.dependencies.mobile_auth"
+      ],
+      "native_route_literals": [
+        "/api/v1/mobile/auth/claim/verify",
+        "/api/v1/mobile/auth/login",
+        "/api/v1/mobile/auth/otp/request",
+        "/api/v1/mobile/auth/otp/verify",
+        "/api/v1/mobile/auth/passenger/trip/switch",
+        "/api/v1/mobile/auth/refresh",
+        "app.presentation.api.v1.routes.mobile_auth",
+        "app.presentation.api.v1.routes.mobile_auth.AuditLogRepository",
+        "app.presentation.api.v1.routes.mobile_auth.LoginAttemptLimiter",
+        "app.presentation.api.v1.routes.mobile_auth.MobileOTPRateLimiter",
+        "app.presentation.api.v1.routes.mobile_auth.MobileOTPRateLimiter.consume",
+        "app.presentation.api.v1.routes.mobile_auth._audit_mobile_auth",
+        "app.presentation.api.v1.routes.mobile_auth._complete_neutral_otp_timing",
+        "app.presentation.api.v1.routes.mobile_auth._eligible_passenger_identities",
+        "app.presentation.api.v1.routes.mobile_auth._issue_passenger_session",
+        "app.presentation.api.v1.routes.mobile_auth._issue_user_session",
+        "app.presentation.api.v1.routes.mobile_auth._locked_challenge",
+        "app.presentation.api.v1.routes.mobile_auth._matching_passenger_claims",
+        "app.presentation.api.v1.routes.mobile_auth._reconcile_phone_candidate_groups",
+        "app.presentation.api.v1.routes.mobile_auth._refresh_principal",
+        "app.presentation.api.v1.routes.mobile_auth._request_digest",
+        "app.presentation.api.v1.routes.mobile_auth._require_mobile_enabled",
+        "app.presentation.api.v1.routes.mobile_auth._revoke_same_device_session",
+        "app.presentation.api.v1.routes.mobile_auth._verify_challenge_code",
+        "app.presentation.api.v1.routes.mobile_auth.asyncio.sleep",
+        "app.presentation.api.v1.routes.mobile_auth.bind_source_provider_message",
+        "app.presentation.api.v1.routes.mobile_auth.create_mobile_access_token",
+        "app.presentation.api.v1.routes.mobile_auth.create_mobile_refresh_token",
+        "app.presentation.api.v1.routes.mobile_auth.get_otp_provider",
+        "app.presentation.api.v1.routes.mobile_auth.get_settings",
+        "app.presentation.api.v1.routes.mobile_auth.hash_mobile_lookup",
+        "app.presentation.api.v1.routes.mobile_auth.hash_mobile_refresh_token",
+        "app.presentation.api.v1.routes.mobile_auth.logger.warning",
+        "app.presentation.api.v1.routes.mobile_auth.submitted_phone_rows",
+        "app.presentation.api.v1.routes.mobile_auth.time.monotonic",
+        "app.presentation.api.v1.routes.mobile_auth.verify_password",
+        "app.presentation.api.v1.routes.mobile_auth_session_support",
+        "app.presentation.dependencies.mobile_auth",
+        "app.presentation.dependencies.mobile_auth.decode_mobile_access_token"
+      ],
+      "test_names": [
+        "test_concurrent_otp_request_returns_database_winner_without_second_send",
+        "test_credential_login_rejects_inactive_account_without_issuing_session",
+        "test_credential_login_rejects_invitation_account_until_token_activation",
+        "test_credential_login_repairs_legacy_direct_password_account",
+        "test_current_mobile_claims_rejects_account_namespace_swapping",
+        "test_current_passenger_requires_exact_live_session_identity_membership",
+        "test_eligible_identity_query_excludes_suspended_or_revoked_access",
+        "test_ineligible_otp_request_is_neutral_and_never_calls_provider",
+        "test_live_client_manager_session_rejects_unredeemed_invitation_profile",
+        "test_neutral_otp_timing_uses_bounded_floor_and_jitter",
+        "test_otp_challenge_is_committed_before_provider_delivery",
+        "test_passenger_trip_switch_cannot_resurrect_revoked_refresh_family",
+        "test_passenger_trip_switch_denies_identifier_swapping_and_other_tenants",
+        "test_passenger_trip_switch_query_denies_revoked_disabled_expired_or_stale_rows",
+        "test_passenger_trip_switch_rejects_a_different_installation_before_rotation",
+        "test_passenger_trip_switch_rotates_subject_and_both_token_types",
+        "test_provider_delivery_failures_keep_neutral_response_and_safe_state",
+        "test_refresh_rejects_a_different_installation_before_consuming_the_token",
+        "test_refresh_rotation_locks_token_before_its_device_session",
+        "test_request_otp_reuses_pending_challenge_during_resend_cooldown",
+        "test_revoked_or_suspended_device_session_is_rejected_before_principal_lookup",
+        "test_selected_claim_authorizes_every_identity_proven_by_the_same_factor",
+        "test_session_issuance_revokes_same_device_before_creating_new_family",
+        "test_verify_otp_denies_challenge_when_no_identity_remains_eligible",
+        "test_verify_otp_does_not_merge_unshared_rows_across_tenants",
+        "test_verify_otp_issues_passenger_session_for_one_active_identity",
+        "test_verify_otp_rejects_wrong_expired_and_exhausted_codes",
+        "test_verify_otp_requires_secondary_proof_for_cross_group_phone"
+      ],
+      "classification": "candidate pending physical scope trace; not an approved exclusion",
+      "review_scope": "automated-reference-triage-only"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_mobile_realtime_route.py",
+      "sha256": "abaa08127c17fb28fbab23ca55e0f2c26f418f139697d0a08bf80e2e9631156f",
+      "direct_native_candidate_imports": [
+        "app.presentation.api.v1.routes.mobile_realtime"
+      ],
+      "other_app_imports": [
+        "app.application.mobile.realtime_authorization",
+        "app.application.mobile.realtime_hints",
+        "app.core.config.settings",
+        "app.domain.exceptions.exceptions",
+        "app.infrastructure.mobile_realtime",
+        "app.presentation.api.v1.routes"
+      ],
+      "native_route_literals": [],
+      "test_names": [
+        "test_bearer_token_must_use_header_and_query_strings_are_rejected",
+        "test_browser_origin_must_match_explicit_allowlist_or_api_origin",
+        "test_busy_hint_stream_cannot_starve_protocol_heartbeats",
+        "test_live_session_revocation_closes_socket_as_unauthorized",
+        "test_protocol_failure_always_unregisters_connection",
+        "test_realtime_route_is_websocket_only_and_separate_from_resource_router"
+      ],
+      "classification": "candidate pending physical scope trace; not an approved exclusion",
+      "review_scope": "automated-reference-triage-only"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_mobile_resources.py",
+      "sha256": "4a5dc379eb2acf238cfda7bf579b16d4216d00158491b5861bdca3874c756a6e",
+      "direct_native_candidate_imports": [
+        "app.presentation.api.v1.routes.mobile_resources"
+      ],
+      "other_app_imports": [
+        "app.core.security.mobile_jwt",
+        "app.domain.exceptions.exceptions",
+        "app.infrastructure.storage.minio_repository",
+        "app.presentation.api.v1.schemas.mobile_schemas"
+      ],
+      "native_route_literals": [
+        "/api/v1/mobile/",
+        "/api/v1/mobile/sync/ack",
+        "/api/v1/mobile/sync/snapshot?trip_id=",
+        "/api/v1/mobile/trips/example/itinerary",
+        "app.presentation.api.v1.routes.mobile_resources.MinioStorageRepository",
+        "app.presentation.api.v1.routes.mobile_resources.MobileAccessPolicy.require_trip_access",
+        "app.presentation.api.v1.routes.mobile_resources._MOBILE_DOCUMENT_STREAM_SLOTS",
+        "app.presentation.api.v1.routes.mobile_resources._audit_document_access",
+        "app.presentation.api.v1.routes.mobile_resources._cache_matches_source",
+        "app.presentation.api.v1.routes.mobile_resources._document_cache_by_source",
+        "app.presentation.api.v1.routes.mobile_resources._document_integrity_metadata",
+        "app.presentation.api.v1.routes.mobile_resources._materialize_personal_document_metadata",
+        "app.presentation.api.v1.routes.mobile_resources._mobile_manifest_versions",
+        "app.presentation.api.v1.routes.mobile_resources._mobile_sync_snapshot_resource_counts",
+        "app.presentation.api.v1.routes.mobile_resources._passenger_document_submission",
+        "app.presentation.api.v1.routes.mobile_resources._passenger_qr_revision",
+        "app.presentation.api.v1.routes.mobile_resources._passenger_rooming_revision",
+        "app.presentation.api.v1.routes.mobile_resources._passport_document_sources",
+        "app.presentation.api.v1.routes.mobile_resources._personal_document_source_integrity",
+        "app.presentation.api.v1.routes.mobile_resources._personal_document_sources",
+        "app.presentation.api.v1.routes.mobile_resources._resolve_mobile_document",
+        "app.presentation.api.v1.routes.mobile_resources.create_mobile_document_grant",
+        "app.presentation.api.v1.routes.mobile_resources.decode_mobile_document_grant",
+        "app.presentation.api.v1.routes.mobile_resources.hash_mobile_lookup",
+        "app.presentation.api.v1.routes.mobile_resources.validate_mobile_document_grant"
+      ],
+      "test_names": [
+        "test_announcement_priority_is_mapped_to_native_contract",
+        "test_coordinator_roster_revision_does_not_track_distributed_documents",
+        "test_document_authorization_returns_materialized_integrity_contract",
+        "test_document_stream_cancellation_closes_storage_and_releases_slot",
+        "test_historical_content_revokes_project_as_deletes_without_rewriting_journal",
+        "test_invalid_document_grant_fails_before_audit_or_session_release",
+        "test_itinerary_date_alias_matches_native_contract",
+        "test_large_scoped_sequence_gap_does_not_force_snapshot_rebase",
+        "test_large_sync_backlog_returns_scoped_snapshot_rebase_checkpoint",
+        "test_materializing_a_replaced_personal_document_uses_the_advertised_revision",
+        "test_meal_projection_prefers_confirmed_then_staff_and_skips_blanks",
+        "test_mobile_document_filename_cannot_escape_or_spoof_type",
+        "test_mobile_document_resume_range_is_strict_and_bounded",
+        "test_mobile_document_signature_validation_fails_closed",
+        "test_mobile_resource_keeps_lane_specific_ticket_display_name",
+        "test_mobile_resource_routes_are_compact_and_bounded",
+        "test_mobile_resources_project_domestic_lanes_as_flight_tickets",
+        "test_passenger_manifest_is_cache_independent_and_uses_resource_revisions",
+        "test_passenger_projection_rejects_manager_trip",
+        "test_passenger_snapshot_count_is_owned_and_includes_legacy_passport_sources",
+        "test_passenger_trip_list_query_contains_all_fail_closed_gates",
+        "test_passenger_trip_list_returns_every_live_identity_authorized_for_session",
+        "test_pending_personal_document_advertises_the_next_cached_revision",
+        "test_pending_personal_documents_remain_visible_until_metadata_is_ready",
+        "test_personal_document_exact_lookup_is_owned_and_not_page_limited",
+        "test_personal_document_pages_reach_owned_documents_beyond_legacy_cap",
+        "test_personal_integrity_legacy_source_uses_bounded_hash_primitive",
+        "test_personal_integrity_rejects_oversize_before_body_read",
+        "test_personal_integrity_stored_checksum_avoids_full_body_hash",
+        "test_queued_document_streams_release_every_request_session_before_waiting",
+        "test_snapshot_counts_share_role_and_visibility_boundaries",
+        "test_sync_ack_updates_only_live_session_after_version_validation",
+        "test_sync_cursor_advances_across_expired_or_invisible_journal_gaps",
+        "test_sync_payload_allows_only_javascript_safe_roster_revision_proof",
+        "test_sync_payload_never_echoes_unreviewed_fields",
+        "test_sync_snapshot_is_metadata_only_and_captures_cursor_before_versions",
+        "test_sync_snapshot_resource_map_is_role_minimized"
+      ],
+      "classification": "candidate pending physical scope trace; not an approved exclusion",
+      "review_scope": "automated-reference-triage-only"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_mobile_route_type_boundaries.py",
+      "sha256": "ce05d9ea8dc60a03ebbb037bae5f9c3334a4e508ba0dc1fb4ca13e25f7a99128",
+      "direct_native_candidate_imports": [
+        "app.presentation.api.v1.routes.mobile_resources"
+      ],
+      "other_app_imports": [
+        "app.domain.exceptions.exceptions",
+        "app.presentation.api.v1.routes.gc_app",
+        "app.presentation.api.v1.routes.gc_app_content",
+        "app.presentation.api.v1.routes.mobile_ops",
+        "app.presentation.api.v1.routes.mobile_ops_notification_support"
+      ],
+      "native_route_literals": [],
+      "test_names": [
+        "test_mobile_meal_preference_accepts_read_only_validated_mappings",
+        "test_mobile_notification_priority_preserves_legacy_normalization",
+        "test_mobile_principal_boundary_is_authorization_safe",
+        "test_mobile_sync_operation_preserves_installed_client_contract",
+        "test_persisted_mobile_enum_boundaries_accept_only_contract_values",
+        "test_persisted_mobile_enum_boundaries_fail_closed"
+      ],
+      "classification": "candidate pending physical scope trace; not an approved exclusion",
+      "review_scope": "automated-reference-triage-only"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_mobile_submitted_phone_auth.py",
+      "sha256": "b21a9c43707088e10a287a1522d8e4f9d6ffd4bff7147188eacfd6d6734c1078",
+      "direct_native_candidate_imports": [
+        "app.presentation.api.v1.routes.mobile_auth_phone_support"
+      ],
+      "other_app_imports": [
+        "app.application.mobile.passenger_phone_authority",
+        "app.core.security.mobile_jwt",
+        "app.presentation.api.v1.routes",
+        "app.presentation.api.v1.schemas.mobile_schemas"
+      ],
+      "native_route_literals": [],
+      "test_names": [
+        "test_completed_collection_statuses_authorize_without_staff_approval",
+        "test_drafts_and_imported_numbers_are_not_collection_authority",
+        "test_echoed_phone_cannot_swap_the_otp_proof_to_another_number",
+        "test_explicit_public_completion_can_supersede_legacy_import_provenance",
+        "test_guidance_is_generic_and_distinguishes_access_window",
+        "test_guidance_response_contract_never_grants_tokens_or_claims",
+        "test_inactive_guidance_requires_correct_phone_ownership_proof",
+        "test_legacy_identity_with_changed_submitted_phone_is_not_eligible",
+        "test_phone_discovery_overflow_never_authorizes_a_partial_shared_phone",
+        "test_phone_removed_between_request_and_verify_cannot_issue_session",
+        "test_refresh_rejects_stale_submitted_contact_before_issuing_offline_lease",
+        "test_send_uses_submission_presence_even_without_active_gc_identity",
+        "test_sql_candidates_still_require_canonical_completed_collection_contact"
+      ],
+      "classification": "candidate pending physical scope trace; not an approved exclusion",
+      "review_scope": "automated-reference-triage-only"
+    }
+  ],
+  "retained_boundaries": [
+    "All gc_app* and gc_notifications dashboard staff/admin endpoints, authored_notification*, notification_service, announcement notification guards/status, mobile_push providers/tasks/credentials and receipt claims remain retained: dashboard-triggered notifications and outcomes use them.",
+    "group_capacity, mobile_group_capacity, group_app_availability, passenger_change_propagation, passenger_identity_reconciliation, passenger/session/phone authority, sync_journal and realtime_hints remain retained: dashboard group/passenger mutation bridges.",
+    "core/security/mobile_jwt remains retained because GC manager creation/access and gc_app facade call hash_mobile_lookup; shared mobile_push_crypto remains retained for dashboard push delivery.",
+    "core/security/mobile_offline_lease remains retained: browser attendance_runtime.sign_offline_manifest and attendance_runtime_dependencies.SignedOfflineManifest plus global settings validation use it. Its tests remain retained.",
+    "infrastructure/security/mobile_otp_rate_limiter remains retained: public_upload_otp_rate_limiter subclasses it, traveller request/reuse quota helpers and Fresh/passport contact issuance/global error middleware import it. Its tests remain retained.",
+    "presentation/dependencies/mobile_auth remains retained conservatively with mobile_ops until parent decides native-ingress versus shared-mutation adapter scope.",
+    "application/mobile/otp_provider and infrastructure/whatsapp/otp_provider remain retained: Fresh/public returning/contact verification uses the same outgoing OTP contract/provider.",
+    "infrastructure/mobile_realtime, application/mobile/realtime_authorization and presentation/api/v1/routes/realtime_socket_support remain retained: dashboard_realtime/main/health use them.",
+    "mobile_ops, mobile_ops_passenger_support, mobile_ops_notification_support and mobile_attendance_action_support are conservatively retained pending parent decision because their mutation/receipt/attendance bridges affect retained dashboard data. No whole mobile* prefix rule.",
+    "All shared current_details, draft_collection, application/infrastructure/travellers and published migrations/database model registries/settings/schema catalogs remain retained. Native API ingress exclusion does not remove underlying dashboard/public-upload owners.",
+    "My Photos shared service/storage/authorization, approved passenger QR issuer, rooming/documents/attendance engines and generic middleware/CI/OpenAPI contracts remain retained; only native viewer ingress is proposed."
+  ],
+  "limits": [
+    "No native runtime/test deletion or source modification, provider/API calls, browser or broad verification.",
+    "Only physically completed files receive full review credit in a separate ledger; AST test candidates are not full-read or approved exclusion records.",
+    "Exact-runtime caller edges outside proposed native group are listed for parent refinement; no broad prefix allowance."
+  ]
+}

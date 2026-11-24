@@ -1,0 +1,50 @@
+[
+  {
+    "path": "backend/app/application/use_cases/passports/correct_client_details.py",
+    "sha256": "9d65e96f9e34da637b610dce21c8d91c87cb135abc404973aa2a1bf1bd1d89d6",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical source read (descriptor middle portion reread after an initially truncated tool response). Reviewed sparse/known-field normalization, explicit retired snapshot identities, public phone provenance, queued-delivery/revision/tenant/role/row-lock ordering, optional immutable revision/audit/propagation within caller commit, CSRF and no-store transport. Only dominated scalar-dict guard removed in correction module; whole-module inverse exact and41existing cases/type/lint pass. Null collection candidate cleared by existing nonnullable request schema; no new security bypass/real services claim. See client-correction-simplification-verification.json."
+  },
+  {
+    "path": "backend/app/application/use_cases/passports/client_details_fields.py",
+    "sha256": "9fe376e579942f0d95ccb001e9ebf0cb1647c106000f42e922a2b96d730293da",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read (descriptor middle portion reread after an initially truncated tool response). Reviewed sparse/known-field normalization, explicit retired snapshot identities, public phone provenance, queued-delivery/revision/tenant/role/row-lock ordering, optional immutable revision/audit/propagation within caller commit, CSRF and no-store transport. Only dominated scalar-dict guard removed in correction module; whole-module inverse exact and41existing cases/type/lint pass. Null collection candidate cleared by existing nonnullable request schema; no new security bypass/real services claim. See client-correction-simplification-verification.json."
+  },
+  {
+    "path": "backend/app/application/use_cases/passports/client_details_transaction.py",
+    "sha256": "374a334d619c7485b82bc2d8d5ff39889c10664965f39c6b84a8ffe662e5eff3",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read (descriptor middle portion reread after an initially truncated tool response). Reviewed sparse/known-field normalization, explicit retired snapshot identities, public phone provenance, queued-delivery/revision/tenant/role/row-lock ordering, optional immutable revision/audit/propagation within caller commit, CSRF and no-store transport. Only dominated scalar-dict guard removed in correction module; whole-module inverse exact and41existing cases/type/lint pass. Null collection candidate cleared by existing nonnullable request schema; no new security bypass/real services claim. See client-correction-simplification-verification.json."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/client_details.py",
+    "sha256": "7f46d49afcc137b131541db751a35fd25dff60d48472abf0caf0f53efc92b91b",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read (descriptor middle portion reread after an initially truncated tool response). Reviewed sparse/known-field normalization, explicit retired snapshot identities, public phone provenance, queued-delivery/revision/tenant/role/row-lock ordering, optional immutable revision/audit/propagation within caller commit, CSRF and no-store transport. Only dominated scalar-dict guard removed in correction module; whole-module inverse exact and41existing cases/type/lint pass. Null collection candidate cleared by existing nonnullable request schema; no new security bypass/real services claim. See client-correction-simplification-verification.json."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/schemas/passport_client_details_schemas.py",
+    "sha256": "db20842c261ff9e34742c292bb94645b8207fe2b641396b059f0ede494e70c67",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read (descriptor middle portion reread after an initially truncated tool response). Reviewed sparse/known-field normalization, explicit retired snapshot identities, public phone provenance, queued-delivery/revision/tenant/role/row-lock ordering, optional immutable revision/audit/propagation within caller commit, CSRF and no-store transport. Only dominated scalar-dict guard removed in correction module; whole-module inverse exact and41existing cases/type/lint pass. Null collection candidate cleared by existing nonnullable request schema; no new security bypass/real services claim. See client-correction-simplification-verification.json."
+  },
+  {
+    "path": "backend/tests/unit/application/test_correct_client_details.py",
+    "sha256": "39d8bcd07710bca86106770c3b5585fbeff441d22713d67a2b6549df288c11af",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "reviewed",
+    "notes": "Executed all41existing cases; physically read matched null-input controls only. Not newly claimed as full source read and no test assertion edits."
+  }
+]

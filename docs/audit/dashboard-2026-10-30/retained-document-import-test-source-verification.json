@@ -1,0 +1,34 @@
+{
+  "status": "Source-only cohort complete; prior qualified import authority/lifetime implementation preserved",
+  "new_current_full_tests": 6,
+  "test_physical_lines": 775,
+  "supporting_full_rows": 2,
+  "supporting_full_physical_lines": 439,
+  "focused_rows": 4,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-document-import-test-source-reviewed-files.json",
+    "sha256": "09675e708f30a077b17999ef33fc5bde6c9b25e20370e9083fb6e25af234c26c"
+  },
+  "source_fence": {
+    "backend/tests/unit/presentation/test_document_import_authority.py": "493c5fbfcc08763d55331779663405820715762a6aa60fe3a02b82f9429e81ae",
+    "backend/tests/unit/presentation/test_document_import_authority_locks.py": "573456a0ac137148433cf353f2e48b7e6ab5a342988e997963cc4a20ae701838",
+    "backend/tests/unit/presentation/test_document_import_initial_scope.py": "af9ab3819c562ab5e7ac937040bf8560cc970d7e61fc85da5d7ffb6ac99b6e56",
+    "backend/tests/unit/presentation/test_document_import_processing.py": "77ed0f686e0aa4620506a1b621a1e344154042b432e491435616deab250a7ce9",
+    "backend/tests/unit/presentation/test_passport_document_import_cancellation.py": "4766f7295ae9f9a275c86267f42ed364b7f47dae43830b764290d4a2e876b963",
+    "backend/tests/unit/presentation/test_passport_document_import_storage_outcomes.py": "a147c6f194b72893bb39a6872796ce4e0cadca924082b7d177be30355787ba73",
+    "backend/tests/unit/presentation/document_import_authority_fixture.py": "3c31b2caedae1b086f3206768d3848e433b5a4215fc4793ee5d92c59f8435b1e",
+    "backend/tests/unit/presentation/passport_document_import_fixture.py": "68b63cb91d9c0dda1a7464f2224774faa13943d29f865976fb53b1a12334628a",
+    "backend/app/presentation/api/v1/routes/passport_routes/document_import.py": "ec34e2f4c252e18cc192eb3ba6eff60f177243dfb33214e71dc5c793d10ef52d",
+    "backend/app/presentation/api/v1/routes/passport_routes/document_import_authority.py": "73a0a685a17eb592a944db685de700c9fa120828451d7e0a832ef6114654bd82",
+    "backend/app/presentation/api/v1/routes/passport_routes/document_import_failure.py": "50b0f10c49e96cd70b175131f1a120c3da71673251acfcf8f2f114bb747ebee5",
+    "backend/app/presentation/api/v1/routes/passport_routes/document_import_processing.py": "85e5d17e7ace085980f79203fe869c55b03e0178e432648595431dbf3544dc63"
+  },
+  "checks_run": [],
+  "changes": [],
+  "findings": [],
+  "limitations": [
+    "No test/DB/provider/native/browser execution for read-only credit.",
+    "Actual import/runtime qualification remains in prior frozen owner receipts; this physical source cohort neither reruns nor replaces it.",
+    "PostgreSQL SQL compilation controls and SQLite fixtures do not establish real lock contention/provider outcomes."
+  ]
+}

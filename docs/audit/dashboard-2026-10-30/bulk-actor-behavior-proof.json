@@ -1,0 +1,12 @@
+{
+  "whole_original_runtime_module_restores_after_only_actor_security_state_query_and_normal_actor_revalidation": true,
+  "three_exact_new_dependency_names": true,
+  "original_user_query_actual_role_profile_branch_and_all_other_handlers_exact": true,
+  "whole_existing_test_module_restores_after_only_one_two_result_mock_first_query_selection_and_two_additive_state_lock_assertions": true,
+  "original_existing_assertions_retained": 75,
+  "all_five_new_baseline_test_module_ast_identical_after_import_layout_only": true,
+  "limits": [
+    "Completed normal session fence is invoked through real management helper; credential-reset case uses the exact persisted invited/version transition, not a live password/provider endpoint.",
+    "Actual SQLite data transitions and side-effect absence verified; no live PostgreSQL concurrency claim."
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "owned_loopback_fixture_ports_closed": {
+    "3100": true,
+    "3199": true
+  },
+  "scope": "Only the isolated fixture ports reserved by the completed browser harness were checked. No user process or other service was stopped."
+}

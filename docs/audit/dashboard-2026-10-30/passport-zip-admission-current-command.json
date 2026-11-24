@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "--tb=short",
+    "--cov=app.infrastructure.imports.passport_zip_admission",
+    "--cov=app.infrastructure.imports.passport_document_importer",
+    "--cov-report=json:../docs/audit/dashboard-2026-10-30/passport-zip-admission-current-coverage.json",
+    "--cov-report=term",
+    "tests/unit/infrastructure/test_passport_zip_member_admission.py"
+  ],
+  "exit_code": 0,
+  "output": "passport-zip-admission-current-tests.txt"
+}

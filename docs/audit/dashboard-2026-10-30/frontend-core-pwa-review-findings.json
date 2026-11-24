@@ -1,0 +1,32 @@
+{
+  "findings": [
+    {
+      "id": "CORE-PWA-01",
+      "priority": "P2",
+      "status": "source_confirmed_open_pending_integration_release",
+      "path": "frontend/public/offline-scanner.js",
+      "line": 400,
+      "summary": "Cold-offline scan authorization drops signed runtime identity before queue insertion.",
+      "evidence": [
+        "authorizeDecodedScan obtains authorizationByGroup entry (with verified runtimeId) but returns passengerId/passengerLabel/scannedAt/sessionLabel only.",
+        "enqueueScan writes deviceId and runtimeId from the returned authorization.runtimeId, which is undefined for every newly authorized cold-offline scan.",
+        "Current batch sync maps clientEventId/qrPayload/scannedAt and resolves authenticated runtime server-side, so this does NOT prove all queued scans are unsyncable or an authorization bypass.",
+        "createDiscardTombstone uses scan.deviceId as installationRuntimeId; omission loses original signed installation continuity for discard/legacy-closeout attribution."
+      ],
+      "supporting_partial_reads": [
+        "frontend/features/tour-operations/services/attendance-scan-queue.ts:627,729,821,1332,1385,1544",
+        "frontend/features/operations/api/operations.api.ts:999",
+        "backend/app/presentation/api/v1/schemas/tour_operations_schemas.py:319",
+        "backend/app/presentation/api/v1/routes/tour_operations_attendance_scans.py:40-160"
+      ],
+      "plan": "After explicit release, add behavior regression invoking actual offline authorization/queue path, return signed runtimeId, preserve encrypted QR/AAD/owner/time checks and current cookie-authoritative batch flow.",
+      "limits": "Source-confirmed omission; no runtime proof executed during this read-only checkpoint and no broad sync-failure claim."
+    }
+  ],
+  "cleared_candidates": [
+    "Voice preview microphone was not globally blocked: proxy explicitly overrides Permissions-Policy for /ai.",
+    "Cold-offline camera replacement race was not proven: cameraStarting prevents a replacement while previous startup remains pending.",
+    "Service worker does not cache API/private JSON or arbitrary authenticated navigation."
+  ],
+  "verification": "Read-only physical source and vendor metadata only; no runtime/test edits, services, real scans or provider calls."
+}

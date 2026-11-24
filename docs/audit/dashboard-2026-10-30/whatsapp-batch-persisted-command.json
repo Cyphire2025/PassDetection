@@ -1,0 +1,35 @@
+{
+  "command": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "--cov=app.presentation.api.v1.routes.whatsapp_batch_status",
+    "--cov-branch",
+    "--cov-report=json:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\whatsapp-batch-persisted-coverage.json",
+    "--cov-report=xml:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\whatsapp-batch-persisted-coverage.xml",
+    "tests/unit/presentation/test_whatsapp_batch_status_persistence.py",
+    "tests/unit/presentation/test_whatsapp_batch_summary.py",
+    "tests/unit/presentation/test_whatsapp_delivery_ledger.py::test_batch_status_reports_ambiguous_outcomes_separately_from_failures",
+    "tests/unit/presentation/test_whatsapp_route_decomposition.py",
+    "tests/unit/presentation/test_whatsapp_staff_access_flow.py"
+  ],
+  "exit_code": 0,
+  "seconds": 41.375,
+  "source_fence": {
+    "backend/app/presentation/api/v1/routes/whatsapp_batch_status.py": "47cbcbe85c98e99f482df74fe79be292c58bc03caab86a4860549ad18279dbeb",
+    "backend/tests/unit/presentation/test_whatsapp_batch_status_persistence.py": "df070b02f6a28f01fe816b5519303364d0bd4b27a4e5a645e962d3b58c3ea745",
+    "backend/tests/unit/presentation/test_whatsapp_batch_summary.py": "4575b4cfbffddda7823dfabc4e7dfebe92e4fdac7ecdee6afa35f27f9671eb4f",
+    "backend/tests/unit/presentation/test_whatsapp_delivery_ledger.py": "c0b534ee0e5a15b1aca8587c31ef45d4bbd8a0dd3d7ed1249b83023331732ac5",
+    "backend/tests/unit/presentation/test_whatsapp_route_decomposition.py": "a4fa48821a7c9ec5e483f797939e96aa23b68e17a1b74c9eaaf2ee29ea18e7c6",
+    "backend/tests/unit/presentation/test_whatsapp_staff_access_flow.py": "fc94c30f4e089bc9af8cf219ea84b156276971a106944f08fe310eaaf530245b",
+    "backend/app/presentation/api/v1/routes/whatsapp_shared.py": "a0350f00c141d9e44eb016e6dcf7090bea09ce47201dcb190228e30425466ccc",
+    "backend/app/presentation/api/v1/routes/whatsapp_delivery_support.py": "11584385a6d8d16124e39d5e029c3aa4908b1044b1c7df7861461c93a32b82f0",
+    "backend/app/presentation/dependencies/auth.py": "5e1641d51673dcbcd1c2cbc8d6ceac397147de52ec4e100bae285ba115d5fefb",
+    "backend/app/presentation/api/v1/schemas/whatsapp_schemas.py": "cef7cf3eb91069546503f79893dc5e38c140a3ac31ae144c78b1fa6a838f5ea6",
+    "backend/app/domain/whatsapp_delivery_status.py": "5ac994e676cad35d68bce3c381f8873b60c29e4b33eeed9e0c62d3767512a1d0"
+  },
+  "coverage": "fresh isolated target module only; no stale changed-owner branch append"
+}

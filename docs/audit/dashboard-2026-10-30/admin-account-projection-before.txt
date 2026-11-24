@@ -1,0 +1,84 @@
+FF                                                                       [100%]
+================================== FAILURES ===================================
+_ test_manager_list_preserves_ownership_membership_order_and_invitation_state _
+
+    @pytest.mark.asyncio
+    async def test_manager_list_preserves_ownership_membership_order_and_invitation_state() -> None:
+>       session, actor, managers, groups, access, _ = _fixture()
+                                                      ^^^^^^^^^^
+
+tests\unit\presentation\test_admin_account_projection.py:66: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+manager_count = 12, group_count = 160, access_count = 240
+
+    def _fixture(manager_count: int = 12, group_count: int = 160, access_count: int = 240):
+        agency_id = uuid.UUID(int=1)
+        managers = [SimpleNamespace(
+            id=uuid.UUID(int=100 + index), full_name=f"Synthetic manager {index}",
+            email=f"manager-{index}@example.test", role="agency_manager", agency_id=agency_id,
+            is_active=True, created_at=datetime(2026, 1, 1, tzinfo=UTC), last_login_at=None,
+        ) for index in range(manager_count)]
+        groups = [SimpleNamespace(
+            id=uuid.UUID(int=1000 + index), agency_id=agency_id, name=f"Synthetic group {index}",
+            status="archived" if index % 9 == 0 else "active",
+            created_by_user_id=managers[index % manager_count].id,
+        ) for index in range(group_count)]
+        raw_access = [(managers[index % manager_count].id, groups[index % group_count].id)
+                      for index in range(access_count)]
+        reads = [0]
+        access = [_CountedAccess(manager_id, group_id, reads) for manager_id, group_id in raw_access]
+        states = [SimpleNamespace(user_id=managers[0].id, credential_state="invited")]
+        session = SimpleNamespace(execute=AsyncMock(side_effect=[
+            _Rows(managers), _Rows(groups), _Rows(access), _Rows(states),
+        ]))
+>       actor = User(
+            id=uuid.UUID(int=2), email="synthetic-owner@example.test", hashed_password="not-a-password",
+            full_name="Synthetic owner", role=UserRole.SUPER_ADMIN,
+        )
+E       TypeError: User.__init__() missing 1 required positional argument: 'agency_id'
+
+tests\unit\presentation\test_admin_account_projection.py:57: TypeError
+_ test_manager_projection_does_not_rescan_every_membership_for_every_group_and_account _
+
+    @pytest.mark.asyncio
+    async def test_manager_projection_does_not_rescan_every_membership_for_every_group_and_account() -> None:
+>       session, actor, _, _, _, reads = _fixture()
+                                         ^^^^^^^^^^
+
+tests\unit\presentation\test_admin_account_projection.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+manager_count = 12, group_count = 160, access_count = 240
+
+    def _fixture(manager_count: int = 12, group_count: int = 160, access_count: int = 240):
+        agency_id = uuid.UUID(int=1)
+        managers = [SimpleNamespace(
+            id=uuid.UUID(int=100 + index), full_name=f"Synthetic manager {index}",
+            email=f"manager-{index}@example.test", role="agency_manager", agency_id=agency_id,
+            is_active=True, created_at=datetime(2026, 1, 1, tzinfo=UTC), last_login_at=None,
+        ) for index in range(manager_count)]
+        groups = [SimpleNamespace(
+            id=uuid.UUID(int=1000 + index), agency_id=agency_id, name=f"Synthetic group {index}",
+            status="archived" if index % 9 == 0 else "active",
+            created_by_user_id=managers[index % manager_count].id,
+        ) for index in range(group_count)]
+        raw_access = [(managers[index % manager_count].id, groups[index % group_count].id)
+                      for index in range(access_count)]
+        reads = [0]
+        access = [_CountedAccess(manager_id, group_id, reads) for manager_id, group_id in raw_access]
+        states = [SimpleNamespace(user_id=managers[0].id, credential_state="invited")]
+        session = SimpleNamespace(execute=AsyncMock(side_effect=[
+            _Rows(managers), _Rows(groups), _Rows(access), _Rows(states),
+        ]))
+>       actor = User(
+            id=uuid.UUID(int=2), email="synthetic-owner@example.test", hashed_password="not-a-password",
+            full_name="Synthetic owner", role=UserRole.SUPER_ADMIN,
+        )
+E       TypeError: User.__init__() missing 1 required positional argument: 'agency_id'
+
+tests\unit\presentation\test_admin_account_projection.py:57: TypeError
+=========================== short test summary info ===========================
+FAILED tests/unit/presentation/test_admin_account_projection.py::test_manager_list_preserves_ownership_membership_order_and_invitation_state
+FAILED tests/unit/presentation/test_admin_account_projection.py::test_manager_projection_does_not_rescan_every_membership_for_every_group_and_account
+2 failed in 0.44s

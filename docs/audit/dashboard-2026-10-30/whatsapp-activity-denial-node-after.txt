@@ -1,0 +1,22 @@
+(node:37604) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/nipun/Desktop/PassDetection/frontend/features/whatsapp/utils/batch-polling.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\C:\Users\nipun\Desktop\PassDetection\frontend\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ terminal batch responses stop polling (1.0124ms)
+✔ queued batches back off within a bounded interval (0.1775ms)
+✔ old queued batches keep polling instead of expiring locally (0.1692ms)
+✔ missing batch responses are terminal (0.2373ms)
+✔ a normalized structured missing-resource failure stops batch retries (0.1657ms)
+✔ network and server failures retain bounded retries (0.1651ms)
+✔ permanent client failures stop automatic retries while transient408and429remain bounded (0.1505ms)
+✔ dispatch completion keeps checking provider acceptance and late failure receipts (0.1988ms)
+✔ receipt checks are bounded, including uncertain outcomes and missing timing metadata (0.1854ms)
+✔ open rosters reconcile ordinary sends and resends without rapid perpetual polling (1.7592ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 168.4073

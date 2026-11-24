@@ -1,0 +1,1058 @@
+[
+  {
+    "path": "frontend/app/(auth)/activate/page.tsx",
+    "sha256": "b1d4e11af9799cad9ce81eda9ce6696eb7257e9ee3217bd7303043856b68e128",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(auth)/forgot-password/page.tsx",
+    "sha256": "841f82c650adddcc2ad15fea35480dd1b9618034127bc388edd515fe7d96f44d",
+    "review_scope": "full",
+    "status": "fixed",
+    "reviewer": "root",
+    "notes": "Complete current source reread. Redundant intermediate auth layout title removed after actual standalone production title failure. Password-reset/restoration pages now own specific titles under the root product template. Next production build/browser must verify this correction; previous frozen checkpoint remains8/9 with the pre-sign-in title failure, never relabeled passed."
+  },
+  {
+    "path": "frontend/app/(auth)/layout.tsx",
+    "sha256": "f62c3821e8aabda033121991d581004ff87fc1195711ebc3f29bfac126daa495",
+    "review_scope": "full",
+    "status": "fixed",
+    "reviewer": "root",
+    "notes": "Complete current source reread. Redundant intermediate auth layout title removed after actual standalone production title failure. Password-reset/restoration pages now own specific titles under the root product template. Next production build/browser must verify this correction; previous frozen checkpoint remains8/9 with the pre-sign-in title failure, never relabeled passed."
+  },
+  {
+    "path": "frontend/app/(auth)/login/page.tsx",
+    "sha256": "70fbb47932ba3d2b260f6483ef645656846287aaeb57b65c1396d65cb51346df",
+    "review_scope": "full",
+    "status": "fixed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(auth)/recover/page.tsx",
+    "sha256": "f82a2080641f4fa2cc20060c237397711e0272514049f05d16b50bb79f5bfb9f",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(auth)/session-restore/page.tsx",
+    "sha256": "b1ae989e7ea46e3447ca44a6e76ffc8018c144c24a1bb259a0f8356b941bf0c6",
+    "review_scope": "full",
+    "status": "fixed",
+    "reviewer": "root",
+    "notes": "Complete current source reread. Redundant intermediate auth layout title removed after actual standalone production title failure. Password-reset/restoration pages now own specific titles under the root product template. Next production build/browser must verify this correction; previous frozen checkpoint remains8/9 with the pre-sign-in title failure, never relabeled passed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/admin/mcp/connect/page.tsx",
+    "sha256": "b99be3a570b6cd470d0698395e9049238b4092218ca3d70617804dc5fdd5db18",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/admin/mcp/page.tsx",
+    "sha256": "a2621509c65e6f2f4f0928acab8fa72010750ab50fcb214da5d3420d212daddc",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/admin/mcp/requests/page.tsx",
+    "sha256": "6fd8cddf27c37df431723b2a2ce963431f98f8d77b4a9df4621f6e0f0dedac63",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/admin/mcp/settings/page.tsx",
+    "sha256": "1b87d5196f2bd14080843523147423398481c8d6b039e5c08c903436d802754e",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/admin/mcp/setup/page.tsx",
+    "sha256": "76a5f5e8e803e065d24fac652c4537ff8f4e6f05d4a060964b5e5f244456b074",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/admin/page.tsx",
+    "sha256": "b3c333af6550b65ba72411c1280b9e88258fad4e48600ca5e85cf4651dcf4270",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/analytics/layout.tsx",
+    "sha256": "a8cadff28f4184339369c6504bd6bc489895a37214491f2cc499d7fe95b4de4b",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/analytics/loading.tsx",
+    "sha256": "6c6feb96d040dde957a64ffa91f2f583a81dacbce28b7155a860f3e7dbb1f324",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/analytics/page.tsx",
+    "sha256": "3662542b721f58af3f3578f6132f8485d93627a8488c46ad4344605c288955b7",
+    "review_scope": "full",
+    "status": "fixed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/audit-logs/layout.tsx",
+    "sha256": "25230d60f830701074f27356cf6019507a0713f5eb205bd9bd875aaffbb62036",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/audit-logs/loading.tsx",
+    "sha256": "75bb7c650ec6519de584f7d9cfb4ccfbc5e8ca16e8d7f7f4c02e7f13f92d49fc",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/audit-logs/page.tsx",
+    "sha256": "bd74c44acf7dd6c3e89bd1ddd2b49c584ca2a7eb878053db82e917089d3f5487",
+    "review_scope": "full",
+    "status": "fixed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/companies/[companyId]/page.tsx",
+    "sha256": "eed73636e22a6a7feee17d77dd8f1c836d1507c6f299143944d906691d0e6a67",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/companies/[companyId]/people/[personId]/page.tsx",
+    "sha256": "1ca7e3d28c9e9f8a0e1d646ae9e4c09cbf54248fe4563d57c0b80ecfce47affc",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/companies/layout.tsx",
+    "sha256": "85fc7492682042344362cebaf7e9de766d536ee94ab1f7461cc0140e36a175e1",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/companies/loading.tsx",
+    "sha256": "d65d3f040ba0bb58dccb6430af65e0ce6de18769afc336c35da5289b6972efc1",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/companies/page.tsx",
+    "sha256": "fd28d47723cd4275b4699741fc4a23a17079fe341776f4d8aea4eccb02070f66",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/dashboard/loading.tsx",
+    "sha256": "6b93ff6705c50559b34a0bac191eccf7e607a67cc0cb3d93b7bba93b209c2976",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/dashboard/page.tsx",
+    "sha256": "3f922ee803ee258764abcd0878c169b8d94f4ceb2ef034f01431c3bd6741f5c5",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/documents/[groupId]/loading.tsx",
+    "sha256": "8a1db2414d1b377dcfc713e7470c60374f3a06c0ec65d77df06af9ac6e22b427",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/documents/[groupId]/page.tsx",
+    "sha256": "412ad10df29ec3fb6c6e6c5b373f9ae53822801619d7bf63ee917dcc36e5d730",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/documents/distribution/[groupId]/loading.tsx",
+    "sha256": "396e01d53e80126f4e87f225a409044f4744580d75ef3d3ec6d2e48081b8d50e",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/documents/distribution/[groupId]/page.tsx",
+    "sha256": "449ff4429e43675dd3c26acf18076d0d01d45b178f85e09e3c9a33cb7e0b2585",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/documents/distribution/flight-tickets/[groupId]/[scope]/[leg]/page.tsx",
+    "sha256": "a461081ee17b6a0f6ffdda40d1cbca3a318cbe6cf779dc95240c41b158a9376e",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/documents/distribution/flight-tickets/[groupId]/page.tsx",
+    "sha256": "02b885d9b189224f40029b371d3ec1bbc9d7de55809b43331b9df4866d950b25",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/documents/distribution/flight-tickets/page.tsx",
+    "sha256": "b68b3eb112a8b5e6018832c956c47f6a8676daa3b8e932aa77be55662300d2e5",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/documents/distribution/loading.tsx",
+    "sha256": "51de2b35eb73e509412279a4dc8e2426636b306ee97b2510d3a7648cf7f4381c",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/documents/distribution/page.tsx",
+    "sha256": "431d2be8024b32d20f1c4c5350f7cd8072330784d856e11cb8dc7a6a273603fe",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/documents/distribution/visa/[groupId]/page.tsx",
+    "sha256": "72573a802f991c141a238a2a4c53a98fc4eb6c79fc3a9ed226666ba8fdb299de",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/documents/distribution/visa/page.tsx",
+    "sha256": "93e7a5fbfc58a6dfd237254f356c13c0340bda89f5a8f4f3d6a6636d29351f90",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/documents/ecr-checker/loading.tsx",
+    "sha256": "d7bbffa1c02ba45962ccc296751831a0803287f044e4c5e2e812f5d9a36f3683",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/documents/ecr-checker/page.tsx",
+    "sha256": "9af805182d8fd35090ea1c85596117fd360c457d5f48e0646395622bd285795f",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/documents/loading.tsx",
+    "sha256": "34160f107588c58cdd87cedc0c88208b34a691d6bbf54227f3e3064344aef7e6",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/documents/page.tsx",
+    "sha256": "cd2895d9f4ff0065f2f9fa8d42ac8abb93ab4167588a453ce8039ba4196aa698",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/documents/rename/loading.tsx",
+    "sha256": "56c4fb122a946f29ce280fc20744b5c73578fee42cd4e6501e0ef87217adf277",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/documents/rename/page.tsx",
+    "sha256": "b64ee1ff5cac73561ba8e5de9ca450ad1874bfdf0a7d0fddc8f4b1a7b7892386",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/documents/tracker/[groupId]/loading.tsx",
+    "sha256": "7ca2867205001eaec85de1839bd54be136781254f967a6b05e6b55f9a815cf93",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/documents/tracker/[groupId]/page.tsx",
+    "sha256": "3ab1c128e1f31686be55d2f5a4d4d30020cc57be6d99ce49c4ff3563b3db3491",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/documents/tracker/loading.tsx",
+    "sha256": "9ccc98ac447024f6ee062f103ed7477b3188ee50e93653342ea60d38625a454c",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/documents/tracker/page.tsx",
+    "sha256": "842ac2c4a18a1dc09396a397780fd274c7f46aa131916b0865dc0809481b1b88",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/email-integrations/activity/[messageId]/page.tsx",
+    "sha256": "ea3ee61b6fed4195f2708cb84e7a74a58632caf8b56b81e6a46e6526d89a6555",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/email-integrations/activity/page.tsx",
+    "sha256": "fafd330b27fe4895f8b7c6e13a7b4970cd2e77655e1b44410fa59b556b6c678a",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/email-integrations/inbox/page.tsx",
+    "sha256": "578069aebec0a09c3901eab7a2b0868e36c45854571bb5ba7f77772b9f6477cb",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/email-integrations/layout.tsx",
+    "sha256": "8f1459cba9453a36e885487be49bf95c8386747f44448ce73a1a4c7c895dc2e9",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/email-integrations/page.tsx",
+    "sha256": "eb20547343ad9e7387dd82122302b940f1f912ac5b2bf1748b5921feaf46333b",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/email-integrations/review/page.tsx",
+    "sha256": "c714239be6f14513d9704daadfc089789e3d6b716b16f1799d8d3df0d14c8d71",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/gc-app/app-controls/[groupId]/page.tsx",
+    "sha256": "ec18bb49bb35d2b859cb61a856cff920f23a96843329ba443ddfcee260f8f81f",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/gc-app/app-controls/page.tsx",
+    "sha256": "230f3f591be807274785adbaac915c247307505d661ad60ffd697a0a0682af26",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/gc-app/client-manager-accounts/page.tsx",
+    "sha256": "72fc9f9283ec7d31f3e7004ef0148959fe3a4637c3c5e0f690f8f1d71e3342aa",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/gc-app/error.tsx",
+    "sha256": "0cdad52fca437b46aebc129b0c1e3fd3ea07625d96686fc0e095aa4755005207",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/gc-app/layout.tsx",
+    "sha256": "b395768b1cdbfe88b9683d85d214d5768f6c582afc0ca7d813dfcc5182c451e6",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/gc-app/loading.tsx",
+    "sha256": "6f9fd204b3b131e343255f53f9b4f184b15d46e151f4071f8ee40acd28f37978",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/gc-app/notifications/history/page.tsx",
+    "sha256": "fc91c7e9b393d4e490cfba6144a179b2078649ad704a076f93a17d07f9b42912",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/gc-app/notifications/page.tsx",
+    "sha256": "9d247f47668e437dd1ea1d6a2929b8c2baae53175afa4ba87b76dc9724b11ee3",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/gc-app/page.tsx",
+    "sha256": "455474edaf6f4b1d0018777eddab4c137a7f22e5e4228464ca6e54492a733d52",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/layout.tsx",
+    "sha256": "1c9895386110183bd072d21cb4f063e20e973d44e3b9d02baab67a889517db72",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/menu/loading.tsx",
+    "sha256": "9ff237f953d2558b9010ca5160ec8efc8a69662d991654492139952090ae4eb4",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/menu/page.tsx",
+    "sha256": "6b228ad276b0fbd4c506343c1ae41136d100a305cb706176a321cf1fd46a2f42",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/old-data/page.tsx",
+    "sha256": "382aee27feb85492227e6cf89691036c8928a920bb633696232a2f549b494a79",
+    "review_scope": "full",
+    "status": "fixed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/passports/[id]/loading.tsx",
+    "sha256": "2bed53f6065466b0350251176e9438eed26a023021675fcf62610f9a15462fb5",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/passports/[id]/page.tsx",
+    "sha256": "4d1d47ce5ebe3951186960dbc87dd5b0c59c9e6350db8833fc37a6f4bd1e141f",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/passports/groups/[groupId]/loading.tsx",
+    "sha256": "c34a9ec9ba370905012ec5408eb306daf0024325b83589ab980c52759cdcf93c",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/passports/groups/[groupId]/page.tsx",
+    "sha256": "b8d87e956c46e7a7af115a713f3c62dd572427fc80b8bb581e374a2a9d330892",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/passports/groups/[groupId]/whatsapp/loading.tsx",
+    "sha256": "5b545d5ec0b36ec707c43611515f528a9acaa2acf790268d09db8ce7e44cee18",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/passports/groups/[groupId]/whatsapp/page.tsx",
+    "sha256": "fcd643cf53eafb00caaa7d14eccfb2d7a5c4a5989b3e67bd942520f088fad392",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/passports/loading.tsx",
+    "sha256": "b8c18a50e24e2367ef1534e452d24727c3b8b5ef00f4988d64adaad42f0b4923",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/passports/page.tsx",
+    "sha256": "8863e2ac1425a93082d4fd8ce8b53119228237c40852decc9bdaeb65a77aad26",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/rooming/[groupId]/page.tsx",
+    "sha256": "3c5f991a10d4440a5390d8f57be019e018afeff9fd348ff79bbafe2e611e4e27",
+    "review_scope": "full",
+    "status": "fixed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/rooming/page.tsx",
+    "sha256": "76c6e94074c4e09d0d945ce2229b97c1a5d4cd6f0fba88bbbc67eb9c368fe115",
+    "review_scope": "full",
+    "status": "fixed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/settings/layout.tsx",
+    "sha256": "685ee4b6b90c46298c16866f0d530b35074c0714646292849b33da546dede8a8",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/settings/loading.tsx",
+    "sha256": "b41ddb0a32ac816ae168771b1750fb3661ea2a358bb223f4b1ad19ea6e5a773c",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/settings/page.tsx",
+    "sha256": "6a2b035b11c279b53e2c360fc0421a01355ada20e04140c7918bdacc6886df60",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/staff/page.tsx",
+    "sha256": "4aaba5944993aa8e9b87b3a5464fbbef774d11e8bcd8bb5babedc43c2811f748",
+    "review_scope": "full",
+    "status": "fixed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/tour-operations/coordinators/page.tsx",
+    "sha256": "4a676e492382a621be2423d6c354073e1818ca0697f7ebd4452b0d1ec0e92b91",
+    "review_scope": "full",
+    "status": "fixed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/tour-operations/group-assignments/page.tsx",
+    "sha256": "be0de5d081cdf9745634d9ca2cc78604cd0001d3aa7460d24e569df57440aa4c",
+    "review_scope": "full",
+    "status": "fixed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/tour-operations/groups/[groupId]/attendance/page.tsx",
+    "sha256": "acc2bde4780d62a3d1d0e3de7e6989ba5d0483c81f00c0ca2ec869eedd20da11",
+    "review_scope": "full",
+    "status": "fixed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/tour-operations/groups/[groupId]/page.tsx",
+    "sha256": "c2d822c35505e0737679953627c7e5d67e040fa3465ac132eade4b373755b7dd",
+    "review_scope": "full",
+    "status": "fixed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/tour-operations/groups/[groupId]/qr-codes/page.tsx",
+    "sha256": "50239c2db55a02df7049ddd8f2b17485fb09d15491bf002fa9b252a58d0a847c",
+    "review_scope": "full",
+    "status": "fixed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/tour-operations/page.tsx",
+    "sha256": "c8af0b8862523f11b636c15f70925fe7314a17d190cd2d1a0f5829e8a893a0ec",
+    "review_scope": "full",
+    "status": "fixed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/tour-operations/scanner-proof/page.tsx",
+    "sha256": "4149002576cbae34830758245bdc308c276610f55b14839ca9b115e44d608a53",
+    "review_scope": "full",
+    "status": "fixed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/upload-links/loading.tsx",
+    "sha256": "78686b3856b6aa64116f2e2a45c841a7a2fd10ca1efd2b3b0e980f795fdfeb10",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/upload-links/page.tsx",
+    "sha256": "9406004870acf59f303186f0cf31fc5d56091158c81949077611b60061a437b8",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/whatsapp/[broadcastId]/details/page.tsx",
+    "sha256": "158c51451b48399cc7d9e49f169b095b9172ca93ad5391db3dbfaf1306736a43",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/whatsapp/[broadcastId]/documents/page.tsx",
+    "sha256": "0014b46077a57469b58e4308d7b23e36112257d489966fcbb4cedddb76394564",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/whatsapp/[broadcastId]/history/page.tsx",
+    "sha256": "0557aefa5a4f4cefcc7c64665ce87741d6ef63a3bc449951395fea6e8c7ce8ec",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/whatsapp/[broadcastId]/layout.tsx",
+    "sha256": "1a95747ac0be25714f69c8f8808b784ae7d8883e6cd31842eff18fb08eb8babb",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/whatsapp/[broadcastId]/page.tsx",
+    "sha256": "0d88625d91149c1565f5cf78dfef7ec850a275dc83450d9cfa05d44d39b302a1",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/whatsapp/[broadcastId]/recipients/page.tsx",
+    "sha256": "0249d1b94f45cbe536f0a0dc67e5d209092bf0d1943b2fea66ec01d8a77865e9",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/whatsapp/layout.tsx",
+    "sha256": "121dada10b217085fc34683ca664204f85dbae2bbe274b4b990d6309b19b05ea",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/whatsapp/loading.tsx",
+    "sha256": "ea69170c6085616732ac9b98d0eacb959142e3e1557941a65bab39aec914209a",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(dashboard)/whatsapp/page.tsx",
+    "sha256": "9a24bc62968e55eccbcaaee2538c53ae9b5bfad0facd5f69aeda4c978ef646b7",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(legal)/email-automation/page.tsx",
+    "sha256": "5700e7b3d66e7caaea60a4fc78fbae033ae7f9c7a0e2872c24986617afec259f",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(legal)/layout.tsx",
+    "sha256": "214f892a7f17fe8abc660b0c914190e435f4e58e46043799f1ed989728c345a2",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(legal)/privacy-policy/page.tsx",
+    "sha256": "199e25e31712bf0be43dfb571257615617ea594f455edf5f403a113723f9f40f",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/(legal)/terms/page.tsx",
+    "sha256": "9543d94efb5b6a7478cc8ae9440e8ebdc18f631b003d4d1f4d7b7395c9006bc5",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/ai/page.tsx",
+    "sha256": "ab9e02effc704edfbf5b8042fe8c442aa3427377b47f46ef93198183f2e68dd5",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/coordinator/error.tsx",
+    "sha256": "66bbab62f25adef9b7d82b516bd110e3eee4858586c7319681781a268e0580b2",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/coordinator/groups/[groupId]/hotel-checkin/page.tsx",
+    "sha256": "dac24466e8c9fbbe2ea1f3f4858cd608749644597ea46ca09d73e6e3c11a0b3f",
+    "review_scope": "full",
+    "status": "fixed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/coordinator/groups/[groupId]/page.tsx",
+    "sha256": "d51f5388803cdb205d8942797de95c5b2f3dc48710d685bdf72b78a81d909824",
+    "review_scope": "full",
+    "status": "fixed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/coordinator/groups/[groupId]/passengers/[passengerId]/page.tsx",
+    "sha256": "7debc0b149e079a43ecb901387c08caf9cbaa1fa3a043c0c07413ac20a5f0ab3",
+    "review_scope": "full",
+    "status": "fixed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/coordinator/groups/[groupId]/scanner/page.tsx",
+    "sha256": "db4f1be885dea1451266ef1871f2ac0e804076b93e0e7f96d7033e02ad4bc122",
+    "review_scope": "full",
+    "status": "fixed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/coordinator/layout.tsx",
+    "sha256": "b71ea246e3f41b6c133d8c4524ea61a6c7db9dca3ad801253b2a6d54ba2a7db1",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/coordinator/loading.tsx",
+    "sha256": "0bbd64aaff1ff9373fc00ed6efa407dedc8bb90bb46aad0ea040326eaac13c73",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/coordinator/page.tsx",
+    "sha256": "d3464813c012b80812d69c5e7bf94e449b20b472b977580a39a255ef305c00b0",
+    "review_scope": "full",
+    "status": "fixed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/error.tsx",
+    "sha256": "8299122e98d4320d7052e5a4de12e0ae86374a6250fd8a8328a1bf6ccbd633f9",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/gc/activate/page.tsx",
+    "sha256": "c28a74cf5e465fa7cbfed14c730f65394ccefa6852afdad4ec301e8efeb9ac54",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/global-error.tsx",
+    "sha256": "b939a7e482fc51173c8039b9c0f61969333fcbb87475fa3da6d8ccef3bbc6913",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/globals.css",
+    "sha256": "56a67f55d9b640b1a7aea2851c45d61bd7a2b7ba52a3ff221091e6ed9eb39c9b",
+    "review_scope": "full",
+    "status": "fixed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/layout.tsx",
+    "sha256": "afa6964f5db39cf907d5ea930b05698fe36bd789132dde78d72ed9161d77e95e",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/manifest.ts",
+    "sha256": "6c12704376c490d3d96f3ca04e2ee50bab243233adc708758c720f95aacb3dcc",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/mcp/connect/page.tsx",
+    "sha256": "09f2d78276126888668e34b8508a261b1d27ecb316a7a9b93bd71f961aae0d85",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/mcp/file-transfer/[id]/page.tsx",
+    "sha256": "1e812415d95b5038ed1a4623d4eb8e5ec6e4c256f6cf7b414dfdd98468dab6c0",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/page.tsx",
+    "sha256": "14390e9f3c37c4429bb4eaa3f31d250f61960725638131fc25fa9534f81be9fb",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/tour-scanner/page.tsx",
+    "sha256": "0df6f27c5d964bcd941379e7b1e3d06a2f3b254680f9f5a783d2ff003181217a",
+    "review_scope": "full",
+    "status": "fixed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/app/upload/[token]/page.tsx",
+    "sha256": "0918ed6d5a48e2aac66777e4726d62299b4388162d546f059a6d00d10c683879",
+    "review_scope": "full",
+    "status": "fixed",
+    "reviewer": "root",
+    "notes": "All physical lines read in seven frozen batches. Next route/metadata, error retry and async parameter contracts inspected against installed16.4.3 documentation. Framework-required route/loading wrappers retained. Explicit title-template de-duplication, CSS comment cleanup, old-data accessible link and extracted manager administration fixes recorded in app-routes-progress.md. Feature implementations have separate coverage; reading their route does not mark them reviewed."
+  },
+  {
+    "path": "frontend/features/operations/components/manager-administration/create-manager-dialog.tsx",
+    "sha256": "fd1b695d3cde868a3dbf647cce6df24a9e54de38d6e7c6e156f2d22de303b926",
+    "review_scope": "full",
+    "status": "fixed",
+    "reviewer": "root",
+    "notes": "Complete extracted source reviewed from fully read original admin route. Shared modal boundary, synchronous duplicate-action admission, clipboard failure and mobile dialog height fixes;4behavior regressions passed."
+  },
+  {
+    "path": "frontend/features/operations/components/manager-administration/delete-manager-dialog.tsx",
+    "sha256": "0b82cfdf7d734153dc630017485dd1e570003a4eb59aed54fd34a22e2473721a",
+    "review_scope": "full",
+    "status": "fixed",
+    "reviewer": "root",
+    "notes": "Complete extracted source reviewed from fully read original admin route. Shared modal boundary, synchronous duplicate-action admission, clipboard failure and mobile dialog height fixes;4behavior regressions passed."
+  },
+  {
+    "path": "frontend/features/operations/components/manager-administration/manager-administration-page.tsx",
+    "sha256": "b1d4b802eae999dd6dbc7a89c59b49f9039651768584adc7c76bbf14c4cf1f41",
+    "review_scope": "full",
+    "status": "fixed",
+    "reviewer": "root",
+    "notes": "Complete extracted source reviewed from fully read original admin route. Shared modal boundary, synchronous duplicate-action admission, clipboard failure and mobile dialog height fixes;4behavior regressions passed."
+  },
+  {
+    "path": "frontend/features/operations/components/manager-administration/manager-administration.test.tsx",
+    "sha256": "b4d76eb7000384c9dbb322a6fafac94c38e4d35b1741ec08e0fcd08592ac3a35",
+    "review_scope": "full",
+    "status": "fixed",
+    "reviewer": "root",
+    "notes": "Complete extracted source reviewed from fully read original admin route. Shared modal boundary, synchronous duplicate-action admission, clipboard failure and mobile dialog height fixes;4behavior regressions passed."
+  },
+  {
+    "path": "frontend/features/operations/components/manager-administration/manager-invitation-dialog.tsx",
+    "sha256": "9e7f790e9690f0e622ce074f748dadc26898667217ca0b9203adf9cc65b38596",
+    "review_scope": "full",
+    "status": "fixed",
+    "reviewer": "root",
+    "notes": "Complete extracted source reviewed from fully read original admin route. Shared modal boundary, synchronous duplicate-action admission, clipboard failure and mobile dialog height fixes;4behavior regressions passed."
+  },
+  {
+    "path": "frontend/features/audit-logs/audit-filter-model.ts",
+    "sha256": "f0aa4dee3dd86517b2763aac0ff1dedef05651040aa2b5c970611472415ced1a",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "Complete extracted source reviewed from fully read original audit ledger route. Query/filter/abort/export statements retained in focused hook; responsive rows and filters have their own view owners. Behavior and contract checks in app-routes-progress.md."
+  },
+  {
+    "path": "frontend/features/audit-logs/components/audit-filter-controls.tsx",
+    "sha256": "0a90dfb62579c20cfd00b69a182d98ae6b92864f9b9c058f4fc305944e330615",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "Complete extracted source reviewed from fully read original audit ledger route. Query/filter/abort/export statements retained in focused hook; responsive rows and filters have their own view owners. Behavior and contract checks in app-routes-progress.md."
+  },
+  {
+    "path": "frontend/features/audit-logs/components/audit-ledger-page.tsx",
+    "sha256": "d64eca8264cb0b116f3eacc86de73172940aa784c82da67ec0f5647ff07ce018",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "Complete extracted source reviewed from fully read original audit ledger route. Query/filter/abort/export statements retained in focused hook; responsive rows and filters have their own view owners. Behavior and contract checks in app-routes-progress.md."
+  },
+  {
+    "path": "frontend/features/audit-logs/components/audit-ledger-rows.tsx",
+    "sha256": "edc9efae1a207fda5638ecea8e02abca2934524e5ceedde1df69b8e4ac8d738e",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "Complete extracted source reviewed from fully read original audit ledger route. Query/filter/abort/export statements retained in focused hook; responsive rows and filters have their own view owners. Behavior and contract checks in app-routes-progress.md."
+  },
+  {
+    "path": "frontend/features/audit-logs/hooks/use-audit-ledger.test.tsx",
+    "sha256": "342b7b8c276df44b3c7ab8a4db1bdd8f67cc2ab023c1c213d41b1fa3b512089d",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "Complete extracted source reviewed from fully read original audit ledger route. Query/filter/abort/export statements retained in focused hook; responsive rows and filters have their own view owners. Behavior and contract checks in app-routes-progress.md."
+  },
+  {
+    "path": "frontend/features/audit-logs/hooks/use-audit-ledger.ts",
+    "sha256": "4e443c1fa23e1e56b1e97e5d5f96140b1b05eb073d75ffb2b8b7fcd18176a750",
+    "review_scope": "full",
+    "status": "reviewed",
+    "reviewer": "root",
+    "notes": "Complete extracted source reviewed from fully read original audit ledger route. Query/filter/abort/export statements retained in focused hook; responsive rows and filters have their own view owners. Behavior and contract checks in app-routes-progress.md."
+  }
+]

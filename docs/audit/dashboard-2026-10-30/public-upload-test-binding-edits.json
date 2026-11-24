@@ -1,0 +1,242 @@
+[
+  {
+    "path": "backend/tests/unit/presentation/test_configured_public_upload.py",
+    "kind": "monkeypatch-fans-explicit-imports",
+    "name": "'ClientGroupRepository'"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_configured_public_upload.py",
+    "kind": "monkeypatch-fans-explicit-imports",
+    "name": "'upload_session_matches_identifier'"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_configured_public_upload.py",
+    "kind": "monkeypatch-fans-explicit-imports",
+    "name": "'_validated_upload_file'"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_configured_public_upload.py",
+    "kind": "monkeypatch-fans-explicit-imports",
+    "name": "'ClientGroupRepository'"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_configured_public_upload.py",
+    "kind": "monkeypatch-fans-explicit-imports",
+    "name": "'propagate_mobile_passenger_change'"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_configured_public_upload.py",
+    "kind": "monkeypatch-fans-explicit-imports",
+    "name": "'_response_from_dto'"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_public_upload_preparation.py",
+    "kind": "monkeypatch-fans-explicit-imports",
+    "name": "'ClientGroupRepository'"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_public_upload_preparation.py",
+    "kind": "monkeypatch-fans-explicit-imports",
+    "name": "'_validated_upload_file'"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_public_upload_preparation.py",
+    "kind": "monkeypatch-fans-explicit-imports",
+    "name": "'ClientGroupRepository'"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_public_upload_preparation.py",
+    "kind": "monkeypatch-fans-explicit-imports",
+    "name": "'_validated_upload_file'"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_public_upload_preparation.py",
+    "kind": "monkeypatch-fans-explicit-imports",
+    "name": "'ClientGroupRepository'"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_public_upload_preparation.py",
+    "kind": "monkeypatch-fans-explicit-imports",
+    "name": "'_validated_upload_file'"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_public_upload_preparation.py",
+    "kind": "monkeypatch-fans-explicit-imports",
+    "name": "'ClientGroupRepository'"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_public_upload_preparation.py",
+    "kind": "monkeypatch-fans-explicit-imports",
+    "name": "'_validated_upload_file'"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_public_passport_capabilities.py",
+    "kind": "monkeypatch-fans-explicit-imports",
+    "name": "'ClientGroupRepository'"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_public_passport_capabilities.py",
+    "kind": "monkeypatch-fans-explicit-imports",
+    "name": "'PassportSubmissionRepository'"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_public_passport_capabilities.py",
+    "kind": "monkeypatch-fans-explicit-imports",
+    "name": "'MinioStorageRepository'"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_public_passport_capabilities.py",
+    "kind": "monkeypatch-fans-explicit-imports",
+    "name": "'ClientGroupRepository'"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_public_passport_capabilities.py",
+    "kind": "monkeypatch-fans-explicit-imports",
+    "name": "'_validated_upload_file'"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_public_passport_capabilities.py",
+    "kind": "monkeypatch-fans-explicit-imports",
+    "name": "'upload_session_matches_identifier'"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_upload_status_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.public_upload.ClientGroupRepository"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_upload_status_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.public_upload.PassportSubmissionRepository"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_upload_status_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.public_upload.PassportProcessingJobRepository"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_upload_status_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.public_upload.queued_job_needs_redelivery"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_upload_status_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.public_upload.passport_submission_output_from_entity"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_upload_status_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.public_upload.dispatch_public_extraction"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_upload_status_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.public_upload._response_from_dto"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_upload_status_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.public_upload.ClientGroupRepository"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_upload_status_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.public_upload.PassportSubmissionRepository"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_upload_status_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.public_upload.ClientGroupRepository"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_upload_status_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.public_upload.PassportSubmissionRepository"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_upload_status_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.public_upload.ClientGroupRepository"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_upload_status_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.public_upload.PassportSubmissionRepository"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_upload_status_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.public_upload.stage_storage_cleanup_jobs"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_upload_status_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.public_upload.AuditLogRepository"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_upload_status_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.public_upload.process_storage_cleanup_job"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_upload_status_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.public_upload.ClientGroupRepository"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_upload_status_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.public_upload.PassportSubmissionRepository"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_upload_status_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.public_upload.AuditLogRepository"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_upload_status_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.public_upload.stage_storage_cleanup_jobs"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_upload_status_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.public_upload.process_storage_cleanup_job"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_upload_status_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.public_upload.ClientGroupRepository"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_upload_status_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.public_upload.PassportSubmissionRepository"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_upload_status_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.public_upload.ClientGroupRepository"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_upload_status_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.public_upload.PassportSubmissionRepository"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_upload_status_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.public_upload.stage_storage_cleanup_jobs"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_upload_status_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.public_upload.AuditLogRepository"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_upload_status_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.public_upload.process_storage_cleanup_job"
+  }
+]

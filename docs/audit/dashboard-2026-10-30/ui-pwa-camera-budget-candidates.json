@@ -1,0 +1,100 @@
+[
+  {
+    "path": "features/search/components/global-search.tsx",
+    "baselineLines": 281,
+    "maximumLines": 290,
+    "baselineMaxFunctionComplexity": 13,
+    "maximumFunctionComplexity": 14
+  },
+  {
+    "path": "features/dashboard/components/dashboard-overview.tsx",
+    "baselineLines": 274,
+    "maximumLines": 280,
+    "baselineMaxFunctionComplexity": 15,
+    "maximumFunctionComplexity": 16
+  },
+  {
+    "path": "features/notifications/components/notification-bell.tsx",
+    "baselineLines": 66,
+    "maximumLines": 80,
+    "baselineMaxFunctionComplexity": 5,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/notifications/components/notification-panel.tsx",
+    "baselineLines": 238,
+    "maximumLines": 250,
+    "baselineMaxFunctionComplexity": 13,
+    "maximumFunctionComplexity": 14
+  },
+  {
+    "path": "features/notifications/components/notification-row.tsx",
+    "baselineLines": 141,
+    "maximumLines": 150,
+    "baselineMaxFunctionComplexity": 6,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/notifications/hooks/use-notification-center.ts",
+    "baselineLines": 23,
+    "maximumLines": 30,
+    "baselineMaxFunctionComplexity": 4,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/upload/components/smart-camera.tsx",
+    "baselineLines": 9,
+    "maximumLines": 20,
+    "baselineMaxFunctionComplexity": 1,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/upload/components/passport-camera.types.ts",
+    "baselineLines": 11,
+    "maximumLines": 20,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/upload/components/passport-camera-view.tsx",
+    "baselineLines": 134,
+    "maximumLines": 140,
+    "baselineMaxFunctionComplexity": 10,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/upload/components/passport-camera-footer.tsx",
+    "baselineLines": 109,
+    "maximumLines": 120,
+    "baselineMaxFunctionComplexity": 16,
+    "maximumFunctionComplexity": 17
+  },
+  {
+    "path": "features/upload/hooks/use-passport-camera.ts",
+    "baselineLines": 264,
+    "maximumLines": 270,
+    "baselineMaxFunctionComplexity": 15,
+    "maximumFunctionComplexity": 16
+  },
+  {
+    "path": "features/upload/hooks/use-passport-camera-session.ts",
+    "baselineLines": 136,
+    "maximumLines": 150,
+    "baselineMaxFunctionComplexity": 13,
+    "maximumFunctionComplexity": 14
+  },
+  {
+    "path": "features/upload/services/passport-camera-crop.ts",
+    "baselineLines": 67,
+    "maximumLines": 80,
+    "baselineMaxFunctionComplexity": 6,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/upload/services/passport-camera-guidance.ts",
+    "baselineLines": 37,
+    "maximumLines": 50,
+    "baselineMaxFunctionComplexity": 16,
+    "maximumFunctionComplexity": 17
+  }
+]

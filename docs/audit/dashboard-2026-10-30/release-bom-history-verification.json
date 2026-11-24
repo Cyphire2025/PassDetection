@@ -1,0 +1,9 @@
+{
+  "scope": "Release task source encoding and CI source-history integration",
+  "baseline_regressions": "Actual Git BOM package plus decorated-task/control cases:2 errors/1 pass before;3 pass after. Initial console printing of the BOM traceback hit Windows cp1252; UTF8 evidence was already written and verified, no test result was lost.",
+  "parser": "Delegate UTF8 bytes to CPython ast.parse, matching normal Python file parsing. Valid leading BOM/UTF8 cookie accepted; duplicate/noninitial BOM and conflicting Latin1 cookie remain rejected. Task signature/queue changes still produce different contracts; raw source digest checks are untouched.",
+  "source_proof": "Whole code-update module AST otherwise unchanged after import sorting and replacing re.M with its identical re.MULTILINE alias.",
+  "workflow_proof": "Parsed whole GitHEAD/current workflow identical after removing exactly backend-static-checks checkout fetch-depth0. Action pin, permissions, DAG and every gate unchanged.",
+  "checks": "74existing CI tests and CI supply-chain checker pass;16code-update cases pass,27branding cases initially had only the known FE526\u2192549 digest mismatch; that exact hash case subsequently passed after reviewed data update. Current full focused supplement follows.",
+  "qualification_limits": "No push/deployment, live services or VPS baseline claimed. Full history exists only in the CI checkout; no new application environment or VPS setup."
+}

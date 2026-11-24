@@ -1,0 +1,816 @@
+{
+  "new": [
+    {
+      "id": "frontend:frontend/features/companies/api/company-request-config.ts:companyRequestConfig",
+      "kind": "frontend_callable",
+      "source": "frontend/features/companies/api/company-request-config.ts",
+      "handler": "companyRequestConfig"
+    },
+    {
+      "id": "frontend:frontend/features/companies/test-support/mutation-authority.tsx:cleanupCompanyAuthority",
+      "kind": "frontend_callable",
+      "source": "frontend/features/companies/test-support/mutation-authority.tsx",
+      "handler": "cleanupCompanyAuthority"
+    },
+    {
+      "id": "frontend:frontend/features/companies/test-support/mutation-authority.tsx:companyWrites",
+      "kind": "frontend_callable",
+      "source": "frontend/features/companies/test-support/mutation-authority.tsx",
+      "handler": "companyWrites"
+    },
+    {
+      "id": "frontend:frontend/features/companies/test-support/mutation-authority.tsx:queuedCompanyMutation",
+      "kind": "frontend_callable",
+      "source": "frontend/features/companies/test-support/mutation-authority.tsx",
+      "handler": "queuedCompanyMutation"
+    },
+    {
+      "id": "frontend:frontend/features/companies/test-support/mutation-authority.tsx:resetCompanyAuthority",
+      "kind": "frontend_callable",
+      "source": "frontend/features/companies/test-support/mutation-authority.tsx",
+      "handler": "resetCompanyAuthority"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-export-transfer.ts:downloadPassportExport",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-export-transfer.ts",
+      "handler": "downloadPassportExport"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-request-config.ts:capturePassportOperationOwner",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-request-config.ts",
+      "handler": "capturePassportOperationOwner"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-request-config.ts:optionalBodylessRequestConfig",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-request-config.ts",
+      "handler": "optionalBodylessRequestConfig"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-request-config.ts:optionalRequestConfig",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-request-config.ts",
+      "handler": "optionalRequestConfig"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/public-upload-link.api.ts:createQualifierSelection",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/public-upload-link.api.ts",
+      "handler": "createQualifierSelection"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/public-upload-link.api.ts:getByToken",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/public-upload-link.api.ts",
+      "handler": "getByToken"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/public-upload-link.api.ts:getQualifierSelection",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/public-upload-link.api.ts",
+      "handler": "getQualifierSelection"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/public-upload-link.api.ts:recordTelemetry",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/public-upload-link.api.ts",
+      "handler": "recordTelemetry"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/upload-link-management.api.ts:assignCompany",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/upload-link-management.api.ts",
+      "handler": "assignCompany"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/upload-link-management.api.ts:create",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/upload-link-management.api.ts",
+      "handler": "create"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/upload-link-management.api.ts:delete",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/upload-link-management.api.ts",
+      "handler": "delete"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/upload-link-management.api.ts:list",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/upload-link-management.api.ts",
+      "handler": "list"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/upload-link-management.api.ts:permanentDelete",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/upload-link-management.api.ts",
+      "handler": "permanentDelete"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/upload-link-management.api.ts:restore",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/upload-link-management.api.ts",
+      "handler": "restore"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/upload-link-management.api.ts:revoke",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/upload-link-management.api.ts",
+      "handler": "revoke"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/upload-link-management.api.ts:update",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/upload-link-management.api.ts",
+      "handler": "update"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/upload-link-roster.api.ts:getReplacementCandidates",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/upload-link-roster.api.ts",
+      "handler": "getReplacementCandidates"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/upload-link-roster.api.ts:getWhatsAppBroadcastOptions",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/upload-link-roster.api.ts",
+      "handler": "getWhatsAppBroadcastOptions"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/upload-link-roster.api.ts:getWhatsAppLinks",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/upload-link-roster.api.ts",
+      "handler": "getWhatsAppLinks"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/upload-link-roster.api.ts:getWhatsAppMatches",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/upload-link-roster.api.ts",
+      "handler": "getWhatsAppMatches"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/upload-link-roster.api.ts:rejectUnidentifiedUpload",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/upload-link-roster.api.ts",
+      "handler": "rejectUnidentifiedUpload"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/upload-link-roster.api.ts:resolveUnidentifiedReplacement",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/upload-link-roster.api.ts",
+      "handler": "resolveUnidentifiedReplacement"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/upload-link-roster.api.ts:restoreRosterResolution",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/upload-link-roster.api.ts",
+      "handler": "restoreRosterResolution"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/upload-link-roster.api.ts:updateWhatsAppLinks",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/upload-link-roster.api.ts",
+      "handler": "updateWhatsAppLinks"
+    },
+    {
+      "id": "frontend_api:frontend/features/passports/api/public-upload-link.api.ts",
+      "kind": "frontend_api_contract",
+      "source": "frontend/features/passports/api/public-upload-link.api.ts",
+      "contract_sha256": "3591bc2fe0ce30ba73048e44838e60f0283580d9c86232f7834baab0d7e93088"
+    },
+    {
+      "id": "frontend_api:frontend/features/passports/api/upload-link-management.api.ts",
+      "kind": "frontend_api_contract",
+      "source": "frontend/features/passports/api/upload-link-management.api.ts",
+      "contract_sha256": "996b77567417ace7ed7cf10d2853a773019658af45bfe07f2c7be9eef4034587"
+    },
+    {
+      "id": "frontend_api:frontend/features/passports/api/upload-link-roster.api.ts",
+      "kind": "frontend_api_contract",
+      "source": "frontend/features/passports/api/upload-link-roster.api.ts",
+      "contract_sha256": "e434979401b38365f6e9454ce61ec338764dc17699833eb62e90d7e1ec70021b"
+    },
+    {
+      "id": "registration:backend/app/presentation/api/v1/routes/menu_categories.py",
+      "kind": "route_registration",
+      "source": "backend/app/presentation/api/v1/routes/menu_categories.py",
+      "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+    },
+    {
+      "id": "registration:backend/app/presentation/api/v1/routes/menu_dishes.py",
+      "kind": "route_registration",
+      "source": "backend/app/presentation/api/v1/routes/menu_dishes.py",
+      "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+    },
+    {
+      "id": "registration:backend/app/presentation/api/v1/routes/menu_exports.py",
+      "kind": "route_registration",
+      "source": "backend/app/presentation/api/v1/routes/menu_exports.py",
+      "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+    },
+    {
+      "id": "registration:backend/app/presentation/api/v1/routes/menu_plan_entries.py",
+      "kind": "route_registration",
+      "source": "backend/app/presentation/api/v1/routes/menu_plan_entries.py",
+      "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+    },
+    {
+      "id": "registration:backend/app/presentation/api/v1/routes/menu_plans.py",
+      "kind": "route_registration",
+      "source": "backend/app/presentation/api/v1/routes/menu_plans.py",
+      "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+    },
+    {
+      "id": "registration:backend/app/presentation/api/v1/routes/menu_workspace.py",
+      "kind": "route_registration",
+      "source": "backend/app/presentation/api/v1/routes/menu_workspace.py",
+      "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/menu_categories.py:create_menu_category:POST:/categories",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/menu_categories.py",
+      "handler": "create_menu_category",
+      "method": "POST",
+      "local_path": "/categories",
+      "contract_sha256": "0b6dafe1f92ec2c6de4f4d09226542a0508e577aa73bc868241c0cf5bffc0fdc",
+      "summary": "Create a dish category",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/menu_categories.py:delete_menu_category:DELETE:/categories/{category_id}",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/menu_categories.py",
+      "handler": "delete_menu_category",
+      "method": "DELETE",
+      "local_path": "/categories/{category_id}",
+      "contract_sha256": "bcfce93d808879fc989a36948b248910fcb6f5446757d1f76728ea757a396606",
+      "summary": "Delete a category and its dishes",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/menu_categories.py:update_menu_category:PATCH:/categories/{category_id}",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/menu_categories.py",
+      "handler": "update_menu_category",
+      "method": "PATCH",
+      "local_path": "/categories/{category_id}",
+      "contract_sha256": "b56461125a43aa3693b3e73d71ce28e55621d0a07501d06f4611eed2da1c8321",
+      "summary": "Rename a dish category",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/menu_dishes.py:create_menu_dish:POST:/categories/{category_id}/dishes",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/menu_dishes.py",
+      "handler": "create_menu_dish",
+      "method": "POST",
+      "local_path": "/categories/{category_id}/dishes",
+      "contract_sha256": "0a0e9271a1882ddae73bf10a962e7576cd1d2dfe76cd61a88a9707cc2c348008",
+      "summary": "Add a dish to a category",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/menu_dishes.py:delete_menu_dish:DELETE:/dishes/{dish_id}",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/menu_dishes.py",
+      "handler": "delete_menu_dish",
+      "method": "DELETE",
+      "local_path": "/dishes/{dish_id}",
+      "contract_sha256": "355b6d86e276eaddb36ef18341a1361059af91ba7389390077352a3e9ea46963",
+      "summary": "Delete a dish while preserving saved-plan snapshots",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/menu_dishes.py:update_menu_dish:PATCH:/dishes/{dish_id}",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/menu_dishes.py",
+      "handler": "update_menu_dish",
+      "method": "PATCH",
+      "local_path": "/dishes/{dish_id}",
+      "contract_sha256": "6c9f507924d02a734427ce2af941aca05700fb44a8e1c96d7656448d70879a09",
+      "summary": "Edit or activate/deactivate a dish",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/menu_exports.py:export_meal_plan:GET:/plans/{plan_id}/export.xlsx",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/menu_exports.py",
+      "handler": "export_meal_plan",
+      "method": "GET",
+      "local_path": "/plans/{plan_id}/export.xlsx",
+      "contract_sha256": "724588613480eac2f12dc9c21fb4be8d49761198364bee3c7ab43a283de6c61b",
+      "summary": "Export a saved meal plan to Excel",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/menu_plan_entries.py:update_meal_plan_entry:PATCH:/plans/{plan_id}/entries/{entry_id}",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/menu_plan_entries.py",
+      "handler": "update_meal_plan_entry",
+      "method": "PATCH",
+      "local_path": "/plans/{plan_id}/entries/{entry_id}",
+      "contract_sha256": "dfe5cb7273234b97c59f55aaa5faa28e2314fb3ae9d466f8a9889766429b8db7",
+      "summary": "Replace one meal while preserving the no-repeat guarantee",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/menu_plans.py:delete_meal_plan:DELETE:/plans/{plan_id}",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/menu_plans.py",
+      "handler": "delete_meal_plan",
+      "method": "DELETE",
+      "local_path": "/plans/{plan_id}",
+      "contract_sha256": "ed9dda5d7d40d1a2c394f33316d915bab8a2684572eb44585ad095f0a5f99b97",
+      "summary": "Delete a saved meal plan",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/menu_plans.py:generate_meal_plan:POST:/plans/generate",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/menu_plans.py",
+      "handler": "generate_meal_plan",
+      "method": "POST",
+      "local_path": "/plans/generate",
+      "contract_sha256": "eabfd22d5cd14f67e7a8ae0ae80741a1152f69ab7059cf77626aeabf33be261a",
+      "summary": "Generate and save a balanced lunch/dinner plan with no repeated dishes",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/menu_plans.py:regenerate_meal_plan:POST:/plans/{plan_id}/regenerate",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/menu_plans.py",
+      "handler": "regenerate_meal_plan",
+      "method": "POST",
+      "local_path": "/plans/{plan_id}/regenerate",
+      "contract_sha256": "ad72ad963c0076dfec1d820a152980ffc7c739a56f34709af1f20c0e3dfde4a7",
+      "summary": "Replace a saved plan with a new non-repeating arrangement",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/menu_plans.py:update_meal_plan:PATCH:/plans/{plan_id}",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/menu_plans.py",
+      "handler": "update_meal_plan",
+      "method": "PATCH",
+      "local_path": "/plans/{plan_id}",
+      "contract_sha256": "988e97e685163bfdad3744feaedfd810d1dc5744751b207f852248bd547a3918",
+      "summary": "Rename a meal plan or change its trip start date",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/menu_workspace.py:get_menu_workspace:GET:",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/menu_workspace.py",
+      "handler": "get_menu_workspace",
+      "method": "GET",
+      "local_path": "",
+      "contract_sha256": "b5ed7fa3c09920c71421c019abfac7394a6c044d38afbc762d71fd525313ccd1",
+      "summary": "Get the current organization's menu library and saved meal plans",
+      "schema_visible": true
+    }
+  ],
+  "stale": [
+    {
+      "id": "frontend:frontend/features/passports/api/upload-links.api.ts:assignCompany",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/upload-links.api.ts",
+      "handler": "assignCompany"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/upload-links.api.ts:create",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/upload-links.api.ts",
+      "handler": "create"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/upload-links.api.ts:createQualifierSelection",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/upload-links.api.ts",
+      "handler": "createQualifierSelection"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/upload-links.api.ts:delete",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/upload-links.api.ts",
+      "handler": "delete"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/upload-links.api.ts:getByToken",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/upload-links.api.ts",
+      "handler": "getByToken"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/upload-links.api.ts:getQualifierSelection",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/upload-links.api.ts",
+      "handler": "getQualifierSelection"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/upload-links.api.ts:getReplacementCandidates",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/upload-links.api.ts",
+      "handler": "getReplacementCandidates"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/upload-links.api.ts:getWhatsAppBroadcastOptions",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/upload-links.api.ts",
+      "handler": "getWhatsAppBroadcastOptions"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/upload-links.api.ts:getWhatsAppLinks",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/upload-links.api.ts",
+      "handler": "getWhatsAppLinks"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/upload-links.api.ts:getWhatsAppMatches",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/upload-links.api.ts",
+      "handler": "getWhatsAppMatches"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/upload-links.api.ts:list",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/upload-links.api.ts",
+      "handler": "list"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/upload-links.api.ts:permanentDelete",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/upload-links.api.ts",
+      "handler": "permanentDelete"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/upload-links.api.ts:recordTelemetry",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/upload-links.api.ts",
+      "handler": "recordTelemetry"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/upload-links.api.ts:rejectUnidentifiedUpload",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/upload-links.api.ts",
+      "handler": "rejectUnidentifiedUpload"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/upload-links.api.ts:resolveUnidentifiedReplacement",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/upload-links.api.ts",
+      "handler": "resolveUnidentifiedReplacement"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/upload-links.api.ts:restore",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/upload-links.api.ts",
+      "handler": "restore"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/upload-links.api.ts:restoreRosterResolution",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/upload-links.api.ts",
+      "handler": "restoreRosterResolution"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/upload-links.api.ts:revoke",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/upload-links.api.ts",
+      "handler": "revoke"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/upload-links.api.ts:update",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/upload-links.api.ts",
+      "handler": "update"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/upload-links.api.ts:updateWhatsAppLinks",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/upload-links.api.ts",
+      "handler": "updateWhatsAppLinks"
+    },
+    {
+      "id": "frontend_api:frontend/features/passports/api/upload-links.api.ts",
+      "kind": "frontend_api_contract",
+      "source": "frontend/features/passports/api/upload-links.api.ts",
+      "contract_sha256": "7cae53e363364d45600a5f3279c1ca0387acb29a0c27a6d14319e15e70b1a233"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/menu.py:create_menu_category:POST:/categories",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/menu.py",
+      "handler": "create_menu_category",
+      "method": "POST",
+      "local_path": "/categories",
+      "contract_sha256": "0b6dafe1f92ec2c6de4f4d09226542a0508e577aa73bc868241c0cf5bffc0fdc",
+      "summary": "Create a dish category",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/menu.py:create_menu_dish:POST:/categories/{category_id}/dishes",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/menu.py",
+      "handler": "create_menu_dish",
+      "method": "POST",
+      "local_path": "/categories/{category_id}/dishes",
+      "contract_sha256": "0a0e9271a1882ddae73bf10a962e7576cd1d2dfe76cd61a88a9707cc2c348008",
+      "summary": "Add a dish to a category",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/menu.py:delete_meal_plan:DELETE:/plans/{plan_id}",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/menu.py",
+      "handler": "delete_meal_plan",
+      "method": "DELETE",
+      "local_path": "/plans/{plan_id}",
+      "contract_sha256": "ed9dda5d7d40d1a2c394f33316d915bab8a2684572eb44585ad095f0a5f99b97",
+      "summary": "Delete a saved meal plan",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/menu.py:delete_menu_category:DELETE:/categories/{category_id}",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/menu.py",
+      "handler": "delete_menu_category",
+      "method": "DELETE",
+      "local_path": "/categories/{category_id}",
+      "contract_sha256": "bcfce93d808879fc989a36948b248910fcb6f5446757d1f76728ea757a396606",
+      "summary": "Delete a category and its dishes",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/menu.py:delete_menu_dish:DELETE:/dishes/{dish_id}",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/menu.py",
+      "handler": "delete_menu_dish",
+      "method": "DELETE",
+      "local_path": "/dishes/{dish_id}",
+      "contract_sha256": "355b6d86e276eaddb36ef18341a1361059af91ba7389390077352a3e9ea46963",
+      "summary": "Delete a dish while preserving saved-plan snapshots",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/menu.py:export_meal_plan:GET:/plans/{plan_id}/export.xlsx",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/menu.py",
+      "handler": "export_meal_plan",
+      "method": "GET",
+      "local_path": "/plans/{plan_id}/export.xlsx",
+      "contract_sha256": "724588613480eac2f12dc9c21fb4be8d49761198364bee3c7ab43a283de6c61b",
+      "summary": "Export a saved meal plan to Excel",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/menu.py:generate_meal_plan:POST:/plans/generate",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/menu.py",
+      "handler": "generate_meal_plan",
+      "method": "POST",
+      "local_path": "/plans/generate",
+      "contract_sha256": "eabfd22d5cd14f67e7a8ae0ae80741a1152f69ab7059cf77626aeabf33be261a",
+      "summary": "Generate and save a balanced lunch/dinner plan with no repeated dishes",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/menu.py:get_menu_workspace:GET:",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/menu.py",
+      "handler": "get_menu_workspace",
+      "method": "GET",
+      "local_path": "",
+      "contract_sha256": "b5ed7fa3c09920c71421c019abfac7394a6c044d38afbc762d71fd525313ccd1",
+      "summary": "Get the current organization's menu library and saved meal plans",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/menu.py:regenerate_meal_plan:POST:/plans/{plan_id}/regenerate",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/menu.py",
+      "handler": "regenerate_meal_plan",
+      "method": "POST",
+      "local_path": "/plans/{plan_id}/regenerate",
+      "contract_sha256": "ad72ad963c0076dfec1d820a152980ffc7c739a56f34709af1f20c0e3dfde4a7",
+      "summary": "Replace a saved plan with a new non-repeating arrangement",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/menu.py:update_meal_plan:PATCH:/plans/{plan_id}",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/menu.py",
+      "handler": "update_meal_plan",
+      "method": "PATCH",
+      "local_path": "/plans/{plan_id}",
+      "contract_sha256": "988e97e685163bfdad3744feaedfd810d1dc5744751b207f852248bd547a3918",
+      "summary": "Rename a meal plan or change its trip start date",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/menu.py:update_meal_plan_entry:PATCH:/plans/{plan_id}/entries/{entry_id}",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/menu.py",
+      "handler": "update_meal_plan_entry",
+      "method": "PATCH",
+      "local_path": "/plans/{plan_id}/entries/{entry_id}",
+      "contract_sha256": "dfe5cb7273234b97c59f55aaa5faa28e2314fb3ae9d466f8a9889766429b8db7",
+      "summary": "Replace one meal while preserving the no-repeat guarantee",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/menu.py:update_menu_category:PATCH:/categories/{category_id}",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/menu.py",
+      "handler": "update_menu_category",
+      "method": "PATCH",
+      "local_path": "/categories/{category_id}",
+      "contract_sha256": "b56461125a43aa3693b3e73d71ce28e55621d0a07501d06f4611eed2da1c8321",
+      "summary": "Rename a dish category",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/menu.py:update_menu_dish:PATCH:/dishes/{dish_id}",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/menu.py",
+      "handler": "update_menu_dish",
+      "method": "PATCH",
+      "local_path": "/dishes/{dish_id}",
+      "contract_sha256": "6c9f507924d02a734427ce2af941aca05700fb44a8e1c96d7656448d70879a09",
+      "summary": "Edit or activate/deactivate a dish",
+      "schema_visible": true
+    }
+  ],
+  "changed": [
+    {
+      "before": {
+        "id": "frontend_api:frontend/features/companies/api/companies.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/companies/api/companies.api.ts",
+        "contract_sha256": "6e52008c7be11ebfdc427cd087378a1ac40b4abec48b148c468d89197f1944ef"
+      },
+      "after": {
+        "id": "frontend_api:frontend/features/companies/api/companies.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/companies/api/companies.api.ts",
+        "contract_sha256": "18ee51e907f2149e832cd83a94f5d1fd6258d8ffe8de3d18bb57559f2f7529ba"
+      }
+    },
+    {
+      "before": {
+        "id": "frontend_api:frontend/features/companies/api/company-data-exports.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/companies/api/company-data-exports.api.ts",
+        "contract_sha256": "32f858fe5b7e4303bacb9b28d40a82b0b90c13b29e81ce4795dc69e597536c2e"
+      },
+      "after": {
+        "id": "frontend_api:frontend/features/companies/api/company-data-exports.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/companies/api/company-data-exports.api.ts",
+        "contract_sha256": "3524194cea45dc5d042f86bbb714711f1e51f158e0ed2c65301d5c63ebea9b67"
+      }
+    },
+    {
+      "before": {
+        "id": "frontend_api:frontend/features/companies/api/company-matching.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/companies/api/company-matching.api.ts",
+        "contract_sha256": "dd3c1cb6492d5bb3af15a85993b5e22d7c222fea4f45d0fb926b0b06d4956747"
+      },
+      "after": {
+        "id": "frontend_api:frontend/features/companies/api/company-matching.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/companies/api/company-matching.api.ts",
+        "contract_sha256": "a766c07dda2a2ea048be7d74c6cd2499e4248fd21a0066b928fb7bb2e6a80835"
+      }
+    },
+    {
+      "before": {
+        "id": "frontend_api:frontend/features/companies/api/company-passports.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/companies/api/company-passports.api.ts",
+        "contract_sha256": "3ecee8097fc31b12d364810fbdabdd193a3b5a7ed3ccdec7b3ff3dcfd5c40567"
+      },
+      "after": {
+        "id": "frontend_api:frontend/features/companies/api/company-passports.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/companies/api/company-passports.api.ts",
+        "contract_sha256": "4ef113124fb03f4abaca0c47b70c1596f1f7a27995671096ae3ea8614a2a491a"
+      }
+    },
+    {
+      "before": {
+        "id": "frontend_api:frontend/features/companies/api/reuse-setup.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/companies/api/reuse-setup.api.ts",
+        "contract_sha256": "c8bbc4983790ab950272b2f0911a20da2a4033449f288896f76cb42848f908e3"
+      },
+      "after": {
+        "id": "frontend_api:frontend/features/companies/api/reuse-setup.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/companies/api/reuse-setup.api.ts",
+        "contract_sha256": "53d977bcb544fb94f04a6df6a51daae2e1d1914cc9b0af15fc44b43a629b7d9c"
+      }
+    },
+    {
+      "before": {
+        "id": "frontend_api:frontend/features/passports/api/client-details.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/passports/api/client-details.api.ts",
+        "contract_sha256": "7e58b9c4c7e30049092acd32e0f3495ce23673ce5a410e8c23ce1a1658b99edd"
+      },
+      "after": {
+        "id": "frontend_api:frontend/features/passports/api/client-details.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/passports/api/client-details.api.ts",
+        "contract_sha256": "3a41b6a77a14f54b24930b83b536382a5bc2c5aea2727634256e9731e6419801"
+      }
+    },
+    {
+      "before": {
+        "id": "frontend_api:frontend/features/passports/api/display-name.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/passports/api/display-name.api.ts",
+        "contract_sha256": "3289463b22739f9a38c17f1d52c3f207cfc2b3bc6a8e88ce1eb6c29b3c6289bc"
+      },
+      "after": {
+        "id": "frontend_api:frontend/features/passports/api/display-name.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/passports/api/display-name.api.ts",
+        "contract_sha256": "e5d50fad9a24ce7bc46b0246760f3e67bbda5bd6362ae9b962f94459b1c16b97"
+      }
+    },
+    {
+      "before": {
+        "id": "frontend_api:frontend/features/passports/api/passport-group-exports.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/passports/api/passport-group-exports.api.ts",
+        "contract_sha256": "b76293292523d942c23a505bba7d14db0bd793bd774067a53517428976ad09fe"
+      },
+      "after": {
+        "id": "frontend_api:frontend/features/passports/api/passport-group-exports.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/passports/api/passport-group-exports.api.ts",
+        "contract_sha256": "fd753bafd3211b89a1fdb659f4e03c209197baa359aea45179fcc460326c4996"
+      }
+    },
+    {
+      "before": {
+        "id": "frontend_api:frontend/features/passports/api/passport-imports.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/passports/api/passport-imports.api.ts",
+        "contract_sha256": "829562dd0ad993c745e326c95607b67b54f2b84be8708b8b0ddc04d026b1cfb6"
+      },
+      "after": {
+        "id": "frontend_api:frontend/features/passports/api/passport-imports.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/passports/api/passport-imports.api.ts",
+        "contract_sha256": "3d9f5a949453dd0b05a35697044b1380fe6516345f85c2f2263553780f9c7c2e"
+      }
+    },
+    {
+      "before": {
+        "id": "frontend_api:frontend/features/passports/api/passport-records.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/passports/api/passport-records.api.ts",
+        "contract_sha256": "976bd9d42cd455d2bdb97fe245f481a6f42a46918bddd66b89dfd47dffb03262"
+      },
+      "after": {
+        "id": "frontend_api:frontend/features/passports/api/passport-records.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/passports/api/passport-records.api.ts",
+        "contract_sha256": "c6f7413fdb0ebe39d73d4405812fe64a091a01edff7d979c8fc10a1c66b6eb0c"
+      }
+    },
+    {
+      "before": {
+        "id": "frontend_api:frontend/features/passports/api/passport-selection-exports.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/passports/api/passport-selection-exports.api.ts",
+        "contract_sha256": "f5dbfe3c2ca02b1a1e460f40d257fefb5fb8f8b812c0eecfc8176076cfe5f52a"
+      },
+      "after": {
+        "id": "frontend_api:frontend/features/passports/api/passport-selection-exports.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/passports/api/passport-selection-exports.api.ts",
+        "contract_sha256": "2b4d6bae120f2e08400238f5e92fb45750a56923b0e0c4b60d67b25f0dcc49b2"
+      }
+    },
+    {
+      "before": {
+        "id": "registration:backend/app/presentation/api/v1/routes/menu.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/menu.py",
+        "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+      },
+      "after": {
+        "id": "registration:backend/app/presentation/api/v1/routes/menu.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/menu.py",
+        "contract_sha256": "1a311f6ec08da848f0440c8e8b6c6876da75da0ac0fe06c5ac751e0dd4486893"
+      }
+    }
+  ]
+}

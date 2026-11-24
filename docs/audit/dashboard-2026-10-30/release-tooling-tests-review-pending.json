@@ -1,0 +1,379 @@
+{
+  "basis": "Automated currenthash/full-ledger triage only; rootreservedruntime excluded, no manual credit.",
+  "pending": [
+    {
+      "path": "scripts/test_release_artifacts.py",
+      "sha256": "770a1a0e115f89ecf96120d672640310de2b0a7c9939733de49fe44f7cac63c2",
+      "lines": 217,
+      "matching_full": [],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_authored_notifications.py",
+      "sha256": "a494909f07567c5a3b1afa5d863736822e07f4ae1b8333bb2eb43ed224edc914",
+      "lines": 96,
+      "matching_full": [],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_ci_dispatch.py",
+      "sha256": "fd676f0693b24299c2e498c7ba7b4543d28b784235c21c219cb36e3bd5482e76",
+      "lines": 67,
+      "matching_full": [],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_code_update.py",
+      "sha256": "04d6f5a150b824960857ad8671e468060182fe4138f83b21b6d50e7d8c4c4147",
+      "lines": 383,
+      "matching_full": [],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_companies_credentials.py",
+      "sha256": "f991fa52cb36667ca605fb1260cef3a608c2f4a06bc56daa81fd336edf951dea",
+      "lines": 281,
+      "matching_full": [],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_companies_fast.py",
+      "sha256": "35ca1d1aeb2296c7f9d97c6ae301a98f25bb823d4bc924bd41253c484a86ceae",
+      "lines": 235,
+      "matching_full": [],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_companies_retained_update.py",
+      "sha256": "8d8563effded7ad15af4c846e9a3766e9b70e9f56ec8874daa6a9b04ff59a575",
+      "lines": 409,
+      "matching_full": [],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_companies_secrets.py",
+      "sha256": "62efb95286194b02b24ad9ea934287f17e2c7b67fba7d7fee8a2c17b2c9fe591",
+      "lines": 117,
+      "matching_full": [],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_companies_traveller_contract.py",
+      "sha256": "1b720c0a0fe3763403c86fd7a5e2fc1cc11ca0072d1382469efd9e6d6b8f2906",
+      "lines": 148,
+      "matching_full": [],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_connector.py",
+      "sha256": "6f5af22b55303c26765d4f478ac7ea662dfd3a648f881df3a30cab6950836c94",
+      "lines": 66,
+      "matching_full": [],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_current.py",
+      "sha256": "08591b169e3a56a809ee5cbaddd82a4793dd4e0e18ace024174f9bf69cf82262",
+      "lines": 559,
+      "matching_full": [],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_document_distribution_contract.py",
+      "sha256": "6fd8c0bedf7df54ee5e05b6c9b5142e12f48ec436d3857191ff6da1fde3470e5",
+      "lines": 80,
+      "matching_full": [],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_document_distribution_policy.py",
+      "sha256": "33c6eee108d33aa254dd1de768b32a85df110e02c020339b2b4ffffacc2226d9",
+      "lines": 275,
+      "matching_full": [],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_document_fast.py",
+      "sha256": "9a488f31d2eaa5e5871fd68a1d2062e73b2694f21f2a89acf17e3fc07a44194b",
+      "lines": 177,
+      "matching_full": [],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_document_retained_update.py",
+      "sha256": "29acec6ca4d165f57e086932387a88eaa07730ba2905cab284999dd088183d5c",
+      "lines": 302,
+      "matching_full": [],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_gc_app_group_removal.py",
+      "sha256": "be430b652a8add3eb0adcf87880dfc5b1d3b89a29e0855872c5d3d729d5d7fd6",
+      "lines": 96,
+      "matching_full": [],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_gc_group_access.py",
+      "sha256": "cb15ff3e0e008879615fc22364cc461eaabd8bd3a2f35c724f4bc066a7ef1f2d",
+      "lines": 87,
+      "matching_full": [],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_health_asset.py",
+      "sha256": "946363b761bfe7e4ca1a2da5612f4fd690a0c41591b40dfab17a57d58f478adb",
+      "lines": 135,
+      "matching_full": [],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_import_groups_archive.py",
+      "sha256": "4f72c81fe0f1f5e886615f0b986a69b3fcff918d200507fad72fb0d4394e2bf6",
+      "lines": 156,
+      "matching_full": [],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_manifest.py",
+      "sha256": "6ef3347a20dad9287bd7406ccbd9b15be1dd34845f417343f0c1264bcce08ea2",
+      "lines": 57,
+      "matching_full": [],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_mobile_fcm.py",
+      "sha256": "143c9d6fa27f2139115b987acb65b73972bba1380f6d54e3463f295ec319b58a",
+      "lines": 258,
+      "matching_full": [],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_notification_guard.py",
+      "sha256": "960437170b799105791032b154af0069234ce5844b2ec3414633d89e421b6d93",
+      "lines": 315,
+      "matching_full": [],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_notification_workspace.py",
+      "sha256": "666bbc126a78a9bc6b48ac0166ab5492ca7a1b2d02ba70d120f48a82159d5a64",
+      "lines": 96,
+      "matching_full": [],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_pdf_checking_profile.py",
+      "sha256": "b0ad6ce121e06baf5fae65ce24a89d6d5a6f901a26fc8f1e5547b43b693aaae2",
+      "lines": 95,
+      "matching_full": [],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_persistent_resources.py",
+      "sha256": "9e0b6ee6da536fc11b87797f3acc73c947126821bfe7a1c11e7653749967fce7",
+      "lines": 248,
+      "matching_full": [],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_publication.py",
+      "sha256": "9b8f6a5fccb7d3838a14ed6c247ef115034f8d46fc8d41b031f7ea0a0220c982",
+      "lines": 329,
+      "matching_full": [],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_realtime_startup.py",
+      "sha256": "f03b213c8eb82b26fef29fb7ea00a0e2cb545b861f5ac34d456891df605f9cde",
+      "lines": 85,
+      "matching_full": [],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_redis_dataset_transition.py",
+      "sha256": "6f2d9257adef1d1ecffac1a1fc3b659027564bc3fee4c0d86d19d74ff53a3ea6",
+      "lines": 220,
+      "matching_full": [],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_reliability.py",
+      "sha256": "4b59a7ca51e522bb9f3ff3767cf8911e0a29c838f140462f5a0fd7afccf22e9e",
+      "lines": 280,
+      "matching_full": [],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_resource_budget.py",
+      "sha256": "5b513ba10d4fd9ff359e6c389448083c615952fe813adc80a7a4e6d873ffb336",
+      "lines": 113,
+      "matching_full": [],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_resource_fence.py",
+      "sha256": "e7cb9e74a62b55eea119783e6f831a9a99cea02d1f083db4606715603b5d61ae",
+      "lines": 179,
+      "matching_full": [],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_retained_update.py",
+      "sha256": "cd6e1959c6a8114718999575a20f9007c18ccc9f3eff55ae91e7e19584484e62",
+      "lines": 488,
+      "matching_full": [],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_travel_tracker_contract.py",
+      "sha256": "cebb3eba2fc2ce52cb55ac6e626e4b5dba0314c39f9d22a9389e7ff055d117d9",
+      "lines": 114,
+      "matching_full": [],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_traveller_whatsapp.py",
+      "sha256": "31aa67604df33deef58f908ccf500236de203aef519dc412a872ee4f657d1e22",
+      "lines": 520,
+      "matching_full": [],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_workspace_branding.py",
+      "sha256": "bc4940e5c52ee6ff9dd253d9b780f4f8d4ddd074fa67ff5cecb2cb4827508690",
+      "lines": 157,
+      "matching_full": [],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    }
+  ],
+  "skipped_current_full": [
+    {
+      "path": "scripts/test_release_companies_runtime.py",
+      "sha256": "65d544624f33a2d923dd337c2c40f884d8e230ad54d6c47be04e87ba6cf46e74",
+      "lines": 139,
+      "matching_full": [
+        "migration-output-release-source-cohort-18-reviewed-files.json"
+      ],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": true
+    },
+    {
+      "path": "scripts/test_release_mcp_admin_approval_contract.py",
+      "sha256": "b2dbd244afd17fdf3c737f91bf3fb2ceb022be714aabd54dfe80d83fb188d36c",
+      "lines": 153,
+      "matching_full": [
+        "release-mcp-tests-reviewed-files.json"
+      ],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_mcp_contract.py",
+      "sha256": "0a8a1482789774073898304095ef642b7946d185ab2106095eb1b417b29c5a73",
+      "lines": 103,
+      "matching_full": [
+        "release-mcp-tests-reviewed-files.json"
+      ],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_mcp_database.py",
+      "sha256": "531c406b5884e2ffd818260a56e2b8bdf1aa97a7d89c75b3743f5ee1a5990240",
+      "lines": 217,
+      "matching_full": [
+        "release-mcp-tests-reviewed-files.json"
+      ],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_mcp_direct_devices_contract.py",
+      "sha256": "0360629dbb2b08a7128167bf0dce431459217f653f3b397a9cf6f3438d1e9d9a",
+      "lines": 155,
+      "matching_full": [
+        "release-mcp-tests-reviewed-files.json"
+      ],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_mcp_read_only_contract.py",
+      "sha256": "28cb5b4278c9b92801bb597af07e50deebb64ad00688b198944779d38a0d4b52",
+      "lines": 178,
+      "matching_full": [
+        "release-mcp-tests-reviewed-files.json"
+      ],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_resource_profile.py",
+      "sha256": "b54d5b155558fca5d34faefc4884ce56db05d3ad69502c1e5cd45d1ce89651ec",
+      "lines": 151,
+      "matching_full": [
+        "retained-release-source-cohort-03-reviewed-files.json"
+      ],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_workspace_branding_bindings.py",
+      "sha256": "d18cc4028e5082ffe99ca14797c78f4846da0de041f49c3c2d0ef7b662d98bff",
+      "lines": 163,
+      "matching_full": [
+        "release-bindings-reviewed-files.json"
+      ],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    }
+  ],
+  "reserved": [
+    {
+      "path": "scripts/test_release_companies_runtime.py",
+      "sha256": "65d544624f33a2d923dd337c2c40f884d8e230ad54d6c47be04e87ba6cf46e74",
+      "lines": 139,
+      "matching_full": [
+        "migration-output-release-source-cohort-18-reviewed-files.json"
+      ],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": true
+    }
+  ]
+}

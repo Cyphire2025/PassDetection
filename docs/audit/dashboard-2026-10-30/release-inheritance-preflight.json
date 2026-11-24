@@ -1,0 +1,194 @@
+{
+  "static_only_no_full_read_credit": true,
+  "python_modules_parsed": 277,
+  "root": "release_traveller_whatsapp.Release",
+  "classes": [
+    {
+      "id": "release_authored_notifications.AuthoredNotificationRelease",
+      "path": "scripts/release_authored_notifications.py",
+      "line": 24,
+      "name": "AuthoredNotificationRelease",
+      "bases": [
+        "release_reliability.ReliabilityRelease"
+      ],
+      "methods_with_super": [
+        "__init__",
+        "preflight"
+      ]
+    },
+    {
+      "id": "release_code_update.CodeUpdate",
+      "path": "scripts/release_code_update.py",
+      "line": 115,
+      "name": "CodeUpdate",
+      "bases": [
+        "release_reliability.ReliabilityRelease"
+      ],
+      "methods_with_super": [
+        "__init__"
+      ]
+    },
+    {
+      "id": "release_current.CurrentRelease",
+      "path": "scripts/release_current.py",
+      "line": 43,
+      "name": "CurrentRelease",
+      "bases": [
+        "release_reliability.ReliabilityRelease"
+      ],
+      "methods_with_super": [
+        "__init__",
+        "container",
+        "dc",
+        "worker_probe",
+        "verify_containers",
+        "prepare",
+        "activate",
+        "prepare_images",
+        "config_fingerprint",
+        "pinned_services",
+        "before_migration",
+        "preflight"
+      ]
+    },
+    {
+      "id": "release_gc_app_group_removal.GCAppGroupRemovalRelease",
+      "path": "scripts/release_gc_app_group_removal.py",
+      "line": 23,
+      "name": "GCAppGroupRemovalRelease",
+      "bases": [
+        "release_reliability.ReliabilityRelease"
+      ],
+      "methods_with_super": [
+        "__init__",
+        "preflight"
+      ]
+    },
+    {
+      "id": "release_gc_group_access.GCGroupAccessRelease",
+      "path": "scripts/release_gc_group_access.py",
+      "line": 24,
+      "name": "GCGroupAccessRelease",
+      "bases": [
+        "release_reliability.ReliabilityRelease"
+      ],
+      "methods_with_super": [
+        "__init__"
+      ]
+    },
+    {
+      "id": "release_import_groups_archive.ImportGroupsArchiveRelease",
+      "path": "scripts/release_import_groups_archive.py",
+      "line": 26,
+      "name": "ImportGroupsArchiveRelease",
+      "bases": [
+        "release_reliability.ReliabilityRelease"
+      ],
+      "methods_with_super": [
+        "__init__",
+        "preflight"
+      ]
+    },
+    {
+      "id": "release_mobile_fcm.MobileFcmRelease",
+      "path": "scripts/release_mobile_fcm.py",
+      "line": 25,
+      "name": "MobileFcmRelease",
+      "bases": [
+        "release_reliability.ReliabilityRelease"
+      ],
+      "methods_with_super": [
+        "__init__"
+      ]
+    },
+    {
+      "id": "release_notification_guard.NotificationGuardRelease",
+      "path": "scripts/release_notification_guard.py",
+      "line": 21,
+      "name": "NotificationGuardRelease",
+      "bases": [
+        "release_reliability.ReliabilityRelease"
+      ],
+      "methods_with_super": [
+        "__init__"
+      ]
+    },
+    {
+      "id": "release_notification_workspace.NotificationWorkspaceRelease",
+      "path": "scripts/release_notification_workspace.py",
+      "line": 23,
+      "name": "NotificationWorkspaceRelease",
+      "bases": [
+        "release_reliability.ReliabilityRelease"
+      ],
+      "methods_with_super": [
+        "__init__",
+        "preflight"
+      ]
+    },
+    {
+      "id": "release_realtime_startup.RealtimeStartupRelease",
+      "path": "scripts/release_realtime_startup.py",
+      "line": 20,
+      "name": "RealtimeStartupRelease",
+      "bases": [
+        "release_reliability.ReliabilityRelease"
+      ],
+      "methods_with_super": [
+        "__init__",
+        "preflight"
+      ]
+    },
+    {
+      "id": "release_reliability.ReliabilityRelease",
+      "path": "scripts/release_reliability.py",
+      "line": 42,
+      "name": "ReliabilityRelease",
+      "bases": [
+        "release_traveller_whatsapp.Release"
+      ],
+      "methods_with_super": [
+        "__init__",
+        "verify_running_project"
+      ]
+    },
+    {
+      "id": "release_traveller_whatsapp.Release",
+      "path": "scripts/release_traveller_whatsapp.py",
+      "line": 113,
+      "name": "Release",
+      "bases": [],
+      "methods_with_super": []
+    },
+    {
+      "id": "test_release_code_update.Scenario",
+      "path": "scripts/test_release_code_update.py",
+      "line": 30,
+      "name": "Scenario",
+      "bases": [
+        "release_code_update.CodeUpdate"
+      ],
+      "methods_with_super": [
+        "__init__"
+      ]
+    },
+    {
+      "id": "qa.qualify_code_update_nginx.FixtureRelease",
+      "path": "scripts/qa/qualify_code_update_nginx.py",
+      "line": 129,
+      "name": "FixtureRelease",
+      "bases": [
+        "release_code_update.CodeUpdate"
+      ],
+      "methods_with_super": [
+        "__init__",
+        "run",
+        "nginx_workers"
+      ]
+    }
+  ],
+  "single_chain_class_count": 14,
+  "multiple_inheritance_consumers": [],
+  "parse_or_star_import_errors": [],
+  "limits": "Repository script source only, including nested test subclasses; external Python clients not enumerated. Dynamic user-supplied release_type remains accepted as before. No claim about unknown downstream MRO consumers."
+}

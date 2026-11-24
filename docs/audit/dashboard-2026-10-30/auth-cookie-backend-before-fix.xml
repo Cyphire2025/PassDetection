@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="7" skipped="0" tests="9" time="34.322" timestamp="2026-10-30T23:51:11.993927+05:30" hostname="Nipun5070ti"><testcase classname="tests.unit.infrastructure.test_dashboard_session_families" name="test_expected_actor_mismatch_keeps_newer_session_and_cookies[logout-body]" time="4.548"><failure message="assert 204 == 409&#10; +  where 204 = &lt;Response [204 No Content]&gt;.status_code">client = &lt;httpx.AsyncClient object at 0x0000027745EFD450&gt;
+db_session = &lt;sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000002774265E190&gt;
+test_settings = Settings(app_env='development', app_secret_key='test-secret-key-not-for-production', app_debug=True, app_version='1.0....mplate_language='en_US', whatsapp_delivery_concurrency=4, whatsapp_webhook_verify_token=None, whatsapp_app_secret=None)
+endpoint = 'logout', credential = 'body'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("endpoint,credential", [
+        ("logout", "body"), ("logout", "cookie"), ("logout", "access"),
+        ("refresh", "body"), ("refresh", "cookie"),
+    ])
+    async def test_expected_actor_mismatch_keeps_newer_session_and_cookies(
+        client, db_session, test_settings, endpoint, credential,
+    ):
+        user, refresh, access, family_id = await create_session(db_session)
+        headers = {"X-Expected-Actor-Id": str(uuid.uuid4())}
+        body = None
+        if credential == "cookie":
+            client.cookies.set(test_settings.jwt.refresh_cookie_name, refresh, path="/api/v1/auth")
+            headers["Origin"] = test_settings.allowed_origins[0]
+        elif credential == "access":
+            headers["Authorization"] = f"Bearer {access}"
+        else:
+            body = {"refresh_token": refresh}
+        response = await client.post(f"/api/v1/auth/{endpoint}", json=body, headers=headers)
+&gt;       assert response.status_code == 409
+E       assert 204 == 409
+E        +  where 204 = &lt;Response [204 No Content]&gt;.status_code
+
+backend\tests\unit\infrastructure\test_dashboard_session_families.py:136: AssertionError</failure></testcase><testcase classname="tests.unit.infrastructure.test_dashboard_session_families" name="test_expected_actor_mismatch_keeps_newer_session_and_cookies[logout-cookie]" time="3.851"><failure message="assert 204 == 409&#10; +  where 204 = &lt;Response [204 No Content]&gt;.status_code">client = &lt;httpx.AsyncClient object at 0x0000027749E7DD10&gt;
+db_session = &lt;sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000027741FFA690&gt;
+test_settings = Settings(app_env='development', app_secret_key='test-secret-key-not-for-production', app_debug=True, app_version='1.0....mplate_language='en_US', whatsapp_delivery_concurrency=4, whatsapp_webhook_verify_token=None, whatsapp_app_secret=None)
+endpoint = 'logout', credential = 'cookie'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("endpoint,credential", [
+        ("logout", "body"), ("logout", "cookie"), ("logout", "access"),
+        ("refresh", "body"), ("refresh", "cookie"),
+    ])
+    async def test_expected_actor_mismatch_keeps_newer_session_and_cookies(
+        client, db_session, test_settings, endpoint, credential,
+    ):
+        user, refresh, access, family_id = await create_session(db_session)
+        headers = {"X-Expected-Actor-Id": str(uuid.uuid4())}
+        body = None
+        if credential == "cookie":
+            client.cookies.set(test_settings.jwt.refresh_cookie_name, refresh, path="/api/v1/auth")
+            headers["Origin"] = test_settings.allowed_origins[0]
+        elif credential == "access":
+            headers["Authorization"] = f"Bearer {access}"
+        else:
+            body = {"refresh_token": refresh}
+        response = await client.post(f"/api/v1/auth/{endpoint}", json=body, headers=headers)
+&gt;       assert response.status_code == 409
+E       assert 204 == 409
+E        +  where 204 = &lt;Response [204 No Content]&gt;.status_code
+
+backend\tests\unit\infrastructure\test_dashboard_session_families.py:136: AssertionError</failure></testcase><testcase classname="tests.unit.infrastructure.test_dashboard_session_families" name="test_expected_actor_mismatch_keeps_newer_session_and_cookies[logout-access]" time="3.112"><failure message="assert 204 == 409&#10; +  where 204 = &lt;Response [204 No Content]&gt;.status_code">client = &lt;httpx.AsyncClient object at 0x000002774C6AEA90&gt;
+db_session = &lt;sqlalchemy.ext.asyncio.session.AsyncSession object at 0x00000277424D4C50&gt;
+test_settings = Settings(app_env='development', app_secret_key='test-secret-key-not-for-production', app_debug=True, app_version='1.0....mplate_language='en_US', whatsapp_delivery_concurrency=4, whatsapp_webhook_verify_token=None, whatsapp_app_secret=None)
+endpoint = 'logout', credential = 'access'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("endpoint,credential", [
+        ("logout", "body"), ("logout", "cookie"), ("logout", "access"),
+        ("refresh", "body"), ("refresh", "cookie"),
+    ])
+    async def test_expected_actor_mismatch_keeps_newer_session_and_cookies(
+        client, db_session, test_settings, endpoint, credential,
+    ):
+        user, refresh, access, family_id = await create_session(db_session)
+        headers = {"X-Expected-Actor-Id": str(uuid.uuid4())}
+        body = None
+        if credential == "cookie":
+            client.cookies.set(test_settings.jwt.refresh_cookie_name, refresh, path="/api/v1/auth")
+            headers["Origin"] = test_settings.allowed_origins[0]
+        elif credential == "access":
+            headers["Authorization"] = f"Bearer {access}"
+        else:
+            body = {"refresh_token": refresh}
+        response = await client.post(f"/api/v1/auth/{endpoint}", json=body, headers=headers)
+&gt;       assert response.status_code == 409
+E       assert 204 == 409
+E        +  where 204 = &lt;Response [204 No Content]&gt;.status_code
+
+backend\tests\unit\infrastructure\test_dashboard_session_families.py:136: AssertionError</failure></testcase><testcase classname="tests.unit.infrastructure.test_dashboard_session_families" name="test_expected_actor_mismatch_keeps_newer_session_and_cookies[refresh-body]" time="4.263"><failure message="assert 200 == 409&#10; +  where 200 = &lt;Response [200 OK]&gt;.status_code">client = &lt;httpx.AsyncClient object at 0x000002774FD4A510&gt;
+db_session = &lt;sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000027742532ED0&gt;
+test_settings = Settings(app_env='development', app_secret_key='test-secret-key-not-for-production', app_debug=True, app_version='1.0....mplate_language='en_US', whatsapp_delivery_concurrency=4, whatsapp_webhook_verify_token=None, whatsapp_app_secret=None)
+endpoint = 'refresh', credential = 'body'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("endpoint,credential", [
+        ("logout", "body"), ("logout", "cookie"), ("logout", "access"),
+        ("refresh", "body"), ("refresh", "cookie"),
+    ])
+    async def test_expected_actor_mismatch_keeps_newer_session_and_cookies(
+        client, db_session, test_settings, endpoint, credential,
+    ):
+        user, refresh, access, family_id = await create_session(db_session)
+        headers = {"X-Expected-Actor-Id": str(uuid.uuid4())}
+        body = None
+        if credential == "cookie":
+            client.cookies.set(test_settings.jwt.refresh_cookie_name, refresh, path="/api/v1/auth")
+            headers["Origin"] = test_settings.allowed_origins[0]
+        elif credential == "access":
+            headers["Authorization"] = f"Bearer {access}"
+        else:
+            body = {"refresh_token": refresh}
+        response = await client.post(f"/api/v1/auth/{endpoint}", json=body, headers=headers)
+&gt;       assert response.status_code == 409
+E       assert 200 == 409
+E        +  where 200 = &lt;Response [200 OK]&gt;.status_code
+
+backend\tests\unit\infrastructure\test_dashboard_session_families.py:136: AssertionError</failure></testcase><testcase classname="tests.unit.infrastructure.test_dashboard_session_families" name="test_expected_actor_mismatch_keeps_newer_session_and_cookies[refresh-cookie]" time="3.205"><failure message="assert 200 == 409&#10; +  where 200 = &lt;Response [200 OK]&gt;.status_code">client = &lt;httpx.AsyncClient object at 0x0000027750845D10&gt;
+db_session = &lt;sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000027745DA3050&gt;
+test_settings = Settings(app_env='development', app_secret_key='test-secret-key-not-for-production', app_debug=True, app_version='1.0....mplate_language='en_US', whatsapp_delivery_concurrency=4, whatsapp_webhook_verify_token=None, whatsapp_app_secret=None)
+endpoint = 'refresh', credential = 'cookie'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("endpoint,credential", [
+        ("logout", "body"), ("logout", "cookie"), ("logout", "access"),
+        ("refresh", "body"), ("refresh", "cookie"),
+    ])
+    async def test_expected_actor_mismatch_keeps_newer_session_and_cookies(
+        client, db_session, test_settings, endpoint, credential,
+    ):
+        user, refresh, access, family_id = await create_session(db_session)
+        headers = {"X-Expected-Actor-Id": str(uuid.uuid4())}
+        body = None
+        if credential == "cookie":
+            client.cookies.set(test_settings.jwt.refresh_cookie_name, refresh, path="/api/v1/auth")
+            headers["Origin"] = test_settings.allowed_origins[0]
+        elif credential == "access":
+            headers["Authorization"] = f"Bearer {access}"
+        else:
+            body = {"refresh_token": refresh}
+        response = await client.post(f"/api/v1/auth/{endpoint}", json=body, headers=headers)
+&gt;       assert response.status_code == 409
+E       assert 200 == 409
+E        +  where 200 = &lt;Response [200 OK]&gt;.status_code
+
+backend\tests\unit\infrastructure\test_dashboard_session_families.py:136: AssertionError</failure></testcase><testcase classname="tests.unit.infrastructure.test_dashboard_session_families" name="test_matching_actor_precondition_preserves_normal_session_command[logout]" time="4.215" /><testcase classname="tests.unit.infrastructure.test_dashboard_session_families" name="test_matching_actor_precondition_preserves_normal_session_command[refresh]" time="3.053" /><testcase classname="tests.unit.infrastructure.test_dashboard_session_families" name="test_stale_actor_cannot_revoke_newer_family_through_consumed_refresh_replay" time="4.514"><failure message="assert 401 == 409&#10; +  where 401 = &lt;Response [401 Unauthorized]&gt;.status_code">client = &lt;httpx.AsyncClient object at 0x000002775636DD10&gt;
+db_session = &lt;sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000027742178750&gt;
+
+    @pytest.mark.asyncio
+    async def test_stale_actor_cannot_revoke_newer_family_through_consumed_refresh_replay(client, db_session):
+        user, original, access, family_id = await create_session(db_session)
+        rotated = await client.post("/api/v1/auth/refresh", json={"refresh_token": original})
+        assert rotated.status_code == 200
+        successor = rotated.cookies["refresh_token"]
+        client.cookies.clear()
+        response = await client.post("/api/v1/auth/refresh", json={"refresh_token": original},
+                                     headers={"X-Expected-Actor-Id": str(uuid.uuid4())})
+&gt;       assert response.status_code == 409
+E       assert 401 == 409
+E        +  where 401 = &lt;Response [401 Unauthorized]&gt;.status_code
+
+backend\tests\unit\infrastructure\test_dashboard_session_families.py:166: AssertionError</failure></testcase><testcase classname="tests.unit.infrastructure.test_dashboard_session_families" name="test_mixed_logout_credentials_are_checked_before_either_family_is_revoked" time="2.608"><failure message="assert 204 == 409&#10; +  where 204 = &lt;Response [204 No Content]&gt;.status_code">client = &lt;httpx.AsyncClient object at 0x0000027754327BD0&gt;
+db_session = &lt;sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000002774A89EC10&gt;
+
+    @pytest.mark.asyncio
+    async def test_mixed_logout_credentials_are_checked_before_either_family_is_revoked(client, db_session):
+        first, first_refresh, _, first_family = await create_session(db_session)
+        second, second_refresh, second_access, second_family = await create_session(db_session)
+        response = await client.post("/api/v1/auth/logout", json={"refresh_token": first_refresh}, headers={
+            "Authorization": f"Bearer {second_access}", "X-Expected-Actor-Id": str(first.id),
+        })
+&gt;       assert response.status_code == 409
+E       assert 204 == 409
+E        +  where 204 = &lt;Response [204 No Content]&gt;.status_code
+
+backend\tests\unit\infrastructure\test_dashboard_session_families.py:183: AssertionError</failure></testcase></testsuite></testsuites>

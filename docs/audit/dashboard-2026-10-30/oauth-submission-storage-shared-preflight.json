@@ -1,0 +1,305 @@
+{
+  "status": "preflight only; no shared source mutations",
+  "existing_modules": 636,
+  "existing_critical": 93,
+  "candidate_rows": [
+    {
+      "group": "oauth",
+      "row": {
+        "path": "app/presentation/api/v1/routes/email_integration_gmail.py",
+        "baseline_lines": 260,
+        "maximum_lines": 260,
+        "baseline_max_function_complexity": 31,
+        "maximum_function_complexity": 32,
+        "minimum_coverage_percent": 95
+      },
+      "before": {
+        "path": "app/presentation/api/v1/routes/email_integration_gmail.py",
+        "baseline_lines": 299,
+        "maximum_lines": 300,
+        "baseline_max_function_complexity": 33,
+        "maximum_function_complexity": 33,
+        "minimum_coverage_percent": 85
+      },
+      "sha256": "4c520e1e69042e35a8f6a503c71dea8b796aab1454bee1cd09373419f570c340",
+      "actual_lines": 260,
+      "actual_complexity": 31,
+      "statement_percent": 99.16666666666667,
+      "branch_percent": 96.875
+    },
+    {
+      "group": "oauth",
+      "row": {
+        "path": "app/presentation/api/v1/routes/email_integration_outlook.py",
+        "baseline_lines": 288,
+        "maximum_lines": 290,
+        "baseline_max_function_complexity": 30,
+        "maximum_function_complexity": 31,
+        "minimum_coverage_percent": 95
+      },
+      "before": {
+        "path": "app/presentation/api/v1/routes/email_integration_outlook.py",
+        "baseline_lines": 328,
+        "maximum_lines": 350,
+        "baseline_max_function_complexity": 32,
+        "maximum_function_complexity": 32,
+        "minimum_coverage_percent": 85
+      },
+      "sha256": "d0ee641a9dfd69e46ce32f1c4d294e796b18407659dd54128ff180f6e56f4deb",
+      "actual_lines": 288,
+      "actual_complexity": 30,
+      "statement_percent": 99.1304347826087,
+      "branch_percent": 96.66666666666667
+    },
+    {
+      "group": "oauth",
+      "row": {
+        "path": "app/presentation/api/v1/routes/email_oauth_actor.py",
+        "baseline_lines": 39,
+        "maximum_lines": 40,
+        "baseline_max_function_complexity": 1,
+        "maximum_function_complexity": 2,
+        "minimum_coverage_percent": 95
+      },
+      "before": null,
+      "sha256": "74a9dd20aa8374f92aa6e3e914795726fbfd11b6d4dcd56744b8c7c507c53ff9",
+      "actual_lines": 39,
+      "actual_complexity": 1,
+      "statement_percent": 100.0,
+      "branch_percent": null
+    },
+    {
+      "group": "oauth",
+      "row": {
+        "path": "app/presentation/api/v1/routes/email_oauth_grant.py",
+        "baseline_lines": 79,
+        "maximum_lines": 80,
+        "baseline_max_function_complexity": 3,
+        "maximum_function_complexity": 4,
+        "minimum_coverage_percent": 95
+      },
+      "before": null,
+      "sha256": "4ee03c00b0ce6c898cdc9c4f37d570e3418348aa33ad183edafb764a30084e7e",
+      "actual_lines": 79,
+      "actual_complexity": 3,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0
+    },
+    {
+      "group": "oauth",
+      "row": {
+        "path": "app/infrastructure/email/account_removal.py",
+        "baseline_lines": 66,
+        "maximum_lines": 70,
+        "baseline_max_function_complexity": 1,
+        "maximum_function_complexity": 2,
+        "minimum_coverage_percent": 95
+      },
+      "before": null,
+      "sha256": "66c08db3b3ba9080b6fa37e8525f38e69310ed0db7a68cc2bfdb24432d30afb2",
+      "actual_lines": 66,
+      "actual_complexity": 1,
+      "statement_percent": 100.0,
+      "branch_percent": null
+    },
+    {
+      "group": "oauth",
+      "row": {
+        "path": "app/infrastructure/email/account_removal_plan.py",
+        "baseline_lines": 170,
+        "maximum_lines": 170,
+        "baseline_max_function_complexity": 12,
+        "maximum_function_complexity": 13,
+        "minimum_coverage_percent": 95
+      },
+      "before": null,
+      "sha256": "3db39a863e8e5f6151ceaca2cac22dd71b90c2446e20bc591eb659d4bc1d7f6c",
+      "actual_lines": 170,
+      "actual_complexity": 12,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0
+    },
+    {
+      "group": "oauth",
+      "row": {
+        "path": "app/infrastructure/email/account_removal_records.py",
+        "baseline_lines": 182,
+        "maximum_lines": 190,
+        "baseline_max_function_complexity": 12,
+        "maximum_function_complexity": 13,
+        "minimum_coverage_percent": 95
+      },
+      "before": null,
+      "sha256": "146210f1d120d31497b20a4e900d6abae383759db84f297f78e611e0e0f90eb2",
+      "actual_lines": 182,
+      "actual_complexity": 12,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0
+    },
+    {
+      "group": "oauth",
+      "row": {
+        "path": "app/infrastructure/email/account_removal_storage.py",
+        "baseline_lines": 43,
+        "maximum_lines": 50,
+        "baseline_max_function_complexity": 4,
+        "maximum_function_complexity": 5,
+        "minimum_coverage_percent": 95
+      },
+      "before": null,
+      "sha256": "2241941defe9960f8f5d17f0f7a6097939ae958f7f084a0476a2761197fde6e4",
+      "actual_lines": 43,
+      "actual_complexity": 4,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0
+    },
+    {
+      "group": "submission",
+      "row": {
+        "path": "app/presentation/api/v1/routes/passport_routes/submission_review.py",
+        "baseline_lines": 161,
+        "maximum_lines": 170,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      },
+      "before": {
+        "path": "app/presentation/api/v1/routes/passport_routes/submission_review.py",
+        "minimum_coverage_percent": 59,
+        "baseline_lines": 638,
+        "maximum_lines": 700,
+        "baseline_max_function_complexity": 20,
+        "maximum_function_complexity": 20
+      },
+      "sha256": "4448a7071295eb89fb960960c8e686c06ff0da7d44e7e1be952c3274a600d9d7",
+      "actual_lines": 161,
+      "actual_complexity": 0,
+      "statement_percent": 100.0,
+      "branch_percent": null
+    },
+    {
+      "group": "submission",
+      "row": {
+        "path": "app/presentation/api/v1/routes/passport_routes/submission_execution.py",
+        "baseline_lines": 44,
+        "maximum_lines": 50,
+        "baseline_max_function_complexity": 5,
+        "maximum_function_complexity": 5,
+        "minimum_coverage_percent": 95
+      },
+      "before": null,
+      "sha256": "0f94c81818d84f389b67e93543b83553b0846feb4f99373cc3155a3b6882ebd7",
+      "actual_lines": 44,
+      "actual_complexity": 5,
+      "statement_percent": 100.0,
+      "branch_percent": null
+    },
+    {
+      "group": "submission",
+      "row": {
+        "path": "app/presentation/api/v1/routes/passport_routes/submission_review_approval.py",
+        "baseline_lines": 181,
+        "maximum_lines": 190,
+        "baseline_max_function_complexity": 9,
+        "maximum_function_complexity": 9,
+        "minimum_coverage_percent": 90
+      },
+      "before": null,
+      "sha256": "0ab762a2dedf15458d2a122ae694673697b1886013e35d461d235aa6a09ceea4",
+      "actual_lines": 181,
+      "actual_complexity": 9,
+      "statement_percent": 91.52542372881356,
+      "branch_percent": 75.0
+    },
+    {
+      "group": "submission",
+      "row": {
+        "path": "app/presentation/api/v1/routes/passport_routes/submission_review_client.py",
+        "baseline_lines": 131,
+        "maximum_lines": 140,
+        "baseline_max_function_complexity": 13,
+        "maximum_function_complexity": 13,
+        "minimum_coverage_percent": 80
+      },
+      "before": null,
+      "sha256": "ee16659a97152e26d852f44fd77f7a8ae1d75b3bdca52b14fefa0387dd0fdd77",
+      "actual_lines": 131,
+      "actual_complexity": 13,
+      "statement_percent": 86.53846153846153,
+      "branch_percent": 62.5
+    },
+    {
+      "group": "submission",
+      "row": {
+        "path": "app/presentation/api/v1/routes/passport_routes/submission_review_confirmation.py",
+        "baseline_lines": 116,
+        "maximum_lines": 120,
+        "baseline_max_function_complexity": 5,
+        "maximum_function_complexity": 5,
+        "minimum_coverage_percent": 59
+      },
+      "before": null,
+      "sha256": "b5439cd454fe40ddefe19690f60e1665386a99048f7ac6607db5c8a160674b29",
+      "actual_lines": 116,
+      "actual_complexity": 5,
+      "statement_percent": 60.0,
+      "branch_percent": null
+    },
+    {
+      "group": "submission",
+      "row": {
+        "path": "app/presentation/api/v1/routes/passport_routes/submission_review_processing.py",
+        "baseline_lines": 238,
+        "maximum_lines": 240,
+        "baseline_max_function_complexity": 8,
+        "maximum_function_complexity": 8,
+        "minimum_coverage_percent": 75
+      },
+      "before": null,
+      "sha256": "9ea3488f3c1db847b128edb3dff59edd710b9aa5a1d5bc99f9a4d9f8c5a903b5",
+      "actual_lines": 238,
+      "actual_complexity": 8,
+      "statement_percent": 77.77777777777777,
+      "branch_percent": 62.5
+    },
+    {
+      "group": "submission",
+      "row": {
+        "path": "app/presentation/api/v1/routes/passport_routes/submission_review_read.py",
+        "baseline_lines": 82,
+        "maximum_lines": 90,
+        "baseline_max_function_complexity": 5,
+        "maximum_function_complexity": 5,
+        "minimum_coverage_percent": 90
+      },
+      "before": null,
+      "sha256": "54f37e6940ca8abca757e3432fa2141ba994344a0030781c7d197ae289cb7931",
+      "actual_lines": 82,
+      "actual_complexity": 5,
+      "statement_percent": 94.11764705882354,
+      "branch_percent": 50.0
+    },
+    {
+      "group": "submission",
+      "row": {
+        "path": "app/presentation/api/v1/routes/passport_routes/submission_review_support.py",
+        "baseline_lines": 135,
+        "maximum_lines": 140,
+        "baseline_max_function_complexity": 5,
+        "maximum_function_complexity": 5,
+        "minimum_coverage_percent": 59
+      },
+      "before": null,
+      "sha256": "85d293f81fe8fcd4bf0295fe6e30ab1fde8fbcd23b27d46c2a3d9c1047960970",
+      "actual_lines": 135,
+      "actual_complexity": 5,
+      "statement_percent": 67.3913043478261,
+      "branch_percent": 50.0
+    }
+  ],
+  "normal_additions": 13,
+  "updates": 3,
+  "storage7_pending": true,
+  "frontend639_raw": "064e18bac34233400a997917c871701eb9bfab53288d0c8fba8eedd630ce0a43",
+  "frontend639_LF": "0c8be64206b921dae2358891136cba9953fb50f5404bd50d5c6ed1a8da9974c1"
+}

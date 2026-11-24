@@ -1,0 +1,11 @@
+[
+  {
+    "path": "backend/tests/unit/presentation/test_gc_app_my_photos_feature.py",
+    "sha256": "fe46bac13988ad0af2d62dd0f5b55046cd5309e972ed66b902cd087f6469aae4",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "physical_lines": 260,
+    "notes": "Complete physical source read: five actual dashboard GC MyPhotos toggle route/optimistic revision/idempotency controls, placeholder gallery authority/journal and access-generation retention. Shared dashboard setting remains retained despite mobile resource-path projection. Existing mock boundaries match actual shared settings owner; no native wrapper feature, provider, DB, actual tests or production operations executed for read credit."
+  }
+]

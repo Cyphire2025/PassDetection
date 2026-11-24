@@ -1,0 +1,222 @@
+{
+  "schema_version": 1,
+  "files": [
+    {
+      "path": "backend/app/application/dtos/__init__.py",
+      "sha256": "f7f0ae580a55bd07e427d55d2982e40d12a2cd590386d85e583db5d77f8fdb0b",
+      "review_scope": "full"
+    },
+    {
+      "path": "backend/app/application/dtos/auth_dtos.py",
+      "sha256": "4c620891af40b1aa461e018704e7f538af949b5f9f27b3392ed1a57303b12f22",
+      "review_scope": "full"
+    },
+    {
+      "path": "backend/app/application/dtos/dashboard_dtos.py",
+      "sha256": "68a98b8345b06e86efdaacff26f0c1e4fb81c6f383245eca02090a7eee5bcd34",
+      "review_scope": "full"
+    },
+    {
+      "path": "backend/app/application/dtos/gc_notifications.py",
+      "sha256": "5544eb589c148984a6941466241b5171f99d4ddeb5567302a7713b6f776b7111",
+      "review_scope": "full"
+    },
+    {
+      "path": "backend/app/application/dtos/mobile_security.py",
+      "sha256": "441b4e92c54a671f90cad437c3b37de2fd01779af336df811933616900fa8922",
+      "review_scope": "full"
+    },
+    {
+      "path": "backend/app/application/dtos/passport_dtos.py",
+      "sha256": "805b3451c5178df54163d73ca34754e2f57cd50ce87b0f79f9ca6cc1c1a51ed3",
+      "review_scope": "full"
+    },
+    {
+      "path": "backend/app/application/dtos/qualifier_selection_dtos.py",
+      "sha256": "9363da2ff382529b306e2144e4ee846315dc1db517d6b3b25e982b30579787aa",
+      "review_scope": "full"
+    },
+    {
+      "path": "backend/app/application/dtos/travel_tracker.py",
+      "sha256": "833a1ff71bc6f450d893910a8f459b4a23d2ab4c129411a382d8f81d87d53796",
+      "review_scope": "full"
+    },
+    {
+      "path": "backend/app/application/dtos/whatsapp_contact_dtos.py",
+      "sha256": "32ab92e8eebdd29ed59bc6a78002708f21ba34fc6802ff445ff2ad5d4bc11c32",
+      "review_scope": "full"
+    },
+    {
+      "path": "backend/app/application/dtos/whatsapp_dtos.py",
+      "sha256": "b85c66d809b2ec0a8352cc454af2da8fe5d23b00a8bbea569e5b68b51506b162",
+      "review_scope": "full"
+    },
+    {
+      "path": "backend/app/application/interfaces/__init__.py",
+      "sha256": "f7f0ae580a55bd07e427d55d2982e40d12a2cd590386d85e583db5d77f8fdb0b",
+      "review_scope": "full"
+    },
+    {
+      "path": "backend/app/application/interfaces/audit_integrity_sink.py",
+      "sha256": "ec2cfce1ac36cad1c89bc07895338e27d2312ced1c3538e8d68337e2a44f9b75",
+      "review_scope": "full"
+    },
+    {
+      "path": "backend/app/application/interfaces/identity_notification_provider.py",
+      "sha256": "047878526ad7cfeaec1162e40cf3f43db30f0d8f4641383700bfb65c9c07845f",
+      "review_scope": "full"
+    },
+    {
+      "path": "backend/app/application/interfaces/mrz_parser.py",
+      "sha256": "7a37eff698173df230db518d93df86db2005432cc4668847f5faf12e07bc8a9a",
+      "review_scope": "full"
+    },
+    {
+      "path": "backend/app/application/interfaces/passport_field_validator.py",
+      "sha256": "235f8721383910bf7e2d54c3f9c784becb31318bf85646e390bba336438d2012",
+      "review_scope": "full"
+    },
+    {
+      "path": "backend/app/application/interfaces/whatsapp_provider.py",
+      "sha256": "5d789d233ce3d222334277ed884ac600593092a03f471235552094032cb6affc",
+      "review_scope": "full"
+    },
+    {
+      "path": "backend/app/application/use_cases/dashboard/get_dashboard_stats_use_case.py",
+      "sha256": "a054a8620bdd6eac66055b0f51df024b97254f60121b03f28dafa35f3c86f89e",
+      "review_scope": "full"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/dashboard.py",
+      "sha256": "425c3af29b4e35bb6ba49c5cd3c49ef1bb9e412781f2dfa303ed28817725b0d5",
+      "review_scope": "full"
+    },
+    {
+      "path": "backend/app/application/travellers/accepted_source.py",
+      "sha256": "7abecf156272742c1491e63838cf22810a5a28385216c8769b2034f8a13af4fc",
+      "review_scope": "full"
+    },
+    {
+      "path": "backend/app/application/use_cases/client_groups/get_qualifier_selection_use_case.py",
+      "sha256": "30fa653479f7917ec0e5cc6b60f87e342b972da52f38c3ea0f3012c8abb37a9c",
+      "review_scope": "full"
+    },
+    {
+      "path": "backend/app/application/use_cases/client_groups/create_qualifier_selection_use_case.py",
+      "sha256": "a1728ffa9e42ef3548017dfe1dc515fed229fb6ea33ebefccc8552b9027e994f",
+      "review_scope": "full"
+    },
+    {
+      "path": "backend/app/infrastructure/audit/checkpoint_service.py",
+      "sha256": "0c77dfbfbb0977da56da0b688adcc315e2ce675362d02dc5a90ff2fc6ce9bc6c",
+      "review_scope": "full"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_notifications.py",
+      "sha256": "e7d5a2b651995eed575cb15554ad9f713035a530f1270dbd62dbdb7e41ea9fed",
+      "review_scope": "full"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/travel_tracker.py",
+      "sha256": "fe2b56936d219d382179246e6e51f87fd08b21a1ed62de29f73aacd272b61239",
+      "review_scope": "full"
+    },
+    {
+      "path": "backend/app/application/mobile/authored_notification_history.py",
+      "sha256": "8b3a87b7324383525d919877c8c96735795bfde7b0468795875da6dbeb6d0300",
+      "review_scope": "full"
+    },
+    {
+      "path": "backend/app/application/mobile/push_registration.py",
+      "sha256": "8d6ef4742b2a887ae2ad7dba333bb37d42f37ce062f17070f727c76fa6825148",
+      "review_scope": "full"
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/plan_group_broadcast_use_case.py",
+      "sha256": "739f646c16b48cfc9102a9ed2513bfe78607ab77ae555e47b1ef1c213c639533",
+      "review_scope": "full"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/auth.py",
+      "sha256": "b3a10680eb335e589430dee4eba3fefa95d2fd54877682c15308b7e6e79177f8",
+      "review_scope": "partial"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/auth_identity.py",
+      "sha256": "daa6e8b3fc67dd9cda2c784d0330fddecb05105e8b0e7b3651b8c6a2936f6e37",
+      "review_scope": "partial"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/passport_schemas.py",
+      "sha256": "f2c10f862e344d3aa84c7608d0c8a86ad19f29e3f6cdf1dbb7730e392dd102f6",
+      "review_scope": "partial"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/response_support.py",
+      "sha256": "3982f9979db2de63d23aee12bda3143c06f580eb0f640a86a016345075f7eef5",
+      "review_scope": "partial"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/public_upload_status.py",
+      "sha256": "402392e3f03b55060b0d39e991193ab136f46ca8560bd53646bb26c7dc94b674",
+      "review_scope": "partial"
+    },
+    {
+      "path": "backend/app/infrastructure/validation/passport_field_validator.py",
+      "sha256": "b422804416d97f81f3e72b165f99664050b9bdda8201638b2f279e3133d357ea",
+      "review_scope": "partial"
+    },
+    {
+      "path": "backend/app/infrastructure/ai/passport_extraction_fields.py",
+      "sha256": "411ee74a6755dbce2dd59e504d1eb7133c8e2a9031c0cf03d725270d166ae039",
+      "review_scope": "partial"
+    },
+    {
+      "path": "backend/app/infrastructure/security/identity_notifications.py",
+      "sha256": "a312ad4594b2566c303e22a532cc7524afc91e7ef5bc23f3058c89ed15887d93",
+      "review_scope": "partial"
+    },
+    {
+      "path": "backend/app/infrastructure/travel_tracker/service.py",
+      "sha256": "171444bfa92d48ab37321e0603282d5761cfe021c17c248426312b0ba3d50c23",
+      "review_scope": "partial"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_ops.py",
+      "sha256": "9579d8a220f78d7d422be448f8165fae470f0b48122b141eb58c1ad114bf8b26",
+      "review_scope": "partial"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_integrity.py",
+      "sha256": "e257991c804ad81087fc064e29dd4f3c78836bc51eabbb6ef7452a84886f7573",
+      "review_scope": "partial"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/whatsapp_schemas.py",
+      "sha256": "cef7cf3eb91069546503f79893dc5e38c140a3ac31ae144c78b1fa6a838f5ea6",
+      "review_scope": "partial"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_imported_fields.py",
+      "sha256": "fc4ab60c67b8ba4da46dc0b50684264173f2af260696e138b1f40925049ba811",
+      "review_scope": "partial"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_recipient_inputs.py",
+      "sha256": "b36a54b257d60ba8825ae02f253aa7f7f63998c34bf06a678fd4ef88524ecee8",
+      "review_scope": "partial"
+    }
+  ],
+  "deferred_by_user": [
+    {
+      "path": "backend/app/application/interfaces/email_analysis.py",
+      "sha256": "cfcc8f49959f1f83d69e687f217ee851c8a6f459d72146e051ed17002b34df6f",
+      "reason": "Exact Operations Inbox policy; source not read or modified in this cohort."
+    },
+    {
+      "path": "backend/app/application/interfaces/email_provider.py",
+      "sha256": "2932fe94283e3083177d51f8a680c9247dc35be49f51d731cce6dad239a77000",
+      "reason": "Exact Operations Inbox policy; metadata only, no source read or modified."
+    }
+  ]
+}

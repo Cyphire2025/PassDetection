@@ -1,0 +1,15 @@
+{
+  "method": "Immutable read-only source finding is resolved only by the narrowly qualified current test fix; no inference that it audited production process/vault/runtime behavior.",
+  "historical_read_receipt": "connector-residual-review-verification.json",
+  "historical_read_sha256": "03c3808407ac3cef674d301b1cbadd94170b1966adc2a6bbfab52f6b15caf0c1",
+  "findings": [
+    {
+      "id": "CONNECTOR-TEST-CHILD-CLEANUP",
+      "status": "resolved-known-child-handle-timeout-cancel-cleanup",
+      "current_receipt": "connector-test-child-verification.json",
+      "current_receipt_sha256": "3c2df2915492d3595b98a9802a49acf9ee1de1060f71a02792b410a3e930788f",
+      "evidence": "Original3negative/1positive proof; current5synthetic process/vault controls use actualqualification function +real asyncio deadlines/repeatedcancellation, kill/reap beforedelete order; Ruff and exactcleanup-only ASTdelta pass.",
+      "limits": "No actual nativevault/subprocess run; processcreation and OS/runtime connector cancellation boundaries unchanged."
+    }
+  ]
+}

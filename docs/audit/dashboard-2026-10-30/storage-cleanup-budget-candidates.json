@@ -1,0 +1,58 @@
+[
+  {
+    "path": "app/infrastructure/documents/storage_cleanup.py",
+    "baseline_lines": 67,
+    "maximum_lines": 70,
+    "baseline_max_function_complexity": 0,
+    "maximum_function_complexity": 0,
+    "minimum_coverage_percent": 95
+  },
+  {
+    "path": "app/infrastructure/documents/storage_cleanup_cipher.py",
+    "baseline_lines": 118,
+    "maximum_lines": 120,
+    "baseline_max_function_complexity": 7,
+    "maximum_function_complexity": 7,
+    "minimum_coverage_percent": 85
+  },
+  {
+    "path": "app/infrastructure/documents/storage_cleanup_execution.py",
+    "baseline_lines": 169,
+    "maximum_lines": 170,
+    "baseline_max_function_complexity": 8,
+    "maximum_function_complexity": 8,
+    "minimum_coverage_percent": 95
+  },
+  {
+    "path": "app/infrastructure/documents/storage_cleanup_leases.py",
+    "baseline_lines": 171,
+    "maximum_lines": 180,
+    "baseline_max_function_complexity": 6,
+    "maximum_function_complexity": 6,
+    "minimum_coverage_percent": 95
+  },
+  {
+    "path": "app/infrastructure/documents/storage_cleanup_policy.py",
+    "baseline_lines": 115,
+    "maximum_lines": 120,
+    "baseline_max_function_complexity": 10,
+    "maximum_function_complexity": 10,
+    "minimum_coverage_percent": 85
+  },
+  {
+    "path": "app/infrastructure/documents/storage_cleanup_staging.py",
+    "baseline_lines": 164,
+    "maximum_lines": 170,
+    "baseline_max_function_complexity": 8,
+    "maximum_function_complexity": 8,
+    "minimum_coverage_percent": 95
+  },
+  {
+    "path": "app/infrastructure/documents/storage_cleanup_types.py",
+    "baseline_lines": 55,
+    "maximum_lines": 60,
+    "baseline_max_function_complexity": 0,
+    "maximum_function_complexity": 0,
+    "minimum_coverage_percent": 95
+  }
+]

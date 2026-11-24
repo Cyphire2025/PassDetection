@@ -1,0 +1,58 @@
+{
+  "before_sha256": "caf8e42bff4cd5281d5af1f88febd14d725529b6d49972e1635af3eb46ed0f54",
+  "mechanical_stage_unchanged_definition_AST_count": 12,
+  "owners": {
+    "normalize_imported_field_key": "backend/app/infrastructure/rooming/priority_field_policy.py",
+    "_is_unavailable_priority": "backend/app/infrastructure/rooming/priority_field_policy.py",
+    "_clean_value": "backend/app/infrastructure/rooming/priority_field_policy.py",
+    "is_rooming_roster_field": "backend/app/infrastructure/rooming/priority_field_policy.py",
+    "_base_field_definitions": "backend/app/infrastructure/rooming/priority_field_catalog.py",
+    "_humanize_imported_field_label": "backend/app/infrastructure/rooming/priority_field_catalog.py",
+    "_metadata_field_definitions": "backend/app/infrastructure/rooming/priority_field_catalog.py",
+    "_deduplicate_labels": "backend/app/infrastructure/rooming/priority_field_catalog.py",
+    "_submission_field_values": "backend/app/infrastructure/rooming/priority_field_values.py",
+    "_recipient_value": "backend/app/infrastructure/rooming/priority_field_values.py",
+    "RoomingPriorityContext": "backend/app/infrastructure/rooming/priority_fields.py",
+    "build_rooming_priority_context": "backend/app/infrastructure/rooming/priority_fields.py"
+  },
+  "scope": "Original 12-definition mechanical extraction checked before optimization; final 10 original definitions and all seven constant assignments match exact ASTs. Orchestrator differs only in one resolved-value expression; signature, query/tenant filters, matcher seam, lock, field-catalog and response shape unchanged. Original dataclass stays at its original module path. Imported helper globals now resolve in their canonical owner; no live patch use found for those aliases. This proof establishes structural scope, not deployed service correctness.",
+  "final_unchanged_definition_AST_count": 10,
+  "final_unchanged_definitions": [
+    "RoomingPriorityContext",
+    "_base_field_definitions",
+    "_clean_value",
+    "_deduplicate_labels",
+    "_humanize_imported_field_label",
+    "_is_unavailable_priority",
+    "_metadata_field_definitions",
+    "_submission_field_values",
+    "is_rooming_roster_field",
+    "normalize_imported_field_key"
+  ],
+  "unchanged_constant_assignment_AST_count": 7,
+  "unchanged_constants": [
+    "MAX_ROOMING_FIELD_KEY_LENGTH",
+    "MAX_ROOMING_METADATA_FIELDS",
+    "MAX_ROOMING_PRIORITY_FIELDS",
+    "ROOMING_GENDER_RULE",
+    "_NON_GROUPABLE_FIELD_KEYS",
+    "_UNAVAILABLE_COMPACT_PRIORITY_ALIASES",
+    "_UNAVAILABLE_PRIORITY_ALIASES"
+  ],
+  "intentional_changes": {
+    "build_rooming_priority_context": {
+      "only_changed_expression": "resolved assignment value",
+      "before": "{f'whatsapp:{normalized}': _recipient_value(row, normalized) for normalized in whatsapp_keys}",
+      "after": "{f'whatsapp:{normalized}': value for normalized, value in _recipient_values(row, whatsapp_keys).items()}",
+      "all_other_definition_AST_equal": true
+    },
+    "_recipient_value": "Same signature/return type and facade alias; delegates one key to batched resolver. Real value assertions cover conflicts, casefold-equivalent first value, missing key.",
+    "_recipient_values": "New resolver sorts recipient fields once and normalizes each header once, retains first clean literal per casefold or permanent ambiguity marker. No identity matching, query, authority, or source allowlist changes."
+  },
+  "source_sha256": {
+    "backend/app/infrastructure/rooming/priority_field_catalog.py": "6ddf90261c444e4e6427d993bcc8fa0dbd51c9b6e6b60f7a49a71fd01dc59f04",
+    "backend/app/infrastructure/rooming/priority_field_policy.py": "64598228c747cc778f034c60488f55faad7c10b3d0d40fcd377d16df9715861a",
+    "backend/app/infrastructure/rooming/priority_field_values.py": "62715fc8274962cca138efe57cdfcba4ba05e173f5f36262d86231be2cddc868",
+    "backend/app/infrastructure/rooming/priority_fields.py": "29d0ee199c2f9966e06dd96ede4cd9e3bc24ac21b0079aed4dbaf3fd656f5a0a"
+  }
+}

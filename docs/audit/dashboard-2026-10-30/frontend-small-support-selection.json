@@ -1,0 +1,267 @@
+{
+  "method": "Current inventory plus exact present-byte/full-ledger triage. Selection is not manual review credit.",
+  "manual_read_credit": 0,
+  "inventory_sha256": "d7ac1cfca3f35c7c04c4755908bc474d2fb5ff1b57ae1ba4b9960bdac84eb20b",
+  "selected": [
+    {
+      "path": "frontend/components/layout/mobile-navigation.test.tsx",
+      "sha256": "b5ba61b518b7d1bf48026716cbd081f572dc4b9144128718b3235cb5baaa017f",
+      "physical_lines": 62
+    },
+    {
+      "path": "frontend/components/layout/__tests__/mobile-navigation.test.tsx",
+      "sha256": "42ad6f64d3bb3578dc054dbc6934fcf887bae00ffb946942babce84142b89e20",
+      "physical_lines": 143
+    },
+    {
+      "path": "frontend/features/upload/components/passport-normalization-source.contract-helper.mjs",
+      "sha256": "20b9e61f46fc80bf715a771de591f8ee0d35520b6449b2e5117810582206c063",
+      "physical_lines": 8
+    },
+    {
+      "path": "frontend/features/auth/services/restoration-destination.test.ts",
+      "sha256": "1cf33dbfffeebb31204c5025039a31c47e8884c7dae6733dbd66f5fbab80b2f7",
+      "physical_lines": 11
+    },
+    {
+      "path": "frontend/features/upload/services/contact-verification.test.ts",
+      "sha256": "7c229b49a149ace1167ab166a2ff74f0e04299c105c8147879680b0cfad5d0ec",
+      "physical_lines": 11
+    },
+    {
+      "path": "frontend/providers/query-provider.contract.test.mjs",
+      "sha256": "c75fc8e0bfa7eea662b654034933b59035eb440a2adff2dbedc44bb1ef416897",
+      "physical_lines": 11
+    },
+    {
+      "path": "frontend/app/root-route.contract.test.mjs",
+      "sha256": "afd7d1347c8039a36519591b86d343934f13b140176196700374346d0121f814",
+      "physical_lines": 12
+    },
+    {
+      "path": "frontend/lib/utils/phone-number.test.ts",
+      "sha256": "f29cfac674b73ec648d5273cc3c7582b560e33ac4d82e4e135303e9ae3311353",
+      "physical_lines": 12
+    },
+    {
+      "path": "frontend/app/manual-camera-copy.contract.test.mjs",
+      "sha256": "4a40bc66d373f7ab5568310b1912c36c3e92fb51b86e259fd6ca2a9c8a11d6c1",
+      "physical_lines": 13
+    },
+    {
+      "path": "frontend/features/companies/utils/company-navigation.test.ts",
+      "sha256": "2445d84e23394f7d47a6463b0b6a794869ce03decf0e76f5145990adfa128401",
+      "physical_lines": 13
+    },
+    {
+      "path": "frontend/features/upload/components/passport-camera-source.contract-helper.mjs",
+      "sha256": "212a047989e3c98aa94de5f67e7c003b65efb5f78a7d20407116009421446627",
+      "physical_lines": 13
+    },
+    {
+      "path": "frontend/features/companies/components/company-original-record.test.tsx",
+      "sha256": "7cc23a2edf2195fbb6e31e0dd8b93f0c5051039c534cef2d76454ed0cde81a15",
+      "physical_lines": 14
+    },
+    {
+      "path": "frontend/features/companies/utils/company-search.test.ts",
+      "sha256": "65a37c2522d4314d0b763ec554f800c9fa9659da7ac3718152ec1e7a25932e22",
+      "physical_lines": 15
+    },
+    {
+      "path": "frontend/features/whatsapp/utils/group-invite.test.ts",
+      "sha256": "d4b8a419f38b4d5a6c9f9a20396733366ff9bbe7587573acad6d1396f326c041",
+      "physical_lines": 15
+    },
+    {
+      "path": "frontend/features/documents/components/document-group-search.contract.test.mjs",
+      "sha256": "b9529cc6589029babaa0e39b89cf8fb0d4551c00d1ef52d4d2e78011a3bf1e1a",
+      "physical_lines": 16
+    },
+    {
+      "path": "frontend/features/passports/api/passports-search.test.ts",
+      "sha256": "6b517ac41619aee27cafc87b42b1ef8b29f6ce66b1af78db6eadeb38925fdbe0",
+      "physical_lines": 16
+    },
+    {
+      "path": "frontend/features/passports/utils/passport-image-crop-permissions.test.mjs",
+      "sha256": "7cbf3ad016d1a09140e6beaa38f7c8df0eeeb414a9ec9812dd626ddd02722517",
+      "physical_lines": 16
+    },
+    {
+      "path": "frontend/components/ui/liquid-sculpture/engine.test.ts",
+      "sha256": "7f24f1a601f208d11c3a79b4ce7aac0f1ea6ba3cc48cdab623982013f22ddfe6",
+      "physical_lines": 17
+    },
+    {
+      "path": "frontend/features/auth/services/access-level-navigation.test.ts",
+      "sha256": "39221e39b1d55aa4793340102c4850a32c5bb415a39b4c2e21f111a555809cac",
+      "physical_lines": 17
+    },
+    {
+      "path": "frontend/features/passports/api/client-details.api.test.ts",
+      "sha256": "b94c4b64d104646d4545ac5eaf354d05b493009b1794f899a95a10eb8e9caded",
+      "physical_lines": 17
+    },
+    {
+      "path": "frontend/components/ui/input.test.tsx",
+      "sha256": "15291e8551e677faf25e19d23dd1204dda7f43080179bf375ff582ac2f58eadf",
+      "physical_lines": 19
+    },
+    {
+      "path": "frontend/features/mcp/utils/save-transfer-file.test.ts",
+      "sha256": "922de135cce055bbcf9c6661bf0287985f183ab3b997dca1a09a4c752e888f27",
+      "physical_lines": 19
+    },
+    {
+      "path": "frontend/features/whatsapp/api/whatsapp-duplicate-sources.test.ts",
+      "sha256": "f269294d84d664e1a4f9087de9765e9c665a86066acbd502ab41a96fa8d7f7a6",
+      "physical_lines": 19
+    },
+    {
+      "path": "frontend/lib/utils/role-access.test.ts",
+      "sha256": "e28edc7b1ca9a62348955183cec08655aa8a353cdf6c87bd7920c14299f50b41",
+      "physical_lines": 19
+    },
+    {
+      "path": "frontend/features/email-integrations/services/email-refresh-policy.test.ts",
+      "sha256": "b04d4939713a5cdf13c5f62da358f40161620ad4122be7afdaffdde5a8376d28",
+      "physical_lines": 20
+    },
+    {
+      "path": "frontend/config/e2e-isolation.test.ts",
+      "sha256": "96054fc4211f1816a03df5d4f0deae65a910a9417adec37a2f4173737d1248c2",
+      "physical_lines": 21
+    },
+    {
+      "path": "frontend/features/passports/components/whatsapp-match-description.test.ts",
+      "sha256": "23b886eab8862c547c2b0f0b9f8ef818389368a0b59a51e368b16dcdbd58e6d6",
+      "physical_lines": 21
+    },
+    {
+      "path": "frontend/features/tour-operations/services/public-offline-runtime-cache.test.mjs",
+      "sha256": "30af490f8d14444d596b8adcebd3864e3843b20828effac1d15326ea22a97928",
+      "physical_lines": 21
+    },
+    {
+      "path": "frontend/lib/api/api-error-detail.test.ts",
+      "sha256": "c77831fa9096e0c10457520a314a95070184ba3d9b1ce48f48ca05465db1ffe6",
+      "physical_lines": 21
+    },
+    {
+      "path": "frontend/lib/utils/passport-fields.test.mjs",
+      "sha256": "3c8948897025fcf76816afacd616f1976e026520bdc1e58e6492742e4cc6098f",
+      "physical_lines": 21
+    },
+    {
+      "path": "frontend/features/gc-app/availability.test.ts",
+      "sha256": "3e67ef097dbd5b06dd79daa10d42080b01ef56f570bee5f3f539a53a960f1547",
+      "physical_lines": 22
+    },
+    {
+      "path": "frontend/features/operations/api/operations-tour-groups.api.test.ts",
+      "sha256": "17a9ab5d14df001d1e664ca6b96d4ade2e3b6ee17289e161e2cc072fff209a16",
+      "physical_lines": 22
+    }
+  ],
+  "skipped_current_full": [
+    {
+      "path": "frontend/features/passports/api/upload-link-api-source.contract-helper.mjs",
+      "sha256": "8a8437293550790cb4ddbbe28747fb793bb6742d057c9f7f398f3c56a721b07b",
+      "full_records": [
+        "passport-private-mutation-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/components/traveller-welcome.test-fixtures.ts",
+      "sha256": "e01dc278aedbf553956626b9a2ff5b89c7fb479455bb976c7507573d094fa555",
+      "full_records": [
+        "document-dialogs-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/components/passport-list-source.contract-helper.mjs",
+      "sha256": "9bd37cc621b74bba39546743dc57cf58d67daf58b8c04cdf6ee59c1e3814a766",
+      "full_records": [
+        "passport-list-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/api/passport-api-source.contract-helper.mjs",
+      "sha256": "4933d17ac5c3736df934242ac540de2785bdea19304a7e771c50ced348676805",
+      "full_records": [
+        "passport-private-mutation-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/hooks/passport-hooks-source.contract-helper.mjs",
+      "sha256": "44294b954072d70377406c6088ed0dd6f029f4d6449d9a208e6693e3743e9f13",
+      "full_records": [
+        "passport-private-mutation-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/components/create-upload-link-source.contract-helper.mjs",
+      "sha256": "f33adebbe2511b6115dffb127e6b482124a10dc3f3ec652c34aa41600cfe7b2b",
+      "full_records": [
+        "create-upload-link-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/components/group-whatsapp-source.contract-helper.mjs",
+      "sha256": "65bec11ddab4b03570d4878db14896deb724ef3da7800472d83b71244d3e4301",
+      "full_records": [
+        "group-whatsapp-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/upload/components/relation-qualifier-step.contract.test.mjs",
+      "sha256": "0aa359c5f6ce6a511024f9df9365bb965de59c8564309c2f5843e05f7ebde181",
+      "full_records": [
+        "legacy-upload-current-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/components/passport-export-dialog-source.contract-helper.mjs",
+      "sha256": "7b448092ae3fde0187b5f461fce58686bfed2f901bf4593e172a8731be23d231",
+      "full_records": [
+        "passport-export-dialog-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/upload/components/current-upload-source.contract-helper.mjs",
+      "sha256": "fdda9e2b50eb297b5e29dacc05abac1308e23ee04d51d693698ce523b5e2601d",
+      "full_records": [
+        "legacy-upload-current-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/companies/test-support/navigation.ts",
+      "sha256": "3e3a852f3965c6c22b66aeb71bf4b43fbec421db93ec7391802e9f1d8a0b01cd",
+      "full_records": [
+        "companies-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/components/upload-link-list-source.contract-helper.mjs",
+      "sha256": "012205071de0c4d89ab7d481bfcf3f9945b6244efcd30d40ec5003b4cd860130",
+      "full_records": [
+        "upload-link-list-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/components/passport-image-editor-source.contract-helper.mjs",
+      "sha256": "16818ad2ecaf8ea47fd8a47ed3343de5dfdd8d289b0d6ff8704ee40723bf2d04",
+      "full_records": [
+        "passport-upload-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/upload/components/protected-upload-document-image.contract.test.mjs",
+      "sha256": "b8d3cf00a233031063103ef4069924bd53dede932fc8e5ccfcc22d667328e801",
+      "full_records": [
+        "legacy-upload-current-reviewed-files.json"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,563 @@
+[
+  {
+    "path": "frontend/features/branding/api/branding-images.api.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "2c6b39282474e505aa23f380693e910d59479cb2e5fbfb4578be862e24d20316",
+    "physical_lines": 44,
+    "notes": "Full current API physically read and narrow owner fix authored: initial actor precondition may be carried from create-group, asserted before request/after response; default captures authenticated actor; expected image version/agency/timeout/formdata preserved. Three focused owner tests pass; original artwork crop/transparent source retained."
+  },
+  {
+    "path": "frontend/features/branding/components/group-banner.tsx",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "36d684b84fcb75c1dbb6b832041cdb592aadb561277c0e67ba175486f3d57b1f",
+    "notes": "Group artwork lane: implementation/dependencies inspected; lifecycle/crop/transparency behavior verified with6backend,4geometry and6browser tests. No full-system security assurance inferred.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/features/branding/components/group-banner-action.tsx",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "2fc7d9110a8318bf70be8d25f3668cefc9e691eef837b27c38f106cad96d907d",
+    "notes": "Group artwork lane: implementation/dependencies inspected; lifecycle/crop/transparency behavior verified with6backend,4geometry and6browser tests. No full-system security assurance inferred.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/features/branding/components/group-image-dialog.tsx",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "4e91f10b44c15da0703bd35086fd14ac133410290ebf52bde110e41dff42eddf",
+    "notes": "Group artwork lane: implementation/dependencies inspected; lifecycle/crop/transparency behavior verified with6backend,4geometry and6browser tests. No full-system security assurance inferred. Final viewport-crop review: background frame derives current right pane aspect including header, excludes sidebar; portrait preview bounded to52dvh. Desktop/mobile browser assertions and3newReactregressions added.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/features/branding/components/group-workspace-background.tsx",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "266272487b0af7587fa4d80006b5a221bc82b82565d96f39555f8009d86314e9",
+    "notes": "Group artwork lane: implementation/dependencies inspected; lifecycle/crop/transparency behavior verified with6backend,4geometry and6browser tests. No full-system security assurance inferred.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/features/branding/components/image-position-editor.tsx",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "c8236bdc228f5770a662edd552dcdeb319eeb19f2ea141f0133b7f2943250290",
+    "notes": "Group artwork lane: implementation/dependencies inspected; lifecycle/crop/transparency behavior verified with6backend,4geometry and6browser tests. No full-system security assurance inferred. Final viewport-crop review: background frame derives current right pane aspect including header, excludes sidebar; portrait preview bounded to52dvh. Desktop/mobile browser assertions and3newReactregressions added.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/features/branding/components/image-upload-field.tsx",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "f3aa19a07943d3b9134f061940985a3bf7c3bd1a8c19c92769468ee2fa6449fc",
+    "notes": "Group artwork lane: implementation/dependencies inspected; lifecycle/crop/transparency behavior verified with6backend,4geometry and6browser tests. No full-system security assurance inferred.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/features/branding/image-crop.ts",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "8bf84ef478d7fdef520f3a7e2abfd0a2308bec590274209601ea966a096d32d2",
+    "notes": "Group artwork lane: implementation/dependencies inspected; lifecycle/crop/transparency behavior verified with6backend,4geometry and6browser tests. No full-system security assurance inferred.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/features/branding/image-crop.test.ts",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "3054e2bfd017cfd42bec017961dcbc5a37c1a5813cfd6d34b2708a695d0817aa",
+    "notes": "Group artwork lane: implementation/dependencies inspected; lifecycle/crop/transparency behavior verified with6backend,4geometry and6browser tests. No full-system security assurance inferred.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/features/passports/components/passport-group-detail.tsx",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "7d287d3d76ad9dd1e666e66ecc6dfca18200c97a3f7934e991c3bb068ac6ff52",
+    "notes": "Group artwork lane: implementation/dependencies inspected; lifecycle/crop/transparency behavior verified with6backend,4geometry and6browser tests. No full-system security assurance inferred.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/components/shared/empty-state.tsx",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "3ffd1f773b65494333090e1a1f0063858edd8a3d34041f23b79909c7dbc0c5da",
+    "notes": "Group artwork lane: implementation/dependencies inspected; lifecycle/crop/transparency behavior verified with6backend,4geometry and6browser tests. No full-system security assurance inferred.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/components/shared/workspace-ui.tsx",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "99069a67d160f0f3b23bbd608900bfc25fedba6bc93e2fe4d1d01d46fdffcab4",
+    "notes": "Group artwork lane: implementation/dependencies inspected; lifecycle/crop/transparency behavior verified with6backend,4geometry and6browser tests. No full-system security assurance inferred.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/components/ui/card.tsx",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "a88aa500f9f886d03fd738bed43c544c851ec78727cecfe12fae38dede23a338",
+    "notes": "Group artwork lane: implementation/dependencies inspected; lifecycle/crop/transparency behavior verified with6backend,4geometry and6browser tests. No full-system security assurance inferred.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/components/ui/modal-keyboard-boundary.ts",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "5e0bc3f3a5c5618470efaf6b63cc328201974323a01eff21ad2a2251a29d2f1f",
+    "notes": "Group artwork lane: implementation/dependencies inspected; lifecycle/crop/transparency behavior verified with6backend,4geometry and6browser tests. No full-system security assurance inferred. Sharedfrontend follow-up fully reviewed: optional explicit return-target resolver preserves drawer header focus with the shared nested-dialog boundary; all30shared/modal/provider tests pass.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/components/layout/dashboard-shell.tsx",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "8cfa5c19d281fa54d29d7fbafef936919cd1ad994a25a87a96673ad91f59385e",
+    "notes": "Group artwork lane: implementation/dependencies inspected; lifecycle/crop/transparency behavior verified with6backend,4geometry and6browser tests. No full-system security assurance inferred.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/components/layout/header.tsx",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "fdfbf41c1bd8e91a818c2af3b9612e2b09a24ef18d65a36153804e72af6ba5ad",
+    "notes": "Group artwork lane: implementation/dependencies inspected; lifecycle/crop/transparency behavior verified with6backend,4geometry and6browser tests. No full-system security assurance inferred.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/e2e/workspace-branding.spec.ts",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "94a0caf04605ca9c0d907eec3f8388087a10a8b419587c2f5417bd39c8427d8d",
+    "notes": "Group artwork lane: implementation/dependencies inspected; lifecycle/crop/transparency behavior verified with6backend,4geometry and6browser tests. No full-system security assurance inferred. Final viewport-crop review: background frame derives current right pane aspect including header, excludes sidebar; portrait preview bounded to52dvh. Desktop/mobile browser assertions and3newReactregressions added.",
+    "review_scope": "full"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/branding_images.py",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "9b5c671e49300a11d91fdb27d2cc52563e35ee5b941ce2c29e06b62d96414627",
+    "notes": "Group artwork lane: implementation/dependencies inspected; lifecycle/crop/transparency behavior verified with6backend,4geometry and6browser tests. No full-system security assurance inferred.",
+    "review_scope": "full"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/branding_metadata.py",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "af2fde94a527905676e039565a7bc6c9ccba298821c35f4258a6e3e7a308d40f",
+    "notes": "Group artwork lane: implementation/dependencies inspected; lifecycle/crop/transparency behavior verified with6backend,4geometry and6browser tests. No full-system security assurance inferred.",
+    "review_scope": "full"
+  },
+  {
+    "path": "backend/app/infrastructure/storage/branding_urls.py",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "9b75c427c919f2a0ed48bb99979ccd69bc7a3ba94d9514e7b45ba5a52d838b29",
+    "notes": "Group artwork lane: implementation/dependencies inspected; lifecycle/crop/transparency behavior verified with6backend,4geometry and6browser tests. No full-system security assurance inferred.",
+    "review_scope": "full"
+  },
+  {
+    "path": "backend/alembic/versions/0141_workspace_branding.py",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "f511c957f633c5bf3c2065b80270f61f89b4d4d75e5c4c3ca1e3c71f3b2d4567",
+    "notes": "Group artwork lane: implementation/dependencies inspected; lifecycle/crop/transparency behavior verified with6backend,4geometry and6browser tests. No full-system security assurance inferred.",
+    "review_scope": "full"
+  },
+  {
+    "path": "backend/alembic/versions/0142_group_background.py",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "171477cb03f92d19b65b26c1c1580a23dc95e3a3c462732aa7c58914f0fb0af0",
+    "notes": "Group artwork lane: implementation/dependencies inspected; lifecycle/crop/transparency behavior verified with6backend,4geometry and6browser tests. No full-system security assurance inferred.",
+    "review_scope": "full"
+  },
+  {
+    "path": "backend/tests/integration/test_workspace_branding.py",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "77ba5b8632956e858dc51ff4540ac0052fc6bc808a246ddaaf32be4aed15e584",
+    "notes": "Group artwork lane: implementation/dependencies inspected; lifecycle/crop/transparency behavior verified with6backend,4geometry and6browser tests. No full-system security assurance inferred.",
+    "review_scope": "full"
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_group_background_migration.py",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "4b803ffafeed6111bf1e7f2e5180fc962ff27b44a02e8b3fc713f54faec5e5a1",
+    "notes": "Group artwork lane: implementation/dependencies inspected; lifecycle/crop/transparency behavior verified with6backend,4geometry and6browser tests. No full-system security assurance inferred.",
+    "review_scope": "full"
+  },
+  {
+    "path": "backend/app/infrastructure/database/models.py",
+    "status": "needs-follow-up",
+    "reviewer": "branding_visuals",
+    "sha256": "cca0de0deb12e7cdc7368501e8a3ac0012e513d691ddcf10a3ead67ec4ec2ed0",
+    "notes": "Branding fields/styles/callers reviewed and exercised; remaining unrelated contents have not received a complete file review in this lane.",
+    "review_scope": "partial"
+  },
+  {
+    "path": "backend/app/domain/entities/entities.py",
+    "status": "needs-follow-up",
+    "reviewer": "branding_visuals",
+    "sha256": "13d580b111a7abdddc7226ef4c86726b49465ec92097264b7f6c7414475c400d",
+    "notes": "Branding fields/styles/callers reviewed and exercised; remaining unrelated contents have not received a complete file review in this lane.",
+    "review_scope": "partial"
+  },
+  {
+    "path": "backend/app/application/dtos/client_group_dtos.py",
+    "status": "needs-follow-up",
+    "reviewer": "branding_visuals",
+    "sha256": "08e3ca1d8d5bf1d632ed4abe7799d6ffecd89da9cf57b11523ec87fa8c22b418",
+    "notes": "Branding fields/styles/callers reviewed and exercised; remaining unrelated contents have not received a complete file review in this lane.",
+    "review_scope": "partial"
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/client_group_repository.py",
+    "status": "needs-follow-up",
+    "reviewer": "branding_visuals",
+    "sha256": "66064e771138181d5be51bd1708e2104b3ff944b3a4e517d5bce770912a1453d",
+    "notes": "Branding fields/styles/callers reviewed and exercised; remaining unrelated contents have not received a complete file review in this lane.",
+    "review_scope": "partial"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/schemas/client_group_schemas.py",
+    "status": "needs-follow-up",
+    "reviewer": "branding_visuals",
+    "sha256": "75d3656f60914fca553c593e16b0ab08deddb4354d427bfd6439ffa82a5da58e",
+    "notes": "Branding fields/styles/callers reviewed and exercised; remaining unrelated contents have not received a complete file review in this lane.",
+    "review_scope": "partial"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/schemas/passport_schemas.py",
+    "status": "needs-follow-up",
+    "reviewer": "branding_visuals",
+    "sha256": "f2c10f862e344d3aa84c7608d0c8a86ad19f29e3f6cdf1dbb7730e392dd102f6",
+    "notes": "Branding fields/styles/callers reviewed and exercised; remaining unrelated contents have not received a complete file review in this lane.",
+    "review_scope": "partial"
+  },
+  {
+    "path": "frontend/features/passports/components/use-passport-group-controller.tsx",
+    "status": "needs-follow-up",
+    "reviewer": "branding_visuals",
+    "sha256": "9eded5c8115c83d0fb1d2b610383427b88a9bda155476da93507a7683f1385a2",
+    "notes": "Branding fields/styles/callers reviewed and exercised; remaining unrelated contents have not received a complete file review in this lane.",
+    "review_scope": "partial"
+  },
+  {
+    "path": "frontend/features/passports/components/passport-group-overview-panel.tsx",
+    "status": "needs-follow-up",
+    "reviewer": "branding_visuals",
+    "sha256": "f5418759de9658f1e5c3d6d248f2eb686d20d41bf2ede034c6e10c868e2c88c6",
+    "notes": "Branding fields/styles/callers reviewed and exercised; remaining unrelated contents have not received a complete file review in this lane.",
+    "review_scope": "partial"
+  },
+  {
+    "path": "frontend/features/passports/components/passport-group-roster-panel.tsx",
+    "status": "needs-follow-up",
+    "reviewer": "branding_visuals",
+    "sha256": "0862246bb52bd3f25e1f2ad98c4e657533c9ad41c774affc4182b62b38a6440e",
+    "notes": "Branding fields/styles/callers reviewed and exercised; remaining unrelated contents have not received a complete file review in this lane.",
+    "review_scope": "partial"
+  },
+  {
+    "path": "frontend/features/passports/components/passport-group-selection-toolbar.tsx",
+    "status": "needs-follow-up",
+    "reviewer": "branding_visuals",
+    "sha256": "2afdefd3960e5a1848b3447720b1475fd8c4fef8a07ebd900f6de95b2139d1f8",
+    "notes": "Branding fields/styles/callers reviewed and exercised; remaining unrelated contents have not received a complete file review in this lane.",
+    "review_scope": "partial"
+  },
+  {
+    "path": "frontend/features/passports/api/upload-links.api.ts",
+    "status": "needs-follow-up",
+    "reviewer": "branding_visuals",
+    "sha256": "7cae53e363364d45600a5f3279c1ca0387acb29a0c27a6d14319e15e70b1a233",
+    "notes": "Branding fields/styles/callers reviewed and exercised; remaining unrelated contents have not received a complete file review in this lane.",
+    "review_scope": "partial"
+  },
+  {
+    "path": "frontend/types/passport.types.ts",
+    "status": "needs-follow-up",
+    "reviewer": "branding_visuals",
+    "sha256": "7393b6de3b7cce04ba339f0e53cfd46111f9acee551015aa217ce08ce6ea43e2",
+    "notes": "Branding fields/styles/callers reviewed and exercised; remaining unrelated contents have not received a complete file review in this lane.",
+    "review_scope": "partial"
+  },
+  {
+    "path": "frontend/app/globals.css",
+    "status": "needs-follow-up",
+    "reviewer": "branding_visuals",
+    "sha256": "d416d376f7adf4a655c2b5dd3a4a9b95c2c122cc21747f33fa39caa79df977f8",
+    "notes": "Branding fields/styles/callers reviewed and exercised; remaining unrelated contents have not received a complete file review in this lane.",
+    "review_scope": "partial"
+  },
+  {
+    "path": "frontend/features/passports/components/passport-detail.tsx",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "88378a7ed4944eddf591ecba990687439522f9fde8a9f840033a3589e7d23b9c",
+    "notes": "Passport detail lane: reviewed complete former1411-line source and extracted responsibilities;13 behavior tests +19 contract checks; revision/approval/image/navigation guards retained. Synchronous duplicate image admission repaired.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/features/passports/components/passport-detail-header.tsx",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "8db60b36e4f65c7dc58348b9e1ba6b1f18b6a0db7b97b506c4e0561feaa51e93",
+    "notes": "Passport detail lane: reviewed complete former1411-line source and extracted responsibilities;13 behavior tests +19 contract checks; revision/approval/image/navigation guards retained. Synchronous duplicate image admission repaired.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/features/passports/components/passport-detail-images.tsx",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "d6ef075bb02b615f6fd6e2962d06b3d57a216b8239a671cc7d74f8f11a36546b",
+    "notes": "Passport detail lane: reviewed complete former1411-line source and extracted responsibilities;13 behavior tests +19 contract checks; revision/approval/image/navigation guards retained. Synchronous duplicate image admission repaired. Whitespace normalized afterward with installed TypeScript; printer-normalized syntax proved unchanged.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/features/passports/components/passport-attendance-qr-card.tsx",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "548fb78dcf6bc17db2b0574eadbd909bcf8f8594c65371fdc8684dc7a87adb96",
+    "notes": "Passport detail lane: reviewed complete former1411-line source and extracted responsibilities;13 behavior tests +19 contract checks; revision/approval/image/navigation guards retained. Synchronous duplicate image admission repaired.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/features/passports/components/passport-review-card.tsx",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "9b9c9445ed7d95436b6398ad4939a1df6688912f6f24799da883d92753a7bf8b",
+    "notes": "Passport detail lane: reviewed complete former1411-line source and extracted responsibilities;13 behavior tests +19 contract checks; revision/approval/image/navigation guards retained. Synchronous duplicate image admission repaired.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/features/passports/components/passport-review-fields.tsx",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "e2b36355424b157f4a5920e52d0679f4590aff1dffbacb73cccd465488ed3152",
+    "notes": "Passport detail lane: reviewed complete former1411-line source and extracted responsibilities;13 behavior tests +19 contract checks; revision/approval/image/navigation guards retained. Synchronous duplicate image admission repaired.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/features/passports/components/passport-review-actions.tsx",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "3540e94309e9434f3e892865ed0db71c6293e74dddcbd37cb01e7497055d01a0",
+    "notes": "Passport detail lane: reviewed complete former1411-line source and extracted responsibilities;13 behavior tests +19 contract checks; revision/approval/image/navigation guards retained. Synchronous duplicate image admission repaired.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/features/passports/components/passport-review-status.tsx",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "43b89d5052c6652a7235089fadfd267294fe94d9b0585ea6f926daaf2d23848c",
+    "notes": "Passport detail lane: reviewed complete former1411-line source and extracted responsibilities;13 behavior tests +19 contract checks; revision/approval/image/navigation guards retained. Synchronous duplicate image admission repaired.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/features/passports/components/passport-review-conflicts.tsx",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "b3b294dfe9e61e1a37c45d8d0d47daaf933198488154f0631ddfb4dffd844bcf",
+    "notes": "Passport detail lane: reviewed complete former1411-line source and extracted responsibilities;13 behavior tests +19 contract checks; revision/approval/image/navigation guards retained. Synchronous duplicate image admission repaired. Whitespace normalized afterward with installed TypeScript; printer-normalized syntax proved unchanged.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/features/passports/components/passport-review-model.ts",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "e834633c22ad14edb7c3fa72b05068ed0a00725cab85e71d5de9ad1cac233c2e",
+    "notes": "Passport detail lane: reviewed complete former1411-line source and extracted responsibilities;13 behavior tests +19 contract checks; revision/approval/image/navigation guards retained. Synchronous duplicate image admission repaired.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/features/passports/components/passport-review-types.ts",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "a293bacb906eb76e474176f8d67ffd5bd63ccbb63ac80942ea4c11e17f0cb845",
+    "notes": "Passport detail lane: reviewed complete former1411-line source and extracted responsibilities;13 behavior tests +19 contract checks; revision/approval/image/navigation guards retained. Synchronous duplicate image admission repaired.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/features/passports/components/passport-reextract-status.tsx",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "31773e78b41ef9ce3b38f55d5967f3a0c0f991158ed5d52d9c273228106bae3a",
+    "notes": "Passport detail lane: reviewed complete former1411-line source and extracted responsibilities;13 behavior tests +19 contract checks; revision/approval/image/navigation guards retained. Synchronous duplicate image admission repaired.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/features/passports/components/use-passport-detail-controller.ts",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "51f75292c0caeaa14875931403fb420af30bb8b239db93b9c58c8deed8ebc7c3",
+    "notes": "Passport detail lane: reviewed complete former1411-line source and extracted responsibilities;13 behavior tests +19 contract checks; revision/approval/image/navigation guards retained. Synchronous duplicate image admission repaired.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/features/passports/components/use-passport-field-review.ts",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "66931cb7ef694c653cd5e2e5433d7761744f1cd409e3e20d630fccfdaa9cfc7d",
+    "notes": "Passport detail lane: reviewed complete former1411-line source and extracted responsibilities;13 behavior tests +19 contract checks; revision/approval/image/navigation guards retained. Synchronous duplicate image admission repaired.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/features/passports/components/passport-review-card.test.tsx",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "1ee1ac958fd09ed34b120ba6d70bfdb38dd5b0c7864d80c9515a315ed55d09ed",
+    "notes": "Passport detail lane: reviewed complete former1411-line source and extracted responsibilities;13 behavior tests +19 contract checks; revision/approval/image/navigation guards retained. Synchronous duplicate image admission repaired.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/features/passports/components/passport-detail-images.test.tsx",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "9b0bd7d4b0aa23d684a0bb39bce6ebc556f2f5626545e95f26e10412e639f024",
+    "notes": "Passport detail lane: reviewed complete former1411-line source and extracted responsibilities;13 behavior tests +19 contract checks; revision/approval/image/navigation guards retained. Synchronous duplicate image admission repaired.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/features/passports/components/use-passport-detail-controller.test.tsx",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "0fd32f481b3bd714d349d6cf46bcc24c196e19cc598242c33d9fef70664afa21",
+    "notes": "Passport detail lane: reviewed complete former1411-line source and extracted responsibilities;13 behavior tests +19 contract checks; revision/approval/image/navigation guards retained. Synchronous duplicate image admission repaired.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/features/passports/components/passport-detail.contract.test.mjs",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "f8771c9ed8816cc06e12a2f65218bf20d2229401d4afad18676e3c5a404f5e54",
+    "notes": "Passport detail lane: reviewed complete former1411-line source and extracted responsibilities;13 behavior tests +19 contract checks; revision/approval/image/navigation guards retained. Synchronous duplicate image admission repaired.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/features/passports/components/passport-image-crop-editor.contract.test.mjs",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "2ae1503c2f9490a560ce6af04c514e78edb4e917f736bd37bed90b264000c5f4",
+    "notes": "Passport detail lane: reviewed complete former1411-line source and extracted responsibilities;13 behavior tests +19 contract checks; revision/approval/image/navigation guards retained. Synchronous duplicate image admission repaired. Earlier full read is not upgraded because the current digest differs; a current complete reread is required.",
+    "review_scope": "partial"
+  },
+  {
+    "path": "frontend/features/passports/components/use-passport-detail-navigation.ts",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "34fb2fb43fc6e86f6f8a1474dd9f227bc200c4e38fa4c9688435a55dff218145",
+    "notes": "Passport detail lane: reviewed complete former1411-line source and extracted responsibilities;13 behavior tests +19 contract checks; revision/approval/image/navigation guards retained. Synchronous duplicate image admission repaired.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/features/passports/components/use-passport-detail-navigation.test.tsx",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "b71e1cceaf194b9425b4927214c68d5840ed53eaf7b9291f6951116909c24f2f",
+    "notes": "Passport detail lane: reviewed complete former1411-line source and extracted responsibilities;13 behavior tests +19 contract checks; revision/approval/image/navigation guards retained. Synchronous duplicate image admission repaired.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/features/settings/components/platform-settings-panel.tsx",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "df159530aa3bc83d1632617be5d78ee55f322bd2c09ecb8d2f47dc41a6b6857b",
+    "notes": "Independent settings review: preserved authority/conflict/exact typed phrase/modal gates; synchronous duplicate save/purge admission repaired;7 settings UI/hook behavior tests passed.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/features/settings/components/platform-policy-section.tsx",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "0f2a413f940ebc402de6a41a2e035a84d7adbab565232e203cd940e916d80d46",
+    "notes": "Independent settings review: preserved authority/conflict/exact typed phrase/modal gates; synchronous duplicate save/purge admission repaired;7 settings UI/hook behavior tests passed.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/features/settings/components/platform-data-section.tsx",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "0f3f9c7e99333203a4f70f25020653c22157ea883c5649f5efea84704b1dce7c",
+    "notes": "Independent settings review: preserved authority/conflict/exact typed phrase/modal gates; synchronous duplicate save/purge admission repaired;7 settings UI/hook behavior tests passed.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/features/settings/components/platform-setting-controls.tsx",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "58bb9e00166772df6b518d039b12fd0d7188de6ada1bc188e74fbc3a38d626eb",
+    "notes": "Independent settings review: preserved authority/conflict/exact typed phrase/modal gates; synchronous duplicate save/purge admission repaired;7 settings UI/hook behavior tests passed.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/features/settings/hooks/use-platform-settings.ts",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "85bc2f470ca1dc2e6f36de305d2ee1bf6b6c90a8f9a8a1a98c20dc52c7a7318e",
+    "notes": "Independent settings review: preserved authority/conflict/exact typed phrase/modal gates; synchronous duplicate save/purge admission repaired;7 settings UI/hook behavior tests passed.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/features/settings/hooks/use-platform-data-purge.ts",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "c2d8c0c1e6eb9c9458891e7b0857615f27f8533693fe85341d107b4c4a334635",
+    "notes": "Independent settings review: preserved authority/conflict/exact typed phrase/modal gates; synchronous duplicate save/purge admission repaired;7 settings UI/hook behavior tests passed.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/features/settings/hooks/platform-mutation-guards.test.tsx",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "807e10faf70bd0a1f4c6ab642016d9a7ff6e8af4cc3eb421162ffaf953982c56",
+    "notes": "Independent settings review: preserved authority/conflict/exact typed phrase/modal gates; synchronous duplicate save/purge admission repaired;7 settings UI/hook behavior tests passed.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/features/settings/components/platform-settings-panel.test.tsx",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "0bf21f29c19feaea9c654bcab3c1c23e3deca4285b7028bfe3645e7c5e09a3b7",
+    "notes": "Independent settings review: preserved authority/conflict/exact typed phrase/modal gates; synchronous duplicate save/purge admission repaired;7 settings UI/hook behavior tests passed.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/features/upload/services/passport-camera-guide.ts",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "a6e47e9fcc5c9c74358cebfe62e7d8175243f4e3822c103e3bb681ae081d9ee4",
+    "notes": "Independent extraction review:5 declarations AST-equivalent to prior implementation;5 camera adapter plus14 unchanged rectangular detector tests passed; retained geometry/manual capture behavior.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/features/upload/services/passport-camera-guide.test.mjs",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "8ec9c46ac82ca74bf31e806289f86676baf3cd32c63c39c5b131b3aded0b0998",
+    "notes": "Independent extraction review:5 declarations AST-equivalent to prior implementation;5 camera adapter plus14 unchanged rectangular detector tests passed; retained geometry/manual capture behavior.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/components/ui/skeleton.tsx",
+    "status": "verified",
+    "reviewer": "branding_visuals",
+    "sha256": "279de41cc306626628dc96e32c3ac44e8b48a9fe0d91f8bb092c46bb264c715a",
+    "notes": "Added explicit artwork loading-surface marker; mobile background screenshots and browser assertions confirm loading panels are transparent, existing aria-hidden/loading geometry preserved.",
+    "review_scope": "full"
+  },
+  {
+    "path": "frontend/features/branding/components/group-image-dialog.test.tsx",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "db3587bbb0e50027c7678d39992bcb47505257864c5cabd3462dc00509d8ebe4",
+    "notes": "Complete new regressionfile:390x844 and1192x1000 background crop frames match their actual right-pane aspect; banner remains wide.7total crop/frame tests pass.",
+    "review_scope": "full"
+  }
+]

@@ -66,7 +66,7 @@ class RosterCache:
             stored = await self.client.get(self.prefix + identity)
             if stored is not None:
                 return await asyncio.to_thread(decode, stored, self.cipher, identity)
-        except (RedisError, InvalidToken, ValueError, TypeError, KeyError, OverflowError, zlib.error):
+        except (RedisError, InvalidToken, ValueError, TypeError, KeyError, IndexError, AttributeError, OverflowError, zlib.error):
             pass  # cache data never bypasses live database authorization
         return None
 

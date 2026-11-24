@@ -1,0 +1,39 @@
+{
+  "argv": [
+    "C:\\Users\\nipun\\AppData\\Local\\Programs\\node-v24.21.0-win-x64\\node.exe",
+    "node_modules/@playwright/test/cli.js",
+    "test",
+    "--config",
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\final-browser-failure-diagnostics\\diagnostic.config.ts"
+  ],
+  "build_id": "-SsobzdWJpn6pla1bMQEw",
+  "source_paths": 9,
+  "artifact_paths": 1634,
+  "os_environment_keys": [
+    "API_BASE_URL",
+    "APPDATA",
+    "COMSPEC",
+    "HOMEDRIVE",
+    "HOMEPATH",
+    "LOCALAPPDATA",
+    "NEXT_PUBLIC_API_BASE_URL",
+    "NEXT_PUBLIC_APP_URL",
+    "NEXT_PUBLIC_DEV_APP_URL",
+    "NEXT_TELEMETRY_DISABLED",
+    "NO_COLOR",
+    "NUMBER_OF_PROCESSORS",
+    "PATH",
+    "PATHEXT",
+    "PROCESSOR_ARCHITECTURE",
+    "PROGRAMDATA",
+    "PROGRAMFILES",
+    "PROGRAMFILES(X86)",
+    "SYSTEMDRIVE",
+    "SYSTEMROOT",
+    "TEMP",
+    "TMP",
+    "USERPROFILE",
+    "WINDIR"
+  ],
+  "scope": "6 diagnostic scenarios only; observation-only timeline; no runtime/test source edits or build"
+}

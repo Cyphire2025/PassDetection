@@ -1,0 +1,29 @@
+[
+  {
+    "path": "frontend/features/branding/components/group-image-dialog.tsx",
+    "sha256": "219fe7ee75ae4aef5121e87d43b5ee8a4a8d698b89117e22531cc5f3f82f3b0e",
+    "physical_lines": 95,
+    "reviewer": "root independent peer",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Current whole source read in untruncated intervals, including final legacy caller/cleanup delta. Initiating actor+authority captured before crop; layout lifetime abort/null prevents same-owner unmount and account-return revival; full authority+signal reach actual async adapter; guards precede cache/onClose. Original image version and multipart business fields preserved. Meaningful actual AuthenticatedContent/SessionLifecycle/client adapter tests cover cross-owner/role/agency, A-to-B-to-A, route unmount, queued interceptor, late response, no initial owner, unchanged profile and default/legacy callers. No actionable peer issue. Final source-bound34case receipt and whole frontend/build/browser verification remain separate; no universal security claim."
+  },
+  {
+    "path": "frontend/features/branding/api/branding-images.api.ts",
+    "sha256": "e168b6ea253acf3e4b85b54ff71abcfd80bf3c4bf21ab3d06e352ca4e70894c6",
+    "physical_lines": 45,
+    "reviewer": "root independent peer",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Current whole source read in untruncated intervals, including final legacy caller/cleanup delta. Initiating actor+authority captured before crop; layout lifetime abort/null prevents same-owner unmount and account-return revival; full authority+signal reach actual async adapter; guards precede cache/onClose. Original image version and multipart business fields preserved. Meaningful actual AuthenticatedContent/SessionLifecycle/client adapter tests cover cross-owner/role/agency, A-to-B-to-A, route unmount, queued interceptor, late response, no initial owner, unchanged profile and default/legacy callers. No actionable peer issue. Final source-bound34case receipt and whole frontend/build/browser verification remain separate; no universal security claim."
+  },
+  {
+    "path": "frontend/features/branding/components/group-image-save-authority.test.tsx",
+    "sha256": "2caeffb4bb3c9da769881f46d91e184f7a04fc86c48db5e8df3a8ab898dcbe97",
+    "physical_lines": 271,
+    "reviewer": "root independent peer",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Current whole source read in untruncated intervals, including final legacy caller/cleanup delta. Initiating actor+authority captured before crop; layout lifetime abort/null prevents same-owner unmount and account-return revival; full authority+signal reach actual async adapter; guards precede cache/onClose. Original image version and multipart business fields preserved. Meaningful actual AuthenticatedContent/SessionLifecycle/client adapter tests cover cross-owner/role/agency, A-to-B-to-A, route unmount, queued interceptor, late response, no initial owner, unchanged profile and default/legacy callers. No actionable peer issue. Final source-bound34case receipt and whole frontend/build/browser verification remain separate; no universal security claim."
+  }
+]

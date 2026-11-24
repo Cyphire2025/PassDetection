@@ -1,0 +1,186 @@
+{
+  "stage": "mechanical extraction checkpoint before independent SQL isolation investigation",
+  "method": "Original physical reads plus explicit authored import boundaries and whole-declaration AST movement proof; named supporting full and partial source records remain distinct. A test run is not a manual source read.",
+  "files": [
+    {
+      "path": "backend/app/infrastructure/runtime_readiness_contracts.py",
+      "sha256": "29b1aaa8a64ccfe32ab571d8ebb512a9ae600ad5bcacb681a83d927057e3462d",
+      "physical_lines": 52,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Complete original539line physical read, authored/import boundary read and exact complete declaration/class/function AST partition into this actual owner. Same SQL/default/gate/body semantics; current public aliases/type hints/cache object identities exercised. Actual owner coverage independently meets original88L63B, not facade-only credit."
+    },
+    {
+      "path": "backend/app/infrastructure/runtime_readiness_database.py",
+      "sha256": "d5096be39d581b39834a7a732cdf421bdb370c7d02e8bd41666932243e35f8bf",
+      "physical_lines": 71,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Complete original539line physical read, authored/import boundary read and exact complete declaration/class/function AST partition into this actual owner. Same SQL/default/gate/body semantics; current public aliases/type hints/cache object identities exercised. Actual owner coverage independently meets original88L63B, not facade-only credit."
+    },
+    {
+      "path": "backend/app/infrastructure/runtime_readiness_probes.py",
+      "sha256": "37dbb8ff36d5e19cad2afe0ba523030ac9bbc0c5e43df15e5b624fb1b2a63bf0",
+      "physical_lines": 141,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Complete original539line physical read, authored/import boundary read and exact complete declaration/class/function AST partition into this actual owner. Same SQL/default/gate/body semantics; current public aliases/type hints/cache object identities exercised. Actual owner coverage independently meets original88L63B, not facade-only credit."
+    },
+    {
+      "path": "backend/app/infrastructure/runtime_readiness_capabilities.py",
+      "sha256": "bc1904a1aada151631034e8fb60b5d366da1e5049fa019b6a03813f9866ab439",
+      "physical_lines": 161,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Complete original539line physical read, authored/import boundary read and exact complete declaration/class/function AST partition into this actual owner. Same SQL/default/gate/body semantics; current public aliases/type hints/cache object identities exercised. Actual owner coverage independently meets original88L63B, not facade-only credit."
+    },
+    {
+      "path": "backend/app/infrastructure/runtime_readiness.py",
+      "sha256": "b439d9d4174e8c0b1ae096a4f0f23c96ae7e10c6e2f0d636a0509a7c5f9783f0",
+      "physical_lines": 278,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Complete original539line physical read, authored/import boundary read and exact complete declaration/class/function AST partition into this actual owner. Same SQL/default/gate/body semantics; current public aliases/type hints/cache object identities exercised. Actual owner coverage independently meets original88L63B, not facade-only credit."
+    },
+    {
+      "path": "backend/app/infrastructure/readiness_executor.py",
+      "sha256": "945f5950fab2d2acb7138f3ee4333d950c0cf8e8110f9b987e161e3d73f3c1ee",
+      "physical_lines": 66,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete66line source read: fixed9 slots, named unfinished future dedup survives waiter timeout/cancellation, configuration equality refusal, shield/cross-loop wrapping and bounded shutdown. Unchanged; affected repeated-timeout/cross-loop controls passed."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/health.py",
+      "sha256": "fb9056f1b956503f10260b8569e7f9ee75fec830d7572bace2ba20fa3c744dbf",
+      "physical_lines": 325,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete325line actual live route source read: bounded parallel3.75second fanout, sequential owned DB task cancellation, status/type-only error projection, explicit readiness gates and super-admin diagnostics/metrics. Shared Inbox adaptor read only for health compatibility; no dedicated Inbox audit or behavior changes."
+    },
+    {
+      "path": "backend/app/infrastructure/ai_priority/worker_readiness.py",
+      "sha256": "4768c464dead1fa83aa3842863a8bfe057826be558c68eb1180338160268a8ee",
+      "physical_lines": 183,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete183line support read: bounded thread-safe TTL queue probe, exact queues/control replies, safe exception type projection and lazy Celery import. No source edit/provider call."
+    },
+    {
+      "path": "backend/app/infrastructure/ecr/readiness.py",
+      "sha256": "dbc4a369f6cc5ab3eb3e4b4e0a9ca3f207c0e7520e8530f3b6b3dba4bdf09f4d",
+      "physical_lines": 81,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete current source read: optional ledger aggregation inside begin_nested savepoint, explicit unknown backlog, safe aggregate metrics and nontraffic gate. This supports separate cleanup SQL-transaction candidate; no source change or livePG proof."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_runtime_readiness.py",
+      "sha256": "b491cb3f06dc2d129b08b73f8974dd7787004034e2cc5d9749e15d12e42b003b",
+      "physical_lines": 406,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete original/current source physically read; only actual patch-owner binding retarget and formatting. Whole test AST inverse proves all assertions/inputs/functions preserved; current parent/helper policy behavior remains executed."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_runtime_readiness_guards.py",
+      "sha256": "e119c436ee5684fb97054163c7af3613a9c217bee123097eafc47e0ed6f02adf",
+      "physical_lines": 164,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete new authored/current guards read: original aliases/actualget_type_hints/singleton, exactTTL/config invalidation/object identity, malformed result rejection, scanner no-contact/required health, Redis close on alloutcomes and non-disclosing DB fallback. Synthetic providers only."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_readiness_executor.py",
+      "sha256": "36621b07f9b9e1069775d73f47285c739a20312124512c6abe206adc57eece05",
+      "physical_lines": 74,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete current source read; repeated20-way timeout dedup with2/9 slots, config mismatch, capacity bound and cross-event-loop continuation assertions. Unchanged executed affected controls."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_health_readiness.py",
+      "sha256": "55029dbfbf193f6d8f82ed6e605ffc60b85b2b2e1193962e18ad68fd91d04675",
+      "physical_lines": 266,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete current source read: actual public status, requiredconfig/queue cases, superadmin diagnostics access and private exception exclusion. Unchanged tests in affected group; no live providers."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_health_readiness_deadline.py",
+      "sha256": "e736d4cbf2ebf2ecf7169a870b4ce1221bd009596a3c64565547ea1fad44e33d",
+      "physical_lines": 265,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete current source read; actual cold9slot/singleflight/one-window deadline, capability preservation and DB task cancellation. Patch-owner retarget only; exact inverse proves old tests assertions/inputs preserved."
+    },
+    {
+      "path": "backend/app/core/config/settings.py",
+      "sha256": "6c5485def68a3d76a27260fbce57bfb2321b241787b769ce0738d63fccc8fef3",
+      "physical_lines": 212,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "focused",
+      "notes": "Head1-58 and135-EOF physical support reads only. Actual _load_environment_settings and computed S3/Redis/MyPhotos access/global cache traced; unread middle validators not promoted tofull."
+    },
+    {
+      "path": "backend/app/infrastructure/storage/minio_repository.py",
+      "sha256": "f31fe249d63c18ea0e400bae0ee3161eb05db6b194527e2bdab39bf88626180c",
+      "physical_lines": 483,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "focused",
+      "notes": "Physical1-125 support read: cached bounded boto clients, constructor, nonmutating head_bucket readiness, separate startup provisioning. Remaining repository notfull in this lane."
+    },
+    {
+      "path": "backend/app/infrastructure/platform_lifecycle_tasks.py",
+      "sha256": "3315d339b50b571803462b02e138d88e8db9c1783ec5e9f50055b0d0a8726d02",
+      "physical_lines": 88,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "focused",
+      "notes": "Physical1-65 supports heartbeat producer: setex90seconds,15second CeleryBeat scheduling separately traced, safe type-only failure and client close. Remaining retention tasks notread."
+    },
+    {
+      "path": "backend/app/infrastructure/processing/celery_app.py",
+      "sha256": "402830e148bc2745e7d05837ec10d81db4ed54bb9f6ab293d9cca60ae0f4a9e3",
+      "physical_lines": 430,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "focused",
+      "notes": "Relevant import/include prefix and367-386 schedule segment traced; actual platform heartbeat cadence15seconds. Not full module source review."
+    },
+    {
+      "path": "backend/Dockerfile",
+      "sha256": "10895b26619bfee4e3f93426a3a8f4c3859a805442fcf63427adf12a0b429e6e",
+      "physical_lines": 158,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "focused",
+      "notes": "Relevant builder/entrypoint/readiness segments only; production headless image unchanged. Source/readiness probe routes traced, no Docker image build/execution in this batch."
+    },
+    {
+      "path": "docker-compose.prod.yml",
+      "sha256": "e393b6698325b154a98e97b33880e46abbdeff870d9b1f8445af2550973be404",
+      "physical_lines": 240,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "focused",
+      "notes": "Physical125-152 healthcheck segment: production ready URL5second client timeout, source constraints and worker identity mapping only. Rest notfull in this lane."
+    }
+  ]
+}

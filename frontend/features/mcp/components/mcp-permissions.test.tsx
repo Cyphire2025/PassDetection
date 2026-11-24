@@ -1,8 +1,9 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
+import { useAuthStore } from "@/stores/auth.store";
 import { mcpApi, type McpPermissions } from "../api/mcp.api";
-import { connectionFixture, permissionFixture } from "../utils/permissions.test-fixture";
+import { connectionFixture, mcpAdminFixture, permissionFixture } from "../utils/permissions.test-fixture";
 import { McpPermissionsPanel } from "./mcp-permissions-panel";
 import { McpConnectionCard } from "./mcp-connection-card";
 
@@ -18,6 +19,7 @@ function show(component: React.ReactNode) {
 }
 beforeEach(() => {
   vi.clearAllMocks();
+  useAuthStore.setState({ user: mcpAdminFixture(), isAuthenticated: true });
   vi.mocked(mcpApi.permissions).mockResolvedValue(permissionFixture());
   vi.mocked(mcpApi.updatePermissions).mockImplementation(async ({ expected_revision, ...values }) => permissionFixture({ ...values, permission_revision: expected_revision + 1 }));
   vi.mocked(mcpApi.updateConnectionPermissions).mockImplementation(async ({ id, expected_revision, ...values }) => connectionFixture({ id, ...values, permission_revision: expected_revision + 1 }));

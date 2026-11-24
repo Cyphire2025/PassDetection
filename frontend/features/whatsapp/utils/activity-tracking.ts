@@ -61,6 +61,11 @@ function finiteNonNegative(value: unknown, fallback = 0): number {
     : fallback;
 }
 
+function isActivityTime(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value)
+    && value >= 0 && value <= 8_640_000_000_000_000;
+}
+
 export function parseTrackedWhatsAppActivities(
   raw: string | null,
 ): TrackedWhatsAppActivity[] {
@@ -75,8 +80,7 @@ export function parseTrackedWhatsAppActivities(
         || typeof candidate.id !== "string"
         || !candidate.id
         || !isActivityKind(candidate.kind)
-        || typeof candidate.startedAt !== "number"
-        || !Number.isFinite(candidate.startedAt)
+        || !isActivityTime(candidate.startedAt)
         || typeof candidate.title !== "string"
         || typeof candidate.contextLabel !== "string"
         || typeof candidate.sourceGroupId !== "string"
@@ -136,7 +140,7 @@ export function parseLegacyWhatsAppBatch(
     return {
       id: parsed.id,
       kind: "broadcast",
-      startedAt: finiteNonNegative(parsed.startedAt, Date.now()),
+      startedAt: isActivityTime(parsed.startedAt) ? parsed.startedAt : Date.now(),
       title: "WhatsApp message broadcast",
       contextLabel: "Current recipient list",
       sourceGroupId:

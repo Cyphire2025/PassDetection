@@ -1,7 +1,9 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, fireEvent, render, renderHook, screen, waitFor } from "@testing-library/react";
 import { useState, type ComponentProps, type ReactNode } from "react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { useAuthStore } from "@/stores/auth.store";
+import type { User } from "@/types";
 import { QUERY_KEYS } from "@/constants";
 import apiClient from "@/lib/api/client";
 import { passportsApi, type PassportGroupSubmissionsView } from "../api/passports.api";
@@ -11,6 +13,8 @@ import { PassportGroupSelectionToolbar } from "./passport-group-selection-toolba
 import { usePassportDocumentFollowUp } from "./use-passport-document-follow-up";
 
 afterEach(() => vi.restoreAllMocks());
+const ownerConfig = { expectedOwnerUserId: "staff", expectedAuthorityKey: '["staff","agency_admin","agency"]' };
+beforeEach(() => useAuthStore.setState({ user: { id: "staff", role: "agency_admin", agency_id: "agency" } as User }));
 
 function setupQueryClient() {
   const client = new QueryClient({ defaultOptions: { mutations: { retry: false }, queries: { retry: false } } });
@@ -99,7 +103,7 @@ describe("document follow-up actions", () => {
     await waitFor(() => expect(options.setFeedback).toHaveBeenLastCalledWith({
       tone: "success", message: flagged ? "2 people flagged for document follow-up." : "Document follow-up flag cleared for 2 people.",
     }));
-    expect(api).toHaveBeenCalledWith("group-1", { submission_ids: ["visible", "other-page"], flagged });
+    expect(api).toHaveBeenCalledWith("group-1", { submission_ids: ["visible", "other-page"], flagged }, ownerConfig);
     expect(client.getQueryState(queryKey)?.isInvalidated).toBe(true);
     expect(options.closeMenu).toHaveBeenCalledOnce();
     expect(options.setPage).not.toHaveBeenCalled();

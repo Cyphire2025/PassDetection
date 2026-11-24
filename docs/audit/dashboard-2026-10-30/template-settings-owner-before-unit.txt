@@ -1,0 +1,57 @@
+
+ RUN  v4.1.12 C:/Users/nipun/Desktop/PassDetection/frontend
+
+ ❯ features/settings/components/whatsapp-template-settings-panel.test.tsx (11 tests | 2 failed) 649ms
+   × admits no old draft after the actor changes while query cancellation is pending 44ms
+   × admits no old draft after the role changes while query cancellation is pending 50ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  features/settings/components/whatsapp-template-settings-panel.test.tsx > admits no old draft after the actor changes while query cancellation is pending
+ FAIL  features/settings/components/whatsapp-template-settings-panel.test.tsx > admits no old draft after the role changes while query cancellation is pending
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array [
+      "/api/v1/admin/whatsapp-templates",
+      Object {
+        "expected_revision": 7,
+        "overrides": Object {
+          "welcome": "old_authority_draft",
+        },
+      },
+      Object {
+        "signal": AbortSignal {
+          Symbol(kEvents): undefined,
+          Symbol(events.maxEventTargetListeners): 0,
+          Symbol(events.maxEventTargetListenersWarned): false,
+          Symbol(kHandlers): undefined,
+          Symbol(kAborted): false,
+          Symbol(kReason): undefined,
+          Symbol(kComposite): false,
+        },
+      },
+    ]
+
+
+Number of calls: 1
+
+ ❯ features/settings/components/whatsapp-template-settings-panel.test.tsx:142:29
+    140|     release?.();
+    141|   });
+    142|   expect(apiClient.put).not.toHaveBeenCalled();
+       |                             ^
+    143|   expect(screen.queryByText("Template settings saved. New sends will u…
+    144| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 9 passed (11)
+   Start at  09:59:24
+   Duration  2.50s (transform 88ms, setup 147ms, import 1.10s, tests 649ms, environment 512ms)
+

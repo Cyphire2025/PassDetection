@@ -1,0 +1,58 @@
+[
+  {
+    "path": "scripts/ci_job_inputs.py",
+    "sha256": "15ff317b3fdaf9320a5878ed6a9228ed90a8aa354218cbff911dd319349bf5e7",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete179-line source read: immutable full commit/tree input fingerprints include paths/modes/blob identities; unknown paths invalidate all jobs, symlink/submodule trees refuse reuse, live advisory/static/image jobs never reusable, full/manual release always reruns. Actual cross-app consumers and root/QA changes reviewed, not modified; no CI/GitHub requests or cache certification."
+  },
+  {
+    "path": "scripts/ci_success_reuse.py",
+    "sha256": "776db757e6e581ef22ecfe905fe5009a27dcfc46833057eea3ad78254f337889",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete318-line source read in contiguous165+153 segments: exact same repository/workflow/attempt/head/base lineage and locally available Git trees, recent authoritative successful jobs, planner-produced immutable bounded digest-bound artifact, redirect authorization removal, strictly newer failed/unknown observations block older success, API/shape problems fail closed. This is routine-check evidence only, no cached deployable artifact/full release. No GitHub/token/network calls or source edits."
+  },
+  {
+    "path": "scripts/verify_operational_evidence.py",
+    "sha256": "bb136f2bc7100085cad5a379bab13535d7b30c273d198e03b264a9531e5d5edf",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete122-line source read: private operator evidence remains separately reviewed, timezone-aware freshness and ordered alert/recovery timestamps, bounded objectives, off-host domains, real non-synthetic flags and contained regular receipt hashes; never a substitute for drills. No private evidence file opened, production contact or operational readiness claim."
+  },
+  {
+    "path": "scripts/benchmark_gc_mobile_payloads.py",
+    "sha256": "21dc54efd50fbf0897256203b22fd1e504a7b0be5b9cddd0ec1e3166857bdd5a",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete195-line source read in contiguous90+105 segments for shared GC contract tooling compatibility: synthetic JSON/gzip/serialization comparison, bounded CLI, explicit baseline and95-percent payload ratio, no actual API/device/network/DB assertion. Native feature audit remains excluded. No benchmark executed or source edit."
+  },
+  {
+    "path": "scripts/qa/probe_document_sender.py",
+    "sha256": "a3e403401f2a8f298c5e75c6d97b083e8b7313f35503e3cc8c6f94964f9ce617",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete202-line source read in contiguous115+87 segments: exact synthetic marker/database, reviewed release-schema fixture, real installed sender with synthetic storage/provider plus bounded25-row/concurrency4 and duplicate outcomes, child deadline/terminate/kill and memory receipts. No provider, DB, Docker, Linux fork or capacity work executed; no delivery latency/current binary claim."
+  },
+  {
+    "path": "scripts/qa/qualify_document_delivery_rebalance.py",
+    "sha256": "7d02b849e67fa1adcf4f1c7f1d51bec8d519ef2ebe22cd8ced235174af4084d8",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete189-line source read in contiguous110+79 segments:6GiB host guard, exact unique label/network-none ownership before scoped removal, bounded synthetic Redis fill/rewrite/eviction and frontend login requests with installed image identities. No production image/container inspected, RAM load or Docker operation; success limits are explicit."
+  },
+  {
+    "path": "scripts/release_pdf_checking_profile.py",
+    "sha256": "24b8177f0827f7f705e7bd4c61473df8e111444a04f3712b2f1c6c50079cfe55",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "reviewed",
+    "notes": "Focused retained compatibility: exact fixed host reserve/backend ceiling and cloned payload/persistent identity plus scheduler-command preservation. Existing explicit paused-email/MyPhotos profile is historical release compatibility; dedicated Inbox pause policy/implementation deferred. Entire file physically visible but no new Inbox audit, candidate/container action or source edit."
+  }
+]

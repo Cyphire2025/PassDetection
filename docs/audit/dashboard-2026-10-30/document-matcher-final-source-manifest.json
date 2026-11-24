@@ -1,0 +1,318 @@
+{
+  "frozen": true,
+  "owned_files": [
+    {
+      "path": "backend/app/infrastructure/documents/document_content_matching.py",
+      "sha256": "e546765e17ec69ac174b8b812ae4a8d0fe79682b106e42d429be703b29fee48f",
+      "physical_lines": 117,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "notes": "Complete117line new owner read. Fourrealfield frozenouterrecord owns same request-local mutablelists/tokens/pendingname tuple; primarypassport/fulltext, manifestname merging and extractedname/identifier collection maintain originalorder. Actualsubclass/globalpolicy/workcount controls agree withoriginal. Missingbranch is inheriteddefensive Nonepassenger guard in manifestmerge, no deepimmutability claim."
+    },
+    {
+      "path": "backend/app/infrastructure/documents/document_filename_matching.py",
+      "sha256": "3b9f3e31d1348cad060b5b3563a6af6b1481ebde18f372da70fdce0bc33b2955",
+      "physical_lines": 73,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "notes": "Complete73line new owner read. Filename passport/name/storedidentifier precedence, cross-category agreement, ambiguous terminalreview and None-only continuation preserved. Real existing resolver/self dispatch remains exact; no newbase/proxy/callbackbag."
+    },
+    {
+      "path": "backend/app/infrastructure/documents/document_match_results.py",
+      "sha256": "9992c0747769477e54022ec3312241577201ad403836411bb797acb298bd6451",
+      "physical_lines": 117,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "notes": "Complete117line finalnewowner read. Single-result/manualreview fallback, coherent firstcategory passenger-set containment, maxconfidence and stableduplicate tie winners preserved. Inaccurate oldcomment suggesting largest-set selection corrected to actualfirst-authoritative-set policy. One inheritedNonepassenger skip line unhit bynormalproducedrecords; no false100coverage claim."
+    },
+    {
+      "path": "backend/app/infrastructure/documents/document_matcher.py",
+      "sha256": "56d4bd08647d29d5d1a98b6469dc6e6149eb9e191effa1aab5e59febee89eb7e",
+      "physical_lines": 473,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "notes": "Complete final473line read. Publicclass/bases/MRO/signatures/evaluatedhints and all73originalimportedobjects preserved; wholeexpandedmoduleAST reconstructs original667source, including12unmovedmethods/3freefunctions. Namedmatching phases replace227line/MCC53 method with64line/MCC11 orchestration. Classification/PDFhooks/globalbounds remain exact. Compatibilityfacade473 stillintentionallylarger than pureowners duepublishedaliases and adapter surface; no speedup or wholePDFarchitectureclosure claimed."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_document_matcher_evidence_contract.py",
+      "sha256": "7063be81273e268f6e51cb08cec40a1798b5e34419f0f7526aa96ca113d14f95",
+      "physical_lines": 251,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "notes": "Complete251line finalnewtest read.11actualpublic cases cover exactMRO/hints/modulequalnames, subclassdispatch, globalmanualapproval hookorder, threeunchangedtokenizations, filenameearlyexit, stableties/unassignedrows, fourordinaryambiguouscontentcategories beforefuzzy, combinedsingle-resultreview and emptyoverridefallback.5passed originalruntime beforeedit; all11 pass exactoriginalsource replay via normalpytestsessionstartup; old116assertions/files unchanged."
+    }
+  ],
+  "unchanged_reviewed_dependencies_tests_callers": [
+    {
+      "path": "backend/app/infrastructure/documents/distribution_ingestion.py",
+      "sha256": "adc910220ff19f9b0e7a297b576ca03d43f492f54b712bfcdf19b422de1fbbc6",
+      "physical_lines": 475,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "notes": "All current physical source lines read in bounded output during matcher preflight. No passing test/import/AST metadata credited as a physical read; architecture and runtime qualification remain open. Existing PDF/parser/identity helper sources frozen pending independently validated issue. Current byte identity unchanged through final source-fenced178focused checks. Full read does not close independent architecture/service evidence obligations."
+    },
+    {
+      "path": "backend/app/infrastructure/documents/document_approval_provenance.py",
+      "sha256": "2a4ad698bf2b6610d998f39643f87cea2aad78d14b26e20b0b89b06733c0280d",
+      "physical_lines": 18,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "notes": "All current physical source lines read in bounded output during matcher preflight. No passing test/import/AST metadata credited as a physical read; architecture and runtime qualification remain open. Existing PDF/parser/identity helper sources frozen pending independently validated issue. Current byte identity unchanged through final source-fenced178focused checks. Full read does not close independent architecture/service evidence obligations."
+    },
+    {
+      "path": "backend/app/infrastructure/documents/document_batch_classification.py",
+      "sha256": "2b3a06a101c373cc32de12f0f2e8c9a6ce6bb380813887e5603747d5a1dd6417",
+      "physical_lines": 215,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "notes": "All current physical source lines read in bounded output during matcher preflight. No passing test/import/AST metadata credited as a physical read; architecture and runtime qualification remain open. Existing PDF/parser/identity helper sources frozen pending independently validated issue. Current byte identity unchanged through final source-fenced178focused checks. Full read does not close independent architecture/service evidence obligations."
+    },
+    {
+      "path": "backend/app/infrastructure/documents/document_identity_aliases.py",
+      "sha256": "5acc010b7bbec08d01ae9f22f67917286ce84ca5a97d43445ba5602e203eea83",
+      "physical_lines": 210,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "notes": "All current physical source lines read in bounded output during matcher preflight. No passing test/import/AST metadata credited as a physical read; architecture and runtime qualification remain open. Existing PDF/parser/identity helper sources frozen pending independently validated issue. Current byte identity unchanged through final source-fenced178focused checks. Full read does not close independent architecture/service evidence obligations."
+    },
+    {
+      "path": "backend/app/infrastructure/documents/document_identity_limits.py",
+      "sha256": "1425bba98778c0d1666dc7371e98a8ad3b088be237b2bbb3c29bfb27284a29f3",
+      "physical_lines": 13,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "notes": "All current physical source lines read in bounded output during matcher preflight. No passing test/import/AST metadata credited as a physical read; architecture and runtime qualification remain open. Existing PDF/parser/identity helper sources frozen pending independently validated issue. Current byte identity unchanged through final source-fenced178focused checks. Full read does not close independent architecture/service evidence obligations."
+    },
+    {
+      "path": "backend/app/infrastructure/documents/document_match_resolution.py",
+      "sha256": "b941022f1ac9e46c1c7417827297034b9a2d322b8c44aa35f9a3c894d077f6dd",
+      "physical_lines": 354,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "notes": "All current physical source lines read in bounded output during matcher preflight. No passing test/import/AST metadata credited as a physical read; architecture and runtime qualification remain open. Existing PDF/parser/identity helper sources frozen pending independently validated issue. Current byte identity unchanged through final source-fenced178focused checks. Full read does not close independent architecture/service evidence obligations."
+    },
+    {
+      "path": "backend/app/infrastructure/documents/document_matcher_models.py",
+      "sha256": "6f572933765d0f4b6595eae758dfad76797cc4d2c5ee00379ae7ec72ad6d4b1f",
+      "physical_lines": 82,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "notes": "All current physical source lines read in bounded output during matcher preflight. No passing test/import/AST metadata credited as a physical read; architecture and runtime qualification remain open. Existing PDF/parser/identity helper sources frozen pending independently validated issue. Current byte identity unchanged through final source-fenced178focused checks. Full read does not close independent architecture/service evidence obligations."
+    },
+    {
+      "path": "backend/app/infrastructure/documents/document_matcher_rules.py",
+      "sha256": "64b5ef3a1879f6d3789fc24f2ef62841f481194278e01f612ae519d2a8c95030",
+      "physical_lines": 258,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "notes": "All current physical source lines read in bounded output during matcher preflight. No passing test/import/AST metadata credited as a physical read; architecture and runtime qualification remain open. Existing PDF/parser/identity helper sources frozen pending independently validated issue. Current byte identity unchanged through final source-fenced178focused checks. Full read does not close independent architecture/service evidence obligations."
+    },
+    {
+      "path": "backend/app/infrastructure/documents/document_passenger_index.py",
+      "sha256": "adab0a7e926930fa6763a7481c58d37ff7fe636a4adcafc92d327b5c3afcc82d",
+      "physical_lines": 167,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "notes": "All current physical source lines read in bounded output during matcher preflight. No passing test/import/AST metadata credited as a physical read; architecture and runtime qualification remain open. Existing PDF/parser/identity helper sources frozen pending independently validated issue. Current byte identity unchanged through final source-fenced178focused checks. Full read does not close independent architecture/service evidence obligations."
+    },
+    {
+      "path": "backend/app/infrastructure/documents/document_pdf_support.py",
+      "sha256": "563c5247ab3e7d93fc3ca67eb5bb33d7e0d712d393c613d91257259ebc108f3c",
+      "physical_lines": 381,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "notes": "All current physical source lines read in bounded output during matcher preflight. No passing test/import/AST metadata credited as a physical read; architecture and runtime qualification remain open. Existing PDF/parser/identity helper sources frozen pending independently validated issue. Current byte identity unchanged through final source-fenced178focused checks. Full read does not close independent architecture/service evidence obligations."
+    },
+    {
+      "path": "backend/app/infrastructure/documents/document_text_fields.py",
+      "sha256": "657115c4a548a20aace7b37faef07c776138cc41a7904ef9a512f265a12e8fa0",
+      "physical_lines": 261,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "notes": "All current physical source lines read in bounded output during matcher preflight. No passing test/import/AST metadata credited as a physical read; architecture and runtime qualification remain open. Existing PDF/parser/identity helper sources frozen pending independently validated issue. Current byte identity unchanged through final source-fenced178focused checks. Full read does not close independent architecture/service evidence obligations."
+    },
+    {
+      "path": "backend/app/infrastructure/documents/document_text_normalization.py",
+      "sha256": "e9a4e26508db2df840d17b2a1fb4b50f2be07f92921a1be994ad6a6f9d7d2d9f",
+      "physical_lines": 49,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "notes": "All current physical source lines read in bounded output during matcher preflight. No passing test/import/AST metadata credited as a physical read; architecture and runtime qualification remain open. Existing PDF/parser/identity helper sources frozen pending independently validated issue. Current byte identity unchanged through final source-fenced178focused checks. Full read does not close independent architecture/service evidence obligations."
+    },
+    {
+      "path": "backend/app/infrastructure/documents/document_type_detection.py",
+      "sha256": "ba6b77ef799e0ded3e29115ffd73ca1b3ad6500bf79aa313e6ed8755c6a78ecb",
+      "physical_lines": 241,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "notes": "All current physical source lines read in bounded output during matcher preflight. No passing test/import/AST metadata credited as a physical read; architecture and runtime qualification remain open. Existing PDF/parser/identity helper sources frozen pending independently validated issue. Current byte identity unchanged through final source-fenced178focused checks. Full read does not close independent architecture/service evidence obligations."
+    },
+    {
+      "path": "backend/app/infrastructure/documents/pdf_parser_sandbox.py",
+      "sha256": "8986ae28ef2002c86b03cefa56fd9f522725739c8fab75a09d46021e80eabbdb",
+      "physical_lines": 556,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "notes": "All current physical source lines read in bounded output during matcher preflight. No passing test/import/AST metadata credited as a physical read; architecture and runtime qualification remain open. Existing PDF/parser/identity helper sources frozen pending independently validated issue. Current byte identity unchanged through final source-fenced178focused checks. Full read does not close independent architecture/service evidence obligations."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_matching.py",
+      "sha256": "a3e3784db9768d668f69920313b3bd05c0d4bc971b49d73e579ad493b92cb533",
+      "physical_lines": 206,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "notes": "All current physical source lines read in bounded output during matcher preflight. No passing test/import/AST metadata credited as a physical read; architecture and runtime qualification remain open. Existing PDF/parser/identity helper sources frozen pending independently validated issue. Current byte identity unchanged through final source-fenced178focused checks. Full read does not close independent architecture/service evidence obligations."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_rename_upload_contracts.py",
+      "sha256": "9379f7a8c6cf859ddc1bafedeb99dc5295e0a84d67c2d712efc467a3112f0a62",
+      "physical_lines": 123,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "notes": "All current physical source lines read in bounded output during matcher preflight. No passing test/import/AST metadata credited as a physical read; architecture and runtime qualification remain open. Existing PDF/parser/identity helper sources frozen pending independently validated issue. Current byte identity unchanged through final source-fenced178focused checks. Full read does not close independent architecture/service evidence obligations."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_document_batch_deduplication.py",
+      "sha256": "afd9807de7da62ab390b9b4611f89b39e5444e63bcbae3305db8c78d600c2787",
+      "physical_lines": 44,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "notes": "All current physical source lines read in bounded output during matcher preflight. No passing test/import/AST metadata credited as a physical read; architecture and runtime qualification remain open. Existing PDF/parser/identity helper sources frozen pending independently validated issue. Current byte identity unchanged through final source-fenced178focused checks. Full read does not close independent architecture/service evidence obligations."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_document_distribution_ingestion.py",
+      "sha256": "43d6680ced3ac7bb40d3889454fefb1aecc9953cdf0cf8a8f24ded229bf06a51",
+      "physical_lines": 776,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "notes": "Complete776line canonical ingestion test source read: matched/unmatched/staged/combinedPDF/capacity, flush/audit ordering, preclaimed key cleanup and actor reauthorization compensation. Actual storage/network calls are synthetic mocks; capacity1500fixture is existing ordinary workload control, no new payload campaign. Current byte identity unchanged through final source-fenced178focused checks. Full read does not close independent architecture/service evidence obligations."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_document_matcher.py",
+      "sha256": "f45bff7693918224d1b07aff7ba8b200b87d27084d62342b62bfec559f0934c1",
+      "physical_lines": 1850,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "notes": "All current physical source lines read in bounded output during matcher preflight. No passing test/import/AST metadata credited as a physical read; architecture and runtime qualification remain open. Existing PDF/parser/identity helper sources frozen pending independently validated issue. Current byte identity unchanged through final source-fenced178focused checks. Full read does not close independent architecture/service evidence obligations."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_document_matcher_decomposition.py",
+      "sha256": "7fb8bfb34876e5cbcb1e646909d4a059afba003e39981342ece51b18f7d37b34",
+      "physical_lines": 44,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "notes": "All current physical source lines read in bounded output during matcher preflight. No passing test/import/AST metadata credited as a physical read; architecture and runtime qualification remain open. Existing PDF/parser/identity helper sources frozen pending independently validated issue. Current byte identity unchanged through final source-fenced178focused checks. Full read does not close independent architecture/service evidence obligations."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_document_pdf_resources.py",
+      "sha256": "aaeb27ca80b32f6fec9cfe8dd8543aaaf8141cde1b0d2b96a711ba4f509fdbdf",
+      "physical_lines": 111,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "notes": "All current physical source lines read in bounded output during matcher preflight. No passing test/import/AST metadata credited as a physical read; architecture and runtime qualification remain open. Existing PDF/parser/identity helper sources frozen pending independently validated issue. Current byte identity unchanged through final source-fenced178focused checks. Full read does not close independent architecture/service evidence obligations."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_document_pdf_xforms.py",
+      "sha256": "bc94845a58594aa8588103f9772c5f766a7f306d9ba7c21e9356a6856fbadb86",
+      "physical_lines": 104,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "notes": "All current physical source lines read in bounded output during matcher preflight. No passing test/import/AST metadata credited as a physical read; architecture and runtime qualification remain open. Existing PDF/parser/identity helper sources frozen pending independently validated issue. Current byte identity unchanged through final source-fenced178focused checks. Full read does not close independent architecture/service evidence obligations."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_pdf_parser_sandbox.py",
+      "sha256": "7595abce0b95861dc17c1cd1e9df0972dd6a854d0d0efb3ef4debcdfd2dafdfd",
+      "physical_lines": 627,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "notes": "All current physical source lines read in bounded output during matcher preflight. No passing test/import/AST metadata credited as a physical read; architecture and runtime qualification remain open. Existing PDF/parser/identity helper sources frozen pending independently validated issue. Current byte identity unchanged through final source-fenced178focused checks. Full read does not close independent architecture/service evidence obligations."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_distribution_matching.py",
+      "sha256": "5793652d336623a30e860bf9c81b7a5cfbbea1f113f86469c89d0dba57d411a0",
+      "physical_lines": 1223,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "notes": "Complete1223line matching/preview/tenant visibility/source-change/counter/query-control source read. Real linked alias matching uses canonical matcher; fake providers and mocked calls preserve no-send boundary. SQLite shared-phone preview coverage does not prove PostgreSQL locks or actual provider sends. Current byte identity unchanged through final source-fenced178focused checks. Full read does not close independent architecture/service evidence obligations."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_rename_chunk_workflow.py",
+      "sha256": "ac15ac9243ccde212c0894a6ed27a0c0a2bd50e3b7b054ee11eb63bbaa323c31",
+      "physical_lines": 267,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "notes": "Complete267line actual SQLite ORM two-chunk/replay and independently committed winner tests read. Private objects stay in synthetic memory store, advisory lock mocked explicitly; no PostgreSQL concurrency claim. Current byte identity unchanged through final source-fenced178focused checks. Full read does not close independent architecture/service evidence obligations."
+    }
+  ],
+  "all142published_migration_hashes_unchanged": true,
+  "original_facade": {
+    "path": "backend/app/infrastructure/documents/document_matcher.py",
+    "sha256": "4256a5acb44ae73680eadc06c788cdefcd6b288e5d31361b0a979f4ce78fd791",
+    "physical_lines": 667,
+    "snapshot": ".tmp/document-matcher-current/document_matcher.py"
+  },
+  "source_statement_proof": {
+    "path": "docs/audit/dashboard-2026-10-30/document-matcher-expanded-statement-proof.json",
+    "sha256": "0e61391e19c435ff1a4f5831e8cfa5012f316fc8b672cb0bc9aeffa4e1acf9d1"
+  }
+}

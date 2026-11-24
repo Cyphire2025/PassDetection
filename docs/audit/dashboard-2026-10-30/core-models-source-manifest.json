@@ -1,0 +1,151 @@
+{
+  "runtime_file_count": 15,
+  "new_runtime_files": 14,
+  "new_test_files": 1,
+  "files": [
+    {
+      "path": "backend/app/infrastructure/database/models.py",
+      "sha256": "685526fd00128c49052195d84ac17d7e1ad66ace8e43dbcd70e260435be24c16",
+      "physical_lines": 198,
+      "bytes": 9750,
+      "line_endings": "LF",
+      "git_head_present": true,
+      "kind": "runtime"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/__init__.py",
+      "sha256": "faa1f24f577a07ccfdb3220f3525a0e2e01f529df5debff3909fb64dcc88c83f",
+      "physical_lines": 8,
+      "bytes": 383,
+      "line_endings": "LF",
+      "git_head_present": false,
+      "kind": "runtime"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/identity.py",
+      "sha256": "c8b6871bc2ebc4a75b0f4bd8ed3b1927d3f67a517fb8ed92212429d8bb935abf",
+      "physical_lines": 150,
+      "bytes": 5851,
+      "line_endings": "LF",
+      "git_head_present": false,
+      "kind": "runtime"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/groups.py",
+      "sha256": "f21b171c859d22ce92d578dce8498c05ad060f8a2fa9719323bad024d25147f5",
+      "physical_lines": 225,
+      "bytes": 9780,
+      "line_endings": "LF",
+      "git_head_present": false,
+      "kind": "runtime"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/access.py",
+      "sha256": "b18d92055a87b33ab6284b5ed8934d701a9a20cdf76b4a02182f8f180e5b1c23",
+      "physical_lines": 125,
+      "bytes": 4943,
+      "line_endings": "LF",
+      "git_head_present": false,
+      "kind": "runtime"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/passport.py",
+      "sha256": "6c5db24c2bb231c3f9e191879cedb21dbf25d5502985b538db90f30c8cfaf44d",
+      "physical_lines": 326,
+      "bytes": 13323,
+      "line_endings": "LF",
+      "git_head_present": false,
+      "kind": "runtime"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/exports.py",
+      "sha256": "8251fdad16fafec07e963cb941ac96c832f6e3dbab5032a733e916186cfd3551",
+      "physical_lines": 135,
+      "bytes": 4900,
+      "line_endings": "LF",
+      "git_head_present": false,
+      "kind": "runtime"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/roster.py",
+      "sha256": "6fbdd6446f17e92e4cbeee06e757a95bfba49d42192c7ff3860c8c0773214793",
+      "physical_lines": 141,
+      "bytes": 5557,
+      "line_endings": "LF",
+      "git_head_present": false,
+      "kind": "runtime"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/images.py",
+      "sha256": "d5ec6767f3b9c5beb8ba306a341361c3a0d650296fc3f6a4674f2b382ab9e641",
+      "physical_lines": 261,
+      "bytes": 9222,
+      "line_endings": "LF",
+      "git_head_present": false,
+      "kind": "runtime"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/upload_workflow.py",
+      "sha256": "cf1a6a558e8ebdb6d212aca2f0540dd9961793481fe4fdb7d4c463c950b0a7e5",
+      "physical_lines": 154,
+      "bytes": 5557,
+      "line_endings": "LF",
+      "git_head_present": false,
+      "kind": "runtime"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/broadcast_links.py",
+      "sha256": "3d86bf2528c510c2641e8f2b9bdf385831af7e35560e87ace323be68f729d559",
+      "physical_lines": 81,
+      "bytes": 2924,
+      "line_endings": "LF",
+      "git_head_present": false,
+      "kind": "runtime"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/verification_jobs.py",
+      "sha256": "9b78f3c3c1f993a2414be562c660de8c51352c046b7c0efb8cb5b44ae66a46c6",
+      "physical_lines": 80,
+      "bytes": 2836,
+      "line_endings": "LF",
+      "git_head_present": false,
+      "kind": "runtime"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/audit.py",
+      "sha256": "f52c5e0fa7fe5c43b9f4ca56426babcf647cff463c06594b7251d08a7e86644d",
+      "physical_lines": 142,
+      "bytes": 4879,
+      "line_endings": "LF",
+      "git_head_present": false,
+      "kind": "runtime"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/notifications.py",
+      "sha256": "e11bc29fd02fc0df264f9476b64073f6beacf4c9c2dd319ac5b3081a30703096",
+      "physical_lines": 73,
+      "bytes": 2596,
+      "line_endings": "LF",
+      "git_head_present": false,
+      "kind": "runtime"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/platform.py",
+      "sha256": "4e33f21bcf30ea0630696b08e0add2c66e357d1b0eca375a1ffbc091f19dae6a",
+      "physical_lines": 25,
+      "bytes": 847,
+      "line_endings": "LF",
+      "git_head_present": false,
+      "kind": "runtime"
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_core_model_owner_compatibility.py",
+      "sha256": "8978fd4e1ed4f07879fe365c4551445449d840fcbc8ff77ffae0bd5e916a660b",
+      "physical_lines": 87,
+      "bytes": 3505,
+      "line_endings": "LF",
+      "git_head_present": false,
+      "kind": "test"
+    }
+  ]
+}

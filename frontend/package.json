@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --hostname 0.0.0.0",
-    "prebuild": "node scripts/patch-mediapipe-csp.mjs --check",
+    "prebuild": "node scripts/build-offline-scanner.mjs --check && node scripts/patch-mediapipe-csp.mjs --check",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -25,13 +25,13 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.21.0",
-    "next": "16.3.8",
+    "next": "16.4.3",
     "qrcode": "^1.5.4",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-hook-form": "^7.80.0",
     "tailwind-merge": "^3.6.0",
-    "zod": "^4.4.3",
+    "zod": "4.6.6",
     "zustand": "^5.0.14"
   },
   "devDependencies": {
@@ -46,21 +46,23 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^6.1.0",
-    "@vitest/coverage-v8": "^4.1.11",
+    "@vitest/coverage-v8": "4.1.12",
     "eslint": "^9",
-    "eslint-config-next": "16.3.8",
+    "eslint-config-next": "16.4.3",
     "jsdom": "^30.0.1",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "vitest": "^4.1.11"
+    "vitest": "4.1.12"
   },
   "overrides": {
     "jsdom": {
-      "undici": "8.10.2"
+      "undici": "8.12.2"
     },
     "nanoid": "3.3.18",
     "postcss": "8.5.25",
     "sharp": "0.35.5",
-    "source-map-js": "1.2.2"
+    "source-map-js": "1.2.2",
+    "follow-redirects": "1.16.1",
+    "vite": "8.2.4"
   }
 }

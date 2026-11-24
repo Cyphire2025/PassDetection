@@ -8,7 +8,7 @@ import {
   validateProductionPublicEnvironment,
 } from "./scripts/production-public-env";
 
-const APP_DISPLAY_NAME = "Global Connect Travels";
+const APP_DISPLAY_NAME = "Group Companion";
 const APP_ID = "com.globalconnects.groupcompanion";
 const standaloneDemo = process.env.EXPO_PUBLIC_STANDALONE_DEMO === "true";
 if (standaloneDemo && (process.env.EXPO_PUBLIC_APP_ENV !== "preview"
@@ -81,7 +81,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     ...(process.env.EXPO_PUBLIC_EXPO_OWNER
       ? { owner: process.env.EXPO_PUBLIC_EXPO_OWNER }
       : {}),
-    version: "1.0.10",
+    version: "1.0.11",
     jsEngine: "hermes",
     orientation: "portrait",
     icon: "./assets/images/gc-app-icon.png",
@@ -136,7 +136,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     },
     android: {
       package: APP_ID,
-      versionCode: 11,
+      versionCode: 13,
       ...(googleServicesFile ? { googleServicesFile } : {}),
       allowBackup: false,
       blockedPermissions: [
@@ -193,13 +193,13 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         },
       ],
       "./plugins/with-expo-headless-loader-proguard",
-      [
+      ...(process.env.EXPO_PUBLIC_SENTRY_DSN ? [[
         "@sentry/react-native/expo",
         {
           ...(sentryOrganization ? { organization: sentryOrganization } : {}),
           ...(sentryProject ? { project: sentryProject } : {}),
         },
-      ],
+      ] as [string, { organization?: string; project?: string }]] : []),
       "expo-router",
       "expo-font",
       "expo-image",

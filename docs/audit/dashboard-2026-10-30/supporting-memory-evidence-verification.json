@@ -1,0 +1,121 @@
+{
+  "status": "complete-focused-generated-evidence-review",
+  "files": [
+    {
+      "path": "docs/remediation/postgres-memory-evidence.json",
+      "sha256": "0497ec950cbaa70d65ba3038500e960189d9dd67e15f3092c66098196c663465",
+      "physical_lines": 38,
+      "status": "reviewed-focused",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "notes": "Generated historical evidence reviewed by complete JSON structure/type tree, stated status/image/source/fixture/measurement/limitations claims and original QA producer context; first3 records also complete physical JSON text read. Numbers/source hashes are historical observations, not new executions, current runtime admission, production capacity or refreshed qualification. No source/receipt altered.",
+      "top_level_keys": [
+        "status",
+        "container",
+        "pinned_image",
+        "memory_cap_mib",
+        "production_changes",
+        "image_id",
+        "version",
+        "settings",
+        "held_sessions",
+        "simultaneous_queries",
+        "sort_rows_per_query",
+        "synthetic_table_rows",
+        "query_elapsed_seconds",
+        "temp_files",
+        "temp_bytes",
+        "cgroup_peak_bytes",
+        "cgroup_current_bytes",
+        "cgroup_events",
+        "limitations"
+      ]
+    },
+    {
+      "path": "docs/remediation/gcc-runtime-evidence.json",
+      "sha256": "b06289949f9d1a67e887a67c013f0752503d7138901e5930cacf07828f16fe36",
+      "physical_lines": 84,
+      "status": "reviewed-focused",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "notes": "Generated historical evidence reviewed by complete JSON structure/type tree, stated status/image/source/fixture/measurement/limitations claims and original QA producer context; first3 records also complete physical JSON text read. Numbers/source hashes are historical observations, not new executions, current runtime admission, production capacity or refreshed qualification. No source/receipt altered. Exact dated package/library/configuration/source URLs and qualified scope/remaining-boundary claims inspected; official advisory truth/current exception expiry/actual binaries deliberately left to root current research, no external fetch or waiver renewal.",
+      "top_level_keys": [
+        "schema_version",
+        "recorded_at",
+        "scope",
+        "package_manifest",
+        "aligned_new",
+        "pbds_binary_heap",
+        "runtime_manifest_conditions",
+        "complete_guard_verification"
+      ]
+    },
+    {
+      "path": "docs/remediation/native-memory-phase2-evidence.json",
+      "sha256": "a58658cc6353fe634963ebbc02405f6a5815dde87a49d9677d0c0f480eb39ddd",
+      "physical_lines": 113,
+      "status": "reviewed-focused",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "notes": "Generated historical evidence reviewed by complete JSON structure/type tree, stated status/image/source/fixture/measurement/limitations claims and original QA producer context; first3 records also complete physical JSON text read. Numbers/source hashes are historical observations, not new executions, current runtime admission, production capacity or refreshed qualification. No source/receipt altered.",
+      "top_level_keys": [
+        "status",
+        "image",
+        "memory_limit_each_probe",
+        "source_sha256",
+        "fixture_manifest",
+        "measurements",
+        "limitations",
+        "source_evidence"
+      ]
+    },
+    {
+      "path": "docs/remediation/native-memory-baseline-evidence.json",
+      "sha256": "c579028e9a305c2fc6298dbbefed15810a7bf579f89c445c2bdf05ddc9962983",
+      "physical_lines": 650,
+      "status": "reviewed-focused",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "notes": "Generated historical evidence reviewed by complete JSON structure/type tree, stated status/image/source/fixture/measurement/limitations claims and original QA producer context; first3 records also complete physical JSON text read. Numbers/source hashes are historical observations, not new executions, current runtime admission, production capacity or refreshed qualification. No source/receipt altered.",
+      "top_level_keys": [
+        "date",
+        "finding",
+        "status",
+        "image",
+        "source_sha256",
+        "memory_limit",
+        "children",
+        "workloads",
+        "limitations",
+        "production_oom_observed",
+        "production_changes"
+      ]
+    },
+    {
+      "path": "docs/remediation/kvm4-worker-memory-evidence.json",
+      "sha256": "3dd889bd1e80e15a8bfc6b7ac30d6aa67164a86e969e443c7c8b31c9b9438271",
+      "physical_lines": 477,
+      "status": "reviewed-focused",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "notes": "Generated historical evidence reviewed by complete JSON structure/type tree, stated status/image/source/fixture/measurement/limitations claims and original QA producer context; first3 records also complete physical JSON text read. Numbers/source hashes are historical observations, not new executions, current runtime admission, production capacity or refreshed qualification. No source/receipt altered. All15 row structures/status/peak/OOM/repetition/image/overlay/sourcehash/limitations reviewed, including retained failed intermediary and final5mode claims. Shared historical email row names seen as common resource-profile context only; dedicated Inbox source/results not re-audited.",
+      "top_level_keys": [
+        "result",
+        "runtime_isolation",
+        "rows",
+        "source_sha256",
+        "limitations",
+        "qualified_final_image",
+        "final_modes"
+      ]
+    }
+  ],
+  "ledger_sha256": "76bf74c0ec5abae3b13e73d80a5cbcbf110bcd6311da946689ab2247e5c8145c",
+  "authored_runtime_full_credit": 0,
+  "new_execution_claims": 0,
+  "changes": [],
+  "limits": [
+    "Complete data structure review does not authenticate source provenance, repeat historical Docker/native tests, renew policy exceptions, qualify current images or provide current host capacity/production evidence.",
+    "No private customer documents/archive/credential files or providers accessed; all historical evidence remains byte-unchanged."
+  ]
+}

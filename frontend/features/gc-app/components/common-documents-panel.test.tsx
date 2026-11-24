@@ -1,4 +1,4 @@
-import { cleanup, render, screen, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { ComponentProps } from "react";
@@ -23,6 +23,30 @@ function document(id: string, dates: Partial<GcCommonDocument> = {}): GcCommonDo
 }
 
 describe("Trip documents workflow", () => {
+  it("admits one upload before the parent mutation state rerenders", async () => {
+    let finish!: () => void;
+    const onUpload = vi.fn(() => new Promise<void>(resolve => { finish = resolve; }));
+    const view = renderPanel({ onUpload });
+    const input = view.container.querySelector<HTMLInputElement>("#gc-itinerary-upload input[type=file]")!;
+    await userEvent.setup().upload(input, new File(["synthetic"], "itinerary.pdf", { type: "application/pdf" }));
+    const button = within(view.container.querySelector<HTMLElement>("#gc-itinerary-upload")!).getByRole("button", { name: "Upload as draft" });
+    act(() => { fireEvent.click(button); fireEvent.click(button); });
+    expect(onUpload).toHaveBeenCalledOnce();
+    await act(async () => { finish(); });
+  });
+
+  it("does not allocate a private preview URL when its request finishes after unmount", async () => {
+    let finish!: (blob: Blob) => void;
+    const onPreview = vi.fn(() => new Promise<Blob>((resolve) => { finish = resolve; }));
+    const create = vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:synthetic-private");
+    const view = renderPanel({ documents: [document("Current")], onPreview });
+    fireEvent.click(screen.getByRole("button", { name: /Preview/ }));
+    expect(onPreview).toHaveBeenCalledOnce();
+    view.unmount();
+    await act(async () => { finish(new Blob(["synthetic"])); });
+    expect(create).not.toHaveBeenCalled();
+    create.mockRestore();
+  });
   it("distinguishes published, scheduled, expired, and draft document versions", () => {
     renderPanel({ documents: [document("Current"),
       document("Later", { available_from: new Date(Date.now() + 86_400_000).toISOString() }),

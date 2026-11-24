@@ -1,0 +1,236 @@
+[
+  {
+    "path": "backend/app/presentation/api/v1/routes/admin.py",
+    "sha256": "d6cef1f7db8cc08202866b7d93e0a1b3feb91b69ddb49a25687850b9f5cc36c4",
+    "physical_lines": 97,
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "refactored",
+    "notes": "Full original/current bodies and current owner imports/composition reviewed. Whole moved declaration ASTs, actual facade identities, complete OpenAPI and runtime type annotations verified;203unique affected cases. Current per-owner coverage and measured size/branch candidates recorded separately."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/admin_account_scope.py",
+    "sha256": "0caf40547a4a4b0b4694454532d71d9f728260872ece9a6a93e842faaaca3b12",
+    "physical_lines": 42,
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "refactored",
+    "notes": "Full original/current bodies and current owner imports/composition reviewed. Whole moved declaration ASTs, actual facade identities, complete OpenAPI and runtime type annotations verified;203unique affected cases. Current per-owner coverage and measured size/branch candidates recorded separately."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/admin_account_views.py",
+    "sha256": "64b25aba211ee143b2bd1501bcde536d83af502c22efaa15f3d92f32e7c9df9c",
+    "physical_lines": 86,
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "refactored",
+    "notes": "Full original/current bodies and current owner imports/composition reviewed. Whole moved declaration ASTs, actual facade identities, complete OpenAPI and runtime type annotations verified;203unique affected cases. Current per-owner coverage and measured size/branch candidates recorded separately."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/admin_workforce.py",
+    "sha256": "c2a127cfff5e662562379a44cb1018e7c9069c1dbc8c929766f6b87f45459644",
+    "physical_lines": 195,
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full original/current bodies and current owner imports/composition reviewed. Whole moved declaration ASTs, actual facade identities, complete OpenAPI and runtime type annotations verified;203unique affected cases. Current per-owner coverage and measured size/branch candidates recorded separately."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/admin_group_access.py",
+    "sha256": "16536e1644470b62c7130224d9f4650a7c44dfe101c34a29c6f4623d6792657e",
+    "physical_lines": 204,
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "refactored",
+    "notes": "Full original/current bodies and current owner imports/composition reviewed. Whole moved declaration ASTs, actual facade identities, complete OpenAPI and runtime type annotations verified;203unique affected cases. Current per-owner coverage and measured size/branch candidates recorded separately."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/admin_platform_settings.py",
+    "sha256": "634e968871f22640240a86050f2fa778fd23f1520190e29c70dcd4570492760e",
+    "physical_lines": 146,
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "refactored",
+    "notes": "Full original/current bodies and current owner imports/composition reviewed. Whole moved declaration ASTs, actual facade identities, complete OpenAPI and runtime type annotations verified;203unique affected cases. Current per-owner coverage and measured size/branch candidates recorded separately."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/admin_retention.py",
+    "sha256": "a0af2341a6ba20246358af1fd376a0f18f0450d497d984bb734e840d21988e4a",
+    "physical_lines": 65,
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "refactored",
+    "notes": "Full original/current bodies and current owner imports/composition reviewed. Whole moved declaration ASTs, actual facade identities, complete OpenAPI and runtime type annotations verified;203unique affected cases. Current per-owner coverage and measured size/branch candidates recorded separately."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/admin_manager_delete_replay.py",
+    "sha256": "961b3fa5fb070f3bd2e6f69bfaac2d61605d2de3510d580a3fae210fa1752481",
+    "physical_lines": 57,
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "refactored",
+    "notes": "Full original/current bodies and current owner imports/composition reviewed. Whole moved declaration ASTs, actual facade identities, complete OpenAPI and runtime type annotations verified;203unique affected cases. Current per-owner coverage and measured size/branch candidates recorded separately."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/admin_deletion_queries.py",
+    "sha256": "cb724cc20cd7900148eb8ad4b8da27e94dbb4c91aee5f6a022ef2e7d1fb8e88a",
+    "physical_lines": 119,
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "refactored",
+    "notes": "Full original/current bodies and current owner imports/composition reviewed. Whole moved declaration ASTs, actual facade identities, complete OpenAPI and runtime type annotations verified;203unique affected cases. Current per-owner coverage and measured size/branch candidates recorded separately."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/admin_manager_deletion.py",
+    "sha256": "3af4881d8f0090dd4f12868f533fa20f81fc81e08edebaca28691018f3dca10f",
+    "physical_lines": 273,
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "refactored",
+    "notes": "Full original/current bodies and current owner imports/composition reviewed. Whole moved declaration ASTs, actual facade identities, complete OpenAPI and runtime type annotations verified;203unique affected cases. Current per-owner coverage and measured size/branch candidates recorded separately."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/admin_passport_purge.py",
+    "sha256": "2286fd0144a7a6fbd6a74e00e8ce21415f55d7b2a91f5ca524ec51d048225916",
+    "physical_lines": 252,
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "refactored",
+    "notes": "Full original/current bodies and current owner imports/composition reviewed. Whole moved declaration ASTs, actual facade identities, complete OpenAPI and runtime type annotations verified;203unique affected cases. Current per-owner coverage and measured size/branch candidates recorded separately."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/admin_group_projection.py",
+    "sha256": "6bec9d7d3a94f52d2586534d55247851dc1d94f0993ea66db8dcf19a0ec34ace",
+    "physical_lines": 33,
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full original/current bodies and current owner imports/composition reviewed. Whole moved declaration ASTs, actual facade identities, complete OpenAPI and runtime type annotations verified;203unique affected cases. Current per-owner coverage and measured size/branch candidates recorded separately."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_admin_account_projection.py",
+    "sha256": "4dbde2c32cf483356d15f876bf115a0e877f07a4983e865308c123dd73f9b1bf",
+    "physical_lines": 133,
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "verified",
+    "notes": "Full current test source physically read/authored; all original assertions retained. Instrumentation owner retargets and post-test formatting have explicit whole-module AST restoration proofs."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_admin_group_access.py",
+    "sha256": "33ac234640b636b3b5f17b24447bedd7a556dc91b3dadc20922b8fd08d846516",
+    "physical_lines": 150,
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "verified",
+    "notes": "Full current test source physically read/authored; all original assertions retained. Instrumentation owner retargets and post-test formatting have explicit whole-module AST restoration proofs."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_admin_passport_storage_cleanup.py",
+    "sha256": "63697734ba4571a70b10518b768c365279fc7d5b98264de34a4357c14234c763",
+    "physical_lines": 947,
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "verified",
+    "notes": "Full current test source physically read/authored; all original assertions retained. Instrumentation owner retargets and post-test formatting have explicit whole-module AST restoration proofs."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_admin_whatsapp_purge.py",
+    "sha256": "858368a3fe8c8f9e3ae9e900a8aa330fbb308b51598e1d2d89dbf18f5175c2cc",
+    "physical_lines": 78,
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "verified",
+    "notes": "Full current test source physically read/authored; all original assertions retained. Instrumentation owner retargets and post-test formatting have explicit whole-module AST restoration proofs."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_platform_settings_concurrency.py",
+    "sha256": "ef147e248f1d35f1dd4c3740036eb4ce1c21f9a8e4f240b7a5f654ec2b463e32",
+    "physical_lines": 217,
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "verified",
+    "notes": "Full current test source physically read/authored; all original assertions retained. Instrumentation owner retargets and post-test formatting have explicit whole-module AST restoration proofs."
+  },
+  {
+    "path": "backend/tests/integration/test_platform_retention_admin_controls.py",
+    "sha256": "e29b1b5388b7c004a244cad86c26b8c0db0317bc4904335d24cbbcf6785d295b",
+    "physical_lines": 98,
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "verified",
+    "notes": "Full current test source physically read/authored; all original assertions retained. Instrumentation owner retargets and post-test formatting have explicit whole-module AST restoration proofs."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_retention_reads.py",
+    "sha256": "3971c1518796e9108f3175b6a74be59b66066b7769c82a112e744172a380911d",
+    "physical_lines": 394,
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "verified",
+    "notes": "Full current test source physically read/authored; all original assertions retained. Instrumentation owner retargets and post-test formatting have explicit whole-module AST restoration proofs."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_crop_lifecycle_contract.py",
+    "sha256": "83a3d5eb69ef989e1a1db7ce874613aba6dd4622b328cf1d75a11d8bd26b81e0",
+    "physical_lines": 58,
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "verified",
+    "notes": "Full current test source physically read/authored; all original assertions retained. Instrumentation owner retargets and post-test formatting have explicit whole-module AST restoration proofs."
+  },
+  {
+    "path": "backend/tests/integration/test_admin_workforce_contracts.py",
+    "sha256": "69c92cec878b3e49fe79a89a239e321f160d434f90eba61eacf6cbc175203ff0",
+    "physical_lines": 222,
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "verified",
+    "notes": "Full current test source physically read/authored; all original assertions retained. Instrumentation owner retargets and post-test formatting have explicit whole-module AST restoration proofs."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_api_pagination_contract.py",
+    "sha256": "75e24ae7144e57b5a55ee3fb5e269eecbc46ad7480215ed5569160570b5a728c",
+    "physical_lines": 54,
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "verified",
+    "notes": "Full current test source physically read/authored; all original assertions retained. Instrumentation owner retargets and post-test formatting have explicit whole-module AST restoration proofs."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_admin_overview_reads.py",
+    "sha256": "74738373df0e9a1fff13612f65c7881315b488329c61ecfd5e8e13a53b7b1451",
+    "physical_lines": 162,
+    "review_scope": "focused",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "Executed in current195-case source-fenced checkpoint; only the top/caller regions physically read here. Whole manual test-file review remains open."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_admin_overview_http.py",
+    "sha256": "9df7e8c94ae9d0e29f9f143e96f1a5c99d168105a6ec3097bb04d332205e5de4",
+    "physical_lines": 166,
+    "review_scope": "focused",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "Executed in current195-case source-fenced checkpoint; only the top/caller regions physically read here. Whole manual test-file review remains open."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_read_only_sections.py",
+    "sha256": "44896d2d6215c3f011240a5a2f551f9bb3ee4f2a65a85904cbd5ec11a2280776",
+    "physical_lines": 456,
+    "review_scope": "focused",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "Executed in current195-case source-fenced checkpoint; only the top/caller regions physically read here. Whole manual test-file review remains open."
+  },
+  {
+    "path": "backend/tests/integration/test_admin_deletion_query_boundaries.py",
+    "sha256": "404f161987f45f4a99ab9d34c2532705b19e4d15ac044fbbf27a0e7de6452a15",
+    "physical_lines": 118,
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "verified",
+    "notes": "Full current test source physically read/authored; all original assertions retained. Instrumentation owner retargets and post-test formatting have explicit whole-module AST restoration proofs."
+  }
+]

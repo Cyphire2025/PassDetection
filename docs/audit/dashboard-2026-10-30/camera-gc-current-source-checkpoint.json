@@ -1,0 +1,402 @@
+{
+  "source_status": "FROZEN for parent integration; known remaining architecture tasks OPEN",
+  "files": [
+    {
+      "path": "frontend/e2e/gc-app-workflow.spec.ts",
+      "sha256": "29652fee56d832ae0b207bd23f691a196072a016587cc309b3f21322c658cae9",
+      "physical_lines": 215
+    },
+    {
+      "path": "frontend/features/branding/api/branding-images.api.test.ts",
+      "sha256": "e84a5a8502988fa55057cfda920db31b59a3b6521e136e80a7d8d880227bb13c",
+      "physical_lines": 27
+    },
+    {
+      "path": "frontend/features/branding/api/branding-images.api.ts",
+      "sha256": "2c6b39282474e505aa23f380693e910d59479cb2e5fbfb4578be862e24d20316",
+      "physical_lines": 44
+    },
+    {
+      "path": "frontend/features/branding/components/group-image-dialog.test.tsx",
+      "sha256": "db3587bbb0e50027c7678d39992bcb47505257864c5cabd3462dc00509d8ebe4",
+      "physical_lines": 25
+    },
+    {
+      "path": "frontend/features/gc-app/api/gc-app-admin.api.test.ts",
+      "sha256": "9d6049fe46f8a668c5e670553ae4a73bac17190c70defbe88daa0460c1c06f06",
+      "physical_lines": 137
+    },
+    {
+      "path": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+      "sha256": "d357bbf64e040b122a389e47d03cc05579766abb862f6692739b3ddb18f49a09",
+      "physical_lines": 1064
+    },
+    {
+      "path": "frontend/features/gc-app/components/client-manager-accounts-page.tsx",
+      "sha256": "e8a1a181a80ec978ec18857d7db67e4a8ad9276a660965460ad0d9ba673ff382",
+      "physical_lines": 271
+    },
+    {
+      "path": "frontend/features/gc-app/components/client-manager-details-dialog.test.tsx",
+      "sha256": "dbcad04887f81cf623917607182ed2e6bc9cf34961c2968ffe49497e43414df2",
+      "physical_lines": 69
+    },
+    {
+      "path": "frontend/features/gc-app/components/client-manager-details-dialog.tsx",
+      "sha256": "99d2141e7bc695773de1c2de54be5b02234f525bd4815d3ac7e8448344dd7b11",
+      "physical_lines": 369
+    },
+    {
+      "path": "frontend/features/gc-app/components/common-documents-panel.test.tsx",
+      "sha256": "3a8449c18871dd8a9109469c7db4f6a58f98cd5d72e5b912d670e3990386feab",
+      "physical_lines": 68
+    },
+    {
+      "path": "frontend/features/gc-app/components/common-documents-panel.tsx",
+      "sha256": "e3960af03652669a4922a0602d0e643ca997ba0fd64d20503ffef94892819d90",
+      "physical_lines": 473
+    },
+    {
+      "path": "frontend/features/gc-app/components/gc-dialog.tsx",
+      "sha256": "65a64e9552dff9ffd954cd40e912f19e834fa01a2589f1f984b7700c1baf386f",
+      "physical_lines": 78
+    },
+    {
+      "path": "frontend/features/gc-app/components/gc-select.test.tsx",
+      "sha256": "48776aa15e2fbb709c3aabd52bb6a9f0fd7a91c7e0d0621ce6f9512c01eb29b8",
+      "physical_lines": 46
+    },
+    {
+      "path": "frontend/features/gc-app/components/gc-select.tsx",
+      "sha256": "350d99e1510653c541a964e4546aaec64158fd5d2482fafacdef29386bc92cfd",
+      "physical_lines": 286
+    },
+    {
+      "path": "frontend/features/gc-app/hooks/use-gc-app-admin.test.tsx",
+      "sha256": "71c358c96c781f3b4a7787aebcdb632bbe9fb198ff653587d968005e0c6e4226",
+      "physical_lines": 230
+    },
+    {
+      "path": "frontend/features/gc-app/hooks/use-gc-app-admin.ts",
+      "sha256": "102dce961bdc2185ff929a3b650bfb884e922ee425a85cf03bd714aedf53efae",
+      "physical_lines": 459
+    },
+    {
+      "path": "frontend/features/gc-app/notifications/notification-operation.ts",
+      "sha256": "d4aa3305317a93e40af2030ef6e9d586108d5e513594b2d66bbf4ab1dd4b8fbd",
+      "physical_lines": 33
+    },
+    {
+      "path": "frontend/features/gc-app/notifications/notifications.api.test.ts",
+      "sha256": "d32e28e30fe9c8f596670ed7acf5f55637f031b5cba8d2791a2c0e7cbda2ca7c",
+      "physical_lines": 74
+    },
+    {
+      "path": "frontend/features/gc-app/notifications/notifications.api.ts",
+      "sha256": "c36f72c618d994eea64fad1b39e3988f28e8bf2f958f36919213a92db7583eb5",
+      "physical_lines": 48
+    },
+    {
+      "path": "frontend/features/gc-app/notifications/use-notification-composer.test.tsx",
+      "sha256": "0ebd208f6351cfb3168da828b41634097b9ff206b70a7a6fd1768e72058daebb",
+      "physical_lines": 286
+    },
+    {
+      "path": "frontend/features/gc-app/notifications/use-notification-composer.ts",
+      "sha256": "21b2860aa45203ad465b420fa0b9c03fa0a6a640de34e12c2c82f72b5424434a",
+      "physical_lines": 207
+    },
+    {
+      "path": "frontend/features/gc-app/utils.ts",
+      "sha256": "cc6848b1c171f40a681f7e42612d55fe5e17f2b09ff00a797ea29ae56388216b",
+      "physical_lines": 58
+    },
+    {
+      "path": "frontend/features/passports/api/passport-export-history.contract.test.mjs",
+      "sha256": "35efede1ac7c414228c5a4c19238876f814c03e6008b7426c3bbb6fb3c3c8fce",
+      "physical_lines": 156
+    },
+    {
+      "path": "frontend/features/passports/api/passport-operation-owner.test.ts",
+      "sha256": "2c9dd6c23690157b79a0524cb092e4785d03df9a19698c91e40cb9d696f0a7b8",
+      "physical_lines": 75
+    },
+    {
+      "path": "frontend/features/passports/api/passports.api.ts",
+      "sha256": "f584da1814d38340a1da5b13935b8ad25201a5795718fd5774efbd71e29f37f7",
+      "physical_lines": 1085
+    },
+    {
+      "path": "frontend/features/passports/components/create-upload-link-modal.contract.test.mjs",
+      "sha256": "27f221ce3dab9758fa64ae5c1ee69f1289eac416a6732e2266b60f8e4b645b58",
+      "physical_lines": 98
+    },
+    {
+      "path": "frontend/features/passports/components/create-upload-link-modal.test.tsx",
+      "sha256": "f09750cf7f4b7193876cc8ac29090d943c55e8805a61a8577356af7c5554c9aa",
+      "physical_lines": 249
+    },
+    {
+      "path": "frontend/features/passports/components/create-upload-link-modal.tsx",
+      "sha256": "9a8ac4e5a176974434ab8a908102fffebd51db174a7dea8c7f1eb4b7cd596514",
+      "physical_lines": 457
+    },
+    {
+      "path": "frontend/features/passports/components/passport-document-import-dialog.tsx",
+      "sha256": "7bff57ee0349bc30e653442d8d64b8c7b3c14c55f7033632874c230e5ef8fde3",
+      "physical_lines": 209
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-detail-boundaries.contract.test.mjs",
+      "sha256": "babd6ba3e55b2369a507d713190d3c28d641970b96eccdc8714ff0371d618747",
+      "physical_lines": 51
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-detail-source.contract-helper.mjs",
+      "sha256": "a69b517b07f8fbce8728a4fb1c286b296cc4932d38bf792b3076ad80c0601eb5",
+      "physical_lines": 55
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-detail.contract.test.mjs",
+      "sha256": "55221776e0264fd590dbb898e84f598c2eb97703e262a13653e961dc0f3a3f6c",
+      "physical_lines": 370
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-dialogs.tsx",
+      "sha256": "acbc4ce5f8b9f8a1044b6154639b9a41119dadac6e5529b28afff527869f2b0c",
+      "physical_lines": 294
+    },
+    {
+      "path": "frontend/features/passports/components/passport-trip-details-dialog.tsx",
+      "sha256": "dd4f1d655f0c95097339399b26811b250a35b887dcfb93da6e5ae32ae0bc4022",
+      "physical_lines": 97
+    },
+    {
+      "path": "frontend/features/passports/components/passport-workspace-dialogs.test.tsx",
+      "sha256": "1a57fba24b3c14780e61c6a6a84db66d59807da66b93246bc00f0d8e69e7f754",
+      "physical_lines": 72
+    },
+    {
+      "path": "frontend/features/passports/components/trip-timezone-field.tsx",
+      "sha256": "2a8fa0d11dc284d63488e4a7ba4f49bca2c2f8937589f80cefe9b48b16aed364",
+      "physical_lines": 87
+    },
+    {
+      "path": "frontend/features/passports/components/trip-timezone.contract.test.mjs",
+      "sha256": "fe0484660c803a2935f37f7fe78138f1a51e7559d499b5c09778bfcf87e2f7c9",
+      "physical_lines": 39
+    },
+    {
+      "path": "frontend/features/passports/components/use-passport-detail-navigation.test.tsx",
+      "sha256": "b71e1cceaf194b9425b4927214c68d5840ed53eaf7b9291f6951116909c24f2f",
+      "physical_lines": 50
+    },
+    {
+      "path": "frontend/features/passports/types/passport-trip-details.ts",
+      "sha256": "9ad3a4d7c10069b842baa3a13f5b5017a3a3906168a980519f565e7adad9a1bd",
+      "physical_lines": 27
+    },
+    {
+      "path": "frontend/features/passports/utils/passport-document-import.ts",
+      "sha256": "d4a80c973ef593c4405a92c60690b06079b0944e3470c4d90939827ca578330c",
+      "physical_lines": 30
+    },
+    {
+      "path": "frontend/features/passports/utils/passport-group-navigation.test.ts",
+      "sha256": "978a85ec9b2653c373c12358ef40791622b9219eef401e2eae686b754e69452a",
+      "physical_lines": 14
+    },
+    {
+      "path": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "sha256": "39f888b178c2db67a3b919f8e13886514f499077d7b05346ff585a5726ae2ecd",
+      "physical_lines": 308
+    },
+    {
+      "path": "frontend/features/passports/utils/passport-group-update.ts",
+      "sha256": "8c3883be4e01d20b1dc946e1b12d81dc1c10babbb0ee54865b9915a5d6af6cee",
+      "physical_lines": 36
+    },
+    {
+      "path": "frontend/features/upload/components/camera-accessibility.contract.test.mjs",
+      "sha256": "3b2ffff8063b31d469c562419de60aae27a7644227824694a17b7dff70d29e25",
+      "physical_lines": 92
+    },
+    {
+      "path": "frontend/features/upload/components/smart-camera.test.tsx",
+      "sha256": "5924a4f58d270060a06addf80f8a39b9d5251d45980e02685affc0c4cc02f0e5",
+      "physical_lines": 59
+    },
+    {
+      "path": "frontend/features/upload/components/smart-camera.tsx",
+      "sha256": "6d846171445cc3ef16b53d6c2d9b1e674c8fb2a19735d3a555318a50fb5257e8",
+      "physical_lines": 701
+    },
+    {
+      "path": "frontend/features/upload/components/visa-camera-footer.test.tsx",
+      "sha256": "8a9b1e873155bf61bfcae3c99b3c8c4023e2f1181225626b06e02405d39f4ce5",
+      "physical_lines": 47
+    },
+    {
+      "path": "frontend/features/upload/components/visa-camera-footer.tsx",
+      "sha256": "f0bf912779aabb37e4db2ba1b8d8ea0a5d8829d1899d46b2f6b6c59939345e12",
+      "physical_lines": 157
+    },
+    {
+      "path": "frontend/features/upload/components/visa-camera-source.contract-helper.mjs",
+      "sha256": "116007c1cd55c28a59ca1370ce5b2242b1bbae9321a43716bc8c541d31e65a9c",
+      "physical_lines": 22
+    },
+    {
+      "path": "frontend/features/upload/components/visa-camera-view.tsx",
+      "sha256": "d192eb9c5bf1d55e10b247d36dbf707becdbc683cb658a48914b0e9a1e24c43a",
+      "physical_lines": 140
+    },
+    {
+      "path": "frontend/features/upload/components/visa-camera.constants.ts",
+      "sha256": "f1b601c7ed88e38e8756b7375bd398cfb33198252456e52623a56e4b68b4183b",
+      "physical_lines": 16
+    },
+    {
+      "path": "frontend/features/upload/components/visa-camera.types.ts",
+      "sha256": "70d4070f07b0466a9a169706abbe1801dcff4e2b5d23ac36ec0e07d2646373d0",
+      "physical_lines": 43
+    },
+    {
+      "path": "frontend/features/upload/components/visa-selfie-camera.contract.test.mjs",
+      "sha256": "a0b9a463984023f5ad67975ceeb130114f8d307f4d33f86de0235f86b09d58e0",
+      "physical_lines": 182
+    },
+    {
+      "path": "frontend/features/upload/components/visa-selfie-camera.test.tsx",
+      "sha256": "c65da2f61f4d28de2507e2e063d57f861ea6a7414f156a145eb4818690cbbcab",
+      "physical_lines": 144
+    },
+    {
+      "path": "frontend/features/upload/components/visa-selfie-camera.tsx",
+      "sha256": "cb97c919822bf9eb1dbf6f497597a7bcabf29a2a8f5388baead8c35eafad8601",
+      "physical_lines": 10
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-camera-capture-lifecycle.ts",
+      "sha256": "09cef5ff0d966e04a5a89ac2a0b4db2ba366967ee1f410540aec61d02a835fdd",
+      "physical_lines": 28
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-visa-camera-controls.ts",
+      "sha256": "07825ef752e15a2270415575b032e1f05491245b88626cbf1f1243de0fb13541",
+      "physical_lines": 76
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-visa-camera-shutdown.ts",
+      "sha256": "a6ac2eafca3d65a7129734a0cf8fab71f616e6eb12ef9f6a09d626bceb026631",
+      "physical_lines": 98
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-visa-camera-state.ts",
+      "sha256": "986978664cb7a26aa41c6b0ba7627e9007083cb59a466cb9a7016da60bc4919e",
+      "physical_lines": 177
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-visa-camera-stream.ts",
+      "sha256": "0070c50a9d1b5ddc749d0a9d09ac668d65d494505eb592e6b35974b9464bdc8b",
+      "physical_lines": 123
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-visa-camera.ts",
+      "sha256": "383e3b91ea143a22be2e3aecacab7757986816ea71c416ee2f9e859ff575a7db",
+      "physical_lines": 94
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-visa-detector.ts",
+      "sha256": "951a896b3e1832dfbcde65489f40efa7c764db61305f35dcd520ad19adbb38f1",
+      "physical_lines": 215
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-visa-final-face-detection.ts",
+      "sha256": "b17010aa9cc5d1dd942c2e6de5be77657700bdfa4a98f179b97dc5e1c727bfc3",
+      "physical_lines": 75
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-visa-live-analysis.ts",
+      "sha256": "5e5116bee0832e0e9982c94c817970be3bb85476a6208928079dcc47ecc1558f",
+      "physical_lines": 137
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-visa-photo-capture.test.tsx",
+      "sha256": "a76eb4eff4588d416a1be5332b90da293f1e885293a9f1e3cf0911fb2ca1840d",
+      "physical_lines": 127
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-visa-photo-capture.ts",
+      "sha256": "ac8c7289ea2c4ff043d11f60e55295b86e4fa072d74c81ca65c18fb8bbf79c0e",
+      "physical_lines": 214
+    },
+    {
+      "path": "frontend/features/upload/services/visa-camera-final-validation.ts",
+      "sha256": "cf5bfad43c99f4746cf4797556ea0a67c00ed6f888e8788651d5c5efa5f5f2a8",
+      "physical_lines": 73
+    },
+    {
+      "path": "frontend/features/upload/services/visa-camera-frame-analysis.ts",
+      "sha256": "8582c39c6f12bd0f091f53302e1d1414f4c4efdcd292bb77edb07c09d48aab78",
+      "physical_lines": 102
+    },
+    {
+      "path": "frontend/features/upload/services/visa-camera-geometry.ts",
+      "sha256": "fa966d31f1a8fd0914411ec7389e0b5a2d868b16ca487d380dadedf019de229e",
+      "physical_lines": 166
+    },
+    {
+      "path": "frontend/features/upload/services/visa-camera-image-encoding.ts",
+      "sha256": "10605377c514885ae6b73af1383c18973440f5a0ae0b3ad0c6de35f48580d824",
+      "physical_lines": 39
+    },
+    {
+      "path": "frontend/features/upload/services/visa-selfie-runtime.test.mjs",
+      "sha256": "884685cd98db1753341afd2227933f772eb9fb0048a4ce2686c34aa579694cb3",
+      "physical_lines": 127
+    },
+    {
+      "path": "frontend/hooks/use-private-mutation.test.tsx",
+      "sha256": "69f2f5775f9ed4197ba14e0870ef6d73b4f7320a8b1000406e3845113822bb94",
+      "physical_lines": 129
+    },
+    {
+      "path": "frontend/hooks/use-private-mutation.ts",
+      "sha256": "0e282bc7638a1c404fd07936d5e267f05cdb9d4a66c25cb1e4074f9232820250",
+      "physical_lines": 113
+    },
+    {
+      "path": "frontend/lib/api/streamed-download.test.ts",
+      "sha256": "ca5278d9815d4ec4cf79f1bccb647f40b5e2221f5fba217832c7c76cefbb0541",
+      "physical_lines": 326
+    },
+    {
+      "path": "frontend/lib/api/streamed-download.ts",
+      "sha256": "1aadc044bc9da14d7502eaf28d61870ba3ed201a2247ec38fc1bb1e54ff2e84c",
+      "physical_lines": 302
+    }
+  ],
+  "verification": {
+    "focused_units": {
+      "files": 20,
+      "passed": 137,
+      "checkpoint": "Before direct streamed-body follow-up; other sources unchanged"
+    },
+    "stream_body_supplement": {
+      "files": 2,
+      "passed": 25,
+      "new_tests": 3
+    },
+    "node_contracts_passed": 70,
+    "browser_passed": 8,
+    "scoped_lint": "64 runtime/test paths passed; follow-up utility lint passed",
+    "typecheck": "passed",
+    "ratchets": "245 passed before parent additive candidate merge",
+    "limitations": [
+      "Isolated synthetic HTTP responses and browser fixtures; no live provider send or production data.",
+      "Physical source review does not establish real-device model accuracy.",
+      "Further large-source decomposition, mixed dead exports and remaining named UI findings remain open."
+    ]
+  }
+}

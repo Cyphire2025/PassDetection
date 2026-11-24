@@ -1,0 +1,1637 @@
+{
+  "metadata_only_not_manual_source_review": true,
+  "models": {
+    "path": "backend/app/infrastructure/database/models.py",
+    "lines": 1762,
+    "sha256": "cca0de0deb12e7cdc7368501e8a3ac0012e513d691ddcf10a3ead67ec4ec2ed0",
+    "inventory_current": true,
+    "current_full_ledgers": [],
+    "current_full_records": [],
+    "current_other_records": [
+      {
+        "ledger": "branding-reviewed-files.json",
+        "path": "backend/app/infrastructure/database/models.py",
+        "status": "needs-follow-up",
+        "reviewer": "branding_visuals",
+        "sha256": "cca0de0deb12e7cdc7368501e8a3ac0012e513d691ddcf10a3ead67ec4ec2ed0",
+        "notes": "Branding fields/styles/callers reviewed and exercised; remaining unrelated contents have not received a complete file review in this lane.",
+        "review_scope": "partial"
+      }
+    ],
+    "excluded_active_or_native": false
+  },
+  "unreviewed_candidates": [
+    {
+      "path": "backend/app/infrastructure/database/models.py",
+      "lines": 1762,
+      "sha256": "cca0de0deb12e7cdc7368501e8a3ac0012e513d691ddcf10a3ead67ec4ec2ed0",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [
+        {
+          "ledger": "branding-reviewed-files.json",
+          "path": "backend/app/infrastructure/database/models.py",
+          "status": "needs-follow-up",
+          "reviewer": "branding_visuals",
+          "sha256": "cca0de0deb12e7cdc7368501e8a3ac0012e513d691ddcf10a3ead67ec4ec2ed0",
+          "notes": "Branding fields/styles/callers reviewed and exercised; remaining unrelated contents have not received a complete file review in this lane.",
+          "review_scope": "partial"
+        }
+      ],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/infrastructure/database/email_models.py",
+      "lines": 1417,
+      "sha256": "1801ba03397d6b0ac28d032683778592184f22f9b559c5b23d3a524f0a57cadd",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/infrastructure/export/passport_excel_exporter.py",
+      "lines": 780,
+      "sha256": "ed47e94d322a97ed45f78901131f83af8172d1b382153da0102f5efee04850ad",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_upload.py",
+      "lines": 720,
+      "sha256": "a76545ac1fdbf5d9ce08a85373fff357eca4e6e8c724264de0d95e16dfd6a0c0",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/infrastructure/email/deadline_notifications.py",
+      "lines": 674,
+      "sha256": "65100ec395e5b9db8d2492c1045a390ff2a398075268c24ba1a1ace5e6d0a935",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/infrastructure/documents/document_matcher.py",
+      "lines": 667,
+      "sha256": "4256a5acb44ae73680eadc06c788cdefcd6b288e5d31361b0a979f4ce78fd791",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/passport_schemas.py",
+      "lines": 667,
+      "sha256": "f2c10f862e344d3aa84c7608d0c8a86ad19f29e3f6cdf1dbb7730e392dd102f6",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/submission_review.py",
+      "lines": 663,
+      "sha256": "7313b9394687f38ef67a1bd833b0b01d0b749e49a09eaa6367f9c60844060312",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_image_library.py",
+      "lines": 651,
+      "sha256": "f1f5e3dce2cb8e65f382458edcebb224ebe7812e6dadfc5ca217fa2245b8cb7a",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/public_upload.py",
+      "lines": 645,
+      "sha256": "79089e2aad053e18b44a20342461065efff32572f3a9eeeb5b605d75a0405824",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions.py",
+      "lines": 638,
+      "sha256": "034a76209c61e05c1c5919329946f6d869a930a93bb5a5c45513e74904dea716",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/infrastructure/database/email_ai_models.py",
+      "lines": 630,
+      "sha256": "e9c03b48898c5a05f7e96bafbc96ccec06ec7d2702c47e55f9b4c80a5eff482f",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_connections.py",
+      "lines": 604,
+      "sha256": "68eb50e328e057aa7d79b7d8304fffb5ec909d056967afc038a1391617c501df",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_rollout_admin.py",
+      "lines": 565,
+      "sha256": "767500a1b9f4dd113b41bcefc0ea90fbebe984f34829b1ada8cd4ccbc24a51c3",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_activity.py",
+      "lines": 562,
+      "sha256": "f8abd34251e84c59f704cdf2c279cd89dbd4b1813f928fb29667bd968e37b3d1",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/infrastructure/documents/verification_staging.py",
+      "lines": 561,
+      "sha256": "6c911863ebeee0ca7181196eb74bc0b2cd2cb520b4dfda31d9113c77539daa60",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/infrastructure/documents/pdf_parser_sandbox.py",
+      "lines": 556,
+      "sha256": "8986ae28ef2002c86b03cefa56fd9f522725739c8fab75a09d46021e80eabbdb",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp.py",
+      "lines": 552,
+      "sha256": "f2f9e3f934ad389ab39e2e46039c40a7584f0443ac285f057e9f4eac538ea948",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/submission_view.py",
+      "lines": 546,
+      "sha256": "8ecbd81dc34c60e60660ed9be6138ee144031b192d67af4de11875cbbc5bd6be",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/infrastructure/database/communications_models.py",
+      "lines": 545,
+      "sha256": "4a4224948d99b7ba12382ba679973f318734ff3c71b27f47e7757f2b07bcf7b3",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/infrastructure/database/document_models.py",
+      "lines": 543,
+      "sha256": "414813b4d861c1941592fc9ff5a86f3aff71d5f31a72e3b411a1b6c7fde06d27",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/infrastructure/runtime_readiness.py",
+      "lines": 539,
+      "sha256": "86ebedc0a97af8de6a994ffbacf3b4aa1e8277ca2c8bc032eac4198b65f1052b",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/infrastructure/email/tasks.py",
+      "lines": 532,
+      "sha256": "e6d2906d78fd9c504c2876dd59ffb91bf29114fb7dcbfd0a4fc6c8cfd6ca2846",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker.py",
+      "lines": 523,
+      "sha256": "ecbc1a61b1b8b674f6dedcda752dc204b80189d180b4a9641a4ba5ad52c15468",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_exports.py",
+      "lines": 520,
+      "sha256": "4c719c70041d102ee6b96af13394442bd468032f53dd236ae7331095d2885aaa",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_composer_support.py",
+      "lines": 511,
+      "sha256": "6cc3a753b6ad7b746a3707ae743f158307a8a3779d9b9f29402da08deaef5018",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/infrastructure/imports/passport_document_importer.py",
+      "lines": 508,
+      "sha256": "083ce9b71e69c21d699569a69bb97b75bdf78059d8f9b4fb85f0bdbb8a58d939",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/infrastructure/travel_tracker/service.py",
+      "lines": 487,
+      "sha256": "171444bfa92d48ab37321e0603282d5761cfe021c17c248426312b0ba3d50c23",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/infrastructure/documents/distribution_ingestion.py",
+      "lines": 475,
+      "sha256": "adc910220ff19f9b0e7a297b576ca03d43f492f54b712bfcdf19b422de1fbbc6",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passports.py",
+      "lines": 475,
+      "sha256": "977089c9df210b7a7a92c39b5faaa2ae6cf872ed49df4b04fabe5ff483c03617",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/submit_passport_use_case.py",
+      "lines": 451,
+      "sha256": "d3087a2787013d1b3793aa4a702cc1811e4dd67e83397f68bffeea933328b8f3",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/infrastructure/travel_tracker/spreadsheets.py",
+      "lines": 436,
+      "sha256": "4bf66a2e2708d8755de2ffc9426fe6844e91bd2cc8ad56837d2e7afe53b8af76",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_excel_import_support.py",
+      "lines": 434,
+      "sha256": "95217c92807f682599f2c80d863046ebfc338451f7cf6c7313da20e6bb65616f",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mcp_admin.py",
+      "lines": 433,
+      "sha256": "0561a30c37d89e2e9cb7e90233bd18f0007306e155988339b7ca4e37365aa9cb",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_resend.py",
+      "lines": 432,
+      "sha256": "1af6956e51c098a8b6ffa3e160c875f88b525b217508309cc832d0ab32b25bb2",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_send.py",
+      "lines": 427,
+      "sha256": "787bdb0c731bd73589666d39e39196c57e3bd2eaa3c8af1b28a965d0d7e1f670",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_contact_import.py",
+      "lines": 422,
+      "sha256": "d627dcea775c7302cd0680e77cb6a7c8f1d3b8bea479b3865d318af1dd6bf1c8",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_assignments.py",
+      "lines": 421,
+      "sha256": "91ca99c1e3ef9b1d321775d1761caf0bbc9ec179e5aeab87b8b41f2b118f6eaf",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/document_import.py",
+      "lines": 415,
+      "sha256": "7040843183bdac0bc88906ab9abdb87b6e7a4ab6747fc6f5e9da45f3dbb8b60c",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/whatsapp_schemas.py",
+      "lines": 401,
+      "sha256": "cef7cf3eb91069546503f79893dc5e38c140a3ac31ae144c78b1fa6a838f5ea6",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_roster_support.py",
+      "lines": 400,
+      "sha256": "91ae572d7825dafff8ccea8254023fb9924fd58266df0ac1b8d7f61a8e99c23f",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/application/use_cases/email_integrations/matching.py",
+      "lines": 395,
+      "sha256": "cc6eec778b011833a2b6c5f24afc2a07ae60f8b35a09858c0386e328cfb3da21",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_review_support.py",
+      "lines": 395,
+      "sha256": "49ce191e4a94249b2b1ea538102334ca1bf901c4ba17ebebd1a34880c14ee06e",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/infrastructure/email/mime.py",
+      "lines": 389,
+      "sha256": "c08b88379c1d0d1850a6225db3147342a8399bc57dfcbf3c68303772ce5af4e7",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution.py",
+      "lines": 388,
+      "sha256": "eceb978c0e6faca96b335cd0f91cb7fd48be5b8a1216f15816cddd9ae51fe7b0",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_recipient_roster.py",
+      "lines": 372,
+      "sha256": "1fd7b7511c5d6305853399c62b16537213d3bb90c4e0684a36b3a2b613f14218",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_review_decisions.py",
+      "lines": 367,
+      "sha256": "591fb3b3b30248d2c2fd1f40ea6eb90cc6232c47833a3cea8f5e3950923ecb77",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_composer.py",
+      "lines": 360,
+      "sha256": "29651e2747c95b9fd257458ea54fa89b93e3fba98c3d95b6bf7961eb52f726bf",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/presentation/api/v1/document_chunk_uploads.py",
+      "lines": 355,
+      "sha256": "36343b5479ed760b253d6dc14184e832651fa0fe2e65be2012569ca3f93f6ba4",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend.py",
+      "lines": 343,
+      "sha256": "df04ecaf6aa190eea5091e6ffd6d153e3ca069e218dcc44a51df61192b37f8f2",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/infrastructure/imaging/passport_image_cropper.py",
+      "lines": 340,
+      "sha256": "a180838f516f7c317f18850c3e6f79f6ad923135adc25d090b8f871fbb403fda",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/infrastructure/email/account_removal.py",
+      "lines": 339,
+      "sha256": "7e2798de81ff286f7b63f29daef17d1bd1416fd7b696db3c5b01ccd54f09f4ad",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/infrastructure/security/upload_validator.py",
+      "lines": 338,
+      "sha256": "1594a12c88f7f1e9eb0f7527ab99603f92830c4fb8f4e5c4920c878fbf94e49b",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/email_ai_schemas.py",
+      "lines": 338,
+      "sha256": "d269d287adaf8e49819ad4b3e187815e69fbeb0ee8eca34104df2acff74615dc",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_support.py",
+      "lines": 330,
+      "sha256": "d4ecbe74c00180af07966d9018e0b12e922df57cd7660ebc1bc4881248b0e4a6",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_outlook.py",
+      "lines": 328,
+      "sha256": "46835a02f003132af36e3524de6e16d5fa6c11a4bd425f0245a78689314ead8a",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/health.py",
+      "lines": 325,
+      "sha256": "fb9056f1b956503f10260b8569e7f9ee75fec830d7572bace2ba20fa3c744dbf",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_verification.py",
+      "lines": 312,
+      "sha256": "601f00c01107efbd20a707aea7d81fd6b56dc51fa9e2a943a3e1aef3060487cf",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_review_queries.py",
+      "lines": 311,
+      "sha256": "8a0efde73e5bd97d62d832f8de89012a63f2adfcb24f1b282982716849fe3ec3",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/export_history.py",
+      "lines": 306,
+      "sha256": "ad4ed57b819b8f246d91a3d2b04d0cc6ff7cfd34851b39b0d2d356bdc58ed59d",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_recipients.py",
+      "lines": 301,
+      "sha256": "f2cd931620b7b155a079b10f1cb58b8faa4dd56183282a3f17749af4d49edc05",
+      "inventory_current": true,
+      "current_full_ledgers": [],
+      "current_full_records": [],
+      "current_other_records": [],
+      "excluded_active_or_native": false
+    }
+  ],
+  "large_current_full": [
+    {
+      "path": "backend/app/infrastructure/email/outlook_provider.py",
+      "lines": 951,
+      "sha256": "72c1a9a91b37e1509f31f752f3e7bb2c84cda68550d309f6827b08101efd6d30",
+      "current_full_ledgers": [
+        "security-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_submission_repository.py",
+      "lines": 901,
+      "sha256": "86d3e08deca66ccc621be769e73a2e8df822c0f540be5779467c8e0cab3379c2",
+      "current_full_ledgers": [
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_groups.py",
+      "lines": 859,
+      "sha256": "b48a7e4843e9f1b8d48d7a3483e5ad4d52eac984e65c05a9b78b716559b13179",
+      "current_full_ledgers": [
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/document_delivery_runtime.py",
+      "lines": 812,
+      "sha256": "995e3c43450e9ab3e6a82789c7df4456f0c02eb3f7280efbb49468c74d4a358a",
+      "current_full_ledgers": [
+        "security-reviewed-files.json",
+        "whatsapp-backend-manual-review-progress.json",
+        "whatsapp-backend-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/email/gmail_provider.py",
+      "lines": 747,
+      "sha256": "e36134267ca2582561e5f525091759759ff2e8933c471b48ef1b691f7833ea28",
+      "current_full_ledgers": [
+        "security-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/application/mcp/artifacts.py",
+      "lines": 692,
+      "sha256": "39b4a7df6452cde2743703537b64215088b5cdc8338e04b9b0a856b321a86abe",
+      "current_full_ledgers": [
+        "backend-mcp-application-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/middleware/rate_limit.py",
+      "lines": 686,
+      "sha256": "e6584470329a975675002df270a3bcfad458f9cb30398e99e0a04f38936fd851",
+      "current_full_ledgers": [
+        "security-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/application/mcp/pdf_ingestion.py",
+      "lines": 682,
+      "sha256": "beb2d5e2798571769eb5c7e99213c083dd0f57833513ce1c119b13a6f8ec7f76",
+      "current_full_ledgers": [
+        "backend-mcp-application-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/documents/storage_cleanup.py",
+      "lines": 638,
+      "sha256": "51970583984abc165f0d60390032efda7e6c30709bbc519b366fb594694456ce",
+      "current_full_ledgers": [
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/process_passport_submission_job_use_case.py",
+      "lines": 590,
+      "sha256": "998192ee86644c66578b549b637aa622264e97179ecba66b7fd2a3227260c4c5",
+      "current_full_ledgers": [
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/ecr/passport_runtime.py",
+      "lines": 568,
+      "sha256": "745ad2bfbec7597ad634e520247fc52e3d41fedec43b9b03413c4d3161f3d25b",
+      "current_full_ledgers": [
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/security/identity_notifications.py",
+      "lines": 558,
+      "sha256": "a312ad4594b2566c303e22a532cc7524afc91e7ef5bc23f3058c89ed15887d93",
+      "current_full_ledgers": [
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/ecr/runtime.py",
+      "lines": 528,
+      "sha256": "5b1f07bfd90528c026870530b855a81d7b0f13d5d676852aa7038f6e12a7cd35",
+      "current_full_ledgers": [
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/client_submit_passport_use_case.py",
+      "lines": 521,
+      "sha256": "aee3271b832c45f09989735136583602051456bd830a01c278a766b77b6bdc72",
+      "current_full_ledgers": [
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/email/ai_context.py",
+      "lines": 518,
+      "sha256": "97301353ab60ccc83c21d641f92925c08b592b97582d991b47df7d1709ecdad0",
+      "current_full_ledgers": [
+        "email-ai-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/ai/gemini_visa_image_edit_service.py",
+      "lines": 511,
+      "sha256": "8158a196cb6b9bb733edce4a9bc3bed646dcb7a9b031964b4f306cafd991158c",
+      "current_full_ledgers": [
+        "auth-security-support-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_delivery.py",
+      "lines": 503,
+      "sha256": "bcc8368940d02278f1a1248ac428a83b12872b2628500658f92e0d6536b1e24e",
+      "current_full_ledgers": [
+        "security-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_attendance_scan_support.py",
+      "lines": 488,
+      "sha256": "fa7c6195b64ce0e603765c622d4d139853a54af4004faac9e12544fbc1da1daf",
+      "current_full_ledgers": [
+        "attendance-operations-reviewed-files-snapshot.json",
+        "operations-backend-manual-review-progress.json",
+        "operations-backend-reviewed-files.json",
+        "operations-functions-before-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/storage/minio_repository.py",
+      "lines": 483,
+      "sha256": "f31fe249d63c18ea0e400bae0ee3161eb05db6b194527e2bdab39bf88626180c",
+      "current_full_ledgers": [
+        "security-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/application/mcp/travel_tracker.py",
+      "lines": 482,
+      "sha256": "b8efdf5bf1b0fbbf797281263c4e1adc631677b80069411822107a067f8d44f5",
+      "current_full_ledgers": [
+        "backend-mcp-application-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/images.py",
+      "lines": 480,
+      "sha256": "bfaba35d33ac81bcae0273e25ec234a289da66657f21bf5533fb53846d4c9328",
+      "current_full_ledgers": [
+        "security-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/application/mcp/native_transfers.py",
+      "lines": 455,
+      "sha256": "c52b2f7a8c1a3c5e8de7b2fd253aeeb7e3c16cfaaf86336bd8ed1ce8787f4f3a",
+      "current_full_ledgers": [
+        "backend-mcp-application-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/ai/gemini_post_submission_verification_service.py",
+      "lines": 453,
+      "sha256": "e04f106f559497fce799f58ef06002bab09cd7ed7532ee9eeb6046dad8ca641c",
+      "current_full_ledgers": [
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/security/upload_security.py",
+      "lines": 451,
+      "sha256": "293afb52d404d9dc96dd0d303620891274d8654d1e21c2d81ccc844c2d5e4102",
+      "current_full_ledgers": [
+        "security-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/export/passport_image_zip_exporter.py",
+      "lines": 450,
+      "sha256": "b827929f2b96502df76554d53f39f7cda63de0c96b3e201231b76980ebe4f01e",
+      "current_full_ledgers": [
+        "security-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/application/mcp/operations.py",
+      "lines": 446,
+      "sha256": "88a52fbc2145bd73de84d87572bcb63782d79d45733f3cf7167fc9a7eb0c25f4",
+      "current_full_ledgers": [
+        "backend-mcp-application-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/private_delivery_policy.py",
+      "lines": 442,
+      "sha256": "bed4893e0328209032e17a7e13292fc6ee2029b562e6b69e4cd0586fba04b34b",
+      "current_full_ledgers": [
+        "security-reviewed-files.json",
+        "whatsapp-backend-manual-review-progress.json",
+        "whatsapp-backend-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/auth_identity.py",
+      "lines": 440,
+      "sha256": "daa6e8b3fc67dd9cda2c784d0330fddecb05105e8b0e7b3651b8c6a2936f6e37",
+      "current_full_ledgers": [
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/processing/celery_app.py",
+      "lines": 430,
+      "sha256": "402830e148bc2745e7d05837ec10d81db4ed54bb9f6ab293d9cca60ae0f4a9e3",
+      "current_full_ledgers": [
+        "celery-diagnostics-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/application/mcp/exports.py",
+      "lines": 422,
+      "sha256": "1e2c0f10ffc9f12ebd9131df9e8f23406841a9de6641446c4a998e0508e7e95f",
+      "current_full_ledgers": [
+        "backend-mcp-application-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/application/security/destructive_mutation_policy.py",
+      "lines": 422,
+      "sha256": "f079cc649898f399d8c0347e67638aadaff4d9336235d878e7d8ab8f9f97c171",
+      "current_full_ledgers": [
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/ai/gemini_ecr_service.py",
+      "lines": 420,
+      "sha256": "ef2406f3f7e69dee5f1b2453f14cde26024f3363082ecc37008ac79611e4b25b",
+      "current_full_ledgers": [
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_attendance_views.py",
+      "lines": 415,
+      "sha256": "6ef40ad23041742f255d6ad32165607277004542b3be57a049c0e21f3f393b2f",
+      "current_full_ledgers": [
+        "attendance-operations-reviewed-files-snapshot.json",
+        "operations-backend-manual-review-progress.json",
+        "operations-backend-reviewed-files.json",
+        "operations-functions-before-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/receipt_runtime.py",
+      "lines": 412,
+      "sha256": "19b356ab48ee3ea6c34d91e14aa5ede416342fb8dc6143782dc53e5c1c6cad8e",
+      "current_full_ledgers": [
+        "whatsapp-backend-manual-review-progress.json",
+        "whatsapp-backend-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_attendance_batch_support.py",
+      "lines": 412,
+      "sha256": "8fd7647012b1c3679cbf9fa4c5cd3b841c108e321ef3b6aa07f26a941731e8b2",
+      "current_full_ledgers": [
+        "attendance-operations-reviewed-files-snapshot.json",
+        "operations-backend-manual-review-progress.json",
+        "operations-backend-reviewed-files.json",
+        "operations-functions-before-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/gc_app_schemas.py",
+      "lines": 412,
+      "sha256": "5557dd8c09c832c863496f3d7828a5e0fe54c3d40e19cf8c2da001d482289c5f",
+      "current_full_ledgers": [
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library.py",
+      "lines": 411,
+      "sha256": "dbd2c873b802e10d653ac41b90d955d125b3e68aa7d8085adc7d0ce59e03a91b",
+      "current_full_ledgers": [
+        "auth-security-support-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/traveller_welcome_runtime.py",
+      "lines": 410,
+      "sha256": "6509ed2f490d502163c209b91101ceb9b50c3bbb65c074c3ad380f7c94504c07",
+      "current_full_ledgers": [
+        "whatsapp-backend-manual-review-progress.json",
+        "whatsapp-backend-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_whatsapp_match_support.py",
+      "lines": 410,
+      "sha256": "091a92a1824f3f88caed7a8248b7f7ae261f50b0f35dfcb23acd0f8cd485cdcd",
+      "current_full_ledgers": [
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_group_settings.py",
+      "lines": 396,
+      "sha256": "2404362318d37b76efd70e081a56e25d2d9a3fc1e0d50a2e552a60e98c97f9fc",
+      "current_full_ledgers": [
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/audit_logs.py",
+      "lines": 394,
+      "sha256": "d40421d8cd5220df82e79f2c36adf41b28302cb18ad53738bc14e5983cfb49c6",
+      "current_full_ledgers": [
+        "attendance-adjacent-reviewed-files.json",
+        "security-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/ai/gemini_passport_verification_service.py",
+      "lines": 390,
+      "sha256": "63afd33c0f59938a8bb7c5dfa949ae7f82dbca5dc6d7966a5379348b21d5c08b",
+      "current_full_ledgers": [
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_read_adapters.py",
+      "lines": 388,
+      "sha256": "cf1ca7ba592f2b29d8e5609f4b0e2e263b8b728e5572fa2590b4826a398ab91a",
+      "current_full_ledgers": [
+        "backend-mcp-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/documents/document_pdf_support.py",
+      "lines": 381,
+      "sha256": "563c5247ab3e7d93fc3ca67eb5bb33d7e0d712d393c613d91257259ebc108f3c",
+      "current_full_ledgers": [
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/email/sync_document_ingestion.py",
+      "lines": 378,
+      "sha256": "4da7f1efb782dc1e2c6fb4887572f8f46485305317087415d63159a8413d163e",
+      "current_full_ledgers": [
+        "security-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/export/rooming_excel_exporter.py",
+      "lines": 377,
+      "sha256": "877bba594f55701c19e4fd139b0d964ce6f31ba9b5046efe6952003bdb44b102",
+      "current_full_ledgers": [
+        "attendance-operations-reviewed-files-snapshot.json",
+        "operations-backend-manual-review-progress.json",
+        "operations-backend-reviewed-files.json",
+        "operations-functions-before-reviewed-files.json",
+        "security-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_inbox_decisions.py",
+      "lines": 377,
+      "sha256": "321f19e7ee888d6c1a82bbc1c14df8b6f7c55b364eedcad4da2fa3dad00fe4b5",
+      "current_full_ledgers": [
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/application/mcp/whatsapp_media_uploads.py",
+      "lines": 374,
+      "sha256": "906c391889de30bdd4a83f255bfefdb62c184337adecd70b7ce0f8a5e7ffb2fc",
+      "current_full_ledgers": [
+        "backend-mcp-application-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/domain/value_objects/email_ai_analysis.py",
+      "lines": 370,
+      "sha256": "3504019120fe0d2921724cb5bda03629395c3877da1cbb91f3b50caf74b700fb",
+      "current_full_ledgers": [
+        "domain-values-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/mcp/business_admin_tools.py",
+      "lines": 369,
+      "sha256": "35d5d576bf16380ed5394dd150d107d48e3860d6b8c960afb9baf8232399daf2",
+      "current_full_ledgers": [
+        "backend-mcp-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/application/mcp/image_exports.py",
+      "lines": 368,
+      "sha256": "06758a373a7b9726f4dcf1c2317e2edf2e6238c571197b364d3053ec2e9f31fc",
+      "current_full_ledgers": [
+        "backend-mcp-application-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/export/meal_plan_excel_exporter.py",
+      "lines": 368,
+      "sha256": "ab27b43b6851d63087af46368443e3c73e5b1171270259383fdc32c046c63cb4",
+      "current_full_ledgers": [
+        "attendance-operations-reviewed-files-snapshot.json",
+        "operations-backend-manual-review-progress.json",
+        "operations-backend-reviewed-files.json",
+        "operations-functions-before-reviewed-files.json",
+        "security-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_replacement_resolution.py",
+      "lines": 365,
+      "sha256": "38f01e5f29be51833743f7c73b591d71fcc6e9b0d541bf3dea893924b15470f1",
+      "current_full_ledgers": [
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/excel_import.py",
+      "lines": 363,
+      "sha256": "0d27ed0e4702e5a8c14cd23c4c12e917d584ecea0e3bdaead6aa182da710af70",
+      "current_full_ledgers": [
+        "passport-excel-architecture-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "backend/app/application/security/authorization_policy.py",
+      "lines": 362,
+      "sha256": "6a1ee49097b124715ce52fb5810387c6be5a3a5e18f4896676340c6e6dabe663",
+      "current_full_ledgers": [
+        "auth-security-support-reviewed-files.json",
+        "security-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_assignments.py",
+      "lines": 362,
+      "sha256": "8c695bd1cbd7a032badcb7c6bb8dc5fd51df39956ccaf8b754a7e7ffeae194c9",
+      "current_full_ledgers": [
+        "attendance-operations-reviewed-files-snapshot.json",
+        "operations-backend-manual-review-progress.json",
+        "operations-backend-reviewed-files.json",
+        "operations-functions-before-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/database/identity_security_models.py",
+      "lines": 361,
+      "sha256": "f17b97ce701e520b12dafd65c0b9b0d18ec1a7d6f20b34e771828ece3c0531f0",
+      "current_full_ledgers": [
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/client_group_repository.py",
+      "lines": 361,
+      "sha256": "66064e771138181d5be51bd1708e2104b3ff944b3a4e517d5bce770912a1453d",
+      "current_full_ledgers": [
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/processing/job_repository.py",
+      "lines": 360,
+      "sha256": "cb6a2c126b1e4da14e07d6e872671456cac286f6c1ea8745715e5f691d4c2176",
+      "current_full_ledgers": [
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_edits.py",
+      "lines": 360,
+      "sha256": "ab2ccb9edbd3028f14223b15159538a77ae2ff4db244228d350f0817eb036cff",
+      "current_full_ledgers": [
+        "auth-security-support-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/application/mcp/connection_requests.py",
+      "lines": 359,
+      "sha256": "0ab3e60df97ec6a3c439267a82fd0952fbc8e08f8ee346e2a09b56496ff640a6",
+      "current_full_ledgers": [
+        "backend-mcp-application-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/application/travellers/enrollment.py",
+      "lines": 359,
+      "sha256": "cc10c65c84ce2290bbf57614228c4442e8ae80c2f2246f1721ae7d1c507c9a5a",
+      "current_full_ledgers": [
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/email/ai_runtime.py",
+      "lines": 356,
+      "sha256": "c0df0f57423cc18dd2fa25749489d8dc0d5302e22ed4fba47a5d5ac5ba1f5e4e",
+      "current_full_ledgers": [
+        "email-ai-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/visa_ai_image_jobs/runtime.py",
+      "lines": 356,
+      "sha256": "cdad55895fb8a92ad83fd1a8f6bbfee6a88574e72250de2d124a848d00b97d3d",
+      "current_full_ledgers": [
+        "auth-security-support-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/domain/value_objects/passport_fields.py",
+      "lines": 354,
+      "sha256": "97561465267bdb954226682a1d5c0c8c7bc842b42e4f0bc766ad2bda2bcbb998",
+      "current_full_ledgers": [
+        "domain-values-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/documents/document_match_resolution.py",
+      "lines": 354,
+      "sha256": "b941022f1ac9e46c1c7417827297034b9a2d322b8c44aa35f9a3c894d077f6dd",
+      "current_full_ledgers": [
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_group_directory.py",
+      "lines": 351,
+      "sha256": "4f72610b1b8afc2f03301dbae3f6f6886143668a640a3ee0cfd4e9f86e9fa8b6",
+      "current_full_ledgers": [
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/excel_exports.py",
+      "lines": 350,
+      "sha256": "08b81ac9bc18324732f5daad5c795046d55b9a86e551adda3ee8aa8850df4b9c",
+      "current_full_ledgers": [
+        "passport-export-support-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/application/mcp/authorization.py",
+      "lines": 349,
+      "sha256": "8e9b9b9d95392262d07dd60184397779e0898bb2b1e543737fff6eb0192ac56f",
+      "current_full_ledgers": [
+        "backend-mcp-application-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/mcp/server.py",
+      "lines": 347,
+      "sha256": "1bcec7d9de9b47602526c7b9a903d2350e4d857b7d826a5eb9de70b233cb6846",
+      "current_full_ledgers": [
+        "backend-mcp-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/rooming_allocation_support.py",
+      "lines": 346,
+      "sha256": "23f6981113fa5150676d3ea35c73e6d283b1e46ede666d403e8f3de9fc983661",
+      "current_full_ledgers": [
+        "attendance-operations-reviewed-files-snapshot.json",
+        "operations-backend-manual-review-progress.json",
+        "operations-backend-reviewed-files.json",
+        "operations-functions-before-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/attendance_dashboard_repository.py",
+      "lines": 345,
+      "sha256": "19ccb290e3f0b9faa454d0c2fe3686b8db8d8dce6137018a07430ed1a191d279",
+      "current_full_ledgers": [
+        "attendance-adjacent-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/identity_security_repository.py",
+      "lines": 345,
+      "sha256": "cb748a2dc68051430b6eb60c5983c5551ec7fee2d27fbfe45df9237c50daad6c",
+      "current_full_ledgers": [
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/document_update_runtime.py",
+      "lines": 345,
+      "sha256": "1151e4106599f23168c08a8db1a9c8e1243aeb522ad0dd007261505be03bb45e",
+      "current_full_ledgers": [
+        "whatsapp-backend-manual-review-progress.json",
+        "whatsapp-backend-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_inbox_corrections.py",
+      "lines": 345,
+      "sha256": "be5a11830558a428ad5381686d0b562d2a9a6ea505d43cf2719296236e95717e",
+      "current_full_ledgers": [
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/prepare_group_excel.py",
+      "lines": 344,
+      "sha256": "50cf87b65201eb33673f3658f6bbe1d3da6e665fe357bb80302a01feb01a20c7",
+      "current_full_ledgers": [
+        "passport-export-support-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/application/use_cases/rooming/prepare_excel.py",
+      "lines": 338,
+      "sha256": "31a3dbaa56a8a81e96daa60ea3e265713268116553f86070e3310ea2096d42cd",
+      "current_full_ledgers": [
+        "attendance-operations-reviewed-files-snapshot.json",
+        "operations-backend-manual-review-progress.json",
+        "operations-backend-reviewed-files.json",
+        "operations-functions-before-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/database/my_photo_gallery_models.py",
+      "lines": 336,
+      "sha256": "85a36a0d57fcf4785ec99c91197c7d1f1069ba9c8b9b303800285021093ea1f7",
+      "current_full_ledgers": [
+        "my-photos-backend-reviewed-files.json",
+        "my-photos-model-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/attendance_runtime.py",
+      "lines": 335,
+      "sha256": "e79350bce11c8c4f09be713a59ca126e3b5edf96c769c6fbd5840e714faa94da",
+      "current_full_ledgers": [
+        "attendance-adjacent-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/application/mcp/group_workbook_plan.py",
+      "lines": 333,
+      "sha256": "ce9d781b12d76d3cbc39fdd1717bec023b3d7c4ef2dea3b69ee61bd9258b57e6",
+      "current_full_ledgers": [
+        "backend-mcp-application-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/core/security/identity_security.py",
+      "lines": 331,
+      "sha256": "934568c0909e067de6b064ec4b3bcdd3ea6f8b61e9c4bf91026f55dc8fefe84d",
+      "current_full_ledgers": [
+        "auth-security-support-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/email/sync_connections.py",
+      "lines": 330,
+      "sha256": "8cfb14464848b4799519a12fa898fb1bf5658c1cad5eb55df1558e790d3e3b22",
+      "current_full_ledgers": [
+        "security-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/worker_runtime.py",
+      "lines": 329,
+      "sha256": "bd7c038c5ec22a548cd1142c135b529d9c7c6798594f7e4cd7be74c3af95cae1",
+      "current_full_ledgers": [
+        "whatsapp-backend-manual-review-progress.json",
+        "whatsapp-backend-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/phone_overrides.py",
+      "lines": 328,
+      "sha256": "669da158e86223949b2543d4b8106005ee4c958f8015894537eca09983b6fc27",
+      "current_full_ledgers": [
+        "whatsapp-backend-manual-review-progress.json",
+        "whatsapp-backend-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/database/traveller_document_models.py",
+      "lines": 326,
+      "sha256": "9c046eb0b896b8af729b9ced4945e0d0adb412749a108447add0ad500938be6b",
+      "current_full_ledgers": [
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/phone_welcome.py",
+      "lines": 326,
+      "sha256": "1a2051eddc9fdfcebee335187da3aa46aafcb0b0eba601b5e834b9de99838c21",
+      "current_full_ledgers": [
+        "whatsapp-backend-manual-review-progress.json",
+        "whatsapp-backend-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/rooming_access.py",
+      "lines": 323,
+      "sha256": "0b8bc65bfb18473222245af2601a11f8b2e385e74c014b47695d18a4a0e5bc3e",
+      "current_full_ledgers": [
+        "attendance-operations-reviewed-files-snapshot.json",
+        "operations-backend-manual-review-progress.json",
+        "operations-backend-reviewed-files.json",
+        "operations-functions-before-reviewed-files.json",
+        "security-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/source_group_sync.py",
+      "lines": 321,
+      "sha256": "18532630c79f6b0c65e42750877560930d5b5685936f52d5ee0317569e2a7f24",
+      "current_full_ledgers": [
+        "whatsapp-backend-manual-review-progress.json",
+        "whatsapp-backend-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/ai/gemini_email_analysis_service.py",
+      "lines": 320,
+      "sha256": "58574318563ce7065633ec923be2fc176fd51c8e2b58641bb803beb02a24426b",
+      "current_full_ledgers": [
+        "email-ai-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/rooming_workspace.py",
+      "lines": 318,
+      "sha256": "19144c4de1f7d23157cc3cc83a90da00095211a147f8433cdd54276b6af0880e",
+      "current_full_ledgers": [
+        "attendance-operations-reviewed-files-snapshot.json",
+        "operations-backend-manual-review-progress.json",
+        "operations-backend-reviewed-files.json",
+        "operations-functions-before-reviewed-files.json",
+        "security-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/rooming_schemas.py",
+      "lines": 317,
+      "sha256": "c36ac90303de31db1ae652a045751397600eaf06e3e9afdbe40a4e77e4f51e9e",
+      "current_full_ledgers": [
+        "attendance-operations-reviewed-files-snapshot.json",
+        "operations-backend-manual-review-progress.json",
+        "operations-backend-reviewed-files.json",
+        "operations-functions-before-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/auth.py",
+      "lines": 314,
+      "sha256": "b3a10680eb335e589430dee4eba3fefa95d2fd54877682c15308b7e6e79177f8",
+      "current_full_ledgers": [
+        "security-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_export_catalog.py",
+      "lines": 313,
+      "sha256": "9a62384f4cdbc8b6fa1a6e49c44075658fd5cd2be823ce98471e97c79d927d0f",
+      "current_full_ledgers": [
+        "passport-export-support-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/database/my_photo_search_models.py",
+      "lines": 308,
+      "sha256": "8e20ef722c49997afc5f7ac857609cd142ebc16baa848ffd570138c7e2c05a67",
+      "current_full_ledgers": [
+        "my-photos-backend-reviewed-files.json",
+        "my-photos-model-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_attendance_closeout.py",
+      "lines": 308,
+      "sha256": "d22b043dfb8eedb320a079950213112603d63d48da74d4224ec8aa11513d611d",
+      "current_full_ledgers": [
+        "attendance-operations-reviewed-files-snapshot.json",
+        "operations-backend-manual-review-progress.json",
+        "operations-backend-reviewed-files.json",
+        "operations-functions-before-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/mcp/invocation.py",
+      "lines": 308,
+      "sha256": "45e4644ccb2deba42cab1f963980bdb6206a058145045993c51d29371792174f",
+      "current_full_ledgers": [
+        "backend-mcp-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/ai/passport_date_evidence.py",
+      "lines": 307,
+      "sha256": "23de6ddb96714f752111ec6aeaeaf1be717b8045608ca48d1b9723b082cff62b",
+      "current_full_ledgers": [
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/email/sync_service.py",
+      "lines": 307,
+      "sha256": "29d5be92fd1ac4e6509ad86088573b67121b3e76671bbe76ec1b8fedce9e97e5",
+      "current_full_ledgers": [
+        "security-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/email/sync_attachments.py",
+      "lines": 306,
+      "sha256": "f282617e49a1d3fef5f1432241fc37372a35c593f1853742c225ef92d55bdfa2",
+      "current_full_ledgers": [
+        "security-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/email/sync_reviews.py",
+      "lines": 305,
+      "sha256": "cf95a7b3198171f79c81fa1c4e6e77081eac19d5f16501c43b5cfb674b81ad1f",
+      "current_full_ledgers": [
+        "security-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations.py",
+      "lines": 305,
+      "sha256": "c7e461f12d7a650ea8468bafc128f81f5367dd6a941a77bc205701117694fae5",
+      "current_full_ledgers": [
+        "attendance-operations-reviewed-files-snapshot.json",
+        "operations-backend-manual-review-progress.json",
+        "operations-backend-reviewed-files.json",
+        "operations-functions-before-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_configuration.py",
+      "lines": 302,
+      "sha256": "925faec9ce0fcaad02be70b0207ce7339fa9e941a6ae28f2131cf30b18a1f993",
+      "current_full_ledgers": [
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_edit_operations.py",
+      "lines": 302,
+      "sha256": "f0febe1f28aaf5f17bb31616fec3c7ae72e4fea4b5b5b9b22da6367e4879bddd",
+      "current_full_ledgers": [
+        "backend-mcp-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/mcp/broadcast_write_tools.py",
+      "lines": 301,
+      "sha256": "e0030c72f9f3c33b31bf439e69548c4a9e14d836f9edb5947218b675c416b011",
+      "current_full_ledgers": [
+        "backend-mcp-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/traveller_destinations.py",
+      "lines": 300,
+      "sha256": "17dfeb7e334094cec983674d0df704b30ad9ef55770ea097c4823cea8f200946",
+      "current_full_ledgers": [
+        "whatsapp-backend-manual-review-progress.json",
+        "whatsapp-backend-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_permanent_delete.py",
+      "lines": 300,
+      "sha256": "7bca9c679fe968144e0ca24759cd4115c459d9b0a47c10fceee7ba9614b42818",
+      "current_full_ledgers": [
+        "file-inventory.csv"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_read_tools.py",
+      "lines": 300,
+      "sha256": "f644d0590c28257feb5f3a9a05092e88fe10fc9a497023712e85d8cceeda2856",
+      "current_full_ledgers": [
+        "backend-mcp-reviewed-files.json",
+        "file-inventory.csv"
+      ]
+    }
+  ]
+}

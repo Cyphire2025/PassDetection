@@ -1,0 +1,40 @@
+{
+  "files": [
+    {
+      "path": "docs/architecture/passport-link-ecr-and-languages.md",
+      "sha256": "6bccd5793d7d0146e011003c8aeeeb180ee8296f117e17c6a9ad10bf9cc1c874",
+      "physical_lines": 161,
+      "review_scope": "full",
+      "status": "reviewed-and-documented",
+      "reviewer": "branding_visuals",
+      "notes": "Complete authored guide physically read. Current/historical rollout framing added only; every pre-existing line, command/config block, source/test failure record, stated service limitation and original deployment/security requirement retained. Exact source manifest0142 and current retained manifest-based selector support correction; no new current runtime qualification or operator action."
+    },
+    {
+      "path": "docs/architecture/ecr-checker.md",
+      "sha256": "918d33c35b6f65be1e77a466a85c9b88a75c720103025b54bb81c5cbdbb14c0e",
+      "physical_lines": 183,
+      "review_scope": "full",
+      "status": "reviewed-and-documented",
+      "reviewer": "branding_visuals",
+      "notes": "Complete authored guide physically read. Current/historical rollout framing added only; every pre-existing line, command/config block, source/test failure record, stated service limitation and original deployment/security requirement retained. Exact source manifest0142 and current retained manifest-based selector support correction; no new current runtime qualification or operator action. DatedSep24price/provider smoke/tokens/latency and image/queue arithmetic read as historical claims, not current rates/accuracy/provider authorization; no external facts reverified, no key/setup/API request or private images accessed."
+    },
+    {
+      "path": "docs/architecture/public-upload-rate-limits.md",
+      "sha256": "f39f536e1967ea95ab81caaf4b2b9a5c13a7f744f81c8ece5ddd8b91762b1f90",
+      "physical_lines": 232,
+      "review_scope": "full",
+      "status": "reviewed-and-documented",
+      "reviewer": "branding_visuals",
+      "notes": "Complete authored guide physically read. Current/historical rollout framing added only; every pre-existing line, command/config block, source/test failure record, stated service limitation and original deployment/security requirement retained. Exact source manifest0142 and current retained manifest-based selector support correction; no new current runtime qualification or operator action. Legacy direct-submission header/UUID-vs-capability, blob previews/HMAC Redis keys/failclosed guards/redacted proxy logs/trustedIP and bounded per-layer traffic descriptions physically reviewed; active Fresh routes/current exact middleware/proxy values remain authoritative, no thresholds changed."
+    },
+    {
+      "path": "docs/architecture/gemini-priority-scheduling.md",
+      "sha256": "5da5c07ebd4d7509633c7f2531085795d0e98733b8b089472a4f6641f3043f77",
+      "physical_lines": 313,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete313 authored physical lines read. Redis generation/lease/hash-tag priority/fail-open asymmetry/manual fallback, durable DB and fresh broker redelivery/provider-attempt distinction, bounded pacing/Retry-After, readiness vs real provider/project identity, secret-free logging/crossprocess metrics and sampled percentile limits reviewed as documented contract. Native-memory/capacity measurements and staging gate remain explicitly component/historical vs actual provider/whole-host proof. No config/provider invocation, actual admission/load/Redis/workers measured, document unchanged; reserved load-tests/k6/README.md not read or edited."
+    }
+  ]
+}

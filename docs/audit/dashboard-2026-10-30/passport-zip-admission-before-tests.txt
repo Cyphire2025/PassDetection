@@ -1,0 +1,60 @@
+....FFFFFFF.                                                             [100%]
+================================== FAILURES ===================================
+___ test_excess_records_are_rejected_before_any_zipinfo_allocation[-False] ____
+tests\unit\infrastructure\test_passport_zip_member_admission.py:95: in test_excess_records_are_rejected_before_any_zipinfo_allocation
+    assert created == []
+E   assert [True, True, True] == []
+E     
+E     Left contains 3 more items, first extra item: True
+E     Use -v to get more diff
+____ test_excess_records_are_rejected_before_any_zipinfo_allocation[-True] ____
+tests\unit\infrastructure\test_passport_zip_member_admission.py:95: in test_excess_records_are_rejected_before_any_zipinfo_allocation
+    assert created == []
+E   assert [True, True, True] == []
+E     
+E     Left contains 3 more items, first extra item: True
+E     Use -v to get more diff
+_ test_excess_records_are_rejected_before_any_zipinfo_allocation[MZ-synthetic-prepended-bytes-False] _
+tests\unit\infrastructure\test_passport_zip_member_admission.py:95: in test_excess_records_are_rejected_before_any_zipinfo_allocation
+    assert created == []
+E   assert [True, True, True] == []
+E     
+E     Left contains 3 more items, first extra item: True
+E     Use -v to get more diff
+_ test_excess_records_are_rejected_before_any_zipinfo_allocation[MZ-synthetic-prepended-bytes-True] _
+tests\unit\infrastructure\test_passport_zip_member_admission.py:95: in test_excess_records_are_rejected_before_any_zipinfo_allocation
+    assert created == []
+E   assert [True, True, True] == []
+E     
+E     Left contains 3 more items, first extra item: True
+E     Use -v to get more diff
+__ test_forged_end_record_count_cannot_bypass_actual_directory_admission[0] ___
+tests\unit\infrastructure\test_passport_zip_member_admission.py:119: in test_forged_end_record_count_cannot_bypass_actual_directory_admission
+    assert created == []
+E   assert [True, True, True] == []
+E     
+E     Left contains 3 more items, first extra item: True
+E     Use -v to get more diff
+__ test_forged_end_record_count_cannot_bypass_actual_directory_admission[1] ___
+tests\unit\infrastructure\test_passport_zip_member_admission.py:119: in test_forged_end_record_count_cannot_bypass_actual_directory_admission
+    assert created == []
+E   assert [True, True, True] == []
+E     
+E     Left contains 3 more items, first extra item: True
+E     Use -v to get more diff
+__ test_forged_end_record_count_cannot_bypass_actual_directory_admission[2] ___
+tests\unit\infrastructure\test_passport_zip_member_admission.py:119: in test_forged_end_record_count_cannot_bypass_actual_directory_admission
+    assert created == []
+E   assert [True, True, True] == []
+E     
+E     Left contains 3 more items, first extra item: True
+E     Use -v to get more diff
+=========================== short test summary info ===========================
+FAILED tests/unit/infrastructure/test_passport_zip_member_admission.py::test_excess_records_are_rejected_before_any_zipinfo_allocation[-False]
+FAILED tests/unit/infrastructure/test_passport_zip_member_admission.py::test_excess_records_are_rejected_before_any_zipinfo_allocation[-True]
+FAILED tests/unit/infrastructure/test_passport_zip_member_admission.py::test_excess_records_are_rejected_before_any_zipinfo_allocation[MZ-synthetic-prepended-bytes-False]
+FAILED tests/unit/infrastructure/test_passport_zip_member_admission.py::test_excess_records_are_rejected_before_any_zipinfo_allocation[MZ-synthetic-prepended-bytes-True]
+FAILED tests/unit/infrastructure/test_passport_zip_member_admission.py::test_forged_end_record_count_cannot_bypass_actual_directory_admission[0]
+FAILED tests/unit/infrastructure/test_passport_zip_member_admission.py::test_forged_end_record_count_cannot_bypass_actual_directory_admission[1]
+FAILED tests/unit/infrastructure/test_passport_zip_member_admission.py::test_forged_end_record_count_cannot_bypass_actual_directory_admission[2]
+7 failed, 5 passed in 0.65s

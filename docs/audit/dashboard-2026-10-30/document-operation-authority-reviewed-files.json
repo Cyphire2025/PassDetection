@@ -1,0 +1,45 @@
+{
+  "recorded_at": "2026-10-31T08:15:47.074Z",
+  "records": [
+    {
+      "path": "frontend/features/documents/hooks/use-document-distribution.ts",
+      "sha256": "212ab308ba02e8fbe7ebea934d1b4681f84417aec5ef3eb9ebf0e84436a0c5bf",
+      "physical_lines": 286,
+      "max_function_complexity": 4,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "verified-private-invocation-fix",
+      "notes": "Full original/current hook source read. Ten private mutations use existing invocation-bound usePrivateMutation; sequential abort loop guards original owner before/after each await. All15public hooks/order and14other whole hook ASTs preserved after intentional wrapper normalization; query keys and bulk dedup/API/order/onSettled retained. Real reset/remount/client-adapter normal paths qualify this caller fix; API7 unchanged."
+    },
+    {
+      "path": "frontend/features/documents/hooks/document-operation-authority.test.tsx",
+      "sha256": "7eea49a1ea6f71e41a38b0b10f0230f879118a1ac04de7fd8f93679e4e2e67de",
+      "physical_lines": 296,
+      "max_function_complexity": 2,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed-and-executed-synthetic-test",
+      "notes": "Full authored source reviewed; actual auth boundary/SessionLifecycle/workspace controller/actions/manual dialog/client owner adapter execute. Only final HTTP delegate, framework routing/lazy-loading indirection, irrelevant activity registration and offline-purge side effects are synthetic. Transport and mounted-workspace fixture responsibilities split coherently; no production callers or MCP permissions."
+    },
+    {
+      "path": "frontend/features/documents/test-support/operation-authority.test-fixture.tsx",
+      "sha256": "92e22c4fe75392da923df9575a3e78d9186e1a7ebcbe1829cbef2875bc9e2146",
+      "physical_lines": 153,
+      "max_function_complexity": 4,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed-and-executed-synthetic-test",
+      "notes": "Full authored source reviewed; actual auth boundary/SessionLifecycle/workspace controller/actions/manual dialog/client owner adapter execute. Only final HTTP delegate, framework routing/lazy-loading indirection, irrelevant activity registration and offline-purge side effects are synthetic. Transport and mounted-workspace fixture responsibilities split coherently; no production callers or MCP permissions."
+    },
+    {
+      "path": "frontend/features/documents/test-support/operation-transport.test-fixture.ts",
+      "sha256": "13fe0234d9492172c6a77f2a1b4ae1521901679c770320efa201de547c9f70e2",
+      "physical_lines": 167,
+      "max_function_complexity": 24,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed-and-executed-synthetic-test",
+      "notes": "Full authored source reviewed; actual auth boundary/SessionLifecycle/workspace controller/actions/manual dialog/client owner adapter execute. Only final HTTP delegate, framework routing/lazy-loading indirection, irrelevant activity registration and offline-purge side effects are synthetic. Transport and mounted-workspace fixture responsibilities split coherently; no production callers or MCP permissions."
+    }
+  ]
+}

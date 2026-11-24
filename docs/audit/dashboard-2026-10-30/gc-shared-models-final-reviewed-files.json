@@ -1,0 +1,219 @@
+[
+  {
+    "path": "backend/app/infrastructure/database/gc_mobile_models.py",
+    "sha256": "18fcb75da61780da07a5e806635d4e34c281caeefe3b7f47ebbe78d3b3402ce4",
+    "reviewer": [
+      "document_ui_architecture",
+      "gc_models_finish"
+    ],
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Reviewed original whole2540-line schema physically by document_ui_architecture; current whole-class semantic continuity by23 exact AST moves, all new facade/primer/header/module assignments/descriptor glue manually read.65focused cases(61unchanged+4new)/731of731executablelines/21freshstartup complete174table/mapper+PG/SQLiteDDL/qualifiedregistry/default65/hints/pickle/order checks qualified prepolish source; final17new module descriptions only restore whole AST exactly with same line positions. Currentno-fixRuff20/strict19/format20 pass.99.81normalfloor followsall19. No new physical whole-body credit from parsing/tests; native behavior/Inbox/provider/DB/deploy excluded. Classsource introspection tradeoff explicitly adopted; see gc-shared-models-final-verification.json."
+  },
+  {
+    "path": "backend/app/infrastructure/database/_gc_models/__init__.py",
+    "sha256": "3d6b47ac4f231cd452fbac0be5b0b91ebd1051e43e14d2bfac8b037461b6be29",
+    "reviewer": [
+      "document_ui_architecture",
+      "gc_models_finish"
+    ],
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Reviewed original whole2540-line schema physically by document_ui_architecture; current whole-class semantic continuity by23 exact AST moves, all new facade/primer/header/module assignments/descriptor glue manually read.65focused cases(61unchanged+4new)/731of731executablelines/21freshstartup complete174table/mapper+PG/SQLiteDDL/qualifiedregistry/default65/hints/pickle/order checks qualified prepolish source; final17new module descriptions only restore whole AST exactly with same line positions. Currentno-fixRuff20/strict19/format20 pass.99.81normalfloor followsall19. No new physical whole-body credit from parsing/tests; native behavior/Inbox/provider/DB/deploy excluded. Classsource introspection tradeoff explicitly adopted; see gc-shared-models-final-verification.json."
+  },
+  {
+    "path": "backend/app/infrastructure/database/_gc_models/announcements.py",
+    "sha256": "ddfd167e3ec6f694a5b9b4fd5e78f74dbc73ffbda1e2b1f6fa68b7121db9f9b5",
+    "reviewer": [
+      "document_ui_architecture",
+      "gc_models_finish"
+    ],
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Reviewed original whole2540-line schema physically by document_ui_architecture; current whole-class semantic continuity by23 exact AST moves, all new facade/primer/header/module assignments/descriptor glue manually read.65focused cases(61unchanged+4new)/731of731executablelines/21freshstartup complete174table/mapper+PG/SQLiteDDL/qualifiedregistry/default65/hints/pickle/order checks qualified prepolish source; final17new module descriptions only restore whole AST exactly with same line positions. Currentno-fixRuff20/strict19/format20 pass.99.81normalfloor followsall19. No new physical whole-body credit from parsing/tests; native behavior/Inbox/provider/DB/deploy excluded. Classsource introspection tradeoff explicitly adopted; see gc-shared-models-final-verification.json."
+  },
+  {
+    "path": "backend/app/infrastructure/database/_gc_models/attestation.py",
+    "sha256": "d121fb0cbca7591a3d3c907c0cb399d5d1adc94f36e8be421ec8fdb0366f9261",
+    "reviewer": [
+      "document_ui_architecture",
+      "gc_models_finish"
+    ],
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Reviewed original whole2540-line schema physically by document_ui_architecture; current whole-class semantic continuity by23 exact AST moves, all new facade/primer/header/module assignments/descriptor glue manually read.65focused cases(61unchanged+4new)/731of731executablelines/21freshstartup complete174table/mapper+PG/SQLiteDDL/qualifiedregistry/default65/hints/pickle/order checks qualified prepolish source; final17new module descriptions only restore whole AST exactly with same line positions. Currentno-fixRuff20/strict19/format20 pass.99.81normalfloor followsall19. No new physical whole-body credit from parsing/tests; native behavior/Inbox/provider/DB/deploy excluded. Classsource introspection tradeoff explicitly adopted; see gc-shared-models-final-verification.json."
+  },
+  {
+    "path": "backend/app/infrastructure/database/_gc_models/common_documents.py",
+    "sha256": "079550653b8479c535f14252ea1d83b9d037cb0112d6947b4a57dacb9a71971b",
+    "reviewer": [
+      "document_ui_architecture",
+      "gc_models_finish"
+    ],
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Reviewed original whole2540-line schema physically by document_ui_architecture; current whole-class semantic continuity by23 exact AST moves, all new facade/primer/header/module assignments/descriptor glue manually read.65focused cases(61unchanged+4new)/731of731executablelines/21freshstartup complete174table/mapper+PG/SQLiteDDL/qualifiedregistry/default65/hints/pickle/order checks qualified prepolish source; final17new module descriptions only restore whole AST exactly with same line positions. Currentno-fixRuff20/strict19/format20 pass.99.81normalfloor followsall19. No new physical whole-body credit from parsing/tests; native behavior/Inbox/provider/DB/deploy excluded. Classsource introspection tradeoff explicitly adopted; see gc-shared-models-final-verification.json."
+  },
+  {
+    "path": "backend/app/infrastructure/database/_gc_models/document_cache.py",
+    "sha256": "d9cc4bad0435253e7b0aa73e00e1ccf12153a5cd77e3ce725a4dee80f4290bbf",
+    "reviewer": [
+      "document_ui_architecture",
+      "gc_models_finish"
+    ],
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Reviewed original whole2540-line schema physically by document_ui_architecture; current whole-class semantic continuity by23 exact AST moves, all new facade/primer/header/module assignments/descriptor glue manually read.65focused cases(61unchanged+4new)/731of731executablelines/21freshstartup complete174table/mapper+PG/SQLiteDDL/qualifiedregistry/default65/hints/pickle/order checks qualified prepolish source; final17new module descriptions only restore whole AST exactly with same line positions. Currentno-fixRuff20/strict19/format20 pass.99.81normalfloor followsall19. No new physical whole-body credit from parsing/tests; native behavior/Inbox/provider/DB/deploy excluded. Classsource introspection tradeoff explicitly adopted; see gc-shared-models-final-verification.json."
+  },
+  {
+    "path": "backend/app/infrastructure/database/_gc_models/family_delegations.py",
+    "sha256": "00881bb3e306e7985cb687163d41ce4045575c2be8e41a33c79f32187df759d4",
+    "reviewer": [
+      "document_ui_architecture",
+      "gc_models_finish"
+    ],
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Reviewed original whole2540-line schema physically by document_ui_architecture; current whole-class semantic continuity by23 exact AST moves, all new facade/primer/header/module assignments/descriptor glue manually read.65focused cases(61unchanged+4new)/731of731executablelines/21freshstartup complete174table/mapper+PG/SQLiteDDL/qualifiedregistry/default65/hints/pickle/order checks qualified prepolish source; final17new module descriptions only restore whole AST exactly with same line positions. Currentno-fixRuff20/strict19/format20 pass.99.81normalfloor followsall19. No new physical whole-body credit from parsing/tests; native behavior/Inbox/provider/DB/deploy excluded. Classsource introspection tradeoff explicitly adopted; see gc-shared-models-final-verification.json."
+  },
+  {
+    "path": "backend/app/infrastructure/database/_gc_models/group_access.py",
+    "sha256": "be19a91b9200629cb94c9761ac69cee226725cfd45d5317a17184ee25e4cf755",
+    "reviewer": [
+      "document_ui_architecture",
+      "gc_models_finish"
+    ],
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Reviewed original whole2540-line schema physically by document_ui_architecture; current whole-class semantic continuity by23 exact AST moves, all new facade/primer/header/module assignments/descriptor glue manually read.65focused cases(61unchanged+4new)/731of731executablelines/21freshstartup complete174table/mapper+PG/SQLiteDDL/qualifiedregistry/default65/hints/pickle/order checks qualified prepolish source; final17new module descriptions only restore whole AST exactly with same line positions. Currentno-fixRuff20/strict19/format20 pass.99.81normalfloor followsall19. No new physical whole-body credit from parsing/tests; native behavior/Inbox/provider/DB/deploy excluded. Classsource introspection tradeoff explicitly adopted; see gc-shared-models-final-verification.json."
+  },
+  {
+    "path": "backend/app/infrastructure/database/_gc_models/idempotency_receipts.py",
+    "sha256": "2e4ee76a54a7876508fe47a29c9ff4471ef5886baf03cda90111d22652012db5",
+    "reviewer": [
+      "document_ui_architecture",
+      "gc_models_finish"
+    ],
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Reviewed original whole2540-line schema physically by document_ui_architecture; current whole-class semantic continuity by23 exact AST moves, all new facade/primer/header/module assignments/descriptor glue manually read.65focused cases(61unchanged+4new)/731of731executablelines/21freshstartup complete174table/mapper+PG/SQLiteDDL/qualifiedregistry/default65/hints/pickle/order checks qualified prepolish source; final17new module descriptions only restore whole AST exactly with same line positions. Currentno-fixRuff20/strict19/format20 pass.99.81normalfloor followsall19. No new physical whole-body credit from parsing/tests; native behavior/Inbox/provider/DB/deploy excluded. Classsource introspection tradeoff explicitly adopted; see gc-shared-models-final-verification.json."
+  },
+  {
+    "path": "backend/app/infrastructure/database/_gc_models/incidents.py",
+    "sha256": "d74c0acaac5610a28d57802b6a45272baa51154c97a42bf56e78208cb32f8bac",
+    "reviewer": [
+      "document_ui_architecture",
+      "gc_models_finish"
+    ],
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Reviewed original whole2540-line schema physically by document_ui_architecture; current whole-class semantic continuity by23 exact AST moves, all new facade/primer/header/module assignments/descriptor glue manually read.65focused cases(61unchanged+4new)/731of731executablelines/21freshstartup complete174table/mapper+PG/SQLiteDDL/qualifiedregistry/default65/hints/pickle/order checks qualified prepolish source; final17new module descriptions only restore whole AST exactly with same line positions. Currentno-fixRuff20/strict19/format20 pass.99.81normalfloor followsall19. No new physical whole-body credit from parsing/tests; native behavior/Inbox/provider/DB/deploy excluded. Classsource introspection tradeoff explicitly adopted; see gc-shared-models-final-verification.json."
+  },
+  {
+    "path": "backend/app/infrastructure/database/_gc_models/itineraries.py",
+    "sha256": "8456f3888a78300afc37d316ffd98bab4efe5fa7aa5b192b23ad689b436030de",
+    "reviewer": [
+      "document_ui_architecture",
+      "gc_models_finish"
+    ],
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Reviewed original whole2540-line schema physically by document_ui_architecture; current whole-class semantic continuity by23 exact AST moves, all new facade/primer/header/module assignments/descriptor glue manually read.65focused cases(61unchanged+4new)/731of731executablelines/21freshstartup complete174table/mapper+PG/SQLiteDDL/qualifiedregistry/default65/hints/pickle/order checks qualified prepolish source; final17new module descriptions only restore whole AST exactly with same line positions. Currentno-fixRuff20/strict19/format20 pass.99.81normalfloor followsall19. No new physical whole-body credit from parsing/tests; native behavior/Inbox/provider/DB/deploy excluded. Classsource introspection tradeoff explicitly adopted; see gc-shared-models-final-verification.json."
+  },
+  {
+    "path": "backend/app/infrastructure/database/_gc_models/notifications.py",
+    "sha256": "eb171fe049d06297dafa51d5c38b690e41096506040079aa240bcdd037de7254",
+    "reviewer": [
+      "document_ui_architecture",
+      "gc_models_finish"
+    ],
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Reviewed original whole2540-line schema physically by document_ui_architecture; current whole-class semantic continuity by23 exact AST moves, all new facade/primer/header/module assignments/descriptor glue manually read.65focused cases(61unchanged+4new)/731of731executablelines/21freshstartup complete174table/mapper+PG/SQLiteDDL/qualifiedregistry/default65/hints/pickle/order checks qualified prepolish source; final17new module descriptions only restore whole AST exactly with same line positions. Currentno-fixRuff20/strict19/format20 pass.99.81normalfloor followsall19. No new physical whole-body credit from parsing/tests; native behavior/Inbox/provider/DB/deploy excluded. Classsource introspection tradeoff explicitly adopted; see gc-shared-models-final-verification.json."
+  },
+  {
+    "path": "backend/app/infrastructure/database/_gc_models/organizations.py",
+    "sha256": "948281b090747a2ecfaa7a7d203086858d0ac0c042b35e151c5f81ad46b4dd1f",
+    "reviewer": [
+      "document_ui_architecture",
+      "gc_models_finish"
+    ],
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Reviewed original whole2540-line schema physically by document_ui_architecture; current whole-class semantic continuity by23 exact AST moves, all new facade/primer/header/module assignments/descriptor glue manually read.65focused cases(61unchanged+4new)/731of731executablelines/21freshstartup complete174table/mapper+PG/SQLiteDDL/qualifiedregistry/default65/hints/pickle/order checks qualified prepolish source; final17new module descriptions only restore whole AST exactly with same line positions. Currentno-fixRuff20/strict19/format20 pass.99.81normalfloor followsall19. No new physical whole-body credit from parsing/tests; native behavior/Inbox/provider/DB/deploy excluded. Classsource introspection tradeoff explicitly adopted; see gc-shared-models-final-verification.json."
+  },
+  {
+    "path": "backend/app/infrastructure/database/_gc_models/otp_challenges.py",
+    "sha256": "ea43f9a6ef67d7ac0292974239d9375a8031d2f556bf449a16fef41fb7e847f2",
+    "reviewer": [
+      "document_ui_architecture",
+      "gc_models_finish"
+    ],
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Reviewed original whole2540-line schema physically by document_ui_architecture; current whole-class semantic continuity by23 exact AST moves, all new facade/primer/header/module assignments/descriptor glue manually read.65focused cases(61unchanged+4new)/731of731executablelines/21freshstartup complete174table/mapper+PG/SQLiteDDL/qualifiedregistry/default65/hints/pickle/order checks qualified prepolish source; final17new module descriptions only restore whole AST exactly with same line positions. Currentno-fixRuff20/strict19/format20 pass.99.81normalfloor followsall19. No new physical whole-body credit from parsing/tests; native behavior/Inbox/provider/DB/deploy excluded. Classsource introspection tradeoff explicitly adopted; see gc-shared-models-final-verification.json."
+  },
+  {
+    "path": "backend/app/infrastructure/database/_gc_models/passenger_identities.py",
+    "sha256": "a9f5ab3b247a55a5bbf3ffd59fa22ce4e8fcc2afb7db960bfadc581f2d337f7f",
+    "reviewer": [
+      "document_ui_architecture",
+      "gc_models_finish"
+    ],
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Reviewed original whole2540-line schema physically by document_ui_architecture; current whole-class semantic continuity by23 exact AST moves, all new facade/primer/header/module assignments/descriptor glue manually read.65focused cases(61unchanged+4new)/731of731executablelines/21freshstartup complete174table/mapper+PG/SQLiteDDL/qualifiedregistry/default65/hints/pickle/order checks qualified prepolish source; final17new module descriptions only restore whole AST exactly with same line positions. Currentno-fixRuff20/strict19/format20 pass.99.81normalfloor followsall19. No new physical whole-body credit from parsing/tests; native behavior/Inbox/provider/DB/deploy excluded. Classsource introspection tradeoff explicitly adopted; see gc-shared-models-final-verification.json."
+  },
+  {
+    "path": "backend/app/infrastructure/database/_gc_models/push_transport.py",
+    "sha256": "981efda676d8049bd35729b17c3bd4536d2fc050321540963cb1b3e1098fcafd",
+    "reviewer": [
+      "document_ui_architecture",
+      "gc_models_finish"
+    ],
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Reviewed original whole2540-line schema physically by document_ui_architecture; current whole-class semantic continuity by23 exact AST moves, all new facade/primer/header/module assignments/descriptor glue manually read.65focused cases(61unchanged+4new)/731of731executablelines/21freshstartup complete174table/mapper+PG/SQLiteDDL/qualifiedregistry/default65/hints/pickle/order checks qualified prepolish source; final17new module descriptions only restore whole AST exactly with same line positions. Currentno-fixRuff20/strict19/format20 pass.99.81normalfloor followsall19. No new physical whole-body credit from parsing/tests; native behavior/Inbox/provider/DB/deploy excluded. Classsource introspection tradeoff explicitly adopted; see gc-shared-models-final-verification.json."
+  },
+  {
+    "path": "backend/app/infrastructure/database/_gc_models/refresh_tokens.py",
+    "sha256": "82fa0d47cfc766268d1509f4079da96d16584c6b03c724c6210fc61577979996",
+    "reviewer": [
+      "document_ui_architecture",
+      "gc_models_finish"
+    ],
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Reviewed original whole2540-line schema physically by document_ui_architecture; current whole-class semantic continuity by23 exact AST moves, all new facade/primer/header/module assignments/descriptor glue manually read.65focused cases(61unchanged+4new)/731of731executablelines/21freshstartup complete174table/mapper+PG/SQLiteDDL/qualifiedregistry/default65/hints/pickle/order checks qualified prepolish source; final17new module descriptions only restore whole AST exactly with same line positions. Currentno-fixRuff20/strict19/format20 pass.99.81normalfloor followsall19. No new physical whole-body credit from parsing/tests; native behavior/Inbox/provider/DB/deploy excluded. Classsource introspection tradeoff explicitly adopted; see gc-shared-models-final-verification.json."
+  },
+  {
+    "path": "backend/app/infrastructure/database/_gc_models/sessions.py",
+    "sha256": "2a976b5fb1e8f8966810793b1dee2652070b19871d97b07706b11f99d7002b75",
+    "reviewer": [
+      "document_ui_architecture",
+      "gc_models_finish"
+    ],
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Reviewed original whole2540-line schema physically by document_ui_architecture; current whole-class semantic continuity by23 exact AST moves, all new facade/primer/header/module assignments/descriptor glue manually read.65focused cases(61unchanged+4new)/731of731executablelines/21freshstartup complete174table/mapper+PG/SQLiteDDL/qualifiedregistry/default65/hints/pickle/order checks qualified prepolish source; final17new module descriptions only restore whole AST exactly with same line positions. Currentno-fixRuff20/strict19/format20 pass.99.81normalfloor followsall19. No new physical whole-body credit from parsing/tests; native behavior/Inbox/provider/DB/deploy excluded. Classsource introspection tradeoff explicitly adopted; see gc-shared-models-final-verification.json."
+  },
+  {
+    "path": "backend/app/infrastructure/database/_gc_models/sync_changes.py",
+    "sha256": "30c997125dcf6fd4a0a8a2edf753543811c5770f7952913f82df45eb649985ab",
+    "reviewer": [
+      "document_ui_architecture",
+      "gc_models_finish"
+    ],
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Reviewed original whole2540-line schema physically by document_ui_architecture; current whole-class semantic continuity by23 exact AST moves, all new facade/primer/header/module assignments/descriptor glue manually read.65focused cases(61unchanged+4new)/731of731executablelines/21freshstartup complete174table/mapper+PG/SQLiteDDL/qualifiedregistry/default65/hints/pickle/order checks qualified prepolish source; final17new module descriptions only restore whole AST exactly with same line positions. Currentno-fixRuff20/strict19/format20 pass.99.81normalfloor followsall19. No new physical whole-body credit from parsing/tests; native behavior/Inbox/provider/DB/deploy excluded. Classsource introspection tradeoff explicitly adopted; see gc-shared-models-final-verification.json."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_gc_model_facade_contract.py",
+    "sha256": "28048fdaf8c71cf9eb7f36c0fac7d46d2e00368f1b309aa0bb28cb6b160a7f18",
+    "reviewer": "gc_models_finish",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Whole new test source read.4actual retained facade/qualified registry/pickle/annotation/live clock65defaults/lazy private logo behavior controls among65passing focused cases; no native feature/provider/DB. Current bytes remain exact after module-docstring-only polish."
+  }
+]

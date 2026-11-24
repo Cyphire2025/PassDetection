@@ -1,0 +1,242 @@
+FFFF                                                                     [100%]
+================================== FAILURES ===================================
+_____ test_media_failure_drains_owned_native_sibling_before_retry[False] ______
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x00000138C65592D0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000138C6BAD650>
+late_failure = False
+
+    @pytest.mark.parametrize("late_failure", [False, True])
+    async def test_media_failure_drains_owned_native_sibling_before_retry(
+        db_session, monkeypatch, late_failure
+    ):
+        scope = await operational_media_scope(db_session, monkeypatch, job_type="generate_variants")
+        started = asyncio.Event()
+        release, finished = threading.Event(), threading.Event()
+        loop = asyncio.get_running_loop()
+        provider_tasks = []
+    
+        def native():
+            loop.call_soon_threadsafe(started.set)
+            try:
+                if not release.wait(5):
+                    raise AssertionError("Synthetic worker was not released")
+                if late_failure:
+                    raise ValueError("Synthetic late media failure")
+                return object()
+            finally:
+                finished.set()
+    
+        class Media:
+            async def prepare(self, request):
+                provider_tasks.append(asyncio.current_task())
+                if request.variant == "thumbnail":
+                    await started.wait()
+                    raise MyPhotosUnavailable("SYNTHETIC_FIRST_FAILURE", "Synthetic failure.")
+                if request.variant == "preview":
+                    return await _async_client_call(native)
+                await asyncio.Event().wait()
+    
+        task = asyncio.create_task(
+            operational_runtime.execute_operational_job(
+                scope.job_id,
+                settings=scope.settings,
+                providers=SimpleNamespace(media=Media()),
+                lease_owner="synthetic-media-worker",
+            )
+        )
+        try:
+            await asyncio.wait_for(started.wait(), 2)
+            # Enough loop turns for the sibling error's database retry to finish;
+            # the native thread remains deterministically blocked throughout.
+            for _ in range(60):
+                await asyncio.sleep(0.001)
+>           assert not task.done(), "Retry completed while an owned native provider sibling was alive"
+E           AssertionError: Retry completed while an owned native provider sibling was alive
+E           assert not True
+E            +  where True = <built-in method done of _asyncio.Task object at 0x00000138C6D21180>()
+E            +    where <built-in method done of _asyncio.Task object at 0x00000138C6D21180> = <Task finished name='Task-5' coro=<execute_operational_job() done, defined at C:\Users\nipun\Desktop\PassDetection\backend\app\infrastructure\my_photos\operational_runtime.py:31> result=OperationalJo...up_job_ids=())>.done
+
+tests\integration\test_my_photos_media_provider_ownership.py:60: AssertionError
+______ test_media_failure_drains_owned_native_sibling_before_retry[True] ______
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x00000138C6CE8950>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000138C60921D0>
+late_failure = True
+
+    @pytest.mark.parametrize("late_failure", [False, True])
+    async def test_media_failure_drains_owned_native_sibling_before_retry(
+        db_session, monkeypatch, late_failure
+    ):
+        scope = await operational_media_scope(db_session, monkeypatch, job_type="generate_variants")
+        started = asyncio.Event()
+        release, finished = threading.Event(), threading.Event()
+        loop = asyncio.get_running_loop()
+        provider_tasks = []
+    
+        def native():
+            loop.call_soon_threadsafe(started.set)
+            try:
+                if not release.wait(5):
+                    raise AssertionError("Synthetic worker was not released")
+                if late_failure:
+                    raise ValueError("Synthetic late media failure")
+                return object()
+            finally:
+                finished.set()
+    
+        class Media:
+            async def prepare(self, request):
+                provider_tasks.append(asyncio.current_task())
+                if request.variant == "thumbnail":
+                    await started.wait()
+                    raise MyPhotosUnavailable("SYNTHETIC_FIRST_FAILURE", "Synthetic failure.")
+                if request.variant == "preview":
+                    return await _async_client_call(native)
+                await asyncio.Event().wait()
+    
+        task = asyncio.create_task(
+            operational_runtime.execute_operational_job(
+                scope.job_id,
+                settings=scope.settings,
+                providers=SimpleNamespace(media=Media()),
+                lease_owner="synthetic-media-worker",
+            )
+        )
+        try:
+            await asyncio.wait_for(started.wait(), 2)
+            # Enough loop turns for the sibling error's database retry to finish;
+            # the native thread remains deterministically blocked throughout.
+            for _ in range(60):
+                await asyncio.sleep(0.001)
+>           assert not task.done(), "Retry completed while an owned native provider sibling was alive"
+E           AssertionError: Retry completed while an owned native provider sibling was alive
+E           assert not True
+E            +  where True = <built-in method done of _asyncio.Task object at 0x00000138C8A02140>()
+E            +    where <built-in method done of _asyncio.Task object at 0x00000138C8A02140> = <Task finished name='Task-22' coro=<execute_operational_job() done, defined at C:\Users\nipun\Desktop\PassDetection\backend\app\infrastructure\my_photos\operational_runtime.py:31> result=OperationalJo...up_job_ids=())>.done
+
+tests\integration\test_my_photos_media_provider_ownership.py:60: AssertionError
+_ test_index_batch_failure_drains_native_sibling_and_stops_waiting_work[False] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000138C8A30810>
+late_failure = False
+
+    @pytest.mark.parametrize("late_failure", [False, True])
+    async def test_index_batch_failure_drains_native_sibling_and_stops_waiting_work(
+        monkeypatch, late_failure
+    ):
+        provider = AwsRekognitionFaceIndexSearchProvider(
+            rekognition_client=object(),
+            liveness_provider=object(),
+            config=aws_provider_config(_settings(aws_index_concurrency=2)),
+        )
+        started = asyncio.Event()
+        release, finished = threading.Event(), threading.Event()
+        loop = asyncio.get_running_loop()
+        entered = []
+    
+        def native():
+            loop.call_soon_threadsafe(started.set)
+            try:
+                if not release.wait(5):
+                    raise AssertionError("Synthetic index worker was not released")
+                if late_failure:
+                    raise ValueError("Synthetic late indexing failure")
+                return (), None
+            finally:
+                finished.set()
+    
+        async def index_one(_request, asset):
+            entered.append(asset.asset_identity)
+            if asset.asset_identity == "first":
+                await started.wait()
+                raise MyPhotosUnavailable("SYNTHETIC_FIRST_FAILURE", "Synthetic failure.")
+            return await _async_client_call(native)
+    
+        monkeypatch.setattr(provider, "_index_one", index_one)
+        request = FaceIndexBatchRequest(
+            tenant_scope=TENANT_ID,
+            group_scope=GROUP_ID,
+            collection_reference=provider.collection_reference(
+                tenant_scope=TENANT_ID, group_scope=GROUP_ID
+            ),
+            index_version=1,
+            assets=tuple(FaceIndexAsset(name, "synthetic-analysis", name) for name in ("first", "second")),
+        )
+        task = asyncio.create_task(provider.index_faces(request))
+        try:
+            await asyncio.wait_for(started.wait(), 2)
+            for _ in range(10):
+                await asyncio.sleep(0)
+>           assert not task.done(), "Index batch returned while a started native sibling was alive"
+E           AssertionError: Index batch returned while a started native sibling was alive
+E           assert not True
+E            +  where True = <built-in method done of _asyncio.Task object at 0x00000138C8A02380>()
+E            +    where <built-in method done of _asyncio.Task object at 0x00000138C8A02380> = <Task finished name='Task-36' coro=<AwsRekognitionFaceIndexSearchProvider.index_faces() done, defined at C:\Users\nipu...ction\backend\app\infrastructure\my_photos\aws_face_search.py:122> exception=MyPhotosUnavailable('Synthetic failure.')>.done
+
+tests\unit\infrastructure\test_my_photos_index_provider_ownership.py:65: AssertionError
+_ test_index_batch_failure_drains_native_sibling_and_stops_waiting_work[True] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000138C8A1B890>
+late_failure = True
+
+    @pytest.mark.parametrize("late_failure", [False, True])
+    async def test_index_batch_failure_drains_native_sibling_and_stops_waiting_work(
+        monkeypatch, late_failure
+    ):
+        provider = AwsRekognitionFaceIndexSearchProvider(
+            rekognition_client=object(),
+            liveness_provider=object(),
+            config=aws_provider_config(_settings(aws_index_concurrency=2)),
+        )
+        started = asyncio.Event()
+        release, finished = threading.Event(), threading.Event()
+        loop = asyncio.get_running_loop()
+        entered = []
+    
+        def native():
+            loop.call_soon_threadsafe(started.set)
+            try:
+                if not release.wait(5):
+                    raise AssertionError("Synthetic index worker was not released")
+                if late_failure:
+                    raise ValueError("Synthetic late indexing failure")
+                return (), None
+            finally:
+                finished.set()
+    
+        async def index_one(_request, asset):
+            entered.append(asset.asset_identity)
+            if asset.asset_identity == "first":
+                await started.wait()
+                raise MyPhotosUnavailable("SYNTHETIC_FIRST_FAILURE", "Synthetic failure.")
+            return await _async_client_call(native)
+    
+        monkeypatch.setattr(provider, "_index_one", index_one)
+        request = FaceIndexBatchRequest(
+            tenant_scope=TENANT_ID,
+            group_scope=GROUP_ID,
+            collection_reference=provider.collection_reference(
+                tenant_scope=TENANT_ID, group_scope=GROUP_ID
+            ),
+            index_version=1,
+            assets=tuple(FaceIndexAsset(name, "synthetic-analysis", name) for name in ("first", "second")),
+        )
+        task = asyncio.create_task(provider.index_faces(request))
+        try:
+            await asyncio.wait_for(started.wait(), 2)
+            for _ in range(10):
+                await asyncio.sleep(0)
+>           assert not task.done(), "Index batch returned while a started native sibling was alive"
+E           AssertionError: Index batch returned while a started native sibling was alive
+E           assert not True
+E            +  where True = <built-in method done of _asyncio.Task object at 0x00000138C8B34400>()
+E            +    where <built-in method done of _asyncio.Task object at 0x00000138C8B34400> = <Task finished name='Task-44' coro=<AwsRekognitionFaceIndexSearchProvider.index_faces() done, defined at C:\Users\nipu...ction\backend\app\infrastructure\my_photos\aws_face_search.py:122> exception=MyPhotosUnavailable('Synthetic failure.')>.done
+
+tests\unit\infrastructure\test_my_photos_index_provider_ownership.py:65: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/integration/test_my_photos_media_provider_ownership.py::test_media_failure_drains_owned_native_sibling_before_retry[False]
+FAILED tests/integration/test_my_photos_media_provider_ownership.py::test_media_failure_drains_owned_native_sibling_before_retry[True]
+FAILED tests/unit/infrastructure/test_my_photos_index_provider_ownership.py::test_index_batch_failure_drains_native_sibling_and_stops_waiting_work[False]
+FAILED tests/unit/infrastructure/test_my_photos_index_provider_ownership.py::test_index_batch_failure_drains_native_sibling_and_stops_waiting_work[True]
+4 failed in 2.68s

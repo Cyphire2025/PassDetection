@@ -3,7 +3,7 @@ from __future__ import annotations
 import uuid
 from datetime import UTC, datetime
 from types import SimpleNamespace
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
@@ -28,6 +28,7 @@ from app.presentation.api.v1.routes.passports import (
 from app.presentation.api.v1.schemas.passport_schemas import (
     PassportVisaAiImageUseRequest,
 )
+from tests.route_dependencies import patch_route_dependency as patch
 
 
 def _submission() -> SimpleNamespace:
@@ -205,7 +206,6 @@ async def test_manual_upload_is_saved_to_library_and_immediately_made_current(im
     crop_repository = MagicMock()
     crop_repository.upsert = AsyncMock(return_value=(crop_row, None, None))
     submission_repository = MagicMock()
-    submission_repository.get_by_id_for_update = AsyncMock(return_value=submission)
     submission_repository.update = AsyncMock()
     reextract_result = SimpleNamespace(
         id=submission.id,
@@ -226,8 +226,12 @@ async def test_manual_upload_is_saved_to_library_and_immediately_made_current(im
     with (
         patch(
             "app.presentation.api.v1.routes.passport_image_library."
-            "_authorized_staff_passport_image",
+            "_resolve_authorized_staff_passport_image",
             new=AsyncMock(return_value=(submission, source_key)),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.passport_image_library.lock_passport_image_mutation",
+            new=AsyncMock(return_value=(current_user, submission)),
         ),
         patch(
             "app.presentation.api.v1.routes.passport_image_library."
@@ -326,7 +330,7 @@ async def test_manual_upload_is_saved_to_library_and_immediately_made_current(im
     assert response.source == "manual"
     assert response.is_current is True
     session.commit.assert_awaited_once()
-    session.rollback.assert_not_awaited()
+    session.rollback.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -349,8 +353,6 @@ async def test_use_library_item_is_scoped_and_updates_current_edit_source(image_
     crop_repository.upsert = AsyncMock(
         return_value=(SimpleNamespace(revision=4), None, None)
     )
-    submission_repository = MagicMock()
-    submission_repository.get_by_id_for_update = AsyncMock(return_value=submission)
     audit_repository = MagicMock()
     audit_repository.record = AsyncMock()
     session = MagicMock()
@@ -368,8 +370,12 @@ async def test_use_library_item_is_scoped_and_updates_current_edit_source(image_
     with (
         patch(
             "app.presentation.api.v1.routes.passport_image_library."
-            "_authorized_staff_passport_image",
+            "_resolve_authorized_staff_passport_image",
             new=AsyncMock(return_value=(submission, passport_image_storage_key(submission, image_type))),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.passport_image_library.lock_passport_image_mutation",
+            new=AsyncMock(return_value=(current_user, submission)),
         ),
         patch(
             "app.presentation.api.v1.routes.passport_image_library."
@@ -380,11 +386,6 @@ async def test_use_library_item_is_scoped_and_updates_current_edit_source(image_
             "app.presentation.api.v1.routes.passport_image_library."
             "PassportImageCropRepository",
             return_value=crop_repository,
-        ),
-        patch(
-            "app.presentation.api.v1.routes.passport_image_library."
-            "PassportSubmissionRepository",
-            return_value=submission_repository,
         ),
         patch(
             "app.presentation.api.v1.routes.passport_image_library."
@@ -460,7 +461,6 @@ async def test_selecting_passport_front_makes_it_authoritative_and_reextracts() 
         return_value=(SimpleNamespace(revision=5), None, None)
     )
     submission_repository = MagicMock()
-    submission_repository.get_by_id_for_update = AsyncMock(return_value=submission)
     submission_repository.update = AsyncMock()
     reextract_result = SimpleNamespace(
         id=submission.id,
@@ -489,8 +489,12 @@ async def test_selecting_passport_front_makes_it_authoritative_and_reextracts() 
     with (
         patch(
             "app.presentation.api.v1.routes.passport_image_library."
-            "_authorized_staff_passport_image",
+            "_resolve_authorized_staff_passport_image",
             new=AsyncMock(return_value=(submission, submission.image_s3_key)),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.passport_image_library.lock_passport_image_mutation",
+            new=AsyncMock(return_value=(current_user, submission)),
         ),
         patch(
             "app.presentation.api.v1.routes.passport_image_library."

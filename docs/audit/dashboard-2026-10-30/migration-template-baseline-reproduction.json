@@ -1,0 +1,18 @@
+{
+  "confirmed_normal_non_autogenerate_revision_cannot_produce_usable_script": true,
+  "tool_version": "1.13.2",
+  "template_path": "backend/alembic/script.py.mako",
+  "template_before_sha256": "e3ab701a79eb8e2a2c2f212ea11f62368ff629244cdf3714b23c70383f0d4ee6",
+  "template_original_source": "\"\"\"\nGeneric mako template for Alembic migration files.\n\"\"\"\n",
+  "isolated_command": "alembic.command.revision(Config(script_location=temp), head=base, autogenerate=False)",
+  "actual_outcome": {
+    "error_type": "InterpolationMissingOptionError",
+    "message": "Bad value substitution: option 'file_template' in section 'alembic' contains an interpolation key 'rev' which is not a valid option name. Raw value: '%(rev)s_%(slug)s'"
+  },
+  "generated_sources": [],
+  "stdout": "",
+  "no_database_url_or_env_py": true,
+  "no_actual_env_or_autogenerate_or_services": true,
+  "temporary_directory_cleaned": true,
+  "all142published_source_hashes_unchanged": true
+}

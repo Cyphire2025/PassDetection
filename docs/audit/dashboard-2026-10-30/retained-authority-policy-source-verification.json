@@ -1,0 +1,40 @@
+{
+  "status": "Read-only current source cohort complete; broader audit active",
+  "new_current_full_tests": 4,
+  "test_physical_lines": 1465,
+  "supporting_full_rows": 2,
+  "focused_rows": 3,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-authority-policy-source-reviewed-files.json",
+    "sha256": "24493c1860fbdd5b74758330c2dc0fa9a12bcdead321ced412751b5a3507ec73"
+  },
+  "source_fence": {
+    "backend/tests/unit/application/test_authorization_policy.py": "961f690edbebb973c1bd0c457befe9e0199fe0da5066c0b665a3ddf42d309079",
+    "backend/tests/unit/presentation/test_superadmin_access_level.py": "ca1b62b1b71f8b2554d81f6065dd06c3fd31fe1efc610c75d361da436f6e5ff6",
+    "backend/tests/unit/application/test_destructive_mutation_policy.py": "bad474e4a345459cde9132b28265dcfad3769868043fd131b00164853eecc34d",
+    "backend/tests/integration/test_password_recovery_delivery.py": "b54337b2debe3daaa18e1a9dbede6acd420759ba4cf7c5b70f3518ca882ca0ce",
+    "backend/app/presentation/api/v1/routes/auth_identity_recovery.py": "422caca899fab26bd330fcf573db97bacbd374c4e9de1ec57dc51099c090c804",
+    "backend/app/presentation/api/v1/routes/auth_identity_actions.py": "70e71e7d79682c1e532c350076f7b3ef231a53977d41df43d431e12133844d3f",
+    "backend/app/presentation/api/v1/routes/auth_identity.py": "daa6e8b3fc67dd9cda2c784d0330fddecb05105e8b0e7b3651b8c6a2936f6e37",
+    "backend/app/infrastructure/repositories/identity_security_repository.py": "cb748a2dc68051430b6eb60c5983c5551ec7fee2d27fbfe45df9237c50daad6c",
+    "backend/app/application/security/destructive_mutation_policy.py": "f079cc649898f399d8c0347e67638aadaff4d9336235d878e7d8ab8f9f97c171"
+  },
+  "previous_current_full_support": [
+    {
+      "path": "backend/app/application/security/authorization_policy.py",
+      "sha256": "6a1ee49097b124715ce52fb5810387c6be5a3a5e18f4896676340c6e6dabe663",
+      "ledgers": [
+        "auth-security-support-reviewed-files.json",
+        "security-reviewed-files.json"
+      ]
+    }
+  ],
+  "checks_run": [],
+  "changes": [],
+  "findings": [],
+  "limitations": [
+    "No tests/database/provider/network/credential/scanner execution for read credit.",
+    "Only physical reads receive full credit; current full supporting policy records reused as evidence without inventing fresh reads.",
+    "Current role/session recovery and existing legacy-hold policy documented; no new architecture or security finding from coordinator name/length."
+  ]
+}

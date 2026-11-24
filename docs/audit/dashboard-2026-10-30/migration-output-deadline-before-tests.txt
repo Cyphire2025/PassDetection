@@ -1,0 +1,16 @@
+test_discarded_stderr_does_not_consume_stdout_budget_or_change_raw_bytes (test_migration_output_deadline.MigrationOutputDeadlineTests.test_discarded_stderr_does_not_consume_stdout_budget_or_change_raw_bytes) ... ok
+test_exited_command_cannot_admit_stdout_held_by_descendant_past_deadline (test_migration_output_deadline.MigrationOutputDeadlineTests.test_exited_command_cannot_admit_stdout_held_by_descendant_past_deadline) ... FAIL
+test_launch_failure_remains_static_and_private (test_migration_output_deadline.MigrationOutputDeadlineTests.test_launch_failure_remains_static_and_private) ... ok
+
+======================================================================
+FAIL: test_exited_command_cannot_admit_stdout_held_by_descendant_past_deadline (test_migration_output_deadline.MigrationOutputDeadlineTests.test_exited_command_cannot_admit_stdout_held_by_descendant_past_deadline)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_migration_output_deadline.py", line 39, in test_exited_command_cannot_admit_stdout_held_by_descendant_past_deadline
+    with self.process(script), self.assertRaisesRegex(ValueError, "^migration_result_read_failed$"):
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 3 tests in 1.755s
+
+FAILED (failures=1)

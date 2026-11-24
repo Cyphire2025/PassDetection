@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "C:\\Users\\nipun\\AppData\\Local\\Programs\\node-v24.21.0-win-x64\\node.exe",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "features/branding/components/group-image-dialog.test.tsx",
+    "--config",
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\banner-crop-target\\vitest.config.mts",
+    "--maxWorkers=1",
+    "--pool=threads"
+  ],
+  "cwd": "frontend",
+  "exit_code": 1,
+  "seconds": 2.217999999999847,
+  "envDir": false
+}

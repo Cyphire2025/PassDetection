@@ -1,0 +1,31 @@
+{
+  "command": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "-p",
+    "email_rollout_contract_plugin",
+    "tests/unit/presentation/test_email_ai_rollout_admin.py",
+    "tests/unit/presentation/test_email_rollout_query_paths.py",
+    "--cov=app/presentation/api/v1/routes",
+    "--cov-branch",
+    "--cov-report=",
+    "--cov-report=json:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\email-rollout-admin-final-coverage.json",
+    "--cov-report=xml:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\email-rollout-admin-final-coverage.xml"
+  ],
+  "exit_code": 0,
+  "log": "docs/audit/dashboard-2026-10-30/email-rollout-admin-final-tests.log",
+  "sha256": "0b6685c89538cf3b755728c0976840d38da6c369dd4af694501b56049239f6cc",
+  "source_fence": {
+    "backend/app/presentation/api/v1/router.py": "1601724fbb3be3b3483987335c1e80bbcf8e8c8894cc5a8a5cc16d04955b9fc7",
+    "backend/app/presentation/api/v1/routes/email_ai_rollout_admin.py": "85f6f022a1ca334c38a953b89b3b9690f11d264916059901a6b3aa6230285781",
+    "backend/app/presentation/api/v1/routes/email_rollout_policy_mapping.py": "d3562d38a9da320c0ef07e7cd3fb9e0c85857201b9038370b5f249c4076f7eb7",
+    "backend/app/presentation/api/v1/routes/email_rollout_targets.py": "fed2b11d70a9312e5160bc7f08644aa87ff18577697ea26df0a9f435ea44ccbd",
+    "backend/app/presentation/mcp/dashboard_read_adapters.py": "cf1ca7ba592f2b29d8e5609f4b0e2e263b8b728e5572fa2590b4826a398ab91a",
+    "backend/tests/unit/presentation/test_email_ai_rollout_admin.py": "a2148b43ae041dfc6c47760fed61fd4cd69621818708284fa12caacae97ec690",
+    "backend/tests/unit/presentation/test_email_rollout_query_paths.py": "3a996d65c79c6762e172bbd27ae280af6e1fabd2bb11687d2ef5ecf3de5eeac8"
+  }
+}

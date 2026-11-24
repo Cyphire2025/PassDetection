@@ -1,0 +1,40 @@
+{
+  "files": [
+    {
+      "path": "backend/requirements.txt",
+      "sha256": "72328798fd7fdb7a17b9f514fceb3ee437af4870f1692a63e27b61d40ed0e7f7",
+      "review_status": "full",
+      "notes": "Security patch checkpoint: exactly5backend package version/hashchanges (certifi,dnspython,opentelemetry-api,Pillow,pypdf); connectoronlyopentelemetry-api changes; allother packageversions/hashes unchanged. Allnewpackage artifacthashesmatchprimaryPyPImetadata. Fullhashcheck install/newenv sourcebyte/importreview/livedependencygate/focusedtests/mypy/APIsnapshotsverified. Releasepolicychange only exactrequirementAFTERhashes; reviewedBASEcommits andgatespreserved."
+    },
+    {
+      "path": "backend/requirements.lock",
+      "sha256": "1fe14679cfb5a5dce7043966982e4b348c5861d9d952dfc32183eea7ce1e2bd0",
+      "review_status": "partial",
+      "notes": "Security patch checkpoint: exactly5backend package version/hashchanges (certifi,dnspython,opentelemetry-api,Pillow,pypdf); connectoronlyopentelemetry-api changes; allother packageversions/hashes unchanged. Allnewpackage artifacthashesmatchprimaryPyPImetadata. Fullhashcheck install/newenv sourcebyte/importreview/livedependencygate/focusedtests/mypy/APIsnapshotsverified. Releasepolicychange only exactrequirementAFTERhashes; reviewedBASEcommits andgatespreserved."
+    },
+    {
+      "path": "backend/requirements-dev.lock",
+      "sha256": "fa496ac3b66cb786678e2d68d5dd105b06e1f111c909334848a93f29c17c7e1f",
+      "review_status": "partial",
+      "notes": "Security patch checkpoint: exactly5backend package version/hashchanges (certifi,dnspython,opentelemetry-api,Pillow,pypdf); connectoronlyopentelemetry-api changes; allother packageversions/hashes unchanged. Allnewpackage artifacthashesmatchprimaryPyPImetadata. Fullhashcheck install/newenv sourcebyte/importreview/livedependencygate/focusedtests/mypy/APIsnapshotsverified. Releasepolicychange only exactrequirementAFTERhashes; reviewedBASEcommits andgatespreserved."
+    },
+    {
+      "path": "mcp-connector/requirements.lock",
+      "sha256": "d3e2850989855dac3c8ede04f4c64663b8982f526591397d8504858de918c123",
+      "review_status": "partial",
+      "notes": "Security patch checkpoint: exactly5backend package version/hashchanges (certifi,dnspython,opentelemetry-api,Pillow,pypdf); connectoronlyopentelemetry-api changes; allother packageversions/hashes unchanged. Allnewpackage artifacthashesmatchprimaryPyPImetadata. Fullhashcheck install/newenv sourcebyte/importreview/livedependencygate/focusedtests/mypy/APIsnapshotsverified. Releasepolicychange only exactrequirementAFTERhashes; reviewedBASEcommits andgatespreserved."
+    },
+    {
+      "path": "tooling/dependency-exceptions.json",
+      "sha256": "3035049f64bfd625f52c0f44dab416d2e249b2934b51b299bc48761f8a36bbd3",
+      "review_status": "full",
+      "notes": "Security patch checkpoint: exactly5backend package version/hashchanges (certifi,dnspython,opentelemetry-api,Pillow,pypdf); connectoronlyopentelemetry-api changes; allother packageversions/hashes unchanged. Allnewpackage artifacthashesmatchprimaryPyPImetadata. Fullhashcheck install/newenv sourcebyte/importreview/livedependencygate/focusedtests/mypy/APIsnapshotsverified. Releasepolicychange only exactrequirementAFTERhashes; reviewedBASEcommits andgatespreserved."
+    },
+    {
+      "path": "scripts/release_workspace_branding_policy.py",
+      "sha256": "05d3b75cffe97796cad694a43427fce21e175388d4ca3fbdf7e4d133fc582868",
+      "review_status": "partial",
+      "notes": "Security patch checkpoint: exactly5backend package version/hashchanges (certifi,dnspython,opentelemetry-api,Pillow,pypdf); connectoronlyopentelemetry-api changes; allother packageversions/hashes unchanged. Allnewpackage artifacthashesmatchprimaryPyPImetadata. Fullhashcheck install/newenv sourcebyte/importreview/livedependencygate/focusedtests/mypy/APIsnapshotsverified. Releasepolicychange only exactrequirementAFTERhashes; reviewedBASEcommits andgatespreserved."
+    }
+  ]
+}

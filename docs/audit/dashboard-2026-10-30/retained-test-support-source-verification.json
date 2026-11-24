@@ -1,0 +1,30 @@
+{
+  "status": "complete current physical retained test-support source review only",
+  "files": 9,
+  "physical_lines": 876,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-test-support-source-reviewed-files.json",
+    "sha256": "5938505a3ae0f57c324cfec3bfaf5a386dee4478bd1f105309d26068cf4874b2"
+  },
+  "source_before_equals_after": true,
+  "source_fence": {
+    "backend/tests/ci_sharding.py": "ec1d3dc1813512059211ff2ecb7753f942ea8ea2d9612afb906b181b939e3590",
+    "backend/tests/postgresql_schema.py": "f1ca039164a93073be3d4e0021f3de60cb6be659b65d09803502bb302ec34cb2",
+    "backend/tests/release_source_fixtures.py": "1704a8e72f4076a15ac9c4979582d609a98a9dc478ce7d1cbc80513c8e41c0e6",
+    "backend/tests/gc_app_workflow_fixtures.py": "b8679ff5ff9196654ff049226ab3ab28f6f2873441d4c4577e0e06116476b947",
+    "backend/tests/management_audit_fixtures.py": "90bd58849cc8a3c9cd4630090fcb97d05ddbfcc1e65a13ad9d7fe57cf4a08d87",
+    "backend/tests/mcp_admin_overview_fixtures.py": "63f0c08362b86aa950f32c29666d664f13e83477f76a054970fc9d2897440617",
+    "backend/tests/mcp_rename_fixtures.py": "a09f2f909693211688afc973194148b8c9e730c330b4968931aacb23ba706439",
+    "backend/tests/mcp_retention_fixtures.py": "8fa08f7c6e9118d5bd69f776c2ef1a3600f2e363ca8f5de60c637372da48c2d3",
+    "backend/tests/mcp_excel_message_journey_fixtures.py": "98e4f7f280d08c64c7b932819664f04fd04a97bf9e90c085454729ebdd6b50ab"
+  },
+  "new_execution": false,
+  "runtime_mutation": false,
+  "new_validated_findings": [],
+  "scope": "Parent-reserved retained shared CI/isolated PostgreSQL/source-release/dashboard/MCP fixture support9.",
+  "limits": [
+    "Review is source-only, not test/fixture/SQL/SDK execution.",
+    "Synthetic sentinel fields are authored test content, not private data read from storage.",
+    "Existing app/permission/release gates/baselines/qualified-source stamps unchanged."
+  ]
+}

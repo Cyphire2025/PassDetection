@@ -1,0 +1,14 @@
+[
+  {
+    "path": "frontend/features/documents/components/document-delivery-message-fields.tsx",
+    "whole_typed_AST_exact": true,
+    "before_sha256": "b84d1747fc64cda815e8daed5f804c82f415bc56320c4754cc9e507c597f66de",
+    "after_sha256": "5a2866341935451dbcc00e90d8eb866c6d7b5b96def492f09746122ad9e5e51d"
+  },
+  {
+    "path": "frontend/features/documents/components/document-delivery-preview-footer.tsx",
+    "whole_typed_AST_exact": true,
+    "before_sha256": "8b3b1c47d96ebd500704b6faf9178e9507c95009c0ebfb157185546efcc7bc31",
+    "after_sha256": "b8d2710538182ec0786f6440769ee253bac99dfc9a47e4ec3b9e98a88f6ced81"
+  }
+]

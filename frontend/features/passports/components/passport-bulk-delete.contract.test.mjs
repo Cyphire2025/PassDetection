@@ -1,16 +1,11 @@
+import { passportHooksSource as hooks } from "../hooks/passport-hooks-source.contract-helper.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
+import { passportApiSource as api } from "../api/passport-api-source.contract-helper.mjs";
 
 import { passportGroupDetailSource as component } from "./passport-group-detail-source.contract-helper.mjs";
-const api = readFileSync(
-  new URL("../api/passports.api.ts", import.meta.url),
-  "utf8",
-);
-const hooks = readFileSync(
-  new URL("../hooks/use-passports.ts", import.meta.url),
-  "utf8",
-);
+
 const endpoints = readFileSync(
   new URL("../../../lib/api/endpoints.ts", import.meta.url),
   "utf8",
@@ -46,8 +41,9 @@ test("only permanent-delete roles receive the selected-row delete control", () =
   );
   assert.match(
     component,
-    /\{selectedPassports\.length > 0 && \(/,
+    /\{selectedPassports\.length > 0 && <PassportGroupSelectedActions \{\.\.\.props\} \/>\}/,
   );
+  assert.match(component, /import \{ PassportGroupSelectedActions \} from "\.\/passport-group-selected-actions"/);
   assert.match(
     component,
     /disabled=\{bulkDelete\.isPending\}/,

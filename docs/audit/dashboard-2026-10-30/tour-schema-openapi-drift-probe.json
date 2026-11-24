@@ -1,0 +1,33 @@
+{
+  "historical_actual_differences": [
+    [
+      "/components/schemas/ReplacementCandidateListResponse/properties/items/items/$ref",
+      "#/components/schemas/app__presentation__api__v1__schemas__client_group_schemas__ReplacementCandidateResponse",
+      "#/components/schemas/app__presentation__api__v1__schemas__client_group_match_schemas__ReplacementCandidateResponse"
+    ],
+    [
+      "/components/schemas/app__presentation__api__v1__schemas__client_group_match_schemas__ReplacementCandidateResponse",
+      "missing",
+      "{'properties': {'recipient_id': {'type': 'string', 'format': 'uuid', 'title': 'Recipient Id'}, 'recipient_ids': {'items': {'type': 'string', 'format': 'uuid'}, 'type': 'array', 'mi"
+    ],
+    [
+      "/components/schemas/app__presentation__api__v1__schemas__client_group_schemas__ReplacementCandidateResponse",
+      "{'additionalProperties': False, 'properties': {'broadcast_ids': {'items': {'format': 'uuid', 'type': 'string'}, 'title': 'Broadcast Ids', 'type': 'array'}, 'broadcast_names': {'ite",
+      "missing"
+    ]
+  ],
+  "actual_difference_count": 3,
+  "encoding_correction": "Original probe used Path.read_text() with the Windows default encoding for a UTF-8 API snapshot; the two apparent copyright differences were decoding artifacts. Explicit UTF-8 parsing of HEAD and working snapshot confirms identical correct copyright text. No runtime copyright or API snapshot change is warranted.",
+  "copyright_snapshot_HEAD_equals_working": true,
+  "copyright_values": {
+    "const": "\u00a9 OpenStreetMap contributors",
+    "default": "\u00a9 OpenStreetMap contributors",
+    "title": "Attribution",
+    "type": "string"
+  },
+  "working_snapshot_sha256": "f33eda26f052caf65000dc32fb6a712050a99ecdfa755e240053c4bcd43c2099",
+  "HEAD_snapshot_sha256": "4db93885871388ea73d0e0f7d0658a3b4fe523868b5cb1f0dc857c6393183ffe",
+  "original_failed_probe": "tour-schema-openapi-drift-probe.windows-default-encoding.json",
+  "original_failed_probe_sha256": "184ef6b231f8f379f025b1c32eb7403226c4ffa18b072a0ce497f8d86368deb5",
+  "current_gate_scope": "No complete API regeneration/rerun in this correction; root owns the three replacement-candidate reference identity differences and later qualification. Three rows describe the original capture, not a claim they remain unresolved after root's subsequent changes."
+}

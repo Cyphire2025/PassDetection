@@ -135,7 +135,9 @@ export function readEmailOAuthCallback(
   const provider = params.get("email_provider");
   const messages =
     provider === "outlook" ? OUTLOOK_CALLBACK_MESSAGES : OAUTH_CALLBACK_MESSAGES;
-  return rawStatus ? messages[rawStatus] ?? null : null;
+  return rawStatus && Object.hasOwn(messages, rawStatus)
+    ? messages[rawStatus]
+    : null;
 }
 
 export function cleanEmailOAuthCallbackUrl(url: URL): string {
@@ -155,4 +157,16 @@ export function isEmailProcessingActive(status: string): boolean {
   return ["received", "queued", "processing", "retrieving", "matching"].includes(
     status.toLowerCase(),
   );
+}
+
+export function readEmailActionError(error: unknown, fallback: string): string {
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "message" in error &&
+    typeof error.message === "string"
+  ) {
+    return error.message.slice(0, 300);
+  }
+  return fallback;
 }

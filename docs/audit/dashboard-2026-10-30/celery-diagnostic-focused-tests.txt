@@ -1,0 +1,45 @@
+.........F.......                                                        [100%]
+================================== FAILURES ===================================
+_ test_early_worker_retry_event_preserves_retry_status_without_private_detail _
+
+private_celery = <Celery isolated-diagnostic-tests at 0x1f9ab93ad50>
+database_error = IntegrityError('(sqlite3.IntegrityError) synthetic-private-DB-detail-P1234567')
+
+    def test_early_worker_retry_event_preserves_retry_status_without_private_detail(
+        private_celery, database_error
+    ):
+        @private_celery.task(name="synthetic.private.early-retry")
+        def task(*, passenger_link):
+            raise AssertionError("Task body should not run")
+    
+        eventer = SimpleNamespace(enabled=True, send=Mock())
+        body = ((), {"passenger_link": PAYLOAD}, {})
+        message = Message(body=body, headers={"id": str(uuid.uuid4()), "task": task.name})
+        request = PrivateTaskRequest(
+            message,
+            app=private_celery,
+            task=task,
+            decoded=True,
+            body=body,
+            eventer=eventer,
+            on_ack=Mock(),
+            on_reject=Mock(),
+        )
+        try:
+            raise Retry(exc=database_error, when=7)
+        except Retry:
+            error_info = ExceptionInfo()
+        request.on_retry(error_info)
+    
+        assert eventer.send.call_args.args[0] == "task-retried"
+        assert DETAIL not in str(eventer.send.call_args)
+>       assert "IntegrityError" in str(eventer.send.call_args)
+E       assert 'IntegrityError' in "call('task-retried', uuid='34b2ccd4-7c66-47c5-8d54-80d8310c36dc', exception='ExceptionWithTraceback: private task failure details withheld', traceback='No task stack frames available')"
+E        +  where "call('task-retried', uuid='34b2ccd4-7c66-47c5-8d54-80d8310c36dc', exception='ExceptionWithTraceback: private task failure details withheld', traceback='No task stack frames available')" = str(call('task-retried', uuid='34b2ccd4-7c66-47c5-8d54-80d8310c36dc', exception='ExceptionWithTraceback: private task failure details withheld', traceback='No task stack frames available'))
+E        +    where call('task-retried', uuid='34b2ccd4-7c66-47c5-8d54-80d8310c36dc', exception='ExceptionWithTraceback: private task failure details withheld', traceback='No task stack frames available') = <Mock id='2171839538512'>.call_args
+E        +      where <Mock id='2171839538512'> = namespace(enabled=True, send=<Mock id='2171839538512'>).send
+
+tests\unit\infrastructure\test_private_celery_diagnostics.py:299: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/unit/infrastructure/test_private_celery_diagnostics.py::test_early_worker_retry_event_preserves_retry_status_without_private_detail
+1 failed, 16 passed in 0.82s

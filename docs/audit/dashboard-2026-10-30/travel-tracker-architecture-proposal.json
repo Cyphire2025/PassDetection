@@ -1,0 +1,16 @@
+{
+  "status": "proposal before architecture edits",
+  "original_service_lines": 487,
+  "original_spreadsheets_lines": 436,
+  "design": [
+    "Keep TravelTrackerService public constructor/method/DTO/private MCP query seams as explicit facade, with actor refresh and MCP SHARE-lock skip in original order before mutation helper.",
+    "Move query construction/authorization/filter/summaries to explicit value-argument SQL helpers; roster projections/list/workspace to read owner; authorized atomic mark work to changes owner; export/preview to files owner using frozen drained tracker worker. No callback namespace or mutable proxy.",
+    "Split spreadsheets into shared value normalization/limits/errors, bounded reader, conservative matcher and safe export owners; old spreadsheets import surface reexports exact function/class/constant identities.",
+    "Preserve original complete bodies where exact; prove explicit self/session/user/grant argument expansion and actor preflight order where composition changes. Trace actual get_type_hints, public aliases/defaults, SQL/Lua-free workbook output, all old assertions and MCP private methods.",
+    "Preserve all current mark/filtered count/rollback/preview/export/formula/strongID and cancellation floors; bind measured actual-owner caps/gates after coherent freeze, owned by AI/root."
+  ],
+  "limits": [
+    "No architecture edits yet.",
+    "MCP helper/current actor authority source remains AI-owned; do not change external permission/revision/native protocols."
+  ]
+}

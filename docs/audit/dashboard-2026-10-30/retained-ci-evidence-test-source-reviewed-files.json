@@ -1,0 +1,56 @@
+[
+  {
+    "path": "scripts/test_ci_job_inputs.py",
+    "sha256": "0192ad4ea39c6953fa47b5cc7adf78235608269905f20f340075ef3270f9bbc6",
+    "physical_lines": 176,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole176lines. Exact committed Git-tree job fingerprints include additions/deletions/renames/modes, unknown/shared/executable-doc changes fail closed, cross-component contract inputs retained, only routine pure jobs reusable and mutable/invalid trees refused reviewed. Synthetic tree dictionaries and authored temporary Git repository control, not running Git/CI or changing job selection now. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "scripts/test_ci_success_reuse.py",
+    "sha256": "89851ac7d8f62af0540b9391be3e032db1f6735ec63ea4f0e61beeed7fe6bfab",
+    "physical_lines": 419,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole419lines. Same repository/workflow/PR or push lineage, immutable source/merge tree and input fingerprint, exact successful job attempt, freshness and actual newer failure/ambiguous receipt ordering; no skipped timestamp renewal/manual release reuse; scoped API and credential-stripping artifact redirects, unique timely planner/digest/safe bounded ZIP provenance reviewed. Mock API and synthetic artifacts only, no GitHub request, dispatch, artifact download or attestation reset. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "scripts/test_tooling_controls.py",
+    "sha256": "e9452f2284a8aaf34ecc8d6f9c7592630837f3346012733c69273ec93d6c721c",
+    "physical_lines": 152,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole152lines. Exact reviewed dependency advisory aliases/owner/expiry/lock/version/source/reachability and indirect/dynamic imports, supported interpreter, connection-budget replicas/surge/autoscale/unknown consumers, evidence owner/freshness/digest/path boundaries reviewed. Existing Apple dependency exception inputs are shared dependency-CI compatibility, not new native feature work; no installation, audit scan, database or runtime action. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "scripts/test_operational_evidence.py",
+    "sha256": "ce03c3b07933a8f7938a44710113fd9c04cdb8e89a26bf3d654118f7e1e055ae",
+    "physical_lines": 73,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole73lines. Operational evidence contract requires distinct failure domains/responders, authenticated scope rather than synthetic CI proof, backup/PITR/Redis/restoration/RPO fields, fresh ordered timezone-aware timestamps and exact contained receipt bytes reviewed. Temporary synthetic proof only; contract admission explicitly does not establish receipt authenticity or real production readiness. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "scripts/test_dashboard_release_evidence.py",
+    "sha256": "9ab37e08e61e63381741811ad063ea709c233f6b57dedf03dbc0313d077f2453",
+    "physical_lines": 64,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole64lines. Reviewed versions derive from exact unique lock pins; stale package/native library/nonroot/forbidden artifact/build-tool/missing facts rejected reviewed. Synthetic lock/runtime dictionaries and read-only repository lock expectations, not installed runtime/library/container qualification. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "scripts/test_verify_deployment_resource_budget.py",
+    "sha256": "9ec4e8bc40918e1612fcae49ed1d514d14e00bd7d1f45350cbfa9b75738051c9",
+    "physical_lines": 216,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole216lines. Finite explicit memory/CPU/host reserve, service/replica/profile/surge envelope, worker concurrency/autoscale maximum and floor syntax, malformed secret-safe command/JSON errors and declared CLI exit contracts reviewed. Authored temp-file/subprocess tests are source-only now, no process/Docker/deployment or observed memory/performance claim. Complete current physical test-source read; no new execution/source fix/validated defect."
+  }
+]

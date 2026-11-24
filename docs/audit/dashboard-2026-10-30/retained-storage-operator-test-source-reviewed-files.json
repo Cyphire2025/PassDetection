@@ -1,0 +1,29 @@
+[
+  {
+    "path": "scripts/test_storage_migration_qualification.py",
+    "sha256": "74150eb42f0e684a6e18ec9af2f6b3507ab30873b46d4d9d51003a80ac443d14",
+    "physical_lines": 91,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole91lines. Disposable provider volume-slot capacity admits all authored fixture collections without unsafe auto-create/nonempty-bucket options, copy failure propagates once and cleanup targets only created fixture containers/network in reverse order reviewed. Mock commands/process and temporary synthetic receipt, no Docker/copy/volume allocation executed. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "scripts/test_storage_release.py",
+    "sha256": "3844c63f293d54187f8110036c6ad1e161effd50e70f48a6ff3e885c6c94b6f0",
+    "physical_lines": 354,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole354lines. Separate target preparation preserves running source/old data volume, root/provider UID and real identity readonly intent, backup/role/fence/copy/stage/provider handoff order, exact source bucket/endpoints/credentials/network/identity mounts, no cutover on unclean/unknown/failing copy, failed stop retains writer fence, preserved old+new volumes and future fresh isolated attempt, maintained-provider exact proof reuse reviewed. Stateful fake Docker/temp synthetic files only; no actual .env, private identity, provider, release or migration action. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "scripts/test_storage_writer_fence.py",
+    "sha256": "dd8fb35f9bd06943bae57c34587e4707a991a6a2d2947c7df816c06bc59ee566",
+    "physical_lines": 446,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole446lines. Private credential-free durable checkpoint precedes fencing; crash recovery discovers only token/image/project/command/environment/evidence-bound copy and stops it before writer restart, rejects failed/still-running/missing claim, incomplete/foreign writer inventory, ambiguous handoff/source/target/proof/network changes, stage sharing; verified target wins after handoff, partial restarts/nginx reload recover idempotently and pending fence cannot overwrite reviewed. Real synthetic temp checkpoint bytes plus simulated Docker identities, not actual process-crash/daemon/storage qualification. Complete current physical test-source read; no new execution/source fix/validated defect."
+  }
+]

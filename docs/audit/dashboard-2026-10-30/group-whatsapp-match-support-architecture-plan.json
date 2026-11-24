@@ -1,0 +1,198 @@
+{
+  "status": "Read-only architecture proposal and original source snapshot; no runtime changes",
+  "source": {
+    "sha256": "091a92a1824f3f88caed7a8248b7f7ae261f50b0f35dfcb23acd0f8cd485cdcd",
+    "physical_lines": 410
+  },
+  "source_path": "backend/app/presentation/api/v1/routes/client_group_whatsapp_match_support.py",
+  "scope": "Exclusive retained dashboard group roster match support responsibility separation; central matching/cache/native/provider policies unchanged",
+  "proposed_owners": {
+    "client_group_whatsapp_match_acquisition.py": {
+      "declarations": [
+        "_ClientGroupScope",
+        "load_current_whatsapp_match_rows"
+      ],
+      "purpose": "Current scoped SQL acquisition, comparison input projection and original to_thread matching phase; depends on pure resolution augmenter."
+    },
+    "client_group_whatsapp_match_resolutions.py": {
+      "declarations": [
+        "stored_uuid_list",
+        "include_active_resolution_rows"
+      ],
+      "purpose": "Pure persisted manual replacement/rejection row augmentation and stable tolerant persisted UUID decoding."
+    },
+    "client_group_whatsapp_match_responses.py": {
+      "declarations": [
+        "_validated_roster_resolution_type",
+        "_validated_roster_resolution_status",
+        "_validated_match_status",
+        "_validated_match_confidence",
+        "_validated_match_evidence_kind",
+        "submission_detail_response",
+        "roster_resolution_response",
+        "build_whatsapp_matches_response"
+      ],
+      "aliases": [
+        "_RosterResolutionType",
+        "_RosterResolutionStatus",
+        "_MatchStatus",
+        "_MatchConfidence",
+        "_MatchEvidenceKind"
+      ],
+      "purpose": "Pure HTTP schema projection and persisted response validation with existing exact scalar precedence, evidence/dedup/order/exception behavior."
+    },
+    "client_group_whatsapp_match_support.py": {
+      "purpose": "Stable public/private compatibility aliases including actual route/three mutation-response aliases/MCP import-by-value; preserve original imported object bindings and defined __module__/qualname/evaluated annotations. No callable proxy/framework/callback bag."
+    }
+  },
+  "invariants": [
+    "Move all11functions and1Protocol as whole declarations with exact AST including await/SQL/statement order; no new behavior or caching.",
+    "Retain function/class original public module/qualname and evaluate hints in actual owner globals; legacy facade aliases identical to owner objects and caller aliases.",
+    "load_current acquires resolutions->linked recipients->submissions then to_thread comparison and same in-place resolution augmentation; original tenant/group/status/suppression/removed-row semantics unchanged.",
+    "Caller stays authorized, computes counts before/after broadcast filter then stable filter/sort/page before response projection; no caller writes.",
+    "inspect.getsource will resolve real defining owner after movement, rather than original facade text; document this physical source-location tradeoff without monkeypatch.",
+    "Normal budget candidates only from actual final measured changed-owner coverage; no fabricated old floor/critical addition or shared gate write."
+  ],
+  "baseline_selection": [
+    "tests/unit/presentation/test_client_group_whatsapp_match_support.py",
+    "tests/unit/presentation/test_passport_roster_resolution_routes.py",
+    "tests/unit/presentation/test_group_whatsapp_links.py",
+    "tests/unit/presentation/test_whatsapp_staff_group_visibility.py",
+    "tests/integration/test_mcp_phone_difference_reads.py",
+    "tests/integration/test_mcp_dashboard_detail_reads.py::test_section_denial_and_role_loss_stop_before_data"
+  ],
+  "original_declarations": [
+    {
+      "name": "_ClientGroupScope",
+      "start": 59,
+      "end": 61,
+      "ast_sha256": "cd264528aaa73df3c45b43f27bb57f3e6dc1cbac912b4f0bfd3cbf7084194c18"
+    },
+    {
+      "name": "_validated_roster_resolution_type",
+      "start": 64,
+      "end": 67,
+      "ast_sha256": "787f6ebf5e8efbc03e44927d114347c033a147262bb96be64f0100769f2073e2"
+    },
+    {
+      "name": "_validated_roster_resolution_status",
+      "start": 70,
+      "end": 73,
+      "ast_sha256": "5c2a9505da6b3a6995f7467f84425f3f8f61478ffd6d8e7b810f00d4ba14b4c6"
+    },
+    {
+      "name": "_validated_match_status",
+      "start": 76,
+      "end": 88,
+      "ast_sha256": "1003fbe32e09d3f61c598cdeb830c7afe1b80e62e399312bd822f283212f7181"
+    },
+    {
+      "name": "_validated_match_confidence",
+      "start": 91,
+      "end": 94,
+      "ast_sha256": "9500386aa08e11ea2887a3c1fa2540378d8337abcf3aa8a303a138f5790ef4d5"
+    },
+    {
+      "name": "_validated_match_evidence_kind",
+      "start": 97,
+      "end": 100,
+      "ast_sha256": "0dd4864993455dd3ef1162a76081b7212b28f3688e444765ee2b4c5152983983"
+    },
+    {
+      "name": "stored_uuid_list",
+      "start": 103,
+      "end": 114,
+      "ast_sha256": "e629d7d878240372f05f37a40d4cc81aaf7165e0a5133a4f401d48a3e0f12b4d"
+    },
+    {
+      "name": "submission_detail_response",
+      "start": 117,
+      "end": 140,
+      "ast_sha256": "80ff31acedc63bef1a0fe190b27b79fc765643a1bbc1207c48b230c59c3ef841"
+    },
+    {
+      "name": "roster_resolution_response",
+      "start": 143,
+      "end": 157,
+      "ast_sha256": "78350d036458be66156d657f530bd851312dd09f0ed0ac61c77e8caa5315906a"
+    },
+    {
+      "name": "include_active_resolution_rows",
+      "start": 160,
+      "end": 241,
+      "ast_sha256": "bc526a7ea7a97fbb6243c57deb682d9e0f11c9d80a8eab7a4ab838db0488c947"
+    },
+    {
+      "name": "load_current_whatsapp_match_rows",
+      "start": 244,
+      "end": 332,
+      "ast_sha256": "7c2843c46e554fbf59b2b2baab351444f9222d71aa1beb60733f46a49600e1b2"
+    },
+    {
+      "name": "build_whatsapp_matches_response",
+      "start": 335,
+      "end": 410,
+      "ast_sha256": "43afdd598e893f98df02b60714e1535d6118c36d915ebbe40210142d0a42618c"
+    }
+  ],
+  "caller_source_fence": {
+    "backend/app/presentation/api/v1/routes/client_group_whatsapp_match_support.py": {
+      "sha256": "091a92a1824f3f88caed7a8248b7f7ae261f50b0f35dfcb23acd0f8cd485cdcd",
+      "physical_lines": 410
+    },
+    "backend/app/presentation/api/v1/routes/client_group_link_operations.py": {
+      "sha256": "07fcf9c399905f1ead0b851acb0d37f99149642fea2add2041210edfed6a1351",
+      "physical_lines": 245
+    },
+    "backend/app/presentation/api/v1/routes/client_groups.py": {
+      "sha256": "b48a7e4843e9f1b8d48d7a3483e5ad4d52eac984e65c05a9b78b716559b13179",
+      "physical_lines": 859
+    },
+    "backend/app/presentation/api/v1/routes/client_group_resolution_restore.py": {
+      "sha256": "f2bd17b57b1cc3e7f81e1e92e3e41338991d84aaa88117aa990541aa77de794a",
+      "physical_lines": 214
+    },
+    "backend/app/presentation/api/v1/routes/client_group_replacement_resolution.py": {
+      "sha256": "38f01e5f29be51833743f7c73b591d71fcc6e9b0d541bf3dea893924b15470f1",
+      "physical_lines": 365
+    },
+    "backend/app/presentation/api/v1/routes/client_group_rejection_resolution.py": {
+      "sha256": "cce152527474d69a78ded89500cf5a82dcc59db1127b10c6002cdb963397fed8",
+      "physical_lines": 175
+    },
+    "backend/app/presentation/mcp/phone_difference_read_tools.py": {
+      "sha256": "28f5a475f5a75f5274ec44a3221e766a83402f2ae72fe09270f6d056968d7086",
+      "physical_lines": 72
+    },
+    "backend/tests/unit/presentation/test_client_group_whatsapp_match_support.py": {
+      "sha256": "9c1438b3893baf354a8e36e5d4385d4a9f4734ffa6013fc41aefae55360f5e48",
+      "physical_lines": 131
+    },
+    "backend/tests/unit/presentation/test_passport_roster_resolution_routes.py": {
+      "sha256": "01c8ea5144a596a5aea700715a80e6de7eee03860b8abe0caeb75b2f65859b06",
+      "physical_lines": 756
+    },
+    "backend/tests/unit/presentation/test_group_whatsapp_links.py": {
+      "sha256": "e49ec1bee518a55f6861f03def2650aa851936e5c8a4dda86ba8fec3038e238b",
+      "physical_lines": 897
+    },
+    "backend/tests/unit/presentation/test_whatsapp_staff_group_visibility.py": {
+      "sha256": "eabfb6c66c89d257f0f5599e841011546115eea5d931cd3434bcfafb712575d6",
+      "physical_lines": 211
+    },
+    "backend/tests/integration/test_mcp_phone_difference_reads.py": {
+      "sha256": "9e86ceeebdf40bb8d260d4497b6b4b511e094c8c7c75a7bd08923692fc6e6f73",
+      "physical_lines": 152
+    },
+    "backend/tests/integration/test_mcp_dashboard_detail_reads.py": {
+      "sha256": "2a25b62c68717bdf79064621aeb1cb5f23abace009d89f392cefd24c43a0335c",
+      "physical_lines": 569
+    }
+  },
+  "checks_run": [],
+  "remaining": [
+    "Run selected existing tests against original runtime and capture actual signatures/defaults/hints/global-import/caller identity contracts before movement.",
+    "Parent plan adoption before runtime edits; newly useful focused real-DB/manual-resolution coverage only if existing baseline leaves actual branch/outcome gap.",
+    "Finish full-versus-focused read ledger with current original and final hashes, preserve history."
+  ]
+}

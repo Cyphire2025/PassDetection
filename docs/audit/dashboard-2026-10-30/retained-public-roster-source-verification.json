@@ -1,0 +1,53 @@
+{
+  "status": "Bounded source-only retained public collection/roster cohort complete; broader audit active",
+  "new_current_full_tests": 6,
+  "test_physical_lines": 811,
+  "supporting_full_rows": 7,
+  "focused_rows": 5,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-public-roster-source-reviewed-files.json",
+    "sha256": "7dc64ea69cbf99b37da9f531b97ee1a979baea0a6079f6ea05beed6b48d15107"
+  },
+  "prior_same_hash_physical_read": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-company-http-source-reviewed-files.json",
+    "sha256": "c63ffcc54389249670b2e8e7be84cb6c826794e1728bda079b7a3a6697371b0a",
+    "row": {
+      "path": "backend/app/presentation/api/v1/routes/client_group_retention.py",
+      "sha256": "88b5a3cef1b849b79e8eb8b169d65e35d90ed65d95470b75fcf5ae347b677e8a",
+      "physical_lines": 148,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical1-72 and98-end. Whole revoke and restore authority/use-case/response/error consumers; middle delete body73-97 not physically read. No whole-file credit."
+    }
+  },
+  "source_fence": {
+    "backend/tests/integration/test_broadcast_incremental_matching.py": "a7e0de80508375d35cc2b890ccf3ca35cfc8a9306bb7b84d8f3db50d57d73bf8",
+    "backend/tests/integration/test_collection_reliability.py": "65615ce94c94882fa93490a2553f03910190917f3ae0b9b8a061da83b1d4af1c",
+    "backend/tests/integration/test_public_draft_http.py": "40ea1774483f53ab7172ca6424bed85864e8134b2c79c436f6978369b9487d47",
+    "backend/tests/unit/application/test_configured_public_collection.py": "5ffa14363cbf65b01dc395a1c472ba126fdf2b0fc9af257b1c798015bbd189b2",
+    "backend/tests/unit/application/test_group_submission_roster_parties.py": "7ab209d33504a6d79dd75fe9d21c1d0125447f248fe25abb37cb614b4f6f2ddf",
+    "backend/tests/unit/application/test_import_only_client_groups.py": "0eda32c5f4b0947e4b9b8638807693d88f9db1c99449d67070e57dbc2a7a6dc5",
+    "backend/app/application/security/public_upload_capability.py": "e8bfc23aa612e8bd3dc87bf87a9b60a4990687c1c03624ce5ad6a8a7b3d8908b",
+    "backend/app/domain/value_objects/import_group.py": "d0cf89d85fe2377451a2016806425b40a74697c333a85bf56226ff479468499d",
+    "backend/app/domain/value_objects/upload_configuration.py": "c0037adcd30fdfd24dabf764882ddd8d23733d67d22438d1ac50d2d1d8e4f119",
+    "backend/app/application/use_cases/whatsapp/group_match_coordinator.py": "d409da422bab1a779bf75a3b4c10e98e0ec5b036735d5161d11af5f35fb7f76f",
+    "backend/app/presentation/api/v1/routes/whatsapp_recipient_additions.py": "278d992f0ac8343d4754aba07fd93c7412f5ff9003c8333d5aa42784b80800f4",
+    "backend/app/presentation/middleware/request_path.py": "d49ef8512edf8455fef0e9502aa92bb34cbcdc04ffdb73d83eb91288a9415709",
+    "backend/app/presentation/api/v1/routes/client_group_retention.py": "88b5a3cef1b849b79e8eb8b169d65e35d90ed65d95470b75fcf5ae347b677e8a",
+    "backend/app/presentation/api/v1/routes/returning_draft.py": "5219f1ee19a684cda5cabca948e2e14c6784e02215b5f7bd4ec6293a633bebfe",
+    "backend/app/application/use_cases/whatsapp/group_submission_matching.py": "dc85ecd81a87dd90451b9558d40a5007d338d93c3af30570cbff7d92b6ceb2e3",
+    "backend/app/application/use_cases/passports/client_submit_passport_use_case.py": "aee3271b832c45f09989735136583602051456bd830a01c278a766b77b6bdc72",
+    "backend/app/application/use_cases/passports/submit_passport_use_case.py": "5f90f8fa82761c68ccef7ef729824609a182b60c7ce4413916f2e4bee356883b",
+    "backend/app/presentation/api/v1/routes/client_group_public_collection.py": "accb96e643cabdf450bc456fca5284e4a0007c490abac2b74630540f10c77bd6"
+  },
+  "checks_run": [],
+  "changes": [],
+  "findings": [],
+  "proof_gaps": [
+    "No test/service/provider/parser/native/browser execution for read-only credit; no new ordinary validated defect.",
+    "Source matching/party association controls do not grant private disclosure authority, typed policy and deterministic order preserved.",
+    "Mock upload/review/Excel/actor/capacity and shared mobile side-effect stubs remain limited fixtures, not actual security/provider proof.",
+    "Complex coordinator and public submit architecture follow-through remain separate from full physical source read, no cosmetic split/caching change."
+  ]
+}

@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\prove-mcp-admin-split.py", line 43, in <module>
+    assert inspect.signature(previous) == inspect.signature(current), name
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: connections

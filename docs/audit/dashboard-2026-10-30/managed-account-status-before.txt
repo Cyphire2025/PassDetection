@@ -1,0 +1,236 @@
+FF..FF..                                                                 [100%]
+================================== FAILURES ===================================
+_ test_status_response_preserves_invited_or_active_state_and_fences_sessions[True-invited-agency_staff] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000011B8C760790>
+role = <UserRole.AGENCY_STAFF: 'agency_staff'>, credential_state = 'invited'
+is_active = True
+
+    @pytest.mark.parametrize("role", [UserRole.AGENCY_STAFF, UserRole.AGENCY_COORDINATOR])
+    @pytest.mark.parametrize("credential_state", ["invited", "active"])
+    @pytest.mark.parametrize("is_active", [True, False])
+    async def test_status_response_preserves_invited_or_active_state_and_fences_sessions(
+        db_session: AsyncSession,
+        role: UserRole,
+        credential_state: str,
+        is_active: bool,
+    ) -> None:
+        actor = await _actor(db_session)
+        account_id = uuid.uuid4()
+        account = UserModel(
+            id=account_id,
+            email="synthetic-managed@example.com",
+            full_name="Synthetic managed account",
+            hashed_password="fixture-hash",
+            agency_id=actor.agency_id,
+            role=role.value,
+        )
+        state = UserSecurityStateModel(
+            user_id=account_id,
+            credential_state=credential_state,
+            session_version=4,
+            mfa_required=True,
+        )
+        await persist_graph(db_session, [account, state])
+        result = await admin_accounts.set_managed_account_status(
+            account_id=account_id,
+            body=SetManagedAccountStatusRequest(is_active=is_active),
+            request=Request({"type": "http", "headers": [], "client": ("127.0.0.1", 12345)}),
+            current_user=actor,
+            session=db_session,
+        )
+        await db_session.flush()
+        assert account.is_active is is_active and result.is_active is is_active
+        assert state.session_version == 5 and state.mfa_required is True
+        assert state.credential_state == credential_state
+        assert result.activation_token is None
+        listed = await admin_accounts.list_managed_accounts(current_user=actor, session=db_session)
+        assert len(listed) == 1 and listed[0].credential_state == credential_state
+>       assert result.credential_state == credential_state
+E       AssertionError: assert 'active' == 'invited'
+E         
+E         - invited
+E         + active
+
+tests\integration\test_managed_account_status_projection.py:59: AssertionError
+---------------------------- Captured stdout call -----------------------------
+2026-10-31T05:41:02.382560Z [info     ] all_refresh_tokens_revoked     [app.infrastructure.repositories.refresh_token_repository] user_id=968ab6c5-8cb4-4dbc-8e34-977bc147e03c
+------------------------------ Captured log call ------------------------------
+INFO     app.infrastructure.repositories.refresh_token_repository:refresh_token_repository.py:244 {'user_id': '968ab6c5-8cb4-4dbc-8e34-977bc147e03c', 'event': 'all_refresh_tokens_revoked', 'logger': 'app.infrastructure.repositories.refresh_token_repository', 'level': 'info', 'timestamp': '2026-10-31T05:41:02.382560Z'}
+_ test_status_response_preserves_invited_or_active_state_and_fences_sessions[True-invited-agency_coordinator] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000011B8C292D90>
+role = <UserRole.AGENCY_COORDINATOR: 'agency_coordinator'>
+credential_state = 'invited', is_active = True
+
+    @pytest.mark.parametrize("role", [UserRole.AGENCY_STAFF, UserRole.AGENCY_COORDINATOR])
+    @pytest.mark.parametrize("credential_state", ["invited", "active"])
+    @pytest.mark.parametrize("is_active", [True, False])
+    async def test_status_response_preserves_invited_or_active_state_and_fences_sessions(
+        db_session: AsyncSession,
+        role: UserRole,
+        credential_state: str,
+        is_active: bool,
+    ) -> None:
+        actor = await _actor(db_session)
+        account_id = uuid.uuid4()
+        account = UserModel(
+            id=account_id,
+            email="synthetic-managed@example.com",
+            full_name="Synthetic managed account",
+            hashed_password="fixture-hash",
+            agency_id=actor.agency_id,
+            role=role.value,
+        )
+        state = UserSecurityStateModel(
+            user_id=account_id,
+            credential_state=credential_state,
+            session_version=4,
+            mfa_required=True,
+        )
+        await persist_graph(db_session, [account, state])
+        result = await admin_accounts.set_managed_account_status(
+            account_id=account_id,
+            body=SetManagedAccountStatusRequest(is_active=is_active),
+            request=Request({"type": "http", "headers": [], "client": ("127.0.0.1", 12345)}),
+            current_user=actor,
+            session=db_session,
+        )
+        await db_session.flush()
+        assert account.is_active is is_active and result.is_active is is_active
+        assert state.session_version == 5 and state.mfa_required is True
+        assert state.credential_state == credential_state
+        assert result.activation_token is None
+        listed = await admin_accounts.list_managed_accounts(current_user=actor, session=db_session)
+        assert len(listed) == 1 and listed[0].credential_state == credential_state
+>       assert result.credential_state == credential_state
+E       AssertionError: assert 'active' == 'invited'
+E         
+E         - invited
+E         + active
+
+tests\integration\test_managed_account_status_projection.py:59: AssertionError
+---------------------------- Captured stdout call -----------------------------
+2026-10-31T05:41:03.062104Z [info     ] all_refresh_tokens_revoked     [app.infrastructure.repositories.refresh_token_repository] user_id=06d0b36c-4e36-4a80-98ab-55073ffb796d
+------------------------------ Captured log call ------------------------------
+INFO     app.infrastructure.repositories.refresh_token_repository:refresh_token_repository.py:244 {'user_id': '06d0b36c-4e36-4a80-98ab-55073ffb796d', 'event': 'all_refresh_tokens_revoked', 'logger': 'app.infrastructure.repositories.refresh_token_repository', 'level': 'info', 'timestamp': '2026-10-31T05:41:03.062104Z'}
+_ test_status_response_preserves_invited_or_active_state_and_fences_sessions[False-invited-agency_staff] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000011B8E350D10>
+role = <UserRole.AGENCY_STAFF: 'agency_staff'>, credential_state = 'invited'
+is_active = False
+
+    @pytest.mark.parametrize("role", [UserRole.AGENCY_STAFF, UserRole.AGENCY_COORDINATOR])
+    @pytest.mark.parametrize("credential_state", ["invited", "active"])
+    @pytest.mark.parametrize("is_active", [True, False])
+    async def test_status_response_preserves_invited_or_active_state_and_fences_sessions(
+        db_session: AsyncSession,
+        role: UserRole,
+        credential_state: str,
+        is_active: bool,
+    ) -> None:
+        actor = await _actor(db_session)
+        account_id = uuid.uuid4()
+        account = UserModel(
+            id=account_id,
+            email="synthetic-managed@example.com",
+            full_name="Synthetic managed account",
+            hashed_password="fixture-hash",
+            agency_id=actor.agency_id,
+            role=role.value,
+        )
+        state = UserSecurityStateModel(
+            user_id=account_id,
+            credential_state=credential_state,
+            session_version=4,
+            mfa_required=True,
+        )
+        await persist_graph(db_session, [account, state])
+        result = await admin_accounts.set_managed_account_status(
+            account_id=account_id,
+            body=SetManagedAccountStatusRequest(is_active=is_active),
+            request=Request({"type": "http", "headers": [], "client": ("127.0.0.1", 12345)}),
+            current_user=actor,
+            session=db_session,
+        )
+        await db_session.flush()
+        assert account.is_active is is_active and result.is_active is is_active
+        assert state.session_version == 5 and state.mfa_required is True
+        assert state.credential_state == credential_state
+        assert result.activation_token is None
+        listed = await admin_accounts.list_managed_accounts(current_user=actor, session=db_session)
+        assert len(listed) == 1 and listed[0].credential_state == credential_state
+>       assert result.credential_state == credential_state
+E       AssertionError: assert 'active' == 'invited'
+E         
+E         - invited
+E         + active
+
+tests\integration\test_managed_account_status_projection.py:59: AssertionError
+---------------------------- Captured stdout call -----------------------------
+2026-10-31T05:41:04.078729Z [info     ] all_refresh_tokens_revoked     [app.infrastructure.repositories.refresh_token_repository] user_id=13dba69e-c997-4432-8e79-4b928ddff9fc
+------------------------------ Captured log call ------------------------------
+INFO     app.infrastructure.repositories.refresh_token_repository:refresh_token_repository.py:244 {'user_id': '13dba69e-c997-4432-8e79-4b928ddff9fc', 'event': 'all_refresh_tokens_revoked', 'logger': 'app.infrastructure.repositories.refresh_token_repository', 'level': 'info', 'timestamp': '2026-10-31T05:41:04.078729Z'}
+_ test_status_response_preserves_invited_or_active_state_and_fences_sessions[False-invited-agency_coordinator] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000011B8E3424D0>
+role = <UserRole.AGENCY_COORDINATOR: 'agency_coordinator'>
+credential_state = 'invited', is_active = False
+
+    @pytest.mark.parametrize("role", [UserRole.AGENCY_STAFF, UserRole.AGENCY_COORDINATOR])
+    @pytest.mark.parametrize("credential_state", ["invited", "active"])
+    @pytest.mark.parametrize("is_active", [True, False])
+    async def test_status_response_preserves_invited_or_active_state_and_fences_sessions(
+        db_session: AsyncSession,
+        role: UserRole,
+        credential_state: str,
+        is_active: bool,
+    ) -> None:
+        actor = await _actor(db_session)
+        account_id = uuid.uuid4()
+        account = UserModel(
+            id=account_id,
+            email="synthetic-managed@example.com",
+            full_name="Synthetic managed account",
+            hashed_password="fixture-hash",
+            agency_id=actor.agency_id,
+            role=role.value,
+        )
+        state = UserSecurityStateModel(
+            user_id=account_id,
+            credential_state=credential_state,
+            session_version=4,
+            mfa_required=True,
+        )
+        await persist_graph(db_session, [account, state])
+        result = await admin_accounts.set_managed_account_status(
+            account_id=account_id,
+            body=SetManagedAccountStatusRequest(is_active=is_active),
+            request=Request({"type": "http", "headers": [], "client": ("127.0.0.1", 12345)}),
+            current_user=actor,
+            session=db_session,
+        )
+        await db_session.flush()
+        assert account.is_active is is_active and result.is_active is is_active
+        assert state.session_version == 5 and state.mfa_required is True
+        assert state.credential_state == credential_state
+        assert result.activation_token is None
+        listed = await admin_accounts.list_managed_accounts(current_user=actor, session=db_session)
+        assert len(listed) == 1 and listed[0].credential_state == credential_state
+>       assert result.credential_state == credential_state
+E       AssertionError: assert 'active' == 'invited'
+E         
+E         - invited
+E         + active
+
+tests\integration\test_managed_account_status_projection.py:59: AssertionError
+---------------------------- Captured stdout call -----------------------------
+2026-10-31T05:41:04.414260Z [info     ] all_refresh_tokens_revoked     [app.infrastructure.repositories.refresh_token_repository] user_id=908ae919-eacb-4a76-9e1f-f05bf1e3f241
+------------------------------ Captured log call ------------------------------
+INFO     app.infrastructure.repositories.refresh_token_repository:refresh_token_repository.py:244 {'user_id': '908ae919-eacb-4a76-9e1f-f05bf1e3f241', 'event': 'all_refresh_tokens_revoked', 'logger': 'app.infrastructure.repositories.refresh_token_repository', 'level': 'info', 'timestamp': '2026-10-31T05:41:04.414260Z'}
+=========================== short test summary info ===========================
+FAILED tests/integration/test_managed_account_status_projection.py::test_status_response_preserves_invited_or_active_state_and_fences_sessions[True-invited-agency_staff]
+FAILED tests/integration/test_managed_account_status_projection.py::test_status_response_preserves_invited_or_active_state_and_fences_sessions[True-invited-agency_coordinator]
+FAILED tests/integration/test_managed_account_status_projection.py::test_status_response_preserves_invited_or_active_state_and_fences_sessions[False-invited-agency_staff]
+FAILED tests/integration/test_managed_account_status_projection.py::test_status_response_preserves_invited_or_active_state_and_fences_sessions[False-invited-agency_coordinator]
+4 failed, 4 passed in 3.20s

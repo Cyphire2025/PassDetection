@@ -1,0 +1,53 @@
+{
+  "argv": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "--tb=short",
+    "tests/unit/infrastructure/test_database_model_decomposition.py",
+    "tests/unit/infrastructure/test_broadcast_welcome_scope.py",
+    "tests/unit/infrastructure/test_phone_welcome.py",
+    "tests/unit/infrastructure/test_whatsapp_source_group_sync.py",
+    "tests/unit/infrastructure/test_whatsapp_source_contacts_migration.py",
+    "tests/unit/infrastructure/test_whatsapp_retry_transactions.py",
+    "tests/integration/test_mcp_whatsapp_reads.py",
+    "--cov=app/infrastructure/database",
+    "--cov-branch",
+    "--cov-fail-under=0",
+    "--cov-report=json:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\communications-models-baseline-coverage.json",
+    "--cov-report=xml:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\communications-models-baseline-coverage.xml",
+    "--cov-report="
+  ],
+  "exit_code": 0,
+  "before": {
+    "backend/app/infrastructure/database/communications_models.py": "4a4224948d99b7ba12382ba679973f318734ff3c71b27f47e7757f2b07bcf7b3",
+    "backend/app/infrastructure/database/models.py": "685526fd00128c49052195d84ac17d7e1ad66ace8e43dbcd70e260435be24c16",
+    "backend/app/infrastructure/database/model_base.py": "bbd9bc11ad8e482b9ebefe26d74123f9bb4ad79b3e73b9dbe846cdfd925f0da9",
+    "backend/app/infrastructure/database/model_registry.py": "226b2b4c321e3b231222355d9f6752d945dd2e160324b7a3685c4b37865b9ec5",
+    "backend/tests/unit/infrastructure/test_database_model_decomposition.py": "4f8b6b02767650ea28af0347763f36d30a2b108413e57cffd3b9774bd0d16889",
+    "backend/tests/unit/infrastructure/test_broadcast_welcome_scope.py": "f6efcf33b1795ef3a62e9a73fcd08c42f6492fcd88095ef4d82aad3887bf301e",
+    "backend/tests/unit/infrastructure/test_phone_welcome.py": "5fb9ce8ad6b5e15ddc2db3b1c3d627a11a83d5b15a2bc3bf32974a5c71a68fd7",
+    "backend/tests/unit/infrastructure/test_whatsapp_source_group_sync.py": "d14262a9da8a7acc3a78077092519c69590a09cb9c618850708e3886a2c5c9f0",
+    "backend/tests/unit/infrastructure/test_whatsapp_source_contacts_migration.py": "ff6b408f8f42bf6210e6e3dc962fc7e0d76cd9524114a07eb88905a372f12518",
+    "backend/tests/unit/infrastructure/test_whatsapp_retry_transactions.py": "fed5d4c9fa534841d8ba7bce58f51572d2981db8a85cd0652424e7a31bfb4822",
+    "backend/tests/integration/test_mcp_whatsapp_reads.py": "ab9e94663efabab1bbf7936ed34e3cdbdb47f3299b84d54a8da578529fc8e299"
+  },
+  "after": {
+    "backend/app/infrastructure/database/communications_models.py": "4a4224948d99b7ba12382ba679973f318734ff3c71b27f47e7757f2b07bcf7b3",
+    "backend/app/infrastructure/database/models.py": "685526fd00128c49052195d84ac17d7e1ad66ace8e43dbcd70e260435be24c16",
+    "backend/app/infrastructure/database/model_base.py": "bbd9bc11ad8e482b9ebefe26d74123f9bb4ad79b3e73b9dbe846cdfd925f0da9",
+    "backend/app/infrastructure/database/model_registry.py": "226b2b4c321e3b231222355d9f6752d945dd2e160324b7a3685c4b37865b9ec5",
+    "backend/tests/unit/infrastructure/test_database_model_decomposition.py": "4f8b6b02767650ea28af0347763f36d30a2b108413e57cffd3b9774bd0d16889",
+    "backend/tests/unit/infrastructure/test_broadcast_welcome_scope.py": "f6efcf33b1795ef3a62e9a73fcd08c42f6492fcd88095ef4d82aad3887bf301e",
+    "backend/tests/unit/infrastructure/test_phone_welcome.py": "5fb9ce8ad6b5e15ddc2db3b1c3d627a11a83d5b15a2bc3bf32974a5c71a68fd7",
+    "backend/tests/unit/infrastructure/test_whatsapp_source_group_sync.py": "d14262a9da8a7acc3a78077092519c69590a09cb9c618850708e3886a2c5c9f0",
+    "backend/tests/unit/infrastructure/test_whatsapp_source_contacts_migration.py": "ff6b408f8f42bf6210e6e3dc962fc7e0d76cd9524114a07eb88905a372f12518",
+    "backend/tests/unit/infrastructure/test_whatsapp_retry_transactions.py": "fed5d4c9fa534841d8ba7bce58f51572d2981db8a85cd0652424e7a31bfb4822",
+    "backend/tests/integration/test_mcp_whatsapp_reads.py": "ab9e94663efabab1bbf7936ed34e3cdbdb47f3299b84d54a8da578529fc8e299"
+  },
+  "source_frozen": true,
+  "output": "communications-models-baseline-tests.txt"
+}

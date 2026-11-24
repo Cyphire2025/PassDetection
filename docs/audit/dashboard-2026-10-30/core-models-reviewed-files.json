@@ -1,0 +1,173 @@
+[
+  {
+    "path": "backend/app/infrastructure/database/models.py",
+    "sha256": "685526fd00128c49052195d84ac17d7e1ad66ace8e43dbcd70e260435be24c16",
+    "physical_lines": 198,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "fixed",
+    "notes": "Complete current facade physically read after import organization. Original 1762-line source was fully read in the preceding preflight and archived before edits. All original imported bindings and external-model alias statements remain; ordered core imports preserve registration. The original settings TypedDict remains exact here so its ForwardRef/module metadata stays compatible. Explicit reexports retain the annotation namespace and legacy imports."
+  },
+  {
+    "path": "backend/app/infrastructure/database/_core_models/__init__.py",
+    "sha256": "faa1f24f577a07ccfdb3220f3525a0e2e01f529df5debff3909fb64dcc88c83f",
+    "physical_lines": 8,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "fixed",
+    "notes": "Complete eight-line private package initializer physically read. It imports the legacy module object to prepare annotation globals before any mapped owner. It never consumes partially initialized model exports; all13 fresh owner-first entries were executed and matched the public baseline. No generic registry mutation or runtime proxy."
+  },
+  {
+    "path": "backend/app/infrastructure/database/_core_models/identity.py",
+    "sha256": "c8b6871bc2ebc4a75b0f4bd8ed3b1927d3f67a517fb8ed92212429d8bb935abf",
+    "physical_lines": 150,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "fixed",
+    "notes": "Complete current owner physically read. Whole Agency/User/RefreshToken class declarations retain exact original AST after removing only the explicit legacy __module__ assignment. Existing session-family/user composite key, token uniqueness, roles, agency lifecycle and reciprocal relationships remain exact."
+  },
+  {
+    "path": "backend/app/infrastructure/database/_core_models/groups.py",
+    "sha256": "f21b171c859d22ce92d578dce8498c05ad060f8a2fa9719323bad024d25147f5",
+    "physical_lines": 225,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "fixed",
+    "notes": "Complete current owner physically read. Group fields, lifecycle/retention values, branding data, custom question/detail contracts, tenant/company composite key, timezone/search/check/index expressions and reciprocal relationships are exact. TYPE_CHECKING imports support static typing; default get_type_hints retains the preexisting ClientOrganizationModel limitation."
+  },
+  {
+    "path": "backend/app/infrastructure/database/_core_models/access.py",
+    "sha256": "b18d92055a87b33ab6284b5ed8934d701a9a20cdf76b4a02182f8f180e5b1c23",
+    "physical_lines": 125,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "fixed",
+    "notes": "Complete current owner physically read. All three manager/coordinator assignment declarations preserve table/column/FK/index/default shapes, active-pair partial uniqueness and user/group/passenger scope metadata. No authorization policy or row mutation introduced."
+  },
+  {
+    "path": "backend/app/infrastructure/database/_core_models/passport.py",
+    "sha256": "6c5db24c2bb231c3f9e191879cedb21dbf25d5502985b538db90f30c8cfaf44d",
+    "physical_lines": 326,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "fixed",
+    "notes": "Complete current owner physically read. The single 287-line passenger declaration is retained whole, with required imports and one legacy module assignment. All scope/qualifier/FK/check/index/enum/field/default/JSON/image/review/family metadata remains exact; no artificial mapping mixin or schema change to meet a line count."
+  },
+  {
+    "path": "backend/app/infrastructure/database/_core_models/exports.py",
+    "sha256": "8251fdad16fafec07e963cb941ac96c832f6e3dbab5032a733e916186cfd3551",
+    "physical_lines": 135,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "fixed",
+    "notes": "Complete current owner physically read. Two-phase immutable export checkpoint fields, idempotency key, baseline relation, counts/status checks and all JSON snapshots retain the complete original class AST and actual metadata/DDL."
+  },
+  {
+    "path": "backend/app/infrastructure/database/_core_models/roster.py",
+    "sha256": "6fbdd6446f17e92e4cbeee06e757a95bfba49d42192c7ff3860c8c0773214793",
+    "physical_lines": 141,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "fixed",
+    "notes": "Complete current owner physically read. Replacement/rejection restoration shape, current-recipient/submission partial uniqueness, audit contacts, request identity, scope FKs and JSON lists remain source- and metadata-equivalent."
+  },
+  {
+    "path": "backend/app/infrastructure/database/_core_models/images.py",
+    "sha256": "d5ec6767f3b9c5beb8ba306a341361c3a0d650296fc3f6a4674f2b382ab9e641",
+    "physical_lines": 261,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "fixed",
+    "notes": "Complete current owner physically read. All three image derivative/library/job declarations retain crop/rotation/sharpness/source constraints, active-job partial index, storage/prompt/hash/revision/attempt defaults and exact FK behaviors. No image provider or worker behavior changed."
+  },
+  {
+    "path": "backend/app/infrastructure/database/_core_models/upload_workflow.py",
+    "sha256": "cf1a6a558e8ebdb6d212aca2f0540dd9961793481fe4fdb7d4c463c950b0a7e5",
+    "physical_lines": 154,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "fixed",
+    "notes": "Complete current owner physically read. Qualifier and extraction-job declarations stay contiguous as before. Relationship vocabulary/custom-label/expiry/exclusive-snapshot constraints, active revision uniqueness and queue/attempt/stage defaults remain exact. Isolated existing SQLite qualifier constraints were exercised before and after."
+  },
+  {
+    "path": "backend/app/infrastructure/database/_core_models/broadcast_links.py",
+    "sha256": "3d86bf2528c510c2641e8f2b9bdf385831af7e35560e87ace323be68f729d559",
+    "physical_lines": 81,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "fixed",
+    "notes": "Complete current owner physically read. Link uniqueness, tenant/group/list/user FKs, matching-field semantics and synchronization defaults remain exact. Reciprocal communication-owner relationship targets and back_populates match actual configured mappers."
+  },
+  {
+    "path": "backend/app/infrastructure/database/_core_models/verification_jobs.py",
+    "sha256": "9b78f3c3c1f993a2414be562c660de8c51352c046b7c0efb8cb5b44ae66a46c6",
+    "physical_lines": 80,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "fixed",
+    "notes": "Complete current owner physically read. Post-submission queue uniqueness by submission/revision and status/attempt/max-attempt checks and defaults remain exact. Separate owner preserves the original declaration order around broadcast linkage."
+  },
+  {
+    "path": "backend/app/infrastructure/database/_core_models/audit.py",
+    "sha256": "f52c5e0fa7fe5c43b9f4ca56426babcf647cff463c06594b7251d08a7e86644d",
+    "physical_lines": 142,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "fixed",
+    "notes": "Complete current owner physically read. Audit chain version/sequence/hash shape, legacy/new integrity alternatives, partial unique sequence index, result vocabulary, scope indices and retained actor/metadata fields remain exact. No logging sink or audit repository changes."
+  },
+  {
+    "path": "backend/app/infrastructure/database/_core_models/notifications.py",
+    "sha256": "e11bc29fd02fc0df264f9476b64073f6beacf4c9c2dd319ac5b3081a30703096",
+    "physical_lines": 73,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "fixed",
+    "notes": "Complete current owner physically read. User dedupe key, unread ordering, scope/action metadata and priority/category/read/default values remain exact. Existing notification/JSON schema is unchanged."
+  },
+  {
+    "path": "backend/app/infrastructure/database/_core_models/platform.py",
+    "sha256": "4e33f21bcf30ea0630696b08e0add2c66e357d1b0eca375a1ffbc091f19dae6a",
+    "physical_lines": 25,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "fixed",
+    "notes": "Complete current owner physically read. Mapped platform value points to the unchanged public TypedDict under the original module namespace. Actual type hints, class module/qualname/MRO/signature, pickle and registry identity match the baseline."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_core_model_owner_compatibility.py",
+    "sha256": "8978fd4e1ed4f07879fe365c4551445449d840fcbc8ff77ffae0bd5e916a660b",
+    "physical_lines": 87,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "reviewed",
+    "notes": "Complete new compatibility test physically read. Thirteen owner alias/module/qualname/table/pickle controls,21 successful annotation cases and one fresh-process owner-first registration test run without external services or passenger data. Known preexisting ClientGroupModel annotation failure is captured by the metadata proof, not silently treated as a new regression. No previous test assertion was changed."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_database_model_decomposition.py",
+    "sha256": "4f8b6b02767650ea28af0347763f36d30a2b108413e57cffd3b9774bd0d16889",
+    "physical_lines": 100,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "reviewed",
+    "notes": "Complete current existing model facade/registry/export controls physically read in the preflight; source remains unedited and all five cases pass before and after."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_database_metadata_migration_alignment.py",
+    "sha256": "5545c50f030631a222752c045dc37a1ff60ccdd63c49f5a348c0ed0ab7db4b77",
+    "physical_lines": 117,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "reviewed",
+    "notes": "Complete current existing identity/index/operational foreign-key alignment controls physically read in the preflight; source remains unedited and all three cases pass before and after."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_qualifier_persistence_constraints.py",
+    "sha256": "088fa7d5f4aea194d9e40889963bca69099ff960b87703d494305426d3749e2e",
+    "physical_lines": 191,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "reviewed",
+    "notes": "Complete current existing isolated SQLite persistence suite physically read. Six cases plus five label subtests cover accepted/rejected qualifier shape, scope and uniqueness with actual in-memory constraints before and after. No real service, provider or production row accessed; source unedited."
+  }
+]

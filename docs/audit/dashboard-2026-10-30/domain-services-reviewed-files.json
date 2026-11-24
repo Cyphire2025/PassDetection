@@ -1,0 +1,50 @@
+[
+  {
+    "path": "backend/app/domain/services/identity_decisions.py",
+    "sha256": "fd9b777034eeba8f9b7951b447affc2f487b3262ad17b2511b6db2be77ebb863",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All physicalsource read. Operational association remains separate from disclosure proof; exact passport/date contradictions, independent signal types, bounded attempts, constant-time answer comparisons and configured itinerary-rule evidence inspected. No source edit and no additional test/build triggered by this read. Existing146domain/capture/refresh test checkpoint precedes this read and is not a new run. Suitability calendar overflow at extreme input years is an unvalidated edge candidate pending API/retained-data path proof; no universal legal travel-rule assertion or changed policy."
+  },
+  {
+    "path": "backend/app/domain/services/traveller_identity.py",
+    "sha256": "38a0bf308ae2f2a3dfe93d3c6ffc144b262d1ede9ca8c5ba6baa27f8b67b077c",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All physicalsource read. Operational association remains separate from disclosure proof; exact passport/date contradictions, independent signal types, bounded attempts, constant-time answer comparisons and configured itinerary-rule evidence inspected. No source edit and no additional test/build triggered by this read. Existing146domain/capture/refresh test checkpoint precedes this read and is not a new run. Suitability calendar overflow at extreme input years is an unvalidated edge candidate pending API/retained-data path proof; no universal legal travel-rule assertion or changed policy."
+  },
+  {
+    "path": "backend/app/domain/services/traveller_names.py",
+    "sha256": "8068e69bdab8321fa3dafd3a5da0026bdd24da769a3d7f066367116650f3b413",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All physicalsource read. Operational association remains separate from disclosure proof; exact passport/date contradictions, independent signal types, bounded attempts, constant-time answer comparisons and configured itinerary-rule evidence inspected. No source edit and no additional test/build triggered by this read. Existing146domain/capture/refresh test checkpoint precedes this read and is not a new run. Suitability calendar overflow at extreme input years is an unvalidated edge candidate pending API/retained-data path proof; no universal legal travel-rule assertion or changed policy."
+  },
+  {
+    "path": "backend/app/domain/services/traveller_suitability.py",
+    "sha256": "a4b282d5ff9db70e65519f50c88dcfb77a895f2ca923d1fced023a8b62c6ff97",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "needs-follow-up",
+    "notes": "All physicalsource read. Operational association remains separate from disclosure proof; exact passport/date contradictions, independent signal types, bounded attempts, constant-time answer comparisons and configured itinerary-rule evidence inspected. No source edit and no additional test/build triggered by this read. Existing146domain/capture/refresh test checkpoint precedes this read and is not a new run. Suitability calendar overflow at extreme input years is an unvalidated edge candidate pending API/retained-data path proof; no universal legal travel-rule assertion or changed policy."
+  },
+  {
+    "path": "backend/app/domain/services/traveller_verification.py",
+    "sha256": "dabe8235032ef32257f08cd90fa3b37412a7f5711c30004ced9f16365265f22b",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All physicalsource read. Operational association remains separate from disclosure proof; exact passport/date contradictions, independent signal types, bounded attempts, constant-time answer comparisons and configured itinerary-rule evidence inspected. No source edit and no additional test/build triggered by this read. Existing146domain/capture/refresh test checkpoint precedes this read and is not a new run. Suitability calendar overflow at extreme input years is an unvalidated edge candidate pending API/retained-data path proof; no universal legal travel-rule assertion or changed policy."
+  },
+  {
+    "path": "backend/tests/unit/domain/test_traveller_suitability.py",
+    "sha256": "4c53102f87bf90c0c591207326b2ad409c6560a0ec50888209c31792d3552e90",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All physicalsource read. Operational association remains separate from disclosure proof; exact passport/date contradictions, independent signal types, bounded attempts, constant-time answer comparisons and configured itinerary-rule evidence inspected. No source edit and no additional test/build triggered by this read. Existing146domain/capture/refresh test checkpoint precedes this read and is not a new run. Suitability calendar overflow at extreme input years is an unvalidated edge candidate pending API/retained-data path proof; no universal legal travel-rule assertion or changed policy."
+  }
+]

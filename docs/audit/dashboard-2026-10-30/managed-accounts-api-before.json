@@ -1,0 +1,670 @@
+{
+  "endpoints": {
+    "create_staff_account": {
+      "dependencies": [
+        "require_cookie_csrf",
+        "require_recent_mfa",
+        "require_role.<locals>._check_role",
+        "get_db_session"
+      ],
+      "methods": [
+        "POST"
+      ],
+      "path": "/admin/staff",
+      "signature": "(body: 'CreateStaffRequest', request: 'Request', response: 'Response', current_user: 'User' = Depends(dependency=<function require_role.<locals>._check_role at 0x000002BADBF25940>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x000002BADB97A200>, use_cache=True, scope=None)) -> 'ManagedAccountResponse'"
+    },
+    "delete_managed_account": {
+      "dependencies": [
+        "require_cookie_csrf",
+        "require_recent_mfa",
+        "require_role.<locals>._check_role",
+        "get_db_session"
+      ],
+      "methods": [
+        "DELETE"
+      ],
+      "path": "/admin/{account_id}",
+      "signature": "(account_id: 'uuid.UUID', request: 'Request', current_user: 'User' = Depends(dependency=<function require_role.<locals>._check_role at 0x000002BADBF265C0>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x000002BADB97A200>, use_cache=True, scope=None)) -> 'DeleteManagedAccountResponse'"
+    },
+    "list_managed_accounts": {
+      "dependencies": [
+        "require_role.<locals>._check_role",
+        "get_db_session"
+      ],
+      "methods": [
+        "GET"
+      ],
+      "path": "/admin",
+      "signature": "(current_user: 'User' = Depends(dependency=<function require_role.<locals>._check_role at 0x000002BADBE282C0>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x000002BADB97A200>, use_cache=True, scope=None)) -> 'list[ManagedAccountResponse]'"
+    },
+    "list_staff_accounts": {
+      "dependencies": [
+        "require_role.<locals>._check_role",
+        "get_db_session"
+      ],
+      "methods": [
+        "GET"
+      ],
+      "path": "/admin/staff",
+      "signature": "(current_user: 'User' = Depends(dependency=<function require_role.<locals>._check_role at 0x000002BADBE285E0>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x000002BADB97A200>, use_cache=True, scope=None)) -> 'list[ManagedAccountResponse]'"
+    },
+    "reset_managed_account_mfa": {
+      "dependencies": [
+        "require_cookie_csrf",
+        "require_recent_mfa",
+        "require_role.<locals>._check_role",
+        "get_db_session"
+      ],
+      "methods": [
+        "POST"
+      ],
+      "path": "/admin/{account_id}/reset-mfa",
+      "signature": "(account_id: 'uuid.UUID', request: 'Request', current_user: 'User' = Depends(dependency=<function require_role.<locals>._check_role at 0x000002BADBF26020>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x000002BADB97A200>, use_cache=True, scope=None)) -> 'Response'"
+    },
+    "reset_managed_account_password": {
+      "dependencies": [
+        "require_cookie_csrf",
+        "require_recent_mfa",
+        "require_role.<locals>._check_role",
+        "get_db_session"
+      ],
+      "methods": [
+        "POST"
+      ],
+      "path": "/admin/{account_id}/reset-password",
+      "signature": "(account_id: 'uuid.UUID', body: 'ResetManagedAccountPasswordRequest', request: 'Request', response: 'Response', current_user: 'User' = Depends(dependency=<function require_role.<locals>._check_role at 0x000002BADBF25BC0>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x000002BADB97A200>, use_cache=True, scope=None)) -> 'ManagedAccountResponse'"
+    },
+    "revoke_managed_account_sessions": {
+      "dependencies": [
+        "require_cookie_csrf",
+        "require_recent_mfa",
+        "require_role.<locals>._check_role",
+        "get_db_session"
+      ],
+      "methods": [
+        "POST"
+      ],
+      "path": "/admin/{account_id}/revoke-sessions",
+      "signature": "(account_id: 'uuid.UUID', request: 'Request', current_user: 'User' = Depends(dependency=<function require_role.<locals>._check_role at 0x000002BADBF25EE0>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x000002BADB97A200>, use_cache=True, scope=None)) -> 'Response'"
+    },
+    "set_managed_account_status": {
+      "dependencies": [
+        "require_cookie_csrf",
+        "require_recent_mfa",
+        "require_role.<locals>._check_role",
+        "get_db_session"
+      ],
+      "methods": [
+        "PATCH"
+      ],
+      "path": "/admin/{account_id}/status",
+      "signature": "(account_id: 'uuid.UUID', body: 'SetManagedAccountStatusRequest', request: 'Request', current_user: 'User' = Depends(dependency=<function require_role.<locals>._check_role at 0x000002BADBF262A0>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x000002BADB97A200>, use_cache=True, scope=None)) -> 'ManagedAccountResponse'"
+    }
+  },
+  "openapi": {
+    "components": {
+      "schemas": {
+        "CreateStaffRequest": {
+          "additionalProperties": false,
+          "properties": {
+            "email": {
+              "format": "email",
+              "title": "Email",
+              "type": "string"
+            },
+            "full_name": {
+              "maxLength": 255,
+              "minLength": 2,
+              "title": "Full Name",
+              "type": "string"
+            }
+          },
+          "required": [
+            "full_name",
+            "email"
+          ],
+          "title": "CreateStaffRequest",
+          "type": "object"
+        },
+        "DeleteManagedAccountResponse": {
+          "properties": {
+            "account_id": {
+              "format": "uuid",
+              "title": "Account Id",
+              "type": "string"
+            },
+            "preserved_history": {
+              "title": "Preserved History",
+              "type": "boolean"
+            },
+            "result": {
+              "title": "Result",
+              "type": "string"
+            }
+          },
+          "required": [
+            "account_id",
+            "result",
+            "preserved_history"
+          ],
+          "title": "DeleteManagedAccountResponse",
+          "type": "object"
+        },
+        "HTTPValidationError": {
+          "properties": {
+            "detail": {
+              "items": {
+                "$ref": "#/components/schemas/ValidationError"
+              },
+              "title": "Detail",
+              "type": "array"
+            }
+          },
+          "title": "HTTPValidationError",
+          "type": "object"
+        },
+        "ManagedAccountResponse": {
+          "properties": {
+            "activation_token": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Activation Token"
+            },
+            "agency_id": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Agency Id"
+            },
+            "agency_name": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Agency Name"
+            },
+            "created_at": {
+              "format": "date-time",
+              "title": "Created At",
+              "type": "string"
+            },
+            "credential_state": {
+              "default": "active",
+              "enum": [
+                "invited",
+                "active"
+              ],
+              "title": "Credential State",
+              "type": "string"
+            },
+            "email": {
+              "title": "Email",
+              "type": "string"
+            },
+            "full_name": {
+              "title": "Full Name",
+              "type": "string"
+            },
+            "id": {
+              "format": "uuid",
+              "title": "Id",
+              "type": "string"
+            },
+            "is_active": {
+              "title": "Is Active",
+              "type": "boolean"
+            },
+            "last_login_at": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Last Login At"
+            },
+            "role": {
+              "title": "Role",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "full_name",
+            "email",
+            "role",
+            "agency_id",
+            "is_active",
+            "created_at"
+          ],
+          "title": "ManagedAccountResponse",
+          "type": "object"
+        },
+        "ResetManagedAccountPasswordRequest": {
+          "additionalProperties": false,
+          "properties": {
+            "issue_activation_link": {
+              "const": true,
+              "default": true,
+              "title": "Issue Activation Link",
+              "type": "boolean"
+            }
+          },
+          "title": "ResetManagedAccountPasswordRequest",
+          "type": "object"
+        },
+        "SetManagedAccountStatusRequest": {
+          "properties": {
+            "is_active": {
+              "title": "Is Active",
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "is_active"
+          ],
+          "title": "SetManagedAccountStatusRequest",
+          "type": "object"
+        },
+        "ValidationError": {
+          "properties": {
+            "ctx": {
+              "title": "Context",
+              "type": "object"
+            },
+            "input": {
+              "title": "Input"
+            },
+            "loc": {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ]
+              },
+              "title": "Location",
+              "type": "array"
+            },
+            "msg": {
+              "title": "Message",
+              "type": "string"
+            },
+            "type": {
+              "title": "Error Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "loc",
+            "msg",
+            "type"
+          ],
+          "title": "ValidationError",
+          "type": "object"
+        }
+      },
+      "securitySchemes": {
+        "HTTPBearer": {
+          "scheme": "bearer",
+          "type": "http"
+        }
+      }
+    },
+    "info": {
+      "title": "FastAPI",
+      "version": "0.1.0"
+    },
+    "openapi": "3.1.0",
+    "paths": {
+      "/admin": {
+        "get": {
+          "operationId": "list_managed_accounts_admin_get",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "items": {
+                      "$ref": "#/components/schemas/ManagedAccountResponse"
+                    },
+                    "title": "Response List Managed Accounts Admin Get",
+                    "type": "array"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "List accounts within the caller's management scope"
+        }
+      },
+      "/admin/staff": {
+        "get": {
+          "operationId": "list_staff_accounts_admin_staff_get",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "items": {
+                      "$ref": "#/components/schemas/ManagedAccountResponse"
+                    },
+                    "title": "Response List Staff Accounts Admin Staff Get",
+                    "type": "array"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "List staff accounts"
+        },
+        "post": {
+          "operationId": "create_staff_account_admin_staff_post",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateStaffRequest"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "201": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ManagedAccountResponse"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Create a staff account"
+        }
+      },
+      "/admin/{account_id}": {
+        "delete": {
+          "operationId": "delete_managed_account_admin__account_id__delete",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "account_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "title": "Account Id",
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/DeleteManagedAccountResponse"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Remove a staff or coordinator account while preserving required history"
+        }
+      },
+      "/admin/{account_id}/reset-mfa": {
+        "post": {
+          "operationId": "reset_managed_account_mfa_admin__account_id__reset_mfa_post",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "account_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "title": "Account Id",
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "Successful Response"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Reset a managed account's MFA and revoke every existing session"
+        }
+      },
+      "/admin/{account_id}/reset-password": {
+        "post": {
+          "operationId": "reset_managed_account_password_admin__account_id__reset_password_post",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "account_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "title": "Account Id",
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResetManagedAccountPasswordRequest"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ManagedAccountResponse"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Issue a one-time credential reset link and revoke every existing session"
+        }
+      },
+      "/admin/{account_id}/revoke-sessions": {
+        "post": {
+          "operationId": "revoke_managed_account_sessions_admin__account_id__revoke_sessions_post",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "account_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "title": "Account Id",
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "Successful Response"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Force an account to sign out on every device"
+        }
+      },
+      "/admin/{account_id}/status": {
+        "patch": {
+          "operationId": "set_managed_account_status_admin__account_id__status_patch",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "account_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "title": "Account Id",
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SetManagedAccountStatusRequest"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ManagedAccountResponse"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Activate or deactivate a managed account"
+        }
+      }
+    }
+  }
+}

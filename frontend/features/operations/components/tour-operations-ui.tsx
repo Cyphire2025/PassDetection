@@ -76,6 +76,7 @@ export function CoordinatorMultiSelect({
   const [open, setOpen] = useState(false);
   const menuId = useId();
   const ref = useCloseOnOutsideClick(open, () => setOpen(false));
+  const selectedIdSet = new Set(selectedIds);
 
   return (
     <div className="relative" ref={ref}>
@@ -103,16 +104,17 @@ export function CoordinatorMultiSelect({
             <p className="px-3 py-2 text-sm text-slate-500">Create a coordinator first.</p>
           ) : (
             coordinators.map((coordinator) => {
-              const selected = selectedIds.includes(coordinator.id);
+              const selected = selectedIdSet.has(coordinator.id);
               return (
                 <button
                   key={coordinator.id}
                   type="button"
+                  disabled={disabled}
                   onClick={() => onToggle(coordinator.id, !selected)}
                   role="menuitemcheckbox"
                   aria-checked={selected}
                   className={cn(
-                    "flex w-full items-center justify-between gap-3 rounded-md px-3 py-2.5 text-left text-sm",
+                    "flex w-full items-center justify-between gap-3 rounded-md px-3 py-2.5 text-left text-sm disabled:opacity-60",
                     selected ? "bg-blue-50 text-blue-800" : "text-slate-700 hover:bg-slate-50",
                   )}
                 >
@@ -207,6 +209,7 @@ export function PassengerSelectionTable({
   onToggle: (passengerId: string) => void;
 }) {
   const groupedPassengers = groupTourPassengers(passengers);
+  const selectedIdSet = new Set(selectedIds);
   return (
     <div className="overflow-x-auto rounded-lg border border-slate-200">
       <table className="w-full min-w-[900px] text-left text-sm">
@@ -235,12 +238,12 @@ export function PassengerSelectionTable({
                   </td>
                 </tr>
                 {group.passengers.map((passenger) => (
-                  <PassengerSelectionRow key={passenger.id} passenger={passenger} selected={selectedIds.includes(passenger.id)} onToggle={onToggle} isGrouped />
+                  <PassengerSelectionRow key={passenger.id} passenger={passenger} selected={selectedIdSet.has(passenger.id)} onToggle={onToggle} isGrouped />
                 ))}
               </Fragment>
             ) : (
               group.passengers.map((passenger) => (
-                <PassengerSelectionRow key={passenger.id} passenger={passenger} selected={selectedIds.includes(passenger.id)} onToggle={onToggle} />
+                <PassengerSelectionRow key={passenger.id} passenger={passenger} selected={selectedIdSet.has(passenger.id)} onToggle={onToggle} />
               ))
             )
           ))}

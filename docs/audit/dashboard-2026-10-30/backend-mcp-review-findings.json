@@ -1,0 +1,27 @@
+{
+  "validated_security_bugs": [],
+  "maintainability_candidates": [
+    {
+      "id": "MCP-PRESENTATION-DUP-01",
+      "status": "source_confirmed_duplication_not_runtime_bug",
+      "paths": [
+        "backend/app/presentation/mcp/image_export_tools.py",
+        "backend/app/presentation/mcp/tracking_export_tools.py",
+        "backend/app/presentation/mcp/rooming_export_tools.py",
+        "backend/app/presentation/mcp/document_export_tools.py",
+        "backend/app/presentation/mcp/export_tools.py"
+      ],
+      "summary": "Five export adapters repeat authorization/session/error/audit/commit/observation metadata and inspect/prepare/resume orchestration. A small typed shared invocation adapter could reduce drift; per-family source support, lock-busy exception policies and immutable receipt/recovery semantics must remain explicit. No refactor during global source freeze."
+    }
+  ],
+  "source_observations": [
+    "Read-only registry gates are distinct from current per-invocation authorization; dynamic read views independently recheck their complete section union and use a static handler catalog.",
+    "Generic dashboard readers are superadmin-scoped through MCPReadContext._actor and scrub protected URLs/keys through shared ReadProjection, so presentation adapter SQL without an independent current-user predicate does not by itself demonstrate tenant leakage.",
+    "Owned WhatsApp/GC intent inspection can refresh durable progress metadata; it does not redispatch provider sends. This is intentional documented catch-up, not proof of business-read purity for every service."
+  ],
+  "limits": [
+    "No new tests/services/real credentials/provider calls executed in this read-only lane.",
+    "MCP matrix classification is owned by ai_extraction and was not used as physical-read evidence.",
+    "Downstream application/resource/file streaming implementations are not all independently fully reviewed by this ledger."
+  ]
+}

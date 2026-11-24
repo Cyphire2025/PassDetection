@@ -1,0 +1,33 @@
+{
+  "source_sha256": "ff83213778a3fef8585d6b8f5cd57670d45136883e29414761b66fb480f73446",
+  "baseline_receipt": "returning-completion-before-command.json",
+  "baseline_cases": 40,
+  "original_statement_count": 50,
+  "moves": [
+    {
+      "owner": "app/application/travellers/completion_answers.py",
+      "statement_indices": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "responsibility": "Pure current-trip saved/entered answer normalization and existing required-phone validation; four actual outputs in named tuple."
+    },
+    {
+      "owner": "app/application/travellers/completion_source.py",
+      "statement_indices": [
+        25,
+        26,
+        27,
+        28
+      ],
+      "responsibility": "Existing trip-local source row lock, unchanged historical/review protections and operational-acceptance selection; three actual outputs."
+    }
+  ],
+  "main_keeps": "Actual current grant/owned-source/policy/review validation; hash/idempotency/revision; same datetime/UUID evaluation; source creation/flush; all publication/event/audit/commit ordering; complete public signature and import identities.",
+  "behavior": "Architecture/readability only. No policy, query, key, quota, lock, validation, transaction, or error changes. No throughput claim.",
+  "proof": "Expand helper bodies into original complete50-statement function after exact local substitution; preserve existing original tests; focused same affected cases plus existing contact-scope fixture for datetime seam. Strict affected types/no-fix Ruff and architecture boundary check. Only strict subset infrastructure import rows transferred, no generic allowance."
+}

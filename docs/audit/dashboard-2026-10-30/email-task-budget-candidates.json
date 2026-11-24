@@ -1,0 +1,84 @@
+{
+  "proposed_only": true,
+  "shared_gate_edited": false,
+  "normal_candidates": [
+    {
+      "path": "app/infrastructure/email/tasks.py",
+      "baseline_lines": 217,
+      "maximum_lines": 220,
+      "baseline_max_function_complexity": 12,
+      "maximum_function_complexity": 13,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/email/task_dispatch.py",
+      "baseline_lines": 93,
+      "maximum_lines": 100,
+      "baseline_max_function_complexity": 3,
+      "maximum_function_complexity": 4,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/email/task_retention.py",
+      "baseline_lines": 206,
+      "maximum_lines": 210,
+      "baseline_max_function_complexity": 11,
+      "maximum_function_complexity": 12,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/email/storage_reconciliation.py",
+      "baseline_lines": 113,
+      "maximum_lines": 120,
+      "baseline_max_function_complexity": 9,
+      "maximum_function_complexity": 10,
+      "minimum_coverage_percent": 95
+    }
+  ],
+  "critical_candidates": [],
+  "measurements": [
+    {
+      "path": "app/infrastructure/email/tasks.py",
+      "lines": 217,
+      "max_function_complexity": 12,
+      "most_complex_function": "sync_email_connection",
+      "coverage_percent": 100.0,
+      "branch_count": 8,
+      "branch_coverage_percent": 100.0
+    },
+    {
+      "path": "app/infrastructure/email/task_dispatch.py",
+      "lines": 93,
+      "max_function_complexity": 3,
+      "most_complex_function": "_claim_due_dispatches",
+      "coverage_percent": 100.0,
+      "branch_count": 2,
+      "branch_coverage_percent": 100.0
+    },
+    {
+      "path": "app/infrastructure/email/task_retention.py",
+      "lines": 206,
+      "max_function_complexity": 11,
+      "most_complex_function": "_apply_email_retention",
+      "coverage_percent": 100.0,
+      "branch_count": 4,
+      "branch_coverage_percent": 100.0
+    },
+    {
+      "path": "app/infrastructure/email/storage_reconciliation.py",
+      "lines": 113,
+      "max_function_complexity": 9,
+      "most_complex_function": "_reconcile_orphaned_email_storage",
+      "coverage_percent": 100.0,
+      "branch_count": 14,
+      "branch_coverage_percent": 100.0
+    }
+  ],
+  "original_family_normal_membership": [],
+  "original_family_critical_membership": [],
+  "preserved_global_floors": {
+    "minimum_line_percent": 75,
+    "minimum_branch_percent": 58
+  },
+  "qualification": "Only these4actual owners measured from one unmixed32case run. No broader coverage/global gate claim or new declaration-only critical gate."
+}

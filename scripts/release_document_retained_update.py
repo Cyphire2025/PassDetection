@@ -47,7 +47,7 @@ from release_retained_update import (
 class DocumentRetainedUpdate(RetainedUpdate):
     candidate_schema: str = TARGET
 
-    def __init__(self, source, revision, mode, artifact=None):
+    def __init__(self, source: Path, revision: str, mode: str, artifact: Path | None = None) -> None:
         require(mode in {'full', 'fast'} and (mode == 'full') == (artifact is not None),
                 'document_release_requires_explicit_mode_binding')
         super().__init__(source, revision, mode, artifact)

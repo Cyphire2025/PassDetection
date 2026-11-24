@@ -1,42 +1,78 @@
-"""Eligibility and immutable snapshots for explicit selected-recipient resends."""
+"""Selected-resend eligibility/snapshot policy and compatibility exports."""
 
 from __future__ import annotations
 
-import hashlib
-import json
-import uuid
-from datetime import UTC, datetime
+import hashlib as hashlib
+import json as json
+import uuid as uuid
+from datetime import UTC as UTC
+from datetime import datetime as datetime
 
-from sqlalchemy import select, update
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select as select
+from sqlalchemy import update as update
+from sqlalchemy.ext.asyncio import AsyncSession as AsyncSession
 
-from app.core.config.settings import get_settings
+from app.core.config.settings import get_settings as get_settings
 from app.infrastructure.database.models import (
-    WhatsAppBroadcastRecipientModel,
-    WhatsAppMessageLogModel,
-    WhatsAppRecipientMessageStateModel,
+    WhatsAppBroadcastRecipientModel as WhatsAppBroadcastRecipientModel,
+)
+from app.infrastructure.database.models import WhatsAppMessageLogModel as WhatsAppMessageLogModel
+from app.infrastructure.database.models import (
+    WhatsAppRecipientMessageStateModel as WhatsAppRecipientMessageStateModel,
 )
 from app.infrastructure.whatsapp.group_invite_policy import (
-    group_invite_blocking_statuses,
-    group_invite_skip_reason,
-    message_phone_blocking_statuses,
+    group_invite_blocking_statuses as group_invite_blocking_statuses,
+)
+from app.infrastructure.whatsapp.group_invite_policy import (
+    group_invite_skip_reason as group_invite_skip_reason,
+)
+from app.infrastructure.whatsapp.group_invite_policy import (
+    message_phone_blocking_statuses as message_phone_blocking_statuses,
 )
 from app.presentation.api.v1.routes.whatsapp_bulk_resend_composer import (
-    BulkResendEdits,
-    resolve_saved_resend_snapshot,
+    BulkResendEdits as BulkResendEdits,
+)
+from app.presentation.api.v1.routes.whatsapp_bulk_resend_composer import (
+    resolve_saved_resend_snapshot as resolve_saved_resend_snapshot,
+)
+from app.presentation.api.v1.routes.whatsapp_bulk_resend_history import (
+    expire_stale_explicit_claims as expire_stale_explicit_claims,
+)
+from app.presentation.api.v1.routes.whatsapp_bulk_resend_history import (
+    selection_delivery_maps as selection_delivery_maps,
+)
+from app.presentation.api.v1.routes.whatsapp_bulk_resend_results import (
+    build_response as build_response,
+)
+from app.presentation.api.v1.routes.whatsapp_bulk_resend_results import (
+    refresh_batch_response as refresh_batch_response,
 )
 from app.presentation.api.v1.routes.whatsapp_shared import (
-    WHATSAPP_ACCEPTED_STATUSES,
-    WHATSAPP_EXPLICIT_RESEND_BLOCKING_STATUSES,
-    WHATSAPP_IN_PROGRESS_STATUSES,
-    WHATSAPP_STALE_CLAIM_AGE,
-    _snapshot_template_language,
+    WHATSAPP_ACCEPTED_STATUSES as WHATSAPP_ACCEPTED_STATUSES,
+)
+from app.presentation.api.v1.routes.whatsapp_shared import (
+    WHATSAPP_EXPLICIT_RESEND_BLOCKING_STATUSES as WHATSAPP_EXPLICIT_RESEND_BLOCKING_STATUSES,
+)
+from app.presentation.api.v1.routes.whatsapp_shared import (
+    WHATSAPP_IN_PROGRESS_STATUSES as WHATSAPP_IN_PROGRESS_STATUSES,
+)
+from app.presentation.api.v1.routes.whatsapp_shared import (
+    WHATSAPP_STALE_CLAIM_AGE as WHATSAPP_STALE_CLAIM_AGE,
+)
+from app.presentation.api.v1.routes.whatsapp_shared import (
+    _snapshot_template_language as _snapshot_template_language,
 )
 from app.presentation.api.v1.schemas.whatsapp_schemas import (
-    WhatsAppBulkResendDraft,
-    WhatsAppBulkResendRequest,
-    WhatsAppBulkResendResponse,
-    WhatsAppSendResult,
+    WhatsAppBulkResendDraft as WhatsAppBulkResendDraft,
+)
+from app.presentation.api.v1.schemas.whatsapp_schemas import (
+    WhatsAppBulkResendRequest as WhatsAppBulkResendRequest,
+)
+from app.presentation.api.v1.schemas.whatsapp_schemas import (
+    WhatsAppBulkResendResponse as WhatsAppBulkResendResponse,
+)
+from app.presentation.api.v1.schemas.whatsapp_schemas import (
+    WhatsAppSendResult as WhatsAppSendResult,
 )
 
 SKIP_MESSAGES = {
@@ -54,7 +90,13 @@ def selection_fingerprint(body: WhatsAppBulkResendRequest) -> str:
     selection = f"{body.message_type}:{selected}"
     overrides = body.model_dump(
         mode="json",
-        include={"message_content", "passport_intro", "header_image_id", "support_contact_ids", "group_invite_link"},
+        include={
+            "message_content",
+            "passport_intro",
+            "header_image_id",
+            "support_contact_ids",
+            "group_invite_link",
+        },
         exclude_none=True,
     )
     if overrides:
@@ -75,7 +117,15 @@ def recipient_skip_reason(
         return "skipped_replaced"
     state_status = state.status if state else None
     if message_type == "group_invite":
-        for candidate in ("read", "delivered", "sent", "submitted", "delivery_unknown", "processing", "queued"):
+        for candidate in (
+            "read",
+            "delivered",
+            "sent",
+            "submitted",
+            "delivery_unknown",
+            "processing",
+            "queued",
+        ):
             if candidate == state_status or candidate in active_statuses:
                 return group_invite_skip_reason(candidate)
     if state_status == "delivery_unknown" or "delivery_unknown" in active_statuses:
@@ -127,204 +177,3 @@ def frozen_resend_log(
         is_explicit_resend=state.status != "failed",
         created_at=now,
     )
-
-
-async def expire_stale_explicit_claims(
-    session: AsyncSession, *, group_id: uuid.UUID, body: WhatsAppBulkResendRequest
-) -> None:
-    now = datetime.now(tz=UTC)
-    for previous_status, next_status, message in (
-        ("queued", "failed", "Explicit resend claim expired before provider submission"),
-        (
-            "processing",
-            "delivery_unknown",
-            "Explicit resend outcome is unknown after worker interruption; another resend is blocked",
-        ),
-    ):
-        if body.message_type == "group_invite" and previous_status == "queued":
-            continue
-        await session.execute(
-            update(WhatsAppMessageLogModel)
-            .where(
-                WhatsAppMessageLogModel.broadcast_group_id == group_id,
-                WhatsAppMessageLogModel.recipient_id.in_(body.recipient_ids),
-                WhatsAppMessageLogModel.message_type == body.message_type,
-                WhatsAppMessageLogModel.is_explicit_resend.is_(True),
-                WhatsAppMessageLogModel.status == previous_status,
-                WhatsAppMessageLogModel.status_updated_at < now - WHATSAPP_STALE_CLAIM_AGE,
-            )
-            .values(status=next_status, status_updated_at=now, error_message=message)
-            .execution_options(synchronize_session=False)
-        )
-
-
-async def selection_delivery_maps(
-    session: AsyncSession,
-    *,
-    group_id: uuid.UUID,
-    body: WhatsAppBulkResendDraft,
-    lock_states: bool = True,
-) -> tuple[
-    dict[uuid.UUID, WhatsAppRecipientMessageStateModel],
-    dict[uuid.UUID, set[str]],
-    dict[uuid.UUID, WhatsAppMessageLogModel],
-]:
-    state_statement = select(WhatsAppRecipientMessageStateModel).where(
-        WhatsAppRecipientMessageStateModel.broadcast_group_id == group_id,
-        WhatsAppRecipientMessageStateModel.recipient_id.in_(body.recipient_ids),
-        WhatsAppRecipientMessageStateModel.message_type == body.message_type,
-    )
-    if lock_states:
-        state_statement = state_statement.with_for_update()
-    states = list((await session.execute(state_statement)).scalars().all())
-    active = list(
-        (
-            await session.execute(
-                select(WhatsAppMessageLogModel).where(
-                    WhatsAppMessageLogModel.broadcast_group_id == group_id,
-                    WhatsAppMessageLogModel.recipient_id.in_(body.recipient_ids),
-                    WhatsAppMessageLogModel.message_type == body.message_type,
-                    WhatsAppMessageLogModel.status.in_(WHATSAPP_EXPLICIT_RESEND_BLOCKING_STATUSES),
-                )
-            )
-        )
-        .scalars()
-        .all()
-    )
-    # PostgreSQL DISTINCT ON bounds history to one saved source per selected person.
-    # An already accepted baseline never falls back to an unrelated failed message.
-    retry_ids = [state.recipient_id for state in states if state.status == "failed"]
-    sources = list(
-        (
-            await session.execute(
-                select(WhatsAppMessageLogModel)
-                .where(
-                    WhatsAppMessageLogModel.broadcast_group_id == group_id,
-                    WhatsAppMessageLogModel.recipient_id.in_(body.recipient_ids),
-                    WhatsAppMessageLogModel.message_type == body.message_type,
-                    (
-                        WhatsAppMessageLogModel.status.in_(WHATSAPP_ACCEPTED_STATUSES)
-                        | (
-                            (WhatsAppMessageLogModel.status == "failed")
-                            & WhatsAppMessageLogModel.recipient_id.in_(retry_ids)
-                        )
-                    ),
-                )
-                .distinct(WhatsAppMessageLogModel.recipient_id)
-                .order_by(
-                    WhatsAppMessageLogModel.recipient_id,
-                    WhatsAppMessageLogModel.created_at.desc(),
-                    WhatsAppMessageLogModel.status_updated_at.desc(),
-                    WhatsAppMessageLogModel.id.desc(),
-                )
-            )
-        )
-        .scalars()
-        .all()
-    )
-    active_by_recipient: dict[uuid.UUID, set[str]] = {}
-    stale_cutoff = datetime.now(tz=UTC) - WHATSAPP_STALE_CLAIM_AGE
-    for log in active:
-        log_status = log.status
-        if (
-            body.message_type != "group_invite" and not lock_states
-            and log.is_explicit_resend and log.status_updated_at < stale_cutoff
-        ):
-            # Preview mirrors send's stale recovery without changing any row.
-            if log_status == "queued":
-                continue
-            if log_status == "processing":
-                log_status = "delivery_unknown"
-        active_by_recipient.setdefault(log.recipient_id, set()).add(log_status)
-    if body.message_type in {"group_invite", "passport_link"}:
-        recipients_result = await session.execute(
-            select(WhatsAppBroadcastRecipientModel).where(
-                WhatsAppBroadcastRecipientModel.broadcast_group_id == group_id,
-                WhatsAppBroadcastRecipientModel.id.in_(body.recipient_ids),
-            )
-        )
-        recipients = list(recipients_result.scalars().all())
-        if body.message_type == "group_invite":
-            invite_blocks = await group_invite_blocking_statuses(session, recipients)
-        else:
-            # An intentional resend may repeat a successful message. A failed
-            # retry cannot bypass accepted delivery through an older recipient.
-            invite_blocks = await message_phone_blocking_statuses(
-                session, recipients, message_type="passport_link", include_accepted=False,
-                stale_explicit_queued_cutoff=stale_cutoff if not lock_states else None,
-            )
-            retry_recipients = [item for item in recipients if item.id in retry_ids]
-            invite_blocks.update(await message_phone_blocking_statuses(
-                session, retry_recipients, message_type="passport_link",
-                stale_explicit_queued_cutoff=stale_cutoff if not lock_states else None,
-            ))
-        for recipient_id, invite_status in invite_blocks.items():
-            active_by_recipient.setdefault(recipient_id, set()).add(invite_status)
-    return (
-        {state.recipient_id: state for state in states},
-        active_by_recipient,
-        {source.recipient_id: source for source in sources},
-    )
-
-
-def build_response(
-    *, batch_id: uuid.UUID | None, results: list[WhatsAppSendResult], replayed: bool = False
-) -> WhatsAppBulkResendResponse:
-    statuses = [item.status for item in results]
-    return WhatsAppBulkResendResponse(
-        batch_id=batch_id,
-        selected=len(results),
-        queued=sum(value in WHATSAPP_IN_PROGRESS_STATUSES for value in statuses),
-        sent=sum(value in WHATSAPP_ACCEPTED_STATUSES for value in statuses),
-        failed=statuses.count("failed"),
-        delivery_unknown=statuses.count("delivery_unknown") + statuses.count("stalled"),
-        skipped_in_progress=statuses.count("skipped_in_progress"),
-        skipped_already_sent=statuses.count("skipped_already_sent"),
-        skipped_delivery_unknown=statuses.count("skipped_delivery_unknown"),
-        skipped_no_saved_message=statuses.count("skipped_no_saved_message"),
-        skipped_replaced=statuses.count("skipped_replaced"),
-        skipped_ineligible=statuses.count("skipped_ineligible"),
-        replayed=replayed,
-        results=results,
-    )
-
-
-async def refresh_batch_response(
-    session: AsyncSession, response: WhatsAppBulkResendResponse, *, replayed: bool
-) -> WhatsAppBulkResendResponse:
-    if response.batch_id is None:
-        return response.model_copy(update={"replayed": replayed})
-    logs = list(
-        (
-            await session.execute(
-                select(WhatsAppMessageLogModel).where(
-                    WhatsAppMessageLogModel.batch_id == response.batch_id
-                )
-            )
-        )
-        .scalars()
-        .all()
-    )
-    by_recipient = {log.recipient_id: log for log in logs}
-    results = []
-    stale_cutoff = datetime.now(tz=UTC) - WHATSAPP_STALE_CLAIM_AGE
-    for item in response.results:
-        log = by_recipient.get(item.recipient_id)
-        if log is not None:
-            stalled = (
-                log.status in WHATSAPP_IN_PROGRESS_STATUSES and log.status_updated_at < stale_cutoff
-            )
-            item = item.model_copy(
-                update={
-                    "status": "stalled" if stalled else log.status,
-                    "provider_message_id": log.provider_message_id,
-                    "error_message": log.error_message
-                    or (
-                        "Delivery status is unknown after a worker interruption; verify before resending"
-                        if stalled
-                        else None
-                    ),
-                }
-            )
-        results.append(item)
-    return build_response(batch_id=response.batch_id, results=results, replayed=replayed)

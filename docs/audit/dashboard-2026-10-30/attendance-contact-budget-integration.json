@@ -1,0 +1,14 @@
+{
+  "candidates": "docs/audit/dashboard-2026-10-30/attendance-contact-budget-candidates.json",
+  "before_sha256": "4c8a7a869b9150faa776c6901aa9b1075901072aa8905eb2d2ab3109f60a7d8a",
+  "sha256": "822a6bdcd0045e9ef7211cc7ff84a30e68c6715d5ce46805b638ff0ce03d6b4d",
+  "lf_normalized_sha256": "57104f1c593b3fe69fefecb851ba1edbd0497a15045740053aee0138dd5ee27d",
+  "added": 16,
+  "updated_existing": 2,
+  "lowered_existing": 1,
+  "lowered_existing_paths": [
+    "features/upload/hooks/use-fresh-contact.ts"
+  ],
+  "existing_ceilings_preserved": true,
+  "previous_ceilings_sha256": "4e968e8671c0ca2b64d18b3fb466e77d79c80c84169f24a1f25edb8596c10358"
+}

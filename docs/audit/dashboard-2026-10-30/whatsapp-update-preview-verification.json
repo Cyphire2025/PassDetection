@@ -1,0 +1,86 @@
+{
+  "status": "Reproduced empty-update-audience preview failure fixed and focused qualified; composer architecture remains open",
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/whatsapp-update-preview-reviewed-files.json",
+    "sha256": "c7f8a3b09b945222fa715e67dab94dc9a766b9c393f69930092fd0561eb3c78b"
+  },
+  "source_proof": {
+    "path": "docs/audit/dashboard-2026-10-30/whatsapp-update-preview-source-proof.json",
+    "sha256": "14cdb692dc458313de2db5b9ff8dcb299a24e9557f3b9df7aa29b67b55037ea0"
+  },
+  "qualified_snapshot": {
+    "path": ".tmp/whatsapp-composer-current/whatsapp_composer-preview-qualified.py",
+    "sha256": "2979e690f4aac0945b54ed366e5a85c12d6d9a4350416b7c85d0e5a5a3daee31"
+  },
+  "baseline": {
+    "runtime": {
+      "path": ".tmp/whatsapp-composer-current/whatsapp_composer-authority-qualified.py",
+      "sha256": "df96370146f2f39152bf3ce3549c27237d3e38fa369c39a5eb3fbcd5b2be3901"
+    },
+    "result": "1actual IndexError regression failure/4controls pass",
+    "raw_log": {
+      "path": ".tmp/whatsapp-update-preview-before.log",
+      "sha256": "fc849f15b8e3a1b0093e37aee42ca9871b1fabc404d8e34f0a7a9312d5f0c1b2"
+    }
+  },
+  "after": {
+    "focused_cases": 27,
+    "raw_log": {
+      "path": ".tmp/whatsapp-update-preview-after.log",
+      "sha256": "18843b47f6ed34243815788da4401c12849851b3064a6baeb42f123a844a48fb"
+    },
+    "current_source": {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_composer.py",
+      "sha256": "2979e690f4aac0945b54ed366e5a85c12d6d9a4350416b7c85d0e5a5a3daee31"
+    },
+    "current_new_test": {
+      "path": "backend/tests/unit/presentation/test_whatsapp_update_preview_audience.py",
+      "sha256": "89fa9e885c463908b921d384b13ce5a0bd47cfca9e4f8a64a22e585e696596fc"
+    },
+    "command": [
+      "python",
+      "-X",
+      "utf8",
+      "-m",
+      "pytest",
+      "-q",
+      "-o",
+      "addopts=",
+      "backend/tests/unit/presentation/test_whatsapp_update_preview_audience.py",
+      "backend/tests/unit/presentation/test_whatsapp_composer_persistence.py",
+      "backend/tests/unit/presentation/test_whatsapp_route_decomposition.py"
+    ],
+    "source_fence_note": "Exclusive owned source remained unchanged during focused run; this plain5+22 selection did not run a before/after-hash wrapper or coverage. Current snapshot and exact AST delta are bound explicitly; no stronger automated fencing claim.",
+    "mypy1": {
+      "exit_code": 0,
+      "log": {
+        "path": ".tmp/whatsapp-update-preview-types.log",
+        "sha256": "8e63ae22e8213e327a5e9cbd584067681681bd8ef7f25c869877887ccdcfc4ff"
+      }
+    },
+    "ruff2": {
+      "exit_code": 0,
+      "log": {
+        "path": ".tmp/whatsapp-update-preview-lint.log",
+        "sha256": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0"
+      }
+    }
+  },
+  "behavior": [
+    "Real synthetic FK-enabled SQLite broadcast has2active recipients and linked trips but no successfully sent visa assignments. Valid update_distribution=sent resolves zero people and now returns409 with 'No recipients match the selected audience filters.'",
+    "Actual all/pending positive previews retain the selected authorized recipient, both eligible IDs and text; initial empty list400 and unknown selected person404 remain.",
+    "Correction is caller-local. Existing preview helper and shared update/reminder resolution, private matching/document policy, media guard and SDK/provider sources remain unchanged."
+  ],
+  "contract": "No signature/dependency/schema/return contract changes; prior raw runtime/OpenAPI contract is retained at welcome-media checkpoint. This batch proves the entire AST apart from the one explicit guard, not a new live OpenAPI/service qualification.",
+  "scope": {
+    "real_providers": false,
+    "shared_gates_edited": false,
+    "new_budget_proposal": false,
+    "broad_suite_build_browser": false,
+    "operations_inbox": "Deferred by user; untouched"
+  },
+  "remaining": [
+    "Whole composer/support/single/bulk-resend architecture is authorized and remains active; preserve this intentional bug delta in the next mechanical baseline.",
+    "No SDK/live storage/PostgreSQL service qualification or whole-dashboard security/performance completion claim."
+  ]
+}

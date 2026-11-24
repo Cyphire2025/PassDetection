@@ -1,0 +1,138 @@
+[
+  {
+    "path": "backend/app/domain/entities/entities.py",
+    "sha256": "13d580b111a7abdddc7226ef4c86726b49465ec92097264b7f6c7414475c400d",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "needs-follow-up",
+    "notes": "Complete physical source read. Domain types, dataclass field/factory order, lifecycle/revision gates, repository visibility parameters, fixed MCP capability/section unions and safe error projection reviewed. Core entity monolith and multi-resource port module remain architecture follow-ups. MRZ/OCR and single-use-link exception chain has registry-only references and is being proved closed before retirement. No application verification is inferred from reading. StorageError HTTP projection trace is assigned separately to the manual reviewer; no new leak claim from this source alone."
+  },
+  {
+    "path": "backend/app/domain/entities/__init__.py",
+    "sha256": "f7f0ae580a55bd07e427d55d2982e40d12a2cd590386d85e583db5d77f8fdb0b",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Domain types, dataclass field/factory order, lifecycle/revision gates, repository visibility parameters, fixed MCP capability/section unions and safe error projection reviewed. Core entity monolith and multi-resource port module remain architecture follow-ups. MRZ/OCR and single-use-link exception chain has registry-only references and is being proved closed before retirement. No application verification is inferred from reading. StorageError HTTP projection trace is assigned separately to the manual reviewer; no new leak claim from this source alone."
+  },
+  {
+    "path": "backend/app/domain/repositories/interfaces.py",
+    "sha256": "5c2e39834e42eb217d53c5c28bf558adc2712a5fd8c603c41405216a81322cf0",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "needs-follow-up",
+    "notes": "Complete physical source read. Domain types, dataclass field/factory order, lifecycle/revision gates, repository visibility parameters, fixed MCP capability/section unions and safe error projection reviewed. Core entity monolith and multi-resource port module remain architecture follow-ups. MRZ/OCR and single-use-link exception chain has registry-only references and is being proved closed before retirement. No application verification is inferred from reading. StorageError HTTP projection trace is assigned separately to the manual reviewer; no new leak claim from this source alone."
+  },
+  {
+    "path": "backend/app/domain/repositories/__init__.py",
+    "sha256": "f7f0ae580a55bd07e427d55d2982e40d12a2cd590386d85e583db5d77f8fdb0b",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Domain types, dataclass field/factory order, lifecycle/revision gates, repository visibility parameters, fixed MCP capability/section unions and safe error projection reviewed. Core entity monolith and multi-resource port module remain architecture follow-ups. MRZ/OCR and single-use-link exception chain has registry-only references and is being proved closed before retirement. No application verification is inferred from reading. StorageError HTTP projection trace is assigned separately to the manual reviewer; no new leak claim from this source alone."
+  },
+  {
+    "path": "backend/app/domain/exceptions/exceptions.py",
+    "sha256": "81f41f5ae643e9a87c20fdd285ed3cb2791c92c63273c71743dfb7d609021c1f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Full original source read; current retained declaration/handler/import AST is exact after removing four proved registry-only legacy exception classes and their handlers. Reference proof covers2312repository Python files with only two matching files and no module escapes; automated scope is not a full-file review claim. All50HTTP envelope/pagination/destructive-action cases, two-source Ruff and mypy pass. Existing central500projection already masks StorageError messages; no new HTTP leak was found or claimed."
+  },
+  {
+    "path": "backend/app/domain/exceptions/__init__.py",
+    "sha256": "f7f0ae580a55bd07e427d55d2982e40d12a2cd590386d85e583db5d77f8fdb0b",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Domain types, dataclass field/factory order, lifecycle/revision gates, repository visibility parameters, fixed MCP capability/section unions and safe error projection reviewed. Core entity monolith and multi-resource port module remain architecture follow-ups. MRZ/OCR and single-use-link exception chain has registry-only references and is being proved closed before retirement. No application verification is inferred from reading. StorageError HTTP projection trace is assigned separately to the manual reviewer; no new leak claim from this source alone."
+  },
+  {
+    "path": "backend/app/domain/exceptions/resource_capacity.py",
+    "sha256": "9a53229c7743b441ad96fad173c24c08d2cbc03db0cb86346f4205cf00468413",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Domain types, dataclass field/factory order, lifecycle/revision gates, repository visibility parameters, fixed MCP capability/section unions and safe error projection reviewed. Core entity monolith and multi-resource port module remain architecture follow-ups. MRZ/OCR and single-use-link exception chain has registry-only references and is being proved closed before retirement. No application verification is inferred from reading. StorageError HTTP projection trace is assigned separately to the manual reviewer; no new leak claim from this source alone."
+  },
+  {
+    "path": "backend/app/domain/exceptions/travel_tracker.py",
+    "sha256": "463c3068c751fe397a6397937ed00c25f197303ae08c296b55034c4ae848d8f8",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Domain types, dataclass field/factory order, lifecycle/revision gates, repository visibility parameters, fixed MCP capability/section unions and safe error projection reviewed. Core entity monolith and multi-resource port module remain architecture follow-ups. MRZ/OCR and single-use-link exception chain has registry-only references and is being proved closed before retirement. No application verification is inferred from reading. StorageError HTTP projection trace is assigned separately to the manual reviewer; no new leak claim from this source alone."
+  },
+  {
+    "path": "backend/app/domain/contact_workbook.py",
+    "sha256": "6c3c279340102e10440565b1e4cbcb637068229bcd157d9feb8548c92d8f66c9",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Domain types, dataclass field/factory order, lifecycle/revision gates, repository visibility parameters, fixed MCP capability/section unions and safe error projection reviewed. Core entity monolith and multi-resource port module remain architecture follow-ups. MRZ/OCR and single-use-link exception chain has registry-only references and is being proved closed before retirement. No application verification is inferred from reading. StorageError HTTP projection trace is assigned separately to the manual reviewer; no new leak claim from this source alone."
+  },
+  {
+    "path": "backend/app/domain/services/ecr_state_policy.py",
+    "sha256": "2519fc1852838b8c9bec1ccae54a17bb6cb6ba239b171cf802e399bced695e59",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Domain types, dataclass field/factory order, lifecycle/revision gates, repository visibility parameters, fixed MCP capability/section unions and safe error projection reviewed. Core entity monolith and multi-resource port module remain architecture follow-ups. MRZ/OCR and single-use-link exception chain has registry-only references and is being proved closed before retirement. No application verification is inferred from reading. StorageError HTTP projection trace is assigned separately to the manual reviewer; no new leak claim from this source alone."
+  },
+  {
+    "path": "backend/app/domain/whatsapp_delivery_status.py",
+    "sha256": "5ac994e676cad35d68bce3c381f8873b60c29e4b33eeed9e0c62d3767512a1d0",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Domain types, dataclass field/factory order, lifecycle/revision gates, repository visibility parameters, fixed MCP capability/section unions and safe error projection reviewed. Core entity monolith and multi-resource port module remain architecture follow-ups. MRZ/OCR and single-use-link exception chain has registry-only references and is being proved closed before retirement. No application verification is inferred from reading. StorageError HTTP projection trace is assigned separately to the manual reviewer; no new leak claim from this source alone."
+  },
+  {
+    "path": "backend/app/domain/mcp_policy.py",
+    "sha256": "e1f287620eb6a78399a53ffa61e517c83e42c1359820a5c85ed0094b1114f4dc",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Domain types, dataclass field/factory order, lifecycle/revision gates, repository visibility parameters, fixed MCP capability/section unions and safe error projection reviewed. Core entity monolith and multi-resource port module remain architecture follow-ups. MRZ/OCR and single-use-link exception chain has registry-only references and is being proved closed before retirement. No application verification is inferred from reading. StorageError HTTP projection trace is assigned separately to the manual reviewer; no new leak claim from this source alone."
+  },
+  {
+    "path": "backend/app/domain/mcp_read_sections.py",
+    "sha256": "019ddadcb0193ee434383009b30b023aa944babceff287e5b27049f3267110b5",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Domain types, dataclass field/factory order, lifecycle/revision gates, repository visibility parameters, fixed MCP capability/section unions and safe error projection reviewed. Core entity monolith and multi-resource port module remain architecture follow-ups. MRZ/OCR and single-use-link exception chain has registry-only references and is being proved closed before retirement. No application verification is inferred from reading. StorageError HTTP projection trace is assigned separately to the manual reviewer; no new leak claim from this source alone."
+  },
+  {
+    "path": "backend/app/domain/mcp_section_permissions.py",
+    "sha256": "1e262314168b2d4020e702d720e7b7687444b225c411fec67225ded0481d0cc5",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Domain types, dataclass field/factory order, lifecycle/revision gates, repository visibility parameters, fixed MCP capability/section unions and safe error projection reviewed. Core entity monolith and multi-resource port module remain architecture follow-ups. MRZ/OCR and single-use-link exception chain has registry-only references and is being proved closed before retirement. No application verification is inferred from reading. StorageError HTTP projection trace is assigned separately to the manual reviewer; no new leak claim from this source alone."
+  },
+  {
+    "path": "backend/app/domain/mcp_dashboard_reads.py",
+    "sha256": "4fa6e1ecd2fc18607028dd51393db7d94c7ff051809f480cc25330270d9f31b3",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Domain types, dataclass field/factory order, lifecycle/revision gates, repository visibility parameters, fixed MCP capability/section unions and safe error projection reviewed. Core entity monolith and multi-resource port module remain architecture follow-ups. MRZ/OCR and single-use-link exception chain has registry-only references and is being proved closed before retirement. No application verification is inferred from reading. StorageError HTTP projection trace is assigned separately to the manual reviewer; no new leak claim from this source alone."
+  },
+  {
+    "path": "backend/app/domain/__init__.py",
+    "sha256": "f7f0ae580a55bd07e427d55d2982e40d12a2cd590386d85e583db5d77f8fdb0b",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Domain types, dataclass field/factory order, lifecycle/revision gates, repository visibility parameters, fixed MCP capability/section unions and safe error projection reviewed. Core entity monolith and multi-resource port module remain architecture follow-ups. MRZ/OCR and single-use-link exception chain has registry-only references and is being proved closed before retirement. No application verification is inferred from reading. StorageError HTTP projection trace is assigned separately to the manual reviewer; no new leak claim from this source alone."
+  },
+  {
+    "path": "backend/app/presentation/middleware/error_handler.py",
+    "sha256": "90539db647f6bb6bf113535fbe5d73383f573bdccc5213e2a455390fa86c5b98",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Full original source read; current retained declaration/handler/import AST is exact after removing four proved registry-only legacy exception classes and their handlers. Reference proof covers2312repository Python files with only two matching files and no module escapes; automated scope is not a full-file review claim. All50HTTP envelope/pagination/destructive-action cases, two-source Ruff and mypy pass. Existing central500projection already masks StorageError messages; no new HTTP leak was found or claimed."
+  }
+]

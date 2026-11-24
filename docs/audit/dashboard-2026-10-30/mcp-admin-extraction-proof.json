@@ -1,0 +1,22 @@
+{
+  "status": "mechanical proof passed",
+  "original_whole_definitions_restored": 16,
+  "route_decorators_preserved_in_facade_order": 14,
+  "complete_OpenAPI_equal": true,
+  "actual_route_count": 18,
+  "recursive_dependency_callable_cache_scope_identities_equal": true,
+  "original_signature_evaluated_hints_module_qualname_legacy_new_pickles_and_actual_aliases_equal": 16,
+  "actual_original_import_objects": 47,
+  "test_modules_full_AST_equal_after_two_explicit_owner_retargets": [
+    "backend/tests/integration/test_mcp_phase2_http_boundaries.py",
+    "backend/tests/integration/test_mcp_read_only_sections.py"
+  ],
+  "source_fence": {
+    "backend/app/presentation/api/v1/routes/mcp_admin.py": "1fc02367a0ad64fdf78e6f4404fdd4babbd35cbc477221e7e12de0b1c9c554c4",
+    "backend/app/presentation/api/v1/routes/mcp_admin_authorization.py": "23214b6da5c95e3651105b8e1af831d9d56202dbdcea20af889706c156bcc8df",
+    "backend/app/presentation/api/v1/routes/mcp_admin_connections.py": "df81ec3e74e2145c15db6b35334b1e675c54eec4fb6d4e0d165dc654dd995b28",
+    "backend/app/presentation/api/v1/routes/mcp_admin_context.py": "ce088abb800578e0eae24c9a8ec4db2a5f811e9caa380c93d9a021c295f0b3da",
+    "backend/app/presentation/api/v1/routes/mcp_admin_reads.py": "2a4c7456cf81da14ef12139f13f2260c64be2a5fa19ce7587d4e0c1573122449"
+  },
+  "limits": "Source and runtime contract proof only; no auth-policy change, provider/realPG/VPS/broad application qualification."
+}

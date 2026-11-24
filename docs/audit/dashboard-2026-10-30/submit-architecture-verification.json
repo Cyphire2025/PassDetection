@@ -1,0 +1,175 @@
+{
+  "status": "qualified",
+  "source_fence": {
+    "backend/app/application/use_cases/passports/submit_passport_use_case.py": "5f90f8fa82761c68ccef7ef729824609a182b60c7ce4413916f2e4bee356883b",
+    "backend/app/infrastructure/storage/minio_repository.py": "f31fe249d63c18ea0e400bae0ee3161eb05db6b194527e2bdab39bf88626180c",
+    "backend/app/infrastructure/documents/storage_transfers.py": "a15cde9b255188896500d54e4de7faf9dafbbe332f13f3163b1590f38a1c58d1",
+    "backend/tests/integration/test_client_group_reopen.py": "1ce0e901670a074c05b6658062f4bed3a99910b20a66daf2f03541e4aad7fe28",
+    "backend/tests/unit/application/test_client_group_field_options.py": "a1f67b09fa2e64022476bc43063b9398e1c98af4c3140e7993b7d2f9a5f6cc7d",
+    "backend/tests/unit/presentation/test_configured_public_upload.py": "97a85ac1a94f6f96dbce910d153de3179ab4808fcc9630d943016d48a785ea12",
+    "backend/tests/unit/application/test_configured_public_collection.py": "5ffa14363cbf65b01dc395a1c472ba126fdf2b0fc9af257b1c798015bbd189b2",
+    "backend/tests/unit/application/test_manual_passport_staff_review.py": "b122ba5713acad9ae0c4cfce8c2586f7f87bb4f33c3913cfac55bb827132732e",
+    "backend/tests/unit/application/test_passport_processing_reliability.py": "069bd11d0258367b5737071bddaed7d92aaf8cca81f1a8552fa2a3c1809d1507",
+    "backend/tests/unit/application/test_qualifier_selection_flow.py": "73cc6a65858cc04cefb2d18c7084d8dbb62b0d74eb1c1b0e81dd79c2c9467b5a",
+    "backend/tests/unit/application/test_public_upload_native_lifetime.py": "d782a22501e5763b98629a2b0e871e672af1aebe66bbc1d5241692134ed4bbb2",
+    "backend/tests/unit/application/test_submit_passport_use_case.py": "e27a4be1beeeb7dc3253175ae3a46fad4818c973f5c76687d67b420602850827",
+    "backend/tests/unit/presentation/test_public_upload_commit_outcomes.py": "cb64c7e9e410a7c3a6c66d0a4ae8fca9ae91e231d59aebdd53afd2b6fba86f9c",
+    "backend/tests/unit/infrastructure/test_storage_cleanup_passport_covers.py": "49fd8500a5c919f6e1e5a2ce27e5e1128046d16c9e8ab4e71ab2e6c087315676",
+    "backend/tests/passport_image_mutations.py": "fceefc1ce5c57969627ddadc7d481470cd8aba31041704a0cf226bc598ce4679",
+    "backend/tests/integration/test_passport_draft_orphan_reconciliation.py": "a074f7b914dbfb80ca1efa75a4d146bd9999d6ecf1bb6fe5126c910bddd13dc5",
+    "backend/app/application/use_cases/passports/passport_upload_plan.py": "10282725c29a67620a46067f9a9b95902df614b21495561e0d98971d19864fe3",
+    "backend/app/application/use_cases/passports/passport_upload_selection.py": "932ba6cd69071edc17c3080279670c001bb566864bdc2ba4c94d01c3af90913b",
+    "backend/app/application/use_cases/passports/passport_upload_submission.py": "1a5637b651289c3d0b92fa940fb7e319e866dc69c9200cb3c8d3a84312a8a777",
+    "backend/tests/unit/application/test_public_upload_replay_binding.py": "529f79933069fea6fa996dd297383f0ef48ce4a3448a7df50fbbaf780a82aac8"
+  },
+  "runtime_owners": [
+    "backend/app/application/use_cases/passports/submit_passport_use_case.py",
+    "backend/app/application/use_cases/passports/passport_upload_plan.py",
+    "backend/app/application/use_cases/passports/passport_upload_selection.py",
+    "backend/app/application/use_cases/passports/passport_upload_submission.py"
+  ],
+  "source_measurements": [
+    {
+      "path": "backend/app/application/use_cases/passports/submit_passport_use_case.py",
+      "lines": 369,
+      "complexity": 35,
+      "coverage": {
+        "covered_lines": 117,
+        "num_statements": 128,
+        "percent_covered": 89.41176470588235,
+        "percent_covered_display": "89",
+        "missing_lines": 11,
+        "excluded_lines": 0,
+        "percent_statements_covered": 91.40625,
+        "percent_statements_covered_display": "91",
+        "num_branches": 42,
+        "num_partial_branches": 7,
+        "covered_branches": 35,
+        "missing_branches": 7,
+        "percent_branches_covered": 83.33333333333333,
+        "percent_branches_covered_display": "83"
+      }
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/passport_upload_plan.py",
+      "lines": 79,
+      "complexity": 5,
+      "coverage": {
+        "covered_lines": 15,
+        "num_statements": 15,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 11,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 4,
+        "num_partial_branches": 0,
+        "covered_branches": 4,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      }
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/passport_upload_selection.py",
+      "lines": 68,
+      "complexity": 11,
+      "coverage": {
+        "covered_lines": 23,
+        "num_statements": 25,
+        "percent_covered": 89.74358974358974,
+        "percent_covered_display": "90",
+        "missing_lines": 2,
+        "excluded_lines": 0,
+        "percent_statements_covered": 92.0,
+        "percent_statements_covered_display": "92",
+        "num_branches": 14,
+        "num_partial_branches": 2,
+        "covered_branches": 12,
+        "missing_branches": 2,
+        "percent_branches_covered": 85.71428571428571,
+        "percent_branches_covered_display": "86"
+      }
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/passport_upload_submission.py",
+      "lines": 47,
+      "complexity": 8,
+      "coverage": {
+        "covered_lines": 20,
+        "num_statements": 20,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 14,
+        "num_partial_branches": 0,
+        "covered_branches": 14,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      }
+    }
+  ],
+  "tests": {
+    "base_command": "submit-architecture-final-command.json",
+    "base_result": "161passed plus18subtests/12files/26.90s",
+    "distinct_replay_command": "submit-architecture-replay-command.json",
+    "additional_result": "9passed/1file/1.38s",
+    "distinct_combined_cases": 170,
+    "subtests": 18,
+    "test_files": 13,
+    "coverage_composition": "Append only9 distinct replay controls to the original161-case coverage data, with all19 original runtime/test/adapter hashes verified current before and after; no repeated whole selection."
+  },
+  "proof": "submit-architecture-extraction-proof.json",
+  "proof_sha256": "853b56796ac16af411d3f9a29b6e26900b3bda3a59dd6e11070ecb3d93057a84",
+  "checks": [
+    {
+      "name": "types",
+      "argv": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "mypy",
+        "app/application/use_cases/passports/submit_passport_use_case.py",
+        "app/application/use_cases/passports/passport_upload_plan.py",
+        "app/application/use_cases/passports/passport_upload_selection.py",
+        "app/application/use_cases/passports/passport_upload_submission.py"
+      ],
+      "exit_code": 0,
+      "output": "submit-architecture-types.txt"
+    },
+    {
+      "name": "lint",
+      "argv": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "ruff",
+        "check",
+        "--no-fix",
+        "app/application/use_cases/passports/submit_passport_use_case.py",
+        "app/application/use_cases/passports/passport_upload_plan.py",
+        "app/application/use_cases/passports/passport_upload_selection.py",
+        "app/application/use_cases/passports/passport_upload_submission.py",
+        "tests/unit/application/test_public_upload_replay_binding.py"
+      ],
+      "exit_code": 0,
+      "output": "submit-architecture-lint.txt"
+    }
+  ],
+  "coverage_json": "submit-architecture-qualified-coverage.json",
+  "coverage_xml": "submit-architecture-qualified-coverage.xml",
+  "budget_candidates": "submit-architecture-budget-candidates.json",
+  "critical_candidates": "submit-architecture-critical-candidates.json",
+  "floor_responsibility": "Existing85L/80B critical and85 normal floors follow all four real implementation owners. Main moved coverage initially73.81B; nine meaningful credential/replay controls raise it83.33B. No floor relaxed.",
+  "design": "Keep public class/constructor/MRO/static method/override seams. Separate ordered attempt-owned plan, qualifier-token/replay validation and pure draft construction. Execute retains transaction/capacity/idempotent persistence/job/compensation boundaries, now C35 fromC46.",
+  "fixture_history": "submit-architecture-replay-fixture-history.json; initial six new-test failures came from unspecced AsyncMock blocking assert_available. Added actual guard spec, preserving every original new-test assertion. No runtime change followed the161-case run.",
+  "post_test_source_delta": "One blank import separator in the new replay test required by effective backend-working-directory Ruff; entire module AST equals the actual tested source in submit-architecture-tested-replay-source.json. Failed pre-layout lint preserved separately; no test rerun for whitespace.",
+  "limitations": [
+    "Synthetic repository doubles for replay gate matrix; actual adapter/SQLite/native cancellation tests remain in the161-case selection. No live PostgreSQL race/provider claim.",
+    "No new behavior other than the explicit AI extraction docstring wording; prior cancellation correction and later orphan reconciliation retain their separate evidence.",
+    "Planner accepts only the existing typed key-factory seam; no mutable context/proxy or inheritance introduced. The protocol ellipsis is typing-only and excluded by existing coverage rules."
+  ]
+}

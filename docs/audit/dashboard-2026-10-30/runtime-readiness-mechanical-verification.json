@@ -1,0 +1,134 @@
+{
+  "stage": "SEALED mechanical extraction; no deliberate runtime behavior change",
+  "before_source_fence": "runtime-readiness-before-source-fence.json",
+  "mechanical_proof": "runtime-readiness-mechanical-proof.json",
+  "review_ledger": "runtime-readiness-mechanical-reviewed-files.json",
+  "current_runtime_source_fence": [
+    {
+      "path": "backend/app/infrastructure/runtime_readiness_contracts.py",
+      "sha256": "29b1aaa8a64ccfe32ab571d8ebb512a9ae600ad5bcacb681a83d927057e3462d",
+      "physical_lines": 52
+    },
+    {
+      "path": "backend/app/infrastructure/runtime_readiness_database.py",
+      "sha256": "d5096be39d581b39834a7a732cdf421bdb370c7d02e8bd41666932243e35f8bf",
+      "physical_lines": 71
+    },
+    {
+      "path": "backend/app/infrastructure/runtime_readiness_probes.py",
+      "sha256": "37dbb8ff36d5e19cad2afe0ba523030ac9bbc0c5e43df15e5b624fb1b2a63bf0",
+      "physical_lines": 141
+    },
+    {
+      "path": "backend/app/infrastructure/runtime_readiness_capabilities.py",
+      "sha256": "bc1904a1aada151631034e8fb60b5d366da1e5049fa019b6a03813f9866ab439",
+      "physical_lines": 161
+    },
+    {
+      "path": "backend/app/infrastructure/runtime_readiness.py",
+      "sha256": "b439d9d4174e8c0b1ae096a4f0f23c96ae7e10c6e2f0d636a0509a7c5f9783f0",
+      "physical_lines": 278
+    }
+  ],
+  "baseline": {
+    "cases": 36,
+    "result": "pass",
+    "raw": ".tmp/runtime-readiness/baseline-tests.txt",
+    "original_line_percent": 91.83673469387755,
+    "original_branch_percent": 83.33333333333333
+  },
+  "affected": {
+    "cases": 50,
+    "result": "pass",
+    "raw": ".tmp/runtime-readiness/mechanical-tests.txt",
+    "coverage_json": ".tmp/runtime-readiness/mechanical-coverage.json",
+    "coverage_xml": ".tmp/runtime-readiness/mechanical-coverage.xml"
+  },
+  "every_actual_owner_coverage": [
+    {
+      "path": "app/infrastructure/runtime_readiness.py",
+      "line_percent": 100.0,
+      "branch_percent": 100.0,
+      "original88L63B_pass": true
+    },
+    {
+      "path": "app/infrastructure/runtime_readiness_capabilities.py",
+      "line_percent": 100.0,
+      "branch_percent": 100.0,
+      "original88L63B_pass": true
+    },
+    {
+      "path": "app/infrastructure/runtime_readiness_contracts.py",
+      "line_percent": 100.0,
+      "branch_percent": 100,
+      "original88L63B_pass": true
+    },
+    {
+      "path": "app/infrastructure/runtime_readiness_database.py",
+      "line_percent": 100.0,
+      "branch_percent": 100.0,
+      "original88L63B_pass": true
+    },
+    {
+      "path": "app/infrastructure/runtime_readiness_probes.py",
+      "line_percent": 95.5223880597015,
+      "branch_percent": 95.0,
+      "original88L63B_pass": true
+    }
+  ],
+  "other_checks": [
+    {
+      "name": "Strict scoped mypy5sourcefiles",
+      "result": "pass"
+    },
+    {
+      "name": "Backend-cwd pinned Ruff changed5runtime+3test files",
+      "result": "pass; final formatting changed only import whitespace in2testfiles after affected run; AST identical, runtime5byte fence unchanged"
+    },
+    {
+      "name": "Whole original declaration/class/function AST partition",
+      "result": "30exact, SQL/defaults/__all__ exact"
+    },
+    {
+      "name": "Actual public aliases/type hints/singleton",
+      "result": "executed current owner identity and annotation resolution tests pass"
+    },
+    {
+      "name": "Original test obligation inverse",
+      "result": "26ownerbindings retargeted; all original assertions/inputs/module AST exact after inverse"
+    }
+  ],
+  "existing_gates": {
+    "line": 88,
+    "branch": 63,
+    "transfer": "Every actual5owner independently qualified; AIexclusive normal/critical admission pendingfinalbundle; no floor/cap/config edits in this lane"
+  },
+  "candidate_files": [
+    "runtime-readiness-mechanical-budget-candidates.json",
+    "runtime-readiness-mechanical-critical-candidates.json"
+  ],
+  "preserved": [
+    "9slot fixed executor/singleflight across timeout/cancellation/loop",
+    "3.75second shared health deadline/DB cancellation",
+    "15second clock/config cache and singleton identity",
+    "Authoritative DB SQL/body ordering/defaults and no provider write",
+    "Published public/private compatibility aliases and HTTP outcomes",
+    "Existing Inbox status adapter compatibility only"
+  ],
+  "separate_followups": [
+    {
+      "id": "RR01",
+      "status": "open; source-backed candidate not yet reproduced",
+      "description": "Optional cleanup diagnostic SQL catches errors without savepoint, unlike current ECR optional-probe pattern. Investigate normal request/session transaction poisoning after this exact mechanical checkpoint. No livePG/SQLite equivalence claim."
+    },
+    {
+      "id": "RR02",
+      "status": "not demonstrated in normal configuration path",
+      "description": "Hypothetical hot runtime configuration cache-key/Minio mismatch; no deliberate change authorized or applied."
+    }
+  ],
+  "limits": [
+    "Synthetic local affected unit/probe/provider doubles, not livePostgres/Redis/Minio/Celery/ClamAV/provider/VPS qualification.",
+    "No wholebackend/frontend suite/build/browser round. Final combined verification remains root/user requested final stage."
+  ]
+}

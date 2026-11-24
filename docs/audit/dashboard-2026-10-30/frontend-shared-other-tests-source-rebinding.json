@@ -1,0 +1,13 @@
+[
+  {
+    "path": "frontend/features/dashboard/components/dashboard-ui-transformation.contract.test.mjs",
+    "original_full_read_sha256": "948e47dec344c198ee85ac5aae7e58257d0f1447bc885167b7bd0ace834a9692",
+    "current_sha256": "bdae0536bb5e55912fcc9e4a7349d106616495c94aae8ebc7c1c1d2823b78076",
+    "current_explicit_full_ledger": "rename-table-contract-reviewed-files.json",
+    "current_explicit_full_ledger_sha256": "6d7349479c124d9068da12edd29d28844edb4c38d6e6789059d5926b84c28dc0",
+    "owner_receipt": "rename-table-contract-verification.json",
+    "owner_receipt_sha256": "8b37922d81838f716e10b4c696bbb0b20c205054399aba3da3e3a17db0b11324",
+    "all_original_test_bodies_byte_identical": true,
+    "method": "Existing exact current full record found before attempted reread; source reader skipped it. Retain own original full history and reference branding current full ledger, never upgrade a partial read."
+  }
+]

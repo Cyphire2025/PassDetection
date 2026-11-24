@@ -1,0 +1,7 @@
+.........................................................                [100%]
+
+---------- coverage: platform win32, python 3.11.15-final-0 ----------
+Coverage XML written to file C:\Users\nipun\Desktop\PassDetection\docs\audit\dashboard-2026-10-30\group-whatsapp-match-support-coverage.xml
+Coverage JSON written to file C:\Users\nipun\Desktop\PassDetection\docs\audit\dashboard-2026-10-30\group-whatsapp-match-support-coverage.json
+
+57 passed in 22.76s

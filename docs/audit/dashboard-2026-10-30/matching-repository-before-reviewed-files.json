@@ -1,0 +1,65 @@
+[
+  {
+    "path": "backend/app/infrastructure/repositories/passport_whatsapp_matching_repository.py",
+    "sha256": "898a00d1968bcc5f2b81cb3a6eccda2b90675d7f04dc6536999099e0975dd6b0",
+    "lines": 615,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete original physical read before this architecture tranche. Original matching source retained as ignored local archive; other sources remained unchanged."
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/passport_roster_resolution_repository.py",
+    "sha256": "e59711dd43d2d310fe69b5b28ecf3b6ac4ab7de836067425b28d51ddb3614811",
+    "lines": 259,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete original physical read before this architecture tranche. Original matching source retained as ignored local archive; other sources remained unchanged."
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/passport_export_history_repository.py",
+    "sha256": "5a3726ce317c6f588c9cb1f039eccd6ee1a4a2fb74bdbc869bbf138cfcc4bc78",
+    "lines": 225,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete original physical read before this architecture tranche. Original matching source retained as ignored local archive; other sources remained unchanged."
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/notification_repository.py",
+    "sha256": "d19a72107423edd79e3992ca68d2a120fa9701d6ab4ecde402d5e594a0cb067e",
+    "lines": 229,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete original physical read before this architecture tranche. Original matching source retained as ignored local archive; other sources remained unchanged."
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/notification_projection_repository.py",
+    "sha256": "7a48db796bd3343639574339c3efbdc76f2b4a02a18996b1bcbefcb3d2d67dfd",
+    "lines": 64,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete original physical read before this architecture tranche. Original matching source retained as ignored local archive; other sources remained unchanged."
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/notification_feed_queries.py",
+    "sha256": "57a7df490f09b112d05824b86b2ba359080f9d931ce8ca0bd03e9a72119009d1",
+    "lines": 43,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete original physical read before this architecture tranche. Original matching source retained as ignored local archive; other sources remained unchanged."
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/passport_whatsapp_comparison_cache.py",
+    "sha256": "c0bca7ed44d99453693f2dfb1f78b4865e884e9586605ff1d2d524dff30a5d34",
+    "lines": 55,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete original physical read before this architecture tranche. Original matching source retained as ignored local archive; other sources remained unchanged."
+  }
+]

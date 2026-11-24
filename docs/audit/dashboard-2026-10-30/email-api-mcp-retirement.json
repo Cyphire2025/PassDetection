@@ -1,0 +1,42 @@
+{
+  "retired": {
+    "surface": {
+      "id": "frontend:frontend/features/email-integrations/api/email-integrations.api.ts:disconnectConnection",
+      "kind": "frontend_callable",
+      "source": "frontend/features/email-integrations/api/email-integrations.api.ts",
+      "handler": "disconnectConnection"
+    },
+    "workflow": "email-integrations.disconnectConnection",
+    "disposition": "implement",
+    "phase": 7,
+    "rationale": "Disconnect provider access while retaining the mailbox connection and its business data. Credential revocation and disposal are security controls; the separate connection-and-data removal endpoint remains outside MCP authority.",
+    "adapter_requirements": [
+      "business_transaction_idempotency",
+      "durable_operation_progress",
+      "preserve_mailbox_business_data_and_audit",
+      "provider_revocation_reconciliation",
+      "owned_connection_authorization",
+      "no_removal_effect_audit"
+    ],
+    "implementation": {
+      "status": "planned",
+      "adapter": null,
+      "evidence": []
+    },
+    "effect_review": "source_reviewed_adapter_verification_required"
+  },
+  "previous_facade": {
+    "id": "frontend_api:frontend/features/email-integrations/api/email-integrations.api.ts",
+    "kind": "frontend_api_contract",
+    "source": "frontend/features/email-integrations/api/email-integrations.api.ts",
+    "contract_sha256": "765b3e07276ab90ef5ee7bf2cdba65bf14245d8a9c9e9e682a40f14f924d332d"
+  },
+  "current_facade": {
+    "id": "frontend_api:frontend/features/email-integrations/api/email-integrations.api.ts",
+    "kind": "frontend_api_contract",
+    "source": "frontend/features/email-integrations/api/email-integrations.api.ts",
+    "contract_sha256": "2691aa5e37a6ed9a0675a248b563a60c5cf511918ab24d3874f45d4053d3163b"
+  },
+  "reason": "Only caller was the now removed unused hook. Confirmed live removeConnection path is retained. Runtime permission classification and every other record are unchanged.",
+  "remaining_surfaces": 1949
+}

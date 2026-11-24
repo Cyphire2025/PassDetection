@@ -1,0 +1,153 @@
+{
+  "declarations": [
+    {
+      "name": "_lock_active_bulk_approval_actor",
+      "owner": "app.presentation.api.v1.routes.passport_routes.bulk_actions_actor",
+      "whole_post_transition_ast": true,
+      "actual_import_bindings": [
+        "AsyncSession",
+        "AuthorizationError",
+        "HTTPException",
+        "User",
+        "UserModel",
+        "UserRepository",
+        "UserSecurityStateModel",
+        "actual_user_agency_id",
+        "actual_user_role",
+        "refresh_access_level_actor",
+        "revalidate_access_level_actor",
+        "select",
+        "status"
+      ]
+    },
+    {
+      "name": "_active_roster_resolution_references",
+      "owner": "app.presentation.api.v1.routes.passport_routes.bulk_actions_roster",
+      "whole_post_transition_ast": true,
+      "actual_import_bindings": [
+        "AsyncSession",
+        "HTTPException",
+        "PassportRosterResolutionModel",
+        "select",
+        "status",
+        "uuid"
+      ]
+    },
+    {
+      "name": "bulk_delete_passport_submissions",
+      "owner": "app.presentation.api.v1.routes.passport_routes.bulk_actions_delete",
+      "whole_post_transition_ast": true,
+      "actual_import_bindings": [
+        "AsyncSession",
+        "AuditLogRepository",
+        "BulkDeletePassportSubmissionsRequest",
+        "BulkDeletePassportSubmissionsResponse",
+        "ConflictError",
+        "Depends",
+        "DestructiveMutationPolicy",
+        "NotificationModel",
+        "PASSPORT_DELETE_INLINE_CLEANUP_MAX_OBJECTS",
+        "PassportImageCropRepository",
+        "PassportSubmissionModel",
+        "PrivateDeliveryMutationBlocked",
+        "User",
+        "delete",
+        "get_db_session",
+        "lock_linked_whatsapp_broadcast_groups",
+        "passport_storage_keys",
+        "prepare_private_delivery_identity_mutation",
+        "previous_bulk_delete_result",
+        "process_storage_cleanup_job",
+        "propagate_mobile_passenger_change",
+        "record_destructive_failure",
+        "require_cookie_csrf",
+        "require_recent_mfa",
+        "select",
+        "stage_storage_cleanup_jobs",
+        "status",
+        "uuid"
+      ]
+    },
+    {
+      "name": "bulk_staff_approve_passport_submissions",
+      "owner": "app.presentation.api.v1.routes.passport_routes.bulk_actions_approval",
+      "whole_post_transition_ast": true,
+      "actual_import_bindings": [
+        "AsyncSession",
+        "AuthorizationPolicy",
+        "BulkStaffApprovePassportSubmissionsRequest",
+        "BulkStaffApprovePassportSubmissionsResponse",
+        "ClientGroupModel",
+        "ClientGroupRepository",
+        "Depends",
+        "GroupStatus",
+        "HTTPException",
+        "OperationalEvent",
+        "PassportSubmissionModel",
+        "Response",
+        "User",
+        "UserRole",
+        "ensure_approved_passenger_qrs",
+        "get_current_active_user",
+        "get_db_session",
+        "propagate_mobile_passenger_change",
+        "record_operational_event",
+        "require_cookie_csrf",
+        "select",
+        "status",
+        "uuid"
+      ]
+    },
+    {
+      "name": "_BulkApprovalChanges",
+      "owner": "app.presentation.api.v1.routes.passport_routes.bulk_actions_transitions",
+      "whole_post_transition_ast": true,
+      "actual_import_bindings": [
+        "AuditLogModel",
+        "BulkStaffApproveSkippedSubmission",
+        "NamedTuple",
+        "uuid"
+      ]
+    },
+    {
+      "name": "_apply_bulk_staff_approvals",
+      "owner": "app.presentation.api.v1.routes.passport_routes.bulk_actions_transitions",
+      "whole_post_transition_ast": true,
+      "actual_import_bindings": [
+        "AuditLogModel",
+        "BulkStaffApproveSkippedSubmission",
+        "PassportProcessingStatus",
+        "PassportSubmissionModel",
+        "PassportSubmissionRepository",
+        "StaffApprovalOutcome",
+        "UTC",
+        "User",
+        "datetime",
+        "uuid"
+      ]
+    }
+  ],
+  "whole_post_transition_declarations": 6,
+  "actual_import_bindings": 84,
+  "all_four_original_functions_restored_after_seven_statement_transition_expansion": true,
+  "new_private_named_tuple_annotations_resolve_actual_private_owner": true,
+  "two_routes_order_openapi_endpoint_objects_default_dependencies_and_reexports_exact": true,
+  "original_tests_module_bodies_restored": [
+    "backend/tests/unit/presentation/test_bulk_approval_session_fence.py",
+    "backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py",
+    "backend/tests/unit/presentation/test_passport_bulk_delete_route.py",
+    "backend/tests/unit/presentation/test_passport_submission_delete_access.py",
+    "backend/tests/unit/presentation/test_passport_deletion_support.py",
+    "backend/tests/unit/presentation/test_superadmin_access_level.py",
+    "backend/tests/unit/presentation/test_bulk_roster_reference_boundary.py",
+    "backend/tests/unit/presentation/test_passport_export_history_routes.py"
+  ],
+  "original_assertions_retained": 329,
+  "test_helper_only_one_named_facade_entry": true,
+  "unchanged_source_bytes": [
+    "backend/app/presentation/api/v1/routes/passports.py",
+    "backend/app/presentation/api/v1/routes/passport_routes/export_context.py"
+  ],
+  "shared_old_named_logger_actual_alias": true,
+  "runtime_module_proxies_added": false
+}

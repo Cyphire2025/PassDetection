@@ -2,6 +2,8 @@ import { cleanup, render, screen, waitFor, within } from "@testing-library/react
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { useAuthStore } from "@/stores/auth.store";
+import type { User } from "@/types";
 
 import { AppControlsPage } from "./app-controls-page";
 
@@ -14,6 +16,8 @@ vi.mock("./gc-app-agency-scope", () => ({
 const ROOT = "/api/v1/gc-app/admin";
 const COMPANY = { id: "company-1", name: "Example Client", status: "active" };
 const CLIENTS: QueryClient[] = [];
+const initialAuth = useAuthStore.getState();
+const ACTOR_ID = "synthetic-controls-actor";
 
 function group(lifecycle: "active" | "closed", revision?: number) {
   return {
@@ -68,10 +72,14 @@ function addButton(dialog: HTMLElement, name: string) {
   return within(row).getByRole("button", { name: "Add" });
 }
 
-beforeEach(() => vi.resetAllMocks());
+beforeEach(() => {
+  vi.resetAllMocks();
+  useAuthStore.setState({ user: { id: ACTOR_ID, role: "agency_manager", agency_id: "agency-1" } as User });
+});
 afterEach(() => {
   cleanup();
   CLIENTS.splice(0).forEach((client) => client.clear());
+  useAuthStore.setState(initialAuth);
 });
 
 describe("GC App Controls collection-independent group picker", () => {
@@ -140,7 +148,11 @@ describe("GC App Controls collection-independent group picker", () => {
       access_starts_at: null,
       access_expires_at: null,
       expected_revision: null,
-    }, { params: { agency_id: "agency-1" } });
+    }, {
+      expectedOwnerUserId: ACTOR_ID,
+      expectedAuthorityKey: JSON.stringify([ACTOR_ID, "agency_manager", "agency-1"]),
+      params: { agency_id: "agency-1" },
+    });
     expect(http.post).not.toHaveBeenCalled();
     expect(http.delete).not.toHaveBeenCalled();
   });

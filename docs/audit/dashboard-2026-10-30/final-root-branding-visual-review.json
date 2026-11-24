@@ -1,0 +1,37 @@
+{
+  "status": "Root actual six-image visual inspection complete; no material layout defect found",
+  "build_id": "SpoGDo7wxNT9DCsgfUntN",
+  "images": [
+    {
+      "sha256": "7b5dcd8ce115be3d476dea95972b30eef847c45f456e66446779ef9e1cea3b52",
+      "path": "docs/audit/dashboard-2026-10-30/final-retained-frontend-20261101-002/branding-screenshots/group-banner-desktop.png"
+    },
+    {
+      "sha256": "40a077156f5dd1a0a072b26f9d1f93f9007b7eabf490d6a2f394b8f57b5bfbf4",
+      "path": "docs/audit/dashboard-2026-10-30/final-retained-frontend-20261101-002/branding-screenshots/group-banner-mobile.png"
+    },
+    {
+      "sha256": "6990e6567777a8dc975320f94cddbe1adeab80f3b150ac4e492ebbb23082986d",
+      "path": "docs/audit/dashboard-2026-10-30/final-retained-frontend-20261101-002/branding-screenshots/group-background-desktop.png"
+    },
+    {
+      "sha256": "f83a9d3823089496c722f4b6475548f1722fd550310ab9df9a75a11b0b080256",
+      "path": "docs/audit/dashboard-2026-10-30/final-retained-frontend-20261101-002/branding-screenshots/group-background-mobile.png"
+    },
+    {
+      "sha256": "5b8a49d1c791c6f4c5ab34dd34e2b4cbaa56919fd016af2988f3d5f790d476d4",
+      "path": "docs/audit/dashboard-2026-10-30/final-retained-frontend-20261101-002/branding-screenshots/group-background-editor.png"
+    },
+    {
+      "sha256": "6a468e64a2add2ef934b8b6d0a6a7a33d6b4ddd9e9b1e1a89aa9013d4875ac43",
+      "path": "docs/audit/dashboard-2026-10-30/final-retained-frontend-20261101-002/branding-screenshots/group-background-editor-mobile.png"
+    }
+  ],
+  "observations": [
+    "Banner image renders without blur/overlay and transparent heading/status/control surfaces; native keyboard focus outline is visible.",
+    "Narrow banner heading wraps and metrics/controls fit the viewport.",
+    "Fixed background covers the main pane including its top bar while sidebar remains separate; intended cards are transparent and inputs/actions remain usable.",
+    "Desktop/narrow crop previews are bounded, sliders/close labels readable, long editor content scrolls; successful198browser cases separately exercise actual save/cancel/remove/drag."
+  ],
+  "limits": "Synthetic graphics and current screenshots establish layout/controls, not photographic pixel fidelity, actual storage/provider round trips or universal text contrast on arbitrary chosen artwork. No image/source changes made."
+}

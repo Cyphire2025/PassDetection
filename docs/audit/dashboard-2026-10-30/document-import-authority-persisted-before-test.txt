@@ -1,0 +1,72 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+_ test_inflight_import_uses_current_persisted_authority_before_publication[put-sessions_revoked] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000002718FEDBD50>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002718FC1E390>
+test_settings = Settings(app_env='development', app_debug=True, app_version='1.0.0', app_revision='unknown', expected_database_schema_...me='qrcode_v1', whatsapp_otp_template_name='', whatsapp_otp_template_language='en_US', whatsapp_delivery_concurrency=4)
+phase = 'put', transition = 'sessions_revoked'
+
+    @pytest.mark.parametrize("phase,transition", CASES)
+    async def test_inflight_import_uses_current_persisted_authority_before_publication(
+        db_session, monkeypatch, test_settings, phase, transition,
+    ):
+        context = await prepare_authority_import(
+            db_session, monkeypatch, test_settings, transition, phase,
+        )
+        upload = UploadFile(
+            io.BytesIO(context.payload), filename="STF_A1_FRONT.jpg",
+            headers=Headers({"content-type": "image/jpeg"}),
+        )
+    
+        async def invoke():
+            arguments = dict(
+                group_id=context.group_id, files=[upload],
+                current_user=context.actor, session=db_session,
+            )
+            if phase == "put":
+                return await route.save_passport_documents_by_group(
+                    **arguments, background_tasks=BackgroundTasks(),
+                )
+            return await route.preview_passport_documents_by_group(**arguments)
+    
+        task = asyncio.create_task(invoke())
+        try:
+            await asyncio.wait_for(context.barrier.entered.wait(), 3)
+            assert not task.done()
+            await persist_authority_transition(context)
+        finally:
+            context.barrier.release.set()
+            outcome = (await asyncio.wait_for(asyncio.gather(task, return_exceptions=True), 5))[0]
+            await asyncio.wait_for(context.barrier.completed.wait(), 3)
+            await upload.close()
+        rejected = transition in DENIED
+        error_status = outcome.status_code if isinstance(outcome, HTTPException) else None
+        # Keep the subsequent observations separate from any uncommitted failed request.
+        await db_session.rollback()
+        async with context.factory() as fresh:
+            image_key = await fresh.scalar(select(PassportSubmissionModel.image_s3_key).where(
+                PassportSubmissionModel.id == context.passenger_id,
+            ))
+            audits = list(await fresh.scalars(select(AuditLogModel).where(
+                AuditLogModel.action == "passport_documents_bulk_imported",
+                AuditLogModel.entity_id == str(context.group_id),
+            )))
+            cleanups = list(await fresh.scalars(select(StorageCleanupJobModel)))
+            qr = await fresh.get(PassengerQRTokenModel, context.qr_id)
+            jobs = list(await fresh.scalars(select(PassportProcessingJobModel)))
+>       assert error_status == (403 if rejected else None), (
+            repr(outcome), {"image_changed": image_key != context.original_key,
+                            "business_audits": len(audits), "cleanup_jobs": len(cleanups)},
+        )
+E       AssertionError: ("PassportDocumentImportSaveResponse(group_id=UUID('c3dc1f74-5fa6-4a71-bb25-10bbe6f0e05b'), total_count=1, accepted_co...eason=None)], rejected_documents=[], saved_count=1)", {'business_audits': 1, 'cleanup_jobs': 0, 'image_changed': True})
+E       assert None == 403
+
+tests\unit\presentation\test_document_import_authority.py:85: AssertionError
+---------------------------- Captured stdout call -----------------------------
+2026-10-31T17:00:26.342714Z [info     ] all_refresh_tokens_revoked     [app.infrastructure.repositories.refresh_token_repository] user_id=f8d9edb7-704c-4084-bd19-5eb52cd81d74
+------------------------------ Captured log call ------------------------------
+INFO     app.infrastructure.repositories.refresh_token_repository:refresh_token_repository.py:244 {'user_id': 'f8d9edb7-704c-4084-bd19-5eb52cd81d74', 'event': 'all_refresh_tokens_revoked', 'logger': 'app.infrastructure.repositories.refresh_token_repository', 'level': 'info', 'timestamp': '2026-10-31T17:00:26.342714Z'}
+=========================== short test summary info ===========================
+FAILED tests/unit/presentation/test_document_import_authority.py::test_inflight_import_uses_current_persisted_authority_before_publication[put-sessions_revoked]
+1 failed, 19 deselected in 1.01s

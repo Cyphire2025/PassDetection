@@ -1,188 +1,102 @@
-import { expect, test, type Page } from "@playwright/test";
-import { DEFAULT_UPLOAD_CONFIGURATION } from "../features/passports/types/upload-configuration";
-import { expectNoHorizontalOverflow, mockPublicContactOtp, verifyPublicContact } from "./support/public-contact-otp";
-
-const token = "public-contact-otp-e2e";
-const credential = "contact-session-0123456789abcdef0123456789abcdef";
-const group = {
-  id: "contact-group-e2e", name: "Singapore Traveller Details", token,
-  agency_id: "contact-agency-e2e", status: "active", created_at: "2026-09-20T00:00:00Z",
-  destination: "Singapore", travel_date: "2026-11-01", return_date: "2026-11-08", timezone: "Asia/Kolkata",
-  require_selfie: false, allow_files_from_device: true,
-  base_city_enabled: true, nearest_international_airport_enabled: false,
-  staff_code_enabled: false, agent_employee_code_enabled: false, meal_preference_enabled: false,
-  ask_nearest_domestic_airport: false, relation_with_qualifier_enabled: false,
-  designation_enabled: false, agency_dealership_name_enabled: false, departure_cities: [],
-  qualifier_relation_options: [], custom_questions: [],
-  custom_details: [{ id: "additional-reference", label: "Booking reference", enabled: true, required: false }],
-  upload_configuration: { ...DEFAULT_UPLOAD_CONFIGURATION, passport_enabled: false, passport_required: false, required_fields: { base_city: true } },
-};
-
-function draft(id: string, name = "Asha Example") {
-  return {
-    id, group_id: group.id, agency_id: group.agency_id, client_name: name,
-    status: "ready_for_client_review", extraction_status: "ready_for_review",
-    image_s3_key: "", extracted_fields: null, confirmed_fields: null,
-    client_email: null, client_phone: null, custom_answers: [], custom_detail_answers: [],
-    created_at: "2026-09-20T00:00:00Z", updated_at: "2026-09-20T00:00:00Z",
-  };
-}
-
-async function setup(page: Page, { recovery = true, expireProof = false, rejectSecondFamilyProof = false } = {}) {
-  const submissions: Record<string, unknown>[] = [];
-  const submissionIds: string[] = [];
-  const unexpected: string[] = [];
-  const pageErrors: string[] = [];
-  let uploads = 0;
-  let rejectProof = expireProof;
-  page.on("pageerror", error => pageErrors.push(error.message));
-  if (recovery) await page.addInitScript(({ token, credential }) => {
-    sessionStorage.setItem(`gct:upload-recovery:${token}`, JSON.stringify({ version: 1, idempotencyKey: credential, submissionId: "contact-draft-e2e" }));
-  }, { token, credential });
-  await page.route("**/api/v1/**", async route => {
-    const request = route.request();
-    const path = new URL(request.url()).pathname;
-    const json = (body: unknown, status = 200) => route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
-    if (path === "/api/v1/returning/capabilities" && request.method() === "GET") return json({ enabled: false, code_label: null });
-    if (path === `/api/v1/upload-links/token/${token}`) return json(group);
-    if (path.endsWith("/status")) return json(draft("contact-draft-e2e"));
-    if (request.method() === "PUT" && path === `/api/v1/passports/upload/${token}`) return json({ submission_id: null });
-    if (path === `/api/v1/passports/upload/${token}` && request.method() === "POST") {
-      const form = await new Request(request.url(), { method: "POST", headers: request.headers(), body: request.postData() }).formData();
-      return json(draft(`contact-family-${++uploads}`, String(form.get("client_name"))));
-    }
-    if (path.endsWith("/client-submit")) {
-      submissions.push(request.postDataJSON());
-      submissionIds.push(path.split("/").at(-2)!);
-      if (rejectProof || (rejectSecondFamilyProof && submissions.length === 2)) {
-        rejectProof = false;
-        return json({ detail: { code: "CONTACT_VERIFICATION_REQUIRED", field: "phone_verification_id", message: "Verify your WhatsApp number again before submitting." } }, 400);
-      }
-      return json({ ...draft(path.split("/").at(-2)!), status: "submitted" });
-    }
-    if (path.endsWith("/telemetry")) return json({});
-    unexpected.push(`${request.method()} ${path}`);
-    return json({ detail: "Unexpected request in isolated browser test" }, 400);
-  });
-  const otp = await mockPublicContactOtp(page);
-  return { submissions, submissionIds, unexpected, pageErrors, otp, getUploads: () => uploads };
-}
+import { expect, test } from "@playwright/test";
+import { expectNoHorizontalOverflow } from "./support/public-contact-otp";
+import { enterFresh, expectFreshFixtureClean, fillFreshDetails, mockFreshPublicUpload, readFreshResume, verifyFreshContact } from "./support/fresh-public-upload";
 
 for (const viewport of [{ name: "desktop", width: 1440, height: 1000 }, { name: "mobile", width: 390, height: 844 }]) {
-  test(`verified contact opens a separate details step on ${viewport.name}`, async ({ page }, testInfo) => {
+  test(`current private draft requires verified contact before submitting on ${viewport.name}`, async ({ page }, info) => {
     await page.setViewportSize(viewport);
-    const state = await setup(page);
-    await page.goto(`/upload/${token}`);
-    await expect(page.getByRole("textbox", { name: "Email", exact: true })).toBeVisible();
-    await expect(page.getByLabel("Base City", { exact: true })).toHaveCount(0);
-    await expect(page.getByLabel("Booking reference", { exact: true })).toHaveCount(0);
-    await expect(page.getByRole("button", { name: "Send OTP", exact: true })).toHaveCount(0);
-    await page.getByRole("textbox", { name: "Email", exact: true }).fill("asha@example.com");
-    await page.getByRole("textbox", { name: "WhatsApp active number", exact: true }).fill("99000");
-    await expect(page.getByRole("button", { name: "Send OTP", exact: true })).toHaveCount(0);
-    await page.getByRole("textbox", { name: "WhatsApp active number", exact: true }).fill("+91990000123");
-    await expect(page.getByRole("button", { name: "Send OTP", exact: true })).toHaveCount(0);
-    await page.getByRole("textbox", { name: "WhatsApp active number", exact: true }).fill("9900001234");
-    await page.getByRole("button", { name: "Send OTP", exact: true }).click();
-    await expect(page.getByRole("button", { name: /Resend OTP in/ })).toBeDisabled();
-    const code = page.getByRole("textbox", { name: /6-digit.*code|verification code|OTP/i });
-    await code.fill("000000");
-    await page.getByRole("button", { name: /Verify.*continue/i }).click();
+    const state = await mockFreshPublicUpload(page);
+    await enterFresh(page); await fillFreshDetails(page);
+    const send = page.getByRole("button", { name: "Verify WhatsApp number", exact: true });
+    const submit = page.getByRole("button", { name: "Confirm details and submit" });
+    await expect(submit).toBeDisabled();
+    await page.getByLabel("Email", { exact: true }).fill("asha@example.test");
+    await page.getByLabel("WhatsApp number", { exact: true }).fill("99000");
+    await expect(send).toBeDisabled();
+    await page.getByLabel("WhatsApp number", { exact: true }).fill("9900001234");
+    await send.click();
+    await expect(page.getByRole("button", { name: /^Resend in/ })).toBeDisabled();
+    await page.getByLabel("Verification code", { exact: true }).fill("000000");
+    await page.getByRole("button", { name: "Confirm code", exact: true }).click();
     await expect(page.getByRole("alert").filter({ hasText: "Invalid or expired" })).toBeVisible();
-    await expect(page.getByLabel("Base City", { exact: true })).toHaveCount(0);
+    await expect(submit).toBeDisabled();
+    await expect(page.getByLabel("Base City", { exact: true })).toHaveValue("Mumbai");
+    await page.getByLabel("Verification code", { exact: true }).fill("123456");
+    await page.getByRole("button", { name: "Confirm code", exact: true }).click();
+    await expect(page.getByText("WhatsApp number verified", { exact: true })).toBeVisible();
     await expectNoHorizontalOverflow(page);
-    await page.screenshot({ path: testInfo.outputPath(`contact-${viewport.name}.png`), fullPage: true });
-    await code.fill("123456");
-    await page.getByRole("button", { name: /Verify.*continue/i }).click();
-    await expect(page.getByLabel("Base City", { exact: true })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Send OTP", exact: true })).toHaveCount(0);
-    await expect(page.getByRole("textbox", { name: "Email", exact: true })).toHaveCount(0);
-    await page.getByLabel("Base City", { exact: true }).fill("Mumbai");
-    await page.getByLabel("Booking reference", { exact: true }).fill("BOOK-123");
-    await expectNoHorizontalOverflow(page);
-    await page.screenshot({ path: testInfo.outputPath(`details-${viewport.name}.png`), fullPage: true });
-    await page.getByRole("button", { name: "Submit Traveller Details", exact: true }).click();
-    await expect(page.getByRole("heading", { name: "Details Submitted" })).toBeVisible();
-    expect(state.submissions).toHaveLength(1);
-    expect(state.submissions[0]).toMatchObject({ client_email: "asha@example.com", base_city: "Mumbai", phone_verification_id: expect.any(String) });
-    expect(state.otp.requests.every(request => request.credential === credential)).toBe(true);
-    expect(state.getUploads()).toBe(0);
-    expect(state.unexpected).toEqual([]);
-    expect(state.pageErrors).toEqual([]);
+    await page.screenshot({ path: info.outputPath(`current-contact-${viewport.name}.png`), fullPage: true });
+    await submit.click();
+    await expect(page.getByRole("heading", { name: "You’re all set" })).toBeVisible();
+    expect(state.completions).toHaveLength(1);
+    expect([...state.drafts.values()][0].current_details).toMatchObject({ client_email: "asha@example.test", base_city: "Mumbai" });
+    expect(state.contacts.every(request => request.member === state.starts[0])).toBe(true);
+    expect(state.uploads).toEqual([]); expectFreshFixtureClean(state);
   });
 }
 
-test("failed OTP delivery keeps details hidden and can be retried", async ({ page }) => {
-  const state = await setup(page);
-  state.otp.setDeliveryFailure(true);
-  await page.goto(`/upload/${token}`);
-  await page.getByRole("textbox", { name: "Email", exact: true }).fill("asha@example.com");
-  await page.getByRole("textbox", { name: "WhatsApp active number", exact: true }).fill("9900001234");
-  await page.getByRole("button", { name: "Send OTP", exact: true }).click();
+test("failed OTP delivery preserves private details, blocks completion and can be retried", async ({ page }) => {
+  const state = await mockFreshPublicUpload(page); state.faults.delivery = true;
+  await enterFresh(page); await fillFreshDetails(page);
+  await page.getByLabel("Email", { exact: true }).fill("asha@example.test");
+  await page.getByLabel("WhatsApp number", { exact: true }).fill("9900001234");
+  await page.getByRole("button", { name: "Verify WhatsApp number", exact: true }).click();
   await expect(page.getByRole("alert").filter({ hasText: "temporarily unavailable" })).toBeVisible();
-  await expect(page.getByLabel("Base City", { exact: true })).toHaveCount(0);
-  state.otp.setDeliveryFailure(false);
-  await verifyPublicContact(page);
-  await expect(page.getByLabel("Base City", { exact: true })).toBeVisible();
-  expect(state.submissions).toHaveLength(0);
+  await expect(page.getByRole("button", { name: "Confirm details and submit" })).toBeDisabled();
+  await expect(page.getByLabel("Booking reference", { exact: true })).toHaveValue("PRIVATE-BOOKING");
+  expect(state.completionAttempts).toEqual([]);
+  state.faults.delivery = false; await verifyFreshContact(page);
+  await page.getByRole("button", { name: "Confirm details and submit" }).click();
+  await expect(page.getByRole("heading", { name: "You’re all set" })).toBeVisible();
+  expect(state.contacts.filter(request => request.kind === "request")).toHaveLength(2);
+  expect(state.completions).toHaveLength(1); expectFreshFixtureClean(state);
 });
 
-test("family contacts are verified separately and a partial retry skips the completed member", async ({ page }) => {
+test("family contact retry preserves the completed head and only retries the second member", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  const state = await setup(page, { recovery: false, rejectSecondFamilyProof: true });
-  await page.goto(`/upload/${token}`);
-  await page.getByRole("button", { name: /Family/ }).click();
-  await page.getByPlaceholder("Full name", { exact: true }).nth(0).fill("Asha Example");
-  await page.getByPlaceholder("Full name", { exact: true }).nth(1).fill("Rahul Example");
-  await page.getByRole("combobox", { name: "Gender", exact: true }).nth(0).selectOption("Female");
-  await page.getByRole("combobox", { name: "Gender", exact: true }).nth(1).selectOption("Male");
-  await page.getByRole("combobox", { name: "Relation", exact: true }).nth(1).selectOption("Spouse");
-  await page.getByRole("button", { name: "Continue to Documents", exact: true }).click();
-  await page.getByRole("button", { name: "Continue to your details", exact: true }).click();
-  await expect.poll(state.getUploads).toBe(1);
-  await page.getByRole("button", { name: "Continue to your details", exact: true }).click();
-  await expect(page.getByText("Family member 1 of 2", { exact: true })).toBeVisible();
-  await expect(page.getByLabel("Base City", { exact: true })).toHaveCount(0);
-  await verifyPublicContact(page, "asha@example.com");
+  const state = await mockFreshPublicUpload(page);
+  await enterFresh(page, true); await fillFreshDetails(page, { family: true, head: true });
+  await verifyFreshContact(page); await page.getByRole("button", { name: "Confirm details and submit" }).click();
   await expect(page.getByText("Family member 2 of 2", { exact: true })).toBeVisible();
-  await expect(page.getByLabel("Base City", { exact: true })).toHaveCount(0);
-  await verifyPublicContact(page, "rahul@example.com");
-  await expect(page.getByRole("heading", { name: "Review Family Details" })).toBeVisible();
-  await page.getByLabel("Base City", { exact: true }).nth(0).fill("Mumbai");
-  await page.getByLabel("Base City", { exact: true }).nth(1).fill("Delhi");
-  await expectNoHorizontalOverflow(page);
-  await page.getByRole("button", { name: "Submit Family Details", exact: true }).click();
-  await expect(page.getByText("Family member 2 of 2", { exact: true })).toBeVisible();
-  await verifyPublicContact(page, "rahul@example.com");
-  await expect(page.getByRole("heading", { name: "Review Family Details" })).toBeVisible();
-  await expect(page.getByLabel("Base City", { exact: true }).nth(0)).toBeDisabled();
-  await expect(page.getByLabel("Base City", { exact: true }).nth(1)).toHaveValue("Delhi");
-  await page.getByRole("button", { name: "Submit Family Details", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Details Submitted" })).toBeVisible();
-  expect(state.submissionIds).toEqual(["contact-family-1", "contact-family-2", "contact-family-2"]);
-  expect(state.submissions[2]).toMatchObject({ client_email: "rahul@example.com", family_head_email: "asha@example.com", base_city: "Delhi" });
-  const sendRequests = state.otp.requests.filter(request => request.path.endsWith("/request"));
-  expect(sendRequests).toHaveLength(3);
-  expect(sendRequests[0].credential).not.toBe(sendRequests[1].credential);
-  expect(sendRequests[1].credential).toBe(sendRequests[2].credential);
-  expect(state.pageErrors).toEqual([]);
-  expect(state.unexpected).toEqual([]);
+  await fillFreshDetails(page, { name: "Rahul Example", city: "Delhi", reference: "SECOND-PRIVATE", family: true });
+  await verifyFreshContact(page, "rahul@example.test");
+  const beforeRetry = await readFreshResume(page);
+  state.faults.rejectProofOnce = true;
+  await page.getByRole("button", { name: "Confirm details and submit" }).click();
+  await expect(page.getByRole("alert").filter({ hasText: "Verify your WhatsApp number again" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Verify WhatsApp number", exact: true })).toBeVisible();
+  await expect(page.getByLabel("Base City", { exact: true })).toHaveValue("Delhi");
+  expect((await readFreshResume(page)).fresh).toEqual(beforeRetry.fresh);
+  expect(beforeRetry.fresh.members[0].completed).toBe(true);
+  await verifyFreshContact(page, "rahul@example.test");
+  await page.getByRole("button", { name: "Confirm details and submit" }).click();
+  await expect(page.getByRole("heading", { name: "You’re all set" })).toBeVisible();
+  expect(state.completionAttempts.map(request => request.member)).toEqual([state.completions[0], state.completions[1], state.completions[1]]);
+  expect(state.completions).toHaveLength(2);
+  const requests = state.contacts.filter(request => request.kind === "request");
+  expect(requests).toHaveLength(3); expect(requests[0].member).not.toBe(requests[1].member); expect(requests[1].member).toBe(requests[2].member);
+  const second = state.drafts.get(state.completions[1])!;
+  expect(second.current_details).toMatchObject({ client_email: "rahul@example.test", base_city: "Delhi" });
+  expect(second.collection).toMatchObject({ family_head_name: "Asha Example", family_head_email: "asha@example.test" });
+  await expectNoHorizontalOverflow(page); expectFreshFixtureClean(state);
 });
 
-test("expired proof returns to contact verification without losing entered details", async ({ page }) => {
-  const state = await setup(page, { expireProof: true });
-  await page.goto(`/upload/${token}`);
-  await verifyPublicContact(page);
-  await page.getByLabel("Base City", { exact: true }).fill("Mumbai");
-  await page.getByLabel("Booking reference", { exact: true }).fill("PRESERVED-123");
-  await page.getByRole("button", { name: "Submit Traveller Details", exact: true }).click();
-  await expect(page.getByRole("textbox", { name: "Email", exact: true })).toBeVisible();
-  await expect(page.getByLabel("Base City", { exact: true })).toHaveCount(0);
-  await verifyPublicContact(page);
+test("server-expired contact proof permits re-verification without losing private details", async ({ page }) => {
+  const state = await mockFreshPublicUpload(page);
+  await enterFresh(page); await fillFreshDetails(page, { reference: "PRESERVED-123" }); await verifyFreshContact(page);
+  const member = state.starts[0], before = await readFreshResume(page);
+  state.faults.rejectProofOnce = true;
+  await page.getByRole("button", { name: "Confirm details and submit" }).click();
+  await expect(page.getByRole("alert").filter({ hasText: "Verify your WhatsApp number again" })).toBeVisible();
+  await expect(page.getByText("WhatsApp number verified", { exact: true })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Confirm details and submit" })).toBeDisabled();
   await expect(page.getByLabel("Base City", { exact: true })).toHaveValue("Mumbai");
   await expect(page.getByLabel("Booking reference", { exact: true })).toHaveValue("PRESERVED-123");
-  await page.getByRole("button", { name: "Submit Traveller Details", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Details Submitted" })).toBeVisible();
-  expect(state.submissions).toHaveLength(2);
-  expect(state.submissions[0].phone_verification_id).not.toBe(state.submissions[1].phone_verification_id);
+  await verifyFreshContact(page); await page.getByRole("button", { name: "Confirm details and submit" }).click();
+  await expect(page.getByRole("heading", { name: "You’re all set" })).toBeVisible();
+  expect(state.completions).toEqual([member]); expect(state.completionAttempts).toHaveLength(2);
+  // The backend rotates a proof in the same row; successful re-verification need not change its ID.
+  expect(state.contacts.filter(request => request.kind === "verify")).toHaveLength(2);
+  expect(state.completionAttempts[0].body.idempotency_key).toBe(state.completionAttempts[1].body.idempotency_key);
+  expect(before.fresh.members[0].sessionId).toBe(member); expectFreshFixtureClean(state);
 });

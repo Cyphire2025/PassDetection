@@ -1,0 +1,29 @@
+{
+  "basis": "Formatting only; exact emitted JS/JSX AST across each current owner.",
+  "files": [
+    {
+      "path": "frontend/features/settings/components/whatsapp-template-settings-panel.tsx",
+      "before_sha256": "207b63efe476f8af43103bffd0c7a860f4feb212510a076b7191f8d2405bfd1e",
+      "after_sha256": "9fa5bf0b8bea481657bcd4ef268f1fb3734f258c521d5722ae21978cfe103b92",
+      "emitted_JS_AST_sha256": "525f36d8f93400ef11365bc23ccf8fa88fe2116e312dfeb5e2009543e5f4ded8"
+    },
+    {
+      "path": "frontend/features/settings/components/whatsapp-template-name-field.tsx",
+      "before_sha256": "70cdde82af91ff47ab6489ccd61dc0fd8eeb90b6e02c4adf0fffbde0de60dd58",
+      "after_sha256": "4c14d5d77655dd5b764ec4955dd2d6ec8d27620a42f80b6fc664192aac247045",
+      "emitted_JS_AST_sha256": "20680afd2167c47128b42691855072c55d211076491259b89369bb967cdfac9c"
+    },
+    {
+      "path": "frontend/features/settings/components/whatsapp-template-save-feedback.tsx",
+      "before_sha256": "fdbeafdaac84d08d1d5869e28a4100aa7ff446a3be7971daa3b3e93c6ff30cbe",
+      "after_sha256": "c63c8cac47cebb6dc95265a1d082770ff6b1fe498819915397f7b1f8d37608a6",
+      "emitted_JS_AST_sha256": "0bbbfe548934159af547b0186170b486044a22e84b12369bf8084a6fa556f512"
+    },
+    {
+      "path": "frontend/features/settings/hooks/use-whatsapp-template-settings.ts",
+      "before_sha256": "72d4bcde097232118cd681d29fa63abf842bc95c0f6a77ed93302d0da02c7f3c",
+      "after_sha256": "924aecb6dcabe774768a69e632920e335b33616e081e73d7951fab9398f103a3",
+      "emitted_JS_AST_sha256": "c58c82f893ac2cc07508bf8d5e793152351dda7e8877815a14f1919837104374"
+    }
+  ]
+}

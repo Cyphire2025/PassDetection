@@ -1,0 +1,23 @@
+[
+  {
+    "id": "image-crash-reconciliation",
+    "status": "open",
+    "scope": "Owned private objects and indeterminate commits",
+    "evidence": "Precommit best-effort delete and safe retention after any commit attempt are qualified; storage outage/process death may leave unreferenced private objects.",
+    "next": "Trace actual cleanup namespaces and authoritative references, reproduce missed cleanup, and add durable replay without deleting uncertain committed references."
+  },
+  {
+    "id": "sibling-image-mutation-boundaries",
+    "status": "open",
+    "scope": "passport_routes/images.py and visa AI image routes",
+    "evidence": "Shared read wrapper deliberately unchanged. Initial audit locking, native lifetimes, commit acknowledgement and post-provider current authority need separate complete source/caller checks.",
+    "next": "Review each mutating sibling and real regressions before reusing this batch helpers. No live PostgreSQL lock-cycle claim."
+  },
+  {
+    "id": "image-native-render-lifetime",
+    "status": "open",
+    "scope": "Read-only native crop rendering",
+    "evidence": "This batch drains native storage writes. Cancellation of CPU-only render threads was not changed or capacity-qualified.",
+    "next": "Trace actual rendering admission and measure an isolated representative cancellation/capacity workload before changing resource ownership."
+  }
+]

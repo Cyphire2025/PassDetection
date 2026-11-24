@@ -1,0 +1,21 @@
+{
+  "status": "both-personal-skills-structurally-valid",
+  "changes": "Canonical authentication fixtures, preserve deeper resume obligations, explicit UTF8/exactbytes, requiredWindows systempath environment, exactgeneratedcache reconciliation, tracedscroll/menu synchronization and pointer/keyboardcontrols. No permission/scanner/newbroadtest gate added.",
+  "skills": [
+    {
+      "skill": "review-and-improve-codebase",
+      "before_sha256": "02c1b4ee15281e59cfcb0effea273ff19d9505a5bf66ac683400a0ebb1d6dbf6",
+      "after_sha256": "a5bf7b7af4043e8f490f832e6bc844b9b9c31798f0772d911dfc6e8c21f7e6ae",
+      "bundled_quick_validate": "passed",
+      "app_source_changed": false
+    },
+    {
+      "skill": "polish-existing-dashboard",
+      "before_sha256": "823be8e3beb7acdc115d51052c81a9adb723fe0febe385a72f10103e7c6b7ee4",
+      "after_sha256": "be35e82c440b9bec39115bed7d5ff06a6876a55d4f7793c38065e500a3d42412",
+      "bundled_quick_validate": "passed",
+      "app_source_changed": false
+    }
+  ],
+  "limits": "Structural validity only; no app/test/build run for this guidance change."
+}

@@ -1,7 +1,11 @@
+import { readAttendanceQueueSource } from "../services/attendance-queue-source.contract-helper.mjs";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import test from "node:test";
+import { readOperationsHooksSource } from "../../operations/hooks/operations-source.contract-helper.mjs";
+import { readOperationsApiSource } from "../../operations/api/operations-api-source.contract-helper.mjs";
+import { readOfflineRuntimeSource } from "../services/offline-runtime-source.contract-helper.mjs";
 
 const read = (relativePath) => readFileSync(new URL(relativePath, import.meta.url), "utf8");
 const readBytes = (relativePath) => readFileSync(new URL(relativePath, import.meta.url));
@@ -16,7 +20,7 @@ const globalDrain = read("./coordinator-offline-scan-drain.tsx");
 const coordinatorLayout = read("../../../app/coordinator/layout.tsx");
 const dashboardLayout = read("../../../app/(dashboard)/layout.tsx");
 const globalCss = read("../../../app/globals.css");
-const queue = read("../services/attendance-scan-queue.ts");
+const queue = readAttendanceQueueSource();
 const batchPolicy = read("../services/attendance-batch-policy.ts");
 const offlineAuthorization = read("../services/browser-offline-authorization.ts");
 const offlineCrypto = read("../services/browser-offline-crypto.ts");
@@ -25,15 +29,16 @@ const offlineSnapshot = read("../services/offline-snapshot.ts");
 const progress = read("../services/attendance-session-progress.ts");
 const closeoutCheckpoint = read("../services/attendance-closeout-checkpoint.ts");
 const closeoutReporting = read("../hooks/use-attendance-closeout-reporting.ts");
-const operationsHooks = read("../../operations/hooks/use-operations.ts");
-const operationsApi = read("../../operations/api/operations.api.ts");
+const operationsHooks = readOperationsHooksSource();
+const operationsApi = readOperationsApiSource();
 const dashboardRealtimeBridge = read("../../operations/components/dashboard-realtime-attendance-bridge.tsx");
 const dashboardRealtimeProtocol = read("../../operations/services/dashboard-realtime.ts");
 const scannerHook = read("../hooks/use-continuous-qr-scanner.ts");
 const apiEndpoints = read("../../../lib/api/endpoints.ts");
 const publicUrl = read("../../../lib/utils/public-url.ts");
 const offlinePage = read("../../../public/offline.html");
-const offlineScanner = read("../../../public/offline-scanner.js");
+const offlineScanner = readOfflineRuntimeSource();
+const offlineScannerArtifact = read("../../../public/offline-scanner.js");
 const serviceWorker = read("../../../public/sw.js");
 const zxingLicense = read("../../../public/offline/vendor/zxing-browser.LICENSE.txt");
 const zxingVendor = readBytes("../../../public/offline/vendor/zxing-browser.min.js");
@@ -406,14 +411,14 @@ test("cold-offline coordinator shell queues only owner-scoped attendance scans",
       && reconnectPipeline > reconnectHandler
       && reconnectRedirect > reconnectPipeline,
   );
-  assert.match(offlineScanner, /readCurrentOwner\(\) !== ownerUserId/);
+  assert.match(offlineScanner, /readCurrentOwner\(\) !== state\.ownerUserId/);
   assert.match(offlineScanner, /window\.location\.replace\(coordinatorUrl\)/);
   assert.match(globalDrain, /syncAttendanceDiscardTombstones/);
   assert.match(globalDrain, /Promise\.allSettled/);
 });
 
 test("service worker caches only the exact public offline runtime and safely re-warms it", () => {
-  assert.match(serviceWorker, /passdetection-public-static-v10/);
+  assert.match(serviceWorker, /passdetection-public-static-v12/);
   assert.match(
     serviceWorker,
     /const PUBLIC_STATIC_ASSETS = \[\s*"\/offline\.html",\s*"\/offline-scanner\.js",\s*"\/offline\/vendor\/zxing-browser\.min\.js",\s*\]/,
@@ -439,7 +444,7 @@ test("service worker caches only the exact public offline runtime and safely re-
 
 test("offline QR decoder is the pinned MIT-licensed @zxing/browser distribution", () => {
   assert.match(zxingLicense, /MIT License/);
-  assert.match(offlineScanner, /@zxing\/browser 0\.2\.0 UMD distribution/);
+  assert.match(offlineScannerArtifact, /@zxing\/browser 0\.2\.0 UMD distribution/);
   assert.equal(
     createHash("sha256").update(zxingVendor).digest("hex"),
     "066bc34edfcdd4a33f0964aeec967752a0dea1ccaf36e58e319ac9fcb5070f6a",

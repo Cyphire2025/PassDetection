@@ -1,0 +1,590 @@
+{
+  "actual_imported_global_identity_checks": [
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_gmail",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_gmail.authorize_gmail",
+      "binding": "begin_provider_authorization",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_gmail",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_gmail.gmail_oauth_callback",
+      "binding": "get_settings",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_gmail",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_gmail.gmail_oauth_callback",
+      "binding": "RedirectResponse",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_gmail",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_gmail.gmail_oauth_callback",
+      "binding": "_oauth_return_url",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_gmail",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_gmail.gmail_oauth_callback",
+      "binding": "hash_oauth_state",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_gmail",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_gmail.gmail_oauth_callback",
+      "binding": "select",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_gmail",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_gmail.gmail_oauth_callback",
+      "binding": "EmailOAuthStateModel",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_gmail",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_gmail.gmail_oauth_callback",
+      "binding": "undefer",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_gmail",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_gmail.gmail_oauth_callback",
+      "binding": "datetime",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_gmail",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_gmail.gmail_oauth_callback",
+      "binding": "UTC",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_gmail",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_gmail.gmail_oauth_callback",
+      "binding": "verify_oauth_browser_binding",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_gmail",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_gmail.gmail_oauth_callback",
+      "binding": "OAuthBindingSnapshot",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_gmail",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_gmail.gmail_oauth_callback",
+      "binding": "GmailEmailProvider",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_gmail",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_gmail.gmail_oauth_callback",
+      "binding": "EmailTokenCipher",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_gmail",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_gmail.gmail_oauth_callback",
+      "binding": "EncryptedToken",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_gmail",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_gmail.gmail_oauth_callback",
+      "binding": "EmailProviderError",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_gmail",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_gmail.gmail_oauth_callback",
+      "binding": "TokenEncryptionError",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_gmail",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_gmail.gmail_oauth_callback",
+      "binding": "logger",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_gmail",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_gmail.gmail_oauth_callback",
+      "binding": "revalidate_oauth_actor_for_persistence",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_gmail",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_gmail.gmail_oauth_callback",
+      "binding": "_owned_connection",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_gmail",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_gmail.gmail_oauth_callback",
+      "binding": "EmailConnectionModel",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_gmail",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_gmail.gmail_oauth_callback",
+      "binding": "_require_provider_account_owner",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_gmail",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_gmail.gmail_oauth_callback",
+      "binding": "AuditLogRepository",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_gmail",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_gmail.gmail_oauth_callback",
+      "binding": "IntegrityError",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_gmail",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_gmail.gmail_oauth_callback",
+      "binding": "HTTPException",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_gmail",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_gmail.gmail_oauth_callback",
+      "binding": "_enqueue_connection_sync",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_gmail",
+      "current_consumer": "app.presentation.api.v1.routes.email_oauth_actor._oauth_actor_is_authorized",
+      "binding": "select",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_gmail",
+      "current_consumer": "app.presentation.api.v1.routes.email_oauth_actor._oauth_actor_is_authorized",
+      "binding": "UserModel",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_gmail",
+      "current_consumer": "app.presentation.api.v1.routes.email_oauth_actor._oauth_actor_is_authorized",
+      "binding": "AgencyModel",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_gmail",
+      "current_consumer": "app.presentation.api.v1.routes.email_oauth_actor._oauth_actor_is_authorized",
+      "binding": "or_",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_gmail",
+      "current_consumer": "app.presentation.api.v1.routes.email_oauth_actor._oauth_actor_is_authorized",
+      "binding": "UserRole",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_gmail",
+      "current_consumer": "app.presentation.api.v1.routes.email_oauth_grant._new_oauth_connection",
+      "binding": "EmailConnectionModel",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_gmail",
+      "current_consumer": "app.presentation.api.v1.routes.email_oauth_grant._new_oauth_connection",
+      "binding": "uuid",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_outlook",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_outlook.authorize_outlook",
+      "binding": "begin_provider_authorization",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_outlook",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_outlook.outlook_oauth_callback",
+      "binding": "get_settings",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_outlook",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_outlook.outlook_oauth_callback",
+      "binding": "RedirectResponse",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_outlook",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_outlook.outlook_oauth_callback",
+      "binding": "_oauth_return_url",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_outlook",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_outlook.outlook_oauth_callback",
+      "binding": "hash_oauth_state",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_outlook",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_outlook.outlook_oauth_callback",
+      "binding": "select",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_outlook",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_outlook.outlook_oauth_callback",
+      "binding": "EmailOAuthStateModel",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_outlook",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_outlook.outlook_oauth_callback",
+      "binding": "undefer",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_outlook",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_outlook.outlook_oauth_callback",
+      "binding": "datetime",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_outlook",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_outlook.outlook_oauth_callback",
+      "binding": "UTC",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_outlook",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_outlook.outlook_oauth_callback",
+      "binding": "verify_oauth_browser_binding",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_outlook",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_outlook.outlook_oauth_callback",
+      "binding": "OAuthBindingSnapshot",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_outlook",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_outlook.outlook_oauth_callback",
+      "binding": "_provider_configured",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_outlook",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_outlook.outlook_oauth_callback",
+      "binding": "OutlookEmailProvider",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_outlook",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_outlook.outlook_oauth_callback",
+      "binding": "EmailTokenCipher",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_outlook",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_outlook.outlook_oauth_callback",
+      "binding": "EncryptedToken",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_outlook",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_outlook.outlook_oauth_callback",
+      "binding": "EmailProviderError",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_outlook",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_outlook.outlook_oauth_callback",
+      "binding": "TokenEncryptionError",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_outlook",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_outlook.outlook_oauth_callback",
+      "binding": "logger",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_outlook",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_outlook.outlook_oauth_callback",
+      "binding": "revalidate_oauth_actor_for_persistence",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_outlook",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_outlook.outlook_oauth_callback",
+      "binding": "_owned_connection",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_outlook",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_outlook.outlook_oauth_callback",
+      "binding": "EmailConnectionModel",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_outlook",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_outlook.outlook_oauth_callback",
+      "binding": "_require_provider_account_owner",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_outlook",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_outlook.outlook_oauth_callback",
+      "binding": "AuditLogRepository",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_outlook",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_outlook.outlook_oauth_callback",
+      "binding": "IntegrityError",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_outlook",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_outlook.outlook_oauth_callback",
+      "binding": "HTTPException",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_outlook",
+      "current_consumer": "app.presentation.api.v1.routes.email_integration_outlook.outlook_oauth_callback",
+      "binding": "_enqueue_connection_sync",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_outlook",
+      "current_consumer": "app.presentation.api.v1.routes.email_oauth_actor._oauth_actor_is_authorized",
+      "binding": "select",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_outlook",
+      "current_consumer": "app.presentation.api.v1.routes.email_oauth_actor._oauth_actor_is_authorized",
+      "binding": "UserModel",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_outlook",
+      "current_consumer": "app.presentation.api.v1.routes.email_oauth_actor._oauth_actor_is_authorized",
+      "binding": "AgencyModel",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_outlook",
+      "current_consumer": "app.presentation.api.v1.routes.email_oauth_actor._oauth_actor_is_authorized",
+      "binding": "or_",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_outlook",
+      "current_consumer": "app.presentation.api.v1.routes.email_oauth_actor._oauth_actor_is_authorized",
+      "binding": "UserRole",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_outlook",
+      "current_consumer": "app.presentation.api.v1.routes.email_oauth_grant._new_oauth_connection",
+      "binding": "EmailConnectionModel",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.presentation.api.v1.routes.email_integration_outlook",
+      "current_consumer": "app.presentation.api.v1.routes.email_oauth_grant._new_oauth_connection",
+      "binding": "uuid",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.infrastructure.email.account_removal",
+      "current_consumer": "app.infrastructure.email.account_removal.purge_email_connection_records",
+      "binding": "EmailAccountRemovalResult",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.infrastructure.email.account_removal",
+      "current_consumer": "app.infrastructure.email.account_removal_plan._collect_email_account_removal_plan",
+      "binding": "select",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.infrastructure.email.account_removal",
+      "current_consumer": "app.infrastructure.email.account_removal_plan._collect_email_account_removal_plan",
+      "binding": "EmailMessageModel",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.infrastructure.email.account_removal",
+      "current_consumer": "app.infrastructure.email.account_removal_plan._collect_email_account_removal_plan",
+      "binding": "EmailArtifactModel",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.infrastructure.email.account_removal",
+      "current_consumer": "app.infrastructure.email.account_removal_plan._collect_email_account_removal_plan",
+      "binding": "EmailReviewItemModel",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.infrastructure.email.account_removal",
+      "current_consumer": "app.infrastructure.email.account_removal_plan._collect_email_account_removal_plan",
+      "binding": "EmailAiAnalysisModel",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.infrastructure.email.account_removal",
+      "current_consumer": "app.infrastructure.email.account_removal_plan._collect_email_account_removal_plan",
+      "binding": "EmailArtifactDocumentModel",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.infrastructure.email.account_removal",
+      "current_consumer": "app.infrastructure.email.account_removal_plan._collect_email_account_removal_plan",
+      "binding": "DistributedDocumentModel",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.infrastructure.email.account_removal",
+      "current_consumer": "app.infrastructure.email.account_removal_records._delete_email_account_records",
+      "binding": "delete",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.infrastructure.email.account_removal",
+      "current_consumer": "app.infrastructure.email.account_removal_records._delete_email_account_records",
+      "binding": "NotificationModel",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.infrastructure.email.account_removal",
+      "current_consumer": "app.infrastructure.email.account_removal_records._delete_email_account_records",
+      "binding": "EmailAiFeedbackModel",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.infrastructure.email.account_removal",
+      "current_consumer": "app.infrastructure.email.account_removal_records._delete_email_account_records",
+      "binding": "EmailReplyDraftModel",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.infrastructure.email.account_removal",
+      "current_consumer": "app.infrastructure.email.account_removal_records._delete_email_account_records",
+      "binding": "EmailActionProposalModel",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.infrastructure.email.account_removal",
+      "current_consumer": "app.infrastructure.email.account_removal_records._delete_email_account_records",
+      "binding": "EmailDetectedDeadlineModel",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.infrastructure.email.account_removal",
+      "current_consumer": "app.infrastructure.email.account_removal_records._delete_email_account_records",
+      "binding": "EmailAiAnalysisModel",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.infrastructure.email.account_removal",
+      "current_consumer": "app.infrastructure.email.account_removal_records._delete_email_account_records",
+      "binding": "EmailActivityEventModel",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.infrastructure.email.account_removal",
+      "current_consumer": "app.infrastructure.email.account_removal_records._delete_email_account_records",
+      "binding": "EmailReviewItemModel",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.infrastructure.email.account_removal",
+      "current_consumer": "app.infrastructure.email.account_removal_records._delete_email_account_records",
+      "binding": "EmailArtifactDocumentModel",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.infrastructure.email.account_removal",
+      "current_consumer": "app.infrastructure.email.account_removal_records._delete_email_account_records",
+      "binding": "update",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.infrastructure.email.account_removal",
+      "current_consumer": "app.infrastructure.email.account_removal_records._delete_email_account_records",
+      "binding": "EmailArtifactModel",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.infrastructure.email.account_removal",
+      "current_consumer": "app.infrastructure.email.account_removal_records._delete_email_account_records",
+      "binding": "EmailMessageModel",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.infrastructure.email.account_removal",
+      "current_consumer": "app.infrastructure.email.account_removal_records._delete_email_account_records",
+      "binding": "EmailOAuthStateModel",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.infrastructure.email.account_removal",
+      "current_consumer": "app.infrastructure.email.account_removal_records._delete_email_account_records",
+      "binding": "EmailAiRolloutPolicyModel",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.infrastructure.email.account_removal",
+      "current_consumer": "app.infrastructure.email.account_removal_records._delete_email_account_records",
+      "binding": "DocumentWhatsAppDeliveryModel",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.infrastructure.email.account_removal",
+      "current_consumer": "app.infrastructure.email.account_removal_records._delete_email_account_records",
+      "binding": "DistributedDocumentModel",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.infrastructure.email.account_removal",
+      "current_consumer": "app.infrastructure.email.account_removal_records._delete_email_account_records",
+      "binding": "select",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.infrastructure.email.account_removal",
+      "current_consumer": "app.infrastructure.email.account_removal_records._delete_email_account_records",
+      "binding": "DocumentDistributionBatchModel",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.infrastructure.email.account_removal",
+      "current_consumer": "app.infrastructure.email.account_removal_storage._unreferenced_email_storage_keys",
+      "binding": "select",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.infrastructure.email.account_removal",
+      "current_consumer": "app.infrastructure.email.account_removal_storage._unreferenced_email_storage_keys",
+      "binding": "EmailArtifactModel",
+      "actual_object_identity_exact": true
+    },
+    {
+      "original_module": "app.infrastructure.email.account_removal",
+      "current_consumer": "app.infrastructure.email.account_removal_storage._unreferenced_email_storage_keys",
+      "binding": "DistributedDocumentModel",
+      "actual_object_identity_exact": true
+    }
+  ],
+  "nine_actual_shared_helper_call_bindings_identity": true,
+  "legacy_result_class_getsource_getfile_and_complete_AST_preserved": true,
+  "private_plan_counts_are_purpose_specific_frozen_data": true,
+  "seams_scope": "Real provider constructors, cipher factory, browser/final actor verification, owned connection loader, provider-account owner check, audit, queue and redirect remain in each public callback and existing tests remain byte-identical. No claim that arbitrary replacement of incidental module globals dynamically forwards into focused helpers."
+}

@@ -1,0 +1,159 @@
+[
+  {
+    "path": "backend/app/application/use_cases/passports/process_passport_submission_job_use_case.py",
+    "sha256": "655c14af28798166c623a660f68c758e2a8521847c54d4b01cbab60c4586eeae",
+    "reviewer": "qualification_plan",
+    "review_scope": "full",
+    "status": "reviewed",
+    "inherited_exact_before_full_read": {
+      "source_sha256": "998192ee86644c66578b549b637aa622264e97179ecba66b7fd2a3227260c4c5",
+      "prior_records": [
+        {
+          "ledger": "ai-runtime-reviewed-files.json",
+          "ledger_sha256": "bfc23be23c3668d3262dad0347dae4d54acd9178330a09dd8b1e4cb0ad031f99",
+          "record": {
+            "path": "backend/app/application/use_cases/passports/process_passport_submission_job_use_case.py",
+            "sha256": "998192ee86644c66578b549b637aa622264e97179ecba66b7fd2a3227260c4c5",
+            "lines": 590,
+            "review_status": "full",
+            "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+          },
+          "review_scope": "full"
+        },
+        {
+          "ledger": "retained-processing-admin-source-reviewed-files.json",
+          "ledger_sha256": "48c2c3d51fa9e4477cb6955c221f61a269789d771eaa6348fb5e871c60fcf1af",
+          "record": {
+            "path": "backend/app/application/use_cases/passports/process_passport_submission_job_use_case.py",
+            "sha256": "998192ee86644c66578b549b637aa622264e97179ecba66b7fd2a3227260c4c5",
+            "physical_lines": 590,
+            "reviewer": "/root/document_ui_architecture",
+            "review_scope": "focused",
+            "status": "focused",
+            "notes": "Physical126-255 only. Actual persisted job claim/checkpoint/target/revision/cancellation controls, finite first-pass/AI budgets and reserve, canonical storage download, AI-only verification and current revision classification failure application. Rest of590-line owner not fully reread or implicitly qualified from tests/imports; no architecture change claimed."
+          },
+          "review_scope": "focused"
+        }
+      ]
+    },
+    "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable. | Physical126-255 only. Actual persisted job claim/checkpoint/target/revision/cancellation controls, finite first-pass/AI budgets and reserve, canonical storage download, AI-only verification and current revision classification failure application. Rest of590-line owner not fully reread or implicitly qualified from tests/imports; no architecture change claimed. | Root-authorized cosmetic-only adoption: exact prior-source full read inherited; no new full physical read claimed. Current4file byte inverses, complete AST including locations, significant token positions/values and full compiled code/line/exception tables exact. Original status and independent notes preserved. Full current no-fixRuff app/tests, architecture and static900budgets pass. Coverage union remains immutable explicitly pre-cosmetic, with exact executable line/arc continuity proof; no differing-source data merge or test/coverage rerun. See final-whitespace-preflight/backend-adoption/receipt.json."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_bulk_delete_route.py",
+    "sha256": "efdcda6ffa29e19410a013015f0eaef3f8080f4f40dbb89d69fdcd84c09e6c23",
+    "reviewer": "qualification_plan",
+    "review_scope": "full",
+    "status": "verified",
+    "inherited_exact_before_full_read": {
+      "source_sha256": "f04b6d8acee374694823a556e1eb8fb0b75cbdb295c87e99ea2a2da628c759b9",
+      "prior_records": [
+        {
+          "ledger": "bulk-architecture-reviewed-files.json",
+          "ledger_sha256": "4683692ddfcaf8a706943f36af9617a2bd51b11b407e359fca558afe2e68278f",
+          "record": {
+            "path": "backend/tests/unit/presentation/test_passport_bulk_delete_route.py",
+            "sha256": "f04b6d8acee374694823a556e1eb8fb0b75cbdb295c87e99ea2a2da628c759b9",
+            "reviewer": "root",
+            "review_scope": "focused",
+            "status": "verified",
+            "notes": "Exact mock-target-only module inverse or affected test execution; no complete physical source read credit in this batch."
+          },
+          "review_scope": "focused"
+        },
+        {
+          "ledger": "retained-deletion-storage-source-reviewed-files.json",
+          "ledger_sha256": "c0e25da8d007ab80fff3aef640af97c68d30580bcf2451b14045126a2f2cf1b0",
+          "record": {
+            "path": "backend/tests/unit/presentation/test_passport_bulk_delete_route.py",
+            "sha256": "f04b6d8acee374694823a556e1eb8fb0b75cbdb295c87e99ea2a2da628c759b9",
+            "physical_lines": 595,
+            "reviewer": "/root/document_ui_architecture",
+            "review_scope": "full",
+            "status": "reviewed",
+            "notes": "Whole physical1-595 in bounded1-220/221-420/421-595. Explicit route CSRF/recent MFA, same selected ID/order and every stored object variant, durable commit before bounded inline cleanup, deferred501-object path and unknown storage failures, missing selection all-or-nothing, FOR UPDATE precedes active roster lookup, exact committed audit replay and no cleanup on failed commit. Instrumentation helper resolves actual owner; original business assertions unchanged. Source read only; previously qualified root bulk implementation remains frozen."
+          },
+          "review_scope": "full"
+        }
+      ]
+    },
+    "notes": "Exact mock-target-only module inverse or affected test execution; no complete physical source read credit in this batch. | Whole physical1-595 in bounded1-220/221-420/421-595. Explicit route CSRF/recent MFA, same selected ID/order and every stored object variant, durable commit before bounded inline cleanup, deferred501-object path and unknown storage failures, missing selection all-or-nothing, FOR UPDATE precedes active roster lookup, exact committed audit replay and no cleanup on failed commit. Instrumentation helper resolves actual owner; original business assertions unchanged. Source read only; previously qualified root bulk implementation remains frozen. | Root-authorized cosmetic-only adoption: exact prior-source full read inherited; no new full physical read claimed. Current4file byte inverses, complete AST including locations, significant token positions/values and full compiled code/line/exception tables exact. Original status and independent notes preserved. Full current no-fixRuff app/tests, architecture and static900budgets pass. Coverage union remains immutable explicitly pre-cosmetic, with exact executable line/arc continuity proof; no differing-source data merge or test/coverage rerun. See final-whitespace-preflight/backend-adoption/receipt.json."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py",
+    "sha256": "522ce2887c361e780e8a99412d0636a2eb5aa0ec0ec85727463587db3bd5994a",
+    "reviewer": "qualification_plan",
+    "review_scope": "full",
+    "status": "verified",
+    "inherited_exact_before_full_read": {
+      "source_sha256": "9641b67bc05ad710f7f34dedfb801c69e4a8367dce317cf86477c61a75b58706",
+      "prior_records": [
+        {
+          "ledger": "bulk-architecture-reviewed-files.json",
+          "ledger_sha256": "4683692ddfcaf8a706943f36af9617a2bd51b11b407e359fca558afe2e68278f",
+          "record": {
+            "path": "backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py",
+            "sha256": "9641b67bc05ad710f7f34dedfb801c69e4a8367dce317cf86477c61a75b58706",
+            "reviewer": "root",
+            "review_scope": "full",
+            "status": "verified",
+            "notes": "Complete physical current source/original moved declarations read; whole AST, evaluated contracts, route/global identity and99 focused test proof."
+          },
+          "review_scope": "full"
+        },
+        {
+          "ledger": "submission-view-performance-reviewed-files.json",
+          "ledger_sha256": "fdea9ee6033e0346dda47d74f65ec670b15deae35e60b89ba0d9ff624616274e",
+          "record": {
+            "path": "backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py",
+            "sha256": "9641b67bc05ad710f7f34dedfb801c69e4a8367dce317cf86477c61a75b58706",
+            "reviewer": "root",
+            "review_scope": "full",
+            "status": "verified",
+            "notes": "Complete current/original source and exact four-function/two-module inverse proof;17path unchanged-runtime fence with61focusedcases,864 full-source/actualencryptedpayload parity combinations and measured5000 actual frozen/slotted projections. Original six testfiles and support bytes unchanged."
+          },
+          "review_scope": "full"
+        },
+        {
+          "ledger": "submission-view-reviewed-files.json",
+          "ledger_sha256": "480036b6b6c96edf53674fd430efec2c9f2c94cd54f4ccbc68b5496a3af98a4a",
+          "record": {
+            "path": "backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py",
+            "sha256": "9641b67bc05ad710f7f34dedfb801c69e4a8367dce317cf86477c61a75b58706",
+            "reviewer": "root",
+            "review_scope": "full",
+            "status": "verified",
+            "notes": "Complete physical current source/test or complete original/current moved declarations read. Same53affected cases before/after,27whole AST/96actualbinding proof,432 exact prepared/page/cache-payload source replays; encrypted cache/authorization/revision fixtures inspected. No whole-file read credit derives only from test execution."
+          },
+          "review_scope": "full"
+        }
+      ]
+    },
+    "notes": "Complete physical current source/original moved declarations read; whole AST, evaluated contracts, route/global identity and99 focused test proof. | Complete current/original source and exact four-function/two-module inverse proof;17path unchanged-runtime fence with61focusedcases,864 full-source/actualencryptedpayload parity combinations and measured5000 actual frozen/slotted projections. Original six testfiles and support bytes unchanged. | Complete physical current source/test or complete original/current moved declarations read. Same53affected cases before/after,27whole AST/96actualbinding proof,432 exact prepared/page/cache-payload source replays; encrypted cache/authorization/revision fixtures inspected. No whole-file read credit derives only from test execution. | Root-authorized cosmetic-only adoption: exact prior-source full read inherited; no new full physical read claimed. Current4file byte inverses, complete AST including locations, significant token positions/values and full compiled code/line/exception tables exact. Original status and independent notes preserved. Full current no-fixRuff app/tests, architecture and static900budgets pass. Coverage union remains immutable explicitly pre-cosmetic, with exact executable line/arc continuity proof; no differing-source data merge or test/coverage rerun. See final-whitespace-preflight/backend-adoption/receipt.json."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_public_passport_capabilities.py",
+    "sha256": "482bc7b1ece3bb81f6cc4b393e1e57aa2e89828deb482ceb3d0ffe709855a78c",
+    "reviewer": "qualification_plan",
+    "review_scope": "full",
+    "status": "verified",
+    "inherited_exact_before_full_read": {
+      "source_sha256": "81ea01aa4629071043595244cc3f0b5ded7414a3467445f11f068faa17e3316f",
+      "prior_records": [
+        {
+          "ledger": "public-upload-reviewed-files.json",
+          "ledger_sha256": "bb53887bce1f87d217cc017ff87ebdb54136fcbba0c3076d6e01e50359132391",
+          "record": {
+            "path": "backend/tests/unit/presentation/test_public_passport_capabilities.py",
+            "sha256": "81ea01aa4629071043595244cc3f0b5ded7414a3467445f11f068faa17e3316f",
+            "reviewer": "root",
+            "review_scope": "full",
+            "status": "verified",
+            "notes": "Complete physical source or whole original/current moved declaration read; exact scope/route/binding proof and current171-case selection. Independent bulk actor and submit-use-case native lifetime follow-ups remain open in their own ledger."
+          },
+          "review_scope": "full"
+        }
+      ]
+    },
+    "notes": "Complete physical source or whole original/current moved declaration read; exact scope/route/binding proof and current171-case selection. Independent bulk actor and submit-use-case native lifetime follow-ups remain open in their own ledger. | Root-authorized cosmetic-only adoption: exact prior-source full read inherited; no new full physical read claimed. Current4file byte inverses, complete AST including locations, significant token positions/values and full compiled code/line/exception tables exact. Original status and independent notes preserved. Full current no-fixRuff app/tests, architecture and static900budgets pass. Coverage union remains immutable explicitly pre-cosmetic, with exact executable line/arc continuity proof; no differing-source data merge or test/coverage rerun. See final-whitespace-preflight/backend-adoption/receipt.json."
+  }
+]

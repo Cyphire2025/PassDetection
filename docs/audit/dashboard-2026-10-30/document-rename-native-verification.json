@@ -1,0 +1,71 @@
+{
+  "scope": "Narrow coherent document rename archive native cancellation fix before assigned architecture follow-through. Native app excluded.",
+  "source_state": "native fix coherent; route architecture remains OPEN nextphase",
+  "source_sha256": {
+    "backend/app/presentation/api/v1/routes/document_rename.py": "8c0c585714fff34d0d381d59a396e1d356eda7188c46c01e877105f96141ead0",
+    "backend/app/application/use_cases/document_rename/read_scope.py": "c73c1466c10639987a774f6e0f196237f05e7e025ef3c38b59684022a1c2418e",
+    "backend/app/infrastructure/repositories/document_rename_queries.py": "1b433f587143b01e0b8cd1fecc34864ea3419f78e91416e70171e01bc86c5105",
+    "backend/app/infrastructure/repositories/document_rename_read_repository.py": "e638d0bf775834a3aa1dbadd892cd1837be55786815bbe59b9bf8999eebe19bb",
+    "backend/app/presentation/api/v1/schemas/document_rename_schemas.py": "53b6bf348afd6222d9c9cd54f67f98285e1cb073b754f60acf0855c467cea701",
+    "backend/app/infrastructure/documents/storage_transfers.py": "a15cde9b255188896500d54e4de7faf9dafbbe332f13f3163b1590f38a1c58d1",
+    "backend/tests/unit/presentation/test_document_rename_archive_native_cancellation.py": "6143a014370844e3cbaebb6992d5eabeb583ac9803ee193fa1972d48f764d325"
+  },
+  "source_review": "6runtime files fully read; original route1093/current1105lines. Hashes verified after final run; no intervening owned-source edits.",
+  "finding": "Request cancellation abandoned native ZIP writestr/read, closing spool and releasing archive admission before actual IO exited; proved with real stdlib ZipFile and Event-gated BytesIO thread workers.",
+  "fix": "Reuse existing run_bounded_storage_operations(concurrency1) around native archive reads/writes. Drain single/repeated cancellations before finally closing spool/releasing admission; unchanged normal bytes, headers, scope and status policy. Shared helper unchanged.",
+  "checks": {
+    "structural": [
+      "_ensure_allowed",
+      "_lock_active_rename_actor",
+      "_role_value",
+      "_batch_filters_for_identity",
+      "_batch_filters",
+      "_document_label",
+      "_display_type",
+      "_safe_part",
+      "_renamed_filename",
+      "_reason",
+      "_fetch_rename_archive_batch",
+      "_cleanup_owned_rename_storage",
+      "_item_response",
+      "_batch_summary_response",
+      "_batch_response",
+      "list_rename_batches",
+      "delete_rename_batches",
+      "get_rename_batch",
+      "analyze_and_rename_documents",
+      "download_renamed_document",
+      "download ZIP exact after typed native write callback/drain expansion",
+      "stream unchanged outside explicit drained chunk-read loop"
+    ],
+    "structural_count": 22,
+    "before": "document-rename-native-before.xml:3expected failures plus real unraisable closed-archive teardown error, not suppressed",
+    "after": {
+      "artifact": "document-rename-native-after.xml",
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "26",
+      "time": "0.515",
+      "timestamp": "2026-10-31T10:36:52.183184+05:30",
+      "hostname": "Nipun5070ti"
+    },
+    "ruff": "document-rename-native-ruff.txt pass",
+    "mypy": "Current document_rename.py passes1-source dependency check after typed callback correction"
+  },
+  "remaining": [
+    "Main analyze_and_rename_documents still444lines and1093-line original route needs cohesive preflight/staging/finalization/download/deletion/serialization owners; not claimed architecturally finished",
+    "Current upload final actor/agency/role locks and chunk replay/advisory/fingerprint logic must be preserved at call time through decomposition",
+    "No live private storage/PostgreSQL/broker/VPS qualification; tests use synthetic persisted metadata and actual local native IO",
+    "Shared chunk/upload support modules only partly read during this checkpoint; not promoted to fullfilecoverage"
+  ],
+  "artifacts_sha256": {
+    "document-rename-before-reviewed-files.json": "7c87ab1c7064b38af8dfc55f31d53c0d538c3cb7ed571ed1bd2f701fda3ce1df",
+    "document-rename-native-reviewed-files.json": "b271ac00808d590d2ca1a0f7e41def57cbe5b549493ec5845c2a83848e17697f",
+    "document-rename-native-before.xml": "4692deac62076eb85196aee1e98757ce3ff1fd9d7479f5a99140cb60736440a1",
+    "document-rename-native-after.xml": "9e1ce9996d2ad183380d5984eb66bca2e3cd468b6bcffa4b69215757014c2cb3",
+    "document-rename-native-ruff.txt": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0"
+  },
+  "history": "Mypy first reported cannot infer default-argument lambda; replaced with typed zero-argument async native write callback. Same26affected cases then pass; no ignore or runtime policy changes."
+}

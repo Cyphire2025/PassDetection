@@ -1,0 +1,226 @@
+{
+  "original_sha256": "ed47e94d322a97ed45f78901131f83af8172d1b382153da0102f5efee04850ad",
+  "complete_moved_declarations": [
+    {
+      "declaration": "_ExportColumn",
+      "owner": "backend/app/infrastructure/export/passport_excel_columns.py",
+      "complete_ast_exact": true
+    },
+    {
+      "declaration": "_EXCEL_DATE_NUMBER_FORMAT",
+      "owner": "backend/app/infrastructure/export/passport_excel_columns.py",
+      "complete_ast_exact": true
+    },
+    {
+      "declaration": "_PREFIX_COLUMNS",
+      "owner": "backend/app/infrastructure/export/passport_excel_columns.py",
+      "complete_ast_exact": true
+    },
+    {
+      "declaration": "_TRAVELLER_COLUMNS",
+      "owner": "backend/app/infrastructure/export/passport_excel_columns.py",
+      "complete_ast_exact": true
+    },
+    {
+      "declaration": "_COLUMNS",
+      "owner": "backend/app/infrastructure/export/passport_excel_columns.py",
+      "complete_ast_exact": true
+    },
+    {
+      "declaration": "_ECR_COLUMN",
+      "owner": "backend/app/infrastructure/export/passport_excel_columns.py",
+      "complete_ast_exact": true
+    },
+    {
+      "declaration": "_NAME_HISTORY_COLUMNS",
+      "owner": "backend/app/infrastructure/export/passport_excel_columns.py",
+      "complete_ast_exact": true
+    },
+    {
+      "declaration": "_PENDING_ROW_FILL",
+      "owner": "backend/app/infrastructure/export/passport_excel_columns.py",
+      "complete_ast_exact": true
+    },
+    {
+      "declaration": "_ZONE_SEPARATOR_BLANK_ROWS",
+      "owner": "backend/app/infrastructure/export/passport_excel_columns.py",
+      "complete_ast_exact": true
+    },
+    {
+      "declaration": "_whatsapp_phone_value",
+      "owner": "backend/app/infrastructure/export/passport_excel_values.py",
+      "complete_ast_exact": true
+    },
+    {
+      "declaration": "_uppercase",
+      "owner": "backend/app/infrastructure/export/passport_excel_values.py",
+      "complete_ast_exact": true
+    },
+    {
+      "declaration": "_export_cell_value",
+      "owner": "backend/app/infrastructure/export/passport_excel_values.py",
+      "complete_ast_exact": true
+    },
+    {
+      "declaration": "_gender_display_value",
+      "owner": "backend/app/infrastructure/export/passport_excel_values.py",
+      "complete_ast_exact": true
+    },
+    {
+      "declaration": "_country_display_name",
+      "owner": "backend/app/infrastructure/export/passport_excel_values.py",
+      "complete_ast_exact": true
+    },
+    {
+      "declaration": "_nationality_display_value",
+      "owner": "backend/app/infrastructure/export/passport_excel_values.py",
+      "complete_ast_exact": true
+    },
+    {
+      "declaration": "_date_value",
+      "owner": "backend/app/infrastructure/export/passport_excel_values.py",
+      "complete_ast_exact": true
+    },
+    {
+      "declaration": "passport_age_group",
+      "owner": "backend/app/infrastructure/export/passport_excel_values.py",
+      "complete_ast_exact": true
+    },
+    {
+      "declaration": "PassportExcelExporter._append_pending_rows",
+      "owner": "backend/app/infrastructure/export/passport_excel_rows.py",
+      "complete_ast_exact": true,
+      "staticmethod_descriptor_restored_by_direct_alias": false
+    },
+    {
+      "declaration": "PassportExcelExporter._group_value",
+      "owner": "backend/app/infrastructure/export/passport_excel_rows.py",
+      "complete_ast_exact": true,
+      "staticmethod_descriptor_restored_by_direct_alias": false
+    },
+    {
+      "declaration": "PassportExcelExporter._pending_row_sort_key",
+      "owner": "backend/app/infrastructure/export/passport_excel_rows.py",
+      "complete_ast_exact": true,
+      "staticmethod_descriptor_restored_by_direct_alias": false
+    },
+    {
+      "declaration": "PassportExcelExporter._zone_name",
+      "owner": "backend/app/infrastructure/export/passport_excel_rows.py",
+      "complete_ast_exact": true,
+      "staticmethod_descriptor_restored_by_direct_alias": false
+    },
+    {
+      "declaration": "PassportExcelExporter._submission_sort_key",
+      "owner": "backend/app/infrastructure/export/passport_excel_rows.py",
+      "complete_ast_exact": true,
+      "staticmethod_descriptor_restored_by_direct_alias": false
+    },
+    {
+      "declaration": "PassportExcelExporter._submission_values",
+      "owner": "backend/app/infrastructure/export/passport_excel_rows.py",
+      "complete_ast_exact": true,
+      "staticmethod_descriptor_restored_by_direct_alias": false
+    },
+    {
+      "declaration": "PassportExcelExporter._ecr_value",
+      "owner": "backend/app/infrastructure/export/passport_excel_rows.py",
+      "complete_ast_exact": true,
+      "staticmethod_descriptor_restored_by_direct_alias": false
+    },
+    {
+      "declaration": "PassportExcelExporter._enabled_traveller_columns",
+      "owner": "backend/app/infrastructure/export/passport_excel_columns.py",
+      "complete_ast_exact": true,
+      "staticmethod_descriptor_restored_by_direct_alias": true
+    },
+    {
+      "declaration": "PassportExcelExporter._custom_fields",
+      "owner": "backend/app/infrastructure/export/passport_excel_columns.py",
+      "complete_ast_exact": true,
+      "staticmethod_descriptor_restored_by_direct_alias": true
+    }
+  ],
+  "complete_moved_declaration_count": 26,
+  "expanded_export_group_complete_ast_exact": true,
+  "finalizer_statement_count": 7,
+  "all_finalizer_parameter_bindings_exact_original_names": true,
+  "column_plan_prefix_statements": 10,
+  "column_plan_expansion_restores_actual_policy_receiver_and_original_names": true,
+  "column_plan_fields": [
+    "columns",
+    "dynamic_fields",
+    "headers",
+    "group_by_header"
+  ],
+  "headers_assignment_complete_ast_exact": true,
+  "actual_alias_descriptor_and_constant_identity_checks": {
+    "_ExportColumn": true,
+    "_EXCEL_DATE_NUMBER_FORMAT": true,
+    "_PREFIX_COLUMNS": true,
+    "_TRAVELLER_COLUMNS": true,
+    "_COLUMNS": true,
+    "_ECR_COLUMN": true,
+    "_NAME_HISTORY_COLUMNS": true,
+    "_PENDING_ROW_FILL": true,
+    "_ZONE_SEPARATOR_BLANK_ROWS": true,
+    "_whatsapp_phone_value": true,
+    "_uppercase": true,
+    "_export_cell_value": true,
+    "_gender_display_value": true,
+    "_country_display_name": true,
+    "_nationality_display_value": true,
+    "_date_value": true,
+    "passport_age_group": true,
+    "PassportExcelExporter._append_pending_rows": true,
+    "PassportExcelExporter._group_value": true,
+    "PassportExcelExporter._pending_row_sort_key": true,
+    "PassportExcelExporter._zone_name": true,
+    "PassportExcelExporter._submission_sort_key": true,
+    "PassportExcelExporter._submission_values": true,
+    "PassportExcelExporter._ecr_value": true,
+    "PassportExcelExporter._enabled_traveller_columns": true,
+    "PassportExcelExporter._custom_fields": true
+  },
+  "single_cohesive_typed_row_base": true,
+  "original1176line_test_sha256_unchanged": "33da13e78d3dabaaeabca696b59e4a67a91522cbe2f4adcc6417cf70a57952ba",
+  "policies_not_changed": [
+    "workbook_values",
+    "workbook_capacity",
+    "passport_excel_phone_columns",
+    "authoritative_submission_phone"
+  ],
+  "sources": [
+    {
+      "path": "backend/app/infrastructure/export/passport_excel_columns.py",
+      "sha256": "d0e27b7282b29ba10a9eb88e9684d9784502d586794d19a0b98de227507ae30b",
+      "physical_lines": 216
+    },
+    {
+      "path": "backend/app/infrastructure/export/passport_excel_values.py",
+      "sha256": "8e663bc81ae851747e92f74392109c34c049fd6b3ce1f36ac621b6a8ecfb7ae2",
+      "physical_lines": 120
+    },
+    {
+      "path": "backend/app/infrastructure/export/passport_excel_rows.py",
+      "sha256": "a8e4b9de0555733f06bab1894196a8d9910d4b4b91add6fb4e66559b64d2afa2",
+      "physical_lines": 275
+    },
+    {
+      "path": "backend/app/infrastructure/export/passport_excel_workbook.py",
+      "sha256": "b54a97c5710c813ba7db5974dfd5a59cabd2dae76dfe0b82f6e0d6d9b648afa4",
+      "physical_lines": 74
+    },
+    {
+      "path": "backend/app/infrastructure/export/passport_excel_plan.py",
+      "sha256": "34f23106874dd45b46b532ff7d28aacde6234ca0fb03d23b23137753d16428e9",
+      "physical_lines": 100
+    },
+    {
+      "path": "backend/app/infrastructure/export/passport_excel_exporter.py",
+      "sha256": "1215ce4dd354963abaf0f40c5e2f3177580da2933e0a85289beb3e08ea6645b6",
+      "physical_lines": 231
+    }
+  ],
+  "introspection_limit": "Legacy dataclass __module__/qualname/pickle/evaluated annotations retained by direct facade alias. inspect.getsource(_ExportColumn) cannot find its class declaration in the facade; actual declaration source is passport_excel_columns.py. No inspect monkeypatch."
+}

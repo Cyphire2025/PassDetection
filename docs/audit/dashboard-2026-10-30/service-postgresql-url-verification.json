@@ -1,0 +1,42 @@
+{
+  "status": "verified offline service setup correction",
+  "root_cause": "Two duplicated raw URL interpolations misparse synthetic password delimiters and unbracketed IPv6 hosts.",
+  "before": {
+    "helpers": 2,
+    "cases": 8,
+    "healthy_controls": 4,
+    "incorrect_field_or_parse_outcomes": 4
+  },
+  "after": {
+    "pytest_cases": 7,
+    "pytest_seconds": 0.13,
+    "checks": [
+      "Four actual async driver URL constructions and disposal without any connection",
+      "Default host/port and missing required password fail-closed",
+      "Both actual service suite imports point to the same structured builder",
+      "Explicit Ruff check --no-fix4files passes",
+      "Strict mypy newhelper passes",
+      "Ruff format --check2newfiles passes"
+    ]
+  },
+  "source_fence": {
+    "backend/tests/service_integration/test_my_photos_postgresql_contracts.py": "b10864c0b9970cda22badfbe80bee4c197300a3efe6c927b165016466adfe046",
+    "backend/tests/service_integration/test_real_service_contracts.py": "665353f197fefb123965ff96d08b6e6f1eddef63c52a8f2250c46e47ced50bef",
+    "backend/tests/postgresql_connection.py": "1acdb5e25645124730dbd0d001eb8ef444771187b3bba6471773fcd38cbf21d2",
+    "backend/tests/unit/core/test_postgresql_connection.py": "179ea2b509dcdf6e2a52815b791984470476c988b9017799dd0839d383eaf2a2"
+  },
+  "unchanged_contract": "Both whole-module nonhelper ASTs exact after removing old helper and new import alias; all original assertions/fixtures/query/provider/teardown logic exact. Final import blank-line correction is AST-exact after seven-case test; no test rerun counted.",
+  "limits": [
+    "No actual PostgreSQL/Redis/S3/provider/liveness/broker/workers/native features/network or production run",
+    "Structured URL return is intentional for SQLAlchemy; private alias callers are all engine constructors",
+    "First baseline harness assertion expected only one healthy case per helper but username-at-sign also parses; corrected8case evidence preserved without source changes",
+    "First lint found2introduced blank import separations; corrected and final no-fix4file lint green"
+  ],
+  "artifacts": {
+    "service-postgresql-url-before-proof.json": "37736242d2ec50e3f3858d0cd8d8c4a771d20d38223a6ddcc005d74b7018dba9",
+    "service-postgresql-url-current-tests.txt": "efc0e40ddbf42a576c935acea32fa27f885622e966d512d8a4cb48e48332b77a",
+    "service-postgresql-url-current-junit.xml": "f44692544ebb316a361831e079161659b1e37dc072c9ecc6898b0a1bbf4fd0d9",
+    "service-postgresql-url-source-equivalence.json": "daad2d33a377494142c89fe3b51d571dbd34a610c8dba30ed79cd16962aaa9c7",
+    "retained-service-contract-source-cohort-29-reviewed-files.json": "54f48652933166ccfc6ed9099a6eb199cfaae9c9237594e976a8ac7ac1e8a3f9"
+  }
+}

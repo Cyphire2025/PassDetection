@@ -27,7 +27,7 @@ describe("company saved document setting", () => {
     expect(screen.getByText(policy.notice_text).closest("details")).not.toHaveAttribute("open");
     fireEvent.click(toggle);
     await waitFor(() => expect(toggle).toBeChecked());
-    expect(apiClient.put).toHaveBeenCalledExactlyOnceWith("/api/v1/companies/company/reuse-policy", { enabled: true, expected_revision: 4 }, { params: { agency_id: "agency" } });
+    expect(apiClient.put).toHaveBeenCalledExactlyOnceWith("/api/v1/companies/company/reuse-policy", { enabled: true, expected_revision: 4 }, { params: { agency_id: "agency" }, expectedOwnerUserId: user.id, expectedAuthorityKey: JSON.stringify([user.id, user.role, user.agency_id]) });
     expect(screen.getByRole("status")).toHaveTextContent("Saved");
     expect(apiClient.get).toHaveBeenCalledTimes(1);
   });

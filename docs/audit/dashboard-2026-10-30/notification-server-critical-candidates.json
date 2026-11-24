@@ -1,0 +1,135 @@
+{
+  "status": "frozen21 actual implementation behavior candidates; three compatibility facades and count/constants contract excluded",
+  "coverage_path": ".tmp/notification-server-audit/composition-coverage.xml",
+  "original_rows_present": [],
+  "no_existing_floor_relaxation": true,
+  "modules": [
+    {
+      "path": "app/application/mobile/authored_notification_drafts.py",
+      "source_sha256": "a9a941c466adbf1ef31ceb90369bccabc479deeb9627928fa75039e2a1aa2dd1",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 90
+    },
+    {
+      "path": "app/application/mobile/authored_notification_grants.py",
+      "source_sha256": "9aa48574f95e52e68a851865a7e1174212e70ee428360bb3e94af9b2a9eb42d2",
+      "minimum_line_percent": 90,
+      "minimum_branch_percent": 85
+    },
+    {
+      "path": "app/application/mobile/authored_notification_registrations.py",
+      "source_sha256": "57e7d9816df1ed537a3666be01c2ebf78f818bd046dd930c704aa545141b14ae",
+      "minimum_line_percent": 90,
+      "minimum_branch_percent": 80
+    },
+    {
+      "path": "app/application/mobile/authored_notification_reviews.py",
+      "source_sha256": "5b48c4983345a310628638bc345b30962247aac63d75ea162bdabace3f4cd9c9",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 85
+    },
+    {
+      "path": "app/application/mobile/authored_notification_send.py",
+      "source_sha256": "3dd0fb03a063cb6857f417f7fd9c95022aea7215bba36a65db874a6e48a8f23b",
+      "minimum_line_percent": 90,
+      "minimum_branch_percent": 75
+    },
+    {
+      "path": "app/application/mobile/authored_notification_targets.py",
+      "source_sha256": "b626caaf4f5930a625761e29482940d5a29290173ea4bafa95623ac94774d57e",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 90
+    },
+    {
+      "path": "app/application/mobile/notification_announcements.py",
+      "source_sha256": "563585af06e23c380bbc6d20e00a52522492089bd0c047f0f6f7279897d0f2ec",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 85
+    },
+    {
+      "path": "app/application/mobile/notification_authority.py",
+      "source_sha256": "4bf9341bed08f6e0b80a2e0287bce79fe49d9eec1854a7e6cfed0f2345247f6f",
+      "minimum_line_percent": 80,
+      "minimum_branch_percent": 60
+    },
+    {
+      "path": "app/application/mobile/notification_countdown_recipients.py",
+      "source_sha256": "93cea0065f9efba55f96ccd02679b431de265006c4cdbe4d77aea13361e07ee4",
+      "minimum_line_percent": 90,
+      "minimum_branch_percent": 70
+    },
+    {
+      "path": "app/application/mobile/notification_countdown_schedule.py",
+      "source_sha256": "68547ff85ea97f4c8f15696793214c4d9604f9dc3bd2e77be3d49bf3b43c9ef0",
+      "minimum_line_percent": 90,
+      "minimum_branch_percent": 75
+    },
+    {
+      "path": "app/application/mobile/notification_countdown_values.py",
+      "source_sha256": "3049121d16a2a51c2d6ca7eb6850caac0aa87caad94a0aae9d6e9136e2383e68",
+      "minimum_line_percent": 100,
+      "minimum_branch_percent": 100
+    },
+    {
+      "path": "app/application/mobile/notification_delivery_states.py",
+      "source_sha256": "e8ca0f35b325a32b467ab522b583916dbd1de4bbd7800be2a4a5e33cdc3ad0b1",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 80
+    },
+    {
+      "path": "app/application/mobile/notification_dispatch.py",
+      "source_sha256": "e87fd826b35e792af14639b0b40aa71f620f04872e495ff30ccc8a61fd6332ab",
+      "minimum_line_percent": 90,
+      "minimum_branch_percent": 80
+    },
+    {
+      "path": "app/application/mobile/notification_dispatch_claims.py",
+      "source_sha256": "ec801e44f48bb9f8fdb2ffbe22c98af2599bb1d6710b3de507951e97643cdbfe",
+      "minimum_line_percent": 100,
+      "minimum_branch_percent": 100
+    },
+    {
+      "path": "app/application/mobile/notification_dispatch_results.py",
+      "source_sha256": "44949a26ed3c9b52b147515524a0c50b0d255335b7e23ac5fe742987a8381c6c",
+      "minimum_line_percent": 75,
+      "minimum_branch_percent": 65
+    },
+    {
+      "path": "app/application/mobile/notification_dispatch_targets.py",
+      "source_sha256": "5f1eb1796997dd3e2798b89eb0bc909e0c9f56dd9783088d95e5699c46b589af",
+      "minimum_line_percent": 80,
+      "minimum_branch_percent": 85
+    },
+    {
+      "path": "app/application/mobile/notification_document_changes.py",
+      "source_sha256": "a7b19ccbc3fddf277d34618bebf517bc1082b779d5f756444069abdb697bbf0a",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 65
+    },
+    {
+      "path": "app/application/mobile/notification_receipts.py",
+      "source_sha256": "b296c55c6998f25a7669b2d7b6776ad493ec67779cb2dd4c57f2ae9f52632135",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 85
+    },
+    {
+      "path": "app/application/mobile/notification_registrations.py",
+      "source_sha256": "1f183b687f587d4d07cecce8e6e89eb51872fff2ead7985b09b1984e3c1c0d0d",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 85
+    },
+    {
+      "path": "app/application/mobile/authored_notification_audience.py",
+      "source_sha256": "4fcfe94e5b790e15acb1af41f3bd5662f68f95211e80a64d60a9044fbfc90ddc",
+      "minimum_line_percent": 90,
+      "minimum_branch_percent": 80
+    },
+    {
+      "path": "app/application/mobile/authored_notification_preview.py",
+      "source_sha256": "b63b42fcf4cbe0fb5d0df49afb23531a951ee2c6a0a61701218b7022b63a885c",
+      "minimum_line_percent": 90,
+      "minimum_branch_percent": 50
+    }
+  ],
+  "qualification_note": "Floors derive from actual unchanged107 feature controls. Original missing-line and branch obligations remain identical; no aggregate percentage improvement claimed from extra imports."
+}

@@ -1,0 +1,163 @@
+{
+  "basis": "Final bounded decoded-data follow-through after separately sealed mechanical source proof",
+  "mechanical_checkpoint_sha256": "08a1d991382da493fdfaca906b6dcfb23872035a94f56c19dc2d0e314e3296d7",
+  "all_three_changed_modules_restore_after_only_named_inverse_deltas": true,
+  "allowed_changes": [
+    "rows: existing scoped command +empty fast path retained; decoded inventory must be list[dict]",
+    "compatibility.git: internal str arguments/return annotations only",
+    "proof: decoded asset must be dict before existing path/hash checks; regex match comparison made explicit boolean",
+    "select_live: equivalent local resolved_root name; reject non-string service identity with existing reason before set lookup"
+  ],
+  "methods": [
+    {
+      "name": "event",
+      "whole_AST_exact_to_original": true,
+      "public_args_signatures_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "rows",
+      "whole_AST_exact_to_original": false,
+      "public_args_signatures_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "paused_services",
+      "whole_AST_exact_to_original": true,
+      "public_args_signatures_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "idle_workers",
+      "whole_AST_exact_to_original": true,
+      "public_args_signatures_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "schema",
+      "whole_AST_exact_to_original": true,
+      "public_args_signatures_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "current_main",
+      "whole_AST_exact_to_original": true,
+      "public_args_signatures_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "compatibility",
+      "whole_AST_exact_to_original": false,
+      "public_args_signatures_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "retention",
+      "whole_AST_exact_to_original": true,
+      "public_args_signatures_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "backup",
+      "whole_AST_exact_to_original": true,
+      "public_args_signatures_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "stop",
+      "whole_AST_exact_to_original": true,
+      "public_args_signatures_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "fence_candidate",
+      "whole_AST_exact_to_original": true,
+      "public_args_signatures_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "start",
+      "whole_AST_exact_to_original": true,
+      "public_args_signatures_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "wait_health",
+      "whole_AST_exact_to_original": true,
+      "public_args_signatures_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "proof",
+      "whole_AST_exact_to_original": false,
+      "public_args_signatures_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "candidate_environment",
+      "whole_AST_exact_to_original": true,
+      "public_args_signatures_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "create_candidate",
+      "whole_AST_exact_to_original": true,
+      "public_args_signatures_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "stage",
+      "whole_AST_exact_to_original": true,
+      "public_args_signatures_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "background_quiescence",
+      "whole_AST_exact_to_original": true,
+      "public_args_signatures_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "build_fast_images",
+      "whole_AST_exact_to_original": true,
+      "public_args_signatures_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "fast_images",
+      "whole_AST_exact_to_original": true,
+      "public_args_signatures_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "initial_schema",
+      "whole_AST_exact_to_original": true,
+      "public_args_signatures_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "prepare_images",
+      "whole_AST_exact_to_original": true,
+      "public_args_signatures_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "before_candidate_start",
+      "whole_AST_exact_to_original": true,
+      "public_args_signatures_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "retention_schema",
+      "whole_AST_exact_to_original": true,
+      "public_args_signatures_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "__init__",
+      "whole_AST_exact_to_original": true,
+      "public_args_signatures_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "recover",
+      "whole_AST_exact_to_original": true,
+      "public_args_signatures_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "run",
+      "whole_AST_exact_to_original": true,
+      "public_args_signatures_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "transition",
+      "whole_AST_exact_to_original": true,
+      "public_args_signatures_evaluated_hints_pickle_exact": true
+    }
+  ],
+  "original_whole_methods_exact": 25,
+  "original_whole_top_level_functions_exact": 8,
+  "FastBuild_constructor_and_lifecycle_bodies_unchanged": true,
+  "public_method_argument_and_evaluated_hint_contracts_preserved": true,
+  "sourcequalification_legacy_metadata_and_MRO_tradeoffs": "Same as immutable mechanical proof; no additional runtime dispatch/constructor/MRO edits",
+  "not_claimed": [
+    "Strict all-source typing pass; remaining public generic/interface issues are explicit",
+    "Live Docker/provider/VPS qualification",
+    "No malformed-input behavior change: new bounded failures are intentional"
+  ]
+}

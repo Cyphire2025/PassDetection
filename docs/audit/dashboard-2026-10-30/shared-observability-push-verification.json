@@ -1,0 +1,130 @@
+{
+  "status": "runtime/source/tests frozen; coherent shared source review plus one proven narrow S3 lifetime correction",
+  "source_fence": [
+    {
+      "path": "backend/app/infrastructure/audit/checkpoint_codec.py",
+      "sha256": "3f9385e3ac28533911676eea026a9330e9cefcfd02cc14dbdf0ae2b062a439fc"
+    },
+    {
+      "path": "backend/app/infrastructure/audit/s3_checkpoint_sink.py",
+      "sha256": "175bc660c4003c095ba2a5c5079de79e8a93be5cf20e16b13f6d13a8747d5dcf"
+    },
+    {
+      "path": "backend/app/infrastructure/observability/statsd.py",
+      "sha256": "45479ed6d238930b48bae9d8b0b565655f6797a7d210fccc248c2754297c64ab"
+    },
+    {
+      "path": "backend/app/infrastructure/observability/operational_events.py",
+      "sha256": "2d0134ac561943dad6109d68061fcd56cb71f990330f39ba837b47c3eca526e4"
+    },
+    {
+      "path": "backend/app/infrastructure/observability/sentry.py",
+      "sha256": "9ebf3e34e25fb4a5e545902427e120c4a54afff6cea376bdc805559c118dba93"
+    },
+    {
+      "path": "backend/app/infrastructure/observability/mcp_log_reader.py",
+      "sha256": "ab3b9fa5e13ca46b70058b58c9b2fd611a5d0cde7ca590c1d969d694b90b1651"
+    },
+    {
+      "path": "backend/app/infrastructure/observability/mcp_log_runs.py",
+      "sha256": "c7913be284b4ad63e2e30439704dfcc51ab8cb8ed6df058409a623aecb48869f"
+    },
+    {
+      "path": "backend/app/infrastructure/mobile_push/apns_credentials.py",
+      "sha256": "56a8ae7daf87940216a573a21f27c36a8406505af9fc5f44a20ae1a712824009"
+    },
+    {
+      "path": "backend/app/infrastructure/mobile_push/apns_provider.py",
+      "sha256": "a4e6c1e6fa5c5f8cf20509db772d3d7ab7ae1c2b155b0667368a71489b08a98a"
+    },
+    {
+      "path": "backend/app/infrastructure/mobile_push/fcm_credentials.py",
+      "sha256": "872169b5afea5bdc31ef6bc969df391fd1a7ce6a34ca61e65ffaf89141960918"
+    },
+    {
+      "path": "backend/app/infrastructure/mobile_push/fcm_provider.py",
+      "sha256": "08f85af94d9682c6af6601ff15965c8e7355573ac787daa4df80a6d0cb525bd3"
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_audit_checkpoint_native_lifetime.py",
+      "sha256": "4314c98652dc19b260d5f21f617b34179db82afd25d9cd5e23209129e519d729"
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_audit_checkpoints.py",
+      "sha256": "e5d7887d9bbf89d1154daaae3c0b6912c55734c26fe50334056109140e7247f9"
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_sentry_privacy.py",
+      "sha256": "84f0a4ac1fefb1a5532db6190faf009dda57b75d1fbdd4d15ba2d5547f8317b7"
+    },
+    {
+      "path": "backend/scripts/audit_checkpoints.py",
+      "sha256": "2302b58b18998f886c585b354af100b0b40624108f4bbe961cedd43f589f7cae"
+    }
+  ],
+  "checks": {
+    "baseline_existing": "17 passed3.70s",
+    "before_actual_public_iterator_probe": "1negative failed/3healthy controls passed",
+    "after_probe": "same4controls passed",
+    "affected_after": "17original+12new=29passed5.08s",
+    "final_after_new_runner_shutdown_control": "17original+13new=30passed8.64s; isolated fresh branch-enabled coverage",
+    "strict_mypy": "1actual changed source passed",
+    "ruff_no_fix": "changed runtime+new test passed",
+    "format": "same2passed"
+  },
+  "coverage": {
+    "line_percent": 92.91338582677166,
+    "branch_percent": 73.52941176470588,
+    "isolated_file": ".tmp/shared-observability-audit/.coverage-lifetime",
+    "current_source_sha256": "175bc660c4003c095ba2a5c5079de79e8a93be5cf20e16b13f6d13a8747d5dcf"
+  },
+  "source_equivalence": {
+    "path": "docs/audit/dashboard-2026-10-30/audit-s3-lifetime-source-equivalence.json",
+    "sha256": "a89ba6272c6bb3618a961952d60cf000b41c4b6662f957b886f9a7b555798966"
+  },
+  "read_ledger": {
+    "path": "docs/audit/dashboard-2026-10-30/shared-observability-push-reviewed-files.json",
+    "sha256": "a321e4b5900b294e0cc79d202a5b0ff477794c0ac06779b226a8af010fb310a4"
+  },
+  "gate_candidates": {
+    "path": "docs/audit/dashboard-2026-10-30/audit-s3-lifetime-budget-candidates.json",
+    "sha256": "f56d03fb3e8ad9d53a2956d3cce786def111b2733096661214479592d20aafe1"
+  },
+  "raw_receipts": [
+    {
+      "path": ".tmp/shared-observability-audit/audit-baseline.txt",
+      "sha256": "63be570735a78d478a4e71d7d40e91f5481df9e5c48a664e1ae5c598959c6b00"
+    },
+    {
+      "path": ".tmp/shared-observability-audit/s3-lifetime-before.txt",
+      "sha256": "49ddefda5a4268b8dc41c93c14a3b2c1bdbeb9154802ba5b99f72bedca2ef98e"
+    },
+    {
+      "path": ".tmp/shared-observability-audit/s3-lifetime-after.txt",
+      "sha256": "f53d60090efe31696139aca2dfbd25e88820c0ab8c0fe6175e22aa5983cf7ad7"
+    },
+    {
+      "path": ".tmp/shared-observability-audit/s3-lifetime-tests.txt",
+      "sha256": "fd9d36842a9f0fdee5abf9e2e27befd4ebb29a42987eea0a7c87f9640c06e63b"
+    },
+    {
+      "path": ".tmp/shared-observability-audit/s3-lifetime-final-tests.txt",
+      "sha256": "f89daf01ba8ba682edd71caccfef9c07e254d6e3b2dea0e589b3b6c1731e4f77"
+    },
+    {
+      "path": ".tmp/shared-observability-audit/coverage.json",
+      "sha256": "2d7c01ce77169ea631f7e0c92428b178a41574f32afa40d96660a23ca56fc85e"
+    },
+    {
+      "path": ".tmp/shared-observability-audit/coverage.xml",
+      "sha256": "a3952ef51ab812731ea7742107d2d97af080f27906524af20022aaa9c30e31d5"
+    }
+  ],
+  "precise_finding": "Actual operator/public iterator cancellation before native get_object returns lost the late StreamingBody without calling close. Fixed local owned native Future drains acquisition/read/close under repeated cancellation and real Runner shutdown; close attempted once, original cancellation and ordinary error identities preserved.",
+  "limits": [
+    "Synthetic signing/SQLite/store and real botocore StreamingBody wrapping BytesIO only; no real FD, S3 network, PostgreSQL, provider send, credentials or VPS claim.",
+    "Exactly one native close attempt is guaranteed, not success for a broken native close implementation. Ordinary close exceptions still propagate; during cancellation cleanup errors cannot replace initiating cancellation.",
+    "Other10unchanged runtime files are physically reviewed source, not provider/SDK ingestion or execution qualification. Sentry existing test was read only.",
+    "No broad suites/build/browser checks; final combined qualification remains parent-owned."
+  ]
+}

@@ -1,0 +1,1 @@
+Initial targeted Node subprocess completed exit 0, 1 passing test, both raw streams saved. Printing its checkmark to the default Windows cp1252 console then raised UnicodeEncodeError before ESLint launch and checks.json creation. No source or test failure occurred; ESLint was run separately without rerunning the passing Node check. Tool result e4b358 preserves actual Node exit 0.

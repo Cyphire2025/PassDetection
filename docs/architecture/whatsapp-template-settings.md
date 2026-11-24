@@ -1,8 +1,8 @@
 # WhatsApp template-name settings
 
-Settings displays the seven template slots used by the running application:
-Welcome, Passport Link, Reminder, Group Invite, Document Distribution, Passenger
-QR, and WhatsApp OTP. With no saved override, each name comes from the corresponding
+Settings displays the nine template slots used by the running application:
+Welcome, Passport Link, Reminder, Trip Update, Group Invite, Document Distribution,
+Document update, Passenger QR, and WhatsApp OTP. With no saved override, each name comes from the corresponding
 `WHATSAPP_<SLOT>_TEMPLATE_NAME` environment variable. Existing empty values remain
 empty; viewing Settings does not create a row or alter runtime configuration.
 
@@ -44,13 +44,15 @@ change between its preview and submission requires another review. Other existin
 composers keep their current contract: queue creation resolves the current effective
 name and freezes it in the new delivery; no new expected-template request field is
 required. An already opened preview may therefore show the previous name until it
-refreshes. The unused pure broadcast planner and legacy ENV-only compatibility
-export remain isolated from live request paths.
+refreshes. The unused pure broadcast planner was retired; its original files
+are preserved as recorded in the
+[retirement manifest](../audit/dashboard-2026-10-30/whatsapp-foundation-retirement-manifest.json).
+The legacy ENV-only compatibility export remains isolated from live request paths.
 
 The replacement must already be approved in Meta, in the displayed language, with
 the same header and positional variables described for that slot. The application
 does not fetch Meta template definitions or change template categories. Language
-remains controlled by ENV: Group Invite and OTP have their own language variables;
+remains controlled by ENV: Group Invite, Document update, and OTP have their own language variables;
 the remaining slots use `WHATSAPP_TEMPLATE_LANGUAGE`.
 
 Legacy headerless Welcome/Passport Link bulk snapshots keep their saved name when

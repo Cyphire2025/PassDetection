@@ -1,0 +1,38 @@
+{
+  "status": "captured before final focused7file selection",
+  "source_fence": {
+    "backend/app/presentation/api/v1/routes/mcp_admin.py": "1fc02367a0ad64fdf78e6f4404fdd4babbd35cbc477221e7e12de0b1c9c554c4",
+    "backend/app/presentation/api/v1/routes/mcp_admin_authorization.py": "23214b6da5c95e3651105b8e1af831d9d56202dbdcea20af889706c156bcc8df",
+    "backend/app/presentation/api/v1/routes/mcp_admin_connections.py": "df81ec3e74e2145c15db6b35334b1e675c54eec4fb6d4e0d165dc654dd995b28",
+    "backend/app/presentation/api/v1/routes/mcp_admin_context.py": "ce088abb800578e0eae24c9a8ec4db2a5f811e9caa380c93d9a021c295f0b3da",
+    "backend/app/presentation/api/v1/routes/mcp_admin_reads.py": "2a4c7456cf81da14ef12139f13f2260c64be2a5fa19ce7587d4e0c1573122449",
+    "backend/tests/integration/test_mcp_phase2_http_boundaries.py": "4f569a8712263d8514285772ca1daf4bc50b1eea0958470d20d0326ef3c2b79c",
+    "backend/tests/integration/test_mcp_read_only_sections.py": "56ef0d2306f4fc67b7b10ee7500918ce93711049f548f7e742abbe5eb13f13a2",
+    "backend/tests/integration/test_mcp_section_permissions.py": "02509f605318056ffb4bf9b599ea794b737412ef3aae0f28f8ba67146b954c19",
+    "backend/tests/integration/test_mcp_connection_requests.py": "6bcea7a3b6b7c954cc7c6efaf4d0ee06a1e5c1c67249e61f68a8a993703873e9",
+    "backend/tests/integration/test_mcp_native_oauth.py": "5ad3acfc02d544a2fd21403eea4ab9fa99cb301efc27d6c91a71b12ce1b31222",
+    "backend/tests/integration/test_mcp_connection_delete.py": "364531abcca607bb41350c61980e7f0316dfe92d38f5db4ae9edde7283e5467f",
+    "backend/tests/integration/test_mcp_device_access.py": "e97325bca9dbe034fdc15e8fbd1f72d671104ab011f14518eda9ce623001e7fd",
+    "backend/app/presentation/dependencies/mcp.py": "e800172ecf554ee8b77a68b439925013fdeb621f8f9b2c57576fab5a2e4b5091",
+    "backend/app/application/mcp/authorization.py": "8e9b9b9d95392262d07dd60184397779e0898bb2b1e543737fff6eb0192ac56f",
+    "backend/app/application/mcp/connection_requests.py": "0ab3e60df97ec6a3c439267a82fd0952fbc8e08f8ee346e2a09b56496ff640a6",
+    "backend/app/application/mcp/permissions.py": "7fca80d23fb04e16388ee14c91d01e739e905e83118e51a5a5a98d15c38c9f4b",
+    "backend/app/presentation/api/v1/routes/mcp_permissions.py": "1cd9e44b179ea660d75dd9891e4c2ecc5e0a6a17035a278e4326499cec01973a",
+    "backend/app/presentation/api/v1/routes/mcp_admin_files.py": "1f0cbe201b2f924e5ea3c0abb498354a6a69f882a5f9369d9aea9e49e776d7f3",
+    "backend/app/presentation/api/v1/routes/mcp_oauth.py": "cca6bef2b867d3de6445654a7ec4731779dd093b5939843fda6ef7dbc2bbe773",
+    "backend/app/presentation/api/v1/schemas/mcp_schemas.py": "eb11f05c996f3323cb9fe12d7a578432588963f5749827ac86b61c7530296055",
+    "backend/app/presentation/api/v1/schemas/mcp_permission_schemas.py": "d1c126fa6e7aba0d1997e9b4cdb9541492e9eafc102093a4d2cf0b7254b5046c",
+    "backend/tests/integration/test_mcp_authorization.py": "1f877fd571a71b623b9dddc434b15431e2993d10a8e476614209e06d1ae5a31c",
+    "backend/tests/dashboard_session_fixtures.py": "c43ce6a77f492ee957fb71a97bf35bae0bb72a0b982438a0e335ffa350b50350"
+  },
+  "test_files": [
+    "backend/tests/integration/test_mcp_phase2_http_boundaries.py",
+    "backend/tests/integration/test_mcp_read_only_sections.py",
+    "backend/tests/integration/test_mcp_section_permissions.py",
+    "backend/tests/integration/test_mcp_connection_requests.py",
+    "backend/tests/integration/test_mcp_native_oauth.py",
+    "backend/tests/integration/test_mcp_connection_delete.py",
+    "backend/tests/integration/test_mcp_device_access.py"
+  ],
+  "proof_sha256": "35d0b0b7e1b77d2c2b62206832bdb75a5bf83754ec59ca9766f32c3941f04e6a"
+}

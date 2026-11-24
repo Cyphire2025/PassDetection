@@ -1,0 +1,31 @@
+{
+  "status": "complete current physical test-source review only",
+  "files": 10,
+  "physical_lines": 880,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-desktop-tool-test-source-reviewed-files.json",
+    "sha256": "998d3e7d42362df1e3c7b5d6b8aecd5b89bea2ffed6fb3197c60372369bc4c69"
+  },
+  "source_before_equals_after": true,
+  "source_fence": {
+    "backend/tests/unit/infrastructure/test_mcp_image_export_storage.py": "aaaa708ae044d3a915c773c6c1762556702e4501686ecf8de677ae78b010b346",
+    "backend/tests/unit/infrastructure/test_mcp_log_runs.py": "aca042ee3d4c4fe021794acf5acbad18a2c55332608f65e7a5e71c16ae40e134",
+    "backend/tests/unit/infrastructure/test_mcp_storage_sdk_contract.py": "66b25600f996d3ddc46f304124a03781e2bfe330a74cfdd2e301e2a6468440d0",
+    "backend/tests/unit/infrastructure/test_pdf_parser_memory.py": "c5ca854d192107a633a1a75673d37c2b1ae0c0fbb3898160c4ac39a47dec3660",
+    "backend/tests/unit/infrastructure/test_search_index_parity.py": "7181378d546e266c050c292249ff5f69a05cc46f88ee4434f6eca351f96d1114",
+    "backend/tests/unit/infrastructure/test_sqlite_uuid.py": "f402616d4790b3c4c322d462f8cf8875bee58bcad28864c4b9ec75c650e66b79",
+    "backend/tests/unit/infrastructure/test_release_source_fixtures.py": "95eacba19ea739dfa5a048631ecb7debbbb47dea2908cd4e8f32960cbeb7b45a",
+    "backend/tests/unit/infrastructure/test_paused_feature_scheduler.py": "e3f17e8cfa20f4db875163e16d7fc26d133aebd1d5dad7d9d7925c6ea64ef7fa",
+    "backend/tests/unit/infrastructure/test_company_data_release_schema.py": "d51565f8232885cf144b46d8d14914be9007f09b4c8a9aaf0c694a6b271fd3b9",
+    "backend/tests/unit/infrastructure/test_companies_restore_comparison.py": "d6ee7550cf9637ea332adf823617e192a81a7451722cf9d133163822ddc7165b"
+  },
+  "new_execution": false,
+  "runtime_mutation": false,
+  "new_validated_findings": [],
+  "scope": "Retained desktop MCP export/evidence/storage and shared parser/fixture/release/pause-policy test contracts. No private archives/credentials or dedicated Inbox/native paths opened.",
+  "limits": [
+    "Synthetic data/source contracts and test design read do not establish passing execution/live service/restore qualification.",
+    "No actual kernel memory/production capacity/PG race claim.",
+    "Historical release stamps and qualified source mappings unchanged."
+  ]
+}

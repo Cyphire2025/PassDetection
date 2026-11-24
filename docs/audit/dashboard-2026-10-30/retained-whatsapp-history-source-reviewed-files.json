@@ -1,0 +1,86 @@
+{
+  "status": "Retained outgoing WhatsApp history/source/import tests read",
+  "files": [
+    {
+      "path": "backend/tests/integration/test_whatsapp_update_history.py",
+      "sha256": "f3f14d7f1073297870e6f3a031a3b075ecf704d5f258dde958030a2951097362",
+      "physical_lines": 92,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-92. Historical update retry uses durable request identity, repeated request returns same single batch and exact saved rendered/template/parameter content, preserves source-log provenance. Unknown delivery outcome409 and other recipient source404, synthetic provider never awaited. Existing frozen route policy retained; no resend/provider/test execution."
+    },
+    {
+      "path": "backend/tests/integration/test_whatsapp_shared_phone_import.py",
+      "sha256": "db13687ae6b4babcdf787701edc1918e3a002c2933f3983ccd2c99a0f4323f0f",
+      "physical_lines": 121,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-121.700 people sharing one delivery phone retain699 separate source rows beyond capped500 preview for dashboard/MCP parser paths, source fingerprints prevent repeated persistence and imported data stays per-person. Explicit workbook/contact entry budgets and original source recovery do not reactivate contacts. Workbook/provider operations described by source only; no parser execution or real data."
+    },
+    {
+      "path": "backend/tests/integration/test_whatsapp_type_history.py",
+      "sha256": "b2dd6e0dbc33cf3b7166404fcaee55f69d8532a7b8f48c2ea65feeff5c7923a3",
+      "physical_lines": 229,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-229. Current overall type reach counts each live person once while keeping earlier successful attempt, repeat wording still distinct numbered batch version, legacy batchless rows get no invented version. Search retains original version numbers and treats percent literally, removed recipient excluded current reach but retained historical version; tenant scope404, update alias and provider accepted delivery-left semantics preserved. No tests/services run."
+    },
+    {
+      "path": "backend/tests/integration/test_whatsapp_send_intents.py",
+      "sha256": "401f0e4fbebaac88abd95120df6e93c5e75702d4f6f7f4d0175207e73d6af61a",
+      "physical_lines": 238,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-238. Required exactly-one durable HTTP idempotency key before writes, immutable saved response after receipt updates, conflicting body409. Current role/active/session/agency authority revalidated even on replay; durable outbox recovery reuses payload after broker uncertainty, rollback removes both business rows and receipt, processing-only crash becomes unknown without resend. Reduced superadmin effective scope retained. All broker/provider boundaries mocked; no live sends/credentials."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_update_resend.py",
+      "sha256": "6a4030480233fc5b6865a6b49452eb685f21a8a58012601611b552a6eb73a2b6",
+      "physical_lines": 218,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical50-106 and170-218 only. Actual scoped recipient/source/replay/outcome/initial locked document scope prefix plus durable intent/audit/commit/publication tail; middle107-169 not read in this cohort. Existing matching current-full recipient-route ledger reused; no whole-file/new stronger authority claim."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_send_intents.py",
+      "sha256": "462de74cb9c8fa305e26ec299815876c7439a72ba4436d4adf96d590178f5e51",
+      "physical_lines": 212,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical79-182 only. Complete durable_send implementation: canonical request/key digest, fresh actor/security/group/current agency, effective role refresh, exact body-bound replay and original immutable response, queued log+intent in caller transaction. Existing current-full send-architecture and recipient-route ledgers preserved, no whole-file credit."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_contact_sources.py",
+      "sha256": "0500fab46a72d955359e71e559d85f7b3a05d623ae35ef8abeccc5afb402626a",
+      "physical_lines": 56,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical17-56 only. Complete source preservation and sequential workbook recovery functions, stable source fingerprint de-dup and combined2000entry cap before persistence. Existing current-full import-route ledger reused; imports/constants1-16 not read here, no whole-file credit."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_type_history.py",
+      "sha256": "b227e5123e1ce8d1b03ec13770df81287fbfbf2ad0ba0ad9ec6d9f451710a74d",
+      "physical_lines": 197,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical46-104 and157-197 only. Current live-recipient reach vs retained version statistics and bounded search/type-recipient page/order/status/alias consumers, tenant-authorized group first. Versions111-150 not reread; existing matching full retained-route ledger preserved."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_history.py",
+      "sha256": "7bc42e0f850d8ab664483e42f5926127ccb2cca4f15b491a7c65df2ffc826dd8",
+      "physical_lines": 234,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical48-59 only: actual history helper initial tenant-scoped group read and404; entry authenticated-role dependencies remain separate. No general newly-qualified inflight revocation/lock guarantee claimed. No whole-file credit."
+    }
+  ]
+}

@@ -1,0 +1,258 @@
+{
+  "observed_developer_source_lookup_limitation": true,
+  "no_runtime_inspect_monkeypatch_or_proxy": true,
+  "records": [
+    {
+      "class": "AgencyModel",
+      "public_module": "app.infrastructure.database.models",
+      "inspect_getfile": "backend/app/infrastructure/database/models.py",
+      "actual_source_owner": "backend/app/infrastructure/database/_core_models/identity.py",
+      "inspect_getsource_class": {
+        "ok": false,
+        "type": "OSError",
+        "message": "could not find class definition"
+      },
+      "inspect_getsource_owner_module": "works"
+    },
+    {
+      "class": "UserModel",
+      "public_module": "app.infrastructure.database.models",
+      "inspect_getfile": "backend/app/infrastructure/database/models.py",
+      "actual_source_owner": "backend/app/infrastructure/database/_core_models/identity.py",
+      "inspect_getsource_class": {
+        "ok": false,
+        "type": "OSError",
+        "message": "could not find class definition"
+      },
+      "inspect_getsource_owner_module": "works"
+    },
+    {
+      "class": "RefreshTokenModel",
+      "public_module": "app.infrastructure.database.models",
+      "inspect_getfile": "backend/app/infrastructure/database/models.py",
+      "actual_source_owner": "backend/app/infrastructure/database/_core_models/identity.py",
+      "inspect_getsource_class": {
+        "ok": false,
+        "type": "OSError",
+        "message": "could not find class definition"
+      },
+      "inspect_getsource_owner_module": "works"
+    },
+    {
+      "class": "ClientGroupModel",
+      "public_module": "app.infrastructure.database.models",
+      "inspect_getfile": "backend/app/infrastructure/database/models.py",
+      "actual_source_owner": "backend/app/infrastructure/database/_core_models/groups.py",
+      "inspect_getsource_class": {
+        "ok": false,
+        "type": "OSError",
+        "message": "could not find class definition"
+      },
+      "inspect_getsource_owner_module": "works"
+    },
+    {
+      "class": "ManagerGroupAccessModel",
+      "public_module": "app.infrastructure.database.models",
+      "inspect_getfile": "backend/app/infrastructure/database/models.py",
+      "actual_source_owner": "backend/app/infrastructure/database/_core_models/access.py",
+      "inspect_getsource_class": {
+        "ok": false,
+        "type": "OSError",
+        "message": "could not find class definition"
+      },
+      "inspect_getsource_owner_module": "works"
+    },
+    {
+      "class": "CoordinatorAssignmentModel",
+      "public_module": "app.infrastructure.database.models",
+      "inspect_getfile": "backend/app/infrastructure/database/models.py",
+      "actual_source_owner": "backend/app/infrastructure/database/_core_models/access.py",
+      "inspect_getsource_class": {
+        "ok": false,
+        "type": "OSError",
+        "message": "could not find class definition"
+      },
+      "inspect_getsource_owner_module": "works"
+    },
+    {
+      "class": "CoordinatorGroupAssignmentModel",
+      "public_module": "app.infrastructure.database.models",
+      "inspect_getfile": "backend/app/infrastructure/database/models.py",
+      "actual_source_owner": "backend/app/infrastructure/database/_core_models/access.py",
+      "inspect_getsource_class": {
+        "ok": false,
+        "type": "OSError",
+        "message": "could not find class definition"
+      },
+      "inspect_getsource_owner_module": "works"
+    },
+    {
+      "class": "PassportSubmissionModel",
+      "public_module": "app.infrastructure.database.models",
+      "inspect_getfile": "backend/app/infrastructure/database/models.py",
+      "actual_source_owner": "backend/app/infrastructure/database/_core_models/passport.py",
+      "inspect_getsource_class": {
+        "ok": false,
+        "type": "OSError",
+        "message": "could not find class definition"
+      },
+      "inspect_getsource_owner_module": "works"
+    },
+    {
+      "class": "PassportExportHistoryModel",
+      "public_module": "app.infrastructure.database.models",
+      "inspect_getfile": "backend/app/infrastructure/database/models.py",
+      "actual_source_owner": "backend/app/infrastructure/database/_core_models/exports.py",
+      "inspect_getsource_class": {
+        "ok": false,
+        "type": "OSError",
+        "message": "could not find class definition"
+      },
+      "inspect_getsource_owner_module": "works"
+    },
+    {
+      "class": "PassportRosterResolutionModel",
+      "public_module": "app.infrastructure.database.models",
+      "inspect_getfile": "backend/app/infrastructure/database/models.py",
+      "actual_source_owner": "backend/app/infrastructure/database/_core_models/roster.py",
+      "inspect_getsource_class": {
+        "ok": false,
+        "type": "OSError",
+        "message": "could not find class definition"
+      },
+      "inspect_getsource_owner_module": "works"
+    },
+    {
+      "class": "PassportImageCropModel",
+      "public_module": "app.infrastructure.database.models",
+      "inspect_getfile": "backend/app/infrastructure/database/models.py",
+      "actual_source_owner": "backend/app/infrastructure/database/_core_models/images.py",
+      "inspect_getsource_class": {
+        "ok": false,
+        "type": "OSError",
+        "message": "could not find class definition"
+      },
+      "inspect_getsource_owner_module": "works"
+    },
+    {
+      "class": "PassportVisaAiImageModel",
+      "public_module": "app.infrastructure.database.models",
+      "inspect_getfile": "backend/app/infrastructure/database/models.py",
+      "actual_source_owner": "backend/app/infrastructure/database/_core_models/images.py",
+      "inspect_getsource_class": {
+        "ok": false,
+        "type": "OSError",
+        "message": "could not find class definition"
+      },
+      "inspect_getsource_owner_module": "works"
+    },
+    {
+      "class": "PassportVisaAiImageJobModel",
+      "public_module": "app.infrastructure.database.models",
+      "inspect_getfile": "backend/app/infrastructure/database/models.py",
+      "actual_source_owner": "backend/app/infrastructure/database/_core_models/images.py",
+      "inspect_getsource_class": {
+        "ok": false,
+        "type": "OSError",
+        "message": "could not find class definition"
+      },
+      "inspect_getsource_owner_module": "works"
+    },
+    {
+      "class": "QualifierSelectionModel",
+      "public_module": "app.infrastructure.database.models",
+      "inspect_getfile": "backend/app/infrastructure/database/models.py",
+      "actual_source_owner": "backend/app/infrastructure/database/_core_models/upload_workflow.py",
+      "inspect_getsource_class": {
+        "ok": false,
+        "type": "OSError",
+        "message": "could not find class definition"
+      },
+      "inspect_getsource_owner_module": "works"
+    },
+    {
+      "class": "PassportProcessingJobModel",
+      "public_module": "app.infrastructure.database.models",
+      "inspect_getfile": "backend/app/infrastructure/database/models.py",
+      "actual_source_owner": "backend/app/infrastructure/database/_core_models/upload_workflow.py",
+      "inspect_getsource_class": {
+        "ok": false,
+        "type": "OSError",
+        "message": "could not find class definition"
+      },
+      "inspect_getsource_owner_module": "works"
+    },
+    {
+      "class": "ClientGroupWhatsAppBroadcastLinkModel",
+      "public_module": "app.infrastructure.database.models",
+      "inspect_getfile": "backend/app/infrastructure/database/models.py",
+      "actual_source_owner": "backend/app/infrastructure/database/_core_models/broadcast_links.py",
+      "inspect_getsource_class": {
+        "ok": false,
+        "type": "OSError",
+        "message": "could not find class definition"
+      },
+      "inspect_getsource_owner_module": "works"
+    },
+    {
+      "class": "PassportPostSubmissionVerificationJobModel",
+      "public_module": "app.infrastructure.database.models",
+      "inspect_getfile": "backend/app/infrastructure/database/models.py",
+      "actual_source_owner": "backend/app/infrastructure/database/_core_models/verification_jobs.py",
+      "inspect_getsource_class": {
+        "ok": false,
+        "type": "OSError",
+        "message": "could not find class definition"
+      },
+      "inspect_getsource_owner_module": "works"
+    },
+    {
+      "class": "AuditChainHeadModel",
+      "public_module": "app.infrastructure.database.models",
+      "inspect_getfile": "backend/app/infrastructure/database/models.py",
+      "actual_source_owner": "backend/app/infrastructure/database/_core_models/audit.py",
+      "inspect_getsource_class": {
+        "ok": false,
+        "type": "OSError",
+        "message": "could not find class definition"
+      },
+      "inspect_getsource_owner_module": "works"
+    },
+    {
+      "class": "AuditLogModel",
+      "public_module": "app.infrastructure.database.models",
+      "inspect_getfile": "backend/app/infrastructure/database/models.py",
+      "actual_source_owner": "backend/app/infrastructure/database/_core_models/audit.py",
+      "inspect_getsource_class": {
+        "ok": false,
+        "type": "OSError",
+        "message": "could not find class definition"
+      },
+      "inspect_getsource_owner_module": "works"
+    },
+    {
+      "class": "NotificationModel",
+      "public_module": "app.infrastructure.database.models",
+      "inspect_getfile": "backend/app/infrastructure/database/models.py",
+      "actual_source_owner": "backend/app/infrastructure/database/_core_models/notifications.py",
+      "inspect_getsource_class": {
+        "ok": false,
+        "type": "OSError",
+        "message": "could not find class definition"
+      },
+      "inspect_getsource_owner_module": "works"
+    },
+    {
+      "class": "PlatformSettingModel",
+      "public_module": "app.infrastructure.database.models",
+      "inspect_getfile": "backend/app/infrastructure/database/models.py",
+      "actual_source_owner": "backend/app/infrastructure/database/_core_models/platform.py",
+      "inspect_getsource_class": {
+        "ok": false,
+        "type": "OSError",
+        "message": "could not find class definition"
+      },
+      "inspect_getsource_owner_module": "works"
+    }
+  ]
+}

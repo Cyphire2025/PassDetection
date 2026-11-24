@@ -1,0 +1,11 @@
+[
+  {
+    "path": "backend/app/infrastructure/database/email_models.py",
+    "sha256": "1801ba03397d6b0ac28d032683778592184f22f9b559c5b23d3a524f0a57cadd",
+    "physical_lines": 1417,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "needs-follow-up",
+    "notes": "Complete physical read in consecutive 1-190,191-380,381-570,571-760,761-950,951-1140,1141-1330 and1331-EOF chunks. Seven distinct email/OAuth/message/artifact/review/activity table families plus default helpers and owner-change listener registration remain mixed in one1417-line module. Deferred credential/link ciphertext, full tenant/owner composite keys, idempotency, statuses, partial indices, retry/lease/revision/default behavior and all registration targets inspected as source. No confirmed vulnerability inferred from declarations alone. Per-domain ownership remains pending; no runtime/test/config/schema changes or app checks in this preflight."
+  }
+]

@@ -1,0 +1,287 @@
+{
+  "recorded_at": "2026-10-31T12:06:43.187Z",
+  "status": "frozen",
+  "runtime_files": 11,
+  "changed_test_helper_files": 6,
+  "source_fence": [
+    {
+      "path": "frontend/features/operations/components/tour-group-qr-codes-page.tsx",
+      "sha256": "a3a4fcc1f8c248760f62f14ecd4056f3f04d538061bcbb145e9588ae6e93e366",
+      "physical_lines": 11
+    },
+    {
+      "path": "frontend/features/operations/hooks/use-group-qr-codes-controller.ts",
+      "sha256": "3e33f3cb6ab8a6ee76493ab4b37211206df457da20d4f6c4216c855d4f901724",
+      "physical_lines": 119
+    },
+    {
+      "path": "frontend/features/operations/hooks/use-group-qr-images.ts",
+      "sha256": "1f9e88f0188363849cf89ec4872b57d2c500e6ed60f38c873925c4984671a88e",
+      "physical_lines": 124
+    },
+    {
+      "path": "frontend/features/operations/hooks/use-passenger-qr-actions.ts",
+      "sha256": "b6dfe0afe3f9c3ab6b6f77f6df24e96319d5c81fec8bf6efaa391811c3dd1eaa",
+      "physical_lines": 73
+    },
+    {
+      "path": "frontend/features/operations/components/group-qr-model.ts",
+      "sha256": "084f9bc2e5c886bff973b5709e442f0c7e2e2315f526869df1d27b9e84bc272d",
+      "physical_lines": 3
+    },
+    {
+      "path": "frontend/features/operations/components/group-qr-codes-view.tsx",
+      "sha256": "de42dd8d5a702267cf995c77959065246e70456286326f14fcab421acb53fb48",
+      "physical_lines": 233
+    },
+    {
+      "path": "frontend/features/operations/components/group-qr-page-header.tsx",
+      "sha256": "4e67ace54d545c6533e54c313a11c9c5074fb4f3c0869bc30d2d13416703da43",
+      "physical_lines": 94
+    },
+    {
+      "path": "frontend/features/operations/components/passenger-qr-card.tsx",
+      "sha256": "6621bc0c6929149026dbb52979c2b84a2e331e03dd96c2fd172be7a30de8e585",
+      "physical_lines": 100
+    },
+    {
+      "path": "frontend/features/operations/components/qr-delivery-preview-dialog.tsx",
+      "sha256": "39a5593600fc4c7fe2201e3249bd3b242028073d60adb0aad81ac9825fea0e96",
+      "physical_lines": 270
+    },
+    {
+      "path": "frontend/features/operations/components/qr-delivery-status.tsx",
+      "sha256": "4a26a4748eb1888a6d0e5a0553eed610494eae604080b51c72d1d578ac208b0d",
+      "physical_lines": 37
+    },
+    {
+      "path": "frontend/features/operations/components/qr-status.ts",
+      "sha256": "aebff76e6b33e1d54aee081b5391a7114b5f9227da22df4d34b90f2e137cc57a",
+      "physical_lines": 10
+    },
+    {
+      "path": "frontend/features/operations/components/group-qr-source.contract-helper.mjs",
+      "sha256": "1c153174c259fd887a789f279ac9c53e87be6980025e135556c6a82d5706c358",
+      "physical_lines": 50
+    },
+    {
+      "path": "frontend/features/operations/components/tour-group-qr-codes-page.test.tsx",
+      "sha256": "a13a5329d477b726666cac882de8c2f547403b3ba7b8a97838cf72210daba7a2",
+      "physical_lines": 196
+    },
+    {
+      "path": "frontend/features/operations/components/qr-delivery-preview-workflow.test.tsx",
+      "sha256": "f06a2983ffdc941d90bc7ff3c14bd4e2b28852561332e20cd325a69f872fe204",
+      "physical_lines": 83
+    },
+    {
+      "path": "frontend/features/operations/components/qr-whatsapp-delivery.contract.test.mjs",
+      "sha256": "847ebd999ed1a232b26c7c2c37f63403b5e8df22c0b56c2794ae76da9461fbe9",
+      "physical_lines": 35
+    },
+    {
+      "path": "frontend/features/operations/components/operations-ui-transformation.contract.test.mjs",
+      "sha256": "0bc39aa572e3ee911f823f62dfffd9aabe6a41b2b0cc97af12c28a235c8058ed",
+      "physical_lines": 92
+    },
+    {
+      "path": "frontend/features/operations/services/qr-image-generation.test.mjs",
+      "sha256": "67b20af40a04612f32d9b0420c56e76ef645cbd8a836d86c42f200e12691380a",
+      "physical_lines": 147
+    }
+  ],
+  "original_source": {
+    "path": "frontend/features/operations/components/tour-group-qr-codes-page.tsx",
+    "sha256": "64ae6364bd00603b36c69f208d916ff537adcbf1571e33f5c6f98633daaac6d4",
+    "physical_lines": 899
+  },
+  "actual_fixes": [
+    {
+      "finding": "Repeated selected-token array scans in the actual512-row preview.",
+      "baseline_indexed_reads": 131329,
+      "current_bound_indexed_reads": 2048,
+      "fix": "Build oneSet perrender; only membership changes. Selected order/duplicates/count/eligibility/callback payload remain untouched.",
+      "evidence": ".tmp/group-qr/baseline-corrected.json"
+    },
+    {
+      "finding": "First-load roster error displayed successful-empty text and zero counters.",
+      "fix": "Distinct unavailable/retry state, unknown summary dashes/neutral tones; successful empty and retained stale cards unchanged.",
+      "evidence": "Actual initialerror→retry→successfulempty and stale60-row filter/pagination controls."
+    },
+    {
+      "finding": "600-character token overflowed actual QR message pane.",
+      "baseline": {
+        "mobile_pane_width": 4955,
+        "desktop_scroll_width": 4955,
+        "desktop_client_width": 510
+      },
+      "current": {
+        "mobile_pane_width": 276,
+        "desktop_pane_width": 510,
+        "scroll_inside_bounds": true
+      },
+      "fix": "Oneexisting overflow-wrap utility; literal text/whitespace and small-message dimensions exact.",
+      "evidence": ".tmp/group-qr/message-wrap-before.json +message-wrap-after.json"
+    },
+    {
+      "finding": "Onepending passenger ID could not track concurrent rows; duplicate same-batch click dispatched twice.",
+      "fix": "Focused row-action hook with synchronous per-row lock and per-row pendingSet. Different rows remainparallel; only matching row unlocked; lifecycle confirmation/reject/retry controls pass.",
+      "evidence": ".tmp/group-qr/row-pending-baseline.json"
+    }
+  ],
+  "architecture": {
+    "largest_current_file": 270,
+    "cohesive_domains": [
+      "controller",
+      "imagecache/RAF/print",
+      "passenger lifecycle actions",
+      "page view/header",
+      "delivery preview/status",
+      "QR card/status",
+      "local types"
+    ],
+    "historical_exact_movement": "group-qr-mechanical-provenance.json",
+    "historical_postwrap_binding_proof": "group-qr-before-row-locks-provenance.json",
+    "historical_actual_definition_bindings": 1648,
+    "current_intentional_change_proof": "group-qr-current-provenance.json",
+    "note": "Exact movement and later deliberate action/error/CSS fixes are separate phases; historical full-body/binding identity is not claimed for changed final actionstate."
+  },
+  "checks": {
+    "baseline": {
+      "passed": 8,
+      "failed": 2,
+      "raw": ".tmp/group-qr/baseline-corrected.json"
+    },
+    "row_pending_baseline": {
+      "negative_cases_failed": 2,
+      "other_five_page_cases_not_selected_in_this_targeted_reproduction": true,
+      "raw": ".tmp/group-qr/row-pending-baseline.json"
+    },
+    "final_affected": {
+      "passed": 14,
+      "failed": 0,
+      "files": 3,
+      "raw": ".tmp/group-qr/sealed-affected.json"
+    },
+    "final_Node": {
+      "passed": 14,
+      "failed": 0,
+      "raw": ".tmp/group-qr/sealed-node.txt"
+    },
+    "types": {
+      "exit_code": 0,
+      "raw": ".tmp/group-qr/sealed-types.txt"
+    },
+    "scoped_lint": {
+      "exit_code": 0,
+      "warnings": 0,
+      "raw": ".tmp/group-qr/final-all-eslint.txt",
+      "current_source_supplement": ".tmp/group-qr/sealed-lint-supplement.txt"
+    }
+  },
+  "print_and_private_lifetime": {
+    "sink": "window.print on actual ReactDOM only; no document.write/innerHTML/HTMLtemplate sink in these owners.",
+    "names_and_payloads": "Passenger/group/message strings stayReacttext/attributes; QRpayloads are encoded by unchanged existingqrcode worker. Preview literal<script> text control creates no script node.",
+    "cleanup": "OriginalAbortController/cache pruning/progressiveRAF and cancelAnimationFrame callback bodies exact; actual unmount/cancel and incomplete-print negatives retain coverage.",
+    "scope": "No serverauthorization/provider send/livepassenger/production-print claim."
+  },
+  "native_geometry": {
+    "method": "Current actual React SSR component markup with unchanged local compiled utility CSS, native geometry only; no application hydration/build/browser workflow qualification.",
+    "viewports": [
+      390,
+      1440
+    ],
+    "cases": 4,
+    "browser": "151.0.7922.34",
+    "compiled_css": {
+      "path": "frontend/.next/static/chunks/17xqkdlcbtj99.css",
+      "sha256": "98360d0f96de1a6b88ed7bf3427ed2614bb4469a9870e435da59fd92902bc343"
+    },
+    "current_dialog_source": {
+      "path": "frontend/features/operations/components/qr-delivery-preview-dialog.tsx",
+      "sha256": "39a5593600fc4c7fe2201e3249bd3b242028073d60adb0aad81ac9825fea0e96",
+      "physical_lines": 270
+    },
+    "browser_closed": true,
+    "no_services_started": true
+  },
+  "proof_artifacts": [
+    {
+      "path": ".tmp/group-qr/page.original.tsx",
+      "sha256": "64ae6364bd00603b36c69f208d916ff537adcbf1571e33f5c6f98633daaac6d4",
+      "physical_lines": 899
+    },
+    {
+      "path": ".tmp/group-qr/page.fixed.tsx",
+      "sha256": "e0d33e16ab7b38b6d5af02eb022531c9b76a7226e602716c972e86ac7aef578d",
+      "physical_lines": 903
+    },
+    {
+      "path": ".tmp/group-qr/controller.before-row-locks.ts",
+      "sha256": "32904666c3d32cd11e6875232087997c6dec606728462056e0e8af992b2b11ef",
+      "physical_lines": 164
+    },
+    {
+      "path": ".tmp/group-qr/view.before-row-locks.tsx",
+      "sha256": "63cbb7c76f11889036a524ff40922fa360ae1ae0f611690ef2b46fa7ceec1da6",
+      "physical_lines": 233
+    },
+    {
+      "path": ".tmp/group-qr/render.test.tsx",
+      "sha256": "3fd675ae8331dcbdfd84244b85297389aba29b63e036160813272077b4c0092e",
+      "physical_lines": 16
+    },
+    {
+      "path": ".tmp/group-qr/render.config.mts",
+      "sha256": "0592c50ddbefc06aa35b578125f217f43198783e1890fdd9f73e0b4e5bdb1f52",
+      "physical_lines": 8
+    },
+    {
+      "path": ".tmp/group-qr/message-wrap.native.mjs",
+      "sha256": "22d9db971fa603474fb25fa3588a40661e05da4239990bc5641d04ab96f11570",
+      "physical_lines": 33
+    },
+    {
+      "path": ".tmp/group-qr/message-long-before.html",
+      "sha256": "0271d10dda50f943869402d23667bebdc182b11f8f4b7ad3d5931f902b222a11",
+      "physical_lines": 8
+    },
+    {
+      "path": ".tmp/group-qr/message-small-before.html",
+      "sha256": "32191f2f32bf07d214aa7e90623b25e80545a7235a1f8c4cee7b4a946e3602cf",
+      "physical_lines": 10
+    },
+    {
+      "path": ".tmp/group-qr/message-long-after.html",
+      "sha256": "1fca0bc6d6fd83f98fa45c2c431f8867d6a104fca378e97a475d2a7127f910b2",
+      "physical_lines": 8
+    },
+    {
+      "path": ".tmp/group-qr/message-small-after.html",
+      "sha256": "653e2dc1ab7b4a8c804ff83fc659100b8ed7fc3658e9af01db7e5f10e9e40cfb",
+      "physical_lines": 10
+    },
+    {
+      "path": ".tmp/verify-group-qr-current.cjs",
+      "sha256": "13d25586acecc4792e24090fc6bd92bb5014be6fcf7b41fd060a3e19ec4c6ad3",
+      "physical_lines": 40
+    }
+  ],
+  "prior_frozen_hooks_and_API_runtime_unchanged": true,
+  "critical_coverage": {
+    "config": "frontend/vitest.config.mts",
+    "sha256": "85ce4e7d5be4ff07748412030ccf1fca3177be52c388dbbada89053bcfc1a400",
+    "originalPageIncluded": false,
+    "original31IncludesAndFloorsUntouched": true
+  },
+  "diagnostics": {
+    "initial_baseline_fixture_issue": ".tmp/group-qr/baseline-initial.json:printspy history corrected with mockReset before corrected8pass2fail baseline.",
+    "introduced_extraction_name_collision": ".tmp/group-qr/types-preflight.txt and split-affected.json retained; controller renamed distinctly from existinguseGroupQrCodes queryhook, then currenttypes/renderedchecks pass.",
+    "new_contract_helper_overconstraint": ".tmp/group-qr/node-helper-preflight.txt retained; headerneeds no modelconstantimport. Removed only that false newhelper requirement; originaltestassertionsunchanged.",
+    "native_fixture_import_scope": ".tmp/group-qr/render-fixture-import-error.txt; isolatedfixturealiases existingReactpackages outsidefrontend, no appconfigchange."
+  },
+  "budget_candidates": "group-qr-budget-candidates.json",
+  "parent_budget_admission": "PENDING-parent-owned;11measuredadditive owners, no existing floor/cap relaxation.",
+  "final_combined_verification": "OPEN-parent-final-round",
+  "limits": "Focused synthetic rendered component/mutation/QRrenderer and purealgorithm/source/compiler controls. Native geometry uses currentSSRHTML and existingcompiledutilityCSS without applicationhydration. No newwholeappbuild/suite/productionbrowser/VPS qualification was run for this batch."
+}

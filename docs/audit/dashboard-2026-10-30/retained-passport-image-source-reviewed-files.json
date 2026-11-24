@@ -1,0 +1,158 @@
+{
+  "files": [
+    {
+      "path": "backend/tests/unit/infrastructure/test_passport_image_cropper.py",
+      "sha256": "92f6a975c42fe936abd7c7e0c69cc3ae43469e72f43b85f05b8a3f599b8e5c0c",
+      "physical_lines": 224,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete224-line read. Dashboard crop canonical EXIF then clockwise rotation, finite normalized/pixel bounds, whole-degree policy, thumbnail metadata stripping and bounded legacy/v2 sharpness output identity. Whole actual renderer read; synthetic Pillow source fixtures not executed, CPU-native extension is retained dashboard image work, not native app ingress."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_passport_image_crop_repository.py",
+      "sha256": "00bb11e5f1b5523fef166f1fd3e00f71e05d6a6bfbdb0a42e2344a1169ec535c",
+      "physical_lines": 135,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete135-line read. All image types monotonic upsert/reset/recrop, reset idempotency prevents ABA, stale revision conflict and v1/v2 sharpness state. Actual mutation functions read; in-memory session does not establish real database locking/races."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_passport_image_library.py",
+      "sha256": "8b7578ab8a73db168ade518e9895f29ab1d25c8e787f652187df3c0dbbcf6217",
+      "physical_lines": 131,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete131-line read. Historical0055 additive migration/predecessor, idempotent original and same-ID legacy AI-generated row mirror. Actual library ensure/legacy create consumers traced; no AI generation/native/provider action, published migration untouched."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_passport_thumbnail_cache.py",
+      "sha256": "3c33c981af7daed0065111d7e03e57bc9a96c530263c50a2d5ad14c0e3e87035",
+      "physical_lines": 56,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete56-line read. Same-key20 coroutine render dedup and bounded oldest-byte eviction source controls. Whole actual cache lock/refcount/eviction owner read; no elapsed speed/load benchmark or new concurrency execution."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_passport_import_compensation.py",
+      "sha256": "8833679959268b118603244d1de977d5908d5486aeefa003f4ca6f08b66c401d",
+      "physical_lines": 70,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete70-line read. Actual isolated SQLite source controls fresh committed references after lost commit acknowledgement, only unreferenced staged cleanup and retention when DB unavailable. Whole compensation owner read; no service/DB test run or real delete."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_passport_date_evidence.py",
+      "sha256": "75d4b0a556eeaa9ca603c9b93654a0ff4e14bbbad737e29cffceb370ad84380c",
+      "physical_lines": 146,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete146-line read. Existing bounded printed/provider date formats, numeric ambiguity candidates/hints, named months, exact ASCII/full-match/calendar/field-specific plausible bounds. Whole current pure parser read; no OCR provider calls, new payload construction or policy change."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_passport_extraction_recovery.py",
+      "sha256": "ecabcd88bf21caebcb65daa7862f4025922430b4a8a0d75132a9ff290696f7e4",
+      "physical_lines": 115,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete115-line read. Thread-offloaded broker/priority publication, stale row lease/dead-letter attempt caps and PG SKIP LOCKED shape, commit-before-autonomous dispatch and bounded local recovery tasks. Whole recovery loop plus actual claim/dispatch slices read. Legacy passport_ocr queue name is routing compatibility, not retired MRZ execution."
+    },
+    {
+      "path": "backend/app/infrastructure/imaging/passport_thumbnail_cache.py",
+      "sha256": "bf1376afc710bcca274d1e1ce1e7fb32975991b277df9cf91392ae9a0b58fbc0",
+      "physical_lines": 88,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source read. Bounded byte/entry LRU with state lock and per-key user-refcount cleanup, same-key recheck and oversize no-store. No authority cache/new invalidation policy/performance claim."
+    },
+    {
+      "path": "backend/app/infrastructure/documents/passport_import_compensation.py",
+      "sha256": "b0eb8569e9937629ebe007e87bdb0c1fcd1979cb188de8f8eff52ca1c8014f76",
+      "physical_lines": 73,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source read. Exact fresh separate transaction checks of imported original columns/common library, safe orphan cleanup staging and uncertain-object retention/log counts/types. Original committed data never deleted through failed-session assumptions."
+    },
+    {
+      "path": "backend/app/infrastructure/processing/recovery.py",
+      "sha256": "aa7be8147764f287294e2c64d4e824a08fc311269f759371f443df1d2b6a0b17",
+      "physical_lines": 71,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source read. Explicit local task capacity, durable stale-job claim+commit before broker dispatch, supervised background work/set-task commit and cancellation gather. No actual broker/worker/database action or source edit."
+    },
+    {
+      "path": "backend/app/infrastructure/imaging/passport_image_cropper.py",
+      "sha256": "a180838f516f7c317f18850c3e6f79f6ad923135adc25d090b8f871fbb403fda",
+      "physical_lines": 340,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source physically read1-177/178-201/202-end. Purpose-specific bounded canonical decoding and CPU admission, renderer geometry/versioned sharpness, explicit resource ownership/finally, safe RGB/metadata stripping. Root-frozen rendering policy unchanged; no image edits or native mobile feature work."
+    },
+    {
+      "path": "backend/app/infrastructure/ai/passport_date_evidence.py",
+      "sha256": "23de6ddb96714f752111ec6aeaeaf1be717b8045608ca48d1b9723b082cff62b",
+      "physical_lines": 307,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source read. Bounded64-character full-match/date/ASCII and named/numeric candidate ordering with genuine ambiguity retained; field-specific day/year plausibility. Existing parser remains explicit format catalog; no new OCR/provider behavior or speculative rewrite."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_image_crop_repository.py",
+      "sha256": "ab9eb177615d85eb42e9b15f00a94a3cd7a9e10dc9dda15d6db918ebb2e7f9b7",
+      "physical_lines": 245,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical89-205 complete upsert/reset methods only. Original lock/current revision/default aliases, old derived/edit keys and idempotent reset preserved; other mapping/query/cleanup catalog not fully read."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_image_library_repository.py",
+      "sha256": "2d9d16bff5479c03d3ac8b6e8967d4a3da58edf32b7cf911221af5f0f3686bad",
+      "physical_lines": 243,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical77-120 ensure_original savepoint/race fallback and234-end exact referenced key query. Other creation/selection/storage catalog not fully read; root source unchanged."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_visa_ai_image_repository.py",
+      "sha256": "cf038459fd67bb67111d876bb050b019bbf4c8b9db631dd6128579217b17e5a7",
+      "physical_lines": 127,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical39-80 complete legacy create plus common library mirror using same ID/metadata; no actual AI call. Other repository methods not fully read."
+    },
+    {
+      "path": "backend/app/infrastructure/processing/job_repository.py",
+      "sha256": "cb6a2c126b1e4da14e07d6e872671456cac286f6c1ea8745715e5f691d4c2176",
+      "physical_lines": 360,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical310-end complete stale recovery lease/dead-letter method and require-model tail. Remaining processing outbox/mapping/mutation catalog not fully read."
+    },
+    {
+      "path": "backend/app/infrastructure/processing/dispatcher.py",
+      "sha256": "6e31aa4b8be8d82edd2a79a85f5d0833d39a83c8555d50ef595cdd3d6d3517ae",
+      "physical_lines": 141,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical35-73 complete async bounded thread bridge and synchronous dispatch prefix only; actual downstream worker/broker/provider selection not fully read or executed."
+    }
+  ],
+  "scope": "Seven newly current-full retained passport-image/date/recovery test sources877lines, five whole supporting and five explicit focused reads. CPU image/extraction infrastructure retained, native app/Inbox excluded; no source/check/provider changes."
+}

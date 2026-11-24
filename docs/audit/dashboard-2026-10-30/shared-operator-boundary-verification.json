@@ -1,0 +1,123 @@
+{
+  "status": "focused shared operator boundary/type checkpoint complete",
+  "source_sha256": {
+    "scripts/image_runtime_policy.py": "673087825215979c5f9eaf0d0d81cb7e0bc8e5a85db4fe09633a5743ab777cdd",
+    "scripts/release_manifest.py": "3f9f52c3bd3a4e965d4006901f581af725b17e4dfdbe00f7b32d6499b92c5cd1",
+    "scripts/verify_deployment_resource_budget.py": "ffa3b1159465bf57a750333bb708f03272b5f0130682a545593dc366a527e638",
+    "scripts/verify_database_deployment_budget.py": "18f49777f8d455f0af78d2c71d6330e29b16af2bd7eec51ccab8dc10a07a3803",
+    "scripts/database_identity_environment.py": "db9f8120c0e89a7bf8b0b3438d192a51a48912521f70e30f10ad79355d07edce",
+    "scripts/test_shared_operator_json_boundaries.py": "b37895b8d680ebf955c9b3634018d7c7fb9bd50a704db36d160ae9e6e5eab5da"
+  },
+  "checks": {
+    "before": "Five methods:13malformed JSON/worker program scenario errors;two normal positive methods pass",
+    "after": "48affected cases/6files PASS0.443seconds",
+    "strict_types": "PASS5sources explicit repository config/Linux target/silent imported bodies",
+    "Ruff_and_format": "PASS6owned source/test paths",
+    "no_live_services_or_broad_checks": true
+  },
+  "proof": {
+    "whole_five_modules_restore_after_only_named_guard_local_and_annotation_deltas": true,
+    "explicit_annotation_metadata_extensions": [
+      {
+        "path": "scripts/image_runtime_policy.py",
+        "function": "validate_process_command",
+        "before": {
+          "name": "str",
+          "service": "dict",
+          "return": "None"
+        },
+        "after": {
+          "name": "str",
+          "service": "dict[str, Any]",
+          "return": "None"
+        }
+      },
+      {
+        "path": "scripts/image_runtime_policy.py",
+        "function": "validate_code_boundary",
+        "before": {
+          "name": "str",
+          "service": "dict",
+          "return": "None"
+        },
+        "after": {
+          "name": "str",
+          "service": "dict[str, Any]",
+          "return": "None"
+        }
+      },
+      {
+        "path": "scripts/image_runtime_policy.py",
+        "function": "validate_process_isolation",
+        "before": {
+          "services": "dict",
+          "storage_directory": "str | None",
+          "return": "None"
+        },
+        "after": {
+          "services": "dict[str, Any]",
+          "storage_directory": "str | None",
+          "return": "None"
+        }
+      },
+      {
+        "path": "scripts/verify_deployment_resource_budget.py",
+        "function": "_replicas",
+        "before": {
+          "service": "dict",
+          "return": "int"
+        },
+        "after": {
+          "service": "dict[str, Any]",
+          "return": "int"
+        }
+      },
+      {
+        "path": "scripts/verify_database_deployment_budget.py",
+        "function": "calculate",
+        "before": {
+          "config": "dict",
+          "policy": "dict",
+          "return": "dict"
+        },
+        "after": {
+          "config": "dict[str, Any]",
+          "policy": "dict[str, Any]",
+          "return": "dict[str, Any]"
+        }
+      },
+      {
+        "path": "scripts/verify_database_deployment_budget.py",
+        "function": "capacity_markdown",
+        "before": {
+          "report": "dict",
+          "return": "str"
+        },
+        "after": {
+          "report": "dict[str, Any]",
+          "return": "str"
+        }
+      }
+    ],
+    "call_argument_names_defaults_and_runtime_normal_values_preserved": true,
+    "allowed_runtime_changes": [
+      "Release manifest must be an object; schema revisions must be strings before existing regex",
+      "Worker shell program must be a string; impossible absent reviewed command has bounded rejection",
+      "Credential preparation requires matched environment declaration before regex group access"
+    ],
+    "local_type_refinement": "Worker process-count local renamed then assigned after existing None rejection; no capacity policy change",
+    "configuration_queue_service_resource_limits_unchanged": true
+  },
+  "typing_responsibility": "Bare dict public annotations extended to explicit dict[str,Any] at six functions; callable argument names/defaults/returns and all unrelated executable AST preserved. Metadata extensions are explicit, not claimed old hint equality.",
+  "remaining": "Eleven historical imported/platform diagnostics and separately recorded retained26 interface diagnostics remain open; no all-operator strict certification",
+  "artifacts": {
+    "shared-operator-original-sources.json": "1b81c1196e995a8e668433f1dfc63486e3da757ad54208697eae8c51af0bf5f1",
+    "shared-operator-boundary-proof.json": "dbb465d6ed529a37fefba665e045685f2bd8b73715b2a9adfafa1822365abc9f",
+    "shared-operator-reviewed-files.json": "67cca1531a8483d928fd94a74bae4ce2078d51a625aac3854066439a517377ee",
+    "shared-operator-json-before.txt": "de66617f546189371c2625bf88dcfea761c5f0923e77dd530bf9c7cb4a946bb2",
+    "shared-operator-final-tests.txt": "3efb9dc2fce99f156399b748346ec74023a2b25c4f2c688e685ebc7fefd0bed1",
+    "shared-operator-final-types.txt": "718df785efbbd4b57e63b5f64aff2c5b5592e433447681f759b307f97a3ec96a",
+    "shared-operator-final-ruff.txt": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0",
+    "shared-operator-final-format.txt": "f57152af69ed696672a20f7a07dc500ce85005053092505a680768f611957e48"
+  }
+}

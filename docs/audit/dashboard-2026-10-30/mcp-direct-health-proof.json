@@ -1,0 +1,9 @@
+{
+  "whole_module_AST_restores_after_only_healthcheck_status_and_post_round_deadline_guards": true,
+  "all_original_public_method_args_decorators_annotations_constants_imports_and_other_bodies_unchanged": true,
+  "missing_status_policy": "Configured active healthchecks must report healthy; missing/unknown status cannot authorize candidate cutover",
+  "deadline_policy": "A blocking inspection round cannot authorize readiness after the declared deadline; this does not cancel or shorten an already-running Docker inspect",
+  "preserved": "Absent/null/disabled healthcheck admission, starting poll3seconds, immediate unhealthy/exit/OOM/restart rejection",
+  "prior_source_sha256": "303be129f601a263710382e98faa7de4e5bdb9231577ba5e9ecbc64d5e54f3c5",
+  "current_source_sha256": "d9f6f235c1d15eed4c7a28519ab6489c771bb306b49a8c00755395ac68c318e0"
+}

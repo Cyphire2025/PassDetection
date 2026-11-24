@@ -308,7 +308,7 @@ async def test_search_claim_rejects_gallery_disabled_after_queueing(
         "AsyncSessionFactory",
         lambda: _SessionContext(session),
     )
-    monkeypatch.setattr(worker_runtime, "_audit_search", AsyncMock())
+    monkeypatch.setattr("app.infrastructure.my_photos.search_job_claims._audit_search", AsyncMock())
 
     result = await _claim_search(
         claim.search_run_id,
@@ -338,6 +338,7 @@ async def test_search_finalize_rechecks_feature_after_provider_work(
         id=claim.job_id,
         status="running",
         lease_owner=claim.lease_owner,
+        lease_expires_at=datetime.now(tz=UTC) + timedelta(seconds=30),
     )
     enrollment = SimpleNamespace(id=claim.enrollment_id)
     session = SimpleNamespace(
@@ -357,7 +358,9 @@ async def test_search_finalize_rechecks_feature_after_provider_work(
         "AsyncSessionFactory",
         lambda: _SessionContext(session),
     )
-    monkeypatch.setattr(worker_runtime, "_audit_search", AsyncMock())
+    monkeypatch.setattr(
+        "app.infrastructure.my_photos.search_job_publication._audit_search", AsyncMock()
+    )
 
     result = await _finalize_search(
         claim,

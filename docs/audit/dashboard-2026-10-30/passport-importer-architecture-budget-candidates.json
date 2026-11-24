@@ -1,0 +1,102 @@
+{
+  "normal_module_candidates": [
+    {
+      "path": "app/infrastructure/imports/passport_document_importer.py",
+      "sha256": "1431aac22fdf7d255516c02f34d1f6ad8102ca083668a5f609bc9b74b7c65d92",
+      "previous": null,
+      "baseline_lines": 246,
+      "maximum_lines": 250,
+      "baseline_max_function_complexity": 14,
+      "maximum_function_complexity": 14,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/imports/passport_document_workspace.py",
+      "sha256": "78260b471bcc10d9edd1ed44b06dc732e5468802ea723ca8891964c12add98f7",
+      "previous": null,
+      "baseline_lines": 131,
+      "maximum_lines": 140,
+      "baseline_max_function_complexity": 6,
+      "maximum_function_complexity": 6,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/infrastructure/imports/passport_document_streams.py",
+      "sha256": "6ab71940f43d46edff2ece4e5c80706428ab087702e99f65eff5f2f3ed6a4caf",
+      "previous": null,
+      "baseline_lines": 46,
+      "maximum_lines": 50,
+      "baseline_max_function_complexity": 7,
+      "maximum_function_complexity": 7,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/imports/passport_document_images.py",
+      "sha256": "8f097d6a4b7a63f7c1fd2fb82615c351e3d7701baaed3c398349eabc2de60f0d",
+      "previous": null,
+      "baseline_lines": 66,
+      "maximum_lines": 70,
+      "baseline_max_function_complexity": 6,
+      "maximum_function_complexity": 6,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/imports/passport_zip_members.py",
+      "sha256": "88ef17047879d07ae2720d99dee680b4744c49d68baf59e7de33821ce6e3628c",
+      "previous": null,
+      "baseline_lines": 66,
+      "maximum_lines": 70,
+      "baseline_max_function_complexity": 16,
+      "maximum_function_complexity": 16,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/imports/passport_zip_reader.py",
+      "sha256": "8c5d054b922a9f3878ba1ded3b7971a873286b36a3cf84356fe2cb9c366d88ea",
+      "previous": null,
+      "baseline_lines": 101,
+      "maximum_lines": 110,
+      "baseline_max_function_complexity": 10,
+      "maximum_function_complexity": 10,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/imports/passport_zip_admission.py",
+      "sha256": "b534f8d9c02733c4a378e11ce74770b906c5dcea37984c5bf138930504e3486d",
+      "previous": null,
+      "baseline_lines": 75,
+      "maximum_lines": 80,
+      "baseline_max_function_complexity": 13,
+      "maximum_function_complexity": 13,
+      "minimum_coverage_percent": 90
+    }
+  ],
+  "critical_module_candidates": [
+    {
+      "path": "app/infrastructure/imports/passport_zip_admission.py",
+      "minimum_line_percent": 90,
+      "minimum_branch_percent": 80,
+      "reason": "actual directory counting precedes per-entry allocation; forged advertised counts cannot bypass member admission"
+    },
+    {
+      "path": "app/infrastructure/imports/passport_zip_members.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95,
+      "reason": "actual unsafe-path/symlink/size/compression/cumulative quota admission controls"
+    },
+    {
+      "path": "app/infrastructure/imports/passport_document_streams.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 75,
+      "reason": "actual truncation/growth/declared-length bounds and cursor restoration"
+    },
+    {
+      "path": "app/infrastructure/imports/passport_document_workspace.py",
+      "minimum_line_percent": 90,
+      "minimum_branch_percent": 80,
+      "reason": "actual native rolled-spool close-all ownership and canonical byte quota"
+    }
+  ],
+  "not_automatic_admission": true,
+  "notes": "Original importer had no module or critical row. Seven measured additive normal candidates; four actual resource/admission critical candidates. No old/global floors or ceilings changed. Root has not edited shared gates."
+}

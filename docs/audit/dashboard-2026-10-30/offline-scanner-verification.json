@@ -1,0 +1,112 @@
+{
+  "status": "FROZEN coherent scanner architecture/lifetime/UI batch; parent final combined verification remains pending",
+  "reviewer": "branding_visuals",
+  "source_fence": "offline-scanner-source-fence.json",
+  "source_fence_paths": 38,
+  "all_fenced_hashes_unchanged": true,
+  "current_full_records": 36,
+  "focused_generated_or_lock_records": 2,
+  "original_authored_lines": 1267,
+  "current_authored_runtime_modules": 15,
+  "largest_authored_runtime_lines": 279,
+  "measured_additive_budget_candidates": 17,
+  "architecture": {
+    "served_path": "/offline-scanner.js",
+    "format": "One classic IIFE, minify:false, no source map/runtime imports/additional output assets",
+    "tooling": "Existing pinned Vite8.2.4; envDir:false/configFile:false/publicDir:false; no dependency/lock change",
+    "gate": "npm prebuild verifies artifact before existing MediaPipe check. Fully read existing Docker npm ci installs dev tools; builder npm run build reaches gate.",
+    "determinism": "Actual identical output across relocated temporary root and CRLF sources; normalized source EOL/digest and generated region labels. Stale artifact and changed-source negatives pass. No separately executed Linux/Docker claim."
+  },
+  "preserved": [
+    "DB name/version5, stores/indexes/keys, stable scan identity and encrypted associated-data ordering",
+    "Signed owner/tenant/group/runtime/key/digest/roster/window and original clock tolerances",
+    "AES-GCM/nonextractable keys/plaintext zeroing, legacy quarantine and terminal reconciliation record",
+    "Capacity5000, duplicate semantics, serial scan pipeline and reconnect wait",
+    "Camera constraints/generation and stream teardown, existing selection and unavailable workflows",
+    "Exact3public cached assets; no new runtime asset/network path, forced reload or queue/auth/key purge"
+  ],
+  "proofs": {
+    "historical_mechanical": "offline-scanner-mechanical-provenance.json: all58complete function ASTs preserved after initial startup guard, before later deliberate fixes",
+    "current": "offline-scanner-current-provenance.json:55exact under explicit qualification/shorthand normalization;3intentional deltas enqueueScan/refreshPendingCount/handleOwnerChange plus3focused helpers",
+    "old_tests": "All3old post-signature VM-stub obligations now execute actual native signed/encrypted IIFE startup/camera-ready synthetic decoder/current queue. Original snapshot SHA6699edade4943308c08969aa4956351cc452bacfbffe223f209dfd63f5c57ad1 retained.",
+    "contracts": "Original25cases retained. Loader follows actual authored entry/import graph. Exact live state owner reference, generated license artifact and intended SW cache-v12 expectations are explicitly adjusted. No historical expression injected."
+  },
+  "proved_fixes": [
+    {
+      "id": "OFFLINE-STARTUP-OWNER",
+      "baseline": "3controls pass1fail; A-to-B while native signature verification return is held",
+      "fix": "Post-await owner fence prevents private option publication. Original later count guard already hid scanner; actual disclosure was hidden-DOM labels, not visible paint/server bypass."
+    },
+    {
+      "id": "OFFLINE-OWNER-CLEAR",
+      "baseline": "5controls pass; post-start owner-change hidden-DOM label case fails",
+      "fix": "Clear private options/text/link/state/verified registry on owner loss; same unavailable outcome and saved queue retained."
+    },
+    {
+      "id": "OFFLINE-COUNT-PUBLICATION",
+      "baseline": "5controls pass; previous activity count expected2 saw1",
+      "fix": "Capture owner and fence successful/error count publication by current owner/group/session. Current failure remainsUnavailable."
+    },
+    {
+      "id": "OFFLINE-ENCRYPTED-QUEUE-OWNER",
+      "baseline": "4native controls pass1fail; old native AES continuation recreates1A row after synthetic persisted purge",
+      "fix": "Current owner checked after native encryption before transaction and before new put after capacity await; same-owner continuation saves. Local persistence only, no backend send/bypass claim."
+    }
+  ],
+  "checks": [
+    {
+      "command": "node --test [7affected scanner/PWA files]",
+      "outcome": "50passed0failed",
+      "raw": ".tmp/offline-scanner/final-focused.txt"
+    },
+    {
+      "command": "playwright test --config playwright.fixtures.config.ts offline-runtime-update.spec.ts",
+      "outcome": "1WebKit passed; owned ephemeral loopback server closed",
+      "raw": ".tmp/offline-scanner/cache-update-browser-sealed.txt",
+      "scope": "Installed synthetic previousv11 to actualv12 cache; exact3assets, document/draft, pending row, owner/high-water and persisted nonextractable AES probe retained. Not full scanner startup/camera proof."
+    },
+    {
+      "command": "tsc --noEmit --incremental false",
+      "outcome": "exit0 no diagnostics",
+      "raw": ".tmp/offline-scanner/types.txt"
+    },
+    {
+      "command": "affected ESLint --max-warnings=0",
+      "outcome": "exit0 zero warnings",
+      "raw": ".tmp/offline-scanner/final-lint.txt"
+    },
+    {
+      "command": "npm run prebuild",
+      "outcome": "scanner artifact and existing MediaPipe CSP checks passed",
+      "raw": ".tmp/offline-scanner/prebuild.txt"
+    }
+  ],
+  "failure_history": [
+    ".tmp/offline-scanner/startup-baseline.txt",
+    ".tmp/offline-scanner/startup-continuation-baseline.txt",
+    ".tmp/offline-scanner/encryption-owner-baseline.txt",
+    ".tmp/offline-scanner/contracts-first.txt: generated lexical input mismatch, not runtime failure",
+    ".tmp/offline-scanner/portable-artifact.txt: generated region root dependence corrected before seal",
+    "One transient Windows artifact open UNKNOWN; subsequent ordinary write/check passed. No runtime result attributed to it."
+  ],
+  "coverage_obligations": {
+    "critical_config_unchanged_sha256": "85ce4e7d5be4ff07748412030ccf1fca3177be52c388dbbada89053bcfc1a400",
+    "existing_includes": 31,
+    "existing_per_file_floors": {
+      "statements": 74,
+      "branches": 50,
+      "functions": 75,
+      "lines": 75
+    },
+    "old_standalone_script_not_in_V8_include": true,
+    "meaningful_moved_Node_obligations_preserved": true,
+    "new_runtime_V8_coverage_claim": false
+  },
+  "limits": [
+    "Real Node WebCrypto, visual JSDOM, asynchronous IDB API fixture and synthetic decoder/tracks. No browser transaction atomicity/durability/upgrade or physical camera claim from those cases.",
+    "Real WebKit CacheStorage/IDB/CryptoKey preservation with synthetic prior scanner/readiness row; not full signed cold-offline scanner journey.",
+    "No production app build/whole suite/broad browser round for this partial batch; historical parent builds do not qualify new runtime.",
+    "No Linux/Docker/VPS/provider/backend-send/production data/native mobile qualification.",
+    "Independent attendance5000-row workload and shared-test followups remainOPEN. Partition is not a measured speedup."
+  ]
+}

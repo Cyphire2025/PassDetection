@@ -1,0 +1,93 @@
+[
+  {
+    "path": "features/whatsapp/workspace/use-message-composer.ts",
+    "baselineLines": 77,
+    "maximumLines": 80,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/whatsapp/workspace/message-composer-state.ts",
+    "baselineLines": 14,
+    "maximumLines": 20,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/whatsapp/workspace/use-composer-header-image.ts",
+    "baselineLines": 31,
+    "maximumLines": 40,
+    "baselineMaxFunctionComplexity": 4,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/whatsapp/workspace/use-message-composer-preview.ts",
+    "baselineLines": 123,
+    "maximumLines": 130,
+    "baselineMaxFunctionComplexity": 25,
+    "maximumFunctionComplexity": 26
+  },
+  {
+    "path": "features/whatsapp/workspace/use-message-composer-send.ts",
+    "baselineLines": 130,
+    "maximumLines": 140,
+    "baselineMaxFunctionComplexity": 12,
+    "maximumFunctionComplexity": 13
+  },
+  {
+    "path": "features/whatsapp/workspace/message-composer.tsx",
+    "baselineLines": 47,
+    "maximumLines": 50,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/whatsapp/workspace/message-composer-editor.tsx",
+    "baselineLines": 203,
+    "maximumLines": 210,
+    "baselineMaxFunctionComplexity": 18,
+    "maximumFunctionComplexity": 19
+  },
+  {
+    "path": "features/whatsapp/workspace/message-composer-feedback.tsx",
+    "baselineLines": 66,
+    "maximumLines": 70,
+    "baselineMaxFunctionComplexity": 15,
+    "maximumFunctionComplexity": 16
+  },
+  {
+    "path": "features/whatsapp/workspace/message-composer-review-dialog.tsx",
+    "baselineLines": 94,
+    "maximumLines": 100,
+    "baselineMaxFunctionComplexity": 8,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/whatsapp/workspace/message-composer-audience.tsx",
+    "baselineLines": 168,
+    "maximumLines": 170,
+    "baselineMaxFunctionComplexity": 10,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/whatsapp/workspace/message-composer-audience-filters.tsx",
+    "baselineLines": 159,
+    "maximumLines": 160,
+    "baselineMaxFunctionComplexity": 9,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/whatsapp/workspace/composer-field-state.ts",
+    "baselineLines": 48,
+    "maximumLines": 50,
+    "baselineMaxFunctionComplexity": 9,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/whatsapp/workspace/composer-draft.ts",
+    "baselineLines": 56,
+    "maximumLines": 60,
+    "baselineMaxFunctionComplexity": 15,
+    "maximumFunctionComplexity": 16
+  }
+]

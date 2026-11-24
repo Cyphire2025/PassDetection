@@ -1,0 +1,157 @@
+{
+  "scope": "Three shared-backend document/image orphan runtime owners and focused tests; supporting reference closure explicitly partial. No native UI or cloud/provider access.",
+  "files": [
+    {
+      "path": "backend/app/infrastructure/documents/orphan_reconciliation.py",
+      "sha256": "7458b420372052de441f45b4349c440eb59464b78d7d5a6dc9da89356dae26a2",
+      "reviewer": "ai_extraction",
+      "review_scope": "complete current physical source; authored or retained original code plus actual caller/transaction/resource trace",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 226,
+      "notes": "Full original207-line scanner and unchanged task read; final engine whole-body equivalence independently checked, current wrapper/reference query and task wiring read after formatting; privacy, bounded rows/parameters/page/deletes, failclosed reference errors and cursor/retention behavior reviewed."
+    },
+    {
+      "path": "backend/app/infrastructure/documents/passport_orphan_reconciliation.py",
+      "sha256": "386437eba16ef0ce7ad40ddf6bfa9542ba55c23ce2797c42413d090201d854ca",
+      "reviewer": "ai_extraction",
+      "review_scope": "complete current physical source; authored or retained original code plus actual caller/transaction/resource trace",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 108,
+      "notes": "Full original207-line scanner and unchanged task read; final engine whole-body equivalence independently checked, current wrapper/reference query and task wiring read after formatting; privacy, bounded rows/parameters/page/deletes, failclosed reference errors and cursor/retention behavior reviewed."
+    },
+    {
+      "path": "backend/app/infrastructure/documents/cleanup_tasks.py",
+      "sha256": "39c6acc102334472316a68f88cc2b57cd9cd9a4115318a7596ed632c1df56517",
+      "reviewer": "ai_extraction",
+      "review_scope": "complete current physical source; authored or retained original code plus actual caller/transaction/resource trace",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 67,
+      "notes": "Full original207-line scanner and unchanged task read; final engine whole-body equivalence independently checked, current wrapper/reference query and task wiring read after formatting; privacy, bounded rows/parameters/page/deletes, failclosed reference errors and cursor/retention behavior reviewed."
+    },
+    {
+      "path": "backend/tests/integration/test_passport_orphan_reconciliation.py",
+      "sha256": "f830e3dd04d0b20e72afa084a91a09fe135b99a5669be37367387add874649ba",
+      "reviewer": "ai_extraction",
+      "review_scope": "complete current physical source; authored or retained original code plus actual caller/transaction/resource trace",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 173,
+      "notes": "Full original scanner test or newly authored current test/fixture reviewed; real FK SQLite references, lost-ACK and bounded/failure/diagnostic assertions retained. Synthetic storage only."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_passport_orphan_bounds.py",
+      "sha256": "aa84ebf9999e431ec17d3f2969e136537e19ae12d690db339729607127560b23",
+      "reviewer": "ai_extraction",
+      "review_scope": "complete current physical source; authored or retained original code plus actual caller/transaction/resource trace",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 184,
+      "notes": "Full original scanner test or newly authored current test/fixture reviewed; real FK SQLite references, lost-ACK and bounded/failure/diagnostic assertions retained. Synthetic storage only."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_document_orphan_reconciliation.py",
+      "sha256": "4dfd54838bfdf8b0c9b8ea2305896ea5e1dac3455d6b90808db277833f1ac7ed",
+      "reviewer": "ai_extraction",
+      "review_scope": "complete current physical source; authored or retained original code plus actual caller/transaction/resource trace",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 159,
+      "notes": "Full original scanner test or newly authored current test/fixture reviewed; real FK SQLite references, lost-ACK and bounded/failure/diagnostic assertions retained. Synthetic storage only."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_document_cleanup_task_diagnostics.py",
+      "sha256": "2eb37f217f744e51622c663abab2b46128bb493cb310b613dd5a432a1517f231",
+      "reviewer": "ai_extraction",
+      "review_scope": "complete current physical source; authored or retained original code plus actual caller/transaction/resource trace",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 48,
+      "notes": "Full original scanner test or newly authored current test/fixture reviewed; real FK SQLite references, lost-ACK and bounded/failure/diagnostic assertions retained. Synthetic storage only."
+    },
+    {
+      "path": "backend/tests/integration/passport_orphan_fixtures.py",
+      "sha256": "e9d489fb2050cf07ef04f6886686e994da3f46c0901f4d40cdc033816f7712e3",
+      "reviewer": "ai_extraction",
+      "review_scope": "complete current physical source; authored or retained original code plus actual caller/transaction/resource trace",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 205,
+      "notes": "Full original scanner test or newly authored current test/fixture reviewed; real FK SQLite references, lost-ACK and bounded/failure/diagnostic assertions retained. Synthetic storage only."
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/asset_copy.py",
+      "sha256": "8459bb8fc0850257586438d6b32cf463b59943c86e0687db605fafb4267a7a18",
+      "reviewer": "ai_extraction",
+      "review_scope": "partial supporting reference/resource trace",
+      "review_status": "partial",
+      "status": "reviewed-partial",
+      "notes": "Reference claim145..174, destination168..239 and result240..275: source_object_key is retained pending copy and cleared only on successful durable finalization. Partial supporting trace, not full current source credit."
+    },
+    {
+      "path": "backend/app/application/travellers/enrollment.py",
+      "sha256": "cc10c65c84ce2290bbf57614228c4442e8ae80c2f2246f1721ae7d1c507c9a5a",
+      "reviewer": "ai_extraction",
+      "review_scope": "partial supporting reference/resource trace",
+      "review_status": "partial",
+      "status": "reviewed-partial",
+      "notes": "307..345 existing _stage_assets: five original image-key fields become pending source_object_key records and travellers/... destination keys. Partial only."
+    },
+    {
+      "path": "backend/app/application/travellers/draft_uploads.py",
+      "sha256": "8b0c1414943e07d89e24f68bab728ffd6009232e9a0eb07225f37fa35761f008",
+      "reviewer": "ai_extraction",
+      "review_scope": "partial supporting reference/resource trace",
+      "review_status": "partial",
+      "status": "reviewed-partial",
+      "notes": "58..93 reserve_asset mints returning-drafts keys; no scanned image prefix minted. Partial only."
+    },
+    {
+      "path": "backend/app/infrastructure/database/traveller_document_models.py",
+      "sha256": "9c046eb0b896b8af729b9ced4945e0d0adb412749a108447add0ad500938be6b",
+      "reviewer": "ai_extraction",
+      "review_scope": "partial supporting reference/resource trace",
+      "review_status": "partial",
+      "status": "reviewed-partial",
+      "notes": "Asset150..213+participation214..302 durable object/source-key and retained revision/source foreign-key structure; partial current physical source, not a full source record."
+    },
+    {
+      "path": "backend/app/infrastructure/database/traveller_returning_draft_models.py",
+      "sha256": "ee2462ab5691b5533f48f8b748162389e3f08ed97a46ff6476073dca7000b663",
+      "reviewer": "ai_extraction",
+      "review_scope": "partial supporting reference/resource trace",
+      "review_status": "partial",
+      "status": "reviewed-partial",
+      "notes": "Draft/asset35..130 schema and object-key constraints; remaining models not read in this tranche. Partial only."
+    },
+    {
+      "path": "backend/app/infrastructure/ecr/passport_runtime.py",
+      "sha256": "745ad2bfbec7597ad634e520247fc52e3d41fedec43b9b03413c4d3161f3d25b",
+      "reviewer": "ai_extraction",
+      "review_scope": "partial supporting reference/resource trace",
+      "review_status": "partial",
+      "status": "reviewed-partial",
+      "notes": "55..136 source/staging/reset and192..265 claimed source/current ownership. Durable old source is conservative reference; no ECR runtime changes/fullread claim."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_image_library_repository.py",
+      "sha256": "2d9d16bff5479c03d3ac8b6e8967d4a3da58edf32b7cf911221af5f0f3686bad",
+      "reviewer": "ai_extraction",
+      "review_scope": "partial supporting reference/resource trace",
+      "review_status": "partial",
+      "status": "reviewed-partial",
+      "notes": "225..259 membership helpers protect only storage_key; unsuitable alone for complete original_source ownership closure. Partial only."
+    },
+    {
+      "path": "backend/app/infrastructure/storage/minio_repository.py",
+      "sha256": "f31fe249d63c18ea0e400bae0ee3161eb05db6b194527e2bdab39bf88626180c",
+      "reviewer": "ai_extraction",
+      "review_scope": "partial supporting reference/resource trace",
+      "review_status": "partial",
+      "status": "reviewed-partial",
+      "notes": "Entire list_files method read: fixed nonempty Prefix, finite limit/pages, keys must start with normalized prefix; other methods not rereviewed here. Partial supporting inspection."
+    }
+  ]
+}

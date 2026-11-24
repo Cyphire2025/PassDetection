@@ -1,0 +1,58 @@
+{
+  "created_at_utc": "2026-10-30T20:31:48.829069+00:00",
+  "scope": "Pure WhatsApp roster matcher architecture and selected-heading work; not PDF-document matcher or private authorization policy redesign",
+  "source_sha256": {
+    "backend/app/application/use_cases/whatsapp/group_submission_matching.py": "dc85ecd81a87dd90451b9558d40a5007d338d93c3af30570cbff7d92b6ceb2e3",
+    "backend/app/application/use_cases/whatsapp/group_match_coordinator.py": "d409da422bab1a779bf75a3b4c10e98e0ec5b036735d5161d11af5f35fb7f76f",
+    "backend/app/application/use_cases/whatsapp/group_match_evidence.py": "cf662891cd0d635b070cc93a5a68de3b2e660421e7b37545510d8dfd03aefb8b",
+    "backend/app/application/use_cases/whatsapp/group_match_fields.py": "43ff801155b533fbf5b3c5a1172dd18c9bc4748d191e24433d8dde6582573a17",
+    "backend/app/application/use_cases/whatsapp/group_match_normalization.py": "5b6d8982eb966989959ac6c8995b0b3278f1a20594e5aa375a001f06c1118f34",
+    "backend/app/application/use_cases/whatsapp/group_match_profiles.py": "fc8a2101cf3abc2bc1b2df737e6572b540faa32b5c353c572e90b14f09afd900",
+    "backend/app/application/use_cases/whatsapp/group_match_rows.py": "8c712fa4e4529434139a45acba392f9119ac842191154d0bf62caa101a732369",
+    "backend/app/application/use_cases/whatsapp/group_match_types.py": "fc8546d246a221ed0dcf6834aa753e1b51fa877dffd2029e522e5f6ce4dfcf1f"
+  },
+  "before_lines": 1343,
+  "current_facade_lines": 201,
+  "current_owning_modules": 7,
+  "largest_owner_lines": 297,
+  "structural_proof": "whatsapp-matcher-extraction-proof.json",
+  "mechanical_unchanged_class_function_asts": 46,
+  "final_intentional_ast_change_only": "_mapping_field_values",
+  "performance": "Conflict-heading normalization hoisted from each metadata pair: O(fields*conflicting_headings) to O(fields+conflicting_headings), regex suffix normalization once per key. Exact alternate-column and terminal_2 policy retained.",
+  "expected_red": {
+    "artifact": "whatsapp-matcher-work-before-fix.xml",
+    "cases_failed": 2
+  },
+  "checks": [
+    {
+      "check": "Focused matching/reconciliation/repository/correction tests",
+      "status": "passed",
+      "tests": 127,
+      "artifact": "whatsapp-matcher-after-fix.xml"
+    },
+    {
+      "check": "Targeted required-new-owner coverage",
+      "status": "passed",
+      "tests": 127,
+      "artifact": "whatsapp-matcher-coverage.json",
+      "minimum_observed_statement_percent": 91.34615384615384,
+      "minimum_observed_branch_inclusive_percent": 89.04109589041096
+    },
+    {
+      "check": "Mypy eight affected source modules",
+      "status": "passed"
+    },
+    {
+      "check": "Owned source/test Ruff and application/domain architecture boundaries",
+      "status": "passed"
+    }
+  ],
+  "budget_candidates": "whatsapp-matcher-budget-candidates.json",
+  "budget_policy": "All8additive candidates use90percent statement floor and unchanged measured complexity ceiling; no existing module ceiling/floor/globalcritical gate changed. AIagent owns central integration.",
+  "limits": [
+    "Full58original files source read is complete; further provider/worker/QR architecture is assigned and ongoing",
+    "Existing47coordinator/27profile complexity includes comprehensions and remains explicit rather than claiming all function-level debt gone",
+    "No live Meta sends/production fixtures/PostgreSQL/Redis broker qualification",
+    "Root full project verification is separate; this is a coherent source-bound focused checkpoint"
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "command": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-vv",
+    "--tb=long",
+    "-o",
+    "addopts=",
+    "--no-cov",
+    "tests/integration/test_broadcast_incremental_matching.py::test_second_import_assigns_new_person_without_relink_and_preserves_first_snapshot",
+    "--junitxml=C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\final-retained-backend-incremental-match-diagnostic-20261101-001\\junit.xml"
+  ],
+  "exit_code": 1,
+  "seconds": 17.312,
+  "same_guard_minimal_environment": true,
+  "coverage_disabled": true,
+  "source_fence_exact_before_after": true,
+  "artifacts": {
+    "environment-guard-34680.json": "56f3b6c8fd1e6175256a8a952b51b38fb907e522b36a2c7fbece53a3ff85361c",
+    "junit.xml": "bf87c5ca981a994ae0193da014f9d2f95659d67192ade997412f043cf450adf4",
+    "source-fence.json": "eb286986c046a4f1fa769bb0504d25b3222cff36943c3234e14a0a465b47e08c",
+    "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout.txt": "2a58ab0ba9305c2a837ef3f2908a7665182b84e45fb92988b6d46615255e93b4"
+  },
+  "limits": [
+    "Standalone diagnostic cannot replace original combined-run evidence.",
+    "No source changes or coverage merging."
+  ]
+}

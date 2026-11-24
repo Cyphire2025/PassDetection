@@ -1,0 +1,63 @@
+EEEEE
+======================================================================
+ERROR: test_base_typed_unchanged_lock_call_uses_same_fast_builder_protocol (test_retained_fast_interface.RetainedFastInterfaceTests.test_base_typed_unchanged_lock_call_uses_same_fast_builder_protocol)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_retained_fast_interface.py", line 42, in test_base_typed_unchanged_lock_call_uses_same_fast_builder_protocol
+    actual = build_through_base(builder, previous)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_retained_fast_interface.py", line 16, in build_through_base
+    return builder.backend(IMAGE, previous_lock)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FastBuild.backend() takes 2 positional arguments but 3 were given
+
+======================================================================
+ERROR: test_changed_dependency_lock_is_rejected_before_any_builder_side_effect (test_retained_fast_interface.RetainedFastInterfaceTests.test_changed_dependency_lock_is_rejected_before_any_builder_side_effect)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_retained_fast_interface.py", line 66, in test_changed_dependency_lock_is_rejected_before_any_builder_side_effect
+    build_through_base(builder, previous)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_retained_fast_interface.py", line 16, in build_through_base
+    return builder.backend(IMAGE, previous_lock)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FastBuild.backend() takes 2 positional arguments but 3 were given
+
+======================================================================
+ERROR: test_same_lock_with_checkout_line_endings_remains_code_only (test_retained_fast_interface.RetainedFastInterfaceTests.test_same_lock_with_checkout_line_endings_remains_code_only)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_retained_fast_interface.py", line 56, in test_same_lock_with_checkout_line_endings_remains_code_only
+    self.assertEqual(build_through_base(builder, previous)["base_image_id"], IMAGE)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_retained_fast_interface.py", line 16, in build_through_base
+    return builder.backend(IMAGE, previous_lock)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FastBuild.backend() takes 2 positional arguments but 3 were given
+
+======================================================================
+ERROR: test_subclass_super_keeps_override_dispatch_and_original_one_argument_call (test_retained_fast_interface.RetainedFastInterfaceTests.test_subclass_super_keeps_override_dispatch_and_original_one_argument_call)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_retained_fast_interface.py", line 90, in test_subclass_super_keeps_override_dispatch_and_original_one_argument_call
+    self.assertTrue(builder.backend(IMAGE)["derived"])
+                    ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_retained_fast_interface.py", line 81, in backend
+    return {**super().backend(base_image, previous_lock), "derived": True}
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FastBuild.backend() takes 2 positional arguments but 3 were given
+
+======================================================================
+ERROR: test_unavailable_dependency_evidence_fails_closed_before_building (test_retained_fast_interface.RetainedFastInterfaceTests.test_unavailable_dependency_evidence_fails_closed_before_building)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_retained_fast_interface.py", line 75, in test_unavailable_dependency_evidence_fails_closed_before_building
+    build_through_base(builder, root / "missing.lock")
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_retained_fast_interface.py", line 16, in build_through_base
+    return builder.backend(IMAGE, previous_lock)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FastBuild.backend() takes 2 positional arguments but 3 were given
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.015s
+
+FAILED (errors=5)

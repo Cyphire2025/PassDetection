@@ -1,0 +1,38 @@
+[
+  {
+    "path": "scripts/mcp_inventory.py",
+    "sha256": "2da78b6aa2501f37a45cd4d38408c7a351e07028c459b593127d5244a74003b8",
+    "physical_lines": 266,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Complete current source physically read. Static explicit local/relative binding grammar only; no app import/eval or classification allowlist. 18 affected tooling cases pass, including all12 unchanged legacy decorator/drift contracts. Current14original admin route contracts retain IDs/args/defaultDepends/decorators; implementation owner is explicit review-required metadata. Conditional/unknown/cyclic/wildcard/ambiguous/dynamic bindings fail closed. Exact old discovery module AST restores after removing import and one registration pass. Matrix unchanged; historical1990 remains historical. No runtime app/provider/VPS/broad check."
+  },
+  {
+    "path": "scripts/mcp_route_handlers.py",
+    "sha256": "3d813f6cb4a54613af4047450ac643aa33978f7f53c316979d69ecba8e2a8887",
+    "physical_lines": 135,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current source physically read. Static explicit local/relative binding grammar only; no app import/eval or classification allowlist. 18 affected tooling cases pass, including all12 unchanged legacy decorator/drift contracts. Current14original admin route contracts retain IDs/args/defaultDepends/decorators; implementation owner is explicit review-required metadata. Conditional/unknown/cyclic/wildcard/ambiguous/dynamic bindings fail closed. Exact old discovery module AST restores after removing import and one registration pass. Matrix unchanged; historical1990 remains historical. No runtime app/provider/VPS/broad check."
+  },
+  {
+    "path": "scripts/test_mcp_route_registration_discovery.py",
+    "sha256": "0780defcbc3bb562333cb9b07b40a4a5ca4eec4904ad154bd84b4512e911febd",
+    "physical_lines": 140,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current source physically read. Static explicit local/relative binding grammar only; no app import/eval or classification allowlist. 18 affected tooling cases pass, including all12 unchanged legacy decorator/drift contracts. Current14original admin route contracts retain IDs/args/defaultDepends/decorators; implementation owner is explicit review-required metadata. Conditional/unknown/cyclic/wildcard/ambiguous/dynamic bindings fail closed. Exact old discovery module AST restores after removing import and one registration pass. Matrix unchanged; historical1990 remains historical. No runtime app/provider/VPS/broad check."
+  },
+  {
+    "path": "scripts/test_mcp_inventory.py",
+    "sha256": "c06a8cc4823075cdeb0e86ff9903c2bc6b1d896268362d018483cb921674d6ee",
+    "physical_lines": 133,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current source physically read. Static explicit local/relative binding grammar only; no app import/eval or classification allowlist. 18 affected tooling cases pass, including all12 unchanged legacy decorator/drift contracts. Current14original admin route contracts retain IDs/args/defaultDepends/decorators; implementation owner is explicit review-required metadata. Conditional/unknown/cyclic/wildcard/ambiguous/dynamic bindings fail closed. Exact old discovery module AST restores after removing import and one registration pass. Matrix unchanged; historical1990 remains historical. No runtime app/provider/VPS/broad check."
+  }
+]

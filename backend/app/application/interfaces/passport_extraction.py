@@ -1,7 +1,7 @@
 """
 Passport Extraction Service Interface
 ====================================
-Application-facing contract for OCR / MRZ extraction.
+Application-facing contract for AI passport image extraction.
 """
 
 from __future__ import annotations
@@ -20,7 +20,7 @@ class PassportExtractionResult:
 
 
 class IPassportExtractionService(ABC):
-    """Contract for passport OCR / MRZ extraction services."""
+    """Contract for passport image extraction services."""
 
     @abstractmethod
     async def extract(self, file_content: bytes, *, filename: str, content_type: str) -> PassportExtractionResult:

@@ -1,0 +1,610 @@
+{
+  "four_json_schemas_equal": {
+    "GalleryManifestVariant": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "thumbnail",
+            "preview",
+            "analysis",
+            "optimized"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "storage_reference": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Storage Reference",
+          "type": "string"
+        },
+        "mime_type": {
+          "enum": [
+            "image/jpeg",
+            "image/png",
+            "image/webp"
+          ],
+          "title": "Mime Type",
+          "type": "string"
+        },
+        "width": {
+          "maximum": 100000,
+          "minimum": 1,
+          "title": "Width",
+          "type": "integer"
+        },
+        "height": {
+          "maximum": 100000,
+          "minimum": 1,
+          "title": "Height",
+          "type": "integer"
+        },
+        "byte_size": {
+          "maximum": 209715200,
+          "minimum": 1,
+          "title": "Byte Size",
+          "type": "integer"
+        },
+        "checksum_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Checksum Sha256",
+          "type": "string"
+        },
+        "delivery_version": {
+          "maximum": 2147483647,
+          "minimum": 1,
+          "title": "Delivery Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "kind",
+        "storage_reference",
+        "mime_type",
+        "width",
+        "height",
+        "byte_size",
+        "checksum_sha256",
+        "delivery_version"
+      ],
+      "title": "GalleryManifestVariant",
+      "type": "object"
+    },
+    "GalleryManifestAsset": {
+      "$defs": {
+        "GalleryManifestVariant": {
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "enum": [
+                "thumbnail",
+                "preview",
+                "analysis",
+                "optimized"
+              ],
+              "title": "Kind",
+              "type": "string"
+            },
+            "storage_reference": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Storage Reference",
+              "type": "string"
+            },
+            "mime_type": {
+              "enum": [
+                "image/jpeg",
+                "image/png",
+                "image/webp"
+              ],
+              "title": "Mime Type",
+              "type": "string"
+            },
+            "width": {
+              "maximum": 100000,
+              "minimum": 1,
+              "title": "Width",
+              "type": "integer"
+            },
+            "height": {
+              "maximum": 100000,
+              "minimum": 1,
+              "title": "Height",
+              "type": "integer"
+            },
+            "byte_size": {
+              "maximum": 209715200,
+              "minimum": 1,
+              "title": "Byte Size",
+              "type": "integer"
+            },
+            "checksum_sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "title": "Checksum Sha256",
+              "type": "string"
+            },
+            "delivery_version": {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "title": "Delivery Version",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "kind",
+            "storage_reference",
+            "mime_type",
+            "width",
+            "height",
+            "byte_size",
+            "checksum_sha256",
+            "delivery_version"
+          ],
+          "title": "GalleryManifestVariant",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "immutable_asset_key": {
+          "maxLength": 128,
+          "minLength": 8,
+          "pattern": "^[A-Za-z0-9._:-]+$",
+          "title": "Immutable Asset Key",
+          "type": "string"
+        },
+        "archive_reference": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Archive Reference",
+          "type": "string"
+        },
+        "original_filename": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Original Filename",
+          "type": "string"
+        },
+        "mime_type": {
+          "enum": [
+            "image/jpeg",
+            "image/png",
+            "image/webp"
+          ],
+          "title": "Mime Type",
+          "type": "string"
+        },
+        "width": {
+          "maximum": 100000,
+          "minimum": 1,
+          "title": "Width",
+          "type": "integer"
+        },
+        "height": {
+          "maximum": 100000,
+          "minimum": 1,
+          "title": "Height",
+          "type": "integer"
+        },
+        "byte_size": {
+          "maximum": 209715200,
+          "minimum": 1,
+          "title": "Byte Size",
+          "type": "integer"
+        },
+        "checksum_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Checksum Sha256",
+          "type": "string"
+        },
+        "captured_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Captured At"
+        },
+        "orientation": {
+          "default": 1,
+          "maximum": 8,
+          "minimum": 1,
+          "title": "Orientation",
+          "type": "integer"
+        },
+        "sort_rank": {
+          "maximum": 9223372036854775807,
+          "minimum": 0,
+          "title": "Sort Rank",
+          "type": "integer"
+        },
+        "variants": {
+          "items": {
+            "$ref": "#/$defs/GalleryManifestVariant"
+          },
+          "maxItems": 4,
+          "minItems": 3,
+          "title": "Variants",
+          "type": "array"
+        }
+      },
+      "required": [
+        "immutable_asset_key",
+        "archive_reference",
+        "original_filename",
+        "mime_type",
+        "width",
+        "height",
+        "byte_size",
+        "checksum_sha256",
+        "sort_rank",
+        "variants"
+      ],
+      "title": "GalleryManifestAsset",
+      "type": "object"
+    },
+    "GalleryManifestRequest": {
+      "$defs": {
+        "GalleryManifestAsset": {
+          "additionalProperties": false,
+          "properties": {
+            "immutable_asset_key": {
+              "maxLength": 128,
+              "minLength": 8,
+              "pattern": "^[A-Za-z0-9._:-]+$",
+              "title": "Immutable Asset Key",
+              "type": "string"
+            },
+            "archive_reference": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Archive Reference",
+              "type": "string"
+            },
+            "original_filename": {
+              "maxLength": 255,
+              "minLength": 1,
+              "title": "Original Filename",
+              "type": "string"
+            },
+            "mime_type": {
+              "enum": [
+                "image/jpeg",
+                "image/png",
+                "image/webp"
+              ],
+              "title": "Mime Type",
+              "type": "string"
+            },
+            "width": {
+              "maximum": 100000,
+              "minimum": 1,
+              "title": "Width",
+              "type": "integer"
+            },
+            "height": {
+              "maximum": 100000,
+              "minimum": 1,
+              "title": "Height",
+              "type": "integer"
+            },
+            "byte_size": {
+              "maximum": 209715200,
+              "minimum": 1,
+              "title": "Byte Size",
+              "type": "integer"
+            },
+            "checksum_sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "title": "Checksum Sha256",
+              "type": "string"
+            },
+            "captured_at": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Captured At"
+            },
+            "orientation": {
+              "default": 1,
+              "maximum": 8,
+              "minimum": 1,
+              "title": "Orientation",
+              "type": "integer"
+            },
+            "sort_rank": {
+              "maximum": 9223372036854775807,
+              "minimum": 0,
+              "title": "Sort Rank",
+              "type": "integer"
+            },
+            "variants": {
+              "items": {
+                "$ref": "#/$defs/GalleryManifestVariant"
+              },
+              "maxItems": 4,
+              "minItems": 3,
+              "title": "Variants",
+              "type": "array"
+            }
+          },
+          "required": [
+            "immutable_asset_key",
+            "archive_reference",
+            "original_filename",
+            "mime_type",
+            "width",
+            "height",
+            "byte_size",
+            "checksum_sha256",
+            "sort_rank",
+            "variants"
+          ],
+          "title": "GalleryManifestAsset",
+          "type": "object"
+        },
+        "GalleryManifestVariant": {
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "enum": [
+                "thumbnail",
+                "preview",
+                "analysis",
+                "optimized"
+              ],
+              "title": "Kind",
+              "type": "string"
+            },
+            "storage_reference": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Storage Reference",
+              "type": "string"
+            },
+            "mime_type": {
+              "enum": [
+                "image/jpeg",
+                "image/png",
+                "image/webp"
+              ],
+              "title": "Mime Type",
+              "type": "string"
+            },
+            "width": {
+              "maximum": 100000,
+              "minimum": 1,
+              "title": "Width",
+              "type": "integer"
+            },
+            "height": {
+              "maximum": 100000,
+              "minimum": 1,
+              "title": "Height",
+              "type": "integer"
+            },
+            "byte_size": {
+              "maximum": 209715200,
+              "minimum": 1,
+              "title": "Byte Size",
+              "type": "integer"
+            },
+            "checksum_sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "title": "Checksum Sha256",
+              "type": "string"
+            },
+            "delivery_version": {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "title": "Delivery Version",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "kind",
+            "storage_reference",
+            "mime_type",
+            "width",
+            "height",
+            "byte_size",
+            "checksum_sha256",
+            "delivery_version"
+          ],
+          "title": "GalleryManifestVariant",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "agency_id": {
+          "format": "uuid",
+          "title": "Agency Id",
+          "type": "string"
+        },
+        "group_id": {
+          "format": "uuid",
+          "title": "Group Id",
+          "type": "string"
+        },
+        "manifest_identity": {
+          "maxLength": 128,
+          "minLength": 8,
+          "pattern": "^[A-Za-z0-9._:-]+$",
+          "title": "Manifest Identity",
+          "type": "string"
+        },
+        "target_revision": {
+          "maximum": 2147483647,
+          "minimum": 1,
+          "title": "Target Revision",
+          "type": "integer"
+        },
+        "total_asset_count": {
+          "maximum": 5000,
+          "minimum": 1,
+          "title": "Total Asset Count",
+          "type": "integer"
+        },
+        "batch_count": {
+          "maximum": 50,
+          "minimum": 1,
+          "title": "Batch Count",
+          "type": "integer"
+        },
+        "batch_index": {
+          "maximum": 49,
+          "minimum": 0,
+          "title": "Batch Index",
+          "type": "integer"
+        },
+        "finalize": {
+          "default": false,
+          "title": "Finalize",
+          "type": "boolean"
+        },
+        "retention_policy_version": {
+          "maxLength": 64,
+          "minLength": 3,
+          "pattern": "^[A-Za-z0-9._:-]+$",
+          "title": "Retention Policy Version",
+          "type": "string"
+        },
+        "retention_days": {
+          "maximum": 3650,
+          "minimum": 1,
+          "title": "Retention Days",
+          "type": "integer"
+        },
+        "availability_starts_at": {
+          "format": "date-time",
+          "title": "Availability Starts At",
+          "type": "string"
+        },
+        "availability_ends_at": {
+          "format": "date-time",
+          "title": "Availability Ends At",
+          "type": "string"
+        },
+        "all_group_photos_enabled": {
+          "default": false,
+          "title": "All Group Photos Enabled",
+          "type": "boolean"
+        },
+        "assets": {
+          "items": {
+            "$ref": "#/$defs/GalleryManifestAsset"
+          },
+          "maxItems": 100,
+          "minItems": 1,
+          "title": "Assets",
+          "type": "array"
+        }
+      },
+      "required": [
+        "agency_id",
+        "group_id",
+        "manifest_identity",
+        "target_revision",
+        "total_asset_count",
+        "batch_count",
+        "batch_index",
+        "retention_policy_version",
+        "retention_days",
+        "availability_starts_at",
+        "availability_ends_at",
+        "assets"
+      ],
+      "title": "GalleryManifestRequest",
+      "type": "object"
+    },
+    "GalleryManifestLocator": {
+      "additionalProperties": false,
+      "properties": {
+        "agency_id": {
+          "format": "uuid",
+          "title": "Agency Id",
+          "type": "string"
+        },
+        "group_id": {
+          "format": "uuid",
+          "title": "Group Id",
+          "type": "string"
+        },
+        "manifest_identity": {
+          "maxLength": 128,
+          "minLength": 8,
+          "pattern": "^[A-Za-z0-9._:-]+$",
+          "title": "Manifest Identity",
+          "type": "string"
+        }
+      },
+      "required": [
+        "agency_id",
+        "group_id",
+        "manifest_identity"
+      ],
+      "title": "GalleryManifestLocator",
+      "type": "object"
+    }
+  },
+  "three_ordered_dataclasses_equal": {
+    "GalleryManifestResult": [
+      "manifest_id",
+      "gallery_id",
+      "index_job_id",
+      "target_revision",
+      "received_asset_count",
+      "total_asset_count",
+      "batch_count",
+      "state",
+      "batch_replay",
+      "manifest_replay",
+      "content_fingerprint",
+      "dispatch_state"
+    ],
+    "GalleryManifestStatus": [
+      "manifest_id",
+      "gallery_id",
+      "index_job_id",
+      "target_revision",
+      "received_asset_count",
+      "total_asset_count",
+      "batch_count",
+      "received_batch_indices",
+      "missing_batch_indices",
+      "state",
+      "cancellation_requested",
+      "content_fingerprint",
+      "updated_at"
+    ],
+    "_VerifiedAsset": [
+      "asset",
+      "original_storage_reference",
+      "variants"
+    ]
+  },
+  "legacy_public_exports_equal": [
+    "GalleryManifestAsset",
+    "GalleryManifestLocator",
+    "GalleryManifestRegistrationService",
+    "GalleryManifestRequest",
+    "GalleryManifestResult",
+    "GalleryManifestStatus",
+    "GalleryManifestVariant"
+  ],
+  "legacy_module_identity_preserved": true
+}

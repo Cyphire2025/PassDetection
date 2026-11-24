@@ -1,0 +1,15 @@
+........................................................................ [ 88%]
+.........                                                                [100%]
+
+---------- coverage: platform win32, python 3.11.15-final-0 ----------
+Name                                                                  Stmts   Miss Branch BrPart  Cover
+-------------------------------------------------------------------------------------------------------
+app\infrastructure\repositories\identity_action_token_repository.py      49      3     12      3    90%
+app\infrastructure\repositories\identity_security_repository.py         100     14     16      1    84%
+app\presentation\api\v1\routes\auth_identity.py                         361    100     76     13    71%
+-------------------------------------------------------------------------------------------------------
+TOTAL                                                                   510    117    104     17    75%
+Coverage XML written to file ../docs/audit/dashboard-2026-10-30/identity-action-owner-coverage.xml
+Coverage JSON written to file ../docs/audit/dashboard-2026-10-30/identity-action-owner-coverage.json
+
+81 passed in 146.78s (0:02:26)

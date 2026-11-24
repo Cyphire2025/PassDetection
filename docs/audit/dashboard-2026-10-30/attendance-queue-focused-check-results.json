@@ -1,0 +1,41 @@
+{
+  "commands": [
+    {
+      "name": "units",
+      "exit_code": 0,
+      "output": "\r\n RUN  v4.1.12 C:/Users/nipun/Desktop/PassDetection/frontend\r\n\r\n\r\n Test Files  5 passed (5)\r\n      Tests  33 passed (33)\r\n   Start at  15:17:12\r\n   Duration  5.30s (transform 217ms, setup 654ms, import 272ms, tests 1.46s, environment 2.49s)\r\n\r\n",
+      "wall_time_seconds": 6.0022722
+    },
+    {
+      "name": "contracts",
+      "exit_code": 0,
+      "output": "✔ offline replay clears only counted or already-counted scans (0.1745ms)\r\n✔ fresh server sessions immediately override stale local progress after reload (0.1871ms)\r\nℹ tests 50\r\nℹ suites 0\r\nℹ pass 50\r\nℹ fail 0\r\nℹ cancelled 0\r\nℹ skipped 0\r\nℹ todo 0\r\nℹ duration_ms 426.8695\r\n",
+      "wall_time_seconds": 0.6558067
+    },
+    {
+      "name": "types",
+      "exit_code": 0,
+      "output": "",
+      "wall_time_seconds": 1.6551355
+    },
+    {
+      "name": "lint",
+      "exit_code": 0,
+      "output": "",
+      "wall_time_seconds": 1.8559972999999998
+    },
+    {
+      "name": "proof",
+      "exit_code": 0,
+      "output": "{\"original\":97,\"ast_exact\":95,\"corrections\":[\"syncAttendanceDiscardTombstones\",\"performPendingAttendanceScanSync\"],\"bindings\":300,\"exports\":27,\"acyclic\":true,\"critical_entries\":30}\n",
+      "wall_time_seconds": 0.4875939
+    },
+    {
+      "name": "budgets",
+      "exit_code": 0,
+      "output": "[\n  {\n    \"path\": \"features/tour-operations/services/attendance-scan-queue.ts\",\n    \"baselineLines\": 34,\n    \"maximumLines\": 40,\n    \"baselineMaxFunctionComplexity\": 0,\n    \"maximumFunctionComplexity\": 1\n  },\n  {\n    \"path\": \"features/tour-operations/services/attendance-queue-contracts.ts\",\n    \"baselineLines\": 117,\n    \"maximumLines\": 120,\n    \"baselineMaxFunctionComplexity\": 1,\n    \"maximumFunctionComplexity\": 2\n  },\n  {\n    \"path\": \"features/tour-operations/services/attendance-queue-runtime.ts\",\n    \"baselineLines\": 94,\n    \"maximumLines\": 100,\n    \"baselineMaxFunctionComplexity\": 5,\n    \"maximumFunctionComplexity\": 6\n  },\n  {\n    \"path\": \"features/tour-operations/services/attendance-queue-idb.ts\",\n    \"baselineLines\": 35,\n    \"maximumLines\": 40,\n    \"baselineMaxFunctionComplexity\": 2,\n    \"maximumFunctionComplexity\": 3\n  },\n  {\n    \"path\": \"features/tour-operations/services/attendance-queue-codec.ts\",\n    \"baselineLines\": 173,\n    \"maximumLines\": 180,\n    \"baselineMaxFunctionComplexity\": 13,\n    \"maximumFunctionComplexity\": 14\n  },\n  {\n    \"path\": \"features/tour-operations/services/attendance-queue-migration.ts\",\n    \"baselineLines\": 174,\n    \"maximumLines\": 180,\n    \"baselineMaxFunctionComplexity\": 24,\n    \"maximumFunctionComplexity\": 25\n  },\n  {\n    \"path\": \"features/tour-operations/services/attendance-queue-storage.ts\",\n    \"baselineLines\": 145,\n    \"maximumLines\": 150,\n    \"baselineMaxFunctionComplexity\": 6,\n    \"maximumFunctionComplexity\": 7\n  },\n  {\n    \"path\": \"features/tour-operations/services/attendance-queue-delivery-state.ts\",\n    \"baselineLines\": 167,\n    \"maximumLines\": 170,\n    \"baselineMaxFunctionComplexity\": 9,\n    \"maximumFunctionComplexity\": 10\n  },\n  {\n    \"path\": \"features/tour-operations/services/attendance-queue-commands.ts\",\n    \"baselineLines\": 253,\n    \"maximumLines\": 260,\n    \"baselineMaxFunctionComplexity\": 5,\n    \"maximumFunctionComplexity\": 6\n  },\n  {\n    \"path\": \"features/tour-operations/services/attendance-queue-discards.ts\",\n    \"baselineLines\": 188,\n    \"maximumLines\": 190,\n    \"baselineMaxFunctionComplexity\": 5,\n    \"maximumFunctionComplexity\": 6\n  },\n  {\n    \"path\": \"features/tour-operations/services/attendance-queue-replay.ts\",\n    \"baselineLines\": 186,\n    \"maximumLines\": 190,\n    \"baselineMaxFunctionComplexity\": 10,\n    \"maximumFunctionComplexity\": 11\n  },\n  {\n    \"path\": \"features/tour-operations/services/attendance-queue-outcomes.ts\",\n    \"baselineLines\": 268,\n    \"maximumLines\": 270,\n    \"baselineMaxFunctionComplexity\": 13,\n    \"maximumFunctionComplexity\": 14\n  },\n  {\n    \"path\": \"features/tour-operations/services/attendance-queue-errors.ts\",\n    \"baselineLines\": 30,\n    \"maximumLines\": 40,\n    \"baselineMaxFunctionComplexity\": 5,\n    \"maximumFunctionComplexity\": 6\n  },\n  {\n    \"path\": \"features/tour-operations/services/attendance-queue-closeout.ts\",\n    \"baselineLines\": 207,\n    \"maximumLines\": 210,\n    \"baselineMaxFunctionComplexity\": 4,\n    \"maximumFunctionComplexity\": 5\n  }\n]\n",
+      "wall_time_seconds": 0.4572734
+    }
+  ],
+  "scope": "Focused attendance queue final checkpoint only; source fence verified before/after. No broad suite/build/browser or shared gate changes."
+}

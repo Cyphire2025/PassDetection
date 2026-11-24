@@ -1,0 +1,124 @@
+{
+  "status": "focused source checkpoint verified; broader architecture follow-ups retained",
+  "runtime_owners": [
+    "backend/app/presentation/api/v1/routes/passport_routes/document_import.py",
+    "backend/app/presentation/api/v1/routes/passport_routes/document_import_failure.py"
+  ],
+  "source_fence": {
+    "backend/app/presentation/api/v1/routes/passport_routes/document_import.py": "7b61af41d2d04bef87fff08c24211b35cf26d6684ca5b85581e526feec18b3c8",
+    "backend/app/presentation/api/v1/routes/passport_routes/document_import_failure.py": "fbfb911e4513f49f71fa87f5fd2169a6567ced166e988117bfd0b395fc7a83bf",
+    "backend/tests/unit/presentation/passport_document_import_fixture.py": "2fab208bdbef62855be32c679d121dfb614d461c6cd46742ec1b61f750b54f46",
+    "backend/tests/unit/presentation/test_passport_document_import_cancellation.py": "fa2bc760cf8817c8f678c21526a035cff894281072b5e05b0e2e6b5658da635f",
+    "backend/tests/unit/presentation/test_passport_document_import_storage_outcomes.py": "4a38f7bd0740f8a97b922dddbb7a4991806c8f8d0af24ff1beeea7269f63f08a",
+    "backend/tests/unit/presentation/test_passport_document_import_staging_route.py": "ad5ab7c3f362624f15332afe51832d5b65ab690d00b8d4d113076fa4a0506e63",
+    "backend/tests/unit/presentation/test_passport_crop_lifecycle_contract.py": "b935560711758ef7dc8e8561f72c45d9a7c43fded3a3d128613cf39771a8eb96",
+    "backend/tests/unit/presentation/test_passport_route_decomposition.py": "7b1ee92647844d22d84a29cc90180c58c1888c51c1cfbb1b0a0751d6efafec49",
+    "backend/tests/unit/infrastructure/test_passport_document_import_staging.py": "c2e218d272359f43aeed99d60b3abddfdd9f6ab876f0f72d4dff6d0e2f507f49",
+    "backend/tests/unit/infrastructure/test_passport_document_workspace_cleanup.py": "49ffef50613d62a8b202e482a93a80017696e5098205d75d75d282f60944f778",
+    "backend/tests/unit/infrastructure/test_passport_import_compensation.py": "8833679959268b118603244d1de977d5908d5486aeefa003f4ca6f08b66c401d",
+    "backend/app/infrastructure/documents/storage_transfers.py": "a15cde9b255188896500d54e4de7faf9dafbbe332f13f3163b1590f38a1c58d1",
+    "backend/app/infrastructure/documents/passport_import_compensation.py": "b0eb8569e9937629ebe007e87bdb0c1fcd1979cb188de8f8eff52ca1c8014f76",
+    "backend/app/infrastructure/imports/passport_document_importer.py": "950e1c3b07c4efbc1b370e4c3ad64cd72d3816301fd041584c875ab039d4b69f",
+    "backend/app/infrastructure/storage/minio_repository.py": "f31fe249d63c18ea0e400bae0ee3161eb05db6b194527e2bdab39bf88626180c"
+  },
+  "source_fence_basis": "Current hashes captured immediately after focused invocation; all owned runtime/test bytes were frozen before that invocation and not edited during or after it. Root importer dependency was separately released at exact950e1c... before invocation. No retrospective source-version substitution.",
+  "coverage_json": "document-import-qualified-coverage.json",
+  "coverage_xml": "document-import-qualified-coverage.xml",
+  "regression_evidence": {
+    "valid_original_cases": 21,
+    "before_product_failures": 16,
+    "before_ordinary_controls_passed": 5,
+    "final_new_cases": 24,
+    "final_affected_cases": 71,
+    "final_test_files": 8,
+    "final_seconds": 11.89,
+    "initial_fixture_errors": "First8 error attempt lacked required existing placeholder; second6failure attempt returned ORM group unlike actual domain group and included one invalid MissingGreenlet fixture failure. Both logs preserved; corrected valid baseline is5storagefailures/3controls and11nativefailures/2controls. No fixture error relabeled a product defect."
+  },
+  "checks": [
+    "71 affected tests passed with isolated current2-owner branch coverage",
+    "Configured strict mypy2source files passed",
+    "Effective Ruff5paths check+format passed",
+    "Architecture boundary gate passed",
+    "Whole original route module inverse after seven explicit ownership/handler deltas passed",
+    "7 original function args/decorators/evaluated hints/module/qualname contracts and2 complete OpenAPI operations identical"
+  ],
+  "measurements": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/document_import.py",
+      "sha256": "7b61af41d2d04bef87fff08c24211b35cf26d6684ca5b85581e526feec18b3c8",
+      "physical_lines": 431,
+      "nonblank_lines": 431,
+      "maximum_function_complexity": 21,
+      "statement_percent": 74.4186046511628,
+      "branch_percent": 40.476190476190474,
+      "old_budget": {
+        "path": "app/presentation/api/v1/routes/passport_routes/document_import.py",
+        "minimum_coverage_percent": 27,
+        "baseline_lines": 415,
+        "maximum_lines": 700,
+        "baseline_max_function_complexity": 21,
+        "maximum_function_complexity": 21
+      },
+      "candidate": {
+        "path": "app/presentation/api/v1/routes/passport_routes/document_import.py",
+        "baseline_lines": 431,
+        "maximum_lines": 450,
+        "baseline_max_function_complexity": 21,
+        "maximum_function_complexity": 21,
+        "minimum_coverage_percent": 70
+      }
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/document_import_failure.py",
+      "sha256": "fbfb911e4513f49f71fa87f5fd2169a6567ced166e988117bfd0b395fc7a83bf",
+      "physical_lines": 49,
+      "nonblank_lines": 49,
+      "maximum_function_complexity": 2,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "old_budget": null,
+      "candidate": {
+        "path": "app/presentation/api/v1/routes/passport_routes/document_import_failure.py",
+        "baseline_lines": 49,
+        "maximum_lines": 55,
+        "baseline_max_function_complexity": 2,
+        "maximum_function_complexity": 2,
+        "minimum_coverage_percent": 95
+      }
+    }
+  ],
+  "critical_guard": [
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/document_import_failure.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 90
+    }
+  ],
+  "preservation": "Existing700line/C21/floor27 route limits only tightened; old critical/global values unchanged. Same sequential PUTs, storage key format, staff-code matches, crop/library policy, durable AI intents, dispatch behavior, API defaults and ordinary failure response. Existing storage and compensation helpers unchanged. No provider or schema/config changes.",
+  "pending": [
+    "Large route/long workflow remains a cohesive-architecture follow-up; this cancellation correction does not close that task",
+    "Fresh actor/group authorization after long native/provider work is a source-level candidate, not reproduced in this batch",
+    "Process-crash eventual orphan closure for passport-bulk/ remains unqualified; this batch covers request compensation only",
+    "No real PostgreSQL cancellation/concurrent transaction, actual storage server, Linux or VPS qualification"
+  ],
+  "artifacts": {
+    "document-import-route-contract-proof.json": "b15e3b742521e3f2cd397d7f43548c0e2afcad92a8293b0beb4fe5e44c3adf6d",
+    "document-import-route-original.py.txt": "7040843183bdac0bc88906ab9abdb87b6e7a4ab6747fc6f5e9da45f3dbb8b60c",
+    "document-import-qualified-coverage.json": "4601fd203da36511840c013652d8991263b9d456bf458468bf603e68c0b5583d",
+    "document-import-qualified-coverage.xml": "a18152b23c41720ad71eb7254b13597e047c0a618f22dce3546093d5429a5f62",
+    "document-import-budget-candidates.json": "39210d558006b189fcd76b1ebcdcf38e18544effa6ee1a03cc1ea8d1c40e9013",
+    "document-import-critical-candidates.json": "3e53654e26dec408e146bdda68e9e243e59eb18b60f6bfd4c2ca146486966a2c",
+    "document-import-source-measurements.json": "839054393c5bcfd7b49bfb548df48a2e98d8774f37b7e4da708c50ef3661c2e4",
+    "document-import-reviewed-files.json": "4dd6917837a05421cdcf25c22301dfd06ecd03c46c951cbf81a1fe6ee75e40b9",
+    "document-import-affected-tests.txt": "0d12b89c6f6f33d148af574260396d12288f3a556db415bd612784531564f1dd",
+    "document-import-types.txt": "0c37c4158c91ef55c724ba017bf6465f26018199badb08e3ff13f98acdf056c2",
+    "document-import-lint.txt": "933ec67c47636af79868bfe6125cc089e40dbc4d676f73e03423b4bdd6f11801",
+    "document-import-architecture.txt": "895bfbeca4c78591066dcf214c4bfe9de43b5d7ed5d3f518fe398563a7bcc992",
+    "document-import-cancellation-before-tests.txt": "8f6adf9dc47223a49a4ad7ac3efed9297333cf707253219f389cf08d330284b1",
+    "document-import-storage-before-tests.txt": "fd1a0239a44a244b700b4e94a82ce58db09f354ab6ac054fbd75edf13b799c8c",
+    "document-import-storage-corrected-before-tests.txt": "ce236efeff1f9a53dfbf061fc07fe8e8df470f43c4a52f60948fe9426037ac61",
+    "document-import-storage-valid-before-tests.txt": "8cd547e14599af0c0550dcb13b26448d2e871291434a01c0a808e561a8daac7a",
+    "document-import-native-after-tests.txt": "e47e4bc30116d6a5de03e4695798a76234bdde3f3c00ce03f8a2066f09e5baa8",
+    "passport-workspace-verification.json": "45841b2271e6b7616689287e326ca587bda4040ec8598799dc46048c563a2084"
+  }
+}

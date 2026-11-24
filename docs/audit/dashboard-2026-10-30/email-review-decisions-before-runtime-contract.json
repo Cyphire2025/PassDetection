@@ -1,0 +1,609 @@
+{
+  "public_function": {
+    "module": "app.presentation.api.v1.routes.email_integration_review_decisions",
+    "qualname": "resolve_email_review",
+    "signature": "(review_id: 'uuid.UUID', payload: 'ResolveEmailReviewRequest', current_user: 'User' = Depends(dependency=<function require_role.<locals>._check_role at 0x00000228B4DD3F60>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x00000228816D7740>, use_cache=True, scope=None)) -> 'EmailReviewActionResponse'",
+    "hints": {
+      "review_id": "<class 'uuid.UUID'>",
+      "payload": "<class 'app.presentation.api.v1.schemas.email_integration_schemas.ResolveEmailReviewRequest'>",
+      "current_user": "<class 'app.domain.entities.identity.User'>",
+      "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+      "return": "<class 'app.presentation.api.v1.schemas.email_integration_schemas.EmailReviewActionResponse'>"
+    }
+  },
+  "actual_facade_function_identity": true,
+  "route": {
+    "path": "/api/v1/email-integrations/reviews/{review_id}/resolve",
+    "methods": [
+      "POST"
+    ],
+    "name": "resolve_email_review",
+    "status_code": null,
+    "response_model": "<class 'app.presentation.api.v1.schemas.email_integration_schemas.EmailReviewActionResponse'>",
+    "dependencies": [
+      {
+        "name": null,
+        "call": "app.presentation.dependencies.csrf.require_cookie_csrf",
+        "use_cache": true
+      },
+      {
+        "name": "current_user",
+        "call": "app.presentation.dependencies.auth.require_role.<locals>._check_role",
+        "use_cache": true
+      },
+      {
+        "name": "session",
+        "call": "app.infrastructure.database.session.get_db_session",
+        "use_cache": true
+      }
+    ]
+  },
+  "openapi_path": {
+    "post": {
+      "tags": [
+        "Email Integrations"
+      ],
+      "summary": "Resolve Email Review",
+      "operationId": "resolve_email_review_api_v1_email_integrations_reviews__review_id__resolve_post",
+      "security": [
+        {
+          "HTTPBearer": []
+        },
+        {
+          "DashboardAccessCookie": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "review_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Review Id"
+          }
+        }
+      ],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ResolveEmailReviewRequest"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Successful Response",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailReviewActionResponse"
+              }
+            }
+          },
+          "headers": {
+            "X-Request-ID": {
+              "description": "Request correlation identifier; never an authentication credential",
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "422": {
+          "description": "REQUEST_VALIDATION_ERROR",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiErrorResponse"
+              }
+            }
+          },
+          "headers": {
+            "X-Request-ID": {
+              "description": "Request correlation identifier; never an authentication credential",
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "BAD_REQUEST",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiErrorResponse"
+              }
+            }
+          },
+          "headers": {
+            "X-Request-ID": {
+              "description": "Request correlation identifier; never an authentication credential",
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "401": {
+          "description": "AUTHENTICATION_ERROR",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiErrorResponse"
+              }
+            }
+          },
+          "headers": {
+            "X-Request-ID": {
+              "description": "Request correlation identifier; never an authentication credential",
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "403": {
+          "description": "AUTHORIZATION_ERROR",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiErrorResponse"
+              }
+            }
+          },
+          "headers": {
+            "X-Request-ID": {
+              "description": "Request correlation identifier; never an authentication credential",
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "NOT_FOUND",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiErrorResponse"
+              }
+            }
+          },
+          "headers": {
+            "X-Request-ID": {
+              "description": "Request correlation identifier; never an authentication credential",
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "405": {
+          "description": "METHOD_NOT_ALLOWED",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiErrorResponse"
+              }
+            }
+          },
+          "headers": {
+            "X-Request-ID": {
+              "description": "Request correlation identifier; never an authentication credential",
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "408": {
+          "description": "REQUEST_TIMEOUT",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiErrorResponse"
+              }
+            }
+          },
+          "headers": {
+            "X-Request-ID": {
+              "description": "Request correlation identifier; never an authentication credential",
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "409": {
+          "description": "CONFLICT",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiErrorResponse"
+              }
+            }
+          },
+          "headers": {
+            "X-Request-ID": {
+              "description": "Request correlation identifier; never an authentication credential",
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "410": {
+          "description": "GONE",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiErrorResponse"
+              }
+            }
+          },
+          "headers": {
+            "X-Request-ID": {
+              "description": "Request correlation identifier; never an authentication credential",
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "413": {
+          "description": "PAYLOAD_TOO_LARGE",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiErrorResponse"
+              }
+            }
+          },
+          "headers": {
+            "X-Request-ID": {
+              "description": "Request correlation identifier; never an authentication credential",
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "415": {
+          "description": "UNSUPPORTED_MEDIA_TYPE",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiErrorResponse"
+              }
+            }
+          },
+          "headers": {
+            "X-Request-ID": {
+              "description": "Request correlation identifier; never an authentication credential",
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "429": {
+          "description": "RATE_LIMIT_EXCEEDED",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiErrorResponse"
+              }
+            }
+          },
+          "headers": {
+            "X-Request-ID": {
+              "description": "Request correlation identifier; never an authentication credential",
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "INTERNAL_SERVER_ERROR",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiErrorResponse"
+              }
+            }
+          },
+          "headers": {
+            "X-Request-ID": {
+              "description": "Request correlation identifier; never an authentication credential",
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "502": {
+          "description": "BAD_GATEWAY",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiErrorResponse"
+              }
+            }
+          },
+          "headers": {
+            "X-Request-ID": {
+              "description": "Request correlation identifier; never an authentication credential",
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "503": {
+          "description": "DEPENDENCY_UNAVAILABLE",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiErrorResponse"
+              }
+            }
+          },
+          "headers": {
+            "X-Request-ID": {
+              "description": "Request correlation identifier; never an authentication credential",
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "504": {
+          "description": "GATEWAY_TIMEOUT",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiErrorResponse"
+              }
+            }
+          },
+          "headers": {
+            "X-Request-ID": {
+              "description": "Request correlation identifier; never an authentication credential",
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "x-cookie-csrf": "Trusted Origin or Referer is required for cookies when no Bearer header is supplied"
+    }
+  },
+  "schemas": {
+    "ResolveEmailReviewRequest": {
+      "properties": {
+        "action": {
+          "type": "string",
+          "enum": [
+            "approve",
+            "assign",
+            "mark_unrelated",
+            "reject",
+            "retry",
+            "defer"
+          ],
+          "title": "Action"
+        },
+        "group_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Group Id"
+        },
+        "passenger_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Passenger Id"
+        },
+        "document_type": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "visa",
+                "flight_ticket"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Document Type"
+        },
+        "expected_revision": {
+          "type": "integer",
+          "minimum": 0.0,
+          "title": "Expected Revision"
+        }
+      },
+      "type": "object",
+      "required": [
+        "action",
+        "expected_revision"
+      ],
+      "title": "ResolveEmailReviewRequest"
+    },
+    "EmailReviewActionResponse": {
+      "properties": {
+        "review_id": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Review Id"
+        },
+        "status": {
+          "type": "string",
+          "title": "Status"
+        },
+        "message": {
+          "type": "string",
+          "title": "Message"
+        }
+      },
+      "type": "object",
+      "required": [
+        "review_id",
+        "status",
+        "message"
+      ],
+      "title": "EmailReviewActionResponse"
+    }
+  },
+  "facade_routes": [
+    {
+      "path": "/status",
+      "methods": [
+        "GET"
+      ],
+      "name": "email_integration_status"
+    },
+    {
+      "path": "/connections",
+      "methods": [
+        "GET"
+      ],
+      "name": "list_email_connections"
+    },
+    {
+      "path": "/oauth/gmail/authorize",
+      "methods": [
+        "POST"
+      ],
+      "name": "authorize_gmail"
+    },
+    {
+      "path": "/oauth/gmail/callback",
+      "methods": [
+        "GET"
+      ],
+      "name": "gmail_oauth_callback"
+    },
+    {
+      "path": "/oauth/outlook/authorize",
+      "methods": [
+        "POST"
+      ],
+      "name": "authorize_outlook"
+    },
+    {
+      "path": "/oauth/outlook/callback",
+      "methods": [
+        "GET"
+      ],
+      "name": "outlook_oauth_callback"
+    },
+    {
+      "path": "/connections/{connection_id}/sync",
+      "methods": [
+        "POST"
+      ],
+      "name": "sync_connection"
+    },
+    {
+      "path": "/connections/{connection_id}/pause",
+      "methods": [
+        "POST"
+      ],
+      "name": "pause_connection"
+    },
+    {
+      "path": "/connections/{connection_id}/resume",
+      "methods": [
+        "POST"
+      ],
+      "name": "resume_connection"
+    },
+    {
+      "path": "/connections/{connection_id}",
+      "methods": [
+        "DELETE"
+      ],
+      "name": "disconnect_email_connection"
+    },
+    {
+      "path": "/connections/{connection_id}/data",
+      "methods": [
+        "DELETE"
+      ],
+      "name": "remove_email_connection_and_data"
+    },
+    {
+      "path": "/connections/{connection_id}/ai-settings",
+      "methods": [
+        "PUT"
+      ],
+      "name": "update_connection_ai_settings"
+    },
+    {
+      "path": "/summary",
+      "methods": [
+        "GET"
+      ],
+      "name": "email_integration_summary"
+    },
+    {
+      "path": "/reviews",
+      "methods": [
+        "GET"
+      ],
+      "name": "list_email_reviews"
+    },
+    {
+      "path": "/review-options",
+      "methods": [
+        "GET"
+      ],
+      "name": "email_review_options"
+    },
+    {
+      "path": "/reviews/{review_id}/resolve",
+      "methods": [
+        "POST"
+      ],
+      "name": "resolve_email_review"
+    },
+    {
+      "path": "/activity",
+      "methods": [
+        "GET"
+      ],
+      "name": "email_activity"
+    },
+    {
+      "path": "/messages/{message_id}",
+      "methods": [
+        "GET"
+      ],
+      "name": "email_message_detail"
+    }
+  ]
+}

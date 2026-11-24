@@ -1,0 +1,211 @@
+{
+  "proposed_only": true,
+  "shared_gate_edited": false,
+  "normal_candidates": [
+    {
+      "path": "app/presentation/api/v1/routes/email_integration_gmail.py",
+      "baseline_lines": 260,
+      "maximum_lines": 260,
+      "baseline_max_function_complexity": 31,
+      "maximum_function_complexity": 32,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/email_integration_outlook.py",
+      "baseline_lines": 288,
+      "maximum_lines": 290,
+      "baseline_max_function_complexity": 30,
+      "maximum_function_complexity": 31,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/email_oauth_actor.py",
+      "baseline_lines": 39,
+      "maximum_lines": 40,
+      "baseline_max_function_complexity": 1,
+      "maximum_function_complexity": 2,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/email_oauth_grant.py",
+      "baseline_lines": 79,
+      "maximum_lines": 80,
+      "baseline_max_function_complexity": 3,
+      "maximum_function_complexity": 4,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/email/account_removal.py",
+      "baseline_lines": 66,
+      "maximum_lines": 70,
+      "baseline_max_function_complexity": 1,
+      "maximum_function_complexity": 2,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/email/account_removal_plan.py",
+      "baseline_lines": 170,
+      "maximum_lines": 170,
+      "baseline_max_function_complexity": 12,
+      "maximum_function_complexity": 13,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/email/account_removal_records.py",
+      "baseline_lines": 182,
+      "maximum_lines": 190,
+      "baseline_max_function_complexity": 12,
+      "maximum_function_complexity": 13,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/email/account_removal_storage.py",
+      "baseline_lines": 43,
+      "maximum_lines": 50,
+      "baseline_max_function_complexity": 4,
+      "maximum_function_complexity": 5,
+      "minimum_coverage_percent": 95
+    }
+  ],
+  "critical_candidates": [],
+  "measurements": [
+    {
+      "path": "app/presentation/api/v1/routes/email_integration_gmail.py",
+      "lines": 260,
+      "max_function_complexity": 31,
+      "most_complex_function": "gmail_oauth_callback",
+      "coverage_percent": 99.17,
+      "branch_coverage_percent": 96.875,
+      "branch_count": 32,
+      "within_proposed_caps_and_floor": true
+    },
+    {
+      "path": "app/presentation/api/v1/routes/email_integration_outlook.py",
+      "lines": 288,
+      "max_function_complexity": 30,
+      "most_complex_function": "outlook_oauth_callback",
+      "coverage_percent": 99.13,
+      "branch_coverage_percent": 96.66666666666667,
+      "branch_count": 30,
+      "within_proposed_caps_and_floor": true
+    },
+    {
+      "path": "app/presentation/api/v1/routes/email_oauth_actor.py",
+      "lines": 39,
+      "max_function_complexity": 1,
+      "most_complex_function": "_oauth_actor_is_authorized",
+      "coverage_percent": 100.0,
+      "branch_coverage_percent": 100.0,
+      "branch_count": 0,
+      "within_proposed_caps_and_floor": true
+    },
+    {
+      "path": "app/presentation/api/v1/routes/email_oauth_grant.py",
+      "lines": 79,
+      "max_function_complexity": 3,
+      "most_complex_function": "_apply_encrypted_oauth_grant",
+      "coverage_percent": 100.0,
+      "branch_coverage_percent": 100.0,
+      "branch_count": 2,
+      "within_proposed_caps_and_floor": true
+    },
+    {
+      "path": "app/infrastructure/email/account_removal.py",
+      "lines": 66,
+      "max_function_complexity": 1,
+      "most_complex_function": "purge_email_connection_records",
+      "coverage_percent": 100.0,
+      "branch_coverage_percent": 100.0,
+      "branch_count": 0,
+      "within_proposed_caps_and_floor": true
+    },
+    {
+      "path": "app/infrastructure/email/account_removal_plan.py",
+      "lines": 170,
+      "max_function_complexity": 12,
+      "most_complex_function": "_collect_email_account_removal_plan",
+      "coverage_percent": 100.0,
+      "branch_coverage_percent": 100.0,
+      "branch_count": 8,
+      "within_proposed_caps_and_floor": true
+    },
+    {
+      "path": "app/infrastructure/email/account_removal_records.py",
+      "lines": 182,
+      "max_function_complexity": 12,
+      "most_complex_function": "_delete_email_account_records",
+      "coverage_percent": 100.0,
+      "branch_coverage_percent": 100.0,
+      "branch_count": 16,
+      "within_proposed_caps_and_floor": true
+    },
+    {
+      "path": "app/infrastructure/email/account_removal_storage.py",
+      "lines": 43,
+      "max_function_complexity": 4,
+      "most_complex_function": "_unreferenced_email_storage_keys",
+      "coverage_percent": 100.0,
+      "branch_coverage_percent": 100.0,
+      "branch_count": 2,
+      "within_proposed_caps_and_floor": true
+    }
+  ],
+  "existing_normal_rows_before": [
+    {
+      "path": "app/presentation/api/v1/routes/email_integration_gmail.py",
+      "baseline_lines": 299,
+      "maximum_lines": 300,
+      "baseline_max_function_complexity": 33,
+      "maximum_function_complexity": 33,
+      "minimum_coverage_percent": 85
+    },
+    {
+      "path": "app/presentation/api/v1/routes/email_integration_outlook.py",
+      "baseline_lines": 328,
+      "maximum_lines": 350,
+      "baseline_max_function_complexity": 32,
+      "maximum_function_complexity": 32,
+      "minimum_coverage_percent": 85
+    }
+  ],
+  "original_critical_membership": [],
+  "normal_additions": 6,
+  "normal_tightened": 2,
+  "new_critical_rows": 0,
+  "original_complexity": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_gmail.py",
+      "sha256": "8fd4a780cf4040c1a0188e50b635ce1935aed85f5b29b4d25d9683a8b22b2b49",
+      "physical_lines": 299,
+      "most_complex_function": "gmail_oauth_callback",
+      "max_function_complexity": 33
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_outlook.py",
+      "sha256": "46835a02f003132af36e3524de6e16d5fa6c11a4bd425f0245a78689314ead8a",
+      "physical_lines": 328,
+      "most_complex_function": "outlook_oauth_callback",
+      "max_function_complexity": 32
+    },
+    {
+      "path": "backend/app/infrastructure/email/account_removal.py",
+      "sha256": "7e2798de81ff286f7b63f29daef17d1bd1416fd7b696db3c5b01ccd54f09f4ad",
+      "physical_lines": 339,
+      "most_complex_function": "purge_email_connection_records",
+      "max_function_complexity": 26
+    }
+  ],
+  "qualifier": "All8actual owners from one fresh129affected run; line99.13\u2013100percent, callbackbranches96.67\u201396.88percent, other6owners100percent branches (including two branchless). New normal95floors carry prior85 to real helpers; no old floor/cap relaxation or declaration-only critical gate.",
+  "coverage_report_scope": "Exact8owner app-relative reports derived from same untouched raw run data; each owner JSON value exactly matches raw report, no merged/append or default backend coverage file use.",
+  "raw_coverage_data_sha256": "cd89f3c90f6fbeddcf1cd8af9172da3b3fbf70ab4f5863912dc3d756463025c6",
+  "reports": [
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-oauth-removal-owner-coverage.json",
+      "sha256": "7e08c4c23d8fc7d11fb37f548ddbec70db6e4ce168d679e766a07fa557530290"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-oauth-removal-owner-coverage.xml",
+      "sha256": "69194246e26807b9b1b0bbfa9b7a9b59bee3bdd7b0f0733e85a7a5f553bf1c53"
+    }
+  ]
+}

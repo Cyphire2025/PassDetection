@@ -1,0 +1,140 @@
+{
+  "status": "Source preflight complete; proposed implementation requires scoped baseline before edits",
+  "source_manifest": {
+    "path": "docs/audit/dashboard-2026-10-30/whatsapp-exports-preflight-source-manifest.json",
+    "sha256": "a706d5645b5f99e67c501a63302771984726e4eaa642ff87a2abc54702d06e2b"
+  },
+  "runtime_ownership": "backend/app/presentation/api/v1/routes/whatsapp_exports.py",
+  "current_function_map": [
+    {
+      "name": "_stale_rows",
+      "start_line": 82,
+      "end_line": 83,
+      "physical_lines": 2,
+      "complexity": 1
+    },
+    {
+      "name": "_roster_identity",
+      "start_line": 86,
+      "end_line": 94,
+      "physical_lines": 9,
+      "complexity": 4
+    },
+    {
+      "name": "_exportable_links",
+      "start_line": 97,
+      "end_line": 120,
+      "physical_lines": 24,
+      "complexity": 3
+    },
+    {
+      "name": "_latest_attempt_values",
+      "start_line": 123,
+      "end_line": 153,
+      "physical_lines": 31,
+      "complexity": 3
+    },
+    {
+      "name": "_delivery_values",
+      "start_line": 156,
+      "end_line": 166,
+      "physical_lines": 11,
+      "complexity": 9
+    },
+    {
+      "name": "_broadcast_import_contact_values",
+      "start_line": 169,
+      "end_line": 181,
+      "physical_lines": 13,
+      "complexity": 7
+    },
+    {
+      "name": "_gather_export_rows",
+      "start_line": 184,
+      "end_line": 491,
+      "physical_lines": 308,
+      "complexity": 100
+    },
+    {
+      "name": "export_broadcast_filter",
+      "start_line": 495,
+      "end_line": 520,
+      "physical_lines": 26,
+      "complexity": 5
+    }
+  ],
+  "validated_defects": [],
+  "findings": [
+    {
+      "kind": "architecture",
+      "evidence": "_gather_export_rows184\u2013491 is308lines/MCC100; it owns authorization-visible source scope, row identity, batch queries, provenance correction, matching, entity hydration and row projection. Cohesive phase owners are justified independently of file-length caps.",
+      "state": "source-established architecture debt"
+    },
+    {
+      "kind": "behavioral-proof-gap",
+      "evidence": "Repository searches for exact handler/helper/request/builder names and native route references found generic schema/route compatibility and passport roundtrip controls, but no dedicated direct broadcast filter export handler/builder tests. The generic29schema contract excludes this40-line filter request schema.",
+      "state": "new direct real-DB/workbook baseline needed; no passing handler claim"
+    },
+    {
+      "kind": "performance-candidate",
+      "evidence": "Delivery view calls get_broadcast_recipient_roster, which loads state maps/merged contacts and unresolved matching contexts for linked groups, then gathers selected delivery state/merged contacts again and reloads unresolved contexts for manual linked groups.",
+      "state": "actual repeated call sites; no measured speedup/defect claim. Work-counter, row/value/order parity and changed-source controls required before reuse."
+    },
+    {
+      "kind": "lifetime-proof-gap",
+      "evidence": "Workbook serialization is a plain await asyncio.to_thread after read rollback, with per-workbook budgets. Thread completion/admission under a disconnected caller and repeated maximum-size requests has not been exercised here.",
+      "state": "ordinary synthetic cancellation/work-counter control may be appropriate; no resource-exhaustion vulnerability or shared policy edit claimed"
+    },
+    {
+      "kind": "public-compatibility",
+      "evidence": "Current frontend reference search finds the Traveller export button and shared typed delivery API, but no live delivery-table export caller. Delivery remains a published supported native request contract with four row kinds.",
+      "state": "preserve delivery branch/public aliases; absence of a UI reference is not authorization to delete it"
+    }
+  ],
+  "preserve_invariants": [
+    "Selected request IDs are the authoritative filter snapshot and retain request order; filter_label/message_type label output, not additional permission or server-side current-filter recomputation. Capture occurs before native file picker, across every visual page.",
+    "Primary broadcast agency/role gate plus actual exportable-group policy; unauthorized, stale, missing or wrong-kind requested identities fail the whole selection, not silently omitted rows. Keep staff assignment/owner and lifecycle behavior exact.",
+    "Durable source associations, valid phone correction fingerprints, manual matching, displaced replacement submissions and unidentified uploads have different provenance and must remain distinct. Multiple_submissions assigned duplicates are not needs_review candidates.",
+    "Preserve primary/merged/source expansion order, separate each manual alias imported data, original-vs-new traveller replacement identity, unambiguous email/zone resolution and confirmed-field precedence over stale extraction.",
+    "Keep1000-key two-UUID SQL batches, +1overflow sentinels, MAX_EXPORT_ROWS20000 at all existing stages, and exact entity/recipient set equality checks. No limit-based truncation or current-page-only exports.",
+    "Preserve latest-attempt scalar allowlist, agency/broadcast predicates, created-at/id tie ordering, stored delivery columns and distinct latest explicit-resend columns. Avoid reading provider bodies/media/tokens into workbook values.",
+    "Frozen shared workbook rows/columns/cells/text/cell bounds, literal string cells, date values, saved/dynamic fields, leading zeros/phones, duplicate people and visible Unicode/control escapes; no shared exporter/native policy change.",
+    "No send/queue/history mutations. Materialize domain/scalar values before read rollback and worker serialization; preserve no-store/nosniff and sanitized UTF8Content-Disposition headers. Shared download owner guards remain frozen."
+  ],
+  "proposed_cohesive_design": [
+    {
+      "phase": "scope and requested selection",
+      "responsibility": "Original policy/roster identity helpers plus explicit visible groups/requested-recipient sets. Typed DATA scope; preserve existing public route/helper signatures and defaults."
+    },
+    {
+      "phase": "source provenance",
+      "responsibility": "Initial durable source query/batches, valid override sources, manual matching, displaced replacement and unidentified expansion. Narrow named functions over an actual source graph of dict/set DATA; no callbacks/proxy/mixins. Keep every query/continue/branch order."
+    },
+    {
+      "phase": "hydration and delivery context",
+      "responsibility": "Bounded exact domain-entity/recipient reads plus existing status/attempt/merged-contact data. Do not cache authorization or replace fresh SQL reads without separately proved current-state parity."
+    },
+    {
+      "phase": "ordered output projection",
+      "responsibility": "Named roster-value, manual-alias and source-enrichment projections under a simple requested-item loop. Preserve expansion ordering and overflow points; do not merely move unchanged308/MCC100 to a new file."
+    },
+    {
+      "phase": "HTTP composition",
+      "responsibility": "Retain small role/CSRF/response/filename/error/rollback route behavior and original exported function aliases; exact expanded AST, actual globals/evaluated hints/OpenAPI/row outputs prove movement."
+    }
+  ],
+  "baseline_plan_before_runtime_edits": [
+    "Create dedicated synthetic current-route database/workbook controls: all delivery kinds plus traveller rows with shared/missing phone, multiple groups, manual aliases and exact reversed/requested output order.",
+    "Exercise foreign agency/staff assigned-unassigned/archived/deleted visibility, forged or stale row identities, replacement displaced-vs-new traveller and valid/invalidated override provenance; no provider actions or production data.",
+    "Check actual workbook values/cell types/date/custom-field identities, safe response headers and absence of internal storage/provider/body/token fields; preserve saved-field ambiguity and confirmation precedence.",
+    "Exercise1001source IDs across1000-key query boundary and reduced synthetic overflow controls preserving actual20000constant/schema policy. Record real query/work counters and no mutation/history/send effects; do not claim maximum production capacity from SQLite.",
+    "First qualify whole-declaration movement, then expanded named DATA phases with original public metadata and row/output parity. Only afterward consider measured repeated-comparison reuse through existing input-bound cache while preserving fresh DB/authority/change behavior.",
+    "If pursuing native lifetime behavior, reproduce ordinary cancellation with bounded synthetic worker Events before any change; no shared native/exporter policy edit from source suspicion alone."
+  ],
+  "not_done": [
+    "No runtime/test/config changes, app checks, provider sends, browser/build or benchmark run.",
+    "No completed architecture/security/performance qualification of the whole feature.",
+    "No changes to root importer508, shared exporter/native policy, Operations Inbox or native-only feature work."
+  ],
+  "future_cohort": "After this feature is implemented/qualified, retained shared travel_tracker service/spreadsheets remain a separate useful review cohort."
+}

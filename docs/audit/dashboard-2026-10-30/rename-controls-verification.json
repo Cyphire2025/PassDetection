@@ -1,0 +1,107 @@
+{
+  "recorded_at": "2026-10-31T10:07:31.617771+00:00",
+  "status": "frozen",
+  "source_fence": [
+    {
+      "path": "frontend/features/documents/components/saved-rename-batches.tsx",
+      "sha256": "a523e8b9a5fded4881f280e1e9c3c29b5d6e5636da69f629e336a99254206e38"
+    },
+    {
+      "path": "frontend/features/documents/components/rename-results.tsx",
+      "sha256": "819555f3908739b21bbd4de58ab98d55b91db1c29a1c3c0fa7d6f0ca82027acc"
+    },
+    {
+      "path": "frontend/features/documents/components/document-rename-list-controls.test.tsx",
+      "sha256": "ea516f902e69e3491921bab09669a9f519b32d4e5e259ebf4fcda04992c811e6"
+    }
+  ],
+  "provenance": "rename-controls-provenance.json",
+  "baseline": {
+    "cases": 4,
+    "passed": 2,
+    "failed": 2,
+    "raw_json": ".tmp/frontend-residual-coverage/rename-controls-baseline.json",
+    "membership_indexed_reads": 262656,
+    "native_tab_nested_button_stops": 3,
+    "viewports": [
+      390,
+      1440
+    ]
+  },
+  "final": {
+    "affected_vitest": {
+      "passed": 25,
+      "failed": 0,
+      "files": 3,
+      "raw_json": ".tmp/frontend-residual-coverage/rename-controls-final.json"
+    },
+    "affected_node": {
+      "passed": 16,
+      "failed": 0,
+      "raw_log": ".tmp/frontend-residual-coverage/rename-controls-node.txt"
+    },
+    "type_check": {
+      "exit_code": 0,
+      "raw_log": ".tmp/frontend-residual-coverage/rename-controls-types.txt"
+    },
+    "scoped_lint": {
+      "exit_code": 0,
+      "warnings": 0,
+      "raw_log": ".tmp/frontend-residual-coverage/rename-controls-lint.txt"
+    },
+    "membership_indexed_reads": 1024,
+    "native_tab_nested_button_stops": 0,
+    "viewports": [
+      390,
+      1440
+    ],
+    "native_zip_keyboard_popup_destination_preserved": true,
+    "all3original_button_class_strings_exact": true
+  },
+  "preserved": {
+    "public_typed_props": true,
+    "whole_result_filter_type_helpers": 4,
+    "ordered_duplicate_selected_output": true,
+    "stale_id_filtering": true,
+    "pending_action_guards": true,
+    "href_target_rel": true,
+    "shared_button_component_unmodified": true
+  },
+  "fixture_artifacts": [
+    {
+      "path": ".tmp/rename-controls/native-tab.mjs",
+      "sha256": "6a3c385decf4bb4099454b89d5828dea06dc3110024ba809c4c54a9627e3ff3c"
+    },
+    {
+      "path": ".tmp/rename-controls/before/controls.html",
+      "sha256": "97564cd86fc1982ea02c2db8b2f0faeac0ebf36803cd045735b55e9bce04a3f5"
+    },
+    {
+      "path": ".tmp/rename-controls/after/controls.html",
+      "sha256": "3b59123194cdabae9f18bb557e742965a9137e1f7eafcbe218ae7edad367d64a"
+    },
+    {
+      "path": ".tmp/rename-controls/before/native-keyboard.json",
+      "sha256": "b13d4f45424634aac5d61a73c96ebd60c2fe6844e5b626929076394efce4194b"
+    },
+    {
+      "path": ".tmp/rename-controls/after/native-keyboard.json",
+      "sha256": "d6798c55547b89a1c3e82aa55ab88dd37e220b6b2f5f379813b70b1c941c42f5"
+    },
+    {
+      "path": ".tmp/rename-controls/before/membership.json",
+      "sha256": "20c0288efb9a8836ef93a54c20fa7cefc981153d30733a3113a85c238105faa3"
+    },
+    {
+      "path": ".tmp/rename-controls/after/membership.json",
+      "sha256": "9801a258d9252d21e17e569a2cca37793928228bb399f6fdc3736edea5d4a67d"
+    }
+  ],
+  "budget_candidates": "rename-controls-budget-candidates.json",
+  "limits": [
+    "Membership metric counts numeric reads in real intermediate ID arrays, not total React/DOM work or a wall-clock production speedup.",
+    "Native Chromium receives actual React static HTML with no hydration or app CSS; it proves keyboard/link semantics and class-token preservation, not current production layout/browser qualification.",
+    "No application server, production build, broad suite/browser journey or provider send was run.",
+    "Two present child source hashes supersede the earlier immutable rename architecture receipt for only this later focused tranche."
+  ]
+}

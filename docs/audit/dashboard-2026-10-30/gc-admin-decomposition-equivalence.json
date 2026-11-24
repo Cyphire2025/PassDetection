@@ -1,0 +1,505 @@
+{
+  "scope": "Historical original movement compared with final GC API/hooks. Consistent LF line endings and import formatting are permitted; normalized method text retains all other original bytes. Two deliberate audit projection changes are explicitly distinguished. This is mechanical proof, not a manual source-review claim.",
+  "method_count": 36,
+  "mechanically_unchanged_methods": 34,
+  "deliberate_changes": 2,
+  "methods": [
+    {
+      "name": "listAgencies",
+      "path": "frontend/features/gc-app/api/gc-app-directory.api.ts",
+      "original_method_sha256": "9f9b25d3b7238875c4fc981a83f54bac914db8d4931db5faca13febc19574bc3",
+      "final_method_sha256": "4d8805000c68c441515894d666b869c5259bf5f5e790c13f27234fd50eee5aad",
+      "raw_body_unchanged": false,
+      "normalized_original_method_sha256": "4d8805000c68c441515894d666b869c5259bf5f5e790c13f27234fd50eee5aad",
+      "normalized_final_method_sha256": "4d8805000c68c441515894d666b869c5259bf5f5e790c13f27234fd50eee5aad",
+      "normalized_body_unchanged": true,
+      "deliberate_change": null
+    },
+    {
+      "name": "searchCompanies",
+      "path": "frontend/features/gc-app/api/gc-app-directory.api.ts",
+      "original_method_sha256": "a223bc478ecfbaa9aca76760c3caad9529d01bbd6d7c8a21921f05a3362acb4a",
+      "final_method_sha256": "e6e46cd704497e36db1077ba32e647b25444d67cec99e65258d4e830eb3006df",
+      "raw_body_unchanged": false,
+      "normalized_original_method_sha256": "e6e46cd704497e36db1077ba32e647b25444d67cec99e65258d4e830eb3006df",
+      "normalized_final_method_sha256": "e6e46cd704497e36db1077ba32e647b25444d67cec99e65258d4e830eb3006df",
+      "normalized_body_unchanged": true,
+      "deliberate_change": null
+    },
+    {
+      "name": "createClientOrganization",
+      "path": "frontend/features/gc-app/api/gc-app-directory.api.ts",
+      "original_method_sha256": "78decc27f090137adf5ab80090820097ff2c8ddff7901563f49e435ccee59858",
+      "final_method_sha256": "6f84c81c98bcce529b68980aeb142a3d1de9c1b4c50e1921a7569fdf24053090",
+      "raw_body_unchanged": false,
+      "normalized_original_method_sha256": "6f84c81c98bcce529b68980aeb142a3d1de9c1b4c50e1921a7569fdf24053090",
+      "normalized_final_method_sha256": "6f84c81c98bcce529b68980aeb142a3d1de9c1b4c50e1921a7569fdf24053090",
+      "normalized_body_unchanged": true,
+      "deliberate_change": null
+    },
+    {
+      "name": "removeClientOrganization",
+      "path": "frontend/features/gc-app/api/gc-app-directory.api.ts",
+      "original_method_sha256": "50a2e74ce9262522b9a1ce229562293969d371ba9706af20e62997c18ae823a0",
+      "final_method_sha256": "128bdd021920b09bc03f129fa0afe7c26ba0d689eeff8a762a35170928475dd3",
+      "raw_body_unchanged": false,
+      "normalized_original_method_sha256": "128bdd021920b09bc03f129fa0afe7c26ba0d689eeff8a762a35170928475dd3",
+      "normalized_final_method_sha256": "128bdd021920b09bc03f129fa0afe7c26ba0d689eeff8a762a35170928475dd3",
+      "normalized_body_unchanged": true,
+      "deliberate_change": null
+    },
+    {
+      "name": "listClientManagers",
+      "path": "frontend/features/gc-app/api/gc-app-managers.api.ts",
+      "original_method_sha256": "5a5a22a3d1dd9c44988553a8016dc5de87132d22390bf4f70181a84b00741a46",
+      "final_method_sha256": "7ba23e04d3c081e09707461b02934f99ce4ea4f9beccaf988bcecff32e35226c",
+      "raw_body_unchanged": false,
+      "normalized_original_method_sha256": "7ba23e04d3c081e09707461b02934f99ce4ea4f9beccaf988bcecff32e35226c",
+      "normalized_final_method_sha256": "7ba23e04d3c081e09707461b02934f99ce4ea4f9beccaf988bcecff32e35226c",
+      "normalized_body_unchanged": true,
+      "deliberate_change": null
+    },
+    {
+      "name": "createClientManager",
+      "path": "frontend/features/gc-app/api/gc-app-managers.api.ts",
+      "original_method_sha256": "659b342487a11678c4f1dfa696cd933b8b621c4417dd991e5bf03140d0081c32",
+      "final_method_sha256": "83ea54cc1d06efe65291d82a5bb298a081d5bac7034d047d741c6e6ea65701e0",
+      "raw_body_unchanged": false,
+      "normalized_original_method_sha256": "83ea54cc1d06efe65291d82a5bb298a081d5bac7034d047d741c6e6ea65701e0",
+      "normalized_final_method_sha256": "83ea54cc1d06efe65291d82a5bb298a081d5bac7034d047d741c6e6ea65701e0",
+      "normalized_body_unchanged": true,
+      "deliberate_change": null
+    },
+    {
+      "name": "updateClientManager",
+      "path": "frontend/features/gc-app/api/gc-app-managers.api.ts",
+      "original_method_sha256": "f471a0b63c6b39d88cc919e6d0b5ba898676826f5020ef231da62cb5e1e473bb",
+      "final_method_sha256": "5c88b7696679c6c4f2aab34125b29041dd8066f2ea768cd99ab9710631fbfb38",
+      "raw_body_unchanged": false,
+      "normalized_original_method_sha256": "5c88b7696679c6c4f2aab34125b29041dd8066f2ea768cd99ab9710631fbfb38",
+      "normalized_final_method_sha256": "5c88b7696679c6c4f2aab34125b29041dd8066f2ea768cd99ab9710631fbfb38",
+      "normalized_body_unchanged": true,
+      "deliberate_change": null
+    },
+    {
+      "name": "setClientManagerStatus",
+      "path": "frontend/features/gc-app/api/gc-app-managers.api.ts",
+      "original_method_sha256": "99072a21e67f8e0bfc3a5f368f354c4f9844a47ddecc1e4764378c97ebd07a8a",
+      "final_method_sha256": "c515c7ca297a10826e2d0c67f590068060d98e6dd4e556eb68ba0dd74f092fe3",
+      "raw_body_unchanged": false,
+      "normalized_original_method_sha256": "c515c7ca297a10826e2d0c67f590068060d98e6dd4e556eb68ba0dd74f092fe3",
+      "normalized_final_method_sha256": "c515c7ca297a10826e2d0c67f590068060d98e6dd4e556eb68ba0dd74f092fe3",
+      "normalized_body_unchanged": true,
+      "deliberate_change": null
+    },
+    {
+      "name": "resetClientManagerPassword",
+      "path": "frontend/features/gc-app/api/gc-app-managers.api.ts",
+      "original_method_sha256": "ea7174fcade590e42e06b6cd9be13a1a14d687e2de831c2ffe9ed4ff576ffe65",
+      "final_method_sha256": "fb8fa0d2804144cba6e36b6b1ac05b14244651817e2b27e7ad39fae5e31ad15f",
+      "raw_body_unchanged": false,
+      "normalized_original_method_sha256": "fb8fa0d2804144cba6e36b6b1ac05b14244651817e2b27e7ad39fae5e31ad15f",
+      "normalized_final_method_sha256": "fb8fa0d2804144cba6e36b6b1ac05b14244651817e2b27e7ad39fae5e31ad15f",
+      "normalized_body_unchanged": true,
+      "deliberate_change": null
+    },
+    {
+      "name": "revokeClientManagerSessions",
+      "path": "frontend/features/gc-app/api/gc-app-managers.api.ts",
+      "original_method_sha256": "5cd8e999fd42bc65d23127871465ea28c6771430e1c4034f4103694423cc8dcd",
+      "final_method_sha256": "d687284598553c803e5befcce53878a2e4681fe043b940158d8b5334f5aa9043",
+      "raw_body_unchanged": false,
+      "normalized_original_method_sha256": "d687284598553c803e5befcce53878a2e4681fe043b940158d8b5334f5aa9043",
+      "normalized_final_method_sha256": "d687284598553c803e5befcce53878a2e4681fe043b940158d8b5334f5aa9043",
+      "normalized_body_unchanged": true,
+      "deliberate_change": null
+    },
+    {
+      "name": "softDeleteClientManager",
+      "path": "frontend/features/gc-app/api/gc-app-managers.api.ts",
+      "original_method_sha256": "84d2e5fcd822fa6affe4a0370ce64821dec90775b6c4c1a8f8a78cc68567ea5f",
+      "final_method_sha256": "c18e7014aaa40f4c4e124d408f9262c64b63fded3c35e64b04ec3659fea3a9cf",
+      "raw_body_unchanged": false,
+      "normalized_original_method_sha256": "c18e7014aaa40f4c4e124d408f9262c64b63fded3c35e64b04ec3659fea3a9cf",
+      "normalized_final_method_sha256": "c18e7014aaa40f4c4e124d408f9262c64b63fded3c35e64b04ec3659fea3a9cf",
+      "normalized_body_unchanged": true,
+      "deliberate_change": null
+    },
+    {
+      "name": "listClientManagerSessions",
+      "path": "frontend/features/gc-app/api/gc-app-managers.api.ts",
+      "original_method_sha256": "66fee41291666bfdfe03af6d11eb52317394a6b0d7533a6572b8970a01f4d181",
+      "final_method_sha256": "f4b1ece76e6650ba414b3bcea6063cde4b48730a65295e3f08c3a908051279fc",
+      "raw_body_unchanged": false,
+      "normalized_original_method_sha256": "f4b1ece76e6650ba414b3bcea6063cde4b48730a65295e3f08c3a908051279fc",
+      "normalized_final_method_sha256": "f4b1ece76e6650ba414b3bcea6063cde4b48730a65295e3f08c3a908051279fc",
+      "normalized_body_unchanged": true,
+      "deliberate_change": null
+    },
+    {
+      "name": "searchGroups",
+      "path": "frontend/features/gc-app/api/gc-app-groups.api.ts",
+      "original_method_sha256": "91549f146eaacf0e8427e468062b530a47518de3d3e306b4729c391bad9ba2bd",
+      "final_method_sha256": "5687658fdecbfd2d5917ffdabbf6700caff4ccff36bb5de9816b8c75ebbf4556",
+      "raw_body_unchanged": false,
+      "normalized_original_method_sha256": "5687658fdecbfd2d5917ffdabbf6700caff4ccff36bb5de9816b8c75ebbf4556",
+      "normalized_final_method_sha256": "5687658fdecbfd2d5917ffdabbf6700caff4ccff36bb5de9816b8c75ebbf4556",
+      "normalized_body_unchanged": true,
+      "deliberate_change": null
+    },
+    {
+      "name": "listGroups",
+      "path": "frontend/features/gc-app/api/gc-app-groups.api.ts",
+      "original_method_sha256": "b94f870140c47fb5a967dc12d54e03730af0cd7f34c763e2fbd46ec92d986592",
+      "final_method_sha256": "a19ba423749a2455e60946feec21c8c6fc452101e73e5a3f40d637680e54a5e6",
+      "raw_body_unchanged": false,
+      "normalized_original_method_sha256": "a19ba423749a2455e60946feec21c8c6fc452101e73e5a3f40d637680e54a5e6",
+      "normalized_final_method_sha256": "a19ba423749a2455e60946feec21c8c6fc452101e73e5a3f40d637680e54a5e6",
+      "normalized_body_unchanged": true,
+      "deliberate_change": null
+    },
+    {
+      "name": "getGroupControl",
+      "path": "frontend/features/gc-app/api/gc-app-groups.api.ts",
+      "original_method_sha256": "7f7e5df3a896270420fff4b74d1aece5018f0daa32886c08e71a5e69f46d0761",
+      "final_method_sha256": "2f6a297e4a40aaf99a78ff97bcee518799217c03b6a8ff9edf061b71b1123656",
+      "raw_body_unchanged": false,
+      "normalized_original_method_sha256": "2f6a297e4a40aaf99a78ff97bcee518799217c03b6a8ff9edf061b71b1123656",
+      "normalized_final_method_sha256": "2f6a297e4a40aaf99a78ff97bcee518799217c03b6a8ff9edf061b71b1123656",
+      "normalized_body_unchanged": true,
+      "deliberate_change": null
+    },
+    {
+      "name": "addGroup",
+      "path": "frontend/features/gc-app/api/gc-app-groups.api.ts",
+      "original_method_sha256": "96ce2abf773a2db735b7fb9443d5a42f9c49bc6bce028c674ae1dd7ee6df0156",
+      "final_method_sha256": "af66c2cb31f48688822cbc683feade3dd02bf1a82ba371f6f133f3825ac3f508",
+      "raw_body_unchanged": false,
+      "normalized_original_method_sha256": "af66c2cb31f48688822cbc683feade3dd02bf1a82ba371f6f133f3825ac3f508",
+      "normalized_final_method_sha256": "af66c2cb31f48688822cbc683feade3dd02bf1a82ba371f6f133f3825ac3f508",
+      "normalized_body_unchanged": true,
+      "deliberate_change": null
+    },
+    {
+      "name": "removeGroup",
+      "path": "frontend/features/gc-app/api/gc-app-groups.api.ts",
+      "original_method_sha256": "ecc58546a250e8e1dbe2bebadc44177275c301c98a1e5b1efca5a749fe8d7cef",
+      "final_method_sha256": "ecc58546a250e8e1dbe2bebadc44177275c301c98a1e5b1efca5a749fe8d7cef",
+      "raw_body_unchanged": true,
+      "normalized_original_method_sha256": "ecc58546a250e8e1dbe2bebadc44177275c301c98a1e5b1efca5a749fe8d7cef",
+      "normalized_final_method_sha256": "ecc58546a250e8e1dbe2bebadc44177275c301c98a1e5b1efca5a749fe8d7cef",
+      "normalized_body_unchanged": true,
+      "deliberate_change": null
+    },
+    {
+      "name": "updateGroupControl",
+      "path": "frontend/features/gc-app/api/gc-app-groups.api.ts",
+      "original_method_sha256": "d1a85454ea8277e83ed93811244c82d18ea9f9ee8244c2723230ca74e7bac29f",
+      "final_method_sha256": "232dd0d580be751939c3c883c17c93adfc183ef15e04f456d9d3982b812e39c4",
+      "raw_body_unchanged": false,
+      "normalized_original_method_sha256": "232dd0d580be751939c3c883c17c93adfc183ef15e04f456d9d3982b812e39c4",
+      "normalized_final_method_sha256": "232dd0d580be751939c3c883c17c93adfc183ef15e04f456d9d3982b812e39c4",
+      "normalized_body_unchanged": true,
+      "deliberate_change": null
+    },
+    {
+      "name": "setMyPhotosEnabled",
+      "path": "frontend/features/gc-app/api/gc-app-groups.api.ts",
+      "original_method_sha256": "73ad1e0ae4223c7976dd9aaf9c608c3ced07b5c584cdae0e2e708761ab75c4b4",
+      "final_method_sha256": "4b9c63b5946f49269d10ae1eac60c2359dd19ef1e3466b7ad9b653f8b26e241b",
+      "raw_body_unchanged": false,
+      "normalized_original_method_sha256": "4b9c63b5946f49269d10ae1eac60c2359dd19ef1e3466b7ad9b653f8b26e241b",
+      "normalized_final_method_sha256": "4b9c63b5946f49269d10ae1eac60c2359dd19ef1e3466b7ad9b653f8b26e241b",
+      "normalized_body_unchanged": true,
+      "deliberate_change": null
+    },
+    {
+      "name": "revokeGroupAccess",
+      "path": "frontend/features/gc-app/api/gc-app-groups.api.ts",
+      "original_method_sha256": "d404039c9245ad2d2575debe2ce4a63f8ee545d97fd23c7669352751080cc7ba",
+      "final_method_sha256": "0e6987b24c94f50e4a02d38732f3a4f0808c6306d1beaa71738cf7e3cdd08c82",
+      "raw_body_unchanged": false,
+      "normalized_original_method_sha256": "0e6987b24c94f50e4a02d38732f3a4f0808c6306d1beaa71738cf7e3cdd08c82",
+      "normalized_final_method_sha256": "0e6987b24c94f50e4a02d38732f3a4f0808c6306d1beaa71738cf7e3cdd08c82",
+      "normalized_body_unchanged": true,
+      "deliberate_change": null
+    },
+    {
+      "name": "getGroupContent",
+      "path": "frontend/features/gc-app/api/gc-app-documents.api.ts",
+      "original_method_sha256": "fa560630dbee18da5f67e530f27a08a365aebfc017271e81e6b6271f928dbdf6",
+      "final_method_sha256": "859c7cb6fb11064c8ca6e7136b6313adc6e84a288a8bc65b63085b781b667689",
+      "raw_body_unchanged": false,
+      "normalized_original_method_sha256": "859c7cb6fb11064c8ca6e7136b6313adc6e84a288a8bc65b63085b781b667689",
+      "normalized_final_method_sha256": "859c7cb6fb11064c8ca6e7136b6313adc6e84a288a8bc65b63085b781b667689",
+      "normalized_body_unchanged": true,
+      "deliberate_change": null
+    },
+    {
+      "name": "uploadCommonDocument",
+      "path": "frontend/features/gc-app/api/gc-app-documents.api.ts",
+      "original_method_sha256": "1dbc1fefe8fe334c4967b5f5285304d9923e72566f4d1bd95d9714d1fcc935a4",
+      "final_method_sha256": "2c96ba037173a3f4e0e76b3bdba710350e254383e91497fcb1784050f6cb67bf",
+      "raw_body_unchanged": false,
+      "normalized_original_method_sha256": "2c96ba037173a3f4e0e76b3bdba710350e254383e91497fcb1784050f6cb67bf",
+      "normalized_final_method_sha256": "2c96ba037173a3f4e0e76b3bdba710350e254383e91497fcb1784050f6cb67bf",
+      "normalized_body_unchanged": true,
+      "deliberate_change": null
+    },
+    {
+      "name": "setCommonDocumentPublished",
+      "path": "frontend/features/gc-app/api/gc-app-documents.api.ts",
+      "original_method_sha256": "e95ee5062073a0cd44c2dc2be05c77f5c82ae694a190391c3a7375a61bfa6fcd",
+      "final_method_sha256": "03d70b00f3fe386d33e7fedec82a6b23302025f534915500b17cd2330eebc78c",
+      "raw_body_unchanged": false,
+      "normalized_original_method_sha256": "03d70b00f3fe386d33e7fedec82a6b23302025f534915500b17cd2330eebc78c",
+      "normalized_final_method_sha256": "03d70b00f3fe386d33e7fedec82a6b23302025f534915500b17cd2330eebc78c",
+      "normalized_body_unchanged": true,
+      "deliberate_change": null
+    },
+    {
+      "name": "previewCommonDocument",
+      "path": "frontend/features/gc-app/api/gc-app-documents.api.ts",
+      "original_method_sha256": "4459d3d59a605f577104b79194d24ec5db6f6283801cc8f7eb0dd61c164c1e8c",
+      "final_method_sha256": "4420b58dbf639ca0497396653f251e13d61dcc82d1cdbf65389297d04830a40d",
+      "raw_body_unchanged": false,
+      "normalized_original_method_sha256": "4420b58dbf639ca0497396653f251e13d61dcc82d1cdbf65389297d04830a40d",
+      "normalized_final_method_sha256": "4420b58dbf639ca0497396653f251e13d61dcc82d1cdbf65389297d04830a40d",
+      "normalized_body_unchanged": true,
+      "deliberate_change": null
+    },
+    {
+      "name": "reorderCommonDocuments",
+      "path": "frontend/features/gc-app/api/gc-app-documents.api.ts",
+      "original_method_sha256": "5a0a9c43f6118ea9b908b43142df8a253b949a10797c8bd558f4b4edc47bbc7e",
+      "final_method_sha256": "179446f3cad03d4ad1119ae1b9b059d553d3fc6fb3d2eb80caa164d97edc01f4",
+      "raw_body_unchanged": false,
+      "normalized_original_method_sha256": "179446f3cad03d4ad1119ae1b9b059d553d3fc6fb3d2eb80caa164d97edc01f4",
+      "normalized_final_method_sha256": "179446f3cad03d4ad1119ae1b9b059d553d3fc6fb3d2eb80caa164d97edc01f4",
+      "normalized_body_unchanged": true,
+      "deliberate_change": null
+    },
+    {
+      "name": "deleteCommonDocument",
+      "path": "frontend/features/gc-app/api/gc-app-documents.api.ts",
+      "original_method_sha256": "b6e0b08aef6d572e991866b7d83e82d7843e9dc2c0a6e797774850e3006b8078",
+      "final_method_sha256": "136710702e28f2371d4680cbe2c53f688effd210a99000a2c369457b2a37df8e",
+      "raw_body_unchanged": false,
+      "normalized_original_method_sha256": "136710702e28f2371d4680cbe2c53f688effd210a99000a2c369457b2a37df8e",
+      "normalized_final_method_sha256": "136710702e28f2371d4680cbe2c53f688effd210a99000a2c369457b2a37df8e",
+      "normalized_body_unchanged": true,
+      "deliberate_change": null
+    },
+    {
+      "name": "saveItineraryDraft",
+      "path": "frontend/features/gc-app/api/gc-app-itineraries.api.ts",
+      "original_method_sha256": "d801fcfef47cc3ac7c233af6f293f58a07e4bf6f4597941c60014f9d6b19fc68",
+      "final_method_sha256": "3bd34c1a25b1916ddd777475fd15c04a06aa874bea5fe6cdde78504dddec1f62",
+      "raw_body_unchanged": false,
+      "normalized_original_method_sha256": "3bd34c1a25b1916ddd777475fd15c04a06aa874bea5fe6cdde78504dddec1f62",
+      "normalized_final_method_sha256": "3bd34c1a25b1916ddd777475fd15c04a06aa874bea5fe6cdde78504dddec1f62",
+      "normalized_body_unchanged": true,
+      "deliberate_change": null
+    },
+    {
+      "name": "publishItinerary",
+      "path": "frontend/features/gc-app/api/gc-app-itineraries.api.ts",
+      "original_method_sha256": "0c270140c7d02acf0a95180169fd494fbc207a9e06aa490ec8a67b4c36724bd7",
+      "final_method_sha256": "a514ff40741322b1f6fd9c8e66dbaad2594a7900255c0dccac371efe8e75848e",
+      "raw_body_unchanged": false,
+      "normalized_original_method_sha256": "a514ff40741322b1f6fd9c8e66dbaad2594a7900255c0dccac371efe8e75848e",
+      "normalized_final_method_sha256": "a514ff40741322b1f6fd9c8e66dbaad2594a7900255c0dccac371efe8e75848e",
+      "normalized_body_unchanged": true,
+      "deliberate_change": null
+    },
+    {
+      "name": "unpublishItinerary",
+      "path": "frontend/features/gc-app/api/gc-app-itineraries.api.ts",
+      "original_method_sha256": "00ae00002277e91810d5734e19600cbbbac36addc24abea0c1663b7c231870fe",
+      "final_method_sha256": "f842fb9aa854537197ed518fadd3bd699c0a99ef2a382e5cb9b276916e5a2784",
+      "raw_body_unchanged": false,
+      "normalized_original_method_sha256": "f842fb9aa854537197ed518fadd3bd699c0a99ef2a382e5cb9b276916e5a2784",
+      "normalized_final_method_sha256": "f842fb9aa854537197ed518fadd3bd699c0a99ef2a382e5cb9b276916e5a2784",
+      "normalized_body_unchanged": true,
+      "deliberate_change": null
+    },
+    {
+      "name": "listAnnouncements",
+      "path": "frontend/features/gc-app/api/gc-app-announcements.api.ts",
+      "original_method_sha256": "7bf7197e49c1de987f4e0fb53b443ba8bc8c81789a1c84ae74d078654e7ca7d4",
+      "final_method_sha256": "7bf7197e49c1de987f4e0fb53b443ba8bc8c81789a1c84ae74d078654e7ca7d4",
+      "raw_body_unchanged": true,
+      "normalized_original_method_sha256": "7bf7197e49c1de987f4e0fb53b443ba8bc8c81789a1c84ae74d078654e7ca7d4",
+      "normalized_final_method_sha256": "7bf7197e49c1de987f4e0fb53b443ba8bc8c81789a1c84ae74d078654e7ca7d4",
+      "normalized_body_unchanged": true,
+      "deliberate_change": null
+    },
+    {
+      "name": "createAnnouncement",
+      "path": "frontend/features/gc-app/api/gc-app-announcements.api.ts",
+      "original_method_sha256": "60baf13f8c021fb928ff4e3ce0b27e26e0ec263a9647e7797ba8a2ebfcf2a59c",
+      "final_method_sha256": "03203075d970765c01cd30840e7bcec2d7361d97824d7032c05df81a969e8e1a",
+      "raw_body_unchanged": false,
+      "normalized_original_method_sha256": "03203075d970765c01cd30840e7bcec2d7361d97824d7032c05df81a969e8e1a",
+      "normalized_final_method_sha256": "03203075d970765c01cd30840e7bcec2d7361d97824d7032c05df81a969e8e1a",
+      "normalized_body_unchanged": true,
+      "deliberate_change": null
+    },
+    {
+      "name": "updateAnnouncement",
+      "path": "frontend/features/gc-app/api/gc-app-announcements.api.ts",
+      "original_method_sha256": "a5216b1811559671d2378a439f124b461f3a1a548c7932981e3b50e5f13e2647",
+      "final_method_sha256": "5e14d33ae13a55138d30c325332894a3ca5bcb9833eeee9145240ea6f61c7c5d",
+      "raw_body_unchanged": false,
+      "normalized_original_method_sha256": "5e14d33ae13a55138d30c325332894a3ca5bcb9833eeee9145240ea6f61c7c5d",
+      "normalized_final_method_sha256": "5e14d33ae13a55138d30c325332894a3ca5bcb9833eeee9145240ea6f61c7c5d",
+      "normalized_body_unchanged": true,
+      "deliberate_change": null
+    },
+    {
+      "name": "setAnnouncementPublished",
+      "path": "frontend/features/gc-app/api/gc-app-announcements.api.ts",
+      "original_method_sha256": "0d18278814878575b26e8bafdb7c2d600bae607d88d84400f039c73323331663",
+      "final_method_sha256": "f10a61d713b4c49df21a27e363ced54d6db85951b0c55ca81f5c13cc8898ac00",
+      "raw_body_unchanged": false,
+      "normalized_original_method_sha256": "f10a61d713b4c49df21a27e363ced54d6db85951b0c55ca81f5c13cc8898ac00",
+      "normalized_final_method_sha256": "f10a61d713b4c49df21a27e363ced54d6db85951b0c55ca81f5c13cc8898ac00",
+      "normalized_body_unchanged": true,
+      "deliberate_change": null
+    },
+    {
+      "name": "deleteAnnouncement",
+      "path": "frontend/features/gc-app/api/gc-app-announcements.api.ts",
+      "original_method_sha256": "35d7902ff89b2ab4968cada8c825144812307299521817c1e0a951aa8cc7bc76",
+      "final_method_sha256": "0c5cf4910e93022cf9339f1fbb4b2032c2ca86ef5ec0c61cb52b62d0a45e7936",
+      "raw_body_unchanged": false,
+      "normalized_original_method_sha256": "0c5cf4910e93022cf9339f1fbb4b2032c2ca86ef5ec0c61cb52b62d0a45e7936",
+      "normalized_final_method_sha256": "0c5cf4910e93022cf9339f1fbb4b2032c2ca86ef5ec0c61cb52b62d0a45e7936",
+      "normalized_body_unchanged": true,
+      "deliberate_change": null
+    },
+    {
+      "name": "listClientManagerAudit",
+      "path": "frontend/features/gc-app/api/gc-app-audit.api.ts",
+      "original_method_sha256": "22f084e2da999c06c30cbcc6953584f13b634456773896ab9e36d0d2752abe13",
+      "final_method_sha256": "fd350ea8fea11042321efa4a29909ce4aab3cd56ce586b45ac9337ff9101a323",
+      "raw_body_unchanged": false,
+      "normalized_original_method_sha256": "0cb71f919348e483bf2957db780d76039c62ceb9643082cfc58265d27ac2608b",
+      "normalized_final_method_sha256": "fd350ea8fea11042321efa4a29909ce4aab3cd56ce586b45ac9337ff9101a323",
+      "normalized_body_unchanged": false,
+      "deliberate_change": "Duplicate projection replaced with shared normalizeAuditEvent; same scope, paging, whitelist fields and signal verified by focused tests."
+    },
+    {
+      "name": "listGroupAudit",
+      "path": "frontend/features/gc-app/api/gc-app-audit.api.ts",
+      "original_method_sha256": "c9752b4c67c9b9a1bfb41c6e518b9ecd8b3e6930f86771802264b6d935e34ebd",
+      "final_method_sha256": "2bdb0202ccb886e882d56b097491d9daebf284d0f0b72920bf0f11607c8965c8",
+      "raw_body_unchanged": false,
+      "normalized_original_method_sha256": "9fc2846aa6767324f3108c6ae1cc6a259478f69cf52227b8a3dcc3953512a5ab",
+      "normalized_final_method_sha256": "2bdb0202ccb886e882d56b097491d9daebf284d0f0b72920bf0f11607c8965c8",
+      "normalized_body_unchanged": false,
+      "deliberate_change": "Duplicate projection replaced with shared normalizeAuditEvent; same scope, paging, whitelist fields and signal verified by focused tests."
+    }
+  ],
+  "hook_function_count": 14,
+  "hooks": [
+    {
+      "name": "useClientCompanies",
+      "path": "frontend/features/gc-app/hooks/use-gc-client-directory.ts",
+      "normalized_original_function_sha256": "27d8d338491d87c1e00d5bcbcc909845a9c25d0a08987b5e18cb38b69c864153",
+      "normalized_final_function_sha256": "27d8d338491d87c1e00d5bcbcc909845a9c25d0a08987b5e18cb38b69c864153",
+      "unchanged": true
+    },
+    {
+      "name": "useClientCompanyMutations",
+      "path": "frontend/features/gc-app/hooks/use-gc-client-directory.ts",
+      "normalized_original_function_sha256": "b79bf56f00cbe1e83ef4c99cab5bea58e6ae4c2f428a17c8fd125823ef23505b",
+      "normalized_final_function_sha256": "b79bf56f00cbe1e83ef4c99cab5bea58e6ae4c2f428a17c8fd125823ef23505b",
+      "unchanged": true
+    },
+    {
+      "name": "useGcGroupSearch",
+      "path": "frontend/features/gc-app/hooks/use-gc-client-directory.ts",
+      "normalized_original_function_sha256": "eb52016cc12aae24176ed89d3bdcb5869fccf4e08fedae1f9cd32ec5ce540f70",
+      "normalized_final_function_sha256": "eb52016cc12aae24176ed89d3bdcb5869fccf4e08fedae1f9cd32ec5ce540f70",
+      "unchanged": true
+    },
+    {
+      "name": "useClientManagers",
+      "path": "frontend/features/gc-app/hooks/use-gc-client-managers.ts",
+      "normalized_original_function_sha256": "f67b347746685ead7de2dadc9c3a7088ef102f729bbe50ec3954d8c0b92126d5",
+      "normalized_final_function_sha256": "f67b347746685ead7de2dadc9c3a7088ef102f729bbe50ec3954d8c0b92126d5",
+      "unchanged": true
+    },
+    {
+      "name": "useClientManagerSessions",
+      "path": "frontend/features/gc-app/hooks/use-gc-client-managers.ts",
+      "normalized_original_function_sha256": "d143d21b65dbe89fc76d9f39f656259fa77cf8eb8e1bcd56d495131d0b9f96d0",
+      "normalized_final_function_sha256": "d143d21b65dbe89fc76d9f39f656259fa77cf8eb8e1bcd56d495131d0b9f96d0",
+      "unchanged": true
+    },
+    {
+      "name": "useClientManagerAudit",
+      "path": "frontend/features/gc-app/hooks/use-gc-client-managers.ts",
+      "normalized_original_function_sha256": "effd5fbdb7614ef3e1ee99385acf8080702e0891a381d51d4fea2bd2ac07811b",
+      "normalized_final_function_sha256": "effd5fbdb7614ef3e1ee99385acf8080702e0891a381d51d4fea2bd2ac07811b",
+      "unchanged": true
+    },
+    {
+      "name": "useClientManagerMutations",
+      "path": "frontend/features/gc-app/hooks/use-gc-client-managers.ts",
+      "normalized_original_function_sha256": "5a1047205fb555edde78d026886a921dcd5a6e65768e53e6e693112af1cfbf0e",
+      "normalized_final_function_sha256": "5a1047205fb555edde78d026886a921dcd5a6e65768e53e6e693112af1cfbf0e",
+      "unchanged": true
+    },
+    {
+      "name": "useGcAppGroups",
+      "path": "frontend/features/gc-app/hooks/use-gc-group-queries.ts",
+      "normalized_original_function_sha256": "08dccbba463aa390c2723b8af669a96313c1577db5efb619705369cfff4dca97",
+      "normalized_final_function_sha256": "08dccbba463aa390c2723b8af669a96313c1577db5efb619705369cfff4dca97",
+      "unchanged": true
+    },
+    {
+      "name": "useGcAppGroupControl",
+      "path": "frontend/features/gc-app/hooks/use-gc-group-queries.ts",
+      "normalized_original_function_sha256": "c94d6efaf2c2301334f9c4e07c0f3b0f4a247c85e66f61d47f610da19ec6b259",
+      "normalized_final_function_sha256": "c94d6efaf2c2301334f9c4e07c0f3b0f4a247c85e66f61d47f610da19ec6b259",
+      "unchanged": true
+    },
+    {
+      "name": "useGcAppGroupContent",
+      "path": "frontend/features/gc-app/hooks/use-gc-group-queries.ts",
+      "normalized_original_function_sha256": "404f8c39b101165795dcdebb2e6171506473cb354a77506f2fa314cfc5f34064",
+      "normalized_final_function_sha256": "404f8c39b101165795dcdebb2e6171506473cb354a77506f2fa314cfc5f34064",
+      "unchanged": true
+    },
+    {
+      "name": "useGcAppGroupAudit",
+      "path": "frontend/features/gc-app/hooks/use-gc-group-queries.ts",
+      "normalized_original_function_sha256": "3d5966dab8b38d5a15f5a637b13b16112d8ddd90399500c5e6c80399898a4e35",
+      "normalized_final_function_sha256": "3d5966dab8b38d5a15f5a637b13b16112d8ddd90399500c5e6c80399898a4e35",
+      "unchanged": true
+    },
+    {
+      "name": "useGcAppAnnouncements",
+      "path": "frontend/features/gc-app/hooks/use-gc-group-queries.ts",
+      "normalized_original_function_sha256": "c2fd32eee139672895ab8f355a032af2e17fb218e2c58d1309b6e5f939369192",
+      "normalized_final_function_sha256": "c2fd32eee139672895ab8f355a032af2e17fb218e2c58d1309b6e5f939369192",
+      "unchanged": true
+    },
+    {
+      "name": "useGcAppGroupMutations",
+      "path": "frontend/features/gc-app/hooks/use-gc-group-mutations.ts",
+      "normalized_original_function_sha256": "480daf111482f1821afdc79e38bf979e952f6e3b0c3d3a3ce84f3b97a473027c",
+      "normalized_final_function_sha256": "480daf111482f1821afdc79e38bf979e952f6e3b0c3d3a3ce84f3b97a473027c",
+      "unchanged": true
+    },
+    {
+      "name": "requireAccessRevision",
+      "path": "frontend/features/gc-app/hooks/use-gc-group-mutations.ts",
+      "normalized_original_function_sha256": "375dbd8f8e977f289f3827e49712138cdaf900ed4ebf40807644f213867bb189",
+      "normalized_final_function_sha256": "375dbd8f8e977f289f3827e49712138cdaf900ed4ebf40807644f213867bb189",
+      "unchanged": true
+    }
+  ]
+}

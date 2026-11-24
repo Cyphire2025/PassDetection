@@ -1,0 +1,178 @@
+{
+  "status": "all fresh-process metadata checks pass",
+  "expected_modes": 21,
+  "results": [
+    {
+      "entry": "app.infrastructure.database.gc_mobile_models",
+      "exit_code": 0,
+      "wall_seconds": 3.047,
+      "stdout": "{\"phase\": \"after\", \"entry\": \"app.infrastructure.database.gc_mobile_models\", \"baseline\": \"gc-shared-models-v2-before-gc_mobile_models-metadata.json\", \"baseline_raw_sha256\": \"b110cab74884af1686ee2de1fbe48276df64eb137f5b8bbf78d7d62468f9655d\", \"actual_canonical_sha256\": \"fa944c8c0935aacb0b2e4a1ef14e585c17a01ea76f7803808be0e80d3cb40408\", \"all_metadata_exact\": true, \"tables\": 174, \"mappers\": 174, \"classes\": 23, \"star_exports\": 22, \"clock_defaults\": 65, \"actual_importer_statements\": 116, \"ddl_compile_errors\": 0}\n",
+      "stderr": ""
+    },
+    {
+      "entry": "app.infrastructure.database.model_registry",
+      "exit_code": 0,
+      "wall_seconds": 1.969,
+      "stdout": "{\"phase\": \"after\", \"entry\": \"app.infrastructure.database.model_registry\", \"baseline\": \"gc-shared-models-v2-before-model_registry-metadata.json\", \"baseline_raw_sha256\": \"12a6a56898c0a38685dc2af2799d9371170baa55a70580c35db51f09271a3cba\", \"actual_canonical_sha256\": \"60a29f54edfaba932cb5dfea59ca23b24b6c476742a7a9c25a9948d83312cd15\", \"all_metadata_exact\": true, \"tables\": 174, \"mappers\": 174, \"classes\": 23, \"star_exports\": 22, \"clock_defaults\": 65, \"actual_importer_statements\": 116, \"ddl_compile_errors\": 0}\n",
+      "stderr": ""
+    },
+    {
+      "entry": "app.infrastructure.database.models",
+      "exit_code": 0,
+      "wall_seconds": 1.859,
+      "stdout": "{\"phase\": \"after\", \"entry\": \"app.infrastructure.database.models\", \"baseline\": \"gc-shared-models-v2-before-models-metadata.json\", \"baseline_raw_sha256\": \"5d71f6268a77fda9b18ff3bd31c9102394b4b941e0304a81c35be7d5b5e9c19c\", \"actual_canonical_sha256\": \"b25d3c74b17a5fde969e9ed5780cc36d36f8f21779544cf2ee72b41a99dc11c5\", \"all_metadata_exact\": true, \"tables\": 174, \"mappers\": 174, \"classes\": 23, \"star_exports\": 22, \"clock_defaults\": 65, \"actual_importer_statements\": 116, \"ddl_compile_errors\": 0}\n",
+      "stderr": ""
+    },
+    {
+      "entry": "app.infrastructure.database._gc_models",
+      "exit_code": 0,
+      "wall_seconds": 1.891,
+      "stdout": "{\"phase\": \"after\", \"entry\": \"app.infrastructure.database._gc_models\", \"baseline\": \"gc-shared-models-v2-before-gc_mobile_models-metadata.json\", \"baseline_raw_sha256\": \"b110cab74884af1686ee2de1fbe48276df64eb137f5b8bbf78d7d62468f9655d\", \"actual_canonical_sha256\": \"fa944c8c0935aacb0b2e4a1ef14e585c17a01ea76f7803808be0e80d3cb40408\", \"all_metadata_exact\": true, \"tables\": 174, \"mappers\": 174, \"classes\": 23, \"star_exports\": 22, \"clock_defaults\": 65, \"actual_importer_statements\": 116, \"ddl_compile_errors\": 0}\n",
+      "stderr": ""
+    },
+    {
+      "entry": "app.infrastructure.database._gc_models.organizations",
+      "exit_code": 0,
+      "wall_seconds": 1.922,
+      "stdout": "{\"phase\": \"after\", \"entry\": \"app.infrastructure.database._gc_models.organizations\", \"baseline\": \"gc-shared-models-v2-before-gc_mobile_models-metadata.json\", \"baseline_raw_sha256\": \"b110cab74884af1686ee2de1fbe48276df64eb137f5b8bbf78d7d62468f9655d\", \"actual_canonical_sha256\": \"fa944c8c0935aacb0b2e4a1ef14e585c17a01ea76f7803808be0e80d3cb40408\", \"all_metadata_exact\": true, \"tables\": 174, \"mappers\": 174, \"classes\": 23, \"star_exports\": 22, \"clock_defaults\": 65, \"actual_importer_statements\": 116, \"ddl_compile_errors\": 0}\n",
+      "stderr": ""
+    },
+    {
+      "entry": "app.infrastructure.database._gc_models.group_access",
+      "exit_code": 0,
+      "wall_seconds": 1.906,
+      "stdout": "{\"phase\": \"after\", \"entry\": \"app.infrastructure.database._gc_models.group_access\", \"baseline\": \"gc-shared-models-v2-before-gc_mobile_models-metadata.json\", \"baseline_raw_sha256\": \"b110cab74884af1686ee2de1fbe48276df64eb137f5b8bbf78d7d62468f9655d\", \"actual_canonical_sha256\": \"fa944c8c0935aacb0b2e4a1ef14e585c17a01ea76f7803808be0e80d3cb40408\", \"all_metadata_exact\": true, \"tables\": 174, \"mappers\": 174, \"classes\": 23, \"star_exports\": 22, \"clock_defaults\": 65, \"actual_importer_statements\": 116, \"ddl_compile_errors\": 0}\n",
+      "stderr": ""
+    },
+    {
+      "entry": "app.infrastructure.database._gc_models.common_documents",
+      "exit_code": 0,
+      "wall_seconds": 2.078,
+      "stdout": "{\"phase\": \"after\", \"entry\": \"app.infrastructure.database._gc_models.common_documents\", \"baseline\": \"gc-shared-models-v2-before-gc_mobile_models-metadata.json\", \"baseline_raw_sha256\": \"b110cab74884af1686ee2de1fbe48276df64eb137f5b8bbf78d7d62468f9655d\", \"actual_canonical_sha256\": \"fa944c8c0935aacb0b2e4a1ef14e585c17a01ea76f7803808be0e80d3cb40408\", \"all_metadata_exact\": true, \"tables\": 174, \"mappers\": 174, \"classes\": 23, \"star_exports\": 22, \"clock_defaults\": 65, \"actual_importer_statements\": 116, \"ddl_compile_errors\": 0}\n",
+      "stderr": ""
+    },
+    {
+      "entry": "app.infrastructure.database._gc_models.itineraries",
+      "exit_code": 0,
+      "wall_seconds": 2.266,
+      "stdout": "{\"phase\": \"after\", \"entry\": \"app.infrastructure.database._gc_models.itineraries\", \"baseline\": \"gc-shared-models-v2-before-gc_mobile_models-metadata.json\", \"baseline_raw_sha256\": \"b110cab74884af1686ee2de1fbe48276df64eb137f5b8bbf78d7d62468f9655d\", \"actual_canonical_sha256\": \"fa944c8c0935aacb0b2e4a1ef14e585c17a01ea76f7803808be0e80d3cb40408\", \"all_metadata_exact\": true, \"tables\": 174, \"mappers\": 174, \"classes\": 23, \"star_exports\": 22, \"clock_defaults\": 65, \"actual_importer_statements\": 116, \"ddl_compile_errors\": 0}\n",
+      "stderr": ""
+    },
+    {
+      "entry": "app.infrastructure.database._gc_models.announcements",
+      "exit_code": 0,
+      "wall_seconds": 1.953,
+      "stdout": "{\"phase\": \"after\", \"entry\": \"app.infrastructure.database._gc_models.announcements\", \"baseline\": \"gc-shared-models-v2-before-gc_mobile_models-metadata.json\", \"baseline_raw_sha256\": \"b110cab74884af1686ee2de1fbe48276df64eb137f5b8bbf78d7d62468f9655d\", \"actual_canonical_sha256\": \"fa944c8c0935aacb0b2e4a1ef14e585c17a01ea76f7803808be0e80d3cb40408\", \"all_metadata_exact\": true, \"tables\": 174, \"mappers\": 174, \"classes\": 23, \"star_exports\": 22, \"clock_defaults\": 65, \"actual_importer_statements\": 116, \"ddl_compile_errors\": 0}\n",
+      "stderr": ""
+    },
+    {
+      "entry": "app.infrastructure.database._gc_models.passenger_identities",
+      "exit_code": 0,
+      "wall_seconds": 1.781,
+      "stdout": "{\"phase\": \"after\", \"entry\": \"app.infrastructure.database._gc_models.passenger_identities\", \"baseline\": \"gc-shared-models-v2-before-gc_mobile_models-metadata.json\", \"baseline_raw_sha256\": \"b110cab74884af1686ee2de1fbe48276df64eb137f5b8bbf78d7d62468f9655d\", \"actual_canonical_sha256\": \"fa944c8c0935aacb0b2e4a1ef14e585c17a01ea76f7803808be0e80d3cb40408\", \"all_metadata_exact\": true, \"tables\": 174, \"mappers\": 174, \"classes\": 23, \"star_exports\": 22, \"clock_defaults\": 65, \"actual_importer_statements\": 116, \"ddl_compile_errors\": 0}\n",
+      "stderr": ""
+    },
+    {
+      "entry": "app.infrastructure.database._gc_models.document_cache",
+      "exit_code": 0,
+      "wall_seconds": 1.813,
+      "stdout": "{\"phase\": \"after\", \"entry\": \"app.infrastructure.database._gc_models.document_cache\", \"baseline\": \"gc-shared-models-v2-before-gc_mobile_models-metadata.json\", \"baseline_raw_sha256\": \"b110cab74884af1686ee2de1fbe48276df64eb137f5b8bbf78d7d62468f9655d\", \"actual_canonical_sha256\": \"fa944c8c0935aacb0b2e4a1ef14e585c17a01ea76f7803808be0e80d3cb40408\", \"all_metadata_exact\": true, \"tables\": 174, \"mappers\": 174, \"classes\": 23, \"star_exports\": 22, \"clock_defaults\": 65, \"actual_importer_statements\": 116, \"ddl_compile_errors\": 0}\n",
+      "stderr": ""
+    },
+    {
+      "entry": "app.infrastructure.database._gc_models.otp_challenges",
+      "exit_code": 0,
+      "wall_seconds": 1.812,
+      "stdout": "{\"phase\": \"after\", \"entry\": \"app.infrastructure.database._gc_models.otp_challenges\", \"baseline\": \"gc-shared-models-v2-before-gc_mobile_models-metadata.json\", \"baseline_raw_sha256\": \"b110cab74884af1686ee2de1fbe48276df64eb137f5b8bbf78d7d62468f9655d\", \"actual_canonical_sha256\": \"fa944c8c0935aacb0b2e4a1ef14e585c17a01ea76f7803808be0e80d3cb40408\", \"all_metadata_exact\": true, \"tables\": 174, \"mappers\": 174, \"classes\": 23, \"star_exports\": 22, \"clock_defaults\": 65, \"actual_importer_statements\": 116, \"ddl_compile_errors\": 0}\n",
+      "stderr": ""
+    },
+    {
+      "entry": "app.infrastructure.database._gc_models.sessions",
+      "exit_code": 0,
+      "wall_seconds": 2.0,
+      "stdout": "{\"phase\": \"after\", \"entry\": \"app.infrastructure.database._gc_models.sessions\", \"baseline\": \"gc-shared-models-v2-before-gc_mobile_models-metadata.json\", \"baseline_raw_sha256\": \"b110cab74884af1686ee2de1fbe48276df64eb137f5b8bbf78d7d62468f9655d\", \"actual_canonical_sha256\": \"fa944c8c0935aacb0b2e4a1ef14e585c17a01ea76f7803808be0e80d3cb40408\", \"all_metadata_exact\": true, \"tables\": 174, \"mappers\": 174, \"classes\": 23, \"star_exports\": 22, \"clock_defaults\": 65, \"actual_importer_statements\": 116, \"ddl_compile_errors\": 0}\n",
+      "stderr": ""
+    },
+    {
+      "entry": "app.infrastructure.database._gc_models.attestation",
+      "exit_code": 0,
+      "wall_seconds": 1.766,
+      "stdout": "{\"phase\": \"after\", \"entry\": \"app.infrastructure.database._gc_models.attestation\", \"baseline\": \"gc-shared-models-v2-before-gc_mobile_models-metadata.json\", \"baseline_raw_sha256\": \"b110cab74884af1686ee2de1fbe48276df64eb137f5b8bbf78d7d62468f9655d\", \"actual_canonical_sha256\": \"fa944c8c0935aacb0b2e4a1ef14e585c17a01ea76f7803808be0e80d3cb40408\", \"all_metadata_exact\": true, \"tables\": 174, \"mappers\": 174, \"classes\": 23, \"star_exports\": 22, \"clock_defaults\": 65, \"actual_importer_statements\": 116, \"ddl_compile_errors\": 0}\n",
+      "stderr": ""
+    },
+    {
+      "entry": "app.infrastructure.database._gc_models.refresh_tokens",
+      "exit_code": 0,
+      "wall_seconds": 1.75,
+      "stdout": "{\"phase\": \"after\", \"entry\": \"app.infrastructure.database._gc_models.refresh_tokens\", \"baseline\": \"gc-shared-models-v2-before-gc_mobile_models-metadata.json\", \"baseline_raw_sha256\": \"b110cab74884af1686ee2de1fbe48276df64eb137f5b8bbf78d7d62468f9655d\", \"actual_canonical_sha256\": \"fa944c8c0935aacb0b2e4a1ef14e585c17a01ea76f7803808be0e80d3cb40408\", \"all_metadata_exact\": true, \"tables\": 174, \"mappers\": 174, \"classes\": 23, \"star_exports\": 22, \"clock_defaults\": 65, \"actual_importer_statements\": 116, \"ddl_compile_errors\": 0}\n",
+      "stderr": ""
+    },
+    {
+      "entry": "app.infrastructure.database._gc_models.push_transport",
+      "exit_code": 0,
+      "wall_seconds": 1.828,
+      "stdout": "{\"phase\": \"after\", \"entry\": \"app.infrastructure.database._gc_models.push_transport\", \"baseline\": \"gc-shared-models-v2-before-gc_mobile_models-metadata.json\", \"baseline_raw_sha256\": \"b110cab74884af1686ee2de1fbe48276df64eb137f5b8bbf78d7d62468f9655d\", \"actual_canonical_sha256\": \"fa944c8c0935aacb0b2e4a1ef14e585c17a01ea76f7803808be0e80d3cb40408\", \"all_metadata_exact\": true, \"tables\": 174, \"mappers\": 174, \"classes\": 23, \"star_exports\": 22, \"clock_defaults\": 65, \"actual_importer_statements\": 116, \"ddl_compile_errors\": 0}\n",
+      "stderr": ""
+    },
+    {
+      "entry": "app.infrastructure.database._gc_models.notifications",
+      "exit_code": 0,
+      "wall_seconds": 1.781,
+      "stdout": "{\"phase\": \"after\", \"entry\": \"app.infrastructure.database._gc_models.notifications\", \"baseline\": \"gc-shared-models-v2-before-gc_mobile_models-metadata.json\", \"baseline_raw_sha256\": \"b110cab74884af1686ee2de1fbe48276df64eb137f5b8bbf78d7d62468f9655d\", \"actual_canonical_sha256\": \"fa944c8c0935aacb0b2e4a1ef14e585c17a01ea76f7803808be0e80d3cb40408\", \"all_metadata_exact\": true, \"tables\": 174, \"mappers\": 174, \"classes\": 23, \"star_exports\": 22, \"clock_defaults\": 65, \"actual_importer_statements\": 116, \"ddl_compile_errors\": 0}\n",
+      "stderr": ""
+    },
+    {
+      "entry": "app.infrastructure.database._gc_models.sync_changes",
+      "exit_code": 0,
+      "wall_seconds": 1.766,
+      "stdout": "{\"phase\": \"after\", \"entry\": \"app.infrastructure.database._gc_models.sync_changes\", \"baseline\": \"gc-shared-models-v2-before-gc_mobile_models-metadata.json\", \"baseline_raw_sha256\": \"b110cab74884af1686ee2de1fbe48276df64eb137f5b8bbf78d7d62468f9655d\", \"actual_canonical_sha256\": \"fa944c8c0935aacb0b2e4a1ef14e585c17a01ea76f7803808be0e80d3cb40408\", \"all_metadata_exact\": true, \"tables\": 174, \"mappers\": 174, \"classes\": 23, \"star_exports\": 22, \"clock_defaults\": 65, \"actual_importer_statements\": 116, \"ddl_compile_errors\": 0}\n",
+      "stderr": ""
+    },
+    {
+      "entry": "app.infrastructure.database._gc_models.family_delegations",
+      "exit_code": 0,
+      "wall_seconds": 1.75,
+      "stdout": "{\"phase\": \"after\", \"entry\": \"app.infrastructure.database._gc_models.family_delegations\", \"baseline\": \"gc-shared-models-v2-before-gc_mobile_models-metadata.json\", \"baseline_raw_sha256\": \"b110cab74884af1686ee2de1fbe48276df64eb137f5b8bbf78d7d62468f9655d\", \"actual_canonical_sha256\": \"fa944c8c0935aacb0b2e4a1ef14e585c17a01ea76f7803808be0e80d3cb40408\", \"all_metadata_exact\": true, \"tables\": 174, \"mappers\": 174, \"classes\": 23, \"star_exports\": 22, \"clock_defaults\": 65, \"actual_importer_statements\": 116, \"ddl_compile_errors\": 0}\n",
+      "stderr": ""
+    },
+    {
+      "entry": "app.infrastructure.database._gc_models.idempotency_receipts",
+      "exit_code": 0,
+      "wall_seconds": 1.781,
+      "stdout": "{\"phase\": \"after\", \"entry\": \"app.infrastructure.database._gc_models.idempotency_receipts\", \"baseline\": \"gc-shared-models-v2-before-gc_mobile_models-metadata.json\", \"baseline_raw_sha256\": \"b110cab74884af1686ee2de1fbe48276df64eb137f5b8bbf78d7d62468f9655d\", \"actual_canonical_sha256\": \"fa944c8c0935aacb0b2e4a1ef14e585c17a01ea76f7803808be0e80d3cb40408\", \"all_metadata_exact\": true, \"tables\": 174, \"mappers\": 174, \"classes\": 23, \"star_exports\": 22, \"clock_defaults\": 65, \"actual_importer_statements\": 116, \"ddl_compile_errors\": 0}\n",
+      "stderr": ""
+    },
+    {
+      "entry": "app.infrastructure.database._gc_models.incidents",
+      "exit_code": 0,
+      "wall_seconds": 1.859,
+      "stdout": "{\"phase\": \"after\", \"entry\": \"app.infrastructure.database._gc_models.incidents\", \"baseline\": \"gc-shared-models-v2-before-gc_mobile_models-metadata.json\", \"baseline_raw_sha256\": \"b110cab74884af1686ee2de1fbe48276df64eb137f5b8bbf78d7d62468f9655d\", \"actual_canonical_sha256\": \"fa944c8c0935aacb0b2e4a1ef14e585c17a01ea76f7803808be0e80d3cb40408\", \"all_metadata_exact\": true, \"tables\": 174, \"mappers\": 174, \"classes\": 23, \"star_exports\": 22, \"clock_defaults\": 65, \"actual_importer_statements\": 116, \"ddl_compile_errors\": 0}\n",
+      "stderr": ""
+    }
+  ],
+  "source_fence": {
+    "backend/app/infrastructure/database/gc_mobile_models.py": "18fcb75da61780da07a5e806635d4e34c281caeefe3b7f47ebbe78d3b3402ce4",
+    "backend/app/infrastructure/database/_gc_models/__init__.py": "3d6b47ac4f231cd452fbac0be5b0b91ebd1051e43e14d2bfac8b037461b6be29",
+    "backend/app/infrastructure/database/_gc_models/announcements.py": "9cbda877049b9443fcc6f70657f78df232dad0dacbe7f3f31239f8a77838f39c",
+    "backend/app/infrastructure/database/_gc_models/attestation.py": "6a838cc146a90751918930dc8c9bb04b3a70db98e9682908cfbc872f90ff67ae",
+    "backend/app/infrastructure/database/_gc_models/common_documents.py": "592bce1fce13c67044f1b9cd79908d184e528e5d96f10ad949c602ce60ddeb5e",
+    "backend/app/infrastructure/database/_gc_models/document_cache.py": "d789b4b046ef4a1790a51ad5b7fe28f1b0159b37250e2667eb6f506dd503d022",
+    "backend/app/infrastructure/database/_gc_models/family_delegations.py": "4bab7d5df690a76cb07319d650464d4a4fadd5d97808d9cf9c36a084f880b614",
+    "backend/app/infrastructure/database/_gc_models/group_access.py": "da14bb5fcbc1244383af36ecc30daaa5d34f7c269e2825a34cfeb4930c937216",
+    "backend/app/infrastructure/database/_gc_models/idempotency_receipts.py": "43e607a46686d81e16febd95768e99f144105f437cfdb1b8a466adb7a78dc450",
+    "backend/app/infrastructure/database/_gc_models/incidents.py": "79e811ece14d35c8469492a06d18a29fd185fe21b05aa3a9f8da4a21bf887310",
+    "backend/app/infrastructure/database/_gc_models/itineraries.py": "4db614f999f533c6fab41007df9ad517533a0d9bd631ab59e806806f5895f35e",
+    "backend/app/infrastructure/database/_gc_models/notifications.py": "ae33bb00f8ddba26f4d8be94074abdbc24590a990f290a5ea8d41bbae6a2970a",
+    "backend/app/infrastructure/database/_gc_models/organizations.py": "65810d3a8417ac9927a06c6ce14cb7db12e75f5c55db91a91ada6f4688442a30",
+    "backend/app/infrastructure/database/_gc_models/otp_challenges.py": "b68b8236efe15824b6ecc5fab7d4dcfdae6d592424b88c0ae305c4c9a4700ada",
+    "backend/app/infrastructure/database/_gc_models/passenger_identities.py": "0e9789d681c703185e4210cc92ac5ae5d512cd1ed1fbc179b24d017fe876f1b5",
+    "backend/app/infrastructure/database/_gc_models/push_transport.py": "9e6ce65b5333d82c1ce2e128872fb47453ac4b95679c4ad389b2eb323be21df0",
+    "backend/app/infrastructure/database/_gc_models/refresh_tokens.py": "11adfeadc13177797c7b3885e6af4e7f3345de981ad1321f2faf65f60f67e424",
+    "backend/app/infrastructure/database/_gc_models/sessions.py": "323d18d61ace33850ac8cdb0a4e9f359eaf3dd300750391a55afa49d78186474",
+    "backend/app/infrastructure/database/_gc_models/sync_changes.py": "03ee132550365fea2f3ef34887e1f9d0000d0d07ab35ab2d7af541314131b505",
+    ".tmp/gc_models_snapshot.py": "47f4def39ee540b2db0f54108808d2a36d853dcaafcc2548de9f5f3cb0da6732",
+    ".tmp/run_gc_models_metadata_equivalence.py": "fe986701ee756d1f5fdc1d6f669bc1711c719a2da1e14612a9e59516b60b17f4"
+  },
+  "source_unchanged": true,
+  "comparison": "Exact full metadata/DDL/qualified registry/order/annotations/pickle/default/deferred/property/actual consumer aliases against fresh-verified original v2 snapshots. Identical large payloads are not duplicated per startup mode."
+}

@@ -1,0 +1,106 @@
+{
+  "basis": "Actual current SHA lookup against all accepted full-read ledgers; no full read credit from inventory preflight",
+  "candidates": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_send.py",
+      "sha256": "787bdb0c731bd73589666d39e39196c57e3bd2eaa3c8af1b28a965d0d7e1f670",
+      "physical_lines": 427,
+      "inventory_status": "focused",
+      "inventory_review_scope": "focused",
+      "matching_current_full_ledgers": []
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_send_support.py",
+      "sha256": "b8906f12b93b2e3e5c98d6135da1254014e747aa487e94a7b268ff971ae1b254",
+      "physical_lines": 189,
+      "inventory_status": "reviewed",
+      "inventory_review_scope": "full",
+      "matching_current_full_ledgers": [
+        "whatsapp-activity-final-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_shared.py",
+      "sha256": "a0350f00c141d9e44eb016e6dcf7090bea09ce47201dcb190228e30425466ccc",
+      "physical_lines": 220,
+      "inventory_status": "reviewed",
+      "inventory_review_scope": "full",
+      "matching_current_full_ledgers": [
+        "whatsapp-composer-preflight-reviewed-files.json",
+        "whatsapp-retained-routes-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_delivery_support.py",
+      "sha256": "11584385a6d8d16124e39d5e029c3aa4908b1044b1c7df7861461c93a32b82f0",
+      "physical_lines": 245,
+      "inventory_status": "reviewed",
+      "inventory_review_scope": "full",
+      "matching_current_full_ledgers": [
+        "whatsapp-retained-routes-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_preview_recipient.py",
+      "sha256": "52e0c49a5e962b754ad6dfb760bdb511c2600cb4f8018b29f5d766392ae5a15e",
+      "physical_lines": 28,
+      "inventory_status": "reviewed",
+      "inventory_review_scope": "full",
+      "matching_current_full_ledgers": [
+        "small-backend-cohort-01-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_recipient_claims.py",
+      "sha256": "74485a30dbbc4e0dae5582ca56bdde9198cc3fb5132e19dc02b26a18d3a23a56",
+      "physical_lines": 72,
+      "inventory_status": "reviewed",
+      "inventory_review_scope": "full",
+      "matching_current_full_ledgers": [
+        "retained-small-policy-artifact-source-cohort-14-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_update_audience.py",
+      "sha256": "a54a210a82d63d0765053d8efe444f2589e2d91cd2ed7171ba69a696eb1aea9a",
+      "physical_lines": 155,
+      "inventory_status": "reviewed",
+      "inventory_review_scope": "full",
+      "matching_current_full_ledgers": [
+        "whatsapp-update-preview-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_group_visibility.py",
+      "sha256": "6a99074f2af2e4aba32d552358102b415bb9d092cc93bc6acc16f8cf8a41c042",
+      "physical_lines": 21,
+      "inventory_status": "reviewed",
+      "inventory_review_scope": "full",
+      "matching_current_full_ledgers": [
+        "whatsapp-exports-preflight-reviewed-files.json",
+        "whatsapp-retained-routes-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_group_list_query.py",
+      "sha256": "47639d7ab284843906f52499056128ec5bfed07d8f8fea0af03e22fb291d3816",
+      "physical_lines": 42,
+      "inventory_status": "reviewed",
+      "inventory_review_scope": "full",
+      "matching_current_full_ledgers": [
+        "whatsapp-retained-routes-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_group_list_response.py",
+      "sha256": "78a5476815d164b65ae7cd62985de8fd19426ab4e0ba8b592a351e7610eecfd9",
+      "physical_lines": 30,
+      "inventory_status": "reviewed",
+      "inventory_review_scope": "full",
+      "matching_current_full_ledgers": [
+        "small-backend-cohort-01-reviewed-files.json",
+        "whatsapp-retained-routes-reviewed-files.json"
+      ]
+    }
+  ]
+}

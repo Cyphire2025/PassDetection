@@ -11,6 +11,7 @@ import pytest
 from fastapi import HTTPException
 
 from app.domain.entities.entities import UserRole
+from app.infrastructure.documents import verification_receipt_cipher
 from app.infrastructure.documents.document_matcher import (
     ClassifiedDocument,
     MatchResult,
@@ -195,6 +196,35 @@ async def _upload(
         current_user=context.user,
         session=context.session,
     )
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "version", ["9" * 5_000, "9999999", "not-a-version"],
+    ids=["oversized-numeric", "unknown-key", "nonnumeric"],
+)
+async def test_upload_rejects_invalid_receipt_version_without_server_error(
+    monkeypatch: pytest.MonkeyPatch, version: str,
+) -> None:
+    context = _arrange_upload_route(monkeypatch)
+    monkeypatch.setattr(
+        verification_receipt_cipher,
+        "get_settings",
+        lambda: SimpleNamespace(
+            storage_cleanup_encryption_key=None,
+            app_secret_key="test-document-receipt-version-secret",
+            storage_cleanup_encryption_key_version=1,
+            storage_cleanup_decryption_keys={},
+        ),
+    )
+    with pytest.raises(HTTPException) as caught:
+        await _upload(context, staging_receipts=[f"{version}.invalid"])
+
+    assert caught.value.status_code == 409
+    assert caught.value.detail == "The document verification receipt is invalid"
+    context.ingest.assert_not_awaited()
+    context.session.commit.assert_not_awaited()
+    context.cleanup.assert_not_awaited()
 
 
 @pytest.mark.asyncio

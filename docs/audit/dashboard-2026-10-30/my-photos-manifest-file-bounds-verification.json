@@ -1,0 +1,13 @@
+{
+  "finding": "Manifest file may grow between the stat preflight and read_text, bypassing the documented1MiB metadata cap.",
+  "before": "Actual synthetic local file expanded immediately before open;1failed/1passed because oversized validJSON+whitespace was accepted.",
+  "after": "Read at most1MiB+1bytes and validate actual length before UTF8 decode/Pydantic.3affected cases pass (growth rejection,unchanged complete valid metadata,50batch shared step-up orchestration).",
+  "changed_runtime_source": {
+    "path": "backend/scripts/register_my_photos_manifest.py",
+    "sha256": "5775acc23a5dcfb910a63d178319a1c156d32f8d4c2025a5c66499bdfb2b4adc",
+    "original_head_lf_sha256": "0d8b288f3c1f0e623f66bd931dbc69a09c1001ed0f8e705f86f553917f05d63a"
+  },
+  "proof": "Whole originalHEAD/current module AST identical after restoring only _load_manifest; its signature unchanged. Seven other functions and all imports/constants/authentication/provider/output behavior unchanged.",
+  "checks": "Ruff source+newtest pass; no provider/network/authentication call or environment credential access.",
+  "remaining": "Directory metadata enumeration resolves/sorts allmatching localJSON paths before its50unique-file cap; trusted interactiveoperator resource follow-through remains open. DedicatedCLIengine also lacks the mainfactory hide_parameters setting; no actual parameter-leak sink reproduced here."
+}

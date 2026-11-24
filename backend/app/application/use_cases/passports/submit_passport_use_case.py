@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import mimetypes
 import uuid
+from functools import partial
 
 from app.application.dtos.passport_dtos import (
     PassportSubmissionOutputDTO,
@@ -30,7 +31,9 @@ from app.domain.repositories.interfaces import (
     IQualifierSelectionRepository,
 )
 from app.domain.value_objects.qualifier_relations import (
-    hash_qualifier_selection_token,
+    hash_qualifier_selection_token as hash_qualifier_selection_token,
+)
+from app.domain.value_objects.qualifier_relations import (
     require_enabled_qualifier_choice,
 )
 from app.domain.value_objects.upload_configuration import (
@@ -38,14 +41,22 @@ from app.domain.value_objects.upload_configuration import (
     validate_documents,
     validate_visa_photo_source,
 )
+from app.infrastructure.documents.storage_transfers import (
+    finish_cleanup_despite_cancellation,
+    run_bounded_storage_operations,
+)
 from app.infrastructure.processing.job_repository import PassportProcessingJobRepository
 from app.infrastructure.processing.job_state import ProcessingJobStatus
+
+from .passport_upload_plan import prepare_passport_uploads
+from .passport_upload_selection import require_qualifier_selection
+from .passport_upload_submission import prepare_passport_submission
 
 logger = get_logger(__name__)
 
 
 class SubmitPassportUseCase:
-    """Save every required image before scheduling best-effort OCR."""
+    """Save every required image before scheduling best-effort AI extraction."""
 
     def __init__(
         self,
@@ -105,12 +116,10 @@ class SubmitPassportUseCase:
         if getattr(group, "relation_with_qualifier_enabled", False) and (
             config.required("relation_with_qualifier") or qualifier_selection_token
         ):
-            qualifier_selection, qualifier_replay = (
-                await self._require_qualifier_selection(
-                    group_id=group.id,
-                    selection_token=qualifier_selection_token,
-                    upload_idempotency_key=normalized_key,
-                )
+            qualifier_selection, qualifier_replay = await self._require_qualifier_selection(
+                group_id=group.id,
+                selection_token=qualifier_selection_token,
+                upload_idempotency_key=normalized_key,
             )
 
         if existing is not None:
@@ -138,7 +147,9 @@ class SubmitPassportUseCase:
 
         acquisition_mode = acquisition_mode.strip().lower()
         if acquisition_mode not in {"camera", "file"}:
-            raise ValidationError("Select a valid passport collection method.", field="acquisition_mode")
+            raise ValidationError(
+                "Select a valid passport collection method.", field="acquisition_mode"
+            )
         validate_documents(
             group,
             pages={
@@ -155,37 +166,17 @@ class SubmitPassportUseCase:
         unique_id = uuid.uuid4()
         uploaded_keys: list[str] = []
         try:
-            front_key = self._draft_key(
-                agency_id=group.agency_id,
-                group_id=group.id,
+            front_key, upload_specs = prepare_passport_uploads(
+                group=group,
                 unique_id=unique_id,
-                document_type=None,
+                file_content=file_content,
                 content_type=content_type,
-            ) if file_content else ""
-            upload_specs: list[tuple[str | None, bytes, str, str]] = [
-                (None, file_content, content_type, front_key),
-            ] if file_content else []
-            for document_type, upload in (
-                ("back", passport_back), ("photo", passport_photo),
-                ("cover", passport_cover), ("back_cover", passport_back_cover),
-            ):
-                if not upload:
-                    continue
-                upload_content, upload_content_type, _upload_filename = upload
-                upload_specs.append(
-                    (
-                        document_type,
-                        upload_content,
-                        upload_content_type,
-                        self._draft_key(
-                            agency_id=group.agency_id,
-                            group_id=group.id,
-                            unique_id=unique_id,
-                            document_type=document_type,
-                            content_type=upload_content_type,
-                        ),
-                    )
-                )
+                passport_back=passport_back,
+                passport_photo=passport_photo,
+                passport_cover=passport_cover,
+                passport_back_cover=passport_back_cover,
+                draft_key=self._draft_key,
+            )
             # All keys are unique to this attempt and deleting a missing object
             # is safe. Compensate every intended key because an S3 write may
             # have succeeded even when its response timed out.
@@ -194,28 +185,17 @@ class SubmitPassportUseCase:
             # The pages are independent objects. Persist them concurrently so
             # the public request has one bounded S3 timeout window rather than
             # multiplying that window by front/back/selfie.
-            upload_results = await asyncio.gather(
-                *[
-                    self._storage_repo.upload_file(
+            await run_bounded_storage_operations(
+                [
+                    partial(
+                        self._storage_repo.upload_file,
                         file_content=upload_content,
                         file_name=upload_key,
                         content_type=upload_content_type,
                     )
-                    for _document_type, upload_content, upload_content_type, upload_key
-                    in upload_specs
+                    for _document_type, upload_content, upload_content_type, upload_key in upload_specs
                 ],
-                return_exceptions=True,
             )
-            upload_error = next(
-                (
-                    result
-                    for result in upload_results
-                    if isinstance(result, BaseException)
-                ),
-                None,
-            )
-            if upload_error:
-                raise upload_error
 
             if self._group_capacity_guard is not None:
                 # Lock only after object writes finish, so a slow storage call
@@ -226,17 +206,14 @@ class SubmitPassportUseCase:
                     group_id=group.id,
                 )
                 if normalized_key:
-                    locked_existing = (
-                        await self._passport_repo.get_by_upload_idempotency_key(
-                            group.id,
-                            normalized_key,
-                        )
+                    locked_existing = await self._passport_repo.get_by_upload_idempotency_key(
+                        group.id,
+                        normalized_key,
                     )
                     if locked_existing is not None:
                         if (
                             qualifier_selection is not None
-                            and locked_existing.qualifier_selection_id
-                            != qualifier_selection.id
+                            and locked_existing.qualifier_selection_id != qualifier_selection.id
                         ):
                             raise ValidationError(
                                 "This upload attempt belongs to a different qualifier selection.",
@@ -253,40 +230,21 @@ class SubmitPassportUseCase:
                     additional_passengers=1,
                 )
 
-            submission = PassportSubmission.create(
-                group_id=group.id,
-                agency_id=group.agency_id,
+            submission = prepare_passport_submission(
+                group=group,
                 client_name=client_name,
-                client_email=None,
-                image_s3_key=front_key,
+                front_key=front_key,
                 acquisition_mode=acquisition_mode,
-                upload_idempotency_key=normalized_key,
+                normalized_key=normalized_key,
+                qualifier_selection=qualifier_selection,
+                upload_specs=upload_specs,
             )
-            if qualifier_selection is not None:
-                submission.attach_qualifier_selection(qualifier_selection)
-            for stored_document_type, _content, _content_type, upload_key in upload_specs:
-                if stored_document_type is None:
-                    continue
-                if stored_document_type == "photo":
-                    submission.promote_passport_photo(upload_key)
-                elif stored_document_type == "back":
-                    # Back pages are persisted and displayed only. They are not
-                    # passed to any field extraction service.
-                    submission.promote_passport_back(upload_key)
-                elif stored_document_type == "cover":
-                    submission.promote_passport_cover(upload_key)
-                else:
-                    submission.promote_passport_back_cover(upload_key)
-
-            if not front_key:
-                submission.prepare_without_passport_front()
 
             submission, created = await self._passport_repo.save_idempotent(submission)
             if not created:
                 if (
                     qualifier_selection is not None
-                    and submission.qualifier_selection_id
-                    != qualifier_selection.id
+                    and submission.qualifier_selection_id != qualifier_selection.id
                 ):
                     raise ValidationError(
                         "This upload attempt belongs to a different qualifier selection.",
@@ -325,6 +283,9 @@ class SubmitPassportUseCase:
                 )
 
             return passport_submission_output_from_entity(submission, job=job)
+        except asyncio.CancelledError:
+            await finish_cleanup_despite_cancellation(self._cleanup_uploads(uploaded_keys))
+            raise
         except PassDetectionError:
             await self._cleanup_uploads(uploaded_keys)
             raise
@@ -347,56 +308,13 @@ class SubmitPassportUseCase:
         selection_token: str | None,
         upload_idempotency_key: str | None,
     ) -> tuple[QualifierSelection, PassportSubmission | None]:
-        if not selection_token:
-            raise ValidationError(
-                "Select Self or the passenger's relationship before uploading.",
-                field="qualifier_selection_token",
-            )
-        if self._qualifier_selection_repo is None:
-            raise ValidationError(
-                "The qualifier selection could not be verified.",
-                field="qualifier_selection_token",
-            )
-        selection = await self._qualifier_selection_repo.get_by_token_hash(
-            group_id,
-            hash_qualifier_selection_token(selection_token),
-            for_update=True,
+        return await require_qualifier_selection(
+            group_id=group_id,
+            selection_token=selection_token,
+            upload_idempotency_key=upload_idempotency_key,
+            selection_repo=self._qualifier_selection_repo,
+            passport_repo=self._passport_repo,
         )
-        if selection is None:
-            raise ValidationError(
-                "The qualifier selection is invalid.",
-                field="qualifier_selection_token",
-            )
-        if selection.group_id != group_id:
-            raise ValidationError(
-                "The qualifier selection does not belong to this upload link.",
-                field="qualifier_selection_token",
-            )
-        associated_submission_id = (
-            await self._qualifier_selection_repo.get_submission_id(selection.id)
-        )
-        if associated_submission_id is not None:
-            associated = await self._passport_repo.get_by_id(
-                associated_submission_id
-            )
-            if (
-                associated is not None
-                and associated.group_id == group_id
-                and upload_idempotency_key
-                and associated.upload_idempotency_key
-                == upload_idempotency_key
-            ):
-                return selection, associated
-            raise ValidationError(
-                "This qualifier selection has already been used.",
-                field="qualifier_selection_token",
-            )
-        if selection.is_expired():
-            raise ValidationError(
-                "This qualifier selection has expired. Please choose again.",
-                field="qualifier_selection_token",
-            )
-        return selection, None
 
     async def _idempotent_replay_result(
         self,

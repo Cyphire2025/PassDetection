@@ -1,158 +1,51 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import test from "node:test";
-import { whatsappFeatureSource } from "./whatsapp-source.contract-helper.mjs";
+import { readWhatsAppSource as read } from "./whatsapp-source.contract-helper.mjs";
 
-const pageSource = whatsappFeatureSource;
-const apiSource = readFileSync(
-  new URL("../api/whatsapp.api.ts", import.meta.url),
-  "utf8",
-);
-const hooksSource = readFileSync(
-  new URL("../hooks/use-whatsapp.ts", import.meta.url),
-  "utf8",
-);
-const endpointSource = readFileSync(
-  new URL("../../../lib/api/endpoints.ts", import.meta.url),
-  "utf8",
-);
+const history = read("../workspace/history.api.ts");
+const resend = read("../workspace/historical-resend-dialog.tsx");
+const report = read("../workspace/message-delivery-report.tsx");
+const controls = read("../workspace/recipient-controls.tsx");
+const hooks = read("../hooks/use-broadcast-queries.ts");
+const facade = read("../hooks/use-whatsapp.ts");
 
-test("resend API targets exactly one recipient with the edited composer draft", () => {
-  assert.match(
-    endpointSource,
-    /groups\/\$\{groupId\}\/recipients\/\$\{recipientId\}\/resend/,
-  );
-
-  const start = apiSource.indexOf("resendRecipientMessage: async");
-  const end = apiSource.indexOf("previewMessage: async", start);
-  const resendApi = apiSource.slice(start, end);
-  assert.ok(start >= 0);
-  assert.ok(end > start);
-  assert.match(resendApi, /message_type: messageType/);
-  assert.match(resendApi, /passport_intro:/);
-  assert.match(resendApi, /passport_link:/);
-  assert.match(resendApi, /message_content: messageContent/);
-  assert.match(resendApi, /header_image_id: resolvedHeaderImageId/);
-  assert.match(resendApi, /uploadWelcomeImage\(groupId, image\)/);
+test("historical resend names exactly one recipient and retains its original message identity", () => {
+  assert.match(history, /resendRecipientMessage\(\s*groupId,\s*recipient\.recipient_id/);
+  assert.match(history, /source_message_log_id: recipient\.message_log_id/);
+  assert.match(history, /request_id: requestId/);
+  assert.match(resend, /Only \$\{recipient\.name \|\| "this recipient"\} will receive this message/);
+  assert.match(resend, /recipient\.current_phone_number/);
+  assert.match(resend, /recipient\.rendered_message \|\| entry\.message_preview/);
 });
 
-test("recipient details refresh after an accepted resend request", () => {
-  const start = hooksSource.indexOf(
-    "export function useResendWhatsAppRecipientMessage",
-  );
-  const end = hooksSource.indexOf(
-    "export function useWhatsAppBatchStatus",
-    start,
-  );
-  const resendHook = hooksSource.slice(start, end);
-  assert.ok(start >= 0);
-  assert.ok(end > start);
-  assert.match(
-    resendHook,
-    /WHATSAPP_QUERY_KEYS\.groups/,
-  );
-  assert.match(resendHook, /invalidateQueries/);
+test("document history uses its dedicated resend route without a broadcast message override", () => {
+  assert.match(history, /messageType === "document_update"[\s\S]*resend-update/);
+  assert.match(history, /messageType === "document_update"\s*\? \{\}\s*: \{ message_type: messageType \}/);
 });
 
-test("accepted one-person resends register their durable batch for global tracking", () => {
-  assert.match(pageSource, /useWhatsAppActivityTracker\(\)/);
-  assert.match(
-    pageSource,
-    /if \(result\.batch_id\) \{[\s\S]*registerActivity\(\{[\s\S]*id: result\.batch_id,[\s\S]*kind: "broadcast"/,
-  );
-  assert.match(pageSource, /title: `\$\{formatMessageType\(target\.messageType\)\} \$\{target\.action\}`/);
-  assert.match(pageSource, /contextLabel: `\$\{target\.recipientName\} - \$\{group\.name\}`/);
+test("resend has one retained request ID, synchronous single-flight protection, and no automatic retry", () => {
+  assert.match(resend, /useState\(\(\) => crypto\.randomUUID\(\)\)/);
+  assert.match(resend, /if \(lock\.current\) return/);
+  assert.match(resend, /lock\.current = true/);
+  assert.match(resend, /lock\.current = false/);
+  assert.match(resend, /retry: false/);
+  assert.match(resend, /recipient\.status === "failed" \? "Retry" : "Resend"/);
 });
 
-test("large broadcasts retain progress polling and set-based recipient selection", () => {
-  assert.match(hooksSource, /whatsappApi\.batchSummary/);
-  assert.match(hooksSource, /whatsappBatchPollInterval/);
-  assert.doesNotMatch(hooksSource, /WHATSAPP_BATCH_POLL_LIMIT_MS/);
-  assert.match(
-    endpointSource,
-    /batchSummary:[\s\S]*\/batches\/\$\{batchId\}\/summary/,
-  );
-  assert.match(apiSource, /batchSummary: async/);
-  assert.match(pageSource, /const selectedRecipientIdSet = useMemo/);
-  assert.match(
-    pageSource,
-    /selectedRecipientIdSet\.has\(recipient\.id\)/,
-  );
-  assert.doesNotMatch(
-    pageSource,
-    /selectedRecipientIds\.includes\(recipient\.id\)/,
-  );
+test("accepted resends refresh current history and groups and announce the recorded request", () => {
+  assert.match(resend, /queryKey: \["whatsapp", "history", groupId\]/);
+  assert.match(resend, /queryKey: \["whatsapp", "groups"\]/);
+  assert.match(resend, /role="status"/);
+  assert.match(resend, /Track its current status in Delivery history/);
+  assert.match(report, /refetchInterval: 10_000/);
+  assert.match(report, /!recipient\.can_resend \|\| !summary\.data/);
+  assert.match(report, /<HistoricalResend/);
 });
 
-test("sent messages expose resend and failed messages expose retry", () => {
-  assert.match(
-    pageSource,
-    /if \(!isWhatsAppMessageType\(messageType\)\) return \[\]/,
-  );
-  assert.match(
-    pageSource,
-    /if \(!canRetry && !hasAlreadySentMessage\(recipient, messageType\)\) return \[\]/,
-  );
-  assert.match(pageSource, /const canRetry = status\?\.status === "failed"/);
-  assert.match(pageSource, /resendActions\.map\(/);
-  assert.match(pageSource, /action === "retry" \? "Retry" : "Resend"/);
-  assert.match(
-    pageSource,
-    /messageType === "welcome"[\s\S]*messageType === "passport_link"[\s\S]*messageType === "reminder"/,
-  );
-});
-
-test("resend opens the shared editor for one named recipient and is protected from double submission", () => {
-  assert.match(pageSource, /<MessagePreviewDialog/);
-  assert.match(pageSource, /targetRecipient=\{recipientToResend\}/);
-  assert.match(pageSource, /targetRecipient\.action === "retry" \? "Retry" : "Resend"/);
-  assert.match(
-    pageSource,
-    /No other recipient will\s+receive\s+this \{targetRecipient\.action\}\./,
-  );
-  assert.match(
-    pageSource,
-    /resend_recipient_id: targetRecipient\?\.recipientId \?\? null/,
-  );
-  assert.match(
-    pageSource,
-    /resendRecipientMessage\.isPending\s*\|\| resendInFlightRef\.current/,
-  );
-  assert.match(pageSource, /resendInFlightRef\.current = true/);
-  assert.match(pageSource, /resendInFlightRef\.current = false/);
-  assert.match(pageSource, /\? "Retry" : "Resend"\} to \$\{targetRecipient\.recipientName\}/);
-});
-
-test("recipient phone numbers are editable through the scoped update API", () => {
-  assert.match(apiSource, /updateRecipientPhone: async/);
-  assert.match(apiSource, /\{ phone_number: phoneNumber \}/);
-  assert.match(hooksSource, /useUpdateWhatsAppRecipientPhone/);
-  assert.match(pageSource, /Edit WhatsApp number/);
-  assert.match(pageSource, /updateRecipientPhone\.mutateAsync/);
-});
-
-test("opening the resend editor replaces the recipient-list modal instead of stacking two dialogs", () => {
-  const start = pageSource.indexOf("function RecipientListDialog");
-  const end = pageSource.indexOf("function DeliveryBadge", start);
-  const recipientDialog = pageSource.slice(start, end);
-
-  assert.ok(start >= 0);
-  assert.ok(end > start);
-  assert.match(recipientDialog, /\(\(!recipientToResend && !bulkMessageType\) \|\| isArchived\) && \(\s*<DialogFrame/);
-  assert.match(recipientDialog, /recipientToResend && !isArchived && \(\s*<MessagePreviewDialog/);
-});
-
-test("resend refreshes blocked delivery state and announces success or failure", () => {
-  assert.match(hooksSource, /whatsappRecipientPollInterval/);
-  assert.match(hooksSource, /refetchOnReconnect: "always"/);
-  assert.match(pageSource, /refetchGroup\(\)/);
-  assert.match(hooksSource, /queryKey: WHATSAPP_QUERY_KEYS\.groups/);
-  assert.match(pageSource, /status\?\.resend_blocked/);
-  assert.match(pageSource, /latest === "delivery_unknown"/);
-  assert.match(pageSource, /Last resend failed/);
-  assert.match(pageSource, /includes\(latest\) \? "Resent"/);
-  assert.match(pageSource, /displayedResendNotice/);
-  assert.match(pageSource, /role="status"/);
-  assert.match(pageSource, /setResendError\(/);
-  assert.match(pageSource, /setResendNotice\(/);
+test("the current recipient editor uses the scoped phone update and refreshes history", () => {
+  assert.match(facade, /from "\.\/use-broadcast-queries"/);
+  assert.match(controls, /useUpdateWhatsAppRecipientPhone/);
+  assert.match(controls, /mutation\.mutateAsync\(\{ groupId, recipientId, phoneNumber \}\)/);
+  assert.match(controls, /queryKey: \["whatsapp", "history", groupId\]/);
+  assert.match(hooks, /whatsappRecipientPollInterval/);
 });

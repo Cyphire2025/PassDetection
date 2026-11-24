@@ -1,0 +1,24 @@
+{
+  "stage": "checkpoint",
+  "command": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "-p",
+    "email_task_contract_plugin",
+    "tests/unit/infrastructure/test_email_task_routing.py",
+    "tests/unit/infrastructure/test_email_task_outcomes.py",
+    "tests/unit/infrastructure/test_email_retention_persistence.py",
+    "--cov=app/infrastructure/email",
+    "--cov-branch",
+    "--cov-report=",
+    "--cov-report=json:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\email-task-checkpoint-coverage.json",
+    "--cov-report=xml:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\email-task-checkpoint-coverage.xml"
+  ],
+  "exit_code": 0,
+  "log": "docs/audit/dashboard-2026-10-30/email-task-checkpoint-tests.log",
+  "sha256": "fab666b3ed3c8bafb09a4def940ea61f7b9e292eba2bef8c3c91ce92ccc9f384"
+}

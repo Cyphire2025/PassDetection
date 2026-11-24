@@ -3,6 +3,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { PassportSubmission } from "@/types/passport.types";
+import type { User } from "@/types";
+import { useAuthStore } from "@/stores/auth.store";
 import { uploadLinksApi, type CreateUploadLinkRequest, type UploadLinkResponse } from "@/features/passports/api/upload-links.api";
 import { passportsApi } from "@/features/passports/api/passports.api";
 import { clientDetailsApi } from "@/features/passports/api/client-details.api";
@@ -44,6 +46,11 @@ function setup() {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  useAuthStore.setState({
+    user: { id: "synthetic-source-group-staff", role: "agency_staff", agency_id: "synthetic-agency" } as User,
+    isAuthenticated: true,
+    hasHydrated: true,
+  });
   serverGroups = [{ id: groupId, name: "September trip", submission_count: 1 }];
   serverPreview = contactPreview();
   vi.mocked(whatsappSourceGroupsApi.list).mockImplementation(async () => serverGroups);

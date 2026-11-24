@@ -1,0 +1,22 @@
+{
+  "stage": "after sealed mechanical checkpoint; before RR01 fix",
+  "files": [
+    {
+      "path": "backend/app/infrastructure/runtime_readiness_database.py",
+      "sha256": "d5096be39d581b39834a7a732cdf421bdb370c7d02e8bd41666932243e35f8bf"
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_runtime_readiness.py",
+      "sha256": "b491cb3f06dc2d129b08b73f8974dd7787004034e2cc5d9749e15d12e42b003b"
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_runtime_readiness_guards.py",
+      "sha256": "e119c436ee5684fb97054163c7af3613a9c217bee123097eafc47e0ed6f02adf"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_health_optional_probe_isolation.py",
+      "sha256": "8c789c81a956bbadd540785f704b3ed41b15cc1d8a6c6b65590b10f7f75466d3"
+    }
+  ],
+  "native_postgresql": "No PATH psql/postgres binary or running postgres process found; no services setup. Explicit synthetic failed-statement/savepoint model only."
+}

@@ -1,0 +1,32 @@
+{
+  "stage": "approved exact native scope classification only",
+  "files": [
+    {
+      "path": "docs/audit/dashboard-2026-10-30/audit-scope.json",
+      "sha256": "3fab70acbff090e81d687a34b71ca6363a9b48fdff12ede6e9188a6db092ff23",
+      "physical_lines": 102,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete policy read; root-approved exact6 native ingress/support runtime paths +one purpose-read native support test appended to original24. Only exact31literal scope data and explanatory reason changed. Inbox deferrals/retained overrides unchanged. No native/shared implementation or route/MCP/schema deletion, no semantic source credit."
+    },
+    {
+      "path": "backend/tests/unit/scripts/test_dashboard_audit_scope.py",
+      "sha256": "e2f1bd33fc02537d790548a6576a7c02b27393fdfcac9ae4a844b1cd237a22cb",
+      "physical_lines": 399,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete original source read and new policy boundary fixtures authored. Exact31approved literals asserted,15shared false positives retained; existing full-read/follow-up preservation control expanded to original +all7new paths with original assertions/body preserved. All other old test function ASTs unchanged. Pinned Ruff import-group blank only.99affected tooling cases pass."
+    },
+    {
+      "path": "scripts/dashboard_audit_inventory.py",
+      "sha256": "509e8e9c1d2091cdda70f3826f31a5ba37f836c67923a2e5891a41e95b5fbbe5",
+      "physical_lines": 436,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Current scoped support reread1\u2013100 and340\u2013435 plus final40lines only; no source change. Existing literal scope parser/classifier and content-bound history preservation work unchanged. Historical full source records remain separate; no new whole-file semantic credit from this data-only change."
+    }
+  ]
+}

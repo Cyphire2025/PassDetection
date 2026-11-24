@@ -1,0 +1,34 @@
+{
+  "files": [
+    {
+      "path": "backend/alembic/versions/0073_mobile_otp_single_pending_challenge.py",
+      "sha256": "98d74b02b7facdb600a6503020b45fc19ffa9ae0d7d61cea753929384f4e4381",
+      "physical_lines": 61,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "excluded",
+      "status": "excluded",
+      "notes": "Ownership-only metadata classification: all declared operations target mobile_otp_challenges pending-native-OTP index; no retained dashboard caller requires new OTP schema behavior audit. No complete physical source read or service proof; native app outside user scope."
+    },
+    {
+      "path": "backend/alembic/versions/0076_mobile_push_receipts.py",
+      "sha256": "faea33d24a4cbf44b7c51cb9161eb8f13f9181f07ca46c3134e5ff3ee34df238",
+      "physical_lines": 162,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "excluded",
+      "status": "excluded",
+      "notes": "Ownership-only metadata classification: mobile_push_deliveries native push receipt table/indexes. No new full physical source audit or provider/runtime proof; native app outside user scope."
+    },
+    {
+      "path": "backend/alembic/versions/0081_mobile_app_attest_keys.py",
+      "sha256": "31b1dc9b0cc74225a5b6e6c84f3aababc8f6456efd70e51e12ccd27801071636",
+      "physical_lines": 112,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "excluded",
+      "status": "excluded",
+      "notes": "Ownership-only metadata classification: dedicated native mobile App Attest key table and constraints. No new full physical source audit or native attestation/provider proof; native app outside user scope."
+    }
+  ],
+  "source_review_credit": 0,
+  "source_selection": "published-migration-selection.json",
+  "notes": "User dashboard-only scope; metadata/caller ownership classification only. All published source bytes preserved. Existing review history unaffected."
+}

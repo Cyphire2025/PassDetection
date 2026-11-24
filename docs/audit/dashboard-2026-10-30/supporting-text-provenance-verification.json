@@ -1,0 +1,21 @@
+{
+  "status": "Historical text/reference source scope reconciled without execution",
+  "files": 31,
+  "full_authored_dated_notes": 4,
+  "focused_generated_or_historical_references": 27,
+  "source_manifest": "supporting-generated-reference-triage.json",
+  "dedicated_inbox_text_deferred": "docs/remediation/email-constraints-sqlite.txt",
+  "structured_json_key_followup": {
+    "files": 113,
+    "exact_sensitive_field_candidates": 0,
+    "limitation": "Exact structured-key purpose check is bounded and not a secret-scanner or whole-log/privacy certification"
+  },
+  "all_original_text_bytes_unchanged": true,
+  "artifact_read_limits": [
+    "Some attempted combined raw log views exceeded output; no full-log credit is claimed from those views",
+    "Handoff receives opening/context focus only; changed-path list receives generated-list provenance only",
+    "Date/identity/pass markers remain original historical evidence; no current app/provider/DB/production/cloud validation implied",
+    "Initial non-ASCII stdout display failed before ledger generation; ASCII-safe metadata/summaries reviewed afterward"
+  ],
+  "ledger_sha256": "e0e905bd392e7a7cfd394684767782aea251333a40855bada91eb1b56b7736a4"
+}

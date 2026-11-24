@@ -1,0 +1,160 @@
+FF                                                                       [100%]
+================================== FAILURES ===================================
+______ test_remote_reader_has_explicit_redis_connect_and_command_budgets ______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001FCE2FE4450>
+
+    @pytest.mark.asyncio
+    async def test_remote_reader_has_explicit_redis_connect_and_command_budgets(monkeypatch):
+>       module = reader(monkeypatch)
+                 ^^^^^^^^^^^^^^^^^^^
+
+tests\unit\infrastructure\test_capacity_observer_reader_bounds.py:58: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\unit\infrastructure\test_capacity_observer_reader_bounds.py:48: in reader
+    module = importlib.import_module("capacity_fixtures")
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\importlib\__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1147: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:690: in _load_unlocked
+    ???
+<frozen importlib._bootstrap_external>:940: in exec_module
+    ???
+<frozen importlib._bootstrap>:241: in _call_with_frames_removed
+    ???
+..\scripts\qa\capacity_fixtures.py:22: in <module>
+    from capacity_mcp_fixtures import seed_mcp
+..\scripts\qa\capacity_mcp_fixtures.py:13: in <module>
+    from qualification_application_journey import isolated
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    """Real HTTPS/API/PostgreSQL/private-storage journey using synthetic data only.
+    
+    The WhatsApp delivery provider is deliberately excluded. A pending challenge is
+    seeded directly, then the real OTP verification and submission endpoints run.
+    No API routes, storage adapters, scanner calls, or persistence calls are mocked.
+    """
+    
+    from __future__ import annotations
+    
+    import asyncio
+    import hashlib
+    import io
+    import json
+    import os
+    import secrets
+    import uuid
+    from datetime import UTC, datetime, timedelta
+    
+    import httpx
+    from app.core.config.settings import get_settings
+    from app.core.security.identity_security import encrypt_mfa_secret
+    from app.core.security.password import hash_password
+    from app.infrastructure.database.models import (
+        AgencyModel,
+        AuditLogModel,
+        ClientGroupModel,
+        PassportSubmissionModel,
+        UserModel,
+        UserSecurityStateModel,
+    )
+    from app.infrastructure.database.public_upload_contact_model import (
+        PublicUploadContactChallengeModel,
+    )
+    from app.infrastructure.database.session import AsyncSessionFactory, engine
+    from app.infrastructure.storage.minio_repository import MinioStorageRepository
+>   from app.presentation.api.v1.routes.passport_routes.contact_verification import (
+        _code_digest,
+        _digest,
+    )
+E   ImportError: cannot import name '_code_digest' from 'app.presentation.api.v1.routes.passport_routes.contact_verification' (C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\api\v1\routes\passport_routes\contact_verification.py)
+
+..\scripts\qa\qualification_application_journey.py:36: ImportError
+_ test_remote_reader_deadline_covers_a_stalled_await_without_false_measurements _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001FCE36B1F10>
+
+    @pytest.mark.asyncio
+    async def test_remote_reader_deadline_covers_a_stalled_await_without_false_measurements(monkeypatch):
+>       module = reader(monkeypatch)
+                 ^^^^^^^^^^^^^^^^^^^
+
+tests\unit\infrastructure\test_capacity_observer_reader_bounds.py:71: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\unit\infrastructure\test_capacity_observer_reader_bounds.py:48: in reader
+    module = importlib.import_module("capacity_fixtures")
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\importlib\__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1147: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:690: in _load_unlocked
+    ???
+<frozen importlib._bootstrap_external>:940: in exec_module
+    ???
+<frozen importlib._bootstrap>:241: in _call_with_frames_removed
+    ???
+..\scripts\qa\capacity_fixtures.py:22: in <module>
+    from capacity_mcp_fixtures import seed_mcp
+..\scripts\qa\capacity_mcp_fixtures.py:13: in <module>
+    from qualification_application_journey import isolated
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    """Real HTTPS/API/PostgreSQL/private-storage journey using synthetic data only.
+    
+    The WhatsApp delivery provider is deliberately excluded. A pending challenge is
+    seeded directly, then the real OTP verification and submission endpoints run.
+    No API routes, storage adapters, scanner calls, or persistence calls are mocked.
+    """
+    
+    from __future__ import annotations
+    
+    import asyncio
+    import hashlib
+    import io
+    import json
+    import os
+    import secrets
+    import uuid
+    from datetime import UTC, datetime, timedelta
+    
+    import httpx
+    from app.core.config.settings import get_settings
+    from app.core.security.identity_security import encrypt_mfa_secret
+    from app.core.security.password import hash_password
+    from app.infrastructure.database.models import (
+        AgencyModel,
+        AuditLogModel,
+        ClientGroupModel,
+        PassportSubmissionModel,
+        UserModel,
+        UserSecurityStateModel,
+    )
+    from app.infrastructure.database.public_upload_contact_model import (
+        PublicUploadContactChallengeModel,
+    )
+    from app.infrastructure.database.session import AsyncSessionFactory, engine
+    from app.infrastructure.storage.minio_repository import MinioStorageRepository
+>   from app.presentation.api.v1.routes.passport_routes.contact_verification import (
+        _code_digest,
+        _digest,
+    )
+E   ImportError: cannot import name '_code_digest' from 'app.presentation.api.v1.routes.passport_routes.contact_verification' (C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\api\v1\routes\passport_routes\contact_verification.py)
+
+..\scripts\qa\qualification_application_journey.py:36: ImportError
+=========================== short test summary info ===========================
+FAILED tests/unit/infrastructure/test_capacity_observer_reader_bounds.py::test_remote_reader_has_explicit_redis_connect_and_command_budgets
+FAILED tests/unit/infrastructure/test_capacity_observer_reader_bounds.py::test_remote_reader_deadline_covers_a_stalled_await_without_false_measurements
+2 failed in 0.56s

@@ -1,1 +1,0 @@
-"""Backend Dockerfile — Multi-stage build for minimal production image."""

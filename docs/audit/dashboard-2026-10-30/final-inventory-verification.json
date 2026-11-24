@@ -1,0 +1,20 @@
+{
+  "status": "Final retained per-file inventory identities validated after four test-only amendments",
+  "inventory_sha256": "8cb20f3e854cf9fe055284acc82c36893e6948a280570c3fe26509557cfd0aeb",
+  "summary_sha256": "7d3d5010a91b8ca62a5f3654cc8a676c4005c67518c900ddad808ac9e71eadca",
+  "followup_snapshot_sha256": "c85b9ec7eda2b1bdc30d6e488c8a988601b49bfc4071be462346fd6735536d2a",
+  "scope_policy_sha256": "079ffe822ee727a55f6c2541820aa4b8b406b5d5c55cec9349fb52561397bc64",
+  "inventory_paths": 6788,
+  "active_retained_files": 5382,
+  "active_review_depth": {
+    "focused": 393,
+    "full": 4989
+  },
+  "all5382_current_identities_match": true,
+  "active_unreviewed": 0,
+  "retired_history_paths": 295,
+  "native_excluded_paths": 852,
+  "Inbox_deferred_paths": 255,
+  "followup_statuses_preserved": 134,
+  "method": "Exact current content identity validation only. Source review credit comes from the individual immutable review ledgers; hashing is not a new manual review. No historical finding or qualification date renewed."
+}

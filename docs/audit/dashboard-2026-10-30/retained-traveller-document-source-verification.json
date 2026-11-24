@@ -1,0 +1,34 @@
+{
+  "status": "Source-only cohort sealed; no app checks or behavior changes",
+  "new_current_full_tests": 6,
+  "test_physical_lines": 1332,
+  "supporting_full_rows": 6,
+  "focused_rows": 1,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-traveller-document-source-reviewed-files.json",
+    "sha256": "ce1d828a4b0613baa6754a59f3467bbc0cabd3c9f95188e392ccfc1e90b00b5c"
+  },
+  "source_fence": {
+    "backend/tests/integration/test_current_document_consumers.py": "04e5213f1811f24edcffa979236bf3443e85c7b4fc00bd96eb8c294971a940f3",
+    "backend/tests/integration/test_traveller_document_impact.py": "cb38d52e29503799ed157dd3901900b603f87532b199a8a7d9a61a86e614e7a0",
+    "backend/tests/unit/application/test_manual_passport_staff_review.py": "b122ba5713acad9ae0c4cfce8c2586f7f87bb4f33c3913cfac55bb827132732e",
+    "backend/tests/unit/application/test_traveller_document_selection.py": "2bd0edb448ae8407698434a493574e246c79f111f39db2d3342ee17e07d01ac1",
+    "backend/tests/unit/application/test_traveller_legacy_approval.py": "3baf5e4a64ecc91155b749656894e47885aea562fc55a8d34d9de693c9e935a4",
+    "backend/tests/unit/presentation/test_traveller_document_workflow.py": "6d23403bd34237f8106cdc37bca834b69a8c7348eb5fc1f151358a176a9f7e41",
+    "backend/app/application/travellers/document_selection.py": "11921b74328306fc73f0a48eaf2b457b5f03dd6aa0d8d9c6f097eb8f1a62efe9",
+    "backend/app/application/travellers/impact.py": "1a9882dd24266d81ecbce11d73848291778598c481c0a5a5c5acc242a34d6823",
+    "backend/app/application/travellers/change_feed.py": "db01c3a3db8d42f7f324f6853ef017985509eb7a37230ce6ab06ce7c0d12e37d",
+    "backend/app/application/travellers/legacy_source_acceptance.py": "8386e8db64b4b210c87e9622ea7e6a5027de38a9804f4f24b632ffdf2bc151f5",
+    "backend/app/presentation/api/v1/routes/company_review_tasks.py": "b7fbcbfcd4f9ce51da472207eaf13b2350e73e489586a0a7f1f173f8ec89f9c6",
+    "backend/tests/traveller_delivery_fixtures.py": "680276094d7e399072d352079c934ddbc9b83944e4eb13595bc270b5e16bb162",
+    "backend/app/presentation/api/v1/routes/passport_routes/response_support.py": "3982f9979db2de63d23aee12bda3143c06f580eb0f640a86a016345075f7eef5"
+  },
+  "checks_run": [],
+  "changes": [],
+  "findings": [],
+  "limitations": [
+    "Reading test source does not prove PostgreSQL locks, service deployment or real provider behavior.",
+    "Existing accepted_source.py current full ledgers reused only as prior read evidence, not new read credit.",
+    "No generic architecture issue inferred from coordinator or catalog size; prior qualified submit/roster implementations remain closed."
+  ]
+}

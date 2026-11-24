@@ -1,0 +1,98 @@
+✖ upload attempt uses a valid cryptographically random capability (5.164ms)
+✖ status polling retains the private upload credential (0.9033ms)
+✔ the tenth virtual user replays its exact upload and records one completion (2.2661ms)
+✖ attempt identities remain distinct with the same virtual user and clock (0.7559ms)
+✖ metric tags omit bearer URLs and use fixed request names (7.0198ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 1
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 102.5871
+
+✖ failing tests:
+
+test at load-tests\k6\passport-extraction.test.mjs:85:1
+✖ upload attempt uses a valid cryptographically random capability (5.164ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /^[A-Za-z0-9._:-]{32,128}$/. Input:
+  
+  'k6-1-0-1800000000000-upload'
+  
+      at TestContext.<anonymous> (file:///C:/Users/nipun/Desktop/PassDetection/load-tests/k6/passport-extraction.test.mjs:89:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'k6-1-0-1800000000000-upload',
+    expected: /^[A-Za-z0-9._:-]{32,128}$/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at load-tests\k6\passport-extraction.test.mjs:94:1
+✖ status polling retains the private upload credential (0.9033ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '00000000-0000-4000-8000-000000000001'
+  - 'k6-1-0-1800000000000-upload'
+  
+      at TestContext.<anonymous> (file:///C:/Users/nipun/Desktop/PassDetection/load-tests/k6/passport-extraction.test.mjs:99:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '00000000-0000-4000-8000-000000000001',
+    expected: 'k6-1-0-1800000000000-upload',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at load-tests\k6\passport-extraction.test.mjs:115:1
+✖ attempt identities remain distinct with the same virtual user and clock (0.7559ms)
+  AssertionError [ERR_ASSERTION]: Expected "actual" to be strictly unequal to:
+  
+  'k6-1-0-1800000000000-upload'
+      at TestContext.<anonymous> (file:///C:/Users/nipun/Desktop/PassDetection/load-tests/k6/passport-extraction.test.mjs:120:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'k6-1-0-1800000000000-upload',
+    expected: 'k6-1-0-1800000000000-upload',
+    operator: 'notStrictEqual',
+    diff: 'simple'
+  }
+
+test at load-tests\k6\passport-extraction.test.mjs:123:1
+✖ metric tags omit bearer URLs and use fixed request names (7.0198ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(Array.isArray(harness.options.systemTags))
+  
+      at TestContext.<anonymous> (file:///C:/Users/nipun/Desktop/PassDetection/load-tests/k6/passport-extraction.test.mjs:126:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

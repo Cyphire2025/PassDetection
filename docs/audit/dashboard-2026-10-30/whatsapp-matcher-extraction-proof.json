@@ -1,0 +1,270 @@
+{
+  "stage": "Final mechanical owner extraction before isolated conflict-heading work reduction",
+  "unchanged_function_class_asts": 46,
+  "definitions": [
+    {
+      "name": "compare_group_submissions",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_coordinator.py",
+      "ast_sha256": "49162ec99043fc07e8f1743f9f7a67d12ac03bfcb828b087a8dcf408877da1fc"
+    },
+    {
+      "name": "_evidence_item",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_evidence.py",
+      "ast_sha256": "d200d6797161e87ef012e04ac52204f5d7d9fc7ba42d1c29655bffaaa9d357cb"
+    },
+    {
+      "name": "_pair_evidence",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_evidence.py",
+      "ast_sha256": "7164df4e2e90f1840e1d0f08fe1aa65e0875acb2ebc05ce61b283782d0725d0c"
+    },
+    {
+      "name": "_unique_compound_names",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_evidence.py",
+      "ast_sha256": "bae8cf338d709902261c0188093fc17498b171d13005711d092f7c1c1f023174"
+    },
+    {
+      "name": "_submission_evidence_indexes",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_evidence.py",
+      "ast_sha256": "b2942dbd8618e39dfef9420b761deb4fbda8602062d6f1bfafb8af0575215298"
+    },
+    {
+      "name": "_duplicate_submission_ids",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_evidence.py",
+      "ast_sha256": "916981ca432ac34413a3c13f56c2f3154d6574bae4e21054c63079de4a99d52d"
+    },
+    {
+      "name": "_candidate_submission_indexes",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_evidence.py",
+      "ast_sha256": "667e77582e6ec0056cfae9db1d724ac163ebc8d6f4fd2b4c5c866bd5d3f861c8"
+    },
+    {
+      "name": "_same_identity_basis",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_evidence.py",
+      "ast_sha256": "33b207885cedac8170ebe31149584c4dc794ccc1fed1df9f34b9cc1890a4020c"
+    },
+    {
+      "name": "_normalized_key",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_normalization.py",
+      "ast_sha256": "b1357c64eaf0bfa9161a6c2f8ec3f9f5ae5cb2f4e82c46e0656c4cac2f3b61e6"
+    },
+    {
+      "name": "normalize_matching_field_key",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_normalization.py",
+      "ast_sha256": "c6853ccd396a2f66f13176bdd46e0ed5dd5530f6a624215e6d04bec9b11749a5"
+    },
+    {
+      "name": "_normalized_name",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_normalization.py",
+      "ast_sha256": "ba5623f79a1734fc04adb8d6946de578564de55dd86d0dc9e37e0bd29acc96fa"
+    },
+    {
+      "name": "_normalized_email",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_normalization.py",
+      "ast_sha256": "4e0756acd9af1328fd45a09285c78b3ec165b697cf5d915ede77595bd502a869"
+    },
+    {
+      "name": "_normalized_identifier",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_normalization.py",
+      "ast_sha256": "f8e2a648fc97db915afaf73cb9d8049360e4696564e3f7b879ad60b45d97d96a"
+    },
+    {
+      "name": "_normalized_date",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_normalization.py",
+      "ast_sha256": "e29ae6bb8b609f353d23b5efb4a5ef5bda7fc3e1fdd774a1beaf931361e1c919"
+    },
+    {
+      "name": "_normalized_generic",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_normalization.py",
+      "ast_sha256": "f3e79dbde6c87f9a289b3af35c4a6e2cf1e2bca1cc2192830082068c46d747b0"
+    },
+    {
+      "name": "_normalized_phone",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_normalization.py",
+      "ast_sha256": "6ed336d924556e459decfe1abe48f7dbbfb4e9831503761455309feee5fa7d5e"
+    },
+    {
+      "name": "_selected_field_normalizer",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_normalization.py",
+      "ast_sha256": "dc62194948b6a89a7ea8d346e6be09ba3e1f3c8dd317ae1c2c28e0993275d1d3"
+    },
+    {
+      "name": "_mapping_values",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_normalization.py",
+      "ast_sha256": "a8c357624e710f7ac4b9297bf58f73cb74f31173569012d5273c4be7b0f06211"
+    },
+    {
+      "name": "_mapping_field_values",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_normalization.py",
+      "ast_sha256": "a295c87cffe90673fea23e5daf3ed60cec02756409ee18e9794923f478fb5dcc"
+    },
+    {
+      "name": "_normalized_values",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_normalization.py",
+      "ast_sha256": "f47d442d224feee09328b9479b8d2bacfe38441cb762cf24cc627c426ad779cd"
+    },
+    {
+      "name": "_passport_fields",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_profiles.py",
+      "ast_sha256": "6f0397d85e44bd65e0e33c25714fc8d5ae605247e9dc86e5b0173a891b16906a"
+    },
+    {
+      "name": "_composed_names",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_profiles.py",
+      "ast_sha256": "dddffce63f1bea5e5db29b51b27ae33889b5d09a0e012db04291514b38b4756c"
+    },
+    {
+      "name": "_recipient_profile",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_profiles.py",
+      "ast_sha256": "c4c62d297a7f6fe7c1a12b82d9d4db782fddcbe63a750d17ccdc669666717686"
+    },
+    {
+      "name": "_submission_field_map",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_profiles.py",
+      "ast_sha256": "1396de137d42dba73c0c74a95fd1945e5128e7cae9f0bbd4d37d72c52d59078e"
+    },
+    {
+      "name": "_submission_profile",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_profiles.py",
+      "ast_sha256": "cf184234a92cd7f5b769ff23802644f3b099f9b9c76d973140b71eb4b245d264"
+    },
+    {
+      "name": "recipient_identity_evidence",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_profiles.py",
+      "ast_sha256": "8f3bdfa15b4cf79f1108a658259b135bd5b42d396dd110d557d07a4755c824cb"
+    },
+    {
+      "name": "submission_identity_evidence",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_profiles.py",
+      "ast_sha256": "b98993e2eab2cf780d1e796ea91dd275078a6396c626b77bfb688f60a9bc9b41"
+    },
+    {
+      "name": "_recipient_sort_key",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_profiles.py",
+      "ast_sha256": "3866e6a18de9b7573ff41f6109f8177b4b2f7f0cdc311f46ec87bc5843ee3250"
+    },
+    {
+      "name": "_submission_sort_key",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_profiles.py",
+      "ast_sha256": "492a5f92644ad1821bb34900a3a8ff08f32903aa9fd927b547a3d8778ce1221c"
+    },
+    {
+      "name": "_timestamp_key",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_profiles.py",
+      "ast_sha256": "45a18911757c573ebb1ade7729935cf5259f6bef3b787ac1c69bfed22ece0bb5"
+    },
+    {
+      "name": "_logical_recipients",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_profiles.py",
+      "ast_sha256": "9ee033d8cf9e409bcbd5e3a255e8a449b64ad6796733c1fc104c851269c2e6d1"
+    },
+    {
+      "name": "_row_shared_fields",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_rows.py",
+      "ast_sha256": "b33f6a15b00c371527ee0dc2c118dc37ca4021bccc0a399c87c349c7bde184f5"
+    },
+    {
+      "name": "_recipient_row",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_rows.py",
+      "ast_sha256": "1032124c73142276f946769b2b1b4947af136c46d070e6188b977a2c36f26987"
+    },
+    {
+      "name": "_unmatched_submission_row",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_rows.py",
+      "ast_sha256": "ed141fcbdc5a3df194b46372dfd4f3e923724cb57c39d9f3865eace7e03942e8"
+    },
+    {
+      "name": "summarize_match_rows",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_rows.py",
+      "ast_sha256": "0f185002f07a0388401cdb81c7e38997ebbc88924892de8ab6e27f5696814471"
+    },
+    {
+      "name": "filter_and_sort_match_rows",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_rows.py",
+      "ast_sha256": "076b8b4b9c581ecf82085b1152989577c74653f5824fbfbff2dba475a528bb3e"
+    },
+    {
+      "name": "RecipientForComparison",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_types.py",
+      "ast_sha256": "78d41f45ed6b390584b7ac51ae4e5d9f19cbd081bae5e72bedf7090ad39009a2"
+    },
+    {
+      "name": "SubmissionForComparison",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_types.py",
+      "ast_sha256": "6b3c8a07b041944dacfe5c341b3795f85f15fcdd89b0d8407f862328b87b25bb"
+    },
+    {
+      "name": "MatchEvidence",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_types.py",
+      "ast_sha256": "9186ba9e9916704f75b8628700abf986af2800f64e9202d66c31f1a05942e115"
+    },
+    {
+      "name": "RecipientFieldSet",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_types.py",
+      "ast_sha256": "31b078a885c4be825e5f14d2b07ca1e73507b2ff08978e5805423df87451e7eb"
+    },
+    {
+      "name": "SubmissionMatchRow",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_types.py",
+      "ast_sha256": "7dc4baccd15b3cfa0b0408f23d0e1a7268bab05ddc842ef2025da3ba72de96ad"
+    },
+    {
+      "name": "SubmissionMatchSummary",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_types.py",
+      "ast_sha256": "9c4d3d7a4a4d91b6d8abea6e32b06ab49067ed0e601b62bef3396e37fb4b8ccb"
+    },
+    {
+      "name": "_IdentityProfile",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_types.py",
+      "ast_sha256": "921598677f96d986bea93ac7e9d97c34dedc361e7c1e67c925b5a431a1524c99"
+    },
+    {
+      "name": "IdentityEvidenceValues",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_types.py",
+      "ast_sha256": "aa0db80e0aa081f8cd12c0ee615d18bab8b43d4e89c85c848fc6dab712aaa526"
+    },
+    {
+      "name": "_LogicalRecipient",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_types.py",
+      "ast_sha256": "beacec942a7dcb69886a7a5961e0f6f006b4e86777b9d0445c9a0a7afe20eaf7"
+    },
+    {
+      "name": "_PairEvidence",
+      "owner": "backend/app/application/use_cases/whatsapp/group_match_types.py",
+      "ast_sha256": "3bdf77d08f3d2d4975eefbd3d77a5a7f210163d69debd55c3961b97a0fb9fd05"
+    }
+  ],
+  "files": [
+    {
+      "path": "backend/app/application/use_cases/whatsapp/group_submission_matching.py",
+      "sha256": "050793abc988f52d8c159037386421fc895287cc17180b74c95ac6349d02be93"
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/group_match_coordinator.py",
+      "sha256": "b5e1621f0aa3f2cb9a07a2765be6773b64e67f62b7bdcc2a2e632f8e8aeb912a"
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/group_match_evidence.py",
+      "sha256": "cf662891cd0d635b070cc93a5a68de3b2e660421e7b37545510d8dfd03aefb8b"
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/group_match_fields.py",
+      "sha256": "43ff801155b533fbf5b3c5a1172dd18c9bc4748d191e24433d8dde6582573a17"
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/group_match_normalization.py",
+      "sha256": "af141a88da1ea6b76ec09fb41fd7ae14dd49b3473a3111990dd303c3c9018d96"
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/group_match_profiles.py",
+      "sha256": "fc8a2101cf3abc2bc1b2df737e6572b540faa32b5c353c572e90b14f09afd900"
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/group_match_rows.py",
+      "sha256": "8c712fa4e4529434139a45acba392f9119ac842191154d0bf62caa101a732369"
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/group_match_types.py",
+      "sha256": "fc8546d246a221ed0dcf6834aa753e1b51fa877dffd2029e522e5f6ce4dfcf1f"
+    }
+  ]
+}

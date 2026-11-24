@@ -1,0 +1,1774 @@
+{
+  "status": "Current read-only Git whitespace qualification complete; previous checkpoint preserved",
+  "command": [
+    "git",
+    "diff",
+    "--check"
+  ],
+  "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection",
+  "raw_exit_code": 2,
+  "seconds": 0.796,
+  "source_paths_fenced": 1079,
+  "exact_cosmetic_paths_included": 9,
+  "all_source_bytes_and_changed_path_sets_unchanged_during_command": true,
+  "scope_policy": {
+    "path": "docs/audit/dashboard-2026-10-30/audit-scope.json",
+    "sha256": "079ffe822ee727a55f6c2541820aa4b8b406b5d5c55cec9349fb52561397bc64"
+  },
+  "actual_whitespace_warnings": [
+    {
+      "stream": "stdout",
+      "path": "frontend/features/email-integrations/components/email-ai-rollout-control.tsx",
+      "line": 191,
+      "message": "new blank line at EOF.",
+      "classification": "operations-inbox-deferred"
+    },
+    {
+      "stream": "stdout",
+      "path": "frontend/features/email-integrations/components/email-integrations-ui.tsx",
+      "line": 176,
+      "message": "new blank line at EOF.",
+      "classification": "operations-inbox-deferred"
+    },
+    {
+      "stream": "stdout",
+      "path": "frontend/features/email-integrations/components/operational-inbox-page.tsx",
+      "line": 183,
+      "message": "new blank line at EOF.",
+      "classification": "operations-inbox-deferred"
+    },
+    {
+      "stream": "stdout",
+      "path": "frontend/features/email-integrations/components/review-queue-page.tsx",
+      "line": 176,
+      "message": "new blank line at EOF.",
+      "classification": "operations-inbox-deferred"
+    },
+    {
+      "stream": "stdout",
+      "path": "frontend/features/email-integrations/services/email-refresh-policy.ts",
+      "line": 35,
+      "message": "new blank line at EOF.",
+      "classification": "operations-inbox-deferred"
+    }
+  ],
+  "actual_warning_counts": {
+    "retained": 0,
+    "operations-inbox-deferred": 5,
+    "mobile-excluded": 0
+  },
+  "CRLF_conversion_notices": [
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of '.env.example', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'assets/branding/global-connect/journey-film/README.md', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'assets/branding/global-connect/journey-film/source/render.cjs', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/alembic/script.py.mako', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/application/dtos/client_group_dtos.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/application/interfaces/mrz_parser.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/application/interfaces/passport_extraction.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/application/interfaces/passport_verification.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/application/mobile/passenger_change_propagation.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/application/travellers/completion.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/application/use_cases/attendance_dashboard.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/application/use_cases/auth/logout_use_case.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/application/use_cases/passports/correct_client_details.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/application/use_cases/passports/passport_ai_verification.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/application/use_cases/passports/process_passport_submission_job_use_case.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/application/use_cases/passports/submission_view.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/application/use_cases/passports/submit_passport_use_case.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/application/use_cases/whatsapp/spreadsheet_values.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/core/config/release_manifest.json', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/core/config/settings.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/domain/entities/__init__.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/domain/entities/entities.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/domain/repositories/__init__.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/domain/repositories/interfaces.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/domain/value_objects/passport_fields.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/domain/value_objects/tokens.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/infrastructure/ai/gemini_ecr_service.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/infrastructure/ai/gemini_post_submission_verification_service.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/infrastructure/ai/gemini_visa_image_edit_service.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/infrastructure/ai_priority/config.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/infrastructure/ai_priority/coordinator.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/infrastructure/ai_priority/metrics.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/infrastructure/ai_priority/runtime.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/infrastructure/database/communications_models.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/infrastructure/database/document_models.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/infrastructure/database/email_ai_models.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/infrastructure/database/email_models.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/infrastructure/database/models.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/infrastructure/database/session.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/infrastructure/documents/document_matcher.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/infrastructure/documents/storage_cleanup.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/infrastructure/documents/verification_staging.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/infrastructure/email/account_removal.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/infrastructure/email/deadline_notifications.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/infrastructure/email/sync_service.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/infrastructure/email/tasks.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/infrastructure/export/passport_excel_exporter.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/infrastructure/export/whatsapp_filter_excel_exporter.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/infrastructure/imports/passport_document_importer.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/infrastructure/imports/passport_excel_importer.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/infrastructure/my_photos/recovery_runtime.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/infrastructure/my_photos/revision_runtime.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/infrastructure/my_photos/summary_projector.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/infrastructure/my_photos/worker_runtime.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/infrastructure/ocr/td3_mrz_parser.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/infrastructure/passports/roster_cache.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/infrastructure/repositories/attendance_dashboard_repository.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/infrastructure/repositories/audit_log_repository.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/infrastructure/repositories/client_group_repository.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/infrastructure/repositories/passport_submission_repository.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/infrastructure/repositories/refresh_token_repository.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/infrastructure/storage/branding_urls.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/infrastructure/storage/minio_repository.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/infrastructure/travel_tracker/threading.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/branding_metadata.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/routes/admin.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/routes/admin_accounts.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/routes/attendance_runtime.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/routes/auth.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/routes/branding_images.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/routes/document_distribution_assignments.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/routes/document_distribution_review_support.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/routes/document_distribution_upload.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/routes/ecr_checker.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/routes/email_ai_rollout_admin.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/routes/email_integration_connections.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/routes/email_integration_gmail.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/routes/email_integration_outlook.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/routes/email_integration_review_decisions.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/routes/gc_app_group_removal.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/routes/mcp_admin.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/routes/passport_excel_import_support.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/routes/passport_image_library.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/routes/passport_routes/bulk_actions.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/routes/passport_routes/contact_verification.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/routes/passport_routes/image_support.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/routes/passport_routes/images.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/routes/passport_routes/public_upload.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/routes/passport_routes/submission_review.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/routes/passport_routes/visa_ai_edits.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/routes/rooming.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/routes/whatsapp_activity.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/routes/whatsapp_batch_status.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/routes/whatsapp_bulk_resend.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_composer.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_preview.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_support.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/routes/whatsapp_composer.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/routes/whatsapp_composer_support.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/routes/whatsapp_contact_import.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/routes/whatsapp_exports.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/routes/whatsapp_resend.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/routes/whatsapp_scope.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/routes/whatsapp_send.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/routes/whatsapp_source_groups.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/schemas/client_group_schemas.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/schemas/operations_schemas.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/api/v1/schemas/passport_schemas.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/app/presentation/middleware/rate_limit.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/backend_quality_budgets.json', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/contracts/api.openapi.json', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/requirements-dev.lock', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/requirements.lock', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/scripts/copy_storage_snapshot.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/scripts/qualify_workspace_branding.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/scripts/rehearse_postgresql_upgrade.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/scripts/release_workspace_branding_upgrade.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/scripts/workspace_branding_release.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/scripts/workspace_branding_release_schema.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/integration/test_client_group_reopen.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/integration/test_mcp_phase2_http_boundaries.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/integration/test_mcp_read_only_sections.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/integration/test_mcp_retention_reads.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/integration/test_workspace_branding.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/route_dependencies.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/application/test_passenger_notification_authority.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/application/test_passport_processing_reliability.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/application/test_passport_reextraction_conflicts.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/application/test_retained_data_authorization.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/application/test_whatsapp_message_templates.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/infrastructure/test_companies_rehearsal_roles.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/infrastructure/test_dashboard_session_families.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/infrastructure/test_document_verification_staging.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/infrastructure/test_email_sync_service.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/infrastructure/test_email_task_routing.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/infrastructure/test_gemini_post_submission_verification_service.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/infrastructure/test_gemini_visa_image_edit_service.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/infrastructure/test_meal_plan_excel_exporter.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/infrastructure/test_minio_streaming.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/infrastructure/test_my_photos_worker_runtime.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/infrastructure/test_passport_excel_importer.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/infrastructure/test_passport_staff_approval_repository.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/infrastructure/test_processing_job_busy_claim.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/presentation/test_admin_accounts.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/presentation/test_admin_passport_storage_cleanup.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/presentation/test_client_group_storage_cleanup.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/presentation/test_client_submit_cleanup_order.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/presentation/test_configured_public_upload.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/presentation/test_csrf.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/presentation/test_document_distribution_staging_routes.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/presentation/test_ecr_checker.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/presentation/test_email_ai_inbox_isolation.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/presentation/test_email_connection_lifecycle.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/presentation/test_passport_ai_retry_route.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/presentation/test_passport_bulk_delete_route.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/presentation/test_passport_image_crop_routes.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/presentation/test_passport_image_library_routes.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/presentation/test_passport_submission_delete_access.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/presentation/test_passport_upload_status_route.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/presentation/test_platform_settings_concurrency.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/presentation/test_public_passport_capabilities.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/presentation/test_public_upload_contact_otp.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/presentation/test_public_upload_preparation.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/presentation/test_rate_limit_middleware.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/presentation/test_rooming_runtime_hardening.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/presentation/test_sensitive_read_audit.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/presentation/test_staff_approval_route.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/presentation/test_superadmin_access_level.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/presentation/test_whatsapp_composer_persistence.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/presentation/test_whatsapp_group_invite.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'backend/tests/unit/scripts/test_release_workspace_branding_upgrade.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'docker-compose.yml', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'docs/API_CONTRACT.md', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'docs/CURRENT_RELEASE_AND_STORAGE.md', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'docs/PRODUCTION_RELEASE_READINESS.md', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'docs/QUALIFIED_CODE_UPDATES.md', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'docs/UPLOAD_LINK_CONFIGURATION.md', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'docs/WHATSAPP_MATCHING_AND_REMINDERS.md', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'docs/architecture/ecr-checker.md', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'docs/architecture/passport-dashboard-boundaries.md', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'docs/architecture/passport-link-ecr-and-languages.md', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'docs/architecture/public-upload-rate-limits.md', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'docs/architecture/tour-operations-phase-8-speed-security-whatsapp-foundation.md', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'docs/architecture/traveller-whatsapp-delivery.md', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'docs/architecture/whatsapp-approved-template-rollout.md', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'docs/architecture/whatsapp-passenger-otp.md', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'docs/architecture/whatsapp-shared-phone-corrections.md', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'docs/architecture/whatsapp-template-settings.md', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'docs/deployment-modes.md', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'docs/implementation/mcp-workflow-coverage.json', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/README.md', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/app/(auth)/layout.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/app/(auth)/login/page.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/app/(dashboard)/rooming/[groupId]/page.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/app/(dashboard)/rooming/page.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/app/(dashboard)/staff/page.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/app/(dashboard)/tour-operations/coordinators/page.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/app/(dashboard)/tour-operations/group-assignments/page.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/app/(dashboard)/tour-operations/groups/[groupId]/attendance/page.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/app/(dashboard)/tour-operations/groups/[groupId]/page.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/app/(dashboard)/tour-operations/groups/[groupId]/qr-codes/page.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/app/(dashboard)/tour-operations/page.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/app/(dashboard)/tour-operations/scanner-proof/page.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/app/coordinator/groups/[groupId]/hotel-checkin/page.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/app/coordinator/groups/[groupId]/page.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/app/coordinator/groups/[groupId]/passengers/[passengerId]/page.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/app/coordinator/groups/[groupId]/scanner/page.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/app/coordinator/page.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/app/layout.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/app/manifest.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/app/tour-scanner/page.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/components/shared/empty-state.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/components/shared/passport-date-input.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/components/ui/card.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/components/ui/input.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/components/ui/modal-keyboard-boundary.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/components/ui/skeleton.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/e2e/authentication.spec.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/e2e/document-distribution-management.spec.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/e2e/gc-app-workflow.spec.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/e2e/qualifier-relationship-methods.spec.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/e2e/whatsapp-document-management.spec.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/e2e/workspace-branding.spec.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/eslint.config.mjs', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/auth/api/auth.api.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/auth/components/activation-form.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/auth/components/authenticated-content.test.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/auth/components/authenticated-content.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/auth/components/login-form.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/auth/components/login-session-entry.test.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/auth/components/password-recovery-forms.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/auth/components/queue-safe-sign-out-guard.test.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/auth/components/queue-safe-sign-out-guard.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/auth/services/access-level.test.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/auth/services/access-level.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/auth/services/queue-safe-sign-out.contract.test.mjs', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/auth/services/session-state.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/branding/api/branding-images.api.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/branding/components/group-banner-action.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/branding/components/group-banner.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/branding/components/image-upload-field.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/companies/api/companies.api.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/companies/api/company-data-exports.api.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/companies/api/company-matching.api.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/companies/api/company-passports.api.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/companies/api/reuse-setup.api.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/companies/components/company-agency-scope.test.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/companies/components/company-all-data.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/companies/components/company-directory.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/companies/components/company-match-resolution.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/companies/components/company-matching-dialog.test.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/companies/components/company-matching-dialog.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/companies/components/company-passports.test.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/companies/components/company-passports.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/companies/components/company-person-page.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/companies/components/company-picker.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/companies/components/company-reassignment-dialog.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/companies/components/company-settings.test.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/companies/components/company-settings.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/companies/components/group-company-assignment.test.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/companies/hooks/use-companies.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/documents/api/document-distribution.api.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/documents/api/document-rename.api.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/documents/components/document-assignment-export.contract.test.mjs', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/documents/components/document-bulk-upload.contract.test.mjs', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/documents/components/document-group-search.contract.test.mjs', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/documents/components/document-processing-motion.test.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/documents/components/document-rename-page.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/documents/components/document-rename.contract.test.mjs', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/documents/components/document-whatsapp-delivery.contract.test.mjs', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/documents/components/document-workspace-boundaries.contract.test.mjs', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/documents/components/document-workspace-dialogs.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/documents/components/document-workspace-responsive.contract.test.mjs', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/documents/components/document-workspace-review.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/documents/components/document-workspace-source.contract-helper.mjs', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/documents/components/document-workspace.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/documents/hooks/use-document-rename.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/documents/hooks/use-ecr-workspace.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/documents/services/document-upload-batching.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/documents/services/document-upload-recovery.test.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/documents/services/document-upload-recovery.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/email-integrations/components/connections-page.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/email-integrations/utils/email-integrations.test.mjs', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/email-integrations/utils/email-integrations.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/gc-app/api/gc-app-admin.api.test.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/gc-app/api/gc-app-admin.api.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/gc-app/components/app-controls-page.test.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/gc-app/components/app-controls-removal.test.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/gc-app/components/client-manager-accounts-page.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/gc-app/components/common-documents-panel.test.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/gc-app/components/gc-select.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/gc-app/gc-app-dashboard.contract.test.mjs', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/gc-app/hooks/use-gc-app-admin.test.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/gc-app/hooks/use-gc-app-admin.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/gc-app/notifications/notifications-page.test.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/gc-app/notifications/notifications.api.test.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/gc-app/notifications/notifications.api.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/gc-app/notifications/use-notification-composer.test.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/gc-app/notifications/use-notification-composer.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/gc-app/utils.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/mcp/api/mcp.api.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/mcp/hooks/use-mcp.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/mcp/utils/consent.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/menu/components/menu-library.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/operations/api/operations.api.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/operations/components/managed-accounts-panel.contract.test.mjs', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/operations/components/qr-whatsapp-delivery.contract.test.mjs', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/operations/components/tour-group-qr-codes-page.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/operations/components/tour-operations-ui.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/operations/hooks/use-operations.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/operations/services/qr-image-generation.test.mjs', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/passports/api/passports.api.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/passports/components/create-upload-link-modal.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/passports/components/group-whatsapp-broadcast-panel.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/passports/components/group-whatsapp-dialogs.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/passports/components/group-whatsapp-tracking-model.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/passports/components/group-whatsapp-tracking-table.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/passports/components/passport-detail.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/passports/components/passport-document-import-dialog.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/passports/components/passport-export-dialog.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/passports/components/passport-group-detail-source.contract-helper.mjs', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/passports/components/passport-group-detail.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/passports/components/passport-group-dialogs.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/passports/components/passport-group-selection-toolbar.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/passports/components/passport-image-crop-editor.contract.test.mjs', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/passports/components/passport-list.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/passports/components/passport-trip-details-dialog.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/passports/components/upload-link-list.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/passports/components/upload-link-settings.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/passports/hooks/use-upload-links.test.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/passports/utils/passport-document-import.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/passports/utils/passport-group-navigation.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/passports/utils/passport-review.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/settings/components/whatsapp-template-settings-panel.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/tour-operations/components/coordinator-pwa.contract.test.mjs', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/tour-operations/services/attendance-scan-queue.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/travellers/components/returning-contact-dialog.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/travellers/components/returning-flow.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/travellers/components/returning-offer.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/travellers/components/returning-resume.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/travellers/components/traveller-document.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/upload/components/camera-accessibility.contract.test.mjs', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/upload/components/fresh-qualifier.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/upload/components/upload-flow-fields.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/upload/components/upload-flow.constants.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/upload/components/upload-flow.types.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/upload/components/visa-selfie-camera.contract.test.mjs', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/upload/components/visa-selfie-camera.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/upload/components/visa-selfie-quality.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/upload/services/contact-verification.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/upload/services/passport-final-quality.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/upload/services/passport-perspective-correction.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/upload/services/passport-rectangular-frame-detector.test.mjs', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/upload/services/passport-rectangular-frame-detector.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/upload/services/upload-flow-helpers.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/whatsapp/api/whatsapp.api.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/whatsapp/components/group-update-recipient-details.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/whatsapp/components/whatsapp-activity-tracker.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/whatsapp/components/whatsapp-batch-404.contract.test.mjs', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/whatsapp/components/whatsapp-large-import-form.test.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/whatsapp/components/whatsapp-recipient-roster-rows.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/whatsapp/components/whatsapp-recipient-roster.contract.test.mjs', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/whatsapp/components/whatsapp-reliability.contract.test.mjs', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/whatsapp/components/whatsapp-reminder.contract.test.mjs', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/whatsapp/components/whatsapp-role-access.contract.test.mjs', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/whatsapp/components/whatsapp-workspace-boundaries.contract.test.mjs', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/whatsapp/hooks/use-whatsapp-source-groups.test.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/whatsapp/hooks/use-whatsapp.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/whatsapp/workspace/broadcast-documents-page.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/whatsapp/workspace/message-composer-audience.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/whatsapp/workspace/message-composer.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/whatsapp/workspace/recipient-details-rail.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/whatsapp/workspace/recipients-page.tsx', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/features/whatsapp/workspace/use-message-composer.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/lib/api/streamed-download.test.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/lib/api/streamed-download.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/lib/utils/clipboard.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/providers/query-provider.test.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/public/offline-scanner.js', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/scripts/verify-access-level-browser.mjs', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/scripts/verify-frontend-module-budgets.mjs', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/tsconfig.json', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/types/passport.types.ts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'frontend/vitest.config.mts', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'load-tests/k6/README.md', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'load-tests/k6/passport-extraction.js', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'nginx/nginx.conf', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'scripts/ci_pipeline.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'scripts/database_identity_environment.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'scripts/image_runtime_policy.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'scripts/mcp_direct_activate.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'scripts/mcp_direct_build.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'scripts/mcp_direct_retry.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'scripts/mcp_inventory.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'scripts/qa/ENTERPRISE_REAL_STACK.md', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'scripts/qa/capacity_fixtures.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'scripts/qa/qualification_application_journey.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'scripts/qa/qualify_branding_migration.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'scripts/qa/qualify_runtime_image.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'scripts/qa/qualify_workload_capacity.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'scripts/release_document_resources.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'scripts/release_manifest.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'scripts/release_retained_update.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'scripts/release_traveller_whatsapp.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'scripts/release_workspace_branding.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'scripts/release_workspace_branding_contract.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'scripts/release_workspace_branding_policy.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'scripts/test_compose_render_fixture.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'scripts/test_document_resume_baseline.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'scripts/test_mcp_direct_activate.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'scripts/test_mcp_direct_build.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'scripts/test_release_code_update.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'scripts/test_release_companies_fast.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'scripts/test_release_document_fast.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'scripts/test_release_retained_update.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'scripts/test_release_workspace_branding.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'scripts/verify_compose_runtime.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'scripts/verify_database_deployment_budget.py', LF will be replaced by CRLF the next time Git touches it"
+    },
+    {
+      "stream": "stderr",
+      "message": "warning: in the working copy of 'tooling/dependency-exceptions.json', LF will be replaced by CRLF the next time Git touches it"
+    }
+  ],
+  "CRLF_conversion_notice_count": 421,
+  "warning_context_lines": [],
+  "unexpected_output": [],
+  "retained_whitespace_clean": true,
+  "only_expected5deferredInboxEOFwarnings": true,
+  "prior_checkpoint_artifacts_immutable": {
+    "final-git-whitespace-verification.json": "656405c6388fd9579aa12679938bf5af15e8ebf2d8439e28e2540cf184f1455b",
+    "final-git-whitespace-source-fence.json": "ce137cc2f916ea04858f22cb36a43674f59d0e0a77e881ab64ebabe43744f4c7",
+    "final-git-whitespace-stdout.txt": "2e8bd56a17e14b7351960426a6e7e4af918b3c4c3961be52b00bc4fd8f4bffc2",
+    "final-git-whitespace-stderr.txt": "0780eff25b487b8ca94a2f5ebce2059b54ce76f7e848d7ccaea5782ce07d8c53"
+  },
+  "current_changed_paths_since_prior_fence": [
+    "frontend/features/documents/components/document-row-action-menu.test.tsx",
+    "frontend/features/mcp/components/mcp-read-access.test.tsx",
+    "frontend/features/mcp/components/mcp-simple-access.test.tsx",
+    "frontend/features/upload/components/relation-qualifier-step.contract.test.mjs"
+  ],
+  "artifacts": {
+    "final-git-whitespace-current-stdout.txt": "2e8bd56a17e14b7351960426a6e7e4af918b3c4c3961be52b00bc4fd8f4bffc2",
+    "final-git-whitespace-current-stderr.txt": "0780eff25b487b8ca94a2f5ebce2059b54ce76f7e848d7ccaea5782ce07d8c53",
+    "final-git-whitespace-current-source-fence.json": "39630472cfe4a99f105a2d9b767bb33d60593dbc384dfde6f948ca6fce00bed2"
+  },
+  "limits": [
+    "Raw Git exit remains2 for actual deferred warnings; no result normalization or whitespace suppression.",
+    "Current source deltas since prior checkpoint are recorded without renewing prior qualification.",
+    "No tests/build/coverage/browser/production operation or source/Git-whitespace-config edit.",
+    "GIT_OPTIONAL_LOCKS=0 affects optional index refresh only; whitespace rules unchanged."
+  ]
+}

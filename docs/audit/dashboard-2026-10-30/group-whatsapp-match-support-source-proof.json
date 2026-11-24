@@ -1,0 +1,111 @@
+{
+  "whole_declarations_exact": [
+    {
+      "name": "_ClientGroupScope",
+      "source": "backend/app/presentation/api/v1/routes/client_group_whatsapp_match_acquisition.py",
+      "original_start": 59,
+      "current_start": 34,
+      "statement_ast_sha256": "cd264528aaa73df3c45b43f27bb57f3e6dc1cbac912b4f0bfd3cbf7084194c18"
+    },
+    {
+      "name": "_validated_roster_resolution_type",
+      "source": "backend/app/presentation/api/v1/routes/client_group_whatsapp_match_responses.py",
+      "original_start": 64,
+      "current_start": 46,
+      "statement_ast_sha256": "787f6ebf5e8efbc03e44927d114347c033a147262bb96be64f0100769f2073e2"
+    },
+    {
+      "name": "_validated_roster_resolution_status",
+      "source": "backend/app/presentation/api/v1/routes/client_group_whatsapp_match_responses.py",
+      "original_start": 70,
+      "current_start": 52,
+      "statement_ast_sha256": "5c2a9505da6b3a6995f7467f84425f3f8f61478ffd6d8e7b810f00d4ba14b4c6"
+    },
+    {
+      "name": "_validated_match_status",
+      "source": "backend/app/presentation/api/v1/routes/client_group_whatsapp_match_responses.py",
+      "original_start": 76,
+      "current_start": 58,
+      "statement_ast_sha256": "1003fbe32e09d3f61c598cdeb830c7afe1b80e62e399312bd822f283212f7181"
+    },
+    {
+      "name": "_validated_match_confidence",
+      "source": "backend/app/presentation/api/v1/routes/client_group_whatsapp_match_responses.py",
+      "original_start": 91,
+      "current_start": 73,
+      "statement_ast_sha256": "9500386aa08e11ea2887a3c1fa2540378d8337abcf3aa8a303a138f5790ef4d5"
+    },
+    {
+      "name": "_validated_match_evidence_kind",
+      "source": "backend/app/presentation/api/v1/routes/client_group_whatsapp_match_responses.py",
+      "original_start": 97,
+      "current_start": 79,
+      "statement_ast_sha256": "0dd4864993455dd3ef1162a76081b7212b28f3688e444765ee2b4c5152983983"
+    },
+    {
+      "name": "stored_uuid_list",
+      "source": "backend/app/presentation/api/v1/routes/client_group_whatsapp_match_resolutions.py",
+      "original_start": 103,
+      "current_start": 21,
+      "statement_ast_sha256": "e629d7d878240372f05f37a40d4cc81aaf7165e0a5133a4f401d48a3e0f12b4d"
+    },
+    {
+      "name": "submission_detail_response",
+      "source": "backend/app/presentation/api/v1/routes/client_group_whatsapp_match_responses.py",
+      "original_start": 117,
+      "current_start": 85,
+      "statement_ast_sha256": "80ff31acedc63bef1a0fe190b27b79fc765643a1bbc1207c48b230c59c3ef841"
+    },
+    {
+      "name": "roster_resolution_response",
+      "source": "backend/app/presentation/api/v1/routes/client_group_whatsapp_match_responses.py",
+      "original_start": 143,
+      "current_start": 111,
+      "statement_ast_sha256": "78350d036458be66156d657f530bd851312dd09f0ed0ac61c77e8caa5315906a"
+    },
+    {
+      "name": "include_active_resolution_rows",
+      "source": "backend/app/presentation/api/v1/routes/client_group_whatsapp_match_resolutions.py",
+      "original_start": 160,
+      "current_start": 35,
+      "statement_ast_sha256": "bc526a7ea7a97fbb6243c57deb682d9e0f11c9d80a8eab7a4ab838db0488c947"
+    },
+    {
+      "name": "load_current_whatsapp_match_rows",
+      "source": "backend/app/presentation/api/v1/routes/client_group_whatsapp_match_acquisition.py",
+      "original_start": 244,
+      "current_start": 39,
+      "statement_ast_sha256": "7c2843c46e554fbf59b2b2baab351444f9222d71aa1beb60733f46a49600e1b2"
+    },
+    {
+      "name": "build_whatsapp_matches_response",
+      "source": "backend/app/presentation/api/v1/routes/client_group_whatsapp_match_responses.py",
+      "original_start": 335,
+      "current_start": 128,
+      "statement_ast_sha256": "43afdd598e893f98df02b60714e1535d6118c36d915ebbe40210142d0a42618c"
+    }
+  ],
+  "five_type_alias_asts_exact": true,
+  "all12actual_callers_tests_unchanged": {
+    "backend/app/presentation/api/v1/routes/client_group_link_operations.py": "07fcf9c399905f1ead0b851acb0d37f99149642fea2add2041210edfed6a1351",
+    "backend/app/presentation/api/v1/routes/client_groups.py": "b48a7e4843e9f1b8d48d7a3483e5ad4d52eac984e65c05a9b78b716559b13179",
+    "backend/app/presentation/api/v1/routes/client_group_resolution_restore.py": "f2bd17b57b1cc3e7f81e1e92e3e41338991d84aaa88117aa990541aa77de794a",
+    "backend/app/presentation/api/v1/routes/client_group_replacement_resolution.py": "38f01e5f29be51833743f7c73b591d71fcc6e9b0d541bf3dea893924b15470f1",
+    "backend/app/presentation/api/v1/routes/client_group_rejection_resolution.py": "cce152527474d69a78ded89500cf5a82dcc59db1127b10c6002cdb963397fed8",
+    "backend/app/presentation/mcp/phone_difference_read_tools.py": "28f5a475f5a75f5274ec44a3221e766a83402f2ae72fe09270f6d056968d7086",
+    "backend/tests/unit/presentation/test_client_group_whatsapp_match_support.py": "9c1438b3893baf354a8e36e5d4385d4a9f4734ffa6013fc41aefae55360f5e48",
+    "backend/tests/unit/presentation/test_passport_roster_resolution_routes.py": "01c8ea5144a596a5aea700715a80e6de7eee03860b8abe0caeb75b2f65859b06",
+    "backend/tests/unit/presentation/test_group_whatsapp_links.py": "e49ec1bee518a55f6861f03def2650aa851936e5c8a4dda86ba8fec3038e238b",
+    "backend/tests/unit/presentation/test_whatsapp_staff_group_visibility.py": "eabfb6c66c89d257f0f5599e841011546115eea5d931cd3434bcfafb712575d6",
+    "backend/tests/integration/test_mcp_phone_difference_reads.py": "9e86ceeebdf40bb8d260d4497b6b4b511e094c8c7c75a7bd08923692fc6e6f73",
+    "backend/tests/integration/test_mcp_dashboard_detail_reads.py": "2a25b62c68717bdf79064621aeb1cb5f23abace009d89f392cefd24c43a0335c"
+  },
+  "source_semantics": "SQL and every original await/to_thread, statement/exception/return/ordering/projection expression unchanged by whole declaration AST equality; imported runtime object/caller identity and evaluated hints separately executed.",
+  "inspect_getsource": "Physical defining file is now focused owner. No claim that facade source text or function __globals__ dictionary identity remains unchanged.",
+  "source_fence": {
+    "backend/app/presentation/api/v1/routes/client_group_whatsapp_match_acquisition.py": "a9d58063df235d4fbae07a61879e93786e5b5431e63081a5fe82d2fc16d8479c",
+    "backend/app/presentation/api/v1/routes/client_group_whatsapp_match_resolutions.py": "09a239a46cd3dbab284ada75e031ef3ed7b1b3160910bbff0d0f844537b95e9f",
+    "backend/app/presentation/api/v1/routes/client_group_whatsapp_match_responses.py": "65f319400adc6c1981f5eab8168b307464d0c82a582e6943736c3b4cf49a078e",
+    "backend/app/presentation/api/v1/routes/client_group_whatsapp_match_support.py": "11a91339306548aec5268918d482475271f828e52be9d8442cd20daf9edc6586"
+  }
+}

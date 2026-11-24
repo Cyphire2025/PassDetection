@@ -1,0 +1,665 @@
+FFFFFF.FF........                                                        [100%]
+================================== FAILURES ===================================
+_ test_index_failure_never_publishes_an_incomplete_revision[unavailable-retrying] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000020F4C3F7050>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000020F4C3F6690>
+failure = 'unavailable', expected = 'retrying'
+
+    @pytest.mark.parametrize(
+        ("failure", "expected"),
+        [
+            ("unavailable", "retrying"),
+            ("unexpected", "retrying"),
+            ("invalid", "failed"),
+            ("no_faces", "failed"),
+            ("stale_revision", "failed"),
+            ("changed_asset", "failed"),
+            ("missing_analysis", "retrying"),
+            ("exhausted", "failed"),
+        ],
+    )
+    async def test_index_failure_never_publishes_an_incomplete_revision(
+        db_session, monkeypatch, failure, expected
+    ):
+        scope = await operational_index_scope(db_session, monkeypatch)
+        if failure in {"missing_analysis", "exhausted"}:
+            async with scope.sessions() as session, session.begin():
+                if failure == "missing_analysis":
+                    await session.execute(
+                        delete(MyPhotoAssetVariantModel).where(
+                            MyPhotoAssetVariantModel.variant_kind == "analysis"
+                        )
+                    )
+                else:
+                    job = await session.get(MyPhotoJobModel, scope.job_id)
+                    job.max_attempts = 1
+        calls = []
+    
+        class FaceSearch:
+            async def index_faces(self, request):
+                calls.append(request)
+                if failure in {"unavailable", "exhausted"}:
+                    raise MyPhotosUnavailable("SYNTHETIC_UNAVAILABLE", "Synthetic failure.")
+                if failure == "unexpected":
+                    raise RuntimeError("Synthetic private diagnostic must not be persisted")
+                if failure == "invalid":
+                    raise ValueError("Synthetic malformed response")
+                if failure == "no_faces":
+                    return FaceIndexBatchResult(
+                        (), (FaceIndexFailure(request.assets[0].asset_identity, "NO_FACE"),)
+                    )
+                if failure in {"stale_revision", "changed_asset"}:
+                    async with scope.sessions() as session, session.begin():
+                        if failure == "stale_revision":
+                            await session.execute(
+                                update(MyPhotoGalleryModel)
+                                .where(MyPhotoGalleryModel.id == scope.gallery_id)
+                                .values(published_revision=1, face_index_version=1, media_version=1)
+                            )
+                        else:
+                            await session.execute(
+                                update(MyPhotoMediaAssetModel)
+                                .where(MyPhotoMediaAssetModel.gallery_id == scope.gallery_id)
+                                .values(published_revision=2)
+                            )
+                return _result(request)
+    
+        result = await operational_runtime.execute_operational_job(
+            scope.job_id,
+            settings=scope.settings,
+            providers=SimpleNamespace(provider_name="aws", face_search=FaceSearch()),
+            lease_owner="synthetic-index-worker",
+        )
+        assert result.state == expected
+>       assert len(calls) == (0 if failure == "missing_analysis" else 1)
+E       assert 0 == 1
+E        +  where 0 = len([])
+
+tests\integration\test_my_photos_index_lifecycle.py:110: AssertionError
+_ test_index_failure_never_publishes_an_incomplete_revision[unexpected-retrying] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000020F4D80A890>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000020F4C65EB10>
+failure = 'unexpected', expected = 'retrying'
+
+    @pytest.mark.parametrize(
+        ("failure", "expected"),
+        [
+            ("unavailable", "retrying"),
+            ("unexpected", "retrying"),
+            ("invalid", "failed"),
+            ("no_faces", "failed"),
+            ("stale_revision", "failed"),
+            ("changed_asset", "failed"),
+            ("missing_analysis", "retrying"),
+            ("exhausted", "failed"),
+        ],
+    )
+    async def test_index_failure_never_publishes_an_incomplete_revision(
+        db_session, monkeypatch, failure, expected
+    ):
+        scope = await operational_index_scope(db_session, monkeypatch)
+        if failure in {"missing_analysis", "exhausted"}:
+            async with scope.sessions() as session, session.begin():
+                if failure == "missing_analysis":
+                    await session.execute(
+                        delete(MyPhotoAssetVariantModel).where(
+                            MyPhotoAssetVariantModel.variant_kind == "analysis"
+                        )
+                    )
+                else:
+                    job = await session.get(MyPhotoJobModel, scope.job_id)
+                    job.max_attempts = 1
+        calls = []
+    
+        class FaceSearch:
+            async def index_faces(self, request):
+                calls.append(request)
+                if failure in {"unavailable", "exhausted"}:
+                    raise MyPhotosUnavailable("SYNTHETIC_UNAVAILABLE", "Synthetic failure.")
+                if failure == "unexpected":
+                    raise RuntimeError("Synthetic private diagnostic must not be persisted")
+                if failure == "invalid":
+                    raise ValueError("Synthetic malformed response")
+                if failure == "no_faces":
+                    return FaceIndexBatchResult(
+                        (), (FaceIndexFailure(request.assets[0].asset_identity, "NO_FACE"),)
+                    )
+                if failure in {"stale_revision", "changed_asset"}:
+                    async with scope.sessions() as session, session.begin():
+                        if failure == "stale_revision":
+                            await session.execute(
+                                update(MyPhotoGalleryModel)
+                                .where(MyPhotoGalleryModel.id == scope.gallery_id)
+                                .values(published_revision=1, face_index_version=1, media_version=1)
+                            )
+                        else:
+                            await session.execute(
+                                update(MyPhotoMediaAssetModel)
+                                .where(MyPhotoMediaAssetModel.gallery_id == scope.gallery_id)
+                                .values(published_revision=2)
+                            )
+                return _result(request)
+    
+        result = await operational_runtime.execute_operational_job(
+            scope.job_id,
+            settings=scope.settings,
+            providers=SimpleNamespace(provider_name="aws", face_search=FaceSearch()),
+            lease_owner="synthetic-index-worker",
+        )
+        assert result.state == expected
+>       assert len(calls) == (0 if failure == "missing_analysis" else 1)
+E       assert 0 == 1
+E        +  where 0 = len([])
+
+tests\integration\test_my_photos_index_lifecycle.py:110: AssertionError
+__ test_index_failure_never_publishes_an_incomplete_revision[invalid-failed] __
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000020F4E3AC290>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000020F4E62E710>
+failure = 'invalid', expected = 'failed'
+
+    @pytest.mark.parametrize(
+        ("failure", "expected"),
+        [
+            ("unavailable", "retrying"),
+            ("unexpected", "retrying"),
+            ("invalid", "failed"),
+            ("no_faces", "failed"),
+            ("stale_revision", "failed"),
+            ("changed_asset", "failed"),
+            ("missing_analysis", "retrying"),
+            ("exhausted", "failed"),
+        ],
+    )
+    async def test_index_failure_never_publishes_an_incomplete_revision(
+        db_session, monkeypatch, failure, expected
+    ):
+        scope = await operational_index_scope(db_session, monkeypatch)
+        if failure in {"missing_analysis", "exhausted"}:
+            async with scope.sessions() as session, session.begin():
+                if failure == "missing_analysis":
+                    await session.execute(
+                        delete(MyPhotoAssetVariantModel).where(
+                            MyPhotoAssetVariantModel.variant_kind == "analysis"
+                        )
+                    )
+                else:
+                    job = await session.get(MyPhotoJobModel, scope.job_id)
+                    job.max_attempts = 1
+        calls = []
+    
+        class FaceSearch:
+            async def index_faces(self, request):
+                calls.append(request)
+                if failure in {"unavailable", "exhausted"}:
+                    raise MyPhotosUnavailable("SYNTHETIC_UNAVAILABLE", "Synthetic failure.")
+                if failure == "unexpected":
+                    raise RuntimeError("Synthetic private diagnostic must not be persisted")
+                if failure == "invalid":
+                    raise ValueError("Synthetic malformed response")
+                if failure == "no_faces":
+                    return FaceIndexBatchResult(
+                        (), (FaceIndexFailure(request.assets[0].asset_identity, "NO_FACE"),)
+                    )
+                if failure in {"stale_revision", "changed_asset"}:
+                    async with scope.sessions() as session, session.begin():
+                        if failure == "stale_revision":
+                            await session.execute(
+                                update(MyPhotoGalleryModel)
+                                .where(MyPhotoGalleryModel.id == scope.gallery_id)
+                                .values(published_revision=1, face_index_version=1, media_version=1)
+                            )
+                        else:
+                            await session.execute(
+                                update(MyPhotoMediaAssetModel)
+                                .where(MyPhotoMediaAssetModel.gallery_id == scope.gallery_id)
+                                .values(published_revision=2)
+                            )
+                return _result(request)
+    
+        result = await operational_runtime.execute_operational_job(
+            scope.job_id,
+            settings=scope.settings,
+            providers=SimpleNamespace(provider_name="aws", face_search=FaceSearch()),
+            lease_owner="synthetic-index-worker",
+        )
+>       assert result.state == expected
+E       AssertionError: assert 'retrying' == 'failed'
+E         
+E         - failed
+E         + retrying
+
+tests\integration\test_my_photos_index_lifecycle.py:109: AssertionError
+_ test_index_failure_never_publishes_an_incomplete_revision[no_faces-failed] __
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000020F4F6975D0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000020F4E37A3D0>
+failure = 'no_faces', expected = 'failed'
+
+    @pytest.mark.parametrize(
+        ("failure", "expected"),
+        [
+            ("unavailable", "retrying"),
+            ("unexpected", "retrying"),
+            ("invalid", "failed"),
+            ("no_faces", "failed"),
+            ("stale_revision", "failed"),
+            ("changed_asset", "failed"),
+            ("missing_analysis", "retrying"),
+            ("exhausted", "failed"),
+        ],
+    )
+    async def test_index_failure_never_publishes_an_incomplete_revision(
+        db_session, monkeypatch, failure, expected
+    ):
+        scope = await operational_index_scope(db_session, monkeypatch)
+        if failure in {"missing_analysis", "exhausted"}:
+            async with scope.sessions() as session, session.begin():
+                if failure == "missing_analysis":
+                    await session.execute(
+                        delete(MyPhotoAssetVariantModel).where(
+                            MyPhotoAssetVariantModel.variant_kind == "analysis"
+                        )
+                    )
+                else:
+                    job = await session.get(MyPhotoJobModel, scope.job_id)
+                    job.max_attempts = 1
+        calls = []
+    
+        class FaceSearch:
+            async def index_faces(self, request):
+                calls.append(request)
+                if failure in {"unavailable", "exhausted"}:
+                    raise MyPhotosUnavailable("SYNTHETIC_UNAVAILABLE", "Synthetic failure.")
+                if failure == "unexpected":
+                    raise RuntimeError("Synthetic private diagnostic must not be persisted")
+                if failure == "invalid":
+                    raise ValueError("Synthetic malformed response")
+                if failure == "no_faces":
+                    return FaceIndexBatchResult(
+                        (), (FaceIndexFailure(request.assets[0].asset_identity, "NO_FACE"),)
+                    )
+                if failure in {"stale_revision", "changed_asset"}:
+                    async with scope.sessions() as session, session.begin():
+                        if failure == "stale_revision":
+                            await session.execute(
+                                update(MyPhotoGalleryModel)
+                                .where(MyPhotoGalleryModel.id == scope.gallery_id)
+                                .values(published_revision=1, face_index_version=1, media_version=1)
+                            )
+                        else:
+                            await session.execute(
+                                update(MyPhotoMediaAssetModel)
+                                .where(MyPhotoMediaAssetModel.gallery_id == scope.gallery_id)
+                                .values(published_revision=2)
+                            )
+                return _result(request)
+    
+        result = await operational_runtime.execute_operational_job(
+            scope.job_id,
+            settings=scope.settings,
+            providers=SimpleNamespace(provider_name="aws", face_search=FaceSearch()),
+            lease_owner="synthetic-index-worker",
+        )
+>       assert result.state == expected
+E       AssertionError: assert 'retrying' == 'failed'
+E         
+E         - failed
+E         + retrying
+
+tests\integration\test_my_photos_index_lifecycle.py:109: AssertionError
+_ test_index_failure_never_publishes_an_incomplete_revision[stale_revision-failed] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000020F4E3AECD0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000020F4E5EFB50>
+failure = 'stale_revision', expected = 'failed'
+
+    @pytest.mark.parametrize(
+        ("failure", "expected"),
+        [
+            ("unavailable", "retrying"),
+            ("unexpected", "retrying"),
+            ("invalid", "failed"),
+            ("no_faces", "failed"),
+            ("stale_revision", "failed"),
+            ("changed_asset", "failed"),
+            ("missing_analysis", "retrying"),
+            ("exhausted", "failed"),
+        ],
+    )
+    async def test_index_failure_never_publishes_an_incomplete_revision(
+        db_session, monkeypatch, failure, expected
+    ):
+        scope = await operational_index_scope(db_session, monkeypatch)
+        if failure in {"missing_analysis", "exhausted"}:
+            async with scope.sessions() as session, session.begin():
+                if failure == "missing_analysis":
+                    await session.execute(
+                        delete(MyPhotoAssetVariantModel).where(
+                            MyPhotoAssetVariantModel.variant_kind == "analysis"
+                        )
+                    )
+                else:
+                    job = await session.get(MyPhotoJobModel, scope.job_id)
+                    job.max_attempts = 1
+        calls = []
+    
+        class FaceSearch:
+            async def index_faces(self, request):
+                calls.append(request)
+                if failure in {"unavailable", "exhausted"}:
+                    raise MyPhotosUnavailable("SYNTHETIC_UNAVAILABLE", "Synthetic failure.")
+                if failure == "unexpected":
+                    raise RuntimeError("Synthetic private diagnostic must not be persisted")
+                if failure == "invalid":
+                    raise ValueError("Synthetic malformed response")
+                if failure == "no_faces":
+                    return FaceIndexBatchResult(
+                        (), (FaceIndexFailure(request.assets[0].asset_identity, "NO_FACE"),)
+                    )
+                if failure in {"stale_revision", "changed_asset"}:
+                    async with scope.sessions() as session, session.begin():
+                        if failure == "stale_revision":
+                            await session.execute(
+                                update(MyPhotoGalleryModel)
+                                .where(MyPhotoGalleryModel.id == scope.gallery_id)
+                                .values(published_revision=1, face_index_version=1, media_version=1)
+                            )
+                        else:
+                            await session.execute(
+                                update(MyPhotoMediaAssetModel)
+                                .where(MyPhotoMediaAssetModel.gallery_id == scope.gallery_id)
+                                .values(published_revision=2)
+                            )
+                return _result(request)
+    
+        result = await operational_runtime.execute_operational_job(
+            scope.job_id,
+            settings=scope.settings,
+            providers=SimpleNamespace(provider_name="aws", face_search=FaceSearch()),
+            lease_owner="synthetic-index-worker",
+        )
+>       assert result.state == expected
+E       AssertionError: assert 'retrying' == 'failed'
+E         
+E         - failed
+E         + retrying
+
+tests\integration\test_my_photos_index_lifecycle.py:109: AssertionError
+_ test_index_failure_never_publishes_an_incomplete_revision[changed_asset-failed] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000020F4F7476D0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000020F4E6732D0>
+failure = 'changed_asset', expected = 'failed'
+
+    @pytest.mark.parametrize(
+        ("failure", "expected"),
+        [
+            ("unavailable", "retrying"),
+            ("unexpected", "retrying"),
+            ("invalid", "failed"),
+            ("no_faces", "failed"),
+            ("stale_revision", "failed"),
+            ("changed_asset", "failed"),
+            ("missing_analysis", "retrying"),
+            ("exhausted", "failed"),
+        ],
+    )
+    async def test_index_failure_never_publishes_an_incomplete_revision(
+        db_session, monkeypatch, failure, expected
+    ):
+        scope = await operational_index_scope(db_session, monkeypatch)
+        if failure in {"missing_analysis", "exhausted"}:
+            async with scope.sessions() as session, session.begin():
+                if failure == "missing_analysis":
+                    await session.execute(
+                        delete(MyPhotoAssetVariantModel).where(
+                            MyPhotoAssetVariantModel.variant_kind == "analysis"
+                        )
+                    )
+                else:
+                    job = await session.get(MyPhotoJobModel, scope.job_id)
+                    job.max_attempts = 1
+        calls = []
+    
+        class FaceSearch:
+            async def index_faces(self, request):
+                calls.append(request)
+                if failure in {"unavailable", "exhausted"}:
+                    raise MyPhotosUnavailable("SYNTHETIC_UNAVAILABLE", "Synthetic failure.")
+                if failure == "unexpected":
+                    raise RuntimeError("Synthetic private diagnostic must not be persisted")
+                if failure == "invalid":
+                    raise ValueError("Synthetic malformed response")
+                if failure == "no_faces":
+                    return FaceIndexBatchResult(
+                        (), (FaceIndexFailure(request.assets[0].asset_identity, "NO_FACE"),)
+                    )
+                if failure in {"stale_revision", "changed_asset"}:
+                    async with scope.sessions() as session, session.begin():
+                        if failure == "stale_revision":
+                            await session.execute(
+                                update(MyPhotoGalleryModel)
+                                .where(MyPhotoGalleryModel.id == scope.gallery_id)
+                                .values(published_revision=1, face_index_version=1, media_version=1)
+                            )
+                        else:
+                            await session.execute(
+                                update(MyPhotoMediaAssetModel)
+                                .where(MyPhotoMediaAssetModel.gallery_id == scope.gallery_id)
+                                .values(published_revision=2)
+                            )
+                return _result(request)
+    
+        result = await operational_runtime.execute_operational_job(
+            scope.job_id,
+            settings=scope.settings,
+            providers=SimpleNamespace(provider_name="aws", face_search=FaceSearch()),
+            lease_owner="synthetic-index-worker",
+        )
+>       assert result.state == expected
+E       AssertionError: assert 'retrying' == 'failed'
+E         
+E         - failed
+E         + retrying
+
+tests\integration\test_my_photos_index_lifecycle.py:109: AssertionError
+_ test_index_failure_never_publishes_an_incomplete_revision[exhausted-failed] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000020F4FB48B10>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000020F4F7A0850>
+failure = 'exhausted', expected = 'failed'
+
+    @pytest.mark.parametrize(
+        ("failure", "expected"),
+        [
+            ("unavailable", "retrying"),
+            ("unexpected", "retrying"),
+            ("invalid", "failed"),
+            ("no_faces", "failed"),
+            ("stale_revision", "failed"),
+            ("changed_asset", "failed"),
+            ("missing_analysis", "retrying"),
+            ("exhausted", "failed"),
+        ],
+    )
+    async def test_index_failure_never_publishes_an_incomplete_revision(
+        db_session, monkeypatch, failure, expected
+    ):
+        scope = await operational_index_scope(db_session, monkeypatch)
+        if failure in {"missing_analysis", "exhausted"}:
+            async with scope.sessions() as session, session.begin():
+                if failure == "missing_analysis":
+                    await session.execute(
+                        delete(MyPhotoAssetVariantModel).where(
+                            MyPhotoAssetVariantModel.variant_kind == "analysis"
+                        )
+                    )
+                else:
+                    job = await session.get(MyPhotoJobModel, scope.job_id)
+                    job.max_attempts = 1
+        calls = []
+    
+        class FaceSearch:
+            async def index_faces(self, request):
+                calls.append(request)
+                if failure in {"unavailable", "exhausted"}:
+                    raise MyPhotosUnavailable("SYNTHETIC_UNAVAILABLE", "Synthetic failure.")
+                if failure == "unexpected":
+                    raise RuntimeError("Synthetic private diagnostic must not be persisted")
+                if failure == "invalid":
+                    raise ValueError("Synthetic malformed response")
+                if failure == "no_faces":
+                    return FaceIndexBatchResult(
+                        (), (FaceIndexFailure(request.assets[0].asset_identity, "NO_FACE"),)
+                    )
+                if failure in {"stale_revision", "changed_asset"}:
+                    async with scope.sessions() as session, session.begin():
+                        if failure == "stale_revision":
+                            await session.execute(
+                                update(MyPhotoGalleryModel)
+                                .where(MyPhotoGalleryModel.id == scope.gallery_id)
+                                .values(published_revision=1, face_index_version=1, media_version=1)
+                            )
+                        else:
+                            await session.execute(
+                                update(MyPhotoMediaAssetModel)
+                                .where(MyPhotoMediaAssetModel.gallery_id == scope.gallery_id)
+                                .values(published_revision=2)
+                            )
+                return _result(request)
+    
+        result = await operational_runtime.execute_operational_job(
+            scope.job_id,
+            settings=scope.settings,
+            providers=SimpleNamespace(provider_name="aws", face_search=FaceSearch()),
+            lease_owner="synthetic-index-worker",
+        )
+        assert result.state == expected
+>       assert len(calls) == (0 if failure == "missing_analysis" else 1)
+E       assert 0 == 1
+E        +  where 0 = len([])
+
+tests\integration\test_my_photos_index_lifecycle.py:110: AssertionError
+_______ test_partial_index_batches_resume_without_duplicate_publication _______
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000020F4FC15A50>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000020F4FD46650>
+
+    async def test_partial_index_batches_resume_without_duplicate_publication(db_session, monkeypatch):
+>       scope = await operational_index_scope(db_session, monkeypatch, asset_count=2, batch_size=1)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\integration\test_my_photos_index_lifecycle.py:122: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\integration\my_photos_operational_fixtures.py:96: in operational_index_scope
+    my_photos=MyPhotosSettings(_env_file=None, job_batch_size=batch_size)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+__pydantic_self__ = MyPhotosSettings(), _case_sensitive = None
+_nested_model_default_partial_update = None, _env_prefix = None
+_env_prefix_target = None, _env_file = None, _env_file_encoding = None
+_env_ignore_empty = None, _env_nested_delimiter = None
+_env_nested_max_split = None, _env_parse_none_str = None
+_env_parse_enums = None, _cli_prog_name = None, _cli_parse_args = None
+_cli_settings_source = None, _cli_parse_none_str = None
+_cli_hide_none_type = None, _cli_avoid_json = None, _cli_enforce_required = None
+_cli_use_class_docs_for_groups = None, _cli_exit_on_error = None
+_cli_prefix = None, _cli_flag_prefix_char = None, _cli_implicit_flags = None
+_cli_ignore_unknown_args = None, _cli_kebab_case = None, _cli_shortcuts = None
+_secrets_dir = None, _build_sources = None, values = {'job_batch_size': 1}
+sources = (InitSettingsSource(init_kwargs={'job_batch_size': 1}), EnvSettingsSource(env_nested_delimiter=None, env_prefix_len=10...fix_len=10), SecretsSettingsSource(secrets_dir=None), DefaultSettingsSource(nested_model_default_partial_update=False))
+init_kwargs = {'job_batch_size': 1}
+
+    def __init__(
+        __pydantic_self__,
+        _case_sensitive: bool | None = None,
+        _nested_model_default_partial_update: bool | None = None,
+        _env_prefix: str | None = None,
+        _env_prefix_target: EnvPrefixTarget | None = None,
+        _env_file: DotenvType | None = ENV_FILE_SENTINEL,
+        _env_file_encoding: str | None = None,
+        _env_ignore_empty: bool | None = None,
+        _env_nested_delimiter: str | None = None,
+        _env_nested_max_split: int | None = None,
+        _env_parse_none_str: str | None = None,
+        _env_parse_enums: bool | None = None,
+        _cli_prog_name: str | None = None,
+        _cli_parse_args: bool | list[str] | tuple[str, ...] | None = None,
+        _cli_settings_source: CliSettingsSource[Any] | None = None,
+        _cli_parse_none_str: str | None = None,
+        _cli_hide_none_type: bool | None = None,
+        _cli_avoid_json: bool | None = None,
+        _cli_enforce_required: bool | None = None,
+        _cli_use_class_docs_for_groups: bool | None = None,
+        _cli_exit_on_error: bool | None = None,
+        _cli_prefix: str | None = None,
+        _cli_flag_prefix_char: str | None = None,
+        _cli_implicit_flags: bool | Literal['dual', 'toggle'] | None = None,
+        _cli_ignore_unknown_args: bool | None = None,
+        _cli_kebab_case: bool | Literal['all', 'no_enums'] | None = None,
+        _cli_shortcuts: Mapping[str, str | list[str]] | None = None,
+        _secrets_dir: PathType | None = None,
+        _build_sources: tuple[tuple[PydanticBaseSettingsSource, ...], dict[str, Any]] | None = None,
+        **values: Any,
+    ) -> None:
+        sources, init_kwargs = (
+            _build_sources
+            if _build_sources is not None
+            else __pydantic_self__.__class__._settings_init_sources(
+                _case_sensitive=_case_sensitive,
+                _nested_model_default_partial_update=_nested_model_default_partial_update,
+                _env_prefix=_env_prefix,
+                _env_prefix_target=_env_prefix_target,
+                _env_file=_env_file,
+                _env_file_encoding=_env_file_encoding,
+                _env_ignore_empty=_env_ignore_empty,
+                _env_nested_delimiter=_env_nested_delimiter,
+                _env_nested_max_split=_env_nested_max_split,
+                _env_parse_none_str=_env_parse_none_str,
+                _env_parse_enums=_env_parse_enums,
+                _cli_prog_name=_cli_prog_name,
+                _cli_parse_args=_cli_parse_args,
+                _cli_settings_source=_cli_settings_source,
+                _cli_parse_none_str=_cli_parse_none_str,
+                _cli_hide_none_type=_cli_hide_none_type,
+                _cli_avoid_json=_cli_avoid_json,
+                _cli_enforce_required=_cli_enforce_required,
+                _cli_use_class_docs_for_groups=_cli_use_class_docs_for_groups,
+                _cli_exit_on_error=_cli_exit_on_error,
+                _cli_prefix=_cli_prefix,
+                _cli_flag_prefix_char=_cli_flag_prefix_char,
+                _cli_implicit_flags=_cli_implicit_flags,
+                _cli_ignore_unknown_args=_cli_ignore_unknown_args,
+                _cli_kebab_case=_cli_kebab_case,
+                _cli_shortcuts=_cli_shortcuts,
+                _secrets_dir=_secrets_dir,
+                _init_kwargs=values,
+            )
+        )
+    
+>       super().__init__(**__pydantic_self__.__class__._settings_build_values(sources, init_kwargs))
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for MyPhotosSettings
+E       job_batch_size
+E         Input should be greater than or equal to 10 [type=greater_than_equal, input_value=1, input_type=int]
+E           For further information visit https://errors.pydantic.dev/2.12/v/greater_than_equal
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\pydantic_settings\main.py:247: ValidationError
+
+---------- coverage: platform win32, python 3.11.15-final-0 ----------
+Coverage XML written to file C:\Users\nipun\Desktop\PassDetection\docs\audit\dashboard-2026-10-30\operational-worker-combined-coverage.xml
+Coverage JSON written to file C:\Users\nipun\Desktop\PassDetection\docs\audit\dashboard-2026-10-30\operational-worker-combined-coverage.json
+
+=========================== short test summary info ===========================
+FAILED tests/integration/test_my_photos_index_lifecycle.py::test_index_failure_never_publishes_an_incomplete_revision[unavailable-retrying]
+FAILED tests/integration/test_my_photos_index_lifecycle.py::test_index_failure_never_publishes_an_incomplete_revision[unexpected-retrying]
+FAILED tests/integration/test_my_photos_index_lifecycle.py::test_index_failure_never_publishes_an_incomplete_revision[invalid-failed]
+FAILED tests/integration/test_my_photos_index_lifecycle.py::test_index_failure_never_publishes_an_incomplete_revision[no_faces-failed]
+FAILED tests/integration/test_my_photos_index_lifecycle.py::test_index_failure_never_publishes_an_incomplete_revision[stale_revision-failed]
+FAILED tests/integration/test_my_photos_index_lifecycle.py::test_index_failure_never_publishes_an_incomplete_revision[changed_asset-failed]
+FAILED tests/integration/test_my_photos_index_lifecycle.py::test_index_failure_never_publishes_an_incomplete_revision[exhausted-failed]
+FAILED tests/integration/test_my_photos_index_lifecycle.py::test_partial_index_batches_resume_without_duplicate_publication
+8 failed, 9 passed in 13.24s

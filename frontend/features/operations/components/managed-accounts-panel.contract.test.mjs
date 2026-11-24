@@ -1,15 +1,13 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
+import { readOperationsHooksSource } from "../hooks/operations-source.contract-helper.mjs";
 
 const panelSource = readFileSync(
   new URL("./managed-accounts-panel.tsx", import.meta.url),
   "utf8",
 );
-const hookSource = readFileSync(
-  new URL("../hooks/use-operations.ts", import.meta.url),
-  "utf8",
-);
+const hookSource = readOperationsHooksSource();
 
 test("staff group choices are limited to the staff agency and non-removed groups", () => {
   assert.match(panelSource, /group\.agency_id === staff\.agency_id/);

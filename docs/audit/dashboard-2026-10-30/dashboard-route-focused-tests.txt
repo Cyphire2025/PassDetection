@@ -1,0 +1,19 @@
+...........................................                              [100%]
+
+---------- coverage: platform win32, python 3.11.15-final-0 ----------
+Name                                                                            Stmts   Miss  Cover
+---------------------------------------------------------------------------------------------------
+app\application\use_cases\client_groups\get_client_group_by_token_use_case.py      20      2    90%
+app\presentation\api\v1\routes\email_ai_inbox.py                                  353     18    95%
+app\presentation\api\v1\routes\email_ai_inbox_activity.py                          74     10    86%
+app\presentation\api\v1\routes\email_ai_inbox_corrections.py                      127     15    88%
+app\presentation\api\v1\routes\email_ai_inbox_cursor.py                            25     16    36%
+app\presentation\api\v1\routes\email_ai_inbox_responses.py                         81     31    62%
+app\presentation\api\v1\routes\email_ai_inbox_scope.py                             15      2    87%
+app\presentation\api\v1\routes\email_ai_inbox_types.py                              4      0   100%
+app\presentation\api\v1\routes\email_ai_inbox_visibility.py                       112     21    81%
+---------------------------------------------------------------------------------------------------
+TOTAL                                                                             811    115    86%
+Coverage JSON written to file ../docs/audit/dashboard-2026-10-30/dashboard-route-focused-coverage.json
+
+43 passed in 13.34s

@@ -2,10 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-const modalSource = readFileSync(
-  new URL("./create-upload-link-modal.tsx", import.meta.url),
-  "utf8",
-);
+import { createUploadLinkSource as modalSource } from "./create-upload-link-source.contract-helper.mjs";
 const schemaSource = readFileSync(
   new URL("../schemas/upload-link.schema.ts", import.meta.url),
   "utf8",

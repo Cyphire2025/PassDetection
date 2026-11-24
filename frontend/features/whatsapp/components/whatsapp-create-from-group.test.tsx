@@ -1,6 +1,8 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, fireEvent, render, renderHook, screen, waitFor, within } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { useAuthStore } from "@/stores/auth.store";
+import type { User } from "@/types";
 import { whatsappSourceGroupsApi, type WhatsAppSourceGroupPreview } from "../api/whatsapp-source-groups.api";
 import { type WhatsAppBroadcastGroupDetail } from "../api/whatsapp.api";
 import { useCreateWhatsAppGroup, WHATSAPP_QUERY_KEYS } from "../hooks/use-whatsapp";
@@ -15,6 +17,12 @@ const sourceGroups = [
   { id: "source-a", name: "Vietnam trip", submission_count: 4 },
   { id: "source-b", name: "Dubai trip", submission_count: 1 },
 ];
+const initialAuthState = useAuthStore.getState();
+const actor: User = {
+  id: "synthetic-owner", email: "owner@example.test", full_name: "Synthetic owner",
+  role: "agency_admin", agency_id: "agency-a", is_active: true, last_login_at: null,
+  created_at: "2026-01-01", updated_at: "2026-01-01",
+};
 
 function preview(id = "source-a", revision = "revision-a"): WhatsAppSourceGroupPreview {
   return {
@@ -41,9 +49,11 @@ function deferred<T>() {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  useAuthStore.setState({ user: actor, isAuthenticated: true });
   vi.mocked(whatsappSourceGroupsApi.list).mockResolvedValue(sourceGroups);
   vi.mocked(whatsappSourceGroupsApi.preview).mockImplementation(async (id) => preview(id));
 });
+afterEach(() => useAuthStore.setState(initialAuthState));
 
 function setup(onSubmit = vi.fn().mockResolvedValue(undefined)) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
@@ -142,8 +152,11 @@ describe("create broadcast from an existing group", () => {
     expect(optIn()).not.toBeChecked();
   });
 
-  it("refreshes a changed source after a 409 and does not silently retry creation", async () => {
-    const onSubmit = vi.fn().mockRejectedValue({ response: { status: 409, data: { detail: "The source group changed. Refresh its preview and confirm the recipients again." } } });
+  it.each(["raw", "normalized"])("refreshes a changed source after a %s409 and does not silently retry creation", async (shape) => {
+    const message = "The source group changed. Refresh its preview and confirm the recipients again.";
+    const onSubmit = vi.fn().mockRejectedValue(shape === "raw"
+      ? { response: { status: 409, data: { detail: message } } }
+      : { status: 409, code: "HTTP_409", message });
     setup(onSubmit);
     await chooseSource();
     await screen.findByText("Aarav Sharma");
@@ -161,8 +174,11 @@ describe("create broadcast from an existing group", () => {
     await waitFor(() => expect(onSubmit).toHaveBeenLastCalledWith(expect.objectContaining({ previewRevision: "revision-new" })));
   });
 
-  it("shows other conflict errors without reporting stale contacts or refreshing the preview", async () => {
-    const onSubmit = vi.fn().mockRejectedValue({ response: { status: 409, data: { detail: "Wait for queued deliveries to finish." } } });
+  it.each(["raw", "normalized"])("shows other %sconflict errors without reporting stale contacts or refreshing the preview", async (shape) => {
+    const message = "Wait for queued deliveries to finish.";
+    const onSubmit = vi.fn().mockRejectedValue(shape === "raw"
+      ? { response: { status: 409, data: { detail: message } } }
+      : { status: 409, code: "HTTP_409", message });
     setup(onSubmit);
     await chooseSource();
     await screen.findByText("Aarav Sharma");

@@ -1,8 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { canRetryOrResendRecipient, countEligibleRecipients, isRecipientEligible, type RecipientDeliveryState, welcomeDeliveryBlockReason } from "./recipient-delivery";
-import { getBulkResendEligibility } from "./recipient-bulk-selection";
-import type { WhatsAppRecipient, WhatsAppRecipientRosterItem } from "../api/whatsapp.api";
-import { countRecipientRosterItems, filterRecipientRosterItems } from "./recipient-roster";
+import type { WhatsAppRecipient } from "../api/whatsapp.api";
 
 const state = (type: string, status: string, alreadySent = false) => ({ message_type: type, status, already_sent: alreadySent, latest_resend_status: null, resend_blocked: false, submitted_at: null, status_updated_at: "2026-09-12T00:00:00Z" });
 
@@ -17,24 +15,17 @@ const welcomeAwaitingReceipt: WhatsAppRecipient = {
   message_statuses: [{ ...state("welcome", "sent", true), latest_resend_status: "sent" }],
 };
 
-describe("broadcast and phone welcome gates in the original WhatsApp workspace", () => {
-  it("keeps a welcome read in another broadcast out of this broadcast's delivery counts", () => {
+describe("shared recipient delivery welcome gates", () => {
+  it("does not inherit another broadcast's welcome delivery", () => {
     const recipient = { id: "current-contact", name: "Alex", phone_number: "+919900000001", normalized_phone_number: "+919900000001", imported_fields: {}, welcome_status: null, welcome_delivered: false, message_statuses: [] };
-    const items: WhatsAppRecipientRosterItem[] = [{ kind: "recipient", display_order: 1, recipient }];
-    expect(countRecipientRosterItems(items, "sent", "welcome")).toBe(0);
-    expect(countRecipientRosterItems(items, "not_sent", "welcome")).toBe(1);
-    expect(countRecipientRosterItems(items, "delivery_left", "welcome")).toBe(0);
     expect(isRecipientEligible(recipient, "welcome")).toBe(true);
     expect(welcomeDeliveryBlockReason(recipient, "welcome")).toBeNull();
     expect(isRecipientEligible(recipient, "passport_link")).toBe(false);
   });
 
-  it("shows an accepted welcome resend in Delivery left without opening later message gates", () => {
+  it("keeps later message gates closed until an accepted welcome resend is delivered", () => {
     const recipient = welcomeAwaitingReceipt;
-    const items: WhatsAppRecipientRosterItem[] = [{ kind: "recipient", display_order: 1, recipient }];
 
-    expect(countRecipientRosterItems(items, "delivery_left", "welcome")).toBe(1);
-    expect(filterRecipientRosterItems(items, "delivery_left", "welcome")).toEqual(items);
     expect(isRecipientEligible(recipient, "welcome")).toBe(false);
     for (const messageType of ["passport_link", "reminder"]) {
       expect(isRecipientEligible(recipient, messageType)).toBe(false);
@@ -43,17 +34,14 @@ describe("broadcast and phone welcome gates in the original WhatsApp workspace",
     }
   });
 
-  it.each(["delivered", "read"])("removes the accepted resend from Delivery left and opens later message gates when welcome is %s", (welcomeStatus) => {
+  it.each(["delivered", "read"])("opens later message gates when welcome is %s", (welcomeStatus) => {
     const recipient: WhatsAppRecipient = {
       ...welcomeAwaitingReceipt,
       welcome_status: welcomeStatus,
       welcome_delivered: true,
       message_statuses: [{ ...state("welcome", welcomeStatus, true), latest_resend_status: welcomeStatus }],
     };
-    const items: WhatsAppRecipientRosterItem[] = [{ kind: "recipient", display_order: 1, recipient }];
 
-    expect(countRecipientRosterItems(items, "delivery_left", "welcome")).toBe(0);
-    expect(filterRecipientRosterItems(items, "delivery_left", "welcome")).toEqual([]);
     expect(isRecipientEligible(recipient, "welcome")).toBe(false);
     for (const messageType of ["passport_link", "reminder"]) {
       expect(isRecipientEligible(recipient, messageType)).toBe(true);
@@ -86,13 +74,6 @@ describe("broadcast and phone welcome gates in the original WhatsApp workspace",
     expect(isRecipientEligible({ message_statuses: [] }, "passport_link")).toBe(true);
     const failed = { message_statuses: [state("welcome", "failed")] };
     expect(canRetryOrResendRecipient(failed, "welcome", "retry")).toBe(true);
-    expect(getBulkResendEligibility(failed, "welcome")).toBe("eligible");
-  });
-
-  it("blocks original bulk passport resend until the destination welcome is delivered", () => {
-    const recipient = { welcome_delivered: false, welcome_status: "required", message_statuses: [state("passport_link", "sent", true)] };
-    expect(getBulkResendEligibility(recipient, "passport_link")).toBe("blocked");
-    expect(getBulkResendEligibility({ ...recipient, welcome_delivered: true, welcome_status: "read" }, "passport_link")).toBe("eligible");
   });
 
   it.each(["required", "failed", "queued", "processing", "sent", "delivery_unknown"])("allows group invitations when welcome is %s", (welcomeStatus) => {
@@ -103,8 +84,6 @@ describe("broadcast and phone welcome gates in the original WhatsApp workspace",
     const delivered = { ...recipient, message_statuses: [state("group_invite", "delivered", true)] };
     expect(canRetryOrResendRecipient(failed, "group_invite", "retry")).toBe(true);
     expect(canRetryOrResendRecipient(delivered, "group_invite", "resend")).toBe(false);
-    expect(getBulkResendEligibility(failed, "group_invite")).toBe("eligible");
-    expect(getBulkResendEligibility(delivered, "group_invite")).toBe("blocked");
   });
 
   it.each(["queued", "processing", "delivery_unknown"])("preserves group invite %s exclusions without a welcome", (deliveryStatus) => {
@@ -112,17 +91,13 @@ describe("broadcast and phone welcome gates in the original WhatsApp workspace",
     expect(isRecipientEligible(recipient, "group_invite")).toBe(false);
     expect(canRetryOrResendRecipient(recipient, "group_invite", "retry")).toBe(false);
     expect(canRetryOrResendRecipient(recipient, "group_invite", "resend")).toBe(false);
-    expect(getBulkResendEligibility(recipient, "group_invite")).toBe(deliveryStatus === "delivery_unknown" ? "delivery_unknown" : "in_progress");
     const latestResend = { ...recipient, message_statuses: [{ ...state("group_invite", "delivered", true), latest_resend_status: deliveryStatus, resend_blocked: true }] };
     expect(canRetryOrResendRecipient(latestResend, "group_invite", "resend")).toBe(false);
-    expect(getBulkResendEligibility(latestResend, "group_invite")).toBe(deliveryStatus === "delivery_unknown" ? "delivery_unknown" : "in_progress");
   });
 
   it("keeps already-sent, blocked, and missing-snapshot invitation exclusions", () => {
     const recipient = { welcome_delivered: false, message_statuses: [{ ...state("group_invite", "delivered", true), resend_blocked: true }] };
     expect(isRecipientEligible(recipient, "group_invite")).toBe(false);
     expect(canRetryOrResendRecipient(recipient, "group_invite", "resend")).toBe(false);
-    expect(getBulkResendEligibility(recipient, "group_invite")).toBe("blocked");
-    expect(getBulkResendEligibility({ ...recipient, message_statuses: [] }, "group_invite")).toBe("no_saved_message");
   });
 });

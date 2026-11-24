@@ -1,0 +1,138 @@
+[
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions.py",
+    "sha256": "c7f71262abc162e63839c977f407770a2837651f8995472ef52154f990334d40",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical current source/original moved declarations read; whole AST, evaluated contracts, route/global identity and99 focused test proof."
+  },
+  {
+    "path": "backend/tests/route_dependencies.py",
+    "sha256": "3a077577b401c5d7819efde9d72104487c4089b12b2e9d9e151e8791f9594535",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical current source/original moved declarations read; whole AST, evaluated contracts, route/global identity and99 focused test proof."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_bulk_approval_session_fence.py",
+    "sha256": "4fdf4d1162112b119695708f36fefc65f783b0bb7ff2fd364ae0453dea2f6271",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical current source/original moved declarations read; whole AST, evaluated contracts, route/global identity and99 focused test proof."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py",
+    "sha256": "9641b67bc05ad710f7f34dedfb801c69e4a8367dce317cf86477c61a75b58706",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical current source/original moved declarations read; whole AST, evaluated contracts, route/global identity and99 focused test proof."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_bulk_delete_route.py",
+    "sha256": "f04b6d8acee374694823a556e1eb8fb0b75cbdb295c87e99ea2a2da628c759b9",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Exact mock-target-only module inverse or affected test execution; no complete physical source read credit in this batch."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_submission_delete_access.py",
+    "sha256": "5848bdbdec5005e834af0c49cedc68f373985258f88b72faef65930ae1510d05",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Exact mock-target-only module inverse or affected test execution; no complete physical source read credit in this batch."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_deletion_support.py",
+    "sha256": "72f1d08b4e3095350904c40f9f625182462a3225564746498e1c1a5080a47939",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Exact mock-target-only module inverse or affected test execution; no complete physical source read credit in this batch."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_superadmin_access_level.py",
+    "sha256": "ca1b62b1b71f8b2554d81f6065dd06c3fd31fe1efc610c75d361da436f6e5ff6",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Exact mock-target-only module inverse or affected test execution; no complete physical source read credit in this batch."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_bulk_roster_reference_boundary.py",
+    "sha256": "0b4a20bc47c41b7923545f7e886ffc0e54926e69598f2ed843c4c979f51e3f87",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical current source/original moved declarations read; whole AST, evaluated contracts, route/global identity and99 focused test proof."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_export_history_routes.py",
+    "sha256": "b2b95a05310c6824b182dcb524199a44455932f075edf1b255fb130b3e751f6f",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Exact mock-target-only module inverse or affected test execution; no complete physical source read credit in this batch."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passports.py",
+    "sha256": "977089c9df210b7a7a92c39b5faaa2ae6cf872ed49df4b04fabe5ff483c03617",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical current source/original moved declarations read; whole AST, evaluated contracts, route/global identity and99 focused test proof."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/export_context.py",
+    "sha256": "ce172b2f3c0bf0c02a79a83937a239bb4dddfabc2e4fc913190cbeacd67371ee",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical current source/original moved declarations read; whole AST, evaluated contracts, route/global identity and99 focused test proof."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions_actor.py",
+    "sha256": "b17bab6365d72f995763aaa43f17980ca241edea9f371f62e4fc225646f3ae0c",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical current source/original moved declarations read; whole AST, evaluated contracts, route/global identity and99 focused test proof."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions_approval.py",
+    "sha256": "c40650d432686c9be0c0fbee801c5aa9cd2699125859b0f84f1c4002e66d1810",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical current source/original moved declarations read; whole AST, evaluated contracts, route/global identity and99 focused test proof."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions_delete.py",
+    "sha256": "3ebfce47110e3e562639e5d520a3b95fcb945a25468c082d0dfbe131cd53dece",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical current source/original moved declarations read; whole AST, evaluated contracts, route/global identity and99 focused test proof."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions_roster.py",
+    "sha256": "5846b5e0180237cf408dce4c2196686a61a2eb44613e7dc2baab5f69b4ecfbd2",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical current source/original moved declarations read; whole AST, evaluated contracts, route/global identity and99 focused test proof."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions_transitions.py",
+    "sha256": "9ecf164ab748b59f5ce10fa780ed191e4452b4a087f67cbd58fcba05c57140b1",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical current source/original moved declarations read; whole AST, evaluated contracts, route/global identity and99 focused test proof."
+  }
+]

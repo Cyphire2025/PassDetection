@@ -1,0 +1,154 @@
+{
+  "sealed_at": "2026-10-31T09:50:13.743775+00:00",
+  "reviewer": "/root/document_ui_architecture",
+  "status": "frozen; focused verification passed",
+  "original_path": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+  "original_sha256": "aa160e1bdcd3f651706adfc6b18edfbb2b2d08784f8d32ce7080c23289b29b7e",
+  "original_lines": 1778,
+  "runtime_files": 14,
+  "new_focused_runtime_owners": 13,
+  "public_facade_lines": 34,
+  "largest_owner_lines": 268,
+  "mechanical_checkpoint": {
+    "complete_original_declarations_exact_text_except_export_eol": 97,
+    "existing_affected_unit_cases_passed": 22
+  },
+  "final_checkpoint": {
+    "original_declarations": 97,
+    "whole_ast_exact_except_export": 95,
+    "precisely_proven_changed_functions": [
+      "syncAttendanceDiscardTombstones",
+      "performPendingAttendanceScanSync"
+    ],
+    "new_typed_data_recovery_functions": 1,
+    "actual_cross_owner_reference_bindings": 300,
+    "public_direct_exports": 27,
+    "owner_import_graph_acyclic": true,
+    "unit_files_passed": 5,
+    "unit_cases_passed": 33,
+    "existing_node_contract_cases_passed": 50,
+    "original_contract_test_bodies_byte_identical": true,
+    "focused_types_passed": true,
+    "scoped_lint_passed": true,
+    "proposed_normal_budgets_passed": 14,
+    "source_fence_verified_before_after": true,
+    "owned_source_rows": 18,
+    "unchanged_caller_control_rows": 14
+  },
+  "critical_v8_provenance": {
+    "config_path": "frontend/vitest.config.mts",
+    "config_sha256": "43f8ef71f59df34257e296abc4e2d6181105066af32a39c66bf2dcca6268d37d",
+    "explicit_coverage_include_entries": 30,
+    "original_queue_included": false,
+    "existing_obligations_transferred": 0,
+    "note": "Earlier chat count31 was metadata miscount; actual coverage.include has30, separate test.include glob excluded. No config or floor changes."
+  },
+  "preserved": [
+    "Public exports/class constructor/constants, existing signatures and generic callback seams.",
+    "Version5 schema, stores/indexes, AES-GCM AAD, protected row identity, copy/verify migration and invalid legacy retention.",
+    "One activeSync, one privacyMigrationPromise, one fallbackOwnerLanes; unchanged exact locks/events/channels, lock nesting, connections/finally/transactions.",
+    "Original batch/event identity and ordering, max50 chunks, success/terminal/ambiguous policy, stop/backoff/Retry-After, expected-owner HTTP and post-await guards.",
+    "Count-only closeout, user+session snapshot fencing, lock-held publication, owner-only discarded evidence, synchronized retention, explicit signout workflow."
+  ],
+  "historical_failures_retained": [
+    "Original ordinary restart2 failures retained as baseline; final regression passes.",
+    "Intermediate new-fixture diagnostics corrected (readonly delete, missing response error_code:null, expected capacity code). They were fixture mistakes, not additional runtime defects; corresponding failure logs retained.",
+    "Earlier chat count31 critical include entries corrected to actual30 by AST metadata; no app rerun/config/floor change caused by correction."
+  ],
+  "scope_limits": [
+    "No broad app suite, production build, browser, scanner, provider send, real service, production data or credentials.",
+    "No shared gates/release bindings/dependencies/config/migrations edited; parent integrates measured candidates.",
+    "No real browser crash durability, physical camera, lock fairness or genuine service/crypto evidence inferred from synthetic transport controls.",
+    "Performance candidate remains unmeasured/open and no speed claim is made."
+  ],
+  "artifacts": [
+    {
+      "path": "docs/audit/dashboard-2026-10-30/attendance-queue-reviewed-files.json",
+      "sha256": "b0a906c763310e176cf2ec81342e2f0c6f8ad651c8f778ce6448cf7b62495b55"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/attendance-queue-source-manifest.json",
+      "sha256": "f60f23fbaf26ae588e04c8b0192304b306590fef5a5995dafcb4f7961b4ee8fc"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/attendance-queue-findings-and-follow-ups.json",
+      "sha256": "5d9129fc8a71ecf7202c2954b2f0b0804669a5f695c12aee31a49a6adf2bf3ed"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/attendance-queue-architecture-original-source.json",
+      "sha256": "606d080187d6bf7532292d902b1fe1bbcaef6805a9050d3dc6b3534665e300a7"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/attendance-queue-architecture-preflight-verification.json",
+      "sha256": "f3687d5ea57b9a7ef5c8356c11e2f12fe36bfcc6718183f38a15436abe1ba353"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/attendance-queue-mechanical-owner-map.json",
+      "sha256": "6f5e616b14df3e641b82baae341c760757b1f2ed05999be4c00294e8c427aca3"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/attendance-queue-mechanical-extraction-proof.json",
+      "sha256": "8cbef70bac1b9b3b7285efe13e933d3d4b50c1499dea60a64fb09138e610f059"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/attendance-queue-final-extraction-proof.json",
+      "sha256": "3ed403d9435003bb7b5d17f70a3723fdd6061230544a825fdaab91b4ec0639cf"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/attendance-queue-contract-retarget-proof.json",
+      "sha256": "706ba4fc7a635430f5d729566a457e6d86ff78e99cce6d490d65239e26ccae7d"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/attendance-queue-focused-source-fence.json",
+      "sha256": "d6706989ca1b04c6455421326b904fc376a21c0aa189d277c91cff06050f0cb6"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/attendance-queue-focused-check-results.json",
+      "sha256": "9c71e85e596bca8c07695e601a4071416316dc39e7dc6787057199f7bbbee7f3"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/attendance-queue-budget-candidates.json",
+      "sha256": "c069c7e3ba8631af36963fc61ed643bd24b06f6b9c26c1d7ae7e4a55ff2d3b7d"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/attendance-queue-restart-baseline.log",
+      "sha256": "35d3a1d851a980d161d6771cb052cbe5e021bb0815907ab0a395bf033bb7e99c"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/attendance-queue-contracts-baseline.log",
+      "sha256": "8c47e162d937ae9d57fb25409e9b835235c445de59cf9ca51a1f30f10945a364"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/attendance-queue-mechanical-units.log",
+      "sha256": "2c58163eb3a05c7ca3cfa0c94d094764ca93fb1f6910e879c222c32891bef251"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/attendance-queue-mechanical-types.log",
+      "sha256": "a9f843a392c998a7cc8c72fa9fd9bcea484a56b6598774f70c82666e12566ea6"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/attendance-queue-restart-fixed.log",
+      "sha256": "927b3953a3b97db712167a79cff8bc4f321f72a2c8d365d455b575610e1b69bc"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/attendance-queue-restart-controls.log",
+      "sha256": "fdb55bd1d91b59d90137ef2d03d998370d5a83bbe06681ec393feeeed69179cf"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/attendance-queue-final-units.log",
+      "sha256": "cbf986ff034803b46f82757e32ed765d6a647412f0d9ba750cafc970333c26e1"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/attendance-queue-final-contracts.log",
+      "sha256": "16dcce8dc5e61e2b41fef844a3f883848bd2d56f1c519cece58fdcee35dac1cc"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/attendance-queue-final-types.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/attendance-queue-final-lint.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

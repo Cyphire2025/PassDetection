@@ -1,0 +1,5 @@
+All 12 collected tests are assigned exactly once across 4 shards.
+----------------------------------------------------------------------
+Ran 86 tests in 0.535s
+
+OK

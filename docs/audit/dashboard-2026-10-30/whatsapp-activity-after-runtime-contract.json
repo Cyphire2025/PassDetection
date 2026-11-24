@@ -1,0 +1,2348 @@
+{
+  "functions": {
+    "_activity_statement": {
+      "doc": null,
+      "hints": {
+        "batch_id": "<class 'uuid.UUID'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "kind": "typing.Literal['broadcast', 'document', 'qr']",
+        "return": "typing.Any",
+        "stale_cutoff": "<class 'datetime.datetime'>"
+      },
+      "qualname": "_activity_statement",
+      "signature": "(*, kind: 'WhatsAppActivityKind', batch_id: 'uuid.UUID', current_user: 'User', stale_cutoff: 'datetime') -> 'Any'"
+    },
+    "_activity_title": {
+      "doc": null,
+      "hints": {
+        "activity_label": "str | None",
+        "kind": "typing.Literal['broadcast', 'document', 'qr']",
+        "return": "<class 'str'>"
+      },
+      "qualname": "_activity_title",
+      "signature": "(kind: 'WhatsAppActivityKind', activity_label: 'str | None') -> 'str'"
+    },
+    "_broadcast_activity_statement": {
+      "doc": null,
+      "hints": {
+        "batch_id": "<class 'uuid.UUID'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "return": "typing.Any",
+        "stale_cutoff": "<class 'datetime.datetime'>"
+      },
+      "qualname": "_broadcast_activity_statement",
+      "signature": "(*, batch_id: 'uuid.UUID', current_user: 'User', stale_cutoff: 'datetime') -> 'Any'"
+    },
+    "_broadcast_failures_statement": {
+      "doc": null,
+      "hints": {
+        "batch_id": "<class 'uuid.UUID'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "return": "typing.Any"
+      },
+      "qualname": "_broadcast_failures_statement",
+      "signature": "(*, batch_id: 'uuid.UUID', current_user: 'User') -> 'Any'"
+    },
+    "_document_activity_deliveries_statement": {
+      "doc": null,
+      "hints": {
+        "batch_id": "<class 'uuid.UUID'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "return": "typing.Any",
+        "stale_cutoff": "<class 'datetime.datetime'>"
+      },
+      "qualname": "_document_activity_deliveries_statement",
+      "signature": "(*, batch_id: 'uuid.UUID', current_user: 'User', stale_cutoff: 'datetime') -> 'Any'"
+    },
+    "_document_activity_statement": {
+      "doc": null,
+      "hints": {
+        "batch_id": "<class 'uuid.UUID'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "return": "typing.Any",
+        "stale_cutoff": "<class 'datetime.datetime'>"
+      },
+      "qualname": "_document_activity_statement",
+      "signature": "(*, batch_id: 'uuid.UUID', current_user: 'User', stale_cutoff: 'datetime') -> 'Any'"
+    },
+    "_document_activity_status_predicate": {
+      "doc": null,
+      "hints": {
+        "return": "typing.Any",
+        "stale_cutoff": "<class 'datetime.datetime'>",
+        "status_filter": "typing.Literal['all', 'queued', 'processing', 'sent', 'delivered', 'read', 'failed', 'needs_review']"
+      },
+      "qualname": "_document_activity_status_predicate",
+      "signature": "(status_filter: 'DocumentActivityStatusFilter', *, stale_cutoff: 'datetime') -> 'Any'"
+    },
+    "_document_failures_statement": {
+      "doc": null,
+      "hints": {
+        "batch_id": "<class 'uuid.UUID'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "return": "typing.Any"
+      },
+      "qualname": "_document_failures_statement",
+      "signature": "(*, batch_id: 'uuid.UUID', current_user: 'User') -> 'Any'"
+    },
+    "_ensure_kind_access": {
+      "doc": null,
+      "hints": {
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "kind": "typing.Literal['broadcast', 'document', 'qr']",
+        "return": "<class 'NoneType'>"
+      },
+      "qualname": "_ensure_kind_access",
+      "signature": "(kind: 'WhatsAppActivityKind', current_user: 'User') -> 'None'"
+    },
+    "_failed_status_predicate": {
+      "doc": null,
+      "hints": {
+        "return": "typing.Any",
+        "status_column": "typing.Any"
+      },
+      "qualname": "_failed_status_predicate",
+      "signature": "(status_column: 'Any') -> 'Any'"
+    },
+    "_failures_statement": {
+      "doc": null,
+      "hints": {
+        "batch_id": "<class 'uuid.UUID'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "kind": "typing.Literal['broadcast', 'document', 'qr']",
+        "return": "typing.Any"
+      },
+      "qualname": "_failures_statement",
+      "signature": "(*, kind: 'WhatsAppActivityKind', batch_id: 'uuid.UUID', current_user: 'User') -> 'Any'"
+    },
+    "_normalized_activity_status": {
+      "doc": null,
+      "hints": {
+        "return": "typing.Any",
+        "stale_cutoff": "<class 'datetime.datetime'>",
+        "status_column": "typing.Any",
+        "status_updated_column": "typing.Any"
+      },
+      "qualname": "_normalized_activity_status",
+      "signature": "(status_column: 'Any', status_updated_column: 'Any', *, stale_cutoff: 'datetime') -> 'Any'"
+    },
+    "_qr_activity_statement": {
+      "doc": null,
+      "hints": {
+        "batch_id": "<class 'uuid.UUID'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "return": "typing.Any",
+        "stale_cutoff": "<class 'datetime.datetime'>"
+      },
+      "qualname": "_qr_activity_statement",
+      "signature": "(*, batch_id: 'uuid.UUID', current_user: 'User', stale_cutoff: 'datetime') -> 'Any'"
+    },
+    "_qr_failures_statement": {
+      "doc": null,
+      "hints": {
+        "batch_id": "<class 'uuid.UUID'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "return": "typing.Any"
+      },
+      "qualname": "_qr_failures_statement",
+      "signature": "(*, batch_id: 'uuid.UUID', current_user: 'User') -> 'Any'"
+    },
+    "_scope_client_group_statement": {
+      "doc": null,
+      "hints": {
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "return": "typing.Any",
+        "statement": "typing.Any"
+      },
+      "qualname": "_scope_client_group_statement",
+      "signature": "(statement: 'Any', current_user: 'User') -> 'Any'"
+    },
+    "_status_aggregates": {
+      "doc": null,
+      "hints": {
+        "return": "tuple[typing.Any, ...]",
+        "stale_cutoff": "<class 'datetime.datetime'>",
+        "status_column": "typing.Any",
+        "status_updated_column": "typing.Any"
+      },
+      "qualname": "_status_aggregates",
+      "signature": "(status_column: 'Any', status_updated_column: 'Any', *, stale_cutoff: 'datetime') -> 'tuple[Any, ...]'"
+    },
+    "get_document_activity_deliveries": {
+      "doc": "Reveal only the requested page of an authorized document send batch.",
+      "hints": {
+        "batch_id": "<class 'uuid.UUID'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "limit": "<class 'int'>",
+        "offset": "<class 'int'>",
+        "q": "<class 'str'>",
+        "return": "<class 'app.presentation.api.v1.schemas.whatsapp_activity_schemas.DocumentActivityDeliveriesResponse'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "status_filter": "typing.Literal['all', 'queued', 'processing', 'sent', 'delivered', 'read', 'failed', 'needs_review']"
+      },
+      "qualname": "get_document_activity_deliveries",
+      "signature": "(batch_id: 'uuid.UUID', status_filter: 'DocumentActivityStatusFilter' = Query(all), q: 'str' = Query(), offset: 'int' = Query(0), limit: 'int' = Query(50), current_user: 'User' = Depends(dependency=<function require_role.<locals>._check_role at 0x0000029C94651940>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x0000029CDAC5B4C0>, use_cache=True, scope=None)) -> 'DocumentActivityDeliveriesResponse'"
+    },
+    "get_whatsapp_activity_failures": {
+      "doc": "Reveal failed recipient names only when the operator expands them.",
+      "hints": {
+        "batch_id": "<class 'uuid.UUID'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "kind": "typing.Literal['broadcast', 'document', 'qr']",
+        "return": "list[app.presentation.api.v1.schemas.whatsapp_activity_schemas.WhatsAppActivityFailureResponse]",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>"
+      },
+      "qualname": "get_whatsapp_activity_failures",
+      "signature": "(kind: \"Literal['broadcast', 'document', 'qr']\", batch_id: 'uuid.UUID', current_user: 'User' = Depends(dependency=<function require_role.<locals>._check_role at 0x0000029C94651B20>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x0000029CDAC5B4C0>, use_cache=True, scope=None)) -> 'list[WhatsAppActivityFailureResponse]'"
+    },
+    "get_whatsapp_activity_summary": {
+      "doc": "Return small, resumable progress data for one send batch.",
+      "hints": {
+        "batch_id": "<class 'uuid.UUID'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "kind": "typing.Literal['broadcast', 'document', 'qr']",
+        "return": "<class 'app.presentation.api.v1.schemas.whatsapp_activity_schemas.WhatsAppActivitySummaryResponse'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>"
+      },
+      "qualname": "get_whatsapp_activity_summary",
+      "signature": "(kind: \"Literal['broadcast', 'document', 'qr']\", batch_id: 'uuid.UUID', current_user: 'User' = Depends(dependency=<function require_role.<locals>._check_role at 0x0000029C94651620>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x0000029CDAC5B4C0>, use_cache=True, scope=None)) -> 'WhatsAppActivitySummaryResponse'"
+    }
+  },
+  "imports": {
+    "APIRouter": [
+      "APIRouter",
+      "fastapi.routing"
+    ],
+    "Any": [
+      "Any",
+      "typing"
+    ],
+    "AsyncSession": [
+      "AsyncSession",
+      "sqlalchemy.ext.asyncio.session"
+    ],
+    "AuthorizationPolicy": [
+      "AuthorizationPolicy",
+      "app.application.security.authorization_policy"
+    ],
+    "ClientGroupModel": [
+      "ClientGroupModel",
+      "app.infrastructure.database.models"
+    ],
+    "Depends": [
+      "Depends",
+      "fastapi.param_functions"
+    ],
+    "DocumentActivityDeliveriesResponse": [
+      "DocumentActivityDeliveriesResponse",
+      "app.presentation.api.v1.schemas.whatsapp_activity_schemas"
+    ],
+    "DocumentActivityDeliveryResponse": [
+      "DocumentActivityDeliveryResponse",
+      "app.presentation.api.v1.schemas.whatsapp_activity_schemas"
+    ],
+    "DocumentActivityStatusFilter": [
+      "Literal",
+      "typing"
+    ],
+    "DocumentWhatsAppDeliveryModel": [
+      "DocumentWhatsAppDeliveryModel",
+      "app.infrastructure.database.document_models"
+    ],
+    "HTTPException": [
+      "HTTPException",
+      "fastapi.exceptions"
+    ],
+    "Literal": [
+      "Literal",
+      "typing"
+    ],
+    "PassengerQrWhatsAppDeliveryModel": [
+      "PassengerQrWhatsAppDeliveryModel",
+      "app.infrastructure.database.passenger_qr_models"
+    ],
+    "Query": [
+      "Query",
+      "fastapi.param_functions"
+    ],
+    "UTC": [
+      null,
+      null
+    ],
+    "User": [
+      "User",
+      "app.domain.entities.identity"
+    ],
+    "UserRole": [
+      "UserRole",
+      "app.domain.entities.enums"
+    ],
+    "WHATSAPP_BROADCAST_ROLES": [
+      null,
+      null
+    ],
+    "WhatsAppActivityFailureResponse": [
+      "WhatsAppActivityFailureResponse",
+      "app.presentation.api.v1.schemas.whatsapp_activity_schemas"
+    ],
+    "WhatsAppActivityKind": [
+      "Literal",
+      "typing"
+    ],
+    "WhatsAppActivitySummaryResponse": [
+      "WhatsAppActivitySummaryResponse",
+      "app.presentation.api.v1.schemas.whatsapp_activity_schemas"
+    ],
+    "WhatsAppBroadcastGroupModel": [
+      "WhatsAppBroadcastGroupModel",
+      "app.infrastructure.database.communications_models"
+    ],
+    "WhatsAppBroadcastRecipientModel": [
+      "WhatsAppBroadcastRecipientModel",
+      "app.infrastructure.database.communications_models"
+    ],
+    "WhatsAppMessageLogModel": [
+      "WhatsAppMessageLogModel",
+      "app.infrastructure.database.communications_models"
+    ],
+    "and_": [
+      "and_",
+      "sqlalchemy.sql._elements_constructors"
+    ],
+    "case": [
+      "case",
+      "sqlalchemy.sql._elements_constructors"
+    ],
+    "datetime": [
+      "datetime",
+      "datetime"
+    ],
+    "document_type_label": [
+      "app.domain.value_objects.travel_document_taxonomy",
+      "document_type_label"
+    ],
+    "func": [
+      "sqlalchemy.sql.functions",
+      null
+    ],
+    "get_db_session": [
+      "app.infrastructure.database.session",
+      "get_db_session"
+    ],
+    "or_": [
+      "or_",
+      "sqlalchemy.sql._elements_constructors"
+    ],
+    "require_role": [
+      "app.presentation.dependencies.auth",
+      "require_role"
+    ],
+    "select": [
+      "select",
+      "sqlalchemy.sql._selectable_constructors"
+    ],
+    "status": [
+      null,
+      "starlette.status"
+    ],
+    "timedelta": [
+      "datetime",
+      "timedelta"
+    ],
+    "uuid": [
+      null,
+      "uuid"
+    ]
+  },
+  "openapi": {
+    "components": {
+      "schemas": {
+        "DocumentActivityDeliveriesResponse": {
+          "description": "A bounded page of document deliveries matching the requested filters.",
+          "properties": {
+            "items": {
+              "items": {
+                "$ref": "#/components/schemas/DocumentActivityDeliveryResponse"
+              },
+              "title": "Items",
+              "type": "array"
+            },
+            "limit": {
+              "title": "Limit",
+              "type": "integer"
+            },
+            "offset": {
+              "title": "Offset",
+              "type": "integer"
+            },
+            "total": {
+              "title": "Total",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "items",
+            "limit",
+            "offset",
+            "total"
+          ],
+          "title": "DocumentActivityDeliveriesResponse",
+          "type": "object"
+        },
+        "DocumentActivityDeliveryResponse": {
+          "description": "One frozen document destination, including its current delivery result.",
+          "properties": {
+            "delivery_id": {
+              "format": "uuid",
+              "title": "Delivery Id",
+              "type": "string"
+            },
+            "document_filename": {
+              "title": "Document Filename",
+              "type": "string"
+            },
+            "document_type": {
+              "title": "Document Type",
+              "type": "string"
+            },
+            "error_message": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Error Message"
+            },
+            "passenger_name": {
+              "title": "Passenger Name",
+              "type": "string"
+            },
+            "phone_number": {
+              "title": "Phone Number",
+              "type": "string"
+            },
+            "status": {
+              "title": "Status",
+              "type": "string"
+            },
+            "status_updated_at": {
+              "format": "date-time",
+              "title": "Status Updated At",
+              "type": "string"
+            }
+          },
+          "required": [
+            "delivery_id",
+            "document_filename",
+            "document_type",
+            "passenger_name",
+            "phone_number",
+            "status",
+            "status_updated_at"
+          ],
+          "title": "DocumentActivityDeliveryResponse",
+          "type": "object"
+        },
+        "HTTPValidationError": {
+          "properties": {
+            "detail": {
+              "items": {
+                "$ref": "#/components/schemas/ValidationError"
+              },
+              "title": "Detail",
+              "type": "array"
+            }
+          },
+          "title": "HTTPValidationError",
+          "type": "object"
+        },
+        "ValidationError": {
+          "properties": {
+            "ctx": {
+              "title": "Context",
+              "type": "object"
+            },
+            "input": {
+              "title": "Input"
+            },
+            "loc": {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ]
+              },
+              "title": "Location",
+              "type": "array"
+            },
+            "msg": {
+              "title": "Message",
+              "type": "string"
+            },
+            "type": {
+              "title": "Error Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "loc",
+            "msg",
+            "type"
+          ],
+          "title": "ValidationError",
+          "type": "object"
+        },
+        "WhatsAppActivityFailureResponse": {
+          "description": "One failed destination revealed on demand by the progress UI.",
+          "properties": {
+            "error_message": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Error Message"
+            },
+            "phone_number": {
+              "title": "Phone Number",
+              "type": "string"
+            },
+            "recipient_name": {
+              "title": "Recipient Name",
+              "type": "string"
+            }
+          },
+          "required": [
+            "phone_number",
+            "recipient_name"
+          ],
+          "title": "WhatsAppActivityFailureResponse",
+          "type": "object"
+        },
+        "WhatsAppActivitySummaryResponse": {
+          "description": "Compact live progress for one durable WhatsApp send batch.",
+          "properties": {
+            "activity_id": {
+              "format": "uuid",
+              "title": "Activity Id",
+              "type": "string"
+            },
+            "context_label": {
+              "title": "Context Label",
+              "type": "string"
+            },
+            "delivery_unknown": {
+              "title": "Delivery Unknown",
+              "type": "integer"
+            },
+            "document_type": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Document Type"
+            },
+            "failed": {
+              "title": "Failed",
+              "type": "integer"
+            },
+            "kind": {
+              "enum": [
+                "broadcast",
+                "document",
+                "qr"
+              ],
+              "title": "Kind",
+              "type": "string"
+            },
+            "queued": {
+              "title": "Queued",
+              "type": "integer"
+            },
+            "sent": {
+              "title": "Sent",
+              "type": "integer"
+            },
+            "source_group_id": {
+              "format": "uuid",
+              "title": "Source Group Id",
+              "type": "string"
+            },
+            "started_at": {
+              "format": "date-time",
+              "title": "Started At",
+              "type": "string"
+            },
+            "status_counts": {
+              "additionalProperties": {
+                "type": "integer"
+              },
+              "title": "Status Counts",
+              "type": "object"
+            },
+            "title": {
+              "title": "Title",
+              "type": "string"
+            },
+            "total": {
+              "title": "Total",
+              "type": "integer"
+            },
+            "updated_at": {
+              "format": "date-time",
+              "title": "Updated At",
+              "type": "string"
+            }
+          },
+          "required": [
+            "activity_id",
+            "context_label",
+            "delivery_unknown",
+            "failed",
+            "kind",
+            "queued",
+            "sent",
+            "source_group_id",
+            "started_at",
+            "title",
+            "total",
+            "updated_at"
+          ],
+          "title": "WhatsAppActivitySummaryResponse",
+          "type": "object"
+        }
+      },
+      "securitySchemes": {
+        "HTTPBearer": {
+          "scheme": "bearer",
+          "type": "http"
+        }
+      }
+    },
+    "info": {
+      "title": "FastAPI",
+      "version": "0.1.0"
+    },
+    "openapi": "3.1.0",
+    "paths": {
+      "/whatsapp/activities/document/{batch_id}/deliveries": {
+        "get": {
+          "description": "Reveal only the requested page of an authorized document send batch.",
+          "operationId": "get_document_activity_deliveries_whatsapp_activities_document__batch_id__deliveries_get",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "batch_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "title": "Batch Id",
+                "type": "string"
+              }
+            },
+            {
+              "in": "query",
+              "name": "status_filter",
+              "required": false,
+              "schema": {
+                "default": "all",
+                "enum": [
+                  "all",
+                  "delivered",
+                  "failed",
+                  "needs_review",
+                  "processing",
+                  "queued",
+                  "read",
+                  "sent"
+                ],
+                "title": "Status Filter",
+                "type": "string"
+              }
+            },
+            {
+              "in": "query",
+              "name": "q",
+              "required": false,
+              "schema": {
+                "default": "",
+                "maxLength": 120,
+                "title": "Q",
+                "type": "string"
+              }
+            },
+            {
+              "in": "query",
+              "name": "offset",
+              "required": false,
+              "schema": {
+                "default": 0,
+                "minimum": 0,
+                "title": "Offset",
+                "type": "integer"
+              }
+            },
+            {
+              "in": "query",
+              "name": "limit",
+              "required": false,
+              "schema": {
+                "default": 50,
+                "maximum": 100,
+                "minimum": 1,
+                "title": "Limit",
+                "type": "integer"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/DocumentActivityDeliveriesResponse"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Get Document Activity Deliveries"
+        }
+      },
+      "/whatsapp/activities/{kind}/{batch_id}": {
+        "get": {
+          "description": "Return small, resumable progress data for one send batch.",
+          "operationId": "get_whatsapp_activity_summary_whatsapp_activities__kind___batch_id__get",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "kind",
+              "required": true,
+              "schema": {
+                "enum": [
+                  "broadcast",
+                  "document",
+                  "qr"
+                ],
+                "title": "Kind",
+                "type": "string"
+              }
+            },
+            {
+              "in": "path",
+              "name": "batch_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "title": "Batch Id",
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/WhatsAppActivitySummaryResponse"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Get Whatsapp Activity Summary"
+        }
+      },
+      "/whatsapp/activities/{kind}/{batch_id}/failures": {
+        "get": {
+          "description": "Reveal failed recipient names only when the operator expands them.",
+          "operationId": "get_whatsapp_activity_failures_whatsapp_activities__kind___batch_id__failures_get",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "kind",
+              "required": true,
+              "schema": {
+                "enum": [
+                  "broadcast",
+                  "document",
+                  "qr"
+                ],
+                "title": "Kind",
+                "type": "string"
+              }
+            },
+            {
+              "in": "path",
+              "name": "batch_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "title": "Batch Id",
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "items": {
+                      "$ref": "#/components/schemas/WhatsAppActivityFailureResponse"
+                    },
+                    "title": "Response Get Whatsapp Activity Failures Whatsapp Activities  Kind   Batch Id  Failures Get",
+                    "type": "array"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Get Whatsapp Activity Failures"
+        }
+      }
+    }
+  },
+  "sql": {
+    "agency_admin/broadcast/failures": {
+      "params": {
+        "agency_id_1": "00000000-0000-0000-0000-000000000002",
+        "batch_id_1": "00000000-0000-0000-0000-000000000003",
+        "status_1": [
+          "delivered",
+          "delivery_unknown",
+          "processing",
+          "queued",
+          "read",
+          "sent",
+          "stalled",
+          "submitted"
+        ]
+      },
+      "sql": "SELECT whatsapp_broadcast_recipients.name AS recipient_name, coalesce(whatsapp_message_logs.normalized_phone_number, whatsapp_broadcast_recipients.normalized_phone_number) AS phone_number, whatsapp_message_logs.error_message AS error_message \nFROM whatsapp_message_logs JOIN whatsapp_broadcast_recipients ON whatsapp_broadcast_recipients.id = whatsapp_message_logs.recipient_id JOIN whatsapp_broadcast_groups ON whatsapp_broadcast_groups.id = whatsapp_message_logs.broadcast_group_id \nWHERE whatsapp_message_logs.batch_id = :batch_id_1 AND (whatsapp_message_logs.status NOT IN (__[POSTCOMPILE_status_1])) AND whatsapp_broadcast_groups.agency_id = :agency_id_1 ORDER BY whatsapp_broadcast_recipients.name ASC NULLS LAST, whatsapp_broadcast_recipients.normalized_phone_number ASC"
+    },
+    "agency_admin/broadcast/summary": {
+      "params": {
+        "agency_id_1": "00000000-0000-0000-0000-000000000002",
+        "batch_id_1": "00000000-0000-0000-0000-000000000003",
+        "param_1": "stalled",
+        "param_2": "queued",
+        "param_3": "processing",
+        "param_4": "submitted",
+        "param_5": "sent",
+        "param_6": "delivered",
+        "param_7": "read",
+        "param_8": "delivery_unknown",
+        "param_9": "stalled",
+        "status_1": [
+          "processing",
+          "queued"
+        ],
+        "status_2": [
+          "delivered",
+          "read",
+          "sent",
+          "submitted"
+        ],
+        "status_3": [
+          "delivered",
+          "delivery_unknown",
+          "processing",
+          "queued",
+          "read",
+          "sent",
+          "stalled",
+          "submitted"
+        ],
+        "status_4": [
+          "delivery_unknown",
+          "stalled"
+        ],
+        "status_5": [
+          "processing",
+          "queued"
+        ],
+        "status_updated_at_1": "2026-10-31 00:00:00+00:00",
+        "status_updated_at_2": "2026-10-31 00:00:00+00:00"
+      },
+      "sql": "SELECT whatsapp_message_logs.batch_id AS activity_id, whatsapp_broadcast_groups.id AS source_group_id, whatsapp_broadcast_groups.name AS context_label, whatsapp_message_logs.message_type AS activity_label, count(*) AS total, count(*) FILTER (WHERE whatsapp_message_logs.status IN (__[POSTCOMPILE_status_1]) AND NOT (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_1]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_1)) AS queued, count(*) FILTER (WHERE whatsapp_message_logs.status IN (__[POSTCOMPILE_status_2])) AS sent, count(*) FILTER (WHERE (whatsapp_message_logs.status NOT IN (__[POSTCOMPILE_status_3]))) AS failed, count(*) FILTER (WHERE whatsapp_message_logs.status IN (__[POSTCOMPILE_status_4]) OR whatsapp_message_logs.status IN (__[POSTCOMPILE_status_1]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_1) AS delivery_unknown, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_2) AS status_count_queued, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_3) AS status_count_processing, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_4) AS status_count_submitted, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_5) AS status_count_sent, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_6) AS status_count_delivered, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_7) AS status_count_read, count(*) FILTER (WHERE (whatsapp_message_logs.status NOT IN (__[POSTCOMPILE_status_3]))) AS status_count_failed, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_8) AS status_count_delivery_unknown, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_9) AS status_count_stalled, min(whatsapp_message_logs.created_at) AS started_at, max(whatsapp_message_logs.status_updated_at) AS updated_at \nFROM whatsapp_message_logs JOIN whatsapp_broadcast_groups ON whatsapp_broadcast_groups.id = whatsapp_message_logs.broadcast_group_id \nWHERE whatsapp_message_logs.batch_id = :batch_id_1 AND whatsapp_broadcast_groups.agency_id = :agency_id_1 GROUP BY whatsapp_message_logs.batch_id, whatsapp_broadcast_groups.id, whatsapp_broadcast_groups.name, whatsapp_message_logs.message_type"
+    },
+    "agency_admin/document/failures": {
+      "params": {
+        "agency_id_1": "00000000-0000-0000-0000-000000000002",
+        "send_batch_id_1": "00000000-0000-0000-0000-000000000003",
+        "status_1": [
+          "delivered",
+          "delivery_unknown",
+          "processing",
+          "queued",
+          "read",
+          "sent",
+          "stalled",
+          "submitted"
+        ],
+        "status_2": [
+          "active",
+          "archived",
+          "closed"
+        ]
+      },
+      "sql": "SELECT document_whatsapp_deliveries.passenger_name AS recipient_name, document_whatsapp_deliveries.normalized_phone_number AS phone_number, document_whatsapp_deliveries.error_message AS error_message \nFROM document_whatsapp_deliveries JOIN client_groups ON client_groups.id = document_whatsapp_deliveries.group_id \nWHERE document_whatsapp_deliveries.send_batch_id = :send_batch_id_1 AND (document_whatsapp_deliveries.status NOT IN (__[POSTCOMPILE_status_1])) AND client_groups.agency_id = :agency_id_1 AND client_groups.deleted_at IS NULL AND client_groups.status IN (__[POSTCOMPILE_status_2]) ORDER BY document_whatsapp_deliveries.passenger_name ASC, document_whatsapp_deliveries.normalized_phone_number ASC"
+    },
+    "agency_admin/document/page": {
+      "params": {
+        "agency_id_1": "00000000-0000-0000-0000-000000000002",
+        "param_1": "stalled",
+        "send_batch_id_1": "00000000-0000-0000-0000-000000000003",
+        "status_1": [
+          "processing",
+          "queued"
+        ],
+        "status_2": [
+          "active",
+          "archived",
+          "closed"
+        ],
+        "status_updated_at_1": "2026-10-31 00:00:00+00:00"
+      },
+      "sql": "SELECT document_whatsapp_deliveries.id AS delivery_id, document_whatsapp_deliveries.passenger_name, document_whatsapp_deliveries.phone_number, document_whatsapp_deliveries.document_filename, document_whatsapp_deliveries.document_type, CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_1) THEN :param_1 ELSE document_whatsapp_deliveries.status END AS status, document_whatsapp_deliveries.error_message, document_whatsapp_deliveries.status_updated_at \nFROM document_whatsapp_deliveries JOIN client_groups ON client_groups.id = document_whatsapp_deliveries.group_id AND client_groups.agency_id = document_whatsapp_deliveries.agency_id \nWHERE document_whatsapp_deliveries.send_batch_id = :send_batch_id_1 AND client_groups.agency_id = :agency_id_1 AND client_groups.deleted_at IS NULL AND client_groups.status IN (__[POSTCOMPILE_status_2])"
+    },
+    "agency_admin/document/summary": {
+      "params": {
+        "agency_id_1": "00000000-0000-0000-0000-000000000002",
+        "param_1": "stalled",
+        "param_2": "queued",
+        "param_3": "processing",
+        "param_4": "submitted",
+        "param_5": "sent",
+        "param_6": "delivered",
+        "param_7": "read",
+        "param_8": "delivery_unknown",
+        "param_9": "stalled",
+        "send_batch_id_1": "00000000-0000-0000-0000-000000000003",
+        "status_1": [
+          "processing",
+          "queued"
+        ],
+        "status_2": [
+          "delivered",
+          "read",
+          "sent",
+          "submitted"
+        ],
+        "status_3": [
+          "delivered",
+          "delivery_unknown",
+          "processing",
+          "queued",
+          "read",
+          "sent",
+          "stalled",
+          "submitted"
+        ],
+        "status_4": [
+          "delivery_unknown",
+          "stalled"
+        ],
+        "status_5": [
+          "processing",
+          "queued"
+        ],
+        "status_6": [
+          "active",
+          "archived",
+          "closed"
+        ],
+        "status_updated_at_1": "2026-10-31 00:00:00+00:00",
+        "status_updated_at_2": "2026-10-31 00:00:00+00:00"
+      },
+      "sql": "SELECT document_whatsapp_deliveries.send_batch_id AS activity_id, client_groups.id AS source_group_id, client_groups.name AS context_label, document_whatsapp_deliveries.document_type AS activity_label, count(*) AS total, count(*) FILTER (WHERE document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND NOT (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_1)) AS queued, count(*) FILTER (WHERE document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_2])) AS sent, count(*) FILTER (WHERE (document_whatsapp_deliveries.status NOT IN (__[POSTCOMPILE_status_3]))) AS failed, count(*) FILTER (WHERE document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_4]) OR document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_1) AS delivery_unknown, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_2) AS status_count_queued, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_3) AS status_count_processing, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_4) AS status_count_submitted, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_5) AS status_count_sent, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_6) AS status_count_delivered, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_7) AS status_count_read, count(*) FILTER (WHERE (document_whatsapp_deliveries.status NOT IN (__[POSTCOMPILE_status_3]))) AS status_count_failed, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_8) AS status_count_delivery_unknown, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_9) AS status_count_stalled, min(document_whatsapp_deliveries.created_at) AS started_at, max(document_whatsapp_deliveries.status_updated_at) AS updated_at \nFROM document_whatsapp_deliveries JOIN client_groups ON client_groups.id = document_whatsapp_deliveries.group_id AND client_groups.agency_id = document_whatsapp_deliveries.agency_id \nWHERE document_whatsapp_deliveries.send_batch_id = :send_batch_id_1 AND client_groups.agency_id = :agency_id_1 AND client_groups.deleted_at IS NULL AND client_groups.status IN (__[POSTCOMPILE_status_6]) GROUP BY document_whatsapp_deliveries.send_batch_id, client_groups.id, client_groups.name, document_whatsapp_deliveries.document_type"
+    },
+    "agency_admin/qr/failures": {
+      "params": {
+        "agency_id_1": "00000000-0000-0000-0000-000000000002",
+        "send_batch_id_1": "00000000-0000-0000-0000-000000000003",
+        "status_1": [
+          "delivered",
+          "delivery_unknown",
+          "processing",
+          "queued",
+          "read",
+          "sent",
+          "stalled",
+          "submitted"
+        ],
+        "status_2": [
+          "active",
+          "archived",
+          "closed"
+        ]
+      },
+      "sql": "SELECT passenger_qr_whatsapp_deliveries.passenger_name AS recipient_name, passenger_qr_whatsapp_deliveries.normalized_phone_number AS phone_number, passenger_qr_whatsapp_deliveries.error_message AS error_message \nFROM passenger_qr_whatsapp_deliveries JOIN client_groups ON client_groups.id = passenger_qr_whatsapp_deliveries.group_id \nWHERE passenger_qr_whatsapp_deliveries.send_batch_id = :send_batch_id_1 AND (passenger_qr_whatsapp_deliveries.status NOT IN (__[POSTCOMPILE_status_1])) AND client_groups.agency_id = :agency_id_1 AND client_groups.deleted_at IS NULL AND client_groups.status IN (__[POSTCOMPILE_status_2]) ORDER BY passenger_qr_whatsapp_deliveries.passenger_name ASC, passenger_qr_whatsapp_deliveries.normalized_phone_number ASC"
+    },
+    "agency_admin/qr/summary": {
+      "params": {
+        "agency_id_1": "00000000-0000-0000-0000-000000000002",
+        "param_1": "stalled",
+        "param_2": "queued",
+        "param_3": "processing",
+        "param_4": "submitted",
+        "param_5": "sent",
+        "param_6": "delivered",
+        "param_7": "read",
+        "param_8": "delivery_unknown",
+        "param_9": "stalled",
+        "send_batch_id_1": "00000000-0000-0000-0000-000000000003",
+        "status_1": [
+          "processing",
+          "queued"
+        ],
+        "status_2": [
+          "delivered",
+          "read",
+          "sent",
+          "submitted"
+        ],
+        "status_3": [
+          "delivered",
+          "delivery_unknown",
+          "processing",
+          "queued",
+          "read",
+          "sent",
+          "stalled",
+          "submitted"
+        ],
+        "status_4": [
+          "delivery_unknown",
+          "stalled"
+        ],
+        "status_5": [
+          "processing",
+          "queued"
+        ],
+        "status_6": [
+          "active",
+          "archived",
+          "closed"
+        ],
+        "status_updated_at_1": "2026-10-31 00:00:00+00:00",
+        "status_updated_at_2": "2026-10-31 00:00:00+00:00"
+      },
+      "sql": "SELECT passenger_qr_whatsapp_deliveries.send_batch_id AS activity_id, client_groups.id AS source_group_id, client_groups.name AS context_label, count(*) AS total, count(*) FILTER (WHERE passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND NOT (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_1)) AS queued, count(*) FILTER (WHERE passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_2])) AS sent, count(*) FILTER (WHERE (passenger_qr_whatsapp_deliveries.status NOT IN (__[POSTCOMPILE_status_3]))) AS failed, count(*) FILTER (WHERE passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_4]) OR passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_1) AS delivery_unknown, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_2) AS status_count_queued, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_3) AS status_count_processing, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_4) AS status_count_submitted, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_5) AS status_count_sent, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_6) AS status_count_delivered, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_7) AS status_count_read, count(*) FILTER (WHERE (passenger_qr_whatsapp_deliveries.status NOT IN (__[POSTCOMPILE_status_3]))) AS status_count_failed, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_8) AS status_count_delivery_unknown, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_9) AS status_count_stalled, min(passenger_qr_whatsapp_deliveries.created_at) AS started_at, max(passenger_qr_whatsapp_deliveries.status_updated_at) AS updated_at \nFROM passenger_qr_whatsapp_deliveries JOIN client_groups ON client_groups.id = passenger_qr_whatsapp_deliveries.group_id \nWHERE passenger_qr_whatsapp_deliveries.send_batch_id = :send_batch_id_1 AND client_groups.agency_id = :agency_id_1 AND client_groups.deleted_at IS NULL AND client_groups.status IN (__[POSTCOMPILE_status_6]) GROUP BY passenger_qr_whatsapp_deliveries.send_batch_id, client_groups.id, client_groups.name"
+    },
+    "agency_coordinator/broadcast/failures": {
+      "params": {
+        "agency_id_1": "00000000-0000-0000-0000-000000000002",
+        "batch_id_1": "00000000-0000-0000-0000-000000000003",
+        "status_1": [
+          "delivered",
+          "delivery_unknown",
+          "processing",
+          "queued",
+          "read",
+          "sent",
+          "stalled",
+          "submitted"
+        ]
+      },
+      "sql": "SELECT whatsapp_broadcast_recipients.name AS recipient_name, coalesce(whatsapp_message_logs.normalized_phone_number, whatsapp_broadcast_recipients.normalized_phone_number) AS phone_number, whatsapp_message_logs.error_message AS error_message \nFROM whatsapp_message_logs JOIN whatsapp_broadcast_recipients ON whatsapp_broadcast_recipients.id = whatsapp_message_logs.recipient_id JOIN whatsapp_broadcast_groups ON whatsapp_broadcast_groups.id = whatsapp_message_logs.broadcast_group_id \nWHERE whatsapp_message_logs.batch_id = :batch_id_1 AND (whatsapp_message_logs.status NOT IN (__[POSTCOMPILE_status_1])) AND whatsapp_broadcast_groups.agency_id = :agency_id_1 ORDER BY whatsapp_broadcast_recipients.name ASC NULLS LAST, whatsapp_broadcast_recipients.normalized_phone_number ASC"
+    },
+    "agency_coordinator/broadcast/summary": {
+      "params": {
+        "agency_id_1": "00000000-0000-0000-0000-000000000002",
+        "batch_id_1": "00000000-0000-0000-0000-000000000003",
+        "param_1": "stalled",
+        "param_2": "queued",
+        "param_3": "processing",
+        "param_4": "submitted",
+        "param_5": "sent",
+        "param_6": "delivered",
+        "param_7": "read",
+        "param_8": "delivery_unknown",
+        "param_9": "stalled",
+        "status_1": [
+          "processing",
+          "queued"
+        ],
+        "status_2": [
+          "delivered",
+          "read",
+          "sent",
+          "submitted"
+        ],
+        "status_3": [
+          "delivered",
+          "delivery_unknown",
+          "processing",
+          "queued",
+          "read",
+          "sent",
+          "stalled",
+          "submitted"
+        ],
+        "status_4": [
+          "delivery_unknown",
+          "stalled"
+        ],
+        "status_5": [
+          "processing",
+          "queued"
+        ],
+        "status_updated_at_1": "2026-10-31 00:00:00+00:00",
+        "status_updated_at_2": "2026-10-31 00:00:00+00:00"
+      },
+      "sql": "SELECT whatsapp_message_logs.batch_id AS activity_id, whatsapp_broadcast_groups.id AS source_group_id, whatsapp_broadcast_groups.name AS context_label, whatsapp_message_logs.message_type AS activity_label, count(*) AS total, count(*) FILTER (WHERE whatsapp_message_logs.status IN (__[POSTCOMPILE_status_1]) AND NOT (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_1]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_1)) AS queued, count(*) FILTER (WHERE whatsapp_message_logs.status IN (__[POSTCOMPILE_status_2])) AS sent, count(*) FILTER (WHERE (whatsapp_message_logs.status NOT IN (__[POSTCOMPILE_status_3]))) AS failed, count(*) FILTER (WHERE whatsapp_message_logs.status IN (__[POSTCOMPILE_status_4]) OR whatsapp_message_logs.status IN (__[POSTCOMPILE_status_1]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_1) AS delivery_unknown, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_2) AS status_count_queued, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_3) AS status_count_processing, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_4) AS status_count_submitted, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_5) AS status_count_sent, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_6) AS status_count_delivered, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_7) AS status_count_read, count(*) FILTER (WHERE (whatsapp_message_logs.status NOT IN (__[POSTCOMPILE_status_3]))) AS status_count_failed, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_8) AS status_count_delivery_unknown, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_9) AS status_count_stalled, min(whatsapp_message_logs.created_at) AS started_at, max(whatsapp_message_logs.status_updated_at) AS updated_at \nFROM whatsapp_message_logs JOIN whatsapp_broadcast_groups ON whatsapp_broadcast_groups.id = whatsapp_message_logs.broadcast_group_id \nWHERE whatsapp_message_logs.batch_id = :batch_id_1 AND whatsapp_broadcast_groups.agency_id = :agency_id_1 GROUP BY whatsapp_message_logs.batch_id, whatsapp_broadcast_groups.id, whatsapp_broadcast_groups.name, whatsapp_message_logs.message_type"
+    },
+    "agency_coordinator/document/failures": {
+      "params": {
+        "agency_id_1": "00000000-0000-0000-0000-000000000002",
+        "agency_id_2": "00000000-0000-0000-0000-000000000002",
+        "coalesce_1": "Asia/Kolkata",
+        "coordinator_user_id_1": "00000000-0000-0000-0000-000000000001",
+        "nullif_1": "",
+        "send_batch_id_1": "00000000-0000-0000-0000-000000000003",
+        "status_1": [
+          "delivered",
+          "delivery_unknown",
+          "processing",
+          "queued",
+          "read",
+          "sent",
+          "stalled",
+          "submitted"
+        ],
+        "status_2": [
+          "active",
+          "closed"
+        ],
+        "status_3": [
+          "active",
+          "closed"
+        ],
+        "timezone_1": "2026-10-31 15:32:23.291973+00:00"
+      },
+      "sql": "SELECT document_whatsapp_deliveries.passenger_name AS recipient_name, document_whatsapp_deliveries.normalized_phone_number AS phone_number, document_whatsapp_deliveries.error_message AS error_message \nFROM document_whatsapp_deliveries JOIN client_groups ON client_groups.id = document_whatsapp_deliveries.group_id \nWHERE document_whatsapp_deliveries.send_batch_id = :send_batch_id_1 AND (document_whatsapp_deliveries.status NOT IN (__[POSTCOMPILE_status_1])) AND client_groups.agency_id = :agency_id_1 AND client_groups.deleted_at IS NULL AND client_groups.status IN (__[POSTCOMPILE_status_2]) AND client_groups.agency_id = :agency_id_2 AND client_groups.deleted_at IS NULL AND client_groups.status IN (__[POSTCOMPILE_status_3]) AND NOT (coalesce(client_groups.return_date, client_groups.travel_date) IS NOT NULL AND coalesce(client_groups.return_date, client_groups.travel_date) < date(timezone(coalesce(nullif(trim(client_groups.timezone), :nullif_1), :coalesce_1), :timezone_1))) AND (EXISTS (SELECT coordinator_group_assignments.id \nFROM coordinator_group_assignments \nWHERE coordinator_group_assignments.group_id = client_groups.id AND coordinator_group_assignments.agency_id = client_groups.agency_id AND coordinator_group_assignments.coordinator_user_id = :coordinator_user_id_1 AND coordinator_group_assignments.active IS true)) ORDER BY document_whatsapp_deliveries.passenger_name ASC, document_whatsapp_deliveries.normalized_phone_number ASC"
+    },
+    "agency_coordinator/document/page": {
+      "params": {
+        "agency_id_1": "00000000-0000-0000-0000-000000000002",
+        "agency_id_2": "00000000-0000-0000-0000-000000000002",
+        "coalesce_1": "Asia/Kolkata",
+        "coordinator_user_id_1": "00000000-0000-0000-0000-000000000001",
+        "nullif_1": "",
+        "param_1": "stalled",
+        "send_batch_id_1": "00000000-0000-0000-0000-000000000003",
+        "status_1": [
+          "processing",
+          "queued"
+        ],
+        "status_2": [
+          "active",
+          "closed"
+        ],
+        "status_3": [
+          "active",
+          "closed"
+        ],
+        "status_updated_at_1": "2026-10-31 00:00:00+00:00",
+        "timezone_1": "2026-10-31 15:32:23.297973+00:00"
+      },
+      "sql": "SELECT document_whatsapp_deliveries.id AS delivery_id, document_whatsapp_deliveries.passenger_name, document_whatsapp_deliveries.phone_number, document_whatsapp_deliveries.document_filename, document_whatsapp_deliveries.document_type, CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_1) THEN :param_1 ELSE document_whatsapp_deliveries.status END AS status, document_whatsapp_deliveries.error_message, document_whatsapp_deliveries.status_updated_at \nFROM document_whatsapp_deliveries JOIN client_groups ON client_groups.id = document_whatsapp_deliveries.group_id AND client_groups.agency_id = document_whatsapp_deliveries.agency_id \nWHERE document_whatsapp_deliveries.send_batch_id = :send_batch_id_1 AND client_groups.agency_id = :agency_id_1 AND client_groups.deleted_at IS NULL AND client_groups.status IN (__[POSTCOMPILE_status_2]) AND client_groups.agency_id = :agency_id_2 AND client_groups.deleted_at IS NULL AND client_groups.status IN (__[POSTCOMPILE_status_3]) AND NOT (coalesce(client_groups.return_date, client_groups.travel_date) IS NOT NULL AND coalesce(client_groups.return_date, client_groups.travel_date) < date(timezone(coalesce(nullif(trim(client_groups.timezone), :nullif_1), :coalesce_1), :timezone_1))) AND (EXISTS (SELECT coordinator_group_assignments.id \nFROM coordinator_group_assignments \nWHERE coordinator_group_assignments.group_id = client_groups.id AND coordinator_group_assignments.agency_id = client_groups.agency_id AND coordinator_group_assignments.coordinator_user_id = :coordinator_user_id_1 AND coordinator_group_assignments.active IS true))"
+    },
+    "agency_coordinator/document/summary": {
+      "params": {
+        "agency_id_1": "00000000-0000-0000-0000-000000000002",
+        "agency_id_2": "00000000-0000-0000-0000-000000000002",
+        "coalesce_1": "Asia/Kolkata",
+        "coordinator_user_id_1": "00000000-0000-0000-0000-000000000001",
+        "nullif_1": "",
+        "param_1": "stalled",
+        "param_2": "queued",
+        "param_3": "processing",
+        "param_4": "submitted",
+        "param_5": "sent",
+        "param_6": "delivered",
+        "param_7": "read",
+        "param_8": "delivery_unknown",
+        "param_9": "stalled",
+        "send_batch_id_1": "00000000-0000-0000-0000-000000000003",
+        "status_1": [
+          "processing",
+          "queued"
+        ],
+        "status_2": [
+          "delivered",
+          "read",
+          "sent",
+          "submitted"
+        ],
+        "status_3": [
+          "delivered",
+          "delivery_unknown",
+          "processing",
+          "queued",
+          "read",
+          "sent",
+          "stalled",
+          "submitted"
+        ],
+        "status_4": [
+          "delivery_unknown",
+          "stalled"
+        ],
+        "status_5": [
+          "processing",
+          "queued"
+        ],
+        "status_6": [
+          "active",
+          "closed"
+        ],
+        "status_7": [
+          "active",
+          "closed"
+        ],
+        "status_updated_at_1": "2026-10-31 00:00:00+00:00",
+        "status_updated_at_2": "2026-10-31 00:00:00+00:00",
+        "timezone_1": "2026-10-31 15:32:23.291973+00:00"
+      },
+      "sql": "SELECT document_whatsapp_deliveries.send_batch_id AS activity_id, client_groups.id AS source_group_id, client_groups.name AS context_label, document_whatsapp_deliveries.document_type AS activity_label, count(*) AS total, count(*) FILTER (WHERE document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND NOT (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_1)) AS queued, count(*) FILTER (WHERE document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_2])) AS sent, count(*) FILTER (WHERE (document_whatsapp_deliveries.status NOT IN (__[POSTCOMPILE_status_3]))) AS failed, count(*) FILTER (WHERE document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_4]) OR document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_1) AS delivery_unknown, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_2) AS status_count_queued, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_3) AS status_count_processing, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_4) AS status_count_submitted, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_5) AS status_count_sent, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_6) AS status_count_delivered, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_7) AS status_count_read, count(*) FILTER (WHERE (document_whatsapp_deliveries.status NOT IN (__[POSTCOMPILE_status_3]))) AS status_count_failed, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_8) AS status_count_delivery_unknown, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_9) AS status_count_stalled, min(document_whatsapp_deliveries.created_at) AS started_at, max(document_whatsapp_deliveries.status_updated_at) AS updated_at \nFROM document_whatsapp_deliveries JOIN client_groups ON client_groups.id = document_whatsapp_deliveries.group_id AND client_groups.agency_id = document_whatsapp_deliveries.agency_id \nWHERE document_whatsapp_deliveries.send_batch_id = :send_batch_id_1 AND client_groups.agency_id = :agency_id_1 AND client_groups.deleted_at IS NULL AND client_groups.status IN (__[POSTCOMPILE_status_6]) AND client_groups.agency_id = :agency_id_2 AND client_groups.deleted_at IS NULL AND client_groups.status IN (__[POSTCOMPILE_status_7]) AND NOT (coalesce(client_groups.return_date, client_groups.travel_date) IS NOT NULL AND coalesce(client_groups.return_date, client_groups.travel_date) < date(timezone(coalesce(nullif(trim(client_groups.timezone), :nullif_1), :coalesce_1), :timezone_1))) AND (EXISTS (SELECT coordinator_group_assignments.id \nFROM coordinator_group_assignments \nWHERE coordinator_group_assignments.group_id = client_groups.id AND coordinator_group_assignments.agency_id = client_groups.agency_id AND coordinator_group_assignments.coordinator_user_id = :coordinator_user_id_1 AND coordinator_group_assignments.active IS true)) GROUP BY document_whatsapp_deliveries.send_batch_id, client_groups.id, client_groups.name, document_whatsapp_deliveries.document_type"
+    },
+    "agency_coordinator/qr/failures": {
+      "params": {
+        "agency_id_1": "00000000-0000-0000-0000-000000000002",
+        "agency_id_2": "00000000-0000-0000-0000-000000000002",
+        "coalesce_1": "Asia/Kolkata",
+        "coordinator_user_id_1": "00000000-0000-0000-0000-000000000001",
+        "nullif_1": "",
+        "send_batch_id_1": "00000000-0000-0000-0000-000000000003",
+        "status_1": [
+          "delivered",
+          "delivery_unknown",
+          "processing",
+          "queued",
+          "read",
+          "sent",
+          "stalled",
+          "submitted"
+        ],
+        "status_2": [
+          "active",
+          "closed"
+        ],
+        "status_3": [
+          "active",
+          "closed"
+        ],
+        "timezone_1": "2026-10-31 15:32:23.295974+00:00"
+      },
+      "sql": "SELECT passenger_qr_whatsapp_deliveries.passenger_name AS recipient_name, passenger_qr_whatsapp_deliveries.normalized_phone_number AS phone_number, passenger_qr_whatsapp_deliveries.error_message AS error_message \nFROM passenger_qr_whatsapp_deliveries JOIN client_groups ON client_groups.id = passenger_qr_whatsapp_deliveries.group_id \nWHERE passenger_qr_whatsapp_deliveries.send_batch_id = :send_batch_id_1 AND (passenger_qr_whatsapp_deliveries.status NOT IN (__[POSTCOMPILE_status_1])) AND client_groups.agency_id = :agency_id_1 AND client_groups.deleted_at IS NULL AND client_groups.status IN (__[POSTCOMPILE_status_2]) AND client_groups.agency_id = :agency_id_2 AND client_groups.deleted_at IS NULL AND client_groups.status IN (__[POSTCOMPILE_status_3]) AND NOT (coalesce(client_groups.return_date, client_groups.travel_date) IS NOT NULL AND coalesce(client_groups.return_date, client_groups.travel_date) < date(timezone(coalesce(nullif(trim(client_groups.timezone), :nullif_1), :coalesce_1), :timezone_1))) AND (EXISTS (SELECT coordinator_group_assignments.id \nFROM coordinator_group_assignments \nWHERE coordinator_group_assignments.group_id = client_groups.id AND coordinator_group_assignments.agency_id = client_groups.agency_id AND coordinator_group_assignments.coordinator_user_id = :coordinator_user_id_1 AND coordinator_group_assignments.active IS true)) ORDER BY passenger_qr_whatsapp_deliveries.passenger_name ASC, passenger_qr_whatsapp_deliveries.normalized_phone_number ASC"
+    },
+    "agency_coordinator/qr/summary": {
+      "params": {
+        "agency_id_1": "00000000-0000-0000-0000-000000000002",
+        "agency_id_2": "00000000-0000-0000-0000-000000000002",
+        "coalesce_1": "Asia/Kolkata",
+        "coordinator_user_id_1": "00000000-0000-0000-0000-000000000001",
+        "nullif_1": "",
+        "param_1": "stalled",
+        "param_2": "queued",
+        "param_3": "processing",
+        "param_4": "submitted",
+        "param_5": "sent",
+        "param_6": "delivered",
+        "param_7": "read",
+        "param_8": "delivery_unknown",
+        "param_9": "stalled",
+        "send_batch_id_1": "00000000-0000-0000-0000-000000000003",
+        "status_1": [
+          "processing",
+          "queued"
+        ],
+        "status_2": [
+          "delivered",
+          "read",
+          "sent",
+          "submitted"
+        ],
+        "status_3": [
+          "delivered",
+          "delivery_unknown",
+          "processing",
+          "queued",
+          "read",
+          "sent",
+          "stalled",
+          "submitted"
+        ],
+        "status_4": [
+          "delivery_unknown",
+          "stalled"
+        ],
+        "status_5": [
+          "processing",
+          "queued"
+        ],
+        "status_6": [
+          "active",
+          "closed"
+        ],
+        "status_7": [
+          "active",
+          "closed"
+        ],
+        "status_updated_at_1": "2026-10-31 00:00:00+00:00",
+        "status_updated_at_2": "2026-10-31 00:00:00+00:00",
+        "timezone_1": "2026-10-31 15:32:23.294973+00:00"
+      },
+      "sql": "SELECT passenger_qr_whatsapp_deliveries.send_batch_id AS activity_id, client_groups.id AS source_group_id, client_groups.name AS context_label, count(*) AS total, count(*) FILTER (WHERE passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND NOT (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_1)) AS queued, count(*) FILTER (WHERE passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_2])) AS sent, count(*) FILTER (WHERE (passenger_qr_whatsapp_deliveries.status NOT IN (__[POSTCOMPILE_status_3]))) AS failed, count(*) FILTER (WHERE passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_4]) OR passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_1) AS delivery_unknown, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_2) AS status_count_queued, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_3) AS status_count_processing, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_4) AS status_count_submitted, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_5) AS status_count_sent, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_6) AS status_count_delivered, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_7) AS status_count_read, count(*) FILTER (WHERE (passenger_qr_whatsapp_deliveries.status NOT IN (__[POSTCOMPILE_status_3]))) AS status_count_failed, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_8) AS status_count_delivery_unknown, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_9) AS status_count_stalled, min(passenger_qr_whatsapp_deliveries.created_at) AS started_at, max(passenger_qr_whatsapp_deliveries.status_updated_at) AS updated_at \nFROM passenger_qr_whatsapp_deliveries JOIN client_groups ON client_groups.id = passenger_qr_whatsapp_deliveries.group_id \nWHERE passenger_qr_whatsapp_deliveries.send_batch_id = :send_batch_id_1 AND client_groups.agency_id = :agency_id_1 AND client_groups.deleted_at IS NULL AND client_groups.status IN (__[POSTCOMPILE_status_6]) AND client_groups.agency_id = :agency_id_2 AND client_groups.deleted_at IS NULL AND client_groups.status IN (__[POSTCOMPILE_status_7]) AND NOT (coalesce(client_groups.return_date, client_groups.travel_date) IS NOT NULL AND coalesce(client_groups.return_date, client_groups.travel_date) < date(timezone(coalesce(nullif(trim(client_groups.timezone), :nullif_1), :coalesce_1), :timezone_1))) AND (EXISTS (SELECT coordinator_group_assignments.id \nFROM coordinator_group_assignments \nWHERE coordinator_group_assignments.group_id = client_groups.id AND coordinator_group_assignments.agency_id = client_groups.agency_id AND coordinator_group_assignments.coordinator_user_id = :coordinator_user_id_1 AND coordinator_group_assignments.active IS true)) GROUP BY passenger_qr_whatsapp_deliveries.send_batch_id, client_groups.id, client_groups.name"
+    },
+    "agency_manager/broadcast/failures": {
+      "params": {
+        "agency_id_1": "00000000-0000-0000-0000-000000000002",
+        "batch_id_1": "00000000-0000-0000-0000-000000000003",
+        "status_1": [
+          "delivered",
+          "delivery_unknown",
+          "processing",
+          "queued",
+          "read",
+          "sent",
+          "stalled",
+          "submitted"
+        ]
+      },
+      "sql": "SELECT whatsapp_broadcast_recipients.name AS recipient_name, coalesce(whatsapp_message_logs.normalized_phone_number, whatsapp_broadcast_recipients.normalized_phone_number) AS phone_number, whatsapp_message_logs.error_message AS error_message \nFROM whatsapp_message_logs JOIN whatsapp_broadcast_recipients ON whatsapp_broadcast_recipients.id = whatsapp_message_logs.recipient_id JOIN whatsapp_broadcast_groups ON whatsapp_broadcast_groups.id = whatsapp_message_logs.broadcast_group_id \nWHERE whatsapp_message_logs.batch_id = :batch_id_1 AND (whatsapp_message_logs.status NOT IN (__[POSTCOMPILE_status_1])) AND whatsapp_broadcast_groups.agency_id = :agency_id_1 ORDER BY whatsapp_broadcast_recipients.name ASC NULLS LAST, whatsapp_broadcast_recipients.normalized_phone_number ASC"
+    },
+    "agency_manager/broadcast/summary": {
+      "params": {
+        "agency_id_1": "00000000-0000-0000-0000-000000000002",
+        "batch_id_1": "00000000-0000-0000-0000-000000000003",
+        "param_1": "stalled",
+        "param_2": "queued",
+        "param_3": "processing",
+        "param_4": "submitted",
+        "param_5": "sent",
+        "param_6": "delivered",
+        "param_7": "read",
+        "param_8": "delivery_unknown",
+        "param_9": "stalled",
+        "status_1": [
+          "processing",
+          "queued"
+        ],
+        "status_2": [
+          "delivered",
+          "read",
+          "sent",
+          "submitted"
+        ],
+        "status_3": [
+          "delivered",
+          "delivery_unknown",
+          "processing",
+          "queued",
+          "read",
+          "sent",
+          "stalled",
+          "submitted"
+        ],
+        "status_4": [
+          "delivery_unknown",
+          "stalled"
+        ],
+        "status_5": [
+          "processing",
+          "queued"
+        ],
+        "status_updated_at_1": "2026-10-31 00:00:00+00:00",
+        "status_updated_at_2": "2026-10-31 00:00:00+00:00"
+      },
+      "sql": "SELECT whatsapp_message_logs.batch_id AS activity_id, whatsapp_broadcast_groups.id AS source_group_id, whatsapp_broadcast_groups.name AS context_label, whatsapp_message_logs.message_type AS activity_label, count(*) AS total, count(*) FILTER (WHERE whatsapp_message_logs.status IN (__[POSTCOMPILE_status_1]) AND NOT (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_1]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_1)) AS queued, count(*) FILTER (WHERE whatsapp_message_logs.status IN (__[POSTCOMPILE_status_2])) AS sent, count(*) FILTER (WHERE (whatsapp_message_logs.status NOT IN (__[POSTCOMPILE_status_3]))) AS failed, count(*) FILTER (WHERE whatsapp_message_logs.status IN (__[POSTCOMPILE_status_4]) OR whatsapp_message_logs.status IN (__[POSTCOMPILE_status_1]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_1) AS delivery_unknown, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_2) AS status_count_queued, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_3) AS status_count_processing, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_4) AS status_count_submitted, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_5) AS status_count_sent, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_6) AS status_count_delivered, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_7) AS status_count_read, count(*) FILTER (WHERE (whatsapp_message_logs.status NOT IN (__[POSTCOMPILE_status_3]))) AS status_count_failed, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_8) AS status_count_delivery_unknown, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_9) AS status_count_stalled, min(whatsapp_message_logs.created_at) AS started_at, max(whatsapp_message_logs.status_updated_at) AS updated_at \nFROM whatsapp_message_logs JOIN whatsapp_broadcast_groups ON whatsapp_broadcast_groups.id = whatsapp_message_logs.broadcast_group_id \nWHERE whatsapp_message_logs.batch_id = :batch_id_1 AND whatsapp_broadcast_groups.agency_id = :agency_id_1 GROUP BY whatsapp_message_logs.batch_id, whatsapp_broadcast_groups.id, whatsapp_broadcast_groups.name, whatsapp_message_logs.message_type"
+    },
+    "agency_manager/document/failures": {
+      "params": {
+        "agency_id_1": "00000000-0000-0000-0000-000000000002",
+        "send_batch_id_1": "00000000-0000-0000-0000-000000000003",
+        "status_1": [
+          "delivered",
+          "delivery_unknown",
+          "processing",
+          "queued",
+          "read",
+          "sent",
+          "stalled",
+          "submitted"
+        ],
+        "status_2": [
+          "active",
+          "archived",
+          "closed"
+        ]
+      },
+      "sql": "SELECT document_whatsapp_deliveries.passenger_name AS recipient_name, document_whatsapp_deliveries.normalized_phone_number AS phone_number, document_whatsapp_deliveries.error_message AS error_message \nFROM document_whatsapp_deliveries JOIN client_groups ON client_groups.id = document_whatsapp_deliveries.group_id \nWHERE document_whatsapp_deliveries.send_batch_id = :send_batch_id_1 AND (document_whatsapp_deliveries.status NOT IN (__[POSTCOMPILE_status_1])) AND client_groups.agency_id = :agency_id_1 AND client_groups.deleted_at IS NULL AND client_groups.status IN (__[POSTCOMPILE_status_2]) ORDER BY document_whatsapp_deliveries.passenger_name ASC, document_whatsapp_deliveries.normalized_phone_number ASC"
+    },
+    "agency_manager/document/page": {
+      "params": {
+        "agency_id_1": "00000000-0000-0000-0000-000000000002",
+        "param_1": "stalled",
+        "send_batch_id_1": "00000000-0000-0000-0000-000000000003",
+        "status_1": [
+          "processing",
+          "queued"
+        ],
+        "status_2": [
+          "active",
+          "archived",
+          "closed"
+        ],
+        "status_updated_at_1": "2026-10-31 00:00:00+00:00"
+      },
+      "sql": "SELECT document_whatsapp_deliveries.id AS delivery_id, document_whatsapp_deliveries.passenger_name, document_whatsapp_deliveries.phone_number, document_whatsapp_deliveries.document_filename, document_whatsapp_deliveries.document_type, CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_1) THEN :param_1 ELSE document_whatsapp_deliveries.status END AS status, document_whatsapp_deliveries.error_message, document_whatsapp_deliveries.status_updated_at \nFROM document_whatsapp_deliveries JOIN client_groups ON client_groups.id = document_whatsapp_deliveries.group_id AND client_groups.agency_id = document_whatsapp_deliveries.agency_id \nWHERE document_whatsapp_deliveries.send_batch_id = :send_batch_id_1 AND client_groups.agency_id = :agency_id_1 AND client_groups.deleted_at IS NULL AND client_groups.status IN (__[POSTCOMPILE_status_2])"
+    },
+    "agency_manager/document/summary": {
+      "params": {
+        "agency_id_1": "00000000-0000-0000-0000-000000000002",
+        "param_1": "stalled",
+        "param_2": "queued",
+        "param_3": "processing",
+        "param_4": "submitted",
+        "param_5": "sent",
+        "param_6": "delivered",
+        "param_7": "read",
+        "param_8": "delivery_unknown",
+        "param_9": "stalled",
+        "send_batch_id_1": "00000000-0000-0000-0000-000000000003",
+        "status_1": [
+          "processing",
+          "queued"
+        ],
+        "status_2": [
+          "delivered",
+          "read",
+          "sent",
+          "submitted"
+        ],
+        "status_3": [
+          "delivered",
+          "delivery_unknown",
+          "processing",
+          "queued",
+          "read",
+          "sent",
+          "stalled",
+          "submitted"
+        ],
+        "status_4": [
+          "delivery_unknown",
+          "stalled"
+        ],
+        "status_5": [
+          "processing",
+          "queued"
+        ],
+        "status_6": [
+          "active",
+          "archived",
+          "closed"
+        ],
+        "status_updated_at_1": "2026-10-31 00:00:00+00:00",
+        "status_updated_at_2": "2026-10-31 00:00:00+00:00"
+      },
+      "sql": "SELECT document_whatsapp_deliveries.send_batch_id AS activity_id, client_groups.id AS source_group_id, client_groups.name AS context_label, document_whatsapp_deliveries.document_type AS activity_label, count(*) AS total, count(*) FILTER (WHERE document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND NOT (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_1)) AS queued, count(*) FILTER (WHERE document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_2])) AS sent, count(*) FILTER (WHERE (document_whatsapp_deliveries.status NOT IN (__[POSTCOMPILE_status_3]))) AS failed, count(*) FILTER (WHERE document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_4]) OR document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_1) AS delivery_unknown, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_2) AS status_count_queued, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_3) AS status_count_processing, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_4) AS status_count_submitted, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_5) AS status_count_sent, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_6) AS status_count_delivered, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_7) AS status_count_read, count(*) FILTER (WHERE (document_whatsapp_deliveries.status NOT IN (__[POSTCOMPILE_status_3]))) AS status_count_failed, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_8) AS status_count_delivery_unknown, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_9) AS status_count_stalled, min(document_whatsapp_deliveries.created_at) AS started_at, max(document_whatsapp_deliveries.status_updated_at) AS updated_at \nFROM document_whatsapp_deliveries JOIN client_groups ON client_groups.id = document_whatsapp_deliveries.group_id AND client_groups.agency_id = document_whatsapp_deliveries.agency_id \nWHERE document_whatsapp_deliveries.send_batch_id = :send_batch_id_1 AND client_groups.agency_id = :agency_id_1 AND client_groups.deleted_at IS NULL AND client_groups.status IN (__[POSTCOMPILE_status_6]) GROUP BY document_whatsapp_deliveries.send_batch_id, client_groups.id, client_groups.name, document_whatsapp_deliveries.document_type"
+    },
+    "agency_manager/qr/failures": {
+      "params": {
+        "agency_id_1": "00000000-0000-0000-0000-000000000002",
+        "send_batch_id_1": "00000000-0000-0000-0000-000000000003",
+        "status_1": [
+          "delivered",
+          "delivery_unknown",
+          "processing",
+          "queued",
+          "read",
+          "sent",
+          "stalled",
+          "submitted"
+        ],
+        "status_2": [
+          "active",
+          "archived",
+          "closed"
+        ]
+      },
+      "sql": "SELECT passenger_qr_whatsapp_deliveries.passenger_name AS recipient_name, passenger_qr_whatsapp_deliveries.normalized_phone_number AS phone_number, passenger_qr_whatsapp_deliveries.error_message AS error_message \nFROM passenger_qr_whatsapp_deliveries JOIN client_groups ON client_groups.id = passenger_qr_whatsapp_deliveries.group_id \nWHERE passenger_qr_whatsapp_deliveries.send_batch_id = :send_batch_id_1 AND (passenger_qr_whatsapp_deliveries.status NOT IN (__[POSTCOMPILE_status_1])) AND client_groups.agency_id = :agency_id_1 AND client_groups.deleted_at IS NULL AND client_groups.status IN (__[POSTCOMPILE_status_2]) ORDER BY passenger_qr_whatsapp_deliveries.passenger_name ASC, passenger_qr_whatsapp_deliveries.normalized_phone_number ASC"
+    },
+    "agency_manager/qr/summary": {
+      "params": {
+        "agency_id_1": "00000000-0000-0000-0000-000000000002",
+        "param_1": "stalled",
+        "param_2": "queued",
+        "param_3": "processing",
+        "param_4": "submitted",
+        "param_5": "sent",
+        "param_6": "delivered",
+        "param_7": "read",
+        "param_8": "delivery_unknown",
+        "param_9": "stalled",
+        "send_batch_id_1": "00000000-0000-0000-0000-000000000003",
+        "status_1": [
+          "processing",
+          "queued"
+        ],
+        "status_2": [
+          "delivered",
+          "read",
+          "sent",
+          "submitted"
+        ],
+        "status_3": [
+          "delivered",
+          "delivery_unknown",
+          "processing",
+          "queued",
+          "read",
+          "sent",
+          "stalled",
+          "submitted"
+        ],
+        "status_4": [
+          "delivery_unknown",
+          "stalled"
+        ],
+        "status_5": [
+          "processing",
+          "queued"
+        ],
+        "status_6": [
+          "active",
+          "archived",
+          "closed"
+        ],
+        "status_updated_at_1": "2026-10-31 00:00:00+00:00",
+        "status_updated_at_2": "2026-10-31 00:00:00+00:00"
+      },
+      "sql": "SELECT passenger_qr_whatsapp_deliveries.send_batch_id AS activity_id, client_groups.id AS source_group_id, client_groups.name AS context_label, count(*) AS total, count(*) FILTER (WHERE passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND NOT (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_1)) AS queued, count(*) FILTER (WHERE passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_2])) AS sent, count(*) FILTER (WHERE (passenger_qr_whatsapp_deliveries.status NOT IN (__[POSTCOMPILE_status_3]))) AS failed, count(*) FILTER (WHERE passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_4]) OR passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_1) AS delivery_unknown, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_2) AS status_count_queued, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_3) AS status_count_processing, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_4) AS status_count_submitted, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_5) AS status_count_sent, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_6) AS status_count_delivered, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_7) AS status_count_read, count(*) FILTER (WHERE (passenger_qr_whatsapp_deliveries.status NOT IN (__[POSTCOMPILE_status_3]))) AS status_count_failed, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_8) AS status_count_delivery_unknown, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_9) AS status_count_stalled, min(passenger_qr_whatsapp_deliveries.created_at) AS started_at, max(passenger_qr_whatsapp_deliveries.status_updated_at) AS updated_at \nFROM passenger_qr_whatsapp_deliveries JOIN client_groups ON client_groups.id = passenger_qr_whatsapp_deliveries.group_id \nWHERE passenger_qr_whatsapp_deliveries.send_batch_id = :send_batch_id_1 AND client_groups.agency_id = :agency_id_1 AND client_groups.deleted_at IS NULL AND client_groups.status IN (__[POSTCOMPILE_status_6]) GROUP BY passenger_qr_whatsapp_deliveries.send_batch_id, client_groups.id, client_groups.name"
+    },
+    "agency_staff/broadcast/failures": {
+      "params": {
+        "agency_id_1": "00000000-0000-0000-0000-000000000002",
+        "batch_id_1": "00000000-0000-0000-0000-000000000003",
+        "status_1": [
+          "delivered",
+          "delivery_unknown",
+          "processing",
+          "queued",
+          "read",
+          "sent",
+          "stalled",
+          "submitted"
+        ]
+      },
+      "sql": "SELECT whatsapp_broadcast_recipients.name AS recipient_name, coalesce(whatsapp_message_logs.normalized_phone_number, whatsapp_broadcast_recipients.normalized_phone_number) AS phone_number, whatsapp_message_logs.error_message AS error_message \nFROM whatsapp_message_logs JOIN whatsapp_broadcast_recipients ON whatsapp_broadcast_recipients.id = whatsapp_message_logs.recipient_id JOIN whatsapp_broadcast_groups ON whatsapp_broadcast_groups.id = whatsapp_message_logs.broadcast_group_id \nWHERE whatsapp_message_logs.batch_id = :batch_id_1 AND (whatsapp_message_logs.status NOT IN (__[POSTCOMPILE_status_1])) AND whatsapp_broadcast_groups.agency_id = :agency_id_1 ORDER BY whatsapp_broadcast_recipients.name ASC NULLS LAST, whatsapp_broadcast_recipients.normalized_phone_number ASC"
+    },
+    "agency_staff/broadcast/summary": {
+      "params": {
+        "agency_id_1": "00000000-0000-0000-0000-000000000002",
+        "batch_id_1": "00000000-0000-0000-0000-000000000003",
+        "param_1": "stalled",
+        "param_2": "queued",
+        "param_3": "processing",
+        "param_4": "submitted",
+        "param_5": "sent",
+        "param_6": "delivered",
+        "param_7": "read",
+        "param_8": "delivery_unknown",
+        "param_9": "stalled",
+        "status_1": [
+          "processing",
+          "queued"
+        ],
+        "status_2": [
+          "delivered",
+          "read",
+          "sent",
+          "submitted"
+        ],
+        "status_3": [
+          "delivered",
+          "delivery_unknown",
+          "processing",
+          "queued",
+          "read",
+          "sent",
+          "stalled",
+          "submitted"
+        ],
+        "status_4": [
+          "delivery_unknown",
+          "stalled"
+        ],
+        "status_5": [
+          "processing",
+          "queued"
+        ],
+        "status_updated_at_1": "2026-10-31 00:00:00+00:00",
+        "status_updated_at_2": "2026-10-31 00:00:00+00:00"
+      },
+      "sql": "SELECT whatsapp_message_logs.batch_id AS activity_id, whatsapp_broadcast_groups.id AS source_group_id, whatsapp_broadcast_groups.name AS context_label, whatsapp_message_logs.message_type AS activity_label, count(*) AS total, count(*) FILTER (WHERE whatsapp_message_logs.status IN (__[POSTCOMPILE_status_1]) AND NOT (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_1]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_1)) AS queued, count(*) FILTER (WHERE whatsapp_message_logs.status IN (__[POSTCOMPILE_status_2])) AS sent, count(*) FILTER (WHERE (whatsapp_message_logs.status NOT IN (__[POSTCOMPILE_status_3]))) AS failed, count(*) FILTER (WHERE whatsapp_message_logs.status IN (__[POSTCOMPILE_status_4]) OR whatsapp_message_logs.status IN (__[POSTCOMPILE_status_1]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_1) AS delivery_unknown, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_2) AS status_count_queued, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_3) AS status_count_processing, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_4) AS status_count_submitted, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_5) AS status_count_sent, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_6) AS status_count_delivered, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_7) AS status_count_read, count(*) FILTER (WHERE (whatsapp_message_logs.status NOT IN (__[POSTCOMPILE_status_3]))) AS status_count_failed, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_8) AS status_count_delivery_unknown, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_9) AS status_count_stalled, min(whatsapp_message_logs.created_at) AS started_at, max(whatsapp_message_logs.status_updated_at) AS updated_at \nFROM whatsapp_message_logs JOIN whatsapp_broadcast_groups ON whatsapp_broadcast_groups.id = whatsapp_message_logs.broadcast_group_id \nWHERE whatsapp_message_logs.batch_id = :batch_id_1 AND whatsapp_broadcast_groups.agency_id = :agency_id_1 GROUP BY whatsapp_message_logs.batch_id, whatsapp_broadcast_groups.id, whatsapp_broadcast_groups.name, whatsapp_message_logs.message_type"
+    },
+    "agency_staff/document/failures": {
+      "params": {
+        "agency_id_1": "00000000-0000-0000-0000-000000000002",
+        "agency_id_2": "00000000-0000-0000-0000-000000000002",
+        "created_by_user_id_1": "00000000-0000-0000-0000-000000000001",
+        "manager_id_1": "00000000-0000-0000-0000-000000000001",
+        "send_batch_id_1": "00000000-0000-0000-0000-000000000003",
+        "status_1": [
+          "delivered",
+          "delivery_unknown",
+          "processing",
+          "queued",
+          "read",
+          "sent",
+          "stalled",
+          "submitted"
+        ],
+        "status_2": [
+          "active",
+          "closed"
+        ],
+        "status_3": [
+          "active",
+          "closed"
+        ]
+      },
+      "sql": "SELECT document_whatsapp_deliveries.passenger_name AS recipient_name, document_whatsapp_deliveries.normalized_phone_number AS phone_number, document_whatsapp_deliveries.error_message AS error_message \nFROM document_whatsapp_deliveries JOIN client_groups ON client_groups.id = document_whatsapp_deliveries.group_id \nWHERE document_whatsapp_deliveries.send_batch_id = :send_batch_id_1 AND (document_whatsapp_deliveries.status NOT IN (__[POSTCOMPILE_status_1])) AND client_groups.agency_id = :agency_id_1 AND client_groups.deleted_at IS NULL AND client_groups.status IN (__[POSTCOMPILE_status_2]) AND client_groups.agency_id = :agency_id_2 AND client_groups.deleted_at IS NULL AND client_groups.status IN (__[POSTCOMPILE_status_3]) AND (client_groups.created_by_user_id = :created_by_user_id_1 OR client_groups.id IN (SELECT manager_group_access.group_id \nFROM manager_group_access \nWHERE manager_group_access.manager_id = :manager_id_1)) ORDER BY document_whatsapp_deliveries.passenger_name ASC, document_whatsapp_deliveries.normalized_phone_number ASC"
+    },
+    "agency_staff/document/page": {
+      "params": {
+        "agency_id_1": "00000000-0000-0000-0000-000000000002",
+        "agency_id_2": "00000000-0000-0000-0000-000000000002",
+        "created_by_user_id_1": "00000000-0000-0000-0000-000000000001",
+        "manager_id_1": "00000000-0000-0000-0000-000000000001",
+        "param_1": "stalled",
+        "send_batch_id_1": "00000000-0000-0000-0000-000000000003",
+        "status_1": [
+          "processing",
+          "queued"
+        ],
+        "status_2": [
+          "active",
+          "closed"
+        ],
+        "status_3": [
+          "active",
+          "closed"
+        ],
+        "status_updated_at_1": "2026-10-31 00:00:00+00:00"
+      },
+      "sql": "SELECT document_whatsapp_deliveries.id AS delivery_id, document_whatsapp_deliveries.passenger_name, document_whatsapp_deliveries.phone_number, document_whatsapp_deliveries.document_filename, document_whatsapp_deliveries.document_type, CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_1) THEN :param_1 ELSE document_whatsapp_deliveries.status END AS status, document_whatsapp_deliveries.error_message, document_whatsapp_deliveries.status_updated_at \nFROM document_whatsapp_deliveries JOIN client_groups ON client_groups.id = document_whatsapp_deliveries.group_id AND client_groups.agency_id = document_whatsapp_deliveries.agency_id \nWHERE document_whatsapp_deliveries.send_batch_id = :send_batch_id_1 AND client_groups.agency_id = :agency_id_1 AND client_groups.deleted_at IS NULL AND client_groups.status IN (__[POSTCOMPILE_status_2]) AND client_groups.agency_id = :agency_id_2 AND client_groups.deleted_at IS NULL AND client_groups.status IN (__[POSTCOMPILE_status_3]) AND (client_groups.created_by_user_id = :created_by_user_id_1 OR client_groups.id IN (SELECT manager_group_access.group_id \nFROM manager_group_access \nWHERE manager_group_access.manager_id = :manager_id_1))"
+    },
+    "agency_staff/document/summary": {
+      "params": {
+        "agency_id_1": "00000000-0000-0000-0000-000000000002",
+        "agency_id_2": "00000000-0000-0000-0000-000000000002",
+        "created_by_user_id_1": "00000000-0000-0000-0000-000000000001",
+        "manager_id_1": "00000000-0000-0000-0000-000000000001",
+        "param_1": "stalled",
+        "param_2": "queued",
+        "param_3": "processing",
+        "param_4": "submitted",
+        "param_5": "sent",
+        "param_6": "delivered",
+        "param_7": "read",
+        "param_8": "delivery_unknown",
+        "param_9": "stalled",
+        "send_batch_id_1": "00000000-0000-0000-0000-000000000003",
+        "status_1": [
+          "processing",
+          "queued"
+        ],
+        "status_2": [
+          "delivered",
+          "read",
+          "sent",
+          "submitted"
+        ],
+        "status_3": [
+          "delivered",
+          "delivery_unknown",
+          "processing",
+          "queued",
+          "read",
+          "sent",
+          "stalled",
+          "submitted"
+        ],
+        "status_4": [
+          "delivery_unknown",
+          "stalled"
+        ],
+        "status_5": [
+          "processing",
+          "queued"
+        ],
+        "status_6": [
+          "active",
+          "closed"
+        ],
+        "status_7": [
+          "active",
+          "closed"
+        ],
+        "status_updated_at_1": "2026-10-31 00:00:00+00:00",
+        "status_updated_at_2": "2026-10-31 00:00:00+00:00"
+      },
+      "sql": "SELECT document_whatsapp_deliveries.send_batch_id AS activity_id, client_groups.id AS source_group_id, client_groups.name AS context_label, document_whatsapp_deliveries.document_type AS activity_label, count(*) AS total, count(*) FILTER (WHERE document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND NOT (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_1)) AS queued, count(*) FILTER (WHERE document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_2])) AS sent, count(*) FILTER (WHERE (document_whatsapp_deliveries.status NOT IN (__[POSTCOMPILE_status_3]))) AS failed, count(*) FILTER (WHERE document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_4]) OR document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_1) AS delivery_unknown, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_2) AS status_count_queued, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_3) AS status_count_processing, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_4) AS status_count_submitted, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_5) AS status_count_sent, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_6) AS status_count_delivered, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_7) AS status_count_read, count(*) FILTER (WHERE (document_whatsapp_deliveries.status NOT IN (__[POSTCOMPILE_status_3]))) AS status_count_failed, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_8) AS status_count_delivery_unknown, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_9) AS status_count_stalled, min(document_whatsapp_deliveries.created_at) AS started_at, max(document_whatsapp_deliveries.status_updated_at) AS updated_at \nFROM document_whatsapp_deliveries JOIN client_groups ON client_groups.id = document_whatsapp_deliveries.group_id AND client_groups.agency_id = document_whatsapp_deliveries.agency_id \nWHERE document_whatsapp_deliveries.send_batch_id = :send_batch_id_1 AND client_groups.agency_id = :agency_id_1 AND client_groups.deleted_at IS NULL AND client_groups.status IN (__[POSTCOMPILE_status_6]) AND client_groups.agency_id = :agency_id_2 AND client_groups.deleted_at IS NULL AND client_groups.status IN (__[POSTCOMPILE_status_7]) AND (client_groups.created_by_user_id = :created_by_user_id_1 OR client_groups.id IN (SELECT manager_group_access.group_id \nFROM manager_group_access \nWHERE manager_group_access.manager_id = :manager_id_1)) GROUP BY document_whatsapp_deliveries.send_batch_id, client_groups.id, client_groups.name, document_whatsapp_deliveries.document_type"
+    },
+    "agency_staff/qr/failures": {
+      "params": {
+        "agency_id_1": "00000000-0000-0000-0000-000000000002",
+        "agency_id_2": "00000000-0000-0000-0000-000000000002",
+        "created_by_user_id_1": "00000000-0000-0000-0000-000000000001",
+        "manager_id_1": "00000000-0000-0000-0000-000000000001",
+        "send_batch_id_1": "00000000-0000-0000-0000-000000000003",
+        "status_1": [
+          "delivered",
+          "delivery_unknown",
+          "processing",
+          "queued",
+          "read",
+          "sent",
+          "stalled",
+          "submitted"
+        ],
+        "status_2": [
+          "active",
+          "closed"
+        ],
+        "status_3": [
+          "active",
+          "closed"
+        ]
+      },
+      "sql": "SELECT passenger_qr_whatsapp_deliveries.passenger_name AS recipient_name, passenger_qr_whatsapp_deliveries.normalized_phone_number AS phone_number, passenger_qr_whatsapp_deliveries.error_message AS error_message \nFROM passenger_qr_whatsapp_deliveries JOIN client_groups ON client_groups.id = passenger_qr_whatsapp_deliveries.group_id \nWHERE passenger_qr_whatsapp_deliveries.send_batch_id = :send_batch_id_1 AND (passenger_qr_whatsapp_deliveries.status NOT IN (__[POSTCOMPILE_status_1])) AND client_groups.agency_id = :agency_id_1 AND client_groups.deleted_at IS NULL AND client_groups.status IN (__[POSTCOMPILE_status_2]) AND client_groups.agency_id = :agency_id_2 AND client_groups.deleted_at IS NULL AND client_groups.status IN (__[POSTCOMPILE_status_3]) AND (client_groups.created_by_user_id = :created_by_user_id_1 OR client_groups.id IN (SELECT manager_group_access.group_id \nFROM manager_group_access \nWHERE manager_group_access.manager_id = :manager_id_1)) ORDER BY passenger_qr_whatsapp_deliveries.passenger_name ASC, passenger_qr_whatsapp_deliveries.normalized_phone_number ASC"
+    },
+    "agency_staff/qr/summary": {
+      "params": {
+        "agency_id_1": "00000000-0000-0000-0000-000000000002",
+        "agency_id_2": "00000000-0000-0000-0000-000000000002",
+        "created_by_user_id_1": "00000000-0000-0000-0000-000000000001",
+        "manager_id_1": "00000000-0000-0000-0000-000000000001",
+        "param_1": "stalled",
+        "param_2": "queued",
+        "param_3": "processing",
+        "param_4": "submitted",
+        "param_5": "sent",
+        "param_6": "delivered",
+        "param_7": "read",
+        "param_8": "delivery_unknown",
+        "param_9": "stalled",
+        "send_batch_id_1": "00000000-0000-0000-0000-000000000003",
+        "status_1": [
+          "processing",
+          "queued"
+        ],
+        "status_2": [
+          "delivered",
+          "read",
+          "sent",
+          "submitted"
+        ],
+        "status_3": [
+          "delivered",
+          "delivery_unknown",
+          "processing",
+          "queued",
+          "read",
+          "sent",
+          "stalled",
+          "submitted"
+        ],
+        "status_4": [
+          "delivery_unknown",
+          "stalled"
+        ],
+        "status_5": [
+          "processing",
+          "queued"
+        ],
+        "status_6": [
+          "active",
+          "closed"
+        ],
+        "status_7": [
+          "active",
+          "closed"
+        ],
+        "status_updated_at_1": "2026-10-31 00:00:00+00:00",
+        "status_updated_at_2": "2026-10-31 00:00:00+00:00"
+      },
+      "sql": "SELECT passenger_qr_whatsapp_deliveries.send_batch_id AS activity_id, client_groups.id AS source_group_id, client_groups.name AS context_label, count(*) AS total, count(*) FILTER (WHERE passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND NOT (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_1)) AS queued, count(*) FILTER (WHERE passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_2])) AS sent, count(*) FILTER (WHERE (passenger_qr_whatsapp_deliveries.status NOT IN (__[POSTCOMPILE_status_3]))) AS failed, count(*) FILTER (WHERE passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_4]) OR passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_1) AS delivery_unknown, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_2) AS status_count_queued, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_3) AS status_count_processing, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_4) AS status_count_submitted, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_5) AS status_count_sent, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_6) AS status_count_delivered, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_7) AS status_count_read, count(*) FILTER (WHERE (passenger_qr_whatsapp_deliveries.status NOT IN (__[POSTCOMPILE_status_3]))) AS status_count_failed, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_8) AS status_count_delivery_unknown, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_9) AS status_count_stalled, min(passenger_qr_whatsapp_deliveries.created_at) AS started_at, max(passenger_qr_whatsapp_deliveries.status_updated_at) AS updated_at \nFROM passenger_qr_whatsapp_deliveries JOIN client_groups ON client_groups.id = passenger_qr_whatsapp_deliveries.group_id \nWHERE passenger_qr_whatsapp_deliveries.send_batch_id = :send_batch_id_1 AND client_groups.agency_id = :agency_id_1 AND client_groups.deleted_at IS NULL AND client_groups.status IN (__[POSTCOMPILE_status_6]) AND client_groups.agency_id = :agency_id_2 AND client_groups.deleted_at IS NULL AND client_groups.status IN (__[POSTCOMPILE_status_7]) AND (client_groups.created_by_user_id = :created_by_user_id_1 OR client_groups.id IN (SELECT manager_group_access.group_id \nFROM manager_group_access \nWHERE manager_group_access.manager_id = :manager_id_1)) GROUP BY passenger_qr_whatsapp_deliveries.send_batch_id, client_groups.id, client_groups.name"
+    },
+    "client_manager/broadcast/failures": {
+      "params": {
+        "agency_id_1": "00000000-0000-0000-0000-000000000002",
+        "batch_id_1": "00000000-0000-0000-0000-000000000003",
+        "status_1": [
+          "delivered",
+          "delivery_unknown",
+          "processing",
+          "queued",
+          "read",
+          "sent",
+          "stalled",
+          "submitted"
+        ]
+      },
+      "sql": "SELECT whatsapp_broadcast_recipients.name AS recipient_name, coalesce(whatsapp_message_logs.normalized_phone_number, whatsapp_broadcast_recipients.normalized_phone_number) AS phone_number, whatsapp_message_logs.error_message AS error_message \nFROM whatsapp_message_logs JOIN whatsapp_broadcast_recipients ON whatsapp_broadcast_recipients.id = whatsapp_message_logs.recipient_id JOIN whatsapp_broadcast_groups ON whatsapp_broadcast_groups.id = whatsapp_message_logs.broadcast_group_id \nWHERE whatsapp_message_logs.batch_id = :batch_id_1 AND (whatsapp_message_logs.status NOT IN (__[POSTCOMPILE_status_1])) AND whatsapp_broadcast_groups.agency_id = :agency_id_1 ORDER BY whatsapp_broadcast_recipients.name ASC NULLS LAST, whatsapp_broadcast_recipients.normalized_phone_number ASC"
+    },
+    "client_manager/broadcast/summary": {
+      "params": {
+        "agency_id_1": "00000000-0000-0000-0000-000000000002",
+        "batch_id_1": "00000000-0000-0000-0000-000000000003",
+        "param_1": "stalled",
+        "param_2": "queued",
+        "param_3": "processing",
+        "param_4": "submitted",
+        "param_5": "sent",
+        "param_6": "delivered",
+        "param_7": "read",
+        "param_8": "delivery_unknown",
+        "param_9": "stalled",
+        "status_1": [
+          "processing",
+          "queued"
+        ],
+        "status_2": [
+          "delivered",
+          "read",
+          "sent",
+          "submitted"
+        ],
+        "status_3": [
+          "delivered",
+          "delivery_unknown",
+          "processing",
+          "queued",
+          "read",
+          "sent",
+          "stalled",
+          "submitted"
+        ],
+        "status_4": [
+          "delivery_unknown",
+          "stalled"
+        ],
+        "status_5": [
+          "processing",
+          "queued"
+        ],
+        "status_updated_at_1": "2026-10-31 00:00:00+00:00",
+        "status_updated_at_2": "2026-10-31 00:00:00+00:00"
+      },
+      "sql": "SELECT whatsapp_message_logs.batch_id AS activity_id, whatsapp_broadcast_groups.id AS source_group_id, whatsapp_broadcast_groups.name AS context_label, whatsapp_message_logs.message_type AS activity_label, count(*) AS total, count(*) FILTER (WHERE whatsapp_message_logs.status IN (__[POSTCOMPILE_status_1]) AND NOT (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_1]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_1)) AS queued, count(*) FILTER (WHERE whatsapp_message_logs.status IN (__[POSTCOMPILE_status_2])) AS sent, count(*) FILTER (WHERE (whatsapp_message_logs.status NOT IN (__[POSTCOMPILE_status_3]))) AS failed, count(*) FILTER (WHERE whatsapp_message_logs.status IN (__[POSTCOMPILE_status_4]) OR whatsapp_message_logs.status IN (__[POSTCOMPILE_status_1]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_1) AS delivery_unknown, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_2) AS status_count_queued, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_3) AS status_count_processing, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_4) AS status_count_submitted, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_5) AS status_count_sent, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_6) AS status_count_delivered, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_7) AS status_count_read, count(*) FILTER (WHERE (whatsapp_message_logs.status NOT IN (__[POSTCOMPILE_status_3]))) AS status_count_failed, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_8) AS status_count_delivery_unknown, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_9) AS status_count_stalled, min(whatsapp_message_logs.created_at) AS started_at, max(whatsapp_message_logs.status_updated_at) AS updated_at \nFROM whatsapp_message_logs JOIN whatsapp_broadcast_groups ON whatsapp_broadcast_groups.id = whatsapp_message_logs.broadcast_group_id \nWHERE whatsapp_message_logs.batch_id = :batch_id_1 AND whatsapp_broadcast_groups.agency_id = :agency_id_1 GROUP BY whatsapp_message_logs.batch_id, whatsapp_broadcast_groups.id, whatsapp_broadcast_groups.name, whatsapp_message_logs.message_type"
+    },
+    "client_manager/document/failures": {
+      "params": {
+        "agency_id_1": "00000000-0000-0000-0000-000000000002",
+        "send_batch_id_1": "00000000-0000-0000-0000-000000000003",
+        "status_1": [
+          "delivered",
+          "delivery_unknown",
+          "processing",
+          "queued",
+          "read",
+          "sent",
+          "stalled",
+          "submitted"
+        ],
+        "status_2": []
+      },
+      "sql": "SELECT document_whatsapp_deliveries.passenger_name AS recipient_name, document_whatsapp_deliveries.normalized_phone_number AS phone_number, document_whatsapp_deliveries.error_message AS error_message \nFROM document_whatsapp_deliveries JOIN client_groups ON client_groups.id = document_whatsapp_deliveries.group_id \nWHERE document_whatsapp_deliveries.send_batch_id = :send_batch_id_1 AND (document_whatsapp_deliveries.status NOT IN (__[POSTCOMPILE_status_1])) AND client_groups.agency_id = :agency_id_1 AND client_groups.deleted_at IS NULL AND client_groups.status IN (__[POSTCOMPILE_status_2]) ORDER BY document_whatsapp_deliveries.passenger_name ASC, document_whatsapp_deliveries.normalized_phone_number ASC"
+    },
+    "client_manager/document/page": {
+      "params": {
+        "agency_id_1": "00000000-0000-0000-0000-000000000002",
+        "param_1": "stalled",
+        "send_batch_id_1": "00000000-0000-0000-0000-000000000003",
+        "status_1": [
+          "processing",
+          "queued"
+        ],
+        "status_2": [],
+        "status_updated_at_1": "2026-10-31 00:00:00+00:00"
+      },
+      "sql": "SELECT document_whatsapp_deliveries.id AS delivery_id, document_whatsapp_deliveries.passenger_name, document_whatsapp_deliveries.phone_number, document_whatsapp_deliveries.document_filename, document_whatsapp_deliveries.document_type, CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_1) THEN :param_1 ELSE document_whatsapp_deliveries.status END AS status, document_whatsapp_deliveries.error_message, document_whatsapp_deliveries.status_updated_at \nFROM document_whatsapp_deliveries JOIN client_groups ON client_groups.id = document_whatsapp_deliveries.group_id AND client_groups.agency_id = document_whatsapp_deliveries.agency_id \nWHERE document_whatsapp_deliveries.send_batch_id = :send_batch_id_1 AND client_groups.agency_id = :agency_id_1 AND client_groups.deleted_at IS NULL AND client_groups.status IN (__[POSTCOMPILE_status_2])"
+    },
+    "client_manager/document/summary": {
+      "params": {
+        "agency_id_1": "00000000-0000-0000-0000-000000000002",
+        "param_1": "stalled",
+        "param_2": "queued",
+        "param_3": "processing",
+        "param_4": "submitted",
+        "param_5": "sent",
+        "param_6": "delivered",
+        "param_7": "read",
+        "param_8": "delivery_unknown",
+        "param_9": "stalled",
+        "send_batch_id_1": "00000000-0000-0000-0000-000000000003",
+        "status_1": [
+          "processing",
+          "queued"
+        ],
+        "status_2": [
+          "delivered",
+          "read",
+          "sent",
+          "submitted"
+        ],
+        "status_3": [
+          "delivered",
+          "delivery_unknown",
+          "processing",
+          "queued",
+          "read",
+          "sent",
+          "stalled",
+          "submitted"
+        ],
+        "status_4": [
+          "delivery_unknown",
+          "stalled"
+        ],
+        "status_5": [
+          "processing",
+          "queued"
+        ],
+        "status_6": [],
+        "status_updated_at_1": "2026-10-31 00:00:00+00:00",
+        "status_updated_at_2": "2026-10-31 00:00:00+00:00"
+      },
+      "sql": "SELECT document_whatsapp_deliveries.send_batch_id AS activity_id, client_groups.id AS source_group_id, client_groups.name AS context_label, document_whatsapp_deliveries.document_type AS activity_label, count(*) AS total, count(*) FILTER (WHERE document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND NOT (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_1)) AS queued, count(*) FILTER (WHERE document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_2])) AS sent, count(*) FILTER (WHERE (document_whatsapp_deliveries.status NOT IN (__[POSTCOMPILE_status_3]))) AS failed, count(*) FILTER (WHERE document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_4]) OR document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_1) AS delivery_unknown, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_2) AS status_count_queued, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_3) AS status_count_processing, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_4) AS status_count_submitted, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_5) AS status_count_sent, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_6) AS status_count_delivered, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_7) AS status_count_read, count(*) FILTER (WHERE (document_whatsapp_deliveries.status NOT IN (__[POSTCOMPILE_status_3]))) AS status_count_failed, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_8) AS status_count_delivery_unknown, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_9) AS status_count_stalled, min(document_whatsapp_deliveries.created_at) AS started_at, max(document_whatsapp_deliveries.status_updated_at) AS updated_at \nFROM document_whatsapp_deliveries JOIN client_groups ON client_groups.id = document_whatsapp_deliveries.group_id AND client_groups.agency_id = document_whatsapp_deliveries.agency_id \nWHERE document_whatsapp_deliveries.send_batch_id = :send_batch_id_1 AND client_groups.agency_id = :agency_id_1 AND client_groups.deleted_at IS NULL AND client_groups.status IN (__[POSTCOMPILE_status_6]) GROUP BY document_whatsapp_deliveries.send_batch_id, client_groups.id, client_groups.name, document_whatsapp_deliveries.document_type"
+    },
+    "client_manager/qr/failures": {
+      "params": {
+        "agency_id_1": "00000000-0000-0000-0000-000000000002",
+        "send_batch_id_1": "00000000-0000-0000-0000-000000000003",
+        "status_1": [
+          "delivered",
+          "delivery_unknown",
+          "processing",
+          "queued",
+          "read",
+          "sent",
+          "stalled",
+          "submitted"
+        ],
+        "status_2": []
+      },
+      "sql": "SELECT passenger_qr_whatsapp_deliveries.passenger_name AS recipient_name, passenger_qr_whatsapp_deliveries.normalized_phone_number AS phone_number, passenger_qr_whatsapp_deliveries.error_message AS error_message \nFROM passenger_qr_whatsapp_deliveries JOIN client_groups ON client_groups.id = passenger_qr_whatsapp_deliveries.group_id \nWHERE passenger_qr_whatsapp_deliveries.send_batch_id = :send_batch_id_1 AND (passenger_qr_whatsapp_deliveries.status NOT IN (__[POSTCOMPILE_status_1])) AND client_groups.agency_id = :agency_id_1 AND client_groups.deleted_at IS NULL AND client_groups.status IN (__[POSTCOMPILE_status_2]) ORDER BY passenger_qr_whatsapp_deliveries.passenger_name ASC, passenger_qr_whatsapp_deliveries.normalized_phone_number ASC"
+    },
+    "client_manager/qr/summary": {
+      "params": {
+        "agency_id_1": "00000000-0000-0000-0000-000000000002",
+        "param_1": "stalled",
+        "param_2": "queued",
+        "param_3": "processing",
+        "param_4": "submitted",
+        "param_5": "sent",
+        "param_6": "delivered",
+        "param_7": "read",
+        "param_8": "delivery_unknown",
+        "param_9": "stalled",
+        "send_batch_id_1": "00000000-0000-0000-0000-000000000003",
+        "status_1": [
+          "processing",
+          "queued"
+        ],
+        "status_2": [
+          "delivered",
+          "read",
+          "sent",
+          "submitted"
+        ],
+        "status_3": [
+          "delivered",
+          "delivery_unknown",
+          "processing",
+          "queued",
+          "read",
+          "sent",
+          "stalled",
+          "submitted"
+        ],
+        "status_4": [
+          "delivery_unknown",
+          "stalled"
+        ],
+        "status_5": [
+          "processing",
+          "queued"
+        ],
+        "status_6": [],
+        "status_updated_at_1": "2026-10-31 00:00:00+00:00",
+        "status_updated_at_2": "2026-10-31 00:00:00+00:00"
+      },
+      "sql": "SELECT passenger_qr_whatsapp_deliveries.send_batch_id AS activity_id, client_groups.id AS source_group_id, client_groups.name AS context_label, count(*) AS total, count(*) FILTER (WHERE passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND NOT (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_1)) AS queued, count(*) FILTER (WHERE passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_2])) AS sent, count(*) FILTER (WHERE (passenger_qr_whatsapp_deliveries.status NOT IN (__[POSTCOMPILE_status_3]))) AS failed, count(*) FILTER (WHERE passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_4]) OR passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_1) AS delivery_unknown, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_2) AS status_count_queued, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_3) AS status_count_processing, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_4) AS status_count_submitted, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_5) AS status_count_sent, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_6) AS status_count_delivered, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_7) AS status_count_read, count(*) FILTER (WHERE (passenger_qr_whatsapp_deliveries.status NOT IN (__[POSTCOMPILE_status_3]))) AS status_count_failed, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_8) AS status_count_delivery_unknown, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_9) AS status_count_stalled, min(passenger_qr_whatsapp_deliveries.created_at) AS started_at, max(passenger_qr_whatsapp_deliveries.status_updated_at) AS updated_at \nFROM passenger_qr_whatsapp_deliveries JOIN client_groups ON client_groups.id = passenger_qr_whatsapp_deliveries.group_id \nWHERE passenger_qr_whatsapp_deliveries.send_batch_id = :send_batch_id_1 AND client_groups.agency_id = :agency_id_1 AND client_groups.deleted_at IS NULL AND client_groups.status IN (__[POSTCOMPILE_status_6]) GROUP BY passenger_qr_whatsapp_deliveries.send_batch_id, client_groups.id, client_groups.name"
+    },
+    "document/filter/all": {
+      "params": {
+        "param_1": "stalled",
+        "param_2": "all",
+        "status_1": [
+          "processing",
+          "queued"
+        ],
+        "status_updated_at_1": "2026-10-31 00:00:00+00:00"
+      },
+      "sql": "CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_1) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_2"
+    },
+    "document/filter/delivered": {
+      "params": {
+        "status_1": [
+          "delivered",
+          "read"
+        ]
+      },
+      "sql": "document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1])"
+    },
+    "document/filter/failed": {
+      "params": {
+        "status_1": [
+          "delivered",
+          "delivery_unknown",
+          "processing",
+          "queued",
+          "read",
+          "sent",
+          "stalled",
+          "submitted"
+        ]
+      },
+      "sql": "(document_whatsapp_deliveries.status NOT IN (__[POSTCOMPILE_status_1]))"
+    },
+    "document/filter/needs_review": {
+      "params": {
+        "param_1": "stalled",
+        "param_2": [
+          "delivery_unknown",
+          "stalled"
+        ],
+        "status_1": [
+          "processing",
+          "queued"
+        ],
+        "status_updated_at_1": "2026-10-31 00:00:00+00:00"
+      },
+      "sql": "CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_1) THEN :param_1 ELSE document_whatsapp_deliveries.status END IN (__[POSTCOMPILE_param_2])"
+    },
+    "document/filter/processing": {
+      "params": {
+        "param_1": "stalled",
+        "param_2": "processing",
+        "status_1": [
+          "processing",
+          "queued"
+        ],
+        "status_updated_at_1": "2026-10-31 00:00:00+00:00"
+      },
+      "sql": "CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_1) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_2"
+    },
+    "document/filter/queued": {
+      "params": {
+        "param_1": "stalled",
+        "param_2": "queued",
+        "status_1": [
+          "processing",
+          "queued"
+        ],
+        "status_updated_at_1": "2026-10-31 00:00:00+00:00"
+      },
+      "sql": "CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_1) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_2"
+    },
+    "document/filter/read": {
+      "params": {
+        "param_1": "stalled",
+        "param_2": "read",
+        "status_1": [
+          "processing",
+          "queued"
+        ],
+        "status_updated_at_1": "2026-10-31 00:00:00+00:00"
+      },
+      "sql": "CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_1) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_2"
+    },
+    "document/filter/sent": {
+      "params": {
+        "status_1": [
+          "delivered",
+          "read",
+          "sent",
+          "submitted"
+        ]
+      },
+      "sql": "document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1])"
+    },
+    "super_admin/broadcast/failures": {
+      "params": {
+        "batch_id_1": "00000000-0000-0000-0000-000000000003",
+        "status_1": [
+          "delivered",
+          "delivery_unknown",
+          "processing",
+          "queued",
+          "read",
+          "sent",
+          "stalled",
+          "submitted"
+        ]
+      },
+      "sql": "SELECT whatsapp_broadcast_recipients.name AS recipient_name, coalesce(whatsapp_message_logs.normalized_phone_number, whatsapp_broadcast_recipients.normalized_phone_number) AS phone_number, whatsapp_message_logs.error_message AS error_message \nFROM whatsapp_message_logs JOIN whatsapp_broadcast_recipients ON whatsapp_broadcast_recipients.id = whatsapp_message_logs.recipient_id JOIN whatsapp_broadcast_groups ON whatsapp_broadcast_groups.id = whatsapp_message_logs.broadcast_group_id \nWHERE whatsapp_message_logs.batch_id = :batch_id_1 AND (whatsapp_message_logs.status NOT IN (__[POSTCOMPILE_status_1])) ORDER BY whatsapp_broadcast_recipients.name ASC NULLS LAST, whatsapp_broadcast_recipients.normalized_phone_number ASC"
+    },
+    "super_admin/broadcast/summary": {
+      "params": {
+        "batch_id_1": "00000000-0000-0000-0000-000000000003",
+        "param_1": "stalled",
+        "param_2": "queued",
+        "param_3": "processing",
+        "param_4": "submitted",
+        "param_5": "sent",
+        "param_6": "delivered",
+        "param_7": "read",
+        "param_8": "delivery_unknown",
+        "param_9": "stalled",
+        "status_1": [
+          "processing",
+          "queued"
+        ],
+        "status_2": [
+          "delivered",
+          "read",
+          "sent",
+          "submitted"
+        ],
+        "status_3": [
+          "delivered",
+          "delivery_unknown",
+          "processing",
+          "queued",
+          "read",
+          "sent",
+          "stalled",
+          "submitted"
+        ],
+        "status_4": [
+          "delivery_unknown",
+          "stalled"
+        ],
+        "status_5": [
+          "processing",
+          "queued"
+        ],
+        "status_updated_at_1": "2026-10-31 00:00:00+00:00",
+        "status_updated_at_2": "2026-10-31 00:00:00+00:00"
+      },
+      "sql": "SELECT whatsapp_message_logs.batch_id AS activity_id, whatsapp_broadcast_groups.id AS source_group_id, whatsapp_broadcast_groups.name AS context_label, whatsapp_message_logs.message_type AS activity_label, count(*) AS total, count(*) FILTER (WHERE whatsapp_message_logs.status IN (__[POSTCOMPILE_status_1]) AND NOT (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_1]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_1)) AS queued, count(*) FILTER (WHERE whatsapp_message_logs.status IN (__[POSTCOMPILE_status_2])) AS sent, count(*) FILTER (WHERE (whatsapp_message_logs.status NOT IN (__[POSTCOMPILE_status_3]))) AS failed, count(*) FILTER (WHERE whatsapp_message_logs.status IN (__[POSTCOMPILE_status_4]) OR whatsapp_message_logs.status IN (__[POSTCOMPILE_status_1]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_1) AS delivery_unknown, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_2) AS status_count_queued, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_3) AS status_count_processing, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_4) AS status_count_submitted, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_5) AS status_count_sent, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_6) AS status_count_delivered, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_7) AS status_count_read, count(*) FILTER (WHERE (whatsapp_message_logs.status NOT IN (__[POSTCOMPILE_status_3]))) AS status_count_failed, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_8) AS status_count_delivery_unknown, count(*) FILTER (WHERE CASE WHEN (whatsapp_message_logs.status IN (__[POSTCOMPILE_status_5]) AND whatsapp_message_logs.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE whatsapp_message_logs.status END = :param_9) AS status_count_stalled, min(whatsapp_message_logs.created_at) AS started_at, max(whatsapp_message_logs.status_updated_at) AS updated_at \nFROM whatsapp_message_logs JOIN whatsapp_broadcast_groups ON whatsapp_broadcast_groups.id = whatsapp_message_logs.broadcast_group_id \nWHERE whatsapp_message_logs.batch_id = :batch_id_1 GROUP BY whatsapp_message_logs.batch_id, whatsapp_broadcast_groups.id, whatsapp_broadcast_groups.name, whatsapp_message_logs.message_type"
+    },
+    "super_admin/document/failures": {
+      "params": {
+        "send_batch_id_1": "00000000-0000-0000-0000-000000000003",
+        "status_1": [
+          "delivered",
+          "delivery_unknown",
+          "processing",
+          "queued",
+          "read",
+          "sent",
+          "stalled",
+          "submitted"
+        ]
+      },
+      "sql": "SELECT document_whatsapp_deliveries.passenger_name AS recipient_name, document_whatsapp_deliveries.normalized_phone_number AS phone_number, document_whatsapp_deliveries.error_message AS error_message \nFROM document_whatsapp_deliveries JOIN client_groups ON client_groups.id = document_whatsapp_deliveries.group_id \nWHERE document_whatsapp_deliveries.send_batch_id = :send_batch_id_1 AND (document_whatsapp_deliveries.status NOT IN (__[POSTCOMPILE_status_1])) ORDER BY document_whatsapp_deliveries.passenger_name ASC, document_whatsapp_deliveries.normalized_phone_number ASC"
+    },
+    "super_admin/document/page": {
+      "params": {
+        "param_1": "stalled",
+        "send_batch_id_1": "00000000-0000-0000-0000-000000000003",
+        "status_1": [
+          "processing",
+          "queued"
+        ],
+        "status_updated_at_1": "2026-10-31 00:00:00+00:00"
+      },
+      "sql": "SELECT document_whatsapp_deliveries.id AS delivery_id, document_whatsapp_deliveries.passenger_name, document_whatsapp_deliveries.phone_number, document_whatsapp_deliveries.document_filename, document_whatsapp_deliveries.document_type, CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_1) THEN :param_1 ELSE document_whatsapp_deliveries.status END AS status, document_whatsapp_deliveries.error_message, document_whatsapp_deliveries.status_updated_at \nFROM document_whatsapp_deliveries JOIN client_groups ON client_groups.id = document_whatsapp_deliveries.group_id AND client_groups.agency_id = document_whatsapp_deliveries.agency_id \nWHERE document_whatsapp_deliveries.send_batch_id = :send_batch_id_1"
+    },
+    "super_admin/document/summary": {
+      "params": {
+        "param_1": "stalled",
+        "param_2": "queued",
+        "param_3": "processing",
+        "param_4": "submitted",
+        "param_5": "sent",
+        "param_6": "delivered",
+        "param_7": "read",
+        "param_8": "delivery_unknown",
+        "param_9": "stalled",
+        "send_batch_id_1": "00000000-0000-0000-0000-000000000003",
+        "status_1": [
+          "processing",
+          "queued"
+        ],
+        "status_2": [
+          "delivered",
+          "read",
+          "sent",
+          "submitted"
+        ],
+        "status_3": [
+          "delivered",
+          "delivery_unknown",
+          "processing",
+          "queued",
+          "read",
+          "sent",
+          "stalled",
+          "submitted"
+        ],
+        "status_4": [
+          "delivery_unknown",
+          "stalled"
+        ],
+        "status_5": [
+          "processing",
+          "queued"
+        ],
+        "status_updated_at_1": "2026-10-31 00:00:00+00:00",
+        "status_updated_at_2": "2026-10-31 00:00:00+00:00"
+      },
+      "sql": "SELECT document_whatsapp_deliveries.send_batch_id AS activity_id, client_groups.id AS source_group_id, client_groups.name AS context_label, document_whatsapp_deliveries.document_type AS activity_label, count(*) AS total, count(*) FILTER (WHERE document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND NOT (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_1)) AS queued, count(*) FILTER (WHERE document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_2])) AS sent, count(*) FILTER (WHERE (document_whatsapp_deliveries.status NOT IN (__[POSTCOMPILE_status_3]))) AS failed, count(*) FILTER (WHERE document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_4]) OR document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_1) AS delivery_unknown, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_2) AS status_count_queued, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_3) AS status_count_processing, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_4) AS status_count_submitted, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_5) AS status_count_sent, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_6) AS status_count_delivered, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_7) AS status_count_read, count(*) FILTER (WHERE (document_whatsapp_deliveries.status NOT IN (__[POSTCOMPILE_status_3]))) AS status_count_failed, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_8) AS status_count_delivery_unknown, count(*) FILTER (WHERE CASE WHEN (document_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND document_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE document_whatsapp_deliveries.status END = :param_9) AS status_count_stalled, min(document_whatsapp_deliveries.created_at) AS started_at, max(document_whatsapp_deliveries.status_updated_at) AS updated_at \nFROM document_whatsapp_deliveries JOIN client_groups ON client_groups.id = document_whatsapp_deliveries.group_id AND client_groups.agency_id = document_whatsapp_deliveries.agency_id \nWHERE document_whatsapp_deliveries.send_batch_id = :send_batch_id_1 GROUP BY document_whatsapp_deliveries.send_batch_id, client_groups.id, client_groups.name, document_whatsapp_deliveries.document_type"
+    },
+    "super_admin/qr/failures": {
+      "params": {
+        "send_batch_id_1": "00000000-0000-0000-0000-000000000003",
+        "status_1": [
+          "delivered",
+          "delivery_unknown",
+          "processing",
+          "queued",
+          "read",
+          "sent",
+          "stalled",
+          "submitted"
+        ]
+      },
+      "sql": "SELECT passenger_qr_whatsapp_deliveries.passenger_name AS recipient_name, passenger_qr_whatsapp_deliveries.normalized_phone_number AS phone_number, passenger_qr_whatsapp_deliveries.error_message AS error_message \nFROM passenger_qr_whatsapp_deliveries JOIN client_groups ON client_groups.id = passenger_qr_whatsapp_deliveries.group_id \nWHERE passenger_qr_whatsapp_deliveries.send_batch_id = :send_batch_id_1 AND (passenger_qr_whatsapp_deliveries.status NOT IN (__[POSTCOMPILE_status_1])) ORDER BY passenger_qr_whatsapp_deliveries.passenger_name ASC, passenger_qr_whatsapp_deliveries.normalized_phone_number ASC"
+    },
+    "super_admin/qr/summary": {
+      "params": {
+        "param_1": "stalled",
+        "param_2": "queued",
+        "param_3": "processing",
+        "param_4": "submitted",
+        "param_5": "sent",
+        "param_6": "delivered",
+        "param_7": "read",
+        "param_8": "delivery_unknown",
+        "param_9": "stalled",
+        "send_batch_id_1": "00000000-0000-0000-0000-000000000003",
+        "status_1": [
+          "processing",
+          "queued"
+        ],
+        "status_2": [
+          "delivered",
+          "read",
+          "sent",
+          "submitted"
+        ],
+        "status_3": [
+          "delivered",
+          "delivery_unknown",
+          "processing",
+          "queued",
+          "read",
+          "sent",
+          "stalled",
+          "submitted"
+        ],
+        "status_4": [
+          "delivery_unknown",
+          "stalled"
+        ],
+        "status_5": [
+          "processing",
+          "queued"
+        ],
+        "status_updated_at_1": "2026-10-31 00:00:00+00:00",
+        "status_updated_at_2": "2026-10-31 00:00:00+00:00"
+      },
+      "sql": "SELECT passenger_qr_whatsapp_deliveries.send_batch_id AS activity_id, client_groups.id AS source_group_id, client_groups.name AS context_label, count(*) AS total, count(*) FILTER (WHERE passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND NOT (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_1)) AS queued, count(*) FILTER (WHERE passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_2])) AS sent, count(*) FILTER (WHERE (passenger_qr_whatsapp_deliveries.status NOT IN (__[POSTCOMPILE_status_3]))) AS failed, count(*) FILTER (WHERE passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_4]) OR passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_1]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_1) AS delivery_unknown, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_2) AS status_count_queued, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_3) AS status_count_processing, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_4) AS status_count_submitted, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_5) AS status_count_sent, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_6) AS status_count_delivered, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_7) AS status_count_read, count(*) FILTER (WHERE (passenger_qr_whatsapp_deliveries.status NOT IN (__[POSTCOMPILE_status_3]))) AS status_count_failed, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_8) AS status_count_delivery_unknown, count(*) FILTER (WHERE CASE WHEN (passenger_qr_whatsapp_deliveries.status IN (__[POSTCOMPILE_status_5]) AND passenger_qr_whatsapp_deliveries.status_updated_at < :status_updated_at_2) THEN :param_1 ELSE passenger_qr_whatsapp_deliveries.status END = :param_9) AS status_count_stalled, min(passenger_qr_whatsapp_deliveries.created_at) AS started_at, max(passenger_qr_whatsapp_deliveries.status_updated_at) AS updated_at \nFROM passenger_qr_whatsapp_deliveries JOIN client_groups ON client_groups.id = passenger_qr_whatsapp_deliveries.group_id \nWHERE passenger_qr_whatsapp_deliveries.send_batch_id = :send_batch_id_1 GROUP BY passenger_qr_whatsapp_deliveries.send_batch_id, client_groups.id, client_groups.name"
+    }
+  }
+}

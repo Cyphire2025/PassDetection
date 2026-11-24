@@ -1,0 +1,17 @@
+{
+  "exit_code": 1,
+  "seconds": 14.89,
+  "argv": [
+    "C:\\Users\\nipun\\AppData\\Local\\Programs\\node-v24.21.0-win-x64\\node.exe",
+    "node_modules/@playwright/test/cli.js",
+    "test",
+    "--config",
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\final-frontend-qualification\\banner-controls-before.config.ts",
+    "--project=production-dashboard",
+    "--grep=group banner contains only"
+  ],
+  "build_id": "-SsobzdWJpn6pla1bMQEw",
+  "css_sha256": "56a67f55d9b640b1a7aea2851c45d61bd7a2b7ba52a3ff221091e6ed9eb39c9b",
+  "test_sha256": "f28fde78ae9b150528cdd0c17faa4f81db1fe55714ddf9946089da235565efda",
+  "meaning": "Before CSS correction: actual original compiled banner controls against strengthened existing browser scenario, no runtime source change/build/provider/backend."
+}

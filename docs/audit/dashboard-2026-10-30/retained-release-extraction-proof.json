@@ -1,0 +1,742 @@
+{
+  "basis": "Complete original597 owner after separately qualified health-asset fix; mechanical source relocation only",
+  "original_sha256": "c3edd7d269f827ec1cca7b9266bebd79c1f32791fa1042cd174855ea32eae632",
+  "methods": [
+    {
+      "name": "event",
+      "owner": "scripts/retained_release_host.py",
+      "whole_AST_args_decorators_signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "rows",
+      "owner": "scripts/retained_release_host.py",
+      "whole_AST_args_decorators_signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "paused_services",
+      "owner": "scripts/retained_release_host.py",
+      "whole_AST_args_decorators_signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "idle_workers",
+      "owner": "scripts/retained_release_host.py",
+      "whole_AST_args_decorators_signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "schema",
+      "owner": "scripts/retained_release_host.py",
+      "whole_AST_args_decorators_signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "current_main",
+      "owner": "scripts/retained_release_host.py",
+      "whole_AST_args_decorators_signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "compatibility",
+      "owner": "scripts/retained_release_host.py",
+      "whole_AST_args_decorators_signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "retention",
+      "owner": "scripts/retained_release_host.py",
+      "whole_AST_args_decorators_signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "backup",
+      "owner": "scripts/retained_release_host.py",
+      "whole_AST_args_decorators_signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "stop",
+      "owner": "scripts/retained_release_runtime.py",
+      "whole_AST_args_decorators_signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "fence_candidate",
+      "owner": "scripts/retained_release_runtime.py",
+      "whole_AST_args_decorators_signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "start",
+      "owner": "scripts/retained_release_runtime.py",
+      "whole_AST_args_decorators_signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "wait_health",
+      "owner": "scripts/retained_release_runtime.py",
+      "whole_AST_args_decorators_signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "proof",
+      "owner": "scripts/retained_release_runtime.py",
+      "whole_AST_args_decorators_signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "candidate_environment",
+      "owner": "scripts/retained_release_runtime.py",
+      "whole_AST_args_decorators_signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "create_candidate",
+      "owner": "scripts/retained_release_runtime.py",
+      "whole_AST_args_decorators_signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "stage",
+      "owner": "scripts/retained_release_runtime.py",
+      "whole_AST_args_decorators_signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "background_quiescence",
+      "owner": "scripts/retained_release_build.py",
+      "whole_AST_args_decorators_signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "build_fast_images",
+      "owner": "scripts/retained_release_build.py",
+      "whole_AST_args_decorators_signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "fast_images",
+      "owner": "scripts/retained_release_build.py",
+      "whole_AST_args_decorators_signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "initial_schema",
+      "owner": "scripts/retained_release_lifecycle.py",
+      "whole_AST_args_decorators_signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "prepare_images",
+      "owner": "scripts/retained_release_lifecycle.py",
+      "whole_AST_args_decorators_signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "before_candidate_start",
+      "owner": "scripts/retained_release_lifecycle.py",
+      "whole_AST_args_decorators_signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "retention_schema",
+      "owner": "scripts/retained_release_lifecycle.py",
+      "whole_AST_args_decorators_signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "__init__",
+      "owner": "scripts/retained_release_lifecycle.py",
+      "whole_AST_args_decorators_signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "recover",
+      "owner": "scripts/retained_release_lifecycle.py",
+      "whole_AST_args_decorators_signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "run",
+      "owner": "scripts/retained_release_lifecycle.py",
+      "whole_AST_args_decorators_signature_evaluated_hints_pickle_exact": true
+    },
+    {
+      "name": "transition",
+      "owner": "scripts/retained_release_lifecycle.py",
+      "whole_AST_args_decorators_signature_evaluated_hints_pickle_exact": true
+    }
+  ],
+  "whole_method_count": 28,
+  "whole_top_level_functions": 9,
+  "FastBuild_class_whole_AST_exact": true,
+  "constant_AST_and_values": 9,
+  "actual_original_global_bindings": [
+    {
+      "definition": "event",
+      "global": "private_json"
+    },
+    {
+      "definition": "event",
+      "global": "json"
+    },
+    {
+      "definition": "event",
+      "global": "time"
+    },
+    {
+      "definition": "rows",
+      "global": "command"
+    },
+    {
+      "definition": "rows",
+      "global": "json"
+    },
+    {
+      "definition": "paused_services",
+      "global": "pdf_profile"
+    },
+    {
+      "definition": "idle_workers",
+      "global": "WORKERS"
+    },
+    {
+      "definition": "idle_workers",
+      "global": "wait_for_idle"
+    },
+    {
+      "definition": "schema",
+      "global": "command"
+    },
+    {
+      "definition": "schema",
+      "global": "bound_original"
+    },
+    {
+      "definition": "current_main",
+      "global": "command"
+    },
+    {
+      "definition": "current_main",
+      "global": "require"
+    },
+    {
+      "definition": "current_main",
+      "global": "ROOT"
+    },
+    {
+      "definition": "compatibility",
+      "global": "command"
+    },
+    {
+      "definition": "compatibility",
+      "global": "ROUTE_ALLOWLIST"
+    },
+    {
+      "definition": "compatibility",
+      "global": "validate_route_allowlist"
+    },
+    {
+      "definition": "compatibility",
+      "global": "task_contract"
+    },
+    {
+      "definition": "compatibility",
+      "global": "ADDITIONAL_CONTRACT_PATHS"
+    },
+    {
+      "definition": "compatibility",
+      "global": "load_release_manifest"
+    },
+    {
+      "definition": "compatibility",
+      "global": "WORKERS"
+    },
+    {
+      "definition": "compatibility",
+      "global": "COMPATIBILITY_PATHS"
+    },
+    {
+      "definition": "compatibility",
+      "global": "require"
+    },
+    {
+      "definition": "compatibility",
+      "global": "forbidden_changes"
+    },
+    {
+      "definition": "retention",
+      "global": "command"
+    },
+    {
+      "definition": "retention",
+      "global": "INFRASTRUCTURE"
+    },
+    {
+      "definition": "retention",
+      "global": "require"
+    },
+    {
+      "definition": "retention",
+      "global": "bound_original"
+    },
+    {
+      "definition": "backup",
+      "global": "command"
+    },
+    {
+      "definition": "backup",
+      "global": "subprocess"
+    },
+    {
+      "definition": "backup",
+      "global": "os"
+    },
+    {
+      "definition": "backup",
+      "global": "shutil"
+    },
+    {
+      "definition": "backup",
+      "global": "GIB"
+    },
+    {
+      "definition": "backup",
+      "global": "require"
+    },
+    {
+      "definition": "stop",
+      "global": "clean_stop"
+    },
+    {
+      "definition": "fence_candidate",
+      "global": "require"
+    },
+    {
+      "definition": "fence_candidate",
+      "global": "bound_original"
+    },
+    {
+      "definition": "start",
+      "global": "bound_original"
+    },
+    {
+      "definition": "wait_health",
+      "global": "bound_original"
+    },
+    {
+      "definition": "wait_health",
+      "global": "time"
+    },
+    {
+      "definition": "wait_health",
+      "global": "require"
+    },
+    {
+      "definition": "proof",
+      "global": "command"
+    },
+    {
+      "definition": "proof",
+      "global": "environment"
+    },
+    {
+      "definition": "proof",
+      "global": "wait_full_readiness"
+    },
+    {
+      "definition": "proof",
+      "global": "subprocess"
+    },
+    {
+      "definition": "proof",
+      "global": "hashlib"
+    },
+    {
+      "definition": "proof",
+      "global": "json"
+    },
+    {
+      "definition": "proof",
+      "global": "re"
+    },
+    {
+      "definition": "proof",
+      "global": "ORIGIN"
+    },
+    {
+      "definition": "proof",
+      "global": "require"
+    },
+    {
+      "definition": "proof",
+      "global": "bound_original"
+    },
+    {
+      "definition": "candidate_environment",
+      "global": "pdf_profile"
+    },
+    {
+      "definition": "candidate_environment",
+      "global": "runtime_environment"
+    },
+    {
+      "definition": "create_candidate",
+      "global": "pdf_profile"
+    },
+    {
+      "definition": "stage",
+      "global": "ACTIVE"
+    },
+    {
+      "definition": "stage",
+      "global": "clone_payload"
+    },
+    {
+      "definition": "stage",
+      "global": "Path"
+    },
+    {
+      "definition": "stage",
+      "global": "proxy_configuration"
+    },
+    {
+      "definition": "stage",
+      "global": "shutil"
+    },
+    {
+      "definition": "stage",
+      "global": "ROOT"
+    },
+    {
+      "definition": "stage",
+      "global": "require"
+    },
+    {
+      "definition": "background_quiescence",
+      "global": "require"
+    },
+    {
+      "definition": "background_quiescence",
+      "global": "WORKERS"
+    },
+    {
+      "definition": "build_fast_images",
+      "global": "ORIGIN"
+    },
+    {
+      "definition": "build_fast_images",
+      "global": "FastBuild"
+    },
+    {
+      "definition": "before_candidate_start",
+      "global": "require"
+    },
+    {
+      "definition": "__init__",
+      "global": "ROOT"
+    },
+    {
+      "definition": "__init__",
+      "global": "REVISION"
+    },
+    {
+      "definition": "__init__",
+      "global": "LocalDocker"
+    },
+    {
+      "definition": "__init__",
+      "global": "uuid"
+    },
+    {
+      "definition": "__init__",
+      "global": "require"
+    },
+    {
+      "definition": "recover",
+      "global": "APPLICATION"
+    },
+    {
+      "definition": "recover",
+      "global": "require"
+    },
+    {
+      "definition": "recover",
+      "global": "WORKERS"
+    },
+    {
+      "definition": "run",
+      "global": "command"
+    },
+    {
+      "definition": "run",
+      "global": "environment"
+    },
+    {
+      "definition": "run",
+      "global": "select_live"
+    },
+    {
+      "definition": "run",
+      "global": "Path"
+    },
+    {
+      "definition": "run",
+      "global": "shutil"
+    },
+    {
+      "definition": "run",
+      "global": "GIB"
+    },
+    {
+      "definition": "run",
+      "global": "pdf_profile"
+    },
+    {
+      "definition": "run",
+      "global": "verify_manifest"
+    },
+    {
+      "definition": "run",
+      "global": "require"
+    },
+    {
+      "definition": "transition",
+      "global": "command"
+    },
+    {
+      "definition": "transition",
+      "global": "INFRASTRUCTURE"
+    },
+    {
+      "definition": "transition",
+      "global": "APPLICATION"
+    },
+    {
+      "definition": "transition",
+      "global": "WORKERS"
+    },
+    {
+      "definition": "transition",
+      "global": "pdf_profile"
+    },
+    {
+      "definition": "transition",
+      "global": "require"
+    },
+    {
+      "definition": "transition",
+      "global": "bound_original"
+    },
+    {
+      "definition": "wait_full_readiness",
+      "global": "BuildError"
+    },
+    {
+      "definition": "wait_full_readiness",
+      "global": "time"
+    },
+    {
+      "definition": "wait_full_readiness",
+      "global": "subprocess"
+    },
+    {
+      "definition": "wait_full_readiness",
+      "global": "ReleaseError"
+    },
+    {
+      "definition": "wait_full_readiness",
+      "global": "json"
+    },
+    {
+      "definition": "wait_full_readiness",
+      "global": "validate_readiness"
+    },
+    {
+      "definition": "wait_full_readiness",
+      "global": "require"
+    },
+    {
+      "definition": "select_live",
+      "global": "environment"
+    },
+    {
+      "definition": "select_live",
+      "global": "ACTIVE"
+    },
+    {
+      "definition": "select_live",
+      "global": "APPLICATION"
+    },
+    {
+      "definition": "select_live",
+      "global": "REVISION"
+    },
+    {
+      "definition": "select_live",
+      "global": "PurePosixPath"
+    },
+    {
+      "definition": "select_live",
+      "global": "pdf_profile"
+    },
+    {
+      "definition": "select_live",
+      "global": "require"
+    },
+    {
+      "definition": "select_live",
+      "global": "SERVICES"
+    },
+    {
+      "definition": "forbidden_changes",
+      "global": "ROUTE_ALLOWLIST"
+    },
+    {
+      "definition": "forbidden_changes",
+      "global": "require"
+    },
+    {
+      "definition": "forbidden_changes",
+      "global": "FULL_BUILD_PATHS"
+    },
+    {
+      "definition": "validate_route_allowlist",
+      "global": "ROUTE_ALLOWLIST"
+    },
+    {
+      "definition": "validate_route_allowlist",
+      "global": "json"
+    },
+    {
+      "definition": "validate_route_allowlist",
+      "global": "re"
+    },
+    {
+      "definition": "validate_route_allowlist",
+      "global": "require"
+    },
+    {
+      "definition": "runtime_environment",
+      "global": "environment"
+    },
+    {
+      "definition": "proxy_configuration",
+      "global": "require"
+    },
+    {
+      "definition": "proxy_configuration",
+      "global": "re"
+    },
+    {
+      "definition": "release_for_source",
+      "global": "load_release_manifest"
+    },
+    {
+      "definition": "release_for_source",
+      "global": "RetainedUpdate"
+    },
+    {
+      "definition": "main",
+      "global": "__doc__"
+    },
+    {
+      "definition": "main",
+      "global": "release_lock"
+    },
+    {
+      "definition": "main",
+      "global": "__file__"
+    },
+    {
+      "definition": "main",
+      "global": "os"
+    },
+    {
+      "definition": "main",
+      "global": "argparse"
+    },
+    {
+      "definition": "main",
+      "global": "Path"
+    },
+    {
+      "definition": "main",
+      "global": "signal"
+    },
+    {
+      "definition": "main",
+      "global": "json"
+    },
+    {
+      "definition": "main",
+      "global": "ROOT"
+    },
+    {
+      "definition": "main",
+      "global": "release_for_source"
+    },
+    {
+      "definition": "main",
+      "global": "require"
+    },
+    {
+      "definition": "FastBuild.backend",
+      "global": "contract_digest"
+    },
+    {
+      "definition": "FastBuild.backend",
+      "global": "uuid"
+    },
+    {
+      "definition": "FastBuild.backend",
+      "global": "GIB"
+    }
+  ],
+  "public_signature_hints_aliases_pickles_preserved": true,
+  "class_hints_unchanged_empty": true,
+  "added_private_MRO_bases": [
+    "_RetainedBuild",
+    "_RetainedRuntime",
+    "_RetainedHost"
+  ],
+  "new_runtime_base_constructors_state_slots_getattr": false,
+  "class_dict_layout_internal_code_owner_names_changed": true,
+  "class_getsource_tradeoff": {
+    "RetainedUpdate": "OSError: public legacy alias is in facade; class declaration is in focused owner",
+    "FastBuild": "OSError: public legacy alias is in facade; class declaration is in focused owner"
+  },
+  "legacy_bytecode_suppression_precedes_project_imports": true,
+  "line_level_E402_only": "Specific facade project imports retain original suppression ordering; no per-file/config ignore",
+  "six_new_qualification_source_paths_all_old_pins_unchanged": true,
+  "qualifier_source_inverse_byte_exact_LF": true,
+  "test_owner_retarget_proofs": [
+    {
+      "path": "scripts/test_release_retained_update.py",
+      "before_sha256": "091c30b8d2cbc2a1f4157436246389d0f8c4fe9dfb2066e0aa130db93b768e9c",
+      "current_sha256": "cd6e1959c6a8114718999575a20f9007c18ccc9f3eff55ae91e7e19584484e62",
+      "whole_module_AST_restored_after_only_dependency_target_import_normalization": true,
+      "all_original_assertions_unchanged": 86
+    },
+    {
+      "path": "scripts/test_release_companies_fast.py",
+      "before_sha256": "82e0be7a76bc384aa64cd58eb3c9ba02d8a02a5dcb63c5f64e2f76a91b674429",
+      "current_sha256": "35ca1d1aeb2296c7f9d97c6ae301a98f25bb823d4bc924bd41253c484a86ceae",
+      "whole_module_AST_restored_after_only_dependency_target_import_normalization": true,
+      "all_original_assertions_unchanged": 30
+    },
+    {
+      "path": "scripts/test_release_document_fast.py",
+      "before_sha256": "b840a656db2d3525106e85890ff9805e3ee3a6d94dbf41e7d2ea9f28388d069a",
+      "current_sha256": "9a488f31d2eaa5e5871fd68a1d2062e73b2694f21f2a89acf17e3fc07a44194b",
+      "whole_module_AST_restored_after_only_dependency_target_import_normalization": true,
+      "all_original_assertions_unchanged": 15
+    },
+    {
+      "path": "scripts/test_document_resume_baseline.py",
+      "before_sha256": "0476a2f7398199b59374202d74ad6ecbcaca44294d8aea40021319dee9465753",
+      "current_sha256": "cadebf2e0ce006b306f8a500b214403ba64a88ba3c085ce5a67d50fb3808d016",
+      "whole_module_AST_restored_after_only_dependency_target_import_normalization": true,
+      "all_original_assertions_unchanged": 35
+    },
+    {
+      "path": "scripts/test_release_health_asset.py",
+      "before_sha256": "c7317de970613fd11dba2607f96f77e424f7dae3d352371a8dc447acb2d1ca50",
+      "current_sha256": "946363b761bfe7e4ca1a2da5612f4fd690a0c41591b40dfab17a57d58f478adb",
+      "whole_module_AST_restored_after_only_dependency_target_import_normalization": true,
+      "all_original_assertions_unchanged": 14
+    }
+  ],
+  "source_sha256": {
+    "scripts/release_retained_update.py": "7aa6681ae94a5d25b38eb3ed56c597c097d642546a234c1f4e9d4088fe1c97ec",
+    "scripts/retained_release_contract.py": "dabba1e42c75955681b8edd7a3975f64e606eaf4978e3765c093afdf169a4081",
+    "scripts/retained_release_fast.py": "a55df2753e7442c71c759678ca78f9a274519248e38159b9a30de43c08626f5c",
+    "scripts/retained_release_host.py": "8f4757acd817ac921d1c6a5bcb37e2f8fd802b75cbda0dd421ddedf06cc4afdf",
+    "scripts/retained_release_runtime.py": "5c376443862321a620bc56ae780a48eef0511dca4d261abc2cf2443da61aea37",
+    "scripts/retained_release_build.py": "a368b6037e19be1a792e4a975145c4104edfd61ed3d5923388efa69a2cf2dca1",
+    "scripts/retained_release_lifecycle.py": "aff3f49aed8e3475f2d511db7a6fa83304be7da8559cac27b3c13587ca652aea",
+    "scripts/release_document_resources.py": "d0106c684c8bf2073c0992409051903592b371d050c666554d74d4c8ad045a6a",
+    "scripts/test_retained_release_owners.py": "30915e59c5b4e80fc8323f56208757512b4b9fd17055c618de58182967307661",
+    "scripts/test_release_retained_update.py": "cd6e1959c6a8114718999575a20f9007c18ccc9f3eff55ae91e7e19584484e62",
+    "scripts/test_release_companies_fast.py": "35ca1d1aeb2296c7f9d97c6ae301a98f25bb823d4bc924bd41253c484a86ceae",
+    "scripts/test_release_document_fast.py": "9a488f31d2eaa5e5871fd68a1d2062e73b2694f21f2a89acf17e3fc07a44194b",
+    "scripts/test_document_resume_baseline.py": "cadebf2e0ce006b306f8a500b214403ba64a88ba3c085ce5a67d50fb3808d016",
+    "scripts/test_release_health_asset.py": "946363b761bfe7e4ca1a2da5612f4fd690a0c41591b40dfab17a57d58f478adb"
+  }
+}

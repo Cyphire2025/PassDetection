@@ -1,0 +1,79 @@
+[
+  {
+    "path": "features/operations/components/tour-group-qr-codes-page.tsx",
+    "baselineLines": 11,
+    "maximumLines": 20,
+    "baselineMaxFunctionComplexity": 1,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/operations/hooks/use-group-qr-codes-controller.ts",
+    "baselineLines": 119,
+    "maximumLines": 120,
+    "baselineMaxFunctionComplexity": 9,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/operations/hooks/use-group-qr-images.ts",
+    "baselineLines": 124,
+    "maximumLines": 130,
+    "baselineMaxFunctionComplexity": 10,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/operations/hooks/use-passenger-qr-actions.ts",
+    "baselineLines": 73,
+    "maximumLines": 80,
+    "baselineMaxFunctionComplexity": 10,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/operations/components/group-qr-model.ts",
+    "baselineLines": 3,
+    "maximumLines": 20,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/operations/components/group-qr-codes-view.tsx",
+    "baselineLines": 233,
+    "maximumLines": 240,
+    "baselineMaxFunctionComplexity": 20,
+    "maximumFunctionComplexity": 21
+  },
+  {
+    "path": "features/operations/components/group-qr-page-header.tsx",
+    "baselineLines": 94,
+    "maximumLines": 100,
+    "baselineMaxFunctionComplexity": 17,
+    "maximumFunctionComplexity": 18
+  },
+  {
+    "path": "features/operations/components/passenger-qr-card.tsx",
+    "baselineLines": 100,
+    "maximumLines": 100,
+    "baselineMaxFunctionComplexity": 15,
+    "maximumFunctionComplexity": 16
+  },
+  {
+    "path": "features/operations/components/qr-delivery-preview-dialog.tsx",
+    "baselineLines": 270,
+    "maximumLines": 270,
+    "baselineMaxFunctionComplexity": 20,
+    "maximumFunctionComplexity": 21
+  },
+  {
+    "path": "features/operations/components/qr-delivery-status.tsx",
+    "baselineLines": 37,
+    "maximumLines": 40,
+    "baselineMaxFunctionComplexity": 4,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/operations/components/qr-status.ts",
+    "baselineLines": 10,
+    "maximumLines": 20,
+    "baselineMaxFunctionComplexity": 5,
+    "maximumFunctionComplexity": 6
+  }
+]

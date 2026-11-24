@@ -1,0 +1,122 @@
+{
+  "status": "sealed-read-only-plus-doc-framing-cohort",
+  "source_fence": [
+    {
+      "path": "docs/architecture/passport-link-ecr-and-languages.md",
+      "sha256": "6bccd5793d7d0146e011003c8aeeeb180ee8296f117e17c6a9ad10bf9cc1c874",
+      "physical_lines": 161,
+      "review_scope": "full",
+      "status": "reviewed-and-documented",
+      "reviewer": "branding_visuals",
+      "notes": "Complete authored guide physically read. Current/historical rollout framing added only; every pre-existing line, command/config block, source/test failure record, stated service limitation and original deployment/security requirement retained. Exact source manifest0142 and current retained manifest-based selector support correction; no new current runtime qualification or operator action."
+    },
+    {
+      "path": "docs/architecture/ecr-checker.md",
+      "sha256": "918d33c35b6f65be1e77a466a85c9b88a75c720103025b54bb81c5cbdbb14c0e",
+      "physical_lines": 183,
+      "review_scope": "full",
+      "status": "reviewed-and-documented",
+      "reviewer": "branding_visuals",
+      "notes": "Complete authored guide physically read. Current/historical rollout framing added only; every pre-existing line, command/config block, source/test failure record, stated service limitation and original deployment/security requirement retained. Exact source manifest0142 and current retained manifest-based selector support correction; no new current runtime qualification or operator action. DatedSep24price/provider smoke/tokens/latency and image/queue arithmetic read as historical claims, not current rates/accuracy/provider authorization; no external facts reverified, no key/setup/API request or private images accessed."
+    },
+    {
+      "path": "docs/architecture/public-upload-rate-limits.md",
+      "sha256": "f39f536e1967ea95ab81caaf4b2b9a5c13a7f744f81c8ece5ddd8b91762b1f90",
+      "physical_lines": 232,
+      "review_scope": "full",
+      "status": "reviewed-and-documented",
+      "reviewer": "branding_visuals",
+      "notes": "Complete authored guide physically read. Current/historical rollout framing added only; every pre-existing line, command/config block, source/test failure record, stated service limitation and original deployment/security requirement retained. Exact source manifest0142 and current retained manifest-based selector support correction; no new current runtime qualification or operator action. Legacy direct-submission header/UUID-vs-capability, blob previews/HMAC Redis keys/failclosed guards/redacted proxy logs/trustedIP and bounded per-layer traffic descriptions physically reviewed; active Fresh routes/current exact middleware/proxy values remain authoritative, no thresholds changed."
+    },
+    {
+      "path": "docs/architecture/gemini-priority-scheduling.md",
+      "sha256": "5da5c07ebd4d7509633c7f2531085795d0e98733b8b089472a4f6641f3043f77",
+      "physical_lines": 313,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete313 authored physical lines read. Redis generation/lease/hash-tag priority/fail-open asymmetry/manual fallback, durable DB and fresh broker redelivery/provider-attempt distinction, bounded pacing/Retry-After, readiness vs real provider/project identity, secret-free logging/crossprocess metrics and sampled percentile limits reviewed as documented contract. Native-memory/capacity measurements and staging gate remain explicitly component/historical vs actual provider/whole-host proof. No config/provider invocation, actual admission/load/Redis/workers measured, document unchanged; reserved load-tests/k6/README.md not read or edited."
+    }
+  ],
+  "full_read_count": 4,
+  "physical_lines": 889,
+  "ledger": {
+    "path": "docs/audit/dashboard-2026-10-30/supporting-upload-guides-reviewed-files.json",
+    "sha256": "d55e99481ea1da9033dea5e4e2c03049ef9ad83a2e119b3d66488d2ddea1a0ba"
+  },
+  "changes": [
+    {
+      "path": "docs/architecture/passport-link-ecr-and-languages.md",
+      "snapshot": ".tmp/supporting-upload-guides/passport-link-ecr-and-languages.md",
+      "sha256": "9e3f372a8a50832ea210809d11e8a20fb0a03da7e65dfb5d2a9bab879c6bf9e7",
+      "after_sha256": "6bccd5793d7d0146e011003c8aeeeb180ee8296f117e17c6a9ad10bf9cc1c874",
+      "all_original_text_lines_retained": true,
+      "fenced_commands_and_config_exact": true,
+      "inserted_regions": [
+        {
+          "kind": "insert",
+          "old_lines": [
+            106,
+            105
+          ],
+          "new_lines": [
+            106,
+            112
+          ]
+        }
+      ]
+    },
+    {
+      "path": "docs/architecture/ecr-checker.md",
+      "snapshot": ".tmp/supporting-upload-guides/ecr-checker.md",
+      "sha256": "08df6d114dec498a4b6ca3eb587f4cf68cd686e54f68ec38f3d8272dcd980aad",
+      "after_sha256": "918d33c35b6f65be1e77a466a85c9b88a75c720103025b54bb81c5cbdbb14c0e",
+      "all_original_text_lines_retained": true,
+      "fenced_commands_and_config_exact": true,
+      "inserted_regions": [
+        {
+          "kind": "insert",
+          "old_lines": [
+            126,
+            125
+          ],
+          "new_lines": [
+            126,
+            132
+          ]
+        }
+      ]
+    },
+    {
+      "path": "docs/architecture/public-upload-rate-limits.md",
+      "snapshot": ".tmp/supporting-upload-guides/public-upload-rate-limits.md",
+      "sha256": "5ec89e5caf58bb08b206749a986826019eaf916134b1223af50dc09ceb2aae73",
+      "after_sha256": "f39f536e1967ea95ab81caaf4b2b9a5c13a7f744f81c8ece5ddd8b91762b1f90",
+      "all_original_text_lines_retained": true,
+      "fenced_commands_and_config_exact": true,
+      "inserted_regions": [
+        {
+          "kind": "insert",
+          "old_lines": [
+            202,
+            201
+          ],
+          "new_lines": [
+            202,
+            209
+          ]
+        }
+      ]
+    }
+  ],
+  "verification": "Source-only complete guide reads and exact insertion/old-line preservation/code-block/link checks. No automated runtime/build/broad suite/browser/provider or deployment checks.",
+  "source_context": [
+    "Exact packaged release_manifest.json is0142/workspace_branding_v1; earlier supporting-release-guides receipt binds actual selector and code-only equality source snippets.",
+    "Earlier full source reviews of scheduler/ECR/private-upload paths provide context; no new runtime full-read credit inferred from guide text."
+  ],
+  "limits": [
+    "No historical source/test/price/service/capacity observation promoted to current qualification; original records remain unchanged.",
+    "No active runtime/schema/migration, provider credentials/calls, security policy, shared gate/cap/floor or default configuration changed.",
+    "No current/offline/liveNAT/physical memory/PG/Redis/Celery or actual AI latency/accuracy/load result from document reading."
+  ]
+}

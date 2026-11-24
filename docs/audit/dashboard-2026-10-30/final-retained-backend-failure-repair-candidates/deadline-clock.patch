@@ -1,0 +1,11 @@
+--- a/backend/tests/unit/infrastructure/test_traveller_reconciliation_runtime.py
++++ b/backend/tests/unit/infrastructure/test_traveller_reconciliation_runtime.py
+@@ -76,6 +76,8 @@
+         finally:
+             cancelled.append(index)
+ 
++    # Keep bookkeeping time stable; asyncio retains its real cancellation clock.
++    monkeypatch.setattr(runtime, "monotonic", lambda: 0.0)
+     monkeypatch.setattr(runtime, "RECONCILIATION_BURST_SECONDS", 0.01)
+     monkeypatch.setattr(runtime, "advance_company_history_chain", AsyncMock())
+     monkeypatch.setattr(runtime, "_reconciliation_slot", slot)

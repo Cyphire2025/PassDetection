@@ -1,0 +1,254 @@
+[
+  {
+    "path": "backend/tests/unit/application/test_mobile_otp_provider.py",
+    "sha256": "e40683b3847dfc6c89e636d65ce946de996741b05aac5407cbcbc15da60f9d03",
+    "physical_lines": 49,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "retained_physically_reviewed_ranges": [
+      [
+        1,
+        49
+      ]
+    ],
+    "excluded_native_sections": [],
+    "notes": "Complete shared outgoing provider development/disabled result classification: no returned OTP, production fail-closed and configured failure behavior. Canonical WhatsApp OTP provider imports these fallback owners; no native OTP ingress, delivery or device feature audit/execution. Source-only physical assertion review; no tests, provider/network, migrations, native client or deployment execution. No runtime/test/source/gate/policy edit or automatic independent finding closure."
+  },
+  {
+    "path": "backend/tests/unit/application/test_passenger_session_authority.py",
+    "sha256": "c97dcff8ac4db6e3dceba59dd5ec656268e334d331c1bed8a1278d4286426940",
+    "physical_lines": 74,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "retained_physically_reviewed_ranges": [
+      [
+        1,
+        74
+      ]
+    ],
+    "excluded_native_sections": [],
+    "notes": "Complete canonical submitted-contact authority controls: normalized unchanged contact preserves grants; changed contact/draft/import/generation/revocation invalidates all affected session/refresh bindings durably without deleting retained submissions; direct policy rejects obsolete phone binding. Shared dashboard-triggered identity/session compatibility only. Source-only physical assertion review; no tests, provider/network, migrations, native client or deployment execution. No runtime/test/source/gate/policy edit or automatic independent finding closure."
+  },
+  {
+    "path": "backend/tests/unit/application/test_mobile_realtime_authorization.py",
+    "sha256": "4e32a7bcc92c2887cfb020ddb0b7a24999e84b3708c91570280b19366e4ec8fd",
+    "physical_lines": 125,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "retained_physically_reviewed_ranges": [
+      [
+        1,
+        125
+      ]
+    ],
+    "excluded_native_sections": [],
+    "notes": "Complete current tenant/trip/access/assignment relational policy fixture and live group-access revocation control. This tests a backend authority projection only; no native socket/client execution, universal agency-suspension inference or newly validated defect. Source-only physical assertion review; no tests, provider/network, migrations, native client or deployment execution. No runtime/test/source/gate/policy edit or automatic independent finding closure."
+  },
+  {
+    "path": "backend/tests/unit/application/test_mobile_push_provider.py",
+    "sha256": "fbb59b5991842620a2a1e3a202f378229b80d4caa9754479438df27dd672a9f4",
+    "physical_lines": 240,
+    "reviewer": "ai_extraction",
+    "review_scope": "focused",
+    "status": "needs-follow-up",
+    "retained_physically_reviewed_ranges": [
+      [
+        1,
+        52
+      ]
+    ],
+    "excluded_native_sections": [
+      [
+        55,
+        240
+      ]
+    ],
+    "notes": "Shared message fixture, disabled provider fail-closed and fixed public payload allowlist rejecting passport data physically reviewed. Dashboard-authored notification target composition uses MobilePushMessage, including FCM/APNS consumers; method-name expo_payload alone does not establish scope. Provider-specific Expo transport tests excluded. Source-only physical assertion review; no tests, provider/network, migrations, native client or deployment execution. No runtime/test/source/gate/policy edit or automatic independent finding closure."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_mobile_authorization_matrix.py",
+    "sha256": "cee8f3d80aa744ca0121ccd493a12d214d1e0b01bd476c3f5d9376cba0540999",
+    "physical_lines": 722,
+    "reviewer": "ai_extraction",
+    "review_scope": "focused",
+    "status": "needs-follow-up",
+    "retained_physically_reviewed_ranges": [
+      [
+        1,
+        31
+      ],
+      [
+        49,
+        49
+      ],
+      [
+        194,
+        212
+      ],
+      [
+        371,
+        486
+      ]
+    ],
+    "excluded_native_sections": [
+      "Native route/dependency catalogs and adapter-specific guards outside listed retained ranges; native refresh/session/socket tests487-722."
+    ],
+    "notes": "Canonical MobileAccessPolicy and realtime projection whole case reviewed: independent user/agency, disabled role/access, revoked access, deleted group and healthy explicit assignment; helper claims and actual persistence fixture inspected. Route catalogs, token refresh/offline lease, custom native WebSocket and native adapter guards excluded. No universal active-agency rule asserted. Source-only physical assertion review; no tests, provider/network, migrations, native client or deployment execution. No runtime/test/source/gate/policy edit or automatic independent finding closure."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_mobile_historical_access_sync.py",
+    "sha256": "ba7a2ad7c5db9421801e244b9bdcd03d3164197cfab882c37da8dbcd1ed99cc1",
+    "physical_lines": 178,
+    "reviewer": "ai_extraction",
+    "review_scope": "focused",
+    "status": "needs-follow-up",
+    "retained_physically_reviewed_ranges": [
+      [
+        1,
+        32
+      ],
+      [
+        44,
+        60
+      ],
+      [
+        114,
+        167
+      ]
+    ],
+    "excluded_native_sections": [
+      [
+        35,
+        41
+      ],
+      [
+        63,
+        111
+      ],
+      [
+        168,
+        178
+      ]
+    ],
+    "notes": "Dashboard configure_gc_group_access actual mutation plus exact shared journal consequences reviewed: window edit invalidates old session and emits role-specific upsert/revoke/purge markers, preserving current access-generation distinction. Pure unrelated/unknown revocation projection case and journal fixture reviewed. Native HTTP new-session history consumption/current-auth routes excluded. Source-only physical assertion review; no tests, provider/network, migrations, native client or deployment execution. No runtime/test/source/gate/policy edit or automatic independent finding closure."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_mobile_ops.py",
+    "sha256": "512c33736a7d3b458ded87f17d2d2dffa9d7b2662fbf7ee9fc1434d7cfade755",
+    "physical_lines": 1658,
+    "reviewer": "ai_extraction",
+    "review_scope": "focused",
+    "status": "needs-follow-up",
+    "retained_physically_reviewed_ranges": [
+      [
+        1,
+        88
+      ],
+      [
+        763,
+        804
+      ],
+      [
+        1050,
+        1308
+      ],
+      [
+        1334,
+        1353
+      ],
+      [
+        1599,
+        1609
+      ]
+    ],
+    "excluded_native_sections": [
+      "Native HTTP/client contracts, role adapters, manager/coordinator UI-facing detail/roster, device push registration and incidents outside listed ranges. Retained batch harness does not audit or execute the native consumer feature."
+    ],
+    "notes": "Shared server attendance capacity/tenant lock/idempotent-name, bounded batch session and QR source SQL, canonical family replay and fail-closed QR rejection precedence reviewed. Hundred-action synthetic adapter harness reviewed only for shared query/journal flush/roster-revision output obligations. Fixed notification payload/countdown exclusion, imported date parsing and scoped notification access SQL reviewed. No native adapter behavior qualification or whole-file credit. Source-only physical assertion review; no tests, provider/network, migrations, native client or deployment execution. No runtime/test/source/gate/policy edit or automatic independent finding closure."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_mobile_route_type_boundaries.py",
+    "sha256": "ce05d9ea8dc60a03ebbb037bae5f9c3334a4e508ba0dc1fb4ca13e25f7a99128",
+    "physical_lines": 122,
+    "reviewer": "ai_extraction",
+    "review_scope": "focused",
+    "status": "needs-follow-up",
+    "retained_physically_reviewed_ranges": [
+      [
+        1,
+        16
+      ],
+      [
+        45,
+        57
+      ],
+      [
+        68,
+        82
+      ],
+      [
+        88,
+        92
+      ]
+    ],
+    "excluded_native_sections": [
+      [
+        17,
+        42
+      ],
+      [
+        58,
+        66
+      ],
+      [
+        83,
+        86
+      ],
+      [
+        95,
+        122
+      ]
+    ],
+    "notes": "Exact retained dashboard organization/client-manager/itinerary/content persisted enum validators and shared positive/negative assertion body reviewed. Parametrized native attendance/MIME/sync selector rows and all principal/priority/meal-native projections excluded; no full-file credit for the mixed loop. Source-only physical assertion review; no tests, provider/network, migrations, native client or deployment execution. No runtime/test/source/gate/policy edit or automatic independent finding closure."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_mobile_submitted_phone_auth.py",
+    "sha256": "b21a9c43707088e10a287a1522d8e4f9d6ffd4bff7147188eacfd6d6734c1078",
+    "physical_lines": 244,
+    "reviewer": "ai_extraction",
+    "review_scope": "focused",
+    "status": "needs-follow-up",
+    "retained_physically_reviewed_ranges": [
+      [
+        1,
+        12
+      ],
+      [
+        27,
+        36
+      ],
+      [
+        71,
+        88
+      ]
+    ],
+    "excluded_native_sections": [
+      [
+        13,
+        25
+      ],
+      [
+        39,
+        68
+      ],
+      [
+        91,
+        244
+      ]
+    ],
+    "notes": "Canonical authoritative_submission_phone actual shared cases reviewed: completed collection statuses, explicit completion overriding old import provenance, draft/unreviewed/import-placeholder/missing contact denial. Native OTP provider/claim/verification/refresh and native discovery query helpers remain excluded; classification-only supporting inspection earns no full or retained semantic credit. Source-only physical assertion review; no tests, provider/network, migrations, native client or deployment execution. No runtime/test/source/gate/policy edit or automatic independent finding closure."
+  }
+]

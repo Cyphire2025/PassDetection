@@ -1,0 +1,1904 @@
+{
+  "User": {
+    "constructor": "(id: 'uuid.UUID', email: 'str', hashed_password: 'str', full_name: 'str', role: 'UserRole', agency_id: 'uuid.UUID | None', is_active: 'bool' = True, created_at: 'datetime' = <factory>, updated_at: 'datetime' = <factory>, last_login_at: 'datetime | None' = None, credential_state: 'str' = 'active', session_version: 'int' = 1, mfa_required: 'bool' = False, mfa_enabled: 'bool' = False, actual_role: 'UserRole | None' = None, actual_agency_id: 'uuid.UUID | None' = None, access_level_agency_name: 'str | None' = None) -> None",
+    "fields": [
+      {
+        "name": "id",
+        "type": "uuid.UUID",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "email",
+        "type": "str",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "hashed_password",
+        "type": "str",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "full_name",
+        "type": "str",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "role",
+        "type": "UserRole",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "agency_id",
+        "type": "uuid.UUID | None",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "is_active",
+        "type": "bool",
+        "default": true,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "created_at",
+        "type": "datetime",
+        "default": "required",
+        "factory_qualname": "_utcnow",
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "updated_at",
+        "type": "datetime",
+        "default": "required",
+        "factory_qualname": "_utcnow",
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "last_login_at",
+        "type": "datetime | None",
+        "default": null,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "credential_state",
+        "type": "str",
+        "default": "active",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "session_version",
+        "type": "int",
+        "default": 1,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "mfa_required",
+        "type": "bool",
+        "default": false,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "mfa_enabled",
+        "type": "bool",
+        "default": false,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "actual_role",
+        "type": "UserRole | None",
+        "default": null,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "actual_agency_id",
+        "type": "uuid.UUID | None",
+        "default": null,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "access_level_agency_name",
+        "type": "str | None",
+        "default": null,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      }
+    ],
+    "methods": {
+      "can_access_agency": "(self, agency_id: 'uuid.UUID') -> 'bool'",
+      "can_manage_agency": "(self, agency_id: 'uuid.UUID') -> 'bool'",
+      "create": "(email: 'str', hashed_password: 'str', full_name: 'str', role: 'UserRole', agency_id: 'uuid.UUID | None' = None) -> 'User'",
+      "deactivate": "(self) -> 'None'",
+      "record_login": "(self) -> 'None'"
+    },
+    "properties": [],
+    "dataclass_flags": {
+      "init": true,
+      "repr": true,
+      "eq": true,
+      "order": false,
+      "unsafe_hash": false,
+      "frozen": false
+    }
+  },
+  "Agency": {
+    "constructor": "(id: 'uuid.UUID', name: 'str', email: 'str', phone: 'str | None', is_active: 'bool' = True, created_at: 'datetime' = <factory>, updated_at: 'datetime' = <factory>) -> None",
+    "fields": [
+      {
+        "name": "id",
+        "type": "uuid.UUID",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "name",
+        "type": "str",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "email",
+        "type": "str",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "phone",
+        "type": "str | None",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "is_active",
+        "type": "bool",
+        "default": true,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "created_at",
+        "type": "datetime",
+        "default": "required",
+        "factory_qualname": "_utcnow",
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "updated_at",
+        "type": "datetime",
+        "default": "required",
+        "factory_qualname": "_utcnow",
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      }
+    ],
+    "methods": {
+      "create": "(name: 'str', email: 'str', phone: 'str | None' = None) -> 'Agency'"
+    },
+    "properties": [],
+    "dataclass_flags": {
+      "init": true,
+      "repr": true,
+      "eq": true,
+      "order": false,
+      "unsafe_hash": false,
+      "frozen": false
+    }
+  },
+  "ClientGroup": {
+    "constructor": "(id: 'uuid.UUID', name: 'str', token: 'str', agency_id: 'uuid.UUID', status: 'GroupStatus', created_by_user_id: 'uuid.UUID | None', company_id: 'uuid.UUID | None' = None, company_revision: 'int' = 0, company: 'dict[str, object] | None' = None, banner_url: 'str | None' = None, background_url: 'str | None' = None, import_only: 'bool' = False, created_at: 'datetime' = <factory>, closed_at: 'datetime | None' = None, destination: 'str | None' = None, travel_date: 'date | None' = None, return_date: 'date | None' = None, timezone: 'str' = 'Asia/Kolkata', package_name: 'str | None' = None, departure_cities: 'list[str]' = <factory>, base_city_enabled: 'bool' = False, nearest_international_airport_enabled: 'bool' = False, staff_code_enabled: 'bool' = False, agent_employee_code_enabled: 'bool' = False, meal_preference_enabled: 'bool' = False, require_selfie: 'bool' = False, upload_configuration: 'dict[str, object] | None' = None, allow_files_from_device: 'bool' = True, ask_nearest_domestic_airport: 'bool' = False, relation_with_qualifier_enabled: 'bool' = False, designation_enabled: 'bool' = False, agency_dealership_name_enabled: 'bool' = False, custom_questions: 'list[CustomQuestionDefinition]' = <factory>, custom_details: 'list[CustomDetailDefinition]' = <factory>, notes: 'str | None' = None, deleted_at: 'datetime | None' = None, deleted_passport_count: 'int' = 0, deletion_retained_records: 'bool' = False, passport_purge_at: 'datetime | None' = None, passport_retention_days_applied: 'int | None' = None, passport_legal_hold: 'bool' = False, passport_legal_hold_reason: 'str | None' = None, passport_legal_hold_set_at: 'datetime | None' = None, passport_legal_hold_set_by_user_id: 'uuid.UUID | None' = None) -> None",
+    "fields": [
+      {
+        "name": "id",
+        "type": "uuid.UUID",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "name",
+        "type": "str",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "token",
+        "type": "str",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "agency_id",
+        "type": "uuid.UUID",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "status",
+        "type": "GroupStatus",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "created_by_user_id",
+        "type": "uuid.UUID | None",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "company_id",
+        "type": "uuid.UUID | None",
+        "default": null,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "company_revision",
+        "type": "int",
+        "default": 0,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "company",
+        "type": "dict[str, object] | None",
+        "default": null,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "banner_url",
+        "type": "str | None",
+        "default": null,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "background_url",
+        "type": "str | None",
+        "default": null,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "import_only",
+        "type": "bool",
+        "default": false,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "created_at",
+        "type": "datetime",
+        "default": "required",
+        "factory_qualname": "_utcnow",
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "closed_at",
+        "type": "datetime | None",
+        "default": null,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "destination",
+        "type": "str | None",
+        "default": null,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "travel_date",
+        "type": "date | None",
+        "default": null,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "return_date",
+        "type": "date | None",
+        "default": null,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "timezone",
+        "type": "str",
+        "default": "Asia/Kolkata",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "package_name",
+        "type": "str | None",
+        "default": null,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "departure_cities",
+        "type": "list[str]",
+        "default": "required",
+        "factory_qualname": "list",
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "base_city_enabled",
+        "type": "bool",
+        "default": false,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "nearest_international_airport_enabled",
+        "type": "bool",
+        "default": false,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "staff_code_enabled",
+        "type": "bool",
+        "default": false,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "agent_employee_code_enabled",
+        "type": "bool",
+        "default": false,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "meal_preference_enabled",
+        "type": "bool",
+        "default": false,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "require_selfie",
+        "type": "bool",
+        "default": false,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "upload_configuration",
+        "type": "dict[str, object] | None",
+        "default": null,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "allow_files_from_device",
+        "type": "bool",
+        "default": true,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "ask_nearest_domestic_airport",
+        "type": "bool",
+        "default": false,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "relation_with_qualifier_enabled",
+        "type": "bool",
+        "default": false,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "designation_enabled",
+        "type": "bool",
+        "default": false,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "agency_dealership_name_enabled",
+        "type": "bool",
+        "default": false,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "custom_questions",
+        "type": "list[CustomQuestionDefinition]",
+        "default": "required",
+        "factory_qualname": "list",
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "custom_details",
+        "type": "list[CustomDetailDefinition]",
+        "default": "required",
+        "factory_qualname": "list",
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "notes",
+        "type": "str | None",
+        "default": null,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "deleted_at",
+        "type": "datetime | None",
+        "default": null,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "deleted_passport_count",
+        "type": "int",
+        "default": 0,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "deletion_retained_records",
+        "type": "bool",
+        "default": false,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "passport_purge_at",
+        "type": "datetime | None",
+        "default": null,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "passport_retention_days_applied",
+        "type": "int | None",
+        "default": null,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "passport_legal_hold",
+        "type": "bool",
+        "default": false,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "passport_legal_hold_reason",
+        "type": "str | None",
+        "default": null,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "passport_legal_hold_set_at",
+        "type": "datetime | None",
+        "default": null,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "passport_legal_hold_set_by_user_id",
+        "type": "uuid.UUID | None",
+        "default": null,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      }
+    ],
+    "methods": {
+      "archive": "(self, *, passport_retention_days: 'int | None' = None) -> 'None'",
+      "close": "(self, *, passport_retention_days: 'int | None' = None) -> 'None'",
+      "create": "(name: 'str', token: 'str', agency_id: 'uuid.UUID', created_by_user_id: 'uuid.UUID', destination: 'str | None' = None, travel_date: 'date | None' = None, return_date: 'date | None' = None, timezone: 'str' = 'Asia/Kolkata', package_name: 'str | None' = None, departure_cities: 'list[str] | None' = None, base_city_enabled: 'bool' = False, nearest_international_airport_enabled: 'bool' = False, staff_code_enabled: 'bool' = False, agent_employee_code_enabled: 'bool' = False, meal_preference_enabled: 'bool' = False, require_selfie: 'bool' = False, upload_configuration: 'dict[str, object] | None' = None, allow_files_from_device: 'bool' = True, ask_nearest_domestic_airport: 'bool' = False, relation_with_qualifier_enabled: 'bool' = False, designation_enabled: 'bool' = False, agency_dealership_name_enabled: 'bool' = False, custom_questions: 'list[dict[str, object]] | None' = None, custom_details: 'list[dict[str, object]] | None' = None, notes: 'str | None' = None, initial_status: 'GroupStatus' = <GroupStatus.ACTIVE: 'active'>, passport_retention_days: 'int | None' = None, import_only: 'bool' = False) -> 'ClientGroup'",
+      "is_active": "(self) -> 'bool'",
+      "mark_deleted": "(self, *, passport_count: 'int', retain_records: 'bool', passport_retention_days: 'int | None' = None) -> 'None'",
+      "require_allowed_acquisition_mode": "(self, acquisition_mode: 'str') -> 'str'",
+      "restore": "(self) -> 'None'",
+      "schedule_passport_purge": "(self, retention_days: 'int') -> 'None'",
+      "update_configuration": "(self, *, name: 'str', destination: 'str | None', travel_date: 'date | None', return_date: 'date | None', timezone: 'str', package_name: 'str | None', departure_cities: 'list[str] | None', base_city_enabled: 'bool', nearest_international_airport_enabled: 'bool', staff_code_enabled: 'bool', agent_employee_code_enabled: 'bool', meal_preference_enabled: 'bool', require_selfie: 'bool', allow_files_from_device: 'bool', ask_nearest_domestic_airport: 'bool', relation_with_qualifier_enabled: 'bool', designation_enabled: 'bool', agency_dealership_name_enabled: 'bool', custom_questions: 'list[dict[str, object]] | None', custom_details: 'list[dict[str, object]] | None', notes: 'str | None', upload_configuration: 'dict[str, object] | None' = None) -> 'None'"
+    },
+    "properties": [],
+    "dataclass_flags": {
+      "init": true,
+      "repr": true,
+      "eq": true,
+      "order": false,
+      "unsafe_hash": false,
+      "frozen": false
+    }
+  },
+  "QualifierSelection": {
+    "constructor": "(id: 'uuid.UUID', group_id: 'uuid.UUID', token_hash: 'str', is_self: 'bool', relation_code: 'str | None', relation_label: 'str', selected_at: 'datetime', expires_at: 'datetime', created_at: 'datetime') -> None",
+    "fields": [
+      {
+        "name": "id",
+        "type": "uuid.UUID",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "group_id",
+        "type": "uuid.UUID",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "token_hash",
+        "type": "str",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "is_self",
+        "type": "bool",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "relation_code",
+        "type": "str | None",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "relation_label",
+        "type": "str",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "selected_at",
+        "type": "datetime",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "expires_at",
+        "type": "datetime",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "created_at",
+        "type": "datetime",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      }
+    ],
+    "methods": {
+      "create": "(*, group_id: 'uuid.UUID', token_hash: 'str', is_self: 'bool', relation_code: 'str | None', selected_at: 'datetime', expires_at: 'datetime', other_relation: 'str | None' = None) -> 'QualifierSelection'",
+      "is_expired": "(self, *, now: 'datetime | None' = None) -> 'bool'"
+    },
+    "properties": [],
+    "dataclass_flags": {
+      "init": true,
+      "repr": true,
+      "eq": true,
+      "order": false,
+      "unsafe_hash": false,
+      "frozen": false
+    }
+  },
+  "PassportSubmission": {
+    "constructor": "(id: 'uuid.UUID', group_id: 'uuid.UUID', agency_id: 'uuid.UUID', client_name: 'str', client_email: 'str | None', client_phone: 'str | None', departure_city: 'str | None', submission_mode: 'str', family_group_id: 'uuid.UUID | None', family_member_index: 'int | None', family_relation: 'str | None', family_gender: 'str | None', family_head_name: 'str | None', family_head_email: 'str | None', family_head_phone: 'str | None', family_broadcast_to_member: 'bool', image_s3_key: 'str', thumbnail_s3_key: 'str | None', passport_photo_s3_key: 'str | None', passport_back_s3_key: 'str | None', staff_metadata: 'dict[str, str] | None', status: 'PassportProcessingStatus', extracted_fields: 'dict[str, object] | None', confirmed_fields: 'dict[str, str] | None', overall_confidence: 'float | None', confidence_score: 'dict[str, object] | None', mrz_raw: 'str | None', error_message: 'str | None', passport_cover_s3_key: 'str | None' = None, passport_back_cover_s3_key: 'str | None' = None, document_follow_up: 'bool' = False, display_name: 'str | None' = None, custom_answers: 'list[CustomAnswerSnapshot]' = <factory>, custom_detail_answers: 'list[CustomDetailAnswerSnapshot]' = <factory>, qualifier_enabled_snapshot: 'bool' = False, qualifier_selection_id: 'uuid.UUID | None' = None, qualifier_is_self: 'bool | None' = None, qualifier_relation_code: 'str | None' = None, qualifier_relation_label: 'str | None' = None, qualifier_selected_at: 'datetime | None' = None, nearest_domestic_airport: 'str | None' = None, acquisition_mode: 'str' = 'file', upload_idempotency_key: 'str | None' = None, extraction_status: 'PassportExtractionStatus' = <PassportExtractionStatus.NOT_STARTED: 'not_started'>, extraction_revision: 'int' = 0, extraction_conflicts: 'list[dict[str, str | None]]' = <factory>, post_submission_verification: 'dict[str, object] | None' = None, post_submission_verification_revision: 'int' = 0, post_submission_verified_at: 'datetime | None' = None, verification_reviewed_by_user_id: 'uuid.UUID | None' = None, verification_reviewer_name: 'str | None' = None, verification_reviewed_at: 'datetime | None' = None, created_at: 'datetime' = <factory>, updated_at: 'datetime' = <factory>, client_reviewed_at: 'datetime | None' = None, confirmed_at: 'datetime | None' = None) -> None",
+    "fields": [
+      {
+        "name": "id",
+        "type": "uuid.UUID",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "group_id",
+        "type": "uuid.UUID",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "agency_id",
+        "type": "uuid.UUID",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "client_name",
+        "type": "str",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "client_email",
+        "type": "str | None",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "client_phone",
+        "type": "str | None",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "departure_city",
+        "type": "str | None",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "submission_mode",
+        "type": "str",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "family_group_id",
+        "type": "uuid.UUID | None",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "family_member_index",
+        "type": "int | None",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "family_relation",
+        "type": "str | None",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "family_gender",
+        "type": "str | None",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "family_head_name",
+        "type": "str | None",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "family_head_email",
+        "type": "str | None",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "family_head_phone",
+        "type": "str | None",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "family_broadcast_to_member",
+        "type": "bool",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "image_s3_key",
+        "type": "str",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "thumbnail_s3_key",
+        "type": "str | None",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "passport_photo_s3_key",
+        "type": "str | None",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "passport_back_s3_key",
+        "type": "str | None",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "staff_metadata",
+        "type": "dict[str, str] | None",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "status",
+        "type": "PassportProcessingStatus",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "extracted_fields",
+        "type": "dict[str, object] | None",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "confirmed_fields",
+        "type": "dict[str, str] | None",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "overall_confidence",
+        "type": "float | None",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "confidence_score",
+        "type": "dict[str, object] | None",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "mrz_raw",
+        "type": "str | None",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "error_message",
+        "type": "str | None",
+        "default": "required",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "passport_cover_s3_key",
+        "type": "str | None",
+        "default": null,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "passport_back_cover_s3_key",
+        "type": "str | None",
+        "default": null,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "document_follow_up",
+        "type": "bool",
+        "default": false,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "display_name",
+        "type": "str | None",
+        "default": null,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "custom_answers",
+        "type": "list[CustomAnswerSnapshot]",
+        "default": "required",
+        "factory_qualname": "list",
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "custom_detail_answers",
+        "type": "list[CustomDetailAnswerSnapshot]",
+        "default": "required",
+        "factory_qualname": "list",
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "qualifier_enabled_snapshot",
+        "type": "bool",
+        "default": false,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "qualifier_selection_id",
+        "type": "uuid.UUID | None",
+        "default": null,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "qualifier_is_self",
+        "type": "bool | None",
+        "default": null,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "qualifier_relation_code",
+        "type": "str | None",
+        "default": null,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "qualifier_relation_label",
+        "type": "str | None",
+        "default": null,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "qualifier_selected_at",
+        "type": "datetime | None",
+        "default": null,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "nearest_domestic_airport",
+        "type": "str | None",
+        "default": null,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "acquisition_mode",
+        "type": "str",
+        "default": "file",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "upload_idempotency_key",
+        "type": "str | None",
+        "default": null,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "extraction_status",
+        "type": "PassportExtractionStatus",
+        "default": "not_started",
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "extraction_revision",
+        "type": "int",
+        "default": 0,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "extraction_conflicts",
+        "type": "list[dict[str, str | None]]",
+        "default": "required",
+        "factory_qualname": "list",
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "post_submission_verification",
+        "type": "dict[str, object] | None",
+        "default": null,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "post_submission_verification_revision",
+        "type": "int",
+        "default": 0,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "post_submission_verified_at",
+        "type": "datetime | None",
+        "default": null,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "verification_reviewed_by_user_id",
+        "type": "uuid.UUID | None",
+        "default": null,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "verification_reviewer_name",
+        "type": "str | None",
+        "default": null,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "verification_reviewed_at",
+        "type": "datetime | None",
+        "default": null,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "created_at",
+        "type": "datetime",
+        "default": "required",
+        "factory_qualname": "_utcnow",
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "updated_at",
+        "type": "datetime",
+        "default": "required",
+        "factory_qualname": "_utcnow",
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "client_reviewed_at",
+        "type": "datetime | None",
+        "default": null,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      },
+      {
+        "name": "confirmed_at",
+        "type": "datetime | None",
+        "default": null,
+        "factory_qualname": null,
+        "init": true,
+        "repr": true,
+        "compare": true,
+        "kw_only": false
+      }
+    ],
+    "methods": {
+      "apply_post_submission_verification": "(self, *, expected_revision: 'int', decision: 'str', verification: 'dict[str, object]') -> 'bool'",
+      "attach_qualifier_selection": "(self, selection: 'QualifierSelection') -> 'None'",
+      "bulk_staff_approve_completed_verification": "(self, *, reviewer_id: 'uuid.UUID', reviewer_name: 'str') -> 'StaffApprovalOutcome'",
+      "confirm": "(self, confirmed_fields: 'dict[str, str]') -> 'None'",
+      "create": "(group_id: 'uuid.UUID', agency_id: 'uuid.UUID', client_name: 'str', client_email: 'str | None', image_s3_key: 'str', acquisition_mode: 'str' = 'file', upload_idempotency_key: 'str | None' = None) -> 'PassportSubmission'",
+      "ensure_reextract_allowed": "(self, *, source_image_replaced: 'bool' = False) -> 'None'",
+      "mark_extraction_failed": "(self, public_message: 'str' = 'Some passport fields could not be read automatically. Please enter the missing details manually.', *, expected_revision: 'int | None' = None, diagnostics: 'dict[str, object] | None' = None) -> 'bool'",
+      "mark_failed": "(self, reason: 'str') -> 'None'",
+      "mark_no_passport_verification_required": "(self) -> 'None'",
+      "mark_processing": "(self) -> 'int'",
+      "mark_review_required": "(self, extracted_fields: 'dict[str, object]', confidence: 'float', confidence_score: 'dict[str, object] | None' = None, mrz_raw: 'str | None' = None, *, expected_revision: 'int | None' = None, review_threshold: 'float' = 0.85) -> 'bool'",
+      "prepare_without_passport_front": "(self) -> 'None'",
+      "promote_image": "(self, permanent_key: 'str') -> 'None'",
+      "promote_passport_back": "(self, permanent_key: 'str') -> 'None'",
+      "promote_passport_back_cover": "(self, key: 'str') -> 'None'",
+      "promote_passport_cover": "(self, key: 'str') -> 'None'",
+      "promote_passport_photo": "(self, permanent_key: 'str') -> 'None'",
+      "request_post_submission_verification_retry": "(self) -> 'int'",
+      "restore_legacy_provider_failure_evidence": "(self, *, processing_job_revision: 'int', processing_job_status: 'str') -> 'None'",
+      "snapshot_collection_labels": "(self, *, agent_employee_code_label: 'str | None', agency_dealership_name_label: 'str | None') -> 'None'",
+      "staff_approve_verification": "(self, *, reviewer_id: 'uuid.UUID', reviewer_name: 'str', expected_extraction_revision: 'int', confirmed_fields: 'dict[str, str] | None' = None) -> 'StaffApprovalOutcome'",
+      "submit_client_review": "(self, confirmed_fields: 'dict[str, str]', *, client_email: 'str | None', client_phone: 'str | None', departure_city: 'str | None' = None, submission_mode: 'str' = 'single', family_group_id: 'uuid.UUID | None' = None, family_member_index: 'int | None' = None, family_relation: 'str | None' = None, family_gender: 'str | None' = None, family_head_name: 'str | None' = None, family_head_email: 'str | None' = None, family_head_phone: 'str | None' = None, family_broadcast_to_member: 'bool' = False, nearest_domestic_airport: 'str | None' = None, custom_answers: 'list[CustomAnswerSnapshot] | None' = None, custom_detail_answers: 'list[CustomDetailAnswerSnapshot] | None' = None, allow_manual_submission: 'bool' = False, allow_returning_snapshot_review: 'bool' = False) -> 'None'",
+      "update_reviewed_fields": "(self, confirmed_fields: 'dict[str, str]') -> 'None'"
+    },
+    "properties": [
+      "manual_review_submission_allowed"
+    ],
+    "dataclass_flags": {
+      "init": true,
+      "repr": true,
+      "eq": true,
+      "order": false,
+      "unsafe_hash": false,
+      "frozen": false
+    }
+  },
+  "UserRole": {
+    "enum_values": [
+      [
+        "SUPER_ADMIN",
+        "super_admin"
+      ],
+      [
+        "AGENCY_ADMIN",
+        "agency_admin"
+      ],
+      [
+        "AGENCY_MANAGER",
+        "agency_manager"
+      ],
+      [
+        "AGENCY_STAFF",
+        "agency_staff"
+      ],
+      [
+        "AGENCY_COORDINATOR",
+        "agency_coordinator"
+      ],
+      [
+        "CLIENT_MANAGER",
+        "client_manager"
+      ]
+    ]
+  },
+  "PassportProcessingStatus": {
+    "enum_values": [
+      [
+        "PENDING_UPLOAD",
+        "pending_upload"
+      ],
+      [
+        "UPLOADED",
+        "uploaded"
+      ],
+      [
+        "PROCESSING",
+        "processing"
+      ],
+      [
+        "REVIEW_REQUIRED",
+        "review_required"
+      ],
+      [
+        "CLIENT_SUBMITTED",
+        "client_submitted"
+      ],
+      [
+        "CONFIRMED",
+        "confirmed"
+      ],
+      [
+        "FAILED",
+        "failed"
+      ],
+      [
+        "PENDING_EXTRACTION",
+        "pending_extraction"
+      ],
+      [
+        "EXTRACTING",
+        "extracting"
+      ],
+      [
+        "READY_FOR_CLIENT_REVIEW",
+        "ready_for_client_review"
+      ],
+      [
+        "SUBMITTED",
+        "submitted"
+      ],
+      [
+        "AI_APPROVED",
+        "ai_approved"
+      ],
+      [
+        "NEEDS_REVIEW",
+        "needs_review"
+      ],
+      [
+        "STAFF_APPROVED",
+        "staff_approved"
+      ]
+    ]
+  },
+  "StaffApprovalOutcome": {
+    "enum_values": [
+      [
+        "APPROVED",
+        "approved"
+      ],
+      [
+        "ALREADY_APPROVED",
+        "already_approved"
+      ]
+    ]
+  },
+  "PassportExtractionStatus": {
+    "enum_values": [
+      [
+        "NOT_STARTED",
+        "not_started"
+      ],
+      [
+        "PROCESSING",
+        "processing"
+      ],
+      [
+        "COMPLETE",
+        "extraction_complete"
+      ],
+      [
+        "PARTIAL",
+        "extraction_partial"
+      ],
+      [
+        "FAILED",
+        "extraction_failed"
+      ],
+      [
+        "READY_FOR_REVIEW",
+        "ready_for_review"
+      ]
+    ]
+  },
+  "GroupStatus": {
+    "enum_values": [
+      [
+        "ACTIVE",
+        "active"
+      ],
+      [
+        "CLOSED",
+        "closed"
+      ],
+      [
+        "ARCHIVED",
+        "archived"
+      ],
+      [
+        "DELETED",
+        "deleted"
+      ]
+    ]
+  },
+  "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES": [
+    "client_submitted",
+    "confirmed",
+    "submitted",
+    "ai_approved",
+    "needs_review",
+    "staff_approved"
+  ],
+  "OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES": [
+    "client_submitted",
+    "confirmed",
+    "ai_approved",
+    "staff_approved"
+  ],
+  "PENDING_REVIEW_PASSPORT_STATUS_VALUES": [
+    "client_submitted",
+    "submitted",
+    "needs_review"
+  ],
+  "CONFIRMED_PASSPORT_STATUS_VALUES": [
+    "confirmed",
+    "ai_approved",
+    "staff_approved"
+  ],
+  "RETRYABLE_POST_SUBMISSION_PROVIDER_STATUSES": [
+    "network_error",
+    "provider_unavailable",
+    "rate_limited",
+    "timeout"
+  ],
+  "IUserRepository": {
+    "abstract_methods": [
+      "delete",
+      "get_by_email",
+      "get_by_id",
+      "list_by_agency",
+      "save",
+      "update"
+    ],
+    "methods": {
+      "delete": "(self, user_id: 'uuid.UUID') -> 'None'",
+      "get_by_email": "(self, email: 'str') -> 'User | None'",
+      "get_by_id": "(self, user_id: 'uuid.UUID') -> 'User | None'",
+      "list_by_agency": "(self, agency_id: 'uuid.UUID', *, skip: 'int' = 0, limit: 'int' = 50) -> 'list[User]'",
+      "save": "(self, user: 'User') -> 'User'",
+      "update": "(self, user: 'User') -> 'User'"
+    }
+  },
+  "IAgencyRepository": {
+    "abstract_methods": [
+      "get_by_email",
+      "get_by_id",
+      "list_all",
+      "save",
+      "update"
+    ],
+    "methods": {
+      "get_by_email": "(self, email: 'str') -> 'Agency | None'",
+      "get_by_id": "(self, agency_id: 'uuid.UUID') -> 'Agency | None'",
+      "list_all": "(self, *, skip: 'int' = 0, limit: 'int' = 50) -> 'list[Agency]'",
+      "save": "(self, agency: 'Agency') -> 'Agency'",
+      "update": "(self, agency: 'Agency') -> 'Agency'"
+    }
+  },
+  "IClientGroupRepository": {
+    "abstract_methods": [
+      "count_active_by_agency",
+      "get_by_id",
+      "get_by_token",
+      "list_by_agency",
+      "save",
+      "update"
+    ],
+    "methods": {
+      "count_active_by_agency": "(self, agency_id: 'uuid.UUID', *, created_by_user_id: 'uuid.UUID | None' = None, visible_to_user: 'User | None' = None) -> 'int'",
+      "get_by_id": "(self, link_id: 'uuid.UUID') -> 'ClientGroup | None'",
+      "get_by_token": "(self, token: 'str') -> 'ClientGroup | None'",
+      "list_by_agency": "(self, agency_id: 'uuid.UUID', *, skip: 'int' = 0, limit: 'int' = 50, status_filter: 'str | None' = None, created_by_user_id: 'uuid.UUID | None' = None, visible_to_user: 'User | None' = None) -> 'list[ClientGroup]'",
+      "require_active_company": "(self, agency_id: 'uuid.UUID', company_id: 'uuid.UUID') -> 'dict[str, object]'",
+      "save": "(self, link: 'ClientGroup') -> 'ClientGroup'",
+      "update": "(self, link: 'ClientGroup') -> 'ClientGroup'"
+    }
+  },
+  "IQualifierSelectionRepository": {
+    "abstract_methods": [
+      "get_by_token_hash",
+      "get_submission_id",
+      "save"
+    ],
+    "methods": {
+      "get_by_token_hash": "(self, group_id: 'uuid.UUID', token_hash: 'str', *, for_update: 'bool' = False) -> 'QualifierSelection | None'",
+      "get_submission_id": "(self, selection_id: 'uuid.UUID') -> 'uuid.UUID | None'",
+      "save": "(self, selection: 'QualifierSelection') -> 'QualifierSelection'"
+    }
+  },
+  "IPassportSubmissionRepository": {
+    "abstract_methods": [
+      "apply_extraction_failure",
+      "apply_extraction_result",
+      "apply_post_submission_verification",
+      "count_by_agency",
+      "delete",
+      "exists_contact_in_group",
+      "get_by_id",
+      "get_by_id_for_update",
+      "get_by_upload_idempotency_key",
+      "list_by_agency",
+      "list_by_group",
+      "list_group_summaries_by_agency",
+      "list_recent_dashboard_submissions",
+      "save",
+      "save_idempotent",
+      "update"
+    ],
+    "methods": {
+      "apply_extraction_failure": "(self, *, submission_id: 'uuid.UUID', expected_revision: 'int', public_message: 'str', diagnostics: 'dict[str, object] | None' = None) -> 'PassportSubmission | None'",
+      "apply_extraction_result": "(self, *, submission_id: 'uuid.UUID', expected_revision: 'int', extracted_fields: 'dict[str, object]', confidence: 'float', confidence_score: 'dict[str, object] | None', mrz_raw: 'str | None', review_threshold: 'float' = 0.85) -> 'PassportSubmission | None'",
+      "apply_post_submission_verification": "(self, *, submission_id: 'uuid.UUID', expected_revision: 'int', decision: 'str', verification: 'dict[str, object]') -> 'PassportSubmission | None'",
+      "count_by_agency": "(self, agency_id: 'uuid.UUID', *, status_filter: 'str | None' = None, exclude_archived_groups: 'bool' = False, created_by_user_id: 'uuid.UUID | None' = None, visible_to_user: 'User | None' = None) -> 'int'",
+      "delete": "(self, submission_id: 'uuid.UUID') -> 'None'",
+      "exists_contact_in_group": "(self, group_id: 'uuid.UUID', *, client_email: 'str | None', client_phone: 'str | None', exclude_submission_id: 'uuid.UUID | None' = None, scope: \"Literal['group', 'platform']\" = 'group', additional_emails: 'Sequence[str]' = (), additional_phones: 'Sequence[str]' = ()) -> 'bool'",
+      "get_by_id": "(self, submission_id: 'uuid.UUID') -> 'PassportSubmission | None'",
+      "get_by_id_for_update": "(self, submission_id: 'uuid.UUID') -> 'PassportSubmission | None'",
+      "get_by_upload_idempotency_key": "(self, group_id: 'uuid.UUID', upload_idempotency_key: 'str') -> 'PassportSubmission | None'",
+      "list_by_agency": "(self, agency_id: 'uuid.UUID', *, skip: 'int' = 0, limit: 'int' = 50, status_filter: 'str | None' = None, search: 'str | None' = None, exclude_archived_groups: 'bool' = False, created_by_user_id: 'uuid.UUID | None' = None, visible_to_user: 'User | None' = None) -> 'list[PassportSubmission]'",
+      "list_by_group": "(self, agency_id: 'uuid.UUID', group_id: 'uuid.UUID', *, skip: 'int' = 0, limit: 'int | None' = 50, search: 'str | None' = None, exclude_archived_groups: 'bool' = False, created_by_user_id: 'uuid.UUID | None' = None, visible_to_user: 'User | None' = None, operational_only: 'bool' = False) -> 'list[PassportSubmission]'",
+      "list_group_summaries_by_agency": "(self, agency_id: 'uuid.UUID', *, skip: 'int' = 0, limit: 'int' = 50, exclude_archived_groups: 'bool' = True, created_by_user_id: 'uuid.UUID | None' = None, visible_to_user: 'User | None' = None) -> 'list[PassportSubmissionGroupSummary]'",
+      "list_recent_dashboard_submissions": "(self, agency_id: 'uuid.UUID', *, created_by_user_id: 'uuid.UUID | None' = None, visible_to_user: 'User | None' = None) -> 'list[DashboardRecentSubmission]'",
+      "save": "(self, submission: 'PassportSubmission') -> 'PassportSubmission'",
+      "save_idempotent": "(self, submission: 'PassportSubmission') -> 'tuple[PassportSubmission, bool]'",
+      "update": "(self, submission: 'PassportSubmission') -> 'PassportSubmission'"
+    }
+  },
+  "IObjectStorageRepository": {
+    "abstract_methods": [
+      "delete_files",
+      "get_file",
+      "get_presigned_url",
+      "upload_file"
+    ],
+    "methods": {
+      "delete_files": "(self, keys: 'list[str]') -> 'int'",
+      "get_file": "(self, key: 'str') -> 'bytes'",
+      "get_presigned_url": "(self, key: 'str', expires_in_seconds: 'int' = 3600) -> 'str'",
+      "upload_file": "(self, file_content: 'bytes', file_name: 'str', content_type: 'str') -> 'str'"
+    }
+  },
+  "PassportSubmissionGroupSummary": {
+    "constructor": "(group_id: 'uuid.UUID', group_name: 'str', group_status: 'str', total_passports: 'int', pending_review_count: 'int', confirmed_count: 'int', failed_count: 'int', latest_submission_at: 'datetime', destination: 'str | None' = None, travel_date: 'date | None' = None, return_date: 'date | None' = None, timezone: 'str' = 'Asia/Kolkata', package_name: 'str | None' = None, departure_cities: 'list[str] | None' = None, base_city_enabled: 'bool' = False, nearest_international_airport_enabled: 'bool' = False, staff_code_enabled: 'bool' = False, agent_employee_code_enabled: 'bool' = False, meal_preference_enabled: 'bool' = False, import_only: 'bool' = False, require_selfie: 'bool' = False, custom_questions: 'list[CustomQuestionDefinition] | None' = None, custom_details: 'list[CustomDetailDefinition] | None' = None, upload_configuration: 'dict[str, object] | None' = None, allow_files_from_device: 'bool' = True, ask_nearest_domestic_airport: 'bool' = False, relation_with_qualifier_enabled: 'bool' = False, designation_enabled: 'bool' = False, agency_dealership_name_enabled: 'bool' = False, notes: 'str | None' = None) -> None",
+    "fields": [
+      {
+        "name": "group_id",
+        "type": "uuid.UUID",
+        "default": "required"
+      },
+      {
+        "name": "group_name",
+        "type": "str",
+        "default": "required"
+      },
+      {
+        "name": "group_status",
+        "type": "str",
+        "default": "required"
+      },
+      {
+        "name": "total_passports",
+        "type": "int",
+        "default": "required"
+      },
+      {
+        "name": "pending_review_count",
+        "type": "int",
+        "default": "required"
+      },
+      {
+        "name": "confirmed_count",
+        "type": "int",
+        "default": "required"
+      },
+      {
+        "name": "failed_count",
+        "type": "int",
+        "default": "required"
+      },
+      {
+        "name": "latest_submission_at",
+        "type": "datetime",
+        "default": "required"
+      },
+      {
+        "name": "destination",
+        "type": "str | None",
+        "default": null
+      },
+      {
+        "name": "travel_date",
+        "type": "date | None",
+        "default": null
+      },
+      {
+        "name": "return_date",
+        "type": "date | None",
+        "default": null
+      },
+      {
+        "name": "timezone",
+        "type": "str",
+        "default": "Asia/Kolkata"
+      },
+      {
+        "name": "package_name",
+        "type": "str | None",
+        "default": null
+      },
+      {
+        "name": "departure_cities",
+        "type": "list[str] | None",
+        "default": null
+      },
+      {
+        "name": "base_city_enabled",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "nearest_international_airport_enabled",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "staff_code_enabled",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "agent_employee_code_enabled",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "meal_preference_enabled",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "import_only",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "require_selfie",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "custom_questions",
+        "type": "list[CustomQuestionDefinition] | None",
+        "default": null
+      },
+      {
+        "name": "custom_details",
+        "type": "list[CustomDetailDefinition] | None",
+        "default": null
+      },
+      {
+        "name": "upload_configuration",
+        "type": "dict[str, object] | None",
+        "default": null
+      },
+      {
+        "name": "allow_files_from_device",
+        "type": "bool",
+        "default": true
+      },
+      {
+        "name": "ask_nearest_domestic_airport",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "relation_with_qualifier_enabled",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "designation_enabled",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "agency_dealership_name_enabled",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "notes",
+        "type": "str | None",
+        "default": null
+      }
+    ]
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "reviewer": "ai_extraction",
+  "files": [
+    {
+      "path": "backend/app/domain/value_objects/request_actor.py",
+      "review_status": "full",
+      "sha256": "ff6f9aebf061d2f9c1cf6bc127e8c291264ebd344d8c86e46983dd7c127facc2",
+      "lines": 15,
+      "notes": "Independent complete physical source read by ai_extraction after manual_security checkpoint froze. Optional expected actor is only a rejecting precondition on HMAC-matched persisted refresh identity or validated access JWT; no anonymous grant. Cookie precedence, CSRF/origin dependencies, mismatch rollback/no Set-Cookie, account/family lock order, consumed-token replay, fixed expiry/MFA/session-version and unchanged me/logout-all boundaries followed as applicable."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/auth.py",
+      "review_status": "full",
+      "sha256": "b3a10680eb335e589430dee4eba3fefa95d2fd54877682c15308b7e6e79177f8",
+      "lines": 314,
+      "notes": "Independent complete physical source read by ai_extraction after manual_security checkpoint froze. Optional expected actor is only a rejecting precondition on HMAC-matched persisted refresh identity or validated access JWT; no anonymous grant. Cookie precedence, CSRF/origin dependencies, mismatch rollback/no Set-Cookie, account/family lock order, consumed-token replay, fixed expiry/MFA/session-version and unchanged me/logout-all boundaries followed as applicable."
+    },
+    {
+      "path": "backend/app/application/use_cases/auth/logout_use_case.py",
+      "review_status": "full",
+      "sha256": "a79022eb7c5285a123bcb12e2d3d67f53637d3e1122cde6a0cf7e2e4c41b8649",
+      "lines": 49,
+      "notes": "Independent complete physical source read by ai_extraction after manual_security checkpoint froze. Optional expected actor is only a rejecting precondition on HMAC-matched persisted refresh identity or validated access JWT; no anonymous grant. Cookie precedence, CSRF/origin dependencies, mismatch rollback/no Set-Cookie, account/family lock order, consumed-token replay, fixed expiry/MFA/session-version and unchanged me/logout-all boundaries followed as applicable."
+    },
+    {
+      "path": "backend/app/application/use_cases/auth/refresh_token_use_case.py",
+      "review_status": "full",
+      "sha256": "8c6b50fced825c17e64740e6db4e9ddfc1cfa6e1c855b0cadd8e3f7c3272ea3b",
+      "lines": 172,
+      "notes": "Independent complete physical source read by ai_extraction after manual_security checkpoint froze. Optional expected actor is only a rejecting precondition on HMAC-matched persisted refresh identity or validated access JWT; no anonymous grant. Cookie precedence, CSRF/origin dependencies, mismatch rollback/no Set-Cookie, account/family lock order, consumed-token replay, fixed expiry/MFA/session-version and unchanged me/logout-all boundaries followed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/refresh_token_repository.py",
+      "review_status": "full",
+      "sha256": "219a15a385285e5c2a805b6b6b8e3e9f16e38c788163555af8f063221dc6f316",
+      "lines": 244,
+      "notes": "Independent complete physical source read by ai_extraction after manual_security checkpoint froze. Optional expected actor is only a rejecting precondition on HMAC-matched persisted refresh identity or validated access JWT; no anonymous grant. Cookie precedence, CSRF/origin dependencies, mismatch rollback/no Set-Cookie, account/family lock order, consumed-token replay, fixed expiry/MFA/session-version and unchanged me/logout-all boundaries followed as applicable."
+    },
+    {
+      "path": "backend/app/application/use_cases/auth/logout_all_use_case.py",
+      "review_status": "full",
+      "sha256": "8bde10b7b2aca510e85b6e66e6497816c3bc005b3290bad1171219e1510866dc",
+      "lines": 24,
+      "notes": "Independent complete physical source read by ai_extraction after manual_security checkpoint froze. Optional expected actor is only a rejecting precondition on HMAC-matched persisted refresh identity or validated access JWT; no anonymous grant. Cookie precedence, CSRF/origin dependencies, mismatch rollback/no Set-Cookie, account/family lock order, consumed-token replay, fixed expiry/MFA/session-version and unchanged me/logout-all boundaries followed as applicable."
+    },
+    {
+      "path": "backend/app/application/use_cases/auth/get_me_use_case.py",
+      "review_status": "full",
+      "sha256": "4cd2a296cf79b1d08852be87e6739b7b0f4eeff0b83e81a977494006a45f420e",
+      "lines": 41,
+      "notes": "Independent complete physical source read by ai_extraction after manual_security checkpoint froze. Optional expected actor is only a rejecting precondition on HMAC-matched persisted refresh identity or validated access JWT; no anonymous grant. Cookie precedence, CSRF/origin dependencies, mismatch rollback/no Set-Cookie, account/family lock order, consumed-token replay, fixed expiry/MFA/session-version and unchanged me/logout-all boundaries followed as applicable."
+    }
+  ],
+  "mcp_result": "No observed signature/decorator or registration drift. Existing1949-surface discovery passes; no source binding rewritten.",
+  "api_snapshot_checks": "Both complete API and mobile API snapshots match after frozen backend auth patch.",
+  "verification_attribution": "manual_security ran32 focused actual ASGI/session tests; that test result is attributed, not an independent rerun by this reviewer.",
+  "limits": "This is not a claim that the entire auth package or live PostgreSQL/cookie cross-tab integration is qualified. Frontend raw refresh/direct logout header handling remains tracked by parent."
+}

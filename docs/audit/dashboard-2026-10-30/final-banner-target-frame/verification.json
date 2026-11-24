@@ -1,0 +1,77 @@
+{
+  "status": "sourcefrozen; focusedcomponent/types/lint qualification passed; freshproductionaftergeometry pendingparent",
+  "source_fence": {
+    "frontend/features/branding/components/group-banner.tsx": "d54d0b135c0fdd993c453e6703bd2ddda29cc51e099012c946848943c41fb459",
+    "frontend/features/branding/components/group-banner-action.tsx": "8fa3dfd6610baadf728db116ccc2490c4e2a7770f9ba216dd3b96ff6f9c1e4cd",
+    "frontend/features/branding/components/group-image-dialog.tsx": "da64396862a67e55104ecc8cc602d25f22c12975f58bcbb56c4ddaba0a320230",
+    "frontend/features/branding/components/group-banner-frame.ts": "754ca8518df4e57f6b832e8e739238287f31afc98ceab52f6f3c47f85afbb6c2",
+    "frontend/features/branding/components/use-group-image-aspect.ts": "8774bd9add3379488f59da76e254114ff3349d5faebadccbc24d6923ecae16bd",
+    "frontend/features/branding/components/group-image-dialog.test.tsx": "a5ee8778b606941e12f0b38563a63f5a321f336f38f5208262663b46286dffbf"
+  },
+  "source_ledger": {
+    "path": "docs/audit/dashboard-2026-10-30/final-banner-target-frame-reviewed-files.json",
+    "sha256": "8005f753b001ea70e31466eb27eff37c88fe33bda7b87bc392752af10b64ff0a"
+  },
+  "before": {
+    "component_cases": 9,
+    "passed": 3,
+    "failed": 6,
+    "native_compiled_cases": 4,
+    "native_numeric_mismatches": 4,
+    "native_build_id": "-SsobzdWJpn6pla1bMQEw",
+    "native_artifact1634_unchanged": true,
+    "numeric_geometry": "Oldpreview4 atbothwidths/Existing+Add; actual image desktop3.669001297016861,mobile0.584634603372892"
+  },
+  "after_current_source": {
+    "component_and_crop_and_api_cases": 19,
+    "passed": 19,
+    "files": 3,
+    "typed_scope": "5modified/newruntimeowners+componenttest andimmediateimportgraph; no wholeappcheck",
+    "types_exit_code": 0,
+    "eslint_six_sources_exit_code": 0,
+    "new_normal_candidates": 5,
+    "existing_normal_catalog": 661,
+    "old_cap_or_critical_floor_changed": false
+  },
+  "implementation": [
+    "PerGroupBanner Reactcontext owns stabledata-group-banner-frame ref andtemporarypreviewing layout, withoutDOMmutation/cloning.",
+    "FirstAdd framepadding/transparentclass andfutureEditbuttonlabel commitbeforemeasurement; actualimage/regionremainactualsrc-only. Cancelrestoresplainlayout.",
+    "Aspecttracks actual image paddingbox (boundsminusfractionalborders), usingResizeObserver forresponsive/font/content changes; no pointer polling, stalecallbacks suppressed aftercleanup.",
+    "Background preservesfixedpane target andnowobserves resizing too; standalonefallbacks remain4banner/1.6background.",
+    "Originalcropengine/versioncapture/dispatch/cache/close/busy/keyboard contracts unchanged; no schema/storage/API/backend changes."
+  ],
+  "tests_covered": [
+    "existing/Adddesktopmobiletargetaspect",
+    "firstAddReactpreviewlayoutandCancelrestoration",
+    "exactsavedcropaspectplusoriginalimageversion",
+    "fractionalborderpaddingbox",
+    "localframeownershipwithdecoygroup",
+    "banner/backgroundResizeObserverupdatesanddisconnect",
+    "oldstandalonefallback/backgroundtests",
+    "existingcropmathandprivateimageAPIownerchecks"
+  ],
+  "harness_notes": [
+    "Initial test runner refused frontend.env.local presence beforeexecution; audit-only Viteconfig envDir:false thenexecuted withminimalOS/syntheticAPIenv. No privateenvcontentsread/copied.",
+    "Intermediatepaddingbox fixture requiredexplicitborder0; retained intermediatefailedlog. Fractionalborderpositive independentlyexercisesnonzero deduction.",
+    "Nativebaseline runner initially lacked parentoutputdirectory; no browserexecuted onthatattempt. Corrected audit-only mkdirparents; originalcompiled4numericfailures preserved."
+  ],
+  "limits": [
+    "Currentimplementation qualified bycomponentboundsfixtures/types/lint, notyetfreshproductionnativegeometry. Parentownsfinalbuild and6brandingE2Eassertions.",
+    "No backend/service/provider/VPS/privatepassengerdata qualification. Backendaspectproofisreadonlysourcechain.",
+    "No scripts/sharedgates/packages/locks/config/productstylechangesbythisagent. RootownsCSSandworkspace-branding.spec.ts."
+  ],
+  "evidence": {
+    "quality-budget-candidates.json": "6534a76ac5511a95de87f35ba575e1fada2ec9c79b9b4504c13cc510f2a119ce",
+    "ast-inverse-proof.json": "4880b8b40d7c5d0900d4b02277f163d481cae38c865c9b3d595eb692d872bc64",
+    "frozen-components.log": "cad331c046c73f64d1d407b949e2e02d4d3164598810cc10be5db415d4e81aec",
+    "frozen-components-command.json": "2b94971ccdb4667b474ec30d5a67d75de04da87fdbee61022cce0ccaa1b18d20",
+    "lint-command.json": "a9053f4fb5ad44c3d33436e15f6b726844d227a94290b1b206ee94dde64b5ccb",
+    "types-command.json": "7366c422e96f639a41c9c95453954eaa6bf0522b8f0d7f794142ce4357a8a7d3",
+    "before-component.log": "bbaf5e13619ed8b8cfda763ed61bdb62e6ccf46a4d9408273f209d6d2f2bd0ee",
+    "before-component-command.json": "817adbd8a5073c0278f0af586ca6259c2d9f9236cd0d893983f0401aaea2d559",
+    "backend-aspect-source-proof.json": "d82d11138f901d6387d9e34021305cec2da933f954443bc9721b49df89ef3cfc",
+    "native-before/geometry-summary.json": "f60c4efd6bd6a6efa3cec7bc04d127e35490333ea7ed7681f30baf69de006b8c",
+    "native-before/result.json": "5e0b24113025706c7c0fc80b18b5b2d65a5aa5cf70ce616ebdb8103431633f35",
+    "native-before/source-binding.json": "a7166b5bb8a6593dd135ba8f4955816749ff9803ceb2aad6971bf5973d300eee"
+  }
+}

@@ -1,0 +1,215 @@
+{
+  "status": "Retained MCP-named test source cohort complete at current exact bytes; mixed Inbox sections explicitly deferred",
+  "initial_discovery_sha256": "0eef8620bd26794f5c8b3854b4a8c6241c5c38c4cbaa3f54a9686e3d18e9471d",
+  "final_discovery_sha256": "9e9fb0dad0ea7e43e6692751b3ec2d5da8c6e697a284e0fc72ff9048d104bced",
+  "inventory_at_initial_discovery_sha256": "43d8b55747599c1640f76ab74e6f0d235885a179c52fd6800311ee9df29354ff",
+  "inventory_at_final_discovery_sha256": "4cca64530fff1a31aba8ef80608568d39a677f780dbf16807540e0a4a503b954",
+  "total_named_test_files": 161,
+  "prior_current_full_files": 49,
+  "new_full_files": 108,
+  "new_full_physical_lines": 29337,
+  "current_matching_full_files": 157,
+  "mixed_focused_files": [
+    {
+      "path": "backend/tests/integration/test_mcp_content_read_http.py",
+      "sha256": "31c1bb61f19c50ae3110b764ff252d1a28453d58c3977940ffa05bf114ef37b0",
+      "physical_lines": 47,
+      "reviewer": "ai_extraction",
+      "review_scope": "focused",
+      "status": "needs-follow-up",
+      "notes": "Retained GC/notification SDK registration, group/agency synthetic fixture, safe result envelope and scope-denial portions traced. Shared function also constructs a mailbox connection and runs dedicated Inbox tools; those portions were identified only for scope classification and are not audited or executed. No whole mixed-file review credit. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data.",
+      "retained_ranges": [
+        "1-7",
+        "10-25",
+        "29-33",
+        "35-40 for retained GC/notification loop variants only",
+        "45-47"
+      ],
+      "deferred_scope": "EmailConnection fixture lines26-27 and list_email_records dedicated mailbox variants/assertions at34 and41-44 remain user-deferred.",
+      "ledger": "retained-mcp-contract-test-source-reviewed-files.json"
+    },
+    {
+      "path": "backend/tests/integration/test_mcp_dashboard_detail_reads.py",
+      "sha256": "2a25b62c68717bdf79064621aeb1cb5f23abace009d89f392cefd24c43a0335c",
+      "physical_lines": 569,
+      "reviewer": "ai_extraction",
+      "review_scope": "focused",
+      "status": "needs-follow-up",
+      "notes": "Retained passport/roster/WhatsApp stored fields, document and image metadata, QR/welcome no-mutation observation, all delivery kinds/current tenant filters, deep scalar/list/text projection continuation, observational transaction no-DML/commit and shared dashboard domain assertions physically reviewed. The generic parametrized dispatch was inspected only for shared domains. Dedicated email review paging and four email domain selectors remain deferred, so no full-file credit. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data.",
+      "retained_ranges": [
+        "1-469",
+        "474-532",
+        "556-569"
+      ],
+      "deferred_scope": "Dedicated Inbox domain selector rows470-473 and email owner-review paging test533-553; generic dispatcher479-489 reviewed only for retained rows.",
+      "ledger": "retained-mcp-dashboard-retention-test-source-reviewed-files.json"
+    },
+    {
+      "path": "backend/tests/integration/test_mcp_content_reads.py",
+      "sha256": "508b0cb8eb2d1999cbe288688dcab1e617cb1db47e7168fbfc533d0dcf8e9241",
+      "physical_lines": 195,
+      "reviewer": "ai_extraction",
+      "review_scope": "focused",
+      "status": "needs-follow-up",
+      "notes": "Physically reviewed retained imports/fixture and complete GC/notification test regions only: unconfigured/current tenant scope, draft/published/retired versions, content opt-in/truncation, no storage/provider material, recipient/device progress projection without dispatch or status changes. Mailbox test definitions identified via scoped search only; dedicated mailbox assertions not reviewed/run. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data.",
+      "retained_ranges": [
+        "1-14",
+        "21-59",
+        "63-131"
+      ],
+      "deferred_scope": "Dedicated mailbox import block15-20, mixed empty-mailbox loop60-62, mailbox helper and owned email/cursor/role tests132-195 remain user-deferred. No complete mixed-file source credit.",
+      "ledger": "retained-mcp-read-projection-test-source-reviewed-files.json"
+    },
+    {
+      "path": "backend/tests/service_integration/test_mcp_read_parity_postgresql.py",
+      "sha256": "2cfb7d6ba0c769decb9dcfa8f5d0f335cb0a5087ec4d723b3a4764ddc4701279",
+      "physical_lines": 121,
+      "reviewer": "ai_extraction",
+      "review_scope": "focused",
+      "status": "needs-follow-up",
+      "notes": "Read retained case catalog entries and entire shared isolated PostgreSQL runner: generated DB allowlist, migration subprocess boundary, dynamic fixture/test resolution, per-case savepoint/outer rollback and owned DB teardown. Dedicated email cases in the shared parameter catalog were identified for scope only; their bodies and execution remain deferred. No whole mixed-source review credit. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data.",
+      "retained_ranges": [
+        "1-47",
+        "54-75",
+        "77-121"
+      ],
+      "deferred_scope": "Dedicated mailbox case catalog48-53 and owner_email_review catalog entry76 deferred; shared runner read is retained compatibility only, no test execution.",
+      "ledger": "retained-mcp-read-projection-test-source-reviewed-files.json"
+    }
+  ],
+  "cohorts": [
+    {
+      "ledger": "retained-mcp-announcement-office-test-source-reviewed-files.json",
+      "ledger_sha256": "4412ca4c8a4f209a686f31f8d4f99e6c4bc8e4929dcbfbbaf2fdf0900dfed39e",
+      "receipt": "retained-mcp-announcement-office-test-source-verification.json",
+      "receipt_sha256": "470e36cb78c1107aff3319587fe05a3679f8c610deba945122ddf0619d0bcaeb"
+    },
+    {
+      "ledger": "retained-mcp-artifact-export-test-source-reviewed-files.json",
+      "ledger_sha256": "9a842d983b8fb6630b115c5a0d56549469d292b5f003a78766619bc2212bf57d",
+      "receipt": "retained-mcp-artifact-export-test-source-verification.json",
+      "receipt_sha256": "6597583fb40957f0a563a281df4c8444f2e3f673497495692c6b17d8eb6cc43f"
+    },
+    {
+      "ledger": "retained-mcp-audit-resource-test-source-reviewed-files.json",
+      "ledger_sha256": "b0edfd2b899fc53daeec0cfc28d9282c85cf37c49263429fdb53cdf8eea8a9cc",
+      "receipt": "retained-mcp-audit-resource-test-source-verification.json",
+      "receipt_sha256": "e566f31907438894b79f13bed38cfc8c39c3ec758f56fd40b3c2b14ac9eb202f"
+    },
+    {
+      "ledger": "retained-mcp-authority-test-source-reviewed-files.json",
+      "ledger_sha256": "5d06c767464e7dfaf90bd7240549275bdef681af192d21811c315f821e855d7e",
+      "receipt": "retained-mcp-authority-test-source-verification.json",
+      "receipt_sha256": "c5063e588df7cd754c095b0ec4e5875e286e51cf39a490bb6d65d29773817d8a"
+    },
+    {
+      "ledger": "retained-mcp-contact-business-test-source-reviewed-files.json",
+      "ledger_sha256": "51dc4072662c22b75def105522a84778960f5b7a4d4c40a32815a520fefc8640",
+      "receipt": "retained-mcp-contact-business-test-source-verification.json",
+      "receipt_sha256": "a176968cb3374d0a388fe2727c5f3df0994cf71c2df8e4e1b2b2547aac535d2d"
+    },
+    {
+      "ledger": "retained-mcp-contract-test-source-reviewed-files.json",
+      "ledger_sha256": "e06647b8b5cc5100cfaea2713a71cbb52abebbb335ec8279a119d4a1ec7a3208",
+      "receipt": "retained-mcp-contract-test-source-verification.json",
+      "receipt_sha256": "a30ff47636306cf12dec4f73865acb6a1e79edae3383db4b3a211c666a535b6c"
+    },
+    {
+      "ledger": "retained-mcp-dashboard-retention-test-source-reviewed-files.json",
+      "ledger_sha256": "5c1cb65252c4ab76073a209096d418a83d7eaf06e28c8f0ae8ec22184e172d80",
+      "receipt": "retained-mcp-dashboard-retention-test-source-verification.json",
+      "receipt_sha256": "a20f456697ff3528e351d5c7f868fa33d2e00aaf31f646a6800ba6bf92b51240"
+    },
+    {
+      "ledger": "retained-mcp-document-delivery-export-test-source-reviewed-files.json",
+      "ledger_sha256": "7c9270ab1bd7b21bc8fdb7b74cb44c2a8b06ef80883340ffa875f2ae405f3454",
+      "receipt": "retained-mcp-document-delivery-export-test-source-verification.json",
+      "receipt_sha256": "e029d9f76b243b110642b35c938098c2740125bb3cd9142b65946984a9145a65"
+    },
+    {
+      "ledger": "retained-mcp-export-history-test-source-reviewed-files.json",
+      "ledger_sha256": "209049c1ab07ea96428590344efcf005c1276fa72a2de668818bef2e3a544b8b",
+      "receipt": "retained-mcp-export-history-test-source-verification.json",
+      "receipt_sha256": "b3cf16f138405d90bfe3ec76287d11fecefdbcb7f91ff3236d1939668359a41e"
+    },
+    {
+      "ledger": "retained-mcp-ingestion-journey-test-source-reviewed-files.json",
+      "ledger_sha256": "03fd058fdde2dea7cc0e03a9488bf5039f563784d7ee73d78fe90cca91ecf624",
+      "receipt": "retained-mcp-ingestion-journey-test-source-verification.json",
+      "receipt_sha256": "0c7963205483db3501ead24793689831c6b3a9ae353a9c934f572199853488c1"
+    },
+    {
+      "ledger": "retained-mcp-notification-test-source-reviewed-files.json",
+      "ledger_sha256": "6165b20600db80da48e8fcddc7d59109305ab752517ad5323c4f5d2ea80c087d",
+      "receipt": "retained-mcp-notification-test-source-verification.json",
+      "receipt_sha256": "50477d7bfeabaed9c5e1a1246e6ad371d15462e8bad6e3dbed3c5fa2cae87d56"
+    },
+    {
+      "ledger": "retained-mcp-operation-preservation-test-source-reviewed-files.json",
+      "ledger_sha256": "fa57ab455a7f536c7d5466d422d78cdcae4c23af6cab40f1c9c0a05260246365",
+      "receipt": "retained-mcp-operation-preservation-test-source-verification.json",
+      "receipt_sha256": "138ae43923e1f2669a37ad321454f3dad2f916c80a0787a72c1fe00ab1ba1801"
+    },
+    {
+      "ledger": "retained-mcp-read-projection-test-source-reviewed-files.json",
+      "ledger_sha256": "3c833d37292e007fe15f2a3ef25c3c4071b1ef2f7a6b83ff42306f8119c2002d",
+      "receipt": "retained-mcp-read-projection-test-source-verification.json",
+      "receipt_sha256": "b3465569b182e8b45a228c3745e668ba6ae72f4269256fa453528538501981a7"
+    },
+    {
+      "ledger": "retained-mcp-scalar-correction-test-source-reviewed-files.json",
+      "ledger_sha256": "153636c299c9fb6e2de132af47bedeb04a6b35038d2afddc6083327772042ede",
+      "receipt": "retained-mcp-scalar-correction-test-source-verification.json",
+      "receipt_sha256": "bd83cdd7eb2af0dcb4678ed40e465ac1f0c78cc70a0eb0117b8e601076cf743b"
+    },
+    {
+      "ledger": "retained-mcp-schema-native-test-source-reviewed-files.json",
+      "ledger_sha256": "30fc9c5c97684f9c01d2361c54761db5fb83a90c2a09226f0e2772474bd53667",
+      "receipt": "retained-mcp-schema-native-test-source-verification.json",
+      "receipt_sha256": "f69410946053665ec2010b86282fc37242b8723346e93c69bfb2c46423263a99"
+    },
+    {
+      "ledger": "retained-mcp-session-native-test-source-reviewed-files.json",
+      "ledger_sha256": "aa1322c6e83b0bee64cd302d43df969eb527cf8ae72088590fde644c54af9da9",
+      "receipt": "retained-mcp-session-native-test-source-verification.json",
+      "receipt_sha256": "aa185042afe438ef1510d8fcc75eb2b8b51728688f2264691fabbf1f10bbf939"
+    },
+    {
+      "ledger": "retained-mcp-tour-test-source-reviewed-files.json",
+      "ledger_sha256": "39ff3f300516a0a774c374532fa342a7f32ab2ce6351a54cc57430f0dbb76927",
+      "receipt": "retained-mcp-tour-test-source-verification.json",
+      "receipt_sha256": "23f1a199234357e7eb995b465a5a9caecb76fd04028da42478b272d5f93371a8"
+    },
+    {
+      "ledger": "retained-mcp-upgrade-test-source-reviewed-files.json",
+      "ledger_sha256": "4977885cd83cb788aecc653e9c4fa2a260cc40b01221e070660e9c2e6d0465f7",
+      "receipt": "retained-mcp-upgrade-test-source-verification.json",
+      "receipt_sha256": "a71cb7eaca30430f43fbb6c97afbbde1ccfbf8ce012d29550049f9dea8229901"
+    },
+    {
+      "ledger": "retained-mcp-whatsapp-intent-media-test-source-reviewed-files.json",
+      "ledger_sha256": "9b1808cfcb645b9433bcee5d521e28fa772a25195caa485c9adde37278a7b1de",
+      "receipt": "retained-mcp-whatsapp-intent-media-test-source-verification.json",
+      "receipt_sha256": "5c585db6a0ad4511ef473037a75e125607a30645548b118c22d53ca6672b4f77"
+    },
+    {
+      "ledger": "retained-mcp-whatsapp-read-message-test-source-reviewed-files.json",
+      "ledger_sha256": "a7ea7b7c962b3b56bee905d6c72fd5e07271a4ea590902a99919763f1cae1f32",
+      "receipt": "retained-mcp-whatsapp-read-message-test-source-verification.json",
+      "receipt_sha256": "b2b78a86cc2637526147164aa815e6c72b5e5be4fac1a38402ee1259615829a6"
+    },
+    {
+      "ledger": "retained-mcp-workbook-options-test-source-reviewed-files.json",
+      "ledger_sha256": "0ac42a8a6cc58e3c22718246da284d2f0cf0efcad9e95e4be129d59c38c44f9e",
+      "receipt": "retained-mcp-workbook-options-test-source-verification.json",
+      "receipt_sha256": "dc553561443e4f0a716c3f28c687d29061ae504e15a6350465fcde28f8d635ce"
+    }
+  ],
+  "source_hashes_unchanged_for_all_161": true,
+  "new_tests_executed": 0,
+  "runtime_or_test_edits": 0,
+  "new_validated_runtime_findings": 0,
+  "independent_findings_automatically_closed": false,
+  "gates_bindings_resolver_inventory_or_historical_stamps_changed": false,
+  "limits": "Complete physical source review and recorded assertions do not establish passing tests or current PostgreSQL/Redis/storage/provider/browser/native concurrency qualification. Four mixed source files retain exact shared ranges and dedicated Inbox portions deferred. No full audit or policy closure is inferred from filename or execution. Historical MCP1990 remains historical."
+}

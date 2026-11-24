@@ -1,0 +1,22 @@
+{
+  "before_modules": 182,
+  "after_modules": 183,
+  "existing_entries_and_global_critical_floors_unchanged": true,
+  "added": {
+    "path": "app/core/storage_write_budget.py",
+    "baseline_lines": 17,
+    "maximum_lines": 20,
+    "baseline_max_function_complexity": 2,
+    "maximum_function_complexity": 2,
+    "minimum_coverage_percent": 100
+  },
+  "measured_nonblank_lines": 17,
+  "measured_max_function_complexity": 2,
+  "measured_coverage_percent": 100,
+  "before_raw_sha256": "45355a8a85f6fbf074509ae14fd0ed2e0dcd18e0f7a30cbca0c7828e5317e88e",
+  "before_normalized_sha256": "8b8e4da21e7e8b15c53f78ecc5a702744743565dfadaf0eca2b063eb49682e5f",
+  "after_raw_sha256": "2cd1320432647cef470b07e1ea0bdfea38bbf748643c7644ba3969c015680f17",
+  "after_normalized_sha256": "01d1ae0fac1536b6d0ddb7191362973f2761d9dcc92fa7a03c4d0183c4eff97a",
+  "frontend_budget_after_normalized_sha256": "fdd7a083d081607e81a30c08364e665ecc842ba9b3fde8894c35d14899afbdd7",
+  "strict_release_scope": "Only the two already-reviewed current AFTER budget values refreshed. Both original baseline BEFORE bindings retained unchanged."
+}

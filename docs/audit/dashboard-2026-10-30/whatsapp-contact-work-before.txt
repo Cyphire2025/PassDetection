@@ -1,0 +1,9 @@
+F.                                                                       [100%]
+================================== FAILURES ===================================
+__ test_many_distinct_headings_do_not_retain_or_compare_an_unreturned_union ___
+backend\tests\unit\presentation\test_whatsapp_imported_field_work.py:40: in test_many_distinct_headings_do_not_retain_or_compare_an_unreturned_union
+    assert measured_peak <= MAX_WHATSAPP_IMPORTED_FIELDS + 8
+E   assert 3000 <= (256 + 8)
+=========================== short test summary info ===========================
+FAILED backend\tests\unit\presentation\test_whatsapp_imported_field_work.py::test_many_distinct_headings_do_not_retain_or_compare_an_unreturned_union
+1 failed, 1 passed in 1.17s

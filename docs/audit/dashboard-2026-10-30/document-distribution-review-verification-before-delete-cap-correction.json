@@ -1,0 +1,117 @@
+{
+  "status": "Frozen scoped retained-dashboard architecture implementation qualified; broader file audit remains active",
+  "source_manifest": {
+    "path": "docs/audit/dashboard-2026-10-30/document-distribution-review-final-source-manifest.json",
+    "sha256": "65d65be64ab64aef5c24a3e2860194e47b91ae6487846bc395c81134eb41b01b"
+  },
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/document-distribution-review-final-reviewed-files.json",
+    "sha256": "553311d5d3ec678dba03cdd2b316d9d8c09d7509d4187560ffb91df34ca61e91"
+  },
+  "budget_candidates": {
+    "path": "docs/audit/dashboard-2026-10-30/document-distribution-review-final-budget-candidates.json",
+    "sha256": "9585f456ab4dd02c464ae6d29de5d7730bcdba5b8e963a648b19cb6790dce2b5"
+  },
+  "approved_preflight": {
+    "path": "docs/audit/dashboard-2026-10-30/document-distribution-review-preflight-design.json",
+    "sha256": "af7e5620835183e74a6e89b0ab9c7d229a9391d8b269a84ab1cebd99376732a2"
+  },
+  "changes": [
+    "Eight changed owners: stable assignment and review-support facades; separate whole unassign/delete routes; typed current assignment-review reader; deterministic matching snapshots; passenger/physical-file accounting; lazy export eligibility/ordered workbook-row projection.",
+    "Four identical three-statement response-read blocks now use the same purpose-specific reader. Full expansion proves original awaits/query ordering and three group.agency_id reads occur exactly as before; no cache, callback bag, mixin, mutable facade proxy or new provider framework.",
+    "Original export MCC33 becomes explicit eligibility15/ordered projection/small orchestration phases; original lazy shared_pdf_count access and every field/constructor/comprehension/continue/output order remain exact. No algorithmic speedup claim.",
+    "All17 original declarations preserve whole or complete expanded ASTs. Existing module/qualname/signature/doc/import aliases/dataclass-generated method metadata and complete router OpenAPI remain exact. Actual20 current declarations evaluate hints;88 direct import-global comparisons and new helper wiring/legacy DATA instance pickle pass.",
+    "Main388 compatibility/router catalog, response235 source and shared workbook/native/storage/auth/schema/model/repository/MCP implementations remain byte-unmodified by this tranche. All three existing test sources are byte-identical."
+  ],
+  "validation": {
+    "initial_existing12": {
+      "path": "docs/audit/dashboard-2026-10-30/document-distribution-review-before-focused-command.json",
+      "sha256": "7f121883ecfd64ac6815b18f636d984f2b09f8e335fb89435b9624b65cabac01"
+    },
+    "original_mutations28": {
+      "path": "docs/audit/dashboard-2026-10-30/document-distribution-review-mutations-before-focused-command.json",
+      "sha256": "dd890f83ccc4b4fc4b3daa1ee05d55b61a881b010934fb368fb629ffefcc1c26"
+    },
+    "original_strengthened_observer2_plain_log": {
+      "path": ".tmp/document-distribution-review-observer-before.txt",
+      "sha256": "910ce34b9ae42be36735b227094aa2a65ce763b2dd54fb72c667f9419e9423cb"
+    },
+    "observer_provenance": "The two strengthened cleanup-observer cases were plain focused pytest, not an independent automated source-fence wrapper. Original28 runtime source fence/snapshots remained unchanged; the final35 source-fenced run includes the stronger outer observation assertion so cleanup exception containment cannot swallow its checks.",
+    "mechanical_contract_collection": {
+      "path": "docs/audit/dashboard-2026-10-30/document-distribution-review-mechanical-focused-command.json",
+      "sha256": "8826cc408431ad8b1dd9ecb7534cab3af4981c1e284f88f0ad9a1e8dd40bd113"
+    },
+    "mechanical_contract_probe": "One test collected; no behavior case rerun at this intermediate checkpoint. Actual declarations/imports/OpenAPI compare exactly with original baseline.",
+    "final_current35": {
+      "path": "docs/audit/dashboard-2026-10-30/document-distribution-review-final-qualified-focused-command.json",
+      "sha256": "9e1b071276fc40f9283b7065f7034703d9f8725ae079097b643f0129ce67c4e3"
+    },
+    "final_current35_log": {
+      "path": "docs/audit/dashboard-2026-10-30/document-distribution-review-final-qualified-focused-tests.txt",
+      "sha256": "0aeede901e977c096bfc0969125917b90f6c54debfbf1dc3f6f16a7591278ba7"
+    },
+    "final_runtime_contracts": {
+      "path": "docs/audit/dashboard-2026-10-30/document-distribution-review-final-qualified-runtime-contract.json",
+      "sha256": "f272d44f0936095d68e608911f157b0d609ec419b1b822b6718f8785c643a769"
+    },
+    "source_fence_count": 51,
+    "source_unchanged": true,
+    "coverage_json": {
+      "path": "docs/audit/dashboard-2026-10-30/document-distribution-review-final-qualified-coverage.json",
+      "sha256": "35855eed52d8de0fce52e5377cb2360847f452d836b85dd4f7100bc0f343063f"
+    },
+    "coverage_xml": {
+      "path": "docs/audit/dashboard-2026-10-30/document-distribution-review-final-qualified-coverage.xml",
+      "sha256": "6951e5c6f1038bb5658b851365140ec066af6b7f36e99bd6f13fd0db74012e8a"
+    },
+    "static_checks": {
+      "path": "docs/audit/dashboard-2026-10-30/document-distribution-review-final-static-checks.json",
+      "sha256": "9f0b566c08333f10514e9eb8fae5c8cb2ce2c38ec07599b18c3f4ad36af1f52a"
+    },
+    "static_result": "Strict9 runtime files and scoped Ruff9runtime+2newtests pass; no broad app suite/build/browser.",
+    "weighted_measured9_coverage": {
+      "covered_lines": 411,
+      "executable_lines": 421,
+      "line_percent": 97.62470308788599,
+      "covered_branches": 89,
+      "branches": 98,
+      "branch_percent": 90.81632653061224
+    },
+    "actual_DB_outcomes": "Real synthetic FK-backed SQLAlchemy/SQLite groups/passengers/batches/documents/deliveries/audits/encrypted cleanup tombstones: empty/no-op, tenant/ID/type rejection, duplicate IDs, queued/processing blocks, unassign approval/file/history retention, deletion with ONDELETESETNULL history retention, shared-key retention, committed cleanup before runner, and tolerated synthetic runner outage. Mobile propagation and object URL signing are isolated mocks, not live services."
+  },
+  "source_proofs": [
+    {
+      "path": "docs/audit/dashboard-2026-10-30/document-distribution-review-mechanical-source-proof.json",
+      "sha256": "5f8c72b095ca4f6405989ad062263f2039053465d9bcce2f43e81ecd6934c9fe"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/document-distribution-review-phases-source-proof.json",
+      "sha256": "5ddb47bc87dc2d867b3409b3cb00081ee802f8ae1c6d9e0af53afcf9a191793a"
+    }
+  ],
+  "full_read_count": 21,
+  "current_full_read_physical_lines": 3577,
+  "read_scope": "Current21 full rows include unchanged exact-hash preflight reads; no claim of21 newly unique unreviewed files. The matching test and authority scope are focused only at recorded ranges; imports/metadata/test execution do not grant whole-source read credit.",
+  "correction_history": {
+    "source_transformation": "Duplicate decorator from an intermediate declaration-replacement boundary was caught and removed before any phase app checks; original decorator ASTs remain exact. Mechanical source snapshots retained.",
+    "size_constraint": "Initial35 passed with new reader inside responses.py277, but measured old cap260 made that placement unacceptable. Restored original response source byte-for-byte, moved the already-justified cohesive current-review reader to48-line owner, renewed source/contracts/strict/lint and repeated only the same focused35. No cap raised and no stale coverage reused.",
+    "historical_first35": {
+      "path": "docs/audit/dashboard-2026-10-30/document-distribution-review-final-focused-command.json",
+      "sha256": "0e0bce4645d5aeb073943ca130eda549cf7bed150e2a3802c62d56ae5d95f113"
+    },
+    "historical_first35_log": {
+      "path": "docs/audit/dashboard-2026-10-30/document-distribution-review-final-focused-tests.txt",
+      "sha256": "00ac71977b22c4b1e84be20066cf5f074646ab179fd810bbe6758b30c46a9aac"
+    }
+  },
+  "remaining_follow_through": [
+    "No validated new security/correctness defect claimed in this family; no behavior policy changed. Unassign/delete currently block queued/processing while filename replacement separately blocks delivery_unknown; these distinct existing policies stay unchanged, without inventing a new unknown-outcome policy.",
+    "Inherited coverage gaps remain explicit per owner, especially unchanged response optional URL/rejection/status paths and small support policies. Existing cohesive response C28 and passenger projection C21 remain measured; no claim that every function must be split or that all branches are tested.",
+    "Shared retained-file namespace compatibility candidate was discovered from already-read cleanup policy but remains unconfirmed/scope-sensitive: delete allows manual namespace while replacement also allows canonical artifact namespace. No dedicated Operations Inbox investigation or frozen shared-policy edit was performed; root was notified.",
+    "Precommit identity-map and post-commit response lifetime questions require ordinary actual caller proof before any behavior change; await syntax alone is not evidence of a defect.",
+    "Additional current distribution verification/manual/reupload/abort/support owners outside this selected closure still require separate source review/architecture work. Parent inventory tracks broader audit; native and Operations Inbox-specific work remain excluded/deferred as instructed.",
+    "SQLite controls do not prove actual PostgreSQL lock contention, live storage deletion/provider actions or production capacity. Root owns one final combined verification after remaining work; no deployment/provider sends or broad checks here.",
+    "Canonical public dataclass/callable identities and instance pickle preserved; implementation-source paths changed. No inspect.getsource compatibility claim or monkeypatch."
+  ],
+  "freeze": "Eight changed runtime files and two new test sources frozen. Ninth measured response dependency is byte-identical to original. AI/root own nine normal ratchet proposals (two tightened plus seven new), all shared gate/global/critical floors and release pins remain untouched by this lane."
+}

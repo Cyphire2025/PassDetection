@@ -1,0 +1,83 @@
+{
+  "basis": "Exactly8 additive candidates from independently manual-reviewed and127-test-verified WhatsApp matcher tranche; all8 raw source digests and size/complexity measurements independently checked at integration. This merge does not claim another full physical source review. Pure facade/constants use0/0 ceiling supported by separately regression-tested truthful-zero semantics. Existing47/27 complexity ceilings are ratcheted, not reported improved.",
+  "review_attribution": "manual_security",
+  "source_evidence": [
+    "whatsapp-matcher-extraction-proof.json",
+    "whatsapp-matcher-budget-candidates.json",
+    "whatsapp-matcher-after-fix.txt",
+    "whatsapp-matcher-coverage.json"
+  ],
+  "modules_before": 203,
+  "modules_after": 211,
+  "before_raw_sha256": "0d8d93fb2859d4d3c4aa8a620b6a7e51bcc8aeb75cb0c5053a2096fa27213cd1",
+  "after_raw_sha256": "88e3db00d8ddb915a7699b66cc901831226da7e304adb9838c4d4d25a13f9e59",
+  "after_normalized_sha256": "d78108bfd1cec1979dfa5f1773fa868bc63948ea92053e39bdb45c644781aa29",
+  "all203_prior_caps_and_floors_preserved": true,
+  "all_existing_global_critical_floors_preserved": true,
+  "new_modules": [
+    {
+      "path": "app/application/use_cases/whatsapp/group_submission_matching.py",
+      "baseline_lines": 201,
+      "maximum_lines": 209,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/application/use_cases/whatsapp/group_match_coordinator.py",
+      "baseline_lines": 188,
+      "maximum_lines": 195,
+      "baseline_max_function_complexity": 47,
+      "maximum_function_complexity": 47,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/application/use_cases/whatsapp/group_match_evidence.py",
+      "baseline_lines": 295,
+      "maximum_lines": 306,
+      "baseline_max_function_complexity": 16,
+      "maximum_function_complexity": 16,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/application/use_cases/whatsapp/group_match_fields.py",
+      "baseline_lines": 161,
+      "maximum_lines": 167,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/application/use_cases/whatsapp/group_match_normalization.py",
+      "baseline_lines": 172,
+      "maximum_lines": 178,
+      "baseline_max_function_complexity": 9,
+      "maximum_function_complexity": 9,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/application/use_cases/whatsapp/group_match_profiles.py",
+      "baseline_lines": 297,
+      "maximum_lines": 308,
+      "baseline_max_function_complexity": 27,
+      "maximum_function_complexity": 27,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/application/use_cases/whatsapp/group_match_rows.py",
+      "baseline_lines": 231,
+      "maximum_lines": 240,
+      "baseline_max_function_complexity": 20,
+      "maximum_function_complexity": 20,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/application/use_cases/whatsapp/group_match_types.py",
+      "baseline_lines": 155,
+      "maximum_lines": 161,
+      "baseline_max_function_complexity": 3,
+      "maximum_function_complexity": 3,
+      "minimum_coverage_percent": 90
+    }
+  ]
+}

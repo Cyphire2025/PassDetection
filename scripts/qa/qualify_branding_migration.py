@@ -17,8 +17,13 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 from qa.qualify_document_delivery_rebalance import guard
 from qa.qualify_document_release_resources import command, inspect, write_exclusive
-from release_workspace_branding_contract import SOURCE, TARGET, source_contract
 from release_mcp_database import digest_json
+from release_workspace_branding_contract import (
+    BASELINES,
+    SOURCE,
+    TARGET,
+    source_contract,
+)
 
 LABEL = "passdetection.branding-migration-qa"
 FILES = (
@@ -28,7 +33,7 @@ FILES = (
 )
 CHECKS = {key: True for key in (
     "source_upgrade", "idempotent_target", "lock_failure", "historical_rows_catalog_acl_preserved",
-    "wrong_baseline_rejected", "new_columns_null", "runtime_grants_verified", "early_writes_rejected")}
+    "wrong_baseline_rejected", "new_columns_null", "runtime_grants_verified", "early_writes_rejected", "partial_checkpoint_resume", "new_column_grants_rejected")}
 MARKER = "PASSDETECTION_DOCUMENT_MIGRATION="
 DATABASE_TMPFS = {"/var/lib/postgresql/data": "rw,size=268435456"}
 CLIENT_TMPFS = {"/tmp": "rw,nosuid,size=134217728,mode=1777"}
@@ -38,7 +43,7 @@ from pathlib import Path
 from scripts.workspace_branding_release import POLICY,migration_entries
 from scripts.qualify_workspace_branding import qualify
 root=Path('/app')
-contract={**POLICY,'migrations':migration_entries(root)}
+contract={**POLICY,'source_schema':sys.argv[3],'migrations':migration_entries(root,sys.argv[3])}
 digest=hashlib.sha256(json.dumps(contract,sort_keys=True,separators=(',',':')).encode()).hexdigest()
 if digest != sys.argv[1]:
     raise RuntimeError('candidate_contract_mismatch')
@@ -46,7 +51,7 @@ for name,expected in json.loads(sys.argv[2]).items():
     path=root/'scripts'/name
     if path.is_symlink() or hashlib.sha256(path.read_bytes()).hexdigest()!=expected:
         raise RuntimeError('candidate_helper_source_mismatch')
-value=qualify()
+value=qualify(source_schema=sys.argv[3])
 print('PASSDETECTION_DOCUMENT_MIGRATION='+json.dumps({'source_contract_sha256':digest,'result':value}),flush=True)
 """
 
@@ -97,14 +102,14 @@ def verify_cleanup_mounts(row: dict, *, database: bool) -> None:
         raise RuntimeError("migration_cleanup_mounts_changed")
 
 
-def validate_result(raw: str, contract_hash: str) -> dict:
+def validate_result(raw: str, contract_hash: str, source_schema: str = SOURCE) -> dict:
     if len(raw) > 262144:
         raise ValueError("migration_output_budget_exceeded")
     rows = [json.loads(line[len(MARKER):]) for line in raw.splitlines() if line.startswith(MARKER)]
     if len(rows) != 1 or rows[0].get("source_contract_sha256") != contract_hash:
         raise ValueError("one_bound_migration_result_required")
     result = rows[0].get("result", {})
-    if (result.get("source") != SOURCE or result.get("target") != TARGET
+    if (result.get("source") != source_schema or result.get("target") != TARGET
         or result.get("checks") != CHECKS or result.get("synthetic_only") is not True
         or result.get("automatic_downgrade") is not False
         or type(result.get("messages_sent")) is not int or result["messages_sent"] != 0):
@@ -112,7 +117,7 @@ def validate_result(raw: str, contract_hash: str) -> dict:
     return result
 
 
-def probe(image: str, postgres: str, contract_hash: str, sources: dict[str, str]) -> dict:
+def probe(image: str, postgres: str, contract_hash: str, sources: dict[str, str], source_schema: str = SOURCE) -> dict:
     owner = "pd-branding-migration-" + uuid.uuid4().hex
     database, client = owner + "-db", owner + "-client"
     server_id = None
@@ -145,7 +150,7 @@ def probe(image: str, postgres: str, contract_hash: str, sources: dict[str, str]
             "--read-only", "--cap-drop", "ALL", "--security-opt", "no-new-privileges:true",
             "--tmpfs", next(key + ":" + value for key, value in CLIENT_TMPFS.items()), "--workdir", "/app",
             *[arg for key, value in env.items() for arg in ("-e", f"{key}={value}")],
-            "--entrypoint", "python", image, "-c", INNER, contract_hash, json.dumps(sources, sort_keys=True))
+            "--entrypoint", "python", image, "-c", INNER, contract_hash, json.dumps(sources, sort_keys=True), source_schema)
         command("docker", "start", client)
         until = time.monotonic() + 900
         while inspect(client)["State"]["Running"]:
@@ -156,7 +161,7 @@ def probe(image: str, postgres: str, contract_hash: str, sources: dict[str, str]
         state = inspect(client)["State"]
         if state["ExitCode"] != 0 or state["OOMKilled"] or inspect(database)["State"]["OOMKilled"]:
             raise RuntimeError("document_migration_image_probe_failed")
-        return validate_result(command("docker", "logs", client), contract_hash)
+        return validate_result(command("docker", "logs", client), contract_hash, source_schema)
     finally:
         for identifier in command("docker", "ps", "-aq", "--filter", f"label={LABEL}={owner}").split():
             row = inspect(identifier)
@@ -169,20 +174,20 @@ def probe(image: str, postgres: str, contract_hash: str, sources: dict[str, str]
             command("docker", "rm", "-f", "-v", row["Id"])
 
 
-def qualify(image: str, revision: str, postgres: str, output: Path) -> dict:
+def qualify(image: str, revision: str, postgres: str, output: Path, source_schema: str = SOURCE) -> dict:
     verify_inputs(image, revision, postgres)
     if (not output.parent.is_dir() or output.parent.resolve() != output.parent.absolute()
         or output.exists() or output.is_symlink() or (os.name == "posix" and output.parent.stat().st_mode & 0o077)):
         raise ValueError("new_private_receipt_path_required")
-    contract_hash = digest_json(source_contract(ROOT))
+    contract_hash = digest_json(source_contract(ROOT, source_schema))
     sources = {name: hashlib.sha256((ROOT / "backend/scripts" / name).read_bytes()).hexdigest() for name in FILES}
-    probe(image, postgres, contract_hash, sources)
+    probe(image, postgres, contract_hash, sources, source_schema)
     verify_inputs(image, revision, postgres)
-    if digest_json(source_contract(ROOT)) != contract_hash or sources != {
+    if digest_json(source_contract(ROOT, source_schema)) != contract_hash or sources != {
         name: hashlib.sha256((ROOT / "backend/scripts" / name).read_bytes()).hexdigest() for name in FILES}:
         raise ValueError("qualification_source_changed")
     receipt = {"version": 1, "status": "passed", "source_revision": revision, "backend_image_id": image,
-        "source_contract_sha256": contract_hash, "source_schema": SOURCE, "target_schema": TARGET,
+        "source_contract_sha256": contract_hash, "source_schema": source_schema, "target_schema": TARGET,
         "full_ci_qualified": False, "owned_resources_removed": True, "checks": CHECKS}
     write_exclusive(output, receipt)
     return receipt
@@ -195,5 +200,6 @@ if __name__ == "__main__":
     parser.add_argument("--revision", required=True)
     parser.add_argument("--postgres-image", required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--source-schema", choices=BASELINES, default=SOURCE)
     args = parser.parse_args()
-    print(json.dumps(qualify(args.image, args.revision, args.postgres_image, args.output), sort_keys=True))
+    print(json.dumps(qualify(args.image, args.revision, args.postgres_image, args.output, args.source_schema), sort_keys=True))

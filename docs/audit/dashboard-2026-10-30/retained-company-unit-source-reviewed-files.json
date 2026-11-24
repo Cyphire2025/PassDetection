@@ -1,0 +1,158 @@
+{
+  "files": [
+    {
+      "path": "backend/tests/unit/application/test_company_history_jobs.py",
+      "sha256": "c7e020fd64a779d8343d9dff33edb16d9c3c658fbc58ab52d8114f9d5374c5f6",
+      "physical_lines": 118,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete118 physical read. Two-pass registration/matching chain, checkpoint/asset wait, restart idempotency, policy-generation cancellation and no public claim/grant; operator matching evidence distinguishes accepted staff assignment from information_confirmed=False. Synthetic FK callbacks/DB only, not executed."
+    },
+    {
+      "path": "backend/tests/unit/application/test_company_history_roster_retry.py",
+      "sha256": "f5c7afc0f8795a56a68b342c82fce035fdaa0592932ef72982d418f900e18393",
+      "physical_lines": 122,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete122 physical read. Production autoflush=False, early private/unmatched roster revisited after later history, pending copies gate publication, bounded fanout requeue and no recursive fanout/duplicate source. Source assertions inspected, no new measured worker/service qualification."
+    },
+    {
+      "path": "backend/tests/unit/application/test_historical_document_generation.py",
+      "sha256": "5a93cec26450dc9f7f8a43ed8d16b9627df5ae30bb1a4251467a14a3f652abd9",
+      "physical_lines": 89,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete89 physical read. Verification revision/time/source-image changes at unchanged extraction revision produce new independent version/copies without rewriting old membership; actual retained_source_is_current consumer global in asset_copy traced. Synthetic metadata/copy mocks and injected encryption context are not live storage proof."
+    },
+    {
+      "path": "backend/tests/unit/application/test_incremental_company_history.py",
+      "sha256": "617085abed4a50c107f787a0cbdbf1853df229c285b131dc7f2fc948ec076ce6",
+      "physical_lines": 127,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete127 physical read. Existing malformed/stale generation checks, private zero-policy compatibility, exact source-only scheduling and700-event coalescing/dirty bounded-page restart inspected; no new malformed payload campaign or performance run."
+    },
+    {
+      "path": "backend/tests/unit/application/test_retained_authority.py",
+      "sha256": "87488c977f184ddb8c0b8cd512e7f448dde3d9faa215c99ab7a99cf7e9aa54fa",
+      "physical_lines": 58,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete58 physical read. Existing SQL/object evidence parity and guarded PostgreSQL numeric CASE/cast controls, status/deletion/withdrawal authority boundaries. SQL compilation and SQLite controls are source evidence only, not actual PostgreSQL execution; no new probing."
+    },
+    {
+      "path": "backend/tests/unit/application/test_traveller_accepted_source.py",
+      "sha256": "8e89194b7950b806e50ad6837ae89f5c5da12082f453cb83c6f53900f5d027be",
+      "physical_lines": 74,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete74 physical read. Existing saved-MRZ bytes are historical acceptance/provenance validation with review/context consistency and truthful issuer source. This is distinct from retired MRZ OCR extraction; no OCR provider/path resurrected or newly investigated, existing cases only read."
+    },
+    {
+      "path": "backend/tests/unit/application/test_traveller_reconciliation.py",
+      "sha256": "3183e3f319fd23c68379928dfc678b903b8cd00f5ffecb22e00d5ad6370a6568",
+      "physical_lines": 172,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete172 physical read. Full synthetic encrypted tenant/people/source fixture,700 shared-phone people remain distinct400provisional/300unmatched, bounded100-row/8-query controls, unknown issuer/contradictory code rejection, rollback replay and reassignment cancellation. Actual current reconcile_page dispatcher/body traced102-200; no execution/query performance proof inferred."
+    },
+    {
+      "path": "backend/tests/unit/application/test_traveller_requirements.py",
+      "sha256": "85a65f0a4199e01d15e8a53f7bc188fc84ac40bae2e067a5046fdd1ee918fe9d",
+      "physical_lines": 42,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete42 physical read. Same-trip only stable requirement-definition signatures retain unchanged answers, changed options/foreign trip/unknown snapshot discard old answers; complete actual71-line requirements owner read. No new runtime changes."
+    },
+    {
+      "path": "backend/tests/unit/application/test_traveller_roster_reconciliation.py",
+      "sha256": "1ecab5c075a1a1526fc3170b1299facb8c209782e6ad0f713fbe118d03c934ff",
+      "physical_lines": 81,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete81 physical read. Durable rejected duplicate-phone imported people remain700individual cases,400provisional and300unmatched; no membership grant, unlinked roster excluded, stale source refresh increments revision. Source assertions only; no provider/native activity."
+    },
+    {
+      "path": "backend/tests/unit/application/test_traveller_enrollment.py",
+      "sha256": "53cabc722aba47b6d02f1293b77221f3c6725ef2e45b1d99cfdaa04267018628",
+      "physical_lines": 268,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete268 physical read including shared _fixture/_source used by multiple reviewed integration tests. Source acceptance/issuer/attestation/idempotency, frozen trips/current default renewal, private copy limits/timeout lease, post-provider withdrawal, blocked passport status and independent cleanup provenance. Actual asset-copy authority/copy publication and enrollment admission slices traced; no passing/live storage/PG claim."
+    },
+    {
+      "path": "backend/tests/unit/application/test_company_history_registration.py",
+      "sha256": "345655fdb366262c98c9fc1b2244b5113a73ea11d2ab9302994e49b6f94249bd",
+      "physical_lines": 208,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete208 physical read including actual register helper. Private history vs explicit retained authority/no invented consent, idempotent multiple source links, conflicts/ambiguity/tenant scope, canonical identifier and phone update, generated-snapshot provenance, later staff promotion and changed-source refusal. No source/test/config edits or executions."
+    },
+    {
+      "path": "backend/app/application/travellers/history_schedule.py",
+      "sha256": "d577286fcf48b2ef367c19c342e04a0a5089ec66dcacdb5602c90666bfc9c1f3",
+      "physical_lines": 74,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete74 physical immediate dependency reread: exact current group/company admission, bounded initial-source/submission scheduling, explicit idempotent job generations and export invalidation inside caller transaction; no roster scan/provider send. Supporting source, no new-unreviewed credit where exact full prior exists."
+    },
+    {
+      "path": "backend/app/application/travellers/requirements.py",
+      "sha256": "03f35fbc7d91443fec5f423c530ba0024dc4e6f5988d2f4fd5ab7ea150792562",
+      "physical_lines": 71,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete71 physical immediate dependency reread: current document requirements and q<=60 definition digests, same-trip/status guard, shape checks and unchanged answer-only projection. No native capture workflow audited; shared configuration compatibility only. Supporting source, prior matching full evidence stays independent."
+    },
+    {
+      "path": "backend/app/application/travellers/reconciliation.py",
+      "sha256": "2a3126138910a5bf3a0764922b85cafb80cd240edef2e4b675c9de41b4f484c1",
+      "physical_lines": 291,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical read102-200 only, complete reconcile_page: caller transaction, group/company/job lock order and current assignment generation, existing chain/incremental dispatch, bounded source evidence/SQL maps, preserve human decisions, checkpoint/flush. Other helpers/imports not full source credit or architecture closure."
+    },
+    {
+      "path": "backend/app/application/travellers/company_history_jobs.py",
+      "sha256": "af993d639cb35c42dafb072a8af48612338f9164ae205d4195c75ae1507e7bfb",
+      "physical_lines": 173,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical read136-end only, complete advance_company_history_chain: exact pending marker/group/company/job locks and bounded next job admission/marker consume. Other registration/matching functions not fully read here."
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/asset_copy.py",
+      "sha256": "8459bb8fc0850257586438d6b32cf463b59943c86e0687db605fafb4267a7a18",
+      "physical_lines": 285,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical read61-119 and205-end only: complete _has_copy_authority and copy_next_asset. Actual retained-source monkeypatch global, scoped current profile/revision/source/retention guard, bounded metadata copy/integrity, post-await lease/current authority, deferred cleanup and timeout admission preserve. Reserve/bind/other declarations not whole-read or service-proof credit."
+    },
+    {
+      "path": "backend/app/application/travellers/enrollment.py",
+      "sha256": "cc10c65c84ce2290bbf57614228c4442e8ae80c2f2246f1721ae7d1c507c9a5a",
+      "physical_lines": 359,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical read88-134 only: enroll_submission admission scoped locked group/company/enabled policy, request digest/idempotent version return and exact accepted source revision. Remaining enrollment model/default/asset/membership pieces not fully read here; no whole owner architecture/security closure."
+    }
+  ],
+  "scope": "Eleven current-full-unmatched retained company/history/retention unit source files1359lines physically read; two whole immediate supporting owners145lines and four explicitly focused runtime contexts. No import/test/metadata-only full credit, provider/DB execution or runtime/config/test edits."
+}

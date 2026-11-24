@@ -1,0 +1,87 @@
+{
+  "recorded_at": "2026-10-31T05:10:52.939456+00:00",
+  "records": [
+    {
+      "path": "frontend/scripts/browser-verification-local-fixture.mjs",
+      "sha256": "9577f6eb9ab08b28de8ca7152ccdd88ad85cabd7a027781ed54947cb56e923ae",
+      "physical_lines": 77,
+      "review_scope": "full",
+      "status": "reviewed-current-verifier-or-regression",
+      "reviewer": "branding_visuals",
+      "notes": "Full physical source read/authored; current Fresh private draft and route-owned broadcast/history callers traced. Synthetic per-context API responses, external/non-API mutation denial and WebSocket closure; canonical public portrait has pinned SHA and recorded provenance. File is a verifier or focused regression, not production API/permission behavior."
+    },
+    {
+      "path": "frontend/scripts/browser-verification-portrait.mjs",
+      "sha256": "eb2eb3ab49a95c68d549ca33d32a724d5d19630eac77792c647d28dcb3bed6ed",
+      "physical_lines": 26,
+      "review_scope": "full",
+      "status": "reviewed-current-verifier-or-regression",
+      "reviewer": "branding_visuals",
+      "notes": "Full physical source read/authored; current Fresh private draft and route-owned broadcast/history callers traced. Synthetic per-context API responses, external/non-API mutation denial and WebSocket closure; canonical public portrait has pinned SHA and recorded provenance. File is a verifier or focused regression, not production API/permission behavior."
+    },
+    {
+      "path": "frontend/scripts/browser-verification-whatsapp-fixture.mjs",
+      "sha256": "82e164faac714e0151c63003f753d5d7d97fb649710364a21b5dcf9c57b3eb3c",
+      "physical_lines": 108,
+      "review_scope": "full",
+      "status": "reviewed-current-verifier-or-regression",
+      "reviewer": "branding_visuals",
+      "notes": "Full physical source read/authored; current Fresh private draft and route-owned broadcast/history callers traced. Synthetic per-context API responses, external/non-API mutation denial and WebSocket closure; canonical public portrait has pinned SHA and recorded provenance. File is a verifier or focused regression, not production API/permission behavior."
+    },
+    {
+      "path": "frontend/scripts/verify-upload-options-browser.mjs",
+      "sha256": "c471557bf7b73839ba43dcf17c80a995b69a6545e237cfda159246f1f01d85e9",
+      "physical_lines": 170,
+      "review_scope": "full",
+      "status": "reviewed-current-verifier-or-regression",
+      "reviewer": "branding_visuals",
+      "notes": "Full physical source read/authored; current Fresh private draft and route-owned broadcast/history callers traced. Synthetic per-context API responses, external/non-API mutation denial and WebSocket closure; canonical public portrait has pinned SHA and recorded provenance. File is a verifier or focused regression, not production API/permission behavior."
+    },
+    {
+      "path": "frontend/scripts/verify-visa-photo-browser.mjs",
+      "sha256": "10802b6f7e1c964e705ba2be07bde3a12a17f09459ec70f35689f901ad03076d",
+      "physical_lines": 270,
+      "review_scope": "full",
+      "status": "reviewed-current-verifier-or-regression",
+      "reviewer": "branding_visuals",
+      "notes": "Full physical source read/authored; current Fresh private draft and route-owned broadcast/history callers traced. Synthetic per-context API responses, external/non-API mutation denial and WebSocket closure; canonical public portrait has pinned SHA and recorded provenance. File is a verifier or focused regression, not production API/permission behavior."
+    },
+    {
+      "path": "frontend/scripts/verify-whatsapp-composer-browser.mjs",
+      "sha256": "fd4118228b9d09d828286dc69be7376837f574f1d7e8a54b3adb45732c1d045a",
+      "physical_lines": 72,
+      "review_scope": "full",
+      "status": "reviewed-current-verifier-or-regression",
+      "reviewer": "branding_visuals",
+      "notes": "Full physical source read/authored; current Fresh private draft and route-owned broadcast/history callers traced. Synthetic per-context API responses, external/non-API mutation denial and WebSocket closure; canonical public portrait has pinned SHA and recorded provenance. File is a verifier or focused regression, not production API/permission behavior."
+    },
+    {
+      "path": "frontend/scripts/verify-whatsapp-recipient-bulk-browser.mjs",
+      "sha256": "317151e6723680a135692cc73d1ff8a043e090be36035beab3c67b952e4b0b3e",
+      "physical_lines": 155,
+      "review_scope": "full",
+      "status": "reviewed-current-verifier-or-regression",
+      "reviewer": "branding_visuals",
+      "notes": "Full physical source read/authored; current Fresh private draft and route-owned broadcast/history callers traced. Synthetic per-context API responses, external/non-API mutation denial and WebSocket closure; canonical public portrait has pinned SHA and recorded provenance. File is a verifier or focused regression, not production API/permission behavior."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-dialog-ui.tsx",
+      "sha256": "839402186eb82b93b694e4adda93bf65d1ff3d1e96681bd4cfca7a9b0993ce1a",
+      "physical_lines": 112,
+      "review_scope": "full",
+      "status": "fixed-awaiting-fresh-production-browser",
+      "reviewer": "branding_visuals",
+      "notes": "Full physical source read/authored. Dialog body portal/SSR mount fixes reproduced mobile transform containing block; full backdrop/inner JSX and public parameters identical after CRLF/LF normalization, exact ErrorBanner/readErrorMessage declarations retained. New production geometry receipt still pending."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-dialog-ui.test.tsx",
+      "sha256": "7a1bf6317f7db5e0e85b78746440a7cbd75715779103082126bf5bae9fcd9b76",
+      "physical_lines": 52,
+      "review_scope": "full",
+      "status": "reviewed-current-verifier-or-regression",
+      "reviewer": "branding_visuals",
+      "notes": "Full physical source read/authored; current Fresh private draft and route-owned broadcast/history callers traced. Synthetic per-context API responses, external/non-API mutation denial and WebSocket closure; canonical public portrait has pinned SHA and recorded provenance. File is a verifier or focused regression, not production API/permission behavior."
+    }
+  ],
+  "source_freeze": "All nine source paths frozen pending new production build/browser qualification; parent original checkpoint3 immutable."
+}

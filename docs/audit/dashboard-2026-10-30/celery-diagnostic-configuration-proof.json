@@ -1,0 +1,11 @@
+{
+  "baseline": "git HEAD:backend/app/infrastructure/processing/celery_app.py",
+  "baseline_sha256": "e947425a414a451ad5d00f4938793c2927269ea3f46ec77b877cff7bfb6fe7d5",
+  "current_sha256": "402830e148bc2745e7d05837ec10d81db4ed54bb9f6ab293d9cca60ae0f4a9e3",
+  "all_existing_runtime_configuration_AST_preserved_after_removing_only_reviewed_task_loader_and_log_filter_bindings": true,
+  "separate_nonruntime_module_docstring_change": {
+    "before": "Celery application for passport OCR processing.",
+    "after": "Celery application for AI passport processing and shared background workflows."
+  },
+  "limits": "No claim wrappers or loader/backend implementations are identical; their actual wire/context/serialization behavior is tested separately."
+}

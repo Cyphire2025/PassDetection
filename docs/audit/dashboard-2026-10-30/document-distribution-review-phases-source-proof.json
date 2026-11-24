@@ -1,0 +1,38 @@
+{
+  "whole_unchanged_original_declarations": [
+    "_LinkedDocumentMatchSource",
+    "_batch_response",
+    "_document_match_roster_snapshot",
+    "_document_response",
+    "_document_response_snapshot",
+    "_joined_document_values",
+    "_linked_document_match_source_from_models",
+    "_owner_scope_for",
+    "_passenger_review_rows",
+    "_passport_number",
+    "_physical_file_accounting",
+    "_safe_filename",
+    "_snapshot_value",
+    "_submitted_statuses"
+  ],
+  "complete_expanded_original_mutation_functions": [
+    "unassign_distribution_documents",
+    "delete_distribution_documents"
+  ],
+  "complete_expanded_original_export_function": "_document_assignment_export_rows",
+  "four_duplicate_response_blocks": "Exact three-statement expansion; only final local documents\u2194remaining_documents alpha rename. The actual group ORM object is passed so all three original group.agency_id reads occur in their original statements, preserving evaluation and fresh-query order.",
+  "lazy_filter_control_flow": "Only a matched original continue becomes the pure predicate's returnFalse, followed by original caller continue; trailingTrue is original fall-through. Original sent/not_sent evaluation order and lazy shared_pdf_count access remain exact.",
+  "all_original_role_csrf_authority_sql_lock_storage_side_effect_audit_flush_commit_cleanup_and_private_ordered_output_statements": "Exact",
+  "no_proxy_callback_mixin_cache_or_policy_change": true,
+  "source": {
+    "backend/app/presentation/api/v1/routes/document_distribution_assignments.py": "136de40db054a6f757af621486d49296aac5feab7f38684fb65581e76d91d49a",
+    "backend/app/presentation/api/v1/routes/document_distribution_review_support.py": "6d70d0a8d7b1e452093ac3935f4ba591413522e2534a2480b455fe0a867bff58",
+    "backend/app/presentation/api/v1/routes/document_distribution_responses.py": "6f4dbf8d10308e38f7c19917499d466a99a497d633490a9fe1302e3d376bc0d6",
+    "backend/app/presentation/api/v1/routes/document_distribution_assignment_unassign.py": "24d74b8f73c6ffbc626c877291544246f77c112c00caac37b4a36ea1fed5b688",
+    "backend/app/presentation/api/v1/routes/document_distribution_assignment_delete.py": "574e94e2c4474cb365a2a6d12205466f9368e5bec9da45e110c90898c9b495cc",
+    "backend/app/presentation/api/v1/routes/document_distribution_review_snapshots.py": "df956aea04733bfab98bb68ec45782684c324b92d62c02e9af9ecbb2687c6683",
+    "backend/app/presentation/api/v1/routes/document_distribution_review_projection.py": "370a18facc3860ba3e089e09707603d4f6641de9a6c36de211c0702fdaa6481b",
+    "backend/app/presentation/api/v1/routes/document_distribution_review_export.py": "30bda9448f33ee5f779f686943bb8c83e341ccdfc6cfc544afb6edceecfa481f",
+    "backend/app/presentation/api/v1/routes/document_distribution_assignment_review.py": "0ab4e9167616f93a73fd118fde6add59279901069d719628bca97f6147137d50"
+  }
+}

@@ -1,0 +1,1158 @@
+{
+  "models": [
+    {
+      "name": "PassportImageCropCoordinates",
+      "owner": "app.presentation.api.v1.schemas.passport_editing_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "PassportImageCropUpdateRequest",
+      "owner": "app.presentation.api.v1.schemas.passport_editing_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "PassportImageCropResetRequest",
+      "owner": "app.presentation.api.v1.schemas.passport_editing_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "PassportImageCropResponse",
+      "owner": "app.presentation.api.v1.schemas.passport_editing_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "PassportVisaAiPreviewRequest",
+      "owner": "app.presentation.api.v1.schemas.passport_editing_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "PassportVisaAiImageResponse",
+      "owner": "app.presentation.api.v1.schemas.passport_editing_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "PassportVisaAiImageListResponse",
+      "owner": "app.presentation.api.v1.schemas.passport_editing_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "PassportVisaAiImageJobResponse",
+      "owner": "app.presentation.api.v1.schemas.passport_editing_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "PassportVisaAiImageUseRequest",
+      "owner": "app.presentation.api.v1.schemas.passport_editing_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "ConfirmPassportSubmissionRequest",
+      "owner": "app.presentation.api.v1.schemas.passport_collection_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "StaffApprovePassportRequest",
+      "owner": "app.presentation.api.v1.schemas.passport_collection_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "ClientSubmitPassportRequest",
+      "owner": "app.presentation.api.v1.schemas.passport_collection_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "ClientCustomAnswerRequest",
+      "owner": "app.presentation.api.v1.schemas.passport_collection_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "ClientCustomDetailAnswerRequest",
+      "owner": "app.presentation.api.v1.schemas.passport_collection_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "ReconcilePassportUploadRequest",
+      "owner": "app.presentation.api.v1.schemas.passport_collection_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "ReconcilePassportUploadResponse",
+      "owner": "app.presentation.api.v1.schemas.passport_collection_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "ExportSelectedPassportsRequest",
+      "owner": "app.presentation.api.v1.schemas.passport_bulk_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "ExportSelectedPassportImagesRequest",
+      "owner": "app.presentation.api.v1.schemas.passport_bulk_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "BulkDocumentFollowUpRequest",
+      "owner": "app.presentation.api.v1.schemas.passport_bulk_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "BulkDocumentFollowUpResponse",
+      "owner": "app.presentation.api.v1.schemas.passport_bulk_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "BulkDeletePassportSubmissionsRequest",
+      "owner": "app.presentation.api.v1.schemas.passport_bulk_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "BulkDeletePassportSubmissionsResponse",
+      "owner": "app.presentation.api.v1.schemas.passport_bulk_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "BulkStaffApprovePassportSelection",
+      "owner": "app.presentation.api.v1.schemas.passport_bulk_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "BulkStaffApprovePassportSubmissionsRequest",
+      "owner": "app.presentation.api.v1.schemas.passport_bulk_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "BulkStaffApproveSkippedSubmission",
+      "owner": "app.presentation.api.v1.schemas.passport_bulk_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "BulkStaffApprovePassportSubmissionsResponse",
+      "owner": "app.presentation.api.v1.schemas.passport_bulk_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "ExportSelectedGroupsRequest",
+      "owner": "app.presentation.api.v1.schemas.passport_bulk_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "PassportExportHistoryItemResponse",
+      "owner": "app.presentation.api.v1.schemas.passport_export_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "PassportExportHistoryListResponse",
+      "owner": "app.presentation.api.v1.schemas.passport_export_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "PassportExportHistorySubmissionResponse",
+      "owner": "app.presentation.api.v1.schemas.passport_export_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "PassportExportHistoryDetailResponse",
+      "owner": "app.presentation.api.v1.schemas.passport_export_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "PassportExportHistoryCompletionResponse",
+      "owner": "app.presentation.api.v1.schemas.passport_export_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "PassportExportFieldOptionResponse",
+      "owner": "app.presentation.api.v1.schemas.passport_export_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "PassportExportGroupingOptionResponse",
+      "owner": "app.presentation.api.v1.schemas.passport_export_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "PassportExportFieldOptionsResponse",
+      "owner": "app.presentation.api.v1.schemas.passport_export_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "PassportSelectedGroupsExportFieldOptionsResponse",
+      "owner": "app.presentation.api.v1.schemas.passport_export_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "ImportPassportGroupResponse",
+      "owner": "app.presentation.api.v1.schemas.passport_document_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "PassportDocumentImportItem",
+      "owner": "app.presentation.api.v1.schemas.passport_document_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "PassportDocumentImportPreviewResponse",
+      "owner": "app.presentation.api.v1.schemas.passport_document_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "PassportDocumentImportSaveResponse",
+      "owner": "app.presentation.api.v1.schemas.passport_document_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "PassengerQrStatusResponse",
+      "owner": "app.presentation.api.v1.schemas.passport_document_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "PassportExtractionConflictResponse",
+      "owner": "app.presentation.api.v1.schemas.passport_document_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "PostSubmissionFieldOutcomeResponse",
+      "owner": "app.presentation.api.v1.schemas.passport_verification_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "PostSubmissionVerificationResponse",
+      "owner": "app.presentation.api.v1.schemas.passport_verification_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "PassportSubmissionResponse",
+      "owner": "app.presentation.api.v1.schemas.passport_view_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "PassportSubmissionViewItemResponse",
+      "owner": "app.presentation.api.v1.schemas.passport_view_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "PassportSubmissionSelectionSnapshotResponse",
+      "owner": "app.presentation.api.v1.schemas.passport_view_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "PassportExpiryAlertResponse",
+      "owner": "app.presentation.api.v1.schemas.passport_view_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "PassportDuplicateClusterPageResponse",
+      "owner": "app.presentation.api.v1.schemas.passport_view_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "PassportSubmissionsViewResponse",
+      "owner": "app.presentation.api.v1.schemas.passport_view_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    },
+    {
+      "name": "PassportGroupSummaryResponse",
+      "owner": "app.presentation.api.v1.schemas.passport_summary_schemas",
+      "entire_original_declaration_ast_and_public_contract": true
+    }
+  ],
+  "whole_class_count": 51,
+  "type_aliases": [
+    "PassportImageTypeValue",
+    "PassportVerificationFieldName"
+  ],
+  "actual_global_object_bindings": [
+    {
+      "declaration": "PassportImageTypeValue",
+      "dependency": "Literal"
+    },
+    {
+      "declaration": "PassportImageCropCoordinates",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "PassportImageCropCoordinates",
+      "dependency": "ConfigDict"
+    },
+    {
+      "declaration": "PassportImageCropCoordinates",
+      "dependency": "Field"
+    },
+    {
+      "declaration": "PassportImageCropCoordinates",
+      "dependency": "PassportImageCropCoordinates"
+    },
+    {
+      "declaration": "PassportImageCropCoordinates",
+      "dependency": "model_validator"
+    },
+    {
+      "declaration": "PassportImageCropUpdateRequest",
+      "dependency": "Field"
+    },
+    {
+      "declaration": "PassportImageCropUpdateRequest",
+      "dependency": "PassportImageCropCoordinates"
+    },
+    {
+      "declaration": "PassportImageCropResetRequest",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "PassportImageCropResetRequest",
+      "dependency": "ConfigDict"
+    },
+    {
+      "declaration": "PassportImageCropResetRequest",
+      "dependency": "Field"
+    },
+    {
+      "declaration": "PassportImageCropResponse",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "PassportImageCropResponse",
+      "dependency": "ConfigDict"
+    },
+    {
+      "declaration": "PassportImageCropResponse",
+      "dependency": "Field"
+    },
+    {
+      "declaration": "PassportImageCropResponse",
+      "dependency": "Literal"
+    },
+    {
+      "declaration": "PassportImageCropResponse",
+      "dependency": "PassportImageCropCoordinates"
+    },
+    {
+      "declaration": "PassportImageCropResponse",
+      "dependency": "PassportImageTypeValue"
+    },
+    {
+      "declaration": "PassportVisaAiPreviewRequest",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "PassportVisaAiPreviewRequest",
+      "dependency": "ConfigDict"
+    },
+    {
+      "declaration": "PassportVisaAiPreviewRequest",
+      "dependency": "Field"
+    },
+    {
+      "declaration": "PassportVisaAiImageResponse",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "PassportVisaAiImageResponse",
+      "dependency": "ConfigDict"
+    },
+    {
+      "declaration": "PassportVisaAiImageResponse",
+      "dependency": "Field"
+    },
+    {
+      "declaration": "PassportVisaAiImageResponse",
+      "dependency": "datetime"
+    },
+    {
+      "declaration": "PassportVisaAiImageResponse",
+      "dependency": "uuid"
+    },
+    {
+      "declaration": "PassportVisaAiImageListResponse",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "PassportVisaAiImageListResponse",
+      "dependency": "ConfigDict"
+    },
+    {
+      "declaration": "PassportVisaAiImageListResponse",
+      "dependency": "PassportVisaAiImageResponse"
+    },
+    {
+      "declaration": "PassportVisaAiImageJobResponse",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "PassportVisaAiImageJobResponse",
+      "dependency": "ConfigDict"
+    },
+    {
+      "declaration": "PassportVisaAiImageJobResponse",
+      "dependency": "Field"
+    },
+    {
+      "declaration": "PassportVisaAiImageJobResponse",
+      "dependency": "Literal"
+    },
+    {
+      "declaration": "PassportVisaAiImageJobResponse",
+      "dependency": "PassportVisaAiImageResponse"
+    },
+    {
+      "declaration": "PassportVisaAiImageJobResponse",
+      "dependency": "datetime"
+    },
+    {
+      "declaration": "PassportVisaAiImageJobResponse",
+      "dependency": "uuid"
+    },
+    {
+      "declaration": "PassportVisaAiImageUseRequest",
+      "dependency": "Field"
+    },
+    {
+      "declaration": "PassportVisaAiImageUseRequest",
+      "dependency": "PassportImageCropCoordinates"
+    },
+    {
+      "declaration": "ConfirmPassportSubmissionRequest",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "ConfirmPassportSubmissionRequest",
+      "dependency": "ConfigDict"
+    },
+    {
+      "declaration": "ConfirmPassportSubmissionRequest",
+      "dependency": "Field"
+    },
+    {
+      "declaration": "StaffApprovePassportRequest",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "StaffApprovePassportRequest",
+      "dependency": "ConfigDict"
+    },
+    {
+      "declaration": "StaffApprovePassportRequest",
+      "dependency": "Field"
+    },
+    {
+      "declaration": "ClientSubmitPassportRequest",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "ClientSubmitPassportRequest",
+      "dependency": "ConfigDict"
+    },
+    {
+      "declaration": "ClientSubmitPassportRequest",
+      "dependency": "EmailStr"
+    },
+    {
+      "declaration": "ClientSubmitPassportRequest",
+      "dependency": "Field"
+    },
+    {
+      "declaration": "ClientSubmitPassportRequest",
+      "dependency": "field_validator"
+    },
+    {
+      "declaration": "ClientSubmitPassportRequest",
+      "dependency": "normalize_phone_number"
+    },
+    {
+      "declaration": "ClientSubmitPassportRequest",
+      "dependency": "uuid"
+    },
+    {
+      "declaration": "ClientCustomAnswerRequest",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "ClientCustomAnswerRequest",
+      "dependency": "ConfigDict"
+    },
+    {
+      "declaration": "ClientCustomAnswerRequest",
+      "dependency": "Field"
+    },
+    {
+      "declaration": "ClientCustomAnswerRequest",
+      "dependency": "uuid"
+    },
+    {
+      "declaration": "ClientCustomDetailAnswerRequest",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "ClientCustomDetailAnswerRequest",
+      "dependency": "ConfigDict"
+    },
+    {
+      "declaration": "ClientCustomDetailAnswerRequest",
+      "dependency": "Field"
+    },
+    {
+      "declaration": "ClientCustomDetailAnswerRequest",
+      "dependency": "uuid"
+    },
+    {
+      "declaration": "ReconcilePassportUploadRequest",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "ReconcilePassportUploadRequest",
+      "dependency": "ConfigDict"
+    },
+    {
+      "declaration": "ReconcilePassportUploadRequest",
+      "dependency": "Field"
+    },
+    {
+      "declaration": "ReconcilePassportUploadResponse",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "ReconcilePassportUploadResponse",
+      "dependency": "ConfigDict"
+    },
+    {
+      "declaration": "ReconcilePassportUploadResponse",
+      "dependency": "uuid"
+    },
+    {
+      "declaration": "ExportSelectedPassportsRequest",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "ExportSelectedPassportsRequest",
+      "dependency": "Field"
+    },
+    {
+      "declaration": "ExportSelectedPassportsRequest",
+      "dependency": "uuid"
+    },
+    {
+      "declaration": "ExportSelectedPassportImagesRequest",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "ExportSelectedPassportImagesRequest",
+      "dependency": "ConfigDict"
+    },
+    {
+      "declaration": "ExportSelectedPassportImagesRequest",
+      "dependency": "Field"
+    },
+    {
+      "declaration": "ExportSelectedPassportImagesRequest",
+      "dependency": "uuid"
+    },
+    {
+      "declaration": "BulkDocumentFollowUpRequest",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "BulkDocumentFollowUpRequest",
+      "dependency": "ConfigDict"
+    },
+    {
+      "declaration": "BulkDocumentFollowUpRequest",
+      "dependency": "Field"
+    },
+    {
+      "declaration": "BulkDocumentFollowUpRequest",
+      "dependency": "uuid"
+    },
+    {
+      "declaration": "BulkDocumentFollowUpResponse",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "BulkDocumentFollowUpResponse",
+      "dependency": "Field"
+    },
+    {
+      "declaration": "BulkDeletePassportSubmissionsRequest",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "BulkDeletePassportSubmissionsRequest",
+      "dependency": "ConfigDict"
+    },
+    {
+      "declaration": "BulkDeletePassportSubmissionsRequest",
+      "dependency": "Field"
+    },
+    {
+      "declaration": "BulkDeletePassportSubmissionsRequest",
+      "dependency": "uuid"
+    },
+    {
+      "declaration": "BulkDeletePassportSubmissionsResponse",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "BulkDeletePassportSubmissionsResponse",
+      "dependency": "uuid"
+    },
+    {
+      "declaration": "BulkStaffApprovePassportSelection",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "BulkStaffApprovePassportSelection",
+      "dependency": "ConfigDict"
+    },
+    {
+      "declaration": "BulkStaffApprovePassportSelection",
+      "dependency": "Field"
+    },
+    {
+      "declaration": "BulkStaffApprovePassportSelection",
+      "dependency": "uuid"
+    },
+    {
+      "declaration": "BulkStaffApprovePassportSubmissionsRequest",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "BulkStaffApprovePassportSubmissionsRequest",
+      "dependency": "BulkStaffApprovePassportSelection"
+    },
+    {
+      "declaration": "BulkStaffApprovePassportSubmissionsRequest",
+      "dependency": "ConfigDict"
+    },
+    {
+      "declaration": "BulkStaffApprovePassportSubmissionsRequest",
+      "dependency": "Field"
+    },
+    {
+      "declaration": "BulkStaffApproveSkippedSubmission",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "BulkStaffApproveSkippedSubmission",
+      "dependency": "ConfigDict"
+    },
+    {
+      "declaration": "BulkStaffApproveSkippedSubmission",
+      "dependency": "Field"
+    },
+    {
+      "declaration": "BulkStaffApproveSkippedSubmission",
+      "dependency": "Literal"
+    },
+    {
+      "declaration": "BulkStaffApproveSkippedSubmission",
+      "dependency": "uuid"
+    },
+    {
+      "declaration": "BulkStaffApprovePassportSubmissionsResponse",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "BulkStaffApprovePassportSubmissionsResponse",
+      "dependency": "BulkStaffApproveSkippedSubmission"
+    },
+    {
+      "declaration": "BulkStaffApprovePassportSubmissionsResponse",
+      "dependency": "ConfigDict"
+    },
+    {
+      "declaration": "BulkStaffApprovePassportSubmissionsResponse",
+      "dependency": "Field"
+    },
+    {
+      "declaration": "BulkStaffApprovePassportSubmissionsResponse",
+      "dependency": "uuid"
+    },
+    {
+      "declaration": "ExportSelectedGroupsRequest",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "ExportSelectedGroupsRequest",
+      "dependency": "ConfigDict"
+    },
+    {
+      "declaration": "ExportSelectedGroupsRequest",
+      "dependency": "Field"
+    },
+    {
+      "declaration": "ExportSelectedGroupsRequest",
+      "dependency": "uuid"
+    },
+    {
+      "declaration": "PassportExportHistoryItemResponse",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "PassportExportHistoryItemResponse",
+      "dependency": "ConfigDict"
+    },
+    {
+      "declaration": "PassportExportHistoryItemResponse",
+      "dependency": "Field"
+    },
+    {
+      "declaration": "PassportExportHistoryItemResponse",
+      "dependency": "Literal"
+    },
+    {
+      "declaration": "PassportExportHistoryItemResponse",
+      "dependency": "datetime"
+    },
+    {
+      "declaration": "PassportExportHistoryItemResponse",
+      "dependency": "uuid"
+    },
+    {
+      "declaration": "PassportExportHistoryListResponse",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "PassportExportHistoryListResponse",
+      "dependency": "ConfigDict"
+    },
+    {
+      "declaration": "PassportExportHistoryListResponse",
+      "dependency": "Field"
+    },
+    {
+      "declaration": "PassportExportHistoryListResponse",
+      "dependency": "Literal"
+    },
+    {
+      "declaration": "PassportExportHistoryListResponse",
+      "dependency": "PassportExportHistoryItemResponse"
+    },
+    {
+      "declaration": "PassportExportHistoryListResponse",
+      "dependency": "uuid"
+    },
+    {
+      "declaration": "PassportExportHistorySubmissionResponse",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "PassportExportHistorySubmissionResponse",
+      "dependency": "ConfigDict"
+    },
+    {
+      "declaration": "PassportExportHistorySubmissionResponse",
+      "dependency": "uuid"
+    },
+    {
+      "declaration": "PassportExportHistoryDetailResponse",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "PassportExportHistoryDetailResponse",
+      "dependency": "ConfigDict"
+    },
+    {
+      "declaration": "PassportExportHistoryDetailResponse",
+      "dependency": "Field"
+    },
+    {
+      "declaration": "PassportExportHistoryDetailResponse",
+      "dependency": "Literal"
+    },
+    {
+      "declaration": "PassportExportHistoryDetailResponse",
+      "dependency": "PassportExportHistorySubmissionResponse"
+    },
+    {
+      "declaration": "PassportExportHistoryDetailResponse",
+      "dependency": "datetime"
+    },
+    {
+      "declaration": "PassportExportHistoryDetailResponse",
+      "dependency": "uuid"
+    },
+    {
+      "declaration": "PassportExportHistoryCompletionResponse",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "PassportExportHistoryCompletionResponse",
+      "dependency": "ConfigDict"
+    },
+    {
+      "declaration": "PassportExportHistoryCompletionResponse",
+      "dependency": "Literal"
+    },
+    {
+      "declaration": "PassportExportHistoryCompletionResponse",
+      "dependency": "datetime"
+    },
+    {
+      "declaration": "PassportExportHistoryCompletionResponse",
+      "dependency": "uuid"
+    },
+    {
+      "declaration": "PassportExportFieldOptionResponse",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "PassportExportFieldOptionResponse",
+      "dependency": "ConfigDict"
+    },
+    {
+      "declaration": "PassportExportFieldOptionResponse",
+      "dependency": "Field"
+    },
+    {
+      "declaration": "PassportExportFieldOptionResponse",
+      "dependency": "Literal"
+    },
+    {
+      "declaration": "PassportExportGroupingOptionResponse",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "PassportExportGroupingOptionResponse",
+      "dependency": "ConfigDict"
+    },
+    {
+      "declaration": "PassportExportGroupingOptionResponse",
+      "dependency": "Field"
+    },
+    {
+      "declaration": "PassportExportFieldOptionsResponse",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "PassportExportFieldOptionsResponse",
+      "dependency": "ConfigDict"
+    },
+    {
+      "declaration": "PassportExportFieldOptionsResponse",
+      "dependency": "Field"
+    },
+    {
+      "declaration": "PassportExportFieldOptionsResponse",
+      "dependency": "PassportExportFieldOptionResponse"
+    },
+    {
+      "declaration": "PassportExportFieldOptionsResponse",
+      "dependency": "PassportExportGroupingOptionResponse"
+    },
+    {
+      "declaration": "PassportExportFieldOptionsResponse",
+      "dependency": "uuid"
+    },
+    {
+      "declaration": "PassportSelectedGroupsExportFieldOptionsResponse",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "PassportSelectedGroupsExportFieldOptionsResponse",
+      "dependency": "ConfigDict"
+    },
+    {
+      "declaration": "PassportSelectedGroupsExportFieldOptionsResponse",
+      "dependency": "Field"
+    },
+    {
+      "declaration": "PassportSelectedGroupsExportFieldOptionsResponse",
+      "dependency": "PassportExportFieldOptionResponse"
+    },
+    {
+      "declaration": "PassportSelectedGroupsExportFieldOptionsResponse",
+      "dependency": "PassportExportGroupingOptionResponse"
+    },
+    {
+      "declaration": "PassportSelectedGroupsExportFieldOptionsResponse",
+      "dependency": "uuid"
+    },
+    {
+      "declaration": "ImportPassportGroupResponse",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "PassportDocumentImportItem",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "PassportDocumentImportItem",
+      "dependency": "uuid"
+    },
+    {
+      "declaration": "PassportDocumentImportPreviewResponse",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "PassportDocumentImportPreviewResponse",
+      "dependency": "Field"
+    },
+    {
+      "declaration": "PassportDocumentImportPreviewResponse",
+      "dependency": "PassportDocumentImportItem"
+    },
+    {
+      "declaration": "PassportDocumentImportPreviewResponse",
+      "dependency": "uuid"
+    },
+    {
+      "declaration": "PassportDocumentImportSaveResponse",
+      "dependency": "PassportDocumentImportPreviewResponse"
+    },
+    {
+      "declaration": "PassengerQrStatusResponse",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "PassengerQrStatusResponse",
+      "dependency": "datetime"
+    },
+    {
+      "declaration": "PassportExtractionConflictResponse",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "PassportExtractionConflictResponse",
+      "dependency": "Literal"
+    },
+    {
+      "declaration": "PassportVerificationFieldName",
+      "dependency": "Literal"
+    },
+    {
+      "declaration": "PostSubmissionFieldOutcomeResponse",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "PostSubmissionFieldOutcomeResponse",
+      "dependency": "ConfigDict"
+    },
+    {
+      "declaration": "PostSubmissionFieldOutcomeResponse",
+      "dependency": "Field"
+    },
+    {
+      "declaration": "PostSubmissionFieldOutcomeResponse",
+      "dependency": "Literal"
+    },
+    {
+      "declaration": "PostSubmissionFieldOutcomeResponse",
+      "dependency": "PassportVerificationFieldName"
+    },
+    {
+      "declaration": "PostSubmissionVerificationResponse",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "PostSubmissionVerificationResponse",
+      "dependency": "ConfigDict"
+    },
+    {
+      "declaration": "PostSubmissionVerificationResponse",
+      "dependency": "Field"
+    },
+    {
+      "declaration": "PostSubmissionVerificationResponse",
+      "dependency": "Literal"
+    },
+    {
+      "declaration": "PostSubmissionVerificationResponse",
+      "dependency": "PassportVerificationFieldName"
+    },
+    {
+      "declaration": "PostSubmissionVerificationResponse",
+      "dependency": "PostSubmissionFieldOutcomeResponse"
+    },
+    {
+      "declaration": "PassportSubmissionResponse",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "PassportSubmissionResponse",
+      "dependency": "Field"
+    },
+    {
+      "declaration": "PassportSubmissionResponse",
+      "dependency": "Literal"
+    },
+    {
+      "declaration": "PassportSubmissionResponse",
+      "dependency": "PassengerQrStatusResponse"
+    },
+    {
+      "declaration": "PassportSubmissionResponse",
+      "dependency": "PassportExtractionConflictResponse"
+    },
+    {
+      "declaration": "PassportSubmissionResponse",
+      "dependency": "PostSubmissionVerificationResponse"
+    },
+    {
+      "declaration": "PassportSubmissionResponse",
+      "dependency": "datetime"
+    },
+    {
+      "declaration": "PassportSubmissionResponse",
+      "dependency": "uuid"
+    },
+    {
+      "declaration": "PassportSubmissionViewItemResponse",
+      "dependency": "Field"
+    },
+    {
+      "declaration": "PassportSubmissionViewItemResponse",
+      "dependency": "PassportSubmissionResponse"
+    },
+    {
+      "declaration": "PassportSubmissionViewItemResponse",
+      "dependency": "uuid"
+    },
+    {
+      "declaration": "PassportSubmissionSelectionSnapshotResponse",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "PassportSubmissionSelectionSnapshotResponse",
+      "dependency": "ConfigDict"
+    },
+    {
+      "declaration": "PassportSubmissionSelectionSnapshotResponse",
+      "dependency": "Field"
+    },
+    {
+      "declaration": "PassportSubmissionSelectionSnapshotResponse",
+      "dependency": "uuid"
+    },
+    {
+      "declaration": "PassportExpiryAlertResponse",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "PassportExpiryAlertResponse",
+      "dependency": "ConfigDict"
+    },
+    {
+      "declaration": "PassportExpiryAlertResponse",
+      "dependency": "Literal"
+    },
+    {
+      "declaration": "PassportExpiryAlertResponse",
+      "dependency": "date"
+    },
+    {
+      "declaration": "PassportExpiryAlertResponse",
+      "dependency": "uuid"
+    },
+    {
+      "declaration": "PassportDuplicateClusterPageResponse",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "PassportDuplicateClusterPageResponse",
+      "dependency": "ConfigDict"
+    },
+    {
+      "declaration": "PassportDuplicateClusterPageResponse",
+      "dependency": "Field"
+    },
+    {
+      "declaration": "PassportDuplicateClusterPageResponse",
+      "dependency": "uuid"
+    },
+    {
+      "declaration": "PassportSubmissionsViewResponse",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "PassportSubmissionsViewResponse",
+      "dependency": "ConfigDict"
+    },
+    {
+      "declaration": "PassportSubmissionsViewResponse",
+      "dependency": "Field"
+    },
+    {
+      "declaration": "PassportSubmissionsViewResponse",
+      "dependency": "Literal"
+    },
+    {
+      "declaration": "PassportSubmissionsViewResponse",
+      "dependency": "PassportDuplicateClusterPageResponse"
+    },
+    {
+      "declaration": "PassportSubmissionsViewResponse",
+      "dependency": "PassportExpiryAlertResponse"
+    },
+    {
+      "declaration": "PassportSubmissionsViewResponse",
+      "dependency": "PassportSubmissionSelectionSnapshotResponse"
+    },
+    {
+      "declaration": "PassportSubmissionsViewResponse",
+      "dependency": "PassportSubmissionViewItemResponse"
+    },
+    {
+      "declaration": "PassportSubmissionsViewResponse",
+      "dependency": "uuid"
+    },
+    {
+      "declaration": "PassportGroupSummaryResponse",
+      "dependency": "BaseModel"
+    },
+    {
+      "declaration": "PassportGroupSummaryResponse",
+      "dependency": "DEFAULT_TRIP_TIMEZONE"
+    },
+    {
+      "declaration": "PassportGroupSummaryResponse",
+      "dependency": "Field"
+    },
+    {
+      "declaration": "PassportGroupSummaryResponse",
+      "dependency": "date"
+    },
+    {
+      "declaration": "PassportGroupSummaryResponse",
+      "dependency": "datetime"
+    },
+    {
+      "declaration": "PassportGroupSummaryResponse",
+      "dependency": "uuid"
+    }
+  ],
+  "original_import_aliases_retained": [
+    "uuid",
+    "date",
+    "datetime",
+    "Literal",
+    "BaseModel",
+    "ConfigDict",
+    "EmailStr",
+    "Field",
+    "field_validator",
+    "model_validator",
+    "normalize_phone_number",
+    "DEFAULT_TRIP_TIMEZONE"
+  ],
+  "both_json_schema_modes_all_models_exact": true,
+  "signature_and_evaluated_hint_shapes_exact_after_declared_owner_provenance_normalization": true,
+  "all_original_class_and_validator_pickles_decode_current_objects_new_pickles_roundtrip": true,
+  "all_configs_and_default_factories_exact": true,
+  "full_passports_openapi_hash": "eda0f9a0625c27ebd8eee6238cccc791c32663a7b5186510c50f308c9fece8bf",
+  "full_route_count": 58,
+  "unchanged_test_bytes": [
+    "backend/tests/unit/domain/test_phone_number.py",
+    "backend/tests/unit/presentation/test_passport_submission_view_schema.py",
+    "backend/tests/unit/presentation/test_passport_response_support.py",
+    "backend/tests/unit/presentation/test_staff_approval_route.py",
+    "backend/tests/unit/presentation/test_passport_image_crop_routes.py",
+    "backend/tests/unit/presentation/test_selected_passport_image_export.py",
+    "backend/tests/unit/presentation/test_selected_groups_export.py",
+    "backend/tests/unit/presentation/test_passport_upload_reconciliation_route.py"
+  ],
+  "runtime_reflection_proxies_or_model_factory_added": false,
+  "explicit_compatibility_additions": "Stable explicit import aliases; collection-only rebuild resolves the same two later-declared forward references from its actual owner.",
+  "limits": [
+    "Python class/function module provenance and newly encoded pickle bytes intentionally identify their actual owner; old saved class/validator pickles still resolve through the stable facade. Exact new pickle bytes or literal repr strings are not claimed.",
+    "Type shape normalization maps only the eight declared owner-module prefixes; actual imported nested model objects, JSON field contracts and full OpenAPI must match separately. No reflection/model factory/proxy introduced."
+  ]
+}

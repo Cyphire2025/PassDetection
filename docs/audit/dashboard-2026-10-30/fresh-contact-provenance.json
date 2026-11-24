@@ -1,0 +1,54 @@
+{
+  "originalHookSha256": "dd8d39954c26850d6e2b216a9b4ccae05c77f938c4c5d0b06c1bb7e4a6026178",
+  "currentHookSha256": "ecfc375b9982d5fd6d4ec154db0537d378e3d559851cf0e231f2e8f1515dbd83",
+  "unchangedWholeTypedDeclarations": [
+    "FreshProof",
+    "proof",
+    "valid",
+    "verify",
+    "currentChallenge",
+    "challengeExpired"
+  ],
+  "publicReturnObjectExact": true,
+  "validator": {
+    "before": "frontend/features/upload/components/upload-contact-verification.tsx#validContactEmail",
+    "after": "frontend/features/upload/services/contact-verification.ts#validContactEmail",
+    "wholeTypedDeclarationExact": true,
+    "sha256": "1f6834b77593252f80664718e03ca8d8f2f7a91f7b70172d02ec53ee93e8e9fb"
+  },
+  "deliberateChanges": "Original request/timer responsibilities moved into real challenge owner with synchronous per-operation lock, current-contact/lifetime generation, pre-dispatch/post-response checks and validated server cooldown. This is not an all-bodies-identical mechanical refactor claim.",
+  "retired": [
+    {
+      "id": "frontend/features/upload/components/upload-contact-verification.tsx#ContactVerification",
+      "path": "frontend/features/upload/components/upload-contact-verification.tsx",
+      "name": "ContactVerification",
+      "kind": "InterfaceDeclaration",
+      "sha256": "f0d1f97d050a3b50144710f21cfb3de5b0a864f59469ca62586bf766237f96e3",
+      "exported": true
+    },
+    {
+      "id": "frontend/features/upload/components/upload-contact-verification.tsx#Props",
+      "path": "frontend/features/upload/components/upload-contact-verification.tsx",
+      "name": "Props",
+      "kind": "InterfaceDeclaration",
+      "sha256": "6df725480a22cbec3190e6f560e0214f2fbc192f98f007258dd1a1f262925184",
+      "exported": false
+    },
+    {
+      "id": "frontend/features/upload/components/upload-contact-verification.tsx#UploadContactVerification",
+      "path": "frontend/features/upload/components/upload-contact-verification.tsx",
+      "name": "UploadContactVerification",
+      "kind": "FunctionDeclaration",
+      "sha256": "9f990dc17b184ad261f4f8979b0abf11b904a9fb3c492d8d203a1a1d2f4bad64",
+      "exported": true
+    },
+    {
+      "id": "frontend/features/upload/components/upload-contact-verification.tsx#VerifiedContactSummary",
+      "path": "frontend/features/upload/components/upload-contact-verification.tsx",
+      "name": "VerifiedContactSummary",
+      "kind": "FunctionDeclaration",
+      "sha256": "8aaf9b1f90db8edb51a6438c6eda128098980ee74978288bc09cde682b9b28e2",
+      "exported": true
+    }
+  ]
+}

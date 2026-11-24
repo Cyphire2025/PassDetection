@@ -1,0 +1,20 @@
+[
+  {
+    "path": "backend/app/presentation/api/v1/routes/admin_accounts.py",
+    "sha256": "a3ac40bca674175d323dbb8998f51716fd5be6de42950b70a291c1b0dfc3f3e2",
+    "physical_lines": 623,
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "Full original620line/current source read; actual4negative/4control status-projection cases and20affected passes. Three declared AST changes preserve existing query/security/session/audit bodies. Architecture partition is still required."
+  },
+  {
+    "path": "backend/tests/integration/test_managed_account_status_projection.py",
+    "sha256": "d2fd69a13b86b0cb372b03bad86fe7e9cdf5741c0074bc9bf4c706d093698ed4",
+    "physical_lines": 59,
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "verified",
+    "notes": "Eight real persisted lifecycle cases: staff/coordinator, active/invited, activate/deactivate. Assert state/session fencing/token secrecy and actual list/status agreement. Four red before, all eight plus twelve old controls pass after."
+  }
+]

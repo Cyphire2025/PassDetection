@@ -1,0 +1,297 @@
+FFF...FFFFFF.....                                                        [100%]
+================================== FAILURES ===================================
+_______ test_uploaded_excess_directory_rejects_before_any_zipinfo[None] _______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001B87D542A50>
+claimed_entries = None
+
+    @pytest.mark.parametrize("claimed_entries", [None, 0, 1])
+    def test_uploaded_excess_directory_rejects_before_any_zipinfo(
+        monkeypatch: pytest.MonkeyPatch,
+        claimed_entries: int | None,
+    ) -> None:
+        payload = bytearray(_archive(10_000))
+        assert len(payload) < 5 * 1024 * 1024
+        if claimed_entries is not None:
+            end = payload.rfind(b"PK\x05\x06")
+            struct.pack_into("<HH", payload, end + 8, claimed_entries, claimed_entries)
+        constructions = _count_zipinfo(monkeypatch)
+    
+        with pytest.raises(HTTPException) as denied:
+            _parse_excel_contact_bytes(bytes(payload), filename="synthetic.xlsx")
+    
+        assert denied.value.status_code == 400
+        assert denied.value.detail == "The Excel contact file contains too many archive entries"
+>       assert constructions == []
+E       assert [True, True, ...ue, True, ...] == []
+E         
+E         Left contains 10000 more items, first extra item: True
+E         Use -v to get more diff
+
+tests\unit\presentation\test_whatsapp_workbook_resource_admission.py:61: AssertionError
+________ test_uploaded_excess_directory_rejects_before_any_zipinfo[0] _________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001B87D4F6050>
+claimed_entries = 0
+
+    @pytest.mark.parametrize("claimed_entries", [None, 0, 1])
+    def test_uploaded_excess_directory_rejects_before_any_zipinfo(
+        monkeypatch: pytest.MonkeyPatch,
+        claimed_entries: int | None,
+    ) -> None:
+        payload = bytearray(_archive(10_000))
+        assert len(payload) < 5 * 1024 * 1024
+        if claimed_entries is not None:
+            end = payload.rfind(b"PK\x05\x06")
+            struct.pack_into("<HH", payload, end + 8, claimed_entries, claimed_entries)
+        constructions = _count_zipinfo(monkeypatch)
+    
+        with pytest.raises(HTTPException) as denied:
+            _parse_excel_contact_bytes(bytes(payload), filename="synthetic.xlsx")
+    
+        assert denied.value.status_code == 400
+        assert denied.value.detail == "The Excel contact file contains too many archive entries"
+>       assert constructions == []
+E       assert [True, True, ...ue, True, ...] == []
+E         
+E         Left contains 10000 more items, first extra item: True
+E         Use -v to get more diff
+
+tests\unit\presentation\test_whatsapp_workbook_resource_admission.py:61: AssertionError
+________ test_uploaded_excess_directory_rejects_before_any_zipinfo[1] _________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001B87D4DE450>
+claimed_entries = 1
+
+    @pytest.mark.parametrize("claimed_entries", [None, 0, 1])
+    def test_uploaded_excess_directory_rejects_before_any_zipinfo(
+        monkeypatch: pytest.MonkeyPatch,
+        claimed_entries: int | None,
+    ) -> None:
+        payload = bytearray(_archive(10_000))
+        assert len(payload) < 5 * 1024 * 1024
+        if claimed_entries is not None:
+            end = payload.rfind(b"PK\x05\x06")
+            struct.pack_into("<HH", payload, end + 8, claimed_entries, claimed_entries)
+        constructions = _count_zipinfo(monkeypatch)
+    
+        with pytest.raises(HTTPException) as denied:
+            _parse_excel_contact_bytes(bytes(payload), filename="synthetic.xlsx")
+    
+        assert denied.value.status_code == 400
+        assert denied.value.detail == "The Excel contact file contains too many archive entries"
+>       assert constructions == []
+E       assert [True, True, ...ue, True, ...] == []
+E         
+E         Left contains 10000 more items, first extra item: True
+E         Use -v to get more diff
+
+tests\unit\presentation\test_whatsapp_workbook_resource_admission.py:61: AssertionError
+________ test_declared_width_does_not_allocate_empty_columns[A1:XFD64] ________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001B87D199D90>
+dimension = 'A1:XFD64'
+
+    @pytest.mark.parametrize("dimension", [None, "A1:XFD64"])
+    def test_declared_width_does_not_allocate_empty_columns(
+        monkeypatch: pytest.MonkeyPatch,
+        dimension: str | None,
+    ) -> None:
+        healthy = _workbook()
+        expected = _parse_excel_contact_bytes(healthy, filename="synthetic.xlsx")
+        payload = _dimension(healthy, dimension) if dimension else healthy
+        slots: list[int] = []
+        original = ReadOnlyWorksheet._get_row
+    
+        def counted_row(self, *args, **kwargs):
+            result = original(self, *args, **kwargs)
+            slots.append(len(result))
+            return result
+    
+        monkeypatch.setattr(ReadOnlyWorksheet, "_get_row", counted_row)
+    
+        result = _parse_excel_contact_bytes(payload, filename="synthetic.xlsx")
+    
+        assert result == expected
+        assert len(result.contacts) == 1
+>       assert sum(slots) <= 128
+E       assert 1048576 <= 128
+E        +  where 1048576 = sum([16384, 16384, 16384, 16384, 16384, 16384, ...])
+
+tests\unit\presentation\test_whatsapp_workbook_resource_admission.py:158: AssertionError
+_ test_dimension_metadata_never_discards_or_invents_actual_contact_cells[A1:A1-standard] _
+
+layout = 'standard', dimension = 'A1:A1'
+
+    @pytest.mark.parametrize(
+        "layout",
+        ["standard", "given_surname", "headerless", "wide", "multisheet"],
+    )
+    @pytest.mark.parametrize("dimension", ["A1:A1", "A1:XFD64"])
+    def test_dimension_metadata_never_discards_or_invents_actual_contact_cells(
+        layout: str,
+        dimension: str,
+    ) -> None:
+        healthy = _workbook(layout=layout, rows=3)
+        expected = _parse_excel_contact_bytes(healthy, filename="synthetic.xlsx")
+        assert expected.contacts
+        payload = _dimension(healthy, dimension)
+    
+        actual = _parse_excel_contact_bytes(payload, filename="synthetic.xlsx")
+    
+>       assert actual == expected
+E       AssertionError: assert _WhatsAppExce...field_keys=[]) == _WhatsAppExce...hone_number'])
+E         
+E         Omitting 2 identical items, use -vv to show
+E         Differing attributes:
+E         ['contacts', 'field_keys']
+E         
+E         Drill down into differing attribute contacts:
+E           contacts: [] != [WhatsAppRecipientInput(name='Synthetic Traveller', phone_number='9876543210', imported_fields={'name': 'Synthetic Traveller', 'phone_number': '+919876543210', 'source_file': 'synthetic.xlsx', 'source_order': '1', 'source_sheet': 'Contacts', 'source_row': '2'})]...
+E         
+E         ...Full output truncated (7 lines hidden), use '-vv' to show
+
+tests\unit\presentation\test_whatsapp_workbook_resource_admission.py:177: AssertionError
+_ test_dimension_metadata_never_discards_or_invents_actual_contact_cells[A1:A1-given_surname] _
+
+layout = 'given_surname', dimension = 'A1:A1'
+
+    @pytest.mark.parametrize(
+        "layout",
+        ["standard", "given_surname", "headerless", "wide", "multisheet"],
+    )
+    @pytest.mark.parametrize("dimension", ["A1:A1", "A1:XFD64"])
+    def test_dimension_metadata_never_discards_or_invents_actual_contact_cells(
+        layout: str,
+        dimension: str,
+    ) -> None:
+        healthy = _workbook(layout=layout, rows=3)
+        expected = _parse_excel_contact_bytes(healthy, filename="synthetic.xlsx")
+        assert expected.contacts
+        payload = _dimension(healthy, dimension)
+    
+        actual = _parse_excel_contact_bytes(payload, filename="synthetic.xlsx")
+    
+>       assert actual == expected
+E       AssertionError: assert _WhatsAppExce...field_keys=[]) == _WhatsAppExce...er', 'email'])
+E         
+E         Omitting 2 identical items, use -vv to show
+E         Differing attributes:
+E         ['contacts', 'field_keys']
+E         
+E         Drill down into differing attribute contacts:
+E           contacts: [] != [WhatsAppRecipientInput(name='Synthetic Traveller', phone_number='9876543210', imported_fields={'given_names': 'Synthetic', 'surname': 'Traveller', 'phone_number': '+919876543210', 'email': 'synthetic@example.test', 'source_file': 'synthetic.xlsx', 'source_order': '1', 'source_sheet': 'Contacts', 'source_row': '2'})]...
+E         
+E         ...Full output truncated (7 lines hidden), use '-vv' to show
+
+tests\unit\presentation\test_whatsapp_workbook_resource_admission.py:177: AssertionError
+_ test_dimension_metadata_never_discards_or_invents_actual_contact_cells[A1:A1-headerless] _
+
+layout = 'headerless', dimension = 'A1:A1'
+
+    @pytest.mark.parametrize(
+        "layout",
+        ["standard", "given_surname", "headerless", "wide", "multisheet"],
+    )
+    @pytest.mark.parametrize("dimension", ["A1:A1", "A1:XFD64"])
+    def test_dimension_metadata_never_discards_or_invents_actual_contact_cells(
+        layout: str,
+        dimension: str,
+    ) -> None:
+        healthy = _workbook(layout=layout, rows=3)
+        expected = _parse_excel_contact_bytes(healthy, filename="synthetic.xlsx")
+        assert expected.contacts
+        payload = _dimension(healthy, dimension)
+    
+        actual = _parse_excel_contact_bytes(payload, filename="synthetic.xlsx")
+    
+>       assert actual == expected
+E       AssertionError: assert _WhatsAppExce...field_keys=[]) == _WhatsAppExce...field_keys=[])
+E         
+E         Omitting 3 identical items, use -vv to show
+E         Differing attributes:
+E         ['contacts']
+E         
+E         Drill down into differing attribute contacts:
+E           contacts: [] != [WhatsAppRecipientInput(name='Synthetic Traveller', phone_number='+91 98765 43210', imported_fields={'source_file': 'synthetic.xlsx', 'source_order': '1', 'source_sheet': 'Contacts', 'source_row': '1'})]
+E           Right contains one more item: WhatsAppRecipientInput(name='Synthetic Traveller', phone_number='+91 98765 43210', imported_fields={'source_file': 'synthetic.xlsx', 'source_order': '1', 'source_sheet': 'Contacts', 'source_row': '1'})
+E           Use -v to get more diff
+
+tests\unit\presentation\test_whatsapp_workbook_resource_admission.py:177: AssertionError
+_ test_dimension_metadata_never_discards_or_invents_actual_contact_cells[A1:A1-wide] _
+
+layout = 'wide', dimension = 'A1:A1'
+
+    @pytest.mark.parametrize(
+        "layout",
+        ["standard", "given_surname", "headerless", "wide", "multisheet"],
+    )
+    @pytest.mark.parametrize("dimension", ["A1:A1", "A1:XFD64"])
+    def test_dimension_metadata_never_discards_or_invents_actual_contact_cells(
+        layout: str,
+        dimension: str,
+    ) -> None:
+        healthy = _workbook(layout=layout, rows=3)
+        expected = _parse_excel_contact_bytes(healthy, filename="synthetic.xlsx")
+        assert expected.contacts
+        payload = _dimension(healthy, dimension)
+    
+        actual = _parse_excel_contact_bytes(payload, filename="synthetic.xlsx")
+    
+>       assert actual == expected
+E       AssertionError: assert _WhatsAppExce...field_keys=[]) == _WhatsAppExce...hone_number'])
+E         
+E         Omitting 2 identical items, use -vv to show
+E         Differing attributes:
+E         ['contacts', 'field_keys']
+E         
+E         Drill down into differing attribute contacts:
+E           contacts: [] != [WhatsAppRecipientInput(name='Synthetic Traveller', phone_number='9876543210', imported_fields={'name': 'Synthetic Traveller', 'phone_number': '+919876543210', 'source_file': 'synthetic.xlsx', 'source_order': '1', 'source_sheet': 'Contacts', 'source_row': '2'})]...
+E         
+E         ...Full output truncated (7 lines hidden), use '-vv' to show
+
+tests\unit\presentation\test_whatsapp_workbook_resource_admission.py:177: AssertionError
+_ test_dimension_metadata_never_discards_or_invents_actual_contact_cells[A1:A1-multisheet] _
+
+layout = 'multisheet', dimension = 'A1:A1'
+
+    @pytest.mark.parametrize(
+        "layout",
+        ["standard", "given_surname", "headerless", "wide", "multisheet"],
+    )
+    @pytest.mark.parametrize("dimension", ["A1:A1", "A1:XFD64"])
+    def test_dimension_metadata_never_discards_or_invents_actual_contact_cells(
+        layout: str,
+        dimension: str,
+    ) -> None:
+        healthy = _workbook(layout=layout, rows=3)
+        expected = _parse_excel_contact_bytes(healthy, filename="synthetic.xlsx")
+        assert expected.contacts
+        payload = _dimension(healthy, dimension)
+    
+        actual = _parse_excel_contact_bytes(payload, filename="synthetic.xlsx")
+    
+>       assert actual == expected
+E       AssertionError: assert _WhatsAppExce...hone_number']) == _WhatsAppExce...contact_row'])
+E         
+E         Omitting 2 identical items, use -vv to show
+E         Differing attributes:
+E         ['contacts', 'field_keys']
+E         
+E         Drill down into differing attribute contacts:
+E           contacts: [WhatsAppRecipientInput(name='Second Traveller', phone_number='9876543212', imported_fields={'name': 'Second Traveller', 'phone_number': '+919876543212', 'source_file': 'synthetic.xlsx', 'source_order': '2', 'source_sheet': 'Additional contacts', 'source_row': '2'})] != [WhatsAppRecipientInput(name='Synthetic Traveller', phone_number='9876543210', imported_fields={'name': 'Synthetic Traveller', 'phone_number': '+919876543210'...
+E         
+E         ...Full output truncated (9 lines hidden), use '-vv' to show
+
+tests\unit\presentation\test_whatsapp_workbook_resource_admission.py:177: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/unit/presentation/test_whatsapp_workbook_resource_admission.py::test_uploaded_excess_directory_rejects_before_any_zipinfo[None]
+FAILED tests/unit/presentation/test_whatsapp_workbook_resource_admission.py::test_uploaded_excess_directory_rejects_before_any_zipinfo[0]
+FAILED tests/unit/presentation/test_whatsapp_workbook_resource_admission.py::test_uploaded_excess_directory_rejects_before_any_zipinfo[1]
+FAILED tests/unit/presentation/test_whatsapp_workbook_resource_admission.py::test_declared_width_does_not_allocate_empty_columns[A1:XFD64]
+FAILED tests/unit/presentation/test_whatsapp_workbook_resource_admission.py::test_dimension_metadata_never_discards_or_invents_actual_contact_cells[A1:A1-standard]
+FAILED tests/unit/presentation/test_whatsapp_workbook_resource_admission.py::test_dimension_metadata_never_discards_or_invents_actual_contact_cells[A1:A1-given_surname]
+FAILED tests/unit/presentation/test_whatsapp_workbook_resource_admission.py::test_dimension_metadata_never_discards_or_invents_actual_contact_cells[A1:A1-headerless]
+FAILED tests/unit/presentation/test_whatsapp_workbook_resource_admission.py::test_dimension_metadata_never_discards_or_invents_actual_contact_cells[A1:A1-wide]
+FAILED tests/unit/presentation/test_whatsapp_workbook_resource_admission.py::test_dimension_metadata_never_discards_or_invents_actual_contact_cells[A1:A1-multisheet]
+9 failed, 8 passed in 4.04s

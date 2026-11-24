@@ -1,0 +1,61 @@
+{
+  "status": "passed current coherent six-pane wrapping and prior portal production checkpoint",
+  "build_id": "jmn7rIY1ck17GZ_tqrKAH",
+  "frozen_frontend_files": 1644,
+  "frontend_exclusions": [],
+  "critical_production_journeys": 9,
+  "rendered_component_cases": 32,
+  "actual_expected_red_cases": 12,
+  "unchanged_positive_controls": 20,
+  "affected_unit_cases": 35,
+  "node_contracts": 82,
+  "unchanged_module_budgets": 526,
+  "production_feature_bundle": {
+    "composer_cases": 6,
+    "recipient_history_and_uncertain_recovery_cases": 3,
+    "inner_bounds_cases": 4,
+    "viewports": [
+      390,
+      1440
+    ],
+    "passed": true,
+    "source_hashes_after_match": true,
+    "artifact_hashes_after_match": true,
+    "receipts": [
+      "message-pane-wrapping-production-composer.json",
+      "message-pane-wrapping-production-history-recovery.json",
+      "message-pane-wrapping-production-inner-bounds.json"
+    ],
+    "mobile_review_and_historical_inner_width": {
+      "scrollWidth": 308,
+      "clientWidth": 308,
+      "overflowWrap": "anywhere"
+    },
+    "desktop_review_and_historical_inner_width": {
+      "scrollWidth": 718,
+      "clientWidth": 718,
+      "overflowWrap": "anywhere"
+    },
+    "screenshots_physically_viewed": [
+      ".tmp/message-pane-wrapping/production-review-after-390.png",
+      ".tmp/message-pane-wrapping/production-historical-after-390.png"
+    ]
+  },
+  "receipts_sha256": {
+    "message-wrapping-production-source-checkpoint.json": "86e1f136b417ab1623de4f650174974636e89cfd63b810906fa7362d3979b288",
+    "message-wrapping-production-source-verification.json": "cb91dc9d90f62c2a64b2f3ce6d7f498a2bda1c5ae782236dd3c170e5b626b482",
+    "message-wrapping-production-build.txt": "875251b2678c96f4c0f0b62c44aa59ef787a494dc998c9018dfdd2155f62c00e",
+    "message-wrapping-production-artifact.json": "08ed81972820cfa3a418d671f7297f04424a0bd1b03acc5d3e522202d3fd754f",
+    "message-wrapping-production-browser.json": "b5be1cbbbc55864eed7a224e3f82bae740ce1dc64b93ec42312ab901e1e7fef0",
+    "message-pane-wrapping-verification.json": "9416683353a6f813a9b8425f6faa8d8c24c939ff946ee06d04c57e31b7edda1f",
+    "message-pane-wrapping-byte-proof.json": "c7795da16b9e58d8ac3a435125d715bd0ac7a6cc7c7297d79f1f4eac53e06e76",
+    "message-pane-wrapping-production-composer.json": "c457752324cfefbdd73209be76a7cc0ed36fbf908a034e330354015685ef198b",
+    "message-pane-wrapping-production-history-recovery.json": "52e8b3a7c7678ae635768d46d43d33fb5d2d4cbd2cb51bd4277014fb07f3e78d",
+    "message-pane-wrapping-production-inner-bounds.json": "a8589fd66dde1998bb56b037967c3e476057e3a3c8915c138b99cba1d1444cc7"
+  },
+  "limits": [
+    "This is a coherent narrow-runtime checkpoint after the immutable1829-case integration, not a rerun of that suite.",
+    "API/browser fixtures contain writes and provider sends. No production provider delivery, real-service release or VPS deployment is established.",
+    "All later runtime edits require their own source-bound checks. Whole-codebase audit remains open."
+  ]
+}

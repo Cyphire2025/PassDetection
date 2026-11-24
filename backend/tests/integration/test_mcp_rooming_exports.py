@@ -376,13 +376,18 @@ async def test_cancellation_drains_native_worker_before_capacity_release(artifac
 
     monkeypatch.setattr(PreparedRoomingExcel, "render_sync", slow)
     task = asyncio.create_task(generate(f, receipt))
-    assert await asyncio.to_thread(entered.wait, 5)
-    task.cancel()
-    await asyncio.sleep(0.05)
-    assert not task.done()
-    with pytest.raises(ArtifactError, match="capacity is busy"):
-        await generate(f, receipt)
-    release.set()
+    try:
+        assert await asyncio.to_thread(entered.wait, 5)
+        task.cancel()
+        await asyncio.sleep(0.05)
+        assert not task.done()
+        with pytest.raises(ArtifactError, match="capacity is busy"):
+            await generate(f, receipt)
+    finally:
+        release.set()
+        if not task.done() and not task.cancelling():
+            task.cancel()
+        await asyncio.gather(task, return_exceptions=True)
     with pytest.raises(asyncio.CancelledError):
         await task
     await f.session.rollback()

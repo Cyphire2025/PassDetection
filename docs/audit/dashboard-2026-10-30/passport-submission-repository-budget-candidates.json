@@ -1,0 +1,191 @@
+{
+  "status": "frozen eight additive normal proposals for AI integration; central gates not edited",
+  "schema_version": 1,
+  "budget_before_sha256": "f8a46aa8aa1b1e477e84e70d07dade06e5b1fd38899dec318b8ade1bf944a79b",
+  "original_repository_normal_membership": null,
+  "original_repository_critical_membership": null,
+  "modules": [
+    {
+      "path": "app/infrastructure/repositories/passport_submission_repository.py",
+      "source_sha256": "3aa855541a75e4efddeebb35f639bfa6ba4026152d38f8e255e0634e98a919b0",
+      "baseline_lines": 384,
+      "maximum_lines": 390,
+      "baseline_max_function_complexity": 1,
+      "maximum_function_complexity": 1,
+      "minimum_coverage_percent": 80
+    },
+    {
+      "path": "app/infrastructure/repositories/passport_submission_mapping.py",
+      "source_sha256": "df419cb06bc2915c0642e5541ec49d3c4a633df54ef23291774abccdf0a26552",
+      "baseline_lines": 147,
+      "maximum_lines": 150,
+      "baseline_max_function_complexity": 4,
+      "maximum_function_complexity": 4,
+      "minimum_coverage_percent": 80
+    },
+    {
+      "path": "app/infrastructure/repositories/passport_submission_persistence.py",
+      "source_sha256": "0c759e6b16f4a6659e1ac9394b39917b4d0fb2ae986faddf5de6b11b497aacfd",
+      "baseline_lines": 142,
+      "maximum_lines": 150,
+      "baseline_max_function_complexity": 4,
+      "maximum_function_complexity": 4,
+      "minimum_coverage_percent": 80
+    },
+    {
+      "path": "app/infrastructure/repositories/passport_submission_processing.py",
+      "source_sha256": "3391aa1e39f14c06d698b704b92151561cc45754aa0d6bd27ad0881c342dab3a",
+      "baseline_lines": 148,
+      "maximum_lines": 150,
+      "baseline_max_function_complexity": 4,
+      "maximum_function_complexity": 4,
+      "minimum_coverage_percent": 75
+    },
+    {
+      "path": "app/infrastructure/repositories/passport_submission_queries.py",
+      "source_sha256": "742694def1423be8b4ac175063f8d63cd1bd9c050b04e19e491d5e3751f059b2",
+      "baseline_lines": 122,
+      "maximum_lines": 130,
+      "baseline_max_function_complexity": 8,
+      "maximum_function_complexity": 8,
+      "minimum_coverage_percent": 80
+    },
+    {
+      "path": "app/infrastructure/repositories/passport_submission_reads.py",
+      "source_sha256": "d7a140c34de53e971655d032cbdc185da126cb13bb8e1daff7e1ac778df7b20c",
+      "baseline_lines": 208,
+      "maximum_lines": 210,
+      "baseline_max_function_complexity": 6,
+      "maximum_function_complexity": 6,
+      "minimum_coverage_percent": 80
+    },
+    {
+      "path": "app/infrastructure/repositories/passport_submission_groups.py",
+      "source_sha256": "21f669d09021264cffd029f90d3f9ff4d706f5bae44cdf5773e8d1ce3ff30078",
+      "baseline_lines": 183,
+      "maximum_lines": 190,
+      "baseline_max_function_complexity": 11,
+      "maximum_function_complexity": 11,
+      "minimum_coverage_percent": 80
+    },
+    {
+      "path": "app/infrastructure/repositories/passport_submission_contacts.py",
+      "source_sha256": "c61b10a39d982e25d86ca25e720056960308d90f23b7625de4ff06ef07730346",
+      "baseline_lines": 79,
+      "maximum_lines": 80,
+      "baseline_max_function_complexity": 18,
+      "maximum_function_complexity": 18,
+      "minimum_coverage_percent": 80
+    }
+  ],
+  "current_hash_only_measurements": [
+    {
+      "path": "app/infrastructure/repositories/passport_submission_repository.py",
+      "line_percent": 94.79166666666667,
+      "branch_percent": null,
+      "branch_measurement_limit": "This focused run collected statement/line coverage, not branches; no branch-floor qualification is claimed.",
+      "missing_lines": [
+        144,
+        184,
+        255,
+        288,
+        324
+      ],
+      "complexity": 1
+    },
+    {
+      "path": "app/infrastructure/repositories/passport_submission_mapping.py",
+      "line_percent": 100.0,
+      "branch_percent": null,
+      "branch_measurement_limit": "This focused run collected statement/line coverage, not branches; no branch-floor qualification is claimed.",
+      "missing_lines": [],
+      "complexity": 4
+    },
+    {
+      "path": "app/infrastructure/repositories/passport_submission_persistence.py",
+      "line_percent": 91.83673469387755,
+      "branch_percent": null,
+      "branch_measurement_limit": "This focused run collected statement/line coverage, not branches; no branch-floor qualification is claimed.",
+      "missing_lines": [
+        22,
+        23,
+        24,
+        25,
+        31,
+        38,
+        52,
+        74
+      ],
+      "complexity": 4
+    },
+    {
+      "path": "app/infrastructure/repositories/passport_submission_processing.py",
+      "line_percent": 76.36363636363636,
+      "branch_percent": null,
+      "branch_measurement_limit": "This focused run collected statement/line coverage, not branches; no branch-floor qualification is claimed.",
+      "missing_lines": [
+        40,
+        51,
+        77,
+        85,
+        86,
+        87,
+        88,
+        89,
+        94,
+        95,
+        96,
+        97,
+        131
+      ],
+      "complexity": 4
+    },
+    {
+      "path": "app/infrastructure/repositories/passport_submission_queries.py",
+      "line_percent": 91.83673469387755,
+      "branch_percent": null,
+      "branch_measurement_limit": "This focused run collected statement/line coverage, not branches; no branch-floor qualification is claimed.",
+      "missing_lines": [
+        41,
+        103,
+        105,
+        107
+      ],
+      "complexity": 8
+    },
+    {
+      "path": "app/infrastructure/repositories/passport_submission_reads.py",
+      "line_percent": 98.0,
+      "branch_percent": null,
+      "branch_measurement_limit": "This focused run collected statement/line coverage, not branches; no branch-floor qualification is claimed.",
+      "missing_lines": [
+        167
+      ],
+      "complexity": 6
+    },
+    {
+      "path": "app/infrastructure/repositories/passport_submission_groups.py",
+      "line_percent": 90.0,
+      "branch_percent": null,
+      "branch_measurement_limit": "This focused run collected statement/line coverage, not branches; no branch-floor qualification is claimed.",
+      "missing_lines": [
+        107,
+        109
+      ],
+      "complexity": 11
+    },
+    {
+      "path": "app/infrastructure/repositories/passport_submission_contacts.py",
+      "line_percent": 94.44444444444444,
+      "branch_percent": null,
+      "branch_measurement_limit": "This focused run collected statement/line coverage, not branches; no branch-floor qualification is claimed.",
+      "missing_lines": [
+        37,
+        39
+      ],
+      "complexity": 18
+    }
+  ],
+  "no_original_cap_or_floor_relaxed": true,
+  "critical_not_proposed": "Original owner had no critical membership; branch coverage was not collected in this run. No invented branch/critical qualification or facade-only obligation transfer."
+}

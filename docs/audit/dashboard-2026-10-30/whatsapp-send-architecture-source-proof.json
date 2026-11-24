@@ -1,0 +1,51 @@
+{
+  "status": "passed; complete original54statement queue restored through named phases/projections",
+  "whole_original_queue_AST_inverse_exact": true,
+  "whole_original_nonimport_module_AST_inverse_exact": true,
+  "explicit_compatibility_import_alias_normalization": true,
+  "original_public_direct_helper_whole_AST_exact": true,
+  "original_import_object_identities": 58,
+  "new_internal_imports": [
+    [
+      "app.presentation.api.v1.routes.whatsapp_send_claims",
+      "claim_prepared_broadcast_send",
+      "claim_prepared_broadcast_send"
+    ],
+    [
+      "app.presentation.api.v1.routes.whatsapp_send_preparation",
+      "prepare_broadcast_send",
+      "prepare_broadcast_send"
+    ],
+    [
+      "app.presentation.api.v1.routes.whatsapp_send_projection",
+      "broadcast_send_worker_payload",
+      "broadcast_send_worker_payload"
+    ],
+    [
+      "app.presentation.api.v1.routes.whatsapp_send_projection",
+      "build_broadcast_send_response",
+      "build_broadcast_send_response"
+    ]
+  ],
+  "actual_public_signatures_defaults_dependency_code_closures_hints_docs_module_qualname_pickles_exact": [
+    "send_broadcast_message",
+    "queue_broadcast_message"
+  ],
+  "new_owner_hints_resolve": true,
+  "complete_HTTP_OpenAPI_and_actual_queue_closure_identity_exact": true,
+  "mounted_send_routes": 1,
+  "original_group_invite_assertions_all_retained": 62,
+  "fixture_change": "Only two concrete owner imports/four fixture module-list substitutions; all old assertion nodes and whole file inverse exact after those targets. Settings/insert/publication remain original main seams.",
+  "source_fence": {
+    "backend/app/presentation/api/v1/routes/whatsapp_send.py": "4122db1588df44861cef9a21cde6543ef3c0d4b24e70a5ba70d62585ee212a74",
+    "backend/app/presentation/api/v1/routes/whatsapp_send_preparation.py": "a829c85542906d5bbda767aaef47f7937193cde792126b58cefab64b10506aab",
+    "backend/app/presentation/api/v1/routes/whatsapp_send_claims.py": "403b722c6e738624598643628acf06e2b423ef65f02db3b52ff7562bc2312c39",
+    "backend/app/presentation/api/v1/routes/whatsapp_send_projection.py": "f9bc55a545ab3adb3d897b12f28b836665005e223e13dda877dc11ebd6f11fc5"
+  },
+  "timing_and_policy": "Actual original54statement units incldoc are restored after replacing named phase returns with original locals, explicit pg_insert argument mapping and one common response/worker literal projection. Settings/credentials/template/configured language, UUID/clock, all SQL/await/lock/skip/consent/preclaim/body/log/commit/outbox operations retain original order and expressions. New immutable dataclasses contain actual10/5phase outputs only, no session/user/settings/callback context.",
+  "limits": [
+    "This proves source wiring/actual public metadata and OpenAPI, not livePG concurrency/provider or whole-app qualification",
+    "Purpose records/projection call frames are new internal implementation metadata; original2public function paths retained",
+    "CurrentMCP1990 remains historical; no new route/tool/permission surface introduced"
+  ]
+}

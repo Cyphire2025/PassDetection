@@ -1,0 +1,19 @@
+{
+  "scope": "Normalized AST preservation evidence for a mechanical responsibility extraction, not a claim that wrappers or added signatures have identical whole ASTs. Focused behavioral tests qualify runtime independently.",
+  "checks": [
+    "_resolve_log_template_snapshot: whole definition AST unchanged",
+    "_heartbeat_queued_batch_claims: whole definition AST unchanged",
+    "_load_sendable_recipient: statement AST unchanged after explicit callback-name normalization; facade signature preserved",
+    "_set_message_state: statement AST unchanged after explicit callback-name normalization; facade signature preserved",
+    "mark_whatsapp_batch_failed: statement AST unchanged after explicit callback-name normalization; facade signature preserved",
+    "run_whatsapp_broadcast: whole function AST unchanged after expanding the single original retry-loop delegation",
+    "submit_broadcast_log: original provider-loop statement AST unchanged after callback/constant normalization, except one proven durable diagnostic privacy correction"
+  ],
+  "before_sha256": "93405204ddcf87e8c1b13ddc540c4cb24d9b352c03ae8af94d1305ee83650bf2",
+  "current_sha256": {
+    "backend/app/infrastructure/whatsapp/worker_runtime.py": "bd7c038c5ec22a548cd1142c135b529d9c7c6798594f7e4cd7be74c3af95cae1",
+    "backend/app/infrastructure/whatsapp/broadcast_worker_policy.py": "a31eb59c7aa6e36de3c92adb32636969eadecbfba43b8a6bb1ef0fbe21b4c45a",
+    "backend/app/infrastructure/whatsapp/broadcast_worker_state.py": "1ff39963c73a9712e414038d4709716437da9c1104129efae2f0754fb92e498c",
+    "backend/app/infrastructure/whatsapp/broadcast_worker_provider.py": "b97ecbe09e1186ae4360deacc6e45bc3754ada62211f992608c203072dbf1a29"
+  }
+}

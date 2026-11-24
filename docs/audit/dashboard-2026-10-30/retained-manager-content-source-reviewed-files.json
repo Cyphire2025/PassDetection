@@ -1,0 +1,140 @@
+{
+  "files": [
+    {
+      "path": "backend/tests/integration/test_gc_manager_admin_lifecycle.py",
+      "sha256": "15fe423aec8c0109c51cf044e950d9778209a5e39afd0367ced31f69f1862366",
+      "physical_lines": 118,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete118-line physical read. Retained dashboard HTTP manager name/email/phone normalization, duplicate assignment IDs, same-company privacy grants, stale revisions/status/force-password compatibility/revoke/delete lifecycle and final audit/history. Real temporary auth fixture source referenced, no request/service execution here."
+    },
+    {
+      "path": "backend/tests/integration/test_gc_manager_joined_tenant_boundary.py",
+      "sha256": "8f3d6fcbf22fcbaa53fa541fb30611a201a4f649554cbb97fa1669e81c7917f4",
+      "physical_lines": 38,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete38-line physical read. Historical user/profile agency inconsistency must be excluded by current manager directory SQL, preventing foreign user PII projection. Actual current same-tenant UserModel filter read; no new regression run."
+    },
+    {
+      "path": "backend/tests/integration/test_gc_manager_response_durability.py",
+      "sha256": "d1981282d23d35942b3172ed63d99871cef155b38be4a45ad72dc015a2897945",
+      "physical_lines": 190,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete190-line physical read. Synthetic signed current admin/session/MFA fixture, blocked commit response suppression and rollback, create/reinvite token only after durable commit, stored token hash and safe audit assertions. Actual creation/reset commit tails traced; no activation/provider delivery or native authentication work."
+    },
+    {
+      "path": "backend/tests/integration/test_gc_manager_retained_assignments.py",
+      "sha256": "34a2ae4b01cad644092e935aef50484b4e570f9d61c0bdefddd677acd747b12a",
+      "physical_lines": 161,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete161-line physical read. SQLite-FK-enabled scope transition, active/historical grant rows detach old organization with revocation provenance retained, re-add binds new scope and clears old privacy grants. Actual manager update and assignment functions read; SQLite source controls not real PG lock proof."
+    },
+    {
+      "path": "backend/tests/integration/test_gc_common_document_admin_workflow.py",
+      "sha256": "6f2a6ea90e5fb62a7b6ae5d36bc84b1521fadbcbb88f07dcb099f544ec415a93",
+      "physical_lines": 129,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete129-line physical read. Retained dashboard common-document synthetic PDF/private unique staging, no-key response, revisioned stable deduplicated order/replacement, malformed input and tenant denial. Whole actual directory/staging owner read, storage fixture is synthetic; no parser/native/provider check performed."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_history_pagination.py",
+      "sha256": "9a8f33ea502338b8c7e4be917a1a776db29a0b402d0c551226359202e84f38e4",
+      "physical_lines": 229,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete229-line physical read. Bounded envelope, deterministic date+UUID paging and same-agency/account/profile/group audit filters with exact three-query mocks/PG compilation assertions. Whole actual directory/content-audit/projection helpers read; no DB round-trip/load performance qualification."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_content_audit.py",
+      "sha256": "f95869a25b8d8f917615f92ecf62dece2716484e1e506ef62eb821c511aa6e7b",
+      "physical_lines": 71,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source physically read. Retained admin tenant/group lookup then bounded metadata-group/access audit filters, deterministic order/count/page and safe response helper. No service execution."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_manager_directory.py",
+      "sha256": "b039d0aaab7b43bd0b36290bb9addbb7828ef0d4ce3e384b00a737d01dbbad1b",
+      "physical_lines": 210,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source physically read. Current profile+user same-tenant role gate before PII projection, escaped search, joined organization and batch group map; bounded manager session/audit views preserve stable order/scope/count. Native session records are dashboard-management data only."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_common_documents.py",
+      "sha256": "8b98cbcbeaee8dd2782ba2e282bec6c3ac988326b087724ec275045ff6fde469",
+      "physical_lines": 219,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source physically read. Retained directory/upload/replace dispatch and purpose-specific revision-guarded ordering with group/access locks, validated IDs, exact journal/audit and response order. No shared models/policy edits."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_common_staging.py",
+      "sha256": "4224ea4c750950899c393c72f84c7dbb1db321dc0740b5d07376d88c49d75c81",
+      "physical_lines": 291,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "needs-follow-up",
+      "notes": "Whole source physically read. Initial nonlocking authority/revision lookup, rollback, bounded PDF validation/unique owned object storage, reacquired group/access lock/current revision, publication commit inside cancellation-safe compensation. Candidate remains UNVALIDATED: reacquisition consumes old current_user role/agency snapshot and does not reload actor/session authority after external await; needs actual ordinary held-stage DB reproduction. Shared EmailPdfValidator import noted only, no dedicated Inbox source investigation."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_history_support.py",
+      "sha256": "bdf2286f4ca7ee627106c8f2fb200a3fdefefa7ec2e94c4de43ad2190c291e7c",
+      "physical_lines": 45,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source physically read. Purpose-specific bounded manager-session and audit response fields, no bearer/refresh/device secret projection. Shared native-labelled session records read solely for dashboard admin history compatibility."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_manager_access.py",
+      "sha256": "c6fc614f7acca55e4d81f2519d8cdd6578f21dd04c640745cea96d487fd75cee",
+      "physical_lines": 229,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical46-198 complete reset/reinvite and group-assignment mutation functions; next revoke decorator partially displayed only. Typed authority/recent-MFA/CSRF/current profile revision, privacy reset on changed organization, hash/no-store/commit-before-token traced. Prefix/revoke remainder not fully read."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_manager_creation.py",
+      "sha256": "d11ae641ad5e32496956609465046db83ffba3ebe8288c54d334734040bf6465",
+      "physical_lines": 210,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical169-end creation assignment/audit/response tail including explicit commit-before activation bearer; initial actor/input/hash admission not physically reread, no full-file claim."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_manager_profile.py",
+      "sha256": "e7f22a5da952fe5084ce284746e3b55c3e04116f5e50053a885bcb68935c9271",
+      "physical_lines": 275,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical49-134 complete update route and220-end complete delete route. Organization change detaches retained grant scope, preserves historical revoker, versions/session invalidation and deletion anonymization/audit. Middle status/password compatibility routes not physically read here."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_scope.py",
+      "sha256": "19c66d3d873131f1a931974532b48c77b0867e581aa0207c68b43fb7af0dbf59",
+      "physical_lines": 192,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical91-156 selected organization/current manager lookup+revision prefix; actual same-agency current profile/user joined query and lock semantics. Remainder role/audit/session helper catalog not fully read."
+    }
+  ],
+  "scope": "Six newly current-full retained dashboard manager/content test sources865lines, five supporting whole reads and four focused slices; native/Inbox feature audit excluded. Pending staged-upload current-actor authority candidate is not a validated finding."
+}

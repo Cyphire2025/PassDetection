@@ -1,0 +1,80 @@
+{
+  "status": "qualified exact native-only support classification",
+  "source_fence": {
+    "scripts/dashboard_audit_inventory.py": "2b30a6f5b0b779c66d1c410c668aa474b8aea6e841f03a8c8f4a8d22695ce3e3",
+    "backend/tests/unit/scripts/test_dashboard_audit_scope.py": "22d06b709801fedbcc9391648c180f1291fd7d880c10b50a62aa19f832aa6e64",
+    "docs/audit/dashboard-2026-10-30/audit-scope.json": "cf05f499a920e64f0dcae208d6c9ece63b368721e08755b051dfd12d7aa70408"
+  },
+  "support_source_identities": {
+    ".github/workflows/mobile-ci.yml": {
+      "before": [
+        "operations-and-tooling",
+        "source"
+      ],
+      "after": [
+        "mobile-excluded",
+        "source"
+      ],
+      "sha256": "ad4e60bd07d1dc2ddae324656162fb9544f8bf0510dc2aafd54272a2a4c7c98a"
+    },
+    "load-tests/k6/mobile-attendance.js": {
+      "before": [
+        "operations-and-tooling",
+        "source"
+      ],
+      "after": [
+        "mobile-excluded",
+        "source"
+      ],
+      "sha256": "e86add60bc66e5cf9660876d46f1b07798a11f33ed83e3272b23e7ada093455e"
+    },
+    "load-tests/k6/mobile-api.js": {
+      "before": [
+        "operations-and-tooling",
+        "source"
+      ],
+      "after": [
+        "mobile-excluded",
+        "source"
+      ],
+      "sha256": "ea6c542e32909565ae2498f15b908f6696748e48259c5430386ced123ee5d666"
+    },
+    ".github/workflows/coordinator-webview-ci.yml": {
+      "before": [
+        "operations-and-tooling",
+        "source"
+      ],
+      "after": [
+        "mobile-excluded",
+        "source"
+      ],
+      "sha256": "71e819307c45f8e39534b72e8e4c69ec7a0ff622c3424986676c2d118df30423"
+    },
+    "load-tests/k6/mobile-realtime.js": {
+      "before": [
+        "operations-and-tooling",
+        "source"
+      ],
+      "after": [
+        "mobile-excluded",
+        "source"
+      ],
+      "sha256": "9caa4d5bd5ee5caaaa0374e4236677bb2985d7e7332e5817698fdcfa5041ff52"
+    }
+  },
+  "scope": {
+    "backend_native_paths_unchanged": 31,
+    "new_native_support_paths": 5,
+    "all_literal_paths": 36
+  },
+  "before": "native-support-scope-before-command.json:5 expected new-classification failures/102 controls passed",
+  "after": "native-support-scope-final-command.json:107 tooling cases PASS; scoped Ruff2 PASS",
+  "proof": "Whole inventory-tool AST restores after removing one exact5-path constant and restoring only the native admission/error clause. All original test bodies/assertions exact after bounded36/31 support-set assertion update and three added fail-closed path cases; one five-case support test added. Every original policy field/Inbox deferral/backend31 path unchanged, except appended support explanation. Classification over complete existing inventory changes exactly these5 paths.",
+  "purpose": "Both CI files run only mobile/Coordinators app native build jobs. Workload scripts exercise /mobile/sync, /mobile/trips, /mobile/coordinator attendance or /mobile/realtime; health probes do not make these dashboard workloads. No feature file was edited or executed.",
+  "limits": [
+    "Scope classification is not full semantic/native feature review credit. Existing file history/status/findings remain intact on refresh.",
+    "Dashboard/main CI, browser/dashboard load scenarios and all mobile-named contract helpers remain retained; unknown nonbackend support paths still fail closed.",
+    "No runtime product, build workflow, provider, credentials, native application or source payload changed. No load test was run.",
+    "This closes a tracker-scope inconsistency; it is not a measured product/security vulnerability."
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "status": "Read-only observation triage complete; no validated behavior correction",
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/whatsapp-activity-followthrough-reviewed-files.json",
+    "sha256": "2856964b664c278998c8971b7be7ba20e3b05d9d8ad6d6563f02862dded3ff4e"
+  },
+  "activity6_and_tests2_unchanged": true,
+  "new_application_checks": [],
+  "existing_qualified_controls": "whatsapp-activity-final-verification.json: original30/after30/final36, real persisted scoped document/QR/broadcast rows, HTTP foreign-agency reassignment denial and staff assigned/creator/archive/retained controls. No source change justifies repeating that checkpoint.",
+  "failure_list_paging": {
+    "classification": "Intentional current complete-array contract; capacity evidence gap, not a reproduced functional defect.",
+    "evidence": "Native endpoint returns every matching failed recipient in established order; UI explicitly fetches on expansion, polls while queued and displays all returned rows. Standard broadcast queue checks1500 recipients. Explicit document/QR chosen-id arrays cap1500/500, but None paths select the full preview and are not universally capped by those validators.",
+    "decision": "No silent truncation, cursor/API/UI redesign or claimed speedup. Live/representative maximum-batch rendering and request-byte measurements remain unmeasured; scrolling alone does not prove low rendering cost."
+  },
+  "legacy_tenant_alignment": {
+    "classification": "Unvalidated data-consistency hardening observation; no normal caller case reproduced a tenant leak.",
+    "evidence": "Known ordinary constructors copy document batch/group agency/id or authorized QR group agency/id, and broadcast creation fixes agency from the reauthorized actor. Normal group content/config updates do not reassign agency. QR source/linked-recipient selection contains actual agency gates. Existing synthetic tenant-negative/activity controls pass.",
+    "limits": "Does not prove all old persisted rows are aligned or every independently imported writer is safe. Deliberately inserting an inconsistent tenant row would establish a malformed-data predicate example, not an ordinary reachable workflow; no such payload/campaign, live database or production-data inspection was performed.",
+    "decision": "Preserve original same-query visibility/SQL and published schema in this behavior-neutral batch. No vulnerability/fix claim from hypothetical corrupt rows."
+  },
+  "next_reserved": "backend/app/presentation/api/v1/routes/ecr_checker.py523 plus actual retained caller/test/storage/parser/SSE closure, full read and baseline before any edits.",
+  "scope": "Dashboard retained sources only; Operations Inbox and native-only feature audit remain deferred/excluded. No runtime/test/config mutations, provider requests, builds, broad suites or shared gate edits."
+}

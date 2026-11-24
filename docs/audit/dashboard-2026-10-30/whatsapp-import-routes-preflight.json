@@ -1,0 +1,54 @@
+{
+  "selected": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_creation.py",
+      "sha256": "80d28f482839d06f304973b37242e3c7ba60e0b50ee3db994d67fed5da8522eb",
+      "physical_lines": 162,
+      "inventory_status": "reviewed",
+      "inventory_scope": "focused",
+      "matching_current_full_records": []
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_recipient_additions.py",
+      "sha256": "278d992f0ac8343d4754aba07fd93c7412f5ff9003c8333d5aa42784b80800f4",
+      "physical_lines": 235,
+      "inventory_status": "reviewed",
+      "inventory_scope": "focused",
+      "matching_current_full_records": []
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_contact_import.py",
+      "sha256": "d627dcea775c7302cd0680e77cb6a7c8f1d3b8bea479b3865d318af1dd6bf1c8",
+      "physical_lines": 422,
+      "inventory_status": "reviewed",
+      "inventory_scope": "focused",
+      "matching_current_full_records": []
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_contact_sources.py",
+      "sha256": "0500fab46a72d955359e71e559d85f7b3a05d623ae35ef8abeccc5afb402626a",
+      "physical_lines": 56,
+      "inventory_status": "reviewed",
+      "inventory_scope": "focused",
+      "matching_current_full_records": []
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_contact_excel.py",
+      "sha256": "dd4fdbdb2ce0a78983ead4bfd5bd9ef311c3a1a366e68e207c72f3cdbfe300dc",
+      "physical_lines": 276,
+      "inventory_status": "verified",
+      "inventory_scope": "focused",
+      "matching_current_full_records": []
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_imported_fields.py",
+      "sha256": "fc4ab60c67b8ba4da46dc0b50684264173f2af260696e138b1f40925049ba811",
+      "physical_lines": 186,
+      "inventory_status": "verified",
+      "inventory_scope": "focused",
+      "matching_current_full_records": []
+    }
+  ],
+  "scope": "Retained dashboard WhatsApp import/roster admission; no dedicatedInbox/ExpoUI or frozen composition/distribution edits",
+  "basis": "Current SHA/full-ledger lookup only; no full read credit from preflight"
+}

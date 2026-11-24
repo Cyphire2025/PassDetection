@@ -1,0 +1,30 @@
+{
+  "status": "Read-only source cohort complete; broader audit active",
+  "new_current_full_tests": 4,
+  "test_physical_lines": 596,
+  "supporting_full_rows": 4,
+  "focused_rows": 1,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-derived-data-source-reviewed-files.json",
+    "sha256": "f5b250d8dc4c4adaec7c6f57279176b851c883fc122fefaaa2a00479245e4e0b"
+  },
+  "source_fence": {
+    "backend/tests/integration/test_company_data_exports.py": "ce4905600872a11b66086b791c21c9c25131b40bee742c3662fb8580ee3e010a",
+    "backend/tests/integration/test_platform_lifecycle_policies.py": "fbfa43f683e82cccf05a87aa9677291fb723f3c8119d66c1ce02b37de1e97b46",
+    "backend/tests/integration/test_passport_lookup_backfill.py": "6937141e1f28dcf5aad6191b275fbae89ed22cf150684b51cb7c2358ef9e4d5c",
+    "backend/tests/unit/application/test_meal_plan_generator.py": "b372636af9acd0d52848c11ca1bdaa257e2fc70fe38e8de53c93a85d92052410",
+    "backend/app/application/companies/data_exports.py": "ed5d9e47e29ba35b49e6a842065add6adb3c1b59b3dc702f09bfcff3927e0fc9",
+    "backend/app/infrastructure/travellers/company_export_worker.py": "0fd62ac61c57539f06202672d2b3dfc2afd3a264ffae2185c2dd35de1856c16a",
+    "backend/app/infrastructure/travellers/company_export_cleanup.py": "d1dc377dcc04f9436ed0611f6fb578b58f747aa76cbe5052ce10cc7be2fa0aa1",
+    "backend/app/infrastructure/platform_lifecycle.py": "642a593ba409fc6c512981efc86cd572ea4f459bbd0182708129802116f0bc6d",
+    "backend/app/application/use_cases/menu/meal_plan_generator.py": "cf21a19c28c2c86e0859be5b837ff68d7b0d6e758dc88be62fb59d2042c7fd36"
+  },
+  "checks_run": [],
+  "changes": [],
+  "findings": [],
+  "limitations": [
+    "No test/DB/native/workbook/ZIP/service/provider execution for read-only credit.",
+    "Current deliberate retired-legal-hold and append-only-audit policies documented without changing semantics.",
+    "Previously qualified export/helper architecture remains separate; called declarations are not automatically full-read credited."
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "candidates": "docs/audit/dashboard-2026-10-30/document-operation-authority-budget-candidates.json",
+  "before_sha256": "d4de7fca64ebf71b8c1a95c3d5329d8e06d8fbe20a5e3d99dc6ace9f3d3a60b0",
+  "sha256": "7366ad6d5f394908c5deb660d25622d5bf1acf46ca049df99644880225432590",
+  "lf_normalized_sha256": "40df44d9e7f9b075f476157de164173a20ca3fe6da4bc96cd8616357e131552c",
+  "added": 1,
+  "updated_existing": 0,
+  "lowered_existing": 0,
+  "lowered_existing_paths": [],
+  "existing_ceilings_preserved": true,
+  "previous_ceilings_sha256": "67af0c811e864d0be5359651c74853cf480e146269d43b73232377aac38250f3"
+}

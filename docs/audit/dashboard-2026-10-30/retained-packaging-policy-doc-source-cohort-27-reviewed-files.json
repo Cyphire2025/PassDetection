@@ -1,0 +1,114 @@
+[
+  {
+    "path": "backend/.dockerignore",
+    "sha256": "b1ccfa9fa13ed96a2b0ab4671a27e4b3e0ef4f6a9d478a1ddc519bbdc01a1645",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full22-line packaging exclusions read: environment files, development caches, tests/logs and private keys/local SQLite excluded. Source-only inspection; no image-context build or private file opened."
+  },
+  {
+    "path": "backend/.python-version",
+    "sha256": "ceba8fa5c10f40fbed8feb7eb5238b63dda568908acfd874ee413747b29936c8",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full one-line reviewed CPython3.11 declaration read; no runtime replacement."
+  },
+  {
+    "path": "backend/alembic.ini",
+    "sha256": "1d6e59073f43d33a7dd0e6660d5087d124da23e630339f7c368fb0c2deef0508",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full50-line Alembic configuration read: runtime URL from settings, no embedded credentials, WARN SQL/INFO migration logging, inert hooks. No database/migration execution."
+  },
+  {
+    "path": "backend/requirements-dev.in",
+    "sha256": "30b20f7d8734698c1b54e62c12752dd9af0160469eaa71d8e2a94b857c415ee2",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full13-line direct development tool requirements read against pinned installation instructions; no dependency installation or lock regeneration."
+  },
+  {
+    "path": "backend/requirements-image-build.in",
+    "sha256": "3a1d0d400d0015955b17d33efa2ecd8ee5249ced07761cf3c122b13eaeccd8f1",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full9-line native image-build dependency declaration read; source-only and no package/image vulnerability claim."
+  },
+  {
+    "path": "backend/requirements-image-build.lock",
+    "sha256": "fade5b1894ef7e5eb88c803e0deface4c63ce515c941cb325f47046ca6338d4f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All112 physical lock lines read, including exact distribution hashes and source provenance. Generated lock metadata inspected; no installed-image or security qualification inferred."
+  },
+  {
+    "path": "backend/docker/postgresql_client_build.json",
+    "sha256": "dcb0ccd1f01887f0b9f6b0b12ff7814a5b7185d0f23c3eed3f5159aa08fa8a1d",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full21-line pinned libpq17.11/170011 source and psycopg2 hashes/build switches read. Runtime native client distinguished from isolated PostgreSQL16 QA clients/test server. No compilation or image probe."
+  },
+  {
+    "path": "scripts/setup_codex_cloud.sh",
+    "sha256": "22a2eb596a7aad98c63a5e2359bef711d2407837fa7ca0bd4704b2c39678a76d",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full30-line CPython/Node/npm selection, hash-checked backend bootstrap and local checkout npm installs read. Existing native npm-ci stanza is shared setup compatibility only; no managed cloud/runtime/install execution."
+  },
+  {
+    "path": "scripts/qa/run_linux_webkit.ps1",
+    "sha256": "0f54bbf4dd0e42ac732c86e7acf1db68b2d22f01ced93deda2568f0af579c21f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full31-line isolated qualification-project services, synthetic database/loopback58443, readonly mounts, pinned image and namespace cleanup/evidence read. No Docker, browser or services executed."
+  },
+  {
+    "path": "load-tests/k6/DASHBOARD_LOAD_TESTING.md",
+    "sha256": "3c605d9c8b127f4641e9a1ef5426cc68db6ab266981d5d770da34b907cedc91e",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full147-line guide read: approved staging identity, external short-lived manifests, four workload profiles, acceptance metrics and recovery. Documentation alone makes no capacity or provider qualification claim."
+  },
+  {
+    "path": "scripts/qa/ENTERPRISE_REAL_STACK.md",
+    "sha256": "ce11f39d6b691a9ed95b7a1a41757aa9fb65361b34c2d445914ead231b91d27c",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole original76/current77-line guide read and seed consumer traced. Two exact prose corrections describe synthetic MFA/QR output and provider-neutral S3 storage. All fenced commands and other normalized prose exact; no seed/browser/service executed. See enterprise-real-stack-guide-source-verification.json."
+  },
+  {
+    "path": "backend/scripts/mcp_dashboard_write_schema.json",
+    "sha256": "61f02545b60bf798e4f8eb8299f5c23ae87e7eb42be37124ca38aa6506e748e5",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "reviewed",
+    "notes": "Entire parsed974-line generated schema rendered losslessly as compact structure and manually inspected, plus first125 physical lines. Historical0128/version1 tables, columns, constraints, foreign keys, indexes and role defaults reviewed for provenance; not a whole physical-line source read, current database/schema/ACL or native feature qualification."
+  },
+  {
+    "path": "backend/architecture-dependencies.json",
+    "sha256": "d74dad8369bc1e9cdb2ebb2fa7a550ca87de9a9e267b1c6c94de749569b50d36",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "reviewed",
+    "notes": "Generated policy230 transaction rows: schema/fieldsets, owner/review dates, exact current shared checkpoint and strict subset owner additions reconciled against purpose-specific full-source receipts. Whole static checker passed in sealed group-whatsapp-match shared checkpoint; not a new full3219-physical-line read or independent whole-source audit."
+  },
+  {
+    "path": "backend/backend_quality_budgets.json",
+    "sha256": "0e292b4f0ecf53d0a1942fa3c2da521f19ebc58c8450627be85fd309eaf44305",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "reviewed",
+    "notes": "Generated current882 normal/165 critical policy structure, historical measurement basis, global floors and exact current raw hash reconciled against sealed group-whatsapp-match integration. All878 prior normal and165 critical/global rows exact; four measured normal additions. Not a full physical-line read or new coverage/global qualification claim."
+  }
+]

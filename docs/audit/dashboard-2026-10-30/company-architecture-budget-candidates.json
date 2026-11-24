@@ -1,0 +1,191 @@
+[
+  {
+    "path": "features/companies/api/companies.api.ts",
+    "baselineLines": 65,
+    "maximumLines": 70,
+    "baselineMaxFunctionComplexity": 1,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/companies/api/company-matching.api.ts",
+    "baselineLines": 68,
+    "maximumLines": 70,
+    "baselineMaxFunctionComplexity": 1,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/companies/api/company-passports.api.ts",
+    "baselineLines": 43,
+    "maximumLines": 50,
+    "baselineMaxFunctionComplexity": 1,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/companies/api/company-data-exports.api.ts",
+    "baselineLines": 61,
+    "maximumLines": 70,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/companies/api/reuse-setup.api.ts",
+    "baselineLines": 43,
+    "maximumLines": 50,
+    "baselineMaxFunctionComplexity": 1,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/companies/hooks/use-companies.ts",
+    "baselineLines": 5,
+    "maximumLines": 10,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/companies/hooks/use-company-data-exports.ts",
+    "baselineLines": 65,
+    "maximumLines": 70,
+    "baselineMaxFunctionComplexity": 4,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/companies/components/company-matching-dialog.tsx",
+    "baselineLines": 205,
+    "maximumLines": 210,
+    "baselineMaxFunctionComplexity": 18,
+    "maximumFunctionComplexity": 19
+  },
+  {
+    "path": "features/companies/components/company-match-resolution.tsx",
+    "baselineLines": 145,
+    "maximumLines": 150,
+    "baselineMaxFunctionComplexity": 18,
+    "maximumFunctionComplexity": 19
+  },
+  {
+    "path": "features/companies/components/company-passports.tsx",
+    "baselineLines": 136,
+    "maximumLines": 140,
+    "baselineMaxFunctionComplexity": 9,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/companies/components/company-settings.tsx",
+    "baselineLines": 28,
+    "maximumLines": 30,
+    "baselineMaxFunctionComplexity": 5,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/companies/components/company-reassignment-dialog.tsx",
+    "baselineLines": 152,
+    "maximumLines": 160,
+    "baselineMaxFunctionComplexity": 11,
+    "maximumFunctionComplexity": 12
+  },
+  {
+    "path": "features/companies/components/company-all-data.tsx",
+    "baselineLines": 36,
+    "maximumLines": 40,
+    "baselineMaxFunctionComplexity": 5,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/companies/components/company-directory.tsx",
+    "baselineLines": 190,
+    "maximumLines": 200,
+    "baselineMaxFunctionComplexity": 20,
+    "maximumFunctionComplexity": 21
+  },
+  {
+    "path": "features/companies/components/company-person-page.tsx",
+    "baselineLines": 44,
+    "maximumLines": 50,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/companies/components/company-picker.tsx",
+    "baselineLines": 156,
+    "maximumLines": 160,
+    "baselineMaxFunctionComplexity": 22,
+    "maximumFunctionComplexity": 23
+  },
+  {
+    "path": "features/companies/api/company-request-config.ts",
+    "baselineLines": 10,
+    "maximumLines": 20,
+    "baselineMaxFunctionComplexity": 1,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/companies/hooks/company-query-state.ts",
+    "baselineLines": 27,
+    "maximumLines": 30,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/companies/hooks/use-company-queries.ts",
+    "baselineLines": 56,
+    "maximumLines": 60,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/companies/hooks/use-company-mutations.ts",
+    "baselineLines": 34,
+    "maximumLines": 40,
+    "baselineMaxFunctionComplexity": 1,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/companies/hooks/use-company-reuse-policy.ts",
+    "baselineLines": 43,
+    "maximumLines": 50,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/companies/hooks/use-company-directory-state.ts",
+    "baselineLines": 45,
+    "maximumLines": 50,
+    "baselineMaxFunctionComplexity": 8,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/companies/hooks/use-company-person-page.ts",
+    "baselineLines": 54,
+    "maximumLines": 60,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/companies/components/company-reuse-policy-card.tsx",
+    "baselineLines": 70,
+    "maximumLines": 80,
+    "baselineMaxFunctionComplexity": 11,
+    "maximumFunctionComplexity": 12
+  },
+  {
+    "path": "features/companies/components/company-people-directory.tsx",
+    "baselineLines": 48,
+    "maximumLines": 50,
+    "baselineMaxFunctionComplexity": 11,
+    "maximumFunctionComplexity": 12
+  },
+  {
+    "path": "features/companies/components/company-person-header.tsx",
+    "baselineLines": 32,
+    "maximumLines": 40,
+    "baselineMaxFunctionComplexity": 5,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/companies/components/company-person-content.tsx",
+    "baselineLines": 54,
+    "maximumLines": 60,
+    "baselineMaxFunctionComplexity": 12,
+    "maximumFunctionComplexity": 13
+  }
+]

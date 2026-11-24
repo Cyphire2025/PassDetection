@@ -1,0 +1,11 @@
+[
+  {
+    "path": "frontend/e2e/workspace-branding.spec.ts",
+    "sha256": "cfe3e5af1c6b53ac01ef8c0323099a982f8263f005598673c71b018eafd11686",
+    "physical_lines": 353,
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "All original source read in untruncated intervals, then complete explicit additions reviewed: actual image/padding-box banner geometry polling; existing desktop/mobile editor crop; first Add desktop/mobile cancel restores original layout, no mutation, then save retains crop ratio; mobile preview bounds. All original six workflows, conflict/private fixture/persistence assertions and new header transparency/native keyboard-focus checks retained. Final current-build browser qualification pending; historical numeric geometry negatives remain immutable."
+  }
+]

@@ -1,0 +1,317 @@
+[
+  {
+    "path": "backend/tests/integration/test_attendance_event_ordering.py",
+    "sha256": "4549d8651bd381a09ef440d726247a13f2ab6265273a0d209aa2bc82ade88f3a",
+    "lines": 213,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Actual SQLite rows/FKs/checks plus deliberately bounded named-conflict-target translation; asserts earliest/latest participation, skew clamp and durable receipt replay. Does not establish PG locking."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_attendance_reads.py",
+    "sha256": "d60f68a54b39bdb40120e2bddde6f344f5dcd9c97881312bfe44d718a65842c5",
+    "lines": 694,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Actual HTTP/MCP parity, authority/lifecycle/cursor isolation, pre/post revision fences, scalar-only private-data exclusion and bounded admission. Event listeners removed in finally; source fixtures synthetic."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_rooming_exports.py",
+    "sha256": "65010887e22b4a92f0c0ab195eca340f4ab8da22297f5158be30dcf0a285f11c",
+    "lines": 506,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Actual workbook parity, immutable business snapshots, durable idempotency/recovery, source revisions and post-storage denial; fixed native blocked-worker test cleanup with finally release/drain preserving all cancellation/capacity assertions."
+  },
+  {
+    "path": "backend/tests/integration/test_menu_export_responsiveness.py",
+    "sha256": "0b4dd0ea10af9465257abc1c6b60a6a3c5c3ae8c833968a9e9de40af83828d9f",
+    "lines": 97,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Authenticated synthetic HTTP export proves event-loop progress during native render. Observer thread is released/joined in finally; no live provider calls."
+  },
+  {
+    "path": "backend/tests/integration/test_menu_meal_planner_api.py",
+    "sha256": "086ab407d22adced7191cb53256fcb79bc1b7f1de432926f63e6d712ca97d73f",
+    "lines": 341,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Actual synthetic HTTP meal-library workflow validates unique selections, revision conflicts, category guard, workbook contents and other-agency empty projections. Local fixture setup repetition is small and contextual."
+  },
+  {
+    "path": "backend/tests/integration/test_menu_revision_lifecycle.py",
+    "sha256": "647406f3be4325dabd8395566adb59e7951243cafd8ad121eff9ce221db5a558",
+    "lines": 169,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Actual HTTP saved snapshot retention through dish/category deletion, stale revision denial, and foreign category/dish/plan/export IDs hidden. Synthetic actors and documents only."
+  },
+  {
+    "path": "backend/tests/integration/test_qr_delivery_admission.py",
+    "sha256": "e413e6131a33b03de3bd6905f3b88202844595ea4e759b6e5912fadb3572820d",
+    "lines": 89,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Actual authenticated queue admission with publisher stub; verifies commit-before-publication, one durable receipt, known queue-failure-only retry, sanitized failure response and no real sends."
+  },
+  {
+    "path": "backend/tests/integration/test_tour_operations_tenant_projections.py",
+    "sha256": "63a25d3eb2df11b9608cc9077570c0fd314ea5a8a790fec4c3bdf9b1880ecdcd",
+    "lines": 96,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Actual synthetic SQL/HTTP two-tenant counts and identity projections; foreign coordinator/group IDs excluded."
+  },
+  {
+    "path": "backend/tests/service_integration/test_mcp_attendance_reads_postgresql.py",
+    "sha256": "6d6ef407d8648fde6e52ba5e8d4960aa448760a9edf3da1f6ed656cb92243b9a",
+    "lines": 465,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Service source reviewed only, not executed in this tranche. Requires RUN_SERVICE_INTEGRATION and dedicated loopback passdetection_ci_ database; UUID retained schema. Covers PG source bounds, revisions, current authority, cancellation/lock deadlines and no private ORM hydration; listeners cleaned in finally."
+  },
+  {
+    "path": "backend/tests/service_integration/test_mcp_rooming_exports_postgresql.py",
+    "sha256": "b323aba6990a060ba046a3c057f1a52bcc6ec6640630398611ba75d6f3dd6d37",
+    "lines": 151,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Service source reviewed only, not executed in this tranche. Uses separately imported isolated MCP database fixture; synthetic IDs/tokens and fake storage. Exercises independent worker DB barrier, legacy writer lock, revision/revocation fences. Imported fixture owner not claimed fully read here."
+  },
+  {
+    "path": "backend/tests/unit/application/test_attendance_dashboard.py",
+    "sha256": "35f69663712e7d78552f2c7dea6a7b938fb9a4df845c77de4d92027e963773f9",
+    "lines": 527,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Pure service tests assert count-only response, stable revisions/ages, deterministic coordinator cap, pre/post bounded-page fences and material payload-size reduction. Repository stubs purposefully isolate policy; no deployed authority claim."
+  },
+  {
+    "path": "backend/tests/unit/application/test_attendance_qr_evidence.py",
+    "sha256": "031e3236182d5e63f4cc3a1abcc25684a2c179bccd224a378dde5d7858b0f5b5",
+    "lines": 76,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Shared backend evidence tests only: bounded token hash, expiry/epoch, malformed/inactive/revoked/future/naive inputs fail closed without lookup material; no native application source reviewed."
+  },
+  {
+    "path": "backend/tests/unit/application/test_mobile_sync_journal_attendance.py",
+    "sha256": "73870d547e3fef8767a853dcf8860f1a1432d9b810a8ba51e3ca32fb54200059",
+    "lines": 120,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Shared backend journal tests only: disabled access anchor, scoped query and PII-free invalidation payload; no native application source reviewed."
+  },
+  {
+    "path": "backend/tests/unit/application/test_rooming_auto_allocator.py",
+    "sha256": "52eea9a7cf7e12c62ea4fe8f8e435cf1b425d19abbf74fb268c762d15f7d0538",
+    "lines": 199,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Deterministic pure policy cases cover VIP, exact gender separation, hierarchical priority ordering, bounds, stable fingerprints and changed-input freshness."
+  },
+  {
+    "path": "backend/tests/unit/domain/test_attendance_activity.py",
+    "sha256": "3210f4dc2a254cf0b4d9f0a905e711c1ae7151de3cb75df2399b7ac40e72601b",
+    "lines": 10,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Small exact whitespace/case normalization example; narrow unit assertion, not a complete activity/lifecycle qualification."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_attendance_closeout_projection_work.py",
+    "sha256": "12ab9cd7847a6293b557c3281066798608f5a0a9d8358c05a2201bcd8374096f",
+    "lines": 125,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Actual repository/loader/classifier with fixed SQL results; validates runtime/legacy counts/order and query count while measuring source visits for1/16 activities. Scope excludes actual database authority and locking."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_attendance_closeout_repository.py",
+    "sha256": "195c37bb1e428b2e55de3dc170aeb63733f6c43a34870516fa872cc65bdda2a6",
+    "lines": 273,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Boundary cases for exact checkpoint TTL, missing/pre-assignment/stale/unresolved classes and pending-age growth; privacy-bounded schemas/table fields and targeted migration structure. Source migration assertions supplement, not replace, populated migrations."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_attendance_dashboard_repository.py",
+    "sha256": "b2b4031311598d4d9399b78a3cdb24ae4794ae31d1517c1c22f9f33696be24e5",
+    "lines": 210,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Fixed-query minimal scalar SQL projection, no passenger contact/passport fields, coordinator admission-before-query, bounded keyset+limit-plus-one. Compiled SQL/mock-result evidence, not live database proof."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_attendance_runtime_and_discard.py",
+    "sha256": "d379b575b58a0762d503c97ebc7ed9d67a5540c76a880e6053ee676139b15e55",
+    "lines": 456,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Purpose-bound cookie hash, strict resolver scope/lock, invalid expiry pre-DB, discard idempotency/conflicts and raw-QR prohibition, runtime-independent closeout. Bounded synthetic mocks; no real provider or native application."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_rooming_auto_allocation_migration.py",
+    "sha256": "e5aa93dd28e1f9bf93f3d0ee40f849875cfcd20ca2390553d3bf320429971b1d",
+    "lines": 44,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Historical migration topology/uniqueness/backfill structure assertions. No upgrade execution or live schema-qualification claim."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_rooming_excel_exporter.py",
+    "sha256": "4b0aa8e661e763520460973f580fd8be92c245952447816fced3fa124dd5f987",
+    "lines": 269,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Real XLSX parse asserts formula safety for external strings, optional fields, VIP style, grouping/order and room banding."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_rooming_priority_fields.py",
+    "sha256": "a2ffb5bd15157fda15f464077c46cb8f41fb0fa4ec232531826b8855ee76e788",
+    "lines": 427,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Privacy-filtered Unicode/contact/identity aliases, selected required/custom/WhatsApp fields, local/catalog work avoidance and original matcher monkeypatch seam preserved."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_rooming_priority_work.py",
+    "sha256": "a6011bb23fbd0f6ba1917b065cd90c7ebaf94e9870496fef3520a25daf179fef",
+    "lines": 145,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Deterministic code-profile work bound and exact ambiguous-value output; restores prior profiler in finally. Matching/tenant policy is explicitly outside this isolated projection test."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_shared_attendance_migration.py",
+    "sha256": "c7fb7da4776e74bc7e3bfb8e5caf25172e5eb310a340d4215794e79218b872d6",
+    "lines": 67,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Historical scan retention/backfill/index source assertions plus mocked migration call tests for safe PostgreSQL whitespace syntax; modules patched in context. Not actual populated migration execution."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_attendance_dashboard_routes.py",
+    "sha256": "cc4483cb379462b5e33d4f3710b0ad102d7925bbc4163c2ccce325e9daebac75",
+    "lines": 258,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "ETag304, count-only coordinator mapping and generic typed missing/conflict projections. Authority/repositories deliberately stubbed to isolate route mapping."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_attendance_scan_batch.py",
+    "sha256": "b1598832b8cbd230ccab73462242e2c3fbca7365708e9c59b5b11276250a0765",
+    "lines": 262,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Reject duplicate/naive/extra/budget violations, stable fingerprints and sanitized logs, retryable-not-ledgered order plus CSRF/role route dependencies. Source mocks isolate transaction-boundary concerns."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_enterprise_attendance_contract_compatibility.py",
+    "sha256": "d0cb8f46101896d770109539905a54f2775c56dfc618cdfb33208753d67f9af4",
+    "lines": 149,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Additive old-client schema contracts, count-only privacy and route registration with explicitly local rate-limit settings; app startup/provider services not invoked."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_rooming_allocation_rules.py",
+    "sha256": "f93225c7279e121971a224fe3f025e29197da214c6b270f8cce525b2ba89ee0e",
+    "lines": 58,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Focused pure VIP/gender policy examples; stronger hierarchical/fingerprint cases live in application allocator suite."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_rooming_export_native_drain.py",
+    "sha256": "cbfdb6a6f04cc8dc7f1dd0522dc856a5bb6db4ab7df61f9e3604f50e041dc94e",
+    "lines": 70,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Cancellation proof for both actual route render facades uses blocked native worker released/drained in finally; no storage/provider calls."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_rooming_redesign_schemas.py",
+    "sha256": "487a4f67849c6fa3af6630aba1a119c1b4fddbb3f00604baf26db848f67739f1",
+    "lines": 231,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Schema duplicate/bound/selection guards, timestamp and whole-membership freshness, share-lock statement, retired mutation no-DB behavior."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_rooming_revision_fencing.py",
+    "sha256": "85a80bfcfba036108a5f05fc1432d47039429a2bdb38aea3fc825729e5b17ddd",
+    "lines": 207,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Revision presence/nonnegative/order, conflict shape, exactly-once changed-hotel revision, delta response/query bounds. Source order assertions supplement behavior tests, not live race proof."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_rooming_runtime_hardening.py",
+    "sha256": "65a660870ce3fe76a70ed454bd508a9b74eaf0d892f6ccb93e007e5dd0407612",
+    "lines": 228,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Constant check-in query work at2/200 passengers, CSRF all mutations, stable-assignment-before-insert structural fence, detached render/final reauthorization ordering, tenant/group hotel denial."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_shared_attendance.py",
+    "sha256": "a8a163c230d72ee86b5f039db38a3322580c72f196b9c99fdb89f1c4cdb039b6",
+    "lines": 1369,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full mixed activity lifecycle/scan/closeout/query test file read (1369lines). Meaningful negative role/write denial, idempotency, late-offline window, same-transaction hints/audit and canonical alias dedup; highly stubbed unit contexts intentionally narrow. Cohesive test-module split remains architecture debt, no behavior coverage discarded."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_tour_operations_group_visibility.py",
+    "sha256": "32b2fb810c65976ad2df9d3f4e74cce78a933e76e1738fe4fa915ced9932a157",
+    "lines": 169,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Active/closed scope, agency query and trip-time eligibility, denial before effects, explicit completed unassignment retaining history, timezone-bound final return day."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_tour_operations_route_decomposition.py",
+    "sha256": "d8c2a2b5fa23fb4bc1c3af0cc3488fa7c529f0ed308ac447a56b30a3f910170f",
+    "lines": 104,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Exact published route order/path/method/endpoint and compatibility-helper identities; deliberate structural contract supplements API snapshots and business tests."
+  }
+]

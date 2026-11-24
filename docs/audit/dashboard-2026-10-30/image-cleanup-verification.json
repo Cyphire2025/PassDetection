@@ -1,0 +1,36 @@
+{
+  "status": "frozen-narrow-correction",
+  "before": {
+    "passed": 1,
+    "failed": 1,
+    "receipt": "image-cleanup-before-command.json"
+  },
+  "after": {
+    "passed": 60,
+    "files": 5,
+    "receipt": "image-cleanup-after-command.json"
+  },
+  "whole_module_ast_exact_after_removing_one_owned_namespace": true,
+  "behavior": "Existing locked-row deletion collector includes manual library keys. Durable tombstone staging now accepts those keys under passport_submission_delete; all other source rules and neighboring-prefix rejections are retained.",
+  "checks": {
+    "ruff": {
+      "paths": 2,
+      "exit_code": 0
+    },
+    "configured_mypy": {
+      "cwd": "backend",
+      "path": "app/infrastructure/documents/storage_cleanup.py",
+      "exit_code": 0
+    },
+    "initial_mypy_wrong_working_directory": {
+      "exit_code": 1,
+      "diagnostic": "Root cwd omitted backend configuration and reported three existing boto stubs diagnostics; corrected documented backend cwd passes."
+    }
+  },
+  "full_source_paths": 2,
+  "focused_source_paths": 1,
+  "limitations": [
+    "Encrypted staging and affected mock-backed deletion handlers qualified; no real PostgreSQL/object storage/VPS claim.",
+    "Separate image orphan/cancellation/revalidation follow-through remains active. Mixed638-line cleanup owner still needs architecture follow-through."
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "runtime_module_inverse_ast_equal": true,
+  "only_runtime_module_changes": [
+    "one purpose-specific guard import",
+    "one awaited actor refresh inside owned compensation try before group/access locks"
+  ],
+  "original_whole_function_class_declarations": 5,
+  "actual_evaluated_hints_signatures_facade_identity_dataclass_metadata_equal": true,
+  "whole_common_document_router_openapi_equal": true,
+  "fixture_instrumentation": [
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_content_compensation.py",
+      "instrumentation_only_additions": 4,
+      "all_original_assertions_source_byte_equal": true,
+      "original_assertions": 26,
+      "complete_module_inverse_ast_equal": true,
+      "original_crlf_preserved": true
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_common_document_native_cancellation.py",
+      "instrumentation_only_additions": 1,
+      "all_original_assertions_source_byte_equal": true,
+      "original_assertions": 3,
+      "complete_module_inverse_ast_equal": true,
+      "original_crlf_preserved": true
+    }
+  ],
+  "qualified_lf_to_current_crlf_only": [
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_content_compensation.py",
+      "qualified_sha256": "d57ee55dc8f414d8194c42076db7d9b821f85394f0be734fdec6bd65024fd0cd",
+      "preserved_crlf_sha256": "75c4cb036632defb4353a19f9587697e2649e99055086983a44d05159a4c4e18",
+      "lf_normalized_equal": true,
+      "qualified_snapshot": ".tmp/gc-common-staging-qualified-lf-test_gc_app_content_compensation.py"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_common_document_native_cancellation.py",
+      "qualified_sha256": "ed0f09750a963af30211a0e9109258d3faf9680e2dab6ad7fcf25ae10872295f",
+      "preserved_crlf_sha256": "f34062f4c8c8c08be59cea511b58215dda2b10bd31ca7ff94f87ec92caa9aca2",
+      "lf_normalized_equal": true,
+      "qualified_snapshot": ".tmp/gc-common-staging-qualified-lf-test_gc_common_document_native_cancellation.py"
+    }
+  ],
+  "scope": "Existing canonical actor role/agency/credential/session-version and access-level mapping reused; no shared auth/target policy/provider/parser/schema changes.",
+  "limits": "SQLite does not establish PostgreSQL row-lock concurrency; actor session-version fences do not newly qualify per-dashboard-session-family revocation or live services."
+}

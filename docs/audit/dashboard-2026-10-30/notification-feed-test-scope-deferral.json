@@ -1,0 +1,15 @@
+{
+  "path": "backend/tests/unit/infrastructure/test_notification_feed.py",
+  "sha256": "8610a40c1635114e3969abd743bf1dfc1b43d49c64d4249662f8d8c4550d1379",
+  "classes": [],
+  "tests": [
+    "test_direct_feed_is_user_scoped_and_legacy_broadcasts_are_excluded",
+    "test_direct_feed_uses_stable_cursor_and_server_unread_count",
+    "test_dedupe_and_mark_all_apply_only_to_direct_owner_rows",
+    "test_invalid_feed_cursor_fails_closed",
+    "test_direct_notification_can_be_read_without_an_agency_bypass",
+    "test_direct_feed_and_read_actions_reject_a_users_former_agency"
+  ],
+  "scope_basis": "All fixtures create email_ai_attention or email_deadline/email_operations notifications (mailbox/reply/deadline source purposes); sole target is direct notification feed for Operations Inbox. Shared NotificationRepository method calls have no demonstrated retained non-Inbox caller in this test cohort; no such caller audit undertaken. Defer full test review with Inbox.",
+  "review_credit": "None; incidental scope-discovery physical text read only, no full ledger row/test execution/runtime changes."
+}

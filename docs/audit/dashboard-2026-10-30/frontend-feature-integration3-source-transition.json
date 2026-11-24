@@ -1,0 +1,12 @@
+{
+  "initial_checkpoint_files": 1638,
+  "final_checkpoint_files": 1638,
+  "changed_paths": [
+    "frontend/features/passports/components/passport-bulk-delete.contract.test.mjs",
+    "frontend/features/whatsapp/components/whatsapp-role-access.contract.test.mjs",
+    "frontend/features/whatsapp/hooks/use-whatsapp-source-groups.test.tsx",
+    "frontend/features/whatsapp/workspace/message-composer-audience.tsx"
+  ],
+  "all_changes_declared_and_verified": true,
+  "basis": "One runtime unused-binding deletion with exact emitted JavaScript identity; three test-only corrections. Final snapshot captured after all corrections, before clean full1829-case coverage run,668Node contracts, production build and9browser journeys. All finalsource bytes stayed frozen."
+}

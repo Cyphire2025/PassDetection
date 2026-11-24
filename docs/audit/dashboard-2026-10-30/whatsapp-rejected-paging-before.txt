@@ -1,0 +1,33 @@
+
+ RUN  v4.1.12 C:/Users/nipun/Desktop/PassDetection/frontend
+
+ ❯ features/whatsapp/components/rejected-import-rows.test.tsx (1 test | 1 failed) 288ms
+   × bounds rejected-row DOM while every original row remains available for review and save 287ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  features/whatsapp/components/rejected-import-rows.test.tsx > bounds rejected-row DOM while every original row remains available for review and save
+AssertionError: expected [ Array(120) ] to have a length of 50 but got 120
+
+- Expected
++ Received
+
+- 50
++ 120
+
+ ❯ features/whatsapp/components/rejected-import-rows.test.tsx:18:48
+     16|   render(<ExcelRecipientImport state={state} onFile={vi.fn()} label="I…
+     17|   const rows = screen.getByLabelText("Rejected spreadsheet rows");
+     18|   expect(within(rows).getAllByRole("article")).toHaveLength(50);
+       |                                                ^
+     19|   expect(within(rows).getByText("Synthetic rejected person 1")).toBeIn…
+     20|   const pagination = screen.getByRole("navigation", { name: "Rejected …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  00:13:02
+   Duration  2.00s (transform 256ms, setup 225ms, import 448ms, tests 288ms, environment 888ms)
+

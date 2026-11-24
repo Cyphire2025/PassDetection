@@ -1,0 +1,374 @@
+{
+  "status": "Audit-only candidates prepared; TypeScript proof pending final seal; no actual source edits",
+  "original_warnings": 365,
+  "retained_warnings_addressed": 360,
+  "retained_files": 9,
+  "deferred_Inbox_warnings_untouched": 5,
+  "files": [
+    {
+      "path": "backend/app/application/use_cases/passports/process_passport_submission_job_use_case.py",
+      "original_snapshot": "docs/audit/dashboard-2026-10-30/final-whitespace-preflight/raw-originals/backend/app/application/use_cases/passports/process_passport_submission_job_use_case.py.bin",
+      "candidate": "docs/audit/dashboard-2026-10-30/final-whitespace-preflight/candidates/backend/app/application/use_cases/passports/process_passport_submission_job_use_case.py.bin",
+      "old_sha256": "998192ee86644c66578b549b637aa622264e97179ecba66b7fd2a3227260c4c5",
+      "new_sha256": "655c14af28798166c623a660f68c758e2a8521847c54d4b01cbab60c4586eeae",
+      "old_bytes": 24591,
+      "new_bytes": 24589,
+      "removed_bytes": 2,
+      "warnings_addressed": 1,
+      "exact_delete_operations": 1,
+      "old_LF_count": 590,
+      "new_LF_count": 589,
+      "original_newline_bytes_preserved_except_listed_edits": true,
+      "exact_inverse_reconstructs_original": true,
+      "current_source_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/ai-runtime-reviewed-files.json",
+          "json_pointer": "/files/9",
+          "sha256": "bfc23be23c3668d3262dad0347dae4d54acd9178330a09dd8b1e4cb0ad031f99",
+          "review_scope": null,
+          "status": null,
+          "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+        },
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/retained-processing-admin-source-reviewed-files.json",
+          "json_pointer": "/files/3",
+          "sha256": "48c2c3d51fa9e4477cb6955c221f61a269789d771eaa6348fb5e871c60fcf1af",
+          "review_scope": "focused",
+          "status": "focused",
+          "notes": "Physical126-255 only. Actual persisted job claim/checkpoint/target/revision/cancellation controls, finite first-pass/AI budgets and reserve, canonical storage download, AI-only verification and current revision classification failure application. Rest of590-line owner not fully reread or implicitly qualified from tests/imports; no architecture change claimed."
+        }
+      ],
+      "review_credit": "Focused byte/token/AST continuity only; current source-purpose/full-read provenance is inherited only from the exact-hash linked prior records. No fresh full physical read claimed."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_passport_bulk_delete_route.py",
+      "original_snapshot": "docs/audit/dashboard-2026-10-30/final-whitespace-preflight/raw-originals/backend/tests/unit/presentation/test_passport_bulk_delete_route.py.bin",
+      "candidate": "docs/audit/dashboard-2026-10-30/final-whitespace-preflight/candidates/backend/tests/unit/presentation/test_passport_bulk_delete_route.py.bin",
+      "old_sha256": "f04b6d8acee374694823a556e1eb8fb0b75cbdb295c87e99ea2a2da628c759b9",
+      "new_sha256": "efdcda6ffa29e19410a013015f0eaef3f8080f4f40dbb89d69fdcd84c09e6c23",
+      "old_bytes": 21780,
+      "new_bytes": 21779,
+      "removed_bytes": 1,
+      "warnings_addressed": 1,
+      "exact_delete_operations": 1,
+      "old_LF_count": 595,
+      "new_LF_count": 595,
+      "original_newline_bytes_preserved_except_listed_edits": true,
+      "exact_inverse_reconstructs_original": true,
+      "current_source_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/bulk-architecture-reviewed-files.json",
+          "json_pointer": "/4",
+          "sha256": "4683692ddfcaf8a706943f36af9617a2bd51b11b407e359fca558afe2e68278f",
+          "review_scope": "focused",
+          "status": "verified",
+          "notes": "Exact mock-target-only module inverse or affected test execution; no complete physical source read credit in this batch."
+        },
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/retained-deletion-storage-source-reviewed-files.json",
+          "json_pointer": "/files/2",
+          "sha256": "c0e25da8d007ab80fff3aef640af97c68d30580bcf2451b14045126a2f2cf1b0",
+          "review_scope": "full",
+          "status": "reviewed",
+          "notes": "Whole physical1-595 in bounded1-220/221-420/421-595. Explicit route CSRF/recent MFA, same selected ID/order and every stored object variant, durable commit before bounded inline cleanup, deferred501-object path and unknown storage failures, missing selection all-or-nothing, FOR UPDATE precedes active roster lookup, exact committed audit replay and no cleanup on failed commit. Instrumentation helper resolves actual owner; original business assertions unchanged. Source read only; previously qualified root bulk implementation remains frozen."
+        }
+      ],
+      "review_credit": "Focused byte/token/AST continuity only; current source-purpose/full-read provenance is inherited only from the exact-hash linked prior records. No fresh full physical read claimed."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py",
+      "original_snapshot": "docs/audit/dashboard-2026-10-30/final-whitespace-preflight/raw-originals/backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py.bin",
+      "candidate": "docs/audit/dashboard-2026-10-30/final-whitespace-preflight/candidates/backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py.bin",
+      "old_sha256": "9641b67bc05ad710f7f34dedfb801c69e4a8367dce317cf86477c61a75b58706",
+      "new_sha256": "522ce2887c361e780e8a99412d0636a2eb5aa0ec0ec85727463587db3bd5994a",
+      "old_bytes": 25062,
+      "new_bytes": 25060,
+      "removed_bytes": 2,
+      "warnings_addressed": 2,
+      "exact_delete_operations": 2,
+      "old_LF_count": 688,
+      "new_LF_count": 688,
+      "original_newline_bytes_preserved_except_listed_edits": true,
+      "exact_inverse_reconstructs_original": true,
+      "current_source_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/bulk-architecture-reviewed-files.json",
+          "json_pointer": "/3",
+          "sha256": "4683692ddfcaf8a706943f36af9617a2bd51b11b407e359fca558afe2e68278f",
+          "review_scope": "full",
+          "status": "verified",
+          "notes": "Complete physical current source/original moved declarations read; whole AST, evaluated contracts, route/global identity and99 focused test proof."
+        },
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/submission-view-performance-reviewed-files.json",
+          "json_pointer": "/8",
+          "sha256": "fdea9ee6033e0346dda47d74f65ec670b15deae35e60b89ba0d9ff624616274e",
+          "review_scope": "full",
+          "status": "verified",
+          "notes": "Complete current/original source and exact four-function/two-module inverse proof;17path unchanged-runtime fence with61focusedcases,864 full-source/actualencryptedpayload parity combinations and measured5000 actual frozen/slotted projections. Original six testfiles and support bytes unchanged."
+        },
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/submission-view-reviewed-files.json",
+          "json_pointer": "/8",
+          "sha256": "480036b6b6c96edf53674fd430efec2c9f2c94cd54f4ccbc68b5496a3af98a4a",
+          "review_scope": "full",
+          "status": "verified",
+          "notes": "Complete physical current source/test or complete original/current moved declarations read. Same53affected cases before/after,27whole AST/96actualbinding proof,432 exact prepared/page/cache-payload source replays; encrypted cache/authorization/revision fixtures inspected. No whole-file read credit derives only from test execution."
+        }
+      ],
+      "review_credit": "Focused byte/token/AST continuity only; current source-purpose/full-read provenance is inherited only from the exact-hash linked prior records. No fresh full physical read claimed."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_public_passport_capabilities.py",
+      "original_snapshot": "docs/audit/dashboard-2026-10-30/final-whitespace-preflight/raw-originals/backend/tests/unit/presentation/test_public_passport_capabilities.py.bin",
+      "candidate": "docs/audit/dashboard-2026-10-30/final-whitespace-preflight/candidates/backend/tests/unit/presentation/test_public_passport_capabilities.py.bin",
+      "old_sha256": "81ea01aa4629071043595244cc3f0b5ded7414a3467445f11f068faa17e3316f",
+      "new_sha256": "482bc7b1ece3bb81f6cc4b393e1e57aa2e89828deb482ceb3d0ffe709855a78c",
+      "old_bytes": 4154,
+      "new_bytes": 4153,
+      "removed_bytes": 1,
+      "warnings_addressed": 1,
+      "exact_delete_operations": 1,
+      "old_LF_count": 108,
+      "new_LF_count": 108,
+      "original_newline_bytes_preserved_except_listed_edits": true,
+      "exact_inverse_reconstructs_original": true,
+      "current_source_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/public-upload-reviewed-files.json",
+          "json_pointer": "/7",
+          "sha256": "bb53887bce1f87d217cc017ff87ebdb54136fcbba0c3076d6e01e50359132391",
+          "review_scope": "full",
+          "status": "verified",
+          "notes": "Complete physical source or whole original/current moved declaration read; exact scope/route/binding proof and current171-case selection. Independent bulk actor and submit-use-case native lifetime follow-ups remain open in their own ledger."
+        }
+      ],
+      "review_credit": "Focused byte/token/AST continuity only; current source-purpose/full-read provenance is inherited only from the exact-hash linked prior records. No fresh full physical read claimed."
+    },
+    {
+      "path": "frontend/features/companies/components/company-feedback.tsx",
+      "original_snapshot": "docs/audit/dashboard-2026-10-30/final-whitespace-preflight/raw-originals/frontend/features/companies/components/company-feedback.tsx.bin",
+      "candidate": "docs/audit/dashboard-2026-10-30/final-whitespace-preflight/candidates/frontend/features/companies/components/company-feedback.tsx.bin",
+      "old_sha256": "f47a950d82b98ea45479f5bd5fdd352dab580ef400b008dcc8f639bf040fd16e",
+      "new_sha256": "ca2dcd60658dab63f40a47faf5b1d99f5862936366a1b3c9b266344c2b6b0b57",
+      "old_bytes": 1698,
+      "new_bytes": 1696,
+      "removed_bytes": 2,
+      "warnings_addressed": 1,
+      "exact_delete_operations": 1,
+      "old_LF_count": 24,
+      "new_LF_count": 23,
+      "original_newline_bytes_preserved_except_listed_edits": true,
+      "exact_inverse_reconstructs_original": true,
+      "current_source_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/companies-reviewed-files.json",
+          "json_pointer": "/13",
+          "sha256": "d1dbd75ce5709a87284afca39965a1516a31923f47d611fb25cf95e696885cc2",
+          "review_scope": "full",
+          "status": "reviewed",
+          "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+        }
+      ],
+      "review_credit": "Focused byte/token/AST continuity only; current source-purpose/full-read provenance is inherited only from the exact-hash linked prior records. No fresh full physical read claimed."
+    },
+    {
+      "path": "frontend/features/passports/components/passport-document-follow-up.test.tsx",
+      "original_snapshot": "docs/audit/dashboard-2026-10-30/final-whitespace-preflight/raw-originals/frontend/features/passports/components/passport-document-follow-up.test.tsx.bin",
+      "candidate": "docs/audit/dashboard-2026-10-30/final-whitespace-preflight/candidates/frontend/features/passports/components/passport-document-follow-up.test.tsx.bin",
+      "old_sha256": "13ac90a00e8dff37472e1073264ddbdc7948f02dcc4ae2500292f08ae5627c2d",
+      "new_sha256": "102b35bc6589a525752d79d6587e3c215f418b0aabd27b086b0c87fb4a32035a",
+      "old_bytes": 11055,
+      "new_bytes": 10877,
+      "removed_bytes": 178,
+      "warnings_addressed": 178,
+      "exact_delete_operations": 178,
+      "old_LF_count": 178,
+      "new_LF_count": 178,
+      "original_newline_bytes_preserved_except_listed_edits": true,
+      "exact_inverse_reconstructs_original": true,
+      "current_source_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/passport-private-mutation-reviewed-files.json",
+          "json_pointer": "/test_records/4",
+          "sha256": "9690e9c9b5381c0f9b442ff6df956e3d7d987acc46ee63cecd1c5f01fbf9f072",
+          "review_scope": "full",
+          "status": "reviewed-and-updated",
+          "notes": null
+        }
+      ],
+      "review_credit": "Focused byte/token/AST continuity only; current source-purpose/full-read provenance is inherited only from the exact-hash linked prior records. No fresh full physical read claimed."
+    },
+    {
+      "path": "frontend/features/passports/components/passport-list.tsx",
+      "original_snapshot": "docs/audit/dashboard-2026-10-30/final-whitespace-preflight/raw-originals/frontend/features/passports/components/passport-list.tsx.bin",
+      "candidate": "docs/audit/dashboard-2026-10-30/final-whitespace-preflight/candidates/frontend/features/passports/components/passport-list.tsx.bin",
+      "old_sha256": "4b578db38737c4949c00c017fb83a4884ff328ccdda083c509fa9289be889359",
+      "new_sha256": "97d0ce82e94c4abf1215f7d0c33372b9983c3711bf3c967fd2d0fa90cd2dba73",
+      "old_bytes": 4197,
+      "new_bytes": 4191,
+      "removed_bytes": 6,
+      "warnings_addressed": 1,
+      "exact_delete_operations": 1,
+      "old_LF_count": 121,
+      "new_LF_count": 121,
+      "original_newline_bytes_preserved_except_listed_edits": true,
+      "exact_inverse_reconstructs_original": true,
+      "current_source_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/passport-list-reviewed-files.json",
+          "json_pointer": "/records/0",
+          "sha256": "4ebf797bb797a0f194e4f9dd6be6d8ff0c145648e1b68b7fbf32aae275e16b4e",
+          "review_scope": "full",
+          "status": "reviewed-and-improved",
+          "notes": null
+        }
+      ],
+      "review_credit": "Focused byte/token/AST continuity only; current source-purpose/full-read provenance is inherited only from the exact-hash linked prior records. No fresh full physical read claimed."
+    },
+    {
+      "path": "frontend/features/passports/components/upload-link-list.test.tsx",
+      "original_snapshot": "docs/audit/dashboard-2026-10-30/final-whitespace-preflight/raw-originals/frontend/features/passports/components/upload-link-list.test.tsx.bin",
+      "candidate": "docs/audit/dashboard-2026-10-30/final-whitespace-preflight/candidates/frontend/features/passports/components/upload-link-list.test.tsx.bin",
+      "old_sha256": "960af70d08f6a4c051ab3cfdbeb5bf2ef9896053f60a966ea45525a35d502df7",
+      "new_sha256": "2319af81b2adc31a5c5ccde3b5b6cb372cbd1df54acf9d59743081d2563933aa",
+      "old_bytes": 11060,
+      "new_bytes": 10886,
+      "removed_bytes": 174,
+      "warnings_addressed": 174,
+      "exact_delete_operations": 174,
+      "old_LF_count": 174,
+      "new_LF_count": 174,
+      "original_newline_bytes_preserved_except_listed_edits": true,
+      "exact_inverse_reconstructs_original": true,
+      "current_source_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/passport-private-mutation-reviewed-files.json",
+          "json_pointer": "/test_records/5",
+          "sha256": "9690e9c9b5381c0f9b442ff6df956e3d7d987acc46ee63cecd1c5f01fbf9f072",
+          "review_scope": "full",
+          "status": "reviewed-and-updated",
+          "notes": null
+        }
+      ],
+      "review_credit": "Focused byte/token/AST continuity only; current source-purpose/full-read provenance is inherited only from the exact-hash linked prior records. No fresh full physical read claimed."
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/update-message-composer.tsx",
+      "original_snapshot": "docs/audit/dashboard-2026-10-30/final-whitespace-preflight/raw-originals/frontend/features/whatsapp/workspace/update-message-composer.tsx.bin",
+      "candidate": "docs/audit/dashboard-2026-10-30/final-whitespace-preflight/candidates/frontend/features/whatsapp/workspace/update-message-composer.tsx.bin",
+      "old_sha256": "ac0c15c56bbc54450b2cbb2d47184b53eeb473ec01cf2895fd4f031a6428ed55",
+      "new_sha256": "d31b6ada41a81e7cff8d89b52eca61f9435ab54f50d12b735458689457da1ff3",
+      "old_bytes": 1651,
+      "new_bytes": 1649,
+      "removed_bytes": 2,
+      "warnings_addressed": 1,
+      "exact_delete_operations": 1,
+      "old_LF_count": 47,
+      "new_LF_count": 46,
+      "original_newline_bytes_preserved_except_listed_edits": true,
+      "exact_inverse_reconstructs_original": true,
+      "current_source_review_receipts": [
+        {
+          "receipt": "docs/audit/dashboard-2026-10-30/whatsapp-current-reviewed-files.json",
+          "json_pointer": "/65",
+          "sha256": "cdfc659f59487f7512656c21fd117b28b36140eaba1158e9b230cc3ca9c43808",
+          "review_scope": "full",
+          "status": "reviewed",
+          "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+        }
+      ],
+      "review_credit": "Focused byte/token/AST continuity only; current source-purpose/full-read provenance is inherited only from the exact-hash linked prior records. No fresh full physical read claimed."
+    }
+  ],
+  "total_old_bytes": 105248,
+  "total_new_bytes": 104880,
+  "total_removed_bytes": 368,
+  "source_fence_14_paths": {
+    "backend/app/application/use_cases/passports/process_passport_submission_job_use_case.py": "998192ee86644c66578b549b637aa622264e97179ecba66b7fd2a3227260c4c5",
+    "backend/tests/unit/presentation/test_passport_bulk_delete_route.py": "f04b6d8acee374694823a556e1eb8fb0b75cbdb295c87e99ea2a2da628c759b9",
+    "backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py": "9641b67bc05ad710f7f34dedfb801c69e4a8367dce317cf86477c61a75b58706",
+    "backend/tests/unit/presentation/test_public_passport_capabilities.py": "81ea01aa4629071043595244cc3f0b5ded7414a3467445f11f068faa17e3316f",
+    "frontend/features/companies/components/company-feedback.tsx": "f47a950d82b98ea45479f5bd5fdd352dab580ef400b008dcc8f639bf040fd16e",
+    "frontend/features/email-integrations/components/email-ai-rollout-control.tsx": "076d0457a26a1562095b6100b00f870b74e69f8027b0404f49919cd5308752ce",
+    "frontend/features/email-integrations/components/email-integrations-ui.tsx": "75d8b337af55a327c74e861822be26246163545b72c285c1e8cf2c7f03ea29c4",
+    "frontend/features/email-integrations/components/operational-inbox-page.tsx": "b9d9856abfc77fd9f201e1be3f21c2d34898360098cf4b9a56e38111efab25ff",
+    "frontend/features/email-integrations/components/review-queue-page.tsx": "58a421fa8b783c8e8c2a05b01dfd3935fe379df1a2fa49ff9dbdffd76b05bbf8",
+    "frontend/features/email-integrations/services/email-refresh-policy.ts": "c3d74e569f6927713f76578196636890319ced68fa0ab6661a10a2fd4f1304e2",
+    "frontend/features/passports/components/passport-document-follow-up.test.tsx": "13ac90a00e8dff37472e1073264ddbdc7948f02dcc4ae2500292f08ae5627c2d",
+    "frontend/features/passports/components/passport-list.tsx": "4b578db38737c4949c00c017fb83a4884ff328ccdda083c509fa9289be889359",
+    "frontend/features/passports/components/upload-link-list.test.tsx": "960af70d08f6a4c051ab3cfdbeb5bf2ef9896053f60a966ea45525a35d502df7",
+    "frontend/features/whatsapp/workspace/update-message-composer.tsx": "ac0c15c56bbc54450b2cbb2d47184b53eeb473ec01cf2895fd4f031a6428ed55"
+  },
+  "warning_input": {
+    "path": "docs/audit/dashboard-2026-10-30/final-git-diff-check-before-stdout.txt",
+    "sha256": "5bf1b24d794877f7e3d23e4b0573b25b9c51a1a270847f6cf0ce58fa518b97d0"
+  },
+  "deferred_paths": [
+    {
+      "path": "frontend/features/email-integrations/components/email-ai-rollout-control.tsx",
+      "sha256": "076d0457a26a1562095b6100b00f870b74e69f8027b0404f49919cd5308752ce",
+      "warnings": [
+        {
+          "line": 191,
+          "kind": "new blank line at EOF"
+        }
+      ],
+      "candidate_created": false
+    },
+    {
+      "path": "frontend/features/email-integrations/components/email-integrations-ui.tsx",
+      "sha256": "75d8b337af55a327c74e861822be26246163545b72c285c1e8cf2c7f03ea29c4",
+      "warnings": [
+        {
+          "line": 176,
+          "kind": "new blank line at EOF"
+        }
+      ],
+      "candidate_created": false
+    },
+    {
+      "path": "frontend/features/email-integrations/components/operational-inbox-page.tsx",
+      "sha256": "b9d9856abfc77fd9f201e1be3f21c2d34898360098cf4b9a56e38111efab25ff",
+      "warnings": [
+        {
+          "line": 183,
+          "kind": "new blank line at EOF"
+        }
+      ],
+      "candidate_created": false
+    },
+    {
+      "path": "frontend/features/email-integrations/components/review-queue-page.tsx",
+      "sha256": "58a421fa8b783c8e8c2a05b01dfd3935fe379df1a2fa49ff9dbdffd76b05bbf8",
+      "warnings": [
+        {
+          "line": 176,
+          "kind": "new blank line at EOF"
+        }
+      ],
+      "candidate_created": false
+    },
+    {
+      "path": "frontend/features/email-integrations/services/email-refresh-policy.ts",
+      "sha256": "c3d74e569f6927713f76578196636890319ced68fa0ab6661a10a2fd4f1304e2",
+      "warnings": [
+        {
+          "line": 35,
+          "kind": "new blank line at EOF"
+        }
+      ],
+      "candidate_created": false
+    }
+  ],
+  "release_bindings": {
+    "path": "scripts/release_workspace_branding_bindings.json",
+    "sha256": "cdac254b1fba4d15d92728870aea8da984648ad1100ba9a671d1ad227bd17631",
+    "files": 144,
+    "candidate_intersections": [],
+    "gate_or_policy_edits": false
+  },
+  "source_edits": false,
+  "test_execution": false,
+  "coverage_or_stamp_renewal": false
+}

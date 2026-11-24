@@ -1,0 +1,93 @@
+
+ RUN  v4.1.12 C:/Users/nipun/Desktop/PassDetection/frontend
+
+ ❯ features/mcp/hooks/use-mcp-file-transfer.test.tsx (6 tests | 4 failed) 1733ms
+   × does not dispatch an upload after its local hash read outlives the transfer route 112ms
+   × cancels a pending response reader when the route leaves 1158ms
+   × does not open a writer or acknowledge after a departed route's file picker returns 77ms
+   × aborts the staged local writer and withholds delivery after navigation during write 154ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  features/mcp/hooks/use-mcp-file-transfer.test.tsx > does not dispatch an upload after its local hash read outlives the transfer route
+AssertionError: expected [ [ …(2) ] ] to have a length of +0 but got 1
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ features/mcp/hooks/use-mcp-file-transfer.test.tsx:62:87
+     60|   read.resolve(bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset +…
+     61|   await act(async () => { await operation; });
+     62|   expect(context.fetch.mock.calls.filter(([, options]) => options?.met…
+       |                                                                                       ^
+     63| });
+     64|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  features/mcp/hooks/use-mcp-file-transfer.test.tsx > cancels a pending response reader when the route leaves
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+
+Ignored nodes: comments, script, style
+<html>
+  <head />
+  <body>
+    <div />
+  </body>
+</html>
+ ❯ features/mcp/hooks/use-mcp-file-transfer.test.tsx:78:44
+     76|   await waitFor(() => expect(stream.locked).toBe(true));
+     77|   context.unmount();
+     78|   try { await waitFor(() => expect(cancel).toHaveBeenCalledOnce()); }
+       |                                            ^
+     79|   finally { release(); await act(async () => { await operation; }); }
+     80|   expect(stream.locked).toBe(false);
+ ❯ runWithExpensiveErrorDiagnosticsDisabled node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  features/mcp/hooks/use-mcp-file-transfer.test.tsx > does not open a writer or acknowledge after a departed route's file picker returns
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array []
+
+
+Number of calls: 1
+
+ ❯ features/mcp/hooks/use-mcp-file-transfer.test.tsx:96:30
+     94|   picker.resolve({ createWritable });
+     95|   await act(async () => { await operation; });
+     96|   expect(createWritable).not.toHaveBeenCalled();
+       |                              ^
+     97|   expect(context.fetch.mock.calls.filter(([, options]) => options?.met…
+     98| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  features/mcp/hooks/use-mcp-file-transfer.test.tsx > aborts the staged local writer and withholds delivery after navigation during write
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ features/mcp/hooks/use-mcp-file-transfer.test.tsx:114:17
+    112|   written.resolve();
+    113|   await act(async () => { await operation; });
+    114|   expect(abort).toHaveBeenCalledOnce();
+       |                 ^
+    115|   expect(close).not.toHaveBeenCalled();
+    116|   expect(context.fetch.mock.calls.filter(([, options]) => options?.met…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 2 passed (6)
+   Start at  23:28:16
+   Duration  2.58s (transform 45ms, setup 163ms, import 40ms, tests 1.73s, environment 551ms)
+

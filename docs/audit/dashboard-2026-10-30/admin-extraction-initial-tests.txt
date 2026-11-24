@@ -1,0 +1,10 @@
+Command: python -m pytest -q -o addopts='' tests/unit/presentation/test_admin_account_projection.py tests/unit/presentation/test_admin_group_access.py tests/unit/presentation/test_admin_passport_storage_cleanup.py tests/unit/presentation/test_admin_whatsapp_purge.py tests/unit/presentation/test_platform_settings_concurrency.py tests/integration/test_platform_retention_admin_controls.py tests/integration/test_mcp_retention_reads.py tests/unit/presentation/test_passport_crop_lifecycle_contract.py
+Working directory: backend
+Runtime: .tmp/dashboard-security-patch-venv-2/Scripts/python.exe
+Tool sessions: initial chunk6cf253 / session82936; completion chunkfd1516.
+........................................................................ [ 93%]
+.....                                                                    [100%]
+77 passed in 31.61s
+
+Follow-up after this run: preserve the original admin logger channel in the two
+new destructive-route owners. No deletion, authorization or assertion changed.

@@ -1,0 +1,219 @@
+{
+  "recorded_at": "2026-10-30T23:39:36.791Z",
+  "basis": "Pure responsibility extraction;25 controller statements,4 view expressions,modal frame and exact public prop members/parameters checked. Nested detail output substitution and fragment components add no DOM wrapper or policy change.",
+  "original_sha256": "c0faeffcd5403b69e85c4708aa2314b26db602f0f41db209cf9ad4170b6c40aa",
+  "records": [
+    {
+      "kind": "controller-statement",
+      "index": 0,
+      "exact_AST": true,
+      "passed": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 1,
+      "exact_AST": true,
+      "passed": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 2,
+      "exact_AST": true,
+      "passed": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 3,
+      "exact_AST": true,
+      "passed": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 4,
+      "exact_AST": true,
+      "passed": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 5,
+      "exact_AST": true,
+      "passed": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 6,
+      "exact_AST": true,
+      "passed": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 7,
+      "exact_AST": true,
+      "passed": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 8,
+      "exact_AST": true,
+      "passed": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 9,
+      "exact_AST": true,
+      "passed": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 10,
+      "exact_AST": true,
+      "passed": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 11,
+      "exact_AST": true,
+      "passed": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 12,
+      "exact_AST": true,
+      "passed": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 13,
+      "exact_AST": true,
+      "passed": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 14,
+      "exact_AST": true,
+      "passed": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 15,
+      "exact_AST": true,
+      "passed": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 16,
+      "exact_AST": true,
+      "passed": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 17,
+      "exact_AST": true,
+      "passed": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 18,
+      "exact_AST": true,
+      "passed": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 19,
+      "exact_AST": true,
+      "passed": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 20,
+      "exact_AST": true,
+      "passed": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 21,
+      "exact_AST": true,
+      "passed": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 22,
+      "exact_AST": true,
+      "passed": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 23,
+      "exact_AST": true,
+      "passed": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 24,
+      "exact_AST": true,
+      "passed": true
+    },
+    {
+      "kind": "view",
+      "owner": "passport-export-fields.tsx",
+      "rendered_JSX_AST_exact": true,
+      "passed": true
+    },
+    {
+      "kind": "view",
+      "owner": "passport-export-history-detail.tsx",
+      "rendered_JSX_AST_exact": true,
+      "passed": true
+    },
+    {
+      "kind": "view",
+      "owner": "passport-export-options.tsx",
+      "rendered_JSX_AST_exact": true,
+      "passed": true,
+      "declared_substitution": "History detail conditional is replaced only by the focused detail component receiving the same state."
+    },
+    {
+      "kind": "view",
+      "owner": "passport-export-footer.tsx",
+      "rendered_JSX_AST_exact": true,
+      "passed": true
+    },
+    {
+      "kind": "frame",
+      "declared_child_substitutions_only": true,
+      "passed": true
+    },
+    {
+      "kind": "public-props-and-parameters",
+      "exact_AST": true,
+      "passed": true,
+      "type_only_export_added_for_hook": true
+    }
+  ],
+  "files": [
+    {
+      "path": "frontend/features/passports/components/passport-export-dialog.tsx",
+      "sha256": "72d9d9d566e74f5b6f91f038c0f8c9384d1cbe329ca03c0317ceb7065fe91f9c"
+    },
+    {
+      "path": "frontend/features/passports/components/use-passport-export-dialog.ts",
+      "sha256": "9d52a444569ec04a12c22dc613ace2f988fbe1dcf4e3ebe1875c28f428131c30"
+    },
+    {
+      "path": "frontend/features/passports/components/passport-export-fields.tsx",
+      "sha256": "f95c822fc330ae67cfdb7f7c60d3cd8a1eb5d7c8aa874cdd6bb74a32bb5d0f99"
+    },
+    {
+      "path": "frontend/features/passports/components/passport-export-history-detail.tsx",
+      "sha256": "bd165b2a1f5edd9576a4938dd14cd3ab9fb4bf598d533e8a8669e1fe97bc0650"
+    },
+    {
+      "path": "frontend/features/passports/components/passport-export-options.tsx",
+      "sha256": "d188375c6296f37907c7aea7dc79bea39edad9a9a6cdf6cb1c5bf3a1c19f17fb"
+    },
+    {
+      "path": "frontend/features/passports/components/passport-export-footer.tsx",
+      "sha256": "a58a5e5daa3d70b49d3976acc53e70cecadde851136df1a7678e810e65451987"
+    }
+  ]
+}

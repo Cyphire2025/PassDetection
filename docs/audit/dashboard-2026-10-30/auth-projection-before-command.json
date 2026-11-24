@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "--tb=short",
+    "tests/unit/application/test_auth_use_cases.py",
+    "tests/unit/application/test_refresh_token_rotation.py",
+    "tests/unit/application/test_login_timing_hardening.py"
+  ],
+  "exit_code": 0,
+  "output": "auth-projection-before-tests.txt"
+}

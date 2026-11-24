@@ -1,0 +1,29 @@
+..E
+======================================================================
+ERROR: test_missing_full_manifest_fails_with_existing_constructor_reason (test_retained_release_manifest_admission.RetainedManifestAdmission.test_missing_full_manifest_fails_with_existing_constructor_reason)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_retained_release_manifest_admission.py", line 75, in test_missing_full_manifest_fails_with_existing_constructor_reason
+    self.execute("full", None)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_retained_release_manifest_admission.py", line 56, in execute
+    release.run()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\retained_release_lifecycle.py", line 144, in run
+    manifest = verify_manifest(
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\unittest\mock.py", line 1124, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\unittest\mock.py", line 1128, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\unittest\mock.py", line 1189, in _execute_mock_call
+    result = effect(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_retained_release_manifest_admission.py", line 47, in verify
+    raise TypeError("synthetic missing manifest path")
+TypeError: synthetic missing manifest path
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.009s
+
+FAILED (errors=1)

@@ -1,0 +1,182 @@
+{
+  "status": "complete-read-only-current-source-cohort",
+  "full_read_count": 17,
+  "physical_lines": 984,
+  "source_fence": [
+    {
+      "path": "docs/TRAVEL_TRACKER.md",
+      "sha256": "4bf08ae937190c2bfd01625ea365dd3e3b666a24d08d9b11a68f1785e48a537d",
+      "physical_lines": 76,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete authored document physically read; historical migration/phase/benchmark/test claims treated as records, not instructions or current production qualification. Current source roles/permissions/provenance and explicit SQLite-vs-PostgreSQL limits assessed against earlier reviewed owner contexts. No commands executed or historical facts rewritten."
+    },
+    {
+      "path": "docs/architecture/travel-tracker-mcp.md",
+      "sha256": "ab45b088348aeb97c57269c118c3054dc4e2193ebf29a1edee0de91439bf5bdf",
+      "physical_lines": 69,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete authored document physically read; historical migration/phase/benchmark/test claims treated as records, not instructions or current production qualification. Current source roles/permissions/provenance and explicit SQLite-vs-PostgreSQL limits assessed against earlier reviewed owner contexts. No commands executed or historical facts rewritten."
+    },
+    {
+      "path": "docs/architecture/returning-traveller-reuse.md",
+      "sha256": "f19908455dd1ba50285adfd9cb01ff761a8801b2c0bff79cd42049e1d98405f9",
+      "physical_lines": 57,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete authored document physically read; historical migration/phase/benchmark/test claims treated as records, not instructions or current production qualification. Current source roles/permissions/provenance and explicit SQLite-vs-PostgreSQL limits assessed against earlier reviewed owner contexts. No commands executed or historical facts rewritten."
+    },
+    {
+      "path": "docs/architecture/dashboard-messaging-document-boundaries.md",
+      "sha256": "ad9ad491bafe460034084297d83b659181d9f0cae7ae220df096bcf737e536f2",
+      "physical_lines": 77,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete authored document physically read; historical migration/phase/benchmark/test claims treated as records, not instructions or current production qualification. Current source roles/permissions/provenance and explicit SQLite-vs-PostgreSQL limits assessed against earlier reviewed owner contexts. No commands executed or historical facts rewritten."
+    },
+    {
+      "path": "docs/architecture/dependency-contract.md",
+      "sha256": "5fb9fb707033b8b5ba4c37dfcb189d0586c925d61e95dca107ad58117f2a3756",
+      "physical_lines": 20,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete authored document physically read; historical migration/phase/benchmark/test claims treated as records, not instructions or current production qualification. Current source roles/permissions/provenance and explicit SQLite-vs-PostgreSQL limits assessed against earlier reviewed owner contexts. No commands executed or historical facts rewritten."
+    },
+    {
+      "path": "docs/architecture/release-quality-budget-review.md",
+      "sha256": "5105a2bbdfb741c2b23871d24e5b26aca11854a3bcfc4812e2a650e05e1a34ec",
+      "physical_lines": 30,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete authored document physically read; historical migration/phase/benchmark/test claims treated as records, not instructions or current production qualification. Current source roles/permissions/provenance and explicit SQLite-vs-PostgreSQL limits assessed against earlier reviewed owner contexts. No commands executed or historical facts rewritten."
+    },
+    {
+      "path": "docs/architecture/tour-operations-phase-1.md",
+      "sha256": "58d9121d9dec2c13e193ac79d8eda07bbd16920633a27b956bf465f8a7eee33b",
+      "physical_lines": 80,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete phase architecture record physically read. Distinct historical phase scopes intentionally preserved (later phases supersede earlier exclusions and old storage descriptions). QR bearer/hash, coordinator vs office, assignment, scan idempotency and PWA boundaries reviewed as design claims; no device/live/runtime proof inferred. This is dashboard/shared PWA context, not native app feature audit."
+    },
+    {
+      "path": "docs/architecture/tour-operations-phase-2-scanner-proof.md",
+      "sha256": "75653bc0c78ac08a02739307de8fbce015712a5784c63cd3fff4daca2cdd7a45",
+      "physical_lines": 60,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete phase architecture record physically read. Distinct historical phase scopes intentionally preserved (later phases supersede earlier exclusions and old storage descriptions). QR bearer/hash, coordinator vs office, assignment, scan idempotency and PWA boundaries reviewed as design claims; no device/live/runtime proof inferred. This is dashboard/shared PWA context, not native app feature audit."
+    },
+    {
+      "path": "docs/architecture/tour-operations-phase-3-coordinator-module.md",
+      "sha256": "df956e6ad679e9862ae465fb0988ba8e0838be0a096da097bf18fb27dc6d61ed",
+      "physical_lines": 47,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete phase architecture record physically read. Distinct historical phase scopes intentionally preserved (later phases supersede earlier exclusions and old storage descriptions). QR bearer/hash, coordinator vs office, assignment, scan idempotency and PWA boundaries reviewed as design claims; no device/live/runtime proof inferred. This is dashboard/shared PWA context, not native app feature audit."
+    },
+    {
+      "path": "docs/architecture/tour-operations-phase-4-coordinator-pwa.md",
+      "sha256": "c484186a42d145e64271bca8d81700a4f0894983bd7197a6c3ba69769eeb8a2e",
+      "physical_lines": 35,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete phase architecture record physically read. Distinct historical phase scopes intentionally preserved (later phases supersede earlier exclusions and old storage descriptions). QR bearer/hash, coordinator vs office, assignment, scan idempotency and PWA boundaries reviewed as design claims; no device/live/runtime proof inferred. This is dashboard/shared PWA context, not native app feature audit."
+    },
+    {
+      "path": "docs/architecture/tour-operations-phase-5-activity-attendance.md",
+      "sha256": "27be2a013bbcd87867a699b0b2c46d8aef7daaff5c7a669ce06efe211d3242b4",
+      "physical_lines": 44,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete phase architecture record physically read. Distinct historical phase scopes intentionally preserved (later phases supersede earlier exclusions and old storage descriptions). QR bearer/hash, coordinator vs office, assignment, scan idempotency and PWA boundaries reviewed as design claims; no device/live/runtime proof inferred. This is dashboard/shared PWA context, not native app feature audit."
+    },
+    {
+      "path": "docs/architecture/tour-operations-phase-6-offline-fast-scanner.md",
+      "sha256": "5501400f0b7698bf0ad6c3aa5086f95e0e360f019920ae020776ede753c2940c",
+      "physical_lines": 42,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete phase architecture record physically read. Distinct historical phase scopes intentionally preserved (later phases supersede earlier exclusions and old storage descriptions). QR bearer/hash, coordinator vs office, assignment, scan idempotency and PWA boundaries reviewed as design claims; no device/live/runtime proof inferred. This is dashboard/shared PWA context, not native app feature audit."
+    },
+    {
+      "path": "docs/architecture/tour-operations-phase-7-qr-distribution.md",
+      "sha256": "4dd3c2a874c8ca63c8be7dd549a3ddbba52bc001b1e41abd6a9fbec958a2435a",
+      "physical_lines": 32,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete phase architecture record physically read. Distinct historical phase scopes intentionally preserved (later phases supersede earlier exclusions and old storage descriptions). QR bearer/hash, coordinator vs office, assignment, scan idempotency and PWA boundaries reviewed as design claims; no device/live/runtime proof inferred. This is dashboard/shared PWA context, not native app feature audit."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/source/render.cjs",
+      "sha256": "92b8272f89ba74c74cf3f4ccd801dd28950409f4da1d6231a604e96c22c3fb62",
+      "physical_lines": 29,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete29-line authored renderer physically read. Local-only explicit CLI dimensions/fps/CRF/output/FFMPEG_PATH, fixed rawRGBA pipe/BT709/sRGB/faststart/noaudio flags and native canvas/still dependencies traced. Retained production-media reproducibility source, not loaded in dashboard runtime. Possible own-child failure/drain follow-through is a source-only candidate, not reproduced or adopted; no canvas/ffmpeg/render process executed."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/source/scene.cjs",
+      "sha256": "7df72050148d122d476a694407147598f41d3835bdd56f0acf3272bb20749c60",
+      "physical_lines": 242,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete242-line authored scene physically read; output truncation around sphereRoutes was explicitly reread110\u2013144. Closed orthographic geography/raster lighting/meshes/ordered faces/buildings/seats/animation phases/canvas dimension/export logic reviewed. Adjacent NaturalEarth data read as input metadata only, not full geographic semantic review. No native renderer execution or visual/physical performance claim."
+    },
+    {
+      "path": "assets/branding/global-connect/login-background/source/generate-backgrounds.cjs",
+      "sha256": "0f61b2bb0582e93bfe0231667b818e670b56d4ed6a8fabf621e6274ace95872a",
+      "physical_lines": 36,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete36-line authored generator physically read: known adjacent NaturalEarth geography, normalized coordinates/constants to original local SVG paths, no user input/remote I/O/provider; output filenames remain exact. Retained provenance for active login art, no generator execution or output replacement."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/source/package.json",
+      "sha256": "de832d338888bfc642bb9ebc1d817db8783ad613b6620ccddd8246bb253a6580",
+      "physical_lines": 8,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "All8 physical package metadata lines read; private local source package pins @napi-rs/canvas0.1.100 and two explicit render/stills entrypoints. This is source dependency/provenance review, no install, supply-chain verification or native binary qualification."
+    }
+  ],
+  "ledger": {
+    "path": "docs/audit/dashboard-2026-10-30/supporting-authored-cohort01-reviewed-files.json",
+    "sha256": "c2ec0eaa1eb9cef1388a2370d62a377d8905b86e53150a3fb7cd1c7d2aac4152"
+  },
+  "findings": [
+    {
+      "id": "SAM01",
+      "status": "source-only-candidate-not-adopted",
+      "path": "assets/branding/global-connect/journey-film/source/render.cjs",
+      "notes": "Native ffmpeg lifetime on renderer/drain failure requires an actual ordinary-main synthetic child protocol before any behavior change. Local authoring tool, not dashboard runtime or measured production leak."
+    }
+  ],
+  "checks_executed": [],
+  "limits": [
+    "No source changes, runtime qualification, new coverage, provider/device/browser/build/test or migration/deployment claims from physical reads.",
+    "Generated/minified HTML/SVG and geographic/vector/binary metadata are not promoted to full semantic source review by this cohort.",
+    "Native app-only materials require explicit scope closure; no name-only exclusion. Operations Inbox remains deferred.",
+    "Original supporting evidence/documents preserved; quoted instructions not executed."
+  ],
+  "skipped_reserved": [
+    "load-tests/k6/README.md"
+  ]
+}

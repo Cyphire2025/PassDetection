@@ -1,0 +1,120 @@
+{
+  "proposed_only": true,
+  "shared_gate_edited": false,
+  "normal_candidates": [
+    {
+      "path": "app/infrastructure/email/deadline_notification_policy.py",
+      "baseline_lines": 163,
+      "maximum_lines": 170,
+      "baseline_max_function_complexity": 7,
+      "maximum_function_complexity": 8,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/email/deadline_notification_coverage.py",
+      "baseline_lines": 89,
+      "maximum_lines": 90,
+      "baseline_max_function_complexity": 11,
+      "maximum_function_complexity": 12,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/email/deadline_notification_emit.py",
+      "baseline_lines": 216,
+      "maximum_lines": 220,
+      "baseline_max_function_complexity": 26,
+      "maximum_function_complexity": 27,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/email/deadline_notification_initial.py",
+      "baseline_lines": 144,
+      "maximum_lines": 150,
+      "baseline_max_function_complexity": 18,
+      "maximum_function_complexity": 19,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/email/deadline_notification_visibility.py",
+      "baseline_lines": 55,
+      "maximum_lines": 60,
+      "baseline_max_function_complexity": 10,
+      "maximum_function_complexity": 11,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/email/deadline_notifications.py",
+      "baseline_lines": 201,
+      "maximum_lines": 210,
+      "baseline_max_function_complexity": 4,
+      "maximum_function_complexity": 5,
+      "minimum_coverage_percent": 95
+    }
+  ],
+  "critical_candidates": [],
+  "measurements": [
+    {
+      "path": "app/infrastructure/email/deadline_notification_policy.py",
+      "lines": 163,
+      "max_function_complexity": 7,
+      "most_complex_function": "_notification_stage_message",
+      "coverage_percent": 100.0,
+      "within_proposed_caps_and_floor": true
+    },
+    {
+      "path": "app/infrastructure/email/deadline_notification_coverage.py",
+      "lines": 89,
+      "max_function_complexity": 11,
+      "most_complex_function": "_stage_schedule_is_covered",
+      "coverage_percent": 100.0,
+      "within_proposed_caps_and_floor": true
+    },
+    {
+      "path": "app/infrastructure/email/deadline_notification_emit.py",
+      "lines": 216,
+      "max_function_complexity": 26,
+      "most_complex_function": "create_deadline_window_notifications",
+      "coverage_percent": 100.0,
+      "within_proposed_caps_and_floor": true
+    },
+    {
+      "path": "app/infrastructure/email/deadline_notification_initial.py",
+      "lines": 144,
+      "max_function_complexity": 18,
+      "most_complex_function": "mark_initial_deadline_window_coverage",
+      "coverage_percent": 100.0,
+      "within_proposed_caps_and_floor": true
+    },
+    {
+      "path": "app/infrastructure/email/deadline_notification_visibility.py",
+      "lines": 55,
+      "max_function_complexity": 10,
+      "most_complex_function": "_visible_linked_group_name",
+      "coverage_percent": 100.0,
+      "within_proposed_caps_and_floor": true
+    },
+    {
+      "path": "app/infrastructure/email/deadline_notifications.py",
+      "lines": 201,
+      "max_function_complexity": 4,
+      "most_complex_function": "scan_email_ai_deadline_notifications",
+      "coverage_percent": 100.0,
+      "within_proposed_caps_and_floor": true
+    }
+  ],
+  "coverage_source": "All6actual current owners are100percent line/branch from one fresh43case affected run. Exact6owner reports derive only from that raw data, no merged runs or declaration-only critical gate.",
+  "original_budget_membership": [],
+  "original_critical_membership": [],
+  "report_only_path_correction": "Raw directory-source XML uses filenames relative to email directory; six-owner view re-reports the same untouched data with app source root for the existing quality loader. All JSON owner data structures exactly equal raw43case report.",
+  "raw_coverage_data_sha256": "872738040ba373ea81c0afa061a16769eb85def60a45a8f2514260338a83e1d6",
+  "owned_reports": [
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-deadline-owner-coverage.json",
+      "sha256": "1a7732252bc7418c6b48b7e8e89985391b7ddd53606499d0ec0de730d3d9768e"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-deadline-owner-coverage.xml",
+      "sha256": "3d441323bf67f96eafd3a78d7e2e17bf8b3da0b40c30d996ceade5470017ea87"
+    }
+  ]
+}

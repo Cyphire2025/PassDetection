@@ -1,0 +1,40 @@
+{
+  "source_manifest": {
+    "path": "docs/audit/dashboard-2026-10-30/group-preview-retention-final-source-manifest.json",
+    "sha256": "8c19fc98b58c8b58a4d53bf0e8e1a7fef58ca8f48d5edb3c7a7826b13ebcb248"
+  },
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/group-preview-retention-reviewed-files.json",
+    "sha256": "eb5705ae46b60740a2ce2d9db75cdc7a610c66670b39adeb604b8e21005875f2"
+  },
+  "normal_module_candidates": [
+    {
+      "path": "app/presentation/api/v1/routes/group_update_preview.py",
+      "sha256": "1ed9c5c6feb888a64cccb6cc6ecb513e02660313cabbfa16961e22c8f832e04e",
+      "previous": null,
+      "baseline_lines": 111,
+      "maximum_lines": 120,
+      "baseline_max_function_complexity": 27,
+      "maximum_function_complexity": 27,
+      "minimum_coverage_percent": 95
+    }
+  ],
+  "critical_module_candidates": [],
+  "coverage": {
+    "covered_lines": 53,
+    "num_statements": 53,
+    "percent_covered": 98.50746268656717,
+    "percent_covered_display": "99",
+    "missing_lines": 0,
+    "excluded_lines": 0,
+    "percent_statements_covered": 100.0,
+    "percent_statements_covered_display": "100",
+    "num_branches": 14,
+    "num_partial_branches": 1,
+    "covered_branches": 13,
+    "missing_branches": 1,
+    "percent_branches_covered": 92.85714285714286,
+    "percent_branches_covered_display": "93"
+  },
+  "scope": "One additive actual behavior-bearing normal guard, no old membership/cap/floor changed or declaration-only critical addition. Current product55 same-source coverage, not a merge with audit7."
+}

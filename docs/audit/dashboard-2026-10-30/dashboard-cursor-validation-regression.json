@@ -1,0 +1,24 @@
+{
+  "finding": "Nonfinite JSON numeric priority rank escapes inbox cursor validation",
+  "node_id": "tests/unit/presentation/test_email_ai_inbox_protocol.py::test_malformed_cursor_has_a_static_validation_error",
+  "synthetic_input": "Base64URL JSON object with priority_rank=Infinity, an aware updated_at and a synthetic UUID",
+  "before": {
+    "result": "failed",
+    "failure": "OverflowError: cannot convert float infinity to integer",
+    "statement": "priority_rank = int(payload[\"priority_rank\"])",
+    "expected": "HTTPException status422 with static Invalid inbox cursor. detail",
+    "tests_failed": 1,
+    "pytest_seconds": 0.41
+  },
+  "change": "Added only OverflowError to the decoder's existing validation-error exception tuple; every other AST statement is unchanged.",
+  "after": {
+    "result": "passed",
+    "test_files": [
+      "tests/unit/presentation/test_email_ai_inbox_protocol.py",
+      "tests/unit/presentation/test_email_ai_inbox_isolation.py"
+    ],
+    "tests_passed": 10,
+    "pytest_seconds": 2.62
+  },
+  "limits": "Request-validation correctness fix; no claim of provider interaction, global performance improvement or release qualification."
+}

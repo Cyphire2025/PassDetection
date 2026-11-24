@@ -1,4 +1,5 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { usePrivateMutation } from "@/hooks/use-private-mutation";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/constants";
 import { clientDetailsApi, type ClientDetailsPatch } from "../api/client-details.api";
 
@@ -19,8 +20,8 @@ export function useClientDetailsEditor(id: string) {
 
 export function useUpdateClientDetails(id: string, groupId: string) {
   const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (body: ClientDetailsPatch) => clientDetailsApi.update(id, body),
+  return usePrivateMutation({
+    mutationFn: (body: ClientDetailsPatch, _context, owner) => clientDetailsApi.update(id, body, owner.requestConfig),
     retry: false,
     onSuccess: async (updated) => {
       queryClient.setQueryData(QUERY_KEYS.passports.detail(id), updated);

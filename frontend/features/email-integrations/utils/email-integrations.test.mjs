@@ -53,6 +53,13 @@ test("OAuth callback notices come only from fixed status values", () => {
     null,
   );
   assert.equal(readEmailOAuthCallback("?message=provider-controlled"), null);
+  for (const provider of ["gmail", "outlook"]) {
+    for (const status of ["constructor", "__proto__", "toString", "hasOwnProperty"]) {
+      assert.equal(readEmailOAuthCallback(
+        `?email_oauth=${status}&email_provider=${provider}`,
+      ), null);
+    }
+  }
 });
 
 test("OAuth callback cleanup removes sensitive and feature-owned parameters", () => {

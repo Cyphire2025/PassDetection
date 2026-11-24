@@ -1,0 +1,61 @@
+{
+  "source_fence": {
+    "docs/audit/dashboard-2026-10-30/audit-scope.json": "079ffe822ee727a55f6c2541820aa4b8b406b5d5c55cec9349fb52561397bc64",
+    "scripts/dashboard_audit_inventory.py": "1eebe3e8f649beba91c958a9ab9bc2e559219288a3f05842b75723e2c1c4b633",
+    "backend/tests/unit/scripts/test_dashboard_audit_scope.py": "db97485a42b00d8bafbb0ea0138aa1b77b8742c096cd3a0ef86b65073c2cbd5f",
+    "backend/tests/unit/scripts/test_dashboard_audit_artifact_retirement.py": "bf2f4e0fa2fb7bc1e2e98e2ddb7ede518cbd224a12f791e12900a26830d38aea",
+    "backend/tests/unit/scripts/test_dashboard_audit_review_resolutions.py": "516f40f6a05fc0e6f37f6618f225a819146d344ccf4dcda5a0e9a4fe796c6dd7",
+    "backend/pyproject.toml": "b2e64e9c2eb7c449d6f8c1f307433760fcb054ceede1cdf2350d5421308addb3",
+    "backend/tests/unit/presentation/test_my_photos_dispatch_contract.py": "cf90424c55e07a08e41e2e975a56fc1044accb156503301bcbf26f65e5b6b166",
+    "backend/tests/unit/infrastructure/fixtures/mobile_journey_london_photon.json": "18b58d15e290a6367495296b70bd3590e439bced1771869bca4c3575757ae231"
+  },
+  "source_fence_unchanged": true,
+  "results": [
+    {
+      "name": "tests",
+      "command": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "--confcutdir=tests/unit/scripts",
+        "tests/unit/scripts/test_dashboard_audit_scope.py",
+        "tests/unit/scripts/test_dashboard_audit_artifact_retirement.py",
+        "tests/unit/scripts/test_dashboard_audit_review_resolutions.py",
+        "--junitxml=C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\native-residual-two-junit.xml"
+      ],
+      "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection\\backend",
+      "exit_code": 0,
+      "seconds": 2.235,
+      "log": "native-residual-two-tests.txt",
+      "log_sha256": "10f1a1072882f15a1d24672a57064277b3dc02066aaa5e599d4eb63d4e382e44"
+    },
+    {
+      "name": "lint",
+      "command": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "ruff",
+        "check",
+        "--no-fix",
+        "--config",
+        "pyproject.toml",
+        "../scripts/dashboard_audit_inventory.py",
+        "tests/unit/scripts/test_dashboard_audit_scope.py",
+        "tests/unit/scripts/test_dashboard_audit_artifact_retirement.py",
+        "tests/unit/scripts/test_dashboard_audit_review_resolutions.py"
+      ],
+      "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection\\backend",
+      "exit_code": 0,
+      "seconds": 0.094,
+      "log": "native-residual-two-lint.txt",
+      "log_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    }
+  ],
+  "limits": [
+    "Only three audit tooling control modules; parent application conftest excluded with confcutdir.",
+    "No app/native/Inbox feature test execution or provider/production access; no-fix Ruff uses explicit backend config."
+  ]
+}

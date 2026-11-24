@@ -1,0 +1,104 @@
+{
+  "files": [
+    {
+      "path": "docs/implementation/mcp-dependency-review.md",
+      "sha256": "e2b6dade52c7dc225478769c195c0ddc0485e47779a4778d91f4ce0870844646",
+      "physical_lines": 42,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "Historical2026-09-29 dependency increment source/provenance, lock/advisory/migration and skipped-test limitations. Old exception/scan reports do not renew current policy or establish current dependency safety; no scanner or package action performed."
+    },
+    {
+      "path": "docs/implementation/mcp-device-delete.md",
+      "sha256": "c8958d5ebf69c4e19e09e2ec3aa88a686741555470d48ca1617b1080d05482ff",
+      "physical_lines": 27,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "Deletion intent/confirmation, exact grant lock/revocation marker, idempotent retained records and current-authority boundaries; datedOct2 release/failure/recovery/effectiveReferrerPolicy records preserved as historical, not live qualification."
+    },
+    {
+      "path": "docs/implementation/mcp-document-assignment-exports.md",
+      "sha256": "3e73c4c4b0abaefd3a6dcbe5173c14a63f3cebbd56f26f122f5fdc52b5327f6c",
+      "physical_lines": 52,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "Exact agency/group/lane filter, physical PDF identity projection excluding private URLs/provider IDs, ordered revision locks and bounded snapshot/render/delivery/TTL contracts; oldSQLite/PG/SDK results reference-only."
+    },
+    {
+      "path": "docs/implementation/mcp-excel-exports.md",
+      "sha256": "db1465ba9ff5c23a92b4a45a3c3d7ccc59a2284ba5b1308eb4b83e34855abc32",
+      "physical_lines": 31,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "Immutable queued receipt vs current outcome, same-key recovery/new-grant locator, group/selection/source-lock/revision/ack-only completion; ORM materialization/peakmemory and liveS3/browser/Codex gates remain explicitly unqualified."
+    },
+    {
+      "path": "docs/implementation/mcp-image-exports.md",
+      "sha256": "a4b7d9a95d79a8564c93a97bbfeb0fe7f3063534824b0d4918f5f9969a5aa585",
+      "physical_lines": 40,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "Canonical savedcrop/source namespace, no arbitrary key/URL args, size/checksum/native pixel/read reservations/ZIP spool/drain bounds and source/history revision fencing. Earlier loopback/native/PG results historical; no image/storage accessed."
+    },
+    {
+      "path": "docs/implementation/mcp-office-creations.md",
+      "sha256": "2abf1e664d9cd1428383194765a0738e54719b6db81cae01082d5ce2381c01a7",
+      "physical_lines": 49,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "Four exact additive creation tools, shared flush-only operations, atomic entity/audit/idempotency, retained edits and current grant/entityscope replay; incomplete rooming allocation surfaces remain explicitly separate."
+    },
+    {
+      "path": "docs/implementation/mcp-pdf-ingestion.md",
+      "sha256": "2883962fedaa33a91ae581e13029b9336adb2753ff27a678bce96364d466f7f4",
+      "physical_lines": 33,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "Claim-before-parse DB-only queued operation, oneartifact/operation identity, exact source verified rescans, reauthorization/revision lock, storagecompensation/ambiguouscommit rules; provider/objectstore/PG claims not rerun."
+    },
+    {
+      "path": "docs/implementation/mcp-rooming-exports.md",
+      "sha256": "55e555715da010c566b799a1e3adc9e7c616c0820c308ff0a25bc1d92e0be3b7",
+      "physical_lines": 38,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "Two exact hotel snapshots, retained business row/source revision, current authority on recovery, scope and source-category bounds, native drain and transfer-only expiry. No allocation/checkin/QR/message effects asserted by this doc-only review."
+    },
+    {
+      "path": "docs/implementation/mcp-tracking-exports.md",
+      "sha256": "97a8abd9b05b6dae93404fc8df090b6af4fcf53dd87501c33ab703b3d7251455",
+      "physical_lines": 34,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "Eight exact filters, linkedsource scope/bounds, DB-onlyreceipt then generation, current actor/grant/group/link validation and historical artifact delivery; no checkpoint/messages, memory/liveprovider limits preserved."
+    },
+    {
+      "path": "docs/implementation/mcp-settings-navigation.md",
+      "sha256": "b59310b22309bb24c7335306cd58605e70229d32c5630d072c03b8407ce18ea3",
+      "physical_lines": 35,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "Draft/navigation/configured-only permission UX and datedread/write section inventory, narrowfrontend release/effectiveauthority and retainedresource records. Historical counts/revisions/assets/host results unchanged; Inbox/native labels not new feature audit."
+    }
+  ]
+}

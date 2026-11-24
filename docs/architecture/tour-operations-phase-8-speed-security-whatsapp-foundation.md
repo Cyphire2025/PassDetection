@@ -10,11 +10,17 @@ This phase optimizes the existing attendance flow without changing the main user
 - The scanner ignores non-attendance QR codes before updating scan state.
 - Offline queue entries are keyed by session and QR payload, preventing local duplicate overcounting.
 
-## Future WhatsApp Scope
+## Retired WhatsApp prototype
 
-WhatsApp is prepared as a disconnected foundation only. It is not exposed in the dashboard, coordinator PWA, or API router yet.
+This phase originally prepared a disconnected WhatsApp foundation. The running
+application now uses the [broadcast workspace](../WHATSAPP_BROADCAST_WORKSPACE.md)
+and its existing API, provider and workers. The unused prototype below was
+retired during the dashboard audit; its original files are preserved locally
+under `Not related to project/retired-whatsapp-foundation/` with their directory
+structure and hashes recorded in the
+[retirement manifest](../audit/dashboard-2026-10-30/whatsapp-foundation-retirement-manifest.json).
 
-Prepared modules:
+Original prototype modules:
 
 - `backend/app/application/dtos/whatsapp_dtos.py`
 - `backend/app/application/interfaces/whatsapp_provider.py`
@@ -22,7 +28,7 @@ Prepared modules:
 - `backend/app/infrastructure/whatsapp/noop_provider.py`
 - `backend/app/infrastructure/whatsapp/pricing.py`
 
-## Intended WhatsApp Flow Later
+## Historical prototype plan
 
 1. Import or use existing group passenger names and phone numbers.
 2. Preview recipients and template category before sending.
@@ -39,7 +45,11 @@ Prepared modules:
 
 The final category depends on Meta template approval and provider review. Pricing must be checked against the active Meta/BSP rate card when enabling sends.
 
-## Not Yet Enabled
+## Historical prototype limitations
+
+These describe the original disconnected prototype, not the current WhatsApp
+workspace. Current template resolution is documented in
+[WhatsApp template-name settings](whatsapp-template-settings.md).
 
 - No WhatsApp API route.
 - No WhatsApp dashboard page.

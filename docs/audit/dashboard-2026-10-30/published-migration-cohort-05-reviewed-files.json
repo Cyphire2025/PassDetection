@@ -1,0 +1,447 @@
+{
+  "files": [
+    {
+      "path": "backend/alembic/versions/0062_whatsapp_template_content.py",
+      "sha256": "1727c21fecb7f403cbfa937a54d1b13a7612165cb82f8da2bd021b09d1296776",
+      "physical_lines": 36,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0062_whatsapp_template_content",
+        "down_revision": "0061_email_integrations",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds nullable document WhatsApp template-parameter snapshots only; retained document/WhatsApp domain despite Inbox ancestor. Does not itself prove current message PII limits or provider safety."
+    },
+    {
+      "path": "backend/alembic/versions/0063_qr_whatsapp_deliveries.py",
+      "sha256": "1ac6a1b664361a2c46dc59d42bd384fb457d69344bac5202d81a8ef30e84ae36",
+      "physical_lines": 129,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0063_qr_whatsapp",
+        "down_revision": "0062_whatsapp_template_content",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Creates unique per-QR-token WhatsApp delivery history with provider-message uniqueness, tenant/group/passenger/token cascades, optional recipient/broadcast/actor SETNULL and query indexes. Current QR scope/consent/delivery retry semantics remain runtime evidence."
+    },
+    {
+      "path": "backend/alembic/versions/0066_storage_cleanup_jobs.py",
+      "sha256": "935f252415c0a0f4ea78ccba43924e5b65fa8c4c659be7e098f4ee81ca78faeb",
+      "physical_lines": 88,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0066_storage_cleanup_jobs",
+        "down_revision": "0065_ai_travel_inbox",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Shared cleanup tombstones store encrypted key bytes, positive object count/key version, bounded job statuses, attempts and due/expired-lease indexes; agency SETNULL allows cleanup after tenant deletion. Cipher/leases and reference-safe deletion are not proven from field declarations."
+    },
+    {
+      "path": "backend/alembic/versions/0067_document_upload_chunks.py",
+      "sha256": "4012cc7ddeb58ea4bfa1f5c79394fe8204c116174fffd9146908999156b46d87",
+      "physical_lines": 107,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0067_document_upload_chunks",
+        "down_revision": "0066_storage_cleanup_jobs",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Durable rename/distribution upload receipt enforces manifest/file/byte/result arithmetic bounds, workflow-dependent scope shape and workflow/upload/chunk uniqueness. Database declaration alone does not establish upload capability ownership; current service validation independent."
+    },
+    {
+      "path": "backend/alembic/versions/0068_document_chunk_limits.py",
+      "sha256": "45275feea3ae66ab2a95d53df3c0a5fc5e5e041c00eb5c8a70aeb092bc00e7ed",
+      "physical_lines": 53,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0068_document_chunk_limits",
+        "down_revision": "0067_document_upload_chunks",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Widens manifest/file capacity25 to50 with no row rewrite. Downgrade restores25 checks without deleting or relabelling larger receipts; populated rollback rejects incompatible existing receipts instead of silently losing data."
+    },
+    {
+      "path": "backend/alembic/versions/0070_gc_mobile_operational_indexes.py",
+      "sha256": "26d83c01c65135d23fb0d10aa31f7d1dee72e9dc0737b4afb308bd4cf673e2eb",
+      "physical_lines": 52,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0070_mobile_ops_indexes",
+        "down_revision": "0069_gc_mobile_foundation",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Indexes shared passport/doc tables concurrently in autocommit and preserves populated source writes; if-not-exists is declared. Actual Postgres build/retry/invalid-index recovery requires service evidence, not schema-only success."
+    },
+    {
+      "path": "backend/alembic/versions/0071_gc_mobile_passenger_scope_constraints.py",
+      "sha256": "110b9861ed9e2b3c27c8dbf318caab01258f2c6ccf94b5bdddb86957ae8306f5",
+      "physical_lines": 200,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0071_mobile_scope_constraints",
+        "down_revision": "0070_mobile_ops_indexes",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Ownership preflight raises on mismatched passenger/document historical scope rather than reassigning/deleting; supporting shared passport unique index built concurrently, attached as constraint; FKs installed NOT VALID then validated, including same passenger/agency/group scope. Multiple autocommit boundaries mean actual interrupted deployment/retry needs integration qualification; no live DB execution."
+    },
+    {
+      "path": "backend/alembic/versions/0072_gc_mobile_passenger_session_identities.py",
+      "sha256": "6a44e6096926dfb04a73e17f6ac68bb143e4e76ed0e95fb1bdee4a46f5dcc192",
+      "physical_lines": 174,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0072_mobile_session_identities",
+        "down_revision": "0071_mobile_scope_constraints",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Actual dashboard active-user metrics require account_id. Backfills from proven passenger/user identity, validates not-null via temporary CHECK, introduces exact authorized passenger-session mapping and concurrent account index; only valid singleton existing passenger sessions receive mapping, malformed rows fail closed. Native application behavior not audited."
+    },
+    {
+      "path": "backend/alembic/versions/0074_mobile_device_sync_ack.py",
+      "sha256": "0985c052b92672f7021d8a953e66542c8430547ec70f7b6c5444c20d3e2190db",
+      "physical_lines": 29,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0074_mobile_device_sync_ack",
+        "down_revision": "0073_mobile_otp_pending",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Actual dashboard synced-device counts require nullable sync acknowledgement; adds with no default/backfill so previous sessions remain unacknowledged. This is retained shared schema compatibility, not native runtime audit."
+    },
+    {
+      "path": "backend/alembic/versions/0075_mobile_group_session_metrics_index.py",
+      "sha256": "68feff1fba4016e85d28e9c8b91f019bc8d8517e15d4c8aa34ef19006c9562f1",
+      "physical_lines": 37,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0075_mobile_session_metrics_idx",
+        "down_revision": "0074_mobile_device_sync_ack",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Concurrent agency/group/status/expiry index directly supports dashboard group usage metrics; separate revision avoids replaying prior nullable-column addition after index transaction failure. Actual build and runtime plans unmeasured."
+    },
+    {
+      "path": "backend/alembic/versions/0077_gc_app_admin_list_index.py",
+      "sha256": "b775a053053f52985930cb6d376ba13b976ae8ecf3ae3bc3c24581698816b938",
+      "physical_lines": 40,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0077_gc_app_admin_list",
+        "down_revision": "0076_mobile_push_receipts",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Partial concurrent agency/created/id manager list index matches dashboard nondeleted list predicate, with if-not-exists/create and if-exists/drop. No account state/auth or data changes."
+    },
+    {
+      "path": "backend/alembic/versions/0078_client_manager_login.py",
+      "sha256": "5f19abf3fc1a0b37c17a1769237b7ebce240919ef43d2da7e749425bdcca9608",
+      "physical_lines": 71,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0078_client_manager_login",
+        "down_revision": "0077_gc_app_admin_list",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Client-manager password-created invitation repair activates only records lacking token pair; token invitations retain invited status. Clears forced-password-change flag, increments access generation/revision for changed rows; downgrade only reverts default and preserves repaired usable statuses. Current login authorization independently reviewed runtime, not re-executed here."
+    },
+    {
+      "path": "backend/alembic/versions/0079_arrival_ticket_distribution.py",
+      "sha256": "1c8402ac550e528c4d9b2eeacead572b48ca689a83ae24ceb7dc63c82a014402",
+      "physical_lines": 48,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0079_arrival_ticket_distribution",
+        "down_revision": "0078_client_manager_login",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds arrival-ticket receipt type without changing stored rows. Downgrade intentionally narrows check and fails if incompatible receipt remains rather than deleting/reclassifying data; operator populated boundary unexecuted."
+    },
+    {
+      "path": "backend/alembic/versions/0080_domestic_ticket_lanes.py",
+      "sha256": "7542d5493298e9002d817bd8c71e1f730c5fb2947a1c47fead6df0f1c72bf54c",
+      "physical_lines": 55,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0080_domestic_ticket_lanes",
+        "down_revision": "0079_arrival_ticket_distribution",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds domestic outward/arrival ticket types without rewriting existing receipts; downgrade preserves data by constraint rejection when newer-type rows remain. No new delivery workflow or provider activity."
+    },
+    {
+      "path": "backend/alembic/versions/0082_canonical_trip_timezone.py",
+      "sha256": "de0bd86106e508e4e90b0a35eae0272caf5eb1213b811af0d71bdd3330813a0f",
+      "physical_lines": 46,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0082_canonical_trip_timezone",
+        "down_revision": "0081_mobile_app_attest_keys",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds non-null canonical timezone with reviewed Asia/Kolkata rolling-write default and trimmed length shape. Database shape alone does not resolve IANA identifiers; application validation is required and outside migration source proof."
+    },
+    {
+      "path": "backend/alembic/versions/0083_attendance_closeout_checkpoints.py",
+      "sha256": "b66cbe3febf2e49c61c69871f892c887a0274747c96efef6fbcb0724512d6b4f",
+      "physical_lines": 110,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0083_attendance_closeout",
+        "down_revision": "0082_canonical_trip_timezone",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Closeout checkpoint stores aggregate counts and coordinator/session identity only, omitting QR/passenger/event/device identifiers; per-coordinator canonical activity uniqueness and cascades. CHECK null truth semantics and actual request validation must be considered before describing optional pending-age relationship as unconditional; no DB/runtime service proof."
+    },
+    {
+      "path": "backend/alembic/versions/0084_identity_lifecycle.py",
+      "sha256": "5bef33b4c4104359e67bb1089631e2f96cd1e57279d346a477fe4f5f1c0f6d19",
+      "physical_lines": 225,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0084_identity_lifecycle",
+        "down_revision": "0083_attendance_closeout",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Workforce credential/session fencing and MFA schema fully read: encrypted MFA/pending secrets, hashed action/challenge/recovery tokens, bounded attempts/expiry, unique active purpose/challenge and refresh session version. Existing principals backfilled active with privileged/PII roles requiring MFA next login. Hash/encryption/session/replay enforcement requires actual runtime evidence; no real credentials accessed."
+    },
+    {
+      "path": "backend/alembic/versions/0085_platform_retention_controls.py",
+      "sha256": "741dfce10bf8706b84d80fae5bdc9c7416bf843d807923eb638cb7a68c336940",
+      "physical_lines": 146,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0085_platform_retention_controls",
+        "down_revision": "0084_identity_lifecycle",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds nullable explicit passport purge schedule and constrained retention-days/legal-hold metadata plus due index. Backfills closed/archived/deleted rows from safe bounded numeric persisted setting or365day fallback, without purging data. Legal-hold reason CHECK involves nullable value and runtime policy still matters; supported SQL evaluation/populated behavior not executed."
+    },
+    {
+      "path": "backend/alembic/versions/0064_document_delivery_resends.py",
+      "sha256": "db577e33f59823db833015f0e5de5ea49c7306bb7d13e39218121861d7d9a56d",
+      "physical_lines": 128,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "focused",
+      "status": "focused",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0064_document_resends",
+        "down_revision": "0063_qr_whatsapp",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Mixed migration encountered while following retained title. Retained declarations/drop document-delivery uniqueness and deterministic downgrade keep newest attempt; embedded dedicated Inbox SQL lines23\u2013103 is DEFERRED BY USER and not audited/credited. Physical file128 lines was encountered, but full-source review deliberately not claimed.",
+      "reviewed_line_ranges": [
+        [
+          1,
+          22
+        ],
+        [
+          104,
+          128
+        ]
+      ],
+      "unreviewed_scope": "Inbox-specific upgrade SQL/comment block lines23\u2013103 deferred by user",
+      "physical_source_encountered_lines": 128
+    },
+    {
+      "path": "backend/alembic/versions/0069_gc_mobile_foundation.py",
+      "sha256": "875b18a3f61ec35322979c6781305bb21666bc9c3ea82824acda404802c9798e",
+      "physical_lines": 1802,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "focused",
+      "status": "focused",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0069_gc_mobile_foundation",
+        "down_revision": "0068_document_chunk_limits",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Shared dashboard organizations/client-manager/access/content plus actual dashboard session/revocation/sync schema dependencies read. Defaults keep group access/audiences off, composite org/tenant/group content and assignment FKs, hashed invitation and refresh identities, version/checksum/status constraints retained. Native-only OTP/push/family delegation/idempotency/incident bodies excluded from this dashboard audit; no native feature review or enabled access created.",
+      "reviewed_line_ranges": [
+        [
+          1,
+          968
+        ],
+        [
+          1061,
+          1250
+        ],
+        [
+          1455,
+          1544
+        ],
+        [
+          1795,
+          1802
+        ]
+      ],
+      "unread_line_ranges": [
+        [
+          969,
+          1060
+        ],
+        [
+          1251,
+          1454
+        ],
+        [
+          1545,
+          1794
+        ]
+      ],
+      "manually_read_lines": 1256
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_group_directory.py",
+      "sha256": "4f72610b1b8afc2f03301dbae3f6f6886143668a640a3ee0cfd4e9f86e9fa8b6",
+      "physical_lines": 351,
+      "review_scope": "focused",
+      "status": "focused",
+      "reviewer": "document_ui_architecture",
+      "reviewed_line_ranges": [
+        [
+          190,
+          218
+        ]
+      ],
+      "notes": "Only immediate dashboard shared-schema query/revocation context physically read. No new full-file coverage or runtime/test claim."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_group_access_support.py",
+      "sha256": "238744b3b55e57baeab37e1533a126a4a91def27c845cd75364474a29ef0ab24",
+      "physical_lines": 268,
+      "review_scope": "focused",
+      "status": "focused",
+      "reviewer": "document_ui_architecture",
+      "reviewed_line_ranges": [
+        [
+          182,
+          207
+        ]
+      ],
+      "notes": "Only immediate dashboard shared-schema query/revocation context physically read. No new full-file coverage or runtime/test claim."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_sessions.py",
+      "sha256": "d61e6747da999d75c058c446a74ab11e8d9841185cacc7d92d4399085790570e",
+      "physical_lines": 153,
+      "review_scope": "focused",
+      "status": "focused",
+      "reviewer": "document_ui_architecture",
+      "reviewed_line_ranges": [
+        [
+          27,
+          61
+        ],
+        [
+          70,
+          150
+        ]
+      ],
+      "notes": "Only immediate dashboard shared-schema query/revocation context physically read. No new full-file coverage or runtime/test claim."
+    }
+  ],
+  "manual_full_migrations": 18,
+  "manual_full_migration_lines": 1646,
+  "focused_migrations": 2,
+  "focused_immediate_caller_files": 3,
+  "selection_pre_read_prior_full_matches_empty": true,
+  "no_duplicate_credit": true,
+  "all142published_files_unchanged": true,
+  "no_tests_or_migration_execution": true,
+  "notes": "Only complete retained source reads credited full. Mixed migration0064Inbox block deferred and0069native-only body excluded. Shared account/sync metrics columns retained because actual dashboard queries use them."
+}

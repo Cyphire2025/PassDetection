@@ -1,0 +1,288 @@
+{
+  "app.infrastructure.my_photos.recovery_runtime": {
+    "DurableDispatch": {
+      "module": "app.infrastructure.my_photos.recovery_runtime",
+      "qualname": "DurableDispatch",
+      "hints": {
+        "job_id": "<class 'uuid.UUID'>",
+        "kind": "typing.Literal['search', 'index', 'media']",
+        "search_run_id": "uuid.UUID | None"
+      },
+      "methods": {}
+    },
+    "ProviderDeletionBatchResult": {
+      "module": "app.infrastructure.my_photos.recovery_runtime",
+      "qualname": "ProviderDeletionBatchResult",
+      "hints": {
+        "claimed": "<class 'int'>",
+        "completed": "<class 'int'>",
+        "retrying": "<class 'int'>",
+        "terminal_failed": "<class 'int'>"
+      },
+      "methods": {}
+    },
+    "_DeletionClaim": {
+      "module": "app.infrastructure.my_photos.recovery_runtime",
+      "qualname": "_DeletionClaim",
+      "hints": {
+        "enrollment_id": "<class 'uuid.UUID'>",
+        "kind": "typing.Literal['current', 'superseded']",
+        "agency_id": "<class 'uuid.UUID'>",
+        "group_id": "<class 'uuid.UUID'>",
+        "passenger_identity_id": "<class 'uuid.UUID'>",
+        "provider_reference": "<class 'str'>",
+        "deletion_identity": "<class 'str'>",
+        "attempt_count": "<class 'int'>"
+      },
+      "methods": {}
+    },
+    "_DeletionOutcome": {
+      "module": "app.infrastructure.my_photos.recovery_runtime",
+      "qualname": "_DeletionOutcome",
+      "hints": {
+        "claim": "<class 'app.infrastructure.my_photos.recovery_runtime._DeletionClaim'>",
+        "complete": "<class 'bool'>",
+        "error_code": "str | None"
+      },
+      "methods": {}
+    },
+    "recoverable_dispatches": {
+      "module": "app.infrastructure.my_photos.recovery_runtime",
+      "qualname": "recoverable_dispatches",
+      "signature": "(*, settings: 'Settings | None' = None, now: 'datetime | None' = None) -> 'tuple[DurableDispatch, ...]'",
+      "hints": {
+        "settings": "app.core.config.settings.Settings | None",
+        "now": "datetime.datetime | None",
+        "return": "tuple[app.infrastructure.my_photos.recovery_runtime.DurableDispatch, ...]"
+      }
+    },
+    "_terminalize_requested_cancellations": {
+      "module": "app.infrastructure.my_photos.recovery_runtime",
+      "qualname": "_terminalize_requested_cancellations",
+      "signature": "(settings: 'Settings', now: 'datetime') -> 'int'",
+      "hints": {
+        "settings": "<class 'app.core.config.settings.Settings'>",
+        "now": "<class 'datetime.datetime'>",
+        "return": "<class 'int'>"
+      }
+    },
+    "execute_provider_deletion_batch": {
+      "module": "app.infrastructure.my_photos.recovery_runtime",
+      "qualname": "execute_provider_deletion_batch",
+      "signature": "(*, settings: 'Settings | None' = None, providers: 'MyPhotosProviderBundle | None' = None) -> 'ProviderDeletionBatchResult'",
+      "hints": {
+        "settings": "app.core.config.settings.Settings | None",
+        "providers": "app.infrastructure.my_photos.providers.MyPhotosProviderBundle | None",
+        "return": "<class 'app.infrastructure.my_photos.recovery_runtime.ProviderDeletionBatchResult'>"
+      }
+    },
+    "_claim_provider_deletions": {
+      "module": "app.infrastructure.my_photos.recovery_runtime",
+      "qualname": "_claim_provider_deletions",
+      "signature": "(settings: 'Settings') -> 'tuple[_DeletionClaim, ...]'",
+      "hints": {
+        "settings": "<class 'app.core.config.settings.Settings'>",
+        "return": "tuple[app.infrastructure.my_photos.recovery_runtime._DeletionClaim, ...]"
+      }
+    },
+    "_finalize_provider_deletions": {
+      "module": "app.infrastructure.my_photos.recovery_runtime",
+      "qualname": "_finalize_provider_deletions",
+      "signature": "(outcomes: 'tuple[_DeletionOutcome, ...] | list[_DeletionOutcome]', settings: 'Settings') -> 'ProviderDeletionBatchResult'",
+      "hints": {
+        "outcomes": "tuple[app.infrastructure.my_photos.recovery_runtime._DeletionOutcome, ...] | list[app.infrastructure.my_photos.recovery_runtime._DeletionOutcome]",
+        "settings": "<class 'app.core.config.settings.Settings'>",
+        "return": "<class 'app.infrastructure.my_photos.recovery_runtime.ProviderDeletionBatchResult'>"
+      }
+    },
+    "_reference_unchanged": {
+      "module": "app.infrastructure.my_photos.recovery_runtime",
+      "qualname": "_reference_unchanged",
+      "signature": "(enrollment: 'MyPhotoEnrollmentModel', claim: '_DeletionClaim') -> 'bool'",
+      "hints": {
+        "enrollment": "<class 'app.infrastructure.database.my_photo_enrollment_models.MyPhotoEnrollmentModel'>",
+        "claim": "<class 'app.infrastructure.my_photos.recovery_runtime._DeletionClaim'>",
+        "return": "<class 'bool'>"
+      }
+    },
+    "_complete_reference": {
+      "module": "app.infrastructure.my_photos.recovery_runtime",
+      "qualname": "_complete_reference",
+      "signature": "(enrollment: 'MyPhotoEnrollmentModel', kind: 'DeletionKind', now: 'datetime') -> 'None'",
+      "hints": {
+        "enrollment": "<class 'app.infrastructure.database.my_photo_enrollment_models.MyPhotoEnrollmentModel'>",
+        "kind": "typing.Literal['current', 'superseded']",
+        "now": "<class 'datetime.datetime'>",
+        "return": "<class 'NoneType'>"
+      }
+    },
+    "_pending_reference": {
+      "module": "app.infrastructure.my_photos.recovery_runtime",
+      "qualname": "_pending_reference",
+      "signature": "(enrollment: 'MyPhotoEnrollmentModel', kind: 'DeletionKind', error_code: 'str | None') -> 'None'",
+      "hints": {
+        "enrollment": "<class 'app.infrastructure.database.my_photo_enrollment_models.MyPhotoEnrollmentModel'>",
+        "kind": "typing.Literal['current', 'superseded']",
+        "error_code": "str | None",
+        "return": "<class 'NoneType'>"
+      }
+    },
+    "_fail_reference": {
+      "module": "app.infrastructure.my_photos.recovery_runtime",
+      "qualname": "_fail_reference",
+      "signature": "(enrollment: 'MyPhotoEnrollmentModel', kind: 'DeletionKind', error_code: 'str | None') -> 'None'",
+      "hints": {
+        "enrollment": "<class 'app.infrastructure.database.my_photo_enrollment_models.MyPhotoEnrollmentModel'>",
+        "kind": "typing.Literal['current', 'superseded']",
+        "error_code": "str | None",
+        "return": "<class 'NoneType'>"
+      }
+    },
+    "_deletion_retry_delay": {
+      "module": "app.infrastructure.my_photos.recovery_runtime",
+      "qualname": "_deletion_retry_delay",
+      "signature": "(claim: '_DeletionClaim', settings: 'Settings') -> 'int'",
+      "hints": {
+        "claim": "<class 'app.infrastructure.my_photos.recovery_runtime._DeletionClaim'>",
+        "settings": "<class 'app.core.config.settings.Settings'>",
+        "return": "<class 'int'>"
+      }
+    },
+    "_set_next_attempt": {
+      "module": "app.infrastructure.my_photos.recovery_runtime",
+      "qualname": "_set_next_attempt",
+      "signature": "(enrollment: 'MyPhotoEnrollmentModel', kind: 'DeletionKind', value: 'datetime | None') -> 'None'",
+      "hints": {
+        "enrollment": "<class 'app.infrastructure.database.my_photo_enrollment_models.MyPhotoEnrollmentModel'>",
+        "kind": "typing.Literal['current', 'superseded']",
+        "value": "datetime.datetime | None",
+        "return": "<class 'NoneType'>"
+      }
+    },
+    "_due": {
+      "module": "app.infrastructure.my_photos.recovery_runtime",
+      "qualname": "_due",
+      "signature": "(value: 'datetime | None', now: 'datetime') -> 'bool'",
+      "hints": {
+        "value": "datetime.datetime | None",
+        "now": "<class 'datetime.datetime'>",
+        "return": "<class 'bool'>"
+      }
+    },
+    "_stable_error": {
+      "module": "app.infrastructure.my_photos.recovery_runtime",
+      "qualname": "_stable_error",
+      "signature": "(value: 'str') -> 'str'",
+      "hints": {
+        "value": "<class 'str'>",
+        "return": "<class 'str'>"
+      }
+    }
+  },
+  "app.infrastructure.my_photos.revision_runtime": {
+    "RefreshFanoutResult": {
+      "module": "app.infrastructure.my_photos.revision_runtime",
+      "qualname": "RefreshFanoutResult",
+      "hints": {
+        "state": "typing.Literal['succeeded', 'continuing', 'failed', 'lease_lost']",
+        "search_run_ids": "tuple[uuid.UUID, ...]"
+      },
+      "methods": {}
+    },
+    "publish_gallery_revision": {
+      "module": "app.infrastructure.my_photos.revision_runtime",
+      "qualname": "publish_gallery_revision",
+      "signature": "(session: 'AsyncSession', *, gallery: 'MyPhotoGalleryModel', index_job: 'MyPhotoJobModel', settings: 'Settings', published_at: 'datetime') -> 'uuid.UUID | None'",
+      "hints": {
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "gallery": "<class 'app.infrastructure.database.my_photo_gallery_models.MyPhotoGalleryModel'>",
+        "index_job": "<class 'app.infrastructure.database.my_photo_job_models.MyPhotoJobModel'>",
+        "settings": "<class 'app.core.config.settings.Settings'>",
+        "published_at": "<class 'datetime.datetime'>",
+        "return": "uuid.UUID | None"
+      }
+    },
+    "execute_refresh_fanout": {
+      "module": "app.infrastructure.my_photos.revision_runtime",
+      "qualname": "execute_refresh_fanout",
+      "signature": "(*, job_id: 'uuid.UUID', lease_owner: 'str', settings: 'Settings') -> 'RefreshFanoutResult'",
+      "hints": {
+        "job_id": "<class 'uuid.UUID'>",
+        "lease_owner": "<class 'str'>",
+        "settings": "<class 'app.core.config.settings.Settings'>",
+        "return": "<class 'app.infrastructure.my_photos.revision_runtime.RefreshFanoutResult'>"
+      }
+    },
+    "_refresh_claim_current": {
+      "module": "app.infrastructure.my_photos.revision_runtime",
+      "qualname": "_refresh_claim_current",
+      "signature": "(job: 'MyPhotoJobModel', owner: 'str', now: 'datetime') -> 'bool'",
+      "hints": {
+        "job": "<class 'app.infrastructure.database.my_photo_job_models.MyPhotoJobModel'>",
+        "owner": "<class 'str'>",
+        "now": "<class 'datetime.datetime'>",
+        "return": "<class 'bool'>"
+      }
+    },
+    "_checkpoint_uuid": {
+      "module": "app.infrastructure.my_photos.revision_runtime",
+      "qualname": "_checkpoint_uuid",
+      "signature": "(value: 'str | None') -> 'uuid.UUID | None'",
+      "hints": {
+        "value": "str | None",
+        "return": "uuid.UUID | None"
+      }
+    },
+    "_complete_job": {
+      "module": "app.infrastructure.my_photos.revision_runtime",
+      "qualname": "_complete_job",
+      "signature": "(job: 'MyPhotoJobModel') -> 'None'",
+      "hints": {
+        "job": "<class 'app.infrastructure.database.my_photo_job_models.MyPhotoJobModel'>",
+        "return": "<class 'NoneType'>"
+      }
+    },
+    "_fail_job": {
+      "module": "app.infrastructure.my_photos.revision_runtime",
+      "qualname": "_fail_job",
+      "signature": "(job: 'MyPhotoJobModel', error_code: 'str') -> 'None'",
+      "hints": {
+        "job": "<class 'app.infrastructure.database.my_photo_job_models.MyPhotoJobModel'>",
+        "error_code": "<class 'str'>",
+        "return": "<class 'NoneType'>"
+      }
+    }
+  },
+  "app.infrastructure.my_photos.summary_projector": {
+    "MyPhotosSummaryProjector": {
+      "module": "app.infrastructure.my_photos.summary_projector",
+      "qualname": "MyPhotosSummaryProjector",
+      "hints": {},
+      "methods": {
+        "__init__": {
+          "signature": "(self, session: 'AsyncSession', *, settings: 'Settings', providers: 'MyPhotosProviderBundle', gallery_window_state: 'Callable[[MyPhotoGalleryModel | None, datetime], str]', search_response: 'Callable[[MyPhotoSearchRunModel | None], MyPhotosSearchRunResponse | None]') -> 'None'",
+          "hints": {
+            "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+            "settings": "<class 'app.core.config.settings.Settings'>",
+            "providers": "<class 'app.infrastructure.my_photos.providers.MyPhotosProviderBundle'>",
+            "gallery_window_state": "collections.abc.Callable[[app.infrastructure.database.my_photo_gallery_models.MyPhotoGalleryModel | None, datetime.datetime], str]",
+            "search_response": "collections.abc.Callable[[app.infrastructure.database.my_photo_search_models.MyPhotoSearchRunModel | None], app.presentation.api.v1.schemas.my_photos_schemas.MyPhotosSearchRunResponse | None]",
+            "return": "<class 'NoneType'>"
+          }
+        },
+        "build": {
+          "signature": "(self, *, group_name: 'str', group_id: 'uuid.UUID', gallery: 'MyPhotoGalleryModel | None', enrollment: 'MyPhotoEnrollmentModel | None', search: 'MyPhotoSearchRunModel | None', passenger_identity_id: 'uuid.UUID') -> 'MyPhotosSummaryResponse'",
+          "hints": {
+            "group_name": "<class 'str'>",
+            "group_id": "<class 'uuid.UUID'>",
+            "gallery": "app.infrastructure.database.my_photo_gallery_models.MyPhotoGalleryModel | None",
+            "enrollment": "app.infrastructure.database.my_photo_enrollment_models.MyPhotoEnrollmentModel | None",
+            "search": "app.infrastructure.database.my_photo_search_models.MyPhotoSearchRunModel | None",
+            "passenger_identity_id": "<class 'uuid.UUID'>",
+            "return": "<class 'app.presentation.api.v1.schemas.my_photos_schemas.MyPhotosSummaryResponse'>"
+          }
+        }
+      }
+    }
+  }
+}

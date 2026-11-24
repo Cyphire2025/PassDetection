@@ -1,0 +1,218 @@
+[
+  {
+    "path": "frontend/features/whatsapp/hooks/use-whatsapp.ts",
+    "sha256": "9a3a652af5257804a9f2d14b8187b6173c264bb4fa9104749f3122c57b352143",
+    "review_scope": "full",
+    "status": "fixed",
+    "attribution": "manual_security direct physical-file read",
+    "notes": "Current composer/core retirement tranche; exact evidence and source/retirement limits in private-authority-whatsapp-verification.json."
+  },
+  {
+    "path": "frontend/features/whatsapp/hooks/use-broadcast-queries.ts",
+    "sha256": "0e57a119c496b241c6aaaf3c0b149051dd8d191931c67a2ca6cf645e51817f19",
+    "review_scope": "full",
+    "status": "fixed",
+    "attribution": "manual_security direct physical-file read",
+    "notes": "Current composer/core retirement tranche; exact evidence and source/retirement limits in private-authority-whatsapp-verification.json."
+  },
+  {
+    "path": "frontend/features/whatsapp/hooks/use-broadcast-group-mutations.ts",
+    "sha256": "3503395d827fa977393de7b1f27757fd86c2a907fd4c866bf778c50c37851ca2",
+    "review_scope": "full",
+    "status": "fixed",
+    "attribution": "manual_security direct physical-file read",
+    "notes": "Current composer/core retirement tranche; exact evidence and source/retirement limits in private-authority-whatsapp-verification.json."
+  },
+  {
+    "path": "frontend/features/whatsapp/hooks/use-broadcast-recipient-mutations.ts",
+    "sha256": "8af3113f464e9af2714cf1f3c37f0388334415d21e8b6ae9366970de3e7eb880",
+    "review_scope": "full",
+    "status": "fixed",
+    "attribution": "manual_security direct physical-file read",
+    "notes": "Current composer/core retirement tranche; exact evidence and source/retirement limits in private-authority-whatsapp-verification.json."
+  },
+  {
+    "path": "frontend/features/whatsapp/hooks/whatsapp-query-keys.ts",
+    "sha256": "f7b290da19d3789f993577b78793a9147914efc3f497d88939cd78842e5e0f39",
+    "review_scope": "full",
+    "status": "fixed",
+    "attribution": "manual_security direct physical-file read",
+    "notes": "Current composer/core retirement tranche; exact evidence and source/retirement limits in private-authority-whatsapp-verification.json."
+  },
+  {
+    "path": "frontend/features/whatsapp/hooks/use-normal-send.ts",
+    "sha256": "09827e3d90d5c90fda0ec883f9db8f83d7d994c23b5cef20fc44b02cac1822a7",
+    "review_scope": "full",
+    "status": "fixed",
+    "attribution": "manual_security direct physical-file read",
+    "notes": "Current composer/core retirement tranche; exact evidence and source/retirement limits in private-authority-whatsapp-verification.json."
+  },
+  {
+    "path": "frontend/features/whatsapp/utils/normal-send-intent.ts",
+    "sha256": "e7f2723dac65b88d895a4d0ad8dd1e382f2c5521764231c3f3af8d6f97f4d40e",
+    "review_scope": "full",
+    "status": "fixed",
+    "attribution": "manual_security direct physical-file read",
+    "notes": "Current composer/core retirement tranche; exact evidence and source/retirement limits in private-authority-whatsapp-verification.json."
+  },
+  {
+    "path": "frontend/features/whatsapp/utils/normal-send-controller.ts",
+    "sha256": "de56ab80238925570dfd3634027b290b7e7c27ec65eea747a9c3b548d5fa5535",
+    "review_scope": "full",
+    "status": "fixed",
+    "attribution": "manual_security direct physical-file read",
+    "notes": "Current composer/core retirement tranche; exact evidence and source/retirement limits in private-authority-whatsapp-verification.json."
+  },
+  {
+    "path": "frontend/features/whatsapp/api/whatsapp.api.ts",
+    "sha256": "84e99b41be5828a72b493470a8369711df9f5b99d576cce92ccbbfea080d9742",
+    "review_scope": "full",
+    "status": "fixed",
+    "attribution": "manual_security direct physical-file read",
+    "notes": "Current composer/core retirement tranche; exact evidence and source/retirement limits in private-authority-whatsapp-verification.json."
+  },
+  {
+    "path": "frontend/features/whatsapp/api/broadcast-message-reads.api.ts",
+    "sha256": "5779eb626ff66762e44634648ab7373d9fa02d7c006d90d9e85f7bd4c1091407",
+    "review_scope": "full",
+    "status": "fixed",
+    "attribution": "manual_security direct physical-file read",
+    "notes": "Current composer/core retirement tranche; exact evidence and source/retirement limits in private-authority-whatsapp-verification.json."
+  },
+  {
+    "path": "frontend/features/whatsapp/api/broadcast-recipients.api.ts",
+    "sha256": "bc51975f3c593a583af4c06ee8ced64201923a083415f7b08ebd094a4d0ccfb5",
+    "review_scope": "full",
+    "status": "fixed",
+    "attribution": "manual_security direct physical-file read",
+    "notes": "Current composer/core retirement tranche; exact evidence and source/retirement limits in private-authority-whatsapp-verification.json."
+  },
+  {
+    "path": "frontend/features/whatsapp/types/messages.ts",
+    "sha256": "5a4a1bba0ac8315c5743b3f8796506c0f291673801aafb30574a7e92e79899cf",
+    "review_scope": "full",
+    "status": "fixed",
+    "attribution": "manual_security direct physical-file read",
+    "notes": "Current composer/core retirement tranche; exact evidence and source/retirement limits in private-authority-whatsapp-verification.json."
+  },
+  {
+    "path": "frontend/features/whatsapp/types/recipients.ts",
+    "sha256": "6ba6dafcee6334e15f99254bb01dc2eba7e36f03d819dda97451135535a68bc7",
+    "review_scope": "full",
+    "status": "fixed",
+    "attribution": "manual_security direct physical-file read",
+    "notes": "Current composer/core retirement tranche; exact evidence and source/retirement limits in private-authority-whatsapp-verification.json."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/composer.api.ts",
+    "sha256": "a798e82dbef696894bf8e3af5bef093e0a4a500fd7fc039cd1a13070edb1d887",
+    "review_scope": "full",
+    "status": "fixed",
+    "attribution": "manual_security direct physical-file read",
+    "notes": "Current composer/core retirement tranche; exact evidence and source/retirement limits in private-authority-whatsapp-verification.json."
+  },
+  {
+    "path": "frontend/features/whatsapp/api/whatsapp-owner.test.ts",
+    "sha256": "6aad402c073673b55f8aba9e03f685f7c8bc313d65d5432c5a31456103638bde",
+    "review_scope": "full",
+    "status": "reviewed",
+    "attribution": "manual_security direct physical-file read",
+    "notes": "Current composer/core retirement tranche; exact evidence and source/retirement limits in private-authority-whatsapp-verification.json."
+  },
+  {
+    "path": "frontend/features/whatsapp/hooks/use-whatsapp-mutation-owner.test.tsx",
+    "sha256": "49f2acbfd0da86812dcc4ec6e654226a7f866544fa9b10c884c9e95bbe5898f1",
+    "review_scope": "full",
+    "status": "reviewed",
+    "attribution": "manual_security direct physical-file read",
+    "notes": "Current composer/core retirement tranche; exact evidence and source/retirement limits in private-authority-whatsapp-verification.json."
+  },
+  {
+    "path": "frontend/features/whatsapp/api/whatsapp-recipient-input.test.ts",
+    "sha256": "cfda309fb58c8fb2b0a7645c26bd6d1b5363d6b0a8be36b2999814a937c9a6f2",
+    "review_scope": "full",
+    "status": "reviewed",
+    "attribution": "manual_security direct physical-file read",
+    "notes": "Current composer/core retirement tranche; exact evidence and source/retirement limits in private-authority-whatsapp-verification.json."
+  },
+  {
+    "path": "frontend/features/whatsapp/hooks/use-normal-send-idempotency.test.tsx",
+    "sha256": "e1e440bdc8168d3831477874c5e3cb0dc65a0d676463bac06c10e07230f59c4d",
+    "review_scope": "full",
+    "status": "reviewed",
+    "attribution": "manual_security direct physical-file read",
+    "notes": "Current composer/core retirement tranche; exact evidence and source/retirement limits in private-authority-whatsapp-verification.json."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/whatsapp-create-from-group.test.tsx",
+    "sha256": "86132b33e2aa9da802392310cc14d65b74b9bb8bef4746c31e48a8c09ac5c4cd",
+    "review_scope": "full",
+    "status": "reviewed",
+    "attribution": "manual_security direct physical-file read",
+    "notes": "Current composer/core retirement tranche; exact evidence and source/retirement limits in private-authority-whatsapp-verification.json."
+  },
+  {
+    "path": "frontend/features/whatsapp/api/whatsapp-group-invite.test.ts",
+    "sha256": "424a38230733ca6a6a5f7900da17087e6ae4d7aa26ea8916421f52835a598c3b",
+    "review_scope": "full",
+    "status": "reviewed",
+    "attribution": "manual_security direct physical-file read",
+    "notes": "Current composer/core retirement tranche; exact evidence and source/retirement limits in private-authority-whatsapp-verification.json."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/history.api.test.ts",
+    "sha256": "07cc8f4be3f45c4f93954bb02ca65a589cae13e8456b02da5439149ee4e03bfd",
+    "review_scope": "full",
+    "status": "reviewed",
+    "attribution": "manual_security direct physical-file read",
+    "notes": "Current composer/core retirement tranche; exact evidence and source/retirement limits in private-authority-whatsapp-verification.json."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/composer.api.test.ts",
+    "sha256": "72ee9a2b5061791aeb72e949b55638189aadac8715c47d0a90c6d863939f33a2",
+    "review_scope": "full",
+    "status": "reviewed",
+    "attribution": "manual_security direct physical-file read",
+    "notes": "Current composer/core retirement tranche; exact evidence and source/retirement limits in private-authority-whatsapp-verification.json."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/whatsapp-source.contract-helper.mjs",
+    "sha256": "59b3adccdcb4a5dde80b6f5b24e6a8f07efd7804ee0cc008b1ce0130f80e18b8",
+    "review_scope": "full",
+    "status": "reviewed",
+    "attribution": "manual_security direct physical-file read",
+    "notes": "Current composer/core retirement tranche; exact evidence and source/retirement limits in private-authority-whatsapp-verification.json."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/whatsapp-batch-404.contract.test.mjs",
+    "sha256": "8c7d0e58cd945aeab7344aab797f8d1a107511ac432020b96a57cd46a92392a1",
+    "review_scope": "full",
+    "status": "reviewed",
+    "attribution": "manual_security direct physical-file read",
+    "notes": "Current composer/core retirement tranche; exact evidence and source/retirement limits in private-authority-whatsapp-verification.json."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/whatsapp-recipient-roster.contract.test.mjs",
+    "sha256": "14346ad42386eea2b8b143435f6a736c803a99a425ccd81041ba53d37f4fabf0",
+    "review_scope": "full",
+    "status": "reviewed",
+    "attribution": "manual_security direct physical-file read",
+    "notes": "Current composer/core retirement tranche; exact evidence and source/retirement limits in private-authority-whatsapp-verification.json."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/whatsapp-resend.contract.test.mjs",
+    "sha256": "06ea8475a7c5ecee1dd97f0820956f55e0721a86f5d63fab64c0e0db854d7b88",
+    "review_scope": "full",
+    "status": "reviewed",
+    "attribution": "manual_security direct physical-file read",
+    "notes": "Current composer/core retirement tranche; exact evidence and source/retirement limits in private-authority-whatsapp-verification.json."
+  },
+  {
+    "path": "frontend/lib/api/endpoints.ts",
+    "sha256": "ba21978b83b0808062782562726df9d14eb3080f858f7b5078fd4e4febd51f34",
+    "review_scope": "full",
+    "status": "fixed",
+    "attribution": "manual_security direct physical-file read",
+    "notes": "Current composer/core retirement tranche; exact evidence and source/retirement limits in private-authority-whatsapp-verification.json."
+  }
+]

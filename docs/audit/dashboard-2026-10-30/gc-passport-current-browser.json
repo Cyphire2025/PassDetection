@@ -1,0 +1,402 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Users\\nipun\\AppData\\Local\\Programs\\node-v24.21.0-win-x64\\node.exe",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      ".tmp/gc-passport-checkpoint/playwright.config.ts"
+    ],
+    "configFile": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\gc-passport-checkpoint\\playwright.config.ts",
+    "rootDir": "C:/Users/nipun/Desktop/PassDetection/frontend/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/nipun/Desktop/PassDetection/.tmp/gc-passport-checkpoint/browser-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/Users/nipun/Desktop/PassDetection/frontend/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "gc-app-workflow.spec.ts",
+          "gc-app-notifications.spec.ts"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\gc-passport-current-browser.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.62.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "gc-app-notifications.spec.ts",
+      "file": "gc-app-notifications.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "desktop",
+          "file": "gc-app-notifications.spec.ts",
+          "line": 101,
+          "column": 8,
+          "specs": [
+            {
+              "title": "saved messages, reviewed resends, lost responses and permanent send history",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5854,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-30T19:22:51.729Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "3ff3fac15b173ed97e57-d5126e1f555ca820b15a",
+              "file": "gc-app-notifications.spec.ts",
+              "line": 103,
+              "column": 9
+            },
+            {
+              "title": "deleted unsent draft safely releases recovery through Check recorded outcome",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1990,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-30T19:22:57.672Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "3ff3fac15b173ed97e57-c3a5480b27e0bd928a41",
+              "file": "gc-app-notifications.spec.ts",
+              "line": 238,
+              "column": 11
+            },
+            {
+              "title": "deleted unsent draft safely releases recovery through Review and retry same request",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1948,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-30T19:22:59.667Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "3ff3fac15b173ed97e57-7a6c4131385a90dd98cf",
+              "file": "gc-app-notifications.spec.ts",
+              "line": 238,
+              "column": 11
+            }
+          ]
+        },
+        {
+          "title": "phone",
+          "file": "gc-app-notifications.spec.ts",
+          "line": 101,
+          "column": 8,
+          "specs": [
+            {
+              "title": "saved messages, reviewed resends, lost responses and permanent send history",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3213,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-30T19:23:01.622Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "3ff3fac15b173ed97e57-1a5777894c5e47b8214d",
+              "file": "gc-app-notifications.spec.ts",
+              "line": 103,
+              "column": 9
+            },
+            {
+              "title": "deleted unsent draft safely releases recovery through Check recorded outcome",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1569,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-30T19:23:04.841Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "3ff3fac15b173ed97e57-2f88d4ef8730de8b86d6",
+              "file": "gc-app-notifications.spec.ts",
+              "line": 238,
+              "column": 11
+            },
+            {
+              "title": "deleted unsent draft safely releases recovery through Review and retry same request",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1575,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-30T19:23:06.416Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "3ff3fac15b173ed97e57-c53e453ada46dd401575",
+              "file": "gc-app-notifications.spec.ts",
+              "line": 238,
+              "column": 11
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "gc-app-workflow.spec.ts",
+      "file": "gc-app-workflow.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "desktop",
+          "file": "gc-app-workflow.spec.ts",
+          "line": 132,
+          "column": 8,
+          "specs": [
+            {
+              "title": "closed groups and paused trips retain a clear, revision-safe publishing workflow",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4492,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-30T19:23:08.004Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "33e02b26a277869ed69d-2bfb46adf0fe0af98808",
+              "file": "gc-app-workflow.spec.ts",
+              "line": 134,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "phone",
+          "file": "gc-app-workflow.spec.ts",
+          "line": 132,
+          "column": 8,
+          "specs": [
+            {
+              "title": "closed groups and paused trips retain a clear, revision-safe publishing workflow",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2429,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-30T19:23:12.502Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "33e02b26a277869ed69d-b203bafe397b5ee3f858",
+              "file": "gc-app-workflow.spec.ts",
+              "line": 134,
+              "column": 9
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-30T19:22:49.379Z",
+    "duration": 26020.215,
+    "expected": 8,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

@@ -6,9 +6,27 @@ import math
 from datetime import UTC, datetime
 from typing import Literal
 
-from app.application.my_photos.errors import MyPhotosRateLimited
+from app.application.my_photos.errors import MyPhotosConflict, MyPhotosRateLimited
 from app.application.my_photos.providers import LivenessResult, LivenessSessionHandle
-from app.infrastructure.database.my_photos_models import MyPhotoLivenessSessionModel
+from app.infrastructure.database.my_photos_models import (
+    MyPhotoEnrollmentModel,
+    MyPhotoLivenessSessionModel,
+)
+
+
+def _require_current_consent(
+    enrollment: MyPhotoEnrollmentModel | None, consent_version: str
+) -> MyPhotoEnrollmentModel:
+    if enrollment is None or enrollment.status in {"revoked", "deleted"}:
+        raise MyPhotosConflict(
+            "MY_PHOTOS_CONSENT_REQUIRED", "Accept the current Face Scan consent first."
+        )
+    if enrollment.consent_version != consent_version:
+        raise MyPhotosConflict(
+            "MY_PHOTOS_CONSENT_VERSION_REQUIRED",
+            "Review and accept the current Face Scan consent first.",
+        )
+    return enrollment
 
 
 def _as_utc(value: datetime) -> datetime:
@@ -99,3 +117,11 @@ def _valid_opaque_provider_value(value: str | None, *, maximum: int) -> bool:
         and value.isprintable()
         and "://" not in value
     )
+
+
+def _stable_error_code(value: str) -> str:
+    normalized = "".join(
+        character if character.isascii() and (character.isalnum() or character == "_") else "_"
+        for character in value.upper()
+    ).strip("_")
+    return (normalized or "PROVIDER_DELETION_UNAVAILABLE")[:64]

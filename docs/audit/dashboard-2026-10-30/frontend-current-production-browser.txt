@@ -1,0 +1,68 @@
+[WebServer] (node:29576) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:36028) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 9 tests using 1 worker
+
+(node:36840) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  1 [production-flows] › e2e\authentication.spec.ts:93:5 › credential login restores a cookie session and logout clears browser-owned state (12.0s)
+(node:28628) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 2 [production-flows] › e2e\authentication.spec.ts:155:5 › a rejected refresh expires the local session and explains the redirect (1.2s)
+  ok 3 [production-flows] › e2e\authentication.spec.ts:161:5 › a lower-privilege direct-link journey is denied and returned to its safe workspace (823ms)
+  ok 4 [production-flows] › e2e\fresh-travellers.spec.ts:70:38 › fresh private draft resumes and submits at 320px (5.5s)
+  ok 5 [production-flows] › e2e\fresh-travellers.spec.ts:70:38 › fresh private draft resumes and submits at 1440px (3.5s)
+  ok 6 [production-flows] › e2e\fresh-travellers.spec.ts:89:5 › family members keep independent private drafts and head-first submissions (7.8s)
+  ok 7 [production-flows] › e2e\fresh-travellers.spec.ts:100:5 › an interrupted final response resumes the submitted receipt without a duplicate (5.1s)
+(node:36820) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 8 [production-nonce] › ..\.tmp\frontend-dependency-remediation\production-nonce.spec.mjs:3:1 › production rewrites preserve the isolated backend response (56ms)
+  ok 9 [production-nonce] › ..\.tmp\frontend-dependency-remediation\production-nonce.spec.mjs:18:1 › production rendering applies a fresh CSP nonce to framework scripts (1.0s)
+
+
+  1) [production-flows] › e2e\authentication.spec.ts:93:5 › credential login restores a cookie session and logout clears browser-owned state 
+
+    Error: expect(page).toHaveTitle(expected) failed
+
+    Expected: "Sign In | Global Connects Dashboard"
+    Received: "Sign In"
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveTitle" with timeout 10000ms
+        23 × locator resolved to <html lang="en" class="-T-KAq_variable" data-scroll-behavior="smooth">…</html>
+           - unexpected value "Sign In"
+
+
+      138 |
+      139 |   await page.goto("/login?from=%2Fdashboard");
+    > 140 |   await expect(page).toHaveTitle("Sign In | Global Connects Dashboard");
+          |                      ^
+      141 |   await page.getByLabel("Email address").fill("admin@example.test");
+      142 |   await page.locator("#login-password").fill("CorrectHorseBattery9");
+      143 |   await page.getByRole("button", { name: "Sign in" }).click();
+        at C:\Users\nipun\Desktop\PassDetection\frontend\e2e\authentication.spec.ts:140:22
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\.tmp\frontend-dependency-remediation\browser-results-current\authentication-credential--cb7a3--clears-browser-owned-state-production-flows\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\.tmp\frontend-dependency-remediation\browser-results-current\authentication-credential--cb7a3--clears-browser-owned-state-production-flows\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\.tmp\frontend-dependency-remediation\browser-results-current\authentication-credential--cb7a3--clears-browser-owned-state-production-flows\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\.tmp\frontend-dependency-remediation\browser-results-current\authentication-credential--cb7a3--clears-browser-owned-state-production-flows\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\.tmp\frontend-dependency-remediation\browser-results-current\authentication-credential--cb7a3--clears-browser-owned-state-production-flows\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [production-flows] › e2e\authentication.spec.ts:93:5 › credential login restores a cookie session and logout clears browser-owned state 
+  8 passed (53.6s)

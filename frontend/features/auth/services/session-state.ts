@@ -8,6 +8,8 @@
  * backend-owned and httpOnly.
  */
 
+import { coordinateCookieMutation } from "./cookie-mutation";
+
 export const SENSITIVE_STATE_RESET_EVENT = "passdetection:sensitive-state-reset";
 
 const SESSION_OWNER_KEY = "passdetection:session-owner";
@@ -18,24 +20,28 @@ const APP_CACHE_PREFIX = "passdetection-";
 
 export type SensitiveStateResetReason = "account_changed" | "logout" | "session_expired" | "access_level_changed";
 
-export function prepareSensitiveBrowserStateForUser(userId: string) {
+export function prepareSensitiveBrowserStateForUser(userId: string, authorityChanged = false) {
   if (typeof window === "undefined") return;
 
+  let shouldReset = authorityChanged;
   try {
     const previousOwner = window.localStorage.getItem(SESSION_OWNER_KEY);
     const hasLegacySensitiveState = previousOwner === null && hasAppOwnedStorage();
     const accountChanged = previousOwner !== null && previousOwner !== userId;
 
-    if (accountChanged || hasLegacySensitiveState) {
-      clearAppOwnedWebStorage();
-      dispatchSensitiveStateReset("account_changed");
-      void clearPersistentAppData();
-    }
+    shouldReset = authorityChanged || accountChanged || hasLegacySensitiveState;
+    if (shouldReset) clearAppOwnedWebStorage();
 
     window.localStorage.setItem(SESSION_OWNER_KEY, userId);
   } catch {
     // Browsers can disable storage independently of cookies. Authentication
     // remains usable; no offline snapshot can be read in that mode.
+  }
+  // Shared storage may already name another tab's new account, or be denied.
+  // Neither condition may suppress redaction of this document's private cache.
+  if (shouldReset) {
+    dispatchSensitiveStateReset("account_changed");
+    void clearPersistentAppData();
   }
 }
 
@@ -55,23 +61,27 @@ export async function clearSensitiveBrowserState(
   await clearPersistentAppData();
 }
 
-export async function clearServerSessionCookies() {
+export async function clearServerSessionCookies(expectedOwnerUserId?: string) {
   if (typeof window === "undefined") return;
 
   const controller = new AbortController();
-  const timeout = window.setTimeout(() => controller.abort(), 3_000);
+  let timeout: number | undefined;
   try {
-    await window.fetch("/api/v1/auth/logout", {
-      method: "POST",
-      credentials: "include",
-      cache: "no-store",
-      keepalive: true,
-      signal: controller.signal,
-    });
+    await coordinateCookieMutation(() => {
+      timeout = window.setTimeout(() => controller.abort(), 3_000);
+      return window.fetch("/api/v1/auth/logout", {
+        method: "POST",
+        credentials: "include",
+        cache: "no-store",
+        keepalive: true,
+        signal: controller.signal,
+        ...(expectedOwnerUserId ? { headers: { "X-Expected-Actor-Id": expectedOwnerUserId } } : {}),
+      });
+    }, controller.signal);
   } catch {
     // Local state must still be cleared if the network is unavailable.
   } finally {
-    window.clearTimeout(timeout);
+    if (timeout !== undefined) window.clearTimeout(timeout);
   }
 }
 

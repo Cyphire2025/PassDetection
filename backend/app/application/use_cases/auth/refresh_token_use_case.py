@@ -17,7 +17,11 @@ from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
 
-from app.application.dtos.auth_dtos import AuthResponseDTO, RefreshTokenInputDTO, UserOutputDTO
+from app.application.dtos.auth_dtos import (
+    AuthResponseDTO,
+    RefreshTokenInputDTO,
+    user_output_from_entity,
+)
 from app.core.config.settings import get_settings
 from app.core.logging.logger import get_logger
 from app.core.security.jwt import create_access_token, create_refresh_token
@@ -42,7 +46,7 @@ class RefreshTokenUseCase:
         refresh_token_repository: RefreshTokenRepository,
         identity_security_repository: IdentitySecurityRepository | None = None,
     ) -> None:
-        self._user_repo  = user_repository
+        self._user_repo = user_repository
         self._token_repo = refresh_token_repository
         self._identity_security_repo = identity_security_repository
 
@@ -50,9 +54,18 @@ class RefreshTokenUseCase:
         self,
         dto: RefreshTokenInputDTO,
         client_ip: str | None = None,
+        *,
+        expected_actor_id: str | None = None,
     ) -> AuthResponseDTO:
         # 1. Look up the refresh token in DB
-        stored_token = await self._token_repo.claim_for_rotation(dto.refresh_token)
+        stored_token = (
+            await self._token_repo.claim_for_rotation(dto.refresh_token)
+            if expected_actor_id is None
+            else await self._token_repo.claim_for_rotation(
+                dto.refresh_token,
+                expected_actor_id=expected_actor_id,
+            )
+        )
         if not stored_token:
             logger.warning("refresh_token_invalid_or_expired")
             raise TokenExpiredError()
@@ -79,10 +92,7 @@ class RefreshTokenUseCase:
 
         if role_requires_dashboard_mfa(user.role) and (
             mfa_authenticated_at is None
-            or not any(
-                method in {"totp", "recovery_code"}
-                for method in authentication_methods
-            )
+            or not any(method in {"totp", "recovery_code"} for method in authentication_methods)
         ):
             # Pre-MFA refresh rows are deliberately not grandfathered. This
             # closes the rolling-deployment path where a privileged principal
@@ -144,20 +154,7 @@ class RefreshTokenUseCase:
         logger.info("token_refreshed", user_id=str(user.id))
 
         return AuthResponseDTO(
-            user=UserOutputDTO(
-                id=user.id,
-                email=user.email,
-                full_name=user.full_name,
-                role=user.role.value,
-                agency_id=user.agency_id,
-                is_active=user.is_active,
-                last_login_at=user.last_login_at,
-                created_at=user.created_at,
-                updated_at=user.updated_at,
-                credential_state=user.credential_state,
-                mfa_required=user.mfa_required,
-                mfa_enabled=user.mfa_enabled,
-            ),
+            user=user_output_from_entity(user),
             access_token=access_token,
             refresh_token=new_refresh_token,
             access_token_expires_at=access_expires,

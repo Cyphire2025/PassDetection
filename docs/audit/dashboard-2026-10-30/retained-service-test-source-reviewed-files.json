@@ -1,0 +1,140 @@
+{
+  "files": [
+    {
+      "path": "backend/tests/service_integration/test_company_directory_postgresql.py",
+      "sha256": "19fc98ef802ed8ffc427c0f8435d084037d162d98b7f87ccddeecb4954a7023c",
+      "physical_lines": 100,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete100-line source read. Opt-in separately named PG fixture, normalized company-name race one winner, group assignment/rename revision serialization and deferred canonical GC/company FK enforcement. Actual shared assignment already fully read; no PostgreSQL/concurrency tests executed here."
+    },
+    {
+      "path": "backend/tests/service_integration/test_audit_checkpoint_s3.py",
+      "sha256": "3db514463431ebd1476b668ca9b6ba48b5e889fe806a1d99fcae4384ad53a669",
+      "physical_lines": 63,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete63-line source read. Explicit isolated local S3 endpoint/test credentials, generated bucket and synthetic Ed25519 material, conditional one-version publication, WORM/delete denial and overwrite history detection, body/client close with intentional immutable disposable retention. Focused actual sink publish context read; no live SDK/provider action or credential-value access."
+    },
+    {
+      "path": "backend/tests/service_integration/test_data_invariants_postgresql.py",
+      "sha256": "d41b974aa4b3ef289faabff1ae9eb017ced53f4e7df120b1ca878413dfd75574",
+      "physical_lines": 38,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete38-line source read. Explicit opt-in/test_db or passdetection_ci database-name guard, actual migrated validated FK and shared tenant/ECR constraint controls inside rolled-back transaction. Whole shared invariant source read; no DDL/database/credential calls performed."
+    },
+    {
+      "path": "backend/tests/service_integration/test_frontend_error_admission.py",
+      "sha256": "45d4167d165e5c0df4223e793ac9b7e998ddfd0eb5b11495f86863d637f432b5",
+      "physical_lines": 69,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete69-line source read. Isolated unique expiring Redis hash-tag keys,4 independent clients/atomic per-IP+global quota+dedup, rejects cannot steal global budget, stale expiry repaired without sliding TTL, no FLUSHDB/delete. Actual unchanged _ADMIT and _admit source read; no Redis/counter or load execution."
+    },
+    {
+      "path": "backend/tests/service_integration/test_postgresql_fixture_isolation.py",
+      "sha256": "f68ac290bb60357f6474e88c01d131c0570d92e8b53a762887f4749ac472569d",
+      "physical_lines": 62,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete62-line source read. Shared PG fixture refuses public/nonempty schema, restores search path and savepoint rollback after partial DDL failure. Actual retained create_isolated helper source read; no PostgreSQL service invocation or destructive command executed."
+    },
+    {
+      "path": "backend/tests/service_integration/test_returning_reuse_postgresql.py",
+      "sha256": "a465ef8787c473476a955390085849a42aa03b20a0ca672461f6a66885c84f00",
+      "physical_lines": 69,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete69-line source read. Current contact retry and old-grant reads use actual PG sessions with bounded waits, one current binding and selected-person revocation, canonical source fixtures already read. Shared isolated pg_factory inspected only; no race/deadlock qualification from source assertions."
+    },
+    {
+      "path": "backend/tests/service_integration/test_manual_review_postgresql.py",
+      "sha256": "50ff5f855a7d5487586ccf5d41ad78d62f98328c5064a4d94157ad50b19f07e6",
+      "physical_lines": 197,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete197-line source read. Owned random schema through validated shared create helper, current public manual submission waits for DB row lock against late extraction/duplicate request, exact previous revision/fields/status retained, finally task drain/schema cleanup and canonical legacy phone equality. Synthetic storage only; no parser/provider/DB execution."
+    },
+    {
+      "path": "backend/tests/service_integration/test_traveller_document_http_postgresql.py",
+      "sha256": "7fd1d290138c919e71cd96ed2146f406c8b4e975a5d38f792263ebe78b7d1861",
+      "physical_lines": 142,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete142-line source read. Opt-in migrated DB/actual ASGI auth+document routes, synthetic storage/template sends/webhook receipts, traveller rather than qualifier phones, durable worker replay no second send and bounded context cleanup. Existing native/first-release propagation collaborator stubbed as fixture boundary only, no native investigation/provider sends."
+    },
+    {
+      "path": "backend/tests/service_integration/test_travel_tracker_upgrade_postgresql.py",
+      "sha256": "9b006f776637f64694b3723897e53171dd9e5cdaa43b61e7621ad1fb305b8a1c",
+      "physical_lines": 147,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete147-line source read, truncated110-token middle explicitly reread97-125. Explicit loopback/disposable DB and pinned release-source,0128\u21920129 locked-table failure/retry/no auto-downgrade/authority unchanged, inherited runtime grants/default/schema drift denied and exact disposal. Scripts/contracts not reread/modified, no subprocess/migration/service run or deployment qualification."
+    },
+    {
+      "path": "backend/tests/data_invariants.py",
+      "sha256": "e977ae83e0f0ec439a9181a9389f05f1b8c9d56e36e1b426d754114c563c86bd",
+      "physical_lines": 92,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole92-line retained shared helper physically read. Synthetic legitimate ECR states/retry and wrong-tenant/status/result/negative-budget constraints via savepoint, exact dialect SQLSTATE and still-current control state. Existing fixture data only, no new payload campaign or executed database work."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/frontend_errors.py",
+      "sha256": "aaa3769183ca3b8e304ca13389c9d32cd48b840acb45604442887ba3cd7a6d32",
+      "physical_lines": 191,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Current full source scope assembled from physically read same-hash portions: prior retained-http-boundary-unit-source ledger57-105/157-end SHA unchanged, now1-57 and106-156 read. Exact metadata-only schema/origin/admission/dedup/handler/log boundary entire current file seen. No runtime edits or passing Redis/HTTP claim."
+    },
+    {
+      "path": "backend/tests/postgresql_schema.py",
+      "sha256": "f1ca039164a93073be3d4e0021f3de60cb6be659b65d09803502bb302ec34cb2",
+      "physical_lines": 109,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Retained scope is complete create_isolated_postgresql_tables helper only: validates explicit test DB and owned UUID schema/empty table set/current search path; public trigram extension guarded and nested unconditional table creation resets path on failure. Earlier MCP historical role seed was incidentally displayed but intentionally not audited here; remains shared operator owner scope, no whole-file credit."
+    },
+    {
+      "path": "backend/tests/service_integration/test_fcm_dispatch_postgresql.py",
+      "sha256": "263b2f68f14fc045f7043f2167dd1f85dccd32dda6009dfd24d78d427c307624",
+      "physical_lines": 467,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical1-105 retained shared pg_factory source/dependencies through cleanup; explicit separate FCM_TEST_POSTGRES_DB prefix/not application DB, owned UUID schema/transaction timeouts/current checks and guarded exact teardown. Native/provider target/cases below are excluded and not audited; no full-file native source credit."
+    },
+    {
+      "path": "backend/tests/service_integration/test_whatsapp_receipts_postgresql.py",
+      "sha256": "994b60ef497ffffff0ef5bc91be6330c56254d4e4959b7900f91c0b70c649d69",
+      "physical_lines": 263,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical1-92 shared pg_url/pg_factory source and next test prefix only; database name guard is enforced inside unchanged shared schema helper. Other receipt/provider cases not fully read, no active WhatsApp runtime edits or provider activity."
+    },
+    {
+      "path": "backend/app/infrastructure/audit/s3_checkpoint_sink.py",
+      "sha256": "175bc660c4003c095ba2a5c5079de79e8a93be5cf20e16b13f6d13a8747d5dcf",
+      "physical_lines": 229,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical61-167 selected class configuration/keyring/create-only hook/destination/versioned compliant publication and _read prefix only. SDK streaming/cancellation/readback remainder not fully read; existing root-owned native future helpers unchanged."
+    }
+  ],
+  "scope": "Nine new current-full retained real-service test sources887lines; two whole shared supports and four focused retained source slices. No service test/scanner/provider/operator command executed; native device/Inbox feature cases excluded."
+}

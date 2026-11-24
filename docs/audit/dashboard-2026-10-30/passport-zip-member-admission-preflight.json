@@ -1,0 +1,14 @@
+{
+  "status": "measured source-resource candidate, no fix yet",
+  "archive_entries": 10000,
+  "source_bytes": 1117802,
+  "allowed_member_count": 5000,
+  "constructed_ZipInfo_before_member_limit_rejection": 10000,
+  "rejection": "ZIP contains more than 5000 entries",
+  "validation_calls": 0,
+  "source_sha256": "950e1c3b07c4efbc1b370e4c3ad64cd72d3816301fd041584c875ab039d4b69f",
+  "limits": [
+    "Synthetic real standard-library ZIP and actual importer, no bomb/decompression/native memory exhaustion/live service or production latency claim.",
+    "The count limit currently runs after all central-directory entries are materialized; file size remains bounded by128MB. Further parser/admission design required before mutation."
+  ]
+}

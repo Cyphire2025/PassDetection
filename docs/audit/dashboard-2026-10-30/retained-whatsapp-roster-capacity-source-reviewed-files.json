@@ -1,0 +1,68 @@
+{
+  "status": "Retained roster provenance/capacity and bounded update dispatch source cohort; physical reads complete",
+  "files": [
+    {
+      "path": "backend/tests/integration/test_group_update_parallel_dispatch.py",
+      "sha256": "fbd786446d7f801ee098f1989a0b71c32c44e97ab15802359d271f999807854a",
+      "physical_lines": 336,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-336. Existing actual queued-batch relational fixture and synthetic async provider barriers assert four-at-a-time bounded waves, accepted siblings survive rejected/unknown/timeouts, binding rollback retries persistence without duplicate sends and irrecoverable binding leaves processing conservative.25-row continuation and slice deadline keep pending jobs, stale processing becomes unknown without replay. Current phone/document gates refreshed each wave while unchanged pure comparison inputs reused; asserted work counters are historical test contracts, not newly measured performance. No providers/tests/services run."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_recipient_roster.py",
+      "sha256": "bf161456df9a1c62739b6e12ce8719f5d15b1fa532f8a5fe4c78440fd35ac9c6",
+      "physical_lines": 503,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-503 in bounded1-250/251-503. Accepted/rejected Excel source interleaving and basename provenance, deterministic stored display order on reimport, unique roster row counts with overlapping sent/failed filters, immutable original replacement snapshots despite edited suppressed recipient. Shared group matching drives unidentified projections; tenant/client link scopes and source fields asserted. Total contact count remains distinct from sendable count. No new workbook/source parsing or database/test execution."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_recipient_capacity.py",
+      "sha256": "d219e684df5548dcfe9b8e8819ba6b76226b41f46869bef60ad30e3149d53507",
+      "physical_lines": 649,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-649 in bounded1-225/226-440/441-649.1500/1501 capacity boundaries cover schema/import/manual create/add/legacy send/reactivation and multi-broadcast restore. Parent tenant lock before child, count only active rows in supplied locked tenant scope, all-or-nothing overflow before recipient/resolution edits and side effects. Durable queued heartbeat updates only batch+queued log/state claims. Existing fake SQL and compiled dialect controls read only; no concurrency/service/provider claim."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/document_update_runtime.py",
+      "sha256": "1151e4106599f23168c08a8db1a9c8e1243aeb522ad0dd007261505be03bb45e",
+      "physical_lines": 345,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "focused",
+      "notes": "Physical254-345 only. Actual immutable per-wave snapshots, source decisions and frozen data recheck under source/destination locks; all bounded synthetic provider work awaited before persistence releases locks.25-row slice, four-request chunks, queued/processing-specific continuation delay and finite clock cutoff preserved. Existing full frozen owner evidence reused; no full reread or runtime changes."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/document_update_provider_wave.py",
+      "sha256": "8181e6f410164c5696f01d97a69e4d7f80d675a5e8cb5b7de529465feb721339",
+      "physical_lines": 68,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-68 reread. Immutable request/outcome records, explicit four-request maximum, per-attempt timeout, known provider rejection versus unknown failure, bounded persisted safe error and gather waits all outcomes. Existing full owner frozen; no real HTTP/provider execution."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/whatsapp_recipient_capacity_repository.py",
+      "sha256": "3e9aee556add29992934ee661066b78943ac007f693fadfdb2601a2f219e2bb8",
+      "physical_lines": 65,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-65 reread. Positive activations only, caller must supply already-locked parent set, active-only tenant/broadcast aggregate then deterministic sorted pure capacity policy; no second lock convention or schema change. Existing matching-repository full evidence preserved, no DB/test operations."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_recipient_roster.py",
+      "sha256": "1fd7b7511c5d6305853399c62b16537213d3bb90c4e0684a36b3a2b613f14218",
+      "physical_lines": 372,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "focused",
+      "notes": "Physical149-231 only. Actual role/tenant parent gate, active recipient/rejected deterministic ordering and replacement join with every tenant/active resolution predicate plus staff linked-group scope. Existing current full preflight ledger reused; no whole-file reread or new privacy permission."
+    }
+  ]
+}

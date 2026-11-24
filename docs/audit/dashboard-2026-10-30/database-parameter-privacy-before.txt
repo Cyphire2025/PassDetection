@@ -1,0 +1,404 @@
+FFFFFF                                                                   [100%]
+================================== FAILURES ===================================
+_ test_real_constraint_errors_and_sql_logs_do_not_expose_bound_values[synthetic-passport-P1234567-False] _
+
+private_value = 'synthetic-passport-P1234567', echo = False
+caplog = <_pytest.logging.LogCaptureFixture object at 0x0000020DCB9E2C50>
+
+    @pytest.mark.parametrize("echo", [False, True])
+    @pytest.mark.parametrize(
+        "private_value",
+        ["synthetic-passport-P1234567", "+919999990001", "synthetic-sensitive-bearer-token"],
+    )
+    async def test_real_constraint_errors_and_sql_logs_do_not_expose_bound_values(
+        private_value: str, echo: bool, caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        # Exercise the actual runtime engine's disclosure policy without a database
+        # service. SQLite's original constraint detail contains no private value;
+        # this isolates the additional SQLAlchemy parameter/traceback disclosure.
+        engine = create_async_engine(
+            "sqlite+aiosqlite:///:memory:",
+            hide_parameters=runtime_engine.sync_engine.hide_parameters,
+            echo=echo,
+        )
+        try:
+            with caplog.at_level(logging.INFO, logger="sqlalchemy.engine.Engine"):
+                async with engine.begin() as connection:
+                    await connection.execute(text("CREATE TABLE private_values (id INTEGER PRIMARY KEY, value TEXT)"))
+                    statement = text("INSERT INTO private_values (id, value) VALUES (:id, :private_value)")
+                    await connection.execute(statement, {"id": 1, "private_value": private_value})
+                    with pytest.raises(IntegrityError) as error:
+                        await connection.execute(statement, {"id": 1, "private_value": private_value})
+    
+            formatted = "".join(traceback.format_exception(error.value))
+            assert "UNIQUE constraint failed" in str(error.value)
+            assert "INSERT INTO private_values" in str(error.value)
+>           assert private_value not in str(error.value)
+E           AssertionError: assert 'synthetic-p...ort-P1234567' not in '(sqlite3.In...e/e/20/gkpj)'
+E             
+E             'synthetic-passport-P1234567' is contained here:
+E               ers: (1, 'synthetic-passport-P1234567')]
+E               (Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+tests\unit\infrastructure\test_database_parameter_privacy.py:42: AssertionError
+---------------------------- Captured stdout call -----------------------------
+2026-10-30T20:21:37.961279Z [info     ] BEGIN (implicit)               [sqlalchemy.engine.Engine]
+2026-10-30T20:21:37.962277Z [info     ] CREATE TABLE private_values (id INTEGER PRIMARY KEY, value TEXT) [sqlalchemy.engine.Engine]
+2026-10-30T20:21:37.962277Z [info     ] [generated in 0.00027s] ()     [sqlalchemy.engine.Engine]
+2026-10-30T20:21:37.962277Z [info     ] INSERT INTO private_values (id, value) VALUES (?, ?) [sqlalchemy.engine.Engine]
+2026-10-30T20:21:37.962277Z [info     ] [generated in 0.00025s] (1, 'synthetic-passport-P1234567') [sqlalchemy.engine.Engine]
+2026-10-30T20:21:37.964163Z [info     ] INSERT INTO private_values (id, value) VALUES (?, ?) [sqlalchemy.engine.Engine]
+2026-10-30T20:21:37.964163Z [info     ] [cached since 0.001478s ago] (1, 'synthetic-passport-P1234567') [sqlalchemy.engine.Engine]
+2026-10-30T20:21:37.965686Z [info     ] COMMIT                         [sqlalchemy.engine.Engine]
+------------------------------ Captured log call ------------------------------
+INFO     sqlalchemy.engine.Engine:base.py:2699 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1846 CREATE TABLE private_values (id INTEGER PRIMARY KEY, value TEXT)
+INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00027s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1846 INSERT INTO private_values (id, value) VALUES (?, ?)
+INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00025s] (1, 'synthetic-passport-P1234567')
+INFO     sqlalchemy.engine.Engine:base.py:1846 INSERT INTO private_values (id, value) VALUES (?, ?)
+INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 0.001478s ago] (1, 'synthetic-passport-P1234567')
+INFO     sqlalchemy.engine.Engine:base.py:2705 COMMIT
+_ test_real_constraint_errors_and_sql_logs_do_not_expose_bound_values[synthetic-passport-P1234567-True] _
+
+private_value = 'synthetic-passport-P1234567', echo = True
+caplog = <_pytest.logging.LogCaptureFixture object at 0x0000020DCB9DB3D0>
+
+    @pytest.mark.parametrize("echo", [False, True])
+    @pytest.mark.parametrize(
+        "private_value",
+        ["synthetic-passport-P1234567", "+919999990001", "synthetic-sensitive-bearer-token"],
+    )
+    async def test_real_constraint_errors_and_sql_logs_do_not_expose_bound_values(
+        private_value: str, echo: bool, caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        # Exercise the actual runtime engine's disclosure policy without a database
+        # service. SQLite's original constraint detail contains no private value;
+        # this isolates the additional SQLAlchemy parameter/traceback disclosure.
+        engine = create_async_engine(
+            "sqlite+aiosqlite:///:memory:",
+            hide_parameters=runtime_engine.sync_engine.hide_parameters,
+            echo=echo,
+        )
+        try:
+            with caplog.at_level(logging.INFO, logger="sqlalchemy.engine.Engine"):
+                async with engine.begin() as connection:
+                    await connection.execute(text("CREATE TABLE private_values (id INTEGER PRIMARY KEY, value TEXT)"))
+                    statement = text("INSERT INTO private_values (id, value) VALUES (:id, :private_value)")
+                    await connection.execute(statement, {"id": 1, "private_value": private_value})
+                    with pytest.raises(IntegrityError) as error:
+                        await connection.execute(statement, {"id": 1, "private_value": private_value})
+    
+            formatted = "".join(traceback.format_exception(error.value))
+            assert "UNIQUE constraint failed" in str(error.value)
+            assert "INSERT INTO private_values" in str(error.value)
+>           assert private_value not in str(error.value)
+E           AssertionError: assert 'synthetic-p...ort-P1234567' not in '(sqlite3.In...e/e/20/gkpj)'
+E             
+E             'synthetic-passport-P1234567' is contained here:
+E               ers: (1, 'synthetic-passport-P1234567')]
+E               (Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+tests\unit\infrastructure\test_database_parameter_privacy.py:42: AssertionError
+---------------------------- Captured stdout call -----------------------------
+2026-10-31 01:51:38,510 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-10-30T20:21:38.510981Z [info     ] BEGIN (implicit)               [sqlalchemy.engine.Engine]
+2026-10-31 01:51:38,510 INFO sqlalchemy.engine.Engine CREATE TABLE private_values (id INTEGER PRIMARY KEY, value TEXT)
+2026-10-30T20:21:38.510981Z [info     ] CREATE TABLE private_values (id INTEGER PRIMARY KEY, value TEXT) [sqlalchemy.engine.Engine]
+2026-10-31 01:51:38,510 INFO sqlalchemy.engine.Engine [generated in 0.00020s] ()
+2026-10-30T20:21:38.510981Z [info     ] [generated in 0.00020s] ()     [sqlalchemy.engine.Engine]
+2026-10-31 01:51:38,511 INFO sqlalchemy.engine.Engine INSERT INTO private_values (id, value) VALUES (?, ?)
+2026-10-30T20:21:38.511979Z [info     ] INSERT INTO private_values (id, value) VALUES (?, ?) [sqlalchemy.engine.Engine]
+2026-10-31 01:51:38,511 INFO sqlalchemy.engine.Engine [generated in 0.00020s] (1, 'synthetic-passport-P1234567')
+2026-10-30T20:21:38.511979Z [info     ] [generated in 0.00020s] (1, 'synthetic-passport-P1234567') [sqlalchemy.engine.Engine]
+2026-10-31 01:51:38,511 INFO sqlalchemy.engine.Engine INSERT INTO private_values (id, value) VALUES (?, ?)
+2026-10-30T20:21:38.511979Z [info     ] INSERT INTO private_values (id, value) VALUES (?, ?) [sqlalchemy.engine.Engine]
+2026-10-31 01:51:38,511 INFO sqlalchemy.engine.Engine [cached since 0.0007617s ago] (1, 'synthetic-passport-P1234567')
+2026-10-30T20:21:38.511979Z [info     ] [cached since 0.0007617s ago] (1, 'synthetic-passport-P1234567') [sqlalchemy.engine.Engine]
+2026-10-31 01:51:38,513 INFO sqlalchemy.engine.Engine COMMIT
+2026-10-30T20:21:38.513202Z [info     ] COMMIT                         [sqlalchemy.engine.Engine]
+------------------------------ Captured log call ------------------------------
+INFO     sqlalchemy.engine.Engine:base.py:2699 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1846 CREATE TABLE private_values (id INTEGER PRIMARY KEY, value TEXT)
+INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00020s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1846 INSERT INTO private_values (id, value) VALUES (?, ?)
+INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00020s] (1, 'synthetic-passport-P1234567')
+INFO     sqlalchemy.engine.Engine:base.py:1846 INSERT INTO private_values (id, value) VALUES (?, ?)
+INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 0.0007617s ago] (1, 'synthetic-passport-P1234567')
+INFO     sqlalchemy.engine.Engine:base.py:2705 COMMIT
+_ test_real_constraint_errors_and_sql_logs_do_not_expose_bound_values[+919999990001-False] _
+
+private_value = '+919999990001', echo = False
+caplog = <_pytest.logging.LogCaptureFixture object at 0x0000020DCB9D8790>
+
+    @pytest.mark.parametrize("echo", [False, True])
+    @pytest.mark.parametrize(
+        "private_value",
+        ["synthetic-passport-P1234567", "+919999990001", "synthetic-sensitive-bearer-token"],
+    )
+    async def test_real_constraint_errors_and_sql_logs_do_not_expose_bound_values(
+        private_value: str, echo: bool, caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        # Exercise the actual runtime engine's disclosure policy without a database
+        # service. SQLite's original constraint detail contains no private value;
+        # this isolates the additional SQLAlchemy parameter/traceback disclosure.
+        engine = create_async_engine(
+            "sqlite+aiosqlite:///:memory:",
+            hide_parameters=runtime_engine.sync_engine.hide_parameters,
+            echo=echo,
+        )
+        try:
+            with caplog.at_level(logging.INFO, logger="sqlalchemy.engine.Engine"):
+                async with engine.begin() as connection:
+                    await connection.execute(text("CREATE TABLE private_values (id INTEGER PRIMARY KEY, value TEXT)"))
+                    statement = text("INSERT INTO private_values (id, value) VALUES (:id, :private_value)")
+                    await connection.execute(statement, {"id": 1, "private_value": private_value})
+                    with pytest.raises(IntegrityError) as error:
+                        await connection.execute(statement, {"id": 1, "private_value": private_value})
+    
+            formatted = "".join(traceback.format_exception(error.value))
+            assert "UNIQUE constraint failed" in str(error.value)
+            assert "INSERT INTO private_values" in str(error.value)
+>           assert private_value not in str(error.value)
+E           AssertionError: assert '+919999990001' not in '(sqlite3.In...e/e/20/gkpj)'
+E             
+E             '+919999990001' is contained here:
+E               ers: (1, '+919999990001')]
+E               (Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+tests\unit\infrastructure\test_database_parameter_privacy.py:42: AssertionError
+---------------------------- Captured stdout call -----------------------------
+2026-10-31 01:51:38,523 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-10-30T20:21:38.523297Z [info     ] BEGIN (implicit)               [sqlalchemy.engine.Engine]
+2026-10-31 01:51:38,523 INFO sqlalchemy.engine.Engine CREATE TABLE private_values (id INTEGER PRIMARY KEY, value TEXT)
+2026-10-30T20:21:38.523297Z [info     ] CREATE TABLE private_values (id INTEGER PRIMARY KEY, value TEXT) [sqlalchemy.engine.Engine]
+2026-10-31 01:51:38,523 INFO sqlalchemy.engine.Engine [generated in 0.00019s] ()
+2026-10-30T20:21:38.523297Z [info     ] [generated in 0.00019s] ()     [sqlalchemy.engine.Engine]
+2026-10-31 01:51:38,524 INFO sqlalchemy.engine.Engine INSERT INTO private_values (id, value) VALUES (?, ?)
+2026-10-30T20:21:38.524315Z [info     ] INSERT INTO private_values (id, value) VALUES (?, ?) [sqlalchemy.engine.Engine]
+2026-10-31 01:51:38,524 INFO sqlalchemy.engine.Engine [generated in 0.00019s] (1, '+919999990001')
+2026-10-30T20:21:38.524315Z [info     ] [generated in 0.00019s] (1, '+919999990001') [sqlalchemy.engine.Engine]
+2026-10-31 01:51:38,525 INFO sqlalchemy.engine.Engine INSERT INTO private_values (id, value) VALUES (?, ?)
+2026-10-30T20:21:38.525317Z [info     ] INSERT INTO private_values (id, value) VALUES (?, ?) [sqlalchemy.engine.Engine]
+2026-10-31 01:51:38,525 INFO sqlalchemy.engine.Engine [cached since 0.0013s ago] (1, '+919999990001')
+2026-10-30T20:21:38.525317Z [info     ] [cached since 0.0013s ago] (1, '+919999990001') [sqlalchemy.engine.Engine]
+2026-10-31 01:51:38,525 INFO sqlalchemy.engine.Engine COMMIT
+2026-10-30T20:21:38.525317Z [info     ] COMMIT                         [sqlalchemy.engine.Engine]
+------------------------------ Captured log call ------------------------------
+INFO     sqlalchemy.engine.Engine:base.py:2699 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1846 CREATE TABLE private_values (id INTEGER PRIMARY KEY, value TEXT)
+INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00019s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1846 INSERT INTO private_values (id, value) VALUES (?, ?)
+INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00019s] (1, '+919999990001')
+INFO     sqlalchemy.engine.Engine:base.py:1846 INSERT INTO private_values (id, value) VALUES (?, ?)
+INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 0.0013s ago] (1, '+919999990001')
+INFO     sqlalchemy.engine.Engine:base.py:2705 COMMIT
+_ test_real_constraint_errors_and_sql_logs_do_not_expose_bound_values[+919999990001-True] _
+
+private_value = '+919999990001', echo = True
+caplog = <_pytest.logging.LogCaptureFixture object at 0x0000020DCBCF2290>
+
+    @pytest.mark.parametrize("echo", [False, True])
+    @pytest.mark.parametrize(
+        "private_value",
+        ["synthetic-passport-P1234567", "+919999990001", "synthetic-sensitive-bearer-token"],
+    )
+    async def test_real_constraint_errors_and_sql_logs_do_not_expose_bound_values(
+        private_value: str, echo: bool, caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        # Exercise the actual runtime engine's disclosure policy without a database
+        # service. SQLite's original constraint detail contains no private value;
+        # this isolates the additional SQLAlchemy parameter/traceback disclosure.
+        engine = create_async_engine(
+            "sqlite+aiosqlite:///:memory:",
+            hide_parameters=runtime_engine.sync_engine.hide_parameters,
+            echo=echo,
+        )
+        try:
+            with caplog.at_level(logging.INFO, logger="sqlalchemy.engine.Engine"):
+                async with engine.begin() as connection:
+                    await connection.execute(text("CREATE TABLE private_values (id INTEGER PRIMARY KEY, value TEXT)"))
+                    statement = text("INSERT INTO private_values (id, value) VALUES (:id, :private_value)")
+                    await connection.execute(statement, {"id": 1, "private_value": private_value})
+                    with pytest.raises(IntegrityError) as error:
+                        await connection.execute(statement, {"id": 1, "private_value": private_value})
+    
+            formatted = "".join(traceback.format_exception(error.value))
+            assert "UNIQUE constraint failed" in str(error.value)
+            assert "INSERT INTO private_values" in str(error.value)
+>           assert private_value not in str(error.value)
+E           AssertionError: assert '+919999990001' not in '(sqlite3.In...e/e/20/gkpj)'
+E             
+E             '+919999990001' is contained here:
+E               ers: (1, '+919999990001')]
+E               (Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+tests\unit\infrastructure\test_database_parameter_privacy.py:42: AssertionError
+---------------------------- Captured stdout call -----------------------------
+2026-10-31 01:51:38,536 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-10-30T20:21:38.536049Z [info     ] BEGIN (implicit)               [sqlalchemy.engine.Engine]
+2026-10-31 01:51:38,537 INFO sqlalchemy.engine.Engine CREATE TABLE private_values (id INTEGER PRIMARY KEY, value TEXT)
+2026-10-30T20:21:38.537579Z [info     ] CREATE TABLE private_values (id INTEGER PRIMARY KEY, value TEXT) [sqlalchemy.engine.Engine]
+2026-10-31 01:51:38,537 INFO sqlalchemy.engine.Engine [generated in 0.00023s] ()
+2026-10-30T20:21:38.537579Z [info     ] [generated in 0.00023s] ()     [sqlalchemy.engine.Engine]
+2026-10-31 01:51:38,537 INFO sqlalchemy.engine.Engine INSERT INTO private_values (id, value) VALUES (?, ?)
+2026-10-30T20:21:38.537579Z [info     ] INSERT INTO private_values (id, value) VALUES (?, ?) [sqlalchemy.engine.Engine]
+2026-10-31 01:51:38,538 INFO sqlalchemy.engine.Engine [generated in 0.00023s] (1, '+919999990001')
+2026-10-30T20:21:38.538663Z [info     ] [generated in 0.00023s] (1, '+919999990001') [sqlalchemy.engine.Engine]
+2026-10-31 01:51:38,538 INFO sqlalchemy.engine.Engine INSERT INTO private_values (id, value) VALUES (?, ?)
+2026-10-30T20:21:38.538663Z [info     ] INSERT INTO private_values (id, value) VALUES (?, ?) [sqlalchemy.engine.Engine]
+2026-10-31 01:51:38,538 INFO sqlalchemy.engine.Engine [cached since 0.0008606s ago] (1, '+919999990001')
+2026-10-30T20:21:38.538663Z [info     ] [cached since 0.0008606s ago] (1, '+919999990001') [sqlalchemy.engine.Engine]
+2026-10-31 01:51:38,539 INFO sqlalchemy.engine.Engine COMMIT
+2026-10-30T20:21:38.539673Z [info     ] COMMIT                         [sqlalchemy.engine.Engine]
+------------------------------ Captured log call ------------------------------
+INFO     sqlalchemy.engine.Engine:base.py:2699 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1846 CREATE TABLE private_values (id INTEGER PRIMARY KEY, value TEXT)
+INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00023s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1846 INSERT INTO private_values (id, value) VALUES (?, ?)
+INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00023s] (1, '+919999990001')
+INFO     sqlalchemy.engine.Engine:base.py:1846 INSERT INTO private_values (id, value) VALUES (?, ?)
+INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 0.0008606s ago] (1, '+919999990001')
+INFO     sqlalchemy.engine.Engine:base.py:2705 COMMIT
+_ test_real_constraint_errors_and_sql_logs_do_not_expose_bound_values[synthetic-sensitive-bearer-token-False] _
+
+private_value = 'synthetic-sensitive-bearer-token', echo = False
+caplog = <_pytest.logging.LogCaptureFixture object at 0x0000020DCBCF4B10>
+
+    @pytest.mark.parametrize("echo", [False, True])
+    @pytest.mark.parametrize(
+        "private_value",
+        ["synthetic-passport-P1234567", "+919999990001", "synthetic-sensitive-bearer-token"],
+    )
+    async def test_real_constraint_errors_and_sql_logs_do_not_expose_bound_values(
+        private_value: str, echo: bool, caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        # Exercise the actual runtime engine's disclosure policy without a database
+        # service. SQLite's original constraint detail contains no private value;
+        # this isolates the additional SQLAlchemy parameter/traceback disclosure.
+        engine = create_async_engine(
+            "sqlite+aiosqlite:///:memory:",
+            hide_parameters=runtime_engine.sync_engine.hide_parameters,
+            echo=echo,
+        )
+        try:
+            with caplog.at_level(logging.INFO, logger="sqlalchemy.engine.Engine"):
+                async with engine.begin() as connection:
+                    await connection.execute(text("CREATE TABLE private_values (id INTEGER PRIMARY KEY, value TEXT)"))
+                    statement = text("INSERT INTO private_values (id, value) VALUES (:id, :private_value)")
+                    await connection.execute(statement, {"id": 1, "private_value": private_value})
+                    with pytest.raises(IntegrityError) as error:
+                        await connection.execute(statement, {"id": 1, "private_value": private_value})
+    
+            formatted = "".join(traceback.format_exception(error.value))
+            assert "UNIQUE constraint failed" in str(error.value)
+            assert "INSERT INTO private_values" in str(error.value)
+>           assert private_value not in str(error.value)
+E           AssertionError: assert 'synthetic-s...bearer-token' not in '(sqlite3.In...e/e/20/gkpj)'
+E             
+E             'synthetic-sensitive-bearer-token' is contained here:
+E               ers: (1, 'synthetic-sensitive-bearer-token')]
+E               (Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+tests\unit\infrastructure\test_database_parameter_privacy.py:42: AssertionError
+---------------------------- Captured stdout call -----------------------------
+2026-10-31 01:51:38,550 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-10-30T20:21:38.550588Z [info     ] BEGIN (implicit)               [sqlalchemy.engine.Engine]
+2026-10-31 01:51:38,550 INFO sqlalchemy.engine.Engine CREATE TABLE private_values (id INTEGER PRIMARY KEY, value TEXT)
+2026-10-30T20:21:38.550588Z [info     ] CREATE TABLE private_values (id INTEGER PRIMARY KEY, value TEXT) [sqlalchemy.engine.Engine]
+2026-10-31 01:51:38,550 INFO sqlalchemy.engine.Engine [generated in 0.00021s] ()
+2026-10-30T20:21:38.550588Z [info     ] [generated in 0.00021s] ()     [sqlalchemy.engine.Engine]
+2026-10-31 01:51:38,552 INFO sqlalchemy.engine.Engine INSERT INTO private_values (id, value) VALUES (?, ?)
+2026-10-30T20:21:38.552240Z [info     ] INSERT INTO private_values (id, value) VALUES (?, ?) [sqlalchemy.engine.Engine]
+2026-10-31 01:51:38,552 INFO sqlalchemy.engine.Engine [generated in 0.00032s] (1, 'synthetic-sensitive-bearer-token')
+2026-10-30T20:21:38.552240Z [info     ] [generated in 0.00032s] (1, 'synthetic-sensitive-bearer-token') [sqlalchemy.engine.Engine]
+2026-10-31 01:51:38,552 INFO sqlalchemy.engine.Engine INSERT INTO private_values (id, value) VALUES (?, ?)
+2026-10-30T20:21:38.552240Z [info     ] INSERT INTO private_values (id, value) VALUES (?, ?) [sqlalchemy.engine.Engine]
+2026-10-31 01:51:38,552 INFO sqlalchemy.engine.Engine [cached since 0.001086s ago] (1, 'synthetic-sensitive-bearer-token')
+2026-10-30T20:21:38.552240Z [info     ] [cached since 0.001086s ago] (1, 'synthetic-sensitive-bearer-token') [sqlalchemy.engine.Engine]
+2026-10-31 01:51:38,553 INFO sqlalchemy.engine.Engine COMMIT
+2026-10-30T20:21:38.553753Z [info     ] COMMIT                         [sqlalchemy.engine.Engine]
+------------------------------ Captured log call ------------------------------
+INFO     sqlalchemy.engine.Engine:base.py:2699 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1846 CREATE TABLE private_values (id INTEGER PRIMARY KEY, value TEXT)
+INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00021s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1846 INSERT INTO private_values (id, value) VALUES (?, ?)
+INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00032s] (1, 'synthetic-sensitive-bearer-token')
+INFO     sqlalchemy.engine.Engine:base.py:1846 INSERT INTO private_values (id, value) VALUES (?, ?)
+INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 0.001086s ago] (1, 'synthetic-sensitive-bearer-token')
+INFO     sqlalchemy.engine.Engine:base.py:2705 COMMIT
+_ test_real_constraint_errors_and_sql_logs_do_not_expose_bound_values[synthetic-sensitive-bearer-token-True] _
+
+private_value = 'synthetic-sensitive-bearer-token', echo = True
+caplog = <_pytest.logging.LogCaptureFixture object at 0x0000020DCB9C0450>
+
+    @pytest.mark.parametrize("echo", [False, True])
+    @pytest.mark.parametrize(
+        "private_value",
+        ["synthetic-passport-P1234567", "+919999990001", "synthetic-sensitive-bearer-token"],
+    )
+    async def test_real_constraint_errors_and_sql_logs_do_not_expose_bound_values(
+        private_value: str, echo: bool, caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        # Exercise the actual runtime engine's disclosure policy without a database
+        # service. SQLite's original constraint detail contains no private value;
+        # this isolates the additional SQLAlchemy parameter/traceback disclosure.
+        engine = create_async_engine(
+            "sqlite+aiosqlite:///:memory:",
+            hide_parameters=runtime_engine.sync_engine.hide_parameters,
+            echo=echo,
+        )
+        try:
+            with caplog.at_level(logging.INFO, logger="sqlalchemy.engine.Engine"):
+                async with engine.begin() as connection:
+                    await connection.execute(text("CREATE TABLE private_values (id INTEGER PRIMARY KEY, value TEXT)"))
+                    statement = text("INSERT INTO private_values (id, value) VALUES (:id, :private_value)")
+                    await connection.execute(statement, {"id": 1, "private_value": private_value})
+                    with pytest.raises(IntegrityError) as error:
+                        await connection.execute(statement, {"id": 1, "private_value": private_value})
+    
+            formatted = "".join(traceback.format_exception(error.value))
+            assert "UNIQUE constraint failed" in str(error.value)
+            assert "INSERT INTO private_values" in str(error.value)
+>           assert private_value not in str(error.value)
+E           AssertionError: assert 'synthetic-s...bearer-token' not in '(sqlite3.In...e/e/20/gkpj)'
+E             
+E             'synthetic-sensitive-bearer-token' is contained here:
+E               ers: (1, 'synthetic-sensitive-bearer-token')]
+E               (Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+tests\unit\infrastructure\test_database_parameter_privacy.py:42: AssertionError
+---------------------------- Captured stdout call -----------------------------
+2026-10-31 01:51:38,563 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-10-30T20:21:38.563851Z [info     ] BEGIN (implicit)               [sqlalchemy.engine.Engine]
+2026-10-31 01:51:38,563 INFO sqlalchemy.engine.Engine CREATE TABLE private_values (id INTEGER PRIMARY KEY, value TEXT)
+2026-10-30T20:21:38.563851Z [info     ] CREATE TABLE private_values (id INTEGER PRIMARY KEY, value TEXT) [sqlalchemy.engine.Engine]
+2026-10-31 01:51:38,563 INFO sqlalchemy.engine.Engine [generated in 0.00022s] ()
+2026-10-30T20:21:38.563851Z [info     ] [generated in 0.00022s] ()     [sqlalchemy.engine.Engine]
+2026-10-31 01:51:38,563 INFO sqlalchemy.engine.Engine INSERT INTO private_values (id, value) VALUES (?, ?)
+2026-10-30T20:21:38.563851Z [info     ] INSERT INTO private_values (id, value) VALUES (?, ?) [sqlalchemy.engine.Engine]
+2026-10-31 01:51:38,565 INFO sqlalchemy.engine.Engine [generated in 0.00023s] (1, 'synthetic-sensitive-bearer-token')
+2026-10-30T20:21:38.565244Z [info     ] [generated in 0.00023s] (1, 'synthetic-sensitive-bearer-token') [sqlalchemy.engine.Engine]
+2026-10-31 01:51:38,565 INFO sqlalchemy.engine.Engine INSERT INTO private_values (id, value) VALUES (?, ?)
+2026-10-30T20:21:38.565751Z [info     ] INSERT INTO private_values (id, value) VALUES (?, ?) [sqlalchemy.engine.Engine]
+2026-10-31 01:51:38,565 INFO sqlalchemy.engine.Engine [cached since 0.000898s ago] (1, 'synthetic-sensitive-bearer-token')
+2026-10-30T20:21:38.565751Z [info     ] [cached since 0.000898s ago] (1, 'synthetic-sensitive-bearer-token') [sqlalchemy.engine.Engine]
+2026-10-31 01:51:38,565 INFO sqlalchemy.engine.Engine COMMIT
+2026-10-30T20:21:38.565751Z [info     ] COMMIT                         [sqlalchemy.engine.Engine]
+------------------------------ Captured log call ------------------------------
+INFO     sqlalchemy.engine.Engine:base.py:2699 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1846 CREATE TABLE private_values (id INTEGER PRIMARY KEY, value TEXT)
+INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00022s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1846 INSERT INTO private_values (id, value) VALUES (?, ?)
+INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00023s] (1, 'synthetic-sensitive-bearer-token')
+INFO     sqlalchemy.engine.Engine:base.py:1846 INSERT INTO private_values (id, value) VALUES (?, ?)
+INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 0.000898s ago] (1, 'synthetic-sensitive-bearer-token')
+INFO     sqlalchemy.engine.Engine:base.py:2705 COMMIT
+=========================== short test summary info ===========================
+FAILED tests/unit/infrastructure/test_database_parameter_privacy.py::test_real_constraint_errors_and_sql_logs_do_not_expose_bound_values[synthetic-passport-P1234567-False]
+FAILED tests/unit/infrastructure/test_database_parameter_privacy.py::test_real_constraint_errors_and_sql_logs_do_not_expose_bound_values[synthetic-passport-P1234567-True]
+FAILED tests/unit/infrastructure/test_database_parameter_privacy.py::test_real_constraint_errors_and_sql_logs_do_not_expose_bound_values[+919999990001-False]
+FAILED tests/unit/infrastructure/test_database_parameter_privacy.py::test_real_constraint_errors_and_sql_logs_do_not_expose_bound_values[+919999990001-True]
+FAILED tests/unit/infrastructure/test_database_parameter_privacy.py::test_real_constraint_errors_and_sql_logs_do_not_expose_bound_values[synthetic-sensitive-bearer-token-False]
+FAILED tests/unit/infrastructure/test_database_parameter_privacy.py::test_real_constraint_errors_and_sql_logs_do_not_expose_bound_values[synthetic-sensitive-bearer-token-True]
+6 failed in 0.74s

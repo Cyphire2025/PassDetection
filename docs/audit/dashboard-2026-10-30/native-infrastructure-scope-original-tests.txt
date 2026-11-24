@@ -1,0 +1,427 @@
+"""User deferrals change active scope without erasing source-bound review history."""
+
+from __future__ import annotations
+
+import csv
+import hashlib
+import json
+
+import pytest
+
+from tests.unit.scripts.test_dashboard_audit_review_resolutions import inventory
+
+NATIVE_OPS_REFINEMENT = (
+    "backend/app/presentation/api/v1/routes/mobile_ops.py",
+    "backend/app/presentation/api/v1/routes/mobile_ops_passenger_support.py",
+    "backend/app/presentation/api/v1/routes/mobile_ops_notification_support.py",
+    "backend/app/presentation/api/v1/routes/mobile_attendance_action_support.py",
+    "backend/app/presentation/api/v1/schemas/mobile_schemas.py",
+    "backend/app/presentation/dependencies/mobile_auth.py",
+    "backend/tests/unit/presentation/test_mobile_ops_support_boundaries.py",
+)
+
+NATIVE_APPROVED_BASE = (
+    "backend/app/application/mobile/app_integrity.py",
+    "backend/app/application/mobile/integrity_service.py",
+    "backend/app/application/mobile/journey_destination.py",
+    "backend/app/infrastructure/mobile_journey_geocoding.py",
+    "backend/app/infrastructure/security/apple_app_attest_verifier.py",
+    "backend/app/infrastructure/security/mobile_integrity_challenges.py",
+    "backend/app/infrastructure/security/mobile_integrity_providers.py",
+    "backend/app/presentation/api/v1/routes/mobile_associations.py",
+    "backend/app/presentation/api/v1/routes/mobile_auth.py",
+    "backend/app/presentation/api/v1/routes/mobile_auth_otp_support.py",
+    "backend/app/presentation/api/v1/routes/mobile_auth_phone_support.py",
+    "backend/app/presentation/api/v1/routes/mobile_auth_session_support.py",
+    "backend/app/presentation/api/v1/routes/mobile_integrity.py",
+    "backend/app/presentation/api/v1/routes/mobile_journey.py",
+    "backend/app/presentation/api/v1/routes/mobile_my_photos.py",
+    "backend/app/presentation/api/v1/routes/mobile_realtime.py",
+    "backend/app/presentation/api/v1/routes/mobile_resources.py",
+    "backend/app/presentation/api/v1/routes/mobile_sync_projection.py",
+    "backend/tests/unit/application/test_mobile_app_integrity.py",
+    "backend/tests/unit/presentation/test_mobile_associations.py",
+    "backend/tests/unit/presentation/test_mobile_integrity_route.py",
+    "backend/tests/unit/presentation/test_mobile_journey.py",
+    "backend/tests/unit/presentation/test_mobile_login_password_work.py",
+    "backend/tests/unit/presentation/test_mobile_passenger_claim_resolution.py",
+)
+
+
+def policy(report, **changes):
+    document = {
+        "schema_version": 1,
+        "deferred_patterns": ["backend/app/infrastructure/email/*", "backend/tests/**/test_email_*.py"],
+        "retained_overrides": ["backend/tests/unit/infrastructure/test_email_storage_reconciliation.py"],
+        **changes,
+    }
+    (report / "audit-scope.json").write_text(json.dumps(document), encoding="utf-8")
+
+
+@pytest.mark.parametrize(("path", "expected"), [
+    ("backend/app/infrastructure/email/tasks.py", "operations-inbox-deferred"),
+    ("backend/tests/unit/presentation/test_email_connection_controls.py", "operations-inbox-deferred"),
+    ("backend/tests/unit/infrastructure/test_email_storage_reconciliation.py", "backend"),
+    ("backend/app/infrastructure/security/identity_notifications.py", "backend"),
+    ("backend/app/presentation/api/v1/routes/passport_routes/contact_verification.py", "backend"),
+    ("backend/app/infrastructure/whatsapp/receipt_inbox.py", "backend"),
+    ("backend/alembic/versions/0094_whatsapp_receipt_inbox.py", "backend"),
+    ("mobile/app/notifications.tsx", "mobile-excluded"),
+])
+def test_only_dedicated_inbox_paths_are_deferred(tmp_path, monkeypatch, path, expected):
+    policy(tmp_path)
+    monkeypatch.setattr(inventory, "REPORT", tmp_path)
+    patterns, overrides = inventory.deferred_scope_rules()
+    scope, _ = inventory.classify(path, deferred_patterns=patterns, retained_overrides=overrides)
+    assert scope == expected
+
+
+def test_active_totals_exclude_deferred_files_but_keep_original_review_status(tmp_path, monkeypatch):
+    report = tmp_path / "audit"
+    report.mkdir()
+    inbox = "backend/app/infrastructure/email/tasks.py"
+    retained = "backend/app/passports.py"
+    for name in (inbox, retained):
+        path = tmp_path / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("pass\n", encoding="utf-8")
+    policy(report)
+    record = {"path": inbox, "sha256": hashlib.sha256((tmp_path / inbox).read_bytes()).hexdigest(),
+              "review_scope": "full", "status": "needs-follow-up", "notes": "Independent finding remains open."}
+    ledger = report / "context-reviewed-files.json"
+    original = json.dumps([record]).encode()
+    ledger.write_bytes(original)
+    monkeypatch.setattr(inventory, "ROOT", tmp_path)
+    monkeypatch.setattr(inventory, "REPORT", report)
+    monkeypatch.setattr(inventory.subprocess, "check_output", lambda *_args, **_kwargs: (inbox + "\0" + retained + "\0").encode())
+    summary = inventory.refresh([], "reviewed", "test", "")
+    with (report / "file-inventory.csv").open(encoding="utf-8", newline="") as stream:
+        rows = {row["path"]: row for row in csv.DictReader(stream)}
+    assert rows[inbox]["scope"] == "operations-inbox-deferred"
+    assert rows[inbox]["status"] == "needs-follow-up" and rows[inbox]["review_scope"] == "full"
+    assert rows[inbox]["sha256"] == record["sha256"] and ledger.read_bytes() == original
+    assert summary["active_files"] == 1 and summary["active_review_scope"] == {"unreviewed": 1}
+    assert summary["deferred_by_user"]["files"] == 1
+    assert summary["deferred_by_user"]["review_scope"] == {"full": 1}
+    assert all(row["path"] != inbox for row in summary["largest_source_modules"])
+
+
+@pytest.mark.parametrize("changes", [
+    {"schema_version": True}, {"schema_version": 2}, {"deferred_patterns": "*"},
+    {"deferred_patterns": ["../outside"]}, {"deferred_patterns": ["C:/outside"]},
+    {"retained_overrides": [None]},
+])
+def test_invalid_scope_policy_fails_before_inventory_replacement(tmp_path, monkeypatch, changes):
+    original = b"prior inventory\n"
+    (tmp_path / "file-inventory.csv").write_bytes(original)
+    policy(tmp_path, **changes)
+    monkeypatch.setattr(inventory, "REPORT", tmp_path)
+    with pytest.raises(ValueError):
+        inventory.refresh([], "reviewed", "test", "")
+    assert (tmp_path / "file-inventory.csv").read_bytes() == original
+
+
+def test_only_four_explicit_public_sample_assets_can_enter_retirement_history(tmp_path, monkeypatch):
+    names = ("passport-front-cover.png", "passport-back-cover.png", "visa-photo.png", "README.md")
+    records = [{"path": "frontend/public/assets/upload-samples/" + name, "sha256": "a" * 64}
+               for name in names]
+    manifest = tmp_path / "retired-upload-samples-manifest.json"
+    original = json.dumps({"files": records}).encode()
+    manifest.write_bytes(original)
+    monkeypatch.setattr(inventory, "REPORT", tmp_path)
+    history = inventory.retired_source_history()
+    assert set(history) == {row["path"] for row in records}
+    assert all(row["review_scope"] == "retired" and row["sha256"] == "a" * 64 for row in history.values())
+    assert manifest.read_bytes() == original
+    records.append({"path": "frontend/public/unrelated.png", "sha256": "b" * 64})
+    manifest.write_text(json.dumps({"files": records}), encoding="utf-8")
+    with pytest.raises(ValueError):
+        inventory.retired_source_history()
+
+
+def foundation_manifest():
+    paths = (
+        "backend/app/application/dtos/whatsapp_dtos.py",
+        "backend/app/application/interfaces/whatsapp_provider.py",
+        "backend/app/application/use_cases/whatsapp/plan_group_broadcast_use_case.py",
+        "backend/app/infrastructure/whatsapp/noop_provider.py",
+        "backend/app/infrastructure/whatsapp/pricing.py",
+    )
+    return {
+        "schema_version": 1,
+        "files": [
+            {
+                "path": path,
+                "original_path": path,
+                "archive_path": "Not related to project/retired-whatsapp-foundation/" + path,
+                "sha256": hashlib.sha256(path.encode()).hexdigest(),
+                "archive_sha256": hashlib.sha256(path.encode()).hexdigest(),
+                "physical_lines": index + 1,
+                "bytes": 100 + index,
+                "status": "retired",
+            }
+            for index, path in enumerate(paths)
+        ],
+    }
+
+
+def test_exact_five_foundation_sources_remain_visible_without_local_archive(tmp_path, monkeypatch):
+    report = tmp_path / "audit"
+    report.mkdir()
+    document = foundation_manifest()
+    manifest = report / "whatsapp-foundation-retirement-manifest.json"
+    original = json.dumps(document).encode()
+    manifest.write_bytes(original)
+    monkeypatch.setattr(inventory, "REPORT", report)
+    monkeypatch.setattr(inventory, "ROOT", tmp_path)
+    monkeypatch.setattr(inventory.subprocess, "check_output", lambda *_args, **_kwargs: b"")
+    summary = inventory.refresh([], "reviewed", "test", "")
+    with (report / "file-inventory.csv").open(encoding="utf-8", newline="") as stream:
+        rows = {row["path"]: row for row in csv.DictReader(stream)}
+    assert set(rows) == {record["path"] for record in document["files"]}
+    for record in document["files"]:
+        row = rows[record["path"]]
+        assert row["sha256"] == record["sha256"]
+        assert int(row["lines"]) == record["physical_lines"]
+        assert row["scope"] == "backend" and row["review_scope"] == "retired"
+        assert row["status"] == "removed-in-working-tree"
+    assert summary["active_files"] == 0 and summary["files"] == 5
+    assert manifest.read_bytes() == original
+
+
+@pytest.mark.parametrize("change", [
+    "backend-path", "frontend-path", "traversal", "archive-path", "archive-hash",
+    "original-path", "schema", "duplicate", "incomplete", "byte-count",
+])
+def test_foundation_retirement_cannot_admit_unrelated_or_inconsistent_records(
+    tmp_path, monkeypatch, change,
+):
+    document = foundation_manifest()
+    record = document["files"][0]
+    if change == "backend-path":
+        record["path"] = "backend/app/infrastructure/whatsapp/template_settings.py"
+    elif change == "frontend-path":
+        record["path"] = "frontend/features/whatsapp/live.ts"
+    elif change == "traversal":
+        record["path"] = "backend/app/application/dtos/../../outside.py"
+    elif change == "archive-path":
+        record["archive_path"] = "Not related to project/../../outside.py"
+    elif change == "archive-hash":
+        record["archive_sha256"] = "b" * 64
+    elif change == "original-path":
+        record["original_path"] = "backend/unrelated.py"
+    elif change == "schema":
+        document["schema_version"] = True
+    elif change == "duplicate":
+        document["files"].append(dict(record))
+    elif change == "incomplete":
+        document["files"].pop()
+    elif change == "byte-count":
+        record["bytes"] = True
+    (tmp_path / "whatsapp-foundation-retirement-manifest.json").write_text(
+        json.dumps(document), encoding="utf-8",
+    )
+    monkeypatch.setattr(inventory, "REPORT", tmp_path)
+    with pytest.raises(ValueError):
+        inventory.retired_source_history()
+
+
+@pytest.mark.parametrize(("path", "expected"), [
+    ("backend/app/presentation/api/v1/routes/mobile_integrity.py", "mobile-excluded"),
+    ("backend/tests/unit/presentation/test_mobile_journey.py", "mobile-excluded"),
+    ("backend/app/core/security/mobile_offline_lease.py", "backend"),
+    ("backend/app/core/security/mobile_jwt.py", "backend"),
+    ("backend/app/infrastructure/security/mobile_otp_rate_limiter.py", "backend"),
+    ("backend/app/infrastructure/mobile_push/fcm_provider.py", "backend"),
+    ("backend/app/application/mobile/group_capacity.py", "backend"),
+    ("backend/app/application/mobile/passenger_change_propagation.py", "backend"),
+    ("backend/app/application/travellers/current_details.py", "backend"),
+    ("backend/app/presentation/api/v1/routes/gc_notifications.py", "backend"),
+])
+def test_native_scope_only_excludes_explicit_literal_paths(tmp_path, monkeypatch, path, expected):
+    policy(tmp_path, native_app_only_paths=[
+        "backend/app/presentation/api/v1/routes/mobile_integrity.py",
+        "backend/tests/unit/presentation/test_mobile_journey.py",
+    ])
+    monkeypatch.setattr(inventory, "REPORT", tmp_path)
+    native = inventory.native_app_scope_rules()
+    patterns, overrides = inventory.deferred_scope_rules()
+    assert inventory.classify(
+        path, native_app_only_paths=native,
+        deferred_patterns=patterns, retained_overrides=overrides,
+    )[0] == expected
+
+
+@pytest.mark.parametrize("native", [
+    "backend/app/presentation/api/v1/routes/mobile_integrity.py", *NATIVE_OPS_REFINEMENT,
+])
+def test_native_scope_preserves_existing_full_read_and_independent_followup(
+    tmp_path, monkeypatch, native,
+):
+    report = tmp_path / "audit"
+    report.mkdir()
+    retained = "backend/app/core/security/mobile_offline_lease.py"
+    for path in (native, retained):
+        source = tmp_path / path
+        source.parent.mkdir(parents=True, exist_ok=True)
+        source.write_text("pass\n", encoding="utf-8")
+    policy(report, native_app_only_paths=[native])
+    record = {"path": native, "sha256": hashlib.sha256((tmp_path / native).read_bytes()).hexdigest(),
+              "review_scope": "full", "status": "needs-follow-up",
+              "notes": "Original source read and independent finding remain historical."}
+    ledger = report / "native-reviewed-files.json"
+    original = json.dumps([record]).encode()
+    ledger.write_bytes(original)
+    monkeypatch.setattr(inventory, "ROOT", tmp_path)
+    monkeypatch.setattr(inventory, "REPORT", report)
+    monkeypatch.setattr(inventory.subprocess, "check_output", lambda *_args, **_kwargs: (native + "\0" + retained + "\0").encode())
+    summary = inventory.refresh([], "reviewed", "test", "")
+    with (report / "file-inventory.csv").open(encoding="utf-8", newline="") as stream:
+        rows = {row["path"]: row for row in csv.DictReader(stream)}
+    assert rows[native]["scope"] == "mobile-excluded"
+    assert rows[native]["status"] == "needs-follow-up" and rows[native]["review_scope"] == "full"
+    assert rows[native]["sha256"] == record["sha256"] and ledger.read_bytes() == original
+    assert rows[retained]["scope"] == "backend"
+    assert summary["active_files"] == 1
+    assert summary["deferred_by_user"]["files"] == 0
+    assert all(row["path"] != native for row in summary["largest_source_modules"])
+
+
+def test_checked_in_native_scope_has_only_approved_literal_cohorts():
+    native = inventory.native_app_scope_rules()
+    assert len(native) == 36
+    assert len([path for path in native if path.startswith("backend/")]) == 31
+    assert native == frozenset((*NATIVE_APPROVED_BASE, *NATIVE_OPS_REFINEMENT, *NATIVE_SUPPORT_APPROVED))
+    retained = {
+        "backend/app/infrastructure/mobile_realtime.py",
+        "backend/app/infrastructure/mobile_realtime_registry.py",
+        "backend/app/presentation/api/v1/routes/dashboard_realtime.py",
+        "backend/app/presentation/api/v1/routes/realtime_socket_support.py",
+        "backend/app/presentation/api/v1/routes/tour_operations.py",
+        "backend/app/application/mobile/group_capacity.py",
+        "backend/app/application/mobile/passenger_change_propagation.py",
+        "backend/app/application/mobile/notification_service.py",
+        "backend/app/application/mobile/push_registration.py",
+        "backend/app/application/mobile/authored_notification_audience.py",
+        "backend/app/presentation/api/v1/routes/gc_notifications.py",
+        "backend/app/presentation/api/v1/schemas/attendance_runtime_schemas.py",
+        "backend/tests/unit/presentation/test_mobile_route_type_boundaries.py",
+        "backend/tests/unit/application/test_authored_notifications.py",
+        "backend/tests/unit/infrastructure/test_apns_push_provider.py",
+    }
+    assert not native & retained
+    for path in retained:
+        assert inventory.classify(path, native_app_only_paths=native)[0] == "backend"
+
+
+NATIVE_SUPPORT_APPROVED = (
+    ".github/workflows/mobile-ci.yml",
+    ".github/workflows/coordinator-webview-ci.yml",
+    "load-tests/k6/mobile-api.js",
+    "load-tests/k6/mobile-attendance.js",
+    "load-tests/k6/mobile-realtime.js",
+)
+
+
+@pytest.mark.parametrize("path", NATIVE_SUPPORT_APPROVED)
+def test_native_support_scope_is_explicit_and_keeps_dashboard_tooling(tmp_path, monkeypatch, path):
+    policy(tmp_path, native_app_only_paths=[path])
+    monkeypatch.setattr(inventory, "REPORT", tmp_path)
+    native = inventory.native_app_scope_rules()
+    assert native == frozenset({path})
+    assert inventory.classify(path, native_app_only_paths=native)[0] == "mobile-excluded"
+    for retained in (
+        ".github/workflows/ci.yml",
+        "load-tests/k6/dashboard-load.js",
+        "load-tests/k6/dashboard-load-contract.mjs",
+        "load-tests/k6/mobile-load-contract.mjs",
+        "load-tests/k6/mobile-attendance-load-contract.mjs",
+    ):
+        assert inventory.classify(retained, native_app_only_paths=native)[0] == "operations-and-tooling"
+
+
+@pytest.mark.parametrize("paths", [
+    "backend/native.py", ["backend/*"], ["backend/native?.py"], ["backend/[native].py"],
+    ["../outside.py"], ["C:/outside.py"], ["backend\\native.py"],
+    ["backend//native.py"], ["backend/native.py", "backend/native.py"], [None],
+    ["scripts/unrelated.py"], [".github/workflows/ci.yml"], ["load-tests/k6/dashboard-load.js"],
+])
+def test_invalid_native_scope_cannot_replace_inventory(tmp_path, monkeypatch, paths):
+    original = b"preserved inventory\n"
+    (tmp_path / "file-inventory.csv").write_bytes(original)
+    policy(tmp_path, native_app_only_paths=paths)
+    monkeypatch.setattr(inventory, "REPORT", tmp_path)
+    with pytest.raises(ValueError):
+        inventory.refresh([], "reviewed", "test", "")
+    assert (tmp_path / "file-inventory.csv").read_bytes() == original
+
+
+def branding_experiment_manifest():
+    prefix = "assets/branding/global-connect/social-motion-collection-2026-09-19/"
+    paths = [prefix + f"videos/example-{index:02}.mp4" for index in range(71)]
+    paths.append("assets/Emulator Screenshot.lnk")
+    return {
+        "schema_version": 1,
+        "source_cohort": prefix.rstrip("/"),
+        "source_shortcut": "assets/Emulator Screenshot.lnk",
+        "closed_entry_count": 72,
+        "binary_payloads_embedded": False,
+        "files": [
+            {"path": path, "original_path": path,
+             "archive_path": "Not related to project/retired-branding-experiments/" + path,
+             "sha256": hashlib.sha256(path.encode()).hexdigest(),
+             "archive_sha256": hashlib.sha256(path.encode()).hexdigest(),
+             "bytes": index + 10, "status": "retired", "asset_metadata_only": True}
+            for index, path in enumerate(paths)
+        ],
+    }
+
+
+def test_only_closed_branding_cohort_enters_history_without_asset_payloads(tmp_path, monkeypatch):
+    document = branding_experiment_manifest()
+    manifest = tmp_path / "retired-branding-experiments-manifest.json"
+    original = json.dumps(document).encode()
+    manifest.write_bytes(original)
+    monkeypatch.setattr(inventory, "REPORT", tmp_path)
+    history = inventory.retired_source_history()
+    assert set(history) == {record["path"] for record in document["files"]}
+    assert all(row["review_scope"] == "retired" and row["lines"] == 0 for row in history.values())
+    assert all(row["scope"] == "supporting-material" for row in history.values())
+    assert manifest.read_bytes() == original
+
+
+@pytest.mark.parametrize("change", [
+    "active-branding", "backend", "traversal", "glob", "shortcut", "duplicate",
+    "incomplete", "archive-hash", "metadata-claim", "binary-payload-flag",
+])
+def test_branding_history_cannot_exclude_unrelated_or_unverified_assets(
+    tmp_path, monkeypatch, change,
+):
+    document = branding_experiment_manifest()
+    record = document["files"][0]
+    if change == "active-branding":
+        record["path"] = "assets/branding/global-connect/journey-film/journey-film-web.mp4"
+    elif change == "backend":
+        record["path"] = "backend/app/main.py"
+    elif change == "traversal":
+        record["path"] += "/../../outside.png"
+    elif change == "glob":
+        record["path"] = record["path"].replace("example-00.mp4", "*.mp4")
+    elif change == "shortcut":
+        document["files"][-1]["path"] = "assets/Unrelated.lnk"
+    elif change == "duplicate":
+        document["files"][-1] = dict(record)
+    elif change == "incomplete":
+        document["files"].pop()
+    elif change == "archive-hash":
+        record["archive_sha256"] = "b" * 64
+    elif change == "metadata-claim":
+        record["asset_metadata_only"] = False
+    elif change == "binary-payload-flag":
+        document["binary_payloads_embedded"] = True
+    (tmp_path / "retired-branding-experiments-manifest.json").write_text(
+        json.dumps(document), encoding="utf-8",
+    )
+    monkeypatch.setattr(inventory, "REPORT", tmp_path)
+    with pytest.raises(ValueError):
+        inventory.retired_source_history()

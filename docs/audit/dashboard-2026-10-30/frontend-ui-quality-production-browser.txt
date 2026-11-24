@@ -1,0 +1,22 @@
+[WebServer] (node:21556) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:22484) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 9 tests using 1 worker
+
+(node:5968) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [production-flows] › frontend\e2e\authentication.spec.ts:93:5 › credential login restores a cookie session and logout clears browser-owned state (3.8s)
+  ok 2 [production-flows] › frontend\e2e\authentication.spec.ts:155:5 › a rejected refresh expires the local session and explains the redirect (751ms)
+  ok 3 [production-flows] › frontend\e2e\authentication.spec.ts:161:5 › a lower-privilege direct-link journey is denied and returned to its safe workspace (914ms)
+  ok 4 [production-flows] › frontend\e2e\fresh-travellers.spec.ts:70:38 › fresh private draft resumes and submits at 320px (6.0s)
+  ok 5 [production-flows] › frontend\e2e\fresh-travellers.spec.ts:70:38 › fresh private draft resumes and submits at 1440px (5.6s)
+  ok 6 [production-flows] › frontend\e2e\fresh-travellers.spec.ts:89:5 › family members keep independent private drafts and head-first submissions (7.8s)
+  ok 7 [production-flows] › frontend\e2e\fresh-travellers.spec.ts:100:5 › an interrupted final response resumes the submitted receipt without a duplicate (5.4s)
+(node:40576) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 8 [production-nonce] › .tmp\frontend-dependency-remediation\production-nonce.spec.mjs:3:1 › production rewrites preserve the isolated backend response (56ms)
+  ok 9 [production-nonce] › .tmp\frontend-dependency-remediation\production-nonce.spec.mjs:18:1 › production rendering applies a fresh CSP nonce to framework scripts (1.0s)
+
+  9 passed (50.6s)

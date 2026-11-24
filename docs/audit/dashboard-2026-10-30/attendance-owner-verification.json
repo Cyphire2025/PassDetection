@@ -1,0 +1,92 @@
+{
+  "created_at_utc": "2026-10-30T16:48:29.045797+00:00",
+  "scope": "Dashboard and browser coordinator/PWA only; native mobile excluded. Focused post-checkpoint verification, not whole-repository certification.",
+  "source_sha256": {
+    "frontend/lib/api/client.ts": "57060bca74db3ceb84cb706276a2edf4a9af91402931fb1969b5828e8ae51de3",
+    "frontend/lib/api/request-owner.ts": "1917c9f04868c56dd872b0addf7533061ce9c516c3000c1224e88ae86f6f1805",
+    "frontend/features/operations/api/operations.api.ts": "7a686e1546a5235b19567421afc23c8bce0cccd550f5f619208e807b67da677d",
+    "frontend/features/operations/components/tour-group-qr-codes-page.tsx": "64ae6364bd00603b36c69f208d916ff537adcbf1571e33f5c6f98633daaac6d4",
+    "frontend/features/operations/components/tour-group-attendance-page.tsx": "1be15d1ae857c2f1335b9da1eb8a6bdcd967523e3f02358e5970a58e09e68bf7",
+    "frontend/features/operations/components/managed-account-controls.tsx": "71c22fa8ebd2f7208d25b9878009925b2a0bb597b11d4b191eff3c3152ffa18d",
+    "frontend/features/operations/components/managed-accounts-panel.tsx": "d64fe550d0a83efc94b90a343823430b5b1f7f323daf87af9649dadd842210d2",
+    "frontend/features/tour-operations/services/attendance-scan-queue.ts": "aa160e1bdcd3f651706adfc6b18edfbb2b2d08784f8d32ce7080c23289b29b7e",
+    "frontend/features/tour-operations/services/attendance-closeout-checkpoint.ts": "3f79eda74d3f7ce683b15117f62a56c8fd2e48635bf0dc4f6e758b828614f5c3",
+    "frontend/features/tour-operations/services/offline-snapshot.ts": "7570014000b53dde51262f566f9f31a51e3660ed2c69945aeb555e6bcadb78d5",
+    "frontend/features/tour-operations/services/browser-offline-database.ts": "efac84fbbb1ddcedffdf29f571d9a7af674839ecda93f7bbd38c5fadfa3b7ab5",
+    "frontend/features/tour-operations/components/coordinator-passenger-detail-page.tsx": "d1f057c893e180fe00be0a232e6fbb2f268f06361849796e6ed74f4d1cf87c6b",
+    "backend/app/presentation/dependencies/auth.py": "5e1641d51673dcbcd1c2cbc8d6ceac397147de52ec4e100bae285ba115d5fefb"
+  },
+  "checks": [
+    {
+      "check": "focused frontend unit/storage/transport/modal/clipboard",
+      "status": "passed",
+      "test_files": 13,
+      "tests": 84,
+      "artifact": "attendance-owner-tests.json",
+      "workers": 1,
+      "pool": "threads"
+    },
+    {
+      "check": "all feature Node contracts under features/menu features/operations features/tour-operations",
+      "status": "passed",
+      "tests": 81
+    },
+    {
+      "check": "npm.cmd run type-check",
+      "status": "passed",
+      "note": "Full current Next route type generation and tsc --noEmit."
+    },
+    {
+      "check": "scoped ESLint changed shared API and operations/tour-operations sources/tests",
+      "status": "passed"
+    },
+    {
+      "check": "npm.cmd run maintainability:check",
+      "status": "passed",
+      "modules": 194
+    },
+    {
+      "check": "fresh audit env pytest expected actor + CSRF + mobile-role dashboard boundary",
+      "status": "passed",
+      "tests": 12,
+      "artifact": "expected-actor-backend-tests.xml"
+    },
+    {
+      "check": "fresh audit env Ruff auth.py and expected actor/CSRF tests",
+      "status": "passed"
+    },
+    {
+      "check": "fresh audit env mypy app/presentation/dependencies/auth.py",
+      "status": "passed"
+    }
+  ],
+  "expected_red_reproductions": [
+    {
+      "artifact": "attendance-owner-before-default-binding.json",
+      "failed_tests": 2,
+      "purpose": "Ordinary private POST replayed A body after401 refresh/403 step-up under B before default owner capture."
+    },
+    {
+      "artifact": "offline-snapshot-before-owner-fix.json",
+      "failed_tests": 1,
+      "purpose": "Legacy A roster persisted as an encrypted B/agency-B record after IDB account switch."
+    },
+    {
+      "artifact": "offline-database-before-connection-fix.json",
+      "failed_tests": 1,
+      "purpose": "Rejected blocked open later succeeded without closing unowned connection."
+    },
+    {
+      "artifact": "passenger-snapshot-before-loop-fix.json",
+      "failed_tests": 1,
+      "purpose": "Same minimized snapshot notification caused a second write, forming a write/event loop."
+    }
+  ],
+  "limits": [
+    "Synthetic transport/IDB/crypto-boundary tests do not establish real multi-tab browser/device crypto integration.",
+    "No physical camera/torch testing or large-roster performance measurements.",
+    "No VPS/deployment/live provider/storage authorization qualification.",
+    "No additional full frontend suite/coverage/build was run after narrow edits; root owns final integrated checks.",
+    "Initial57 runtime files fully read; remaining oversized mixed-responsibility modules are documented architecture work, not declared remediated."
+  ]
+}

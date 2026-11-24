@@ -109,8 +109,11 @@ class AttendanceDiscardRepository:
                     "discard_event_id": item.discard_event_id,
                     "scan_reference": item.scan_reference,
                     "reason_category": item.reason_category,
-                    "captured_at": captured_at,
-                    "discarded_at": discarded_at,
+                    # Client clocks may lead the server by the allowed five
+                    # minutes. Validate their original ordering above, then
+                    # cap stored event times at the actual receipt boundary.
+                    "captured_at": min(captured_at, observed) if captured_at else None,
+                    "discarded_at": min(discarded_at, observed),
                     "received_at": observed,
                     "status": "accepted",
                     "retention_expires_at": retention_expires_at,

@@ -1,0 +1,800 @@
+{
+  "basis": "Exact retired company caller closure and WhatsApp method-AST mapping supplied by root; all seven current WhatsApp transport/helper owners, compatibility facade, retained reuse policy facade and current request-owner helper manually read. Classification/phase/adapter/evidence of every relocated operation and retained identity preserved; ledger grants no runtime permission.",
+  "evidence": [
+    "docs/audit/dashboard-2026-10-30/company-orphan-retirement.json",
+    "docs/audit/dashboard-2026-10-30/whatsapp-api-owner-mapping.json",
+    "docs/audit/dashboard-2026-10-30/attendance-owner-verification.json"
+  ],
+  "retired_company_identities": [
+    {
+      "surface": {
+        "id": "frontend:frontend/features/companies/api/company-agency.api.ts:searchCompanyAgencies",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/api/company-agency.api.ts",
+        "handler": "searchCompanyAgencies"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/companies/api/company-review-tasks.api.ts:list",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/api/company-review-tasks.api.ts",
+        "handler": "list"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/companies/api/company-review-tasks.api.ts:resolve",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/api/company-review-tasks.api.ts",
+        "handler": "resolve"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/companies/api/reuse-setup.api.ts:group",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/api/reuse-setup.api.ts",
+        "handler": "group"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/companies/api/reuse-setup.api.ts:saveGroup",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/api/reuse-setup.api.ts",
+        "handler": "saveGroup"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/companies/api/traveller-enrollment.api.ts:enroll",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/api/traveller-enrollment.api.ts",
+        "handler": "enroll"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/companies/api/traveller-enrollment.api.ts:sources",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/api/traveller-enrollment.api.ts",
+        "handler": "sources"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend_api:frontend/features/companies/api/company-agency.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/companies/api/company-agency.api.ts",
+        "contract_sha256": "ff6925fe3aab334b004bf9ec8c57574835a50205e50bc198da62b6a3750050cb"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend_api:frontend/features/companies/api/company-review-tasks.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/companies/api/company-review-tasks.api.ts",
+        "contract_sha256": "2e541b57e34d86fa5d8acfa033ef34a620791dcae738935ecf4c819e3caf035c"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend_api:frontend/features/companies/api/traveller-enrollment.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/companies/api/traveller-enrollment.api.ts",
+        "contract_sha256": "2722a6b44fbde03b1911d00523980266165f05abcc8810a7ef2e9730a3ea07be"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    }
+  ],
+  "relocated_unchanged_operation_classifications": [
+    {
+      "from": "frontend:frontend/features/whatsapp/api/whatsapp.api.ts:previewContacts",
+      "to": "frontend:frontend/features/whatsapp/api/broadcast-groups.api.ts:previewContacts",
+      "preserved_classification": {
+        "workflow": "whatsapp.previewContacts",
+        "disposition": "implement",
+        "phase": 3,
+        "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+        "adapter_requirements": [
+          "no_removal_effect_audit",
+          "business_transaction_idempotency",
+          "durable_operation_progress"
+        ],
+        "implementation": {
+          "status": "planned",
+          "adapter": null,
+          "evidence": []
+        },
+        "effect_review": "required_before_enablement"
+      }
+    },
+    {
+      "from": "frontend:frontend/features/whatsapp/api/whatsapp.api.ts:groups",
+      "to": "frontend:frontend/features/whatsapp/api/broadcast-groups.api.ts:groups",
+      "preserved_classification": {
+        "workflow": "whatsapp.groups",
+        "disposition": "implement",
+        "phase": 3,
+        "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+        "adapter_requirements": [
+          "no_removal_effect_audit",
+          "business_transaction_idempotency",
+          "durable_operation_progress"
+        ],
+        "implementation": {
+          "status": "planned",
+          "adapter": null,
+          "evidence": []
+        },
+        "effect_review": "required_before_enablement"
+      }
+    },
+    {
+      "from": "frontend:frontend/features/whatsapp/api/whatsapp.api.ts:archiveGroup",
+      "to": "frontend:frontend/features/whatsapp/api/broadcast-groups.api.ts:archiveGroup",
+      "preserved_classification": {
+        "workflow": "whatsapp.archiveGroup",
+        "disposition": "manual_removal",
+        "phase": null,
+        "rationale": "Record, file, membership, archive or destructive cancellation/removal effects are outside MCP authority and remain manual.",
+        "adapter_requirements": [],
+        "implementation": {
+          "status": "not_applicable",
+          "adapter": null,
+          "evidence": []
+        },
+        "exclusion_boundary": "no_removal"
+      }
+    },
+    {
+      "from": "frontend:frontend/features/whatsapp/api/whatsapp.api.ts:restoreGroup",
+      "to": "frontend:frontend/features/whatsapp/api/broadcast-groups.api.ts:restoreGroup",
+      "preserved_classification": {
+        "workflow": "whatsapp.restoreGroup",
+        "disposition": "implement",
+        "phase": 5,
+        "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+        "adapter_requirements": [
+          "no_removal_effect_audit",
+          "business_transaction_idempotency",
+          "durable_operation_progress"
+        ],
+        "implementation": {
+          "status": "planned",
+          "adapter": null,
+          "evidence": []
+        },
+        "effect_review": "required_before_enablement"
+      }
+    },
+    {
+      "from": "frontend:frontend/features/whatsapp/api/whatsapp.api.ts:group",
+      "to": "frontend:frontend/features/whatsapp/api/broadcast-groups.api.ts:group",
+      "preserved_classification": {
+        "workflow": "whatsapp.group",
+        "disposition": "implement",
+        "phase": 3,
+        "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+        "adapter_requirements": [
+          "no_removal_effect_audit",
+          "business_transaction_idempotency",
+          "durable_operation_progress"
+        ],
+        "implementation": {
+          "status": "planned",
+          "adapter": null,
+          "evidence": []
+        },
+        "effect_review": "required_before_enablement"
+      }
+    },
+    {
+      "from": "frontend:frontend/features/whatsapp/api/whatsapp.api.ts:createGroup",
+      "to": "frontend:frontend/features/whatsapp/api/broadcast-groups.api.ts:createGroup",
+      "preserved_classification": {
+        "workflow": "whatsapp.createGroup",
+        "disposition": "implement",
+        "phase": 5,
+        "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+        "adapter_requirements": [
+          "no_removal_effect_audit",
+          "business_transaction_idempotency",
+          "durable_operation_progress"
+        ],
+        "implementation": {
+          "status": "planned",
+          "adapter": null,
+          "evidence": []
+        },
+        "effect_review": "required_before_enablement"
+      }
+    },
+    {
+      "from": "frontend:frontend/features/whatsapp/api/whatsapp.api.ts:updateGroup",
+      "to": "frontend:frontend/features/whatsapp/api/broadcast-groups.api.ts:updateGroup",
+      "preserved_classification": {
+        "workflow": "whatsapp.updateGroup",
+        "disposition": "implement",
+        "phase": 5,
+        "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+        "adapter_requirements": [
+          "no_removal_effect_audit",
+          "business_transaction_idempotency",
+          "durable_operation_progress"
+        ],
+        "implementation": {
+          "status": "planned",
+          "adapter": null,
+          "evidence": []
+        },
+        "effect_review": "required_before_enablement"
+      }
+    },
+    {
+      "from": "frontend:frontend/features/whatsapp/api/whatsapp.api.ts:deleteGroup",
+      "to": "frontend:frontend/features/whatsapp/api/broadcast-groups.api.ts:deleteGroup",
+      "preserved_classification": {
+        "workflow": "whatsapp.deleteGroup",
+        "disposition": "manual_removal",
+        "phase": null,
+        "rationale": "Record, file, membership, archive or destructive cancellation/removal effects are outside MCP authority and remain manual.",
+        "adapter_requirements": [],
+        "implementation": {
+          "status": "not_applicable",
+          "adapter": null,
+          "evidence": []
+        },
+        "exclusion_boundary": "no_removal"
+      }
+    },
+    {
+      "from": "frontend:frontend/features/whatsapp/api/whatsapp.api.ts:recipientRoster",
+      "to": "frontend:frontend/features/whatsapp/api/broadcast-recipients.api.ts:recipientRoster",
+      "preserved_classification": {
+        "workflow": "whatsapp.recipientRoster",
+        "disposition": "implement",
+        "phase": 3,
+        "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+        "adapter_requirements": [
+          "no_removal_effect_audit",
+          "business_transaction_idempotency",
+          "durable_operation_progress"
+        ],
+        "implementation": {
+          "status": "planned",
+          "adapter": null,
+          "evidence": []
+        },
+        "effect_review": "required_before_enablement"
+      }
+    },
+    {
+      "from": "frontend:frontend/features/whatsapp/api/whatsapp.api.ts:restoreReplacedRecipient",
+      "to": "frontend:frontend/features/whatsapp/api/broadcast-recipients.api.ts:restoreReplacedRecipient",
+      "preserved_classification": {
+        "workflow": "whatsapp.restoreReplacedRecipient",
+        "disposition": "implement",
+        "phase": 5,
+        "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+        "adapter_requirements": [
+          "no_removal_effect_audit",
+          "business_transaction_idempotency",
+          "durable_operation_progress"
+        ],
+        "implementation": {
+          "status": "planned",
+          "adapter": null,
+          "evidence": []
+        },
+        "effect_review": "required_before_enablement"
+      }
+    },
+    {
+      "from": "frontend:frontend/features/whatsapp/api/whatsapp.api.ts:addRecipients",
+      "to": "frontend:frontend/features/whatsapp/api/broadcast-recipients.api.ts:addRecipients",
+      "preserved_classification": {
+        "workflow": "whatsapp.addRecipients",
+        "disposition": "implement",
+        "phase": 5,
+        "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+        "adapter_requirements": [
+          "no_removal_effect_audit",
+          "business_transaction_idempotency",
+          "durable_operation_progress"
+        ],
+        "implementation": {
+          "status": "planned",
+          "adapter": null,
+          "evidence": []
+        },
+        "effect_review": "required_before_enablement"
+      }
+    },
+    {
+      "from": "frontend:frontend/features/whatsapp/api/whatsapp.api.ts:rejectedContacts",
+      "to": "frontend:frontend/features/whatsapp/api/broadcast-recipients.api.ts:rejectedContacts",
+      "preserved_classification": {
+        "workflow": "whatsapp.rejectedContacts",
+        "disposition": "implement",
+        "phase": 5,
+        "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+        "adapter_requirements": [
+          "no_removal_effect_audit",
+          "business_transaction_idempotency",
+          "durable_operation_progress"
+        ],
+        "implementation": {
+          "status": "planned",
+          "adapter": null,
+          "evidence": []
+        },
+        "effect_review": "required_before_enablement"
+      }
+    },
+    {
+      "from": "frontend:frontend/features/whatsapp/api/whatsapp.api.ts:resolveRejectedContact",
+      "to": "frontend:frontend/features/whatsapp/api/broadcast-recipients.api.ts:resolveRejectedContact",
+      "preserved_classification": {
+        "workflow": "whatsapp.resolveRejectedContact",
+        "disposition": "implement",
+        "phase": 5,
+        "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+        "adapter_requirements": [
+          "no_removal_effect_audit",
+          "business_transaction_idempotency",
+          "durable_operation_progress"
+        ],
+        "implementation": {
+          "status": "planned",
+          "adapter": null,
+          "evidence": []
+        },
+        "effect_review": "required_before_enablement"
+      }
+    },
+    {
+      "from": "frontend:frontend/features/whatsapp/api/whatsapp.api.ts:deleteRecipient",
+      "to": "frontend:frontend/features/whatsapp/api/broadcast-recipients.api.ts:deleteRecipient",
+      "preserved_classification": {
+        "workflow": "whatsapp.deleteRecipient",
+        "disposition": "manual_removal",
+        "phase": null,
+        "rationale": "Record, file, membership, archive or destructive cancellation/removal effects are outside MCP authority and remain manual.",
+        "adapter_requirements": [],
+        "implementation": {
+          "status": "not_applicable",
+          "adapter": null,
+          "evidence": []
+        },
+        "exclusion_boundary": "no_removal"
+      }
+    },
+    {
+      "from": "frontend:frontend/features/whatsapp/api/whatsapp.api.ts:updateRecipientPhone",
+      "to": "frontend:frontend/features/whatsapp/api/broadcast-recipients.api.ts:updateRecipientPhone",
+      "preserved_classification": {
+        "workflow": "whatsapp.updateRecipientPhone",
+        "disposition": "implement",
+        "phase": 5,
+        "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+        "adapter_requirements": [
+          "no_removal_effect_audit",
+          "business_transaction_idempotency",
+          "durable_operation_progress"
+        ],
+        "implementation": {
+          "status": "planned",
+          "adapter": null,
+          "evidence": []
+        },
+        "effect_review": "required_before_enablement"
+      }
+    },
+    {
+      "from": "frontend:frontend/features/whatsapp/api/whatsapp.api.ts:updateRecipientDetails",
+      "to": "frontend:frontend/features/whatsapp/api/broadcast-recipients.api.ts:updateRecipientDetails",
+      "preserved_classification": {
+        "workflow": "whatsapp.updateRecipientDetails",
+        "disposition": "implement",
+        "phase": 5,
+        "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+        "adapter_requirements": [
+          "no_removal_effect_audit",
+          "business_transaction_idempotency",
+          "durable_operation_progress"
+        ],
+        "implementation": {
+          "status": "planned",
+          "adapter": null,
+          "evidence": []
+        },
+        "effect_review": "required_before_enablement"
+      }
+    },
+    {
+      "from": "frontend:frontend/features/whatsapp/api/whatsapp.api.ts:previewRecipientsResend",
+      "to": "frontend:frontend/features/whatsapp/api/broadcast-message-reads.api.ts:previewRecipientsResend",
+      "preserved_classification": {
+        "workflow": "whatsapp.previewRecipientsResend",
+        "disposition": "implement",
+        "phase": 6,
+        "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+        "adapter_requirements": [
+          "immutable_preparation_and_explicit_user_send_intent",
+          "dispatch_authority_recheck",
+          "business_dispatch_idempotency",
+          "provider_receipt_reconciliation",
+          "no_removal_effect_audit",
+          "business_transaction_idempotency",
+          "durable_operation_progress"
+        ],
+        "implementation": {
+          "status": "planned",
+          "adapter": null,
+          "evidence": []
+        },
+        "effect_review": "required_before_enablement"
+      }
+    },
+    {
+      "from": "frontend:frontend/features/whatsapp/api/whatsapp.api.ts:previewMessage",
+      "to": "frontend:frontend/features/whatsapp/api/broadcast-message-reads.api.ts:previewMessage",
+      "preserved_classification": {
+        "workflow": "whatsapp.previewMessage",
+        "disposition": "implement",
+        "phase": 3,
+        "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+        "adapter_requirements": [
+          "no_removal_effect_audit",
+          "business_transaction_idempotency",
+          "durable_operation_progress"
+        ],
+        "implementation": {
+          "status": "planned",
+          "adapter": null,
+          "evidence": []
+        },
+        "effect_review": "required_before_enablement"
+      }
+    },
+    {
+      "from": "frontend:frontend/features/whatsapp/api/whatsapp.api.ts:batchStatus",
+      "to": "frontend:frontend/features/whatsapp/api/broadcast-message-reads.api.ts:batchStatus",
+      "preserved_classification": {
+        "workflow": "whatsapp.batchStatus",
+        "disposition": "implement",
+        "phase": 3,
+        "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+        "adapter_requirements": [
+          "no_removal_effect_audit",
+          "business_transaction_idempotency",
+          "durable_operation_progress"
+        ],
+        "implementation": {
+          "status": "planned",
+          "adapter": null,
+          "evidence": []
+        },
+        "effect_review": "required_before_enablement"
+      }
+    },
+    {
+      "from": "frontend:frontend/features/whatsapp/api/whatsapp.api.ts:batchSummary",
+      "to": "frontend:frontend/features/whatsapp/api/broadcast-message-reads.api.ts:batchSummary",
+      "preserved_classification": {
+        "workflow": "whatsapp.batchSummary",
+        "disposition": "implement",
+        "phase": 3,
+        "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+        "adapter_requirements": [
+          "no_removal_effect_audit",
+          "business_transaction_idempotency",
+          "durable_operation_progress"
+        ],
+        "implementation": {
+          "status": "planned",
+          "adapter": null,
+          "evidence": []
+        },
+        "effect_review": "required_before_enablement"
+      }
+    },
+    {
+      "from": "frontend:frontend/features/whatsapp/api/whatsapp.api.ts:resendRecipientMessage",
+      "to": "frontend:frontend/features/whatsapp/api/broadcast-resends.api.ts:resendRecipientMessage",
+      "preserved_classification": {
+        "workflow": "whatsapp.resendRecipientMessage",
+        "disposition": "implement",
+        "phase": 6,
+        "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+        "adapter_requirements": [
+          "immutable_preparation_and_explicit_user_send_intent",
+          "dispatch_authority_recheck",
+          "business_dispatch_idempotency",
+          "provider_receipt_reconciliation",
+          "no_removal_effect_audit",
+          "business_transaction_idempotency",
+          "durable_operation_progress"
+        ],
+        "implementation": {
+          "status": "planned",
+          "adapter": null,
+          "evidence": []
+        },
+        "effect_review": "required_before_enablement"
+      }
+    },
+    {
+      "from": "frontend:frontend/features/whatsapp/api/whatsapp.api.ts:resendRecipientsMessage",
+      "to": "frontend:frontend/features/whatsapp/api/broadcast-resends.api.ts:resendRecipientsMessage",
+      "preserved_classification": {
+        "workflow": "whatsapp.resendRecipientsMessage",
+        "disposition": "implement",
+        "phase": 6,
+        "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+        "adapter_requirements": [
+          "immutable_preparation_and_explicit_user_send_intent",
+          "dispatch_authority_recheck",
+          "business_dispatch_idempotency",
+          "provider_receipt_reconciliation",
+          "no_removal_effect_audit",
+          "business_transaction_idempotency",
+          "durable_operation_progress"
+        ],
+        "implementation": {
+          "status": "planned",
+          "adapter": null,
+          "evidence": []
+        },
+        "effect_review": "required_before_enablement"
+      }
+    },
+    {
+      "from": "frontend:frontend/features/whatsapp/api/whatsapp.api.ts:sendWelcome",
+      "to": "frontend:frontend/features/whatsapp/api/broadcast-sends.api.ts:sendWelcome",
+      "preserved_classification": {
+        "workflow": "whatsapp.sendWelcome",
+        "disposition": "implement",
+        "phase": 6,
+        "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+        "adapter_requirements": [
+          "immutable_preparation_and_explicit_user_send_intent",
+          "dispatch_authority_recheck",
+          "business_dispatch_idempotency",
+          "provider_receipt_reconciliation",
+          "no_removal_effect_audit",
+          "business_transaction_idempotency",
+          "durable_operation_progress"
+        ],
+        "implementation": {
+          "status": "planned",
+          "adapter": null,
+          "evidence": []
+        },
+        "effect_review": "required_before_enablement"
+      }
+    },
+    {
+      "from": "frontend:frontend/features/whatsapp/api/whatsapp.api.ts:sendPassportLink",
+      "to": "frontend:frontend/features/whatsapp/api/broadcast-sends.api.ts:sendPassportLink",
+      "preserved_classification": {
+        "workflow": "whatsapp.sendPassportLink",
+        "disposition": "implement",
+        "phase": 6,
+        "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+        "adapter_requirements": [
+          "immutable_preparation_and_explicit_user_send_intent",
+          "dispatch_authority_recheck",
+          "business_dispatch_idempotency",
+          "provider_receipt_reconciliation",
+          "no_removal_effect_audit",
+          "business_transaction_idempotency",
+          "durable_operation_progress"
+        ],
+        "implementation": {
+          "status": "planned",
+          "adapter": null,
+          "evidence": []
+        },
+        "effect_review": "required_before_enablement"
+      }
+    },
+    {
+      "from": "frontend:frontend/features/whatsapp/api/whatsapp.api.ts:sendReminder",
+      "to": "frontend:frontend/features/whatsapp/api/broadcast-sends.api.ts:sendReminder",
+      "preserved_classification": {
+        "workflow": "whatsapp.sendReminder",
+        "disposition": "implement",
+        "phase": 6,
+        "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+        "adapter_requirements": [
+          "immutable_preparation_and_explicit_user_send_intent",
+          "dispatch_authority_recheck",
+          "business_dispatch_idempotency",
+          "provider_receipt_reconciliation",
+          "no_removal_effect_audit",
+          "business_transaction_idempotency",
+          "durable_operation_progress"
+        ],
+        "implementation": {
+          "status": "planned",
+          "adapter": null,
+          "evidence": []
+        },
+        "effect_review": "required_before_enablement"
+      }
+    },
+    {
+      "from": "frontend:frontend/features/whatsapp/api/whatsapp.api.ts:sendGroupInvite",
+      "to": "frontend:frontend/features/whatsapp/api/broadcast-sends.api.ts:sendGroupInvite",
+      "preserved_classification": {
+        "workflow": "whatsapp.sendGroupInvite",
+        "disposition": "implement",
+        "phase": 6,
+        "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+        "adapter_requirements": [
+          "immutable_preparation_and_explicit_user_send_intent",
+          "dispatch_authority_recheck",
+          "business_dispatch_idempotency",
+          "provider_receipt_reconciliation",
+          "no_removal_effect_audit",
+          "business_transaction_idempotency",
+          "durable_operation_progress"
+        ],
+        "implementation": {
+          "status": "planned",
+          "adapter": null,
+          "evidence": []
+        },
+        "effect_review": "required_before_enablement"
+      }
+    }
+  ],
+  "added_internal_helpers_or_focused_transport_contracts": [
+    "frontend_api:frontend/features/whatsapp/api/broadcast-groups.api.ts",
+    "frontend_api:frontend/features/whatsapp/api/broadcast-media.api.ts",
+    "frontend_api:frontend/features/whatsapp/api/broadcast-message-reads.api.ts",
+    "frontend_api:frontend/features/whatsapp/api/broadcast-recipients.api.ts",
+    "frontend_api:frontend/features/whatsapp/api/broadcast-resends.api.ts",
+    "frontend_api:frontend/features/whatsapp/api/broadcast-sends.api.ts",
+    "frontend:frontend/lib/api/request-owner.ts:capturePrivateRequestOwner",
+    "frontend:frontend/features/whatsapp/api/broadcast-resend-payload.ts:bulkResendOverridesPayload",
+    "frontend:frontend/features/whatsapp/api/broadcast-resend-payload.ts:validateBulkRecipientSelection",
+    "frontend:frontend/features/whatsapp/api/broadcast-media.api.ts:uploadWelcomeImage"
+  ],
+  "refreshed_contract_fingerprints": [
+    {
+      "id": "frontend_api:frontend/features/companies/api/reuse-setup.api.ts",
+      "before": {
+        "id": "frontend_api:frontend/features/companies/api/reuse-setup.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/companies/api/reuse-setup.api.ts",
+        "contract_sha256": "99b7c7c75b438b4bc6018ee7a92509d1abded88868bf589c0ee72970fdb83518"
+      },
+      "after": {
+        "id": "frontend_api:frontend/features/companies/api/reuse-setup.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/companies/api/reuse-setup.api.ts",
+        "contract_sha256": "c8bbc4983790ab950272b2f0911a20da2a4033449f288896f76cb42848f908e3"
+      }
+    },
+    {
+      "id": "frontend_api:frontend/lib/api/client.ts",
+      "before": {
+        "id": "frontend_api:frontend/lib/api/client.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/lib/api/client.ts",
+        "contract_sha256": "3c83ccb7a6ff0ff930fe93484ac09ad10ad7914824824f8767b43bf3e0281368"
+      },
+      "after": {
+        "id": "frontend_api:frontend/lib/api/client.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/lib/api/client.ts",
+        "contract_sha256": "9934a08ebdd9c2ad6f28e4299f6cf8e7872a3d7a4713362e909aa17ffcbcf3fc"
+      }
+    }
+  ],
+  "before_count": 1950,
+  "after_count": 1949
+}

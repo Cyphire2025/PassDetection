@@ -7,6 +7,7 @@ import pytest
 
 from app.domain.exceptions.exceptions import StorageError
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
+from app.presentation.api.v1.object_streaming import private_object_streaming_response
 
 
 class _Body:
@@ -227,3 +228,53 @@ async def test_get_file_range_never_reads_the_full_object() -> None:
     assert client.requests[0]["Range"] == "bytes=0-15"
     assert client.bodies[0].read_sizes == [17]
     assert client.bodies[0].closed is True
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("range_header", "expected", "storage_range", "status"),
+    [
+        ("bytes=2-5", b"2345", "bytes=2-5", 206),
+        ("bytes=0-2", b"012", "bytes=0-2", 206),
+        ("bytes=-3", b"789", "bytes=7-", 206),
+        ("bytes=7-", b"789", "bytes=7-", 206),
+        (None, b"0123456789", "bytes=0-", 200),
+    ],
+)
+async def test_private_http_ranges_reach_storage_with_the_exact_authorized_bound(
+    range_header: str | None,
+    expected: bytes,
+    storage_range: str,
+    status: int,
+) -> None:
+    client = _Client(b"0123456789")
+    response = await private_object_streaming_response(
+        storage=_repository(client),
+        key="documents/private.pdf",
+        media_type="application/pdf",
+        content_disposition='inline; filename="private.pdf"',
+        range_header=range_header,
+    )
+    actual = b"".join([bytes(part) async for part in response.body_iterator])
+
+    assert response.status_code == status
+    assert response.headers["content-length"] == str(len(expected))
+    assert actual == expected
+    assert client.requests[0]["Range"] == storage_range
+    assert client.bodies[0].closed is True
+
+
+@pytest.mark.asyncio
+async def test_explicit_range_end_must_match_its_authorized_byte_count() -> None:
+    client = _Client(b"0123456789")
+    with pytest.raises(ValueError, match="Invalid object stream bounds"):
+        _ = [
+            chunk
+            async for chunk in _repository(client).stream_file(
+                "documents/private.pdf",
+                start=2,
+                expected_bytes=4,
+                end=9,
+            )
+        ]
+    assert client.requests == []

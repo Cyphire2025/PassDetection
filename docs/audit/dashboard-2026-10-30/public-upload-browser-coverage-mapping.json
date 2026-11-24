@@ -1,0 +1,124 @@
+{
+  "review_date": "2026-10-30",
+  "status": "completed: both legacy spec files migrated to current portal/FreshFlow API; all eleven original scenarios mapped to twelve passing current tests",
+  "route_evidence": [
+    "frontend/app/upload/[token]/page.tsx -> TravellerPortal",
+    "One primary useUploadLinkByToken observer owns loading/error/refetch. Error or missing group renders UploadLinkErrorScreen directly; private recovery storage is untouched.",
+    "Valid New traveller -> FreshFlow; current returning/resume remain literal lazy routes.",
+    "Legacy UploadFlow happy path was conditionally unreachable and is retired with original hashes and caller/render proof."
+  ],
+  "current_api_evidence": {
+    "file": "frontend/features/upload/api/fresh-draft.api.ts",
+    "base": "/api/v1/public-drafts/{encoded token}",
+    "session_header": "X-Upload-Session-ID",
+    "methods": [
+      "POST base start",
+      "GET base read",
+      "PUT base save(expected_revision,idempotency_key)",
+      "POST /documents/{side}",
+      "GET /documents/{encoded asset id} blob",
+      "POST /contact/request",
+      "POST /contact/verify",
+      "POST /complete(expected_revision,phone_verification_id,idempotency_key)"
+    ]
+  },
+  "executed_evidence": {
+    "migrated_current_browser": "12/12 passed after final test semantics refinement (31.3 seconds)",
+    "combined_current_browser": "20/20 passed in frozen-runtime run (59.6 seconds): migrated12 + existingFresh4 + actualFallback4. Subsequent test-only missing-draft refinement reran both migrated spec files12/12.",
+    "historical_pre_migration": "Old11scenario run stopped after first3OTP failures at current portal entry chooser, before legacy UploadFlow mounted. This prompted migration and is not current failing evidence.",
+    "focused_unit": "4files19tests passed; three new proof-authority regressions",
+    "typecheck_and_scoped_lint": "passed"
+  },
+  "ci_risk": "The concrete stale-entry browser CI gap is closed in the two existing files; no tests were skipped and their negative assertions were migrated. Full CI/service-dependent checks remain parent-owned and are not inferred from isolated mocked browser fixtures.",
+  "cases": [
+    {
+      "path": "frontend/e2e/public-upload-recovery.spec.ts",
+      "scenario": "Closed link displays closed wording and can be retried after reopening",
+      "coverage_status": "covered-current",
+      "current_evidence": "a deliberately closed link displays closed wording and can be checked after reopening",
+      "limits": "Stable closed wording, no draft/upload side effects, explicit Check again opens current New traveller entry.",
+      "original_test_line": 108
+    },
+    {
+      "path": "frontend/e2e/public-upload-recovery.spec.ts",
+      "scenario": "Missing saved draft exits recovery without making another upload",
+      "coverage_status": "covered-current",
+      "current_evidence": "a missing private draft starts empty without reading old data or uploading files; an expired private draft cannot restore data or upload files and can start fresh",
+      "limits": "Actual start creates an empty draft for a missing row. Expired410 retains metadata until explicit fresh start rotates member session; no automatic file upload or completion.",
+      "original_test_line": 128
+    },
+    {
+      "path": "frontend/e2e/public-upload-recovery.spec.ts",
+      "scenario": "Link closed during recovery preserves saved credential",
+      "coverage_status": "covered-current",
+      "current_evidence": "a link closed during private recovery preserves the member credential for explicit retry",
+      "limits": "Initial metadata is active, private start returns closed410; stored navigation/member credential remains intact and retry reuses the same member session.",
+      "original_test_line": 150
+    },
+    {
+      "path": "frontend/e2e/public-upload-recovery.spec.ts",
+      "scenario": "Temporary recovery failure retains upload and explicit retry restores it",
+      "coverage_status": "covered-current",
+      "current_evidence": "a temporary private draft read failure retains the accepted image and retries without another upload",
+      "limits": "Real private GET path fails503 during document polling; Retry restores same accepted image/member and completion uses a single upload attempt.",
+      "original_test_line": 168
+    },
+    {
+      "path": "frontend/e2e/public-upload-recovery.spec.ts",
+      "scenario": "AI service failure permits manual entry and staff review",
+      "coverage_status": "covered-current-policy",
+      "current_evidence": "failed AI reading allows manual corrections but requires verified replacement before staff review",
+      "limits": "Current frontend and backend both require succeeded accepted extraction; unsupported legacy manual bypass was not introduced. Test edits manual field, proves no completion while failed, replaces image and checks backend needs_review plus truthful travel-team review acknowledgement.",
+      "original_test_line": 194
+    },
+    {
+      "path": "frontend/e2e/public-upload-recovery.spec.ts",
+      "scenario": "Interrupted public upload resumes durable submission without reupload",
+      "coverage_status": "covered-current",
+      "current_evidence": "a lost document-upload response reconciles the accepted private image without uploading it twice",
+      "limits": "Mock accepts document then drops response; explicit private GET restores it, same member metadata retained, one upload request/accepted key and one completion.",
+      "original_test_line": 230
+    },
+    {
+      "path": "frontend/e2e/public-upload-contact-otp.spec.ts",
+      "scenario": "Desktop verified contact precedes separate details step",
+      "coverage_status": "covered-current",
+      "current_evidence": "current private draft requires verified contact before submitting on desktop",
+      "limits": "Current form keeps fields visible; submit remains blocked through invalid phone/code, then OTP success reads authoritative revision before completion. Obsolete separate-step ordering is not reintroduced.",
+      "original_test_line": 72
+    },
+    {
+      "path": "frontend/e2e/public-upload-contact-otp.spec.ts",
+      "scenario": "Mobile verified contact precedes separate details step",
+      "coverage_status": "covered-current",
+      "current_evidence": "current private draft requires verified contact before submitting on mobile",
+      "limits": "Same negative OTP/completion assertions at390px with overflow and screenshot check.",
+      "original_test_line": 72
+    },
+    {
+      "path": "frontend/e2e/public-upload-contact-otp.spec.ts",
+      "scenario": "OTP delivery failure keeps details hidden and supports retry",
+      "coverage_status": "covered-current",
+      "current_evidence": "failed OTP delivery preserves private details, blocks completion and can be retried",
+      "limits": "Delivery503 exposes retry, entered private details persist, no completion before proof; second request succeeds then one completion.",
+      "original_test_line": 115
+    },
+    {
+      "path": "frontend/e2e/public-upload-contact-otp.spec.ts",
+      "scenario": "Family separate verification with partial retry skips completed member",
+      "coverage_status": "covered-current",
+      "current_evidence": "family contact retry preserves the completed head and only retries the second member",
+      "limits": "Distinct member credentials and completed-head metadata retained. Server rejects second proof, only second member re-verifies/retries; head is completed once, details/head contacts retained.",
+      "original_test_line": 130
+    },
+    {
+      "path": "frontend/e2e/public-upload-contact-otp.spec.ts",
+      "scenario": "Expired contact proof returns to contact without losing details",
+      "coverage_status": "covered-current",
+      "current_evidence": "server-expired contact proof permits re-verification without losing private details",
+      "limits": "Rejected proof invalidated, submit disabled, details/final idempotency key retained; renewed verification can use the same backend proof row ID and completes once.",
+      "original_test_line": 172
+    }
+  ],
+  "final_architecture_reference": "legacy-upload-retirement-progress.md"
+}

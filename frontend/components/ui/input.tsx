@@ -14,7 +14,7 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, label, error, hint, leftAddon, rightAddon, id, ...props }, ref) => {
+  ({ className, label, error, hint, leftAddon, rightAddon, id, "aria-describedby": describedBy, ...props }, ref) => {
     const generatedId = React.useId();
     const inputId = id ?? generatedId;
     const errorId = `${inputId}-error`;
@@ -40,7 +40,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             suppressHydrationWarning
             id={inputId}
-            aria-describedby={[error && errorId, hint && hintId].filter(Boolean).join(" ") || undefined}
+            aria-describedby={[describedBy, error ? errorId : hint ? hintId : undefined].filter(Boolean).join(" ") || undefined}
             aria-invalid={!!error}
             className={cn(
               "w-full rounded-lg border bg-white text-slate-900 text-sm",

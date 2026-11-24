@@ -1,0 +1,104 @@
+FFF                                                                      [100%]
+================================== FAILURES ===================================
+_ AiPriorityAsyncBoundaryTests.test_provider_metric_write_does_not_block_unrelated_coroutine _
+
+self = <test_ai_priority_async_boundaries.AiPriorityAsyncBoundaryTests testMethod=test_provider_metric_write_does_not_block_unrelated_coroutine>
+
+    async def test_provider_metric_write_does_not_block_unrelated_coroutine(self) -> None:
+        remote = _BlockingMetricStore()
+        loop_progress = threading.Event()
+        progressed: list[bool] = []
+    
+        def observe() -> None:
+            if remote.entered.wait(3):
+                progressed.append(loop_progress.wait(0.4))
+            remote.finish.set()
+    
+        observer = threading.Thread(target=observe)
+        observer.start()
+    
+        async def unrelated() -> None:
+            if await asyncio.to_thread(remote.entered.wait, 3):
+                loop_progress.set()
+    
+        task = asyncio.create_task(unrelated())
+        registry = MetricsRegistry()
+        metrics = AiPriorityMetrics(registry, ResilientAiMetricsStore(remote))
+        try:
+            async with httpx.AsyncClient(
+                transport=httpx.MockTransport(lambda request: httpx.Response(200, json={})),
+            ) as client:
+                response, status, attempts, model = await _request_with_retries(
+                    _Transport(metrics),  # type: ignore[arg-type]
+                    client,
+                    headers={},
+                    payload={"generationConfig": {}},
+                    budget=TimeBudget.start(3),
+                    original={},
+                    logger=Mock(),
+                )
+            await task
+>           self.assertEqual(progressed, [True])
+E           AssertionError: Lists differ: [False] != [True]
+E           
+E           First differing element 0:
+E           False
+E           True
+E           
+E           - [False]
+E           + [True]
+
+tests\unit\infrastructure\test_ai_priority_async_boundaries.py:119: AssertionError
+---------------------------- Captured stdout call -----------------------------
+2026-10-31T08:53:55.809915Z [warning  ] Executing <Task pending name='Task-2' coro=<AiPriorityAsyncBoundaryTests.test_provider_metric_write_does_not_block_unrelated_coroutine() running at C:\Users\nipun\Desktop\PassDetection\backend\tests\unit\infrastructure\test_ai_priority_async_boundaries.py:118> wait_for=<Task pending name='Task-3' coro=<AiPriorityAsyncBoundaryTests.test_provider_metric_write_does_not_block_unrelated_coroutine.<locals>.unrelated() running at C:\Users\nipun\Desktop\PassDetection\backend\tests\unit\infrastructure\test_ai_priority_async_boundaries.py:98> cb=[Task.task_wakeup()] created at C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\asyncio\tasks.py:384> cb=[_run_until_complete_cb() at C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\asyncio\base_events.py:181] created at C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\asyncio\runners.py:100> took 0.422 seconds [asyncio]
+------------------------------ Captured log call ------------------------------
+WARNING  asyncio:base_events.py:1931 Executing <Task pending name='Task-2' coro=<AiPriorityAsyncBoundaryTests.test_provider_metric_write_does_not_block_unrelated_coroutine() running at C:\Users\nipun\Desktop\PassDetection\backend\tests\unit\infrastructure\test_ai_priority_async_boundaries.py:118> wait_for=<Task pending name='Task-3' coro=<AiPriorityAsyncBoundaryTests.test_provider_metric_write_does_not_block_unrelated_coroutine.<locals>.unrelated() running at C:\Users\nipun\Desktop\PassDetection\backend\tests\unit\infrastructure\test_ai_priority_async_boundaries.py:98> cb=[Task.task_wakeup()] created at C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\asyncio\tasks.py:384> cb=[_run_until_complete_cb() at C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\asyncio\base_events.py:181] created at C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\asyncio\runners.py:100> took 0.422 seconds
+_ AiPriorityAsyncBoundaryTests.test_release_follows_completion_of_inflight_heartbeat _
+
+self = <test_ai_priority_async_boundaries.AiPriorityAsyncBoundaryTests testMethod=test_release_follows_completion_of_inflight_heartbeat>
+
+    async def test_release_follows_completion_of_inflight_heartbeat(self) -> None:
+        coordinator = _BlockingCoordinator()
+        coordinator.release_finish.set()
+        body_finished = asyncio.Event()
+    
+        async def operation() -> None:
+            async with MaintainPriorityLease(coordinator, _lease()):  # type: ignore[arg-type]
+                self.assertTrue(await asyncio.to_thread(coordinator.heartbeat_entered.wait, 3))
+                body_finished.set()
+    
+        task = asyncio.create_task(operation())
+        try:
+            await asyncio.wait_for(body_finished.wait(), 3)
+            await asyncio.sleep(0.03)
+>           self.assertFalse(task.done(), "Lease context abandoned its running native heartbeat")
+E           AssertionError: True is not false : Lease context abandoned its running native heartbeat
+
+tests\unit\infrastructure\test_ai_priority_async_boundaries.py:144: AssertionError
+_ AiPriorityAsyncBoundaryTests.test_repeated_cancellation_does_not_abandon_native_release _
+
+self = <test_ai_priority_async_boundaries.AiPriorityAsyncBoundaryTests testMethod=test_repeated_cancellation_does_not_abandon_native_release>
+
+    async def test_repeated_cancellation_does_not_abandon_native_release(self) -> None:
+        coordinator = _BlockingCoordinator()
+    
+        async def operation() -> None:
+            async with MaintainPriorityLease(coordinator, _lease(redis_available=False)):
+                pass
+    
+        task = asyncio.create_task(operation())
+        try:
+            self.assertTrue(await asyncio.to_thread(coordinator.release_entered.wait, 3))
+            task.cancel()
+            await asyncio.sleep(0.01)
+            task.cancel()
+            await asyncio.sleep(0.01)
+>           self.assertFalse(task.done(), "Cancelled context abandoned its native release")
+E           AssertionError: True is not false : Cancelled context abandoned its native release
+
+tests\unit\infrastructure\test_ai_priority_async_boundaries.py:165: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/unit/infrastructure/test_ai_priority_async_boundaries.py::AiPriorityAsyncBoundaryTests::test_provider_metric_write_does_not_block_unrelated_coroutine
+FAILED tests/unit/infrastructure/test_ai_priority_async_boundaries.py::AiPriorityAsyncBoundaryTests::test_release_follows_completion_of_inflight_heartbeat
+FAILED tests/unit/infrastructure/test_ai_priority_async_boundaries.py::AiPriorityAsyncBoundaryTests::test_repeated_cancellation_does_not_abandon_native_release
+3 failed in 1.13s

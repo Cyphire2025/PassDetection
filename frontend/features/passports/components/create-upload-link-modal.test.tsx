@@ -1,21 +1,24 @@
-import { fireEvent, render as renderUi, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render as renderUi, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { ReactElement } from "react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { CreateUploadLinkModal } from "./create-upload-link-modal";
 
 function render(ui: ReactElement) {
-  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: Infinity }, mutations: { gcTime: Infinity } } });
   return renderUi(ui, { wrapper: ({ children }) => <QueryClientProvider client={client}>{children}</QueryClientProvider> });
 }
 
-const { createLink, broadcastId, workspace, account } = vi.hoisted(() => ({
+const { createLink, broadcastId, workspace, account, clipboard } = vi.hoisted(() => ({
   createLink: vi.fn(),
+  clipboard: vi.fn(),
   workspace: { agencyId: "agency-1" as string | null, data: { agency_id: "agency-1" } as { agency_id: string } | undefined, sessionKey: "session-1", isError: false, refetch: vi.fn() },
-  account: { role: "agency_staff", agency_id: "agency-1" },
+  account: { id: "initial-actor", role: "agency_staff", agency_id: "agency-1" },
   broadcastId: "ab75ac17-ad58-4629-a28b-3e02bef9ca31",
 }));
+
+vi.mock("@/lib/utils/clipboard", () => ({ copyTextToClipboard: clipboard }));
 
 vi.mock("../hooks/use-upload-links", () => ({
   useCreateUploadLink: () => ({ mutateAsync: createLink, isPending: false }),
@@ -23,7 +26,9 @@ vi.mock("../hooks/use-upload-links", () => ({
 vi.mock("@/stores/auth.store", () => ({
   selectUserRole: (state: { role: string }) => state.role,
   selectUser: (state: { user: unknown }) => state.user,
-  useAuthStore: (selector: (state: unknown) => unknown) => selector({ role: account.role, user: account }),
+  useAuthStore: Object.assign((selector: (state: unknown) => unknown) => selector({ role: account.role, user: account }), {
+    getState: () => ({ user: account }),
+  }),
 }));
 vi.mock("@/features/companies/hooks/use-company-workspace", () => ({ useCompanyWorkspace: () => workspace }));
 vi.mock("@/features/companies/components/company-picker", () => ({
@@ -46,8 +51,11 @@ beforeEach(() => {
   Object.assign(workspace, { agencyId: "agency-1", data: { agency_id: "agency-1" }, sessionKey: "session-1", isError: false });
   workspace.refetch.mockReset();
   account.role = "agency_staff";
+  account.id = "initial-actor";
   createLink.mockReset().mockResolvedValue({ id: "created-group", token: "test-token" });
+  clipboard.mockReset().mockResolvedValue(undefined);
 });
+afterEach(() => vi.useRealTimers());
 
 function fillGroupDetails() {
   fireEvent.click(screen.getByRole("button", { name: "Select company" }));
@@ -58,6 +66,49 @@ function fillGroupDetails() {
 }
 
 describe("create upload link", () => {
+  it("does not publish an abandoned copy failure into a reset group draft", async () => {
+    let fail!: (reason: Error) => void;
+    clipboard.mockReturnValueOnce(new Promise<void>((_, reject) => { fail = reject; }));
+    const onClose = vi.fn();
+    render(<CreateUploadLinkModal isOpen onClose={onClose} />);
+    fillGroupDetails();
+    fireEvent.click(screen.getByRole("button", { name: "Generate Links" }));
+    await screen.findByRole("heading", { name: "Links Generated" });
+    fireEvent.click(screen.getByRole("button", { name: "Copy" }));
+    fireEvent.click(screen.getByRole("button", { name: "Done" }));
+    expect(onClose).toHaveBeenCalledOnce();
+    await act(async () => fail(new Error("Old clipboard permission denied")));
+    expect(screen.getByRole("textbox", { name: "Group Name" })).toHaveValue("");
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  it("does not create a confirmation timer after a pending copy's form unmounts", async () => {
+    let finish!: () => void;
+    clipboard.mockReturnValueOnce(new Promise<void>((resolve) => { finish = resolve; }));
+    const { unmount } = render(<CreateUploadLinkModal isOpen onClose={vi.fn()} />);
+    fillGroupDetails();
+    fireEvent.click(screen.getByRole("button", { name: "Generate Links" }));
+    await screen.findByRole("heading", { name: "Links Generated" });
+    vi.useFakeTimers();
+    fireEvent.click(screen.getByRole("button", { name: "Copy" }));
+    unmount();
+    const timersAfterUnmount = vi.getTimerCount();
+    await act(async () => finish());
+    expect(vi.getTimerCount()).toBe(timersAfterUnmount);
+  });
+
+  it("does not publish an old group link if creation finishes after the signed-in actor changes", async () => {
+    let finish!: (result: { id: string; token: string }) => void;
+    createLink.mockImplementation(() => new Promise((resolve) => { finish = resolve; }));
+    render(<CreateUploadLinkModal isOpen onClose={vi.fn()} />);
+    fillGroupDetails();
+    fireEvent.click(screen.getByRole("button", { name: "Generate Links" }));
+    await waitFor(() => expect(createLink).toHaveBeenCalledOnce());
+    account.id = "replacement-actor";
+    await act(async () => { finish({ id: "old-group", token: "old-private-token" }); });
+    expect(screen.queryByRole("textbox", { name: "Client upload link" })).not.toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: "Group Name" })).toHaveValue("Autumn Group");
+  });
   it("waits for workspace resolution before accepting form input and enables direct superadmin company selection", async () => {
     workspace.agencyId = null;
     workspace.data = undefined;

@@ -1,0 +1,72 @@
+[
+  {
+    "path": "features/operations/hooks/use-operations.ts",
+    "baselineLines": 34,
+    "maximumLines": 40,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/operations/hooks/operations-query-scope.ts",
+    "baselineLines": 18,
+    "maximumLines": 20,
+    "baselineMaxFunctionComplexity": 4,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/operations/hooks/use-admin-operations.ts",
+    "baselineLines": 43,
+    "maximumLines": 50,
+    "baselineMaxFunctionComplexity": 1,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/operations/hooks/use-managed-accounts.ts",
+    "baselineLines": 83,
+    "maximumLines": 90,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/operations/hooks/use-audit-operations.ts",
+    "baselineLines": 40,
+    "maximumLines": 40,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/operations/hooks/use-tour-operations.ts",
+    "baselineLines": 78,
+    "maximumLines": 80,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/operations/hooks/use-rooming-operations.ts",
+    "baselineLines": 161,
+    "maximumLines": 170,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/operations/hooks/use-coordinator-attendance.ts",
+    "baselineLines": 73,
+    "maximumLines": 80,
+    "baselineMaxFunctionComplexity": 5,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/operations/hooks/use-managed-attendance.ts",
+    "baselineLines": 146,
+    "maximumLines": 150,
+    "baselineMaxFunctionComplexity": 5,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/operations/hooks/use-qr-operations.ts",
+    "baselineLines": 73,
+    "maximumLines": 80,
+    "baselineMaxFunctionComplexity": 4,
+    "maximumFunctionComplexity": 5
+  }
+]

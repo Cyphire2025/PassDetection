@@ -28,6 +28,7 @@ function fixture(t) {
         ? 'defaults.url=https://sentry.io/\n'
       : `fixture:${path}`);
   }
+  writeFileSync(join(root, 'android', 'sentry.properties'), 'defaults.url=https://sentry.io/\n');
   const mainSource = join(root, 'android', 'app', 'src', 'main', 'AndroidManifest.xml');
   mkdirSync(dirname(mainSource), { recursive: true });
   writeFileSync(mainSource, '<manifest/>');
@@ -59,6 +60,14 @@ test('native source mutations change the snapshot hash', (t) => {
   const before = nativeAndroidSourceManifest(root).sha256;
   writeFileSync(mainSource, '<manifest android:versionName="changed"/>');
   assert.notEqual(nativeAndroidSourceManifest(root).sha256, before);
+});
+
+test('requires Sentry properties only when its Gradle integration is enabled', (t) => {
+  const { root } = fixture(t);
+  rmSync(join(root, 'android', 'sentry.properties'));
+  assert.ok(nativeAndroidSourceManifest(root));
+  writeFileSync(join(root, 'android', 'app', 'build.gradle'), 'apply from: "sentry.gradle"\n');
+  assert.throws(() => nativeAndroidSourceManifest(root), /Enabled Sentry native release input is missing/);
 });
 
 test('rejects secret-like gradle properties instead of hashing them', (t) => {

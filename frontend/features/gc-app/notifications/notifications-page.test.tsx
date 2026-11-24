@@ -2,6 +2,8 @@ import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-li
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { useAuthStore } from "@/stores/auth.store";
+import type { User } from "@/types";
 import { gcAppAdminApi } from "../api/gc-app-admin.api";
 import { notificationsApi } from "./notifications.api";
 import { NotificationsPage } from "./notifications-page";
@@ -9,15 +11,16 @@ import { agencyId, actorId, batch, draft, group, preview } from "./notification-
 import { persistPendingSend, pendingSendKey } from "./pending-send";
 
 vi.mock("../components/gc-app-agency-scope", () => ({ useGcAppAgencyScope: () => ({ agencyId: "10000000-0000-4000-8000-000000000001" }) }));
-vi.mock("@/stores/auth.store", () => ({ selectUser: vi.fn(), useAuthStore: () => ({ id: "20000000-0000-4000-8000-000000000001" }) }));
 vi.mock("../api/gc-app-admin.api", () => ({ gcAppAdminApi: { listGroups: vi.fn() } }));
 vi.mock("./notifications.api", () => ({ notificationsApi: {
   listDrafts: vi.fn(), createDraft: vi.fn(), updateDraft: vi.fn(), getDraft: vi.fn(), preview: vi.fn(),
   send: vi.fn(), byRequest: vi.fn(), listBatches: vi.fn(), getBatch: vi.fn(), deleteDraft: vi.fn(),
 } }));
 const clients: QueryClient[] = [];
+const initialAuth = useAuthStore.getState();
 beforeEach(() => {
   vi.clearAllMocks(); sessionStorage.clear();
+  useAuthStore.setState({ user: { id: actorId, role: "agency_admin", agency_id: agencyId } as User });
   vi.mocked(gcAppAdminApi.listGroups).mockResolvedValue({ items: [group], total: 1, page: 1, page_size: 20, has_next: false });
   vi.mocked(notificationsApi.listDrafts).mockResolvedValue({ items: [], next_cursor: null });
   vi.mocked(notificationsApi.listBatches).mockResolvedValue({ items: [], next_cursor: null });
@@ -26,7 +29,7 @@ beforeEach(() => {
   vi.mocked(notificationsApi.preview).mockResolvedValue(preview());
   vi.mocked(notificationsApi.send).mockResolvedValue(batch);
 });
-afterEach(() => { cleanup(); clients.splice(0).forEach((client) => client.clear()); });
+afterEach(() => { cleanup(); clients.splice(0).forEach((client) => client.clear()); useAuthStore.setState(initialAuth); });
 function setup() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } }); clients.push(client);
   render(<QueryClientProvider client={client}><NotificationsPage /></QueryClientProvider>);
@@ -92,7 +95,7 @@ describe("GC App Notifications operator workflow", () => {
     fireEvent.change(screen.getByLabelText(/Notification message/), { target: { value: "Updated message" } });
     await user.click(screen.getByRole("button", { name: "Save notification" }));
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
-    expect(notificationsApi.updateDraft).toHaveBeenCalledWith(agencyId, draft, expect.objectContaining({ body: "Updated message" }));
+    expect(notificationsApi.updateDraft).toHaveBeenCalledWith(agencyId, draft, expect.objectContaining({ body: "Updated message" }), actorId);
     expect(notificationsApi.send).not.toHaveBeenCalled();
     expect(notificationsApi.preview).not.toHaveBeenCalled();
   });

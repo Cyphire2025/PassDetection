@@ -1,0 +1,85 @@
+{
+  "originalSha256": "bfa8a3e1a28bc73f1b191ccbf087d44fe8cd3c1e540288b187dd783a7f765610",
+  "originalDeclarations": 9,
+  "moved": [
+    {
+      "declaration": "VerificationPanelProps",
+      "owner": "frontend/features/documents/components/document-verification-panel.tsx",
+      "wholeTypedDeclarationAndJsxExact": true
+    },
+    {
+      "declaration": "VerificationPanel",
+      "owner": "frontend/features/documents/components/document-verification-panel.tsx",
+      "wholeTypedDeclarationAndJsxExact": true
+    },
+    {
+      "declaration": "VerificationFile",
+      "owner": "frontend/features/documents/components/document-verification-panel.tsx",
+      "wholeTypedDeclarationAndJsxExact": true
+    },
+    {
+      "declaration": "VerificationMatchText",
+      "owner": "frontend/features/documents/components/document-verification-panel.tsx",
+      "wholeTypedDeclarationAndJsxExact": true
+    },
+    {
+      "declaration": "DocumentRowActionMenuProps",
+      "owner": "frontend/features/documents/components/document-row-action-menu.tsx",
+      "wholeTypedDeclarationAndJsxExact": true
+    },
+    {
+      "declaration": "DocumentRowActionMenu",
+      "owner": "frontend/features/documents/components/document-row-action-menu.tsx",
+      "wholeTypedDeclarationAndJsxExact": true
+    },
+    {
+      "declaration": "DocumentSentStatusProps",
+      "owner": "frontend/features/documents/components/document-review-badges.tsx",
+      "wholeTypedDeclarationAndJsxExact": true
+    },
+    {
+      "declaration": "DocumentSentStatus",
+      "owner": "frontend/features/documents/components/document-review-badges.tsx",
+      "wholeTypedDeclarationAndJsxExact": true
+    },
+    {
+      "declaration": "MatchBadge",
+      "owner": "frontend/features/documents/components/document-review-badges.tsx",
+      "wholeTypedDeclarationAndJsxExact": true
+    }
+  ],
+  "publicNamedExports": [
+    "DocumentRowActionMenu",
+    "DocumentSentStatus",
+    "MatchBadge",
+    "VerificationPanel"
+  ],
+  "publicFacadeExact": true,
+  "contracts": [
+    {
+      "path": "frontend/features/documents/components/document-workspace-responsive.contract.test.mjs",
+      "originalSha256": "2d0db63946a22a5212a0ec39dbe09fda9d79ac7f202a7bb784f1a7beb9e1c411",
+      "currentSha256": "5d131e4dce4ea4e0c3378c269b13a46ccf185872d49606526caf7b5ed9f77a5b",
+      "allOriginalTestBodiesIdentical": true
+    },
+    {
+      "path": "frontend/features/documents/components/document-whatsapp-delivery.contract.test.mjs",
+      "originalSha256": "2b69b084fef923e4f0ce1a8e109a28524293c11c45edbe09bb499bdb53432794",
+      "currentSha256": "6d9e96b3cb484fc9eb373c941f627a36f2a87c9945e86f3f8a8d25ab7c695cda",
+      "allOriginalTestBodiesIdentical": true
+    }
+  ],
+  "criticalCoverage": {
+    "config": "frontend/vitest.config.mts",
+    "sha256": "43f8ef71f59df34257e296abc4e2d6181105066af32a39c66bf2dcca6268d37d",
+    "originalReviewIncluded": false,
+    "originalFloors": {
+      "statements": 74,
+      "branches": 50,
+      "functions": 75,
+      "lines": 75
+    },
+    "configUnmodified": true,
+    "note": "Original review module was not a critical V8 include. The existing critical manual-review dialog owner and30include/floors remain untouched; actual review controls and menu tests execute relocated owners through unchanged public imports."
+  }
+}

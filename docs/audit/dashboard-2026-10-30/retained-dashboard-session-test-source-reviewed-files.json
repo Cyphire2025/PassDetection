@@ -1,0 +1,81 @@
+{
+  "files": [
+    {
+      "path": "backend/tests/integration/test_auth_response_durability.py",
+      "sha256": "eef70244e944f3719564a7b92d638626b28e042fafa54c1de7d17b0bc88c352b",
+      "physical_lines": 287,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete287 physical source across exact-same-hash prior1-195 and current196-287, with prior ledger explicitly bound. Actual network-visible ASGI send/independent SQLite commit barrier across challenge/enrollment/refresh/factor activation/recovery, rollback together, no cookie before durability. Shared auth coordinator redirect cases are compatibility boundaries, not native ingress/UI review. No test execution."
+    },
+    {
+      "path": "backend/tests/integration/test_mfa_denial_durability.py",
+      "sha256": "df42af309ad18aafb69c343060ace9b22d86c330c6471b395fa7a8ee6436590f",
+      "physical_lines": 86,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete86 physical source across same-hash prior1-47 and current48-86. Actual ASGI helper asserts401/no cookies; five attempts persist across new requests, locked challenge cannot revive and binding/credential/factor invalidation stays cancelled. No actual Redis/provider or service check inferred."
+    },
+    {
+      "path": "backend/tests/integration/test_dashboard_weekly_session.py",
+      "sha256": "6b509185405aba70cdee7625089fba9b9a8e36b9674f77d485153bdbce11acf7",
+      "physical_lines": 322,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete322 physical source across same-hash prior1-152 and current153-322. Browser reopen retains only bounded HttpOnly refresh, rotates until original deadline, denies legacy sliding expiry/logout/generation and retains assurance deadline on step-up/recovery rotation. Controlled clock/ASGI browser/fake external limiter are explicit synthetic scope, not production browser/service proof."
+    },
+    {
+      "path": "backend/tests/service_integration/test_auth_concurrency.py",
+      "sha256": "c71abf349ab67841a25984dfcc3ff57337cf36cd635fcbfb5b0bf5300ecbb5f4",
+      "physical_lines": 160,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete160 physical service-test source read. Explicit opt-in isolated PostgreSQL database/NullPool and loopback/CI Redis DB14 guards; actual refresh/logout competing account-family transactions and later replay distinction, atomic shared-account/IP/global admission, denied-window TTL and stale-counter expiry. Source was not executed; no credentials/services accessed and no PostgreSQL/Redis pass claim."
+    },
+    {
+      "path": "backend/tests/service_integration/test_dashboard_session_cutover.py",
+      "sha256": "56f5f017cee4cb3cfb2f4b64a377b9b7dc76871415dc779596803c63c7b44bd3",
+      "physical_lines": 66,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete66 physical service-test source read. Existing0109 loaded under transaction-local random schema; retained token/password/MFA/generation values, dashboard revocation and unchanged placeholder mobile session. Rollback/final disposal inspected; native placeholder asserts nonmutation only, no native API/app review. No migration bytes/DDL/service modified or executed."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/refresh_token_repository.py",
+      "sha256": "219a15a385285e5c2a805b6b6b8e3e9f16e38c788163555af8f063221dc6f316",
+      "physical_lines": 244,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete244 actual dependency physical reread by1-115,116-180,181-end ranges. Already exact-current full in security-reviewed-files.json, no new-unreviewed credit. Actual self._lock_account override dispatch, family reread, current actor check, atomic consume, replay-revoke/audit/notification and same-family logout order traced; unchanged, no new service qualification."
+    },
+    {
+      "path": "backend/app/infrastructure/security/login_attempt_limiter.py",
+      "sha256": "b23f38b4c692ba60d3cee3671ca62729e91ac4c5ca185fa994c23693ba131d24",
+      "physical_lines": 185,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical read1-102 only: exact constants/Lua atomic admission/no TTL extension/stale-key TTL repair, request Redis client close and local-admission entry path. Other failed-password/success/fallback/key methods not whole read here; no production security/Redis execution claim."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_dashboard_session_families.py",
+      "sha256": "f67f844845f5fc196cc3f80f37d46307fd178469b12d6b8cb85f2f7dd6755214",
+      "physical_lines": 187,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical read1-75 only: complete synthetic persisted account/security/family create_session helper and first copied-credential logout control, next test header. Remaining replay/multi-session/actor controls not full credited or executed here."
+    }
+  ],
+  "prior_physical_prefix_read_ledger": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-dashboard-auth-test-source-reviewed-files.json",
+    "sha256": "1a4ead691a55e836cb548b78ea1d0da110ec0db1376647f3c27b4657d04b8303"
+  },
+  "scope": "Five current-full-unmatched test files921physical lines; three complete by same-hash physical prefix+tail reads, two service sources read entirely without execution. Existing full refresh dependency244 reread separately, two focused contexts stay partial."
+}

@@ -1,0 +1,38 @@
+
+ RUN  v4.1.12 C:/Users/nipun/Desktop/PassDetection/frontend
+
+ ❯ features/mcp/components/mcp-request-waiting-page.test.tsx (15 tests | 1 failed) 515ms
+   × does not redirect a departed request page when its finalization resolves late 23ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  features/mcp/components/mcp-request-waiting-page.test.tsx > does not redirect a departed request page when its finalization resolves late
+AssertionError: expected "assign" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st assign call:
+
+    Array [
+      "http://127.0.0.1:49153/callback?code=private-once-code&state=opaque-original-state-123456789&iss=https%3A%2F%2Fapp.example.test",
+    ]
+
+
+Number of calls: 1
+
+ ❯ features/mcp/components/mcp-request-waiting-page.test.tsx:114:42
+    112|   view.unmount();
+    113|   await act(async () => { release(callback); });
+    114|   expect(mcpClientNavigation.assign).not.toHaveBeenCalled();
+       |                                          ^
+    115| });
+    116|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 14 passed (15)
+   Start at  00:45:31
+   Duration  2.35s (transform 230ms, setup 254ms, import 486ms, tests 515ms, environment 930ms)
+

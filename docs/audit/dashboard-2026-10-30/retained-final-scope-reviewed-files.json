@@ -1,0 +1,10 @@
+[
+  {
+    "path": "backend/tests/unit/scripts/test_dashboard_audit_scope.py",
+    "sha256": "9e1672f8b5157085d4a4d24b374926666d69bed9f329a5f5bed795592fc9e237",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Whole current scope-test source reviewed by exact old-AST inverse and manual added literal/decorator/count/false-positive bodies.153focused cases+explicit backend-config no-fixRuff4 pass under8pathfence. Current61native literals and2Inboxrefs preserve all12oldrowstatus/hash/reviewer/notes/depth. Scope classification only, no native/Inbox feature audit or execution. See retained-final-scope-verification.json."
+  }
+]

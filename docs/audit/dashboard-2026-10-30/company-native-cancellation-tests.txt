@@ -1,0 +1,13 @@
+................................                                         [100%]
+
+---------- coverage: platform win32, python 3.11.15-final-0 ----------
+Name                                                          Stmts   Miss Branch BrPart  Cover
+-----------------------------------------------------------------------------------------------
+app\infrastructure\travellers\company_export_native_work.py      19      0      4      1    96%
+app\infrastructure\travellers\company_export_workbook.py         33      1      6      1    95%
+-----------------------------------------------------------------------------------------------
+TOTAL                                                            52      1     10      2    95%
+Coverage XML written to file ../docs/audit/dashboard-2026-10-30/company-native-cancellation-coverage.xml
+Coverage JSON written to file ../docs/audit/dashboard-2026-10-30/company-native-cancellation-coverage.json
+
+32 passed in 24.41s

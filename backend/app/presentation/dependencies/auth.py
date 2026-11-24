@@ -26,7 +26,7 @@ import uuid
 from collections.abc import Awaitable, Callable, Collection
 from datetime import UTC, datetime
 
-from fastapi import Depends, Request
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -117,6 +117,15 @@ async def get_authenticated_user(
         raise AuthenticationError("Session is no longer valid")
     if getattr(user, "credential_state", "active") != "active":
         raise AuthenticationError("Credential setup is required")
+    expected_actor_id = request.headers.get("X-Expected-Actor-Id")
+    if expected_actor_id is not None and expected_actor_id != str(user.id):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={
+                "code": "AUTH_REQUEST_OWNER_CHANGED",
+                "message": "The signed-in account changed. Retry from the original account.",
+            },
+        )
     if hasattr(request, "state"):
         request.state.auth_claims = payload
 

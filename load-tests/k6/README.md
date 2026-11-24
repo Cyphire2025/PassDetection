@@ -7,6 +7,12 @@ failures, 429 origin, proxy failures, polling retries, duplicates, and success
 count. Every tenth virtual user also repeats its exact upload idempotency key
 after the extraction burst drains and requires the same durable submission ID.
 
+Each upload uses a fresh 32-byte random capability, encoded as a 43-character
+URL-safe value. The upload, status polls and exact retry keep that same private
+credential; the public submission UUID is not an upload credential. Metrics use
+fixed request names and omit raw URL/error system tags so shared reports do not
+include upload-link tokens or submission identifiers in those tags.
+
 It is intentionally not bundled with real passport data. Use only approved,
 synthetic or otherwise non-production fixtures in an isolated staging copy.
 

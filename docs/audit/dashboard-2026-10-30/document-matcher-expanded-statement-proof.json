@@ -1,0 +1,81 @@
+{
+  "original_source_sha256": "4256a5acb44ae73680eadc06c788cdefcd6b288e5d31361b0a979f4ce78fd791",
+  "source_fence": {
+    "backend/app/infrastructure/documents/document_matcher.py": "56d4bd08647d29d5d1a98b6469dc6e6149eb9e191effa1aab5e59febee89eb7e",
+    "backend/app/infrastructure/documents/document_filename_matching.py": "3b9f3e31d1348cad060b5b3563a6af6b1481ebde18f372da70fdce0bc33b2955",
+    "backend/app/infrastructure/documents/document_content_matching.py": "e546765e17ec69ac174b8b812ae4a8d0fe79682b106e42d429be703b29fee48f",
+    "backend/app/infrastructure/documents/document_match_results.py": "9992c0747769477e54022ec3312241577201ad403836411bb797acb298bd6451"
+  },
+  "whole_expanded_module_AST_exact": true,
+  "expanded_public_methods": [
+    "match",
+    "match_all",
+    "mark_duplicates"
+  ],
+  "all_actual_new_helper_functions_bound_and_expanded": [
+    "collect_primary_content_evidence",
+    "collect_secondary_content_evidence",
+    "mark_duplicate_matches",
+    "match_filename_evidence",
+    "merge_manifest_name_matches",
+    "resolve_content_evidence",
+    "select_single_passenger_match"
+  ],
+  "unchanged_original_methods": [
+    "_extract_image_only_pdf_text",
+    "_extract_pdf_text_with_pdfium",
+    "_extract_pdf_text_with_pypdf",
+    "_has_active_pdf_features",
+    "_identity_limits",
+    "_ocr_validated_image_only_pdf",
+    "_pdf_action_is_active",
+    "_pdf_fields_have_actions",
+    "_pdf_text",
+    "_read_pdf_text_with_pypdf",
+    "_resolved_pdf_object",
+    "classify"
+  ],
+  "unchanged_original_free_functions": [
+    "_pdf_processing_limits",
+    "classify_documents_bounded",
+    "_classify_unique_documents"
+  ],
+  "existing_bases_MRO_class_declarations_exact": true,
+  "explicit_packaging": {
+    "ContentMatchEvidence_fields": [
+      "match_groups",
+      "ambiguities",
+      "words",
+      "name_result"
+    ],
+    "same_owned_list_identities_not_copied": true,
+    "resolver": "actual existing DocumentMatchResolution instance; exact self, no proxy/callback bag",
+    "None_helpers": "caller terminates on every list, including an empty list; only None permits the next phase"
+  },
+  "import_changes": "Only seven real helper aliases added; uuid as uuid preserves original public binding while declaring the retained re-export. Old import statements remain in original relative order.",
+  "unchanged_preflight_dependency_test_caller_files": [
+    "backend/app/infrastructure/documents/document_approval_provenance.py",
+    "backend/app/infrastructure/documents/document_batch_classification.py",
+    "backend/app/infrastructure/documents/document_identity_limits.py",
+    "backend/app/infrastructure/documents/document_match_resolution.py",
+    "backend/app/infrastructure/documents/document_matcher_models.py",
+    "backend/app/infrastructure/documents/document_matcher_rules.py",
+    "backend/app/infrastructure/documents/document_passenger_index.py",
+    "backend/app/infrastructure/documents/document_pdf_support.py",
+    "backend/app/infrastructure/documents/document_type_detection.py",
+    "backend/app/infrastructure/documents/document_identity_aliases.py",
+    "backend/app/infrastructure/documents/document_text_fields.py",
+    "backend/app/infrastructure/documents/document_text_normalization.py",
+    "backend/app/infrastructure/documents/pdf_parser_sandbox.py",
+    "backend/tests/unit/infrastructure/test_document_matcher.py",
+    "backend/tests/unit/infrastructure/test_document_matcher_decomposition.py",
+    "backend/tests/unit/infrastructure/test_document_batch_deduplication.py",
+    "backend/tests/unit/infrastructure/test_document_pdf_resources.py",
+    "backend/tests/unit/infrastructure/test_document_pdf_xforms.py",
+    "backend/tests/unit/infrastructure/test_pdf_parser_sandbox.py",
+    "backend/app/infrastructure/documents/distribution_ingestion.py",
+    "backend/app/presentation/api/v1/routes/document_distribution_matching.py",
+    "backend/app/presentation/api/v1/routes/document_rename_upload_contracts.py"
+  ],
+  "limitations": "Expansion proves source statement/evaluation/branch order under exact argument/data bindings. Runtime subclass/global hooks, real import identities/hints and workflow outcomes are qualified separately; no service/provider/performance-speedup claim."
+}

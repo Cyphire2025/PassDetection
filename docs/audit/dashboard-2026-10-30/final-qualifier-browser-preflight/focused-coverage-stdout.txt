@@ -1,0 +1,27 @@
+
+ RUN  v4.1.12 C:/Users/nipun/Desktop/PassDetection/frontend
+      Coverage enabled with v8
+
+
+ Test Files  4 passed (4)
+      Tests  34 passed (34)
+   Start at  05:16:30
+   Duration  9.71s (transform 670ms, setup 633ms, import 2.09s, tests 3.96s, environment 2.28s)
+
+ % Coverage report from v8
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------|---------|----------|---------|---------|-------------------
+All files          |   96.72 |    91.11 |     100 |     100 |                   
+ components        |   95.45 |    92.85 |     100 |     100 |                   
+  ...er-editor.tsx |   94.73 |    91.66 |     100 |     100 | 27                
+ hooks             |   97.43 |    90.32 |     100 |     100 |                   
+  ...ion-editor.ts |   97.43 |    90.32 |     100 |     100 | 38,57,62          
+-------------------|---------|----------|---------|---------|-------------------
+
+=============================== Coverage summary ===============================
+Statements   : 96.72% ( 59/61 )
+Branches     : 91.11% ( 41/45 )
+Functions    : 100% ( 17/17 )
+Lines        : 100% ( 54/54 )
+================================================================================

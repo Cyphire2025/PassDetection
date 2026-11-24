@@ -1,0 +1,57 @@
+{
+  "modules": [
+    {
+      "path": "app/presentation/api/v1/routes/mcp_admin.py",
+      "source_sha256": "1fc02367a0ad64fdf78e6f4404fdd4babbd35cbc477221e7e12de0b1c9c554c4",
+      "previous": null,
+      "baseline_lines": 63,
+      "maximum_lines": 70,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 1,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/mcp_admin_authorization.py",
+      "source_sha256": "23214b6da5c95e3651105b8e1af831d9d56202dbdcea20af889706c156bcc8df",
+      "previous": null,
+      "baseline_lines": 186,
+      "maximum_lines": 190,
+      "baseline_max_function_complexity": 4,
+      "maximum_function_complexity": 5,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/mcp_admin_connections.py",
+      "source_sha256": "df81ec3e74e2145c15db6b35334b1e675c54eec4fb6d4e0d165dc654dd995b28",
+      "previous": null,
+      "baseline_lines": 220,
+      "maximum_lines": 220,
+      "baseline_max_function_complexity": 7,
+      "maximum_function_complexity": 8,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/mcp_admin_context.py",
+      "source_sha256": "ce088abb800578e0eae24c9a8ec4db2a5f811e9caa380c93d9a021c295f0b3da",
+      "previous": null,
+      "baseline_lines": 19,
+      "maximum_lines": 20,
+      "baseline_max_function_complexity": 1,
+      "maximum_function_complexity": 1,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/mcp_admin_reads.py",
+      "source_sha256": "2a4c7456cf81da14ef12139f13f2260c64be2a5fa19ce7587d4e0c1573122449",
+      "previous": null,
+      "baseline_lines": 143,
+      "maximum_lines": 150,
+      "baseline_max_function_complexity": 4,
+      "maximum_function_complexity": 5,
+      "minimum_coverage_percent": 95
+    }
+  ],
+  "critical_modules": [],
+  "original_normal_and_critical_membership": [],
+  "notes": "Five additive normal95line owner ratchets; no existing normal/critical/admin row. No declaration-only critical additions. All old/global rows preserved by integration owner."
+}

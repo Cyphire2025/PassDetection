@@ -1,0 +1,131 @@
+{
+  "status": "Retained WhatsApp policy source cohort complete",
+  "files": [
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_webhook_security.py",
+      "sha256": "d34d4be5c52c20bbf79eaaa5b13c0636a982c81253e4d414754acb2339d3efff",
+      "physical_lines": 57,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-57. Raw-body HMAC valid/invalid/missing signatures; no secret fails closed staging/production, development-only exception explicit. Pure helper patch uses actual route dependency bridge. Synthetic secret, source read only; no webhook/network/provider/scanner invocation."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_imported_field_work.py",
+      "sha256": "ddc659f8ac625addbf01b3ba2a5e9ed513c9cb8515814c2caa5a740c6754f088",
+      "physical_lines": 82,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-82. Existing heading-union work regression tracks actual key allocation/comparison for3000 unique inputs and preserves first published bound; declaration aliases/conflict-generated alternates/reserved headings and full iterable consumption parity asserted. Test previously focused now complete physical read, no new measurement/run or normalization change."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_message_content.py",
+      "sha256": "2779522cb5acbaef1e573d0a0503f2cbee8328af5849e804d0157c9b36f4788a",
+      "physical_lines": 111,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-111. None uses approved initial copy, explicitly cleared preview content remains empty, passport instruction exact and blank send denied400. Legacy group creation without organizing company stores empty value; current actor/detail seams stubbed deliberately. No provider sends/test execution."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_reminder_audience.py",
+      "sha256": "26646e738c76a1436be3bfcd197fbbd9354f968a6dc2b26ba79344afe0f36a1e",
+      "physical_lines": 128,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-128. Exact matcher statuses select only not_submitted; submitted/review counts reported, multiple linked groups require explicit choice409, empty final audience409. Mock rows isolate selection policy; no new authorization conclusion from mocks alone."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_client_group_whatsapp_match_support.py",
+      "sha256": "9c1438b3893baf354a8e36e5d4385d4a9f4734ffa6013fc41aefae55360f5e48",
+      "physical_lines": 131,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-131. Pure resolution augmentation preserves replacement/rejected recovery context, stable UUID de-duplication, imported fields, broadcast labels and supplied pagination metadata. Qualifier-party duplicate flags include only repeated passports while total matched count preserves all members. Caller supplies page_rows already sliced, helper does not page internally."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_staff_group_visibility.py",
+      "sha256": "eabfb6c66c89d257f0f5599e841011546115eea5d931cd3434bcfafb712575d6",
+      "physical_lines": 211,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-211. Actual HTTP/SQLite staff fixture with active security state distinguishes owned/assigned from hidden/archived linked groups in detail and unidentified roster. Explicit accessible reminder scope preserves full cross-broadcast matching; hidden links still make selection ambiguous409, explicitly hidden scope403. No provider execution and no new policy."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_matching_reminder_flow.py",
+      "sha256": "93f8839f5c06eb81e9de86a5bc545dcdb577073b61056536297dd66e77b3bee2",
+      "physical_lines": 234,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-234. Real synthetic workbook parser+database matching across confirmed/custom-detail/custom-answer producer code; prefixed code remains distinct until explicit staff correction. Qualifier party association excludes submitted recipients without duplicate passport flags and never grants private delivery identity. New submission after preview invalidates not-submitted audience; all audience unchanged. No workbook/test/provider execution for read credit."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_whatsapp_match_support.py",
+      "sha256": "091a92a1824f3f88caed7a8248b7f7ae261f50b0f35dfcb23acd0f8cd485cdcd",
+      "physical_lines": 410,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-410 in bounded1-220/221-end. Validates persisted response enums/evidence keys, combines confirmed/extracted/staff/supplemental display fields, deterministic manual resolution augmentation. Actual SQL/current roster acquisition244-332 scoped group/tenant/status and linked recipients, removes suppressed/excluded items before worker-thread matcher; projection335-410 emits caller-sliced page and counts. Concrete architecture candidate separates acquisition from pure response/resolution owners; no behavior defect reproduced or runtime movement."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_contact_support.py",
+      "sha256": "c6640e915d3a22ceb880189bb4e3a89f0d7cfc3180a6a8b7582b446b709e1fce",
+      "physical_lines": 189,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-189. Declaration-free compatibility import catalog reexports actual typed values/parsing/rejection/roster/input/projection helpers, including legacy forward-annotation recipient schema binding. No implementation duplication from alias catalog and no line-only split target; called leaf implementations are not automatically read-credited."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_webhook.py",
+      "sha256": "7dc8ba21f533ae2efd55c71a987d0d7e0bbcafb217b7982ffbab707fa936221f",
+      "physical_lines": 112,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical26-43 only: whole raw signature verification and next GET signature prefix. Constant-time expected HMAC compare, nondevelopment missing-secret fail closed; no whole-file credit."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_imported_fields.py",
+      "sha256": "fc4ab60c67b8ba4da46dc0b50684264173f2af260696e138b1f40925049ba811",
+      "physical_lines": 186,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical105-186 only. Stable bounded union retains at most published headings while consuming all input; duplicate-generated fields not exposed, safe label/contact/parser consumers and explicit heading-list bound. Existing measured implementation frozen, no whole-file credit."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_composer_content.py",
+      "sha256": "920f7c816e41d3726049ff7dbb973d741a21d20602ca6ca87ecb8f3273449bf8",
+      "physical_lines": 184,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical34-60 only, complete default/cleared/normalized content and send-required field helpers. Distinguishes None from explicitly blank, preserves reminder normalizer and approved copy provider field policy. Earlier frozen composition owner unchanged, no whole-file credit."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_reminder_audience.py",
+      "sha256": "0e9199e40aff3990a9eff3c033fafd17c2b5aec307894d1529bcb8c653410151",
+      "physical_lines": 189,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical37-189 only. Entire resolver: update-specific delegation, all audience passthrough; active exact linked scope ambiguity and selected staff access, global group matcher then intersection with current broadcast. Unexpected category review, empty selected409, picker/recipient counts preserve boundaries. Existing current full ledger reused, no new whole-source credit."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_link_operations.py",
+      "sha256": "07fcf9c399905f1ead0b851acb0d37f99149642fea2add2041210edfed6a1351",
+      "physical_lines": 245,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical107-177 only. Current actual caller authorizes group, validates selected linked broadcast, loads current match rows, computes full/scoped counts then filter/sort/page before pure response projection. Tail is next declaration signature only; whole source not read here. No source movement/behavior claim."
+    }
+  ]
+}

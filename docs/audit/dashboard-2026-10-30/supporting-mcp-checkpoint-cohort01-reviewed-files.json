@@ -1,0 +1,94 @@
+{
+  "files": [
+    {
+      "path": "docs/implementation/evidence/mcp-gc-announcement-checkpoint.md",
+      "sha256": "13efd867b0a2195b149c553b69e0cd8afdec5f2b72ef48aaded49c824fa2f677",
+      "physical_lines": 45,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "Dated synthetic draft/revision publication boundary, sourcehistory preservation and currentaccess lock order; explicitly distinguishes retained source from native-visible retired history, firstpublication versus replacement and overlapping PostgreSQL counts. No native feature or real notification qualification."
+    },
+    {
+      "path": "docs/implementation/evidence/mcp-gc-push-checkpoint.md",
+      "sha256": "ed5da305806a5ac182b79290f182a24ba993a2f62aac652607164ba919497859",
+      "physical_lines": 88,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "Saved exact audience/content/device preview, originalgrant handoff, durableattempt-beforeprovider, ordinary/MCPwave separation and unknownattempt preservation, private-token omission. Synthetic provider/PG/SDK results historical; dedicated inboundemail passage is only boundary context, no Inboxfeatureaudit."
+    },
+    {
+      "path": "docs/implementation/mcp-additive-release-contract.md",
+      "sha256": "e6a8ebc7ac309df7eca402bb6edcc0c8fcb2a82afd6abf65802b4743793172ed",
+      "physical_lines": 188,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "Historical proposed exact0113\u21920122 additive upgrade chain, signed kind and previous-schema meaning, backup/retention/writer fence/config/grants/recovery source constraints; never substitute old launch schema into currentrelease or treat old authorization/liveevidence as new permission. No operator executed."
+    },
+    {
+      "path": "docs/implementation/mcp-attendance-read-checkpoint.md",
+      "sha256": "857aa5e4d3ad76a008425b746dabc6ec7dd3a843493dc5f4ef2e8b699ff62eb2",
+      "physical_lines": 154,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "Ownagency read authority, canonical retainedpresent vs currentmissing semantics, nestedactivity revision cursor and aggregate limits, scalar privacy/sourcework bounds and no physicalpresence/close permissions. Earlier pointer observation remains explicitly unresolved historical, not adopted current UI finding."
+    },
+    {
+      "path": "docs/implementation/mcp-business-v1-journey-checkpoint.md",
+      "sha256": "898ca1354f338c048237eb61f5bba75ba7476587b671a2f13c1551723a4782c7",
+      "physical_lines": 177,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "Dated synthetic workbook\u2192welcome composition/retry/unknownoutcome/explicitrecipient constraints, supportcontact disambiguation, installedwheel provenance and retainedresource anomaly limits. Historical expiredSSH instructions/phaseorder not executed or interpreted as present permission; no customer sends."
+    },
+    {
+      "path": "docs/implementation/mcp-codex-access-ui-checkpoint.md",
+      "sha256": "8e9a700cca8f202ccbd6eef840bfbc3de4074e26fc0debd25fd24eeb027a51f8",
+      "physical_lines": 124,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "Historical beginner UI/consent/capability narrowing and exacttree qualification; stopped release beforebuild and exact33missingimage vs3extraanomalies distinguished. Old expiredaccess/remoteinstructions are quoted history, not current authority."
+    },
+    {
+      "path": "docs/implementation/mcp-dashboard-detail-read-release.md",
+      "sha256": "ea29faf5fbc277fc7e6c41addfd2afa72642622cc138a90048639495973809bd",
+      "physical_lines": 100,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "Finite observationalcatalog with fixed reviewedviews/currentsection/tenant/mailbox authority, boundedcompletecontinuation, no readsideeffects/keys/capabilities. Datedhost/backup/SDK/Codex credential and permission observations preserved only as historical reference."
+    },
+    {
+      "path": "docs/implementation/mcp-dashboard-read-contract-checkpoint.md",
+      "sha256": "d76084229072a09b9df81d842f666dceb2721af342aa21512c74f1dcbc408428",
+      "physical_lines": 75,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "Explicit planned requirementrepair vs implementation, currentactor ownagency/nofallback aggregate, statusfamily and five-rowpreview/count differences, separatelivequeries/deadline/privacy concerns. Follow-up implementation provided by separatelyread summarydoc, not current openissue inferred from earlier plannedrecord."
+    },
+    {
+      "path": "docs/implementation/mcp-dashboard-summary-checkpoint.md",
+      "sha256": "a130732bf00906034deceda756cf738ac63e3b301604316da69e21a2ad04fdc2",
+      "physical_lines": 102,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "Canonical sharedboundedscalarpreview/status/tenant visibility, sevenSQL/noagencyidentityonly query shape, response/deadline/staticerror semantics; datedspecific71cases/aggregate/deployedobservations not current execution/PGqualification."
+    }
+  ]
+}

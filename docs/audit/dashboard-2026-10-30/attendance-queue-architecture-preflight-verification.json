@@ -1,0 +1,32 @@
+{
+  "sealed_at": "2026-10-31T09:31:37.670952+00:00",
+  "reviewer": "/root/document_ui_architecture",
+  "source_unchanged": true,
+  "target_sha256": "aa160e1bdcd3f651706adfc6b18edfbb2b2d08784f8d32ce7080c23289b29b7e",
+  "artifacts": [
+    {
+      "path": "docs/audit/dashboard-2026-10-30/attendance-queue-architecture-reviewed-files.json",
+      "sha256": "3ff9e9eff9706a3c73489d3372312568f017db55405d749a1ed6f7db5e1d63a1"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/attendance-queue-architecture-preflight.json",
+      "sha256": "3e51e90d32b4ca792c6f35c0bcd6285232de409f32b8307cd7dbc0f94b1acb2a"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/attendance-queue-architecture-original-source.json",
+      "sha256": "606d080187d6bf7532292d902b1fe1bbcaef6805a9050d3dc6b3534665e300a7"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/attendance-queue-architecture-declaration-map.json",
+      "sha256": "423beead1af605922a206fd1b9d5e5095766b6869d83499cfd603201558e81be"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/attendance-queue-architecture-context-selection.json",
+      "sha256": "66ba1c468321f2f4126ab28338e0a0a93c4f2745ca8832d0f58e4b6c367ccba6"
+    }
+  ],
+  "application_tests_checks_or_builds_run": false,
+  "runtime_test_config_edits": false,
+  "new_global_full_source_coverage_credit": 0,
+  "status": "read-only preflight complete; awaiting parent ownership/scope coordination before implementation"
+}

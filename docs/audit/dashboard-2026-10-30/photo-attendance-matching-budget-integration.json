@@ -1,0 +1,765 @@
+{
+  "before_modules": 359,
+  "after_modules": 404,
+  "new_entries": 45,
+  "existing_entry_tightened": 1,
+  "all_prior_floors_retained_or_raised": true,
+  "all_prior_ceilings_retained_or_lowered": true,
+  "global_and_critical_policy_unchanged": true,
+  "before_sha256": "bd44e235573b55d452b458ddd8ae8d46e571efdb0184adb46760b13740377f4c",
+  "after_sha256": "897a5ce67fdf4b66416a2ed8ade3ab59d27cadfe550aa4fc980c48fc991e8c2e",
+  "after_lf_sha256": "897a5ce67fdf4b66416a2ed8ade3ab59d27cadfe550aa4fc980c48fc991e8c2e",
+  "strict_release_change": "Only exact backend budget AFTER changed; both original baseline sets unchanged. Frontend current source is still owned by parent and its final binding is deliberately pending.",
+  "source_review_attribution": [
+    "ai_extraction:my-photos-provider-delivery-verification.json",
+    "manual_security:attendance-adjacent-verification.json",
+    "manual_security:matching-repository-verification.json"
+  ],
+  "not_a_second_full_physical_review_of_peer_sources": true,
+  "coverage_limit": "New measured AWS helper floors65\u201390 reflect current focused evidence and preserve the existing global/critical gates. This is not exhaustive branch or live-service qualification.",
+  "changes": [
+    {
+      "owner": "my-photos-provider-delivery",
+      "before": null,
+      "after": {
+        "path": "app/infrastructure/my_photos/aws_client_runtime.py",
+        "baseline_lines": 84,
+        "maximum_lines": 88,
+        "baseline_max_function_complexity": 5,
+        "maximum_function_complexity": 5,
+        "minimum_coverage_percent": 75
+      },
+      "source_sha256": "b976351ba066c19c030d21a33efa231fb48225a8a4de201fa19ef6faefb3b91b",
+      "observed_statement_coverage": 75.60975609756098,
+      "observed_branch_coverage": 37.5,
+      "coverage_evidence": "my-photos-runtime-final-coverage.json; initial172 immutable checkpoint plus25current changed-source/workflow supplement, purged2changed owner records before append;184unique cases/197passing executions."
+    },
+    {
+      "owner": "my-photos-provider-delivery",
+      "before": null,
+      "after": {
+        "path": "app/infrastructure/my_photos/aws_face_results.py",
+        "baseline_lines": 167,
+        "maximum_lines": 174,
+        "baseline_max_function_complexity": 14,
+        "maximum_function_complexity": 14,
+        "minimum_coverage_percent": 65
+      },
+      "source_sha256": "36e1ac2b0bec8f6a9094bc511a5e3711bd04e68fd0244cd2006a9a34217b8496",
+      "observed_statement_coverage": 67.56756756756756,
+      "observed_branch_coverage": 44.44444444444444,
+      "coverage_evidence": "my-photos-runtime-final-coverage.json; initial172 immutable checkpoint plus25current changed-source/workflow supplement, purged2changed owner records before append;184unique cases/197passing executions."
+    },
+    {
+      "owner": "my-photos-provider-delivery",
+      "before": null,
+      "after": {
+        "path": "app/infrastructure/my_photos/aws_face_search.py",
+        "baseline_lines": 379,
+        "maximum_lines": 395,
+        "baseline_max_function_complexity": 18,
+        "maximum_function_complexity": 18,
+        "minimum_coverage_percent": 70
+      },
+      "source_sha256": "3d01884c71763ce4b98c421f2e296ab519b5b4f1703e607285e61063729ffc08",
+      "observed_statement_coverage": 71.17647058823529,
+      "observed_branch_coverage": 48.275862068965516,
+      "coverage_evidence": "my-photos-runtime-final-coverage.json; initial172 immutable checkpoint plus25current changed-source/workflow supplement, purged2changed owner records before append;184unique cases/197passing executions."
+    },
+    {
+      "owner": "my-photos-provider-delivery",
+      "before": null,
+      "after": {
+        "path": "app/infrastructure/my_photos/aws_liveness.py",
+        "baseline_lines": 378,
+        "maximum_lines": 394,
+        "baseline_max_function_complexity": 16,
+        "maximum_function_complexity": 16,
+        "minimum_coverage_percent": 75
+      },
+      "source_sha256": "4f107cd3ea0ed5de25c1a656f91827fbf33b4f5341d4df37ed26b688cfe47120",
+      "observed_statement_coverage": 76.24309392265194,
+      "observed_branch_coverage": 53.84615384615385,
+      "coverage_evidence": "my-photos-runtime-final-coverage.json; initial172 immutable checkpoint plus25current changed-source/workflow supplement, purged2changed owner records before append;184unique cases/197passing executions."
+    },
+    {
+      "owner": "my-photos-provider-delivery",
+      "before": null,
+      "after": {
+        "path": "app/infrastructure/my_photos/aws_media_delivery.py",
+        "baseline_lines": 422,
+        "maximum_lines": 439,
+        "baseline_max_function_complexity": 9,
+        "maximum_function_complexity": 9,
+        "minimum_coverage_percent": 75
+      },
+      "source_sha256": "4f98a3069e96df0d6f9fb75c29b109a4f8f62ddb16fb7fd1cab332d62d517fe0",
+      "observed_statement_coverage": 79.72027972027972,
+      "observed_branch_coverage": 64.70588235294117,
+      "coverage_evidence": "my-photos-runtime-final-coverage.json; initial172 immutable checkpoint plus25current changed-source/workflow supplement, purged2changed owner records before append;184unique cases/197passing executions."
+    },
+    {
+      "owner": "my-photos-provider-delivery",
+      "before": null,
+      "after": {
+        "path": "app/infrastructure/my_photos/aws_media_location.py",
+        "baseline_lines": 120,
+        "maximum_lines": 125,
+        "baseline_max_function_complexity": 31,
+        "maximum_function_complexity": 31,
+        "minimum_coverage_percent": 85
+      },
+      "source_sha256": "e83f24ace49c180843d9973106e97ad2fefd8a5432a7b663d93ba3a4370fb3fe",
+      "observed_statement_coverage": 85.52631578947368,
+      "observed_branch_coverage": 73.52941176470588,
+      "coverage_evidence": "my-photos-runtime-final-coverage.json; initial172 immutable checkpoint plus25current changed-source/workflow supplement, purged2changed owner records before append;184unique cases/197passing executions."
+    },
+    {
+      "owner": "my-photos-provider-delivery",
+      "before": null,
+      "after": {
+        "path": "app/infrastructure/my_photos/aws_media_metadata.py",
+        "baseline_lines": 142,
+        "maximum_lines": 148,
+        "baseline_max_function_complexity": 14,
+        "maximum_function_complexity": 14,
+        "minimum_coverage_percent": 85
+      },
+      "source_sha256": "461bcfefe682ebf55a71dc2daa909c23704b64628d86b5d65a009d5f6b960298",
+      "observed_statement_coverage": 88.13559322033899,
+      "observed_branch_coverage": 75.0,
+      "coverage_evidence": "my-photos-runtime-final-coverage.json; initial172 immutable checkpoint plus25current changed-source/workflow supplement, purged2changed owner records before append;184unique cases/197passing executions."
+    },
+    {
+      "owner": "my-photos-provider-delivery",
+      "before": null,
+      "after": {
+        "path": "app/infrastructure/my_photos/aws_provider_config.py",
+        "baseline_lines": 82,
+        "maximum_lines": 86,
+        "baseline_max_function_complexity": 7,
+        "maximum_function_complexity": 7,
+        "minimum_coverage_percent": 90
+      },
+      "source_sha256": "0202641ed2a62006ba6f4ec2719d1441dec4aa615d5e6018cd9bff8e115869c0",
+      "observed_statement_coverage": 93.02325581395348,
+      "observed_branch_coverage": 50.0,
+      "coverage_evidence": "my-photos-runtime-final-coverage.json; initial172 immutable checkpoint plus25current changed-source/workflow supplement, purged2changed owner records before append;184unique cases/197passing executions."
+    },
+    {
+      "owner": "my-photos-provider-delivery",
+      "before": null,
+      "after": {
+        "path": "app/infrastructure/my_photos/aws_providers.py",
+        "baseline_lines": 140,
+        "maximum_lines": 146,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 100
+      },
+      "source_sha256": "14ef990b443a3e3c1b88911a7d37c2516a03e14b0035c90637c743baccaf09e8",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 100,
+      "coverage_evidence": "my-photos-runtime-final-coverage.json; initial172 immutable checkpoint plus25current changed-source/workflow supplement, purged2changed owner records before append;184unique cases/197passing executions."
+    },
+    {
+      "owner": "my-photos-provider-delivery",
+      "before": null,
+      "after": {
+        "path": "app/infrastructure/my_photos/aws_references.py",
+        "baseline_lines": 222,
+        "maximum_lines": 231,
+        "baseline_max_function_complexity": 10,
+        "maximum_function_complexity": 10,
+        "minimum_coverage_percent": 80
+      },
+      "source_sha256": "16bdb1b0d968fd041bb01f9e8ea6af412ab0eb1b0eb950b4d90c44553a46742a",
+      "observed_statement_coverage": 80.95238095238095,
+      "observed_branch_coverage": 53.84615384615385,
+      "coverage_evidence": "my-photos-runtime-final-coverage.json; initial172 immutable checkpoint plus25current changed-source/workflow supplement, purged2changed owner records before append;184unique cases/197passing executions."
+    },
+    {
+      "owner": "my-photos-provider-delivery",
+      "before": null,
+      "after": {
+        "path": "app/infrastructure/my_photos/delivery_assets.py",
+        "baseline_lines": 151,
+        "maximum_lines": 158,
+        "baseline_max_function_complexity": 5,
+        "maximum_function_complexity": 5,
+        "minimum_coverage_percent": 90
+      },
+      "source_sha256": "ac7552308e2ec93abb0ecbbb436f8ed3837eda85e7cd3f9399c3456963d7d0e9",
+      "observed_statement_coverage": 91.42857142857143,
+      "observed_branch_coverage": 75.0,
+      "coverage_evidence": "my-photos-runtime-final-coverage.json; initial172 immutable checkpoint plus25current changed-source/workflow supplement, purged2changed owner records before append;184unique cases/197passing executions."
+    },
+    {
+      "owner": "my-photos-provider-delivery",
+      "before": null,
+      "after": {
+        "path": "app/infrastructure/my_photos/delivery_authorizations.py",
+        "baseline_lines": 379,
+        "maximum_lines": 395,
+        "baseline_max_function_complexity": 47,
+        "maximum_function_complexity": 47,
+        "minimum_coverage_percent": 80
+      },
+      "source_sha256": "9046604ceccb397a12da11113a483b9aa5ad044f2d25c9f7a8704fddfb90a168",
+      "observed_statement_coverage": 83.84615384615384,
+      "observed_branch_coverage": 67.5,
+      "coverage_evidence": "my-photos-runtime-final-coverage.json; initial172 immutable checkpoint plus25current changed-source/workflow supplement, purged2changed owner records before append;184unique cases/197passing executions."
+    },
+    {
+      "owner": "my-photos-provider-delivery",
+      "before": null,
+      "after": {
+        "path": "app/infrastructure/my_photos/delivery_context.py",
+        "baseline_lines": 36,
+        "maximum_lines": 38,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 100
+      },
+      "source_sha256": "af629e7efa13952428cc21fe1a8bb7bd355c05ba1c5d25fbf29c5ef8600e39f3",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 100,
+      "coverage_evidence": "my-photos-runtime-final-coverage.json; initial172 immutable checkpoint plus25current changed-source/workflow supplement, purged2changed owner records before append;184unique cases/197passing executions."
+    },
+    {
+      "owner": "my-photos-provider-delivery",
+      "before": null,
+      "after": {
+        "path": "app/infrastructure/my_photos/delivery_downloads.py",
+        "baseline_lines": 282,
+        "maximum_lines": 294,
+        "baseline_max_function_complexity": 27,
+        "maximum_function_complexity": 27,
+        "minimum_coverage_percent": 75
+      },
+      "source_sha256": "15c0de8a6b74c9e94d5e4b67fd14f64be018bfcbdcb994db3eb6d4e7011e6248",
+      "observed_statement_coverage": 77.08333333333333,
+      "observed_branch_coverage": 62.5,
+      "coverage_evidence": "my-photos-runtime-final-coverage.json; initial172 immutable checkpoint plus25current changed-source/workflow supplement, purged2changed owner records before append;184unique cases/197passing executions."
+    },
+    {
+      "owner": "my-photos-provider-delivery",
+      "before": null,
+      "after": {
+        "path": "app/infrastructure/my_photos/delivery_plan.py",
+        "baseline_lines": 246,
+        "maximum_lines": 256,
+        "baseline_max_function_complexity": 11,
+        "maximum_function_complexity": 11,
+        "minimum_coverage_percent": 100
+      },
+      "source_sha256": "25eb7ce1a2faa35ab33a8e74cfe90dd1c104752ec23d85db66f7a3e372eaf850",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 100,
+      "coverage_evidence": "my-photos-runtime-final-coverage.json; initial172 immutable checkpoint plus25current changed-source/workflow supplement, purged2changed owner records before append;184unique cases/197passing executions."
+    },
+    {
+      "owner": "my-photos-provider-delivery",
+      "before": null,
+      "after": {
+        "path": "app/infrastructure/my_photos/delivery_policy.py",
+        "baseline_lines": 112,
+        "maximum_lines": 117,
+        "baseline_max_function_complexity": 13,
+        "maximum_function_complexity": 13,
+        "minimum_coverage_percent": 90
+      },
+      "source_sha256": "673613f7140aec65ca3f6d46bbc1a442eb8dc215911996bf4a3130c383b0f704",
+      "observed_statement_coverage": 91.89189189189189,
+      "observed_branch_coverage": 60.0,
+      "coverage_evidence": "my-photos-runtime-final-coverage.json; initial172 immutable checkpoint plus25current changed-source/workflow supplement, purged2changed owner records before append;184unique cases/197passing executions."
+    },
+    {
+      "owner": "my-photos-provider-delivery",
+      "before": null,
+      "after": {
+        "path": "app/infrastructure/my_photos/delivery_preparation.py",
+        "baseline_lines": 137,
+        "maximum_lines": 143,
+        "baseline_max_function_complexity": 11,
+        "maximum_function_complexity": 11,
+        "minimum_coverage_percent": 100
+      },
+      "source_sha256": "1f00c8952de5d462b37b287ffb6fc091d281dac645b51fc41a9d6cd24c9e69de",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 100.0,
+      "coverage_evidence": "my-photos-runtime-final-coverage.json; initial172 immutable checkpoint plus25current changed-source/workflow supplement, purged2changed owner records before append;184unique cases/197passing executions."
+    },
+    {
+      "owner": "my-photos-provider-delivery",
+      "before": null,
+      "after": {
+        "path": "app/infrastructure/my_photos/delivery_previews.py",
+        "baseline_lines": 184,
+        "maximum_lines": 192,
+        "baseline_max_function_complexity": 17,
+        "maximum_function_complexity": 17,
+        "minimum_coverage_percent": 80
+      },
+      "source_sha256": "b043c34700d0a2fbf62f1b6b2fadb49491f742dbc35831b0685585488336fa5c",
+      "observed_statement_coverage": 82.25806451612904,
+      "observed_branch_coverage": 56.25,
+      "coverage_evidence": "my-photos-runtime-final-coverage.json; initial172 immutable checkpoint plus25current changed-source/workflow supplement, purged2changed owner records before append;184unique cases/197passing executions."
+    },
+    {
+      "owner": "my-photos-provider-delivery",
+      "before": null,
+      "after": {
+        "path": "app/infrastructure/my_photos/delivery_projection.py",
+        "baseline_lines": 217,
+        "maximum_lines": 226,
+        "baseline_max_function_complexity": 38,
+        "maximum_function_complexity": 38,
+        "minimum_coverage_percent": 90
+      },
+      "source_sha256": "131282f9f76eb5fff5ccdb2f0a43fe2d9ddd6ccb09f9588ec78a2049802dcfbc",
+      "observed_statement_coverage": 94.23076923076923,
+      "observed_branch_coverage": 75.0,
+      "coverage_evidence": "my-photos-runtime-final-coverage.json; initial172 immutable checkpoint plus25current changed-source/workflow supplement, purged2changed owner records before append;184unique cases/197passing executions."
+    },
+    {
+      "owner": "my-photos-provider-delivery",
+      "before": null,
+      "after": {
+        "path": "app/infrastructure/my_photos/delivery_provider.py",
+        "baseline_lines": 168,
+        "maximum_lines": 175,
+        "baseline_max_function_complexity": 24,
+        "maximum_function_complexity": 24,
+        "minimum_coverage_percent": 85
+      },
+      "source_sha256": "07ca9ff10ba44d177ab63baacae52954d47970e040bb164dfd702dce0d21181b",
+      "observed_statement_coverage": 86.20689655172414,
+      "observed_branch_coverage": 63.63636363636363,
+      "coverage_evidence": "my-photos-runtime-final-coverage.json; initial172 immutable checkpoint plus25current changed-source/workflow supplement, purged2changed owner records before append;184unique cases/197passing executions."
+    },
+    {
+      "owner": "my-photos-provider-delivery",
+      "before": null,
+      "after": {
+        "path": "app/infrastructure/my_photos/delivery_service.py",
+        "baseline_lines": 319,
+        "maximum_lines": 332,
+        "baseline_max_function_complexity": 2,
+        "maximum_function_complexity": 2,
+        "minimum_coverage_percent": 90
+      },
+      "source_sha256": "97d6c44090c83acc01278a95b09f1f11a46a13839c2017698ce34bd1f481d5a9",
+      "observed_statement_coverage": 91.46341463414635,
+      "observed_branch_coverage": 50.0,
+      "coverage_evidence": "my-photos-runtime-final-coverage.json; initial172 immutable checkpoint plus25current changed-source/workflow supplement, purged2changed owner records before append;184unique cases/197passing executions."
+    },
+    {
+      "owner": "attendance-adjacent",
+      "before": null,
+      "after": {
+        "path": "app/infrastructure/repositories/audit_log_repository.py",
+        "baseline_lines": 243,
+        "maximum_lines": 253,
+        "baseline_max_function_complexity": 9,
+        "maximum_function_complexity": 9,
+        "minimum_coverage_percent": 85
+      },
+      "source_sha256": "53119144537401e6f37e37df076fbf33882ebc73c5c98d3c42cb6b4a7c653113",
+      "observed_statement_coverage": 86.84210526315789,
+      "observed_branch_coverage": 50.0,
+      "coverage_evidence": "attendance-adjacent-coverage.pre-read-contracts.json"
+    },
+    {
+      "owner": "attendance-adjacent",
+      "before": null,
+      "after": {
+        "path": "app/infrastructure/repositories/audit_chain_verification.py",
+        "baseline_lines": 113,
+        "maximum_lines": 118,
+        "baseline_max_function_complexity": 14,
+        "maximum_function_complexity": 14,
+        "minimum_coverage_percent": 85
+      },
+      "source_sha256": "7c655639c88bcd0c4a48d02b60281cc48fe81f200203bff31d3a6069ec3f6d21",
+      "observed_statement_coverage": 86.20689655172414,
+      "observed_branch_coverage": 66.66666666666667,
+      "coverage_evidence": "attendance-adjacent-coverage.pre-read-contracts.json"
+    },
+    {
+      "owner": "attendance-adjacent",
+      "before": null,
+      "after": {
+        "path": "app/infrastructure/repositories/audit_log_integrity.py",
+        "baseline_lines": 64,
+        "maximum_lines": 67,
+        "baseline_max_function_complexity": 3,
+        "maximum_function_complexity": 3,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "5714830391e62418e107267f76dd302194fc7194dd982e5eba403904bbcbf8de",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 100.0,
+      "coverage_evidence": "attendance-adjacent-coverage.pre-read-contracts.json"
+    },
+    {
+      "owner": "attendance-adjacent",
+      "before": null,
+      "after": {
+        "path": "app/infrastructure/repositories/audit_log_paging.py",
+        "baseline_lines": 98,
+        "maximum_lines": 102,
+        "baseline_max_function_complexity": 10,
+        "maximum_function_complexity": 10,
+        "minimum_coverage_percent": 75
+      },
+      "source_sha256": "327336b7fe986f2c0ebe863d2265ded49e61e12d9da3f70116e48da055bdc027",
+      "observed_statement_coverage": 78.43137254901961,
+      "observed_branch_coverage": 60.0,
+      "coverage_evidence": "attendance-adjacent-coverage.pre-read-contracts.json"
+    },
+    {
+      "owner": "attendance-adjacent",
+      "before": null,
+      "after": {
+        "path": "app/infrastructure/repositories/audit_log_types.py",
+        "baseline_lines": 69,
+        "maximum_lines": 72,
+        "baseline_max_function_complexity": 2,
+        "maximum_function_complexity": 2,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "fad5cf66159b26ff6ed1cc096ecfc768fdc91e7dc73a57aa3ecb4334dcdaf79f",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 100.0,
+      "coverage_evidence": "attendance-adjacent-coverage.pre-read-contracts.json"
+    },
+    {
+      "owner": "attendance-adjacent",
+      "before": null,
+      "after": {
+        "path": "app/infrastructure/repositories/audit_log_values.py",
+        "baseline_lines": 58,
+        "maximum_lines": 61,
+        "baseline_max_function_complexity": 13,
+        "maximum_function_complexity": 13,
+        "minimum_coverage_percent": 85
+      },
+      "source_sha256": "a95a8ba16fc3527c4b391e6183e9b37166589585026c218ef0cbb5942868895b",
+      "observed_statement_coverage": 88.0952380952381,
+      "observed_branch_coverage": 84.61538461538461,
+      "coverage_evidence": "attendance-adjacent-coverage.pre-read-contracts.json"
+    },
+    {
+      "owner": "attendance-adjacent",
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/attendance_runtime.py",
+        "baseline_lines": 335,
+        "maximum_lines": 349,
+        "baseline_max_function_complexity": 6,
+        "maximum_function_complexity": 6,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "e79350bce11c8c4f09be713a59ca126e3b5edf96c769c6fbd5840e714faa94da",
+      "observed_statement_coverage": 98.75,
+      "observed_branch_coverage": 83.33333333333333,
+      "coverage_evidence": "attendance-adjacent-coverage.pre-read-contracts.json"
+    },
+    {
+      "owner": "attendance-adjacent",
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/attendance_runtime_dependencies.py",
+        "baseline_lines": 81,
+        "maximum_lines": 85,
+        "baseline_max_function_complexity": 1,
+        "maximum_function_complexity": 1,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "46ef6b1d6b886cbda99cfbdb169d93e7069fcc48d7b78fb585adfe4591665a44",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 100.0,
+      "coverage_evidence": "attendance-adjacent-coverage.pre-read-contracts.json"
+    },
+    {
+      "owner": "attendance-adjacent",
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/attendance_offline_authorization.py",
+        "baseline_lines": 158,
+        "maximum_lines": 165,
+        "baseline_max_function_complexity": 8,
+        "maximum_function_complexity": 8,
+        "minimum_coverage_percent": 90
+      },
+      "source_sha256": "175732a8661c1dd09b79859e88c0ab4366aa7e299cdc4ab2b2fdbe417e96ac14",
+      "observed_statement_coverage": 94.44444444444444,
+      "observed_branch_coverage": 66.66666666666667,
+      "coverage_evidence": "attendance-adjacent-coverage.pre-read-contracts.json"
+    },
+    {
+      "owner": "attendance-adjacent",
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/attendance_offline_sources.py",
+        "baseline_lines": 162,
+        "maximum_lines": 169,
+        "baseline_max_function_complexity": 6,
+        "maximum_function_complexity": 6,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "f9fbdda766e31757d1403537627aea938d6298b060f955ec9a06c2c67e6fe9cc",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 100.0,
+      "coverage_evidence": "attendance-adjacent-coverage.pre-read-contracts.json"
+    },
+    {
+      "owner": "attendance-adjacent",
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/attendance_discard_sync.py",
+        "baseline_lines": 130,
+        "maximum_lines": 136,
+        "baseline_max_function_complexity": 14,
+        "maximum_function_complexity": 14,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "ff5e43c01c49cb6249f042ed76e3b167ccbd5f9569818a69c65354553d409a65",
+      "observed_statement_coverage": 97.5609756097561,
+      "observed_branch_coverage": 91.66666666666667,
+      "coverage_evidence": "attendance-adjacent-coverage.pre-read-contracts.json"
+    },
+    {
+      "owner": "attendance-adjacent",
+      "before": null,
+      "after": {
+        "path": "app/application/use_cases/attendance_dashboard.py",
+        "baseline_lines": 250,
+        "maximum_lines": 260,
+        "baseline_max_function_complexity": 14,
+        "maximum_function_complexity": 14,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "a0a9bc46d730af826b51aaa6dcb6291105874e561216fb12a3561575de957bea",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 92.85714285714286,
+      "coverage_evidence": "attendance-adjacent-coverage.pre-read-contracts.json"
+    },
+    {
+      "owner": "attendance-adjacent",
+      "before": null,
+      "after": {
+        "path": "app/application/use_cases/attendance_dashboard_types.py",
+        "baseline_lines": 80,
+        "maximum_lines": 84,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "ec6d377105b63c72db95e506b422db4222f7519b6d270468856a3da7648410d3",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 100.0,
+      "coverage_evidence": "attendance-read-contracts-coverage.json"
+    },
+    {
+      "owner": "attendance-adjacent",
+      "before": null,
+      "after": {
+        "path": "app/application/use_cases/attendance_dashboard_revision.py",
+        "baseline_lines": 62,
+        "maximum_lines": 65,
+        "baseline_max_function_complexity": 4,
+        "maximum_function_complexity": 4,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "151500666ad5119bb04f875a74d34dcfd0894ca3ac2f65420a306206f2bcb9b0",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 100.0,
+      "coverage_evidence": "attendance-read-contracts-coverage.json"
+    },
+    {
+      "owner": "attendance-adjacent",
+      "before": null,
+      "after": {
+        "path": "app/application/use_cases/attendance_dashboard_projection.py",
+        "baseline_lines": 121,
+        "maximum_lines": 126,
+        "baseline_max_function_complexity": 15,
+        "maximum_function_complexity": 15,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "b251c379590c46963d7d327dedff37bc53115272115f8118be2f1a56868c2fe8",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 100.0,
+      "coverage_evidence": "attendance-read-contracts-coverage.json"
+    },
+    {
+      "owner": "attendance-adjacent",
+      "before": null,
+      "after": {
+        "path": "app/application/attendance_read_contracts.py",
+        "baseline_lines": 73,
+        "maximum_lines": 76,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "24079d9b86046e0729b6514579ef38ea4df8cde3a32a184208edeb6072786b06",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 100.0,
+      "coverage_evidence": "attendance-read-contracts-coverage.json"
+    },
+    {
+      "owner": "attendance-adjacent",
+      "before": null,
+      "after": {
+        "path": "app/application/attendance_closeout_read_contracts.py",
+        "baseline_lines": 48,
+        "maximum_lines": 50,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "eceee8ea40cdce476d227da492a4157f4f0ab17a577d2b4f241f774a0cd381ee",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 100.0,
+      "coverage_evidence": "attendance-read-contracts-coverage.json"
+    },
+    {
+      "owner": "attendance-adjacent",
+      "before": null,
+      "after": {
+        "path": "app/infrastructure/repositories/attendance_dashboard_repository.py",
+        "baseline_lines": 345,
+        "maximum_lines": 359,
+        "baseline_max_function_complexity": 11,
+        "maximum_function_complexity": 11,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "19ccb290e3f0b9faa454d0c2fe3686b8db8d8dce6137018a07430ed1a191d279",
+      "observed_statement_coverage": 95.58823529411765,
+      "observed_branch_coverage": 81.25,
+      "coverage_evidence": "attendance-read-contracts-coverage.json"
+    },
+    {
+      "owner": "attendance-adjacent",
+      "before": {
+        "path": "app/infrastructure/repositories/attendance_closeout_types.py",
+        "baseline_lines": 73,
+        "maximum_lines": 76,
+        "baseline_max_function_complexity": 1,
+        "maximum_function_complexity": 1,
+        "minimum_coverage_percent": 95
+      },
+      "after": {
+        "path": "app/infrastructure/repositories/attendance_closeout_types.py",
+        "baseline_lines": 47,
+        "maximum_lines": 49,
+        "baseline_max_function_complexity": 1,
+        "maximum_function_complexity": 1,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "dfc7430bd708f2584a70c1bb010aa20cffb987101acd261aaf99de7c9be60cb6",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 100.0,
+      "coverage_evidence": "attendance-read-contracts-coverage.json"
+    },
+    {
+      "owner": "matching-repository",
+      "before": null,
+      "after": {
+        "path": "app/infrastructure/repositories/passport_whatsapp_matching_repository.py",
+        "baseline_lines": 222,
+        "maximum_lines": 231,
+        "baseline_max_function_complexity": 11,
+        "maximum_function_complexity": 11,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "fb4c0c77ef572e171220c867bd79c202c507ac8a19248d884913d512da7f65cc",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 83.33333333333333,
+      "coverage_evidence": "matching-repository-coverage.json"
+    },
+    {
+      "owner": "matching-repository",
+      "before": null,
+      "after": {
+        "path": "app/infrastructure/repositories/passport_whatsapp_match_evidence.py",
+        "baseline_lines": 83,
+        "maximum_lines": 87,
+        "baseline_max_function_complexity": 14,
+        "maximum_function_complexity": 14,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "95a129253bb13ea044c07afa3cafdc6618cee4e8f3f8a09aa354a91a832f2a5f",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 93.75,
+      "coverage_evidence": "matching-repository-coverage.json"
+    },
+    {
+      "owner": "matching-repository",
+      "before": null,
+      "after": {
+        "path": "app/infrastructure/repositories/passport_whatsapp_match_expansion.py",
+        "baseline_lines": 112,
+        "maximum_lines": 117,
+        "baseline_max_function_complexity": 6,
+        "maximum_function_complexity": 6,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "0fc4b00ff43da4d81f4d401725903e00bcd9923949636cd32421879b2178fc65",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 94.44444444444444,
+      "coverage_evidence": "matching-repository-coverage.json"
+    },
+    {
+      "owner": "matching-repository",
+      "before": null,
+      "after": {
+        "path": "app/infrastructure/repositories/passport_whatsapp_match_projection.py",
+        "baseline_lines": 225,
+        "maximum_lines": 234,
+        "baseline_max_function_complexity": 7,
+        "maximum_function_complexity": 7,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "51d13234f9948b37baa82962ff00804d1369b8c5be6a9fe4b843e9fd47da88f2",
+      "observed_statement_coverage": 97.95918367346938,
+      "observed_branch_coverage": 87.5,
+      "coverage_evidence": "matching-repository-coverage.json"
+    },
+    {
+      "owner": "matching-repository",
+      "before": null,
+      "after": {
+        "path": "app/infrastructure/repositories/passport_whatsapp_match_sources.py",
+        "baseline_lines": 149,
+        "maximum_lines": 155,
+        "baseline_max_function_complexity": 6,
+        "maximum_function_complexity": 6,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "0b965403ff5c03b39be84fc81c342ef164cdf3b20d3834048ef07a245db9b8f1",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 90.0,
+      "coverage_evidence": "matching-repository-coverage.json"
+    },
+    {
+      "owner": "matching-repository",
+      "before": null,
+      "after": {
+        "path": "app/infrastructure/repositories/passport_whatsapp_match_targeted.py",
+        "baseline_lines": 155,
+        "maximum_lines": 162,
+        "baseline_max_function_complexity": 14,
+        "maximum_function_complexity": 14,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "10b853e7a253674046ae8010044defec5fcc7e48282f58b971921302b21c0bda",
+      "observed_statement_coverage": 97.87234042553192,
+      "observed_branch_coverage": 95.45454545454545,
+      "coverage_evidence": "matching-repository-coverage.json"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "basis": "Formatting only; exact emitted JS/JSX AST across each current owner.",
+  "files": [
+    {
+      "path": "frontend/features/whatsapp/workspace/broadcast-documents-page.tsx",
+      "before_sha256": "1a8f1b104c4edd0f8cbd5e0ef9ec4df78ade56ab7f97601910d6d90a4192343e",
+      "after_sha256": "470d85b3d44e942140340efb8cd74dcbaa664e30150c5f2f0fd2d053ebbb700b",
+      "emitted_JS_AST_sha256": "450c252225eb338800d6a0be1dd4b551e41f61673c01e8f184446148623d0873"
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/use-broadcast-documents.ts",
+      "before_sha256": "4d04d3266a8435737629c3512247a070c3fff277ce620d483a0fe9f2b0f6ef5e",
+      "after_sha256": "9943872881cc033655356620f13f35847ed80dc2df794f31687c1f3a89a33d08",
+      "emitted_JS_AST_sha256": "b6e350c6a8468843f287987e0d6c28bbd4f387611db8f7a8dcf805134d268905"
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/broadcast-documents-model.ts",
+      "before_sha256": "f7b19117cfbca0f8cece91f6fddc411df6f58eda7e5fa4ebf4edfe54fc91d3d3",
+      "after_sha256": "29c8d314824a5c5a800be519443a11b09cfa670b03fe079ece5f6c982404dfb4",
+      "emitted_JS_AST_sha256": "95b4d8312a9e1ea51abee6e716ccdd3e65e69813a9f15b65eef95062e1ec399e"
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/broadcast-document-controls.tsx",
+      "before_sha256": "981123f8e56cd0c867ea63b16f60818a5e8a0338ccd4908f6d4095f7c4fe85d9",
+      "after_sha256": "9a66e9c0a3cd280c07f2161bc47d1200fbf1fb3a87e41bfecc7e5cef7e4fd145",
+      "emitted_JS_AST_sha256": "67d61789c271fa948b4b6d7b1e72c31bd4755c35558cd56ce8350c7332cd4884"
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/broadcast-document-table.tsx",
+      "before_sha256": "9f8778f4d229db69de3e6eb2b7c5ea8fd57b6bfaca60799c1c476135ce93c762",
+      "after_sha256": "0fe9b53388e669ff2a793a2a4919f7889ba8917e3eb473077955cf358f782536",
+      "emitted_JS_AST_sha256": "5c06747216a816fe9416f95c15b7ff9807fc4f3f271c9839d3bd032112ca71db"
+    }
+  ]
+}

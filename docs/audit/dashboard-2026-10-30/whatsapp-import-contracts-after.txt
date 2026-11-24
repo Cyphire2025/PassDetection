@@ -1,0 +1,18 @@
+✔ current create, add, and send actions have synchronous single-flight guards (0.6455ms)
+✔ superseded previews receive query cancellation and cannot authorize the latest draft (0.2462ms)
+✔ the live send gate requires reviewed content, approval, consent, welcome delivery and an active broadcast (0.1591ms)
+✔ an unconfirmed transport request retains its exact payload and reviewed snapshot for recovery (0.1379ms)
+✔ WhatsApp dialogs expose modal semantics and announce errors (0.1511ms)
+✔ mixed Excel previews preserve rejected rows and imported headings in both live mutation flows (0.1756ms)
+✔ the live composer uses one support contact and bounded searchable selection (0.1169ms)
+✔ the active WhatsApp index remains behind the route loading boundary (1.3608ms)
+✔ live create and add flows share exactly one recipient Excel preview implementation (0.1945ms)
+✔ the current index clamps filtered pages and exposes recovery without losing archived history (0.1155ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 104.781

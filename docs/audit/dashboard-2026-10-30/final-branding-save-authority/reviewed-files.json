@@ -1,0 +1,53 @@
+{
+  "files": [
+    {
+      "path": "frontend/features/branding/components/group-image-dialog.tsx",
+      "sha256": "219fe7ee75ae4aef5121e87d43b5ee8a4a8d698b89117e22531cc5f3f82f3b0e",
+      "physical_lines": 95,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "reviewer": "branding_visuals",
+      "notes": [
+        "Complete physical current source read/authored. Initiating authority captured before crop, asserted after each await; owned AbortController locks duplicate submit and blocks unmounted/round-trip continuation and delayed interceptor dispatch.",
+        "Existing JSX, public props, frozen image version and crop expressions retained. Save orchestration and cleanup are deliberate behavior fixes, not a mechanical extraction claim."
+      ]
+    },
+    {
+      "path": "frontend/features/branding/api/branding-images.api.ts",
+      "sha256": "e168b6ea253acf3e4b85b54ff71abcfd80bf3c4bf21ab3d06e352ca4e70894c6",
+      "physical_lines": 45,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "reviewer": "branding_visuals",
+      "notes": [
+        "Complete physical current source read/authored. Optional seventh argument carries original authority tuple and signal as Axios metadata only; default and explicit legacy six-argument calls freeze current authority before async interceptors.",
+        "Whole API AST equals original after the explicit authority import/signature/config inverse. URL, DTOs, FormData order, version, params, timeout, response projection and cache invalidation preserved. Reflected function length changes from six to seven; no metadata-equivalence claim."
+      ]
+    },
+    {
+      "path": "frontend/features/branding/components/group-image-dialog.test.tsx",
+      "sha256": "a0f431b50f8be41ef41fd9699403a43a8de00d3bf639f96075defe4bef1316e9",
+      "physical_lines": 161,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "reviewer": "branding_visuals",
+      "notes": [
+        "Complete current physical source read. All twelve geometry cases retained; only synthetic initial actor setup/cleanup and stronger expected Axios metadata were added for the new fail-closed save contract.",
+        "Whole test AST matches prior complete geometry source after those explicit fixture/expectation inverses; no weakened geometry assertions."
+      ]
+    },
+    {
+      "path": "frontend/features/branding/components/group-image-save-authority.test.tsx",
+      "sha256": "2caeffb4bb3c9da769881f46d91e184f7a04fc86c48db5e8df3a8ab898dcbe97",
+      "physical_lines": 271,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "reviewer": "branding_visuals",
+      "notes": [
+        "Complete physical current source read/authored. Fifteen focused cases use actual AuthenticatedContent, SessionLifecycle, auth store, branding API and request-owner adapter; crop and final HTTP delegate are synthetic.",
+        "Negative account/role/agency/route/unmount/round-trip/interceptor controls and healthy same-owner/profile/default/six-argument/body/version/cache controls. Missing-owner fail-closed case is intentionally standalone, not a claim about normal protected-route access."
+      ]
+    }
+  ],
+  "scope": "Four current full physical source records. Unchanged geometry owners retain attributed full review in the prior exact-hash ledger; no blanket audit credit."
+}

@@ -1,0 +1,96 @@
+EFEEFFFFFFF
+======================================================================
+ERROR: test_actual_binding_at_registration_precedes_later_rebinding (test_mcp_route_registration_discovery.LiteralRouteRegistrationTests.test_actual_binding_at_registration_precedes_later_rebinding)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_mcp_route_registration_discovery.py", line 69, in test_actual_binding_at_registration_precedes_later_rebinding
+    route = next(row for row in self.rows() if row["kind"] == "source_route")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+StopIteration
+
+======================================================================
+ERROR: test_hidden_imported_handler_and_actual_owner_are_discovered_without_importing (test_mcp_route_registration_discovery.LiteralRouteRegistrationTests.test_hidden_imported_handler_and_actual_owner_are_discovered_without_importing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_mcp_route_registration_discovery.py", line 40, in test_hidden_imported_handler_and_actual_owner_are_discovered_without_importing
+    route = next(row for row in self.rows() if row["kind"] == "source_route")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+StopIteration
+
+======================================================================
+ERROR: test_local_handler_and_semicolon_statement_order_are_resolved (test_mcp_route_registration_discovery.LiteralRouteRegistrationTests.test_local_handler_and_semicolon_statement_order_are_resolved)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_mcp_route_registration_discovery.py", line 74, in test_local_handler_and_semicolon_statement_order_are_resolved
+    route = next(row for row in self.rows() if row["kind"] == "source_route")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+StopIteration
+
+======================================================================
+FAIL: test_added_registration_and_changed_owner_with_identical_signature_require_review (test_mcp_route_registration_discovery.LiteralRouteRegistrationTests.test_added_registration_and_changed_owner_with_identical_signature_require_review)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_mcp_route_registration_discovery.py", line 58, in test_added_registration_and_changed_owner_with_identical_signature_require_review
+    self.assertTrue(any("Unclassified workflow" in error for error in validate(reviewed, self.rows(), self.root)))
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_signature_and_default_authorization_changes_require_review (test_mcp_route_registration_discovery.LiteralRouteRegistrationTests.test_signature_and_default_authorization_changes_require_review) (source='async def items(body: bytes, user=Depends(authorize)): pass')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_mcp_route_registration_discovery.py", line 53, in test_signature_and_default_authorization_changes_require_review
+    self.assertTrue(any("contract changed" in error for error in validate(reviewed, self.rows(), self.root)))
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_signature_and_default_authorization_changes_require_review (test_mcp_route_registration_discovery.LiteralRouteRegistrationTests.test_signature_and_default_authorization_changes_require_review) (source='async def items(body: str, user=Depends(other_authorize)): pass')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_mcp_route_registration_discovery.py", line 53, in test_signature_and_default_authorization_changes_require_review
+    self.assertTrue(any("contract changed" in error for error in validate(reviewed, self.rows(), self.root)))
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_unresolved_cyclic_ambiguous_and_wildcard_bindings_fail_closed (test_mcp_route_registration_discovery.LiteralRouteRegistrationTests.test_unresolved_cyclic_ambiguous_and_wildcard_bindings_fail_closed) (source='items = router.get("/items")(missing)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_mcp_route_registration_discovery.py", line 89, in test_unresolved_cyclic_ambiguous_and_wildcard_bindings_fail_closed
+    with self.assertRaises(TypeError):
+AssertionError: TypeError not raised
+
+======================================================================
+FAIL: test_unresolved_cyclic_ambiguous_and_wildcard_bindings_fail_closed (test_mcp_route_registration_discovery.LiteralRouteRegistrationTests.test_unresolved_cyclic_ambiguous_and_wildcard_bindings_fail_closed) (source='items = unknown\nitems = router.get("/items")(items)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_mcp_route_registration_discovery.py", line 89, in test_unresolved_cyclic_ambiguous_and_wildcard_bindings_fail_closed
+    with self.assertRaises(TypeError):
+AssertionError: TypeError not raised
+
+======================================================================
+FAIL: test_unresolved_cyclic_ambiguous_and_wildcard_bindings_fail_closed (test_mcp_route_registration_discovery.LiteralRouteRegistrationTests.test_unresolved_cyclic_ambiguous_and_wildcard_bindings_fail_closed) (source='if ambiguous:\n    from .handlers import items\nitems = router.get("/items")(items)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_mcp_route_registration_discovery.py", line 89, in test_unresolved_cyclic_ambiguous_and_wildcard_bindings_fail_closed
+    with self.assertRaises(TypeError):
+AssertionError: TypeError not raised
+
+======================================================================
+FAIL: test_unresolved_cyclic_ambiguous_and_wildcard_bindings_fail_closed (test_mcp_route_registration_discovery.LiteralRouteRegistrationTests.test_unresolved_cyclic_ambiguous_and_wildcard_bindings_fail_closed) (source='from .handlers import items\nfrom .unknown import *\nitems = router.get("/items")(items)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_mcp_route_registration_discovery.py", line 89, in test_unresolved_cyclic_ambiguous_and_wildcard_bindings_fail_closed
+    with self.assertRaises(TypeError):
+AssertionError: TypeError not raised
+
+======================================================================
+FAIL: test_unresolved_cyclic_ambiguous_and_wildcard_bindings_fail_closed (test_mcp_route_registration_discovery.LiteralRouteRegistrationTests.test_unresolved_cyclic_ambiguous_and_wildcard_bindings_fail_closed) (source='from .cycle import items\nitems = router.get("/items")(items)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_mcp_route_registration_discovery.py", line 89, in test_unresolved_cyclic_ambiguous_and_wildcard_bindings_fail_closed
+    with self.assertRaises(TypeError):
+AssertionError: TypeError not raised
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.177s
+
+FAILED (failures=8, errors=3)

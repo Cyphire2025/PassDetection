@@ -1,0 +1,470 @@
+{
+  "files": [
+    {
+      "path": "backend/alembic/versions/0114_mcp_connections.py",
+      "sha256": "3f673774d5850a78ca3de219b4afa5123851fde92594995823e778d9303098ab",
+      "physical_lines": 132,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0114_mcp_connections",
+        "down_revision": "0113_document_follow_up",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Creates disabled MCP control, independently revocable user grants, hashed authorization codes/tokens, durable operation idempotency and scoped file artifacts. Expiry, checkpoint/delivery shape and unique storage/handle constraints preserve declared boundaries. Downgrade locks all owners and refuses retained grants; current OAuth/PKCE/MFA/authority enforcement and artifact cleanup require runtime evidence, not schema declarations."
+    },
+    {
+      "path": "backend/alembic/versions/0115_mcp_workflows.py",
+      "sha256": "62c586e6cffa6aedf5b3c5b95d756f4de419c7b09ad3d786f471d457fb31ece0",
+      "physical_lines": 71,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0115_mcp_workflows",
+        "down_revision": "0114_mcp_connections",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Backfills artifact association groups from exact original scope and legacy version0 per-grant handles; adds immutable before/after passport correction receipts with operation/entity uniqueness. Locked downgrade refuses retained corrections, new handle versions/grants or changed association scope before dropping; no current credential actions performed."
+    },
+    {
+      "path": "backend/alembic/versions/0116_mcp_communications.py",
+      "sha256": "b25aedbb3eda9d9ceff23439b57e0068be8b5f5af2feacc9f4de509314f91f67",
+      "physical_lines": 61,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0116_mcp_communications",
+        "down_revision": "0115_mcp_workflows",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Retains exact WhatsApp plan snapshots with expiry/revision and one operation/batch, plus durable one-plan broker publication outbox and nonnegative attempts. Locked downgrade refuses plan history. Provider outcome, current authorization and broker idempotency remain runtime proof obligations."
+    },
+    {
+      "path": "backend/alembic/versions/0117_mcp_dispatch_origin.py",
+      "sha256": "1a511ca739699900546719be7193172d560f67f7b97e66741be4239d31873c82",
+      "physical_lines": 29,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0117_mcp_dispatch_origin",
+        "down_revision": "0116_mcp_communications",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Changes plan-to-outbox relation to nullable SETNULL so removing manual plan retains MCP dispatch origin; locked downgrade refuses any outbox history before restoring CASCADE. No dispatch or source-history deletion in upgrade."
+    },
+    {
+      "path": "backend/alembic/versions/0118_mcp_pdf_ingestion.py",
+      "sha256": "2b645a0dd1c182572bee03e5d9ae49731025423514bd95572e94ca84f7937260",
+      "physical_lines": 29,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0118_mcp_pdf_ingestion",
+        "down_revision": "0117_mcp_dispatch_origin",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Binds staged PDF artifact to one durable unique ingestion operation with RESTRICT. Locked downgrade refuses consumed ingestion association; no PDF parsing/provider/DB activity in review."
+    },
+    {
+      "path": "backend/alembic/versions/0119_mcp_contact_imports.py",
+      "sha256": "c511da3d785312f55d0f47ef9e7e781f5d3fc9799365faddafecb77cb959327d",
+      "physical_lines": 47,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0119_mcp_contact_imports",
+        "down_revision": "0118_mcp_pdf_ingestion",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Creates agency-scoped contact workbook source receipt with5MiB bound, unique opaque handle/storage key, expiry and paired consumption metadata. Actor/grant/broadcast SETNULL preserve receipt; locked downgrade refuses retained source. Actual workbook parser/current authority and sensitive snapshot lifetime require runtime evidence."
+    },
+    {
+      "path": "backend/alembic/versions/0120_mcp_whatsapp_media.py",
+      "sha256": "0fb11786beed2c391c068fd59b02d27ded92b02e06d48213b861d579a5915b50",
+      "physical_lines": 74,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0120_mcp_whatsapp_media",
+        "down_revision": "0119_mcp_contact_imports",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Retains scanned header-media original/normalized metadata, separate storage/hash/byte bounds, per-user idempotency, provider attempt triple and grant-specific handle access. Unknown external upload outcome remains explicit status; locked downgrade refuses history. No real scanner/upload/provider invocation occurred."
+    },
+    {
+      "path": "backend/alembic/versions/0121_whatsapp_send_intents.py",
+      "sha256": "efc1cb800daccb4d2ac403a57ece2e5e7238961641089c16fdaf2445e7bf8780",
+      "physical_lines": 46,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0121_whatsapp_send_intents",
+        "down_revision": "0120_mcp_whatsapp_media",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Website WhatsApp send-intent receipts preserve request/payload/initial response and durable publication state with per-actor key/batch uniqueness, retry counters and due index. Locked downgrade refuses receipts; this schema is independent of deferred Operations Inbox."
+    },
+    {
+      "path": "backend/alembic/versions/0122_mcp_gc_push.py",
+      "sha256": "f9301c695a8e47ecaf97dd873b242e968e4b260ef441e51ea56fbfc2439d798c",
+      "physical_lines": 59,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0122_mcp_gc_push",
+        "down_revision": "0121_whatsapp_send_intents",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "MCP authored outgoing GC push plans preserve snapshot hash length+hex alphabet, exact operation/batch/revision/expiry and origin marker surviving plan deletion via SETNULL. Downgrade refuses retained plans/origins. Native transport columns are shared outgoing dashboard notification dependency only; no native application/provider audit."
+    },
+    {
+      "path": "backend/alembic/versions/0123_mcp_read_sections.py",
+      "sha256": "f41ad85cb0d6a05eee3fff369b2001858bad6503825d3d43c61dd3ac682fb188",
+      "physical_lines": 44,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0123_mcp_read_sections",
+        "down_revision": "0122_mcp_gc_push",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Shared MCP section-authority bootstrap defaults new/disabled control to empty read sections, revision1; only existing enabled singleton with live read grant receives frozen observational section list, without changing any grant capabilities. operations_inbox appears only as one historical shared list constant; no new Inbox-specific behavior investigation or qualification. Destructive downgrade refused."
+    },
+    {
+      "path": "backend/alembic/versions/0124_mcp_device_access.py",
+      "sha256": "93c59d950deb38735a0a519ff2a845fe2b392dc4a06d3ff5bab945030a121c3f",
+      "physical_lines": 35,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0124_mcp_device_access",
+        "down_revision": "0123_mcp_read_sections",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds independently enabled grant switch defaulttrue to preserve issued authority, optional desktop platform label with check; disabling remains pause semantics rather than revocation/widening. Downgrade refused to preserve access decisions."
+    },
+    {
+      "path": "backend/alembic/versions/0125_mcp_connection_requests.py",
+      "sha256": "7a501b16ce8395158362429c27cbf23eefaba3009fe045733f9c9459ebf3717f",
+      "physical_lines": 75,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0125_mcp_connection_requests",
+        "down_revision": "0124_mcp_device_access",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Pending desktop-native MCP OAuth request table stores hashed credential/source, PKCE/state/resource/requested-versus-approved capabilities and decision/finalization metadata without granting authority during migration. Shared auth tables locked; expiry/platform/security/status checks and unique grant. Downgrade refused; actual OAuth policy/UI flow independently tested by owners."
+    },
+    {
+      "path": "backend/alembic/versions/0126_mcp_section_permissions.py",
+      "sha256": "be64b2fccf8788c0451306d52a70e968d2e3391087c6355fb43ee5a5822e5696",
+      "physical_lines": 29,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0126_mcp_section_permissions",
+        "down_revision": "0125_mcp_connection_requests",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds read-enabled preserving existing read behavior and default-denied write-enabled/section/tool lists to control/grants/pending requests; nullable per-grant read sections preserve existing semantics, permission revision constrained. Does not widen existing effect authority. Shared tables locked; destructive downgrade refused."
+    },
+    {
+      "path": "backend/alembic/versions/0127_mcp_native_transfers.py",
+      "sha256": "4da929ff2b8fb40d8b4245d9c87435224905d03778cdaa3df072d42a202963ad",
+      "physical_lines": 99,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0127_mcp_native_transfers",
+        "down_revision": "0126_mcp_section_permissions",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Constrained desktop connector file handoffs bind original grant/user/security version, opaque token hash, kind-purpose lane, expiry/request identity and retained artifact/workbook receipts. Unique retry per grant/kind/key; destructive downgrade refused. Native here means desktop MCP connector, not excluded mobile application; actual transfer capability consumption remains runtime proof."
+    },
+    {
+      "path": "backend/alembic/versions/0128_mcp_document_delivery.py",
+      "sha256": "a0713a15ab0e45ce3eced02c2125bd98f25d17ff6ec402c0d88dbf40c9ce836a",
+      "physical_lines": 56,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0128_mcp_document_delivery",
+        "down_revision": "0127_mcp_native_transfers",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Reviewed document delivery plans retain scoped authority/snapshot/expiry and durable send-batch publication outbox surviving plan removal via SETNULL; attempts/status bounded. Destructive downgrade refused. No document/provider sends or authorization changes executed."
+    },
+    {
+      "path": "backend/alembic/versions/0129_travel_tracker.py",
+      "sha256": "e1db6b17231fd89b713abce7a5ab9daf01f94ef3f65e952a424c3175ca6080c0",
+      "physical_lines": 62,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0129_travel_tracker",
+        "down_revision": "0128_mcp_document_delivery",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Travel tracker uses exact passenger/agency/group composite FK, manual visa/flight false defaults, nullable editor SETNULL and group-state index. Locked downgrade refuses any tracker record to preserve readiness history; actual concurrent UI updates not exercised."
+    },
+    {
+      "path": "backend/alembic/versions/0130_company_directory.py",
+      "sha256": "8cf4f67babfa814acbfe92a6ef90a58651cc25055255cf18a223a7d8c4e0ac3c",
+      "physical_lines": 93,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0130_company_directory",
+        "down_revision": "0129_travel_tracker",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Promotes exact existing tenant-constrained GC organization UUID into core group company scope, never name-matches or infers unassigned companies. Backfill validates exact expected enabled roster trigger before temporarily disabling it within same transaction/held ADD COLUMN lock; restores trigger and preserves roster revision. Deferred canonical-company FK/query indexes added; downgrade refuses unrepresentable core-only assignment. Actual PG trigger/lock/populated upgrade unexecuted."
+    },
+    {
+      "path": "backend/alembic/versions/0131_traveller_reuse.py",
+      "sha256": "386e20408c8f142a237cf98bb0351a1d785f26d2b770ca662175acd32bb2be3d",
+      "physical_lines": 500,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0131_traveller_reuse",
+        "down_revision": "0130_company_directory",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Complete500line frozen traveller reuse DDL read in two bounded chunks. Default review-required profiles/disabled policy, encrypted names/contact/document data, keyed fingerprints, tenant/company/passport/source composite ownership, single default/current records, bounded failure budgets, grant revision/lifetime/idempotency and retention/copy job metadata. No legacy permissions/contact verification inferred. Downgrade locks all17tables and refuses any retained record; current cryptography, public proof and provider/storage lifecycle remain runtime evidence."
+    },
+    {
+      "path": "backend/alembic/versions/0132_traveller_source_seek.py",
+      "sha256": "c3504d24feaa11c8bff8dba8132d3d703e71c2763942a66bef53e7ab6bdd532b",
+      "physical_lines": 51,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0132_traveller_source_seek",
+        "down_revision": "0131_traveller_reuse",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Isolated concurrent source seek indexes explicitly remove invalid interrupted index before rebuilding and reject unexpected valid definitions according to frozen predicate. Existing definition comparison is string based; no claim of semantic equivalence beyond source condition or real PostgreSQL retry proof. No data rows rewritten; downgrade drops only indexes."
+    },
+    {
+      "path": "backend/alembic/versions/0133_traveller_document_impact.py",
+      "sha256": "9804be92e93f67f3bc84e8944fd2e3ab2dddc415278661859fc5f8ec735c7730",
+      "physical_lines": 53,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0133_traveller_document_impact",
+        "down_revision": "0132_traveller_source_seek",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds commit-ordered company feed metadata, per-company sequence uniqueness, review-task scoped history and processing counters/queue indexes without legacy backfill. Downgrade refuses retained task/feed rows; actual feed commit ordering, worker concurrency and rollback race guarantees need runtime/database evidence. No published mutation."
+    },
+    {
+      "path": "backend/alembic/versions/0134_company_data_exports.py",
+      "sha256": "b65eff990e30360e0efa446399fd2589a0a01b48a5f5aa9c1ffa2a7000cb7184",
+      "physical_lines": 124,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0134_company_data_exports",
+        "down_revision": "0133_traveller_document_impact",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Company export jobs/parts bind company revision/requester scope, idempotency, bounded counters/phases/part uniqueness and cleanup/lease/seek indexes. Chronology backfill uses same tenant/group source and guarded UUID conversion;90sstatement limit. Downgrade refuses retained jobs; no storage/export/provider activity or real workload qualification."
+    },
+    {
+      "path": "backend/alembic/versions/0135_company_removal_history.py",
+      "sha256": "f920cbf1ef82ecb1ddef76aaff5b844e18171a52cdc5a35790b1f7359215d51b",
+      "physical_lines": 40,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0135_company_removal_history",
+        "down_revision": "0134_company_data_exports",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Retained company-removal assignments gain independent tenant profile/group FKs and active-org-required CHECK before org becomes nullable; revoked history can detach old company without losing tenant scope. No source rows changed. Downgrade refuses retained null organization rows before narrowing."
+    },
+    {
+      "path": "backend/alembic/versions/0136_returning_drafts.py",
+      "sha256": "801457f3d8afa6dab1039c595976fe034190cf91817bc403c761b8ec09f9c4bb",
+      "physical_lines": 148,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0136_returning_drafts",
+        "down_revision": "0135_company_removal_history",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Isolated expiring fresh/returning public drafts store ciphertext/hashed secrets, explicit authority shape, tenant+optional-company composite scopes, single current side,10MiB asset bound, retry/extraction/proof metadata. No legacy business rows modified. Downgrade refuses draft history; actual crypto/capability/session/family/atomic adoption remain runtime proof obligations."
+    },
+    {
+      "path": "backend/alembic/versions/0137_company_directory.py",
+      "sha256": "c06bf4572a78352f32a0c923769c9a857f6732b64b39688cef1e8015c41e4398",
+      "physical_lines": 66,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0137_company_directory",
+        "down_revision": "0136_returning_drafts",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Creates rebuildable encrypted company directory state/people/prefix/group-count/queue indexes with tenant/company/traveller/group FKs, bounded counts and stable seek ordering. Upgrade changes no authoritative sources; downgrade removes derived tables only. Cryptographic search leakage/rotation and freshness require runtime evidence."
+    },
+    {
+      "path": "backend/alembic/versions/0138_verified_portal_lookup.py",
+      "sha256": "fe3ef813294f9f5e7dbd93143ff2ac558a1fa4efa5dd24b9ccf4a024a855c919",
+      "physical_lines": 36,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0138_verified_portal_lookup",
+        "down_revision": "0137_company_directory",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds nullable private number-lookup fingerprint/index and explicitly labelled verified actor choice without rewriting historical documents/actor evidence. Operator bounded backfill required before enablement; downgrade refuses verified claims/grants before narrowing. No backfill or public lookup executed."
+    },
+    {
+      "path": "backend/alembic/versions/0139_passenger_display_name.py",
+      "sha256": "a26d5cc89ab6065703998a84bd6660742add9fa0b5d37bff094e8d5fe33ad753",
+      "physical_lines": 20,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0139_passenger_display_name",
+        "down_revision": "0138_verified_portal_lookup",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds nullable office passenger display label independent of passport/contact identity; no backfill or contact authorization change. Dropping field on explicit downgrade loses optional labels, not hidden data rewrite during upgrade."
+    },
+    {
+      "path": "backend/alembic/versions/0140_document_update_context.py",
+      "sha256": "dd601585155847fd6ec8535f3ec780ec5d8737ca347ba2ca1f68c442933fc08e",
+      "physical_lines": 21,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0140_document_update_context",
+        "down_revision": "0139_passenger_display_name",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds nullable frozen WhatsApp document-update context independent of PDF delivery history; no message rewrite or send. Actual schema validation/disclosure/idempotency remain runtime evidence."
+    }
+  ],
+  "manual_full_migrations": 27,
+  "manual_full_migration_lines": 2100,
+  "current_exact_full_ledgers_checked_before_read": true,
+  "no_duplicate_credit": true,
+  "all142published_files_unchanged": true,
+  "no_tests_or_services_for_read_only_cohort": true,
+  "notes": "Every physical line0114\u20130140 read in bounded output, including long frozen DDL strings. Shared MCP permission-list constant does not reopen dedicated Inbox audit. Desktop connector transfers retained dashboard integration, not native mobile application audit."
+}

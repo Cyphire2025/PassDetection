@@ -1,0 +1,229 @@
+{
+  "status": "qualified",
+  "source_fence": {
+    "backend/app/infrastructure/database/communications_models.py": "0283ffad7b14ef05b16c2240fba2cf1a2580a7b68d29665ece26a284d67f7688",
+    "backend/app/infrastructure/database/models.py": "685526fd00128c49052195d84ac17d7e1ad66ace8e43dbcd70e260435be24c16",
+    "backend/app/infrastructure/database/model_base.py": "bbd9bc11ad8e482b9ebefe26d74123f9bb4ad79b3e73b9dbe846cdfd925f0da9",
+    "backend/app/infrastructure/database/model_registry.py": "226b2b4c321e3b231222355d9f6752d945dd2e160324b7a3685c4b37865b9ec5",
+    "backend/tests/unit/infrastructure/test_database_model_decomposition.py": "4f8b6b02767650ea28af0347763f36d30a2b108413e57cffd3b9774bd0d16889",
+    "backend/tests/unit/infrastructure/test_broadcast_welcome_scope.py": "f6efcf33b1795ef3a62e9a73fcd08c42f6492fcd88095ef4d82aad3887bf301e",
+    "backend/tests/unit/infrastructure/test_phone_welcome.py": "5fb9ce8ad6b5e15ddc2db3b1c3d627a11a83d5b15a2bc3bf32974a5c71a68fd7",
+    "backend/tests/unit/infrastructure/test_whatsapp_source_group_sync.py": "d14262a9da8a7acc3a78077092519c69590a09cb9c618850708e3886a2c5c9f0",
+    "backend/tests/unit/infrastructure/test_whatsapp_source_contacts_migration.py": "ff6b408f8f42bf6210e6e3dc962fc7e0d76cd9524114a07eb88905a372f12518",
+    "backend/tests/unit/infrastructure/test_whatsapp_retry_transactions.py": "fed5d4c9fa534841d8ba7bce58f51572d2981db8a85cd0652424e7a31bfb4822",
+    "backend/tests/integration/test_mcp_whatsapp_reads.py": "ab9e94663efabab1bbf7936ed34e3cdbdb47f3299b84d54a8da578529fc8e299",
+    "backend/app/infrastructure/database/_communications_models/broadcast.py": "8fc27df633446ef911ad0598fbcf2491c36a17bbe2057863d9df6299bd2d6370",
+    "backend/app/infrastructure/database/_communications_models/delivery.py": "1fd04b74883bc0a355b94939b74a1173cabd9f2f9c9226ebaf9657df72a2af2c",
+    "backend/app/infrastructure/database/_communications_models/source.py": "f57b7c4a3d07d5abc09a8edf6f4d964617ce2fb9da8058ad42f38c0b8805b0b0",
+    "backend/app/infrastructure/database/_communications_models/welcome.py": "610fe7aaaeb5eb62bbd0defab28b9c298ba9cd7941b4efe73fff8988f0fae12c",
+    "backend/app/infrastructure/database/_communications_models/__init__.py": "93f1ffe885e89709e8e59326a3c20db5be6969f0e63c6501052477226783237c"
+  },
+  "runtime_owners": [
+    "backend/app/infrastructure/database/communications_models.py",
+    "backend/app/infrastructure/database/_communications_models/__init__.py",
+    "backend/app/infrastructure/database/_communications_models/broadcast.py",
+    "backend/app/infrastructure/database/_communications_models/source.py",
+    "backend/app/infrastructure/database/_communications_models/delivery.py",
+    "backend/app/infrastructure/database/_communications_models/welcome.py"
+  ],
+  "source_measurements": [
+    {
+      "path": "backend/app/infrastructure/database/communications_models.py",
+      "lines": 92,
+      "complexity": 0,
+      "coverage": {
+        "covered_lines": 27,
+        "num_statements": 27,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 0,
+        "num_partial_branches": 0,
+        "covered_branches": 0,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      }
+    },
+    {
+      "path": "backend/app/infrastructure/database/_communications_models/__init__.py",
+      "lines": 7,
+      "complexity": 0,
+      "coverage": {
+        "covered_lines": 1,
+        "num_statements": 1,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 0,
+        "num_partial_branches": 0,
+        "covered_branches": 0,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      }
+    },
+    {
+      "path": "backend/app/infrastructure/database/_communications_models/broadcast.py",
+      "lines": 160,
+      "complexity": 0,
+      "coverage": {
+        "covered_lines": 42,
+        "num_statements": 42,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 3,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 0,
+        "num_partial_branches": 0,
+        "covered_branches": 0,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      }
+    },
+    {
+      "path": "backend/app/infrastructure/database/_communications_models/source.py",
+      "lines": 237,
+      "complexity": 0,
+      "coverage": {
+        "covered_lines": 69,
+        "num_statements": 69,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 2,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 0,
+        "num_partial_branches": 0,
+        "covered_branches": 0,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      }
+    },
+    {
+      "path": "backend/app/infrastructure/database/_communications_models/delivery.py",
+      "lines": 157,
+      "complexity": 0,
+      "coverage": {
+        "covered_lines": 48,
+        "num_statements": 48,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 0,
+        "num_partial_branches": 0,
+        "covered_branches": 0,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      }
+    },
+    {
+      "path": "backend/app/infrastructure/database/_communications_models/welcome.py",
+      "lines": 98,
+      "complexity": 0,
+      "coverage": {
+        "covered_lines": 46,
+        "num_statements": 46,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 0,
+        "num_partial_branches": 0,
+        "covered_branches": 0,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      }
+    }
+  ],
+  "tests": {
+    "baseline_command": "communications-models-baseline-command.json",
+    "extracted_command": "communications-models-extracted-command.json",
+    "same_selection": "76passed/7files before and after; no test/mocks changed"
+  },
+  "proof": "communications-models-extraction-proof.json",
+  "proof_sha256": "2e8f7256a00e57aa2c4ef1d3f6fed8110d64012606cf1515846ed0b63c505919",
+  "checks": [
+    {
+      "name": "types",
+      "argv": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "mypy",
+        "app/infrastructure/database/communications_models.py",
+        "app/infrastructure/database/_communications_models/__init__.py",
+        "app/infrastructure/database/_communications_models/broadcast.py",
+        "app/infrastructure/database/_communications_models/source.py",
+        "app/infrastructure/database/_communications_models/delivery.py",
+        "app/infrastructure/database/_communications_models/welcome.py"
+      ],
+      "exit_code": 0,
+      "output": "communications-models-types.txt"
+    },
+    {
+      "name": "lint",
+      "argv": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "ruff",
+        "check",
+        "--no-fix",
+        "app/infrastructure/database/communications_models.py",
+        "app/infrastructure/database/_communications_models/__init__.py",
+        "app/infrastructure/database/_communications_models/broadcast.py",
+        "app/infrastructure/database/_communications_models/source.py",
+        "app/infrastructure/database/_communications_models/delivery.py",
+        "app/infrastructure/database/_communications_models/welcome.py"
+      ],
+      "exit_code": 0,
+      "output": "communications-models-lint.txt"
+    }
+  ],
+  "coverage_json": "communications-models-extracted-coverage.json",
+  "coverage_xml": "communications-models-extracted-coverage.xml",
+  "budget_candidates": "communications-models-budget-candidates.json",
+  "floor_responsibility": "Previously unbudgeted545-line mapping catalog gets six additive95-line-coverage rows. No declaration-only critical rows, previous/global floor or cap relaxation.",
+  "design": "Stable explicit communications facade, existing-pattern namespace primer and four cohesive broadcast/source-contact/delivery-state/welcome mapping owners. Original10wholeclassASTs require only one literal legacy ORM module assignment per class; no new mixin, reflection factory or proxy.",
+  "metadata": {
+    "tables": 174,
+    "mappers": 174,
+    "columns": 2727,
+    "indexes": 509,
+    "relationships": 19,
+    "fresh_entry_modes": 7,
+    "both_dialects": [
+      "postgresql",
+      "sqlite"
+    ],
+    "compile_errors": 0,
+    "all_columns_defaults_constraints_indexes_relationships_registration_order_mapper_public_pickle_hint_results_exact": true
+  },
+  "published_migrations_unchanged": 142,
+  "full_reads": 9,
+  "focused_reads": 7,
+  "prototype_history": "Flat direct-owner annotation failure corrected before final qualification through the established private package primer. Entry-mismatched table-order comparison corrected using validated original-source entry-matched replay. A proof harness initially omitted complete model_registry import before configure_mappers; corrected harness only. Historical logs remain; no application test failures after extraction.",
+  "limitations": [
+    "Compiled PostgreSQL/SQLite DDL and actual ORM mapper/default/relationship metadata; no live DB migration or PostgreSQL execution.",
+    "Existing raw get_type_hints on BroadcastGroup still lacks the TYPE_CHECKING-only ClientGroup link symbol; exact prior NameError is preserved. SQLAlchemy registry relationships and configured mypy resolve actual types.",
+    "inspect.getsource(class) may resolve the stable facade and raise OSError; actual owner modules are explicit in this manifest. No introspection monkeypatch/proxy or mapping mixin."
+  ],
+  "activity_dependency_supersession": "The separately frozen WhatsApp activity6 receipt protected the original communications facade bytes. This later source-bound model/metadata/76case tranche explicitly supersedes that one dependency; activity SQL/route/schema/test bytes remain unchanged."
+}

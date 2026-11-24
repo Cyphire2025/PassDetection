@@ -1,0 +1,34 @@
+{
+  "declarations": [
+    {
+      "name": "useRecipientExcelPreview",
+      "target": "hooks/use-recipient-excel-preview.ts",
+      "declaration_ast_identical": true
+    },
+    {
+      "name": "toRejectedContactInputs",
+      "target": "utils/recipient-import-state.ts",
+      "declaration_ast_identical": true
+    },
+    {
+      "name": "RejectedContactDraft",
+      "target": "utils/recipient-import-state.ts",
+      "declaration_ast_identical": true
+    },
+    {
+      "name": "RecipientImportState",
+      "target": "utils/recipient-import-state.ts",
+      "declaration_ast_identical": true
+    }
+  ],
+  "trip_update": {
+    "controller_statements_ast_identical": 21,
+    "rendered_return_ast_identical": true,
+    "declared_exception": "submit callback expands the equivalent conditional expression into an early-return block; real duplicate/uncertain/acknowledgement/denial regressions cover the corrected shared guard."
+  },
+  "documents": {
+    "controller_statements_ast_identical": 23,
+    "rendered_return_ast_identical": true,
+    "checkpoint": "After explicit broadcast scope, initial-actor continuation guard and refreshed-page clamp; those intentional behavior fixes have separate negative/positive regressions."
+  }
+}

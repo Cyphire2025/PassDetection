@@ -1,0 +1,10 @@
+{
+  "entries": 10000,
+  "before_source_bytes": 1117802,
+  "current_source_bytes": 1117802,
+  "before_ZipInfo_objects": 10000,
+  "after_ZipInfo_objects": 0,
+  "same_rejection": "ZIP contains more than 5000 entries",
+  "before_receipt": "passport-zip-member-admission-preflight.json",
+  "limits": "Real stdlib ZIP and importer with synthetic entries. No decompression, peak-memory, OOM or production latency measurement."
+}

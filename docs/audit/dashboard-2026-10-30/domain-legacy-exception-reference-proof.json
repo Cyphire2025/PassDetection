@@ -1,0 +1,106 @@
+{
+  "scope": "Static names/imports across repository backend Python sources returned by rg --files; ignored environments excluded. Not a claim all scanned files were manually read. Names also searched textually through application and tests.",
+  "parsed_files": 2312,
+  "targets": [
+    "ClientGroupUsedError",
+    "LowConfidenceError",
+    "MRZParsingError",
+    "OCREngineError"
+  ],
+  "uses": [
+    {
+      "path": "backend/app/presentation/middleware/error_handler.py",
+      "sha256": "f13e9b0fee8ceefb1bef491680a252e2b2f15916a348ba8e8a05bbf32d800733",
+      "uses": [
+        {
+          "name": "ClientGroupUsedError",
+          "line": 160,
+          "context": "Load"
+        },
+        {
+          "name": "OCREngineError",
+          "line": 175,
+          "context": "Load"
+        },
+        {
+          "name": "MRZParsingError",
+          "line": 185,
+          "context": "Load"
+        },
+        {
+          "name": "LowConfidenceError",
+          "line": 189,
+          "context": "Load"
+        },
+        {
+          "name": "ClientGroupUsedError",
+          "line": 161,
+          "context": "Load"
+        },
+        {
+          "name": "OCREngineError",
+          "line": 176,
+          "context": "Load"
+        },
+        {
+          "name": "MRZParsingError",
+          "line": 186,
+          "context": "Load"
+        },
+        {
+          "name": "LowConfidenceError",
+          "line": 190,
+          "context": "Load"
+        }
+      ],
+      "definitions": [],
+      "imports": [
+        {
+          "name": "ClientGroupUsedError",
+          "alias": null,
+          "line": 23
+        },
+        {
+          "name": "LowConfidenceError",
+          "alias": null,
+          "line": 23
+        },
+        {
+          "name": "MRZParsingError",
+          "alias": null,
+          "line": 23
+        },
+        {
+          "name": "OCREngineError",
+          "alias": null,
+          "line": 23
+        }
+      ]
+    },
+    {
+      "path": "backend/app/domain/exceptions/exceptions.py",
+      "sha256": "a04b6f143a8f289ff9fe172164f18efc9b5b4dbe5ce2bc6db1a7a586983dbdc7",
+      "uses": [],
+      "definitions": [
+        {
+          "name": "OCREngineError",
+          "line": 149
+        },
+        {
+          "name": "MRZParsingError",
+          "line": 160
+        },
+        {
+          "name": "LowConfidenceError",
+          "line": 167
+        },
+        {
+          "name": "ClientGroupUsedError",
+          "line": 188
+        }
+      ],
+      "imports": []
+    }
+  ],
+  "module_escape_candidates": []
+}

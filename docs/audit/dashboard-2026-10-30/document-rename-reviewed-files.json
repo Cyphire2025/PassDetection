@@ -1,0 +1,123 @@
+{
+  "reviewed_at": "2026-10-31T08:41:55.153857+00:00",
+  "method": "Exact current sources physically read/authored; historical source partition proof retained separately. Runtime fixed after actual normal-path negative controls, not pattern inference.",
+  "files": [
+    {
+      "path": "frontend/features/documents/api/document-rename.api.ts",
+      "sha256": "b061e3339b305aea068165e9993d3998725ad01c51cc7135c42cdbd4485c69bc",
+      "physical_lines": 96,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Full original facade and current deliberate owner guards read/authored; four public method names/order/original parameter prefixes retained. Optional trailing request-owner config remains outside all HTTP DTO/form fields. Same initial authority guards each chunk, response, progress and final result."
+    },
+    {
+      "path": "frontend/features/documents/hooks/use-document-rename.ts",
+      "sha256": "f4b933071c0e86752a9f90ef25387901d65b3b69e29974b790d3b82c02af99bc",
+      "physical_lines": 49,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Full four hook owners read; three mutation invocations capture initial authority through usePrivateMutation, original query keys/invalidation/options preserved. Whole functions exact after only wrapper/metadata normalization."
+    },
+    {
+      "path": "frontend/features/documents/hooks/use-document-rename-workspace.ts",
+      "sha256": "01b3dad0121de8fd77fcd6487d74320d77c11d5ca9317b07fa6fc46fe650e964",
+      "physical_lines": 80,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Full new workflow controller authored/read; all16 original controller statements exact, including resumable upload identity and immutable title, progress, selection and per-call success/error callbacks. Presentation state stays memory-only."
+    },
+    {
+      "path": "frontend/features/documents/components/document-rename-page.tsx",
+      "sha256": "20da69552287b5b7e3ef8ae9535ed3477b3a8197f80713e39ee9a3e4401f2964",
+      "physical_lines": 83,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Full current composition read/authored; original page public export preserved, alert/retry handles failed list and open/delete without false successful-empty result. Actual normal page rendered with auth remount/reset/adapter regression fixture."
+    },
+    {
+      "path": "frontend/features/documents/components/document-rename-upload.tsx",
+      "sha256": "bf32b7f1fbb6d5c277878c3308b754482be45bb776387a6b4b5bf46c5cdc48b1",
+      "physical_lines": 96,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Full original upload JSX physically read before move and current authored source; entire card exact at mechanical partition checkpoint, subsequent indentation only. Validation/progress/processing/partial commit resume and disabled controls retained."
+    },
+    {
+      "path": "frontend/features/documents/components/saved-rename-batches.tsx",
+      "sha256": "55527b26d468dacdba270cb2c3b759272d969ce7f007e2589f929b8010baf322",
+      "physical_lines": 143,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Full original and current saved view read; whole function exact at mechanical checkpoint. Deliberate optional loadError prop suppresses empty-success state on failed query; all selection/open/delete/ZIP gates and callbacks otherwise preserved. Repeated selection includes work is separate unmeasured candidate, not claimed fixed."
+    },
+    {
+      "path": "frontend/features/documents/components/rename-results.tsx",
+      "sha256": "ffc0760accb98d4823a2bed25f0424bb120af239c5c027565a7ae1e0afe6309e",
+      "physical_lines": 185,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Full current source read; original results/filter/label/badge whole functions exact, including all-rejected/incomplete ZIP gates and item rejection/download rules. useState imported correctly after extraction. Nested anchor/Button markup inherited; no new browser keyboard qualification claimed."
+    },
+    {
+      "path": "frontend/features/documents/components/document-rename-authority.test.tsx",
+      "sha256": "80affb897697b4059ce33dba973360dceb9ab8390c2772a13ad36efaa7c89a95",
+      "physical_lines": 134,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Full new11-case rendered/transport regression source authored/read. Two actor and two same-user authority changes, valid profile controls, actual51-file chunk identities, list/open/delete retry success; no provider/server authorization bypass claim."
+    },
+    {
+      "path": "frontend/features/documents/test-support/rename-authority.test-fixture.tsx",
+      "sha256": "66f1760899a4778e0d95a16bd2b07973d8e3a4fc717ccbefe08744010a377a58",
+      "physical_lines": 86,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Full synthetic fixture authored/read; actual AuthenticatedContent/SessionLifecycle/authStore/client ownerBoundAdapter run. Only final Axios network delegate is synthetic. Fixed fixture accounts/files, no credentials/provider sends. Scope of global onMutate gate and network failure controls explicit."
+    },
+    {
+      "path": "frontend/features/documents/components/document-processing-motion.test.tsx",
+      "sha256": "4667e4c08968e78277dd831867085cc459f19a87d3018be01c99b153e9b0d7b9",
+      "physical_lines": 257,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete existing source physically read in two bounded parts; existing10 motion/queue/resume assertions unchanged. Adds authenticated synthetic actor fixture for the now-protected rename hooks."
+    },
+    {
+      "path": "frontend/features/documents/components/document-rename-source.contract-helper.mjs",
+      "sha256": "ea31bc8335013173a52ff222145ac5a2718b881837a6d1ce02ac0fbfa5669108",
+      "physical_lines": 20,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete new loader read/authored; checks live imports/JSX and controller wiring before aggregating actual owner source. Does not inject historical expression text."
+    },
+    {
+      "path": "frontend/features/documents/components/document-rename.contract.test.mjs",
+      "sha256": "3017585571e2318590bc9bce18ce5f2ea397411b2cc8ff3ffee4c7db53ddd615",
+      "physical_lines": 24,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete original24-line source read, same original assertions retained; loader alone follows actual wired owners."
+    },
+    {
+      "path": "frontend/features/documents/components/document-bulk-upload.contract.test.mjs",
+      "sha256": "d8752f767c96554baf09e06b9f62ed351c4a59f7c7bb8bf4c4d48dea2e7e677d",
+      "physical_lines": 468,
+      "review_scope": "focused",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Focused source-contract loader migration only plus relevant rename/bulk contract assertions read. Original full379-line file not fully reread in this batch; do not count focused contract edit as full review."
+    }
+  ]
+}

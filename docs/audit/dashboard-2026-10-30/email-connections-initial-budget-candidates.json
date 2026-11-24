@@ -1,0 +1,127 @@
+{
+  "proposed_only": true,
+  "shared_gate_edited": false,
+  "normal_candidates": [
+    {
+      "path": "app/presentation/api/v1/routes/email_connection_monitoring.py",
+      "baseline_lines": 171,
+      "maximum_lines": 180,
+      "baseline_max_function_complexity": 4,
+      "maximum_function_complexity": 5,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/email_connection_disconnect.py",
+      "baseline_lines": 151,
+      "maximum_lines": 160,
+      "baseline_max_function_complexity": 9,
+      "maximum_function_complexity": 10,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/email_connection_removal.py",
+      "baseline_lines": 200,
+      "maximum_lines": 200,
+      "baseline_max_function_complexity": 10,
+      "maximum_function_complexity": 11,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/email_connection_ai_settings.py",
+      "baseline_lines": 118,
+      "maximum_lines": 120,
+      "baseline_max_function_complexity": 11,
+      "maximum_function_complexity": 12,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/email_integration_connections.py",
+      "baseline_lines": 114,
+      "maximum_lines": 120,
+      "baseline_max_function_complexity": 5,
+      "maximum_function_complexity": 6,
+      "minimum_coverage_percent": 95
+    }
+  ],
+  "critical_candidates": [
+    {
+      "path": "app/presentation/api/v1/routes/email_connection_disconnect.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 90
+    },
+    {
+      "path": "app/presentation/api/v1/routes/email_connection_removal.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 90
+    }
+  ],
+  "measurements": [
+    {
+      "path": "app/presentation/api/v1/routes/email_connection_monitoring.py",
+      "lines": 171,
+      "max_function_complexity": 4,
+      "most_complex_function": "sync_connection",
+      "coverage_percent": 100.0,
+      "within_proposed_caps_and_floor": true
+    },
+    {
+      "path": "app/presentation/api/v1/routes/email_connection_disconnect.py",
+      "lines": 151,
+      "max_function_complexity": 9,
+      "most_complex_function": "disconnect_email_connection",
+      "coverage_percent": 100.0,
+      "within_proposed_caps_and_floor": true
+    },
+    {
+      "path": "app/presentation/api/v1/routes/email_connection_removal.py",
+      "lines": 200,
+      "max_function_complexity": 10,
+      "most_complex_function": "remove_email_connection_and_data",
+      "coverage_percent": 100.0,
+      "within_proposed_caps_and_floor": true
+    },
+    {
+      "path": "app/presentation/api/v1/routes/email_connection_ai_settings.py",
+      "lines": 118,
+      "max_function_complexity": 11,
+      "most_complex_function": "update_connection_ai_settings",
+      "coverage_percent": 100.0,
+      "within_proposed_caps_and_floor": true
+    },
+    {
+      "path": "app/presentation/api/v1/routes/email_integration_connections.py",
+      "lines": 114,
+      "max_function_complexity": 5,
+      "most_complex_function": "list_email_connections",
+      "coverage_percent": 100.0,
+      "within_proposed_caps_and_floor": true
+    }
+  ],
+  "existing_normal_row_before": {
+    "path": "app/presentation/api/v1/routes/email_integration_connections.py",
+    "baseline_lines": 625,
+    "maximum_lines": 625,
+    "baseline_max_function_complexity": 11,
+    "maximum_function_complexity": 11,
+    "minimum_coverage_percent": 65
+  },
+  "original_family_critical_membership": [],
+  "change_counts": {
+    "normal_additions": 4,
+    "normal_tightened": 1,
+    "critical_additions": 2
+  },
+  "critical_justification": "Parent authorized95line/90branch guards on actual disconnect/removal owners. Actual renewed-grant regression fails2ordinary cases before fix,4cases pass after fix using public endpoints+actual SQLite owner-row queries. New critical gates protect real fresh-generation comparison and early409 before credentials/purge; no declaration-only critical gate. All original global/critical floors unchanged.",
+  "coverage_source": "Fresh95affected cases, all5current owners100percent statements/branches; branchless view facade not assigned a critical gate. Exact owner reports derive from unchanged same-run data; raw report and data SHA retained, no merge/append.",
+  "raw_coverage_data_sha256": "7d37cf0ba8028a3877b723ac43f54be5d55a76c79bc081147c468194fa793c5c",
+  "reports": [
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-connections-owner-coverage.json",
+      "sha256": "4789af2af32a801c772ec44ba01257a152d933874e8ea41124fa809c2c3251eb"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-connections-owner-coverage.xml",
+      "sha256": "967a4ee4d726bad5ecc71059de034c857e195be963f0b05544f520f417a26a43"
+    }
+  ]
+}

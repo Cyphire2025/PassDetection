@@ -1,0 +1,86 @@
+{
+  "status": "Retained public document test source cohort complete",
+  "files": [
+    {
+      "path": "backend/tests/integration/test_document_manual_upload.py",
+      "sha256": "68b994c0aba81ee4c888f644fe73ce16d65c78c66be3538fa2ee0de89998225e",
+      "physical_lines": 256,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-256. HTTP/SQLite synthetic storage and bounded PDF validation preserve explicit-passenger manual upload without classification/matching. Shared original PDF and other passenger assignment survive replacement; optimistic version/other passenger rejects with owned-new-file compensation. Invalid PDF/malware and absent passenger denied, post-storage passenger mutation409; active/unknown deliveries block replacement, delivered history immutable/new copy not_sent. Only new batch saved, unrelated draft/processing batch preserved. Scanner is test double, no scan/service execution."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_passport_display_name.py",
+      "sha256": "aa0f8f9f3c7bd723d57f0862a22f81ec262cd79c26bb0ac1a6d50b3bda41be89",
+      "physical_lines": 216,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-216. Office display alias edits and reset cannot change legal passport fields/approval/extraction revisions/document assignment or pending WhatsApp destination/history. Current role/tenant/active account/group/passenger scope, stale timestamp409, no-op no audit. Alias included in document matching/search, original name retained for WhatsApp comparison; stale general entity update cannot erase alias. CSRF/auth dependency and extra/control-character payload rejection asserted. No test execution."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_public_extraction_admission.py",
+      "sha256": "2f0a6fd31006f7ac5a3c7f1ce0255f332ba99f6e8cb8327295287147ad5f5ef6",
+      "physical_lines": 165,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-165. Public extraction scheduler reservation and timeout/cancellation cases are synthetic thread/event fixtures; admitted durable job dispatch, full/outage busy manual draft retains source/evidence, late reservation released only if newly created. Worker-won claim remains live, new reservation released on dispatch failure and existing one retained. No Redis/AI/provider work or native-app scope expansion."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_qr_welcome_prerequisite.py",
+      "sha256": "de8dd2f10540881e1f05d69b33966ff7dd33d504a0cf04bdcf32ab5de65ed465",
+      "physical_lines": 113,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-113. QR preview reports welcome block until delivered/read, explicit selected unwelcomed number rejects entire mixed-ready selection409 before publication/row insertion. Provider task method mocked; fixture seeds isolated existing shared private-delivery context. Parent/AI current QR qualifications preserved; no real provider action/test rerun or unit/infrastructure read credit."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/passport_display_name_schemas.py",
+      "sha256": "0da556d258c610537ca51425fbc430db20726455d75ed016f8b0fc2222673d9a",
+      "physical_lines": 30,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-30. Separate operational-label request forbids extras, requires aware optimistic version and bounded single-line noncontrol normalized name; response returns original client name plus nullable display override. No identity fields admitted."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_manual_upload.py",
+      "sha256": "c8fe9462b8f9cd872c4326940f502444c2323e13ee058d4a11dcaf0ed31a31aa",
+      "physical_lines": 271,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical75-271 only, entire handler/body but imports/top-level dependency definitions not reread. Validates explicit selection and passenger, releases initial transaction; ingestion reauthorize locks active actor/scope/roster and advisory lane before persistence, replacement/capacity hooks retain history. Saves only new batch; owned compensation before commit, ambiguous commit preserves files, response hydrated after commit. Existing current-full brand ledger reused, no whole-file credit."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/display_name.py",
+      "sha256": "1d3e7d3339247a7bc3828a9300c1f7f84ea7a234c076bfcc2f3d16a3dd77ea83",
+      "physical_lines": 110,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical40-110 only. Fresh canonical actor lock and scoped group/passenger locks, current role/lifecycle, expected timestamp compare; only display_name/updated_at plus changed-field audit commit, no-store response. Existing current-full office ledger preserved, not new whole-file credit."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/public_processing_support.py",
+      "sha256": "f6a089dd5d7e56a3062e072e82438f4f62f14169620402936f23c5851ae6d044",
+      "physical_lines": 127,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical32-127 only. Late reservation callback avoids releasing existing claim; shielded bounded scheduler wait leaves detached cleanup, new reservation released if dispatch fails. Unstarted busy transition only, durable worker-won delivery retained, saved manual draft outcome revision-fenced. Existing current-full public-upload ledger, no whole-file credit."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_qr_delivery.py",
+      "sha256": "a65ca1f4b9c0fb0de069df0a2e6d3dcdb2ad7760799c3c517e6ff4de8ddb4037",
+      "physical_lines": 187,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical96-187 only. Actual send validates content/manageable group, locks group, rebuilds preview/current welcome state, rejects mixed unwelcomed selection, queues eligible snapshot and audit, commits before publication. Existing current-full QR route ledger reused; no new whole-file read or provider qualification."
+    }
+  ]
+}

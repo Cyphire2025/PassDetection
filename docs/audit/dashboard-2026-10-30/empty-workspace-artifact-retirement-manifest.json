@@ -1,0 +1,8 @@
+{
+  "original": "file",
+  "archive": "Not related to project/retired-empty-workspace-artifact/file",
+  "bytes": 0,
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "basis": "Untracked zero-byte root placeholder; contains no configuration, source or user data. Maintained Playwright fixture results were specifically retained because actualCI/config use them.",
+  "action": "Moved to named archive byte-exactly; no executable/runtime/release source moved."
+}

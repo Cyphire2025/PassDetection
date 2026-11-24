@@ -1,0 +1,211 @@
+{
+  "sealed_at": "2026-10-31T10:46:11.937595+00:00",
+  "status": "all6runtime sources and new test frozen; current focused verification passed",
+  "original_source_sha256": "ed47e94d322a97ed45f78901131f83af8172d1b382153da0102f5efee04850ad",
+  "original_lines": 780,
+  "current_owner_lines": {
+    "backend/app/infrastructure/export/passport_excel_columns.py": 216,
+    "backend/app/infrastructure/export/passport_excel_values.py": 120,
+    "backend/app/infrastructure/export/passport_excel_rows.py": 275,
+    "backend/app/infrastructure/export/passport_excel_workbook.py": 74,
+    "backend/app/infrastructure/export/passport_excel_plan.py": 100,
+    "backend/app/infrastructure/export/passport_excel_exporter.py": 231
+  },
+  "measurements": [
+    {
+      "path": "app/infrastructure/export/passport_excel_columns.py",
+      "lines": 216,
+      "max_function_complexity": 21,
+      "most_complex_function": "_custom_fields",
+      "coverage_percent": 98.7,
+      "within_proposed_caps_and_floor": true
+    },
+    {
+      "path": "app/infrastructure/export/passport_excel_values.py",
+      "lines": 120,
+      "max_function_complexity": 6,
+      "most_complex_function": "passport_age_group",
+      "coverage_percent": 98.65,
+      "within_proposed_caps_and_floor": true
+    },
+    {
+      "path": "app/infrastructure/export/passport_excel_rows.py",
+      "lines": 275,
+      "max_function_complexity": 27,
+      "most_complex_function": "_submission_values",
+      "coverage_percent": 98.92,
+      "within_proposed_caps_and_floor": true
+    },
+    {
+      "path": "app/infrastructure/export/passport_excel_workbook.py",
+      "lines": 74,
+      "max_function_complexity": 10,
+      "most_complex_function": "finalize_passport_workbook",
+      "coverage_percent": 100.0,
+      "within_proposed_caps_and_floor": true
+    },
+    {
+      "path": "app/infrastructure/export/passport_excel_plan.py",
+      "lines": 100,
+      "max_function_complexity": 23,
+      "most_complex_function": "build_passport_column_plan",
+      "coverage_percent": 100.0,
+      "within_proposed_caps_and_floor": true
+    },
+    {
+      "path": "app/infrastructure/export/passport_excel_exporter.py",
+      "lines": 231,
+      "max_function_complexity": 18,
+      "most_complex_function": "export_group",
+      "coverage_percent": 100.0,
+      "within_proposed_caps_and_floor": true
+    }
+  ],
+  "original_export_group_mcc": 49,
+  "intermediate_export_group_mcc": 40,
+  "final_export_group_mcc": 18,
+  "final_family_max_function_mcc": 27,
+  "focused_cases_passed": 106,
+  "mypy_actual_runtime_paths_passed": 6,
+  "ruff_actual_runtime_and_test_paths_passed": 7,
+  "fresh_actual_owner_coverage": "plan-final-coverage only; all6current code files collected with branches measured, individual line98.65\u2013100percent. No old-source coverage supplemented or merged.",
+  "proposed_normal_budget_rows_passed": 6,
+  "proposed_floor_each": 95,
+  "new_critical_rows": 0,
+  "original_exporter_budget_and_critical_membership": "Absent; all existing shared caps/floors unchanged. Final6candidates supersede earlier5proposals for admission.",
+  "source_fence_before_after_matching_paths": 12,
+  "complete_moved_declarations_ast_exact": 26,
+  "headers_complete_ast_exact": true,
+  "expanded_controller_complete_ast_exact": true,
+  "exact_plan_prefix_statements": 10,
+  "exact_workbook_finalizer_statements": 7,
+  "actual_alias_descriptor_identity_checks": 28,
+  "actual_runtime_equivalence": "8function and10method metadata/signatures/evaluated hints/descriptors, class/dataclass pickle identity,3loaded workbook/style/table/format cases and3capacity failures all equal actual original780source baseline. Four new plan/Protocol annotation contracts resolve.",
+  "actual_extension_controls": "Public workbook calls preserve subclass9hook invocations and cls binding, instance projection override, stable repeated-label suffixes and legacy country/quoted phone conversion. Original1176line controls raw SHA unchanged.",
+  "historical_checkpoints": "Original92existing cases+3corrected extension controls passed before movement. Initial new extension fixture supplied a zone key through the custom-only family, corrected before refactor (1fail retained). Early missing phone import/type diagnostics corrected before qualification. Intermediate5owner106checkpoint is retained in separate source archive/proof/coverage; first100run was superseded by finalformat and excluded as current coverage. Parent-authorized sixth-owner follow-through renewed106all6coverage and source fence.",
+  "manual_review": {
+    "current_full_files": 19,
+    "current_full_physical_lines": 3846,
+    "owned_files": 7,
+    "partial_context_separate": true
+  },
+  "scope_limits": [
+    "No shared budget, config, release manifest, published migration, dependency, immutable strict baseline, provider, credentials, production data, deploy or push edits/actions.",
+    "No whole application suite, production build, browser, scanner or new adversarial payload campaign.",
+    "Real-service qualification and broad combined verification remain with parent; accepted dataclass inspect.getsource tradeoff and shared preparation typing follow-up remain explicit."
+  ],
+  "artifacts": [
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-exporter-reviewed-files.json",
+      "sha256": "209458d94c5426fba3214c2aeacbbad22e848660dc7f23ff67451d1c3aacadf7"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-exporter-source-manifest.json",
+      "sha256": "2f0590fde8edfa313c84f8e001c019c727a866957a1d5e8229be0647f01c160e"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-exporter-findings-and-follow-ups.json",
+      "sha256": "ad32003326b99e6d7adaf87b46badc3927de8d006c4f55061b2e8ba52446d217"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-exporter-original-sources.json",
+      "sha256": "9231bb738e819e9739e9eac6fa54ea721a1cfcda1d136f684e2a53209e2413c0"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-exporter-owner-map.json",
+      "sha256": "9f8bc325a2062b6f15f95aa07e88af956a58d2a210fe2427c73659d66051a04a"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-exporter-five-owner-sources.json",
+      "sha256": "ea0c3d2214829639fcd86a480b2aa6f36b8f7ba828b52d4b2d3b324b035ca6a3"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-exporter-five-owner-extraction-proof.json",
+      "sha256": "13bdd44f9c96e9886c6d0b36a6c66265312f274788cada64945011bbc7e06edd"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-exporter-plan-movement.json",
+      "sha256": "25da28b8c99fe7bcb48a5b8a6a8c892b195db59c14ed0bec755071e341da05c1"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-exporter-extraction-proof.json",
+      "sha256": "07cabef9f8e2f6d73a6ef0d488382fca904f25c26b05cca5a30662d63667040c"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-exporter-before-runtime-contracts.json",
+      "sha256": "3d6c80e36f8bf394028524bc2d628e2c4630c730b09cd2dc6b9aad24d7370248"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-exporter-after-plan-final-runtime-contracts.json",
+      "sha256": "3d6c80e36f8bf394028524bc2d628e2c4630c730b09cd2dc6b9aad24d7370248"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-exporter-plan-runtime-hints.json",
+      "sha256": "cc4bfbf5b538efad9078ebc7f877b9e130eb8546ac9f643562fbda60d8452413"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-exporter-plan-final-source-fence.json",
+      "sha256": "af7be97d60126af437f4e1719cecd62a1c22f324757c2f6407762ab51b044dbd"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-exporter-plan-final-tests.log",
+      "sha256": "a01e9ffdccb2ffc2c4a91840e4e5ce53bc927af7d542838596c9f315d036cc57"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-exporter-plan-final-lint.log",
+      "sha256": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-exporter-plan-final-types.log",
+      "sha256": "90377c8fd97127580c93ac5740d596c9ebc9db94dafa6560ee11fe16b4460c62"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-exporter-plan-final-coverage.xml",
+      "sha256": "0d27e1c8d3d45af632b6979b6d78bbc82da189e08e4143e66434f6262b42db57"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-exporter-plan-final-coverage.json",
+      "sha256": "daf46dc869043c9ed24517cf0401f14afe511ae9112d42793e1c8c63ec259f99"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-exporter-plan-final-budget-candidates.json",
+      "sha256": "ae90093766bc428f5df3dd7017b5fa720fc7b2ccc86361ab6364faeaa56ca062"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-exporter-budget-candidates.json",
+      "sha256": "de95b31331cbaa38fd853e7e99dfedfeb8c93646be52391176962b67d2b65da3"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-exporter-baseline-tests.log",
+      "sha256": "f1f2be0200c48897397a6c118994299305216412eee9cfb3a1f0b71097da7755"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-exporter-override-baseline.log",
+      "sha256": "73c2dbb6ce365918a8566db2e1473dd50b5afb797ee33a7f06c1444813df0ab4"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-exporter-override-baseline-corrected.log",
+      "sha256": "96bc74a6e6538eaf1bf75cd4dac2bafee6d165a82efe3c56eba423fb3605d5c1"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-exporter-initial-lint.log",
+      "sha256": "924b113555f9668467b45754bd4166b6a029965cb4545ba517e5d6810f774ff5"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-exporter-initial-types.log",
+      "sha256": "b8610d12263b3b58d048c7c0fc62de10a7871cb5748b599260b5fa433642ae79"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-exporter-final-tests.log",
+      "sha256": "8238a5d063f38b9967b0e091d8c0a1ca13e8aec4254a236d694ed2569bb3ba0a"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-exporter-final-coverage.xml",
+      "sha256": "0168bcfbbbe805da2f5a2c56c5a290b00b955f96e54b5e3c8a139213a559a16d"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passport-excel-exporter-final-coverage.json",
+      "sha256": "3f2e58d55716e3e85d44cc0cc1401505ef0d57eb889f19241da1b9c5c7809e13"
+    }
+  ]
+}

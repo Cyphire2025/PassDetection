@@ -1,0 +1,95 @@
+{
+  "method": "Original complete physical reads and authored exact module partition; current declarations compared individually, only four required internal export modifiers differ. Execution evidence separate.",
+  "files": [
+    {
+      "path": "frontend/features/documents/services/document-upload-batching.ts",
+      "sha256": "d4c95c411e9e9d82c7573f42c55a67532ca1b3c213cec73db98c3df6ae963d8e",
+      "physical_lines": 18,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-restructured",
+      "notes": "Complete original physical source read plus authored current owner imports/facade and exact31-declaration partition verification. Explicit compatibility facade preserving exactly23original named runtime/type exports. Actual Node contracts import this .ts graph rather than a synthetic transpiled data URL."
+    },
+    {
+      "path": "frontend/features/documents/services/document-upload-model.ts",
+      "sha256": "46313a8541e21d5dd9264eabf7d91f9d23eb4bd6651222896eb9772f120d5896",
+      "physical_lines": 107,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-restructured",
+      "notes": "Complete original physical source read plus authored current owner imports/facade and exact31-declaration partition verification. Selection/chunk/receipt limits, original DTOs and passenger-match predicate; exact declaration bodies/types/constants preserved. Three formerly private option interfaces exported only from internal model for owner imports; not added to public facade."
+    },
+    {
+      "path": "frontend/features/documents/services/document-upload-sessions.ts",
+      "sha256": "e98ae2c6db407f96c338c954b19b81582528531d6375842b51b3d7d2b7b3d6a2",
+      "physical_lines": 83,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-restructured",
+      "notes": "Complete original physical source read plus authored current owner imports/facade and exact31-declaration partition verification. Original raw/verification session factories and shared validation/chunk partition helper moved intact; preserves1500files/2GB and24MiB50file versus16MiB16file thresholds, input order, duplicate identity and generated ID ordering."
+    },
+    {
+      "path": "frontend/features/documents/services/document-verification-batches.ts",
+      "sha256": "e08c1755bea17368c100e23389c39b8b3e3f47339fcd7352ab8e535d04a72ab9",
+      "physical_lines": 134,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-restructured",
+      "notes": "Complete original physical source read plus authored current owner imports/facade and exact31-declaration partition verification. Original bounded verification worker/drain/progress/acknowledgement runner moved intact; preserves concurrency/default upload weight, monotonic weighted progress and release of only acknowledged File handles."
+    },
+    {
+      "path": "frontend/features/documents/services/document-staging-manifest.ts",
+      "sha256": "4a5a209fee76a811519bad5f84f0dba15d21bc246431377f24e3235d55cd621d",
+      "physical_lines": 104,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-restructured",
+      "notes": "Complete original physical source read plus authored current owner imports/facade and exact31-declaration partition verification. Original receipt-only manifest construction,8MiB aggregate UTF8 validation and deep receipt-array snapshot clone moved intact; exact IDs/counts/order/expiry errors retained."
+    },
+    {
+      "path": "frontend/features/documents/services/document-upload-finalization.ts",
+      "sha256": "58035823500a41553790f5d3b632994ec026fc29aea3a227dfa1f3bda91715f8",
+      "physical_lines": 180,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-restructured",
+      "notes": "Complete original physical source read plus authored current owner imports/facade and exact31-declaration partition verification. Original sequential raw and staged finalization runners moved intact; resumable completed index,80percent upload weight, idempotent chunk identity, permanent/transient errors, receipt release after acknowledgement and progress callbacks retained."
+    },
+    {
+      "path": "frontend/features/documents/services/document-upload-retry.ts",
+      "sha256": "0bed525dd9692e584486e6fcb11f74151e3bfac6347281ec4ccd172f470a0fcf",
+      "physical_lines": 56,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-restructured",
+      "notes": "Complete original physical source read plus authored current owner imports/facade and exact31-declaration partition verification. Original retry/error/abortable delay helpers moved intact;400/800ms bounded retry and exact transient codes preserved. Retry helper newly exported only internally, not public facade."
+    },
+    {
+      "path": "frontend/features/documents/services/document-upload-batching.test.mjs",
+      "sha256": "0f85f9303865a24e863d67c346fdbacc89db84b22ce340c87480e06c4fdda264",
+      "physical_lines": 116,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full authored4meaningful algorithm control/negative cases: retry chunk identity/progress, abort during retry leaves receipt roster, permanent partial failure resumes original chunk only, only acknowledged verification Files released. Same4 pass against original physical source snapshot and current graph."
+    },
+    {
+      "path": "frontend/features/documents/components/document-batching-source.contract-helper.mjs",
+      "sha256": "7d75914b27897b903719d6a70c0be814c699c7b83d875fa2d1fe3310c0a9adaf",
+      "physical_lines": 25,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full authored source helper; checks actual facade owner reexports and verification/finalization retry import plus awaited calls before aggregating real owners for unchanged static assertions."
+    },
+    {
+      "path": "frontend/features/documents/components/document-bulk-upload.contract.test.mjs",
+      "sha256": "5955561d74fce4725b1d5e660a94a58bf06a5f7843923509ef4fbab36b9dde35",
+      "physical_lines": 456,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete original468-line source physically read; only loader/import execution changed to real .ts graph. All original23test bodies/assertions raw-byte identical; reverse-patch snapshot independently matches old full-review SHA including mixed line endings. All current assertions read/authored with unchanged live API/route/workspace contracts."
+    }
+  ]
+}

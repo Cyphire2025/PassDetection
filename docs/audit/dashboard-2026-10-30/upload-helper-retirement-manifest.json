@@ -1,0 +1,1790 @@
+{
+  "recorded_at": "2026-10-30T23:23:41.749Z",
+  "basis": "Full physical reads of six source modules and actual named-import callers, followed by alias-aware TypeScript symbol closure over122 app/framework roots. No namespace imports, dynamic target loaders or string-based runtime references. Automated graph alone was not treated as proof.",
+  "original_files": [
+    {
+      "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "sha256": "87ad595aaa0f39735b0393e23b1d3a4db05f3e7f09b36080ff5f1297f05c2258"
+    },
+    {
+      "path": "frontend/features/upload/components/upload-flow-fields.tsx",
+      "sha256": "7def6b3a17f61905a109a410937547bab11edb6f9a01e284ac4c40329c9aee22"
+    },
+    {
+      "path": "frontend/features/upload/components/upload-flow.types.ts",
+      "sha256": "749ff8370e128e44a2098346cd51295e49b6f054ed861c81daba513460bee764"
+    },
+    {
+      "path": "frontend/features/upload/components/upload-flow.constants.ts",
+      "sha256": "eebfb2fbf6f4bb4864d898c5970f7f005cfb6439b82f00b99696e54769c7b4fe"
+    },
+    {
+      "path": "frontend/features/upload/services/upload-flow-session.ts",
+      "sha256": "48ff5be0570150968e0044acab7db5bfee0515712dc7ef198498ba88457e398f"
+    },
+    {
+      "path": "frontend/features/upload/services/upload-recovery.ts",
+      "sha256": "286805b05dd5a7000fa060e44629e1bf4e1b349161deeda8785a423600207cde"
+    }
+  ],
+  "retired_declarations": [
+    {
+      "id": "frontend/features/upload/services/upload-flow-helpers.ts#CLIENT_COMPLETE_STATUSES",
+      "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "name": "CLIENT_COMPLETE_STATUSES",
+      "exported": false,
+      "kind": "FirstStatement",
+      "line": 24,
+      "sha256": "afab68d60a18443c7bd78542bd5e367ee442a6d7b6e4639d927616e4b75007d0",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/services/upload-flow-helpers.ts#CLIENT_COMPLETE_STATUSES",
+          "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "line": 24,
+          "kind": "definition",
+          "owner": "frontend/features/upload/services/upload-flow-helpers.ts#CLIENT_COMPLETE_STATUSES",
+          "app_module_reachable": true
+        },
+        {
+          "target": "frontend/features/upload/services/upload-flow-helpers.ts#CLIENT_COMPLETE_STATUSES",
+          "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "line": 84,
+          "kind": "use",
+          "owner": "frontend/features/upload/services/upload-flow-helpers.ts#isClientSubmissionComplete",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [],
+      "source": "const CLIENT_COMPLETE_STATUSES = new Set([\r\n  \"submitted\",\r\n  \"ai_approved\",\r\n  \"needs_review\",\r\n  \"staff_approved\",\r\n]);"
+    },
+    {
+      "id": "frontend/features/upload/services/upload-flow-helpers.ts#EXTRACTION_TERMINAL_STATUSES",
+      "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "name": "EXTRACTION_TERMINAL_STATUSES",
+      "exported": false,
+      "kind": "FirstStatement",
+      "line": 31,
+      "sha256": "bf6e4e5c0f3dedfd8806776f9d4901f1660c1e4821285d2403475cde066a98d7",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/services/upload-flow-helpers.ts#EXTRACTION_TERMINAL_STATUSES",
+          "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "line": 31,
+          "kind": "definition",
+          "owner": "frontend/features/upload/services/upload-flow-helpers.ts#EXTRACTION_TERMINAL_STATUSES",
+          "app_module_reachable": true
+        },
+        {
+          "target": "frontend/features/upload/services/upload-flow-helpers.ts#EXTRACTION_TERMINAL_STATUSES",
+          "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "line": 202,
+          "kind": "use",
+          "owner": "frontend/features/upload/services/upload-flow-helpers.ts#isExtractionTerminal",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [],
+      "source": "const EXTRACTION_TERMINAL_STATUSES = new Set([\r\n  \"extraction_complete\",\r\n  \"extraction_partial\",\r\n  \"extraction_failed\",\r\n  \"ready_for_review\",\r\n]);"
+    },
+    {
+      "id": "frontend/features/upload/services/upload-flow-helpers.ts#createFamilyMember",
+      "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "name": "createFamilyMember",
+      "exported": true,
+      "kind": "FunctionDeclaration",
+      "line": 38,
+      "sha256": "c541ff7ff65fc02b728c4869c3dda21ba9207ad5655c0361f2b3a73fdb3c0198",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/services/upload-flow-helpers.ts#createFamilyMember",
+          "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "line": 38,
+          "kind": "definition",
+          "owner": "frontend/features/upload/services/upload-flow-helpers.ts#createFamilyMember",
+          "app_module_reachable": true
+        },
+        {
+          "target": "frontend/features/upload/services/upload-flow-helpers.ts#createFamilyMember",
+          "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "line": 67,
+          "kind": "use",
+          "owner": "frontend/features/upload/services/upload-flow-helpers.ts#createFamilyMembers",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [
+        "frontend/features/upload/components/upload-flow.types.ts#FamilyMember",
+        "frontend/features/upload/services/upload-flow-session.ts#createIdempotencyKey"
+      ],
+      "source": "export function createFamilyMember(index: number): FamilyMember {\r\n  return {\r\n    localId: typeof crypto !== \"undefined\" ? crypto.randomUUID() : `${Date.now()}-${index}`,\r\n    name: \"\",\r\n    relation: index === 0 ? \"Head\" : \"\",\r\n    gender: \"\",\r\n    email: \"\",\r\n    phone: \"\",\r\n    baseCity: \"\",\r\n    nearestDomesticAirport: \"\",\r\n    staffCode: \"\",\r\n    agentEmployeeType: \"\",\r\n    agentEmployeeCode: \"\",\r\n    designation: \"\",\r\n    agencyDealershipName: \"\",\r\n    mealPreference: \"\",\r\n    customAnswers: {},\r\n    customDetailAnswers: {},\r\n    submission: null,\r\n    reviewFields: {},\r\n    visaSelfie: null,\r\n    visaPhotoSource: null,\r\n    uploadIdempotencyKey: createIdempotencyKey(),\r\n    extractionNotice: null,\r\n    canRetryExtraction: false,\r\n  };\r\n}"
+    },
+    {
+      "id": "frontend/features/upload/services/upload-flow-helpers.ts#createFamilyMembers",
+      "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "name": "createFamilyMembers",
+      "exported": true,
+      "kind": "FunctionDeclaration",
+      "line": 66,
+      "sha256": "cdd5a00879c92c1b5cf8d67e7b147f13cad66cb3c8ad7d1af6a30a0faab1d1b7",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/services/upload-flow-helpers.ts#createFamilyMembers",
+          "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "line": 66,
+          "kind": "definition",
+          "owner": "frontend/features/upload/services/upload-flow-helpers.ts#createFamilyMembers",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [
+        "frontend/features/upload/services/upload-flow-helpers.ts#createFamilyMember"
+      ],
+      "source": "export function createFamilyMembers(count: number) {\r\n  return Array.from({ length: count }, (_, index) => createFamilyMember(index));\r\n}"
+    },
+    {
+      "id": "frontend/features/upload/services/upload-flow-helpers.ts#emptyDocumentBundle",
+      "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "name": "emptyDocumentBundle",
+      "exported": true,
+      "kind": "FunctionDeclaration",
+      "line": 70,
+      "sha256": "9e5b3ab82a09ab2408bda00589d9da71e88be0f5bbc57cd9f5537d58bc37ada3",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/services/upload-flow-helpers.ts#emptyDocumentBundle",
+          "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "line": 70,
+          "kind": "definition",
+          "owner": "frontend/features/upload/services/upload-flow-helpers.ts#emptyDocumentBundle",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [
+        "frontend/features/upload/components/upload-flow.types.ts#PassportDocumentBundle"
+      ],
+      "source": "export function emptyDocumentBundle(): PassportDocumentBundle {\r\n  return {\r\n    front: null,\r\n    back: null,\r\n    cover: null,\r\n    back_cover: null,\r\n    frontSource: null,\r\n    backSource: null,\r\n    frontManuallyCropped: false,\r\n    backManuallyCropped: false,\r\n  };\r\n}"
+    },
+    {
+      "id": "frontend/features/upload/services/upload-flow-helpers.ts#isClientSubmissionComplete",
+      "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "name": "isClientSubmissionComplete",
+      "exported": true,
+      "kind": "FunctionDeclaration",
+      "line": 83,
+      "sha256": "a2854364c278b26a961ffb01afb8614ffe85739219686979734dc76a21fb2eab",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/services/upload-flow-helpers.ts#isClientSubmissionComplete",
+          "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "line": 83,
+          "kind": "definition",
+          "owner": "frontend/features/upload/services/upload-flow-helpers.ts#isClientSubmissionComplete",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [
+        "frontend/features/upload/services/upload-flow-helpers.ts#CLIENT_COMPLETE_STATUSES"
+      ],
+      "source": "export function isClientSubmissionComplete(submission: PassportSubmission) {\r\n  return CLIENT_COMPLETE_STATUSES.has(submission.status);\r\n}"
+    },
+    {
+      "id": "frontend/features/upload/services/upload-flow-helpers.ts#hasActiveUploadProgress",
+      "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "name": "hasActiveUploadProgress",
+      "exported": true,
+      "kind": "FunctionDeclaration",
+      "line": 88,
+      "sha256": "a9b1ec341ac5e5405d4b085dd103c47a380153c42d68a133e44db4e652bfe003",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/services/upload-flow-helpers.ts#hasActiveUploadProgress",
+          "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "line": 88,
+          "kind": "definition",
+          "owner": "frontend/features/upload/services/upload-flow-helpers.ts#hasActiveUploadProgress",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [
+        "frontend/features/upload/components/upload-flow.types.ts#UploadFlowStep",
+        "frontend/features/upload/components/upload-flow.types.ts#FamilyMember",
+        "frontend/features/upload/components/upload-flow.constants.ts#PASSIVE_PROGRESS_STEPS"
+      ],
+      "source": "export function hasActiveUploadProgress({ step, submission, familyMembers, qualifierSelectionToken, clientName }: {\r\n  step: UploadFlowStep;\r\n  submission: PassportSubmission | null;\r\n  familyMembers: readonly FamilyMember[];\r\n  qualifierSelectionToken: string | null;\r\n  clientName: string;\r\n}) {\r\n  return step !== \"SUCCESS\" && (\r\n    submission !== null\r\n    || familyMembers.some((member) => member.submission !== null)\r\n    || qualifierSelectionToken !== null\r\n    || clientName.trim().length > 0\r\n    || !PASSIVE_PROGRESS_STEPS.has(step)\r\n  );\r\n}"
+    },
+    {
+      "id": "frontend/features/upload/services/upload-flow-helpers.ts#getInitialReviewFields",
+      "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "name": "getInitialReviewFields",
+      "exported": true,
+      "kind": "FunctionDeclaration",
+      "line": 104,
+      "sha256": "3e9adc4cce64b347bed44878a900b787764255c5e11766b0563499c3338ba87f",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/services/upload-flow-helpers.ts#getInitialReviewFields",
+          "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "line": 104,
+          "kind": "definition",
+          "owner": "frontend/features/upload/services/upload-flow-helpers.ts#getInitialReviewFields",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [
+        "frontend/features/upload/components/upload-flow.constants.ts#REVIEW_FIELDS"
+      ],
+      "source": "export function getInitialReviewFields(\r\n  fields: ExtractedPassportFields | null,\r\n) {\r\n  return REVIEW_FIELDS.reduce<Record<string, string>>((current, key) => {\r\n    current[key] = getPassportTextField(fields, key);\r\n    return current;\r\n  }, {});\r\n}"
+    },
+    {
+      "id": "frontend/features/upload/services/upload-flow-helpers.ts#passportHolderName",
+      "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "name": "passportHolderName",
+      "exported": true,
+      "kind": "FunctionDeclaration",
+      "line": 113,
+      "sha256": "e3e8ec4172d8b6208425098d6e93768699f31fe6dbc8792deaded0c9f9249aab",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/services/upload-flow-helpers.ts#passportHolderName",
+          "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "line": 113,
+          "kind": "definition",
+          "owner": "frontend/features/upload/services/upload-flow-helpers.ts#passportHolderName",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [],
+      "source": "export function passportHolderName(\r\n  fields: ExtractedPassportFields | Record<string, string> | null,\r\n) {\r\n  if (!fields) return \"\";\r\n  const givenNames = getPassportTextField(\r\n    fields as ExtractedPassportFields,\r\n    \"given_names\",\r\n  );\r\n  const surname = getPassportTextField(\r\n    fields as ExtractedPassportFields,\r\n    \"surname\",\r\n  );\r\n  return [givenNames, surname]\r\n    .map((part) => part.trim())\r\n    .filter(Boolean)\r\n    .join(\" \");\r\n}"
+    },
+    {
+      "id": "frontend/features/upload/services/upload-flow-helpers.ts#mergeMissingReviewFields",
+      "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "name": "mergeMissingReviewFields",
+      "exported": true,
+      "kind": "FunctionDeclaration",
+      "line": 131,
+      "sha256": "bdf9a548c9a55b5ac24c19e87ab245dd425a5358b33a861001e3adf362c51b3e",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/services/upload-flow-helpers.ts#mergeMissingReviewFields",
+          "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "line": 131,
+          "kind": "definition",
+          "owner": "frontend/features/upload/services/upload-flow-helpers.ts#mergeMissingReviewFields",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [
+        "frontend/features/upload/components/upload-flow.constants.ts#REVIEW_FIELDS"
+      ],
+      "source": "export function mergeMissingReviewFields(\r\n  current: Record<string, string>,\r\n  fields: ExtractedPassportFields | null,\r\n) {\r\n  return REVIEW_FIELDS.reduce<Record<string, string>>((next, key) => {\r\n    const value = getPassportTextField(fields, key);\r\n    if (value.trim() && !next[key]?.trim()) {\r\n      next[key] = value;\r\n    }\r\n    return next;\r\n  }, { ...current });\r\n}"
+    },
+    {
+      "id": "frontend/features/upload/services/upload-flow-helpers.ts#isExtractionTerminal",
+      "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "name": "isExtractionTerminal",
+      "exported": true,
+      "kind": "FunctionDeclaration",
+      "line": 201,
+      "sha256": "9cf841e06d8f5f5802d00c9589664338c1ec15c3b14dd9d44d006b71038c882f",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/services/upload-flow-helpers.ts#isExtractionTerminal",
+          "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "line": 201,
+          "kind": "definition",
+          "owner": "frontend/features/upload/services/upload-flow-helpers.ts#isExtractionTerminal",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [
+        "frontend/features/upload/services/upload-flow-helpers.ts#EXTRACTION_TERMINAL_STATUSES"
+      ],
+      "source": "export function isExtractionTerminal(submission: PassportSubmission) {\r\n  return EXTRACTION_TERMINAL_STATUSES.has(submission.extraction_status)\r\n    || submission.status === \"ready_for_client_review\"\r\n    || submission.status === \"review_required\"\r\n    || submission.status === \"failed\";\r\n}"
+    },
+    {
+      "id": "frontend/features/upload/services/upload-flow-helpers.ts#extractionNoticeFor",
+      "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "name": "extractionNoticeFor",
+      "exported": true,
+      "kind": "FunctionDeclaration",
+      "line": 208,
+      "sha256": "6ff8e9b0f4684e9801deb2b39171a0cc6a7f682e05883f244e4cd24cabafb4ee",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/services/upload-flow-helpers.ts#extractionNoticeFor",
+          "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "line": 208,
+          "kind": "definition",
+          "owner": "frontend/features/upload/services/upload-flow-helpers.ts#extractionNoticeFor",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [],
+      "source": "export function extractionNoticeFor(submission: PassportSubmission) {\r\n  if (submission.manual_review_submission_allowed) {\r\n    if (submission.processing_stage === \"extraction_busy\") {\r\n      return \"Extraction is busy. Your passport images are saved. Fill in the details manually; AI verification will check them after you submit.\";\r\n    }\r\n    return \"Automatic reading is unavailable. Enter the details manually and submit them. AI verification will check them against your saved passport images.\";\r\n  }\r\n  if (submission.extraction_status === \"extraction_failed\" || submission.status === \"failed\") {\r\n    return \"Automatic passport reading failed. Your saved images are safe. Retry reading or replace the image if it could not be verified as the correct passport page.\";\r\n  }\r\n  if (submission.extraction_status === \"extraction_partial\") {\r\n    return \"Your passport pages were saved. Some details could not be read confidently, so check and complete the missing fields manually.\";\r\n  }\r\n  return null;\r\n}"
+    },
+    {
+      "id": "frontend/features/upload/services/upload-flow-helpers.ts#canRetryExtractionFor",
+      "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "name": "canRetryExtractionFor",
+      "exported": true,
+      "kind": "FunctionDeclaration",
+      "line": 224,
+      "sha256": "7ea117bcc09870429ab1b84d766d11924bd60cc16855cea14fb18cfdbc12f06a",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/services/upload-flow-helpers.ts#canRetryExtractionFor",
+          "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "line": 224,
+          "kind": "definition",
+          "owner": "frontend/features/upload/services/upload-flow-helpers.ts#canRetryExtractionFor",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [],
+      "source": "export function canRetryExtractionFor(submission: PassportSubmission) {\r\n  return submission.extraction_status === \"extraction_failed\" || submission.status === \"failed\";\r\n}"
+    },
+    {
+      "id": "frontend/features/upload/services/upload-flow-helpers.ts#formatFileSize",
+      "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "name": "formatFileSize",
+      "exported": true,
+      "kind": "FunctionDeclaration",
+      "line": 228,
+      "sha256": "655c55d6752d66f73784f1c01db319e1928d10a6941205400d903e4d4f668c3a",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/services/upload-flow-helpers.ts#formatFileSize",
+          "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "line": 228,
+          "kind": "definition",
+          "owner": "frontend/features/upload/services/upload-flow-helpers.ts#formatFileSize",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [],
+      "source": "export function formatFileSize(bytes: number) {\r\n  if (!Number.isFinite(bytes) || bytes <= 0) return \"Size unavailable\";\r\n  if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;\r\n  return `${(bytes / (1024 * 1024)).toFixed(bytes < 10 * 1024 * 1024 ? 1 : 0)} MB`;\r\n}"
+    },
+    {
+      "id": "frontend/features/upload/services/upload-flow-helpers.ts#sleep",
+      "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "name": "sleep",
+      "exported": true,
+      "kind": "FunctionDeclaration",
+      "line": 234,
+      "sha256": "11235a86c1c4cb6855a5e2f9da614157531dac764de2cc7588b47232283810ed",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/services/upload-flow-helpers.ts#sleep",
+          "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "line": 234,
+          "kind": "definition",
+          "owner": "frontend/features/upload/services/upload-flow-helpers.ts#sleep",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [],
+      "source": "export function sleep(delayMs: number, signal: AbortSignal) {\r\n  return new Promise<void>((resolve, reject) => {\r\n    if (signal.aborted) {\r\n      reject(new DOMException(\"Operation cancelled\", \"AbortError\"));\r\n      return;\r\n    }\r\n    const timer = window.setTimeout(() => {\r\n      signal.removeEventListener(\"abort\", onAbort);\r\n      resolve();\r\n    }, delayMs);\r\n    const onAbort = () => {\r\n      window.clearTimeout(timer);\r\n      reject(new DOMException(\"Operation cancelled\", \"AbortError\"));\r\n    };\r\n    signal.addEventListener(\"abort\", onAbort, { once: true });\r\n  });\r\n}"
+    },
+    {
+      "id": "frontend/features/upload/services/upload-flow-helpers.ts#PROCESSING_STAGE_LABELS",
+      "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "name": "PROCESSING_STAGE_LABELS",
+      "exported": false,
+      "kind": "FirstStatement",
+      "line": 252,
+      "sha256": "1ea42962cc6826dbf3e85b1c74df5974f9607130ea4d39e667cc048a219e7ea9",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/services/upload-flow-helpers.ts#PROCESSING_STAGE_LABELS",
+          "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "line": 252,
+          "kind": "definition",
+          "owner": "frontend/features/upload/services/upload-flow-helpers.ts#PROCESSING_STAGE_LABELS",
+          "app_module_reachable": true
+        },
+        {
+          "target": "frontend/features/upload/services/upload-flow-helpers.ts#PROCESSING_STAGE_LABELS",
+          "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "line": 264,
+          "kind": "use",
+          "owner": "frontend/features/upload/services/upload-flow-helpers.ts#stageLabel",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [],
+      "source": "const PROCESSING_STAGE_LABELS: Readonly<Record<string, string>> = {\r\n  queued: \"Your passport extraction is queued and will begin shortly.\",\r\n  retry_queued: \"Your extraction is queued safely while we handle higher traffic.\",\r\n  starting: \"Starting secure passport processing.\",\r\n  downloading_image: \"Preparing the passport image for extraction.\",\r\n  extracting_passport_fields: \"Extracting passport details from the passport image.\",\r\n  verifying_passport_fields: \"Verifying the extracted passport details against the image.\",\r\n  saving_extraction_result: \"Preparing the verified details for your review.\",\r\n  completed: \"Passport details are ready for review.\",\r\n};"
+    },
+    {
+      "id": "frontend/features/upload/services/upload-flow-helpers.ts#stageLabel",
+      "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "name": "stageLabel",
+      "exported": true,
+      "kind": "FunctionDeclaration",
+      "line": 263,
+      "sha256": "019fa303386d36764c096f0cd55bff1a7245c3ab48a54943d50dc0288f0b192c",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/services/upload-flow-helpers.ts#stageLabel",
+          "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "line": 263,
+          "kind": "definition",
+          "owner": "frontend/features/upload/services/upload-flow-helpers.ts#stageLabel",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [
+        "frontend/features/upload/services/upload-flow-helpers.ts#PROCESSING_STAGE_LABELS"
+      ],
+      "source": "export function stageLabel(stage: string) {\r\n  return PROCESSING_STAGE_LABELS[stage]\r\n    ?? stage.replace(/_/g, \" \").replace(/\\b\\w/g, (char) => char.toUpperCase());\r\n}"
+    },
+    {
+      "id": "frontend/features/upload/services/upload-flow-helpers.ts#submitErrorMessage",
+      "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "name": "submitErrorMessage",
+      "exported": true,
+      "kind": "FunctionDeclaration",
+      "line": 268,
+      "sha256": "8a0e1586986abbc02c7e3622def672921b86f7986c737d8f0f0184dc96cce3d4",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/services/upload-flow-helpers.ts#submitErrorMessage",
+          "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "line": 268,
+          "kind": "definition",
+          "owner": "frontend/features/upload/services/upload-flow-helpers.ts#submitErrorMessage",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [
+        "frontend/features/upload/services/upload-flow-helpers.ts#isPublicApiError",
+        "frontend/features/upload/services/upload-flow-helpers.ts#extractApiErrorDetail"
+      ],
+      "source": "export function submitErrorMessage(error: unknown) {\r\n  if (isPublicApiError(error)) return error.message;\r\n  if (isAxiosError(error)) {\r\n    return extractApiErrorDetail(error.response?.data)\r\n      ?? \"Could not submit reviewed details. Please check the contact details.\";\r\n  }\r\n  return \"Could not submit reviewed details. Please try again.\";\r\n}"
+    },
+    {
+      "id": "frontend/features/upload/services/upload-flow-helpers.ts#uploadPersistenceErrorMessage",
+      "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "name": "uploadPersistenceErrorMessage",
+      "exported": true,
+      "kind": "FunctionDeclaration",
+      "line": 286,
+      "sha256": "110ece741920262b63de91ded0c7219664905664bde07e6d2af69e566474f5b5",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/services/upload-flow-helpers.ts#uploadPersistenceErrorMessage",
+          "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "line": 286,
+          "kind": "definition",
+          "owner": "frontend/features/upload/services/upload-flow-helpers.ts#uploadPersistenceErrorMessage",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [
+        "frontend/features/upload/services/upload-flow-helpers.ts#isPublicApiError",
+        "frontend/features/upload/services/upload-flow-helpers.ts#extractApiErrorDetail"
+      ],
+      "source": "export function uploadPersistenceErrorMessage(error: unknown) {\r\n  if (isPublicApiError(error)) return error.message;\r\n  if (isAxiosError(error)) {\r\n    const detail = extractApiErrorDetail(error.response?.data);\r\n    if (error.response?.status && error.response.status >= 400 && error.response.status < 500) {\r\n      return detail ?? \"The passport pages were rejected. Check the file type and size, then try again.\";\r\n    }\r\n    return detail\r\n      ?? \"We could not confirm that the passport pages were saved. Retry safely; the same upload will not create a duplicate.\";\r\n  }\r\n  return \"We could not confirm that the passport pages were saved. Check your connection and retry safely.\";\r\n}"
+    },
+    {
+      "id": "frontend/features/upload/components/upload-flow-fields.tsx#NameInput",
+      "path": "frontend/features/upload/components/upload-flow-fields.tsx",
+      "name": "NameInput",
+      "exported": true,
+      "kind": "FunctionDeclaration",
+      "line": 12,
+      "sha256": "e8e309d63288b1a59da262ad4c94bdb8f3d613b3ea8a5b2e566ebab1f7bf0fb4",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/components/upload-flow-fields.tsx#NameInput",
+          "path": "frontend/features/upload/components/upload-flow-fields.tsx",
+          "line": 12,
+          "kind": "definition",
+          "owner": "frontend/features/upload/components/upload-flow-fields.tsx#NameInput",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [],
+      "source": "export function NameInput({\r\n  value,\r\n  onChange,\r\n  placeholder = \"e.g. John Doe\",\r\n  autoFocus = false,\r\n}: {\r\n  value: string;\r\n  onChange: (value: string) => void;\r\n  placeholder?: string;\r\n  autoFocus?: boolean;\r\n}) {\r\n  return (\r\n    <div className=\"relative min-w-0\">\r\n      <User className=\"absolute left-4 top-3.5 h-5 w-5 text-slate-400\" />\r\n      <Input\r\n        placeholder={placeholder}\r\n        value={value}\r\n        onChange={(event) => onChange(event.target.value)}\r\n        className=\"h-12 w-full min-w-0 rounded-xl border-slate-200 bg-white pl-12 text-base shadow-sm transition-colors placeholder:text-slate-400 focus-visible:ring-blue-600\"\r\n        required\r\n        autoFocus={autoFocus}\r\n      />\r\n    </div>\r\n  );\r\n}"
+    },
+    {
+      "id": "frontend/features/upload/components/upload-flow-fields.tsx#ContactSection",
+      "path": "frontend/features/upload/components/upload-flow-fields.tsx",
+      "name": "ContactSection",
+      "exported": true,
+      "kind": "FunctionDeclaration",
+      "line": 123,
+      "sha256": "66d7b9fe9af41830d7c56f36aab6acc89e500f070e613ee39fd7964caa01e6bf",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/components/upload-flow-fields.tsx#ContactSection",
+          "path": "frontend/features/upload/components/upload-flow-fields.tsx",
+          "line": 123,
+          "kind": "definition",
+          "owner": "frontend/features/upload/components/upload-flow-fields.tsx#ContactSection",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [
+        "frontend/features/upload/components/upload-flow-fields.tsx#ContactInput",
+        "frontend/features/upload/components/upload-flow-fields.tsx#DepartureCitySelect"
+      ],
+      "source": "export function ContactSection({\r\n  email,\r\n  phone,\r\n  departureCity,\r\n  departureCities,\r\n  onEmail,\r\n  onPhone,\r\n  onDepartureCity,\r\n  title,\r\n  emailRequired,\r\n  phoneRequired,\r\n  departureCityRequired = true,\r\n}: {\r\n  email: string;\r\n  phone: string;\r\n  departureCity: string;\r\n  departureCities: string[];\r\n  onEmail: (value: string) => void;\r\n  onPhone: (value: string) => void;\r\n  onDepartureCity: (value: string) => void;\r\n  title: string;\r\n  emailRequired?: boolean;\r\n  phoneRequired?: boolean;\r\n  departureCityRequired?: boolean;\r\n}) {\r\n  return (\r\n    <div className=\"mt-6 border-t border-slate-100 pt-5\">\r\n      <h3 className=\"mb-3 text-base font-bold text-slate-900\">{title}</h3>\r\n      <div className=\"grid gap-4 sm:grid-cols-2\">\r\n        <ContactInput\r\n          icon={<Mail className=\"h-5 w-5\" />}\r\n          label=\"Email\"\r\n          type=\"email\"\r\n          value={email}\r\n          onChange={onEmail}\r\n          required={emailRequired}\r\n        />\r\n        <ContactInput\r\n          icon={<Phone className=\"h-5 w-5\" />}\r\n          label=\"WhatsApp active number\"\r\n          type=\"tel\"\r\n          value={phone}\r\n          onChange={onPhone}\r\n          required={phoneRequired}\r\n        />\r\n        {departureCities.length > 0 && (\r\n          <DepartureCitySelect\r\n            value={departureCity}\r\n            cities={departureCities}\r\n            onChange={onDepartureCity}\r\n            className=\"sm:col-span-2\"\r\n            required={departureCityRequired}\r\n          />\r\n        )}\r\n      </div>\r\n    </div>\r\n  );\r\n}"
+    },
+    {
+      "id": "frontend/features/upload/components/upload-flow.types.ts#FlowMode",
+      "path": "frontend/features/upload/components/upload-flow.types.ts",
+      "name": "FlowMode",
+      "exported": true,
+      "kind": "TypeAliasDeclaration",
+      "line": 4,
+      "sha256": "d6e1a6ec0c13be6e8d1b21c00163d68b4ce4b97452451c5e34436417130a4ab4",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/components/upload-flow.types.ts#FlowMode",
+          "path": "frontend/features/upload/components/upload-flow.types.ts",
+          "line": 4,
+          "kind": "definition",
+          "owner": "frontend/features/upload/components/upload-flow.types.ts#FlowMode",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [],
+      "source": "export type FlowMode = \"single\" | \"family\";"
+    },
+    {
+      "id": "frontend/features/upload/components/upload-flow.types.ts#UploadFlowStep",
+      "path": "frontend/features/upload/components/upload-flow.types.ts",
+      "name": "UploadFlowStep",
+      "exported": true,
+      "kind": "TypeAliasDeclaration",
+      "line": 6,
+      "sha256": "85ee44f5fd87eea372aee371c7a92ae37799ff36c1f20e3c91974d367a1867ef",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/components/upload-flow.types.ts#UploadFlowStep",
+          "path": "frontend/features/upload/components/upload-flow.types.ts",
+          "line": 6,
+          "kind": "definition",
+          "owner": "frontend/features/upload/components/upload-flow.types.ts#UploadFlowStep",
+          "app_module_reachable": true
+        },
+        {
+          "target": "frontend/features/upload/components/upload-flow.types.ts#UploadFlowStep",
+          "path": "frontend/features/upload/components/upload-flow.constants.ts",
+          "line": 34,
+          "kind": "use",
+          "owner": "frontend/features/upload/components/upload-flow.constants.ts#PASSIVE_PROGRESS_STEPS",
+          "app_module_reachable": true
+        },
+        {
+          "target": "frontend/features/upload/components/upload-flow.types.ts#UploadFlowStep",
+          "path": "frontend/features/upload/components/upload-flow.constants.ts",
+          "line": 41,
+          "kind": "binding",
+          "owner": null,
+          "app_module_reachable": true
+        },
+        {
+          "target": "frontend/features/upload/components/upload-flow.types.ts#UploadFlowStep",
+          "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "line": 20,
+          "kind": "binding",
+          "owner": null,
+          "app_module_reachable": true
+        },
+        {
+          "target": "frontend/features/upload/components/upload-flow.types.ts#UploadFlowStep",
+          "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "line": 89,
+          "kind": "use",
+          "owner": "frontend/features/upload/services/upload-flow-helpers.ts#hasActiveUploadProgress",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [],
+      "source": "export type UploadFlowStep =\r\n  | \"BOOTSTRAP\"\r\n  | \"RECOVERY_ERROR\"\r\n  | \"QUALIFIER_SELECT\"\r\n  | \"MODE_SELECT\"\r\n  | \"FAMILY_SETUP\"\r\n  | \"METHOD_SELECT\"\r\n  | \"SELFIE_CAMERA\"\r\n  | \"SELFIE_UPLOAD\"\r\n  | \"CAMERA\"\r\n  | \"PASSPORT_UPLOAD\"\r\n  | \"UPLOADING\"\r\n  | \"REVIEW\"\r\n  | \"FAMILY_REVIEW\"\r\n  | \"SUBMITTING\"\r\n  | \"SUCCESS\";"
+    },
+    {
+      "id": "frontend/features/upload/components/upload-flow.types.ts#FamilyMember",
+      "path": "frontend/features/upload/components/upload-flow.types.ts",
+      "name": "FamilyMember",
+      "exported": true,
+      "kind": "InterfaceDeclaration",
+      "line": 23,
+      "sha256": "2fc5f448dea6e17fe6add8da847dd69fe1d2736a46e0e835c6dc2d1278e39053",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/components/upload-flow.types.ts#FamilyMember",
+          "path": "frontend/features/upload/components/upload-flow.types.ts",
+          "line": 23,
+          "kind": "definition",
+          "owner": "frontend/features/upload/components/upload-flow.types.ts#FamilyMember",
+          "app_module_reachable": true
+        },
+        {
+          "target": "frontend/features/upload/components/upload-flow.types.ts#FamilyMember",
+          "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "line": 18,
+          "kind": "binding",
+          "owner": null,
+          "app_module_reachable": true
+        },
+        {
+          "target": "frontend/features/upload/components/upload-flow.types.ts#FamilyMember",
+          "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "line": 38,
+          "kind": "use",
+          "owner": "frontend/features/upload/services/upload-flow-helpers.ts#createFamilyMember",
+          "app_module_reachable": true
+        },
+        {
+          "target": "frontend/features/upload/components/upload-flow.types.ts#FamilyMember",
+          "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "line": 91,
+          "kind": "use",
+          "owner": "frontend/features/upload/services/upload-flow-helpers.ts#hasActiveUploadProgress",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [
+        "frontend/features/upload/components/upload-flow.types.ts#FamilyReuseBinding",
+        "frontend/features/upload/components/upload-flow.types.ts#AgentEmployeeType"
+      ],
+      "source": "export interface FamilyMember {\r\n  reuseCompletion?: { binding: FamilyReuseBinding; result: CompletionResult & { source_submission_id: string } };\r\n  replacementAssociated?: FamilyReuseBinding;\r\n  localId: string;\r\n  name: string;\r\n  relation: string;\r\n  gender: string;\r\n  email: string;\r\n  phone: string;\r\n  baseCity: string;\r\n  nearestDomesticAirport: string;\r\n  staffCode: string;\r\n  agentEmployeeType: AgentEmployeeType;\r\n  agentEmployeeCode: string;\r\n  designation: string;\r\n  agencyDealershipName: string;\r\n  mealPreference: string;\r\n  customAnswers: Record<string, string>;\r\n  customDetailAnswers: Record<string, string>;\r\n  submission: PassportSubmission | null;\r\n  reviewFields: Record<string, string>;\r\n  visaSelfie: File | null;\r\n  visaPhotoSource: \"camera\" | \"file\" | null;\r\n  uploadIdempotencyKey: string;\r\n  extractionNotice: string | null;\r\n  canRetryExtraction: boolean;\r\n}"
+    },
+    {
+      "id": "frontend/features/upload/components/upload-flow.types.ts#FamilyReuseBinding",
+      "path": "frontend/features/upload/components/upload-flow.types.ts",
+      "name": "FamilyReuseBinding",
+      "exported": true,
+      "kind": "InterfaceDeclaration",
+      "line": 51,
+      "sha256": "9c452e2cd450afadb95984df619d78e0de1cf379d0b547454e892c982c9c1f57",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/components/upload-flow.types.ts#FamilyReuseBinding",
+          "path": "frontend/features/upload/components/upload-flow.types.ts",
+          "line": 24,
+          "kind": "use",
+          "owner": "frontend/features/upload/components/upload-flow.types.ts#FamilyMember",
+          "app_module_reachable": true
+        },
+        {
+          "target": "frontend/features/upload/components/upload-flow.types.ts#FamilyReuseBinding",
+          "path": "frontend/features/upload/components/upload-flow.types.ts",
+          "line": 25,
+          "kind": "use",
+          "owner": "frontend/features/upload/components/upload-flow.types.ts#FamilyMember",
+          "app_module_reachable": true
+        },
+        {
+          "target": "frontend/features/upload/components/upload-flow.types.ts#FamilyReuseBinding",
+          "path": "frontend/features/upload/components/upload-flow.types.ts",
+          "line": 51,
+          "kind": "definition",
+          "owner": "frontend/features/upload/components/upload-flow.types.ts#FamilyReuseBinding",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [],
+      "source": "export interface FamilyReuseBinding { localId: string; sourceSubmissionId: string; extractionRevision: number; uploadSessionId: string }"
+    },
+    {
+      "id": "frontend/features/upload/components/upload-flow.types.ts#ExtractionWaitResult",
+      "path": "frontend/features/upload/components/upload-flow.types.ts",
+      "name": "ExtractionWaitResult",
+      "exported": true,
+      "kind": "InterfaceDeclaration",
+      "line": 64,
+      "sha256": "e1f0c080c5c80810d95503025d73725068902c4162bc1221e8c764ac213d1720",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/components/upload-flow.types.ts#ExtractionWaitResult",
+          "path": "frontend/features/upload/components/upload-flow.types.ts",
+          "line": 64,
+          "kind": "definition",
+          "owner": "frontend/features/upload/components/upload-flow.types.ts#ExtractionWaitResult",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [],
+      "source": "export interface ExtractionWaitResult {\r\n  submission: PassportSubmission;\r\n  notice: string | null;\r\n  retryAllowed: boolean;\r\n}"
+    },
+    {
+      "id": "frontend/features/upload/components/upload-flow.constants.ts#PASSIVE_PROGRESS_STEPS",
+      "path": "frontend/features/upload/components/upload-flow.constants.ts",
+      "name": "PASSIVE_PROGRESS_STEPS",
+      "exported": true,
+      "kind": "FirstStatement",
+      "line": 34,
+      "sha256": "507b1380cc78a3c5f5328de99fe66d4e9acfdbf13c86c15b87e0ccabbbd6b96e",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/components/upload-flow.constants.ts#PASSIVE_PROGRESS_STEPS",
+          "path": "frontend/features/upload/components/upload-flow.constants.ts",
+          "line": 34,
+          "kind": "definition",
+          "owner": "frontend/features/upload/components/upload-flow.constants.ts#PASSIVE_PROGRESS_STEPS",
+          "app_module_reachable": true
+        },
+        {
+          "target": "frontend/features/upload/components/upload-flow.constants.ts#PASSIVE_PROGRESS_STEPS",
+          "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "line": 15,
+          "kind": "binding",
+          "owner": null,
+          "app_module_reachable": true
+        },
+        {
+          "target": "frontend/features/upload/components/upload-flow.constants.ts#PASSIVE_PROGRESS_STEPS",
+          "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "line": 100,
+          "kind": "use",
+          "owner": "frontend/features/upload/services/upload-flow-helpers.ts#hasActiveUploadProgress",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [
+        "frontend/features/upload/components/upload-flow.types.ts#UploadFlowStep"
+      ],
+      "source": "export const PASSIVE_PROGRESS_STEPS: ReadonlySet<UploadFlowStep> = new Set([\r\n  \"BOOTSTRAP\",\r\n  \"QUALIFIER_SELECT\",\r\n  \"MODE_SELECT\",\r\n]);"
+    },
+    {
+      "id": "frontend/features/upload/services/upload-flow-session.ts#PERMANENT_QUALIFIER_ERROR_STATUSES",
+      "path": "frontend/features/upload/services/upload-flow-session.ts",
+      "name": "PERMANENT_QUALIFIER_ERROR_STATUSES",
+      "exported": false,
+      "kind": "FirstStatement",
+      "line": 8,
+      "sha256": "f315adc8ca2dc6a89b946d572768f7453b43aa896f633de97858283989437400",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/services/upload-flow-session.ts#PERMANENT_QUALIFIER_ERROR_STATUSES",
+          "path": "frontend/features/upload/services/upload-flow-session.ts",
+          "line": 8,
+          "kind": "definition",
+          "owner": "frontend/features/upload/services/upload-flow-session.ts#PERMANENT_QUALIFIER_ERROR_STATUSES",
+          "app_module_reachable": true
+        },
+        {
+          "target": "frontend/features/upload/services/upload-flow-session.ts#PERMANENT_QUALIFIER_ERROR_STATUSES",
+          "path": "frontend/features/upload/services/upload-flow-session.ts",
+          "line": 110,
+          "kind": "use",
+          "owner": "frontend/features/upload/services/upload-flow-session.ts#isPermanentQualifierRestoreError",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [],
+      "source": "const PERMANENT_QUALIFIER_ERROR_STATUSES = new Set([\n  400,\n  401,\n  403,\n  404,\n  410,\n  422,\n]);"
+    },
+    {
+      "id": "frontend/features/upload/services/upload-flow-session.ts#activeUploadSessionId",
+      "path": "frontend/features/upload/services/upload-flow-session.ts",
+      "name": "activeUploadSessionId",
+      "exported": true,
+      "kind": "FunctionDeclaration",
+      "line": 17,
+      "sha256": "d0bf20aa72f5c0fb8bbcdfb8da81083e9ba5212d56a2e36f31109df68d4caa05",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/services/upload-flow-session.ts#activeUploadSessionId",
+          "path": "frontend/features/upload/services/upload-flow-session.ts",
+          "line": 17,
+          "kind": "definition",
+          "owner": "frontend/features/upload/services/upload-flow-session.ts#activeUploadSessionId",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [],
+      "source": "export function activeUploadSessionId(\n  mode: \"single\" | \"family\" | null,\n  singleSessionId: string,\n  familyMember: { uploadIdempotencyKey: string } | null,\n): string | undefined {\n  return mode === \"family\" ? familyMember?.uploadIdempotencyKey : singleSessionId;\n}"
+    },
+    {
+      "id": "frontend/features/upload/services/upload-flow-session.ts#MISSING_SUBMISSION_STATUSES",
+      "path": "frontend/features/upload/services/upload-flow-session.ts",
+      "name": "MISSING_SUBMISSION_STATUSES",
+      "exported": false,
+      "kind": "FirstStatement",
+      "line": 24,
+      "sha256": "696921315b6217a134545c4e8e20d7afe000b70bd36d9e67961b422625b645c0",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/services/upload-flow-session.ts#MISSING_SUBMISSION_STATUSES",
+          "path": "frontend/features/upload/services/upload-flow-session.ts",
+          "line": 24,
+          "kind": "definition",
+          "owner": "frontend/features/upload/services/upload-flow-session.ts#MISSING_SUBMISSION_STATUSES",
+          "app_module_reachable": true
+        },
+        {
+          "target": "frontend/features/upload/services/upload-flow-session.ts#MISSING_SUBMISSION_STATUSES",
+          "path": "frontend/features/upload/services/upload-flow-session.ts",
+          "line": 114,
+          "kind": "use",
+          "owner": "frontend/features/upload/services/upload-flow-session.ts#isMissingSavedSubmissionError",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [],
+      "source": "const MISSING_SUBMISSION_STATUSES = new Set([404, 410]);"
+    },
+    {
+      "id": "frontend/features/upload/services/upload-flow-session.ts#uploadRecoveryStorageKey",
+      "path": "frontend/features/upload/services/upload-flow-session.ts",
+      "name": "uploadRecoveryStorageKey",
+      "exported": false,
+      "kind": "FunctionDeclaration",
+      "line": 26,
+      "sha256": "e383e3a439df3e0189b89af63527f8516e5218f1a05ef03d2f16f717c7d96692",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/services/upload-flow-session.ts#uploadRecoveryStorageKey",
+          "path": "frontend/features/upload/services/upload-flow-session.ts",
+          "line": 26,
+          "kind": "definition",
+          "owner": "frontend/features/upload/services/upload-flow-session.ts#uploadRecoveryStorageKey",
+          "app_module_reachable": true
+        },
+        {
+          "target": "frontend/features/upload/services/upload-flow-session.ts#uploadRecoveryStorageKey",
+          "path": "frontend/features/upload/services/upload-flow-session.ts",
+          "line": 56,
+          "kind": "use",
+          "owner": "frontend/features/upload/services/upload-flow-session.ts#readUploadRecoveryRecord",
+          "app_module_reachable": true
+        },
+        {
+          "target": "frontend/features/upload/services/upload-flow-session.ts#uploadRecoveryStorageKey",
+          "path": "frontend/features/upload/services/upload-flow-session.ts",
+          "line": 69,
+          "kind": "use",
+          "owner": "frontend/features/upload/services/upload-flow-session.ts#writeUploadRecoveryRecord",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [],
+      "source": "function uploadRecoveryStorageKey(groupToken: string) {\n  return `gct:upload-recovery:${groupToken}`;\n}"
+    },
+    {
+      "id": "frontend/features/upload/services/upload-flow-session.ts#qualifierStorageKey",
+      "path": "frontend/features/upload/services/upload-flow-session.ts",
+      "name": "qualifierStorageKey",
+      "exported": false,
+      "kind": "FunctionDeclaration",
+      "line": 30,
+      "sha256": "039b4514e857a7afecf4ec2b10b64ac02a471109f68b483c8afaca71fb9d1958",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/services/upload-flow-session.ts#qualifierStorageKey",
+          "path": "frontend/features/upload/services/upload-flow-session.ts",
+          "line": 30,
+          "kind": "definition",
+          "owner": "frontend/features/upload/services/upload-flow-session.ts#qualifierStorageKey",
+          "app_module_reachable": true
+        },
+        {
+          "target": "frontend/features/upload/services/upload-flow-session.ts#qualifierStorageKey",
+          "path": "frontend/features/upload/services/upload-flow-session.ts",
+          "line": 80,
+          "kind": "use",
+          "owner": "frontend/features/upload/services/upload-flow-session.ts#readQualifierSelectionToken",
+          "app_module_reachable": true
+        },
+        {
+          "target": "frontend/features/upload/services/upload-flow-session.ts#qualifierStorageKey",
+          "path": "frontend/features/upload/services/upload-flow-session.ts",
+          "line": 92,
+          "kind": "use",
+          "owner": "frontend/features/upload/services/upload-flow-session.ts#writeQualifierSelectionToken",
+          "app_module_reachable": true
+        },
+        {
+          "target": "frontend/features/upload/services/upload-flow-session.ts#qualifierStorageKey",
+          "path": "frontend/features/upload/services/upload-flow-session.ts",
+          "line": 103,
+          "kind": "use",
+          "owner": "frontend/features/upload/services/upload-flow-session.ts#clearQualifierSelectionToken",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [],
+      "source": "function qualifierStorageKey(groupToken: string) {\n  return `gct:qualifier-selection:${groupToken}`;\n}"
+    },
+    {
+      "id": "frontend/features/upload/services/upload-flow-session.ts#createIdempotencyKey",
+      "path": "frontend/features/upload/services/upload-flow-session.ts",
+      "name": "createIdempotencyKey",
+      "exported": true,
+      "kind": "FunctionDeclaration",
+      "line": 34,
+      "sha256": "5c633bae0467a59cdcbbea01d1840cb7ab8720adb7a4fc0dc6d04888694173e6",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/services/upload-flow-session.ts#createIdempotencyKey",
+          "path": "frontend/features/upload/services/upload-flow-session.ts",
+          "line": 34,
+          "kind": "definition",
+          "owner": "frontend/features/upload/services/upload-flow-session.ts#createIdempotencyKey",
+          "app_module_reachable": true
+        },
+        {
+          "target": "frontend/features/upload/services/upload-flow-session.ts#createIdempotencyKey",
+          "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "line": 22,
+          "kind": "binding",
+          "owner": null,
+          "app_module_reachable": true
+        },
+        {
+          "target": "frontend/features/upload/services/upload-flow-session.ts#createIdempotencyKey",
+          "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+          "line": 60,
+          "kind": "use",
+          "owner": "frontend/features/upload/services/upload-flow-helpers.ts#createFamilyMember",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [],
+      "source": "export function createIdempotencyKey() {\n  if (typeof crypto !== \"undefined\" && typeof crypto.randomUUID === \"function\") {\n    return crypto.randomUUID();\n  }\n  if (\n    typeof crypto !== \"undefined\"\n    && typeof crypto.getRandomValues === \"function\"\n  ) {\n    const bytes = crypto.getRandomValues(new Uint8Array(32));\n    return Array.from(\n      bytes,\n      (value) => value.toString(16).padStart(2, \"0\"),\n    ).join(\"\");\n  }\n  throw new Error(\n    \"Secure random number generation is required for passport upload.\",\n  );\n}"
+    },
+    {
+      "id": "frontend/features/upload/services/upload-flow-session.ts#readUploadRecoveryRecord",
+      "path": "frontend/features/upload/services/upload-flow-session.ts",
+      "name": "readUploadRecoveryRecord",
+      "exported": true,
+      "kind": "FunctionDeclaration",
+      "line": 53,
+      "sha256": "a125234a7c847f3a33624763c48b3ad5d468e5fbc5b95a341e5224c8ba4e3c97",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/services/upload-flow-session.ts#readUploadRecoveryRecord",
+          "path": "frontend/features/upload/services/upload-flow-session.ts",
+          "line": 53,
+          "kind": "definition",
+          "owner": "frontend/features/upload/services/upload-flow-session.ts#readUploadRecoveryRecord",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [
+        "frontend/features/upload/services/upload-recovery.ts#parseUploadRecoveryRecord",
+        "frontend/features/upload/services/upload-flow-session.ts#uploadRecoveryStorageKey"
+      ],
+      "source": "export function readUploadRecoveryRecord(groupToken: string) {\n  try {\n    return parseUploadRecoveryRecord(\n      window.sessionStorage.getItem(uploadRecoveryStorageKey(groupToken)),\n    );\n  } catch {\n    return null;\n  }\n}"
+    },
+    {
+      "id": "frontend/features/upload/services/upload-flow-session.ts#writeUploadRecoveryRecord",
+      "path": "frontend/features/upload/services/upload-flow-session.ts",
+      "name": "writeUploadRecoveryRecord",
+      "exported": true,
+      "kind": "FunctionDeclaration",
+      "line": 63,
+      "sha256": "3843adab7d525d6ae8f99d2092a168f49bffaecaa4d9a56a8fd8fb3ca850dd28",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/services/upload-flow-session.ts#writeUploadRecoveryRecord",
+          "path": "frontend/features/upload/services/upload-flow-session.ts",
+          "line": 63,
+          "kind": "definition",
+          "owner": "frontend/features/upload/services/upload-flow-session.ts#writeUploadRecoveryRecord",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [
+        "frontend/features/upload/services/upload-recovery.ts#createUploadRecoveryRecord",
+        "frontend/features/upload/services/upload-flow-session.ts#uploadRecoveryStorageKey",
+        "frontend/features/upload/services/upload-recovery.ts#serializeUploadRecoveryRecord"
+      ],
+      "source": "export function writeUploadRecoveryRecord(\n  groupToken: string,\n  record: ReturnType<typeof createUploadRecoveryRecord>,\n) {\n  try {\n    window.sessionStorage.setItem(\n      uploadRecoveryStorageKey(groupToken),\n      serializeUploadRecoveryRecord(record),\n    );\n  } catch {\n    // Recovery storage is optional in privacy-restricted in-app browsers.\n    // Backend idempotency still protects the active in-memory attempt.\n  }\n}"
+    },
+    {
+      "id": "frontend/features/upload/services/upload-flow-session.ts#readQualifierSelectionToken",
+      "path": "frontend/features/upload/services/upload-flow-session.ts",
+      "name": "readQualifierSelectionToken",
+      "exported": true,
+      "kind": "FunctionDeclaration",
+      "line": 78,
+      "sha256": "db55ca9ba79da37899183b57bc130d01c2ff9736df6080a790c78ea24b5e4c8b",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/services/upload-flow-session.ts#readQualifierSelectionToken",
+          "path": "frontend/features/upload/services/upload-flow-session.ts",
+          "line": 78,
+          "kind": "definition",
+          "owner": "frontend/features/upload/services/upload-flow-session.ts#readQualifierSelectionToken",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [
+        "frontend/features/upload/services/upload-flow-session.ts#qualifierStorageKey"
+      ],
+      "source": "export function readQualifierSelectionToken(groupToken: string) {\n  try {\n    return window.sessionStorage.getItem(qualifierStorageKey(groupToken));\n  } catch {\n    return null;\n  }\n}"
+    },
+    {
+      "id": "frontend/features/upload/services/upload-flow-session.ts#writeQualifierSelectionToken",
+      "path": "frontend/features/upload/services/upload-flow-session.ts",
+      "name": "writeQualifierSelectionToken",
+      "exported": true,
+      "kind": "FunctionDeclaration",
+      "line": 86,
+      "sha256": "b003c7900f5b50f52e42ee2a49f5ca2bd1092318a00cd8f23dabb41d7e1d2ad5",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/services/upload-flow-session.ts#writeQualifierSelectionToken",
+          "path": "frontend/features/upload/services/upload-flow-session.ts",
+          "line": 86,
+          "kind": "definition",
+          "owner": "frontend/features/upload/services/upload-flow-session.ts#writeQualifierSelectionToken",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [
+        "frontend/features/upload/services/upload-flow-session.ts#qualifierStorageKey"
+      ],
+      "source": "export function writeQualifierSelectionToken(\n  groupToken: string,\n  selectionToken: string,\n) {\n  try {\n    window.sessionStorage.setItem(\n      qualifierStorageKey(groupToken),\n      selectionToken,\n    );\n  } catch {\n    // Session storage is an optional recovery aid. The in-memory bearer token\n    // remains sufficient for the current upload attempt.\n  }\n}"
+    },
+    {
+      "id": "frontend/features/upload/services/upload-flow-session.ts#clearQualifierSelectionToken",
+      "path": "frontend/features/upload/services/upload-flow-session.ts",
+      "name": "clearQualifierSelectionToken",
+      "exported": true,
+      "kind": "FunctionDeclaration",
+      "line": 101,
+      "sha256": "f389440a4d198b5c42a8bb117cde7b638c10ecaae4e235c5a0edff59914c6b2f",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/services/upload-flow-session.ts#clearQualifierSelectionToken",
+          "path": "frontend/features/upload/services/upload-flow-session.ts",
+          "line": 101,
+          "kind": "definition",
+          "owner": "frontend/features/upload/services/upload-flow-session.ts#clearQualifierSelectionToken",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [
+        "frontend/features/upload/services/upload-flow-session.ts#qualifierStorageKey"
+      ],
+      "source": "export function clearQualifierSelectionToken(groupToken: string) {\n  try {\n    window.sessionStorage.removeItem(qualifierStorageKey(groupToken));\n  } catch {\n    // Storage may be unavailable in privacy-restricted in-app browsers.\n  }\n}"
+    },
+    {
+      "id": "frontend/features/upload/services/upload-flow-session.ts#isPermanentQualifierRestoreError",
+      "path": "frontend/features/upload/services/upload-flow-session.ts",
+      "name": "isPermanentQualifierRestoreError",
+      "exported": true,
+      "kind": "FunctionDeclaration",
+      "line": 109,
+      "sha256": "9ef99dd9248d67cba00397d54b91b43134549abb07631506a9053776e45c176f",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/services/upload-flow-session.ts#isPermanentQualifierRestoreError",
+          "path": "frontend/features/upload/services/upload-flow-session.ts",
+          "line": 109,
+          "kind": "definition",
+          "owner": "frontend/features/upload/services/upload-flow-session.ts#isPermanentQualifierRestoreError",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [
+        "frontend/features/upload/services/upload-flow-session.ts#PERMANENT_QUALIFIER_ERROR_STATUSES"
+      ],
+      "source": "export function isPermanentQualifierRestoreError(error: unknown) {\n  return PERMANENT_QUALIFIER_ERROR_STATUSES.has(apiErrorStatus(error) ?? 0);\n}"
+    },
+    {
+      "id": "frontend/features/upload/services/upload-flow-session.ts#isMissingSavedSubmissionError",
+      "path": "frontend/features/upload/services/upload-flow-session.ts",
+      "name": "isMissingSavedSubmissionError",
+      "exported": true,
+      "kind": "FunctionDeclaration",
+      "line": 113,
+      "sha256": "001b0ddd89779764d48808508a400e444a3bd8c83ea010593200ccd85a51fcc4",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/services/upload-flow-session.ts#isMissingSavedSubmissionError",
+          "path": "frontend/features/upload/services/upload-flow-session.ts",
+          "line": 113,
+          "kind": "definition",
+          "owner": "frontend/features/upload/services/upload-flow-session.ts#isMissingSavedSubmissionError",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [
+        "frontend/features/upload/services/upload-flow-session.ts#MISSING_SUBMISSION_STATUSES"
+      ],
+      "source": "export function isMissingSavedSubmissionError(error: unknown) {\n  return MISSING_SUBMISSION_STATUSES.has(apiErrorStatus(error) ?? 0);\n}"
+    },
+    {
+      "id": "frontend/features/upload/services/upload-recovery.ts#UploadRecoveryRecord",
+      "path": "frontend/features/upload/services/upload-recovery.ts",
+      "name": "UploadRecoveryRecord",
+      "exported": true,
+      "kind": "InterfaceDeclaration",
+      "line": 1,
+      "sha256": "005253e72707cfb4a14cf72377cd23bd64a54578071e0f30f734fbbcde927a7c",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/services/upload-recovery.ts#UploadRecoveryRecord",
+          "path": "frontend/features/upload/services/upload-recovery.ts",
+          "line": 1,
+          "kind": "definition",
+          "owner": "frontend/features/upload/services/upload-recovery.ts#UploadRecoveryRecord",
+          "app_module_reachable": true
+        },
+        {
+          "target": "frontend/features/upload/services/upload-recovery.ts#UploadRecoveryRecord",
+          "path": "frontend/features/upload/services/upload-recovery.ts",
+          "line": 18,
+          "kind": "use",
+          "owner": "frontend/features/upload/services/upload-recovery.ts#createUploadRecoveryRecord",
+          "app_module_reachable": true
+        },
+        {
+          "target": "frontend/features/upload/services/upload-recovery.ts#UploadRecoveryRecord",
+          "path": "frontend/features/upload/services/upload-recovery.ts",
+          "line": 28,
+          "kind": "use",
+          "owner": "frontend/features/upload/services/upload-recovery.ts#parseUploadRecoveryRecord",
+          "app_module_reachable": true
+        },
+        {
+          "target": "frontend/features/upload/services/upload-recovery.ts#UploadRecoveryRecord",
+          "path": "frontend/features/upload/services/upload-recovery.ts",
+          "line": 34,
+          "kind": "use",
+          "owner": "frontend/features/upload/services/upload-recovery.ts#parseUploadRecoveryRecord",
+          "app_module_reachable": true
+        },
+        {
+          "target": "frontend/features/upload/services/upload-recovery.ts#UploadRecoveryRecord",
+          "path": "frontend/features/upload/services/upload-recovery.ts",
+          "line": 63,
+          "kind": "use",
+          "owner": "frontend/features/upload/services/upload-recovery.ts#serializeUploadRecoveryRecord",
+          "app_module_reachable": true
+        },
+        {
+          "target": "frontend/features/upload/services/upload-recovery.ts#UploadRecoveryRecord",
+          "path": "frontend/features/upload/services/upload-recovery.ts",
+          "line": 68,
+          "kind": "use",
+          "owner": "frontend/features/upload/services/upload-recovery.ts#uploadRecoveryTarget",
+          "app_module_reachable": true
+        },
+        {
+          "target": "frontend/features/upload/services/upload-recovery.ts#UploadRecoveryRecord",
+          "path": "frontend/features/upload/services/upload-recovery.ts",
+          "line": 77,
+          "kind": "use",
+          "owner": "frontend/features/upload/services/upload-recovery.ts#applyUploadReconciliation",
+          "app_module_reachable": true
+        },
+        {
+          "target": "frontend/features/upload/services/upload-recovery.ts#UploadRecoveryRecord",
+          "path": "frontend/features/upload/services/upload-recovery.ts",
+          "line": 79,
+          "kind": "use",
+          "owner": "frontend/features/upload/services/upload-recovery.ts#applyUploadReconciliation",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [],
+      "source": "export interface UploadRecoveryRecord {\n  version: 1;\n  idempotencyKey: string;\n  submissionId: string | null;\n}"
+    },
+    {
+      "id": "frontend/features/upload/services/upload-recovery.ts#UploadRecoveryTarget",
+      "path": "frontend/features/upload/services/upload-recovery.ts",
+      "name": "UploadRecoveryTarget",
+      "exported": true,
+      "kind": "TypeAliasDeclaration",
+      "line": 7,
+      "sha256": "44bc0489d839321c466ca954aea883985499aae51b5549c57a122773a8bbc753",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/services/upload-recovery.ts#UploadRecoveryTarget",
+          "path": "frontend/features/upload/services/upload-recovery.ts",
+          "line": 7,
+          "kind": "definition",
+          "owner": "frontend/features/upload/services/upload-recovery.ts#UploadRecoveryTarget",
+          "app_module_reachable": true
+        },
+        {
+          "target": "frontend/features/upload/services/upload-recovery.ts#UploadRecoveryTarget",
+          "path": "frontend/features/upload/services/upload-recovery.ts",
+          "line": 69,
+          "kind": "use",
+          "owner": "frontend/features/upload/services/upload-recovery.ts#uploadRecoveryTarget",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [],
+      "source": "export type UploadRecoveryTarget =\n  | { kind: \"submission\"; submissionId: string }\n  | { kind: \"attempt\"; idempotencyKey: string };"
+    },
+    {
+      "id": "frontend/features/upload/services/upload-recovery.ts#MAX_IDEMPOTENCY_KEY_LENGTH",
+      "path": "frontend/features/upload/services/upload-recovery.ts",
+      "name": "MAX_IDEMPOTENCY_KEY_LENGTH",
+      "exported": false,
+      "kind": "FirstStatement",
+      "line": 11,
+      "sha256": "fe45b2ca40e78a0b1d40f663e5e1e6a458dd5a420b7e8b5d495dc2ef66ea288f",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/services/upload-recovery.ts#MAX_IDEMPOTENCY_KEY_LENGTH",
+          "path": "frontend/features/upload/services/upload-recovery.ts",
+          "line": 11,
+          "kind": "definition",
+          "owner": "frontend/features/upload/services/upload-recovery.ts#MAX_IDEMPOTENCY_KEY_LENGTH",
+          "app_module_reachable": true
+        },
+        {
+          "target": "frontend/features/upload/services/upload-recovery.ts#MAX_IDEMPOTENCY_KEY_LENGTH",
+          "path": "frontend/features/upload/services/upload-recovery.ts",
+          "line": 38,
+          "kind": "use",
+          "owner": "frontend/features/upload/services/upload-recovery.ts#parseUploadRecoveryRecord",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [],
+      "source": "const MAX_IDEMPOTENCY_KEY_LENGTH = 128;"
+    },
+    {
+      "id": "frontend/features/upload/services/upload-recovery.ts#MAX_SUBMISSION_ID_LENGTH",
+      "path": "frontend/features/upload/services/upload-recovery.ts",
+      "name": "MAX_SUBMISSION_ID_LENGTH",
+      "exported": false,
+      "kind": "FirstStatement",
+      "line": 12,
+      "sha256": "ed35b6fb45e3da844467f5d12c13ed61a657d6f2c23b0de95bf6c0ed7b5c098b",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/services/upload-recovery.ts#MAX_SUBMISSION_ID_LENGTH",
+          "path": "frontend/features/upload/services/upload-recovery.ts",
+          "line": 12,
+          "kind": "definition",
+          "owner": "frontend/features/upload/services/upload-recovery.ts#MAX_SUBMISSION_ID_LENGTH",
+          "app_module_reachable": true
+        },
+        {
+          "target": "frontend/features/upload/services/upload-recovery.ts#MAX_SUBMISSION_ID_LENGTH",
+          "path": "frontend/features/upload/services/upload-recovery.ts",
+          "line": 48,
+          "kind": "use",
+          "owner": "frontend/features/upload/services/upload-recovery.ts#parseUploadRecoveryRecord",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [],
+      "source": "const MAX_SUBMISSION_ID_LENGTH = 128;"
+    },
+    {
+      "id": "frontend/features/upload/services/upload-recovery.ts#IDEMPOTENCY_KEY_PATTERN",
+      "path": "frontend/features/upload/services/upload-recovery.ts",
+      "name": "IDEMPOTENCY_KEY_PATTERN",
+      "exported": false,
+      "kind": "FirstStatement",
+      "line": 13,
+      "sha256": "46f7deb3cffa124af02d9d19cd64f4565ab613881b180718440f5220f184a003",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/services/upload-recovery.ts#IDEMPOTENCY_KEY_PATTERN",
+          "path": "frontend/features/upload/services/upload-recovery.ts",
+          "line": 13,
+          "kind": "definition",
+          "owner": "frontend/features/upload/services/upload-recovery.ts#IDEMPOTENCY_KEY_PATTERN",
+          "app_module_reachable": true
+        },
+        {
+          "target": "frontend/features/upload/services/upload-recovery.ts#IDEMPOTENCY_KEY_PATTERN",
+          "path": "frontend/features/upload/services/upload-recovery.ts",
+          "line": 39,
+          "kind": "use",
+          "owner": "frontend/features/upload/services/upload-recovery.ts#parseUploadRecoveryRecord",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [],
+      "source": "const IDEMPOTENCY_KEY_PATTERN = /^[A-Za-z0-9._:-]{32,128}$/;"
+    },
+    {
+      "id": "frontend/features/upload/services/upload-recovery.ts#createUploadRecoveryRecord",
+      "path": "frontend/features/upload/services/upload-recovery.ts",
+      "name": "createUploadRecoveryRecord",
+      "exported": true,
+      "kind": "FunctionDeclaration",
+      "line": 15,
+      "sha256": "c01aee2047ef86b555abf4ca1a60a5a3c298eea7c8408fab2b5fa1b4530ef284",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/services/upload-recovery.ts#createUploadRecoveryRecord",
+          "path": "frontend/features/upload/services/upload-recovery.ts",
+          "line": 15,
+          "kind": "definition",
+          "owner": "frontend/features/upload/services/upload-recovery.ts#createUploadRecoveryRecord",
+          "app_module_reachable": true
+        },
+        {
+          "target": "frontend/features/upload/services/upload-recovery.ts#createUploadRecoveryRecord",
+          "path": "frontend/features/upload/services/upload-recovery.ts",
+          "line": 81,
+          "kind": "use",
+          "owner": "frontend/features/upload/services/upload-recovery.ts#applyUploadReconciliation",
+          "app_module_reachable": true
+        },
+        {
+          "target": "frontend/features/upload/services/upload-recovery.ts#createUploadRecoveryRecord",
+          "path": "frontend/features/upload/services/upload-flow-session.ts",
+          "line": 3,
+          "kind": "binding",
+          "owner": null,
+          "app_module_reachable": true
+        },
+        {
+          "target": "frontend/features/upload/services/upload-recovery.ts#createUploadRecoveryRecord",
+          "path": "frontend/features/upload/services/upload-flow-session.ts",
+          "line": 65,
+          "kind": "use",
+          "owner": "frontend/features/upload/services/upload-flow-session.ts#writeUploadRecoveryRecord",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [
+        "frontend/features/upload/services/upload-recovery.ts#UploadRecoveryRecord"
+      ],
+      "source": "export function createUploadRecoveryRecord(\n  idempotencyKey: string,\n  submissionId: string | null = null,\n): UploadRecoveryRecord {\n  return {\n    version: 1,\n    idempotencyKey,\n    submissionId,\n  };\n}"
+    },
+    {
+      "id": "frontend/features/upload/services/upload-recovery.ts#parseUploadRecoveryRecord",
+      "path": "frontend/features/upload/services/upload-recovery.ts",
+      "name": "parseUploadRecoveryRecord",
+      "exported": true,
+      "kind": "FunctionDeclaration",
+      "line": 26,
+      "sha256": "4b16b6f38550a519e2e83bca877ab3964f0a0ab802915f3b92c90bb7f7e1a489",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/services/upload-recovery.ts#parseUploadRecoveryRecord",
+          "path": "frontend/features/upload/services/upload-recovery.ts",
+          "line": 26,
+          "kind": "definition",
+          "owner": "frontend/features/upload/services/upload-recovery.ts#parseUploadRecoveryRecord",
+          "app_module_reachable": true
+        },
+        {
+          "target": "frontend/features/upload/services/upload-recovery.ts#parseUploadRecoveryRecord",
+          "path": "frontend/features/upload/services/upload-flow-session.ts",
+          "line": 4,
+          "kind": "binding",
+          "owner": null,
+          "app_module_reachable": true
+        },
+        {
+          "target": "frontend/features/upload/services/upload-recovery.ts#parseUploadRecoveryRecord",
+          "path": "frontend/features/upload/services/upload-flow-session.ts",
+          "line": 55,
+          "kind": "use",
+          "owner": "frontend/features/upload/services/upload-flow-session.ts#readUploadRecoveryRecord",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [
+        "frontend/features/upload/services/upload-recovery.ts#UploadRecoveryRecord",
+        "frontend/features/upload/services/upload-recovery.ts#MAX_IDEMPOTENCY_KEY_LENGTH",
+        "frontend/features/upload/services/upload-recovery.ts#IDEMPOTENCY_KEY_PATTERN",
+        "frontend/features/upload/services/upload-recovery.ts#MAX_SUBMISSION_ID_LENGTH"
+      ],
+      "source": "export function parseUploadRecoveryRecord(\n  serialized: string | null,\n): UploadRecoveryRecord | null {\n  if (!serialized) return null;\n\n  try {\n    const value: unknown = JSON.parse(serialized);\n    if (!value || typeof value !== \"object\") return null;\n    const candidate = value as Partial<UploadRecoveryRecord>;\n    if (candidate.version !== 1) return null;\n    if (\n      typeof candidate.idempotencyKey !== \"string\"\n      || candidate.idempotencyKey.length > MAX_IDEMPOTENCY_KEY_LENGTH\n      || !IDEMPOTENCY_KEY_PATTERN.test(candidate.idempotencyKey)\n    ) {\n      return null;\n    }\n    if (\n      candidate.submissionId !== null\n      && (\n        typeof candidate.submissionId !== \"string\"\n        || candidate.submissionId.length < 1\n        || candidate.submissionId.length > MAX_SUBMISSION_ID_LENGTH\n      )\n    ) {\n      return null;\n    }\n    return {\n      version: 1,\n      idempotencyKey: candidate.idempotencyKey,\n      submissionId: candidate.submissionId,\n    };\n  } catch {\n    return null;\n  }\n}"
+    },
+    {
+      "id": "frontend/features/upload/services/upload-recovery.ts#serializeUploadRecoveryRecord",
+      "path": "frontend/features/upload/services/upload-recovery.ts",
+      "name": "serializeUploadRecoveryRecord",
+      "exported": true,
+      "kind": "FunctionDeclaration",
+      "line": 63,
+      "sha256": "304aa706edb211cd17ceae0dbd3dfa0263a4a704b26cdb9991a7f3a412dc2e62",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/services/upload-recovery.ts#serializeUploadRecoveryRecord",
+          "path": "frontend/features/upload/services/upload-recovery.ts",
+          "line": 63,
+          "kind": "definition",
+          "owner": "frontend/features/upload/services/upload-recovery.ts#serializeUploadRecoveryRecord",
+          "app_module_reachable": true
+        },
+        {
+          "target": "frontend/features/upload/services/upload-recovery.ts#serializeUploadRecoveryRecord",
+          "path": "frontend/features/upload/services/upload-flow-session.ts",
+          "line": 5,
+          "kind": "binding",
+          "owner": null,
+          "app_module_reachable": true
+        },
+        {
+          "target": "frontend/features/upload/services/upload-recovery.ts#serializeUploadRecoveryRecord",
+          "path": "frontend/features/upload/services/upload-flow-session.ts",
+          "line": 70,
+          "kind": "use",
+          "owner": "frontend/features/upload/services/upload-flow-session.ts#writeUploadRecoveryRecord",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [
+        "frontend/features/upload/services/upload-recovery.ts#UploadRecoveryRecord"
+      ],
+      "source": "export function serializeUploadRecoveryRecord(record: UploadRecoveryRecord) {\n  return JSON.stringify(record);\n}"
+    },
+    {
+      "id": "frontend/features/upload/services/upload-recovery.ts#uploadRecoveryTarget",
+      "path": "frontend/features/upload/services/upload-recovery.ts",
+      "name": "uploadRecoveryTarget",
+      "exported": true,
+      "kind": "FunctionDeclaration",
+      "line": 67,
+      "sha256": "4168083ca5f37bb9464c0712d5c6cccdbfb4de502f9dc71e7b088a788d8bf880",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/services/upload-recovery.ts#uploadRecoveryTarget",
+          "path": "frontend/features/upload/services/upload-recovery.ts",
+          "line": 67,
+          "kind": "definition",
+          "owner": "frontend/features/upload/services/upload-recovery.ts#uploadRecoveryTarget",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [
+        "frontend/features/upload/services/upload-recovery.ts#UploadRecoveryRecord",
+        "frontend/features/upload/services/upload-recovery.ts#UploadRecoveryTarget"
+      ],
+      "source": "export function uploadRecoveryTarget(\n  record: UploadRecoveryRecord,\n): UploadRecoveryTarget {\n  if (record.submissionId) {\n    return { kind: \"submission\", submissionId: record.submissionId };\n  }\n  return { kind: \"attempt\", idempotencyKey: record.idempotencyKey };\n}"
+    },
+    {
+      "id": "frontend/features/upload/services/upload-recovery.ts#applyUploadReconciliation",
+      "path": "frontend/features/upload/services/upload-recovery.ts",
+      "name": "applyUploadReconciliation",
+      "exported": true,
+      "kind": "FunctionDeclaration",
+      "line": 76,
+      "sha256": "aa6aaee57516bd2befe44e33aba675fcc9b9ab2c949833995dcb97b488d11075",
+      "statically_required": false,
+      "references": [
+        {
+          "target": "frontend/features/upload/services/upload-recovery.ts#applyUploadReconciliation",
+          "path": "frontend/features/upload/services/upload-recovery.ts",
+          "line": 76,
+          "kind": "definition",
+          "owner": "frontend/features/upload/services/upload-recovery.ts#applyUploadReconciliation",
+          "app_module_reachable": true
+        }
+      ],
+      "dependencies": [
+        "frontend/features/upload/services/upload-recovery.ts#UploadRecoveryRecord",
+        "frontend/features/upload/services/upload-recovery.ts#createUploadRecoveryRecord"
+      ],
+      "source": "export function applyUploadReconciliation(\n  record: UploadRecoveryRecord,\n  submissionId: string | null,\n): UploadRecoveryRecord {\n  if (!submissionId) return record;\n  return createUploadRecoveryRecord(record.idempotencyKey, submissionId);\n}"
+    }
+  ],
+  "retired_files": [
+    {
+      "path": "frontend/features/upload/services/upload-flow-session.ts",
+      "sha256": "48ff5be0570150968e0044acab7db5bfee0515712dc7ef198498ba88457e398f",
+      "source": "import { apiErrorStatus } from \"@/lib/api/error-status\";\nimport {\n  createUploadRecoveryRecord,\n  parseUploadRecoveryRecord,\n  serializeUploadRecoveryRecord,\n} from \"./upload-recovery\";\n\nconst PERMANENT_QUALIFIER_ERROR_STATUSES = new Set([\n  400,\n  401,\n  403,\n  404,\n  410,\n  422,\n]);\n\nexport function activeUploadSessionId(\n  mode: \"single\" | \"family\" | null,\n  singleSessionId: string,\n  familyMember: { uploadIdempotencyKey: string } | null,\n): string | undefined {\n  return mode === \"family\" ? familyMember?.uploadIdempotencyKey : singleSessionId;\n}\nconst MISSING_SUBMISSION_STATUSES = new Set([404, 410]);\n\nfunction uploadRecoveryStorageKey(groupToken: string) {\n  return `gct:upload-recovery:${groupToken}`;\n}\n\nfunction qualifierStorageKey(groupToken: string) {\n  return `gct:qualifier-selection:${groupToken}`;\n}\n\nexport function createIdempotencyKey() {\n  if (typeof crypto !== \"undefined\" && typeof crypto.randomUUID === \"function\") {\n    return crypto.randomUUID();\n  }\n  if (\n    typeof crypto !== \"undefined\"\n    && typeof crypto.getRandomValues === \"function\"\n  ) {\n    const bytes = crypto.getRandomValues(new Uint8Array(32));\n    return Array.from(\n      bytes,\n      (value) => value.toString(16).padStart(2, \"0\"),\n    ).join(\"\");\n  }\n  throw new Error(\n    \"Secure random number generation is required for passport upload.\",\n  );\n}\n\nexport function readUploadRecoveryRecord(groupToken: string) {\n  try {\n    return parseUploadRecoveryRecord(\n      window.sessionStorage.getItem(uploadRecoveryStorageKey(groupToken)),\n    );\n  } catch {\n    return null;\n  }\n}\n\nexport function writeUploadRecoveryRecord(\n  groupToken: string,\n  record: ReturnType<typeof createUploadRecoveryRecord>,\n) {\n  try {\n    window.sessionStorage.setItem(\n      uploadRecoveryStorageKey(groupToken),\n      serializeUploadRecoveryRecord(record),\n    );\n  } catch {\n    // Recovery storage is optional in privacy-restricted in-app browsers.\n    // Backend idempotency still protects the active in-memory attempt.\n  }\n}\n\nexport function readQualifierSelectionToken(groupToken: string) {\n  try {\n    return window.sessionStorage.getItem(qualifierStorageKey(groupToken));\n  } catch {\n    return null;\n  }\n}\n\nexport function writeQualifierSelectionToken(\n  groupToken: string,\n  selectionToken: string,\n) {\n  try {\n    window.sessionStorage.setItem(\n      qualifierStorageKey(groupToken),\n      selectionToken,\n    );\n  } catch {\n    // Session storage is an optional recovery aid. The in-memory bearer token\n    // remains sufficient for the current upload attempt.\n  }\n}\n\nexport function clearQualifierSelectionToken(groupToken: string) {\n  try {\n    window.sessionStorage.removeItem(qualifierStorageKey(groupToken));\n  } catch {\n    // Storage may be unavailable in privacy-restricted in-app browsers.\n  }\n}\n\nexport function isPermanentQualifierRestoreError(error: unknown) {\n  return PERMANENT_QUALIFIER_ERROR_STATUSES.has(apiErrorStatus(error) ?? 0);\n}\n\nexport function isMissingSavedSubmissionError(error: unknown) {\n  return MISSING_SUBMISSION_STATUSES.has(apiErrorStatus(error) ?? 0);\n}\n",
+      "reason": "No runtime inbound caller outside the closed legacy family factory; current Fresh/returning draft initialization does not import this module."
+    },
+    {
+      "path": "frontend/features/upload/services/upload-recovery.ts",
+      "sha256": "286805b05dd5a7000fa060e44629e1bf4e1b349161deeda8785a423600207cde",
+      "source": "export interface UploadRecoveryRecord {\n  version: 1;\n  idempotencyKey: string;\n  submissionId: string | null;\n}\n\nexport type UploadRecoveryTarget =\n  | { kind: \"submission\"; submissionId: string }\n  | { kind: \"attempt\"; idempotencyKey: string };\n\nconst MAX_IDEMPOTENCY_KEY_LENGTH = 128;\nconst MAX_SUBMISSION_ID_LENGTH = 128;\nconst IDEMPOTENCY_KEY_PATTERN = /^[A-Za-z0-9._:-]{32,128}$/;\n\nexport function createUploadRecoveryRecord(\n  idempotencyKey: string,\n  submissionId: string | null = null,\n): UploadRecoveryRecord {\n  return {\n    version: 1,\n    idempotencyKey,\n    submissionId,\n  };\n}\n\nexport function parseUploadRecoveryRecord(\n  serialized: string | null,\n): UploadRecoveryRecord | null {\n  if (!serialized) return null;\n\n  try {\n    const value: unknown = JSON.parse(serialized);\n    if (!value || typeof value !== \"object\") return null;\n    const candidate = value as Partial<UploadRecoveryRecord>;\n    if (candidate.version !== 1) return null;\n    if (\n      typeof candidate.idempotencyKey !== \"string\"\n      || candidate.idempotencyKey.length > MAX_IDEMPOTENCY_KEY_LENGTH\n      || !IDEMPOTENCY_KEY_PATTERN.test(candidate.idempotencyKey)\n    ) {\n      return null;\n    }\n    if (\n      candidate.submissionId !== null\n      && (\n        typeof candidate.submissionId !== \"string\"\n        || candidate.submissionId.length < 1\n        || candidate.submissionId.length > MAX_SUBMISSION_ID_LENGTH\n      )\n    ) {\n      return null;\n    }\n    return {\n      version: 1,\n      idempotencyKey: candidate.idempotencyKey,\n      submissionId: candidate.submissionId,\n    };\n  } catch {\n    return null;\n  }\n}\n\nexport function serializeUploadRecoveryRecord(record: UploadRecoveryRecord) {\n  return JSON.stringify(record);\n}\n\nexport function uploadRecoveryTarget(\n  record: UploadRecoveryRecord,\n): UploadRecoveryTarget {\n  if (record.submissionId) {\n    return { kind: \"submission\", submissionId: record.submissionId };\n  }\n  return { kind: \"attempt\", idempotencyKey: record.idempotencyKey };\n}\n\nexport function applyUploadReconciliation(\n  record: UploadRecoveryRecord,\n  submissionId: string | null,\n): UploadRecoveryRecord {\n  if (!submissionId) return record;\n  return createUploadRecoveryRecord(record.idempotencyKey, submissionId);\n}\n",
+      "reason": "No runtime inbound caller outside the closed legacy family factory; current Fresh/returning draft initialization does not import this module."
+    },
+    {
+      "path": "frontend/features/upload/services/upload-recovery.test.mjs",
+      "sha256": "1ae460cf329da48296a983ca0514dc561715c05278937b4398086b2d518a56cb",
+      "source": "import assert from \"node:assert/strict\";\nimport test from \"node:test\";\nimport {\n  applyUploadReconciliation,\n  createUploadRecoveryRecord,\n  parseUploadRecoveryRecord,\n  serializeUploadRecoveryRecord,\n  uploadRecoveryTarget,\n} from \"./upload-recovery.ts\";\n\nconst VALID_UPLOAD_KEY = \"upload-attempt-1234567890abcdef1234567890\";\n\ntest(\"round-trips only the upload idempotency key and durable submission id\", () => {\n  const record = createUploadRecoveryRecord(\n    VALID_UPLOAD_KEY,\n    \"submission-456\",\n  );\n\n  assert.deepEqual(\n    parseUploadRecoveryRecord(serializeUploadRecoveryRecord(record)),\n    record,\n  );\n  assert.deepEqual(Object.keys(record).sort(), [\n    \"idempotencyKey\",\n    \"submissionId\",\n    \"version\",\n  ]);\n});\n\ntest(\"supports an upload attempt before the backend submission is known\", () => {\n  assert.deepEqual(\n    createUploadRecoveryRecord(VALID_UPLOAD_KEY),\n    {\n      version: 1,\n      idempotencyKey: VALID_UPLOAD_KEY,\n      submissionId: null,\n    },\n  );\n});\n\ntest(\"server commit plus lost response reloads by key before asking for files\", () => {\n  const afterLostResponse = parseUploadRecoveryRecord(\n    serializeUploadRecoveryRecord(\n      createUploadRecoveryRecord(VALID_UPLOAD_KEY),\n    ),\n  );\n  assert.ok(afterLostResponse);\n  assert.deepEqual(uploadRecoveryTarget(afterLostResponse), {\n    kind: \"attempt\",\n    idempotencyKey: VALID_UPLOAD_KEY,\n  });\n\n  const reconciled = applyUploadReconciliation(\n    afterLostResponse,\n    \"durable-submission-456\",\n  );\n  assert.deepEqual(uploadRecoveryTarget(reconciled), {\n    kind: \"submission\",\n    submissionId: \"durable-submission-456\",\n  });\n});\n\ntest(\"unknown-key and retry reconciliation preserve the exact opaque key\", () => {\n  const record = createUploadRecoveryRecord(VALID_UPLOAD_KEY);\n  const unknown = applyUploadReconciliation(record, null);\n  const retried = applyUploadReconciliation(unknown, null);\n\n  assert.equal(unknown, record);\n  assert.equal(retried, record);\n  assert.deepEqual(uploadRecoveryTarget(retried), {\n    kind: \"attempt\",\n    idempotencyKey: VALID_UPLOAD_KEY,\n  });\n});\n\ntest(\"duplicate reconciliation responses remain stable and contain no PII or images\", () => {\n  const record = createUploadRecoveryRecord(VALID_UPLOAD_KEY);\n  const first = applyUploadReconciliation(record, \"durable-submission-456\");\n  const duplicate = applyUploadReconciliation(\n    first,\n    \"durable-submission-456\",\n  );\n\n  assert.deepEqual(duplicate, first);\n  assert.deepEqual(Object.keys(duplicate).sort(), [\n    \"idempotencyKey\",\n    \"submissionId\",\n    \"version\",\n  ]);\n  for (const forbidden of [\n    \"clientName\",\n    \"passportNumber\",\n    \"image\",\n    \"file\",\n    \"extractedFields\",\n  ]) {\n    assert.equal(forbidden in duplicate, false);\n  }\n});\n\ntest(\"rejects corrupt, obsolete, and oversized recovery state\", () => {\n  for (const value of [\n    null,\n    \"\",\n    \"not-json\",\n    \"{}\",\n    JSON.stringify({ version: 2, idempotencyKey: VALID_UPLOAD_KEY, submissionId: null }),\n    JSON.stringify({ version: 1, idempotencyKey: \"short\", submissionId: null }),\n    JSON.stringify({ version: 1, idempotencyKey: \"unsafe key value\", submissionId: null }),\n    JSON.stringify({ version: 1, idempotencyKey: \"x\".repeat(129), submissionId: null }),\n    JSON.stringify({ version: 1, idempotencyKey: VALID_UPLOAD_KEY }),\n    JSON.stringify({ version: 1, idempotencyKey: VALID_UPLOAD_KEY, submissionId: 42 }),\n  ]) {\n    assert.equal(parseUploadRecoveryRecord(value), null);\n  }\n});\n",
+      "reason": "Six implementation-only tests for the uncalled legacy recovery parser. Responsibility mappings target current Fresh/returning draft owners."
+    }
+  ],
+  "unused_reexport": {
+    "path": "frontend/features/upload/components/upload-flow.constants.ts",
+    "name": "PASSPORT_IMAGE_ACCEPT",
+    "source": "export { PUBLIC_UPLOAD_ACCEPT as PASSPORT_IMAGE_ACCEPT } from \"../services/public-upload-file\";",
+    "reason": "No consumers of the alias. Actual PUBLIC_UPLOAD_ACCEPT export, preparer and validators remain unchanged and reachable."
+  },
+  "movement": [
+    {
+      "name": "ContactInput",
+      "from": "frontend/features/upload/components/upload-flow-fields.tsx",
+      "to": "frontend/features/upload/components/upload-contact-input.tsx",
+      "original_sha256": "016b04ee058981f74f387b228d3cb7e10c5056cbd19a21eb51ada465159098f5",
+      "current_sha256": "016b04ee058981f74f387b228d3cb7e10c5056cbd19a21eb51ada465159098f5",
+      "exact_statement": true
+    },
+    {
+      "name": "SelectInput",
+      "from": "frontend/features/upload/components/upload-flow-fields.tsx",
+      "to": "frontend/features/upload/components/upload-select-inputs.tsx",
+      "original_sha256": "328ff6e1163e3f739590d58f123ed1de34325ca3e2f1d2f36dff0eb4b3f0918d",
+      "current_sha256": "328ff6e1163e3f739590d58f123ed1de34325ca3e2f1d2f36dff0eb4b3f0918d",
+      "exact_statement": true
+    },
+    {
+      "name": "DepartureCitySelect",
+      "from": "frontend/features/upload/components/upload-flow-fields.tsx",
+      "to": "frontend/features/upload/components/upload-select-inputs.tsx",
+      "original_sha256": "42e3d70496a4c7282834b3db5da9407b893624635b135e14d697b2e2533361f0",
+      "current_sha256": "42e3d70496a4c7282834b3db5da9407b893624635b135e14d697b2e2533361f0",
+      "exact_statement": true
+    },
+    {
+      "name": "CustomQuestionFields",
+      "from": "frontend/features/upload/components/upload-flow-fields.tsx",
+      "to": "frontend/features/upload/components/upload-custom-fields.tsx",
+      "original_sha256": "c0e3bb6a44f660235d0dca63f2cab112944bf5d4de12fb42ab7bef63e5f22394",
+      "current_sha256": "c0e3bb6a44f660235d0dca63f2cab112944bf5d4de12fb42ab7bef63e5f22394",
+      "exact_statement": true
+    },
+    {
+      "name": "CustomDetailFields",
+      "from": "frontend/features/upload/components/upload-flow-fields.tsx",
+      "to": "frontend/features/upload/components/upload-custom-fields.tsx",
+      "original_sha256": "397d3da7bb42c7643dbed8d126b7a9dafd64806d4d8a613d4f65a282462ee660",
+      "current_sha256": "397d3da7bb42c7643dbed8d126b7a9dafd64806d4d8a613d4f65a282462ee660",
+      "exact_statement": true
+    },
+    {
+      "name": "ConfiguredClientFields",
+      "from": "frontend/features/upload/components/upload-flow-fields.tsx",
+      "to": "frontend/features/upload/components/configured-client-fields.tsx",
+      "original_sha256": "670ef9a134779324c872a36517314ae12ad83c0dedcdf1ede073020692c2a129",
+      "current_sha256": "670ef9a134779324c872a36517314ae12ad83c0dedcdf1ede073020692c2a129",
+      "exact_statement": true
+    },
+    {
+      "name": "hasMissingRequiredFields",
+      "from": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "to": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "original_sha256": "3d0976697fe84aa3491067e2f6c10e3ec37933d2f320a18045b3c1a14b5ea9e8",
+      "current_sha256": "3d0976697fe84aa3491067e2f6c10e3ec37933d2f320a18045b3c1a14b5ea9e8",
+      "exact_statement": true
+    },
+    {
+      "name": "formatReviewFieldValue",
+      "from": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "to": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "original_sha256": "18566e8c0e3b1c438600179bff56cd5ed1d93c275992de3c084454e966b70930",
+      "current_sha256": "18566e8c0e3b1c438600179bff56cd5ed1d93c275992de3c084454e966b70930",
+      "exact_statement": true
+    },
+    {
+      "name": "hasValidReviewDates",
+      "from": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "to": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "original_sha256": "dc04bb2c2a4695d0fff44faf714ab7c564418a51f12d5f63297b8a841d8cb042",
+      "current_sha256": "dc04bb2c2a4695d0fff44faf714ab7c564418a51f12d5f63297b8a841d8cb042",
+      "exact_statement": true
+    },
+    {
+      "name": "isValidIsoDate",
+      "from": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "to": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "original_sha256": "c2722dd9d4562cee58ab171f88ccaeb89c03cd1e9fb65c3e7aece4dd3345ff1a",
+      "current_sha256": "c2722dd9d4562cee58ab171f88ccaeb89c03cd1e9fb65c3e7aece4dd3345ff1a",
+      "exact_statement": true
+    },
+    {
+      "name": "todayIsoDate",
+      "from": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "to": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "original_sha256": "b5f799a9fb2c397daf029f3c4a3f192f9b5d6367c9b2a320f4cdeffc18446852",
+      "current_sha256": "b5f799a9fb2c397daf029f3c4a3f192f9b5d6367c9b2a320f4cdeffc18446852",
+      "exact_statement": true
+    },
+    {
+      "name": "yesterdayIsoDate",
+      "from": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "to": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "original_sha256": "db48e3d75da796f7ad5cbd25470e67a70059b11df6886429622705e2f131e864",
+      "current_sha256": "db48e3d75da796f7ad5cbd25470e67a70059b11df6886429622705e2f131e864",
+      "exact_statement": true
+    },
+    {
+      "name": "toLabel",
+      "from": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "to": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "original_sha256": "f5fce6ccf0620e89712f486f98a168c1dab316a71cb31d58fde60bf1dcb7d276",
+      "current_sha256": "f5fce6ccf0620e89712f486f98a168c1dab316a71cb31d58fde60bf1dcb7d276",
+      "exact_statement": true
+    },
+    {
+      "name": "errorMessage",
+      "from": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "to": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "original_sha256": "9cec3f4770716e676d259b7f74d9ba263097a7c57673131837828b53cf6ee5a0",
+      "current_sha256": "9cec3f4770716e676d259b7f74d9ba263097a7c57673131837828b53cf6ee5a0",
+      "exact_statement": true
+    },
+    {
+      "name": "isPublicApiError",
+      "from": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "to": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "original_sha256": "9cc285072f6484582fecd718e0d5ffb192214291553fb514ad94292c2f82f255",
+      "current_sha256": "9cc285072f6484582fecd718e0d5ffb192214291553fb514ad94292c2f82f255",
+      "exact_statement": true
+    },
+    {
+      "name": "extractApiErrorDetail",
+      "from": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "to": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "original_sha256": "9835037ddb149393e84e6386ecd5e7de3d2d1c0f936d055d670938c0c44b729f",
+      "current_sha256": "9835037ddb149393e84e6386ecd5e7de3d2d1c0f936d055d670938c0c44b729f",
+      "exact_statement": true
+    },
+    {
+      "name": "AgentEmployeeType",
+      "from": "frontend/features/upload/components/upload-flow.types.ts",
+      "to": "frontend/features/upload/components/upload-flow.types.ts",
+      "original_sha256": "ecb2fda327cb87072454aeb347aa3d20c103b1aae123bdf9bdafdaeaea9d5ddf",
+      "current_sha256": "ecb2fda327cb87072454aeb347aa3d20c103b1aae123bdf9bdafdaeaea9d5ddf",
+      "exact_statement": true
+    },
+    {
+      "name": "PassportDocumentBundle",
+      "from": "frontend/features/upload/components/upload-flow.types.ts",
+      "to": "frontend/features/upload/components/upload-flow.types.ts",
+      "original_sha256": "82e06c53d66836584ba97a410db9181dce09b0ae00f8ddc97dee0e66d7d02969",
+      "current_sha256": "82e06c53d66836584ba97a410db9181dce09b0ae00f8ddc97dee0e66d7d02969",
+      "exact_statement": true
+    },
+    {
+      "name": "MIN_FAMILY_MEMBERS",
+      "from": "frontend/features/upload/components/upload-flow.constants.ts",
+      "to": "frontend/features/upload/components/upload-flow.constants.ts",
+      "original_sha256": "2acce2c6e214030835f6c8749ea3bf879d50f2a20ec37b2b3475dab6f19eb126",
+      "current_sha256": "2acce2c6e214030835f6c8749ea3bf879d50f2a20ec37b2b3475dab6f19eb126",
+      "exact_statement": true
+    },
+    {
+      "name": "MAX_FAMILY_MEMBERS",
+      "from": "frontend/features/upload/components/upload-flow.constants.ts",
+      "to": "frontend/features/upload/components/upload-flow.constants.ts",
+      "original_sha256": "593fedb25766e6a5bd38311f9c3a17ecc88abf181a36b4f407727ae9f28f1445",
+      "current_sha256": "593fedb25766e6a5bd38311f9c3a17ecc88abf181a36b4f407727ae9f28f1445",
+      "exact_statement": true
+    },
+    {
+      "name": "REVIEW_FIELDS",
+      "from": "frontend/features/upload/components/upload-flow.constants.ts",
+      "to": "frontend/features/upload/components/upload-flow.constants.ts",
+      "original_sha256": "7f34e873448fdd1d1972dba03b9a9d8589eb6784b122b5085b74e613beccf465",
+      "current_sha256": "7f34e873448fdd1d1972dba03b9a9d8589eb6784b122b5085b74e613beccf465",
+      "exact_statement": true
+    },
+    {
+      "name": "REQUIRED_REVIEW_FIELDS",
+      "from": "frontend/features/upload/components/upload-flow.constants.ts",
+      "to": "frontend/features/upload/components/upload-flow.constants.ts",
+      "original_sha256": "4f83525a6f2616b50e14dac3fe25a2e3ed11baf22987e7d57c8730de93e75fef",
+      "current_sha256": "4f83525a6f2616b50e14dac3fe25a2e3ed11baf22987e7d57c8730de93e75fef",
+      "exact_statement": true
+    },
+    {
+      "name": "FAMILY_RELATIONS",
+      "from": "frontend/features/upload/components/upload-flow.constants.ts",
+      "to": "frontend/features/upload/components/upload-flow.constants.ts",
+      "original_sha256": "d7bd01a301a30af34aa4b32bf6fa66a50cb87340d52a81f80cdf94db6ea50cf4",
+      "current_sha256": "d7bd01a301a30af34aa4b32bf6fa66a50cb87340d52a81f80cdf94db6ea50cf4",
+      "exact_statement": true
+    },
+    {
+      "name": "GENDERS",
+      "from": "frontend/features/upload/components/upload-flow.constants.ts",
+      "to": "frontend/features/upload/components/upload-flow.constants.ts",
+      "original_sha256": "a5bace1525b7e85c6cd663f440da5b2b79e30aa9444b8ac9ff131d0ab33c17eb",
+      "current_sha256": "a5bace1525b7e85c6cd663f440da5b2b79e30aa9444b8ac9ff131d0ab33c17eb",
+      "exact_statement": true
+    }
+  ],
+  "caller_graph": "passport-helper-caller-graph.json",
+  "symbol_trace": "passport-helper-export-closure.json",
+  "preserved": [
+    "Current Fresh and returning draft APIs, original field export names and exact parameter/body declarations.",
+    "Required date/country/field validation and error formatting retain exact declarations.",
+    "Current configured passport document bundle, AgentEmployeeType and configuration limits remain.",
+    "No browser storage deletion, new migration, backend/API contract or provider change. Legacy credential-retention assertions remain active.",
+    "All current critical coverage entries and thresholds remain unchanged."
+  ],
+  "obsolete_test_responsibility_mapping": [
+    {
+      "original": "round-trips only the upload idempotency key and durable submission id",
+      "current": "draft-resume.test.ts: allowlists metadata even if caller objects have extra personal fields; reads only bounded opaque identities and navigation, discarding extra personal data"
+    },
+    {
+      "original": "supports an upload attempt before the backend submission is known",
+      "current": "use-fresh-draft.test.ts: saves edits before uploads and submits once with the persistent member key; current server-backed draft starts before any submission exists"
+    },
+    {
+      "original": "server commit plus lost response reloads by key before asking for files",
+      "current": "current e2e migrated draft recovery: lost document-upload response without duplicate; use-fresh-draft.test.ts uncertain upload/save/final keys"
+    },
+    {
+      "original": "unknown-key and retry reconciliation preserve the exact opaque key",
+      "current": "use-fresh-draft.test.ts: reuses the same save and final keys after uncertain network failures; keeps an uncertain upload key, then discards it after a definitive revision conflict"
+    },
+    {
+      "original": "duplicate reconciliation responses remain stable and contain no PII or images",
+      "current": "draft-resume.test.ts: keeps completed family members and both operation identities across repeated saves; allowlist assertions exclude PII/images"
+    },
+    {
+      "original": "rejects corrupt, obsolete, and oversized recovery state",
+      "current": "draft-resume.test.ts: rejects corrupt, missing, nonfinite or oversized navigation metadata; rejects expired/out-of-bounds family navigation"
+    }
+  ]
+}

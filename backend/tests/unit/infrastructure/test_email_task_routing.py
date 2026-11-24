@@ -6,6 +6,7 @@ from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, Mock, call
 
 import app.infrastructure.email.tasks as email_tasks
+from app.infrastructure.email import storage_reconciliation, task_dispatch, task_retention
 from app.infrastructure.email.ai_tasks import (
     EMAIL_AI_ANALYZE_TASK,
     EMAIL_AI_DEADLINE_SCAN_TASK,
@@ -42,10 +43,7 @@ def test_email_tasks_use_a_dedicated_durable_queue() -> None:
     assert queues[EMAIL_AI_QUEUE].durable is True
     assert routes[EMAIL_AI_ANALYZE_TASK]["queue"] == EMAIL_AI_QUEUE
     assert routes[EMAIL_AI_DISPATCH_TASK]["queue"] == EMAIL_AI_DISPATCH_QUEUE
-    assert (
-        routes[EMAIL_AI_DEADLINE_SCAN_TASK]["queue"]
-        == EMAIL_AI_DISPATCH_QUEUE
-    )
+    assert routes[EMAIL_AI_DEADLINE_SCAN_TASK]["queue"] == EMAIL_AI_DISPATCH_QUEUE
 
 
 def test_email_dispatch_has_a_single_periodic_schedule() -> None:
@@ -65,16 +63,12 @@ def test_email_dispatch_has_a_single_periodic_schedule() -> None:
     assert heartbeat["schedule"] == 60.0
     assert heartbeat["options"]["queue"] == EMAIL_INTEGRATION_QUEUE
 
-    ai_dispatch = celery_app.conf.beat_schedule[
-        "dispatch-travel-email-analyses"
-    ]
+    ai_dispatch = celery_app.conf.beat_schedule["dispatch-travel-email-analyses"]
     assert ai_dispatch["task"] == EMAIL_AI_DISPATCH_TASK
     assert ai_dispatch["schedule"] == 5.0
     assert ai_dispatch["options"]["queue"] == EMAIL_AI_DISPATCH_QUEUE
 
-    deadline_scan = celery_app.conf.beat_schedule[
-        "notify-travel-email-deadline-window"
-    ]
+    deadline_scan = celery_app.conf.beat_schedule["notify-travel-email-deadline-window"]
     assert deadline_scan["task"] == EMAIL_AI_DEADLINE_SCAN_TASK
     assert deadline_scan["schedule"] == 60.0
     assert deadline_scan["options"]["queue"] == EMAIL_AI_DISPATCH_QUEUE
@@ -213,9 +207,9 @@ async def test_shorter_sync_interval_immediately_reschedules_healthy_idle_connec
     session.execute.side_effect = [update_result, select_result]
     session_factory = MagicMock()
     session_factory.return_value.__aenter__.return_value = session
-    monkeypatch.setattr(email_tasks, "AsyncSessionFactory", session_factory)
+    monkeypatch.setattr(task_dispatch, "AsyncSessionFactory", session_factory)
     monkeypatch.setattr(
-        email_tasks,
+        task_dispatch,
         "get_settings",
         lambda: SimpleNamespace(email_sync_interval_seconds=15),
     )
@@ -242,19 +236,16 @@ async def test_retention_scrubs_derived_ai_content_and_deletes_stale_drafts(
 ) -> None:  # type: ignore[no-untyped-def]
     artifact_result = MagicMock()
     artifact_result.scalars.return_value.all.return_value = []
-    row_results = [
-        SimpleNamespace(rowcount=count)
-        for count in (2, 3, 5, 7, 11, 13, 17)
-    ]
+    row_results = [SimpleNamespace(rowcount=count) for count in (2, 3, 5, 7, 11, 13, 17)]
     oauth_result = SimpleNamespace(rowcount=0)
     session = AsyncMock()
     session.execute.side_effect = [artifact_result, *row_results, oauth_result]
     session_factory = MagicMock()
     session_factory.return_value.__aenter__.return_value = session
 
-    monkeypatch.setattr(email_tasks, "AsyncSessionFactory", session_factory)
+    monkeypatch.setattr(task_retention, "AsyncSessionFactory", session_factory)
     monkeypatch.setattr(
-        email_tasks,
+        task_retention,
         "get_settings",
         lambda: SimpleNamespace(
             email_content_retention_days=30,
@@ -262,13 +253,13 @@ async def test_retention_scrubs_derived_ai_content_and_deletes_stale_drafts(
         ),
     )
     monkeypatch.setattr(
-        email_tasks,
+        task_retention,
         "MinioStorageRepository",
         lambda: SimpleNamespace(delete_files=AsyncMock()),
     )
     reconcile = AsyncMock(return_value=17)
     monkeypatch.setattr(
-        email_tasks,
+        task_retention,
         "_reconcile_orphaned_email_storage",
         reconcile,
     )
@@ -327,13 +318,13 @@ async def test_orphan_reconciliation_advances_through_every_storage_page(
         return len(candidate_keys)
 
     monkeypatch.setattr(
-        email_tasks,
+        storage_reconciliation,
         "get_settings",
         lambda: SimpleNamespace(email_storage_orphan_grace_hours=24),
     )
-    monkeypatch.setattr(email_tasks, "_EMAIL_STORAGE_RECONCILE_PAGE_SIZE", 2)
+    monkeypatch.setattr(storage_reconciliation, "_EMAIL_STORAGE_RECONCILE_PAGE_SIZE", 2)
     monkeypatch.setattr(
-        email_tasks,
+        storage_reconciliation,
         "_delete_unreferenced_email_storage_keys",
         delete_candidates,
     )

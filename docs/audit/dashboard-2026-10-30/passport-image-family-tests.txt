@@ -1,0 +1,9 @@
+........................................................................ [ 41%]
+........................................................................ [ 82%]
+..............................                                           [100%]
+
+---------- coverage: platform win32, python 3.11.15-final-0 ----------
+Coverage XML written to file C:\Users\nipun\Desktop\PassDetection\docs\audit\dashboard-2026-10-30\passport-image-family-coverage.xml
+Coverage JSON written to file C:\Users\nipun\Desktop\PassDetection\docs\audit\dashboard-2026-10-30\passport-image-family-coverage.json
+
+174 passed in 73.46s (0:01:13)

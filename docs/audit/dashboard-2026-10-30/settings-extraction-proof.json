@@ -1,0 +1,73 @@
+{
+  "basis": "Exact declarations after intentional repr-only redaction; existing compatibility import paths retained. No field/default/env prefix/validator body changes during extraction.",
+  "declarations": [
+    {
+      "declaration": "DatabaseSettings",
+      "destination": "backend/app/core/config/database_settings.py",
+      "ast_sha256": "90d40d013209e9773b4e7bf1a633c345e683076870c47742580c8e3107ce29e2"
+    },
+    {
+      "declaration": "RedisSettings",
+      "destination": "backend/app/core/config/redis_settings.py",
+      "ast_sha256": "fe30d7583102123ac7d1407186ba212757a6e59df6ccd336975e78460ea0611b"
+    },
+    {
+      "declaration": "JWTSettings",
+      "destination": "backend/app/core/config/jwt_settings.py",
+      "ast_sha256": "b9ebba3e3dcce4460a2ab1d941daf385348e1873c6409e18a6327ee66f68b91f"
+    },
+    {
+      "declaration": "S3Settings",
+      "destination": "backend/app/core/config/s3_settings.py",
+      "ast_sha256": "1ff3f5d6340596ddc071bf24e60ef18ddefc22817ca5d3491ec0f7913422634f"
+    },
+    {
+      "declaration": "_S3_BUCKET_PATTERN",
+      "destination": "backend/app/core/config/my_photos_settings.py",
+      "ast_sha256": "01026f6d0f219ea6514c58c4ada5790375b6fc38aa31d2fd0fbeb84dd83a4a16"
+    },
+    {
+      "declaration": "_KMS_KEY_ARN_PATTERN",
+      "destination": "backend/app/core/config/my_photos_settings.py",
+      "ast_sha256": "452e30fd95af3e1b29e4c8de71725ec673b9be8bede4b41ffce8c35a88873da8"
+    },
+    {
+      "declaration": "_validate_s3_bucket_name",
+      "destination": "backend/app/core/config/my_photos_settings.py",
+      "ast_sha256": "fc84b8d4c1ed74731209d7e0bd49a1e6aae38eb7b6699404f12c5b01ca4d85d8"
+    },
+    {
+      "declaration": "_validate_kms_key_arn",
+      "destination": "backend/app/core/config/my_photos_settings.py",
+      "ast_sha256": "127f260f3d7d6f7db9e70292474a0bfcd6c878d64733804023ff47eabe94f5db"
+    },
+    {
+      "declaration": "MyPhotosSettings",
+      "destination": "backend/app/core/config/my_photos_settings.py",
+      "ast_sha256": "5425373cdd09a22c330950c14c2157a4e43ede338f27971cf698e5e8f4220b1d"
+    },
+    {
+      "declaration": "Settings",
+      "destination": "backend/app/core/config/settings.py",
+      "ast_sha256": "290047bec4a64e9fd4718b55f37cb3d05fb41219cf3133a4529af98e3ef1e82d"
+    },
+    {
+      "declaration": "_load_environment_settings",
+      "destination": "backend/app/core/config/settings.py",
+      "ast_sha256": "9e3fc10113bb31eda8baa4066531661f24ba7f196b05f0d1c3f397b4367a5e1b"
+    },
+    {
+      "declaration": "get_settings",
+      "destination": "backend/app/core/config/settings.py",
+      "ast_sha256": "1815f03725fc9e43a80643439b32387db856f26fcec0916a7e7aeb9f48b4ceef"
+    }
+  ],
+  "files": {
+    "backend/app/core/config/settings.py": "b8b8d867d9ded6cac14c5c3dfd67311031038305bb9a46add70059299dc036be",
+    "backend/app/core/config/database_settings.py": "b1aea142b4edf33cc0f62130fa6e6cbb094bad6bd5182beed3ec02fa3d8e9c7c",
+    "backend/app/core/config/redis_settings.py": "31526ee021d0e65f8e75e22d72cb46aa9394a0e64c6b26570e62553d21577eae",
+    "backend/app/core/config/jwt_settings.py": "5532603ab49b586e31886a25748be40789117583a6df76764398368338b49873",
+    "backend/app/core/config/s3_settings.py": "0879bfc320da8cd7905bbc468046c7c975cb93c8f6019204d7735f4a2db6ceed",
+    "backend/app/core/config/my_photos_settings.py": "c0f6f41076103d3a9f9ead4ab957c2014aaa6eacedffb28a72080f4d6fa618f8"
+  }
+}

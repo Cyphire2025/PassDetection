@@ -1,0 +1,82 @@
+[
+  {
+    "check": "tests",
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "-m",
+      "pytest",
+      "-q",
+      "-o",
+      "addopts=",
+      "tests/unit/infrastructure/test_my_photos_worker_runtime.py",
+      "tests/integration/test_my_photos_search_failure_authority.py",
+      "tests/integration/test_my_photos_search_admission.py",
+      "tests/integration/test_my_photos_search_publication.py",
+      "--cov=app.infrastructure.my_photos.worker_runtime",
+      "--cov=app.infrastructure.my_photos.search_job_claims",
+      "--cov=app.infrastructure.my_photos.search_job_contracts",
+      "--cov=app.infrastructure.my_photos.search_job_lifecycle",
+      "--cov=app.infrastructure.my_photos.search_job_policy",
+      "--cov=app.infrastructure.my_photos.search_job_publication",
+      "--cov=app.infrastructure.my_photos.search_job_queries",
+      "--cov-branch",
+      "--cov-report=json:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\search-worker-qualified-coverage.json",
+      "--cov-report=xml:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\search-worker-qualified-coverage.xml"
+    ],
+    "exit_code": 0
+  },
+  {
+    "check": "ruff",
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "-m",
+      "ruff",
+      "check",
+      "--no-fix",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\infrastructure\\my_photos\\worker_runtime.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\infrastructure\\my_photos\\search_job_claims.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\infrastructure\\my_photos\\search_job_contracts.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\infrastructure\\my_photos\\search_job_lifecycle.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\infrastructure\\my_photos\\search_job_policy.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\infrastructure\\my_photos\\search_job_publication.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\infrastructure\\my_photos\\search_job_queries.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\tests\\unit\\infrastructure\\test_my_photos_worker_runtime.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\tests\\integration\\test_my_photos_search_failure_authority.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\tests\\integration\\test_my_photos_search_admission.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\tests\\integration\\test_my_photos_search_publication.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "check": "mypy",
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "-m",
+      "mypy",
+      "app/infrastructure/my_photos/worker_runtime.py",
+      "app/infrastructure/my_photos/search_job_claims.py",
+      "app/infrastructure/my_photos/search_job_contracts.py",
+      "app/infrastructure/my_photos/search_job_lifecycle.py",
+      "app/infrastructure/my_photos/search_job_policy.py",
+      "app/infrastructure/my_photos/search_job_publication.py",
+      "app/infrastructure/my_photos/search_job_queries.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "check": "architecture",
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "scripts/verify_architecture_boundaries.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "check": "existing-budgets",
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "scripts/verify_backend_quality_budgets.py"
+    ],
+    "exit_code": 0
+  }
+]

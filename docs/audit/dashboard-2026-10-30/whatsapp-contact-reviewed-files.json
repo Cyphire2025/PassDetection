@@ -1,0 +1,213 @@
+{
+  "files": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_contact_support.py",
+      "sha256": "c6640e915d3a22ceb880189bb4e3a89f0d7cfc3180a6a8b7582b446b709e1fce",
+      "reviewer": "/root/manual_security",
+      "review_scope": "full physical file; manual source and relevant caller/metadata/ownership trace",
+      "status": "verified",
+      "kind": "runtime",
+      "notes": "Stable named aliases for all original helpers/constants and legacy dataclass annotation names; no mutable global service bucket or route relocation."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_contact_values.py",
+      "sha256": "3a6c521cbd30e24af2492d3807d398b61c028ec305b5f66368b84e427da713a3",
+      "reviewer": "/root/manual_security",
+      "review_scope": "full physical file; manual source and relevant caller/metadata/ownership trace",
+      "status": "verified",
+      "kind": "runtime",
+      "notes": "Canonical phone/name normalization wrappers and unchanged archive/header/source metadata constants. Limits unchanged, no import reference used as authentication identity."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_imported_fields.py",
+      "sha256": "fc4ab60c67b8ba4da46dc0b50684264173f2af260696e138b1f40925049ba811",
+      "reviewer": "/root/manual_security",
+      "review_scope": "full physical file; manual source and relevant caller/metadata/ownership trace",
+      "status": "verified",
+      "kind": "runtime",
+      "notes": "Fixed heading union O(distinct headings squared) list membership and unreturned retention: bounded ordered+set keeps first256 exactly, full iterable consumption preserved. Safe persisted fields still cap256keys/8KiB/256chars."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_contact_excel.py",
+      "sha256": "dd4fdbdb2ce0a78983ead4bfd5bd9ef311c3a1a366e68e207c72f3cdbfe300dc",
+      "reviewer": "/root/manual_security",
+      "review_scope": "full physical file; manual source and relevant caller/metadata/ownership trace",
+      "status": "verified",
+      "kind": "runtime",
+      "notes": "Exact header scoring/declared vs fallback name policy, repeated header skip and source metadata extraction; distinct raw/clean name policies retained."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_recipient_inputs.py",
+      "sha256": "b36a54b257d60ba8825ae02f253aa7f7f63998c34bf06a678fd4ef88524ecee8",
+      "reviewer": "/root/manual_security",
+      "review_scope": "full physical file; manual source and relevant caller/metadata/ownership trace",
+      "status": "verified",
+      "kind": "runtime",
+      "notes": "Exact original duplicate-phone merge and bounded one-alternate metadata policy; recipient reactivation retains durable message checklist and refuses roster-suppressed identities. Source-selected group/recipient dictionaries required at call boundary."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_contact_rejections.py",
+      "sha256": "afeab1dc52e467c586a57b85b9b5289a7dcb45414035c1652a0bfd46d8f11e9e",
+      "reviewer": "/root/manual_security",
+      "review_scope": "full physical file; manual source and relevant caller/metadata/ownership trace",
+      "status": "verified",
+      "kind": "runtime",
+      "notes": "Bounded source rows and basename/source/fingerprint normalization; same-source replay enriches metadata without duplicate records; cap2000 preserved."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_roster_order.py",
+      "sha256": "364fb303eb5ff6eb6f62e68bb9b47674f4596ef555ecbcf941a79efc85dbf997",
+      "reviewer": "/root/manual_security",
+      "review_scope": "full physical file; manual source and relevant caller/metadata/ownership trace",
+      "status": "verified",
+      "kind": "runtime",
+      "notes": "Exact source/stable-index ordering across accepted/rejected rows; scoped group max-union query preserved. Canonical caller serializes on group row before order allocation."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_contact_responses.py",
+      "sha256": "04cdf2c58e178c1fbe733ec238efbe3d3eec3765fe938607cadf3b85e9c1cb14",
+      "reviewer": "/root/manual_security",
+      "review_scope": "full physical file; manual source and relevant caller/metadata/ownership trace",
+      "status": "verified",
+      "kind": "runtime",
+      "notes": "Exact private previews/checklists and status/resend/welcome dependency decisions. Imported private fields remain intentionally present only in authorized contact views; no logs or provider sends here."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_contact_parse_result.py",
+      "sha256": "473226263ce8155b0aa4177327c3338c7aff8442f96c0ba6ab862186fbc70aed",
+      "reviewer": "/root/manual_security",
+      "review_scope": "full physical file; manual source and relevant caller/metadata/ownership trace",
+      "status": "verified",
+      "kind": "runtime",
+      "notes": "Single class definition retains original module/pickle/type hints/field order/rejection-total property."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_groups_manage.py",
+      "sha256": "6c48d2e6838d056e9d83db1266521c09ca50a1eda61430c9922bfd93d8c1e924",
+      "reviewer": "/root/manual_security",
+      "review_scope": "full physical file; manual source and relevant caller/metadata/ownership trace",
+      "status": "verified",
+      "kind": "runtime",
+      "notes": "Fixed duplicate inline manual JSON parser bypass for empty dict/string; canonical parser rejects before actor admission/writes. Valid arrays/rejected-only/opt-in behavior and all other route statements retained."
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/contact_normalization.py",
+      "sha256": "554c21f551ea4d733d04156812ea90a381c58f6eae7fe42378c46763b46b7a51",
+      "reviewer": "/root/manual_security",
+      "review_scope": "full physical file; manual source and relevant caller/metadata/ownership trace",
+      "status": "reviewed",
+      "kind": "runtime",
+      "notes": "Full current source read; bounded synthetic contacts, DTO or fixed adapter composition. Only exact affected execution evidence is claimed."
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/contact_import_limits.py",
+      "sha256": "004c196f9379aec1df84e0696046494b01c156776b05de8b9ae74e5acc1e9990",
+      "reviewer": "/root/manual_security",
+      "review_scope": "full physical file; manual source and relevant caller/metadata/ownership trace",
+      "status": "reviewed",
+      "kind": "runtime",
+      "notes": "Full current source read; bounded synthetic contacts, DTO or fixed adapter composition. Only exact affected execution evidence is claimed."
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/spreadsheet_values.py",
+      "sha256": "9b3a824b2f5dd1c40592a417ee51b0b4538fb9155c01cefb4985c6101816326c",
+      "reviewer": "/root/manual_security",
+      "review_scope": "full physical file; manual source and relevant caller/metadata/ownership trace",
+      "status": "reviewed",
+      "kind": "runtime",
+      "notes": "Full current source read; bounded synthetic contacts, DTO or fixed adapter composition. Only exact affected execution evidence is claimed."
+    },
+    {
+      "path": "backend/app/application/dtos/whatsapp_contact_dtos.py",
+      "sha256": "32ab92e8eebdd29ed59bc6a78002708f21ba34fc6802ff445ff2ad5d4bc11c32",
+      "reviewer": "/root/manual_security",
+      "review_scope": "full physical file; manual source and relevant caller/metadata/ownership trace",
+      "status": "reviewed",
+      "kind": "runtime",
+      "notes": "Full current source read; bounded synthetic contacts, DTO or fixed adapter composition. Only exact affected execution evidence is claimed."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_contact_sources.py",
+      "sha256": "0500fab46a72d955359e71e559d85f7b3a05d623ae35ef8abeccc5afb402626a",
+      "reviewer": "/root/manual_security",
+      "review_scope": "full physical file; manual source and relevant caller/metadata/ownership trace",
+      "status": "reviewed",
+      "kind": "runtime",
+      "notes": "Full current source read; bounded synthetic contacts, DTO or fixed adapter composition. Only exact affected execution evidence is claimed."
+    },
+    {
+      "path": "backend/app/presentation/mcp/contact_import_support.py",
+      "sha256": "249bc73c2f70766003d55c639f7a85dce00c856b83552f85881828a3fb7028c5",
+      "reviewer": "/root/manual_security",
+      "review_scope": "full physical file; manual source and relevant caller/metadata/ownership trace",
+      "status": "reviewed",
+      "kind": "runtime",
+      "notes": "Full current source read; bounded synthetic contacts, DTO or fixed adapter composition. Only exact affected execution evidence is claimed."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_creation.py",
+      "sha256": "80d28f482839d06f304973b37242e3c7ba60e0b50ee3db994d67fed5da8522eb",
+      "reviewer": "/root/manual_security",
+      "review_scope": "full physical file; manual source and relevant caller/metadata/ownership trace",
+      "status": "reviewed",
+      "kind": "runtime",
+      "notes": "Pure validation before inserts; caller-owned agency/actor; opt-in/capacity/support requirements, flush-only canonical persistence and no provider calls."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_recipient_additions.py",
+      "sha256": "278d992f0ac8343d4754aba07fd93c7412f5ff9003c8333d5aa42784b80800f4",
+      "reviewer": "/root/manual_security",
+      "review_scope": "full physical file; manual source and relevant caller/metadata/ownership trace",
+      "status": "reviewed",
+      "kind": "runtime",
+      "notes": "Full scoped caller trace: fresh active actor/agency, agency/group predicate+row locks, current history scope, capacity/opt-in/private-delivery mutation gates, child-group-selected dictionaries and group agency writes."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_contact_import.py",
+      "sha256": "d627dcea775c7302cd0680e77cb6a7c8f1d3b8bea479b3865d318af1dd6bf1c8",
+      "reviewer": "/root/manual_security",
+      "review_scope": "full physical file; manual source and relevant caller/metadata/ownership trace",
+      "status": "reviewed",
+      "kind": "runtime",
+      "notes": "Full existing source read:5MiB input, bounded archive budget,50sheets/2000rows, read_only/data_only SDK read, workbook finallyclose, no provider sends. Wide worksheet/dimension work remains an unvalidated scaling candidate requiring actual same-output SDK evidence, not a claimed exploit."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_imported_field_work.py",
+      "sha256": "ddc659f8ac625addbf01b3ba2a5e9ed513c9cb8515814c2caa5a740c6754f088",
+      "reviewer": "/root/manual_security",
+      "review_scope": "full physical file; manual source and relevant caller/metadata/ownership trace",
+      "status": "verified",
+      "kind": "test",
+      "notes": "Full current source read; bounded synthetic contacts, DTO or fixed adapter composition. Only exact affected execution evidence is claimed."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_contact_json_boundaries.py",
+      "sha256": "3c7f6365205a6b0e8b972c6df66b7de1f9153f87bea233812b3f58687f498e1c",
+      "reviewer": "/root/manual_security",
+      "review_scope": "full physical file; manual source and relevant caller/metadata/ownership trace",
+      "status": "verified",
+      "kind": "test",
+      "notes": "Full current source read; bounded synthetic contacts, DTO or fixed adapter composition. Only exact affected execution evidence is claimed."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_archive.py",
+      "sha256": "b43fb185bb3564399722b7c03979056fbebc3ca263e51f2c5d18da21682c0bc4",
+      "reviewer": "/root/manual_security",
+      "review_scope": "full physical file; manual source and relevant caller/metadata/ownership trace",
+      "status": "verified",
+      "kind": "test",
+      "notes": "Full current source read; bounded synthetic contacts, DTO or fixed adapter composition. Only exact affected execution evidence is claimed."
+    }
+  ],
+  "scope": "Dashboard WhatsApp contact ingestion/support and shared backend; native mobile source excluded.",
+  "partial_not_counted": [
+    "whatsapp_shared.py alias wiring excerpt",
+    "whatsapp_schemas.py DTO/response excerpt",
+    "whatsapp.py facade import/reference searches"
+  ],
+  "historical_origin": {
+    "path": ".tmp/whatsapp-contact-support-before.py",
+    "sha256": "0dd39fdd8b335b2323f4e67d8de3258bbb2886a4abf4c38474cb0c49a43a4a7f",
+    "lines": 1198
+  }
+}

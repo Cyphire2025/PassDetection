@@ -30,6 +30,7 @@ class LockedStepUpSession:
     state: UserSecurityStateModel
     credentials: list[RefreshTokenModel]
     deadline: datetime
+    user: UserModel
 
     def record_assurance(self, *, method: str, now: datetime) -> None:
         """Call only after this transaction verifies and consumes the factor."""
@@ -88,4 +89,4 @@ async def lock_step_up_session(
         effective_deadline = min(effective_deadline, _utc(deadline))
     if effective_deadline <= (now or datetime.now(UTC)):
         raise AuthenticationError("Session is no longer valid")
-    return LockedStepUpSession(family, state, credentials, effective_deadline)
+    return LockedStepUpSession(family, state, credentials, effective_deadline, user)

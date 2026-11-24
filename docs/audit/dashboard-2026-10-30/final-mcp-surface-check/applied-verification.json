@@ -1,0 +1,21 @@
+{
+  "status": "generated-matrix-reconciled-and-actual-current-check-passed",
+  "created_at_utc": "2026-10-31T23:19:42.303106+00:00",
+  "original_sha256": "0655e79c9e009dc9d01b41cf7507f3609b7b30f2daf979a982e98c1342636523",
+  "current_sha256": "37097632cd2b3174126ac67a54e8b3f86a9b7732090f17825935ec62807684b1",
+  "historical_reviewed_at_unchanged": "2026-10-30",
+  "current_discovered_surfaces": 2036,
+  "exact_common_rows": 1792,
+  "common_non_surface_fields_preserved": 1823,
+  "relocated_non_surface_policies_preserved": 150,
+  "retained_live_facade_policies": 17,
+  "new_individually_classified_internal_metadata": 63,
+  "source_receipts_rechecked": 89,
+  "implementation_states_or_evidence_renewed": 0,
+  "actual_cli_returncode": 0,
+  "actual_cli_stdout": "{\"surfaces\": 2036, \"kinds\": {\"frontend_api_contract\": 65, \"frontend_callable\": 453, \"frontend_endpoint_registry\": 1, \"frontend_page\": 80, \"mcp_tool\": 115, \"openapi_operation\": 540, \"route_registration\": 220, \"source_route\": 562}, \"classification_check\": \"passed\"}",
+  "actual_cli_stderr_bytes": 0,
+  "parent_proposal": "proposal-verification.json",
+  "parent_proposal_sha256": "2eb5e30ae52266bcb00103cfded9e2522fc87b631b444a09c457c6f86e708590",
+  "limits": "Focused structured generated/provenance review; no whole physical-line, runtime, full API-schema, provider, native or deployed qualification. Matching and moved policies preserved; Inbox metadata compatibility only."
+}

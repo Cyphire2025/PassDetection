@@ -1,0 +1,134 @@
+F.FFFF.                                                                  [100%]
+================================== FAILURES ===================================
+_ test_scheduled_task_recovers_aged_crashed_attempt_and_preserves_grace[passport-bulk/] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000001BF09C3E7D0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001BF0893FAD0>
+prefix = 'passport-bulk/'
+
+    @pytest.mark.parametrize("prefix", [BULK_PREFIX, "drafts/"])
+    async def test_scheduled_task_recovers_aged_crashed_attempt_and_preserves_grace(
+        db_session, monkeypatch, prefix,
+    ):
+        cutoff = NOW - timedelta(hours=24)
+        keys = [prefix + f"synthetic-attempt-{index}.jpg" for index in range(4)]
+        storage = FakeStorage({prefix: [
+            (keys[0], cutoff), (keys[1], cutoff + timedelta(microseconds=1)),
+            (keys[2], NOW + timedelta(days=1)), (keys[3], None),
+        ]})
+        result = await scheduled_reconcile(storage, monkeypatch, db_session)
+>       assert storage.deleted == [[keys[0]]]
+E       AssertionError: assert [] == [['passport-b...tempt-0.jpg']]
+E         
+E         Right contains one more item: ['passport-bulk/synthetic-attempt-0.jpg']
+E         Use -v to get more diff
+
+tests\integration\test_passport_bulk_orphan_reconciliation.py:68: AssertionError
+---------------------------- Captured stdout call -----------------------------
+2026-10-31T16:39:17.159761Z [info     ] document_storage_orphan_reconciliation_completed scanned_count=0 stale_candidate_count=0 deleted_count=0 [app.infrastructure.documents.cleanup_tasks]
+------------------------------ Captured log call ------------------------------
+INFO     app.infrastructure.documents.cleanup_tasks:cleanup_tasks.py:50 document_storage_orphan_reconciliation_completed scanned_count=0 stale_candidate_count=0 deleted_count=0
+__ test_all_twenty_durable_columns_hold_bulk_originals_and_retained_variants __
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000001BF09C00650>
+test_settings = Settings(app_env='development', app_debug=True, app_version='1.0.0', app_revision='unknown', expected_database_schema_...me='qrcode_v1', whatsapp_otp_template_name='', whatsapp_otp_template_language='en_US', whatsapp_delivery_concurrency=4)
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001BF08429C10>
+
+    async def test_all_twenty_durable_columns_hold_bulk_originals_and_retained_variants(
+        db_session, test_settings, monkeypatch,
+    ):
+        held = await retained_image_keys(db_session, test_settings, prefixes=(BULK_PREFIX,))
+        assert len(held) == 26  #20 columns, with four distinct job status rows.
+        orphan = import_key()
+        storage = FakeStorage({BULK_PREFIX: [(key, OLD) for key in sorted(held)] + [(orphan, OLD)]})
+        result = await scheduled_reconcile(storage, monkeypatch, db_session)
+        assert await db_session.scalar(text("PRAGMA foreign_keys")) == 1
+>       assert storage.deleted == [[orphan]]
+E       AssertionError: assert [] == [['passport-b...9-front.jpg']]
+E         
+E         Right contains one more item: ['passport-bulk/d7c1edd5-6c0e-42ef-a786-b3e1938dca26/0c52749a-d988-4a28-9c53-32f962b2d870/4cf1682a-5555-4c4d-afef-c71a0700b26f/7541c1188a5e4872b9d446008231b729-front.jpg']
+E         Use -v to get more diff
+
+tests\integration\test_passport_bulk_orphan_reconciliation.py:81: AssertionError
+---------------------------- Captured stdout call -----------------------------
+2026-10-31T16:39:18.470397Z [info     ] document_storage_orphan_reconciliation_completed scanned_count=0 stale_candidate_count=0 deleted_count=0 [app.infrastructure.documents.cleanup_tasks]
+------------------------------ Captured log call ------------------------------
+INFO     app.infrastructure.documents.cleanup_tasks:cleanup_tasks.py:50 document_storage_orphan_reconciliation_completed scanned_count=0 stale_candidate_count=0 deleted_count=0
+_________ test_committed_bulk_reference_survives_lost_acknowledgement _________
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000001BF08B38A90>
+test_settings = Settings(app_env='development', app_debug=True, app_version='1.0.0', app_revision='unknown', expected_database_schema_...me='qrcode_v1', whatsapp_otp_template_name='', whatsapp_otp_template_language='en_US', whatsapp_delivery_concurrency=4)
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001BF0A73D150>
+
+    async def test_committed_bulk_reference_survives_lost_acknowledgement(
+        db_session, test_settings, monkeypatch,
+    ):
+        await retained_image_keys(db_session, test_settings)
+        owner = await db_session.scalar(select(PassportSubmissionModel).limit(1))
+        key = import_key()
+        with pytest.raises(ConnectionError, match="lost COMMIT"):
+            owner.passport_back_s3_key = key
+            await db_session.commit()
+            raise ConnectionError("Synthetic lost COMMIT acknowledgement")
+        storage = FakeStorage({BULK_PREFIX: [(key, OLD)]})
+        result = await scheduled_reconcile(storage, monkeypatch, db_session)
+>       assert result == {"scanned_count": 1, "stale_candidate_count": 1, "deleted_count": 0}
+E       AssertionError: assert {'deleted_cou...ate_count': 0} == {'deleted_cou...ate_count': 1}
+E         
+E         Omitting 1 identical items, use -vv to show
+E         Differing items:
+E         {'stale_candidate_count': 0} != {'stale_candidate_count': 1}
+E         {'scanned_count': 0} != {'scanned_count': 1}
+E         Use -v to get more diff
+
+tests\integration\test_passport_bulk_orphan_reconciliation.py:98: AssertionError
+---------------------------- Captured stdout call -----------------------------
+2026-10-31T16:39:18.850278Z [info     ] document_storage_orphan_reconciliation_completed scanned_count=0 stale_candidate_count=0 deleted_count=0 [app.infrastructure.documents.cleanup_tasks]
+------------------------------ Captured log call ------------------------------
+INFO     app.infrastructure.documents.cleanup_tasks:cleanup_tasks.py:50 document_storage_orphan_reconciliation_completed scanned_count=0 stale_candidate_count=0 deleted_count=0
+______ test_failed_provider_delete_keeps_cursor_for_next_scheduled_retry ______
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000001BF0A7C0DD0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001BF0A73D650>
+
+    async def test_failed_provider_delete_keeps_cursor_for_next_scheduled_retry(db_session, monkeypatch):
+        key, cursor = import_key(), FakeCursor()
+        storage = FakeStorage({BULK_PREFIX: [(key, OLD)]})
+        original_delete = storage.delete_files
+    
+        async def unavailable(_keys):
+            raise ConnectionError("Synthetic provider delete unavailable")
+    
+        storage.delete_files = unavailable
+>       with pytest.raises(ConnectionError, match="provider delete"):
+E       Failed: DID NOT RAISE <class 'ConnectionError'>
+
+tests\integration\test_passport_bulk_orphan_reconciliation.py:111: Failed
+---------------------------- Captured stdout call -----------------------------
+2026-10-31T16:39:19.237478Z [info     ] document_storage_orphan_reconciliation_completed scanned_count=0 stale_candidate_count=0 deleted_count=0 [app.infrastructure.documents.cleanup_tasks]
+------------------------------ Captured log call ------------------------------
+INFO     app.infrastructure.documents.cleanup_tasks:cleanup_tasks.py:50 document_storage_orphan_reconciliation_completed scanned_count=0 stale_candidate_count=0 deleted_count=0
+______ test_unavailable_reference_owner_fails_closed_before_bulk_delete _______
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000001BF0A0AC610>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001BF0A7B5150>
+
+    async def test_unavailable_reference_owner_fails_closed_before_bulk_delete(db_session, monkeypatch):
+        await db_session.execute(text("DROP TABLE passport_ecr_checks"))
+        await db_session.commit()
+        storage = FakeStorage({BULK_PREFIX: [(import_key(), OLD)]})
+>       with pytest.raises(OperationalError):
+E       Failed: DID NOT RAISE <class 'sqlalchemy.exc.OperationalError'>
+
+tests\integration\test_passport_bulk_orphan_reconciliation.py:123: Failed
+---------------------------- Captured stdout call -----------------------------
+2026-10-31T16:39:19.623293Z [info     ] document_storage_orphan_reconciliation_completed scanned_count=0 stale_candidate_count=0 deleted_count=0 [app.infrastructure.documents.cleanup_tasks]
+------------------------------ Captured log call ------------------------------
+INFO     app.infrastructure.documents.cleanup_tasks:cleanup_tasks.py:50 document_storage_orphan_reconciliation_completed scanned_count=0 stale_candidate_count=0 deleted_count=0
+=========================== short test summary info ===========================
+FAILED tests/integration/test_passport_bulk_orphan_reconciliation.py::test_scheduled_task_recovers_aged_crashed_attempt_and_preserves_grace[passport-bulk/]
+FAILED tests/integration/test_passport_bulk_orphan_reconciliation.py::test_all_twenty_durable_columns_hold_bulk_originals_and_retained_variants
+FAILED tests/integration/test_passport_bulk_orphan_reconciliation.py::test_committed_bulk_reference_survives_lost_acknowledgement
+FAILED tests/integration/test_passport_bulk_orphan_reconciliation.py::test_failed_provider_delete_keeps_cursor_for_next_scheduled_retry
+FAILED tests/integration/test_passport_bulk_orphan_reconciliation.py::test_unavailable_reference_owner_fails_closed_before_bulk_delete
+5 failed, 2 passed in 3.33s

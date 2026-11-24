@@ -1,0 +1,24 @@
+INTERNALERROR> Traceback (most recent call last):
+INTERNALERROR>   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\_pytest\main.py", line 316, in wrap_session
+INTERNALERROR>     config.hook.pytest_sessionstart(session=session)
+INTERNALERROR>   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\pluggy\_hooks.py", line 512, in __call__
+INTERNALERROR>     return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+INTERNALERROR>            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+INTERNALERROR>   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\pluggy\_manager.py", line 120, in _hookexec
+INTERNALERROR>     return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+INTERNALERROR>            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+INTERNALERROR>   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\pluggy\_callers.py", line 167, in _multicall
+INTERNALERROR>     raise exception
+INTERNALERROR>   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\pluggy\_callers.py", line 139, in _multicall
+INTERNALERROR>     teardown.throw(exception)
+INTERNALERROR>   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\_pytest\logging.py", line 780, in pytest_sessionstart
+INTERNALERROR>     return (yield)
+INTERNALERROR>             ^^^^^
+INTERNALERROR>   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\pluggy\_callers.py", line 121, in _multicall
+INTERNALERROR>     res = hook_impl.function(*args)
+INTERNALERROR>           ^^^^^^^^^^^^^^^^^^^^^^^^^
+INTERNALERROR>   File "C:\Users\nipun\Desktop\PassDetection\.tmp\ecr_checker_qualified_contract_plugin.py", line 53, in pytest_sessionstart
+INTERNALERROR>     assert current.logger is original.logger
+INTERNALERROR> AssertionError: assert <BoundLoggerLazyProxy(logger=None, wrapper_class=None, processors=None, context_class=None, initial_values={}, logger_factory_args=('app.presentation.api.v1.routes.ecr_checker',))> is <BoundLoggerLazyProxy(logger=None, wrapper_class=None, processors=None, context_class=None, initial_values={}, logger_factory_args=('app.presentation.api.v1.routes.ecr_checker',))>
+INTERNALERROR>  +  where <BoundLoggerLazyProxy(logger=None, wrapper_class=None, processors=None, context_class=None, initial_values={}, logger_factory_args=('app.presentation.api.v1.routes.ecr_checker',))> = <module 'app.presentation.api.v1.routes.ecr_checker' from 'C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\ecr_checker.py'>.logger
+INTERNALERROR>  +  and   <BoundLoggerLazyProxy(logger=None, wrapper_class=None, processors=None, context_class=None, initial_values={}, logger_factory_args=('app.presentation.api.v1.routes.ecr_checker',))> = <module 'app.presentation.api.v1.routes.ecr_checker'>.logger

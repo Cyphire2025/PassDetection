@@ -1,4 +1,14 @@
 import type { McpConnection, McpPermissions } from "../api/mcp.api";
+import type { User } from "@/types";
+
+export function mcpAdminFixture(overrides: Partial<User> = {}): User {
+  return {
+    id: "admin-a", role: "super_admin", agency_id: null, is_active: true,
+    email: "admin@example.test", full_name: "Synthetic administrator", last_login_at: null,
+    created_at: "2026-10-03T00:00:00Z", updated_at: "2026-10-03T00:00:00Z",
+    ...overrides,
+  };
+}
 
 export function permissionFixture(overrides: Partial<McpPermissions> = {}): McpPermissions {
   const section_catalog = [

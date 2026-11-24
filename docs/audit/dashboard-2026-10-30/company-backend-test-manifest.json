@@ -1,0 +1,28 @@
+{
+  "environment": ".tmp/dashboard-security-patch-venv-2",
+  "tests": [
+    "tests/integration/test_company_data_exports.py",
+    "tests/integration/test_company_directory.py",
+    "tests/integration/test_company_directory_index.py",
+    "tests/integration/test_company_history_chronology.py",
+    "tests/integration/test_company_match_review.py",
+    "tests/integration/test_company_people.py",
+    "tests/integration/test_company_people_http.py",
+    "tests/integration/test_company_removal.py",
+    "tests/integration/test_company_reuse_setup.py",
+    "tests/integration/test_company_source_export_integrity.py",
+    "tests/integration/test_company_submissions.py",
+    "tests/integration/test_company_summary.py",
+    "tests/integration/test_company_trip_phase.py",
+    "tests/integration/test_company_workspace.py",
+    "tests/unit/application/test_company_history_jobs.py",
+    "tests/unit/application/test_company_history_registration.py",
+    "tests/unit/application/test_company_history_roster_retry.py",
+    "tests/unit/infrastructure/test_companies_migration_rehearsal.py",
+    "tests/unit/infrastructure/test_companies_rehearsal_roles.py",
+    "tests/unit/infrastructure/test_companies_restore_comparison.py",
+    "tests/unit/infrastructure/test_company_data_release_schema.py",
+    "tests/unit/infrastructure/test_company_directory_migration.py"
+  ],
+  "scope": "All current company-named unit/integration modules; not full backend or real service qualification."
+}

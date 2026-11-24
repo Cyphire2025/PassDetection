@@ -1,0 +1,86 @@
+{
+  "status": "Retained derived-data/lifecycle source cohort complete",
+  "files": [
+    {
+      "path": "backend/tests/integration/test_company_data_exports.py",
+      "sha256": "ce4905600872a11b66086b791c21c9c25131b40bee742c3662fb8580ee3e010a",
+      "physical_lines": 247,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-247. Real export worker/checkpoints plus synthetic private storage cover unique workbook18-column current row, idempotency kind conflict, lost PUT acknowledgement same reserved part, global lease and current authority cancellation. Image ZIP manifest versioned without storage locators, expiry/user scope, post-write cancellation durable cleanup receipt/not-before lease, five-failure exhaustion and late-write lease envelope,100/50 bounded cleanup preserve receipts. Source-only read; no export/workbook/ZIP/provider execution."
+    },
+    {
+      "path": "backend/tests/integration/test_platform_lifecycle_policies.py",
+      "sha256": "fbfa43f683e82cccf05a87aa9677291fb723f3c8119d66c1ce02b37de1e97b46",
+      "physical_lines": 218,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-218. Existing platform policy controls archive closed groups and purge from closure/deletion anchor while preserving active groups and append-only audit evidence. Repeated page idempotent; changed retention policy reschedules date and deliberately ignores retired legal-hold switch while retaining its stored fields/history. This is current explicit workflow policy, not a newly adopted legal/data policy or service proof."
+    },
+    {
+      "path": "backend/tests/integration/test_passport_lookup_backfill.py",
+      "sha256": "6937141e1f28dcf5aad6191b275fbae89ed22cf150684b51cb7c2358ef9e4d5c",
+      "physical_lines": 43,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-43. Additive passport-number lookup backfill resumes one row per page without changing authoritative encrypted fields/issuer/type/status/revision; different encryption key and preexisting derived value untouched. Zero/large requested batch clamped by existing helper. No backfill/DB command run."
+    },
+    {
+      "path": "backend/tests/unit/application/test_meal_plan_generator.py",
+      "sha256": "b372636af9acd0d52848c11ca1bdaa257e2fc70fe38e8de53c93a85d92052410",
+      "physical_lines": 88,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-88. Synthetic menu generation tests one unique dish per selected category for each lunch/dinner/day, repeatable saved seed, and exact shortage report for insufficient category. Source review only; no app checks or generated menu/workbook."
+    },
+    {
+      "path": "backend/app/application/companies/data_exports.py",
+      "sha256": "ed5d9e47e29ba35b49e6a842065add6adb3c1b59b3dc702f09bfcff3927e0fc9",
+      "physical_lines": 92,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-92. Company-lock admission serializes per-user idempotency/kind conflict and two pending export bound; indexing gate and two-day encrypted/private export intent. Each access rechecks current company revision, actor ownership and expiry. Scoped invalidation cancels pending/succeeded by intended flag. Caller owns commit; no new policy/performance change."
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/company_export_worker.py",
+      "sha256": "0fd62ac61c57539f06202672d2b3dfc2afd3a264ffae2185c2dd35de1856c16a",
+      "physical_lines": 147,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-147. Existing public worker facade delegates explicit existing authority/workbook/page/reservation seams, bounded page timeout/global lease/attempts and lazy storage/crypto. Failure records exhausted/deferred state while keeping lease through potential uncancellable write envelope. Does not claim called owners physically read in this cohort."
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/company_export_cleanup.py",
+      "sha256": "d1dc377dcc04f9436ed0611f6fb578b58f747aa76cbe5052ce10cc7be2fa0aa1",
+      "physical_lines": 37,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-37. Two bounded queue candidates and100 unpurged part page, skip-locked parts, durable cleanup ownership and not-before provider lease; mark part purged only after staging, terminal job only after no unpurged parts. Existing receipts retained, source-only no storage deletion."
+    },
+    {
+      "path": "backend/app/infrastructure/platform_lifecycle.py",
+      "sha256": "642a593ba409fc6c512981efc86cd572ea4f459bbd0182708129802116f0bc6d",
+      "physical_lines": 231,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-231. Caller transaction bounds archive/scheduling1000groups and purge500passports, excludes active and pending-retained-asset copies; crop/edit/original keys collected per tenant into durable tombstones before same-transaction delete. Detaches source provenance, removes related notification rows, verifies delete count, appends aggregate audit; old audit evidence never erased. No new architecture defect from method size or policy change."
+    },
+    {
+      "path": "backend/app/application/use_cases/menu/meal_plan_generator.py",
+      "sha256": "cf21a19c28c2c86e0859be5b837ff68d7b0d6e758dc88be62fb59d2042c7fd36",
+      "physical_lines": 136,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical70-136 only: actual generation validates days/categories/uniqueness, filters wrong-category/duplicate dishes, stable sorting and all-shortage report before deterministic seed shuffle and ordered day/meal/category pop. Remaining data/error declarations not reread; existing whole-current ledgers preserved."
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+{"reviewed_paths": 117, "both_exact_baselines_verified": true, "all_current_after_digests_match": true, "limits": "Static source identity verification only. This does not qualify a dirty working tree for deployment or establish live VPS baseline/catalog compatibility."}

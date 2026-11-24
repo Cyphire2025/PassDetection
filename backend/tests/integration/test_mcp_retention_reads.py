@@ -30,7 +30,7 @@ from app.infrastructure.repositories.passport_retention_repository import (
 )
 from app.infrastructure.repositories.user_repository import UserRepository
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
-from app.presentation.api.v1.routes import admin
+from app.presentation.api.v1.routes import admin, admin_manager_deletion, admin_passport_purge
 from tests.integration.test_mcp_authorization import call_mcp, connect
 from tests.integration.test_mcp_authorization import mcp_fixture as mcp_fixture
 from tests.integration.test_mcp_operations import operations_fixture as operations_fixture
@@ -72,8 +72,9 @@ def forbid_files_and_cleanup(monkeypatch):
         raise AssertionError("Retention read attempted file or cleanup work")
 
     monkeypatch.setattr(MinioStorageRepository, "__init__", forbidden)
-    monkeypatch.setattr(admin, "stage_storage_cleanup_jobs", forbidden)
-    monkeypatch.setattr(admin, "process_storage_cleanup_job", forbidden)
+    for owner in (admin_manager_deletion, admin_passport_purge):
+        monkeypatch.setattr(owner, "stage_storage_cleanup_jobs", forbidden)
+        monkeypatch.setattr(owner, "process_storage_cleanup_job", forbidden)
     # The actual MCP tests use ASGITransport; intercept only outgoing provider
     # transports, so synthetic HTTP requests continue to exercise the real app.
     monkeypatch.setattr(httpx.AsyncHTTPTransport, "handle_async_request", forbidden)

@@ -1,0 +1,80 @@
+{
+  "status": "passed and frozen; test-only regression",
+  "cleared_candidate_receipt": {
+    "path": "docs/audit/dashboard-2026-10-30/dashboard-realtime-callback-clearance-verification.json",
+    "sha256": "a56206c652be8b2057557374f58cfb6e200cfa932d27901668c3d80371e833b6"
+  },
+  "changed_source": {
+    "path": "frontend/features/operations/components/dashboard-realtime-attendance-bridge.test.tsx",
+    "sha256": "5aa73d438037fb4309d9b77728e66c21824dcd12f932120d82e5c35d50d173c6"
+  },
+  "runtime_sources_unchanged": [
+    {
+      "path": "frontend/features/operations/components/dashboard-realtime-attendance-bridge.tsx",
+      "sha256": "391ed735d019c52acd992207906f9e22646f8e5db687decdfd12aabe3c32970a"
+    },
+    {
+      "path": "frontend/features/operations/services/dashboard-realtime.ts",
+      "sha256": "b8b9b8ce444d06e0a92c6af9d448833e3eab4d46b3d5c19553e7faafe3ae68d9"
+    },
+    {
+      "path": "frontend/features/operations/services/attendance-invalidation.ts",
+      "sha256": "f70a7b59ac666b6cc0bc0c1571b3c3cf6bea7fdcef93dbdc04e172f67759abbd"
+    },
+    {
+      "path": "frontend/features/auth/components/authenticated-content.tsx",
+      "sha256": "2a6b961e1c3aed8a9fce536a1a08aefe4f68a6699271581ad65c1e1aa1c76d4d"
+    },
+    {
+      "path": "frontend/stores/auth.store.ts",
+      "sha256": "788cdfd0ed8072ce1191d863759bed359b3a38de35a0aeeb1cc744c3e11f58e9"
+    },
+    {
+      "path": "frontend/features/auth/services/session-state.ts",
+      "sha256": "6f8077d093be0f9c9ecdb3340a18870802cb10c6e280b7d48c24d7bcf99330a8"
+    },
+    {
+      "path": "frontend/features/auth/services/session-continuity.ts",
+      "sha256": "cdb69ae93f3884102bb475cb090e3f7fb796fe6e7b1cb87eced8106dda00ffcc"
+    },
+    {
+      "path": "frontend/providers/session-lifecycle.tsx",
+      "sha256": "0b7250386cdbfd7875aa5ece83ba023490fabfb3465b23cd0005d69d7066005d"
+    }
+  ],
+  "affected_checks": [
+    {
+      "name": "Bridge cleanup and realtime wire unit group",
+      "result": "11passed across2files (6Bridgecases +5servicecases)",
+      "path": ".tmp/realtime-client-lifetime/affected-unit.txt",
+      "sha256": "ed7ec6343c9d76af916689d3469e83200a621403e0ecc972db0823ddf526e376"
+    },
+    {
+      "name": "Strict scoped TypeScript",
+      "result": "passed; original frontend config inherited with only incrementalfalse and exact test/setup includes in ignored temporary config",
+      "path": ".tmp/realtime-client-lifetime/affected-types.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "Scoped ESLint",
+      "result": "passed",
+      "path": ".tmp/realtime-client-lifetime/affected-lint.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "original_assertions": {
+    "count": 10,
+    "all_preserved": true,
+    "proof_path": "docs/audit/dashboard-2026-10-30/dashboard-realtime-test-preservation-proof.json",
+    "proof_sha256": "0c91e2c8758db68a34e56e37c0d314dce45f456b76a4e2080c12c6a4bfe8dc5a"
+  },
+  "ledger": {
+    "path": "docs/audit/dashboard-2026-10-30/dashboard-realtime-lifetime-tests-reviewed-files.json",
+    "sha256": "4ed1a4c8ff1df099b5f2fd0389103b0ee39aacafc76ce739534a38c069601142"
+  },
+  "limits": [
+    "No runtime patch, new API/permission/schema, package/config/budget change, service setup or security fix claim.",
+    "Unit socket remains an explicit EventTarget state fixture; actual browser ordering is qualified separately by the immutable6case Chromium component fixture.",
+    "No whole app unit suite/build/production browser journeys repeated."
+  ]
+}

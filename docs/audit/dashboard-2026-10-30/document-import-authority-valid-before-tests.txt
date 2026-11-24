@@ -1,0 +1,683 @@
+......FFFFFFFF...FFF                                                     [100%]
+================================== FAILURES ===================================
+_ test_inflight_import_uses_current_persisted_authority_before_publication[put-agency_changed] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000026BD6176D50>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000026BD61AB390>
+test_settings = Settings(app_env='development', app_debug=True, app_version='1.0.0', app_revision='unknown', expected_database_schema_...me='qrcode_v1', whatsapp_otp_template_name='', whatsapp_otp_template_language='en_US', whatsapp_delivery_concurrency=4)
+phase = 'put', transition = 'agency_changed'
+
+    @pytest.mark.parametrize("phase,transition", CASES)
+    async def test_inflight_import_uses_current_persisted_authority_before_publication(
+        db_session, monkeypatch, test_settings, phase, transition,
+    ):
+        context = await prepare_authority_import(
+            db_session, monkeypatch, test_settings, transition, phase,
+        )
+        upload = UploadFile(
+            io.BytesIO(context.payload), filename="STF_A1_FRONT.jpg",
+            headers=Headers({"content-type": "image/jpeg"}),
+        )
+    
+        async def invoke():
+            arguments = dict(
+                group_id=context.group_id, files=[upload],
+                current_user=context.actor, session=db_session,
+            )
+            if phase == "put":
+                return await route.save_passport_documents_by_group(
+                    **arguments, background_tasks=BackgroundTasks(),
+                )
+            return await route.preview_passport_documents_by_group(**arguments)
+    
+        task = asyncio.create_task(invoke())
+        try:
+            await asyncio.wait_for(context.barrier.entered.wait(), 3)
+            assert not task.done()
+            await persist_authority_transition(context)
+        finally:
+            context.barrier.release.set()
+            outcome = (await asyncio.wait_for(asyncio.gather(task, return_exceptions=True), 5))[0]
+            await asyncio.wait_for(context.barrier.completed.wait(), 3)
+            await upload.close()
+        rejected = transition in DENIED
+        error_status = outcome.status_code if isinstance(outcome, HTTPException) else None
+        # Keep the subsequent observations separate from any uncommitted failed request.
+        await db_session.rollback()
+        async with context.factory() as fresh:
+            image_key = await fresh.scalar(select(PassportSubmissionModel.image_s3_key).where(
+                PassportSubmissionModel.id == context.passenger_id,
+            ))
+            audits = list(await fresh.scalars(select(AuditLogModel).where(
+                AuditLogModel.action == "passport_documents_bulk_imported",
+                AuditLogModel.entity_id == str(context.group_id),
+            )))
+            cleanups = list(await fresh.scalars(select(StorageCleanupJobModel)))
+            qr = await fresh.get(PassengerQRTokenModel, context.qr_id)
+            jobs = list(await fresh.scalars(select(PassportProcessingJobModel)))
+>       assert error_status == (403 if rejected else None), repr(outcome)
+E       AssertionError: PassportDocumentImportSaveResponse(group_id=UUID('13205b23-3872-4010-b960-5eceb2754f39'), total_count=1, accepted_count=1, rejected_count=0, accepted_documents=[PassportDocumentImportItem(filename='STF_A1_FRONT.jpg', staff_code='A1', document_type='front', passenger_id=UUID('49aa3a23-ff60-4489-991d-969b10638ae4'), passenger_name='Synthetic', accepted=True, reason=None)], rejected_documents=[], saved_count=1)
+E       assert None == 403
+
+tests\unit\presentation\test_document_import_authority.py:85: AssertionError
+_ test_inflight_import_uses_current_persisted_authority_before_publication[put-assignment_revoked] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000026BD61C6390>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000026BD5EF0B50>
+test_settings = Settings(app_env='development', app_debug=True, app_version='1.0.0', app_revision='unknown', expected_database_schema_...me='qrcode_v1', whatsapp_otp_template_name='', whatsapp_otp_template_language='en_US', whatsapp_delivery_concurrency=4)
+phase = 'put', transition = 'assignment_revoked'
+
+    @pytest.mark.parametrize("phase,transition", CASES)
+    async def test_inflight_import_uses_current_persisted_authority_before_publication(
+        db_session, monkeypatch, test_settings, phase, transition,
+    ):
+        context = await prepare_authority_import(
+            db_session, monkeypatch, test_settings, transition, phase,
+        )
+        upload = UploadFile(
+            io.BytesIO(context.payload), filename="STF_A1_FRONT.jpg",
+            headers=Headers({"content-type": "image/jpeg"}),
+        )
+    
+        async def invoke():
+            arguments = dict(
+                group_id=context.group_id, files=[upload],
+                current_user=context.actor, session=db_session,
+            )
+            if phase == "put":
+                return await route.save_passport_documents_by_group(
+                    **arguments, background_tasks=BackgroundTasks(),
+                )
+            return await route.preview_passport_documents_by_group(**arguments)
+    
+        task = asyncio.create_task(invoke())
+        try:
+            await asyncio.wait_for(context.barrier.entered.wait(), 3)
+            assert not task.done()
+            await persist_authority_transition(context)
+        finally:
+            context.barrier.release.set()
+            outcome = (await asyncio.wait_for(asyncio.gather(task, return_exceptions=True), 5))[0]
+            await asyncio.wait_for(context.barrier.completed.wait(), 3)
+            await upload.close()
+        rejected = transition in DENIED
+        error_status = outcome.status_code if isinstance(outcome, HTTPException) else None
+        # Keep the subsequent observations separate from any uncommitted failed request.
+        await db_session.rollback()
+        async with context.factory() as fresh:
+            image_key = await fresh.scalar(select(PassportSubmissionModel.image_s3_key).where(
+                PassportSubmissionModel.id == context.passenger_id,
+            ))
+            audits = list(await fresh.scalars(select(AuditLogModel).where(
+                AuditLogModel.action == "passport_documents_bulk_imported",
+                AuditLogModel.entity_id == str(context.group_id),
+            )))
+            cleanups = list(await fresh.scalars(select(StorageCleanupJobModel)))
+            qr = await fresh.get(PassengerQRTokenModel, context.qr_id)
+            jobs = list(await fresh.scalars(select(PassportProcessingJobModel)))
+>       assert error_status == (403 if rejected else None), repr(outcome)
+E       AssertionError: PassportDocumentImportSaveResponse(group_id=UUID('528a7304-0b1c-4441-b70f-07a03f3b5b79'), total_count=1, accepted_count=1, rejected_count=0, accepted_documents=[PassportDocumentImportItem(filename='STF_A1_FRONT.jpg', staff_code='A1', document_type='front', passenger_id=UUID('b2d5a72b-7699-4d9c-8fdc-723e1d7d96b9'), passenger_name='Synthetic', accepted=True, reason=None)], rejected_documents=[], saved_count=1)
+E       assert None == 403
+
+tests\unit\presentation\test_document_import_authority.py:85: AssertionError
+_ test_inflight_import_uses_current_persisted_authority_before_publication[put-credential_reset] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000026BD5F38350>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000026BD6063450>
+test_settings = Settings(app_env='development', app_debug=True, app_version='1.0.0', app_revision='unknown', expected_database_schema_...me='qrcode_v1', whatsapp_otp_template_name='', whatsapp_otp_template_language='en_US', whatsapp_delivery_concurrency=4)
+phase = 'put', transition = 'credential_reset'
+
+    @pytest.mark.parametrize("phase,transition", CASES)
+    async def test_inflight_import_uses_current_persisted_authority_before_publication(
+        db_session, monkeypatch, test_settings, phase, transition,
+    ):
+        context = await prepare_authority_import(
+            db_session, monkeypatch, test_settings, transition, phase,
+        )
+        upload = UploadFile(
+            io.BytesIO(context.payload), filename="STF_A1_FRONT.jpg",
+            headers=Headers({"content-type": "image/jpeg"}),
+        )
+    
+        async def invoke():
+            arguments = dict(
+                group_id=context.group_id, files=[upload],
+                current_user=context.actor, session=db_session,
+            )
+            if phase == "put":
+                return await route.save_passport_documents_by_group(
+                    **arguments, background_tasks=BackgroundTasks(),
+                )
+            return await route.preview_passport_documents_by_group(**arguments)
+    
+        task = asyncio.create_task(invoke())
+        try:
+            await asyncio.wait_for(context.barrier.entered.wait(), 3)
+            assert not task.done()
+            await persist_authority_transition(context)
+        finally:
+            context.barrier.release.set()
+            outcome = (await asyncio.wait_for(asyncio.gather(task, return_exceptions=True), 5))[0]
+            await asyncio.wait_for(context.barrier.completed.wait(), 3)
+            await upload.close()
+        rejected = transition in DENIED
+        error_status = outcome.status_code if isinstance(outcome, HTTPException) else None
+        # Keep the subsequent observations separate from any uncommitted failed request.
+        await db_session.rollback()
+        async with context.factory() as fresh:
+            image_key = await fresh.scalar(select(PassportSubmissionModel.image_s3_key).where(
+                PassportSubmissionModel.id == context.passenger_id,
+            ))
+            audits = list(await fresh.scalars(select(AuditLogModel).where(
+                AuditLogModel.action == "passport_documents_bulk_imported",
+                AuditLogModel.entity_id == str(context.group_id),
+            )))
+            cleanups = list(await fresh.scalars(select(StorageCleanupJobModel)))
+            qr = await fresh.get(PassengerQRTokenModel, context.qr_id)
+            jobs = list(await fresh.scalars(select(PassportProcessingJobModel)))
+>       assert error_status == (403 if rejected else None), repr(outcome)
+E       AssertionError: PassportDocumentImportSaveResponse(group_id=UUID('28309af7-0495-41e7-b452-e69458aa1f5f'), total_count=1, accepted_count=1, rejected_count=0, accepted_documents=[PassportDocumentImportItem(filename='STF_A1_FRONT.jpg', staff_code='A1', document_type='front', passenger_id=UUID('09de06da-a8fb-40a9-9ad7-e85488afe4aa'), passenger_name='Synthetic', accepted=True, reason=None)], rejected_documents=[], saved_count=1)
+E       assert None == 403
+
+tests\unit\presentation\test_document_import_authority.py:85: AssertionError
+_ test_inflight_import_uses_current_persisted_authority_before_publication[put-group_deleted] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000026BD5F2E5D0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000026BD5EF1FD0>
+test_settings = Settings(app_env='development', app_debug=True, app_version='1.0.0', app_revision='unknown', expected_database_schema_...me='qrcode_v1', whatsapp_otp_template_name='', whatsapp_otp_template_language='en_US', whatsapp_delivery_concurrency=4)
+phase = 'put', transition = 'group_deleted'
+
+    @pytest.mark.parametrize("phase,transition", CASES)
+    async def test_inflight_import_uses_current_persisted_authority_before_publication(
+        db_session, monkeypatch, test_settings, phase, transition,
+    ):
+        context = await prepare_authority_import(
+            db_session, monkeypatch, test_settings, transition, phase,
+        )
+        upload = UploadFile(
+            io.BytesIO(context.payload), filename="STF_A1_FRONT.jpg",
+            headers=Headers({"content-type": "image/jpeg"}),
+        )
+    
+        async def invoke():
+            arguments = dict(
+                group_id=context.group_id, files=[upload],
+                current_user=context.actor, session=db_session,
+            )
+            if phase == "put":
+                return await route.save_passport_documents_by_group(
+                    **arguments, background_tasks=BackgroundTasks(),
+                )
+            return await route.preview_passport_documents_by_group(**arguments)
+    
+        task = asyncio.create_task(invoke())
+        try:
+            await asyncio.wait_for(context.barrier.entered.wait(), 3)
+            assert not task.done()
+            await persist_authority_transition(context)
+        finally:
+            context.barrier.release.set()
+            outcome = (await asyncio.wait_for(asyncio.gather(task, return_exceptions=True), 5))[0]
+            await asyncio.wait_for(context.barrier.completed.wait(), 3)
+            await upload.close()
+        rejected = transition in DENIED
+        error_status = outcome.status_code if isinstance(outcome, HTTPException) else None
+        # Keep the subsequent observations separate from any uncommitted failed request.
+        await db_session.rollback()
+        async with context.factory() as fresh:
+            image_key = await fresh.scalar(select(PassportSubmissionModel.image_s3_key).where(
+                PassportSubmissionModel.id == context.passenger_id,
+            ))
+            audits = list(await fresh.scalars(select(AuditLogModel).where(
+                AuditLogModel.action == "passport_documents_bulk_imported",
+                AuditLogModel.entity_id == str(context.group_id),
+            )))
+            cleanups = list(await fresh.scalars(select(StorageCleanupJobModel)))
+            qr = await fresh.get(PassengerQRTokenModel, context.qr_id)
+            jobs = list(await fresh.scalars(select(PassportProcessingJobModel)))
+>       assert error_status == (403 if rejected else None), repr(outcome)
+E       AssertionError: PassportDocumentImportSaveResponse(group_id=UUID('8efe90b3-2127-4389-b733-aa565895bdd5'), total_count=1, accepted_count=1, rejected_count=0, accepted_documents=[PassportDocumentImportItem(filename='STF_A1_FRONT.jpg', staff_code='A1', document_type='front', passenger_id=UUID('1d098909-b433-4588-a6b2-6475e24eeb46'), passenger_name='Synthetic', accepted=True, reason=None)], rejected_documents=[], saved_count=1)
+E       assert None == 403
+
+tests\unit\presentation\test_document_import_authority.py:85: AssertionError
+_ test_inflight_import_uses_current_persisted_authority_before_publication[put-inactive] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000026BD75849D0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000026BD5C88A90>
+test_settings = Settings(app_env='development', app_debug=True, app_version='1.0.0', app_revision='unknown', expected_database_schema_...me='qrcode_v1', whatsapp_otp_template_name='', whatsapp_otp_template_language='en_US', whatsapp_delivery_concurrency=4)
+phase = 'put', transition = 'inactive'
+
+    @pytest.mark.parametrize("phase,transition", CASES)
+    async def test_inflight_import_uses_current_persisted_authority_before_publication(
+        db_session, monkeypatch, test_settings, phase, transition,
+    ):
+        context = await prepare_authority_import(
+            db_session, monkeypatch, test_settings, transition, phase,
+        )
+        upload = UploadFile(
+            io.BytesIO(context.payload), filename="STF_A1_FRONT.jpg",
+            headers=Headers({"content-type": "image/jpeg"}),
+        )
+    
+        async def invoke():
+            arguments = dict(
+                group_id=context.group_id, files=[upload],
+                current_user=context.actor, session=db_session,
+            )
+            if phase == "put":
+                return await route.save_passport_documents_by_group(
+                    **arguments, background_tasks=BackgroundTasks(),
+                )
+            return await route.preview_passport_documents_by_group(**arguments)
+    
+        task = asyncio.create_task(invoke())
+        try:
+            await asyncio.wait_for(context.barrier.entered.wait(), 3)
+            assert not task.done()
+            await persist_authority_transition(context)
+        finally:
+            context.barrier.release.set()
+            outcome = (await asyncio.wait_for(asyncio.gather(task, return_exceptions=True), 5))[0]
+            await asyncio.wait_for(context.barrier.completed.wait(), 3)
+            await upload.close()
+        rejected = transition in DENIED
+        error_status = outcome.status_code if isinstance(outcome, HTTPException) else None
+        # Keep the subsequent observations separate from any uncommitted failed request.
+        await db_session.rollback()
+        async with context.factory() as fresh:
+            image_key = await fresh.scalar(select(PassportSubmissionModel.image_s3_key).where(
+                PassportSubmissionModel.id == context.passenger_id,
+            ))
+            audits = list(await fresh.scalars(select(AuditLogModel).where(
+                AuditLogModel.action == "passport_documents_bulk_imported",
+                AuditLogModel.entity_id == str(context.group_id),
+            )))
+            cleanups = list(await fresh.scalars(select(StorageCleanupJobModel)))
+            qr = await fresh.get(PassengerQRTokenModel, context.qr_id)
+            jobs = list(await fresh.scalars(select(PassportProcessingJobModel)))
+>       assert error_status == (403 if rejected else None), repr(outcome)
+E       AssertionError: PassportDocumentImportSaveResponse(group_id=UUID('b9f1d138-1c16-4334-bdc5-72c4e2134756'), total_count=1, accepted_count=1, rejected_count=0, accepted_documents=[PassportDocumentImportItem(filename='STF_A1_FRONT.jpg', staff_code='A1', document_type='front', passenger_id=UUID('069b3d5f-182f-4348-9f37-8fda7d171b1e'), passenger_name='Synthetic', accepted=True, reason=None)], rejected_documents=[], saved_count=1)
+E       assert None == 403
+
+tests\unit\presentation\test_document_import_authority.py:85: AssertionError
+_ test_inflight_import_uses_current_persisted_authority_before_publication[put-owned_group_revoked] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000026BD75A90D0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000026BD5E3A8D0>
+test_settings = Settings(app_env='development', app_debug=True, app_version='1.0.0', app_revision='unknown', expected_database_schema_...me='qrcode_v1', whatsapp_otp_template_name='', whatsapp_otp_template_language='en_US', whatsapp_delivery_concurrency=4)
+phase = 'put', transition = 'owned_group_revoked'
+
+    @pytest.mark.parametrize("phase,transition", CASES)
+    async def test_inflight_import_uses_current_persisted_authority_before_publication(
+        db_session, monkeypatch, test_settings, phase, transition,
+    ):
+        context = await prepare_authority_import(
+            db_session, monkeypatch, test_settings, transition, phase,
+        )
+        upload = UploadFile(
+            io.BytesIO(context.payload), filename="STF_A1_FRONT.jpg",
+            headers=Headers({"content-type": "image/jpeg"}),
+        )
+    
+        async def invoke():
+            arguments = dict(
+                group_id=context.group_id, files=[upload],
+                current_user=context.actor, session=db_session,
+            )
+            if phase == "put":
+                return await route.save_passport_documents_by_group(
+                    **arguments, background_tasks=BackgroundTasks(),
+                )
+            return await route.preview_passport_documents_by_group(**arguments)
+    
+        task = asyncio.create_task(invoke())
+        try:
+            await asyncio.wait_for(context.barrier.entered.wait(), 3)
+            assert not task.done()
+            await persist_authority_transition(context)
+        finally:
+            context.barrier.release.set()
+            outcome = (await asyncio.wait_for(asyncio.gather(task, return_exceptions=True), 5))[0]
+            await asyncio.wait_for(context.barrier.completed.wait(), 3)
+            await upload.close()
+        rejected = transition in DENIED
+        error_status = outcome.status_code if isinstance(outcome, HTTPException) else None
+        # Keep the subsequent observations separate from any uncommitted failed request.
+        await db_session.rollback()
+        async with context.factory() as fresh:
+            image_key = await fresh.scalar(select(PassportSubmissionModel.image_s3_key).where(
+                PassportSubmissionModel.id == context.passenger_id,
+            ))
+            audits = list(await fresh.scalars(select(AuditLogModel).where(
+                AuditLogModel.action == "passport_documents_bulk_imported",
+                AuditLogModel.entity_id == str(context.group_id),
+            )))
+            cleanups = list(await fresh.scalars(select(StorageCleanupJobModel)))
+            qr = await fresh.get(PassengerQRTokenModel, context.qr_id)
+            jobs = list(await fresh.scalars(select(PassportProcessingJobModel)))
+>       assert error_status == (403 if rejected else None), repr(outcome)
+E       AssertionError: PassportDocumentImportSaveResponse(group_id=UUID('4b18a45c-ca39-47f8-9fcb-172d58ff42b9'), total_count=1, accepted_count=1, rejected_count=0, accepted_documents=[PassportDocumentImportItem(filename='STF_A1_FRONT.jpg', staff_code='A1', document_type='front', passenger_id=UUID('732a2836-1962-49ed-bd77-24ee47c3d006'), passenger_name='Synthetic', accepted=True, reason=None)], rejected_documents=[], saved_count=1)
+E       assert None == 403
+
+tests\unit\presentation\test_document_import_authority.py:85: AssertionError
+_ test_inflight_import_uses_current_persisted_authority_before_publication[put-role_changed] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000026BD76E2B50>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000026BD76F9DD0>
+test_settings = Settings(app_env='development', app_debug=True, app_version='1.0.0', app_revision='unknown', expected_database_schema_...me='qrcode_v1', whatsapp_otp_template_name='', whatsapp_otp_template_language='en_US', whatsapp_delivery_concurrency=4)
+phase = 'put', transition = 'role_changed'
+
+    @pytest.mark.parametrize("phase,transition", CASES)
+    async def test_inflight_import_uses_current_persisted_authority_before_publication(
+        db_session, monkeypatch, test_settings, phase, transition,
+    ):
+        context = await prepare_authority_import(
+            db_session, monkeypatch, test_settings, transition, phase,
+        )
+        upload = UploadFile(
+            io.BytesIO(context.payload), filename="STF_A1_FRONT.jpg",
+            headers=Headers({"content-type": "image/jpeg"}),
+        )
+    
+        async def invoke():
+            arguments = dict(
+                group_id=context.group_id, files=[upload],
+                current_user=context.actor, session=db_session,
+            )
+            if phase == "put":
+                return await route.save_passport_documents_by_group(
+                    **arguments, background_tasks=BackgroundTasks(),
+                )
+            return await route.preview_passport_documents_by_group(**arguments)
+    
+        task = asyncio.create_task(invoke())
+        try:
+            await asyncio.wait_for(context.barrier.entered.wait(), 3)
+            assert not task.done()
+            await persist_authority_transition(context)
+        finally:
+            context.barrier.release.set()
+            outcome = (await asyncio.wait_for(asyncio.gather(task, return_exceptions=True), 5))[0]
+            await asyncio.wait_for(context.barrier.completed.wait(), 3)
+            await upload.close()
+        rejected = transition in DENIED
+        error_status = outcome.status_code if isinstance(outcome, HTTPException) else None
+        # Keep the subsequent observations separate from any uncommitted failed request.
+        await db_session.rollback()
+        async with context.factory() as fresh:
+            image_key = await fresh.scalar(select(PassportSubmissionModel.image_s3_key).where(
+                PassportSubmissionModel.id == context.passenger_id,
+            ))
+            audits = list(await fresh.scalars(select(AuditLogModel).where(
+                AuditLogModel.action == "passport_documents_bulk_imported",
+                AuditLogModel.entity_id == str(context.group_id),
+            )))
+            cleanups = list(await fresh.scalars(select(StorageCleanupJobModel)))
+            qr = await fresh.get(PassengerQRTokenModel, context.qr_id)
+            jobs = list(await fresh.scalars(select(PassportProcessingJobModel)))
+>       assert error_status == (403 if rejected else None), repr(outcome)
+E       AssertionError: PassportDocumentImportSaveResponse(group_id=UUID('0385cc34-892b-4c0a-9e9d-41fcebf7ebbe'), total_count=1, accepted_count=1, rejected_count=0, accepted_documents=[PassportDocumentImportItem(filename='STF_A1_FRONT.jpg', staff_code='A1', document_type='front', passenger_id=UUID('9cb2a1c5-2348-4feb-82ba-a129b1a80611'), passenger_name='Synthetic', accepted=True, reason=None)], rejected_documents=[], saved_count=1)
+E       assert None == 403
+
+tests\unit\presentation\test_document_import_authority.py:85: AssertionError
+_ test_inflight_import_uses_current_persisted_authority_before_publication[put-sessions_revoked] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000026BD782C290>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000026BD770FA50>
+test_settings = Settings(app_env='development', app_debug=True, app_version='1.0.0', app_revision='unknown', expected_database_schema_...me='qrcode_v1', whatsapp_otp_template_name='', whatsapp_otp_template_language='en_US', whatsapp_delivery_concurrency=4)
+phase = 'put', transition = 'sessions_revoked'
+
+    @pytest.mark.parametrize("phase,transition", CASES)
+    async def test_inflight_import_uses_current_persisted_authority_before_publication(
+        db_session, monkeypatch, test_settings, phase, transition,
+    ):
+        context = await prepare_authority_import(
+            db_session, monkeypatch, test_settings, transition, phase,
+        )
+        upload = UploadFile(
+            io.BytesIO(context.payload), filename="STF_A1_FRONT.jpg",
+            headers=Headers({"content-type": "image/jpeg"}),
+        )
+    
+        async def invoke():
+            arguments = dict(
+                group_id=context.group_id, files=[upload],
+                current_user=context.actor, session=db_session,
+            )
+            if phase == "put":
+                return await route.save_passport_documents_by_group(
+                    **arguments, background_tasks=BackgroundTasks(),
+                )
+            return await route.preview_passport_documents_by_group(**arguments)
+    
+        task = asyncio.create_task(invoke())
+        try:
+            await asyncio.wait_for(context.barrier.entered.wait(), 3)
+            assert not task.done()
+            await persist_authority_transition(context)
+        finally:
+            context.barrier.release.set()
+            outcome = (await asyncio.wait_for(asyncio.gather(task, return_exceptions=True), 5))[0]
+            await asyncio.wait_for(context.barrier.completed.wait(), 3)
+            await upload.close()
+        rejected = transition in DENIED
+        error_status = outcome.status_code if isinstance(outcome, HTTPException) else None
+        # Keep the subsequent observations separate from any uncommitted failed request.
+        await db_session.rollback()
+        async with context.factory() as fresh:
+            image_key = await fresh.scalar(select(PassportSubmissionModel.image_s3_key).where(
+                PassportSubmissionModel.id == context.passenger_id,
+            ))
+            audits = list(await fresh.scalars(select(AuditLogModel).where(
+                AuditLogModel.action == "passport_documents_bulk_imported",
+                AuditLogModel.entity_id == str(context.group_id),
+            )))
+            cleanups = list(await fresh.scalars(select(StorageCleanupJobModel)))
+            qr = await fresh.get(PassengerQRTokenModel, context.qr_id)
+            jobs = list(await fresh.scalars(select(PassportProcessingJobModel)))
+>       assert error_status == (403 if rejected else None), repr(outcome)
+E       AssertionError: PassportDocumentImportSaveResponse(group_id=UUID('2243fb44-428e-4386-967a-59ade35788aa'), total_count=1, accepted_count=1, rejected_count=0, accepted_documents=[PassportDocumentImportItem(filename='STF_A1_FRONT.jpg', staff_code='A1', document_type='front', passenger_id=UUID('dc4d2840-7383-4736-b7f5-29ccc3b0e660'), passenger_name='Synthetic', accepted=True, reason=None)], rejected_documents=[], saved_count=1)
+E       assert None == 403
+
+tests\unit\presentation\test_document_import_authority.py:85: AssertionError
+---------------------------- Captured stdout call -----------------------------
+2026-10-31T16:57:42.322604Z [info     ] all_refresh_tokens_revoked     [app.infrastructure.repositories.refresh_token_repository] user_id=64deabe7-19ff-4eaa-8fb9-a8178954c975
+------------------------------ Captured log call ------------------------------
+INFO     app.infrastructure.repositories.refresh_token_repository:refresh_token_repository.py:244 {'user_id': '64deabe7-19ff-4eaa-8fb9-a8178954c975', 'event': 'all_refresh_tokens_revoked', 'logger': 'app.infrastructure.repositories.refresh_token_repository', 'level': 'info', 'timestamp': '2026-10-31T16:57:42.322604Z'}
+_ test_inflight_import_uses_current_persisted_authority_before_publication[validation-sessions_revoked] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000026BD7725750>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000026BD79A9890>
+test_settings = Settings(app_env='development', app_debug=True, app_version='1.0.0', app_revision='unknown', expected_database_schema_...me='qrcode_v1', whatsapp_otp_template_name='', whatsapp_otp_template_language='en_US', whatsapp_delivery_concurrency=4)
+phase = 'validation', transition = 'sessions_revoked'
+
+    @pytest.mark.parametrize("phase,transition", CASES)
+    async def test_inflight_import_uses_current_persisted_authority_before_publication(
+        db_session, monkeypatch, test_settings, phase, transition,
+    ):
+        context = await prepare_authority_import(
+            db_session, monkeypatch, test_settings, transition, phase,
+        )
+        upload = UploadFile(
+            io.BytesIO(context.payload), filename="STF_A1_FRONT.jpg",
+            headers=Headers({"content-type": "image/jpeg"}),
+        )
+    
+        async def invoke():
+            arguments = dict(
+                group_id=context.group_id, files=[upload],
+                current_user=context.actor, session=db_session,
+            )
+            if phase == "put":
+                return await route.save_passport_documents_by_group(
+                    **arguments, background_tasks=BackgroundTasks(),
+                )
+            return await route.preview_passport_documents_by_group(**arguments)
+    
+        task = asyncio.create_task(invoke())
+        try:
+            await asyncio.wait_for(context.barrier.entered.wait(), 3)
+            assert not task.done()
+            await persist_authority_transition(context)
+        finally:
+            context.barrier.release.set()
+            outcome = (await asyncio.wait_for(asyncio.gather(task, return_exceptions=True), 5))[0]
+            await asyncio.wait_for(context.barrier.completed.wait(), 3)
+            await upload.close()
+        rejected = transition in DENIED
+        error_status = outcome.status_code if isinstance(outcome, HTTPException) else None
+        # Keep the subsequent observations separate from any uncommitted failed request.
+        await db_session.rollback()
+        async with context.factory() as fresh:
+            image_key = await fresh.scalar(select(PassportSubmissionModel.image_s3_key).where(
+                PassportSubmissionModel.id == context.passenger_id,
+            ))
+            audits = list(await fresh.scalars(select(AuditLogModel).where(
+                AuditLogModel.action == "passport_documents_bulk_imported",
+                AuditLogModel.entity_id == str(context.group_id),
+            )))
+            cleanups = list(await fresh.scalars(select(StorageCleanupJobModel)))
+            qr = await fresh.get(PassengerQRTokenModel, context.qr_id)
+            jobs = list(await fresh.scalars(select(PassportProcessingJobModel)))
+>       assert error_status == (403 if rejected else None), repr(outcome)
+E       AssertionError: PassportDocumentImportPreviewResponse(group_id=UUID('58176f6e-8c2f-4a98-b3f5-0fed639c9f2e'), total_count=1, accepted_count=1, rejected_count=0, accepted_documents=[PassportDocumentImportItem(filename='STF_A1_FRONT.jpg', staff_code='A1', document_type='front', passenger_id=UUID('a5f98268-4c35-44aa-b5f2-9bc68d96fc63'), passenger_name='Synthetic', accepted=True, reason=None)], rejected_documents=[])
+E       assert None == 403
+
+tests\unit\presentation\test_document_import_authority.py:85: AssertionError
+---------------------------- Captured stdout call -----------------------------
+2026-10-31T16:57:44.177903Z [info     ] all_refresh_tokens_revoked     [app.infrastructure.repositories.refresh_token_repository] user_id=f592234b-741a-4386-b6d4-a76055dd1433
+------------------------------ Captured log call ------------------------------
+INFO     app.infrastructure.repositories.refresh_token_repository:refresh_token_repository.py:244 {'user_id': 'f592234b-741a-4386-b6d4-a76055dd1433', 'event': 'all_refresh_tokens_revoked', 'logger': 'app.infrastructure.repositories.refresh_token_repository', 'level': 'info', 'timestamp': '2026-10-31T16:57:44.177903Z'}
+_ test_inflight_import_uses_current_persisted_authority_before_publication[validation-assignment_revoked] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000026BD7A7D850>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000026BD778E850>
+test_settings = Settings(app_env='development', app_debug=True, app_version='1.0.0', app_revision='unknown', expected_database_schema_...me='qrcode_v1', whatsapp_otp_template_name='', whatsapp_otp_template_language='en_US', whatsapp_delivery_concurrency=4)
+phase = 'validation', transition = 'assignment_revoked'
+
+    @pytest.mark.parametrize("phase,transition", CASES)
+    async def test_inflight_import_uses_current_persisted_authority_before_publication(
+        db_session, monkeypatch, test_settings, phase, transition,
+    ):
+        context = await prepare_authority_import(
+            db_session, monkeypatch, test_settings, transition, phase,
+        )
+        upload = UploadFile(
+            io.BytesIO(context.payload), filename="STF_A1_FRONT.jpg",
+            headers=Headers({"content-type": "image/jpeg"}),
+        )
+    
+        async def invoke():
+            arguments = dict(
+                group_id=context.group_id, files=[upload],
+                current_user=context.actor, session=db_session,
+            )
+            if phase == "put":
+                return await route.save_passport_documents_by_group(
+                    **arguments, background_tasks=BackgroundTasks(),
+                )
+            return await route.preview_passport_documents_by_group(**arguments)
+    
+        task = asyncio.create_task(invoke())
+        try:
+            await asyncio.wait_for(context.barrier.entered.wait(), 3)
+            assert not task.done()
+            await persist_authority_transition(context)
+        finally:
+            context.barrier.release.set()
+            outcome = (await asyncio.wait_for(asyncio.gather(task, return_exceptions=True), 5))[0]
+            await asyncio.wait_for(context.barrier.completed.wait(), 3)
+            await upload.close()
+        rejected = transition in DENIED
+        error_status = outcome.status_code if isinstance(outcome, HTTPException) else None
+        # Keep the subsequent observations separate from any uncommitted failed request.
+        await db_session.rollback()
+        async with context.factory() as fresh:
+            image_key = await fresh.scalar(select(PassportSubmissionModel.image_s3_key).where(
+                PassportSubmissionModel.id == context.passenger_id,
+            ))
+            audits = list(await fresh.scalars(select(AuditLogModel).where(
+                AuditLogModel.action == "passport_documents_bulk_imported",
+                AuditLogModel.entity_id == str(context.group_id),
+            )))
+            cleanups = list(await fresh.scalars(select(StorageCleanupJobModel)))
+            qr = await fresh.get(PassengerQRTokenModel, context.qr_id)
+            jobs = list(await fresh.scalars(select(PassportProcessingJobModel)))
+>       assert error_status == (403 if rejected else None), repr(outcome)
+E       AssertionError: PassportDocumentImportPreviewResponse(group_id=UUID('e162c1c5-0230-4a20-90ba-1e5d94ca8c70'), total_count=1, accepted_count=1, rejected_count=0, accepted_documents=[PassportDocumentImportItem(filename='STF_A1_FRONT.jpg', staff_code='A1', document_type='front', passenger_id=UUID('5d89c01a-8242-406b-8e83-dacdeee964b8'), passenger_name='Synthetic', accepted=True, reason=None)], rejected_documents=[])
+E       assert None == 403
+
+tests\unit\presentation\test_document_import_authority.py:85: AssertionError
+_ test_inflight_import_uses_current_persisted_authority_before_publication[validation-group_deleted] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000026BD7C89950>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000026BD7C97B10>
+test_settings = Settings(app_env='development', app_debug=True, app_version='1.0.0', app_revision='unknown', expected_database_schema_...me='qrcode_v1', whatsapp_otp_template_name='', whatsapp_otp_template_language='en_US', whatsapp_delivery_concurrency=4)
+phase = 'validation', transition = 'group_deleted'
+
+    @pytest.mark.parametrize("phase,transition", CASES)
+    async def test_inflight_import_uses_current_persisted_authority_before_publication(
+        db_session, monkeypatch, test_settings, phase, transition,
+    ):
+        context = await prepare_authority_import(
+            db_session, monkeypatch, test_settings, transition, phase,
+        )
+        upload = UploadFile(
+            io.BytesIO(context.payload), filename="STF_A1_FRONT.jpg",
+            headers=Headers({"content-type": "image/jpeg"}),
+        )
+    
+        async def invoke():
+            arguments = dict(
+                group_id=context.group_id, files=[upload],
+                current_user=context.actor, session=db_session,
+            )
+            if phase == "put":
+                return await route.save_passport_documents_by_group(
+                    **arguments, background_tasks=BackgroundTasks(),
+                )
+            return await route.preview_passport_documents_by_group(**arguments)
+    
+        task = asyncio.create_task(invoke())
+        try:
+            await asyncio.wait_for(context.barrier.entered.wait(), 3)
+            assert not task.done()
+            await persist_authority_transition(context)
+        finally:
+            context.barrier.release.set()
+            outcome = (await asyncio.wait_for(asyncio.gather(task, return_exceptions=True), 5))[0]
+            await asyncio.wait_for(context.barrier.completed.wait(), 3)
+            await upload.close()
+        rejected = transition in DENIED
+        error_status = outcome.status_code if isinstance(outcome, HTTPException) else None
+        # Keep the subsequent observations separate from any uncommitted failed request.
+        await db_session.rollback()
+        async with context.factory() as fresh:
+            image_key = await fresh.scalar(select(PassportSubmissionModel.image_s3_key).where(
+                PassportSubmissionModel.id == context.passenger_id,
+            ))
+            audits = list(await fresh.scalars(select(AuditLogModel).where(
+                AuditLogModel.action == "passport_documents_bulk_imported",
+                AuditLogModel.entity_id == str(context.group_id),
+            )))
+            cleanups = list(await fresh.scalars(select(StorageCleanupJobModel)))
+            qr = await fresh.get(PassengerQRTokenModel, context.qr_id)
+            jobs = list(await fresh.scalars(select(PassportProcessingJobModel)))
+>       assert error_status == (403 if rejected else None), repr(outcome)
+E       AssertionError: PassportDocumentImportPreviewResponse(group_id=UUID('c8410913-4950-4c85-8312-bfa968a02d65'), total_count=1, accepted_count=1, rejected_count=0, accepted_documents=[PassportDocumentImportItem(filename='STF_A1_FRONT.jpg', staff_code='A1', document_type='front', passenger_id=UUID('5fad5057-d52d-4eae-a452-54dcb27024ee'), passenger_name='Synthetic', accepted=True, reason=None)], rejected_documents=[])
+E       assert None == 403
+
+tests\unit\presentation\test_document_import_authority.py:85: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/unit/presentation/test_document_import_authority.py::test_inflight_import_uses_current_persisted_authority_before_publication[put-agency_changed]
+FAILED tests/unit/presentation/test_document_import_authority.py::test_inflight_import_uses_current_persisted_authority_before_publication[put-assignment_revoked]
+FAILED tests/unit/presentation/test_document_import_authority.py::test_inflight_import_uses_current_persisted_authority_before_publication[put-credential_reset]
+FAILED tests/unit/presentation/test_document_import_authority.py::test_inflight_import_uses_current_persisted_authority_before_publication[put-group_deleted]
+FAILED tests/unit/presentation/test_document_import_authority.py::test_inflight_import_uses_current_persisted_authority_before_publication[put-inactive]
+FAILED tests/unit/presentation/test_document_import_authority.py::test_inflight_import_uses_current_persisted_authority_before_publication[put-owned_group_revoked]
+FAILED tests/unit/presentation/test_document_import_authority.py::test_inflight_import_uses_current_persisted_authority_before_publication[put-role_changed]
+FAILED tests/unit/presentation/test_document_import_authority.py::test_inflight_import_uses_current_persisted_authority_before_publication[put-sessions_revoked]
+FAILED tests/unit/presentation/test_document_import_authority.py::test_inflight_import_uses_current_persisted_authority_before_publication[validation-sessions_revoked]
+FAILED tests/unit/presentation/test_document_import_authority.py::test_inflight_import_uses_current_persisted_authority_before_publication[validation-assignment_revoked]
+FAILED tests/unit/presentation/test_document_import_authority.py::test_inflight_import_uses_current_persisted_authority_before_publication[validation-group_deleted]
+11 failed, 9 passed in 10.81s

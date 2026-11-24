@@ -1,0 +1,171 @@
+{
+  "files": [
+    {
+      "path": "backend/app/core/security/identity_security.py",
+      "review_status": "full",
+      "notes": "Complete physical source read by ai_extraction; cryptographic purpose/key rotation, source ownership, bounded worker admission, private error/telemetry and current lock/expiry/transaction boundaries followed as applicable. Notification lease/preflight and large mixed route responsibility remain explicit follow-through, not implicitly cleared.",
+      "sha256": "934568c0909e067de6b064ec4b3bcdd3ea6f8b61e9c4bf91026f55dc8fefe84d",
+      "lines": 331
+    },
+    {
+      "path": "backend/app/infrastructure/database/dashboard_session_models.py",
+      "review_status": "full",
+      "reviewer": "ai_extraction",
+      "sha256": "ae9aaa3dfdfad08ed9fd6d8d30758767ed9cd239e799b8e789b1cea024a52471",
+      "lines": 28,
+      "notes": "Complete physical source read. Current factor/token/session constraints, bounded retention/admission, lock and durable denial/mutation boundaries, purpose encryption, nonsecret errors/metrics and typed call-time seams reviewed as applicable. Full read does not declare all downstream behavior or live PostgreSQL/Redis/provider qualification complete; notification worker and pre-auth challenge credential-fence/resource-cleanup follow-through remain pending."
+    },
+    {
+      "path": "backend/app/infrastructure/database/identity_security_models.py",
+      "review_status": "full",
+      "reviewer": "ai_extraction",
+      "sha256": "f17b97ce701e520b12dafd65c0b9b0d18ec1a7d6f20b34e771828ece3c0531f0",
+      "lines": 361,
+      "notes": "Complete physical source read. Current factor/token/session constraints, bounded retention/admission, lock and durable denial/mutation boundaries, purpose encryption, nonsecret errors/metrics and typed call-time seams reviewed as applicable. Full read does not declare all downstream behavior or live PostgreSQL/Redis/provider qualification complete; notification worker and pre-auth challenge credential-fence/resource-cleanup follow-through remain pending."
+    },
+    {
+      "path": "backend/app/infrastructure/database/session.py",
+      "review_status": "full",
+      "sha256": "782cee8c9053e752cfa88daa590f3227c34175e995d9ab36bff8faa42999d933",
+      "lines": 164,
+      "notes": "Complete physical source read by ai_extraction. Challenge/token/factor state, database lifecycle, lock order, actor/session ownership, current expiry, no-secret error responses and resource cleanup reviewed as applicable. Action-token lock/expiry follow-through and large mixed-route decomposition remain pending; full read is not a clean bill of health."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/dashboard_session_repository.py",
+      "review_status": "full",
+      "sha256": "8b9d43bcad2e486316fa83c7aef0f634e12407a09ec1d911229ab6a0863e8914",
+      "lines": 31,
+      "notes": "Complete physical source read by ai_extraction. Challenge/token/factor state, database lifecycle, lock order, actor/session ownership, current expiry, no-secret error responses and resource cleanup reviewed as applicable. Action-token lock/expiry follow-through and large mixed-route decomposition remain pending; full read is not a clean bill of health."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/dashboard_step_up_repository.py",
+      "review_status": "full",
+      "reviewer": "ai_extraction",
+      "sha256": "707751b5f3eb4beb2b175ca8091d1efe04f73e492138870a083dc235a0e41051",
+      "lines": 92,
+      "notes": "Complete physical source read. Current factor/token/session constraints, bounded retention/admission, lock and durable denial/mutation boundaries, purpose encryption, nonsecret errors/metrics and typed call-time seams reviewed as applicable. Full read does not declare all downstream behavior or live PostgreSQL/Redis/provider qualification complete; notification worker and pre-auth challenge credential-fence/resource-cleanup follow-through remain pending."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/identity_action_token_repository.py",
+      "review_status": "full",
+      "notes": "Complete physical source read by ai_extraction; cryptographic purpose/key rotation, source ownership, bounded worker admission, private error/telemetry and current lock/expiry/transaction boundaries followed as applicable. Notification lease/preflight and large mixed route responsibility remain explicit follow-through, not implicitly cleared. Final complete method AST proof preserves four facade clock calls and one facade UUID call; exact token/outbox IDs asserted in deterministic recovery regression.",
+      "sha256": "0cfc0cb594e048ad9c81f77430f2cc676db35bc72841c863f2421eb8f8a7c90a",
+      "lines": 202
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/identity_security_repository.py",
+      "review_status": "full",
+      "sha256": "cb748a2dc68051430b6eb60c5983c5551ec7fee2d27fbfe45df9237c50daad6c",
+      "lines": 345,
+      "notes": "Complete physical source read by ai_extraction. Challenge/token/factor state, database lifecycle, lock order, actor/session ownership, current expiry, no-secret error responses and resource cleanup reviewed as applicable. Action-token lock/expiry follow-through and large mixed-route decomposition remain pending; full read is not a clean bill of health. Final complete method AST proof preserves four facade clock calls and one facade UUID call; exact token/outbox IDs asserted in deterministic recovery regression."
+    },
+    {
+      "path": "backend/app/infrastructure/security/identity_notifications.py",
+      "review_status": "full",
+      "notes": "Complete physical source read by ai_extraction; cryptographic purpose/key rotation, source ownership, bounded worker admission, private error/telemetry and current lock/expiry/transaction boundaries followed as applicable. Notification lease/preflight and large mixed route responsibility remain explicit follow-through, not implicitly cleared.",
+      "sha256": "a312ad4594b2566c303e22a532cc7524afc91e7ef5bc23f3058c89ed15887d93",
+      "lines": 558
+    },
+    {
+      "path": "backend/app/infrastructure/security/identity_recovery_rate_limiter.py",
+      "review_status": "full",
+      "sha256": "093e03cc99eb00842926de8268cb96807a109c23ed9b6c14c210e75e164c60cc",
+      "lines": 155,
+      "notes": "Complete physical source read by ai_extraction. Challenge/token/factor state, database lifecycle, lock order, actor/session ownership, current expiry, no-secret error responses and resource cleanup reviewed as applicable. Action-token lock/expiry follow-through and large mixed-route decomposition remain pending; full read is not a clean bill of health."
+    },
+    {
+      "path": "backend/app/infrastructure/security/identity_retention.py",
+      "review_status": "full",
+      "reviewer": "ai_extraction",
+      "sha256": "11fca0add9fec8f3313be9b3884879747e2d880ccaa60ee4ebeee0e1f5b3e862",
+      "lines": 189,
+      "notes": "Complete physical source read. Current factor/token/session constraints, bounded retention/admission, lock and durable denial/mutation boundaries, purpose encryption, nonsecret errors/metrics and typed call-time seams reviewed as applicable. Full read does not declare all downstream behavior or live PostgreSQL/Redis/provider qualification complete; notification worker and pre-auth challenge credential-fence/resource-cleanup follow-through remain pending."
+    },
+    {
+      "path": "backend/app/infrastructure/security/identity_tasks.py",
+      "review_status": "full",
+      "notes": "Complete physical source read by ai_extraction; cryptographic purpose/key rotation, source ownership, bounded worker admission, private error/telemetry and current lock/expiry/transaction boundaries followed as applicable. Notification lease/preflight and large mixed route responsibility remain explicit follow-through, not implicitly cleared.",
+      "sha256": "f03afb727b8338cb3d077d60e6cf73beab2492063911892b545c14c249935f8f",
+      "lines": 57
+    },
+    {
+      "path": "backend/app/infrastructure/security/login_attempt_limiter.py",
+      "review_status": "full",
+      "reviewer": "ai_extraction",
+      "sha256": "b23f38b4c692ba60d3cee3671ca62729e91ac4c5ca185fa994c23693ba131d24",
+      "lines": 185,
+      "notes": "Complete physical source read. Current factor/token/session constraints, bounded retention/admission, lock and durable denial/mutation boundaries, purpose encryption, nonsecret errors/metrics and typed call-time seams reviewed as applicable. Full read does not declare all downstream behavior or live PostgreSQL/Redis/provider qualification complete; notification worker and pre-auth challenge credential-fence/resource-cleanup follow-through remain pending."
+    },
+    {
+      "path": "backend/app/infrastructure/security/mfa_step_up_rate_limiter.py",
+      "review_status": "full",
+      "reviewer": "ai_extraction",
+      "sha256": "39b90aae0ae396bdf2da4b2bc6a5b84646f910db3c0962ca833ebe25206ba0be",
+      "lines": 189,
+      "notes": "Complete physical source read. Current factor/token/session constraints, bounded retention/admission, lock and durable denial/mutation boundaries, purpose encryption, nonsecret errors/metrics and typed call-time seams reviewed as applicable. Full read does not declare all downstream behavior or live PostgreSQL/Redis/provider qualification complete; notification worker and pre-auth challenge credential-fence/resource-cleanup follow-through remain pending."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/auth_identity.py",
+      "review_status": "full",
+      "reviewer": "ai_extraction",
+      "sha256": "daa6e8b3fc67dd9cda2c784d0330fddecb05105e8b0e7b3651b8c6a2936f6e37",
+      "lines": 440,
+      "notes": "Complete physical source read. Current factor/token/session constraints, bounded retention/admission, lock and durable denial/mutation boundaries, purpose encryption, nonsecret errors/metrics and typed call-time seams reviewed as applicable. Full read does not declare all downstream behavior or live PostgreSQL/Redis/provider qualification complete; notification worker and pre-auth challenge credential-fence/resource-cleanup follow-through remain pending."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/auth_identity_account.py",
+      "review_status": "full",
+      "reviewer": "ai_extraction",
+      "sha256": "c47ddd2d9969dcd1ce03e293ba35d31cbc902fc5954decd867fc0bd7a09f569d",
+      "lines": 174,
+      "notes": "Complete physical source read. Current factor/token/session constraints, bounded retention/admission, lock and durable denial/mutation boundaries, purpose encryption, nonsecret errors/metrics and typed call-time seams reviewed as applicable. Full read does not declare all downstream behavior or live PostgreSQL/Redis/provider qualification complete; notification worker and pre-auth challenge credential-fence/resource-cleanup follow-through remain pending."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/auth_identity_actions.py",
+      "review_status": "full",
+      "reviewer": "ai_extraction",
+      "sha256": "70e71e7d79682c1e532c350076f7b3ef231a53977d41df43d431e12133844d3f",
+      "lines": 199,
+      "notes": "Complete physical source read. Current factor/token/session constraints, bounded retention/admission, lock and durable denial/mutation boundaries, purpose encryption, nonsecret errors/metrics and typed call-time seams reviewed as applicable. Full read does not declare all downstream behavior or live PostgreSQL/Redis/provider qualification complete; notification worker and pre-auth challenge credential-fence/resource-cleanup follow-through remain pending."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/auth_identity_dependencies.py",
+      "review_status": "full",
+      "reviewer": "ai_extraction",
+      "sha256": "a34df50acc82598958ebbbbf0d375bec0637ec0cc7a6e33f7d3b86c14bf7389f",
+      "lines": 67,
+      "notes": "Complete physical source read. Current factor/token/session constraints, bounded retention/admission, lock and durable denial/mutation boundaries, purpose encryption, nonsecret errors/metrics and typed call-time seams reviewed as applicable. Full read does not declare all downstream behavior or live PostgreSQL/Redis/provider qualification complete; notification worker and pre-auth challenge credential-fence/resource-cleanup follow-through remain pending."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/auth_identity_recovery.py",
+      "review_status": "full",
+      "reviewer": "ai_extraction",
+      "sha256": "422caca899fab26bd330fcf573db97bacbd374c4e9de1ec57dc51099c090c804",
+      "lines": 138,
+      "notes": "Complete physical source read. Current factor/token/session constraints, bounded retention/admission, lock and durable denial/mutation boundaries, purpose encryption, nonsecret errors/metrics and typed call-time seams reviewed as applicable. Full read does not declare all downstream behavior or live PostgreSQL/Redis/provider qualification complete; notification worker and pre-auth challenge credential-fence/resource-cleanup follow-through remain pending."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/auth_identity_step_up.py",
+      "review_status": "full",
+      "reviewer": "ai_extraction",
+      "sha256": "e748311e50ee9c47ce1df2596ec2b5d4ea0f9c96c2240aaf80a4ee91c30c7639",
+      "lines": 188,
+      "notes": "Complete physical source read. Current factor/token/session constraints, bounded retention/admission, lock and durable denial/mutation boundaries, purpose encryption, nonsecret errors/metrics and typed call-time seams reviewed as applicable. Full read does not declare all downstream behavior or live PostgreSQL/Redis/provider qualification complete; notification worker and pre-auth challenge credential-fence/resource-cleanup follow-through remain pending."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/auth_identity_verification.py",
+      "review_status": "full",
+      "reviewer": "ai_extraction",
+      "sha256": "d81331a9d79ab28335c74a9e87917fb74641b12dca95beec3f4bc34a6c8b1d54",
+      "lines": 135,
+      "notes": "Complete physical source read. Current factor/token/session constraints, bounded retention/admission, lock and durable denial/mutation boundaries, purpose encryption, nonsecret errors/metrics and typed call-time seams reviewed as applicable. Full read does not declare all downstream behavior or live PostgreSQL/Redis/provider qualification complete; notification worker and pre-auth challenge credential-fence/resource-cleanup follow-through remain pending."
+    },
+    {
+      "path": "backend/app/presentation/dependencies/csrf.py",
+      "review_status": "full",
+      "sha256": "dfc552ab80bd41ab4128ef5971bf6c0f99243ec824fd55cd7059b1056a86625a",
+      "lines": 92,
+      "notes": "Complete physical source read by ai_extraction. Challenge/token/factor state, database lifecycle, lock order, actor/session ownership, current expiry, no-secret error responses and resource cleanup reviewed as applicable. Action-token lock/expiry follow-through and large mixed-route decomposition remain pending; full read is not a clean bill of health."
+    }
+  ]
+}

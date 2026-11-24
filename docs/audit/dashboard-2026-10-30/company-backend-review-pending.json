@@ -1,0 +1,31 @@
+{
+  "scope": "Complete current company application/routes, traveller application and infrastructure/travellers packages read; schema and supporting security/storage reads are exact below. This does not imply all backend, all company caller routes, broad repository owners or published migrations are reviewed.",
+  "complete_current_traveller_application_files": 66,
+  "complete_current_traveller_infrastructure_files": 25,
+  "supporting_partial": [
+    {
+      "path": "backend/app/infrastructure/database/document_models.py",
+      "review_status": "partial",
+      "sha256": "414813b4d861c1941592fc9ff5a86f3aff71d5f31a72e3b411a1b6c7fde06d27",
+      "notes": "StorageCleanupJobModel and its encrypted outbox contract read; remaining models not fully read in this lane."
+    },
+    {
+      "path": "backend/app/infrastructure/storage/minio_repository.py",
+      "review_status": "partial",
+      "sha256": "f31fe249d63c18ea0e400bae0ee3161eb05db6b194527e2bdab39bf88626180c",
+      "notes": "Configuration and relevant asynchronous upload/copy/delete wrappers read; full current storage manual review belongs to manual_security evidence, not attributed here."
+    },
+    {
+      "path": "backend/app/core/config/settings.py",
+      "review_status": "partial",
+      "sha256": "b5f146715e9d5aae0c973de1a562db8a8899809811dbea4c9ca4e055c900ee42",
+      "notes": "S3 timeout and total-attempt bounds plus consumers read; remaining settings not fully reread in this lane."
+    }
+  ],
+  "next_application_files": [],
+  "pending_scope": [
+    "Remaining physical persistence/repository/runtime and same-host route owners not listed in any current full-read ledger, including native-client server exposure.",
+    "Unreviewed published migrations: topology checks do not replace physical review.",
+    "Actual PostgreSQL locking/query plans, real object-store behavior, provider integration and production deployment remain unqualified."
+  ]
+}

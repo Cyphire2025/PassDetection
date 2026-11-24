@@ -1,0 +1,17 @@
+[
+  {
+    "path": "backend/tests/unit/infrastructure/test_email_task_routing.py",
+    "sha256": "68ff06458ca021fd8e9e58752d3eb9274d2a9c86d8747b290bf447c0b4364529",
+    "snapshot": ".tmp/email-residual-original/backend/tests/unit/infrastructure/test_email_task_routing.py"
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_email_task_outcomes.py",
+    "sha256": "65a93d0bd18c3a76dd38d39e1395c14d6755315db334d72d8228bf795bc3cf65",
+    "snapshot": ".tmp/email-residual-original/backend/tests/unit/infrastructure/test_email_task_outcomes.py"
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_email_retention_persistence.py",
+    "sha256": "074aa31181cdf394f891cddafb2ec120bcbb5cb39a60f35cfb367cfa1879ef28",
+    "snapshot": ".tmp/email-residual-original/backend/tests/unit/infrastructure/test_email_retention_persistence.py"
+  }
+]

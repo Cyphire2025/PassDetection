@@ -1,0 +1,20 @@
+{
+  "files": [
+    {
+      "path": "backend/scripts/verify_backend_quality_budgets.py",
+      "review_status": "full",
+      "reviewer": "ai_extraction",
+      "sha256": "2baf94d493a068bd1aed0258f4627aed47fe0845e6764fd0310cbf84f57794a9",
+      "lines": 309,
+      "notes": "Complete physical source read; zero-function baseline and ceiling remain honest while negative metrics are rejected and newly introduced functions trip0 ceiling. Existing module/global/critical coverage policy and path/error handling preserved;10 focused checker tests passed. Whole-file formatting AST equivalence is recorded separately."
+    },
+    {
+      "path": "backend/tests/unit/scripts/test_verify_backend_quality_budgets.py",
+      "review_status": "full",
+      "reviewer": "ai_extraction",
+      "sha256": "22f7bd0fead37e78e135fe35ea6eacbf0079624e83489b7ec5c31415ab67a7ab",
+      "lines": 224,
+      "notes": "Complete physical source read; zero-function baseline and ceiling remain honest while negative metrics are rejected and newly introduced functions trip0 ceiling. Existing module/global/critical coverage policy and path/error handling preserved;10 focused checker tests passed. Whole-file formatting AST equivalence is recorded separately."
+    }
+  ]
+}

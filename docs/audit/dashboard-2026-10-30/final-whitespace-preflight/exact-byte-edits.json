@@ -1,0 +1,2567 @@
+[
+  {
+    "path": "backend/app/application/use_cases/passports/process_passport_submission_job_use_case.py",
+    "edits": [
+      {
+        "old_offset": 24589,
+        "delete_hex": "0d0a",
+        "rule": "remove_one_exact_terminal_blank_CRLF_line",
+        "new_offset": 24589,
+        "original_LF_line": 590
+      }
+    ]
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_bulk_delete_route.py",
+    "edits": [
+      {
+        "old_offset": 1565,
+        "delete_hex": "20",
+        "rule": "remove_one_space_after_exact_monkeypatch_call_comma",
+        "new_offset": 1565,
+        "original_LF_line": 38
+      }
+    ]
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py",
+    "edits": [
+      {
+        "old_offset": 1924,
+        "delete_hex": "20",
+        "rule": "remove_one_space_after_exact_monkeypatch_call_comma",
+        "new_offset": 1924,
+        "original_LF_line": 55
+      },
+      {
+        "old_offset": 2094,
+        "delete_hex": "20",
+        "rule": "remove_one_space_after_exact_monkeypatch_call_comma",
+        "new_offset": 2093,
+        "original_LF_line": 59
+      }
+    ]
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_public_passport_capabilities.py",
+    "edits": [
+      {
+        "old_offset": 2772,
+        "delete_hex": "20",
+        "rule": "remove_one_space_after_exact_monkeypatch_call_comma",
+        "new_offset": 2772,
+        "original_LF_line": 74
+      }
+    ]
+  },
+  {
+    "path": "frontend/features/companies/components/company-feedback.tsx",
+    "edits": [
+      {
+        "old_offset": 1696,
+        "delete_hex": "0d0a",
+        "rule": "remove_one_exact_terminal_blank_CRLF_line",
+        "new_offset": 1696,
+        "original_LF_line": 24
+      }
+    ]
+  },
+  {
+    "path": "frontend/features/passports/components/passport-document-follow-up.test.tsx",
+    "edits": [
+      {
+        "old_offset": 73,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 73,
+        "original_LF_line": 1
+      },
+      {
+        "old_offset": 169,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 168,
+        "original_LF_line": 2
+      },
+      {
+        "old_offset": 242,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 240,
+        "original_LF_line": 3
+      },
+      {
+        "old_offset": 318,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 315,
+        "original_LF_line": 4
+      },
+      {
+        "old_offset": 372,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 368,
+        "original_LF_line": 5
+      },
+      {
+        "old_offset": 411,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 406,
+        "original_LF_line": 6
+      },
+      {
+        "old_offset": 455,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 449,
+        "original_LF_line": 7
+      },
+      {
+        "old_offset": 499,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 492,
+        "original_LF_line": 8
+      },
+      {
+        "old_offset": 589,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 581,
+        "original_LF_line": 9
+      },
+      {
+        "old_offset": 673,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 664,
+        "original_LF_line": 10
+      },
+      {
+        "old_offset": 771,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 761,
+        "original_LF_line": 11
+      },
+      {
+        "old_offset": 857,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 846,
+        "original_LF_line": 12
+      },
+      {
+        "old_offset": 940,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 928,
+        "original_LF_line": 13
+      },
+      {
+        "old_offset": 943,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 930,
+        "original_LF_line": 14
+      },
+      {
+        "old_offset": 984,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 970,
+        "original_LF_line": 15
+      },
+      {
+        "old_offset": 1099,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 1084,
+        "original_LF_line": 16
+      },
+      {
+        "old_offset": 1220,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 1204,
+        "original_LF_line": 17
+      },
+      {
+        "old_offset": 1223,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 1206,
+        "original_LF_line": 18
+      },
+      {
+        "old_offset": 1255,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 1237,
+        "original_LF_line": 19
+      },
+      {
+        "old_offset": 1371,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 1352,
+        "original_LF_line": 20
+      },
+      {
+        "old_offset": 1505,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 1485,
+        "original_LF_line": 21
+      },
+      {
+        "old_offset": 1537,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 1516,
+        "original_LF_line": 22
+      },
+      {
+        "old_offset": 1541,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 1519,
+        "original_LF_line": 23
+      },
+      {
+        "old_offset": 1544,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 1521,
+        "original_LF_line": 24
+      },
+      {
+        "old_offset": 1575,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 1551,
+        "original_LF_line": 25
+      },
+      {
+        "old_offset": 1588,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 1563,
+        "original_LF_line": 26
+      },
+      {
+        "old_offset": 1677,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 1651,
+        "original_LF_line": 27
+      },
+      {
+        "old_offset": 1833,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 1806,
+        "original_LF_line": 28
+      },
+      {
+        "old_offset": 1929,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 1901,
+        "original_LF_line": 29
+      },
+      {
+        "old_offset": 1936,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 1907,
+        "original_LF_line": 30
+      },
+      {
+        "old_offset": 1940,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 1910,
+        "original_LF_line": 31
+      },
+      {
+        "old_offset": 1943,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 1912,
+        "original_LF_line": 32
+      },
+      {
+        "old_offset": 1985,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 1953,
+        "original_LF_line": 33
+      },
+      {
+        "old_offset": 1998,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 1965,
+        "original_LF_line": 34
+      },
+      {
+        "old_offset": 2089,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 2055,
+        "original_LF_line": 35
+      },
+      {
+        "old_offset": 2174,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 2139,
+        "original_LF_line": 36
+      },
+      {
+        "old_offset": 2272,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 2236,
+        "original_LF_line": 37
+      },
+      {
+        "old_offset": 2363,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 2326,
+        "original_LF_line": 38
+      },
+      {
+        "old_offset": 2410,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 2372,
+        "original_LF_line": 39
+      },
+      {
+        "old_offset": 2534,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 2495,
+        "original_LF_line": 40
+      },
+      {
+        "old_offset": 2608,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 2568,
+        "original_LF_line": 41
+      },
+      {
+        "old_offset": 2612,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 2571,
+        "original_LF_line": 42
+      },
+      {
+        "old_offset": 2615,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 2573,
+        "original_LF_line": 43
+      },
+      {
+        "old_offset": 2663,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 2620,
+        "original_LF_line": 44
+      },
+      {
+        "old_offset": 2759,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 2715,
+        "original_LF_line": 45
+      },
+      {
+        "old_offset": 2796,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 2751,
+        "original_LF_line": 46
+      },
+      {
+        "old_offset": 2877,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 2831,
+        "original_LF_line": 47
+      },
+      {
+        "old_offset": 2980,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 2933,
+        "original_LF_line": 48
+      },
+      {
+        "old_offset": 3092,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 3044,
+        "original_LF_line": 49
+      },
+      {
+        "old_offset": 3189,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 3140,
+        "original_LF_line": 50
+      },
+      {
+        "old_offset": 3303,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 3253,
+        "original_LF_line": 51
+      },
+      {
+        "old_offset": 3387,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 3336,
+        "original_LF_line": 52
+      },
+      {
+        "old_offset": 3440,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 3388,
+        "original_LF_line": 53
+      },
+      {
+        "old_offset": 3502,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 3449,
+        "original_LF_line": 54
+      },
+      {
+        "old_offset": 3605,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 3551,
+        "original_LF_line": 55
+      },
+      {
+        "old_offset": 3613,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 3558,
+        "original_LF_line": 56
+      },
+      {
+        "old_offset": 3616,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 3560,
+        "original_LF_line": 57
+      },
+      {
+        "old_offset": 3721,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 3664,
+        "original_LF_line": 58
+      },
+      {
+        "old_offset": 3767,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 3709,
+        "original_LF_line": 59
+      },
+      {
+        "old_offset": 3864,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 3805,
+        "original_LF_line": 60
+      },
+      {
+        "old_offset": 3954,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 3894,
+        "original_LF_line": 61
+      },
+      {
+        "old_offset": 4049,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 3988,
+        "original_LF_line": 62
+      },
+      {
+        "old_offset": 4145,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 4083,
+        "original_LF_line": 63
+      },
+      {
+        "old_offset": 4211,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 4148,
+        "original_LF_line": 64
+      },
+      {
+        "old_offset": 4255,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 4191,
+        "original_LF_line": 65
+      },
+      {
+        "old_offset": 4321,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 4256,
+        "original_LF_line": 66
+      },
+      {
+        "old_offset": 4364,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 4298,
+        "original_LF_line": 67
+      },
+      {
+        "old_offset": 4430,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 4363,
+        "original_LF_line": 68
+      },
+      {
+        "old_offset": 4473,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 4405,
+        "original_LF_line": 69
+      },
+      {
+        "old_offset": 4565,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 4496,
+        "original_LF_line": 70
+      },
+      {
+        "old_offset": 4620,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 4550,
+        "original_LF_line": 71
+      },
+      {
+        "old_offset": 4628,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 4557,
+        "original_LF_line": 72
+      },
+      {
+        "old_offset": 4631,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 4559,
+        "original_LF_line": 73
+      },
+      {
+        "old_offset": 4709,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 4636,
+        "original_LF_line": 74
+      },
+      {
+        "old_offset": 4818,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 4744,
+        "original_LF_line": 75
+      },
+      {
+        "old_offset": 4855,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 4780,
+        "original_LF_line": 76
+      },
+      {
+        "old_offset": 4980,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 4904,
+        "original_LF_line": 77
+      },
+      {
+        "old_offset": 5017,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 4940,
+        "original_LF_line": 78
+      },
+      {
+        "old_offset": 5025,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 4947,
+        "original_LF_line": 79
+      },
+      {
+        "old_offset": 5028,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 4949,
+        "original_LF_line": 80
+      },
+      {
+        "old_offset": 5042,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 4962,
+        "original_LF_line": 81
+      },
+      {
+        "old_offset": 5088,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 5007,
+        "original_LF_line": 82
+      },
+      {
+        "old_offset": 5160,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 5078,
+        "original_LF_line": 83
+      },
+      {
+        "old_offset": 5242,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 5159,
+        "original_LF_line": 84
+      },
+      {
+        "old_offset": 5343,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 5259,
+        "original_LF_line": 85
+      },
+      {
+        "old_offset": 5389,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 5304,
+        "original_LF_line": 86
+      },
+      {
+        "old_offset": 5515,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 5429,
+        "original_LF_line": 87
+      },
+      {
+        "old_offset": 5590,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 5503,
+        "original_LF_line": 88
+      },
+      {
+        "old_offset": 5681,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 5593,
+        "original_LF_line": 89
+      },
+      {
+        "old_offset": 5747,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 5658,
+        "original_LF_line": 90
+      },
+      {
+        "old_offset": 5755,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 5665,
+        "original_LF_line": 91
+      },
+      {
+        "old_offset": 5761,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 5670,
+        "original_LF_line": 92
+      },
+      {
+        "old_offset": 5764,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 5672,
+        "original_LF_line": 93
+      },
+      {
+        "old_offset": 5813,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 5720,
+        "original_LF_line": 94
+      },
+      {
+        "old_offset": 5936,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 5842,
+        "original_LF_line": 95
+      },
+      {
+        "old_offset": 5990,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 5895,
+        "original_LF_line": 96
+      },
+      {
+        "old_offset": 6071,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 5975,
+        "original_LF_line": 97
+      },
+      {
+        "old_offset": 6137,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 6040,
+        "original_LF_line": 98
+      },
+      {
+        "old_offset": 6252,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 6154,
+        "original_LF_line": 99
+      },
+      {
+        "old_offset": 6293,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 6194,
+        "original_LF_line": 100
+      },
+      {
+        "old_offset": 6387,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 6287,
+        "original_LF_line": 101
+      },
+      {
+        "old_offset": 6436,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 6335,
+        "original_LF_line": 102
+      },
+      {
+        "old_offset": 6517,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 6415,
+        "original_LF_line": 103
+      },
+      {
+        "old_offset": 6655,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 6552,
+        "original_LF_line": 104
+      },
+      {
+        "old_offset": 6666,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 6562,
+        "original_LF_line": 105
+      },
+      {
+        "old_offset": 6786,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 6681,
+        "original_LF_line": 106
+      },
+      {
+        "old_offset": 6858,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 6752,
+        "original_LF_line": 107
+      },
+      {
+        "old_offset": 6914,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 6807,
+        "original_LF_line": 108
+      },
+      {
+        "old_offset": 6968,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 6860,
+        "original_LF_line": 109
+      },
+      {
+        "old_offset": 7044,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 6935,
+        "original_LF_line": 110
+      },
+      {
+        "old_offset": 7052,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 6942,
+        "original_LF_line": 111
+      },
+      {
+        "old_offset": 7055,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 6944,
+        "original_LF_line": 112
+      },
+      {
+        "old_offset": 7139,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 7027,
+        "original_LF_line": 113
+      },
+      {
+        "old_offset": 7185,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 7072,
+        "original_LF_line": 114
+      },
+      {
+        "old_offset": 7305,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 7191,
+        "original_LF_line": 115
+      },
+      {
+        "old_offset": 7374,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 7259,
+        "original_LF_line": 116
+      },
+      {
+        "old_offset": 7415,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 7299,
+        "original_LF_line": 117
+      },
+      {
+        "old_offset": 7509,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 7392,
+        "original_LF_line": 118
+      },
+      {
+        "old_offset": 7555,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 7437,
+        "original_LF_line": 119
+      },
+      {
+        "old_offset": 7686,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 7567,
+        "original_LF_line": 120
+      },
+      {
+        "old_offset": 7762,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 7642,
+        "original_LF_line": 121
+      },
+      {
+        "old_offset": 7808,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 7687,
+        "original_LF_line": 122
+      },
+      {
+        "old_offset": 7873,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 7751,
+        "original_LF_line": 123
+      },
+      {
+        "old_offset": 7881,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 7758,
+        "original_LF_line": 124
+      },
+      {
+        "old_offset": 7884,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 7760,
+        "original_LF_line": 125
+      },
+      {
+        "old_offset": 7975,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 7850,
+        "original_LF_line": 126
+      },
+      {
+        "old_offset": 8021,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 7895,
+        "original_LF_line": 127
+      },
+      {
+        "old_offset": 8103,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 7976,
+        "original_LF_line": 128
+      },
+      {
+        "old_offset": 8243,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 8115,
+        "original_LF_line": 129
+      },
+      {
+        "old_offset": 8270,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 8141,
+        "original_LF_line": 130
+      },
+      {
+        "old_offset": 8323,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 8193,
+        "original_LF_line": 131
+      },
+      {
+        "old_offset": 8386,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 8255,
+        "original_LF_line": 132
+      },
+      {
+        "old_offset": 8468,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 8336,
+        "original_LF_line": 133
+      },
+      {
+        "old_offset": 8476,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 8343,
+        "original_LF_line": 134
+      },
+      {
+        "old_offset": 8516,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 8382,
+        "original_LF_line": 135
+      },
+      {
+        "old_offset": 8612,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 8477,
+        "original_LF_line": 136
+      },
+      {
+        "old_offset": 8708,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 8572,
+        "original_LF_line": 137
+      },
+      {
+        "old_offset": 8771,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 8634,
+        "original_LF_line": 138
+      },
+      {
+        "old_offset": 8873,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 8735,
+        "original_LF_line": 139
+      },
+      {
+        "old_offset": 8977,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 8838,
+        "original_LF_line": 140
+      },
+      {
+        "old_offset": 9051,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 8911,
+        "original_LF_line": 141
+      },
+      {
+        "old_offset": 9059,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 8918,
+        "original_LF_line": 142
+      },
+      {
+        "old_offset": 9062,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 8920,
+        "original_LF_line": 143
+      },
+      {
+        "old_offset": 9145,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 9002,
+        "original_LF_line": 144
+      },
+      {
+        "old_offset": 9191,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 9047,
+        "original_LF_line": 145
+      },
+      {
+        "old_offset": 9257,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 9112,
+        "original_LF_line": 146
+      },
+      {
+        "old_offset": 9323,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 9177,
+        "original_LF_line": 147
+      },
+      {
+        "old_offset": 9417,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 9270,
+        "original_LF_line": 148
+      },
+      {
+        "old_offset": 9504,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 9356,
+        "original_LF_line": 149
+      },
+      {
+        "old_offset": 9604,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 9455,
+        "original_LF_line": 150
+      },
+      {
+        "old_offset": 9650,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 9500,
+        "original_LF_line": 151
+      },
+      {
+        "old_offset": 9692,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 9541,
+        "original_LF_line": 152
+      },
+      {
+        "old_offset": 9700,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 9548,
+        "original_LF_line": 153
+      },
+      {
+        "old_offset": 9703,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 9550,
+        "original_LF_line": 154
+      },
+      {
+        "old_offset": 9831,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 9677,
+        "original_LF_line": 155
+      },
+      {
+        "old_offset": 9877,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 9722,
+        "original_LF_line": 156
+      },
+      {
+        "old_offset": 9943,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 9787,
+        "original_LF_line": 157
+      },
+      {
+        "old_offset": 10066,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 9909,
+        "original_LF_line": 158
+      },
+      {
+        "old_offset": 10118,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 9960,
+        "original_LF_line": 159
+      },
+      {
+        "old_offset": 10164,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 10005,
+        "original_LF_line": 160
+      },
+      {
+        "old_offset": 10206,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 10046,
+        "original_LF_line": 161
+      },
+      {
+        "old_offset": 10214,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 10053,
+        "original_LF_line": 162
+      },
+      {
+        "old_offset": 10217,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 10055,
+        "original_LF_line": 163
+      },
+      {
+        "old_offset": 10291,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 10128,
+        "original_LF_line": 164
+      },
+      {
+        "old_offset": 10404,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 10240,
+        "original_LF_line": 165
+      },
+      {
+        "old_offset": 10515,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 10350,
+        "original_LF_line": 166
+      },
+      {
+        "old_offset": 10619,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 10453,
+        "original_LF_line": 167
+      },
+      {
+        "old_offset": 10674,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 10507,
+        "original_LF_line": 168
+      },
+      {
+        "old_offset": 10684,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 10516,
+        "original_LF_line": 169
+      },
+      {
+        "old_offset": 10692,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 10523,
+        "original_LF_line": 170
+      },
+      {
+        "old_offset": 10695,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 10525,
+        "original_LF_line": 171
+      },
+      {
+        "old_offset": 10771,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 10600,
+        "original_LF_line": 172
+      },
+      {
+        "old_offset": 10833,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 10661,
+        "original_LF_line": 173
+      },
+      {
+        "old_offset": 10913,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 10740,
+        "original_LF_line": 174
+      },
+      {
+        "old_offset": 10964,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 10790,
+        "original_LF_line": 175
+      },
+      {
+        "old_offset": 11038,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 10863,
+        "original_LF_line": 176
+      },
+      {
+        "old_offset": 11046,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 10870,
+        "original_LF_line": 177
+      },
+      {
+        "old_offset": 11052,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 10875,
+        "original_LF_line": 178
+      }
+    ]
+  },
+  {
+    "path": "frontend/features/passports/components/passport-list.tsx",
+    "edits": [
+      {
+        "old_offset": 4170,
+        "delete_hex": "202020202020",
+        "rule": "remove_six_spaces_on_exact_blank_JSX_line_118",
+        "new_offset": 4170,
+        "original_LF_line": 118
+      }
+    ]
+  },
+  {
+    "path": "frontend/features/passports/components/upload-link-list.test.tsx",
+    "edits": [
+      {
+        "old_offset": 89,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 89,
+        "original_LF_line": 1
+      },
+      {
+        "old_offset": 165,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 164,
+        "original_LF_line": 2
+      },
+      {
+        "old_offset": 230,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 228,
+        "original_LF_line": 3
+      },
+      {
+        "old_offset": 284,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 281,
+        "original_LF_line": 4
+      },
+      {
+        "old_offset": 333,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 329,
+        "original_LF_line": 5
+      },
+      {
+        "old_offset": 418,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 413,
+        "original_LF_line": 6
+      },
+      {
+        "old_offset": 473,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 467,
+        "original_LF_line": 7
+      },
+      {
+        "old_offset": 476,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 469,
+        "original_LF_line": 8
+      },
+      {
+        "old_offset": 522,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 514,
+        "original_LF_line": 9
+      },
+      {
+        "old_offset": 628,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 619,
+        "original_LF_line": 10
+      },
+      {
+        "old_offset": 635,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 625,
+        "original_LF_line": 11
+      },
+      {
+        "old_offset": 743,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 732,
+        "original_LF_line": 12
+      },
+      {
+        "old_offset": 815,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 803,
+        "original_LF_line": 13
+      },
+      {
+        "old_offset": 1008,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 995,
+        "original_LF_line": 14
+      },
+      {
+        "old_offset": 1011,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 997,
+        "original_LF_line": 15
+      },
+      {
+        "old_offset": 1057,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 1042,
+        "original_LF_line": 16
+      },
+      {
+        "old_offset": 1140,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 1124,
+        "original_LF_line": 17
+      },
+      {
+        "old_offset": 1202,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 1185,
+        "original_LF_line": 18
+      },
+      {
+        "old_offset": 1291,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 1273,
+        "original_LF_line": 19
+      },
+      {
+        "old_offset": 1378,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 1359,
+        "original_LF_line": 20
+      },
+      {
+        "old_offset": 1474,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 1454,
+        "original_LF_line": 21
+      },
+      {
+        "old_offset": 1573,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 1552,
+        "original_LF_line": 22
+      },
+      {
+        "old_offset": 1668,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 1646,
+        "original_LF_line": 23
+      },
+      {
+        "old_offset": 1779,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 1756,
+        "original_LF_line": 24
+      },
+      {
+        "old_offset": 1870,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 1846,
+        "original_LF_line": 25
+      },
+      {
+        "old_offset": 1953,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 1928,
+        "original_LF_line": 26
+      },
+      {
+        "old_offset": 1958,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 1932,
+        "original_LF_line": 27
+      },
+      {
+        "old_offset": 1961,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 1934,
+        "original_LF_line": 28
+      },
+      {
+        "old_offset": 2076,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 2048,
+        "original_LF_line": 29
+      },
+      {
+        "old_offset": 2079,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 2050,
+        "original_LF_line": 30
+      },
+      {
+        "old_offset": 2136,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 2106,
+        "original_LF_line": 31
+      },
+      {
+        "old_offset": 2164,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 2133,
+        "original_LF_line": 32
+      },
+      {
+        "old_offset": 2245,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 2213,
+        "original_LF_line": 33
+      },
+      {
+        "old_offset": 2293,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 2260,
+        "original_LF_line": 34
+      },
+      {
+        "old_offset": 2301,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 2267,
+        "original_LF_line": 35
+      },
+      {
+        "old_offset": 2343,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 2308,
+        "original_LF_line": 36
+      },
+      {
+        "old_offset": 2425,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 2389,
+        "original_LF_line": 37
+      },
+      {
+        "old_offset": 2433,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 2396,
+        "original_LF_line": 38
+      },
+      {
+        "old_offset": 2529,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 2491,
+        "original_LF_line": 39
+      },
+      {
+        "old_offset": 2533,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 2494,
+        "original_LF_line": 40
+      },
+      {
+        "old_offset": 2536,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 2496,
+        "original_LF_line": 41
+      },
+      {
+        "old_offset": 2574,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 2533,
+        "original_LF_line": 42
+      },
+      {
+        "old_offset": 2663,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 2621,
+        "original_LF_line": 43
+      },
+      {
+        "old_offset": 2716,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 2673,
+        "original_LF_line": 44
+      },
+      {
+        "old_offset": 2801,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 2757,
+        "original_LF_line": 45
+      },
+      {
+        "old_offset": 2880,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 2835,
+        "original_LF_line": 46
+      },
+      {
+        "old_offset": 2914,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 2868,
+        "original_LF_line": 47
+      },
+      {
+        "old_offset": 2988,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 2941,
+        "original_LF_line": 48
+      },
+      {
+        "old_offset": 2992,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 2944,
+        "original_LF_line": 49
+      },
+      {
+        "old_offset": 2995,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 2946,
+        "original_LF_line": 50
+      },
+      {
+        "old_offset": 3016,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 2966,
+        "original_LF_line": 51
+      },
+      {
+        "old_offset": 3102,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 3051,
+        "original_LF_line": 52
+      },
+      {
+        "old_offset": 3153,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 3101,
+        "original_LF_line": 53
+      },
+      {
+        "old_offset": 3161,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 3108,
+        "original_LF_line": 54
+      },
+      {
+        "old_offset": 3220,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 3166,
+        "original_LF_line": 55
+      },
+      {
+        "old_offset": 3277,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 3222,
+        "original_LF_line": 56
+      },
+      {
+        "old_offset": 3327,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 3271,
+        "original_LF_line": 57
+      },
+      {
+        "old_offset": 3333,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 3276,
+        "original_LF_line": 58
+      },
+      {
+        "old_offset": 3336,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 3278,
+        "original_LF_line": 59
+      },
+      {
+        "old_offset": 3384,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 3325,
+        "original_LF_line": 60
+      },
+      {
+        "old_offset": 3494,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 3434,
+        "original_LF_line": 61
+      },
+      {
+        "old_offset": 3630,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 3569,
+        "original_LF_line": 62
+      },
+      {
+        "old_offset": 3744,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 3682,
+        "original_LF_line": 63
+      },
+      {
+        "old_offset": 3823,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 3760,
+        "original_LF_line": 64
+      },
+      {
+        "old_offset": 3968,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 3904,
+        "original_LF_line": 65
+      },
+      {
+        "old_offset": 3991,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 3926,
+        "original_LF_line": 66
+      },
+      {
+        "old_offset": 4001,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 3935,
+        "original_LF_line": 67
+      },
+      {
+        "old_offset": 4021,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 3954,
+        "original_LF_line": 68
+      },
+      {
+        "old_offset": 4106,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 4038,
+        "original_LF_line": 69
+      },
+      {
+        "old_offset": 4190,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 4121,
+        "original_LF_line": 70
+      },
+      {
+        "old_offset": 4276,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 4206,
+        "original_LF_line": 71
+      },
+      {
+        "old_offset": 4353,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 4282,
+        "original_LF_line": 72
+      },
+      {
+        "old_offset": 4466,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 4394,
+        "original_LF_line": 73
+      },
+      {
+        "old_offset": 4533,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 4460,
+        "original_LF_line": 74
+      },
+      {
+        "old_offset": 4593,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 4519,
+        "original_LF_line": 75
+      },
+      {
+        "old_offset": 4675,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 4600,
+        "original_LF_line": 76
+      },
+      {
+        "old_offset": 4745,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 4669,
+        "original_LF_line": 77
+      },
+      {
+        "old_offset": 4820,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 4743,
+        "original_LF_line": 78
+      },
+      {
+        "old_offset": 4943,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 4865,
+        "original_LF_line": 79
+      },
+      {
+        "old_offset": 5020,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 4941,
+        "original_LF_line": 80
+      },
+      {
+        "old_offset": 5133,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 5053,
+        "original_LF_line": 81
+      },
+      {
+        "old_offset": 5200,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 5119,
+        "original_LF_line": 82
+      },
+      {
+        "old_offset": 5208,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 5126,
+        "original_LF_line": 83
+      },
+      {
+        "old_offset": 5324,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 5241,
+        "original_LF_line": 84
+      },
+      {
+        "old_offset": 5344,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 5260,
+        "original_LF_line": 85
+      },
+      {
+        "old_offset": 5431,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 5346,
+        "original_LF_line": 86
+      },
+      {
+        "old_offset": 5484,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 5398,
+        "original_LF_line": 87
+      },
+      {
+        "old_offset": 5584,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 5497,
+        "original_LF_line": 88
+      },
+      {
+        "old_offset": 5648,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 5560,
+        "original_LF_line": 89
+      },
+      {
+        "old_offset": 5754,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 5665,
+        "original_LF_line": 90
+      },
+      {
+        "old_offset": 5872,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 5782,
+        "original_LF_line": 91
+      },
+      {
+        "old_offset": 5875,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 5784,
+        "original_LF_line": 92
+      },
+      {
+        "old_offset": 5906,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 5814,
+        "original_LF_line": 93
+      },
+      {
+        "old_offset": 5969,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 5876,
+        "original_LF_line": 94
+      },
+      {
+        "old_offset": 6075,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 5981,
+        "original_LF_line": 95
+      },
+      {
+        "old_offset": 6174,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 6079,
+        "original_LF_line": 96
+      },
+      {
+        "old_offset": 6270,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 6174,
+        "original_LF_line": 97
+      },
+      {
+        "old_offset": 6368,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 6271,
+        "original_LF_line": 98
+      },
+      {
+        "old_offset": 6371,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 6273,
+        "original_LF_line": 99
+      },
+      {
+        "old_offset": 6473,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 6374,
+        "original_LF_line": 100
+      },
+      {
+        "old_offset": 6537,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 6437,
+        "original_LF_line": 101
+      },
+      {
+        "old_offset": 6643,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 6542,
+        "original_LF_line": 102
+      },
+      {
+        "old_offset": 6711,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 6609,
+        "original_LF_line": 103
+      },
+      {
+        "old_offset": 6719,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 6616,
+        "original_LF_line": 104
+      },
+      {
+        "old_offset": 6725,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 6621,
+        "original_LF_line": 105
+      },
+      {
+        "old_offset": 6728,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 6623,
+        "original_LF_line": 106
+      },
+      {
+        "old_offset": 6783,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 6677,
+        "original_LF_line": 107
+      },
+      {
+        "old_offset": 6797,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 6690,
+        "original_LF_line": 108
+      },
+      {
+        "old_offset": 6925,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 6817,
+        "original_LF_line": 109
+      },
+      {
+        "old_offset": 7027,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 6918,
+        "original_LF_line": 110
+      },
+      {
+        "old_offset": 7113,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 7003,
+        "original_LF_line": 111
+      },
+      {
+        "old_offset": 7223,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 7112,
+        "original_LF_line": 112
+      },
+      {
+        "old_offset": 7326,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 7214,
+        "original_LF_line": 113
+      },
+      {
+        "old_offset": 7400,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 7287,
+        "original_LF_line": 114
+      },
+      {
+        "old_offset": 7420,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 7306,
+        "original_LF_line": 115
+      },
+      {
+        "old_offset": 7467,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 7352,
+        "original_LF_line": 116
+      },
+      {
+        "old_offset": 7564,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 7448,
+        "original_LF_line": 117
+      },
+      {
+        "old_offset": 7653,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 7536,
+        "original_LF_line": 118
+      },
+      {
+        "old_offset": 7695,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 7577,
+        "original_LF_line": 119
+      },
+      {
+        "old_offset": 7811,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 7692,
+        "original_LF_line": 120
+      },
+      {
+        "old_offset": 7895,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 7775,
+        "original_LF_line": 121
+      },
+      {
+        "old_offset": 7903,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 7782,
+        "original_LF_line": 122
+      },
+      {
+        "old_offset": 7906,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 7784,
+        "original_LF_line": 123
+      },
+      {
+        "old_offset": 7994,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 7871,
+        "original_LF_line": 124
+      },
+      {
+        "old_offset": 8091,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 7967,
+        "original_LF_line": 125
+      },
+      {
+        "old_offset": 8111,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 7986,
+        "original_LF_line": 126
+      },
+      {
+        "old_offset": 8158,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 8032,
+        "original_LF_line": 127
+      },
+      {
+        "old_offset": 8255,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 8128,
+        "original_LF_line": 128
+      },
+      {
+        "old_offset": 8382,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 8254,
+        "original_LF_line": 129
+      },
+      {
+        "old_offset": 8390,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 8261,
+        "original_LF_line": 130
+      },
+      {
+        "old_offset": 8393,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 8263,
+        "original_LF_line": 131
+      },
+      {
+        "old_offset": 8484,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 8353,
+        "original_LF_line": 132
+      },
+      {
+        "old_offset": 8634,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 8502,
+        "original_LF_line": 133
+      },
+      {
+        "old_offset": 8654,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 8521,
+        "original_LF_line": 134
+      },
+      {
+        "old_offset": 8701,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 8567,
+        "original_LF_line": 135
+      },
+      {
+        "old_offset": 8796,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 8661,
+        "original_LF_line": 136
+      },
+      {
+        "old_offset": 8900,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 8764,
+        "original_LF_line": 137
+      },
+      {
+        "old_offset": 9015,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 8878,
+        "original_LF_line": 138
+      },
+      {
+        "old_offset": 9100,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 8962,
+        "original_LF_line": 139
+      },
+      {
+        "old_offset": 9149,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 9010,
+        "original_LF_line": 140
+      },
+      {
+        "old_offset": 9226,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 9086,
+        "original_LF_line": 141
+      },
+      {
+        "old_offset": 9234,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 9093,
+        "original_LF_line": 142
+      },
+      {
+        "old_offset": 9237,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 9095,
+        "original_LF_line": 143
+      },
+      {
+        "old_offset": 9375,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 9232,
+        "original_LF_line": 144
+      },
+      {
+        "old_offset": 9408,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 9264,
+        "original_LF_line": 145
+      },
+      {
+        "old_offset": 9456,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 9311,
+        "original_LF_line": 146
+      },
+      {
+        "old_offset": 9545,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 9399,
+        "original_LF_line": 147
+      },
+      {
+        "old_offset": 9641,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 9494,
+        "original_LF_line": 148
+      },
+      {
+        "old_offset": 9661,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 9513,
+        "original_LF_line": 149
+      },
+      {
+        "old_offset": 9708,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 9559,
+        "original_LF_line": 150
+      },
+      {
+        "old_offset": 9809,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 9659,
+        "original_LF_line": 151
+      },
+      {
+        "old_offset": 9846,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 9695,
+        "original_LF_line": 152
+      },
+      {
+        "old_offset": 9894,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 9742,
+        "original_LF_line": 153
+      },
+      {
+        "old_offset": 9931,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 9778,
+        "original_LF_line": 154
+      },
+      {
+        "old_offset": 10011,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 9857,
+        "original_LF_line": 155
+      },
+      {
+        "old_offset": 10086,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 9931,
+        "original_LF_line": 156
+      },
+      {
+        "old_offset": 10183,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 10027,
+        "original_LF_line": 157
+      },
+      {
+        "old_offset": 10269,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 10112,
+        "original_LF_line": 158
+      },
+      {
+        "old_offset": 10321,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 10163,
+        "original_LF_line": 159
+      },
+      {
+        "old_offset": 10358,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 10199,
+        "original_LF_line": 160
+      },
+      {
+        "old_offset": 10400,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 10240,
+        "original_LF_line": 161
+      },
+      {
+        "old_offset": 10471,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 10310,
+        "original_LF_line": 162
+      },
+      {
+        "old_offset": 10517,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 10355,
+        "original_LF_line": 163
+      },
+      {
+        "old_offset": 10606,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 10443,
+        "original_LF_line": 164
+      },
+      {
+        "old_offset": 10614,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 10450,
+        "original_LF_line": 165
+      },
+      {
+        "old_offset": 10617,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 10452,
+        "original_LF_line": 166
+      },
+      {
+        "old_offset": 10734,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 10568,
+        "original_LF_line": 167
+      },
+      {
+        "old_offset": 10758,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 10591,
+        "original_LF_line": 168
+      },
+      {
+        "old_offset": 10843,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 10675,
+        "original_LF_line": 169
+      },
+      {
+        "old_offset": 10886,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 10717,
+        "original_LF_line": 170
+      },
+      {
+        "old_offset": 10974,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 10804,
+        "original_LF_line": 171
+      },
+      {
+        "old_offset": 11043,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 10872,
+        "original_LF_line": 172
+      },
+      {
+        "old_offset": 11051,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 10879,
+        "original_LF_line": 173
+      },
+      {
+        "old_offset": 11057,
+        "delete_hex": "0d",
+        "rule": "remove_exactly_first_CR_of_CRCRLF",
+        "new_offset": 10884,
+        "original_LF_line": 174
+      }
+    ]
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/update-message-composer.tsx",
+    "edits": [
+      {
+        "old_offset": 1649,
+        "delete_hex": "0d0a",
+        "rule": "remove_one_exact_terminal_blank_CRLF_line",
+        "new_offset": 1649,
+        "original_LF_line": 47
+      }
+    ]
+  }
+]

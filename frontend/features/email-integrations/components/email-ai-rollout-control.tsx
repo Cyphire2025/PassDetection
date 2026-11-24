@@ -1,168 +1,19 @@
 "use client";
 
-import {
-  Building2,
-  Mail,
-  Search,
-  ShieldCheck,
-  UserRound,
-  type LucideIcon,
-} from "lucide-react";
-import { useState, type FormEvent } from "react";
-import {
-  Badge,
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Input,
-  Skeleton,
-} from "@/components/ui";
-import { selectUser, useAuthStore } from "@/stores/auth.store";
-import {
-  useEmailAiRolloutTargets,
-  useUpdateEmailAiRolloutPolicy,
-} from "../hooks/use-email-integrations";
-import type {
-  EmailAiRolloutScope,
-  EmailAiRolloutTarget,
-} from "../types";
-import {
-  Definition,
-  EmailDialog,
-  EmailNotice,
-  EmailQueryError,
-} from "./email-integrations-ui";
-
-const ROLLOUT_SCOPES: ReadonlyArray<{
-  value: EmailAiRolloutScope;
-  label: string;
-  singular: string;
-  description: string;
-  icon: LucideIcon;
-}> = [
-  {
-    value: "agency",
-    label: "Agencies",
-    singular: "agency",
-    description: "Pause or allow an entire agency",
-    icon: Building2,
-  },
-  {
-    value: "user",
-    label: "Users",
-    singular: "user",
-    description: "Control one mailbox owner",
-    icon: UserRound,
-  },
-  {
-    value: "connection",
-    label: "My mailboxes",
-    singular: "mailbox",
-    description: "Control one of your connected mailboxes",
-    icon: Mail,
-  },
-];
-
-type RolloutNotice = {
-  tone: "success" | "error" | "warning" | "info";
-  message: string;
-};
-
-type RolloutDecision = {
-  target: EmailAiRolloutTarget;
-  enabled: boolean;
-};
+import { Search, ShieldCheck } from "lucide-react";
+import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Input, Skeleton } from "@/components/ui";
+import { useEmailRolloutController } from "../hooks/use-email-rollout-controller";
+import { EmailNotice, EmailQueryError } from "./email-integrations-ui";
+import { EmailRolloutTarget } from "./email-rollout-target";
+import { EmailRolloutDecision } from "./email-rollout-decision";
+import { ROLLOUT_SCOPES } from "./email-rollout-model";
 
 export function EmailAiRolloutControl() {
-  const user = useAuthStore(selectUser);
-  const isSuperAdmin = user?.role === "super_admin";
-  const [scopeType, setScopeType] =
-    useState<EmailAiRolloutScope>("agency");
-  const [searchInput, setSearchInput] = useState("");
-  const [search, setSearch] = useState("");
-  const [decision, setDecision] = useState<RolloutDecision | null>(null);
-  const [notice, setNotice] = useState<RolloutNotice | null>(null);
-  const targets = useEmailAiRolloutTargets(
-    user?.id,
-    scopeType,
-    search,
-    isSuperAdmin,
-  );
-  const updatePolicy = useUpdateEmailAiRolloutPolicy(user?.id);
-  const activeScope =
-    ROLLOUT_SCOPES.find((scope) => scope.value === scopeType)
-    ?? ROLLOUT_SCOPES[0];
-
+  const controller = useEmailRolloutController();
+  const { isSuperAdmin, scopeType, searchInput, setSearchInput, search,
+    setSearch, notice, targets, updatePolicy, activeScope,
+    selectScope, applySearch, openDecision } = controller;
   if (!isSuperAdmin) return null;
-
-  function selectScope(nextScope: EmailAiRolloutScope) {
-    setScopeType(nextScope);
-    setSearchInput("");
-    setSearch("");
-    setNotice(null);
-    setDecision(null);
-    updatePolicy.reset();
-  }
-
-  function applySearch(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setSearch(searchInput.trim());
-  }
-
-  function openDecision(
-    target: EmailAiRolloutTarget,
-    enabled: boolean,
-  ) {
-    setNotice(null);
-    updatePolicy.reset();
-    setDecision({ target, enabled });
-  }
-
-  function closeDecision() {
-    if (updatePolicy.isPending) return;
-    setDecision(null);
-    updatePolicy.reset();
-  }
-
-  function saveDecision() {
-    if (!decision) return;
-    updatePolicy.mutate(
-      {
-        scope_type: decision.target.scope_type,
-        target_id: decision.target.target_id,
-        agency_id: decision.target.agency_id,
-        enabled: decision.enabled,
-        expected_updated_at: decision.target.updated_at,
-      },
-      {
-        onSuccess: (updated) => {
-          setDecision(null);
-          setNotice({
-            tone:
-              updated.direct_enabled && !updated.effective_enabled
-                ? "info"
-                : "success",
-            message: updated.direct_enabled
-              ? updated.effective_enabled
-                ? `${updated.label} is allowed by the rollout controls.`
-                : `${updated.label} is allowed here, but a parent or global pause still applies.`
-              : `${updated.label} is paused at this level.`,
-          });
-        },
-        onError: (error) => {
-          if (!isRolloutConflict(error)) return;
-          setDecision(null);
-          setNotice({
-            tone: "warning",
-            message:
-              "This rollout control changed elsewhere. The latest settings are being refreshed; review the current state before trying again.",
-          });
-        },
-      },
-    );
-  }
 
   return (
     <section aria-labelledby="email-ai-rollout-heading">
@@ -225,18 +76,16 @@ export function EmailAiRolloutControl() {
                   key={scope.value}
                   type="button"
                   aria-pressed={isActive}
-                  className={`rounded-xl border p-3 text-left transition-colors ${
-                    isActive
-                      ? "border-indigo-300 bg-indigo-50 ring-1 ring-indigo-200"
-                      : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
-                  }`}
+                  className={`rounded-xl border p-3 text-left transition-colors ${isActive
+                    ? "border-indigo-300 bg-indigo-50 ring-1 ring-indigo-200"
+                    : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+                    }`}
                   onClick={() => selectScope(scope.value)}
                 >
                   <span className="flex items-center gap-2">
                     <Icon
-                      className={`h-4 w-4 ${
-                        isActive ? "text-indigo-700" : "text-slate-500"
-                      }`}
+                      className={`h-4 w-4 ${isActive ? "text-indigo-700" : "text-slate-500"
+                        }`}
                       aria-hidden="true"
                     />
                     <span className="text-sm font-semibold text-slate-900">
@@ -300,66 +149,12 @@ export function EmailAiRolloutControl() {
             />
           ) : targets.data?.items.length ? (
             <ul className="space-y-3">
-              {targets.data.items.map((target) => {
-                const nextEnabled = nextDirectEnabled(target);
-                const isUpdating =
-                  updatePolicy.isPending
-                  && updatePolicy.variables?.target_id === target.target_id;
-                return (
-                  <li
-                    key={`${target.scope_type}-${target.target_id}`}
-                    className="rounded-xl border border-slate-200 bg-white p-4"
-                  >
-                    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                      <div className="min-w-0 flex-1">
-                        <h3 className="break-words font-semibold text-slate-950">
-                          {target.label}
-                        </h3>
-                        {target.detail && (
-                          <p className="mt-1 break-words text-sm text-slate-600">
-                            {target.detail}
-                          </p>
-                        )}
-                        <dl className="mt-3 grid gap-3 sm:grid-cols-2">
-                          <Definition term="Rule at this level">
-                            <DirectRuleBadge
-                              directEnabled={target.direct_enabled}
-                            />
-                          </Definition>
-                          <Definition term="Effective state">
-                            <Badge
-                              variant={
-                                target.effective_enabled
-                                  ? "success"
-                                  : "warning"
-                              }
-                              dot
-                            >
-                              {target.effective_enabled
-                                ? "Rollout allowed"
-                                : "Rollout paused"}
-                            </Badge>
-                          </Definition>
-                        </dl>
-                        <p className="mt-3 text-xs leading-5 text-slate-500">
-                          {rolloutExplanation(target)}
-                        </p>
-                      </div>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant={nextEnabled ? "primary" : "danger"}
-                        className="shrink-0"
-                        isLoading={isUpdating}
-                        disabled={updatePolicy.isPending}
-                        onClick={() => openDecision(target, nextEnabled)}
-                      >
-                        {nextEnabled ? "Allow" : "Pause"}
-                      </Button>
-                    </div>
-                  </li>
-                );
-              })}
+              {targets.data.items.map((target) => (
+                <EmailRolloutTarget key={`${target.scope_type}-${target.target_id}`}
+                  target={target} pending={updatePolicy.isPending}
+                  isUpdating={updatePolicy.isPending && updatePolicy.variables?.target_id === target.target_id}
+                  onDecision={openDecision} />
+              ))}
             </ul>
           ) : (
             <div className="rounded-xl border border-dashed border-slate-300 px-6 py-10 text-center">
@@ -389,116 +184,8 @@ export function EmailAiRolloutControl() {
         </CardContent>
       </Card>
 
-      {decision && (
-        <EmailDialog
-          title={`${decision.enabled ? "Allow" : "Pause"} AI for ${decision.target.label}?`}
-          description={`This changes the direct rollout rule for one ${scopeSingular(decision.target.scope_type)}.`}
-          isBusy={updatePolicy.isPending}
-          onClose={closeDecision}
-        >
-          <div className="space-y-4">
-            <p className="text-sm leading-6 text-slate-700">
-              {decision.enabled
-                ? "This level will allow AI, but any global or parent pause will continue to win."
-                : "This level and everything below it will remain paused until it is allowed again."}
-            </p>
-            <EmailNotice tone="info">
-              Mailbox owners must still opt in separately. This rollout choice
-              does not send messages, change provider permissions, or delete
-              existing intelligence.
-            </EmailNotice>
-            {updatePolicy.isError && (
-              <EmailNotice tone="error">
-                {readRolloutError(updatePolicy.error)}
-              </EmailNotice>
-            )}
-            <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-              <Button
-                type="button"
-                variant="secondary"
-                disabled={updatePolicy.isPending}
-                onClick={closeDecision}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="button"
-                variant={decision.enabled ? "primary" : "danger"}
-                isLoading={updatePolicy.isPending}
-                onClick={saveDecision}
-              >
-                {decision.enabled ? "Allow" : "Pause"}
-              </Button>
-            </div>
-          </div>
-        </EmailDialog>
-      )}
+      <EmailRolloutDecision controller={controller} />
     </section>
   );
 }
 
-function DirectRuleBadge({
-  directEnabled,
-}: {
-  directEnabled: boolean | null;
-}) {
-  if (directEnabled === null) {
-    return <Badge variant="outline">Inherited</Badge>;
-  }
-  return (
-    <Badge variant={directEnabled ? "success" : "warning"} dot>
-      {directEnabled ? "Allowed here" : "Paused here"}
-    </Badge>
-  );
-}
-
-function nextDirectEnabled(target: EmailAiRolloutTarget) {
-  if (target.direct_enabled !== null) return !target.direct_enabled;
-  return !target.effective_enabled;
-}
-
-function rolloutExplanation(target: EmailAiRolloutTarget) {
-  if (target.direct_enabled === false) {
-    return "Paused directly at this level.";
-  }
-  if (target.direct_enabled === true && !target.effective_enabled) {
-    return "Allowed here, but a global or parent pause still applies.";
-  }
-  if (target.direct_enabled === true) {
-    return "Allowed here and not blocked by a parent setting.";
-  }
-  return target.effective_enabled
-    ? "Inherited from the current parent rollout settings."
-    : "Inherited, with a global or parent pause currently applying.";
-}
-
-function scopeSingular(scopeType: EmailAiRolloutScope) {
-  return (
-    ROLLOUT_SCOPES.find((scope) => scope.value === scopeType)?.singular
-    ?? "rollout scope"
-  );
-}
-
-function readRolloutError(error: unknown) {
-  if (isRolloutConflict(error)) {
-    return "This rollout control changed elsewhere. Close this window, review the refreshed state, and try again.";
-  }
-  if (
-    typeof error === "object"
-    && error !== null
-    && "message" in error
-    && typeof error.message === "string"
-  ) {
-    return error.message.slice(0, 300);
-  }
-  return "The rollout control could not be saved. Refresh and try again.";
-}
-
-function isRolloutConflict(error: unknown) {
-  return (
-    typeof error === "object"
-    && error !== null
-    && "code" in error
-    && error.code === "HTTP_409"
-  );
-}

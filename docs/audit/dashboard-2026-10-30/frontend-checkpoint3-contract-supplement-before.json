@@ -1,0 +1,10 @@
+[
+  {
+    "path": "frontend/features/passports/components/passport-bulk-delete.contract.test.mjs",
+    "before_sha256": "dda81b609fb2e39814c63eddcd53a9e8823da287249a2435b29d31eb8ef11792"
+  },
+  {
+    "path": "frontend/features/whatsapp/components/whatsapp-role-access.contract.test.mjs",
+    "before_sha256": "da9596d07d8ef017d9172d07a0bbece4b6368f491397d2bb9eed152cd1b732f8"
+  }
+]

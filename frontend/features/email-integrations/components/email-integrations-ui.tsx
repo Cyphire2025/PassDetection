@@ -9,7 +9,6 @@ import {
   useRef,
 } from "react";
 import { Badge, Button, Card, CardContent, Skeleton } from "@/components/ui";
-import type { BadgeProps } from "@/components/ui";
 import {
   emailStatusVariant,
   formatEmailLabel,
@@ -175,4 +174,3 @@ export function Definition({
   );
 }
 
-export type EmailStatusVariant = BadgeProps["variant"];

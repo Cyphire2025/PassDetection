@@ -28,6 +28,7 @@ export async function changeAccessLevel(role: SwitchableAccessLevel, queryClient
   const expectedVersion = useAuthStore.getState().sessionVersion;
   const isCurrent = () => useAuthStore.getState().sessionVersion === expectedVersion;
   await queryClient.cancelQueries();
+  if (!isCurrent()) return;
   queryClient.clear();
 
   let mutationError: unknown;
@@ -41,6 +42,7 @@ export async function changeAccessLevel(role: SwitchableAccessLevel, queryClient
   // Cookies are shared between tabs. Reset their role-scoped data as well;
   // owner-scoped unsent attendance scans remain preserved by this cleanup.
   await clearSensitiveBrowserState("access_level_changed");
+  if (!isCurrent()) return;
   try {
     const confirmedUser = await authApi.getMe();
     if (!isCurrent()) return;
@@ -66,6 +68,7 @@ export async function synchronizeAccessLevel() {
   state.beginAccessLevelChange();
   const expectedVersion = useAuthStore.getState().sessionVersion;
   await clearSensitiveBrowserState("access_level_changed", false);
+  if (useAuthStore.getState().sessionVersion !== expectedVersion) return;
   try {
     const user = await authApi.getMe();
     if (useAuthStore.getState().sessionVersion !== expectedVersion) return;

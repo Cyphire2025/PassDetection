@@ -1,0 +1,542 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="4.812" timestamp="2026-10-31T03:58:02.122790+05:30" hostname="Nipun5070ti"><testcase classname="tests.integration.test_tour_operations_tenant_projections" name="test_office_coordinator_and_group_projections_cannot_mix_tenants" time="3.697"><failure message="pydantic_core._pydantic_core.ValidationError: 1 validation error for CoordinatorResponse&#10;email&#10;  value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email. [type=value_error, input_value='594351a1-fbb9-4fdf-9c5e-...86625b1c38@example.test', input_type=str]">+ Exception Group Traceback (most recent call last):
+  |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_utils.py", line 85, in create_collapsing_task_group
+  |     async with anyio.create_task_group() as tg:
+  |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 815, in __aexit__
+  |     raise BaseExceptionGroup(
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\_pytest\runner.py", line 353, in from_call
+    |     result: TResult | None = func()
+    |                              ^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\_pytest\runner.py", line 245, in &lt;lambda&gt;
+    |     lambda: runtest_hook(item=item, **kwds),
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_hooks.py", line 512, in __call__
+    |     return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_manager.py", line 120, in _hookexec
+    |     return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 167, in _multicall
+    |     raise exception
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 139, in _multicall
+    |     teardown.throw(exception)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\_pytest\logging.py", line 850, in pytest_runtest_call
+    |     yield
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 139, in _multicall
+    |     teardown.throw(exception)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 53, in run_old_style_hookwrapper
+    |     return result.get_result()
+    |            ^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_result.py", line 103, in get_result
+    |     raise exc.with_traceback(tb)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 38, in run_old_style_hookwrapper
+    |     res = yield
+    |           ^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 139, in _multicall
+    |     teardown.throw(exception)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\_pytest\capture.py", line 900, in pytest_runtest_call
+    |     return (yield)
+    |             ^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 139, in _multicall
+    |     teardown.throw(exception)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\_pytest\skipping.py", line 268, in pytest_runtest_call
+    |     return (yield)
+    |             ^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 121, in _multicall
+    |     res = hook_impl.function(*args)
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\_pytest\runner.py", line 179, in pytest_runtest_call
+    |     item.runtest()
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pytest_asyncio\plugin.py", line 569, in runtest
+    |     super().runtest()
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\_pytest\python.py", line 1720, in runtest
+    |     self.ihook.pytest_pyfunc_call(pyfuncitem=self)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_hooks.py", line 512, in __call__
+    |     return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_manager.py", line 120, in _hookexec
+    |     return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 167, in _multicall
+    |     raise exception
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 139, in _multicall
+    |     teardown.throw(exception)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 53, in run_old_style_hookwrapper
+    |     return result.get_result()
+    |            ^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_result.py", line 103, in get_result
+    |     raise exc.with_traceback(tb)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 38, in run_old_style_hookwrapper
+    |     res = yield
+    |           ^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 121, in _multicall
+    |     res = hook_impl.function(*args)
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\_pytest\python.py", line 166, in pytest_pyfunc_call
+    |     result = testfunction(**testargs)
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pytest_asyncio\plugin.py", line 905, in inner
+    |     runner.run(coro, context=context)
+    |   File "C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\asyncio\runners.py", line 118, in run
+    |     return self._loop.run_until_complete(task)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\asyncio\base_events.py", line 654, in run_until_complete
+    |     return future.result()
+    |            ^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\backend\tests\integration\test_tour_operations_tenant_projections.py", line 84, in test_office_coordinator_and_group_projections_cannot_mix_tenants
+    |     coordinators = await client.get("/api/v1/tour-operations/coordinators", headers=headers)
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py", line 1801, in get
+    |     return await self.request(
+    |            ^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py", line 1574, in request
+    |     return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py", line 1661, in send
+    |     response = await self._send_handling_auth(
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py", line 1689, in _send_handling_auth
+    |     response = await self._send_handling_redirects(
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py", line 1726, in _send_handling_redirects
+    |     response = await self._send_single_request(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py", line 1763, in _send_single_request
+    |     response = await transport.handle_async_request(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_transports\asgi.py", line 164, in handle_async_request
+    |     await self.app(scope, receive, send)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\applications.py", line 1160, in __call__
+    |     await super().__call__(scope, receive, send)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\applications.py", line 90, in __call__
+    |     await self.middleware_stack(scope, receive, send)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    |     raise exc
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    |     await self.app(scope, receive, _send)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\middleware\request_id.py", line 54, in dispatch
+    |     response = await call_next(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    |     raise app_exc from app_exc.__cause__ or app_exc.__context__
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\middleware\metrics.py", line 22, in dispatch
+    |     response = await call_next(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    |     raise app_exc from app_exc.__cause__ or app_exc.__context__
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\middleware\rate_limit.py", line 260, in dispatch
+    |     response = await call_next(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    |     raise app_exc from app_exc.__cause__ or app_exc.__context__
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\middleware\security_headers.py", line 18, in dispatch
+    |     response = await call_next(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    |     raise app_exc from app_exc.__cause__ or app_exc.__context__
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\middleware\safe_gzip.py", line 35, in __call__
+    |     await responder(scope, receive, send)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\gzip.py", line 130, in __call__
+    |     await super().__call__(scope, receive, send)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\gzip.py", line 46, in __call__
+    |     await self.app(scope, receive, self.send_with_compression)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\cors.py", line 88, in __call__
+    |     await self.app(scope, receive, send)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    |     await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    |     raise exc
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    |     await self.app(scope, receive, send)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\routing.py", line 660, in __call__
+    |     await self.middleware_stack(scope, receive, send)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\routing.py", line 680, in app
+    |     await route.handle(scope, receive, send)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\routing.py", line 276, in handle
+    |     await self.app(scope, receive, send)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py", line 119, in app
+    |     await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    |     raise exc
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py", line 105, in app
+    |     response = await f(request)
+    |                ^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py", line 431, in app
+    |     raw_response = await run_endpoint_function(
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py", line 313, in run_endpoint_function
+    |     return await dependant.call(**values)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\api\v1\routes\tour_operations_accounts.py", line 222, in list_coordinators
+    |     return await _coordinator_responses(session, coordinators)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\api\v1\routes\tour_operations_response_support.py", line 77, in coordinator_responses
+    |     return [
+    |            ^
+    |   File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\api\v1\routes\tour_operations_response_support.py", line 78, in &lt;listcomp&gt;
+    |     CoordinatorResponse(
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pydantic\main.py", line 250, in __init__
+    |     validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    | pydantic_core._pydantic_core.ValidationError: 1 validation error for CoordinatorResponse
+    | email
+    |   value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email. [type=value_error, input_value='594351a1-fbb9-4fdf-9c5e-...86625b1c38@example.test', input_type=str]
+    +------------------------------------
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\backend\tests\integration\test_tour_operations_tenant_projections.py", line 84, in test_office_coordinator_and_group_projections_cannot_mix_tenants
+    coordinators = await client.get("/api/v1/tour-operations/coordinators", headers=headers)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py", line 1801, in get
+    return await self.request(
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py", line 1574, in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py", line 1661, in send
+    response = await self._send_handling_auth(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py", line 1689, in _send_handling_auth
+    response = await self._send_handling_redirects(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py", line 1726, in _send_handling_redirects
+    response = await self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py", line 1763, in _send_single_request
+    response = await transport.handle_async_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_transports\asgi.py", line 164, in handle_async_request
+    await self.app(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\applications.py", line 1160, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\middleware\request_id.py", line 54, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\middleware\metrics.py", line 22, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\middleware\rate_limit.py", line 260, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\middleware\security_headers.py", line 18, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\middleware\safe_gzip.py", line 35, in __call__
+    await responder(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\gzip.py", line 130, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\gzip.py", line 46, in __call__
+    await self.app(scope, receive, self.send_with_compression)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py", line 119, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py", line 105, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py", line 431, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py", line 313, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\api\v1\routes\tour_operations_accounts.py", line 222, in list_coordinators
+    return await _coordinator_responses(session, coordinators)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\api\v1\routes\tour_operations_response_support.py", line 77, in coordinator_responses
+    return [
+           ^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\api\v1\routes\tour_operations_response_support.py", line 78, in &lt;listcomp&gt;
+    CoordinatorResponse(
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pydantic\main.py", line 250, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pydantic_core._pydantic_core.ValidationError: 1 validation error for CoordinatorResponse
+email
+  value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email. [type=value_error, input_value='594351a1-fbb9-4fdf-9c5e-...86625b1c38@example.test', input_type=str]
+
+The above exception was the direct cause of the following exception:
+
+client = &lt;httpx.AsyncClient object at 0x000001D155591C90&gt;
+db_session = &lt;sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000001D1523D2250&gt;
+
+    async def test_office_coordinator_and_group_projections_cannot_mix_tenants(client, db_session):
+        owner_id, agency_id, own_coordinator, own_group = (uuid.uuid4() for _ in range(4))
+        records = [
+            AgencyModel(id=agency_id, name="Synthetic office", email="office@example.test"),
+            UserModel(
+                id=owner_id,
+                agency_id=agency_id,
+                email="office-owner@example.test",
+                full_name="Office owner",
+                hashed_password="unused",
+                role="agency_admin",
+            ),
+        ]
+        other_agency, other_coordinator, other_group = (uuid.uuid4() for _ in range(3))
+        records.append(
+            AgencyModel(id=other_agency, name="Foreign office", email="foreign-office@example.test")
+        )
+        for tenant, coordinator, group_id, count in (
+            (agency_id, own_coordinator, own_group, 1),
+            (other_agency, other_coordinator, other_group, 3),
+        ):
+            records.extend(
+                [
+                    UserModel(
+                        id=coordinator,
+                        agency_id=tenant,
+                        email=f"{coordinator}@example.test",
+                        full_name=f"Synthetic coordinator {count}",
+                        hashed_password="unused",
+                        role="agency_coordinator",
+                        is_active=True,
+                    ),
+                    ClientGroupModel(
+                        id=group_id,
+                        agency_id=tenant,
+                        token=str(uuid.uuid4()),
+                        name=f"Synthetic trip {count}",
+                        travel_date=date(2027, 2, 1),
+                        return_date=date(2027, 2, 10),
+                        status="active",
+                    ),
+                    CoordinatorGroupAssignmentModel(
+                        agency_id=tenant,
+                        group_id=group_id,
+                        coordinator_user_id=coordinator,
+                        active=True,
+                    ),
+                ]
+            )
+            records.extend(
+                PassportSubmissionModel(
+                    agency_id=tenant,
+                    group_id=group_id,
+                    client_name=f"Synthetic passenger {index}",
+                    image_s3_key=f"synthetic/{group_id}/{index}.jpg",
+                    status="confirmed",
+                )
+                for index in range(count)
+            )
+        await persist_graph(db_session, records)
+        await db_session.commit()
+        access, _ = await issue_dashboard_access(
+            db_session, user_id=owner_id, agency_id=agency_id, role="agency_admin"
+        )
+        headers = {"Authorization": f"Bearer {access}"}
+&gt;       coordinators = await client.get("/api/v1/tour-operations/coordinators", headers=headers)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\integration\test_tour_operations_tenant_projections.py:84: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py:1801: in get
+    return await self.request(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py:1574: in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py:1661: in send
+    response = await self._send_handling_auth(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py:1689: in _send_handling_auth
+    response = await self._send_handling_redirects(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py:1726: in _send_handling_redirects
+    response = await self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py:1763: in _send_single_request
+    response = await transport.handle_async_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_transports\asgi.py:164: in handle_async_request
+    await self.app(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\applications.py:1160: in __call__
+    await super().__call__(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\applications.py:90: in __call__
+    await self.middleware_stack(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\errors.py:186: in __call__
+    raise exc
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:193: in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\presentation\middleware\request_id.py:54: in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:168: in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:144: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:193: in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\presentation\middleware\metrics.py:22: in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:168: in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:144: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:193: in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\presentation\middleware\rate_limit.py:260: in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:168: in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:144: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:193: in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\presentation\middleware\security_headers.py:18: in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:168: in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:144: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+app\presentation\middleware\safe_gzip.py:35: in __call__
+    await responder(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\gzip.py:130: in __call__
+    await super().__call__(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\gzip.py:46: in __call__
+    await self.app(scope, receive, self.send_with_compression)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\cors.py:88: in __call__
+    await self.app(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\exceptions.py:63: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py:18: in __call__
+    await self.app(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\routing.py:660: in __call__
+    await self.middleware_stack(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\routing.py:680: in app
+    await route.handle(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\routing.py:276: in handle
+    await self.app(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py:119: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py:105: in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py:431: in app
+    raw_response = await run_endpoint_function(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py:313: in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\presentation\api\v1\routes\tour_operations_accounts.py:222: in list_coordinators
+    return await _coordinator_responses(session, coordinators)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\presentation\api\v1\routes\tour_operations_response_support.py:77: in coordinator_responses
+    return [
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+.0 = &lt;list_iterator object at 0x000001D1526ECD90&gt;
+
+    return [
+&gt;       CoordinatorResponse(
+            id=coordinator.id,
+            full_name=coordinator.full_name,
+            email=coordinator.email,
+            agency_id=coordinator.agency_id,
+            is_active=coordinator.is_active,
+            created_at=coordinator.created_at,
+            last_login_at=coordinator.last_login_at,
+            assigned_groups_count=group_counts.get(coordinator.id, 0),
+            assigned_passengers_count=passenger_counts.get(coordinator.id, 0),
+        )
+        for coordinator in coordinators
+        if coordinator.agency_id is not None
+    ]
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for CoordinatorResponse
+E   email
+E     value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email. [type=value_error, input_value='594351a1-fbb9-4fdf-9c5e-...86625b1c38@example.test', input_type=str]
+
+app\presentation\api\v1\routes\tour_operations_response_support.py:78: ValidationError</failure></testcase></testsuite></testsuites>

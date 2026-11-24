@@ -1,0 +1,25 @@
+{
+  "command": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "tests/unit/infrastructure/test_email_models.py",
+    "tests/unit/infrastructure/test_email_integrations_migration.py",
+    "tests/unit/presentation/test_email_oauth_persistence.py",
+    "tests/unit/infrastructure/test_email_model_persistence_contracts.py",
+    "tests/unit/infrastructure/test_email_model_owner_compatibility.py",
+    "--cov=app.infrastructure.database.email_models",
+    "--cov=app.infrastructure.database._email_models",
+    "--cov-branch",
+    "--cov-report=json:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\email-models-focused-coverage.json",
+    "--cov-report=xml:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\email-models-focused-coverage.xml",
+    "--cov-report=term"
+  ],
+  "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection\\backend",
+  "exit_code": 0,
+  "stdout": "...........................................................              [100%]\n\n---------- coverage: platform win32, python 3.11.15-final-0 ----------\nName                                                       Stmts   Miss Branch BrPart  Cover\n--------------------------------------------------------------------------------------------\napp\\infrastructure\\database\\_email_models\\__init__.py          1      0      0      0   100%\napp\\infrastructure\\database\\_email_models\\activity.py         34      0      0      0   100%\napp\\infrastructure\\database\\_email_models\\artifacts.py        47      0      0      0   100%\napp\\infrastructure\\database\\_email_models\\connections.py      48      0      0      0   100%\napp\\infrastructure\\database\\_email_models\\documents.py        21      0      0      0   100%\napp\\infrastructure\\database\\_email_models\\messages.py         43      0      0      0   100%\napp\\infrastructure\\database\\_email_models\\oauth.py            26      0      0      0   100%\napp\\infrastructure\\database\\_email_models\\reviews.py          39      0      0      0   100%\napp\\infrastructure\\database\\email_models.py                   50      1      8      1    97%\n--------------------------------------------------------------------------------------------\nTOTAL                                                        309      1      8      1    99%\nCoverage XML written to file C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\email-models-focused-coverage.xml\nCoverage JSON written to file C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\email-models-focused-coverage.json\n\n59 passed in 32.17s\n",
+  "stderr": ""
+}

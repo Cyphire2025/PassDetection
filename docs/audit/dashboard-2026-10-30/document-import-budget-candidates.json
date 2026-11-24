@@ -1,0 +1,18 @@
+[
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/document_import.py",
+    "baseline_lines": 431,
+    "maximum_lines": 450,
+    "baseline_max_function_complexity": 21,
+    "maximum_function_complexity": 21,
+    "minimum_coverage_percent": 70
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/document_import_failure.py",
+    "baseline_lines": 49,
+    "maximum_lines": 55,
+    "baseline_max_function_complexity": 2,
+    "maximum_function_complexity": 2,
+    "minimum_coverage_percent": 95
+  }
+]

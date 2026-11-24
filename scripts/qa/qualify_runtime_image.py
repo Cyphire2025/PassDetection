@@ -9,9 +9,7 @@ import sys
 from pathlib import Path
 
 import cv2
-import matplotlib
 import numpy as np
-import passporteye
 import pypdfium2
 import pytesseract
 from PIL import Image, ImageDraw, ImageFont
@@ -23,7 +21,7 @@ def main() -> None:
     parser.add_argument("--require-patched-parsers", action="store_true")
     args = parser.parse_args()
     sys.path.insert(0, str(Path.cwd()))
-    font = ImageFont.truetype(str(Path(matplotlib.get_data_path()) / "fonts/ttf/DejaVuSans.ttf"), 48)
+    font = ImageFont.load_default(size=48)
     image = Image.new("RGB", (900, 160), "white")
     ImageDraw.Draw(image).text((20, 30), "PASSPORT 12345678", font=font, fill="black")
     text = pytesseract.image_to_string(image, config="--psm 7", timeout=20)
@@ -34,10 +32,6 @@ def main() -> None:
     contours, _ = cv2.findContours(threshold, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     if len(contours) < 10:
         raise RuntimeError("Synthetic image processing lost text contours")
-    from app.infrastructure.ocr.mrz_image_normalizer import MRZImageNormalizer
-    normalized = MRZImageNormalizer().normalize(image)
-    if normalized is None:
-        raise RuntimeError("MRZ normalization returned no image")
     if importlib.util.find_spec("setuptools") or importlib.util.find_spec("wheel"):
         raise RuntimeError("Build-only tooling survived in the runtime environment")
     # Create/render a synthetic PDF through the same supported image libraries.
@@ -130,10 +124,10 @@ def main() -> None:
                          "ocr_languages": ["eng", "osd"], "tesseract": str(pytesseract.get_tesseract_version())}
     print(json.dumps({"result": "passed", "opencv": cv2.__version__, "numpy": np.__version__,
         "ocr_text": text.strip(), "contours": len(contours), "pdf_render": True,
-        "passporteye_import": bool(passporteye), "runtime_build_tools_absent": True,
+        "runtime_build_tools_absent": True,
         "ffmpeg_enabled": ffmpeg,
         "video_api_present": video, "parser_checks": parser_checks,
-        "python_dependencies": {name: importlib.metadata.version(name) for name in ("pillow", "pypdfium2", "passporteye")}}))
+        "python_dependencies": {name: importlib.metadata.version(name) for name in ("pillow", "pypdfium2")}}))
 
 
 if __name__ == "__main__":

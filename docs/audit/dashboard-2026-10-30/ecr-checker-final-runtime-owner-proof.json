@@ -1,0 +1,722 @@
+{
+  "actual_global_bindings": [
+    [
+      "_run_admitted_upload",
+      "asyncio",
+      "actual original facade/global identity"
+    ],
+    [
+      "_run_admitted_upload",
+      "_UPLOAD_GATES",
+      "actual original facade/global identity"
+    ],
+    [
+      "_run_admitted_upload",
+      "suppress",
+      "actual original facade/global identity"
+    ],
+    [
+      "_scope",
+      "ecr_scope",
+      "actual original facade/global identity"
+    ],
+    [
+      "_scope",
+      "AuthorizationError",
+      "actual original facade/global identity"
+    ],
+    [
+      "_scope",
+      "HTTPException",
+      "actual original facade/global identity"
+    ],
+    [
+      "_lock_active_actor",
+      "_scope",
+      "actual original facade/global identity"
+    ],
+    [
+      "_lock_active_actor",
+      "actual_user_agency_id",
+      "actual original facade/global identity"
+    ],
+    [
+      "_lock_active_actor",
+      "select",
+      "actual original facade/global identity"
+    ],
+    [
+      "_lock_active_actor",
+      "UserModel",
+      "actual original facade/global identity"
+    ],
+    [
+      "_lock_active_actor",
+      "AgencyModel",
+      "actual original facade/global identity"
+    ],
+    [
+      "_lock_active_actor",
+      "actual_user_role",
+      "actual original facade/global identity"
+    ],
+    [
+      "_lock_active_actor",
+      "HTTPException",
+      "actual original facade/global identity"
+    ],
+    [
+      "_lock_active_actor",
+      "UserSecurityStateModel",
+      "actual original facade/global identity"
+    ],
+    [
+      "_lock_active_actor",
+      "refresh_access_level_actor",
+      "actual original facade/global identity"
+    ],
+    [
+      "_batch",
+      "select",
+      "actual original facade/global identity"
+    ],
+    [
+      "_batch",
+      "EcrBatchModel",
+      "actual original facade/global identity"
+    ],
+    [
+      "_batch",
+      "_scope",
+      "actual original facade/global identity"
+    ],
+    [
+      "_batch",
+      "HTTPException",
+      "actual original facade/global identity"
+    ],
+    [
+      "_items",
+      "select",
+      "actual original facade/global identity"
+    ],
+    [
+      "_items",
+      "EcrItemModel",
+      "actual original facade/global identity"
+    ],
+    [
+      "_summary",
+      "EcrBatchSummary",
+      "actual original facade/global identity"
+    ],
+    [
+      "_response",
+      "_items",
+      "actual original facade/global identity"
+    ],
+    [
+      "_response",
+      "EcrBatchResponse",
+      "actual original facade/global identity"
+    ],
+    [
+      "_response",
+      "_summary",
+      "actual original facade/global identity"
+    ],
+    [
+      "create_ecr_batch",
+      "_lock_active_actor",
+      "actual original facade/global identity"
+    ],
+    [
+      "create_ecr_batch",
+      "EcrBatchModel",
+      "actual original facade/global identity"
+    ],
+    [
+      "create_ecr_batch",
+      "_response",
+      "actual original facade/global identity"
+    ],
+    [
+      "list_ecr_batches",
+      "select",
+      "actual original facade/global identity"
+    ],
+    [
+      "list_ecr_batches",
+      "EcrBatchModel",
+      "actual original facade/global identity"
+    ],
+    [
+      "list_ecr_batches",
+      "_scope",
+      "actual original facade/global identity"
+    ],
+    [
+      "list_ecr_batches",
+      "ecr_item_counts",
+      "actual original facade/global identity"
+    ],
+    [
+      "get_ecr_batch",
+      "_response",
+      "actual original facade/global identity"
+    ],
+    [
+      "get_ecr_batch",
+      "_batch",
+      "actual original facade/global identity"
+    ],
+    [
+      "_parse_client_ids",
+      "json",
+      "actual original facade/global identity"
+    ],
+    [
+      "_parse_client_ids",
+      "HTTPException",
+      "actual original facade/global identity"
+    ],
+    [
+      "upload_ecr_items",
+      "_run_admitted_upload",
+      "actual original facade/global identity"
+    ],
+    [
+      "_upload_ecr_items_admitted",
+      "_batch",
+      "actual original facade/global identity"
+    ],
+    [
+      "_upload_ecr_items_admitted",
+      "_items",
+      "actual original facade/global identity"
+    ],
+    [
+      "_upload_ecr_items_admitted",
+      "HTTPException",
+      "actual original facade/global identity"
+    ],
+    [
+      "_upload_ecr_items_admitted",
+      "_parse_client_ids",
+      "actual original facade/global identity"
+    ],
+    [
+      "_upload_ecr_items_admitted",
+      "get_settings",
+      "actual original facade/global identity"
+    ],
+    [
+      "_upload_ecr_items_admitted",
+      "read_ecr_uploads",
+      "new typed phase owner"
+    ],
+    [
+      "_upload_ecr_items_admitted",
+      "_lock_active_actor",
+      "actual original facade/global identity"
+    ],
+    [
+      "_upload_ecr_items_admitted",
+      "_response",
+      "actual original facade/global identity"
+    ],
+    [
+      "_upload_ecr_items_admitted",
+      "UploadSecurityService",
+      "actual original facade/global identity"
+    ],
+    [
+      "_upload_ecr_items_admitted",
+      "MinioStorageRepository",
+      "actual original facade/global identity"
+    ],
+    [
+      "_upload_ecr_items_admitted",
+      "EcrUploadStaging",
+      "new typed phase owner"
+    ],
+    [
+      "_upload_ecr_items_admitted",
+      "stage_ecr_uploads",
+      "new typed phase owner"
+    ],
+    [
+      "_upload_ecr_items_admitted",
+      "datetime",
+      "actual original facade/global identity"
+    ],
+    [
+      "_upload_ecr_items_admitted",
+      "UTC",
+      "actual original facade/global identity"
+    ],
+    [
+      "_upload_ecr_items_admitted",
+      "suppress",
+      "actual original facade/global identity"
+    ],
+    [
+      "_upload_ecr_items_admitted",
+      "asyncio",
+      "actual original facade/global identity"
+    ],
+    [
+      "_upload_ecr_items_admitted",
+      "logger",
+      "actual original facade/global identity"
+    ],
+    [
+      "_dispatch",
+      "logger",
+      "actual original facade/global identity"
+    ],
+    [
+      "start_ecr_batch",
+      "_lock_active_actor",
+      "actual original facade/global identity"
+    ],
+    [
+      "start_ecr_batch",
+      "_batch",
+      "actual original facade/global identity"
+    ],
+    [
+      "start_ecr_batch",
+      "_response",
+      "actual original facade/global identity"
+    ],
+    [
+      "start_ecr_batch",
+      "_items",
+      "actual original facade/global identity"
+    ],
+    [
+      "start_ecr_batch",
+      "HTTPException",
+      "actual original facade/global identity"
+    ],
+    [
+      "start_ecr_batch",
+      "_dispatch",
+      "actual original facade/global identity"
+    ],
+    [
+      "retry_ecr_batch",
+      "_lock_active_actor",
+      "actual original facade/global identity"
+    ],
+    [
+      "retry_ecr_batch",
+      "_batch",
+      "actual original facade/global identity"
+    ],
+    [
+      "retry_ecr_batch",
+      "HTTPException",
+      "actual original facade/global identity"
+    ],
+    [
+      "retry_ecr_batch",
+      "_items",
+      "actual original facade/global identity"
+    ],
+    [
+      "retry_ecr_batch",
+      "_dispatch",
+      "actual original facade/global identity"
+    ],
+    [
+      "retry_ecr_batch",
+      "_response",
+      "actual original facade/global identity"
+    ],
+    [
+      "export_ecr_batch",
+      "_batch",
+      "actual original facade/global identity"
+    ],
+    [
+      "export_ecr_batch",
+      "_items",
+      "actual original facade/global identity"
+    ],
+    [
+      "export_ecr_batch",
+      "HTTPException",
+      "actual original facade/global identity"
+    ],
+    [
+      "export_ecr_batch",
+      "asyncio",
+      "actual original facade/global identity"
+    ],
+    [
+      "export_ecr_batch",
+      "build_ecr_workbook",
+      "actual original facade/global identity"
+    ],
+    [
+      "export_ecr_batch",
+      "Response",
+      "actual original facade/global identity"
+    ],
+    [
+      "read_ecr_uploads",
+      "HTTPException",
+      "actual original facade/global identity"
+    ],
+    [
+      "read_ecr_uploads",
+      "EcrUpload",
+      "new typed phase owner"
+    ],
+    [
+      "read_ecr_uploads",
+      "hashlib",
+      "actual original facade/global identity"
+    ],
+    [
+      "stage_ecr_uploads",
+      "EcrItemModel",
+      "actual original facade/global identity"
+    ],
+    [
+      "stage_ecr_uploads",
+      "uuid",
+      "actual original facade/global identity"
+    ],
+    [
+      "stage_ecr_uploads",
+      "ImageValidationError",
+      "actual original facade/global identity"
+    ],
+    [
+      "stage_ecr_uploads",
+      "UploadSecurityContext",
+      "actual original facade/global identity"
+    ],
+    [
+      "stage_ecr_uploads",
+      "get_settings",
+      "actual original facade/global identity"
+    ],
+    [
+      "stage_ecr_uploads",
+      "asyncio",
+      "actual original facade/global identity"
+    ],
+    [
+      "stage_ecr_uploads",
+      "prepare_ecr_image",
+      "actual original facade/global identity"
+    ],
+    [
+      "stage_ecr_uploads",
+      "DocumentIngestionDisabledError",
+      "actual original facade/global identity"
+    ],
+    [
+      "stage_ecr_uploads",
+      "MalwareScannerUnavailableError",
+      "actual original facade/global identity"
+    ],
+    [
+      "stage_ecr_uploads",
+      "HTTPException",
+      "actual original facade/global identity"
+    ],
+    [
+      "stage_ecr_uploads",
+      "EcrImageValidationError",
+      "actual original facade/global identity"
+    ]
+  ],
+  "function_contracts": {
+    "_batch": {
+      "hints": {
+        "batch_id": "<class 'uuid.UUID'>",
+        "lock": "<class 'bool'>",
+        "return": "<class 'app.infrastructure.database.ecr_models.EcrBatchModel'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "user": "<class 'app.domain.entities.identity.User'>"
+      },
+      "module": "app.presentation.api.v1.routes.ecr_checker",
+      "qualname": "_batch",
+      "source_owner": "backend/app/presentation/api/v1/routes/ecr_checker_support.py"
+    },
+    "_dispatch": {
+      "hints": {
+        "batch_id": "<class 'uuid.UUID'>",
+        "return": "<class 'NoneType'>"
+      },
+      "module": "app.presentation.api.v1.routes.ecr_checker",
+      "qualname": "_dispatch",
+      "source_owner": "backend/app/presentation/api/v1/routes/ecr_checker_actions.py"
+    },
+    "_items": {
+      "hints": {
+        "batch_id": "<class 'uuid.UUID'>",
+        "return": "list[app.infrastructure.database.ecr_models.EcrItemModel]",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>"
+      },
+      "module": "app.presentation.api.v1.routes.ecr_checker",
+      "qualname": "_items",
+      "source_owner": "backend/app/presentation/api/v1/routes/ecr_checker_support.py"
+    },
+    "_lock_active_actor": {
+      "hints": {
+        "return": "<class 'app.domain.entities.identity.User'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "user": "<class 'app.domain.entities.identity.User'>"
+      },
+      "module": "app.presentation.api.v1.routes.ecr_checker",
+      "qualname": "_lock_active_actor",
+      "source_owner": "backend/app/presentation/api/v1/routes/ecr_checker_support.py"
+    },
+    "_parse_client_ids": {
+      "hints": {
+        "file_count": "<class 'int'>",
+        "return": "list[uuid.UUID]",
+        "value": "<class 'str'>"
+      },
+      "module": "app.presentation.api.v1.routes.ecr_checker",
+      "qualname": "_parse_client_ids",
+      "source_owner": "backend/app/presentation/api/v1/routes/ecr_checker_inputs.py"
+    },
+    "_response": {
+      "hints": {
+        "batch": "<class 'app.infrastructure.database.ecr_models.EcrBatchModel'>",
+        "return": "<class 'app.presentation.api.v1.schemas.ecr_schemas.EcrBatchResponse'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>"
+      },
+      "module": "app.presentation.api.v1.routes.ecr_checker",
+      "qualname": "_response",
+      "source_owner": "backend/app/presentation/api/v1/routes/ecr_checker_support.py"
+    },
+    "_run_admitted_upload": {
+      "hints": {
+        "operation": "collections.abc.Callable[[], collections.abc.Awaitable[app.presentation.api.v1.schemas.ecr_schemas.EcrBatchResponse]]",
+        "return": "<class 'app.presentation.api.v1.schemas.ecr_schemas.EcrBatchResponse'>"
+      },
+      "module": "app.presentation.api.v1.routes.ecr_checker",
+      "qualname": "_run_admitted_upload",
+      "source_owner": "backend/app/presentation/api/v1/routes/ecr_checker_inputs.py"
+    },
+    "_scope": {
+      "hints": {
+        "return": "list[sqlalchemy.sql.elements.ColumnElement[bool]]",
+        "user": "<class 'app.domain.entities.identity.User'>"
+      },
+      "module": "app.presentation.api.v1.routes.ecr_checker",
+      "qualname": "_scope",
+      "source_owner": "backend/app/presentation/api/v1/routes/ecr_checker_support.py"
+    },
+    "_summary": {
+      "hints": {
+        "batch": "<class 'app.infrastructure.database.ecr_models.EcrBatchModel'>",
+        "items": "list[app.infrastructure.database.ecr_models.EcrItemModel]",
+        "return": "<class 'app.presentation.api.v1.schemas.ecr_schemas.EcrBatchSummary'>"
+      },
+      "module": "app.presentation.api.v1.routes.ecr_checker",
+      "qualname": "_summary",
+      "source_owner": "backend/app/presentation/api/v1/routes/ecr_checker_support.py"
+    },
+    "_upload_ecr_items_admitted": {
+      "hints": {
+        "batch_id": "<class 'uuid.UUID'>",
+        "client_ids": "<class 'str'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "files": "list[fastapi.datastructures.UploadFile]",
+        "return": "<class 'app.presentation.api.v1.schemas.ecr_schemas.EcrBatchResponse'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>"
+      },
+      "module": "app.presentation.api.v1.routes.ecr_checker",
+      "qualname": "_upload_ecr_items_admitted",
+      "source_owner": "backend/app/presentation/api/v1/routes/ecr_checker_upload.py"
+    },
+    "create_ecr_batch": {
+      "hints": {
+        "body": "<class 'app.presentation.api.v1.schemas.ecr_schemas.CreateEcrBatch'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "return": "<class 'app.presentation.api.v1.schemas.ecr_schemas.EcrBatchResponse'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>"
+      },
+      "module": "app.presentation.api.v1.routes.ecr_checker",
+      "qualname": "create_ecr_batch",
+      "source_owner": "backend/app/presentation/api/v1/routes/ecr_checker_batches.py"
+    },
+    "export_ecr_batch": {
+      "hints": {
+        "batch_id": "<class 'uuid.UUID'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "return": "<class 'starlette.responses.Response'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>"
+      },
+      "module": "app.presentation.api.v1.routes.ecr_checker",
+      "qualname": "export_ecr_batch",
+      "source_owner": "backend/app/presentation/api/v1/routes/ecr_checker_actions.py"
+    },
+    "get_ecr_batch": {
+      "hints": {
+        "batch_id": "<class 'uuid.UUID'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "return": "<class 'app.presentation.api.v1.schemas.ecr_schemas.EcrBatchResponse'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>"
+      },
+      "module": "app.presentation.api.v1.routes.ecr_checker",
+      "qualname": "get_ecr_batch",
+      "source_owner": "backend/app/presentation/api/v1/routes/ecr_checker_batches.py"
+    },
+    "list_ecr_batches": {
+      "hints": {
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "return": "list[app.presentation.api.v1.schemas.ecr_schemas.EcrBatchSummary]",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>"
+      },
+      "module": "app.presentation.api.v1.routes.ecr_checker",
+      "qualname": "list_ecr_batches",
+      "source_owner": "backend/app/presentation/api/v1/routes/ecr_checker_batches.py"
+    },
+    "retry_ecr_batch": {
+      "hints": {
+        "batch_id": "<class 'uuid.UUID'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "return": "<class 'app.presentation.api.v1.schemas.ecr_schemas.EcrBatchResponse'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>"
+      },
+      "module": "app.presentation.api.v1.routes.ecr_checker",
+      "qualname": "retry_ecr_batch",
+      "source_owner": "backend/app/presentation/api/v1/routes/ecr_checker_actions.py"
+    },
+    "start_ecr_batch": {
+      "hints": {
+        "batch_id": "<class 'uuid.UUID'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "return": "<class 'app.presentation.api.v1.schemas.ecr_schemas.EcrBatchResponse'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>"
+      },
+      "module": "app.presentation.api.v1.routes.ecr_checker",
+      "qualname": "start_ecr_batch",
+      "source_owner": "backend/app/presentation/api/v1/routes/ecr_checker_actions.py"
+    },
+    "upload_ecr_items": {
+      "hints": {
+        "batch_id": "<class 'uuid.UUID'>",
+        "client_ids": "<class 'str'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "files": "list[fastapi.datastructures.UploadFile]",
+        "return": "<class 'app.presentation.api.v1.schemas.ecr_schemas.EcrBatchResponse'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>"
+      },
+      "module": "app.presentation.api.v1.routes.ecr_checker",
+      "qualname": "upload_ecr_items",
+      "source_owner": "backend/app/presentation/api/v1/routes/ecr_checker_upload.py"
+    }
+  },
+  "limits": "17 moved legacy functions now inspect at their actual owner paths. Private monkeypatch instrumentation targets changed explicitly; no facade globals proxy. Synthetic checks do not establish live services.",
+  "logger_owner_alias_identity_and_factory_metadata_exact": true,
+  "new_phase_type_hints": {
+    "EcrUpload": {
+      "client_id": "<class 'uuid.UUID'>",
+      "content": "<class 'bytes'>",
+      "content_type": "<class 'str'>",
+      "filename": "<class 'str'>",
+      "sha256": "<class 'str'>"
+    },
+    "EcrUploadStaging": {
+      "commit_started": "<class 'bool'>",
+      "items": "list[app.infrastructure.database.ecr_models.EcrItemModel]",
+      "stored_keys": "list[str]"
+    },
+    "read_ecr_uploads": {
+      "files": "list[fastapi.datastructures.UploadFile]",
+      "ids": "list[uuid.UUID]",
+      "limit": "<class 'int'>",
+      "return": "list[app.presentation.api.v1.routes.ecr_checker_inputs.EcrUpload]"
+    },
+    "stage_ecr_uploads": {
+      "agency_id": "<class 'uuid.UUID'>",
+      "batch_id": "<class 'uuid.UUID'>",
+      "current_user": "<class 'app.domain.entities.identity.User'>",
+      "limit": "<class 'int'>",
+      "new_uploads": "list[app.presentation.api.v1.routes.ecr_checker_inputs.EcrUpload]",
+      "return": "<class 'NoneType'>",
+      "security": "<class 'app.infrastructure.security.upload_security.UploadSecurityService'>",
+      "staging": "<class 'app.presentation.api.v1.routes.ecr_checker_staging.EcrUploadStaging'>",
+      "storage": "<class 'app.infrastructure.storage.minio_repository.MinioStorageRepository'>"
+    }
+  },
+  "original_imported_identity_count": 55,
+  "original_imports": [
+    "asyncio",
+    "hashlib",
+    "json",
+    "uuid",
+    "Awaitable",
+    "Callable",
+    "suppress",
+    "UTC",
+    "datetime",
+    "Annotated",
+    "WeakKeyDictionary",
+    "APIRouter",
+    "Depends",
+    "File",
+    "Form",
+    "HTTPException",
+    "UploadFile",
+    "Response",
+    "select",
+    "AsyncSession",
+    "ColumnElement",
+    "actual_user_agency_id",
+    "actual_user_role",
+    "refresh_access_level_actor",
+    "get_settings",
+    "get_logger",
+    "User",
+    "AuthorizationError",
+    "ImageValidationError",
+    "EcrImageValidationError",
+    "prepare_ecr_image",
+    "EcrBatchModel",
+    "EcrItemModel",
+    "AgencyModel",
+    "UserModel",
+    "UserSecurityStateModel",
+    "get_db_session",
+    "build_ecr_workbook",
+    "ECR_ALLOWED_ROLES",
+    "ECR_COUNT_FIELDS",
+    "ecr_item_counts",
+    "ecr_scope",
+    "UploadSecurityContext",
+    "UploadSecurityService",
+    "DocumentIngestionDisabledError",
+    "MalwareScannerUnavailableError",
+    "MinioStorageRepository",
+    "XLSX",
+    "binary_responses",
+    "CreateEcrBatch",
+    "EcrBatchResponse",
+    "EcrBatchSummary",
+    "EcrItemResponse",
+    "get_current_active_user",
+    "require_cookie_csrf"
+  ],
+  "raw_openapi_and_route_order_exact": true,
+  "source_fence": {
+    "backend/app/presentation/api/v1/routes/ecr_checker.py": "6a10b853b8ecb15371dd770f80f27abd201a812d0cc48948fb65981d2d998726",
+    "backend/app/presentation/api/v1/routes/ecr_checker_actions.py": "58b5fec6fb013d7b89115cb00070059b9b36e8876a025ee6e73f7da5b8e40119",
+    "backend/app/presentation/api/v1/routes/ecr_checker_batches.py": "3b785bd4319187d78ba24b51c8295a5f0df1812d3f3f153298036f0e67d70007",
+    "backend/app/presentation/api/v1/routes/ecr_checker_inputs.py": "1753457d06b683a4f93a48cd3c5ca932e1366fd3831d1af80e598cb588a64e3e",
+    "backend/app/presentation/api/v1/routes/ecr_checker_staging.py": "ff5f36fb620cc4e245c5dd177fc849b03a34498c90cc5ea44421f4a2f56a858c",
+    "backend/app/presentation/api/v1/routes/ecr_checker_support.py": "8dd4485b7d11562ff0a0946182dd22fbb443b96e4bf4b1060b0929889f36036c",
+    "backend/app/presentation/api/v1/routes/ecr_checker_upload.py": "cd4dbc9d7b4a4a1830c6675092b015c72bdfc3cf7b720992f0769c9acc401cad"
+  }
+}

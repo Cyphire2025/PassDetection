@@ -1,0 +1,15 @@
+{
+  "frontend/e2e/support/visible-menu-trigger.ts": "4468cf454afe14f72b1db838971d48f09136a5266f6e04be309e56f4c7274aa9",
+  "frontend/e2e/companies.spec.ts": "18675e1536a93ca378be9b157efeb2bf3e6f21c0ea0963e0cb9cfb8c45e8534a",
+  "frontend/e2e/whatsapp-workspace.spec.ts": "73f56fc85eab98650245fd8899e2bbec67882962356615b9d15c6adb02bd11f4",
+  "frontend/e2e/whatsapp-document-management.spec.ts": "e418d1fce28196893725031f6faa56937e11edd4226d88b2929d3057b32c9efb",
+  "frontend/e2e/passport-governance.spec.ts": "735514f1d23e37366260f56c5d400b55aa5a97d41c55d83c75063bdf5fba7cd6",
+  "frontend/e2e/whatsapp-delivery-types.spec.ts": "9cf5fc770e01e14401dfdced1de88f58860a4121eeb5448591a4d6d845c3f890",
+  "frontend/features/passports/components/use-passport-group-menus.ts": "1efc2323f8748c292acf977f02647e58e23d1c39afd140a7d85648250c74ed76",
+  "frontend/features/passports/components/use-passport-bulk-menu-position.ts": "e102ded0528ddc0111b28974ecb7ad0c935106e028e5f6cad222c7607fda4e2b",
+  "frontend/features/passports/components/passport-group-selected-actions.tsx": "80070db51a3ca808aa6ee1a824485fcca91991a63d1b93e6d310aa1135f94950",
+  "frontend/features/whatsapp/workspace/recipient-controls.tsx": "337bdaa12fb4e9ffb15db67e3bc138cd3727ad7226c83ade83327139250b41b7",
+  "frontend/features/whatsapp/workspace/recipient-roster-table.tsx": "4c91949a858fd73efd81b59d5d3ac803671d6fc098ae6477ef473d7ab331291e",
+  "frontend/features/whatsapp/workspace/recipient-details-rail.tsx": "672ed014c1e8e74be5ae0459fff8c127d8721dbfffc7c534387509cdcf9ba889",
+  "frontend/features/whatsapp/workspace/broadcast-workspace.module.css": "c1614eec9269f8c2c44eefb9c41573888cb91fa664697381a6859c7680ff4f49"
+}

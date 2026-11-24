@@ -1,0 +1,37 @@
+{
+  "records": [
+    {
+      "path": "frontend/features/passports/components/passport-bulk-delete.contract.test.mjs",
+      "before_sha256": "dda81b609fb2e39814c63eddcd53a9e8823da287249a2435b29d31eb8ef11792",
+      "sha256": "222f26eee91758f2d487853a06cb8473002e3bcd00597e165429b2dfebdd7d3f",
+      "review_scope": "full",
+      "status": "source-contract-retargeted",
+      "review_note": "Both complete physical contract files read. Only the approved loader/one inline-bound guard changed; every original assertion retained in meaning. Actual named child import/render wiring assertions added. No runtime changes."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-role-access.contract.test.mjs",
+      "before_sha256": "da9596d07d8ef017d9172d07a0bbece4b6368f491397d2bb9eed152cd1b732f8",
+      "sha256": "ead347be8301c5ea58330bf0711819fcdf79c0cbc65d0265a033ba50fb0cdc1f",
+      "review_scope": "full",
+      "status": "source-contract-retargeted",
+      "review_note": "Both complete physical contract files read. Only the approved loader/one inline-bound guard changed; every original assertion retained in meaning. Actual named child import/render wiring assertions added. No runtime changes."
+    }
+  ],
+  "scope": "Parent-approved narrow test-only freeze exception. Bulk-delete current aggregate was already correct; one parenthesis-bound regex retargeted to the same actual guarded selected-actions child. WhatsApp creation loader now reads the existing five-owner helper. Historical source text was not injected.",
+  "verification": {
+    "before": ".tmp/frontend-checkpoint3-contract-before.txt",
+    "before_cases": 7,
+    "before_pass": 5,
+    "before_fail": 2,
+    "after": ".tmp/frontend-checkpoint3-contract-after.txt",
+    "after_cases": 7,
+    "after_pass": 7,
+    "after_fail": 0,
+    "scoped_eslint": "passed2files"
+  },
+  "movement_proofs": [
+    "passport-selection-toolbar-movement-proof.json",
+    "create-upload-link-movement-proof.json"
+  ],
+  "unchanged_runtime_sources": true
+}

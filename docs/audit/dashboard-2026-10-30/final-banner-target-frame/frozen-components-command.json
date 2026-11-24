@@ -1,0 +1,31 @@
+{
+  "argv": [
+    "C:\\Users\\nipun\\AppData\\Local\\Programs\\node-v24.21.0-win-x64\\node.exe",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "features/branding/components/group-image-dialog.test.tsx",
+    "features/branding/image-crop.test.ts",
+    "features/branding/api/branding-images.api.test.ts",
+    "--config",
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\banner-crop-target\\vitest.config.mts",
+    "--maxWorkers=1",
+    "--pool=threads"
+  ],
+  "cwd": "frontend",
+  "exit_code": 0,
+  "seconds": 3.0780000000004293,
+  "envDir": false,
+  "source_fence": {
+    "frontend/features/branding/components/group-banner.tsx": "d54d0b135c0fdd993c453e6703bd2ddda29cc51e099012c946848943c41fb459",
+    "frontend/features/branding/components/group-banner-action.tsx": "8fa3dfd6610baadf728db116ccc2490c4e2a7770f9ba216dd3b96ff6f9c1e4cd",
+    "frontend/features/branding/components/group-image-dialog.tsx": "da64396862a67e55104ecc8cc602d25f22c12975f58bcbb56c4ddaba0a320230",
+    "frontend/features/branding/components/group-banner-frame.ts": "754ca8518df4e57f6b832e8e739238287f31afc98ceab52f6f3c47f85afbb6c2",
+    "frontend/features/branding/components/use-group-image-aspect.ts": "8774bd9add3379488f59da76e254114ff3349d5faebadccbc24d6923ecae16bd",
+    "frontend/features/branding/components/group-image-dialog.test.tsx": "a5ee8778b606941e12f0b38563a63f5a321f336f38f5208262663b46286dffbf",
+    "frontend/features/branding/image-crop.ts": "8bf84ef478d7fdef520f3a7e2abfd0a2308bec590274209601ea966a096d32d2",
+    "frontend/features/branding/image-crop.test.ts": "3054e2bfd017cfd42bec017961dcbc5a37c1a5813cfd6d34b2708a695d0817aa",
+    "frontend/features/branding/api/branding-images.api.ts": "2c6b39282474e505aa23f380693e910d59479cb2e5fbfb4578be862e24d20316",
+    "frontend/features/branding/api/branding-images.api.test.ts": "e84a5a8502988fa55057cfda920db31b59a3b6521e136e80a7d8d880227bb13c"
+  },
+  "source_unchanged": true
+}

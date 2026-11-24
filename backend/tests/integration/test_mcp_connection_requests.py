@@ -174,6 +174,13 @@ async def test_anonymous_start_resume_poll_and_admin_finalization(mcp_fixture):
         {"scope": "mcp:all"},
         {"response_type": "token"},
         {"state": "short"},
+        {"client_id": "__proto__"},
+        {"client_id": "unapproved"},
+        {"code_challenge_method": "plain"},
+        {"state": "x" * 513},
+        {"state": ["a" * 32, "b" * 32]},
+        {"scope": ""},
+        {"redirect_uri": "javascript:alert(1)"},
     ],
 )
 async def test_invalid_native_tuple_never_creates_pending(mcp_fixture, change):
@@ -183,6 +190,16 @@ async def test_invalid_native_tuple_never_creates_pending(mcp_fixture, change):
         await mcp_fixture[1].scalar(select(func.count()).select_from(MCPConnectionRequestModel))
         == 0
     )
+    await no_credentials_created(mcp_fixture[1])
+
+
+@pytest.mark.parametrize("scope", ["mcp:upload", "mcp:delete"])
+async def test_native_request_cannot_exceed_published_deployment_scopes(mcp_fixture, scope):
+    mcp_fixture[2].mcp.enabled_capabilities = ["mcp:read", "mcp:export"]
+    response, _ = await start(mcp_fixture, parameters={"scope": scope})
+
+    assert response.status_code == 400, response.text
+    assert await mcp_fixture[1].scalar(select(func.count()).select_from(MCPConnectionRequestModel)) == 0
     await no_credentials_created(mcp_fixture[1])
 
 

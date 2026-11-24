@@ -20,13 +20,17 @@ _MCP_MEDIA_SEGMENT = re.compile(r"^(/mcp/whatsapp-media/)(?!(?:uploads|authority
 
 
 def safe_request_path(request: Request, *, prefer_route_template: bool = False) -> str:
-    """Return a route template or redact token/UUID path segments."""
+    """Use bounded route labels for metrics, or redact paths for request logs."""
 
     if prefer_route_template:
         route = request.scope.get("route")
         route_path = getattr(route, "path", None)
         if isinstance(route_path, str) and route_path:
             return route_path
+        # No route matched (or an earlier middleware rejected the request).
+        # Raw paths are attacker-controlled and would create unbounded metric
+        # series, retaining arbitrary path contents for the process lifetime.
+        return "/unmatched"
 
     path = request.url.path
     path = _MCP_ARTIFACT_SEGMENT.sub(r"\1{artifact}", path)

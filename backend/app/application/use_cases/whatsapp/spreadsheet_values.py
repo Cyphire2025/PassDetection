@@ -7,6 +7,8 @@ from io import BytesIO
 from typing import Any
 from zipfile import ZipFile
 
+from app.core.zip_directory_admission import ZipDirectoryMemberLimitError, check_zip_directory
+
 
 class SpreadsheetArchiveCapacityError(ValueError):
     """A structural ZIP budget failed, preserving existing ValueError callers."""
@@ -31,7 +33,14 @@ def validate_excel_archive(
     max_compression_ratio: int = 250,
     ratio_threshold_bytes: int = 64 * 1024,
 ) -> None:
-    with ZipFile(BytesIO(payload)) as archive:
+    stream = BytesIO(payload)
+    try:
+        check_zip_directory(stream, max_members=max_members)
+    except ZipDirectoryMemberLimitError:
+        raise SpreadsheetArchiveCapacityError(
+            "The Excel contact file contains too many archive entries"
+        ) from None
+    with ZipFile(stream) as archive:
         members = archive.infolist()
         if len(members) > max_members:
             raise SpreadsheetArchiveCapacityError(

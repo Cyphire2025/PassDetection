@@ -1,0 +1,32 @@
+[
+  {
+    "path": "frontend/features/upload/components/fresh-qualifier-editor.tsx",
+    "sha256": "0317940a84f37795a6646a378e6de1e99deae7e16594c34cdc7cb2369df824dc",
+    "physical_lines": 86,
+    "reviewer": "gc_models_finish",
+    "review_scope": "full",
+    "status": "reviewed-and-fixed",
+    "source_kind": "runtime",
+    "notes": "Complete current owned source read/authored: explicit manualreplacement fallback afterfailed restore, controllerabort/null beforeblankedit, sameownerignoredabort guard and oldproof retention untilvalidexplicit save. New actualcomponent negative captured beforefix; final36cases(14componentcontrols+22existing), scopedESLint/fulltsc qualify current hashes. Original13controls remain byteexact after removingonly newcase. Prior35receipts/budgetcandidate/linkedartifacts unchanged; rootowns combinedbuild/browser and finalgateintegration."
+  },
+  {
+    "path": "frontend/features/upload/components/fresh-qualifier.test.tsx",
+    "sha256": "408112660e49f8652868f04281e9302144770de90734556d4f217d8bdddc3cab",
+    "physical_lines": 195,
+    "reviewer": "gc_models_finish",
+    "review_scope": "full",
+    "status": "reviewed-and-fixed",
+    "source_kind": "test",
+    "notes": "Complete current owned source read/authored: explicit manualreplacement fallback afterfailed restore, controllerabort/null beforeblankedit, sameownerignoredabort guard and oldproof retention untilvalidexplicit save. New actualcomponent negative captured beforefix; final36cases(14componentcontrols+22existing), scopedESLint/fulltsc qualify current hashes. Original13controls remain byteexact after removingonly newcase. Prior35receipts/budgetcandidate/linkedartifacts unchanged; rootowns combinedbuild/browser and finalgateintegration."
+  },
+  {
+    "path": "frontend/features/upload/hooks/use-qualifier-selection-editor.ts",
+    "sha256": "9d5d9a03885b6ae4dd92c7ed91ad740c678297e4ff41f595b17f34d79ca91331",
+    "physical_lines": 96,
+    "reviewer": "gc_models_finish",
+    "review_scope": "full",
+    "status": "reviewed-and-fixed",
+    "source_kind": "runtime",
+    "notes": "Complete current owned source read/authored: explicit manualreplacement fallback afterfailed restore, controllerabort/null beforeblankedit, sameownerignoredabort guard and oldproof retention untilvalidexplicit save. New actualcomponent negative captured beforefix; final36cases(14componentcontrols+22existing), scopedESLint/fulltsc qualify current hashes. Original13controls remain byteexact after removingonly newcase. Prior35receipts/budgetcandidate/linkedartifacts unchanged; rootowns combinedbuild/browser and finalgateintegration."
+  }
+]

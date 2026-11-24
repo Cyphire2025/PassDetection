@@ -1,0 +1,21 @@
+{
+  "files": [
+    {
+      "path": "frontend/app/favicon.ico",
+      "sha256": "4d31aaecf1864449db9a2c4322930e406b598813c5de73f19028f1cd953217f2",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Exactexisting192PNG losslessly repacked ICO; see favicon-asset-verification.json for originalSHA/nativeRGBA/route/alpha controls."
+    },
+    {
+      "path": "frontend/components/brand/favicon-asset.test.mjs",
+      "sha256": "4c7ddb9b1276bd31413d970cb9c237248b7bba4131fc20a3e1caf444a343b89d",
+      "physical_lines": 23,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full authored actualasset guard: valid ICOheader/dimensions/true-color bit depth/offset/bounds and exact existingPNGpayload. Originaldefaulticon fails/currentpasses."
+    }
+  ]
+}

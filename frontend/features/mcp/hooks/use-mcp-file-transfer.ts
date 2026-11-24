@@ -6,6 +6,7 @@ import { saveTransferFile } from "../utils/save-transfer-file";
 export function useMcpFileTransfer(id: string) {
   const token = useRef<string | null | undefined>(undefined);
   const inFlight = useRef(false);
+  const lifetime = useRef<AbortController | null>(null);
   const [ticket, setTicket] = useState<McpFileTransfer | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -29,17 +30,19 @@ export function useMcpFileTransfer(id: string) {
     setError(cause instanceof Error ? cause.message : "The file transfer could not be completed. Try again.");
   };
   const refresh = async () => {
-    if (!token.current || inFlight.current) return;
+    const signal = lifetime.current?.signal;
+    if (!signal || signal.aborted || !token.current || inFlight.current) return;
     setLoading(true); setError(null);
-    try { confirmed(await mcpTransferApi.status(id, token.current), ticket ?? undefined); }
-    catch (cause) { failed(cause); }
-    finally { setLoading(false); }
+    try { const current = await mcpTransferApi.status(id, token.current, signal); signal.throwIfAborted(); confirmed(current, ticket ?? undefined); }
+    catch (cause) { if (!signal.aborted) failed(cause); }
+    finally { if (!signal.aborted) setLoading(false); }
   };
   useEffect(() => {
     if (token.current === undefined) token.current = captureTransferToken();
     if (!MCP_TRANSFER_ID.test(id) || !token.current) { setMissing(true); setLoading(false); return; }
     setCredentialAvailable(true);
     const controller = new AbortController();
+    lifetime.current = controller;
     void mcpTransferApi.status(id, token.current, controller.signal).then((current) => {
       if (!controller.signal.aborted) confirmed(current);
     }).catch((cause) => { if (!controller.signal.aborted) failed(cause); }).finally(() => { if (!controller.signal.aborted) setLoading(false); });
@@ -51,34 +54,39 @@ export function useMcpFileTransfer(id: string) {
   const expired = ticket ? Date.parse(ticket.expires_at) <= now : false;
   const finished = ticket?.kind === "download" ? ticket.delivered : ticket?.status === "completed";
   const blocked = loading || busy || expired || !ticket || !credentialAvailable || ticket.status === "failed" || ticket.status === "transferring" || !!finished;
-  const run = async (action: (current: McpFileTransfer, credential: string) => Promise<void>) => {
-    if (blocked || inFlight.current || !ticket || !token.current) return;
+  const run = async (action: (current: McpFileTransfer, credential: string, signal: AbortSignal) => Promise<void>) => {
+    const signal = lifetime.current?.signal;
+    if (!signal || signal.aborted || blocked || inFlight.current || !ticket || !token.current) return;
     inFlight.current = true; setBusy(true); setError(null);
-    try { await action(ticket, token.current); }
-    catch (cause) { failed(cause); }
-    finally { inFlight.current = false; setBusy(false); }
+    try { await action(ticket, token.current, signal); }
+    catch (cause) { if (!signal.aborted) failed(cause); }
+    finally { inFlight.current = false; if (!signal.aborted) setBusy(false); }
   };
-  const upload = () => run(async (current, credential) => {
+  const upload = () => run(async (current, credential, signal) => {
     if (!file) return;
-    await verifySelectedFile(file, current);
-    const response = await mcpTransferApi.upload(current, credential, file);
+    await verifySelectedFile(file, current, signal);
+    const response = await mcpTransferApi.upload(current, credential, file, signal);
+    signal.throwIfAborted();
     if (response.status !== "completed") throw new Error("The upload has not been confirmed. Check its status before trying again.");
     confirmed(response, current); setFile(null);
   });
-  const prepare = () => run(async (current, credential) => {
-    const response = await mcpTransferApi.download(id, credential);
-    setDownload(await verifiedDownload(response, current));
+  const prepare = () => run(async (current, credential, signal) => {
+    const response = await mcpTransferApi.download(id, credential, signal);
+    const blob = await verifiedDownload(response, current, signal);
+    signal.throwIfAborted(); setDownload(blob);
   });
-  const acknowledge = async (current: McpFileTransfer, credential: string) => {
-    const response = await mcpTransferApi.acknowledge(current, credential);
+  const acknowledge = async (current: McpFileTransfer, credential: string, signal: AbortSignal) => {
+    const response = await mcpTransferApi.acknowledge(current, credential, signal);
+    signal.throwIfAborted();
     if (!response.delivered || !response.download_completed) throw new Error("Your save has not been confirmed. Try confirming again.");
     confirmed(response, current); setDownload(null); setConfirming(false);
   };
-  const save = () => run(async (current, credential) => {
+  const save = () => run(async (current, credential, signal) => {
     if (!download) return;
-    const result = await saveTransferFile(download, current.filename, current.media_type);
+    const result = await saveTransferFile(download, current.filename, current.media_type, signal);
+    signal.throwIfAborted();
     setSaveInitiated(true);
-    if (result === "saved") { setSaved(true); await acknowledge(current, credential); }
+    if (result === "saved") { setSaved(true); await acknowledge(current, credential, signal); }
     else setConfirming(true);
   });
   return { ticket, loading, busy, error, missing, file, download, saveInitiated, saved, confirming, expired, finished, blocked, credentialAvailable,

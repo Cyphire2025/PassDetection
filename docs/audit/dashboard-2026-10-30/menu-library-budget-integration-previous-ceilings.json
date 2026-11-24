@@ -1,0 +1,3147 @@
+[
+  {
+    "path": "features/operations/components/tour-group-qr-codes-page.tsx",
+    "maximumLines": 20,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/operations/hooks/use-group-qr-codes-controller.ts",
+    "maximumLines": 120,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/operations/hooks/use-group-qr-images.ts",
+    "maximumLines": 130,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/operations/hooks/use-passenger-qr-actions.ts",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/operations/components/group-qr-model.ts",
+    "maximumLines": 20,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/operations/components/group-qr-codes-view.tsx",
+    "maximumLines": 240,
+    "maximumFunctionComplexity": 21
+  },
+  {
+    "path": "features/operations/components/group-qr-page-header.tsx",
+    "maximumLines": 100,
+    "maximumFunctionComplexity": 18
+  },
+  {
+    "path": "features/operations/components/passenger-qr-card.tsx",
+    "maximumLines": 100,
+    "maximumFunctionComplexity": 16
+  },
+  {
+    "path": "features/operations/components/qr-delivery-preview-dialog.tsx",
+    "maximumLines": 270,
+    "maximumFunctionComplexity": 21
+  },
+  {
+    "path": "features/operations/components/qr-delivery-status.tsx",
+    "maximumLines": 40,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/operations/components/qr-status.ts",
+    "maximumLines": 20,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/operations/api/operations.api.ts",
+    "maximumLines": 150,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/operations/api/operations-accounts.api.ts",
+    "maximumLines": 110,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/operations/api/operations-audit.api.ts",
+    "maximumLines": 60,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/operations/api/operations-tour.api.ts",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/operations/api/operations-rooming.api.ts",
+    "maximumLines": 110,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/operations/api/operations-checkin.api.ts",
+    "maximumLines": 60,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/operations/api/operations-attendance.api.ts",
+    "maximumLines": 210,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/operations/api/operations-qr.api.ts",
+    "maximumLines": 70,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/operations/api/operations-accounts.types.ts",
+    "maximumLines": 90,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/operations/api/operations-audit.types.ts",
+    "maximumLines": 40,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/operations/api/operations-tour.types.ts",
+    "maximumLines": 100,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/operations/api/operations-rooming.types.ts",
+    "maximumLines": 130,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/operations/api/operations-checkin.types.ts",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/operations/api/operations-attendance.types.ts",
+    "maximumLines": 200,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/operations/api/operations-qr.types.ts",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/operations/hooks/use-operations.ts",
+    "maximumLines": 40,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/operations/hooks/operations-query-scope.ts",
+    "maximumLines": 20,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/operations/hooks/use-admin-operations.ts",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/operations/hooks/use-managed-accounts.ts",
+    "maximumLines": 90,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/operations/hooks/use-audit-operations.ts",
+    "maximumLines": 40,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/operations/hooks/use-tour-operations.ts",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/operations/hooks/use-rooming-operations.ts",
+    "maximumLines": 170,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/operations/hooks/use-coordinator-attendance.ts",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/operations/hooks/use-managed-attendance.ts",
+    "maximumLines": 150,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/operations/hooks/use-qr-operations.ts",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/tour-operations/services/attendance-scan-queue.ts",
+    "maximumLines": 40,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/tour-operations/services/attendance-queue-contracts.ts",
+    "maximumLines": 120,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/tour-operations/services/attendance-queue-runtime.ts",
+    "maximumLines": 100,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/tour-operations/services/attendance-queue-idb.ts",
+    "maximumLines": 40,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/tour-operations/services/attendance-queue-codec.ts",
+    "maximumLines": 180,
+    "maximumFunctionComplexity": 14
+  },
+  {
+    "path": "features/tour-operations/services/attendance-queue-migration.ts",
+    "maximumLines": 180,
+    "maximumFunctionComplexity": 25
+  },
+  {
+    "path": "features/tour-operations/services/attendance-queue-storage.ts",
+    "maximumLines": 150,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/tour-operations/services/attendance-queue-delivery-state.ts",
+    "maximumLines": 170,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/tour-operations/services/attendance-queue-commands.ts",
+    "maximumLines": 260,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/tour-operations/services/attendance-queue-discards.ts",
+    "maximumLines": 190,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/tour-operations/services/attendance-queue-replay.ts",
+    "maximumLines": 190,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/tour-operations/services/attendance-queue-outcomes.ts",
+    "maximumLines": 270,
+    "maximumFunctionComplexity": 14
+  },
+  {
+    "path": "features/tour-operations/services/attendance-queue-errors.ts",
+    "maximumLines": 40,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/tour-operations/services/attendance-queue-closeout.ts",
+    "maximumLines": 210,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/upload/hooks/use-fresh-contact-challenge.ts",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/upload/services/contact-verification.ts",
+    "maximumLines": 20,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/documents/hooks/use-ecr-workspace.ts",
+    "maximumLines": 160,
+    "maximumFunctionComplexity": 16
+  },
+  {
+    "path": "features/documents/services/document-upload-batching.ts",
+    "maximumLines": 30,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/documents/services/document-upload-model.ts",
+    "maximumLines": 120,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/documents/services/document-upload-sessions.ts",
+    "maximumLines": 90,
+    "maximumFunctionComplexity": 14
+  },
+  {
+    "path": "features/documents/services/document-verification-batches.ts",
+    "maximumLines": 140,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/documents/services/document-staging-manifest.ts",
+    "maximumLines": 110,
+    "maximumFunctionComplexity": 14
+  },
+  {
+    "path": "features/documents/services/document-upload-finalization.ts",
+    "maximumLines": 190,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/documents/services/document-upload-retry.ts",
+    "maximumLines": 70,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/documents/components/document-workspace-review.tsx",
+    "maximumLines": 10,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/documents/components/document-verification-panel.tsx",
+    "maximumLines": 230,
+    "maximumFunctionComplexity": 23
+  },
+  {
+    "path": "features/documents/components/document-row-action-menu.tsx",
+    "maximumLines": 180,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/documents/components/document-review-badges.tsx",
+    "maximumLines": 90,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/documents/components/document-group-list.tsx",
+    "maximumLines": 280,
+    "maximumFunctionComplexity": 28
+  },
+  {
+    "path": "features/documents/api/document-rename.api.ts",
+    "maximumLines": 100,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/documents/hooks/use-document-rename.ts",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/documents/hooks/use-document-rename-workspace.ts",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/documents/components/document-rename-page.tsx",
+    "maximumLines": 90,
+    "maximumFunctionComplexity": 13
+  },
+  {
+    "path": "features/documents/components/document-rename-upload.tsx",
+    "maximumLines": 100,
+    "maximumFunctionComplexity": 19
+  },
+  {
+    "path": "features/documents/components/saved-rename-batches.tsx",
+    "maximumLines": 150,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/documents/components/rename-results.tsx",
+    "maximumLines": 190,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/documents/hooks/use-document-distribution.ts",
+    "maximumLines": 300,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/documents/api/document-distribution.api.ts",
+    "maximumLines": 20,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/documents/api/document-review.api.ts",
+    "maximumLines": 60,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/documents/api/document-verification.api.ts",
+    "maximumLines": 160,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/documents/api/document-batches.api.ts",
+    "maximumLines": 150,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/documents/api/document-delivery.api.ts",
+    "maximumLines": 60,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/documents/api/document-distribution.types.ts",
+    "maximumLines": 20,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/documents/services/document-filename-replacements.ts",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/travellers/hooks/use-returning-claim.ts",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/travellers/services/resolve-returning-transition.ts",
+    "maximumLines": 60,
+    "maximumFunctionComplexity": 14
+  },
+  {
+    "path": "features/travellers/components/returning-review.tsx",
+    "maximumLines": 170,
+    "maximumFunctionComplexity": 12
+  },
+  {
+    "path": "features/travellers/components/returning-review-header.tsx",
+    "maximumLines": 90,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/travellers/components/returning-review-fields.tsx",
+    "maximumLines": 120,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/travellers/components/returning-review-confirmation.tsx",
+    "maximumLines": 90,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/travellers/components/returning-resume-content.tsx",
+    "maximumLines": 40,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/travellers/hooks/use-returning-resume.ts",
+    "maximumLines": 20,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/travellers/components/traveller-document-content.tsx",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/travellers/hooks/use-traveller-document-preview.ts",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/travellers/components/returning-contact-dialog.tsx",
+    "maximumLines": 110,
+    "maximumFunctionComplexity": 13
+  },
+  {
+    "path": "features/travellers/hooks/use-returning-contact.ts",
+    "maximumLines": 60,
+    "maximumFunctionComplexity": 16
+  },
+  {
+    "path": "features/travellers/components/returning-flow.tsx",
+    "maximumLines": 190,
+    "maximumFunctionComplexity": 31
+  },
+  {
+    "path": "features/travellers/components/returning-offer.tsx",
+    "maximumLines": 110,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/documents/components/document-workspace-dialogs.tsx",
+    "maximumLines": 10,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/documents/components/abort-incomplete-upload-dialog.tsx",
+    "maximumLines": 85,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/documents/components/remove-document-assignments-dialog.tsx",
+    "maximumLines": 110,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/documents/components/document-delivery-preview-dialog.tsx",
+    "maximumLines": 165,
+    "maximumFunctionComplexity": 13
+  },
+  {
+    "path": "features/documents/components/document-delivery-preview-props.ts",
+    "maximumLines": 30,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/documents/components/document-delivery-preview-summary.tsx",
+    "maximumLines": 110,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/documents/components/document-delivery-message-fields.tsx",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/documents/components/document-delivery-recipient-table.tsx",
+    "maximumLines": 150,
+    "maximumFunctionComplexity": 20
+  },
+  {
+    "path": "features/documents/components/document-delivery-preview-footer.tsx",
+    "maximumLines": 90,
+    "maximumFunctionComplexity": 18
+  },
+  {
+    "path": "features/passports/components/passport-group-filter-controls.tsx",
+    "maximumLines": 170,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/passports/components/passport-group-selected-actions.tsx",
+    "maximumLines": 180,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/passports/components/use-passport-bulk-menu-position.ts",
+    "maximumLines": 70,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "components/shared/passport-date-input.tsx",
+    "maximumLines": 160,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "components/shared/intent-prefetch-link.tsx",
+    "maximumLines": 70,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/passports/components/create-upload-link-modal.tsx",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/passports/components/use-create-upload-link-form.ts",
+    "maximumLines": 230,
+    "maximumFunctionComplexity": 16
+  },
+  {
+    "path": "features/passports/components/create-upload-link-defaults.ts",
+    "maximumLines": 40,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/passports/components/create-upload-link-details.tsx",
+    "maximumLines": 180,
+    "maximumFunctionComplexity": 21
+  },
+  {
+    "path": "features/passports/components/create-upload-link-result.tsx",
+    "maximumLines": 110,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/settings/components/whatsapp-template-settings-panel.tsx",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/settings/components/whatsapp-template-name-field.tsx",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 19
+  },
+  {
+    "path": "features/settings/components/whatsapp-template-save-feedback.tsx",
+    "maximumLines": 40,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/settings/hooks/use-whatsapp-template-settings.ts",
+    "maximumLines": 180,
+    "maximumFunctionComplexity": 17
+  },
+  {
+    "path": "features/settings/components/appearance-settings.tsx",
+    "maximumLines": 190,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/settings/dashboard-preferences.ts",
+    "maximumLines": 70,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/settings/platform-settings-policy.ts",
+    "maximumLines": 70,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/settings/whatsapp-template-settings.ts",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/passports/utils/passport-group-navigation.ts",
+    "maximumLines": 30,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/passports/utils/passport-navigation-routes.ts",
+    "maximumLines": 190,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/passports/utils/passport-navigation-storage.ts",
+    "maximumLines": 130,
+    "maximumFunctionComplexity": 23
+  },
+  {
+    "path": "features/passports/utils/passport-review.ts",
+    "maximumLines": 30,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/passports/utils/passport-review-fields.ts",
+    "maximumLines": 30,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/passports/utils/passport-staff-approval.ts",
+    "maximumLines": 110,
+    "maximumFunctionComplexity": 14
+  },
+  {
+    "path": "features/passports/utils/passport-verification-review.ts",
+    "maximumLines": 150,
+    "maximumFunctionComplexity": 28
+  },
+  {
+    "path": "features/passports/utils/passport-review-presentation.ts",
+    "maximumLines": 130,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/whatsapp/workspace/recipients-page.tsx",
+    "maximumLines": 120,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/whatsapp/workspace/recipient-details-rail.tsx",
+    "maximumLines": 230,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/whatsapp/workspace/recipient-roster-model.ts",
+    "maximumLines": 100,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/whatsapp/workspace/use-recipient-roster.ts",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/whatsapp/workspace/recipient-roster-filters.tsx",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/whatsapp/workspace/recipient-roster-table.tsx",
+    "maximumLines": 140,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/whatsapp/components/group-update-recipient-details.tsx",
+    "maximumLines": 90,
+    "maximumFunctionComplexity": 21
+  },
+  {
+    "path": "features/whatsapp/components/whatsapp-recipient-roster-rows.tsx",
+    "maximumLines": 10,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/whatsapp/utils/recipient-detail-fields.ts",
+    "maximumLines": 20,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/whatsapp/workspace/broadcast-documents-page.tsx",
+    "maximumLines": 110,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/whatsapp/workspace/use-broadcast-documents.ts",
+    "maximumLines": 100,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/whatsapp/workspace/broadcast-documents-model.ts",
+    "maximumLines": 90,
+    "maximumFunctionComplexity": 24
+  },
+  {
+    "path": "features/whatsapp/workspace/broadcast-document-controls.tsx",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/whatsapp/workspace/broadcast-document-table.tsx",
+    "maximumLines": 130,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/passports/components/upload-link-list.tsx",
+    "maximumLines": 40,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/passports/components/use-upload-link-list.ts",
+    "maximumLines": 140,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/passports/components/use-upload-link-copy.ts",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/passports/components/upload-link-list-header.tsx",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/passports/components/upload-link-list-summary.tsx",
+    "maximumLines": 70,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/passports/components/upload-link-list-sections.tsx",
+    "maximumLines": 240,
+    "maximumFunctionComplexity": 25
+  },
+  {
+    "path": "features/passports/components/upload-link-list-dialogs.tsx",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/passports/components/upload-link-table.tsx",
+    "maximumLines": 150,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/passports/components/upload-link-actions.tsx",
+    "maximumLines": 100,
+    "maximumFunctionComplexity": 21
+  },
+  {
+    "path": "features/passports/components/group-delete-retention-dialog.tsx",
+    "maximumLines": 130,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/passports/components/upload-link-filter.ts",
+    "maximumLines": 30,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/passports/components/passport-export-dialog.tsx",
+    "maximumLines": 100,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/passports/components/use-passport-export-dialog.ts",
+    "maximumLines": 110,
+    "maximumFunctionComplexity": 12
+  },
+  {
+    "path": "features/passports/components/passport-export-fields.tsx",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/passports/components/passport-export-history-detail.tsx",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/passports/components/passport-export-options.tsx",
+    "maximumLines": 200,
+    "maximumFunctionComplexity": 13
+  },
+  {
+    "path": "features/passports/components/passport-export-footer.tsx",
+    "maximumLines": 100,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/passports/components/upload-link-settings.tsx",
+    "maximumLines": 230,
+    "maximumFunctionComplexity": 14
+  },
+  {
+    "path": "features/passports/components/upload-link-settings-model.ts",
+    "maximumLines": 100,
+    "maximumFunctionComplexity": 26
+  },
+  {
+    "path": "features/whatsapp/workspace/composer-draft.ts",
+    "maximumLines": 60,
+    "maximumFunctionComplexity": 16
+  },
+  {
+    "path": "features/whatsapp/workspace/use-message-composer.ts",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/whatsapp/workspace/message-composer-state.ts",
+    "maximumLines": 20,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/whatsapp/workspace/use-composer-header-image.ts",
+    "maximumLines": 40,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/whatsapp/workspace/use-message-composer-preview.ts",
+    "maximumLines": 130,
+    "maximumFunctionComplexity": 26
+  },
+  {
+    "path": "features/whatsapp/workspace/use-message-composer-send.ts",
+    "maximumLines": 140,
+    "maximumFunctionComplexity": 13
+  },
+  {
+    "path": "features/whatsapp/workspace/message-composer.tsx",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/whatsapp/workspace/message-composer-editor.tsx",
+    "maximumLines": 210,
+    "maximumFunctionComplexity": 19
+  },
+  {
+    "path": "features/whatsapp/workspace/message-composer-feedback.tsx",
+    "maximumLines": 70,
+    "maximumFunctionComplexity": 16
+  },
+  {
+    "path": "features/whatsapp/workspace/message-composer-review-dialog.tsx",
+    "maximumLines": 100,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/whatsapp/workspace/message-composer-audience.tsx",
+    "maximumLines": 170,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/whatsapp/workspace/message-composer-audience-filters.tsx",
+    "maximumLines": 160,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/whatsapp/workspace/composer-field-state.ts",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/upload/components/upload-flow-fields.tsx",
+    "maximumLines": 10,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/upload/components/upload-contact-input.tsx",
+    "maximumLines": 70,
+    "maximumFunctionComplexity": 12
+  },
+  {
+    "path": "features/upload/components/upload-select-inputs.tsx",
+    "maximumLines": 70,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/upload/components/upload-custom-fields.tsx",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/upload/components/configured-client-fields.tsx",
+    "maximumLines": 160,
+    "maximumFunctionComplexity": 16
+  },
+  {
+    "path": "features/upload/services/upload-flow-helpers.ts",
+    "maximumLines": 100,
+    "maximumFunctionComplexity": 17
+  },
+  {
+    "path": "features/upload/components/upload-flow.types.ts",
+    "maximumLines": 20,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/upload/components/upload-flow.constants.ts",
+    "maximumLines": 40,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/travellers/services/draft-resume-parser.ts",
+    "maximumLines": 60,
+    "maximumFunctionComplexity": 16
+  },
+  {
+    "path": "features/passports/components/use-passport-group-view.ts",
+    "maximumLines": 190,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/passports/components/use-passport-group-metadata.ts",
+    "maximumLines": 60,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/passports/components/use-passport-group-menus.ts",
+    "maximumLines": 100,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/passports/components/use-passport-group-imports.ts",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/passports/components/use-passport-group-dialog-state.ts",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/passports/components/use-passport-selected-image-download.ts",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/passports/components/use-passport-group-selection.ts",
+    "maximumLines": 150,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/passports/components/passport-list.tsx",
+    "maximumLines": 130,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/passports/components/use-passport-list.ts",
+    "maximumLines": 90,
+    "maximumFunctionComplexity": 14
+  },
+  {
+    "path": "features/passports/components/passport-list-overview.tsx",
+    "maximumLines": 120,
+    "maximumFunctionComplexity": 20
+  },
+  {
+    "path": "features/passports/components/passport-list-filters.tsx",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/passports/components/passport-list-export-controls.tsx",
+    "maximumLines": 100,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/passports/components/passport-list-table.tsx",
+    "maximumLines": 130,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/passports/components/passport-group-list-card.tsx",
+    "maximumLines": 110,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/passports/components/passport-group-duplicates.tsx",
+    "maximumLines": 60,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/passports/components/passport-mobile-card.tsx",
+    "maximumLines": 130,
+    "maximumFunctionComplexity": 12
+  },
+  {
+    "path": "features/passports/components/reextract-passport-control.tsx",
+    "maximumLines": 120,
+    "maximumFunctionComplexity": 27
+  },
+  {
+    "path": "features/passports/components/passport-group-fields.tsx",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/passports/components/passport-group-feedback.ts",
+    "maximumLines": 30,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/passports/components/passport-group-roster-table.tsx",
+    "maximumLines": 230,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/passports/components/use-group-whatsapp-tracking.ts",
+    "maximumLines": 110,
+    "maximumFunctionComplexity": 13
+  },
+  {
+    "path": "features/passports/components/group-whatsapp-tracking-stats.tsx",
+    "maximumLines": 90,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/passports/components/group-whatsapp-tracking-filters.tsx",
+    "maximumLines": 150,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/passports/components/group-whatsapp-comparison-panel.tsx",
+    "maximumLines": 150,
+    "maximumFunctionComplexity": 12
+  },
+  {
+    "path": "features/passports/components/group-whatsapp-resolution-dialogs.tsx",
+    "maximumLines": 170,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/passports/components/group-whatsapp-replacement-dialog.tsx",
+    "maximumLines": 230,
+    "maximumFunctionComplexity": 15
+  },
+  {
+    "path": "features/passports/components/group-whatsapp-manage-dialog.tsx",
+    "maximumLines": 150,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/passports/components/replacement-recipient-choice.tsx",
+    "maximumLines": 110,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/passports/components/group-whatsapp-match-table.tsx",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/passports/components/group-whatsapp-match-row.tsx",
+    "maximumLines": 280,
+    "maximumFunctionComplexity": 34
+  },
+  {
+    "path": "features/passports/components/group-whatsapp-tracking-presentation.tsx",
+    "maximumLines": 120,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/passports/utils/passport-request-id.ts",
+    "maximumLines": 40,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/companies/api/companies.api.ts",
+    "maximumLines": 70,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/companies/api/company-matching.api.ts",
+    "maximumLines": 70,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/companies/api/company-passports.api.ts",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/companies/api/company-data-exports.api.ts",
+    "maximumLines": 70,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/companies/api/reuse-setup.api.ts",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/companies/components/company-matching-dialog.tsx",
+    "maximumLines": 210,
+    "maximumFunctionComplexity": 19
+  },
+  {
+    "path": "features/companies/components/company-match-resolution.tsx",
+    "maximumLines": 150,
+    "maximumFunctionComplexity": 19
+  },
+  {
+    "path": "features/companies/components/company-passports.tsx",
+    "maximumLines": 140,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/companies/components/company-reassignment-dialog.tsx",
+    "maximumLines": 160,
+    "maximumFunctionComplexity": 12
+  },
+  {
+    "path": "features/companies/components/company-directory.tsx",
+    "maximumLines": 200,
+    "maximumFunctionComplexity": 21
+  },
+  {
+    "path": "features/companies/components/company-picker.tsx",
+    "maximumLines": 160,
+    "maximumFunctionComplexity": 23
+  },
+  {
+    "path": "features/companies/api/company-request-config.ts",
+    "maximumLines": 20,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/companies/hooks/company-query-state.ts",
+    "maximumLines": 30,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/companies/hooks/use-company-queries.ts",
+    "maximumLines": 60,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/companies/hooks/use-company-mutations.ts",
+    "maximumLines": 40,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/companies/hooks/use-company-reuse-policy.ts",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/companies/hooks/use-company-directory-state.ts",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/companies/hooks/use-company-person-page.ts",
+    "maximumLines": 60,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/companies/components/company-reuse-policy-card.tsx",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 12
+  },
+  {
+    "path": "features/companies/components/company-people-directory.tsx",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 12
+  },
+  {
+    "path": "features/companies/components/company-person-header.tsx",
+    "maximumLines": 40,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/companies/components/company-person-content.tsx",
+    "maximumLines": 60,
+    "maximumFunctionComplexity": 13
+  },
+  {
+    "path": "features/passports/hooks/use-passports.ts",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/passports/hooks/use-upload-links.ts",
+    "maximumLines": 30,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/passports/hooks/use-client-details.ts",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/passports/hooks/use-display-name.ts",
+    "maximumLines": 40,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/passports/hooks/use-passport-queries.ts",
+    "maximumLines": 140,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/passports/hooks/use-passport-export-mutations.ts",
+    "maximumLines": 70,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/passports/hooks/use-passport-import-mutations.ts",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/passports/hooks/use-passport-bulk-mutations.ts",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/passports/hooks/use-passport-review-mutations.ts",
+    "maximumLines": 100,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/passports/hooks/upload-link-query-keys.ts",
+    "maximumLines": 30,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/passports/hooks/use-upload-link-queries.ts",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/passports/hooks/use-upload-link-mutations.ts",
+    "maximumLines": 110,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/passports/hooks/use-upload-link-roster-mutations.ts",
+    "maximumLines": 130,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/passports/api/upload-links.api.ts",
+    "maximumLines": 40,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/passports/api/client-details.api.ts",
+    "maximumLines": 60,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/passports/api/display-name.api.ts",
+    "maximumLines": 30,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/passports/api/upload-link.types.ts",
+    "maximumLines": 260,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/passports/api/upload-link-management.api.ts",
+    "maximumLines": 70,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/passports/api/upload-link-roster.api.ts",
+    "maximumLines": 110,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/passports/api/public-upload-link.api.ts",
+    "maximumLines": 90,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/passports/api/passport-request-config.ts",
+    "maximumLines": 30,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/passports/api/passport-export-transfer.ts",
+    "maximumLines": 30,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/passports/api/passport-export-download.ts",
+    "maximumLines": 70,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/passports/api/passport-exports.types.ts",
+    "maximumLines": 140,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/passports/api/passport-group-exports.api.ts",
+    "maximumLines": 150,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/passports/api/passport-images.api.ts",
+    "maximumLines": 130,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/passports/api/passport-images.types.ts",
+    "maximumLines": 100,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/passports/api/passport-imports.api.ts",
+    "maximumLines": 140,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/passports/api/passport-imports.types.ts",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/passports/api/passport-records.api.ts",
+    "maximumLines": 170,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/passports/api/passport-records.types.ts",
+    "maximumLines": 120,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/passports/api/passport-selection-exports.api.ts",
+    "maximumLines": 70,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/passports/api/passport-visa-ai.api.ts",
+    "maximumLines": 140,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/passports/api/passports.api.ts",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/upload/components/visa-selfie-quality.ts",
+    "maximumLines": 30,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/upload/services/camera-pixel-math.ts",
+    "maximumLines": 30,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/upload/services/passport-correction-content.ts",
+    "maximumLines": 130,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/upload/services/passport-final-analysis.ts",
+    "maximumLines": 230,
+    "maximumFunctionComplexity": 40
+  },
+  {
+    "path": "features/upload/services/passport-final-boundaries.ts",
+    "maximumLines": 140,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/upload/services/passport-final-policy.ts",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/upload/services/passport-final-quality.ts",
+    "maximumLines": 90,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/upload/services/passport-final-region-rules.ts",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/upload/services/passport-final-regions.ts",
+    "maximumLines": 120,
+    "maximumFunctionComplexity": 12
+  },
+  {
+    "path": "features/upload/services/passport-final-result.ts",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/upload/services/passport-final-screen.ts",
+    "maximumLines": 120,
+    "maximumFunctionComplexity": 20
+  },
+  {
+    "path": "features/upload/services/passport-final.types.ts",
+    "maximumLines": 70,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/upload/services/passport-homography.ts",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/upload/services/passport-image-encoding.ts",
+    "maximumLines": 30,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/upload/services/passport-line-fitting.ts",
+    "maximumLines": 60,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/upload/services/passport-live-analysis.ts",
+    "maximumLines": 130,
+    "maximumFunctionComplexity": 29
+  },
+  {
+    "path": "features/upload/services/passport-live-boundary-evidence.ts",
+    "maximumLines": 170,
+    "maximumFunctionComplexity": 15
+  },
+  {
+    "path": "features/upload/services/passport-live-boundary-search.ts",
+    "maximumLines": 140,
+    "maximumFunctionComplexity": 17
+  },
+  {
+    "path": "features/upload/services/passport-live-detail.ts",
+    "maximumLines": 140,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/upload/services/passport-live-frame-adapter.ts",
+    "maximumLines": 130,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/upload/services/passport-live-geometry.ts",
+    "maximumLines": 190,
+    "maximumFunctionComplexity": 17
+  },
+  {
+    "path": "features/upload/services/passport-live-pixels.ts",
+    "maximumLines": 110,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/upload/services/passport-live-policy.ts",
+    "maximumLines": 60,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/upload/services/passport-live.types.ts",
+    "maximumLines": 60,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/upload/services/passport-normalization.types.ts",
+    "maximumLines": 30,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/upload/services/passport-perspective-correction.ts",
+    "maximumLines": 90,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/upload/services/passport-perspective-warp.ts",
+    "maximumLines": 100,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/upload/services/passport-quad-detection.ts",
+    "maximumLines": 110,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/upload/services/passport-quad-geometry.ts",
+    "maximumLines": 60,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/upload/services/passport-rectangular-frame-detector.ts",
+    "maximumLines": 60,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/upload/services/visa-quality-background-mask.ts",
+    "maximumLines": 100,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/upload/services/visa-quality-background.ts",
+    "maximumLines": 290,
+    "maximumFunctionComplexity": 54
+  },
+  {
+    "path": "features/upload/services/visa-quality-camera.ts",
+    "maximumLines": 60,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/upload/services/visa-quality-clarity.ts",
+    "maximumLines": 140,
+    "maximumFunctionComplexity": 23
+  },
+  {
+    "path": "features/upload/services/visa-quality-encoding.ts",
+    "maximumLines": 30,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/upload/services/visa-quality-face.ts",
+    "maximumLines": 100,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/upload/services/visa-quality-final.ts",
+    "maximumLines": 270,
+    "maximumFunctionComplexity": 24
+  },
+  {
+    "path": "features/upload/services/visa-quality-live-background.ts",
+    "maximumLines": 60,
+    "maximumFunctionComplexity": 14
+  },
+  {
+    "path": "features/upload/services/visa-quality-policy.ts",
+    "maximumLines": 140,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/upload/services/visa-quality.types.ts",
+    "maximumLines": 100,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/search/components/global-search.tsx",
+    "maximumLines": 290,
+    "maximumFunctionComplexity": 14
+  },
+  {
+    "path": "features/dashboard/components/dashboard-overview.tsx",
+    "maximumLines": 280,
+    "maximumFunctionComplexity": 16
+  },
+  {
+    "path": "features/notifications/components/notification-bell.tsx",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/notifications/components/notification-panel.tsx",
+    "maximumLines": 250,
+    "maximumFunctionComplexity": 14
+  },
+  {
+    "path": "features/notifications/components/notification-row.tsx",
+    "maximumLines": 150,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/notifications/hooks/use-notification-center.ts",
+    "maximumLines": 30,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/upload/components/smart-camera.tsx",
+    "maximumLines": 20,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/upload/components/passport-camera.types.ts",
+    "maximumLines": 20,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/upload/components/passport-camera-view.tsx",
+    "maximumLines": 140,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/upload/components/passport-camera-footer.tsx",
+    "maximumLines": 120,
+    "maximumFunctionComplexity": 17
+  },
+  {
+    "path": "features/upload/hooks/use-passport-camera.ts",
+    "maximumLines": 270,
+    "maximumFunctionComplexity": 16
+  },
+  {
+    "path": "features/upload/hooks/use-passport-camera-session.ts",
+    "maximumLines": 150,
+    "maximumFunctionComplexity": 14
+  },
+  {
+    "path": "features/upload/services/passport-camera-crop.ts",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/upload/services/passport-camera-guidance.ts",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 17
+  },
+  {
+    "path": "features/gc-app/api/gc-app-admin.api.ts",
+    "maximumLines": 30,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/gc-app/api/gc-app-wire.types.ts",
+    "maximumLines": 150,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/gc-app/api/gc-app-directory.api.ts",
+    "maximumLines": 100,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/gc-app/api/gc-app-managers.api.ts",
+    "maximumLines": 160,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/gc-app/api/gc-app-groups.api.ts",
+    "maximumLines": 180,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/gc-app/api/gc-app-documents.api.ts",
+    "maximumLines": 130,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/gc-app/api/gc-app-itineraries.api.ts",
+    "maximumLines": 70,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/gc-app/api/gc-app-announcements.api.ts",
+    "maximumLines": 100,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/gc-app/api/gc-app-audit.api.ts",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/gc-app/api/gc-app-transport.ts",
+    "maximumLines": 60,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/gc-app/api/gc-app-account-mappers.ts",
+    "maximumLines": 120,
+    "maximumFunctionComplexity": 26
+  },
+  {
+    "path": "features/gc-app/api/gc-app-content-mappers.ts",
+    "maximumLines": 90,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/gc-app/hooks/use-gc-app-admin.ts",
+    "maximumLines": 30,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/gc-app/hooks/gc-app-query-config.ts",
+    "maximumLines": 60,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/gc-app/hooks/use-gc-client-directory.ts",
+    "maximumLines": 70,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/gc-app/hooks/use-gc-client-managers.ts",
+    "maximumLines": 110,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/gc-app/hooks/use-gc-group-queries.ts",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/gc-app/hooks/use-gc-group-mutations.ts",
+    "maximumLines": 220,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/gc-app/components/app-controls-page.tsx",
+    "maximumLines": 140,
+    "maximumFunctionComplexity": 20
+  },
+  {
+    "path": "features/gc-app/components/add-gc-app-group-dialog.tsx",
+    "maximumLines": 250,
+    "maximumFunctionComplexity": 16
+  },
+  {
+    "path": "features/gc-app/hooks/use-gc-group-picker.ts",
+    "maximumLines": 100,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/gc-app/components/common-documents-panel.tsx",
+    "maximumLines": 280,
+    "maximumFunctionComplexity": 13
+  },
+  {
+    "path": "features/gc-app/components/common-document-upload-form.tsx",
+    "maximumLines": 160,
+    "maximumFunctionComplexity": 20
+  },
+  {
+    "path": "features/gc-app/components/common-document-rows.tsx",
+    "maximumLines": 70,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/gc-app/components/client-manager-details-dialog.tsx",
+    "maximumLines": 290,
+    "maximumFunctionComplexity": 31
+  },
+  {
+    "path": "features/gc-app/components/client-manager-details.types.ts",
+    "maximumLines": 20,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/gc-app/hooks/use-client-manager-details.ts",
+    "maximumLines": 130,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/mcp/api/mcp.types.ts",
+    "maximumLines": 200,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/mcp/api/mcp-capabilities.ts",
+    "maximumLines": 40,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/mcp/api/mcp-request.api.ts",
+    "maximumLines": 40,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/mcp/hooks/mcp-query-keys.ts",
+    "maximumLines": 20,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/mcp/hooks/use-mcp-queries.ts",
+    "maximumLines": 100,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/mcp/hooks/use-mcp-policy-mutations.ts",
+    "maximumLines": 70,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/mcp/hooks/use-mcp-connection-mutations.ts",
+    "maximumLines": 70,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/mcp/utils/consent.ts",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 23
+  },
+  {
+    "path": "hooks/use-private-mutation.ts",
+    "maximumLines": 120,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/gc-app/notifications/notification-operation.ts",
+    "maximumLines": 40,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/passports/types/passport-trip-details.ts",
+    "maximumLines": 35,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/whatsapp/hooks/use-whatsapp.ts",
+    "maximumLines": 30,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/whatsapp/hooks/use-broadcast-queries.ts",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/whatsapp/hooks/use-broadcast-group-mutations.ts",
+    "maximumLines": 90,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/whatsapp/hooks/use-broadcast-recipient-mutations.ts",
+    "maximumLines": 140,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/whatsapp/hooks/whatsapp-query-keys.ts",
+    "maximumLines": 20,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/whatsapp/hooks/use-normal-send.ts",
+    "maximumLines": 40,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/auth/services/session-continuity.ts",
+    "maximumLines": 30,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/auth/components/account-security-panel.tsx",
+    "maximumLines": 180,
+    "maximumFunctionComplexity": 15
+  },
+  {
+    "path": "features/whatsapp/components/activity-tracker/context.ts",
+    "maximumLines": 40,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/whatsapp/components/activity-tracker/failure-recipients.tsx",
+    "maximumLines": 90,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/whatsapp/components/activity-tracker/floating-overlay.tsx",
+    "maximumLines": 250,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/whatsapp/components/activity-tracker/inline.tsx",
+    "maximumLines": 60,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/whatsapp/components/activity-tracker/progress.ts",
+    "maximumLines": 60,
+    "maximumFunctionComplexity": 14
+  },
+  {
+    "path": "features/whatsapp/components/activity-tracker/row.tsx",
+    "maximumLines": 280,
+    "maximumFunctionComplexity": 44
+  },
+  {
+    "path": "features/whatsapp/components/activity-tracker/storage.ts",
+    "maximumLines": 40,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/whatsapp/components/activity-tracker/use-activity-completion.ts",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/whatsapp/components/activity-tracker/use-activity-refresh.ts",
+    "maximumLines": 70,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/whatsapp/components/activity-tracker/use-tracked-activities.ts",
+    "maximumLines": 200,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/whatsapp/components/whatsapp-activity-tracker.tsx",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/mcp/api/mcp.api.ts",
+    "maximumLines": 160,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/mcp/hooks/use-mcp.ts",
+    "maximumLines": 40,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/mcp/components/mcp-request-waiting-page.tsx",
+    "maximumLines": 90,
+    "maximumFunctionComplexity": 34
+  },
+  {
+    "path": "features/mcp/utils/file-transfer.ts",
+    "maximumLines": 110,
+    "maximumFunctionComplexity": 39
+  },
+  {
+    "path": "features/mcp/utils/permissions.ts",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 18
+  },
+  {
+    "path": "features/upload/hooks/use-visa-camera-controls.ts",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/upload/hooks/use-visa-camera-shutdown.ts",
+    "maximumLines": 105,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/upload/hooks/use-visa-camera-state.ts",
+    "maximumLines": 185,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/upload/hooks/use-visa-camera-stream.ts",
+    "maximumLines": 130,
+    "maximumFunctionComplexity": 12
+  },
+  {
+    "path": "features/upload/hooks/use-visa-camera.ts",
+    "maximumLines": 100,
+    "maximumFunctionComplexity": 18
+  },
+  {
+    "path": "features/upload/hooks/use-visa-detector.ts",
+    "maximumLines": 220,
+    "maximumFunctionComplexity": 24
+  },
+  {
+    "path": "features/upload/hooks/use-visa-final-face-detection.ts",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/upload/hooks/use-visa-live-analysis.ts",
+    "maximumLines": 145,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/upload/hooks/use-visa-photo-capture.ts",
+    "maximumLines": 220,
+    "maximumFunctionComplexity": 30
+  },
+  {
+    "path": "features/upload/components/visa-camera-footer.tsx",
+    "maximumLines": 165,
+    "maximumFunctionComplexity": 17
+  },
+  {
+    "path": "features/upload/components/visa-camera-view.tsx",
+    "maximumLines": 145,
+    "maximumFunctionComplexity": 14
+  },
+  {
+    "path": "features/upload/components/visa-camera.constants.ts",
+    "maximumLines": 20,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/upload/components/visa-camera.types.ts",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/upload/services/visa-camera-final-validation.ts",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/upload/services/visa-camera-frame-analysis.ts",
+    "maximumLines": 110,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/upload/services/visa-camera-geometry.ts",
+    "maximumLines": 170,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/upload/services/visa-camera-image-encoding.ts",
+    "maximumLines": 45,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/upload/components/visa-selfie-camera.tsx",
+    "maximumLines": 15,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/upload/hooks/use-camera-capture-lifecycle.ts",
+    "maximumLines": 35,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/passports/utils/passport-group-update.ts",
+    "maximumLines": 40,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/auth/services/cookie-mutation.ts",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "lib/api/request-owner.ts",
+    "maximumLines": 100,
+    "maximumFunctionComplexity": 12
+  },
+  {
+    "path": "stores/auth.store.ts",
+    "maximumLines": 240,
+    "maximumFunctionComplexity": 17
+  },
+  {
+    "path": "features/auth/api/auth.api.ts",
+    "maximumLines": 120,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/auth/services/session-state.ts",
+    "maximumLines": 230,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/whatsapp/hooks/use-group-update-send.ts",
+    "maximumLines": 60,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/whatsapp/workspace/update-message-composer.tsx",
+    "maximumLines": 65,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/whatsapp/workspace/use-trip-update-composer.ts",
+    "maximumLines": 150,
+    "maximumFunctionComplexity": 15
+  },
+  {
+    "path": "features/whatsapp/workspace/trip-update-composer.tsx",
+    "maximumLines": 280,
+    "maximumFunctionComplexity": 21
+  },
+  {
+    "path": "features/whatsapp/components/whatsapp-recipient-import.tsx",
+    "maximumLines": 20,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/whatsapp/hooks/use-recipient-excel-preview.ts",
+    "maximumLines": 220,
+    "maximumFunctionComplexity": 20
+  },
+  {
+    "path": "features/whatsapp/components/excel-recipient-import.tsx",
+    "maximumLines": 160,
+    "maximumFunctionComplexity": 25
+  },
+  {
+    "path": "features/whatsapp/utils/recipient-import-state.ts",
+    "maximumLines": 55,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/whatsapp/components/rejected-import-rows.tsx",
+    "maximumLines": 65,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/whatsapp/workspace/use-document-composer.ts",
+    "maximumLines": 220,
+    "maximumFunctionComplexity": 22
+  },
+  {
+    "path": "features/whatsapp/workspace/document-composer.tsx",
+    "maximumLines": 300,
+    "maximumFunctionComplexity": 13
+  },
+  {
+    "path": "lib/utils/pagination.ts",
+    "maximumLines": 10,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/auth/services/authentication-context.ts",
+    "maximumLines": 45,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "components/shared/workspace-pagination.tsx",
+    "maximumLines": 45,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/whatsapp/api/broadcast-groups.api.ts",
+    "maximumLines": 115,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/whatsapp/api/broadcast-recipients.api.ts",
+    "maximumLines": 140,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/whatsapp/api/broadcast-message-reads.api.ts",
+    "maximumLines": 30,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/whatsapp/api/broadcast-media.api.ts",
+    "maximumLines": 25,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/whatsapp/api/whatsapp.api.ts",
+    "maximumLines": 25,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/whatsapp/types/groups.ts",
+    "maximumLines": 45,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/whatsapp/types/messages.ts",
+    "maximumLines": 100,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/whatsapp/types/recipients.ts",
+    "maximumLines": 140,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/whatsapp/types/contacts.ts",
+    "maximumLines": 10,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/whatsapp/utils/normal-send-intent.ts",
+    "maximumLines": 55,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/whatsapp/utils/activity-tracking.ts",
+    "maximumLines": 245,
+    "maximumFunctionComplexity": 20
+  },
+  {
+    "path": "features/whatsapp/utils/imported-field-label.ts",
+    "maximumLines": 15,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/whatsapp/components/contact-editor.tsx",
+    "maximumLines": 150,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/whatsapp/components/whatsapp-dialog-ui.tsx",
+    "maximumLines": 115,
+    "maximumFunctionComplexity": 15
+  },
+  {
+    "path": "features/whatsapp/workspace/composer.api.ts",
+    "maximumLines": 90,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/whatsapp/workspace/workspace-ui.tsx",
+    "maximumLines": 120,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/companies/hooks/use-company-document-upload.ts",
+    "maximumLines": 130,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/companies/hooks/use-company-data-exports.ts",
+    "maximumLines": 70,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/companies/hooks/use-company-person-editor.ts",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/companies/components/document-upload/selection.tsx",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/companies/components/document-upload/review.tsx",
+    "maximumLines": 40,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/companies/components/data-exports/files.tsx",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/companies/components/data-exports/jobs.tsx",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/companies/utils/company-errors.ts",
+    "maximumLines": 15,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/companies/utils/company-export-status.ts",
+    "maximumLines": 20,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/companies/components/company-passport-fields.tsx",
+    "maximumLines": 25,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/companies/components/company-feedback.tsx",
+    "maximumLines": 30,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/upload/hooks/use-fresh-contact.ts",
+    "maximumLines": 40,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/upload/hooks/use-fresh-member-submission.ts",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 17
+  },
+  {
+    "path": "features/passports/components/passport-image-crop-editor.tsx",
+    "maximumLines": 210,
+    "maximumFunctionComplexity": 25
+  },
+  {
+    "path": "features/passports/components/passport-image-library-panel.tsx",
+    "maximumLines": 190,
+    "maximumFunctionComplexity": 12
+  },
+  {
+    "path": "features/passports/components/visa-ai-image-panel.tsx",
+    "maximumLines": 170,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/passports/hooks/use-passport-image-crop-editor.ts",
+    "maximumLines": 90,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/passports/hooks/use-passport-image-crop-controls.ts",
+    "maximumLines": 60,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/passports/hooks/use-passport-image-editor-source.ts",
+    "maximumLines": 70,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/passports/hooks/use-passport-image-editor-draft.ts",
+    "maximumLines": 160,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/passports/hooks/use-passport-image-editor-actions.ts",
+    "maximumLines": 150,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/passports/hooks/use-visa-ai-image-generation.ts",
+    "maximumLines": 190,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/passports/utils/passport-image-editor-preview.ts",
+    "maximumLines": 100,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/passports/utils/passport-image-editor-state.ts",
+    "maximumLines": 60,
+    "maximumFunctionComplexity": 12
+  },
+  {
+    "path": "features/passports/services/visa-ai-generation-polling.ts",
+    "maximumLines": 60,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/operations/components/manager-administration/manager-administration-page.tsx",
+    "maximumLines": 210,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/operations/components/manager-administration/create-manager-dialog.tsx",
+    "maximumLines": 105,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/operations/components/manager-administration/delete-manager-dialog.tsx",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/operations/components/manager-administration/manager-invitation-dialog.tsx",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/audit-logs/audit-filter-model.ts",
+    "maximumLines": 85,
+    "maximumFunctionComplexity": 13
+  },
+  {
+    "path": "features/audit-logs/hooks/use-audit-ledger.ts",
+    "maximumLines": 110,
+    "maximumFunctionComplexity": 12
+  },
+  {
+    "path": "features/audit-logs/components/audit-ledger-page.tsx",
+    "maximumLines": 145,
+    "maximumFunctionComplexity": 20
+  },
+  {
+    "path": "features/audit-logs/components/audit-filter-controls.tsx",
+    "maximumLines": 60,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/audit-logs/components/audit-ledger-rows.tsx",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "app/(dashboard)/admin/page.tsx",
+    "maximumLines": 15,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "app/(dashboard)/audit-logs/page.tsx",
+    "maximumLines": 15,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/operations/components/rooming-workspace-page.tsx",
+    "maximumLines": 280,
+    "maximumFunctionComplexity": 23
+  },
+  {
+    "path": "features/operations/hooks/use-rooming-workspace-controller.ts",
+    "maximumLines": 65,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/operations/components/rooming-hotel-dialog.tsx",
+    "maximumLines": 180,
+    "maximumFunctionComplexity": 13
+  },
+  {
+    "path": "features/operations/components/rooming-hotel-summary.tsx",
+    "maximumLines": 115,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/operations/components/rooming-workspace-states.tsx",
+    "maximumLines": 85,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/menu/components/meal-planner.tsx",
+    "maximumLines": 180,
+    "maximumFunctionComplexity": 13
+  },
+  {
+    "path": "features/menu/components/generate-plan-dialog.tsx",
+    "maximumLines": 280,
+    "maximumFunctionComplexity": 20
+  },
+  {
+    "path": "features/menu/components/meal-plan-details.tsx",
+    "maximumLines": 260,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/menu/components/meal-plan-slot.tsx",
+    "maximumLines": 105,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/menu/hooks/use-meal-planner.ts",
+    "maximumLines": 315,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/menu/utils/meal-plan-format.ts",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/operations/components/rooming-passenger-hotel-allocation.tsx",
+    "maximumLines": 160,
+    "maximumFunctionComplexity": 12
+  },
+  {
+    "path": "features/operations/hooks/use-rooming-passenger-selection.ts",
+    "maximumLines": 305,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/operations/components/rooming-roster-group.tsx",
+    "maximumLines": 155,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/operations/components/rooming-roster-table.tsx",
+    "maximumLines": 205,
+    "maximumFunctionComplexity": 12
+  },
+  {
+    "path": "features/operations/components/rooming-roster-filters.tsx",
+    "maximumLines": 160,
+    "maximumFunctionComplexity": 14
+  },
+  {
+    "path": "features/operations/components/rooming-selection-actions.tsx",
+    "maximumLines": 185,
+    "maximumFunctionComplexity": 13
+  },
+  {
+    "path": "features/email-integrations/components/connections-page.tsx",
+    "maximumLines": 145,
+    "maximumFunctionComplexity": 23
+  },
+  {
+    "path": "features/email-integrations/components/email-connection-card.tsx",
+    "maximumLines": 220,
+    "maximumFunctionComplexity": 31
+  },
+  {
+    "path": "features/email-integrations/components/email-connection-dialogs.tsx",
+    "maximumLines": 155,
+    "maximumFunctionComplexity": 14
+  },
+  {
+    "path": "features/email-integrations/components/email-connection-summary.tsx",
+    "maximumLines": 65,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/email-integrations/hooks/use-email-connections-controller.ts",
+    "maximumLines": 275,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/email-integrations/components/operational-inbox-page.tsx",
+    "maximumLines": 195,
+    "maximumFunctionComplexity": 13
+  },
+  {
+    "path": "features/email-integrations/components/operational-inbox-card.tsx",
+    "maximumLines": 205,
+    "maximumFunctionComplexity": 22
+  },
+  {
+    "path": "features/email-integrations/components/operational-inbox-views.ts",
+    "maximumLines": 60,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/email-integrations/components/review-queue-page.tsx",
+    "maximumLines": 190,
+    "maximumFunctionComplexity": 15
+  },
+  {
+    "path": "features/email-integrations/components/email-review-card.tsx",
+    "maximumLines": 220,
+    "maximumFunctionComplexity": 20
+  },
+  {
+    "path": "features/email-integrations/components/match-review-dialog.tsx",
+    "maximumLines": 175,
+    "maximumFunctionComplexity": 20
+  },
+  {
+    "path": "features/email-integrations/components/message-feedback-correction-dialog.tsx",
+    "maximumLines": 210,
+    "maximumFunctionComplexity": 18
+  },
+  {
+    "path": "features/email-integrations/components/message-feedback-links.tsx",
+    "maximumLines": 105,
+    "maximumFunctionComplexity": 13
+  },
+  {
+    "path": "features/email-integrations/components/message-feedback-deadline.tsx",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/email-integrations/components/email-ai-rollout-control.tsx",
+    "maximumLines": 205,
+    "maximumFunctionComplexity": 17
+  },
+  {
+    "path": "features/email-integrations/components/email-rollout-model.ts",
+    "maximumLines": 100,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/email-integrations/components/email-rollout-target.tsx",
+    "maximumLines": 95,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/email-integrations/components/email-rollout-decision.tsx",
+    "maximumLines": 70,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/email-integrations/hooks/use-email-rollout-controller.ts",
+    "maximumLines": 115,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/documents/components/document-workspace.tsx",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/documents/components/document-workspace-bindings.tsx",
+    "maximumLines": 75,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/documents/components/document-workspace-header.tsx",
+    "maximumLines": 75,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/documents/components/document-workspace-upload.tsx",
+    "maximumLines": 125,
+    "maximumFunctionComplexity": 32
+  },
+  {
+    "path": "features/documents/components/document-workspace-roster.tsx",
+    "maximumLines": 200,
+    "maximumFunctionComplexity": 17
+  },
+  {
+    "path": "features/documents/components/document-workspace-actions.tsx",
+    "maximumLines": 175,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/documents/hooks/use-document-workspace.ts",
+    "maximumLines": 75,
+    "maximumFunctionComplexity": 20
+  },
+  {
+    "path": "features/documents/hooks/use-document-workspace-upload.ts",
+    "maximumLines": 275,
+    "maximumFunctionComplexity": 18
+  },
+  {
+    "path": "features/documents/hooks/use-document-workspace-selection.ts",
+    "maximumLines": 100,
+    "maximumFunctionComplexity": 12
+  },
+  {
+    "path": "features/documents/hooks/use-document-workspace-delivery.ts",
+    "maximumLines": 125,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/upload/services/passport-camera-guide.ts",
+    "maximumLines": 150,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/travellers/hooks/use-draft-autosave.ts",
+    "maximumLines": 16,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/travellers/components/returning-collection.tsx",
+    "maximumLines": 25,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/upload/hooks/use-draft-document-upload.ts",
+    "maximumLines": 30,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/travellers/services/draft-document-requirements.ts",
+    "maximumLines": 20,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/upload/services/draft-input-contract.ts",
+    "maximumLines": 15,
+    "maximumFunctionComplexity": 0
+  },
+  {
+    "path": "features/companies/hooks/use-company-document-preview.ts",
+    "maximumLines": 40,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/upload/components/traveller-portal.tsx",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/upload/components/traveller-shell.tsx",
+    "maximumLines": 15,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/travellers/api/returning-draft.api.ts",
+    "maximumLines": 40,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/travellers/hooks/use-returning-draft.ts",
+    "maximumLines": 145,
+    "maximumFunctionComplexity": 14
+  },
+  {
+    "path": "features/travellers/components/returning-challenge.tsx",
+    "maximumLines": 35,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/travellers/components/returning-draft-images.tsx",
+    "maximumLines": 30,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/travellers/components/returning-phone.tsx",
+    "maximumLines": 40,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/travellers/components/returning-resume.tsx",
+    "maximumLines": 10,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/travellers/components/traveller-document.tsx",
+    "maximumLines": 10,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/travellers/services/draft-readiness.ts",
+    "maximumLines": 25,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/travellers/services/draft-reconcile.ts",
+    "maximumLines": 15,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/travellers/services/private-preview-queue.ts",
+    "maximumLines": 25,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/upload/hooks/use-fresh-draft.ts",
+    "maximumLines": 125,
+    "maximumFunctionComplexity": 14
+  },
+  {
+    "path": "features/upload/api/fresh-draft.api.ts",
+    "maximumLines": 35,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/travellers/services/draft-resume.ts",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/upload/components/fresh-contact.tsx",
+    "maximumLines": 30,
+    "maximumFunctionComplexity": 17
+  },
+  {
+    "path": "features/upload/components/fresh-document-preview.tsx",
+    "maximumLines": 35,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/upload/components/fresh-documents.tsx",
+    "maximumLines": 55,
+    "maximumFunctionComplexity": 14
+  },
+  {
+    "path": "features/upload/components/fresh-flow.tsx",
+    "maximumLines": 45,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/upload/components/fresh-member-form.tsx",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 15
+  },
+  {
+    "path": "features/upload/components/fresh-member.tsx",
+    "maximumLines": 30,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/upload/components/fresh-qualifier.tsx",
+    "maximumLines": 25,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/upload/components/fresh-trip-fields.tsx",
+    "maximumLines": 20,
+    "maximumFunctionComplexity": 14
+  },
+  {
+    "path": "features/upload/services/fresh-draft-state.ts",
+    "maximumLines": 15,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/upload/services/fresh-validation.ts",
+    "maximumLines": 35,
+    "maximumFunctionComplexity": 15
+  },
+  {
+    "path": "features/companies/utils/company-navigation.ts",
+    "maximumLines": 30,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/companies/utils/company-index-status.ts",
+    "maximumLines": 10,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/companies/components/company-people-results.tsx",
+    "maximumLines": 25,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/companies/utils/company-search.ts",
+    "maximumLines": 15,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/companies/hooks/use-company-view-state.ts",
+    "maximumLines": 25,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/companies/hooks/use-company-people.ts",
+    "maximumLines": 45,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/companies/components/company-view-tabs.tsx",
+    "maximumLines": 25,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/companies/components/company-person-row.tsx",
+    "maximumLines": 20,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/companies/components/company-people-toolbar.tsx",
+    "maximumLines": 25,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/companies/components/company-person-details.tsx",
+    "maximumLines": 30,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/companies/components/company-group-return-link.tsx",
+    "maximumLines": 20,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/companies/components/company-person-documents.tsx",
+    "maximumLines": 45,
+    "maximumFunctionComplexity": 18
+  },
+  {
+    "path": "features/companies/components/company-original-documents.tsx",
+    "maximumLines": 30,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/companies/components/company-all-data.tsx",
+    "maximumLines": 40,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/companies/components/company-person-page.tsx",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/companies/components/company-person-editor.tsx",
+    "maximumLines": 45,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/companies/components/company-document-upload.tsx",
+    "maximumLines": 35,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/companies/components/company-document-preview.tsx",
+    "maximumLines": 20,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/companies/components/company-data-exports.tsx",
+    "maximumLines": 35,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/companies/components/company-settings.tsx",
+    "maximumLines": 30,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/companies/components/company-match-queue.tsx",
+    "maximumLines": 40,
+    "maximumFunctionComplexity": 13
+  },
+  {
+    "path": "features/companies/hooks/use-company-session.ts",
+    "maximumLines": 20,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/companies/hooks/use-companies.ts",
+    "maximumLines": 10,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "components/ui/modal-focus-return.tsx",
+    "maximumLines": 40,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/passports/components/group-whatsapp-dialogs.tsx",
+    "maximumLines": 10,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/passports/components/group-whatsapp-tracking-table.tsx",
+    "maximumLines": 20,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/passports/components/group-whatsapp-tracking-model.ts",
+    "maximumLines": 150,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/passports/components/use-passport-detail-navigation.ts",
+    "maximumLines": 130,
+    "maximumFunctionComplexity": 26
+  },
+  {
+    "path": "lib/observability/render-errors.ts",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "components/ui/modal-keyboard-boundary.ts",
+    "maximumLines": 135,
+    "maximumFunctionComplexity": 17
+  },
+  {
+    "path": "features/passports/components/passport-group-bindings.tsx",
+    "maximumLines": 125,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/passports/components/passport-group-detail.tsx",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/passports/components/passport-group-dialogs.tsx",
+    "maximumLines": 300,
+    "maximumFunctionComplexity": 12
+  },
+  {
+    "path": "features/passports/components/passport-group-header-panel.tsx",
+    "maximumLines": 325,
+    "maximumFunctionComplexity": 22
+  },
+  {
+    "path": "features/passports/components/passport-group-import-panel.tsx",
+    "maximumLines": 200,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/passports/components/passport-group-model.tsx",
+    "maximumLines": 30,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/passports/components/passport-group-overview-panel.tsx",
+    "maximumLines": 350,
+    "maximumFunctionComplexity": 48
+  },
+  {
+    "path": "features/passports/components/passport-group-roster-panel.tsx",
+    "maximumLines": 170,
+    "maximumFunctionComplexity": 17
+  },
+  {
+    "path": "features/passports/components/passport-group-selection-toolbar.tsx",
+    "maximumLines": 110,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/passports/components/use-passport-group-controller.tsx",
+    "maximumLines": 90,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/email-integrations/components/message-activity-model.ts",
+    "maximumLines": 200,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/email-integrations/components/message-activity-page.tsx",
+    "maximumLines": 325,
+    "maximumFunctionComplexity": 23
+  },
+  {
+    "path": "features/email-integrations/components/message-deadline-decisions.tsx",
+    "maximumLines": 175,
+    "maximumFunctionComplexity": 12
+  },
+  {
+    "path": "features/email-integrations/components/message-draft-editor.tsx",
+    "maximumLines": 275,
+    "maximumFunctionComplexity": 18
+  },
+  {
+    "path": "features/email-integrations/components/message-intelligence-brief.tsx",
+    "maximumLines": 400,
+    "maximumFunctionComplexity": 25
+  },
+  {
+    "path": "features/email-integrations/components/message-intelligence-feedback.tsx",
+    "maximumLines": 215,
+    "maximumFunctionComplexity": 20
+  },
+  {
+    "path": "features/email-integrations/components/message-proposal-decisions.tsx",
+    "maximumLines": 175,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/email-integrations/components/use-message-feedback-controller.ts",
+    "maximumLines": 300,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/settings/components/dashboard-settings-page.tsx",
+    "maximumLines": 180,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/settings/components/platform-settings-panel.tsx",
+    "maximumLines": 30,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/settings/components/platform-policy-section.tsx",
+    "maximumLines": 250,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/settings/components/platform-data-section.tsx",
+    "maximumLines": 150,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/settings/components/platform-setting-controls.tsx",
+    "maximumLines": 130,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/settings/hooks/use-platform-settings.ts",
+    "maximumLines": 160,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/settings/hooks/use-platform-data-purge.ts",
+    "maximumLines": 80,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "lib/hooks/use-live-history-feed.ts",
+    "maximumLines": 125,
+    "maximumFunctionComplexity": 12
+  },
+  {
+    "path": "features/upload/services/review-submission-validation.ts",
+    "maximumLines": 30,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/passports/components/group-whatsapp-broadcast-panel.tsx",
+    "maximumLines": 220,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/passports/components/passport-attendance-qr-card.tsx",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/passports/components/passport-detail-header.tsx",
+    "maximumLines": 200,
+    "maximumFunctionComplexity": 18
+  },
+  {
+    "path": "features/passports/components/passport-detail-images.tsx",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/passports/components/passport-detail.tsx",
+    "maximumLines": 125,
+    "maximumFunctionComplexity": 13
+  },
+  {
+    "path": "features/passports/components/passport-reextract-status.tsx",
+    "maximumLines": 100,
+    "maximumFunctionComplexity": 23
+  },
+  {
+    "path": "features/passports/components/passport-review-actions.tsx",
+    "maximumLines": 125,
+    "maximumFunctionComplexity": 23
+  },
+  {
+    "path": "features/passports/components/passport-review-card.tsx",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/passports/components/passport-review-conflicts.tsx",
+    "maximumLines": 100,
+    "maximumFunctionComplexity": 15
+  },
+  {
+    "path": "features/passports/components/passport-review-fields.tsx",
+    "maximumLines": 150,
+    "maximumFunctionComplexity": 17
+  },
+  {
+    "path": "features/passports/components/passport-review-model.ts",
+    "maximumLines": 175,
+    "maximumFunctionComplexity": 22
+  },
+  {
+    "path": "features/passports/components/passport-review-status.tsx",
+    "maximumLines": 150,
+    "maximumFunctionComplexity": 21
+  },
+  {
+    "path": "features/passports/components/passport-review-types.ts",
+    "maximumLines": 50,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/passports/components/use-passport-detail-controller.ts",
+    "maximumLines": 150,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/passports/components/use-passport-field-review.ts",
+    "maximumLines": 100,
+    "maximumFunctionComplexity": 11
+  }
+]

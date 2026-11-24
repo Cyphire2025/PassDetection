@@ -1,0 +1,8 @@
+{
+  "comparisons": 1920,
+  "result": "All original/current scoped entries, display order/full values and all seven counts equal.",
+  "basis": "Executed the immutable original production projection/count code against the current pure owner. Deterministic mixed source/empty/legacy-single/multiple/shared physical URL/status/assigned-count/search/unknown-filter/partial passenger-scope datasets; no provider or production data.",
+  "original_sha256": "24556d68986adf5af2d9effb484e7fa925c3defeaebcde00e659e3cea2cad999",
+  "current_source_sha256": "29c8d314824a5c5a800be519443a11b09cfa670b03fe079ece5f6c982404dfb4",
+  "complexity": "One status classification per scoped entry instead of repeated fixed-filter scans; existing shared-PDF scope and storage-identity semantics retained. Both have linear asymptotic work for fixed seven filters; the measured improvement is fewer repeated operations."
+}

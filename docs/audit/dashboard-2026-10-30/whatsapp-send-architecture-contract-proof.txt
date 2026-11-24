@@ -1,0 +1,4 @@
+tests/unit/presentation/test_whatsapp_route_decomposition.py::test_whatsapp_route_order_and_names_remain_stable
+PROVED original54statement queue/nonimport-module inverse; public2metadata/aliases/pickles/OpenAPI; original assertions 62
+
+1 test collected in 0.14s

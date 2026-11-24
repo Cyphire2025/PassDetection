@@ -1,0 +1,14 @@
+{
+  "files": [
+    {
+      "path": "backend/alembic/versions/0095_mobile_fcm_delivery.py",
+      "sha256": "bae9580e8b9d5004df8737da969f7f2a5f122749fd077021bce57e4834f6f618",
+      "physical_lines": 47,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "excluded",
+      "status": "excluded",
+      "notes": "Ownership-only metadata classification: dedicated nativeFCM push-delivery transport/receipt shape checks, all known tableoperations mobile_push_deliveries. No complete source read, native provider/runtimeaudit or fullcoverage credit. Userdashboard-only scope; sourceunchanged."
+    }
+  ],
+  "source_review_credit": 0
+}

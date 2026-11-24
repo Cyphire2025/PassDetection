@@ -1,0 +1,165 @@
+{
+  "recorded_at": "2026-10-30T23:25:51.816Z",
+  "records": [
+    {
+      "path": "frontend/features/upload/components/upload-flow-fields.tsx",
+      "sha256": "7d789c4e2afc61b42c973d6c2d7251cb2909fd72a986f009728c4e4db524c67d",
+      "physical_lines": 4,
+      "max_function_complexity": 0,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "All original physical source and actual named-import callers read; current module wiring authored/read. Closed declaration trace is separate from manual review. Exact retained declarations and explicit parser behavior corrections are recorded separately."
+    },
+    {
+      "path": "frontend/features/upload/components/upload-contact-input.tsx",
+      "sha256": "e072f4a51bbf9473e690c8d23bb1018912ec76db70765f7455b3caf97a76b731",
+      "physical_lines": 58,
+      "max_function_complexity": 11,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "All original physical source and actual named-import callers read; current module wiring authored/read. Closed declaration trace is separate from manual review. Exact retained declarations and explicit parser behavior corrections are recorded separately."
+    },
+    {
+      "path": "frontend/features/upload/components/upload-select-inputs.tsx",
+      "sha256": "99e61129d7de110f40f2c416bd0b19b67099cf249b688c2f56cdd8fed36384cd",
+      "physical_lines": 60,
+      "max_function_complexity": 1,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "All original physical source and actual named-import callers read; current module wiring authored/read. Closed declaration trace is separate from manual review. Exact retained declarations and explicit parser behavior corrections are recorded separately."
+    },
+    {
+      "path": "frontend/features/upload/components/upload-custom-fields.tsx",
+      "sha256": "57722d5af8fb3839a2996d459ef611edbede788f2bf4c97290731445cf9000f5",
+      "physical_lines": 67,
+      "max_function_complexity": 3,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "All original physical source and actual named-import callers read; current module wiring authored/read. Closed declaration trace is separate from manual review. Exact retained declarations and explicit parser behavior corrections are recorded separately."
+    },
+    {
+      "path": "frontend/features/upload/components/configured-client-fields.tsx",
+      "sha256": "515b209d500ee84aacbfa79975f0360924241af228f0262b3abf0eebba29eee8",
+      "physical_lines": 154,
+      "max_function_complexity": 15,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "All original physical source and actual named-import callers read; current module wiring authored/read. Closed declaration trace is separate from manual review. Exact retained declarations and explicit parser behavior corrections are recorded separately."
+    },
+    {
+      "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "sha256": "7f4496ae37ab1ea17fb8e45c80f82a1d69ebb487b6e5cf81893e3ec7196c0bfc",
+      "physical_lines": 95,
+      "max_function_complexity": 16,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "All original physical source and actual named-import callers read; current module wiring authored/read. Closed declaration trace is separate from manual review. Exact retained declarations and explicit parser behavior corrections are recorded separately."
+    },
+    {
+      "path": "frontend/features/upload/components/upload-flow.types.ts",
+      "sha256": "f395c5fd7cdd5b04177af40f3cc46a6c4d23edf1cdcd6b8f4a8d994a57076827",
+      "physical_lines": 12,
+      "max_function_complexity": 0,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "All original physical source and actual named-import callers read; current module wiring authored/read. Closed declaration trace is separate from manual review. Exact retained declarations and explicit parser behavior corrections are recorded separately."
+    },
+    {
+      "path": "frontend/features/upload/components/upload-flow.constants.ts",
+      "sha256": "5b2e332c681e280475f268dc062f973f9dab9cde71aa782d0d7569d022db7262",
+      "physical_lines": 33,
+      "max_function_complexity": 2,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "All original physical source and actual named-import callers read; current module wiring authored/read. Closed declaration trace is separate from manual review. Exact retained declarations and explicit parser behavior corrections are recorded separately."
+    },
+    {
+      "path": "frontend/features/travellers/services/draft-resume.ts",
+      "sha256": "943b7b8ee0b177271f56dbe364afa61bc3abe0367ecd561661cf0086cc41c470",
+      "physical_lines": 36,
+      "max_function_complexity": 5,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "All original physical source and actual named-import callers read; current module wiring authored/read. Closed declaration trace is separate from manual review. Exact retained declarations and explicit parser behavior corrections are recorded separately."
+    },
+    {
+      "path": "frontend/features/travellers/services/draft-resume-parser.ts",
+      "sha256": "368a6267df1ec865d03d61f890cc71c7c220b34eee472c770074da8482b74fae",
+      "physical_lines": 46,
+      "max_function_complexity": 15,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "All original physical source and actual named-import callers read; current module wiring authored/read. Closed declaration trace is separate from manual review. Exact retained declarations and explicit parser behavior corrections are recorded separately."
+    }
+  ],
+  "test_records": [
+    {
+      "path": "frontend/features/travellers/services/draft-resume.test.ts",
+      "sha256": "e381053fe59b789d82378af307e6b067e8d9e62094982b74e032e7006f4f8754",
+      "review_scope": "full",
+      "status": "reviewed-and-strengthened"
+    }
+  ],
+  "proofs": {
+    "baseline": {
+      "path": ".tmp/upload-current-resume-before.json",
+      "files": 1,
+      "cases": 6,
+      "passed": 4,
+      "failed": 2
+    },
+    "final": {
+      "path": ".tmp/upload-fields-helper-after.json",
+      "files": 7,
+      "cases": 34,
+      "passed": 34,
+      "failed": 0
+    },
+    "exact_retained_or_moved_declarations": 24,
+    "types": "passed after the concurrent parent MessageField import correction",
+    "scoped_eslint": "passed11paths",
+    "node_contracts": {
+      "files": 3,
+      "cases": 13,
+      "passed": 13,
+      "path": ".tmp/upload-fields-helper-contracts.txt"
+    },
+    "existing_affected_ratchets": {
+      "modules": 210,
+      "passed": true
+    }
+  },
+  "retired": {
+    "runtime_files": [
+      {
+        "path": "frontend/features/upload/services/upload-flow-session.ts",
+        "sha256": "48ff5be0570150968e0044acab7db5bfee0515712dc7ef198498ba88457e398f"
+      },
+      {
+        "path": "frontend/features/upload/services/upload-recovery.ts",
+        "sha256": "286805b05dd5a7000fa060e44629e1bf4e1b349161deeda8785a423600207cde"
+      }
+    ],
+    "obsolete_test": "frontend/features/upload/services/upload-recovery.test.mjs",
+    "closed_declarations": 50,
+    "original_sources_and_caller_evidence": "upload-helper-retirement-manifest.json",
+    "note": "Two whole runtime files and50 closed declarations total (including declarations in those files), plus one unused reexport alias; no double-count as52 declarations."
+  },
+  "improvements": [
+    "Current navigation metadata rejects missing/nonfinite/expired deadlines and empty/oversized identities before restoring a draft.",
+    "Parser returns an allowlist of navigation/opaque identities; surplus personal fields cannot be propagated through saved existing family metadata.",
+    "Six active field exports keep exact original declarations behind a4-line facade and four cohesive owners (maximum154lines).",
+    "322-line mixed helpers reduce to95lines of unchanged active validation, dates, labels and error formatting."
+  ],
+  "preserved": [
+    "No modifications to existing critical coverage include entries or74/50/75/75 per-file floors.",
+    "Current Fresh/returning revision queues, upload/complete idempotency and credential-retention tests remain.",
+    "All active field parameters, labels, required rules, phone custom validity and native controls remain unchanged.",
+    "PUBLIC_UPLOAD_ACCEPT, public preparer, file validators and backend/API contracts remain."
+  ],
+  "remaining_original_oversized_owners": 7,
+  "limits": [
+    "No whole frontend suite or production build repeated for this bounded source batch.",
+    "Current service/provider and entire production portal browser coverage comes from the parent integration checkpoint; this receipt records affected unit/contracts and physical source proof only."
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "basis": "Installed Next title.template applies product suffix to child route titles.",
+  "paths": [
+    "frontend/app/(auth)/login/page.tsx",
+    "frontend/app/(dashboard)/rooming/page.tsx",
+    "frontend/app/(dashboard)/rooming/[groupId]/page.tsx",
+    "frontend/app/(dashboard)/staff/page.tsx",
+    "frontend/app/(dashboard)/tour-operations/page.tsx",
+    "frontend/app/(dashboard)/tour-operations/coordinators/page.tsx",
+    "frontend/app/(dashboard)/tour-operations/group-assignments/page.tsx",
+    "frontend/app/(dashboard)/tour-operations/groups/[groupId]/page.tsx",
+    "frontend/app/(dashboard)/tour-operations/groups/[groupId]/attendance/page.tsx",
+    "frontend/app/(dashboard)/tour-operations/groups/[groupId]/qr-codes/page.tsx",
+    "frontend/app/(dashboard)/tour-operations/scanner-proof/page.tsx",
+    "frontend/app/coordinator/page.tsx",
+    "frontend/app/coordinator/groups/[groupId]/page.tsx",
+    "frontend/app/coordinator/groups/[groupId]/hotel-checkin/page.tsx",
+    "frontend/app/coordinator/groups/[groupId]/passengers/[passengerId]/page.tsx",
+    "frontend/app/coordinator/groups/[groupId]/scanner/page.tsx",
+    "frontend/app/tour-scanner/page.tsx",
+    "frontend/app/upload/[token]/page.tsx"
+  ]
+}

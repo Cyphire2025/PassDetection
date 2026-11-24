@@ -1,0 +1,53 @@
+{
+  "validated_security_bugs": [],
+  "candidates": [
+    {
+      "id": "MCP-APPLICATION-CANDIDATE-01",
+      "status": "needs_contract_and_synthetic_behavior_validation",
+      "paths": [
+        "backend/app/application/mcp/contact_broadcasts.py",
+        "backend/app/application/mcp/contact_uploads.py",
+        "backend/app/application/mcp/group_workbook_plan.py"
+      ],
+      "source_evidence": "MCPContactUploadService.get authenticates original user/grant/current section/agency but has no persisted purpose/native-ticket lane condition. Contact broadcast create uses that get without require_native_source; group workbook and tracker apply explicitly require the prepared group_workbook ticket. A same-owner grant holding both current upload/change sections can seemingly reuse a group-workbook source for an agency contact-broadcast draft.",
+      "qualification": "This does not demonstrate privilege escalation: source belongs to the actor, and later explicit contact draft/opt-in may intentionally authorize reuse. Need authoritative exact-lane contract and synthetic source-flow proof before calling it a bug or blocking an existing workflow. ai_extraction confirms no existing helper fix in this area; no execution during freeze."
+    },
+    {
+      "id": "MCP-APPLICATION-CANDIDATE-02",
+      "status": "source_confirmed_admission_asymmetry_runtime_impact_unmeasured",
+      "paths": [
+        "backend/app/application/mcp/image_exports.py",
+        "backend/app/application/mcp/document_export_source.py",
+        "backend/app/application/mcp/tracking_export_source.py",
+        "backend/app/application/mcp/rooming_export_source.py",
+        "backend/app/application/mcp/export_source_budget.py"
+      ],
+      "source_evidence": "Excel/option/tracker export source paths use database-side scalar ID and cumulative textual byte admission before ORM hydration. Image/document-review/tracking-comparison/rooming paths count-cap full ORM source families and reject oversized snapshots only after hydration/serialization. Whole PassportSubmissionModel JSON fields can therefore enter Python before the snapshot byte guard.",
+      "qualification": "Counts and snapshot/output limits still bound accepted results, so this is not an unbounded-query or demonstrated OOM claim. Needs synthetic over-byte-budget rows and hydration instrumentation/memory measurements, plus actual deployed family reachability, before choosing a compatible early-admission change."
+    }
+  ],
+  "maintainability_candidates": [
+    {
+      "id": "MCP-APPLICATION-ARCH-01",
+      "status": "source_review_complete_implementation_queued",
+      "paths": [
+        "backend/app/application/mcp/pdf_ingestion.py",
+        "backend/app/application/mcp/artifacts.py",
+        "backend/app/application/mcp/travel_tracker.py",
+        "backend/app/application/mcp/operations.py"
+      ],
+      "summary": "Active682/692/482/446line owners combine DTOs, scope/identity, checkpoints, generation/parse and recovery. Natural protocol/model/source/preparation/execution owners can reduce responsibilities; preserve atomic savepoints, current grants, cancellation draining, source lifetime and immutable replay. No arbitrary slicing or broad freeze edits."
+    }
+  ],
+  "cleared_observations": [
+    "Document delivery preview_token is deterministic SHA of reviewed identity/destination/document references, not a raw bearer or timestamped expiring credential; no false mismatch/leak finding.",
+    "Document match_confidence uses nonnullable database float default0, so math.isfinite does not establish a nullable confidence crash.",
+    "Queued confirmation replay returns the immutable receipt without a new dispatch; original-grant dispatch authority remains rechecked in the worker boundary.",
+    "Inspection progress catch-up is intentional metadata maintenance and does not resubmit provider calls."
+  ],
+  "limits": [
+    "Full manual physical source coverage is not live PostgreSQL/Redis/private object-storage/provider/MCP transport qualification.",
+    "No new tests/services/provider calls or runtime/manifests edits in this read-only lane.",
+    "Matrix classification was not counted as a physical source read."
+  ]
+}

@@ -1,0 +1,16 @@
+F..........................
+======================================================================
+FAIL: test_actual_contract_and_reviewed_file_hashes (test_release_workspace_branding.BrandingReleaseTests.test_actual_contract_and_reviewed_file_hashes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_release_workspace_branding.py", line 72, in test_actual_contract_and_reviewed_file_hashes
+    self.assertEqual(digest((ROOT / path).read_text('utf-8')), expected, path)
+AssertionError: '5ee8f6a7e51ca3d998acb0c19d8f54e5587f94b83ab407e0ff008b7fcc9e4dd5' != '0159f6be710c51ed5f33777dc82da8e5a89bd2221bb412702a3b407a094f449a'
+- 5ee8f6a7e51ca3d998acb0c19d8f54e5587f94b83ab407e0ff008b7fcc9e4dd5
++ 0159f6be710c51ed5f33777dc82da8e5a89bd2221bb412702a3b407a094f449a
+ : backend/app/core/config/settings.py
+
+----------------------------------------------------------------------
+Ran 27 tests in 0.141s
+
+FAILED (failures=1)

@@ -36,11 +36,12 @@ export function validPermissions(data: McpPermissions) {
     || !stringList(tool.required_sections)
     || tool.required_sections.some((section) => !write.has(section)))
     || new Set(data.write_tool_requirements.map((tool) => tool.name)).size !== data.write_tool_requirements.length) return false;
-  const tools = new Set(data.write_tool_requirements.map((tool) => tool.name));
+  const tools = new Map(data.write_tool_requirements.map((tool) => [tool.name, tool.required_sections]));
+  const allowedWrite = new Set(data.allowed_write_sections);
   return data.allowed_read_sections.every((section) => read.has(section))
     && data.allowed_write_sections.every((section) => write.has(section))
     && data.allowed_write_tools.every((name) => tools.has(name)
-      && data.write_tool_requirements.find((tool) => tool.name === name)!.required_sections.every((section) => data.allowed_write_sections.includes(section)));
+      && tools.get(name)!.every((section) => allowedWrite.has(section)));
 }
 
 export function writeToolsForSections(data: McpPermissions, sections: readonly string[]) {
@@ -49,9 +50,10 @@ export function writeToolsForSections(data: McpPermissions, sections: readonly s
 }
 
 export function deviceWriteSections(data: McpPermissions) {
+  const allowed = new Set(data.allowed_write_sections);
   return data.section_catalog.map((section) => ({ ...section,
-    write_allowed_by_settings: data.allowed_write_sections.includes(section.id),
-    write_description: section.write_supported && !data.allowed_write_sections.includes(section.id)
+    write_allowed_by_settings: allowed.has(section.id),
+    write_description: section.write_supported && !allowed.has(section.id)
       ? "This action is turned off in global Write settings. Enable it there before allowing it on this device." : section.write_description }));
 }
 

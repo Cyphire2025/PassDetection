@@ -1,0 +1,16 @@
+{
+  "current_runtime_defects_proved": [],
+  "preserved_invariants": [
+    "Default-disabled MCP core and default-denied effect permissions without widening grants.",
+    "Shared token/artifact/operation/source receipts preserve immutable idempotency and retained history.",
+    "Company assignment uses exact source UUID/tenant ownership with explicit trigger compatibility check, no name matching.",
+    "Traveller policy disabled and review-required by default; no inferred legacy reuse permission/contact proof.",
+    "Returning draft and traveller authoritative history refuses destructive rollback.",
+    "Directory derived tables remain separate from authoritative sources."
+  ],
+  "remaining_evidence": [
+    "Actual populated PostgreSQL DDL/index/trigger/lock/rollback race behavior not established by manual source reads.",
+    "Current cryptography, authorization, provider sends, file lifecycle, release/VPS state and workload performance require separate qualified runtime/service evidence.",
+    "Published scripts are immutable even when rollback preconditions or historical lossy transitions need documentation."
+  ]
+}

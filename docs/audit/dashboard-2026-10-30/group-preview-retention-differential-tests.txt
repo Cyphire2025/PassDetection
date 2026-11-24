@@ -1,0 +1,186 @@
+EEEEEEE                                                                  [100%]
+=================================== ERRORS ====================================
+_ ERROR at setup of test_original_and_current_full_response_token_and_real_lifetime[empty-0] _
+
+fixturedef = <FixtureDef argname='db_session' scope='function' baseid=''>
+request = <SubRequest 'db_session' for <Function test_original_and_current_full_response_token_and_real_lifetime[empty-0]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        if (
+            fixturedef.argname == "event_loop_policy"
+            and fixturedef.func.__module__ != __name__
+        ):
+            warnings.warn(
+                PytestDeprecationWarning(_EVENT_LOOP_POLICY_FIXTURE_DEPRECATION_WARNING),
+            )
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+>               return (yield)
+                        ^^^^^
+E               pytest.PytestRemovedIn9Warning: 'test_original_and_current_full_response_token_and_real_lifetime[empty-0]' requested an async fixture 'db_session', with no plugin or hook that handled it. This is usually an error, as pytest does not natively support it. This will turn into an error in pytest 9.
+E               See: https://docs.pytest.org/en/stable/deprecations.html#sync-test-depending-on-async-fixture
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\pytest_asyncio\plugin.py:924: PytestRemovedIn9Warning
+_ ERROR at setup of test_original_and_current_full_response_token_and_real_lifetime[one-1] _
+
+fixturedef = <FixtureDef argname='db_session' scope='function' baseid=''>
+request = <SubRequest 'db_session' for <Function test_original_and_current_full_response_token_and_real_lifetime[one-1]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        if (
+            fixturedef.argname == "event_loop_policy"
+            and fixturedef.func.__module__ != __name__
+        ):
+            warnings.warn(
+                PytestDeprecationWarning(_EVENT_LOOP_POLICY_FIXTURE_DEPRECATION_WARNING),
+            )
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+>               return (yield)
+                        ^^^^^
+E               pytest.PytestRemovedIn9Warning: 'test_original_and_current_full_response_token_and_real_lifetime[one-1]' requested an async fixture 'db_session', with no plugin or hook that handled it. This is usually an error, as pytest does not natively support it. This will turn into an error in pytest 9.
+E               See: https://docs.pytest.org/en/stable/deprecations.html#sync-test-depending-on-async-fixture
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\pytest_asyncio\plugin.py:924: PytestRemovedIn9Warning
+_ ERROR at setup of test_original_and_current_full_response_token_and_real_lifetime[history64-64] _
+
+fixturedef = <FixtureDef argname='db_session' scope='function' baseid=''>
+request = <SubRequest 'db_session' for <Function test_original_and_current_full_response_token_and_real_lifetime[history64-64]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        if (
+            fixturedef.argname == "event_loop_policy"
+            and fixturedef.func.__module__ != __name__
+        ):
+            warnings.warn(
+                PytestDeprecationWarning(_EVENT_LOOP_POLICY_FIXTURE_DEPRECATION_WARNING),
+            )
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+>               return (yield)
+                        ^^^^^
+E               pytest.PytestRemovedIn9Warning: 'test_original_and_current_full_response_token_and_real_lifetime[history64-64]' requested an async fixture 'db_session', with no plugin or hook that handled it. This is usually an error, as pytest does not natively support it. This will turn into an error in pytest 9.
+E               See: https://docs.pytest.org/en/stable/deprecations.html#sync-test-depending-on-async-fixture
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\pytest_asyncio\plugin.py:924: PytestRemovedIn9Warning
+_ ERROR at setup of test_original_and_current_full_response_token_and_real_lifetime[history512-512] _
+
+fixturedef = <FixtureDef argname='db_session' scope='function' baseid=''>
+request = <SubRequest 'db_session' for <Function test_original_and_current_full_response_token_and_real_lifetime[history512-512]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        if (
+            fixturedef.argname == "event_loop_policy"
+            and fixturedef.func.__module__ != __name__
+        ):
+            warnings.warn(
+                PytestDeprecationWarning(_EVENT_LOOP_POLICY_FIXTURE_DEPRECATION_WARNING),
+            )
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+>               return (yield)
+                        ^^^^^
+E               pytest.PytestRemovedIn9Warning: 'test_original_and_current_full_response_token_and_real_lifetime[history512-512]' requested an async fixture 'db_session', with no plugin or hook that handled it. This is usually an error, as pytest does not natively support it. This will turn into an error in pytest 9.
+E               See: https://docs.pytest.org/en/stable/deprecations.html#sync-test-depending-on-async-fixture
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\pytest_asyncio\plugin.py:924: PytestRemovedIn9Warning
+_ ERROR at setup of test_original_and_current_full_response_token_and_real_lifetime[timestamp-ties-64] _
+
+fixturedef = <FixtureDef argname='db_session' scope='function' baseid=''>
+request = <SubRequest 'db_session' for <Function test_original_and_current_full_response_token_and_real_lifetime[timestamp-ties-64]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        if (
+            fixturedef.argname == "event_loop_policy"
+            and fixturedef.func.__module__ != __name__
+        ):
+            warnings.warn(
+                PytestDeprecationWarning(_EVENT_LOOP_POLICY_FIXTURE_DEPRECATION_WARNING),
+            )
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+>               return (yield)
+                        ^^^^^
+E               pytest.PytestRemovedIn9Warning: 'test_original_and_current_full_response_token_and_real_lifetime[timestamp-ties-64]' requested an async fixture 'db_session', with no plugin or hook that handled it. This is usually an error, as pytest does not natively support it. This will turn into an error in pytest 9.
+E               See: https://docs.pytest.org/en/stable/deprecations.html#sync-test-depending-on-async-fixture
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\pytest_asyncio\plugin.py:924: PytestRemovedIn9Warning
+_ ERROR at setup of test_original_and_current_invalid_old_json_errors_match[True] _
+
+fixturedef = <FixtureDef argname='db_session' scope='function' baseid=''>
+request = <SubRequest 'db_session' for <Function test_original_and_current_invalid_old_json_errors_match[True]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        if (
+            fixturedef.argname == "event_loop_policy"
+            and fixturedef.func.__module__ != __name__
+        ):
+            warnings.warn(
+                PytestDeprecationWarning(_EVENT_LOOP_POLICY_FIXTURE_DEPRECATION_WARNING),
+            )
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+>               return (yield)
+                        ^^^^^
+E               pytest.PytestRemovedIn9Warning: 'test_original_and_current_invalid_old_json_errors_match[True]' requested an async fixture 'db_session', with no plugin or hook that handled it. This is usually an error, as pytest does not natively support it. This will turn into an error in pytest 9.
+E               See: https://docs.pytest.org/en/stable/deprecations.html#sync-test-depending-on-async-fixture
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\pytest_asyncio\plugin.py:924: PytestRemovedIn9Warning
+_ ERROR at setup of test_original_and_current_invalid_old_json_errors_match[False] _
+
+fixturedef = <FixtureDef argname='db_session' scope='function' baseid=''>
+request = <SubRequest 'db_session' for <Function test_original_and_current_invalid_old_json_errors_match[False]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        if (
+            fixturedef.argname == "event_loop_policy"
+            and fixturedef.func.__module__ != __name__
+        ):
+            warnings.warn(
+                PytestDeprecationWarning(_EVENT_LOOP_POLICY_FIXTURE_DEPRECATION_WARNING),
+            )
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+>               return (yield)
+                        ^^^^^
+E               pytest.PytestRemovedIn9Warning: 'test_original_and_current_invalid_old_json_errors_match[False]' requested an async fixture 'db_session', with no plugin or hook that handled it. This is usually an error, as pytest does not natively support it. This will turn into an error in pytest 9.
+E               See: https://docs.pytest.org/en/stable/deprecations.html#sync-test-depending-on-async-fixture
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\pytest_asyncio\plugin.py:924: PytestRemovedIn9Warning
+=========================== short test summary info ===========================
+ERROR ..\.tmp\test_group_preview_retention_differential.py::test_original_and_current_full_response_token_and_real_lifetime[empty-0]
+ERROR ..\.tmp\test_group_preview_retention_differential.py::test_original_and_current_full_response_token_and_real_lifetime[one-1]
+ERROR ..\.tmp\test_group_preview_retention_differential.py::test_original_and_current_full_response_token_and_real_lifetime[history64-64]
+ERROR ..\.tmp\test_group_preview_retention_differential.py::test_original_and_current_full_response_token_and_real_lifetime[history512-512]
+ERROR ..\.tmp\test_group_preview_retention_differential.py::test_original_and_current_full_response_token_and_real_lifetime[timestamp-ties-64]
+ERROR ..\.tmp\test_group_preview_retention_differential.py::test_original_and_current_invalid_old_json_errors_match[True]
+ERROR ..\.tmp\test_group_preview_retention_differential.py::test_original_and_current_invalid_old_json_errors_match[False]
+7 errors in 0.97s

@@ -1,0 +1,56 @@
+[
+  {
+    "path": "backend/tests/unit/infrastructure/test_email_models.py",
+    "sha256": "76f013c78c578dfa9132282751ab75da2614fcfcc585561240acfe00a0cf2914",
+    "review_scope": "full",
+    "notes": "Complete file physically read. Existing mapper deferred-field controls cover access/refresh tokens, PKCE verifier and protected source URL; table controls cover tenant/owner composite FKs, identity uniqueness/idempotency and review partial uniqueness. No tests executed."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_email_integrations_migration.py",
+    "sha256": "8fbefd1b0f1cca8ea2d1984efcb302305b43dec1fd76c70e32e1ea0f17adbdda",
+    "review_scope": "full",
+    "notes": "Complete file physically read, including EOF check after line175. Existing0061 creation/dependency order, encrypted columns, sync index, ORM-column alignment accounting for later owner/AI fields and downgrade shape assertions identified. No migration or test executed."
+  },
+  {
+    "path": "backend/tests/email_ownership_constraints.py",
+    "sha256": "0e8af1eae0c3c46f664dec89a9d2021d4eae342ad3044a945407e7ab37036e01",
+    "review_scope": "full",
+    "notes": "Complete existing synthetic constraint helper physically read. Valid control plus missing parent/wrong tenant/wrong owner cases assert specific SQLite/PostgreSQL foreign-key failures and retained control rows. No additional payloads constructed and helper not executed."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_email_oauth_persistence.py",
+    "sha256": "71d0a956869913c95d3be6658b0d128f8f6951f1f6b9657f4ff57cea1248a2a6",
+    "review_scope": "full",
+    "notes": "Complete file physically read. Existing mocked Gmail/Outlook new/reconnect callback controls assert owned identity, encrypted token storage, normalization/generation, two commits, revocation/rollback behavior and malformed-state no-DB behavior. No provider or test executed."
+  },
+  {
+    "path": "backend/app/infrastructure/email/sync_contracts.py",
+    "sha256": "c38193441cc07f711fd5e481ced8a4867a9fba53e982dde24e1a06c689580bb7",
+    "review_scope": "full",
+    "notes": "Complete file physically read, including EOF check after line120. SyncClaim carries bound connection/agency/owner/provider/generation data; existing model filters revalidate that envelope. Models are imported from the stable email_models module. No worker/provider invoked."
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/email_summary_repository.py",
+    "sha256": "fe3bd2f54085f7dbdf2f77caec31b145e520f227ac75e5bb37d46508e0bc82fe",
+    "review_scope": "full",
+    "notes": "Complete file physically read. Actual model consumers use seven scalar count queries with owner/agency filters and return only integer counts. No credentials or content are loaded by this owner; no query executed."
+  },
+  {
+    "path": "backend/app/infrastructure/email/sync_connections.py",
+    "sha256": "8cfb14464848b4799519a12fa898fb1bf5658c1cad5eb55df1558e790d3e3b22",
+    "review_scope": "partial",
+    "notes": "Only first159 lines physically read: provider selection and complete _claim_connection through returned SyncClaim, followed by _fresh_access_token prefix. Claim query explicitly undefer-loads tokens only with exact actor/agency/owner/provider/generation and lease/status predicates. Remaining module not fully reviewed or credited; no decryption/provider operation executed."
+  },
+  {
+    "path": "backend/app/presentation/security/email_oauth_binding.py",
+    "sha256": "772bc3d17ee25273a95c36634b156045a0ae3202c27566708a424fb8df1be665",
+    "review_scope": "partial",
+    "notes": "Only first105 lines physically read: browser nonce/session binding, security generation check and beginning of persistence actor revalidation. Remaining helper body/module not credited as full and no authorization proof claimed from this partial context."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_email_connection_lifecycle.py",
+    "sha256": "39156e8b99acfbd82d40b948c1820faf85d61fc37aede8287ab5f7221eec3ecb",
+    "review_scope": "search-only",
+    "notes": "Only ownership-related search results inspected. No full-file review credit or executed-test claim."
+  }
+]

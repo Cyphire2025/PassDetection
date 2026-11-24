@@ -1,0 +1,268 @@
+{
+  "status": "completed-focused-integration",
+  "before_modules": 678,
+  "after_modules": 685,
+  "normal_additions": 7,
+  "existing_updates": [
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/bulk_actions.py",
+      "before": {
+        "path": "app/presentation/api/v1/routes/passport_routes/bulk_actions.py",
+        "minimum_coverage_percent": 94,
+        "baseline_lines": 580,
+        "maximum_lines": 700,
+        "baseline_max_function_complexity": 21,
+        "maximum_function_complexity": 21
+      },
+      "after": {
+        "path": "app/presentation/api/v1/routes/passport_routes/bulk_actions.py",
+        "baseline_lines": 134,
+        "maximum_lines": 150,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 94
+      }
+    },
+    {
+      "path": "app/presentation/api/v1/routes/email_integration_review_decisions.py",
+      "before": {
+        "path": "app/presentation/api/v1/routes/email_integration_review_decisions.py",
+        "baseline_lines": 367,
+        "maximum_lines": 375,
+        "baseline_max_function_complexity": 42,
+        "maximum_function_complexity": 42,
+        "minimum_coverage_percent": 40
+      },
+      "after": {
+        "path": "app/presentation/api/v1/routes/email_integration_review_decisions.py",
+        "baseline_lines": 184,
+        "maximum_lines": 190,
+        "baseline_max_function_complexity": 14,
+        "maximum_function_complexity": 15,
+        "minimum_coverage_percent": 95
+      }
+    }
+  ],
+  "all_other_676_normal_rows_unchanged": true,
+  "critical_count_before_and_after": 99,
+  "all_original_critical_global_floor_cap_values_unchanged": true,
+  "scope": "Frozen bulk architecture6 plus minimum gate coherency only for Review3 completed before the user's Inbox deferral. No new dedicated Inbox tests or work.",
+  "measurements": [
+    {
+      "group": "bulk",
+      "path": "app/presentation/api/v1/routes/passport_routes/bulk_actions.py",
+      "sha256": "c7f71262abc162e63839c977f407770a2837651f8995472ef52154f990334d40",
+      "actual_lines": 134,
+      "actual_complexity": 0,
+      "statement_percent": 100.0,
+      "branch_percent": null,
+      "budget": {
+        "path": "app/presentation/api/v1/routes/passport_routes/bulk_actions.py",
+        "baseline_lines": 134,
+        "maximum_lines": 150,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 94
+      },
+      "old_critical": null
+    },
+    {
+      "group": "bulk",
+      "path": "app/presentation/api/v1/routes/passport_routes/bulk_actions_actor.py",
+      "sha256": "b17bab6365d72f995763aaa43f17980ca241edea9f371f62e4fc225646f3ae0c",
+      "actual_lines": 78,
+      "actual_complexity": 5,
+      "statement_percent": 95.83333333333333,
+      "branch_percent": 75.0,
+      "budget": {
+        "path": "app/presentation/api/v1/routes/passport_routes/bulk_actions_actor.py",
+        "baseline_lines": 78,
+        "maximum_lines": 85,
+        "baseline_max_function_complexity": 5,
+        "maximum_function_complexity": 5,
+        "minimum_coverage_percent": 94
+      },
+      "old_critical": null
+    },
+    {
+      "group": "bulk",
+      "path": "app/presentation/api/v1/routes/passport_routes/bulk_actions_approval.py",
+      "sha256": "c40650d432686c9be0c0fbee801c5aa9cd2699125859b0f84f1c4002e66d1810",
+      "actual_lines": 230,
+      "actual_complexity": 16,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "budget": {
+        "path": "app/presentation/api/v1/routes/passport_routes/bulk_actions_approval.py",
+        "baseline_lines": 230,
+        "maximum_lines": 240,
+        "baseline_max_function_complexity": 16,
+        "maximum_function_complexity": 16,
+        "minimum_coverage_percent": 94
+      },
+      "old_critical": null
+    },
+    {
+      "group": "bulk",
+      "path": "app/presentation/api/v1/routes/passport_routes/bulk_actions_delete.py",
+      "sha256": "3ebfce47110e3e562639e5d520a3b95fcb945a25468c082d0dfbe131cd53dece",
+      "actual_lines": 289,
+      "actual_complexity": 21,
+      "statement_percent": 98.83720930232558,
+      "branch_percent": 92.85714285714286,
+      "budget": {
+        "path": "app/presentation/api/v1/routes/passport_routes/bulk_actions_delete.py",
+        "baseline_lines": 289,
+        "maximum_lines": 300,
+        "baseline_max_function_complexity": 21,
+        "maximum_function_complexity": 21,
+        "minimum_coverage_percent": 94
+      },
+      "old_critical": null
+    },
+    {
+      "group": "bulk",
+      "path": "app/presentation/api/v1/routes/passport_routes/bulk_actions_roster.py",
+      "sha256": "5846b5e0180237cf408dce4c2196686a61a2eb44613e7dc2baab5f69b4ecfbd2",
+      "actual_lines": 58,
+      "actual_complexity": 5,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "budget": {
+        "path": "app/presentation/api/v1/routes/passport_routes/bulk_actions_roster.py",
+        "baseline_lines": 58,
+        "maximum_lines": 65,
+        "baseline_max_function_complexity": 5,
+        "maximum_function_complexity": 5,
+        "minimum_coverage_percent": 94
+      },
+      "old_critical": null
+    },
+    {
+      "group": "bulk",
+      "path": "app/presentation/api/v1/routes/passport_routes/bulk_actions_transitions.py",
+      "sha256": "9ecf164ab748b59f5ce10fa780ed191e4452b4a087f67cbd58fcba05c57140b1",
+      "actual_lines": 122,
+      "actual_complexity": 6,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "budget": {
+        "path": "app/presentation/api/v1/routes/passport_routes/bulk_actions_transitions.py",
+        "baseline_lines": 122,
+        "maximum_lines": 130,
+        "baseline_max_function_complexity": 6,
+        "maximum_function_complexity": 6,
+        "minimum_coverage_percent": 94
+      },
+      "old_critical": null
+    },
+    {
+      "group": "pre-deferral-review-minimal-coherency",
+      "path": "app/presentation/api/v1/routes/email_integration_review_decisions.py",
+      "sha256": "c42a2e6cc6bd7e9137cc9e106c35114dd95a608def14154aaaac63f053d83bd1",
+      "actual_lines": 184,
+      "actual_complexity": 14,
+      "statement_percent": 100.0,
+      "branch_percent": 90.0,
+      "budget": {
+        "path": "app/presentation/api/v1/routes/email_integration_review_decisions.py",
+        "baseline_lines": 184,
+        "maximum_lines": 190,
+        "baseline_max_function_complexity": 14,
+        "maximum_function_complexity": 15,
+        "minimum_coverage_percent": 95
+      },
+      "old_critical": null
+    },
+    {
+      "group": "pre-deferral-review-minimal-coherency",
+      "path": "app/presentation/api/v1/routes/email_review_context.py",
+      "sha256": "7f09eb79d73d14c2816417d675c48f2b35b9d4acb581e49c3566f87908b3b066",
+      "actual_lines": 154,
+      "actual_complexity": 8,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "budget": {
+        "path": "app/presentation/api/v1/routes/email_review_context.py",
+        "baseline_lines": 154,
+        "maximum_lines": 160,
+        "baseline_max_function_complexity": 8,
+        "maximum_function_complexity": 9,
+        "minimum_coverage_percent": 95
+      },
+      "old_critical": null
+    },
+    {
+      "group": "pre-deferral-review-minimal-coherency",
+      "path": "app/presentation/api/v1/routes/email_review_actions.py",
+      "sha256": "6c27816ec4946d43dc5340334fe7da50896fe3085de4768abc200ae9b1844f98",
+      "actual_lines": 166,
+      "actual_complexity": 22,
+      "statement_percent": 98.85057471264368,
+      "branch_percent": 84.61538461538461,
+      "budget": {
+        "path": "app/presentation/api/v1/routes/email_review_actions.py",
+        "baseline_lines": 166,
+        "maximum_lines": 170,
+        "baseline_max_function_complexity": 22,
+        "maximum_function_complexity": 23,
+        "minimum_coverage_percent": 95
+      },
+      "old_critical": null
+    }
+  ],
+  "reviewed_peer_evidence_not_independent_full_source_review": true,
+  "release": {
+    "before_paths": 111,
+    "after_paths": 112,
+    "old111BEFORE_pairs_unchanged": true,
+    "old109AFTER_values_unchanged": true,
+    "known_after_updates": [
+      "frontend/scripts/verify-frontend-module-budgets.mjs",
+      "backend/backend_quality_budgets.json"
+    ],
+    "new_exact_template_row": {
+      "path": "backend/alembic/script.py.mako",
+      "before_0140": "e3ab701a79eb8e2a2c2f212ea11f62368ff629244cdf3714b23c70383f0d4ee6",
+      "before_0141": "e3ab701a79eb8e2a2c2f212ea11f62368ff629244cdf3714b23c70383f0d4ee6",
+      "after": "9a5507bcc1a059bdc43463b420539e0c1d6050bdf7d796293cd81b2f70329567"
+    },
+    "after_backend_budget_sha256": "3f93f2792791415627a4d2d0fac8d2a175e570c02421a8051cf982db951ae1a7",
+    "after_frontend657_raw": "f710cb513924bde02490b3cea751059cedcdc3b3af0f1cce1c5111fdd502df1e",
+    "after_frontend657_LF": "8cffd8571141b689ca51f909f5ba58258ea9c2551dce62ef27b2a6a7c52541d5",
+    "after_bindings_sha256": "89e51e21a313481ad24114b58a53c193fac5251ee8e2a69cbd92acd2e4c974fa"
+  },
+  "artifacts": {
+    "bulk-architecture-verification.json": "6f9fa51b412970f0d1b6f6f0de3af668678a5d2b33173fe84664d0ed5356ef9f",
+    "bulk-architecture-budget-candidates.json": "7d60b2fb86015ea8821b04a9fb17e99e69044f4152d997b018be644f51d16ba6",
+    "bulk-architecture-coverage.json": "7009339c1bb356e3ee2b70ffd6054e1379b2f7957fab2f056d288a5efaf42e29",
+    "email-review-decisions-verification.json": "f3538aafc47cedd97ab7a5be10e6e4c739c099d04f48d25953650cb8d3e25e92",
+    "email-review-decisions-source-manifest.json": "b852438ff7fdd7da047e42d774399f5d4f3ada39ae66c7b5391f55a1b145b8ce",
+    "email-review-decisions-budget-candidates.json": "e2a01c5ef96298d0d615eccbcba0f4710d2efa3e971c95ec1fe26a7a18de41f9",
+    "email-review-decisions-guard-final-coverage.json": "93a3f86d0753cb82d4e95d72c40e4b8debf8389a0bd4d3b17996b133710c3d5b",
+    "migration-template-verification.json": "1e2ac8f75893cc9c0ac6ea39cf11da9d622bd25f805f13566baac4e5b6397f18",
+    "migration-template-source-manifest.json": "0799169247e7fd3ceac942a6ddfedab0ea51ac3abb9b22d92a7b323eaefa2d38",
+    "attendance-queue-performance-budget-integration.json": "79878dd1c067c0eb3c94256630b5af1f2d1c097b33208332667eeeef2f66c1e7",
+    "bulk-review-template-previous-values.json": "7f166e9f801a1e40d6dbf8efde8b4720ec690c991576147b8a79c448bb56c49a",
+    "bulk-review-template-budgets.txt": "0ada26366635f5abdb33517839814cdce876b86aa48794c604b6b4f4d27aba65",
+    "bulk-review-template-bindings.txt": "f54c10cf450d188033872f3961608251fe4fbe8f99b1c206caa9e645fcd1771f",
+    "bulk-review-template-loader-tests.txt": "44b8202033fefe7525359cc93e1ea954d1fde473dacf2c486f67a83ffdfbcf71",
+    "bulk-review-template-exact-bindings.json": "216e8f2396850773c5e3d9d67c7a876bd630c1112747edeeda67e7751e249c97"
+  },
+  "limits": [
+    "Static source checks are not live service/VPS release qualification.",
+    "MCP1990 remains historical pending actual source-owner reconciliation.",
+    "No broad app suites, builds or browsers for bookkeeping."
+  ],
+  "checks": {
+    "backend_static": "PASS685 normal /99 critical",
+    "exact_source_admission": "PASS112 current AFTER values and both actual immutable Git BEFORE baselines",
+    "focused_loader": "PASS14 cases14.718seconds",
+    "no_broad_application_or_live_service_checks": true
+  },
+  "current_control_source_sha256": {
+    "backend/backend_quality_budgets.json": "3f93f2792791415627a4d2d0fac8d2a175e570c02421a8051cf982db951ae1a7",
+    "scripts/release_workspace_branding_bindings.json": "89e51e21a313481ad24114b58a53c193fac5251ee8e2a69cbd92acd2e4c974fa",
+    "scripts/release_workspace_branding_policy.py": "a21edbb2c7d9f063968204011c80bfa84ff4dbb05b884418ea959d8b60a6bac4"
+  }
+}

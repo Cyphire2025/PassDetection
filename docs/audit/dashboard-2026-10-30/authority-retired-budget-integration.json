@@ -1,0 +1,13 @@
+{
+  "removed": [
+    "features/whatsapp/api/broadcast-resends.api.ts",
+    "features/whatsapp/api/broadcast-sends.api.ts",
+    "features/whatsapp/api/broadcast-resend-payload.ts",
+    "features/whatsapp/utils/whatsapp-request-owner.ts"
+  ],
+  "proof": "whatsapp-core-retired-files.json",
+  "safety_test_port": "whatsapp-current-send-port-before-retirement.json",
+  "before_sha256": "1b540af55d60bde431ad5987013d6d562949dc169fcb94d1fb854f5b5c5e0b8f",
+  "after_sha256": "aecf2709180b16c2c13bb6934f1a07e0f723c09fa5e25a8691800a7e4907b257",
+  "remaining_ceilings_unchanged": true
+}

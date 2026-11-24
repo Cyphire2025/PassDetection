@@ -1,0 +1,62 @@
+[
+  {
+    "path": "app/infrastructure/repositories/attendance_participation.py",
+    "baseline_lines": 58,
+    "maximum_lines": 61,
+    "baseline_max_function_complexity": 1,
+    "maximum_function_complexity": 1,
+    "minimum_coverage_percent": 95,
+    "observed_statement_coverage": 100.0,
+    "observed_branch_coverage": 100.0,
+    "sha256": "059365ff5dee629551568adf958a74607ca5c98e6f04a8e9af0b1ceca06b3b4b",
+    "previously_budgeted": false
+  },
+  {
+    "path": "app/infrastructure/repositories/attendance_runtime_repository.py",
+    "baseline_lines": 246,
+    "maximum_lines": 256,
+    "baseline_max_function_complexity": 6,
+    "maximum_function_complexity": 6,
+    "minimum_coverage_percent": 70,
+    "observed_statement_coverage": 73.75,
+    "observed_branch_coverage": 33.333333333333336,
+    "sha256": "f9285528b2325afcfb9fa74235f52952303812dee29d435dad48ea5dce7eb9ae",
+    "previously_budgeted": false
+  },
+  {
+    "path": "app/infrastructure/repositories/attendance_discard_repository.py",
+    "baseline_lines": 185,
+    "maximum_lines": 193,
+    "baseline_max_function_complexity": 31,
+    "maximum_function_complexity": 31,
+    "minimum_coverage_percent": 90,
+    "observed_statement_coverage": 93.24324324324324,
+    "observed_branch_coverage": 76.66666666666667,
+    "sha256": "53d0535c024120e161fcfdb920a1e851590c6663274e0cb803404eff8d3ffa08",
+    "previously_budgeted": false
+  },
+  {
+    "path": "app/infrastructure/repositories/attendance_closeout_repository.py",
+    "baseline_lines": 519,
+    "maximum_lines": 540,
+    "baseline_max_function_complexity": 24,
+    "maximum_function_complexity": 24,
+    "minimum_coverage_percent": 80,
+    "observed_statement_coverage": 85.71428571428571,
+    "observed_branch_coverage": 65.38461538461539,
+    "sha256": "ab5b342a2927957397dcf88e2d47cf8a947f99a24a60819e7567da037ca3e0cf",
+    "previously_budgeted": false
+  },
+  {
+    "path": "app/presentation/api/v1/routes/tour_operations_response_support.py",
+    "baseline_lines": 174,
+    "maximum_lines": 181,
+    "baseline_max_function_complexity": 11,
+    "maximum_function_complexity": 11,
+    "minimum_coverage_percent": 90,
+    "observed_statement_coverage": 96.875,
+    "observed_branch_coverage": 83.33333333333333,
+    "sha256": "e4e9e4bbe4e6f733bedfb3859153ba6fa9aea26f606a1e5ac2ef5afaf7dfa299",
+    "previously_budgeted": false
+  }
+]

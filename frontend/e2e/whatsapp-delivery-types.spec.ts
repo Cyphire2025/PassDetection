@@ -1,3 +1,4 @@
+import { prepareVisibleMenuTrigger } from "./support/visible-menu-trigger";
 import { expect, test, type Page } from "@playwright/test";
 import {
   broadcastId,
@@ -193,7 +194,9 @@ test("two long detail cards remain divided and scroll independently at desktop h
   await page.setViewportSize({ width: 1536, height: 1100 });
   await page.goto(`/whatsapp/${broadcastId}/recipients`);
   for (const name of ["Aarav Shah", "Diya Mehta"]) {
-    await page.getByRole("button", { name: `Actions for ${name}` }).click();
+    const actions = page.getByRole("button", { name: `Actions for ${name}` });
+    await prepareVisibleMenuTrigger(actions);
+    await actions.click();
     await page.getByRole("menuitem", { name: "View details" }).click();
   }
   const firstCard = page.getByRole("region", {
@@ -227,6 +230,7 @@ test("two long detail cards remain divided and scroll independently at desktop h
     await expect(firstCard.getByRole("heading")).toBeInViewport();
     await expect(secondCard.getByRole("heading")).toBeInViewport();
     const outerScroll = await page.evaluate(() => window.scrollY);
+    const outerMainScroll = await page.locator("#main-content").evaluate((element) => element.scrollTop);
     await firstBody.hover();
     await page.mouse.wheel(0, 350);
     await expect
@@ -234,6 +238,7 @@ test("two long detail cards remain divided and scroll independently at desktop h
       .toBeGreaterThan(0);
     expect(await secondBody.evaluate((element) => element.scrollTop)).toBe(0);
     expect(await page.evaluate(() => window.scrollY)).toBe(outerScroll);
+    expect(await page.locator("#main-content").evaluate((element) => element.scrollTop)).toBe(outerMainScroll);
     await expect(firstCard.getByRole("heading")).toBeInViewport();
     await expect(secondCard.getByRole("heading")).toBeInViewport();
     await firstBody.evaluate((element) => {

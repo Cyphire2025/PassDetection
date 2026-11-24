@@ -1,0 +1,204 @@
+FFFF                                                                     [100%]
+================================== FAILURES ===================================
+_______ test_manager_activation_response_waits_for_commit[False-create] _______
+
+auth_database = namespace(app=<fastapi.applications.FastAPI object at 0x000001F5AB79AE50>, sessions=async_sessionmaker(class_='AsyncSe...ent object at 0x000001F5ABDF4290 [set]>, release=<asyncio.locks.Event object at 0x000001F5AB6C9E10 [set]>, fail=False))
+flow = 'create', commit_fails = False
+
+    @pytest.mark.parametrize("flow", ["create", "reinvite"])
+    @pytest.mark.parametrize("commit_fails", [False, True])
+    async def test_manager_activation_response_waits_for_commit(auth_database, flow, commit_fails):
+        env = auth_database
+        env.app.include_router(router, prefix=BASE)
+        register_exception_handlers(env.app)
+        path, headers, payload = await prepare_manager_command(env, flow)
+        before = await manager_snapshot(env.sessions)
+        env.gate.fail = commit_fails
+        messages = []
+    
+        async def receive():
+            return {"type": "http.request", "body": payload, "more_body": False}
+    
+        async def send(message):
+            messages.append(message)
+    
+        scope = {
+            "type": "http",
+            "asgi": {"version": "3.0"},
+            "http_version": "1.1",
+            "method": "POST",
+            "scheme": "http",
+            "path": path,
+            "raw_path": path.encode(),
+            "query_string": b"",
+            "root_path": "",
+            "headers": headers,
+            "client": None,
+            "server": ("testserver", 80),
+        }
+        task = asyncio.create_task(env.app(scope, receive, send))
+        try:
+            await asyncio.wait_for(env.gate.entered.wait(), 10)
+>           assert not messages, "One-time manager credential escaped before its commit"
+E           AssertionError: One-time manager credential escaped before its commit
+E           assert not [{'headers': [(b'content-length', b'634'), (b'content-type', b'application/json'), (b'cache-control', b'private, no-st...orary_password":null,"activation_token":"IKB6rmIhtAcKepbEIBjaDd4eDEHMgb-Pa6jbcTLN35Y"}', 'type': 'http.response.body'}]
+
+tests\integration\test_gc_manager_response_durability.py:160: AssertionError
+---------------------------- Captured stdout call -----------------------------
+2026-10-30T20:44:53.472572Z [info     ] refresh_token_created          [app.infrastructure.repositories.refresh_token_repository] user_id=c36d8056-c7e2-41a1-a2c7-daf83a45ed9b
+------------------------------ Captured log call ------------------------------
+INFO     app.infrastructure.repositories.refresh_token_repository:refresh_token_repository.py:77 {'user_id': 'c36d8056-c7e2-41a1-a2c7-daf83a45ed9b', 'event': 'refresh_token_created', 'logger': 'app.infrastructure.repositories.refresh_token_repository', 'level': 'info', 'timestamp': '2026-10-30T20:44:53.472572Z'}
+______ test_manager_activation_response_waits_for_commit[False-reinvite] ______
+
+auth_database = namespace(app=<fastapi.applications.FastAPI object at 0x000001F5AD5FBB50>, sessions=async_sessionmaker(class_='AsyncSe...ent object at 0x000001F5ABA9C710 [set]>, release=<asyncio.locks.Event object at 0x000001F5AD5FBAD0 [set]>, fail=False))
+flow = 'reinvite', commit_fails = False
+
+    @pytest.mark.parametrize("flow", ["create", "reinvite"])
+    @pytest.mark.parametrize("commit_fails", [False, True])
+    async def test_manager_activation_response_waits_for_commit(auth_database, flow, commit_fails):
+        env = auth_database
+        env.app.include_router(router, prefix=BASE)
+        register_exception_handlers(env.app)
+        path, headers, payload = await prepare_manager_command(env, flow)
+        before = await manager_snapshot(env.sessions)
+        env.gate.fail = commit_fails
+        messages = []
+    
+        async def receive():
+            return {"type": "http.request", "body": payload, "more_body": False}
+    
+        async def send(message):
+            messages.append(message)
+    
+        scope = {
+            "type": "http",
+            "asgi": {"version": "3.0"},
+            "http_version": "1.1",
+            "method": "POST",
+            "scheme": "http",
+            "path": path,
+            "raw_path": path.encode(),
+            "query_string": b"",
+            "root_path": "",
+            "headers": headers,
+            "client": None,
+            "server": ("testserver", 80),
+        }
+        task = asyncio.create_task(env.app(scope, receive, send))
+        try:
+            await asyncio.wait_for(env.gate.entered.wait(), 10)
+>           assert not messages, "One-time manager credential escaped before its commit"
+E           AssertionError: One-time manager credential escaped before its commit
+E           assert not [{'headers': [(b'content-length', b'633'), (b'content-type', b'application/json'), (b'cache-control', b'private, no-st...orary_password":null,"activation_token":"hLbaAmI7Zc1gM3Yu8EqYS_ihv5aJTWmjO_n4Q2AF0NI"}', 'type': 'http.response.body'}]
+
+tests\integration\test_gc_manager_response_durability.py:160: AssertionError
+---------------------------- Captured stdout call -----------------------------
+2026-10-30T20:44:58.696487Z [info     ] refresh_token_created          [app.infrastructure.repositories.refresh_token_repository] user_id=6e4e7bee-bb65-49dd-9578-527fb156be6d
+------------------------------ Captured log call ------------------------------
+INFO     app.infrastructure.repositories.refresh_token_repository:refresh_token_repository.py:77 {'user_id': '6e4e7bee-bb65-49dd-9578-527fb156be6d', 'event': 'refresh_token_created', 'logger': 'app.infrastructure.repositories.refresh_token_repository', 'level': 'info', 'timestamp': '2026-10-30T20:44:58.696487Z'}
+_______ test_manager_activation_response_waits_for_commit[True-create] ________
+
+auth_database = namespace(app=<fastapi.applications.FastAPI object at 0x000001F5AD975390>, sessions=async_sessionmaker(class_='AsyncSe...vent object at 0x000001F5AD61E550 [set]>, release=<asyncio.locks.Event object at 0x000001F5AD9076D0 [set]>, fail=True))
+flow = 'create', commit_fails = True
+
+    @pytest.mark.parametrize("flow", ["create", "reinvite"])
+    @pytest.mark.parametrize("commit_fails", [False, True])
+    async def test_manager_activation_response_waits_for_commit(auth_database, flow, commit_fails):
+        env = auth_database
+        env.app.include_router(router, prefix=BASE)
+        register_exception_handlers(env.app)
+        path, headers, payload = await prepare_manager_command(env, flow)
+        before = await manager_snapshot(env.sessions)
+        env.gate.fail = commit_fails
+        messages = []
+    
+        async def receive():
+            return {"type": "http.request", "body": payload, "more_body": False}
+    
+        async def send(message):
+            messages.append(message)
+    
+        scope = {
+            "type": "http",
+            "asgi": {"version": "3.0"},
+            "http_version": "1.1",
+            "method": "POST",
+            "scheme": "http",
+            "path": path,
+            "raw_path": path.encode(),
+            "query_string": b"",
+            "root_path": "",
+            "headers": headers,
+            "client": None,
+            "server": ("testserver", 80),
+        }
+        task = asyncio.create_task(env.app(scope, receive, send))
+        try:
+            await asyncio.wait_for(env.gate.entered.wait(), 10)
+>           assert not messages, "One-time manager credential escaped before its commit"
+E           AssertionError: One-time manager credential escaped before its commit
+E           assert not [{'headers': [(b'content-length', b'634'), (b'content-type', b'application/json'), (b'cache-control', b'private, no-st...orary_password":null,"activation_token":"-Tr2p_jwXtUCv2kb2jRS4Of8MIwJO3PqewNisb8GQxc"}', 'type': 'http.response.body'}]
+
+tests\integration\test_gc_manager_response_durability.py:160: AssertionError
+---------------------------- Captured stdout call -----------------------------
+2026-10-30T20:45:03.679514Z [info     ] refresh_token_created          [app.infrastructure.repositories.refresh_token_repository] user_id=c6680970-e58c-443c-aa8e-2ad421ce6ab7
+2026-10-30T20:45:04.045292Z [error    ] unhandled_exception            [app.presentation.middleware.error_handler] error_type=SQLAlchemyError request_id=None
+------------------------------ Captured log call ------------------------------
+INFO     app.infrastructure.repositories.refresh_token_repository:refresh_token_repository.py:77 {'user_id': 'c6680970-e58c-443c-aa8e-2ad421ce6ab7', 'event': 'refresh_token_created', 'logger': 'app.infrastructure.repositories.refresh_token_repository', 'level': 'info', 'timestamp': '2026-10-30T20:45:03.679514Z'}
+ERROR    app.presentation.middleware.error_handler:error_handler.py:218 {'error_type': 'SQLAlchemyError', 'request_id': None, 'event': 'unhandled_exception', 'logger': 'app.presentation.middleware.error_handler', 'level': 'error', 'timestamp': '2026-10-30T20:45:04.045292Z'}
+______ test_manager_activation_response_waits_for_commit[True-reinvite] _______
+
+auth_database = namespace(app=<fastapi.applications.FastAPI object at 0x000001F5ADB151D0>, sessions=async_sessionmaker(class_='AsyncSe...vent object at 0x000001F5ADB14F90 [set]>, release=<asyncio.locks.Event object at 0x000001F5ADB15010 [set]>, fail=True))
+flow = 'reinvite', commit_fails = True
+
+    @pytest.mark.parametrize("flow", ["create", "reinvite"])
+    @pytest.mark.parametrize("commit_fails", [False, True])
+    async def test_manager_activation_response_waits_for_commit(auth_database, flow, commit_fails):
+        env = auth_database
+        env.app.include_router(router, prefix=BASE)
+        register_exception_handlers(env.app)
+        path, headers, payload = await prepare_manager_command(env, flow)
+        before = await manager_snapshot(env.sessions)
+        env.gate.fail = commit_fails
+        messages = []
+    
+        async def receive():
+            return {"type": "http.request", "body": payload, "more_body": False}
+    
+        async def send(message):
+            messages.append(message)
+    
+        scope = {
+            "type": "http",
+            "asgi": {"version": "3.0"},
+            "http_version": "1.1",
+            "method": "POST",
+            "scheme": "http",
+            "path": path,
+            "raw_path": path.encode(),
+            "query_string": b"",
+            "root_path": "",
+            "headers": headers,
+            "client": None,
+            "server": ("testserver", 80),
+        }
+        task = asyncio.create_task(env.app(scope, receive, send))
+        try:
+            await asyncio.wait_for(env.gate.entered.wait(), 10)
+>           assert not messages, "One-time manager credential escaped before its commit"
+E           AssertionError: One-time manager credential escaped before its commit
+E           assert not [{'headers': [(b'content-length', b'633'), (b'content-type', b'application/json'), (b'cache-control', b'private, no-st...orary_password":null,"activation_token":"8hLhnyWgilfpHULLVZEEVnKXe_H8XVzMfsnEAjT-D4g"}', 'type': 'http.response.body'}]
+
+tests\integration\test_gc_manager_response_durability.py:160: AssertionError
+---------------------------- Captured stdout call -----------------------------
+2026-10-30T20:45:08.227762Z [info     ] refresh_token_created          [app.infrastructure.repositories.refresh_token_repository] user_id=87c9c1b0-a8d2-4902-b9c0-42290e778b9b
+2026-10-30T20:45:08.791336Z [error    ] unhandled_exception            [app.presentation.middleware.error_handler] error_type=SQLAlchemyError request_id=None
+------------------------------ Captured log call ------------------------------
+INFO     app.infrastructure.repositories.refresh_token_repository:refresh_token_repository.py:77 {'user_id': '87c9c1b0-a8d2-4902-b9c0-42290e778b9b', 'event': 'refresh_token_created', 'logger': 'app.infrastructure.repositories.refresh_token_repository', 'level': 'info', 'timestamp': '2026-10-30T20:45:08.227762Z'}
+ERROR    app.presentation.middleware.error_handler:error_handler.py:218 {'error_type': 'SQLAlchemyError', 'request_id': None, 'event': 'unhandled_exception', 'logger': 'app.presentation.middleware.error_handler', 'level': 'error', 'timestamp': '2026-10-30T20:45:08.791336Z'}
+=========================== short test summary info ===========================
+FAILED tests/integration/test_gc_manager_response_durability.py::test_manager_activation_response_waits_for_commit[False-create]
+FAILED tests/integration/test_gc_manager_response_durability.py::test_manager_activation_response_waits_for_commit[False-reinvite]
+FAILED tests/integration/test_gc_manager_response_durability.py::test_manager_activation_response_waits_for_commit[True-create]
+FAILED tests/integration/test_gc_manager_response_durability.py::test_manager_activation_response_waits_for_commit[True-reinvite]
+4 failed in 19.20s

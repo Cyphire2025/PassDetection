@@ -1,0 +1,128 @@
+[
+  {
+    "path": "backend/tests/service_integration/test_dashboard_step_up_postgresql.py",
+    "sha256": "2d0ea566059fd7fc1bc4b881cfa7b58d0603a43b6faf98c35f937a833e35f922",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full267 lines: account-first lock ordering across rotation/step-up/revocation/MFA verification and challenge replacement/expiry using separate retained schema sessions and actual server blocker checks. Source review does not execute PostgreSQL or prove real contention locally.",
+    "physical_lines": 267
+  },
+  {
+    "path": "backend/tests/service_integration/test_roster_cache_postgresql.py",
+    "sha256": "dd6b729813231f3fae85ac4d890e71edc39b99c539361e1aaa97853343f721b8",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full255 lines: current-scope-before-cache, cross-session projection reuse, actual trigger invalidation for bulk rows/assignment rollback/move/delete/lifecycle, Redis entry+byte+TTL bounds and single-flight. No cache, Redis, query, latency or concurrency execution for reading.",
+    "physical_lines": 255
+  },
+  {
+    "path": "backend/tests/service_integration/test_announcement_push_guard_postgresql.py",
+    "sha256": "617d38f1f522dae7bd8b00d9021f803f66cd27cca20781be4af7dc02d303c3ea",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All489 physical lines in245+244segments: actual source/parent/child lock ordering, withdrawal rollback, stale receipt refresh/cancellation and two-worker defer; all providers synthetic and current announcements explicitly in-app only. No phone, provider, SQL or live race executed.",
+    "physical_lines": 489
+  },
+  {
+    "path": "backend/tests/service_integration/test_mobile_phone_lookup_postgresql.py",
+    "sha256": "ea353c9507160a5f814fb628bb28576230752a1ef377b10e6fd874cb18142ac2",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full101-line existing shared schema/service compatibility contract: isolated temporary table and enum, actual0096 migration, parameterized normalized submitted-contact index query and generic/custom plan assertions. Native route helper remains excluded from feature audit; no migration, PG/index planner or native feature execution.",
+    "physical_lines": 101
+  },
+  {
+    "path": "backend/tests/service_integration/test_whatsapp_type_history_postgresql.py",
+    "sha256": "cc396ea548412dde0c54ef4d00e9206664868868a5d62068a4daab577b9f62a2",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full116 lines: native PostgreSQL GROUP BY parameterization, kind normalization, versioned repeated sends, current success counts and recipient filtering. No provider/SQL/database execution.",
+    "physical_lines": 116
+  },
+  {
+    "path": "backend/tests/service_integration/test_whatsapp_send_intents_postgresql.py",
+    "sha256": "186b50c8a161ed5bf5d79cda74f2e004e0ed8b178a1f53edd296556b537b78af",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full183 lines: six concurrent identical normal intents, winner rollback and competing committed provider receipt/worker locking. Existing engine observers are installed/removed and synthetic provider only. No actual PostgreSQL/provider/current idempotency race qualification from read.",
+    "physical_lines": 183
+  },
+  {
+    "path": "backend/tests/service_integration/test_phone_welcome_migration_postgresql.py",
+    "sha256": "cfb7b062ad40713fe87ffb94c6adfa39bd533f87076c31fa38ac27c9b11a1e9f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full146 lines: historical0093 exact backfill/current batch constraints, normalized phone delivery snapshots and original downgrade in a generated temporary schema. Published migration and historical rollback contract preserved; no DDL/database action.",
+    "physical_lines": 146
+  },
+  {
+    "path": "backend/tests/service_integration/test_native_push_dispatch_postgresql.py",
+    "sha256": "7369ad6769cb85caaad2f4b9438990258b43f6df158257f359f84959599904a5",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full238 lines as shared dashboard-authored push publication/worker compatibility: committed sibling intents, unknown provider outcome avoids resend, historical announcement push exclusion, availability versus retry scheduling. All providers fake; no APNS/FCM/native app/provider or PostgreSQL execution.",
+    "physical_lines": 238
+  },
+  {
+    "path": "backend/tests/service_integration/test_saved_notifications_postgresql.py",
+    "sha256": "d22c729d28543ec10b2bb01d1731e021804f7e788a1df05df285c8adf1262b1a",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full269 lines: current dashboard-authored saved record serialization, delete/send/edit permutations, durable pending-request recovery after concurrent delete, retained notification history, actual0098 additive migration and page index. No DB/provider/DDL execution.",
+    "physical_lines": 269
+  },
+  {
+    "path": "backend/tests/service_integration/test_traveller_delivery_postgresql.py",
+    "sha256": "ef91b7779d918eb40cc535632fce7b9cdc831262171595355c5943c4b3f0e9ed",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full319 lines: private source snapshot fences phone/roster mutation through send window, shared phone claim and scoped broadcast boundaries, independent sessions and durable intents preserve current projection. No actual provider requests, SQL, lock or source mutation run.",
+    "physical_lines": 319
+  },
+  {
+    "path": "backend/tests/service_integration/test_my_photos_postgresql_contracts.py",
+    "sha256": "b10864c0b9970cda22badfbe80bee4c197300a3efe6c927b165016466adfe046",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "All original810 physical lines read in270-line segments and complete current source-equivalence checked after URL helper deduplication. Shared service contracts cover tenant/identity consent, disabled gallery, bounded page/query budgets, checksummed/ranged private grants, idempotent worker redelivery, feedback and enrollment retention; native route wrapper only existing compatibility. Single orchestration retains cross-phase state intentionally. No real PG/liveness/face provider/native feature/load test executed. URL setup separately qualifies7offline regressions.",
+    "physical_lines": 803
+  },
+  {
+    "path": "backend/tests/service_integration/test_real_service_contracts.py",
+    "sha256": "665353f197fefb123965ff96d08b6e6f1eddef63c52a8f2250c46e47ced50bef",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "All original1152 physical lines read in240+230+230+230+222segments and complete current AST-equivalence checked after URL helper deduplication. Shared PostgreSQL/Redis/private S3, auth/append-only audit, cleanup tombstones, attendance/runtime convergence and broker/lifecycle contracts retain all assertions. Provider-neutral S3 adapter legacy name preserved. No real services, data mutation, buckets, task sends or performance qualification executed. URL setup separately qualifies7offline regressions.",
+    "physical_lines": 1143
+  },
+  {
+    "path": "backend/tests/postgresql_connection.py",
+    "sha256": "1acdb5e25645124730dbd0d001eb8ef444771187b3bba6471773fcd38cbf21d2",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Whole source read. Actual structured SQLAlchemy URL and both actual suite aliases tested without connecting:4 field/driver constructions, defaults/required-input and2consumer alias cases =7pass; new helper strict typing and4file no-fix Ruff pass. Ordinary/address delimiter/IPv6 controls recorded; no live credentials or DB. See service-postgresql-url-verification.json.",
+    "physical_lines": 19
+  },
+  {
+    "path": "backend/tests/unit/core/test_postgresql_connection.py",
+    "sha256": "179ea2b509dcdf6e2a52815b791984470476c988b9017799dd0839d383eaf2a2",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Whole source read. Actual structured SQLAlchemy URL and both actual suite aliases tested without connecting:4 field/driver constructions, defaults/required-input and2consumer alias cases =7pass; new helper strict typing and4file no-fix Ruff pass. Ordinary/address delimiter/IPv6 controls recorded; no live credentials or DB. See service-postgresql-url-verification.json.",
+    "physical_lines": 69
+  }
+]

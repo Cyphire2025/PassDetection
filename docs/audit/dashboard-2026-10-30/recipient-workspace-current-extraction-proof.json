@@ -1,0 +1,22 @@
+{
+  "basis": "Four whole moved declarations retain exact AST, two existing detail component declarations exact; sixteen original state/query statements exact; filter/sort callback exact after restoring cached lookups. Entire rendered tree exact after expanding the two wired unkeyed view fragments and restoring the cached not-sent count expression; all seven view prop bindings exact. Pure executed original/current parity separately validates those two intentional optimizations plus first-wins detail lookup, missing/duplicate keys and object identity. Two legacy live helper declarations and three actual consumer declarations retain exact AST. Six closed legacy declarations have a separate whole-program reference closure/source manifest. No production latency claim.",
+  "exact_moved_declarations": 4,
+  "exact_live_detail_declarations": 2,
+  "exact_state_statements": 16,
+  "exact_view_prop_bindings": 7,
+  "exact_retained_legacy_declarations": 2,
+  "exact_live_consumer_declarations": 3,
+  "entire_expanded_view_AST_exact": true,
+  "pure_executed_comparisons": 1460,
+  "source_sha256": {
+    "frontend/features/whatsapp/workspace/recipients-page.tsx": "c9927e48fee8c8b4bf188d55196b43d96f2f22d4f42dafb9bc140035e0be90d6",
+    "frontend/features/whatsapp/workspace/recipient-details-rail.tsx": "672ed014c1e8e74be5ae0459fff8c127d8721dbfffc7c534387509cdcf9ba889",
+    "frontend/features/whatsapp/workspace/recipient-roster-model.ts": "e3f2e50cee541ed983154f9f050a73ee5f0a1e5db8f7a5d6189ca6b29b071295",
+    "frontend/features/whatsapp/workspace/use-recipient-roster.ts": "3484dd0871ed5d256fa87ddec142401e794f4da6243fde9e96137875ae508a30",
+    "frontend/features/whatsapp/workspace/recipient-roster-filters.tsx": "e573b4bdd6243cada260ca9841243d4797aa616c57a9520839de4ce1f9b9ebbe",
+    "frontend/features/whatsapp/workspace/recipient-roster-table.tsx": "4c91949a858fd73efd81b59d5d3ac803671d6fc098ae6477ef473d7ab331291e",
+    "frontend/features/whatsapp/components/group-update-recipient-details.tsx": "b2ada0fde569c98f6d7cef3da8b79f7756b1adab03a5b6a9e5b3d0daf3e48537",
+    "frontend/features/whatsapp/components/whatsapp-recipient-roster-rows.tsx": "6a73351544da7e44e9244a89bc2fff76a5d3c79d363667b2e4a673f2704395dc",
+    "frontend/features/whatsapp/utils/recipient-detail-fields.ts": "2b4f6906ee758f14148bafc3ab341348ce0a45f1bd5f26a12dfc689336aba767"
+  }
+}

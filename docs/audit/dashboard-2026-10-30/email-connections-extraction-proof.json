@@ -1,0 +1,518 @@
+{
+  "original604_sha256": "68eb50e328e057aa7d79b7d8304fffb5ec909d056967afc038a1391617c501df",
+  "fixed_checkpoint_sha256": "a7476d2b8568c84573ffa36c0150e004bcf65d0abdb6ce2e7afa3c6b56f6ddc9",
+  "whole8fixed_function_AST_exact_including_decorators": [
+    "sync_connection",
+    "pause_connection",
+    "resume_connection",
+    "disconnect_email_connection",
+    "remove_email_connection_and_data",
+    "update_connection_ai_settings",
+    "email_integration_status",
+    "list_email_connections"
+  ],
+  "actual_original_global_bindings": [
+    {
+      "function": "sync_connection",
+      "binding": "EmailConnectionActionResponse",
+      "identity_exact": true
+    },
+    {
+      "function": "sync_connection",
+      "binding": "HTTPException",
+      "identity_exact": true
+    },
+    {
+      "function": "sync_connection",
+      "binding": "UTC",
+      "identity_exact": true
+    },
+    {
+      "function": "sync_connection",
+      "binding": "_agency_scope",
+      "identity_exact": true
+    },
+    {
+      "function": "sync_connection",
+      "binding": "_enqueue_connection_sync",
+      "identity_exact": true
+    },
+    {
+      "function": "sync_connection",
+      "binding": "_owned_connection",
+      "identity_exact": true
+    },
+    {
+      "function": "sync_connection",
+      "binding": "_require_feature",
+      "identity_exact": true
+    },
+    {
+      "function": "sync_connection",
+      "binding": "datetime",
+      "identity_exact": true
+    },
+    {
+      "function": "sync_connection",
+      "binding": "get_settings",
+      "identity_exact": true
+    },
+    {
+      "function": "sync_connection",
+      "binding": "status",
+      "identity_exact": true
+    },
+    {
+      "function": "pause_connection",
+      "binding": "AuditLogRepository",
+      "identity_exact": true
+    },
+    {
+      "function": "pause_connection",
+      "binding": "EmailConnectionActionResponse",
+      "identity_exact": true
+    },
+    {
+      "function": "pause_connection",
+      "binding": "HTTPException",
+      "identity_exact": true
+    },
+    {
+      "function": "pause_connection",
+      "binding": "UTC",
+      "identity_exact": true
+    },
+    {
+      "function": "pause_connection",
+      "binding": "_agency_scope",
+      "identity_exact": true
+    },
+    {
+      "function": "pause_connection",
+      "binding": "_owned_connection",
+      "identity_exact": true
+    },
+    {
+      "function": "pause_connection",
+      "binding": "datetime",
+      "identity_exact": true
+    },
+    {
+      "function": "pause_connection",
+      "binding": "status",
+      "identity_exact": true
+    },
+    {
+      "function": "resume_connection",
+      "binding": "EmailConnectionActionResponse",
+      "identity_exact": true
+    },
+    {
+      "function": "resume_connection",
+      "binding": "HTTPException",
+      "identity_exact": true
+    },
+    {
+      "function": "resume_connection",
+      "binding": "UTC",
+      "identity_exact": true
+    },
+    {
+      "function": "resume_connection",
+      "binding": "_agency_scope",
+      "identity_exact": true
+    },
+    {
+      "function": "resume_connection",
+      "binding": "_enqueue_connection_sync",
+      "identity_exact": true
+    },
+    {
+      "function": "resume_connection",
+      "binding": "_owned_connection",
+      "identity_exact": true
+    },
+    {
+      "function": "resume_connection",
+      "binding": "_require_feature",
+      "identity_exact": true
+    },
+    {
+      "function": "resume_connection",
+      "binding": "datetime",
+      "identity_exact": true
+    },
+    {
+      "function": "resume_connection",
+      "binding": "get_settings",
+      "identity_exact": true
+    },
+    {
+      "function": "resume_connection",
+      "binding": "status",
+      "identity_exact": true
+    },
+    {
+      "function": "disconnect_email_connection",
+      "binding": "AuditLogRepository",
+      "identity_exact": true
+    },
+    {
+      "function": "disconnect_email_connection",
+      "binding": "HTTPException",
+      "identity_exact": true
+    },
+    {
+      "function": "disconnect_email_connection",
+      "binding": "Response",
+      "identity_exact": true
+    },
+    {
+      "function": "disconnect_email_connection",
+      "binding": "UTC",
+      "identity_exact": true
+    },
+    {
+      "function": "disconnect_email_connection",
+      "binding": "_agency_scope",
+      "identity_exact": true
+    },
+    {
+      "function": "disconnect_email_connection",
+      "binding": "_owned_connection",
+      "identity_exact": true
+    },
+    {
+      "function": "disconnect_email_connection",
+      "binding": "_provider_instance",
+      "identity_exact": true
+    },
+    {
+      "function": "disconnect_email_connection",
+      "binding": "datetime",
+      "identity_exact": true
+    },
+    {
+      "function": "disconnect_email_connection",
+      "binding": "fence_connection_sync",
+      "identity_exact": true
+    },
+    {
+      "function": "disconnect_email_connection",
+      "binding": "get_settings",
+      "identity_exact": true
+    },
+    {
+      "function": "disconnect_email_connection",
+      "binding": "revocation_credential",
+      "identity_exact": true
+    },
+    {
+      "function": "disconnect_email_connection",
+      "binding": "revoke_provider_credential",
+      "identity_exact": true
+    },
+    {
+      "function": "disconnect_email_connection",
+      "binding": "status",
+      "identity_exact": true
+    },
+    {
+      "function": "remove_email_connection_and_data",
+      "binding": "AuditLogRepository",
+      "identity_exact": true
+    },
+    {
+      "function": "remove_email_connection_and_data",
+      "binding": "HTTPException",
+      "identity_exact": true
+    },
+    {
+      "function": "remove_email_connection_and_data",
+      "binding": "MinioStorageRepository",
+      "identity_exact": true
+    },
+    {
+      "function": "remove_email_connection_and_data",
+      "binding": "RemoveEmailConnectionResponse",
+      "identity_exact": true
+    },
+    {
+      "function": "remove_email_connection_and_data",
+      "binding": "UTC",
+      "identity_exact": true
+    },
+    {
+      "function": "remove_email_connection_and_data",
+      "binding": "_agency_scope",
+      "identity_exact": true
+    },
+    {
+      "function": "remove_email_connection_and_data",
+      "binding": "_email_removal_confirmation_matches",
+      "identity_exact": true
+    },
+    {
+      "function": "remove_email_connection_and_data",
+      "binding": "_owned_connection",
+      "identity_exact": true
+    },
+    {
+      "function": "remove_email_connection_and_data",
+      "binding": "_provider_instance",
+      "identity_exact": true
+    },
+    {
+      "function": "remove_email_connection_and_data",
+      "binding": "datetime",
+      "identity_exact": true
+    },
+    {
+      "function": "remove_email_connection_and_data",
+      "binding": "fence_connection_sync",
+      "identity_exact": true
+    },
+    {
+      "function": "remove_email_connection_and_data",
+      "binding": "get_settings",
+      "identity_exact": true
+    },
+    {
+      "function": "remove_email_connection_and_data",
+      "binding": "logger",
+      "identity_exact": true
+    },
+    {
+      "function": "remove_email_connection_and_data",
+      "binding": "purge_email_connection_records",
+      "identity_exact": true
+    },
+    {
+      "function": "remove_email_connection_and_data",
+      "binding": "revocation_credential",
+      "identity_exact": true
+    },
+    {
+      "function": "remove_email_connection_and_data",
+      "binding": "revoke_provider_credential",
+      "identity_exact": true
+    },
+    {
+      "function": "remove_email_connection_and_data",
+      "binding": "status",
+      "identity_exact": true
+    },
+    {
+      "function": "update_connection_ai_settings",
+      "binding": "AuditLogRepository",
+      "identity_exact": true
+    },
+    {
+      "function": "update_connection_ai_settings",
+      "binding": "EmailAiAnalysisModel",
+      "identity_exact": true
+    },
+    {
+      "function": "update_connection_ai_settings",
+      "binding": "EmailAiConnectionSettingsResponse",
+      "identity_exact": true
+    },
+    {
+      "function": "update_connection_ai_settings",
+      "binding": "UTC",
+      "identity_exact": true
+    },
+    {
+      "function": "update_connection_ai_settings",
+      "binding": "_owned_connection",
+      "identity_exact": true
+    },
+    {
+      "function": "update_connection_ai_settings",
+      "binding": "datetime",
+      "identity_exact": true
+    },
+    {
+      "function": "update_connection_ai_settings",
+      "binding": "email_ai_policy_allows",
+      "identity_exact": true
+    },
+    {
+      "function": "update_connection_ai_settings",
+      "binding": "get_settings",
+      "identity_exact": true
+    },
+    {
+      "function": "update_connection_ai_settings",
+      "binding": "update",
+      "identity_exact": true
+    },
+    {
+      "function": "email_integration_status",
+      "binding": "EmailIntegrationStatusResponse",
+      "identity_exact": true
+    },
+    {
+      "function": "email_integration_status",
+      "binding": "email_readiness",
+      "identity_exact": true
+    },
+    {
+      "function": "email_integration_status",
+      "binding": "get_settings",
+      "identity_exact": true
+    },
+    {
+      "function": "list_email_connections",
+      "binding": "AgencyModel",
+      "identity_exact": true
+    },
+    {
+      "function": "list_email_connections",
+      "binding": "EmailConnectionModel",
+      "identity_exact": true
+    },
+    {
+      "function": "list_email_connections",
+      "binding": "EmailConnectionResponse",
+      "identity_exact": true
+    },
+    {
+      "function": "list_email_connections",
+      "binding": "_allowed_connection_actions",
+      "identity_exact": true
+    },
+    {
+      "function": "list_email_connections",
+      "binding": "_email_owner_filters",
+      "identity_exact": true
+    },
+    {
+      "function": "list_email_connections",
+      "binding": "email_ai_disabled_policy_exists",
+      "identity_exact": true
+    },
+    {
+      "function": "list_email_connections",
+      "binding": "get_settings",
+      "identity_exact": true
+    },
+    {
+      "function": "list_email_connections",
+      "binding": "select",
+      "identity_exact": true
+    }
+  ],
+  "actual_APIRoute_identity_and_aliases": [
+    {
+      "endpoint": "sync_connection",
+      "actual_owner": "backend/app/presentation/api/v1/routes/email_connection_monitoring.py",
+      "same_APIRoute_at_both_aggregates": true
+    },
+    {
+      "endpoint": "pause_connection",
+      "actual_owner": "backend/app/presentation/api/v1/routes/email_connection_monitoring.py",
+      "same_APIRoute_at_both_aggregates": true
+    },
+    {
+      "endpoint": "resume_connection",
+      "actual_owner": "backend/app/presentation/api/v1/routes/email_connection_monitoring.py",
+      "same_APIRoute_at_both_aggregates": true
+    },
+    {
+      "endpoint": "disconnect_email_connection",
+      "actual_owner": "backend/app/presentation/api/v1/routes/email_connection_disconnect.py",
+      "same_APIRoute_at_both_aggregates": true
+    },
+    {
+      "endpoint": "remove_email_connection_and_data",
+      "actual_owner": "backend/app/presentation/api/v1/routes/email_connection_removal.py",
+      "same_APIRoute_at_both_aggregates": true
+    },
+    {
+      "endpoint": "update_connection_ai_settings",
+      "actual_owner": "backend/app/presentation/api/v1/routes/email_connection_ai_settings.py",
+      "same_APIRoute_at_both_aggregates": true
+    },
+    {
+      "endpoint": "email_integration_status",
+      "actual_owner": "backend/app/presentation/api/v1/routes/email_integration_connections.py",
+      "same_APIRoute_at_both_aggregates": true
+    },
+    {
+      "endpoint": "list_email_connections",
+      "actual_owner": "backend/app/presentation/api/v1/routes/email_integration_connections.py",
+      "same_APIRoute_at_both_aggregates": true
+    }
+  ],
+  "original_router_order_preserved": true,
+  "test_assertion_proofs": [
+    {
+      "path": "backend/tests/unit/presentation/test_email_connection_lifecycle.py",
+      "before_sha256": "39156e8b99acfbd82d40b948c1820faf85d61fc37aede8287ab5f7221eec3ecb",
+      "after_sha256": "fc130e9a9816ee04237a456452d0d895b27f12cb8e4455aff4418635bd26d10d",
+      "all_assertions_ast_unchanged": 32,
+      "all_pytest_raises_ast_unchanged": 2,
+      "changes_only": "Actual owner imports and instrumentation retargets; lifecycle adds AsyncMock refresh for actual new fresh query, declaration-source loader includes4real new owners, first opt-in fixture shares identical Settings factory with real moved owner. No assertion changes."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_email_integration_route_decomposition.py",
+      "before_sha256": "ccebaac9d0cc60454579780f460fd1f3e1c5038c1c60587b7112a493fee5f67b",
+      "after_sha256": "7a0dc81a5b12e9f3a95b70aaf149976051b82c0ed06f981d47bbd5a7faf4ebf4",
+      "all_assertions_ast_unchanged": 7,
+      "all_pytest_raises_ast_unchanged": 0,
+      "changes_only": "Actual owner imports and instrumentation retargets; lifecycle adds AsyncMock refresh for actual new fresh query, declaration-source loader includes4real new owners, first opt-in fixture shares identical Settings factory with real moved owner. No assertion changes."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_email_ai_inbox_isolation.py",
+      "before_sha256": "d1a9d5c3a52165d2b13827cb3cc653b0d42de9b71a8e3d18b471a7c236e02a5a",
+      "after_sha256": "5e8ac0d2db1cd7d29af3bbdd4cfe864295563f1a77dcf5405d2574bf88e13a8c",
+      "all_assertions_ast_unchanged": 141,
+      "all_pytest_raises_ast_unchanged": 21,
+      "changes_only": "Actual owner imports and instrumentation retargets; lifecycle adds AsyncMock refresh for actual new fresh query, declaration-source loader includes4real new owners, first opt-in fixture shares identical Settings factory with real moved owner. No assertion changes."
+    }
+  ],
+  "all_other_inbox_functions_ast_exact": [
+    "_user",
+    "_feedback_request",
+    "test_disabling_then_reenabling_mailbox_starts_a_new_consent_epoch",
+    "test_review_options_message_context_is_owner_and_agency_scoped",
+    "test_failed_analysis_retry_is_owner_scoped_bounded_and_audited",
+    "test_ai_inbox_is_private_even_within_agency_and_for_super_admin",
+    "test_deadline_draft_and_feedback_lifecycle_is_owner_scoped_and_revision_safe",
+    "test_marking_message_unrelated_revokes_an_inflight_ai_claim"
+  ],
+  "initial_generation_history": "First extraction generator briefly emitted invalid stdlib from-import syntax, corrected to import uuid before any cold import/check. Initial map retained as historical; this proof/current sources and actual runtime OpenAPI baseline are authoritative.",
+  "sources": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_connection_monitoring.py",
+      "sha256": "0e1b1a87c4f3bc1219f2ac79503feedbc4e2d5bd0e6347472fa801c61abcb880",
+      "physical_lines": 171,
+      "source": "\"\"\"Owned mailbox synchronization, pause and resume transitions.\"\"\"\n\nfrom __future__ import annotations\n\nimport uuid\nfrom datetime import UTC, datetime\n\nfrom fastapi import APIRouter, Depends, HTTPException, status\nfrom sqlalchemy.ext.asyncio import AsyncSession\n\nfrom app.core.config.settings import get_settings\nfrom app.domain.entities.entities import User\nfrom app.infrastructure.database.session import get_db_session\nfrom app.infrastructure.repositories.audit_log_repository import AuditLogRepository\nfrom app.presentation.api.v1.routes import email_integration_policy_support as _policy_support\nfrom app.presentation.api.v1.schemas.email_integration_schemas import EmailConnectionActionResponse\nfrom app.presentation.dependencies.csrf import require_cookie_csrf\n\nfrom .email_integration_access import (\n    _agency_scope,\n    _current_email_user,\n    _enqueue_connection_sync,\n    _owned_connection,\n)\n\nrouter = APIRouter()\n_require_feature = _policy_support._require_feature\n\n\n@router.post(\n    \"/connections/{connection_id}/sync\",\n    response_model=EmailConnectionActionResponse,\n    dependencies=[Depends(require_cookie_csrf)],\n)\nasync def sync_connection(\n    connection_id: uuid.UUID,\n    current_user: User = Depends(_current_email_user),\n    session: AsyncSession = Depends(get_db_session),\n) -> EmailConnectionActionResponse:\n    settings = get_settings()\n    _require_feature(settings)\n    if not settings.email_sync_enabled:\n        raise HTTPException(\n            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,\n            detail=\"Email synchronization is disabled.\",\n        )\n    connection = await _owned_connection(\n        session,\n        connection_id=connection_id,\n        owner_user_id=current_user.id,\n        agency_id=_agency_scope(current_user),\n        for_update=True,\n    )\n    if connection.status not in {\"active\", \"failing\"}:\n        raise HTTPException(\n            status_code=status.HTTP_409_CONFLICT,\n            detail=\"Resume or reconnect this email account before syncing.\",\n        )\n    connection.sync_state = \"queued\"\n    connection.next_sync_at = datetime.now(tz=UTC)\n    await session.commit()\n    queued = _enqueue_connection_sync(connection)\n    return EmailConnectionActionResponse(\n        connection_id=connection.id,\n        status=connection.status,\n        message=(\n            \"Email synchronization was queued.\"\n            if queued\n            else \"Email synchronization is scheduled for the next worker cycle.\"\n        ),\n    )\n\n\n@router.post(\n    \"/connections/{connection_id}/pause\",\n    response_model=EmailConnectionActionResponse,\n    dependencies=[Depends(require_cookie_csrf)],\n)\nasync def pause_connection(\n    connection_id: uuid.UUID,\n    current_user: User = Depends(_current_email_user),\n    session: AsyncSession = Depends(get_db_session),\n) -> EmailConnectionActionResponse:\n    agency_id = _agency_scope(current_user)\n    connection = await _owned_connection(\n        session,\n        connection_id=connection_id,\n        owner_user_id=current_user.id,\n        agency_id=agency_id,\n        for_update=True,\n    )\n    agency_id = connection.agency_id\n    if connection.status == \"disconnected\":\n        raise HTTPException(\n            status_code=status.HTTP_409_CONFLICT,\n            detail=\"Reconnect this email account before pausing it.\",\n        )\n    now = datetime.now(tz=UTC)\n    connection.status = \"paused\"\n    connection.sync_state = \"idle\"\n    connection.sync_generation += 1\n    connection.sync_lease_token = None\n    connection.sync_lease_expires_at = None\n    connection.next_sync_at = None\n    connection.paused_at = now\n    await AuditLogRepository(session).record(\n        action=\"email_connection_paused\",\n        entity_type=\"email_connection\",\n        entity_id=str(connection.id),\n        agency_id=agency_id,\n        user_id=current_user.id,\n        actor_email=current_user.email,\n        metadata={\"provider\": connection.provider},\n    )\n    return EmailConnectionActionResponse(\n        connection_id=connection.id,\n        status=connection.status,\n        message=\"Email monitoring is paused for this account.\",\n    )\n\n\n@router.post(\n    \"/connections/{connection_id}/resume\",\n    response_model=EmailConnectionActionResponse,\n    dependencies=[Depends(require_cookie_csrf)],\n)\nasync def resume_connection(\n    connection_id: uuid.UUID,\n    current_user: User = Depends(_current_email_user),\n    session: AsyncSession = Depends(get_db_session),\n) -> EmailConnectionActionResponse:\n    settings = get_settings()\n    _require_feature(settings)\n    if not settings.email_sync_enabled:\n        raise HTTPException(\n            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,\n            detail=\"Email synchronization is disabled.\",\n        )\n    connection = await _owned_connection(\n        session,\n        connection_id=connection_id,\n        owner_user_id=current_user.id,\n        agency_id=_agency_scope(current_user),\n        for_update=True,\n    )\n    if connection.status != \"paused\":\n        raise HTTPException(\n            status_code=status.HTTP_409_CONFLICT,\n            detail=\"Only a paused email connection can be resumed.\",\n        )\n    connection.status = \"active\"\n    connection.sync_state = \"queued\"\n    connection.sync_generation += 1\n    connection.next_sync_at = datetime.now(tz=UTC)\n    connection.paused_at = None\n    await session.commit()\n    queued = _enqueue_connection_sync(connection)\n    return EmailConnectionActionResponse(\n        connection_id=connection.id,\n        status=connection.status,\n        message=(\n            \"Email monitoring resumed and synchronization was queued.\"\n            if queued\n            else \"Email monitoring resumed; synchronization will start next cycle.\"\n        ),\n    )\n\n\nsync_connection.__module__ = \"app.presentation.api.v1.routes.email_integration_connections\"\npause_connection.__module__ = \"app.presentation.api.v1.routes.email_integration_connections\"\nresume_connection.__module__ = \"app.presentation.api.v1.routes.email_integration_connections\"\n"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_connection_disconnect.py",
+      "sha256": "0083a3514a2f499ba1c9bce25b2e07e02ba8896ae62af4389acf6a974251d3b9",
+      "physical_lines": 151,
+      "source": "\"\"\"Credential revocation with committed worker and renewed-grant fences.\"\"\"\n\nfrom __future__ import annotations\n\nimport uuid\nfrom datetime import UTC, datetime\n\nfrom fastapi import APIRouter, Depends, HTTPException, Response, status\nfrom sqlalchemy.ext.asyncio import AsyncSession\n\nfrom app.core.config.settings import get_settings\nfrom app.domain.entities.entities import User\nfrom app.infrastructure.database.session import get_db_session\nfrom app.infrastructure.repositories.audit_log_repository import AuditLogRepository\nfrom app.presentation.dependencies.csrf import require_cookie_csrf\n\nfrom .email_integration_access import (\n    _agency_scope,\n    _current_email_user,\n    _owned_connection,\n    _provider_instance,\n)\nfrom .email_integration_credentials import (\n    fence_connection_sync,\n    revocation_credential,\n    revoke_provider_credential,\n)\n\nrouter = APIRouter()\n\n\n@router.delete(\n    \"/connections/{connection_id}\",\n    status_code=status.HTTP_204_NO_CONTENT,\n    dependencies=[Depends(require_cookie_csrf)],\n)\nasync def disconnect_email_connection(\n    connection_id: uuid.UUID,\n    current_user: User = Depends(_current_email_user),\n    session: AsyncSession = Depends(get_db_session),\n) -> Response:\n    agency_id = _agency_scope(current_user)\n    connection = await _owned_connection(\n        session,\n        connection_id=connection_id,\n        owner_user_id=current_user.id,\n        agency_id=agency_id,\n        for_update=True,\n        with_tokens=True,\n    )\n    agency_id = connection.agency_id\n    provider = _provider_instance(connection.provider, get_settings())\n    if (\n        connection.status == \"disconnected\"\n        and not connection.access_token_ciphertext\n        and not connection.refresh_token_ciphertext\n    ):\n        return Response(status_code=status.HTTP_204_NO_CONTENT)\n\n    token_to_revoke, decryption_failed = revocation_credential(connection, provider)\n\n    now = datetime.now(tz=UTC)\n    fence_connection_sync(connection, now)\n    fenced_generation = connection.sync_generation\n    await session.commit()\n\n    revoke_error = await revoke_provider_credential(provider, token_to_revoke, decryption_failed)\n\n    connection = await _owned_connection(\n        session,\n        connection_id=connection_id,\n        owner_user_id=current_user.id,\n        agency_id=agency_id,\n        for_update=True,\n        with_tokens=True,\n    )\n    await session.refresh(connection, attribute_names=[\"sync_generation\"])\n    if connection.sync_generation != fenced_generation:\n        raise HTTPException(\n            status_code=status.HTTP_409_CONFLICT,\n            detail=\"This email connection changed while disconnecting it. Retry the action.\",\n        )\n    now = datetime.now(tz=UTC)\n    if revoke_error is not None:\n        connection.status = \"disconnecting\"\n        connection.sync_state = \"blocked\"\n        connection.next_sync_at = None\n        connection.last_error_code = revoke_error.code[:80]\n        connection.last_error_message = (\n            \"Provider access could not be revoked. Retry disconnecting this account.\"\n        )\n        connection.last_error_at = now\n        connection.updated_at = now\n        await AuditLogRepository(session).record(\n            action=\"email_connection_disconnect_failed\",\n            entity_type=\"email_connection\",\n            entity_id=str(connection.id),\n            agency_id=agency_id,\n            user_id=current_user.id,\n            actor_email=current_user.email,\n            metadata={\n                \"provider\": connection.provider,\n                \"error_code\": revoke_error.code,\n            },\n        )\n        await session.commit()\n        raise HTTPException(\n            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,\n            detail=(\n                \"Provider access could not be revoked. The connection remains \"\n                \"blocked; retry disconnecting it.\"\n            ),\n        )\n\n    connection.status = \"disconnected\"\n    connection.sync_state = \"blocked\"\n    connection.access_token_ciphertext = None\n    connection.refresh_token_ciphertext = None\n    connection.token_expires_at = None\n    connection.disconnected_at = now\n    connection.last_error_code = None\n    connection.last_error_message = None\n    connection.last_error_at = None\n    connection.updated_at = now\n    await AuditLogRepository(session).record(\n        action=\"email_connection_disconnected\",\n        entity_type=\"email_connection\",\n        entity_id=str(connection.id),\n        agency_id=agency_id,\n        user_id=current_user.id,\n        actor_email=current_user.email,\n        metadata={\n            \"provider\": connection.provider,\n            \"provider_revoke_required\": (\n                provider.supports_remote_token_revocation and token_to_revoke is not None\n            ),\n            \"provider_revoke_succeeded\": (\n                True\n                if provider.supports_remote_token_revocation and token_to_revoke is not None\n                else None\n            ),\n            \"credential_disposition\": \"local_credentials_deleted\",\n        },\n    )\n    await session.commit()\n    return Response(status_code=status.HTTP_204_NO_CONTENT)\n\n\ndisconnect_email_connection.__module__ = (\n    \"app.presentation.api.v1.routes.email_integration_connections\"\n)\n"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_connection_removal.py",
+      "sha256": "d9cd81b8a36b7c966a4841150a8e039d8c7dfaa24dc1c2a0e68787f85f122888",
+      "physical_lines": 200,
+      "source": "\"\"\"Explicit mailbox removal with guarded provider and storage cleanup boundaries.\"\"\"\n\nfrom __future__ import annotations\n\nimport uuid\nfrom datetime import UTC, datetime\n\nfrom fastapi import APIRouter, Depends, HTTPException, status\nfrom sqlalchemy.ext.asyncio import AsyncSession\n\nfrom app.core.config.settings import get_settings\nfrom app.core.logging.logger import get_logger\nfrom app.domain.entities.entities import User\nfrom app.infrastructure.database.session import get_db_session\nfrom app.infrastructure.email.account_removal import purge_email_connection_records\nfrom app.infrastructure.repositories.audit_log_repository import AuditLogRepository\nfrom app.infrastructure.storage.minio_repository import MinioStorageRepository\nfrom app.presentation.api.v1.routes import email_integration_policy_support as _policy_support\nfrom app.presentation.api.v1.schemas.email_integration_schemas import (\n    RemoveEmailConnectionRequest,\n    RemoveEmailConnectionResponse,\n)\nfrom app.presentation.dependencies.csrf import require_cookie_csrf\n\nfrom .email_integration_access import (\n    _agency_scope,\n    _current_email_user,\n    _owned_connection,\n    _provider_instance,\n)\nfrom .email_integration_credentials import (\n    fence_connection_sync,\n    revocation_credential,\n    revoke_provider_credential,\n)\n\nrouter = APIRouter()\nlogger = get_logger(\"app.presentation.api.v1.routes.email_integration_connections\")\n_email_removal_confirmation_matches = _policy_support._email_removal_confirmation_matches\n\n\n@router.delete(\n    \"/connections/{connection_id}/data\",\n    response_model=RemoveEmailConnectionResponse,\n    dependencies=[Depends(require_cookie_csrf)],\n)\nasync def remove_email_connection_and_data(\n    connection_id: uuid.UUID,\n    payload: RemoveEmailConnectionRequest,\n    current_user: User = Depends(_current_email_user),\n    session: AsyncSession = Depends(get_db_session),\n) -> RemoveEmailConnectionResponse:\n    \"\"\"Permanently remove one owned mailbox and its attributable data.\"\"\"\n\n    agency_scope = _agency_scope(current_user)\n    connection = await _owned_connection(\n        session,\n        connection_id=connection_id,\n        owner_user_id=current_user.id,\n        agency_id=agency_scope,\n        for_update=True,\n        with_tokens=True,\n    )\n    if not _email_removal_confirmation_matches(\n        confirmation_email=payload.confirmation_email,\n        connection_email=connection.email_address,\n    ):\n        raise HTTPException(\n            status_code=status.HTTP_400_BAD_REQUEST,\n            detail=\"Type the connected email address exactly to confirm removal.\",\n        )\n\n    agency_id = connection.agency_id\n    provider = _provider_instance(connection.provider, get_settings())\n    provider_name = connection.provider\n    credentials_already_removed = (\n        connection.status == \"disconnected\"\n        and not connection.access_token_ciphertext\n        and not connection.refresh_token_ciphertext\n    )\n    token_to_revoke, decryption_failed = (\n        (None, False)\n        if credentials_already_removed\n        else revocation_credential(connection, provider)\n    )\n\n    # Commit the generation fence before contacting the provider. Any worker\n    # already holding a stale claim will fail its ownership/generation checks.\n    now = datetime.now(tz=UTC)\n    fence_connection_sync(connection, now)\n    fenced_generation = connection.sync_generation\n    await session.commit()\n\n    revoke_error = await revoke_provider_credential(provider, token_to_revoke, decryption_failed)\n\n    connection = await _owned_connection(\n        session,\n        connection_id=connection_id,\n        owner_user_id=current_user.id,\n        agency_id=agency_id,\n        for_update=True,\n        with_tokens=True,\n    )\n    await session.refresh(connection, attribute_names=[\"sync_generation\"])\n    if connection.sync_generation != fenced_generation:\n        raise HTTPException(\n            status_code=status.HTTP_409_CONFLICT,\n            detail=\"This email connection changed while removing it. Retry the action.\",\n        )\n    if revoke_error is not None:\n        now = datetime.now(tz=UTC)\n        connection.status = \"disconnecting\"\n        connection.sync_state = \"blocked\"\n        connection.next_sync_at = None\n        connection.last_error_code = revoke_error.code[:80]\n        connection.last_error_message = (\n            \"Provider access could not be revoked. Retry removing this account.\"\n        )\n        connection.last_error_at = now\n        connection.updated_at = now\n        await AuditLogRepository(session).record(\n            action=\"email_connection_removal_failed\",\n            entity_type=\"email_connection\",\n            entity_id=str(connection.id),\n            agency_id=agency_id,\n            user_id=current_user.id,\n            actor_email=current_user.email,\n            metadata={\n                \"provider\": provider_name,\n                \"error_code\": revoke_error.code,\n            },\n        )\n        await session.commit()\n        raise HTTPException(\n            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,\n            detail=(\n                \"Provider access could not be revoked. The connection remains \"\n                \"blocked; retry removing it.\"\n            ),\n        )\n\n    try:\n        removal = await purge_email_connection_records(\n            session,\n            connection=connection,\n        )\n        await AuditLogRepository(session).record(\n            action=\"email_connection_data_removed\",\n            entity_type=\"email_connection\",\n            entity_id=str(removal.connection_id),\n            agency_id=agency_id,\n            user_id=current_user.id,\n            actor_email=None,\n            metadata={\n                \"provider\": provider_name,\n                \"messages_removed\": removal.message_count,\n                \"artifacts_removed\": removal.artifact_count,\n                \"reviews_removed\": removal.review_count,\n                \"activity_events_removed\": removal.activity_count,\n                \"documents_removed\": removal.document_count,\n                \"notifications_removed\": removal.notification_count,\n                \"credential_disposition\": \"local_credentials_deleted\",\n            },\n        )\n        await session.commit()\n    except Exception:\n        await session.rollback()\n        raise\n\n    storage_cleanup_pending = False\n    if removal.storage_keys:\n        try:\n            await MinioStorageRepository().delete_files(list(removal.storage_keys))\n        except Exception as exc:\n            # Relational cleanup is already committed. The retention sweeper\n            # safely removes these now-unreferenced objects on a later pass.\n            storage_cleanup_pending = True\n            logger.error(\n                \"email_connection_storage_cleanup_deferred\",\n                connection_id=str(removal.connection_id),\n                object_count=len(removal.storage_keys),\n                error_type=type(exc).__name__,\n            )\n\n    return RemoveEmailConnectionResponse(\n        connection_id=removal.connection_id,\n        messages_removed=removal.message_count,\n        artifacts_removed=removal.artifact_count,\n        reviews_removed=removal.review_count,\n        activity_events_removed=removal.activity_count,\n        documents_removed=removal.document_count,\n        notifications_removed=removal.notification_count,\n        storage_cleanup_pending=storage_cleanup_pending,\n        message=\"The email account and its stored integration data were removed.\",\n    )\n\n\nremove_email_connection_and_data.__module__ = (\n    \"app.presentation.api.v1.routes.email_integration_connections\"\n)\n"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_connection_ai_settings.py",
+      "sha256": "dc0843deb74e38e5436042f97de8dfb8a2b0ba7d18810626a4fddbba17462f07",
+      "physical_lines": 118,
+      "source": "\"\"\"Owner opt-in watermarks and transactional revocation of in-flight AI work.\"\"\"\n\nfrom __future__ import annotations\n\nimport uuid\nfrom datetime import UTC, datetime\n\nfrom fastapi import APIRouter, Depends\nfrom sqlalchemy import update\nfrom sqlalchemy.ext.asyncio import AsyncSession\n\nfrom app.application.use_cases.email_integrations.rollout_policy import email_ai_policy_allows\nfrom app.core.config.settings import get_settings\nfrom app.domain.entities.entities import User\nfrom app.infrastructure.database.email_ai_models import EmailAiAnalysisModel\nfrom app.infrastructure.database.session import get_db_session\nfrom app.infrastructure.repositories.audit_log_repository import AuditLogRepository\nfrom app.presentation.api.v1.schemas.email_integration_schemas import (\n    EmailAiConnectionSettingsRequest,\n    EmailAiConnectionSettingsResponse,\n)\nfrom app.presentation.dependencies.csrf import require_cookie_csrf\n\nfrom .email_integration_access import _current_email_user, _owned_connection\n\nrouter = APIRouter()\n\n\n@router.put(\n    \"/connections/{connection_id}/ai-settings\",\n    response_model=EmailAiConnectionSettingsResponse,\n    dependencies=[Depends(require_cookie_csrf)],\n)\nasync def update_connection_ai_settings(\n    connection_id: uuid.UUID,\n    payload: EmailAiConnectionSettingsRequest,\n    current_user: User = Depends(_current_email_user),\n    session: AsyncSession = Depends(get_db_session),\n) -> EmailAiConnectionSettingsResponse:\n    \"\"\"Opt the authenticated owner's mailbox into or out of AI analysis.\"\"\"\n\n    connection = await _owned_connection(\n        session,\n        connection_id=connection_id,\n        owner_user_id=current_user.id,\n        agency_id=current_user.agency_id,\n        for_update=True,\n    )\n    now = datetime.now(tz=UTC)\n    was_enabled = connection.ai_processing_enabled\n    connection.ai_processing_enabled = payload.enabled\n    connection.updated_at = now\n    if payload.enabled and (not was_enabled or connection.ai_enabled_at is None):\n        # New analysis starts at an explicit opt-in watermark. Historical\n        # backfill is intentionally a separate future operation.\n        connection.ai_enabled_at = now\n    if not payload.enabled:\n        await session.execute(\n            update(EmailAiAnalysisModel)\n            .where(\n                EmailAiAnalysisModel.connection_id == connection.id,\n                EmailAiAnalysisModel.agency_id == connection.agency_id,\n                EmailAiAnalysisModel.owner_user_id == current_user.id,\n                EmailAiAnalysisModel.status.in_({\"pending\", \"processing\"}),\n            )\n            .values(\n                status=\"ignored\",\n                needs_attention=False,\n                lease_token=None,\n                lease_expires_at=None,\n                next_attempt_at=None,\n                started_at=None,\n                completed_at=now,\n                last_error_code=\"account_ai_opted_out\",\n            )\n            .execution_options(synchronize_session=False)\n        )\n    await AuditLogRepository(session).record(\n        agency_id=connection.agency_id,\n        user_id=current_user.id,\n        actor_email=current_user.email,\n        action=(\"email_ai.account_enabled\" if payload.enabled else \"email_ai.account_disabled\"),\n        entity_type=\"email_connection\",\n        entity_id=str(connection.id),\n        metadata={\"provider\": connection.provider},\n    )\n    settings = get_settings()\n    effective_enabled = bool(\n        payload.enabled\n        and settings.email_ai_runtime_ready\n        and connection.status in {\"active\", \"failing\"}\n        and await email_ai_policy_allows(\n            session,\n            agency_id=connection.agency_id,\n            owner_user_id=current_user.id,\n            connection_id=connection.id,\n        )\n    )\n    if effective_enabled:\n        message = \"Travel email analysis is active for this account.\"\n    elif payload.enabled:\n        message = (\n            \"This account is opted in, but an organization, user, account, \"\n            \"deployment, or mailbox safety control is keeping analysis inactive.\"\n        )\n    else:\n        message = \"Travel email analysis is off for this account.\"\n    return EmailAiConnectionSettingsResponse(\n        connection_id=connection.id,\n        enabled=payload.enabled,\n        effective_enabled=effective_enabled,\n        message=message,\n    )\n\n\nupdate_connection_ai_settings.__module__ = (\n    \"app.presentation.api.v1.routes.email_integration_connections\"\n)\n"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_connections.py",
+      "sha256": "70591a17783ac049a4b6b664f2a32f1541fba09551856899177832755c70bf69",
+      "physical_lines": 114,
+      "source": "\"\"\"Mailbox readiness/list views and stable lifecycle route exports.\"\"\"\n\nfrom __future__ import annotations\n\nfrom fastapi import APIRouter, Depends\nfrom sqlalchemy import select\nfrom sqlalchemy.ext.asyncio import AsyncSession\n\nfrom app.application.use_cases.email_integrations.overview import email_readiness\nfrom app.application.use_cases.email_integrations.rollout_policy import (\n    email_ai_disabled_policy_exists,\n)\nfrom app.core.config.settings import get_settings\nfrom app.domain.entities.entities import User\nfrom app.infrastructure.database.email_models import EmailConnectionModel\nfrom app.infrastructure.database.models import AgencyModel\nfrom app.infrastructure.database.session import get_db_session\nfrom app.presentation.api.v1.routes import email_integration_policy_support as _policy_support\nfrom app.presentation.api.v1.schemas.email_integration_schemas import (\n    EmailConnectionResponse,\n    EmailIntegrationStatusResponse,\n)\n\nfrom . import (\n    email_connection_ai_settings,\n    email_connection_disconnect,\n    email_connection_monitoring,\n    email_connection_removal,\n)\nfrom .email_connection_ai_settings import (\n    update_connection_ai_settings as update_connection_ai_settings,\n)\nfrom .email_connection_disconnect import disconnect_email_connection as disconnect_email_connection\nfrom .email_connection_monitoring import pause_connection as pause_connection\nfrom .email_connection_monitoring import resume_connection as resume_connection\nfrom .email_connection_monitoring import sync_connection as sync_connection\nfrom .email_connection_removal import logger as logger\nfrom .email_connection_removal import (\n    remove_email_connection_and_data as remove_email_connection_and_data,\n)\nfrom .email_integration_access import _current_email_user, _email_owner_filters\n\nrouter = APIRouter()\n_provider_configured = _policy_support._provider_configured\n_require_feature = _policy_support._require_feature\n_allowed_connection_actions = _policy_support._allowed_connection_actions\n_email_removal_confirmation_matches = _policy_support._email_removal_confirmation_matches\n\n\n@router.get(\"/status\", response_model=EmailIntegrationStatusResponse)\nasync def email_integration_status(\n    current_user: User = Depends(_current_email_user),\n) -> EmailIntegrationStatusResponse:\n    del current_user\n    return EmailIntegrationStatusResponse.model_validate(email_readiness(get_settings()))\n\n\n@router.get(\"/connections\", response_model=list[EmailConnectionResponse])\nasync def list_email_connections(\n    current_user: User = Depends(_current_email_user),\n    session: AsyncSession = Depends(get_db_session),\n) -> list[EmailConnectionResponse]:\n    settings = get_settings()\n    result = await session.execute(\n        select(\n            EmailConnectionModel,\n            AgencyModel.name,\n            (\n                ~email_ai_disabled_policy_exists(\n                    agency_id=EmailConnectionModel.agency_id,\n                    owner_user_id=EmailConnectionModel.owner_user_id,\n                    connection_id=EmailConnectionModel.id,\n                )\n            ).label(\"ai_policy_allows\"),\n        )\n        .join(AgencyModel, AgencyModel.id == EmailConnectionModel.agency_id)\n        .where(\n            *_email_owner_filters(\n                EmailConnectionModel.owner_user_id,\n                EmailConnectionModel.agency_id,\n                current_user,\n            )\n        )\n        .order_by(EmailConnectionModel.created_at.desc())\n    )\n    return [\n        EmailConnectionResponse(\n            id=connection.id,\n            agency_id=connection.agency_id,\n            agency_name=agency_name,\n            provider=connection.provider,\n            email_address=connection.email_address,\n            status=connection.status,\n            last_successful_sync_at=connection.last_successful_sync_at,\n            last_sync_attempt_at=connection.last_sync_attempt_at,\n            last_error_message=connection.last_error_message,\n            ai_processing_enabled=connection.ai_processing_enabled,\n            ai_effective_enabled=bool(\n                connection.ai_processing_enabled\n                and settings.email_ai_runtime_ready\n                and connection.status in {\"active\", \"failing\"}\n                and ai_policy_allows\n            ),\n            allowed_actions=_allowed_connection_actions(connection, settings),\n        )\n        for connection, agency_name, ai_policy_allows in result.all()\n    ]\n\n\n# Preserve the original registration order and the actual APIRoute objects.\nrouter.routes.extend(email_connection_monitoring.router.routes)\nrouter.routes.extend(email_connection_disconnect.router.routes)\nrouter.routes.extend(email_connection_removal.router.routes)\nrouter.routes.extend(email_connection_ai_settings.router.routes)\n"
+    }
+  ]
+}

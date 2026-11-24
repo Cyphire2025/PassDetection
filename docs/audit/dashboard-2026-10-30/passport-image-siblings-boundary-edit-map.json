@@ -1,0 +1,32 @@
+[
+  {
+    "module": "images",
+    "function": "reset_passport_image_crop",
+    "scope_and_cleanup_changed": true
+  },
+  {
+    "module": "images",
+    "function": "update_passport_image_crop",
+    "scope_and_cleanup_changed": true
+  },
+  {
+    "module": "visa_ai_library",
+    "function": "use_visa_ai_library_image",
+    "scope_and_cleanup_changed": true
+  },
+  {
+    "module": "visa_ai_library",
+    "function": "create_visa_ai_library_image",
+    "scope_and_cleanup_changed": true
+  },
+  {
+    "module": "visa_ai_edits",
+    "function": "apply_visa_ai_image_edit",
+    "scope_and_cleanup_changed": true
+  },
+  {
+    "module": "visa_ai_edits",
+    "function": "preview_visa_ai_image_edit",
+    "scope_and_cleanup_changed": true
+  }
+]

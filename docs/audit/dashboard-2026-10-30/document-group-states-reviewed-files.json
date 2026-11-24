@@ -1,0 +1,23 @@
+{
+  "recorded_at": "2026-10-31T08:48:34.034870+00:00",
+  "files": [
+    {
+      "path": "frontend/features/documents/components/document-group-list.tsx",
+      "sha256": "360eb9dcc545f7b9261678b40a1928f0430a0674faee58cb6412b84dacfdd751",
+      "physical_lines": 262,
+      "review_scope": "full",
+      "status": "reviewed-and-fixed",
+      "reviewer": "branding_visuals",
+      "notes": "Full original/current group list read; active-list failure cannot become empty-success wording or fabricated zero portfolio. Cached successful scoped rows remain available with refresh notice, separate successful search results/no-match remain usable when base totals fail. Explicit retries target correct observer. No API/auth changes or permission-bypass claim."
+    },
+    {
+      "path": "frontend/features/documents/components/document-group-list.test.tsx",
+      "sha256": "54d5ebdddf13e36efe832f65f993d80166ecdba22774dfb22ca6dcb61fd23777",
+      "physical_lines": 96,
+      "review_scope": "full",
+      "status": "reviewed-and-fixed",
+      "reviewer": "branding_visuals",
+      "notes": "Full original/current rendered test read/authored. Deliberately replaces old contradictory expectation that a failed base list should show successful emptiness; six controls verify unavailable versus genuine empty, search versus portfolio independence, cached rows and explicit proper retry. Hook responses mocked, not live service/production browser evidence."
+    }
+  ]
+}

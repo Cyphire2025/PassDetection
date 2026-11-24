@@ -1,0 +1,512 @@
+{
+  "modules": [
+    {
+      "before": {
+        "path": "app/presentation/api/v1/routes/email_ai_inbox.py",
+        "baseline_lines": 2383,
+        "maximum_lines": 2435,
+        "baseline_max_function_complexity": 32,
+        "maximum_function_complexity": 32,
+        "minimum_coverage_percent": 80
+      },
+      "after": {
+        "path": "app/presentation/api/v1/routes/email_ai_inbox.py",
+        "baseline_lines": 277,
+        "maximum_lines": 290,
+        "baseline_max_function_complexity": 1,
+        "maximum_function_complexity": 1,
+        "minimum_coverage_percent": 95
+      },
+      "measurement": {
+        "path": "app/presentation/api/v1/routes/email_ai_inbox.py",
+        "lines": 277,
+        "max_function_complexity": 1,
+        "most_complex_function": "email_operations_inbox",
+        "coverage_percent": null
+      }
+    },
+    {
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/email_ai_inbox_activity.py",
+        "baseline_lines": 193,
+        "maximum_lines": 210,
+        "baseline_max_function_complexity": 8,
+        "maximum_function_complexity": 8,
+        "minimum_coverage_percent": 80
+      },
+      "measurement": {
+        "path": "app/presentation/api/v1/routes/email_ai_inbox_activity.py",
+        "lines": 193,
+        "max_function_complexity": 8,
+        "most_complex_function": "_passenger_snapshot_label",
+        "coverage_percent": null
+      }
+    },
+    {
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/email_ai_inbox_attention.py",
+        "baseline_lines": 85,
+        "maximum_lines": 100,
+        "baseline_max_function_complexity": 21,
+        "maximum_function_complexity": 21,
+        "minimum_coverage_percent": 80
+      },
+      "measurement": {
+        "path": "app/presentation/api/v1/routes/email_ai_inbox_attention.py",
+        "lines": 85,
+        "max_function_complexity": 21,
+        "most_complex_function": "_refresh_analysis_attention",
+        "coverage_percent": null
+      }
+    },
+    {
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/email_ai_inbox_corrections.py",
+        "baseline_lines": 345,
+        "maximum_lines": 360,
+        "baseline_max_function_complexity": 26,
+        "maximum_function_complexity": 26,
+        "minimum_coverage_percent": 80
+      },
+      "measurement": {
+        "path": "app/presentation/api/v1/routes/email_ai_inbox_corrections.py",
+        "lines": 345,
+        "max_function_complexity": 26,
+        "most_complex_function": "_apply_typed_correction",
+        "coverage_percent": null
+      }
+    },
+    {
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/email_ai_inbox_cursor.py",
+        "baseline_lines": 49,
+        "maximum_lines": 60,
+        "baseline_max_function_complexity": 4,
+        "maximum_function_complexity": 4,
+        "minimum_coverage_percent": 95
+      },
+      "measurement": {
+        "path": "app/presentation/api/v1/routes/email_ai_inbox_cursor.py",
+        "lines": 49,
+        "max_function_complexity": 4,
+        "most_complex_function": "_decode_cursor",
+        "coverage_percent": null
+      }
+    },
+    {
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/email_ai_inbox_decisions.py",
+        "baseline_lines": 377,
+        "maximum_lines": 390,
+        "baseline_max_function_complexity": 7,
+        "maximum_function_complexity": 7,
+        "minimum_coverage_percent": 80
+      },
+      "measurement": {
+        "path": "app/presentation/api/v1/routes/email_ai_inbox_decisions.py",
+        "lines": 377,
+        "max_function_complexity": 7,
+        "most_complex_function": "decide_email_proposal",
+        "coverage_percent": null
+      }
+    },
+    {
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/email_ai_inbox_feedback.py",
+        "baseline_lines": 269,
+        "maximum_lines": 280,
+        "baseline_max_function_complexity": 20,
+        "maximum_function_complexity": 20,
+        "minimum_coverage_percent": 80
+      },
+      "measurement": {
+        "path": "app/presentation/api/v1/routes/email_ai_inbox_feedback.py",
+        "lines": 269,
+        "max_function_complexity": 20,
+        "most_complex_function": "create_email_ai_feedback",
+        "coverage_percent": null
+      }
+    },
+    {
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/email_ai_inbox_queries.py",
+        "baseline_lines": 210,
+        "maximum_lines": 220,
+        "baseline_max_function_complexity": 7,
+        "maximum_function_complexity": 7,
+        "minimum_coverage_percent": 80
+      },
+      "measurement": {
+        "path": "app/presentation/api/v1/routes/email_ai_inbox_queries.py",
+        "lines": 210,
+        "max_function_complexity": 7,
+        "most_complex_function": "_inbox_counts",
+        "coverage_percent": null
+      }
+    },
+    {
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/email_ai_inbox_reads.py",
+        "baseline_lines": 225,
+        "maximum_lines": 240,
+        "baseline_max_function_complexity": 9,
+        "maximum_function_complexity": 9,
+        "minimum_coverage_percent": 80
+      },
+      "measurement": {
+        "path": "app/presentation/api/v1/routes/email_ai_inbox_reads.py",
+        "lines": 225,
+        "max_function_complexity": 9,
+        "most_complex_function": "email_operations_inbox",
+        "coverage_percent": null
+      }
+    },
+    {
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/email_ai_inbox_responses.py",
+        "baseline_lines": 245,
+        "maximum_lines": 260,
+        "baseline_max_function_complexity": 23,
+        "maximum_function_complexity": 23,
+        "minimum_coverage_percent": 80
+      },
+      "measurement": {
+        "path": "app/presentation/api/v1/routes/email_ai_inbox_responses.py",
+        "lines": 245,
+        "max_function_complexity": 23,
+        "most_complex_function": "_inbox_item",
+        "coverage_percent": null
+      }
+    },
+    {
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/email_ai_inbox_retry.py",
+        "baseline_lines": 197,
+        "maximum_lines": 210,
+        "baseline_max_function_complexity": 15,
+        "maximum_function_complexity": 15,
+        "minimum_coverage_percent": 80
+      },
+      "measurement": {
+        "path": "app/presentation/api/v1/routes/email_ai_inbox_retry.py",
+        "lines": 197,
+        "max_function_complexity": 15,
+        "most_complex_function": "retry_email_ai_analysis",
+        "coverage_percent": null
+      }
+    },
+    {
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/email_ai_inbox_scope.py",
+        "baseline_lines": 36,
+        "maximum_lines": 50,
+        "baseline_max_function_complexity": 3,
+        "maximum_function_complexity": 3,
+        "minimum_coverage_percent": 80
+      },
+      "measurement": {
+        "path": "app/presentation/api/v1/routes/email_ai_inbox_scope.py",
+        "lines": 36,
+        "max_function_complexity": 3,
+        "most_complex_function": "_owner_predicates",
+        "coverage_percent": null
+      }
+    },
+    {
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/email_ai_inbox_visibility.py",
+        "baseline_lines": 251,
+        "maximum_lines": 270,
+        "baseline_max_function_complexity": 24,
+        "maximum_function_complexity": 24,
+        "minimum_coverage_percent": 80
+      },
+      "measurement": {
+        "path": "app/presentation/api/v1/routes/email_ai_inbox_visibility.py",
+        "lines": 251,
+        "max_function_complexity": 24,
+        "most_complex_function": "_load_visible_candidate_links",
+        "coverage_percent": null
+      }
+    },
+    {
+      "before": {
+        "path": "app/presentation/api/v1/routes/client_groups.py",
+        "baseline_lines": 2301,
+        "maximum_lines": 2343,
+        "baseline_max_function_complexity": 24,
+        "maximum_function_complexity": 24,
+        "minimum_coverage_percent": 75
+      },
+      "after": {
+        "path": "app/presentation/api/v1/routes/client_groups.py",
+        "baseline_lines": 859,
+        "maximum_lines": 870,
+        "baseline_max_function_complexity": 1,
+        "maximum_function_complexity": 1,
+        "minimum_coverage_percent": 90
+      },
+      "measurement": {
+        "path": "app/presentation/api/v1/routes/client_groups.py",
+        "lines": 859,
+        "max_function_complexity": 1,
+        "most_complex_function": "_get_create_use_case",
+        "coverage_percent": null
+      }
+    },
+    {
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/client_group_access.py",
+        "baseline_lines": 110,
+        "maximum_lines": 120,
+        "baseline_max_function_complexity": 5,
+        "maximum_function_complexity": 5,
+        "minimum_coverage_percent": 75
+      },
+      "measurement": {
+        "path": "app/presentation/api/v1/routes/client_group_access.py",
+        "lines": 110,
+        "max_function_complexity": 5,
+        "most_complex_function": "_require_client_group_creation_access",
+        "coverage_percent": null
+      }
+    },
+    {
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/client_group_broadcast_links.py",
+        "baseline_lines": 271,
+        "maximum_lines": 290,
+        "baseline_max_function_complexity": 22,
+        "maximum_function_complexity": 22,
+        "minimum_coverage_percent": 75
+      },
+      "measurement": {
+        "path": "app/presentation/api/v1/routes/client_group_broadcast_links.py",
+        "lines": 271,
+        "max_function_complexity": 22,
+        "most_complex_function": "_replace_whatsapp_links",
+        "coverage_percent": null
+      }
+    },
+    {
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/client_group_configuration.py",
+        "baseline_lines": 302,
+        "maximum_lines": 320,
+        "baseline_max_function_complexity": 17,
+        "maximum_function_complexity": 17,
+        "minimum_coverage_percent": 75
+      },
+      "measurement": {
+        "path": "app/presentation/api/v1/routes/client_group_configuration.py",
+        "lines": 302,
+        "max_function_complexity": 17,
+        "most_complex_function": "update_client_group",
+        "coverage_percent": null
+      }
+    },
+    {
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/client_group_link_operations.py",
+        "baseline_lines": 245,
+        "maximum_lines": 260,
+        "baseline_max_function_complexity": 12,
+        "maximum_function_complexity": 12,
+        "minimum_coverage_percent": 75
+      },
+      "measurement": {
+        "path": "app/presentation/api/v1/routes/client_group_link_operations.py",
+        "lines": 245,
+        "max_function_complexity": 12,
+        "most_complex_function": "list_replacement_candidates",
+        "coverage_percent": null
+      }
+    },
+    {
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/client_group_match_queries.py",
+        "baseline_lines": 77,
+        "maximum_lines": 90,
+        "baseline_max_function_complexity": 2,
+        "maximum_function_complexity": 2,
+        "minimum_coverage_percent": 75
+      },
+      "measurement": {
+        "path": "app/presentation/api/v1/routes/client_group_match_queries.py",
+        "lines": 77,
+        "max_function_complexity": 2,
+        "most_complex_function": "_linked_broadcast_names_for_group",
+        "coverage_percent": null
+      }
+    },
+    {
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/client_group_operation_dependencies.py",
+        "baseline_lines": 252,
+        "maximum_lines": 270,
+        "baseline_max_function_complexity": 1,
+        "maximum_function_complexity": 1,
+        "minimum_coverage_percent": 95
+      },
+      "measurement": {
+        "path": "app/presentation/api/v1/routes/client_group_operation_dependencies.py",
+        "lines": 252,
+        "max_function_complexity": 1,
+        "most_complex_function": "__call__",
+        "coverage_percent": null
+      }
+    },
+    {
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/client_group_permanent_delete.py",
+        "baseline_lines": 298,
+        "maximum_lines": 310,
+        "baseline_max_function_complexity": 13,
+        "maximum_function_complexity": 13,
+        "minimum_coverage_percent": 75
+      },
+      "measurement": {
+        "path": "app/presentation/api/v1/routes/client_group_permanent_delete.py",
+        "lines": 298,
+        "max_function_complexity": 13,
+        "most_complex_function": "permanently_delete_client_group",
+        "coverage_percent": null
+      }
+    },
+    {
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/client_group_public_collection.py",
+        "baseline_lines": 137,
+        "maximum_lines": 150,
+        "baseline_max_function_complexity": 5,
+        "maximum_function_complexity": 5,
+        "minimum_coverage_percent": 75
+      },
+      "measurement": {
+        "path": "app/presentation/api/v1/routes/client_group_public_collection.py",
+        "lines": 137,
+        "max_function_complexity": 5,
+        "most_complex_function": "record_public_flow_telemetry",
+        "coverage_percent": null
+      }
+    },
+    {
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/client_group_reads.py",
+        "baseline_lines": 128,
+        "maximum_lines": 140,
+        "baseline_max_function_complexity": 7,
+        "maximum_function_complexity": 7,
+        "minimum_coverage_percent": 75
+      },
+      "measurement": {
+        "path": "app/presentation/api/v1/routes/client_group_reads.py",
+        "lines": 128,
+        "max_function_complexity": 7,
+        "most_complex_function": "list_client_groups",
+        "coverage_percent": null
+      }
+    },
+    {
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/client_group_rejection_resolution.py",
+        "baseline_lines": 175,
+        "maximum_lines": 190,
+        "baseline_max_function_complexity": 8,
+        "maximum_function_complexity": 8,
+        "minimum_coverage_percent": 75
+      },
+      "measurement": {
+        "path": "app/presentation/api/v1/routes/client_group_rejection_resolution.py",
+        "lines": 175,
+        "max_function_complexity": 8,
+        "most_complex_function": "reject_unidentified_upload",
+        "coverage_percent": null
+      }
+    },
+    {
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/client_group_replacement_resolution.py",
+        "baseline_lines": 365,
+        "maximum_lines": 380,
+        "baseline_max_function_complexity": 24,
+        "maximum_function_complexity": 24,
+        "minimum_coverage_percent": 75
+      },
+      "measurement": {
+        "path": "app/presentation/api/v1/routes/client_group_replacement_resolution.py",
+        "lines": 365,
+        "max_function_complexity": 24,
+        "most_complex_function": "resolve_unidentified_as_replacement",
+        "coverage_percent": null
+      }
+    },
+    {
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/client_group_resolution_restore.py",
+        "baseline_lines": 214,
+        "maximum_lines": 230,
+        "baseline_max_function_complexity": 17,
+        "maximum_function_complexity": 17,
+        "minimum_coverage_percent": 75
+      },
+      "measurement": {
+        "path": "app/presentation/api/v1/routes/client_group_resolution_restore.py",
+        "lines": 214,
+        "max_function_complexity": 17,
+        "most_complex_function": "restore_roster_resolution",
+        "coverage_percent": null
+      }
+    },
+    {
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/client_group_retention.py",
+        "baseline_lines": 148,
+        "maximum_lines": 160,
+        "baseline_max_function_complexity": 7,
+        "maximum_function_complexity": 7,
+        "minimum_coverage_percent": 75
+      },
+      "measurement": {
+        "path": "app/presentation/api/v1/routes/client_group_retention.py",
+        "lines": 148,
+        "max_function_complexity": 7,
+        "most_complex_function": "restore_client_group",
+        "coverage_percent": null
+      }
+    }
+  ],
+  "backend_budget_sha256": "14d337337fadea23570e6a7d15bde9534e2057e7daccc3dcc93aa8049ef02e85",
+  "frontend_budget_sha256": "9d2831a8b047b23bfbe65031bdab2dec5bce2b7d908e369d36d8dc55f21c4ea4",
+  "preserved_global_and_critical_coverage_gates": true,
+  "preserved_both_reviewed_release_before_bindings": true,
+  "type_only_exclusion": {
+    "path": "app/presentation/api/v1/routes/email_ai_inbox_types.py",
+    "reason": "This 27-line type-alias module has no functions (measured complexity zero), so it does not use the behavior-module ratchet schema that requires a baseline of at least one. It remains fully reviewed, typed and fingerprinted."
+  }
+}

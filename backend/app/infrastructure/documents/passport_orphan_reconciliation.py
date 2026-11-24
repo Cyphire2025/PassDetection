@@ -1,0 +1,110 @@
+"""Reference-complete reconciliation for owned passport image namespaces."""
+
+from __future__ import annotations
+
+from collections.abc import Sequence
+from datetime import datetime
+from typing import Any
+
+from sqlalchemy import select, union
+
+from app.infrastructure.database.models import (
+    PassportImageCropModel,
+    PassportSubmissionModel,
+    PassportVisaAiImageJobModel,
+    PassportVisaAiImageModel,
+)
+from app.infrastructure.database.passport_ecr_models import PassportEcrCheckModel
+from app.infrastructure.database.passport_image_library_model import PassportImageLibraryItemModel
+from app.infrastructure.database.session import AsyncSessionFactory
+from app.infrastructure.database.traveller_document_models import TravellerDocumentAssetModel
+from app.infrastructure.database.traveller_returning_draft_models import TravellerDraftAssetModel
+from app.infrastructure.documents.orphan_reconciliation import (
+    DOCUMENT_ORPHAN_PREFIXES,
+    DocumentOrphanReconciliationResult,
+    ReferenceLookup,
+    _database_referenced_keys,
+    _reconcile_fixed_storage_namespaces,
+)
+from app.infrastructure.documents.storage_cleanup import StorageCleanupCipher
+from app.infrastructure.storage.minio_repository import MinioStorageRepository
+
+PASSPORT_IMAGE_ORPHAN_PREFIXES = (
+    "passport-image-library/",
+    "passport-crops/",
+    "passport-edits/",
+    "passport-ai-library/",
+    "drafts/",
+    "passport-bulk/",
+)
+# Do not filter by current/active/status: historical variants, inactive crops,
+# queued inputs and pending traveller copies can independently retain an image.
+IMAGE_REFERENCE_COLUMNS = (
+    PassportSubmissionModel.image_s3_key,
+    PassportSubmissionModel.thumbnail_s3_key,
+    PassportSubmissionModel.passport_photo_s3_key,
+    PassportSubmissionModel.passport_cover_s3_key,
+    PassportSubmissionModel.passport_back_cover_s3_key,
+    PassportSubmissionModel.passport_back_s3_key,
+    PassportImageCropModel.source_storage_key,
+    PassportImageCropModel.edit_source_storage_key,
+    PassportImageCropModel.derived_storage_key,
+    PassportImageLibraryItemModel.storage_key,
+    PassportImageLibraryItemModel.original_source_storage_key,
+    PassportVisaAiImageModel.original_source_storage_key,
+    PassportVisaAiImageModel.input_storage_key,
+    PassportVisaAiImageModel.generated_storage_key,
+    PassportVisaAiImageJobModel.original_source_storage_key,
+    PassportVisaAiImageJobModel.input_storage_key,
+    TravellerDocumentAssetModel.object_key,
+    TravellerDocumentAssetModel.source_object_key,
+    TravellerDraftAssetModel.object_key,
+    PassportEcrCheckModel.source_storage_key,
+)
+# 20 columns * 49 keys = 980 parameters, below even SQLite's historical 999
+# variable limit. UNION bounds returned rows to the candidate-key set.
+IMAGE_REFERENCE_QUERY_KEYS = 49
+
+
+async def _referenced_keys(prefix: str, keys: Sequence[str]) -> set[str]:
+    if prefix in DOCUMENT_ORPHAN_PREFIXES:
+        return await _database_referenced_keys(prefix, keys)
+    if prefix not in PASSPORT_IMAGE_ORPHAN_PREFIXES:
+        raise ValueError("Unsupported passport image storage prefix")
+    candidates = list(dict.fromkeys(keys))
+    if not candidates:
+        return set()
+    referenced: set[str] = set()
+    async with AsyncSessionFactory() as session:
+        for offset in range(0, len(candidates), IMAGE_REFERENCE_QUERY_KEYS):
+            batch = candidates[offset : offset + IMAGE_REFERENCE_QUERY_KEYS]
+            result = await session.scalars(
+                union(
+                    *(select(column).where(column.in_(batch)) for column in IMAGE_REFERENCE_COLUMNS)
+                )
+            )
+            referenced.update(value for value in result if value)
+    return referenced
+
+
+async def reconcile_sensitive_storage_orphans(
+    *,
+    storage: MinioStorageRepository | None = None,
+    reference_lookup: ReferenceLookup = _referenced_keys,
+    cursor_client: Any | None = None,
+    cursor_cipher: StorageCleanupCipher | None = None,
+    now: datetime | None = None,
+) -> DocumentOrphanReconciliationResult:
+    """Scan owned document/image/upload keys with encrypted cursors and 24-hour grace.
+
+    Canonical, returning-drafts/ and travellers/ namespaces retain their own
+    lifecycle and retention rules outside this scanner.
+    """
+    return await _reconcile_fixed_storage_namespaces(
+        prefixes=DOCUMENT_ORPHAN_PREFIXES + PASSPORT_IMAGE_ORPHAN_PREFIXES,
+        reference_lookup=reference_lookup,
+        storage=storage,
+        cursor_client=cursor_client,
+        cursor_cipher=cursor_cipher,
+        now=now,
+    )

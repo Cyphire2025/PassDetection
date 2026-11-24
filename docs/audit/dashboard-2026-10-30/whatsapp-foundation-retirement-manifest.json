@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "status": "retired",
+  "reviewer": "branding_visuals",
+  "authorization": "User authorized unused-code archival; root coordinated exact five paths under approved b21743fc plan",
+  "closure": "whatsapp-foundation-closure-proposal.json",
+  "plan": "whatsapp-foundation-retirement-plan.json",
+  "files": [
+    {
+      "path": "backend/app/application/dtos/whatsapp_dtos.py",
+      "original_path": "backend/app/application/dtos/whatsapp_dtos.py",
+      "archive_path": "Not related to project/retired-whatsapp-foundation/backend/app/application/dtos/whatsapp_dtos.py",
+      "sha256": "b85c66d809b2ec0a8352cc454af2da8fe5d23b00a8bbea569e5b68b51506b162",
+      "archive_sha256": "b85c66d809b2ec0a8352cc454af2da8fe5d23b00a8bbea569e5b68b51506b162",
+      "bytes": 1570,
+      "physical_lines": 60,
+      "status": "retired",
+      "reason": "Closed disconnected WhatsApp prototype; exact typed/dynamic/entrypoint and test obligation proof in closure/retirement plan",
+      "review_scope": "full"
+    },
+    {
+      "path": "backend/app/application/interfaces/whatsapp_provider.py",
+      "original_path": "backend/app/application/interfaces/whatsapp_provider.py",
+      "archive_path": "Not related to project/retired-whatsapp-foundation/backend/app/application/interfaces/whatsapp_provider.py",
+      "sha256": "5d789d233ce3d222334277ed884ac600593092a03f471235552094032cb6affc",
+      "archive_sha256": "5d789d233ce3d222334277ed884ac600593092a03f471235552094032cb6affc",
+      "bytes": 791,
+      "physical_lines": 27,
+      "status": "retired",
+      "reason": "Closed disconnected WhatsApp prototype; exact typed/dynamic/entrypoint and test obligation proof in closure/retirement plan",
+      "review_scope": "full"
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/plan_group_broadcast_use_case.py",
+      "original_path": "backend/app/application/use_cases/whatsapp/plan_group_broadcast_use_case.py",
+      "archive_path": "Not related to project/retired-whatsapp-foundation/backend/app/application/use_cases/whatsapp/plan_group_broadcast_use_case.py",
+      "sha256": "739f646c16b48cfc9102a9ed2513bfe78607ab77ae555e47b1ef1c213c639533",
+      "archive_sha256": "739f646c16b48cfc9102a9ed2513bfe78607ab77ae555e47b1ef1c213c639533",
+      "bytes": 3182,
+      "physical_lines": 96,
+      "status": "retired",
+      "reason": "Closed disconnected WhatsApp prototype; exact typed/dynamic/entrypoint and test obligation proof in closure/retirement plan",
+      "review_scope": "full"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/noop_provider.py",
+      "original_path": "backend/app/infrastructure/whatsapp/noop_provider.py",
+      "archive_path": "Not related to project/retired-whatsapp-foundation/backend/app/infrastructure/whatsapp/noop_provider.py",
+      "sha256": "dd3ad353ad9977aedec8ab24d4c48405b2ef0a9eac505fa6de5de60ab81eaded",
+      "archive_sha256": "dd3ad353ad9977aedec8ab24d4c48405b2ef0a9eac505fa6de5de60ab81eaded",
+      "bytes": 653,
+      "physical_lines": 20,
+      "status": "retired",
+      "reason": "Closed disconnected WhatsApp prototype; exact typed/dynamic/entrypoint and test obligation proof in closure/retirement plan",
+      "review_scope": "full"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/pricing.py",
+      "original_path": "backend/app/infrastructure/whatsapp/pricing.py",
+      "archive_path": "Not related to project/retired-whatsapp-foundation/backend/app/infrastructure/whatsapp/pricing.py",
+      "sha256": "ab2921e69e394bc4e0240735f7a17e98d1e71cdecef476e9e0a13a84fd3a27ab",
+      "archive_sha256": "ab2921e69e394bc4e0240735f7a17e98d1e71cdecef476e9e0a13a84fd3a27ab",
+      "bytes": 1821,
+      "physical_lines": 52,
+      "status": "retired",
+      "reason": "Closed disconnected WhatsApp prototype; exact typed/dynamic/entrypoint and test obligation proof in closure/retirement plan",
+      "review_scope": "full"
+    }
+  ],
+  "local_archive_is_ignored": true,
+  "original_directory_structure_preserved": true,
+  "live_workflows_changed": false
+}

@@ -1,0 +1,96 @@
+{
+  "files": [
+    {
+      "path": "scripts/qa/qualify_api_native_memory.py",
+      "sha256": "81689349e21f1d1b91309ef31e8af38797096deb72ff596abbbd4bb436ba474f",
+      "physical_lines": 259,
+      "max_function_complexity": 25,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Full original99-line physical source plus all authored acquisition/diagnostic/teardown/provenance changes manually reviewed. Formatting changes preserve AST outside recorded intentional changes. Actual main tested with strict synthetic Docker and real temp source/evidence files: original diagnostic/body identity, stopped ownID, no-overlay image hash, positive/negative overlay and lost-run reply. No real Gunicorn/HTTP/native image executed."
+    },
+    {
+      "path": "scripts/qa/qualify_bounded_memory.py",
+      "sha256": "1bd57ba7bd1f86965188bb234c3fcf9bbc97e20b07073b4f6e6149c7a982726a",
+      "physical_lines": 254,
+      "max_function_complexity": 25,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Full original88-line physical source plus all authored owner, bounded command, timeout/cancel, partial receipt/error precedence changes manually reviewed. Common isolation/resource flags and all CLI defaults exact AST. Actual main synthetic timeout/KeyboardInterrupt and healthy exited workloads exercise retained own ID. Fixture generator is unchanged; this receipt qualifies workload-container teardown, not every generator/native path."
+    },
+    {
+      "path": "scripts/qa/qualify_postgres_memory.py",
+      "sha256": "f3dcee80ea05a0964001134d2eace4c1b7c8e55ab8fbe53218defc1d436a9d3e",
+      "physical_lines": 230,
+      "max_function_complexity": 24,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Full original115-line physical source plus all authored immutable image resolution/ownID lifecycle, independent per-client/observer drain and retained future acquisition changes manually reviewed. Original7 SQL calls and all other workload statements exact AST; healthy connection input order retained. Actual main synthetic close/cancel/body/lost-run/partial parallel acquisition regressions pass; inline executor/driver shape only, not native PG, sockets, thread scheduling or throughput."
+    },
+    {
+      "path": "scripts/qa/probe_bounded_memory.py",
+      "sha256": "d8763acccf6761303e13b8d50dd494efaa789870ff0dc5dee20e4723151d29db",
+      "physical_lines": 351,
+      "max_function_complexity": 15,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Full original208-line physical source plus all authored bounded sibling/pipe teardown reviewed. Complete measure/generate/FixtureDigestScanner/execute/child declarations exact AST; removed only unused asyncio import. Actual main synthetic process protocol exercises all sibling closure, join timeout/cancel, failed terminate/kill and partial start; every join bounded. Windows resource/fork are substituted; no OS/native fork/RSS claim. Existing mixed email branch is unchanged, dedicated Operations Inbox callees excluded."
+    },
+    {
+      "path": "scripts/qa/owned_probe_container.py",
+      "sha256": "c66c213841f1fd6bf8833bd59f13fad12f0fa65befabc3aace51128e03105339",
+      "physical_lines": 112,
+      "max_function_complexity": 13,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete112 authored lines manually reviewed. Typed command port and explicit ownership data: exact returned64-hex ID, otherwise exact unique label+name+image/fullID adoption; bounded inspect/stop/readback; no rm/prune/force/broad name cleanup. Preserves cleanup error objects for body-first callers, type-only receipt errors. Nine focused protocol methods include foreign collision, absent adoption, malformed state, repeated cancel, knownID diagnostic failure and healthy exited retention. Strict mypy passed."
+    },
+    {
+      "path": "scripts/test_qa_bounded_memory_lifetime.py",
+      "sha256": "2a5bc6f8d4e255d4415745c6e463c1122e5a9edbd165e73234118bc02f909d5e",
+      "physical_lines": 291,
+      "max_function_complexity": 6,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete authored synthetic entry-point/protocol test source manually reviewed, including final formatter-equivalent form. Initial11 methods/meaningful assertion obligations retained; fixture-only Docker name/label metadata and Future protocol updated to match current real transport. New positive/negative controls do not invoke Docker/providers/PG/native processes. Baseline raw logs/hashes preserved separately; original test bytes were not snapshotted, so no claim of exact original-test raw reconstruction."
+    },
+    {
+      "path": "scripts/test_qa_native_memory_api.py",
+      "sha256": "65e3237c1e2d04bb63eb396f1c2f983fd0a617e175192daac324abde75e53270",
+      "physical_lines": 207,
+      "max_function_complexity": 19,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete authored synthetic entry-point/protocol test source manually reviewed, including final formatter-equivalent form. Initial11 methods/meaningful assertion obligations retained; fixture-only Docker name/label metadata and Future protocol updated to match current real transport. New positive/negative controls do not invoke Docker/providers/PG/native processes. Baseline raw logs/hashes preserved separately; original test bytes were not snapshotted, so no claim of exact original-test raw reconstruction."
+    },
+    {
+      "path": "scripts/test_qa_owned_probe_container.py",
+      "sha256": "63b9ef9a461f7154f793c4ba7b3c4f530e51d451d30e7129d178b0e2d9ca1637",
+      "physical_lines": 153,
+      "max_function_complexity": 6,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete authored synthetic entry-point/protocol test source manually reviewed, including final formatter-equivalent form. Initial11 methods/meaningful assertion obligations retained; fixture-only Docker name/label metadata and Future protocol updated to match current real transport. New positive/negative controls do not invoke Docker/providers/PG/native processes. Baseline raw logs/hashes preserved separately; original test bytes were not snapshotted, so no claim of exact original-test raw reconstruction."
+    },
+    {
+      "path": "scripts/test_qa_postgres_memory_lifetime.py",
+      "sha256": "9e0be5df2cfc100dcaf6d037d97f6754bc8be1200da5772524abbad3a3e3c3a5",
+      "physical_lines": 248,
+      "max_function_complexity": 8,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete authored synthetic entry-point/protocol test source manually reviewed, including final formatter-equivalent form. Initial11 methods/meaningful assertion obligations retained; fixture-only Docker name/label metadata and Future protocol updated to match current real transport. New positive/negative controls do not invoke Docker/providers/PG/native processes. Baseline raw logs/hashes preserved separately; original test bytes were not snapshotted, so no claim of exact original-test raw reconstruction."
+    }
+  ],
+  "basis": "Original full physical reads + complete manually authored changes + explicit unchanged AST obligations and final current source fence. No execution-to-review inference.",
+  "historical_full_ledger": "docs/audit/dashboard-2026-10-30/qa-native-memory-reviewed-files.json"
+}

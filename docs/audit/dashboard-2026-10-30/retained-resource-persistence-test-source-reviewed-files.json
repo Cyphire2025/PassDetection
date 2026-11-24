@@ -1,0 +1,65 @@
+[
+  {
+    "path": "backend/tests/unit/infrastructure/test_private_celery_diagnostics.py",
+    "sha256": "e02a4417343e30058015bd653aa2272b6712849300416f1b7360065564c98f94",
+    "physical_lines": 426,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole426lines. Real Celery tracing/strategy/request and actual syntheticSQLiteIntegrityError with hiddenparameters exercise private metadata/log/events before storage while original exception/payload/retry/countdown/controlflow/success result survive; unknownmessage, legacy headers, apppickle PrivateRedisBackend binding and RedisTLS parameter parity reviewed. Memorybroker/cache backend or synthetic Redis configuration only, no worker/broker/DB service executed now. Original diagnostics scope does not imply all app exception outputs private. Complete physical current source read; no new test execution/mutation/validated runtime defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_post_submission_verification_dispatcher.py",
+    "sha256": "47fbff3264e72e79cab9e6c968ec141240298caebc510726cf6673737b493224",
+    "physical_lines": 293,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole293lines. Healthy queued delivery has no API watchdog, broker failure schedules bounded localrecovery, healthyworker redelivery/persisted taskid, local fallback duplicate suppression/perprocess ceiling and asyncTearDown cancels/drains tasks reviewed. Mock worker availability/tasks/DB sources, no actualCelery/service observation or new run. Complete physical current source read; no new test execution/mutation/validated runtime defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_passport_roster_resolution_repository.py",
+    "sha256": "bb98dd004c822efb2bf71fcbfb1a55d591b020e2a8c4c73e493a07a9fb08cc48",
+    "physical_lines": 101,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole101lines. Active replacement suppression attaches later samephone recipient and preserves suppressionhistory; canonical broadcast/resolution locks/populateexisting and worker lookup via linkedphone identity reviewed. CapturedSQL/Mockresults are not actualPGlockconcurrency or broad roster state proof. Complete physical current source read; no new test execution/mutation/validated runtime defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_passport_whatsapp_comparison_cache.py",
+    "sha256": "4d3ae4a0067c69b1065a900f4f6ff115cf05f4c69e3427013a8b41dff628abca",
+    "physical_lines": 107,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole107lines. Nested metadata/customanswer/importedfield edits invalidate despite identicaltimestamps, policy/membership/ambiguity/rosterscope changes invalidate, inputorder canonical and returneddeepmutablefields cannotpoisoncachedresult reviewed. Pure matching/cache fixtures; no wholequeryperformance/capacity claim from source. Complete physical current source read; no new test execution/mutation/validated runtime defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_upload_security.py",
+    "sha256": "4280e3eac5cf0a1308b3a9fe83d671653d021395d7728880aaa85a332d69f3b7",
+    "physical_lines": 298,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole298lines. Originalbytes scan/hash evidence before image normalization, clean PDF, authenticated encryptedquarantine infected refusal, scannerunavailable/timeouterror failclosed/durable evidence, malformed/oversize prework order, storage/evidencefailures reject+cleanup and authenticated boundedupload integration reviewed. Synthetic scanners/storage/evidence sessions plus generated blank PDF/image; no realmalware/ClamAV/provider/storage execution now. Complete physical current source read; no new test execution/mutation/validated runtime defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_visa_generation_claim_fence.py",
+    "sha256": "03d70e399890db1d1c18dd014ece2566cc6951de32b05e5620258c7994c0e1c4",
+    "physical_lines": 236,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole236lines. SQLite synthetic job newerclaim fences provider/upload/failure outputs; oldattempt cleanup unique key only, knowncommittedartifact survives loggingfailure, durable encryptedcompensation intent beforeupload cancels onpublication and retainedonfaileddelete, missing/cancelledintent cannotdelete winner. Fake externalwork, not actualPGclaim race or crash/service qualification. Complete physical current source read; no new test execution/mutation/validated runtime defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_visa_image_capacity_retry.py",
+    "sha256": "b84eec15dce53894772d6634e231d4da49a692379eb43ee2d95f3f6fb2dd7a8c",
+    "physical_lines": 57,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole57lines. RepeatedImageProcessingBusy preserves durableacceptedqueuedrow/attemptbudget/finished/taskid, no upload/delete and completedrow cannotbe reset bylate capacity deferral reviewed. ActualDB testdesign plus mockedservice/storage, no nativekernel/admission workload run or throughputclaim. Complete physical current source read; no new test execution/mutation/validated runtime defect."
+  }
+]

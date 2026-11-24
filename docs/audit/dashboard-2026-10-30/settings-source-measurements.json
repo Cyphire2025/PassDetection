@@ -1,0 +1,93 @@
+[
+  {
+    "path": "app/core/config/runtime_settings_fields.py",
+    "lines": 88,
+    "complexity": 9,
+    "line_coverage_percent": 80.0,
+    "floor": 80
+  },
+  {
+    "path": "app/core/config/request_settings_fields.py",
+    "lines": 93,
+    "complexity": 0,
+    "line_coverage_percent": 100.0,
+    "floor": 95
+  },
+  {
+    "path": "app/core/config/ingestion_settings_fields.py",
+    "lines": 59,
+    "complexity": 0,
+    "line_coverage_percent": 100.0,
+    "floor": 95
+  },
+  {
+    "path": "app/core/config/ai_settings_fields.py",
+    "lines": 97,
+    "complexity": 4,
+    "line_coverage_percent": 96.22641509433963,
+    "floor": 95
+  },
+  {
+    "path": "app/core/config/email_settings_fields.py",
+    "lines": 119,
+    "complexity": 9,
+    "line_coverage_percent": 92.7536231884058,
+    "floor": 90
+  },
+  {
+    "path": "app/core/config/identity_settings_fields.py",
+    "lines": 100,
+    "complexity": 0,
+    "line_coverage_percent": 100.0,
+    "floor": 95
+  },
+  {
+    "path": "app/core/config/whatsapp_settings_fields.py",
+    "lines": 79,
+    "complexity": 7,
+    "line_coverage_percent": 93.22033898305085,
+    "floor": 90
+  },
+  {
+    "path": "app/core/config/settings_deployment_policy.py",
+    "lines": 83,
+    "complexity": 7,
+    "line_coverage_percent": 82.5,
+    "floor": 80
+  },
+  {
+    "path": "app/core/config/settings_identity_policy.py",
+    "lines": 76,
+    "complexity": 12,
+    "line_coverage_percent": 100.0,
+    "floor": 95
+  },
+  {
+    "path": "app/core/config/settings_mobile_policy.py",
+    "lines": 139,
+    "complexity": 15,
+    "line_coverage_percent": 95.71428571428571,
+    "floor": 95
+  },
+  {
+    "path": "app/core/config/settings.py",
+    "lines": 212,
+    "complexity": 6,
+    "line_coverage_percent": 99.11504424778761,
+    "floor": 95
+  },
+  {
+    "path": "app/core/config/my_photos_settings.py",
+    "lines": 242,
+    "complexity": 10,
+    "line_coverage_percent": 91.15044247787611,
+    "floor": 75
+  },
+  {
+    "path": "app/core/config/my_photos_aws_policy.py",
+    "lines": 209,
+    "complexity": 18,
+    "line_coverage_percent": 77.66990291262135,
+    "floor": 75
+  }
+]

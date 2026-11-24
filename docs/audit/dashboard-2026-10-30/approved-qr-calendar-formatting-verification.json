@@ -1,0 +1,9 @@
+{
+  "before_sha256": "d9744ccfea83504818f80a7b082f5799f62c46fabad1e0f3bc7fae0d7683b008",
+  "after_sha256": "f4f4a1195f1156dacc734ee177a33b8372250c1d0da670a7cff516ebb27db2fa",
+  "whole_module_ast_exact": true,
+  "formatter_output": "1 file reformatted",
+  "semantic_delta": "None. Only previouslyreported unrelated formatting of status/query expressions.",
+  "test_provenance": "Original14passed beforeformat; immutable runfence preserved. No redundant behavior rerun for byte-only AST-exact formatting.",
+  "current_ruff_no_fix_and_format": "PASS:2paths no-fixlint,2paths alreadyformatted after exactASTproof"
+}

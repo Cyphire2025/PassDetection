@@ -1,0 +1,60 @@
+{
+  "status": "new actual-owner coverage guards; no prior realtime critical row existed",
+  "source_coverage": ".tmp/realtime-audit/final-coverage.xml",
+  "modules": [
+    {
+      "path": "app/infrastructure/mobile_realtime.py",
+      "minimum_line_percent": 90,
+      "minimum_branch_percent": 80,
+      "source_sha256": "522f09695a6505fde44a5b490e78b39606df4c55308bad9798e0874eb666c21a"
+    },
+    {
+      "path": "app/infrastructure/mobile_realtime_capacity.py",
+      "minimum_line_percent": 90,
+      "minimum_branch_percent": 70,
+      "source_sha256": "1e29d7a946046066c677e7a58ce07a7fdc21be0a284aed1abd91103abe304d17"
+    },
+    {
+      "path": "app/infrastructure/mobile_realtime_connection.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 90,
+      "source_sha256": "aa4623acff1649feac6f50d40b0663ddcbddce6d3100dec5e4571b81ffee5ed3"
+    },
+    {
+      "path": "app/infrastructure/mobile_realtime_contracts.py",
+      "minimum_line_percent": 90,
+      "minimum_branch_percent": 100,
+      "source_sha256": "1bcc4988950fc38baff8163e8e3e5032e4dddcf48bef52de23c5e54b5ae1047e"
+    },
+    {
+      "path": "app/infrastructure/mobile_realtime_lease_store.py",
+      "minimum_line_percent": 90,
+      "minimum_branch_percent": 85,
+      "source_sha256": "e6d08e13b82b3fdfbd41f768727d225638c2021ce90a1c1d7a24dfe2d51c3290"
+    },
+    {
+      "path": "app/infrastructure/mobile_realtime_registry.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 80,
+      "source_sha256": "7153cb96d9235713c117adc805891a4db896c34ed9f05538cb4bd2067e2f4832"
+    },
+    {
+      "path": "app/infrastructure/mobile_realtime_resources.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 90,
+      "source_sha256": "023947d7269c41a1b8528a9d50aa4c620abf59b2cc0b3b5c1b5f1b8aecafb3ae"
+    },
+    {
+      "path": "app/infrastructure/mobile_realtime_transport.py",
+      "minimum_line_percent": 90,
+      "minimum_branch_percent": 60,
+      "source_sha256": "6526b37299ace415283ef01f53aa023c738c0cff7de796ae421ab3db10a6300c"
+    },
+    {
+      "path": "app/infrastructure/mobile_realtime_wire.py",
+      "minimum_line_percent": 80,
+      "minimum_branch_percent": 80,
+      "source_sha256": "88abe50692fbbb35a494d3788d152b43aa7f2aaea81d51b5eadd12698c936f2d"
+    }
+  ]
+}

@@ -9,7 +9,7 @@ import type { Metadata } from "next";
 import { LoginSessionEntry } from "@/features/auth/components/login-session-entry";
 
 export const metadata: Metadata = {
-  title: "Sign In | Global Connects Dashboard",
+  title: "Sign In",
 };
 
 export default async function LoginPage({

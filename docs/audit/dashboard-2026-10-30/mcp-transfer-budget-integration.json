@@ -1,0 +1,14 @@
+{
+  "candidates": "docs/audit/dashboard-2026-10-30/mcp-transfer-normalized-budget-candidates.json",
+  "before_sha256": "f710cb513924bde02490b3cea751059cedcdc3b3af0f1cce1c5111fdd502df1e",
+  "sha256": "cb39d6c6ee5351e9fa166d560dd62c58a3b1b20021fc38a7c2a52d1017d94ff7",
+  "lf_normalized_sha256": "48ef93111680676d06cf152b7467f1b435f750f9fd14e5167b1c9e999a57cb1d",
+  "added": 4,
+  "updated_existing": 1,
+  "lowered_existing": 1,
+  "lowered_existing_paths": [
+    "features/mcp/utils/file-transfer.ts"
+  ],
+  "existing_ceilings_preserved": true,
+  "previous_ceilings_sha256": "ba4ebc4db15794547bb3939fce30a0376dbb6fab30595731b5ca00579df16ca7"
+}

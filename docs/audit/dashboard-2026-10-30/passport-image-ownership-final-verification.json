@@ -1,0 +1,105 @@
+{
+  "status": "Frozen narrow actual web ZIP resource cleanup fix qualified; wider retained source audit active",
+  "source_manifest": {
+    "path": "docs/audit/dashboard-2026-10-30/passport-image-ownership-final-source-manifest.json",
+    "sha256": "24f445dae01a81370809a172baff704a5b64a69f993d8be6629f32a787d3c62f"
+  },
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-route-residual-reviewed-files.json",
+    "sha256": "02bd25d9cd23caca471ebb8bc55f30369772a6da384d9c01d233e0944637a638"
+  },
+  "budget_candidates": {
+    "path": "docs/audit/dashboard-2026-10-30/passport-image-ownership-budget-candidates.json",
+    "sha256": "1bc4013a079ef383e693ced17d3f60b98a4318bd1151a53fca67bc12b8db0573"
+  },
+  "defect": "After successful ZIP rendering, ordinary history/savepoint errors or history/commit cancellation bypassed spool.close before response stream owned it. Real rolled-tempfile actual-route fixture reproduced3failures with3healthy/existing controls.",
+  "fix": "History handling retains existing IntegrityError-to409/cause branch, then closes+reraises BaseException; commit cleanup catches BaseException and reraises. No suppressed cancellation, changed error identity/commit ordering/header/output/policy/SQL/storage/native behavior.",
+  "baseline6": {
+    "path": "docs/audit/dashboard-2026-10-30/passport-image-ownership-before-command.json",
+    "sha256": "f917c64a1f18dd167db86b61d3577d3a205ed22764c04283032735c0265f4122"
+  },
+  "baseline_log": {
+    "path": "docs/audit/dashboard-2026-10-30/passport-image-ownership-before-tests.txt",
+    "sha256": "c3b4bf53d1a6f3a4205dd542113cbbfe35dfd0afbbd93c2b773716f82c284780"
+  },
+  "final11": {
+    "path": "docs/audit/dashboard-2026-10-30/passport-image-ownership-after-command.json",
+    "sha256": "a5fddb260f2cc7b17db1fb1b48be6c635710d2abb78d23a7d455a230355a36b9"
+  },
+  "final_log": {
+    "path": "docs/audit/dashboard-2026-10-30/passport-image-ownership-after-tests.txt",
+    "sha256": "5e2dc9acbb56c726aec0f5a2d12fab308cc58775485510b10ae7b01447c32061"
+  },
+  "source_unchanged_during_runs": true,
+  "final_source_fence_count": 7,
+  "actual_contracts": {
+    "path": "docs/audit/dashboard-2026-10-30/passport-image-ownership-contract-proof.json",
+    "sha256": "feb696037bdd638fb54027c6b4eb76db866757cdbf864774362d14597fcdd3c9"
+  },
+  "contract_probe": "One existing test collected after normal conftest startup: three actual public signatures/docs/modules/qualnames/evaluated hints/import bindings and complete two-route OpenAPI equal archived original; entire module AST inverse proves only two cleanup changes.",
+  "static_checks": {
+    "path": "docs/audit/dashboard-2026-10-30/passport-image-ownership-static-observation.json",
+    "sha256": "f0426f8e38fd5382299dda3c9636bbb2f7d01c68cf83f115977afaeb5712fb21"
+  },
+  "coverage_json": {
+    "path": "docs/audit/dashboard-2026-10-30/passport-image-ownership-after-coverage.json",
+    "sha256": "28d565eea87f10b7168ada2b29452bf4ada7a792e54645859c5dcc846182eaf7"
+  },
+  "coverage_xml": {
+    "path": "docs/audit/dashboard-2026-10-30/passport-image-ownership-after-coverage.xml",
+    "sha256": "027151e345c2109388437087e5e09921852f643253a202bccb1d2909e98219ae"
+  },
+  "coverage": {
+    "covered_lines": 76,
+    "num_statements": 98,
+    "percent_covered": 75.47169811320755,
+    "percent_covered_display": "75",
+    "missing_lines": 22,
+    "excluded_lines": 0,
+    "percent_statements_covered": 77.55102040816327,
+    "percent_statements_covered_display": "78",
+    "num_branches": 8,
+    "num_partial_branches": 4,
+    "covered_branches": 4,
+    "missing_branches": 4,
+    "percent_branches_covered": 50.0,
+    "percent_branches_covered_display": "50"
+  },
+  "missing_lines": [
+    80,
+    86,
+    91,
+    92,
+    109,
+    110,
+    111,
+    112,
+    113,
+    114,
+    115,
+    116,
+    179,
+    186,
+    192,
+    193,
+    210,
+    211,
+    215,
+    216,
+    220,
+    221
+  ],
+  "read_scope": {
+    "full_files": 34,
+    "focused_files": 3,
+    "full_physical_lines": 4709
+  },
+  "limitations": [
+    "Resource-fault6 uses real temporary file with mocked DB/auth/preparation/storage calls; one unchanged real-FK SQLite current-crop web/MCP parity case passes with synthetic image storage. No live object store/provider/Postgres authority proof.",
+    "Read-only draft/update/enrollment/ECR files and inspected tests were not executed merely for source review. Full source read is not complete branch/service proof.",
+    "Group-preview history allocation candidate remains separately open for measured response/count/token parity; other selected cohesive small owners were not split cosmetically.",
+    "Additional pre-stream synchronous failures/stream scheduling or never-started response cancellation have not been newly qualified here; existing stream helper unchanged."
+  ],
+  "freeze": "Only image_exports.py and new ownership test changed; both frozen at manifest hashes. Shared auth/preparation/native/exporter/models/migrations/gates unchanged; parent final combined qualification later.",
+  "provenance_correction": "New test physical_lines was correctly111; one prose note113 corrected111 only, with all original four metadata artifacts retained as before-line-note-correction history. No source/check rerun."
+}

@@ -1,0 +1,100 @@
+{
+  "original_path": "backend/app/infrastructure/database/email_ai_models.py",
+  "original_sha256": "e9c03b48898c5a05f7e96bafbc96ccec06ec7d2702c47e55f9b4c80a5eff482f",
+  "original_physical_lines": 630,
+  "sources": [
+    {
+      "path": "backend/app/infrastructure/database/email_ai_models.py",
+      "sha256": "6c61c0e776c096ea56f26e853fbfcfd05054f099b7d3d1f73f6e238a87174c10",
+      "physical_lines": 45,
+      "line_endings": "LF"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_ai_models/__init__.py",
+      "sha256": "1dec3465188dd0ec7c96ab35d20fa4fd28150756355e34637ae574578318c2dc",
+      "physical_lines": 7,
+      "line_endings": "LF"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_ai_models/rollout.py",
+      "sha256": "d0ca6a17300c86ca1b4cf945b5babf4f5e3e550cd75340dfb6e808d243602725",
+      "physical_lines": 119,
+      "line_endings": "LF"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_ai_models/analyses.py",
+      "sha256": "152526fe868170a5d12ce353d1f990d6a4098364662a1725a04994eb9769d872",
+      "physical_lines": 149,
+      "line_endings": "LF"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_ai_models/deadlines.py",
+      "sha256": "25b2192f32a5ef2fcd5764e9e7092016ea7848a8bbd283292159254558d2d0dd",
+      "physical_lines": 111,
+      "line_endings": "LF"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_ai_models/proposals.py",
+      "sha256": "2f43bd6295e9b37a4889296b37a6af1edf1548e2794eeab2d0f4cc612106a1aa",
+      "physical_lines": 128,
+      "line_endings": "LF"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_ai_models/drafts.py",
+      "sha256": "75c30c385d04d40661d1bcdfca237b18e1647fde4d8f49141199087bae8de6cd",
+      "physical_lines": 103,
+      "line_endings": "LF"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_ai_models/feedback.py",
+      "sha256": "2ec1a4e4dd4f5f41fa8cc7e34c6d670b836fdd79a1eab60b33f8623a9048d44d",
+      "physical_lines": 90,
+      "line_endings": "LF"
+    }
+  ],
+  "classes": [
+    {
+      "class_name": "EmailAiRolloutPolicyModel",
+      "actual_owner": "backend/app/infrastructure/database/_email_ai_models/rollout.py",
+      "whole_class_ast_equal_except_legacy_module_assignment": true
+    },
+    {
+      "class_name": "EmailAiAnalysisModel",
+      "actual_owner": "backend/app/infrastructure/database/_email_ai_models/analyses.py",
+      "whole_class_ast_equal_except_legacy_module_assignment": true
+    },
+    {
+      "class_name": "EmailDetectedDeadlineModel",
+      "actual_owner": "backend/app/infrastructure/database/_email_ai_models/deadlines.py",
+      "whole_class_ast_equal_except_legacy_module_assignment": true
+    },
+    {
+      "class_name": "EmailActionProposalModel",
+      "actual_owner": "backend/app/infrastructure/database/_email_ai_models/proposals.py",
+      "whole_class_ast_equal_except_legacy_module_assignment": true
+    },
+    {
+      "class_name": "EmailReplyDraftModel",
+      "actual_owner": "backend/app/infrastructure/database/_email_ai_models/drafts.py",
+      "whole_class_ast_equal_except_legacy_module_assignment": true
+    },
+    {
+      "class_name": "EmailAiFeedbackModel",
+      "actual_owner": "backend/app/infrastructure/database/_email_ai_models/feedback.py",
+      "whole_class_ast_equal_except_legacy_module_assignment": true
+    }
+  ],
+  "canonical_clock_whole_function_ast_exact": true,
+  "registration_order": [
+    "EmailAiRolloutPolicyModel",
+    "EmailAiAnalysisModel",
+    "EmailDetectedDeadlineModel",
+    "EmailActionProposalModel",
+    "EmailReplyDraftModel",
+    "EmailAiFeedbackModel"
+  ],
+  "original_unmodified_caller_sources": 46,
+  "frozen_published_migration_core_email_prior_owned_sources": 210,
+  "no_added_columns_constraints_relationships_or_default_semantics": true,
+  "notes": "Six whole table owners plus public shared-clock/annotation facade and minimal owner-first bootstrap. Class module declaration is inserted before mapping so qualified SQLAlchemy registry/pickle names remain legacy. Actual runtime metadata/DDL and persisted default/update/owner behavior are independently checked; AST is not substituted for schema proof."
+}

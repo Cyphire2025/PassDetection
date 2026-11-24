@@ -1,0 +1,185 @@
+{
+  "recorded_at": "2026-10-31T10:53:07.688Z",
+  "status": "frozen",
+  "runtime_files": 10,
+  "changed_test_and_fixture_helper_files": 8,
+  "source_fence": [
+    {
+      "path": "frontend/features/operations/hooks/use-operations.ts",
+      "sha256": "ed01bed0cc2068dba015ab4db3735d8aefc145fe597fcf76266e60117806de54",
+      "physical_lines": 34
+    },
+    {
+      "path": "frontend/features/operations/hooks/operations-query-scope.ts",
+      "sha256": "adfc24aed6799d2e4a90873a0c8a606f65837262696373527f19cb28801ea0d3",
+      "physical_lines": 18
+    },
+    {
+      "path": "frontend/features/operations/hooks/use-admin-operations.ts",
+      "sha256": "0e8fa6c9c7257a547c5cb926b8dd2d3ba7c660e41e84f65cc2ffbcde64612017",
+      "physical_lines": 43
+    },
+    {
+      "path": "frontend/features/operations/hooks/use-managed-accounts.ts",
+      "sha256": "d583388a7df8ccd52e9a2cc9a7f0cbce629ac3e14745146f26b944cf4bdd3428",
+      "physical_lines": 83
+    },
+    {
+      "path": "frontend/features/operations/hooks/use-audit-operations.ts",
+      "sha256": "8d35da695fd6c42f5eb14b33d8e4dbd6147dc2e036cea09a6ec95456ab836878",
+      "physical_lines": 40
+    },
+    {
+      "path": "frontend/features/operations/hooks/use-tour-operations.ts",
+      "sha256": "32b70b61571799449729df1c047fcf5e0c4b0dd1f7514406d1aee9c4bc3786c6",
+      "physical_lines": 78
+    },
+    {
+      "path": "frontend/features/operations/hooks/use-rooming-operations.ts",
+      "sha256": "1e88312fb79c8a35533d1e49ae5f66acb58ccded86d8fd14142d745190e31c96",
+      "physical_lines": 161
+    },
+    {
+      "path": "frontend/features/operations/hooks/use-coordinator-attendance.ts",
+      "sha256": "63fdbbe328ac43ec6ee30cc0da90265925c0ad7fa5a94a52a3f98ac4a161b885",
+      "physical_lines": 73
+    },
+    {
+      "path": "frontend/features/operations/hooks/use-managed-attendance.ts",
+      "sha256": "3a5fb7519b6723e75af960e4f55ad3a3e1a9936aac7ff1daaf87abfd24b27138",
+      "physical_lines": 146
+    },
+    {
+      "path": "frontend/features/operations/hooks/use-qr-operations.ts",
+      "sha256": "57ebf8d819185b834a4846353e776687cddbec5a626a56828d3db880bb948adb",
+      "physical_lines": 73
+    },
+    {
+      "path": "frontend/features/operations/hooks/use-operations-mutations.test.tsx",
+      "sha256": "5613b7b988c29c5486702e0c9bc104f45f650a26d9f828c01c34526854bc5a4d",
+      "physical_lines": 145
+    },
+    {
+      "path": "frontend/features/operations/hooks/use-operations-authority.test.tsx",
+      "sha256": "a123d10f011fc844ac39a7fd557bcfee6f1ff9afc6a02cb2ea3657002b1a4ad4",
+      "physical_lines": 53
+    },
+    {
+      "path": "frontend/features/operations/test-support/operations-authority.test-fixture.tsx",
+      "sha256": "1db836ce9fb25305cb5e3509c2ae2d99b0d5af4f550b2770575c7d8168beb641",
+      "physical_lines": 60
+    },
+    {
+      "path": "frontend/features/operations/hooks/operations-source.contract-helper.mjs",
+      "sha256": "0bb5f123e91f48c2f8eeaef75c8dc85b5e60a8c17aff4468b300154f7323ef6c",
+      "physical_lines": 27
+    },
+    {
+      "path": "frontend/features/operations/components/qr-whatsapp-delivery.contract.test.mjs",
+      "sha256": "5f8bfd77df280809db9b8ecf480344fbfef093c885ec2b3f01f417fd33adc923",
+      "physical_lines": 33
+    },
+    {
+      "path": "frontend/features/operations/components/rooming-redesign.contract.test.mjs",
+      "sha256": "40df551f8b283191ad66d70dd6c628b54551c6cad46857b08ab5f21ad46007d9",
+      "physical_lines": 232
+    },
+    {
+      "path": "frontend/features/operations/components/managed-accounts-panel.contract.test.mjs",
+      "sha256": "e074de6c2492395722231bdb42daa27e871e455b6a2c670017f2f15c56c8e49d",
+      "physical_lines": 22
+    },
+    {
+      "path": "frontend/features/tour-operations/components/coordinator-pwa.contract.test.mjs",
+      "sha256": "3c2c3e2ce06786caf3783fdd3427b63d150ed8c4679df57be5e0bb925a9f1b7b",
+      "physical_lines": 449
+    }
+  ],
+  "concrete_finding": {
+    "normal_path": "ManagerAdministrationPage → useCreateManager → operationsApi → real owner-bound Axios adapter; AuthenticatedContent remount and SessionLifecycle clear are active.",
+    "original_behavior": "A queued manager form dispatches under replacement actorB after asynchronous global MutationCache.onMutate resumes.",
+    "fix": "Capture/assert original private mutation owner at initiating mutate/mutateAsync via existing shared helper, before queued onMutate/staging;26 retained mutations use the same boundary.",
+    "calibration": "UnintendedB-bound client POST reproduced with synthetic network delegate. No backend authorization bypass, live invitation, provider send or28independent vulnerabilities claimed.",
+    "baseline_and_controls": [
+      {
+        "name": "operations-authority-baseline",
+        "passed": 0,
+        "failed": 2,
+        "raw": ".tmp/frontend-residual-coverage/operations-authority-baseline.json"
+      },
+      {
+        "name": "operations-authority-baseline-corrected",
+        "passed": 1,
+        "failed": 1,
+        "raw": ".tmp/frontend-residual-coverage/operations-authority-baseline-corrected.json"
+      },
+      {
+        "name": "operations-authority-fixed",
+        "passed": 2,
+        "failed": 0,
+        "raw": ".tmp/frontend-residual-coverage/operations-authority-fixed.json"
+      }
+    ]
+  },
+  "architecture": {
+    "original_lines": 752,
+    "current_largest_lines": 161,
+    "original_declarations": 46,
+    "retained_declarations": 39,
+    "original_public_exports": 41,
+    "retained_public_exports": 34,
+    "retired_closed_hooks": 7,
+    "whole_typed_retained_bodies_exact_after_intentional_wrapper_fix": true,
+    "real_bound_identifier_comparisons": 1080,
+    "public_compatibility": "All34live hook named exports retain original order/signature/value semantics. AllAPI/DTO/backend methods retained unchanged.",
+    "provenance": "operations-hooks-provenance.json",
+    "historical_mechanical_proof": "operations-hooks-mechanical-provenance.json",
+    "retirement": "operations-hooks-retirement-manifest.json"
+  },
+  "affected_checks": {
+    "vitest": {
+      "passed": 81,
+      "failed": 0,
+      "files": 8,
+      "raw": ".tmp/frontend-residual-coverage/operations-hooks-final-affected.json"
+    },
+    "node": {
+      "passed": 38,
+      "failed": 0,
+      "raw": ".tmp/frontend-residual-coverage/operations-hooks-final-node.txt"
+    },
+    "types": {
+      "exit_code": 0,
+      "raw": ".tmp/frontend-residual-coverage/operations-hooks-final-types.txt"
+    },
+    "scoped_eslint": {
+      "exit_code": 0,
+      "warnings": 0,
+      "raw": ".tmp/frontend-residual-coverage/operations-hooks-final-eslint.txt"
+    }
+  },
+  "preserved": {
+    "variables_callbacks_context_reset_controls": 52,
+    "normal_page_actor_profile_controls": 2,
+    "API_bytes_identical": true,
+    "coverage": {
+      "config": "frontend/vitest.config.mts",
+      "sha256": "85ce4e7d5be4ff07748412030ccf1fca3177be52c388dbbada89053bcfc1a400",
+      "originalHooksIncluded": false,
+      "old31IncludesAndPerFileFloorsUntouched": true
+    },
+    "shared_helper_unchanged": true,
+    "cache_key_revision_abort_hints_preview_semantics": true
+  },
+  "budget_candidates": "operations-hooks-budget-candidates.json",
+  "parent_budget_integration": "PENDING-parent-owned; no old cap or floor raised;10additive current owners.",
+  "open_followups": [
+    {
+      "path": "frontend/features/operations/api/operations.api.ts",
+      "status": "OPEN-cohesive-domain-transport/type-architecture",
+      "lines": 1200,
+      "note": "Current full source read is not architecture completion. Any future split must preserve all current API/types including methods whoseReact wrappers were retired."
+    }
+  ],
+  "limits": "Focused synthetic component/hook/transport and static/TypeScript proof only. No production build/browser or full application suite was run for this tranche, per user requested final-only combined verification cadence. Final parent combined qualification remains OPEN."
+}

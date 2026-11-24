@@ -1,0 +1,207 @@
+{
+  "status": "frozen-focused-qualified",
+  "source_fence": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_manual_upload.py",
+      "sha256": "c8fe9462b8f9cd872c4326940f502444c2323e13ee058d4a11dcaf0ed31a31aa",
+      "physical_lines": 271,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full original182/current271 physical reads. Staff-selected add/replace authorization, fresh locked roster, original document version/capacity/order and commit boundary retained. New precommit compensation fixes ambient cancellation; entire function AST inverse proves sole intended change outside readable formatter expansion; C14 unchanged."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_reupload.py",
+      "sha256": "63ff9508a4bee8dd0b0f50ae850595a3cccd0fa7aaabb699a6207f0849b67523",
+      "physical_lines": 248,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full original245/current248 physical reads. Actual ORM rollback-expiry failure fixed by capturing initial authorized agency UUID before rollback. Precommit compensation now handles cancellation, preserving ambiguous postcommit objects, fresh role/roster/source checks and exception semantics. Full inverse/API/type proof and actual SQLite normal-route regressions."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_save.py",
+      "sha256": "50a56cd284fbf83e0df2dd08f09054f3a5e21af877d8a66a6fea95b5295259c8",
+      "physical_lines": 96,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full original92/current96 physical reads. Existing ordered group/agency/type FOR UPDATE read now refreshes ORM identity-map state before processing rejection. Stale draft/saved negatives and healthy status/foreign/MCP controls run; transaction owner and all predicates/order unchanged."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_compensation.py",
+      "sha256": "d98fca40ceeff7d2072101550c267520eda03e1865658706fa0fb7dea6aa89c3",
+      "physical_lines": 48,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full authored/current48 physical-line read. Explicit-data document-specific precommit rollback then owned object cleanup. AnyIO shield plus existing native cancellation drain protects actual ambient and repeated cancellation; original root identity or existing rollback/cleanup failure precedence preserved. Empty keys cause no storage construction. Only precommit callers; actual100L/100B focused coverage."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_distribution_residual_lifecycle.py",
+      "sha256": "dd7a76a31545d81fb2f6fe87deca7482bac35d20bc56cf90b5f2d4b129294956",
+      "physical_lines": 185,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full authored/current physical read. Synthetic real SQLite ORM/current policy route or direct compensation controls. No external provider/storage service, real PostgreSQL locking, malicious-file scanner or production behavior claim. Post-run formatting of one lifecycle call is entire-AST exact in source equivalence receipt."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_distribution_reupload_lifetime.py",
+      "sha256": "3aa39116ccbb8f6cdc62e7a7643ae1380ce3b0f97d4a27f494e5375e8d4f2331",
+      "physical_lines": 237,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full authored/current physical read. Synthetic real SQLite ORM/current policy route or direct compensation controls. No external provider/storage service, real PostgreSQL locking, malicious-file scanner or production behavior claim. Post-run formatting of one lifecycle call is entire-AST exact in source equivalence receipt."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_distribution_compensation.py",
+      "sha256": "66567d2b532bb63ff03c8f19729a8bc4f1b50ba99a4f38c767bbffa96e3f2036",
+      "physical_lines": 63,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full authored/current physical read. Synthetic real SQLite ORM/current policy route or direct compensation controls. No external provider/storage service, real PostgreSQL locking, malicious-file scanner or production behavior claim. Post-run formatting of one lifecycle call is entire-AST exact in source equivalence receipt."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_distribution_matching.py",
+      "sha256": "5793652d336623a30e860bf9c81b7a5cfbbea1f113f86469c89d0dba57d411a0",
+      "physical_lines": 1223,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Only first110,1090-1175 and relevant selected foreign-save assertion read; no whole-file credit. One selected existing control executed."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_distribution_staging_routes.py",
+      "sha256": "9ed52130c26879815757d7f224476e3fcf72a19d3e3ad7f1157f78489724d04a",
+      "physical_lines": 851,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "First185 lines only for fixture/caller tracing; no whole-file credit."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_distribution_upload_abort.py",
+      "sha256": "1d5138d363656a87ca9733fc7957980920f4173a568c8ce41ab854ab910e704c",
+      "physical_lines": 397,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "First155 lines only here; prior root full review attribution remains separate."
+    }
+  ],
+  "reviewed_runtime_files": 14,
+  "reviewed_new_tests": 3,
+  "original_selected_runtime_lines": 1888,
+  "before_results": [
+    "Real SQLite/current policy ORM normal routes:3fail4controls; MissingGreenlet after rollback and stale processing cache are actual reproduced bugs.",
+    "Initial missing pg_advisory_xact_lock UDF:5fixture failures only, never adopted as runtime bugs.",
+    "Corrected synthetic no-op PG UDF normal reupload matrix:1fail4controls.",
+    "Actual ambient AnyIO scope:2fail10deselected.",
+    "Extended manual/reupload12 matrix:3fail9controls."
+  ],
+  "after_results": {
+    "final": "33passed30.92s",
+    "affected": "new ORM7 + upload lifetime16 + compensation4 + existing route/alias4 + foreign-save1 + actual MCP-save1",
+    "runtime_typecheck": "Success no issues in4source files",
+    "ruff_no_fix": "7files passed",
+    "formatter": "7files already formatted",
+    "test_format_provenance": "Runtime4 unchanged through final33. One test call formatted afterward; entire AST exact, two source hashes and limits retained in equivalence proof; no redundant test rerun."
+  },
+  "actual_coverage": {
+    "app/presentation/api/v1/routes/document_distribution_compensation.py": {
+      "line_percent": 100.0,
+      "branch_percent": 100.0,
+      "covered_lines": 20,
+      "statements": 20,
+      "covered_branches": 2,
+      "branches": 2
+    },
+    "app/presentation/api/v1/routes/document_distribution_manual_upload.py": {
+      "line_percent": 89.01098901098901,
+      "branch_percent": 50.0,
+      "covered_lines": 81,
+      "statements": 91,
+      "covered_branches": 8,
+      "branches": 16
+    },
+    "app/presentation/api/v1/routes/document_distribution_reupload.py": {
+      "line_percent": 89.74358974358974,
+      "branch_percent": 50.0,
+      "covered_lines": 70,
+      "statements": 78,
+      "covered_branches": 4,
+      "branches": 8
+    },
+    "app/presentation/api/v1/routes/document_distribution_save.py": {
+      "line_percent": 100.0,
+      "branch_percent": 100.0,
+      "covered_lines": 38,
+      "statements": 38,
+      "covered_branches": 6,
+      "branches": 6
+    }
+  },
+  "equivalence": {
+    "path": "docs/audit/dashboard-2026-10-30/document-residual-source-equivalence.json",
+    "sha256": "92f24c47b1dca729ccf43ea2c9c676312f4c8a6205d7dc679781d963f3cf178f",
+    "basis": "Exact whole function AST after only explicit behavior inverse; actual get_type_hints/default/decorator and3FastAPI OpenAPI contract comparisons; original import objects/MCP captured alias retained."
+  },
+  "raw_evidence": [
+    {
+      "path": ".tmp/document-residual-audit/before.txt",
+      "sha256": "344e73fc371c1ba609dddc50c4a9e6fb8fe8ab37c6c042a5b8890e2e47b4b401"
+    },
+    {
+      "path": ".tmp/document-residual-audit/orm-fixed.txt",
+      "sha256": "686f249019cffd0331d135299fa4b2c87fdf3dcc6b3375fc0adb06c86cfa409a"
+    },
+    {
+      "path": ".tmp/document-residual-audit/reupload-lifetime-before.txt",
+      "sha256": "9469ccf16ca5123de9b330749ad87a48b6039375e8a496af62da7bd19e20686f"
+    },
+    {
+      "path": ".tmp/document-residual-audit/reupload-lifetime-baseline.txt",
+      "sha256": "8c9101405c400aa379da0aa3d4a4800706d7576f1c42047448f6ea2829f18766"
+    },
+    {
+      "path": ".tmp/document-residual-audit/anyio-before.txt",
+      "sha256": "31aa875010ec00a8873fcc714eea6d1ebd1d9dc6ac4fd05da984930136d2fc7f"
+    },
+    {
+      "path": ".tmp/document-residual-audit/compensation-before.txt",
+      "sha256": "42ae2dc0cae5585793a86f4c8ed3ea04824fa895347fa642a38ea28f00bcb4d0"
+    },
+    {
+      "path": ".tmp/document-residual-audit/compensation-after.txt",
+      "sha256": "314fe8718a14baa6aa5439eb915190e5fc7f6e7664e49db76d99eca5499b6c89"
+    },
+    {
+      "path": ".tmp/document-residual-audit/final-tests.txt",
+      "sha256": "5b9e3ac7e1bfb4abb1a825b3c1a98cd6b2207a4f44b6238f6cd320a00abf2f33"
+    },
+    {
+      "path": ".tmp/document-residual-audit/types.txt",
+      "sha256": "d9a5631f7d87a741fbecc3236286d1792d22d349ff13846d71cdc9217307bb76"
+    },
+    {
+      "path": ".tmp/document-residual-audit/coverage.json",
+      "sha256": "04e003cf42fb3b06c29482ccaf4fddf594c41f1da1e260b33f1aa32a3cb2a96d"
+    },
+    {
+      "path": ".tmp/document-residual-audit/coverage.xml",
+      "sha256": "a70a39d3ef3b25a2098fb6769db807ec41bd256cafff2e7c4585882931ca80c6"
+    }
+  ],
+  "limits": [
+    "Synthetic accounts/documents and real local SQLite ORM, no real private data or provider sends.",
+    "No-op SQLite pg_advisory_xact_lock UDF permits actual SQL path; does NOT establish native PostgreSQL lock/MVCC or advisory serialization behavior.",
+    "Producer/PDF/classification/store boundaries isolated synthetically; not native AV/provider/Minio qualification.",
+    "Actual AnyIO CancelScope and asyncio repeated cancellation exercised; not a live disconnected API server proof.",
+    "Ambiguous commit outcomes preserve objects; ordinary cleanup/rollback errors retain original precedence.",
+    "No broad suite, build, browser or service-dependent qualification. Current source read does not close independent prior scope/roster architecture findings."
+  ],
+  "no_processes_or_services_running": true
+}

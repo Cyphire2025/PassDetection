@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { GroupUpdateDialog } from "./group-update-dialog";
@@ -165,4 +165,14 @@ it("keeps other broadcasts out of the preview and send selection", async () => {
   fireEvent.click(screen.getByRole("button", { name: "Send individually to 1" }));
   await screen.findByText("Queued for this broadcast.");
   expect(groupUpdatesApi.send).toHaveBeenCalledWith("trip", expect.objectContaining({ audience_keys: ["contact:0"] }));
+});
+
+it("admits one reviewed update when repeated submissions arrive before the pending render", async () => {
+  vi.mocked(groupUpdatesApi.send).mockImplementation(() => new Promise(() => {}));
+  mount();
+  await screen.findByText("3 people · 2 WhatsApp messages");
+  fireEvent.change(screen.getByLabelText("Your update message"), { target: { value: "Reviewed update." } });
+  const form = screen.getByRole("button", { name: "Send individually to 2" }).closest("form")!;
+  act(() => { fireEvent.submit(form); fireEvent.submit(form); });
+  await waitFor(() => expect(groupUpdatesApi.send).toHaveBeenCalledTimes(1));
 });

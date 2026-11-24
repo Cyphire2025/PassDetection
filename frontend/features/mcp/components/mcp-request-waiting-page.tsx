@@ -21,6 +21,11 @@ export function McpRequestWaitingPage({ requestId }: { requestId: string | strin
 
 function WaitingRequest({ id }: { id: string }) {
   const attempted = useRef(false);
+  const mounted = useRef(true);
+  useEffect(() => {
+    mounted.current = true;
+    return () => { mounted.current = false; };
+  }, []);
   const [finishing, setFinishing] = useState(false);
   const [finishError, setFinishError] = useState<string | null>(null);
   const query = useQuery({ queryKey: ["mcp-requester", id], queryFn: ({ signal }) => mcpRequestApi.status(id, signal),
@@ -34,9 +39,14 @@ function WaitingRequest({ id }: { id: string }) {
     attempted.current = true;
     setFinishing(true);
     void mcpRequestApi.finalize(id).then((response) => {
+      if (!mounted.current) return;
       const callback = validatedMcpRequestCallback(response, status === "rejected");
       mcpClientNavigation.assign(callback);
-    }).catch(() => { setFinishError("Your request could not be returned to the app. Start Authenticate again from your app to try a new request."); setFinishing(false); });
+    }).catch(() => {
+      if (!mounted.current) return;
+      setFinishError("Your request could not be returned to the app. Start Authenticate again from your app to try a new request.");
+      setFinishing(false);
+    });
   }, [id, status, query.isError, query.isFetching]);
   const ended = query.error instanceof McpRequestError && (query.error.status === 404 || query.error.status === 409);
   const declined = status === "rejected" || (status === "finalized" && !request?.approved_capabilities?.length);

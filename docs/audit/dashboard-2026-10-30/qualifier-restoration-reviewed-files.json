@@ -1,0 +1,62 @@
+[
+  {
+    "path": "frontend/features/upload/components/fresh-qualifier.tsx",
+    "sha256": "742ecf4bfaaec141e7a0e422419f57889eb44090679e70e47783cbbf0c6bf72c",
+    "physical_lines": 10,
+    "reviewer": "gc_models_finish",
+    "review_scope": "full",
+    "status": "reviewed-and-fixed",
+    "source_kind": "runtime",
+    "notes": "Complete current physical source read/authored in bounded tool output. Original stale entry failures and actual component/browser restoration negatives are preserved separately.35affected cases pass with current source hashes, scopedESLint and fulltsc pass; combined new production build/browser remains root-owned/pending. Existing backend owner/DTO checks are focused provenance only; no provider/production/security-scan execution claim."
+  },
+  {
+    "path": "frontend/features/upload/components/fresh-qualifier-editor.tsx",
+    "sha256": "a03066f52ef1f758e8136f9c5b451d91ab4255ab3dea5a053f1f57341cae0b92",
+    "physical_lines": 73,
+    "reviewer": "gc_models_finish",
+    "review_scope": "full",
+    "status": "reviewed-and-authored",
+    "source_kind": "runtime",
+    "notes": "Complete current physical source read/authored in bounded tool output. Original stale entry failures and actual component/browser restoration negatives are preserved separately.35affected cases pass with current source hashes, scopedESLint and fulltsc pass; combined new production build/browser remains root-owned/pending. Existing backend owner/DTO checks are focused provenance only; no provider/production/security-scan execution claim."
+  },
+  {
+    "path": "frontend/features/upload/hooks/use-qualifier-selection-editor.ts",
+    "sha256": "f6bb7ce7ad849fc2a289ee436a04cc9bd968fc7a2465dbe4e3a4b2cc6ed0ce63",
+    "physical_lines": 90,
+    "reviewer": "gc_models_finish",
+    "review_scope": "full",
+    "status": "reviewed-and-authored",
+    "source_kind": "runtime",
+    "notes": "Complete current physical source read/authored in bounded tool output. Original stale entry failures and actual component/browser restoration negatives are preserved separately.35affected cases pass with current source hashes, scopedESLint and fulltsc pass; combined new production build/browser remains root-owned/pending. Existing backend owner/DTO checks are focused provenance only; no provider/production/security-scan execution claim."
+  },
+  {
+    "path": "frontend/features/upload/components/fresh-qualifier.test.tsx",
+    "sha256": "cd8f37800ef843d4c4a5396957ca7185bde96903a68160b343b8acb3b72a9433",
+    "physical_lines": 164,
+    "reviewer": "gc_models_finish",
+    "review_scope": "full",
+    "status": "reviewed-and-authored",
+    "source_kind": "test",
+    "notes": "Complete current physical source read/authored in bounded tool output. Original stale entry failures and actual component/browser restoration negatives are preserved separately.35affected cases pass with current source hashes, scopedESLint and fulltsc pass; combined new production build/browser remains root-owned/pending. Existing backend owner/DTO checks are focused provenance only; no provider/production/security-scan execution claim."
+  },
+  {
+    "path": "frontend/features/passports/api/public-upload-link.api.ts",
+    "sha256": "d720cbf0a79ce838006b30e56b63b69ec992c96881ffa3cb62d3df0f2b3d005b",
+    "physical_lines": 81,
+    "reviewer": "gc_models_finish",
+    "review_scope": "full",
+    "status": "reviewed-and-fixed",
+    "source_kind": "runtime",
+    "notes": "Complete current physical source read/authored in bounded tool output. Original stale entry failures and actual component/browser restoration negatives are preserved separately.35affected cases pass with current source hashes, scopedESLint and fulltsc pass; combined new production build/browser remains root-owned/pending. Existing backend owner/DTO checks are focused provenance only; no provider/production/security-scan execution claim."
+  },
+  {
+    "path": "frontend/e2e/qualifier-relationship-methods.spec.ts",
+    "sha256": "d37bab442b0c382f07f6c3b7e5ccda56c858a60b43c5abc19c60254689dc618c",
+    "physical_lines": 165,
+    "reviewer": "gc_models_finish",
+    "review_scope": "full",
+    "status": "reviewed-and-fixed",
+    "source_kind": "test",
+    "notes": "Complete current physical source read/authored in bounded tool output. Original stale entry failures and actual component/browser restoration negatives are preserved separately.35affected cases pass with current source hashes, scopedESLint and fulltsc pass; combined new production build/browser remains root-owned/pending. Existing backend owner/DTO checks are focused provenance only; no provider/production/security-scan execution claim."
+  }
+]

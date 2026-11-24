@@ -20,6 +20,9 @@ from app.infrastructure.whatsapp.template_settings import (
     TemplateSettingsSnapshot,
 )
 from app.presentation.api.v1.routes import whatsapp_bulk_resend as route
+from app.presentation.api.v1.routes import whatsapp_bulk_resend_claims as claims
+from app.presentation.api.v1.routes import whatsapp_bulk_resend_inputs as inputs
+from app.presentation.api.v1.routes import whatsapp_bulk_resend_publication as publication
 from app.presentation.api.v1.routes import whatsapp_bulk_resend_support as support
 from app.presentation.api.v1.schemas.whatsapp_schemas import (
     WhatsAppBulkResendRequest,
@@ -94,18 +97,23 @@ def fixture(monkeypatch):
     replaced = AsyncMock(return_value=set())
     # These tests isolate saved-message selection/idempotency. The real
     # phone ledger and cross-source claims are exercised in test_phone_welcome.
-    monkeypatch.setattr(route, "claim_phone_welcome", AsyncMock(return_value="claimed"))
-    monkeypatch.setattr(route, "sync_failed_broadcast_welcomes", AsyncMock())
-    monkeypatch.setattr(route, "welcome_states_for_phones", AsyncMock(return_value={
+    phone_claim = AsyncMock(return_value="claimed")
+    phone_states = AsyncMock(return_value={
         recipient.normalized_phone_number: "delivered" for recipient in recipients
-    }))
+    })
+    monkeypatch.setattr(claims, "claim_phone_welcome", phone_claim)
+    monkeypatch.setattr(inputs, "sync_failed_broadcast_welcomes", AsyncMock())
+    monkeypatch.setattr(inputs, "welcome_states_for_phones", phone_states)
+    # Existing caller assertions observe the same actual consumer mocks.
+    monkeypatch.setattr(route, "claim_phone_welcome", phone_claim)
+    monkeypatch.setattr(route, "welcome_states_for_phones", phone_states)
     monkeypatch.setattr(route.AuditLogRepository, "record", audit)
-    monkeypatch.setattr(route, "publish_whatsapp_task", publish)
-    monkeypatch.setattr(route, "expire_stale_explicit_claims", expire)
-    monkeypatch.setattr(route, "selection_delivery_maps", maps)
-    monkeypatch.setattr(route, "active_replacement_phone_numbers_for_broadcast", replaced)
+    monkeypatch.setattr(publication, "publish_whatsapp_task", publish)
+    monkeypatch.setattr(inputs, "expire_stale_explicit_claims", expire)
+    monkeypatch.setattr(inputs, "selection_delivery_maps", maps)
+    monkeypatch.setattr(inputs, "active_replacement_phone_numbers_for_broadcast", replaced)
     monkeypatch.setattr(
-        route,
+        publication,
         "get_settings",
         lambda: SimpleNamespace(
             whatsapp_access_token="test-token",
@@ -396,7 +404,7 @@ async def test_missing_provider_config_rolls_back_and_never_records_accepted_req
     fixture, monkeypatch
 ):
     monkeypatch.setattr(
-        route,
+        publication,
         "get_settings",
         lambda: SimpleNamespace(
             whatsapp_access_token="",
@@ -459,7 +467,7 @@ async def test_broker_failure_compensates_only_unclaimed_rows_and_returns_same_b
     fixture, monkeypatch
 ):
     compensate = AsyncMock()
-    monkeypatch.setattr(route, "fail_unclaimed_broadcast_rows", compensate)
+    monkeypatch.setattr(publication, "fail_unclaimed_broadcast_rows", compensate)
     fixture.publish.side_effect = RuntimeError("test broker interruption")
     failed = [
         SimpleNamespace(

@@ -1,0 +1,71 @@
+{
+  "status": "AWS/delivery provider checkpoint sealed; larger MyPhotos architecture follow-through remains open",
+  "runtime_sha256": {
+    "backend/app/infrastructure/my_photos/aws_client_runtime.py": "b976351ba066c19c030d21a33efa231fb48225a8a4de201fa19ef6faefb3b91b",
+    "backend/app/infrastructure/my_photos/aws_face_results.py": "36e1ac2b0bec8f6a9094bc511a5e3711bd04e68fd0244cd2006a9a34217b8496",
+    "backend/app/infrastructure/my_photos/aws_face_search.py": "3d01884c71763ce4b98c421f2e296ab519b5b4f1703e607285e61063729ffc08",
+    "backend/app/infrastructure/my_photos/aws_liveness.py": "4f107cd3ea0ed5de25c1a656f91827fbf33b4f5341d4df37ed26b688cfe47120",
+    "backend/app/infrastructure/my_photos/aws_media_delivery.py": "4f98a3069e96df0d6f9fb75c29b109a4f8f62ddb16fb7fd1cab332d62d517fe0",
+    "backend/app/infrastructure/my_photos/aws_media_location.py": "e83f24ace49c180843d9973106e97ad2fefd8a5432a7b663d93ba3a4370fb3fe",
+    "backend/app/infrastructure/my_photos/aws_media_metadata.py": "461bcfefe682ebf55a71dc2daa909c23704b64628d86b5d65a009d5f6b960298",
+    "backend/app/infrastructure/my_photos/aws_provider_config.py": "0202641ed2a62006ba6f4ec2719d1441dec4aa615d5e6018cd9bff8e115869c0",
+    "backend/app/infrastructure/my_photos/aws_providers.py": "14ef990b443a3e3c1b88911a7d37c2516a03e14b0035c90637c743baccaf09e8",
+    "backend/app/infrastructure/my_photos/aws_references.py": "16bdb1b0d968fd041bb01f9e8ea6af412ab0eb1b0eb950b4d90c44553a46742a",
+    "backend/app/infrastructure/my_photos/delivery_assets.py": "ac7552308e2ec93abb0ecbbb436f8ed3837eda85e7cd3f9399c3456963d7d0e9",
+    "backend/app/infrastructure/my_photos/delivery_authorizations.py": "9046604ceccb397a12da11113a483b9aa5ad044f2d25c9f7a8704fddfb90a168",
+    "backend/app/infrastructure/my_photos/delivery_context.py": "af629e7efa13952428cc21fe1a8bb7bd355c05ba1c5d25fbf29c5ef8600e39f3",
+    "backend/app/infrastructure/my_photos/delivery_downloads.py": "15c0de8a6b74c9e94d5e4b67fd14f64be018bfcbdcb994db3eb6d4e7011e6248",
+    "backend/app/infrastructure/my_photos/delivery_plan.py": "25eb7ce1a2faa35ab33a8e74cfe90dd1c104752ec23d85db66f7a3e372eaf850",
+    "backend/app/infrastructure/my_photos/delivery_policy.py": "673613f7140aec65ca3f6d46bbc1a442eb8dc215911996bf4a3130c383b0f704",
+    "backend/app/infrastructure/my_photos/delivery_preparation.py": "1f00c8952de5d462b37b287ffb6fc091d281dac645b51fc41a9d6cd24c9e69de",
+    "backend/app/infrastructure/my_photos/delivery_previews.py": "b043c34700d0a2fbf62f1b6b2fadb49491f742dbc35831b0685585488336fa5c",
+    "backend/app/infrastructure/my_photos/delivery_projection.py": "131282f9f76eb5fff5ccdb2f0a43fe2d9ddd6ccb09f9588ec78a2049802dcfbc",
+    "backend/app/infrastructure/my_photos/delivery_provider.py": "07ca9ff10ba44d177ab63baacae52954d47970e040bb164dfd702dce0d21181b",
+    "backend/app/infrastructure/my_photos/delivery_service.py": "97d6c44090c83acc01278a95b09f1f11a46a13839c2017698ce34bd1f481d5a9"
+  },
+  "runtime_owners": 21,
+  "candidate_count": 21,
+  "structure": {
+    "AWS": "1768original/1807post-six-fix \u2192140facade+9owners82\u2013422lines",
+    "delivery": "1584original/1669post13fix \u2192319facade+10owners36\u2013380lines; later2narrow edits explicit"
+  },
+  "proofs": [
+    "my-photos-aws-extraction-proof.json:46post-six-fix declarations AST-identical during extraction",
+    "my-photos-delivery-extraction-proof.json:26post13fix bodies unchanged after explicit ownership relocation;17signatures retained",
+    "my-photos-delivery-final-structural-proof.json:24unchanged +2later proved lock/redundant-assignment edits"
+  ],
+  "verification": {
+    "initial_coherent_run": "172passed/19files/130.82s with45runtime+19test source fence unchanged",
+    "current_changed_owner_supplement": "25passed/3files/61.19s;2changed owner coverage records purged before append; all retained source hashes match",
+    "unique_cases": 184,
+    "passing_executions": 197,
+    "new_delivery_workflows": "12additional readiness/archive/idempotency/error/synthetic-content controls; initial11pass/1missing canonical lock failed before fence",
+    "limits": "Not a latest full-backend/full-172-source run; SQLite+PGcompiled ordering is not live PostgreSQL concurrency or migration qualification. No actual provider calls."
+  },
+  "manual_findings": [
+    "AWS raw HMAC config repr exposed keys:repr-only suppression; no live logging sink claimed.",
+    "AWS storage/dispatch/SDKsigning delays could extend absolute delegated expiry:deadline-bound signing plus actual SigV4 timestamp/lifetime validation.",
+    "Late deletion outcome could consume/finalize newer attempt for same current/superseded reference:exact attempt fence.",
+    "First/next gallery indexing violated face-version/counter constraints; target revision and atomic published counters corrected.",
+    "Late cancelled/expired/disabled index scope could still publish:current scoped gallery/job/lease predicates, gallery-before-job lock order.",
+    "Delivery stale claims/post-provider revoked gallery or removed asset/current grants/window bounds violated13actual regressions:current refresh/claim/expiry/grant fences and window caps.",
+    "Preparation replay lookup had no canonical identity FOR UPDATE:source-established race risk and actual ORM/PGcompiled order regression fixed; no live concurrent PostgreSQL defect reproduction claimed."
+  ],
+  "coverage_debt": "AWS statement67.57\u2013100%, branch37.5\u201375%; delivery statement77.08\u2013100%, branch50\u2013100% where branches exist. New measured floors do not certify exhaustive branch/security qualification. No existing floor/global/critical policy is changed.",
+  "remaining_follow_through": [
+    "Large1437-line ORM metadata owner; preserve exact mapper/DDL/default/FK/class aliases if split.",
+    "Gallery ingestion1743, operational worker~1077, search worker709, recovery521 and summary452 remain coherent architecture follow-through despite complete physical reads.",
+    "Late rejected liveness reference cleanup and cancellation of underlying native provider threads remain ownership/lifecycle candidates requiring actual caller proof; no blanket clearance.",
+    "Post-provider derivative/version mutation edges beyond tested13guards remain explicit future investigation."
+  ],
+  "primary_provider_reference": "https://docs.aws.amazon.com/AmazonS3/latest/developerguide/sigv4-query-string-auth.html",
+  "provider_reference_scope": "AWS documents X-Amz-Date and X-Amz-Expires as the signed timestamp/lifetime; SDKcontract exercised offline with pinned boto3/botocore and synthetic credentials. No AWS account operation.",
+  "artifacts": {
+    "my-photos-runtime-checkpoint-source-fence.json": "9414d0a51ae948b0037f597b630fc3cd6a129bc8cdbccc8ba33a7ee54bdbcc5b",
+    "my-photos-delivery-workflow-supplement.json": "e2a01e0836c9ccbe6e98171dca38a1db17cc386e9ba1964933a8bbe679180526",
+    "my-photos-runtime-final-coverage.json": "e36263410fd92e4b240c9084418ef05afba3b754b0c4612a78ae9047c49b069f",
+    "my-photos-aws-extraction-proof.json": "c8c4e2915ee7139ac8b947fdbf6a650d4068f49df39bf44138058c923cc19cb3",
+    "my-photos-delivery-final-structural-proof.json": "7cedf9b25f8c858fb8b8c7316ec25ce81ae7d951f214e2b3abae94ffaae944d0",
+    "my-photos-provider-delivery-budget-candidates.json": "b8232d617182fa2efb01378d65909eb9a0a3047b94ecb9336f895f1be0fc8c49"
+  }
+}

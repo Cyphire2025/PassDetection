@@ -4,9 +4,9 @@ The generated, reviewed reference is [`backend/contracts/api.openapi.json`](../b
 
 ```powershell
 cd backend
-.venv311\Scripts\python.exe scripts/export_api_contract.py
+.venv\Scripts\python.exe scripts/export_api_contract.py
 # Only after intentionally changing the interface:
-.venv311\Scripts\python.exe scripts/export_api_contract.py --write
+.venv\Scripts\python.exe scripts/export_api_contract.py --write
 ```
 
 CI fails on unexplained snapshot drift. Review request fields, requiredness, bounds, authentication, success/error codes and content types in the generated diff; generating a snapshot does not itself prove compatibility. Backward-compatible additions stay in `/api/v1`; removing or changing an existing wire contract requires a separately reviewed migration/deprecation plan or a new API version. Never change a generated file without changing and testing its route implementation.

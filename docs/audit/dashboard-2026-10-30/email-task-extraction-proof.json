@@ -1,0 +1,112 @@
+{
+  "original_path": "backend/app/infrastructure/email/tasks.py",
+  "original_sha256": "e6d2906d78fd9c504c2876dd59ffb91bf29114fb7dcbfd0a4fc6c8cfd6ca2846",
+  "sources": [
+    {
+      "path": "backend/app/infrastructure/email/tasks.py",
+      "physical_lines": 217,
+      "sha256": "8f6f1ffaeef887685738600dfedb599683b2c029e526829686557b3c9c30f186"
+    },
+    {
+      "path": "backend/app/infrastructure/email/task_dispatch.py",
+      "physical_lines": 93,
+      "sha256": "86b9b4c57d77c9212aeb09da52319a344545600723358ef6987c543df0a7a231"
+    },
+    {
+      "path": "backend/app/infrastructure/email/task_retention.py",
+      "physical_lines": 206,
+      "sha256": "8993ffeaf443ba7702d5dfcb8b82bd92ccb3f1a01c6fa56352826f1bd4c6a740"
+    },
+    {
+      "path": "backend/app/infrastructure/email/storage_reconciliation.py",
+      "physical_lines": 113,
+      "sha256": "82c537430f63511991de71b143291cf7a4e8a6b8bf9a6ae53880399430b0b88c"
+    }
+  ],
+  "declarations": [
+    {
+      "name": "sync_email_connection",
+      "owner": "backend/app/infrastructure/email/tasks.py",
+      "whole_declaration_ast_equal": true,
+      "decorators_and_annotations_equal": true
+    },
+    {
+      "name": "dispatch_due_email_connections",
+      "owner": "backend/app/infrastructure/email/tasks.py",
+      "whole_declaration_ast_equal": true,
+      "decorators_and_annotations_equal": true
+    },
+    {
+      "name": "apply_email_retention",
+      "owner": "backend/app/infrastructure/email/tasks.py",
+      "whole_declaration_ast_equal": true,
+      "decorators_and_annotations_equal": true
+    },
+    {
+      "name": "record_email_scheduler_heartbeat",
+      "owner": "backend/app/infrastructure/email/tasks.py",
+      "whole_declaration_ast_equal": true,
+      "decorators_and_annotations_equal": true
+    },
+    {
+      "name": "EmailSyncTaskEnvelope",
+      "owner": "backend/app/infrastructure/email/task_dispatch.py",
+      "whole_declaration_ast_equal": true,
+      "decorators_and_annotations_equal": true
+    },
+    {
+      "name": "_claim_due_dispatches",
+      "owner": "backend/app/infrastructure/email/task_dispatch.py",
+      "whole_declaration_ast_equal": true,
+      "decorators_and_annotations_equal": true
+    },
+    {
+      "name": "_apply_email_retention",
+      "owner": "backend/app/infrastructure/email/task_retention.py",
+      "whole_declaration_ast_equal": true,
+      "decorators_and_annotations_equal": true
+    },
+    {
+      "name": "_reconcile_orphaned_email_storage",
+      "owner": "backend/app/infrastructure/email/storage_reconciliation.py",
+      "whole_declaration_ast_equal": true,
+      "decorators_and_annotations_equal": true
+    },
+    {
+      "name": "_delete_unreferenced_email_storage_keys",
+      "owner": "backend/app/infrastructure/email/storage_reconciliation.py",
+      "whole_declaration_ast_equal": true,
+      "decorators_and_annotations_equal": true
+    },
+    {
+      "name": "_storage_object_is_older_than",
+      "owner": "backend/app/infrastructure/email/storage_reconciliation.py",
+      "whole_declaration_ast_equal": true,
+      "decorators_and_annotations_equal": true
+    }
+  ],
+  "whole_declarations": 10,
+  "test_sources": [
+    {
+      "path": "backend/tests/unit/infrastructure/test_email_task_routing.py",
+      "before_sha256": "68ff06458ca021fd8e9e58752d3eb9274d2a9c86d8747b290bf447c0b4364529",
+      "after_sha256": "91bf1fc647193d0fcf39ffcfafcd5bced5fbcc727f8ad17c714bc78043a34ebe",
+      "all_test_function_asts_equal_after_only_instrumentation_retargets": true
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_email_task_outcomes.py",
+      "before_sha256": "65a93d0bd18c3a76dd38d39e1395c14d6755315db334d72d8228bf795bc3cf65",
+      "after_sha256": "b472ae89876ad44b79889daf0f30f96b3187caaf5a6dbe08b4f3e2b044d43f62",
+      "all_test_function_asts_equal_after_only_instrumentation_retargets": true
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_email_retention_persistence.py",
+      "before_sha256": "074aa31181cdf394f891cddafb2ec120bcbb5cb39a60f35cfb367cfa1879ef28",
+      "after_sha256": "fe7fed7f5c2941b588f7e617818ebe6ad3edfb603f0e0bdd73c293b629634dfb",
+      "all_test_function_asts_equal_after_only_instrumentation_retargets": true
+    }
+  ],
+  "assertion_nodes_unchanged": 86,
+  "instrumentation_dependency_retargets": 17,
+  "notes": "No workflow, SQL statement, storage deletion policy, counter, transaction, logger identity, task decorator, or task name changed. New data types/frameworks/dependencies are absent. Legacy class source introspection moves to task_dispatch.py; evaluated hints/module/qualname/pickle and real Celery objects are separately observed."
+}

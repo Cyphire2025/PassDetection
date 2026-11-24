@@ -1,0 +1,50 @@
+[
+  {
+    "path": "scripts/qa/qualify_artifact_retrieval.py",
+    "sha256": "12ef034182020a1b757e63d097eb02ecbedcc9ae69393bda0492376bfc0c6e31",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete101-line source read: disposable tmpfs loopback registry, two synthetic OCI revisions and independently verified manifest/config/layer bytes, exact wrong-ID/revision rejection, scoped stop and explicit OIDC/retention limits. No registry/image/container execution or signature claim."
+  },
+  {
+    "path": "scripts/qa/qualify_storage_provider.py",
+    "sha256": "e03af259166105767ab72adaaefe6822643b9d70800a9ea112604603c2c9cbc6",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete106-line source read: exact synthetic bucket/endpoint guards, real adapter private operations, version retention and unauthorized-bucket/provider-network negative checks. No endpoint contacted, synthetic objects created or credentials read. Existing fixed synthetic test credentials are fixture data."
+  },
+  {
+    "path": "scripts/qa/qualify_postgresql_client.py",
+    "sha256": "c8938a3213ca369cd173efafcdfe799d63c6bda43f9f3e6925bc4ee44e8245d1",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete225-line source read in contiguous130+95 segments: exact image revision/config, disposable TLS/SCRAM fixtures and owned labelled resource cleanup, bounded command/readiness/driver errors and wrong-CA proof. Actual cleanup uses verified immutable IDs and registered names; no database, certificates or Docker created/executed."
+  },
+  {
+    "path": "scripts/qa/qualify_retained_redis_transition.py",
+    "sha256": "6a224f7ae763c761264be1a37e87253a99c4b26633fe2064a780a201fd1d699a",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete142-line source read: isolated labelled synthetic resource adapter uses exact local image IDs, writer fence, deliberate orphan-create recovery, complete fingerprint/TTL and actual cgroup receipts; ownership/network checked before scoped removals. No retained production database, local image or Docker accessed."
+  },
+  {
+    "path": "scripts/qa/qualify_redis_dataset_transition.py",
+    "sha256": "fa857b3ae0a8f4b89f6941c90be33f85d4b4119f17c11d7f5211f44a317a03fc",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete210-line source read in contiguous halves: host RAM guard, unique synthetic network-none Redis fixtures, exact original volume label/ID, interruption/resume and type/TTL/fingerprint preservation, scoped cleanup that bypasses admission only for own resources. Fixed synthetic credential only; no live Redis/container/data inspected or load run."
+  },
+  {
+    "path": "scripts/qa/qualify_persistent_service_memory.py",
+    "sha256": "62f2c51af3690dd8823edb2084019e9026f52fe563b7626d423b68b6db9367e9",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete261-line source read in contiguous135+126 segments: independent synthetic Redis fill/fork and separately guarded qualification Clam signature source/reload, explicit fixture hashes, retained containers/data, scoped stop and honest memory/evidence limits. Dedicated email fixture referenced only as existing shared scanner capacity input, no Inbox feature audit. Error-path child/pool cleanup remains a source-only follow-up; no current orphan/capacity claim or service execution."
+  }
+]

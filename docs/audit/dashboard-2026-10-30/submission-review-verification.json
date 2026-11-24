@@ -1,0 +1,270 @@
+{
+  "status": "frozen",
+  "source_fence": {
+    "backend/app/presentation/api/v1/routes/passport_routes/submission_review.py": "4448a7071295eb89fb960960c8e686c06ff0da7d44e7e1be952c3274a600d9d7",
+    "backend/app/presentation/api/v1/routes/passport_routes/submission_execution.py": "0f94c81818d84f389b67e93543b83553b0846feb4f99373cc3155a3b6882ebd7",
+    "backend/tests/route_dependencies.py": "e80fe87973a7a26de0b4f3279397908dabb7bf6649b977cb74350a28dc6fe1b4",
+    "backend/tests/unit/presentation/test_staff_approval_route.py": "7c4f7ad03c84ee67df04c7116ea5ff21b51881f7d5aa4fa2c3b5916a2a77a86f",
+    "backend/tests/unit/presentation/test_passport_ai_retry_route.py": "849fd696eb81222b35bcf90a975d501195c85d5c637f7ae6b2164967ab337c89",
+    "backend/tests/unit/presentation/test_client_submit_cleanup_order.py": "e684910999cf8cfaf18d4a8bcc9c96f9198d96f3c5f228110a1b8a547a228e1e",
+    "backend/tests/unit/presentation/test_sensitive_read_audit.py": "22af0386e46a5664771c6e2c8f0e164c0fb8d8de4bac285330071157b20f67a0",
+    "backend/tests/unit/presentation/test_configured_public_upload.py": "41b85fcf951228f78b91b1acdae947f86d6f276d8e6984d2f3f2164b4f6e7d8a",
+    "backend/tests/unit/presentation/test_public_upload_contact_otp.py": "a3a13a19ac9a8a7665e7ce2a68d53af3b7c0a448adad271b6b7bc106c6d981ee",
+    "backend/tests/unit/presentation/test_passport_route_decomposition.py": "7b1ee92647844d22d84a29cc90180c58c1888c51c1cfbb1b0a0751d6efafec49",
+    "backend/tests/unit/application/test_retained_data_authorization.py": "bec5c2212d70b651d04a40aed64c1f3ae4058be44472a75720c668cc8d958998",
+    "backend/tests/unit/application/test_post_submission_verification_workflow.py": "ab94c73631caa5ef7fc66e8782bedaf12fa05d05631d298382557229b24d55bb",
+    "backend/tests/unit/presentation/test_passport_review_persistence.py": "986beaf037f24d4af8049a90a8e78a5db7cf6254fa4d642fdc7de3737f4724fc",
+    "backend/app/presentation/api/v1/routes/passport_routes/submission_review_approval.py": "0ab762a2dedf15458d2a122ae694673697b1886013e35d461d235aa6a09ceea4",
+    "backend/app/presentation/api/v1/routes/passport_routes/submission_review_client.py": "ee16659a97152e26d852f44fd77f7a8ae1d75b3bdca52b14fefa0387dd0fdd77",
+    "backend/app/presentation/api/v1/routes/passport_routes/submission_review_confirmation.py": "b5439cd454fe40ddefe19690f60e1665386a99048f7ac6607db5c8a160674b29",
+    "backend/app/presentation/api/v1/routes/passport_routes/submission_review_processing.py": "9ea3488f3c1db847b128edb3dff59edd710b9aa5a1d5bc99f9a4d9f8c5a903b5",
+    "backend/app/presentation/api/v1/routes/passport_routes/submission_review_read.py": "54f37e6940ca8abca757e3432fa2141ba994344a0030781c7d197ae289cb7931",
+    "backend/app/presentation/api/v1/routes/passport_routes/submission_review_support.py": "85d293f81fe8fcd4bf0295fe6e30ab1fde8fbcd23b27d46c2a3d9c1047960970"
+  },
+  "runtime_files": 8,
+  "review_architecture_owners": 7,
+  "behavior": "Shared history scheduling removes two identical four-statement blocks with exact scope, trigger and order; other controller statements remain exact.",
+  "proof": "submission-review-extraction-proof.json",
+  "proof_sha256": "452add08e5064066bed85b01f263ef536eea1f4cde4d1bf88b2fdf6f01a621c8",
+  "tests": {
+    "before": "submission-review-before-command.json",
+    "extracted": "submission-review-extracted-command.json",
+    "final": "submission-review-final-command.json",
+    "before_and_extracted": "149 passed plus the same19 subtests in9files",
+    "final_result": "153 passed plus19 subtests in10files",
+    "additional_cases": 4,
+    "additional_scope": "Real FK-enabled SQLite reextract/cancel job/revision/audit, missing-job404, fresh versus retained history acceptance; synthetic dispatch/serialization/history scheduling only."
+  },
+  "coverage": {
+    "json": "submission-review-coverage.json",
+    "xml": "submission-review-coverage.xml",
+    "owners": [
+      {
+        "path": "backend/app/presentation/api/v1/routes/passport_routes/submission_review.py",
+        "lines": 161,
+        "complexity": 0,
+        "coverage": {
+          "covered_lines": 89,
+          "num_statements": 89,
+          "percent_covered": 100.0,
+          "percent_covered_display": "100",
+          "missing_lines": 0,
+          "excluded_lines": 0,
+          "percent_statements_covered": 100.0,
+          "percent_statements_covered_display": "100",
+          "num_branches": 0,
+          "num_partial_branches": 0,
+          "covered_branches": 0,
+          "missing_branches": 0,
+          "percent_branches_covered": 100.0,
+          "percent_branches_covered_display": "100"
+        }
+      },
+      {
+        "path": "backend/app/presentation/api/v1/routes/passport_routes/submission_execution.py",
+        "lines": 44,
+        "complexity": 5,
+        "coverage": {
+          "covered_lines": 6,
+          "num_statements": 6,
+          "percent_covered": 100.0,
+          "percent_covered_display": "100",
+          "missing_lines": 0,
+          "excluded_lines": 0,
+          "percent_statements_covered": 100.0,
+          "percent_statements_covered_display": "100",
+          "num_branches": 0,
+          "num_partial_branches": 0,
+          "covered_branches": 0,
+          "missing_branches": 0,
+          "percent_branches_covered": 100.0,
+          "percent_branches_covered_display": "100"
+        }
+      },
+      {
+        "path": "backend/app/presentation/api/v1/routes/passport_routes/submission_review_approval.py",
+        "lines": 181,
+        "complexity": 9,
+        "coverage": {
+          "covered_lines": 54,
+          "num_statements": 59,
+          "percent_covered": 90.47619047619048,
+          "percent_covered_display": "90",
+          "missing_lines": 5,
+          "excluded_lines": 0,
+          "percent_statements_covered": 91.52542372881356,
+          "percent_statements_covered_display": "92",
+          "num_branches": 4,
+          "num_partial_branches": 1,
+          "covered_branches": 3,
+          "missing_branches": 1,
+          "percent_branches_covered": 75.0,
+          "percent_branches_covered_display": "75"
+        }
+      },
+      {
+        "path": "backend/app/presentation/api/v1/routes/passport_routes/submission_review_client.py",
+        "lines": 131,
+        "complexity": 13,
+        "coverage": {
+          "covered_lines": 45,
+          "num_statements": 52,
+          "percent_covered": 83.33333333333333,
+          "percent_covered_display": "83",
+          "missing_lines": 7,
+          "excluded_lines": 0,
+          "percent_statements_covered": 86.53846153846153,
+          "percent_statements_covered_display": "87",
+          "num_branches": 8,
+          "num_partial_branches": 1,
+          "covered_branches": 5,
+          "missing_branches": 3,
+          "percent_branches_covered": 62.5,
+          "percent_branches_covered_display": "62"
+        }
+      },
+      {
+        "path": "backend/app/presentation/api/v1/routes/passport_routes/submission_review_confirmation.py",
+        "lines": 116,
+        "complexity": 5,
+        "coverage": {
+          "covered_lines": 24,
+          "num_statements": 40,
+          "percent_covered": 60.0,
+          "percent_covered_display": "60",
+          "missing_lines": 16,
+          "excluded_lines": 0,
+          "percent_statements_covered": 60.0,
+          "percent_statements_covered_display": "60",
+          "num_branches": 0,
+          "num_partial_branches": 0,
+          "covered_branches": 0,
+          "missing_branches": 0,
+          "percent_branches_covered": 100.0,
+          "percent_branches_covered_display": "100"
+        }
+      },
+      {
+        "path": "backend/app/presentation/api/v1/routes/passport_routes/submission_review_processing.py",
+        "lines": 238,
+        "complexity": 8,
+        "coverage": {
+          "covered_lines": 70,
+          "num_statements": 90,
+          "percent_covered": 76.53061224489795,
+          "percent_covered_display": "77",
+          "missing_lines": 20,
+          "excluded_lines": 0,
+          "percent_statements_covered": 77.77777777777777,
+          "percent_statements_covered_display": "78",
+          "num_branches": 8,
+          "num_partial_branches": 3,
+          "covered_branches": 5,
+          "missing_branches": 3,
+          "percent_branches_covered": 62.5,
+          "percent_branches_covered_display": "62"
+        }
+      },
+      {
+        "path": "backend/app/presentation/api/v1/routes/passport_routes/submission_review_read.py",
+        "lines": 82,
+        "complexity": 5,
+        "coverage": {
+          "covered_lines": 32,
+          "num_statements": 34,
+          "percent_covered": 91.66666666666667,
+          "percent_covered_display": "92",
+          "missing_lines": 2,
+          "excluded_lines": 0,
+          "percent_statements_covered": 94.11764705882354,
+          "percent_statements_covered_display": "94",
+          "num_branches": 2,
+          "num_partial_branches": 1,
+          "covered_branches": 1,
+          "missing_branches": 1,
+          "percent_branches_covered": 50.0,
+          "percent_branches_covered_display": "50"
+        }
+      },
+      {
+        "path": "backend/app/presentation/api/v1/routes/passport_routes/submission_review_support.py",
+        "lines": 135,
+        "complexity": 5,
+        "coverage": {
+          "covered_lines": 31,
+          "num_statements": 46,
+          "percent_covered": 64.28571428571429,
+          "percent_covered_display": "64",
+          "missing_lines": 15,
+          "excluded_lines": 0,
+          "percent_statements_covered": 67.3913043478261,
+          "percent_statements_covered_display": "67",
+          "num_branches": 10,
+          "num_partial_branches": 1,
+          "covered_branches": 5,
+          "missing_branches": 5,
+          "percent_branches_covered": 50.0,
+          "percent_branches_covered_display": "50"
+        }
+      }
+    ]
+  },
+  "checks": [
+    {
+      "name": "types",
+      "argv": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "mypy",
+        "app/presentation/api/v1/routes/passport_routes/submission_review.py",
+        "app/presentation/api/v1/routes/passport_routes/submission_execution.py",
+        "app/presentation/api/v1/routes/passport_routes/submission_review_approval.py",
+        "app/presentation/api/v1/routes/passport_routes/submission_review_client.py",
+        "app/presentation/api/v1/routes/passport_routes/submission_review_confirmation.py",
+        "app/presentation/api/v1/routes/passport_routes/submission_review_processing.py",
+        "app/presentation/api/v1/routes/passport_routes/submission_review_read.py",
+        "app/presentation/api/v1/routes/passport_routes/submission_review_support.py"
+      ],
+      "exit_code": 0,
+      "output": "submission-review-types.txt"
+    },
+    {
+      "name": "lint",
+      "argv": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "ruff",
+        "check",
+        "--no-fix",
+        "app/presentation/api/v1/routes/passport_routes/submission_review.py",
+        "app/presentation/api/v1/routes/passport_routes/submission_execution.py",
+        "app/presentation/api/v1/routes/passport_routes/submission_review_approval.py",
+        "app/presentation/api/v1/routes/passport_routes/submission_review_client.py",
+        "app/presentation/api/v1/routes/passport_routes/submission_review_confirmation.py",
+        "app/presentation/api/v1/routes/passport_routes/submission_review_processing.py",
+        "app/presentation/api/v1/routes/passport_routes/submission_review_read.py",
+        "app/presentation/api/v1/routes/passport_routes/submission_review_support.py",
+        "tests/unit/presentation/test_staff_approval_route.py",
+        "tests/unit/presentation/test_passport_ai_retry_route.py",
+        "tests/unit/presentation/test_client_submit_cleanup_order.py",
+        "tests/unit/presentation/test_sensitive_read_audit.py",
+        "tests/unit/presentation/test_passport_review_persistence.py",
+        "tests/route_dependencies.py",
+        "tests/unit/application/test_retained_data_authorization.py"
+      ],
+      "exit_code": 0,
+      "output": "submission-review-lint.txt"
+    }
+  ],
+  "budget_candidates": "submission-review-budget-candidates.json",
+  "existing_floor": "Original59% ordinary floor transferred to all actual logic owners; higher floors adopted where observed; no critical include/floor removed.",
+  "review_counts": {
+    "full": 19,
+    "focused": 5
+  },
+  "limitations": [
+    "No new runtime security bug validated in this batch.",
+    "No live broker, provider, PostgreSQL locking or production qualification.",
+    "Existing174-case image receipt retains frozen runtime; shared test-only mock-binding helper gained the explicitly named review facade."
+  ]
+}

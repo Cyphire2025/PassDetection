@@ -1,0 +1,20 @@
+{
+  "status": "Complete physical source-only review of listed retained files; mixed scope explicitly focused",
+  "ledger": "retained-mcp-ingestion-journey-test-source-reviewed-files.json",
+  "ledger_sha256": "03fd058fdde2dea7cc0e03a9488bf5039f563784d7ee73d78fe90cca91ecf624",
+  "full_files": 4,
+  "full_physical_lines": 1318,
+  "focused_files": 0,
+  "current_source_hashes": {
+    "backend/tests/integration/test_mcp_pdf_ingestion.py": "1d816367f97dcfef27387a308d820950397f66bde994d31be9fab3c67f209aac",
+    "backend/tests/service_integration/test_mcp_pdf_ingestion_postgresql.py": "864ccc66c91a31820bb626cb1d0ce983540994daf5b60b6cdfd64b680e2c0655",
+    "backend/tests/integration/test_mcp_excel_group_link_journey.py": "882d7e49ec8d9399cbb4198971446f0d66a4dec63943cd746f100bb1822acc5e",
+    "backend/tests/integration/test_mcp_excel_message_journey.py": "a7ca19ed92457e6816b39ff05cff406e101354b545f7aa777d56d92b19be0bb7"
+  },
+  "source_unchanged_since_discovery": true,
+  "new_tests_executed": 0,
+  "runtime_or_test_edits": 0,
+  "new_validated_runtime_findings": 0,
+  "existing_full_findings_automatically_closed": false,
+  "limits": "Text review verifies source assertions and fixture boundaries only; does not establish those tests pass, actual PostgreSQL/Redis/storage concurrency, provider output, browser/native transport or deployed behavior. Inbox assertions in mixed files remain deferred. No gate/binding/stamp/MCP1990 refresh."
+}

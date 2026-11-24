@@ -1,0 +1,245 @@
+{
+  "method": "AST direct/relative import graph plus conservative exact module-valued literals for Celery/registry/importlib edges. Supporting static triage, not manual full-source credit or exhaustive proof of arbitrary reflective Python. Whole-maintained literal/symbol/config/DI/entrypoint/MCP searches and inspected dynamic resolver sites supplement the graph.",
+  "module_count": 1646,
+  "entrypoints": [
+    "app.main",
+    "app.infrastructure.processing.celery_app"
+  ],
+  "reachable_count": 1562,
+  "candidates": [
+    {
+      "module": "app.application.dtos.whatsapp_dtos",
+      "path": "backend/app/application/dtos/whatsapp_dtos.py",
+      "sha256": "b85c66d809b2ec0a8352cc454af2da8fe5d23b00a8bbea569e5b68b51506b162",
+      "reachable_from_entrypoints": false,
+      "incoming_app_modules": [
+        "app.application.interfaces.whatsapp_provider",
+        "app.application.use_cases.whatsapp.plan_group_broadcast_use_case",
+        "app.infrastructure.whatsapp.noop_provider",
+        "app.infrastructure.whatsapp.pricing"
+      ]
+    },
+    {
+      "module": "app.application.interfaces.whatsapp_provider",
+      "path": "backend/app/application/interfaces/whatsapp_provider.py",
+      "sha256": "5d789d233ce3d222334277ed884ac600593092a03f471235552094032cb6affc",
+      "reachable_from_entrypoints": false,
+      "incoming_app_modules": [
+        "app.infrastructure.whatsapp.noop_provider"
+      ]
+    },
+    {
+      "module": "app.application.use_cases.whatsapp.plan_group_broadcast_use_case",
+      "path": "backend/app/application/use_cases/whatsapp/plan_group_broadcast_use_case.py",
+      "sha256": "739f646c16b48cfc9102a9ed2513bfe78607ab77ae555e47b1ef1c213c639533",
+      "reachable_from_entrypoints": false,
+      "incoming_app_modules": []
+    },
+    {
+      "module": "app.infrastructure.whatsapp.noop_provider",
+      "path": "backend/app/infrastructure/whatsapp/noop_provider.py",
+      "sha256": "dd3ad353ad9977aedec8ab24d4c48405b2ef0a9eac505fa6de5de60ab81eaded",
+      "reachable_from_entrypoints": false,
+      "incoming_app_modules": []
+    },
+    {
+      "module": "app.infrastructure.whatsapp.pricing",
+      "path": "backend/app/infrastructure/whatsapp/pricing.py",
+      "sha256": "ab2921e69e394bc4e0240735f7a17e98d1e71cdecef476e9e0a13a84fd3a27ab",
+      "reachable_from_entrypoints": false,
+      "incoming_app_modules": []
+    }
+  ],
+  "dynamic_import_sites": [
+    {
+      "path": "backend/app/main.py",
+      "line": 65,
+      "expression": "importlib.import_module('sentry_sdk')"
+    },
+    {
+      "path": "backend/app/infrastructure/documents/document_matcher.py",
+      "line": 64,
+      "expression": "importlib.import_module('pypdf')"
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_read_tools.py",
+      "line": 46,
+      "expression": "importlib.import_module('app.presentation.mcp.dashboard_read_adapters')"
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_read_tools.py",
+      "line": 50,
+      "expression": "importlib.import_module('app.presentation.api.v1.routes.admin')"
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_read_tools.py",
+      "line": 51,
+      "expression": "importlib.import_module('app.presentation.api.v1.routes.admin_accounts')"
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_read_tools.py",
+      "line": 52,
+      "expression": "importlib.import_module('app.presentation.api.v1.routes.admin_whatsapp_templates')"
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_read_tools.py",
+      "line": 53,
+      "expression": "importlib.import_module('app.presentation.api.v1.routes.audit_logs')"
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_read_tools.py",
+      "line": 54,
+      "expression": "importlib.import_module('app.presentation.api.v1.routes.client_groups')"
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_read_tools.py",
+      "line": 55,
+      "expression": "importlib.import_module('app.presentation.api.v1.routes.document_distribution_delivery')"
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_read_tools.py",
+      "line": 56,
+      "expression": "importlib.import_module('app.presentation.api.v1.routes.document_distribution_groups_read')"
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_read_tools.py",
+      "line": 57,
+      "expression": "importlib.import_module('app.presentation.api.v1.routes.document_rename')"
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_read_tools.py",
+      "line": 58,
+      "expression": "importlib.import_module('app.presentation.api.v1.routes.ecr_checker')"
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_read_tools.py",
+      "line": 59,
+      "expression": "importlib.import_module('app.presentation.api.v1.routes.email_ai_inbox')"
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_read_tools.py",
+      "line": 60,
+      "expression": "importlib.import_module('app.presentation.api.v1.routes.email_integration_activity')"
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_read_tools.py",
+      "line": 61,
+      "expression": "importlib.import_module('app.presentation.api.v1.routes.email_integration_connections')"
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_read_tools.py",
+      "line": 62,
+      "expression": "importlib.import_module('app.presentation.api.v1.routes.gc_app')"
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_read_tools.py",
+      "line": 63,
+      "expression": "importlib.import_module('app.presentation.api.v1.routes.gc_app_content')"
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_read_tools.py",
+      "line": 64,
+      "expression": "importlib.import_module('app.presentation.api.v1.routes.gc_notifications')"
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_read_tools.py",
+      "line": 65,
+      "expression": "importlib.import_module('app.presentation.api.v1.routes.menu')"
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_read_tools.py",
+      "line": 66,
+      "expression": "importlib.import_module('app.presentation.api.v1.routes.notifications')"
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_read_tools.py",
+      "line": 67,
+      "expression": "importlib.import_module('app.presentation.api.v1.routes.passport_routes.client_details')"
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_read_tools.py",
+      "line": 68,
+      "expression": "importlib.import_module('app.presentation.api.v1.routes.passport_routes.excel_exports')"
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_read_tools.py",
+      "line": 69,
+      "expression": "importlib.import_module('app.presentation.api.v1.routes.passport_routes.images')"
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_read_tools.py",
+      "line": 70,
+      "expression": "importlib.import_module('app.presentation.api.v1.routes.passport_routes.queries')"
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_read_tools.py",
+      "line": 71,
+      "expression": "importlib.import_module('app.presentation.api.v1.routes.passport_routes.visa_ai_library')"
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_read_tools.py",
+      "line": 72,
+      "expression": "importlib.import_module('app.presentation.api.v1.routes.rooming')"
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_read_tools.py",
+      "line": 73,
+      "expression": "importlib.import_module('app.presentation.api.v1.routes.search')"
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_read_tools.py",
+      "line": 74,
+      "expression": "importlib.import_module('app.presentation.api.v1.routes.tour_operations_accounts')"
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_read_tools.py",
+      "line": 75,
+      "expression": "importlib.import_module('app.presentation.api.v1.routes.tour_operations_assignments')"
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_read_tools.py",
+      "line": 76,
+      "expression": "importlib.import_module('app.presentation.api.v1.routes.tour_operations_attendance_closeout')"
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_read_tools.py",
+      "line": 77,
+      "expression": "importlib.import_module('app.presentation.api.v1.routes.tour_operations_attendance_dashboard')"
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_read_tools.py",
+      "line": 78,
+      "expression": "importlib.import_module('app.presentation.api.v1.routes.tour_operations_attendance_sessions')"
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_read_tools.py",
+      "line": 79,
+      "expression": "importlib.import_module('app.presentation.api.v1.routes.whatsapp_activity')"
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_read_tools.py",
+      "line": 80,
+      "expression": "importlib.import_module('app.presentation.api.v1.routes.whatsapp_batch_status')"
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_read_tools.py",
+      "line": 81,
+      "expression": "importlib.import_module('app.presentation.api.v1.routes.whatsapp_groups_read')"
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_read_tools.py",
+      "line": 82,
+      "expression": "importlib.import_module('app.presentation.api.v1.routes.whatsapp_recipient_roster')"
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_read_tools.py",
+      "line": 83,
+      "expression": "importlib.import_module('app.presentation.api.v1.routes.whatsapp_source_groups')"
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_read_tools.py",
+      "line": 192,
+      "expression": "importlib.import_module('app.presentation.api.v1.routes.client_groups')"
+    }
+  ]
+}

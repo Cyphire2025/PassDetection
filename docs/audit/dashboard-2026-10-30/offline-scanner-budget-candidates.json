@@ -1,0 +1,121 @@
+[
+  {
+    "path": "features/tour-operations/offline-runtime/authorization-validation.js",
+    "baselineLines": 124,
+    "maximumLines": 130,
+    "baselineMaxFunctionComplexity": 36,
+    "maximumFunctionComplexity": 37
+  },
+  {
+    "path": "features/tour-operations/offline-runtime/authorization.js",
+    "baselineLines": 132,
+    "maximumLines": 140,
+    "baselineMaxFunctionComplexity": 9,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/tour-operations/offline-runtime/camera.js",
+    "baselineLines": 106,
+    "maximumLines": 110,
+    "baselineMaxFunctionComplexity": 13,
+    "maximumFunctionComplexity": 14
+  },
+  {
+    "path": "features/tour-operations/offline-runtime/constants.js",
+    "baselineLines": 17,
+    "maximumLines": 20,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/tour-operations/offline-runtime/controller.js",
+    "baselineLines": 279,
+    "maximumLines": 280,
+    "baselineMaxFunctionComplexity": 9,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/tour-operations/offline-runtime/database.js",
+    "baselineLines": 75,
+    "maximumLines": 80,
+    "baselineMaxFunctionComplexity": 6,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/tour-operations/offline-runtime/idb-requests.js",
+    "baselineLines": 16,
+    "maximumLines": 20,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/tour-operations/offline-runtime/index.js",
+    "baselineLines": 3,
+    "maximumLines": 10,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/tour-operations/offline-runtime/messages.js",
+    "baselineLines": 32,
+    "maximumLines": 40,
+    "baselineMaxFunctionComplexity": 9,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/tour-operations/offline-runtime/pending-scans.js",
+    "baselineLines": 88,
+    "maximumLines": 90,
+    "baselineMaxFunctionComplexity": 8,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/tour-operations/offline-runtime/protected-storage.js",
+    "baselineLines": 123,
+    "maximumLines": 130,
+    "baselineMaxFunctionComplexity": 8,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/tour-operations/offline-runtime/queue-migration.js",
+    "baselineLines": 177,
+    "maximumLines": 180,
+    "baselineMaxFunctionComplexity": 22,
+    "maximumFunctionComplexity": 23
+  },
+  {
+    "path": "features/tour-operations/offline-runtime/trusted-time.js",
+    "baselineLines": 53,
+    "maximumLines": 60,
+    "baselineMaxFunctionComplexity": 9,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/tour-operations/offline-runtime/values.js",
+    "baselineLines": 68,
+    "maximumLines": 70,
+    "baselineMaxFunctionComplexity": 5,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/tour-operations/offline-runtime/view.js",
+    "baselineLines": 113,
+    "maximumLines": 120,
+    "baselineMaxFunctionComplexity": 6,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "scripts/build-offline-scanner.mjs",
+    "baselineLines": 88,
+    "maximumLines": 90,
+    "baselineMaxFunctionComplexity": 6,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "public/sw.js",
+    "baselineLines": 121,
+    "maximumLines": 130,
+    "baselineMaxFunctionComplexity": 8,
+    "maximumFunctionComplexity": 9
+  }
+]

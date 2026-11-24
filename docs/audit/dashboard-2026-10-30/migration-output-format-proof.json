@@ -1,0 +1,22 @@
+{
+  "format_ast_exact": true,
+  "paths": {
+    "scripts/bounded_command_output.py": {
+      "before": "bcc93b64fe5081f37b99deed93b1e4ba5959f23736ef5e2c424c6014ce61f2f0",
+      "after": "9f4b0a539e9756a3d47be47017c4bfc83823a85c8ee60957354f4879dcc84bb0"
+    },
+    "scripts/release_companies_runtime.py": {
+      "before": "de878063adae1e309bc0823af47788d24c8d0039bb8417818b45e08cfdd1523e",
+      "after": "3ecd9ffdf0c1e0de2f74ce4145d8c73833a15ad68fb59860558772882f2fb763"
+    },
+    "scripts/test_release_companies_runtime.py": {
+      "before": "dd3e590f69fc40f3dfdcf40df109f746b06a51208e4f051c017c973c25d68d0d",
+      "after": "65d544624f33a2d923dd337c2c40f884d8e230ad54d6c47be04e87ba6cf46e74"
+    },
+    "scripts/test_migration_output_deadline.py": {
+      "before": "a6e145e8ba706402ec207d2833c3e6f586ea1cc807887930efaac70d1bfb89ab",
+      "after": "7f13a0d1d6656379c96bd29ff39eceb038e99451e80fa33f02d41614207eb5c1"
+    }
+  },
+  "output": "4 files reformatted"
+}

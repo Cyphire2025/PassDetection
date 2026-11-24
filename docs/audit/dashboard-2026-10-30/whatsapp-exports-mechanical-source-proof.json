@@ -1,0 +1,17 @@
+{
+  "original_sha256": "4c719c70041d102ee6b96af13394442bd468032f53dd236ae7331095d2885aaa",
+  "whole_function_ast_exact": [
+    "_stale_rows",
+    "_roster_identity",
+    "_exportable_links",
+    "_latest_attempt_values",
+    "_delivery_values",
+    "_broadcast_import_contact_values",
+    "_gather_export_rows",
+    "export_broadcast_filter"
+  ],
+  "source": {
+    "backend/app/presentation/api/v1/routes/whatsapp_exports.py": "e740733374c19a6a87e11d943f93c4d22eebfd9485505b96d151d31383f2a99a",
+    "backend/app/presentation/api/v1/routes/whatsapp_export_support.py": "3cfd1fdc6acb04494866b8d5174bfa2408164910ff7f0a2263b54e7a3fbfaaa0"
+  }
+}

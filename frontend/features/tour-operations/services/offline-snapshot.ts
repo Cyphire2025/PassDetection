@@ -61,7 +61,9 @@ export async function readOfflineSnapshot<T>(key: string, fallback: T): Promise<
   const identity = currentSnapshotIdentity();
   if (!identity) return fallback;
   await purgeExpiredCoordinatorOfflineSnapshots().catch(() => undefined);
+  if (!snapshotIdentityIsCurrent(identity)) return fallback;
   const existing = await readStoredSnapshot<T>(identity, key);
+  if (!snapshotIdentityIsCurrent(identity)) return fallback;
   if (existing !== null) return existing;
   return migrateLegacySnapshot(identity, key, fallback);
 }
@@ -74,6 +76,16 @@ export async function writeOfflineSnapshot(
   if (typeof window === "undefined") return;
   const identity = currentSnapshotIdentity();
   if (!identity) return;
+  return writeSnapshotForIdentity(identity, key, value, options);
+}
+
+async function writeSnapshotForIdentity(
+  identity: SnapshotIdentity,
+  key: string,
+  value: unknown,
+  options: OfflineSnapshotWriteOptions = {},
+): Promise<void> {
+  if (!snapshotIdentityIsCurrent(identity)) return;
   const now = Date.now();
   const expiresAtMs = resolveOfflineSnapshotExpiry(now, options.expiresAt);
   if (expiresAtMs <= now) {
@@ -238,7 +250,9 @@ async function readStoredSnapshot<T>(
     ) {
       return null;
     }
-    return rehydrateSnapshotPayload(key, envelope.payload) as T;
+    return snapshotIdentityIsCurrent(identity)
+      ? rehydrateSnapshotPayload(key, envelope.payload) as T
+      : null;
   } catch {
     // Corrupt ciphertext is not returned or silently deleted. Keeping it makes
     // the failure observable and prevents a cleanup race from touching queues.
@@ -251,6 +265,7 @@ async function migrateLegacySnapshot<T>(
   key: string,
   fallback: T,
 ): Promise<T> {
+  if (!snapshotIdentityIsCurrent(identity)) return fallback;
   const legacyKey = `${key}:user:${identity.ownerUserId}`;
   let raw: string | null = null;
   try {
@@ -261,9 +276,9 @@ async function migrateLegacySnapshot<T>(
   if (!raw) return fallback;
   try {
     const parsed = JSON.parse(raw) as unknown;
-    await writeOfflineSnapshot(key, parsed);
+    await writeSnapshotForIdentity(identity, key, parsed);
     const verified = await readStoredSnapshot<T>(identity, key);
-    if (verified === null) return fallback;
+    if (verified === null || !snapshotIdentityIsCurrent(identity)) return fallback;
     window.localStorage.removeItem(legacyKey);
     return verified;
   } catch {

@@ -1,0 +1,75 @@
+{
+  "recorded_at": "2026-10-31T07:02:55.805288+00:00",
+  "records": [
+    {
+      "path": "backend/app/core/logging/logger.py",
+      "sha256": "845d441fc533f5d747e6253059c5e159d90fe321e2f48c5fcce7feac2036b628",
+      "physical_lines": 149,
+      "max_function_complexity": 5,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "verified-local-synthetic-scope",
+      "notes": "Full physical original/current source read or authored. Logger-level exception projection precedes every actual Uvicorn handler; safe frame helpers shared with preserved task aliases/semantics. Actual synthetic H11/HttpTools sinks, cached chains/fanout, ordinary operational controls and worker-constructor wiring are tested. No live Gunicorn/database/provider qualification claimed."
+    },
+    {
+      "path": "backend/app/core/logging/task_diagnostics.py",
+      "sha256": "e7c847a4d1ac4239b9e98324b61288c2a725a977beecd54fa16f47f8c80f14c2",
+      "physical_lines": 78,
+      "max_function_complexity": 9,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "verified-local-synthetic-scope",
+      "notes": "Full physical original/current source read or authored. Logger-level exception projection precedes every actual Uvicorn handler; safe frame helpers shared with preserved task aliases/semantics. Actual synthetic H11/HttpTools sinks, cached chains/fanout, ordinary operational controls and worker-constructor wiring are tested. No live Gunicorn/database/provider qualification claimed."
+    },
+    {
+      "path": "backend/app/core/logging/exception_diagnostics.py",
+      "sha256": "4867f249c99be4869e91903214dde1d21cb0b31190fdb3d9a62eb6cd28d36ab9",
+      "physical_lines": 28,
+      "max_function_complexity": 3,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "verified-local-synthetic-scope",
+      "notes": "Full physical original/current source read or authored. Logger-level exception projection precedes every actual Uvicorn handler; safe frame helpers shared with preserved task aliases/semantics. Actual synthetic H11/HttpTools sinks, cached chains/fanout, ordinary operational controls and worker-constructor wiring are tested. No live Gunicorn/database/provider qualification claimed."
+    },
+    {
+      "path": "backend/app/core/logging/server_diagnostics.py",
+      "sha256": "faa66e11902d47306a818b87bed151d9e72a51fd43a916ed200ba03825a366b6",
+      "physical_lines": 64,
+      "max_function_complexity": 10,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "verified-local-synthetic-scope",
+      "notes": "Full physical original/current source read or authored. Logger-level exception projection precedes every actual Uvicorn handler; safe frame helpers shared with preserved task aliases/semantics. Actual synthetic H11/HttpTools sinks, cached chains/fanout, ordinary operational controls and worker-constructor wiring are tested. No live Gunicorn/database/provider qualification claimed."
+    },
+    {
+      "path": "backend/app/infrastructure/bounded_uvicorn_worker.py",
+      "sha256": "be8ff28b8921088b7b49bb6659c27de292d86224ab87c693edc2aa9a8555cc58",
+      "physical_lines": 29,
+      "max_function_complexity": 1,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "verified-local-synthetic-scope",
+      "notes": "Full physical original/current source read or authored. Logger-level exception projection precedes every actual Uvicorn handler; safe frame helpers shared with preserved task aliases/semantics. Actual synthetic H11/HttpTools sinks, cached chains/fanout, ordinary operational controls and worker-constructor wiring are tested. No live Gunicorn/database/provider qualification claimed."
+    },
+    {
+      "path": "backend/tests/unit/core/asgi_log_sink_control.py",
+      "sha256": "585d19bc01a73c81cc0606f8b8fbaaa231f3e04b6c68403b9f5344e486168c6a",
+      "physical_lines": 117,
+      "max_function_complexity": 3,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed-regression-tests",
+      "notes": "Full physical original/current source read or authored. Logger-level exception projection precedes every actual Uvicorn handler; safe frame helpers shared with preserved task aliases/semantics. Actual synthetic H11/HttpTools sinks, cached chains/fanout, ordinary operational controls and worker-constructor wiring are tested. No live Gunicorn/database/provider qualification claimed."
+    },
+    {
+      "path": "backend/tests/unit/core/test_server_log_privacy.py",
+      "sha256": "58e62c504e8ad5298df8eba9916b92ca292b3c730f4b0e0c54c0855e8ee7e080",
+      "physical_lines": 257,
+      "max_function_complexity": 10,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed-regression-tests",
+      "notes": "Full physical original/current source read or authored. Logger-level exception projection precedes every actual Uvicorn handler; safe frame helpers shared with preserved task aliases/semantics. Actual synthetic H11/HttpTools sinks, cached chains/fanout, ordinary operational controls and worker-constructor wiring are tested. No live Gunicorn/database/provider qualification claimed."
+    }
+  ]
+}

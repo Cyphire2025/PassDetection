@@ -1,0 +1,43 @@
+{
+  "command": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "--cov=app.presentation.api.v1.routes.whatsapp_source_groups",
+    "--cov-branch",
+    "--cov-report=json:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\whatsapp-source-roster-work-coverage.json",
+    "--cov-report=xml:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\whatsapp-source-roster-work-coverage.xml",
+    "--junitxml=C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\whatsapp-source-roster-work-junit.xml",
+    "tests/unit/presentation/test_whatsapp_source_roster_work.py",
+    "tests/unit/presentation/test_whatsapp_source_groups.py",
+    "tests/unit/presentation/test_whatsapp_route_decomposition.py"
+  ],
+  "exit_code": 0,
+  "seconds": 46.32800000000134,
+  "source_fence": {
+    "backend/app/presentation/api/v1/routes/whatsapp_recipient_details.py": "cbf2a7caef9dec783ffb6252f6e3aa5ca3c6108e7e19df9d2a6308d55f098b0e",
+    "backend/app/presentation/api/v1/routes/whatsapp_recipient_phone_identity.py": "569623532a6da96476575a413e74aa9ce6721d9ec2de648f7c2d97beb174553e",
+    "backend/app/presentation/api/v1/routes/whatsapp_recipients.py": "f2cd931620b7b155a079b10f1cb58b8faa4dd56183282a3f17749af4d49edc05",
+    "backend/app/presentation/api/v1/routes/whatsapp_rejected_contacts.py": "1e58dacd0f9846c38e9c2d3e47d22b5635c0fb31450a4f4935acbc4a487a622c",
+    "backend/app/presentation/api/v1/routes/whatsapp_send_intents.py": "462de74cb9c8fa305e26ec299815876c7439a72ba4436d4adf96d590178f5e51",
+    "backend/app/presentation/api/v1/routes/whatsapp_source_groups.py": "987e6b0ef5e4a3d59331157dc51c5a0675b8f4b10486ee686c712ce7d6784139",
+    "backend/app/presentation/api/v1/routes/whatsapp_update_resend.py": "6a4030480233fc5b6865a6b49452eb685f21a8a58012601611b552a6eb73a2b6",
+    "backend/app/presentation/api/v1/routes/whatsapp_phone_welcome.py": "5bfe0b3e22e078f786633d32556118dc353d0aae1ff7b9d9663c308976f9e05e",
+    "backend/app/presentation/api/v1/routes/whatsapp_workspace_passengers.py": "b787f21714f8ed58155f6ee89a04902e54dc4a2d98aea9972a0cdfa43888972d",
+    "backend/app/presentation/api/v1/routes/whatsapp_welcome_view.py": "e12fdb14e5e9da76df4c7f4decfe9ba17d7f13d71b8a836f35cc493a685121f5",
+    "backend/tests/unit/presentation/test_whatsapp_source_roster_work.py": "fefda4142ba43fb7d50c03d53f8bed9389d0ab8a7c89dbfdbb8df98b81feee9f",
+    "backend/tests/unit/presentation/test_whatsapp_source_groups.py": "8de4d0276f7316af0451c8f29d287373b9135ac337b009ac1c94394856f87ca2",
+    "backend/tests/unit/presentation/test_whatsapp_route_decomposition.py": "a4fa48821a7c9ec5e483f797939e96aa23b68e17a1b74c9eaaf2ee29ea18e7c6",
+    "backend/app/application/security/authorization_policy.py": "6a1ee49097b124715ce52fb5810387c6be5a3a5e18f4896676340c6e6dabe663",
+    "backend/app/application/security/access_level_actor.py": "3a8eec715f67356a378986999a012723bdd21f5510518ee7320ce7d0809013a6",
+    "backend/app/presentation/api/v1/routes/whatsapp_scope.py": "31d4d2d26d1057b267463fe0116a3faee14a6cdecf08773bc9a22dd6acf4868f",
+    "backend/app/presentation/api/v1/schemas/whatsapp_source_group_schemas.py": "30f2bf41344462b75cf0ffb27473d78d9da525ce1c21f4b3cff104773e7172fc",
+    "backend/app/application/travellers/broadcast_history_schedule.py": "a05d07b8696d41ae74543d64360afe984c1db962c1279131f607ed4b97f8d9af",
+    "backend/app/infrastructure/whatsapp/web_publication.py": "d5132698ea97f869e6add9b5df5fbc8b78ece0cac4b664e3458d28e0294cf0ee"
+  },
+  "coverage": "fresh isolated current owner, no stale data append",
+  "measurement": "JUnit properties record real unmocked route projection reads over DB-shaped rows; actual authority/query controls use original persistedSQLite source-group suite"
+}

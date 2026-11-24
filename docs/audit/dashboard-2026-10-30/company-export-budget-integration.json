@@ -1,0 +1,48 @@
+{
+  "before_modules": 183,
+  "after_modules": 187,
+  "all183_existing_entries_and_global_critical_floors_unchanged": true,
+  "original_worker240_and_renderer150_ceilings_unchanged": true,
+  "new_owners_inherit_original_coverage_floors": true,
+  "candidate_modules": [
+    {
+      "path": "app/infrastructure/travellers/company_export_admission.py",
+      "baseline_lines": 160,
+      "maximum_lines": 180,
+      "baseline_max_function_complexity": 11,
+      "maximum_function_complexity": 11,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/infrastructure/travellers/company_export_page.py",
+      "baseline_lines": 159,
+      "maximum_lines": 180,
+      "baseline_max_function_complexity": 34,
+      "maximum_function_complexity": 34,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/infrastructure/travellers/company_export_workbook.py",
+      "baseline_lines": 69,
+      "maximum_lines": 80,
+      "baseline_max_function_complexity": 8,
+      "maximum_function_complexity": 8,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/infrastructure/travellers/company_export_workbook_render.py",
+      "baseline_lines": 59,
+      "maximum_lines": 70,
+      "baseline_max_function_complexity": 7,
+      "maximum_function_complexity": 7,
+      "minimum_coverage_percent": 85
+    }
+  ],
+  "before_raw_sha256": "2cd1320432647cef470b07e1ea0bdfea38bbf748643c7644ba3969c015680f17",
+  "before_normalized_sha256": "01d1ae0fac1536b6d0ddb7191362973f2761d9dcc92fa7a03c4d0183c4eff97a",
+  "after_raw_sha256": "bd593ed828bf7d45eca7a279de304e94394b1baa6849964ab06791b5fd8a88f0",
+  "after_normalized_sha256": "3ffc230f0fce6ec1cd980ec054a5f1ec08b8ca16d2f307ca3548996d12e83dc3",
+  "strict_policy_change": "Only reviewed backend budget AFTER value refreshed. Both original source baseline BEFORE values and frontend budget source remain unchanged.",
+  "final_affected_tests": 26,
+  "coverage": "company-export-owners-final-coverage.json"
+}

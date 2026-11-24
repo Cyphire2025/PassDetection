@@ -21,21 +21,29 @@ class ComposeRenderFixtureTests(unittest.TestCase):
         self.source.write_text("services: {}\n")
         self.fixture = None
 
-    def render(self, returncode=0):
+    def render(self, returncode=0, *, output=None):
         def process(command, **options):
             self.fixture = Path(command[command.index("--env-file") + 1])
             self.assertNotEqual(self.fixture.parent, self.root)
             self.assertEqual(self.fixture.read_bytes(), self.example)
-            self.assertEqual(command[command.index("--project-directory") + 1], str(self.fixture.parent))
+            self.assertEqual(
+                command[command.index("--project-directory") + 1], str(self.fixture.parent)
+            )
             self.assertEqual(command[command.index("-f") + 1], str(self.source))
             self.assertEqual(command[-4:], ["config", "--format", "json", "--no-env-resolution"])
             self.assertNotIn("--no-consistency", command)
             self.assertNotIn("up", command)
             return subprocess.CompletedProcess(
-                command, returncode, stdout=json.dumps({"services": {}}), stderr="synthetic render failure"
+                command,
+                returncode,
+                stdout=json.dumps({"services": {}}) if output is None else output,
+                stderr="synthetic render failure",
             )
 
-        with patch.object(compose, "ROOT", self.root), patch.object(compose.subprocess, "run", side_effect=process):
+        with (
+            patch.object(compose, "ROOT", self.root),
+            patch.object(compose.subprocess, "run", side_effect=process),
+        ):
             return compose._render_compose(self.source)
 
     def test_clean_checkout_renders_without_creating_repository_env(self):
@@ -55,6 +63,18 @@ class ComposeRenderFixtureTests(unittest.TestCase):
             self.render(returncode=1)
         self.assertFalse(self.fixture.exists())
         self.assertFalse((self.root / ".env").exists())
+
+    def test_non_object_json_fails_at_the_decoded_configuration_boundary(self):
+        for output in ("[]", "null", '"synthetic"', "3", "true"):
+            with self.subTest(output=output), self.assertRaisesRegex(
+                RuntimeError, "Rendered Compose configuration must be an object"
+            ):
+                self.render(output=output)
+            self.assertFalse(self.fixture.exists())
+
+    def test_decoded_configuration_preserves_valid_mapping_values(self):
+        document = {"services": {"synthetic": {"ports": ["127.0.0.1:5432:5432"]}}}
+        self.assertEqual(self.render(output=json.dumps(document)), document)
 
 
 if __name__ == "__main__":

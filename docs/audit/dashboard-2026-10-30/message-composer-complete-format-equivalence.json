@@ -1,0 +1,83 @@
+{
+  "basis": "Formatting only; exact emitted JS/JSX AST across each current owner.",
+  "files": [
+    {
+      "path": "frontend/features/whatsapp/workspace/use-message-composer.ts",
+      "before_sha256": "04173c530af2d515168cc0f06ca026571fbb35cd27930bad0466896506c05186",
+      "after_sha256": "04173c530af2d515168cc0f06ca026571fbb35cd27930bad0466896506c05186",
+      "emitted_JS_AST_sha256": "56e75a1f2c194d07c96b7735a7f0a9cdd5279082752303295f49258e727fe485"
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/message-composer-state.ts",
+      "before_sha256": "8b74256ea305fc8cd6536b3d685e35152f906ff66ed4f4126f1afbfa7838a11e",
+      "after_sha256": "8b74256ea305fc8cd6536b3d685e35152f906ff66ed4f4126f1afbfa7838a11e",
+      "emitted_JS_AST_sha256": "faf062e1d963ac4d56efca358e92636bfec24d6aec0a1ca1cc51e90daa384e1d"
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/use-composer-header-image.ts",
+      "before_sha256": "756838275b4d98c9a76630fc7ebca1d9a4c1f8c939272349c79f6881e45ca94e",
+      "after_sha256": "756838275b4d98c9a76630fc7ebca1d9a4c1f8c939272349c79f6881e45ca94e",
+      "emitted_JS_AST_sha256": "999302621b1bead910fa25c554f410aa21f65d04eb1b2893c2d3f008c28590e8"
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/use-message-composer-preview.ts",
+      "before_sha256": "188d69d5724e53ec3f16e1559865866e1e844d429c00f6b6c18eed9193487480",
+      "after_sha256": "188d69d5724e53ec3f16e1559865866e1e844d429c00f6b6c18eed9193487480",
+      "emitted_JS_AST_sha256": "c5622eee0028fa9a4a03c0d06b5ed760980d44af736838b53647d7891d31f00a"
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/use-message-composer-send.ts",
+      "before_sha256": "cd24910c8feeab370aac194f2dcf4f5c37d2b957363860926447515eeba503b8",
+      "after_sha256": "cd24910c8feeab370aac194f2dcf4f5c37d2b957363860926447515eeba503b8",
+      "emitted_JS_AST_sha256": "d62245ff1d49976035ad888e9447dbd740a3605d3f7afc7a58d32d784ab69050"
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/message-composer.tsx",
+      "before_sha256": "44c1809c09633cb27af4563e5e39f5baac0747789df196a56b808fe2e870c8b6",
+      "after_sha256": "44c1809c09633cb27af4563e5e39f5baac0747789df196a56b808fe2e870c8b6",
+      "emitted_JS_AST_sha256": "4f9f2bdeb916fcfecbae21914567cc3be366201d5b91b65063ea4f649d38974f"
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/message-composer-editor.tsx",
+      "before_sha256": "0c3c532e105fcec986bf235d018ec1bd584277eb6eec6b74e1ff8d9105262ff7",
+      "after_sha256": "0c3c532e105fcec986bf235d018ec1bd584277eb6eec6b74e1ff8d9105262ff7",
+      "emitted_JS_AST_sha256": "447bf7180e9ba1e310182193d75239df3a76d7351f6406ad14fe5f6a587588cd"
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/message-composer-feedback.tsx",
+      "before_sha256": "bc8f840e55d6a9de70496a0a7f967f2f575b4329921a61d4076afad6c24842bc",
+      "after_sha256": "bc8f840e55d6a9de70496a0a7f967f2f575b4329921a61d4076afad6c24842bc",
+      "emitted_JS_AST_sha256": "35590d13de6013df0e42517a0445e7e8e22e18394a227396756b964325682582"
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/message-composer-review-dialog.tsx",
+      "before_sha256": "e6c9d57c801685a6f47640a7c5d01ff3a76ba7ec46954ef573442553e4d4c330",
+      "after_sha256": "e6c9d57c801685a6f47640a7c5d01ff3a76ba7ec46954ef573442553e4d4c330",
+      "emitted_JS_AST_sha256": "94c0b7c98b156982342d6bbc7fa12cffafc2153c1406728dbea175fb4d954b4e"
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/message-composer-audience.tsx",
+      "before_sha256": "a50dc588389bda0e3051ae67c5e13e55d7f73c2999a36e746b697455a644b947",
+      "after_sha256": "a50dc588389bda0e3051ae67c5e13e55d7f73c2999a36e746b697455a644b947",
+      "emitted_JS_AST_sha256": "74c6c5bdf4029124c9011804da5e0b06af67b5e58a0d68b3723868e4685eb536"
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/message-composer-audience-filters.tsx",
+      "before_sha256": "72a3bf4e9cec963fc8da1bb2b3d73aca400aa4375b9eb5ec012fee4edd03182a",
+      "after_sha256": "72a3bf4e9cec963fc8da1bb2b3d73aca400aa4375b9eb5ec012fee4edd03182a",
+      "emitted_JS_AST_sha256": "96155424d088f6e09df1d5e7c3a739091dd15d06d32cad7ec24d4a8bdf1be714"
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/composer-field-state.ts",
+      "before_sha256": "b937a7d12deb58c3c170239b4df693c4784a5512e68d63159188193ff497fce8",
+      "after_sha256": "b937a7d12deb58c3c170239b4df693c4784a5512e68d63159188193ff497fce8",
+      "emitted_JS_AST_sha256": "5ff1aaeef174feebe51ed1d52b16b812029061095eafd5b7b55b35b7af7ede38"
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/composer-draft.ts",
+      "before_sha256": "f32cb75da71eadc8c0f78d82c87c5979a80e95a7201e35452857655ddb1f467a",
+      "after_sha256": "f10f11d4aec65b1b6f71f744fd8fb701d0b109a8c4c7f993f8b60f2bdf95e059",
+      "emitted_JS_AST_sha256": "25605d1d5c95106b03396953041d83ba22af64295ffcbe83a1f80348be3cde7f"
+    }
+  ]
+}

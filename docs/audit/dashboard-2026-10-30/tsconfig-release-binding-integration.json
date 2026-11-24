@@ -1,0 +1,15 @@
+{
+  "path": "frontend/tsconfig.json",
+  "only_added_option": {
+    "allowImportingTsExtensions": true
+  },
+  "noEmit_and_bundler_unchanged": true,
+  "all_other_JSON_keys_equal_to_both_original_reviewed_baselines": true,
+  "before_0140": "be18523b23b78b6e1a876ddd107d330f0168bddf09d751b57e0b5edce69c66f3",
+  "before_0141": "be18523b23b78b6e1a876ddd107d330f0168bddf09d751b57e0b5edce69c66f3",
+  "after": "e1f2b4ec806c55ba0cc71369588733fe427a277990cccfd44ef62c9b6e9fe49d",
+  "reviewed_paths": 28,
+  "all_other_existing_before_and_after_bindings_preserved": true,
+  "evidence": "passport-quality-api-verification.json",
+  "no_configuration_path_wildcard_added": true
+}

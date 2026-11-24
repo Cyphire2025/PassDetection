@@ -1,0 +1,27 @@
+{
+  "targeted-node": {
+    "argv": [
+      "C:/Users/nipun/AppData/Local/Programs/node-v24.21.0-win-x64/node.exe",
+      "--test",
+      "features/upload/components/relation-qualifier-step.contract.test.mjs"
+    ],
+    "cwd": "frontend",
+    "exit_code": 0,
+    "elapsed_seconds": 0.109,
+    "stdout": "targeted-node-stdout.txt",
+    "stderr": "targeted-node-stderr.txt",
+    "record_basis": "Actual subprocess returned 0 and saved both raw streams before console cp1252 display error; preserved tool result e4b358."
+  },
+  "scoped-eslint": {
+    "argv": [
+      "C:/Users/nipun/AppData/Local/Programs/node-v24.21.0-win-x64/node.exe",
+      "node_modules/eslint/bin/eslint.js",
+      "features/upload/components/relation-qualifier-step.contract.test.mjs"
+    ],
+    "cwd": "frontend",
+    "exit_code": 0,
+    "elapsed_seconds": 1.109,
+    "stdout": "scoped-eslint-stdout.txt",
+    "stderr": "scoped-eslint-stderr.txt"
+  }
+}

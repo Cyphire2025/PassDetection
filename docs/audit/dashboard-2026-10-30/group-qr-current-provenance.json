@@ -1,0 +1,53 @@
+{
+  "historicalFullMovementProof": "group-qr-mechanical-provenance.json",
+  "historicalPostWrapCompilerProof": "group-qr-before-row-locks-provenance.json",
+  "historicalDefinitionBindings": 1648,
+  "historicalBindingsNotClaimedCurrentForChangedActionState": true,
+  "currentUnchangedControllerStatementsIncludingReturnProjection": 27,
+  "threeMovedQueryPayloadErrorDeclarationsAndTwoActionCores": [
+    {
+      "name": "qrLifecycle",
+      "allOtherTypedBodyTextExact": true,
+      "intentionalLockBoundaryChange": false
+    },
+    {
+      "name": "[generatedPayloads, setGeneratedPayloads]",
+      "allOtherTypedBodyTextExact": true,
+      "intentionalLockBoundaryChange": false
+    },
+    {
+      "name": "[actionError, setActionError]",
+      "allOtherTypedBodyTextExact": true,
+      "intentionalLockBoundaryChange": false
+    },
+    {
+      "name": "revealToken",
+      "allOtherTypedBodyTextExact": true,
+      "intentionalLockBoundaryChange": true
+    },
+    {
+      "name": "updateLifecycle",
+      "allOtherTypedBodyTextExact": true,
+      "intentionalLockBoundaryChange": true
+    }
+  ],
+  "deliberateCurrentChanges": [
+    "Synchronous row lock before firstawait; pendingmembership tracks eachpassenger independently.",
+    "Only ownrow is released in finally; same-rowduplicate blocked, differentrowsremainparallel.",
+    "Viewpasses matchingSetmembership to existingisPendingcardprop.",
+    "Unavailable-roster description and two neutralunknown-summary tones finish the provenerrorprojection."
+  ],
+  "entireViewTextExactAfterWhitelistedPendingAndUnavailableLabelChanges": true,
+  "threeHeaderJSXTreesExactExceptTwoUnknownNeutralTones": true,
+  "twoWholeImageEffectBodiesStillExact": true,
+  "oldControllerSha256": "32904666c3d32cd11e6875232087997c6dec606728462056e0e8af992b2b11ef",
+  "currentControllerSha256": "3e33f3cb6ab8a6ee76493ab4b37211206df457da20d4f6c4216c855d4f901724",
+  "currentActionSha256": "b6dfe0afe3f9c3ab6b6f77f6df24e96319d5c81fec8bf6efaa391811c3dd1eaa",
+  "criticalCoverage": {
+    "config": "frontend/vitest.config.mts",
+    "sha256": "85ce4e7d5be4ff07748412030ccf1fca3177be52c388dbbada89053bcfc1a400",
+    "originalPageIncluded": false,
+    "existing31IncludesAndFloorsUntouched": true
+  },
+  "limits": "Intentional row-lock/error-label behavior changes have their own actual rendered regressions. Historical exact-movement source is preserved; no blanket statement that all final method bodies are unchanged."
+}

@@ -1,0 +1,361 @@
+{
+  "reviewer": "/root/document_ui_architecture",
+  "files": [
+    {
+      "path": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+      "sha256": "b647f8ae7070c661497c9f3620460318a70d117db6eb2da37f1112d5497b6911",
+      "scope": "owned",
+      "physical_lines": 34,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "source_kind": "runtime",
+      "notes": "Complete physical current source reviewed after extraction/final diffs. Runtime movement has original97/intermediate exact text and final95 whole AST parity plus two precise corrections. Actual public API controls, imports and source-bound affected checks retained; test contract assertion bodies unchanged where moved loader only."
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-contracts.ts",
+      "sha256": "1334b70770246b7a59ea3b531aa63c0f3fd809ebafa88f21ccc85a0dd649fc15",
+      "scope": "owned",
+      "physical_lines": 117,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "source_kind": "runtime",
+      "notes": "Complete physical current source reviewed after extraction/final diffs. Runtime movement has original97/intermediate exact text and final95 whole AST parity plus two precise corrections. Actual public API controls, imports and source-bound affected checks retained; test contract assertion bodies unchanged where moved loader only."
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-runtime.ts",
+      "sha256": "b3791303f7115ceb2d353a91cced27c72ecb30e4733ea783dd3c2d0525ecdaea",
+      "scope": "owned",
+      "physical_lines": 94,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "source_kind": "runtime",
+      "notes": "Complete physical current source reviewed after extraction/final diffs. Runtime movement has original97/intermediate exact text and final95 whole AST parity plus two precise corrections. Actual public API controls, imports and source-bound affected checks retained; test contract assertion bodies unchanged where moved loader only."
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-idb.ts",
+      "sha256": "b4a7403688262a48d77216f7e0547f0fda92e3da926551b95e504567848e0ed0",
+      "scope": "owned",
+      "physical_lines": 35,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "source_kind": "runtime",
+      "notes": "Complete physical current source reviewed after extraction/final diffs. Runtime movement has original97/intermediate exact text and final95 whole AST parity plus two precise corrections. Actual public API controls, imports and source-bound affected checks retained; test contract assertion bodies unchanged where moved loader only."
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-codec.ts",
+      "sha256": "8094218879c61759c06210dd193b2da1a752e8d8ca8eb08b168661652e8c65d8",
+      "scope": "owned",
+      "physical_lines": 173,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "source_kind": "runtime",
+      "notes": "Complete physical current source reviewed after extraction/final diffs. Runtime movement has original97/intermediate exact text and final95 whole AST parity plus two precise corrections. Actual public API controls, imports and source-bound affected checks retained; test contract assertion bodies unchanged where moved loader only."
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-migration.ts",
+      "sha256": "3748c778c5b8dd3174688d46dec93a5dc1fbb1351041a1412d7db6a927c55e00",
+      "scope": "owned",
+      "physical_lines": 174,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "source_kind": "runtime",
+      "notes": "Complete physical current source reviewed after extraction/final diffs. Runtime movement has original97/intermediate exact text and final95 whole AST parity plus two precise corrections. Actual public API controls, imports and source-bound affected checks retained; test contract assertion bodies unchanged where moved loader only."
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-storage.ts",
+      "sha256": "ef0226dac386b8d437548f238f422775d8bca29e52f0203a66d8b2114f817427",
+      "scope": "owned",
+      "physical_lines": 145,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "source_kind": "runtime",
+      "notes": "Complete physical current source reviewed after extraction/final diffs. Runtime movement has original97/intermediate exact text and final95 whole AST parity plus two precise corrections. Actual public API controls, imports and source-bound affected checks retained; test contract assertion bodies unchanged where moved loader only."
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-delivery-state.ts",
+      "sha256": "6d6d70b058d524e2d4de674d0f2607374597a3c8f8180a764b48bb28f38f6f36",
+      "scope": "owned",
+      "physical_lines": 167,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "source_kind": "runtime",
+      "notes": "Complete physical current source reviewed after extraction/final diffs. Runtime movement has original97/intermediate exact text and final95 whole AST parity plus two precise corrections. Actual public API controls, imports and source-bound affected checks retained; test contract assertion bodies unchanged where moved loader only."
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-commands.ts",
+      "sha256": "28b502f45eed14bce8480d1e6d8556660b543db3d9164b133b69a7e5a3847863",
+      "scope": "owned",
+      "physical_lines": 253,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "source_kind": "runtime",
+      "notes": "Complete physical current source reviewed after extraction/final diffs. Runtime movement has original97/intermediate exact text and final95 whole AST parity plus two precise corrections. Actual public API controls, imports and source-bound affected checks retained; test contract assertion bodies unchanged where moved loader only."
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-discards.ts",
+      "sha256": "70cacfa4648d3b6b688c6ca4ce63ff49cd21bcc544ad6a3da39982f53623db3f",
+      "scope": "owned",
+      "physical_lines": 188,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "source_kind": "runtime",
+      "notes": "Complete physical current source reviewed after extraction/final diffs. Runtime movement has original97/intermediate exact text and final95 whole AST parity plus two precise corrections. Actual public API controls, imports and source-bound affected checks retained; test contract assertion bodies unchanged where moved loader only."
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-replay.ts",
+      "sha256": "4d6ec7784798237bdf7451a58d7e6eafd891b967f3bd7193d7af6a4151b0722a",
+      "scope": "owned",
+      "physical_lines": 186,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "source_kind": "runtime",
+      "notes": "Complete physical current source reviewed after extraction/final diffs. Runtime movement has original97/intermediate exact text and final95 whole AST parity plus two precise corrections. Actual public API controls, imports and source-bound affected checks retained; test contract assertion bodies unchanged where moved loader only."
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-outcomes.ts",
+      "sha256": "7120de1f770357faf0c883893c77af0809cd6a85f0a162f1c7a00c478e22bf9f",
+      "scope": "owned",
+      "physical_lines": 268,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "source_kind": "runtime",
+      "notes": "Complete physical current source reviewed after extraction/final diffs. Runtime movement has original97/intermediate exact text and final95 whole AST parity plus two precise corrections. Actual public API controls, imports and source-bound affected checks retained; test contract assertion bodies unchanged where moved loader only."
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-errors.ts",
+      "sha256": "2d64d7da2d55c2685655b833041db51791b7ee7d2f67b4a7b171aec2f0841234",
+      "scope": "owned",
+      "physical_lines": 30,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "source_kind": "runtime",
+      "notes": "Complete physical current source reviewed after extraction/final diffs. Runtime movement has original97/intermediate exact text and final95 whole AST parity plus two precise corrections. Actual public API controls, imports and source-bound affected checks retained; test contract assertion bodies unchanged where moved loader only."
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-closeout.ts",
+      "sha256": "027e03352706fdfa08ddd554b9044361e9f5923aa7543dab5e2eb3eba8a0ac71",
+      "scope": "owned",
+      "physical_lines": 207,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "source_kind": "runtime",
+      "notes": "Complete physical current source reviewed after extraction/final diffs. Runtime movement has original97/intermediate exact text and final95 whole AST parity plus two precise corrections. Actual public API controls, imports and source-bound affected checks retained; test contract assertion bodies unchanged where moved loader only."
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-scan-queue-restart.test.ts",
+      "sha256": "0df7cc3df4218b73be5b70c8c6f4ad3b9e5801a92a238b40141453742d5e3cc3",
+      "scope": "owned",
+      "physical_lines": 201,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "source_kind": "test/support",
+      "notes": "Complete physical current source reviewed after extraction/final diffs. Runtime movement has original97/intermediate exact text and final95 whole AST parity plus two precise corrections. Actual public API controls, imports and source-bound affected checks retained; test contract assertion bodies unchanged where moved loader only."
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-source.contract-helper.mjs",
+      "sha256": "d99eb8bd126041b3dbeec597ec9a0490925e62e40b955321f0ccbae98b7a3f99",
+      "scope": "owned",
+      "physical_lines": 37,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "source_kind": "test/support",
+      "notes": "Complete physical current source reviewed after extraction/final diffs. Runtime movement has original97/intermediate exact text and final95 whole AST parity plus two precise corrections. Actual public API controls, imports and source-bound affected checks retained; test contract assertion bodies unchanged where moved loader only."
+    },
+    {
+      "path": "frontend/features/tour-operations/components/coordinator-pwa.contract.test.mjs",
+      "sha256": "f9e2bd8eda246ea1ad55ff1c39078269f62e06c9800af44821b8982cd409ea1d",
+      "scope": "owned",
+      "physical_lines": 448,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "source_kind": "test/support",
+      "notes": "Complete physical current source reviewed after extraction/final diffs. Runtime movement has original97/intermediate exact text and final95 whole AST parity plus two precise corrections. Actual public API controls, imports and source-bound affected checks retained; test contract assertion bodies unchanged where moved loader only."
+    },
+    {
+      "path": "frontend/features/auth/services/queue-safe-sign-out.contract.test.mjs",
+      "sha256": "5404f3d607ac3f19a24deb30df751e46b21fb746c4e88f2790b1b60d0dcbc58f",
+      "scope": "owned",
+      "physical_lines": 64,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "source_kind": "test/support",
+      "notes": "Complete physical current source reviewed after extraction/final diffs. Runtime movement has original97/intermediate exact text and final95 whole AST parity plus two precise corrections. Actual public API controls, imports and source-bound affected checks retained; test contract assertion bodies unchanged where moved loader only."
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-batch-policy.test.ts",
+      "sha256": "a0cef94f0ad7a9dcd2bf0c57334e7d23a1da66041cd08777de8d8dfa5b60e18b",
+      "physical_lines": 67,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "source_kind": "unchanged context",
+      "notes": "Actual existing affected envelope/disposition control, complete source physically read; not credited from passing run.",
+      "global_new_full_coverage_credit": "reconcile by current hash against earlier full ledgers; no duplicate coverage inferred"
+    },
+    {
+      "path": "frontend/features/tour-operations/services/browser-offline-database.test.ts",
+      "sha256": "6dc08346fcda2895d7d5bcc218e60b2bed66449549754c267839378f48e0d0e0",
+      "physical_lines": 33,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "source_kind": "unchanged context",
+      "notes": "Actual existing open/blocked/version-change controls, complete source physically read; no source edit.",
+      "global_new_full_coverage_credit": "reconcile by current hash against earlier full ledgers; no duplicate coverage inferred"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/attendance_discard_sync.py",
+      "sha256": "ff5e43c01c49cb6249f042ed76e3b167ccbd5f9569818a69c65354553d409a65",
+      "physical_lines": 130,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "source_kind": "unchanged context",
+      "notes": "Complete contextual grant/group/runtime resolution and per-group audit outcome trace; no backend edit/check in this batch.",
+      "global_new_full_coverage_credit": "reconcile by current hash against earlier full ledgers; no duplicate coverage inferred"
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/attendance_discard_repository.py",
+      "sha256": "53d0535c024120e161fcfdb920a1e851590c6663274e0cb803404eff8d3ffa08",
+      "physical_lines": 185,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "source_kind": "unchanged context",
+      "notes": "Complete event/scope/runtime idempotency and persistence trace; no backend edit/check in this batch.",
+      "global_new_full_coverage_credit": "reconcile by current hash against earlier full ledgers; no duplicate coverage inferred"
+    }
+  ],
+  "full_files": 22,
+  "full_physical_lines": 3236,
+  "owned_full_files": 18,
+  "earlier_complete_context": {
+    "ledger": "attendance-queue-architecture-reviewed-files.json",
+    "unchanged_immediate_sources": [
+      {
+        "path": "frontend/features/tour-operations/services/attendance-closeout-checkpoint.ts",
+        "sha256": "3f79eda74d3f7ce683b15117f62a56c8fd2e48635bf0dc4f6e758b828614f5c3",
+        "scope": "unchanged immediate caller/control"
+      },
+      {
+        "path": "frontend/features/tour-operations/services/browser-offline-database.ts",
+        "sha256": "efac84fbbb1ddcedffdf29f571d9a7af674839ecda93f7bbd38c5fadfa3b7ab5",
+        "scope": "unchanged immediate caller/control"
+      },
+      {
+        "path": "frontend/features/tour-operations/services/attendance-scan-queue-owner.test.ts",
+        "sha256": "52f36f887760811273262f4120a2b2acdeeae7f5280c76b9da70c874c8acd460",
+        "scope": "unchanged immediate caller/control"
+      },
+      {
+        "path": "frontend/features/tour-operations/services/attendance-queue-safety-contract.ts",
+        "sha256": "b1d57d1512e6958de84280b172bd0ed98ebaa1f881ecd1706be4e7f666f9f46b",
+        "scope": "unchanged immediate caller/control"
+      },
+      {
+        "path": "frontend/features/tour-operations/hooks/use-attendance-scan-sync.ts",
+        "sha256": "5d98e622157c9ef5829a3594d2f644995989e648599519e0c100960a752fd7e8",
+        "scope": "unchanged immediate caller/control"
+      },
+      {
+        "path": "frontend/features/tour-operations/components/coordinator-offline-scan-drain.tsx",
+        "sha256": "f3e622ed99b2628628ab1d3ce3690ac4aad08205cd5cc92a7c766e93d61188c7",
+        "scope": "unchanged immediate caller/control"
+      },
+      {
+        "path": "frontend/features/tour-operations/services/attendance-retry-policy.ts",
+        "sha256": "c52346bbcb643c0236b55ba3cea5ba2a529cbf4f0a36b0af6b1b6c04558cdc42",
+        "scope": "unchanged immediate caller/control"
+      },
+      {
+        "path": "frontend/features/tour-operations/services/attendance-sync-policy.ts",
+        "sha256": "9541575e20aa13891ed7de757ffd1689cefde3c81bb5e18f704e67f051875944",
+        "scope": "unchanged immediate caller/control"
+      },
+      {
+        "path": "frontend/features/tour-operations/services/attendance-queue-privacy.ts",
+        "sha256": "f4bc6c4123150b5b9bc5d04085801b474e8796177a895d1ec3b8b449ca113c48",
+        "scope": "unchanged immediate caller/control"
+      },
+      {
+        "path": "frontend/features/tour-operations/services/attendance-batch-policy.ts",
+        "sha256": "393e5adfa1a6e03c8e12786f7a5ab4c2e2600bf5baa9103bb3f4e76b1edb0710",
+        "scope": "unchanged immediate caller/control"
+      },
+      {
+        "path": "frontend/features/auth/components/queue-safe-sign-out-guard.tsx",
+        "sha256": "d239fe6bd51722f53355d89d703e6af37f82d61a0bc8397cda7e0232be04cdd9",
+        "scope": "unchanged immediate caller/control"
+      },
+      {
+        "path": "frontend/features/tour-operations/test-support/attendance-database.ts",
+        "sha256": "818e0b50f7242e8164dd05a7dbff7add217bf4a5578c3298ecec13e86771a36d",
+        "scope": "unchanged immediate caller/control"
+      },
+      {
+        "path": "frontend/features/auth/components/queue-safe-sign-out-guard.test.tsx",
+        "sha256": "6b4a5d0d7557d8312a79fa2b6c336a6baa79fc838512979f6c4c6d802a8ec473",
+        "scope": "unchanged immediate caller/control"
+      },
+      {
+        "path": "frontend/stores/auth.store.ts",
+        "sha256": "788cdfd0ed8072ce1191d863759bed359b3a38de35a0aeeb1cc744c3e11f58e9",
+        "scope": "unchanged immediate caller/control"
+      }
+    ],
+    "note": "Earlier16-file3669-line full physical preflight remains historical;14 unchanged current caller/helper/control rows retained without new global count credit."
+  },
+  "partial_context": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_attendance_scan_support.py",
+      "sha256": "fa7c6195b64ce0e603765c622d4d139853a54af4004faac9e12544fbc1da1daf",
+      "review_scope": "partial",
+      "read_ranges": [
+        [
+          96,
+          183
+        ]
+      ],
+      "notes": "Actual validated time/QR/canonical insertion/duplicate response path only; no full coverage upgrade."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_attendance_batch_support.py",
+      "sha256": "8fd7647012b1c3679cbf9fa4c5cd3b841c108e321ef3b6aa07f26a941731e8b2",
+      "review_scope": "partial",
+      "read_ranges": [
+        [
+          131,
+          289
+        ],
+        [
+          309,
+          376
+        ]
+      ],
+      "notes": "Batch identity, stable terminal result and fingerprint replay context; not full-source credit."
+    },
+    {
+      "path": "frontend/scripts/verify-frontend-module-budgets.mjs",
+      "review_scope": "partial",
+      "notes": "Actual exported line/complexity/candidate measurement functions and CLI context physically read; initial large budget-row output was truncated, never credited full. Shared file untouched."
+    }
+  ]
+}

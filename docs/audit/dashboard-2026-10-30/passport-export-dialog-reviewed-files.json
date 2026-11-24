@@ -1,0 +1,131 @@
+{
+  "recorded_at": "2026-10-30T23:40:14.996Z",
+  "records": [
+    {
+      "path": "frontend/features/passports/components/passport-export-dialog.tsx",
+      "sha256": "72d9d9d566e74f5b6f91f038c0f8c9384d1cbe329ca03c0317ceb7065fe91f9c",
+      "physical_lines": 90,
+      "max_function_complexity": 5,
+      "review_scope": "full",
+      "status": "reviewed-and-restructured",
+      "review_method": "All original physical export dialog and all six current owners read. Composition wiring authored/reviewed;31-part AST proof and focused rendering tests are separate evidence, not a substituted source review."
+    },
+    {
+      "path": "frontend/features/passports/components/use-passport-export-dialog.ts",
+      "sha256": "9d52a444569ec04a12c22dc613ace2f988fbe1dcf4e3ebe1875c28f428131c30",
+      "physical_lines": 101,
+      "max_function_complexity": 11,
+      "review_scope": "full",
+      "status": "reviewed-and-restructured",
+      "review_method": "All original physical export dialog and all six current owners read. Composition wiring authored/reviewed;31-part AST proof and focused rendering tests are separate evidence, not a substituted source review."
+    },
+    {
+      "path": "frontend/features/passports/components/passport-export-fields.tsx",
+      "sha256": "f95c822fc330ae67cfdb7f7c60d3cd8a1eb5d7c8aa874cdd6bb74a32bb5d0f99",
+      "physical_lines": 39,
+      "max_function_complexity": 5,
+      "review_scope": "full",
+      "status": "reviewed-and-restructured",
+      "review_method": "All original physical export dialog and all six current owners read. Composition wiring authored/reviewed;31-part AST proof and focused rendering tests are separate evidence, not a substituted source review."
+    },
+    {
+      "path": "frontend/features/passports/components/passport-export-history-detail.tsx",
+      "sha256": "bd165b2a1f5edd9576a4938dd14cd3ab9fb4bf598d533e8a8669e1fe97bc0650",
+      "physical_lines": 70,
+      "max_function_complexity": 6,
+      "review_scope": "full",
+      "status": "reviewed-and-restructured",
+      "review_method": "All original physical export dialog and all six current owners read. Composition wiring authored/reviewed;31-part AST proof and focused rendering tests are separate evidence, not a substituted source review."
+    },
+    {
+      "path": "frontend/features/passports/components/passport-export-options.tsx",
+      "sha256": "d188375c6296f37907c7aea7dc79bea39edad9a9a6cdf6cb1c5bf3a1c19f17fb",
+      "physical_lines": 195,
+      "max_function_complexity": 12,
+      "review_scope": "full",
+      "status": "reviewed-and-restructured",
+      "review_method": "All original physical export dialog and all six current owners read. Composition wiring authored/reviewed;31-part AST proof and focused rendering tests are separate evidence, not a substituted source review."
+    },
+    {
+      "path": "frontend/features/passports/components/passport-export-footer.tsx",
+      "sha256": "a58a5e5daa3d70b49d3976acc53e70cecadde851136df1a7678e810e65451987",
+      "physical_lines": 92,
+      "max_function_complexity": 10,
+      "review_scope": "full",
+      "status": "reviewed-and-restructured",
+      "review_method": "All original physical export dialog and all six current owners read. Composition wiring authored/reviewed;31-part AST proof and focused rendering tests are separate evidence, not a substituted source review."
+    }
+  ],
+  "test_records": [
+    {
+      "path": "frontend/features/passports/components/passport-export-dialog.test.tsx",
+      "review_scope": "full",
+      "sha256": "58294021de60000cdc13860153a4a9a2a231224f8119d59f5e33ca452b6f00a1",
+      "status": "reviewed-and-strengthened"
+    },
+    {
+      "path": "frontend/features/passports/components/passport-export-dialog-source.contract-helper.mjs",
+      "review_scope": "full",
+      "sha256": "7b448092ae3fde0187b5f461fce58686bfed2f901bf4593e172a8731be23d231",
+      "status": "reviewed-and-verified"
+    },
+    {
+      "path": "frontend/features/passports/api/passport-export-history.contract.test.mjs",
+      "review_scope": "full",
+      "sha256": "570074d14ff7e815a26c9a90662ca2a5545fbcb2fd26441f1839688627c0e9e5",
+      "status": "source-loader-retargeted",
+      "review_note": "Actual six owners replace the old single-file read; all seven original assertion bodies remain."
+    }
+  ],
+  "original_lines": 478,
+  "max_owner_lines": 195,
+  "proofs": {
+    "before_extraction": {
+      "path": ".tmp/passport-export-dialog-before-extraction.json",
+      "files": 2,
+      "cases": 7,
+      "passed": 7,
+      "failed": 0
+    },
+    "final": {
+      "path": ".tmp/passport-export-dialog-final-unit.json",
+      "files": 2,
+      "cases": 7,
+      "passed": 7,
+      "failed": 0
+    },
+    "node_contracts": {
+      "cases": 7,
+      "passed": 7,
+      "path": ".tmp/passport-export-dialog-contracts.txt"
+    },
+    "types": "passed",
+    "scoped_eslint": "passed9paths, zero warnings",
+    "existing_passport_ratchets": {
+      "modules": 109,
+      "passed": true
+    },
+    "movement": {
+      "parts": 31,
+      "passed": true,
+      "path": "docs/audit/dashboard-2026-10-30/passport-export-dialog-movement-proof.json"
+    },
+    "formatting": {
+      "emitted_AST_unchanged": true,
+      "path": "docs/audit/dashboard-2026-10-30/passport-export-dialog-format-proof.json"
+    }
+  },
+  "preserved": [
+    "Exact public prop members and parameter signatures; only a type-only export permits shared controller typing.",
+    "All25 original state/query/effect/admission statements, including compatible/nonzero-change baseline gate and default field initialization.",
+    "Exact same-turn download guard, pending keyboard/dismissal behavior, selected-field/grouping/agency options and original completion/cancellation workflow.",
+    "Completed-time history and deleted-source snapshots; independent bounded history/detail pagination.",
+    "No new DOM wrappers, API/provider requests, upload thresholds or permission changes."
+  ],
+  "remaining_original_oversized_owners": 5,
+  "limits": [
+    "Pure architecture extraction; no new vulnerability or product behavior change is claimed.",
+    "Affected component rendering uses jsdom; no new production-route browser or real-service qualification is claimed.",
+    "No whole frontend build/suite repeated for this bounded batch."
+  ]
+}

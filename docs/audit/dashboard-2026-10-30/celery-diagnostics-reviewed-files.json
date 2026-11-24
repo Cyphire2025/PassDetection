@@ -1,0 +1,74 @@
+[
+  {
+    "path": "backend/app/core/logging/task_diagnostics.py",
+    "sha256": "d4d52761bc6b7b18f406fcabf8051ca2cf2a38c40a2aab9502118ab2d5ec2410",
+    "lines": 89,
+    "review_scope": "full",
+    "reviewer": "manual_security",
+    "status": "fixed",
+    "notes": "Full physical current read. Pure exception projection retains bounded type/module and an explicit known-safe provider-code allowlist; never calls exception str/repr or stores args/source lines/paths/locals. Real traceback frames use bounded16-entry deque; in-process exception object remains untouched."
+  },
+  {
+    "path": "backend/app/core/logging/celery_diagnostics.py",
+    "sha256": "d53a83b8f76cde01bd8ecf14979a1f86d059e5d9d731a50c185c3f61aadb455b",
+    "lines": 120,
+    "review_scope": "full",
+    "reviewer": "manual_security",
+    "status": "fixed",
+    "notes": "Full physical current read. Idempotent pre-format record projection replaces raw Celery exception/traceback/argument/result representations including record.data; preserves severity, stable task ID/name/event, safe code and bounded duration. Exact early unknown-message body disclosure reproduced before narrow guard. Non-Celery logs remain outside this change."
+  },
+  {
+    "path": "backend/app/core/logging/logger.py",
+    "sha256": "d37b2e95594583847064ee7a85fba724b1fd2c1e37d5ac65a3c4566cba00b58b",
+    "lines": 147,
+    "review_scope": "full",
+    "reviewer": "manual_security",
+    "status": "fixed",
+    "notes": "Full physical original/current read. Existing logging handler lifecycle and JSON/console/stdlib output modes retained. Added diagnostic filters at the actual Celery loggers before handlers and on the application-owned handler; repeated application setup and safe diagnostic retention tested."
+  },
+  {
+    "path": "backend/app/infrastructure/processing/private_task.py",
+    "sha256": "a495d711503ae226e24bed1599eedc3c429232f57751c6dc1cdb8dbbbc557c81",
+    "lines": 46,
+    "review_scope": "full",
+    "reviewer": "manual_security",
+    "status": "fixed",
+    "notes": "Full physical current read plus installed Task.apply_async/signature_from_request/retry/before_start seams inspected. Only diagnostic repr fields change; actual args/kwargs, callback/options/countdown, task run/exception decisions and framework Retry/Reject/Ignore classes remain."
+  },
+  {
+    "path": "backend/app/infrastructure/processing/private_task_request.py",
+    "sha256": "c148d9cf71005ca02c57036e2910a0b738bf26bdf584dcfad5d4c08d67016c39",
+    "lines": 51,
+    "review_scope": "full",
+    "reviewer": "manual_security",
+    "status": "fixed",
+    "notes": "Full physical current read plus installed Request/strategy early event paths inspected. Copies/masks repr headers before Request initialization; actual body remains original. Failure/retry event projections unwrap the actual Billiard wrapper; source names/frame bounds only. Received/success/earlyfailure/retry events tested with actual upstream classes."
+  },
+  {
+    "path": "backend/app/infrastructure/processing/private_task_loader.py",
+    "sha256": "7b2b2ea9ca6a9d33c1789fb163e4639d50704a030a27e5a2c6b423e89dd92d55",
+    "lines": 11,
+    "review_scope": "full",
+    "reviewer": "manual_security",
+    "status": "fixed",
+    "notes": "Full physical current read plus installed loader/by_url/app reconstruction seams inspected. AppLoader backend aliases select the same Redis implementation with privacy projection; subclass binding survives serialized worker app reconstruction, where an imperative loader-only instance patch was proved insufficient. Existing environment loader behavior retained."
+  },
+  {
+    "path": "backend/app/infrastructure/processing/private_result_backend.py",
+    "sha256": "50de41be6776cf6fed98769f0e6c077214a8032e17b48e244131ce3552ace0e6",
+    "lines": 38,
+    "review_scope": "full",
+    "reviewer": "manual_security",
+    "status": "fixed",
+    "notes": "Full physical current read plus installed BaseBackend.store_result/_store_result/exception decoding and Redis.set sink inspected. Projects failure/retry/revoked exception metadata and traceback before upstream encoding/storage while retaining original request/args, statuses, class/module schema and success results. Actual memory-backend metadata and Redis/TLS connection parameter equivalence tested; no live Redis claim."
+  },
+  {
+    "path": "backend/app/infrastructure/processing/celery_app.py",
+    "sha256": "402830e148bc2745e7d05837ec10d81db4ed54bb9f6ab293d9cca60ae0f4a9e3",
+    "lines": 430,
+    "review_scope": "full",
+    "reviewer": "manual_security",
+    "status": "fixed",
+    "notes": "Full physical current read. All preexisting runtime configuration AST matches git HEAD after removing only reviewed task/loader/filter bindings; separate preexisting AI module-docstring description change ignored explicitly. App name, broker/result URL expressions, queues/routes, resources, schedules, serializers, task declarations and lifecycle hooks preserved."
+  }
+]

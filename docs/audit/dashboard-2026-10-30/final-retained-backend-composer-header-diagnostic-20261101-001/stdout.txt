@@ -1,0 +1,237 @@
+============================= test session starts =============================
+platform win32 -- Python 3.11.15, pytest-9.0.3, pluggy-1.6.0 -- C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\nipun\Desktop\PassDetection\backend
+configfile: pyproject.toml
+plugins: anyio-4.14.2, platformdirs-4.12.0, asyncio-1.4.0, cov-5.0.0, xdist-3.8.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=function, asyncio_default_test_loop_scope=function
+collecting ... collected 1 item
+
+tests/unit/presentation/test_whatsapp_composer_persistence.py::test_fresh_passport_send_rejects_missing_image_header FAILED [100%]
+
+================================== FAILURES ===================================
+____________ test_fresh_passport_send_rejects_missing_image_header ____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001488ECF0750>
+
+    @pytest.mark.asyncio
+    async def test_fresh_passport_send_rejects_missing_image_header(
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        monkeypatch.setattr("app.presentation.api.v1.routes.whatsapp_send.enforce_broadcast_welcome_prerequisite", AsyncMock())
+    
+        group_id = uuid.uuid4()
+        group_result = MagicMock()
+        group_result.scalar_one_or_none.return_value = SimpleNamespace(
+            id=group_id,
+            agency_id=uuid.uuid4(),
+            name="Vietnam",
+            recipient_opt_in_confirmed_at=datetime.now(tz=UTC),
+        )
+        session = AsyncMock()
+        session.info = {TEMPLATE_SETTINGS_MEMO: TemplateSettingsSnapshot(0, None, {})}
+        session.execute.return_value = group_result
+        set_route_dependency(
+            monkeypatch,
+            "app.presentation.api.v1.routes.whatsapp._group_recipients",
+            AsyncMock(return_value=[SimpleNamespace(id=uuid.uuid4())]),
+        )
+        set_route_dependency(
+            monkeypatch,
+            "app.presentation.api.v1.routes.whatsapp._support_contacts_for_group",
+            AsyncMock(
+                return_value=[
+                    SimpleNamespace(
+                        name="Travel desk",
+                        phone_number="+919876543210",
+                    )
+                ]
+            ),
+        )
+        set_route_dependency(
+            monkeypatch,
+            "app.presentation.api.v1.routes.whatsapp._latest_composer_snapshot",
+            AsyncMock(return_value=None),
+        )
+    
+        with pytest.raises(HTTPException) as exc_info:
+>           await send_broadcast_message(
+                group_id=group_id,
+                body=WhatsAppSendRequest(
+                    message_type="passport_link",
+                    passport_intro="Please submit your travel documents.",
+                    passport_link="https://tech.example/upload/token",
+                    message_content="Complete all required details.",
+                ),
+                current_user=SimpleNamespace(
+                    role=UserRole.SUPER_ADMIN,
+                    agency_id=None,
+                ),
+                session=session,
+            )
+
+tests\unit\presentation\test_whatsapp_composer_persistence.py:491: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+group_id = UUID('49aa3e05-48bc-47b0-8320-d4ad7a790c35')
+body = WhatsAppSendRequest(message_type='passport_link', passport_intro='Please submit your travel documents.', passport_link...ne, update_submission='all', update_distribution='all', update_document_type='visa', include_previous_recipients=False)
+current_user = namespace(role=<UserRole.SUPER_ADMIN: 'super_admin'>, agency_id=None)
+session = <AsyncMock id='1411145203920'>
+
+    async def send_broadcast_message(
+        group_id: uuid.UUID,
+        body: WhatsAppSendRequest,
+        current_user: User = Depends(require_role(WHATSAPP_ROLES)),
+        session: AsyncSession = Depends(get_db_session),
+    ) -> WhatsAppSendResponse:
+>       response, payload = await queue_broadcast_message(
+            group_id,
+            body,
+            current_user=current_user,
+            session=session,
+        )
+
+app\presentation\api\v1\routes\whatsapp_send.py:145: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+group_id = UUID('49aa3e05-48bc-47b0-8320-d4ad7a790c35')
+body = WhatsAppSendRequest(message_type='passport_link', passport_intro='Please submit your travel documents.', passport_link...ne, update_submission='all', update_distribution='all', update_document_type='visa', include_previous_recipients=False)
+
+    async def queue_broadcast_message(
+        group_id: uuid.UUID,
+        body: WhatsAppSendRequest,
+        *,
+        current_user: User,
+        session: AsyncSession,
+        freeze_template_language: bool = False,
+        suppress_unknown_reminders: bool = False,
+    ) -> tuple[WhatsAppSendResponse, dict[str, object]]:
+        """Shared flush-only queue boundary; callers own commit and broker publication.
+    
+        A savepoint which is explicitly rolled back can project the exact website
+        claims without persisting them. This function never invokes a provider.
+        """
+>       prepared = await prepare_broadcast_send(
+            group_id, body, current_user=current_user, session=session
+        )
+
+app\presentation\api\v1\routes\whatsapp_send.py:192: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+group_id = UUID('49aa3e05-48bc-47b0-8320-d4ad7a790c35')
+body = WhatsAppSendRequest(message_type='passport_link', passport_intro='Please submit your travel documents.', passport_link...ne, update_submission='all', update_distribution='all', update_document_type='visa', include_previous_recipients=False)
+
+    async def prepare_broadcast_send(
+        group_id: uuid.UUID,
+        body: WhatsAppSendRequest,
+        *,
+        current_user: User,
+        session: AsyncSession,
+    ) -> PreparedBroadcastSend:
+        result = await session.execute(
+            select(WhatsAppBroadcastGroupModel)
+            .where(
+                WhatsAppBroadcastGroupModel.id == group_id,
+                *_agency_filter(current_user),
+            )
+            .with_for_update()
+        )
+        group = result.scalar_one_or_none()
+        if not group:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="WhatsApp broadcast group not found"
+            )
+        require_active_broadcast(group)
+        if group.recipient_opt_in_confirmed_at is None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Recipient WhatsApp opt-in has not been confirmed for this list",
+            )
+    
+        all_recipients = await _group_recipients(session, group.id)
+        if not all_recipients:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="This WhatsApp list has no recipients",
+            )
+        try:
+            require_whatsapp_recipient_capacity(
+                active_count=len(all_recipients),
+                activating_count=0,
+            )
+        except WhatsAppRecipientCapacityExceeded as exc:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=(
+                    "This WhatsApp list exceeds the maximum of "
+                    f"{MAX_WHATSAPP_RECIPIENTS} recipients. Remove extra recipients before sending."
+                ),
+            ) from exc
+        message_type = _as_message_type(body.message_type)
+        source_recipients = _select_group_recipients(all_recipients, body.recipient_ids)
+        audience_resolution = await resolve_reminder_audience(
+            session,
+            message_request=body,
+            broadcast_group=group,
+            recipients=source_recipients,
+            audience=body.audience,
+            audience_client_group_id=body.audience_client_group_id,
+            current_user=current_user,
+        )
+        recipients = list(audience_resolution.recipients)
+>       await enforce_broadcast_welcome_prerequisite(
+            session,
+            agency_id=group.agency_id,
+            message_type=message_type,
+            recipients=recipients,
+        )
+
+app\presentation\api\v1\routes\whatsapp_send_preparation.py:120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+session = <AsyncMock id='1411145203920'>
+
+    async def enforce_broadcast_welcome_prerequisite(
+        session: AsyncSession,
+        *,
+        agency_id: uuid.UUID,
+        message_type: str,
+        recipients: Sequence[WhatsAppBroadcastRecipientModel],
+    ) -> None:
+        if not requires_prior_welcome(message_type):
+            return
+        from app.presentation.api.v1.routes.whatsapp_welcome_view import (
+            phone_welcome_statuses_by_recipient,
+        )
+>       states = await phone_welcome_statuses_by_recipient(session, list(recipients))
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+app\presentation\api\v1\routes\whatsapp_phone_welcome.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+session = <AsyncMock id='1411145203920'>
+recipients = [namespace(id=UUID('77f6c603-2736-49d5-8434-3de598e2c3e9'))]
+
+    async def phone_welcome_statuses_by_recipient(
+        session: AsyncSession,
+        recipients: list[WhatsAppBroadcastRecipientModel],
+    ) -> dict[uuid.UUID, str | None]:
+        """Read welcome eligibility from this broadcast, including traveller sends."""
+        result: dict[uuid.UUID, str | None] = {}
+>       scopes = {(row.agency_id, row.broadcast_group_id) for row in recipients}
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+app\presentation\api\v1\routes\whatsapp_welcome_view.py:81: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+.0 = <list_iterator object at 0x000001488EA7DBD0>
+
+>   scopes = {(row.agency_id, row.broadcast_group_id) for row in recipients}
+               ^^^^^^^^^^^^^
+E   AttributeError: 'types.SimpleNamespace' object has no attribute 'agency_id'
+
+app\presentation\api\v1\routes\whatsapp_welcome_view.py:81: AttributeError
+- generated xml file: C:\Users\nipun\Desktop\PassDetection\docs\audit\dashboard-2026-10-30\final-retained-backend-composer-header-diagnostic-20261101-001\junit.xml -
+=========================== short test summary info ===========================
+FAILED tests/unit/presentation/test_whatsapp_composer_persistence.py::test_fresh_passport_send_rejects_missing_image_header - AttributeError: 'types.SimpleNamespace' object has no attribute 'agency_id'
+============================== 1 failed in 0.52s ==============================

@@ -1,0 +1,272 @@
+{
+  "scope": "TypeScript symbol references over configured frontend sources; parsed reference analysis is not manual full-file security coverage. Global text/JS/native boundary search and actual caller reads supplement this report.",
+  "source_sha256": {
+    "frontend/features/whatsapp/hooks/use-whatsapp.ts": "5ae330d0d4ac44b1a678e65e4bfc91e56f89a7c388ceb4fa6f0fc7f600c2a87c",
+    "frontend/features/whatsapp/api/whatsapp.api.ts": "e55ba6e1a6c599e21b5f4078daad3b58aabe58c476c054ce704dcb6ef5a142ce",
+    "frontend/features/whatsapp/api/broadcast-sends.api.ts": "8fa30a033ebb9268564261dca489c921d5b33987f04d0cace6dab1d1c719d33a",
+    "frontend/features/whatsapp/api/broadcast-resends.api.ts": "ebc3d4197af0a8224a7651f82d845a4ea31023a35b5ab049a1bac56b8d5254bc",
+    "frontend/features/whatsapp/api/broadcast-message-reads.api.ts": "441c2ef50b1611fdd92fe59335f403d0c340c9c0faf7140ab9e57e1bdefb45d5"
+  },
+  "targets": [
+    "previewRecipientsResend",
+    "batchStatus",
+    "batchSummary",
+    "resendRecipientMessage",
+    "resendRecipientsMessage",
+    "sendWelcome",
+    "sendPassportLink",
+    "sendReminder",
+    "sendGroupInvite",
+    "useWhatsAppRejectedContacts",
+    "useResendWhatsAppRecipientMessage",
+    "useResendWhatsAppRecipientsMessage",
+    "isMissingWhatsAppBatchError",
+    "useWhatsAppBatchStatus",
+    "usePreviewWhatsAppBulkResendMessage",
+    "usePreviewWhatsAppMessage",
+    "useSendWhatsAppWelcome",
+    "useSendWhatsAppReminder",
+    "useSendWhatsAppPassportLink",
+    "useSendWhatsAppGroupInvite"
+  ],
+  "references": [
+    {
+      "target": "previewRecipientsResend",
+      "path": "frontend/features/whatsapp/api/broadcast-message-reads.api.ts",
+      "line": 7,
+      "test": false,
+      "form": "PropertyAssignment"
+    },
+    {
+      "target": "batchStatus",
+      "path": "frontend/features/whatsapp/api/broadcast-message-reads.api.ts",
+      "line": 45,
+      "test": false,
+      "form": "PropertyAssignment"
+    },
+    {
+      "target": "batchSummary",
+      "path": "frontend/features/whatsapp/api/broadcast-message-reads.api.ts",
+      "line": 51,
+      "test": false,
+      "form": "PropertyAssignment"
+    },
+    {
+      "target": "resendRecipientMessage",
+      "path": "frontend/features/whatsapp/api/broadcast-resends.api.ts",
+      "line": 9,
+      "test": false,
+      "form": "PropertyAssignment"
+    },
+    {
+      "target": "resendRecipientsMessage",
+      "path": "frontend/features/whatsapp/api/broadcast-resends.api.ts",
+      "line": 55,
+      "test": false,
+      "form": "PropertyAssignment"
+    },
+    {
+      "target": "sendWelcome",
+      "path": "frontend/features/whatsapp/api/broadcast-sends.api.ts",
+      "line": 8,
+      "test": false,
+      "form": "PropertyAssignment"
+    },
+    {
+      "target": "sendPassportLink",
+      "path": "frontend/features/whatsapp/api/broadcast-sends.api.ts",
+      "line": 26,
+      "test": false,
+      "form": "PropertyAssignment"
+    },
+    {
+      "target": "sendReminder",
+      "path": "frontend/features/whatsapp/api/broadcast-sends.api.ts",
+      "line": 50,
+      "test": false,
+      "form": "PropertyAssignment"
+    },
+    {
+      "target": "sendGroupInvite",
+      "path": "frontend/features/whatsapp/api/broadcast-sends.api.ts",
+      "line": 68,
+      "test": false,
+      "form": "PropertyAssignment"
+    },
+    {
+      "target": "useWhatsAppRejectedContacts",
+      "path": "frontend/features/whatsapp/hooks/use-whatsapp.ts",
+      "line": 97,
+      "test": false,
+      "form": "FunctionDeclaration"
+    },
+    {
+      "target": "useResendWhatsAppRecipientMessage",
+      "path": "frontend/features/whatsapp/hooks/use-whatsapp.ts",
+      "line": 281,
+      "test": false,
+      "form": "FunctionDeclaration"
+    },
+    {
+      "target": "useResendWhatsAppRecipientsMessage",
+      "path": "frontend/features/whatsapp/hooks/use-whatsapp.ts",
+      "line": 293,
+      "test": false,
+      "form": "FunctionDeclaration"
+    },
+    {
+      "target": "isMissingWhatsAppBatchError",
+      "path": "frontend/features/whatsapp/hooks/use-whatsapp.ts",
+      "line": 308,
+      "test": false,
+      "form": "FunctionDeclaration"
+    },
+    {
+      "target": "useWhatsAppBatchStatus",
+      "path": "frontend/features/whatsapp/hooks/use-whatsapp.ts",
+      "line": 312,
+      "test": false,
+      "form": "FunctionDeclaration"
+    },
+    {
+      "target": "isMissingWhatsAppBatchError",
+      "path": "frontend/features/whatsapp/hooks/use-whatsapp.ts",
+      "line": 323,
+      "test": false,
+      "form": "CallExpression"
+    },
+    {
+      "target": "isMissingWhatsAppBatchError",
+      "path": "frontend/features/whatsapp/hooks/use-whatsapp.ts",
+      "line": 336,
+      "test": false,
+      "form": "CallExpression"
+    },
+    {
+      "target": "usePreviewWhatsAppBulkResendMessage",
+      "path": "frontend/features/whatsapp/hooks/use-whatsapp.ts",
+      "line": 345,
+      "test": false,
+      "form": "FunctionDeclaration"
+    },
+    {
+      "target": "usePreviewWhatsAppMessage",
+      "path": "frontend/features/whatsapp/hooks/use-whatsapp.ts",
+      "line": 352,
+      "test": false,
+      "form": "FunctionDeclaration"
+    },
+    {
+      "target": "useSendWhatsAppWelcome",
+      "path": "frontend/features/whatsapp/hooks/use-whatsapp.ts",
+      "line": 366,
+      "test": false,
+      "form": "FunctionDeclaration"
+    },
+    {
+      "target": "useSendWhatsAppReminder",
+      "path": "frontend/features/whatsapp/hooks/use-whatsapp.ts",
+      "line": 389,
+      "test": false,
+      "form": "FunctionDeclaration"
+    },
+    {
+      "target": "useSendWhatsAppPassportLink",
+      "path": "frontend/features/whatsapp/hooks/use-whatsapp.ts",
+      "line": 412,
+      "test": false,
+      "form": "FunctionDeclaration"
+    },
+    {
+      "target": "useSendWhatsAppGroupInvite",
+      "path": "frontend/features/whatsapp/hooks/use-whatsapp.ts",
+      "line": 444,
+      "test": false,
+      "form": "FunctionDeclaration"
+    },
+    {
+      "target": "useSendWhatsAppGroupInvite",
+      "path": "frontend/features/whatsapp/hooks/use-whatsapp-send-idempotency.test.tsx",
+      "line": 10,
+      "test": true,
+      "form": "ImportSpecifier"
+    },
+    {
+      "target": "useSendWhatsAppPassportLink",
+      "path": "frontend/features/whatsapp/hooks/use-whatsapp-send-idempotency.test.tsx",
+      "line": 10,
+      "test": true,
+      "form": "ImportSpecifier"
+    },
+    {
+      "target": "useSendWhatsAppReminder",
+      "path": "frontend/features/whatsapp/hooks/use-whatsapp-send-idempotency.test.tsx",
+      "line": 11,
+      "test": true,
+      "form": "ImportSpecifier"
+    },
+    {
+      "target": "useSendWhatsAppWelcome",
+      "path": "frontend/features/whatsapp/hooks/use-whatsapp-send-idempotency.test.tsx",
+      "line": 11,
+      "test": true,
+      "form": "ImportSpecifier"
+    },
+    {
+      "target": "useSendWhatsAppWelcome",
+      "path": "frontend/features/whatsapp/hooks/use-whatsapp-send-idempotency.test.tsx",
+      "line": 35,
+      "test": true,
+      "form": "CallExpression"
+    },
+    {
+      "target": "useSendWhatsAppReminder",
+      "path": "frontend/features/whatsapp/hooks/use-whatsapp-send-idempotency.test.tsx",
+      "line": 35,
+      "test": true,
+      "form": "CallExpression"
+    },
+    {
+      "target": "useSendWhatsAppPassportLink",
+      "path": "frontend/features/whatsapp/hooks/use-whatsapp-send-idempotency.test.tsx",
+      "line": 36,
+      "test": true,
+      "form": "CallExpression"
+    },
+    {
+      "target": "useSendWhatsAppGroupInvite",
+      "path": "frontend/features/whatsapp/hooks/use-whatsapp-send-idempotency.test.tsx",
+      "line": 36,
+      "test": true,
+      "form": "CallExpression"
+    }
+  ],
+  "facade_computed_accesses": [
+    {
+      "path": "frontend/features/whatsapp/api/whatsapp-archive.test.ts",
+      "line": 21,
+      "test": true,
+      "expression": "whatsappApi[action === \"archive\" ? \"archiveGroup\" : \"restoreGroup\"]"
+    }
+  ],
+  "facade_escaped_values": [
+    {
+      "path": "frontend/features/whatsapp/api/whatsapp-source-groups.api.ts",
+      "line": 71,
+      "test": false,
+      "expression": "whatsappApi.createGroup"
+    },
+    {
+      "path": "frontend/features/whatsapp/hooks/use-whatsapp.ts",
+      "line": 360,
+      "test": false,
+      "expression": "whatsappApi.previewMessage"
+    },
+    {
+      "path": "frontend/features/whatsapp/hooks/use-whatsapp.ts",
+      "line": 445,
+      "test": false,
+      "expression": "whatsappApi.sendGroupInvite"
+    }
+  ]
+}

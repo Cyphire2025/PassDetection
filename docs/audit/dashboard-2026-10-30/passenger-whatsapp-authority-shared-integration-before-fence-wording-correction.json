@@ -1,0 +1,176 @@
+{
+  "status": "verified at this focused source checkpoint",
+  "before_modules": 856,
+  "after_modules": 862,
+  "normal_additions": 6,
+  "critical_before": 162,
+  "critical_after": 162,
+  "all856old_normal_rows_exact": true,
+  "all162old_critical_and_global_values_exact": true,
+  "measurements": [
+    {
+      "path": "app/application/mobile/passenger_change_contracts.py",
+      "sha256": "d2380bfee9bdb59fe5dee50b2f0d12cdb7980033f419a11457d7cf0b7dacb130",
+      "lines": 54,
+      "complexity": 0,
+      "line_percent": 100.0,
+      "branch_percent": 100.0,
+      "branch_sites": 8
+    },
+    {
+      "path": "app/application/mobile/passenger_change_events.py",
+      "sha256": "e7e3fe920b64f0e7f83b45525bf00889d34e12c0ca05a9aca86f3b29210118d1",
+      "lines": 130,
+      "complexity": 14,
+      "line_percent": 96.55172413793103,
+      "branch_percent": 91.66666666666667,
+      "branch_sites": 12
+    },
+    {
+      "path": "app/application/mobile/passenger_change_identities.py",
+      "sha256": "0e663f42d3f78ab195b2cda8b51b7021a8a231f9dcdd3098a3f989e3921bbd7d",
+      "lines": 85,
+      "complexity": 10,
+      "line_percent": 100.0,
+      "branch_percent": 100.0,
+      "branch_sites": 6
+    },
+    {
+      "path": "app/application/mobile/passenger_change_journal.py",
+      "sha256": "dee981f849e150af11a70bf3d7d3db990d4eb6b885ce293372e2f4b0ab37ce16",
+      "lines": 115,
+      "complexity": 12,
+      "line_percent": 97.36842105263158,
+      "branch_percent": 91.66666666666667,
+      "branch_sites": 12
+    },
+    {
+      "path": "app/application/mobile/passenger_change_propagation.py",
+      "sha256": "a87d9aef03194a21969670437f2a2905045a66b2e536c52eda2281975ffc0bd7",
+      "lines": 299,
+      "complexity": 10,
+      "line_percent": 87.05882352941177,
+      "branch_percent": 77.77777777777777,
+      "branch_sites": 18
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_actor_credentials.py",
+      "sha256": "0e82cb8ba583b039c8d85c1ab6b3a835532360a14a7c035e63bd7454f9f4e69f",
+      "lines": 34,
+      "complexity": 2,
+      "line_percent": 100.0,
+      "branch_percent": null,
+      "branch_sites": 0
+    }
+  ],
+  "source_fence": {
+    "backend/tests/unit/presentation/test_whatsapp_import_current_authority.py": "9bccafab25935ff381284df69cbef6fea1af30457d8c2320c71cc3807573bf48",
+    "backend/tests/unit/presentation/test_whatsapp_import_transactions.py": "e3a3a6649d2c7eb70362728c84cf564c6253a01ae19904b26202a5fa03ab07b4",
+    "backend/tests/unit/presentation/test_access_level_mutation_actors.py": "73b6b1a4c2e690d33277439b3dcc9018112e33e603a9d42055978f5afc81a557",
+    "backend/tests/unit/presentation/test_whatsapp_mutation_boundaries.py": "9f56120bb067639a15431dc1913bfeace59df18b597b6eb6b3a43edc7b1c819a",
+    "backend/tests/unit/presentation/test_whatsapp_role_access.py": "1917bfac3550035b048576f0d844432b003ab7b93873e367165c6066d3b47e0e",
+    "backend/tests/unit/presentation/test_whatsapp_recipient_capacity.py": "d219e684df5548dcfe9b8e8819ba6b76226b41f46869bef60ad30e3149d53507",
+    "backend/tests/unit/presentation/test_whatsapp_contact_json_boundaries.py": "3c7f6365205a6b0e8b972c6df66b7de1f9153f87bea233812b3f58687f498e1c",
+    "backend/tests/unit/presentation/test_whatsapp_source_groups.py": "8de4d0276f7316af0451c8f29d287373b9135ac337b009ac1c94394856f87ca2",
+    "backend/app/presentation/api/v1/routes/whatsapp_creation.py": "80d28f482839d06f304973b37242e3c7ba60e0b50ee3db994d67fed5da8522eb",
+    "backend/app/presentation/api/v1/routes/whatsapp_recipient_additions.py": "278d992f0ac8343d4754aba07fd93c7412f5ff9003c8333d5aa42784b80800f4",
+    "backend/app/presentation/api/v1/routes/whatsapp_contact_import.py": "d627dcea775c7302cd0680e77cb6a7c8f1d3b8bea479b3865d318af1dd6bf1c8",
+    "backend/app/presentation/api/v1/routes/whatsapp_contact_sources.py": "0500fab46a72d955359e71e559d85f7b3a05d623ae35ef8abeccc5afb402626a",
+    "backend/app/presentation/api/v1/routes/whatsapp_contact_excel.py": "dd4fdbdb2ce0a78983ead4bfd5bd9ef311c3a1a366e68e207c72f3cdbfe300dc",
+    "backend/app/presentation/api/v1/routes/whatsapp_imported_fields.py": "fc4ab60c67b8ba4da46dc0b50684264173f2af260696e138b1f40925049ba811",
+    "backend/app/presentation/api/v1/routes/whatsapp_actor_credentials.py": "0e82cb8ba583b039c8d85c1ab6b3a835532360a14a7c035e63bd7454f9f4e69f",
+    "backend/app/presentation/api/v1/routes/whatsapp_scope.py": "fb1f5adf2ca2f924c57da9efbeb057ad013c4af1f2fc37704ac0883879b9da4c",
+    "backend/app/presentation/api/v1/routes/whatsapp_groups_manage.py": "6c48d2e6838d056e9d83db1266521c09ca50a1eda61430c9922bfd93d8c1e924",
+    "backend/app/application/security/access_level_actor.py": "3a8eec715f67356a378986999a012723bdd21f5510518ee7320ce7d0809013a6",
+    "backend/app/infrastructure/repositories/user_repository.py": "a91bd9de4ef129c714c39cbda7ddc3d782fe7b3474fcb8f65837642fa5cb4737",
+    "backend/app/presentation/dependencies/auth.py": "5e1641d51673dcbcd1c2cbc8d6ceac397147de52ec4e100bae285ba115d5fefb",
+    "backend/app/application/mobile/passenger_change_propagation.py": "a87d9aef03194a21969670437f2a2905045a66b2e536c52eda2281975ffc0bd7",
+    "backend/tests/unit/application/test_mobile_passenger_change_propagation.py": "b1dd2b006c1482d68e55bb847b9e4315049e1d73958ededec9005a4ae8044e05",
+    "backend/app/application/use_cases/passports/client_details_transaction.py": "374a334d619c7485b82bc2d8d5ff39889c10664965f39c6b84a8ffe662e5eff3",
+    "backend/tests/unit/presentation/test_group_whatsapp_links.py": "e49ec1bee518a55f6861f03def2650aa851936e5c8a4dda86ba8fec3038e238b",
+    "backend/app/infrastructure/whatsapp/document_delivery_runtime.py": "995e3c43450e9ab3e6a82789c7df4456f0c02eb3f7280efbb49468c74d4a358a",
+    "backend/app/infrastructure/whatsapp/receipt_runtime.py": "19b356ab48ee3ea6c34d91e14aa5ede416342fb8dc6143782dc53e5c1c6cad8e",
+    "backend/app/application/mobile/passenger_identity_reconciliation.py": "542d8dcdb03dd5d32ab5c9051f0a62cb508ef8546a95bf7355271167da760217",
+    "backend/app/application/mobile/sync_journal.py": "c8a5e7918ebde6d58d79ffb17862c99dc2a016e98f654b49b8e5606db986e34e",
+    "backend/app/application/mobile/notification_service.py": "8d94a4b2d4cf544dd6177b4b6e65c30b0d4f73cfe9f1f6545a9be95c3f373f4c",
+    "backend/app/application/mobile/notification_document_changes.py": "a7b19ccbc3fddf277d34618bebf517bc1082b779d5f756444069abdb697bbf0a",
+    "backend/app/application/mobile/notification_contracts.py": "76b02078cb47578f24ddf55995866d09eb383216665f79c43714077a9e96119e",
+    "backend/app/application/mobile/coordinator_roster_revision.py": "18d2ef655f9a3bf7b900e1c0e180e879583b619a7ca49918bd0c3554eb7cd467",
+    "backend/app/presentation/api/v1/routes/passport_routes/document_import.py": "ec34e2f4c252e18cc192eb3ba6eff60f177243dfb33214e71dc5c793d10ef52d",
+    "backend/app/presentation/api/v1/routes/passport_routes/excel_import.py": "0d27ed0e4702e5a8c14cd23c4c12e917d584ecea0e3bdaead6aa182da710af70",
+    "backend/app/application/mobile/passenger_change_contracts.py": "d2380bfee9bdb59fe5dee50b2f0d12cdb7980033f419a11457d7cf0b7dacb130",
+    "backend/app/application/mobile/passenger_change_events.py": "e7e3fe920b64f0e7f83b45525bf00889d34e12c0ca05a9aca86f3b29210118d1",
+    "backend/app/application/mobile/passenger_change_identities.py": "0e663f42d3f78ab195b2cda8b51b7021a8a231f9dcdd3098a3f989e3921bbd7d",
+    "backend/app/application/mobile/passenger_change_journal.py": "dee981f849e150af11a70bf3d7d3db990d4eb6b885ce293372e2f4b0ab37ce16",
+    ".tmp/run_passenger_propagation.py": "a4d4b7994dbc10db88bc7a11fcd7956c3b4d6bba88ee3a54e1d2c8ec857869b5",
+    ".tmp/passenger_propagation_contract_plugin.py": "56fa0256baa74a9bbf8caf40c82076c0d8720f0d04788d3ad2ed43c53520c0a5",
+    "backend/tests/persistence.py": "8aa77a2c165209a196f454245bf5cc4286902c51c0db6388ff79c257ff64db70",
+    "backend/tests/unit/application/test_passenger_propagation_boundaries.py": "926baf2a5d6ba4f7658a26501993e7d1ee38c7d18fcfb0e0824c136e24107e75",
+    "backend/app/infrastructure/database/gc_mobile_models.py": "994c6db9ecbb0d5a23bec8ffd3318a2e64b87dbe6582ef277edb098431ac0e33",
+    "backend/app/infrastructure/database/communications_models.py": "0283ffad7b14ef05b16c2240fba2cf1a2580a7b68d29665ece26a284d67f7688",
+    "backend/app/infrastructure/database/document_models.py": "4ae0d78c9f6b57f6bd3569e83ea971cf266c6406935b0dcf395b26c2d149a5be"
+  },
+  "review_basis": "Parent-approved peer-attributed retained dashboard passenger bridge5 with actual20case source-bound coverage; current hashes/metrics/raw coverage/equivalence artifacts independently verified, no additional whole-source reread claimed. Own6WhatsApp import owners+support current physical reads, actual115affected authority cases and exact scope inverse/hints. No dedicated native UI or Inbox work.",
+  "critical_decision": "No new critical. Credential owner actual15/15statements and zero measured branch sites; normal100floor. Passenger bridge5 normal95/95/95/95/85 reflects measured current gaps, no declaration-only critical inflated. Existing scope181/C4/85 untouched.",
+  "release": {
+    "paths": 125,
+    "all125BEFORE_pairs_and124other_AFTER_values_exact": true,
+    "only_known_BE862_budget_AFTER_updated": true,
+    "frontend661_unchanged": true,
+    "backend_budget_sha256": "2fa2e13ee093e61493fd37bf604250da366cd992e1393f695d394f73101ee54b",
+    "bindings_sha256": "1e8e9c9503448e3b0592271ba298334d58ce72e50e4431b31499e8a32b3b920d"
+  },
+  "artifacts": {
+    "passenger-propagation-final-verification.json": "c3b66dd1ade9f4be764be20cc9618b395c38aaf8a3df0f3e6eaff864ad66463b",
+    "whatsapp-import-authority-verification.json": "87b78832f73c7409f8c04be5a066d571bbe69778c5907d61a7e24991ddfce73e",
+    "passenger-whatsapp-authority-previous-values.json": "3172558ef683279a6c44770fe416d7e84b7b65e1cff38838cd2d041ddb2a3355",
+    "passenger-propagation-final-budget-candidates.json": "dadcd1c3ab4a0c22c56f356e02a87eed2f0d21e639759eb2a77e35bc1fa9d70a",
+    "passenger-propagation-final-coverage.json": "bded72b95da4a6a8483ee01cc7140727bec15bacbbc043c01fd542dba9f3736b",
+    "passenger-propagation-final-coverage.xml": "182f239a41b8e7e0eb3c5cee0ec23d8e5533253883b3f93de0fef4d7154a8865",
+    "whatsapp-import-authority-budget-candidates.json": "19161d334ed5b303096cabe03e224f8799ff603c2d64d4cecabdaf810531e641",
+    "whatsapp-import-authority-coverage.json": "eaa33e99ef796800748065d8c36e15ffac447a0700b9228ded024a0a6fc94eb9",
+    "whatsapp-import-authority-coverage.xml": "2ff1cd11a8299727f0e1b6bdc57f15da4ca1598a1d70321ffbb6904147159ab2",
+    "whatsapp-import-authority-source-proof.json": "3db389aca56b85d609038310019b147aadac9e49ee3e0b17f972c6bdf4cff4bc",
+    "passenger-whatsapp-authority-budgets.txt": "5c86e7e2ce324e6e0382c0ea5c0fbd7b4dbfaa3001ed0bedb8f2fbba68cb9625",
+    "passenger-whatsapp-authority-architecture.txt": "895bfbeca4c78591066dcf214c4bfe9de43b5d7ed5d3f518fe398563a7bcc992",
+    "passenger-whatsapp-authority-bindings.txt": "0b3a28123d392018d244d078942a9d6d98ae49544fafd0e052f4237b0e263f39",
+    "passenger-whatsapp-authority-loader-tests.txt": "7357fbec828e9bcac415287e34ef95433ed0bbf677b1cd85f401b9c352f0b5fd",
+    "passenger-whatsapp-authority-exact-bindings.json": "f7dc4200a058ef3c243bd245c3c08580a4690ac9701330617a7dc83216201b32",
+    "passenger-propagation-boundary-transfer-verification.json": "f47ac9c030eae92d1f11f8a511dc80c190555b1c4097451d6f132fb0005e9f39",
+    "passenger-propagation-boundary-transfer-proposal.json": "46c56f68a09278eb56c86102b7d4a54ba475a0dfc22b01e6be31ffbb2fc15f27",
+    "passenger-boundary-policy-before-transfer.json": "3681bf6ca3b2bab52dcde5d0adbb4921cc8dd54771411193c2553ddaceb08b6e",
+    "passenger-whatsapp-authority-architecture-before-transfer.txt": "ba1f23f0787a527d58d44f15f7af38c5a976bcb712641957b2b1bde5763e8c6b"
+  },
+  "limits": [
+    "No broad app/build/browser/live services/VPS/deploy qualification",
+    "MCP1990historical; current classification/owner reconciliation pending",
+    "Actual held-parser SQLite persisted current-state tests do not establish livePostgres concurrent lock behavior or actualJWT authentication",
+    "Historical qualified source stamps and all immutable BEFOREs preserved",
+    "Separate unproven workbook ZIP/dimension resource candidates remain open"
+  ],
+  "checks": {
+    "backend_static_budgets": "862normal/162critical limits pass",
+    "architecture": "Actual whole static check passes after precisely reviewed two-row transaction ownership transfer",
+    "exact_bindings": "125current AFTER+bothactualGit immutable BEFOREs pass",
+    "loader": "14focused tests pass",
+    "source_fence": "All25peer passenger and22own WA affected/source identities rechecked; overlap de-duplicated",
+    "frontend": "661already bound and unchanged, no repeated app/build qualification"
+  },
+  "architecture_correction": {
+    "proposal": {
+      "path": "passenger-propagation-boundary-transfer-proposal.json",
+      "sha256": "46c56f68a09278eb56c86102b7d4a54ba475a0dfc22b01e6be31ffbb2fc15f27"
+    },
+    "proof": {
+      "path": "passenger-propagation-boundary-transfer-verification.json",
+      "sha256": "f47ac9c030eae92d1f11f8a511dc80c190555b1c4097451d6f132fb0005e9f39"
+    },
+    "actual_result": "Firstcheck failed for2new application owners missing explicit infrastructure transaction-service review. Only original main strict-subset edges copied with identical owner/date/reason; main and every other row retained, global edge permission union unchanged. Failed log retained, no check suppressed. Policy outside125protected release rows; all current bound identities remain exact."
+  },
+  "controls": {
+    "backend/backend_quality_budgets.json": "2fa2e13ee093e61493fd37bf604250da366cd992e1393f695d394f73101ee54b",
+    "scripts/release_workspace_branding_bindings.json": "1e8e9c9503448e3b0592271ba298334d58ce72e50e4431b31499e8a32b3b920d",
+    "scripts/release_workspace_branding_policy.py": "5e7368da6f2641b02270d6d738b8ed025d4355c285d165785f97139b0227962b",
+    "backend/architecture-dependencies.json": "b08e5358d637c79ac89d84fca765fa476a6669bc460a72766d1af64c880be2e6"
+  }
+}

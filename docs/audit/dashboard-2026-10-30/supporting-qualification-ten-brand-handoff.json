@@ -1,0 +1,58 @@
+{
+  "status": "Unstarted disjoint source-read handoff only",
+  "source_manifest_sha256": "dee8e088d3928c3037be084f2d35396900dab279d20754f60805fe33a7a4c5dd",
+  "files": [
+    {
+      "path": "docs/remediation/phase2-audit.md",
+      "sha256": "bcaf1de1b6e93e63ee194e080b728ce8850ca10a3a045708650794c44bec0384",
+      "lines": 26
+    },
+    {
+      "path": "docs/remediation/phase2-auth.md",
+      "sha256": "89f7710a172954d9a259792e79ecc5b12631c0638c0e0be31bf786e67607a0e0",
+      "lines": 33
+    },
+    {
+      "path": "docs/remediation/phase2-roster.md",
+      "sha256": "e614fbbf0dfc2d1599d6369511471425307d3b65ace9de2cb9887eeada26e8be",
+      "lines": 33
+    },
+    {
+      "path": "docs/remediation/phase2-service-integration.md",
+      "sha256": "c1ea8b9801438df0fde6c3b441d313068defcc199aac997034838c1f56dabd0f",
+      "lines": 27
+    },
+    {
+      "path": "docs/remediation/phase2-tooling.md",
+      "sha256": "36483071662ec20d632cee94b28fbf63b24975dbb57fc853628c11a6633aa85f",
+      "lines": 87
+    },
+    {
+      "path": "docs/remediation/phase2-workload-capacity.md",
+      "sha256": "4e89f4fe1c450ec4c5dc9e4da832a6240bdef692df33efd409b966e904e82756",
+      "lines": 26
+    },
+    {
+      "path": "docs/remediation/reassessment.md",
+      "sha256": "de4093de181c26c74e1c283872bd0bae5b3824e5bf2000c184c58cd72389d0af",
+      "lines": 125
+    },
+    {
+      "path": "docs/remediation/reliability.md",
+      "sha256": "15100f96608fcf7d8112a218dfffe9b5923380cca29a9429dbcb56d55498c8f0",
+      "lines": 232
+    },
+    {
+      "path": "docs/remediation/service-integration.md",
+      "sha256": "e06243d24394826c114928d3279c905a3cb13da266c59810148f6094cbd3115f",
+      "lines": 78
+    },
+    {
+      "path": "docs/remediation/status.md",
+      "sha256": "6f8be6c3827a620b9fb5e41093a03cbac96ddc6b4fd363c3b810fde65f66d87e",
+      "lines": 135
+    }
+  ],
+  "owner": "branding_visuals",
+  "no_read_credit_yet": true
+}

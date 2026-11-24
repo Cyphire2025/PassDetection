@@ -1,0 +1,20 @@
+{
+  "scope": "Normalized AST preservation evidence for a mechanical responsibility extraction, not a claim that wrappers or added signatures have identical whole ASTs. Focused behavioral tests qualify runtime independently.",
+  "checks": [
+    "_qr_media_source_statement: whole definition AST unchanged",
+    "apply_qr_provider_status: whole definition AST unchanged",
+    "_mark_delivery: statement AST unchanged after session-factory normalization; facade signature preserved",
+    "mark_qr_batch_failed: statement AST unchanged after session-factory normalization; facade signature preserved",
+    "run_qr_whatsapp_broadcast: public signature, batch source-fence/coordinator/client statements and per-item claim transaction AST unchanged",
+    "prepare_qr_delivery_media: original media-phase AST unchanged after explicit callback/constant normalization and outer-loop continue-to-return conversion; final returned media ID replaces the original local value",
+    "dispatch_qr_delivery: original final validation, QR locks, identity comparisons, provider retry and receipt-commit AST unchanged after callback/argument normalization and outer-loop continue-to-return conversion"
+  ],
+  "before_sha256": "e2377df1360b552257cf053fe295537434d9edeeeca3f57bcb2abf90117dd0d3",
+  "current_sha256": {
+    "backend/app/infrastructure/whatsapp/qr_delivery_runtime.py": "f2784c5dc6e5fb9525e80cc58677de8d3dd1065985efb7169a6c6862cd961714",
+    "backend/app/infrastructure/whatsapp/qr_delivery_types.py": "f95d5ec0e58d4bc5f9f2df38eb01c772ad611cd7d13327441dd3bee11a9c1bb1",
+    "backend/app/infrastructure/whatsapp/qr_delivery_state.py": "79d203828d1af3291ff9bd1906a2771d09f405930e600bf45e8f8cb8cbd4f7fc",
+    "backend/app/infrastructure/whatsapp/qr_delivery_media.py": "9dcec1cd2491e26e17af9785b1ddb87ceee6e492aef9634af16ed399a33b20bb",
+    "backend/app/infrastructure/whatsapp/qr_delivery_dispatch.py": "ddd52c441cde5215800dad9d7dd5ce6df42275f160e08aa7a1e79fb1e657b9b6"
+  }
+}

@@ -1,0 +1,317 @@
+{
+  "files": [
+    {
+      "path": "backend/alembic/versions/0096_mobile_phone_lookup.py",
+      "sha256": "861237d242b1d40de6ae3b2fd536efee97a212d993df4bb00783f146f503ac01",
+      "physical_lines": 29,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0096_mobile_phone_lookup",
+        "down_revision": "0095_mobile_fcm_delivery",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Shared passport table partial expression phone lookup index only, without contact rewriting; indexes digits-normalized client_phone for collection-reviewed rows. Despite mobile name, shared dashboard passport data schema retained. Ordinary transactional index creation may block writes; no online-build claim."
+    },
+    {
+      "path": "backend/alembic/versions/0097_authored_notifications.py",
+      "sha256": "c9ef0ef6a3867eb77c1c8bc9797664eee22a8bfe871a9807e6abb113bd6d93ed",
+      "physical_lines": 186,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0097_authored_notifications",
+        "down_revision": "0096_mobile_phone_lookup",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Authored dashboard notification drafts/batches/recipients/grants have tenant-scoped FKs, boundedcontent/revision/expiry checks and request/person/grant uniqueness. Adds native delivery linkage only as shared outgoing authored notification dependency; definitely unsent announcements cancelled, submitting unknown outcomes keptunknown. Downgrade explicitly refused to prevent old workers resending retained history. No provider/native application audit."
+    },
+    {
+      "path": "backend/alembic/versions/0098_notification_saved_delete.py",
+      "sha256": "a8d68cbf49f211bec9f1b46f60fbe267e4e732b36900b2409428a0c27bb0e3c4",
+      "physical_lines": 41,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0098_notification_saved_delete",
+        "down_revision": "0097_authored_notifications",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds saved-notification deletion tombstone/editorSETNULL and partial nondeleted page index, preserving sent/delivery history. Downgrade refused so removed saved messages cannot reappear."
+    },
+    {
+      "path": "backend/alembic/versions/0099_gc_group_access_removal.py",
+      "sha256": "aae15203dd1d4b612f7924d3556bb231bc43da22a78a0f3b1c8c96e6c2bf4d83",
+      "physical_lines": 27,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0099_gc_group_access_removal",
+        "down_revision": "0098_notification_saved_delete",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds GC access removal tombstone and requires removed setup disabled/revoked; preserves source group/history. Downgrade refused to prevent hidden setups from reappearing."
+    },
+    {
+      "path": "backend/alembic/versions/0100_whatsapp_group_archive.py",
+      "sha256": "824231b438accf166ac29333455a0d930ff9fc31f024c2292d675f15fe35848e",
+      "physical_lines": 30,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0100_whatsapp_group_archive",
+        "down_revision": "0099_gc_group_access_removal",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds nullable WhatsApp archive marker/query index with no message/recipient deletion. Downgrade refused to prevent archived lists silently reactivating."
+    },
+    {
+      "path": "backend/alembic/versions/0101_client_group_import_only.py",
+      "sha256": "4589481ffcc1f8970c70780713f6603bebe9a1b82648db9e0031443cd287dd3f",
+      "physical_lines": 25,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0101_client_group_import_only",
+        "down_revision": "0100_whatsapp_group_archive",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds false-by-default import-only mode, preserving prior group behavior. Downgrade refused because stripping mode could expose internal roster upload tokens as public forms; actual runtime capability validation remains independent."
+    },
+    {
+      "path": "backend/alembic/versions/0102_public_upload_contact_otp.py",
+      "sha256": "ef73cdf9afeb0713895459ea1bc2aeaffac7e4d1d109e5c5b60cc07b817b7540",
+      "physical_lines": 49,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0102_public_upload_contact_otp",
+        "down_revision": "0101_client_group_import_only",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Shared public upload OTP challenge binds submission/group/uploadsession/email hashes, phone/status/attempt/expiry/proof fields, unique challengeid and nonnegative attempts. Actual group equality, max attempts, cryptography/OTP/replay/cookie checks require runtime evidence; parent owns public runtime, no realprovideractions."
+    },
+    {
+      "path": "backend/alembic/versions/0103_whatsapp_template_language.py",
+      "sha256": "8d607ac94a1659450aa7259405997e5f331ca66733c8ee9255a9b78dc6a82be3",
+      "physical_lines": 21,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0103_whatsapp_template_language",
+        "down_revision": "0102_public_upload_contact_otp",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds nullable frozen WhatsApp template-language snapshot; no existing snapshot values inferred or provider templates changed."
+    },
+    {
+      "path": "backend/alembic/versions/0104_whatsapp_source_contacts.py",
+      "sha256": "660bce6777c90b47abe7e9c455ba5c1053d1ff40410046a62557fcff5f02131b",
+      "physical_lines": 59,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0104_whatsapp_source_contacts",
+        "down_revision": "0103_whatsapp_template_language",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Source-contact table separates individual traveller provenance from unique sendable numbers, with source/broadcast/recipient links and per-source-submission uniqueness. Only same-agency existing import-only group links become one-way sync sources; contact snapshot backfill deliberately reserved to deployment CLI after commit. No CLI/backfill executed here."
+    },
+    {
+      "path": "backend/alembic/versions/0105_whatsapp_phone_overrides.py",
+      "sha256": "159390fa76ab142acf7a58cfe34ee50337a2e385d96ab2b9e0a30dec9bd52109",
+      "physical_lines": 54,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0105_whatsapp_phone_overrides",
+        "down_revision": "0104_whatsapp_source_contacts",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds recipient merge reference/retained-contact metadata and broadcast-local passenger phone overrides with source fingerprint and uniqueness; parent record scopes are individual FKs. Current cross-tenant/group checks and no-source-contact mutation guarantees must come from runtime/later schema, not inferred from these declarations."
+    },
+    {
+      "path": "backend/alembic/versions/0106_ecr_checker.py",
+      "sha256": "f612ab8cb89511e5ee4737e13f3404a526ab5cf40de5cd617022dc48779d24de",
+      "physical_lines": 74,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0106_ecr_checker",
+        "down_revision": "0105_whatsapp_phone_overrides",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "ECR standalone batch/item storage has expected1\u20131000 bound, one client item per batch, durable leases/source/outcome/tokenmetadata and tenant cascades. This early schema lacks fullstate/counter domains later added by0108; no falsecurrentvulnerability from early declaration."
+    },
+    {
+      "path": "backend/alembic/versions/0107_passport_ecr_checks.py",
+      "sha256": "57df665e98f6a580bd56dc539ffca3e3e56da81f7f1257b85b2470598a0e39fa",
+      "physical_lines": 58,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0107_passport_ecr_checks",
+        "down_revision": "0106_ecr_checker",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Opt-in passport back-page ECR stores durable generation/source digest/lease/retry state and constrained statuses/results with due index. Runtime generation fencing/provider retry safety belongs actual worker/caller contracts; parent/brand frozen runtime untouched."
+    },
+    {
+      "path": "backend/alembic/versions/0108_data_invariants.py",
+      "sha256": "9fc077d60ed00afa086a50949b37924c71b483a05ea460755619d26b73aaf9d4",
+      "physical_lines": 75,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0108_data_invariants",
+        "down_revision": "0107_passport_ecr_checks",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Frozen0108 source adds same-group/agency passport composite FK and standalone ECR state/result/count/outcome checks. Preflight counts offending rows and aborts rather than reassign/delete; NOTVALID thenVALIDATE enforces newwrites and retainedrows. Local5slock/120sstatementtimeouts, no real Postgres execution. This narrows earlier passport ownership obligation but does not imply every unrelated earlyFK has equivalent later strengthening."
+    },
+    {
+      "path": "backend/alembic/versions/0109_dashboard_sessions.py",
+      "sha256": "2951b8fca96e549c65ab25b093fb7f493ae5ddd25a2be9a84f6d2cf3d1a541ab",
+      "physical_lines": 55,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0109_dashboard_sessions",
+        "down_revision": "0108_data_invariants",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Durable dashboard session family cutover preserves old refresh rows as revoked tombstones, sets one lineage row per old token without guessing family, then enforces same-user compositeFK/non-nullsessionid. Explicit one-login cutover; native sessions/password/MFA untouched. Current revocation/rotation logic not exercised by source reading."
+    },
+    {
+      "path": "backend/alembic/versions/0110_search_indexes.py",
+      "sha256": "7204a3081ce77542832324bb44d8dab053a9e4a79af7b7f7966e7f5c0df38983",
+      "physical_lines": 31,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0110_search_indexes",
+        "down_revision": "0109_dashboard_sessions",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Transactional trigramindexes use frozen expressions and public pg_trgm, preserve existing rows and never drop shared extension on downgrade. Explicit release requirement to quiesce writers;5slock/120sstatement limits. This is not online/zero-downtime claim and no extension/DB invocation occurred."
+    },
+    {
+      "path": "backend/alembic/versions/0111_roster_revision.py",
+      "sha256": "e2e9acfc56aa9a7a28bcb714ceeec8cc72ce497817ffd6ef360bae1bf50f46a9",
+      "physical_lines": 52,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0111_roster_revision",
+        "down_revision": "0110_search_indexes",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Statement transition-table triggers coalesce affected groups in sorted order and increment roster revision through nonrecursive BEFORE-group trigger; covers passport/manager/coordinator source tables, preserves business data. Actual PostgreSQL trigger execution/deadlock/cache behavior requires integration proof."
+    },
+    {
+      "path": "backend/alembic/versions/0112_passport_cover_edits.py",
+      "sha256": "314f5c2ddf900298de715a13e2375162e7ed6c78216977962213979ed35e53b2",
+      "physical_lines": 50,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0112_passport_cover_edits",
+        "down_revision": "0111_roster_revision",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds cover image types to crop/library checks; downgrade obtains exclusive locks and refuses if cover history exists before narrowing, preventing concurrent data loss. Parent image runtime unchanged; no sourcehistory deletion."
+    },
+    {
+      "path": "backend/alembic/versions/0113_document_follow_up.py",
+      "sha256": "e916ff646672e850f2f7b92e71ffb26c045fa5150b70d8b46f96b4d510290ecc",
+      "physical_lines": 28,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0113_document_follow_up",
+        "down_revision": "0112_passport_cover_edits",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds false-by-default manual follow-up flag independent of passportstatus. Downgrade locks and refuses while any flagged work remains rather than silently discarding it; actual application UI/state proof independent."
+    }
+  ],
+  "manual_full_migrations": 18,
+  "manual_full_migration_lines": 944,
+  "current_exact_full_ledgers_checked_before_read": true,
+  "no_duplicatecredit": true,
+  "all142published_files_unchanged": true,
+  "no_tests_or_services_for_read_only_cohort": true,
+  "notes": "All0096\u20130113 lines physically read in bounded complete source outputs.0095FCM native-only classifiedexcluded separately. Dedicated Inbox work deferred."
+}

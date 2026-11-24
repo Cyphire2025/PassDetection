@@ -1,0 +1,15 @@
+{
+  "candidates": "docs/audit/dashboard-2026-10-30/ui-gc-mcp-frontend-budget-candidates.json",
+  "before_sha256": "d371c246c9ec5ca3b79f6ba2bd01aec870d45a969dea75c60cfd424ce601ca6e",
+  "sha256": "9903c606296cfc2164097c515cfee1d50b6d573be1decd714becca406ad487e6",
+  "lf_normalized_sha256": "ce29e142923082e1ad2382965791b4761f66a17427631262cce968d34cfdd59a",
+  "added": 49,
+  "updated_existing": 2,
+  "lowered_existing": 2,
+  "lowered_existing_paths": [
+    "features/mcp/api/mcp.api.ts",
+    "features/mcp/hooks/use-mcp.ts"
+  ],
+  "existing_ceilings_preserved": true,
+  "previous_ceilings_sha256": "e8afff76b813f9cc62d67490b82ad39dff83161f14f924e3494b6df5fb325e24"
+}

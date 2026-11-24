@@ -1,0 +1,2 @@
+usage: export_mobile_openapi_contract.py [-h] [--write] [--output OUTPUT]
+export_mobile_openapi_contract.py: error: unrecognized arguments: --check

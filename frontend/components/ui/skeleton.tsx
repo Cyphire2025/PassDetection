@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils/cn";
 function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
+      data-workspace-skeleton=""
       className={cn("animate-pulse rounded-md bg-slate-200", className)}
       aria-hidden="true"
       {...props}

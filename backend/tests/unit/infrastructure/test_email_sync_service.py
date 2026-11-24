@@ -260,14 +260,14 @@ async def test_confirmed_email_artifact_is_saved_in_canonical_ledger() -> None:
 
     with (
         patch(
-            "app.infrastructure.email.sync_service.PassportSubmissionRepository"
+            "app.infrastructure.email.sync_document_ingestion.PassportSubmissionRepository"
         ) as repository_class,
         patch(
-            "app.infrastructure.email.sync_service.TravelDocumentIngestionService",
+            "app.infrastructure.email.sync_document_ingestion.TravelDocumentIngestionService",
             return_value=service,
         ),
         patch(
-            "app.infrastructure.email.sync_service._record_event",
+            "app.infrastructure.email.sync_document_ingestion._record_event",
             new=AsyncMock(),
         ),
     ):
@@ -373,7 +373,7 @@ async def test_live_duplicate_reuses_existing_document_assignment() -> None:
     processed_at = datetime.now(tz=UTC)
 
     with patch(
-        "app.infrastructure.email.sync_service._record_event",
+        "app.infrastructure.email.sync_duplicates._record_event",
         new=AsyncMock(),
     ) as record_event:
         await _reuse_live_duplicate_assignments(

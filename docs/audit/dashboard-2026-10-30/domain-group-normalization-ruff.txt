@@ -1,0 +1,19 @@
+F401 [*] `app.domain.exceptions.exceptions.ValidationError` imported but unused
+  --> backend\app\domain\entities\client_group.py:14:46
+   |
+12 | from app.domain.entities.factories import _new_uuid, _utcnow
+13 | from app.domain.entities.group_trip_settings import normalize_group_trip_settings
+14 | from app.domain.exceptions.exceptions import ValidationError
+   |                                              ^^^^^^^^^^^^^^^
+15 | from app.domain.value_objects.custom_questions import (
+16 |     normalize_custom_details,
+   |
+help: Remove unused import: `app.domain.exceptions.exceptions.ValidationError`
+   |
+13 | from app.domain.entities.group_trip_settings import normalize_group_trip_settings
+   - from app.domain.exceptions.exceptions import ValidationError
+14 | from app.domain.value_objects.custom_questions import (
+   |
+
+Found 1 error.
+[*] 1 fixable with the `--fix` option.

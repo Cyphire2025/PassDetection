@@ -32,6 +32,9 @@ from app.infrastructure.database.models import (
 )
 from app.infrastructure.email import ai_runtime
 from app.presentation.api.v1.routes import email_ai_inbox as email_ai_inbox_routes
+from app.presentation.api.v1.routes import (
+    email_connection_ai_settings as email_connection_ai_settings_routes,
+)
 from app.presentation.api.v1.routes import email_integration_connections as email_integration_routes
 from app.presentation.api.v1.routes.email_ai_inbox import (
     _refresh_analysis_attention,
@@ -166,6 +169,9 @@ async def test_connection_opt_in_reports_rollout_policy_as_inactive(
         ),
     )
 
+    monkeypatch.setattr(
+        email_connection_ai_settings_routes, "get_settings", email_integration_routes.get_settings
+    )
     response = await update_connection_ai_settings(
         connection_id=connection.id,
         payload=EmailAiConnectionSettingsRequest(enabled=True),
@@ -964,6 +970,36 @@ async def test_ai_inbox_is_private_even_within_agency_and_for_super_admin(
         )
         assert private_inbox.items == []
         assert private_inbox.counts.all_activity == 0
+
+    # Config-version reruns can share the exact creation instant.
+    # Inbox, counts and detail must resolve one deterministic latest version.
+    tied_analysis = EmailAiAnalysisModel(
+        id=uuid.UUID(int=(1 << 128) - 1),
+        agency_id=agency_id,
+        owner_user_id=owner_id,
+        connection_id=connection.id,
+        message_id=message.id,
+        status="completed",
+        input_hash="b" * 64,
+        prompt_schema_version="v2",
+        config_version="v1",
+        ai_model="configured-test-model",
+        priority="normal",
+        summary="Latest tied version",
+        created_at=analysis.created_at,
+        updated_at=analysis.updated_at,
+    )
+    db_session.add(tied_analysis)
+    await db_session.flush()
+    tied_inbox = await email_operations_inbox(
+        view="all_activity", cursor=None, limit=30, current_user=owner, session=db_session,
+    )
+    assert [item.analysis_id for item in tied_inbox.items] == [tied_analysis.id]
+    assert tied_inbox.counts.all_activity == 1
+    tied_detail = await email_message_intelligence(
+        message_id=message.id, current_user=owner, session=db_session,
+    )
+    assert tied_detail.id == tied_analysis.id
 
 
 @pytest.mark.asyncio

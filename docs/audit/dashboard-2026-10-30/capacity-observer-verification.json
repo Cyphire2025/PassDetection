@@ -1,0 +1,73 @@
+{
+  "status": "focused behavior checkpoint source-frozen; operator architecture and strict typing remain open",
+  "fixes": [
+    {
+      "kind": "local subprocess lifecycle",
+      "before_failed_cases": 2,
+      "current_cases": 8,
+      "behavior": "Drain terminate/wait/kill before closing observer output and propagating original error or repeated cancellation. Already completed handles are left untouched; unreapable handles fail."
+    },
+    {
+      "kind": "remote reader awaited I/O",
+      "before_failed_cases": 2,
+      "current_cases": 2,
+      "behavior": "Explicit Redis connect/read5second budgets plus absolute seconds+10 asyncio deadline; stalled synthetic await raises and exits Redis context without a false sample. No live remote guarantee."
+    },
+    {
+      "kind": "current QA contact import",
+      "current_cases": 1,
+      "behavior": "Use the exact current public_contact_proof code_digest/digest function objects under unchanged local aliases; original route facade no longer exports those imported private names."
+    }
+  ],
+  "checks": {
+    "local_current_unittest_cases": 28,
+    "local_seconds": 1.922,
+    "reader_import_current_pytest_cases": 3,
+    "reader_seconds": 0.16,
+    "ruff_current_files": 6,
+    "new_formatted_files": 3,
+    "strict_helper_mypy_sources": 1,
+    "standalone_cli": "Two actual fresh Python processes from unrelated directory, empty PYTHONPATH, --help0/unknown-argument2. No Docker/provider process."
+  },
+  "proofs": {
+    "unchanged_workload_whole_declarations": 16,
+    "all_other_executable_module_ASTs_restored": 3,
+    "basis": "Exact inverse removal of named cleanup/CLI/timeout changes. Fixture import statements same with formatter order only; journey canonical import owner changed deliberately."
+  },
+  "source_sha256": {
+    "scripts/qa/qualify_workload_capacity.py": "a3217d6482e698d28c2ae2c81d6dc2beef2e532ba047862b5e56638164ef562a",
+    "scripts/qa/capacity_fixtures.py": "bc5a0715e703368b23ad208a972ff7f0a656632105a7ccef12b43390d4210053",
+    "scripts/qa/qualification_application_journey.py": "772d601da4734f7f3c4563d1169727f1cfff623daab7c78118fd3cb794db9226",
+    "scripts/qa/capacity_observer_lifecycle.py": "658e046fd2be95462d1212c26d7700cdb0a595f60c13e591dadd68175e80cd16",
+    "scripts/qa/test_capacity_observer_lifecycle.py": "8364160a90322925637918c22fdae31e46f1aedeba81b0ced607fa958ea6c975",
+    "backend/tests/unit/infrastructure/test_capacity_observer_reader_bounds.py": "66389ed589b644f670e2cb8a3819a36cd16241f1c4d7f45c960ab6a1c1655418",
+    "scripts/qa/test_workload_capacity.py": "a0e1be994d760740c23a8dfa0373816211db47dc70b93f712352a73297ed118b",
+    "scripts/qa/test_mcp_capacity_profile.py": "e18ef81199a70a87bbaacbb02f8af00b1bfb1362576a57ab13db1bb3542620e1",
+    "backend/app/infrastructure/documents/storage_transfers.py": "a15cde9b255188896500d54e4de7faf9dafbbe332f13f3163b1590f38a1c58d1",
+    "backend/app/__init__.py": "f7f0ae580a55bd07e427d55d2982e40d12a2cd590386d85e583db5d77f8fdb0b",
+    "backend/app/infrastructure/__init__.py": "f7f0ae580a55bd07e427d55d2982e40d12a2cd590386d85e583db5d77f8fdb0b",
+    "backend/app/infrastructure/documents/__init__.py": "ab8acea9fe1e3e7fa631a8ed64ebdd61d8bb6553a977649e80d8804dab04147f"
+  },
+  "artifacts": {
+    "capacity-observer-final-unit.txt": "2517fa171d831fc112f7e554cb8a3b9f3fbe8a4c42ae43f17cf8807105ed94dd",
+    "capacity-observer-reader-final.txt": "f2f6334897174b6d7610c7b1de425e41034bc23e9a67766d61ab8a3bf4869ad4",
+    "capacity-observer-final-ruff.txt": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0",
+    "capacity-observer-final-format.txt": "81e0708af79a682467b0ecbd3453a0a33cfcbbe2812201b4d4f405f78ded2976",
+    "capacity-observer-final-mypy.txt": "8e63ae22e8213e327a5e9cbd584067681681bd8ef7f25c869877887ccdcfc4ff",
+    "capacity-observer-before.txt": "7e3cc54dde48b898d73059829a332c03a908a0d3ba5fb8c5fa1eaf81c4f0c95a",
+    "capacity-observer-reader-before.txt": "77c5cb29bada935389979271c3c2941e66dfbfe82fc3703e7168ca6346fac035",
+    "capacity-observer-reader-import-blocked.txt": "7c4c39a0a89c66f0ed1607d28273b41eb39be1bcc3638e524ba62d65ac208d56",
+    "capacity-observer-extraction-proof.json": "d6b56899dd1952ed4c5622980eb7e2ffd34d902b527314304cb252155ee496b7",
+    "capacity-observer-original-sources.json": "c05d7b84483aa6177abbccd17efcdca8d65fbf232a5bae5a918926494efefb3a",
+    "capacity-observer-reviewed-files.json": "f616cf5912aa27b48dc458723041f1ee9de6d55fc4a97da5934f23f9f4e35e5c",
+    "capacity-observer-current-source-checkpoint.json": "99af3b0b045f514c87c55e1aa010a1f401e4761fc823a48db9438feb668e15ef",
+    "operator-imported-typing-open.txt": "bb7054e091279d751abf4d211dc7a30a59f259ca297279f90d5ec75445c95785"
+  },
+  "limitations": [
+    "No services, deploy, production credentials or provider calls.",
+    "No throughput or host/VPS smoothness claim.",
+    "MCP matrix remains historical/deferred until active source-owner batches freeze.",
+    "Previous PostgreSQL/Compose receipts immutable; current pending tracker supersedes only open follow-through status.",
+    "First reader run was import-blocked, distinct from subsequent two real red controls. Initial Ruff invocation auto-sorted imports due reviewed fix=true; final explicit --no-fix check passes."
+  ]
+}

@@ -1,0 +1,119 @@
+[
+  {
+    "path": "backend/tests/unit/infrastructure/test_gc_mobile_foundation_migration.py",
+    "sha256": "1fca3646bf0537b6ef403cda37caad56c54e1a78fbaf9e5682ff52bb8b4a95f4",
+    "physical_lines": 355,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole355lines. Shared GC company/profile/assignments/content/notification foundations and canonical complete ORM registry contract, deny-by-default access/delegation, encrypted/hash-only secrets, historical0069 schema/default/type/constraint/index projection excluding explicit later migrations, reversible dependency order reviewed. Mixed native-named table assertions are limited to immutable shared registry/migration compatibility; no native feature audit or migration execution. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_gc_mobile_operational_indexes_migration.py",
+    "sha256": "ecd59f861833378192249a4e45d61d887b7b6a1a2c66712c031b437dd3d6c98a",
+    "physical_lines": 95,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole95lines. Shared passport/distributed-document tenant/group roster indexes, concurrent/idempotent creation and reverse drop order, exact current ORM fields reviewed. No migration execution or query-performance claim. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_gc_mobile_scope_constraints_migration.py",
+    "sha256": "35dfbdb42bb4d5e63a2e34cc50be72d993014d3424f73fb04157b0f6862996e0",
+    "physical_lines": 135,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole135lines. Shared passenger/retained-document registry tenant/group/source composite scope, preexisting mismatch refusal, staged unique indexes/not-valid then validate FK contract and ORM equality reviewed. No upgrade/validation/native feature execution. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_gc_mobile_passenger_session_identities_migration.py",
+    "sha256": "b170b47fccf909db727ba82c529478c83b466b532353ba5ee24f02f1c52eabf2",
+    "physical_lines": 171,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole171lines. Session/account identity schema and fail-closed tenant/group backfill, exact composite membership and generation checks reviewed as shared dashboard-authored notification registration target compatibility (authored_notification_registrations uses these rows). No native sign-in behavior or migration execution. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_mobile_device_sync_ack_migration.py",
+    "sha256": "208db5f9e9a00405c451edcd35473ccf4e4426d0b66bf705881b86689aa7c67b",
+    "physical_lines": 113,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole113lines. Nullable no-default acknowledgement and tenant/group/status/expiry concurrent index plus current ORM equality reviewed. These columns are real dashboard directory/GC usage metric dependencies; no sync endpoint/native behavior execution. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_mobile_fcm_migration.py",
+    "sha256": "a15bbd7b4b268ccaf221205759cad5687ed30577acf6151c352f98ec8ae7841c",
+    "physical_lines": 119,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole119lines. Shared dashboard notification delivery status/receipt checks only, no table/data rewrite, downgrade refuses provider-accepted/unknown retained histories before mutation and preserves old rows reviewed. Authored test design uses SQLite plus operation proxy; none run now. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_mobile_push_receipts_migration.py",
+    "sha256": "f85bbdf735d4ae767aec2f36477e1caf38ba116a76ef544be9c9051745bb050b",
+    "physical_lines": 97,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole97lines. Shared push delivery add-only table, due/unique provider ticket index, exact target idempotency/terminal timestamp shapes reviewed. No schema/provider execution. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_mobile_otp_single_pending_migration.py",
+    "sha256": "f9536ee3e7d648724a2b2211b302230a36fa0c44dd7325f31d9fc0603a36b76a",
+    "physical_lines": 81,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole81lines. Immutable shared registry/WhatsApp receipt OTP-source compatibility: duplicate pending challenge cleanup precedes partial unique concurrent guard, exact ORM index reviewed. No OTP issuance, native auth or migration execution. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_mobile_group_capacity.py",
+    "sha256": "24f33c51e906a8ffe5cab13386a08bf5cb5d27403b20f749992f54f2face1fcb",
+    "physical_lines": 84,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole84lines. Shared Fresh/passport/MCP workbook group capacity guard: tenant-scoped existing nondeleted locked group, last slot versus overflow and new enabling refusal reviewed. Mock scalar/compiled SQL only, not actual PostgreSQL lock execution. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_mobile_otp_rate_limiter.py",
+    "sha256": "6947e65e58c1c1cab98c6e6e73cfaf87ce6306073164f9c246f72185189eb600",
+    "physical_lines": 149,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole149lines. PublicUploadOTPRateLimiter inherits this server engine: atomic increment/TTL script shape, existing TTL retention, bounded development fallback and Redis-required fail-closed behavior, HMAC scope/identity/secret isolation reviewed. Fake Redis eval models string requirements rather than executes Lua or real Redis. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_mobile_notification_diagnostic.py",
+    "sha256": "b1baf36d8efadd406112e9e285cfe5a473e3973b3790bd1b040192d4d6dc8e70",
+    "physical_lines": 60,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole60lines. Shared operator notification queue census separates due/future/expired/read/other types and excludes private body from aggregate output reviewed. Real SQLite fixture design only; no current operator/DB/provider execution. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_mobile_push_task_routing.py",
+    "sha256": "18964e25dd7c0b4d1b08d057d6b8fe34fd36540029c5379d62b598d9c6c8a163",
+    "physical_lines": 38,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole38lines. Shared dashboard/MCP authored push task routes and dispatch/countdown/receipt bounded beat settings remain on original worker queue reviewed. No Celery import/execution or scheduler/service observation now. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_mobile_fcm_production_mount.py",
+    "sha256": "6aaf7505392a9aa3f2a425031b00cb11ce06af7cc4b09e44932a5aac9157908a",
+    "physical_lines": 75,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole75lines. Shared dashboard push worker read-only external credential-directory declaration, no development source bind and no credentials on unrelated services reviewed from authored YAML assertions. Paths are source literals; no secret file read, Docker, mount, deployment or Inbox operation. Complete current physical test-source read; no new execution/source fix/validated defect."
+  }
+]

@@ -1,0 +1,83 @@
+[
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/document_import.py",
+    "sha256": "ec34e2f4c252e18cc192eb3ba6eff60f177243dfb33214e71dc5c793d10ef52d",
+    "physical_lines": 207,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete current physical source read and authored boundary/composition review. Authority/CAS deliberately changed; five old helper definitions, seven original signature/hint/module/pickle contracts, two complete HTTP operations/default dependency identities and 47 imported object identities preserved by source/runtime proof. Current115 unique affected cases across unchanged seven runtime hashes; exact same-source raw coverage continuity. Actual FK SQLite independent sessions and actual Minio-to_thread synthetic client; compiled PostgreSQL lock order only, no live PostgreSQL/provider/VPS claim. Dedicated durable-family-only revocation and process-crash cleanup qualification remain separate scopes; bulk-prefix periodic cleanup is independently sealed."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/document_import_authority.py",
+    "sha256": "73a0a685a17eb592a944db685de700c9fa120828451d7e0a832ef6114654bd82",
+    "physical_lines": 108,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete current physical source read and authored boundary/composition review. Authority/CAS deliberately changed; five old helper definitions, seven original signature/hint/module/pickle contracts, two complete HTTP operations/default dependency identities and 47 imported object identities preserved by source/runtime proof. Current115 unique affected cases across unchanged seven runtime hashes; exact same-source raw coverage continuity. Actual FK SQLite independent sessions and actual Minio-to_thread synthetic client; compiled PostgreSQL lock order only, no live PostgreSQL/provider/VPS claim. Dedicated durable-family-only revocation and process-crash cleanup qualification remain separate scopes; bulk-prefix periodic cleanup is independently sealed."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/document_import_failure.py",
+    "sha256": "50b0f10c49e96cd70b175131f1a120c3da71673251acfcf8f2f114bb747ebee5",
+    "physical_lines": 55,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete current physical source read and authored boundary/composition review. Authority/CAS deliberately changed; five old helper definitions, seven original signature/hint/module/pickle contracts, two complete HTTP operations/default dependency identities and 47 imported object identities preserved by source/runtime proof. Current115 unique affected cases across unchanged seven runtime hashes; exact same-source raw coverage continuity. Actual FK SQLite independent sessions and actual Minio-to_thread synthetic client; compiled PostgreSQL lock order only, no live PostgreSQL/provider/VPS claim. Dedicated durable-family-only revocation and process-crash cleanup qualification remain separate scopes; bulk-prefix periodic cleanup is independently sealed."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/document_import_persistence.py",
+    "sha256": "8683b7909356c0036d32493f4739e30d3466fc7a5c4130f662e03918788a9a97",
+    "physical_lines": 101,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete current physical source read and authored boundary/composition review. Authority/CAS deliberately changed; five old helper definitions, seven original signature/hint/module/pickle contracts, two complete HTTP operations/default dependency identities and 47 imported object identities preserved by source/runtime proof. Current115 unique affected cases across unchanged seven runtime hashes; exact same-source raw coverage continuity. Actual FK SQLite independent sessions and actual Minio-to_thread synthetic client; compiled PostgreSQL lock order only, no live PostgreSQL/provider/VPS claim. Dedicated durable-family-only revocation and process-crash cleanup qualification remain separate scopes; bulk-prefix periodic cleanup is independently sealed."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/document_import_preview.py",
+    "sha256": "4fe70fde54aa40be11051b8824388129936b4250131b2a97c7e196b154655695",
+    "physical_lines": 142,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete current physical source read and authored boundary/composition review. Authority/CAS deliberately changed; five old helper definitions, seven original signature/hint/module/pickle contracts, two complete HTTP operations/default dependency identities and 47 imported object identities preserved by source/runtime proof. Current115 unique affected cases across unchanged seven runtime hashes; exact same-source raw coverage continuity. Actual FK SQLite independent sessions and actual Minio-to_thread synthetic client; compiled PostgreSQL lock order only, no live PostgreSQL/provider/VPS claim. Dedicated durable-family-only revocation and process-crash cleanup qualification remain separate scopes; bulk-prefix periodic cleanup is independently sealed."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/document_import_processing.py",
+    "sha256": "85e5d17e7ace085980f79203fe869c55b03e0178e432648595431dbf3544dc63",
+    "physical_lines": 77,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete current physical source read and authored boundary/composition review. Authority/CAS deliberately changed; five old helper definitions, seven original signature/hint/module/pickle contracts, two complete HTTP operations/default dependency identities and 47 imported object identities preserved by source/runtime proof. Current115 unique affected cases across unchanged seven runtime hashes; exact same-source raw coverage continuity. Actual FK SQLite independent sessions and actual Minio-to_thread synthetic client; compiled PostgreSQL lock order only, no live PostgreSQL/provider/VPS claim. Dedicated durable-family-only revocation and process-crash cleanup qualification remain separate scopes; bulk-prefix periodic cleanup is independently sealed."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/document_import_staging.py",
+    "sha256": "e2af270a396ab3c58ea785d08b68ae2d5d3219e874f3ce5ce8432d83d78e1974",
+    "physical_lines": 80,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete current physical source read and authored boundary/composition review. Authority/CAS deliberately changed; five old helper definitions, seven original signature/hint/module/pickle contracts, two complete HTTP operations/default dependency identities and 47 imported object identities preserved by source/runtime proof. Current115 unique affected cases across unchanged seven runtime hashes; exact same-source raw coverage continuity. Actual FK SQLite independent sessions and actual Minio-to_thread synthetic client; compiled PostgreSQL lock order only, no live PostgreSQL/provider/VPS claim. Dedicated durable-family-only revocation and process-crash cleanup qualification remain separate scopes; bulk-prefix periodic cleanup is independently sealed."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_document_import_preview_boundary.py",
+    "sha256": "faf3bd64ecc44eff4fd5643a619100979e5992423e2644128ae654bec0b51d51",
+    "physical_lines": 72,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete authored actual retained-original/crop-reset or preview-independent-boundary regression read. Four focused cases pass. Backend-local Ruff then reordered imports only; complete non-import declaration ASTs and import multiset equal tested source. Failed initial crop-revision fixture expectation retained separately."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_document_import_retained_sources.py",
+    "sha256": "16f69eb2e438e18a2cc5121368420d7cade69e8f9c72df581907a356af40fd56",
+    "physical_lines": 86,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete authored actual retained-original/crop-reset or preview-independent-boundary regression read. Four focused cases pass. Backend-local Ruff then reordered imports only; complete non-import declaration ASTs and import multiset equal tested source. Failed initial crop-revision fixture expectation retained separately."
+  }
+]

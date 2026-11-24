@@ -12,6 +12,7 @@ import {
 import { useDeferredValue, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button, Skeleton } from "@/components/ui";
+import { clampPageOffset } from "@/lib/utils/pagination";
 import { ErrorBanner } from "../components/whatsapp-dialog-ui";
 import { useBroadcast } from "./broadcast-workspace-shell";
 import { composerApi, type MessageDefinition } from "./composer.api";
@@ -55,6 +56,7 @@ export function BroadcastSendPage() {
         (value) => value.toLocaleLowerCase().includes(q),
       ),
   );
+  const pageOffset = clampPageOffset(offset, matches.length, 18);
   if (selected)
     return (
       <div className="space-y-5">
@@ -125,7 +127,7 @@ export function BroadcastSendPage() {
         />
       ) : (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {matches.slice(offset, offset + 18).map((definition) => {
+          {matches.slice(pageOffset, pageOffset + 18).map((definition) => {
             const Icon = icons[definition.id] ?? Send;
             return (
               <button
@@ -158,7 +160,7 @@ export function BroadcastSendPage() {
       {matches.length > 18 && (
         <WorkspacePagination
           total={matches.length}
-          offset={offset}
+          offset={pageOffset}
           limit={18}
           onChange={setOffset}
           label="Message library"

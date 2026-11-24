@@ -1,0 +1,140 @@
+{
+  "stage": "deliberate behavior checkpoint before architecture",
+  "files": [
+    {
+      "path": "backend/app/infrastructure/mobile_realtime.py",
+      "sha256": "e17a12bafc8856fc3751cbd93b59f9454166b2e3ab0fcafbed0f564e6d0fa32e",
+      "physical_lines": 1043,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "fixed",
+      "notes": "Full original1006/current1043 physical source review and authored narrow deliberate lifecycle changes. Parser checks string before hash membership; owned cleanup completes through repeated caller cancellation and failed peer closes, then propagates cancellation; failed child draining cannot skip socket/lease/client cleanup. No raw payload/error text in new diagnostics. Independent oversized architecture remains OPEN after this behavior checkpoint."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_mobile_realtime_hub.py",
+      "sha256": "e1b3398ea43a10da349e8943db96a45d7ff1284ab1651f4764e1259cd9aa3e83",
+      "physical_lines": 549,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full549-line source read: bounded queues/coalescing, exact tenant+trip index, global/local preauth and connection capacity, expiry/renewal, required-versus-cursor fallback, startup uniqueness and parser positive control. Unchanged original test source."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_dashboard_realtime_route.py",
+      "sha256": "6cbb9de57a97e684fe8ecc2259e0766093f5c1b9e2c3a49d08ce4b6ae4db7968",
+      "physical_lines": 316,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full316-line source read: cookie-only bounded access, exact origin/host, no bearer/query, compact PII-free envelope, exact route mounts, signed access-level authorization refresh, accept/unregister/preauth cleanup. Unchanged source."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/dashboard_realtime.py",
+      "sha256": "28cc9940fda8101a50a45967c56467f7e97928843e49d17c020a8093ea65a5c9",
+      "physical_lines": 235,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full235-line source read: bounded cookie/origin gate, preauth-before-query reservation and always-release, live authorization snapshot/refresh, shared socket serve cleanup; no native feature edits."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/realtime_socket_support.py",
+      "sha256": "806d2d688a05e6126edff6ff3f55b895a553b15cb5e63966fe842a190ea09ada",
+      "physical_lines": 193,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full193-line shared source read: bounded exact heartbeat acknowledgements, send deadlines, asyncio.timeout external-cancel semantics, first-child completion and cancel/gather/unregister/final close."
+    },
+    {
+      "path": "backend/app/application/dashboard_realtime_authorization.py",
+      "sha256": "71533cd163b346d3f48b4c28a7b3126ecb9003f9e45b872bfefbc0fdcbb8a195",
+      "physical_lines": 219,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full219-line source read: live signed claims, persisted dashboard session, identity security epoch/role/agency/state, effective-user access-level, bounded distinct tenant-qualified trip/assignment queries."
+    },
+    {
+      "path": "backend/app/application/mobile/realtime_authorization.py",
+      "sha256": "cfade7c6b0e0d1accae866372cf085d6c21cce4f932c4c32d6765927e90b049f",
+      "physical_lines": 197,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full197-line shared authorization contract read because dashboard reuses its frozen authorization snapshot and same-authentication-boundary comparison. Native loader read for shared boundary context; no native feature change."
+    },
+    {
+      "path": "backend/app/application/mobile/realtime_hints.py",
+      "sha256": "9c32a58f000b2837f4c541cc89ce20416f04b6c8a4ebaa1412e45c1d48e4011d",
+      "physical_lines": 214,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full214-line shared source read: PII-free hint projection, exact transactional outer-commit publication/savepoint rollback handling, postcommit lossy nonblocking publisher; no journal/workflow change."
+    },
+    {
+      "path": "frontend/features/operations/services/dashboard-realtime.ts",
+      "sha256": "b8b9b8ce444d06e0a92c6af9d448833e3eab4d46b3d5c19553e7faafe3ae68d9",
+      "physical_lines": 204,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full source read: same-origin cookie socket URL, strict bounded ready/heartbeat/hint parse, safe cursor/query invalidation prefixes, bounded reconnect and fallback assumptions."
+    },
+    {
+      "path": "frontend/features/operations/components/dashboard-realtime-attendance-bridge.tsx",
+      "sha256": "391ed735d019c52acd992207906f9e22646f8e5db687decdfd12aabe3c32970a",
+      "physical_lines": 185,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full source read: live user/session effect, visibility/online pause/reconnect, heartbeat ready protocol, cursor dedup and actual query invalidation. Old-socket message listener lifetime remains a candidate pending focused normal callback test; not an authority bypass or private data leak claim."
+    },
+    {
+      "path": "frontend/features/operations/components/dashboard-realtime-attendance-bridge.test.tsx",
+      "sha256": "ddcabae5206a8cc2cb0b6241a706c30fac6cacd36d711bf1cba0517d6fcd0193",
+      "physical_lines": 147,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full source read: isolated EventTarget socket fixture, ready/heartbeat/dedup/query invalidations and unmount close plus superadmin no-socket control; does not exercise late message callbacks."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_mobile_realtime_health.py",
+      "sha256": "be5b30b10398c989fac08042561c0db86c484157d3ca054c44b0c1eb916da35b",
+      "physical_lines": 105,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full105-line shared-health control source read; required hub outage503 and explicit optional cursor fallback200. Dedicated Inbox readiness is doubled only to isolate retained hub health; no Inbox audit."
+    },
+    {
+      "path": "backend/tests/service_integration/test_mobile_realtime_startup_redis.py",
+      "sha256": "3520cdbdbb3494b8fb5ae9bc6ebd56caa9cc609483b3a22bb95ce365697ea1f9",
+      "physical_lines": 73,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full73-line source read: explicit isolated host/db15 marker gate and concurrent startup real Redis capacity controls. NOT executed: no live Redis service configured or requested."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_realtime_subscriber_lifetime.py",
+      "sha256": "08d3b74fc4d8c7b3055994eab557535c1102c67ab612b86c30030dd182217500",
+      "physical_lines": 255,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full authored synthetic protocol regressions: malformed frame parser/real subscriber continuation and valid dashboard control, ping/subscribe cancellation, repeated cancellation during async close, failed/cancelled close peer cleanup, failed child shutdown/lease release and type-only logging. No live Redis FD or service availability claim."
+    },
+    {
+      "path": "backend/app/main.py",
+      "sha256": "e2cc9a341ab8d6506035c3188c738aa67f6dbd05c81cb73f4c79696235f2077d",
+      "physical_lines": 238,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "supporting-trace",
+      "notes": "Physically read imports1\u2013100 and startup/shutdown159\u2013238 only. Shared hub is started before storage setup and stopped on storage startup failure and normal API shutdown. No full-source claim from this caller trace."
+    }
+  ]
+}

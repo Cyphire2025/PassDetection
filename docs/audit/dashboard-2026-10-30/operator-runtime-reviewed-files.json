@@ -1,0 +1,207 @@
+{
+  "scope": "Current shared dashboard operator/qualification sources; native UI excluded. No real rehearsal, Docker CLI, cloud calls or credentials read.",
+  "files": [
+    {
+      "path": "backend/scripts/rehearse_postgresql_upgrade.py",
+      "sha256": "9ec7e94fecdb070021dc1b253a69e2f454c455a8cc8b780c50b302df42ad808f",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "fixed-focused",
+      "lines": 133,
+      "notes": "Prior complete physical source review retained. Current source is a small stable public facade or narrowly retargeted dependency test/explicit6helper qualification pin list.23whole moved declarations/7constant ASTs/23actual metadata equal after separately fixed nameguard; no independent second-read claim. Final40focusedcases plus15synthetic qualifier cases, Ruff10/type7 and direct--help/pickle/hints pass; real PostgreSQL/Docker migration gates remain unexecuted."
+    },
+    {
+      "path": "scripts/verify_compose_runtime.py",
+      "sha256": "ec6cf4a2efd256295901b53addd103308126c8f8c276ae009b505686446a6775",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "reviewed",
+      "lines": 731,
+      "notes": "Full physical source read in bounded consecutive batches; scripts executed only through synthetic stubs/current safety tests, never live CLI/DB/deploy. Source ownership/guard/private outputs/recovery/limits traced. Mixed large owners retain explicit architecture follow-through; a full read is not proof of live service qualification."
+    },
+    {
+      "path": "scripts/release_retained_update.py",
+      "sha256": "55338ce54f33e43b174e137b4808ba45cf48bee41cd67d0808e28221e2040c70",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "reviewed",
+      "lines": 597,
+      "notes": "Full physical source read in bounded consecutive batches; scripts executed only through synthetic stubs/current safety tests, never live CLI/DB/deploy. Source ownership/guard/private outputs/recovery/limits traced. Mixed large owners retain explicit architecture follow-through; a full read is not proof of live service qualification."
+    },
+    {
+      "path": "scripts/release_traveller_whatsapp.py",
+      "sha256": "bc9bc3f27c9c65914dd00c582ce6abd03fc1e18564e8e222ca79f7d03ff4ba32",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "reviewed",
+      "lines": 690,
+      "notes": "Full physical source read in bounded consecutive batches; scripts executed only through synthetic stubs/current safety tests, never live CLI/DB/deploy. Source ownership/guard/private outputs/recovery/limits traced. Mixed large owners retain explicit architecture follow-through; a full read is not proof of live service qualification."
+    },
+    {
+      "path": "scripts/qa/qualify_workload_capacity.py",
+      "sha256": "608e0a6e083cb538ffde15bf4734a00faf367cbb858d50f7f15a835f8704f427",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "reviewed",
+      "lines": 730,
+      "notes": "Full physical source read in bounded consecutive batches; scripts executed only through synthetic stubs/current safety tests, never live CLI/DB/deploy. Source ownership/guard/private outputs/recovery/limits traced. Mixed large owners retain explicit architecture follow-through; a full read is not proof of live service qualification."
+    },
+    {
+      "path": "scripts/qa/qualify_companies_fast_migration.py",
+      "sha256": "1d51a0a2e2f02eea28a5d8b15c3794b12f12c0c7c6c86f41c3fbe0d869d0566e",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "reviewed",
+      "lines": 231,
+      "notes": "Prior complete physical source review retained. Current source is a small stable public facade or narrowly retargeted dependency test/explicit6helper qualification pin list.23whole moved declarations/7constant ASTs/23actual metadata equal after separately fixed nameguard; no independent second-read claim. Final40focusedcases plus15synthetic qualifier cases, Ruff10/type7 and direct--help/pickle/hints pass; real PostgreSQL/Docker migration gates remain unexecuted."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_postgresql_upgrade_rehearsal.py",
+      "sha256": "314ba004751aeb5fcb5e113ea49015cbcfddf4a8d879f88e3421ed205467c0cb",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "reviewed",
+      "lines": 129,
+      "notes": "Prior complete physical source review retained. Current source is a small stable public facade or narrowly retargeted dependency test/explicit6helper qualification pin list.23whole moved declarations/7constant ASTs/23actual metadata equal after separately fixed nameguard; no independent second-read claim. Final40focusedcases plus15synthetic qualifier cases, Ruff10/type7 and direct--help/pickle/hints pass; real PostgreSQL/Docker migration gates remain unexecuted."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_postgresql_upgrade_rehearsal_safety.py",
+      "sha256": "e3c4f13268d391be5aad118b0284f38195a1aff8d3dc970d879b3054a9094321",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "reviewed",
+      "lines": 73,
+      "notes": "Prior complete physical source review retained. Current source is a small stable public facade or narrowly retargeted dependency test/explicit6helper qualification pin list.23whole moved declarations/7constant ASTs/23actual metadata equal after separately fixed nameguard; no independent second-read claim. Final40focusedcases plus15synthetic qualifier cases, Ruff10/type7 and direct--help/pickle/hints pass; real PostgreSQL/Docker migration gates remain unexecuted."
+    },
+    {
+      "path": "scripts/test_compose_render_fixture.py",
+      "sha256": "8d01ea0d51312ef735d405b0bf89a21d76c369bca29a1c10708fcf57f37ad6b5",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "reviewed",
+      "lines": 61,
+      "notes": "Full physical source read in bounded consecutive batches; scripts executed only through synthetic stubs/current safety tests, never live CLI/DB/deploy. Source ownership/guard/private outputs/recovery/limits traced. Mixed large owners retain explicit architecture follow-through; a full read is not proof of live service qualification."
+    },
+    {
+      "path": "backend/scripts/postgresql_rehearsal_client.py",
+      "sha256": "8032ff7ef2598fd04e0836a42c010f35086ba3a91b543252d85866db1752e3f3",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 175,
+      "notes": "Original complete878line owner manually reviewed; moved whole declarations exact vs post63byte-fix source, current imports/wiring/public metadata glue authored and reviewed. Current focused controls source-fenced; not an independent second reviewer or live PostgreSQL qualification."
+    },
+    {
+      "path": "backend/scripts/postgresql_rehearsal_contract.py",
+      "sha256": "cd2cc8f0a6a022ddf435f7a3a30b024fdeff5eea9e174f5a55dddff75b2c4674",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 64,
+      "notes": "Original complete878line owner manually reviewed; moved whole declarations exact vs post63byte-fix source, current imports/wiring/public metadata glue authored and reviewed. Current focused controls source-fenced; not an independent second reviewer or live PostgreSQL qualification."
+    },
+    {
+      "path": "backend/scripts/postgresql_rehearsal_fixture.py",
+      "sha256": "1f60400f7f47ea387fa7e38caab3e2d35e151073adc11fdd924bb197959095ee",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 151,
+      "notes": "Original complete878line owner manually reviewed; moved whole declarations exact vs post63byte-fix source, current imports/wiring/public metadata glue authored and reviewed. Current focused controls source-fenced; not an independent second reviewer or live PostgreSQL qualification."
+    },
+    {
+      "path": "backend/scripts/postgresql_rehearsal_runner.py",
+      "sha256": "1e6b746da0f99e33f5d75e95767aa3d77d26a188f8c3b2bbe53098d30fc46fb6",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 235,
+      "notes": "Original complete878line owner manually reviewed; moved whole declarations exact vs post63byte-fix source, current imports/wiring/public metadata glue authored and reviewed. Current focused controls source-fenced; not an independent second reviewer or live PostgreSQL qualification."
+    },
+    {
+      "path": "backend/scripts/postgresql_rehearsal_snapshot.py",
+      "sha256": "e462fe0d1a77bd269883a1931edb70cbb340ab0fd024c97f8eb35c75494284f7",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 127,
+      "notes": "Original complete878line owner manually reviewed; moved whole declarations exact vs post63byte-fix source, current imports/wiring/public metadata glue authored and reviewed. Current focused controls source-fenced; not an independent second reviewer or live PostgreSQL qualification."
+    },
+    {
+      "path": "backend/scripts/postgresql_rehearsal_verification.py",
+      "sha256": "41dce0796f4afcb3236c48b283d2665f8c10c5177fa20f048c77644bdf9cdbfb",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 226,
+      "notes": "Original complete878line owner manually reviewed; moved whole declarations exact vs post63byte-fix source, current imports/wiring/public metadata glue authored and reviewed. Current focused controls source-fenced; not an independent second reviewer or live PostgreSQL qualification."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_postgresql_rehearsal_owner_contracts.py",
+      "sha256": "384aa39dd0271a875003dd37e168ed5d084ebcfaeb9ad45d330653668e8c8215",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 96,
+      "notes": "Original complete878line owner manually reviewed; moved whole declarations exact vs post63byte-fix source, current imports/wiring/public metadata glue authored and reviewed. Current focused controls source-fenced; not an independent second reviewer or live PostgreSQL qualification."
+    }
+  ],
+  "historical_source_records": [
+    {
+      "path": "backend/scripts/rehearse_postgresql_upgrade.py",
+      "sha256": "14501c84c322fdc4df3d683e9da6cde29e4dae2689d541151cce4d6f3ab636e0",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "fixed-focused",
+      "lines": 880,
+      "notes": "Full physical source read in bounded consecutive batches; scripts executed only through synthetic stubs/current safety tests, never live CLI/DB/deploy. Source ownership/guard/private outputs/recovery/limits traced. Mixed large owners retain explicit architecture follow-through; a full read is not proof of live service qualification."
+    },
+    {
+      "path": "scripts/qa/qualify_companies_fast_migration.py",
+      "sha256": "f8a57052a535fc5fd01fabad9007cc9489b4b8b799458355eddda163bdca25b2",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "reviewed",
+      "lines": 228,
+      "notes": "Full physical source read in bounded consecutive batches; scripts executed only through synthetic stubs/current safety tests, never live CLI/DB/deploy. Source ownership/guard/private outputs/recovery/limits traced. Mixed large owners retain explicit architecture follow-through; a full read is not proof of live service qualification."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_postgresql_upgrade_rehearsal.py",
+      "sha256": "ebbf1e9c248ff8c23ff55def4a2133851e1379d77d7dc2ceea63688b5508a83a",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "reviewed",
+      "lines": 117,
+      "notes": "Full physical source read in bounded consecutive batches; scripts executed only through synthetic stubs/current safety tests, never live CLI/DB/deploy. Source ownership/guard/private outputs/recovery/limits traced. Mixed large owners retain explicit architecture follow-through; a full read is not proof of live service qualification."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_postgresql_upgrade_rehearsal_safety.py",
+      "sha256": "874340fd3e082b07b4a88f8b3a90a1d62cad9300bb951d2cd733306cd18983fc",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "reviewed",
+      "lines": 72,
+      "notes": "Full physical source read in bounded consecutive batches; scripts executed only through synthetic stubs/current safety tests, never live CLI/DB/deploy. Source ownership/guard/private outputs/recovery/limits traced. Mixed large owners retain explicit architecture follow-through; a full read is not proof of live service qualification."
+    }
+  ]
+}

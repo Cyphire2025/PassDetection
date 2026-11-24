@@ -1,0 +1,7 @@
+{
+  "path": "backend/tests/service_integration/test_mcp_ecr_reads_postgresql.py",
+  "sha256": "956157f5beca0e73eeb76e0e7c14265803e96e3a90585936476b192633c3f933",
+  "physical_lines": 390,
+  "snapshot": ".tmp/ecr-checker-current/test_mcp_ecr_reads_postgresql.py",
+  "scope": "existing service fixture storage prohibition instrumentation only; no service execution"
+}

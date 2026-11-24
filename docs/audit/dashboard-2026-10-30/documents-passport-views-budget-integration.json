@@ -1,0 +1,12 @@
+{
+  "candidates": "docs/audit/dashboard-2026-10-30/documents-passport-views-budget-candidates.json",
+  "before_sha256": "b25f3c49e27bf41fa38e033c4fae49b4487b174b37e6720eae3ff5253c12c45f",
+  "sha256": "6db22ebbf1d36566de3eab23c8a536931b2ae54a804d0686cfa0c3edf7ad5f79",
+  "lf_normalized_sha256": "0a4ed0156f5afbc896a4124935b38f27406ead33d709910aa5bff23e6074ee0b",
+  "added": 24,
+  "updated_existing": 0,
+  "lowered_existing": 0,
+  "lowered_existing_paths": [],
+  "existing_ceilings_preserved": true,
+  "previous_ceilings_sha256": "06adcfcfa6972fff0bc8de2950f575e1515b3e45ba8a35534a61afb63042a8a4"
+}

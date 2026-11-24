@@ -29,6 +29,7 @@ from app.infrastructure.security.upload_validator import (
     MalwareScannerConfigurationError,
     MalwareScannerUnavailableError,
 )
+from app.presentation.api.v1.download_headers import attachment_disposition
 from app.presentation.api.v1.schemas.mcp_transfer_schemas import (
     CONTENT_RESPONSES,
     DELIVERY_CONTRACT,
@@ -257,7 +258,7 @@ async def artifact_content(
         headers={
             **_PRIVATE,
             "Content-Length": str(row.byte_size),
-            "Content-Disposition": f'attachment; filename="{row.filename}"',
+            "Content-Disposition": attachment_disposition(row.filename),
             "X-Artifact-SHA256": row.sha256,
             "X-Artifact-Size": str(row.byte_size),
             "Content-Security-Policy": "default-src 'none'; sandbox",

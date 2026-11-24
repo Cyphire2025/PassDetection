@@ -1,0 +1,18 @@
+
+ RUN  v4.1.12 C:/Users/nipun/Desktop/PassDetection/frontend
+
+stdout | features/documents/api/document-verification.api.test.ts > actual document verification transport and output > bounds filename lookup work across512files while retaining verification, receipt and candidate output
+synthetic filename workload { files: 512, replacements: 512, propertyReads: 1024 }
+
+ ↓ features/documents/api/document-verification.api.test.ts > retains the complete ordered public distribution facade
+ ↓ features/documents/api/document-verification.api.test.ts > does not stage an accepted flag without a valid passenger match: no-passenger
+ ↓ features/documents/api/document-verification.api.test.ts > does not stage an accepted flag without a valid passenger match: unconfirmed-match
+ ✓ features/documents/api/document-verification.api.test.ts > actual document verification transport and output > bounds filename lookup work across512files while retaining verification, receipt and candidate output 18ms
+ ↓ features/documents/api/document-verification.api.test.ts > actual document verification transport and output > keeps exact names, first-match candidate identity and every duplicate replacement in original order
+ ↓ features/documents/api/document-verification.api.test.ts > actual document verification transport and output > rejects a response count mismatch instead of manufacturing staging ownership
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 5 skipped (6)
+   Start at  12:58:53
+   Duration  821ms (transform 64ms, setup 141ms, import 66ms, tests 19ms, environment 506ms)
+

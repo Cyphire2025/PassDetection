@@ -1,0 +1,102 @@
+{
+  "before_modules": 520,
+  "after_modules": 528,
+  "new_modules": 8,
+  "all520_previous_rows_retained_verbatim": true,
+  "before_critical_entries": 52,
+  "after_critical_entries": 60,
+  "all52_previous_critical_entries_retained_verbatim": true,
+  "global_and_other_gates_unchanged": true,
+  "measurements": [
+    {
+      "path": "app/infrastructure/imports/passport_excel_importer.py",
+      "sha256": "44406c80359ec3c37197a566cd150e0b439838885b3016416316870e008fde03",
+      "lines": 115,
+      "complexity": 13,
+      "statement_percent": 95.52238805970148,
+      "branch_percent": 85.71428571428571,
+      "branches": 14
+    },
+    {
+      "path": "app/infrastructure/imports/passport_excel_catalog.py",
+      "sha256": "3a27556ec32bec2c7a524951981ed4906421f52b7c4a0fd8c313fbda56eb45f3",
+      "lines": 228,
+      "complexity": 7,
+      "statement_percent": 94.44444444444444,
+      "branch_percent": 75.0,
+      "branches": 12
+    },
+    {
+      "path": "app/infrastructure/imports/passport_excel_records.py",
+      "sha256": "f6f895e4cd3e8efe09c1242438811b475671e2cb2ce7ae56e61ac3b4880d5b15",
+      "lines": 52,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_percent": 100,
+      "branches": 0
+    },
+    {
+      "path": "app/infrastructure/imports/passport_excel_rows.py",
+      "sha256": "93d00e74b9003e981f0fc65987efacb1a8a3f0be945e42fa3a0e15b473c4f44e",
+      "lines": 264,
+      "complexity": 13,
+      "statement_percent": 92.96875,
+      "branch_percent": 87.87878787878788,
+      "branches": 66
+    },
+    {
+      "path": "app/infrastructure/imports/passport_excel_limits.py",
+      "sha256": "a12469a59bc650b82151139c66e90c1c3b3e38d6b0813b0b926e371c4e78d7ca",
+      "lines": 158,
+      "complexity": 13,
+      "statement_percent": 89.39393939393939,
+      "branch_percent": 80.76923076923077,
+      "branches": 26
+    },
+    {
+      "path": "app/infrastructure/imports/passport_excel_worksheets.py",
+      "sha256": "1ac46c34eec98de7b4ea6fee9188580d44af16a43c2cbd1aaae0a612ca1913a3",
+      "lines": 256,
+      "complexity": 25,
+      "statement_percent": 89.65517241379311,
+      "branch_percent": 77.5,
+      "branches": 40
+    },
+    {
+      "path": "app/infrastructure/imports/passport_excel_formula.py",
+      "sha256": "d932d4ce4b788fc5ea6f7e239395e859c6d471f8f948545bfbedccd6b02e4d40",
+      "lines": 46,
+      "complexity": 4,
+      "statement_percent": 88.46153846153845,
+      "branch_percent": 100.0,
+      "branches": 4
+    },
+    {
+      "path": "app/infrastructure/my_photos/operational_claim_queries.py",
+      "sha256": "1d940f703dacd0f18031ab9cbe72f22f7a2841b02f482ee1013f3f635973d5da",
+      "lines": 58,
+      "complexity": 4,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "branches": 4
+    },
+    {
+      "path": "app/infrastructure/my_photos/operational_job_claims.py",
+      "sha256": "1f5edabf89fa84508e2ff065f3e373ebfb0ae0467643aaa46abf7ea83711c281",
+      "lines": 112,
+      "complexity": 21,
+      "statement_percent": 98.30508474576271,
+      "branch_percent": 95.45454545454545,
+      "branches": 22
+    }
+  ],
+  "critical_responsibility": "Seven measured parser validation/data/formula owner gates are additive; admission scope helper inherits exact claims95/90 obligation including the factored gallery eligibility predicate. Original claims95/90 gate and cap21 remain unchanged.",
+  "source_provenance": "Peer Excel83-case sealed receipt and current full7-source records, plus owned claim final15/order/deletion controls following first40 affected cases. Existing original191 worker checkpoint retained with explicit current changed-owner coverage purge.",
+  "before_budget_sha256": "9fdef5d5f27048736c9213680e7c643a8d1ccbbd50e319c2f42db21e96c43601",
+  "after_budget_sha256": "619adff823bc7ff3723d0ec6219e53cfb597da662e94301c7b245889b762a586",
+  "before_exact_manifest_sha256": "4e5aa6b2a24bfd55f9bf7c478c414d1fca7bfc2ed464b08425a033529a22a8bc",
+  "after_exact_manifest_sha256": "8e6db3ad9f55e75f2712ce8dc3436a457743a82dfca8dcc5c16db414971fe166",
+  "only_known_backend_budget_after_changed": true,
+  "all79_both_before_sets_unchanged": true,
+  "limits": "Raw exact-source numeric gate verification and additive source integration. No broad app suite, live PostgreSQL/provider/VPS qualification."
+}

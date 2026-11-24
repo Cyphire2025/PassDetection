@@ -1,0 +1,510 @@
+{
+  "reviewed_at": "2026-10-31T08:28:40.812614+00:00",
+  "method": "Manual complete physical-source reads; automated triage and asset metadata checks do not count as full reads. Read-only; no tests/builds required.",
+  "files": [
+    {
+      "path": "frontend/CLAUDE.md",
+      "sha256": "336cc4fbf19beaada7ccf9986414fa91851a8d7a07dfb3ccbe800a69eed0ab49",
+      "physical_lines": 1,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "One-line delegation to frontend AGENTS; complete physical read.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/README.md",
+      "sha256": "60b55ff7df79af72590f9524208e46642bc32bdc175cdad41349681c0e2f958f",
+      "physical_lines": 36,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete generated Next starter documentation; describes Vercel/template instructions rather than reviewed project VPS workflow. Documentation follow-up, no runtime finding.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/docs/dashboard-state-ownership.md",
+      "sha256": "00eded9035ff5ad49bbf3e849fd0f24fed7332e0fb79930d7331c72cfaffe7d4",
+      "physical_lines": 27,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete guidance: server cache ownership, revision checks, bounded history, explicit selection retention, non-sensitive presentation preferences, honest verification limits.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/features/companies/README.md",
+      "sha256": "525414285854c3d4f5e085b866b462cb15ae9e07fb39c684bded375ac139ee21",
+      "physical_lines": 93,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete company/traveller UI contract guidance; bounded query pages, revision/cancellation/lazy preview ownership, httpOnly proof, source-row retention and synthetic-versus-live qualification limits explicitly documented.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/features/documents/api/document-rename.api.ts",
+      "sha256": "2150cefe7f1a3564eebf0cf02884d840de24c0ceef45c7c5cb4a9c8da8232788",
+      "physical_lines": 65,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete list/get/delete/analyze facade. Sequential chunk helper retains upload/chunk IDs/counts/progress and per-chunk timeout. Missing operation-wide initial owner is a candidate pending real queued/continuation proof.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/features/documents/api/document-updates.api.ts",
+      "sha256": "61ed3307504822ed38aa9403b4456c52a9ac4f159a2d5e59c4457addbde4379e",
+      "physical_lines": 58,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete typed legacy preview/send facade; current source search finds no runtime imports. Retain until whole typed/dynamic caller closure and API policy proof, no dead-code deletion in read-only pass.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/features/documents/api/ecr-checker.api.ts",
+      "sha256": "6b08f38492bd5407b446a096f876d9de373887dddf53ec31433d8a17479f29a3",
+      "physical_lines": 43,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete seven-method ECR facade; private shared client and streamed export, signal/progress forwarded for batch upload. Multi-request operation continuity requires actual caller proof, not inferred from this method catalog.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/features/documents/components/document-broadcast-actions.tsx",
+      "sha256": "1ed80a996f9bbaac5ab59bb367157bc5647053e03775e4a8209baa05e639d250",
+      "physical_lines": 15,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete button owner; disabled state and send callback supplied by live workspace roster. group/type props are compatibility metadata, no private data rendering or network dispatch here.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/features/documents/components/document-delivery-activity.tsx",
+      "sha256": "4e71206e0f383e1ee7ac7a80462befd7236f680337f12b5bad2926ff1322082e",
+      "physical_lines": 287,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete live delivery projection and item rendering; query key includes activity/filter/debounced search/page, bounded50-row API pages, running-only poll, final receipt refetch, failure/stale results distinct, uncertain outcomes not auto-resent, bounded scroll and labelled controls.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/features/documents/components/document-distribution-landing.tsx",
+      "sha256": "a84f4b84b3977e4a2d67b24af439278ab5ae26afa0a6b91c52c1f57607ce82a6",
+      "physical_lines": 101,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete static visa/flight workflow navigation with responsive category grid and labelled section; no operational state or unsafe content.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/features/documents/components/document-filename-conflict-dialog.tsx",
+      "sha256": "c0a1173b398510b7e477b7d77f5e2cc719764705410e921809defb9071be4442",
+      "physical_lines": 110,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete confirmation dialog; shared focus/escape boundary, labelled description, keyed apply-to-remaining reset, explicit keep versus replace, revision decisions delegated to pure resolver. Portal geometry not newly browser-qualified.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/features/documents/components/document-group-distribution-chooser.tsx",
+      "sha256": "03c1e245074942c68bebb556f1cb34e969d4192df2c1310a0f3335f2ba372bfd",
+      "physical_lines": 124,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete family chooser; exact visa/four-flight assignment aggregation, error notice preserves navigation, responsive links use typed existing routes.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/features/documents/components/document-hub.tsx",
+      "sha256": "9f252af5c08444c7cc05b819558f0aa3f908e4ea53ec63414db8a052b5c42c69",
+      "physical_lines": 139,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete four workflow catalog; semantic ordered stages/static route links and responsive grid; explains rename versus assignment workflow distinction.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/features/documents/components/document-manual-review-dialog.tsx",
+      "sha256": "0d8934ec2a9d43fc75171aef5c1790f2bca674940f4d8fc9a6e61538df32260c",
+      "physical_lines": 165,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete approval dialog and file rows; explicit selected-type checkbox/passenger-match wording, busy keyboard/close controls, bounded list and progress. Blob preview URLs created per-file and revoked/removed on cleanup; external tabs use noopener/noreferrer.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/features/documents/components/document-rename-page.tsx",
+      "sha256": "761af2e956de9020ba90c38145f9d5c45631fe8afb4cbbd0d2a06501ac9b7b2e",
+      "physical_lines": 558,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete558-line actual rename caller and saved/results UI. Stable resumable upload session/title; explicit unknown rejection/download gates and original filters. Candidate queued/multi-chunk owner continuity requires regression. Query/open/delete errors currently absent from UI projection and saved query failure can render No rename batches; focused rendered proof planned. Architecture follow-up remains open.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/features/documents/components/document-upload-panel.tsx",
+      "sha256": "1792d6482873cd7660db4f7175a31b923f80e12345fc4bca59af6e6fe4b35e0a",
+      "physical_lines": 139,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete PDF controls; blocks selection/check for incomplete uploads and pending manual verification; accepted upload requires verified manifest and resumability, preserves discard action.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/features/documents/components/document-workspace-header.tsx",
+      "sha256": "ad5b072326ef27abf10cef103caeb925f9d959e23cab8728e885a4ba157b5686",
+      "physical_lines": 57,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete lane heading/navigation owner; preserves uncommitted selection/pending props passed into live flight lane navigation, direct safe React text rendering.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/features/documents/components/document-workspace-model.ts",
+      "sha256": "bd7258ca2acc868f0e417188dc3a3f2fa2624c82eb70c6dbad4f3cda26577a9d",
+      "physical_lines": 289,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete cohesive indexed review and selection model; one-pass passenger/document indexes, current-ID intersection, subset selection updates, per-passenger PDF compatibility, preview eligibility/resend intersections and receipt extraction. No operational side effect.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/features/documents/components/document-workspace-review-controls.tsx",
+      "sha256": "c4b34f47dcd6e923a25fc7ba08dceb92b6801d4b300538e0126b22bb545bf4d3",
+      "physical_lines": 277,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete action/filter/search and assignment-issue controls; pending/delete gates, explicit remove confirmation callback, selected-only issue toggle, export error rendering and native labels. Server-returned links remain direct safe React attributes with separate server URL ownership contract.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/features/documents/components/document-workspace-review-rows.tsx",
+      "sha256": "6085bcc974b0f1759195f7a5a21a5c6eb006fe8333d8d87cd8cb9772c2a5c5c9",
+      "physical_lines": 219,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete assignment row rendering; indexed map/set lookups, shared-PDF/manual approval labels, all per-passenger assignments toggled together, tab-isolated private URL links. Server URL generation/authorization reviewed elsewhere; source read alone is not a live URL-security proof.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/features/documents/components/document-workspace-review.tsx",
+      "sha256": "bfa8a3e1a28bc73f1b191ccbf087d44fe8cd3c1e540288b187dd783a7f765610",
+      "physical_lines": 476,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete476-line verification panel, portalled keyboard action menu and status badges. Eligibility requires unknown type plus current reviewable file handle, pending/manual locks retained. Menu portal stays inside owning modal, closes on actual anchor movement; cleanup removes all listeners. Cohesive extraction follow-up remains open despite full read.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/features/documents/components/document-workspace-roster.tsx",
+      "sha256": "407999812ccb06543a7562f3b443e78c91cd659901d329fd8fa64c18053bedd5",
+      "physical_lines": 177,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete roster wiring; preserves deletion selection subset, saved-list delivery gates, accessible horizontal table region, indexed row projections, direct per-row manual/reupload/resend actions. Rejected-filename responsive wrapping is an unproved visual follow-up, not a validated failure.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/features/documents/components/document-workspace-upload-status.tsx",
+      "sha256": "3b228968f61cdf4553a317b2f6a08313f8300921c292309d6d67abd5b84fc712",
+      "physical_lines": 146,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete phase/progress/error projection; manual eligibility and selection callbacks forwarded intact, partially committed upload messaging preserved. No transport or private capability persistence.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/features/documents/components/document-workspace-upload.tsx",
+      "sha256": "c9fe56677ee835a4c10cfa93f292af46bb22403670e730fd1ebefe6ab9dde3c0",
+      "physical_lines": 104,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete upload composition; conflict-key remount, manual approval locks, incomplete receipt resume/discard controls, status/errors and candidate indexes forwarded to live controllers.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/features/documents/components/ecr-checker-page.tsx",
+      "sha256": "9bc339f2e08c7be518a02c5f89b9576b125f212c8adb8e5385471757d6f3c78a",
+      "physical_lines": 121,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete ECR page; resume same-files guidance, active upload busy controls, explicit saved-check query error/retry, separate incomplete/terminal views. Local file input clears after selection.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/features/documents/components/ecr-results.tsx",
+      "sha256": "3213e07af745fd316a7f1863975cd26f99beff8326b01462da724875ebc54b8f",
+      "physical_lines": 108,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete status/filter/search/paginated results owner; deferred local filtering, 50-row pages, page clamping, terminal-only export/retry, semantic table/progress controls. Review/failed states distinguished from ECR/NA.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/features/documents/components/flight-ticket-lane-navigation.tsx",
+      "sha256": "ce5c946d7659d4bf210d05ff3f8f12344afc05f8c6c9467ccd365cf73271ac09",
+      "physical_lines": 189,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete scope/leg navigation; exact international/domestic onward/return routing, operation blocks and explicit unsaved-selection confirmation before changing lane; no automatic discard.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/features/documents/components/manual-passenger-document-dialog.tsx",
+      "sha256": "b392f2fd15c36bb2f1de09c799610bb9aa548487bdcad795989e724465b626f3",
+      "physical_lines": 59,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete modal source; shared keyboard boundary, labelled dialog/file input, pending close/replace disabling, existing document revision required before replacement; no raw HTML/private URL rendering.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/features/documents/config/document-distribution-lanes.ts",
+      "sha256": "5e8cb007d04266c34f65116c5c46be582db8b0aed69ec82d1762039fa99a060b",
+      "physical_lines": 146,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete cohesive five-lane typed catalog and exact document-type/route projection; preserves legacy international flight identifiers and domestic separation. No artificial catalog split needed.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/features/documents/hooks/use-document-filename-conflicts.ts",
+      "sha256": "a423b64c7a478edba632578224cb9a5e3e754e9651100aad0dbd097858552f96",
+      "physical_lines": 82,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete local conflict promise owner; previous session resolved null on cancel, unmount or group/type change; microtask guarded on cleanup, resolution errors retain current conflict.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/features/documents/hooks/use-document-rename.ts",
+      "sha256": "c87b1eeff33da576608f1613c3af78cff9cd34ea03e58048fbf35b69522cf378",
+      "physical_lines": 48,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete four mutation/query hook owners. Live rename-page imports traced. Plain useMutation queues mutationFn before API captures actor; queued invocation continuity is a candidate requiring actual current caller/client reproduction, not a validated issue yet.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/features/documents/hooks/use-document-workspace-delivery.ts",
+      "sha256": "b359ae1b6663ab579f2b02b937d6cdf719e8b5dbfb342c3cfe0c3dcabde29690",
+      "physical_lines": 93,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete preview/send owner; explicit token/batch/can-send/fetch/error/pending/empty guards and synchronous duplicate-send ref; callbacks register typed activity, close preview and clear scoped selections only on success.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/features/documents/hooks/use-document-workspace-selection.ts",
+      "sha256": "6f3ac21b3b4f1b78d47b6a09d5c1a59abea578b5763e833f0247a73424fc29d2",
+      "physical_lines": 91,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete memoized indexed review/selection projections; filters do not mutate stored selection, removal uses active current assignment IDs. Set/map indexes reused for visible/pending counts.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/features/documents/hooks/use-document-workspace.ts",
+      "sha256": "913e530ef36bb20b4b130a8e83824a15370775c30b05dcfe9fa25f198aa3fb2f",
+      "physical_lines": 57,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete composition hook; explicit phase/pending aggregation and unsaved/manual-review selection guards. Invokes frozen private-distribution hook facade, no transport duplicate.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/features/documents/hooks/use-ecr-checker.ts",
+      "sha256": "b7bdcc6cd3a9bafe805de1e7cfc338fbbd515315f5c42b266a68dc9a733d1156",
+      "physical_lines": 25,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete query hooks; signals forwarded, null batch disabled, polling bounded to active statuses. Immediate live use-ecr-workspace caller traced; no query/cache actor bypass claim.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/features/documents/hooks/use-ecr-workspace.ts",
+      "sha256": "a5d982ca696a803ccbca832dcd03ca4da09e3d0e12b22b7512dc04ee767f18fe",
+      "physical_lines": 121,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete ECR operation controller; unmount abort for start, resumable session metadata, upload signal and per-batch cache updates. Retry/export lacks controller lifetime and start has post-await cache writes; candidate requires real owner/remount/adapter proof before security claim.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/features/documents/services/document-filename-conflicts.ts",
+      "sha256": "db566f16fa25f1d37346d1c0eedea9e9853ff94a603f705dcdf642d843a56e25",
+      "physical_lines": 210,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete exact filename normalizer and conflict session state machine; Python-compatible whitespace/codepoint bounds, saved IDs deduped, missing revisions fail closed, replace/supersede/keep order preserved. Repeated conflictIndexes.indexOf may be quadratic for many duplicate selections; workload measurement candidate only.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/features/documents/services/document-manual-review.ts",
+      "sha256": "220cbf6475d14941c59cd1d557f6af3c00cb5162259f31af090b23e39a497978",
+      "physical_lines": 80,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete pure candidate/receipt assembly; validates matched approved receipt before appending, only acknowledged chunks replace rejection list, strips staging receipts from displayed verification. Manual receipt workflow preserved.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/features/documents/services/document-upload-batching.ts",
+      "sha256": "9c31e0dd473a89f3e70555dfb7d0ba8f3b7b6bb4826d320c8eba82609f12ff3c",
+      "physical_lines": 633,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete633-line upload/verification/staging layer including chunk factories, bounded concurrent verification draining, sequential resumable commit, receipt byte envelopes, monotonic progress, transient retry and abortable delays. Rename sequential helper has no signal option and retry waits can continue until caller fences; actual operation continuation proof pending. Multi-responsibility extraction remains open; all threshold/receipt gates must follow real owners.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/features/documents/services/document-upload-recovery.ts",
+      "sha256": "65c392a46fc680ba7854e2f97c2fae5413523022364395371892c079843b4282",
+      "physical_lines": 272,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete bounded session-storage recovery validators and capability stripping; scope/version/count/byte/file/receipt envelope checks, completed receipts cleared, malformed metadata removed, denied storage gracefully returns in-memory fallback. Owner/reset integration is a separate caller responsibility.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/message-composer-audience.tsx",
+      "sha256": "9d2aad39dfcff78e557a511e79c9dfbbb0614720e1680e27a8987675305bae0f",
+      "physical_lines": 167,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete167-line current source physical read with root ownership confirmed. Deferred name/number search,25-row page clamp,Set-selected membership,selected IDs retained across visible-search subset toggles; filter change explicitly resets recipient/preview overrides. Native labels, disabled pending and pagination controls. No extra runtime/test edit or browser qualification."
+    },
+    {
+      "path": "frontend/public/ai/ATTRIBUTION.md",
+      "sha256": "2279f2feabf62ad7589a3cac310d01a447841f40e8c093453b117e7dd186357b",
+      "physical_lines": 11,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete public provenance for supplied sculpture imagery/renderer and adapted microphone interaction; no private asset or provider key.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/public/assets/branding/global-connect/login-background/paper-routes.svg",
+      "sha256": "20c44ca2502f3db21dda0ebd50d7e0f1e4c98d4e812a5e5585c4a327416bef3a",
+      "physical_lines": 1,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete physical SVG source read; local static paths/gradients with internal fragment references only. No dynamic executable content or remote dependency; no new rendered qualification claimed.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/public/assets/branding/global-connect/login-background/wing-architecture.svg",
+      "sha256": "6bd680e3a17b0f5d671a9e617aa3c1162a595ac916769e37497e9b2b3064b11d",
+      "physical_lines": 28,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete physical SVG source read; local static paths/gradients with internal fragment references only. No dynamic executable content or remote dependency; no new rendered qualification claimed.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/public/assets/upload-samples/README.md",
+      "sha256": "218fb1193c1e8aef0ed071ca005fcc1712ff2da1684b5dcd8a79f270f5284117",
+      "physical_lines": 32,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete sample provenance/restoration instructions and explicit original illustration retention; synthetic not-valid-for-travel asset semantics preserved.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/public/assets/upload-samples/indian-passport-address-details.svg",
+      "sha256": "505a217edeab8bff92b9b355cb7368cbc44e07865048d220c17b23f833b31351",
+      "physical_lines": 55,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete physical SVG source read, including all geometry/text. Fictional sample family/address placeholders, SAMPLE/not-valid markings, local-only gradients/patterns and accessible title/description; no scripts/external loads or passenger data.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/public/assets/upload-samples/indian-passport-personal-details.svg",
+      "sha256": "08c969a013796f61e4a780e02620f59ab253bf13fc3c0b5ae936400be6b85df4",
+      "physical_lines": 77,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete physical SVG source read, including all geometry/text. Fictional portrait/person/MRZ placeholders, SAMPLE/not-valid markings, accessible title/description and local gradients/patterns. Stored AI MRZ metadata/extraction code is not affected by this sample asset.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/public/file.svg",
+      "sha256": "2b67812c325c199a02536cdbeea0c593a72f707d323b72ee3e08dbab06753bd4",
+      "physical_lines": 1,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete physical SVG source read; static local geometry/fills, no scripts/event handlers/external hrefs. Visual source inspection only, not browser appearance qualification.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/public/globe.svg",
+      "sha256": "b614b9bf183925957661ac851498fe1d8029fd43a62fbfed86f9e2624a57e7cf",
+      "physical_lines": 1,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete physical SVG source read; static local geometry/fills, no scripts/event handlers/external hrefs. Visual source inspection only, not browser appearance qualification.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/public/next.svg",
+      "sha256": "55995dfad6ecb4945a1e856ddca03c5e16aa5bf13fd21b4df6a74ae79357bcfc",
+      "physical_lines": 1,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete physical SVG source read; static local geometry/fills, no scripts/event handlers/external hrefs. Visual source inspection only, not browser appearance qualification.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/public/pwa-icon.svg",
+      "sha256": "10e7682b8551b40971d6614e5f0b345d031a0a3313191b28e2b232d9e5b5399f",
+      "physical_lines": 6,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete physical SVG source read; static local geometry/fills, no scripts/event handlers/external hrefs. Visual source inspection only, not browser appearance qualification.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/public/vercel.svg",
+      "sha256": "f081337b2fee635b455b63275406a3e7f39d6a014e25ad90dab5a67e62a12ac4",
+      "physical_lines": 1,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete physical SVG source read; static local geometry/fills, no scripts/event handlers/external hrefs. Visual source inspection only, not browser appearance qualification.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/public/window.svg",
+      "sha256": "644768c4aaeb4767bce293344eeb0c125fb804a94d801440424072202d85e3a1",
+      "physical_lines": 1,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete physical SVG source read; static local geometry/fills, no scripts/event handlers/external hrefs. Visual source inspection only, not browser appearance qualification.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/scripts/mediapipe-csp.md",
+      "sha256": "4cdd6675015247cc4d4855221417adb77ac2cb82a0160ff056191f469c44afac",
+      "physical_lines": 52,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete source/patch provenance guidance for exact pinned MediaPipe static bindings; CSP stays strict, model/graph/WASM byte identities retained, settle/drain and failure retry contracts documented. No new tool run.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/scripts/visa-photo-browser-verification.md",
+      "sha256": "d977b0e450e6f449295cd774847ccff8b951d4bfaa432b5a8c11b219d78a3571",
+      "physical_lines": 62,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete verifier documentation; actual CSP scalar/SIMD/inference/error-drain scenarios, original public portrait hash/provenance and explicitly dated local timing limits. Historical2026-09-05 qualification is not treated as current app browser evidence.",
+      "reviewer": "branding_visuals"
+    },
+    {
+      "path": "frontend/tooling/npm-security/package.json",
+      "sha256": "59014509d3fd2a26feca1453e8ac50d3d8562d8fad81acd31bc06ed558f74025",
+      "physical_lines": 12,
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Build-only exact npm dependency security-patch package; four pinned dependencies, private package. No application runtime or network action invoked.",
+      "reviewer": "branding_visuals"
+    }
+  ]
+}

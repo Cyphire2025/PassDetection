@@ -1,0 +1,10 @@
+{
+  "original_sha256": "29651e2747c95b9fd257458ea54fa89b93e3fba98c3d95b6bf7961eb52f726bf",
+  "current_sha256": "df96370146f2f39152bf3ce3549c27237d3e38fa369c39a5eb3fbcd5b2be3901",
+  "unchanged_preview_complete_ast": true,
+  "upload_complete_ast_exact_after_removing_only": [
+    "One read-only rollback immediately after accepted MIME validation, before file/security work",
+    "One authorized_welcome_media_upload context around the original complete HTTP-client/provider await"
+  ],
+  "all_existing_upload_read_limits_validation_close_error_provider_payload_response_and_public_signature_ast_exact": true
+}

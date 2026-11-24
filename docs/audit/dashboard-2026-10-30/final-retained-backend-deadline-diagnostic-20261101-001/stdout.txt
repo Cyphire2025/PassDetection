@@ -1,0 +1,13 @@
+============================= test session starts =============================
+platform win32 -- Python 3.11.15, pytest-9.0.3, pluggy-1.6.0 -- C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\nipun\Desktop\PassDetection\backend
+configfile: pyproject.toml
+plugins: anyio-4.14.2, platformdirs-4.12.0, asyncio-1.4.0, cov-5.0.0, xdist-3.8.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=function, asyncio_default_test_loop_scope=function
+collecting ... collected 1 item
+
+tests/unit/infrastructure/test_traveller_reconciliation_runtime.py::test_burst_deadline_also_cancels_blocked_admission PASSED [100%]
+
+- generated xml file: C:\Users\nipun\Desktop\PassDetection\docs\audit\dashboard-2026-10-30\final-retained-backend-deadline-diagnostic-20261101-001\junit.xml -
+============================== 1 passed in 0.17s ==============================

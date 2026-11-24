@@ -1,0 +1,227 @@
+{
+  "functions": [
+    {
+      "function": "_run_admitted_upload",
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_inputs.py",
+      "sha256": "a48fda493565ffb1d7082ef3d3beb12e7783f61549b9bde76d42596e40e49ffb",
+      "before_lines": [
+        66,
+        94
+      ],
+      "after_lines": [
+        19,
+        47
+      ]
+    },
+    {
+      "function": "_scope",
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_support.py",
+      "sha256": "8dd4485b7d11562ff0a0946182dd22fbb443b96e4bf4b1060b0929889f36036c",
+      "before_lines": [
+        97,
+        101
+      ],
+      "after_lines": [
+        48,
+        52
+      ]
+    },
+    {
+      "function": "_lock_active_actor",
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_support.py",
+      "sha256": "8dd4485b7d11562ff0a0946182dd22fbb443b96e4bf4b1060b0929889f36036c",
+      "before_lines": [
+        104,
+        138
+      ],
+      "after_lines": [
+        55,
+        89
+      ]
+    },
+    {
+      "function": "_batch",
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_support.py",
+      "sha256": "8dd4485b7d11562ff0a0946182dd22fbb443b96e4bf4b1060b0929889f36036c",
+      "before_lines": [
+        141,
+        150
+      ],
+      "after_lines": [
+        92,
+        101
+      ]
+    },
+    {
+      "function": "_items",
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_support.py",
+      "sha256": "8dd4485b7d11562ff0a0946182dd22fbb443b96e4bf4b1060b0929889f36036c",
+      "before_lines": [
+        153,
+        162
+      ],
+      "after_lines": [
+        104,
+        113
+      ]
+    },
+    {
+      "function": "_summary",
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_support.py",
+      "sha256": "8dd4485b7d11562ff0a0946182dd22fbb443b96e4bf4b1060b0929889f36036c",
+      "before_lines": [
+        165,
+        178
+      ],
+      "after_lines": [
+        116,
+        129
+      ]
+    },
+    {
+      "function": "_response",
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_support.py",
+      "sha256": "8dd4485b7d11562ff0a0946182dd22fbb443b96e4bf4b1060b0929889f36036c",
+      "before_lines": [
+        181,
+        186
+      ],
+      "after_lines": [
+        132,
+        137
+      ]
+    },
+    {
+      "function": "create_ecr_batch",
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_batches.py",
+      "sha256": "3b785bd4319187d78ba24b51c8295a5f0df1812d3f3f153298036f0e67d70007",
+      "before_lines": [
+        190,
+        202
+      ],
+      "after_lines": [
+        31,
+        43
+      ]
+    },
+    {
+      "function": "list_ecr_batches",
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_batches.py",
+      "sha256": "3b785bd4319187d78ba24b51c8295a5f0df1812d3f3f153298036f0e67d70007",
+      "before_lines": [
+        206,
+        233
+      ],
+      "after_lines": [
+        47,
+        74
+      ]
+    },
+    {
+      "function": "get_ecr_batch",
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_batches.py",
+      "sha256": "3b785bd4319187d78ba24b51c8295a5f0df1812d3f3f153298036f0e67d70007",
+      "before_lines": [
+        237,
+        240
+      ],
+      "after_lines": [
+        78,
+        81
+      ]
+    },
+    {
+      "function": "_parse_client_ids",
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_inputs.py",
+      "sha256": "a48fda493565ffb1d7082ef3d3beb12e7783f61549b9bde76d42596e40e49ffb",
+      "before_lines": [
+        243,
+        253
+      ],
+      "after_lines": [
+        50,
+        60
+      ]
+    },
+    {
+      "function": "upload_ecr_items",
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_upload.py",
+      "sha256": "2fd62339c2091be4ef54fa39c867ba27dffde80136bfc6a410f1412cbda0228a",
+      "before_lines": [
+        257,
+        276
+      ],
+      "after_lines": [
+        46,
+        65
+      ]
+    },
+    {
+      "function": "_upload_ecr_items_admitted",
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_upload.py",
+      "sha256": "2fd62339c2091be4ef54fa39c867ba27dffde80136bfc6a410f1412cbda0228a",
+      "before_lines": [
+        279,
+        436
+      ],
+      "after_lines": [
+        68,
+        225
+      ]
+    },
+    {
+      "function": "_dispatch",
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_actions.py",
+      "sha256": "58b5fec6fb013d7b89115cb00070059b9b36e8876a025ee6e73f7da5b8e40119",
+      "before_lines": [
+        439,
+        446
+      ],
+      "after_lines": [
+        28,
+        35
+      ]
+    },
+    {
+      "function": "start_ecr_batch",
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_actions.py",
+      "sha256": "58b5fec6fb013d7b89115cb00070059b9b36e8876a025ee6e73f7da5b8e40119",
+      "before_lines": [
+        450,
+        463
+      ],
+      "after_lines": [
+        39,
+        52
+      ]
+    },
+    {
+      "function": "retry_ecr_batch",
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_actions.py",
+      "sha256": "58b5fec6fb013d7b89115cb00070059b9b36e8876a025ee6e73f7da5b8e40119",
+      "before_lines": [
+        467,
+        488
+      ],
+      "after_lines": [
+        56,
+        77
+      ]
+    },
+    {
+      "function": "export_ecr_batch",
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_actions.py",
+      "sha256": "58b5fec6fb013d7b89115cb00070059b9b36e8876a025ee6e73f7da5b8e40119",
+      "before_lines": [
+        492,
+        523
+      ],
+      "after_lines": [
+        81,
+        112
+      ]
+    }
+  ],
+  "original_assertions_AST_unchanged": 65,
+  "phase": "mechanical only;158line/MCC34upload debt still open, not final architecture qualification"
+}

@@ -1,0 +1,226 @@
+{
+  "recorded_at": "2026-10-31T06:02:22.861Z",
+  "records": [
+    {
+      "path": "frontend/features/travellers/hooks/use-returning-claim.ts",
+      "sha256": "58a9c9cdfc9e3b5cd4c0be497288d755285f6e2507f0cd95335e1f2020fa43d5",
+      "physical_lines": 78,
+      "max_function_complexity": 9,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "original_sha256": "6bbee8286214f1b18980b091c6fa32eac391d98357eef4f8dd6ac8711c00fe41",
+      "notes": "Full source read/authored; bounded server-selected automatic transition progression and aborted phone-start continuation are deliberate tested corrections. Server proofs and history authorization remain unchanged."
+    },
+    {
+      "path": "frontend/features/travellers/services/resolve-returning-transition.ts",
+      "sha256": "98c7dfb70e1d445f340cf4672b94d90706f1deed815523815cb05fa61abed74c",
+      "physical_lines": 55,
+      "max_function_complexity": 13,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "original_sha256": null,
+      "notes": "Full source read/authored; bounded server-selected automatic transition progression and aborted phone-start continuation are deliberate tested corrections. Server proofs and history authorization remain unchanged."
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-review.tsx",
+      "sha256": "13a139b7842c886250846db82d41b5b2b595e520207b79107329713ae8b185c1",
+      "physical_lines": 166,
+      "max_function_complexity": 11,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "original_sha256": "baeaf7a47e40984791c30f7695ddf972ef49e5d170bd53550e039399e266f57d",
+      "notes": "Full original and current source read/authored. Exact moved statement/view/public-prop AST and explicit facade/model glue comparisons recorded; Flow/Offer formatting retains complete emitted AST. No speculative cross-token/private-data finding claimed."
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-review-header.tsx",
+      "sha256": "caefb57fefb05b40199a1d284e87a45c3bdb917d690420decb524dac76d6d2a4",
+      "physical_lines": 89,
+      "max_function_complexity": 8,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "original_sha256": null,
+      "notes": "Full original and current source read/authored. Exact moved statement/view/public-prop AST and explicit facade/model glue comparisons recorded; Flow/Offer formatting retains complete emitted AST. No speculative cross-token/private-data finding claimed."
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-review-fields.tsx",
+      "sha256": "7c19413182d0a515e5968245ce958e97adf67b6d1fb9a3810664727e6c8c19a4",
+      "physical_lines": 111,
+      "max_function_complexity": 4,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "original_sha256": null,
+      "notes": "Full original and current source read/authored. Exact moved statement/view/public-prop AST and explicit facade/model glue comparisons recorded; Flow/Offer formatting retains complete emitted AST. No speculative cross-token/private-data finding claimed."
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-review-confirmation.tsx",
+      "sha256": "f7b006477af2c1d98320870c96e7cf0abc7480e67913776cb1656f6648838b8f",
+      "physical_lines": 83,
+      "max_function_complexity": 8,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "original_sha256": null,
+      "notes": "Full original and current source read/authored. Exact moved statement/view/public-prop AST and explicit facade/model glue comparisons recorded; Flow/Offer formatting retains complete emitted AST. No speculative cross-token/private-data finding claimed."
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-resume.tsx",
+      "sha256": "31088fbfc61bb5f4dbba894af820858395bd27d9ed544ff2f86bfae791ba00a2",
+      "physical_lines": 8,
+      "max_function_complexity": 1,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "original_sha256": "54e96cbb354b75b645b6859cf1739e79b9fe130f05c2e95a32e08f1c4ffaf01f",
+      "notes": "Full original and current source read/authored. Exact moved statement/view/public-prop AST and explicit facade/model glue comparisons recorded; Flow/Offer formatting retains complete emitted AST. No speculative cross-token/private-data finding claimed."
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-resume-content.tsx",
+      "sha256": "9f4e067e47b1e60fd0861202ce0e815d45179afdc97d303f6d1269288abb7b75",
+      "physical_lines": 35,
+      "max_function_complexity": 3,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "original_sha256": null,
+      "notes": "Full original and current source read/authored. Exact moved statement/view/public-prop AST and explicit facade/model glue comparisons recorded; Flow/Offer formatting retains complete emitted AST. No speculative cross-token/private-data finding claimed."
+    },
+    {
+      "path": "frontend/features/travellers/hooks/use-returning-resume.ts",
+      "sha256": "db1c2814752feca3691369257e74de41b02a4f97343247bd3d2d56bf46a24f7c",
+      "physical_lines": 19,
+      "max_function_complexity": 2,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "original_sha256": null,
+      "notes": "Full original and current source read/authored. Exact moved statement/view/public-prop AST and explicit facade/model glue comparisons recorded; Flow/Offer formatting retains complete emitted AST. No speculative cross-token/private-data finding claimed."
+    },
+    {
+      "path": "frontend/features/travellers/components/traveller-document.tsx",
+      "sha256": "17e0ed24c02f5d149e458b382a937e55b3d42be131d8f0a3db0d2b4a1aae72d0",
+      "physical_lines": 8,
+      "max_function_complexity": 1,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "original_sha256": "665ac1d9cf382c5b402fd47b28e152cfef7794ef5c07ab2cbd8a4f0fe7196bb4",
+      "notes": "Full original and current source read/authored. Exact moved statement/view/public-prop AST and explicit facade/model glue comparisons recorded; Flow/Offer formatting retains complete emitted AST. No speculative cross-token/private-data finding claimed."
+    },
+    {
+      "path": "frontend/features/travellers/components/traveller-document-content.tsx",
+      "sha256": "440d3196b3f92255e7cbbd5631d596555125da16b8a2d0c2a2e9e5b76bc84207",
+      "physical_lines": 41,
+      "max_function_complexity": 8,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "original_sha256": null,
+      "notes": "Full original and current source read/authored. Exact moved statement/view/public-prop AST and explicit facade/model glue comparisons recorded; Flow/Offer formatting retains complete emitted AST. No speculative cross-token/private-data finding claimed."
+    },
+    {
+      "path": "frontend/features/travellers/hooks/use-traveller-document-preview.ts",
+      "sha256": "ca4c48e35ab65ece1ecc5367adefd9694c454a902246a1be999e0bbb506f0b4e",
+      "physical_lines": 47,
+      "max_function_complexity": 5,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "original_sha256": null,
+      "notes": "Full original and current source read/authored. Exact moved statement/view/public-prop AST and explicit facade/model glue comparisons recorded; Flow/Offer formatting retains complete emitted AST. No speculative cross-token/private-data finding claimed."
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-contact-dialog.tsx",
+      "sha256": "5b40a2aa787639a666bca29098195905ba9dca399e538904bc1d65e99a3caec7",
+      "physical_lines": 103,
+      "max_function_complexity": 12,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "original_sha256": "68b2d407803af17481ad20938f516ff5d55aad852fa447eb7542f2d35b4a9ef6",
+      "notes": "Full original and current source read/authored. Exact moved statement/view/public-prop AST and explicit facade/model glue comparisons recorded; Flow/Offer formatting retains complete emitted AST. No speculative cross-token/private-data finding claimed."
+    },
+    {
+      "path": "frontend/features/travellers/hooks/use-returning-contact.ts",
+      "sha256": "2ed209a86b4388789393c412c82a45cb9513d76cfda602e18bb063febc70dd13",
+      "physical_lines": 53,
+      "max_function_complexity": 15,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "original_sha256": null,
+      "notes": "Full original and current source read/authored. Exact moved statement/view/public-prop AST and explicit facade/model glue comparisons recorded; Flow/Offer formatting retains complete emitted AST. No speculative cross-token/private-data finding claimed."
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-flow.tsx",
+      "sha256": "dfb6374d87f25a2e9bb229582116df0a3f724af1c887bcae937e5d198c0102f0",
+      "physical_lines": 188,
+      "max_function_complexity": 30,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "original_sha256": "336a3b4589785f6113334b3780af7d7c06c7ac47ee6e6cc1172e44372e50f970",
+      "notes": "Full original and current source read/authored. Exact moved statement/view/public-prop AST and explicit facade/model glue comparisons recorded; Flow/Offer formatting retains complete emitted AST. No speculative cross-token/private-data finding claimed."
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-offer.tsx",
+      "sha256": "222de89b576bfbd248155ae2d1f4f4b94c56080372abe9efdcee2a057413481a",
+      "physical_lines": 100,
+      "max_function_complexity": 9,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "original_sha256": "cabb37d14e557d8f1b6e8b4ffb9c8a3ef76a670214781cba11b1e63858d0d8df",
+      "notes": "Full original and current source read/authored. Exact moved statement/view/public-prop AST and explicit facade/model glue comparisons recorded; Flow/Offer formatting retains complete emitted AST. No speculative cross-token/private-data finding claimed."
+    },
+    {
+      "path": "frontend/features/travellers/hooks/use-returning-claim.test.tsx",
+      "sha256": "5d895c182f0a68c9fbeb4c8a6a23f23e41475e9bd8adf2ef183b2feb1be40ef8",
+      "physical_lines": 73,
+      "max_function_complexity": 2,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-regression-tests",
+      "original_sha256": null,
+      "notes": "Full authored test source reviewed; synthetic current-hook/component controls verify exact scope, negative progression, abort cleanup and retry. No provider sends or production data."
+    },
+    {
+      "path": "frontend/features/travellers/components/traveller-document.test.tsx",
+      "sha256": "0482952614ca1e3ab3c4b794e67a80f0c873682cacd0f0f947b727e4f31015a8",
+      "physical_lines": 54,
+      "max_function_complexity": 1,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-regression-tests",
+      "original_sha256": null,
+      "notes": "Full authored test source reviewed; synthetic current-hook/component controls verify exact scope, negative progression, abort cleanup and retry. No provider sends or production data."
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-contact-dialog.test.tsx",
+      "sha256": "02267175ae8eef24dbd9f45cf75de4b0e167bb55bd6c28b2123ba5585e457559",
+      "physical_lines": 32,
+      "max_function_complexity": 1,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-regression-tests",
+      "original_sha256": null,
+      "notes": "Full authored test source reviewed; synthetic current-hook/component controls verify exact scope, negative progression, abort cleanup and retry. No provider sends or production data."
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-resume.test.tsx",
+      "sha256": "2d5809837f64a843db2ce8ea128276d1b4762f8f0e52ddf2bab70fe3d0f12e5c",
+      "physical_lines": 29,
+      "max_function_complexity": 1,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-regression-tests",
+      "original_sha256": null,
+      "notes": "Full authored test source reviewed; synthetic current-hook/component controls verify exact scope, negative progression, abort cleanup and retry. No provider sends or production data."
+    }
+  ],
+  "scope": "Seven original returning-traveller owners; sixteen final runtime owners and four new regression files. Historical prior follow-through ledger retained unchanged."
+}

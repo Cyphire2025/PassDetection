@@ -1,0 +1,47 @@
+[
+  {
+    "path": "backend/tests/integration/test_mcp_broadcast_links.py",
+    "sha256": "15d577c455cf2acb44914c6dfe4951260e1a1767c01855587a702261cb488482",
+    "physical_lines": 558,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete additive link fixture and source import, existing manual recipient/retained link preservation, shared/invalid contacts, private delivery no-mutation, current review revisions, mobile identity compatibility and no session effects, whole-scope capacity, removed/foreign source, existing exact link, override/replacement conflict and SDK replay/audits reviewed. Shared dashboard-to-server identity compatibility is retained; no Expo feature work. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/service_integration/test_mcp_broadcast_links_postgresql.py",
+    "sha256": "49a54c346e31232561327c41aafb1d30881e76d251214e0b277e7b49c269ff06",
+    "physical_lines": 213,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete isolated PostgreSQL six cross-grant same-intent single-link/two-recipient/four-source-contact protocol, one-winner distinct intents and canonical group lock fencing source-phone/private-delivery changes reviewed, including bounded waits and cleanup of pending tasks/listeners; not executed. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_business_admin_tools.py",
+    "sha256": "552430a7a821d9558d8fd907f333da4d9596d2aa690f85ef57c5e5e9287ca1ef",
+    "physical_lines": 516,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete invited workforce/client-manager account creation, exact separate dashboard activation handoff, credentials excluded from receipts/audits, role-specific current sections/MFA/tenant/identity gates, atomic audit rollback, invitation/profile assignments, GC access/photos revisions and itinerary history preservation, SDK dispatch and replay/inspect authority assertions reviewed. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_contact_imports.py",
+    "sha256": "0fafeb285a48dfa284eca079a20890f20ad8075611636b80d319d954f2bc9be9",
+    "physical_lines": 646,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete real HTTP/XLSX/SQL source test with synthetic scanner/storage, immutable agency staging and no business side effects, explicit mapping/review hash/consent, source consumption/replay/current capability, malicious/oversize package static errors/evidence, whole-workbook cell/text quotas, parser cancellation draining, scan-time revocation, audit compensation and actual SDK sensitive reads reviewed. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/service_integration/test_mcp_contact_imports_postgresql.py",
+    "sha256": "8a9049e1f5d558927ff5f5fbdcbbfa911619df3731ca54f32e27931342fb9ca4",
+    "physical_lines": 197,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete isolated PostgreSQL contact-source snapshot fixture and same-key/multi-grant one import, distinct intents single consumption and post-business audit-failure rollback/retry assertions reviewed; source and rejection evidence retained, no service/database execution. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  }
+]

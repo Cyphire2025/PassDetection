@@ -1,0 +1,226 @@
+[
+  {
+    "path": "frontend/features/upload/hooks/use-fresh-contact.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "dd8d39954c26850d6e2b216a9b4ccae05c77f938c4c5d0b06c1bb7e4a6026178",
+    "notes": "Full new contact controller read/authored. Verifies contact through serialized API; authoritative draft refresh completes before proof is exposed. Captured signal prevents late proof adoption after unmount; returned proof TTL measured from verification response. Rejected proof object is excluded while a renewed proof with the same backend row ID is accepted. Challenge/interval expiry and cleanup preserved."
+  },
+  {
+    "path": "frontend/features/upload/hooks/use-fresh-member-submission.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "6b6e18c49566ee442c55e6237e8bf15b68c87fdca38d91d41da544918cc99935",
+    "notes": "Full new submission controller read/authored. Existing image/configuration/family validation precedes completion. Structured verification_failed/CONTACT_VERIFICATION_REQUIRED invalidates only the rejected proof; keeps private fields/member/session/final idempotency key. Other failures retain proof for appropriate Retry. Family-head metadata unchanged."
+  },
+  {
+    "path": "frontend/features/upload/components/fresh-contact.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "e51d67f18d5abd825ab83a8bd451d3a05e6dd68357484a4bbda6c4bc09993bcf",
+    "notes": "Full current contact presentation read and updated to focused controller. Existing labels, input semantics, resend cooldown, code expiry, validation messages and button guards retained; challenge expiry derived in hook for sound typing. Mobile390px screenshot visually inspected."
+  },
+  {
+    "path": "frontend/features/upload/components/fresh-member-form.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "4965591d35be99c0a6b1d3f7b1420a6253448131e260d1e4d7c1358d6495e59d",
+    "notes": "Full current fresh form read; contact/submission responsibilities extracted without conditional hooks or validator changes. Failed extraction still blocks completion; server-rejected proof offers re-verification while preserving fields. Authoritative revision refresh and failure interlocks covered by three new React tests."
+  },
+  {
+    "path": "frontend/features/upload/components/fresh-member.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "93380b58a5ab119547e40ca36aca496a42af5aa9451c10cfe22e01740d05d3cc",
+    "notes": "Full family-member wrapper read. Submitted head must be loaded before dependent member form; abortable head fetch, private head contact derivation and explicit retry inspected. Current family browser case proves completed-head preservation and second-member-only proof retry."
+  },
+  {
+    "path": "frontend/features/upload/components/fresh-documents.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "ba7c1a0e026d6ff67664b8924e5550a01c452ec4d1f9c16184d3b25befab7b23",
+    "notes": "Full active document composition read. Existing lazy camera imports, upload busy interlocks, per-side processing status, scoped document previews and editable sides preserved; no validator removed."
+  },
+  {
+    "path": "frontend/features/upload/components/fresh-trip-fields.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "15f176da1f6db924263bdad1c20e6c40807dfc62011b7137dde3375bd2e7ce4f",
+    "notes": "Full trip fields read. Required configurable fields, family relationship/gender and custom answer updates traced to private payload; no personal fields written to browser storage by this component."
+  },
+  {
+    "path": "frontend/features/upload/components/fresh-submission-footer.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "6e484300c22f16d843c1581b877eb79231324e8342c40592907ba82503e30098",
+    "notes": "Full footer read. Submission blocked on pending/upload/unverified states, explicit error Retry and private-save notice inspected; unchanged."
+  },
+  {
+    "path": "frontend/features/upload/components/fresh-document-preview.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "990ca28b66a281177e7bc71eb8e540051b30c530cec029e563a334d39f9f7a84",
+    "notes": "Full private preview read. Lazy intersection observer, bounded accepted MIME/20MB blob validation, abort checks, object-URL revocation and retry inspected. No private object URL is persisted in browser storage."
+  },
+  {
+    "path": "frontend/features/upload/components/draft-document-card.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "164409fa208565deb65a80c55594d6635bcc49d00428d5ad7b6b046ff72808ae",
+    "notes": "Full document card read. Labelled file controls reset after selection; native disabled behavior, private preview selection and processing/error UI traced. No public storage URL constructed."
+  },
+  {
+    "path": "frontend/features/upload/components/review-details-column.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "ee5964d76103d7d31d1285e85c7bbd16a4e9b957a4d3be2cc6af9273a894eb14",
+    "notes": "Full responsive sticky-column component read while investigating a browser timeout. ResizeObserver and resize listener cleanup verified; tall desktop column top is measured and mobile uses normal layout. Stable-source rerun passed without production changes."
+  },
+  {
+    "path": "frontend/features/upload/components/review-details-column.module.css",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "2e99cd536f499d93e3aac356ac52894aaff38f9c5d0478eeefbaa3db0985fe32",
+    "notes": "Full seven-line CSS read. Sticky behavior only above1024px; min-width0 guards responsive columns. No edits."
+  },
+  {
+    "path": "frontend/features/upload/hooks/use-fresh-draft.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "8404e81895fb5407b36442448999617e7500d57692c6ce51b908963e10a8d7d4",
+    "notes": "Full draft hook read. One serial revision queue, private start/save/read/upload/complete and conflict reconciliation traced. Contact verification response lacks new revision, making post-verification authoritative read necessary. Existing request idempotency, abort scope and image lifecycle retained; six existing hook cases passed."
+  },
+  {
+    "path": "frontend/features/upload/hooks/use-draft-document-upload.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "01d448eac5f612675ab44e69628f5c7bce3322f97249f665d17326fbd58b308d",
+    "notes": "Full acquisition adapter read. Existing selection upload and camera close boundary retained; no change to photo/passport validation."
+  },
+  {
+    "path": "frontend/features/upload/hooks/use-selected-document-uploads.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "4c18a5237b1f85be5c59e2f760a40c654042753b202e59bffc3005bb682a0e87",
+    "notes": "Full selected-file lifecycle read. One synchronous transfer controller, source preprocessing, token/session-bound private upload, late completion rejection and pagehide/unmount abort inspected; selected files remain only in mounted state."
+  },
+  {
+    "path": "frontend/features/upload/api/fresh-draft.types.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "1e7ecae8d6cb78e1b3448a3646ce305362c2ab619c981adc1aa8cdc22f356bd2",
+    "notes": "Full fresh-draft contracts read. Contact proof identity/expiry, result_status, collection and family metadata traced to existing API consumers."
+  },
+  {
+    "path": "frontend/features/upload/services/fresh-draft-state.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "f4b47784e187fcb3b0f2a5508d3dc0f3c63330d3598982c49f26d433bc697927",
+    "notes": "Full fresh payload/reconciliation/error helper read. Collection fields join existing three-way reconciliation; safe message extraction and absence of persistent personal fields inspected."
+  },
+  {
+    "path": "frontend/features/upload/services/fresh-validation.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "782bdee55ad1b8245563aedbead9cbae9621e2d40cd81419589f06b188b479f8",
+    "notes": "Full validation read. Required documents/AI gate precedes configurable fields and family/qualifier requirements; unchanged by browser migration."
+  },
+  {
+    "path": "frontend/features/upload/services/fresh-document-validation.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "b6bc4b703b530459334cafc7567932f9be87d27988144e9c8b33c1a12448b596",
+    "notes": "Full document validation read. Ready configured pages, completed extraction/ECR and canonical passport field/date validation remain authoritative. AI-failed manual values cannot bypass extraction gate."
+  },
+  {
+    "path": "frontend/features/travellers/hooks/use-draft-initialization.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "adb0daad0b4b79d50d0fc6faa64bb229ae828ec88795b44524c9e384607f937d",
+    "notes": "Full initialization hook read. StrictMode effect replay shares one start promise; genuine scope change and unmount abort requests; delivered flag prevents duplicate adoption. Current missing/expired/retry cases traced through this hook."
+  },
+  {
+    "path": "frontend/features/travellers/hooks/use-draft-image-lifecycle.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "4d0ddefaa2f3100049d54745b650f361623fee8e2203e995161e7c74c9bed738",
+    "notes": "Full private image lifecycle read. Visit refcounts, bounded keepalive discard, pagehide/pageshow handling, one heartbeat in flight and abort/listener/timer cleanup inspected. Test fixture mirrors image disposal on a new form visit."
+  },
+  {
+    "path": "frontend/features/travellers/hooks/use-draft-polling.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "bd58c85301e5fda5171fd5754c9f840ae52812634e96f6a4dc86206580a76164",
+    "notes": "Full polling hook read. One request at a time, visibility checks, increasing delay, thirty-poll cap and timer cleanup traced. Current transient private GET case exercises Retry without another document upload."
+  },
+  {
+    "path": "frontend/features/travellers/services/draft-upload-operation.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "5053af15ffd0e5331dfd63deebacd9844b24958143f4c1b2d68df597c6dd141a",
+    "notes": "Full upload operation read. Fingerprinted same-file retry keeps key/revision; definitive409 reads authority and permits one retry only when requested side is unchanged. Lost-response browser case explicitly restores accepted image through private GET with one upload attempt."
+  },
+  {
+    "path": "frontend/features/travellers/api/draft.types.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "6848f26d2ca9335769bd188b45480bbeefa9b22f9fda9d5e20ae69e333a14375",
+    "notes": "Full shared draft contracts read. Server revisions, private field maps, image state and bounded result enums traced; no changes."
+  },
+  {
+    "path": "frontend/e2e/support/fresh-public-upload.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "eadf126290cace19e4bb40c5f89ff8fa8c7522b97a5031a091a63a7f7f94dce1",
+    "notes": "Complete new isolated synthetic fixture and browser helpers authored/read. Per-member session header, authoritative revision including OTP increment, private no-store responses, idempotent accepted uploads, proof rejection, OTP delivery failure, private-read failure and unexpected API fail-closed handling covered. No real backend/provider qualification inferred."
+  },
+  {
+    "path": "frontend/e2e/public-upload-contact-otp.spec.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "cee10f7426286a0300aca8eb50e91a033a205234dc4be98cffa9718a1d166662",
+    "notes": "Complete five current portal/FreshFlow tests authored/read replacing obsolete direct-legacy assumptions. Keeps invalid-code/delivery retry, desktop/mobile completion gate, completed-head preservation, independent family credentials and same-ID proof renewal with private detail retention. No skipped/deleted negative case."
+  },
+  {
+    "path": "frontend/e2e/public-upload-recovery.spec.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "0a04e150546fc1db1b979d41d140dcfe004b7b390f25f85113853ccd1da0eb2d",
+    "notes": "Complete seven current portal/FreshFlow tests authored/read replacing six old scenarios. Adds separate missing/expired cases, mid-recovery closure/credential retention, transient private GET retry, failed-AI manual correction with unchanged extraction gate and needs_review result, accepted upload response-loss/no duplicate transfer. Missing-start fixture matches actual API empty creation, not fictitious404."
+  },
+  {
+    "path": "frontend/features/upload/components/fresh-member-form.test.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "be11575a2a634ac66a079f746c9174b4353ddeaed8d790f90aac4875985c0818",
+    "notes": "Complete existing and extended React regression file read/authored. Five cases now cover preparation/upload interlocks, preparation failure, authoritative OTP revision before completion, renewed same-ID rejected proof with preserved fields/key, and fail-closed submission when post-verification read fails."
+  }
+]

@@ -1,0 +1,107 @@
+{
+  "proposed_only": true,
+  "shared_gate_edited": false,
+  "normal_candidates": [
+    {
+      "path": "app/presentation/api/v1/routes/email_integration_review_decisions.py",
+      "baseline_lines": 184,
+      "maximum_lines": 190,
+      "baseline_max_function_complexity": 14,
+      "maximum_function_complexity": 15,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/email_review_context.py",
+      "baseline_lines": 154,
+      "maximum_lines": 160,
+      "baseline_max_function_complexity": 8,
+      "maximum_function_complexity": 9,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/email_review_actions.py",
+      "baseline_lines": 166,
+      "maximum_lines": 170,
+      "baseline_max_function_complexity": 22,
+      "maximum_function_complexity": 23,
+      "minimum_coverage_percent": 95
+    }
+  ],
+  "critical_candidates": [],
+  "measurements": [
+    {
+      "path": "app/presentation/api/v1/routes/email_integration_review_decisions.py",
+      "lines": 184,
+      "max_function_complexity": 14,
+      "most_complex_function": "resolve_email_review",
+      "coverage_percent": 100.0,
+      "branch_count": 10,
+      "branch_coverage_percent": 90.0,
+      "missing_lines": [],
+      "missing_branches": [
+        [
+          164,
+          166
+        ]
+      ]
+    },
+    {
+      "path": "app/presentation/api/v1/routes/email_review_context.py",
+      "lines": 154,
+      "max_function_complexity": 8,
+      "most_complex_function": "_lock_email_review",
+      "coverage_percent": 100.0,
+      "branch_count": 12,
+      "branch_coverage_percent": 100.0,
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    {
+      "path": "app/presentation/api/v1/routes/email_review_actions.py",
+      "lines": 166,
+      "max_function_complexity": 22,
+      "most_complex_function": "_apply_email_review_action",
+      "coverage_percent": 98.85057471264368,
+      "branch_count": 26,
+      "branch_coverage_percent": 84.61538461538461,
+      "missing_lines": [
+        47
+      ],
+      "missing_branches": [
+        [
+          46,
+          47
+        ],
+        [
+          80,
+          89
+        ],
+        [
+          136,
+          138
+        ],
+        [
+          153,
+          157
+        ]
+      ]
+    }
+  ],
+  "original_normal_rows_preserved_as_history": [
+    {
+      "path": "app/presentation/api/v1/routes/email_integration_review_decisions.py",
+      "baseline_lines": 367,
+      "maximum_lines": 375,
+      "baseline_max_function_complexity": 42,
+      "maximum_function_complexity": 42,
+      "minimum_coverage_percent": 40
+    }
+  ],
+  "original_family_critical_membership": [],
+  "proposed_operation": "Tighten existing facade1row and add2effective behavior owners; retain original BEFOREs/global/critical floors.",
+  "preserved_global_floors": {
+    "minimum_line_percent": 75,
+    "minimum_branch_percent": 58
+  },
+  "notes": "Only current3owners qualified by one fresh isolated31case selection. Contextguard controls assert unavailable-row error/compiledPGscope/FORUPDATE/order; simulated absence is not realPostgres concurrency evidence. Defensive action guard remains present/unhit; no exclusions or coverage-floor weakening."
+}

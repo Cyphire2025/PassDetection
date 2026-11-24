@@ -1,0 +1,89 @@
+{
+  "before_sha256": "3105f025733e1a4695ea2c525877c8f095481b0da4d4e1001d7b1535052cc972",
+  "after_sha256": "583c82d4547b2500c98b0f01a4ccab88d0bb7ae9f0cd5613fd24da4a1fab59bc",
+  "whole_module_AST_exact_after_inverse_of_two_cleanup_changes": true,
+  "declarations": {
+    "image_export_support": {
+      "signature": "() -> 'ImagePreparationSupport'",
+      "module": "app.presentation.api.v1.routes.passport_routes.image_exports",
+      "qualname": "image_export_support",
+      "doc": null,
+      "evaluated_hints": {
+        "return": "<class 'app.application.use_cases.passports.prepare_image_export.ImagePreparationSupport'>"
+      }
+    },
+    "export_passport_images_by_group": {
+      "signature": "(group_id: 'uuid.UUID', export_mode: 'PassportExportMode' = Query(all), baseline_export_id: 'uuid.UUID | None' = Query(None), request_id: 'uuid.UUID | None' = Query(None), current_user: 'User' = Depends(dependency=<function get_current_active_user at 0x000001C4BCCAC7C0>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x000001C4BABE3C40>, use_cache=True, scope=None)) -> 'StreamingResponse'",
+      "module": "app.presentation.api.v1.routes.passport_routes.image_exports",
+      "qualname": "export_passport_images_by_group",
+      "doc": null,
+      "evaluated_hints": {
+        "group_id": "<class 'uuid.UUID'>",
+        "export_mode": "typing.Literal['all', 'incremental']",
+        "baseline_export_id": "uuid.UUID | None",
+        "request_id": "uuid.UUID | None",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "return": "<class 'starlette.responses.StreamingResponse'>"
+      }
+    },
+    "export_selected_passport_images_by_group": {
+      "signature": "(group_id: 'uuid.UUID', body: 'ExportSelectedPassportImagesRequest', current_user: 'User' = Depends(dependency=<function get_current_active_user at 0x000001C4BCCAC7C0>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x000001C4BABE3C40>, use_cache=True, scope=None)) -> 'StreamingResponse'",
+      "module": "app.presentation.api.v1.routes.passport_routes.image_exports",
+      "qualname": "export_selected_passport_images_by_group",
+      "doc": null,
+      "evaluated_hints": {
+        "group_id": "<class 'uuid.UUID'>",
+        "body": "<class 'app.presentation.api.v1.schemas.passport_bulk_schemas.ExportSelectedPassportImagesRequest'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "return": "<class 'starlette.responses.StreamingResponse'>"
+      }
+    }
+  },
+  "original_import_bindings": [
+    "annotations",
+    "io",
+    "uuid",
+    "APIRouter",
+    "Depends",
+    "HTTPException",
+    "Query",
+    "status",
+    "Response",
+    "StreamingResponse",
+    "IntegrityError",
+    "AsyncSession",
+    "AuthorizationPolicy",
+    "ImagePreparationError",
+    "ImagePreparationSupport",
+    "prepare_image_export",
+    "get_logger",
+    "User",
+    "AuthorizationError",
+    "StorageError",
+    "get_db_session",
+    "MissingPassportImagesError",
+    "PassportImageExportLimitError",
+    "PassportImageZipExporter",
+    "safe_download_filename",
+    "ClientGroupRepository",
+    "PassportExportHistoryRepository",
+    "PassportExportMode",
+    "PassportImageCropRepository",
+    "MinioStorageRepository",
+    "binary_responses",
+    "ExportSelectedPassportImagesRequest",
+    "get_current_active_user",
+    "SELECTED_PASSPORT_IMAGE_EXPORT_MAX_BYTES",
+    "_export_people_snapshot",
+    "_export_zone_names",
+    "_current_group_export_submissions",
+    "_require_new_export_request",
+    "_resolve_group_export_payload",
+    "_owner_scope_for",
+    "_stream_binary_file"
+  ],
+  "complete_two_route_OpenAPI_exact": true,
+  "scope": "Normal conftest startup then trusted archived-source module metadata only; no route execution or external provider/storage action. Runtime baseline/final checks are separate source-fenced artifacts."
+}

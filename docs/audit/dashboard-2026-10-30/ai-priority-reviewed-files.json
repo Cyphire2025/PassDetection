@@ -1,0 +1,231 @@
+{
+  "files": [
+    {
+      "path": "backend/app/infrastructure/ai_priority/__init__.py",
+      "sha256": "435bbdd406d21cc18a599151f0629df067e8a9c982485defa8e6af51101dc1ce",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete physical preflight read; unchanged current source.",
+      "prior_manual_sha256": "435bbdd406d21cc18a599151f0629df067e8a9c982485defa8e6af51101dc1ce"
+    },
+    {
+      "path": "backend/app/infrastructure/ai_priority/admission_context.py",
+      "sha256": "eca2ec309f6b415879351a293692a578940e0666172e5f95939515b78702468e",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete original-source review plus exact whole-declaration/body movement proof and current import/compatibility/typed-context/async cleanup review; authored new owners are not an independent second review.",
+      "prior_manual_sha256": null
+    },
+    {
+      "path": "backend/app/infrastructure/ai_priority/config.py",
+      "sha256": "e0ad89c9f09a694e0e10e00b3fd0fe1cf6f256a90101eeacf1ddbcfd21d062d3",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete original-source review plus exact whole-declaration/body movement proof and current import/compatibility/typed-context/async cleanup review; authored new owners are not an independent second review.",
+      "prior_manual_sha256": "a257d7d145d006d6de6f41b8758bfbb92394820a0d21fe2eab2f526c59b312f4"
+    },
+    {
+      "path": "backend/app/infrastructure/ai_priority/coordinator.py",
+      "sha256": "bcbfdc68e32740b914686690413ea1c19f3d77e5b1dc67e2fec39b2d1ac28441",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete original-source review plus exact whole-declaration/body movement proof and current import/compatibility/typed-context/async cleanup review; authored new owners are not an independent second review.",
+      "prior_manual_sha256": "26e71733ed9f0c04c1942505d34fa35ddee17e8063e2dcb241083b2257bf29fd"
+    },
+    {
+      "path": "backend/app/infrastructure/ai_priority/extraction_admission.py",
+      "sha256": "5d61b7ab55d97cb7f0eef33e283a76a4e2c26c11bb327e40480eaf997f185f89",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete original-source review plus exact whole-declaration/body movement proof and current import/compatibility/typed-context/async cleanup review; authored new owners are not an independent second review.",
+      "prior_manual_sha256": null
+    },
+    {
+      "path": "backend/app/infrastructure/ai_priority/factory.py",
+      "sha256": "7e70f7bb24bb5fd2bf336b11f98a527f2cba5d5aff74a922bb6bba49bc5d599b",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete original-source review plus exact whole-declaration/body movement proof and current import/compatibility/typed-context/async cleanup review; authored new owners are not an independent second review.",
+      "prior_manual_sha256": "2431422c07d70b306a2216954ab256efb068c85d4122d2618771173716d50d7c"
+    },
+    {
+      "path": "backend/app/infrastructure/ai_priority/identity.py",
+      "sha256": "55c1c4bc29b2215bab07f1e386ec7f628f97ac67db4989cb88ea32fee91e60fc",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete physical preflight read; unchanged current source.",
+      "prior_manual_sha256": "55c1c4bc29b2215bab07f1e386ec7f628f97ac67db4989cb88ea32fee91e60fc"
+    },
+    {
+      "path": "backend/app/infrastructure/ai_priority/metrics.py",
+      "sha256": "58a549a1d768f5074537da9997ebcec08ab0d073d149a7705376d5e5f90dead3",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete original-source review plus exact whole-declaration/body movement proof and current import/compatibility/typed-context/async cleanup review; authored new owners are not an independent second review.",
+      "prior_manual_sha256": "a01049cd6ca2030cc991e40193cbdafbb9630167983e01099f5ad814675e50cc"
+    },
+    {
+      "path": "backend/app/infrastructure/ai_priority/metrics_contract.py",
+      "sha256": "9e71389b39bf58e5de0ad2920533ca7f5f4042d078d4ff33b596ebe43f920c55",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete original-source review plus exact whole-declaration/body movement proof and current import/compatibility/typed-context/async cleanup review; authored new owners are not an independent second review.",
+      "prior_manual_sha256": null
+    },
+    {
+      "path": "backend/app/infrastructure/ai_priority/metrics_memory.py",
+      "sha256": "29cb27cb8e5206b8d47cff511c3dc12698386722a214795dd352ea65c8f03b29",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete original-source review plus exact whole-declaration/body movement proof and current import/compatibility/typed-context/async cleanup review; authored new owners are not an independent second review.",
+      "prior_manual_sha256": null
+    },
+    {
+      "path": "backend/app/infrastructure/ai_priority/metrics_policy.py",
+      "sha256": "27402108289975bcaf115601e7d260402a3bb8c54f31f39ef81a849031f7ed28",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete original-source review plus exact whole-declaration/body movement proof and current import/compatibility/typed-context/async cleanup review; authored new owners are not an independent second review.",
+      "prior_manual_sha256": null
+    },
+    {
+      "path": "backend/app/infrastructure/ai_priority/metrics_redis.py",
+      "sha256": "858aab8f8a57603206d77b42535d3e3d2fac9390088ef3edb2c04151eaa2c8e0",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete original-source review plus exact whole-declaration/body movement proof and current import/compatibility/typed-context/async cleanup review; authored new owners are not an independent second review.",
+      "prior_manual_sha256": null
+    },
+    {
+      "path": "backend/app/infrastructure/ai_priority/metrics_resilient.py",
+      "sha256": "aa3ae27d6efa650a780f5613013d0cb1786414024ae5c3960d6896bae5c849ff",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete original-source review plus exact whole-declaration/body movement proof and current import/compatibility/typed-context/async cleanup review; authored new owners are not an independent second review.",
+      "prior_manual_sha256": null
+    },
+    {
+      "path": "backend/app/infrastructure/ai_priority/metrics_scripts.py",
+      "sha256": "cc25dcc0066df52ee96014736890a0604444eb73c85e65645d8adfe3978c887f",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete original-source review plus exact whole-declaration/body movement proof and current import/compatibility/typed-context/async cleanup review; authored new owners are not an independent second review.",
+      "prior_manual_sha256": null
+    },
+    {
+      "path": "backend/app/infrastructure/ai_priority/provider_metrics.py",
+      "sha256": "f6a5b456136d2c42a1e649335d1e12842884a810301ba360c123ce0d5cbb4071",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete original-source review plus exact whole-declaration/body movement proof and current import/compatibility/typed-context/async cleanup review; authored new owners are not an independent second review.",
+      "prior_manual_sha256": null
+    },
+    {
+      "path": "backend/app/infrastructure/ai_priority/redis_store.py",
+      "sha256": "d4ccbfb6910d73ad981ccd06b7153bb4fe14c6d8171aa1dd79acce5158b858f6",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete physical preflight read; unchanged current source.",
+      "prior_manual_sha256": "d4ccbfb6910d73ad981ccd06b7153bb4fe14c6d8171aa1dd79acce5158b858f6"
+    },
+    {
+      "path": "backend/app/infrastructure/ai_priority/retry.py",
+      "sha256": "5a0e7a5bfec2f0720e5cf8a9608584e8ae78603162d880c64b905d5bacc57a8e",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete physical preflight read; unchanged current source.",
+      "prior_manual_sha256": "5a0e7a5bfec2f0720e5cf8a9608584e8ae78603162d880c64b905d5bacc57a8e"
+    },
+    {
+      "path": "backend/app/infrastructure/ai_priority/runtime.py",
+      "sha256": "7de45950107ea9569db2ae365c0cc8c90983c5b0985d8c0b2b94278ead8ab19d",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete original-source review plus exact whole-declaration/body movement proof and current import/compatibility/typed-context/async cleanup review; authored new owners are not an independent second review.",
+      "prior_manual_sha256": "af1137c6f828eec0e6e3e64e9e0c524ee6646d21c38202aca1acdf7039d82f1f"
+    },
+    {
+      "path": "backend/app/infrastructure/ai_priority/state.py",
+      "sha256": "3f183ae70c49e4b37f6bea3ca356ae68831b471ff61f6f163ed972c2f8176124",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete physical preflight read; unchanged current source.",
+      "prior_manual_sha256": "3f183ae70c49e4b37f6bea3ca356ae68831b471ff61f6f163ed972c2f8176124"
+    },
+    {
+      "path": "backend/app/infrastructure/ai_priority/verification_admission.py",
+      "sha256": "682c540ce4b86a2f7024213d63533e5aa12cf5409967838c5b31ccd8e06eeb48",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete original-source review plus exact whole-declaration/body movement proof and current import/compatibility/typed-context/async cleanup review; authored new owners are not an independent second review.",
+      "prior_manual_sha256": null
+    },
+    {
+      "path": "backend/app/infrastructure/ai_priority/worker_healthcheck.py",
+      "sha256": "9abcd403552e07a0aa26075b00aa81b14c1fd6fa2dc80b9a046dd6bf9629a068",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete physical preflight read; unchanged current source.",
+      "prior_manual_sha256": "9abcd403552e07a0aa26075b00aa81b14c1fd6fa2dc80b9a046dd6bf9629a068"
+    },
+    {
+      "path": "backend/app/infrastructure/ai_priority/worker_readiness.py",
+      "sha256": "4768c464dead1fa83aa3842863a8bfe057826be558c68eb1180338160268a8ee",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete physical preflight read; unchanged current source.",
+      "prior_manual_sha256": "4768c464dead1fa83aa3842863a8bfe057826be558c68eb1180338160268a8ee"
+    },
+    {
+      "path": "backend/app/infrastructure/ai/passport_extraction_transport.py",
+      "sha256": "67b65e868f22310095e936bc9730a26222bcbc7d6a6c907f2e19a4470d7afc39",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Transport/registry complete preflight read; post-submission service prior complete ai-runtime-reviewed-files.json read plus reviewed current async transport block and entire module AST restoration for11total telemetry sites. No legacy OCR method retirement in this batch.",
+      "review_provenance": "ai-priority-preflight-reviewed-files.json"
+    },
+    {
+      "path": "backend/app/infrastructure/ai/gemini_post_submission_verification_service.py",
+      "sha256": "9578c2a93cfba8c1cfe10d0d0d1f0dc57169ff6dc39865615da4d0668ca98216",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Transport/registry complete preflight read; post-submission service prior complete ai-runtime-reviewed-files.json read plus reviewed current async transport block and entire module AST restoration for11total telemetry sites. No legacy OCR method retirement in this batch.",
+      "review_provenance": "ai-runtime-reviewed-files.json"
+    },
+    {
+      "path": "backend/app/infrastructure/observability/metrics.py",
+      "sha256": "62dbb6b6319c694293c59e0fb8a682c4ca4963c0a55cc79b13b531e11d5fd773",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Transport/registry complete preflight read; post-submission service prior complete ai-runtime-reviewed-files.json read plus reviewed current async transport block and entire module AST restoration for11total telemetry sites. No legacy OCR method retirement in this batch.",
+      "review_provenance": "ai-priority-preflight-reviewed-files.json"
+    }
+  ],
+  "full_count": 25,
+  "limits": "Current full-source review may reuse prior complete reads with explicit equivalence and current-delta provenance. All live Redis/load qualification and listed architecture follow-ups remain open."
+}

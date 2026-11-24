@@ -1,0 +1,129 @@
+{
+  "created_at_utc": "2026-10-30T19:59:32.050262+00:00",
+  "scope": "Dashboard delivered-authority/cache/request boundary and current WhatsApp core retirement; native mobile excluded",
+  "source_sha256": {
+    "frontend/lib/api/client.ts": "ebcb9e65f5a82b82bd122756c6e8126703ba7d1f7b2da94d6477debaa92a4bf2",
+    "frontend/lib/api/request-owner.ts": "dc504d23f73182988fa2d0093fb7954c57fa9a7118f6ce1859eb00df2fe54ac2",
+    "frontend/stores/auth.store.ts": "788cdfd0ed8072ce1191d863759bed359b3a38de35a0aeeb1cc744c3e11f58e9",
+    "frontend/features/auth/api/auth.api.ts": "6e52799fa4c0a18c887c26836402d3b7bd68273b08f5e0365bbbbc8165719abd",
+    "frontend/features/auth/services/cookie-mutation.ts": "fa1385adb965525afba57c42d1eab82d0967b9f3836956b462746be164ece6c7",
+    "frontend/features/auth/services/session-state.ts": "6f8077d093be0f9c9ecdb3340a18870802cb10c6e280b7d48c24d7bcf99330a8",
+    "frontend/features/auth/hooks/use-login.ts": "65572508ff77f60b03a3e8a1f7a8794e98704339558fa1f58e5846d4831d905e",
+    "frontend/features/auth/components/login-form.tsx": "120f01c6b2e036c0fce6d24fa8eeb4cf60ae0f9810354fe8f8ee60e92ff96040",
+    "frontend/features/auth/components/activation-form.tsx": "f6e68a6117d00370a247eaa7accace1f1c85fe258050e176ee230004446d664e",
+    "frontend/features/auth/components/password-recovery-forms.tsx": "2c962f815e3592b132ac56258d9855ef40ad9770ceb47536e6b4ebbeb98adc3a",
+    "frontend/features/auth/components/account-security-panel.tsx": "46c4dbdc716ff490bf7b74f43a4241270d56015d81b3dc7f7f9524acd975ecc4",
+    "frontend/features/auth/components/authenticated-content.tsx": "2a6b961e1c3aed8a9fce536a1a08aefe4f68a6699271581ad65c1e1aa1c76d4d",
+    "frontend/features/auth/components/login-session-entry.tsx": "7f2eff2df24000e730b93f7caf27520c4e0eb21cf693242351a28b6e55d8dc76",
+    "frontend/features/auth/components/step-up-dialog.tsx": "2f740545563210f4bd39d1a104d12c76c3b89dac2173f03d5600b3f4f0a4c0b8",
+    "frontend/features/auth/services/session-continuity.ts": "cdb69ae93f3884102bb475cb090e3f7fb796fe6e7b1cb87eced8106dda00ffcc",
+    "frontend/features/whatsapp/hooks/use-whatsapp.ts": "9a3a652af5257804a9f2d14b8187b6173c264bb4fa9104749f3122c57b352143",
+    "frontend/features/whatsapp/hooks/use-broadcast-queries.ts": "0e57a119c496b241c6aaaf3c0b149051dd8d191931c67a2ca6cf645e51817f19",
+    "frontend/features/whatsapp/hooks/use-broadcast-group-mutations.ts": "3503395d827fa977393de7b1f27757fd86c2a907fd4c866bf778c50c37851ca2",
+    "frontend/features/whatsapp/hooks/use-broadcast-recipient-mutations.ts": "8af3113f464e9af2714cf1f3c37f0388334415d21e8b6ae9366970de3e7eb880",
+    "frontend/features/whatsapp/hooks/whatsapp-query-keys.ts": "f7b290da19d3789f993577b78793a9147914efc3f497d88939cd78842e5e0f39",
+    "frontend/features/whatsapp/hooks/use-normal-send.ts": "09827e3d90d5c90fda0ec883f9db8f83d7d994c23b5cef20fc44b02cac1822a7",
+    "frontend/features/whatsapp/utils/normal-send-intent.ts": "e7f2723dac65b88d895a4d0ad8dd1e382f2c5521764231c3f3af8d6f97f4d40e",
+    "frontend/features/whatsapp/utils/normal-send-controller.ts": "de56ab80238925570dfd3634027b290b7e7c27ec65eea747a9c3b548d5fa5535",
+    "frontend/features/whatsapp/api/whatsapp.api.ts": "84e99b41be5828a72b493470a8369711df9f5b99d576cce92ccbbfea080d9742",
+    "frontend/features/whatsapp/api/broadcast-message-reads.api.ts": "5779eb626ff66762e44634648ab7373d9fa02d7c006d90d9e85f7bd4c1091407",
+    "frontend/features/whatsapp/api/broadcast-recipients.api.ts": "bc51975f3c593a583af4c06ee8ced64201923a083415f7b08ebd094a4d0ccfb5",
+    "frontend/features/whatsapp/types/messages.ts": "5a4a1bba0ac8315c5743b3f8796506c0f291673801aafb30574a7e92e79899cf",
+    "frontend/features/whatsapp/types/recipients.ts": "6ba6dafcee6334e15f99254bb01dc2eba7e36f03d819dda97451135535a68bc7",
+    "frontend/features/whatsapp/workspace/composer.api.ts": "a798e82dbef696894bf8e3af5bef093e0a4a500fd7fc039cd1a13070edb1d887",
+    "frontend/lib/api/endpoints.ts": "ba21978b83b0808062782562726df9d14eb3080f858f7b5078fd4e4febd51f34",
+    "frontend/hooks/use-private-mutation.ts": "0e282bc7638a1c404fd07936d5e267f05cdb9d4a66c25cb1e4074f9232820250"
+  },
+  "checks": [
+    {
+      "check": "All auth/lib-api/stores/shared private hook/WhatsApp current focused run before final fixture correction",
+      "artifact": "private-authority-combined-focused.json",
+      "artifact_sha256": "00e22aee10602235f957a220595bdcaec9cf4d49617b08b06be917c4eb5e697f",
+      "tests": 471,
+      "passed": 470,
+      "failed": 1,
+      "status": "superseded_fixture_failure"
+    },
+    {
+      "check": "Corrected sole missing-auth fixture file; no assertions removed",
+      "artifact": "private-authority-fixture-final.json",
+      "artifact_sha256": "f4886b213afceaef097c79697d86eaaccb37e7a76b7174ec50dc8df3fcc9c83a",
+      "tests": 16,
+      "passed": 16,
+      "failed": 0,
+      "status": "passed"
+    },
+    {
+      "check": "All42original safety behaviors ported onto actual composer before closed runtime removal",
+      "artifact": "whatsapp-current-send-port-before-retirement.json",
+      "artifact_sha256": "04217447645e08bf204f52904df7aef7850023084c55f87cc016c1b5d5f2bb2a",
+      "tests": 42,
+      "passed": 42,
+      "failed": 0,
+      "status": "passed"
+    },
+    {
+      "check": "Whole WhatsApp focused checkpoint after retirement and before final authority follow-up",
+      "artifact": "whatsapp-core-after-retirement.json",
+      "artifact_sha256": "8eb686d7a9f7dbdcbc06c71907f68126063486966fbdc3bdadbcc17b72c2e30d",
+      "tests": 219,
+      "passed": 219,
+      "failed": 0,
+      "status": "passed"
+    },
+    {
+      "check": "All current WhatsApp/auth Node contracts",
+      "status": "passed",
+      "tests": 81,
+      "artifact": "whatsapp-auth-final-node.txt",
+      "artifact_sha256": "10b1909b51101d1056f1ab9d43a264cb913f01069a1f2a432bf29255fb156055"
+    },
+    {
+      "check": "Actual compiled frontend auth/cookie modules in Chromium, synthetic loopback HTTP",
+      "status": "passed",
+      "scenarios": 11,
+      "artifact": "auth-cookie-application-browser.json",
+      "artifact_sha256": "e8a9a61c6db0d226595a05852cc34f59b3fdc891f405d8c3a61aa9f2d1b8e386"
+    },
+    {
+      "check": "Whole tsc --noEmit --pretty false and owned scoped ESLint",
+      "status": "passed",
+      "note": "Completed immediately before source freeze; parent running required integrated gates again"
+    },
+    {
+      "check": "Parent coordinated module budgets",
+      "status": "passed",
+      "modules": 268,
+      "note": "All prior live ceilings/floors retained; exact retired owners removed only after closed-chain proof"
+    }
+  ],
+  "expected_red": [
+    {
+      "artifact": "private-authority-before-fix.json",
+      "failed": 13,
+      "passed": 8
+    },
+    {
+      "artifact": "account-security-invocation-before-fix.json",
+      "failed": 1,
+      "passed": 6
+    }
+  ],
+  "behavior": [
+    "setSession uses previous in-memory effective authority even if shared owner marker already changed or storage is denied; local query cache clears, same-authority profile/rotation retains drafts",
+    "Owner-bound adapter and chained helper preserve local [user,role,agency] across async dispatch/response/retry; subscriber aborts without throwing inside store notification",
+    "Private password and current WhatsApp mutations capture invocation before TanStack global/local onMutate; stale success cannot inject old private data after cache reset",
+    "Dead frontend-only legacy WhatsApp hook/API/type/endpoint aliases retired after canonical named/type/computed/facade-escape closure and42-case live safety port",
+    "447-line hook split into11-line compatibility facade and focused query/group/recipient owners; original payload/idempotency/privacy/consent behavior preserved"
+  ],
+  "retirement_manifest": "whatsapp-core-retired-files.json",
+  "limits": [
+    "Combined focused run is470/471 plus corrected sole fixture file16/16 separately passed; parent integrated whole coverage is required for a combined all-pass claim",
+    "Actual Chromium probe executes actual compiled frontend module transport with synthetic HTTP; full emitted Next UI/browser checkpoint is separate",
+    "Authority continuity applies when a transition is delivered to the local auth store; no instantaneous undelivered cross-tab account/access convergence claim",
+    "Backend expected actor header remains user-only rejection precondition, never a role/agency grant or schema/config change",
+    "No claim about real PostgreSQL/Redis/S3/provider integration or deployed release qualification",
+    "Durable unsynced attendance rows/claim retryability were not purged; existing selective cache cleanup and owner policy retained",
+    "AccountSecurityPanel clipboard rejection and remaining large operations/queue responsibilities remain open; whole-dashboard audit is not complete"
+  ]
+}

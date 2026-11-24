@@ -1,7 +1,7 @@
-"""Retained Fast rollout for the exact 0140 to 0141 branding additions.
+"""Retained Fast rollout for the exact 0140/0141 to 0142 branding additions.
 
 All historical resources survive. A fenced backup and original row/catalog/ACL
-baseline precede DDL. Once 0141 commits, recovery only starts validated 0141
+baseline precede DDL. Once the first revision commits, recovery only starts validated target-schema
 candidates; it never restarts a source-schema writer or downgrades data.
 """
 from __future__ import annotations
@@ -16,12 +16,21 @@ from mcp_direct_build import command
 from mcp_direct_release import bound_original
 from mcp_direct_state import APPLICATION, INFRASTRUCTURE, WORKERS
 from release_code_update import environment
-from release_companies_credentials import prepare_migration_credentials, preflight_migration_credentials
+from release_companies_credentials import (
+    preflight_migration_credentials,
+    prepare_migration_credentials,
+)
 from release_companies_runtime import bound_migration_helper, run_migration_helper
 from release_mcp_database import digest_json
 from release_reliability import file_sha256
 from release_retained_update import ACTIVE, RetainedUpdate, require
-from release_workspace_branding_contract import SOURCE, TARGET, source_contract
+from release_workspace_branding_contract import (
+    BASELINES,
+    CHAIN,
+    SOURCE,
+    TARGET,
+    source_contract,
+)
 from release_workspace_branding_policy import validate_source
 
 
@@ -30,7 +39,13 @@ class WorkspaceBrandingUpdate(RetainedUpdate):
     installed = False
 
     def initial_schema(self) -> str:
-        return TARGET if getattr(self, 'installed', False) else SOURCE
+        if getattr(self, 'installed', False):
+            return TARGET
+        record = getattr(self, 'record', {})
+        baseline = record.get('branding_baseline') or record.get('branding_rehearsal') or {}
+        source = getattr(self, 'source_schema', baseline.get('source_schema', SOURCE))
+        require(source in BASELINES, 'unsupported_live_branding_schema')
+        return source
 
     def retention_schema(self) -> str:
         return self.record.get('schema', self.initial_schema())
@@ -38,7 +53,7 @@ class WorkspaceBrandingUpdate(RetainedUpdate):
     def compatibility(self, previous: str) -> None:
         if getattr(self, 'installed', False):
             return super().compatibility(previous)
-        validate_source(self.source, previous, self.revision)
+        validate_source(self.source, previous, self.revision, self.initial_schema())
 
     def prepare_images(self) -> None:
         if not self.installed:
@@ -55,7 +70,8 @@ class WorkspaceBrandingUpdate(RetainedUpdate):
                 receipt = self.directory / 'branding-migration-rehearsal.json'
                 command(sys.executable, '-B', str(self.source / 'scripts/qa/qualify_branding_migration.py'),
                         '--image', images['backend'], '--revision', self.revision,
-                        '--postgres-image', self.record['live']['db']['Image'], '--output', str(receipt), timeout=1800)
+                        '--postgres-image', self.record['live']['db']['Image'], '--output', str(receipt),
+                        '--source-schema', self.initial_schema(), timeout=1800)
                 self.event('branding-migration-rehearsed', branding_rehearsal=json.loads(receipt.read_text()),
                            branding_rehearsal_sha256=hashlib.sha256(receipt.read_bytes()).hexdigest())
         # Redis health keys can survive a restart. Do not immediately TERM a
@@ -110,8 +126,8 @@ class WorkspaceBrandingUpdate(RetainedUpdate):
         require(proof == self.record['branding_rehearsal'] and proof.get('status') == 'passed'
                 and proof.get('source_revision') == self.revision
                 and proof.get('backend_image_id') == self.record['image_ids']['backend']
-                and proof.get('source_contract_sha256') == digest_json(source_contract(self.source))
-                and proof.get('source_schema') == SOURCE and proof.get('target_schema') == TARGET
+                and proof.get('source_contract_sha256') == digest_json(source_contract(self.source, self.initial_schema()))
+                and proof.get('source_schema') == self.initial_schema() and proof.get('target_schema') == TARGET
                 and proof.get('full_ci_qualified') is False and proof.get('owned_resources_removed') is True
                 and proof.get('checks') == CHECKS, 'bound_branding_rehearsal_required')
 
@@ -121,7 +137,7 @@ class WorkspaceBrandingUpdate(RetainedUpdate):
         self.verify_evidence()
         self.verify_fence()
         if 'backup' not in self.record:
-            require(self.schema() == SOURCE, 'original_backup_required')
+            require(self.schema() == self.initial_schema(), 'original_backup_required')
             super().backup()
             path = Path(self.record['backup'])
             self.event('branding-fenced-backup', backup_sha256=file_sha256(path))
@@ -129,31 +145,31 @@ class WorkspaceBrandingUpdate(RetainedUpdate):
         require(path == self.directory / 'pre-release.dump'
                 and file_sha256(path) == self.record['backup_sha256'], 'original_backup_changed')
         proof = digest_json({'revision': self.revision, 'image_ids': self.record['image_ids'],
-                             'contract': source_contract(self.source), 'backup_sha256': self.record['backup_sha256']})
+                             'contract': source_contract(self.source, self.initial_schema()), 'backup_sha256': self.record['backup_sha256']})
         request = {'image_id': self.record['image_ids']['backend'], 'proof': {'sha256': proof}, 'timeout': 1800,
                    'environment': {'MCP_RELEASE_PROOF_SHA256': proof},
                    'arguments': ('python', 'scripts/release_workspace_branding_upgrade.py', '--contract-json',
-                                 json.dumps(source_contract(self.source), sort_keys=True))}
+                                 json.dumps(source_contract(self.source, self.initial_schema()), sort_keys=True))}
         if self.record.get('database_validation') == proof:
             require(self.schema() == TARGET, 'validated_branding_schema_changed')
             return
         baseline = self.record.get('branding_baseline')
         if baseline is None:
-            require(self.schema() == SOURCE, 'original_branding_baseline_required')
+            require(self.schema() == self.initial_schema(), 'original_branding_baseline_required')
             baseline = run_migration_helper(self, {**request, 'arguments': (*request['arguments'], '--capture-baseline')})
             self.event('branding-baseline-captured', branding_baseline=baseline)
         require(baseline.get('status') == 'baseline_captured' and baseline.get('release_proof_sha256') == proof
-                and baseline.get('source_schema') == SOURCE and baseline.get('target_schema') == TARGET,
+                and baseline.get('source_schema') == self.initial_schema() and baseline.get('target_schema') == TARGET,
                 'branding_baseline_binding_changed')
         request['environment']['MCP_RELEASE_BASELINE_SHA256'] = baseline['preservation_sha256']
         # A helper can commit before the host receives its result. Permit only
-        # SOURCE/TARGET in retention while it runs, and retain that state durably.
+        # Every reviewed checkpoint in retention while it runs, and retain that state durably.
         self.event('branding-migration-starting', migration_in_progress=True)
         result = run_migration_helper(self, request)
         require(result.get('status') in {'upgraded', 'already_at_target'}
                 and result.get('release_proof_sha256') == proof
                 and result.get('preservation_sha256') == baseline['preservation_sha256']
-                and result.get('source_schema') == SOURCE and result.get('target_schema') == TARGET
+                and result.get('source_schema') == self.initial_schema() and result.get('target_schema') == TARGET
                 and result.get('new_columns_null') is True and result.get('runtime_grants_verified') is True
                 and result.get('automatic_downgrade') is False and self.schema() == TARGET,
                 'complete_branding_migration_validation_required')
@@ -161,7 +177,7 @@ class WorkspaceBrandingUpdate(RetainedUpdate):
 
     def retention(self) -> None:
         if self.record.get('migration_in_progress'):
-            require(self.schema() in {SOURCE, TARGET}, 'unexpected_branding_schema')
+            require(self.schema() in {self.initial_schema(), *CHAIN}, 'unexpected_branding_schema')
             self.record['schema'] = self.schema()
         super().retention()
 
@@ -171,11 +187,11 @@ class WorkspaceBrandingUpdate(RetainedUpdate):
         # A timed-out helper may still be applying DDL. Observe it first.
         for helper in self.record.get('migration_helpers', []):
             require(not bound_migration_helper(helper)['State']['Running'], 'migration_helper_still_running')
-        if self.schema() == SOURCE:
-            self.record.update(schema=SOURCE, migration_in_progress=False)
+        if self.schema() == self.initial_schema():
+            self.record.update(schema=self.initial_schema(), migration_in_progress=False)
             return super().recover()
-        require(self.schema() == TARGET, 'unexpected_branding_schema')
-        self.event('branding-forward-recovery', schema=TARGET, migration_in_progress=True)
+        require(self.schema() in CHAIN, 'unexpected_branding_schema')
+        self.event('branding-forward-recovery', schema=self.schema(), migration_in_progress=True)
         for name in ('nginx', 'email-beat', 'backend', 'frontend', *WORKERS):
             self.fence_candidate(self.record['candidates'][name])
             self.stop(bound_original(self.record['live'][name]))
@@ -196,7 +212,8 @@ class WorkspaceBrandingUpdate(RetainedUpdate):
         backend = [row for row in self.rows() if row['Config']['Labels'].get('com.docker.compose.service') == 'backend']
         require(len(backend) == 1, 'ambiguous_running_backend')
         current = environment(backend[0]).get('EXPECTED_DATABASE_SCHEMA_REVISION')
-        require(current in {SOURCE, TARGET}, 'unsupported_live_branding_schema')
+        require(current in {*BASELINES, TARGET}, 'unsupported_live_branding_schema')
+        self.source_schema = current
         self.installed = current == TARGET
         from release_pdf_checking_profile import LABEL, PROFILE
         if backend[0]['Config']['Labels'].get(LABEL) == PROFILE:

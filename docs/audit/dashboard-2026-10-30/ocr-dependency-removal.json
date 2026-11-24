@@ -1,0 +1,57 @@
+{
+  "runtime": {
+    "before_packages": 128,
+    "after_packages": 109,
+    "removed": [
+      "contourpy",
+      "cycler",
+      "fonttools",
+      "imageio",
+      "joblib",
+      "kiwisolver",
+      "lazy-loader",
+      "matplotlib",
+      "narwhals",
+      "networkx",
+      "passporteye",
+      "pdfminer",
+      "pycryptodome",
+      "pyparsing",
+      "scikit-image",
+      "scikit-learn",
+      "scipy",
+      "threadpoolctl",
+      "tifffile"
+    ],
+    "added": [],
+    "version_changes": {},
+    "retained_hashes_changed": []
+  },
+  "development": {
+    "before_packages": 164,
+    "after_packages": 146,
+    "removed": [
+      "contourpy",
+      "cycler",
+      "fonttools",
+      "imageio",
+      "joblib",
+      "kiwisolver",
+      "lazy-loader",
+      "matplotlib",
+      "narwhals",
+      "networkx",
+      "passporteye",
+      "pdfminer",
+      "pycryptodome",
+      "scikit-image",
+      "scikit-learn",
+      "scipy",
+      "threadpoolctl",
+      "tifffile"
+    ],
+    "added": [],
+    "version_changes": {},
+    "retained_hashes_changed": []
+  }
+}

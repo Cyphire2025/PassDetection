@@ -1,3 +1,5 @@
+import { readDocumentWorkspaceSource } from "../../documents/components/document-workspace-source.contract-helper.mjs";
+import { readDocumentRenameSource } from "../../documents/components/document-rename-source.contract-helper.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -11,31 +13,33 @@ const sharedUi = read("../../../components/shared/workspace-ui.tsx");
 const intentLink = read("../../../components/shared/intent-prefetch-link.tsx");
 const modalUi = read("../../../components/ui/modal.tsx");
 const dashboard = read("./dashboard-overview.tsx");
-const groupList = read("../../passports/components/passport-list.tsx");
+import { passportListSource as groupList } from "../../passports/components/passport-list-source.contract-helper.mjs";
 import { passportGroupDetailSource as groupWorkspace } from "../../passports/components/passport-group-detail-source.contract-helper.mjs";
-const passengerWorkspace = read("../../passports/components/passport-detail.tsx");
-const groupWhatsApp = read(
-  "../../passports/components/group-whatsapp-broadcast-panel.tsx",
-) + read("../../passports/components/group-whatsapp-tracking-table.tsx");
-const groupLinks = read("../../passports/components/upload-link-list.tsx")
+const passengerWorkspace = [
+  "passport-detail.tsx", "passport-detail-header.tsx", "use-passport-detail-controller.ts",
+  "passport-review-card.tsx", "use-passport-field-review.ts", "passport-review-model.ts",
+].map((name) => read(`../../passports/components/${name}`)).join("\n");
+import { groupWhatsAppSource as groupWhatsApp } from "../../passports/components/group-whatsapp-source.contract-helper.mjs";
+import { uploadLinkListSource } from "../../passports/components/upload-link-list-source.contract-helper.mjs";
+const groupLinks = uploadLinkListSource
   + read("../../passports/components/edit-group-dialog.tsx");
 const whatsappRoute = read("../../whatsapp/components/whatsapp-page.tsx");
-const whatsappWorkspace = read(
-  "../../whatsapp/components/whatsapp-workspace.tsx",
-) + read("../../whatsapp/components/whatsapp-broadcast-list.tsx");
+const whatsappWorkspace = read("../../whatsapp/workspace/broadcast-index.tsx");
 const documentHub = read("../../documents/components/document-hub.tsx");
 const documentGroups = read(
   "../../documents/components/document-group-list.tsx",
 );
-const documentRename = read(
-  "../../documents/components/document-rename-page.tsx",
-);
-const documentWorkspace = read(
-  "../../documents/components/document-workspace.tsx",
-);
+const documentRename = readDocumentRenameSource();
+const documentWorkspace = readDocumentWorkspaceSource();
 const menu = read("../../menu/components/menu-page.tsx");
-const settings = read("../../settings/components/dashboard-settings-page.tsx") + read("../../settings/components/platform-settings-panel.tsx");
-const auditLogs = read("../../../app/(dashboard)/audit-logs/page.tsx");
+const settings = [
+  "components/dashboard-settings-page.tsx", "components/platform-settings-panel.tsx",
+  "components/platform-policy-section.tsx", "components/platform-data-section.tsx",
+  "hooks/use-platform-settings.ts", "hooks/use-platform-data-purge.ts",
+].map((name) => read(`../../settings/${name}`)).join("\n");
+const auditLogs = ["../audit-logs/components/audit-ledger-page.tsx", "../audit-logs/components/audit-filter-controls.tsx",
+  "../audit-logs/components/audit-ledger-rows.tsx", "../audit-logs/hooks/use-audit-ledger.ts", "../audit-logs/audit-filter-model.ts"]
+  .map(file => read(`../${file}`)).join("\n");
 const analytics = read("../../../app/(dashboard)/analytics/page.tsx");
 const roomingGroups = read(
   "../../operations/components/rooming-groups-page.tsx",
@@ -106,7 +110,6 @@ test("requested dashboard routes share a compact enterprise workspace system", (
     passengerWorkspace,
     groupWhatsApp,
     groupLinks,
-    whatsappWorkspace,
     documentHub,
     documentGroups,
     documentRename,
@@ -178,13 +181,12 @@ test("Menu uses a complete keyboard-operable tab pattern", () => {
 });
 
 test("operational tables recompose for narrow screens instead of only shrinking", () => {
-  for (const source of [dashboard, groupLinks, whatsappWorkspace, auditLogs]) {
+  for (const source of [dashboard, groupLinks, auditLogs]) {
     assert.match(source, /md:hidden/);
     assert.match(source, /hidden overflow-x-auto md:block/);
   }
   assert.match(groupLinks, /contentVisibility: "auto"/);
-  assert.match(whatsappWorkspace, /const PAGE_SIZE = 20/);
-  assert.match(whatsappWorkspace, /groups\.slice\(offset, offset \+ PAGE_SIZE\)/);
+
 });
 
 test("dense operational tables expose screen-reader context and scoped columns", () => {
@@ -194,7 +196,6 @@ test("dense operational tables expose screen-reader context and scoped columns",
     groupWorkspace,
     groupWhatsApp,
     groupLinks,
-    whatsappWorkspace,
     documentRename,
     documentWorkspace,
     auditLogs,
@@ -235,4 +236,16 @@ test("Rooming, Tour Ops and GC App delegate to the shared enterprise header", ()
   assert.match(operationsUi, /return\s*\(?\s*<WorkspacePageHeader[\s\S]*?title=\{title\}[\s\S]*?actions=\{actions\}/);
   assert.doesNotMatch(roomingGroups, /tone="blue"/);
   assert.doesNotMatch(roomingWorkspace, /tone="blue"/);
+});
+
+// The routed WhatsApp workspace predates this audit and uses its own responsive
+// table system. Bind its contracts to that live owner rather than retired cards.
+test("the current WhatsApp index has a responsive header, bounded rows and recoverable search", () => {
+  assert.match(whatsappWorkspace, /<h1 className=/);
+  assert.match(whatsappWorkspace, /<header className="flex flex-wrap/);
+  assert.match(whatsappWorkspace, /<WorkspaceSearch/);
+  assert.match(whatsappWorkspace, /<WorkspacePagination/);
+  assert.match(whatsappWorkspace, /className="overflow-x-auto"/);
+  assert.match(whatsappWorkspace, /groups\.slice\(pageOffset, pageOffset \+ 20\)/);
+  assert.match(whatsappWorkspace, /source\.refetch\(\)/);
 });

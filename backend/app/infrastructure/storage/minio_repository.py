@@ -289,10 +289,16 @@ class MinioStorageRepository(IObjectStorageRepository):
         start: int,
         expected_bytes: int,
         chunk_size: int = 64 * 1024,
+        end: int | None = None,
     ) -> AsyncIterator[bytes]:
         """Stream an exact bounded range while keeping worker memory constant."""
 
-        if start < 0 or expected_bytes < 1 or chunk_size < 1024:
+        if (
+            start < 0
+            or expected_bytes < 1
+            or chunk_size < 1024
+            or (end is not None and end != start + expected_bytes - 1)
+        ):
             raise ValueError("Invalid object stream bounds")
         body: Any | None = None
         try:
@@ -300,7 +306,7 @@ class MinioStorageRepository(IObjectStorageRepository):
                 self._client.get_object,
                 Bucket=self.settings.bucket_name,
                 Key=key,
-                Range=f"bytes={start}-",
+                Range=f"bytes={start}-{end}" if end is not None else f"bytes={start}-",
             )
             body = response["Body"]
             content_length = response.get("ContentLength")

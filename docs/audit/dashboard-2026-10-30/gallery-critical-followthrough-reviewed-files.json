@@ -1,0 +1,122 @@
+[
+  {
+    "path": "backend/app/infrastructure/my_photos/gallery_ingestion.py",
+    "sha256": "b657e77f97acc158ba29bd582273a4e053fa0f1a384e914c7f150f22ca52c5e5",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Complete original source review plus authored and reviewed current owner/import/type-context wiring. 46 declarations remain exact after explicit typed-context/docstring normalization; two separate tested changes own/drain provider siblings and give terminal manifest cancellation precedence over historical failed job status. Original constructor/four public wrapper bodies and signatures are retained in a focused composition owner. Four JSON schemas, ordered dataclasses, legacy namespace/type hints/pickle paths are preserved. Fresh103 affected cases and all15 per-owner75line/53branch critical obligations pass. Unchanged original bodies are attributed through equivalence, not presented as a second independent physical review. No provider/cloud/PostgreSQL qualification inferred."
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/gallery_manifest_cancellation.py",
+    "sha256": "5b7985cc2b14a39088f2d9e15a8f92b19dc396481a7afe4a8e89109b341803aa",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Complete original source review plus authored and reviewed current owner/import/type-context wiring. 46 declarations remain exact after explicit typed-context/docstring normalization; two separate tested changes own/drain provider siblings and give terminal manifest cancellation precedence over historical failed job status. Original constructor/four public wrapper bodies and signatures are retained in a focused composition owner. Four JSON schemas, ordered dataclasses, legacy namespace/type hints/pickle paths are preserved. Fresh103 affected cases and all15 per-owner75line/53branch critical obligations pass. Unchanged original bodies are attributed through equivalence, not presented as a second independent physical review. No provider/cloud/PostgreSQL qualification inferred."
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/gallery_manifest_cleanup.py",
+    "sha256": "69a007bc2f7edf6fba14dbf01a626ac4354f03dbea2eb31a2c324f0188425f1b",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Complete original source review plus authored and reviewed current owner/import/type-context wiring. 46 declarations remain exact after explicit typed-context/docstring normalization; two separate tested changes own/drain provider siblings and give terminal manifest cancellation precedence over historical failed job status. Original constructor/four public wrapper bodies and signatures are retained in a focused composition owner. Four JSON schemas, ordered dataclasses, legacy namespace/type hints/pickle paths are preserved. Fresh103 affected cases and all15 per-owner75line/53branch critical obligations pass. Unchanged original bodies are attributed through equivalence, not presented as a second independent physical review. No provider/cloud/PostgreSQL qualification inferred."
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/gallery_manifest_context.py",
+    "sha256": "13962075ff5d9f37d59f204a2bd541f4e82d60b162a0a1bade6abb7f4a1bd43e",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Complete original source review plus authored and reviewed current owner/import/type-context wiring. 46 declarations remain exact after explicit typed-context/docstring normalization; two separate tested changes own/drain provider siblings and give terminal manifest cancellation precedence over historical failed job status. Original constructor/four public wrapper bodies and signatures are retained in a focused composition owner. Four JSON schemas, ordered dataclasses, legacy namespace/type hints/pickle paths are preserved. Fresh103 affected cases and all15 per-owner75line/53branch critical obligations pass. Unchanged original bodies are attributed through equivalence, not presented as a second independent physical review. No provider/cloud/PostgreSQL qualification inferred."
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/gallery_manifest_contracts.py",
+    "sha256": "32741f69e2257347172fe3e6d30f67156ed3f8aae7f0fc84120ce2dd9bf8069f",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Complete original source review plus authored and reviewed current owner/import/type-context wiring. 46 declarations remain exact after explicit typed-context/docstring normalization; two separate tested changes own/drain provider siblings and give terminal manifest cancellation precedence over historical failed job status. Original constructor/four public wrapper bodies and signatures are retained in a focused composition owner. Four JSON schemas, ordered dataclasses, legacy namespace/type hints/pickle paths are preserved. Fresh103 affected cases and all15 per-owner75line/53branch critical obligations pass. Unchanged original bodies are attributed through equivalence, not presented as a second independent physical review. No provider/cloud/PostgreSQL qualification inferred."
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/gallery_manifest_finalization.py",
+    "sha256": "d559954084fbc13f884bee9b734f51f415b7a23d363439199a8e2b8283d7be36",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Complete original source review plus authored and reviewed current owner/import/type-context wiring. 46 declarations remain exact after explicit typed-context/docstring normalization; two separate tested changes own/drain provider siblings and give terminal manifest cancellation precedence over historical failed job status. Original constructor/four public wrapper bodies and signatures are retained in a focused composition owner. Four JSON schemas, ordered dataclasses, legacy namespace/type hints/pickle paths are preserved. Fresh103 affected cases and all15 per-owner75line/53branch critical obligations pass. Unchanged original bodies are attributed through equivalence, not presented as a second independent physical review. No provider/cloud/PostgreSQL qualification inferred."
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/gallery_manifest_fingerprints.py",
+    "sha256": "ebd0dafd7459736a204e311ff4476bf5350e976b11555638671a6d5b48d52d4d",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Complete original source review plus authored and reviewed current owner/import/type-context wiring. 46 declarations remain exact after explicit typed-context/docstring normalization; two separate tested changes own/drain provider siblings and give terminal manifest cancellation precedence over historical failed job status. Original constructor/four public wrapper bodies and signatures are retained in a focused composition owner. Four JSON schemas, ordered dataclasses, legacy namespace/type hints/pickle paths are preserved. Fresh103 affected cases and all15 per-owner75line/53branch critical obligations pass. Unchanged original bodies are attributed through equivalence, not presented as a second independent physical review. No provider/cloud/PostgreSQL qualification inferred."
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/gallery_manifest_persistence.py",
+    "sha256": "bc6e4c8f4ee9a610bb173075fc35d60166220df26373fb3a72821a6d1b903c56",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Complete original source review plus authored and reviewed current owner/import/type-context wiring. 46 declarations remain exact after explicit typed-context/docstring normalization; two separate tested changes own/drain provider siblings and give terminal manifest cancellation precedence over historical failed job status. Original constructor/four public wrapper bodies and signatures are retained in a focused composition owner. Four JSON schemas, ordered dataclasses, legacy namespace/type hints/pickle paths are preserved. Fresh103 affected cases and all15 per-owner75line/53branch critical obligations pass. Unchanged original bodies are attributed through equivalence, not presented as a second independent physical review. No provider/cloud/PostgreSQL qualification inferred."
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/gallery_manifest_policy.py",
+    "sha256": "d7ad70a7bb06e670a3f0548cad0a1d2082277cc13d19cb126efef4e09947149a",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Complete original source review plus authored and reviewed current owner/import/type-context wiring. 46 declarations remain exact after explicit typed-context/docstring normalization; two separate tested changes own/drain provider siblings and give terminal manifest cancellation precedence over historical failed job status. Original constructor/four public wrapper bodies and signatures are retained in a focused composition owner. Four JSON schemas, ordered dataclasses, legacy namespace/type hints/pickle paths are preserved. Fresh103 affected cases and all15 per-owner75line/53branch critical obligations pass. Unchanged original bodies are attributed through equivalence, not presented as a second independent physical review. No provider/cloud/PostgreSQL qualification inferred."
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/gallery_manifest_providers.py",
+    "sha256": "924f7e0141c0eccb2702fb103ec5ec52d901f51d3300f182f902376643fc0a47",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Complete original source review plus authored and reviewed current owner/import/type-context wiring. 46 declarations remain exact after explicit typed-context/docstring normalization; two separate tested changes own/drain provider siblings and give terminal manifest cancellation precedence over historical failed job status. Original constructor/four public wrapper bodies and signatures are retained in a focused composition owner. Four JSON schemas, ordered dataclasses, legacy namespace/type hints/pickle paths are preserved. Fresh103 affected cases and all15 per-owner75line/53branch critical obligations pass. Unchanged original bodies are attributed through equivalence, not presented as a second independent physical review. No provider/cloud/PostgreSQL qualification inferred."
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/gallery_manifest_queries.py",
+    "sha256": "361c4521a8df1c8b55a8e7a68ba6886558f8b46958b288f6cebfebcf7d5069a8",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Complete original source review plus authored and reviewed current owner/import/type-context wiring. 46 declarations remain exact after explicit typed-context/docstring normalization; two separate tested changes own/drain provider siblings and give terminal manifest cancellation precedence over historical failed job status. Original constructor/four public wrapper bodies and signatures are retained in a focused composition owner. Four JSON schemas, ordered dataclasses, legacy namespace/type hints/pickle paths are preserved. Fresh103 affected cases and all15 per-owner75line/53branch critical obligations pass. Unchanged original bodies are attributed through equivalence, not presented as a second independent physical review. No provider/cloud/PostgreSQL qualification inferred."
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/gallery_manifest_registration.py",
+    "sha256": "fe7a14da11c196eb6be3f18b58c2e1704fde8bc30f5b92cf3f1fb97ea2d3319f",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Complete original source review plus authored and reviewed current owner/import/type-context wiring. 46 declarations remain exact after explicit typed-context/docstring normalization; two separate tested changes own/drain provider siblings and give terminal manifest cancellation precedence over historical failed job status. Original constructor/four public wrapper bodies and signatures are retained in a focused composition owner. Four JSON schemas, ordered dataclasses, legacy namespace/type hints/pickle paths are preserved. Fresh103 affected cases and all15 per-owner75line/53branch critical obligations pass. Unchanged original bodies are attributed through equivalence, not presented as a second independent physical review. No provider/cloud/PostgreSQL qualification inferred."
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/gallery_manifest_results.py",
+    "sha256": "701d3ee1ff1bc2e6374ca796536e0d3a8a9fa73e4e89edcf8fdb6a8a8bb1f0ff",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Complete original source review plus authored and reviewed current owner/import/type-context wiring. 46 declarations remain exact after explicit typed-context/docstring normalization; two separate tested changes own/drain provider siblings and give terminal manifest cancellation precedence over historical failed job status. Original constructor/four public wrapper bodies and signatures are retained in a focused composition owner. Four JSON schemas, ordered dataclasses, legacy namespace/type hints/pickle paths are preserved. Fresh103 affected cases and all15 per-owner75line/53branch critical obligations pass. Unchanged original bodies are attributed through equivalence, not presented as a second independent physical review. No provider/cloud/PostgreSQL qualification inferred."
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/gallery_manifest_service.py",
+    "sha256": "ce540ff8b5fcfb9cb07c5b6c7d2b5837ce6243cf147061471350fd0832746eb1",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Complete original source review plus authored and reviewed current owner/import/type-context wiring. 46 declarations remain exact after explicit typed-context/docstring normalization; two separate tested changes own/drain provider siblings and give terminal manifest cancellation precedence over historical failed job status. Original constructor/four public wrapper bodies and signatures are retained in a focused composition owner. Four JSON schemas, ordered dataclasses, legacy namespace/type hints/pickle paths are preserved. Fresh103 affected cases and all15 per-owner75line/53branch critical obligations pass. Unchanged original bodies are attributed through equivalence, not presented as a second independent physical review. No provider/cloud/PostgreSQL qualification inferred."
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/gallery_manifest_status.py",
+    "sha256": "73b770fe01fda889d2d7def31cea42144b40619c9dcf98c28f857ef01cef7b71",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Complete original source review plus authored and reviewed current owner/import/type-context wiring. 46 declarations remain exact after explicit typed-context/docstring normalization; two separate tested changes own/drain provider siblings and give terminal manifest cancellation precedence over historical failed job status. Original constructor/four public wrapper bodies and signatures are retained in a focused composition owner. Four JSON schemas, ordered dataclasses, legacy namespace/type hints/pickle paths are preserved. Fresh103 affected cases and all15 per-owner75line/53branch critical obligations pass. Unchanged original bodies are attributed through equivalence, not presented as a second independent physical review. No provider/cloud/PostgreSQL qualification inferred."
+  }
+]

@@ -1,0 +1,48 @@
+{
+  "records": [
+    {
+      "path": "frontend/features/passports/components/upload-link-settings.tsx",
+      "sha256": "e59b417f5e02aa82b04d2cfd096badea8cb8dade47de5e4c40ed6fd4286eaae2",
+      "physical_lines": 223,
+      "max_function_complexity": 13,
+      "review_scope": "full",
+      "status": "reviewed-and-restructured",
+      "review_method": "Original310-line settings source fully read in the remaining19 checkpoint; complete model declarations and current import/reexport wiring read. Both UI function declarations remain AST-identical, with exact original source hash bound to the movement proof."
+    },
+    {
+      "path": "frontend/features/passports/components/upload-link-settings-model.ts",
+      "sha256": "3dc2cb460261f616c2ef05c79e90f48c9ebbbeec7c17c6638519efa35b71ceaa",
+      "physical_lines": 89,
+      "max_function_complexity": 25,
+      "review_scope": "full",
+      "status": "reviewed-and-restructured",
+      "review_method": "Original310-line settings source fully read in the remaining19 checkpoint; complete model declarations and current import/reexport wiring read. Both UI function declarations remain AST-identical, with exact original source hash bound to the movement proof."
+    }
+  ],
+  "proofs": {
+    "unit": {
+      "files": 3,
+      "cases": 60,
+      "passed": 60,
+      "path": ".tmp/upload-link-settings-final-unit.json"
+    },
+    "node": {
+      "cases": 8,
+      "passed": 8,
+      "path": ".tmp/upload-link-settings-contracts.txt"
+    },
+    "types": "passed",
+    "scoped_eslint": "passed2files, zero warnings",
+    "movement": {
+      "declarations": 5,
+      "exact_AST": true,
+      "path": "docs/audit/dashboard-2026-10-30/upload-link-settings-movement-proof.json"
+    }
+  },
+  "scope": "Pure responsibility extraction: settings defaults/normalization/validation and types move to a model; existing UI behavior and stable imports/reexports remain. ECR/address lock, optional/required settings, languages, relationship defaults, city limits and schema checks unchanged.",
+  "remaining_original_oversized_owners": 4,
+  "limitations": [
+    "No new product behavior change claimed.",
+    "No whole application build/suite repeated; meaningful existing60settings/creation/schema cases verify the affected contract."
+  ]
+}

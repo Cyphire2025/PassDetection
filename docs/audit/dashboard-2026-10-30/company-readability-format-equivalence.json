@@ -1,0 +1,68 @@
+{
+  "basis": "Pure formatting only, after intentional mutation guard changes. Exact emitted JavaScript AST with React automatic JSX runtime; source positions/comments/parentheses excluded. JSX child text values and executable/import order retained.",
+  "files": [
+    {
+      "path": "frontend/features/companies/components/company-all-data.tsx",
+      "before_sha256": "3eea431d6b6a293e387ad21ecd3f2d85d4ebba659eba5069d82b3410a2e94f8c",
+      "after_sha256": "4f5bfe4238179fc94bcfb596014a6e272d9045c8e6483ed650259c53ef5de152",
+      "emitted_JS_AST_sha256": "4b033fe45aa901638a2e53fcb858a645aaf987e0fd6698117bea71da4b1355f2",
+      "jsx_text_and_runtime_body_preserved": true
+    },
+    {
+      "path": "frontend/features/companies/components/company-directory.tsx",
+      "before_sha256": "cd318567d8cea4d4a9ea895b4027cfdcad6fde091a464a37d2a6970275d1b1a0",
+      "after_sha256": "df0c6bfc8c6aa45129f76c77d3693c4d8ef1544055d2c00915a94ad4606e32c1",
+      "emitted_JS_AST_sha256": "f484a9735d398af441421b0ba0d782ada87227d37c68bb6ae6e075c221231d70",
+      "jsx_text_and_runtime_body_preserved": true
+    },
+    {
+      "path": "frontend/features/companies/components/company-match-resolution.tsx",
+      "before_sha256": "6da34f49bdd27b99a01a977f470babbee01c4d77e5c7bbdb92819b545cd74fe4",
+      "after_sha256": "3673cf73ca961e0a8ec485ae1b72ba5338e8b385559be2f941bd76fce54b5571",
+      "emitted_JS_AST_sha256": "c2db7c08aadf1d323b83562b27e8a9dc1a5e73b48035ad30611d5dd9bf024571",
+      "jsx_text_and_runtime_body_preserved": true
+    },
+    {
+      "path": "frontend/features/companies/components/company-matching-dialog.tsx",
+      "before_sha256": "b707d469ba31e4d1420cdc846f8528a152ce0e0debacd1b6d8eece582016f2dd",
+      "after_sha256": "f5d06aa244bf6abbc3f364811355bdfe47f2dd2dd75fdf8b3d64dfbcba478f06",
+      "emitted_JS_AST_sha256": "bfff9cec63e514bc7ab665beb7086e44be71284c59140ad100dc21aac94179a3",
+      "jsx_text_and_runtime_body_preserved": true
+    },
+    {
+      "path": "frontend/features/companies/components/company-passports.tsx",
+      "before_sha256": "a112a25eb2986c594d6d2c6a4f940d229216c2387ed27cf75744179205afed6a",
+      "after_sha256": "b62ece10e8f6d2caefbb7d9661f571cea161dba8c442b2c45af8562c36ad0ac5",
+      "emitted_JS_AST_sha256": "d12262182dfcc609bc0226731c49541ef2267e2b00558d19e450832bf03de48f",
+      "jsx_text_and_runtime_body_preserved": true
+    },
+    {
+      "path": "frontend/features/companies/components/company-person-page.tsx",
+      "before_sha256": "a59260d7f3bac6d3ef9532bf9cb1fad969cdc05df1d20262ea4ac719b7e96c17",
+      "after_sha256": "3e582ce0721f92bde083b155c323c96c110b4173524a7f631cd08438af4234b8",
+      "emitted_JS_AST_sha256": "898fef2661ecc9424929dc97d4e02f726fb024aca812f3570a23f44811ac3130",
+      "jsx_text_and_runtime_body_preserved": true
+    },
+    {
+      "path": "frontend/features/companies/components/company-picker.tsx",
+      "before_sha256": "8cef25c7c9ccacea0bc4d010690b0bb1ec7cdd249c495799e20bffb7338d998a",
+      "after_sha256": "e5e675b5c33a3f31798ff0b7cbbf560eff2fa4b36255753232df1054d7af3686",
+      "emitted_JS_AST_sha256": "2a65cd48111a6bf27043c4a746af474c8384e177964f62c4c92f7e5f6ba08709",
+      "jsx_text_and_runtime_body_preserved": true
+    },
+    {
+      "path": "frontend/features/companies/components/company-reassignment-dialog.tsx",
+      "before_sha256": "8e069610cf4536fac324861686905f5134df071e5aa637e33bdf600410b2e5c1",
+      "after_sha256": "8455e81b242e12db6487f19237c2f81383b5c47beefb128b5f301c576e6400fd",
+      "emitted_JS_AST_sha256": "5c692a20e5f2698d0ef7d96fb2208f820a124e56d05360a3183a1932267f27a4",
+      "jsx_text_and_runtime_body_preserved": true
+    },
+    {
+      "path": "frontend/features/companies/components/company-settings.tsx",
+      "before_sha256": "565e17daa866bc29ee44f9b13c1db5f9a03ec2083f309b0fda0f5754608f73f8",
+      "after_sha256": "cf4268e2bcdcbcd2bc69dac0a1522fe4c52abe38fa103e636dddea75a458fdae",
+      "emitted_JS_AST_sha256": "22bcd4f17786f3b5f10dd6a52eab8324760a4416468047239b9417197364524b",
+      "jsx_text_and_runtime_body_preserved": true
+    }
+  ]
+}

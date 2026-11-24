@@ -1,19 +1,12 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-
-const api = readFileSync(
-  new URL("./passports.api.ts", import.meta.url),
-  "utf8",
-);
+import { passportApiSource as api } from "./passport-api-source.contract-helper.mjs";
 const endpoints = readFileSync(
   new URL("../../../lib/api/endpoints.ts", import.meta.url),
   "utf8",
 );
-const dialog = readFileSync(
-  new URL("../components/passport-export-dialog.tsx", import.meta.url),
-  "utf8",
-);
+import { passportExportDialogSource as dialog } from "../components/passport-export-dialog-source.contract-helper.mjs";
 const fieldChooser = readFileSync(
   new URL("../components/passport-excel-field-chooser.tsx", import.meta.url),
   "utf8",
@@ -22,10 +15,7 @@ const selectedGroupsDialog = readFileSync(
   new URL("../components/passport-selected-groups-export-dialog.tsx", import.meta.url),
   "utf8",
 );
-const passportList = readFileSync(
-  new URL("../components/passport-list.tsx", import.meta.url),
-  "utf8",
-);
+import { passportListSource as passportList } from "../components/passport-list-source.contract-helper.mjs";
 
 function methodSource(startMarker, endMarker) {
   const start = api.indexOf(startMarker);

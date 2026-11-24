@@ -1,0 +1,253 @@
+{
+  "checks": [
+    {
+      "name": "ruff",
+      "command": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "-m",
+        "ruff",
+        "check",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_composer.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_composer_support.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_composer_content.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_composer_rendering.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_composer_legacy.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_composer_snapshots.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_composer_media.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_composer_preview.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_composer_preview_response.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_resend.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_resend_claims.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_resend_preparation.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_resend_publication.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_bulk_resend.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_bulk_resend_selection.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_bulk_resend_inputs.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_bulk_resend_claims.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_bulk_resend_publication.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_bulk_resend_support.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_bulk_resend_history.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_bulk_resend_results.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_bulk_resend_composer.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_bulk_resend_preview.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_bulk_resend_preview_values.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\tests\\unit\\presentation\\test_whatsapp_composer_persistence.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\tests\\unit\\presentation\\test_whatsapp_bulk_resend.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\tests\\unit\\presentation\\test_whatsapp_group_invite.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\tests\\unit\\presentation\\test_whatsapp_bulk_resend_preview.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\tests\\unit\\presentation\\test_whatsapp_welcome_media_authority.py"
+      ],
+      "exit_code": 0,
+      "log": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\whatsapp-composition-final-ruff.log"
+    },
+    {
+      "name": "mypy",
+      "command": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "-m",
+        "mypy",
+        "--strict",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_composer.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_composer_support.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_composer_content.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_composer_rendering.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_composer_legacy.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_composer_snapshots.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_composer_media.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_composer_preview.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_composer_preview_response.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_resend.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_resend_claims.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_resend_preparation.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_resend_publication.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_bulk_resend.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_bulk_resend_selection.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_bulk_resend_inputs.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_bulk_resend_claims.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_bulk_resend_publication.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_bulk_resend_support.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_bulk_resend_history.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_bulk_resend_results.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_bulk_resend_composer.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_bulk_resend_preview.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\routes\\whatsapp_bulk_resend_preview_values.py"
+      ],
+      "exit_code": 0,
+      "log": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\whatsapp-composition-final-mypy.log"
+    }
+  ],
+  "measurements": [
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_composer.py",
+      "sha256": "8ffe7f51d1bf42bf82a3d2df3b17e45283dd98b0432c45cc860d65f5a5f920b2",
+      "physical_lines": 149,
+      "max_function_complexity": 1,
+      "most_complex_function": "preview_broadcast_message"
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_composer_support.py",
+      "sha256": "1bdaa9f902ea5054f80cb1edf701720a63f461cfa5cb5efcf922073fccb20fca",
+      "physical_lines": 134,
+      "max_function_complexity": 0,
+      "most_complex_function": null
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_composer_content.py",
+      "sha256": "920f7c816e41d3726049ff7dbb973d741a21d20602ca6ca87ecb8f3273449bf8",
+      "physical_lines": 184,
+      "max_function_complexity": 7,
+      "most_complex_function": "_preview_message_metadata"
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_composer_rendering.py",
+      "sha256": "f28546ca8349a35fb307ee04fdd330a84f5eeb94b117042c80ef5d8009893784",
+      "physical_lines": 95,
+      "max_function_complexity": 4,
+      "most_complex_function": "_message_values"
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_composer_legacy.py",
+      "sha256": "01c45bce092c04f6e8a1b581d2bd60583ef9e5b5cc393494225c94e2936a8c27",
+      "physical_lines": 122,
+      "max_function_complexity": 14,
+      "most_complex_function": "_decode_legacy_template_snapshot"
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_composer_snapshots.py",
+      "sha256": "cd0995a829e55ee8e02a15357a05c6cb0a88361e51a0fe75842eb197d81e46ca",
+      "physical_lines": 203,
+      "max_function_complexity": 11,
+      "most_complex_function": "_merge_composer_snapshot"
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_composer_media.py",
+      "sha256": "76be5978b5a0dc68cbc04bbc5746187b0991a70e9df30b04334bb9ba068c2d12",
+      "physical_lines": 156,
+      "max_function_complexity": 12,
+      "most_complex_function": "upload_welcome_media"
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_composer_preview.py",
+      "sha256": "e46be0a3c2166c1650c52591852ce33589e3a030edd3c6fd7d7089618ee8ff1e",
+      "physical_lines": 179,
+      "max_function_complexity": 13,
+      "most_complex_function": "load_preview_snapshot"
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_composer_preview_response.py",
+      "sha256": "2ba3704eb3085a3c59a8f85b1326add1cca81a72e905cd09237a86c33901e957",
+      "physical_lines": 127,
+      "max_function_complexity": 6,
+      "most_complex_function": "build_preview_response"
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_resend.py",
+      "sha256": "e695316fe49e51e51f8d1c3cc45f6db84c5bed82287bf3344f93259a4b1b64ff",
+      "physical_lines": 233,
+      "max_function_complexity": 8,
+      "most_complex_function": "resend_recipient_message"
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_resend_claims.py",
+      "sha256": "cac51751dda4d3124233f2c54f889882ecdcd0663b1a0a21f70e0dcd4fa92fe8",
+      "physical_lines": 150,
+      "max_function_complexity": 11,
+      "most_complex_function": "read_resend_claim"
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_resend_preparation.py",
+      "sha256": "3e3dabb7374324e38d37f8cf8e194eb647779a0cb702f9c2758e738870675c15",
+      "physical_lines": 181,
+      "max_function_complexity": 10,
+      "most_complex_function": "prepare_resend_attempt"
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_resend_publication.py",
+      "sha256": "589c7b567df25e42437e13293b4273d16d9271a2c35da2ffc53d620887b9b1ea",
+      "physical_lines": 106,
+      "max_function_complexity": 3,
+      "most_complex_function": "publish_resend_attempt"
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend.py",
+      "sha256": "7d87f7da345264d54c1e14ef7e2c6e2e216e92d6921e876dfab1d18f2ea5f3ae",
+      "physical_lines": 150,
+      "max_function_complexity": 4,
+      "most_complex_function": "resend_selected_recipient_messages"
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend_selection.py",
+      "sha256": "f23a5a32a53c98344caf3fbef41f6b3112e2d0a5ddfc9eb9241afb6981eafb0e",
+      "physical_lines": 103,
+      "max_function_complexity": 6,
+      "most_complex_function": "replay_bulk_resend_request"
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend_inputs.py",
+      "sha256": "b2a94f63ffe356dd88be7cb94d04cc7a2311aae9c9d8ee229d611bde5cae7e68",
+      "physical_lines": 75,
+      "max_function_complexity": 6,
+      "most_complex_function": "read_bulk_resend_inputs"
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend_claims.py",
+      "sha256": "2833bbbdde3be16143c738ac423c20c2c195c7a86627ac1837f681c09f0b36c7",
+      "physical_lines": 160,
+      "max_function_complexity": 14,
+      "most_complex_function": "claim_bulk_resend_rows"
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend_publication.py",
+      "sha256": "088449d63afee2a8d1bbd4c9e15dfbc54ec6a4c723e66a66aa0f5050913ad0af",
+      "physical_lines": 106,
+      "max_function_complexity": 11,
+      "most_complex_function": "publish_bulk_resend"
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend_support.py",
+      "sha256": "5e5005c5e9363de6f38e795d4d19c4640623eae3ff403ad36df49fab6bc6b326",
+      "physical_lines": 179,
+      "max_function_complexity": 16,
+      "most_complex_function": "recipient_skip_reason"
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend_history.py",
+      "sha256": "7aa092010e4484daa6acfe2952c3d23b0c1869d3418e6befdbcdc94d75863f9c",
+      "physical_lines": 182,
+      "max_function_complexity": 20,
+      "most_complex_function": "selection_delivery_maps"
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend_results.py",
+      "sha256": "a51ac1a8e56e844051c652837d464d763413ba43aa457ece15af57960dee1430",
+      "physical_lines": 88,
+      "max_function_complexity": 9,
+      "most_complex_function": "refresh_batch_response"
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend_composer.py",
+      "sha256": "c0092665a99fceef9dc464469c84a33ca89609b8d2f75304db6c2ae8ba8ebe78",
+      "physical_lines": 246,
+      "max_function_complexity": 19,
+      "most_complex_function": "resolve_saved_resend_snapshot"
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend_preview.py",
+      "sha256": "a31bbf1e65f3ab58f5509bec48b2b9daf7c8cc45df5b6fad2cc1043ddffbfe6b",
+      "physical_lines": 137,
+      "max_function_complexity": 6,
+      "most_complex_function": "preview_selected_recipient_messages"
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_bulk_resend_preview_values.py",
+      "sha256": "22578dd2b40732b222d39ff358deb09db16ea062fe07fda967ef5f62c509e213",
+      "physical_lines": 183,
+      "max_function_complexity": 15,
+      "most_complex_function": "collect_bulk_preview_snapshots"
+    }
+  ]
+}

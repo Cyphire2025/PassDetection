@@ -6,6 +6,7 @@ import type { CreateWhatsAppGroupFromSourceInput } from "../api/whatsapp-source-
 import { useWhatsAppSourceGroupPreview, useWhatsAppSourceGroups } from "../hooks/use-whatsapp-source-groups";
 import { ContactEditor, ErrorBanner, type ManualContact, readErrorMessage } from "./whatsapp-dialog-ui";
 import { SourceGroupContactPreview } from "./whatsapp-source-group-preview";
+import { whatsappBatchHttpStatus } from "../utils/batch-polling";
 
 export function SourceGroupBroadcastForm({ isLoading, onClose, onSubmit }: {
   isLoading: boolean;
@@ -59,7 +60,7 @@ export function SourceGroupBroadcastForm({ isLoading, onClose, onSubmit }: {
       await onSubmit({ sourceGroupId, name: name.trim(), supportContacts, recipientOptInConfirmed: true, previewRevision: preview.preview_revision });
     } catch (submitError) {
       const message = readErrorMessage(submitError, "Could not create the broadcast from this group.");
-      if ((submitError as { response?: { status?: number } } | null)?.response?.status === 409
+      if (whatsappBatchHttpStatus(submitError) === 409
         && message === "The source group changed. Refresh its preview and confirm the recipients again.") {
         setConfirmedRevision(null);
         setError("This group changed after your preview. Review the refreshed contacts and confirm recipient opt-in again before saving.");

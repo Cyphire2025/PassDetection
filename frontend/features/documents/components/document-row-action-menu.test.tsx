@@ -68,7 +68,7 @@ describe("document actions inside a scrolling table", () => {
     // A queued scroll that already completed before opening must not dismiss it.
     fireEvent.scroll(screen.getByTestId("scrolling-table"));
     expect(screen.getByRole("menu")).toBeInTheDocument();
-    vi.spyOn(trigger, "getBoundingClientRect").mockReturnValue({ left: 10, top: 10 } as DOMRect);
+    vi.spyOn(trigger, "getBoundingClientRect").mockReturnValue(new DOMRect(10, 10, 36, 36));
     fireEvent.scroll(screen.getByTestId("scrolling-table"));
     expect(screen.queryByRole("menu")).toBeNull();
     fireEvent.click(trigger);

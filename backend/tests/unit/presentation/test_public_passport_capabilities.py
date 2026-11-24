@@ -10,6 +10,7 @@ from fastapi import BackgroundTasks, HTTPException, UploadFile
 
 from app.domain.entities.entities import ClientGroup, GroupStatus
 from app.presentation.api.v1.routes.passport_routes import public_upload
+from tests.route_dependencies import set_route_dependency
 
 
 def _group(state: GroupStatus) -> ClientGroup:
@@ -34,9 +35,9 @@ async def test_inactive_link_cannot_reach_submission_or_storage(
     groups = Mock(get_by_token=AsyncMock(return_value=group))
     submissions = Mock()
     storage = Mock()
-    monkeypatch.setattr(public_upload, "ClientGroupRepository", Mock(return_value=groups))
-    monkeypatch.setattr(public_upload, "PassportSubmissionRepository", submissions)
-    monkeypatch.setattr(public_upload, "MinioStorageRepository", storage)
+    set_route_dependency(monkeypatch, public_upload, "ClientGroupRepository", Mock(return_value=groups))
+    set_route_dependency(monkeypatch, public_upload, "PassportSubmissionRepository", submissions)
+    set_route_dependency(monkeypatch, public_upload, "MinioStorageRepository", storage)
     arguments = dict(
         token="synthetic-link",
         submission_id=uuid.uuid4(),
@@ -70,14 +71,14 @@ async def test_invalid_upload_link_is_rejected_before_file_read_or_decode(
     monkeypatch: pytest.MonkeyPatch, state: GroupStatus | None
 ) -> None:
     group = _group(state) if state is not None else None
-    monkeypatch.setattr(
+    set_route_dependency(monkeypatch,
         public_upload,
         "ClientGroupRepository",
         Mock(return_value=Mock(get_by_token=AsyncMock(return_value=group))),
     )
     decoder = AsyncMock()
-    monkeypatch.setattr(public_upload, "_validated_upload_file", decoder)
-    monkeypatch.setattr(public_upload, "upload_session_matches_identifier", lambda *_: True)
+    set_route_dependency(monkeypatch, public_upload, "_validated_upload_file", decoder)
+    set_route_dependency(monkeypatch, public_upload, "upload_session_matches_identifier", lambda *_: True)
     file = UploadFile(filename="untrusted.heic", file=io.BytesIO(b"not-decoded"))
     with pytest.raises(HTTPException) as exc:
         await public_upload.upload_passport(

@@ -1,0 +1,57 @@
+[
+  {
+    "path": "backend/app/application/use_cases/passports/submission_view_types.py",
+    "declarations": [
+      "SubmissionViewEntry",
+      "ExpiryAlert",
+      "DuplicateClusterPage",
+      "SubmissionViewResult",
+      "SubmissionViewIdentity",
+      "PreparedSubmissionView"
+    ]
+  },
+  {
+    "path": "backend/app/application/use_cases/passports/submission_view_fields.py",
+    "declarations": [
+      "_normalized_tokens",
+      "_normalized_identifier",
+      "_field_value",
+      "_passport_name",
+      "_place_of_issue_identity",
+      "duplicate_identity_key",
+      "_cluster_id",
+      "_verification_confidence",
+      "_display_name"
+    ]
+  },
+  {
+    "path": "backend/app/application/use_cases/passports/submission_view_clustering.py",
+    "declarations": [
+      "_build_blocks"
+    ]
+  },
+  {
+    "path": "backend/app/application/use_cases/passports/submission_view_ordering.py",
+    "declarations": [
+      "_matches_search",
+      "_status_matches",
+      "_sort_value",
+      "_sort_entries",
+      "_sort_blocks"
+    ]
+  },
+  {
+    "path": "backend/app/application/use_cases/passports/submission_view_pagination.py",
+    "declarations": [
+      "_paginate_blocks",
+      "_all_page_clusters"
+    ]
+  },
+  {
+    "path": "backend/app/application/use_cases/passports/submission_view_expiry.py",
+    "declarations": [
+      "_add_months",
+      "_expiry_alerts"
+    ]
+  }
+]

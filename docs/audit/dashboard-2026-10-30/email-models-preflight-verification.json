@@ -1,0 +1,170 @@
+{
+  "sealed_at_utc": "2026-10-31T08:43:49.250145+00:00",
+  "status": "Read-only email schema preflight complete; proposed scope reported before edits.",
+  "target": "backend/app/infrastructure/database/email_models.py",
+  "sha256": "1801ba03397d6b0ac28d032683778592184f22f9b559c5b23d3a524f0a57cadd",
+  "new_full_target_files": 1,
+  "new_full_target_physical_lines": 1417,
+  "prior_exact_current_full_records": [],
+  "class_catalog": [
+    {
+      "name": "_ColumnDefaultContext",
+      "table": null,
+      "start_line": 45,
+      "end_line": 46,
+      "physical_lines": 2
+    },
+    {
+      "name": "EmailConnectionModel",
+      "table": "email_connections",
+      "start_line": 56,
+      "end_line": 289,
+      "physical_lines": 234
+    },
+    {
+      "name": "EmailOAuthStateModel",
+      "table": "email_oauth_states",
+      "start_line": 292,
+      "end_line": 411,
+      "physical_lines": 120
+    },
+    {
+      "name": "EmailMessageModel",
+      "table": "email_messages",
+      "start_line": 414,
+      "end_line": 606,
+      "physical_lines": 193
+    },
+    {
+      "name": "EmailArtifactModel",
+      "table": "email_artifacts",
+      "start_line": 609,
+      "end_line": 864,
+      "physical_lines": 256
+    },
+    {
+      "name": "EmailArtifactDocumentModel",
+      "table": "email_artifact_documents",
+      "start_line": 867,
+      "end_line": 945,
+      "physical_lines": 79
+    },
+    {
+      "name": "EmailReviewItemModel",
+      "table": "email_review_items",
+      "start_line": 948,
+      "end_line": 1187,
+      "physical_lines": 240
+    },
+    {
+      "name": "EmailActivityEventModel",
+      "table": "email_activity_events",
+      "start_line": 1190,
+      "end_line": 1395,
+      "physical_lines": 206
+    }
+  ],
+  "mapped_tables": 7,
+  "shared_helpers": [
+    {
+      "name": "_utcnow",
+      "start_line": 41,
+      "end_line": 42
+    },
+    {
+      "name": "_normalized_email_default",
+      "start_line": 49,
+      "end_line": 53
+    },
+    {
+      "name": "_reject_email_owner_change",
+      "start_line": 1398,
+      "end_line": 1406
+    }
+  ],
+  "default_context_protocol": "_ColumnDefaultContext",
+  "confirmed_architecture_followthrough": "One module owns seven distinct table families, default callbacks and persisted-owner listener registration. Seven focused per-table owners are justified; each current declaration is79-256 lines, so no artificial mapping mixins or arbitrary field fragmentation is needed.",
+  "proposed_owners": [
+    {
+      "responsibility": "Provider connection identity, encrypted grants and sync lease state",
+      "class": "EmailConnectionModel"
+    },
+    {
+      "responsibility": "One-use OAuth correlation, PKCE and browser nonce state",
+      "class": "EmailOAuthStateModel"
+    },
+    {
+      "responsibility": "Normalized message metadata and processing summary",
+      "class": "EmailMessageModel"
+    },
+    {
+      "responsibility": "Retryable attachment/link retrieval and document matching",
+      "class": "EmailArtifactModel"
+    },
+    {
+      "responsibility": "Traceability from source artifacts to distributed documents",
+      "class": "EmailArtifactDocumentModel"
+    },
+    {
+      "responsibility": "Revisioned explicit staff review decisions",
+      "class": "EmailReviewItemModel"
+    },
+    {
+      "responsibility": "Sanitized append-only workflow activity",
+      "class": "EmailActivityEventModel"
+    },
+    {
+      "responsibility": "Canonical defaults/normalization and ownership listener registration",
+      "helpers": [
+        "_utcnow",
+        "_normalized_email_default",
+        "_reject_email_owner_change"
+      ]
+    }
+  ],
+  "source_observed_sensitive_contracts": [
+    "All seven class/table exports and original module/pickling identities need baseline capture. Core model split's accepted inspect.getsource(class) tradeoff must remain explicit if legacy class modules are retained; no inspection monkeypatch workaround.",
+    "Share the actual existing Base/JSONB. Preserve email_models._utcnow, _normalized_email_default and their default-callback identities/metadata; do not replace a clock with a different helper merely because its body looks similar.",
+    "Preserve encrypted-token/PKCE/source-URL mapper deferred flags and encrypted key-version/check pairs. Table DDL parity alone does not establish deferred ORM loading parity.",
+    "Preserve normalized-email default callback context, exact trim/lower validation and normalized uniqueness/check behavior.",
+    "The exact six persisted-owner before_update listener registrations target: EmailConnectionModel, EmailMessageModel, EmailArtifactModel, EmailArtifactDocumentModel, EmailReviewItemModel, EmailActivityEventModel. Preserve callback identity, registration-once behavior and accepted/rejected persisted-owner update outcomes. OAuth uses user_id and is intentionally outside this owner_user_id hook loop.",
+    "Preserve every owner/tenant/message/connection/artifact composite FK and unique shape, ondelete behavior, no-action duplicate link, partial active-review uniqueness, revision/request identity, sync-generation/retry/lease/attempt/status/default semantics and all published migrations.",
+    "Actual callers span OAuth binding/callbacks, synchronization, AI processing, reviews, count projections and MCP reads. No caller rewrite is needed merely to move model ownership; stable imports must continue to resolve the exact mapped objects."
+  ],
+  "existing_registration_context": {
+    "module": "backend/app/infrastructure/database/model_registry.py",
+    "sha256": "226b2b4c321e3b231222355d9f6752d945dd2e160324b7a3685c4b37865b9ec5",
+    "role": "Already fully read current registry imports email_models for full metadata registration. No registry or model source edited here."
+  },
+  "required_future_focused_controls": [
+    "Capture untouched whole class ASTs, actual class/module/qualname/signature/pickle/default annotation and mapper identities before edits.",
+    "Compare full SQLite/PostgreSQL compiled table/index/constraint/default metadata and declaration order, adding mapper deferred-property/loader facts not represented by plain table DDL.",
+    "Capture actual listener membership/count/target/callback and normalized default behavior, then exercise existing ownership/constraint/OAuth persistence controls with synthetic isolated fixtures only.",
+    "Verify facade-first and private-owner-first registration in fresh processes and all actual public import aliases; use scoped typing/lint and existing focused tests.",
+    "Do not run whole-app suites/builds/broad browsers during a partial implementation batch; parent retains one final combined verification after outstanding work completes."
+  ],
+  "runtime_test_config_schema_changes": [],
+  "new_app_checks": [],
+  "services_providers_credentials_or_production_data_accessed": false,
+  "unconfirmed_security_or_correctness_findings": [],
+  "other_architecture_followthrough": "Parent identified frontend attendance-scan-queue.ts1778 as a separate likely architecture follow-up despite an earlier behavior fix. It was not read or credited in this backend preflight; fixed status does not imply architecture closure.",
+  "metadata_selection_tool_note": "The reusable large-owner selector initially assumed models.py remained above300 lines and stopped after its completed198-line facade split. It was corrected to retain the known model target in the metadata index; the refreshed current selection confirms no full email_models record. No runtime source or app check was affected.",
+  "artifacts": [
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-models-preflight-original-source.json",
+      "sha256": "ed264d9c3a23a78aa4ff741f662d3e2313913db4cd011145dada70d6bb640577"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-models-preflight-selection.json",
+      "sha256": "1b283a4fb98d5c0f8ad8c339bae7682107df59c779acc44cff8f2010594d7bb5"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-models-preflight-reviewed-files.json",
+      "sha256": "eb8031ffbceb051cd7a3777a23490d30977d5b9a2061c1aa980728accd27ea95"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-models-preflight-context.json",
+      "sha256": "38cb706eedcf34f4af60cb04e3105d64c98ada730d19ff6b111731f0a88f7ae8"
+    }
+  ]
+}

@@ -1,0 +1,213 @@
+{
+  "status": "FROZEN-two-path-format-correction-focused-controls-pass-parent-corrected-production-build-pending",
+  "diagnosis": "PriorRGBPNGICO passes historicalWebKit/nativepixeldecoder and oldexactpayloadcontract, but actualNext16.4.3Turbopack now rejects embeddedPNG lackingRGBA format. This is decodercompatibility, not creativebranding revision or assertion that all ICOdecoders rejectoldasset.",
+  "source_changes": [
+    "frontend/app/favicon.ico",
+    "frontend/components/brand/favicon-asset.test.mjs"
+  ],
+  "prior_frozen_receipt": "favicon-asset-verification.json",
+  "prior_receipt_unchanged": true,
+  "before": {
+    "sha256": "4d31aaecf1864449db9a2c4322930e406b598813c5de73f19028f1cd953217f2",
+    "bytes": 2247,
+    "bitCount": 24,
+    "pngColorType": 2
+  },
+  "after": {
+    "sha256": "f39b336c2e0ff18a1122aa2b262452f8805172f5f765dceb61491d42892e1c3e",
+    "bytes": 1875,
+    "bitCount": 32,
+    "pngColorType": 6,
+    "pngBitDepth": 8
+  },
+  "authoritative_source": {
+    "path": "frontend/public/pwa-icon-192.png",
+    "sha256": "554d5337b9f093cf54dc7e0f552ebe4a987c58fc7aa404d69512165f3ace502c",
+    "bytes": 2225,
+    "unchanged": true
+  },
+  "pixel_proof": {
+    "decoder": "Pillow 13.0.0",
+    "original_RGBA_sha256": "dce27c0586adcd3bc8601bdd2244c96a7de116c8e94886ec18a7a17869e85966",
+    "current_RGBA_sha256": "dce27c0586adcd3bc8601bdd2244c96a7de116c8e94886ec18a7a17869e85966",
+    "source_RGBA_sha256": "dce27c0586adcd3bc8601bdd2244c96a7de116c8e94886ec18a7a17869e85966",
+    "frames": {
+      "original": {
+        "format": "ICO",
+        "mode": "RGB",
+        "size": [
+          192,
+          192
+        ],
+        "alpha_extrema": [
+          255,
+          255
+        ]
+      },
+      "current": {
+        "format": "ICO",
+        "mode": "RGBA",
+        "size": [
+          192,
+          192
+        ],
+        "alpha_extrema": [
+          255,
+          255
+        ]
+      },
+      "source": {
+        "format": "PNG",
+        "mode": "RGB",
+        "size": [
+          192,
+          192
+        ],
+        "alpha_extrema": [
+          255,
+          255
+        ]
+      }
+    },
+    "png_chunks": [
+      {
+        "type": "IHDR",
+        "length": 13,
+        "CRC_valid": true
+      },
+      {
+        "type": "pHYs",
+        "length": 9,
+        "CRC_valid": true
+      },
+      {
+        "type": "IDAT",
+        "length": 1775,
+        "CRC_valid": true
+      },
+      {
+        "type": "IEND",
+        "length": 0,
+        "CRC_valid": true
+      }
+    ],
+    "source_png_unchanged": true,
+    "source_asset_sha256": "f39b336c2e0ff18a1122aa2b262452f8805172f5f765dceb61491d42892e1c3e",
+    "test_sha256": "8bb94cd0a2eb18e03f0a404edadf04c7b74effd0f1e2c3c9e164ce6c92ccdebe"
+  },
+  "decoder_versions": {
+    "next": "16.4.3",
+    "sharp": "0.35.5",
+    "libpng": "1.6.58",
+    "Pillow": "Pillow 13.0.0"
+  },
+  "tests": [
+    {
+      "scope": "Historicalcurrent23linecontract onoriginalasset",
+      "outcome": "1pass; demonstrates missingframeworkcompatibilitycoverage"
+    },
+    {
+      "scope": "Proposedactualheader+Sharpdecodercontract onoriginalasset",
+      "outcome": "2fail (24vs32 declaration, decoded3vs4channels)"
+    },
+    {
+      "scope": "Proposedcontract onstagedcandidate",
+      "outcome": "2pass"
+    },
+    {
+      "command": "node --test components/brand/favicon-asset.test.mjs",
+      "cwd": "frontend",
+      "outcome": "2pass onactualcorrectedsource"
+    },
+    {
+      "command": "node node_modules/eslint/bin/eslint.js components/brand/favicon-asset.test.mjs --max-warnings=0",
+      "cwd": "frontend",
+      "outcome": "passed exit0 zero warnings"
+    }
+  ],
+  "stage_execution": "Exactproposedtestmodule and original/candidate files staged underignored.tmp; dependencyjunction toexisting pinnednode_modules only, no newinstall, customtestloader or sourcecopyalteration.",
+  "assertion_preservation": "ExistingICOreserved/header/count/dimensions/palette/planes/offset/bounds checks remain; byte-size24bitRGB/sourcePNGencodedidentity assertions deliberately replaced with32bitRGBA8/actualdecodedunchangedRGBApixelchecks. No oldtestclaim rewritten.",
+  "bundled_Next_guidance": "Read full next/dist/docs/01-app/03-api-reference/03-file-conventions/01-metadata/app-icons.md. Existing top-levelapp/favicon.icoautomaticroute preserved, no generator/metadataURLchange.",
+  "source_ledger": {
+    "path": "docs/audit/dashboard-2026-10-30/favicon-rgba-format-reviewed-files.json",
+    "sha256": "14c72b30947906431356f030a328e729844ce252df9066f93fbd366e7c016bd2"
+  },
+  "evidence": [
+    {
+      "path": ".tmp/favicon-format-correction/preparation.json",
+      "sha256": "a02ca3207a7cea34347bcb77c3704248578a1f83d7a3676873806ac17a684c0a",
+      "bytes": 1547
+    },
+    {
+      "path": ".tmp/favicon-format-correction/regression-results.json",
+      "sha256": "8e994c372c26eae99b790ef06041cd6dfec8b5670df01cc7882583eae66c4ea7",
+      "bytes": 1240
+    },
+    {
+      "path": ".tmp/favicon-format-correction/actual-turbopack-before-build.log",
+      "sha256": "d188d1404e85a5ba888b73940d5ad0fe991cb1fae9a1e0757528c7d83debc445",
+      "bytes": 756
+    },
+    {
+      "path": ".tmp/favicon-format-correction/historical-current-contract.log",
+      "sha256": "f0dce2e4b20b9a403d8795e02b422edc849f5e126a7ceea020d71aca4da28d02",
+      "bytes": 215
+    },
+    {
+      "path": ".tmp/favicon-format-correction/proposed-contract-original-asset.log",
+      "sha256": "ad8be8089aad4ffd619890374a68774625a4e92b769982b7c0ac83e978ccf833",
+      "bytes": 1800
+    },
+    {
+      "path": ".tmp/favicon-format-correction/proposed-contract-candidate.log",
+      "sha256": "a34f21005a0f50b8cc2a06b3a60e017b51c8973a514710a8da3247b4774d29b7",
+      "bytes": 287
+    },
+    {
+      "path": ".tmp/favicon-format-correction/final-contract.log",
+      "sha256": "300d164b5c2bd14a52d36f80e3c03bbb8e6a774f2edd9b7ccf8bc0385326d820",
+      "bytes": 298
+    },
+    {
+      "path": ".tmp/favicon-format-correction/final-lint.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".tmp/favicon-format-correction/independent-pixel-container-proof.json",
+      "sha256": "0e9d08c30db370df52dab523d45090f5c9a79a627d4ed4b161dfc2c32d1c58a1",
+      "bytes": 1476
+    },
+    {
+      "path": ".tmp/favicon-format-correction/original.ico",
+      "sha256": "4d31aaecf1864449db9a2c4322930e406b598813c5de73f19028f1cd953217f2",
+      "bytes": 2247
+    },
+    {
+      "path": ".tmp/favicon-format-correction/original-test.mjs",
+      "sha256": "4c7ddb9b1276bd31413d970cb9c237248b7bba4131fc20a3e1caf444a343b89d",
+      "bytes": 1127
+    },
+    {
+      "path": ".tmp/favicon-format-correction/candidate.ico",
+      "sha256": "f39b336c2e0ff18a1122aa2b262452f8805172f5f765dceb61491d42892e1c3e",
+      "bytes": 1875
+    },
+    {
+      "path": ".tmp/favicon-format-correction/prepare.cjs",
+      "sha256": "fe0c3cef2ae3fa9fbeb4e447dc0207c14892b604022111984d1fa68f2966d5bc",
+      "bytes": 3210
+    },
+    {
+      "path": ".tmp/favicon-format-correction/proposed-favicon-asset.test.mjs",
+      "sha256": "8bb94cd0a2eb18e03f0a404edadf04c7b74effd0f1e2c3c9e164ce6c92ccdebe",
+      "bytes": 2106
+    }
+  ],
+  "limits": [
+    "ActualfailedTurbopackbuild preserved; successfulcorrectedTurbopackproductionbuild andbrowser servedfavicon qualification pendingroot.",
+    "SharpactualembeddedPNGdecode/PillowfullICOdecode+chunkCRCs/pixelproof do not alone qualify everybrowser/physicaldevice.",
+    "No publicsourcePNG/SVG/logo/generator/package/route/sidebarscreen/workflow/cache/schema/storage/runtimepolicy changes.",
+    "Initial historicalcontract output reporting failed onWindowscp1252 checkmark AFTER successful1pass; successfulrawlog preserved and not rerun merely forprinting."
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "status": "source/ownership preflight complete; parent approved cohesive composition; no runtime edits yet",
+  "primary_sources": [
+    {
+      "path": "backend/app/application/mobile/notification_service.py",
+      "sha256": "f3d92686c29991834149887ee4dab8250a9fe7187c1c4e26b354809e0cffa603",
+      "physical_lines": 1995
+    },
+    {
+      "path": "backend/app/application/mobile/authored_notification_service.py",
+      "sha256": "464499ea0deac52ddb95c6bb2deaff885973fe3c78f617922d8e368986ddd9ea",
+      "physical_lines": 425
+    },
+    {
+      "path": "backend/app/application/mobile/authored_notification_access.py",
+      "sha256": "25a0fc53d6c016a42be5a65612d2370ae4f194326eb4bf8e071963335de03df6",
+      "physical_lines": 414
+    },
+    {
+      "path": "backend/app/application/mobile/authored_notification_audience.py",
+      "sha256": "4fcfe94e5b790e15acb1af41f3bd5662f68f95211e80a64d60a9044fbfc90ddc",
+      "physical_lines": 286
+    },
+    {
+      "path": "backend/app/application/mobile/authored_notification_preview.py",
+      "sha256": "b63b42fcf4cbe0fb5d0df49afb23531a951ee2c6a0a61701218b7022b63a885c",
+      "physical_lines": 86
+    }
+  ],
+  "full_read_records": 35,
+  "baseline": {
+    "cases_passed": 107,
+    "raw_path": ".tmp/notification-server-audit/baseline.txt",
+    "raw_sha256": "cd2a4ed0edd5d43c6ed3def594b8c32823bddae9c5c83c8389ba03db5c8d466a",
+    "coverage_path": ".tmp/notification-server-audit/baseline-coverage.json",
+    "coverage_sha256": "c1b4b913fd415e04ee4bd5b12f11c7e6b9b5a094ccf093c9928554f1fbbc7615"
+  },
+  "original_normal_rows": [],
+  "original_critical_rows": [],
+  "calibration": [
+    "Published group announcements intentionally remain feed-only, explicit alerts are separate reviewed workflow.",
+    "Existing policy/SQL/current authority/claim generation/MFA/tool/original-source fences remain; no new behavior bug adopted.",
+    "SQLite and fake transport baseline cannot qualify PostgreSQL row locks/advisory locks, real providers or deployment."
+  ],
+  "design": [
+    "Explicit original public/private compatibility aliases; preserve nine public exports and actual runtime hints/types.",
+    "Coherent feed/document production, countdown scheduling/recipients/values, current-authority, registration, delivery-state/receipt owners.",
+    "Real dispatch claim/target preparation/ticket outcome data phases; complete expanded-body proof for deliberate phase composition.",
+    "Authored draft/review/send and grant/registration/rotated-target owners; audience286 and pure preview86 remain cohesive.",
+    "Original two private monkeypatch constant seams retarget only actual implementation owners with original assertions preserved."
+  ],
+  "no_unrelated_source_changes": true
+}

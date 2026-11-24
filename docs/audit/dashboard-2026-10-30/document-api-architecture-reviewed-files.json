@@ -1,0 +1,145 @@
+{
+  "recorded_at": "2026-10-31T07:32:33.151Z",
+  "records": [
+    {
+      "path": "frontend/features/documents/api/document-distribution.api.ts",
+      "sha256": "29b422e32c2515d910fc7fa7e50aa137045b6695718bc50ed63e46796cdec7a8",
+      "physical_lines": 14,
+      "max_function_complexity": 0,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed-and-restructured",
+      "notes": "Every original API line and final focused runtime owner physically read/authored. Complete15method/signature ASTs and ordered facade/type/filename edges preserved after a separately measured filename-index correction. Public transport/cancellation/receipt/DTO behavior unchanged; no actor/privacy failure claimed. Queued private invocation remains an open candidate, not closed by architecture work."
+    },
+    {
+      "path": "frontend/features/documents/api/document-review.api.ts",
+      "sha256": "0e65fec9713722a3a2fb684f751a3c0054176a08802434df069d5b6ec45a3325",
+      "physical_lines": 51,
+      "max_function_complexity": 3,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed-and-restructured",
+      "notes": "Every original API line and final focused runtime owner physically read/authored. Complete15method/signature ASTs and ordered facade/type/filename edges preserved after a separately measured filename-index correction. Public transport/cancellation/receipt/DTO behavior unchanged; no actor/privacy failure claimed. Queued private invocation remains an open candidate, not closed by architecture work."
+    },
+    {
+      "path": "frontend/features/documents/api/document-verification.api.ts",
+      "sha256": "f07dcb1a9e9131ed9f4b5e58c9ff6bf93074c27a888395c3b7317c8e6c2304d6",
+      "physical_lines": 150,
+      "max_function_complexity": 3,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed-and-restructured",
+      "notes": "Every original API line and final focused runtime owner physically read/authored. Complete15method/signature ASTs and ordered facade/type/filename edges preserved after a separately measured filename-index correction. Public transport/cancellation/receipt/DTO behavior unchanged; no actor/privacy failure claimed. Queued private invocation remains an open candidate, not closed by architecture work."
+    },
+    {
+      "path": "frontend/features/documents/api/document-batches.api.ts",
+      "sha256": "0d811cd76a73c62b47a299762cb14a4792a9bffc769f0e33e110c898d8108a1b",
+      "physical_lines": 146,
+      "max_function_complexity": 4,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed-and-restructured",
+      "notes": "Every original API line and final focused runtime owner physically read/authored. Complete15method/signature ASTs and ordered facade/type/filename edges preserved after a separately measured filename-index correction. Public transport/cancellation/receipt/DTO behavior unchanged; no actor/privacy failure claimed. Queued private invocation remains an open candidate, not closed by architecture work."
+    },
+    {
+      "path": "frontend/features/documents/api/document-delivery.api.ts",
+      "sha256": "4bd918f76bb2847b975adc2eea2ab49649993b0d1d38d06760949ed602f791f9",
+      "physical_lines": 54,
+      "max_function_complexity": 2,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed-and-restructured",
+      "notes": "Every original API line and final focused runtime owner physically read/authored. Complete15method/signature ASTs and ordered facade/type/filename edges preserved after a separately measured filename-index correction. Public transport/cancellation/receipt/DTO behavior unchanged; no actor/privacy failure claimed. Queued private invocation remains an open candidate, not closed by architecture work."
+    },
+    {
+      "path": "frontend/features/documents/api/document-distribution.types.ts",
+      "sha256": "5d026f0150a4855d078f7956011ec18c6bf0e57d1b95ce4c83bf0e0443818b25",
+      "physical_lines": 18,
+      "max_function_complexity": 0,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed-and-restructured",
+      "notes": "Every original API line and final focused runtime owner physically read/authored. Complete15method/signature ASTs and ordered facade/type/filename edges preserved after a separately measured filename-index correction. Public transport/cancellation/receipt/DTO behavior unchanged; no actor/privacy failure claimed. Queued private invocation remains an open candidate, not closed by architecture work."
+    },
+    {
+      "path": "frontend/features/documents/services/document-filename-replacements.ts",
+      "sha256": "bdcaed2ce12db58ea63115554231b5f5e8cf286c4f6fe63d240374556ececa85",
+      "physical_lines": 46,
+      "max_function_complexity": 8,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed-and-restructured",
+      "notes": "Every original API line and final focused runtime owner physically read/authored. Complete15method/signature ASTs and ordered facade/type/filename edges preserved after a separately measured filename-index correction. Public transport/cancellation/receipt/DTO behavior unchanged; no actor/privacy failure claimed. Queued private invocation remains an open candidate, not closed by architecture work."
+    },
+    {
+      "path": "frontend/features/documents/api/document-verification.api.test.ts",
+      "sha256": "383fbf60a6fc16741d2af942145c609c0bb5d6e015371cc0d340c9991818d4f3",
+      "physical_lines": 155,
+      "max_function_complexity": 10,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed-regression-source",
+      "notes": "Full authored/current test or helper source reviewed. Actual facade/verification/batching execution uses synthetic transport; observer output/performance/negative receipt/cancellation/retry checks are distinct from static contract proof."
+    },
+    {
+      "path": "frontend/features/documents/api/document-batches.api.test.ts",
+      "sha256": "f73dfe211da565d2a03e7788279a27fa23c024d99e7cc47492f92a8aa011d7d8",
+      "physical_lines": 91,
+      "max_function_complexity": 1,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed-regression-source",
+      "notes": "Full authored/current test or helper source reviewed. Actual facade/verification/batching execution uses synthetic transport; observer output/performance/negative receipt/cancellation/retry checks are distinct from static contract proof."
+    },
+    {
+      "path": "frontend/features/documents/components/document-api-source.contract-helper.mjs",
+      "sha256": "865233c61df3cd0435fe4ee15290b9690b6437d0f8f791bdd23fc6ad862745bb",
+      "physical_lines": 20,
+      "max_function_complexity": 2,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed-regression-source",
+      "notes": "Full authored/current test or helper source reviewed. Actual facade/verification/batching execution uses synthetic transport; observer output/performance/negative receipt/cancellation/retry checks are distinct from static contract proof."
+    },
+    {
+      "path": "frontend/features/documents/components/document-bulk-upload.contract.test.mjs",
+      "sha256": "93bada2d280c3b20b83988ed3d74baae44029f65583f423813c7d5aadada3e7d",
+      "physical_lines": 467,
+      "max_function_complexity": 3,
+      "reviewer": "branding_visuals",
+      "review_scope": "focused",
+      "status": "loader-updated-assertions-preserved",
+      "notes": "Focused loader update follows actual imported/spread facade owners; every original assertion retained.32affected contract cases pass. No new whole-file physical-read claim for unrelated assertions."
+    },
+    {
+      "path": "frontend/features/documents/components/document-group-search.contract.test.mjs",
+      "sha256": "21272b21a58492047953323f636e3ea31c720e8e85b69d8d268ec3377ee35c29",
+      "physical_lines": 17,
+      "max_function_complexity": 1,
+      "reviewer": "branding_visuals",
+      "review_scope": "focused",
+      "status": "loader-updated-assertions-preserved",
+      "notes": "Focused loader update follows actual imported/spread facade owners; every original assertion retained.32affected contract cases pass. No new whole-file physical-read claim for unrelated assertions."
+    },
+    {
+      "path": "frontend/features/documents/components/document-assignment-export.contract.test.mjs",
+      "sha256": "be68addddb0914d37787dc5390a97d55a9e3b5557cf5320bf2bdcc4e14622c9e",
+      "physical_lines": 40,
+      "max_function_complexity": 1,
+      "reviewer": "branding_visuals",
+      "review_scope": "focused",
+      "status": "loader-updated-assertions-preserved",
+      "notes": "Focused loader update follows actual imported/spread facade owners; every original assertion retained.32affected contract cases pass. No new whole-file physical-read claim for unrelated assertions."
+    },
+    {
+      "path": "frontend/features/documents/components/document-whatsapp-delivery.contract.test.mjs",
+      "sha256": "2b69b084fef923e4f0ce1a8e109a28524293c11c45edbe09bb499bdb53432794",
+      "physical_lines": 100,
+      "max_function_complexity": 1,
+      "reviewer": "branding_visuals",
+      "review_scope": "focused",
+      "status": "loader-updated-assertions-preserved",
+      "notes": "Focused loader update follows actual imported/spread facade owners; every original assertion retained.32affected contract cases pass. No new whole-file physical-read claim for unrelated assertions."
+    }
+  ]
+}

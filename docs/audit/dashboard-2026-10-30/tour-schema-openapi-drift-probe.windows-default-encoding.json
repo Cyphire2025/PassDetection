@@ -1,0 +1,27 @@
+[
+  [
+    "/components/schemas/MobileJourneyDestinationResponse/properties/attribution/const",
+    "\u00c2\u00a9 OpenStreetMap contributors",
+    "\u00a9 OpenStreetMap contributors"
+  ],
+  [
+    "/components/schemas/MobileJourneyDestinationResponse/properties/attribution/default",
+    "\u00c2\u00a9 OpenStreetMap contributors",
+    "\u00a9 OpenStreetMap contributors"
+  ],
+  [
+    "/components/schemas/ReplacementCandidateListResponse/properties/items/items/$ref",
+    "#/components/schemas/app__presentation__api__v1__schemas__client_group_schemas__ReplacementCandidateResponse",
+    "#/components/schemas/app__presentation__api__v1__schemas__client_group_match_schemas__ReplacementCandidateResponse"
+  ],
+  [
+    "/components/schemas/app__presentation__api__v1__schemas__client_group_match_schemas__ReplacementCandidateResponse",
+    "missing",
+    "{'properties': {'recipient_id': {'type': 'string', 'format': 'uuid', 'title': 'Recipient Id'}, 'recipient_ids': {'items': {'type': 'string', 'format': 'uuid'}, 'type': 'array', 'mi"
+  ],
+  [
+    "/components/schemas/app__presentation__api__v1__schemas__client_group_schemas__ReplacementCandidateResponse",
+    "{'additionalProperties': False, 'properties': {'broadcast_ids': {'items': {'format': 'uuid', 'type': 'string'}, 'title': 'Broadcast Ids', 'type': 'array'}, 'broadcast_names': {'ite",
+    "missing"
+  ]
+]

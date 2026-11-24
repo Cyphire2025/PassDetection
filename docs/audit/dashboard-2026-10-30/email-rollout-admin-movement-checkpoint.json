@@ -1,0 +1,11 @@
+{
+  "runtime": [
+    "backend/app/presentation/api/v1/routes/email_ai_rollout_admin.py",
+    "backend/app/presentation/api/v1/routes/email_rollout_targets.py",
+    "backend/app/presentation/api/v1/routes/email_rollout_policy_mapping.py"
+  ],
+  "tests_unchanged_after_corrected_baseline": {
+    "backend/tests/unit/presentation/test_email_rollout_query_paths.py": "c3b0641179c9b5d32b2d23439c2cabfa0bd4ae70a55dded0a39577e2cb9ed00b",
+    "backend/tests/unit/presentation/test_email_ai_rollout_admin.py": "a2148b43ae041dfc6c47760fed61fd4cd69621818708284fa12caacae97ec690"
+  }
+}

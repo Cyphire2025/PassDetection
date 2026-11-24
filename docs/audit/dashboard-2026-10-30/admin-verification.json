@@ -1,0 +1,60 @@
+{
+  "status": "passed affected verification; twelve measured budgets and three additive critical branch gates ready for shared integration",
+  "runtime_owners": 12,
+  "original_facade_lines": 1178,
+  "current_facade_lines": 97,
+  "largest_current_runtime_owner_lines": 273,
+  "full_current_source_records": 23,
+  "partial_test_followups": [
+    "backend/tests/integration/test_mcp_admin_overview_http.py",
+    "backend/tests/integration/test_mcp_admin_overview_reads.py",
+    "backend/tests/integration/test_mcp_read_only_sections.py"
+  ],
+  "test_executions": 203,
+  "unique_cases": 203,
+  "test_files": 14,
+  "whole_declaration_AST_contracts": 26,
+  "evaluated_runtime_annotation_contracts": 26,
+  "unchanged_public_endpoint_declarations_and_actual_facade_identities": 12,
+  "complete_openapi_equal": true,
+  "projection_cohorts_executed": 100,
+  "original_membership_owner_reads": 460800,
+  "current_representative_work": {
+    "managers": 12,
+    "assigned_group_outputs": 240,
+    "membership_owner_reads": 240,
+    "sql_queries": 4
+  },
+  "query_count_and_scope_unchanged": true,
+  "receipts_sha256": {
+    "admin-original-review.json": "5fc5a759751123664854192f65495b248702fa8da77173aec6181e93c7ab14af",
+    "admin-api-before.json": "e3a7b2db393933f6d606a54f64375444971f2883c5e76c85b9f1f7b095d2a8e5",
+    "admin-account-projection-before-corrected.txt": "888c5c3a90463b03362544f9d663fb66bcd48390e50252af0033cb91fc0cc3f3",
+    "admin-account-projection-relocated-proof.json": "5e8aee5e55809c3dd45702fd89d8b76527222082facd61d357624dccfe2e0e69",
+    "admin-extraction-current-proof.json": "107f8e474bbc36fdd63edd7da7fd891b51720eeaea7e270d2fee6a0ffde6a286",
+    "admin-runtime-annotation-proof.json": "3a6c8b66f63bbd90a1e4309c11dbb1537dc03a28fd0e229d19009a39b0ccacba",
+    "admin-current-test-command.json": "670c8d2032bdffc0d02a6601edfd5d359956ada538f5c86071395642bcd0955f",
+    "admin-current-tests.txt": "041da7b4da0346d1c54cfeef67baac9dce2028880586991f33523f8b38aebea8",
+    "admin-deletion-query-tests.txt": "1615b4a64c725b2748b67db598ae1b96282a8587f16e6d63e9e84fb32f07204d",
+    "admin-coverage-union-proof.json": "a5ab91a0fe2d537a816a510c4530db6af4961ce1d7038d60f266d5ea22ad450e",
+    "admin-filtered-coverage.json": "8f9b5f2cabced164306e5480b0b6dc706c91fc711c027b69278d49ca8489f9a7",
+    "admin-current-mypy.txt": "8b88f6d12bd312c1b024b66d07a7f7619a68482ac4d64e475759b1823199faa5",
+    "admin-current-ruff.txt": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "admin-current-architecture.txt": "895bfbeca4c78591066dcf214c4bfe9de43b5d7ed5d3f518fe398563a7bcc992",
+    "admin-budget-candidates.json": "70876bc3ea5c8cbffa032a7219bfc28b773aec4f79869b184dafc1fdf4aa1263",
+    "admin-reviewed-files.json": "298440eeae9b018f43fae94b90fc130b572fa007fea78d190d07b5cdc8bfd7f4"
+  },
+  "history": [
+    "Initial projection fixture lacked agency_id; corrected before actual460800-read negative. Those fixture failures are not product findings.",
+    "Invitation fixtures initially used EmailStr-forbidden .test addresses:4fixture failures/2access controls. Documentation example.com addresses corrected before actual invitation/token execution passed.",
+    "Extra formatter initially used wrong relative executable before a correctly located passing8-case supplement. Both subsequent formatter changes have exact whole-module AST proofs; no runtime rerun for formatting.",
+    "Initial coverage purge retained374empty metadata records. Final admitted raw data contains exactly12current owners. In-memory CoverageData.update cannot attach populated SQLite memory; final combination directly unions plain Python arcs with asserted empty context/no plugins. Primary raw files unchanged.",
+    "Initial runtime annotation check lacked PYTHONPATH and never imported app; corrected before all26actual comparisons passed. An inline parent-receipt draft had a syntax error before any write; this explicit sealer replaces it."
+  ],
+  "limits": [
+    "No real PostgreSQL/Redis/object-storage/browser/VPS qualification from this Python batch.",
+    "MFA/CSRF, tenant/group selection, hold policy, ordered row locks, replay receipts, audit retention and commit-before-storage cleanup retain their original contracts.",
+    "Long destructive functions remain explicit transactional orchestrators inside dedicated273/252line owners. No mutable namespace/proxy/callback bag introduced.",
+    "This does not close separate managed-account architecture/status follow-through or the whole-codebase audit."
+  ]
+}

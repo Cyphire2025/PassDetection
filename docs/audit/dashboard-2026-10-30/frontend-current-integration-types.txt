@@ -1,0 +1,2 @@
+.next/dev/types/validator.ts(5,50): error TS6196: 'AppRouteHandlerRoutes' is declared but never used.
+.next/dev/types/validator.ts(7,1): error TS6133: 'NextRequest' is declared but its value is never read.

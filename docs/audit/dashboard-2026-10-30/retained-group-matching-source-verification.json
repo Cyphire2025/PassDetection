@@ -1,0 +1,40 @@
+{
+  "status": "Read-only current source cohort complete; broader audit active",
+  "new_current_full_tests": 1,
+  "test_physical_lines": 797,
+  "supporting_full_rows": 1,
+  "focused_rows": 1,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-group-matching-source-reviewed-files.json",
+    "sha256": "3ccc73ae079a091e76535167370a60248a174fe407bd302e61686b895066c219"
+  },
+  "source_fence": {
+    "backend/tests/unit/application/test_group_submission_matching.py": "eebba542677fc7a5b68a5055787d203de877fcc4ddbb931c8c96c2c0146e1a10",
+    "backend/app/application/use_cases/whatsapp/private_delivery_identity.py": "07d1d03caf28648a0b59a4378bead83e74144a81600db57f0128856e443da3f5",
+    "backend/app/application/use_cases/whatsapp/group_submission_matching.py": "dc85ecd81a87dd90451b9558d40a5007d338d93c3af30570cbff7d92b6ceb2e3"
+  },
+  "previous_current_full_support": [
+    {
+      "path": "backend/app/application/use_cases/whatsapp/group_submission_matching.py",
+      "sha256": "dc85ecd81a87dd90451b9558d40a5007d338d93c3af30570cbff7d92b6ceb2e3",
+      "ledgers": [
+        "whatsapp-backend-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/private_delivery_identity.py",
+      "sha256": "07d1d03caf28648a0b59a4378bead83e74144a81600db57f0128856e443da3f5",
+      "ledgers": [
+        "whatsapp-backend-reviewed-files.json"
+      ]
+    }
+  ],
+  "checks_run": [],
+  "changes": [],
+  "findings": [],
+  "limitations": [
+    "No app/test/database/provider/network/credential/scanner execution for source-read credit.",
+    "Previously full implementation owners and imported fixtures are not automatically new physical-read credit; focused slices remain focused.",
+    "No new architecture/security/performance claim based on source length or existing test names."
+  ]
+}

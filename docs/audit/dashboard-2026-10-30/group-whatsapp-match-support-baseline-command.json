@@ -1,0 +1,77 @@
+{
+  "argv": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-X",
+    "utf8",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "tests/unit/presentation/test_client_group_whatsapp_match_support.py",
+    "tests/unit/presentation/test_passport_roster_resolution_routes.py",
+    "tests/unit/presentation/test_group_whatsapp_links.py",
+    "tests/unit/presentation/test_whatsapp_staff_group_visibility.py",
+    "tests/integration/test_mcp_phone_difference_reads.py",
+    "tests/integration/test_mcp_dashboard_detail_reads.py::test_section_denial_and_role_loss_stop_before_data",
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\test_group_whatsapp_match_contract_capture.py"
+  ],
+  "cwd": "backend",
+  "exit_code": 1,
+  "seconds": 21.719,
+  "log_sha256": "0f93d2951b0b90e4a60ddf8bd2a94ecf4f395e6f5a5a67054ae7e120a526f0a0",
+  "source_fence": {
+    "backend/app/presentation/api/v1/routes/client_group_whatsapp_match_support.py": {
+      "sha256": "091a92a1824f3f88caed7a8248b7f7ae261f50b0f35dfcb23acd0f8cd485cdcd",
+      "physical_lines": 410
+    },
+    "backend/app/presentation/api/v1/routes/client_group_link_operations.py": {
+      "sha256": "07fcf9c399905f1ead0b851acb0d37f99149642fea2add2041210edfed6a1351",
+      "physical_lines": 245
+    },
+    "backend/app/presentation/api/v1/routes/client_groups.py": {
+      "sha256": "b48a7e4843e9f1b8d48d7a3483e5ad4d52eac984e65c05a9b78b716559b13179",
+      "physical_lines": 859
+    },
+    "backend/app/presentation/api/v1/routes/client_group_resolution_restore.py": {
+      "sha256": "f2bd17b57b1cc3e7f81e1e92e3e41338991d84aaa88117aa990541aa77de794a",
+      "physical_lines": 214
+    },
+    "backend/app/presentation/api/v1/routes/client_group_replacement_resolution.py": {
+      "sha256": "38f01e5f29be51833743f7c73b591d71fcc6e9b0d541bf3dea893924b15470f1",
+      "physical_lines": 365
+    },
+    "backend/app/presentation/api/v1/routes/client_group_rejection_resolution.py": {
+      "sha256": "cce152527474d69a78ded89500cf5a82dcc59db1127b10c6002cdb963397fed8",
+      "physical_lines": 175
+    },
+    "backend/app/presentation/mcp/phone_difference_read_tools.py": {
+      "sha256": "28f5a475f5a75f5274ec44a3221e766a83402f2ae72fe09270f6d056968d7086",
+      "physical_lines": 72
+    },
+    "backend/tests/unit/presentation/test_client_group_whatsapp_match_support.py": {
+      "sha256": "9c1438b3893baf354a8e36e5d4385d4a9f4734ffa6013fc41aefae55360f5e48",
+      "physical_lines": 131
+    },
+    "backend/tests/unit/presentation/test_passport_roster_resolution_routes.py": {
+      "sha256": "01c8ea5144a596a5aea700715a80e6de7eee03860b8abe0caeb75b2f65859b06",
+      "physical_lines": 756
+    },
+    "backend/tests/unit/presentation/test_group_whatsapp_links.py": {
+      "sha256": "e49ec1bee518a55f6861f03def2650aa851936e5c8a4dda86ba8fec3038e238b",
+      "physical_lines": 897
+    },
+    "backend/tests/unit/presentation/test_whatsapp_staff_group_visibility.py": {
+      "sha256": "eabfb6c66c89d257f0f5599e841011546115eea5d931cd3434bcfafb712575d6",
+      "physical_lines": 211
+    },
+    "backend/tests/integration/test_mcp_phone_difference_reads.py": {
+      "sha256": "9e86ceeebdf40bb8d260d4497b6b4b511e094c8c7c75a7bd08923692fc6e6f73",
+      "physical_lines": 152
+    },
+    "backend/tests/integration/test_mcp_dashboard_detail_reads.py": {
+      "sha256": "2a25b62c68717bdf79064621aeb1cb5f23abace009d89f392cefd24c43a0335c",
+      "physical_lines": 569
+    }
+  }
+}

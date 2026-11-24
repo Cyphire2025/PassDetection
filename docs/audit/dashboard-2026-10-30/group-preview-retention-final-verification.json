@@ -1,0 +1,197 @@
+{
+  "status": "Frozen bounded retained dashboard history-DTO lifetime improvement qualified; broader audit remains active",
+  "source_manifest": {
+    "path": "docs/audit/dashboard-2026-10-30/group-preview-retention-final-source-manifest.json",
+    "sha256": "8c19fc98b58c8b58a4d53bf0e8e1a7fef58ca8f48d5edb3c7a7826b13ebcb248"
+  },
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/group-preview-retention-reviewed-files.json",
+    "sha256": "eb5705ae46b60740a2ce2d9db75cdc7a610c66670b39adeb604b8e21005875f2"
+  },
+  "budget_candidates": {
+    "path": "docs/audit/dashboard-2026-10-30/group-preview-retention-budget-candidates.json",
+    "sha256": "15042b56c67ba65644b1300a2d55dc9a215c3ea0febb41b1801b5286e02c6ad1"
+  },
+  "defect_and_measurement": "Original preview retained GroupUpdateAttempt for every streamed history row until function return although response uses only current contacts latest details. Actual original4-contact/8-key FK SQLite histories reached weakref live peaks64/512; the final response retained4. Original regression6 produced2bound failures/4controls after counts/latest/order/eligibility checks passed.",
+  "change": "Prepare unresolved current audience/phone keys; preserve each original DTO constructor/validation call then retain a DTO only if it first resolves a current key, removing those keys and releasing the transient local. SQL/history scan/latest maps/attempt counts/active sets/token input/response/order/unknown outcome/legacy validation preserved. No cache/filter/native/provider policy change.",
+  "scope_of_complexity_claim": "Only retained GroupUpdateAttempt objects change from O(history rows) to O(current contact keys), at most2keys/contact plus one transient. Original latest/attempt/active maps and streamed reads still scale with historical keys/rows; total constructors remain H. No runtime-speed, query-count or whole-process memory claim. Owner grows103/C23 to111/C27 to state this ownership explicitly; broader logical decomposition is not claimed closed.",
+  "actual_same_DB_comparison": {
+    "path": "docs/audit/dashboard-2026-10-30/group-preview-retention-differential.json",
+    "sha256": "5c04a00ea9fb36ef0da48732831f28d28138394c888f3b62aa40f879b313578a"
+  },
+  "observed_lifetimes": [
+    {
+      "case": "empty",
+      "history_rows": 0,
+      "current_contact_keys": 8,
+      "original": {
+        "created": 0,
+        "live": 0,
+        "peak": 0
+      },
+      "current": {
+        "created": 0,
+        "live": 0,
+        "peak": 0
+      },
+      "complete_response_token_order_equal": true,
+      "original_source_sha256": "bb4b84f9a7f64a327ccedf948a6fb94c793d66ba6435d85b9dbbeaa4b19d8651"
+    },
+    {
+      "case": "one",
+      "history_rows": 1,
+      "current_contact_keys": 8,
+      "original": {
+        "created": 1,
+        "live": 1,
+        "peak": 1
+      },
+      "current": {
+        "created": 1,
+        "live": 1,
+        "peak": 1
+      },
+      "complete_response_token_order_equal": true,
+      "original_source_sha256": "bb4b84f9a7f64a327ccedf948a6fb94c793d66ba6435d85b9dbbeaa4b19d8651"
+    },
+    {
+      "case": "history64",
+      "history_rows": 64,
+      "current_contact_keys": 8,
+      "original": {
+        "created": 64,
+        "live": 4,
+        "peak": 64
+      },
+      "current": {
+        "created": 64,
+        "live": 4,
+        "peak": 7
+      },
+      "complete_response_token_order_equal": true,
+      "original_source_sha256": "bb4b84f9a7f64a327ccedf948a6fb94c793d66ba6435d85b9dbbeaa4b19d8651"
+    },
+    {
+      "case": "history512",
+      "history_rows": 512,
+      "current_contact_keys": 8,
+      "original": {
+        "created": 512,
+        "live": 4,
+        "peak": 512
+      },
+      "current": {
+        "created": 512,
+        "live": 4,
+        "peak": 6
+      },
+      "complete_response_token_order_equal": true,
+      "original_source_sha256": "bb4b84f9a7f64a327ccedf948a6fb94c793d66ba6435d85b9dbbeaa4b19d8651"
+    },
+    {
+      "case": "timestamp-ties",
+      "history_rows": 64,
+      "current_contact_keys": 8,
+      "original": {
+        "created": 64,
+        "live": 4,
+        "peak": 64
+      },
+      "current": {
+        "created": 64,
+        "live": 4,
+        "peak": 6
+      },
+      "complete_response_token_order_equal": true,
+      "original_source_sha256": "bb4b84f9a7f64a327ccedf948a6fb94c793d66ba6435d85b9dbbeaa4b19d8651"
+    },
+    {
+      "case": "invalid-old-current",
+      "validation_errors_exact": true
+    },
+    {
+      "case": "invalid-old-unrelated",
+      "validation_errors_exact": true
+    }
+  ],
+  "baseline6": {
+    "path": "docs/audit/dashboard-2026-10-30/group-preview-retention-before-command.json",
+    "sha256": "ecabbe8e224c2fcac58043555696911cf9a824de992ea364eb1891d0024bd018"
+  },
+  "baseline_log": {
+    "path": "docs/audit/dashboard-2026-10-30/group-preview-retention-before-tests.txt",
+    "sha256": "2e893bab8a404b3c3d9bc729f992376331f21db2abcb8755c305d2e3795bca96"
+  },
+  "product55_and_initial_external_fixture_errors": {
+    "path": "docs/audit/dashboard-2026-10-30/group-preview-retention-after-command.json",
+    "sha256": "40291d9c0e4ea7863afe0c98afeb10284ef68e06dd1fa26247e5c7a41b337375"
+  },
+  "product55_log": {
+    "path": "docs/audit/dashboard-2026-10-30/group-preview-retention-after-tests.txt",
+    "sha256": "d3357ed4b7c0b2c7201b437741f7e5a8863a632e29923a04319744b27ba860d4"
+  },
+  "audit7_qualified": {
+    "path": "docs/audit/dashboard-2026-10-30/group-preview-retention-differential-qualified-command.json",
+    "sha256": "9f06fa961d1329fea452bfa3215f0222c82c19b039de231097c6f624e0d9f739"
+  },
+  "audit7_log": {
+    "path": "docs/audit/dashboard-2026-10-30/group-preview-retention-differential-qualified-tests.txt",
+    "sha256": "9a4e702c7ddaab6748907fa19e4981691a39013e482979c4c9331ab4eaaab8b7"
+  },
+  "validation": "55 product cases pass (new6 plus all49 existing group-update cases), then only audit7 complete-response/token/order/hints/signature/old-invalid-error differential passes. Same unchanged runtime/test/caller hashes across both. All external provider calls synthetic in existing product tests; differential cases explicitly assert no provider/publication calls.",
+  "fixture_history": {
+    "first": "Audit7 outside tests hierarchy could not find db_session;55 product cases passed. Raw error log retained, no product failure.",
+    "second_attempt": {
+      "path": "docs/audit/dashboard-2026-10-30/group-preview-retention-differential-command.json",
+      "sha256": "72ec6761c46b2fa25cb8c1769fa29fa2cb6ef29e43b5f0e2b1b6987782a0d847"
+    },
+    "second_log": {
+      "path": "docs/audit/dashboard-2026-10-30/group-preview-retention-differential-tests.txt",
+      "sha256": "32add41edf7a33ded19764e57935c940ce8805b16bdcd1d7aeab7e64ea66f99f"
+    },
+    "correction": "Explicit unchanged tests.conftest plugin registered existing fixture, then explicit unchanged backend pyproject -c restored its asyncio auto configuration for the outside-tree file. No fixture/config/runtime edits or warning suppression; only unexecuted7 rerun, no55 repeat."
+  },
+  "proof_and_static": {
+    "path": "docs/audit/dashboard-2026-10-30/group-preview-retention-source-static-proof.json",
+    "sha256": "dbfac7cb81550a87dedca31889666cde2a477ac2d3d0c4c412193dd8106b20cc"
+  },
+  "static": "Strict1 runtime and scoped Ruff1runtime+1newtest pass. Complete original module AST restored by exact inverse of bounded retention statements; no import/signature/SQL/await/count/token/constructor changes.",
+  "coverage_json": {
+    "path": "docs/audit/dashboard-2026-10-30/group-preview-retention-after-coverage.json",
+    "sha256": "8e7484789a835c0c4d65f1c3a294f2649a24c498a0acf8eab45e8090e8145586"
+  },
+  "coverage_xml": {
+    "path": "docs/audit/dashboard-2026-10-30/group-preview-retention-after-coverage.xml",
+    "sha256": "87039851e6acee766dda91b616857fd1c911f2028543fea2efe963e3daed8839"
+  },
+  "coverage": {
+    "covered_lines": 53,
+    "num_statements": 53,
+    "percent_covered": 98.50746268656717,
+    "percent_covered_display": "99",
+    "missing_lines": 0,
+    "excluded_lines": 0,
+    "percent_statements_covered": 100.0,
+    "percent_statements_covered_display": "100",
+    "num_branches": 14,
+    "num_partial_branches": 1,
+    "covered_branches": 13,
+    "missing_branches": 1,
+    "percent_branches_covered": 92.85714285714286,
+    "percent_branches_covered_display": "93"
+  },
+  "missing_branches": [
+    [
+      84,
+      86
+    ]
+  ],
+  "coverage_provenance": "Fresh current source coverage from55 actual passing product cases in run with7external fixture errors. Those7never executed and do not contribute fictitious coverage. Qualified audit7 is separate no-coverage proof, no stale coverage merge.",
+  "source_fence_count_product": 13,
+  "source_fence_count_audit": 16,
+  "limitations": [
+    "No live PostgreSQL/provider/production load proof. Metrics are actual DTO weakref lifetimes, not wall-clock or process RSS benchmarks.",
+    "Remaining single missing branch and existing full-history/latest-map resource costs disclosed; no complete security/performance closure inferred from source read or passing SQLite."
+  ],
+  "freeze": "Runtime111 and permanent test frozen at manifest hashes. Historical residual ledger/pre-fix full103 row preserved; current full111 row explicitly supersedes that source. Shared budgets/pins/config/models/auth/native/Inbox untouched; parent final combined verification later."
+}

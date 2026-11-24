@@ -1,0 +1,214 @@
+{
+  "source_manifest": {
+    "path": "docs/audit/dashboard-2026-10-30/passenger-propagation-final-source-manifest.json",
+    "sha256": "e07956d5aac6f100cf003ca7a944dbe8a9c528c4067cdb82aef2e303eca9db48"
+  },
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/passenger-propagation-final-reviewed-files.json",
+    "sha256": "67dbc7eeaedfb8bfb8ddf4f007217e27afc1417adfbe9b04bd720ae69ff095e5"
+  },
+  "normal_module_candidates": [
+    {
+      "path": "app/application/mobile/passenger_change_contracts.py",
+      "sha256": "d2380bfee9bdb59fe5dee50b2f0d12cdb7980033f419a11457d7cf0b7dacb130",
+      "previous": null,
+      "baseline_lines": 54,
+      "maximum_lines": 60,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/application/mobile/passenger_change_events.py",
+      "sha256": "e7e3fe920b64f0e7f83b45525bf00889d34e12c0ca05a9aca86f3b29210118d1",
+      "previous": null,
+      "baseline_lines": 130,
+      "maximum_lines": 130,
+      "baseline_max_function_complexity": 14,
+      "maximum_function_complexity": 14,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/application/mobile/passenger_change_identities.py",
+      "sha256": "0e663f42d3f78ab195b2cda8b51b7021a8a231f9dcdd3098a3f989e3921bbd7d",
+      "previous": null,
+      "baseline_lines": 85,
+      "maximum_lines": 90,
+      "baseline_max_function_complexity": 10,
+      "maximum_function_complexity": 10,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/application/mobile/passenger_change_journal.py",
+      "sha256": "dee981f849e150af11a70bf3d7d3db990d4eb6b885ce293372e2f4b0ab37ce16",
+      "previous": null,
+      "baseline_lines": 115,
+      "maximum_lines": 120,
+      "baseline_max_function_complexity": 12,
+      "maximum_function_complexity": 12,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/application/mobile/passenger_change_propagation.py",
+      "sha256": "a87d9aef03194a21969670437f2a2905045a66b2e536c52eda2281975ffc0bd7",
+      "previous": null,
+      "baseline_lines": 299,
+      "maximum_lines": 300,
+      "baseline_max_function_complexity": 10,
+      "maximum_function_complexity": 10,
+      "minimum_coverage_percent": 85
+    }
+  ],
+  "critical_module_candidates": [],
+  "coverage": [
+    {
+      "path": "app/application/mobile/passenger_change_contracts.py",
+      "summary": {
+        "covered_lines": 38,
+        "num_statements": 38,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 8,
+        "num_partial_branches": 0,
+        "covered_branches": 8,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      },
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    {
+      "path": "app/application/mobile/passenger_change_events.py",
+      "summary": {
+        "covered_lines": 28,
+        "num_statements": 29,
+        "percent_covered": 95.1219512195122,
+        "percent_covered_display": "95",
+        "missing_lines": 1,
+        "excluded_lines": 0,
+        "percent_statements_covered": 96.55172413793103,
+        "percent_statements_covered_display": "97",
+        "num_branches": 12,
+        "num_partial_branches": 1,
+        "covered_branches": 11,
+        "missing_branches": 1,
+        "percent_branches_covered": 91.66666666666667,
+        "percent_branches_covered_display": "92"
+      },
+      "missing_lines": [
+        87
+      ],
+      "missing_branches": [
+        [
+          86,
+          87
+        ]
+      ]
+    },
+    {
+      "path": "app/application/mobile/passenger_change_identities.py",
+      "summary": {
+        "covered_lines": 24,
+        "num_statements": 24,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 6,
+        "num_partial_branches": 0,
+        "covered_branches": 6,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      },
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    {
+      "path": "app/application/mobile/passenger_change_journal.py",
+      "summary": {
+        "covered_lines": 37,
+        "num_statements": 38,
+        "percent_covered": 96.0,
+        "percent_covered_display": "96",
+        "missing_lines": 1,
+        "excluded_lines": 0,
+        "percent_statements_covered": 97.36842105263158,
+        "percent_statements_covered_display": "97",
+        "num_branches": 12,
+        "num_partial_branches": 1,
+        "covered_branches": 11,
+        "missing_branches": 1,
+        "percent_branches_covered": 91.66666666666667,
+        "percent_branches_covered_display": "92"
+      },
+      "missing_lines": [
+        68
+      ],
+      "missing_branches": [
+        [
+          67,
+          68
+        ]
+      ]
+    },
+    {
+      "path": "app/application/mobile/passenger_change_propagation.py",
+      "summary": {
+        "covered_lines": 74,
+        "num_statements": 85,
+        "percent_covered": 85.4368932038835,
+        "percent_covered_display": "85",
+        "missing_lines": 11,
+        "excluded_lines": 0,
+        "percent_statements_covered": 87.05882352941177,
+        "percent_statements_covered_display": "87",
+        "num_branches": 18,
+        "num_partial_branches": 2,
+        "covered_branches": 14,
+        "missing_branches": 4,
+        "percent_branches_covered": 77.77777777777777,
+        "percent_branches_covered_display": "78"
+      },
+      "missing_lines": [
+        237,
+        255,
+        260,
+        261,
+        273,
+        274,
+        290,
+        291,
+        292,
+        298,
+        299
+      ],
+      "missing_branches": [
+        [
+          236,
+          237
+        ],
+        [
+          252,
+          255
+        ],
+        [
+          291,
+          292
+        ],
+        [
+          291,
+          299
+        ]
+      ]
+    }
+  ],
+  "scope": "Five additive normal measured candidates only. Original source had no normal or critical membership; no old cap/floor is raised or removed. Main85 floor reflects actual85.44 combined/87.06 line coverage and unchanged group/broadcast path gaps, not an artificial95 declaration floor. Shared gates remain owned by AI/root."
+}

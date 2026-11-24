@@ -1,0 +1,45 @@
+FF
+======================================================================
+FAIL: test_early_main_failure_reaps_the_owned_observer_before_returning (test_capacity_observer_lifecycle.WorkloadObserverTests.test_early_main_failure_reaps_the_owned_observer_before_returning)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\unittest\async_case.py", line 90, in _callTestMethod
+    if self._callMaybeAsync(method) is not None:
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\unittest\async_case.py", line 112, in _callMaybeAsync
+    return self._asyncioRunner.run(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\asyncio\base_events.py", line 654, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\qa\test_capacity_observer_lifecycle.py", line 60, in test_early_main_failure_reaps_the_owned_observer_before_returning
+    self.assertEqual(observer.terminated, 1)
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_main_cancellation_reaps_observer_before_cancellation_propagates (test_capacity_observer_lifecycle.WorkloadObserverTests.test_main_cancellation_reaps_observer_before_cancellation_propagates)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\unittest\async_case.py", line 90, in _callTestMethod
+    if self._callMaybeAsync(method) is not None:
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\unittest\async_case.py", line 112, in _callMaybeAsync
+    return self._asyncioRunner.run(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\asyncio\base_events.py", line 654, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\qa\test_capacity_observer_lifecycle.py", line 76, in test_main_cancellation_reaps_observer_before_cancellation_propagates
+    self.assertEqual(observer.terminated, 1)
+AssertionError: 0 != 1
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.117s
+
+FAILED (failures=2)

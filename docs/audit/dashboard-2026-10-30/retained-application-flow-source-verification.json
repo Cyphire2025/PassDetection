@@ -1,0 +1,54 @@
+{
+  "status": "Read-only current source cohort complete; broader audit active",
+  "new_current_full_tests": 4,
+  "test_physical_lines": 1669,
+  "supporting_full_rows": 1,
+  "focused_rows": 3,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-application-flow-source-reviewed-files.json",
+    "sha256": "3b8ea70c49e81af864c3270ea5b61a0b8aab13d83ac8e11b3b995716aa269152"
+  },
+  "source_fence": {
+    "backend/tests/unit/application/test_qualifier_selection_flow.py": "73cc6a65858cc04cefb2d18c7084d8dbb62b0d74eb1c1b0e81dd79c2c9467b5a",
+    "backend/tests/unit/application/test_announcement_notification_status.py": "e5be6cbb35ff010e4918c961c5aff97767562a7011f40c54846702763bffc351",
+    "backend/tests/unit/application/test_correct_client_details.py": "39d8bcd07710bca86106770c3b5585fbeff441d22713d67a2b6549df288c11af",
+    "backend/tests/unit/application/test_client_group_field_options.py": "a1f67b09fa2e64022476bc43063b9398e1c98af4c3140e7993b7d2f9a5f6cc7d",
+    "backend/app/application/mobile/announcement_notification_status.py": "cefe730a4a7eb143521edbdd929555bbbe7226d94a7dddbbf8ff1ae56fb65b91",
+    "backend/app/presentation/api/v1/routes/gc_app_announcements.py": "fa477ecd36f4bc9cc6991314d5c9a173fff479273d6687fb620c3eebefc92530",
+    "backend/app/application/use_cases/passports/client_submit_passport_use_case.py": "aee3271b832c45f09989735136583602051456bd830a01c278a766b77b6bdc72",
+    "backend/app/application/use_cases/passports/correct_client_details.py": "9d65e96f9e34da637b610dce21c8d91c87cb135abc404973aa2a1bf1bd1d89d6"
+  },
+  "previous_current_full_support": [
+    {
+      "path": "backend/app/application/use_cases/client_groups/create_qualifier_selection_use_case.py",
+      "sha256": "a1728ffa9e42ef3548017dfe1dc515fed229fb6ea33ebefccc8552b9027e994f",
+      "ledgers": [
+        "backend-dtos-interfaces-reviewed-files.json",
+        "retained-qualifier-source-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "backend/app/application/use_cases/client_groups/get_qualifier_selection_use_case.py",
+      "sha256": "30fa653479f7917ec0e5cc6b60f87e342b972da52f38c3ea0f3012c8abb37a9c",
+      "ledgers": [
+        "backend-dtos-interfaces-reviewed-files.json",
+        "retained-qualifier-source-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/correct_client_details.py",
+      "sha256": "9d65e96f9e34da637b610dce21c8d91c87cb135abc404973aa2a1bf1bd1d89d6",
+      "ledgers": [
+        "client-correction-simplification-reviewed-files.json"
+      ]
+    }
+  ],
+  "checks_run": [],
+  "changes": [],
+  "findings": [],
+  "limitations": [
+    "No app/test/database/provider/network/credential/scanner execution for source-read credit.",
+    "Previously full implementation owners and imported fixtures are not automatically new physical-read credit; focused slices remain focused.",
+    "No new architecture/security/performance claim based on source length or existing test names."
+  ]
+}

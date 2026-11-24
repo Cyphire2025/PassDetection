@@ -1,0 +1,95 @@
+"""Bound command time, captured memory and private diagnostic bytes continuously."""
+from __future__ import annotations
+
+import asyncio
+import os
+import subprocess
+import tempfile
+from pathlib import Path
+from typing import Protocol, cast
+
+from qa.qualify_postgresql_client import QualificationError
+
+
+class _OutputSink(Protocol):
+    def write(self, data: bytes, /) -> int: ...
+
+
+class _BoundedOutput(asyncio.SubprocessProtocol):
+    """Drain private bytes without a blocking reader that can outlive its pipe."""
+
+    def __init__(self, output: _OutputSink, maximum_bytes: int) -> None:
+        self.output = output
+        self.maximum_bytes = maximum_bytes
+        self.size = 0
+        self.failed = False
+        self.closed: asyncio.Future[None] = asyncio.get_running_loop().create_future()
+        self.transport: asyncio.SubprocessTransport
+
+    def connection_made(self, transport: asyncio.BaseTransport) -> None:
+        self.transport = cast(asyncio.SubprocessTransport, transport)
+
+    def pipe_data_received(self, fd: int, data: bytes) -> None:
+        if self.failed:
+            return
+        remaining = self.maximum_bytes - self.size
+        try:
+            self.output.write(data[:remaining])
+        except OSError:
+            self.failed = True
+        self.size += len(data)
+        if self.failed or self.size > self.maximum_bytes:
+            self.failed = True
+            self.transport.close()
+
+    def pipe_connection_lost(self, fd: int, exc: Exception | None) -> None:
+        if exc is not None:
+            self.failed = True
+            self.transport.close()
+
+    def connection_lost(self, exc: Exception | None) -> None:
+        self.failed = self.failed or exc is not None
+        self.closed.set_result(None)
+
+
+async def _capture(arguments: list[str], timeout: int, maximum_bytes: int,
+                   output: _OutputSink) -> None:
+    protocol = _BoundedOutput(output, maximum_bytes)
+    transport: asyncio.SubprocessTransport | None = None
+    try:
+        # The same deadline covers process exit AND pipe EOF. A descendant may
+        # retain stdout after its parent exits; transport.close() closes our end
+        # without waiting for that descendant or leaving a reader thread behind.
+        async with asyncio.timeout(timeout):
+            transport, _ = await asyncio.get_running_loop().subprocess_exec(
+                lambda: protocol, *arguments, stdin=None,
+                stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+            )
+            await asyncio.shield(protocol.closed)
+        if protocol.failed:
+            raise QualificationError("migration_output_limit_or_capture_failed")
+        if transport.get_returncode():
+            raise QualificationError("populated_migration_helper_failed")
+    except (OSError, TimeoutError):
+        raise QualificationError("populated_migration_command_failed_or_timed_out") from None
+    finally:
+        if transport is not None:
+            transport.close()
+            # Closing kills a still-running direct child and closes its pipes.
+            # Reap that child before the event loop and private output are closed.
+            try:
+                await asyncio.wait_for(asyncio.shield(protocol.closed), timeout=10)
+            except TimeoutError:
+                raise QualificationError("populated_migration_command_failed_or_timed_out") from None
+
+
+def capture(arguments: list[str], *, timeout: int, maximum_bytes: int = 2 * 1024 * 1024,
+            diagnostic_path: Path | None = None) -> str:
+    with (os.fdopen(os.open(diagnostic_path, os.O_RDWR | os.O_CREAT | os.O_EXCL, 0o600), "w+b")
+          if diagnostic_path is not None else tempfile.TemporaryFile()) as output:
+        asyncio.run(_capture(arguments, timeout, maximum_bytes, output))
+        output.flush()
+        if diagnostic_path is not None:
+            os.fsync(output.fileno())
+        output.seek(0)
+        return output.read(maximum_bytes).decode("utf-8", errors="replace")

@@ -1,0 +1,218 @@
+[
+  {
+    "path": "backend/app/domain/value_objects/__init__.py",
+    "sha256": "f7f0ae580a55bd07e427d55d2982e40d12a2cd590386d85e583db5d77f8fdb0b",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All physical lines read across5frozen batches/25sourcefiles. Extracted-date normalization now rechecks after each discarded conflict while preserving prior priority, token repr omits bearer values, and export ID validation reuses one verifiedset. Three date contradictions and three credential repr leaks reproduced before fixes;146domain/capture/refresh tests+27subtests pass, Ruff/strictmypy25sources pass. Source inspection does not establish full transitive route/worker verification."
+  },
+  {
+    "path": "backend/app/domain/value_objects/attendance_activity.py",
+    "sha256": "269389dc098907da25f17eff1304b1389205e33ad64559b8c8d130c703b19ca5",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All physical lines read across5frozen batches/25sourcefiles. Extracted-date normalization now rechecks after each discarded conflict while preserving prior priority, token repr omits bearer values, and export ID validation reuses one verifiedset. Three date contradictions and three credential repr leaks reproduced before fixes;146domain/capture/refresh tests+27subtests pass, Ruff/strictmypy25sources pass. Source inspection does not establish full transitive route/worker verification."
+  },
+  {
+    "path": "backend/app/domain/value_objects/attendance_read_limits.py",
+    "sha256": "9076f9372c885e7fd2d2d07733869b21419c46df2fca11b9ff8aa8e223cce073",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All physical lines read across5frozen batches/25sourcefiles. Extracted-date normalization now rechecks after each discarded conflict while preserving prior priority, token repr omits bearer values, and export ID validation reuses one verifiedset. Three date contradictions and three credential repr leaks reproduced before fixes;146domain/capture/refresh tests+27subtests pass, Ruff/strictmypy25sources pass. Source inspection does not establish full transitive route/worker verification."
+  },
+  {
+    "path": "backend/app/domain/value_objects/client_collection_provenance.py",
+    "sha256": "7805f9462bf106f8ffe57ce508bca05c8577aa8f88bff88265110189522743df",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All physical lines read across5frozen batches/25sourcefiles. Extracted-date normalization now rechecks after each discarded conflict while preserving prior priority, token repr omits bearer values, and export ID validation reuses one verifiedset. Three date contradictions and three credential repr leaks reproduced before fixes;146domain/capture/refresh tests+27subtests pass, Ruff/strictmypy25sources pass. Source inspection does not establish full transitive route/worker verification."
+  },
+  {
+    "path": "backend/app/domain/value_objects/custom_questions.py",
+    "sha256": "c2a92a0a801a7651dadf243adba4e250ce0041f1a8b01271a61a90c93d065ebb",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All physical lines read across5frozen batches/25sourcefiles. Extracted-date normalization now rechecks after each discarded conflict while preserving prior priority, token repr omits bearer values, and export ID validation reuses one verifiedset. Three date contradictions and three credential repr leaks reproduced before fixes;146domain/capture/refresh tests+27subtests pass, Ruff/strictmypy25sources pass. Source inspection does not establish full transitive route/worker verification."
+  },
+  {
+    "path": "backend/app/domain/value_objects/dashboard_summary.py",
+    "sha256": "b9377e037c21c1f155507871be058d24b492c56b00bb116aab47e894f0ce1985",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All physical lines read across5frozen batches/25sourcefiles. Extracted-date normalization now rechecks after each discarded conflict while preserving prior priority, token repr omits bearer values, and export ID validation reuses one verifiedset. Three date contradictions and three credential repr leaks reproduced before fixes;146domain/capture/refresh tests+27subtests pass, Ruff/strictmypy25sources pass. Source inspection does not establish full transitive route/worker verification."
+  },
+  {
+    "path": "backend/app/domain/value_objects/email_ai_analysis.py",
+    "sha256": "3504019120fe0d2921724cb5bda03629395c3877da1cbb91f3b50caf74b700fb",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All physical lines read across5frozen batches/25sourcefiles. Extracted-date normalization now rechecks after each discarded conflict while preserving prior priority, token repr omits bearer values, and export ID validation reuses one verifiedset. Three date contradictions and three credential repr leaks reproduced before fixes;146domain/capture/refresh tests+27subtests pass, Ruff/strictmypy25sources pass. Source inspection does not establish full transitive route/worker verification."
+  },
+  {
+    "path": "backend/app/domain/value_objects/import_group.py",
+    "sha256": "d0cf89d85fe2377451a2016806425b40a74697c333a85bf56226ff479468499d",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All physical lines read across5frozen batches/25sourcefiles. Extracted-date normalization now rechecks after each discarded conflict while preserving prior priority, token repr omits bearer values, and export ID validation reuses one verifiedset. Three date contradictions and three credential repr leaks reproduced before fixes;146domain/capture/refresh tests+27subtests pass, Ruff/strictmypy25sources pass. Source inspection does not establish full transitive route/worker verification."
+  },
+  {
+    "path": "backend/app/domain/value_objects/passport_analytics.py",
+    "sha256": "56947ad1418430de15250626b000280bed2a03d9bf77e32a7610c0e5c750002b",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All physical lines read across5frozen batches/25sourcefiles. Extracted-date normalization now rechecks after each discarded conflict while preserving prior priority, token repr omits bearer values, and export ID validation reuses one verifiedset. Three date contradictions and three credential repr leaks reproduced before fixes;146domain/capture/refresh tests+27subtests pass, Ruff/strictmypy25sources pass. Source inspection does not establish full transitive route/worker verification."
+  },
+  {
+    "path": "backend/app/domain/value_objects/passport_document_classification.py",
+    "sha256": "5924424ca821eac438efcebf781976b4d50df3f2e1c3a1abc309f5c2d45928d1",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All physical lines read across5frozen batches/25sourcefiles. Extracted-date normalization now rechecks after each discarded conflict while preserving prior priority, token repr omits bearer values, and export ID validation reuses one verifiedset. Three date contradictions and three credential repr leaks reproduced before fixes;146domain/capture/refresh tests+27subtests pass, Ruff/strictmypy25sources pass. Source inspection does not establish full transitive route/worker verification."
+  },
+  {
+    "path": "backend/app/domain/value_objects/passport_export_history.py",
+    "sha256": "237fb72310b4c5eaed98d05a7ff24192bc2c9e4dbeb4e9969d83bd1d6471dbfa",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "All physical lines read across5frozen batches/25sourcefiles. Extracted-date normalization now rechecks after each discarded conflict while preserving prior priority, token repr omits bearer values, and export ID validation reuses one verifiedset. Three date contradictions and three credential repr leaks reproduced before fixes;146domain/capture/refresh tests+27subtests pass, Ruff/strictmypy25sources pass. Source inspection does not establish full transitive route/worker verification."
+  },
+  {
+    "path": "backend/app/domain/value_objects/passport_fields.py",
+    "sha256": "97561465267bdb954226682a1d5c0c8c7bc842b42e4f0bc766ad2bda2bcbb998",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "All physical lines read across5frozen batches/25sourcefiles. Extracted-date normalization now rechecks after each discarded conflict while preserving prior priority, token repr omits bearer values, and export ID validation reuses one verifiedset. Three date contradictions and three credential repr leaks reproduced before fixes;146domain/capture/refresh tests+27subtests pass, Ruff/strictmypy25sources pass. Source inspection does not establish full transitive route/worker verification."
+  },
+  {
+    "path": "backend/app/domain/value_objects/passport_image_crop.py",
+    "sha256": "00cc199aa809f576c8bf6f609b13e4265810732b4f8672b1fd7df667358523d7",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All physical lines read across5frozen batches/25sourcefiles. Extracted-date normalization now rechecks after each discarded conflict while preserving prior priority, token repr omits bearer values, and export ID validation reuses one verifiedset. Three date contradictions and three credential repr leaks reproduced before fixes;146domain/capture/refresh tests+27subtests pass, Ruff/strictmypy25sources pass. Source inspection does not establish full transitive route/worker verification."
+  },
+  {
+    "path": "backend/app/domain/value_objects/passport_image_library.py",
+    "sha256": "5c6bed11e358decd02eabe3250eb20fbee07fb927640341c4caccfe456f86566",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All physical lines read across5frozen batches/25sourcefiles. Extracted-date normalization now rechecks after each discarded conflict while preserving prior priority, token repr omits bearer values, and export ID validation reuses one verifiedset. Three date contradictions and three credential repr leaks reproduced before fixes;146domain/capture/refresh tests+27subtests pass, Ruff/strictmypy25sources pass. Source inspection does not establish full transitive route/worker verification."
+  },
+  {
+    "path": "backend/app/domain/value_objects/passport_visa_ai_image.py",
+    "sha256": "1678b989f9da9229f15266a9646f8d9c2e3347cae1ad0781ba40dabb7c700cee",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All physical lines read across5frozen batches/25sourcefiles. Extracted-date normalization now rechecks after each discarded conflict while preserving prior priority, token repr omits bearer values, and export ID validation reuses one verifiedset. Three date contradictions and three credential repr leaks reproduced before fixes;146domain/capture/refresh tests+27subtests pass, Ruff/strictmypy25sources pass. Source inspection does not establish full transitive route/worker verification."
+  },
+  {
+    "path": "backend/app/domain/value_objects/passport_visa_ai_image_job.py",
+    "sha256": "7281a9768cbc62a8dbdd236a6777c846571c4a62b0ceb048151c276bbc216b6f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All physical lines read across5frozen batches/25sourcefiles. Extracted-date normalization now rechecks after each discarded conflict while preserving prior priority, token repr omits bearer values, and export ID validation reuses one verifiedset. Three date contradictions and three credential repr leaks reproduced before fixes;146domain/capture/refresh tests+27subtests pass, Ruff/strictmypy25sources pass. Source inspection does not establish full transitive route/worker verification."
+  },
+  {
+    "path": "backend/app/domain/value_objects/personnel_codes.py",
+    "sha256": "63cbbe0d6e5dcc2d99949545d10969b6a5ab54fdaaa3c98898060898d299b9ad",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All physical lines read across5frozen batches/25sourcefiles. Extracted-date normalization now rechecks after each discarded conflict while preserving prior priority, token repr omits bearer values, and export ID validation reuses one verifiedset. Three date contradictions and three credential repr leaks reproduced before fixes;146domain/capture/refresh tests+27subtests pass, Ruff/strictmypy25sources pass. Source inspection does not establish full transitive route/worker verification."
+  },
+  {
+    "path": "backend/app/domain/value_objects/phone_number.py",
+    "sha256": "4f67af7c8bffa294eb1335ab9e216feb52cd19c16c88c10a2fca9ce4da890854",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All physical lines read across5frozen batches/25sourcefiles. Extracted-date normalization now rechecks after each discarded conflict while preserving prior priority, token repr omits bearer values, and export ID validation reuses one verifiedset. Three date contradictions and three credential repr leaks reproduced before fixes;146domain/capture/refresh tests+27subtests pass, Ruff/strictmypy25sources pass. Source inspection does not establish full transitive route/worker verification."
+  },
+  {
+    "path": "backend/app/domain/value_objects/qualifier_relations.py",
+    "sha256": "9f50acde7e0eede23f2a39fbfced5bb3afab73fb7788d53b76e7ab1a0b919520",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All physical lines read across5frozen batches/25sourcefiles. Extracted-date normalization now rechecks after each discarded conflict while preserving prior priority, token repr omits bearer values, and export ID validation reuses one verifiedset. Three date contradictions and three credential repr leaks reproduced before fixes;146domain/capture/refresh tests+27subtests pass, Ruff/strictmypy25sources pass. Source inspection does not establish full transitive route/worker verification."
+  },
+  {
+    "path": "backend/app/domain/value_objects/request_actor.py",
+    "sha256": "ff6f9aebf061d2f9c1cf6bc127e8c291264ebd344d8c86e46983dd7c127facc2",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All physical lines read across5frozen batches/25sourcefiles. Extracted-date normalization now rechecks after each discarded conflict while preserving prior priority, token repr omits bearer values, and export ID validation reuses one verifiedset. Three date contradictions and three credential repr leaks reproduced before fixes;146domain/capture/refresh tests+27subtests pass, Ruff/strictmypy25sources pass. Source inspection does not establish full transitive route/worker verification."
+  },
+  {
+    "path": "backend/app/domain/value_objects/tokens.py",
+    "sha256": "0dac582fc208d898c6a3c6deeec89be4e3bc36afda3b6a8b23c6889b5ca7fc69",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "All physical lines read across5frozen batches/25sourcefiles. Extracted-date normalization now rechecks after each discarded conflict while preserving prior priority, token repr omits bearer values, and export ID validation reuses one verifiedset. Three date contradictions and three credential repr leaks reproduced before fixes;146domain/capture/refresh tests+27subtests pass, Ruff/strictmypy25sources pass. Source inspection does not establish full transitive route/worker verification."
+  },
+  {
+    "path": "backend/app/domain/value_objects/travel_document_taxonomy.py",
+    "sha256": "b4b453065c40c5957e3c40d933d1fb5c7215091bd96f9fd4c789f7e01a4f7948",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All physical lines read across5frozen batches/25sourcefiles. Extracted-date normalization now rechecks after each discarded conflict while preserving prior priority, token repr omits bearer values, and export ID validation reuses one verifiedset. Three date contradictions and three credential repr leaks reproduced before fixes;146domain/capture/refresh tests+27subtests pass, Ruff/strictmypy25sources pass. Source inspection does not establish full transitive route/worker verification."
+  },
+  {
+    "path": "backend/app/domain/value_objects/trip_lifecycle.py",
+    "sha256": "422f6cee772e139c76b17fa4c008a2acf369d7df52a5f52f120c3420faa65282",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All physical lines read across5frozen batches/25sourcefiles. Extracted-date normalization now rechecks after each discarded conflict while preserving prior priority, token repr omits bearer values, and export ID validation reuses one verifiedset. Three date contradictions and three credential repr leaks reproduced before fixes;146domain/capture/refresh tests+27subtests pass, Ruff/strictmypy25sources pass. Source inspection does not establish full transitive route/worker verification."
+  },
+  {
+    "path": "backend/app/domain/value_objects/trip_timezone.py",
+    "sha256": "ad2db08ea5d38e808fe47e58e4569886d03fef62ad58d81cf2afc3b167b34aed",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All physical lines read across5frozen batches/25sourcefiles. Extracted-date normalization now rechecks after each discarded conflict while preserving prior priority, token repr omits bearer values, and export ID validation reuses one verifiedset. Three date contradictions and three credential repr leaks reproduced before fixes;146domain/capture/refresh tests+27subtests pass, Ruff/strictmypy25sources pass. Source inspection does not establish full transitive route/worker verification."
+  },
+  {
+    "path": "backend/app/domain/value_objects/upload_configuration.py",
+    "sha256": "c0037adcd30fdfd24dabf764882ddd8d23733d67d22438d1ac50d2d1d8e4f119",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All physical lines read across5frozen batches/25sourcefiles. Extracted-date normalization now rechecks after each discarded conflict while preserving prior priority, token repr omits bearer values, and export ID validation reuses one verifiedset. Three date contradictions and three credential repr leaks reproduced before fixes;146domain/capture/refresh tests+27subtests pass, Ruff/strictmypy25sources pass. Source inspection does not establish full transitive route/worker verification."
+  },
+  {
+    "path": "backend/tests/unit/domain/test_passport_date_normalization.py",
+    "sha256": "22cd3cd3bd48e616439b133fc0b9f3d27a7ca3325655421159a5aa5b78842277",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete written and formatted test source reread; before6fail4pass and after146tests27subtests across existingdomain/capture/refresh scopes. Date controls retain valid, single-conflict, malformed and non-mutating behavior; token values/expiry/transport remain intact."
+  },
+  {
+    "path": "backend/tests/unit/domain/test_token_redaction.py",
+    "sha256": "de03a91850ff3bc10da72500c1843aa2cd62340849aec186ab287cdbb30438e5",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete written and formatted test source reread; before6fail4pass and after146tests27subtests across existingdomain/capture/refresh scopes. Date controls retain valid, single-conflict, malformed and non-mutating behavior; token values/expiry/transport remain intact."
+  }
+]

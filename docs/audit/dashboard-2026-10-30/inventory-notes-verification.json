@@ -1,0 +1,369 @@
+{
+  "sealed_at": "2026-10-31T10:08:25.600089+00:00",
+  "status": "source frozen; focused tooling checks and inventory refresh passed",
+  "source_files": [
+    {
+      "path": "scripts/dashboard_audit_inventory.py",
+      "sha256": "3c86b45998e5b39f5417e766ebd40a91ca65a532257b4a2abfc1b09ba420cca0",
+      "physical_lines": 291,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "notes": "Complete source physically reviewed; digest and exact partial-resolution function ASTs unchanged; original10 control cases unchanged;32focused tooling cases and configured Ruff pass. Notes normalized only in display copy, explicit legacy-contact retirement preserves2source digests and185/123line counts. UTF8 LF final bytes differ only line endings from passing test-source encoding where applicable."
+    },
+    {
+      "path": "backend/tests/unit/scripts/test_dashboard_audit_review_resolutions.py",
+      "sha256": "516f40f6a05fc0e6f37f6618f225a819146d344ccf4dcda5a0e9a4fe796c6dd7",
+      "physical_lines": 217,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "notes": "Complete source physically reviewed; digest and exact partial-resolution function ASTs unchanged; original10 control cases unchanged;32focused tooling cases and configured Ruff pass. Notes normalized only in display copy, explicit legacy-contact retirement preserves2source digests and185/123line counts. UTF8 LF final bytes differ only line endings from passing test-source encoding where applicable."
+    }
+  ],
+  "focused_cases_passed": 32,
+  "original_cases_ast_unchanged": 10,
+  "lint": "Ruff --no-fix --config backend/pyproject.toml on exactly the inventory script and focused controls",
+  "final_sources_utf8_lf": true,
+  "exact_digest_and_partial_resolution_function_asts_unchanged": true,
+  "normalization": "String/list-of-strings/missing/null notes become display text in an ingestion copy; raw immutable record is still hashed before normalization. Invalid/nested values fail before replacing the inventory.",
+  "retirement": "Explicit legacy-contact-retirement-manifest.json original_files rows accepted; actual original185/123physical_lines and exact digests retained, without weakening path/hash/source/conflict validation. Invalid line types/count conflicts now rejected.",
+  "historical_artifacts_preserved": {
+    "audit-review-resolution-verification.json": "6b26bd179e6ca29d48c5ac2e1ca723f583d4e12063c25e0751ccd3494f3920ed",
+    "frontend-shared-other-tests-reviewed-files.json": "0906a14d435b44884ff8d9e0185bd3c3209a4169c35f761b04ba64bab83d1bdf",
+    "legacy-contact-retirement-manifest.json": "b9c5a02067543f1126fb87248e578c6abeee68dd9989a65d6093af8d01133f48"
+  },
+  "new_inventory_rows_at_refresh": 6272,
+  "inventory_is_progress_snapshot_not_audit_completion": true,
+  "snapshot_bindings": {
+    "file-inventory.csv": "83d6b5841a20b307cec403ec5d6fd5ac59acde487e86611b0a8aa5e2fa92fd74",
+    "inventory-summary.json": "8f7f01eeb265650e7951e54e9af2120a77fe9b55555c345f7532d191d4ac8365"
+  },
+  "retired_contact_rows": [
+    {
+      "path": "frontend/features/upload/components/upload-contact-verification.test.tsx",
+      "scope": "frontend",
+      "kind": "test",
+      "lines": "123",
+      "sha256": "82822d13a636e55b1e0584ad1b1bc783a1417e3a3510b7499c1463da7d14c2ae",
+      "status": "removed-in-working-tree",
+      "reviewer": "",
+      "notes": "Review removal manifests and Git diff; not an unreviewed disappearance.",
+      "review_scope": "retired"
+    },
+    {
+      "path": "frontend/features/upload/components/upload-contact-verification.tsx",
+      "scope": "frontend",
+      "kind": "source",
+      "lines": "185",
+      "sha256": "b4d925237294c1e316d40c9282b00518e63405a743752a856b66b450a2f6d557",
+      "status": "removed-in-working-tree",
+      "reviewer": "",
+      "notes": "Review removal manifests and Git diff; not an unreviewed disappearance.",
+      "review_scope": "retired"
+    }
+  ],
+  "largest_backend_residuals_metadata_only": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_resources.py",
+      "sha256": "5c94b9cac99b83ac04bd556643a64347d048cb96d8cd2b62acc37a8c868b1a9e",
+      "lines": "2779",
+      "status": "inventoried",
+      "review_scope": "unreviewed"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_ops.py",
+      "sha256": "9579d8a220f78d7d422be448f8165fae470f0b48122b141eb58c1ad114bf8b26",
+      "lines": "2457",
+      "status": "inventoried",
+      "review_scope": "unreviewed"
+    },
+    {
+      "path": "backend/app/application/mobile/notification_service.py",
+      "sha256": "f3d92686c29991834149887ee4dab8250a9fe7187c1c4e26b354809e0cffa603",
+      "lines": "1995",
+      "status": "needs-follow-up",
+      "review_scope": "focused"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_auth.py",
+      "sha256": "138bd3a289b4e8320565557a4d8ebf969cd02da6d10e2cc9e4cfe39c50453db5",
+      "lines": "1537",
+      "status": "inventoried",
+      "review_scope": "unreviewed"
+    },
+    {
+      "path": "backend/app/infrastructure/mobile_realtime.py",
+      "sha256": "0b3e460a3aa34cabd3fe6431c10dd3747b634f91617649cf019224da90df046c",
+      "lines": "1006",
+      "status": "inventoried",
+      "review_scope": "unreviewed"
+    },
+    {
+      "path": "backend/app/infrastructure/security/apple_app_attest_verifier.py",
+      "sha256": "35f518a3b6c2d2a9748ebbe5523e616ba328f09fd8c03f084ce8eb312dbdb358",
+      "lines": "986",
+      "status": "inventoried",
+      "review_scope": "unreviewed"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/mobile_schemas.py",
+      "sha256": "5ddbd2072d0f12aaa03a24c05840685ab82a95c89d04253f691b09ca159ccd2b",
+      "lines": "818",
+      "status": "inventoried",
+      "review_scope": "unreviewed"
+    },
+    {
+      "path": "backend/app/infrastructure/export/passport_excel_exporter.py",
+      "sha256": "ed47e94d322a97ed45f78901131f83af8172d1b382153da0102f5efee04850ad",
+      "lines": "780",
+      "status": "fixed",
+      "review_scope": "focused"
+    },
+    {
+      "path": "backend/app/infrastructure/email/deadline_notifications.py",
+      "sha256": "65100ec395e5b9db8d2492c1045a390ff2a398075268c24ba1a1ace5e6d0a935",
+      "lines": "674",
+      "status": "inventoried",
+      "review_scope": "unreviewed"
+    },
+    {
+      "path": "backend/app/infrastructure/documents/document_matcher.py",
+      "sha256": "4256a5acb44ae73680eadc06c788cdefcd6b288e5d31361b0a979f4ce78fd791",
+      "lines": "667",
+      "status": "changed-needs-recheck",
+      "review_scope": "unreviewed"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/passport_schemas.py",
+      "sha256": "f2c10f862e344d3aa84c7608d0c8a86ad19f29e3f6cdf1dbb7730e392dd102f6",
+      "lines": "667",
+      "status": "needs-follow-up",
+      "review_scope": "focused"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/submission_review.py",
+      "sha256": "7313b9394687f38ef67a1bd833b0b01d0b749e49a09eaa6367f9c60844060312",
+      "lines": "663",
+      "status": "inventoried",
+      "review_scope": "unreviewed"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/public_upload.py",
+      "sha256": "79089e2aad053e18b44a20342461065efff32572f3a9eeeb5b605d75a0405824",
+      "lines": "645",
+      "status": "inventoried",
+      "review_scope": "unreviewed"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions.py",
+      "sha256": "034a76209c61e05c1c5919329946f6d869a930a93bb5a5c45513e74904dea716",
+      "lines": "638",
+      "status": "inventoried",
+      "review_scope": "unreviewed"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_attendance_action_support.py",
+      "sha256": "62a8de5e7789dfd111e3e9aaebfc945287c32248ddf9df14e6990661844c1f06",
+      "lines": "632",
+      "status": "inventoried",
+      "review_scope": "unreviewed"
+    },
+    {
+      "path": "backend/app/infrastructure/database/email_ai_models.py",
+      "sha256": "e9c03b48898c5a05f7e96bafbc96ccec06ec7d2702c47e55f9b4c80a5eff482f",
+      "lines": "630",
+      "status": "inventoried",
+      "review_scope": "unreviewed"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_connections.py",
+      "sha256": "68eb50e328e057aa7d79b7d8304fffb5ec909d056967afc038a1391617c501df",
+      "lines": "604",
+      "status": "inventoried",
+      "review_scope": "unreviewed"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_rollout_admin.py",
+      "sha256": "767500a1b9f4dd113b41bcefc0ea90fbebe984f34829b1ada8cd4ccbc24a51c3",
+      "lines": "565",
+      "status": "inventoried",
+      "review_scope": "unreviewed"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_activity.py",
+      "sha256": "f8abd34251e84c59f704cdf2c279cd89dbd4b1813f928fb29667bd968e37b3d1",
+      "lines": "562",
+      "status": "inventoried",
+      "review_scope": "unreviewed"
+    },
+    {
+      "path": "backend/app/infrastructure/documents/pdf_parser_sandbox.py",
+      "sha256": "8986ae28ef2002c86b03cefa56fd9f522725739c8fab75a09d46021e80eabbdb",
+      "lines": "556",
+      "status": "needs-follow-up",
+      "review_scope": "focused"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_auth_session_support.py",
+      "sha256": "62a631194e658f23bb3f9aa4cc132bf9389698c412de20398d7209fa567678c4",
+      "lines": "553",
+      "status": "inventoried",
+      "review_scope": "unreviewed"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp.py",
+      "sha256": "f2f9e3f934ad389ab39e2e46039c40a7584f0443ac285f057e9f4eac538ea948",
+      "lines": "552",
+      "status": "inventoried",
+      "review_scope": "unreviewed"
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/submission_view.py",
+      "sha256": "8ecbd81dc34c60e60660ed9be6138ee144031b192d67af4de11875cbbc5bd6be",
+      "lines": "546",
+      "status": "inventoried",
+      "review_scope": "unreviewed"
+    },
+    {
+      "path": "backend/app/infrastructure/database/communications_models.py",
+      "sha256": "4a4224948d99b7ba12382ba679973f318734ff3c71b27f47e7757f2b07bcf7b3",
+      "lines": "545",
+      "status": "inventoried",
+      "review_scope": "unreviewed"
+    },
+    {
+      "path": "backend/app/infrastructure/database/document_models.py",
+      "sha256": "414813b4d861c1941592fc9ff5a86f3aff71d5f31a72e3b411a1b6c7fde06d27",
+      "lines": "543",
+      "status": "inventoried",
+      "review_scope": "unreviewed"
+    },
+    {
+      "path": "backend/app/infrastructure/runtime_readiness.py",
+      "sha256": "86ebedc0a97af8de6a994ffbacf3b4aa1e8277ca2c8bc032eac4198b65f1052b",
+      "lines": "539",
+      "status": "inventoried",
+      "review_scope": "unreviewed"
+    },
+    {
+      "path": "backend/app/infrastructure/email/tasks.py",
+      "sha256": "e6d2906d78fd9c504c2876dd59ffb91bf29114fb7dcbfd0a4fc6c8cfd6ca2846",
+      "lines": "532",
+      "status": "inventoried",
+      "review_scope": "unreviewed"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker.py",
+      "sha256": "ecbc1a61b1b8b674f6dedcda752dc204b80189d180b4a9641a4ba5ad52c15468",
+      "lines": "523",
+      "status": "inventoried",
+      "review_scope": "unreviewed"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_exports.py",
+      "sha256": "4c719c70041d102ee6b96af13394442bd468032f53dd236ae7331095d2885aaa",
+      "lines": "520",
+      "status": "inventoried",
+      "review_scope": "unreviewed"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_composer_support.py",
+      "sha256": "6cc3a753b6ad7b746a3707ae743f158307a8a3779d9b9f29402da08deaef5018",
+      "lines": "511",
+      "status": "inventoried",
+      "review_scope": "unreviewed"
+    },
+    {
+      "path": "backend/app/infrastructure/imports/passport_document_importer.py",
+      "sha256": "083ce9b71e69c21d699569a69bb97b75bdf78059d8f9b4fb85f0bdbb8a58d939",
+      "lines": "508",
+      "status": "inventoried",
+      "review_scope": "unreviewed"
+    },
+    {
+      "path": "backend/app/application/mobile/passenger_change_propagation.py",
+      "sha256": "b95718038524772f7f5413ba41fa8a2dc3efb4e8ed455eea6d0f75e5b8df7fef",
+      "lines": "500",
+      "status": "needs-follow-up",
+      "review_scope": "focused"
+    },
+    {
+      "path": "backend/app/infrastructure/travel_tracker/service.py",
+      "sha256": "171444bfa92d48ab37321e0603282d5761cfe021c17c248426312b0ba3d50c23",
+      "lines": "487",
+      "status": "inventoried",
+      "review_scope": "unreviewed"
+    },
+    {
+      "path": "backend/app/infrastructure/documents/distribution_ingestion.py",
+      "sha256": "adc910220ff19f9b0e7a297b576ca03d43f492f54b712bfcdf19b422de1fbbc6",
+      "lines": "475",
+      "status": "needs-follow-up",
+      "review_scope": "focused"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passports.py",
+      "sha256": "977089c9df210b7a7a92c39b5faaa2ae6cf872ed49df4b04fabe5ff483c03617",
+      "lines": "475",
+      "status": "inventoried",
+      "review_scope": "unreviewed"
+    }
+  ],
+  "selected_next_owner": {
+    "path": "backend/app/infrastructure/export/passport_excel_exporter.py",
+    "basis": "Parent assigned current780line focused source after refresh; no full-source credit from this selection. Exclude mobile-only sources, root image-library/siblings, AI MyPhotos/priority/gates and brand frontend."
+  },
+  "historical_failures": "15expected pre-fix new-control failures retained. An initial Ruff call from repository root selected unrelated root style rules and reported4preexisting TRY004 cases; explicit reviewed backend config passes. Final LF-source32focused cases and lint repeated once after encoding normalization; no broad application suite/build/browser.",
+  "shared_budget_release_config_or_strict_pin_edits": false,
+  "artifacts": [
+    {
+      "path": "docs/audit/dashboard-2026-10-30/inventory-notes-original-sources.json",
+      "sha256": "052766ba56c94203d18ad3353452bebe27a142f7e02d0a294d460256c4601351"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/inventory-notes-reviewed-files.json",
+      "sha256": "9b4736e1e9ed6aab39ad832a7213cba8f5503fddafea41cee350cb2af83573ff"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/inventory-notes-source-proof.json",
+      "sha256": "73c32ba2911c115160b5799d077b1e47fb53a15a44d7840edf0c4b5f2eb3e9d4"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/inventory-notes-baseline-tests.log",
+      "sha256": "59414e43e4d20f1539369436b6ab42894315d56c57c170fc08a3c3d2e658564c"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/inventory-notes-tests.log",
+      "sha256": "0efdd83b276b2aaf558598912c5f1e87bd64ec23eba849f1ae17ce089d8519f8"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/inventory-notes-lint.log",
+      "sha256": "370a8c653d96f59201f6343bf90709c9ff0d10efe7bb139d5b7588ae5f0f8ae4"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/inventory-notes-configured-lint.log",
+      "sha256": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/inventory-notes-final-tests.log",
+      "sha256": "e510d67983aa4dfc722f113667c09d07a68d103c34fb2daa10620dd39ddd8dd7"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/inventory-notes-final-lint.log",
+      "sha256": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/inventory-notes-refresh.log",
+      "sha256": "1329fa277d55fb9497f07730e6a0d2fc84e5c736a93dda97c0ffca15fa047fcf"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/inventory-notes-before-file-inventory.csv",
+      "sha256": "f41bc51097780563ebb1677a4fd975742fad917d3b0bb4780fff6fa47a2ea378"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/inventory-notes-before-inventory-summary.json",
+      "sha256": "736576289618d6aafdda3358aa47f92cda55cdd1a14a8c6da020f3dd6f92e3ea"
+    }
+  ]
+}

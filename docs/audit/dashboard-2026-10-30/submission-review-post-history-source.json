@@ -1,0 +1,1943 @@
+{
+  "source": "\"\"\"Passport submission review: focused workflow boundary.\"\"\"\n\nfrom __future__ import annotations\n\nimport uuid\nfrom dataclasses import replace\n\nfrom fastapi import APIRouter, BackgroundTasks, Depends, Header, HTTPException, Response, status\nfrom fastapi.responses import JSONResponse\nfrom sqlalchemy import select\nfrom sqlalchemy.ext.asyncio import AsyncSession\n\nfrom app.application.dtos.passport_dtos import PassportSubmissionOutputDTO\nfrom app.application.mobile.passenger_change_propagation import propagate_mobile_passenger_change\nfrom app.application.security.authorization_policy import AuthorizationPolicy\nfrom app.application.use_cases.passports.client_submit_passport_use_case import (\n    ClientSubmitPassportUseCase,\n)\nfrom app.application.use_cases.passports.confirm_passport_submission_use_case import (\n    ConfirmPassportSubmissionUseCase,\n)\nfrom app.application.use_cases.passports.get_passport_submission_use_case import (\n    GetPassportSubmissionUseCase,\n)\nfrom app.application.use_cases.passports.reextract_passport_submission_use_case import (\n    ReextractPassportSubmissionUseCase,\n)\nfrom app.application.use_cases.passports.retry_post_submission_verification_use_case import (\n    RetryPostSubmissionVerificationUseCase,\n)\nfrom app.application.use_cases.passports.staff_approve_passport_use_case import (\n    StaffApprovalResult,\n    StaffApprovePassportUseCase,\n)\nfrom app.core.logging.logger import get_logger\nfrom app.domain.entities.entities import StaffApprovalOutcome, User\nfrom app.domain.exceptions.exceptions import (\n    AuthorizationError,\n    ConflictError,\n    EntityNotFoundError,\n    PassDetectionError,\n    StaffApprovalStaleError,\n    StaffApprovalUnavailableError,\n    StorageError,\n)\nfrom app.infrastructure.database.models import ClientGroupModel\nfrom app.infrastructure.database.session import get_db_session\nfrom app.infrastructure.documents.storage_cleanup import process_storage_cleanup_job\nfrom app.infrastructure.ecr import dispatch_passport_ecr_checks\nfrom app.infrastructure.observability.operational_events import (\n    OperationalEvent,\n    record_operational_event,\n)\nfrom app.infrastructure.processing.dispatcher import queued_job_needs_redelivery\nfrom app.infrastructure.processing.job_repository import PassportProcessingJobRepository\nfrom app.infrastructure.repositories.audit_log_repository import AuditLogRepository\nfrom app.infrastructure.repositories.passport_submission_repository import (\n    PassportSubmissionRepository,\n)\nfrom app.infrastructure.repositories.sensitive_read_audit import record_sensitive_read\nfrom app.infrastructure.storage.minio_repository import MinioStorageRepository\nfrom app.infrastructure.verification.dispatcher import PostSubmissionVerificationDispatcher\nfrom app.infrastructure.verification.job_repository import (\n    PostSubmissionVerificationJob,\n    PostSubmissionVerificationJobRepository,\n)\nfrom app.presentation.api.v1.schemas.passport_schemas import (\n    ClientSubmitPassportRequest,\n    ConfirmPassportSubmissionRequest,\n    PassportSubmissionResponse,\n    StaffApprovePassportRequest,\n)\nfrom app.presentation.dependencies.auth import get_current_active_user\nfrom app.presentation.dependencies.csrf import require_cookie_csrf\n\nfrom .dependencies import (\n    _get_client_submit_passport_use_case,\n    _get_confirm_passport_use_case,\n    _get_get_passport_use_case,\n    _get_reextract_passport_use_case,\n    _get_retry_post_submission_verification_use_case,\n    _get_staff_approve_passport_use_case,\n)\nfrom .processing_support import _dispatch_processing_job\nfrom .response_support import _ensure_submission_qr, _response_from_dto, _response_from_submission\nfrom .submission_contact import require_verified_submission_contact\nfrom .submission_execution import execute_client_review\nfrom .submission_side_effects import stage_submission_side_effects\n\nrouter = APIRouter()\n\nlogger = get_logger(__name__)\n\n\nasync def _cleanup_uncommitted_promotions(\n    result: PassportSubmissionOutputDTO | None,\n) -> None:\n    if not result or not result.promoted_storage_keys:\n        return\n    try:\n        await MinioStorageRepository().delete_files(list(result.promoted_storage_keys))\n    except StorageError as exc:\n        logger.warning(\n            \"passport_promotion_rollback_cleanup_failed\",\n            submission_id=str(result.id),\n            object_count=len(result.promoted_storage_keys),\n            error_type=type(exc).__name__,\n        )\n\n\nasync def _dispatch_committed_verification(\n    job: PostSubmissionVerificationJob | None,\n    *,\n    result: PassportSubmissionOutputDTO,\n    session: AsyncSession,\n    background_tasks: BackgroundTasks,\n) -> None:\n    \"\"\"Deliver an existing outbox job after submission state has committed.\"\"\"\n    if job is None or job.status != \"queued\":\n        return\n    task_id = await PostSubmissionVerificationDispatcher().dispatch_async(\n        job_id=job.id,\n        submission_id=result.id,\n        verification_revision=result.post_submission_verification_revision,\n        background_tasks=background_tasks,\n    )\n    if not task_id:\n        return\n    try:\n        await PostSubmissionVerificationJobRepository(session).set_task_id(job.id, task_id)\n        await session.commit()\n    except Exception as exc:\n        await session.rollback()\n        logger.warning(\n            \"post_submission_verification_task_id_persist_failed\",\n            job_id=str(job.id),\n            error_type=type(exc).__name__,\n        )\n\n\ndef _staff_approval_conflict_response(\n    error: StaffApprovalStaleError | StaffApprovalUnavailableError,\n) -> JSONResponse:\n    details: dict[str, object] = {}\n    if isinstance(error, StaffApprovalStaleError):\n        details[\"current_revision\"] = error.current_revision\n    else:\n        details[\"current_status\"] = error.current_status\n    return JSONResponse(\n        status_code=status.HTTP_409_CONFLICT,\n        content={\n            \"error\": {\n                \"code\": error.code,\n                \"message\": error.message,\n                \"details\": details,\n            }\n        },\n        headers={\"Cache-Control\": \"no-store\"},\n    )\n\n\nasync def _schedule_review_history(\n    session: AsyncSession,\n    *,\n    result: PassportSubmissionOutputDTO,\n    trigger: str,\n) -> None:\n    \"\"\"Schedule immutable history and acknowledge retained trip evidence together.\"\"\"\n    from app.application.travellers.history_schedule import schedule_submission_history\n    await schedule_submission_history(session, agency_id=result.agency_id, group_id=result.group_id, source_submission_id=result.id, expected_extraction_revision=result.extraction_revision, trigger=trigger)\n    from app.application.travellers.snapshot_access import has_retained_document, sync_accepted_participations\n    if has_retained_document(result):\n        await sync_accepted_participations(session, agency_id=result.agency_id, group_id=result.group_id, submission_ids=[result.id])\n\n\n@router.get(\n    \"/{submission_id}\",\n    response_model=PassportSubmissionResponse,\n    status_code=status.HTTP_200_OK,\n    summary=\"Get a passport submission by id\",\n)\nasync def get_passport(\n    submission_id: uuid.UUID,\n    background_tasks: BackgroundTasks,\n    current_user: User = Depends(get_current_active_user),\n    use_case: GetPassportSubmissionUseCase = Depends(_get_get_passport_use_case),\n    session: AsyncSession = Depends(get_db_session),\n) -> PassportSubmissionResponse:\n    try:\n        result = await use_case.execute(submission_id)\n        await AuthorizationPolicy(session).require_view_passport(current_user, result)\n        await record_sensitive_read(session, user=current_user, kind=\"detail\",\n                                    agency_id=result.agency_id, entity_id=result.id)\n\n        job = await PassportProcessingJobRepository(session).latest_for_submission(result.id)\n        if job is not None and queued_job_needs_redelivery(job):\n            await _dispatch_processing_job(\n                replace(\n                    result,\n                    processing_job_id=job.id,\n                    processing_job_status=job.status.value,\n                    processing_progress=job.progress,\n                    processing_stage=job.current_stage,\n                ),\n                session=session,\n                background_tasks=background_tasks,\n            )\n        return await _response_from_dto(result, session=session)\n    except EntityNotFoundError as e:\n        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.message)\n    except AuthorizationError as e:\n        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=e.message)\n\n\n@router.post(\n    \"/{submission_id}/client-submit\",\n    response_model=PassportSubmissionResponse,\n    response_model_exclude={\"document_follow_up\", \"display_name\"},\n    status_code=status.HTTP_200_OK,\n    summary=\"Submit client-reviewed passport fields (Public)\",\n)\nasync def client_submit_passport(\n    submission_id: uuid.UUID,\n    body: ClientSubmitPassportRequest,\n    background_tasks: BackgroundTasks,\n    upload_session_id: str = Header(\n        ...,\n        alias=\"X-Upload-Session-ID\",\n        min_length=32,\n        max_length=128,\n    ),\n    use_case: ClientSubmitPassportUseCase = Depends(_get_client_submit_passport_use_case),\n    session: AsyncSession = Depends(get_db_session),\n) -> PassportSubmissionResponse:\n    contact_proof = await require_verified_submission_contact(\n        session,\n        submission_id=submission_id,\n        body=body,\n        upload_session_id=upload_session_id,\n    )\n\n    result: PassportSubmissionOutputDTO | None = None\n    committed = False\n    commit_attempted = False\n    try:\n        result = await execute_client_review(use_case, submission_id, body)\n        effects = await stage_submission_side_effects(\n            session, result=result, contact_proof=contact_proof\n        )\n        # Commit the DB transition before deleting superseded draft objects.\n        # A failed commit therefore leaves the original draft keys intact and\n        # the traveller can retry safely.\n        commit_attempted = True\n        await session.commit()\n        committed = True\n        if effects.ecr_queued:\n            try:\n                await dispatch_passport_ecr_checks()\n            except Exception:\n                # The durable row is recovered by Beat after broker recovery.\n                logger.warning(\"passport_ecr_dispatch_deferred\", submission_id=str(result.id))\n        await _dispatch_committed_verification(\n            effects.verification_job,\n            result=result,\n            session=session,\n            background_tasks=background_tasks,\n        )\n        for cleanup_job in effects.cleanup_jobs:\n            try:\n                await process_storage_cleanup_job(cleanup_job.id)\n            except Exception as exc:\n                logger.warning(\n                    \"passport_draft_cleanup_deferred\",\n                    submission_id=str(result.id),\n                    cleanup_job_id=str(cleanup_job.id),\n                    object_count=cleanup_job.object_count,\n                    error_type=type(exc).__name__,\n                )\n        return PassportSubmissionResponse.model_validate(result)\n    except EntityNotFoundError as e:\n        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.message)\n    except PassDetectionError as e:\n        if not committed and not commit_attempted:\n            await _cleanup_uncommitted_promotions(result)\n        raise HTTPException(\n            status_code=(\n                status.HTTP_409_CONFLICT if isinstance(e, ConflictError)\n                else status.HTTP_400_BAD_REQUEST\n            ),\n            detail=e.message,\n        )\n    except Exception:\n        # Once commit was attempted its outcome can be ambiguous after a\n        # connection loss. Deleting promoted objects could break a row that\n        # PostgreSQL actually committed, so compensate only pre-commit errors.\n        if not committed and not commit_attempted:\n            await _cleanup_uncommitted_promotions(result)\n        raise\n\n\n@router.post(\n    \"/{submission_id}/staff-approve\",\n    response_model=PassportSubmissionResponse,\n    status_code=status.HTTP_200_OK,\n    summary=\"Approve a passport that needs post-submission review\",\n)\nasync def staff_approve_passport(\n    submission_id: uuid.UUID,\n    body: StaffApprovePassportRequest,\n    response: Response,\n    _csrf: None = Depends(require_cookie_csrf),\n    current_user: User = Depends(get_current_active_user),\n    get_use_case: GetPassportSubmissionUseCase = Depends(_get_get_passport_use_case),\n    approve_use_case: StaffApprovePassportUseCase = Depends(_get_staff_approve_passport_use_case),\n    session: AsyncSession = Depends(get_db_session),\n) -> PassportSubmissionResponse | JSONResponse:\n    try:\n        existing = await get_use_case.execute(submission_id)\n        await AuthorizationPolicy(session).require_staff_approve_passport(\n            current_user,\n            existing,\n        )\n        await session.execute(\n            select(ClientGroupModel.id)\n            .where(\n                ClientGroupModel.id == existing.group_id,\n                ClientGroupModel.agency_id == existing.agency_id,\n            )\n            .with_for_update()\n        )\n        approval: StaffApprovalResult = await approve_use_case.execute(\n            submission_id,\n            reviewer_id=current_user.id,\n            reviewer_name=current_user.full_name,\n            confirmed_fields=body.confirmed_fields,\n            expected_extraction_revision=body.expected_extraction_revision,\n            review_reason=body.review_reason,\n        )\n        result = approval.submission\n        await _schedule_review_history(\n            session,\n            result=result,\n            trigger=f'staff-approval:{result.id}:{result.extraction_revision}',\n        )\n        if approval.outcome is StaffApprovalOutcome.APPROVED:\n            audit_metadata: dict[str, object] = {\n                \"group_id\": str(result.group_id),\n                \"prior_status\": approval.previous_status,\n                \"new_status\": result.status,\n                \"corrected_field_names\": list(approval.corrected_field_names),\n                \"outcome\": approval.outcome.value,\n                \"extraction_revision\": result.extraction_revision,\n                \"verification_revision\": (result.post_submission_verification_revision),\n            }\n            if approval.review_reason is not None:\n                audit_metadata[\"review_reason\"] = approval.review_reason\n            await AuditLogRepository(session).record(\n                action=\"passport_staff_approved\",\n                entity_type=\"passport_submission\",\n                entity_id=str(result.id),\n                agency_id=result.agency_id,\n                user_id=current_user.id,\n                metadata=audit_metadata,\n            )\n            await _ensure_submission_qr(session, result.id, current_user.id)\n            await propagate_mobile_passenger_change(\n                session,\n                agency_id=result.agency_id,\n                group_id=result.group_id,\n                passenger_submission_ids=[result.id],\n                actor_user_id=current_user.id,\n            )\n\n        # The locked transition, audit row, and first QR issuance are one\n        # transaction. Commit before presigned-URL work so the row lock is\n        # released and a lost response can be retried idempotently.\n        await session.commit()\n        record_operational_event(\n            OperationalEvent.STAFF_APPROVAL,\n            (\n                \"approved\"\n                if approval.outcome is StaffApprovalOutcome.APPROVED\n                else \"already_approved\"\n            ),\n        )\n        response.headers[\"Cache-Control\"] = \"no-store\"\n        response.headers[\"X-Staff-Approval-Outcome\"] = approval.outcome.value\n        response.headers[\"X-Staff-Approval-Revision\"] = str(result.extraction_revision)\n        return await _response_from_dto(result, session=session)\n    except (StaffApprovalStaleError, StaffApprovalUnavailableError) as exc:\n        # The typed conflict is raised while the submission row is locked.\n        # Release that lock before returning the retry-safe 409 response.\n        await session.rollback()\n        record_operational_event(\n            OperationalEvent.STAFF_APPROVAL,\n            (\"stale\" if isinstance(exc, StaffApprovalStaleError) else \"unavailable\"),\n        )\n        return _staff_approval_conflict_response(exc)\n    except EntityNotFoundError as exc:\n        record_operational_event(\n            OperationalEvent.STAFF_APPROVAL,\n            \"not_found\",\n        )\n        raise HTTPException(\n            status_code=status.HTTP_404_NOT_FOUND,\n            detail=exc.message,\n        )\n    except AuthorizationError as exc:\n        record_operational_event(\n            OperationalEvent.STAFF_APPROVAL,\n            \"forbidden\",\n        )\n        raise HTTPException(\n            status_code=status.HTTP_403_FORBIDDEN,\n            detail=exc.message,\n        )\n    except Exception:\n        record_operational_event(\n            OperationalEvent.STAFF_APPROVAL,\n            \"unexpected_failure\",\n        )\n        raise\n\n\n@router.post(\n    \"/{submission_id}/retry-ai-verification\",\n    response_model=PassportSubmissionResponse,\n    status_code=status.HTTP_200_OK,\n    summary=\"Retry AI verification after a temporary provider failure\",\n)\nasync def retry_post_submission_verification(\n    submission_id: uuid.UUID,\n    background_tasks: BackgroundTasks,\n    _csrf: None = Depends(require_cookie_csrf),\n    current_user: User = Depends(get_current_active_user),\n    get_use_case: GetPassportSubmissionUseCase = Depends(_get_get_passport_use_case),\n    retry_use_case: RetryPostSubmissionVerificationUseCase = Depends(\n        _get_retry_post_submission_verification_use_case\n    ),\n    session: AsyncSession = Depends(get_db_session),\n) -> PassportSubmissionResponse:\n    try:\n        existing = await get_use_case.execute(submission_id)\n        await AuthorizationPolicy(session).require_confirm_passport(\n            current_user,\n            existing,\n        )\n        retry_result = await retry_use_case.execute(submission_id)\n        result = retry_result.submission\n        verification_job = await PostSubmissionVerificationJobRepository(session).enqueue(\n            submission_id=result.id,\n            verification_revision=result.post_submission_verification_revision,\n        )\n        await AuditLogRepository(session).record(\n            action=\"passport_post_submission_verification_retry_requested\",\n            entity_type=\"passport_submission\",\n            entity_id=str(result.id),\n            agency_id=result.agency_id,\n            user_id=current_user.id,\n            metadata={\n                \"group_id\": str(result.group_id),\n                \"previous_provider_status\": retry_result.previous_provider_status,\n                \"previous_reason_code\": retry_result.previous_reason_code,\n                \"verification_revision\": result.post_submission_verification_revision,\n            },\n        )\n\n        # The submission revision and durable outbox job must be committed\n        # together before any worker can claim the new revision.\n        await session.commit()\n        if verification_job.status == \"queued\":\n            try:\n                task_id = await PostSubmissionVerificationDispatcher().dispatch_async(\n                    job_id=verification_job.id,\n                    submission_id=result.id,\n                    verification_revision=result.post_submission_verification_revision,\n                    background_tasks=background_tasks,\n                )\n            except Exception as exc:\n                # The recovery loop will publish the already-committed outbox\n                # row. A queue outage must not lose or duplicate the request.\n                logger.error(\n                    \"post_submission_verification_retry_dispatch_deferred\",\n                    job_id=str(verification_job.id),\n                    error_type=type(exc).__name__,\n                )\n            else:\n                if task_id:\n                    try:\n                        await PostSubmissionVerificationJobRepository(session).set_task_id(\n                            verification_job.id, task_id\n                        )\n                        await session.commit()\n                    except Exception as exc:\n                        await session.rollback()\n                        logger.warning(\n                            \"post_submission_verification_retry_task_id_persist_failed\",\n                            job_id=str(verification_job.id),\n                            error_type=type(exc).__name__,\n                        )\n        return await _response_from_dto(result, session=session)\n    except EntityNotFoundError as exc:\n        raise HTTPException(\n            status_code=status.HTTP_404_NOT_FOUND,\n            detail=exc.message,\n        )\n    except AuthorizationError as exc:\n        raise HTTPException(\n            status_code=status.HTTP_403_FORBIDDEN,\n            detail=exc.message,\n        )\n    except PassDetectionError as exc:\n        raise HTTPException(\n            status_code=status.HTTP_409_CONFLICT,\n            detail=exc.message,\n        )\n\n\n@router.post(\n    \"/{submission_id}/reextract\",\n    response_model=PassportSubmissionResponse,\n    status_code=status.HTTP_200_OK,\n    summary=\"Rerun automatic extraction for a passport submission\",\n)\nasync def reextract_passport(\n    submission_id: uuid.UUID,\n    background_tasks: BackgroundTasks,\n    current_user: User = Depends(get_current_active_user),\n    get_use_case: GetPassportSubmissionUseCase = Depends(_get_get_passport_use_case),\n    reextract_use_case: ReextractPassportSubmissionUseCase = Depends(\n        _get_reextract_passport_use_case\n    ),\n    session: AsyncSession = Depends(get_db_session),\n) -> PassportSubmissionResponse:\n    try:\n        existing = await get_use_case.execute(submission_id)\n        await AuthorizationPolicy(session).require_confirm_passport(current_user, existing)\n\n        result = await reextract_use_case.execute(submission_id)\n        await _dispatch_processing_job(result, session=session, background_tasks=background_tasks)\n        await AuditLogRepository(session).record(\n            action=\"passport_reextract_queued\",\n            entity_type=\"passport_submission\",\n            entity_id=str(result.id),\n            agency_id=result.agency_id,\n            user_id=current_user.id,\n            actor_email=current_user.email,\n        )\n        return await _response_from_dto(result, session=session)\n    except EntityNotFoundError as e:\n        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.message)\n    except AuthorizationError as e:\n        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=e.message)\n    except PassDetectionError as e:\n        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.message)\n\n\n@router.post(\n    \"/{submission_id}/cancel-processing\",\n    response_model=PassportSubmissionResponse,\n    status_code=status.HTTP_200_OK,\n    summary=\"Request cancellation of queued passport extraction\",\n)\nasync def cancel_passport_processing(\n    submission_id: uuid.UUID,\n    current_user: User = Depends(get_current_active_user),\n    get_use_case: GetPassportSubmissionUseCase = Depends(_get_get_passport_use_case),\n    session: AsyncSession = Depends(get_db_session),\n) -> PassportSubmissionResponse:\n    try:\n        existing = await get_use_case.execute(submission_id)\n        await AuthorizationPolicy(session).require_confirm_passport(current_user, existing)\n\n        job_repo = PassportProcessingJobRepository(session)\n        job = await job_repo.latest_for_submission(submission_id)\n        if not job:\n            raise HTTPException(\n                status_code=status.HTTP_404_NOT_FOUND, detail=\"Processing job was not found\"\n            )\n\n        await job_repo.request_cancel(job.id)\n        await AuditLogRepository(session).record(\n            action=\"passport_processing_cancel_requested\",\n            entity_type=\"passport_submission\",\n            entity_id=str(submission_id),\n            agency_id=existing.agency_id,\n            user_id=current_user.id,\n            actor_email=current_user.email,\n            metadata={\"job_id\": str(job.id)},\n        )\n        submission = await PassportSubmissionRepository(session).get_by_id(submission_id)\n        if not submission:\n            raise EntityNotFoundError(\"PassportSubmission\", submission_id)\n        return await _response_from_submission(submission, session=session)\n    except EntityNotFoundError as e:\n        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.message)\n    except AuthorizationError as e:\n        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=e.message)\n\n\n@router.post(\n    \"/{submission_id}/confirm\",\n    response_model=PassportSubmissionResponse,\n    status_code=status.HTTP_200_OK,\n    summary=\"Confirm reviewed passport fields\",\n)\nasync def confirm_passport(\n    submission_id: uuid.UUID,\n    body: ConfirmPassportSubmissionRequest,\n    _csrf: None = Depends(require_cookie_csrf),\n    current_user: User = Depends(get_current_active_user),\n    get_use_case: GetPassportSubmissionUseCase = Depends(_get_get_passport_use_case),\n    confirm_use_case: ConfirmPassportSubmissionUseCase = Depends(_get_confirm_passport_use_case),\n    session: AsyncSession = Depends(get_db_session),\n) -> PassportSubmissionResponse:\n    try:\n        existing = await get_use_case.execute(submission_id)\n        await AuthorizationPolicy(session).require_confirm_passport(current_user, existing)\n\n        await session.execute(\n            select(ClientGroupModel.id)\n            .where(\n                ClientGroupModel.id == existing.group_id,\n                ClientGroupModel.agency_id == existing.agency_id,\n            )\n            .with_for_update()\n        )\n        result = await confirm_use_case.execute(\n            submission_id,\n            confirmed_fields=body.confirmed_fields,\n        )\n        await _schedule_review_history(\n            session,\n            result=result,\n            trigger=f'staff-confirm:{result.id}:{result.extraction_revision}',\n        )\n        await AuditLogRepository(session).record(\n            action=\"passport_confirmed\",\n            entity_type=\"passport_submission\",\n            entity_id=str(result.id),\n            agency_id=result.agency_id,\n            user_id=current_user.id,\n            actor_email=current_user.email,\n        )\n        await _ensure_submission_qr(session, result.id, current_user.id)\n        await propagate_mobile_passenger_change(\n            session,\n            agency_id=result.agency_id,\n            group_id=result.group_id,\n            passenger_submission_ids=[result.id],\n            actor_user_id=current_user.id,\n        )\n        return await _response_from_dto(result, session=session)\n    except EntityNotFoundError as e:\n        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.message)\n    except AuthorizationError as e:\n        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=e.message)\n    except PassDetectionError as e:\n        raise HTTPException(\n            status_code=(\n                status.HTTP_409_CONFLICT if isinstance(e, ConflictError)\n                else status.HTTP_400_BAD_REQUEST\n            ),\n            detail=e.message,\n        )\n",
+  "sha256": "bb54f0ef400495e7c5b7fb772facf30f9bfce5d60b60cb274a2e85dd6b644ad3",
+  "openapi": {
+    "openapi": "3.1.0",
+    "info": {
+      "title": "FastAPI",
+      "version": "0.1.0"
+    },
+    "paths": {
+      "/passports/{submission_id}": {
+        "get": {
+          "summary": "Get a passport submission by id",
+          "operationId": "get_passport_passports__submission_id__get",
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "submission_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Submission Id"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PassportSubmissionResponse"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/passports/{submission_id}/client-submit": {
+        "post": {
+          "summary": "Submit client-reviewed passport fields (Public)",
+          "operationId": "client_submit_passport_passports__submission_id__client_submit_post",
+          "parameters": [
+            {
+              "name": "submission_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Submission Id"
+              }
+            },
+            {
+              "name": "X-Upload-Session-ID",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "minLength": 32,
+                "maxLength": 128,
+                "title": "X-Upload-Session-Id"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientSubmitPassportRequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PassportSubmissionResponse"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/passports/{submission_id}/staff-approve": {
+        "post": {
+          "summary": "Approve a passport that needs post-submission review",
+          "operationId": "staff_approve_passport_passports__submission_id__staff_approve_post",
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "submission_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Submission Id"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffApprovePassportRequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PassportSubmissionResponse"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/passports/{submission_id}/retry-ai-verification": {
+        "post": {
+          "summary": "Retry AI verification after a temporary provider failure",
+          "operationId": "retry_post_submission_verification_passports__submission_id__retry_ai_verification_post",
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "submission_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Submission Id"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PassportSubmissionResponse"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/passports/{submission_id}/reextract": {
+        "post": {
+          "summary": "Rerun automatic extraction for a passport submission",
+          "operationId": "reextract_passport_passports__submission_id__reextract_post",
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "submission_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Submission Id"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PassportSubmissionResponse"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/passports/{submission_id}/cancel-processing": {
+        "post": {
+          "summary": "Request cancellation of queued passport extraction",
+          "operationId": "cancel_passport_processing_passports__submission_id__cancel_processing_post",
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "submission_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Submission Id"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PassportSubmissionResponse"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/passports/{submission_id}/confirm": {
+        "post": {
+          "summary": "Confirm reviewed passport fields",
+          "operationId": "confirm_passport_passports__submission_id__confirm_post",
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "submission_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Submission Id"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfirmPassportSubmissionRequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PassportSubmissionResponse"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "ClientCustomAnswerRequest": {
+          "properties": {
+            "question_id": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Question Id"
+            },
+            "value": {
+              "type": "string",
+              "maxLength": 120,
+              "minLength": 1,
+              "title": "Value"
+            }
+          },
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "question_id",
+            "value"
+          ],
+          "title": "ClientCustomAnswerRequest"
+        },
+        "ClientCustomDetailAnswerRequest": {
+          "properties": {
+            "detail_id": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Detail Id"
+            },
+            "value": {
+              "type": "string",
+              "maxLength": 500,
+              "minLength": 1,
+              "title": "Value"
+            }
+          },
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "detail_id",
+            "value"
+          ],
+          "title": "ClientCustomDetailAnswerRequest"
+        },
+        "ClientSubmitPassportRequest": {
+          "properties": {
+            "confirmed_fields": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object",
+              "minProperties": 1,
+              "title": "Confirmed Fields"
+            },
+            "client_email": {
+              "type": "string",
+              "maxLength": 255,
+              "format": "email",
+              "title": "Client Email"
+            },
+            "client_phone": {
+              "type": "string",
+              "maxLength": 64,
+              "minLength": 8,
+              "title": "Client Phone"
+            },
+            "phone_verification_id": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Phone Verification Id"
+            },
+            "departure_city": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 120
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Departure City"
+            },
+            "nearest_domestic_airport": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 120
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Nearest Domestic Airport"
+            },
+            "base_city": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 120
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Base City"
+            },
+            "staff_code": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 80
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Staff Code"
+            },
+            "agent_employee_type": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 20
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Agent Employee Type"
+            },
+            "agent_employee_code": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 80
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Agent Employee Code"
+            },
+            "designation": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 160
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Designation"
+            },
+            "agency_dealership_name": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Agency Dealership Name"
+            },
+            "meal_preference": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 20
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Meal Preference"
+            },
+            "group_token": {
+              "type": "string",
+              "minLength": 10,
+              "title": "Group Token"
+            },
+            "submission_mode": {
+              "type": "string",
+              "pattern": "^(single|family)$",
+              "title": "Submission Mode",
+              "default": "single"
+            },
+            "family_group_id": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Family Group Id"
+            },
+            "family_member_index": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 100.0,
+                  "minimum": 0.0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Family Member Index"
+            },
+            "family_relation": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 80
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Family Relation"
+            },
+            "family_gender": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 40
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Family Gender"
+            },
+            "family_head_name": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 255
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Family Head Name"
+            },
+            "family_head_email": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "email"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Family Head Email"
+            },
+            "family_head_phone": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 64
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Family Head Phone"
+            },
+            "custom_answers": {
+              "items": {
+                "$ref": "#/components/schemas/ClientCustomAnswerRequest"
+              },
+              "type": "array",
+              "maxItems": 20,
+              "title": "Custom Answers"
+            },
+            "custom_detail_answers": {
+              "items": {
+                "$ref": "#/components/schemas/ClientCustomDetailAnswerRequest"
+              },
+              "type": "array",
+              "maxItems": 20,
+              "title": "Custom Detail Answers"
+            }
+          },
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "confirmed_fields",
+            "client_email",
+            "client_phone",
+            "phone_verification_id",
+            "group_token"
+          ],
+          "title": "ClientSubmitPassportRequest"
+        },
+        "ConfirmPassportSubmissionRequest": {
+          "properties": {
+            "confirmed_fields": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object",
+              "minProperties": 1,
+              "title": "Confirmed Fields"
+            }
+          },
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "confirmed_fields"
+          ],
+          "title": "ConfirmPassportSubmissionRequest"
+        },
+        "HTTPValidationError": {
+          "properties": {
+            "detail": {
+              "items": {
+                "$ref": "#/components/schemas/ValidationError"
+              },
+              "type": "array",
+              "title": "Detail"
+            }
+          },
+          "type": "object",
+          "title": "HTTPValidationError"
+        },
+        "PassengerQrStatusResponse": {
+          "properties": {
+            "status": {
+              "type": "string",
+              "title": "Status"
+            },
+            "token_version": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Token Version"
+            },
+            "created_at": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Created At"
+            },
+            "expires_at": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Expires At"
+            },
+            "revoked_at": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Revoked At"
+            }
+          },
+          "type": "object",
+          "required": [
+            "status"
+          ],
+          "title": "PassengerQrStatusResponse"
+        },
+        "PassportExtractionConflictResponse": {
+          "properties": {
+            "field": {
+              "type": "string",
+              "title": "Field"
+            },
+            "manual_value": {
+              "type": "string",
+              "title": "Manual Value"
+            },
+            "extracted_value": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Extracted Value"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "mismatch",
+                "not_extracted"
+              ],
+              "title": "Status"
+            }
+          },
+          "type": "object",
+          "required": [
+            "field",
+            "manual_value",
+            "status"
+          ],
+          "title": "PassportExtractionConflictResponse"
+        },
+        "PassportSubmissionResponse": {
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id"
+            },
+            "group_id": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Group Id"
+            },
+            "agency_id": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Agency Id"
+            },
+            "client_name": {
+              "type": "string",
+              "title": "Client Name"
+            },
+            "display_name": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Display Name"
+            },
+            "client_email": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Client Email"
+            },
+            "client_phone": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Client Phone"
+            },
+            "departure_city": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Departure City"
+            },
+            "nearest_domestic_airport": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Nearest Domestic Airport"
+            },
+            "submission_mode": {
+              "type": "string",
+              "title": "Submission Mode",
+              "default": "single"
+            },
+            "family_group_id": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Family Group Id"
+            },
+            "family_member_index": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Family Member Index"
+            },
+            "family_relation": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Family Relation"
+            },
+            "family_gender": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Family Gender"
+            },
+            "family_head_name": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Family Head Name"
+            },
+            "family_head_email": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Family Head Email"
+            },
+            "family_head_phone": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Family Head Phone"
+            },
+            "family_broadcast_to_member": {
+              "type": "boolean",
+              "title": "Family Broadcast To Member",
+              "default": false
+            },
+            "image_s3_key": {
+              "type": "string",
+              "title": "Image S3 Key"
+            },
+            "thumbnail_s3_key": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Thumbnail S3 Key"
+            },
+            "passport_photo_s3_key": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Passport Photo S3 Key"
+            },
+            "passport_cover_s3_key": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Passport Cover S3 Key"
+            },
+            "passport_back_cover_s3_key": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Passport Back Cover S3 Key"
+            },
+            "passport_back_s3_key": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Passport Back S3 Key"
+            },
+            "staff_metadata": {
+              "anyOf": [
+                {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Staff Metadata"
+            },
+            "document_follow_up": {
+              "type": "boolean",
+              "title": "Document Follow Up",
+              "default": false
+            },
+            "custom_answers": {
+              "items": {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              "type": "array",
+              "title": "Custom Answers"
+            },
+            "custom_detail_answers": {
+              "items": {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              "type": "array",
+              "title": "Custom Detail Answers"
+            },
+            "acquisition_mode": {
+              "type": "string",
+              "enum": [
+                "camera",
+                "file"
+              ],
+              "title": "Acquisition Mode",
+              "default": "file"
+            },
+            "qualifier_enabled_snapshot": {
+              "type": "boolean",
+              "title": "Qualifier Enabled Snapshot",
+              "default": false
+            },
+            "qualifier_is_self": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Qualifier Is Self"
+            },
+            "qualifier_relation_code": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 40
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Qualifier Relation Code"
+            },
+            "qualifier_relation_label": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 100
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Qualifier Relation Label"
+            },
+            "qualifier_selected_at": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Qualifier Selected At"
+            },
+            "extraction_status": {
+              "type": "string",
+              "enum": [
+                "not_started",
+                "processing",
+                "extraction_complete",
+                "extraction_partial",
+                "extraction_failed",
+                "ready_for_review"
+              ],
+              "title": "Extraction Status",
+              "default": "not_started"
+            },
+            "extraction_revision": {
+              "type": "integer",
+              "minimum": 0.0,
+              "title": "Extraction Revision",
+              "default": 0
+            },
+            "manual_review_submission_allowed": {
+              "type": "boolean",
+              "title": "Manual Review Submission Allowed",
+              "default": false
+            },
+            "manual_review_reason_code": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "const": "AI_EXTRACTION_UNAVAILABLE"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Manual Review Reason Code"
+            },
+            "status": {
+              "type": "string",
+              "title": "Status"
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time",
+              "title": "Created At"
+            },
+            "updated_at": {
+              "type": "string",
+              "format": "date-time",
+              "title": "Updated At"
+            },
+            "extracted_fields": {
+              "anyOf": [
+                {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Extracted Fields"
+            },
+            "confirmed_fields": {
+              "anyOf": [
+                {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Confirmed Fields"
+            },
+            "extraction_conflicts": {
+              "items": {
+                "$ref": "#/components/schemas/PassportExtractionConflictResponse"
+              },
+              "type": "array",
+              "title": "Extraction Conflicts"
+            },
+            "overall_confidence": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Overall Confidence"
+            },
+            "confidence_score": {
+              "anyOf": [
+                {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Confidence Score"
+            },
+            "mrz_raw": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Mrz Raw"
+            },
+            "error_message": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Error Message"
+            },
+            "image_url": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Image Url"
+            },
+            "passport_photo_url": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Passport Photo Url"
+            },
+            "passport_back_url": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Passport Back Url"
+            },
+            "passport_cover_url": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Passport Cover Url"
+            },
+            "passport_back_cover_url": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Passport Back Cover Url"
+            },
+            "client_reviewed_at": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Client Reviewed At"
+            },
+            "confirmed_at": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Confirmed At"
+            },
+            "post_submission_verification": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/PostSubmissionVerificationResponse"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "post_submission_verification_revision": {
+              "type": "integer",
+              "minimum": 0.0,
+              "title": "Post Submission Verification Revision",
+              "default": 0
+            },
+            "post_submission_verified_at": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Post Submission Verified At"
+            },
+            "verification_reviewed_by_user_id": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Verification Reviewed By User Id"
+            },
+            "verification_reviewer_name": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Verification Reviewer Name"
+            },
+            "verification_reviewed_at": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Verification Reviewed At"
+            },
+            "processing_job_id": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Processing Job Id"
+            },
+            "processing_job_status": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Processing Job Status"
+            },
+            "processing_progress": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Processing Progress"
+            },
+            "processing_stage": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Processing Stage"
+            },
+            "qr_status": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/PassengerQrStatusResponse"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "type": "object",
+          "required": [
+            "id",
+            "group_id",
+            "agency_id",
+            "client_name",
+            "image_s3_key",
+            "status",
+            "created_at",
+            "updated_at"
+          ],
+          "title": "PassportSubmissionResponse"
+        },
+        "PostSubmissionFieldOutcomeResponse": {
+          "properties": {
+            "field": {
+              "type": "string",
+              "enum": [
+                "surname",
+                "given_names",
+                "passport_number",
+                "nationality",
+                "place_of_issue",
+                "issuing_country",
+                "date_of_birth",
+                "date_of_issue",
+                "date_of_expiry",
+                "sex"
+              ],
+              "title": "Field"
+            },
+            "verdict": {
+              "type": "string",
+              "enum": [
+                "correct",
+                "suspicious",
+                "incorrect"
+              ],
+              "title": "Verdict"
+            },
+            "observed_value": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 100
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Observed Value"
+            },
+            "confidence": {
+              "type": "number",
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "Confidence"
+            },
+            "reason_code": {
+              "type": "string",
+              "maxLength": 64,
+              "minLength": 1,
+              "title": "Reason Code"
+            }
+          },
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "field",
+            "verdict",
+            "confidence",
+            "reason_code"
+          ],
+          "title": "PostSubmissionFieldOutcomeResponse"
+        },
+        "PostSubmissionVerificationResponse": {
+          "properties": {
+            "verification_status": {
+              "type": "string",
+              "enum": [
+                "ai_approved",
+                "needs_review"
+              ],
+              "title": "Verification Status"
+            },
+            "confidence": {
+              "type": "number",
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "Confidence"
+            },
+            "incorrect_fields": {
+              "items": {
+                "type": "string",
+                "enum": [
+                  "surname",
+                  "given_names",
+                  "passport_number",
+                  "nationality",
+                  "place_of_issue",
+                  "issuing_country",
+                  "date_of_birth",
+                  "date_of_issue",
+                  "date_of_expiry",
+                  "sex"
+                ]
+              },
+              "type": "array",
+              "title": "Incorrect Fields"
+            },
+            "suspicious_fields": {
+              "items": {
+                "type": "string",
+                "enum": [
+                  "surname",
+                  "given_names",
+                  "passport_number",
+                  "nationality",
+                  "place_of_issue",
+                  "issuing_country",
+                  "date_of_birth",
+                  "date_of_issue",
+                  "date_of_expiry",
+                  "sex"
+                ]
+              },
+              "type": "array",
+              "title": "Suspicious Fields"
+            },
+            "explanation": {
+              "type": "string",
+              "maxLength": 240,
+              "minLength": 1,
+              "title": "Explanation"
+            },
+            "provider_status": {
+              "type": "string",
+              "maxLength": 64,
+              "minLength": 1,
+              "title": "Provider Status"
+            },
+            "reason_code": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 64
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Reason Code"
+            },
+            "model": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 120
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Model"
+            },
+            "fields": {
+              "items": {
+                "$ref": "#/components/schemas/PostSubmissionFieldOutcomeResponse"
+              },
+              "type": "array",
+              "title": "Fields"
+            },
+            "stale_after_staff_edit": {
+              "type": "boolean",
+              "title": "Stale After Staff Edit",
+              "default": false
+            }
+          },
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "verification_status",
+            "confidence",
+            "explanation",
+            "provider_status"
+          ],
+          "title": "PostSubmissionVerificationResponse"
+        },
+        "StaffApprovePassportRequest": {
+          "properties": {
+            "confirmed_fields": {
+              "anyOf": [
+                {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "minProperties": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Confirmed Fields"
+            },
+            "expected_extraction_revision": {
+              "type": "integer",
+              "minimum": 0.0,
+              "title": "Expected Extraction Revision"
+            },
+            "review_reason": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 240
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Review Reason"
+            }
+          },
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "expected_extraction_revision"
+          ],
+          "title": "StaffApprovePassportRequest"
+        },
+        "ValidationError": {
+          "properties": {
+            "loc": {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ]
+              },
+              "type": "array",
+              "title": "Location"
+            },
+            "msg": {
+              "type": "string",
+              "title": "Message"
+            },
+            "type": {
+              "type": "string",
+              "title": "Error Type"
+            },
+            "input": {
+              "title": "Input"
+            },
+            "ctx": {
+              "type": "object",
+              "title": "Context"
+            }
+          },
+          "type": "object",
+          "required": [
+            "loc",
+            "msg",
+            "type"
+          ],
+          "title": "ValidationError"
+        }
+      },
+      "securitySchemes": {
+        "HTTPBearer": {
+          "type": "http",
+          "scheme": "bearer"
+        }
+      }
+    }
+  },
+  "routes": [
+    [
+      "/{submission_id}",
+      [
+        "GET"
+      ],
+      "get_passport"
+    ],
+    [
+      "/{submission_id}/client-submit",
+      [
+        "POST"
+      ],
+      "client_submit_passport"
+    ],
+    [
+      "/{submission_id}/staff-approve",
+      [
+        "POST"
+      ],
+      "staff_approve_passport"
+    ],
+    [
+      "/{submission_id}/retry-ai-verification",
+      [
+        "POST"
+      ],
+      "retry_post_submission_verification"
+    ],
+    [
+      "/{submission_id}/reextract",
+      [
+        "POST"
+      ],
+      "reextract_passport"
+    ],
+    [
+      "/{submission_id}/cancel-processing",
+      [
+        "POST"
+      ],
+      "cancel_passport_processing"
+    ],
+    [
+      "/{submission_id}/confirm",
+      [
+        "POST"
+      ],
+      "confirm_passport"
+    ]
+  ],
+  "declarations": {
+    "_cleanup_uncommitted_promotions": {
+      "ast": "AsyncFunctionDef(name='_cleanup_uncommitted_promotions', args=arguments(posonlyargs=[], args=[arg(arg='result', annotation=BinOp(left=Name(id='PassportSubmissionOutputDTO', ctx=Load()), op=BitOr(), right=Constant(value=None)))], kwonlyargs=[], kw_defaults=[], defaults=[]), body=[If(test=BoolOp(op=Or(), values=[UnaryOp(op=Not(), operand=Name(id='result', ctx=Load())), UnaryOp(op=Not(), operand=Attribute(value=Name(id='result', ctx=Load()), attr='promoted_storage_keys', ctx=Load()))]), body=[Return()], orelse=[]), Try(body=[Expr(value=Await(value=Call(func=Attribute(value=Call(func=Name(id='MinioStorageRepository', ctx=Load()), args=[], keywords=[]), attr='delete_files', ctx=Load()), args=[Call(func=Name(id='list', ctx=Load()), args=[Attribute(value=Name(id='result', ctx=Load()), attr='promoted_storage_keys', ctx=Load())], keywords=[])], keywords=[])))], handlers=[ExceptHandler(type=Name(id='StorageError', ctx=Load()), name='exc', body=[Expr(value=Call(func=Attribute(value=Name(id='logger', ctx=Load()), attr='warning', ctx=Load()), args=[Constant(value='passport_promotion_rollback_cleanup_failed')], keywords=[keyword(arg='submission_id', value=Call(func=Name(id='str', ctx=Load()), args=[Attribute(value=Name(id='result', ctx=Load()), attr='id', ctx=Load())], keywords=[])), keyword(arg='object_count', value=Call(func=Name(id='len', ctx=Load()), args=[Attribute(value=Name(id='result', ctx=Load()), attr='promoted_storage_keys', ctx=Load())], keywords=[])), keyword(arg='error_type', value=Attribute(value=Call(func=Name(id='type', ctx=Load()), args=[Name(id='exc', ctx=Load())], keywords=[]), attr='__name__', ctx=Load()))]))])], orelse=[], finalbody=[])], decorator_list=[], returns=Constant(value=None))",
+      "signature": "(result: 'PassportSubmissionOutputDTO | None') -> 'None'",
+      "hints": {
+        "result": "app.application.dtos.passport_dtos.PassportSubmissionOutputDTO | None",
+        "return": "<class 'NoneType'>"
+      },
+      "module": "app.presentation.api.v1.routes.passport_routes.submission_review",
+      "qualname": "_cleanup_uncommitted_promotions",
+      "pickle_hex": "80049568000000000000008c406170702e70726573656e746174696f6e2e6170692e76312e726f757465732e70617373706f72745f726f757465732e7375626d697373696f6e5f726576696577948c1f5f636c65616e75705f756e636f6d6d69747465645f70726f6d6f74696f6e739493942e"
+    },
+    "_dispatch_committed_verification": {
+      "ast": "AsyncFunctionDef(name='_dispatch_committed_verification', args=arguments(posonlyargs=[], args=[arg(arg='job', annotation=BinOp(left=Name(id='PostSubmissionVerificationJob', ctx=Load()), op=BitOr(), right=Constant(value=None)))], kwonlyargs=[arg(arg='result', annotation=Name(id='PassportSubmissionOutputDTO', ctx=Load())), arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load())), arg(arg='background_tasks', annotation=Name(id='BackgroundTasks', ctx=Load()))], kw_defaults=[None, None, None], defaults=[]), body=[Expr(value=Constant(value='Deliver an existing outbox job after submission state has committed.')), If(test=BoolOp(op=Or(), values=[Compare(left=Name(id='job', ctx=Load()), ops=[Is()], comparators=[Constant(value=None)]), Compare(left=Attribute(value=Name(id='job', ctx=Load()), attr='status', ctx=Load()), ops=[NotEq()], comparators=[Constant(value='queued')])]), body=[Return()], orelse=[]), Assign(targets=[Name(id='task_id', ctx=Store())], value=Await(value=Call(func=Attribute(value=Call(func=Name(id='PostSubmissionVerificationDispatcher', ctx=Load()), args=[], keywords=[]), attr='dispatch_async', ctx=Load()), args=[], keywords=[keyword(arg='job_id', value=Attribute(value=Name(id='job', ctx=Load()), attr='id', ctx=Load())), keyword(arg='submission_id', value=Attribute(value=Name(id='result', ctx=Load()), attr='id', ctx=Load())), keyword(arg='verification_revision', value=Attribute(value=Name(id='result', ctx=Load()), attr='post_submission_verification_revision', ctx=Load())), keyword(arg='background_tasks', value=Name(id='background_tasks', ctx=Load()))]))), If(test=UnaryOp(op=Not(), operand=Name(id='task_id', ctx=Load())), body=[Return()], orelse=[]), Try(body=[Expr(value=Await(value=Call(func=Attribute(value=Call(func=Name(id='PostSubmissionVerificationJobRepository', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[]), attr='set_task_id', ctx=Load()), args=[Attribute(value=Name(id='job', ctx=Load()), attr='id', ctx=Load()), Name(id='task_id', ctx=Load())], keywords=[]))), Expr(value=Await(value=Call(func=Attribute(value=Name(id='session', ctx=Load()), attr='commit', ctx=Load()), args=[], keywords=[])))], handlers=[ExceptHandler(type=Name(id='Exception', ctx=Load()), name='exc', body=[Expr(value=Await(value=Call(func=Attribute(value=Name(id='session', ctx=Load()), attr='rollback', ctx=Load()), args=[], keywords=[]))), Expr(value=Call(func=Attribute(value=Name(id='logger', ctx=Load()), attr='warning', ctx=Load()), args=[Constant(value='post_submission_verification_task_id_persist_failed')], keywords=[keyword(arg='job_id', value=Call(func=Name(id='str', ctx=Load()), args=[Attribute(value=Name(id='job', ctx=Load()), attr='id', ctx=Load())], keywords=[])), keyword(arg='error_type', value=Attribute(value=Call(func=Name(id='type', ctx=Load()), args=[Name(id='exc', ctx=Load())], keywords=[]), attr='__name__', ctx=Load()))]))])], orelse=[], finalbody=[])], decorator_list=[], returns=Constant(value=None))",
+      "signature": "(job: 'PostSubmissionVerificationJob | None', *, result: 'PassportSubmissionOutputDTO', session: 'AsyncSession', background_tasks: 'BackgroundTasks') -> 'None'",
+      "hints": {
+        "job": "app.infrastructure.verification.job_repository.PostSubmissionVerificationJob | None",
+        "result": "<class 'app.application.dtos.passport_dtos.PassportSubmissionOutputDTO'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "background_tasks": "<class 'fastapi.background.BackgroundTasks'>",
+        "return": "<class 'NoneType'>"
+      },
+      "module": "app.presentation.api.v1.routes.passport_routes.submission_review",
+      "qualname": "_dispatch_committed_verification",
+      "pickle_hex": "80049569000000000000008c406170702e70726573656e746174696f6e2e6170692e76312e726f757465732e70617373706f72745f726f757465732e7375626d697373696f6e5f726576696577948c205f64697370617463685f636f6d6d69747465645f766572696669636174696f6e9493942e"
+    },
+    "_staff_approval_conflict_response": {
+      "ast": "FunctionDef(name='_staff_approval_conflict_response', args=arguments(posonlyargs=[], args=[arg(arg='error', annotation=BinOp(left=Name(id='StaffApprovalStaleError', ctx=Load()), op=BitOr(), right=Name(id='StaffApprovalUnavailableError', ctx=Load())))], kwonlyargs=[], kw_defaults=[], defaults=[]), body=[AnnAssign(target=Name(id='details', ctx=Store()), annotation=Subscript(value=Name(id='dict', ctx=Load()), slice=Tuple(elts=[Name(id='str', ctx=Load()), Name(id='object', ctx=Load())], ctx=Load()), ctx=Load()), value=Dict(keys=[], values=[]), simple=1), If(test=Call(func=Name(id='isinstance', ctx=Load()), args=[Name(id='error', ctx=Load()), Name(id='StaffApprovalStaleError', ctx=Load())], keywords=[]), body=[Assign(targets=[Subscript(value=Name(id='details', ctx=Load()), slice=Constant(value='current_revision'), ctx=Store())], value=Attribute(value=Name(id='error', ctx=Load()), attr='current_revision', ctx=Load()))], orelse=[Assign(targets=[Subscript(value=Name(id='details', ctx=Load()), slice=Constant(value='current_status'), ctx=Store())], value=Attribute(value=Name(id='error', ctx=Load()), attr='current_status', ctx=Load()))]), Return(value=Call(func=Name(id='JSONResponse', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_409_CONFLICT', ctx=Load())), keyword(arg='content', value=Dict(keys=[Constant(value='error')], values=[Dict(keys=[Constant(value='code'), Constant(value='message'), Constant(value='details')], values=[Attribute(value=Name(id='error', ctx=Load()), attr='code', ctx=Load()), Attribute(value=Name(id='error', ctx=Load()), attr='message', ctx=Load()), Name(id='details', ctx=Load())])])), keyword(arg='headers', value=Dict(keys=[Constant(value='Cache-Control')], values=[Constant(value='no-store')]))]))], decorator_list=[], returns=Name(id='JSONResponse', ctx=Load()))",
+      "signature": "(error: 'StaffApprovalStaleError | StaffApprovalUnavailableError') -> 'JSONResponse'",
+      "hints": {
+        "error": "app.domain.exceptions.exceptions.StaffApprovalStaleError | app.domain.exceptions.exceptions.StaffApprovalUnavailableError",
+        "return": "<class 'starlette.responses.JSONResponse'>"
+      },
+      "module": "app.presentation.api.v1.routes.passport_routes.submission_review",
+      "qualname": "_staff_approval_conflict_response",
+      "pickle_hex": "8004956a000000000000008c406170702e70726573656e746174696f6e2e6170692e76312e726f757465732e70617373706f72745f726f757465732e7375626d697373696f6e5f726576696577948c215f73746166665f617070726f76616c5f636f6e666c6963745f726573706f6e73659493942e"
+    },
+    "_schedule_review_history": {
+      "ast": "AsyncFunctionDef(name='_schedule_review_history', args=arguments(posonlyargs=[], args=[arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load()))], kwonlyargs=[arg(arg='result', annotation=Name(id='PassportSubmissionOutputDTO', ctx=Load())), arg(arg='trigger', annotation=Name(id='str', ctx=Load()))], kw_defaults=[None, None], defaults=[]), body=[Expr(value=Constant(value='Schedule immutable history and acknowledge retained trip evidence together.')), ImportFrom(module='app.application.travellers.history_schedule', names=[alias(name='schedule_submission_history')], level=0), Expr(value=Await(value=Call(func=Name(id='schedule_submission_history', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[keyword(arg='agency_id', value=Attribute(value=Name(id='result', ctx=Load()), attr='agency_id', ctx=Load())), keyword(arg='group_id', value=Attribute(value=Name(id='result', ctx=Load()), attr='group_id', ctx=Load())), keyword(arg='source_submission_id', value=Attribute(value=Name(id='result', ctx=Load()), attr='id', ctx=Load())), keyword(arg='expected_extraction_revision', value=Attribute(value=Name(id='result', ctx=Load()), attr='extraction_revision', ctx=Load())), keyword(arg='trigger', value=Name(id='trigger', ctx=Load()))]))), ImportFrom(module='app.application.travellers.snapshot_access', names=[alias(name='has_retained_document'), alias(name='sync_accepted_participations')], level=0), If(test=Call(func=Name(id='has_retained_document', ctx=Load()), args=[Name(id='result', ctx=Load())], keywords=[]), body=[Expr(value=Await(value=Call(func=Name(id='sync_accepted_participations', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[keyword(arg='agency_id', value=Attribute(value=Name(id='result', ctx=Load()), attr='agency_id', ctx=Load())), keyword(arg='group_id', value=Attribute(value=Name(id='result', ctx=Load()), attr='group_id', ctx=Load())), keyword(arg='submission_ids', value=List(elts=[Attribute(value=Name(id='result', ctx=Load()), attr='id', ctx=Load())], ctx=Load()))])))], orelse=[])], decorator_list=[], returns=Constant(value=None))",
+      "signature": "(session: 'AsyncSession', *, result: 'PassportSubmissionOutputDTO', trigger: 'str') -> 'None'",
+      "hints": {
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "result": "<class 'app.application.dtos.passport_dtos.PassportSubmissionOutputDTO'>",
+        "trigger": "<class 'str'>",
+        "return": "<class 'NoneType'>"
+      },
+      "module": "app.presentation.api.v1.routes.passport_routes.submission_review",
+      "qualname": "_schedule_review_history",
+      "pickle_hex": "80049561000000000000008c406170702e70726573656e746174696f6e2e6170692e76312e726f757465732e70617373706f72745f726f757465732e7375626d697373696f6e5f726576696577948c185f7363686564756c655f7265766965775f686973746f72799493942e"
+    },
+    "get_passport": {
+      "ast": "AsyncFunctionDef(name='get_passport', args=arguments(posonlyargs=[], args=[arg(arg='submission_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='background_tasks', annotation=Name(id='BackgroundTasks', ctx=Load())), arg(arg='current_user', annotation=Name(id='User', ctx=Load())), arg(arg='use_case', annotation=Name(id='GetPassportSubmissionUseCase', ctx=Load())), arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_current_active_user', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='_get_get_passport_use_case', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_db_session', ctx=Load())], keywords=[])]), body=[Try(body=[Assign(targets=[Name(id='result', ctx=Store())], value=Await(value=Call(func=Attribute(value=Name(id='use_case', ctx=Load()), attr='execute', ctx=Load()), args=[Name(id='submission_id', ctx=Load())], keywords=[]))), Expr(value=Await(value=Call(func=Attribute(value=Call(func=Name(id='AuthorizationPolicy', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[]), attr='require_view_passport', ctx=Load()), args=[Name(id='current_user', ctx=Load()), Name(id='result', ctx=Load())], keywords=[]))), Expr(value=Await(value=Call(func=Name(id='record_sensitive_read', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[keyword(arg='user', value=Name(id='current_user', ctx=Load())), keyword(arg='kind', value=Constant(value='detail')), keyword(arg='agency_id', value=Attribute(value=Name(id='result', ctx=Load()), attr='agency_id', ctx=Load())), keyword(arg='entity_id', value=Attribute(value=Name(id='result', ctx=Load()), attr='id', ctx=Load()))]))), Assign(targets=[Name(id='job', ctx=Store())], value=Await(value=Call(func=Attribute(value=Call(func=Name(id='PassportProcessingJobRepository', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[]), attr='latest_for_submission', ctx=Load()), args=[Attribute(value=Name(id='result', ctx=Load()), attr='id', ctx=Load())], keywords=[]))), If(test=BoolOp(op=And(), values=[Compare(left=Name(id='job', ctx=Load()), ops=[IsNot()], comparators=[Constant(value=None)]), Call(func=Name(id='queued_job_needs_redelivery', ctx=Load()), args=[Name(id='job', ctx=Load())], keywords=[])]), body=[Expr(value=Await(value=Call(func=Name(id='_dispatch_processing_job', ctx=Load()), args=[Call(func=Name(id='replace', ctx=Load()), args=[Name(id='result', ctx=Load())], keywords=[keyword(arg='processing_job_id', value=Attribute(value=Name(id='job', ctx=Load()), attr='id', ctx=Load())), keyword(arg='processing_job_status', value=Attribute(value=Attribute(value=Name(id='job', ctx=Load()), attr='status', ctx=Load()), attr='value', ctx=Load())), keyword(arg='processing_progress', value=Attribute(value=Name(id='job', ctx=Load()), attr='progress', ctx=Load())), keyword(arg='processing_stage', value=Attribute(value=Name(id='job', ctx=Load()), attr='current_stage', ctx=Load()))])], keywords=[keyword(arg='session', value=Name(id='session', ctx=Load())), keyword(arg='background_tasks', value=Name(id='background_tasks', ctx=Load()))])))], orelse=[]), Return(value=Await(value=Call(func=Name(id='_response_from_dto', ctx=Load()), args=[Name(id='result', ctx=Load())], keywords=[keyword(arg='session', value=Name(id='session', ctx=Load()))])))], handlers=[ExceptHandler(type=Name(id='EntityNotFoundError', ctx=Load()), name='e', body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_404_NOT_FOUND', ctx=Load())), keyword(arg='detail', value=Attribute(value=Name(id='e', ctx=Load()), attr='message', ctx=Load()))]))]), ExceptHandler(type=Name(id='AuthorizationError', ctx=Load()), name='e', body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_403_FORBIDDEN', ctx=Load())), keyword(arg='detail', value=Attribute(value=Name(id='e', ctx=Load()), attr='message', ctx=Load()))]))])], orelse=[], finalbody=[])], decorator_list=[Call(func=Attribute(value=Name(id='router', ctx=Load()), attr='get', ctx=Load()), args=[Constant(value='/{submission_id}')], keywords=[keyword(arg='response_model', value=Name(id='PassportSubmissionResponse', ctx=Load())), keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_200_OK', ctx=Load())), keyword(arg='summary', value=Constant(value='Get a passport submission by id'))])], returns=Name(id='PassportSubmissionResponse', ctx=Load()))",
+      "signature": "(submission_id: 'uuid.UUID', background_tasks: 'BackgroundTasks', current_user: 'User' = Depends(dependency=<function get_current_active_user at 0x0000018EEBD65080>, use_cache=True, scope=None), use_case: 'GetPassportSubmissionUseCase' = Depends(dependency=<function _get_get_passport_use_case at 0x0000018EEBD67420>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x0000018EEA512520>, use_cache=True, scope=None)) -> 'PassportSubmissionResponse'",
+      "hints": {
+        "submission_id": "<class 'uuid.UUID'>",
+        "background_tasks": "<class 'fastapi.background.BackgroundTasks'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "use_case": "<class 'app.application.use_cases.passports.get_passport_submission_use_case.GetPassportSubmissionUseCase'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "return": "<class 'app.presentation.api.v1.schemas.passport_schemas.PassportSubmissionResponse'>"
+      },
+      "module": "app.presentation.api.v1.routes.passport_routes.submission_review",
+      "qualname": "get_passport",
+      "pickle_hex": "80049555000000000000008c406170702e70726573656e746174696f6e2e6170692e76312e726f757465732e70617373706f72745f726f757465732e7375626d697373696f6e5f726576696577948c0c6765745f70617373706f72749493942e"
+    },
+    "client_submit_passport": {
+      "ast": "AsyncFunctionDef(name='client_submit_passport', args=arguments(posonlyargs=[], args=[arg(arg='submission_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='body', annotation=Name(id='ClientSubmitPassportRequest', ctx=Load())), arg(arg='background_tasks', annotation=Name(id='BackgroundTasks', ctx=Load())), arg(arg='upload_session_id', annotation=Name(id='str', ctx=Load())), arg(arg='use_case', annotation=Name(id='ClientSubmitPassportUseCase', ctx=Load())), arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[Call(func=Name(id='Header', ctx=Load()), args=[Constant(value=Ellipsis)], keywords=[keyword(arg='alias', value=Constant(value='X-Upload-Session-ID')), keyword(arg='min_length', value=Constant(value=32)), keyword(arg='max_length', value=Constant(value=128))]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='_get_client_submit_passport_use_case', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_db_session', ctx=Load())], keywords=[])]), body=[Assign(targets=[Name(id='contact_proof', ctx=Store())], value=Await(value=Call(func=Name(id='require_verified_submission_contact', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[keyword(arg='submission_id', value=Name(id='submission_id', ctx=Load())), keyword(arg='body', value=Name(id='body', ctx=Load())), keyword(arg='upload_session_id', value=Name(id='upload_session_id', ctx=Load()))]))), AnnAssign(target=Name(id='result', ctx=Store()), annotation=BinOp(left=Name(id='PassportSubmissionOutputDTO', ctx=Load()), op=BitOr(), right=Constant(value=None)), value=Constant(value=None), simple=1), Assign(targets=[Name(id='committed', ctx=Store())], value=Constant(value=False)), Assign(targets=[Name(id='commit_attempted', ctx=Store())], value=Constant(value=False)), Try(body=[Assign(targets=[Name(id='result', ctx=Store())], value=Await(value=Call(func=Name(id='execute_client_review', ctx=Load()), args=[Name(id='use_case', ctx=Load()), Name(id='submission_id', ctx=Load()), Name(id='body', ctx=Load())], keywords=[]))), Assign(targets=[Name(id='effects', ctx=Store())], value=Await(value=Call(func=Name(id='stage_submission_side_effects', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[keyword(arg='result', value=Name(id='result', ctx=Load())), keyword(arg='contact_proof', value=Name(id='contact_proof', ctx=Load()))]))), Assign(targets=[Name(id='commit_attempted', ctx=Store())], value=Constant(value=True)), Expr(value=Await(value=Call(func=Attribute(value=Name(id='session', ctx=Load()), attr='commit', ctx=Load()), args=[], keywords=[]))), Assign(targets=[Name(id='committed', ctx=Store())], value=Constant(value=True)), If(test=Attribute(value=Name(id='effects', ctx=Load()), attr='ecr_queued', ctx=Load()), body=[Try(body=[Expr(value=Await(value=Call(func=Name(id='dispatch_passport_ecr_checks', ctx=Load()), args=[], keywords=[])))], handlers=[ExceptHandler(type=Name(id='Exception', ctx=Load()), body=[Expr(value=Call(func=Attribute(value=Name(id='logger', ctx=Load()), attr='warning', ctx=Load()), args=[Constant(value='passport_ecr_dispatch_deferred')], keywords=[keyword(arg='submission_id', value=Call(func=Name(id='str', ctx=Load()), args=[Attribute(value=Name(id='result', ctx=Load()), attr='id', ctx=Load())], keywords=[]))]))])], orelse=[], finalbody=[])], orelse=[]), Expr(value=Await(value=Call(func=Name(id='_dispatch_committed_verification', ctx=Load()), args=[Attribute(value=Name(id='effects', ctx=Load()), attr='verification_job', ctx=Load())], keywords=[keyword(arg='result', value=Name(id='result', ctx=Load())), keyword(arg='session', value=Name(id='session', ctx=Load())), keyword(arg='background_tasks', value=Name(id='background_tasks', ctx=Load()))]))), For(target=Name(id='cleanup_job', ctx=Store()), iter=Attribute(value=Name(id='effects', ctx=Load()), attr='cleanup_jobs', ctx=Load()), body=[Try(body=[Expr(value=Await(value=Call(func=Name(id='process_storage_cleanup_job', ctx=Load()), args=[Attribute(value=Name(id='cleanup_job', ctx=Load()), attr='id', ctx=Load())], keywords=[])))], handlers=[ExceptHandler(type=Name(id='Exception', ctx=Load()), name='exc', body=[Expr(value=Call(func=Attribute(value=Name(id='logger', ctx=Load()), attr='warning', ctx=Load()), args=[Constant(value='passport_draft_cleanup_deferred')], keywords=[keyword(arg='submission_id', value=Call(func=Name(id='str', ctx=Load()), args=[Attribute(value=Name(id='result', ctx=Load()), attr='id', ctx=Load())], keywords=[])), keyword(arg='cleanup_job_id', value=Call(func=Name(id='str', ctx=Load()), args=[Attribute(value=Name(id='cleanup_job', ctx=Load()), attr='id', ctx=Load())], keywords=[])), keyword(arg='object_count', value=Attribute(value=Name(id='cleanup_job', ctx=Load()), attr='object_count', ctx=Load())), keyword(arg='error_type', value=Attribute(value=Call(func=Name(id='type', ctx=Load()), args=[Name(id='exc', ctx=Load())], keywords=[]), attr='__name__', ctx=Load()))]))])], orelse=[], finalbody=[])], orelse=[]), Return(value=Call(func=Attribute(value=Name(id='PassportSubmissionResponse', ctx=Load()), attr='model_validate', ctx=Load()), args=[Name(id='result', ctx=Load())], keywords=[]))], handlers=[ExceptHandler(type=Name(id='EntityNotFoundError', ctx=Load()), name='e', body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_404_NOT_FOUND', ctx=Load())), keyword(arg='detail', value=Attribute(value=Name(id='e', ctx=Load()), attr='message', ctx=Load()))]))]), ExceptHandler(type=Name(id='PassDetectionError', ctx=Load()), name='e', body=[If(test=BoolOp(op=And(), values=[UnaryOp(op=Not(), operand=Name(id='committed', ctx=Load())), UnaryOp(op=Not(), operand=Name(id='commit_attempted', ctx=Load()))]), body=[Expr(value=Await(value=Call(func=Name(id='_cleanup_uncommitted_promotions', ctx=Load()), args=[Name(id='result', ctx=Load())], keywords=[])))], orelse=[]), Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=IfExp(test=Call(func=Name(id='isinstance', ctx=Load()), args=[Name(id='e', ctx=Load()), Name(id='ConflictError', ctx=Load())], keywords=[]), body=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_409_CONFLICT', ctx=Load()), orelse=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_400_BAD_REQUEST', ctx=Load()))), keyword(arg='detail', value=Attribute(value=Name(id='e', ctx=Load()), attr='message', ctx=Load()))]))]), ExceptHandler(type=Name(id='Exception', ctx=Load()), body=[If(test=BoolOp(op=And(), values=[UnaryOp(op=Not(), operand=Name(id='committed', ctx=Load())), UnaryOp(op=Not(), operand=Name(id='commit_attempted', ctx=Load()))]), body=[Expr(value=Await(value=Call(func=Name(id='_cleanup_uncommitted_promotions', ctx=Load()), args=[Name(id='result', ctx=Load())], keywords=[])))], orelse=[]), Raise()])], orelse=[], finalbody=[])], decorator_list=[Call(func=Attribute(value=Name(id='router', ctx=Load()), attr='post', ctx=Load()), args=[Constant(value='/{submission_id}/client-submit')], keywords=[keyword(arg='response_model', value=Name(id='PassportSubmissionResponse', ctx=Load())), keyword(arg='response_model_exclude', value=Set(elts=[Constant(value='document_follow_up'), Constant(value='display_name')])), keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_200_OK', ctx=Load())), keyword(arg='summary', value=Constant(value='Submit client-reviewed passport fields (Public)'))])], returns=Name(id='PassportSubmissionResponse', ctx=Load()))",
+      "signature": "(submission_id: 'uuid.UUID', body: 'ClientSubmitPassportRequest', background_tasks: 'BackgroundTasks', upload_session_id: 'str' = Header(PydanticUndefined), use_case: 'ClientSubmitPassportUseCase' = Depends(dependency=<function _get_client_submit_passport_use_case at 0x0000018EEBD67560>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x0000018EEA512520>, use_cache=True, scope=None)) -> 'PassportSubmissionResponse'",
+      "hints": {
+        "submission_id": "<class 'uuid.UUID'>",
+        "body": "<class 'app.presentation.api.v1.schemas.passport_schemas.ClientSubmitPassportRequest'>",
+        "background_tasks": "<class 'fastapi.background.BackgroundTasks'>",
+        "upload_session_id": "<class 'str'>",
+        "use_case": "<class 'app.application.use_cases.passports.client_submit_passport_use_case.ClientSubmitPassportUseCase'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "return": "<class 'app.presentation.api.v1.schemas.passport_schemas.PassportSubmissionResponse'>"
+      },
+      "module": "app.presentation.api.v1.routes.passport_routes.submission_review",
+      "qualname": "client_submit_passport",
+      "pickle_hex": "8004955f000000000000008c406170702e70726573656e746174696f6e2e6170692e76312e726f757465732e70617373706f72745f726f757465732e7375626d697373696f6e5f726576696577948c16636c69656e745f7375626d69745f70617373706f72749493942e"
+    },
+    "staff_approve_passport": {
+      "ast": "AsyncFunctionDef(name='staff_approve_passport', args=arguments(posonlyargs=[], args=[arg(arg='submission_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='body', annotation=Name(id='StaffApprovePassportRequest', ctx=Load())), arg(arg='response', annotation=Name(id='Response', ctx=Load())), arg(arg='_csrf', annotation=Constant(value=None)), arg(arg='current_user', annotation=Name(id='User', ctx=Load())), arg(arg='get_use_case', annotation=Name(id='GetPassportSubmissionUseCase', ctx=Load())), arg(arg='approve_use_case', annotation=Name(id='StaffApprovePassportUseCase', ctx=Load())), arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='require_cookie_csrf', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_current_active_user', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='_get_get_passport_use_case', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='_get_staff_approve_passport_use_case', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_db_session', ctx=Load())], keywords=[])]), body=[Try(body=[Assign(targets=[Name(id='existing', ctx=Store())], value=Await(value=Call(func=Attribute(value=Name(id='get_use_case', ctx=Load()), attr='execute', ctx=Load()), args=[Name(id='submission_id', ctx=Load())], keywords=[]))), Expr(value=Await(value=Call(func=Attribute(value=Call(func=Name(id='AuthorizationPolicy', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[]), attr='require_staff_approve_passport', ctx=Load()), args=[Name(id='current_user', ctx=Load()), Name(id='existing', ctx=Load())], keywords=[]))), Expr(value=Await(value=Call(func=Attribute(value=Name(id='session', ctx=Load()), attr='execute', ctx=Load()), args=[Call(func=Attribute(value=Call(func=Attribute(value=Call(func=Name(id='select', ctx=Load()), args=[Attribute(value=Name(id='ClientGroupModel', ctx=Load()), attr='id', ctx=Load())], keywords=[]), attr='where', ctx=Load()), args=[Compare(left=Attribute(value=Name(id='ClientGroupModel', ctx=Load()), attr='id', ctx=Load()), ops=[Eq()], comparators=[Attribute(value=Name(id='existing', ctx=Load()), attr='group_id', ctx=Load())]), Compare(left=Attribute(value=Name(id='ClientGroupModel', ctx=Load()), attr='agency_id', ctx=Load()), ops=[Eq()], comparators=[Attribute(value=Name(id='existing', ctx=Load()), attr='agency_id', ctx=Load())])], keywords=[]), attr='with_for_update', ctx=Load()), args=[], keywords=[])], keywords=[]))), AnnAssign(target=Name(id='approval', ctx=Store()), annotation=Name(id='StaffApprovalResult', ctx=Load()), value=Await(value=Call(func=Attribute(value=Name(id='approve_use_case', ctx=Load()), attr='execute', ctx=Load()), args=[Name(id='submission_id', ctx=Load())], keywords=[keyword(arg='reviewer_id', value=Attribute(value=Name(id='current_user', ctx=Load()), attr='id', ctx=Load())), keyword(arg='reviewer_name', value=Attribute(value=Name(id='current_user', ctx=Load()), attr='full_name', ctx=Load())), keyword(arg='confirmed_fields', value=Attribute(value=Name(id='body', ctx=Load()), attr='confirmed_fields', ctx=Load())), keyword(arg='expected_extraction_revision', value=Attribute(value=Name(id='body', ctx=Load()), attr='expected_extraction_revision', ctx=Load())), keyword(arg='review_reason', value=Attribute(value=Name(id='body', ctx=Load()), attr='review_reason', ctx=Load()))])), simple=1), Assign(targets=[Name(id='result', ctx=Store())], value=Attribute(value=Name(id='approval', ctx=Load()), attr='submission', ctx=Load())), Expr(value=Await(value=Call(func=Name(id='_schedule_review_history', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[keyword(arg='result', value=Name(id='result', ctx=Load())), keyword(arg='trigger', value=JoinedStr(values=[Constant(value='staff-approval:'), FormattedValue(value=Attribute(value=Name(id='result', ctx=Load()), attr='id', ctx=Load()), conversion=-1), Constant(value=':'), FormattedValue(value=Attribute(value=Name(id='result', ctx=Load()), attr='extraction_revision', ctx=Load()), conversion=-1)]))]))), If(test=Compare(left=Attribute(value=Name(id='approval', ctx=Load()), attr='outcome', ctx=Load()), ops=[Is()], comparators=[Attribute(value=Name(id='StaffApprovalOutcome', ctx=Load()), attr='APPROVED', ctx=Load())]), body=[AnnAssign(target=Name(id='audit_metadata', ctx=Store()), annotation=Subscript(value=Name(id='dict', ctx=Load()), slice=Tuple(elts=[Name(id='str', ctx=Load()), Name(id='object', ctx=Load())], ctx=Load()), ctx=Load()), value=Dict(keys=[Constant(value='group_id'), Constant(value='prior_status'), Constant(value='new_status'), Constant(value='corrected_field_names'), Constant(value='outcome'), Constant(value='extraction_revision'), Constant(value='verification_revision')], values=[Call(func=Name(id='str', ctx=Load()), args=[Attribute(value=Name(id='result', ctx=Load()), attr='group_id', ctx=Load())], keywords=[]), Attribute(value=Name(id='approval', ctx=Load()), attr='previous_status', ctx=Load()), Attribute(value=Name(id='result', ctx=Load()), attr='status', ctx=Load()), Call(func=Name(id='list', ctx=Load()), args=[Attribute(value=Name(id='approval', ctx=Load()), attr='corrected_field_names', ctx=Load())], keywords=[]), Attribute(value=Attribute(value=Name(id='approval', ctx=Load()), attr='outcome', ctx=Load()), attr='value', ctx=Load()), Attribute(value=Name(id='result', ctx=Load()), attr='extraction_revision', ctx=Load()), Attribute(value=Name(id='result', ctx=Load()), attr='post_submission_verification_revision', ctx=Load())]), simple=1), If(test=Compare(left=Attribute(value=Name(id='approval', ctx=Load()), attr='review_reason', ctx=Load()), ops=[IsNot()], comparators=[Constant(value=None)]), body=[Assign(targets=[Subscript(value=Name(id='audit_metadata', ctx=Load()), slice=Constant(value='review_reason'), ctx=Store())], value=Attribute(value=Name(id='approval', ctx=Load()), attr='review_reason', ctx=Load()))], orelse=[]), Expr(value=Await(value=Call(func=Attribute(value=Call(func=Name(id='AuditLogRepository', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[]), attr='record', ctx=Load()), args=[], keywords=[keyword(arg='action', value=Constant(value='passport_staff_approved')), keyword(arg='entity_type', value=Constant(value='passport_submission')), keyword(arg='entity_id', value=Call(func=Name(id='str', ctx=Load()), args=[Attribute(value=Name(id='result', ctx=Load()), attr='id', ctx=Load())], keywords=[])), keyword(arg='agency_id', value=Attribute(value=Name(id='result', ctx=Load()), attr='agency_id', ctx=Load())), keyword(arg='user_id', value=Attribute(value=Name(id='current_user', ctx=Load()), attr='id', ctx=Load())), keyword(arg='metadata', value=Name(id='audit_metadata', ctx=Load()))]))), Expr(value=Await(value=Call(func=Name(id='_ensure_submission_qr', ctx=Load()), args=[Name(id='session', ctx=Load()), Attribute(value=Name(id='result', ctx=Load()), attr='id', ctx=Load()), Attribute(value=Name(id='current_user', ctx=Load()), attr='id', ctx=Load())], keywords=[]))), Expr(value=Await(value=Call(func=Name(id='propagate_mobile_passenger_change', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[keyword(arg='agency_id', value=Attribute(value=Name(id='result', ctx=Load()), attr='agency_id', ctx=Load())), keyword(arg='group_id', value=Attribute(value=Name(id='result', ctx=Load()), attr='group_id', ctx=Load())), keyword(arg='passenger_submission_ids', value=List(elts=[Attribute(value=Name(id='result', ctx=Load()), attr='id', ctx=Load())], ctx=Load())), keyword(arg='actor_user_id', value=Attribute(value=Name(id='current_user', ctx=Load()), attr='id', ctx=Load()))])))], orelse=[]), Expr(value=Await(value=Call(func=Attribute(value=Name(id='session', ctx=Load()), attr='commit', ctx=Load()), args=[], keywords=[]))), Expr(value=Call(func=Name(id='record_operational_event', ctx=Load()), args=[Attribute(value=Name(id='OperationalEvent', ctx=Load()), attr='STAFF_APPROVAL', ctx=Load()), IfExp(test=Compare(left=Attribute(value=Name(id='approval', ctx=Load()), attr='outcome', ctx=Load()), ops=[Is()], comparators=[Attribute(value=Name(id='StaffApprovalOutcome', ctx=Load()), attr='APPROVED', ctx=Load())]), body=Constant(value='approved'), orelse=Constant(value='already_approved'))], keywords=[])), Assign(targets=[Subscript(value=Attribute(value=Name(id='response', ctx=Load()), attr='headers', ctx=Load()), slice=Constant(value='Cache-Control'), ctx=Store())], value=Constant(value='no-store')), Assign(targets=[Subscript(value=Attribute(value=Name(id='response', ctx=Load()), attr='headers', ctx=Load()), slice=Constant(value='X-Staff-Approval-Outcome'), ctx=Store())], value=Attribute(value=Attribute(value=Name(id='approval', ctx=Load()), attr='outcome', ctx=Load()), attr='value', ctx=Load())), Assign(targets=[Subscript(value=Attribute(value=Name(id='response', ctx=Load()), attr='headers', ctx=Load()), slice=Constant(value='X-Staff-Approval-Revision'), ctx=Store())], value=Call(func=Name(id='str', ctx=Load()), args=[Attribute(value=Name(id='result', ctx=Load()), attr='extraction_revision', ctx=Load())], keywords=[])), Return(value=Await(value=Call(func=Name(id='_response_from_dto', ctx=Load()), args=[Name(id='result', ctx=Load())], keywords=[keyword(arg='session', value=Name(id='session', ctx=Load()))])))], handlers=[ExceptHandler(type=Tuple(elts=[Name(id='StaffApprovalStaleError', ctx=Load()), Name(id='StaffApprovalUnavailableError', ctx=Load())], ctx=Load()), name='exc', body=[Expr(value=Await(value=Call(func=Attribute(value=Name(id='session', ctx=Load()), attr='rollback', ctx=Load()), args=[], keywords=[]))), Expr(value=Call(func=Name(id='record_operational_event', ctx=Load()), args=[Attribute(value=Name(id='OperationalEvent', ctx=Load()), attr='STAFF_APPROVAL', ctx=Load()), IfExp(test=Call(func=Name(id='isinstance', ctx=Load()), args=[Name(id='exc', ctx=Load()), Name(id='StaffApprovalStaleError', ctx=Load())], keywords=[]), body=Constant(value='stale'), orelse=Constant(value='unavailable'))], keywords=[])), Return(value=Call(func=Name(id='_staff_approval_conflict_response', ctx=Load()), args=[Name(id='exc', ctx=Load())], keywords=[]))]), ExceptHandler(type=Name(id='EntityNotFoundError', ctx=Load()), name='exc', body=[Expr(value=Call(func=Name(id='record_operational_event', ctx=Load()), args=[Attribute(value=Name(id='OperationalEvent', ctx=Load()), attr='STAFF_APPROVAL', ctx=Load()), Constant(value='not_found')], keywords=[])), Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_404_NOT_FOUND', ctx=Load())), keyword(arg='detail', value=Attribute(value=Name(id='exc', ctx=Load()), attr='message', ctx=Load()))]))]), ExceptHandler(type=Name(id='AuthorizationError', ctx=Load()), name='exc', body=[Expr(value=Call(func=Name(id='record_operational_event', ctx=Load()), args=[Attribute(value=Name(id='OperationalEvent', ctx=Load()), attr='STAFF_APPROVAL', ctx=Load()), Constant(value='forbidden')], keywords=[])), Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_403_FORBIDDEN', ctx=Load())), keyword(arg='detail', value=Attribute(value=Name(id='exc', ctx=Load()), attr='message', ctx=Load()))]))]), ExceptHandler(type=Name(id='Exception', ctx=Load()), body=[Expr(value=Call(func=Name(id='record_operational_event', ctx=Load()), args=[Attribute(value=Name(id='OperationalEvent', ctx=Load()), attr='STAFF_APPROVAL', ctx=Load()), Constant(value='unexpected_failure')], keywords=[])), Raise()])], orelse=[], finalbody=[])], decorator_list=[Call(func=Attribute(value=Name(id='router', ctx=Load()), attr='post', ctx=Load()), args=[Constant(value='/{submission_id}/staff-approve')], keywords=[keyword(arg='response_model', value=Name(id='PassportSubmissionResponse', ctx=Load())), keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_200_OK', ctx=Load())), keyword(arg='summary', value=Constant(value='Approve a passport that needs post-submission review'))])], returns=BinOp(left=Name(id='PassportSubmissionResponse', ctx=Load()), op=BitOr(), right=Name(id='JSONResponse', ctx=Load())))",
+      "signature": "(submission_id: 'uuid.UUID', body: 'StaffApprovePassportRequest', response: 'Response', _csrf: 'None' = Depends(dependency=<function require_cookie_csrf at 0x0000018EEBD64900>, use_cache=True, scope=None), current_user: 'User' = Depends(dependency=<function get_current_active_user at 0x0000018EEBD65080>, use_cache=True, scope=None), get_use_case: 'GetPassportSubmissionUseCase' = Depends(dependency=<function _get_get_passport_use_case at 0x0000018EEBD67420>, use_cache=True, scope=None), approve_use_case: 'StaffApprovePassportUseCase' = Depends(dependency=<function _get_staff_approve_passport_use_case at 0x0000018EEBD67740>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x0000018EEA512520>, use_cache=True, scope=None)) -> 'PassportSubmissionResponse | JSONResponse'",
+      "hints": {
+        "submission_id": "<class 'uuid.UUID'>",
+        "body": "<class 'app.presentation.api.v1.schemas.passport_schemas.StaffApprovePassportRequest'>",
+        "response": "<class 'starlette.responses.Response'>",
+        "_csrf": "<class 'NoneType'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "get_use_case": "<class 'app.application.use_cases.passports.get_passport_submission_use_case.GetPassportSubmissionUseCase'>",
+        "approve_use_case": "<class 'app.application.use_cases.passports.staff_approve_passport_use_case.StaffApprovePassportUseCase'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "return": "app.presentation.api.v1.schemas.passport_schemas.PassportSubmissionResponse | starlette.responses.JSONResponse"
+      },
+      "module": "app.presentation.api.v1.routes.passport_routes.submission_review",
+      "qualname": "staff_approve_passport",
+      "pickle_hex": "8004955f000000000000008c406170702e70726573656e746174696f6e2e6170692e76312e726f757465732e70617373706f72745f726f757465732e7375626d697373696f6e5f726576696577948c1673746166665f617070726f76655f70617373706f72749493942e"
+    },
+    "retry_post_submission_verification": {
+      "ast": "AsyncFunctionDef(name='retry_post_submission_verification', args=arguments(posonlyargs=[], args=[arg(arg='submission_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='background_tasks', annotation=Name(id='BackgroundTasks', ctx=Load())), arg(arg='_csrf', annotation=Constant(value=None)), arg(arg='current_user', annotation=Name(id='User', ctx=Load())), arg(arg='get_use_case', annotation=Name(id='GetPassportSubmissionUseCase', ctx=Load())), arg(arg='retry_use_case', annotation=Name(id='RetryPostSubmissionVerificationUseCase', ctx=Load())), arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='require_cookie_csrf', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_current_active_user', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='_get_get_passport_use_case', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='_get_retry_post_submission_verification_use_case', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_db_session', ctx=Load())], keywords=[])]), body=[Try(body=[Assign(targets=[Name(id='existing', ctx=Store())], value=Await(value=Call(func=Attribute(value=Name(id='get_use_case', ctx=Load()), attr='execute', ctx=Load()), args=[Name(id='submission_id', ctx=Load())], keywords=[]))), Expr(value=Await(value=Call(func=Attribute(value=Call(func=Name(id='AuthorizationPolicy', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[]), attr='require_confirm_passport', ctx=Load()), args=[Name(id='current_user', ctx=Load()), Name(id='existing', ctx=Load())], keywords=[]))), Assign(targets=[Name(id='retry_result', ctx=Store())], value=Await(value=Call(func=Attribute(value=Name(id='retry_use_case', ctx=Load()), attr='execute', ctx=Load()), args=[Name(id='submission_id', ctx=Load())], keywords=[]))), Assign(targets=[Name(id='result', ctx=Store())], value=Attribute(value=Name(id='retry_result', ctx=Load()), attr='submission', ctx=Load())), Assign(targets=[Name(id='verification_job', ctx=Store())], value=Await(value=Call(func=Attribute(value=Call(func=Name(id='PostSubmissionVerificationJobRepository', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[]), attr='enqueue', ctx=Load()), args=[], keywords=[keyword(arg='submission_id', value=Attribute(value=Name(id='result', ctx=Load()), attr='id', ctx=Load())), keyword(arg='verification_revision', value=Attribute(value=Name(id='result', ctx=Load()), attr='post_submission_verification_revision', ctx=Load()))]))), Expr(value=Await(value=Call(func=Attribute(value=Call(func=Name(id='AuditLogRepository', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[]), attr='record', ctx=Load()), args=[], keywords=[keyword(arg='action', value=Constant(value='passport_post_submission_verification_retry_requested')), keyword(arg='entity_type', value=Constant(value='passport_submission')), keyword(arg='entity_id', value=Call(func=Name(id='str', ctx=Load()), args=[Attribute(value=Name(id='result', ctx=Load()), attr='id', ctx=Load())], keywords=[])), keyword(arg='agency_id', value=Attribute(value=Name(id='result', ctx=Load()), attr='agency_id', ctx=Load())), keyword(arg='user_id', value=Attribute(value=Name(id='current_user', ctx=Load()), attr='id', ctx=Load())), keyword(arg='metadata', value=Dict(keys=[Constant(value='group_id'), Constant(value='previous_provider_status'), Constant(value='previous_reason_code'), Constant(value='verification_revision')], values=[Call(func=Name(id='str', ctx=Load()), args=[Attribute(value=Name(id='result', ctx=Load()), attr='group_id', ctx=Load())], keywords=[]), Attribute(value=Name(id='retry_result', ctx=Load()), attr='previous_provider_status', ctx=Load()), Attribute(value=Name(id='retry_result', ctx=Load()), attr='previous_reason_code', ctx=Load()), Attribute(value=Name(id='result', ctx=Load()), attr='post_submission_verification_revision', ctx=Load())]))]))), Expr(value=Await(value=Call(func=Attribute(value=Name(id='session', ctx=Load()), attr='commit', ctx=Load()), args=[], keywords=[]))), If(test=Compare(left=Attribute(value=Name(id='verification_job', ctx=Load()), attr='status', ctx=Load()), ops=[Eq()], comparators=[Constant(value='queued')]), body=[Try(body=[Assign(targets=[Name(id='task_id', ctx=Store())], value=Await(value=Call(func=Attribute(value=Call(func=Name(id='PostSubmissionVerificationDispatcher', ctx=Load()), args=[], keywords=[]), attr='dispatch_async', ctx=Load()), args=[], keywords=[keyword(arg='job_id', value=Attribute(value=Name(id='verification_job', ctx=Load()), attr='id', ctx=Load())), keyword(arg='submission_id', value=Attribute(value=Name(id='result', ctx=Load()), attr='id', ctx=Load())), keyword(arg='verification_revision', value=Attribute(value=Name(id='result', ctx=Load()), attr='post_submission_verification_revision', ctx=Load())), keyword(arg='background_tasks', value=Name(id='background_tasks', ctx=Load()))])))], handlers=[ExceptHandler(type=Name(id='Exception', ctx=Load()), name='exc', body=[Expr(value=Call(func=Attribute(value=Name(id='logger', ctx=Load()), attr='error', ctx=Load()), args=[Constant(value='post_submission_verification_retry_dispatch_deferred')], keywords=[keyword(arg='job_id', value=Call(func=Name(id='str', ctx=Load()), args=[Attribute(value=Name(id='verification_job', ctx=Load()), attr='id', ctx=Load())], keywords=[])), keyword(arg='error_type', value=Attribute(value=Call(func=Name(id='type', ctx=Load()), args=[Name(id='exc', ctx=Load())], keywords=[]), attr='__name__', ctx=Load()))]))])], orelse=[If(test=Name(id='task_id', ctx=Load()), body=[Try(body=[Expr(value=Await(value=Call(func=Attribute(value=Call(func=Name(id='PostSubmissionVerificationJobRepository', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[]), attr='set_task_id', ctx=Load()), args=[Attribute(value=Name(id='verification_job', ctx=Load()), attr='id', ctx=Load()), Name(id='task_id', ctx=Load())], keywords=[]))), Expr(value=Await(value=Call(func=Attribute(value=Name(id='session', ctx=Load()), attr='commit', ctx=Load()), args=[], keywords=[])))], handlers=[ExceptHandler(type=Name(id='Exception', ctx=Load()), name='exc', body=[Expr(value=Await(value=Call(func=Attribute(value=Name(id='session', ctx=Load()), attr='rollback', ctx=Load()), args=[], keywords=[]))), Expr(value=Call(func=Attribute(value=Name(id='logger', ctx=Load()), attr='warning', ctx=Load()), args=[Constant(value='post_submission_verification_retry_task_id_persist_failed')], keywords=[keyword(arg='job_id', value=Call(func=Name(id='str', ctx=Load()), args=[Attribute(value=Name(id='verification_job', ctx=Load()), attr='id', ctx=Load())], keywords=[])), keyword(arg='error_type', value=Attribute(value=Call(func=Name(id='type', ctx=Load()), args=[Name(id='exc', ctx=Load())], keywords=[]), attr='__name__', ctx=Load()))]))])], orelse=[], finalbody=[])], orelse=[])], finalbody=[])], orelse=[]), Return(value=Await(value=Call(func=Name(id='_response_from_dto', ctx=Load()), args=[Name(id='result', ctx=Load())], keywords=[keyword(arg='session', value=Name(id='session', ctx=Load()))])))], handlers=[ExceptHandler(type=Name(id='EntityNotFoundError', ctx=Load()), name='exc', body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_404_NOT_FOUND', ctx=Load())), keyword(arg='detail', value=Attribute(value=Name(id='exc', ctx=Load()), attr='message', ctx=Load()))]))]), ExceptHandler(type=Name(id='AuthorizationError', ctx=Load()), name='exc', body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_403_FORBIDDEN', ctx=Load())), keyword(arg='detail', value=Attribute(value=Name(id='exc', ctx=Load()), attr='message', ctx=Load()))]))]), ExceptHandler(type=Name(id='PassDetectionError', ctx=Load()), name='exc', body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_409_CONFLICT', ctx=Load())), keyword(arg='detail', value=Attribute(value=Name(id='exc', ctx=Load()), attr='message', ctx=Load()))]))])], orelse=[], finalbody=[])], decorator_list=[Call(func=Attribute(value=Name(id='router', ctx=Load()), attr='post', ctx=Load()), args=[Constant(value='/{submission_id}/retry-ai-verification')], keywords=[keyword(arg='response_model', value=Name(id='PassportSubmissionResponse', ctx=Load())), keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_200_OK', ctx=Load())), keyword(arg='summary', value=Constant(value='Retry AI verification after a temporary provider failure'))])], returns=Name(id='PassportSubmissionResponse', ctx=Load()))",
+      "signature": "(submission_id: 'uuid.UUID', background_tasks: 'BackgroundTasks', _csrf: 'None' = Depends(dependency=<function require_cookie_csrf at 0x0000018EEBD64900>, use_cache=True, scope=None), current_user: 'User' = Depends(dependency=<function get_current_active_user at 0x0000018EEBD65080>, use_cache=True, scope=None), get_use_case: 'GetPassportSubmissionUseCase' = Depends(dependency=<function _get_get_passport_use_case at 0x0000018EEBD67420>, use_cache=True, scope=None), retry_use_case: 'RetryPostSubmissionVerificationUseCase' = Depends(dependency=<function _get_retry_post_submission_verification_use_case at 0x0000018EEBD677E0>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x0000018EEA512520>, use_cache=True, scope=None)) -> 'PassportSubmissionResponse'",
+      "hints": {
+        "submission_id": "<class 'uuid.UUID'>",
+        "background_tasks": "<class 'fastapi.background.BackgroundTasks'>",
+        "_csrf": "<class 'NoneType'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "get_use_case": "<class 'app.application.use_cases.passports.get_passport_submission_use_case.GetPassportSubmissionUseCase'>",
+        "retry_use_case": "<class 'app.application.use_cases.passports.retry_post_submission_verification_use_case.RetryPostSubmissionVerificationUseCase'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "return": "<class 'app.presentation.api.v1.schemas.passport_schemas.PassportSubmissionResponse'>"
+      },
+      "module": "app.presentation.api.v1.routes.passport_routes.submission_review",
+      "qualname": "retry_post_submission_verification",
+      "pickle_hex": "8004956b000000000000008c406170702e70726573656e746174696f6e2e6170692e76312e726f757465732e70617373706f72745f726f757465732e7375626d697373696f6e5f726576696577948c2272657472795f706f73745f7375626d697373696f6e5f766572696669636174696f6e9493942e"
+    },
+    "reextract_passport": {
+      "ast": "AsyncFunctionDef(name='reextract_passport', args=arguments(posonlyargs=[], args=[arg(arg='submission_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='background_tasks', annotation=Name(id='BackgroundTasks', ctx=Load())), arg(arg='current_user', annotation=Name(id='User', ctx=Load())), arg(arg='get_use_case', annotation=Name(id='GetPassportSubmissionUseCase', ctx=Load())), arg(arg='reextract_use_case', annotation=Name(id='ReextractPassportSubmissionUseCase', ctx=Load())), arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_current_active_user', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='_get_get_passport_use_case', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='_get_reextract_passport_use_case', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_db_session', ctx=Load())], keywords=[])]), body=[Try(body=[Assign(targets=[Name(id='existing', ctx=Store())], value=Await(value=Call(func=Attribute(value=Name(id='get_use_case', ctx=Load()), attr='execute', ctx=Load()), args=[Name(id='submission_id', ctx=Load())], keywords=[]))), Expr(value=Await(value=Call(func=Attribute(value=Call(func=Name(id='AuthorizationPolicy', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[]), attr='require_confirm_passport', ctx=Load()), args=[Name(id='current_user', ctx=Load()), Name(id='existing', ctx=Load())], keywords=[]))), Assign(targets=[Name(id='result', ctx=Store())], value=Await(value=Call(func=Attribute(value=Name(id='reextract_use_case', ctx=Load()), attr='execute', ctx=Load()), args=[Name(id='submission_id', ctx=Load())], keywords=[]))), Expr(value=Await(value=Call(func=Name(id='_dispatch_processing_job', ctx=Load()), args=[Name(id='result', ctx=Load())], keywords=[keyword(arg='session', value=Name(id='session', ctx=Load())), keyword(arg='background_tasks', value=Name(id='background_tasks', ctx=Load()))]))), Expr(value=Await(value=Call(func=Attribute(value=Call(func=Name(id='AuditLogRepository', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[]), attr='record', ctx=Load()), args=[], keywords=[keyword(arg='action', value=Constant(value='passport_reextract_queued')), keyword(arg='entity_type', value=Constant(value='passport_submission')), keyword(arg='entity_id', value=Call(func=Name(id='str', ctx=Load()), args=[Attribute(value=Name(id='result', ctx=Load()), attr='id', ctx=Load())], keywords=[])), keyword(arg='agency_id', value=Attribute(value=Name(id='result', ctx=Load()), attr='agency_id', ctx=Load())), keyword(arg='user_id', value=Attribute(value=Name(id='current_user', ctx=Load()), attr='id', ctx=Load())), keyword(arg='actor_email', value=Attribute(value=Name(id='current_user', ctx=Load()), attr='email', ctx=Load()))]))), Return(value=Await(value=Call(func=Name(id='_response_from_dto', ctx=Load()), args=[Name(id='result', ctx=Load())], keywords=[keyword(arg='session', value=Name(id='session', ctx=Load()))])))], handlers=[ExceptHandler(type=Name(id='EntityNotFoundError', ctx=Load()), name='e', body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_404_NOT_FOUND', ctx=Load())), keyword(arg='detail', value=Attribute(value=Name(id='e', ctx=Load()), attr='message', ctx=Load()))]))]), ExceptHandler(type=Name(id='AuthorizationError', ctx=Load()), name='e', body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_403_FORBIDDEN', ctx=Load())), keyword(arg='detail', value=Attribute(value=Name(id='e', ctx=Load()), attr='message', ctx=Load()))]))]), ExceptHandler(type=Name(id='PassDetectionError', ctx=Load()), name='e', body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_400_BAD_REQUEST', ctx=Load())), keyword(arg='detail', value=Attribute(value=Name(id='e', ctx=Load()), attr='message', ctx=Load()))]))])], orelse=[], finalbody=[])], decorator_list=[Call(func=Attribute(value=Name(id='router', ctx=Load()), attr='post', ctx=Load()), args=[Constant(value='/{submission_id}/reextract')], keywords=[keyword(arg='response_model', value=Name(id='PassportSubmissionResponse', ctx=Load())), keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_200_OK', ctx=Load())), keyword(arg='summary', value=Constant(value='Rerun automatic extraction for a passport submission'))])], returns=Name(id='PassportSubmissionResponse', ctx=Load()))",
+      "signature": "(submission_id: 'uuid.UUID', background_tasks: 'BackgroundTasks', current_user: 'User' = Depends(dependency=<function get_current_active_user at 0x0000018EEBD65080>, use_cache=True, scope=None), get_use_case: 'GetPassportSubmissionUseCase' = Depends(dependency=<function _get_get_passport_use_case at 0x0000018EEBD67420>, use_cache=True, scope=None), reextract_use_case: 'ReextractPassportSubmissionUseCase' = Depends(dependency=<function _get_reextract_passport_use_case at 0x0000018EEBD67600>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x0000018EEA512520>, use_cache=True, scope=None)) -> 'PassportSubmissionResponse'",
+      "hints": {
+        "submission_id": "<class 'uuid.UUID'>",
+        "background_tasks": "<class 'fastapi.background.BackgroundTasks'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "get_use_case": "<class 'app.application.use_cases.passports.get_passport_submission_use_case.GetPassportSubmissionUseCase'>",
+        "reextract_use_case": "<class 'app.application.use_cases.passports.reextract_passport_submission_use_case.ReextractPassportSubmissionUseCase'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "return": "<class 'app.presentation.api.v1.schemas.passport_schemas.PassportSubmissionResponse'>"
+      },
+      "module": "app.presentation.api.v1.routes.passport_routes.submission_review",
+      "qualname": "reextract_passport",
+      "pickle_hex": "8004955b000000000000008c406170702e70726573656e746174696f6e2e6170692e76312e726f757465732e70617373706f72745f726f757465732e7375626d697373696f6e5f726576696577948c127265657874726163745f70617373706f72749493942e"
+    },
+    "cancel_passport_processing": {
+      "ast": "AsyncFunctionDef(name='cancel_passport_processing', args=arguments(posonlyargs=[], args=[arg(arg='submission_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='current_user', annotation=Name(id='User', ctx=Load())), arg(arg='get_use_case', annotation=Name(id='GetPassportSubmissionUseCase', ctx=Load())), arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_current_active_user', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='_get_get_passport_use_case', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_db_session', ctx=Load())], keywords=[])]), body=[Try(body=[Assign(targets=[Name(id='existing', ctx=Store())], value=Await(value=Call(func=Attribute(value=Name(id='get_use_case', ctx=Load()), attr='execute', ctx=Load()), args=[Name(id='submission_id', ctx=Load())], keywords=[]))), Expr(value=Await(value=Call(func=Attribute(value=Call(func=Name(id='AuthorizationPolicy', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[]), attr='require_confirm_passport', ctx=Load()), args=[Name(id='current_user', ctx=Load()), Name(id='existing', ctx=Load())], keywords=[]))), Assign(targets=[Name(id='job_repo', ctx=Store())], value=Call(func=Name(id='PassportProcessingJobRepository', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[])), Assign(targets=[Name(id='job', ctx=Store())], value=Await(value=Call(func=Attribute(value=Name(id='job_repo', ctx=Load()), attr='latest_for_submission', ctx=Load()), args=[Name(id='submission_id', ctx=Load())], keywords=[]))), If(test=UnaryOp(op=Not(), operand=Name(id='job', ctx=Load())), body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_404_NOT_FOUND', ctx=Load())), keyword(arg='detail', value=Constant(value='Processing job was not found'))]))], orelse=[]), Expr(value=Await(value=Call(func=Attribute(value=Name(id='job_repo', ctx=Load()), attr='request_cancel', ctx=Load()), args=[Attribute(value=Name(id='job', ctx=Load()), attr='id', ctx=Load())], keywords=[]))), Expr(value=Await(value=Call(func=Attribute(value=Call(func=Name(id='AuditLogRepository', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[]), attr='record', ctx=Load()), args=[], keywords=[keyword(arg='action', value=Constant(value='passport_processing_cancel_requested')), keyword(arg='entity_type', value=Constant(value='passport_submission')), keyword(arg='entity_id', value=Call(func=Name(id='str', ctx=Load()), args=[Name(id='submission_id', ctx=Load())], keywords=[])), keyword(arg='agency_id', value=Attribute(value=Name(id='existing', ctx=Load()), attr='agency_id', ctx=Load())), keyword(arg='user_id', value=Attribute(value=Name(id='current_user', ctx=Load()), attr='id', ctx=Load())), keyword(arg='actor_email', value=Attribute(value=Name(id='current_user', ctx=Load()), attr='email', ctx=Load())), keyword(arg='metadata', value=Dict(keys=[Constant(value='job_id')], values=[Call(func=Name(id='str', ctx=Load()), args=[Attribute(value=Name(id='job', ctx=Load()), attr='id', ctx=Load())], keywords=[])]))]))), Assign(targets=[Name(id='submission', ctx=Store())], value=Await(value=Call(func=Attribute(value=Call(func=Name(id='PassportSubmissionRepository', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[]), attr='get_by_id', ctx=Load()), args=[Name(id='submission_id', ctx=Load())], keywords=[]))), If(test=UnaryOp(op=Not(), operand=Name(id='submission', ctx=Load())), body=[Raise(exc=Call(func=Name(id='EntityNotFoundError', ctx=Load()), args=[Constant(value='PassportSubmission'), Name(id='submission_id', ctx=Load())], keywords=[]))], orelse=[]), Return(value=Await(value=Call(func=Name(id='_response_from_submission', ctx=Load()), args=[Name(id='submission', ctx=Load())], keywords=[keyword(arg='session', value=Name(id='session', ctx=Load()))])))], handlers=[ExceptHandler(type=Name(id='EntityNotFoundError', ctx=Load()), name='e', body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_404_NOT_FOUND', ctx=Load())), keyword(arg='detail', value=Attribute(value=Name(id='e', ctx=Load()), attr='message', ctx=Load()))]))]), ExceptHandler(type=Name(id='AuthorizationError', ctx=Load()), name='e', body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_403_FORBIDDEN', ctx=Load())), keyword(arg='detail', value=Attribute(value=Name(id='e', ctx=Load()), attr='message', ctx=Load()))]))])], orelse=[], finalbody=[])], decorator_list=[Call(func=Attribute(value=Name(id='router', ctx=Load()), attr='post', ctx=Load()), args=[Constant(value='/{submission_id}/cancel-processing')], keywords=[keyword(arg='response_model', value=Name(id='PassportSubmissionResponse', ctx=Load())), keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_200_OK', ctx=Load())), keyword(arg='summary', value=Constant(value='Request cancellation of queued passport extraction'))])], returns=Name(id='PassportSubmissionResponse', ctx=Load()))",
+      "signature": "(submission_id: 'uuid.UUID', current_user: 'User' = Depends(dependency=<function get_current_active_user at 0x0000018EEBD65080>, use_cache=True, scope=None), get_use_case: 'GetPassportSubmissionUseCase' = Depends(dependency=<function _get_get_passport_use_case at 0x0000018EEBD67420>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x0000018EEA512520>, use_cache=True, scope=None)) -> 'PassportSubmissionResponse'",
+      "hints": {
+        "submission_id": "<class 'uuid.UUID'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "get_use_case": "<class 'app.application.use_cases.passports.get_passport_submission_use_case.GetPassportSubmissionUseCase'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "return": "<class 'app.presentation.api.v1.schemas.passport_schemas.PassportSubmissionResponse'>"
+      },
+      "module": "app.presentation.api.v1.routes.passport_routes.submission_review",
+      "qualname": "cancel_passport_processing",
+      "pickle_hex": "80049563000000000000008c406170702e70726573656e746174696f6e2e6170692e76312e726f757465732e70617373706f72745f726f757465732e7375626d697373696f6e5f726576696577948c1a63616e63656c5f70617373706f72745f70726f63657373696e679493942e"
+    },
+    "confirm_passport": {
+      "ast": "AsyncFunctionDef(name='confirm_passport', args=arguments(posonlyargs=[], args=[arg(arg='submission_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='body', annotation=Name(id='ConfirmPassportSubmissionRequest', ctx=Load())), arg(arg='_csrf', annotation=Constant(value=None)), arg(arg='current_user', annotation=Name(id='User', ctx=Load())), arg(arg='get_use_case', annotation=Name(id='GetPassportSubmissionUseCase', ctx=Load())), arg(arg='confirm_use_case', annotation=Name(id='ConfirmPassportSubmissionUseCase', ctx=Load())), arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='require_cookie_csrf', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_current_active_user', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='_get_get_passport_use_case', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='_get_confirm_passport_use_case', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_db_session', ctx=Load())], keywords=[])]), body=[Try(body=[Assign(targets=[Name(id='existing', ctx=Store())], value=Await(value=Call(func=Attribute(value=Name(id='get_use_case', ctx=Load()), attr='execute', ctx=Load()), args=[Name(id='submission_id', ctx=Load())], keywords=[]))), Expr(value=Await(value=Call(func=Attribute(value=Call(func=Name(id='AuthorizationPolicy', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[]), attr='require_confirm_passport', ctx=Load()), args=[Name(id='current_user', ctx=Load()), Name(id='existing', ctx=Load())], keywords=[]))), Expr(value=Await(value=Call(func=Attribute(value=Name(id='session', ctx=Load()), attr='execute', ctx=Load()), args=[Call(func=Attribute(value=Call(func=Attribute(value=Call(func=Name(id='select', ctx=Load()), args=[Attribute(value=Name(id='ClientGroupModel', ctx=Load()), attr='id', ctx=Load())], keywords=[]), attr='where', ctx=Load()), args=[Compare(left=Attribute(value=Name(id='ClientGroupModel', ctx=Load()), attr='id', ctx=Load()), ops=[Eq()], comparators=[Attribute(value=Name(id='existing', ctx=Load()), attr='group_id', ctx=Load())]), Compare(left=Attribute(value=Name(id='ClientGroupModel', ctx=Load()), attr='agency_id', ctx=Load()), ops=[Eq()], comparators=[Attribute(value=Name(id='existing', ctx=Load()), attr='agency_id', ctx=Load())])], keywords=[]), attr='with_for_update', ctx=Load()), args=[], keywords=[])], keywords=[]))), Assign(targets=[Name(id='result', ctx=Store())], value=Await(value=Call(func=Attribute(value=Name(id='confirm_use_case', ctx=Load()), attr='execute', ctx=Load()), args=[Name(id='submission_id', ctx=Load())], keywords=[keyword(arg='confirmed_fields', value=Attribute(value=Name(id='body', ctx=Load()), attr='confirmed_fields', ctx=Load()))]))), Expr(value=Await(value=Call(func=Name(id='_schedule_review_history', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[keyword(arg='result', value=Name(id='result', ctx=Load())), keyword(arg='trigger', value=JoinedStr(values=[Constant(value='staff-confirm:'), FormattedValue(value=Attribute(value=Name(id='result', ctx=Load()), attr='id', ctx=Load()), conversion=-1), Constant(value=':'), FormattedValue(value=Attribute(value=Name(id='result', ctx=Load()), attr='extraction_revision', ctx=Load()), conversion=-1)]))]))), Expr(value=Await(value=Call(func=Attribute(value=Call(func=Name(id='AuditLogRepository', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[]), attr='record', ctx=Load()), args=[], keywords=[keyword(arg='action', value=Constant(value='passport_confirmed')), keyword(arg='entity_type', value=Constant(value='passport_submission')), keyword(arg='entity_id', value=Call(func=Name(id='str', ctx=Load()), args=[Attribute(value=Name(id='result', ctx=Load()), attr='id', ctx=Load())], keywords=[])), keyword(arg='agency_id', value=Attribute(value=Name(id='result', ctx=Load()), attr='agency_id', ctx=Load())), keyword(arg='user_id', value=Attribute(value=Name(id='current_user', ctx=Load()), attr='id', ctx=Load())), keyword(arg='actor_email', value=Attribute(value=Name(id='current_user', ctx=Load()), attr='email', ctx=Load()))]))), Expr(value=Await(value=Call(func=Name(id='_ensure_submission_qr', ctx=Load()), args=[Name(id='session', ctx=Load()), Attribute(value=Name(id='result', ctx=Load()), attr='id', ctx=Load()), Attribute(value=Name(id='current_user', ctx=Load()), attr='id', ctx=Load())], keywords=[]))), Expr(value=Await(value=Call(func=Name(id='propagate_mobile_passenger_change', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[keyword(arg='agency_id', value=Attribute(value=Name(id='result', ctx=Load()), attr='agency_id', ctx=Load())), keyword(arg='group_id', value=Attribute(value=Name(id='result', ctx=Load()), attr='group_id', ctx=Load())), keyword(arg='passenger_submission_ids', value=List(elts=[Attribute(value=Name(id='result', ctx=Load()), attr='id', ctx=Load())], ctx=Load())), keyword(arg='actor_user_id', value=Attribute(value=Name(id='current_user', ctx=Load()), attr='id', ctx=Load()))]))), Return(value=Await(value=Call(func=Name(id='_response_from_dto', ctx=Load()), args=[Name(id='result', ctx=Load())], keywords=[keyword(arg='session', value=Name(id='session', ctx=Load()))])))], handlers=[ExceptHandler(type=Name(id='EntityNotFoundError', ctx=Load()), name='e', body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_404_NOT_FOUND', ctx=Load())), keyword(arg='detail', value=Attribute(value=Name(id='e', ctx=Load()), attr='message', ctx=Load()))]))]), ExceptHandler(type=Name(id='AuthorizationError', ctx=Load()), name='e', body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_403_FORBIDDEN', ctx=Load())), keyword(arg='detail', value=Attribute(value=Name(id='e', ctx=Load()), attr='message', ctx=Load()))]))]), ExceptHandler(type=Name(id='PassDetectionError', ctx=Load()), name='e', body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=IfExp(test=Call(func=Name(id='isinstance', ctx=Load()), args=[Name(id='e', ctx=Load()), Name(id='ConflictError', ctx=Load())], keywords=[]), body=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_409_CONFLICT', ctx=Load()), orelse=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_400_BAD_REQUEST', ctx=Load()))), keyword(arg='detail', value=Attribute(value=Name(id='e', ctx=Load()), attr='message', ctx=Load()))]))])], orelse=[], finalbody=[])], decorator_list=[Call(func=Attribute(value=Name(id='router', ctx=Load()), attr='post', ctx=Load()), args=[Constant(value='/{submission_id}/confirm')], keywords=[keyword(arg='response_model', value=Name(id='PassportSubmissionResponse', ctx=Load())), keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_200_OK', ctx=Load())), keyword(arg='summary', value=Constant(value='Confirm reviewed passport fields'))])], returns=Name(id='PassportSubmissionResponse', ctx=Load()))",
+      "signature": "(submission_id: 'uuid.UUID', body: 'ConfirmPassportSubmissionRequest', _csrf: 'None' = Depends(dependency=<function require_cookie_csrf at 0x0000018EEBD64900>, use_cache=True, scope=None), current_user: 'User' = Depends(dependency=<function get_current_active_user at 0x0000018EEBD65080>, use_cache=True, scope=None), get_use_case: 'GetPassportSubmissionUseCase' = Depends(dependency=<function _get_get_passport_use_case at 0x0000018EEBD67420>, use_cache=True, scope=None), confirm_use_case: 'ConfirmPassportSubmissionUseCase' = Depends(dependency=<function _get_confirm_passport_use_case at 0x0000018EEBD674C0>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x0000018EEA512520>, use_cache=True, scope=None)) -> 'PassportSubmissionResponse'",
+      "hints": {
+        "submission_id": "<class 'uuid.UUID'>",
+        "body": "<class 'app.presentation.api.v1.schemas.passport_schemas.ConfirmPassportSubmissionRequest'>",
+        "_csrf": "<class 'NoneType'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "get_use_case": "<class 'app.application.use_cases.passports.get_passport_submission_use_case.GetPassportSubmissionUseCase'>",
+        "confirm_use_case": "<class 'app.application.use_cases.passports.confirm_passport_submission_use_case.ConfirmPassportSubmissionUseCase'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "return": "<class 'app.presentation.api.v1.schemas.passport_schemas.PassportSubmissionResponse'>"
+      },
+      "module": "app.presentation.api.v1.routes.passport_routes.submission_review",
+      "qualname": "confirm_passport",
+      "pickle_hex": "80049559000000000000008c406170702e70726573656e746174696f6e2e6170692e76312e726f757465732e70617373706f72745f726f757465732e7375626d697373696f6e5f726576696577948c10636f6e6669726d5f70617373706f72749493942e"
+    }
+  },
+  "logger_factory_name": [
+    "app.presentation.api.v1.routes.passport_routes.submission_review"
+  ]
+}

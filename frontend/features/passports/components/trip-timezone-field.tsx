@@ -62,7 +62,7 @@ export const TripTimeZoneField = forwardRef<HTMLInputElement, TripTimeZoneFieldP
           autoComplete="off"
           spellCheck={false}
           aria-invalid={Boolean(error)}
-          aria-describedby={error ? errorId : hintId}
+          aria-describedby={[props["aria-describedby"], error ? errorId : hintId].filter(Boolean).join(" ")}
           className={cn(
             "h-9 w-full rounded-lg border bg-white px-3 py-2 text-sm text-slate-900 outline-none transition-colors",
             "focus:border-transparent focus:ring-2 focus:ring-blue-600",

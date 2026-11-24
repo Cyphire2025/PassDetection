@@ -1,0 +1,1213 @@
+{
+  "method": "Full physical manual reads by ai_extraction, with exact same-digest AI read reuse explicitly attributed. Current owned patches reread. Partial supporting files remain separate; unlisted backend files are not implied reviewed.",
+  "files": [
+    {
+      "path": "backend/app/application/companies/__init__.py",
+      "review_status": "full",
+      "sha256": "b3454a43bd0972488a3cff91bfdefdc482d5bd0968fd919a53c86e530cc30bc4",
+      "lines": 1,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/application/companies/access.py",
+      "review_status": "full",
+      "sha256": "85eb5114243a39d708f1cf3162051317e5702190e0c1bc5345bff19e1ba8e69c",
+      "lines": 93,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/application/companies/assignment.py",
+      "review_status": "full",
+      "sha256": "cf87ffaf0b731341a3a88ffa9fa2ee4cd40d9872baf071691a4b4d517404ce30",
+      "lines": 121,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/application/companies/current_record.py",
+      "review_status": "full",
+      "sha256": "f712f0c6a9f174c438baca87b0c6fc45186b7fee46d5662af0a59d32f370053a",
+      "lines": 181,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/application/companies/data_exports.py",
+      "review_status": "full",
+      "sha256": "ed5d9e47e29ba35b49e6a842065add6adb3c1b59b3dc702f09bfcff3927e0fc9",
+      "lines": 92,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/application/companies/directory.py",
+      "review_status": "full",
+      "sha256": "19e05f934d317377c69ba2aa09c66b378ea12f8ffafb4331a5792de2c3711d8f",
+      "lines": 158,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/application/companies/directory_counts.py",
+      "review_status": "full",
+      "sha256": "7544871158b63265ac6e0547df3ed2720921e2b7df60847272474e2a3ee55282",
+      "lines": 24,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/application/companies/directory_names.py",
+      "review_status": "full",
+      "sha256": "2a3eb370efa92a4327026786b36db6f72815fd584c32c7046315988ffee4ba1e",
+      "lines": 36,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/application/companies/directory_projection.py",
+      "review_status": "full",
+      "sha256": "a87d9e5a2dae80c36b3ef2e3e6681a39f4a87533058b94696b142348e9c450c5",
+      "lines": 138,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/application/companies/directory_query.py",
+      "review_status": "full",
+      "sha256": "29d0f3493f9670dfc89ac65d440b0ff1b3f251e8469e4d6c325e0cfe16927752",
+      "lines": 115,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/application/companies/directory_ranks.py",
+      "review_status": "full",
+      "sha256": "be1dbcc22a1822c5e2aeb0db240d71dcaafd91b72318d83fcc06e74fe28f7fb3",
+      "lines": 96,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/application/companies/document_publication.py",
+      "review_status": "full",
+      "sha256": "3666febf0a0b0480d367c5c9d6b6e5d11208227a7f72fdc175783d61b04ff0ec",
+      "lines": 94,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/application/companies/document_upload.py",
+      "review_status": "full",
+      "sha256": "3b81cbe4642329ef0f59ae06ec4b65eeb773f1544b0b99d405ca3ba681f9e907",
+      "lines": 119,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/application/companies/export_source.py",
+      "review_status": "full",
+      "sha256": "c9a30dc03ba1d8a92531805905aa318d3f8007422c3a96e6f261a05ecae94576",
+      "lines": 147,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/application/companies/original_record.py",
+      "review_status": "full",
+      "sha256": "222a8ce5d5ce97957e747397365be5dd59dbcff4e61b48c2966feb296ae7bc1e",
+      "lines": 64,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/application/companies/participation_scope.py",
+      "review_status": "full",
+      "sha256": "d808807f1b9a9d932e777918bf42fa4d7938b202c67838da285769f602018762",
+      "lines": 17,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/application/companies/people.py",
+      "review_status": "full",
+      "sha256": "8154278b36d323e811d9d59b68c42a48a684f0f9ea5cf452a4cf82b12a92e4cc",
+      "lines": 168,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/application/companies/people_contracts.py",
+      "review_status": "full",
+      "sha256": "b23f96567622403b52a9ff60fae2e3ad0719bcac99ca2eb38cfb9e03ed745677",
+      "lines": 139,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/application/companies/reassignment.py",
+      "review_status": "full",
+      "sha256": "09bf94a4096e13eef69cb899c93a3768338032b3e729dc79f5bf8c0d9c9be523",
+      "lines": 115,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/application/companies/removal.py",
+      "review_status": "full",
+      "sha256": "12db6956cd2ab9ea42bc7a28c594cf38ac84cd2de4c245cda603ddb15db71bba",
+      "lines": 76,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/application/companies/reuse_setup.py",
+      "review_status": "full",
+      "sha256": "fc10500262663c3208c8b8c0f151ab58e10f8062f0dda4370f6cf425b6bfe22f",
+      "lines": 151,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/application/companies/source_chronology.py",
+      "review_status": "full",
+      "sha256": "a5c23f4def82004ad3fa7b260811a1f7dc9bb3a6adcb9a8287190559c49e4e94",
+      "lines": 18,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/application/companies/source_documents.py",
+      "review_status": "full",
+      "sha256": "24f982321a60cbea20fae7df83179887bc09608f99ab2a695a680044d8d1646e",
+      "lines": 50,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/application/companies/summary.py",
+      "review_status": "full",
+      "sha256": "5d4a593eba2880b245432192ecd9dbfec1c36c6f3bcb62ba07c8b1b4e5921d53",
+      "lines": 124,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/application/companies/traveller_metrics.py",
+      "review_status": "full",
+      "sha256": "64e3e068cf298b1f967aaacb3d1156ce2b988561fa784303350e3014f923c2de",
+      "lines": 59,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/application/companies/trip_phase.py",
+      "review_status": "full",
+      "sha256": "aaa8ed106d766ded6d260080020453905d69f04f5127c73903de9361c2e37c68",
+      "lines": 18,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/application/mcp/read_cursor.py",
+      "review_status": "full",
+      "sha256": "6da2fc445c69df0b646efc41a7b3d3ba065cc368e3d7658e1b3bb435130ec3d8",
+      "lines": 53,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/application/security/authorization_policy.py",
+      "review_status": "full",
+      "sha256": "6a1ee49097b124715ce52fb5810387c6be5a3a5e18f4896676340c6e6dabe663",
+      "lines": 362,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/application/security/destructive_mutation_policy.py",
+      "review_status": "full",
+      "sha256": "f079cc649898f399d8c0347e67638aadaff4d9336235d878e7d8ab8f9f97c171",
+      "lines": 422,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/application/travellers/__init__.py",
+      "review_status": "full",
+      "sha256": "3d8ec334876073a00e30134790dc0cf84018cba60b5fde748b4e63073170b0cc",
+      "lines": 1,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/application/travellers/accepted_source.py",
+      "review_status": "full",
+      "sha256": "7abecf156272742c1491e63838cf22810a5a28385216c8769b2034f8a13af4fc",
+      "lines": 89,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/application/travellers/asset_policy.py",
+      "review_status": "full",
+      "sha256": "e5a15a5687e2e259b901631023dd573faafd854e6890e7b05b2918f47b44e647",
+      "lines": 20,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/application/travellers/audit.py",
+      "review_status": "full",
+      "sha256": "a8b2a704664d72663146e2d0f7b028e3b26e701afc34adb0108e432d2da5dfa7",
+      "lines": 42,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/application/travellers/authority.py",
+      "review_status": "full",
+      "sha256": "dcd35f002a1e29362ec8fd6857f128f181759ce68b960381ecb4aefbd579bead",
+      "lines": 172,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/application/travellers/broadcast_history_schedule.py",
+      "review_status": "full",
+      "sha256": "a05d07b8696d41ae74543d64360afe984c1db962c1279131f607ed4b97f8d9af",
+      "lines": 96,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/application/travellers/change_feed.py",
+      "review_status": "full",
+      "sha256": "db01c3a3db8d42f7f324f6853ef017985509eb7a37230ce6ab06ce7c0d12e37d",
+      "lines": 98,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/application/travellers/claims.py",
+      "review_status": "full",
+      "sha256": "27a767eed0d044aefcfe499a66ee8620873394c07dba7746f9daac9ebee9e26e",
+      "lines": 176,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/application/travellers/company_history_jobs.py",
+      "review_status": "full",
+      "sha256": "af993d639cb35c42dafb072a8af48612338f9164ae205d4195c75ae1507e7bfb",
+      "lines": 173,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/application/travellers/completion.py",
+      "review_status": "full",
+      "sha256": "ff83213778a3fef8585d6b8f5cd57670d45136883e29414761b66fb480f73446",
+      "lines": 187,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/application/travellers/contact_change.py",
+      "review_status": "full",
+      "sha256": "f5051d220373df7275ccff9209de293860eed25736b0798e96dd0edcd6f3e12e",
+      "lines": 70,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/application/travellers/current_details.py",
+      "review_status": "full",
+      "sha256": "bfb063d3a8dd9313b075f3ba0e6011b57db9b99ed1efd9566943d4643b0e1c6f",
+      "lines": 78,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/application/travellers/document_challenge.py",
+      "review_status": "full",
+      "sha256": "19e7496a493a1ae148b8508d113f9d8a27dd8343b77210d9e82665f516a0eabd",
+      "lines": 173,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/application/travellers/document_lifecycle.py",
+      "review_status": "full",
+      "sha256": "b9adf24edb6d54101033112a7e689f6c7147dfd625359ca4dcef38f384b1fff5",
+      "lines": 44,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/application/travellers/document_selection.py",
+      "review_status": "full",
+      "sha256": "11921b74328306fc73f0a48eaf2b457b5f03dd6aa0d8d9c6f097eb8f1a62efe9",
+      "lines": 96,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/application/travellers/draft_activity.py",
+      "review_status": "full",
+      "sha256": "adfba80e348211d4c94c86c54cd168085111cc4958edde6dc2cdd53d1294b82e",
+      "lines": 46,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/application/travellers/draft_collection.py",
+      "review_status": "full",
+      "sha256": "244d80400ea3b873ae87ffd1195fa4e08c693fdc36108148e55e40b9a6f6fa66",
+      "lines": 35,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/application/travellers/draft_completion.py",
+      "review_status": "full",
+      "sha256": "e57cbbd30e03b3e009639bd37dc5b7b061f6af51160c217c951fc310ca6e6891",
+      "lines": 186,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/application/travellers/draft_contact.py",
+      "review_status": "full",
+      "sha256": "a9773eb14f5646ec9e3dd747dbc6167716933556f53eca946b11f19f018ab3b9",
+      "lines": 68,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/application/travellers/draft_contracts.py",
+      "review_status": "full",
+      "sha256": "1613d34de2e7ddedd1d7242f191bec0b6c6c3ea0fa60559ddc5f4add314c6465",
+      "lines": 83,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/application/travellers/draft_publication.py",
+      "review_status": "full",
+      "sha256": "470b1d5b72398b12c06f1db1dfc985d72158a259925014c24fa68f293f98a2d3",
+      "lines": 135,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/application/travellers/draft_requirements.py",
+      "review_status": "full",
+      "sha256": "183604dc5ac115af18f33115af670eac1fee283710b96c0bc0d132de71e94df1",
+      "lines": 26,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/application/travellers/draft_retention.py",
+      "review_status": "full",
+      "sha256": "13d8a84f2d9c315f2a52c60e0d2a49cf453bf02a0e1445883103b22bc3765293",
+      "lines": 91,
+      "notes": "Authored and read current cleanup deferral: revoke draft access immediately, keep encrypted deletion intent beyond uncancellable S3 thread lifetime, including duplicate ready-asset writes. Actual SQLite/local-thread regression first failed before patch."
+    },
+    {
+      "path": "backend/app/application/travellers/draft_store.py",
+      "review_status": "full",
+      "sha256": "ebd7956cbeb4081e2190a1be9752efa8787cdb3d8b5046f313c449f22198501b",
+      "lines": 21,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/application/travellers/draft_uploads.py",
+      "review_status": "full",
+      "sha256": "8b0c1414943e07d89e24f68bab728ffd6009232e9a0eb07225f37fa35761f008",
+      "lines": 174,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/application/travellers/drafts.py",
+      "review_status": "full",
+      "sha256": "690a8e1e81788f5da626c34183a6ee5a0c48632f1795a28a2459f600a34b7fb9",
+      "lines": 194,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/application/travellers/enrollment.py",
+      "review_status": "full",
+      "sha256": "cc10c65c84ce2290bbf57614228c4442e8ae80c2f2246f1721ae7d1c507c9a5a",
+      "lines": 359,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/application/travellers/errors.py",
+      "review_status": "full",
+      "sha256": "3901ef96d0191dc42bb9c74d55948fe72ba7739dc38689bfc8967d71a1508190",
+      "lines": 20,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/application/travellers/export_authority.py",
+      "review_status": "full",
+      "sha256": "e94da9c1c33b3c885118c62a1c0a75b8434cf5112374c8cbd7f1c7f986b993af",
+      "lines": 69,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/application/travellers/fresh_contact.py",
+      "review_status": "full",
+      "sha256": "3fe3eff3481dd9d8b88139aa196c164c94130b4e563ebf9755e38612d36609f6",
+      "lines": 110,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/application/travellers/fresh_draft_contracts.py",
+      "review_status": "full",
+      "sha256": "e8bc5b054828736a629704884703e7ead1f5d6f4a0d2ed26f972ef3ec98a992a",
+      "lines": 28,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/application/travellers/fresh_drafts.py",
+      "review_status": "full",
+      "sha256": "2064d6af770645c8dbaca4075ecabcfd477222b6bc761a6476ddca50e7985725",
+      "lines": 74,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/application/travellers/fresh_publication.py",
+      "review_status": "full",
+      "sha256": "a62a1a47af63aadcb9ea4f58b77100996d1be36677fe0e4593674cb8aff663b9",
+      "lines": 91,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/application/travellers/grants.py",
+      "review_status": "full",
+      "sha256": "d08df8268effdc099ca8da67433b2b16d81d79c0f84f91d86a988b623d765c78",
+      "lines": 198,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/application/travellers/historical_document_generation.py",
+      "review_status": "full",
+      "sha256": "090581422e70ced35e3145832d8945dc25807734d16076a843074447a4657b03",
+      "lines": 43,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/application/travellers/historical_identity.py",
+      "review_status": "full",
+      "sha256": "d1e1cc68ab345efcb4ab7d57034269ee60c0f902c287d3f92f96223a61cef2ce",
+      "lines": 113,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/application/travellers/historical_registration.py",
+      "review_status": "full",
+      "sha256": "fff820e79f22afa53dd71613c9fca36a84c2b00ee2e74ee34f53600cfdbc9af0",
+      "lines": 236,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/application/travellers/history.py",
+      "review_status": "full",
+      "sha256": "7d4a38b91c56d0caf999412a9168fc3d0dd93b37b71dd7baa3b866de1909e051",
+      "lines": 186,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/application/travellers/history_schedule.py",
+      "review_status": "full",
+      "sha256": "d577286fcf48b2ef367c19c342e04a0a5089ec66dcacdb5602c90666bfc9c1f3",
+      "lines": 74,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/application/travellers/identity_candidates.py",
+      "review_status": "full",
+      "sha256": "48c1d09ac5a3c302a0e20c796b91679b540d570f37ccbc9ea70748e13c624ce4",
+      "lines": 40,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/application/travellers/identity_index.py",
+      "review_status": "full",
+      "sha256": "bb5ba91a6a9cf6c13489ae4b8cf24fc57aadf6e568bcb70399f68e688291f3ab",
+      "lines": 130,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/application/travellers/impact.py",
+      "review_status": "full",
+      "sha256": "1a9882dd24266d81ecbce11d73848291778598c481c0a5a5c5acc242a34d6823",
+      "lines": 83,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/application/travellers/incremental_history.py",
+      "review_status": "full",
+      "sha256": "a7ee2db2c4280a4e956f43cd3db3b38b10a794003638387cf38c833fa8e21be1",
+      "lines": 190,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/application/travellers/legacy_source_acceptance.py",
+      "review_status": "full",
+      "sha256": "8386e8db64b4b210c87e9622ea7e6a5027de38a9804f4f24b632ffdf2bc151f5",
+      "lines": 76,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/application/travellers/legacy_staff_acceptance.py",
+      "review_status": "full",
+      "sha256": "9526dcb1d2a0755211f597a0f13c20b5e42d5078e0ae3c1297efc1e864ab8ebd",
+      "lines": 81,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/application/travellers/match_freshness.py",
+      "review_status": "full",
+      "sha256": "885cc76984eec3913c3195ced3193e78b25446bc885129abbea1535ce9088234",
+      "lines": 53,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/application/travellers/match_resolution.py",
+      "review_status": "full",
+      "sha256": "c594f106fc0e9aac6beabcbe5367ebd120451ded7df681afc050a3ff40fd10c6",
+      "lines": 78,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/application/travellers/matching.py",
+      "review_status": "full",
+      "sha256": "2df698ab8e89b06f4b05fe07a2254ab016d4b067f41508c1c99d97f799608373",
+      "lines": 204,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/application/travellers/operational_autoassignment.py",
+      "review_status": "full",
+      "sha256": "43c8e015205ba695a139ec20398c8e10b6752875e0a275c9850d457b0fb4522c",
+      "lines": 194,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/application/travellers/otp.py",
+      "review_status": "full",
+      "sha256": "7bced7e155a1be8b5a5e35116d1b196f1c995497040992168e1f760086e25f78",
+      "lines": 86,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/application/travellers/owned_extraction.py",
+      "review_status": "full",
+      "sha256": "e1ed6c5c5f13a9bb696564939be2f9a1f3b3ecbdaa105bdf8c180159c5b48cab",
+      "lines": 34,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/application/travellers/passport_date_proof.py",
+      "review_status": "full",
+      "sha256": "3e2322669a389773571aa2539bd4734c0f379d865456226f2c557282c1b71e50",
+      "lines": 61,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/application/travellers/passport_lookup.py",
+      "review_status": "full",
+      "sha256": "29ec5ce3de720c5f715f1ad10661d5d348de562ac445224f693259d2f7bc32d1",
+      "lines": 86,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/application/travellers/passport_lookup_index.py",
+      "review_status": "full",
+      "sha256": "278e3ba78f4a5c939fa90d409738ffe589b21402a3242e0f2e3286d275c10895",
+      "lines": 21,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/application/travellers/passport_selection.py",
+      "review_status": "full",
+      "sha256": "761d11063f9b673c51ef3140e03d15397121fa1861ebb2a155c38f8dec5a2dec",
+      "lines": 40,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/application/travellers/reconciliation.py",
+      "review_status": "full",
+      "sha256": "2a3126138910a5bf3a0764922b85cafb80cd240edef2e4b675c9de41b4f484c1",
+      "lines": 291,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/application/travellers/reconciliation_sources.py",
+      "review_status": "full",
+      "sha256": "ac08184fbbd62799b2767c1987844cdee86c9287f537f29a559e8078aa2190e4",
+      "lines": 130,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/application/travellers/replacement.py",
+      "review_status": "full",
+      "sha256": "29a57467bbdd2319a0f78b31fc351d7c1befb137fcf5345180b49038387888cf",
+      "lines": 93,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/application/travellers/requirements.py",
+      "review_status": "full",
+      "sha256": "03f35fbc7d91443fec5f423c530ba0024dc4e6f5988d2f4fd5ab7ea150792562",
+      "lines": 71,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/application/travellers/retained_authority.py",
+      "review_status": "full",
+      "sha256": "5068e07e48e4c4138a96f1a98ed79595c0141c28faf75e06ed77861323012af1",
+      "lines": 97,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/application/travellers/retention.py",
+      "review_status": "full",
+      "sha256": "e149daafe2db93605bdfe8297e71ede879879b176f7f002428cae7543184b7da",
+      "lines": 95,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/application/travellers/snapshot_access.py",
+      "review_status": "full",
+      "sha256": "88f5ddb022c01904f7309ea5933785482c3f8f8d5d999f7d93c05631f5d0d76f",
+      "lines": 135,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/application/travellers/source_acceptance_provenance.py",
+      "review_status": "full",
+      "sha256": "dc10c8b91506596663a41a370bf7d3657c7ebbc172b95fca1b4e7b0be4cb8d65",
+      "lines": 63,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/application/travellers/source_evidence.py",
+      "review_status": "full",
+      "sha256": "5cf2eccf33179dd7c297d54b1d72ff5eac9d826ef82c3dbe9aacba6eab75f850",
+      "lines": 16,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/application/travellers/submission_snapshot.py",
+      "review_status": "full",
+      "sha256": "56a314ca3a9f15b7686bdbf342a3d4220f97b1711ffd656e835256534707a2fb",
+      "lines": 36,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/application/travellers/versioning.py",
+      "review_status": "full",
+      "sha256": "5f5b1231981b1294b9ad3250281626e68d99533a7f6b271836e6571c9e68bfb2",
+      "lines": 57,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/application/use_cases/group_passport_retention.py",
+      "review_status": "full",
+      "sha256": "4f26e547d41b4069da4aafac2b254ceed2fee17ca20ed4dd0db0ce11673e7419",
+      "lines": 27,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/core/storage_write_budget.py",
+      "review_status": "full",
+      "sha256": "7165c060a588393394b14824d7c11948e3784303a7a5010fef305a4f1580c988",
+      "lines": 17,
+      "notes": "Authored and read pure standard-mode total-attempt envelope. Counts bounded pinned SDK maximum backoff for all 1..10 supported attempts, existing I/O envelope and original 30s margin. Actual pinned botocore comparison and SQLite copy-lease regression pass; no network duration claim."
+    },
+    {
+      "path": "backend/app/domain/services/traveller_verification.py",
+      "review_status": "full",
+      "sha256": "dabe8235032ef32257f08cd90fa3b37412a7f5711c30004ced9f16365265f22b",
+      "lines": 166,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/infrastructure/database/company_data_export_models.py",
+      "review_status": "full",
+      "sha256": "05bc9a3cb1d7b8658a86f9461f222eb95c55272fab941a25a52e701cff6237dd",
+      "lines": 87,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/infrastructure/database/company_directory_invalidation.py",
+      "review_status": "full",
+      "sha256": "9602cd8d533b14cae73a3a8528b91e1ad3cf0f6e858f02d7dbabf0f10ab24480",
+      "lines": 31,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/infrastructure/database/company_directory_models.py",
+      "review_status": "full",
+      "sha256": "1ef4a40c038c511fb8b2e011c1fbe454340514e86e8158d8df42498f2f617f20",
+      "lines": 89,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/infrastructure/database/company_directory_queue.py",
+      "review_status": "full",
+      "sha256": "a16414e174316d0a72298c562c718ef4cac4bfd7cd98a354e51b738611ebf62f",
+      "lines": 65,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/infrastructure/database/gc_mobile_models.py",
+      "review_status": "full",
+      "sha256": "994c6db9ecbb0d5a23bec8ffd3318a2e64b87dbe6582ef277edb098431ac0e33",
+      "lines": 2540,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/infrastructure/database/model_base.py",
+      "review_status": "full",
+      "sha256": "bbd9bc11ad8e482b9ebefe26d74123f9bb4ad79b3e73b9dbe846cdfd925f0da9",
+      "lines": 19,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/infrastructure/database/traveller_claim_models.py",
+      "review_status": "full",
+      "sha256": "109be9db70cf139556e3f0ab2fbcb05dec8de518654b1bc93cea57c0989b7cd1",
+      "lines": 240,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/infrastructure/database/traveller_document_models.py",
+      "review_status": "full",
+      "sha256": "9c046eb0b896b8af729b9ced4945e0d0adb412749a108447add0ad500938be6b",
+      "lines": 326,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/infrastructure/database/traveller_identity_models.py",
+      "review_status": "full",
+      "sha256": "3ed7fc3c817dc19cdf5e47eda6142de9e35c65e4758156750df2beb9e866a1b8",
+      "lines": 205,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/infrastructure/database/traveller_impact_models.py",
+      "review_status": "full",
+      "sha256": "a6ba97620b07cd3b69f4e5ee5037d75ec1d8a47eda6d3259a2e0a6d37f5a6a17",
+      "lines": 67,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/infrastructure/database/traveller_model_support.py",
+      "review_status": "full",
+      "sha256": "4a3f42a2e1f587f2cffe210e79b2ff8b6d69307b2b483650ef04319b4540083c",
+      "lines": 84,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/infrastructure/database/traveller_operations_models.py",
+      "review_status": "full",
+      "sha256": "5b5ce868364c6c1c4f51b78eb5bfaa0464a6c961b29b526ecf3e74c4d82e138f",
+      "lines": 153,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/infrastructure/database/traveller_reuse_models.py",
+      "review_status": "full",
+      "sha256": "1a19fe55a0745135afd053f72f4468c8c07e0605bd7bc512b2691ad360109feb",
+      "lines": 59,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/infrastructure/operational_retention.py",
+      "review_status": "full",
+      "sha256": "6870ecc81d6fc234205238dc16c1005858e17cb4e4d7bbaa9a8c09b6b577251f",
+      "lines": 266,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/infrastructure/platform_lifecycle.py",
+      "review_status": "full",
+      "sha256": "642a593ba409fc6c512981efc86cd572ea4f459bbd0182708129802116f0bc6d",
+      "lines": 231,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/client_group_repository.py",
+      "review_status": "full",
+      "sha256": "66064e771138181d5be51bd1708e2104b3ff944b3a4e517d5bce770912a1453d",
+      "lines": 361,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_retention_repository.py",
+      "review_status": "full",
+      "sha256": "9c8d8ea136512533111ba728eac668bba2b24c55e7afea11d0dd4d56f720cce1",
+      "lines": 39,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/platform_policy_repository.py",
+      "review_status": "full",
+      "sha256": "b600947081be24cb4cb8fe97e3d9e9d3f9945bcbef355dd287e58579b0db7b11",
+      "lines": 26,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/sensitive_read_audit.py",
+      "review_status": "full",
+      "sha256": "706ee94b136574f8099232390ea21203ae187879b78e44ee7c25bb8bef140b39",
+      "lines": 32,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/user_repository.py",
+      "review_status": "full",
+      "sha256": "a91bd9de4ef129c714c39cbda7ddc3d782fe7b3474fcb8f65837642fa5cb4737",
+      "lines": 140,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/infrastructure/security/mobile_otp_rate_limiter.py",
+      "review_status": "full",
+      "sha256": "eb3640ea1e1efb51f325d4ef7003af046a7e5a684545b12d53e006ffabed15e8",
+      "lines": 96,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/infrastructure/security/public_upload_otp_rate_limiter.py",
+      "review_status": "full",
+      "sha256": "f1f362ae09c72d38e58ce3f68676562e1441aa58eac71a93b09f7dd5f15548fc",
+      "lines": 25,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/infrastructure/security/redis_atomic_counter.py",
+      "review_status": "full",
+      "sha256": "cdb1b494dc287fd20883f0e80f42513134fcf467842e6bb750fddc28a9a69b33",
+      "lines": 52,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/infrastructure/security/traveller_request_rate_limiter.py",
+      "review_status": "full",
+      "sha256": "5b5cdf570124aa47e74ab0478e55328064e15f1ee1194c104e29250be161cf4c",
+      "lines": 84,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/infrastructure/security/traveller_reuse_crypto.py",
+      "review_status": "full",
+      "sha256": "17d28519a93524457a8f1490c2ced3ccc8b92d1fbd29855eb855cae80f0459fe",
+      "lines": 75,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/infrastructure/security/traveller_reuse_rate_limiter.py",
+      "review_status": "full",
+      "sha256": "6e1073dfa3f9eff61501ce1d8094c5790c24449f71bd974089abf783af835b53",
+      "lines": 15,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/__init__.py",
+      "review_status": "full",
+      "sha256": "3fff791de1467efeb5ddbc952d8b2f80209972deb30679bdbeb4422904bca3a1",
+      "lines": 1,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/asset_copy.py",
+      "review_status": "full",
+      "sha256": "8459bb8fc0850257586438d6b32cf463b59943c86e0687db605fafb4267a7a18",
+      "lines": 285,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included. Current source diff reread: shared configured SDK retry envelope now includes standard-mode backoff; admission, fencing, publication and compensation contracts retained. Current owned source diff reread and structural proof recorded: configured retry envelope, preserved export authority/admission/publication callbacks or AST-identical readability extraction as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/company_export_admission.py",
+      "review_status": "full",
+      "sha256": "fdce49e0364a9df3498812057a96d81ec4afc49901f3fbb8184797bb2ac34f68",
+      "lines": 160,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/company_export_cleanup.py",
+      "review_status": "full",
+      "sha256": "d1dc377dcc04f9436ed0611f6fb578b58f747aa76cbe5052ce10cc7be2fa0aa1",
+      "lines": 37,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/company_export_limits.py",
+      "review_status": "full",
+      "sha256": "8feb56e7b6b841181272503309a935222ac81075bec229651a7ae538c6c71217",
+      "lines": 5,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/company_export_native_work.py",
+      "review_status": "full",
+      "sha256": "a1eb881381e063d0ce8ef77a1f79885e38a23b92a8e652244c093bac3a406a4f",
+      "lines": 26,
+      "notes": "Complete physical source read by ai_extraction. Native append/finish/close ownership now drains the real thread through repeated cancellation before closing/deleting private workbook resources. Four actual SQLite/openpyxl Event-controlled baseline failures and32 final focused tests are recorded in company-native-cancellation-verification.json; no real PostgreSQL/provider/hard-kill qualification claimed."
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/company_export_page.py",
+      "review_status": "full",
+      "sha256": "eba24418958bcd869004c5409ef8828a74f7bf81d683e2e1e58674f3b4c3199c",
+      "lines": 159,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/company_export_render.py",
+      "review_status": "full",
+      "sha256": "4063ab9a2e155876a17184d55a993131b226191d43b376d8160433695322f828",
+      "lines": 116,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately. Current owned source diff reread and structural proof recorded: configured retry envelope, preserved export authority/admission/publication callbacks or AST-identical readability extraction as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/company_export_tasks.py",
+      "review_status": "full",
+      "sha256": "4c9083d97e0be6be44d515c7d6a32d45860e0672589e8e81b71667428cefbf6e",
+      "lines": 14,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/company_export_workbook.py",
+      "review_status": "full",
+      "sha256": "3986705f77da29340f337b7efac87b97819e775b179217e74d10cc519178b1f1",
+      "lines": 69,
+      "notes": "Complete physical source read by ai_extraction. Native append/finish/close ownership now drains the real thread through repeated cancellation before closing/deleting private workbook resources. Four actual SQLite/openpyxl Event-controlled baseline failures and32 final focused tests are recorded in company-native-cancellation-verification.json; no real PostgreSQL/provider/hard-kill qualification claimed."
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/company_export_workbook_render.py",
+      "review_status": "full",
+      "sha256": "f86fd9f4b8ae07bfebd6f029dcc41822f2d9952693ebec1a0471b5fbcc246778",
+      "lines": 59,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/company_export_worker.py",
+      "review_status": "full",
+      "sha256": "0fd62ac61c57539f06202672d2b3dfc2afd3a264ffae2185c2dd35de1856c16a",
+      "lines": 147,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately. Current source diff reread: shared configured SDK retry envelope now includes standard-mode backoff; admission, fencing, publication and compensation contracts retained. Current owned source diff reread and structural proof recorded: configured retry envelope, preserved export authority/admission/publication callbacks or AST-identical readability extraction as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/directory_runtime.py",
+      "review_status": "full",
+      "sha256": "2f1287d0b6f4189ee511701f422ea37bc000ebcf3b5e51b48cf3ac947d7b0f3a",
+      "lines": 73,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/directory_tasks.py",
+      "review_status": "full",
+      "sha256": "79bf96ecb765f10c187f81d3b69b4df23540530faa334d4b546f9dc65f76e30a",
+      "lines": 10,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/draft_ecr.py",
+      "review_status": "full",
+      "sha256": "17e18399861053c04e78376bce42be6e2d151e3711615233cdf7bde8c669f0ab",
+      "lines": 21,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification.",
+      "attribution": "Same-current-digest full physical AI checkpoint read by ai_extraction, recorded in ai-runtime-reviewed-files.json; followed through the company/traveller caller boundary here."
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/draft_expiry.py",
+      "review_status": "full",
+      "sha256": "f25a07d712b8cfa54fbd64897c699ba06120b3e9a8028a28725d7d99e2490acc",
+      "lines": 48,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification.",
+      "attribution": "Same-current-digest full physical AI checkpoint read by ai_extraction, recorded in ai-runtime-reviewed-files.json; followed through the company/traveller caller boundary here."
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/draft_extraction.py",
+      "review_status": "full",
+      "sha256": "2c6ba2b29a556071d11ae2897253975039b145a120422350537726bcac8f52f8",
+      "lines": 31,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification.",
+      "attribution": "Same-current-digest full physical AI checkpoint read by ai_extraction, recorded in ai-runtime-reviewed-files.json; followed through the company/traveller caller boundary here."
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/draft_orphans.py",
+      "review_status": "full",
+      "sha256": "2ea8b5d48784ba881438106562ca44fe5eb420712149c573f371c8ed947c4043",
+      "lines": 68,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/draft_presence.py",
+      "review_status": "full",
+      "sha256": "226b6958d47e1afe4124bd1b915d69c43862ede1967dce275ab6d797b5811344",
+      "lines": 64,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/draft_runtime.py",
+      "review_status": "full",
+      "sha256": "0d2919cf84fcd8f7f25c20f36b4ca22f8dcd26de33beb26f6766e371ff9e6b3e",
+      "lines": 142,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification.",
+      "attribution": "Same-current-digest full physical AI checkpoint read by ai_extraction, recorded in ai-runtime-reviewed-files.json; followed through the company/traveller caller boundary here."
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/draft_tasks.py",
+      "review_status": "full",
+      "sha256": "0bd3d397a37ea42a2fc435ff2c89f8d5b879cb331789aff705112522eb84c965",
+      "lines": 14,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/impact_runtime.py",
+      "review_status": "full",
+      "sha256": "503d82777f6df462d26ed1bf96dfa27bafb521d776fcc9e79eb487ea3c9b22ed",
+      "lines": 97,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/impact_tasks.py",
+      "review_status": "full",
+      "sha256": "0a211316b59ef7c1ac5d0f70bd4c59cf0464bb37a5f8ee80e7c24dbc2ade2cb5",
+      "lines": 10,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/runtime.py",
+      "review_status": "full",
+      "sha256": "19b9eb2d5dc28c10513f6c1f5dcc79bd70f150dc3ca2776228533d953122ee88",
+      "lines": 212,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/staff_record_asset_copy.py",
+      "review_status": "full",
+      "sha256": "c15aad4ad7ebe5eea636d210352ae1f521b92cc51908dad1ff6ab4088cb4feb7",
+      "lines": 46,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/tasks.py",
+      "review_status": "full",
+      "sha256": "57246a8f74e7b852566d6dc8054180d1062176e2140ec5e50bbbe5ce5c2daaaa",
+      "lines": 24,
+      "notes": "Complete physical source read in the company/traveller continuation: tenant scope, exact revision/proof/authority, independent private ownership, bounded queries/worker admission, retries, publication, deletion and resource lifetime reviewed as applicable. No claim of live provider/service qualification."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_permanent_delete.py",
+      "review_status": "full",
+      "sha256": "7bca9c679fe968144e0ca24759cd4115c459d9b0a47c10fceee7ba9614b42818",
+      "lines": 300,
+      "notes": "Complete owner reread. Two actual SQLite/FK regressions reproduced retained-source deletion IntegrityError before patch; call existing detach_submission_provenance before staging/deleting sources to preserve independent documents and reject pending copies. Existing route decorators/auth/signature untouched."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/companies.py",
+      "review_status": "full",
+      "sha256": "4d4feacb0186a8a62973bdbf345655dcebdc93f016f81c1fb555faf45abdc90a",
+      "lines": 210,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/company_data_exports.py",
+      "review_status": "full",
+      "sha256": "9e3bed7519606fd0111049b3b6468b7df145e8bbdb8af49077847a8aa408d81b",
+      "lines": 149,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/company_document_uploads.py",
+      "review_status": "full",
+      "sha256": "862fc31f4fee1b27e534b8dc4cde623fdf1da1c6c1f535059f74dce7bd039a76",
+      "lines": 69,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/company_match_review.py",
+      "review_status": "full",
+      "sha256": "8e5dc3e84be0c42e088ce3dfe4136e795ad98340b269ff8105ff205da5b861f3",
+      "lines": 123,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/company_passports.py",
+      "review_status": "full",
+      "sha256": "523db53f81f530d890adc42398fcaccee6d6cfb33d7079d310e40cc1f4039daf",
+      "lines": 117,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/company_people.py",
+      "review_status": "full",
+      "sha256": "80aaf08e4c970c6edcfc2ebb622fb558744c98cd852f428482a6377186a79c0b",
+      "lines": 160,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/company_reassignments.py",
+      "review_status": "full",
+      "sha256": "7ddc5042dd36e157ff2c22db96571a4eddf7f476749764f5cdd7203120b73e08",
+      "lines": 69,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/company_reuse_setup.py",
+      "review_status": "full",
+      "sha256": "8f4d4c90729132e0d737115917dd84b0f200dc8a69625ca0aa8074c9c102ff48",
+      "lines": 131,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/company_review_tasks.py",
+      "review_status": "full",
+      "sha256": "b7fbcbfcd4f9ce51da472207eaf13b2350e73e489586a0a7f1f173f8ec89f9c6",
+      "lines": 171,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/company_source_documents.py",
+      "review_status": "full",
+      "sha256": "ba3e81e30ba3c25746b9963c6af57da7b7301d2a48c1075cb865b440c1f06cf9",
+      "lines": 117,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/company_submissions.py",
+      "review_status": "full",
+      "sha256": "7361f91c6e76710f84e79220f4cba3dab6be3e5f7d8d0aaaf6887900c2bb6611",
+      "lines": 120,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/company_traveller_history.py",
+      "review_status": "full",
+      "sha256": "9bf37dd67d9ccb5ca65221ceb8620cd4911ea6b227e98e130bf3938c7c3fa54f",
+      "lines": 164,
+      "notes": "Manually read complete physical file; tenant/role/private-asset/retention/revision/transaction boundaries and bounded cursor/query/render behavior checked as applicable. Company export source malformed-reference regression is tracked separately."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/returning_claims.py",
+      "review_status": "full",
+      "sha256": "ffa02a956d7334c7b826fd22a4e136918ec5e099188788e185a889e7bf581503",
+      "lines": 176,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/returning_completion.py",
+      "review_status": "full",
+      "sha256": "0822b0d6307ff145a6b8e7271f38f225a82bb957f5b3cf1122eac2ae39273bf2",
+      "lines": 41,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/returning_contact.py",
+      "review_status": "full",
+      "sha256": "c33ce3e689af2b136c9f99bf677e2b823922e483512b5ab328082b1438d97588",
+      "lines": 55,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/returning_dependencies.py",
+      "review_status": "full",
+      "sha256": "66a1dceb02091608a1f37256d23b634e0aaf49cafd2f9d782e7b10447fbab9dd",
+      "lines": 59,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/returning_detection.py",
+      "review_status": "full",
+      "sha256": "319f9a98120846e157563ae3c4667cb0a606ca7e0f28aca95e319dcb546f761b",
+      "lines": 47,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/returning_draft.py",
+      "review_status": "full",
+      "sha256": "5219f1ee19a684cda5cabca948e2e14c6784e02215b5f7bd4ec6293a633bebfe",
+      "lines": 124,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/returning_history.py",
+      "review_status": "full",
+      "sha256": "d8b0ef8add785c3738bf9f27bf38822eacabd1c0d14120a53a3383c0f6311d74",
+      "lines": 63,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/returning_replacement.py",
+      "review_status": "full",
+      "sha256": "71a806c7161eb5fc6a59a47e2a884389424c3f9400b7124375365d8a2345f10a",
+      "lines": 45,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/returning_selection.py",
+      "review_status": "full",
+      "sha256": "55d0a595cdb82aed34fca38eab60fd88d87d4ad66ba9345376b12ce929814a76",
+      "lines": 31,
+      "notes": "Complete physical source read: live scope/revision/proof/retention gates, private copy/publication and bounded rate-limit/cursor/resource lifetime reviewed as applicable. Native UI remains outside scope; shared same-host backend security is included."
+    }
+  ]
+}

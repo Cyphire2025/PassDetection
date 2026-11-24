@@ -1,7 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { gcAppAdminApi } from "./gc-app-admin.api";
+import { useAuthStore } from "@/stores/auth.store";
+import type { User } from "@/types";
 
-const client = vi.hoisted(() => ({ get: vi.fn(), put: vi.fn(), post: vi.fn(), delete: vi.fn() }));
+const client = vi.hoisted(() => ({ get: vi.fn(), put: vi.fn(), patch: vi.fn(), post: vi.fn(), delete: vi.fn() }));
 vi.mock("@/lib/api/client", () => ({ default: client }));
 
 const access = {
@@ -19,9 +21,78 @@ const announcement = {
 };
 const body = { title: "Synthetic", body: "Test announcement", priority: "normal" as const, available_from: null, available_until: null, publish: true };
 
-beforeEach(() => Object.values(client).forEach((mock) => mock.mockReset()));
+const actor = (id: string) => useAuthStore.setState({ user: { id, role: "agency_admin", agency_id: "agency" } as User });
+beforeEach(() => { Object.values(client).forEach((mock) => mock.mockReset()); actor("initial-actor"); });
 
 describe("GC App administrative API workflow", () => {
+  it.each(["manager", "group"])("retains server paging and scope in %s audit history", async scope => {
+    const event = { id: "audit", action: "gc_app.access_changed", actor_email: "operator@example.test", created_at: "2026-09-15T12:00:00Z", metadata: { secret: "not projected" } };
+    client.get.mockResolvedValue({ data: { items: [event], total: 91, offset: 50, limit: 25 } });
+    const signal = new AbortController().signal;
+    const result = scope === "manager"
+      ? await gcAppAdminApi.listClientManagerAudit("agency", "manager", { page: 3, page_size: 25 }, signal)
+      : await gcAppAdminApi.listGroupAudit("agency", "trip", { page: 3, page_size: 25 }, signal);
+    expect(result).toEqual({ items: [{ id: "audit", action: "gc_app.access_changed", summary: "gc app / access changed", actor_name: "operator@example.test", created_at: event.created_at }], total: 91, page: 3, page_size: 25, has_next: true });
+    expect(client.get).toHaveBeenCalledExactlyOnceWith(expect.stringMatching(scope === "manager" ? /\/client-managers\/manager\/audit$/ : /\/groups\/trip\/audit$/), { params: { agency_id: "agency", q: undefined, offset: 50, limit: 25 }, signal });
+    expect(result.items[0]).not.toHaveProperty("metadata");
+  });
+
+  it("rejects an oversized agency directory before starting any fan-out", async () => {
+    client.get.mockResolvedValue({ data: { items: [], total: 5001, offset: 0, limit: 100 } });
+    await expect(gcAppAdminApi.listAgencies()).rejects.toThrow("too large to load safely");
+    expect(client.get).toHaveBeenCalledOnce();
+  });
+
+  it("keeps parallel directory reads bounded and output in server-page order", async () => {
+    let active = 0;
+    let maximum = 0;
+    client.get.mockImplementation(async (_url, config) => {
+      const offset = config.params.offset;
+      active++;
+      maximum = Math.max(maximum, active);
+      await new Promise(resolve => setTimeout(resolve, offset === 100 ? 8 : 1));
+      active--;
+      return { data: { items: [{ id: `agency-${offset}`, name: "Synthetic", is_active: true }], total: 900, offset, limit: 100 } };
+    });
+    const result = await gcAppAdminApi.listAgencies();
+    expect(maximum).toBe(4);
+    expect(result.map(agency => agency.id)).toEqual(Array.from({ length: 9 }, (_, index) => `agency-${index * 100}`));
+    expect(client.get).toHaveBeenCalledTimes(9);
+    for (const [, config] of client.get.mock.calls) expect(config).toMatchObject({ expectedOwnerUserId: "initial-actor", expectedAuthorityKey: JSON.stringify(["initial-actor", "agency_admin", "agency"]) });
+  });
+
+  it("rejects a private document preview returned as a different content type", async () => {
+    client.get.mockResolvedValue({ data: new Blob(["synthetic"], { type: "text/html" }) });
+    const signal = new AbortController().signal;
+    await expect(gcAppAdminApi.previewCommonDocument("agency", "trip", "document", signal)).rejects.toThrow("not a PDF");
+    expect(client.get).toHaveBeenCalledExactlyOnceWith(expect.stringMatching(/\/groups\/trip\/common-documents\/document\/content$/), { params: { agency_id: "agency" }, responseType: "blob", signal, timeout: 120_000 });
+  });
+
+  it("stops directory fan-out after the initiating actor changes", async () => {
+    client.get.mockImplementation(async () => {
+      actor("replacement-actor");
+      return { data: { items: [], total: 200, offset: 0, limit: 100 } };
+    });
+    await expect(gcAppAdminApi.listAgencies()).rejects.toMatchObject({ code: "AUTH_REQUEST_OWNER_CHANGED" });
+    expect(client.get).toHaveBeenCalledOnce();
+  });
+  it("does not enrich another actor's group page after an account change", async () => {
+    client.get.mockImplementation(async () => {
+      actor("replacement-actor");
+      return { data: { items: [{ id: "old-private-group" }], total: 1, offset: 0, limit: 20 } };
+    });
+    await expect(gcAppAdminApi.listGroups("agency", { page: 1, page_size: 20, availability: "all", lifecycle: "all" }))
+      .rejects.toMatchObject({ code: "AUTH_REQUEST_OWNER_CHANGED" });
+    expect(client.get).toHaveBeenCalledOnce();
+  });
+  it("does not continue a profile update into group assignment under a replacement actor", async () => {
+    client.patch.mockImplementation(async () => { actor("replacement-actor"); return { data: { revision: 5 } }; });
+    const current = { id: "manager", revision: 4 } as Parameters<typeof gcAppAdminApi.updateClientManager>[2];
+    await expect(gcAppAdminApi.updateClientManager("agency", "manager", current, {
+      name: "Synthetic", email: "synthetic@example.test", phone_number: "000", company_id: "company", group_ids: [],
+    })).rejects.toMatchObject({ code: "AUTH_REQUEST_OWNER_CHANGED" });
+    expect(client.put).not.toHaveBeenCalled();
+  });
   it("removes only GC App access using the selected revision, including archived or deleted groups", async () => {
     client.get.mockResolvedValue({ data: { ...access, lifecycle_status: "deleted", client_organization_id: null } });
     const current = await gcAppAdminApi.getGroupControl("agency", "trip");

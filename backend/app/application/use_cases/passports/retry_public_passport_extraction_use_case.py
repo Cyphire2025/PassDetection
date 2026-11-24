@@ -1,4 +1,4 @@
-"""Queue OCR again for an already-persisted public passport image."""
+"""Queue AI reading again for an already-persisted public passport image."""
 
 from __future__ import annotations
 

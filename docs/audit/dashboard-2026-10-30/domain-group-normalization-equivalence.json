@@ -1,0 +1,25 @@
+{
+  "basis": "Exact recursive AST of both complete original methods after inlining the shared rule body. Literal messages, operators, exception field/order, public signatures and all remaining statements retained. Keyword inputs are exact original names or the original plain self.import_only field; the return tuple matches the original three local names. No API/DTO or lifecycle changes.",
+  "callers": [
+    {
+      "method": "create",
+      "source": "client_group.py",
+      "expanded_method_AST_exact": true,
+      "shared_statements": 6,
+      "remaining_statements_and_signature": "unchanged"
+    },
+    {
+      "method": "update_configuration",
+      "source": "client_group_configuration.py",
+      "expanded_method_AST_exact": true,
+      "shared_statements": 6,
+      "remaining_statements_and_signature": "unchanged"
+    }
+  ],
+  "city_normalizer_AST_exact": true,
+  "source_sha256": {
+    "backend/app/domain/entities/client_group.py": "13e3b43a9b01e82f4ef0d0d39706633fc366027dd7a58a60f849cc0dc9d61880",
+    "backend/app/domain/entities/client_group_configuration.py": "0855ea861acc1e28b1e2f0bc37c207dcf1d743b9ee746e2fc65d9606dea2858a",
+    "backend/app/domain/entities/group_trip_settings.py": "ed54990df7f94cbb6c532f8cf35bfd143788b0a01a3045227d128d2a0fb9c3aa"
+  }
+}

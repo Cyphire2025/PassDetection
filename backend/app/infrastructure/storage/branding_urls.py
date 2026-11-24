@@ -3,7 +3,7 @@
 import uuid
 from typing import Literal
 
-BrandingKind = Literal["company-logo", "group-banner"]
+BrandingKind = Literal["company-logo", "group-banner", "group-background"]
 
 
 def image_version(key: str | None) -> str:

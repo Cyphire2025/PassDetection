@@ -1,0 +1,28 @@
+{
+  "command": [
+    "node",
+    "--test",
+    "load-tests/k6/passport-extraction.test.mjs"
+  ],
+  "exit_code": 0,
+  "seconds": 0.10899999999674037,
+  "fence_before": {
+    "load-tests/k6/passport-extraction.js": "cf621699a475e89ede8f523d5aa8cbf81e1e04fbcbde7b2d77f990a918a5767e",
+    "load-tests/k6/passport-extraction.test.mjs": "ea6ff8eab388dfdaed699f023b4c6793dfb51a52ab044accdb3fc70f1977d54f",
+    "load-tests/k6/README.md": "0df602830a90a0bb127193bc17c4a3d98bf182da4b12ad96e48aba2ade5cbf18",
+    "backend/app/core/security/upload_session.py": "37199b6b3df90894959d11c46af966aad8f65a4fe757e0374b34717ad6967993",
+    "backend/app/presentation/api/v1/routes/passport_routes/public_security.py": "4347718f49a11282e0cc5d83fb726cc10e89a12db9d194c434ad09a732b9e629",
+    "backend/app/presentation/api/v1/routes/passport_routes/public_upload_status.py": "402392e3f03b55060b0d39e991193ab136f46ca8560bd53646bb26c7dc94b674",
+    "backend/app/presentation/api/v1/routes/passport_routes/public_upload_submission.py": "6639f322a898f1689186c8300eaedcbe330b04d6e58403ae4c0dfab5b5243dbf"
+  },
+  "fence_after": {
+    "load-tests/k6/passport-extraction.js": "cf621699a475e89ede8f523d5aa8cbf81e1e04fbcbde7b2d77f990a918a5767e",
+    "load-tests/k6/passport-extraction.test.mjs": "ea6ff8eab388dfdaed699f023b4c6793dfb51a52ab044accdb3fc70f1977d54f",
+    "load-tests/k6/README.md": "0df602830a90a0bb127193bc17c4a3d98bf182da4b12ad96e48aba2ade5cbf18",
+    "backend/app/core/security/upload_session.py": "37199b6b3df90894959d11c46af966aad8f65a4fe757e0374b34717ad6967993",
+    "backend/app/presentation/api/v1/routes/passport_routes/public_security.py": "4347718f49a11282e0cc5d83fb726cc10e89a12db9d194c434ad09a732b9e629",
+    "backend/app/presentation/api/v1/routes/passport_routes/public_upload_status.py": "402392e3f03b55060b0d39e991193ab136f46ca8560bd53646bb26c7dc94b674",
+    "backend/app/presentation/api/v1/routes/passport_routes/public_upload_submission.py": "6639f322a898f1689186c8300eaedcbe330b04d6e58403ae4c0dfab5b5243dbf"
+  },
+  "fence_unchanged": true
+}

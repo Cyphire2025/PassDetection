@@ -1,0 +1,1 @@
+Whole module inverse;7 function contracts;2 complete OpenAPI operations; original import identities passed

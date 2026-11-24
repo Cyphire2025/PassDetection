@@ -1,0 +1,9 @@
+# Passport image-quality and API checkpoint
+
+The865/1077/575/1115-line final quality, live rectangular detection, perspective correction and Visa quality owners now delegate to40 focused local image-processing modules; the largest is285 lines. Their distinct luminance coefficients, thresholds, region masks, margins, manual gates and outcome ordering remain. Only text-identical grayscale/rounding duplicates and one AST-equivalent older grayscale spelling are shared. Mechanical proof records93 unchanged original function bodies plus the one compatible converter and75 unchanged policy declarations.
+
+The1085-line passport API is now a stable facade over records, image sources/crops, Visa AI, group exports, imports and selected exports, with typed contracts and the existing completion-handshake helper. All43 methods and7 helper bodies remain unchanged. No HTTP, role, revision, actor, callback, filename, paging or acknowledgment workflow was replaced. Source contracts inspect actual owners and retain every original useful assertion.
+
+Meaningful evidence:155 affected Node algorithm/source-contract cases,29 camera/resource/DOM unit cases,9 operation/search cases and the same2 aligned/skewed public-normalizer Chromium cases before/after movement. New resource tests verify bitmap/URL cleanup and closed/not-ready camera adapter behavior. Full TSC and scoped ESLint passed. The approved compiler config diff only enables explicit TS import suffixes for existing Node24 direct algorithm tests under noEmit/bundler; no custom loader or weakened checks.
+
+The detailed receipt distinguishes Node/jsdom/actual-browser evidence and preserves limits.19 other large passport/upload owners remain in passport-architecture-remaining-large-files.json; this is a coherent source checkpoint, not a whole-audit completion claim. No full build/whole suite per individual fix; parent combined qualification remains pending.

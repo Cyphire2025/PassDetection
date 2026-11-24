@@ -1,0 +1,15 @@
+✔ dashboard owns one durable cross-route WhatsApp activity provider (0.7579ms)
+✔ the current composer and update sender register their durable broadcast IDs (0.8598ms)
+✔ registered activity preserves the message and group labels while historical resend refreshes its history (0.1245ms)
+✔ floating progress hides on sender pages and remains draggable elsewhere (0.1278ms)
+✔ floating progress uses a green capsule while inline progress remains unchanged (0.1007ms)
+✔ failed names load only after the failure arrow is expanded (0.1598ms)
+✔ current recipients expose deferred passenger search and a recoverable empty state (0.1063ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 102.7629

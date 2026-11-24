@@ -1,0 +1,122 @@
+{
+  "status": "Full schema source preflight complete; implementation NOT started",
+  "files": [
+    {
+      "path": "backend/app/infrastructure/database/gc_mobile_models.py",
+      "sha256": "994c6db9ecbb0d5a23bec8ffd3318a2e64b87dbe6582ef277edb098431ac0e33",
+      "physical_lines": 2540,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-2540 in bounded1-242/243-464/465-700/701-1003/1004-1249/1250-1525/1526-1783/1784-1981/1982-2234/2235-2540 reads. Schema ownership/compatibility review only:23 whole mapped declarations, one distinct local UTC default helper, exact23-name __all__, lazy company logo property, string composite FKs/partial indexes/identity sequence/deferred ciphertext. Shared dashboard company/grant/content/notification/journal records retained; native-only class bodies read solely to preserve existing schema, no native endpoint/provider/auth/device behavioral audit or changes. Architecture proposal remains open pending parent adoption and executed original/current metadata/default/import/pickle controls."
+    },
+    {
+      "path": "backend/app/infrastructure/database/model_base.py",
+      "sha256": "bbd9bc11ad8e482b9ebefe26d74123f9bb4ad79b3e73b9dbe846cdfd925f0da9",
+      "physical_lines": 19,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-20. One real shared DeclarativeBase registry and dialect-variant JSONB, separate UTC helper. GC currently has its own distinct _utcnow: retain exact original GC callable instead of silently substituting this helper."
+    },
+    {
+      "path": "backend/app/infrastructure/database/__init__.py",
+      "sha256": "f7f0ae580a55bd07e427d55d2982e40d12a2cd590386d85e583db5d77f8fdb0b",
+      "physical_lines": 1,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1. Package has no additional initialization side effects."
+    },
+    {
+      "path": "backend/app/infrastructure/database/model_registry.py",
+      "sha256": "226b2b4c321e3b231222355d9f6752d945dd2e160324b7a3685c4b37865b9ec5",
+      "physical_lines": 27,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-29. Exact eager metadata module import order includes authored notification catalog before GC class construction through current GC facade import; public registry/role provisioning/migrations remain unchanged."
+    },
+    {
+      "path": "backend/app/infrastructure/database/models.py",
+      "sha256": "685526fd00128c49052195d84ac17d7e1ad66ace8e43dbcd70e260435be24c16",
+      "physical_lines": 198,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole current facade physically read. Stable primitive imports/side-effect catalog imports/core owner order and TYPE_CHECKING-only ClientOrganization forward alias retained; no facade edits planned. Prior core/document/communications architecture remains qualified, not reopened by line count."
+    },
+    {
+      "path": "backend/app/infrastructure/database/gc_notification_models.py",
+      "sha256": "20ffd57140b039ad75c87c9995e4e749cef23ab5a19dc0a1bddea96592b52878",
+      "physical_lines": 200,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-200 in1-105/106-200 reads. Existing4 authored-notification tables, distinct local UTC helper and shared Base; no import backedge to GC facade. Frozen historical grant IDs deliberately survive deletion; current consumer authority is not inferred from schema. Keep original eager import before all GC declarations; no edits planned."
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/__init__.py",
+      "sha256": "faa1f24f577a07ccfdb3220f3525a0e2e01f529df5debff3909fb64dcc88c83f",
+      "physical_lines": 8,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole short namespace-primer source physically read. Existing facade-first and owner-first precedent initializes public annotation globals before mapping; use purpose-specific same pattern for proposed GC owners, not a runtime proxy or class posthoc-only retag."
+    },
+    {
+      "path": "backend/app/infrastructure/database/_document_models/__init__.py",
+      "sha256": "b96f487be8cd75c281c4c2a4fbcbfaf87155724c3c2601628443980475be1da7",
+      "physical_lines": 7,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole short namespace-primer source physically read. Existing facade-first and owner-first precedent initializes public annotation globals before mapping; use purpose-specific same pattern for proposed GC owners, not a runtime proxy or class posthoc-only retag."
+    },
+    {
+      "path": "backend/app/infrastructure/database/_communications_models/__init__.py",
+      "sha256": "93f1ffe885e89709e8e59326a3c20db5be6969f0e63c6501052477226783237c",
+      "physical_lines": 7,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole short namespace-primer source physically read. Existing facade-first and owner-first precedent initializes public annotation globals before mapping; use purpose-specific same pattern for proposed GC owners, not a runtime proxy or class posthoc-only retag."
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_models/__init__.py",
+      "sha256": "65c72734aaf387cf30b89e1b390fd9c23259d1822449024d900f48ba9cef76f8",
+      "physical_lines": 7,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole short namespace-primer source physically read. Existing facade-first and owner-first precedent initializes public annotation globals before mapping; use purpose-specific same pattern for proposed GC owners, not a runtime proxy or class posthoc-only retag."
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/groups.py",
+      "sha256": "f21b171c859d22ce92d578dce8498c05ad060f8a2fa9719323bad024d25147f5",
+      "physical_lines": 225,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "focused",
+      "notes": "Physical1-50 only: current core group owner keeps legacy class module and imports GC organization only TYPE_CHECKING, no eager runtime backedge. Not a whole-class/file read here."
+    },
+    {
+      "path": "backend/app/infrastructure/database/_document_models/distribution.py",
+      "sha256": "13837498e7ce0513cf86da4b65fef689fe9ae3659906e42752deec7701bdfbed",
+      "physical_lines": 113,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "focused",
+      "notes": "Physical1-45 only: actual prior model split places legacy __module__ inside class before mapping, shared Base/default imported normally. No whole-file qualification or schema change."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_database_model_decomposition.py",
+      "sha256": "4f8b6b02767650ea28af0347763f36d30a2b108413e57cffd3b9774bd0d16889",
+      "physical_lines": 100,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "focused",
+      "notes": "Physical1-55 only for actual existing shared registry/facade assertion boundary; AI owns remaining infrastructure test source review. No whole-file credit or checks run."
+    }
+  ]
+}

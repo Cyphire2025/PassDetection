@@ -1,0 +1,9 @@
+........................................................................ [ 36%]
+........................................................................ [ 73%]
+.....................................................                    [100%]
+
+---------- coverage: platform win32, python 3.11.15-final-0 ----------
+Coverage XML written to file ../docs/audit/dashboard-2026-10-30/operations-functions-coverage.xml
+Coverage JSON written to file ../docs/audit/dashboard-2026-10-30/operations-functions-coverage.json
+
+197 passed in 169.09s (0:02:49)

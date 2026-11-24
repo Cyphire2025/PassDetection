@@ -1,0 +1,10 @@
+{
+  "status": "exact original policy bytes restored by inverse of18 new rows and3 old rows in original order",
+  "current_policy_sha256": "159998c7f6e330507feaffdbc6dabcb2130249c36a933854ba33d16c1ad774ad",
+  "original_policy_sha256": "a58f5de184c44cb91adcc26f9c26b256412510e249bc25caba9d3201203444ef",
+  "all_other_entries_and_restrictions_exact": true,
+  "transfer_proof": {
+    "path": "docs/audit/dashboard-2026-10-30/notification-server-architecture-transfer-proof.json",
+    "sha256": "81b3bf73973e975b3c8ef33908b82a05efed6d181f7ea3c79260f0a24b00875b"
+  }
+}

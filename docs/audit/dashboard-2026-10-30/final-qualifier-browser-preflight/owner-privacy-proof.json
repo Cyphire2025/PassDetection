@@ -1,0 +1,135 @@
+{
+  "status": "Manual source-to-UI authority/lifetime review; frontend-only fix",
+  "backend_source_facts": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/fresh_draft.py",
+      "sha256": "8329f063867f8824603c3b334f46a44937fe070fcdc7fa5ccace56df9f726cc4",
+      "purpose": "GET/start draft",
+      "symbol": "read",
+      "line": 49,
+      "manually_traced_fact": "GET uses fresh_token capability then require_fresh_draft and draft_view; initial POST creates/reuses same-browser per-member capability.",
+      "review_credit": "Focused owner/DTO/privacy flow proof only; no new full backend source-review or execution credit."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/fresh_draft_dependencies.py",
+      "sha256": "da7cdb422c5a300c5931a5662a6845151f3e101e457baca9ba4815bb8c5c4700",
+      "purpose": "private capability input",
+      "symbol": "fresh_token",
+      "line": 25,
+      "manually_traced_fact": "Requires HttpOnly pd_fresh_drafts browser cookie and bounded X-Upload-Session-ID header; no historical traveller authority.",
+      "review_credit": "Focused owner/DTO/privacy flow proof only; no new full backend source-review or execution credit."
+    },
+    {
+      "path": "backend/app/application/travellers/fresh_drafts.py",
+      "sha256": "2064d6af770645c8dbaca4075ecabcfd477222b6bc761a6476ddca50e7985725",
+      "purpose": "private owner validation",
+      "symbol": "require_fresh_draft",
+      "line": 43,
+      "manually_traced_fact": "Active group plus hashed capability, agency/group/mode/company checks and fixed expiry/status gate. secret incorporates group token, browser secret and per-member session.",
+      "review_credit": "Focused owner/DTO/privacy flow proof only; no new full backend source-review or execution credit."
+    },
+    {
+      "path": "backend/app/application/travellers/drafts.py",
+      "sha256": "690a8e1e81788f5da626c34183a6ee5a0c48632f1795a28a2459f600a34b7fb9",
+      "purpose": "draft projection",
+      "symbol": "draft_view",
+      "line": 142,
+      "manually_traced_fact": "Projects decrypted current owned draft payload; collection carries opaque qualifier selection token only. No saved relationship label is added to DraftView by this fix.",
+      "review_credit": "Focused owner/DTO/privacy flow proof only; no new full backend source-review or execution credit."
+    },
+    {
+      "path": "backend/app/application/travellers/fresh_draft_contracts.py",
+      "sha256": "e8bc5b054828736a629704884703e7ead1f5d6f4a0d2ed26f972ef3ec98a992a",
+      "purpose": "bounded collection schema",
+      "symbol": "FreshCollection",
+      "line": 8,
+      "manually_traced_fact": "Collection accepts opaque selection token and existing fresh fields; no is_self/relation_code/Other label field.",
+      "review_credit": "Focused owner/DTO/privacy flow proof only; no new full backend source-review or execution credit."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_groups.py",
+      "sha256": "b48a7e4843e9f1b8d48d7a3483e5ad4d52eac984e65c05a9b78b716559b13179",
+      "purpose": "existing qualifier GET ingress",
+      "symbol": "get_qualifier_selection",
+      "line": 510,
+      "manually_traced_fact": "Existing public GET takes bounded opaque X-Qualifier-Selection-Token header and uses group token path. It is bearer-authorized, not bound to the public upload session header.",
+      "review_credit": "Focused owner/DTO/privacy flow proof only; no new full backend source-review or execution credit."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_public_collection.py",
+      "sha256": "accb96e643cabdf450bc456fca5284e4a0007c490abac2b74630540f10c77bd6",
+      "purpose": "existing qualifier GET adapter",
+      "symbol": "get_qualifier_selection",
+      "line": 119,
+      "manually_traced_fact": "Existing adapter invokes GetQualifierSelectionUseCase and returns existing safe DTO; errors are bounded HTTP responses.",
+      "review_credit": "Focused owner/DTO/privacy flow proof only; no new full backend source-review or execution credit."
+    },
+    {
+      "path": "backend/app/application/use_cases/client_groups/get_qualifier_selection_use_case.py",
+      "sha256": "30fa653479f7917ec0e5cc6b60f87e342b972da52f38c3ea0f3012c8abb37a9c",
+      "purpose": "existing selection authority",
+      "symbol": "GetQualifierSelectionUseCase",
+      "line": 19,
+      "manually_traced_fact": "Rejects absent/import-only/closed group; group ID plus hashed opaque token seek; reports active/expired/consumed and enforces current entry method settings for active selections.",
+      "review_credit": "Focused owner/DTO/privacy flow proof only; no new full backend source-review or execution credit."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/qualifier_selection_repository.py",
+      "sha256": "f69195cc4735695efe1ac03db4104ee1efb04941d2b93822b542f53fbc93446f",
+      "purpose": "database seek",
+      "symbol": "QualifierSelectionRepository",
+      "line": 19,
+      "manually_traced_fact": "Lookup predicates include group_id and token_hash; DTO exposes only chosen relationship state and optional consumed submission ID.",
+      "review_credit": "Focused owner/DTO/privacy flow proof only; no new full backend source-review or execution credit."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/client_group_qualifier_schemas.py",
+      "sha256": "5360d1e3c4a935df8e9b6b1a210be2dc79b0e45d26310b9095f802475c11e59b",
+      "purpose": "safe response contract",
+      "symbol": "QualifierSelectionStateResponse",
+      "line": 58,
+      "manually_traced_fact": "Existing response has is_self/relation_code/relation_label/selected/expires/status/submission_id. Other text is relation_label; no backend API extension needed.",
+      "review_credit": "Focused owner/DTO/privacy flow proof only; no new full backend source-review or execution credit."
+    },
+    {
+      "path": "backend/app/domain/value_objects/qualifier_relations.py",
+      "sha256": "9f50acde7e0eede23f2a39fbfced5bb3afab73fb7788d53b76e7ab1a0b919520",
+      "purpose": "opaque proof validation",
+      "symbol": "hash_qualifier_selection_token",
+      "line": 143,
+      "manually_traced_fact": "Bounded32..256 opaque token is SHA256 hashed before repository lookup; normalizer bounds/sanitizes Other text on creation.",
+      "review_credit": "Focused owner/DTO/privacy flow proof only; no new full backend source-review or execution credit."
+    },
+    {
+      "path": "backend/app/presentation/middleware/security_headers.py",
+      "sha256": "cd1ed40acbf348c287159225ab30ac29a93580b5a34450ecce53f676cc532a52",
+      "purpose": "cache boundary",
+      "symbol": "SecurityHeadersMiddleware",
+      "line": 12,
+      "manually_traced_fact": "All /api/ responses receive private,no-store,max-age=0 plus no-cache and Expires0. Existing middleware remains unchanged.",
+      "review_credit": "Focused owner/DTO/privacy flow proof only; no new full backend source-review or execution credit."
+    },
+    {
+      "path": "backend/app/main.py",
+      "sha256": "e2cc9a341ab8d6506035c3188c738aa67f6dbd05c81cb73f4c79696235f2077d",
+      "purpose": "middleware installation",
+      "symbol": null,
+      "line": null,
+      "manually_traced_fact": "main.py imports and installs SecurityHeadersMiddleware, so the API cache boundary is active application wiring, not an unreferenced helper.",
+      "review_credit": "Focused owner/DTO/privacy flow proof only; no new full backend source-review or execution credit."
+    }
+  ],
+  "frontend_controls": [
+    "Restoration is lazy on Change and reads only the opaque token present in current private draft payload.",
+    "FreshQualifier keys the editor by group token plus draft proof; changing either remounts before stale private text can be rendered.",
+    "Hook aborts on owner teardown and uses AbortController object identity plus aborted state to reject late responses, including leave/return-to-same-owner and ignored abort. No extra generation/nonce state.",
+    "Response failure uses a fixed non-sensitive message, retains the valid private proof and does not POST or mutate draft collection.",
+    "Inactive/expired/consumed selections do not hydrate saved text or autosave. User can explicitly choose again; no proof clearing on read failure.",
+    "Only explicit successful save writes the newly issued opaque proof into existing private draft collection; post-await signal check prevents late save from replacing proof after cancellation.",
+    "No relationship text or new proof persistence in localStorage/sessionStorage, URL query, telemetry, console or logs. Existing public transport/session helper remains unchanged."
+  ],
+  "positive_negative_control_file": "frontend/features/upload/components/fresh-qualifier.test.tsx",
+  "current_component_cases": 13,
+  "real_api_or_provider_execution": false,
+  "no_backend_source_changes": true
+}

@@ -1,0 +1,130 @@
+{
+  "files": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_assignments.py",
+      "sha256": "91ca99c1e3ef9b1d321775d1761caf0bbc9ec179e5aeab87b8b41f2b118f6eaf",
+      "physical_lines": 421,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "needs-follow-up",
+      "notes": "Complete current physical source read in bounded untruncated output. Preflight only: no runtime/test/config edits or executed behavior claims. Main388 is a compatibility import/router catalog and is not a forced line-reduction target. Shared email artifact provenance import/query was read only as retained document response compatibility; no deferred Operations Inbox investigation. Existing mobile propagation calls remain shared dashboard side effects, no mobile-only source work."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_review_support.py",
+      "sha256": "49ce191e4a94249b2b1ea538102334ca1bf901c4ba17ebebd1a34880c14ee06e",
+      "physical_lines": 395,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "needs-follow-up",
+      "notes": "Complete current physical source read in bounded untruncated output. Preflight only: no runtime/test/config edits or executed behavior claims. Main388 is a compatibility import/router catalog and is not a forced line-reduction target. Shared email artifact provenance import/query was read only as retained document response compatibility; no deferred Operations Inbox investigation. Existing mobile propagation calls remain shared dashboard side effects, no mobile-only source work."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_queries.py",
+      "sha256": "48c7a0da6dd868cc244541bed3c6661046c6b8933e2fe49fc2db16d82021645f",
+      "physical_lines": 213,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded untruncated output. Preflight only: no runtime/test/config edits or executed behavior claims. Main388 is a compatibility import/router catalog and is not a forced line-reduction target. Shared email artifact provenance import/query was read only as retained document response compatibility; no deferred Operations Inbox investigation. Existing mobile propagation calls remain shared dashboard side effects, no mobile-only source work."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_responses.py",
+      "sha256": "6f4dbf8d10308e38f7c19917499d466a99a497d633490a9fe1302e3d376bc0d6",
+      "physical_lines": 235,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded untruncated output. Preflight only: no runtime/test/config edits or executed behavior claims. Main388 is a compatibility import/router catalog and is not a forced line-reduction target. Shared email artifact provenance import/query was read only as retained document response compatibility; no deferred Operations Inbox investigation. Existing mobile propagation calls remain shared dashboard side effects, no mobile-only source work."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_shared.py",
+      "sha256": "90e1f22463437f267663ff4ec20220cf8115cea1f3b8c7a0db824ab81d48beb6",
+      "physical_lines": 86,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded untruncated output. Preflight only: no runtime/test/config edits or executed behavior claims. Main388 is a compatibility import/router catalog and is not a forced line-reduction target. Shared email artifact provenance import/query was read only as retained document response compatibility; no deferred Operations Inbox investigation. Existing mobile propagation calls remain shared dashboard side effects, no mobile-only source work."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_storage.py",
+      "sha256": "9ef92ffee5bb4d624286ea60741a3c0ca4a77ce3541b1e65e33caab5ae56b2f5",
+      "physical_lines": 141,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded untruncated output. Preflight only: no runtime/test/config edits or executed behavior claims. Main388 is a compatibility import/router catalog and is not a forced line-reduction target. Shared email artifact provenance import/query was read only as retained document response compatibility; no deferred Operations Inbox investigation. Existing mobile propagation calls remain shared dashboard side effects, no mobile-only source work."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution.py",
+      "sha256": "eceb978c0e6faca96b335cd0f91cb7fd48be5b8a1216f15816cddd9ae51fe7b0",
+      "physical_lines": 388,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded untruncated output. Preflight only: no runtime/test/config edits or executed behavior claims. Main388 is a compatibility import/router catalog and is not a forced line-reduction target. Shared email artifact provenance import/query was read only as retained document response compatibility; no deferred Operations Inbox investigation. Existing mobile propagation calls remain shared dashboard side effects, no mobile-only source work."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_replacements.py",
+      "sha256": "aab482bc2b7e1dc046c13c84897206f39423cf7aa430011d50a1c7ea70ade929",
+      "physical_lines": 287,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded untruncated output. Preflight only: no runtime/test/config edits or executed behavior claims. Main388 is a compatibility import/router catalog and is not a forced line-reduction target. Shared email artifact provenance import/query was read only as retained document response compatibility; no deferred Operations Inbox investigation. Existing mobile propagation calls remain shared dashboard side effects, no mobile-only source work."
+    },
+    {
+      "path": "backend/app/infrastructure/export/document_assignment_excel_exporter.py",
+      "sha256": "97a743b2ee2e22059ff38968306b693c75698c5635251516972710e93b9d460e",
+      "physical_lines": 146,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded untruncated output. Preflight only: no runtime/test/config edits or executed behavior claims. Main388 is a compatibility import/router catalog and is not a forced line-reduction target. Shared email artifact provenance import/query was read only as retained document response compatibility; no deferred Operations Inbox investigation. Existing mobile propagation calls remain shared dashboard side effects, no mobile-only source work."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_distribution_review_rows.py",
+      "sha256": "d62e2289db4672db2dd940ecb4906dff5df1a04670b73cbe0f84a05765b31723",
+      "physical_lines": 258,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded untruncated output. Preflight only: no runtime/test/config edits or executed behavior claims. Main388 is a compatibility import/router catalog and is not a forced line-reduction target. Shared email artifact provenance import/query was read only as retained document response compatibility; no deferred Operations Inbox investigation. Existing mobile propagation calls remain shared dashboard side effects, no mobile-only source work."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_distribution_route_decomposition.py",
+      "sha256": "7f18a4f9055bde011fe0fd2cf456e2585057a05a378d05140676d0a54de71188",
+      "physical_lines": 168,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded untruncated output. Preflight only: no runtime/test/config edits or executed behavior claims. Main388 is a compatibility import/router catalog and is not a forced line-reduction target. Shared email artifact provenance import/query was read only as retained document response compatibility; no deferred Operations Inbox investigation. Existing mobile propagation calls remain shared dashboard side effects, no mobile-only source work."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_document_assignment_excel_exporter.py",
+      "sha256": "11536462bc878377e76f254da1213609218a4a4e925f0d2c3151e9d9e2658d6f",
+      "physical_lines": 133,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded untruncated output. Preflight only: no runtime/test/config edits or executed behavior claims. Main388 is a compatibility import/router catalog and is not a forced line-reduction target. Shared email artifact provenance import/query was read only as retained document response compatibility; no deferred Operations Inbox investigation. Existing mobile propagation calls remain shared dashboard side effects, no mobile-only source work."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_scope.py",
+      "sha256": "92faa69c9f13af427dd128c72aac3a99518be701db40990b6d32155aa8cb11a9",
+      "physical_lines": 270,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "needs-follow-up",
+      "notes": "This preflight physically read only1\u2013205: immediate authorization/group visibility/export checks or test import/fixture context. Existing exact-current full records from another ledger, where present, stay independent; this row adds no whole-file read credit."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_distribution_matching.py",
+      "sha256": "5793652d336623a30e860bf9c81b7a5cfbbea1f113f86469c89d0dba57d411a0",
+      "physical_lines": 1223,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "needs-follow-up",
+      "notes": "This preflight physically read only1\u2013130: immediate authorization/group visibility/export checks or test import/fixture context. Existing exact-current full records from another ledger, where present, stay independent; this row adds no whole-file read credit."
+    }
+  ]
+}

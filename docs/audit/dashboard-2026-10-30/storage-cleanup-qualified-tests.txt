@@ -1,0 +1,120 @@
+............................................................FF..         [100%]
+================================== FAILURES ===================================
+___ test_due_batch_keeps_limit_and_replaces_only_completed_rows_with_audit ____
+tests\unit\infrastructure\test_storage_cleanup_persistence.py:52: in test_due_batch_keeps_limit_and_replaces_only_completed_rows_with_audit
+    assert len(remaining) == 1 and remaining[0].id in {job.id for job in jobs}
+                                                      ^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\infrastructure\test_storage_cleanup_persistence.py:52: in <setcomp>
+    assert len(remaining) == 1 and remaining[0].id in {job.id for job in jobs}
+                                                       ^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:566: in __get__
+    return self.impl.get(state, dict_)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1086: in get
+    value = self._fire_loader_callables(state, key, passive)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1116: in _fire_loader_callables
+    return state._load_expired(state, passive)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\state.py:803: in _load_expired
+    self.manager.expired_attribute_loader(self, toload, passive)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:1670: in load_scalar_attributes
+    result = load_on_ident(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:509: in load_on_ident
+    return load_on_pk_identity(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:694: in load_on_pk_identity
+    session.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2351: in execute
+    return self._execute_internal(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2236: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\context.py:293: in orm_execute_statement
+    result = conn.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1418: in execute
+    return meth(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\sql\elements.py:515: in _execute_on_connection
+    return connection._execute_clauseelement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1640: in _execute_clauseelement
+    ret = self._execute_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:2356: in _handle_dbapi_exception
+    raise exc_info[1].with_traceback(exc_info[2])
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:147: in execute
+    self._adapt_connection._handle_exception(error)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:298: in _handle_exception
+    raise error
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:124: in execute
+    _cursor = self.await_(self._connection.cursor())
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:123: in await_only
+    raise exc.MissingGreenlet(
+E   sqlalchemy.exc.MissingGreenlet: greenlet_spawn has not been called; can't call await_only() here. Was IO attempted in an unexpected place? (Background on this error at: https://sqlalche.me/e/20/xd2s)
+____ test_retained_trip_object_is_kept_while_unreferenced_peer_is_deleted _____
+tests\unit\infrastructure\test_storage_cleanup_persistence.py:78: in test_retained_trip_object_is_kept_while_unreferenced_peer_is_deleted
+    assert asset.object_key == held_key
+           ^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:566: in __get__
+    return self.impl.get(state, dict_)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1086: in get
+    value = self._fire_loader_callables(state, key, passive)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\attributes.py:1116: in _fire_loader_callables
+    return state._load_expired(state, passive)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\state.py:803: in _load_expired
+    self.manager.expired_attribute_loader(self, toload, passive)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:1670: in load_scalar_attributes
+    result = load_on_ident(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:509: in load_on_ident
+    return load_on_pk_identity(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\loading.py:694: in load_on_pk_identity
+    session.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2351: in execute
+    return self._execute_internal(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2236: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\context.py:293: in orm_execute_statement
+    result = conn.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1418: in execute
+    return meth(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\sql\elements.py:515: in _execute_on_connection
+    return connection._execute_clauseelement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1640: in _execute_clauseelement
+    ret = self._execute_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:2356: in _handle_dbapi_exception
+    raise exc_info[1].with_traceback(exc_info[2])
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:147: in execute
+    self._adapt_connection._handle_exception(error)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:298: in _handle_exception
+    raise error
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:124: in execute
+    _cursor = self.await_(self._connection.cursor())
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:123: in await_only
+    raise exc.MissingGreenlet(
+E   sqlalchemy.exc.MissingGreenlet: greenlet_spawn has not been called; can't call await_only() here. Was IO attempted in an unexpected place? (Background on this error at: https://sqlalche.me/e/20/xd2s)
+
+---------- coverage: platform win32, python 3.11.15-final-0 ----------
+Coverage XML written to file C:\Users\nipun\Desktop\PassDetection\docs\audit\dashboard-2026-10-30\storage-cleanup-qualified-coverage.xml
+Coverage JSON written to file C:\Users\nipun\Desktop\PassDetection\docs\audit\dashboard-2026-10-30\storage-cleanup-qualified-coverage.json
+
+=========================== short test summary info ===========================
+FAILED tests/unit/infrastructure/test_storage_cleanup_persistence.py::test_due_batch_keeps_limit_and_replaces_only_completed_rows_with_audit
+FAILED tests/unit/infrastructure/test_storage_cleanup_persistence.py::test_retained_trip_object_is_kept_while_unreferenced_peer_is_deleted
+2 failed, 62 passed in 16.53s

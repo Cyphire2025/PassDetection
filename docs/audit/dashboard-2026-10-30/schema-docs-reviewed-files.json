@@ -1,0 +1,31 @@
+{
+  "files": [
+    {
+      "path": "docs/UPLOAD_LINK_CONFIGURATION.md",
+      "sha256": "1ddcb0079f5e73cd44eebe7a8b6100feacf8f93c332cf1285706cff670cdfcfa",
+      "physical_lines": 71,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "fixed-verified",
+      "notes": "Complete source physically read before minimal current-readiness wording update. Historical migration0093 and recorded historical verification/operators preserved. One contiguous paragraph delta only; current packaged manifest and guarded release-procedure links resolve. This prose correction does not qualify a deployment or historical test claims."
+    },
+    {
+      "path": "docs/WHATSAPP_MATCHING_AND_REMINDERS.md",
+      "sha256": "d3548566ad42a8eb449fc64e464b7fc15abec3a9166884906a986c631bf1d9df",
+      "physical_lines": 215,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "fixed-verified",
+      "notes": "Complete source physically read before minimal current-readiness wording update. Historical migration0093 and recorded historical verification/operators preserved. One contiguous paragraph delta only; current packaged manifest and guarded release-procedure links resolve. This prose correction does not qualify a deployment or historical test claims."
+    },
+    {
+      "path": "docs/architecture/traveller-whatsapp-delivery.md",
+      "sha256": "0aa5156497f71baff7d51a07f504113ed78ddf352e015ecf08797732a87863f3",
+      "physical_lines": 133,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "fixed-verified",
+      "notes": "Complete source physically read before minimal current-readiness wording update. Historical migration0093 and recorded historical verification/operators preserved. One contiguous paragraph delta only; current packaged manifest and guarded release-procedure links resolve. This prose correction does not qualify a deployment or historical test claims."
+    }
+  ]
+}

@@ -1,0 +1,766 @@
+{
+  "metadata_only_not_manual_read": true,
+  "path": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+  "sha256": "aa160e1bdcd3f651706adfc6b18edfbb2b2d08784f8d32ce7080c23289b29b7e",
+  "imports": [
+    {
+      "module": "@/features/operations/api/operations.api",
+      "clause": "{ operationsApi, type AttendanceScanResponse }",
+      "start": 1,
+      "end": 1
+    },
+    {
+      "module": "@/stores/auth.store",
+      "clause": "{ useAuthStore }",
+      "start": 2,
+      "end": 2
+    },
+    {
+      "module": "@/lib/api/client",
+      "clause": "apiClient",
+      "start": 3,
+      "end": 3
+    },
+    {
+      "module": "@/lib/api/request-owner",
+      "clause": "{ ownerBoundRequestConfig }",
+      "start": 4,
+      "end": 4
+    },
+    {
+      "module": "./attendance-session-progress",
+      "clause": "{ writeAttendanceSessionProgress }",
+      "start": 5,
+      "end": 5
+    },
+    {
+      "module": "./browser-offline-authorization",
+      "clause": "{\r\n  authorizeBrowserOfflineScan,\r\n  getBrowserAttendanceRuntimeHint,\r\n  type AuthorizedBrowserOfflineScan,\r\n}",
+      "start": 6,
+      "end": 10
+    },
+    {
+      "module": "./browser-offline-crypto",
+      "clause": "{\r\n  protectBrowserJson,\r\n  unprotectBrowserJson,\r\n  type ProtectedBrowserValue,\r\n}",
+      "start": 11,
+      "end": 15
+    },
+    {
+      "module": "./browser-offline-database",
+      "clause": "{\r\n  DISCARD_TOMBSTONE_STORE,\r\n  OWNER_USER_ID_INDEX,\r\n  PENDING_ATTENDANCE_STORE,\r\n  REJECTED_ATTENDANCE_STORE,\r\n  openBrowserOfflineDatabase,\r\n}",
+      "start": 16,
+      "end": 22
+    },
+    {
+      "module": "./attendance-queue-privacy",
+      "clause": "{\r\n  attendanceQueueRowId,\r\n  createAttendanceScanReference,\r\n  createRejectedAttendanceScan,\r\n  isAttendanceScanReference,\r\n  sanitizeLegacyRejectedAttendanceScan,\r\n}",
+      "start": 23,
+      "end": 29
+    },
+    {
+      "module": "./attendance-retry-policy",
+      "clause": "{\r\n  attendanceRetryState,\r\n  classifyAttendanceCloseoutQueue,\r\n  earliestAttendanceAttemptAt,\r\n  isAttendanceAttemptEligible,\r\n  type AttendanceCloseoutQueueCounts,\r\n}",
+      "start": 30,
+      "end": 36
+    },
+    {
+      "module": "./attendance-queue-safety-contract",
+      "clause": "{\r\n  hasUnsafeBrowserAttendanceQueue,\r\n  type AttendanceQueueLogoutDisposition,\r\n  type BrowserAttendanceQueueSafetySnapshot,\r\n}",
+      "start": 37,
+      "end": 41
+    },
+    {
+      "module": "./attendance-sync-policy",
+      "clause": "{\r\n  isPermanentAttendanceScanError,\r\n  isRecoverableAttendanceScanError,\r\n  isSuccessfulAttendanceReplayStatus,\r\n  type AttendanceSyncUpdate,\r\n}",
+      "start": 42,
+      "end": 47
+    },
+    {
+      "module": "./attendance-batch-policy",
+      "clause": "{\r\n  attendanceBatchItemDisposition,\r\n  isMatchingAttendanceBatchEnvelope,\r\n}",
+      "start": 48,
+      "end": 51
+    }
+  ],
+  "declarations": [
+    {
+      "name": "AttendanceScanInput",
+      "kind": "InterfaceDeclaration",
+      "start": 53,
+      "end": 62,
+      "exported": true
+    },
+    {
+      "name": "AttendanceScanRecoveryContext",
+      "kind": "TypeAliasDeclaration",
+      "start": 64,
+      "end": 68,
+      "exported": true
+    },
+    {
+      "name": "PendingAttendanceScan",
+      "kind": "InterfaceDeclaration",
+      "start": 70,
+      "end": 83,
+      "exported": true
+    },
+    {
+      "name": "RejectedAttendanceScan",
+      "kind": "InterfaceDeclaration",
+      "start": 85,
+      "end": 100,
+      "exported": true
+    },
+    {
+      "name": "StoredPendingAttendanceScan",
+      "kind": "InterfaceDeclaration",
+      "start": 102,
+      "end": 108,
+      "exported": false
+    },
+    {
+      "name": "StoredRejectedAttendanceScan",
+      "kind": "InterfaceDeclaration",
+      "start": 110,
+      "end": 115,
+      "exported": false
+    },
+    {
+      "name": "AttendanceQueueCapacityError",
+      "kind": "ClassDeclaration",
+      "start": 117,
+      "end": 124,
+      "exported": true
+    },
+    {
+      "name": "AttendanceDiscardReason",
+      "kind": "TypeAliasDeclaration",
+      "start": 126,
+      "end": 131,
+      "exported": true
+    },
+    {
+      "name": "AttendanceDiscardTombstone",
+      "kind": "InterfaceDeclaration",
+      "start": 133,
+      "end": 150,
+      "exported": true
+    },
+    {
+      "name": "AttendanceScanSyncResult",
+      "kind": "InterfaceDeclaration",
+      "start": 152,
+      "end": 158,
+      "exported": true
+    },
+    {
+      "name": "AttendanceScanSyncUpdate",
+      "kind": "TypeAliasDeclaration",
+      "start": 160,
+      "end": 160,
+      "exported": true
+    },
+    {
+      "name": "PENDING_STORE_NAME",
+      "kind": "FirstStatement",
+      "start": 162,
+      "end": 162,
+      "exported": false
+    },
+    {
+      "name": "REJECTED_STORE_NAME",
+      "kind": "FirstStatement",
+      "start": 163,
+      "end": 163,
+      "exported": false
+    },
+    {
+      "name": "OWNER_INDEX",
+      "kind": "FirstStatement",
+      "start": 164,
+      "end": 164,
+      "exported": false
+    },
+    {
+      "name": "SCHEDULE_EVENT",
+      "kind": "FirstStatement",
+      "start": 165,
+      "end": 165,
+      "exported": false
+    },
+    {
+      "name": "SCHEDULE_CHANNEL",
+      "kind": "FirstStatement",
+      "start": 166,
+      "end": 166,
+      "exported": false
+    },
+    {
+      "name": "MIGRATION_LOCK",
+      "kind": "FirstStatement",
+      "start": 167,
+      "end": 167,
+      "exported": false
+    },
+    {
+      "name": "OWNER_LOCK_PREFIX",
+      "kind": "FirstStatement",
+      "start": 168,
+      "end": 168,
+      "exported": false
+    },
+    {
+      "name": "DRAIN_LOCK_PREFIX",
+      "kind": "FirstStatement",
+      "start": 169,
+      "end": 169,
+      "exported": false
+    },
+    {
+      "name": "SYNCHRONIZED_DISCARD_RETENTION_MS",
+      "kind": "FirstStatement",
+      "start": 170,
+      "end": 170,
+      "exported": false
+    },
+    {
+      "name": "MAX_PENDING_ATTENDANCE_SCANS_PER_OWNER",
+      "kind": "FirstStatement",
+      "start": 171,
+      "end": 171,
+      "exported": true
+    },
+    {
+      "name": "activeSync",
+      "kind": "FirstStatement",
+      "start": 173,
+      "end": 175,
+      "exported": false
+    },
+    {
+      "name": "privacyMigrationPromise",
+      "kind": "FirstStatement",
+      "start": 176,
+      "end": 176,
+      "exported": false
+    },
+    {
+      "name": "fallbackOwnerLanes",
+      "kind": "FirstStatement",
+      "start": 177,
+      "end": 177,
+      "exported": false
+    },
+    {
+      "name": "enqueueAttendanceScan",
+      "kind": "FunctionDeclaration",
+      "start": 179,
+      "end": 252,
+      "exported": true
+    },
+    {
+      "name": "countPendingAttendanceScans",
+      "kind": "FunctionDeclaration",
+      "start": 254,
+      "end": 260,
+      "exported": true
+    },
+    {
+      "name": "listPendingAttendanceScans",
+      "kind": "FunctionDeclaration",
+      "start": 262,
+      "end": 268,
+      "exported": true
+    },
+    {
+      "name": "getNextPendingAttendanceAttemptAt",
+      "kind": "FunctionDeclaration",
+      "start": 270,
+      "end": 290,
+      "exported": true
+    },
+    {
+      "name": "removePendingAttendanceScan",
+      "kind": "FunctionDeclaration",
+      "start": 292,
+      "end": 322,
+      "exported": true
+    },
+    {
+      "name": "countRejectedAttendanceScans",
+      "kind": "FunctionDeclaration",
+      "start": 324,
+      "end": 335,
+      "exported": true
+    },
+    {
+      "name": "listRejectedAttendanceScans",
+      "kind": "FunctionDeclaration",
+      "start": 337,
+      "end": 348,
+      "exported": true
+    },
+    {
+      "name": "acknowledgeRejectedAttendanceScans",
+      "kind": "FunctionDeclaration",
+      "start": 350,
+      "end": 387,
+      "exported": true
+    },
+    {
+      "name": "syncPendingAttendanceScans",
+      "kind": "FunctionDeclaration",
+      "start": 389,
+      "end": 413,
+      "exported": true
+    },
+    {
+      "name": "countPendingAttendanceDiscardAudits",
+      "kind": "FunctionDeclaration",
+      "start": 415,
+      "end": 427,
+      "exported": true
+    },
+    {
+      "name": "AttendanceDiscardBatchResponse",
+      "kind": "InterfaceDeclaration",
+      "start": 429,
+      "end": 435,
+      "exported": false
+    },
+    {
+      "name": "syncAttendanceDiscardTombstones",
+      "kind": "FunctionDeclaration",
+      "start": 442,
+      "end": 549,
+      "exported": true
+    },
+    {
+      "name": "performPendingAttendanceScanSync",
+      "kind": "FunctionDeclaration",
+      "start": 551,
+      "end": 606,
+      "exported": false
+    },
+    {
+      "name": "AttendanceSyncChunkResult",
+      "kind": "TypeAliasDeclaration",
+      "start": 608,
+      "end": 610,
+      "exported": false
+    },
+    {
+      "name": "syncPendingAttendanceScanBatch",
+      "kind": "FunctionDeclaration",
+      "start": 612,
+      "end": 721,
+      "exported": false
+    },
+    {
+      "name": "syncLegacyPendingAttendanceScan",
+      "kind": "FunctionDeclaration",
+      "start": 723,
+      "end": 797,
+      "exported": false
+    },
+    {
+      "name": "publishAttendanceProgress",
+      "kind": "FunctionDeclaration",
+      "start": 799,
+      "end": 819,
+      "exported": false
+    },
+    {
+      "name": "isBatchCompatiblePendingScan",
+      "kind": "FunctionDeclaration",
+      "start": 821,
+      "end": 826,
+      "exported": false
+    },
+    {
+      "name": "createAttendanceScanBatchId",
+      "kind": "FunctionDeclaration",
+      "start": 828,
+      "end": 830,
+      "exported": false
+    },
+    {
+      "name": "releaseAttendanceBatchClaims",
+      "kind": "FunctionDeclaration",
+      "start": 832,
+      "end": 842,
+      "exported": false
+    },
+    {
+      "name": "emptySyncChunkResult",
+      "kind": "FunctionDeclaration",
+      "start": 844,
+      "end": 846,
+      "exported": false
+    },
+    {
+      "name": "quarantineRejectedAttendanceScan",
+      "kind": "FunctionDeclaration",
+      "start": 848,
+      "end": 876,
+      "exported": false
+    },
+    {
+      "name": "markPendingAttendanceRetry",
+      "kind": "FunctionDeclaration",
+      "start": 878,
+      "end": 908,
+      "exported": false
+    },
+    {
+      "name": "claimPendingAttendanceDelivery",
+      "kind": "FunctionDeclaration",
+      "start": 910,
+      "end": 940,
+      "exported": false
+    },
+    {
+      "name": "releasePendingAttendanceDelivery",
+      "kind": "FunctionDeclaration",
+      "start": 942,
+      "end": 960,
+      "exported": false
+    },
+    {
+      "name": "tryRecordAttendanceScan",
+      "kind": "FunctionDeclaration",
+      "start": 962,
+      "end": 1002,
+      "exported": true
+    },
+    {
+      "name": "getBrowserAttendanceQueueSafetySnapshot",
+      "kind": "FunctionDeclaration",
+      "start": 1004,
+      "end": 1007,
+      "exported": true
+    },
+    {
+      "name": "collectBrowserAttendanceQueueCloseout",
+      "kind": "FunctionDeclaration",
+      "start": 1009,
+      "end": 1025,
+      "exported": true
+    },
+    {
+      "name": "publishBrowserAttendanceQueueCloseout",
+      "kind": "FunctionDeclaration",
+      "start": 1027,
+      "end": 1054,
+      "exported": true
+    },
+    {
+      "name": "collectQueueCloseoutUnlocked",
+      "kind": "FunctionDeclaration",
+      "start": 1056,
+      "end": 1086,
+      "exported": false
+    },
+    {
+      "name": "runAttendanceQueueLogoutBoundary",
+      "kind": "FunctionDeclaration",
+      "start": 1088,
+      "end": 1110,
+      "exported": true
+    },
+    {
+      "name": "subscribeAttendanceQueueScheduleChanges",
+      "kind": "FunctionDeclaration",
+      "start": 1112,
+      "end": 1125,
+      "exported": true
+    },
+    {
+      "name": "readQueueSafetySnapshot",
+      "kind": "FunctionDeclaration",
+      "start": 1127,
+      "end": 1155,
+      "exported": false
+    },
+    {
+      "name": "purgeQueueForOwner",
+      "kind": "FunctionDeclaration",
+      "start": 1157,
+      "end": 1188,
+      "exported": false
+    },
+    {
+      "name": "listPendingForOwner",
+      "kind": "FunctionDeclaration",
+      "start": 1190,
+      "end": 1203,
+      "exported": false
+    },
+    {
+      "name": "listRejectedForOwner",
+      "kind": "FunctionDeclaration",
+      "start": 1205,
+      "end": 1217,
+      "exported": false
+    },
+    {
+      "name": "removePendingForOwner",
+      "kind": "FunctionDeclaration",
+      "start": 1219,
+      "end": 1233,
+      "exported": false
+    },
+    {
+      "name": "openDb",
+      "kind": "FunctionDeclaration",
+      "start": 1235,
+      "end": 1251,
+      "exported": false
+    },
+    {
+      "name": "listDiscardTombstonesForOwner",
+      "kind": "FunctionDeclaration",
+      "start": 1253,
+      "end": 1264,
+      "exported": false
+    },
+    {
+      "name": "updateDiscardTombstones",
+      "kind": "FunctionDeclaration",
+      "start": 1266,
+      "end": 1282,
+      "exported": false
+    },
+    {
+      "name": "purgeExpiredSynchronizedDiscardTombstones",
+      "kind": "FunctionDeclaration",
+      "start": 1284,
+      "end": 1310,
+      "exported": false
+    },
+    {
+      "name": "createDiscardTombstone",
+      "kind": "FunctionDeclaration",
+      "start": 1312,
+      "end": 1341,
+      "exported": false
+    },
+    {
+      "name": "migrateLegacyQueueRecords",
+      "kind": "FunctionDeclaration",
+      "start": 1343,
+      "end": 1368,
+      "exported": false
+    },
+    {
+      "name": "protectPendingAttendanceScan",
+      "kind": "FunctionDeclaration",
+      "start": 1370,
+      "end": 1383,
+      "exported": false
+    },
+    {
+      "name": "restorePendingAttendanceScan",
+      "kind": "FunctionDeclaration",
+      "start": 1385,
+      "end": 1421,
+      "exported": false
+    },
+    {
+      "name": "protectRejectedAttendanceScan",
+      "kind": "FunctionDeclaration",
+      "start": 1423,
+      "end": 1438,
+      "exported": false
+    },
+    {
+      "name": "restoreRejectedAttendanceScan",
+      "kind": "FunctionDeclaration",
+      "start": 1440,
+      "end": 1456,
+      "exported": false
+    },
+    {
+      "name": "pendingScanAssociatedData",
+      "kind": "FunctionDeclaration",
+      "start": 1458,
+      "end": 1471,
+      "exported": false
+    },
+    {
+      "name": "rejectedScanAssociatedData",
+      "kind": "FunctionDeclaration",
+      "start": 1473,
+      "end": 1484,
+      "exported": false
+    },
+    {
+      "name": "isProtectedBrowserValue",
+      "kind": "FunctionDeclaration",
+      "start": 1486,
+      "end": 1494,
+      "exported": false
+    },
+    {
+      "name": "recoveryContext",
+      "kind": "FunctionDeclaration",
+      "start": 1496,
+      "end": 1504,
+      "exported": false
+    },
+    {
+      "name": "normalizeRecoveryContext",
+      "kind": "FunctionDeclaration",
+      "start": 1506,
+      "end": 1527,
+      "exported": false
+    },
+    {
+      "name": "normalizePendingAttendanceScan",
+      "kind": "FunctionDeclaration",
+      "start": 1529,
+      "end": 1591,
+      "exported": false
+    },
+    {
+      "name": "normalizeRejectedAttendanceScan",
+      "kind": "FunctionDeclaration",
+      "start": 1593,
+      "end": 1618,
+      "exported": false
+    },
+    {
+      "name": "replaceMigratedRows",
+      "kind": "FunctionDeclaration",
+      "start": 1620,
+      "end": 1635,
+      "exported": false
+    },
+    {
+      "name": "readAllUnknown",
+      "kind": "FunctionDeclaration",
+      "start": 1637,
+      "end": 1640,
+      "exported": false
+    },
+    {
+      "name": "normalizedIso",
+      "kind": "FunctionDeclaration",
+      "start": 1642,
+      "end": 1645,
+      "exported": false
+    },
+    {
+      "name": "normalizedOptionalIso",
+      "kind": "FunctionDeclaration",
+      "start": 1647,
+      "end": 1650,
+      "exported": false
+    },
+    {
+      "name": "stringValue",
+      "kind": "FunctionDeclaration",
+      "start": 1652,
+      "end": 1654,
+      "exported": false
+    },
+    {
+      "name": "requestToPromise",
+      "kind": "FunctionDeclaration",
+      "start": 1656,
+      "end": 1661,
+      "exported": false
+    },
+    {
+      "name": "transactionToPromise",
+      "kind": "FunctionDeclaration",
+      "start": 1663,
+      "end": 1673,
+      "exported": false
+    },
+    {
+      "name": "isLikelyNetworkFailure",
+      "kind": "FunctionDeclaration",
+      "start": 1675,
+      "end": 1683,
+      "exported": false
+    },
+    {
+      "name": "getErrorCode",
+      "kind": "FunctionDeclaration",
+      "start": 1685,
+      "end": 1688,
+      "exported": false
+    },
+    {
+      "name": "getRetryAfterMs",
+      "kind": "FunctionDeclaration",
+      "start": 1690,
+      "end": 1696,
+      "exported": false
+    },
+    {
+      "name": "getErrorMessage",
+      "kind": "FunctionDeclaration",
+      "start": 1698,
+      "end": 1702,
+      "exported": false
+    },
+    {
+      "name": "getCurrentUserId",
+      "kind": "FunctionDeclaration",
+      "start": 1704,
+      "end": 1706,
+      "exported": false
+    },
+    {
+      "name": "requireCurrentUserId",
+      "kind": "FunctionDeclaration",
+      "start": 1708,
+      "end": 1712,
+      "exported": false
+    },
+    {
+      "name": "assertCurrentOwner",
+      "kind": "FunctionDeclaration",
+      "start": 1714,
+      "end": 1718,
+      "exported": false
+    },
+    {
+      "name": "assertAuthenticationSnapshotCurrent",
+      "kind": "FunctionDeclaration",
+      "start": 1720,
+      "end": 1730,
+      "exported": false
+    },
+    {
+      "name": "emptySyncResult",
+      "kind": "FunctionDeclaration",
+      "start": 1732,
+      "end": 1740,
+      "exported": false
+    },
+    {
+      "name": "announceScheduleChanged",
+      "kind": "FunctionDeclaration",
+      "start": 1742,
+      "end": 1750,
+      "exported": false
+    },
+    {
+      "name": "withOwnerQueueLock",
+      "kind": "FunctionDeclaration",
+      "start": 1752,
+      "end": 1757,
+      "exported": false
+    },
+    {
+      "name": "withBrowserLock",
+      "kind": "FunctionDeclaration",
+      "start": 1759,
+      "end": 1778,
+      "exported": false
+    }
+  ]
+}

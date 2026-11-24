@@ -7,7 +7,6 @@ import uuid
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
-from app.application.interfaces.passport_extraction import PassportExtractionResult
 from app.application.interfaces.passport_verification import PassportVerificationResult
 from app.application.mobile.group_capacity import GroupPassengerCapacityGuard
 from app.application.use_cases.passports.process_passport_submission_job_use_case import (
@@ -50,7 +49,6 @@ class PassportProcessingReliabilityTests(unittest.IsolatedAsyncioTestCase):
             "process_passport_submission_job_use_case.get_settings",
             return_value=SimpleNamespace(
                 processing_job_timeout_seconds=60,
-                passport_local_extraction_timeout_seconds=0.02,
                 gemini_timeout_seconds=30.0,
             ),
         )
@@ -76,7 +74,6 @@ class PassportProcessingReliabilityTests(unittest.IsolatedAsyncioTestCase):
         )
         self.passport_repo = AsyncMock()
         self.storage_repo = AsyncMock()
-        self.extraction_service = AsyncMock()
         self.job_repo = AsyncMock()
         self.job_repo.claim_running.return_value = (self.job, True)
         self.job_repo.get.return_value = self.job
@@ -91,7 +88,6 @@ class PassportProcessingReliabilityTests(unittest.IsolatedAsyncioTestCase):
         return ProcessPassportSubmissionJobUseCase(
             passport_repo=self.passport_repo,
             storage_repo=self.storage_repo,
-            extraction_service=self.extraction_service,
             job_repo=self.job_repo,
             allow_retry=allow_retry,
             verification_service=verification_service,
@@ -125,7 +121,6 @@ class PassportProcessingReliabilityTests(unittest.IsolatedAsyncioTestCase):
             extracted_fields={},
             timeout_seconds=30.0,
         )
-        self.extraction_service.extract.assert_not_awaited()
         saved = self.passport_repo.apply_extraction_result.await_args.kwargs
         self.assertEqual(saved["extracted_fields"]["passport_number"], "P1234567")
         self.assertEqual(saved["confidence"], 0.1011)
@@ -135,11 +130,6 @@ class PassportProcessingReliabilityTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_initial_job_sends_stored_front_image_to_ai_verification(self) -> None:
         self.storage_repo.get_file.return_value = b"canonical-front-image"
-        self.extraction_service.extract.return_value = PassportExtractionResult(
-            extracted_fields={},
-            overall_confidence=0.0,
-            confidence_score={"overall": 0.0},
-        )
         verification_service = AsyncMock()
         verification_service.verify.return_value = PassportVerificationResult(
             merged_fields={
@@ -179,7 +169,6 @@ class PassportProcessingReliabilityTests(unittest.IsolatedAsyncioTestCase):
             "gemini_image_primary",
         )
         self.assertFalse(saved["confidence_score"]["pipeline"]["local_ocr_mrz_invoked"])
-        self.extraction_service.extract.assert_not_awaited()
         self.job_repo.mark_succeeded.assert_awaited_once_with(self.job_id)
 
     def test_verified_absent_surname_counts_toward_gemini_field_coverage(
@@ -226,11 +215,6 @@ class PassportProcessingReliabilityTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_wrong_document_is_persisted_as_safe_recapture_failure(self) -> None:
         self.storage_repo.get_file.return_value = b"not-a-passport"
-        self.extraction_service.extract.return_value = PassportExtractionResult(
-            extracted_fields={},
-            overall_confidence=0.0,
-            confidence_score={"overall": 0.0},
-        )
         verification_service = AsyncMock()
         classification = {
             "status": "wrong_document",
@@ -266,11 +250,6 @@ class PassportProcessingReliabilityTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_lower_confidence_wrong_document_message_stays_generic(self) -> None:
         self.storage_repo.get_file.return_value = b"not-a-passport"
-        self.extraction_service.extract.return_value = PassportExtractionResult(
-            extracted_fields={},
-            overall_confidence=0.0,
-            confidence_score={"overall": 0.0},
-        )
         verification_service = AsyncMock()
         classification = {
             "status": "wrong_document",
@@ -306,7 +285,6 @@ class PassportProcessingReliabilityTests(unittest.IsolatedAsyncioTestCase):
             )
 
         self.storage_repo.get_file.assert_not_awaited()
-        self.extraction_service.extract.assert_not_awaited()
         self.passport_repo.apply_extraction_result.assert_not_awaited()
         self.job_repo.mark_retryable_failure.assert_not_awaited()
 
@@ -324,12 +302,6 @@ class PassportProcessingReliabilityTests(unittest.IsolatedAsyncioTestCase):
             (recovered_job, True),
         ]
         self.storage_repo.get_file.return_value = b"front-image"
-        self.extraction_service.extract.return_value = PassportExtractionResult(
-            extracted_fields={"passport_number": "P1234567"},
-            overall_confidence=0.91,
-            confidence_score={"overall": 0.91},
-            mrz_raw="MRZ",
-        )
         self.passport_repo.apply_extraction_result.return_value = self.submission
 
         with self.assertRaises(ProcessingJobBusy):
@@ -343,16 +315,12 @@ class PassportProcessingReliabilityTests(unittest.IsolatedAsyncioTestCase):
         )
 
         self.assertEqual(self.job.attempts, 1)
-        self.extraction_service.extract.assert_not_awaited()
         self.job_repo.mark_succeeded.assert_awaited_once_with(self.job_id)
         self.job_repo.mark_retryable_failure.assert_not_awaited()
 
-    async def test_dormant_local_extractor_is_not_called_when_gemini_fails(self) -> None:
+    async def test_gemini_failure_persists_safe_recapture_without_local_fallback(self) -> None:
         self.storage_repo.get_file.return_value = b"canonical-front-image"
 
-        self.extraction_service.extract.side_effect = AssertionError(
-            "local OCR/MRZ must remain dormant"
-        )
         verification_service = AsyncMock()
         verification_service.verify.return_value = PassportVerificationResult(
             merged_fields={
@@ -369,7 +337,6 @@ class PassportProcessingReliabilityTests(unittest.IsolatedAsyncioTestCase):
             job_id=self.job_id,
         )
 
-        self.extraction_service.extract.assert_not_awaited()
         self.job_repo.mark_retryable_failure.assert_not_awaited()
         self.passport_repo.apply_extraction_result.assert_not_awaited()
         self.passport_repo.apply_extraction_failure.assert_awaited_once()
@@ -406,7 +373,6 @@ class PassportProcessingReliabilityTests(unittest.IsolatedAsyncioTestCase):
             job_id=self.job_id,
         )
 
-        self.extraction_service.extract.assert_not_awaited()
         self.passport_repo.apply_extraction_result.assert_not_awaited()
         self.passport_repo.apply_extraction_failure.assert_awaited_once_with(
             submission_id=self.submission_id,
@@ -436,18 +402,12 @@ class PassportProcessingReliabilityTests(unittest.IsolatedAsyncioTestCase):
             with self.subTest(status=status):
                 self.passport_repo.reset_mock()
                 self.storage_repo.reset_mock()
-                self.extraction_service.reset_mock()
                 self.job_repo.reset_mock()
                 self.job_repo.claim_running.return_value = (self.job, True)
                 self.job_repo.get.return_value = self.job
                 self.passport_repo.get_by_id.return_value = self.submission
                 self.passport_repo.apply_extraction_failure.return_value = self.submission
                 self.storage_repo.get_file.return_value = b"unclassified-image"
-                self.extraction_service.extract.return_value = PassportExtractionResult(
-                    extracted_fields={"passport_number": "LOCAL123"},
-                    overall_confidence=0.92,
-                    confidence_score={"overall": 0.92},
-                )
                 verification_service = AsyncMock()
                 classification = {"status": status, "available": False}
                 verification_service.verify.return_value = PassportVerificationResult(
@@ -489,11 +449,6 @@ class PassportProcessingReliabilityTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_missing_verifier_fails_closed(self) -> None:
         self.storage_repo.get_file.return_value = b"unclassified-image"
-        self.extraction_service.extract.return_value = PassportExtractionResult(
-            extracted_fields={"passport_number": "LOCAL123"},
-            overall_confidence=0.92,
-            confidence_score={"overall": 0.92},
-        )
         self.passport_repo.apply_extraction_failure.return_value = self.submission
 
         await self._use_case(verification_service=None).execute(
@@ -511,11 +466,6 @@ class PassportProcessingReliabilityTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_stale_extraction_result_is_discarded(self) -> None:
         self.storage_repo.get_file.return_value = b"front-image"
-        self.extraction_service.extract.return_value = PassportExtractionResult(
-            extracted_fields={"surname": "STALE"},
-            overall_confidence=0.8,
-            confidence_score={"overall": 0.8},
-        )
         self.passport_repo.apply_extraction_result.return_value = None
 
         await self._use_case().execute(

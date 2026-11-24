@@ -1,0 +1,29 @@
+[
+  {
+    "path": "scripts/test_registry_preflight.py",
+    "sha256": "b4a1664590ec6756e936e2c357a12e891ed0500ced09193bcaa87cf3120057a7",
+    "physical_lines": 385,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole385lines. Docker credential helper precedence/registry-only stdin/colon-safe inline auth with no fallback or echo, exact GHCR challenge/service/token validation and authenticated registry404 versus denial/unknown, digest readback, no redirects, archive/SBOM/source/attestation-bound promotion and resume without overwrite/tag/push reviewed. Temporary synthetic config/tars plus patched HTTP/Docker/gh functions only; no real credential read, registry publication, attestation verification or deployment. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "scripts/test_qualification_seed_registry.py",
+    "sha256": "aaa80c228efbc2a16efaaccf867438d85f1ad2c7ecc111a0a5170dbc9701f73f",
+    "physical_lines": 51,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole51lines. Standalone synthetic-environment seeder import in fresh unrelated cwd binds complete ORM relationships/foreign-key resolution without app import/seed writes reviewed. Authored subprocess test source only; no current subprocess, database or environment-secret read. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "scripts/test_qualification_storage_identity.py",
+    "sha256": "11edc6afadd3c4b9b33319ca3d949cd76f93ca056656eaa90191ba9c3baeed9a",
+    "physical_lines": 82,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole82lines. Private identity staged file ownership helper gets exact immutable provider image, network-none/root-only staged bind, no secret command args, repeat atomic replacement without reading previous bytes, failed helper retains original/cleans stage, symlink/mutable-image refusal and Windows no Unix chown reviewed. Temporary synthetic files and mocked platform/Docker only, no provider, real mount or ownership mutation now. Complete current physical test-source read; no new execution/source fix/validated defect."
+  }
+]

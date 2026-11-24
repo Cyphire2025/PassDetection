@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import uuid
+from contextlib import nullcontext
 from datetime import UTC, datetime
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from httpx import ASGITransport, AsyncClient
 from starlette.requests import Request
 
@@ -17,7 +18,12 @@ from app.application.mobile.announcement_notification_status import (
 )
 from app.domain.entities.entities import UserRole
 from app.infrastructure.database.session import get_db_session
-from app.presentation.api.v1.routes import gc_app_content as routes
+from app.presentation.api.v1.routes import (
+    gc_app_announcement_publication,
+    gc_app_common_publication,
+    gc_app_itineraries,
+)
+from app.presentation.api.v1.routes import gc_app_announcements as routes
 from app.presentation.api.v1.schemas.announcement_notification_status import (
     AnnouncementNotificationStatusResponse,
 )
@@ -139,7 +145,7 @@ async def test_notification_diagnostics_keeps_tenant_and_announcement_scope() ->
     database = MagicMock(execute=AsyncMock())
     # Use the actual scope helper: a caller-provided foreign agency fails
     # before any query or summary is allowed.
-    with pytest.raises(routes.HTTPException) as denied:
+    with pytest.raises(HTTPException) as denied:
         await routes.get_announcement_notification_status(
             group_id, announcement_id, agency_id=uuid.uuid4(), current_user=user, session=database
         )
@@ -150,7 +156,7 @@ async def test_notification_diagnostics_keeps_tenant_and_announcement_scope() ->
     access_result.first.return_value = (access, SimpleNamespace())
     missing_announcement.scalar_one_or_none.return_value = None
     database.execute.side_effect = [access_result, missing_announcement]
-    with pytest.raises(routes.HTTPException) as missing:
+    with pytest.raises(HTTPException) as missing:
         await routes.get_announcement_notification_status(
             group_id, announcement_id, current_user=user, session=database
         )
@@ -190,21 +196,30 @@ async def test_unpublishing_content_emits_delete_and_preserves_access_generation
     request = Request({"type": "http", "method": "POST", "path": "/", "headers": []})
     journal = AsyncMock()
     cancel = AsyncMock()
+    owner = {
+        "announcement": gc_app_announcement_publication,
+        "common_document": gc_app_common_publication,
+        "itinerary": gc_app_itineraries,
+    }[kind]
     with (
         patch.object(
-            routes, "_admin_access_context", AsyncMock(return_value=(access, SimpleNamespace()))
+            owner, "_admin_access_context", AsyncMock(return_value=(access, SimpleNamespace()))
         ),
-        patch.object(routes, getter, AsyncMock(return_value=item)),
+        patch.object(owner, getter, AsyncMock(return_value=item)),
         patch.object(
-            routes,
+            owner,
             responder,
             AsyncMock(return_value={}) if kind == "itinerary" else MagicMock(return_value={}),
         ),
-        patch.object(routes, "append_mobile_sync_change", journal),
-        patch.object(routes, "cancel_announcement_notifications", cancel),
-        patch.object(routes, "_content_audit", AsyncMock()),
+        patch.object(owner, "append_mobile_sync_change", journal),
+        (
+            patch.object(owner, "cancel_announcement_notifications", cancel)
+            if kind == "announcement"
+            else nullcontext()
+        ),
+        patch.object(owner, "_content_audit", AsyncMock()),
     ):
-        await getattr(routes, f"unpublish_{kind}")(
+        await getattr(owner, f"unpublish_{kind}")(
             group_id=access.group_id,
             **{id_argument: item.id},
             request=request,

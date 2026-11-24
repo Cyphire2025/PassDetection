@@ -1,8 +1,9 @@
-import { expect, it, vi } from "vitest";
+import { beforeEach, expect, it, vi } from "vitest";
 import apiClient from "@/lib/api/client";
 import { mcpApi } from "./mcp.api";
 
 vi.mock("@/lib/api/client", () => ({ default: { patch: vi.fn(), post: vi.fn(), get: vi.fn(), put: vi.fn(), delete: vi.fn() } }));
+beforeEach(() => vi.clearAllMocks());
 it("sends the isolated enable/disable update to the encoded connection endpoint", async () => {
   vi.mocked(apiClient.patch).mockResolvedValue({ data: { id: "a/b", enabled: false, status: "disabled" } });
   const result = await mcpApi.setConnectionAccess({ id: "a/b", enabled: false });
@@ -25,6 +26,8 @@ it("deletes the encoded connection through dashboard MFA handling without a body
   const result = await mcpApi.deleteConnection("grant/a");
   expect(apiClient.delete).toHaveBeenCalledWith("/api/v1/admin/mcp/connections/grant%2Fa");
   expect(result).toEqual({ deleted: true });
+  expect(apiClient.post).not.toHaveBeenCalled();
+  expect(apiClient.patch).not.toHaveBeenCalled();
 });
 it("requires an explicit confirmed deletion before changing cached device state", async () => {
   vi.mocked(apiClient.delete).mockResolvedValue({ data: { deleted: false } });

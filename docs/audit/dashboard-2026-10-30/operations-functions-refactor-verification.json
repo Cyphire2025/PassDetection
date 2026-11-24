@@ -1,0 +1,195 @@
+{
+  "scope": "Coherent backend function-level Rooming/QR/closeout architecture and measured projection-work tranche. Original85-record checkpoint historical; explicit current93-record tracker supersedes exact changedpaths only. No Codex Security scans/tools/native mobile application edits.",
+  "source": [
+    {
+      "path": "backend/app/infrastructure/repositories/attendance_closeout_policy.py",
+      "sha256": "d6cd82b1f50958861dcd2dcef714285f37fd2159eedde7410d52ae1637c3af83",
+      "lines": 131,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete physical original/current read. Types/freshness/source-query/index/assembly responsibilities separated. Immutable class/UTC ASTs, whole repository publication/constructor/status ASTs and source query/require_work ASTs preserved; public signatures and call-time classifier seam retained. Existing admission deliberately unchanged. Actual evidence scanning1056\u219264activity-key reads at16activities/64rows, same4queries and outputs; extra index memoryO(P+C).202policy+16runtime/legacy/query parity cases, realSQLite/MCP regressions separately bound."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/attendance_closeout_projection.py",
+      "sha256": "2d7edea3708fa6a6e0a076847c3d1c0adcbfb210b079e3cb9b3de423572670a3",
+      "lines": 150,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete physical original/current read. Types/freshness/source-query/index/assembly responsibilities separated. Immutable class/UTC ASTs, whole repository publication/constructor/status ASTs and source query/require_work ASTs preserved; public signatures and call-time classifier seam retained. Existing admission deliberately unchanged. Actual evidence scanning1056\u219264activity-key reads at16activities/64rows, same4queries and outputs; extra index memoryO(P+C).202policy+16runtime/legacy/query parity cases, realSQLite/MCP regressions separately bound."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/attendance_closeout_repository.py",
+      "sha256": "d9e49db4b311e5be8e8232cdf0edb6fdefef6d5fead54c5e79027bf99387f0ea",
+      "lines": 176,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete physical original/current read. Types/freshness/source-query/index/assembly responsibilities separated. Immutable class/UTC ASTs, whole repository publication/constructor/status ASTs and source query/require_work ASTs preserved; public signatures and call-time classifier seam retained. Existing admission deliberately unchanged. Actual evidence scanning1056\u219264activity-key reads at16activities/64rows, same4queries and outputs; extra index memoryO(P+C).202policy+16runtime/legacy/query parity cases, realSQLite/MCP regressions separately bound."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/attendance_closeout_sources.py",
+      "sha256": "ccf25a007b38a98b7d2acdb3deed4e25209eccb1b3804e3ec9858772760bfca8",
+      "lines": 167,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete physical original/current read. Types/freshness/source-query/index/assembly responsibilities separated. Immutable class/UTC ASTs, whole repository publication/constructor/status ASTs and source query/require_work ASTs preserved; public signatures and call-time classifier seam retained. Existing admission deliberately unchanged. Actual evidence scanning1056\u219264activity-key reads at16activities/64rows, same4queries and outputs; extra index memoryO(P+C).202policy+16runtime/legacy/query parity cases, realSQLite/MCP regressions separately bound."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/attendance_closeout_types.py",
+      "sha256": "a10e016c550c601ea050f6c8675d5ea38ac7e5b35a0b32782c3f3166bb241b35",
+      "lines": 73,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete physical original/current read. Types/freshness/source-query/index/assembly responsibilities separated. Immutable class/UTC ASTs, whole repository publication/constructor/status ASTs and source query/require_work ASTs preserved; public signatures and call-time classifier seam retained. Existing admission deliberately unchanged. Actual evidence scanning1056\u219264activity-key reads at16activities/64rows, same4queries and outputs; extra index memoryO(P+C).202policy+16runtime/legacy/query parity cases, realSQLite/MCP regressions separately bound."
+    },
+    {
+      "path": "backend/app/infrastructure/rooming/priority_context_fields.py",
+      "sha256": "9911be5d26148642eee9615b75dd02e8da8fb7e8eb0347a0337a598939fa141c",
+      "lines": 47,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete physical original/current read. Context builder46\u219213 through fixed tenant-scoped source queries, private grouping descriptor selection and shared value/merge stages. Context class stays originalmodule; matcher/conversion globals stay original call-time boundary. Exact query/lock/value/merge AST ranges and160full-output/SQL-parity cases preserve behavior, including local/catalog-only/no-linked/required-field inputs. No matching/privacy/validator changes."
+    },
+    {
+      "path": "backend/app/infrastructure/rooming/priority_context_sources.py",
+      "sha256": "afaa718cc11e807420568948a1fbe6b2e8c0d18093d139edc1c0dd5eafded53d",
+      "lines": 71,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete physical original/current read. Context builder46\u219213 through fixed tenant-scoped source queries, private grouping descriptor selection and shared value/merge stages. Context class stays originalmodule; matcher/conversion globals stay original call-time boundary. Exact query/lock/value/merge AST ranges and160full-output/SQL-parity cases preserve behavior, including local/catalog-only/no-linked/required-field inputs. No matching/privacy/validator changes."
+    },
+    {
+      "path": "backend/app/infrastructure/rooming/priority_fields.py",
+      "sha256": "82c947d1e7ffdcaeb6058cf8e441fbd0eb7a24bc39ccc9bd7a2f1bffb69ef205",
+      "lines": 146,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete physical original/current read. Context builder46\u219213 through fixed tenant-scoped source queries, private grouping descriptor selection and shared value/merge stages. Context class stays originalmodule; matcher/conversion globals stay original call-time boundary. Exact query/lock/value/merge AST ranges and160full-output/SQL-parity cases preserve behavior, including local/catalog-only/no-linked/required-field inputs. No matching/privacy/validator changes."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_qr_delivery_preview.py",
+      "sha256": "58a71834a0c04725243e69ce2ea10e28d408776ec01c2ba239e90fe1daff7031",
+      "lines": 152,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete physical original/current read. Preview48\u219213 with pure ordered eligibility guards(max14), explicit summary updates and unchanged fixed source queries/response projections/configuration tail. Original route settings/qr_status call-time inputs preserved.504full-output/query parity cases preserve missing/inactive/ambiguous/welcome/accepted/in-progress/unknown/failed precedence; no new send capability or changed receipt behavior."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_qr_eligibility.py",
+      "sha256": "a2c72f9850ae97c39a02170fc8ee8e6567722e9be9cfa30a019a2d82efe41f5f",
+      "lines": 103,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete physical original/current read. Preview48\u219213 with pure ordered eligibility guards(max14), explicit summary updates and unchanged fixed source queries/response projections/configuration tail. Original route settings/qr_status call-time inputs preserved.504full-output/query parity cases preserve missing/inactive/ambiguous/welcome/accepted/in-progress/unknown/failed precedence; no new send capability or changed receipt behavior."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_qr_preview_sources.py",
+      "sha256": "75e1b3919c7dd0946f5c4ec3635a65ea32efa369145633a3349ed925f4867845",
+      "lines": 65,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete physical original/current read. Preview48\u219213 with pure ordered eligibility guards(max14), explicit summary updates and unchanged fixed source queries/response projections/configuration tail. Original route settings/qr_status call-time inputs preserved.504full-output/query parity cases preserve missing/inactive/ambiguous/welcome/accepted/in-progress/unknown/failed precedence; no new send capability or changed receipt behavior."
+    }
+  ],
+  "test_source": {
+    "path": "backend/tests/unit/infrastructure/test_attendance_closeout_projection_work.py",
+    "sha256": "12ab9cd7847a6293b557c3281066798608f5a0a9d8358c05a2201bcd8374096f"
+  },
+  "measured_complexity": {
+    "Rooming_context_builder": {
+      "before": 46,
+      "after": 13
+    },
+    "QR_preview_builder": {
+      "before": 48,
+      "after": 10,
+      "after_owner_maximum": 13,
+      "new_eligibility_maximum": 14
+    },
+    "closeout_classifier": {
+      "before": 23,
+      "new_policy_maximum": 14
+    },
+    "closeout_statuses": {
+      "before": 24,
+      "after": 4,
+      "new_assembly_maximum": 7
+    },
+    "closeout_repository_maximum": 7,
+    "note": "Exact deterministic per-function measurements in measured candidates/structural proof are authoritative; no preceding ceiling raised.",
+    "exact_changed_function_maps": {
+      "backend/app/infrastructure/rooming/priority_fields.py": {
+        "_passenger_values": 3,
+        "_merge_recipient_values": 6,
+        "build_rooming_priority_context": 13
+      },
+      "backend/app/presentation/api/v1/routes/tour_operations_qr_delivery_preview.py": {
+        "_preview_recipient": 13,
+        "build_qr_delivery_preview": 10
+      },
+      "backend/app/infrastructure/repositories/attendance_closeout_repository.py": {
+        "classify_attendance_closeout": 1,
+        "__init__": 1,
+        "publish": 7,
+        "statuses": 4,
+        "status": 1
+      }
+    }
+  },
+  "work_evidence": "Actual public repository path with fixedSQLresults:1056\u219264activity-key reads at16activities/32participants+32checkpoints,same4queries,independently asserted exact counts/order/ages. O(S*(P+C)) repeated source scans replaced byO(P+C) indexing,with required per-activity assignment/output/sort work retained andO(P+C)additional reference-index memory. Existing require_work admission unchanged.",
+  "preserved": "Tenant/group filters,FORUPDATEread locks,capacity/require_work validators,freshnessTTL/exactboundaries,legacy missing-evidence handling,original publicationtransactionAST,privateQR welcome/ambiguity/token gate precedence,all response fields andoriginalcall-time matcher/settings/status/classifier seams. No newworkflow,pagination,response truncation,provider send,schema,migration orVPSsetup.",
+  "verification": {
+    "affected_pytest_cases": 197,
+    "branch_coverage": true,
+    "original_current_same_output_cases": {
+      "rooming": 160,
+      "closeout_policy": 202,
+      "closeout_runtime_legacy": 16,
+      "qr": 504,
+      "total": 882
+    },
+    "static": "11runtimeowners configuredbackend mypy/Ruff/architecture pass;one newtest import-format error corrected andRuff rechecked,not a runtime failure.",
+    "current_api_integration": "Root subsequently restored complete+mobile reviewed API snapshots unchanged; exact root logs bound here. This lane did not repeat broadAPI63-suite/82schemacomparisons. Copyright probe false diffs corrected using explicitUTF8; no copyright/runtime/snapshotedit.",
+    "service_limits": "Isolated SQLite/FastAPI tests and syntheticSQL/provider/queuefixtures;parity uses PostgreSQLcompiledqueries,notlive PostgreSQLconcurrency/throughput,Redis/broker/privateobjectstorage certification. No fullbackend/frontendsuite/build repeated."
+  },
+  "candidates": {
+    "count": 22,
+    "supersedes": [
+      "rooming-priority-budget-candidates.json",
+      "qr-delivery-route-budget-candidates.json",
+      "attendance-operations-budget-candidates.json"
+    ],
+    "prior_candidate_paths": 14,
+    "new_owners": 8,
+    "prior_caps_floors_preserved_or_strictly_improved": true,
+    "central_budget_entry_count_at_seal": 325,
+    "central_budget_sha256_at_seal": "9d53fbb5f1b26026a6314eeac6397f355f7d75b1cc1591aac57e08d2004849fe",
+    "integration_owner": "ai_extraction;no centralbudget/MCP writes by manual_security"
+  },
+  "remaining": "Wholeproject audit remains open. Nativeapp excluded; legacyoverview/savedplan/materialization/missingQRfanout andotherunassignedfunctiondebt remain without newpagination/workflow policy. MyPhotos lock-order correction is ownedAI,independent source receipt historical until finalreread.",
+  "artifacts": {
+    "operations-functions-budget-candidates.json": "e31d77290f025198126e6fd178217e69991341a384ed1cc7cde8d0b4c765f993",
+    "operations-functions-reviewed-files.json": "106eecf1a08a19d5a9ce4534642231ca942e889457ffcc132c155f6339803a64",
+    "operations-functions-structural-proof.json": "6ed13d5763984ccd00de72acea27e9a22daef4a74eb7eeea794dcc7cadc656b4",
+    "operations-functions-parity-proof.json": "59291599e9394dc3b74f8bd79723f7808a60ed66111e73397b7168fde0222c73",
+    "operations-functions-work-proof.json": "9ec468255e9bd2c18ab3883375616a549b02250c88e332471d469fdfedae528d",
+    "operations-functions-coverage.json": "4a73e2c04bfcfff9a2a4b8fe9ffe0b4e9fc5f910ac5864f72d68fbd5411b8259",
+    "operations-functions-coverage.xml": "8b4c8caa4e8ba4a32ebdf5c5a0a0a5a9ed1c08dc8ff37799179c1b55e83a906e",
+    "operations-functions-closeout-work-before.xml": "c4e85a238af713dab56a588594adbadf9ef2d6eb05b33c66167a81ca6f11fa04",
+    "operations-functions-affected-tests.xml": "6354bacb82ff653005c724d89e3e9b1cb857160f3312bccd87c7d27a96e2ec29",
+    "operations-functions-before-reviewed-files.json": "f3f04548f4e197dfd4b383d8527fbcc8f6f456830a0b29e23d6cdc91f4c7b8ca",
+    "operations-functions-before-review-progress.json": "1a9faa2260f527347f95acb50d2a15f11a3794bc60c23fa4c2d695c952bf8f68",
+    "group-schema-restored-api-contract.txt": "2915ff948d9df9f416031a0e1256a14fa9c04d08a26dbf09b2f3ccfff3be9bb6",
+    "group-schema-restored-mobile-contract.txt": "105b01148caabae3108fa7be123122c045ccbfb394db218dd6dd3960175e169b"
+  }
+}

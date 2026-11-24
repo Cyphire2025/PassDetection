@@ -1,0 +1,72 @@
+{
+  "files": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_composer.py",
+      "sha256": "2979e690f4aac0945b54ed366e5a85c12d6d9a4350416b7c85d0e5a5a3daee31",
+      "physical_lines": 378,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "needs-follow-up",
+      "notes": "Complete current physical source read carried through the isolated5-line empty-audience guard; all old lines were physically read at the authority checkpoint, the inserted guard physically reread. Composer architecture remains open; current whole-module coverage not claimed complete."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_update_preview_audience.py",
+      "sha256": "89fa9e885c463908b921d384b13ce5a0bd47cfca9e4f8a64a22e585e696596fc",
+      "physical_lines": 82,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete physical source read. Actual linked-group update filter and preview caller closure; no shared resolver/provider policy change. Existing root focused records remain history; source read is separate from full feature/service qualification."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_reminder_audience.py",
+      "sha256": "0e9199e40aff3990a9eff3c033fafd17c2b5aec307894d1529bcb8c653410151",
+      "physical_lines": 189,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete physical source read. Actual linked-group update filter and preview caller closure; no shared resolver/provider policy change. Existing root focused records remain history; source read is separate from full feature/service qualification."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_update_audience.py",
+      "sha256": "a54a210a82d63d0765053d8efe444f2589e2d91cd2ed7171ba69a696eb1aea9a",
+      "physical_lines": 155,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete physical source read. Actual linked-group update filter and preview caller closure; no shared resolver/provider policy change. Existing root focused records remain history; source read is separate from full feature/service qualification."
+    }
+  ],
+  "existing_current_full_dependencies": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_preview_recipient.py",
+      "sha256": "52e0c49a5e962b754ad6dfb760bdb511c2600cb4f8018b29f5d766392ae5a15e",
+      "ledger": "docs/audit/dashboard-2026-10-30/small-backend-cohort-01-reviewed-files.json",
+      "credit": "Root already current/full; closure reread adds no unique first-read credit."
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/composer-draft.ts",
+      "ledger": "docs/audit/dashboard-2026-10-30/message-composer-reviewed-files.json",
+      "credit": "Existing current full ledger reused; no frontend edits or first-read credit."
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/composer.api.ts",
+      "ledger": "docs/audit/dashboard-2026-10-30/whatsapp-current-reviewed-files.json",
+      "credit": "Existing current full ledger reused; no frontend edits or first-read credit."
+    }
+  ],
+  "focused_context_not_full": [
+    {
+      "path": "backend/tests/integration/test_whatsapp_workspace.py",
+      "scope": "Lines1\u2013120 and261\u2013375 only: fixture plus existing update resolver proof; no whole-file credit."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/template_settings.py",
+      "scope": "Lines49\u2013113 only: actual memo/snapshot/configured-template seam; no whole-file credit."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/whatsapp_schemas.py",
+      "scope": "Lines211\u2013301 only: actual valid update/preview request contract; no whole-file credit."
+    }
+  ]
+}

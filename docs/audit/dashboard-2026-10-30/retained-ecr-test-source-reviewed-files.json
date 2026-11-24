@@ -1,0 +1,38 @@
+[
+  {
+    "path": "backend/tests/unit/infrastructure/test_ecr_readiness.py",
+    "sha256": "bf0b8b8f98057f268c3e87d07424cf07bed1ec05b0efe97fccb8743f86d597d7",
+    "physical_lines": 54,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole54lines. Durable queued/processing/retry/failure backlog and age trafficgate, missingoptional ledger leaves outertransaction usable, missingworker notavailable evenempty queue reviewed. IsolatedSQLite testsource with manualtable removal only in fixture, not service/probe execution now. Complete current physical test-source read; no new execution/sourcefix/validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_ecr_runtime.py",
+    "sha256": "b86e04b94259e6f1ca0c68847e4fd259521166f12956f7db627a5e61c45384f0",
+    "physical_lines": 774,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole774lines. Actual fileSQLite lease/token/expiry staleworker fences, completed versus interrupted items, finite8lane/32itemdrain and heartbeat cancellation, storedsize/hash admission, shared pacing/failclosedRedis and client/lease cleanup, durable continuation/recovery, ownprefix retainedsources/orphan age,1000item duplicatefilename accounting with serialized shortDB fixture and 501oldbatch retention reachability reviewed. Synthetic provider/Redis/storage; explicit SQLite seriallock models rather than qualifiesPG lock/service semantics or throughput. No current runtime execution. Complete current physical test-source read; no new execution/sourcefix/validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_gemini_ecr_service.py",
+    "sha256": "1bd8d9f770f33f284ed411d8d4ddc2acab765bc389f70fad99a7351c92f77e78",
+    "physical_lines": 573,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole573lines. Strict compact JSON/backpage/readability verdict, malformed/truncated/duplicate/extrafield refusal, actualPillow pixelmime/EXIFrotation/resizing/metadata removal/white transparency and decodercontext thread-cap controls, cancellation slotownership, perattempt pacing/retry/deadline/HTTPstatus/no redirects, boundedresponses/config and usage/thought sanitization reviewed. Real synthetic images/heldthreads/MockHTTP design only, no Gemini/network/kernel workload run now; prompt source requirements not model compliance certification. Complete current physical test-source read; no new execution/sourcefix/validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_passport_ecr_runtime.py",
+    "sha256": "a3f791ae460bd86332481349968b39689ba82a3355b1a1fbd424f537d445d1b1",
+    "physical_lines": 604,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole604lines. Sourceconfig/backpage/finalized admission, dedicatedstoredback classification, independent-session disable afterquota/betweenretry, sourcekey/generation/expiredlease/currentexport snapshot fences, cumulativeprovider and jobbudgets acrossrecovery, samekey checksum and Redis/nativecapacity refund, poisonitem isolation, repeatedcancel shieldedrelease, rollback staging/recovery eligibility/pagination/drain/continuation and sharedqueuepacer reviewed. SQLite serializedshorttransactions and fakeprovider/model response, not PGconcurrency/liveaccuracy/nativecapacity execution. Complete current physical test-source read; no new execution/sourcefix/validated defect."
+  }
+]

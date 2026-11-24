@@ -1,0 +1,5 @@
+{
+  "frontend/features/branding/components/group-image-dialog.tsx": "da64396862a67e55104ecc8cc602d25f22c12975f58bcbb56c4ddaba0a320230",
+  "frontend/features/branding/api/branding-images.api.ts": "2c6b39282474e505aa23f380693e910d59479cb2e5fbfb4578be862e24d20316",
+  "frontend/features/branding/components/group-image-save-authority.test.tsx": "b50182c14c1b52d90fb11c8187f5995b148043e6d9bf6e1367b5d0f51c616485"
+}

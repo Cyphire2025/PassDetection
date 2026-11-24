@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="1.843" timestamp="2026-10-31T02:19:10.500460+05:30" hostname="Nipun5070ti"><testcase classname="tests.unit.infrastructure.test_whatsapp_worker_diagnostic_privacy" name="test_unexpected_provider_error_is_safe_and_never_automatically_resent" time="0.849"><failure message="AssertionError: assert 'synthetic-p...ernal-detail' not in 'WhatsApp de...ernal-detail'&#10;  &#10;  'synthetic-passport...TE\nexternal-detail' is contained here:&#10;    WhatsApp delivery outcome is unknown: synthetic-passport-P1234567-token-PRIVATE&#10;    external-detail">db_session = &lt;sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000001B98AA9A650&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001B98C9D32D0&gt;
+
+    async def test_unexpected_provider_error_is_safe_and_never_automatically_resent(
+        db_session, monkeypatch,
+    ):
+        batch_id, _ = await _seed_batch(db_session, ["queued"])
+        secret = "synthetic-passport-P1234567-token-PRIVATE\nexternal-detail"
+    
+        @asynccontextmanager
+        async def session_factory():
+            yield db_session
+    
+        send = AsyncMock(side_effect=RuntimeError(secret))
+        monkeypatch.setattr(worker_runtime, "AsyncSessionFactory", session_factory)
+        monkeypatch.setattr(worker_runtime, "send_whatsapp_template", send)
+        options = dict(
+            batch_id=str(batch_id), message_type="welcome",
+            message_content="Synthetic update", passport_link=None,
+        )
+    
+        await worker_runtime.run_whatsapp_broadcast(**options)
+        await worker_runtime.run_whatsapp_broadcast(**options)
+    
+        saved = (await db_session.execute(select(WhatsAppMessageLogModel))).scalar_one()
+        assert saved.status == "delivery_unknown"
+        send.assert_awaited_once()
+&gt;       assert secret not in saved.error_message
+E       AssertionError: assert 'synthetic-p...ernal-detail' not in 'WhatsApp de...ernal-detail'
+E         
+E         'synthetic-passport...TE\nexternal-detail' is contained here:
+E           WhatsApp delivery outcome is unknown: synthetic-passport-P1234567-token-PRIVATE
+E           external-detail
+
+tests\unit\infrastructure\test_whatsapp_worker_diagnostic_privacy.py:37: AssertionError</failure></testcase></testsuite></testsuites>

@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import io
-import re
 import uuid
 from datetime import UTC, date, datetime
 from typing import Any
@@ -17,9 +16,9 @@ from app.domain.value_objects.personnel_codes import (
     prefixed_staff_code,
 )
 from app.infrastructure.export.passport_excel_exporter import passport_age_group
+from app.infrastructure.export.workbook_values import excel_date_value as _excel_date
+from app.infrastructure.export.workbook_values import safe_xlsx_value as safe_rooming_xlsx_value
 
-_FORMULA_PREFIXES = ("=", "+", "-", "@")
-_ISO_DATE_PATTERN = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 _DATE_FORMAT = "DD.MM.YYYY"
 _HEADER_FILL = PatternFill("solid", fgColor="1D4ED8")
 _VIP_FILL = PatternFill("solid", fgColor="FDE68A")
@@ -36,30 +35,6 @@ _FIXED_GUEST_HEADERS = (
     "DOE",
     "PLACE OF ISSUE",
 )
-
-
-def safe_rooming_xlsx_value(value: Any) -> Any:
-    """Prevent every untrusted string from becoming an Excel formula."""
-
-    if not isinstance(value, str):
-        return value
-    return f"'{value}" if value.lstrip().startswith(_FORMULA_PREFIXES) else value
-
-
-def _excel_date(value: Any) -> Any:
-    if isinstance(value, datetime):
-        return value.date()
-    if isinstance(value, date):
-        return value
-    if not isinstance(value, str):
-        return value
-    normalized = value.strip()
-    if not _ISO_DATE_PATTERN.fullmatch(normalized):
-        return value
-    try:
-        return date.fromisoformat(normalized)
-    except ValueError:
-        return value
 
 
 def _gender(value: Any) -> str | None:

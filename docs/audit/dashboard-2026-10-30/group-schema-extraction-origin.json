@@ -1,0 +1,174 @@
+{
+  "basis": "All645original schema lines physically read.20actual JSON/schema HTTP negatives admitted malformed list choices before this batch; five valid/import-only/null normalization controls preserved. Intentional raw shape/type/count checks precede cleanup; all other schema declarations are mechanically moved from the explicit post-fix snapshot.",
+  "original_schema_sha256": "75d3656f60914fca553c593e16b0ab08deddb4354d427bfd6439ffa82a5da58e",
+  "post_validation_fix_snapshot_sha256": "b0a43ab53fd86de839da5f3ca782fd085fa33dd1ed696c9b877902c5f6b5c021",
+  "moves": [
+    {
+      "name": "validated_text_choices",
+      "owner": "client_group_request_validation.py",
+      "AST_exact_to_post_input_fix": true
+    },
+    {
+      "name": "_normalize_departure_cities",
+      "owner": "client_group_request_validation.py",
+      "AST_exact_to_post_input_fix": true
+    },
+    {
+      "name": "_normalize_broadcast_group_ids",
+      "owner": "client_group_request_validation.py",
+      "AST_exact_to_post_input_fix": true
+    },
+    {
+      "name": "_normalize_matching_fields_by_broadcast",
+      "owner": "client_group_request_validation.py",
+      "AST_exact_to_post_input_fix": true
+    },
+    {
+      "name": "CustomQuestionRequest",
+      "owner": "client_group_collection_schemas.py",
+      "AST_exact_to_post_input_fix": true
+    },
+    {
+      "name": "CustomQuestionResponse",
+      "owner": "client_group_collection_schemas.py",
+      "AST_exact_to_post_input_fix": true
+    },
+    {
+      "name": "CustomDetailRequest",
+      "owner": "client_group_collection_schemas.py",
+      "AST_exact_to_post_input_fix": true
+    },
+    {
+      "name": "CustomDetailResponse",
+      "owner": "client_group_collection_schemas.py",
+      "AST_exact_to_post_input_fix": true
+    },
+    {
+      "name": "CreateClientGroupRequest",
+      "owner": "client_group_request_schemas.py",
+      "AST_exact_to_post_input_fix": true
+    },
+    {
+      "name": "UpdateClientGroupRequest",
+      "owner": "client_group_request_schemas.py",
+      "AST_exact_to_post_input_fix": true
+    },
+    {
+      "name": "ClientGroupResponse",
+      "owner": "client_group_response_schemas.py",
+      "AST_exact_to_post_input_fix": true
+    },
+    {
+      "name": "WhatsAppBroadcastSummaryResponse",
+      "owner": "client_group_broadcast_schemas.py",
+      "AST_exact_to_post_input_fix": true
+    },
+    {
+      "name": "ReplaceWhatsAppBroadcastLinksRequest",
+      "owner": "client_group_broadcast_schemas.py",
+      "AST_exact_to_post_input_fix": true
+    },
+    {
+      "name": "ClientGroupWhatsAppLinksResponse",
+      "owner": "client_group_broadcast_schemas.py",
+      "AST_exact_to_post_input_fix": true
+    },
+    {
+      "name": "WhatsAppSubmissionMatchCountsResponse",
+      "owner": "client_group_match_schemas.py",
+      "AST_exact_to_post_input_fix": true
+    },
+    {
+      "name": "WhatsAppSubmissionMatchEvidenceResponse",
+      "owner": "client_group_match_schemas.py",
+      "AST_exact_to_post_input_fix": true
+    },
+    {
+      "name": "WhatsAppRecipientImportedFieldsResponse",
+      "owner": "client_group_match_schemas.py",
+      "AST_exact_to_post_input_fix": true
+    },
+    {
+      "name": "WhatsAppSubmissionDetailResponse",
+      "owner": "client_group_match_schemas.py",
+      "AST_exact_to_post_input_fix": true
+    },
+    {
+      "name": "WhatsAppSubmissionMatchRowResponse",
+      "owner": "client_group_match_schemas.py",
+      "AST_exact_to_post_input_fix": true
+    },
+    {
+      "name": "ClientGroupWhatsAppMatchesResponse",
+      "owner": "client_group_match_schemas.py",
+      "AST_exact_to_post_input_fix": true
+    },
+    {
+      "name": "ReplacementCandidateResponse",
+      "owner": "client_group_match_schemas.py",
+      "AST_exact_to_post_input_fix": true
+    },
+    {
+      "name": "ReplacementCandidateListResponse",
+      "owner": "client_group_match_schemas.py",
+      "AST_exact_to_post_input_fix": true
+    },
+    {
+      "name": "ResolveUnidentifiedReplacementRequest",
+      "owner": "client_group_match_schemas.py",
+      "AST_exact_to_post_input_fix": true
+    },
+    {
+      "name": "RejectUnidentifiedUploadRequest",
+      "owner": "client_group_match_schemas.py",
+      "AST_exact_to_post_input_fix": true
+    },
+    {
+      "name": "PassportRosterResolutionResponse",
+      "owner": "client_group_match_schemas.py",
+      "AST_exact_to_post_input_fix": true
+    },
+    {
+      "name": "QualifierRelationOptionResponse",
+      "owner": "client_group_qualifier_schemas.py",
+      "AST_exact_to_post_input_fix": true
+    },
+    {
+      "name": "CreateQualifierSelectionRequest",
+      "owner": "client_group_qualifier_schemas.py",
+      "AST_exact_to_post_input_fix": true
+    },
+    {
+      "name": "QualifierSelectionStateResponse",
+      "owner": "client_group_qualifier_schemas.py",
+      "AST_exact_to_post_input_fix": true
+    },
+    {
+      "name": "CreateQualifierSelectionResponse",
+      "owner": "client_group_qualifier_schemas.py",
+      "AST_exact_to_post_input_fix": true
+    },
+    {
+      "name": "PublicFlowTelemetryRequest",
+      "owner": "public_flow_telemetry_schema.py",
+      "AST_exact_to_post_input_fix": true
+    }
+  ],
+  "schema_classes_retained": 26,
+  "owner_relocation": {
+    "from": "backend/app/domain/entities/group_trip_settings.py",
+    "to": "backend/app/domain/value_objects/group_trip_settings.py",
+    "reason": "Pure rules are shared by domain entities and presentation validation, with no entity dependency. The new interim untracked owner is archived; no published path or deployment identity was removed."
+  },
+  "files": {
+    "backend/app/presentation/api/v1/schemas/client_group_request_validation.py": "e9beb6f2716e2203facbba284b4d6ebf5c772ea55616d2790c084315a6854d46",
+    "backend/app/presentation/api/v1/schemas/client_group_collection_schemas.py": "241374eb43a0a5db400cce49357847adaa23e9ecb72a81439d08f9357e0b99d6",
+    "backend/app/presentation/api/v1/schemas/client_group_request_schemas.py": "19f5be6e63ddfcd317b49da24a6e1fa8bf04c91c655cfee27e22b3245f0ee508",
+    "backend/app/presentation/api/v1/schemas/client_group_response_schemas.py": "7b75aaa50be08a06a54645c133ff0fef9e80e6aaa555b5e87c3657f28a619892",
+    "backend/app/presentation/api/v1/schemas/client_group_broadcast_schemas.py": "e17eea75b7dd74d614e63333d8bb5c2a93f13858691a5951c570c2a676602210",
+    "backend/app/presentation/api/v1/schemas/client_group_match_schemas.py": "55144c120ce9edff4db8723654753b527ba221885077b1453740e66cee48976a",
+    "backend/app/presentation/api/v1/schemas/client_group_qualifier_schemas.py": "2fff6ad7a2b8c23bc50fa7e5e38936002a500254426a762651a273a2f6064006",
+    "backend/app/presentation/api/v1/schemas/public_flow_telemetry_schema.py": "f040a9a1c4d237abf24fc705d47f7321456e23f05291b6e0df4e4c5f06af3bf1",
+    "backend/app/presentation/api/v1/schemas/client_group_schemas.py": "060bdb8334421e2d19683191399b6b34f662cc3d955a2dca3db5555f9eeb9840"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "candidates": "docs/audit/dashboard-2026-10-30/menu-library-budget-candidates.json",
+  "before_sha256": "e2aee5c16bc5f79fe7c54a4af98b31099938bc07fd5928693ec56ee7b4fc603c",
+  "sha256": "064e18bac34233400a997917c871701eb9bfab53288d0c8fba8eedd630ce0a43",
+  "lf_normalized_sha256": "0c8be64206b921dae2358891136cba9953fb50f5404bd50d5c6ed1a8da9974c1",
+  "added": 10,
+  "updated_existing": 0,
+  "lowered_existing": 0,
+  "lowered_existing_paths": [],
+  "existing_ceilings_preserved": true,
+  "previous_ceilings_sha256": "2c362dfe60b6701ec2930ae99a85ed287b2264a6ecf650545ebc4d3c8e291009"
+}

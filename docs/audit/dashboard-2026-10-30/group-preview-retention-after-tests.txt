@@ -1,0 +1,535 @@
+.......................................................EEEEEEE           [100%]
+=================================== ERRORS ====================================
+_ ERROR at setup of test_original_and_current_full_response_token_and_real_lifetime[empty-0] _
+file C:\Users\nipun\Desktop\PassDetection\.tmp\test_group_preview_retention_differential.py, line 41
+  @pytest.mark.parametrize("case,count", [("empty", 0), ("one", 1), ("history64", 64), ("history512", 512), ("timestamp-ties", 64)])
+  async def test_original_and_current_full_response_token_and_real_lifetime(group_update, monkeypatch, case, count):
+      contacts, logs = await seed_history(group_update, count)
+      if case == "timestamp-ties":
+          for log in logs:
+              log.created_at = datetime(2026, 9, 1, tzinfo=UTC)
+          await group_update.session.commit()
+      original_factory = preview.GroupUpdateAttempt
+      old_factory, old_metrics = observe_constructions(original_factory)
+      old = reference(old_factory)
+      new_factory, new_metrics = observe_constructions(original_factory)
+      monkeypatch.setattr(preview, "GroupUpdateAttempt", new_factory)
+      kwargs = {"group": group_update.group, "audience": GroupUpdateAudience()}
+
+      before = await old(group_update.session, **kwargs)
+      after = await preview.build_group_update_preview(group_update.session, **kwargs)
+
+      assert before.model_dump(mode="json") == after.model_dump(mode="json")
+      assert old_metrics.created == new_metrics.created == count
+      keys = {contact.audience_key for contact in contacts}
+      keys.update(f"phone:{contact.phone_number}" for contact in contacts if contact.phone_number)
+      assert new_metrics.peak <= len(keys) + 1
+      if count >= 64:
+          assert old_metrics.peak == count and new_metrics.peak < old_metrics.peak
+      assert inspect.signature(old) == inspect.signature(preview.build_group_update_preview)
+      assert typing.get_type_hints(old) == typing.get_type_hints(preview.build_group_update_preview)
+      group_update.provider.assert_not_awaited()
+      group_update.publish.assert_not_awaited()
+      record({"case": case, "history_rows": count, "current_contact_keys": len(keys),
+              "original": vars(old_metrics), "current": vars(new_metrics), "complete_response_token_order_equal": True,
+              "response": after.model_dump(mode="json"), "original_source_sha256": hashlib.sha256(original_path.read_bytes()).hexdigest()})
+file C:\Users\nipun\Desktop\PassDetection\backend\tests\integration\test_group_updates.py, line 37
+  @pytest.fixture
+  async def group_update(db_session, monkeypatch):
+      await db_session.execute(text("DROP INDEX uq_whatsapp_active_explicit_resend"))
+      agency = AgencyModel(id=uuid.uuid4(), name="Update agency", email="updates@example.test")
+      actor = UserModel(id=uuid.uuid4(), agency_id=agency.id, role="agency_admin", email="admin@example.test",
+                        hashed_password="unused", full_name="Staff", is_active=True)
+      group = ClientGroupModel(id=uuid.uuid4(), agency_id=agency.id, name="Trip", token=uuid.uuid4().hex)
+      broadcast = WhatsAppBroadcastGroupModel(id=uuid.uuid4(), agency_id=agency.id, name="Excel contacts",
+                                              recipient_opt_in_confirmed_at=datetime.now(UTC))
+      link = ClientGroupWhatsAppBroadcastLinkModel(agency_id=agency.id, client_group_id=group.id,
+                                                 broadcast_group_id=broadcast.id, matching_field_keys=["staff_code"])
+      recipients = [WhatsAppBroadcastRecipientModel(
+          id=uuid.uuid4(), agency_id=agency.id, broadcast_group_id=broadcast.id, name=f"Contact {i}",
+          phone_number=f"+9198765432{i:02}", normalized_phone_number=f"+9198765432{i:02}",
+          imported_fields={"staff_code": f"EMP{i}"},
+      ) for i in range(4)]
+      passengers = [PassportSubmissionModel(
+          id=uuid.uuid4(), agency_id=agency.id, group_id=group.id, client_name=f"Person {i}",
+          client_phone=f"+9191234567{i:02}", client_reviewed_at=datetime.now(UTC),
+          staff_metadata={"staff_code": f"EMP{i}"}, image_s3_key="test/passport", status="staff_approved",
+      ) for i in range(3)]
+      await persist_graph(db_session, [agency, actor, group, broadcast, link, *recipients, *passengers])
+      monkeypatch.setattr(group_update_preview, "configured_template_name", AsyncMock(return_value="pending_v1"))
+      monkeypatch.setattr(group_update_preview, "get_settings", lambda: SimpleNamespace(whatsapp_access_token="test", whatsapp_phone_number_id="test"))
+      publish = AsyncMock(return_value=1)
+      monkeypatch.setattr(web_publication, "run_whatsapp_send_publication", publish)
+      monkeypatch.setattr(document_update_runtime, "AsyncSessionFactory", async_sessionmaker(db_session.bind, expire_on_commit=False))
+      monkeypatch.setattr(document_update_runtime, "get_settings", lambda: SimpleNamespace(whatsapp_phone_number_id="test"))
+      provider = AsyncMock(side_effect=lambda **kwargs: "wamid." + uuid.uuid4().hex)
+      monkeypatch.setattr(document_update_runtime, "send_whatsapp_document_update_template", provider)
+      app = FastAPI()
+      app.include_router(group_updates.router)
+      actor_entity = await UserRepository(db_session).get_by_id(actor.id)
+      app.dependency_overrides[get_current_active_user] = lambda: actor_entity
+      app.dependency_overrides[get_db_session] = lambda: db_session
+      async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+          yield SimpleNamespace(session=db_session, agency=agency, actor=actor_entity, group=group, broadcast=broadcast, link=link,
+                                passengers=passengers, recipients=recipients, client=client, publish=publish, provider=provider)
+E       fixture 'db_session' not found
+>       available fixtures: _asyncio_loop_factory, _class_scoped_runner, _function_scoped_runner, _module_scoped_runner, _package_scoped_runner, _session_scoped_runner, anyio_backend, anyio_backend_name, anyio_backend_options, cache, capfd, capfdbinary, caplog, capsys, capsysbinary, capteesys, cov, doctest_namespace, event_loop_policy, free_tcp_port, free_tcp_port_factory, free_udp_port, free_udp_port_factory, group_update, monkeypatch, no_cover, platformdirs_isolated, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, subtests, testrun_uid, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory, unused_tcp_port, unused_tcp_port_factory, unused_udp_port, unused_udp_port_factory, worker_id
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+C:\Users\nipun\Desktop\PassDetection\backend\tests\integration\test_group_updates.py:37
+_ ERROR at setup of test_original_and_current_full_response_token_and_real_lifetime[one-1] _
+file C:\Users\nipun\Desktop\PassDetection\.tmp\test_group_preview_retention_differential.py, line 41
+  @pytest.mark.parametrize("case,count", [("empty", 0), ("one", 1), ("history64", 64), ("history512", 512), ("timestamp-ties", 64)])
+  async def test_original_and_current_full_response_token_and_real_lifetime(group_update, monkeypatch, case, count):
+      contacts, logs = await seed_history(group_update, count)
+      if case == "timestamp-ties":
+          for log in logs:
+              log.created_at = datetime(2026, 9, 1, tzinfo=UTC)
+          await group_update.session.commit()
+      original_factory = preview.GroupUpdateAttempt
+      old_factory, old_metrics = observe_constructions(original_factory)
+      old = reference(old_factory)
+      new_factory, new_metrics = observe_constructions(original_factory)
+      monkeypatch.setattr(preview, "GroupUpdateAttempt", new_factory)
+      kwargs = {"group": group_update.group, "audience": GroupUpdateAudience()}
+
+      before = await old(group_update.session, **kwargs)
+      after = await preview.build_group_update_preview(group_update.session, **kwargs)
+
+      assert before.model_dump(mode="json") == after.model_dump(mode="json")
+      assert old_metrics.created == new_metrics.created == count
+      keys = {contact.audience_key for contact in contacts}
+      keys.update(f"phone:{contact.phone_number}" for contact in contacts if contact.phone_number)
+      assert new_metrics.peak <= len(keys) + 1
+      if count >= 64:
+          assert old_metrics.peak == count and new_metrics.peak < old_metrics.peak
+      assert inspect.signature(old) == inspect.signature(preview.build_group_update_preview)
+      assert typing.get_type_hints(old) == typing.get_type_hints(preview.build_group_update_preview)
+      group_update.provider.assert_not_awaited()
+      group_update.publish.assert_not_awaited()
+      record({"case": case, "history_rows": count, "current_contact_keys": len(keys),
+              "original": vars(old_metrics), "current": vars(new_metrics), "complete_response_token_order_equal": True,
+              "response": after.model_dump(mode="json"), "original_source_sha256": hashlib.sha256(original_path.read_bytes()).hexdigest()})
+file C:\Users\nipun\Desktop\PassDetection\backend\tests\integration\test_group_updates.py, line 37
+  @pytest.fixture
+  async def group_update(db_session, monkeypatch):
+      await db_session.execute(text("DROP INDEX uq_whatsapp_active_explicit_resend"))
+      agency = AgencyModel(id=uuid.uuid4(), name="Update agency", email="updates@example.test")
+      actor = UserModel(id=uuid.uuid4(), agency_id=agency.id, role="agency_admin", email="admin@example.test",
+                        hashed_password="unused", full_name="Staff", is_active=True)
+      group = ClientGroupModel(id=uuid.uuid4(), agency_id=agency.id, name="Trip", token=uuid.uuid4().hex)
+      broadcast = WhatsAppBroadcastGroupModel(id=uuid.uuid4(), agency_id=agency.id, name="Excel contacts",
+                                              recipient_opt_in_confirmed_at=datetime.now(UTC))
+      link = ClientGroupWhatsAppBroadcastLinkModel(agency_id=agency.id, client_group_id=group.id,
+                                                 broadcast_group_id=broadcast.id, matching_field_keys=["staff_code"])
+      recipients = [WhatsAppBroadcastRecipientModel(
+          id=uuid.uuid4(), agency_id=agency.id, broadcast_group_id=broadcast.id, name=f"Contact {i}",
+          phone_number=f"+9198765432{i:02}", normalized_phone_number=f"+9198765432{i:02}",
+          imported_fields={"staff_code": f"EMP{i}"},
+      ) for i in range(4)]
+      passengers = [PassportSubmissionModel(
+          id=uuid.uuid4(), agency_id=agency.id, group_id=group.id, client_name=f"Person {i}",
+          client_phone=f"+9191234567{i:02}", client_reviewed_at=datetime.now(UTC),
+          staff_metadata={"staff_code": f"EMP{i}"}, image_s3_key="test/passport", status="staff_approved",
+      ) for i in range(3)]
+      await persist_graph(db_session, [agency, actor, group, broadcast, link, *recipients, *passengers])
+      monkeypatch.setattr(group_update_preview, "configured_template_name", AsyncMock(return_value="pending_v1"))
+      monkeypatch.setattr(group_update_preview, "get_settings", lambda: SimpleNamespace(whatsapp_access_token="test", whatsapp_phone_number_id="test"))
+      publish = AsyncMock(return_value=1)
+      monkeypatch.setattr(web_publication, "run_whatsapp_send_publication", publish)
+      monkeypatch.setattr(document_update_runtime, "AsyncSessionFactory", async_sessionmaker(db_session.bind, expire_on_commit=False))
+      monkeypatch.setattr(document_update_runtime, "get_settings", lambda: SimpleNamespace(whatsapp_phone_number_id="test"))
+      provider = AsyncMock(side_effect=lambda **kwargs: "wamid." + uuid.uuid4().hex)
+      monkeypatch.setattr(document_update_runtime, "send_whatsapp_document_update_template", provider)
+      app = FastAPI()
+      app.include_router(group_updates.router)
+      actor_entity = await UserRepository(db_session).get_by_id(actor.id)
+      app.dependency_overrides[get_current_active_user] = lambda: actor_entity
+      app.dependency_overrides[get_db_session] = lambda: db_session
+      async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+          yield SimpleNamespace(session=db_session, agency=agency, actor=actor_entity, group=group, broadcast=broadcast, link=link,
+                                passengers=passengers, recipients=recipients, client=client, publish=publish, provider=provider)
+E       fixture 'db_session' not found
+>       available fixtures: _asyncio_loop_factory, _class_scoped_runner, _function_scoped_runner, _module_scoped_runner, _package_scoped_runner, _session_scoped_runner, anyio_backend, anyio_backend_name, anyio_backend_options, cache, capfd, capfdbinary, caplog, capsys, capsysbinary, capteesys, cov, doctest_namespace, event_loop_policy, free_tcp_port, free_tcp_port_factory, free_udp_port, free_udp_port_factory, group_update, monkeypatch, no_cover, platformdirs_isolated, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, subtests, testrun_uid, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory, unused_tcp_port, unused_tcp_port_factory, unused_udp_port, unused_udp_port_factory, worker_id
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+C:\Users\nipun\Desktop\PassDetection\backend\tests\integration\test_group_updates.py:37
+_ ERROR at setup of test_original_and_current_full_response_token_and_real_lifetime[history64-64] _
+file C:\Users\nipun\Desktop\PassDetection\.tmp\test_group_preview_retention_differential.py, line 41
+  @pytest.mark.parametrize("case,count", [("empty", 0), ("one", 1), ("history64", 64), ("history512", 512), ("timestamp-ties", 64)])
+  async def test_original_and_current_full_response_token_and_real_lifetime(group_update, monkeypatch, case, count):
+      contacts, logs = await seed_history(group_update, count)
+      if case == "timestamp-ties":
+          for log in logs:
+              log.created_at = datetime(2026, 9, 1, tzinfo=UTC)
+          await group_update.session.commit()
+      original_factory = preview.GroupUpdateAttempt
+      old_factory, old_metrics = observe_constructions(original_factory)
+      old = reference(old_factory)
+      new_factory, new_metrics = observe_constructions(original_factory)
+      monkeypatch.setattr(preview, "GroupUpdateAttempt", new_factory)
+      kwargs = {"group": group_update.group, "audience": GroupUpdateAudience()}
+
+      before = await old(group_update.session, **kwargs)
+      after = await preview.build_group_update_preview(group_update.session, **kwargs)
+
+      assert before.model_dump(mode="json") == after.model_dump(mode="json")
+      assert old_metrics.created == new_metrics.created == count
+      keys = {contact.audience_key for contact in contacts}
+      keys.update(f"phone:{contact.phone_number}" for contact in contacts if contact.phone_number)
+      assert new_metrics.peak <= len(keys) + 1
+      if count >= 64:
+          assert old_metrics.peak == count and new_metrics.peak < old_metrics.peak
+      assert inspect.signature(old) == inspect.signature(preview.build_group_update_preview)
+      assert typing.get_type_hints(old) == typing.get_type_hints(preview.build_group_update_preview)
+      group_update.provider.assert_not_awaited()
+      group_update.publish.assert_not_awaited()
+      record({"case": case, "history_rows": count, "current_contact_keys": len(keys),
+              "original": vars(old_metrics), "current": vars(new_metrics), "complete_response_token_order_equal": True,
+              "response": after.model_dump(mode="json"), "original_source_sha256": hashlib.sha256(original_path.read_bytes()).hexdigest()})
+file C:\Users\nipun\Desktop\PassDetection\backend\tests\integration\test_group_updates.py, line 37
+  @pytest.fixture
+  async def group_update(db_session, monkeypatch):
+      await db_session.execute(text("DROP INDEX uq_whatsapp_active_explicit_resend"))
+      agency = AgencyModel(id=uuid.uuid4(), name="Update agency", email="updates@example.test")
+      actor = UserModel(id=uuid.uuid4(), agency_id=agency.id, role="agency_admin", email="admin@example.test",
+                        hashed_password="unused", full_name="Staff", is_active=True)
+      group = ClientGroupModel(id=uuid.uuid4(), agency_id=agency.id, name="Trip", token=uuid.uuid4().hex)
+      broadcast = WhatsAppBroadcastGroupModel(id=uuid.uuid4(), agency_id=agency.id, name="Excel contacts",
+                                              recipient_opt_in_confirmed_at=datetime.now(UTC))
+      link = ClientGroupWhatsAppBroadcastLinkModel(agency_id=agency.id, client_group_id=group.id,
+                                                 broadcast_group_id=broadcast.id, matching_field_keys=["staff_code"])
+      recipients = [WhatsAppBroadcastRecipientModel(
+          id=uuid.uuid4(), agency_id=agency.id, broadcast_group_id=broadcast.id, name=f"Contact {i}",
+          phone_number=f"+9198765432{i:02}", normalized_phone_number=f"+9198765432{i:02}",
+          imported_fields={"staff_code": f"EMP{i}"},
+      ) for i in range(4)]
+      passengers = [PassportSubmissionModel(
+          id=uuid.uuid4(), agency_id=agency.id, group_id=group.id, client_name=f"Person {i}",
+          client_phone=f"+9191234567{i:02}", client_reviewed_at=datetime.now(UTC),
+          staff_metadata={"staff_code": f"EMP{i}"}, image_s3_key="test/passport", status="staff_approved",
+      ) for i in range(3)]
+      await persist_graph(db_session, [agency, actor, group, broadcast, link, *recipients, *passengers])
+      monkeypatch.setattr(group_update_preview, "configured_template_name", AsyncMock(return_value="pending_v1"))
+      monkeypatch.setattr(group_update_preview, "get_settings", lambda: SimpleNamespace(whatsapp_access_token="test", whatsapp_phone_number_id="test"))
+      publish = AsyncMock(return_value=1)
+      monkeypatch.setattr(web_publication, "run_whatsapp_send_publication", publish)
+      monkeypatch.setattr(document_update_runtime, "AsyncSessionFactory", async_sessionmaker(db_session.bind, expire_on_commit=False))
+      monkeypatch.setattr(document_update_runtime, "get_settings", lambda: SimpleNamespace(whatsapp_phone_number_id="test"))
+      provider = AsyncMock(side_effect=lambda **kwargs: "wamid." + uuid.uuid4().hex)
+      monkeypatch.setattr(document_update_runtime, "send_whatsapp_document_update_template", provider)
+      app = FastAPI()
+      app.include_router(group_updates.router)
+      actor_entity = await UserRepository(db_session).get_by_id(actor.id)
+      app.dependency_overrides[get_current_active_user] = lambda: actor_entity
+      app.dependency_overrides[get_db_session] = lambda: db_session
+      async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+          yield SimpleNamespace(session=db_session, agency=agency, actor=actor_entity, group=group, broadcast=broadcast, link=link,
+                                passengers=passengers, recipients=recipients, client=client, publish=publish, provider=provider)
+E       fixture 'db_session' not found
+>       available fixtures: _asyncio_loop_factory, _class_scoped_runner, _function_scoped_runner, _module_scoped_runner, _package_scoped_runner, _session_scoped_runner, anyio_backend, anyio_backend_name, anyio_backend_options, cache, capfd, capfdbinary, caplog, capsys, capsysbinary, capteesys, cov, doctest_namespace, event_loop_policy, free_tcp_port, free_tcp_port_factory, free_udp_port, free_udp_port_factory, group_update, monkeypatch, no_cover, platformdirs_isolated, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, subtests, testrun_uid, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory, unused_tcp_port, unused_tcp_port_factory, unused_udp_port, unused_udp_port_factory, worker_id
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+C:\Users\nipun\Desktop\PassDetection\backend\tests\integration\test_group_updates.py:37
+_ ERROR at setup of test_original_and_current_full_response_token_and_real_lifetime[history512-512] _
+file C:\Users\nipun\Desktop\PassDetection\.tmp\test_group_preview_retention_differential.py, line 41
+  @pytest.mark.parametrize("case,count", [("empty", 0), ("one", 1), ("history64", 64), ("history512", 512), ("timestamp-ties", 64)])
+  async def test_original_and_current_full_response_token_and_real_lifetime(group_update, monkeypatch, case, count):
+      contacts, logs = await seed_history(group_update, count)
+      if case == "timestamp-ties":
+          for log in logs:
+              log.created_at = datetime(2026, 9, 1, tzinfo=UTC)
+          await group_update.session.commit()
+      original_factory = preview.GroupUpdateAttempt
+      old_factory, old_metrics = observe_constructions(original_factory)
+      old = reference(old_factory)
+      new_factory, new_metrics = observe_constructions(original_factory)
+      monkeypatch.setattr(preview, "GroupUpdateAttempt", new_factory)
+      kwargs = {"group": group_update.group, "audience": GroupUpdateAudience()}
+
+      before = await old(group_update.session, **kwargs)
+      after = await preview.build_group_update_preview(group_update.session, **kwargs)
+
+      assert before.model_dump(mode="json") == after.model_dump(mode="json")
+      assert old_metrics.created == new_metrics.created == count
+      keys = {contact.audience_key for contact in contacts}
+      keys.update(f"phone:{contact.phone_number}" for contact in contacts if contact.phone_number)
+      assert new_metrics.peak <= len(keys) + 1
+      if count >= 64:
+          assert old_metrics.peak == count and new_metrics.peak < old_metrics.peak
+      assert inspect.signature(old) == inspect.signature(preview.build_group_update_preview)
+      assert typing.get_type_hints(old) == typing.get_type_hints(preview.build_group_update_preview)
+      group_update.provider.assert_not_awaited()
+      group_update.publish.assert_not_awaited()
+      record({"case": case, "history_rows": count, "current_contact_keys": len(keys),
+              "original": vars(old_metrics), "current": vars(new_metrics), "complete_response_token_order_equal": True,
+              "response": after.model_dump(mode="json"), "original_source_sha256": hashlib.sha256(original_path.read_bytes()).hexdigest()})
+file C:\Users\nipun\Desktop\PassDetection\backend\tests\integration\test_group_updates.py, line 37
+  @pytest.fixture
+  async def group_update(db_session, monkeypatch):
+      await db_session.execute(text("DROP INDEX uq_whatsapp_active_explicit_resend"))
+      agency = AgencyModel(id=uuid.uuid4(), name="Update agency", email="updates@example.test")
+      actor = UserModel(id=uuid.uuid4(), agency_id=agency.id, role="agency_admin", email="admin@example.test",
+                        hashed_password="unused", full_name="Staff", is_active=True)
+      group = ClientGroupModel(id=uuid.uuid4(), agency_id=agency.id, name="Trip", token=uuid.uuid4().hex)
+      broadcast = WhatsAppBroadcastGroupModel(id=uuid.uuid4(), agency_id=agency.id, name="Excel contacts",
+                                              recipient_opt_in_confirmed_at=datetime.now(UTC))
+      link = ClientGroupWhatsAppBroadcastLinkModel(agency_id=agency.id, client_group_id=group.id,
+                                                 broadcast_group_id=broadcast.id, matching_field_keys=["staff_code"])
+      recipients = [WhatsAppBroadcastRecipientModel(
+          id=uuid.uuid4(), agency_id=agency.id, broadcast_group_id=broadcast.id, name=f"Contact {i}",
+          phone_number=f"+9198765432{i:02}", normalized_phone_number=f"+9198765432{i:02}",
+          imported_fields={"staff_code": f"EMP{i}"},
+      ) for i in range(4)]
+      passengers = [PassportSubmissionModel(
+          id=uuid.uuid4(), agency_id=agency.id, group_id=group.id, client_name=f"Person {i}",
+          client_phone=f"+9191234567{i:02}", client_reviewed_at=datetime.now(UTC),
+          staff_metadata={"staff_code": f"EMP{i}"}, image_s3_key="test/passport", status="staff_approved",
+      ) for i in range(3)]
+      await persist_graph(db_session, [agency, actor, group, broadcast, link, *recipients, *passengers])
+      monkeypatch.setattr(group_update_preview, "configured_template_name", AsyncMock(return_value="pending_v1"))
+      monkeypatch.setattr(group_update_preview, "get_settings", lambda: SimpleNamespace(whatsapp_access_token="test", whatsapp_phone_number_id="test"))
+      publish = AsyncMock(return_value=1)
+      monkeypatch.setattr(web_publication, "run_whatsapp_send_publication", publish)
+      monkeypatch.setattr(document_update_runtime, "AsyncSessionFactory", async_sessionmaker(db_session.bind, expire_on_commit=False))
+      monkeypatch.setattr(document_update_runtime, "get_settings", lambda: SimpleNamespace(whatsapp_phone_number_id="test"))
+      provider = AsyncMock(side_effect=lambda **kwargs: "wamid." + uuid.uuid4().hex)
+      monkeypatch.setattr(document_update_runtime, "send_whatsapp_document_update_template", provider)
+      app = FastAPI()
+      app.include_router(group_updates.router)
+      actor_entity = await UserRepository(db_session).get_by_id(actor.id)
+      app.dependency_overrides[get_current_active_user] = lambda: actor_entity
+      app.dependency_overrides[get_db_session] = lambda: db_session
+      async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+          yield SimpleNamespace(session=db_session, agency=agency, actor=actor_entity, group=group, broadcast=broadcast, link=link,
+                                passengers=passengers, recipients=recipients, client=client, publish=publish, provider=provider)
+E       fixture 'db_session' not found
+>       available fixtures: _asyncio_loop_factory, _class_scoped_runner, _function_scoped_runner, _module_scoped_runner, _package_scoped_runner, _session_scoped_runner, anyio_backend, anyio_backend_name, anyio_backend_options, cache, capfd, capfdbinary, caplog, capsys, capsysbinary, capteesys, cov, doctest_namespace, event_loop_policy, free_tcp_port, free_tcp_port_factory, free_udp_port, free_udp_port_factory, group_update, monkeypatch, no_cover, platformdirs_isolated, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, subtests, testrun_uid, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory, unused_tcp_port, unused_tcp_port_factory, unused_udp_port, unused_udp_port_factory, worker_id
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+C:\Users\nipun\Desktop\PassDetection\backend\tests\integration\test_group_updates.py:37
+_ ERROR at setup of test_original_and_current_full_response_token_and_real_lifetime[timestamp-ties-64] _
+file C:\Users\nipun\Desktop\PassDetection\.tmp\test_group_preview_retention_differential.py, line 41
+  @pytest.mark.parametrize("case,count", [("empty", 0), ("one", 1), ("history64", 64), ("history512", 512), ("timestamp-ties", 64)])
+  async def test_original_and_current_full_response_token_and_real_lifetime(group_update, monkeypatch, case, count):
+      contacts, logs = await seed_history(group_update, count)
+      if case == "timestamp-ties":
+          for log in logs:
+              log.created_at = datetime(2026, 9, 1, tzinfo=UTC)
+          await group_update.session.commit()
+      original_factory = preview.GroupUpdateAttempt
+      old_factory, old_metrics = observe_constructions(original_factory)
+      old = reference(old_factory)
+      new_factory, new_metrics = observe_constructions(original_factory)
+      monkeypatch.setattr(preview, "GroupUpdateAttempt", new_factory)
+      kwargs = {"group": group_update.group, "audience": GroupUpdateAudience()}
+
+      before = await old(group_update.session, **kwargs)
+      after = await preview.build_group_update_preview(group_update.session, **kwargs)
+
+      assert before.model_dump(mode="json") == after.model_dump(mode="json")
+      assert old_metrics.created == new_metrics.created == count
+      keys = {contact.audience_key for contact in contacts}
+      keys.update(f"phone:{contact.phone_number}" for contact in contacts if contact.phone_number)
+      assert new_metrics.peak <= len(keys) + 1
+      if count >= 64:
+          assert old_metrics.peak == count and new_metrics.peak < old_metrics.peak
+      assert inspect.signature(old) == inspect.signature(preview.build_group_update_preview)
+      assert typing.get_type_hints(old) == typing.get_type_hints(preview.build_group_update_preview)
+      group_update.provider.assert_not_awaited()
+      group_update.publish.assert_not_awaited()
+      record({"case": case, "history_rows": count, "current_contact_keys": len(keys),
+              "original": vars(old_metrics), "current": vars(new_metrics), "complete_response_token_order_equal": True,
+              "response": after.model_dump(mode="json"), "original_source_sha256": hashlib.sha256(original_path.read_bytes()).hexdigest()})
+file C:\Users\nipun\Desktop\PassDetection\backend\tests\integration\test_group_updates.py, line 37
+  @pytest.fixture
+  async def group_update(db_session, monkeypatch):
+      await db_session.execute(text("DROP INDEX uq_whatsapp_active_explicit_resend"))
+      agency = AgencyModel(id=uuid.uuid4(), name="Update agency", email="updates@example.test")
+      actor = UserModel(id=uuid.uuid4(), agency_id=agency.id, role="agency_admin", email="admin@example.test",
+                        hashed_password="unused", full_name="Staff", is_active=True)
+      group = ClientGroupModel(id=uuid.uuid4(), agency_id=agency.id, name="Trip", token=uuid.uuid4().hex)
+      broadcast = WhatsAppBroadcastGroupModel(id=uuid.uuid4(), agency_id=agency.id, name="Excel contacts",
+                                              recipient_opt_in_confirmed_at=datetime.now(UTC))
+      link = ClientGroupWhatsAppBroadcastLinkModel(agency_id=agency.id, client_group_id=group.id,
+                                                 broadcast_group_id=broadcast.id, matching_field_keys=["staff_code"])
+      recipients = [WhatsAppBroadcastRecipientModel(
+          id=uuid.uuid4(), agency_id=agency.id, broadcast_group_id=broadcast.id, name=f"Contact {i}",
+          phone_number=f"+9198765432{i:02}", normalized_phone_number=f"+9198765432{i:02}",
+          imported_fields={"staff_code": f"EMP{i}"},
+      ) for i in range(4)]
+      passengers = [PassportSubmissionModel(
+          id=uuid.uuid4(), agency_id=agency.id, group_id=group.id, client_name=f"Person {i}",
+          client_phone=f"+9191234567{i:02}", client_reviewed_at=datetime.now(UTC),
+          staff_metadata={"staff_code": f"EMP{i}"}, image_s3_key="test/passport", status="staff_approved",
+      ) for i in range(3)]
+      await persist_graph(db_session, [agency, actor, group, broadcast, link, *recipients, *passengers])
+      monkeypatch.setattr(group_update_preview, "configured_template_name", AsyncMock(return_value="pending_v1"))
+      monkeypatch.setattr(group_update_preview, "get_settings", lambda: SimpleNamespace(whatsapp_access_token="test", whatsapp_phone_number_id="test"))
+      publish = AsyncMock(return_value=1)
+      monkeypatch.setattr(web_publication, "run_whatsapp_send_publication", publish)
+      monkeypatch.setattr(document_update_runtime, "AsyncSessionFactory", async_sessionmaker(db_session.bind, expire_on_commit=False))
+      monkeypatch.setattr(document_update_runtime, "get_settings", lambda: SimpleNamespace(whatsapp_phone_number_id="test"))
+      provider = AsyncMock(side_effect=lambda **kwargs: "wamid." + uuid.uuid4().hex)
+      monkeypatch.setattr(document_update_runtime, "send_whatsapp_document_update_template", provider)
+      app = FastAPI()
+      app.include_router(group_updates.router)
+      actor_entity = await UserRepository(db_session).get_by_id(actor.id)
+      app.dependency_overrides[get_current_active_user] = lambda: actor_entity
+      app.dependency_overrides[get_db_session] = lambda: db_session
+      async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+          yield SimpleNamespace(session=db_session, agency=agency, actor=actor_entity, group=group, broadcast=broadcast, link=link,
+                                passengers=passengers, recipients=recipients, client=client, publish=publish, provider=provider)
+E       fixture 'db_session' not found
+>       available fixtures: _asyncio_loop_factory, _class_scoped_runner, _function_scoped_runner, _module_scoped_runner, _package_scoped_runner, _session_scoped_runner, anyio_backend, anyio_backend_name, anyio_backend_options, cache, capfd, capfdbinary, caplog, capsys, capsysbinary, capteesys, cov, doctest_namespace, event_loop_policy, free_tcp_port, free_tcp_port_factory, free_udp_port, free_udp_port_factory, group_update, monkeypatch, no_cover, platformdirs_isolated, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, subtests, testrun_uid, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory, unused_tcp_port, unused_tcp_port_factory, unused_udp_port, unused_udp_port_factory, worker_id
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+C:\Users\nipun\Desktop\PassDetection\backend\tests\integration\test_group_updates.py:37
+_ ERROR at setup of test_original_and_current_invalid_old_json_errors_match[True] _
+file C:\Users\nipun\Desktop\PassDetection\.tmp\test_group_preview_retention_differential.py, line 74
+  @pytest.mark.parametrize("current_contact", [True, False])
+  async def test_original_and_current_invalid_old_json_errors_match(group_update, current_contact):
+      contacts, _ = await seed_history(group_update, 1)
+      group_update.session.add(WhatsAppMessageLogModel(
+          id=uuid.uuid4(), agency_id=group_update.agency.id,
+          broadcast_group_id=group_update.broadcast.id, recipient_id=group_update.recipients[0].id,
+          normalized_phone_number="+919999444555", message_type="document_update", status="failed",
+          created_at=datetime(2025, 1, 1, tzinfo=UTC), rendered_message="Legacy saved update",
+          document_update_context={"group_id": str(group_update.group.id), "document_type": 42,
+                                   "audience_keys": [contacts[0].audience_key if current_contact else f"recipient:{uuid.uuid4()}"]},
+      ))
+      await group_update.session.commit()
+      errors = []
+      for build in (reference(preview.GroupUpdateAttempt), preview.build_group_update_preview):
+          with pytest.raises(ValidationError) as raised:
+              await build(group_update.session, group=group_update.group, audience=GroupUpdateAudience())
+          errors.append(raised.value.errors())
+      assert errors[0] == errors[1]
+      group_update.provider.assert_not_awaited()
+      group_update.publish.assert_not_awaited()
+      record({"case": "invalid-old-current" if current_contact else "invalid-old-unrelated", "validation_errors_exact": errors[0] == errors[1], "errors": errors[1]})
+file C:\Users\nipun\Desktop\PassDetection\backend\tests\integration\test_group_updates.py, line 37
+  @pytest.fixture
+  async def group_update(db_session, monkeypatch):
+      await db_session.execute(text("DROP INDEX uq_whatsapp_active_explicit_resend"))
+      agency = AgencyModel(id=uuid.uuid4(), name="Update agency", email="updates@example.test")
+      actor = UserModel(id=uuid.uuid4(), agency_id=agency.id, role="agency_admin", email="admin@example.test",
+                        hashed_password="unused", full_name="Staff", is_active=True)
+      group = ClientGroupModel(id=uuid.uuid4(), agency_id=agency.id, name="Trip", token=uuid.uuid4().hex)
+      broadcast = WhatsAppBroadcastGroupModel(id=uuid.uuid4(), agency_id=agency.id, name="Excel contacts",
+                                              recipient_opt_in_confirmed_at=datetime.now(UTC))
+      link = ClientGroupWhatsAppBroadcastLinkModel(agency_id=agency.id, client_group_id=group.id,
+                                                 broadcast_group_id=broadcast.id, matching_field_keys=["staff_code"])
+      recipients = [WhatsAppBroadcastRecipientModel(
+          id=uuid.uuid4(), agency_id=agency.id, broadcast_group_id=broadcast.id, name=f"Contact {i}",
+          phone_number=f"+9198765432{i:02}", normalized_phone_number=f"+9198765432{i:02}",
+          imported_fields={"staff_code": f"EMP{i}"},
+      ) for i in range(4)]
+      passengers = [PassportSubmissionModel(
+          id=uuid.uuid4(), agency_id=agency.id, group_id=group.id, client_name=f"Person {i}",
+          client_phone=f"+9191234567{i:02}", client_reviewed_at=datetime.now(UTC),
+          staff_metadata={"staff_code": f"EMP{i}"}, image_s3_key="test/passport", status="staff_approved",
+      ) for i in range(3)]
+      await persist_graph(db_session, [agency, actor, group, broadcast, link, *recipients, *passengers])
+      monkeypatch.setattr(group_update_preview, "configured_template_name", AsyncMock(return_value="pending_v1"))
+      monkeypatch.setattr(group_update_preview, "get_settings", lambda: SimpleNamespace(whatsapp_access_token="test", whatsapp_phone_number_id="test"))
+      publish = AsyncMock(return_value=1)
+      monkeypatch.setattr(web_publication, "run_whatsapp_send_publication", publish)
+      monkeypatch.setattr(document_update_runtime, "AsyncSessionFactory", async_sessionmaker(db_session.bind, expire_on_commit=False))
+      monkeypatch.setattr(document_update_runtime, "get_settings", lambda: SimpleNamespace(whatsapp_phone_number_id="test"))
+      provider = AsyncMock(side_effect=lambda **kwargs: "wamid." + uuid.uuid4().hex)
+      monkeypatch.setattr(document_update_runtime, "send_whatsapp_document_update_template", provider)
+      app = FastAPI()
+      app.include_router(group_updates.router)
+      actor_entity = await UserRepository(db_session).get_by_id(actor.id)
+      app.dependency_overrides[get_current_active_user] = lambda: actor_entity
+      app.dependency_overrides[get_db_session] = lambda: db_session
+      async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+          yield SimpleNamespace(session=db_session, agency=agency, actor=actor_entity, group=group, broadcast=broadcast, link=link,
+                                passengers=passengers, recipients=recipients, client=client, publish=publish, provider=provider)
+E       fixture 'db_session' not found
+>       available fixtures: _asyncio_loop_factory, _class_scoped_runner, _function_scoped_runner, _module_scoped_runner, _package_scoped_runner, _session_scoped_runner, anyio_backend, anyio_backend_name, anyio_backend_options, cache, capfd, capfdbinary, caplog, capsys, capsysbinary, capteesys, cov, doctest_namespace, event_loop_policy, free_tcp_port, free_tcp_port_factory, free_udp_port, free_udp_port_factory, group_update, monkeypatch, no_cover, platformdirs_isolated, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, subtests, testrun_uid, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory, unused_tcp_port, unused_tcp_port_factory, unused_udp_port, unused_udp_port_factory, worker_id
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+C:\Users\nipun\Desktop\PassDetection\backend\tests\integration\test_group_updates.py:37
+_ ERROR at setup of test_original_and_current_invalid_old_json_errors_match[False] _
+file C:\Users\nipun\Desktop\PassDetection\.tmp\test_group_preview_retention_differential.py, line 74
+  @pytest.mark.parametrize("current_contact", [True, False])
+  async def test_original_and_current_invalid_old_json_errors_match(group_update, current_contact):
+      contacts, _ = await seed_history(group_update, 1)
+      group_update.session.add(WhatsAppMessageLogModel(
+          id=uuid.uuid4(), agency_id=group_update.agency.id,
+          broadcast_group_id=group_update.broadcast.id, recipient_id=group_update.recipients[0].id,
+          normalized_phone_number="+919999444555", message_type="document_update", status="failed",
+          created_at=datetime(2025, 1, 1, tzinfo=UTC), rendered_message="Legacy saved update",
+          document_update_context={"group_id": str(group_update.group.id), "document_type": 42,
+                                   "audience_keys": [contacts[0].audience_key if current_contact else f"recipient:{uuid.uuid4()}"]},
+      ))
+      await group_update.session.commit()
+      errors = []
+      for build in (reference(preview.GroupUpdateAttempt), preview.build_group_update_preview):
+          with pytest.raises(ValidationError) as raised:
+              await build(group_update.session, group=group_update.group, audience=GroupUpdateAudience())
+          errors.append(raised.value.errors())
+      assert errors[0] == errors[1]
+      group_update.provider.assert_not_awaited()
+      group_update.publish.assert_not_awaited()
+      record({"case": "invalid-old-current" if current_contact else "invalid-old-unrelated", "validation_errors_exact": errors[0] == errors[1], "errors": errors[1]})
+file C:\Users\nipun\Desktop\PassDetection\backend\tests\integration\test_group_updates.py, line 37
+  @pytest.fixture
+  async def group_update(db_session, monkeypatch):
+      await db_session.execute(text("DROP INDEX uq_whatsapp_active_explicit_resend"))
+      agency = AgencyModel(id=uuid.uuid4(), name="Update agency", email="updates@example.test")
+      actor = UserModel(id=uuid.uuid4(), agency_id=agency.id, role="agency_admin", email="admin@example.test",
+                        hashed_password="unused", full_name="Staff", is_active=True)
+      group = ClientGroupModel(id=uuid.uuid4(), agency_id=agency.id, name="Trip", token=uuid.uuid4().hex)
+      broadcast = WhatsAppBroadcastGroupModel(id=uuid.uuid4(), agency_id=agency.id, name="Excel contacts",
+                                              recipient_opt_in_confirmed_at=datetime.now(UTC))
+      link = ClientGroupWhatsAppBroadcastLinkModel(agency_id=agency.id, client_group_id=group.id,
+                                                 broadcast_group_id=broadcast.id, matching_field_keys=["staff_code"])
+      recipients = [WhatsAppBroadcastRecipientModel(
+          id=uuid.uuid4(), agency_id=agency.id, broadcast_group_id=broadcast.id, name=f"Contact {i}",
+          phone_number=f"+9198765432{i:02}", normalized_phone_number=f"+9198765432{i:02}",
+          imported_fields={"staff_code": f"EMP{i}"},
+      ) for i in range(4)]
+      passengers = [PassportSubmissionModel(
+          id=uuid.uuid4(), agency_id=agency.id, group_id=group.id, client_name=f"Person {i}",
+          client_phone=f"+9191234567{i:02}", client_reviewed_at=datetime.now(UTC),
+          staff_metadata={"staff_code": f"EMP{i}"}, image_s3_key="test/passport", status="staff_approved",
+      ) for i in range(3)]
+      await persist_graph(db_session, [agency, actor, group, broadcast, link, *recipients, *passengers])
+      monkeypatch.setattr(group_update_preview, "configured_template_name", AsyncMock(return_value="pending_v1"))
+      monkeypatch.setattr(group_update_preview, "get_settings", lambda: SimpleNamespace(whatsapp_access_token="test", whatsapp_phone_number_id="test"))
+      publish = AsyncMock(return_value=1)
+      monkeypatch.setattr(web_publication, "run_whatsapp_send_publication", publish)
+      monkeypatch.setattr(document_update_runtime, "AsyncSessionFactory", async_sessionmaker(db_session.bind, expire_on_commit=False))
+      monkeypatch.setattr(document_update_runtime, "get_settings", lambda: SimpleNamespace(whatsapp_phone_number_id="test"))
+      provider = AsyncMock(side_effect=lambda **kwargs: "wamid." + uuid.uuid4().hex)
+      monkeypatch.setattr(document_update_runtime, "send_whatsapp_document_update_template", provider)
+      app = FastAPI()
+      app.include_router(group_updates.router)
+      actor_entity = await UserRepository(db_session).get_by_id(actor.id)
+      app.dependency_overrides[get_current_active_user] = lambda: actor_entity
+      app.dependency_overrides[get_db_session] = lambda: db_session
+      async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+          yield SimpleNamespace(session=db_session, agency=agency, actor=actor_entity, group=group, broadcast=broadcast, link=link,
+                                passengers=passengers, recipients=recipients, client=client, publish=publish, provider=provider)
+E       fixture 'db_session' not found
+>       available fixtures: _asyncio_loop_factory, _class_scoped_runner, _function_scoped_runner, _module_scoped_runner, _package_scoped_runner, _session_scoped_runner, anyio_backend, anyio_backend_name, anyio_backend_options, cache, capfd, capfdbinary, caplog, capsys, capsysbinary, capteesys, cov, doctest_namespace, event_loop_policy, free_tcp_port, free_tcp_port_factory, free_udp_port, free_udp_port_factory, group_update, monkeypatch, no_cover, platformdirs_isolated, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, subtests, testrun_uid, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory, unused_tcp_port, unused_tcp_port_factory, unused_udp_port, unused_udp_port_factory, worker_id
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+C:\Users\nipun\Desktop\PassDetection\backend\tests\integration\test_group_updates.py:37
+
+---------- coverage: platform win32, python 3.11.15-final-0 ----------
+Coverage XML written to file C:\Users\nipun\Desktop\PassDetection\docs\audit\dashboard-2026-10-30\group-preview-retention-after-coverage.xml
+Coverage JSON written to file C:\Users\nipun\Desktop\PassDetection\docs\audit\dashboard-2026-10-30\group-preview-retention-after-coverage.json
+
+=========================== short test summary info ===========================
+ERROR ::test_original_and_current_full_response_token_and_real_lifetime[empty-0]
+ERROR ::test_original_and_current_full_response_token_and_real_lifetime[one-1]
+ERROR ::test_original_and_current_full_response_token_and_real_lifetime[history64-64]
+ERROR ::test_original_and_current_full_response_token_and_real_lifetime[history512-512]
+ERROR ::test_original_and_current_full_response_token_and_real_lifetime[timestamp-ties-64]
+ERROR ::test_original_and_current_invalid_old_json_errors_match[True]
+ERROR ::test_original_and_current_invalid_old_json_errors_match[False]
+55 passed, 7 errors in 61.29s (0:01:01)

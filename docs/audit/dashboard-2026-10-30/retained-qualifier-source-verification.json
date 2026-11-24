@@ -1,0 +1,39 @@
+{
+  "status": "Bounded read-only qualifier/custom-question source cohort complete; broader audit active",
+  "new_current_full_tests": 7,
+  "test_physical_lines": 708,
+  "supporting_full_rows": 6,
+  "focused_rows": 4,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-qualifier-source-reviewed-files.json",
+    "sha256": "fb689f85ef8699c3bb404fcbadf88d729f2650a867491491555bb0a1ce5ebe8e"
+  },
+  "source_fence": {
+    "backend/tests/integration/test_qualifier_selection_api.py": "123009f2089808e669ce44ec3d874930668a3f8029f639b252decede0acc62ca",
+    "backend/tests/unit/application/test_qualifier_entry_options.py": "0047be9f36e847fc3f5e7e61bd19e3c7d1a8d9975fc875fb50d41f8f88153fd3",
+    "backend/tests/unit/domain/test_custom_questions.py": "4e557fa359b82a8f2202610109e11f44be2c80ad6fd62e0f71df462c4fa68c34",
+    "backend/tests/unit/domain/test_qualifier_relations.py": "24e63026e0386eab408e26304f3ce29e4ce05ab44a98f82d6ff8ee55b0a680c6",
+    "backend/tests/unit/infrastructure/test_qualifier_other_migration.py": "169e46901df4f594a829acfa7110bdc3fdc25777783a3cf626668ceb758b928a",
+    "backend/tests/unit/infrastructure/test_relation_qualifier_migration.py": "c7ce0847bead26d56bcedfd241ccc941fd64976eb81fb82a7e0a3b91ea45c8f6",
+    "backend/tests/unit/presentation/test_qualifier_schemas.py": "d8bb96b60af4a8f5da7426a27eff442f82d9b04d054fed1c9f3cf94f43d4e392",
+    "backend/app/application/use_cases/client_groups/create_qualifier_selection_use_case.py": "a1728ffa9e42ef3548017dfe1dc515fed229fb6ea33ebefccc8552b9027e994f",
+    "backend/app/application/use_cases/client_groups/get_qualifier_selection_use_case.py": "30fa653479f7917ec0e5cc6b60f87e342b972da52f38c3ea0f3012c8abb37a9c",
+    "backend/app/domain/value_objects/qualifier_relations.py": "9f50acde7e0eede23f2a39fbfced5bb3afab73fb7788d53b76e7ab1a0b919520",
+    "backend/app/domain/value_objects/custom_questions.py": "c2a92a0a801a7651dadf243adba4e250ce0041f1a8b01271a61a90c93d065ebb",
+    "backend/app/infrastructure/repositories/qualifier_selection_repository.py": "f69195cc4735695efe1ac03db4104ee1efb04941d2b93822b542f53fbc93446f",
+    "backend/app/presentation/api/v1/schemas/client_group_qualifier_schemas.py": "5360d1e3c4a935df8e9b6b1a210be2dc79b0e45d26310b9095f802475c11e59b",
+    "backend/app/presentation/api/v1/routes/client_groups.py": "b48a7e4843e9f1b8d48d7a3483e5ad4d52eac984e65c05a9b78b716559b13179",
+    "backend/app/presentation/api/v1/routes/client_group_public_collection.py": "accb96e643cabdf450bc456fca5284e4a0007c490abac2b74630540f10c77bd6",
+    "backend/app/presentation/api/v1/schemas/client_group_schemas.py": "3c4e4bcc5c3d84548c5b2be38a5464b5a5bece5879306b4604cf9fc9c123c96b",
+    "backend/app/domain/value_objects/upload_configuration.py": "c0037adcd30fdfd24dabf764882ddd8d23733d67d22438d1ac50d2d1d8e4f119"
+  },
+  "checks_run": [],
+  "changes": [],
+  "findings": [],
+  "proof_gaps": [
+    "Actual source/fixtures read without tests/checks; passing service/HTTP/concurrency behavior not claimed.",
+    "Historical offline/mock migration controls are not current topology or populated PostgreSQL proof; no migration bytes changed.",
+    "Current full supporting rereads are not seven additional newly unreviewed tests; focused slices stay partial.",
+    "No bounded ordinary defect validated, so no runtime or policy changes justified."
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "status": "Read-only current source cohort complete; broader audit active",
+  "new_current_full_tests": 3,
+  "test_physical_lines": 1834,
+  "supporting_full_rows": 0,
+  "focused_rows": 3,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-processing-admin-source-reviewed-files.json",
+    "sha256": "48c2c3d51fa9e4477cb6955c221f61a269789d771eaa6348fb5e871c60fcf1af"
+  },
+  "source_fence": {
+    "backend/tests/unit/application/test_post_submission_verification_workflow.py": "ab94c73631caa5ef7fc66e8782bedaf12fa05d05631d298382557229b24d55bb",
+    "backend/tests/unit/application/test_passport_processing_reliability.py": "069bd11d0258367b5737071bddaed7d92aaf8cca81f1a8552fa2a3c1809d1507",
+    "backend/tests/unit/presentation/test_gc_app_client_managers.py": "e0f5a0de47724bd3780bf188bf38ba89ad230a9aa657dc741f1b8b7765436d37",
+    "backend/app/application/use_cases/passports/process_passport_submission_job_use_case.py": "998192ee86644c66578b549b637aa622264e97179ecba66b7fd2a3227260c4c5",
+    "backend/app/presentation/api/v1/routes/gc_app_manager_creation.py": "d11ae641ad5e32496956609465046db83ffba3ebe8288c54d334734040bf6465",
+    "backend/app/presentation/api/v1/routes/gc_app_manager_profile.py": "e7f22a5da952fe5084ce284746e3b55c3e04116f5e50053a885bcb68935c9271"
+  },
+  "previous_current_full_support": [
+    {
+      "path": "backend/app/application/use_cases/passports/staff_approve_passport_use_case.py",
+      "sha256": "d11f2e0d4af4d1699bb3c2733b530f060c56706b8d7882d2779ac27aaf581eb8",
+      "ledgers": [
+        "export-helper-source-read-reviewed-files.json"
+      ]
+    }
+  ],
+  "checks_run": [],
+  "changes": [],
+  "findings": [],
+  "limitations": [
+    "No app/test/database/provider/network/credential/scanner execution for source-read credit.",
+    "Mocked concurrent approval/compiled SQL/worker/provider fixtures do not establish actual PostgreSQL locks or live provider outcomes.",
+    "AI-only extraction behavior is recorded from existing source assertions and bounded current runtime slice, not a new inference-provider or full590-line owner qualification.",
+    "Dashboard account management and shared session revocation retained; native ingress/device/Expo work and dedicated Operations Inbox remain excluded/deferred."
+  ]
+}

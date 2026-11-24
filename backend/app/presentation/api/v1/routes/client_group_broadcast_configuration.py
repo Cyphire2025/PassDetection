@@ -45,12 +45,14 @@ async def _broadcast_summaries(
     )
     active_or_retained = [WhatsAppBroadcastGroupModel.archived_at.is_(None)]
     if existing_group_id is not None:
-        active_or_retained.append(WhatsAppBroadcastGroupModel.id.in_(
-            select(ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id).where(
-                ClientGroupWhatsAppBroadcastLinkModel.client_group_id == existing_group_id,
-                ClientGroupWhatsAppBroadcastLinkModel.agency_id == agency_id,
+        active_or_retained.append(
+            WhatsAppBroadcastGroupModel.id.in_(
+                select(ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id).where(
+                    ClientGroupWhatsAppBroadcastLinkModel.client_group_id == existing_group_id,
+                    ClientGroupWhatsAppBroadcastLinkModel.agency_id == agency_id,
+                )
             )
-        ))
+        )
     if allowed_archived_ids:
         active_or_retained.append(WhatsAppBroadcastGroupModel.id.in_(allowed_archived_ids))
     stmt = stmt.where(or_(*active_or_retained))
@@ -148,7 +150,8 @@ async def _linked_broadcast_summaries_by_group(
 
 
 def requested_link_configuration(
-    summaries: list[WhatsAppBroadcastSummaryResponse], requested_ids: list[uuid.UUID],
+    summaries: list[WhatsAppBroadcastSummaryResponse],
+    requested_ids: list[uuid.UUID],
     previous_configuration: dict[uuid.UUID, tuple[str, ...] | None],
     matching_fields_by_broadcast: dict[uuid.UUID, list[str]] | None,
 ) -> dict[uuid.UUID, tuple[str, ...] | None]:

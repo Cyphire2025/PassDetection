@@ -44,9 +44,10 @@ def validated_export_history_ids(
     except (TypeError, ValueError, AttributeError) as exc:
         raise ValueError("The export history entry contains an invalid ID.") from exc
     expected = history.total_available_count if field_name == "snapshot_submission_ids" else history.exported_count
-    if len(parsed) != expected or len(set(parsed)) != expected:
+    unique = set(parsed)
+    if len(parsed) != expected or len(unique) != expected:
         raise ValueError("The export history entry failed its integrity check.")
-    return set(parsed)
+    return unique
 
 
 def validated_export_kind(value: str) -> PassportExportKind:

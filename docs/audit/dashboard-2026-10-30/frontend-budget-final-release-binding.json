@@ -1,0 +1,7 @@
+{
+  "path": "frontend/scripts/verify-frontend-module-budgets.mjs",
+  "previous_after": "262ebfe26f695de728acfcb43f2f87122a2ead6ca1ee9ec0f7a5ac996f766b5a",
+  "current_after": "658555172b41690d504bf3fce6754c6828d9a3a2f21752e2c409c980f3d51266",
+  "policy_ast_changed_only_exact_after_digest": true,
+  "both_original_baselines_preserved": true
+}

@@ -1,0 +1,117 @@
+
+================================== FAILURES ===================================
+__ test_manifest_failure_drains_started_sdk_sibling_before_returning[False] ___
+
+late_failure = False
+
+    @pytest.mark.parametrize("late_failure", [False, True])
+    async def test_manifest_failure_drains_started_sdk_sibling_before_returning(late_failure):
+        started = asyncio.Event()
+        release, finished = threading.Event(), threading.Event()
+        loop = asyncio.get_running_loop()
+        availability_calls = []
+        first_asset, second_asset = _asset(0), _asset(1)
+    
+        def native():
+            loop.call_soon_threadsafe(started.set)
+            try:
+                if not release.wait(5):
+                    raise AssertionError("Synthetic media worker was never released")
+                if late_failure:
+                    raise ValueError("synthetic late media failure")
+                return SimpleNamespace(
+                    storage_reference="versioned:synthetic",
+                    source_object_reference=second_asset.archive_reference,
+                    availability_state="original_available_online",
+                )
+            finally:
+                finished.set()
+    
+        class Media:
+            async def register(self, request):
+                if request.asset_identity == first_asset.immutable_asset_key:
+                    await started.wait()
+                    raise MyPhotosUnavailable("SYNTHETIC_FIRST_FAILURE", "Synthetic provider failure")
+                return await _async_client_call(native)
+    
+            async def availability(self, request):
+                availability_calls.append(request)
+                raise AssertionError("No new variant call should start after batch failure")
+    
+        request = _request(
+            agency_id=uuid.uuid4(), group_id=uuid.uuid4(), manifest_identity="manifest-fixture",
+            target_revision=1, assets=(first_asset, second_asset), total_asset_count=2, batch_index=0,
+        )
+        ctx = GalleryManifestContext(None, _settings(), SimpleNamespace(media=Media()))
+        task = asyncio.create_task(_verify_media(ctx, request))
+        try:
+            await asyncio.wait_for(started.wait(), 2)
+            for _ in range(10):
+                await asyncio.sleep(0)
+>           assert not task.done(), "Manifest returned while a started native provider sibling was alive"
+E           AssertionError: Manifest returned while a started native provider sibling was alive
+E           assert not True
+E            +  where True = <built-in method done of _asyncio.Task object at 0x000002222E771FC0>()
+E            +    where <built-in method done of _asyncio.Task object at 0x000002222E771FC0> = <Task finished name='Task-2' coro=<_verify_media() done, defined at C:\Users\nipun\Desktop\PassDetection\backend\app\infrastructure\my_photos\gallery_manifest_providers.py:110> exception=MyPhotosUnavailable('Synthetic provider failure')>.done
+
+tests\unit\infrastructure\test_my_photos_manifest_provider_ownership.py:61: AssertionError
+___ test_manifest_failure_drains_started_sdk_sibling_before_returning[True] ___
+
+late_failure = True
+
+    @pytest.mark.parametrize("late_failure", [False, True])
+    async def test_manifest_failure_drains_started_sdk_sibling_before_returning(late_failure):
+        started = asyncio.Event()
+        release, finished = threading.Event(), threading.Event()
+        loop = asyncio.get_running_loop()
+        availability_calls = []
+        first_asset, second_asset = _asset(0), _asset(1)
+    
+        def native():
+            loop.call_soon_threadsafe(started.set)
+            try:
+                if not release.wait(5):
+                    raise AssertionError("Synthetic media worker was never released")
+                if late_failure:
+                    raise ValueError("synthetic late media failure")
+                return SimpleNamespace(
+                    storage_reference="versioned:synthetic",
+                    source_object_reference=second_asset.archive_reference,
+                    availability_state="original_available_online",
+                )
+            finally:
+                finished.set()
+    
+        class Media:
+            async def register(self, request):
+                if request.asset_identity == first_asset.immutable_asset_key:
+                    await started.wait()
+                    raise MyPhotosUnavailable("SYNTHETIC_FIRST_FAILURE", "Synthetic provider failure")
+                return await _async_client_call(native)
+    
+            async def availability(self, request):
+                availability_calls.append(request)
+                raise AssertionError("No new variant call should start after batch failure")
+    
+        request = _request(
+            agency_id=uuid.uuid4(), group_id=uuid.uuid4(), manifest_identity="manifest-fixture",
+            target_revision=1, assets=(first_asset, second_asset), total_asset_count=2, batch_index=0,
+        )
+        ctx = GalleryManifestContext(None, _settings(), SimpleNamespace(media=Media()))
+        task = asyncio.create_task(_verify_media(ctx, request))
+        try:
+            await asyncio.wait_for(started.wait(), 2)
+            for _ in range(10):
+                await asyncio.sleep(0)
+>           assert not task.done(), "Manifest returned while a started native provider sibling was alive"
+E           AssertionError: Manifest returned while a started native provider sibling was alive
+E           assert not True
+E            +  where True = <built-in method done of _asyncio.Task object at 0x000002222E772380>()
+E            +    where <built-in method done of _asyncio.Task object at 0x000002222E772380> = <Task finished name='Task-10' coro=<_verify_media() done, defined at C:\Users\nipun\Desktop\PassDetection\backend\app\infrastructure\my_photos\gallery_manifest_providers.py:110> exception=MyPhotosUnavailable('Synthetic provider failure')>.done
+
+tests\unit\infrastructure\test_my_photos_manifest_provider_ownership.py:61: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/unit/infrastructure/test_my_photos_manifest_provider_ownership.py::test_manifest_failure_drains_started_sdk_sibling_before_returning[False]
+FAILED tests/unit/infrastructure/test_my_photos_manifest_provider_ownership.py::test_manifest_failure_drains_started_sdk_sibling_before_returning[True]
+2 failed in 0.49s
+

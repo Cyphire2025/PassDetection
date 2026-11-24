@@ -1,0 +1,12 @@
+{
+  "candidates": "docs/audit/dashboard-2026-10-30/operations-hooks-budget-candidates.json",
+  "before_sha256": "225c76f2c5e3018e2afea5ca31b4c787b12708eb2a73b80f9d87108aa5bbb117",
+  "sha256": "d0b4167226b11543a4bbd090a0ba57fd9f299fc9c648122bab75b5513a313d3d",
+  "lf_normalized_sha256": "767eeb918abe61f755ac281b4ab25ba1a64677f5f7978a24b6275622ecedf873",
+  "added": 10,
+  "updated_existing": 0,
+  "lowered_existing": 0,
+  "lowered_existing_paths": [],
+  "existing_ceilings_preserved": true,
+  "previous_ceilings_sha256": "ef8dd7f931eb8464b8db8e8823d7a5c1c1e3a62bfcab177459a5b0caf6dd8606"
+}

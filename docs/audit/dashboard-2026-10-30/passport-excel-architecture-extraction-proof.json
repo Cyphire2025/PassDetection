@@ -1,0 +1,543 @@
+{
+  "original_sha256": "bc2c4432736e7d9296f12a55cc75ed0b479260f3ebe63b5da709c25e75d31a1a",
+  "unchanged_original_methods_after_only_catalog_qualification": [
+    "_validate_archive",
+    "_archive_member_contains_formula",
+    "_formula_row_usage",
+    "_next_formula_row_usage",
+    "_row_materialized_usage",
+    "_validate_row_count",
+    "_validate_materialized_budget",
+    "_find_header_row",
+    "_map_headers",
+    "_metadata_headers",
+    "_map_row",
+    "_confirmed_fields",
+    "_map_metadata_row",
+    "_is_repeated_header_row",
+    "_normalize_header",
+    "_stringify",
+    "_name_from_parts",
+    "_normalize_email",
+    "_bounded_value"
+  ],
+  "fully_expanded_import_rows_ast_equal": true,
+  "expanded_statement_movement": {
+    "typed_state_initialization_expanded": 1,
+    "sheet_calls_expanded": 1,
+    "sheet_return_to_original_continue": 2,
+    "passenger_row_calls_expanded": 1,
+    "duplicate_unmapped_quota_blocks_expanded": 3,
+    "row_data_fields_exactly_bound": [
+      "data_rows",
+      "first_row_number",
+      "formula_rows",
+      "headers",
+      "metadata_headers",
+      "scanned_rows",
+      "worksheet"
+    ],
+    "per_import_data_fields_exactly_bound": [
+      "imported",
+      "readable_sheet_count",
+      "total_metadata_characters",
+      "total_populated_cells",
+      "total_rows"
+    ],
+    "formula_columns_local_annotation_only": "frozenset[int] restores the original broad function's inference context"
+  },
+  "old_self_calls_preserved_in_exact_order": 31,
+  "actual_old_method_descriptors_bound": 20,
+  "actual_public_module_and_class_annotation_contracts_equal": true,
+  "new_helper_and_data_annotations_evaluated": true,
+  "pure_functions_policy_assignments_and_three_original_record_class_asts_equal": true,
+  "public_class_paths_and_final_constant_alias_identity": true,
+  "class_and_instance_override_lookup_preserved": true,
+  "actual_caller_bindings": [
+    {
+      "caller": "app.presentation.api.v1.routes.passports",
+      "name": "ImportedPassportRow",
+      "same_public_object": true
+    },
+    {
+      "caller": "app.presentation.api.v1.routes.passport_excel_import_support",
+      "name": "ImportedPassportRow",
+      "same_public_object": true
+    },
+    {
+      "caller": "app.presentation.api.v1.routes.passport_routes.excel_import",
+      "name": "ImportedPassportRow",
+      "same_public_object": true
+    },
+    {
+      "caller": "app.presentation.api.v1.routes.passport_routes.excel_import",
+      "name": "PassportExcelImporter",
+      "same_public_object": true
+    },
+    {
+      "caller": "app.application.mcp.group_workbook_source",
+      "name": "PassportExcelImporter",
+      "same_public_object": true
+    },
+    {
+      "caller": "app.application.mcp.group_workbook_plan",
+      "name": "ImportedPassportRow",
+      "same_public_object": true
+    },
+    {
+      "caller": "app.presentation.mcp.group_workbook_tools",
+      "name": "PassportExcelImportError",
+      "same_public_object": true
+    }
+  ],
+  "actual_global_bindings": [
+    {
+      "old_method": "import_rows",
+      "dependency": "BadZipFile",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "import_rows",
+      "dependency": "ImportedPassportRow",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "import_rows",
+      "dependency": "InvalidFileException",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "import_rows",
+      "dependency": "MAX_PASSPORT_EXCEL_COLUMNS",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "import_rows",
+      "dependency": "MAX_PASSPORT_EXCEL_ROWS",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "import_rows",
+      "dependency": "MAX_PASSPORT_EXCEL_WORKSHEETS",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "import_rows",
+      "dependency": "PASSPORT_EXCEL_HEADER_SCAN_ROWS",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "import_rows",
+      "dependency": "PassportExcelImportError",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "import_rows",
+      "dependency": "chain",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "import_rows",
+      "dependency": "io",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "import_rows",
+      "dependency": "islice",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "import_rows",
+      "dependency": "load_workbook",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_validate_archive",
+      "dependency": "BadZipFile",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_validate_archive",
+      "dependency": "MAX_PASSPORT_EXCEL_ARCHIVE_MEMBERS",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_validate_archive",
+      "dependency": "MAX_PASSPORT_EXCEL_COMPRESSION_RATIO",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_validate_archive",
+      "dependency": "MAX_PASSPORT_EXCEL_UNCOMPRESSED_BYTES",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_validate_archive",
+      "dependency": "PASSPORT_EXCEL_COMPRESSION_RATIO_MIN_BYTES",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_validate_archive",
+      "dependency": "PassportExcelImportError",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_validate_archive",
+      "dependency": "WorkbookXMLParseError",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_validate_archive",
+      "dependency": "ZipFile",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_validate_archive",
+      "dependency": "io",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_archive_member_contains_formula",
+      "dependency": "Any",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_archive_member_contains_formula",
+      "dependency": "ZipFile",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_archive_member_contains_formula",
+      "dependency": "worksheet_contains_formula",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_formula_row_usage",
+      "dependency": "Any",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_next_formula_row_usage",
+      "dependency": "Any",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_next_formula_row_usage",
+      "dependency": "Iterator",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_next_formula_row_usage",
+      "dependency": "PassportExcelImportError",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_validate_row_count",
+      "dependency": "MAX_PASSPORT_EXCEL_ROWS",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_validate_row_count",
+      "dependency": "PassportExcelImportError",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_validate_materialized_budget",
+      "dependency": "MAX_PASSPORT_EXCEL_METADATA_CHARACTERS",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_validate_materialized_budget",
+      "dependency": "MAX_PASSPORT_EXCEL_POPULATED_CELLS",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_validate_materialized_budget",
+      "dependency": "PassportExcelImportError",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_find_header_row",
+      "dependency": "Any",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_find_header_row",
+      "dependency": "PASSPORT_EXCEL_HEADER_SCAN_ROWS",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_find_header_row",
+      "dependency": "_HEADER_ALIAS_INDEX",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_find_header_row",
+      "dependency": "_NAME_FIELDS",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_find_header_row",
+      "dependency": "_header_identity",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_map_headers",
+      "dependency": "Any",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_map_headers",
+      "dependency": "PassportExcelImportError",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_map_headers",
+      "dependency": "_HEADER_ALIAS_INDEX",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_map_headers",
+      "dependency": "_header_identity",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_metadata_headers",
+      "dependency": "Any",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_metadata_headers",
+      "dependency": "_RESERVED_METADATA_KEYS",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_metadata_headers",
+      "dependency": "re",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_metadata_headers",
+      "dependency": "unicodedata",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_map_row",
+      "dependency": "Any",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_map_row",
+      "dependency": "_EXCEL_ERROR_CELL_VALUES",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_confirmed_fields",
+      "dependency": "MAX_PASSPORT_NUMBER_LENGTH",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_confirmed_fields",
+      "dependency": "MAX_REVIEWED_FIELD_VALUE_LENGTH",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_confirmed_fields",
+      "dependency": "PassportExcelImportError",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_confirmed_fields",
+      "dependency": "_DATE_FIELDS",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_confirmed_fields",
+      "dependency": "_canonicalize_numeric_date_separators",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_confirmed_fields",
+      "dependency": "normalize_extracted_passport_dates",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_confirmed_fields",
+      "dependency": "normalize_passport_date_evidence",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_confirmed_fields",
+      "dependency": "normalize_passport_number_identity",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_confirmed_fields",
+      "dependency": "normalize_passport_sex_identity",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_is_repeated_header_row",
+      "dependency": "Any",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_is_repeated_header_row",
+      "dependency": "_HEADER_ALIAS_INDEX",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_is_repeated_header_row",
+      "dependency": "_header_identity",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_normalize_header",
+      "dependency": "Any",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_normalize_header",
+      "dependency": "_normalized_header_text",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_stringify",
+      "dependency": "Any",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_stringify",
+      "dependency": "MAX_PASSPORT_EXCEL_CELL_CHARACTERS",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_stringify",
+      "dependency": "PassportExcelImportError",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_stringify",
+      "dependency": "_EMPTY_CELL_VALUES",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_stringify",
+      "dependency": "date",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_stringify",
+      "dependency": "datetime",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_stringify",
+      "dependency": "math",
+      "actual_owner_binding_proved": true
+    },
+    {
+      "old_method": "_bounded_value",
+      "dependency": "PassportExcelImportError",
+      "actual_owner_binding_proved": true
+    }
+  ],
+  "no_implementation_owner_imports_public_facade": true,
+  "formula_helper_current_sha_unchanged": true,
+  "test_edit": "One instrumentation import retarget only; all other source and assertions exact after LF normalization",
+  "original_assertions_unchanged": 57,
+  "no_new_workbook_or_adversarial_fixture": true,
+  "bound_sources": [
+    {
+      "path": "backend/app/infrastructure/imports/passport_excel_importer.py",
+      "sha256": "44406c80359ec3c37197a566cd150e0b439838885b3016416316870e008fde03",
+      "lines": 115
+    },
+    {
+      "path": "backend/app/infrastructure/imports/passport_excel_catalog.py",
+      "sha256": "3a27556ec32bec2c7a524951981ed4906421f52b7c4a0fd8c313fbda56eb45f3",
+      "lines": 228
+    },
+    {
+      "path": "backend/app/infrastructure/imports/passport_excel_records.py",
+      "sha256": "f6f895e4cd3e8efe09c1242438811b475671e2cb2ce7ae56e61ac3b4880d5b15",
+      "lines": 52
+    },
+    {
+      "path": "backend/app/infrastructure/imports/passport_excel_rows.py",
+      "sha256": "93d00e74b9003e981f0fc65987efacb1a8a3f0be945e42fa3a0e15b473c4f44e",
+      "lines": 264
+    },
+    {
+      "path": "backend/app/infrastructure/imports/passport_excel_limits.py",
+      "sha256": "a12469a59bc650b82151139c66e90c1c3b3e38d6b0813b0b926e371c4e78d7ca",
+      "lines": 158
+    },
+    {
+      "path": "backend/app/infrastructure/imports/passport_excel_worksheets.py",
+      "sha256": "1ac46c34eec98de7b4ea6fee9188580d44af16a43c2cbd1aaae0a612ca1913a3",
+      "lines": 256
+    },
+    {
+      "path": "backend/app/infrastructure/imports/passport_excel_formula.py",
+      "sha256": "d932d4ce4b788fc5ea6f7e239395e859c6d471f8f948545bfbedccd6b02e4d40",
+      "lines": 46
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_passport_excel_importer.py",
+      "sha256": "71823038ba16c82b2718e93977789c516d22190cbec05a140c76300b2208c0bd",
+      "lines": 571
+    }
+  ],
+  "measurements": [
+    {
+      "path": "app/infrastructure/imports/passport_excel_importer.py",
+      "lines": 115,
+      "max_function_complexity": 13,
+      "most_complex_function": "import_rows",
+      "coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/imports/passport_excel_catalog.py",
+      "lines": 228,
+      "max_function_complexity": 7,
+      "most_complex_function": "_build_header_alias_index",
+      "coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/imports/passport_excel_records.py",
+      "lines": 52,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/imports/passport_excel_rows.py",
+      "lines": 264,
+      "max_function_complexity": 13,
+      "most_complex_function": "_confirmed_fields",
+      "coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/imports/passport_excel_limits.py",
+      "lines": 158,
+      "max_function_complexity": 13,
+      "most_complex_function": "_validate_archive",
+      "coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/imports/passport_excel_worksheets.py",
+      "lines": 256,
+      "max_function_complexity": 25,
+      "most_complex_function": "_collect_worksheet",
+      "coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/imports/passport_excel_formula.py",
+      "lines": 46,
+      "max_function_complexity": 4,
+      "most_complex_function": "worksheet_contains_formula",
+      "coverage_percent": null
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "status": "source baseline62passed; concrete phase plan before movement",
+  "source_before_sha256": "787bdb0c731bd73589666d39e39196c57e3bd2eaa3c8af1b28a965d0d7e1f670",
+  "baseline_command": {
+    "path": "whatsapp-send-architecture-before-command.json",
+    "sha256": "79491522681f2f2ec17685a90cd3110b6e9902db7e4b4ae89c3d7eb0dca6c234"
+  },
+  "original_top_level_statement_units_including_docstring": 54,
+  "owners": {
+    "whatsapp_send_preparation.py": {
+      "slice_original_body_indices": [
+        1,
+        21
+      ],
+      "outputs": [
+        "group",
+        "message_type",
+        "source_recipients",
+        "audience_resolution",
+        "recipients",
+        "support_contacts",
+        "merged_body",
+        "header_image_id",
+        "message_content",
+        "passport_intro"
+      ],
+      "typed_data": "Frozen dataclass of only actual live outputs; no session/user/settings/callbacks"
+    },
+    "whatsapp_send_claims.py": {
+      "slice_original_body_indices": [
+        30,
+        49
+      ],
+      "outputs": [
+        "claimed_recipients",
+        "welcome_log_ids",
+        "skipped_already_sent",
+        "skipped_in_progress",
+        "skipped_delivery_unknown"
+      ],
+      "typed_data": "Frozen dataclass of actual claim and response accounting outputs; original pg_insert remains main and passed explicitly"
+    },
+    "whatsapp_send_projection.py": {
+      "responsibility": "Same response constructors and exact worker payload literal via concrete typed inputs, original scalar values passed rather than assuming request validators leave all values unmodified"
+    },
+    "whatsapp_send.py": {
+      "retained": "Original public2functions/defaults/hints/direct helper body/register call/compat aliases; settings+credential/template checks, resolved request, UUID and clock capture, log creation and later language projection stay at original control-flow positions"
+    }
+  },
+  "existing_budget": {
+    "maximum_lines": 440,
+    "maximum_function_complexity": 27,
+    "minimum_coverage_percent": 86,
+    "critical_membership": false
+  },
+  "proof_plan": [
+    "Full original queue AST restoration after phase expansion and named output-to-local mapping; original statement/query/await/lock ordering retained",
+    "Original public direct helper whole AST, all original imported object identities and public pickle/signature/hint/default dependency metadata",
+    "Actual minimal complete HTTP OpenAPI and router order/closure queue identity stable",
+    "Original62affected cases before and after; original business assertion ASTs preserved with only actual dependency target retargets if needed",
+    "Fresh source-bound current-owner coverage transfers old86normal obligation to all moved logic owners; no inventedcritical/declaration gate"
+  ],
+  "limits": "Readability architecture only, no validated new behavior defect or provider sends. No wholemutablecontext, mixins/proxy/global callbacks or speculativepolicy change."
+}

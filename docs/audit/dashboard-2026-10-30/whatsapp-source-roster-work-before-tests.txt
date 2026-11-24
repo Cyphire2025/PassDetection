@@ -1,0 +1,55 @@
+.F                                                                       [100%]
+================================== FAILURES ===================================
+_ test_current_roster_projection_preserves_order_and_counts_with_linear_reads[64-512] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000024112EFA3D0>
+groups = 64, contacts = 512
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(("groups", "contacts"), [(3, 6), (64, 512)])
+    async def test_current_roster_projection_preserves_order_and_counts_with_linear_reads(
+        monkeypatch: pytest.MonkeyPatch, groups: int, contacts: int,
+    ) -> None:
+        agency_id, broadcast_id = uuid.uuid4(), uuid.uuid4()
+        actor = User(
+            id=uuid.uuid4(), email="admin@example.test", hashed_password="unused",
+            full_name="Admin", role=UserRole.AGENCY_ADMIN, agency_id=agency_id,
+        )
+        sources = [SimpleNamespace(id=uuid.uuid4(), name=f"Group {i}", import_only=False) for i in range(groups)]
+        counter = {"reads": 0}
+        rows = [CountedSourceRow(
+            counter=counter, group_id=sources[i % groups].id, source_submission_id=uuid.uuid4(),
+            name=f"Person {i}", raw_phone_number=f"+9198{i:08d}",
+            normalized_phone_number=f"+9198{i:08d}", issue=None,
+            imported_fields={"reference": str(i)}, recipient_id=uuid.uuid4(),
+        ) for i in range(contacts)]
+        broadcast, source_result, row_result = MagicMock(), MagicMock(), MagicMock()
+        broadcast.scalar_one_or_none.return_value = SimpleNamespace(id=broadcast_id, agency_id=agency_id)
+        source_result.scalars.return_value.all.return_value = sources
+        row_result.scalars.return_value.all.return_value = rows
+        session = AsyncMock()
+        session.execute.side_effect = [broadcast, source_result, row_result]
+        overrides = AsyncMock(return_value={})
+        monkeypatch.setattr(routes, "load_valid_traveller_phone_overrides", overrides)
+    
+        response = await routes.get_broadcast_source_contacts(broadcast_id, actor, session)
+    
+        assert response.total_contacts == contacts
+        assert response.unique_phone_count == contacts
+        assert response.shared_phone_count == response.needs_attention_count == 0
+        assert [item.id for item in response.sources] == [source.id for source in sources]
+        assert [item.submission_count for item in response.sources] == [
+            contacts // groups + int(i < contacts % groups) for i in range(groups)
+        ]
+        assert [item.source_submission_id for item in response.contacts] == [row.source_submission_id for row in rows]
+        assert [item.phone_number for item in response.contacts] == [row.raw_phone_number for row in rows]
+        assert session.execute.await_count == 3
+        overrides.assert_awaited_once_with(session, agency_id=agency_id, broadcast_group_ids={broadcast_id})
+>       assert counter["reads"] <= 6 * contacts + 2 * groups, counter
+E       AssertionError: {'reads': 34304}
+E       assert 34304 <= ((6 * 512) + (2 * 64))
+
+tests\unit\presentation\test_whatsapp_source_roster_work.py:62: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/unit/presentation/test_whatsapp_source_roster_work.py::test_current_roster_projection_preserves_order_and_counts_with_linear_reads[64-512]
+1 failed, 1 passed in 1.13s

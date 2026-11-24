@@ -1,5 +1,10 @@
 import apiClient from "@/lib/api/client";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
+import {
+  assertRequestOwner,
+  capturePrivateOperationOwner,
+  type OwnerBoundRequestConfig,
+} from "@/lib/api/request-owner";
 import type {
   DeleteRenameBatchesResponse,
   RenameDocumentBatch,
@@ -12,21 +17,37 @@ import {
   type DocumentUploadSession,
 } from "../services/document-upload-batching";
 
+function renameOperationOwner(requestConfig?: OwnerBoundRequestConfig) {
+  const initialOwner = capturePrivateOperationOwner();
+  const config = {
+    ...requestConfig,
+    expectedOwnerUserId: requestConfig?.expectedOwnerUserId ?? initialOwner.requestConfig.expectedOwnerUserId,
+    expectedAuthorityKey: requestConfig?.expectedAuthorityKey ?? initialOwner.requestConfig.expectedAuthorityKey,
+  };
+  const assertCurrent = () => assertRequestOwner(config);
+  assertCurrent();
+  return { config, assertCurrent };
+}
+
 export const documentRenameApi = {
   listBatches: async (): Promise<RenameDocumentBatchSummary[]> => {
     const { data } = await apiClient.get<RenameDocumentBatchSummary[]>(API_ENDPOINTS.documentRename.batches);
     return data;
   },
 
-  getBatch: async (batchId: string): Promise<RenameDocumentBatch> => {
-    const { data } = await apiClient.get<RenameDocumentBatch>(API_ENDPOINTS.documentRename.batch(batchId));
+  getBatch: async (batchId: string, requestConfig?: OwnerBoundRequestConfig): Promise<RenameDocumentBatch> => {
+    const owner = renameOperationOwner(requestConfig);
+    const { data } = await apiClient.get<RenameDocumentBatch>(API_ENDPOINTS.documentRename.batch(batchId), owner.config);
+    owner.assertCurrent();
     return data;
   },
 
-  deleteBatches: async (batchIds: string[]): Promise<DeleteRenameBatchesResponse> => {
+  deleteBatches: async (batchIds: string[], requestConfig?: OwnerBoundRequestConfig): Promise<DeleteRenameBatchesResponse> => {
+    const owner = renameOperationOwner(requestConfig);
     const { data } = await apiClient.post<DeleteRenameBatchesResponse>(API_ENDPOINTS.documentRename.bulkDelete, {
       batch_ids: batchIds,
-    });
+    }, owner.config);
+    owner.assertCurrent();
     return data;
   },
 
@@ -35,12 +56,15 @@ export const documentRenameApi = {
     files: File[],
     onProgress?: (progress: DocumentUploadProgress) => void,
     existingSession?: DocumentUploadSession,
+    requestConfig?: OwnerBoundRequestConfig,
   ): Promise<RenameDocumentBatch> => {
+    const owner = renameOperationOwner(requestConfig);
     const session = existingSession ?? createDocumentUploadSession(files);
-    return runChunkedDocumentUpload({
+    const result = await runChunkedDocumentUpload({
       session,
-      onProgress,
+      onProgress: progress => { owner.assertCurrent(); onProgress?.(progress); },
       uploadChunk: async (chunk, chunkIndex, reportUpload) => {
+        owner.assertCurrent();
         const formData = new FormData();
         formData.append("title", title);
         formData.append("upload_id", session.uploadId);
@@ -53,13 +77,20 @@ export const documentRenameApi = {
           API_ENDPOINTS.documentRename.batches,
           formData,
           {
+            ...owner.config,
             headers: { "Content-Type": "multipart/form-data" },
             timeout: 240_000,
-            onUploadProgress: (event) => reportUpload(event.loaded, event.total),
+            onUploadProgress: (event) => {
+              try { owner.assertCurrent(); } catch { return; }
+              reportUpload(event.loaded, event.total);
+            },
           },
         );
+        owner.assertCurrent();
         return data;
       },
     });
+    owner.assertCurrent();
+    return result;
   },
 };

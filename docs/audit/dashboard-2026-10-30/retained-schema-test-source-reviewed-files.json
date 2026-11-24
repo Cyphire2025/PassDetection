@@ -1,0 +1,173 @@
+[
+  {
+    "path": "backend/tests/unit/infrastructure/test_canonical_trip_timezone_migration.py",
+    "sha256": "2e3dec6195340594ce458f9c07085f3aa9c807b6dfa821ff9230772036f87f12",
+    "physical_lines": 77,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole77lines. Historical0082 predecessor/default/timezone shape, additive column/check mock operations and ORM default/constraint parity reviewed. Generic trip timezone remains retained; historical predecessor0081 native migration only a chain literal, not a native feature review. Complete physical source read; no test/import/DDL execution, migration/model/source edit, or new validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_client_manager_login_migration.py",
+    "sha256": "655a6d68a1528ca79c2f51015183b263b58b589cfee2c10304b51aa4a9845213",
+    "physical_lines": 55,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole55lines. Historical0078 repairs only password-created invited accounts without invite token/expiry, bumps revision, changes default and downgrade preserves repaired rows. Mock SQL/operations are not an executed production repair. Complete physical source read; no test/import/DDL execution, migration/model/source edit, or new validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_company_directory_migration.py",
+    "sha256": "0ecb2978218c1fc3c3cd1244a451dac9b3ca1d950a21b39505d5c825c8785830",
+    "physical_lines": 63,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole63lines. Exact known roster-trigger signature gate, strict boolTrue, local lock timeout, transactional disable/backfill/enable order before later DDL, unexpected trigger and backfill failure propagation controls reviewed. No trigger mutation or database action executed. Complete physical source read; no test/import/DDL execution, migration/model/source edit, or new validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_document_delivery_resends_migration.py",
+    "sha256": "3fcf49bdaa70729ebffe4066b0d8983f3d32bd8bb111223a1ab2803566a6d0e2",
+    "physical_lines": 64,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole64lines. Historical0064 predecessor, removal/recreation of old unique document-attempt constraint and ORM allows multiple audited attempts reviewed. Mock operation counts do not establish data-safe rollback on populated DB. Complete physical source read; no test/import/DDL execution, migration/model/source edit, or new validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_document_follow_up_migration.py",
+    "sha256": "278705a9933435e251f4c84612843c23888a8df0fd8eb6ffbd91284131cb1844",
+    "physical_lines": 44,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole44lines. Additive false nonnull flag/local lock timeout and history-preserving refusal to downgrade active work reviewed, using mocked existing-row check. Published migration source unchanged/unexecuted. Complete physical source read; no test/import/DDL execution, migration/model/source edit, or new validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_domestic_ticket_lanes_migration.py",
+    "sha256": "bb6c3def115a777a3453bda73799a1c2fd4b600b3d4c30b084dbd4bdcd7d11a4",
+    "physical_lines": 56,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole56lines. Historical0080 only widens upload-chunk document-type check for domestic lanes and downgrade leaves data untouched/fails via original restrictive condition. Mock operations assert no relabel/delete, not a populated native/service run. Complete physical source read; no test/import/DDL execution, migration/model/source edit, or new validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_gc_app_admin_list_index_migration.py",
+    "sha256": "949e786bf1deea011bf4263d1188d28e6fc2f15a5890c6bae999b2b7230bc5cc",
+    "physical_lines": 70,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole70lines. Historical0077 concurrent partial tenant/created/id index, exact active predicate/autocommit/if-exists controls and ORM index metadata parity reviewed. Dashboard administrative read support retained; no index build executed. Complete physical source read; no test/import/DDL execution, migration/model/source edit, or new validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_group_whatsapp_links_migration.py",
+    "sha256": "644a06f64fd906045ec191232531bd5fc36e4691ea2e47b0c6063f9956d32983",
+    "physical_lines": 48,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole48lines. Historical0039 predecessor and mock additive link table/five indexes/reversible drop reviewed. Test name current-head means historical adjacent chain only, not repository current0142 head. Complete physical source read; no test/import/DDL execution, migration/model/source edit, or new validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_passport_cover_edits_migration.py",
+    "sha256": "89620c3e415c467894468e5bb0bf1bcfec3cd77ff342b1279d1e1d27818b8209",
+    "physical_lines": 53,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole53lines. Historical0112 additive image-type constraints/no row rewrite and refusal to downgrade when either table retains cover history reviewed. Mocked histories/operations, no real destructive downgrade. Complete physical source read; no test/import/DDL execution, migration/model/source edit, or new validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_passport_image_crop_migration.py",
+    "sha256": "14b6ecdb93456c5708da29c441fd98702a54ce60b9f041808198172fba1479b2",
+    "physical_lines": 77,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole77lines. Historical0044 crop table/index,0047 sharpness check and0048 AI library/version widening/additive preservation controls reviewed. Mock table/column/check counts, no live image provider/storage/migration execution. Complete physical source read; no test/import/DDL execution, migration/model/source edit, or new validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_storage_cleanup_migration.py",
+    "sha256": "57631a82e243e065f484976031d4c72ccd642dc74aadc0a6e1dd3e63a2964ae5",
+    "physical_lines": 59,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole59lines. Historical0066 linear chain/cleanup due and expired-lease indexes match ORM and mocked downgrade table identity reviewed. Predecessor0065 Inbox is only immutable chain literal; no dedicated email source audit/feature extension. Complete physical source read; no test/import/DDL execution, migration/model/source edit, or new validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_travel_tracker_migration.py",
+    "sha256": "77086e510167f5f20ef8195ef8cab968485f0fe4bad2d7daa18f0d511ba2e44b",
+    "physical_lines": 56,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole56lines. Historical0129 scoped passenger key/flags/composite cascadingFK leaves passport schema intact; exclusive-lock downgrade refuses recorded history, empty history drops exact table under mock. No actual locking/migration action. Complete physical source read; no test/import/DDL execution, migration/model/source edit, or new validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_traveller_reuse_schema.py",
+    "sha256": "d1425dc661a51cced169a15082ace88ca060ba19278afb91552f11d4856d3a3e",
+    "physical_lines": 286,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole286lines. Real SQLite test source covers tenant/company/person/passport/revision/grant FKs, current-contact uniqueness versus shared phone, policy notice/basis, until-withdrawn no invented purge, candidate/default/manual promotion, unique participation, company history retention. Frozen DDL+actual additive mock operations compare PG definitions including constraints/indexes and scoped guarded backfill; canonical line ordering handles constraint sets. Source review is not current execution or PostgreSQL concurrency qualification. Complete physical source read; no test/import/DDL execution, migration/model/source edit, or new validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_traveller_seek_migration.py",
+    "sha256": "dd314bbb5ff00a0531de8b07fe508eec4389fedd01e325249d5d5bba6251c568",
+    "physical_lines": 40,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole40lines. Invalid interrupted index rebuilds via exact concurrent commands, expected valid index idempotent and unexpected valid index fail-closed reviewed. Fake catalog+op capture, no live index mutation. Complete physical source read; no test/import/DDL execution, migration/model/source edit, or new validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_whatsapp_matching_fields_migration.py",
+    "sha256": "46d4839b36625aac5a297c080db6282741833b45142e1109484bc56e93f1853f",
+    "physical_lines": 51,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole51lines. Expected ORM field ownership and PostgreSQL offline Alembic DDL default/backfill accepts only object imported fields, keeps default, predecessor0091 reviewed. Offline SQL source does not imply actual database upgrade executed. Complete physical source read; no test/import/DDL execution, migration/model/source edit, or new validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_whatsapp_recipient_roster_order_migration.py",
+    "sha256": "3f5a8296536ac4492b681f26a8a8bf61d9ac71a4722ca845499dd60ced5613c0",
+    "physical_lines": 62,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole62lines. Historical0050 adds/backfills independent recipient/rejected order with row-number SQL, no delete and paired index/column downgrade controls reviewed. Historical adjacent head literal only. Complete physical source read; no test/import/DDL execution, migration/model/source edit, or new validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_whatsapp_rejected_contacts_migration.py",
+    "sha256": "35ebf7c1fe607b2f7efeedd9633e84e7973a9bc7c163c3a1b4d481aaa723afa2",
+    "physical_lines": 50,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole50lines. Historical0042 predecessor/additive rejected contact table/two indexes and exact mocked reversible table drop reviewed. No data-retention/downgrade permission inferred from mocked control. Complete physical source read; no test/import/DDL execution, migration/model/source edit, or new validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_whatsapp_rejected_imported_fields_migration.py",
+    "sha256": "dd75cff0e22e092c10d7d9fe0f3f43df1f60ad68abc043c9a736f3e42470892d",
+    "physical_lines": 50,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole50lines. Historical0043 predecessor/additive imported-fields column and exact mocked downgrade target reviewed. No actual migration/imported data touched. Complete physical source read; no test/import/DDL execution, migration/model/source edit, or new validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_whatsapp_source_contacts_migration.py",
+    "sha256": "ff6b408f8f42bf6210e6e3dc962fc7e0d76cd9524114a07eb88905a372f12518",
+    "physical_lines": 45,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole45lines. IsolatedSQLite test constructs import-only/normal/cross-tenant source links and historical recipient, then migration operation with onlyJSONB-toJSON portability replacement; checks exact scoped flags/manual ownership/table empty/index catalog. This is meaningful actual local migration test design but not executed in source-read batch or PG qualification. Complete physical source read; no test/import/DDL execution, migration/model/source edit, or new validated defect."
+  }
+]

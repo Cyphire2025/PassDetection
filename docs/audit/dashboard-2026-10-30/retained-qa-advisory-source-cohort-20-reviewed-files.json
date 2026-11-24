@@ -1,0 +1,106 @@
+[
+  {
+    "path": "scripts/qa/companies_fast_migration_receipt.py",
+    "sha256": "df93e58f7953f8812a069104757e6e4390d8857789664efb06390d2e321c0f35",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete87-line source read: one bounded migration marker, exact contract/schema/source and synthetic roster/history quantities, rollback/owner/backup digests, interruption/resume/no-op proofs. No migration/container run or source edit; no unsupported type-equality candidate adopted."
+  },
+  {
+    "path": "scripts/qa/postgresql_client_fixture.py",
+    "sha256": "d66e23dddfde14f17a21677ac783a9a8f65ca0988e5f5f8c439cd6de521e4f34",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete85-line source read: pinned PostgreSQL16 extraction with network-none/cap-drop, regular owned bounded files and exact loader/client closure/hash. Only synthetic new extraction root; no Docker/client execution or private paths opened."
+  },
+  {
+    "path": "scripts/qa/qualification_worker_job.py",
+    "sha256": "1d3b61cb97ff7753f3f7c7434ccec00197706f7ca24303d4c286ea8bb1ec0488",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete93-line source read: isolated QA guard, synthetic queued worker/ECR recovery with bounded polls and duplicate-delivery audit, own storage namespace. No task dispatched, provider call, or source edit."
+  },
+  {
+    "path": "scripts/image_advisory_policy.py",
+    "sha256": "f8258d01f5319b59284d887d780fcbd01a4c8d5fb07a1fe87cf345aa6abf676b",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "needs-follow-up",
+    "notes": "Complete100-line source read: immutable image/report binding, executable advisory map, exact package scopes, expiry and native/deployment conditions. Actual date-only validator rejects current policy with thirteen expired windows; no native image/probe execution. Conditions do not establish patched packages; official advisory review separately recorded."
+  },
+  {
+    "path": "scripts/verify_ci_supply_chain.py",
+    "sha256": "6ec1b06630149f1d6534f32ee5eafd96912233a6247cdab312f65994f201a2b6",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete90-line source read: immutable action SHA, no pull_request_target/write-all/curl-pipe, SBOM/service/load/source markers and hash-locked dependency guards. Native workflow markers reviewed for shared CI compatibility only; no CI run or source edit."
+  },
+  {
+    "path": "scripts/test_runtime_security_packages.py",
+    "sha256": "dc56b6a005058d4eb502d4479b5600350a295c3248c4a20fe41e0e53fdfa4c0d",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete53-line test-source read: exact runtime package policy behavior and bounded current package names/versions. Source evidence only, not new execution or installed image attestation."
+  },
+  {
+    "path": "backend/requirements.txt",
+    "sha256": "72328798fd7fdb7a17b9f514fceb3ee437af4870f1692a63e27b61d40ed0e7f7",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete production dependency declarations read. Active visa/ticket OCR retained; current dashboard/parser/provider/native support pin purposes cross-checked against consumers. No lock regeneration, dependency installation, scanner or blanket vulnerability certification."
+  },
+  {
+    "path": "backend/docker/runtime_security_packages.json",
+    "sha256": "a9f35f8faac425b7e0c6f03e0c3500c9766a0aa3ab75ccd9a9dabadaa1ca3fda",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete exact runtime package/version manifest read: PCRE2 and OpenSSL package closure, not proof of installed image state. No pins edited or image inspected."
+  },
+  {
+    "path": "backend/docker/verify_runtime_security_packages.py",
+    "sha256": "ebd0592ad8724512b7dfca07f06df7e1a1842d40fb6c522b3ec91e73ab83bb59",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete runtime package verifier source read: exact configured package versions and corresponding real dpkg checks. No image command executed or source edit."
+  },
+  {
+    "path": "tooling/image-advisory-dispositions.json",
+    "sha256": "3313bce5637faa28f6c688c58b4465890cbea20c634056e36f6f1bffbdeb71b8",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "needs-follow-up",
+    "notes": "All454 physical lines read in contiguous segments; all15 advisory/package/condition/owner/evidence/date records manually inspected and official primary sources checked. Thirteen windows expired2026-10-26, two GCC windows expire2026-11-05. Existing validator correctly fails closed. No dates renewed without required exact-image native/deployment evidence."
+  },
+  {
+    "path": "scripts/qa/qualification_api_replica_journey.py",
+    "sha256": "52065ecae200e80ecb954eb447efcf889db4455430a7b5b2c13aa7543e75a5cf",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete155-line source read: synthetic two-API MFA/session/private checksum and dependency-loss recovery, isolated guard, engine disposal and explicit expected unavailable AI readiness. Internal cookies/capabilities are synthetic IPC evidence; no fixture/service/provider run or native feature audit."
+  },
+  {
+    "path": "scripts/qa/qualify_compose_project_isolation.py",
+    "sha256": "49f20d52b2f6efdc9b2f2338a40cceaf335eacc611fb6ea940aad80712e9726b",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete75-line source read: generated unique synthetic Compose projects, preserved source volume identities and replica hosts, marker retention, scoped stop without deleting volumes. No Docker execution. Startup failure before started.append remains a source-only resource lifecycle follow-up, not a proven leak."
+  },
+  {
+    "path": "scripts/qa/qualify_joined_journeys.py",
+    "sha256": "c89685ead11b6be28afd891d96deff9058aff34a7e1c5131108ab1336e511e73",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete92-line source read: fixed isolated QA orchestration, optional ECR consumer degradation and worker restarts in finally, durable result/alert evidence and honest missing AI readiness. No actual service faults or provider work. Transport retry handling remains source-only, no adopted product bug."
+  }
+]

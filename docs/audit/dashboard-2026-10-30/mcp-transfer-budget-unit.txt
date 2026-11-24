@@ -1,0 +1,12 @@
+âœ” decomposed workflow facades and every extracted owner have reduced budgets (0.6338ms)
+âœ” counts normalized physical lines (0.1598ms)
+âœ” fails a module that grows beyond its reviewed ceiling (2.4776ms)
+âœ” measures nested functions independently and fails complexity growth (2.526ms)
+â„¹ tests 4
+â„¹ suites 0
+â„¹ pass 4
+â„¹ fail 0
+â„¹ cancelled 0
+â„¹ skipped 0
+â„¹ todo 0
+â„¹ duration_ms 200.1469

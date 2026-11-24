@@ -151,6 +151,16 @@ class PassportVisaAiImageJobRepository:
         row.updated_at = _utcnow()
         await self._session.flush()
 
+    async def owns_running_claim(self, job_id: uuid.UUID, *, expected_attempts: int) -> bool:
+        """Fence provider results and failures to the attempt that actually ran.
+
+        Recovering a stale row leaves it queued; a subsequent claim increments
+        attempts. Holding this lock through publication prevents an older
+        worker from completing or failing a newer attempt.
+        """
+        row = await self._locked(job_id)
+        return bool(row and row.status == "running" and row.attempts == expected_attempts)
+
     async def mark_succeeded(
         self,
         job_id: uuid.UUID,
@@ -244,14 +254,13 @@ class PassportVisaAiImageJobRepository:
             select(PassportVisaAiImageJobModel)
             .where(PassportVisaAiImageJobModel.id == job_id)
             .with_for_update()
+            .execution_options(populate_existing=True)
         )
         return result.scalar_one_or_none()
 
     async def _require(self, job_id: uuid.UUID) -> PassportVisaAiImageJobModel:
         result = await self._session.execute(
-            select(PassportVisaAiImageJobModel).where(
-                PassportVisaAiImageJobModel.id == job_id
-            )
+            select(PassportVisaAiImageJobModel).where(PassportVisaAiImageJobModel.id == job_id)
         )
         row = result.scalar_one_or_none()
         if row is None:

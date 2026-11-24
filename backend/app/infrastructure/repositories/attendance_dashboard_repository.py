@@ -9,13 +9,30 @@ paginated missing-passenger view.
 from __future__ import annotations
 
 import uuid
-from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime as datetime  # Legacy dataclass annotation resolution.
 
 from sqlalchemy import String, cast, func, literal, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
 
+from app.application.attendance_read_contracts import (
+    AttendanceActivityAggregate as AttendanceActivityAggregate,
+)
+from app.application.attendance_read_contracts import (
+    AttendanceCoordinatorScanAggregate as AttendanceCoordinatorScanAggregate,
+)
+from app.application.attendance_read_contracts import (
+    AttendanceGroupAggregate as AttendanceGroupAggregate,
+)
+from app.application.attendance_read_contracts import (
+    AttendanceRosterAggregate as AttendanceRosterAggregate,
+)
+from app.application.attendance_read_contracts import (
+    MissingPassengerPage as MissingPassengerPage,
+)
+from app.application.attendance_read_contracts import (
+    MissingPassengerProjection as MissingPassengerProjection,
+)
 from app.domain.entities.entities import (
     OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES,
 )
@@ -32,53 +49,6 @@ from app.infrastructure.repositories.attendance_projection_reads import (
 from app.infrastructure.repositories.operational_roster import operational_roster_member
 
 MAX_ATTENDANCE_SUMMARY_COORDINATORS = 25
-
-
-@dataclass(frozen=True, slots=True)
-class AttendanceRosterAggregate:
-    passenger_count: int
-    latest_updated_at: datetime | None
-    latest_passenger_key: str | None
-
-
-@dataclass(frozen=True, slots=True)
-class AttendanceActivityAggregate:
-    session_id: uuid.UUID
-    name: str
-    status: str
-    created_at: datetime
-    started_at: datetime | None
-    completed_at: datetime | None
-    updated_at: datetime
-    present_count: int
-    record_count: int
-    latest_record_created_at: datetime | None
-
-
-@dataclass(frozen=True, slots=True)
-class AttendanceGroupAggregate:
-    roster: AttendanceRosterAggregate
-    activities: tuple[AttendanceActivityAggregate, ...]
-
-
-@dataclass(frozen=True, slots=True)
-class AttendanceCoordinatorScanAggregate:
-    session_id: uuid.UUID
-    coordinator_id: uuid.UUID
-    scanned_count: int
-
-
-@dataclass(frozen=True, slots=True)
-class MissingPassengerProjection:
-    passenger_id: uuid.UUID
-    display_name: str
-
-
-@dataclass(frozen=True, slots=True)
-class MissingPassengerPage:
-    items: tuple[MissingPassengerProjection, ...]
-    has_more: bool
-    next_cursor: uuid.UUID | None
 
 
 class AttendanceDashboardRepository:

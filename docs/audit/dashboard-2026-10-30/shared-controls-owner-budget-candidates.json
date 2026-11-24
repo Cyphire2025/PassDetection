@@ -1,0 +1,23 @@
+[
+  {
+    "path": "components/shared/passport-date-input.tsx",
+    "baselineLines": 154,
+    "maximumLines": 160,
+    "baselineMaxFunctionComplexity": 9,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "components/shared/intent-prefetch-link.tsx",
+    "baselineLines": 60,
+    "maximumLines": 70,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/settings/hooks/use-whatsapp-template-settings.ts",
+    "baselineLines": 176,
+    "maximumLines": 180,
+    "baselineMaxFunctionComplexity": 17,
+    "maximumFunctionComplexity": 17
+  }
+]

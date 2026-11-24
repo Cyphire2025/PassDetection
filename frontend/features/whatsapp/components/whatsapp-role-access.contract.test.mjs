@@ -14,10 +14,7 @@ const whatsappPage = readFileSync(
   new URL("../../../app/(dashboard)/whatsapp/page.tsx", import.meta.url),
   "utf8",
 );
-const createLinkModal = readFileSync(
-  new URL("../../passports/components/create-upload-link-modal.tsx", import.meta.url),
-  "utf8",
-);
+import { createUploadLinkSource as createLinkModal } from "../../passports/components/create-upload-link-source.contract-helper.mjs";
 import { passportGroupDetailSource as groupDetail } from "../../passports/components/passport-group-detail-source.contract-helper.mjs";
 const tracking = readFileSync(
   new URL("../../passports/components/group-whatsapp-broadcast-panel.tsx", import.meta.url),
@@ -42,6 +39,8 @@ test("WhatsApp navigation and group integration use the shared access policies",
     .find((line) => line.includes('label: "WhatsApp"'));
   assert.ok(whatsappNav);
   assert.match(sidebar, /canAccessApplicationPath\(user, item\.href\)/);
+  assert.match(createLinkModal, /import \{ CreateUploadLinkDetails \} from "\.\/create-upload-link-details"/);
+  assert.match(createLinkModal, /<CreateUploadLinkDetails state=\{state\} \/>/);
   assert.match(createLinkModal, /\{!importOnly && canAccessWhatsApp && \(\s*<WhatsAppBroadcastSelector/);
   assert.match(groupDetail, /\{canAccessWhatsApp && !groupDetails\.import_only && \(\s*<GroupWhatsAppBroadcastPanel/);
 });

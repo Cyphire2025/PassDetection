@@ -1,0 +1,44 @@
+[
+  {
+    "path": "frontend/features/documents/components/abort-incomplete-upload-dialog.tsx",
+    "whole_typed_AST_exact": true,
+    "before_sha256": "5714ba8596eeaedf674031cf8e4001893993334624bdef98cb412c4784864bd0",
+    "after_sha256": "1ef51649de68a84178f66fcb360c8f3fc45355b1aa5f54c1396929e079ec1405"
+  },
+  {
+    "path": "frontend/features/documents/components/remove-document-assignments-dialog.tsx",
+    "whole_typed_AST_exact": true,
+    "before_sha256": "67560e72089a278ccc075b64e2ad48a2e4040a9bc366b01cf7d5d58983f77f87",
+    "after_sha256": "4aa9addcfe68b7707b735dcae1774b8488223f080800fc41ec3dfa611f7b2fce"
+  },
+  {
+    "path": "frontend/features/documents/components/document-delivery-preview-dialog.tsx",
+    "whole_typed_AST_exact": true,
+    "before_sha256": "6563f169776fc3ff2b94b557c349d8f81623ef27873e5fa7c854c39c92322673",
+    "after_sha256": "818943e556dcc2176bf494bda47f2d605f296493dd7e47edb50b9846c2e2b6cf"
+  },
+  {
+    "path": "frontend/features/documents/components/document-delivery-preview-summary.tsx",
+    "whole_typed_AST_exact": true,
+    "before_sha256": "5772a7235e28db2598559f47cb0aa092ac968a5736db96a7e1698c0b9fbc3b32",
+    "after_sha256": "9d15c045b83d0e842ff0bedb61935b42807e738a126c7fd57a2f97e465e87b52"
+  },
+  {
+    "path": "frontend/features/documents/components/document-delivery-message-fields.tsx",
+    "whole_typed_AST_exact": true,
+    "before_sha256": "a0cb7b6fba1a185999c35ed7621f2fb7392845faf10faee0681324b91a19d00a",
+    "after_sha256": "4e1263b8a332a9ad8202d9edf8836f3b86f22e43df8c07d42513818d83500f28"
+  },
+  {
+    "path": "frontend/features/documents/components/document-delivery-recipient-table.tsx",
+    "whole_typed_AST_exact": true,
+    "before_sha256": "4c0aa7f540e72442549bacba95ca4818be4bad19ff59c838d11b4fcf9e575e50",
+    "after_sha256": "5a026c1b4d682375d968c49e31dc9c2fa7a085f995111d1ca49cb12da5803d23"
+  },
+  {
+    "path": "frontend/features/documents/components/document-delivery-preview-footer.tsx",
+    "whole_typed_AST_exact": true,
+    "before_sha256": "01696ee1c870942b8bfa7ebf55b6b9f84c04d28f7b5f90dd7854e2cde054ea1d",
+    "after_sha256": "546aff4d910e0cd1a5b5f1d3e41d78de37a55e2efa78090cb285a4e019490e84"
+  }
+]

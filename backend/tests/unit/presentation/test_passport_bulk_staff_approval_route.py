@@ -24,6 +24,8 @@ from app.presentation.api.v1.schemas.passport_schemas import (
     BulkStaffApprovePassportSubmissionsRequest,
     ExportSelectedPassportsRequest,
 )
+from tests.route_dependencies import patch_route_dependency as patch_bulk_dependency
+from tests.route_dependencies import set_route_dependency
 
 
 class _ScalarResult:
@@ -50,11 +52,11 @@ def _use_request_actor_for_route_behavior_tests(monkeypatch: pytest.MonkeyPatch)
     async def _same_actor(_session: object, current_user: User) -> User:
         return current_user
 
-    monkeypatch.setattr(
+    set_route_dependency(monkeypatch,
         "app.presentation.api.v1.routes.passport_routes.bulk_actions._lock_active_bulk_approval_actor",
         _same_actor,
     )
-    monkeypatch.setattr(
+    set_route_dependency(monkeypatch,
         "app.presentation.api.v1.routes.passport_routes.bulk_actions.propagate_mobile_passenger_change",
         AsyncMock(),
     )
@@ -127,9 +129,9 @@ async def test_large_duplicate_selection_approves_each_selected_source_row() -> 
         patch.object(ClientGroupRepository, "get_by_id", AsyncMock(
             return_value=SimpleNamespace(id=group_id, agency_id=agency_id))),
         patch.object(AuthorizationPolicy, "can_view_group", AsyncMock(return_value=True)),
-        patch("app.presentation.api.v1.routes.passport_routes.bulk_actions.ensure_approved_passenger_qrs",
+        patch_bulk_dependency("app.presentation.api.v1.routes.passport_routes.bulk_actions.ensure_approved_passenger_qrs",
               AsyncMock(return_value=[])),
-        patch("app.presentation.api.v1.routes.passport_routes.bulk_actions.record_operational_event"),
+        patch_bulk_dependency("app.presentation.api.v1.routes.passport_routes.bulk_actions.record_operational_event"),
     ):
         response = await bulk_staff_approve_passport_submissions(
             group_id=group_id, body=body, response=Response(), _csrf=None,
@@ -159,7 +161,9 @@ async def test_bulk_approval_actor_is_revalidated_under_lock() -> None:
         updated_at=now,
         deleted_at=None,
     )
-    session = SimpleNamespace(execute=AsyncMock(return_value=_SingleResult(actor_model)))
+    session = SimpleNamespace(execute=AsyncMock(side_effect=[
+        _SingleResult(actor_model), _SingleResult(None),
+    ]))
 
     actor = await _lock_active_bulk_approval_actor(
         session,  # type: ignore[arg-type]
@@ -169,12 +173,15 @@ async def test_bulk_approval_actor_is_revalidated_under_lock() -> None:
     assert actor.id == reviewer.id
     assert actor.role is reviewer.role
     assert actor.agency_id == reviewer.agency_id
-    statement = session.execute.await_args.args[0]
+    statement = session.execute.await_args_list[0].args[0]
     assert statement._for_update_arg is not None
     statement_text = str(statement)
     assert "users.role" in statement_text
     assert "users.agency_id" in statement_text
     assert "users.is_active" in statement_text
+    state_statement = session.execute.await_args_list[1].args[0]
+    assert state_statement._for_update_arg is not None
+    assert "user_security_states.user_id" in str(state_statement)
 
 
 @pytest.mark.asyncio
@@ -223,11 +230,11 @@ async def test_bulk_staff_approval_is_atomic_audited_and_reports_skips() -> None
             AsyncMock(return_value=SimpleNamespace(id=group_id, agency_id=agency_id)),
         ),
         patch.object(AuthorizationPolicy, "can_view_group", AsyncMock(return_value=True)),
-        patch(
+        patch_bulk_dependency(
             'app.presentation.api.v1.routes.passport_routes.bulk_actions.ensure_approved_passenger_qrs',
             ensure_qrs,
         ),
-        patch('app.presentation.api.v1.routes.passport_routes.bulk_actions.record_operational_event') as record_event,
+        patch_bulk_dependency('app.presentation.api.v1.routes.passport_routes.bulk_actions.record_operational_event') as record_event,
     ):
         response = await bulk_staff_approve_passport_submissions(
             group_id=group_id,
@@ -321,11 +328,11 @@ async def test_bulk_staff_approval_rolls_back_when_qr_issuance_fails() -> None:
             AsyncMock(return_value=SimpleNamespace(id=group_id, agency_id=agency_id)),
         ),
         patch.object(AuthorizationPolicy, "can_view_group", AsyncMock(return_value=True)),
-        patch(
+        patch_bulk_dependency(
             'app.presentation.api.v1.routes.passport_routes.bulk_actions.ensure_approved_passenger_qrs',
             AsyncMock(side_effect=RuntimeError("QR unavailable")),
         ),
-        patch('app.presentation.api.v1.routes.passport_routes.bulk_actions.record_operational_event') as record_event,
+        patch_bulk_dependency('app.presentation.api.v1.routes.passport_routes.bulk_actions.record_operational_event') as record_event,
         pytest.raises(RuntimeError, match="QR unavailable"),
     ):
         await bulk_staff_approve_passport_submissions(
@@ -528,7 +535,7 @@ async def test_bulk_staff_approval_rejects_foreign_or_missing_selected_ids() -> 
             AsyncMock(return_value=SimpleNamespace(id=group_id, agency_id=agency_id)),
         ),
         patch.object(AuthorizationPolicy, "can_view_group", AsyncMock(return_value=True)),
-        patch(
+        patch_bulk_dependency(
             'app.presentation.api.v1.routes.passport_routes.bulk_actions.ensure_approved_passenger_qrs',
             ensure_qrs,
         ),
@@ -585,11 +592,11 @@ async def test_bulk_staff_approval_retry_is_idempotent_without_qr_reissuance() -
             AsyncMock(return_value=SimpleNamespace(id=group_id, agency_id=agency_id)),
         ),
         patch.object(AuthorizationPolicy, "can_view_group", AsyncMock(return_value=True)),
-        patch(
+        patch_bulk_dependency(
             'app.presentation.api.v1.routes.passport_routes.bulk_actions.ensure_approved_passenger_qrs',
             ensure_qrs,
         ),
-        patch('app.presentation.api.v1.routes.passport_routes.bulk_actions.record_operational_event') as record_event,
+        patch_bulk_dependency('app.presentation.api.v1.routes.passport_routes.bulk_actions.record_operational_event') as record_event,
     ):
         result = await bulk_staff_approve_passport_submissions(
             group_id=group_id,

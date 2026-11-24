@@ -1,0 +1,231 @@
+{
+  "basis": "Exact post-membership-fix statement ASTs and retained public controller property sequence. Only independent hook ownership/order changes; no new callbacks or global proxy forwarding.",
+  "moves": [
+    {
+      "name": "image",
+      "owner": "use-composer-header-image.ts",
+      "statement_AST_exact": true
+    },
+    {
+      "name": "imagePreview",
+      "owner": "use-composer-header-image.ts",
+      "statement_AST_exact": true
+    },
+    {
+      "name": "imageUrl",
+      "owner": "use-composer-header-image.ts",
+      "statement_AST_exact": true
+    },
+    {
+      "name": "imageError",
+      "owner": "use-composer-header-image.ts",
+      "statement_AST_exact": true
+    },
+    {
+      "name": "selectImage",
+      "owner": "use-composer-header-image.ts",
+      "statement_AST_exact": true
+    },
+    {
+      "name": "eligible",
+      "owner": "use-message-composer-preview.ts",
+      "statement_AST_exact": true
+    },
+    {
+      "name": "activeLinks",
+      "owner": "use-message-composer-preview.ts",
+      "statement_AST_exact": true
+    },
+    {
+      "name": "reminderGroupId",
+      "owner": "use-message-composer-preview.ts",
+      "statement_AST_exact": true
+    },
+    {
+      "name": "audienceReady",
+      "owner": "use-message-composer-preview.ts",
+      "statement_AST_exact": true
+    },
+    {
+      "name": "selectedIds",
+      "owner": "use-message-composer-preview.ts",
+      "statement_AST_exact": true
+    },
+    {
+      "name": "selectedIdSet",
+      "owner": "use-message-composer-preview.ts",
+      "statement_AST_exact": true
+    },
+    {
+      "name": "draft",
+      "owner": "use-message-composer-preview.ts",
+      "statement_AST_exact": true
+    },
+    {
+      "name": "currentKey",
+      "owner": "use-message-composer-preview.ts",
+      "statement_AST_exact": true
+    },
+    {
+      "name": "debouncedKey",
+      "owner": "use-message-composer-preview.ts",
+      "statement_AST_exact": true
+    },
+    {
+      "name": "debouncedDraft",
+      "owner": "use-message-composer-preview.ts",
+      "statement_AST_exact": true
+    },
+    {
+      "name": "revision",
+      "owner": "use-message-composer-preview.ts",
+      "statement_AST_exact": true
+    },
+    {
+      "name": "preview",
+      "owner": "use-message-composer-preview.ts",
+      "statement_AST_exact": true
+    },
+    {
+      "name": "current",
+      "owner": "use-message-composer-preview.ts",
+      "statement_AST_exact": true
+    },
+    {
+      "name": "fields",
+      "owner": "use-message-composer-preview.ts",
+      "statement_AST_exact": true
+    },
+    {
+      "name": "audienceIds",
+      "owner": "use-message-composer-preview.ts",
+      "statement_AST_exact": true
+    },
+    {
+      "name": "audience",
+      "owner": "use-message-composer-preview.ts",
+      "statement_AST_exact": true
+    },
+    {
+      "name": "selected",
+      "owner": "use-message-composer-preview.ts",
+      "statement_AST_exact": true
+    },
+    {
+      "name": "imageId",
+      "owner": "use-message-composer-preview.ts",
+      "statement_AST_exact": true
+    },
+    {
+      "name": "count",
+      "owner": "use-message-composer-preview.ts",
+      "statement_AST_exact": true
+    },
+    {
+      "name": "fieldErrors",
+      "owner": "use-message-composer-preview.ts",
+      "statement_AST_exact": true
+    },
+    {
+      "name": "fieldReady",
+      "owner": "use-message-composer-preview.ts",
+      "statement_AST_exact": true
+    },
+    {
+      "name": "ready",
+      "owner": "use-message-composer-preview.ts",
+      "statement_AST_exact": true
+    },
+    {
+      "name": "reviewing",
+      "owner": "use-message-composer-send.ts",
+      "statement_AST_exact": true
+    },
+    {
+      "name": "error",
+      "owner": "use-message-composer-send.ts",
+      "statement_AST_exact": true
+    },
+    {
+      "name": "recovery",
+      "owner": "use-message-composer-send.ts",
+      "statement_AST_exact": true
+    },
+    {
+      "name": "reviewedSend",
+      "owner": "use-message-composer-send.ts",
+      "statement_AST_exact": true
+    },
+    {
+      "name": "uncertain",
+      "owner": "use-message-composer-send.ts",
+      "statement_AST_exact": true
+    },
+    {
+      "name": "sending",
+      "owner": "use-message-composer-send.ts",
+      "statement_AST_exact": true
+    },
+    {
+      "name": "send",
+      "owner": "use-message-composer-send.ts",
+      "statement_AST_exact": true
+    },
+    {
+      "name": "router",
+      "owner": "use-message-composer-send.ts",
+      "statement_AST_exact": true
+    },
+    {
+      "name": "registerActivity",
+      "owner": "use-message-composer-send.ts",
+      "statement_AST_exact": true
+    }
+  ],
+  "public_properties": [
+    "group",
+    "definition",
+    "state",
+    "setState",
+    "fields",
+    "fieldErrors",
+    "eligible",
+    "audience",
+    "selected",
+    "selectedIds",
+    "preview",
+    "current",
+    "ready",
+    "count",
+    "image",
+    "imageId",
+    "imagePreview",
+    "imageError",
+    "selectImage",
+    "reviewing",
+    "setReviewing",
+    "error",
+    "recovery",
+    "reviewedMessage",
+    "reviewedCount",
+    "uncertain",
+    "startSeparateMessage",
+    "send",
+    "pending",
+    "activeLinks",
+    "reminderGroupId",
+    "audienceReady"
+  ],
+  "derived_properties_moved": [
+    "reviewedMessage",
+    "reviewedCount",
+    "startSeparateMessage"
+  ],
+  "files": {
+    "frontend/features/whatsapp/workspace/use-message-composer.ts": "da5753adc641537ef8adc8bc36663243bcc7123cf90198f3da22a9a124a2503c",
+    "frontend/features/whatsapp/workspace/message-composer-state.ts": "79677563a9c77b521bbc8fe2f26d193223ce49394384f66b458bae45183e3db7",
+    "frontend/features/whatsapp/workspace/use-composer-header-image.ts": "389049e16c0d5be700ca1e4dfbbcb98958913279cdd1bb530dcda0afbb876cab",
+    "frontend/features/whatsapp/workspace/use-message-composer-preview.ts": "0bb741dd433b5bfc57b07867ce8b233c99f8b2ef8f48b799ea5d5095e91a7e17",
+    "frontend/features/whatsapp/workspace/use-message-composer-send.ts": "6e386acd6ea8d4dc116a7ebc756bf2c8231b6a4a427a7ae442ed417680ce2ba2"
+  }
+}

@@ -1,0 +1,26 @@
+✔ current create, add, and send actions have synchronous single-flight guards (0.907ms)
+✔ superseded previews receive query cancellation and cannot authorize the latest draft (0.5122ms)
+✔ the live send gate requires reviewed content, approval, consent, welcome delivery and an active broadcast (0.2087ms)
+✔ an unconfirmed transport request retains its exact payload and reviewed snapshot for recovery (0.1992ms)
+✔ WhatsApp dialogs expose modal semantics and announce errors (0.179ms)
+✔ mixed Excel previews preserve rejected rows and imported headings in both live mutation flows (0.2971ms)
+✔ the live composer uses one support contact and bounded searchable selection (0.1482ms)
+✔ the live library obtains approved message definitions and passes the selected definition to its composer (1.9673ms)
+✔ a not-submitted reminder resolves an active linked group before requesting a preview (0.2602ms)
+✔ the audience is the intersection of locally eligible people and server-confirmed preview IDs (0.2319ms)
+✔ historical resend names exactly one recipient and retains its original message identity (0.8909ms)
+✔ document history uses its dedicated resend route without a broadcast message override (0.1819ms)
+✔ resend has one retained request ID, synchronous single-flight protection, and no automatic retry (0.1099ms)
+✔ accepted resends refresh current history and groups and announce the recorded request (0.1273ms)
+✔ the current recipient editor uses the scoped phone update and refreshes history (0.1045ms)
+✔ the active WhatsApp index remains behind the route loading boundary (2.1012ms)
+✔ live create and add flows share exactly one recipient Excel preview implementation (0.2909ms)
+✔ the current index clamps filtered pages and exposes recovery without losing archived history (0.1574ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 18
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 146.618

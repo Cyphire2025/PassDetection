@@ -5,6 +5,7 @@ import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { Check, Copy, KeyRound, LogOut, MoreHorizontal, Power, ShieldCheck, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui";
 import { useModalKeyboardBoundary } from "@/components/ui/modal";
+import { copyTextToClipboard } from "@/lib/utils/clipboard";
 import { useManagedAccountActions } from "../hooks/use-operations";
 
 export function ManagedAccountControls({
@@ -256,8 +257,10 @@ export function ManagedAccountControls({
                   <Button
                     type="button"
                     leftIcon={activationCopied ? <Check className="h-4 w-4" aria-hidden="true" /> : <Copy className="h-4 w-4" aria-hidden="true" />}
-                    onClick={() => {
-                      void navigator.clipboard.writeText(staffActivationLink(activationToken)).then(() => setActivationCopied(true));
+                    onClick={async () => {
+                      setError(null);
+                      try { await copyTextToClipboard(staffActivationLink(activationToken)); setActivationCopied(true); }
+                      catch { setError("The link could not be copied. Select the link above and copy it manually."); }
                     }}
                   >
                     {activationCopied ? "Copied" : "Copy link"}

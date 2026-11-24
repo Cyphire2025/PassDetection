@@ -1,0 +1,9 @@
+{
+  "candidates": "docs/audit/dashboard-2026-10-30/company-budget-candidates.json",
+  "before_sha256": "bfbbd6cf9527bead17b9e6dedc8363acb23af847b5fd75cbe516089ee27c3ae6",
+  "sha256": "104fecd006dd128f6cc4783b31ca0c1654449df65d0b1a87807264ab6af51334",
+  "lf_normalized_sha256": "a35d049b76e4b8a48f9382f6269fc5a219d0d039e9d766d025ea209a19619409",
+  "added": 11,
+  "lowered_existing": 4,
+  "existing_ceilings_preserved": true
+}

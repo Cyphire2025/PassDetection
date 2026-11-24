@@ -1,0 +1,32 @@
+{
+  "method": "Full physical original/current reads and narrow authored manifest-only admission plus affected tests. Metadata refresh is not additional application review credit.",
+  "files": [
+    {
+      "path": "scripts/dashboard_audit_inventory.py",
+      "sha256": "bc6eaeb0744aed2c616c8f1931457d02f8b01efbfae4b2aa75da9b2cfcfafc13",
+      "physical_lines": 374,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "fixed",
+      "notes": "Complete original/current physical source read: root scope/classification, exact retirement manifests/digest/line identities, explicit partial-review resolution, source-bound ledger merging, git inventory and active/deferred totals. Added only exact5 foundation manifest admission plus schema/archive identity validation; other retirement paths and partial/finding semantics retained. Does not require ignored archive files on CI."
+    },
+    {
+      "path": "backend/tests/unit/scripts/test_dashboard_audit_scope.py",
+      "sha256": "1245580b4263d41f4c4dca76296cabaf10db75635bb7a84d254f4c010396a060",
+      "physical_lines": 188,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "fixed",
+      "notes": "Complete original/current tests physically read/authored: user Inbox deferral/retained overrides/history preservation/invalid policy and exact4 sample retirement unchanged, plus11 controls for exact5 foundation admission and rejection of unrelated/traversal/archive/digest/schema/duplicates/incomplete/byte-count inputs. Actual metadata refresh checked5 retained original hashes/statuses."
+    },
+    {
+      "path": "backend/tests/unit/scripts/test_dashboard_audit_review_resolutions.py",
+      "sha256": "516f40f6a05fc0e6f37f6618f225a819146d344ccf4dcda5a0e9a4fe796c6dd7",
+      "physical_lines": 217,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete213line current physical source read: partial-to-full only exact record/path/hash resolutions, independent full followups retained, source-bound note identity, invalid/missing resolutions and retirement digest/source/line validation. Unchanged supporting tests run in affected59-case group."
+    }
+  ]
+}

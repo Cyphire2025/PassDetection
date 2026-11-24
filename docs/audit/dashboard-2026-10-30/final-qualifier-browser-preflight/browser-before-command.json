@@ -1,0 +1,28 @@
+{
+  "argv": [
+    "C:\\Users\\nipun\\AppData\\Local\\Programs\\node-v24.21.0-win-x64\\node.exe",
+    "node_modules/@playwright/test/cli.js",
+    "test",
+    "--config",
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\final-qualifier-browser\\before.config.ts",
+    "--project=production-dashboard",
+    "--grep",
+    "saved Other text restores"
+  ],
+  "exit_code": 1,
+  "seconds": 17.157,
+  "source_and_compiled_artifact_before": {
+    "frontend/e2e/qualifier-relationship-methods.spec.ts": "d37bab442b0c382f07f6c3b7e5ccda56c858a60b43c5abc19c60254689dc618c",
+    "frontend/features/upload/components/fresh-qualifier.tsx": "9b4ad522682c3c5891545c62f80e836eb43d20f1d0fb21578bcef53fedcb91b8",
+    "frontend/.next/BUILD_ID": "c9ea2c9eac2a787ac5e49d5773c2525398b279c46ae0dd9c863448ed7fddf5c8",
+    "frontend/.next/standalone/server.js": "4ce533c2d4db0d48e1ea2666d64865986cb36e709b0912e9dc86b803743dfa17"
+  },
+  "source_and_compiled_artifact_after": {
+    "frontend/e2e/qualifier-relationship-methods.spec.ts": "d37bab442b0c382f07f6c3b7e5ccda56c858a60b43c5abc19c60254689dc618c",
+    "frontend/features/upload/components/fresh-qualifier.tsx": "9b4ad522682c3c5891545c62f80e836eb43d20f1d0fb21578bcef53fedcb91b8",
+    "frontend/.next/BUILD_ID": "c9ea2c9eac2a787ac5e49d5773c2525398b279c46ae0dd9c863448ed7fddf5c8",
+    "frontend/.next/standalone/server.js": "4ce533c2d4db0d48e1ea2666d64865986cb36e709b0912e9dc86b803743dfa17"
+  },
+  "unchanged": true,
+  "scope": "Single existing10th browser scenario with current-flow synthetic fixture against original compiled artifact; no build or productsourcechange."
+}

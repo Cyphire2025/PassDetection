@@ -1,0 +1,58 @@
+[
+  {
+    "path": "backend/app/application/dtos/auth_dtos.py",
+    "sha256": "909059d68b2cae1aaed8423b5ef6e5b090a5bf6e77b3a298e540172312785f13",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete source/test read. Exact public12-field account projection consolidated across login/refresh/get-me;20 focused cases pass before/after with identical test bytes. Whole four-module AST inverse after explicit3call/import replacements, helper removal and descriptive docstring updates; actual domain-User projection parity across role/tenant/activity/credential/MFA/timestamp combinations. No auth/token/transaction decision changes."
+  },
+  {
+    "path": "backend/app/application/use_cases/auth/login_use_case.py",
+    "sha256": "686555e0e1a086ce4f49a344000cd4722dea80fabd93f1094f3181b01ff45ec5",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete source/test read. Exact public12-field account projection consolidated across login/refresh/get-me;20 focused cases pass before/after with identical test bytes. Whole four-module AST inverse after explicit3call/import replacements, helper removal and descriptive docstring updates; actual domain-User projection parity across role/tenant/activity/credential/MFA/timestamp combinations. No auth/token/transaction decision changes."
+  },
+  {
+    "path": "backend/app/application/use_cases/auth/refresh_token_use_case.py",
+    "sha256": "ddbb3f6e2de02f16520ae01b36363032af0290ac0278bd7986993df332ec21d3",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete source/test read. Exact public12-field account projection consolidated across login/refresh/get-me;20 focused cases pass before/after with identical test bytes. Whole four-module AST inverse after explicit3call/import replacements, helper removal and descriptive docstring updates; actual domain-User projection parity across role/tenant/activity/credential/MFA/timestamp combinations. No auth/token/transaction decision changes."
+  },
+  {
+    "path": "backend/app/application/use_cases/auth/get_me_use_case.py",
+    "sha256": "8b3b5d163993da58988019fe49ef70041807e702ddff4a19f6ace68910a50a4f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete source/test read. Exact public12-field account projection consolidated across login/refresh/get-me;20 focused cases pass before/after with identical test bytes. Whole four-module AST inverse after explicit3call/import replacements, helper removal and descriptive docstring updates; actual domain-User projection parity across role/tenant/activity/credential/MFA/timestamp combinations. No auth/token/transaction decision changes."
+  },
+  {
+    "path": "backend/tests/unit/application/test_auth_use_cases.py",
+    "sha256": "cbed20c0fc26d857013d8ae0210f73e524c60fcce625e8a416342e6f013d0b29",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete source/test read. Exact public12-field account projection consolidated across login/refresh/get-me;20 focused cases pass before/after with identical test bytes. Whole four-module AST inverse after explicit3call/import replacements, helper removal and descriptive docstring updates; actual domain-User projection parity across role/tenant/activity/credential/MFA/timestamp combinations. No auth/token/transaction decision changes."
+  },
+  {
+    "path": "backend/tests/unit/application/test_refresh_token_rotation.py",
+    "sha256": "271a685e0a93b4baf539f72745a2e2fd661d3d286ea271df9dc0a421179e9f30",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete source/test read. Exact public12-field account projection consolidated across login/refresh/get-me;20 focused cases pass before/after with identical test bytes. Whole four-module AST inverse after explicit3call/import replacements, helper removal and descriptive docstring updates; actual domain-User projection parity across role/tenant/activity/credential/MFA/timestamp combinations. No auth/token/transaction decision changes."
+  },
+  {
+    "path": "backend/tests/unit/application/test_login_timing_hardening.py",
+    "sha256": "52618b227f32e3ff3c53be15bea7e7b5a841cacd053b549928ec446a3ffa167a",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete source/test read. Exact public12-field account projection consolidated across login/refresh/get-me;20 focused cases pass before/after with identical test bytes. Whole four-module AST inverse after explicit3call/import replacements, helper removal and descriptive docstring updates; actual domain-User projection parity across role/tenant/activity/credential/MFA/timestamp combinations. No auth/token/transaction decision changes."
+  }
+]

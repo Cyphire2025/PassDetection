@@ -1,0 +1,5 @@
+frontend/features/email-integrations/components/email-ai-rollout-control.tsx:191: new blank line at EOF.
+frontend/features/email-integrations/components/email-integrations-ui.tsx:176: new blank line at EOF.
+frontend/features/email-integrations/components/operational-inbox-page.tsx:183: new blank line at EOF.
+frontend/features/email-integrations/components/review-queue-page.tsx:176: new blank line at EOF.
+frontend/features/email-integrations/services/email-refresh-policy.ts:35: new blank line at EOF.

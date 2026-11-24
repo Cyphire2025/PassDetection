@@ -5,7 +5,7 @@ from __future__ import annotations
 import unittest
 import uuid
 from types import SimpleNamespace
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import AsyncMock, Mock
 
 from fastapi import BackgroundTasks, HTTPException
 
@@ -16,6 +16,7 @@ from app.presentation.api.v1.routes.passports import (
 from app.presentation.api.v1.schemas.passport_schemas import (
     PassportSubmissionResponse,
 )
+from tests.route_dependencies import patch_route_dependency as patch_public_dependency
 
 
 class PassportUploadStatusRouteTests(unittest.IsolatedAsyncioTestCase):
@@ -72,31 +73,31 @@ class PassportUploadStatusRouteTests(unittest.IsolatedAsyncioTestCase):
             return expected_response
 
         with (
-            patch(
+            patch_public_dependency(
                 'app.presentation.api.v1.routes.passport_routes.public_upload.ClientGroupRepository',
                 return_value=group_repository,
             ),
-            patch(
+            patch_public_dependency(
                 'app.presentation.api.v1.routes.passport_routes.public_upload.PassportSubmissionRepository',
                 return_value=submission_repository,
             ),
-            patch(
+            patch_public_dependency(
                 'app.presentation.api.v1.routes.passport_routes.public_upload.PassportProcessingJobRepository',
                 return_value=job_repository,
             ),
-            patch(
+            patch_public_dependency(
                 'app.presentation.api.v1.routes.passport_routes.public_upload.queued_job_needs_redelivery',
                 return_value=True,
             ),
-            patch(
+            patch_public_dependency(
                 'app.presentation.api.v1.routes.passport_routes.public_upload.passport_submission_output_from_entity',
                 side_effect=snapshot,
             ),
-            patch(
+            patch_public_dependency(
                 'app.presentation.api.v1.routes.passport_routes.public_upload.dispatch_public_extraction',
                 new=dispatch,
             ),
-            patch(
+            patch_public_dependency(
                 'app.presentation.api.v1.routes.passport_routes.public_upload._response_from_dto',
                 new=response,
             ),
@@ -133,11 +134,11 @@ class PassportUploadStatusRouteTests(unittest.IsolatedAsyncioTestCase):
         )
 
         with (
-            patch(
+            patch_public_dependency(
                 'app.presentation.api.v1.routes.passport_routes.public_upload.ClientGroupRepository',
                 return_value=group_repository,
             ),
-            patch(
+            patch_public_dependency(
                 'app.presentation.api.v1.routes.passport_routes.public_upload.PassportSubmissionRepository',
                 return_value=submission_repository,
             ),
@@ -186,11 +187,11 @@ class PassportUploadStatusRouteTests(unittest.IsolatedAsyncioTestCase):
         )
 
         with (
-            patch(
+            patch_public_dependency(
                 'app.presentation.api.v1.routes.passport_routes.public_upload.ClientGroupRepository',
                 return_value=group_repository,
             ),
-            patch(
+            patch_public_dependency(
                 'app.presentation.api.v1.routes.passport_routes.public_upload.PassportSubmissionRepository',
                 return_value=submission_repository,
             ),
@@ -258,23 +259,23 @@ class PassportUploadStatusRouteTests(unittest.IsolatedAsyncioTestCase):
             events.append("object-worker")
 
         with (
-            patch(
+            patch_public_dependency(
                 'app.presentation.api.v1.routes.passport_routes.public_upload.ClientGroupRepository',
                 return_value=SimpleNamespace(get_by_token=AsyncMock(return_value=group)),
             ),
-            patch(
+            patch_public_dependency(
                 'app.presentation.api.v1.routes.passport_routes.public_upload.PassportSubmissionRepository',
                 return_value=submission_repository,
             ),
-            patch(
+            patch_public_dependency(
                 'app.presentation.api.v1.routes.passport_routes.public_upload.stage_storage_cleanup_jobs',
                 side_effect=stage,
             ),
-            patch(
+            patch_public_dependency(
                 'app.presentation.api.v1.routes.passport_routes.public_upload.AuditLogRepository',
                 return_value=SimpleNamespace(record=audit),
             ),
-            patch(
+            patch_public_dependency(
                 'app.presentation.api.v1.routes.passport_routes.public_upload.process_storage_cleanup_job',
                 new=process,
             ),
@@ -327,23 +328,23 @@ class PassportUploadStatusRouteTests(unittest.IsolatedAsyncioTestCase):
         process = AsyncMock()
 
         with (
-            patch(
+            patch_public_dependency(
                 'app.presentation.api.v1.routes.passport_routes.public_upload.ClientGroupRepository',
                 return_value=SimpleNamespace(get_by_token=AsyncMock(return_value=group)),
             ),
-            patch(
+            patch_public_dependency(
                 'app.presentation.api.v1.routes.passport_routes.public_upload.PassportSubmissionRepository',
                 return_value=submission_repository,
             ),
-            patch(
+            patch_public_dependency(
                 'app.presentation.api.v1.routes.passport_routes.public_upload.AuditLogRepository',
                 return_value=SimpleNamespace(record=audit),
             ),
-            patch(
+            patch_public_dependency(
                 'app.presentation.api.v1.routes.passport_routes.public_upload.stage_storage_cleanup_jobs',
                 new=stage,
             ),
-            patch(
+            patch_public_dependency(
                 'app.presentation.api.v1.routes.passport_routes.public_upload.process_storage_cleanup_job',
                 new=process,
             ),
@@ -379,8 +380,8 @@ class PassportUploadStatusRouteTests(unittest.IsolatedAsyncioTestCase):
             delete=AsyncMock(),
         )
         with (
-            patch('app.presentation.api.v1.routes.passport_routes.public_upload.ClientGroupRepository', return_value=SimpleNamespace(get_by_token=AsyncMock(return_value=group))),
-            patch('app.presentation.api.v1.routes.passport_routes.public_upload.PassportSubmissionRepository', return_value=repository),
+            patch_public_dependency('app.presentation.api.v1.routes.passport_routes.public_upload.ClientGroupRepository', return_value=SimpleNamespace(get_by_token=AsyncMock(return_value=group))),
+            patch_public_dependency('app.presentation.api.v1.routes.passport_routes.public_upload.PassportSubmissionRepository', return_value=repository),
         ):
             with self.assertRaises(HTTPException) as raised:
                 await discard_public_upload(token="public-upload-token", submission_id=submission_id, upload_session_id=credential, session=session)
@@ -417,26 +418,26 @@ class PassportUploadStatusRouteTests(unittest.IsolatedAsyncioTestCase):
         process = AsyncMock()
 
         with (
-            patch(
+            patch_public_dependency(
                 'app.presentation.api.v1.routes.passport_routes.public_upload.ClientGroupRepository',
                 return_value=SimpleNamespace(get_by_token=AsyncMock(return_value=group)),
             ),
-            patch(
+            patch_public_dependency(
                 'app.presentation.api.v1.routes.passport_routes.public_upload.PassportSubmissionRepository',
                 return_value=SimpleNamespace(
                     get_by_id_for_update=AsyncMock(return_value=submission),
                     delete=AsyncMock(),
                 ),
             ),
-            patch(
+            patch_public_dependency(
                 'app.presentation.api.v1.routes.passport_routes.public_upload.stage_storage_cleanup_jobs',
                 return_value=(SimpleNamespace(id=uuid.uuid4(), object_count=1),),
             ),
-            patch(
+            patch_public_dependency(
                 'app.presentation.api.v1.routes.passport_routes.public_upload.AuditLogRepository',
                 return_value=SimpleNamespace(record=AsyncMock()),
             ),
-            patch(
+            patch_public_dependency(
                 'app.presentation.api.v1.routes.passport_routes.public_upload.process_storage_cleanup_job',
                 new=process,
             ),

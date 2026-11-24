@@ -1,0 +1,31 @@
+{
+  "runtimeBuildId": "ZVLp8MXKE6IoTayf51zGq",
+  "results": [
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "pane": {
+        "clientWidth": 308,
+        "scrollWidth": 531,
+        "overflowX": "auto",
+        "whiteSpace": "pre-wrap",
+        "overflowWrap": "normal"
+      }
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "pane": {
+        "clientWidth": 718,
+        "scrollWidth": 718,
+        "overflowX": "auto",
+        "whiteSpace": "pre-wrap",
+        "overflowWrap": "normal"
+      }
+    }
+  ]
+}

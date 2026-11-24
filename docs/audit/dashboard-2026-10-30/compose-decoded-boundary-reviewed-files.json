@@ -1,0 +1,22 @@
+{
+  "files": [
+    {
+      "path": "scripts/verify_compose_runtime.py",
+      "sha256": "42add09eb4a67529104b15a0ff0b8f012bde541cbb94803df8c3344640fbefb1",
+      "review_status": "full",
+      "review_scope": "full",
+      "reviewer": "ai_extraction",
+      "lines": 218,
+      "notes": "Full current physical reread; supplemental decoded-object guard, five real negative subcases and valid object control. Three original test method ASTs retained exactly."
+    },
+    {
+      "path": "scripts/test_compose_render_fixture.py",
+      "sha256": "0213cc5b0729ff9cb5ecf8c54250b83b784e7b29bde8f29bb5016731e39d8d95",
+      "review_status": "full",
+      "review_scope": "full",
+      "reviewer": "ai_extraction",
+      "lines": 81,
+      "notes": "Full current physical reread; supplemental decoded-object guard, five real negative subcases and valid object control. Three original test method ASTs retained exactly."
+    }
+  ]
+}

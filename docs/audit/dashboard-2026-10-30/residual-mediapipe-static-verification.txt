@@ -1,0 +1,1 @@
+MediaPipe CSP bindings verified; detection graph, model, and WASM are unchanged.

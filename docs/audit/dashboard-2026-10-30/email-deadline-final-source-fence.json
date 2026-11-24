@@ -1,0 +1,74 @@
+[
+  {
+    "path": "backend/app/infrastructure/email/deadline_notification_policy.py",
+    "sha256": "a8c849c0f7d567b5a57cfbc3d5017b9ca6668e84799c5f4a2edacad31c59c8e7"
+  },
+  {
+    "path": "backend/app/infrastructure/email/deadline_notification_coverage.py",
+    "sha256": "2d5c73b23edd340873d335c8bb98fa5bbbe39f0d17535c26a3bb60aaadab1f23"
+  },
+  {
+    "path": "backend/app/infrastructure/email/deadline_notification_emit.py",
+    "sha256": "ac10f20696044e79b328ff446dc59f8a070194748f493383f5aa58b303b7da06"
+  },
+  {
+    "path": "backend/app/infrastructure/email/deadline_notification_initial.py",
+    "sha256": "df4c8654700079828556a555ae8453b3b3ee2373df85cdd49ff80069e05d6013"
+  },
+  {
+    "path": "backend/app/infrastructure/email/deadline_notification_visibility.py",
+    "sha256": "4cb991f01ca3ceb7852388ee8135d6fbb58cd99b9500fe16ca4a1e1ea64831dd"
+  },
+  {
+    "path": "backend/app/infrastructure/email/deadline_notifications.py",
+    "sha256": "173d7b875eb937f21b867e155c20827f5a039a81990ce8afdccfcaa4078bfda9"
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_email_deadline_coverage.py",
+    "sha256": "b3ce799c131b63ec7fccc45bc2354ee36fc297ea32408caa212efba4860d0714"
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_email_deadline_batches.py",
+    "sha256": "d0246674d0e62b519750979986afc5a54fbd1ee4ffee0461cd0f032480582cf5"
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_email_deadline_visibility.py",
+    "sha256": "0d45ddc5c089e4a08ad07303cb1a277d25e2adee7bfdbce728a285ac6c85e8b4"
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_email_ai_deadline_notifications.py",
+    "sha256": "e8e1c40f7fdc717829dfe4fc1b5382ecbceeab692a04829eb87e7e567ce13778"
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_email_task_routing.py",
+    "sha256": "68ff06458ca021fd8e9e58752d3eb9274d2a9c86d8747b290bf447c0b4364529"
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_email_ai_runtime.py",
+    "sha256": "5a90f6cbe290cb90fb6df985999dd55739fe6bdf2d8f808e2990b4acd12e2d76"
+  },
+  {
+    "path": "backend/app/infrastructure/email/ai_tasks.py",
+    "sha256": "3250b97320f8fc6017465adc1ecd3e6b50086ea474951e3e3a6245553df9d120"
+  },
+  {
+    "path": "backend/app/infrastructure/email/ai_persistence.py",
+    "sha256": "50c4b86a5f8cc774a1efc0a3ece857ee535c6bcc1e80cb83a288f9dd23ceaca7"
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/notification_repository.py",
+    "sha256": "d19a72107423edd79e3992ca68d2a120fa9701d6ab4ecde402d5e594a0cb067e"
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/user_repository.py",
+    "sha256": "a91bd9de4ef129c714c39cbda7ddc3d782fe7b3474fcb8f65837642fa5cb4737"
+  },
+  {
+    "path": "backend/app/application/use_cases/email_integrations/rollout_policy.py",
+    "sha256": "742101916bb990b85e37df339ec38a29be7b12b21c5880b0b92211fdaa1685fa"
+  },
+  {
+    "path": "backend/app/application/security/authorization_policy.py",
+    "sha256": "6a1ee49097b124715ce52fb5810387c6be5a3a5e18f4896676340c6e6dabe663"
+  }
+]

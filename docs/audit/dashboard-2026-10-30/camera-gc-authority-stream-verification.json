@@ -1,0 +1,47 @@
+{
+  "checkpoint": "2026-10-31-authority-tuple-stream-integration",
+  "reviewer": "branding_visuals",
+  "changed_paths": [
+    {
+      "path": "frontend/lib/api/streamed-download.ts",
+      "sha256": "4829fc5dc12a741cbe146cad78be3eee1d641a14eb09366c36356a96587864e4",
+      "physical_lines": 301
+    },
+    {
+      "path": "frontend/lib/api/streamed-download.test.ts",
+      "sha256": "d586b225cb99f01e50517e3a80ffebfb24f5593b1e9951862b08155cba1dc3b1",
+      "physical_lines": 363
+    },
+    {
+      "path": "frontend/features/gc-app/hooks/use-gc-app-admin.test.tsx",
+      "sha256": "377fce9906a232b9f8ee75dd769772a86a9314ac0db8585be4d632b9e4fdf325",
+      "physical_lines": 233
+    }
+  ],
+  "baseline": {
+    "command": "node node_modules/vitest/vitest.mjs run lib/api/streamed-download.test.ts --maxWorkers=1 --pool=threads",
+    "result": "18 passed /4 failed before subscriber fix",
+    "proven_bug": "Two same-user role/agency changes completed both private chunks instead of rejecting. Two preceding storage-denied test assertions required the now-correct central session-reset reason after the independent central reset fix."
+  },
+  "verification": [
+    {
+      "command": "node node_modules/vitest/vitest.mjs run lib/api/streamed-download.test.ts features/passports/api/passport-operation-owner.test.ts features/gc-app/hooks/use-gc-app-admin.test.tsx features/gc-app/notifications/notifications.api.test.ts hooks/use-private-mutation.test.tsx --maxWorkers=1 --pool=threads",
+      "exit_code": 0,
+      "test_files": 5,
+      "tests": 55
+    },
+    {
+      "command": "node node_modules/typescript/bin/tsc --noEmit",
+      "exit_code": 0
+    },
+    {
+      "command": "node node_modules/eslint/bin/eslint.js lib/api/streamed-download.ts lib/api/streamed-download.test.ts features/gc-app/hooks/use-gc-app-admin.test.tsx",
+      "exit_code": 0
+    }
+  ],
+  "behavior": "Direct streamed-body subscription now reuses assertRequestOwner for the captured actor+role+agency tuple; normal same-authority sessionVersion/profile renewal continues; storage-denied central reset retains session-reset reason. GC exact metadata assertion now includes original authority tuple outside HTTP JSON. No package/budget/API signature change.",
+  "limits": [
+    "Focused synthetic browser-API tests do not establish real native file-picker/device/browser behavior.",
+    "Previous broader checkpoint receipts remain historical and are not silently rebound to new sources."
+  ]
+}

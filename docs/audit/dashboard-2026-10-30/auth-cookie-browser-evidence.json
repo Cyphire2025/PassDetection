@@ -1,0 +1,18 @@
+{
+  "browser": "151.0.7922.34",
+  "results": [
+    {
+      "abortOld": false,
+      "stateOwner": "B",
+      "cookieOwner": "A",
+      "scriptCookie": ""
+    },
+    {
+      "abortOld": true,
+      "stateOwner": "B",
+      "cookieOwner": "B",
+      "scriptCookie": ""
+    }
+  ],
+  "scope": "Actual loopback HTTP Set-Cookie ordering in Chromium with synthetic values; baseline JS result guard versus abort before delayed headers. This probe establishes browser semantics, not full dashboard integration or cross-tab coordination."
+}

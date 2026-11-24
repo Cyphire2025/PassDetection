@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="8" skipped="0" tests="8" time="0.464" timestamp="2026-10-31T12:20:48.955086+05:30" hostname="Nipun5070ti"><testcase classname="tests.unit.core.test_server_log_privacy" name="test_actual_asgi_cycle_does_not_emit_private_exception_messages[database-driver-shaped-application-root-json-h11]" time="0.009"><failure message="assert 'synthetic-d...ort-P1234567' not in '{&quot;error_typ....999781Z&quot;}\n'&#10;  &#10;  'synthetic-database...e-passport-P1234567' is contained here:&#10;    passport=(synthetic-database-driver-shaped-private-passport-P1234567) already exists')&quot;, &quot;&lt;traceback object at 0x000001E2A4EA9F00&gt;&quot;], &quot;path&quot;: &quot;/synthetic-failure&quot;, &quot;method&quot;: &quot;GET&quot;, &quot;request_id&quot;: &quot;9347eb70-3acc-4861-91a9-aa07e9548d22&quot;, &quot;logger&quot;: &quot;uvicorn.error&quot;, &quot;level&quot;: &quot;error&quot;, &quot;timestamp&quot;: &quot;2026-10-31T06:50:48.999781Z&quot;}&#10;  ?           ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001E2A4694A50&gt;
+protocol = 'h11', mode = 'application-root-json'
+kind = 'database-driver-shaped'
+
+    @pytest.mark.parametrize("protocol", ["h11", "httptools"])
+    @pytest.mark.parametrize("mode", ["application-root-json", "uvicorn-default-stderr"])
+    @pytest.mark.parametrize("kind", ["database-driver-shaped", "provider-shaped"])
+    async def test_actual_asgi_cycle_does_not_emit_private_exception_messages(
+        monkeypatch, protocol: str, mode: str, kind: str,
+    ) -&gt; None:
+        private = f"synthetic-{kind}-private-passport-P1234567"
+        failure: Exception = (
+            IntegrityError("INSERT INTO synthetic_passports VALUES (:passport)", {"passport": private},
+                           RuntimeError(f"duplicate key passport=({private}) already exists"), hide_parameters=True)
+            if kind == "database-driver-shaped" else RuntimeError(f"Synthetic provider rejected {private}")
+        )
+        original_args = failure.args
+        if isinstance(failure, IntegrityError):
+            assert failure.hide_parameters
+            assert "SQL parameters hidden" in str(failure)
+            assert private in str(failure)  # Original driver text remains private too.
+        application, server = configure_sink(monkeypatch, mode)
+        wire = (await exercise_cycle(protocol, failure)).decode()
+        logs = application.getvalue() + server.getvalue()
+        own = [json.loads(line) for line in application.getvalue().splitlines()
+               if line.startswith("{") and json.loads(line).get("event") == "unhandled_exception"]
+        assert len(own) == 1
+        assert private not in json.dumps(own)
+        assert "500 Internal Server Error" in wire and "INTERNAL_SERVER_ERROR" in wire
+        assert private not in wire
+&gt;       assert private not in logs
+E       assert 'synthetic-d...ort-P1234567' not in '{"error_typ....999781Z"}\n'
+E         
+E         'synthetic-database...e-passport-P1234567' is contained here:
+E           passport=(synthetic-database-driver-shaped-private-passport-P1234567) already exists')", "&lt;traceback object at 0x000001E2A4EA9F00&gt;"], "path": "/synthetic-failure", "method": "GET", "request_id": "9347eb70-3acc-4861-91a9-aa07e9548d22", "logger": "uvicorn.error", "level": "error", "timestamp": "2026-10-31T06:50:48.999781Z"}
+E         ?           ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+tests\unit\core\test_server_log_privacy.py:69: AssertionError</failure></testcase><testcase classname="tests.unit.core.test_server_log_privacy" name="test_actual_asgi_cycle_does_not_emit_private_exception_messages[database-driver-shaped-application-root-json-httptools]" time="0.006"><failure message="assert 'synthetic-d...ort-P1234567' not in '{&quot;error_typ....365343Z&quot;}\n'&#10;  &#10;  'synthetic-database...e-passport-P1234567' is contained here:&#10;    passport=(synthetic-database-driver-shaped-private-passport-P1234567) already exists')&quot;, &quot;&lt;traceback object at 0x000001E2A4CD3380&gt;&quot;], &quot;path&quot;: &quot;/synthetic-failure&quot;, &quot;method&quot;: &quot;GET&quot;, &quot;request_id&quot;: &quot;6a874c2f-92ed-4438-a855-82375d7277b7&quot;, &quot;logger&quot;: &quot;uvicorn.error&quot;, &quot;level&quot;: &quot;error&quot;, &quot;timestamp&quot;: &quot;2026-10-31T06:50:49.365343Z&quot;}&#10;  ?           ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001E2A25CE510&gt;
+protocol = 'httptools', mode = 'application-root-json'
+kind = 'database-driver-shaped'
+
+    @pytest.mark.parametrize("protocol", ["h11", "httptools"])
+    @pytest.mark.parametrize("mode", ["application-root-json", "uvicorn-default-stderr"])
+    @pytest.mark.parametrize("kind", ["database-driver-shaped", "provider-shaped"])
+    async def test_actual_asgi_cycle_does_not_emit_private_exception_messages(
+        monkeypatch, protocol: str, mode: str, kind: str,
+    ) -&gt; None:
+        private = f"synthetic-{kind}-private-passport-P1234567"
+        failure: Exception = (
+            IntegrityError("INSERT INTO synthetic_passports VALUES (:passport)", {"passport": private},
+                           RuntimeError(f"duplicate key passport=({private}) already exists"), hide_parameters=True)
+            if kind == "database-driver-shaped" else RuntimeError(f"Synthetic provider rejected {private}")
+        )
+        original_args = failure.args
+        if isinstance(failure, IntegrityError):
+            assert failure.hide_parameters
+            assert "SQL parameters hidden" in str(failure)
+            assert private in str(failure)  # Original driver text remains private too.
+        application, server = configure_sink(monkeypatch, mode)
+        wire = (await exercise_cycle(protocol, failure)).decode()
+        logs = application.getvalue() + server.getvalue()
+        own = [json.loads(line) for line in application.getvalue().splitlines()
+               if line.startswith("{") and json.loads(line).get("event") == "unhandled_exception"]
+        assert len(own) == 1
+        assert private not in json.dumps(own)
+        assert "500 Internal Server Error" in wire and "INTERNAL_SERVER_ERROR" in wire
+        assert private not in wire
+&gt;       assert private not in logs
+E       assert 'synthetic-d...ort-P1234567' not in '{"error_typ....365343Z"}\n'
+E         
+E         'synthetic-database...e-passport-P1234567' is contained here:
+E           passport=(synthetic-database-driver-shaped-private-passport-P1234567) already exists')", "&lt;traceback object at 0x000001E2A4CD3380&gt;"], "path": "/synthetic-failure", "method": "GET", "request_id": "6a874c2f-92ed-4438-a855-82375d7277b7", "logger": "uvicorn.error", "level": "error", "timestamp": "2026-10-31T06:50:49.365343Z"}
+E         ?           ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+tests\unit\core\test_server_log_privacy.py:69: AssertionError</failure></testcase><testcase classname="tests.unit.core.test_server_log_privacy" name="test_actual_asgi_cycle_does_not_emit_private_exception_messages[database-driver-shaped-uvicorn-default-stderr-h11]" time="0.005"><failure message="assert 'synthetic-d...ort-P1234567' not in '{&quot;error_typ...e/20/gkpj)\n'&#10;  &#10;  'synthetic-database...e-passport-P1234567' is contained here:&#10;    passport=(synthetic-database-driver-shaped-private-passport-P1234567) already exists&#10;    [SQL: INSERT INTO synthetic_passports VALUES (:passport)]&#10;    [SQL parameters hidden due to hide_parameters=True]&#10;    (Background on this error at: https://sqlalche.me/e/20/gkpj)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001E2A4E56050&gt;
+protocol = 'h11', mode = 'uvicorn-default-stderr'
+kind = 'database-driver-shaped'
+
+    @pytest.mark.parametrize("protocol", ["h11", "httptools"])
+    @pytest.mark.parametrize("mode", ["application-root-json", "uvicorn-default-stderr"])
+    @pytest.mark.parametrize("kind", ["database-driver-shaped", "provider-shaped"])
+    async def test_actual_asgi_cycle_does_not_emit_private_exception_messages(
+        monkeypatch, protocol: str, mode: str, kind: str,
+    ) -&gt; None:
+        private = f"synthetic-{kind}-private-passport-P1234567"
+        failure: Exception = (
+            IntegrityError("INSERT INTO synthetic_passports VALUES (:passport)", {"passport": private},
+                           RuntimeError(f"duplicate key passport=({private}) already exists"), hide_parameters=True)
+            if kind == "database-driver-shaped" else RuntimeError(f"Synthetic provider rejected {private}")
+        )
+        original_args = failure.args
+        if isinstance(failure, IntegrityError):
+            assert failure.hide_parameters
+            assert "SQL parameters hidden" in str(failure)
+            assert private in str(failure)  # Original driver text remains private too.
+        application, server = configure_sink(monkeypatch, mode)
+        wire = (await exercise_cycle(protocol, failure)).decode()
+        logs = application.getvalue() + server.getvalue()
+        own = [json.loads(line) for line in application.getvalue().splitlines()
+               if line.startswith("{") and json.loads(line).get("event") == "unhandled_exception"]
+        assert len(own) == 1
+        assert private not in json.dumps(own)
+        assert "500 Internal Server Error" in wire and "INTERNAL_SERVER_ERROR" in wire
+        assert private not in wire
+&gt;       assert private not in logs
+E       assert 'synthetic-d...ort-P1234567' not in '{"error_typ...e/20/gkpj)\n'
+E         
+E         'synthetic-database...e-passport-P1234567' is contained here:
+E           passport=(synthetic-database-driver-shaped-private-passport-P1234567) already exists
+E           [SQL: INSERT INTO synthetic_passports VALUES (:passport)]
+E           [SQL parameters hidden due to hide_parameters=True]
+E           (Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+tests\unit\core\test_server_log_privacy.py:69: AssertionError</failure></testcase><testcase classname="tests.unit.core.test_server_log_privacy" name="test_actual_asgi_cycle_does_not_emit_private_exception_messages[database-driver-shaped-uvicorn-default-stderr-httptools]" time="0.005"><failure message="assert 'synthetic-d...ort-P1234567' not in '{&quot;error_typ...e/20/gkpj)\n'&#10;  &#10;  'synthetic-database...e-passport-P1234567' is contained here:&#10;    passport=(synthetic-database-driver-shaped-private-passport-P1234567) already exists&#10;    [SQL: INSERT INTO synthetic_passports VALUES (:passport)]&#10;    [SQL parameters hidden due to hide_parameters=True]&#10;    (Background on this error at: https://sqlalche.me/e/20/gkpj)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001E2A4E55410&gt;
+protocol = 'httptools', mode = 'uvicorn-default-stderr'
+kind = 'database-driver-shaped'
+
+    @pytest.mark.parametrize("protocol", ["h11", "httptools"])
+    @pytest.mark.parametrize("mode", ["application-root-json", "uvicorn-default-stderr"])
+    @pytest.mark.parametrize("kind", ["database-driver-shaped", "provider-shaped"])
+    async def test_actual_asgi_cycle_does_not_emit_private_exception_messages(
+        monkeypatch, protocol: str, mode: str, kind: str,
+    ) -&gt; None:
+        private = f"synthetic-{kind}-private-passport-P1234567"
+        failure: Exception = (
+            IntegrityError("INSERT INTO synthetic_passports VALUES (:passport)", {"passport": private},
+                           RuntimeError(f"duplicate key passport=({private}) already exists"), hide_parameters=True)
+            if kind == "database-driver-shaped" else RuntimeError(f"Synthetic provider rejected {private}")
+        )
+        original_args = failure.args
+        if isinstance(failure, IntegrityError):
+            assert failure.hide_parameters
+            assert "SQL parameters hidden" in str(failure)
+            assert private in str(failure)  # Original driver text remains private too.
+        application, server = configure_sink(monkeypatch, mode)
+        wire = (await exercise_cycle(protocol, failure)).decode()
+        logs = application.getvalue() + server.getvalue()
+        own = [json.loads(line) for line in application.getvalue().splitlines()
+               if line.startswith("{") and json.loads(line).get("event") == "unhandled_exception"]
+        assert len(own) == 1
+        assert private not in json.dumps(own)
+        assert "500 Internal Server Error" in wire and "INTERNAL_SERVER_ERROR" in wire
+        assert private not in wire
+&gt;       assert private not in logs
+E       assert 'synthetic-d...ort-P1234567' not in '{"error_typ...e/20/gkpj)\n'
+E         
+E         'synthetic-database...e-passport-P1234567' is contained here:
+E           passport=(synthetic-database-driver-shaped-private-passport-P1234567) already exists
+E           [SQL: INSERT INTO synthetic_passports VALUES (:passport)]
+E           [SQL parameters hidden due to hide_parameters=True]
+E           (Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+tests\unit\core\test_server_log_privacy.py:69: AssertionError</failure></testcase><testcase classname="tests.unit.core.test_server_log_privacy" name="test_actual_asgi_cycle_does_not_emit_private_exception_messages[provider-shaped-application-root-json-h11]" time="0.005"><failure message="assert 'synthetic-p...ort-P1234567' not in '{&quot;error_typ....390480Z&quot;}\n'&#10;  &#10;  'synthetic-provider...e-passport-P1234567' is contained here:&#10;     rejected synthetic-provider-shaped-private-passport-P1234567')&quot;, &quot;&lt;traceback object at 0x000001E2A50B65C0&gt;&quot;], &quot;path&quot;: &quot;/synthetic-failure&quot;, &quot;method&quot;: &quot;GET&quot;, &quot;request_id&quot;: &quot;09d27232-476c-4a33-bd3f-fcf4f3d2ff72&quot;, &quot;logger&quot;: &quot;uvicorn.error&quot;, &quot;level&quot;: &quot;error&quot;, &quot;timestamp&quot;: &quot;2026-10-31T06:50:49.390480Z&quot;}&#10;  ?           +++++++++++++++++++++++++++++++++++++++++++++++++++">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001E2A48D0A10&gt;
+protocol = 'h11', mode = 'application-root-json', kind = 'provider-shaped'
+
+    @pytest.mark.parametrize("protocol", ["h11", "httptools"])
+    @pytest.mark.parametrize("mode", ["application-root-json", "uvicorn-default-stderr"])
+    @pytest.mark.parametrize("kind", ["database-driver-shaped", "provider-shaped"])
+    async def test_actual_asgi_cycle_does_not_emit_private_exception_messages(
+        monkeypatch, protocol: str, mode: str, kind: str,
+    ) -&gt; None:
+        private = f"synthetic-{kind}-private-passport-P1234567"
+        failure: Exception = (
+            IntegrityError("INSERT INTO synthetic_passports VALUES (:passport)", {"passport": private},
+                           RuntimeError(f"duplicate key passport=({private}) already exists"), hide_parameters=True)
+            if kind == "database-driver-shaped" else RuntimeError(f"Synthetic provider rejected {private}")
+        )
+        original_args = failure.args
+        if isinstance(failure, IntegrityError):
+            assert failure.hide_parameters
+            assert "SQL parameters hidden" in str(failure)
+            assert private in str(failure)  # Original driver text remains private too.
+        application, server = configure_sink(monkeypatch, mode)
+        wire = (await exercise_cycle(protocol, failure)).decode()
+        logs = application.getvalue() + server.getvalue()
+        own = [json.loads(line) for line in application.getvalue().splitlines()
+               if line.startswith("{") and json.loads(line).get("event") == "unhandled_exception"]
+        assert len(own) == 1
+        assert private not in json.dumps(own)
+        assert "500 Internal Server Error" in wire and "INTERNAL_SERVER_ERROR" in wire
+        assert private not in wire
+&gt;       assert private not in logs
+E       assert 'synthetic-p...ort-P1234567' not in '{"error_typ....390480Z"}\n'
+E         
+E         'synthetic-provider...e-passport-P1234567' is contained here:
+E            rejected synthetic-provider-shaped-private-passport-P1234567')", "&lt;traceback object at 0x000001E2A50B65C0&gt;"], "path": "/synthetic-failure", "method": "GET", "request_id": "09d27232-476c-4a33-bd3f-fcf4f3d2ff72", "logger": "uvicorn.error", "level": "error", "timestamp": "2026-10-31T06:50:49.390480Z"}
+E         ?           +++++++++++++++++++++++++++++++++++++++++++++++++++
+
+tests\unit\core\test_server_log_privacy.py:69: AssertionError</failure></testcase><testcase classname="tests.unit.core.test_server_log_privacy" name="test_actual_asgi_cycle_does_not_emit_private_exception_messages[provider-shaped-application-root-json-httptools]" time="0.005"><failure message="assert 'synthetic-p...ort-P1234567' not in '{&quot;error_typ....397906Z&quot;}\n'&#10;  &#10;  'synthetic-provider...e-passport-P1234567' is contained here:&#10;     rejected synthetic-provider-shaped-private-passport-P1234567')&quot;, &quot;&lt;traceback object at 0x000001E2A50D72C0&gt;&quot;], &quot;path&quot;: &quot;/synthetic-failure&quot;, &quot;method&quot;: &quot;GET&quot;, &quot;request_id&quot;: &quot;f4068fb4-b972-4e95-9b26-7c6ef16885c5&quot;, &quot;logger&quot;: &quot;uvicorn.error&quot;, &quot;level&quot;: &quot;error&quot;, &quot;timestamp&quot;: &quot;2026-10-31T06:50:49.397906Z&quot;}&#10;  ?           +++++++++++++++++++++++++++++++++++++++++++++++++++">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001E2A49C3CD0&gt;
+protocol = 'httptools', mode = 'application-root-json', kind = 'provider-shaped'
+
+    @pytest.mark.parametrize("protocol", ["h11", "httptools"])
+    @pytest.mark.parametrize("mode", ["application-root-json", "uvicorn-default-stderr"])
+    @pytest.mark.parametrize("kind", ["database-driver-shaped", "provider-shaped"])
+    async def test_actual_asgi_cycle_does_not_emit_private_exception_messages(
+        monkeypatch, protocol: str, mode: str, kind: str,
+    ) -&gt; None:
+        private = f"synthetic-{kind}-private-passport-P1234567"
+        failure: Exception = (
+            IntegrityError("INSERT INTO synthetic_passports VALUES (:passport)", {"passport": private},
+                           RuntimeError(f"duplicate key passport=({private}) already exists"), hide_parameters=True)
+            if kind == "database-driver-shaped" else RuntimeError(f"Synthetic provider rejected {private}")
+        )
+        original_args = failure.args
+        if isinstance(failure, IntegrityError):
+            assert failure.hide_parameters
+            assert "SQL parameters hidden" in str(failure)
+            assert private in str(failure)  # Original driver text remains private too.
+        application, server = configure_sink(monkeypatch, mode)
+        wire = (await exercise_cycle(protocol, failure)).decode()
+        logs = application.getvalue() + server.getvalue()
+        own = [json.loads(line) for line in application.getvalue().splitlines()
+               if line.startswith("{") and json.loads(line).get("event") == "unhandled_exception"]
+        assert len(own) == 1
+        assert private not in json.dumps(own)
+        assert "500 Internal Server Error" in wire and "INTERNAL_SERVER_ERROR" in wire
+        assert private not in wire
+&gt;       assert private not in logs
+E       assert 'synthetic-p...ort-P1234567' not in '{"error_typ....397906Z"}\n'
+E         
+E         'synthetic-provider...e-passport-P1234567' is contained here:
+E            rejected synthetic-provider-shaped-private-passport-P1234567')", "&lt;traceback object at 0x000001E2A50D72C0&gt;"], "path": "/synthetic-failure", "method": "GET", "request_id": "f4068fb4-b972-4e95-9b26-7c6ef16885c5", "logger": "uvicorn.error", "level": "error", "timestamp": "2026-10-31T06:50:49.397906Z"}
+E         ?           +++++++++++++++++++++++++++++++++++++++++++++++++++
+
+tests\unit\core\test_server_log_privacy.py:69: AssertionError</failure></testcase><testcase classname="tests.unit.core.test_server_log_privacy" name="test_actual_asgi_cycle_does_not_emit_private_exception_messages[provider-shaped-uvicorn-default-stderr-h11]" time="0.005"><failure message="assert 'synthetic-p...ort-P1234567' not in '{&quot;error_typ...t-P1234567\n'&#10;  &#10;  'synthetic-provider...e-passport-P1234567' is contained here:&#10;     rejected synthetic-provider-shaped-private-passport-P1234567">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001E2E261BA50&gt;
+protocol = 'h11', mode = 'uvicorn-default-stderr', kind = 'provider-shaped'
+
+    @pytest.mark.parametrize("protocol", ["h11", "httptools"])
+    @pytest.mark.parametrize("mode", ["application-root-json", "uvicorn-default-stderr"])
+    @pytest.mark.parametrize("kind", ["database-driver-shaped", "provider-shaped"])
+    async def test_actual_asgi_cycle_does_not_emit_private_exception_messages(
+        monkeypatch, protocol: str, mode: str, kind: str,
+    ) -&gt; None:
+        private = f"synthetic-{kind}-private-passport-P1234567"
+        failure: Exception = (
+            IntegrityError("INSERT INTO synthetic_passports VALUES (:passport)", {"passport": private},
+                           RuntimeError(f"duplicate key passport=({private}) already exists"), hide_parameters=True)
+            if kind == "database-driver-shaped" else RuntimeError(f"Synthetic provider rejected {private}")
+        )
+        original_args = failure.args
+        if isinstance(failure, IntegrityError):
+            assert failure.hide_parameters
+            assert "SQL parameters hidden" in str(failure)
+            assert private in str(failure)  # Original driver text remains private too.
+        application, server = configure_sink(monkeypatch, mode)
+        wire = (await exercise_cycle(protocol, failure)).decode()
+        logs = application.getvalue() + server.getvalue()
+        own = [json.loads(line) for line in application.getvalue().splitlines()
+               if line.startswith("{") and json.loads(line).get("event") == "unhandled_exception"]
+        assert len(own) == 1
+        assert private not in json.dumps(own)
+        assert "500 Internal Server Error" in wire and "INTERNAL_SERVER_ERROR" in wire
+        assert private not in wire
+&gt;       assert private not in logs
+E       assert 'synthetic-p...ort-P1234567' not in '{"error_typ...t-P1234567\n'
+E         
+E         'synthetic-provider...e-passport-P1234567' is contained here:
+E            rejected synthetic-provider-shaped-private-passport-P1234567
+
+tests\unit\core\test_server_log_privacy.py:69: AssertionError</failure></testcase><testcase classname="tests.unit.core.test_server_log_privacy" name="test_actual_asgi_cycle_does_not_emit_private_exception_messages[provider-shaped-uvicorn-default-stderr-httptools]" time="0.005"><failure message="assert 'synthetic-p...ort-P1234567' not in '{&quot;error_typ...t-P1234567\n'&#10;  &#10;  'synthetic-provider...e-passport-P1234567' is contained here:&#10;     rejected synthetic-provider-shaped-private-passport-P1234567">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001E2A4EB8950&gt;
+protocol = 'httptools', mode = 'uvicorn-default-stderr'
+kind = 'provider-shaped'
+
+    @pytest.mark.parametrize("protocol", ["h11", "httptools"])
+    @pytest.mark.parametrize("mode", ["application-root-json", "uvicorn-default-stderr"])
+    @pytest.mark.parametrize("kind", ["database-driver-shaped", "provider-shaped"])
+    async def test_actual_asgi_cycle_does_not_emit_private_exception_messages(
+        monkeypatch, protocol: str, mode: str, kind: str,
+    ) -&gt; None:
+        private = f"synthetic-{kind}-private-passport-P1234567"
+        failure: Exception = (
+            IntegrityError("INSERT INTO synthetic_passports VALUES (:passport)", {"passport": private},
+                           RuntimeError(f"duplicate key passport=({private}) already exists"), hide_parameters=True)
+            if kind == "database-driver-shaped" else RuntimeError(f"Synthetic provider rejected {private}")
+        )
+        original_args = failure.args
+        if isinstance(failure, IntegrityError):
+            assert failure.hide_parameters
+            assert "SQL parameters hidden" in str(failure)
+            assert private in str(failure)  # Original driver text remains private too.
+        application, server = configure_sink(monkeypatch, mode)
+        wire = (await exercise_cycle(protocol, failure)).decode()
+        logs = application.getvalue() + server.getvalue()
+        own = [json.loads(line) for line in application.getvalue().splitlines()
+               if line.startswith("{") and json.loads(line).get("event") == "unhandled_exception"]
+        assert len(own) == 1
+        assert private not in json.dumps(own)
+        assert "500 Internal Server Error" in wire and "INTERNAL_SERVER_ERROR" in wire
+        assert private not in wire
+&gt;       assert private not in logs
+E       assert 'synthetic-p...ort-P1234567' not in '{"error_typ...t-P1234567\n'
+E         
+E         'synthetic-provider...e-passport-P1234567' is contained here:
+E            rejected synthetic-provider-shaped-private-passport-P1234567
+
+tests\unit\core\test_server_log_privacy.py:69: AssertionError</failure></testcase></testsuite></testsuites>

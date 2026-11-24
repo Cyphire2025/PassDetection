@@ -1,0 +1,126 @@
+{
+  "root_field_declarations_AST_exact": 195,
+  "root_moved_methods": [
+    {
+      "name": "parse_cors_origins",
+      "whole_declaration_AST_exact": true
+    },
+    {
+      "name": "validate_trusted_proxy_networks",
+      "whole_declaration_AST_exact": true
+    },
+    {
+      "name": "validate_gemini_image_model",
+      "whole_declaration_AST_exact": true
+    },
+    {
+      "name": "validate_gemini_model",
+      "whole_declaration_AST_exact": true
+    },
+    {
+      "name": "validate_email_ai_default_timezone",
+      "whole_declaration_AST_exact": true
+    },
+    {
+      "name": "validate_email_provider_oauth_redirect_uri",
+      "whole_declaration_AST_exact": true
+    },
+    {
+      "name": "validate_whatsapp_api_version",
+      "whole_declaration_AST_exact": true
+    },
+    {
+      "name": "validate_whatsapp_phone_number_id",
+      "whole_declaration_AST_exact": true
+    },
+    {
+      "name": "validate_whatsapp_otp_template_name",
+      "whole_declaration_AST_exact": true
+    },
+    {
+      "name": "validate_whatsapp_otp_template_language",
+      "whole_declaration_AST_exact": true
+    },
+    {
+      "name": "validate_database_connection_budget",
+      "complete_body_AST_exact_after_parameter_rename": true,
+      "public_signature_decorators_and_delegate_exact": true
+    },
+    {
+      "name": "validate_metrics_export_configuration",
+      "complete_body_AST_exact_after_parameter_rename": true,
+      "public_signature_decorators_and_delegate_exact": true
+    },
+    {
+      "name": "validate_email_ai_lease_duration",
+      "complete_body_AST_exact_after_parameter_rename": true,
+      "public_signature_decorators_and_delegate_exact": true
+    },
+    {
+      "name": "validate_mcp_deployment",
+      "complete_body_AST_exact_after_parameter_rename": true,
+      "public_signature_decorators_and_delegate_exact": true
+    },
+    {
+      "name": "validate_identity_security_configuration",
+      "complete_body_AST_exact_after_parameter_rename": true,
+      "public_signature_decorators_and_delegate_exact": true
+    },
+    {
+      "name": "validate_dashboard_signing_secret",
+      "complete_body_AST_exact_after_parameter_rename": true,
+      "public_signature_decorators_and_delegate_exact": true
+    },
+    {
+      "name": "validate_mobile_otp_configuration",
+      "complete_body_AST_exact_after_parameter_rename": true,
+      "public_signature_decorators_and_delegate_exact": true
+    },
+    {
+      "name": "validate_mobile_production_signing_secret",
+      "complete_body_AST_exact_after_parameter_rename": true,
+      "public_signature_decorators_and_delegate_exact": true
+    },
+    {
+      "name": "validate_mobile_offline_lease_signing_keys",
+      "complete_body_AST_exact_after_parameter_rename": true,
+      "public_signature_decorators_and_delegate_exact": true
+    },
+    {
+      "name": "validate_mobile_verified_link_configuration",
+      "complete_body_AST_exact_after_parameter_rename": true,
+      "public_signature_decorators_and_delegate_exact": true
+    },
+    {
+      "name": "validate_mobile_app_integrity_configuration",
+      "complete_body_AST_exact_after_parameter_rename": true,
+      "public_signature_decorators_and_delegate_exact": true
+    }
+  ],
+  "retained_root_methods_AST_exact": 12,
+  "root_loader_and_singleton_AST_exact": 2,
+  "my_photos_field_declarations_AST_exact": 66,
+  "my_photos_retained_methods_AST_exact": 3,
+  "my_photos_storage_helpers_AST_exact": 2,
+  "my_photos_complete_production_policy_after_macro_expansion": {
+    "original_statements": 35,
+    "expanded_statements": 35,
+    "recursive_AST_exact": true
+  },
+  "wiring": "Pydantic base models own each field once; reverse-MRO ordering and original flat config verified by exact public metadata. Root model validators preserve order/signatures/decorators and call typed policy functions. My Photos original policy order and local admission remain. Region helper parameters carry the original plain validated field, not a callback/property proxy.",
+  "source_sha256": {
+    "backend/app/core/config/runtime_settings_fields.py": "dd324d05455e837d57ca26aa4dba1f8a0e712214c544fbdc50aab21cd7495a86",
+    "backend/app/core/config/request_settings_fields.py": "f7dbe65f066e304ee089241e7709f14246801039aeee25ba6f91f474fa38468b",
+    "backend/app/core/config/ingestion_settings_fields.py": "b4b3f161aa7dd3350d077dd20e4880dcca69439f853cccb63bec8d82338e2788",
+    "backend/app/core/config/ai_settings_fields.py": "2d7c876502cf60b435b12bd8b33823e91877e8082057f7d16a976b4b51705ad3",
+    "backend/app/core/config/email_settings_fields.py": "ae471aa0f319c27390953546c57f385ea6bb9cb88f6d6bf6e4bc6aae52f45e95",
+    "backend/app/core/config/identity_settings_fields.py": "1aaa228536583a4e8f023f4a350d2652139b2f0aa1dfd34316656d55f972afae",
+    "backend/app/core/config/whatsapp_settings_fields.py": "3a0844b5cc46ff1693f4386df51c8f1c53e4cde1e86ef579abe4f4dbc6eb21bf",
+    "backend/app/core/config/settings_deployment_policy.py": "966075f95b4c23faf2f6da0260587e9f40a2cca9fcdeaaaa9dd30aad06522123",
+    "backend/app/core/config/settings_identity_policy.py": "a3d1c6c91dec985a044fd5140cea479b3703f023e8fb84d960711e387538814c",
+    "backend/app/core/config/settings_mobile_policy.py": "01faa1d917fb7f47fa18e4b0acc7c3e8d7e538f5a10175ff14f625fec447c546",
+    "backend/app/core/config/settings.py": "6c5485def68a3d76a27260fbce57bfb2321b241787b769ce0738d63fccc8fef3",
+    "backend/app/core/config/my_photos_settings.py": "e30629c3d3803355ba4484d55f97c08e1857cc75ea7e1a52e83849b601cd7f17",
+    "backend/app/core/config/my_photos_aws_policy.py": "bf72bbe93b00bc98c589cde717c4e80676114d869095d4787b6276696aa65492"
+  }
+}

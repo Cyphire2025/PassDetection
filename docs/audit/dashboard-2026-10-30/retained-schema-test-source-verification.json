@@ -1,0 +1,40 @@
+{
+  "status": "complete current physical retained test-source review only",
+  "files": 19,
+  "physical_lines": 1306,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-schema-test-source-reviewed-files.json",
+    "sha256": "fb81213fe9aa17606252479adc166524db04fca941c6628fba5506d4ebd0c175"
+  },
+  "source_before_equals_after": true,
+  "source_fence": {
+    "backend/tests/unit/infrastructure/test_canonical_trip_timezone_migration.py": "2e3dec6195340594ce458f9c07085f3aa9c807b6dfa821ff9230772036f87f12",
+    "backend/tests/unit/infrastructure/test_client_manager_login_migration.py": "655a6d68a1528ca79c2f51015183b263b58b589cfee2c10304b51aa4a9845213",
+    "backend/tests/unit/infrastructure/test_company_directory_migration.py": "0ecb2978218c1fc3c3cd1244a451dac9b3ca1d950a21b39505d5c825c8785830",
+    "backend/tests/unit/infrastructure/test_document_delivery_resends_migration.py": "3fcf49bdaa70729ebffe4066b0d8983f3d32bd8bb111223a1ab2803566a6d0e2",
+    "backend/tests/unit/infrastructure/test_document_follow_up_migration.py": "278705a9933435e251f4c84612843c23888a8df0fd8eb6ffbd91284131cb1844",
+    "backend/tests/unit/infrastructure/test_domestic_ticket_lanes_migration.py": "bb6c3def115a777a3453bda73799a1c2fd4b600b3d4c30b084dbd4bdcd7d11a4",
+    "backend/tests/unit/infrastructure/test_gc_app_admin_list_index_migration.py": "949e786bf1deea011bf4263d1188d28e6fc2f15a5890c6bae999b2b7230bc5cc",
+    "backend/tests/unit/infrastructure/test_group_whatsapp_links_migration.py": "644a06f64fd906045ec191232531bd5fc36e4691ea2e47b0c6063f9956d32983",
+    "backend/tests/unit/infrastructure/test_passport_cover_edits_migration.py": "89620c3e415c467894468e5bb0bf1bcfec3cd77ff342b1279d1e1d27818b8209",
+    "backend/tests/unit/infrastructure/test_passport_image_crop_migration.py": "14b6ecdb93456c5708da29c441fd98702a54ce60b9f041808198172fba1479b2",
+    "backend/tests/unit/infrastructure/test_storage_cleanup_migration.py": "57631a82e243e065f484976031d4c72ccd642dc74aadc0a6e1dd3e63a2964ae5",
+    "backend/tests/unit/infrastructure/test_travel_tracker_migration.py": "77086e510167f5f20ef8195ef8cab968485f0fe4bad2d7daa18f0d511ba2e44b",
+    "backend/tests/unit/infrastructure/test_traveller_reuse_schema.py": "d1425dc661a51cced169a15082ace88ca060ba19278afb91552f11d4856d3a3e",
+    "backend/tests/unit/infrastructure/test_traveller_seek_migration.py": "dd314bbb5ff00a0531de8b07fe508eec4389fedd01e325249d5d5bba6251c568",
+    "backend/tests/unit/infrastructure/test_whatsapp_matching_fields_migration.py": "46d4839b36625aac5a297c080db6282741833b45142e1109484bc56e93f1853f",
+    "backend/tests/unit/infrastructure/test_whatsapp_recipient_roster_order_migration.py": "3f5a8296536ac4492b681f26a8a8bf61d9ac71a4722ca845499dd60ced5613c0",
+    "backend/tests/unit/infrastructure/test_whatsapp_rejected_contacts_migration.py": "35ebf7c1fe607b2f7efeedd9633e84e7973a9bc7c163c3a1b4d481aaa723afa2",
+    "backend/tests/unit/infrastructure/test_whatsapp_rejected_imported_fields_migration.py": "dd75cff0e22e092c10d7d9fe0f3f43df1f60ad68abc043c9a736f3e42470892d",
+    "backend/tests/unit/infrastructure/test_whatsapp_source_contacts_migration.py": "ff6b408f8f42bf6210e6e3dc962fc7e0d76cd9524114a07eb88905a372f12518"
+  },
+  "new_execution": false,
+  "runtime_or_migration_mutation": false,
+  "new_validated_findings": [],
+  "scope": "Retained dashboard company/client-manager/GC directory/document/image/tracker/traveller/WhatsApp schema test contracts. Dedicated Inbox/native migration test families omitted; immutable predecessor names are compatibility chain literals.",
+  "limits": [
+    "Mock/offline SQL/SQLite test source is not current execution or populated live PostgreSQL migration qualification.",
+    "All142 current migration bytes preserved; no migration import or upgrade/downgrade run.",
+    "Full read applies only listed current19 test hashes; no downstream/runtime/service blanket closure."
+  ]
+}

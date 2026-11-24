@@ -1,0 +1,5690 @@
+{
+  "actual_new_helper_wiring_and_legacy_DATA_instance_pickle": true,
+  "complete_document_router_openapi": {
+    "components": {
+      "schemas": {
+        "AbortDocumentUploadResponse": {
+          "properties": {
+            "batch_id": {
+              "format": "uuid",
+              "title": "Batch Id",
+              "type": "string"
+            },
+            "deleted_chunk_count": {
+              "default": 0,
+              "title": "Deleted Chunk Count",
+              "type": "integer"
+            },
+            "deleted_document_count": {
+              "default": 0,
+              "title": "Deleted Document Count",
+              "type": "integer"
+            },
+            "deleted_storage_object_count": {
+              "default": 0,
+              "title": "Deleted Storage Object Count",
+              "type": "integer"
+            },
+            "remaining_processing_upload_ids": {
+              "items": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "title": "Remaining Processing Upload Ids",
+              "type": "array"
+            },
+            "retained_document_count": {
+              "default": 0,
+              "title": "Retained Document Count",
+              "type": "integer"
+            },
+            "status": {
+              "default": "aborted",
+              "title": "Status",
+              "type": "string"
+            },
+            "storage_cleanup_pending": {
+              "default": false,
+              "title": "Storage Cleanup Pending",
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "batch_id"
+          ],
+          "title": "AbortDocumentUploadResponse",
+          "type": "object"
+        },
+        "Body_manually_upload_passenger_document_documents_groups__group_id___document_type__passengers__passenger_id__manual_upload_post": {
+          "properties": {
+            "file": {
+              "contentMediaType": "application/octet-stream",
+              "title": "File",
+              "type": "string"
+            },
+            "mode": {
+              "default": "add",
+              "enum": [
+                "add",
+                "replace"
+              ],
+              "title": "Mode",
+              "type": "string"
+            },
+            "replacement_documents": {
+              "default": "[]",
+              "maxLength": 10000,
+              "title": "Replacement Documents",
+              "type": "string"
+            }
+          },
+          "required": [
+            "file"
+          ],
+          "title": "Body_manually_upload_passenger_document_documents_groups__group_id___document_type__passengers__passenger_id__manual_upload_post",
+          "type": "object"
+        },
+        "Body_manually_verify_document_documents_groups__group_id___document_type__manual_verify_post": {
+          "properties": {
+            "approval_token": {
+              "maxLength": 524288,
+              "minLength": 1,
+              "title": "Approval Token",
+              "type": "string"
+            },
+            "chunk_id": {
+              "format": "uuid",
+              "title": "Chunk Id",
+              "type": "string"
+            },
+            "confirmed": {
+              "title": "Confirmed",
+              "type": "boolean"
+            },
+            "file": {
+              "contentMediaType": "application/octet-stream",
+              "title": "File",
+              "type": "string"
+            },
+            "target_upload_id": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Target Upload Id"
+            },
+            "upload_id": {
+              "format": "uuid",
+              "title": "Upload Id",
+              "type": "string"
+            }
+          },
+          "required": [
+            "file",
+            "approval_token",
+            "upload_id",
+            "chunk_id",
+            "confirmed"
+          ],
+          "title": "Body_manually_verify_document_documents_groups__group_id___document_type__manual_verify_post",
+          "type": "object"
+        },
+        "Body_reupload_passenger_document_documents_groups__group_id___document_type__passengers__passenger_id__reupload_post": {
+          "properties": {
+            "file": {
+              "contentMediaType": "application/octet-stream",
+              "title": "File",
+              "type": "string"
+            }
+          },
+          "required": [
+            "file"
+          ],
+          "title": "Body_reupload_passenger_document_documents_groups__group_id___document_type__passengers__passenger_id__reupload_post",
+          "type": "object"
+        },
+        "Body_upload_documents_documents_groups__group_id___document_type__upload_post": {
+          "properties": {
+            "chunk_id": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Chunk Id"
+            },
+            "chunk_index": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Chunk Index"
+            },
+            "expected_chunk_count": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Expected Chunk Count"
+            },
+            "expected_file_count": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Expected File Count"
+            },
+            "filename_replacements": {
+              "anyOf": [
+                {
+                  "maxLength": 524288,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Filename Replacements"
+            },
+            "files": {
+              "anyOf": [
+                {
+                  "items": {
+                    "contentMediaType": "application/octet-stream",
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Files"
+            },
+            "staging_receipts": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Staging Receipts"
+            },
+            "upload_id": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Upload Id"
+            }
+          },
+          "title": "Body_upload_documents_documents_groups__group_id___document_type__upload_post",
+          "type": "object"
+        },
+        "Body_verify_documents_documents_groups__group_id___document_type__verify_post": {
+          "properties": {
+            "chunk_id": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Chunk Id"
+            },
+            "files": {
+              "items": {
+                "contentMediaType": "application/octet-stream",
+                "type": "string"
+              },
+              "title": "Files",
+              "type": "array"
+            },
+            "upload_id": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Upload Id"
+            }
+          },
+          "required": [
+            "files"
+          ],
+          "title": "Body_verify_documents_documents_groups__group_id___document_type__verify_post",
+          "type": "object"
+        },
+        "DeleteDistributionDocumentsRequest": {
+          "properties": {
+            "document_ids": {
+              "items": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "title": "Document Ids",
+              "type": "array"
+            }
+          },
+          "title": "DeleteDistributionDocumentsRequest",
+          "type": "object"
+        },
+        "DistributedDocumentResponse": {
+          "properties": {
+            "can_resend": {
+              "default": false,
+              "title": "Can Resend",
+              "type": "boolean"
+            },
+            "delivery_status": {
+              "default": "not_sent",
+              "title": "Delivery Status",
+              "type": "string"
+            },
+            "detected_type": {
+              "title": "Detected Type",
+              "type": "string"
+            },
+            "document_type": {
+              "title": "Document Type",
+              "type": "string"
+            },
+            "extracted_name": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Extracted Name"
+            },
+            "extracted_passport_number": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Extracted Passport Number"
+            },
+            "extracted_reference": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Extracted Reference"
+            },
+            "id": {
+              "format": "uuid",
+              "title": "Id",
+              "type": "string"
+            },
+            "last_sent_at": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Last Sent At"
+            },
+            "manual_type_approved": {
+              "default": false,
+              "title": "Manual Type Approved",
+              "type": "boolean"
+            },
+            "match_confidence": {
+              "title": "Match Confidence",
+              "type": "number"
+            },
+            "match_reason": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Match Reason"
+            },
+            "match_status": {
+              "title": "Match Status",
+              "type": "string"
+            },
+            "original_filename": {
+              "title": "Original Filename",
+              "type": "string"
+            },
+            "sent_to": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Sent To"
+            },
+            "source": {
+              "default": "manual",
+              "title": "Source",
+              "type": "string"
+            },
+            "updated_at": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Updated At"
+            },
+            "url": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Url"
+            }
+          },
+          "required": [
+            "id",
+            "original_filename",
+            "document_type",
+            "detected_type",
+            "match_status",
+            "match_confidence"
+          ],
+          "title": "DistributedDocumentResponse",
+          "type": "object"
+        },
+        "DocumentAssignmentIssueResponse": {
+          "description": "One verified, stored physical PDF that still has no passenger assignment.",
+          "properties": {
+            "code": {
+              "title": "Code",
+              "type": "string"
+            },
+            "document_id": {
+              "format": "uuid",
+              "title": "Document Id",
+              "type": "string"
+            },
+            "original_filename": {
+              "title": "Original Filename",
+              "type": "string"
+            },
+            "reason": {
+              "title": "Reason",
+              "type": "string"
+            },
+            "url": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Url"
+            }
+          },
+          "required": [
+            "document_id",
+            "original_filename",
+            "code",
+            "reason"
+          ],
+          "title": "DocumentAssignmentIssueResponse",
+          "type": "object"
+        },
+        "DocumentBatchResponse": {
+          "properties": {
+            "assigned_file_count": {
+              "default": 0,
+              "title": "Assigned File Count",
+              "type": "integer"
+            },
+            "assigned_passenger_count": {
+              "default": 0,
+              "title": "Assigned Passenger Count",
+              "type": "integer"
+            },
+            "assignment_issues": {
+              "items": {
+                "$ref": "#/components/schemas/DocumentAssignmentIssueResponse"
+              },
+              "title": "Assignment Issues",
+              "type": "array"
+            },
+            "batch_id": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Batch Id"
+            },
+            "created_at": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Created At"
+            },
+            "document_type": {
+              "title": "Document Type",
+              "type": "string"
+            },
+            "group_id": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            },
+            "matched_count": {
+              "default": 0,
+              "title": "Matched Count",
+              "type": "integer"
+            },
+            "needs_assignment_count": {
+              "default": 0,
+              "title": "Needs Assignment Count",
+              "type": "integer"
+            },
+            "physical_file_count": {
+              "default": 0,
+              "title": "Physical File Count",
+              "type": "integer"
+            },
+            "processing_upload_ids": {
+              "items": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "title": "Processing Upload Ids",
+              "type": "array"
+            },
+            "rejected_count": {
+              "default": 0,
+              "title": "Rejected Count",
+              "type": "integer"
+            },
+            "rejected_documents": {
+              "items": {
+                "$ref": "#/components/schemas/RejectedDocumentResponse"
+              },
+              "title": "Rejected Documents",
+              "type": "array"
+            },
+            "review_rows": {
+              "items": {
+                "$ref": "#/components/schemas/DocumentPassengerReviewRow"
+              },
+              "title": "Review Rows",
+              "type": "array"
+            },
+            "saved_at": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Saved At"
+            },
+            "status": {
+              "default": "draft",
+              "title": "Status",
+              "type": "string"
+            },
+            "unmatched_documents": {
+              "items": {
+                "$ref": "#/components/schemas/DistributedDocumentResponse"
+              },
+              "title": "Unmatched Documents",
+              "type": "array"
+            },
+            "uploaded_count": {
+              "default": 0,
+              "title": "Uploaded Count",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "group_id",
+            "document_type"
+          ],
+          "title": "DocumentBatchResponse",
+          "type": "object"
+        },
+        "DocumentDeliveryPreviewRecipient": {
+          "properties": {
+            "broadcast_group_id": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Broadcast Group Id"
+            },
+            "broadcast_name": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Broadcast Name"
+            },
+            "delivery_id": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Delivery Id"
+            },
+            "delivery_status": {
+              "title": "Delivery Status",
+              "type": "string"
+            },
+            "document_filename": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Document Filename"
+            },
+            "document_id": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Document Id"
+            },
+            "document_type": {
+              "title": "Document Type",
+              "type": "string"
+            },
+            "eligible": {
+              "default": false,
+              "title": "Eligible",
+              "type": "boolean"
+            },
+            "error_message": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Error Message"
+            },
+            "message_preview": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Message Preview"
+            },
+            "passenger_id": {
+              "format": "uuid",
+              "title": "Passenger Id",
+              "type": "string"
+            },
+            "passenger_name": {
+              "title": "Passenger Name",
+              "type": "string"
+            },
+            "passport_number": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Passport Number"
+            },
+            "phone_number": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Phone Number"
+            },
+            "phone_source": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Phone Source"
+            },
+            "reason": {
+              "title": "Reason",
+              "type": "string"
+            },
+            "recipient_id": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Recipient Id"
+            },
+            "resend_allowed": {
+              "default": false,
+              "title": "Resend Allowed",
+              "type": "boolean"
+            },
+            "welcome_required": {
+              "default": false,
+              "title": "Welcome Required",
+              "type": "boolean"
+            },
+            "welcome_status": {
+              "default": "not_required",
+              "title": "Welcome Status",
+              "type": "string"
+            }
+          },
+          "required": [
+            "passenger_id",
+            "passenger_name",
+            "document_type",
+            "delivery_status",
+            "reason"
+          ],
+          "title": "DocumentDeliveryPreviewRecipient",
+          "type": "object"
+        },
+        "DocumentDeliveryPreviewResponse": {
+          "properties": {
+            "batch_id": {
+              "format": "uuid",
+              "title": "Batch Id",
+              "type": "string"
+            },
+            "can_send": {
+              "default": false,
+              "title": "Can Send",
+              "type": "boolean"
+            },
+            "configuration_error": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Configuration Error"
+            },
+            "document_type": {
+              "title": "Document Type",
+              "type": "string"
+            },
+            "group_id": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            },
+            "linked_broadcast_count": {
+              "default": 0,
+              "title": "Linked Broadcast Count",
+              "type": "integer"
+            },
+            "message_content_1": {
+              "title": "Message Content 1",
+              "type": "string"
+            },
+            "message_content_2": {
+              "title": "Message Content 2",
+              "type": "string"
+            },
+            "preview_token": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Preview Token"
+            },
+            "recipients": {
+              "items": {
+                "$ref": "#/components/schemas/DocumentDeliveryPreviewRecipient"
+              },
+              "title": "Recipients",
+              "type": "array"
+            },
+            "summary": {
+              "$ref": "#/components/schemas/DocumentDeliveryPreviewSummary"
+            },
+            "template_configured": {
+              "default": false,
+              "title": "Template Configured",
+              "type": "boolean"
+            },
+            "template_name": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Template Name"
+            }
+          },
+          "required": [
+            "group_id",
+            "batch_id",
+            "document_type",
+            "message_content_1",
+            "message_content_2",
+            "summary"
+          ],
+          "title": "DocumentDeliveryPreviewResponse",
+          "type": "object"
+        },
+        "DocumentDeliveryPreviewSummary": {
+          "properties": {
+            "already_sent": {
+              "default": 0,
+              "title": "Already Sent",
+              "type": "integer"
+            },
+            "blocked": {
+              "default": 0,
+              "title": "Blocked",
+              "type": "integer"
+            },
+            "excluded_without_document": {
+              "default": 0,
+              "title": "Excluded Without Document",
+              "type": "integer"
+            },
+            "in_progress": {
+              "default": 0,
+              "title": "In Progress",
+              "type": "integer"
+            },
+            "missing_document": {
+              "default": 0,
+              "title": "Missing Document",
+              "type": "integer"
+            },
+            "missing_phone": {
+              "default": 0,
+              "title": "Missing Phone",
+              "type": "integer"
+            },
+            "ready": {
+              "default": 0,
+              "title": "Ready",
+              "type": "integer"
+            },
+            "retryable": {
+              "default": 0,
+              "title": "Retryable",
+              "type": "integer"
+            },
+            "total_documents": {
+              "default": 0,
+              "title": "Total Documents",
+              "type": "integer"
+            },
+            "total_group_passengers": {
+              "default": 0,
+              "title": "Total Group Passengers",
+              "type": "integer"
+            },
+            "total_passengers": {
+              "default": 0,
+              "title": "Total Passengers",
+              "type": "integer"
+            },
+            "unsaved_document": {
+              "default": 0,
+              "title": "Unsaved Document",
+              "type": "integer"
+            },
+            "welcome_required": {
+              "default": 0,
+              "title": "Welcome Required",
+              "type": "integer"
+            }
+          },
+          "title": "DocumentDeliveryPreviewSummary",
+          "type": "object"
+        },
+        "DocumentDeliveryTrackingCounts": {
+          "properties": {
+            "delivered": {
+              "default": 0,
+              "title": "Delivered",
+              "type": "integer"
+            },
+            "delivery_unknown": {
+              "default": 0,
+              "title": "Delivery Unknown",
+              "type": "integer"
+            },
+            "failed": {
+              "default": 0,
+              "title": "Failed",
+              "type": "integer"
+            },
+            "queued": {
+              "default": 0,
+              "title": "Queued",
+              "type": "integer"
+            },
+            "read": {
+              "default": 0,
+              "title": "Read",
+              "type": "integer"
+            },
+            "sent": {
+              "default": 0,
+              "title": "Sent",
+              "type": "integer"
+            },
+            "total": {
+              "default": 0,
+              "title": "Total",
+              "type": "integer"
+            }
+          },
+          "title": "DocumentDeliveryTrackingCounts",
+          "type": "object"
+        },
+        "DocumentDeliveryTrackingResponse": {
+          "properties": {
+            "counts": {
+              "$ref": "#/components/schemas/DocumentDeliveryTrackingCounts"
+            },
+            "deliveries": {
+              "items": {
+                "$ref": "#/components/schemas/DocumentDeliveryTrackingRow"
+              },
+              "title": "Deliveries",
+              "type": "array"
+            },
+            "group_id": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            },
+            "poll_after_seconds": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Poll After Seconds"
+            }
+          },
+          "required": [
+            "group_id",
+            "counts"
+          ],
+          "title": "DocumentDeliveryTrackingResponse",
+          "type": "object"
+        },
+        "DocumentDeliveryTrackingRow": {
+          "properties": {
+            "delivery_id": {
+              "format": "uuid",
+              "title": "Delivery Id",
+              "type": "string"
+            },
+            "document_filename": {
+              "title": "Document Filename",
+              "type": "string"
+            },
+            "document_type": {
+              "title": "Document Type",
+              "type": "string"
+            },
+            "error_message": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Error Message"
+            },
+            "passenger_id": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Passenger Id"
+            },
+            "passenger_name": {
+              "title": "Passenger Name",
+              "type": "string"
+            },
+            "passport_number": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Passport Number"
+            },
+            "phone_number": {
+              "title": "Phone Number",
+              "type": "string"
+            },
+            "status": {
+              "title": "Status",
+              "type": "string"
+            },
+            "status_updated_at": {
+              "format": "date-time",
+              "title": "Status Updated At",
+              "type": "string"
+            }
+          },
+          "required": [
+            "delivery_id",
+            "passenger_name",
+            "document_type",
+            "document_filename",
+            "phone_number",
+            "status",
+            "status_updated_at"
+          ],
+          "title": "DocumentDeliveryTrackingRow",
+          "type": "object"
+        },
+        "DocumentGroupResponse": {
+          "properties": {
+            "company_logo_url": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Company Logo Url"
+            },
+            "company_name": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Company Name"
+            },
+            "destination": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Destination"
+            },
+            "flight_ticket_arrival_assigned_count": {
+              "default": 0,
+              "title": "Flight Ticket Arrival Assigned Count",
+              "type": "integer"
+            },
+            "flight_ticket_assigned_count": {
+              "default": 0,
+              "title": "Flight Ticket Assigned Count",
+              "type": "integer"
+            },
+            "flight_ticket_domestic_arrival_assigned_count": {
+              "default": 0,
+              "title": "Flight Ticket Domestic Arrival Assigned Count",
+              "type": "integer"
+            },
+            "flight_ticket_domestic_assigned_count": {
+              "default": 0,
+              "title": "Flight Ticket Domestic Assigned Count",
+              "type": "integer"
+            },
+            "group_id": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            },
+            "group_name": {
+              "title": "Group Name",
+              "type": "string"
+            },
+            "group_status": {
+              "title": "Group Status",
+              "type": "string"
+            },
+            "other_assigned_count": {
+              "default": 0,
+              "title": "Other Assigned Count",
+              "type": "integer"
+            },
+            "total_passengers": {
+              "title": "Total Passengers",
+              "type": "integer"
+            },
+            "travel_date": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Travel Date"
+            },
+            "visa_assigned_count": {
+              "default": 0,
+              "title": "Visa Assigned Count",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "group_id",
+            "group_name",
+            "group_status",
+            "total_passengers"
+          ],
+          "title": "DocumentGroupResponse",
+          "type": "object"
+        },
+        "DocumentPassengerReviewRow": {
+          "properties": {
+            "assigned_pdf_count": {
+              "anyOf": [
+                {
+                  "minimum": 0.0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Assigned Pdf Count"
+            },
+            "departure_city": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Departure City"
+            },
+            "document": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/DistributedDocumentResponse"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "documents": {
+              "items": {
+                "$ref": "#/components/schemas/DistributedDocumentResponse"
+              },
+              "title": "Documents",
+              "type": "array"
+            },
+            "passenger_id": {
+              "format": "uuid",
+              "title": "Passenger Id",
+              "type": "string"
+            },
+            "passenger_name": {
+              "title": "Passenger Name",
+              "type": "string"
+            },
+            "passport_number": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Passport Number"
+            },
+            "shared_pdf_count": {
+              "default": 0,
+              "minimum": 0.0,
+              "title": "Shared Pdf Count",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "passenger_id",
+            "passenger_name"
+          ],
+          "title": "DocumentPassengerReviewRow",
+          "type": "object"
+        },
+        "DocumentUpdatePreview": {
+          "properties": {
+            "can_send": {
+              "title": "Can Send",
+              "type": "boolean"
+            },
+            "configuration_error": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Configuration Error"
+            },
+            "document_type": {
+              "title": "Document Type",
+              "type": "string"
+            },
+            "group_id": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            },
+            "preview_token": {
+              "title": "Preview Token",
+              "type": "string"
+            },
+            "recipients": {
+              "items": {
+                "$ref": "#/components/schemas/DocumentUpdateRecipient"
+              },
+              "title": "Recipients",
+              "type": "array"
+            },
+            "template_language": {
+              "title": "Template Language",
+              "type": "string"
+            },
+            "template_name": {
+              "title": "Template Name",
+              "type": "string"
+            }
+          },
+          "required": [
+            "group_id",
+            "document_type",
+            "preview_token",
+            "template_name",
+            "template_language",
+            "can_send",
+            "recipients"
+          ],
+          "title": "DocumentUpdatePreview",
+          "type": "object"
+        },
+        "DocumentUpdateRecipient": {
+          "properties": {
+            "broadcast_group_id": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Broadcast Group Id"
+            },
+            "confirmed_count": {
+              "default": 0,
+              "title": "Confirmed Count",
+              "type": "integer"
+            },
+            "document_count": {
+              "default": 0,
+              "title": "Document Count",
+              "type": "integer"
+            },
+            "eligible": {
+              "default": false,
+              "title": "Eligible",
+              "type": "boolean"
+            },
+            "latest_update_at": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Latest Update At"
+            },
+            "latest_update_error": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Latest Update Error"
+            },
+            "latest_update_status": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Latest Update Status"
+            },
+            "passenger_id": {
+              "format": "uuid",
+              "title": "Passenger Id",
+              "type": "string"
+            },
+            "passenger_name": {
+              "title": "Passenger Name",
+              "type": "string"
+            },
+            "phone_number": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Phone Number"
+            },
+            "reason": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Reason"
+            },
+            "recipient_id": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Recipient Id"
+            }
+          },
+          "required": [
+            "passenger_id",
+            "passenger_name"
+          ],
+          "title": "DocumentUpdateRecipient",
+          "type": "object"
+        },
+        "GroupUpdateAttempt": {
+          "properties": {
+            "created_at": {
+              "format": "date-time",
+              "title": "Created At",
+              "type": "string"
+            },
+            "document_type": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Document Type"
+            },
+            "error": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Error"
+            },
+            "id": {
+              "format": "uuid",
+              "title": "Id",
+              "type": "string"
+            },
+            "message": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Message"
+            },
+            "phone_number": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Phone Number"
+            },
+            "provider_message_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Provider Message Id"
+            },
+            "status": {
+              "title": "Status",
+              "type": "string"
+            },
+            "status_updated_at": {
+              "format": "date-time",
+              "title": "Status Updated At",
+              "type": "string"
+            },
+            "template_name": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Template Name"
+            }
+          },
+          "required": [
+            "id",
+            "status",
+            "phone_number",
+            "created_at",
+            "status_updated_at",
+            "message",
+            "error",
+            "template_name",
+            "provider_message_id",
+            "document_type"
+          ],
+          "title": "GroupUpdateAttempt",
+          "type": "object"
+        },
+        "GroupUpdateAudience": {
+          "additionalProperties": false,
+          "properties": {
+            "document_status": {
+              "default": "all",
+              "enum": [
+                "all",
+                "sent",
+                "pending"
+              ],
+              "title": "Document Status",
+              "type": "string"
+            },
+            "document_type": {
+              "default": "visa",
+              "title": "Document Type",
+              "type": "string"
+            },
+            "submission_status": {
+              "default": "all",
+              "enum": [
+                "all",
+                "submitted",
+                "not_submitted"
+              ],
+              "title": "Submission Status",
+              "type": "string"
+            }
+          },
+          "title": "GroupUpdateAudience",
+          "type": "object"
+        },
+        "GroupUpdateBatch": {
+          "properties": {
+            "batch_id": {
+              "format": "uuid",
+              "title": "Batch Id",
+              "type": "string"
+            },
+            "broadcast_group_id": {
+              "format": "uuid",
+              "title": "Broadcast Group Id",
+              "type": "string"
+            },
+            "queued_count": {
+              "title": "Queued Count",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "batch_id",
+            "broadcast_group_id",
+            "queued_count"
+          ],
+          "title": "GroupUpdateBatch",
+          "type": "object"
+        },
+        "GroupUpdatePreview": {
+          "properties": {
+            "audience": {
+              "$ref": "#/components/schemas/GroupUpdateAudience"
+            },
+            "can_send": {
+              "title": "Can Send",
+              "type": "boolean"
+            },
+            "configuration_error": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Configuration Error"
+            },
+            "group_id": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            },
+            "preview_token": {
+              "title": "Preview Token",
+              "type": "string"
+            },
+            "recipients": {
+              "items": {
+                "$ref": "#/components/schemas/GroupUpdateRecipient"
+              },
+              "title": "Recipients",
+              "type": "array"
+            },
+            "template_language": {
+              "title": "Template Language",
+              "type": "string"
+            },
+            "template_name": {
+              "title": "Template Name",
+              "type": "string"
+            }
+          },
+          "required": [
+            "group_id",
+            "audience",
+            "preview_token",
+            "template_name",
+            "template_language",
+            "can_send",
+            "configuration_error",
+            "recipients"
+          ],
+          "title": "GroupUpdatePreview",
+          "type": "object"
+        },
+        "GroupUpdateRecipient": {
+          "properties": {
+            "audience_key": {
+              "title": "Audience Key",
+              "type": "string"
+            },
+            "broadcast_group_id": {
+              "format": "uuid",
+              "title": "Broadcast Group Id",
+              "type": "string"
+            },
+            "confirmed_count": {
+              "title": "Confirmed Count",
+              "type": "integer"
+            },
+            "document_count": {
+              "title": "Document Count",
+              "type": "integer"
+            },
+            "eligible": {
+              "title": "Eligible",
+              "type": "boolean"
+            },
+            "email": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Email"
+            },
+            "imported_details": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "title": "Imported Details",
+              "type": "object"
+            },
+            "latest_update": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/GroupUpdateAttempt"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "latest_update_at": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Latest Update At"
+            },
+            "latest_update_status": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Latest Update Status"
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            },
+            "passenger_id": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Passenger Id"
+            },
+            "passport_number": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Passport Number"
+            },
+            "phone_number": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Phone Number"
+            },
+            "phone_source": {
+              "enum": [
+                "submitted",
+                "imported"
+              ],
+              "title": "Phone Source",
+              "type": "string"
+            },
+            "reason": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Reason"
+            },
+            "recipient_id": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Recipient Id"
+            },
+            "submission_status": {
+              "enum": [
+                "submitted",
+                "not_submitted",
+                "needs_review"
+              ],
+              "title": "Submission Status",
+              "type": "string"
+            },
+            "update_attempt_count": {
+              "default": 0,
+              "title": "Update Attempt Count",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "audience_key",
+            "name",
+            "recipient_id",
+            "broadcast_group_id",
+            "passenger_id",
+            "phone_number",
+            "phone_source",
+            "submission_status",
+            "document_count",
+            "confirmed_count",
+            "eligible",
+            "reason"
+          ],
+          "title": "GroupUpdateRecipient",
+          "type": "object"
+        },
+        "HTTPValidationError": {
+          "properties": {
+            "detail": {
+              "items": {
+                "$ref": "#/components/schemas/ValidationError"
+              },
+              "title": "Detail",
+              "type": "array"
+            }
+          },
+          "title": "HTTPValidationError",
+          "type": "object"
+        },
+        "RejectedDocumentResponse": {
+          "properties": {
+            "detected_type": {
+              "title": "Detected Type",
+              "type": "string"
+            },
+            "filename": {
+              "title": "Filename",
+              "type": "string"
+            },
+            "reason": {
+              "title": "Reason",
+              "type": "string"
+            }
+          },
+          "required": [
+            "filename",
+            "detected_type",
+            "reason"
+          ],
+          "title": "RejectedDocumentResponse",
+          "type": "object"
+        },
+        "SaveDocumentBatchResponse": {
+          "properties": {
+            "batch_id": {
+              "format": "uuid",
+              "title": "Batch Id",
+              "type": "string"
+            },
+            "saved_at": {
+              "format": "date-time",
+              "title": "Saved At",
+              "type": "string"
+            },
+            "status": {
+              "title": "Status",
+              "type": "string"
+            }
+          },
+          "required": [
+            "batch_id",
+            "status",
+            "saved_at"
+          ],
+          "title": "SaveDocumentBatchResponse",
+          "type": "object"
+        },
+        "SendDocumentBroadcastRequest": {
+          "properties": {
+            "broadcast_group_id": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Broadcast Group Id"
+            },
+            "document_ids": {
+              "anyOf": [
+                {
+                  "items": {
+                    "format": "uuid",
+                    "type": "string"
+                  },
+                  "maxItems": 1500,
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Document Ids"
+            },
+            "message_content_1": {
+              "maxLength": 600,
+              "minLength": 1,
+              "title": "Message Content 1",
+              "type": "string"
+            },
+            "message_content_2": {
+              "maxLength": 600,
+              "minLength": 1,
+              "title": "Message Content 2",
+              "type": "string"
+            },
+            "preview_token": {
+              "anyOf": [
+                {
+                  "maxLength": 64,
+                  "minLength": 64,
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Preview Token"
+            },
+            "resend_document_ids": {
+              "items": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "maxItems": 1500,
+              "title": "Resend Document Ids",
+              "type": "array"
+            }
+          },
+          "required": [
+            "message_content_1",
+            "message_content_2"
+          ],
+          "title": "SendDocumentBroadcastRequest",
+          "type": "object"
+        },
+        "SendDocumentBroadcastResponse": {
+          "properties": {
+            "message": {
+              "title": "Message",
+              "type": "string"
+            },
+            "queued_count": {
+              "default": 0,
+              "title": "Queued Count",
+              "type": "integer"
+            },
+            "send_batch_id": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Send Batch Id"
+            },
+            "skipped_count": {
+              "default": 0,
+              "title": "Skipped Count",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "message"
+          ],
+          "title": "SendDocumentBroadcastResponse",
+          "type": "object"
+        },
+        "SendDocumentUpdateRequest": {
+          "properties": {
+            "broadcast_group_id": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Broadcast Group Id"
+            },
+            "message_content": {
+              "maxLength": 600,
+              "minLength": 1,
+              "title": "Message Content",
+              "type": "string"
+            },
+            "passenger_ids": {
+              "items": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "maxItems": 1500,
+              "minItems": 1,
+              "title": "Passenger Ids",
+              "type": "array"
+            },
+            "preview_token": {
+              "maxLength": 64,
+              "minLength": 64,
+              "pattern": "^[0-9a-f]{64}$",
+              "title": "Preview Token",
+              "type": "string"
+            },
+            "request_id": {
+              "format": "uuid",
+              "title": "Request Id",
+              "type": "string"
+            }
+          },
+          "required": [
+            "request_id",
+            "preview_token",
+            "passenger_ids",
+            "message_content"
+          ],
+          "title": "SendDocumentUpdateRequest",
+          "type": "object"
+        },
+        "SendDocumentUpdateResponse": {
+          "properties": {
+            "message": {
+              "title": "Message",
+              "type": "string"
+            },
+            "passenger_count": {
+              "title": "Passenger Count",
+              "type": "integer"
+            },
+            "queued_count": {
+              "title": "Queued Count",
+              "type": "integer"
+            },
+            "request_id": {
+              "format": "uuid",
+              "title": "Request Id",
+              "type": "string"
+            }
+          },
+          "required": [
+            "request_id",
+            "queued_count",
+            "passenger_count",
+            "message"
+          ],
+          "title": "SendDocumentUpdateResponse",
+          "type": "object"
+        },
+        "SendGroupUpdateRequest": {
+          "additionalProperties": false,
+          "properties": {
+            "audience": {
+              "$ref": "#/components/schemas/GroupUpdateAudience"
+            },
+            "audience_keys": {
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 1500,
+              "minItems": 1,
+              "title": "Audience Keys",
+              "type": "array"
+            },
+            "message_content": {
+              "maxLength": 600,
+              "minLength": 1,
+              "title": "Message Content",
+              "type": "string"
+            },
+            "preview_token": {
+              "pattern": "^[a-f0-9]{64}$",
+              "title": "Preview Token",
+              "type": "string"
+            },
+            "request_id": {
+              "format": "uuid",
+              "title": "Request Id",
+              "type": "string"
+            }
+          },
+          "required": [
+            "request_id",
+            "preview_token",
+            "audience",
+            "audience_keys",
+            "message_content"
+          ],
+          "title": "SendGroupUpdateRequest",
+          "type": "object"
+        },
+        "SendGroupUpdateResponse": {
+          "properties": {
+            "batches": {
+              "items": {
+                "$ref": "#/components/schemas/GroupUpdateBatch"
+              },
+              "title": "Batches",
+              "type": "array"
+            },
+            "message": {
+              "title": "Message",
+              "type": "string"
+            },
+            "passenger_count": {
+              "title": "Passenger Count",
+              "type": "integer"
+            },
+            "queued_count": {
+              "title": "Queued Count",
+              "type": "integer"
+            },
+            "request_id": {
+              "format": "uuid",
+              "title": "Request Id",
+              "type": "string"
+            }
+          },
+          "required": [
+            "request_id",
+            "queued_count",
+            "passenger_count",
+            "message"
+          ],
+          "title": "SendGroupUpdateResponse",
+          "type": "object"
+        },
+        "SendTravellerWelcomeRequest": {
+          "properties": {
+            "header_image_id": {
+              "anyOf": [
+                {
+                  "maxLength": 255,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Header Image Id"
+            },
+            "phone_numbers": {
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 1500,
+              "minItems": 1,
+              "title": "Phone Numbers",
+              "type": "array"
+            },
+            "preview_token": {
+              "maxLength": 64,
+              "minLength": 64,
+              "title": "Preview Token",
+              "type": "string"
+            },
+            "source_broadcast_id": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Source Broadcast Id"
+            }
+          },
+          "required": [
+            "phone_numbers",
+            "preview_token"
+          ],
+          "title": "SendTravellerWelcomeRequest",
+          "type": "object"
+        },
+        "SendTravellerWelcomeResponse": {
+          "properties": {
+            "batch_id": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Batch Id"
+            },
+            "blocked_count": {
+              "default": 0,
+              "title": "Blocked Count",
+              "type": "integer"
+            },
+            "group_id": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            },
+            "message": {
+              "title": "Message",
+              "type": "string"
+            },
+            "queued_count": {
+              "default": 0,
+              "title": "Queued Count",
+              "type": "integer"
+            },
+            "skipped_count": {
+              "default": 0,
+              "title": "Skipped Count",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "group_id",
+            "message"
+          ],
+          "title": "SendTravellerWelcomeResponse",
+          "type": "object"
+        },
+        "TravellerWelcomePreview": {
+          "properties": {
+            "can_send": {
+              "default": false,
+              "title": "Can Send",
+              "type": "boolean"
+            },
+            "configuration_error": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Configuration Error"
+            },
+            "group_id": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            },
+            "header_image_url": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Header Image Url"
+            },
+            "poll_after_seconds": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Poll After Seconds"
+            },
+            "preview_token": {
+              "title": "Preview Token",
+              "type": "string"
+            },
+            "recipients": {
+              "items": {
+                "$ref": "#/components/schemas/TravellerWelcomeRecipient"
+              },
+              "title": "Recipients",
+              "type": "array"
+            },
+            "source_broadcast_id": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Source Broadcast Id"
+            },
+            "source_broadcast_name": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Source Broadcast Name"
+            },
+            "sources": {
+              "items": {
+                "$ref": "#/components/schemas/TravellerWelcomeSource"
+              },
+              "title": "Sources",
+              "type": "array"
+            },
+            "summary": {
+              "$ref": "#/components/schemas/TravellerWelcomeSummary"
+            },
+            "template_configured": {
+              "default": false,
+              "title": "Template Configured",
+              "type": "boolean"
+            },
+            "template_name": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Template Name"
+            }
+          },
+          "required": [
+            "group_id",
+            "preview_token",
+            "summary"
+          ],
+          "title": "TravellerWelcomePreview",
+          "type": "object"
+        },
+        "TravellerWelcomeRecipient": {
+          "properties": {
+            "eligible": {
+              "default": false,
+              "title": "Eligible",
+              "type": "boolean"
+            },
+            "passenger_ids": {
+              "items": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "title": "Passenger Ids",
+              "type": "array"
+            },
+            "passenger_names": {
+              "items": {
+                "type": "string"
+              },
+              "title": "Passenger Names",
+              "type": "array"
+            },
+            "phone_number": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Phone Number"
+            },
+            "reason": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Reason"
+            },
+            "rendered_message": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Rendered Message"
+            },
+            "status": {
+              "title": "Status",
+              "type": "string"
+            }
+          },
+          "required": [
+            "status"
+          ],
+          "title": "TravellerWelcomeRecipient",
+          "type": "object"
+        },
+        "TravellerWelcomeSource": {
+          "properties": {
+            "id": {
+              "format": "uuid",
+              "title": "Id",
+              "type": "string"
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "name"
+          ],
+          "title": "TravellerWelcomeSource",
+          "type": "object"
+        },
+        "TravellerWelcomeSummary": {
+          "properties": {
+            "already_welcomed": {
+              "default": 0,
+              "title": "Already Welcomed",
+              "type": "integer"
+            },
+            "blocked": {
+              "default": 0,
+              "title": "Blocked",
+              "type": "integer"
+            },
+            "in_progress": {
+              "default": 0,
+              "title": "In Progress",
+              "type": "integer"
+            },
+            "needs_welcome": {
+              "default": 0,
+              "title": "Needs Welcome",
+              "type": "integer"
+            },
+            "total_numbers": {
+              "default": 0,
+              "title": "Total Numbers",
+              "type": "integer"
+            }
+          },
+          "title": "TravellerWelcomeSummary",
+          "type": "object"
+        },
+        "ValidationError": {
+          "properties": {
+            "ctx": {
+              "title": "Context",
+              "type": "object"
+            },
+            "input": {
+              "title": "Input"
+            },
+            "loc": {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ]
+              },
+              "title": "Location",
+              "type": "array"
+            },
+            "msg": {
+              "title": "Message",
+              "type": "string"
+            },
+            "type": {
+              "title": "Error Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "loc",
+            "msg",
+            "type"
+          ],
+          "title": "ValidationError",
+          "type": "object"
+        },
+        "VerifiedDocumentResponse": {
+          "properties": {
+            "accepted": {
+              "title": "Accepted",
+              "type": "boolean"
+            },
+            "detected_type": {
+              "title": "Detected Type",
+              "type": "string"
+            },
+            "filename": {
+              "title": "Filename",
+              "type": "string"
+            },
+            "manual_review_token": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Manual Review Token"
+            },
+            "manual_type_approved": {
+              "default": false,
+              "title": "Manual Type Approved",
+              "type": "boolean"
+            },
+            "match_confidence": {
+              "default": 0.0,
+              "title": "Match Confidence",
+              "type": "number"
+            },
+            "match_reason": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Match Reason"
+            },
+            "match_status": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Match Status"
+            },
+            "matched_passenger_id": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Matched Passenger Id"
+            },
+            "matched_passenger_ids": {
+              "items": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "title": "Matched Passenger Ids",
+              "type": "array"
+            },
+            "matched_passenger_name": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Matched Passenger Name"
+            },
+            "matched_passenger_names": {
+              "items": {
+                "type": "string"
+              },
+              "title": "Matched Passenger Names",
+              "type": "array"
+            },
+            "reason": {
+              "title": "Reason",
+              "type": "string"
+            },
+            "staging_receipt": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Staging Receipt"
+            }
+          },
+          "required": [
+            "filename",
+            "detected_type",
+            "accepted",
+            "reason"
+          ],
+          "title": "VerifiedDocumentResponse",
+          "type": "object"
+        },
+        "VerifyDocumentBatchResponse": {
+          "properties": {
+            "accepted_count": {
+              "title": "Accepted Count",
+              "type": "integer"
+            },
+            "document_type": {
+              "title": "Document Type",
+              "type": "string"
+            },
+            "files": {
+              "items": {
+                "$ref": "#/components/schemas/VerifiedDocumentResponse"
+              },
+              "title": "Files",
+              "type": "array"
+            },
+            "group_id": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            },
+            "rejected_count": {
+              "title": "Rejected Count",
+              "type": "integer"
+            },
+            "total_count": {
+              "title": "Total Count",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "group_id",
+            "document_type",
+            "total_count",
+            "accepted_count",
+            "rejected_count"
+          ],
+          "title": "VerifyDocumentBatchResponse",
+          "type": "object"
+        }
+      },
+      "securitySchemes": {
+        "HTTPBearer": {
+          "scheme": "bearer",
+          "type": "http"
+        }
+      }
+    },
+    "info": {
+      "title": "FastAPI",
+      "version": "0.1.0"
+    },
+    "openapi": "3.1.0",
+    "paths": {
+      "/documents/batches/{batch_id}/save": {
+        "post": {
+          "operationId": "save_batch_documents_batches__batch_id__save_post",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "batch_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "title": "Batch Id",
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/SaveDocumentBatchResponse"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Save Batch"
+        }
+      },
+      "/documents/batches/{batch_id}/whatsapp-send": {
+        "post": {
+          "operationId": "send_document_whatsapp_broadcast_documents_batches__batch_id__whatsapp_send_post",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "batch_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "title": "Batch Id",
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SendDocumentBroadcastRequest"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "202": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/SendDocumentBroadcastResponse"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Send Document Whatsapp Broadcast"
+        }
+      },
+      "/documents/groups": {
+        "get": {
+          "operationId": "list_document_groups_documents_groups_get",
+          "parameters": [
+            {
+              "in": "query",
+              "name": "search",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "maxLength": 160,
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Search"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "items": {
+                      "$ref": "#/components/schemas/DocumentGroupResponse"
+                    },
+                    "title": "Response List Document Groups Documents Groups Get",
+                    "type": "array"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "List Document Groups"
+        }
+      },
+      "/documents/groups/{group_id}/updates/preview": {
+        "post": {
+          "operationId": "preview_group_update_documents_groups__group_id__updates_preview_post",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "group_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "title": "Group Id",
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupUpdateAudience"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/GroupUpdatePreview"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Preview Group Update"
+        }
+      },
+      "/documents/groups/{group_id}/updates/send": {
+        "post": {
+          "operationId": "send_group_update_documents_groups__group_id__updates_send_post",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "group_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "title": "Group Id",
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SendGroupUpdateRequest"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/SendGroupUpdateResponse"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Send Group Update"
+        }
+      },
+      "/documents/groups/{group_id}/whatsapp-deliveries/tracking": {
+        "get": {
+          "operationId": "get_document_delivery_tracking_documents_groups__group_id__whatsapp_deliveries_tracking_get",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "group_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "title": "Group Id",
+                "type": "string"
+              }
+            },
+            {
+              "in": "query",
+              "name": "limit",
+              "required": false,
+              "schema": {
+                "default": 100,
+                "maximum": 100,
+                "minimum": 0,
+                "title": "Limit",
+                "type": "integer"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/DocumentDeliveryTrackingResponse"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Get Document Delivery Tracking"
+        }
+      },
+      "/documents/groups/{group_id}/whatsapp-welcome-preview": {
+        "get": {
+          "operationId": "preview_traveller_welcomes_documents_groups__group_id__whatsapp_welcome_preview_get",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "group_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "title": "Group Id",
+                "type": "string"
+              }
+            },
+            {
+              "in": "query",
+              "name": "source_broadcast_id",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "format": "uuid",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Source Broadcast Id"
+              }
+            },
+            {
+              "in": "query",
+              "name": "header_image_id",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "maxLength": 255,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Header Image Id"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/TravellerWelcomePreview"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Preview Traveller Welcomes"
+        }
+      },
+      "/documents/groups/{group_id}/whatsapp-welcome-send": {
+        "post": {
+          "operationId": "send_traveller_welcomes_documents_groups__group_id__whatsapp_welcome_send_post",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "group_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "title": "Group Id",
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SendTravellerWelcomeRequest"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "202": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/SendTravellerWelcomeResponse"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Send Traveller Welcomes"
+        }
+      },
+      "/documents/groups/{group_id}/{document_type}": {
+        "get": {
+          "operationId": "get_document_review_documents_groups__group_id___document_type__get",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "group_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "title": "Group Id",
+                "type": "string"
+              }
+            },
+            {
+              "in": "path",
+              "name": "document_type",
+              "required": true,
+              "schema": {
+                "title": "Document Type",
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/DocumentBatchResponse"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Get Document Review"
+        }
+      },
+      "/documents/groups/{group_id}/{document_type}/documents/delete": {
+        "post": {
+          "operationId": "delete_distribution_documents_documents_groups__group_id___document_type__documents_delete_post",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "group_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "title": "Group Id",
+                "type": "string"
+              }
+            },
+            {
+              "in": "path",
+              "name": "document_type",
+              "required": true,
+              "schema": {
+                "title": "Document Type",
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteDistributionDocumentsRequest"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/DocumentBatchResponse"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Delete Distribution Documents"
+        }
+      },
+      "/documents/groups/{group_id}/{document_type}/documents/unassign": {
+        "post": {
+          "operationId": "unassign_distribution_documents_documents_groups__group_id___document_type__documents_unassign_post",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "group_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "title": "Group Id",
+                "type": "string"
+              }
+            },
+            {
+              "in": "path",
+              "name": "document_type",
+              "required": true,
+              "schema": {
+                "title": "Document Type",
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteDistributionDocumentsRequest"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/DocumentBatchResponse"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Unassign Distribution Documents"
+        }
+      },
+      "/documents/groups/{group_id}/{document_type}/export.xlsx": {
+        "get": {
+          "operationId": "export_document_assignments_documents_groups__group_id___document_type__export_xlsx_get",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "group_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "title": "Group Id",
+                "type": "string"
+              }
+            },
+            {
+              "in": "path",
+              "name": "document_type",
+              "required": true,
+              "schema": {
+                "title": "Document Type",
+                "type": "string"
+              }
+            },
+            {
+              "in": "query",
+              "name": "filter",
+              "required": false,
+              "schema": {
+                "default": "all",
+                "enum": [
+                  "all",
+                  "assigned",
+                  "missing",
+                  "sent",
+                  "not_sent",
+                  "multiple_pdfs",
+                  "shared_pdf"
+                ],
+                "title": "Filter",
+                "type": "string"
+              }
+            },
+            {
+              "in": "query",
+              "name": "search",
+              "required": false,
+              "schema": {
+                "default": "",
+                "maxLength": 200,
+                "title": "Search",
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "content": {
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+                  "schema": {
+                    "format": "binary",
+                    "type": "string"
+                  }
+                }
+              },
+              "description": "Authorized file content",
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string"
+                  }
+                },
+                "Content-Disposition": {
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Export Document Assignments"
+        }
+      },
+      "/documents/groups/{group_id}/{document_type}/manual-verify": {
+        "post": {
+          "operationId": "manually_verify_document_documents_groups__group_id___document_type__manual_verify_post",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "group_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "title": "Group Id",
+                "type": "string"
+              }
+            },
+            {
+              "in": "path",
+              "name": "document_type",
+              "required": true,
+              "schema": {
+                "title": "Document Type",
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "$ref": "#/components/schemas/Body_manually_verify_document_documents_groups__group_id___document_type__manual_verify_post"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/VerifiedDocumentResponse"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Manually Verify Document"
+        }
+      },
+      "/documents/groups/{group_id}/{document_type}/passengers/{passenger_id}/manual-upload": {
+        "post": {
+          "operationId": "manually_upload_passenger_document_documents_groups__group_id___document_type__passengers__passenger_id__manual_upload_post",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "group_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "title": "Group Id",
+                "type": "string"
+              }
+            },
+            {
+              "in": "path",
+              "name": "document_type",
+              "required": true,
+              "schema": {
+                "title": "Document Type",
+                "type": "string"
+              }
+            },
+            {
+              "in": "path",
+              "name": "passenger_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "title": "Passenger Id",
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "$ref": "#/components/schemas/Body_manually_upload_passenger_document_documents_groups__group_id___document_type__passengers__passenger_id__manual_upload_post"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "201": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/DocumentBatchResponse"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Manually Upload Passenger Document"
+        }
+      },
+      "/documents/groups/{group_id}/{document_type}/passengers/{passenger_id}/reupload": {
+        "post": {
+          "operationId": "reupload_passenger_document_documents_groups__group_id___document_type__passengers__passenger_id__reupload_post",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "group_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "title": "Group Id",
+                "type": "string"
+              }
+            },
+            {
+              "in": "path",
+              "name": "document_type",
+              "required": true,
+              "schema": {
+                "title": "Document Type",
+                "type": "string"
+              }
+            },
+            {
+              "in": "path",
+              "name": "passenger_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "title": "Passenger Id",
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "$ref": "#/components/schemas/Body_reupload_passenger_document_documents_groups__group_id___document_type__passengers__passenger_id__reupload_post"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "201": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/DocumentBatchResponse"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Reupload Passenger Document"
+        }
+      },
+      "/documents/groups/{group_id}/{document_type}/send-update": {
+        "post": {
+          "operationId": "send_update_documents_groups__group_id___document_type__send_update_post",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "group_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "title": "Group Id",
+                "type": "string"
+              }
+            },
+            {
+              "in": "path",
+              "name": "document_type",
+              "required": true,
+              "schema": {
+                "title": "Document Type",
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SendDocumentUpdateRequest"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/SendDocumentUpdateResponse"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Send Update"
+        }
+      },
+      "/documents/groups/{group_id}/{document_type}/update-preview": {
+        "get": {
+          "operationId": "preview_update_documents_groups__group_id___document_type__update_preview_get",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "group_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "title": "Group Id",
+                "type": "string"
+              }
+            },
+            {
+              "in": "path",
+              "name": "document_type",
+              "required": true,
+              "schema": {
+                "title": "Document Type",
+                "type": "string"
+              }
+            },
+            {
+              "in": "query",
+              "name": "broadcast_group_id",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "format": "uuid",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Broadcast Group Id"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/DocumentUpdatePreview"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Preview Update"
+        }
+      },
+      "/documents/groups/{group_id}/{document_type}/upload": {
+        "post": {
+          "operationId": "upload_documents_documents_groups__group_id___document_type__upload_post",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "group_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "title": "Group Id",
+                "type": "string"
+              }
+            },
+            {
+              "in": "path",
+              "name": "document_type",
+              "required": true,
+              "schema": {
+                "title": "Document Type",
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "$ref": "#/components/schemas/Body_upload_documents_documents_groups__group_id___document_type__upload_post"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/DocumentBatchResponse"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Upload Documents"
+        }
+      },
+      "/documents/groups/{group_id}/{document_type}/uploads/{batch_id}/abort": {
+        "post": {
+          "description": "Discard one incomplete upload without affecting any completed batch.",
+          "operationId": "abort_incomplete_distribution_upload_documents_groups__group_id___document_type__uploads__batch_id__abort_post",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "group_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "title": "Group Id",
+                "type": "string"
+              }
+            },
+            {
+              "in": "path",
+              "name": "document_type",
+              "required": true,
+              "schema": {
+                "title": "Document Type",
+                "type": "string"
+              }
+            },
+            {
+              "in": "path",
+              "name": "batch_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "title": "Batch Id",
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/AbortDocumentUploadResponse"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Abort Incomplete Distribution Upload"
+        }
+      },
+      "/documents/groups/{group_id}/{document_type}/verify": {
+        "post": {
+          "operationId": "verify_documents_documents_groups__group_id___document_type__verify_post",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "group_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "title": "Group Id",
+                "type": "string"
+              }
+            },
+            {
+              "in": "path",
+              "name": "document_type",
+              "required": true,
+              "schema": {
+                "title": "Document Type",
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "$ref": "#/components/schemas/Body_verify_documents_documents_groups__group_id___document_type__verify_post"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/VerifyDocumentBatchResponse"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Verify Documents"
+        }
+      },
+      "/documents/groups/{group_id}/{document_type}/whatsapp-preview": {
+        "get": {
+          "operationId": "preview_document_whatsapp_broadcast_documents_groups__group_id___document_type__whatsapp_preview_get",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "group_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "title": "Group Id",
+                "type": "string"
+              }
+            },
+            {
+              "in": "path",
+              "name": "document_type",
+              "required": true,
+              "schema": {
+                "title": "Document Type",
+                "type": "string"
+              }
+            },
+            {
+              "in": "query",
+              "name": "broadcast_group_id",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "format": "uuid",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Broadcast Group Id"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/DocumentDeliveryPreviewResponse"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Preview Document Whatsapp Broadcast"
+        }
+      }
+    }
+  },
+  "current_owner_contracts": {
+    "document_distribution_assignment_delete": {
+      "actual_direct_global_bindings": [
+        [
+          "delete_distribution_documents",
+          "document_distribution_assignments",
+          "AuditLogRepository"
+        ],
+        [
+          "delete_distribution_documents",
+          "document_distribution_assignments",
+          "DOCUMENT_DELIVERY_STORAGE_REQUIRED_STATUSES"
+        ],
+        [
+          "delete_distribution_documents",
+          "document_distribution_assignments",
+          "DOCUMENT_TYPES"
+        ],
+        [
+          "delete_distribution_documents",
+          "document_distribution_assignments",
+          "DistributedDocumentModel"
+        ],
+        [
+          "delete_distribution_documents",
+          "document_distribution_assignments",
+          "DocumentDistributionBatchModel"
+        ],
+        [
+          "delete_distribution_documents",
+          "document_distribution_assignments",
+          "DocumentWhatsAppDeliveryModel"
+        ],
+        [
+          "delete_distribution_documents",
+          "document_distribution_assignments",
+          "HTTPException"
+        ],
+        [
+          "delete_distribution_documents",
+          "document_distribution_assignments",
+          "UTC"
+        ],
+        [
+          "delete_distribution_documents",
+          "document_distribution_assignments",
+          "_get_authorized_group"
+        ],
+        [
+          "delete_distribution_documents",
+          "document_distribution_assignments",
+          "_group_passengers"
+        ],
+        [
+          "delete_distribution_documents",
+          "document_distribution_assignments",
+          "_refresh_distribution_batches"
+        ],
+        [
+          "delete_distribution_documents",
+          "document_distribution_assignments",
+          "_released_document_passenger_ids"
+        ],
+        [
+          "delete_distribution_documents",
+          "document_distribution_assignments",
+          "datetime"
+        ],
+        [
+          "delete_distribution_documents",
+          "document_distribution_assignments",
+          "logger"
+        ],
+        [
+          "delete_distribution_documents",
+          "document_distribution_assignments",
+          "process_storage_cleanup_job"
+        ],
+        [
+          "delete_distribution_documents",
+          "document_distribution_assignments",
+          "propagate_mobile_passenger_change"
+        ],
+        [
+          "delete_distribution_documents",
+          "document_distribution_assignments",
+          "select"
+        ],
+        [
+          "delete_distribution_documents",
+          "document_distribution_assignments",
+          "stage_storage_cleanup_jobs"
+        ],
+        [
+          "delete_distribution_documents",
+          "document_distribution_assignments",
+          "status"
+        ],
+        [
+          "delete_distribution_documents",
+          "document_distribution_review_support",
+          "DistributedDocumentModel"
+        ],
+        [
+          "delete_distribution_documents",
+          "document_distribution_review_support",
+          "datetime"
+        ],
+        [
+          "delete_distribution_documents",
+          "document_distribution_responses",
+          "DistributedDocumentModel"
+        ],
+        [
+          "delete_distribution_documents",
+          "document_distribution_responses",
+          "DocumentDistributionBatchModel"
+        ],
+        [
+          "delete_distribution_documents",
+          "document_distribution_responses",
+          "DocumentWhatsAppDeliveryModel"
+        ],
+        [
+          "delete_distribution_documents",
+          "document_distribution_responses",
+          "select"
+        ]
+      ],
+      "evaluated_declarations": {
+        "delete_distribution_documents": {
+          "current_user": "<class 'app.domain.entities.identity.User'>",
+          "document_type": "<class 'str'>",
+          "group_id": "<class 'uuid.UUID'>",
+          "payload": "<class 'app.presentation.api.v1.schemas.document_distribution_schemas.DeleteDistributionDocumentsRequest'>",
+          "return": "<class 'app.presentation.api.v1.schemas.document_distribution_schemas.DocumentBatchResponse'>",
+          "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>"
+        }
+      }
+    },
+    "document_distribution_assignment_review": {
+      "actual_direct_global_bindings": [
+        [
+          "_current_assignment_batch_response",
+          "document_distribution_assignments",
+          "_all_group_documents"
+        ],
+        [
+          "_current_assignment_batch_response",
+          "document_distribution_assignments",
+          "_batch_response"
+        ],
+        [
+          "_current_assignment_batch_response",
+          "document_distribution_assignments",
+          "_latest_document_batch"
+        ],
+        [
+          "_current_assignment_batch_response",
+          "document_distribution_responses",
+          "_batch_response"
+        ]
+      ],
+      "evaluated_declarations": {
+        "_current_assignment_batch_response": {
+          "document_type": "<class 'str'>",
+          "group": "<class 'app.infrastructure.database.models.ClientGroupModel'>",
+          "group_id": "<class 'uuid.UUID'>",
+          "passengers": "list[app.domain.entities.passport_submission.PassportSubmission]",
+          "return": "<class 'app.presentation.api.v1.schemas.document_distribution_schemas.DocumentBatchResponse'>",
+          "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>"
+        }
+      }
+    },
+    "document_distribution_assignment_unassign": {
+      "actual_direct_global_bindings": [
+        [
+          "unassign_distribution_documents",
+          "document_distribution_assignments",
+          "AuditLogRepository"
+        ],
+        [
+          "unassign_distribution_documents",
+          "document_distribution_assignments",
+          "DOCUMENT_DELIVERY_STORAGE_REQUIRED_STATUSES"
+        ],
+        [
+          "unassign_distribution_documents",
+          "document_distribution_assignments",
+          "DOCUMENT_TYPES"
+        ],
+        [
+          "unassign_distribution_documents",
+          "document_distribution_assignments",
+          "DistributedDocumentModel"
+        ],
+        [
+          "unassign_distribution_documents",
+          "document_distribution_assignments",
+          "DocumentDistributionBatchModel"
+        ],
+        [
+          "unassign_distribution_documents",
+          "document_distribution_assignments",
+          "DocumentWhatsAppDeliveryModel"
+        ],
+        [
+          "unassign_distribution_documents",
+          "document_distribution_assignments",
+          "HTTPException"
+        ],
+        [
+          "unassign_distribution_documents",
+          "document_distribution_assignments",
+          "UTC"
+        ],
+        [
+          "unassign_distribution_documents",
+          "document_distribution_assignments",
+          "_get_authorized_group"
+        ],
+        [
+          "unassign_distribution_documents",
+          "document_distribution_assignments",
+          "_group_passengers"
+        ],
+        [
+          "unassign_distribution_documents",
+          "document_distribution_assignments",
+          "_refresh_distribution_batches"
+        ],
+        [
+          "unassign_distribution_documents",
+          "document_distribution_assignments",
+          "_released_document_passenger_ids"
+        ],
+        [
+          "unassign_distribution_documents",
+          "document_distribution_assignments",
+          "datetime"
+        ],
+        [
+          "unassign_distribution_documents",
+          "document_distribution_assignments",
+          "preserve_document_type_approval"
+        ],
+        [
+          "unassign_distribution_documents",
+          "document_distribution_assignments",
+          "propagate_mobile_passenger_change"
+        ],
+        [
+          "unassign_distribution_documents",
+          "document_distribution_assignments",
+          "select"
+        ],
+        [
+          "unassign_distribution_documents",
+          "document_distribution_assignments",
+          "status"
+        ],
+        [
+          "unassign_distribution_documents",
+          "document_distribution_review_support",
+          "DistributedDocumentModel"
+        ],
+        [
+          "unassign_distribution_documents",
+          "document_distribution_review_support",
+          "datetime"
+        ],
+        [
+          "unassign_distribution_documents",
+          "document_distribution_responses",
+          "DistributedDocumentModel"
+        ],
+        [
+          "unassign_distribution_documents",
+          "document_distribution_responses",
+          "DocumentDistributionBatchModel"
+        ],
+        [
+          "unassign_distribution_documents",
+          "document_distribution_responses",
+          "DocumentWhatsAppDeliveryModel"
+        ],
+        [
+          "unassign_distribution_documents",
+          "document_distribution_responses",
+          "select"
+        ]
+      ],
+      "evaluated_declarations": {
+        "unassign_distribution_documents": {
+          "current_user": "<class 'app.domain.entities.identity.User'>",
+          "document_type": "<class 'str'>",
+          "group_id": "<class 'uuid.UUID'>",
+          "payload": "<class 'app.presentation.api.v1.schemas.document_distribution_schemas.DeleteDistributionDocumentsRequest'>",
+          "return": "<class 'app.presentation.api.v1.schemas.document_distribution_schemas.DocumentBatchResponse'>",
+          "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>"
+        }
+      }
+    },
+    "document_distribution_assignments": {
+      "actual_direct_global_bindings": [],
+      "evaluated_declarations": {}
+    },
+    "document_distribution_responses": {
+      "actual_direct_global_bindings": [
+        [
+          "_document_response_snapshot",
+          "document_distribution_review_support",
+          "DistributedDocumentResponse"
+        ],
+        [
+          "_document_response_snapshot",
+          "document_distribution_responses",
+          "DistributedDocumentResponse"
+        ],
+        [
+          "_document_response_snapshot",
+          "document_distribution_responses",
+          "has_manual_document_type_approval"
+        ],
+        [
+          "_document_response",
+          "document_distribution_responses",
+          "_document_response_snapshot"
+        ],
+        [
+          "_batch_response",
+          "document_distribution_assignments",
+          "DocumentBatchResponse"
+        ],
+        [
+          "_batch_response",
+          "document_distribution_assignments",
+          "DocumentDistributionBatchModel"
+        ],
+        [
+          "_batch_response",
+          "document_distribution_assignments",
+          "DocumentWhatsAppDeliveryModel"
+        ],
+        [
+          "_batch_response",
+          "document_distribution_assignments",
+          "select"
+        ],
+        [
+          "_batch_response",
+          "document_distribution_review_support",
+          "_passenger_review_rows"
+        ],
+        [
+          "_batch_response",
+          "document_distribution_review_support",
+          "_physical_file_accounting"
+        ],
+        [
+          "_batch_response",
+          "document_distribution_responses",
+          "DOCUMENT_RESPONSE_RENDER_WINDOW"
+        ],
+        [
+          "_batch_response",
+          "document_distribution_responses",
+          "DocumentBatchResponse"
+        ],
+        [
+          "_batch_response",
+          "document_distribution_responses",
+          "DocumentDistributionBatchModel"
+        ],
+        [
+          "_batch_response",
+          "document_distribution_responses",
+          "DocumentWhatsAppDeliveryModel"
+        ],
+        [
+          "_batch_response",
+          "document_distribution_responses",
+          "EmailArtifactDocumentModel"
+        ],
+        [
+          "_batch_response",
+          "document_distribution_responses",
+          "MinioStorageRepository"
+        ],
+        [
+          "_batch_response",
+          "document_distribution_responses",
+          "_passenger_review_rows"
+        ],
+        [
+          "_batch_response",
+          "document_distribution_responses",
+          "_physical_file_accounting"
+        ],
+        [
+          "_batch_response",
+          "document_distribution_responses",
+          "asyncio"
+        ],
+        [
+          "_batch_response",
+          "document_distribution_responses",
+          "retained_batch_rejections"
+        ],
+        [
+          "_batch_response",
+          "document_distribution_responses",
+          "select"
+        ]
+      ],
+      "evaluated_declarations": {
+        "_batch_response": {
+          "agency_id": "<class 'uuid.UUID'>",
+          "batch": "app.infrastructure.database.document_models.DocumentDistributionBatchModel | None",
+          "document_type": "<class 'str'>",
+          "documents": "list[app.infrastructure.database.document_models.DistributedDocumentModel]",
+          "group_id": "<class 'uuid.UUID'>",
+          "include_file_urls": "<class 'bool'>",
+          "passengers": "list[app.domain.entities.passport_submission.PassportSubmission]",
+          "rejected_documents": "list[app.presentation.api.v1.schemas.document_distribution_schemas.RejectedDocumentResponse] | None",
+          "return": "<class 'app.presentation.api.v1.schemas.document_distribution_schemas.DocumentBatchResponse'>",
+          "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>"
+        },
+        "_document_response": {
+          "deliveries": "list[app.infrastructure.database.document_models.DocumentWhatsAppDeliveryModel]",
+          "document": "<class 'app.infrastructure.database.document_models.DistributedDocumentModel'>",
+          "return": "<class 'app.presentation.api.v1.schemas.document_distribution_schemas.DistributedDocumentResponse'>",
+          "source": "<class 'str'>",
+          "storage": "<class 'app.infrastructure.storage.minio_repository.MinioStorageRepository'>"
+        },
+        "_document_response_snapshot": {
+          "deliveries": "list[app.infrastructure.database.document_models.DocumentWhatsAppDeliveryModel]",
+          "document": "<class 'app.infrastructure.database.document_models.DistributedDocumentModel'>",
+          "return": "<class 'app.presentation.api.v1.schemas.document_distribution_schemas.DistributedDocumentResponse'>",
+          "source": "<class 'str'>",
+          "url": "str | None"
+        }
+      }
+    },
+    "document_distribution_review_export": {
+      "actual_direct_global_bindings": [
+        [
+          "_assignment_export_row",
+          "document_distribution_review_support",
+          "DocumentAssignmentExportRow"
+        ],
+        [
+          "_assignment_export_row",
+          "document_distribution_review_support",
+          "_joined_document_values"
+        ]
+      ],
+      "evaluated_declarations": {
+        "_assignment_export_matches_filter": {
+          "assigned": "<class 'bool'>",
+          "documents": "list[app.presentation.api.v1.schemas.document_distribution_schemas.DistributedDocumentResponse]",
+          "pdf_count": "<class 'int'>",
+          "return": "<class 'bool'>",
+          "review_filter": "typing.Literal['all', 'assigned', 'missing', 'sent', 'not_sent', 'multiple_pdfs', 'shared_pdf']",
+          "row": "<class 'app.presentation.api.v1.schemas.document_distribution_schemas.DocumentPassengerReviewRow'>"
+        },
+        "_assignment_export_row": {
+          "assigned": "<class 'bool'>",
+          "documents": "list[app.presentation.api.v1.schemas.document_distribution_schemas.DistributedDocumentResponse]",
+          "pdf_count": "<class 'int'>",
+          "return": "<class 'app.infrastructure.export.document_assignment_excel_exporter.DocumentAssignmentExportRow'>",
+          "row": "<class 'app.presentation.api.v1.schemas.document_distribution_schemas.DocumentPassengerReviewRow'>"
+        },
+        "_document_assignment_export_rows": {
+          "return": "list[app.infrastructure.export.document_assignment_excel_exporter.DocumentAssignmentExportRow]",
+          "review_filter": "typing.Literal['all', 'assigned', 'missing', 'sent', 'not_sent', 'multiple_pdfs', 'shared_pdf']",
+          "rows": "list[app.presentation.api.v1.schemas.document_distribution_schemas.DocumentPassengerReviewRow]",
+          "search_query": "<class 'str'>"
+        },
+        "_joined_document_values": {
+          "return": "<class 'str'>",
+          "values": "list[object]"
+        }
+      }
+    },
+    "document_distribution_review_projection": {
+      "actual_direct_global_bindings": [
+        [
+          "_passenger_review_rows",
+          "document_distribution_review_support",
+          "DocumentPassengerReviewRow"
+        ],
+        [
+          "_passenger_review_rows",
+          "document_distribution_review_support",
+          "_passport_number"
+        ],
+        [
+          "_physical_file_accounting",
+          "document_distribution_review_support",
+          "DocumentAssignmentIssueResponse"
+        ]
+      ],
+      "evaluated_declarations": {
+        "_passenger_review_rows": {
+          "documents": "list[app.infrastructure.database.document_models.DistributedDocumentModel]",
+          "passengers": "list[app.domain.entities.passport_submission.PassportSubmission]",
+          "responses_by_document": "dict[uuid.UUID, app.presentation.api.v1.schemas.document_distribution_schemas.DistributedDocumentResponse]",
+          "return": "tuple[list[app.presentation.api.v1.schemas.document_distribution_schemas.DocumentPassengerReviewRow], list[app.presentation.api.v1.schemas.document_distribution_schemas.DistributedDocumentResponse], int]"
+        },
+        "_passport_number": {
+          "passenger": "<class 'app.domain.entities.passport_submission.PassportSubmission'>",
+          "return": "str | None"
+        },
+        "_physical_file_accounting": {
+          "documents": "list[app.infrastructure.database.document_models.DistributedDocumentModel]",
+          "passengers": "list[app.domain.entities.passport_submission.PassportSubmission]",
+          "responses_by_document": "dict[uuid.UUID, app.presentation.api.v1.schemas.document_distribution_schemas.DistributedDocumentResponse]",
+          "return": "tuple[int, int, int, list[app.presentation.api.v1.schemas.document_distribution_schemas.DocumentAssignmentIssueResponse]]"
+        }
+      }
+    },
+    "document_distribution_review_snapshots": {
+      "actual_direct_global_bindings": [
+        [
+          "_linked_document_match_source_from_models",
+          "document_distribution_review_support",
+          "_LinkedDocumentMatchSource"
+        ],
+        [
+          "_linked_document_match_source_from_models",
+          "document_distribution_review_support",
+          "_snapshot_value"
+        ],
+        [
+          "_linked_document_match_source_from_models",
+          "document_distribution_review_support",
+          "json"
+        ],
+        [
+          "_document_match_roster_snapshot",
+          "document_distribution_assignments",
+          "datetime"
+        ],
+        [
+          "_document_match_roster_snapshot",
+          "document_distribution_review_support",
+          "date"
+        ],
+        [
+          "_document_match_roster_snapshot",
+          "document_distribution_review_support",
+          "datetime"
+        ],
+        [
+          "_document_match_roster_snapshot",
+          "document_distribution_review_support",
+          "json"
+        ]
+      ],
+      "evaluated_declarations": {
+        "_LinkedDocumentMatchSource": {
+          "linked_broadcasts": "dict[uuid.UUID, str]",
+          "recipients": "tuple[app.infrastructure.database.communications_models.WhatsAppBroadcastRecipientModel, ...]",
+          "snapshot": "tuple[tuple[str, ...], ...]"
+        },
+        "_document_match_roster_snapshot": {
+          "passengers": "list[app.domain.entities.passport_submission.PassportSubmission]",
+          "return": "tuple[tuple[str, ...], ...]"
+        },
+        "_linked_document_match_source_from_models": {
+          "broadcasts": "list[app.infrastructure.database.communications_models.WhatsAppBroadcastGroupModel]",
+          "group": "<class 'app.infrastructure.database.models.ClientGroupModel'>",
+          "links": "list[app.infrastructure.database.models.ClientGroupWhatsAppBroadcastLinkModel]",
+          "recipients": "list[app.infrastructure.database.communications_models.WhatsAppBroadcastRecipientModel]",
+          "return": "<class 'app.presentation.api.v1.routes.document_distribution_review_support._LinkedDocumentMatchSource'>"
+        },
+        "_snapshot_value": {
+          "return": "<class 'str'>",
+          "value": "<class 'object'>"
+        }
+      }
+    },
+    "document_distribution_review_support": {
+      "actual_direct_global_bindings": [
+        [
+          "_owner_scope_for",
+          "document_distribution_review_support",
+          "UserRole"
+        ],
+        [
+          "_submitted_statuses",
+          "document_distribution_review_support",
+          "OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES"
+        ],
+        [
+          "_safe_filename",
+          "document_distribution_review_support",
+          "re"
+        ]
+      ],
+      "evaluated_declarations": {
+        "_owner_scope_for": {
+          "return": "uuid.UUID | None",
+          "user": "<class 'app.domain.entities.identity.User'>"
+        },
+        "_safe_filename": {
+          "return": "<class 'str'>",
+          "value": "<class 'str'>"
+        },
+        "_submitted_statuses": {
+          "return": "tuple[str, ...]"
+        }
+      }
+    }
+  },
+  "document_distribution_assignments": {
+    "declarations": {
+      "delete_distribution_documents": {
+        "doc": null,
+        "evaluated_hints": {
+          "current_user": "<class 'app.domain.entities.identity.User'>",
+          "document_type": "<class 'str'>",
+          "group_id": "<class 'uuid.UUID'>",
+          "payload": "<class 'app.presentation.api.v1.schemas.document_distribution_schemas.DeleteDistributionDocumentsRequest'>",
+          "return": "<class 'app.presentation.api.v1.schemas.document_distribution_schemas.DocumentBatchResponse'>",
+          "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>"
+        },
+        "module": "app.presentation.api.v1.routes.document_distribution_assignments",
+        "qualname": "delete_distribution_documents",
+        "signature": "(group_id: 'uuid.UUID', document_type: 'str', payload: 'DeleteDistributionDocumentsRequest', current_user: 'User' = Depends(dependency=<function get_current_active_user>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session>, use_cache=True, scope=None)) -> 'DocumentBatchResponse'"
+      },
+      "unassign_distribution_documents": {
+        "doc": null,
+        "evaluated_hints": {
+          "current_user": "<class 'app.domain.entities.identity.User'>",
+          "document_type": "<class 'str'>",
+          "group_id": "<class 'uuid.UUID'>",
+          "payload": "<class 'app.presentation.api.v1.schemas.document_distribution_schemas.DeleteDistributionDocumentsRequest'>",
+          "return": "<class 'app.presentation.api.v1.schemas.document_distribution_schemas.DocumentBatchResponse'>",
+          "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>"
+        },
+        "module": "app.presentation.api.v1.routes.document_distribution_assignments",
+        "qualname": "unassign_distribution_documents",
+        "signature": "(group_id: 'uuid.UUID', document_type: 'str', payload: 'DeleteDistributionDocumentsRequest', current_user: 'User' = Depends(dependency=<function get_current_active_user>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session>, use_cache=True, scope=None)) -> 'DocumentBatchResponse'"
+      }
+    },
+    "openapi": {
+      "components": {
+        "schemas": {
+          "DeleteDistributionDocumentsRequest": {
+            "properties": {
+              "document_ids": {
+                "items": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "title": "Document Ids",
+                "type": "array"
+              }
+            },
+            "title": "DeleteDistributionDocumentsRequest",
+            "type": "object"
+          },
+          "DistributedDocumentResponse": {
+            "properties": {
+              "can_resend": {
+                "default": false,
+                "title": "Can Resend",
+                "type": "boolean"
+              },
+              "delivery_status": {
+                "default": "not_sent",
+                "title": "Delivery Status",
+                "type": "string"
+              },
+              "detected_type": {
+                "title": "Detected Type",
+                "type": "string"
+              },
+              "document_type": {
+                "title": "Document Type",
+                "type": "string"
+              },
+              "extracted_name": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Extracted Name"
+              },
+              "extracted_passport_number": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Extracted Passport Number"
+              },
+              "extracted_reference": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Extracted Reference"
+              },
+              "id": {
+                "format": "uuid",
+                "title": "Id",
+                "type": "string"
+              },
+              "last_sent_at": {
+                "anyOf": [
+                  {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Last Sent At"
+              },
+              "manual_type_approved": {
+                "default": false,
+                "title": "Manual Type Approved",
+                "type": "boolean"
+              },
+              "match_confidence": {
+                "title": "Match Confidence",
+                "type": "number"
+              },
+              "match_reason": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Match Reason"
+              },
+              "match_status": {
+                "title": "Match Status",
+                "type": "string"
+              },
+              "original_filename": {
+                "title": "Original Filename",
+                "type": "string"
+              },
+              "sent_to": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Sent To"
+              },
+              "source": {
+                "default": "manual",
+                "title": "Source",
+                "type": "string"
+              },
+              "updated_at": {
+                "anyOf": [
+                  {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Updated At"
+              },
+              "url": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Url"
+              }
+            },
+            "required": [
+              "id",
+              "original_filename",
+              "document_type",
+              "detected_type",
+              "match_status",
+              "match_confidence"
+            ],
+            "title": "DistributedDocumentResponse",
+            "type": "object"
+          },
+          "DocumentAssignmentIssueResponse": {
+            "description": "One verified, stored physical PDF that still has no passenger assignment.",
+            "properties": {
+              "code": {
+                "title": "Code",
+                "type": "string"
+              },
+              "document_id": {
+                "format": "uuid",
+                "title": "Document Id",
+                "type": "string"
+              },
+              "original_filename": {
+                "title": "Original Filename",
+                "type": "string"
+              },
+              "reason": {
+                "title": "Reason",
+                "type": "string"
+              },
+              "url": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Url"
+              }
+            },
+            "required": [
+              "document_id",
+              "original_filename",
+              "code",
+              "reason"
+            ],
+            "title": "DocumentAssignmentIssueResponse",
+            "type": "object"
+          },
+          "DocumentBatchResponse": {
+            "properties": {
+              "assigned_file_count": {
+                "default": 0,
+                "title": "Assigned File Count",
+                "type": "integer"
+              },
+              "assigned_passenger_count": {
+                "default": 0,
+                "title": "Assigned Passenger Count",
+                "type": "integer"
+              },
+              "assignment_issues": {
+                "items": {
+                  "$ref": "#/components/schemas/DocumentAssignmentIssueResponse"
+                },
+                "title": "Assignment Issues",
+                "type": "array"
+              },
+              "batch_id": {
+                "anyOf": [
+                  {
+                    "format": "uuid",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Batch Id"
+              },
+              "created_at": {
+                "anyOf": [
+                  {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Created At"
+              },
+              "document_type": {
+                "title": "Document Type",
+                "type": "string"
+              },
+              "group_id": {
+                "format": "uuid",
+                "title": "Group Id",
+                "type": "string"
+              },
+              "matched_count": {
+                "default": 0,
+                "title": "Matched Count",
+                "type": "integer"
+              },
+              "needs_assignment_count": {
+                "default": 0,
+                "title": "Needs Assignment Count",
+                "type": "integer"
+              },
+              "physical_file_count": {
+                "default": 0,
+                "title": "Physical File Count",
+                "type": "integer"
+              },
+              "processing_upload_ids": {
+                "items": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "title": "Processing Upload Ids",
+                "type": "array"
+              },
+              "rejected_count": {
+                "default": 0,
+                "title": "Rejected Count",
+                "type": "integer"
+              },
+              "rejected_documents": {
+                "items": {
+                  "$ref": "#/components/schemas/RejectedDocumentResponse"
+                },
+                "title": "Rejected Documents",
+                "type": "array"
+              },
+              "review_rows": {
+                "items": {
+                  "$ref": "#/components/schemas/DocumentPassengerReviewRow"
+                },
+                "title": "Review Rows",
+                "type": "array"
+              },
+              "saved_at": {
+                "anyOf": [
+                  {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Saved At"
+              },
+              "status": {
+                "default": "draft",
+                "title": "Status",
+                "type": "string"
+              },
+              "unmatched_documents": {
+                "items": {
+                  "$ref": "#/components/schemas/DistributedDocumentResponse"
+                },
+                "title": "Unmatched Documents",
+                "type": "array"
+              },
+              "uploaded_count": {
+                "default": 0,
+                "title": "Uploaded Count",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "group_id",
+              "document_type"
+            ],
+            "title": "DocumentBatchResponse",
+            "type": "object"
+          },
+          "DocumentPassengerReviewRow": {
+            "properties": {
+              "assigned_pdf_count": {
+                "anyOf": [
+                  {
+                    "minimum": 0.0,
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Assigned Pdf Count"
+              },
+              "departure_city": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Departure City"
+              },
+              "document": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/DistributedDocumentResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "documents": {
+                "items": {
+                  "$ref": "#/components/schemas/DistributedDocumentResponse"
+                },
+                "title": "Documents",
+                "type": "array"
+              },
+              "passenger_id": {
+                "format": "uuid",
+                "title": "Passenger Id",
+                "type": "string"
+              },
+              "passenger_name": {
+                "title": "Passenger Name",
+                "type": "string"
+              },
+              "passport_number": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Passport Number"
+              },
+              "shared_pdf_count": {
+                "default": 0,
+                "minimum": 0.0,
+                "title": "Shared Pdf Count",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "passenger_id",
+              "passenger_name"
+            ],
+            "title": "DocumentPassengerReviewRow",
+            "type": "object"
+          },
+          "HTTPValidationError": {
+            "properties": {
+              "detail": {
+                "items": {
+                  "$ref": "#/components/schemas/ValidationError"
+                },
+                "title": "Detail",
+                "type": "array"
+              }
+            },
+            "title": "HTTPValidationError",
+            "type": "object"
+          },
+          "RejectedDocumentResponse": {
+            "properties": {
+              "detected_type": {
+                "title": "Detected Type",
+                "type": "string"
+              },
+              "filename": {
+                "title": "Filename",
+                "type": "string"
+              },
+              "reason": {
+                "title": "Reason",
+                "type": "string"
+              }
+            },
+            "required": [
+              "filename",
+              "detected_type",
+              "reason"
+            ],
+            "title": "RejectedDocumentResponse",
+            "type": "object"
+          },
+          "ValidationError": {
+            "properties": {
+              "ctx": {
+                "title": "Context",
+                "type": "object"
+              },
+              "input": {
+                "title": "Input"
+              },
+              "loc": {
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "integer"
+                    }
+                  ]
+                },
+                "title": "Location",
+                "type": "array"
+              },
+              "msg": {
+                "title": "Message",
+                "type": "string"
+              },
+              "type": {
+                "title": "Error Type",
+                "type": "string"
+              }
+            },
+            "required": [
+              "loc",
+              "msg",
+              "type"
+            ],
+            "title": "ValidationError",
+            "type": "object"
+          }
+        },
+        "securitySchemes": {
+          "HTTPBearer": {
+            "scheme": "bearer",
+            "type": "http"
+          }
+        }
+      },
+      "info": {
+        "title": "FastAPI",
+        "version": "0.1.0"
+      },
+      "openapi": "3.1.0",
+      "paths": {
+        "/documents/groups/{group_id}/{document_type}/documents/delete": {
+          "post": {
+            "operationId": "delete_distribution_documents_documents_groups__group_id___document_type__documents_delete_post",
+            "parameters": [
+              {
+                "in": "path",
+                "name": "group_id",
+                "required": true,
+                "schema": {
+                  "format": "uuid",
+                  "title": "Group Id",
+                  "type": "string"
+                }
+              },
+              {
+                "in": "path",
+                "name": "document_type",
+                "required": true,
+                "schema": {
+                  "title": "Document Type",
+                  "type": "string"
+                }
+              }
+            ],
+            "requestBody": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/DeleteDistributionDocumentsRequest"
+                  }
+                }
+              },
+              "required": true
+            },
+            "responses": {
+              "200": {
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/components/schemas/DocumentBatchResponse"
+                    }
+                  }
+                },
+                "description": "Successful Response"
+              },
+              "422": {
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/components/schemas/HTTPValidationError"
+                    }
+                  }
+                },
+                "description": "Validation Error"
+              }
+            },
+            "security": [
+              {
+                "HTTPBearer": []
+              }
+            ],
+            "summary": "Delete Distribution Documents"
+          }
+        },
+        "/documents/groups/{group_id}/{document_type}/documents/unassign": {
+          "post": {
+            "operationId": "unassign_distribution_documents_documents_groups__group_id___document_type__documents_unassign_post",
+            "parameters": [
+              {
+                "in": "path",
+                "name": "group_id",
+                "required": true,
+                "schema": {
+                  "format": "uuid",
+                  "title": "Group Id",
+                  "type": "string"
+                }
+              },
+              {
+                "in": "path",
+                "name": "document_type",
+                "required": true,
+                "schema": {
+                  "title": "Document Type",
+                  "type": "string"
+                }
+              }
+            ],
+            "requestBody": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/DeleteDistributionDocumentsRequest"
+                  }
+                }
+              },
+              "required": true
+            },
+            "responses": {
+              "200": {
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/components/schemas/DocumentBatchResponse"
+                    }
+                  }
+                },
+                "description": "Successful Response"
+              },
+              "422": {
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/components/schemas/HTTPValidationError"
+                    }
+                  }
+                },
+                "description": "Validation Error"
+              }
+            },
+            "security": [
+              {
+                "HTTPBearer": []
+              }
+            ],
+            "summary": "Unassign Distribution Documents"
+          }
+        }
+      }
+    },
+    "original_import_object_bindings": [
+      "uuid",
+      "UTC",
+      "datetime",
+      "APIRouter",
+      "Depends",
+      "HTTPException",
+      "status",
+      "select",
+      "AsyncSession",
+      "propagate_mobile_passenger_change",
+      "User",
+      "DOCUMENT_TYPES",
+      "DistributedDocumentModel",
+      "DocumentDistributionBatchModel",
+      "DocumentWhatsAppDeliveryModel",
+      "get_db_session",
+      "preserve_document_type_approval",
+      "process_storage_cleanup_job",
+      "stage_storage_cleanup_jobs",
+      "AuditLogRepository",
+      "_all_group_documents",
+      "_latest_document_batch",
+      "_refresh_distribution_batches",
+      "_batch_response",
+      "_get_authorized_group",
+      "_group_passengers",
+      "DOCUMENT_DELIVERY_STORAGE_REQUIRED_STATUSES",
+      "logger",
+      "_released_document_passenger_ids",
+      "DeleteDistributionDocumentsRequest",
+      "DocumentBatchResponse",
+      "get_current_active_user",
+      "require_cookie_csrf"
+    ]
+  },
+  "document_distribution_responses": {
+    "declarations": {
+      "_batch_response": {
+        "doc": null,
+        "evaluated_hints": {
+          "agency_id": "<class 'uuid.UUID'>",
+          "batch": "app.infrastructure.database.document_models.DocumentDistributionBatchModel | None",
+          "document_type": "<class 'str'>",
+          "documents": "list[app.infrastructure.database.document_models.DistributedDocumentModel]",
+          "group_id": "<class 'uuid.UUID'>",
+          "include_file_urls": "<class 'bool'>",
+          "passengers": "list[app.domain.entities.passport_submission.PassportSubmission]",
+          "rejected_documents": "list[app.presentation.api.v1.schemas.document_distribution_schemas.RejectedDocumentResponse] | None",
+          "return": "<class 'app.presentation.api.v1.schemas.document_distribution_schemas.DocumentBatchResponse'>",
+          "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>"
+        },
+        "module": "app.presentation.api.v1.routes.document_distribution_responses",
+        "qualname": "_batch_response",
+        "signature": "(*, session: 'AsyncSession', group_id: 'uuid.UUID', agency_id: 'uuid.UUID', document_type: 'str', passengers: 'list[PassportSubmission]', batch: 'DocumentDistributionBatchModel | None', documents: 'list[DistributedDocumentModel]', rejected_documents: 'list[RejectedDocumentResponse] | None' = None, include_file_urls: 'bool' = True) -> 'DocumentBatchResponse'"
+      },
+      "_document_response": {
+        "doc": null,
+        "evaluated_hints": {
+          "deliveries": "list[app.infrastructure.database.document_models.DocumentWhatsAppDeliveryModel]",
+          "document": "<class 'app.infrastructure.database.document_models.DistributedDocumentModel'>",
+          "return": "<class 'app.presentation.api.v1.schemas.document_distribution_schemas.DistributedDocumentResponse'>",
+          "source": "<class 'str'>",
+          "storage": "<class 'app.infrastructure.storage.minio_repository.MinioStorageRepository'>"
+        },
+        "module": "app.presentation.api.v1.routes.document_distribution_responses",
+        "qualname": "_document_response",
+        "signature": "(document: 'DistributedDocumentModel', storage: 'MinioStorageRepository', *, source: 'str', deliveries: 'list[DocumentWhatsAppDeliveryModel]') -> 'DistributedDocumentResponse'"
+      },
+      "_document_response_snapshot": {
+        "doc": null,
+        "evaluated_hints": {
+          "deliveries": "list[app.infrastructure.database.document_models.DocumentWhatsAppDeliveryModel]",
+          "document": "<class 'app.infrastructure.database.document_models.DistributedDocumentModel'>",
+          "return": "<class 'app.presentation.api.v1.schemas.document_distribution_schemas.DistributedDocumentResponse'>",
+          "source": "<class 'str'>",
+          "url": "str | None"
+        },
+        "module": "app.presentation.api.v1.routes.document_distribution_responses",
+        "qualname": "_document_response_snapshot",
+        "signature": "(document: 'DistributedDocumentModel', *, source: 'str', deliveries: 'list[DocumentWhatsAppDeliveryModel]', url: 'str | None' = None) -> 'DistributedDocumentResponse'"
+      }
+    },
+    "original_import_object_bindings": [
+      "asyncio",
+      "uuid",
+      "select",
+      "AsyncSession",
+      "PassportSubmission",
+      "EmailArtifactDocumentModel",
+      "DistributedDocumentModel",
+      "DocumentDistributionBatchModel",
+      "DocumentWhatsAppDeliveryModel",
+      "has_manual_document_type_approval",
+      "MinioStorageRepository",
+      "retained_batch_rejections",
+      "DOCUMENT_DELIVERY_ACCEPTED_STATUSES",
+      "DOCUMENT_DELIVERY_IN_PROGRESS_STATUSES",
+      "DOCUMENT_RESPONSE_RENDER_WINDOW",
+      "_passenger_review_rows",
+      "_physical_file_accounting",
+      "DistributedDocumentResponse",
+      "DocumentBatchResponse",
+      "RejectedDocumentResponse"
+    ]
+  },
+  "document_distribution_review_support": {
+    "declarations": {
+      "_LinkedDocumentMatchSource": {
+        "doc": "A canonical view of every linked row that can influence assignment.",
+        "evaluated_hints": {
+          "linked_broadcasts": "dict[uuid.UUID, str]",
+          "recipients": "tuple[app.infrastructure.database.communications_models.WhatsAppBroadcastRecipientModel, ...]",
+          "snapshot": "tuple[tuple[str, ...], ...]"
+        },
+        "fields": [
+          [
+            "linked_broadcasts",
+            "dict[uuid.UUID, str]",
+            "<dataclasses._MISSING_TYPE object>"
+          ],
+          [
+            "recipients",
+            "tuple[WhatsAppBroadcastRecipientModel, ...]",
+            "<dataclasses._MISSING_TYPE object>"
+          ],
+          [
+            "snapshot",
+            "tuple[tuple[str, ...], ...]",
+            "<dataclasses._MISSING_TYPE object>"
+          ]
+        ],
+        "generated_methods": {
+          "__delattr__": {
+            "module": "app.presentation.api.v1.routes.document_distribution_review_support",
+            "qualname": "_LinkedDocumentMatchSource.__delattr__",
+            "signature": "(self, name)"
+          },
+          "__eq__": {
+            "module": "app.presentation.api.v1.routes.document_distribution_review_support",
+            "qualname": "_LinkedDocumentMatchSource.__eq__",
+            "signature": "(self, other)"
+          },
+          "__hash__": {
+            "module": "app.presentation.api.v1.routes.document_distribution_review_support",
+            "qualname": "_LinkedDocumentMatchSource.__hash__",
+            "signature": "(self)"
+          },
+          "__init__": {
+            "module": "app.presentation.api.v1.routes.document_distribution_review_support",
+            "qualname": "_LinkedDocumentMatchSource.__init__",
+            "signature": "(self, linked_broadcasts: 'dict[uuid.UUID, str]', recipients: 'tuple[WhatsAppBroadcastRecipientModel, ...]', snapshot: 'tuple[tuple[str, ...], ...]') -> None"
+          },
+          "__repr__": {
+            "module": "app.presentation.api.v1.routes.document_distribution_review_support",
+            "qualname": "_LinkedDocumentMatchSource.__repr__",
+            "signature": "(self)"
+          },
+          "__setattr__": {
+            "module": "app.presentation.api.v1.routes.document_distribution_review_support",
+            "qualname": "_LinkedDocumentMatchSource.__setattr__",
+            "signature": "(self, name, value)"
+          }
+        },
+        "match_args": [
+          "linked_broadcasts",
+          "recipients",
+          "snapshot"
+        ],
+        "module": "app.presentation.api.v1.routes.document_distribution_review_support",
+        "qualname": "_LinkedDocumentMatchSource",
+        "signature": "(linked_broadcasts: 'dict[uuid.UUID, str]', recipients: 'tuple[WhatsAppBroadcastRecipientModel, ...]', snapshot: 'tuple[tuple[str, ...], ...]') -> None",
+        "slots": null
+      },
+      "_document_assignment_export_rows": {
+        "doc": null,
+        "evaluated_hints": {
+          "return": "list[app.infrastructure.export.document_assignment_excel_exporter.DocumentAssignmentExportRow]",
+          "review_filter": "typing.Literal['all', 'assigned', 'missing', 'sent', 'not_sent', 'multiple_pdfs', 'shared_pdf']",
+          "rows": "list[app.presentation.api.v1.schemas.document_distribution_schemas.DocumentPassengerReviewRow]",
+          "search_query": "<class 'str'>"
+        },
+        "module": "app.presentation.api.v1.routes.document_distribution_review_support",
+        "qualname": "_document_assignment_export_rows",
+        "signature": "(rows: 'list[DocumentPassengerReviewRow]', *, review_filter: 'DocumentAssignmentExportFilter', search_query: 'str') -> 'list[DocumentAssignmentExportRow]'"
+      },
+      "_document_match_roster_snapshot": {
+        "doc": "Capture every passenger field that can influence document assignment.",
+        "evaluated_hints": {
+          "passengers": "list[app.domain.entities.passport_submission.PassportSubmission]",
+          "return": "tuple[tuple[str, ...], ...]"
+        },
+        "module": "app.presentation.api.v1.routes.document_distribution_review_support",
+        "qualname": "_document_match_roster_snapshot",
+        "signature": "(passengers: 'list[PassportSubmission]') -> 'tuple[tuple[str, ...], ...]'"
+      },
+      "_joined_document_values": {
+        "doc": null,
+        "evaluated_hints": {
+          "return": "<class 'str'>",
+          "values": "list[object]"
+        },
+        "module": "app.presentation.api.v1.routes.document_distribution_review_support",
+        "qualname": "_joined_document_values",
+        "signature": "(values: 'list[object]') -> 'str'"
+      },
+      "_linked_document_match_source_from_models": {
+        "doc": "Build a deterministic, tenant-scoped snapshot from one coherent row set.",
+        "evaluated_hints": {
+          "broadcasts": "list[app.infrastructure.database.communications_models.WhatsAppBroadcastGroupModel]",
+          "group": "<class 'app.infrastructure.database.models.ClientGroupModel'>",
+          "links": "list[app.infrastructure.database.models.ClientGroupWhatsAppBroadcastLinkModel]",
+          "recipients": "list[app.infrastructure.database.communications_models.WhatsAppBroadcastRecipientModel]",
+          "return": "<class 'app.presentation.api.v1.routes.document_distribution_review_support._LinkedDocumentMatchSource'>"
+        },
+        "module": "app.presentation.api.v1.routes.document_distribution_review_support",
+        "qualname": "_linked_document_match_source_from_models",
+        "signature": "(*, group: 'ClientGroupModel', links: 'list[ClientGroupWhatsAppBroadcastLinkModel]', broadcasts: 'list[WhatsAppBroadcastGroupModel]', recipients: 'list[WhatsAppBroadcastRecipientModel]') -> '_LinkedDocumentMatchSource'"
+      },
+      "_owner_scope_for": {
+        "doc": null,
+        "evaluated_hints": {
+          "return": "uuid.UUID | None",
+          "user": "<class 'app.domain.entities.identity.User'>"
+        },
+        "module": "app.presentation.api.v1.routes.document_distribution_review_support",
+        "qualname": "_owner_scope_for",
+        "signature": "(user: 'User') -> 'uuid.UUID | None'"
+      },
+      "_passenger_review_rows": {
+        "doc": "Group the persistent document ledger into one row per submitted passenger.",
+        "evaluated_hints": {
+          "documents": "list[app.infrastructure.database.document_models.DistributedDocumentModel]",
+          "passengers": "list[app.domain.entities.passport_submission.PassportSubmission]",
+          "responses_by_document": "dict[uuid.UUID, app.presentation.api.v1.schemas.document_distribution_schemas.DistributedDocumentResponse]",
+          "return": "tuple[list[app.presentation.api.v1.schemas.document_distribution_schemas.DocumentPassengerReviewRow], list[app.presentation.api.v1.schemas.document_distribution_schemas.DistributedDocumentResponse], int]"
+        },
+        "module": "app.presentation.api.v1.routes.document_distribution_review_support",
+        "qualname": "_passenger_review_rows",
+        "signature": "(*, passengers: 'list[PassportSubmission]', documents: 'list[DistributedDocumentModel]', responses_by_document: 'dict[uuid.UUID, DistributedDocumentResponse]') -> 'tuple[list[DocumentPassengerReviewRow], list[DistributedDocumentResponse], int]'"
+      },
+      "_passport_number": {
+        "doc": null,
+        "evaluated_hints": {
+          "passenger": "<class 'app.domain.entities.passport_submission.PassportSubmission'>",
+          "return": "str | None"
+        },
+        "module": "app.presentation.api.v1.routes.document_distribution_review_support",
+        "qualname": "_passport_number",
+        "signature": "(passenger: 'PassportSubmission') -> 'str | None'"
+      },
+      "_physical_file_accounting": {
+        "doc": "Count stored PDFs independently from their assignment rows.\n\n    A combined PDF can intentionally create several rows that share one\n    storage key, while several PDFs can be assigned to the same passenger.\n    Grouping by the server-generated storage key keeps both cases truthful.\n    ",
+        "evaluated_hints": {
+          "documents": "list[app.infrastructure.database.document_models.DistributedDocumentModel]",
+          "passengers": "list[app.domain.entities.passport_submission.PassportSubmission]",
+          "responses_by_document": "dict[uuid.UUID, app.presentation.api.v1.schemas.document_distribution_schemas.DistributedDocumentResponse]",
+          "return": "tuple[int, int, int, list[app.presentation.api.v1.schemas.document_distribution_schemas.DocumentAssignmentIssueResponse]]"
+        },
+        "module": "app.presentation.api.v1.routes.document_distribution_review_support",
+        "qualname": "_physical_file_accounting",
+        "signature": "(*, passengers: 'list[PassportSubmission]', documents: 'list[DistributedDocumentModel]', responses_by_document: 'dict[uuid.UUID, DistributedDocumentResponse]') -> 'tuple[int, int, int, list[DocumentAssignmentIssueResponse]]'"
+      },
+      "_safe_filename": {
+        "doc": null,
+        "evaluated_hints": {
+          "return": "<class 'str'>",
+          "value": "<class 'str'>"
+        },
+        "module": "app.presentation.api.v1.routes.document_distribution_review_support",
+        "qualname": "_safe_filename",
+        "signature": "(value: 'str') -> 'str'"
+      },
+      "_snapshot_value": {
+        "doc": null,
+        "evaluated_hints": {
+          "return": "<class 'str'>",
+          "value": "<class 'object'>"
+        },
+        "module": "app.presentation.api.v1.routes.document_distribution_review_support",
+        "qualname": "_snapshot_value",
+        "signature": "(value: 'object') -> 'str'"
+      },
+      "_submitted_statuses": {
+        "doc": null,
+        "evaluated_hints": {
+          "return": "tuple[str, ...]"
+        },
+        "module": "app.presentation.api.v1.routes.document_distribution_review_support",
+        "qualname": "_submitted_statuses",
+        "signature": "() -> 'tuple[str, ...]'"
+      }
+    },
+    "original_import_object_bindings": [
+      "json",
+      "re",
+      "uuid",
+      "dataclass",
+      "date",
+      "datetime",
+      "Literal",
+      "OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES",
+      "PassportSubmission",
+      "User",
+      "UserRole",
+      "ClientGroupModel",
+      "ClientGroupWhatsAppBroadcastLinkModel",
+      "DistributedDocumentModel",
+      "WhatsAppBroadcastGroupModel",
+      "WhatsAppBroadcastRecipientModel",
+      "DocumentAssignmentExportRow",
+      "DistributedDocumentResponse",
+      "DocumentAssignmentIssueResponse",
+      "DocumentPassengerReviewRow"
+    ]
+  }
+}

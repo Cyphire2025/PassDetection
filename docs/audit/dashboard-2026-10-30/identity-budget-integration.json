@@ -1,0 +1,108 @@
+{
+  "modules_before": 193,
+  "modules_after": 203,
+  "before_raw_sha256": "6eb5fbf6a51afceca5cde426122f3474f2327ffca29d4905ac33f4bc02d81aec",
+  "after_raw_sha256": "0d8d93fb2859d4d3c4aa8a620b6a7e51bcc8aeb75cb0c5053a2096fa27213cd1",
+  "all193_prior_module_caps_and_floors_preserved": true,
+  "all_prior_critical_modules_and_global_floors_preserved": true,
+  "new_modules": [
+    {
+      "path": "app/infrastructure/repositories/dashboard_step_up_repository.py",
+      "baseline_lines": 92,
+      "maximum_lines": 100,
+      "baseline_max_function_complexity": 16,
+      "maximum_function_complexity": 16,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/repositories/identity_action_token_repository.py",
+      "baseline_lines": 202,
+      "maximum_lines": 215,
+      "baseline_max_function_complexity": 7,
+      "maximum_function_complexity": 7,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/infrastructure/repositories/identity_security_repository.py",
+      "baseline_lines": 345,
+      "maximum_lines": 360,
+      "baseline_max_function_complexity": 5,
+      "maximum_function_complexity": 5,
+      "minimum_coverage_percent": 85
+    },
+    {
+      "path": "app/presentation/api/v1/routes/auth_identity.py",
+      "baseline_lines": 440,
+      "maximum_lines": 460,
+      "baseline_max_function_complexity": 7,
+      "maximum_function_complexity": 7,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/auth_identity_account.py",
+      "baseline_lines": 174,
+      "maximum_lines": 190,
+      "baseline_max_function_complexity": 8,
+      "maximum_function_complexity": 8,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/presentation/api/v1/routes/auth_identity_actions.py",
+      "baseline_lines": 199,
+      "maximum_lines": 215,
+      "baseline_max_function_complexity": 15,
+      "maximum_function_complexity": 15,
+      "minimum_coverage_percent": 75
+    },
+    {
+      "path": "app/presentation/api/v1/routes/auth_identity_dependencies.py",
+      "baseline_lines": 67,
+      "maximum_lines": 75,
+      "baseline_max_function_complexity": 1,
+      "maximum_function_complexity": 1,
+      "minimum_coverage_percent": 75
+    },
+    {
+      "path": "app/presentation/api/v1/routes/auth_identity_recovery.py",
+      "baseline_lines": 138,
+      "maximum_lines": 150,
+      "baseline_max_function_complexity": 7,
+      "maximum_function_complexity": 7,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/auth_identity_step_up.py",
+      "baseline_lines": 188,
+      "maximum_lines": 200,
+      "baseline_max_function_complexity": 12,
+      "maximum_function_complexity": 12,
+      "minimum_coverage_percent": 75
+    },
+    {
+      "path": "app/presentation/api/v1/routes/auth_identity_verification.py",
+      "baseline_lines": 135,
+      "maximum_lines": 150,
+      "baseline_max_function_complexity": 17,
+      "maximum_function_complexity": 17,
+      "minimum_coverage_percent": 95
+    }
+  ],
+  "new_critical_modules": [
+    {
+      "path": "app/infrastructure/repositories/dashboard_step_up_repository.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 85
+    },
+    {
+      "path": "app/presentation/api/v1/routes/auth_identity.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 85
+    },
+    {
+      "path": "app/presentation/api/v1/routes/auth_identity_verification.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 85
+    }
+  ],
+  "source_and_coverage_evidence": "identity-module-candidates.json"
+}

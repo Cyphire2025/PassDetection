@@ -1,0 +1,131 @@
+{
+  "stage": "actual native callback candidate clearance; no runtime fix",
+  "files": [
+    {
+      "path": "frontend/features/operations/components/dashboard-realtime-attendance-bridge.tsx",
+      "sha256": "391ed735d019c52acd992207906f9e22646f8e5db687decdfd12aabe3c32970a",
+      "physical_lines": 185,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete current source physically read for normal realtime callback lifetime trace. Actual Bridge/AuthenticatedContent/AuthStore/SessionLifecycle/bus code compiled unchanged in isolated Chromium fixture. This read/clearance does not close unrelated architecture, API or lifecycle findings."
+    },
+    {
+      "path": "frontend/features/operations/services/dashboard-realtime.ts",
+      "sha256": "b8b9b8ce444d06e0a92c6af9d448833e3eab4d46b3d5c19553e7faafe3ae68d9",
+      "physical_lines": 204,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete current source physically read for normal realtime callback lifetime trace. Actual Bridge/AuthenticatedContent/AuthStore/SessionLifecycle/bus code compiled unchanged in isolated Chromium fixture. This read/clearance does not close unrelated architecture, API or lifecycle findings."
+    },
+    {
+      "path": "frontend/features/operations/services/attendance-invalidation.ts",
+      "sha256": "f70a7b59ac666b6cc0bc0c1571b3c3cf6bea7fdcef93dbdc04e172f67759abbd",
+      "physical_lines": 131,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete current source physically read for normal realtime callback lifetime trace. Actual Bridge/AuthenticatedContent/AuthStore/SessionLifecycle/bus code compiled unchanged in isolated Chromium fixture. This read/clearance does not close unrelated architecture, API or lifecycle findings."
+    },
+    {
+      "path": "frontend/features/auth/components/authenticated-content.tsx",
+      "sha256": "2a6b961e1c3aed8a9fce536a1a08aefe4f68a6699271581ad65c1e1aa1c76d4d",
+      "physical_lines": 112,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete current source physically read for normal realtime callback lifetime trace. Actual Bridge/AuthenticatedContent/AuthStore/SessionLifecycle/bus code compiled unchanged in isolated Chromium fixture. This read/clearance does not close unrelated architecture, API or lifecycle findings."
+    },
+    {
+      "path": "frontend/stores/auth.store.ts",
+      "sha256": "788cdfd0ed8072ce1191d863759bed359b3a38de35a0aeeb1cc744c3e11f58e9",
+      "physical_lines": 224,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete current source physically read for normal realtime callback lifetime trace. Actual Bridge/AuthenticatedContent/AuthStore/SessionLifecycle/bus code compiled unchanged in isolated Chromium fixture. This read/clearance does not close unrelated architecture, API or lifecycle findings."
+    },
+    {
+      "path": "frontend/features/auth/services/session-state.ts",
+      "sha256": "6f8077d093be0f9c9ecdb3340a18870802cb10c6e280b7d48c24d7bcf99330a8",
+      "physical_lines": 218,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete current source physically read for normal realtime callback lifetime trace. Actual Bridge/AuthenticatedContent/AuthStore/SessionLifecycle/bus code compiled unchanged in isolated Chromium fixture. This read/clearance does not close unrelated architecture, API or lifecycle findings."
+    },
+    {
+      "path": "frontend/features/auth/services/session-continuity.ts",
+      "sha256": "cdb69ae93f3884102bb475cb090e3f7fb796fe6e7b1cb87eced8106dda00ffcc",
+      "physical_lines": 20,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete current source physically read for normal realtime callback lifetime trace. Actual Bridge/AuthenticatedContent/AuthStore/SessionLifecycle/bus code compiled unchanged in isolated Chromium fixture. This read/clearance does not close unrelated architecture, API or lifecycle findings."
+    },
+    {
+      "path": "frontend/providers/session-lifecycle.tsx",
+      "sha256": "0b7250386cdbfd7875aa5ece83ba023490fabfb3465b23cd0005d69d7066005d",
+      "physical_lines": 132,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete current source physically read for normal realtime callback lifetime trace. Actual Bridge/AuthenticatedContent/AuthStore/SessionLifecycle/bus code compiled unchanged in isolated Chromium fixture. This read/clearance does not close unrelated architecture, API or lifecycle findings."
+    },
+    {
+      "path": "frontend/features/operations/hooks/use-coordinator-attendance.ts",
+      "sha256": "63fdbbe328ac43ec6ee30cc0da90265925c0ad7fa5a94a52a3f98ac4a161b885",
+      "physical_lines": 73,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete current source read: actual attendance invalidation subscriber closes in effect cleanup, inside authenticated coordinator layout; filters group ID and invalidates current query. No global unscoped consumer inferred from fixture observer."
+    },
+    {
+      "path": "frontend/features/operations/hooks/use-managed-attendance.ts",
+      "sha256": "3a5fb7519b6723e75af960e4f55ad3a3e1a9936aac7ff1daaf87abfd24b27138",
+      "physical_lines": 146,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete current source read: actual managed summary subscriber is group+access-scope bound with cleanup, private mutation owners retained, canonical summary/query repair and bounded missing pagination unchanged."
+    },
+    {
+      "path": "frontend/features/operations/hooks/operations-query-scope.ts",
+      "sha256": "adfc24aed6799d2e4a90873a0c8a606f65837262696373527f19cb28801ea0d3",
+      "physical_lines": 18,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete current source read: in-memory user/session/agency/role query scope and shared query constants; supporting caller lifetime trace only, no mutation/API change."
+    },
+    {
+      "path": "frontend/app/(dashboard)/layout.tsx",
+      "sha256": "1c9895386110183bd072d21cb4f063e20e973d44e3b9d02baab67a889517db72",
+      "physical_lines": 25,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete current wrapper read: actual AuthenticatedContent encloses Bridge and dashboard children; effective authority key remount applies to socket and feature subscribers."
+    },
+    {
+      "path": "frontend/app/coordinator/layout.tsx",
+      "sha256": "b71ea246e3f41b6c133d8c4524ea61a6c7db9dca3ad801253b2a6d54ba2a7db1",
+      "physical_lines": 19,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete current wrapper read: actual AuthenticatedContent encloses Bridge, offline drain and coordinator children; native app implementation remains excluded."
+    },
+    {
+      "path": "frontend/features/operations/components/dashboard-realtime-attendance-bridge.test.tsx",
+      "sha256": "ddcabae5206a8cc2cb0b6241a706c30fac6cacd36d711bf1cba0517d6fcd0193",
+      "physical_lines": 147,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete147-line existing test source read. Fake.receive currently dispatches even after CLOSED, unlike qualified native lifecycle. Test-only browser-state fixture correction and cleanup regressions approved by root but not yet applied at this clearance checkpoint; all old assertions will remain."
+    }
+  ]
+}

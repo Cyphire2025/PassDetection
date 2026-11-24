@@ -1,0 +1,30 @@
+{
+  "status": "Read-only current source cohort complete; no changes or new reproduced issue",
+  "new_current_full_tests": 4,
+  "test_physical_lines": 750,
+  "supporting_full_rows": 1,
+  "focused_rows": 4,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-public-document-source-reviewed-files.json",
+    "sha256": "787b3190d3a2e75954e9075f663e7e21631c67af895f1c02f632bcf7b39c6f46"
+  },
+  "source_fence": {
+    "backend/tests/integration/test_document_manual_upload.py": "68b994c0aba81ee4c888f644fe73ce16d65c78c66be3538fa2ee0de89998225e",
+    "backend/tests/unit/presentation/test_passport_display_name.py": "aa0f8f9f3c7bd723d57f0862a22f81ec262cd79c26bb0ac1a6d50b3bda41be89",
+    "backend/tests/unit/presentation/test_public_extraction_admission.py": "2f0a6fd31006f7ac5a3c7f1ce0255f332ba99f6e8cb8327295287147ad5f5ef6",
+    "backend/tests/unit/presentation/test_qr_welcome_prerequisite.py": "de8dd2f10540881e1f05d69b33966ff7dd33d504a0cf04bdcf32ab5de65ed465",
+    "backend/app/presentation/api/v1/schemas/passport_display_name_schemas.py": "0da556d258c610537ca51425fbc430db20726455d75ed016f8b0fc2222673d9a",
+    "backend/app/presentation/api/v1/routes/document_distribution_manual_upload.py": "c8fe9462b8f9cd872c4326940f502444c2323e13ee058d4a11dcaf0ed31a31aa",
+    "backend/app/presentation/api/v1/routes/passport_routes/display_name.py": "1d3e7d3339247a7bc3828a9300c1f7f84ea7a234c076bfcc2f3d16a3dd77ea83",
+    "backend/app/presentation/api/v1/routes/passport_routes/public_processing_support.py": "f6a089dd5d7e56a3062e072e82438f4f62f14169620402936f23c5851ae6d044",
+    "backend/app/presentation/api/v1/routes/tour_operations_qr_delivery.py": "a65ca1f4b9c0fb0de069df0a2e6d3dcdb2ad7760799c3c517e6ff4de8ddb4037"
+  },
+  "checks_run": [],
+  "changes": [],
+  "findings": [],
+  "limitations": [
+    "No app/test/native-library/provider/Redis/scanner/browser execution for read-only credit.",
+    "Manual explicit assignment, direct document delivery and QR welcome prerequisite preserve their distinct existing workflows.",
+    "Current full supporting-source ledgers preserved; focused callers and imported test helper are not automatically full credited."
+  ]
+}

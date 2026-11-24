@@ -1,0 +1,208 @@
+{
+  "basis": "Exactly23 additive measured/hash-bound owners from independently full-read and focused-test-verified manual_security tranches. All211 prior module caps/floors and all global/critical settings preserved. New Celery persistent source is bound exactly against both original baselines; task contracts, names, brokers, routes, queue/resource and payload semantics are reviewed in the independent receipt, with no wildcard admission. Integration is not another physical source review.",
+  "modules_before": 211,
+  "modules_after": 234,
+  "before_budget_raw_sha256": "88e3db00d8ddb915a7699b66cc901831226da7e304adb9838c4d4d25a13f9e59",
+  "after_budget_raw_sha256": "a06bb02c60fc2951da596b26a6a920f183f6413a99defea5834414ba45a873f4",
+  "after_budget_normalized_sha256": "416d6d0769573cdaef239d427d53bf9c97f810444382cf84315409113f7a8f13",
+  "new_modules": [
+    {
+      "path": "app/infrastructure/whatsapp/cloud_api_provider.py",
+      "baseline_lines": 53,
+      "maximum_lines": 56,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/infrastructure/whatsapp/provider_errors.py",
+      "baseline_lines": 92,
+      "maximum_lines": 96,
+      "baseline_max_function_complexity": 7,
+      "maximum_function_complexity": 7,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/infrastructure/whatsapp/provider_payloads.py",
+      "baseline_lines": 20,
+      "maximum_lines": 21,
+      "baseline_max_function_complexity": 1,
+      "maximum_function_complexity": 1,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/infrastructure/whatsapp/provider_media.py",
+      "baseline_lines": 156,
+      "maximum_lines": 163,
+      "baseline_max_function_complexity": 15,
+      "maximum_function_complexity": 15,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/infrastructure/whatsapp/provider_transport.py",
+      "baseline_lines": 121,
+      "maximum_lines": 126,
+      "baseline_max_function_complexity": 16,
+      "maximum_function_complexity": 16,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/infrastructure/whatsapp/provider_messages.py",
+      "baseline_lines": 251,
+      "maximum_lines": 262,
+      "baseline_max_function_complexity": 10,
+      "maximum_function_complexity": 10,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/infrastructure/whatsapp/worker_runtime.py",
+      "baseline_lines": 329,
+      "maximum_lines": 343,
+      "baseline_max_function_complexity": 16,
+      "maximum_function_complexity": 16,
+      "minimum_coverage_percent": 85
+    },
+    {
+      "path": "app/infrastructure/whatsapp/broadcast_worker_policy.py",
+      "baseline_lines": 179,
+      "maximum_lines": 187,
+      "baseline_max_function_complexity": 25,
+      "maximum_function_complexity": 25,
+      "minimum_coverage_percent": 80
+    },
+    {
+      "path": "app/infrastructure/whatsapp/broadcast_worker_state.py",
+      "baseline_lines": 153,
+      "maximum_lines": 160,
+      "baseline_max_function_complexity": 9,
+      "maximum_function_complexity": 9,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/infrastructure/whatsapp/broadcast_worker_provider.py",
+      "baseline_lines": 185,
+      "maximum_lines": 193,
+      "baseline_max_function_complexity": 14,
+      "maximum_function_complexity": 14,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/infrastructure/whatsapp/qr_delivery_runtime.py",
+      "baseline_lines": 246,
+      "maximum_lines": 256,
+      "baseline_max_function_complexity": 12,
+      "maximum_function_complexity": 12,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/infrastructure/whatsapp/qr_delivery_types.py",
+      "baseline_lines": 40,
+      "maximum_lines": 42,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/infrastructure/whatsapp/qr_delivery_state.py",
+      "baseline_lines": 97,
+      "maximum_lines": 101,
+      "baseline_max_function_complexity": 11,
+      "maximum_function_complexity": 11,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/infrastructure/whatsapp/qr_delivery_media.py",
+      "baseline_lines": 111,
+      "maximum_lines": 116,
+      "baseline_max_function_complexity": 12,
+      "maximum_function_complexity": 12,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/infrastructure/whatsapp/qr_delivery_dispatch.py",
+      "baseline_lines": 224,
+      "maximum_lines": 233,
+      "baseline_max_function_complexity": 28,
+      "maximum_function_complexity": 28,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/core/logging/task_diagnostics.py",
+      "baseline_lines": 89,
+      "maximum_lines": 93,
+      "baseline_max_function_complexity": 9,
+      "maximum_function_complexity": 9,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/core/logging/celery_diagnostics.py",
+      "baseline_lines": 120,
+      "maximum_lines": 125,
+      "baseline_max_function_complexity": 11,
+      "maximum_function_complexity": 11,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/core/logging/logger.py",
+      "baseline_lines": 147,
+      "maximum_lines": 153,
+      "baseline_max_function_complexity": 5,
+      "maximum_function_complexity": 5,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/infrastructure/processing/private_task.py",
+      "baseline_lines": 46,
+      "maximum_lines": 48,
+      "baseline_max_function_complexity": 1,
+      "maximum_function_complexity": 1,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/infrastructure/processing/private_task_request.py",
+      "baseline_lines": 51,
+      "maximum_lines": 54,
+      "baseline_max_function_complexity": 4,
+      "maximum_function_complexity": 4,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/infrastructure/processing/private_task_loader.py",
+      "baseline_lines": 11,
+      "maximum_lines": 12,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/infrastructure/processing/private_result_backend.py",
+      "baseline_lines": 38,
+      "maximum_lines": 40,
+      "baseline_max_function_complexity": 3,
+      "maximum_function_complexity": 3,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/infrastructure/processing/celery_app.py",
+      "baseline_lines": 430,
+      "maximum_lines": 448,
+      "baseline_max_function_complexity": 1,
+      "maximum_function_complexity": 1,
+      "minimum_coverage_percent": 90
+    }
+  ],
+  "all_prior_caps_and_floors_preserved": true,
+  "new_persistent_binding": {
+    "backend/app/infrastructure/processing/celery_app.py": [
+      "e947425a414a451ad5d00f4938793c2927269ea3f46ec77b877cff7bfb6fe7d5",
+      "7698059525fa0e66ea9fdc29c42fb6623b5829b6ca7ec3c7539e395b093b5681"
+    ]
+  },
+  "source_evidence": [
+    "whatsapp-provider-worker-qr-verification.json",
+    "celery-diagnostic-verification.json",
+    "celery-diagnostics-reviewed-files.json"
+  ],
+  "reviewed_persistent_paths": 29,
+  "all_existing_original_baseline_bindings_preserved": true
+}

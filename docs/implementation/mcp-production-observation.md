@@ -37,6 +37,16 @@ stderr. Database commands are fixed read-only SELECTs executed through the
 already-running database process. The only newly written file is the explicitly
 named local JSON evidence file.
 
+Each local command now admits at most 8 MiB of combined stdout and stderr while
+the process runs. Only stdout reaches the observation parser; stderr still counts
+toward the quota and is discarded. This intentionally strengthens the earlier
+post-capture stdout character check. The existing 30-second command deadline,
+locale decoding, universal newlines, whitespace trimming and static failures are
+retained. The shared stdlib capture engine closes its pipes and reaps its direct
+child, with a separate cleanup allowance of up to ten seconds. It does not stop
+arbitrary descendants or remote Docker work. These bounds have local Windows
+subprocess controls; Linux and actual Docker observations remain unqualified.
+
 This snapshot is a prerequisite for release planning. It does not establish MCP
 overhead, load capacity, restricted runtime grants, working private storage or
 antivirus, backup validity, maintenance safety or successful rollout. Those

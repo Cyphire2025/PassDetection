@@ -1,0 +1,276 @@
+{
+  "original_sha256": "ecbc1a61b1b8b674f6dedcda752dc204b80189d180b4a9641a4ba5ad52c15468",
+  "source_fence": {
+    "backend/app/presentation/api/v1/routes/ecr_checker.py": "6a10b853b8ecb15371dd770f80f27abd201a812d0cc48948fb65981d2d998726",
+    "backend/app/presentation/api/v1/routes/ecr_checker_actions.py": "58b5fec6fb013d7b89115cb00070059b9b36e8876a025ee6e73f7da5b8e40119",
+    "backend/app/presentation/api/v1/routes/ecr_checker_batches.py": "3b785bd4319187d78ba24b51c8295a5f0df1812d3f3f153298036f0e67d70007",
+    "backend/app/presentation/api/v1/routes/ecr_checker_inputs.py": "1753457d06b683a4f93a48cd3c5ca932e1366fd3831d1af80e598cb588a64e3e",
+    "backend/app/presentation/api/v1/routes/ecr_checker_staging.py": "01f95a3aa223649522389ccfb50108ba8737d47fddfb7f77dbca629e337ff141",
+    "backend/app/presentation/api/v1/routes/ecr_checker_support.py": "8dd4485b7d11562ff0a0946182dd22fbb443b96e4bf4b1060b0929889f36036c",
+    "backend/app/presentation/api/v1/routes/ecr_checker_upload.py": "4cbb51f86dbaff18129c84c42d484a586d3b851f9800952cc4e4d574ddff3036"
+  },
+  "original_functions": [
+    {
+      "name": "_run_admitted_upload",
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_inputs.py",
+      "sha256": "1753457d06b683a4f93a48cd3c5ca932e1366fd3831d1af80e598cb588a64e3e",
+      "original_lines": [
+        66,
+        94
+      ],
+      "current_lines": [
+        21,
+        49
+      ],
+      "proof": "whole full AST exact"
+    },
+    {
+      "name": "_scope",
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_support.py",
+      "sha256": "8dd4485b7d11562ff0a0946182dd22fbb443b96e4bf4b1060b0929889f36036c",
+      "original_lines": [
+        97,
+        101
+      ],
+      "current_lines": [
+        48,
+        52
+      ],
+      "proof": "whole full AST exact"
+    },
+    {
+      "name": "_lock_active_actor",
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_support.py",
+      "sha256": "8dd4485b7d11562ff0a0946182dd22fbb443b96e4bf4b1060b0929889f36036c",
+      "original_lines": [
+        104,
+        138
+      ],
+      "current_lines": [
+        55,
+        89
+      ],
+      "proof": "whole full AST exact"
+    },
+    {
+      "name": "_batch",
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_support.py",
+      "sha256": "8dd4485b7d11562ff0a0946182dd22fbb443b96e4bf4b1060b0929889f36036c",
+      "original_lines": [
+        141,
+        150
+      ],
+      "current_lines": [
+        92,
+        101
+      ],
+      "proof": "whole full AST exact"
+    },
+    {
+      "name": "_items",
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_support.py",
+      "sha256": "8dd4485b7d11562ff0a0946182dd22fbb443b96e4bf4b1060b0929889f36036c",
+      "original_lines": [
+        153,
+        162
+      ],
+      "current_lines": [
+        104,
+        113
+      ],
+      "proof": "whole full AST exact"
+    },
+    {
+      "name": "_summary",
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_support.py",
+      "sha256": "8dd4485b7d11562ff0a0946182dd22fbb443b96e4bf4b1060b0929889f36036c",
+      "original_lines": [
+        165,
+        178
+      ],
+      "current_lines": [
+        116,
+        129
+      ],
+      "proof": "whole full AST exact"
+    },
+    {
+      "name": "_response",
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_support.py",
+      "sha256": "8dd4485b7d11562ff0a0946182dd22fbb443b96e4bf4b1060b0929889f36036c",
+      "original_lines": [
+        181,
+        186
+      ],
+      "current_lines": [
+        132,
+        137
+      ],
+      "proof": "whole full AST exact"
+    },
+    {
+      "name": "create_ecr_batch",
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_batches.py",
+      "sha256": "3b785bd4319187d78ba24b51c8295a5f0df1812d3f3f153298036f0e67d70007",
+      "original_lines": [
+        190,
+        202
+      ],
+      "current_lines": [
+        31,
+        43
+      ],
+      "proof": "whole full AST exact"
+    },
+    {
+      "name": "list_ecr_batches",
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_batches.py",
+      "sha256": "3b785bd4319187d78ba24b51c8295a5f0df1812d3f3f153298036f0e67d70007",
+      "original_lines": [
+        206,
+        233
+      ],
+      "current_lines": [
+        47,
+        74
+      ],
+      "proof": "whole full AST exact"
+    },
+    {
+      "name": "get_ecr_batch",
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_batches.py",
+      "sha256": "3b785bd4319187d78ba24b51c8295a5f0df1812d3f3f153298036f0e67d70007",
+      "original_lines": [
+        237,
+        240
+      ],
+      "current_lines": [
+        78,
+        81
+      ],
+      "proof": "whole full AST exact"
+    },
+    {
+      "name": "_parse_client_ids",
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_inputs.py",
+      "sha256": "1753457d06b683a4f93a48cd3c5ca932e1366fd3831d1af80e598cb588a64e3e",
+      "original_lines": [
+        243,
+        253
+      ],
+      "current_lines": [
+        52,
+        62
+      ],
+      "proof": "whole full AST exact"
+    },
+    {
+      "name": "upload_ecr_items",
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_upload.py",
+      "sha256": "4cbb51f86dbaff18129c84c42d484a586d3b851f9800952cc4e4d574ddff3036",
+      "original_lines": [
+        257,
+        276
+      ],
+      "current_lines": [
+        43,
+        62
+      ],
+      "proof": "whole full AST exact"
+    },
+    {
+      "name": "_upload_ecr_items_admitted",
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_upload.py",
+      "sha256": "4cbb51f86dbaff18129c84c42d484a586d3b851f9800952cc4e4d574ddff3036",
+      "original_lines": [
+        279,
+        436
+      ],
+      "current_lines": [
+        65,
+        139
+      ],
+      "proof": "exact expanded full AST"
+    },
+    {
+      "name": "_dispatch",
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_actions.py",
+      "sha256": "58b5fec6fb013d7b89115cb00070059b9b36e8876a025ee6e73f7da5b8e40119",
+      "original_lines": [
+        439,
+        446
+      ],
+      "current_lines": [
+        28,
+        35
+      ],
+      "proof": "whole full AST exact"
+    },
+    {
+      "name": "start_ecr_batch",
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_actions.py",
+      "sha256": "58b5fec6fb013d7b89115cb00070059b9b36e8876a025ee6e73f7da5b8e40119",
+      "original_lines": [
+        450,
+        463
+      ],
+      "current_lines": [
+        39,
+        52
+      ],
+      "proof": "whole full AST exact"
+    },
+    {
+      "name": "retry_ecr_batch",
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_actions.py",
+      "sha256": "58b5fec6fb013d7b89115cb00070059b9b36e8876a025ee6e73f7da5b8e40119",
+      "original_lines": [
+        467,
+        488
+      ],
+      "current_lines": [
+        56,
+        77
+      ],
+      "proof": "whole full AST exact"
+    },
+    {
+      "name": "export_ecr_batch",
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_actions.py",
+      "sha256": "58b5fec6fb013d7b89115cb00070059b9b36e8876a025ee6e73f7da5b8e40119",
+      "original_lines": [
+        492,
+        523
+      ],
+      "current_lines": [
+        81,
+        112
+      ],
+      "proof": "whole full AST exact"
+    }
+  ],
+  "phase_bindings": [
+    "read_ecr_uploads(ids, files, limit) -> uploads",
+    "EcrUploadStaging: stored_keys=[], items=[], commit_started=False",
+    "stage_ecr_uploads: exact named DATA/services, no callbacks",
+    "accept_staged_ecr_items: same fresh batch/rows/staging; synchronous add_all; no query/await/commit"
+  ],
+  "assertions": [
+    {
+      "path": "backend/tests/unit/presentation/test_ecr_checker.py",
+      "before_sha256": "2f9c0510cdf55a9f39bbf2528afee7a6ea2a8561c35a74026bf49b346b701f8e",
+      "after_sha256": "51617506451d54a48a4f68aeb911594749a24ef300800f7e120c88f3e841c6f0",
+      "unchanged_assertion_AST_and_exact_source_count": 65,
+      "changes": "Only real-owner import/monkeypatch wiring; existing facade dispatch assertion observes the same explicitly shared synthetic AsyncMock."
+    },
+    {
+      "path": "backend/tests/service_integration/test_mcp_ecr_reads_postgresql.py",
+      "before_sha256": "956157f5beca0e73eeb76e0e7c14265803e96e3a90585936476b192633c3f933",
+      "after_sha256": "d69e15419b63c2980c889ae4de20a1a0c326135ae8a8e34ba1115c96f78f2092",
+      "unchanged_assertion_AST_and_exact_source_count": 37,
+      "changes": "Only real-owner import/monkeypatch wiring; existing facade dispatch assertion observes the same explicitly shared synthetic AsyncMock."
+    }
+  ],
+  "statement_order": "Full expanded upload AST preserves every original await/read/close/security/native/storage/actor/batch/commit/rollback/cleanup point and every branch.",
+  "data_qualification": "EcrUpload is an immutable5-field tuple-compatible NamedTuple; private local tuple becomes named data without content copies. EcrUploadStaging owns3 actual attempt-state fields, no callbacks/proxy/inheritance."
+}

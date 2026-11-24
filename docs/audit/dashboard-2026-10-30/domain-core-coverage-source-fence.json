@@ -1,0 +1,24 @@
+{
+  "source_sha256": {
+    "backend/app/domain/entities/factories.py": "b74b82177ea101abeafdd188d5c197a9f6ea01f49e56ad06b438bbb491220950",
+    "backend/app/domain/entities/enums.py": "593993bf0a27033f87cfa59edc375d5e871b3b728d7abc7a48648d82fd94543e",
+    "backend/app/domain/entities/identity.py": "4e60b4cc3d4759f1c2b12b34984a4300ae388055694cf46581be33f632b94d9e",
+    "backend/app/domain/entities/qualifier_selection.py": "79088b2e146a88ca46b17f4f716be932ca0aa37fcdadb6dd191e811761da67f4",
+    "backend/app/domain/entities/client_group_state.py": "21710f0371f2af6c51adfd7f223ace19e592f7852ee4bf03b5efe50bcb21f489",
+    "backend/app/domain/entities/client_group_configuration.py": "61d5f3e4aa3e06ba451efad48a5d349edfd323189c3bd27206ac2ac9a5b03971",
+    "backend/app/domain/entities/client_group_lifecycle.py": "30910eb18732f1174995da1a49b021b6658d3acef96ab9253f9c2ddeeb51f55a",
+    "backend/app/domain/entities/client_group.py": "02e2c8c0349f037afc6652706710d916f81c788889224e823a31fc4d76b88497",
+    "backend/app/domain/entities/passport_state.py": "270beca36a87c4219353327cce560c83e8fde53b625e25affd4a3345e98e4981",
+    "backend/app/domain/entities/passport_extraction.py": "6ec66c93706b0b3bb5575f9d9ef925faa88300bef0ad12792e29deeb10be41d6",
+    "backend/app/domain/entities/passport_client_review.py": "591e2d935dd68ee27e7cfef3229b8080eb590f9e3fed2600cbe1ecb3b014f7cb",
+    "backend/app/domain/entities/passport_staff_review.py": "3e93dfe727f18b35556bcd2522607d169d297cfa194d2ae1e62e90c6f6439e76",
+    "backend/app/domain/entities/passport_submission.py": "b46b0a5e20840b903f9b9e4f9e5ba089f66e3f0857937b2eaa1475ccf97b63b2",
+    "backend/app/domain/repositories/identity.py": "d3cdbb17519f5b05e9a6c810b0b554e74d602e98668dd6b1f2ce854ac2303b36",
+    "backend/app/domain/repositories/client_groups.py": "0ae94781a7f1eb58dd7229aa7e6bd3327d68ed97f093dad91056de01477374da",
+    "backend/app/domain/repositories/passport_submissions.py": "8bd1cd7ee3f5f82b034293a2bd05c239f10d10d679b37d02379de1d742109b4c",
+    "backend/app/domain/repositories/object_storage.py": "af73f8bd469d7f73406c05d847fd5ccf77c9a6ea20b40005fb74d9901238207e",
+    "backend/app/domain/entities/entities.py": "6e632388e2e0074771f336a1459c86d6a0712a3d0a93e14def7b2062270bf6fa",
+    "backend/app/domain/repositories/interfaces.py": "996e38b40ad49a1ba1b604a8582f696f0f7fa5f17cf53696998c9ba5fbf465b0"
+  },
+  "basis": "All19 runtime owners stayed reserved to root and unchanged from the fresh358-case coverage run through the supplemental workflow run. The first attempt to save this metadata used the backend working directory with repository-relative paths and failed; that error did not edit any owner. This record was saved after supplement admission and does not claim an earlier file timestamp. Actual root edit/format chronology and the refreshed exact proof bind the source; no changed-source coverage is appended."
+}

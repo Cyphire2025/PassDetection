@@ -1,0 +1,339 @@
+[
+  {
+    "path": "frontend/features/travel-tracker/api.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "e583f12c5e633b863d97b04b52fe36857ccfd3a9b8d03f0e31762eb1c80f87eb",
+    "physical_lines": 44,
+    "notes": "Full44-line API read. All five methods live via hooks/import dialog/export action. Encodes group IDs, passes query AbortSignal, multipart8MB checked by caller and120s timeout, shared bounded streaming export. Vanilla mutation callers still need queued-start actor regression.",
+    "production_reachable": true,
+    "reachability_evidence": [
+      "frontend/app/(dashboard)/documents/tracker/page.tsx",
+      "frontend/app/(dashboard)/documents/tracker/[groupId]/page.tsx"
+    ]
+  },
+  {
+    "path": "frontend/features/travel-tracker/model.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "2639cffe0fad5d082953fd5385618e4efa5adec5819fbaa3a879eecc585166b2",
+    "physical_lines": 33,
+    "notes": "Full33-line labels/error/date/CSV helpers read. UTC date-only presentation, invalid-date fallback, quoted CSV names escape double quotes, rejects empty or over1000 pasted names. API uses group-bound server matching.",
+    "production_reachable": true,
+    "reachability_evidence": [
+      "frontend/app/(dashboard)/documents/tracker/page.tsx",
+      "frontend/app/(dashboard)/documents/tracker/[groupId]/page.tsx"
+    ]
+  },
+  {
+    "path": "frontend/features/travel-tracker/types.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "e3c5e1f1b4c98624dfcfb3c6132c193937ae7d0e4806ad518ba1f5052d40628b",
+    "physical_lines": 88,
+    "notes": "Full88-line tracker contracts read. Visa/flight and all/marked/pending unions, group/passenger counters, explicit passenger IDs versus server selection+expected_count union; preview distinguishes ambiguous/unmatched/duplicate and unique matched IDs.",
+    "production_reachable": true,
+    "reachability_evidence": [
+      "frontend/app/(dashboard)/documents/tracker/page.tsx",
+      "frontend/app/(dashboard)/documents/tracker/[groupId]/page.tsx"
+    ]
+  },
+  {
+    "path": "frontend/features/travel-tracker/hooks.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "7f3023122fa5d74c6f0a5602d97c30500e38a4b35af36acbbe972f8492bbb1f2",
+    "physical_lines": 75,
+    "notes": "Full75-line query/action state read. Query keys include group/filters; roster poll30sec, no eager whole roster loop. Mark uses vanilla useMutation and boolean state admission only; queued-start identity and same-turn duplicate candidates recorded. Background invalidation cleanup rejection is a defensive candidate, not proven normal-network failure.",
+    "production_reachable": true,
+    "reachability_evidence": [
+      "frontend/app/(dashboard)/documents/tracker/page.tsx",
+      "frontend/app/(dashboard)/documents/tracker/[groupId]/page.tsx"
+    ]
+  },
+  {
+    "path": "frontend/features/travel-tracker/components/tracker-controls.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "db4b2c4044b474d6986ea56c55ef266b694b44ad90575e7fa89f7360d89ad5ce",
+    "physical_lines": 45,
+    "notes": "Full45-line physical source read including dense JSX. Accessible manual tabs/arrows/Home/End, status pressed buttons, server-count bulk cap20000 and page marking/export controls. Mutation admission disables busy/fetching bulk actions; no private URL construction.",
+    "production_reachable": true,
+    "reachability_evidence": [
+      "frontend/app/(dashboard)/documents/tracker/page.tsx",
+      "frontend/app/(dashboard)/documents/tracker/[groupId]/page.tsx"
+    ]
+  },
+  {
+    "path": "frontend/features/travel-tracker/components/tracker-group-list.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "7cb51d0a3b6e0ac05fcb89893e76b151dfffd6c359bff3650a54ff6023c4c914",
+    "physical_lines": 67,
+    "notes": "Full67-line physical source read including card/progress helpers. Debounced server paging24, guarded render page correction, loading/error/empty alternatives, safe React text, content-visibility cards, actual app route consumer.",
+    "production_reachable": true,
+    "reachability_evidence": [
+      "frontend/app/(dashboard)/documents/tracker/page.tsx",
+      "frontend/app/(dashboard)/documents/tracker/[groupId]/page.tsx"
+    ]
+  },
+  {
+    "path": "frontend/features/travel-tracker/components/tracker-import-dialog.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "8a07734218c6334643a0078f57cf6074176eda411f443f6f038972b71462d27d",
+    "physical_lines": 69,
+    "notes": "Full69-line physical source read. Shared named modal focus/Escape boundary, busy controls, file8MB/client paste1000 bounds, explicit preview before apply, preview cleared on edits. No synchronous admission/lifetime guard; duplicate/later response candidates require focused proof after freeze.",
+    "production_reachable": true,
+    "reachability_evidence": [
+      "frontend/app/(dashboard)/documents/tracker/page.tsx",
+      "frontend/app/(dashboard)/documents/tracker/[groupId]/page.tsx"
+    ]
+  },
+  {
+    "path": "frontend/features/travel-tracker/components/tracker-import-preview.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "33ccd7c3a987d40f1042f2fe7fa9dbcc31820750d2e1189f39075bba17349779",
+    "physical_lines": 31,
+    "notes": "Full31-line physical source read. Summaries and25-row client paging over bounded1000-row preview, issues-only resets page, displays skipped row reasons using escaped React text, applies only provided unique match IDs via parent.",
+    "production_reachable": true,
+    "reachability_evidence": [
+      "frontend/app/(dashboard)/documents/tracker/page.tsx",
+      "frontend/app/(dashboard)/documents/tracker/[groupId]/page.tsx"
+    ]
+  },
+  {
+    "path": "frontend/features/travel-tracker/components/tracker-pagination.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "a9db51a5c9d3d07656441d2fbd447a57b138141dfca047ac8dee2d247f10a8cf",
+    "physical_lines": 19,
+    "notes": "Full19-line physical source read. Native button pager, bounds/disabled busy state, range and page counter; hidden for <=one page. Uses server validated paging/total props.",
+    "production_reachable": true,
+    "reachability_evidence": [
+      "frontend/app/(dashboard)/documents/tracker/page.tsx",
+      "frontend/app/(dashboard)/documents/tracker/[groupId]/page.tsx"
+    ]
+  },
+  {
+    "path": "frontend/features/travel-tracker/components/tracker-passenger-list.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "64b5bb7fe77eddbacf957352f95f31f2fd3dbda647cc908fb3b004ed74991d0a",
+    "physical_lines": 37,
+    "notes": "Full37-line physical source read including dense JSX. Each passenger is one native button with aria-pressed/busy and keyboard row navigation, optimistic mark keyed by track+ID; per-row save disabled, escaped name/contact/passport, mobile secondary details hidden.",
+    "production_reachable": true,
+    "reachability_evidence": [
+      "frontend/app/(dashboard)/documents/tracker/page.tsx",
+      "frontend/app/(dashboard)/documents/tracker/[groupId]/page.tsx"
+    ]
+  },
+  {
+    "path": "frontend/features/travel-tracker/components/tracker-workspace.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "ae83d3c1247a15d3fccb9a547a6e3236288507cd77be673c851323b016762ec9",
+    "physical_lines": 89,
+    "notes": "Full89-line physical source read including dense JSX. Tracks status/query/page, frozen filtered bulk selection+expected_count, full-page IDs, import preview apply and post-remove focus. Vanilla export mutation and queued-start actor candidates; dynamic route caller actual read, group-remount assumptions not asserted as proof.",
+    "production_reachable": true,
+    "reachability_evidence": [
+      "frontend/app/(dashboard)/documents/tracker/page.tsx",
+      "frontend/app/(dashboard)/documents/tracker/[groupId]/page.tsx"
+    ]
+  },
+  {
+    "path": "frontend/features/notifications/api/notifications.api.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "23b21f876436196bb759329673dbd6398372593526792e87b7eec3b72ccc0ae0",
+    "physical_lines": 46,
+    "notes": "Full46-line physical source read. Three live methods: cursor-bounded feed with signal and server account scope, mark read uses centralized ID-encoded endpoint, markAll read no caller actor JSON. Queue ownership must be checked in two vanilla mutation hooks.",
+    "production_reachable": true,
+    "reachability_evidence": [
+      "frontend/app/(dashboard)/layout.tsx",
+      "frontend/components/layout/dashboard-shell.tsx",
+      "frontend/components/layout/header.tsx"
+    ]
+  },
+  {
+    "path": "frontend/features/notifications/types.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "68dbb834f7e81bf4ae3037c729a27be7dfa5a62a821e847c747d2a40141f94c2",
+    "physical_lines": 28,
+    "notes": "Full28-line physical source read. Operational feed fields include owner-sensitive text/metadata and explicit cursor/unread count; metadata read through bounded string helper.",
+    "production_reachable": true,
+    "reachability_evidence": [
+      "frontend/app/(dashboard)/layout.tsx",
+      "frontend/components/layout/dashboard-shell.tsx",
+      "frontend/components/layout/header.tsx"
+    ]
+  },
+  {
+    "path": "frontend/features/notifications/hooks/use-notifications.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "8936dd6e1afba31b75a7fdc3cfbf6fa6c77dcad0a3b1c972e54aa6c1918fab5b",
+    "physical_lines": 75,
+    "notes": "Full75-line physical source read. Feed keys explicitly user scoped, anonymous disabled, live/history helper bounds5history pages, open5sec/closed15sec polling. Read/readAll vanilla mutation scheduling candidate; settled invalidation scoped to original user prefix.",
+    "production_reachable": true,
+    "reachability_evidence": [
+      "frontend/app/(dashboard)/layout.tsx",
+      "frontend/components/layout/dashboard-shell.tsx",
+      "frontend/components/layout/header.tsx"
+    ]
+  },
+  {
+    "path": "frontend/features/notifications/utils/notification-navigation.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "24b90ccf0c7c6fb2f65fef8cd3bf196ac9afcb68a0e3f33288db5191bae7665c",
+    "physical_lines": 58,
+    "notes": "Full58-line physical source read. Fixed allowlist routes, entity IDs restricted ASCII alphanumeric/underscore/hyphen1–128, unknown returnsnull; no metadata URL/href navigation. Metadata strings trimmed/capped160 and rendered escaped.",
+    "production_reachable": true,
+    "reachability_evidence": [
+      "frontend/app/(dashboard)/layout.tsx",
+      "frontend/components/layout/dashboard-shell.tsx",
+      "frontend/components/layout/header.tsx"
+    ]
+  },
+  {
+    "path": "frontend/features/notifications/components/notification-bell.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "590adb965e4b0cb9a0d007d138a1d6d592566404cd75a19d35757a53f3191a57",
+    "physical_lines": 501,
+    "notes": "Full501-line physical source read in four bounded chunks. Feed filter/empty/error/history/read actions and content/card/badge/skeleton renderers live in header. User-scoped query prevents direct feed reuse across users; AuthenticatedContent remounts entire header by authority. Custom document keyboard trap lacks shared focusin/inert behavior and can conflict with Header CtrlK. Cohesive decomposition remains open.",
+    "production_reachable": true,
+    "reachability_evidence": [
+      "frontend/app/(dashboard)/layout.tsx",
+      "frontend/components/layout/dashboard-shell.tsx",
+      "frontend/components/layout/header.tsx"
+    ]
+  },
+  {
+    "path": "frontend/features/dashboard/api/dashboard.api.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "c088c8541b6f45b727c44932bc098911ec4f81c8e5e0080960c380f71d280845",
+    "physical_lines": 30,
+    "notes": "Full30-line physical source read. Typed aggregate stats/recent-submission read through private transport, no local export/storage and no mutable API. Single GET has no caller AbortSignal; transport still binds current private actor.",
+    "production_reachable": true,
+    "reachability_evidence": [
+      "frontend/app/(dashboard)/dashboard/page.tsx"
+    ]
+  },
+  {
+    "path": "frontend/features/dashboard/hooks/use-dashboard-stats.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "2e37a29fb46d709dee7d98f24da24c35bf388ccc623e00f369ab5d023c7a9667",
+    "physical_lines": 22,
+    "notes": "Full22-line physical source read. Central dashboard key, enabled option gates coordinator request,30sec foreground polling default; cache authority depends on reviewed central session reset. No new leak inferred after tracing authenticated header/layout boundary.",
+    "production_reachable": true,
+    "reachability_evidence": [
+      "frontend/app/(dashboard)/dashboard/page.tsx"
+    ]
+  },
+  {
+    "path": "frontend/features/dashboard/components/dashboard-overview.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "0bea6ebd0d716af18d9459c661055935c8a3635f2a924fa8cffd08de4cbfa8b4",
+    "physical_lines": 255,
+    "notes": "Full255-line physical source read in two bounded chunks. Coordinator branch suppresses stats query and links assigned-tour workflow; staff cards/mobile+desktop recent tables use real backend status/IDs. Initial query error also renders0summary/empty intake, recorded as misleading error presentation. Long mobile unbroken name wrapping candidate.",
+    "production_reachable": true,
+    "reachability_evidence": [
+      "frontend/app/(dashboard)/dashboard/page.tsx"
+    ]
+  },
+  {
+    "path": "frontend/features/search/api/search.api.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "126d762e10ab17fc49199f3830abc5528855e36532488876fb7254f97059e34d",
+    "physical_lines": 34,
+    "notes": "Full34-line physical source read. Query includes AbortSignal and hard result limit12, sensitive result contract internal; no external navigation URLs/HTML. Actual sole consumer GlobalSearch.",
+    "production_reachable": true,
+    "reachability_evidence": [
+      "frontend/app/(dashboard)/layout.tsx",
+      "frontend/components/layout/dashboard-shell.tsx",
+      "frontend/components/layout/header.tsx"
+    ]
+  },
+  {
+    "path": "frontend/features/search/components/global-search.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "c6029e13dc0a0ee41b6d02e035a7aeb86b047fbb4c985b95c09c716035d4ee23",
+    "physical_lines": 279,
+    "notes": "Full279-line physical source read in two bounded chunks. Debounce220ms, abort+active guard dispose stale requests, retry and keyboard combobox. openResult retains old results while clearing query; keyboard has no minimum query guard, so hidden stale navigation path documented. Header authority remount clears suspected account-local state leak.",
+    "production_reachable": true,
+    "reachability_evidence": [
+      "frontend/app/(dashboard)/layout.tsx",
+      "frontend/components/layout/dashboard-shell.tsx",
+      "frontend/components/layout/header.tsx"
+    ]
+  },
+  {
+    "path": "frontend/features/ai/hooks/use-voice-input.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "3ccff57c65b1f56794d087a58ffa001a49adceecbde4fc3560539d243dee87df",
+    "physical_lines": 132,
+    "notes": "Full132-line physical source read. Local AudioContext+analyser only, no recording/transcription/network. Request generation disposes canceled/unmounted late streams; tracks/RAF/nodes/context released on stop/visibility/pagehide/unmount; error categories safe, RMS reused typed array/ref avoids frame state renders.",
+    "production_reachable": true,
+    "reachability_evidence": [
+      "frontend/app/ai/page.tsx"
+    ]
+  },
+  {
+    "path": "frontend/features/ai/components/voice-preview.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "c81a19874f2733f40dc366c5d38b875f4e28baafbbc2c4a80f65500dbe785d21",
+    "physical_lines": 81,
+    "notes": "Full81-line physical source read. /ai actual public page consumer; microphone starts only click, Escape stop, accessible requesting/listening/status/privacy labels, scoped CSS volume paint RAF cleaned on stop; LiquidSculptureHero is existing reviewed shared renderer. No provider/API call.",
+    "production_reachable": true,
+    "reachability_evidence": [
+      "frontend/app/ai/page.tsx"
+    ]
+  },
+  {
+    "path": "frontend/features/ai/components/voice-preview.module.css",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "e22cbfea3aa1af5a2d768ddeead5be1b85c31cda6fb31693ac1ecff2829d5b34",
+    "physical_lines": 62,
+    "notes": "Full58-line physical stylesheet read. Responsive small/short viewport sizing, visible keyboard focus, reduced-motion transitions/ring suppression. Soft small footer/eyebrow colors are low-contrast readability candidate; no browser or automated accessibility claim made.",
+    "production_reachable": true,
+    "reachability_evidence": [
+      "frontend/app/ai/page.tsx"
+    ]
+  }
+]

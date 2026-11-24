@@ -1,0 +1,26 @@
+{
+  "status": "passed",
+  "changed_paths": [
+    "frontend/features/whatsapp/components/whatsapp-large-import-form.test.tsx",
+    "frontend/providers/query-provider.test.ts"
+  ],
+  "runtime_changes": [],
+  "proofs": [
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-large-import-form.test.tsx",
+      "source_sha256": "2d1e7e86f5d6097c5f1233077a776eeecd7006c254acf7bb4b7bc9809f4d25ac",
+      "complete_original_source_after_declared_test_only_reversal": true
+    },
+    {
+      "path": "frontend/providers/query-provider.test.ts",
+      "source_sha256": "0582542a5dbf0cbd8f87b46f1e1d15fa4d8d541ba3c3000e807f331fdca0691e",
+      "complete_original_source_after_declared_test_only_reversal": true
+    }
+  ],
+  "all_original_behavior_assertions_preserved": true,
+  "actual_portal_boundary_assertions_added": 2,
+  "focused_cases": 11,
+  "final_complete_cases": 1860,
+  "final_complete_files": 286,
+  "original_failed_run_retained": true
+}

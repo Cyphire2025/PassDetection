@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "C:\\Users\\nipun\\AppData\\Local\\Programs\\node-v24.21.0-win-x64\\node.exe",
+    "node_modules/eslint/bin/eslint.js",
+    "features/branding/components/group-banner.tsx",
+    "features/branding/components/group-banner-action.tsx",
+    "features/branding/components/group-image-dialog.tsx",
+    "features/branding/components/group-banner-frame.ts",
+    "features/branding/components/use-group-image-aspect.ts",
+    "features/branding/components/group-image-dialog.test.tsx",
+    "features/branding/components/group-image-save-authority.test.tsx",
+    "features/branding/api/branding-images.api.ts",
+    "--max-warnings=0"
+  ],
+  "cwd": "frontend",
+  "exit_code": 0,
+  "seconds": 1.5469999999986612,
+  "source_fence": {
+    "frontend/features/branding/components/group-banner.tsx": "d54d0b135c0fdd993c453e6703bd2ddda29cc51e099012c946848943c41fb459",
+    "frontend/features/branding/components/group-banner-action.tsx": "8fa3dfd6610baadf728db116ccc2490c4e2a7770f9ba216dd3b96ff6f9c1e4cd",
+    "frontend/features/branding/components/group-image-dialog.tsx": "219fe7ee75ae4aef5121e87d43b5ee8a4a8d698b89117e22531cc5f3f82f3b0e",
+    "frontend/features/branding/components/group-banner-frame.ts": "754ca8518df4e57f6b832e8e739238287f31afc98ceab52f6f3c47f85afbb6c2",
+    "frontend/features/branding/components/use-group-image-aspect.ts": "8774bd9add3379488f59da76e254114ff3349d5faebadccbc24d6923ecae16bd",
+    "frontend/features/branding/components/group-image-dialog.test.tsx": "a0f431b50f8be41ef41fd9699403a43a8de00d3bf639f96075defe4bef1316e9",
+    "frontend/features/branding/components/group-image-save-authority.test.tsx": "3fbf3e9c90b06cdc9124a5d9e2029ea8e6617f1016dc8a82ce33f27fb555561c",
+    "frontend/features/branding/api/branding-images.api.ts": "e168b6ea253acf3e4b85b54ff71abcfd80bf3c4bf21ab3d06e352ca4e70894c6"
+  },
+  "source_unchanged": true
+}

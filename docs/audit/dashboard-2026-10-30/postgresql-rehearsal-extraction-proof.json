@@ -1,0 +1,52 @@
+{
+  "basis": "Mechanical extraction compares current owner whole declarations to source AFTER the separately tested63byte admission fix; never claims original unpatched code is unchanged.",
+  "whole_function_ASTs_exact": 23,
+  "constant_ASTs_and_evaluated_values_exact": 7,
+  "actual_signatures_hints_modules_qualnames_exact": 23,
+  "function_owner_map": {
+    "_parse_args": "backend/scripts/rehearse_postgresql_upgrade.py",
+    "main": "backend/scripts/rehearse_postgresql_upgrade.py",
+    "validate_database_name": "backend/scripts/postgresql_rehearsal_client.py",
+    "database_environment": "backend/scripts/postgresql_rehearsal_client.py",
+    "require_destructive_acknowledgement": "backend/scripts/postgresql_rehearsal_client.py",
+    "_run": "backend/scripts/postgresql_rehearsal_client.py",
+    "_connect": "backend/scripts/postgresql_rehearsal_client.py",
+    "_drop_database": "backend/scripts/postgresql_rehearsal_client.py",
+    "_create_database": "backend/scripts/postgresql_rehearsal_client.py",
+    "_replace_database": "backend/scripts/postgresql_rehearsal_client.py",
+    "_alembic": "backend/scripts/postgresql_rehearsal_client.py",
+    "_client_major": "backend/scripts/postgresql_rehearsal_client.py",
+    "_sha256": "backend/scripts/postgresql_rehearsal_client.py",
+    "_timed_stage": "backend/scripts/postgresql_rehearsal_client.py",
+    "_seed_previous_release": "backend/scripts/postgresql_rehearsal_fixture.py",
+    "rehearse": "backend/scripts/postgresql_rehearsal_runner.py",
+    "_revision": "backend/scripts/postgresql_rehearsal_snapshot.py",
+    "_scalar": "backend/scripts/postgresql_rehearsal_snapshot.py",
+    "_row_counts": "backend/scripts/postgresql_rehearsal_snapshot.py",
+    "_previous_release_snapshot": "backend/scripts/postgresql_rehearsal_snapshot.py",
+    "_assert_snapshot_equal": "backend/scripts/postgresql_rehearsal_snapshot.py",
+    "_assert_constraint_rejected": "backend/scripts/postgresql_rehearsal_snapshot.py",
+    "_verify_upgraded_database": "backend/scripts/postgresql_rehearsal_verification.py"
+  },
+  "existing_test_assertion_ASTs_preserved": true,
+  "qualifier_entire_module_AST_identical_except_exact6_additive_source_pins": true,
+  "new_qualified_dependencies": [
+    "postgresql_rehearsal_client.py",
+    "postgresql_rehearsal_contract.py",
+    "postgresql_rehearsal_fixture.py",
+    "postgresql_rehearsal_runner.py",
+    "postgresql_rehearsal_snapshot.py",
+    "postgresql_rehearsal_verification.py"
+  ],
+  "runtime_sha256": {
+    "backend/scripts/rehearse_postgresql_upgrade.py": "9ec7e94fecdb070021dc1b253a69e2f454c455a8cc8b780c50b302df42ad808f",
+    "backend/scripts/postgresql_rehearsal_client.py": "8032ff7ef2598fd04e0836a42c010f35086ba3a91b543252d85866db1752e3f3",
+    "backend/scripts/postgresql_rehearsal_contract.py": "cd2cc8f0a6a022ddf435f7a3a30b024fdeff5eea9e174f5a55dddff75b2c4674",
+    "backend/scripts/postgresql_rehearsal_fixture.py": "1f60400f7f47ea387fa7e38caab3e2d35e151073adc11fdd924bb197959095ee",
+    "backend/scripts/postgresql_rehearsal_runner.py": "1e6b746da0f99e33f5d75e95767aa3d77d26a188f8c3b2bbe53098d30fc46fb6",
+    "backend/scripts/postgresql_rehearsal_snapshot.py": "e462fe0d1a77bd269883a1931edb70cbb340ab0fd024c97f8eb35c75494284f7",
+    "backend/scripts/postgresql_rehearsal_verification.py": "41dce0796f4afcb3236c48b283d2665f8c10c5177fa20f048c77644bdf9cdbfb"
+  },
+  "prior_postfix_source_sha256": "6a4d46e5087fec520454b83a07111b0a004a9f8fd1832defbfe3b88213cbdf1b",
+  "limits": "Synthetic public alias/pickle/hint/guard/constraint tests and AST metadata only; actual PostgreSQL dump/restore/populated migrations and Docker-image qualification remain existing required live service gates, not executed here."
+}

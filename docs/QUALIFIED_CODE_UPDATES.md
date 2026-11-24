@@ -7,9 +7,14 @@ approval gate. The VPS independently checks the successful qualification and
 publication jobs and verifies image signatures, source revision and the current
 dependency policy. A failed or superseded CI revision cannot activate.
 
-This path is for the existing KVM4 deployment after schema
-`0113_document_follow_up` and the SeaweedFS migration are complete. The historical
-`release_current.py` migration procedure is not the code-update entrypoint.
+This path requires the existing deployment's schema and persistence contract to
+match the exact qualified checkout's
+[release manifest](../backend/app/core/config/release_manifest.json). The original
+rollout followed `0113_document_follow_up` and the SeaweedFS migration; that is a
+historical baseline, not an alternative to the current schema check. Use
+[Choosing a deployment](deployment-modes.md) for the current operator selector
+and any separately reviewed additive transition. The historical
+`release_current.py` storage procedure is not the code-update entrypoint.
 
 ## Deployment configuration
 

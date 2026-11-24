@@ -1,0 +1,10 @@
+[
+  {
+    "path": "docs/implementation/mcp-workflow-coverage.json",
+    "sha256": "f71a582ccaf639cf0db8bc8d6c1e13d6049fdbd5e75389c0056137c35cac8fe8",
+    "reviewer": "gc_models_finish",
+    "review_scope": "focused",
+    "status": "generated-metadata-reviewed",
+    "notes": "Root-authorized single existing brandingAPI contract fingerprint reconciliation from frozenAPIe168b6ea and qualifiedBrand15c009e8. ActualCLIcheck2036passed; all2035otherrows,2036nonsurfacepolicies/status/dates/evidence and17compatibilitypolicies unchanged. Entire priorrawmatrix1e86f32b uniquelybackedup; separate provenance only. Frontend1803andbackendoriginalcode/config1823 currenthashes unchanged. Structured/provenance review, no claimed physicalfull3MBread or MCPimplementation verification."
+  }
+]

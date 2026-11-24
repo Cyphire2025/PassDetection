@@ -1,0 +1,96 @@
+{
+  "modules": [
+    {
+      "path": "app/application/travellers/completion.py",
+      "source_sha256": "ec518377e326fb2965e1bcefb53ce0124d267f2619394258e2f31940cf0cf627",
+      "previous": null,
+      "baseline_lines": 263,
+      "maximum_lines": 270,
+      "baseline_max_function_complexity": 32,
+      "maximum_function_complexity": 32,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/application/travellers/completion_review.py",
+      "source_sha256": "28cfc1db0388e2fa29880f64d2be0df35fe3c306b5d171679534dddcf2af6f78",
+      "previous": null,
+      "baseline_lines": 66,
+      "maximum_lines": 70,
+      "baseline_max_function_complexity": 8,
+      "maximum_function_complexity": 8,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/application/travellers/completion_answers.py",
+      "source_sha256": "b41cda386f09511f35665db73417e3634e080258a64a20718233ce6e1235596e",
+      "previous": null,
+      "baseline_lines": 62,
+      "maximum_lines": 70,
+      "baseline_max_function_complexity": 6,
+      "maximum_function_complexity": 6,
+      "minimum_coverage_percent": 100
+    },
+    {
+      "path": "app/application/travellers/completion_source.py",
+      "source_sha256": "9860abbdfe7144b1f66005a410c86c5738264e72a3ced079be405268e35e6ea8",
+      "previous": null,
+      "baseline_lines": 76,
+      "maximum_lines": 80,
+      "baseline_max_function_complexity": 17,
+      "maximum_function_complexity": 17,
+      "minimum_coverage_percent": 95
+    }
+  ],
+  "critical_modules": [],
+  "measurements": [
+    {
+      "path": "app/application/travellers/completion.py",
+      "source_sha256": "ec518377e326fb2965e1bcefb53ce0124d267f2619394258e2f31940cf0cf627",
+      "lines": 263,
+      "complexity": 32,
+      "line_percent": 94.31818181818183,
+      "covered_statements": 83,
+      "statements": 88,
+      "branch_percent": 78.57142857142857,
+      "covered_branches": 22,
+      "branch_sites": 28
+    },
+    {
+      "path": "app/application/travellers/completion_review.py",
+      "source_sha256": "28cfc1db0388e2fa29880f64d2be0df35fe3c306b5d171679534dddcf2af6f78",
+      "lines": 66,
+      "complexity": 8,
+      "line_percent": 96.29629629629629,
+      "covered_statements": 26,
+      "statements": 27,
+      "branch_percent": 87.5,
+      "covered_branches": 7,
+      "branch_sites": 8
+    },
+    {
+      "path": "app/application/travellers/completion_answers.py",
+      "source_sha256": "b41cda386f09511f35665db73417e3634e080258a64a20718233ce6e1235596e",
+      "lines": 62,
+      "complexity": 6,
+      "line_percent": 100.0,
+      "covered_statements": 23,
+      "statements": 23,
+      "branch_percent": 100.0,
+      "covered_branches": 2,
+      "branch_sites": 2
+    },
+    {
+      "path": "app/application/travellers/completion_source.py",
+      "source_sha256": "9860abbdfe7144b1f66005a410c86c5738264e72a3ced079be405268e35e6ea8",
+      "lines": 76,
+      "complexity": 17,
+      "line_percent": 96.7741935483871,
+      "covered_statements": 30,
+      "statements": 31,
+      "branch_percent": 80.0,
+      "covered_branches": 8,
+      "branch_sites": 10
+    }
+  ],
+  "notes": "Four new normal rows; original family had no normal/critical row. No unrelated policy change or invented critical/branch coverage. Canonical original main complexity60 ->32, current family max32; formatted187 original compressed lines ->263main/66review/62answers/76source. Three actual purpose helpers; extra result tuples/call frames are not a throughput or memory improvement claim."
+}

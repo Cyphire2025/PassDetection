@@ -1,0 +1,113 @@
+{
+  "status": "Four-owner mechanical architecture and bounded immediate caller/test review complete; broader audit active",
+  "files": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_whatsapp_match_acquisition.py",
+      "sha256": "a9d58063df235d4fbae07a61879e93786e5b5431e63081a5fe82d2fc16d8479c",
+      "physical_lines": 132,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole current132 physical lines. One original scoped Protocol and complete current SQL acquisition/matching function moved AST-exact: resolutions->recipients->submissions->to_thread matcher->manual augmentation, preserving statement/await/order/tenant/removed/suppressed/status semantics."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_whatsapp_match_resolutions.py",
+      "sha256": "09a239a46cd3dbab284ada75e031ef3ed7b1b3160910bbff0d0f844537b95e9f",
+      "physical_lines": 121,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole current121 physical lines. Stable tolerant persisted UUID decoder and coherent manual replacement/rejected augmentation moved AST-exact; in-place row identity/order/scalar fields/suppression/dedup/exception behavior unchanged."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_whatsapp_match_responses.py",
+      "sha256": "65f319400adc6c1981f5eab8168b307464d0c82a582e6943736c3b4cf49a078e",
+      "physical_lines": 214,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole current214 physical lines. Complete original5aliases/5persisted validators/detail/resolution/page projections moved AST-exact with exact confirmed/extracted/staff/supplemental precedence and caller-sliced page. Current response-owner negative guard and supplemental-loop coverage gaps remain measured, no coverage inflation."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_whatsapp_match_support.py",
+      "sha256": "11a91339306548aec5268918d482475271f828e52be9d8442cd20daf9edc6586",
+      "physical_lines": 121,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole current121 physical lines after extraction/import sorting. Declaration-free exact legacy import/type/function alias facade; original30imported objects and actual route/mutation/MCP alias identities evaluated. No body wrapper/proxy/callback bag."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_link_operations.py",
+      "sha256": "07fcf9c399905f1ead0b851acb0d37f99149642fea2add2041210edfed6a1351",
+      "physical_lines": 245,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole current245 lines physically assembled1-106/107-177/178-end. Actual canonical caller authorizes before matching; counts across all or selected linked source, then filter/sort/page. Other link/candidate behavior unchanged; no source writes."
+    },
+    {
+      "path": "backend/app/presentation/mcp/phone_difference_read_tools.py",
+      "sha256": "28f5a475f5a75f5274ec44a3221e766a83402f2ae72fe09270f6d056968d7086",
+      "physical_lines": 72,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole current72 physical lines as immediate import-by-value compatibility caller only. Existing locked live read authority, observational session and typed support alias remain unchanged; all observed read-only/provider-free boundaries preserved. No broader MCP work or source edits."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_client_group_whatsapp_match_support.py",
+      "sha256": "9c1438b3893baf354a8e36e5d4385d4a9f4734ffa6013fc41aefae55360f5e48",
+      "physical_lines": 131,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole131 current lines already newly full read in policy-test cohort, reread reused supporting evidence only. Pure manual resolution recovery fields/duplicate subset/pagination contracts qualify real moved projection/resolution owners; assertions byte-unchanged."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_passport_roster_resolution_routes.py",
+      "sha256": "01c8ea5144a596a5aea700715a80e6de7eee03860b8abe0caeb75b2f65859b06",
+      "physical_lines": 756,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole756 physical lines in1-275/276-489/490-end after confirming no current matching full row. Actual mutation handler replay/locking/suppression/restore/link boundaries and facade UUID/response aliases, all assertions unchanged; shared dashboard bridge mocked, no native app/provider actions."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_group_whatsapp_links.py",
+      "sha256": "e49ec1bee518a55f6861f03def2650aa851936e5c8a4dda86ba8fec3038e238b",
+      "physical_lines": 897,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole897 physical lines1-340/341-550/551-end after confirming no current full row. Real DB canonical matches, tenant/group/role/owned-assigned/scope/filter/evidence and configuration controls; shared dashboard-triggered source contact bridge retained despite mobile path. No native ingress/device/provider feature qualification."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_staff_group_visibility.py",
+      "sha256": "eabfb6c66c89d257f0f5599e841011546115eea5d931cd3434bcfafb712575d6",
+      "physical_lines": 211,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole211 current lines newly full read in previous policy cohort, reused not counted again. HTTP/DB staff visible groups and explicit reminder scope controls unchanged; matching acquisition indirect privacy closure."
+    },
+    {
+      "path": "backend/tests/integration/test_mcp_phone_difference_reads.py",
+      "sha256": "9e86ceeebdf40bb8d260d4497b6b4b511e094c8c7c75a7bd08923692fc6e6f73",
+      "physical_lines": 152,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole152 current physical lines after confirming no current matching full row. Existing actual loader by-value MCP support,666real fixture rows compact9differences, same snapshot continuation and live scope/role denial; no MCP edits/provider activity."
+    },
+    {
+      "path": "backend/tests/integration/test_mcp_dashboard_detail_reads.py",
+      "sha256": "2a25b62c68717bdf79064621aeb1cb5f23abace009d89f392cefd24c43a0335c",
+      "physical_lines": 569,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical1-80 and140-177 only. Shared read-only MCP synthetic fixture and adjacent existing group-match section-denial caller case. Remaining source including dedicated owner-email cases not audited or qualified by this scope; no full-file credit."
+    }
+  ]
+}

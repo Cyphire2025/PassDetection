@@ -1,0 +1,22 @@
+{
+  "status": "Complete physical source-only review of listed retained files; mixed scope explicitly focused",
+  "ledger": "retained-mcp-artifact-export-test-source-reviewed-files.json",
+  "ledger_sha256": "9a842d983b8fb6630b115c5a0d56549469d292b5f003a78766619bc2212bf57d",
+  "full_files": 6,
+  "full_physical_lines": 1653,
+  "focused_files": 0,
+  "current_source_hashes": {
+    "backend/tests/integration/test_mcp_artifacts.py": "663c2dc5097a4af09456c4ce369ce9e937c0bdf908e678bdc96eba50006b41a4",
+    "backend/tests/integration/test_mcp_exports.py": "826d874fdcf57ab4afdd517ad883a871b96180355f3f10a80acbde9025741808",
+    "backend/tests/service_integration/test_mcp_artifacts_postgresql.py": "0d40e6894ca976379821837bcf32c3403e47806d5c9744964ed75b798eceed41",
+    "backend/tests/service_integration/test_mcp_exports_postgresql.py": "27fe726f90917c985157402c78674a21e1ccaf52d0a98eeea8f87c4b36d113be",
+    "backend/tests/integration/test_mcp_export_capacity.py": "623a12395f35c39a1b86287151582aa720d2c5634f77bbdf5c089a194de95191",
+    "backend/tests/integration/test_mcp_export_failure_diagnostics.py": "efd1a6e230cc5149dc320f94871670ade33f3a7f857b4e50670cc8a213aa0f32"
+  },
+  "source_unchanged_since_discovery": true,
+  "new_tests_executed": 0,
+  "runtime_or_test_edits": 0,
+  "new_validated_runtime_findings": 0,
+  "existing_full_findings_automatically_closed": false,
+  "limits": "Text review verifies source assertions and fixture boundaries only; does not establish those tests pass, actual PostgreSQL/Redis/storage concurrency, provider output, browser/native transport or deployed behavior. Inbox assertions in mixed files remain deferred. No gate/binding/stamp/MCP1990 refresh."
+}

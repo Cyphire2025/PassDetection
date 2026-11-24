@@ -1,0 +1,25 @@
+{
+  "original_source_sha256": "b95718038524772f7f5413ba41fa8a2dc3efb4e8ed455eea6d0f75e5b8df7fef",
+  "whole_original_declarations_exact": [
+    "MobilePassengerChangeEvent",
+    "MobilePassengerPropagationResult",
+    "_passenger_change_event_id",
+    "plan_mobile_passenger_change_events",
+    "reconcile_mobile_passenger_access_for_broadcast",
+    "reconcile_mobile_passenger_access_for_group"
+  ],
+  "complete_original_propagate_expanded_ast_exact": true,
+  "public_main_static_seams": "Three original public async APIs remain physically in original main. Public main retains original planner and stable-ID invocation/global names, broadcast\u2192group calls, memo variables and all memo add/return paths.",
+  "typed_preparation_DATA_fields": [
+    "identity_result",
+    "identities"
+  ],
+  "preserved_order": "Initial normalization/set/tuple/flush; source sync BEFORE memo; access locking; previous-version capture BEFORE reconciliation; exact scoped identity query; planner; empty return; stable IDs in main; durable-ID query/filter; replay return; manifest/revision/time/actor mutation; flush; coordinator revision; each original journal await/default flush; notification callback; memo add; result. No commit/cache/flush-batch/lifetime/policy change.",
+  "source": {
+    "backend/app/application/mobile/passenger_change_propagation.py": "a87d9aef03194a21969670437f2a2905045a66b2e536c52eda2281975ffc0bd7",
+    "backend/app/application/mobile/passenger_change_contracts.py": "d2380bfee9bdb59fe5dee50b2f0d12cdb7980033f419a11457d7cf0b7dacb130",
+    "backend/app/application/mobile/passenger_change_events.py": "e7e3fe920b64f0e7f83b45525bf00889d34e12c0ca05a9aca86f3b29210118d1",
+    "backend/app/application/mobile/passenger_change_identities.py": "0e663f42d3f78ab195b2cda8b51b7021a8a231f9dcdd3098a3f989e3921bbd7d",
+    "backend/app/application/mobile/passenger_change_journal.py": "dee981f849e150af11a70bf3d7d3db990d4eb6b885ce293372e2f4b0ab37ce16"
+  }
+}

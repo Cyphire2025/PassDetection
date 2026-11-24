@@ -1,0 +1,326 @@
+..................................FFFF.....                              [100%]
+================================== FAILURES ===================================
+________ test_common_document_storage_finishes_before_access_row_lock _________
+
+    @pytest.mark.asyncio
+    async def test_common_document_storage_finishes_before_access_row_lock() -> None:
+        initial, locked, group = _scope_pair()
+        current_user = SimpleNamespace(id=uuid.uuid4())
+        events: list[str] = []
+        captured_documents: list[object] = []
+        session = MagicMock()
+        session.add = MagicMock(side_effect=captured_documents.append)
+        session.flush = AsyncMock(side_effect=lambda: events.append("flush"))
+        session.commit = AsyncMock(side_effect=lambda: events.append("commit"))
+        session.rollback = AsyncMock(side_effect=lambda: events.append("read-transaction-closed"))
+        storage = MagicMock()
+        storage.upload_file = AsyncMock(side_effect=lambda *_args: events.append("storage-upload"))
+        storage.delete_files = AsyncMock(return_value=1)
+    
+        async def access_context(*_args, lock: bool, **_kwargs):
+            events.append("row-lock" if lock else "authorize-read")
+            return (locked if lock else initial), group
+    
+        async def validate(_file):
+            events.append("pdf-validation")
+            return _validated_pdf()
+    
+        with (
+            patch(
+                "app.presentation.api.v1.routes.gc_app_common_staging._admin_access_context",
+                side_effect=access_context,
+            ),
+            patch(
+                "app.presentation.api.v1.routes.gc_app_common_staging._validated_common_pdf",
+                side_effect=validate,
+            ),
+            patch(
+                "app.presentation.api.v1.routes.gc_app_common_staging.MinioStorageRepository",
+                return_value=storage,
+            ),
+            patch(
+                "app.presentation.api.v1.routes.gc_app_common_staging._content_audit",
+                new=AsyncMock(),
+            ),
+            patch(
+                "app.presentation.api.v1.routes.gc_app_common_staging._common_document_response",
+                return_value=SimpleNamespace(id="response"),
+            ),
+        ):
+>           result = await _store_common_document_version(
+                session,
+                request=_request(),
+                current_user=current_user,
+                group_id=initial.group_id,
+                agency_id=initial.agency_id,
+                expected_access_revision=4,
+                file=MagicMock(),
+                category="travel_tips",
+                display_name="Travel tips",
+                offline_available=True,
+            )
+
+tests\unit\presentation\test_gc_app_content_compensation.py:310: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+app\presentation\api\v1\routes\gc_app_common_staging.py:117: in _store_common_document_version
+    current_user = await require_current_common_document_actor(session, current_user)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+session = <MagicMock id='2914775047312'>
+snapshot = namespace(id=UUID('90ad56fb-2dec-4865-8e1a-55c3cd6dc505'))
+
+    async def require_current_common_document_actor(session: AsyncSession, snapshot: User) -> User:
+        """Lock actor then credentials before the caller locks its group and access."""
+>       actor = await session.scalar(
+            select(UserModel)
+            .where(UserModel.id == snapshot.id)
+            .with_for_update(of=UserModel)
+            .execution_options(populate_existing=True),
+        )
+E       TypeError: object MagicMock can't be used in 'await' expression
+
+app\presentation\api\v1\routes\gc_app_common_authority.py:18: TypeError
+_______ test_common_document_commit_failure_deletes_only_staged_object ________
+
+    @pytest.mark.asyncio
+    async def test_common_document_commit_failure_deletes_only_staged_object() -> None:
+        initial, locked, group = _scope_pair()
+        current_user = SimpleNamespace(id=uuid.uuid4())
+        session = MagicMock()
+        session.add = MagicMock()
+        session.flush = AsyncMock()
+        session.commit = AsyncMock(side_effect=RuntimeError("relational commit failed"))
+        session.rollback = AsyncMock()
+        storage = MagicMock()
+        storage.upload_file = AsyncMock()
+        storage.delete_files = AsyncMock(return_value=1)
+    
+        async def access_context(*_args, lock: bool, **_kwargs):
+            return (locked if lock else initial), group
+    
+        with (
+            patch(
+                "app.presentation.api.v1.routes.gc_app_common_staging._admin_access_context",
+                side_effect=access_context,
+            ),
+            patch(
+                "app.presentation.api.v1.routes.gc_app_common_staging._validated_common_pdf",
+                new=AsyncMock(return_value=_validated_pdf()),
+            ),
+            patch(
+                "app.presentation.api.v1.routes.gc_app_common_staging.MinioStorageRepository",
+                return_value=storage,
+            ),
+            patch(
+                "app.presentation.api.v1.routes.gc_app_common_staging._content_audit",
+                new=AsyncMock(),
+            ),
+            patch(
+                "app.presentation.api.v1.routes.gc_app_common_staging._common_document_response",
+                return_value=SimpleNamespace(id="response"),
+            ),
+        ):
+            with pytest.raises(RuntimeError, match="relational commit failed"):
+>               await _store_common_document_version(
+                    session,
+                    request=_request(),
+                    current_user=current_user,
+                    group_id=initial.group_id,
+                    agency_id=initial.agency_id,
+                    expected_access_revision=4,
+                    file=MagicMock(),
+                    category="travel_tips",
+                    display_name="Travel tips",
+                    offline_available=True,
+                )
+
+tests\unit\presentation\test_gc_app_content_compensation.py:373: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+app\presentation\api\v1\routes\gc_app_common_staging.py:117: in _store_common_document_version
+    current_user = await require_current_common_document_actor(session, current_user)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+session = <MagicMock id='2914775162256'>
+snapshot = namespace(id=UUID('9dc9894b-0acf-4d57-9523-856140ecee80'))
+
+    async def require_current_common_document_actor(session: AsyncSession, snapshot: User) -> User:
+        """Lock actor then credentials before the caller locks its group and access."""
+>       actor = await session.scalar(
+            select(UserModel)
+            .where(UserModel.id == snapshot.id)
+            .with_for_update(of=UserModel)
+            .execution_options(populate_existing=True),
+        )
+E       TypeError: object MagicMock can't be used in 'await' expression
+
+app\presentation\api\v1\routes\gc_app_common_authority.py:18: TypeError
+_____ test_revision_conflict_after_staging_rolls_back_and_deletes_object ______
+
+    @pytest.mark.asyncio
+    async def test_revision_conflict_after_staging_rolls_back_and_deletes_object() -> None:
+        initial, locked, group = _scope_pair()
+        locked.revision = initial.revision + 1
+        current_user = SimpleNamespace(id=uuid.uuid4())
+        session = MagicMock()
+        session.add = MagicMock()
+        session.flush = AsyncMock()
+        session.commit = AsyncMock()
+        session.rollback = AsyncMock()
+        storage = MagicMock()
+        storage.upload_file = AsyncMock()
+        storage.delete_files = AsyncMock(return_value=1)
+    
+        async def access_context(*_args, lock: bool, **_kwargs):
+            return (locked if lock else initial), group
+    
+        with (
+            patch(
+                "app.presentation.api.v1.routes.gc_app_common_staging._admin_access_context",
+                side_effect=access_context,
+            ),
+            patch(
+                "app.presentation.api.v1.routes.gc_app_common_staging._validated_common_pdf",
+                new=AsyncMock(return_value=_validated_pdf()),
+            ),
+            patch(
+                "app.presentation.api.v1.routes.gc_app_common_staging.MinioStorageRepository",
+                return_value=storage,
+            ),
+        ):
+            with pytest.raises(HTTPException) as exc_info:
+>               await _store_common_document_version(
+                    session,
+                    request=_request(),
+                    current_user=current_user,
+                    group_id=initial.group_id,
+                    agency_id=initial.agency_id,
+                    expected_access_revision=4,
+                    file=MagicMock(),
+                    category="travel_tips",
+                    display_name="Travel tips",
+                    offline_available=True,
+                )
+
+tests\unit\presentation\test_gc_app_content_compensation.py:426: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+app\presentation\api\v1\routes\gc_app_common_staging.py:117: in _store_common_document_version
+    current_user = await require_current_common_document_actor(session, current_user)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+session = <MagicMock id='2914774781392'>
+snapshot = namespace(id=UUID('a4b8cfab-b59c-42ad-88fb-2f0f30b6b2f9'))
+
+    async def require_current_common_document_actor(session: AsyncSession, snapshot: User) -> User:
+        """Lock actor then credentials before the caller locks its group and access."""
+>       actor = await session.scalar(
+            select(UserModel)
+            .where(UserModel.id == snapshot.id)
+            .with_for_update(of=UserModel)
+            .execution_options(populate_existing=True),
+        )
+E       TypeError: object MagicMock can't be used in 'await' expression
+
+app\presentation\api\v1\routes\gc_app_common_authority.py:18: TypeError
+___________ test_replacement_allocates_version_only_after_row_lock ____________
+
+    @pytest.mark.asyncio
+    async def test_replacement_allocates_version_only_after_row_lock() -> None:
+        initial, locked, group = _scope_pair()
+        logical_id = uuid.uuid4()
+        document_id = uuid.uuid4()
+        initial_previous = SimpleNamespace(logical_document_id=logical_id, sort_order=3)
+        locked_previous = SimpleNamespace(logical_document_id=logical_id, sort_order=7)
+        current_user = SimpleNamespace(id=uuid.uuid4())
+        events: list[str] = []
+        captured_documents: list[object] = []
+        scalar_result = MagicMock()
+        scalar_result.scalar_one.return_value = 9
+        session = MagicMock()
+        session.add = MagicMock(side_effect=captured_documents.append)
+        session.execute = AsyncMock(
+            side_effect=lambda *_args: (events.append("version-query"), scalar_result)[1]
+        )
+        session.flush = AsyncMock()
+        session.commit = AsyncMock()
+        session.rollback = AsyncMock()
+        storage = MagicMock()
+        storage.upload_file = AsyncMock(side_effect=lambda *_args: events.append("storage-upload"))
+        storage.delete_files = AsyncMock(return_value=1)
+    
+        async def access_context(*_args, lock: bool, **_kwargs):
+            events.append("row-lock" if lock else "authorize-read")
+            return (locked if lock else initial), group
+    
+        async def get_document(*_args, lock: bool, **_kwargs):
+            return locked_previous if lock else initial_previous
+    
+        with (
+            patch(
+                "app.presentation.api.v1.routes.gc_app_common_staging._admin_access_context",
+                side_effect=access_context,
+            ),
+            patch(
+                "app.presentation.api.v1.routes.gc_app_common_staging._get_common_document",
+                side_effect=get_document,
+            ),
+            patch(
+                "app.presentation.api.v1.routes.gc_app_common_staging._validated_common_pdf",
+                new=AsyncMock(return_value=_validated_pdf()),
+            ),
+            patch(
+                "app.presentation.api.v1.routes.gc_app_common_staging.MinioStorageRepository",
+                return_value=storage,
+            ),
+            patch(
+                "app.presentation.api.v1.routes.gc_app_common_staging._content_audit",
+                new=AsyncMock(),
+            ),
+            patch(
+                "app.presentation.api.v1.routes.gc_app_common_staging._common_document_response",
+                return_value=SimpleNamespace(id="response"),
+            ),
+        ):
+>           await _store_common_document_version(
+                session,
+                request=_request(),
+                current_user=current_user,
+                group_id=initial.group_id,
+                agency_id=initial.agency_id,
+                expected_access_revision=4,
+                file=MagicMock(),
+                category="itinerary_pdf",
+                display_name="Itinerary",
+                offline_available=True,
+                replace_document_id=document_id,
+            )
+
+tests\unit\presentation\test_gc_app_content_compensation.py:504: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+app\presentation\api\v1\routes\gc_app_common_staging.py:117: in _store_common_document_version
+    current_user = await require_current_common_document_actor(session, current_user)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+session = <MagicMock id='2914774251280'>
+snapshot = namespace(id=UUID('7ae221e0-e348-46b4-b99d-3b2a9d975659'))
+
+    async def require_current_common_document_actor(session: AsyncSession, snapshot: User) -> User:
+        """Lock actor then credentials before the caller locks its group and access."""
+>       actor = await session.scalar(
+            select(UserModel)
+            .where(UserModel.id == snapshot.id)
+            .with_for_update(of=UserModel)
+            .execution_options(populate_existing=True),
+        )
+E       TypeError: object MagicMock can't be used in 'await' expression
+
+app\presentation\api\v1\routes\gc_app_common_authority.py:18: TypeError
+=========================== short test summary info ===========================
+FAILED tests/unit/presentation/test_gc_app_content_compensation.py::test_common_document_storage_finishes_before_access_row_lock
+FAILED tests/unit/presentation/test_gc_app_content_compensation.py::test_common_document_commit_failure_deletes_only_staged_object
+FAILED tests/unit/presentation/test_gc_app_content_compensation.py::test_revision_conflict_after_staging_rolls_back_and_deletes_object
+FAILED tests/unit/presentation/test_gc_app_content_compensation.py::test_replacement_allocates_version_only_after_row_lock
+4 failed, 39 passed in 12.55s

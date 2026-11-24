@@ -1,0 +1,77 @@
+{
+  "method": "Complete original physical source/active assertion reads plus authored exact declaration/JSX partition; actual component and source tests separately recorded.",
+  "files": [
+    {
+      "path": "frontend/features/documents/components/document-workspace-review.tsx",
+      "sha256": "6f8ae8c3da389fa524286a90cd24b9c2b8e9288780fa84c6fd254386c0eec0e4",
+      "physical_lines": 3,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-restructured",
+      "notes": "Four-name compatibility facade preserving original public components and inferred prop edges. Original source fully read; current reexports authored and actualgraph checked."
+    },
+    {
+      "path": "frontend/features/documents/components/document-verification-panel.tsx",
+      "sha256": "4914653324b40c5b6e23afa78fe5d269d72e5af2d52ce1e09d130ff2b5328763",
+      "physical_lines": 221,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-restructured",
+      "notes": "Whole original verification props, eligibility/selection derivation, complete JSX and match-text declarations moved byte-text intact. Original-backed unknown/manual-approval flags, controlled indeterminate selection, lock/pending gates, accepted/uploaded distinctions and bounded name display preserved."
+    },
+    {
+      "path": "frontend/features/documents/components/document-row-action-menu.tsx",
+      "sha256": "690ff487361e546bbf757955bd98f050b174ea50f09451de08e7870a978ec3df",
+      "physical_lines": 172,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-restructured",
+      "notes": "Whole typed original menu and props moved intact, including portalling within owning dialog, clipping escape, anchor/viewport limits, scroll/resize/pointer cleanup, keyboard focus/Escape/Tab and exact per-passenger replace/add/remove callbacks. Original and moved bodies physically read/authored and exact9-declaration proof bound."
+    },
+    {
+      "path": "frontend/features/documents/components/document-review-badges.tsx",
+      "sha256": "32274d4b151eead5c606edd56a1dfb9428d3f78aea2eff34dcb340ff2f3a17b4",
+      "physical_lines": 80,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-restructured",
+      "notes": "Whole original status/match JSX and props moved intact; queued/unknown/failed not represented as sent, resend only explicit eligible sent action. All private/public declarations preserved."
+    },
+    {
+      "path": "frontend/features/documents/components/document-verification-panel.test.tsx",
+      "sha256": "80b0655fe03165037fdc6d6d63fccac70947ce44586eda6ff911d47c6a88171d",
+      "physical_lines": 92,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full authored10baseline/current UI controls for eligibility, controlled selection/indeterminate state, disabled/locked actions, original-PDF requirement, already-uploaded exclusion, honest delivery statuses and explicit resend. Synthetic component tests only, no provider send."
+    },
+    {
+      "path": "frontend/features/documents/components/document-review-source.contract-helper.mjs",
+      "sha256": "f5702957216843d11c189d261f073c9c18efb1b32a2ec9f804643ce60735d788",
+      "physical_lines": 16,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full authored test helper; verifies exact named live reexports before including each actual owner for unchanged source assertions."
+    },
+    {
+      "path": "frontend/features/documents/components/document-workspace-responsive.contract.test.mjs",
+      "sha256": "5d131e4dce4ea4e0c3378c269b13a46ccf185872d49606526caf7b5ed9f77a5b",
+      "physical_lines": 28,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete original/current source physically read; loader only retargeted to wired review owners and removed unused fs import. All original test bodies/assertions byte-identical and viewport/portal/cleanup constraints retained."
+    },
+    {
+      "path": "frontend/features/documents/components/document-whatsapp-delivery.contract.test.mjs",
+      "sha256": "6d9e96b3cb484fc9eb373c941f627a36f2a87c9945e86f3f8a8d25ab7c695cda",
+      "physical_lines": 98,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete original/current source physically read; only review loader now follows wired owner aggregate. All original delivery/privacy/assignment/source assertions byte-identical."
+    }
+  ]
+}

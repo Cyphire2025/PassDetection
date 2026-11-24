@@ -1,0 +1,36 @@
+{
+  "before": {
+    "scripts/qa/bounded_qualification_output.py": "ef4a3176df0d90a337f6e7e21950c97ef4a7c0902a74c9f40677e3f7510c05f9",
+    "scripts/test_bounded_qualification_output.py": "20c6f8551ca2511c0d51b24a6fb0151fc1d2433fb6a33e821192e34ecbb541a1",
+    "scripts/qa/companies_contact_qualification.py": "ffc90e3f4b63c52ee4378fd5f9d0b311b50f5c5efca49e90e94e9ba9aa9694f8",
+    "scripts/qa/qualify_companies_fast_migration.py": "1d51a0a2e2f02eea28a5d8b15c3794b12f12c0c7c6c86f41c3fbe0d869d0566e",
+    "scripts/qa/qualify_postgresql_client.py": "c8938a3213ca369cd173efafcdfe799d63c6bda43f9f3e6925bc4ee44e8245d1",
+    "scripts/test_companies_contact_qualification.py": "ae6c25e69f10247fd3ca13f00ead8bd16b9d83e5c0c0b9829a20719a2c9899ea",
+    "scripts/test_companies_fast_migration_qualification.py": "d394ec736698c8f0f8d5a6ff8bee15bc1f18fd28265c5222316b16c46e97e785",
+    "scripts/legacy_company_contract_fixture.py": "634c210313bdcd92d5dd6aad4eb46ebabd2adb4c6cc0630a6b28cf455edcf88e",
+    "scripts/release_companies_traveller_contract.py": "2d01358c2756cf2ce34584cf85f1e9dba9a7483bd1ced0a10cb63e232b62af7b"
+  },
+  "after": {
+    "scripts/qa/bounded_qualification_output.py": "ef4a3176df0d90a337f6e7e21950c97ef4a7c0902a74c9f40677e3f7510c05f9",
+    "scripts/test_bounded_qualification_output.py": "20c6f8551ca2511c0d51b24a6fb0151fc1d2433fb6a33e821192e34ecbb541a1",
+    "scripts/qa/companies_contact_qualification.py": "ffc90e3f4b63c52ee4378fd5f9d0b311b50f5c5efca49e90e94e9ba9aa9694f8",
+    "scripts/qa/qualify_companies_fast_migration.py": "1d51a0a2e2f02eea28a5d8b15c3794b12f12c0c7c6c86f41c3fbe0d869d0566e",
+    "scripts/qa/qualify_postgresql_client.py": "c8938a3213ca369cd173efafcdfe799d63c6bda43f9f3e6925bc4ee44e8245d1",
+    "scripts/test_companies_contact_qualification.py": "ae6c25e69f10247fd3ca13f00ead8bd16b9d83e5c0c0b9829a20719a2c9899ea",
+    "scripts/test_companies_fast_migration_qualification.py": "d394ec736698c8f0f8d5a6ff8bee15bc1f18fd28265c5222316b16c46e97e785",
+    "scripts/legacy_company_contract_fixture.py": "634c210313bdcd92d5dd6aad4eb46ebabd2adb4c6cc0630a6b28cf455edcf88e",
+    "scripts/release_companies_traveller_contract.py": "2d01358c2756cf2ce34584cf85f1e9dba9a7483bd1ced0a10cb63e232b62af7b"
+  },
+  "unchanged": true,
+  "command": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "unittest",
+    "-v",
+    "test_bounded_qualification_output",
+    "test_companies_contact_qualification",
+    "test_companies_fast_migration_qualification"
+  ],
+  "cwd": "scripts",
+  "exit_code": 0
+}

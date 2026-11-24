@@ -1,25 +1,32 @@
 /**
- * useLogin — Updated for Phase 2
- * ================================
- * After login: stores session + sets cookie for middleware.
+ * Apply a successful server-owned session only to the identity operation that started it.
  */
 
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
+import { useState } from "react";
+import { RequestOwnerChangedError } from "@/lib/api/request-owner";
 import { useAuthStore } from "@/stores/auth.store";
 import { authApi } from "../api/auth.api";
 import { ROUTES } from "@/constants/routes";
 import type { LoginFormData } from "../schemas/auth.schemas";
 import type { ApiError } from "@/types";
+import { authenticationContextIsCurrent, captureAuthenticationContext } from "../services/authentication-context";
 
 export function useLogin() {
+  const [entryAuthentication] = useState(captureAuthenticationContext);
   const setSession = useAuthStore((s) => s.setSession);
 
   return useMutation({
-    mutationFn: (data: LoginFormData) => authApi.login(data),
+    mutationFn: (data: LoginFormData) => {
+      if (!authenticationContextIsCurrent(entryAuthentication)) throw new RequestOwnerChangedError();
+      return authApi.login(data);
+    },
+    onMutate: captureAuthenticationContext,
 
-    onSuccess: (session) => {
+    onSuccess: (session, _credentials, authentication) => {
+      if (!authenticationContextIsCurrent(authentication)) return;
       if (session.status !== "authenticated") return;
       setSession(session.user);
 

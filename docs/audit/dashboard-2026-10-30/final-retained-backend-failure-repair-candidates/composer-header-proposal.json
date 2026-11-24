@@ -1,0 +1,22 @@
+{
+  "status": "Audit-only prepared candidate; actual source unchanged and no candidate tests run",
+  "path": "backend/tests/unit/presentation/test_whatsapp_composer_persistence.py",
+  "before_sha256": "28c491d3d7fba80d5e028de835118ffcf36c58165d67cecf554ca0b80b615af7",
+  "candidate_sha256": "38b78b67bb469668fcb076e8bce3635d1e2b346e467cb89e0d118d9f60cba5da",
+  "changed_function": "test_fresh_passport_send_rejects_missing_image_header",
+  "exact_one_AST_string_constant_change": true,
+  "all_other_namespace_method_fixture_and_assertion_AST_exact": true,
+  "old_mock_target": "app.presentation.api.v1.routes.whatsapp_send.enforce_broadcast_welcome_prerequisite",
+  "active_mock_target": "app.presentation.api.v1.routes.whatsapp_send_preparation.enforce_broadcast_welcome_prerequisite",
+  "active_owner_sha256": "a829c85542906d5bbda767aaef47f7937193cde792126b58cefab64b10506aab",
+  "source_fence_exact_after_preparation": true,
+  "artifacts": {
+    "composer-header-candidate.py.txt": "38b78b67bb469668fcb076e8bce3635d1e2b346e467cb89e0d118d9f60cba5da",
+    "composer-header-original.py.txt": "28c491d3d7fba80d5e028de835118ffcf36c58165d67cecf554ca0b80b615af7",
+    "composer-header.patch": "525173f01aadd2f0150cea7a16097d0ae2a783854f2eebf4fb2b0f096ee353ca"
+  },
+  "limits": [
+    "No production prerequisite bypass or app change; correct test isolation targets the actual existing owner.",
+    "Root GO required after original broad/static fences finish before application and affected-file verification."
+  ]
+}

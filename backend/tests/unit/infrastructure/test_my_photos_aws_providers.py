@@ -4,6 +4,7 @@ import base64
 import uuid
 from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
+from unittest.mock import patch
 from urllib.parse import urlsplit, urlunsplit
 
 import boto3
@@ -91,6 +92,7 @@ class FakeS3:
         self.presigned: list[tuple[str, dict[str, object]]] = []
         self.presigned_location: str | None = None
         self.liveness_version = "version-one"
+        self.signing_time = NOW
 
     def head_object(self, **kwargs: object) -> dict[str, object]:
         self.head_requests.append(kwargs)
@@ -120,6 +122,8 @@ class FakeS3:
         return (
             "https://passdetection-my-photos-media.s3.ap-south-1.amazonaws.com/"
             f"{parameters['Key']}?X-Amz-Signature=fake"
+            f"&X-Amz-Date={self.signing_time.strftime('%Y%m%dT%H%M%SZ')}"
+            f"&X-Amz-Expires={kwargs['ExpiresIn']}"
         )
 
 
@@ -828,19 +832,26 @@ def _real_auto_presigned_location(*, media_key: str, version_id: str) -> str:
             s3={"addressing_style": config.s3_addressing_style},
         ),
     )
-    return str(
-        client.generate_presigned_url(
-            "get_object",
-            Params={
-                "Bucket": config.media_bucket,
-                "Key": media_key,
-                "VersionId": version_id,
-                "ExpectedBucketOwner": config.expected_bucket_owner,
-            },
-            ExpiresIn=300,
-            HttpMethod="GET",
+
+    class SigningDatetime(datetime):
+        @classmethod
+        def utcnow(cls) -> datetime:
+            return NOW.replace(tzinfo=None)
+
+    with patch("botocore.auth.datetime", SimpleNamespace(datetime=SigningDatetime)):
+        return str(
+            client.generate_presigned_url(
+                "get_object",
+                Params={
+                    "Bucket": config.media_bucket,
+                    "Key": media_key,
+                    "VersionId": version_id,
+                    "ExpectedBucketOwner": config.expected_bucket_owner,
+                },
+                ExpiresIn=300,
+                HttpMethod="GET",
+            )
         )
-    )
 
 
 @pytest.mark.asyncio
@@ -1223,7 +1234,7 @@ async def test_custom_s3_presigned_location_requires_exact_configured_port() -> 
     )
     s3.presigned_location = (
         "https://objects.internal.example:9443/passdetection-my-photos-media/"
-        f"{raw_reference}?X-Amz-Signature=fake"
+        f"{raw_reference}?X-Amz-Signature=fake&X-Amz-Date=20260827T120000Z&X-Amz-Expires=300"
     )
     assert (await provider.resolve(resolution_request)).location == s3.presigned_location
 
@@ -1257,3 +1268,199 @@ def test_factory_uses_standard_credential_chain_without_static_key_arguments(
         and "aws_session_token" not in kwargs
         for _service, kwargs in calls
     )
+
+
+def test_provider_configuration_repr_omits_raw_hmac_material() -> None:
+    secrets = [
+        "scope-synthetic-private-" * 3,
+        "active-synthetic-private-" * 3,
+        "previous-synthetic-private-" * 3,
+    ]
+    config = aws_provider_config(
+        _settings(
+            aws_scope_hmac_secret=secrets[0],
+            aws_provider_hmac_secret=secrets[1],
+            aws_provider_hmac_previous_keys={"reference-v1": secrets[2]},
+        )
+    )
+    assert config.scope_hmac_secret == secrets[0].encode()
+    assert config.reference_signing_keys["reference-v1"] == secrets[2].encode()
+    assert all(secret not in repr(config) for secret in secrets)
+
+
+def _resolution_request(
+    request: DeliveryRequest, authorization: DeliveryAuthorization, *, expires_at: datetime
+) -> DeliveryResolutionRequest:
+    assert authorization.provider_authorization_reference is not None
+    return DeliveryResolutionRequest(
+        tenant_scope=request.tenant_scope,
+        group_scope=request.group_scope,
+        passenger_scope=request.passenger_scope,
+        authorization_identity=request.authorization_identity,
+        asset_identity=request.asset_identity,
+        media_reference=request.media_reference,
+        provider_authorization_reference=authorization.provider_authorization_reference,
+        quality=request.quality,
+        expected_size_bytes=request.expected_size_bytes,
+        checksum_sha256=request.checksum_sha256,
+        content_type="image/jpeg",
+        expires_at=expires_at,
+    )
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("delay_phase", ["head", "dispatch", "signing"])
+async def test_delivery_expiring_during_provider_work_is_not_returned(
+    monkeypatch: pytest.MonkeyPatch, delay_phase: str
+) -> None:
+    from app.infrastructure.my_photos import aws_media_delivery
+
+    now = [NOW]
+    s3 = FakeS3()
+    provider = S3DirectMediaDeliveryProvider(
+        s3_client=s3,
+        config=aws_provider_config(_settings()),
+        clock=lambda: now[0],
+    )
+    _, request, authorization = await _authorized_media(
+        provider,
+        s3,
+        asset_identity="expires-during-provider-work",
+    )
+    original_head, original_sign = s3.head_object, s3.generate_presigned_url
+
+    def head(**kwargs: object) -> dict[str, object]:
+        if delay_phase == "head":
+            now[0] += timedelta(seconds=10)
+        return original_head(**kwargs)
+
+    def sign(method: str, **kwargs: object) -> str:
+        if delay_phase == "signing":
+            now[0] += timedelta(seconds=10)
+        return original_sign(method, **kwargs)
+
+    original_call = aws_media_delivery._async_client_call
+
+    async def delayed_call(method: object, *args: object, **kwargs: object) -> object:
+        if delay_phase == "dispatch" and method != s3.head_object:
+            now[0] += timedelta(seconds=10)
+        return await original_call(method, *args, **kwargs)  # type: ignore[arg-type]
+
+    monkeypatch.setattr(s3, "head_object", head)
+    monkeypatch.setattr(s3, "generate_presigned_url", sign)
+    monkeypatch.setattr(aws_media_delivery, "_async_client_call", delayed_call)
+    with pytest.raises(MyPhotosUnavailable) as captured:
+        await provider.resolve(
+            _resolution_request(
+                request,
+                authorization,
+                expires_at=NOW + timedelta(seconds=5),
+            )
+        )
+    assert captured.value.code == "MY_PHOTOS_DELIVERY_EXPIRED"
+
+
+@pytest.mark.asyncio
+async def test_delivery_signing_lifetime_uses_time_after_storage_lookup(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    now = [NOW]
+    s3 = FakeS3()
+    provider = S3DirectMediaDeliveryProvider(
+        s3_client=s3,
+        config=aws_provider_config(_settings()),
+        clock=lambda: now[0],
+    )
+    _, request, authorization = await _authorized_media(
+        provider,
+        s3,
+        asset_identity="bounded-signing-lifetime",
+    )
+    original_head = s3.head_object
+
+    def head(**kwargs: object) -> dict[str, object]:
+        now[0] += timedelta(seconds=3)
+        return original_head(**kwargs)
+
+    monkeypatch.setattr(s3, "head_object", head)
+    await provider.resolve(
+        _resolution_request(
+            request,
+            authorization,
+            expires_at=NOW + timedelta(seconds=10),
+        )
+    )
+    assert s3.presigned[-1][1]["ExpiresIn"] == 7
+
+
+@pytest.mark.asyncio
+async def test_delivery_rejects_signed_lifetime_past_its_absolute_authorization(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    now = [NOW]
+    s3 = FakeS3()
+    provider = S3DirectMediaDeliveryProvider(
+        s3_client=s3,
+        config=aws_provider_config(_settings()),
+        clock=lambda: now[0],
+    )
+    _, request, authorization = await _authorized_media(
+        provider,
+        s3,
+        asset_identity="signing-delayed-by-credentials",
+    )
+    original_sign = s3.generate_presigned_url
+
+    def sign(method: str, **kwargs: object) -> str:
+        now[0] += timedelta(seconds=3)
+        s3.signing_time = now[0]
+        return original_sign(method, **kwargs)
+
+    monkeypatch.setattr(s3, "generate_presigned_url", sign)
+    with pytest.raises(MyPhotosUnavailable) as captured:
+        await provider.resolve(
+            _resolution_request(
+                request,
+                authorization,
+                expires_at=NOW + timedelta(seconds=10),
+            )
+        )
+    assert captured.value.code == "MY_PHOTOS_PROVIDER_RESULT_INVALID"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "signature_query",
+    [
+        "X-Amz-Signature=fake",
+        "X-Amz-Date=20260827T120000Z&X-Amz-Expires=300&X-Amz-Expires=1",
+        "X-Amz-Date=20260230T120000Z&X-Amz-Expires=1",
+        "X-Amz-Date=20260827T120000Z&X-Amz-Expires=-1",
+        "X-Amz-Date=20260827T120000Z&X-Amz-Expires=0",
+        "X-Amz-Date=20260827T120000Z&X-Amz-Expires=999999999999999999999999",
+    ],
+)
+async def test_delivery_rejects_malformed_or_ambiguous_signed_expiry(signature_query: str) -> None:
+    s3 = FakeS3()
+    provider = S3DirectMediaDeliveryProvider(
+        s3_client=s3,
+        config=aws_provider_config(_settings()),
+        clock=lambda: NOW,
+    )
+    key, request, authorization = await _authorized_media(
+        provider,
+        s3,
+        asset_identity="invalid-signed-expiry",
+    )
+    s3.presigned_location = (
+        f"https://passdetection-my-photos-media.s3.ap-south-1.amazonaws.com/{key}?{signature_query}"
+    )
+    with pytest.raises(MyPhotosUnavailable) as captured:
+        await provider.resolve(
+            _resolution_request(
+                request,
+                authorization,
+                expires_at=NOW + timedelta(seconds=300),
+            )
+        )
+    assert captured.value.code == "MY_PHOTOS_PROVIDER_RESULT_INVALID"

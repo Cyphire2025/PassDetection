@@ -1,0 +1,52 @@
+{
+  "files": [
+    {
+      "path": "scripts/test_release_current.py",
+      "sha256": "08591b169e3a56a809ee5cbaddd82a4793dd4e0e18ace024174f9bf69cf82262",
+      "physical_lines": 559,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete559physicalsource read0-100/100-225/225-350/350-465/465-EOF with98-116 clippingrecovery. CurrentDocker extendsRecoveryDocker withsyntheticroles/storage/network/helper/faultstate; realCurrentRelease controls outerfence/backup/role/migration/storagecutover/providerDNS/newnetworkretry/noovercommit/nativeisolation/currentmanifest targetidentity. Explicitdefaultpatches isolateinnerarchive/role/storage; enable_resource_lifecycle casesrestoreactualouterfence. Fakevolumes/copyreport/hash/SQL/dump outputs notlivePG/SeaweedFS/sourceversion preservation. ROOTsourcecopiespublicchecked-incontracts only; temp.envsynthetic. No realcredentials/providerkey/network/Docker."
+    },
+    {
+      "path": "scripts/test_release_mobile_fcm.py",
+      "sha256": "143c9d6fa27f2139115b987acb65b73972bba1380f6d54e3463f295ec319b58a",
+      "physical_lines": 258,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete258physicalsource read0-130+130-EOF. Historicalsharedserver0094->0095 release guard retainsallappservices/backups/oneoffcontainers, no providerenablement, strictsource/target/outside-schema/currentcommit archivedretry, corrupted/missingbackupblocked, busyworker/refusal/preparedpins/public503/trafficpause. Nativeclient/UI notaudited; FCMprovider transportnotcalled. FakeRetainedArtifactDocker andliteralfixturecredentials deliberately notrealprovider/PostgreSQL evidence."
+    },
+    {
+      "path": "scripts/test_release_reliability.py",
+      "sha256": "4b59a7ca51e522bb9f3ff3767cf8911e0a29c838f140462f5a0fd7afccf22e9e",
+      "physical_lines": 280,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete280physicalsource read0-110+110-EOF. RecoveryDocker introducesonlysyntheticPGDMP/copy/TOC/decode/hash/failureoutputs overFakeDocker; realrelease preservesimagesbeforebuild, readonlyinitialliveDBtarget andnetworkaliases, fresh/archiveintegrity-beforemigration/env, targetretryrequiresexactoriginalarchive andno automaticdowngrade. Tests role/DBhost/port/name/network drift beforebackup evenafterpreflight meaningful. restore_rehearsedFalse explicit; no actualpgdump/restore/DB/network qualification."
+    },
+    {
+      "path": "scripts/test_release_retained_update.py",
+      "sha256": "cd6e1959c6a8114718999575a20f9007c18ccc9f3eff55ae91e7e19584484e62",
+      "physical_lines": 488,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete488physicalsource read0-100/100-235/235-365/365-EOF withlast8clippingrecovery. ActualgeneratedFastbuilder runsmappedrealtempfiles withmodeledCHOWN-onlypermission/copy/deleteandstubAPIexport, secondgenerationuniquestaging preservesinheritedsource/dependencies; notnativeLinuxDACproof. Actualpureliveinventory/strictmodes/revisions/task/routes/privacyallowlist/readinessstability, runtimeenvpreservation, proxyrewrite andrecovery/workerdrain/unknownbuilder/nonoverlap/failure/explicitresourcepause controls overfakes. No realSSH orhostexecution; literalhost passeddeployment_command only. Existing sharedpause compatibility bounded, dedicatedInboxdeferred."
+    },
+    {
+      "path": "scripts/test_release_traveller_whatsapp.py",
+      "sha256": "31aa67604df33deef58f908ccf500236de203aef519dc412a872ee4f657d1e22",
+      "physical_lines": 520,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete520physicalsource read0-110/110-235/235-375/375-EOF. FakeDocker assertsrestrictedcommandshape/env/stdin andtracksactualschema/image/env/worker-nodefailurestate, raisingonunexpectedcommands. Reusedfixture meaningful forsmallercohorts butnotrealkernel/Docker. Actuallegacyrelease tests initialDBinspectionbeforecandidateComposeinterpolation, workerreplyschema failclosed, renderedimageidentity, atomicprivatewrites/retainedgenerictemp, imagepins/activationorder, jobarrivalsduringmigration/retry, wrongcheckout/dirty/untracked/configdrift, image mismatch andpublic503. Historical0093/defaultworkercleanupcontracts intentionallypreserved; no deployment/provider/productionenv read."
+    }
+  ],
+  "new_complete_test_files": 5,
+  "new_complete_test_lines": 2105,
+  "supporting_runtime_reads": "Existingparentcompleteactualreleaseimplementation reviews reused for callercontext; no new sourcefullcredit from these tests/imports."
+}

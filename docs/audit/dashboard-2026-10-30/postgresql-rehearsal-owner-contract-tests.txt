@@ -1,0 +1,16 @@
+F.....                                                                   [100%]
+================================== FAILURES ===================================
+___ test_canonical_public_function_aliases_hints_and_pickle_stay_compatible ___
+
+    def test_canonical_public_function_aliases_hints_and_pickle_stay_compatible():
+        for owner in (client, fixture, runner, snapshot, verification):
+            for name, function in vars(owner).items():
+                if inspect.isfunction(function) and function.__module__ == facade.__name__:
+>                   assert getattr(facade, name) is function
+                           ^^^^^^^^^^^^^^^^^^^^^
+E                   AttributeError: module 'scripts.rehearse_postgresql_upgrade' has no attribute '_export'
+
+tests\unit\infrastructure\test_postgresql_rehearsal_owner_contracts.py:28: AttributeError
+=========================== short test summary info ===========================
+FAILED tests/unit/infrastructure/test_postgresql_rehearsal_owner_contracts.py::test_canonical_public_function_aliases_hints_and_pickle_stay_compatible
+1 failed, 5 passed in 0.63s

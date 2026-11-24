@@ -1,0 +1,152 @@
+{
+  "floors_unchanged": {
+    "statements": 74,
+    "branches": 50,
+    "functions": 75,
+    "lines": 75
+  },
+  "per_file": true,
+  "mapping": [
+    {
+      "retired_critical_owner": "frontend/features/upload/services/passport-capture-transition.ts",
+      "current_critical_owners": [
+        "frontend/features/upload/hooks/use-selected-document-uploads.ts",
+        "frontend/features/upload/services/fresh-document-validation.ts"
+      ],
+      "evidence": [
+        "frontend/features/upload/hooks/use-selected-document-uploads.test.tsx",
+        "frontend/features/upload/components/fresh-member-form.test.tsx",
+        "frontend/features/upload/components/passport-camera-final-validation.contract.test.mjs"
+      ],
+      "preserved_responsibility": "Validated camera bytes stay unchanged; configured pages gate completion."
+    },
+    {
+      "retired_critical_owner": "frontend/features/upload/services/saved-passport-extraction.ts",
+      "current_critical_owners": [
+        "frontend/features/travellers/hooks/use-draft-polling.ts",
+        "frontend/features/upload/hooks/use-fresh-draft.ts",
+        "frontend/features/travellers/hooks/use-returning-draft.ts"
+      ],
+      "evidence": [
+        "frontend/features/travellers/hooks/use-draft-lifecycle.test.tsx",
+        "frontend/features/travellers/hooks/draft-response-races.test.tsx"
+      ],
+      "preserved_responsibility": "Current private API polling is serialized, visibility aware, bounded/backed off, cancels on exit and preserves local edits."
+    },
+    {
+      "retired_critical_owner": "frontend/features/upload/services/upload-operation-state.ts",
+      "current_critical_owners": [
+        "frontend/features/upload/hooks/use-selected-document-uploads.ts",
+        "frontend/features/upload/hooks/use-fresh-draft.ts"
+      ],
+      "evidence": [
+        "frontend/features/upload/hooks/use-selected-document-uploads.test.tsx",
+        "frontend/features/upload/hooks/use-fresh-draft.test.tsx"
+      ],
+      "preserved_responsibility": "Synchronous transfer admission and one private revision queue replace unreachable legacy operation state."
+    },
+    {
+      "retired_critical_owner": "frontend/features/upload/services/family-upload-state.ts",
+      "current_critical_owners": [
+        "frontend/features/upload/components/fresh-flow.tsx",
+        "frontend/features/upload/hooks/use-fresh-member-submission.ts"
+      ],
+      "evidence": [
+        "frontend/features/upload/components/traveller-portal.test.tsx",
+        "frontend/e2e/public-upload-contact-otp.spec.ts",
+        "frontend/e2e/fresh-travellers.spec.ts"
+      ],
+      "preserved_responsibility": "Current bounded family picker, independent member sessions, head-first order, completed-member preservation and second-member-only retry; old reducer implementation is not retained as active coverage."
+    },
+    {
+      "retired_critical_owner": "frontend/features/upload/hooks/use-upload-operation.ts",
+      "current_critical_owners": [
+        "frontend/features/upload/hooks/use-selected-document-uploads.ts",
+        "frontend/features/upload/hooks/use-fresh-draft.ts",
+        "frontend/features/travellers/hooks/use-draft-initialization.ts"
+      ],
+      "evidence": [
+        "frontend/features/upload/hooks/use-selected-document-uploads.test.tsx",
+        "frontend/features/travellers/hooks/use-draft-lifecycle.test.tsx",
+        "frontend/features/travellers/hooks/draft-response-races.test.tsx"
+      ],
+      "preserved_responsibility": "No duplicate transfer, late response/scope guard and StrictMode initialization ownership."
+    },
+    {
+      "retired_critical_owner": "frontend/features/upload/hooks/use-upload-family.ts",
+      "current_critical_owners": [
+        "frontend/features/upload/components/fresh-flow.tsx"
+      ],
+      "evidence": [
+        "frontend/features/upload/components/traveller-portal.test.tsx",
+        "frontend/e2e/fresh-travellers.spec.ts"
+      ],
+      "preserved_responsibility": "Actual family navigation and explicit resume state are checked through real FreshFlow, not legacy array hooks."
+    },
+    {
+      "retired_critical_owner": "frontend/features/upload/hooks/use-upload-documents.ts",
+      "current_critical_owners": [
+        "frontend/features/upload/hooks/use-fresh-draft.ts",
+        "frontend/features/upload/hooks/use-selected-document-uploads.ts",
+        "frontend/features/travellers/hooks/use-draft-image-lifecycle.ts",
+        "frontend/features/travellers/services/draft-upload-operation.ts"
+      ],
+      "evidence": [
+        "frontend/features/upload/hooks/use-fresh-draft.test.tsx",
+        "frontend/features/upload/hooks/use-selected-document-uploads.test.tsx",
+        "frontend/features/travellers/hooks/draft-response-races.test.tsx",
+        "frontend/features/travellers/hooks/use-draft-lifecycle.test.tsx",
+        "frontend/e2e/public-upload-recovery.spec.ts"
+      ],
+      "preserved_responsibility": "Preparation/capture interlocks, private file lifetime, same-key uncertain transfer, stale revisions, response loss and current image disposal."
+    },
+    {
+      "retired_critical_owner": "frontend/features/upload/hooks/use-upload-submission.ts",
+      "current_critical_owners": [
+        "frontend/features/upload/hooks/use-fresh-member-submission.ts",
+        "frontend/features/upload/hooks/use-fresh-contact.ts",
+        "frontend/features/upload/services/fresh-validation.ts",
+        "frontend/features/upload/services/fresh-document-validation.ts",
+        "frontend/features/travellers/hooks/use-returning-draft.ts"
+      ],
+      "evidence": [
+        "frontend/features/upload/components/fresh-member-form.test.tsx",
+        "frontend/features/upload/services/fresh-validation.test.ts",
+        "frontend/features/travellers/hooks/use-returning-draft.test.ts",
+        "frontend/e2e/public-upload-contact-otp.spec.ts"
+      ],
+      "preserved_responsibility": "Required fields/docs/proof gates precede final writes, latest revisions are read, current rejection can reverify, final idempotency survives retry."
+    },
+    {
+      "retired_critical_owner": "frontend/features/upload/components/upload-review-panels.tsx",
+      "current_critical_owners": [
+        "frontend/features/upload/components/fresh-member-form.tsx",
+        "frontend/features/upload/services/fresh-document-validation.ts",
+        "frontend/features/upload/services/review-submission-validation.ts"
+      ],
+      "evidence": [
+        "frontend/features/upload/components/fresh-member-form.test.tsx",
+        "frontend/features/upload/components/configured-passport-upload.test.tsx",
+        "frontend/features/upload/services/review-submission-validation.test.ts",
+        "frontend/e2e/public-upload-recovery.spec.ts"
+      ],
+      "preserved_responsibility": "Current review/preparation/error controls, optional/required configured fields and no failed-extraction bypass."
+    }
+  ],
+  "retained_mixed_owner": {
+    "path": "frontend/features/upload/services/review-submission-validation.ts",
+    "current_export": "configuredReviewError",
+    "removed_unused_exports": [
+      "validateSingleReview",
+      "validateFamilyReview",
+      "SingleReviewDraft"
+    ],
+    "evidence": "Only Fresh validation imports the current configured validator; original named callers of removed validators were retired legacy handlers. Direct current validator tests cover enabled/disabled/optional fields and custom labels/questions/details; current measured coverage100%allmetrics."
+  },
+  "additional_privacy_checks": [
+    "Current private preview fetches only through bound API, bounds accepted MIME/size, releases blob URLs, rejects HTML and ignores late unmounted responses.",
+    "Actual primary-query fallback preserves private legacy/current navigation credentials and makes no duplicate metadata observer or draft writes."
+  ],
+  "obsolete_browser_note": "public-instruction-languages.spec.ts contained3direct-legacy-selector cases. Full route/caller read proves no active selector exists in current Fresh/returning. That obsolete implementation test is retired with its original hash; configuration/backend/mobile contracts remain unchanged. The12migrated contact/recovery +4fallback +4Fresh cases are retained and pass.",
+  "stage2_correction": "The retained dialog assertion was subsequently proven dormant by a complete caller/source read. Its component, old returning preview and old family-returning helper were retired separately; current coverage excludes that dialog test. Current preview negative cases now run against FreshDocumentPreview, shared by Fresh and returning, without inventing the old unexposed PDF-acknowledgement workflow."
+}

@@ -1,0 +1,64 @@
+[
+  {
+    "path": "backend/app/infrastructure/email/sync_connections.py",
+    "sha256": "8cfb14464848b4799519a12fa898fb1bf5658c1cad5eb55df1558e790d3e3b22",
+    "review_scope": "partial",
+    "notes": "Only first159 lines physically read: provider selection and complete _claim_connection through returned SyncClaim, followed by _fresh_access_token prefix. Claim query explicitly undefer-loads tokens only with exact actor/agency/owner/provider/generation and lease/status predicates. Remaining module not fully reviewed or credited; no decryption/provider operation executed."
+  },
+  {
+    "path": "backend/app/presentation/security/email_oauth_binding.py",
+    "sha256": "772bc3d17ee25273a95c36634b156045a0ae3202c27566708a424fb8df1be665",
+    "review_scope": "partial",
+    "notes": "Only first105 lines physically read: browser nonce/session binding, security generation check and beginning of persistence actor revalidation. Remaining helper body/module not credited as full and no authorization proof claimed from this partial context."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_email_connection_lifecycle.py",
+    "sha256": "39156e8b99acfbd82d40b948c1820faf85d61fc37aede8287ab5f7221eec3ecb",
+    "review_scope": "search-only",
+    "notes": "Only ownership-related search results inspected. No full-file review credit or executed-test claim."
+  },
+  {
+    "path": "backend/app/infrastructure/database/document_models.py",
+    "sha256": "414813b4d861c1941592fc9ff5a86f3aff71d5f31a72e3b411a1b6c7fde06d27",
+    "review_scope": "partial",
+    "read_line_ranges": [
+      [
+        1,
+        165
+      ]
+    ],
+    "notes": "Read actual document/batch required fields and FK parents to build valid synthetic provenance fixture; remaining owner not credited full."
+  },
+  {
+    "path": "backend/tests/conftest.py",
+    "sha256": "b60a174b1656f30e36d6c748fc1b967c17804b9ef733911f6ff211e9e4d23abe",
+    "review_scope": "partial",
+    "read_line_ranges": [
+      [
+        96,
+        140
+      ]
+    ],
+    "notes": "Read actual db_session SQLite fixture, foreign_keys pragma, full metadata creation and session transaction/expiry behavior. Remaining shared conftest not credited full."
+  },
+  {
+    "path": "backend/scripts/verify_backend_quality_budgets.py",
+    "sha256": "2baf94d493a068bd1aed0258f4627aed47fe0845e6764fd0310cbf84f57794a9",
+    "review_scope": "partial",
+    "read_line_ranges": [
+      [
+        1,
+        48
+      ],
+      [
+        130,
+        161
+      ],
+      [
+        205,
+        264
+      ]
+    ],
+    "notes": "Read DTO/measurement/coverage-load and budget evaluation sections to measure only owned paths; remaining script and shared gate configuration not fully reviewed or modified."
+  }
+]

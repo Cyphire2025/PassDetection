@@ -1,0 +1,240 @@
+{
+  "application_sources_checked": 1176,
+  "application_entries": [
+    "pyattest.assertion",
+    "pyattest.attestation",
+    "pyattest.configs.apple",
+    "pyattest.exceptions"
+  ],
+  "verifier_import_closure": [
+    "pyattest",
+    "pyattest.assertion",
+    "pyattest.attestation",
+    "pyattest.configs",
+    "pyattest.configs.apple",
+    "pyattest.configs.config",
+    "pyattest.exceptions",
+    "pyattest.verifiers",
+    "pyattest.verifiers.apple_assertion",
+    "pyattest.verifiers.apple_attestation",
+    "pyattest.verifiers.assertion",
+    "pyattest.verifiers.attestation",
+    "pyattest.verifiers.utils"
+  ],
+  "verifier_import_edges": {
+    "pyattest.assertion": [
+      "pyattest",
+      "pyattest.configs.config",
+      "pyattest.exceptions"
+    ],
+    "pyattest.exceptions": [
+      "pyattest"
+    ],
+    "pyattest": [],
+    "pyattest.configs.config": [
+      "pyattest.configs"
+    ],
+    "pyattest.configs": [
+      "pyattest"
+    ],
+    "pyattest.configs.apple": [
+      "pyattest.configs",
+      "pyattest.configs.config",
+      "pyattest.verifiers.apple_assertion",
+      "pyattest.verifiers.apple_attestation",
+      "pyattest.verifiers.utils"
+    ],
+    "pyattest.verifiers.utils": [
+      "pyattest.verifiers"
+    ],
+    "pyattest.verifiers": [
+      "pyattest"
+    ],
+    "pyattest.verifiers.apple_attestation": [
+      "pyattest.exceptions",
+      "pyattest.verifiers",
+      "pyattest.verifiers.attestation",
+      "pyattest.verifiers.utils"
+    ],
+    "pyattest.verifiers.attestation": [
+      "pyattest.attestation",
+      "pyattest.verifiers"
+    ],
+    "pyattest.attestation": [
+      "pyattest",
+      "pyattest.configs.config",
+      "pyattest.exceptions"
+    ],
+    "pyattest.verifiers.apple_assertion": [
+      "pyattest.verifiers",
+      "pyattest.verifiers.assertion"
+    ],
+    "pyattest.verifiers.assertion": [
+      "pyattest.assertion",
+      "pyattest.verifiers"
+    ]
+  },
+  "versions": {
+    "pyattest": "1.0.5",
+    "python-jose": "3.5.0",
+    "ecdsa": "0.19.2"
+  },
+  "source_sha256": {
+    "pyattest": "a17b1eca43f16f807bbc6585716f1dc4f4fcf0767428697d4cdec6214bf08eed",
+    "python-jose": "a7be317489c146c3ccb94e31ae766915606ca8bf04c3996e56f0199a362c80dd",
+    "ecdsa": "0922bc05140f766ccc85db444d84d92a0d7fb2bfba470ea6ab1a49da911b282b"
+  },
+  "runtime_lock_sha256_before": "1504909b310b33fcfbdd6a45d90f41dc6df8b743ec97f77e3ed918013fa43c75",
+  "runtime_lock_sha256_after": "fdcc91a5eb87f6f678fe03ef37c83109edb639527eba387d73d031114a4188b6",
+  "only_runtime_lock_fingerprints_changed": true,
+  "before_review_errors": [
+    "Dependency lock changed: repeat attestation reachability review",
+    "Dependency lock changed: repeat attestation reachability review"
+  ],
+  "after_review_errors": [],
+  "preserved_fields": [
+    "advisory",
+    "aliases",
+    "package",
+    "owner",
+    "reviewed_on",
+    "expires_on",
+    "rationale",
+    "evidence",
+    "versions",
+    "source_sha256",
+    "application_entry_modules"
+  ],
+  "check_only": {
+    "exit_code": 0,
+    "result": "Owner/expiry/versions/source-byte/import-closure/lock checks passed"
+  },
+  "negative_regression_tests": {
+    "tests": 14,
+    "result": "passed"
+  },
+  "live_lock_audit": {
+    "exit_code": 1,
+    "result": "54rawadvisorymatchesin5packages,53uniqueadvisory-packagepairs; duplicatecertifi advisory appears twice.3existingignoredmatchesretained.",
+    "packages": [
+      {
+        "name": "certifi",
+        "installed_version": "2026.7.22",
+        "raw_match_count": 2,
+        "unique_advisory_count": 1,
+        "advisories": [
+          "PYSEC-2026-4320"
+        ],
+        "reported_fix_versions": [
+          "2026.10.18"
+        ]
+      },
+      {
+        "name": "dnspython",
+        "installed_version": "2.8.0",
+        "raw_match_count": 1,
+        "unique_advisory_count": 1,
+        "advisories": [
+          "CVE-2026-114605"
+        ],
+        "reported_fix_versions": [
+          "2.9.0"
+        ]
+      },
+      {
+        "name": "opentelemetry-api",
+        "installed_version": "1.45.0",
+        "raw_match_count": 1,
+        "unique_advisory_count": 1,
+        "advisories": [
+          "CVE-2026-114603"
+        ],
+        "reported_fix_versions": [
+          "1.45.1"
+        ]
+      },
+      {
+        "name": "pillow",
+        "installed_version": "12.3.0",
+        "raw_match_count": 39,
+        "unique_advisory_count": 39,
+        "advisories": [
+          "CVE-2026-112390",
+          "CVE-2026-112391",
+          "CVE-2026-112393",
+          "CVE-2026-112395",
+          "CVE-2026-112399",
+          "CVE-2026-112400",
+          "CVE-2026-112401",
+          "CVE-2026-112404",
+          "CVE-2026-112406",
+          "CVE-2026-112891",
+          "CVE-2026-112892",
+          "CVE-2026-112893",
+          "CVE-2026-112894",
+          "CVE-2026-112895",
+          "CVE-2026-112897",
+          "CVE-2026-112899",
+          "CVE-2026-112900",
+          "CVE-2026-96638",
+          "CVE-2026-96640",
+          "CVE-2026-96778",
+          "GHSA-78g4-xqwv-q3g8",
+          "PYSEC-2026-4326",
+          "PYSEC-2026-4327",
+          "PYSEC-2026-4328",
+          "PYSEC-2026-4329",
+          "PYSEC-2026-4330",
+          "PYSEC-2026-4331",
+          "PYSEC-2026-4332",
+          "PYSEC-2026-4333",
+          "PYSEC-2026-4334",
+          "PYSEC-2026-4335",
+          "PYSEC-2026-4336",
+          "PYSEC-2026-4337",
+          "PYSEC-2026-4338",
+          "PYSEC-2026-4339",
+          "PYSEC-2026-4340",
+          "PYSEC-2026-4341",
+          "PYSEC-2026-4342",
+          "PYSEC-2026-4343"
+        ],
+        "reported_fix_versions": [
+          "13.0.0"
+        ]
+      },
+      {
+        "name": "pypdf",
+        "installed_version": "6.19.0",
+        "raw_match_count": 11,
+        "unique_advisory_count": 11,
+        "advisories": [
+          "CVE-2026-113786",
+          "CVE-2026-113789",
+          "CVE-2026-113790",
+          "CVE-2026-113791",
+          "CVE-2026-113792",
+          "CVE-2026-113793",
+          "CVE-2026-113794",
+          "CVE-2026-113795",
+          "CVE-2026-115572",
+          "CVE-2026-115580",
+          "CVE-2026-115585"
+        ],
+        "reported_fix_versions": [
+          "6.20.0",
+          "6.20.1",
+          "6.21.0",
+          "6.21.1",
+          "6.21.2"
+        ]
+      }
+    ],
+    "sbom": "docs/audit/dashboard-2026-10-30/backend-lock-sbom.cdx.json",
+    "json": "docs/audit/dashboard-2026-10-30/backend-lock-audit.json",
+    "log": "docs/audit/dashboard-2026-10-30/backend-dependency-audit.txt",
+    "pins_or_locks_changed": false,
+    "exceptions_added_or_extended": false,
+    "release_gate": "failsclosedonnewadvisories"
+  }
+}

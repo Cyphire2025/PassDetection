@@ -1,0 +1,798 @@
+...F.F............                                                       [100%]
+================================== FAILURES ===================================
+_ test_runtime_registration_cookie_and_current_persisted_state[pwa-False-registered] _
+
+self = <sqlalchemy.engine.base.Connection object at 0x000002088748CB10>
+dialect = <sqlalchemy.dialects.sqlite.aiosqlite.SQLiteDialect_aiosqlite object at 0x0000020887038350>
+context = <sqlalchemy.dialects.sqlite.aiosqlite.SQLiteExecutionContext_aiosqlite object at 0x000002088979AB10>
+statement = <sqlalchemy.dialects.sqlite.base.SQLiteCompiler object at 0x000002088979A490>
+parameters = [('cefc474d1a66438dad471f15136df361', '80b0f1a9b7ee4eb2973037b3bab941cc', '0e04c9bf2b5c4756ab9ebc60b07ba013', 'pwa', '5c414699e60c46988101d4e53cf3596475ce580417ead76e9e782e7c549b035d', None, ...)]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\engine\default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:147: in execute
+    self._adapt_connection._handle_exception(error)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:298: in _handle_exception
+    raise error
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:129: in execute
+    self.await_(_cursor.execute(operation, parameters))
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+            ^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\aiosqlite\cursor.py:48: in execute
+    await self._execute(self._cursor.execute, sql, parameters)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\aiosqlite\cursor.py:40: in _execute
+    return await self._conn._execute(fn, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\aiosqlite\core.py:132: in _execute
+    return await future
+           ^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <Connection(Thread-7, started daemon 12720)>
+
+    def run(self) -> None:
+        """
+        Execute function calls on a separate thread.
+    
+        :meta private:
+        """
+        while True:
+            # Continues running until all queue items are processed,
+            # even after connection is closed (so we can finalize all
+            # futures)
+    
+            tx_item = self._tx.get()
+            if tx_item is _STOP_RUNNING_SENTINEL:
+                break
+    
+            future, function = tx_item
+    
+            try:
+                LOG.debug("executing %s", function)
+>               result = function()
+                         ^^^^^^^^^^
+E               sqlite3.OperationalError: ON CONFLICT clause does not match any PRIMARY KEY or UNIQUE constraint
+
+..\.tmp\dashboard-audit-venv\Lib\site-packages\aiosqlite\core.py:115: OperationalError
+
+The above exception was the direct cause of the following exception:
+
+client = <httpx.AsyncClient object at 0x000002088AABAA10>
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000020887224350>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002088AFF0410>
+kind = 'pwa', existing = False, expected = 'registered'
+
+    @pytest.mark.parametrize(
+        "kind,existing,expected",
+        [("pwa", False, "registered"), ("pwa", True, "renewed"), ("webview", True, "replaced")],
+    )
+    async def test_runtime_registration_cookie_and_current_persisted_state(
+        client, db_session, monkeypatch, kind, existing, expected
+    ):
+        f = await _cohort(db_session)
+        _commit_requests(client, db_session, monkeypatch)
+>       response = await client.post(
+            ENDPOINT, headers=_headers(f, cookie=existing), json={"runtime_kind": kind}
+        )
+
+tests\integration\test_browser_attendance_runtime_routes.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py:1892: in post
+    return await self.request(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py:1574: in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py:1661: in send
+    response = await self._send_handling_auth(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py:1689: in _send_handling_auth
+    response = await self._send_handling_redirects(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py:1726: in _send_handling_redirects
+    response = await self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py:1763: in _send_single_request
+    response = await transport.handle_async_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_transports\asgi.py:164: in handle_async_request
+    await self.app(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\applications.py:1160: in __call__
+    await super().__call__(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\applications.py:90: in __call__
+    await self.middleware_stack(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\errors.py:186: in __call__
+    raise exc
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:193: in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\presentation\middleware\request_id.py:54: in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:168: in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:144: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:193: in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\presentation\middleware\metrics.py:22: in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:168: in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:144: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:193: in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\presentation\middleware\rate_limit.py:260: in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:168: in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:144: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:193: in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\presentation\middleware\security_headers.py:18: in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:168: in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:144: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+app\presentation\middleware\safe_gzip.py:35: in __call__
+    await responder(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\gzip.py:130: in __call__
+    await super().__call__(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\gzip.py:46: in __call__
+    await self.app(scope, receive, self.send_with_compression)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\cors.py:88: in __call__
+    await self.app(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\exceptions.py:63: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py:18: in __call__
+    await self.app(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\routing.py:660: in __call__
+    await self.middleware_stack(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\routing.py:680: in app
+    await route.handle(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\routing.py:276: in handle
+    await self.app(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py:119: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py:105: in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py:431: in app
+    raw_response = await run_endpoint_function(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py:313: in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\presentation\api\v1\routes\attendance_runtime.py:114: in register_browser_attendance_runtime
+    issued = await AttendanceRuntimeRepository(session).issue_browser_runtime(
+app\infrastructure\repositories\attendance_runtime_repository.py:57: in issue_browser_runtime
+    registration = await self.register(
+app\infrastructure\repositories\attendance_runtime_repository.py:139: in register
+    registration = (await self._session.execute(statement)).scalar_one_or_none()
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\ext\asyncio\session.py:461: in execute
+    result = await greenlet_spawn(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:201: in greenlet_spawn
+    result = context.throw(*sys.exc_info())
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\orm\session.py:2351: in execute
+    return self._execute_internal(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\orm\session.py:2236: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\orm\bulk_persistence.py:1283: in orm_execute_statement
+    result = conn.execute(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\engine\base.py:1418: in execute
+    return meth(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\sql\elements.py:515: in _execute_on_connection
+    return connection._execute_clauseelement(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\engine\base.py:1640: in _execute_clauseelement
+    ret = self._execute_context(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\engine\base.py:2353: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\engine\default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:147: in execute
+    self._adapt_connection._handle_exception(error)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:298: in _handle_exception
+    raise error
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:129: in execute
+    self.await_(_cursor.execute(operation, parameters))
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+            ^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\aiosqlite\cursor.py:48: in execute
+    await self._execute(self._cursor.execute, sql, parameters)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\aiosqlite\cursor.py:40: in _execute
+    return await self._conn._execute(fn, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\aiosqlite\core.py:132: in _execute
+    return await future
+           ^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <Connection(Thread-7, started daemon 12720)>
+
+    def run(self) -> None:
+        """
+        Execute function calls on a separate thread.
+    
+        :meta private:
+        """
+        while True:
+            # Continues running until all queue items are processed,
+            # even after connection is closed (so we can finalize all
+            # futures)
+    
+            tx_item = self._tx.get()
+            if tx_item is _STOP_RUNNING_SENTINEL:
+                break
+    
+            future, function = tx_item
+    
+            try:
+                LOG.debug("executing %s", function)
+>               result = function()
+                         ^^^^^^^^^^
+E               sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) ON CONFLICT clause does not match any PRIMARY KEY or UNIQUE constraint
+E               [SQL: INSERT INTO attendance_runtime_registrations (id, agency_id, coordinator_user_id, runtime_kind, runtime_identifier_hash, native_mobile_session_id, status, registered_at, last_seen_at, expires_at, revoked_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (agency_id, coordinator_user_id, runtime_kind, runtime_identifier_hash) DO UPDATE SET native_mobile_session_id = ?, last_seen_at = ?, expires_at = ?, updated_at = ? WHERE attendance_runtime_registrations.status = ? RETURNING id, agency_id, coordinator_user_id, runtime_kind, runtime_identifier_hash, native_mobile_session_id, status, registered_at, last_seen_at, expires_at, revoked_at, revoke_reason, replaced_by_runtime_id, created_at, updated_at]
+E               [parameters: ('cefc474d1a66438dad471f15136df361', '80b0f1a9b7ee4eb2973037b3bab941cc', '0e04c9bf2b5c4756ab9ebc60b07ba013', 'pwa', '5c414699e60c46988101d4e53cf3596475ce580417ead76e9e782e7c549b035d', None, 'active', '2026-10-30 23:36:36.483322', '2026-10-30 23:36:36.483322', '2026-12-14 23:36:36.483322', None, '2026-10-30 23:36:36.483322', '2026-10-30 23:36:36.483322', None, '2026-10-30 23:36:36.483322', '2026-12-14 23:36:36.483322', '2026-10-30 23:36:36.483322', 'active')]
+E               (Background on this error at: https://sqlalche.me/e/20/e3q8)
+
+..\.tmp\dashboard-audit-venv\Lib\site-packages\aiosqlite\core.py:115: OperationalError
+---------------------------- Captured stdout call -----------------------------
+2026-10-30T23:36:36.471813Z [info     ] refresh_token_created          [app.infrastructure.repositories.refresh_token_repository] user_id=0e04c9bf-2b5c-4756-ab9e-bc60b07ba013
+2026-10-30T23:36:36.486811Z [error    ] unhandled_exception            [app.presentation.middleware.error_handler] error_type=OperationalError method=POST path=/api/v1/tour-operations/coordinator/attendance/runtime request_id=1a090f28-fc28-43be-b9a2-238558b9731f
+------------------------------ Captured log call ------------------------------
+INFO     app.infrastructure.repositories.refresh_token_repository:refresh_token_repository.py:77 {'user_id': '0e04c9bf-2b5c-4756-ab9e-bc60b07ba013', 'event': 'refresh_token_created', 'logger': 'app.infrastructure.repositories.refresh_token_repository', 'level': 'info', 'timestamp': '2026-10-30T23:36:36.471813Z'}
+ERROR    app.presentation.middleware.error_handler:error_handler.py:200 {'error_type': 'OperationalError', 'request_id': '1a090f28-fc28-43be-b9a2-238558b9731f', 'event': 'unhandled_exception', 'method': 'POST', 'path': '/api/v1/tour-operations/coordinator/attendance/runtime', 'logger': 'app.presentation.middleware.error_handler', 'level': 'error', 'timestamp': '2026-10-30T23:36:36.486811Z'}
+_ test_runtime_registration_cookie_and_current_persisted_state[webview-True-replaced] _
+
+self = <sqlalchemy.engine.base.Connection object at 0x000002088C98CBD0>
+dialect = <sqlalchemy.dialects.sqlite.aiosqlite.SQLiteDialect_aiosqlite object at 0x000002088CD17A50>
+context = <sqlalchemy.dialects.sqlite.aiosqlite.SQLiteExecutionContext_aiosqlite object at 0x000002088C98B290>
+statement = <sqlalchemy.dialects.sqlite.base.SQLiteCompiler object at 0x000002088CCBFA50>
+parameters = [('d7f538db9bde4f89a50e598506eb2cd0', '5d753f010cb84e5484cadf7817af972e', 'b7e51c58c6604d2fade806350c1bcd6c', 'webview', 'f3b1eb9d1dee3c2771e86f81fc9530d4dd3ea0c6a4f319c205f3e2b9fc1c833c', None, ...)]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\engine\default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:147: in execute
+    self._adapt_connection._handle_exception(error)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:298: in _handle_exception
+    raise error
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:129: in execute
+    self.await_(_cursor.execute(operation, parameters))
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+            ^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\aiosqlite\cursor.py:48: in execute
+    await self._execute(self._cursor.execute, sql, parameters)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\aiosqlite\cursor.py:40: in _execute
+    return await self._conn._execute(fn, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\aiosqlite\core.py:132: in _execute
+    return await future
+           ^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <Connection(Thread-11, started daemon 23252)>
+
+    def run(self) -> None:
+        """
+        Execute function calls on a separate thread.
+    
+        :meta private:
+        """
+        while True:
+            # Continues running until all queue items are processed,
+            # even after connection is closed (so we can finalize all
+            # futures)
+    
+            tx_item = self._tx.get()
+            if tx_item is _STOP_RUNNING_SENTINEL:
+                break
+    
+            future, function = tx_item
+    
+            try:
+                LOG.debug("executing %s", function)
+>               result = function()
+                         ^^^^^^^^^^
+E               sqlite3.OperationalError: ON CONFLICT clause does not match any PRIMARY KEY or UNIQUE constraint
+
+..\.tmp\dashboard-audit-venv\Lib\site-packages\aiosqlite\core.py:115: OperationalError
+
+The above exception was the direct cause of the following exception:
+
+client = <httpx.AsyncClient object at 0x000002088CA41B50>
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000002088CD23310>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002088CC85B50>
+kind = 'webview', existing = True, expected = 'replaced'
+
+    @pytest.mark.parametrize(
+        "kind,existing,expected",
+        [("pwa", False, "registered"), ("pwa", True, "renewed"), ("webview", True, "replaced")],
+    )
+    async def test_runtime_registration_cookie_and_current_persisted_state(
+        client, db_session, monkeypatch, kind, existing, expected
+    ):
+        f = await _cohort(db_session)
+        _commit_requests(client, db_session, monkeypatch)
+>       response = await client.post(
+            ENDPOINT, headers=_headers(f, cookie=existing), json={"runtime_kind": kind}
+        )
+
+tests\integration\test_browser_attendance_runtime_routes.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py:1892: in post
+    return await self.request(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py:1574: in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py:1661: in send
+    response = await self._send_handling_auth(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py:1689: in _send_handling_auth
+    response = await self._send_handling_redirects(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py:1726: in _send_handling_redirects
+    response = await self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py:1763: in _send_single_request
+    response = await transport.handle_async_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_transports\asgi.py:164: in handle_async_request
+    await self.app(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\applications.py:1160: in __call__
+    await super().__call__(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\applications.py:90: in __call__
+    await self.middleware_stack(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\errors.py:186: in __call__
+    raise exc
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:193: in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\presentation\middleware\request_id.py:54: in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:168: in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:144: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:193: in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\presentation\middleware\metrics.py:22: in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:168: in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:144: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:193: in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\presentation\middleware\rate_limit.py:260: in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:168: in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:144: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:193: in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\presentation\middleware\security_headers.py:18: in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:168: in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:144: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+app\presentation\middleware\safe_gzip.py:35: in __call__
+    await responder(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\gzip.py:130: in __call__
+    await super().__call__(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\gzip.py:46: in __call__
+    await self.app(scope, receive, self.send_with_compression)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\cors.py:88: in __call__
+    await self.app(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\exceptions.py:63: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py:18: in __call__
+    await self.app(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\routing.py:660: in __call__
+    await self.middleware_stack(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\routing.py:680: in app
+    await route.handle(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\routing.py:276: in handle
+    await self.app(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py:119: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py:105: in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py:431: in app
+    raw_response = await run_endpoint_function(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py:313: in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\presentation\api\v1\routes\attendance_runtime.py:114: in register_browser_attendance_runtime
+    issued = await AttendanceRuntimeRepository(session).issue_browser_runtime(
+app\infrastructure\repositories\attendance_runtime_repository.py:57: in issue_browser_runtime
+    registration = await self.register(
+app\infrastructure\repositories\attendance_runtime_repository.py:139: in register
+    registration = (await self._session.execute(statement)).scalar_one_or_none()
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\ext\asyncio\session.py:461: in execute
+    result = await greenlet_spawn(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:201: in greenlet_spawn
+    result = context.throw(*sys.exc_info())
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\orm\session.py:2351: in execute
+    return self._execute_internal(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\orm\session.py:2236: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\orm\bulk_persistence.py:1283: in orm_execute_statement
+    result = conn.execute(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\engine\base.py:1418: in execute
+    return meth(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\sql\elements.py:515: in _execute_on_connection
+    return connection._execute_clauseelement(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\engine\base.py:1640: in _execute_clauseelement
+    ret = self._execute_context(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\engine\base.py:2353: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\engine\default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:147: in execute
+    self._adapt_connection._handle_exception(error)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:298: in _handle_exception
+    raise error
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:129: in execute
+    self.await_(_cursor.execute(operation, parameters))
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+            ^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\aiosqlite\cursor.py:48: in execute
+    await self._execute(self._cursor.execute, sql, parameters)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\aiosqlite\cursor.py:40: in _execute
+    return await self._conn._execute(fn, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\aiosqlite\core.py:132: in _execute
+    return await future
+           ^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <Connection(Thread-11, started daemon 23252)>
+
+    def run(self) -> None:
+        """
+        Execute function calls on a separate thread.
+    
+        :meta private:
+        """
+        while True:
+            # Continues running until all queue items are processed,
+            # even after connection is closed (so we can finalize all
+            # futures)
+    
+            tx_item = self._tx.get()
+            if tx_item is _STOP_RUNNING_SENTINEL:
+                break
+    
+            future, function = tx_item
+    
+            try:
+                LOG.debug("executing %s", function)
+>               result = function()
+                         ^^^^^^^^^^
+E               sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) ON CONFLICT clause does not match any PRIMARY KEY or UNIQUE constraint
+E               [SQL: INSERT INTO attendance_runtime_registrations (id, agency_id, coordinator_user_id, runtime_kind, runtime_identifier_hash, native_mobile_session_id, status, registered_at, last_seen_at, expires_at, revoked_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (agency_id, coordinator_user_id, runtime_kind, runtime_identifier_hash) DO UPDATE SET native_mobile_session_id = ?, last_seen_at = ?, expires_at = ?, updated_at = ? WHERE attendance_runtime_registrations.status = ? RETURNING id, agency_id, coordinator_user_id, runtime_kind, runtime_identifier_hash, native_mobile_session_id, status, registered_at, last_seen_at, expires_at, revoked_at, revoke_reason, replaced_by_runtime_id, created_at, updated_at]
+E               [parameters: ('d7f538db9bde4f89a50e598506eb2cd0', '5d753f010cb84e5484cadf7817af972e', 'b7e51c58c6604d2fade806350c1bcd6c', 'webview', 'f3b1eb9d1dee3c2771e86f81fc9530d4dd3ea0c6a4f319c205f3e2b9fc1c833c', None, 'active', '2026-10-30 23:36:40.375230', '2026-10-30 23:36:40.375230', '2026-12-14 23:36:40.375230', None, '2026-10-30 23:36:40.375230', '2026-10-30 23:36:40.375230', None, '2026-10-30 23:36:40.375230', '2026-12-14 23:36:40.375230', '2026-10-30 23:36:40.375230', 'active')]
+E               (Background on this error at: https://sqlalche.me/e/20/e3q8)
+
+..\.tmp\dashboard-audit-venv\Lib\site-packages\aiosqlite\core.py:115: OperationalError
+---------------------------- Captured stdout call -----------------------------
+2026-10-30T23:36:40.367220Z [info     ] refresh_token_created          [app.infrastructure.repositories.refresh_token_repository] user_id=b7e51c58-c660-4d2f-ade8-06350c1bcd6c
+2026-10-30T23:36:40.381228Z [error    ] unhandled_exception            [app.presentation.middleware.error_handler] error_type=OperationalError method=POST path=/api/v1/tour-operations/coordinator/attendance/runtime request_id=93296586-8eae-449a-8d58-0ef9d2ce4de7
+------------------------------ Captured log call ------------------------------
+INFO     app.infrastructure.repositories.refresh_token_repository:refresh_token_repository.py:77 {'user_id': 'b7e51c58-c660-4d2f-ade8-06350c1bcd6c', 'event': 'refresh_token_created', 'logger': 'app.infrastructure.repositories.refresh_token_repository', 'level': 'info', 'timestamp': '2026-10-30T23:36:40.367220Z'}
+ERROR    app.presentation.middleware.error_handler:error_handler.py:200 {'error_type': 'OperationalError', 'request_id': '93296586-8eae-449a-8d58-0ef9d2ce4de7', 'event': 'unhandled_exception', 'method': 'POST', 'path': '/api/v1/tour-operations/coordinator/attendance/runtime', 'logger': 'app.presentation.middleware.error_handler', 'level': 'error', 'timestamp': '2026-10-30T23:36:40.381228Z'}
+=========================== short test summary info ===========================
+FAILED tests/integration/test_browser_attendance_runtime_routes.py::test_runtime_registration_cookie_and_current_persisted_state[pwa-False-registered]
+FAILED tests/integration/test_browser_attendance_runtime_routes.py::test_runtime_registration_cookie_and_current_persisted_state[webview-True-replaced]
+2 failed, 16 passed in 14.35s

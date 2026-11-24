@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+export { companyErrorMessage } from "../utils/company-errors";
 
 export function CompanyLoading() {
   return <div role="status" aria-label="Loading company information" className="space-y-3 p-4">{[1, 2, 3].map((row) => <div key={row} className="h-20 rounded-xl bg-slate-100 motion-safe:animate-pulse" />)}<span className="sr-only">Loading company information…</span></div>;
@@ -19,9 +20,4 @@ export function CompanyPagination({ hasMore, nextCursor, cursor, pending, onChan
     <p className="text-xs text-slate-500">{pending ? "Loading results…" : hasMore ? "More results available" : "No more results"}</p>
     <div className="flex gap-2"><Button type="button" variant="secondary" size="sm" disabled={!cursor || pending} onClick={() => onChange(undefined)}>First page</Button><Button type="button" variant="secondary" size="sm" disabled={!hasMore || !nextCursor || pending} onClick={() => onChange(nextCursor ?? undefined)}>Next page</Button></div>
   </nav>;
-}
-
-export function companyErrorMessage(error: unknown, fallback: string) {
-  if (typeof error === "object" && error !== null && "message" in error && typeof error.message === "string") return error.message;
-  return fallback;
 }

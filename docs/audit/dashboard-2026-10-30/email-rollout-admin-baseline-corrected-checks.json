@@ -1,0 +1,24 @@
+{
+  "command": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "-p",
+    "email_rollout_contract_plugin",
+    "tests/unit/presentation/test_email_ai_rollout_admin.py",
+    "tests/unit/presentation/test_email_rollout_query_paths.py"
+  ],
+  "exit_code": 0,
+  "log": "docs/audit/dashboard-2026-10-30/email-rollout-admin-baseline-corrected-tests.log",
+  "sha256": "6484d7bbdd9d01ce6c4707d69785dad7d6b7154a2c459c4e0792bd48ba6942aa",
+  "source_fence": {
+    "backend/app/presentation/api/v1/router.py": "1601724fbb3be3b3483987335c1e80bbcf8e8c8894cc5a8a5cc16d04955b9fc7",
+    "backend/app/presentation/api/v1/routes/email_ai_rollout_admin.py": "767500a1b9f4dd113b41bcefc0ea90fbebe984f34829b1ada8cd4ccbc24a51c3",
+    "backend/app/presentation/mcp/dashboard_read_adapters.py": "cf1ca7ba592f2b29d8e5609f4b0e2e263b8b728e5572fa2590b4826a398ab91a",
+    "backend/tests/unit/presentation/test_email_ai_rollout_admin.py": "a2148b43ae041dfc6c47760fed61fd4cd69621818708284fa12caacae97ec690",
+    "backend/tests/unit/presentation/test_email_rollout_query_paths.py": "c3b0641179c9b5d32b2d23439c2cabfa0bd4ae70a55dded0a39577e2cb9ed00b"
+  }
+}

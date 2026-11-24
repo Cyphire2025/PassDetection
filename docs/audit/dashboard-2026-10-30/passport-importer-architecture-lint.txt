@@ -1,0 +1,12 @@
+F821 Undefined name `source`
+  --> app\infrastructure\imports\passport_zip_members.py:40:58
+   |
+38 |     path = PurePosixPath(info.filename.replace("\\", "/"))
+39 |     if not info.filename or path.is_absolute() or ".." in path.parts:
+40 |         return RejectedPassportDocument(info.filename or source.filename, "Unsafe ZIP path")
+   |                                                          ^^^^^^
+41 |     if info.is_dir():
+42 |         return None
+   |
+
+Found 1 error.

@@ -5,6 +5,7 @@ import { Archive, Database, Eye, FileText, RotateCcw } from "lucide-react";
 import { EmptyState } from "@/components/shared/empty-state";
 import { WorkspacePageHeader } from "@/components/shared/workspace-ui";
 import { Badge, Button, Card, CardContent, Skeleton } from "@/components/ui";
+import { buttonVariants } from "@/components/ui/button";
 import { ROUTES } from "@/constants/routes";
 import { useRestoreUploadLink, useUploadLinks } from "@/features/passports/hooks/use-upload-links";
 
@@ -79,11 +80,10 @@ export default function OldDataPage() {
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex justify-end gap-2">
-                          <Link href={`${ROUTES.dashboard.passportGroup(group.id)}?old_data=1`}>
-                            <Button variant="outline" size="sm" className="gap-2">
-                              <Eye className="h-4 w-4" />
-                              Open Data
-                            </Button>
+                          <Link href={`${ROUTES.dashboard.passportGroup(group.id)}?old_data=1`}
+                            className={buttonVariants({ variant: "outline", size: "sm", className: "gap-2" })}>
+                            <Eye className="h-4 w-4" aria-hidden="true" />
+                            Open Data
                           </Link>
                           <Button
                             variant="secondary"

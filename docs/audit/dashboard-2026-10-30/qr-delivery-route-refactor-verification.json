@@ -1,0 +1,83 @@
+{
+  "scope": "Focused backend QR delivery route architecture tranche after complete physical original source review; no business workflow/schema/authority change.",
+  "source": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_qr_delivery.py",
+      "sha256": "a65ca1f4b9c0fb0de069df0a2e6d3dcdb2ad7760799c3c517e6ff4de8ddb4037",
+      "lines": 187,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete original 696-line QR route source read and full physical current owner read. Tenant/role/consent/welcome/private-destination/token/receipt/admission/publication/compensation paths traced through existing worker boundary. Exact AST ranges, explicit call-time settings/status seams and complete OpenAPI equality established. No real provider calls or authority/schema change. Preview function retains complexity48 as explicit follow-up."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_qr_delivery_policy.py",
+      "sha256": "647846a7e4a3384954920280cbe46acc63555085680cb340be3148c5f6cbbf68",
+      "lines": 142,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete original 696-line QR route source read and full physical current owner read. Tenant/role/consent/welcome/private-destination/token/receipt/admission/publication/compensation paths traced through existing worker boundary. Exact AST ranges, explicit call-time settings/status seams and complete OpenAPI equality established. No real provider calls or authority/schema change. Preview function retains complexity48 as explicit follow-up."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_qr_delivery_preview.py",
+      "sha256": "3147020f9cf13b5dd58dee5ba6eae73ad8203371044dadc463ffb2823e319a0f",
+      "lines": 204,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete original 696-line QR route source read and full physical current owner read. Tenant/role/consent/welcome/private-destination/token/receipt/admission/publication/compensation paths traced through existing worker boundary. Exact AST ranges, explicit call-time settings/status seams and complete OpenAPI equality established. No real provider calls or authority/schema change. Preview function retains complexity48 as explicit follow-up."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_qr_delivery_queue.py",
+      "sha256": "526a2201c2015a668b4a6b52b9892b6ee076e05ccf9a9ec91606f73ba951169f",
+      "lines": 123,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete original 696-line QR route source read and full physical current owner read. Tenant/role/consent/welcome/private-destination/token/receipt/admission/publication/compensation paths traced through existing worker boundary. Exact AST ranges, explicit call-time settings/status seams and complete OpenAPI equality established. No real provider calls or authority/schema change. Preview function retains complexity48 as explicit follow-up."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_qr_delivery_roster.py",
+      "sha256": "5f5aaba4ae811aad884334238a01dec2d0e21ec577ac702b5eec234946540701",
+      "lines": 147,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete original 696-line QR route source read and full physical current owner read. Tenant/role/consent/welcome/private-destination/token/receipt/admission/publication/compensation paths traced through existing worker boundary. Exact AST ranges, explicit call-time settings/status seams and complete OpenAPI equality established. No real provider calls or authority/schema change. Preview function retains complexity48 as explicit follow-up."
+    }
+  ],
+  "test_source": {
+    "path": "backend/tests/integration/test_qr_delivery_admission.py",
+    "sha256": "e413e6131a33b03de3bd6905f3b88202844595ea4e759b6e5912fadb3572820d"
+  },
+  "architecture": "Original696lines become187-line route/compatibility owner and four cohesive policy142/roster147/preview204/queue123owners. Send coordination now21complexity, queue writer10, roster matcher11; unchanged preview body48 remains explicit debt.",
+  "preservation": "Six helper definitions and six constants exact AST; canonical preview body exact with original wrapper signature and explicit call-time get_settings/qr_status callbacks. Two queue/publication statement ranges expand back to the original complete send route AST. Authorization, welcome and private matching prerequisites, queued-vs-unknown recovery, audit, admission commit-before-publication, known queue-failure compensation and receipt reuse remain in exact original order. Both complete FastAPI OpenAPI operations identical.",
+  "verification": {
+    "passing_executions": 64,
+    "unique_passing_cases": 62,
+    "meaningful_new_HTTP_cases": "Authenticated positive queue admission +409 duplicate suppression; synthetic broker failure after durable commit stores only safe fixed text, then known-safe retry reuses the QR-version receipt under a new batch. Task publication is synthetic; no provider sends.",
+    "existing_contracts": "Phone welcome negative/positive states, wrong/ambiguous private recipient identity, safe/uncertain stale recovery, QR rendering/provider receipt projection and MCP metadata/eligibility reads that must not recover jobs.",
+    "static": "Five runtime owners pass configured backend-cwd mypy, Ruff --no-fix and architecture boundaries; new HTTP test Ruff pass.",
+    "fixture_and_tool_corrections": [
+      "Initial new HTTP fixture borrowed a timezone adapter unnecessary for canonical qr_status, causing naive/aware comparison; removed test-only adapter, canonical implementation unchanged. Initial failure artifact preserved and not a product finding.",
+      "First scoped mypy ran from repository root without backend pyproject and emitted14 third-party import-stub errors. Correct backend-cwd invocation passed all five owners; no dependency/config relaxation."
+    ],
+    "limits": "Actual isolated SQLite HTTP/rows with synthetic queue publication; no live PostgreSQL locks, broker/Redis/private storage/provider or deployed release qualification. No full suite/build repeated for this batch."
+  },
+  "remaining": [
+    "QR preview body complexity48 preserved, not improved by extraction; further policy/query separation remains open.",
+    "Other selected operations function-level/schema/legacy scaling debt remains tracked; whole repository audit not complete."
+  ],
+  "artifacts": {
+    "qr-delivery-route-reviewed-files.json": "1cea10bfe8b00f7bfaa2a13ddc0c6601d7be39e53dcff9d6ff9e023adae57eab",
+    "qr-delivery-route-budget-candidates.json": "6097126972e816f542dd885aadff12589f10cea59a580cde037b156f1e4d01e1",
+    "qr-delivery-extraction-proof.json": "43f01a2cb3636ecd5a06806ad747775ac270cdfd1261c9bb65c34989f12ddbba",
+    "qr-delivery-route-openapi-proof.json": "176188447d77c4914ded2ddd0a1c0521cd223f51e76b4bb77985ff6da95186b6",
+    "qr-delivery-route-coverage.json": "d79980929320ccd58a282a2174b84e92799c768a21b0103beb6d71aa070a2e99",
+    "qr-delivery-route-coverage.xml": "4d604b479df982ecb576982d37bf3682ea2a45deafa773646710ccc5ac7a9bd1",
+    "qr-delivery-admission-baseline-corrected-fixture.xml": "c0aeb9fe059b42f1dd1c8903b564afb783d5ab746b083efef2d05a903eb04400",
+    "qr-delivery-route-affected-tests.xml": "8e4fa561f13d121d9ef0ecd3fddc365ad44bc72a485dd57cef2812680d9c5f62"
+  },
+  "central_gates": "Five additive measured candidates queued; no preceding size/complexity/coverage/critical/global gate changed by this lane."
+}

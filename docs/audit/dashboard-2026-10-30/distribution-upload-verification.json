@@ -1,0 +1,119 @@
+{
+  "status": "source-frozen-focused-verified-final-combined-pending",
+  "runtime_sources": 8,
+  "old_owner_lines": 720,
+  "current_lines_and_complexity": {
+    "app/presentation/api/v1/routes/document_distribution_upload.py": {
+      "lines": 73,
+      "max_function_complexity": 1
+    },
+    "app/presentation/api/v1/routes/document_distribution_upload_content.py": {
+      "lines": 151,
+      "max_function_complexity": 18
+    },
+    "app/presentation/api/v1/routes/document_distribution_upload_chunk_state.py": {
+      "lines": 163,
+      "max_function_complexity": 10
+    },
+    "app/presentation/api/v1/routes/document_distribution_upload_persistence_scope.py": {
+      "lines": 220,
+      "max_function_complexity": 16
+    },
+    "app/presentation/api/v1/routes/document_distribution_upload_commit.py": {
+      "lines": 103,
+      "max_function_complexity": 8
+    },
+    "app/presentation/api/v1/routes/document_distribution_upload_workflow.py": {
+      "lines": 318,
+      "max_function_complexity": 16
+    },
+    "app/presentation/api/v1/routes/document_distribution_upload_match_scope.py": {
+      "lines": 125,
+      "max_function_complexity": 5
+    },
+    "app/presentation/api/v1/routes/document_distribution_upload_response.py": {
+      "lines": 67,
+      "max_function_complexity": 4
+    }
+  },
+  "focused_tests": {
+    "cases": 91,
+    "files": 7,
+    "exit_code": 0,
+    "skipped": 0,
+    "command": "distribution-upload-final-command.json"
+  },
+  "prior_71_case_checkpoint": "distribution-upload-current-command.json",
+  "proofs": [
+    "distribution-upload-extraction-proof.json",
+    "distribution-upload-dependency-proof.json"
+  ],
+  "checks": [
+    {
+      "argv": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "mypy",
+        "app/presentation/api/v1/routes/document_distribution_upload.py",
+        "app/presentation/api/v1/routes/document_distribution_upload_content.py",
+        "app/presentation/api/v1/routes/document_distribution_upload_chunk_state.py",
+        "app/presentation/api/v1/routes/document_distribution_upload_persistence_scope.py",
+        "app/presentation/api/v1/routes/document_distribution_upload_commit.py",
+        "app/presentation/api/v1/routes/document_distribution_upload_workflow.py",
+        "app/presentation/api/v1/routes/document_distribution_upload_match_scope.py",
+        "app/presentation/api/v1/routes/document_distribution_upload_response.py"
+      ],
+      "exit_code": 0,
+      "output": "distribution-upload-static-1.txt"
+    },
+    {
+      "argv": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "ruff",
+        "check",
+        "--no-fix",
+        "app/presentation/api/v1/routes/document_distribution_upload.py",
+        "app/presentation/api/v1/routes/document_distribution_upload_content.py",
+        "app/presentation/api/v1/routes/document_distribution_upload_chunk_state.py",
+        "app/presentation/api/v1/routes/document_distribution_upload_persistence_scope.py",
+        "app/presentation/api/v1/routes/document_distribution_upload_commit.py",
+        "app/presentation/api/v1/routes/document_distribution_upload_workflow.py",
+        "app/presentation/api/v1/routes/document_distribution_upload_match_scope.py",
+        "app/presentation/api/v1/routes/document_distribution_upload_response.py",
+        "tests/unit/presentation/test_document_chunk_uploads.py",
+        "tests/unit/presentation/test_document_distribution_upload_abort.py",
+        "tests/unit/presentation/test_document_distribution_staging_routes.py",
+        "tests/unit/presentation/test_pdf_upload_security_errors.py",
+        "tests/unit/presentation/test_document_distribution_route_decomposition.py",
+        "tests/unit/presentation/test_document_upload_persistence_hooks.py",
+        "tests/unit/presentation/test_document_upload_commit.py"
+      ],
+      "exit_code": 0,
+      "output": "distribution-upload-static-2.txt"
+    },
+    {
+      "argv": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "scripts/verify_architecture_boundaries.py"
+      ],
+      "exit_code": 0,
+      "output": "distribution-upload-static-3.txt"
+    }
+  ],
+  "candidates": "distribution-upload-budget-candidates.json",
+  "semantics": [
+    "Raw and verified-receipt admission order and all current limits unchanged.",
+    "Actor/cleanup values captured before the same original database awaits.",
+    "Same canonical scope reauthorization, advisory/row lock order, exact replay and immutable manifest checks.",
+    "Same capacity/replacement callbacks and mutable cleanup list identity.",
+    "Failed flush compensation and uncertain commit preservation remain distinct.",
+    "Public actual route identity/schema/headers/CSRF/status/default dependencies remain equivalent."
+  ],
+  "limits": [
+    "Transaction-hook cases compile actual PostgreSQL SQL but use isolated mocked results; no live locking/deadlock qualification.",
+    "No broad backend/frontend suite/build/browser added.",
+    "No new behavior/performance/security defect is claimed for the mechanical route extraction; the earlier receipt-version fix has its separate receipt."
+  ],
+  "review_ledger": "distribution-upload-reviewed-files.json"
+}

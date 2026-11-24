@@ -137,6 +137,7 @@ test("credential login restores a cookie session and logout clears browser-owned
   });
 
   await page.goto("/login?from=%2Fdashboard");
+  await expect(page).toHaveTitle("Sign In | Global Connects Dashboard");
   await page.getByLabel("Email address").fill("admin@example.test");
   await page.locator("#login-password").fill("CorrectHorseBattery9");
   await page.getByRole("button", { name: "Sign in" }).click();

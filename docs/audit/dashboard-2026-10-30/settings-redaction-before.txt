@@ -1,0 +1,126 @@
+FFFFFF                                                                   [100%]
+================================== FAILURES ===================================
+_____ test_database_repr_omits_password_and_both_rendered_connection_urls _____
+
+    def test_database_repr_omits_password_and_both_rendered_connection_urls() -> None:
+        settings = DatabaseSettings(password="synthetic-database-credential", _env_file=None)
+    
+>       assert "synthetic-database-credential" not in repr(settings)
+E       assert 'synthetic-d...e-credential' not in "DatabaseSet...sdetection')"
+E         
+E         'synthetic-database-credential' is contained here:
+E         ?           ^^
+E           password='synthetic-database-credential', pool_profile='api', api_pool_size=8, api_max_overflow=2, worker_pool_size=1, worker_max_overflow=0, pool_timeout_seconds=5.0, pool_recycle_seconds=1800, api_statement_timeout_ms=15000, worker_statement_timeout_ms=300000, lock_timeout_ms=5000, idle_in_transaction_session_timeout_ms=30000, server_max_connections=100, reserved_connections=10, api_connection_budget=80, async_url='postgresql+asyncpg://passdetection_user:synthetic-database-credential@localhost:5432/pass...
+E         
+E         ...Full output truncated (2 lines hidden), use '-vv' to show
+
+tests\unit\core\test_settings_redaction.py:11: AssertionError
+___ test_storage_repr_omits_both_credentials_without_changing_client_values ___
+
+    def test_storage_repr_omits_both_credentials_without_changing_client_values() -> None:
+        settings = S3Settings(
+            access_key_id="synthetic-storage-access-key",
+            secret_access_key="synthetic-storage-secret-key",
+            _env_file=None,
+        )
+    
+>       assert "synthetic-storage-access-key" not in repr(settings)
+E       AssertionError: assert 'synthetic-s...e-access-key' not in 'S3Settings(...nections=64)'
+E         
+E         'synthetic-storage-access-key' is contained here:
+E         ?         ----------------------                    ^^^^^^^^^^^^
+E           s_key_id='synthetic-storage-access-key', secret_access_key='synthetic-storage-secret-key', bucket_name='passdetection-passports', region='us-east-1', presigned_url_expiry_seconds=3600, connect_timeout_seconds=5.0, read_timeout_seconds=10.0, max_attempts=3, max_pool_connections=64)
+E         ?                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\unit\core\test_settings_redaction.py:26: AssertionError
+_ test_root_repr_omits_plaintext_signing_and_provider_secrets[app_secret_key] _
+
+field_name = 'app_secret_key'
+
+    @pytest.mark.parametrize(
+        "field_name",
+        ["app_secret_key", "whatsapp_access_token", "whatsapp_webhook_verify_token", "whatsapp_app_secret"],
+    )
+    def test_root_repr_omits_plaintext_signing_and_provider_secrets(field_name: str) -> None:
+        values = {"app_secret_key": "synthetic-app-secret", field_name: "synthetic-sensitive-value"}
+        settings = Settings(**values, _env_file=None)
+    
+>       assert "synthetic-sensitive-value" not in repr(settings)
+E       AssertionError: assert 'synthetic-sensitive-value' not in 'Settings(ap...secret=None)'
+E         
+E         'synthetic-sensitive-value' is contained here:
+E         ?           ^^
+E           cret_key='synthetic-sensitive-value', app_debug=False, app_version='1.0.0', app_revision='unknown', expected_database_schema_revision='0142_group_background', app_name='Global Connects Dashboard', api_v1_prefix='/api/v1', mcp=MCPSettings(enabled=False, read_only_mode=False, enabled_capabilities=['mcp:change', 'mcp:communicate', 'mcp:diagnose', 'mcp:export', 'mcp:read', 'mcp:upload'], export_families=['document_assignments_excel', 'passport_excel', 'passport_images', 'rooming_excel', 'tracking_excel'], export_s...
+E         
+E         ...Full output truncated (2 lines hidden), use '-vv' to show
+
+tests\unit\core\test_settings_redaction.py:40: AssertionError
+_ test_root_repr_omits_plaintext_signing_and_provider_secrets[whatsapp_access_token] _
+
+field_name = 'whatsapp_access_token'
+
+    @pytest.mark.parametrize(
+        "field_name",
+        ["app_secret_key", "whatsapp_access_token", "whatsapp_webhook_verify_token", "whatsapp_app_secret"],
+    )
+    def test_root_repr_omits_plaintext_signing_and_provider_secrets(field_name: str) -> None:
+        values = {"app_secret_key": "synthetic-app-secret", field_name: "synthetic-sensitive-value"}
+        settings = Settings(**values, _env_file=None)
+    
+>       assert "synthetic-sensitive-value" not in repr(settings)
+E       AssertionError: assert 'synthetic-sensitive-value' not in 'Settings(ap...secret=None)'
+E         
+E         'synthetic-sensitive-value' is contained here:
+E         ?           ^^
+E           ss_token='synthetic-sensitive-value', whatsapp_phone_number_id=None, whatsapp_api_version='v25.0', whatsapp_template_language='en_US', whatsapp_welcome_template_name='', whatsapp_passport_link_template_name='', whatsapp_reminder_template_name='reminder_v1', whatsapp_update_template_name='', whatsapp_group_invite_template_name='whatsapp_group_invite_v1', whatsapp_group_invite_template_language='en', whatsapp_document_template_name='documents_v1', whatsapp_document_update_template_name='pending_v1', whatsapp_doc...
+E         
+E         ...Full output truncated (2 lines hidden), use '-vv' to show
+
+tests\unit\core\test_settings_redaction.py:40: AssertionError
+_ test_root_repr_omits_plaintext_signing_and_provider_secrets[whatsapp_webhook_verify_token] _
+
+field_name = 'whatsapp_webhook_verify_token'
+
+    @pytest.mark.parametrize(
+        "field_name",
+        ["app_secret_key", "whatsapp_access_token", "whatsapp_webhook_verify_token", "whatsapp_app_secret"],
+    )
+    def test_root_repr_omits_plaintext_signing_and_provider_secrets(field_name: str) -> None:
+        values = {"app_secret_key": "synthetic-app-secret", field_name: "synthetic-sensitive-value"}
+        settings = Settings(**values, _env_file=None)
+    
+>       assert "synthetic-sensitive-value" not in repr(settings)
+E       AssertionError: assert 'synthetic-sensitive-value' not in 'Settings(ap...secret=None)'
+E         
+E         'synthetic-sensitive-value' is contained here:
+E           fy_token='synthetic-sensitive-value', whatsapp_app_secret=None)
+E         ?           +++++++++++++++++++++++++
+
+tests\unit\core\test_settings_redaction.py:40: AssertionError
+_ test_root_repr_omits_plaintext_signing_and_provider_secrets[whatsapp_app_secret] _
+
+field_name = 'whatsapp_app_secret'
+
+    @pytest.mark.parametrize(
+        "field_name",
+        ["app_secret_key", "whatsapp_access_token", "whatsapp_webhook_verify_token", "whatsapp_app_secret"],
+    )
+    def test_root_repr_omits_plaintext_signing_and_provider_secrets(field_name: str) -> None:
+        values = {"app_secret_key": "synthetic-app-secret", field_name: "synthetic-sensitive-value"}
+        settings = Settings(**values, _env_file=None)
+    
+>       assert "synthetic-sensitive-value" not in repr(settings)
+E       assert 'synthetic-sensitive-value' not in "Settings(ap...tive-value')"
+E         
+E         'synthetic-sensitive-value' is contained here:
+E           p_secret='synthetic-sensitive-value')
+
+tests\unit\core\test_settings_redaction.py:40: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/unit/core/test_settings_redaction.py::test_database_repr_omits_password_and_both_rendered_connection_urls
+FAILED tests/unit/core/test_settings_redaction.py::test_storage_repr_omits_both_credentials_without_changing_client_values
+FAILED tests/unit/core/test_settings_redaction.py::test_root_repr_omits_plaintext_signing_and_provider_secrets[app_secret_key]
+FAILED tests/unit/core/test_settings_redaction.py::test_root_repr_omits_plaintext_signing_and_provider_secrets[whatsapp_access_token]
+FAILED tests/unit/core/test_settings_redaction.py::test_root_repr_omits_plaintext_signing_and_provider_secrets[whatsapp_webhook_verify_token]
+FAILED tests/unit/core/test_settings_redaction.py::test_root_repr_omits_plaintext_signing_and_provider_secrets[whatsapp_app_secret]
+6 failed in 0.57s

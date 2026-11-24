@@ -1,0 +1,16 @@
+{
+  "mechanical_proof_sha256": "3fb31f13624a57f9842a0a310cff4628d33815357c57f396ce94e9afb8d80a2e",
+  "seed_whole_module_AST_restored_after_only3ordered_local_collection_allocations_and1local_actor_annotation": true,
+  "all_public_function_signatures_and_annotation_ASTs_unchanged": true,
+  "module_description_matches_original": true,
+  "source_sha256": {
+    "backend/tests/unit/infrastructure/test_capacity_fixture_owners.py": "dd09705fddc372587082d7bdbbe6f7d85bc2828865954d57a4bf8fbed4111d8f",
+    "backend/tests/unit/infrastructure/test_capacity_observer_reader_bounds.py": "4f7a76d81f247d2d0e6da876db59342ff15bdfb22c08ee421f209dbfd461996a",
+    "scripts/qa/capacity_fixture_contract.py": "4306af60d5a23b24c8a40fa108dcd5ce7b028bf77bd1d6e7d229520488ae0ec1",
+    "scripts/qa/capacity_fixture_jobs.py": "1fe0b25ec4cd8152d438bf5fb28e6feb144a9ed4da5568bc7b1f323bb20e13f5",
+    "scripts/qa/capacity_fixture_observer.py": "95876ee16d3ea8a8a4058d1181b844e0df0d86b3ced87c000c079c73ee9eb88b",
+    "scripts/qa/capacity_fixture_seed.py": "a0ef14e711ada098cfa413b680122e9d54ad8dccefa753c1e383402127d29623",
+    "scripts/qa/capacity_fixtures.py": "55271f5973045538cc88444abb3019986db59e02e07ea4345b69fa19f863c7db"
+  },
+  "limits": "96checks compare static canonical import origins, not independent runtime global measurements. Six actual alias/pickle/hint obligations are exercised by the focused tests."
+}

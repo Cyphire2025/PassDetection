@@ -1,0 +1,1991 @@
+{
+  "openapi": {
+    "openapi": "3.1.0",
+    "info": {
+      "title": "FastAPI",
+      "version": "0.1.0"
+    },
+    "paths": {
+      "/passports/upload/{token}/prepare-file": {
+        "post": {
+          "summary": "Validate and preview one passport page or Visa Photo file (Public)",
+          "description": "Return canonical pixels only, after validating the public capability.",
+          "operationId": "prepare_public_upload_file_passports_upload__token__prepare_file_post",
+          "parameters": [
+            {
+              "name": "token",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "title": "Token"
+              }
+            },
+            {
+              "name": "X-Upload-Session-ID",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "minLength": 32,
+                "maxLength": 128,
+                "title": "X-Upload-Session-Id"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "$ref": "#/components/schemas/Body_prepare_public_upload_file_passports_upload__token__prepare_file_post"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Authorized file content",
+              "content": {
+                "image/jpeg": {
+                  "schema": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              },
+              "headers": {
+                "Content-Disposition": {
+                  "schema": {
+                    "type": "string"
+                  }
+                },
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/passports/upload/{token}": {
+        "post": {
+          "summary": "Submit a passport image using a secure token (Public)",
+          "operationId": "upload_passport_passports_upload__token__post",
+          "parameters": [
+            {
+              "name": "token",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "title": "Token"
+              }
+            },
+            {
+              "name": "X-Upload-Session-ID",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "minLength": 32,
+                "maxLength": 128,
+                "title": "X-Upload-Session-Id"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "$ref": "#/components/schemas/Body_upload_passport_passports_upload__token__post"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PassportSubmissionResponse"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "put": {
+          "summary": "Recover a durable passport upload by its attempt identifier (Public)",
+          "operationId": "reconcile_passport_upload_passports_upload__token__put",
+          "parameters": [
+            {
+              "name": "token",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "title": "Token"
+              }
+            },
+            {
+              "name": "X-Upload-Session-ID",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "minLength": 32,
+                "maxLength": 128,
+                "title": "X-Upload-Session-Id"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReconcilePassportUploadRequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ReconcilePassportUploadResponse"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/passports/upload/{token}/{submission_id}/status": {
+        "get": {
+          "summary": "Poll passport extraction status for a public upload",
+          "operationId": "get_upload_passport_status_passports_upload__token___submission_id__status_get",
+          "parameters": [
+            {
+              "name": "token",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "title": "Token"
+              }
+            },
+            {
+              "name": "submission_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Submission Id"
+              }
+            },
+            {
+              "name": "X-Upload-Session-ID",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "minLength": 32,
+                "maxLength": 128,
+                "title": "X-Upload-Session-Id"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PassportSubmissionResponse"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/passports/upload/{token}/{submission_id}/scan-again": {
+        "post": {
+          "summary": "Retry AI passport extraction for a public upload",
+          "operationId": "scan_again_public_upload_passports_upload__token___submission_id__scan_again_post",
+          "parameters": [
+            {
+              "name": "token",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "title": "Token"
+              }
+            },
+            {
+              "name": "submission_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Submission Id"
+              }
+            },
+            {
+              "name": "X-Upload-Session-ID",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "minLength": 32,
+                "maxLength": 128,
+                "title": "X-Upload-Session-Id"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PassportSubmissionResponse"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/passports/upload/{token}/{submission_id}/image": {
+        "get": {
+          "summary": "Stream a public upload passport image through the API",
+          "operationId": "get_public_upload_passport_image_passports_upload__token___submission_id__image_get",
+          "parameters": [
+            {
+              "name": "token",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "title": "Token"
+              }
+            },
+            {
+              "name": "submission_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Submission Id"
+              }
+            },
+            {
+              "name": "X-Upload-Session-ID",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "minLength": 32,
+                "maxLength": 128,
+                "title": "X-Upload-Session-Id"
+              }
+            },
+            {
+              "name": "Range",
+              "in": "header",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Range"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Authorized file content",
+              "content": {
+                "image/*": {
+                  "schema": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              },
+              "headers": {
+                "Content-Disposition": {
+                  "schema": {
+                    "type": "string"
+                  }
+                },
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "206": {
+              "description": "Requested byte range",
+              "content": {
+                "image/*": {
+                  "schema": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              },
+              "headers": {
+                "Content-Disposition": {
+                  "schema": {
+                    "type": "string"
+                  }
+                },
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string"
+                  }
+                },
+                "Content-Range": {
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/passports/upload/{token}/{submission_id}/image/{document_type}": {
+        "get": {
+          "summary": "Stream one stored public passport document through the API",
+          "operationId": "get_public_upload_passport_document_passports_upload__token___submission_id__image__document_type__get",
+          "parameters": [
+            {
+              "name": "token",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "title": "Token"
+              }
+            },
+            {
+              "name": "submission_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Submission Id"
+              }
+            },
+            {
+              "name": "document_type",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "title": "Document Type"
+              }
+            },
+            {
+              "name": "X-Upload-Session-ID",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "minLength": 32,
+                "maxLength": 128,
+                "title": "X-Upload-Session-Id"
+              }
+            },
+            {
+              "name": "Range",
+              "in": "header",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Range"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Authorized file content",
+              "content": {
+                "image/*": {
+                  "schema": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              },
+              "headers": {
+                "Content-Disposition": {
+                  "schema": {
+                    "type": "string"
+                  }
+                },
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "206": {
+              "description": "Requested byte range",
+              "content": {
+                "image/*": {
+                  "schema": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              },
+              "headers": {
+                "Content-Disposition": {
+                  "schema": {
+                    "type": "string"
+                  }
+                },
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string"
+                  }
+                },
+                "Content-Range": {
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/passports/upload/{token}/{submission_id}": {
+        "delete": {
+          "summary": "Discard an unsubmitted public passport draft",
+          "operationId": "discard_public_upload_passports_upload__token___submission_id__delete",
+          "parameters": [
+            {
+              "name": "token",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "title": "Token"
+              }
+            },
+            {
+              "name": "submission_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Submission Id"
+              }
+            },
+            {
+              "name": "X-Upload-Session-ID",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "minLength": 32,
+                "maxLength": 128,
+                "title": "X-Upload-Session-Id"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "boolean"
+                    },
+                    "title": "Response Discard Public Upload Passports Upload  Token   Submission Id  Delete"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "Body_prepare_public_upload_file_passports_upload__token__prepare_file_post": {
+          "properties": {
+            "file": {
+              "type": "string",
+              "contentMediaType": "application/octet-stream",
+              "title": "File"
+            },
+            "purpose": {
+              "type": "string",
+              "enum": [
+                "passport",
+                "visa"
+              ],
+              "title": "Purpose"
+            }
+          },
+          "type": "object",
+          "required": [
+            "file",
+            "purpose"
+          ],
+          "title": "Body_prepare_public_upload_file_passports_upload__token__prepare_file_post"
+        },
+        "Body_upload_passport_passports_upload__token__post": {
+          "properties": {
+            "client_name": {
+              "type": "string",
+              "title": "Client Name"
+            },
+            "acquisition_mode": {
+              "type": "string",
+              "pattern": "^(camera|file)$",
+              "title": "Acquisition Mode"
+            },
+            "upload_idempotency_key": {
+              "type": "string",
+              "maxLength": 128,
+              "minLength": 32,
+              "title": "Upload Idempotency Key"
+            },
+            "qualifier_selection_token": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 256,
+                  "minLength": 32
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Qualifier Selection Token"
+            },
+            "file": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "contentMediaType": "application/octet-stream"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "File",
+              "description": "Passport personal details page"
+            },
+            "passport_back_file": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "contentMediaType": "application/octet-stream"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Passport Back File",
+              "description": "Passport address details page"
+            },
+            "passport_photo_file": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "contentMediaType": "application/octet-stream"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Passport Photo File",
+              "description": "Optional original Visa Photo captured against a verified plain light background"
+            },
+            "passport_cover_file": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "contentMediaType": "application/octet-stream"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Passport Cover File",
+              "description": "Passport front cover"
+            },
+            "passport_back_cover_file": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "contentMediaType": "application/octet-stream"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Passport Back Cover File",
+              "description": "Passport back cover"
+            },
+            "visa_photo_source": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(camera|file)$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Visa Photo Source"
+            }
+          },
+          "type": "object",
+          "required": [
+            "client_name",
+            "acquisition_mode",
+            "upload_idempotency_key"
+          ],
+          "title": "Body_upload_passport_passports_upload__token__post"
+        },
+        "HTTPValidationError": {
+          "properties": {
+            "detail": {
+              "items": {
+                "$ref": "#/components/schemas/ValidationError"
+              },
+              "type": "array",
+              "title": "Detail"
+            }
+          },
+          "type": "object",
+          "title": "HTTPValidationError"
+        },
+        "PassengerQrStatusResponse": {
+          "properties": {
+            "status": {
+              "type": "string",
+              "title": "Status"
+            },
+            "token_version": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Token Version"
+            },
+            "created_at": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Created At"
+            },
+            "expires_at": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Expires At"
+            },
+            "revoked_at": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Revoked At"
+            }
+          },
+          "type": "object",
+          "required": [
+            "status"
+          ],
+          "title": "PassengerQrStatusResponse"
+        },
+        "PassportExtractionConflictResponse": {
+          "properties": {
+            "field": {
+              "type": "string",
+              "title": "Field"
+            },
+            "manual_value": {
+              "type": "string",
+              "title": "Manual Value"
+            },
+            "extracted_value": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Extracted Value"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "mismatch",
+                "not_extracted"
+              ],
+              "title": "Status"
+            }
+          },
+          "type": "object",
+          "required": [
+            "field",
+            "manual_value",
+            "status"
+          ],
+          "title": "PassportExtractionConflictResponse"
+        },
+        "PassportSubmissionResponse": {
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id"
+            },
+            "group_id": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Group Id"
+            },
+            "agency_id": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Agency Id"
+            },
+            "client_name": {
+              "type": "string",
+              "title": "Client Name"
+            },
+            "display_name": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Display Name"
+            },
+            "client_email": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Client Email"
+            },
+            "client_phone": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Client Phone"
+            },
+            "departure_city": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Departure City"
+            },
+            "nearest_domestic_airport": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Nearest Domestic Airport"
+            },
+            "submission_mode": {
+              "type": "string",
+              "title": "Submission Mode",
+              "default": "single"
+            },
+            "family_group_id": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Family Group Id"
+            },
+            "family_member_index": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Family Member Index"
+            },
+            "family_relation": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Family Relation"
+            },
+            "family_gender": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Family Gender"
+            },
+            "family_head_name": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Family Head Name"
+            },
+            "family_head_email": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Family Head Email"
+            },
+            "family_head_phone": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Family Head Phone"
+            },
+            "family_broadcast_to_member": {
+              "type": "boolean",
+              "title": "Family Broadcast To Member",
+              "default": false
+            },
+            "image_s3_key": {
+              "type": "string",
+              "title": "Image S3 Key"
+            },
+            "thumbnail_s3_key": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Thumbnail S3 Key"
+            },
+            "passport_photo_s3_key": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Passport Photo S3 Key"
+            },
+            "passport_cover_s3_key": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Passport Cover S3 Key"
+            },
+            "passport_back_cover_s3_key": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Passport Back Cover S3 Key"
+            },
+            "passport_back_s3_key": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Passport Back S3 Key"
+            },
+            "staff_metadata": {
+              "anyOf": [
+                {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Staff Metadata"
+            },
+            "document_follow_up": {
+              "type": "boolean",
+              "title": "Document Follow Up",
+              "default": false
+            },
+            "custom_answers": {
+              "items": {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              "type": "array",
+              "title": "Custom Answers"
+            },
+            "custom_detail_answers": {
+              "items": {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              "type": "array",
+              "title": "Custom Detail Answers"
+            },
+            "acquisition_mode": {
+              "type": "string",
+              "enum": [
+                "camera",
+                "file"
+              ],
+              "title": "Acquisition Mode",
+              "default": "file"
+            },
+            "qualifier_enabled_snapshot": {
+              "type": "boolean",
+              "title": "Qualifier Enabled Snapshot",
+              "default": false
+            },
+            "qualifier_is_self": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Qualifier Is Self"
+            },
+            "qualifier_relation_code": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 40
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Qualifier Relation Code"
+            },
+            "qualifier_relation_label": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 100
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Qualifier Relation Label"
+            },
+            "qualifier_selected_at": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Qualifier Selected At"
+            },
+            "extraction_status": {
+              "type": "string",
+              "enum": [
+                "not_started",
+                "processing",
+                "extraction_complete",
+                "extraction_partial",
+                "extraction_failed",
+                "ready_for_review"
+              ],
+              "title": "Extraction Status",
+              "default": "not_started"
+            },
+            "extraction_revision": {
+              "type": "integer",
+              "minimum": 0.0,
+              "title": "Extraction Revision",
+              "default": 0
+            },
+            "manual_review_submission_allowed": {
+              "type": "boolean",
+              "title": "Manual Review Submission Allowed",
+              "default": false
+            },
+            "manual_review_reason_code": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "const": "AI_EXTRACTION_UNAVAILABLE"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Manual Review Reason Code"
+            },
+            "status": {
+              "type": "string",
+              "title": "Status"
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time",
+              "title": "Created At"
+            },
+            "updated_at": {
+              "type": "string",
+              "format": "date-time",
+              "title": "Updated At"
+            },
+            "extracted_fields": {
+              "anyOf": [
+                {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Extracted Fields"
+            },
+            "confirmed_fields": {
+              "anyOf": [
+                {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Confirmed Fields"
+            },
+            "extraction_conflicts": {
+              "items": {
+                "$ref": "#/components/schemas/PassportExtractionConflictResponse"
+              },
+              "type": "array",
+              "title": "Extraction Conflicts"
+            },
+            "overall_confidence": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Overall Confidence"
+            },
+            "confidence_score": {
+              "anyOf": [
+                {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Confidence Score"
+            },
+            "mrz_raw": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Mrz Raw"
+            },
+            "error_message": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Error Message"
+            },
+            "image_url": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Image Url"
+            },
+            "passport_photo_url": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Passport Photo Url"
+            },
+            "passport_back_url": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Passport Back Url"
+            },
+            "passport_cover_url": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Passport Cover Url"
+            },
+            "passport_back_cover_url": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Passport Back Cover Url"
+            },
+            "client_reviewed_at": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Client Reviewed At"
+            },
+            "confirmed_at": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Confirmed At"
+            },
+            "post_submission_verification": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/PostSubmissionVerificationResponse"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "post_submission_verification_revision": {
+              "type": "integer",
+              "minimum": 0.0,
+              "title": "Post Submission Verification Revision",
+              "default": 0
+            },
+            "post_submission_verified_at": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Post Submission Verified At"
+            },
+            "verification_reviewed_by_user_id": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Verification Reviewed By User Id"
+            },
+            "verification_reviewer_name": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Verification Reviewer Name"
+            },
+            "verification_reviewed_at": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Verification Reviewed At"
+            },
+            "processing_job_id": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Processing Job Id"
+            },
+            "processing_job_status": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Processing Job Status"
+            },
+            "processing_progress": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Processing Progress"
+            },
+            "processing_stage": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Processing Stage"
+            },
+            "qr_status": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/PassengerQrStatusResponse"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "type": "object",
+          "required": [
+            "id",
+            "group_id",
+            "agency_id",
+            "client_name",
+            "image_s3_key",
+            "status",
+            "created_at",
+            "updated_at"
+          ],
+          "title": "PassportSubmissionResponse"
+        },
+        "PostSubmissionFieldOutcomeResponse": {
+          "properties": {
+            "field": {
+              "type": "string",
+              "enum": [
+                "surname",
+                "given_names",
+                "passport_number",
+                "nationality",
+                "place_of_issue",
+                "issuing_country",
+                "date_of_birth",
+                "date_of_issue",
+                "date_of_expiry",
+                "sex"
+              ],
+              "title": "Field"
+            },
+            "verdict": {
+              "type": "string",
+              "enum": [
+                "correct",
+                "suspicious",
+                "incorrect"
+              ],
+              "title": "Verdict"
+            },
+            "observed_value": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 100
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Observed Value"
+            },
+            "confidence": {
+              "type": "number",
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "Confidence"
+            },
+            "reason_code": {
+              "type": "string",
+              "maxLength": 64,
+              "minLength": 1,
+              "title": "Reason Code"
+            }
+          },
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "field",
+            "verdict",
+            "confidence",
+            "reason_code"
+          ],
+          "title": "PostSubmissionFieldOutcomeResponse"
+        },
+        "PostSubmissionVerificationResponse": {
+          "properties": {
+            "verification_status": {
+              "type": "string",
+              "enum": [
+                "ai_approved",
+                "needs_review"
+              ],
+              "title": "Verification Status"
+            },
+            "confidence": {
+              "type": "number",
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "Confidence"
+            },
+            "incorrect_fields": {
+              "items": {
+                "type": "string",
+                "enum": [
+                  "surname",
+                  "given_names",
+                  "passport_number",
+                  "nationality",
+                  "place_of_issue",
+                  "issuing_country",
+                  "date_of_birth",
+                  "date_of_issue",
+                  "date_of_expiry",
+                  "sex"
+                ]
+              },
+              "type": "array",
+              "title": "Incorrect Fields"
+            },
+            "suspicious_fields": {
+              "items": {
+                "type": "string",
+                "enum": [
+                  "surname",
+                  "given_names",
+                  "passport_number",
+                  "nationality",
+                  "place_of_issue",
+                  "issuing_country",
+                  "date_of_birth",
+                  "date_of_issue",
+                  "date_of_expiry",
+                  "sex"
+                ]
+              },
+              "type": "array",
+              "title": "Suspicious Fields"
+            },
+            "explanation": {
+              "type": "string",
+              "maxLength": 240,
+              "minLength": 1,
+              "title": "Explanation"
+            },
+            "provider_status": {
+              "type": "string",
+              "maxLength": 64,
+              "minLength": 1,
+              "title": "Provider Status"
+            },
+            "reason_code": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 64
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Reason Code"
+            },
+            "model": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 120
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Model"
+            },
+            "fields": {
+              "items": {
+                "$ref": "#/components/schemas/PostSubmissionFieldOutcomeResponse"
+              },
+              "type": "array",
+              "title": "Fields"
+            },
+            "stale_after_staff_edit": {
+              "type": "boolean",
+              "title": "Stale After Staff Edit",
+              "default": false
+            }
+          },
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "verification_status",
+            "confidence",
+            "explanation",
+            "provider_status"
+          ],
+          "title": "PostSubmissionVerificationResponse"
+        },
+        "ReconcilePassportUploadRequest": {
+          "properties": {
+            "upload_idempotency_key": {
+              "type": "string",
+              "maxLength": 128,
+              "minLength": 32,
+              "pattern": "^[A-Za-z0-9._:-]+$",
+              "title": "Upload Idempotency Key"
+            }
+          },
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "upload_idempotency_key"
+          ],
+          "title": "ReconcilePassportUploadRequest"
+        },
+        "ReconcilePassportUploadResponse": {
+          "properties": {
+            "submission_id": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Submission Id"
+            }
+          },
+          "additionalProperties": false,
+          "type": "object",
+          "title": "ReconcilePassportUploadResponse"
+        },
+        "ValidationError": {
+          "properties": {
+            "loc": {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ]
+              },
+              "type": "array",
+              "title": "Location"
+            },
+            "msg": {
+              "type": "string",
+              "title": "Message"
+            },
+            "type": {
+              "type": "string",
+              "title": "Error Type"
+            },
+            "input": {
+              "title": "Input"
+            },
+            "ctx": {
+              "type": "object",
+              "title": "Context"
+            }
+          },
+          "type": "object",
+          "required": [
+            "loc",
+            "msg",
+            "type"
+          ],
+          "title": "ValidationError"
+        }
+      }
+    }
+  },
+  "routes": [
+    [
+      "/upload/{token}/prepare-file",
+      [
+        "POST"
+      ],
+      "prepare_public_upload_file"
+    ],
+    [
+      "/upload/{token}",
+      [
+        "POST"
+      ],
+      "upload_passport"
+    ],
+    [
+      "/upload/{token}",
+      [
+        "PUT"
+      ],
+      "reconcile_passport_upload"
+    ],
+    [
+      "/upload/{token}/{submission_id}/status",
+      [
+        "GET"
+      ],
+      "get_upload_passport_status"
+    ],
+    [
+      "/upload/{token}/{submission_id}/scan-again",
+      [
+        "POST"
+      ],
+      "scan_again_public_upload"
+    ],
+    [
+      "/upload/{token}/{submission_id}/image",
+      [
+        "GET"
+      ],
+      "get_public_upload_passport_image"
+    ],
+    [
+      "/upload/{token}/{submission_id}/image/{document_type}",
+      [
+        "GET"
+      ],
+      "get_public_upload_passport_document"
+    ],
+    [
+      "/upload/{token}/{submission_id}",
+      [
+        "DELETE"
+      ],
+      "discard_public_upload"
+    ]
+  ],
+  "declarations": {
+    "prepare_public_upload_file": {
+      "ast": "AsyncFunctionDef(name='prepare_public_upload_file', args=arguments(posonlyargs=[], args=[arg(arg='token', annotation=Name(id='str', ctx=Load())), arg(arg='file', annotation=Name(id='UploadFile', ctx=Load())), arg(arg='purpose', annotation=Subscript(value=Name(id='Literal', ctx=Load()), slice=Tuple(elts=[Constant(value='passport'), Constant(value='visa')], ctx=Load()), ctx=Load())), arg(arg='upload_session_id', annotation=Name(id='str', ctx=Load())), arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[Call(func=Name(id='File', ctx=Load()), args=[Constant(value=Ellipsis)], keywords=[]), Call(func=Name(id='Form', ctx=Load()), args=[Constant(value=Ellipsis)], keywords=[]), Call(func=Name(id='Header', ctx=Load()), args=[Constant(value=Ellipsis)], keywords=[keyword(arg='alias', value=Constant(value='X-Upload-Session-ID')), keyword(arg='min_length', value=Constant(value=32)), keyword(arg='max_length', value=Constant(value=128))]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_db_session', ctx=Load())], keywords=[])]), body=[Expr(value=Constant(value='Return canonical pixels only, after validating the public capability.')), Assign(targets=[Name(id='group', ctx=Store())], value=Await(value=Call(func=Attribute(value=Call(func=Name(id='ClientGroupRepository', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[]), attr='get_by_token', ctx=Load()), args=[Name(id='token', ctx=Load())], keywords=[]))), If(test=BoolOp(op=Or(), values=[Compare(left=Name(id='group', ctx=Load()), ops=[Is()], comparators=[Constant(value=None)]), UnaryOp(op=Not(), operand=Call(func=Name(id='public_upload_is_active', ctx=Load()), args=[Name(id='group', ctx=Load())], keywords=[]))]), body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Constant(value=404)), keyword(arg='detail', value=Constant(value='Upload link was not found'))]))], orelse=[]), Assign(targets=[Name(id='config', ctx=Store())], value=Call(func=Name(id='configuration_for', ctx=Load()), args=[Name(id='group', ctx=Load())], keywords=[])), Try(body=[If(test=Compare(left=Name(id='purpose', ctx=Load()), ops=[Eq()], comparators=[Constant(value='passport')]), body=[If(test=BoolOp(op=Or(), values=[UnaryOp(op=Not(), operand=Attribute(value=Name(id='config', ctx=Load()), attr='passport_enabled', ctx=Load())), UnaryOp(op=Not(), operand=Attribute(value=Name(id='config', ctx=Load()), attr='passport_upload_pages', ctx=Load()))]), body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Constant(value=400)), keyword(arg='detail', value=Constant(value='Passport file upload is disabled for this link.'))]))], orelse=[]), Expr(value=Call(func=Attribute(value=Name(id='group', ctx=Load()), attr='require_allowed_acquisition_mode', ctx=Load()), args=[Constant(value='file')], keywords=[]))], orelse=[If(test=UnaryOp(op=Not(), operand=Attribute(value=Name(id='group', ctx=Load()), attr='require_selfie', ctx=Load())), body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Constant(value=400)), keyword(arg='detail', value=Constant(value='Visa Photo collection is disabled for this link.'))]))], orelse=[]), Expr(value=Call(func=Name(id='validate_visa_photo_source', ctx=Load()), args=[Name(id='group', ctx=Load())], keywords=[keyword(arg='photo', value=Name(id='file', ctx=Load())), keyword(arg='source', value=Constant(value='file'))]))])], handlers=[ExceptHandler(type=Name(id='PassDetectionError', ctx=Load()), name='exc', body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Constant(value=400)), keyword(arg='detail', value=Attribute(value=Name(id='exc', ctx=Load()), attr='message', ctx=Load()))]), cause=Name(id='exc', ctx=Load()))])], orelse=[], finalbody=[]), Expr(value=Await(value=Call(func=Attribute(value=Name(id='session', ctx=Load()), attr='rollback', ctx=Load()), args=[], keywords=[]))), Assign(targets=[Name(id='prepared', ctx=Store())], value=Await(value=Call(func=Name(id='_validated_upload_file', ctx=Load()), args=[Name(id='file', ctx=Load())], keywords=[keyword(arg='label', value=IfExp(test=Compare(left=Name(id='purpose', ctx=Load()), ops=[Eq()], comparators=[Constant(value='passport')]), body=Constant(value='passport page'), orelse=Constant(value='Visa Photo'))), keyword(arg='max_size_bytes', value=IfExp(test=Compare(left=Name(id='purpose', ctx=Load()), ops=[Eq()], comparators=[Constant(value='passport')]), body=Name(id='MAX_PUBLIC_DOCUMENT_BYTES', ctx=Load()), orelse=Constant(value=None))), keyword(arg='public_device_file', value=Constant(value=True))]))), Return(value=Call(func=Name(id='Response', ctx=Load()), args=[], keywords=[keyword(arg='content', value=Attribute(value=Name(id='prepared', ctx=Load()), attr='content', ctx=Load())), keyword(arg='media_type', value=Constant(value='image/jpeg')), keyword(arg='headers', value=Dict(keys=[Constant(value='Cache-Control'), Constant(value='X-Content-Type-Options')], values=[Constant(value='private, no-store'), Constant(value='nosniff')]))]))], decorator_list=[Call(func=Attribute(value=Name(id='router', ctx=Load()), attr='post', ctx=Load()), args=[Constant(value='/upload/{token}/prepare-file')], keywords=[keyword(arg='summary', value=Constant(value='Validate and preview one passport page or Visa Photo file (Public)')), keyword(arg='response_class', value=Name(id='Response', ctx=Load())), keyword(arg='responses', value=Call(func=Name(id='binary_responses', ctx=Load()), args=[Constant(value='image/jpeg')], keywords=[]))])], returns=Name(id='Response', ctx=Load()))",
+      "signature": "(token: 'str', file: 'UploadFile' = File(PydanticUndefined), purpose: \"Literal['passport', 'visa']\" = Form(PydanticUndefined), upload_session_id: 'str' = Header(PydanticUndefined), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x00000236FEAA7880>, use_cache=True, scope=None)) -> 'Response'",
+      "hints": {
+        "token": "<class 'str'>",
+        "file": "<class 'fastapi.datastructures.UploadFile'>",
+        "purpose": "typing.Literal['passport', 'visa']",
+        "upload_session_id": "<class 'str'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "return": "<class 'starlette.responses.Response'>"
+      },
+      "module": "app.presentation.api.v1.routes.passport_routes.public_upload",
+      "qualname": "prepare_public_upload_file",
+      "pickle_hex": "8004955f000000000000008c3c6170702e70726573656e746174696f6e2e6170692e76312e726f757465732e70617373706f72745f726f757465732e7075626c69635f75706c6f6164948c1a707265706172655f7075626c69635f75706c6f61645f66696c659493942e"
+    },
+    "upload_passport": {
+      "ast": "AsyncFunctionDef(name='upload_passport', args=arguments(posonlyargs=[], args=[arg(arg='token', annotation=Name(id='str', ctx=Load())), arg(arg='background_tasks', annotation=Name(id='BackgroundTasks', ctx=Load())), arg(arg='client_name', annotation=Name(id='str', ctx=Load())), arg(arg='acquisition_mode', annotation=Name(id='str', ctx=Load())), arg(arg='upload_idempotency_key', annotation=Name(id='str', ctx=Load())), arg(arg='upload_session_id', annotation=Name(id='str', ctx=Load())), arg(arg='qualifier_selection_token', annotation=BinOp(left=Name(id='str', ctx=Load()), op=BitOr(), right=Constant(value=None))), arg(arg='file', annotation=BinOp(left=Name(id='UploadFile', ctx=Load()), op=BitOr(), right=Constant(value=None))), arg(arg='passport_back_file', annotation=BinOp(left=Name(id='UploadFile', ctx=Load()), op=BitOr(), right=Constant(value=None))), arg(arg='passport_photo_file', annotation=BinOp(left=Name(id='UploadFile', ctx=Load()), op=BitOr(), right=Constant(value=None))), arg(arg='passport_cover_file', annotation=BinOp(left=Name(id='UploadFile', ctx=Load()), op=BitOr(), right=Constant(value=None))), arg(arg='passport_back_cover_file', annotation=BinOp(left=Name(id='UploadFile', ctx=Load()), op=BitOr(), right=Constant(value=None))), arg(arg='visa_photo_source', annotation=BinOp(left=Name(id='str', ctx=Load()), op=BitOr(), right=Constant(value=None))), arg(arg='use_case', annotation=Name(id='SubmitPassportUseCase', ctx=Load())), arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[Call(func=Name(id='Form', ctx=Load()), args=[Constant(value=Ellipsis)], keywords=[]), Call(func=Name(id='Form', ctx=Load()), args=[Constant(value=Ellipsis)], keywords=[keyword(arg='pattern', value=Constant(value='^(camera|file)$'))]), Call(func=Name(id='Form', ctx=Load()), args=[Constant(value=Ellipsis)], keywords=[keyword(arg='min_length', value=Constant(value=32)), keyword(arg='max_length', value=Constant(value=128))]), Call(func=Name(id='Header', ctx=Load()), args=[Constant(value=Ellipsis)], keywords=[keyword(arg='alias', value=Constant(value='X-Upload-Session-ID')), keyword(arg='min_length', value=Constant(value=32)), keyword(arg='max_length', value=Constant(value=128))]), Call(func=Name(id='Form', ctx=Load()), args=[], keywords=[keyword(arg='default', value=Constant(value=None)), keyword(arg='min_length', value=Constant(value=32)), keyword(arg='max_length', value=Constant(value=256))]), Call(func=Name(id='File', ctx=Load()), args=[Constant(value=None)], keywords=[keyword(arg='description', value=Constant(value='Passport personal details page'))]), Call(func=Name(id='File', ctx=Load()), args=[Constant(value=None)], keywords=[keyword(arg='description', value=Constant(value='Passport address details page'))]), Call(func=Name(id='File', ctx=Load()), args=[Constant(value=None)], keywords=[keyword(arg='description', value=Constant(value='Optional original Visa Photo captured against a verified plain light background'))]), Call(func=Name(id='File', ctx=Load()), args=[Constant(value=None)], keywords=[keyword(arg='description', value=Constant(value='Passport front cover'))]), Call(func=Name(id='File', ctx=Load()), args=[Constant(value=None)], keywords=[keyword(arg='description', value=Constant(value='Passport back cover'))]), Call(func=Name(id='Form', ctx=Load()), args=[Constant(value=None)], keywords=[keyword(arg='pattern', value=Constant(value='^(camera|file)$'))]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='_get_submit_passport_use_case', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_db_session', ctx=Load())], keywords=[])]), body=[If(test=UnaryOp(op=Not(), operand=Call(func=Name(id='upload_session_matches_identifier', ctx=Load()), args=[Name(id='upload_session_id', ctx=Load()), Name(id='upload_idempotency_key', ctx=Load())], keywords=[])), body=[Expr(value=Call(func=Name(id='record_operational_event', ctx=Load()), args=[Attribute(value=Name(id='OperationalEvent', ctx=Load()), attr='UPLOAD_RESULT', ctx=Load()), Constant(value='domain_rejected')], keywords=[])), Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_400_BAD_REQUEST', ctx=Load())), keyword(arg='detail', value=Constant(value='Upload session identifier does not match this upload attempt.'))]))], orelse=[]), Assign(targets=[Name(id='group', ctx=Store())], value=Await(value=Call(func=Attribute(value=Call(func=Name(id='ClientGroupRepository', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[]), attr='get_by_token', ctx=Load()), args=[Name(id='token', ctx=Load())], keywords=[]))), If(test=BoolOp(op=Or(), values=[Compare(left=Name(id='group', ctx=Load()), ops=[Is()], comparators=[Constant(value=None)]), UnaryOp(op=Not(), operand=Call(func=Name(id='public_upload_is_active', ctx=Load()), args=[Name(id='group', ctx=Load())], keywords=[]))]), body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Constant(value=404)), keyword(arg='detail', value=Constant(value='Upload link was not found'))]))], orelse=[]), Assign(targets=[Name(id='document_arguments', ctx=Store())], value=Await(value=Call(func=Name(id='validate_public_upload_documents', ctx=Load()), args=[], keywords=[keyword(arg='group', value=Name(id='group', ctx=Load())), keyword(arg='acquisition_mode', value=Name(id='acquisition_mode', ctx=Load())), keyword(arg='visa_photo_source', value=Name(id='visa_photo_source', ctx=Load())), keyword(arg='file', value=Name(id='file', ctx=Load())), keyword(arg='passport_back_file', value=Name(id='passport_back_file', ctx=Load())), keyword(arg='passport_photo_file', value=Name(id='passport_photo_file', ctx=Load())), keyword(arg='passport_cover_file', value=Name(id='passport_cover_file', ctx=Load())), keyword(arg='passport_back_cover_file', value=Name(id='passport_back_cover_file', ctx=Load())), keyword(arg='validator', value=Name(id='_validated_upload_file', ctx=Load()))]))), Assign(targets=[Name(id='failure_metric_recorded', ctx=Store())], value=Constant(value=False)), Try(body=[Assign(targets=[Name(id='result', ctx=Store())], value=Await(value=Call(func=Attribute(value=Name(id='use_case', ctx=Load()), attr='execute', ctx=Load()), args=[], keywords=[keyword(arg='token', value=Name(id='token', ctx=Load())), keyword(value=Name(id='document_arguments', ctx=Load())), keyword(arg='client_name', value=Name(id='client_name', ctx=Load())), keyword(arg='acquisition_mode', value=Name(id='acquisition_mode', ctx=Load())), keyword(arg='upload_idempotency_key', value=Name(id='upload_idempotency_key', ctx=Load())), keyword(arg='qualifier_selection_token', value=Name(id='qualifier_selection_token', ctx=Load()))]))), If(test=UnaryOp(op=Not(), operand=Attribute(value=Name(id='result', ctx=Load()), attr='idempotent_replay', ctx=Load())), body=[Expr(value=Await(value=Call(func=Name(id='propagate_mobile_passenger_change', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[keyword(arg='agency_id', value=Attribute(value=Name(id='result', ctx=Load()), attr='agency_id', ctx=Load())), keyword(arg='group_id', value=Attribute(value=Name(id='result', ctx=Load()), attr='group_id', ctx=Load())), keyword(arg='passenger_submission_ids', value=List(elts=[Attribute(value=Name(id='result', ctx=Load()), attr='id', ctx=Load())], ctx=Load())), keyword(arg='actor_user_id', value=Constant(value=None)), keyword(arg='change_kind', value=Constant(value='documents'))])))], orelse=[]), Try(body=[If(test=Attribute(value=Name(id='result', ctx=Load()), attr='processing_job_id', ctx=Load()), body=[Assign(targets=[Name(id='result', ctx=Store())], value=Await(value=Call(func=Name(id='dispatch_public_extraction', ctx=Load()), args=[Name(id='result', ctx=Load())], keywords=[keyword(arg='session', value=Name(id='session', ctx=Load())), keyword(arg='background_tasks', value=Name(id='background_tasks', ctx=Load()))])))], orelse=[Expr(value=Await(value=Call(func=Attribute(value=Name(id='session', ctx=Load()), attr='commit', ctx=Load()), args=[], keywords=[])))])], handlers=[ExceptHandler(type=Name(id='Exception', ctx=Load()), name='exc', body=[Expr(value=Await(value=Call(func=Attribute(value=Name(id='session', ctx=Load()), attr='rollback', ctx=Load()), args=[], keywords=[]))), Expr(value=Call(func=Attribute(value=Name(id='logger', ctx=Load()), attr='error', ctx=Load()), args=[Constant(value='passport_upload_database_commit_failed')], keywords=[keyword(arg='group_id', value=Call(func=Name(id='str', ctx=Load()), args=[Attribute(value=Name(id='result', ctx=Load()), attr='group_id', ctx=Load())], keywords=[])), keyword(arg='error_type', value=Attribute(value=Call(func=Name(id='type', ctx=Load()), args=[Name(id='exc', ctx=Load())], keywords=[]), attr='__name__', ctx=Load()))])), Expr(value=Call(func=Name(id='record_operational_event', ctx=Load()), args=[Attribute(value=Name(id='OperationalEvent', ctx=Load()), attr='UPLOAD_RESULT', ctx=Load()), Constant(value='database_failed')], keywords=[])), Assign(targets=[Name(id='failure_metric_recorded', ctx=Store())], value=Constant(value=True)), Raise(exc=Call(func=Name(id='StorageError', ctx=Load()), args=[Constant(value='Passport images could not be saved. Please try the upload again.')], keywords=[]), cause=Name(id='exc', ctx=Load()))])], orelse=[], finalbody=[]), Expr(value=Call(func=Name(id='record_operational_event', ctx=Load()), args=[Attribute(value=Name(id='OperationalEvent', ctx=Load()), attr='UPLOAD_RESULT', ctx=Load()), IfExp(test=Attribute(value=Name(id='result', ctx=Load()), attr='idempotent_replay', ctx=Load()), body=Constant(value='idempotent_replay'), orelse=Constant(value='success'))], keywords=[])), Return(value=Await(value=Call(func=Name(id='_response_from_dto', ctx=Load()), args=[Name(id='result', ctx=Load())], keywords=[keyword(arg='session', value=Name(id='session', ctx=Load())), keyword(arg='include_document_urls', value=Constant(value=False))])))], handlers=[ExceptHandler(type=Name(id='EntityNotFoundError', ctx=Load()), name='e', body=[Expr(value=Call(func=Name(id='record_operational_event', ctx=Load()), args=[Attribute(value=Name(id='OperationalEvent', ctx=Load()), attr='UPLOAD_RESULT', ctx=Load()), Constant(value='domain_rejected')], keywords=[])), Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_404_NOT_FOUND', ctx=Load())), keyword(arg='detail', value=Attribute(value=Name(id='e', ctx=Load()), attr='message', ctx=Load()))]))]), ExceptHandler(type=Name(id='StorageError', ctx=Load()), name='e', body=[If(test=UnaryOp(op=Not(), operand=Name(id='failure_metric_recorded', ctx=Load())), body=[Expr(value=Call(func=Name(id='record_operational_event', ctx=Load()), args=[Attribute(value=Name(id='OperationalEvent', ctx=Load()), attr='UPLOAD_RESULT', ctx=Load()), Constant(value='storage_failed')], keywords=[]))], orelse=[]), Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_503_SERVICE_UNAVAILABLE', ctx=Load())), keyword(arg='detail', value=Attribute(value=Name(id='e', ctx=Load()), attr='message', ctx=Load()))]))]), ExceptHandler(type=Name(id='PassDetectionError', ctx=Load()), name='e', body=[Expr(value=Call(func=Name(id='record_operational_event', ctx=Load()), args=[Attribute(value=Name(id='OperationalEvent', ctx=Load()), attr='UPLOAD_RESULT', ctx=Load()), Constant(value='domain_rejected')], keywords=[])), Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_400_BAD_REQUEST', ctx=Load())), keyword(arg='detail', value=Attribute(value=Name(id='e', ctx=Load()), attr='message', ctx=Load()))]))]), ExceptHandler(type=Name(id='Exception', ctx=Load()), body=[If(test=UnaryOp(op=Not(), operand=Name(id='failure_metric_recorded', ctx=Load())), body=[Expr(value=Call(func=Name(id='record_operational_event', ctx=Load()), args=[Attribute(value=Name(id='OperationalEvent', ctx=Load()), attr='UPLOAD_RESULT', ctx=Load()), Constant(value='unexpected_failure')], keywords=[]))], orelse=[]), Raise()])], orelse=[], finalbody=[])], decorator_list=[Call(func=Attribute(value=Name(id='router', ctx=Load()), attr='post', ctx=Load()), args=[Constant(value='/upload/{token}')], keywords=[keyword(arg='response_model', value=Name(id='PassportSubmissionResponse', ctx=Load())), keyword(arg='response_model_exclude', value=Set(elts=[Constant(value='document_follow_up'), Constant(value='display_name')])), keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_201_CREATED', ctx=Load())), keyword(arg='summary', value=Constant(value='Submit a passport image using a secure token (Public)'))])], returns=Name(id='PassportSubmissionResponse', ctx=Load()))",
+      "signature": "(token: 'str', background_tasks: 'BackgroundTasks', client_name: 'str' = Form(PydanticUndefined), acquisition_mode: 'str' = Form(PydanticUndefined), upload_idempotency_key: 'str' = Form(PydanticUndefined), upload_session_id: 'str' = Header(PydanticUndefined), qualifier_selection_token: 'str | None' = Form(None), file: 'UploadFile | None' = File(None), passport_back_file: 'UploadFile | None' = File(None), passport_photo_file: 'UploadFile | None' = File(None), passport_cover_file: 'UploadFile | None' = File(None), passport_back_cover_file: 'UploadFile | None' = File(None), visa_photo_source: 'str | None' = Form(None), use_case: 'SubmitPassportUseCase' = Depends(dependency=<function _get_submit_passport_use_case at 0x00000236802323E0>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x00000236FEAA7880>, use_cache=True, scope=None)) -> 'PassportSubmissionResponse'",
+      "hints": {
+        "token": "<class 'str'>",
+        "background_tasks": "<class 'fastapi.background.BackgroundTasks'>",
+        "client_name": "<class 'str'>",
+        "acquisition_mode": "<class 'str'>",
+        "upload_idempotency_key": "<class 'str'>",
+        "upload_session_id": "<class 'str'>",
+        "qualifier_selection_token": "str | None",
+        "file": "fastapi.datastructures.UploadFile | None",
+        "passport_back_file": "fastapi.datastructures.UploadFile | None",
+        "passport_photo_file": "fastapi.datastructures.UploadFile | None",
+        "passport_cover_file": "fastapi.datastructures.UploadFile | None",
+        "passport_back_cover_file": "fastapi.datastructures.UploadFile | None",
+        "visa_photo_source": "str | None",
+        "use_case": "<class 'app.application.use_cases.passports.submit_passport_use_case.SubmitPassportUseCase'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "return": "<class 'app.presentation.api.v1.schemas.passport_schemas.PassportSubmissionResponse'>"
+      },
+      "module": "app.presentation.api.v1.routes.passport_routes.public_upload",
+      "qualname": "upload_passport",
+      "pickle_hex": "80049554000000000000008c3c6170702e70726573656e746174696f6e2e6170692e76312e726f757465732e70617373706f72745f726f757465732e7075626c69635f75706c6f6164948c0f75706c6f61645f70617373706f72749493942e"
+    },
+    "reconcile_passport_upload": {
+      "ast": "AsyncFunctionDef(name='reconcile_passport_upload', args=arguments(posonlyargs=[], args=[arg(arg='token', annotation=Name(id='str', ctx=Load())), arg(arg='body', annotation=Name(id='ReconcilePassportUploadRequest', ctx=Load())), arg(arg='response', annotation=Name(id='Response', ctx=Load())), arg(arg='upload_session_id', annotation=Name(id='str', ctx=Load())), arg(arg='use_case', annotation=Name(id='ReconcilePassportUploadUseCase', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[Call(func=Name(id='Header', ctx=Load()), args=[Constant(value=Ellipsis)], keywords=[keyword(arg='alias', value=Constant(value='X-Upload-Session-ID')), keyword(arg='min_length', value=Constant(value=32)), keyword(arg='max_length', value=Constant(value=128))]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='_get_reconcile_passport_upload_use_case', ctx=Load())], keywords=[])]), body=[If(test=UnaryOp(op=Not(), operand=Call(func=Name(id='upload_session_matches_identifier', ctx=Load()), args=[Name(id='upload_session_id', ctx=Load()), Attribute(value=Name(id='body', ctx=Load()), attr='upload_idempotency_key', ctx=Load())], keywords=[])), body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_400_BAD_REQUEST', ctx=Load())), keyword(arg='detail', value=Constant(value='Upload session identifier does not match this upload attempt.'))]))], orelse=[]), Assign(targets=[Name(id='submission_id', ctx=Store())], value=Await(value=Call(func=Attribute(value=Name(id='use_case', ctx=Load()), attr='execute', ctx=Load()), args=[], keywords=[keyword(arg='token', value=Name(id='token', ctx=Load())), keyword(arg='upload_idempotency_key', value=Attribute(value=Name(id='body', ctx=Load()), attr='upload_idempotency_key', ctx=Load()))]))), Expr(value=Call(func=Name(id='record_operational_event', ctx=Load()), args=[Attribute(value=Name(id='OperationalEvent', ctx=Load()), attr='UPLOAD_RESULT', ctx=Load()), IfExp(test=Compare(left=Name(id='submission_id', ctx=Load()), ops=[IsNot()], comparators=[Constant(value=None)]), body=Constant(value='reconciled'), orelse=Constant(value='reconcile_miss'))], keywords=[])), Assign(targets=[Subscript(value=Attribute(value=Name(id='response', ctx=Load()), attr='headers', ctx=Load()), slice=Constant(value='Cache-Control'), ctx=Store())], value=Constant(value='private, no-store')), Return(value=Call(func=Name(id='ReconcilePassportUploadResponse', ctx=Load()), args=[], keywords=[keyword(arg='submission_id', value=Name(id='submission_id', ctx=Load()))]))], decorator_list=[Call(func=Attribute(value=Name(id='router', ctx=Load()), attr='put', ctx=Load()), args=[Constant(value='/upload/{token}')], keywords=[keyword(arg='response_model', value=Name(id='ReconcilePassportUploadResponse', ctx=Load())), keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_200_OK', ctx=Load())), keyword(arg='summary', value=Constant(value='Recover a durable passport upload by its attempt identifier (Public)'))])], returns=Name(id='ReconcilePassportUploadResponse', ctx=Load()))",
+      "signature": "(token: 'str', body: 'ReconcilePassportUploadRequest', response: 'Response', upload_session_id: 'str' = Header(PydanticUndefined), use_case: 'ReconcilePassportUploadUseCase' = Depends(dependency=<function _get_reconcile_passport_upload_use_case at 0x000002368020AFC0>, use_cache=True, scope=None)) -> 'ReconcilePassportUploadResponse'",
+      "hints": {
+        "token": "<class 'str'>",
+        "body": "<class 'app.presentation.api.v1.schemas.passport_schemas.ReconcilePassportUploadRequest'>",
+        "response": "<class 'starlette.responses.Response'>",
+        "upload_session_id": "<class 'str'>",
+        "use_case": "<class 'app.application.use_cases.passports.reconcile_passport_upload_use_case.ReconcilePassportUploadUseCase'>",
+        "return": "<class 'app.presentation.api.v1.schemas.passport_schemas.ReconcilePassportUploadResponse'>"
+      },
+      "module": "app.presentation.api.v1.routes.passport_routes.public_upload",
+      "qualname": "reconcile_passport_upload",
+      "pickle_hex": "8004955e000000000000008c3c6170702e70726573656e746174696f6e2e6170692e76312e726f757465732e70617373706f72745f726f757465732e7075626c69635f75706c6f6164948c197265636f6e63696c655f70617373706f72745f75706c6f61649493942e"
+    },
+    "get_upload_passport_status": {
+      "ast": "AsyncFunctionDef(name='get_upload_passport_status', args=arguments(posonlyargs=[], args=[arg(arg='token', annotation=Name(id='str', ctx=Load())), arg(arg='submission_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='background_tasks', annotation=Name(id='BackgroundTasks', ctx=Load())), arg(arg='upload_session_id', annotation=Name(id='str', ctx=Load())), arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[Call(func=Name(id='Header', ctx=Load()), args=[Constant(value=Ellipsis)], keywords=[keyword(arg='alias', value=Constant(value='X-Upload-Session-ID')), keyword(arg='min_length', value=Constant(value=32)), keyword(arg='max_length', value=Constant(value=128))]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_db_session', ctx=Load())], keywords=[])]), body=[Assign(targets=[Name(id='group', ctx=Store())], value=Await(value=Call(func=Attribute(value=Call(func=Name(id='ClientGroupRepository', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[]), attr='get_by_token', ctx=Load()), args=[Name(id='token', ctx=Load())], keywords=[]))), If(test=BoolOp(op=Or(), values=[Compare(left=Name(id='group', ctx=Load()), ops=[Is()], comparators=[Constant(value=None)]), UnaryOp(op=Not(), operand=Call(func=Name(id='public_upload_is_active', ctx=Load()), args=[Name(id='group', ctx=Load())], keywords=[]))]), body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_404_NOT_FOUND', ctx=Load())), keyword(arg='detail', value=Constant(value='Upload link was not found'))]))], orelse=[]), Assign(targets=[Name(id='submission', ctx=Store())], value=Await(value=Call(func=Attribute(value=Call(func=Name(id='PassportSubmissionRepository', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[]), attr='get_by_id', ctx=Load()), args=[Name(id='submission_id', ctx=Load())], keywords=[]))), If(test=BoolOp(op=Or(), values=[UnaryOp(op=Not(), operand=Name(id='submission', ctx=Load())), Compare(left=Attribute(value=Name(id='submission', ctx=Load()), attr='group_id', ctx=Load()), ops=[NotEq()], comparators=[Attribute(value=Name(id='group', ctx=Load()), attr='id', ctx=Load())])]), body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_404_NOT_FOUND', ctx=Load())), keyword(arg='detail', value=Constant(value='Passport submission was not found'))]))], orelse=[]), Expr(value=Call(func=Name(id='_require_public_upload_credential', ctx=Load()), args=[Name(id='submission', ctx=Load()), Name(id='upload_session_id', ctx=Load())], keywords=[])), Assign(targets=[Name(id='job', ctx=Store())], value=Await(value=Call(func=Attribute(value=Call(func=Name(id='PassportProcessingJobRepository', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[]), attr='latest_for_submission', ctx=Load()), args=[Attribute(value=Name(id='submission', ctx=Load()), attr='id', ctx=Load())], keywords=[]))), Assign(targets=[Name(id='response_result', ctx=Store())], value=Call(func=Name(id='passport_submission_output_from_entity', ctx=Load()), args=[Name(id='submission', ctx=Load())], keywords=[keyword(arg='job', value=Name(id='job', ctx=Load()))])), If(test=BoolOp(op=And(), values=[Compare(left=Name(id='job', ctx=Load()), ops=[IsNot()], comparators=[Constant(value=None)]), Call(func=Name(id='queued_job_needs_redelivery', ctx=Load()), args=[Name(id='job', ctx=Load())], keywords=[])]), body=[Assign(targets=[Name(id='response_result', ctx=Store())], value=Await(value=Call(func=Name(id='dispatch_public_extraction', ctx=Load()), args=[Name(id='response_result', ctx=Load())], keywords=[keyword(arg='session', value=Name(id='session', ctx=Load())), keyword(arg='background_tasks', value=Name(id='background_tasks', ctx=Load()))])))], orelse=[]), Return(value=Await(value=Call(func=Name(id='_response_from_dto', ctx=Load()), args=[Name(id='response_result', ctx=Load())], keywords=[keyword(arg='session', value=Name(id='session', ctx=Load())), keyword(arg='include_document_urls', value=Constant(value=False))])))], decorator_list=[Call(func=Attribute(value=Name(id='router', ctx=Load()), attr='get', ctx=Load()), args=[Constant(value='/upload/{token}/{submission_id}/status')], keywords=[keyword(arg='response_model', value=Name(id='PassportSubmissionResponse', ctx=Load())), keyword(arg='response_model_exclude', value=Set(elts=[Constant(value='document_follow_up'), Constant(value='display_name')])), keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_200_OK', ctx=Load())), keyword(arg='summary', value=Constant(value='Poll passport extraction status for a public upload'))])], returns=Name(id='PassportSubmissionResponse', ctx=Load()))",
+      "signature": "(token: 'str', submission_id: 'uuid.UUID', background_tasks: 'BackgroundTasks', upload_session_id: 'str' = Header(PydanticUndefined), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x00000236FEAA7880>, use_cache=True, scope=None)) -> 'PassportSubmissionResponse'",
+      "hints": {
+        "token": "<class 'str'>",
+        "submission_id": "<class 'uuid.UUID'>",
+        "background_tasks": "<class 'fastapi.background.BackgroundTasks'>",
+        "upload_session_id": "<class 'str'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "return": "<class 'app.presentation.api.v1.schemas.passport_schemas.PassportSubmissionResponse'>"
+      },
+      "module": "app.presentation.api.v1.routes.passport_routes.public_upload",
+      "qualname": "get_upload_passport_status",
+      "pickle_hex": "8004955f000000000000008c3c6170702e70726573656e746174696f6e2e6170692e76312e726f757465732e70617373706f72745f726f757465732e7075626c69635f75706c6f6164948c1a6765745f75706c6f61645f70617373706f72745f7374617475739493942e"
+    },
+    "scan_again_public_upload": {
+      "ast": "AsyncFunctionDef(name='scan_again_public_upload', args=arguments(posonlyargs=[], args=[arg(arg='token', annotation=Name(id='str', ctx=Load())), arg(arg='submission_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='background_tasks', annotation=Name(id='BackgroundTasks', ctx=Load())), arg(arg='upload_session_id', annotation=Name(id='str', ctx=Load())), arg(arg='use_case', annotation=Name(id='RetryPublicPassportExtractionUseCase', ctx=Load())), arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[Call(func=Name(id='Header', ctx=Load()), args=[Constant(value=Ellipsis)], keywords=[keyword(arg='alias', value=Constant(value='X-Upload-Session-ID')), keyword(arg='min_length', value=Constant(value=32)), keyword(arg='max_length', value=Constant(value=128))]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='_get_retry_public_extraction_use_case', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_db_session', ctx=Load())], keywords=[])]), body=[Try(body=[Assign(targets=[Name(id='group', ctx=Store())], value=Await(value=Call(func=Attribute(value=Call(func=Name(id='ClientGroupRepository', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[]), attr='get_by_token', ctx=Load()), args=[Name(id='token', ctx=Load())], keywords=[]))), If(test=BoolOp(op=Or(), values=[Compare(left=Name(id='group', ctx=Load()), ops=[Is()], comparators=[Constant(value=None)]), UnaryOp(op=Not(), operand=Call(func=Name(id='public_upload_is_active', ctx=Load()), args=[Name(id='group', ctx=Load())], keywords=[]))]), body=[Raise(exc=Call(func=Name(id='EntityNotFoundError', ctx=Load()), args=[Constant(value='ClientGroup'), Constant(value='upload link')], keywords=[]))], orelse=[]), Assign(targets=[Name(id='submission', ctx=Store())], value=Await(value=Call(func=Attribute(value=Call(func=Name(id='PassportSubmissionRepository', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[]), attr='get_by_id', ctx=Load()), args=[Name(id='submission_id', ctx=Load())], keywords=[]))), If(test=BoolOp(op=Or(), values=[UnaryOp(op=Not(), operand=Name(id='group', ctx=Load())), UnaryOp(op=Not(), operand=Call(func=Name(id='public_upload_is_active', ctx=Load()), args=[Name(id='group', ctx=Load())], keywords=[])), UnaryOp(op=Not(), operand=Name(id='submission', ctx=Load())), Compare(left=Attribute(value=Name(id='submission', ctx=Load()), attr='group_id', ctx=Load()), ops=[NotEq()], comparators=[Attribute(value=Name(id='group', ctx=Load()), attr='id', ctx=Load())])]), body=[Raise(exc=Call(func=Name(id='EntityNotFoundError', ctx=Load()), args=[Constant(value='PassportSubmission'), Name(id='submission_id', ctx=Load())], keywords=[]))], orelse=[]), Expr(value=Call(func=Name(id='_require_public_upload_credential', ctx=Load()), args=[Name(id='submission', ctx=Load()), Name(id='upload_session_id', ctx=Load())], keywords=[])), If(test=UnaryOp(op=Not(), operand=Attribute(value=Name(id='submission', ctx=Load()), attr='image_s3_key', ctx=Load())), body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_400_BAD_REQUEST', ctx=Load())), keyword(arg='detail', value=Constant(value='No passport personal details page was collected for this submission.'))]))], orelse=[]), Assign(targets=[Name(id='result', ctx=Store())], value=Await(value=Call(func=Attribute(value=Name(id='use_case', ctx=Load()), attr='execute', ctx=Load()), args=[], keywords=[keyword(arg='token', value=Name(id='token', ctx=Load())), keyword(arg='submission_id', value=Name(id='submission_id', ctx=Load()))]))), Assign(targets=[Name(id='result', ctx=Store())], value=Await(value=Call(func=Name(id='dispatch_public_extraction', ctx=Load()), args=[Name(id='result', ctx=Load())], keywords=[keyword(arg='session', value=Name(id='session', ctx=Load())), keyword(arg='background_tasks', value=Name(id='background_tasks', ctx=Load()))]))), Return(value=Await(value=Call(func=Name(id='_response_from_dto', ctx=Load()), args=[Name(id='result', ctx=Load())], keywords=[keyword(arg='session', value=Name(id='session', ctx=Load())), keyword(arg='include_document_urls', value=Constant(value=False))])))], handlers=[ExceptHandler(type=Name(id='EntityNotFoundError', ctx=Load()), name='e', body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_404_NOT_FOUND', ctx=Load())), keyword(arg='detail', value=Attribute(value=Name(id='e', ctx=Load()), attr='message', ctx=Load()))]))]), ExceptHandler(type=Name(id='PassDetectionError', ctx=Load()), name='e', body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_400_BAD_REQUEST', ctx=Load())), keyword(arg='detail', value=Attribute(value=Name(id='e', ctx=Load()), attr='message', ctx=Load()))]))])], orelse=[], finalbody=[])], decorator_list=[Call(func=Attribute(value=Name(id='router', ctx=Load()), attr='post', ctx=Load()), args=[Constant(value='/upload/{token}/{submission_id}/scan-again')], keywords=[keyword(arg='response_model', value=Name(id='PassportSubmissionResponse', ctx=Load())), keyword(arg='response_model_exclude', value=Set(elts=[Constant(value='document_follow_up'), Constant(value='display_name')])), keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_200_OK', ctx=Load())), keyword(arg='summary', value=Constant(value='Retry AI passport extraction for a public upload'))])], returns=Name(id='PassportSubmissionResponse', ctx=Load()))",
+      "signature": "(token: 'str', submission_id: 'uuid.UUID', background_tasks: 'BackgroundTasks', upload_session_id: 'str' = Header(PydanticUndefined), use_case: 'RetryPublicPassportExtractionUseCase' = Depends(dependency=<function _get_retry_public_extraction_use_case at 0x0000023680293240>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x00000236FEAA7880>, use_cache=True, scope=None)) -> 'PassportSubmissionResponse'",
+      "hints": {
+        "token": "<class 'str'>",
+        "submission_id": "<class 'uuid.UUID'>",
+        "background_tasks": "<class 'fastapi.background.BackgroundTasks'>",
+        "upload_session_id": "<class 'str'>",
+        "use_case": "<class 'app.application.use_cases.passports.retry_public_passport_extraction_use_case.RetryPublicPassportExtractionUseCase'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "return": "<class 'app.presentation.api.v1.schemas.passport_schemas.PassportSubmissionResponse'>"
+      },
+      "module": "app.presentation.api.v1.routes.passport_routes.public_upload",
+      "qualname": "scan_again_public_upload",
+      "pickle_hex": "8004955d000000000000008c3c6170702e70726573656e746174696f6e2e6170692e76312e726f757465732e70617373706f72745f726f757465732e7075626c69635f75706c6f6164948c187363616e5f616761696e5f7075626c69635f75706c6f61649493942e"
+    },
+    "get_public_upload_passport_image": {
+      "ast": "AsyncFunctionDef(name='get_public_upload_passport_image', args=arguments(posonlyargs=[], args=[arg(arg='token', annotation=Name(id='str', ctx=Load())), arg(arg='submission_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='upload_session_id', annotation=Name(id='str', ctx=Load())), arg(arg='range_header', annotation=Subscript(value=Name(id='Annotated', ctx=Load()), slice=Tuple(elts=[BinOp(left=Name(id='str', ctx=Load()), op=BitOr(), right=Constant(value=None)), Call(func=Name(id='Header', ctx=Load()), args=[], keywords=[keyword(arg='alias', value=Constant(value='Range'))])], ctx=Load()), ctx=Load())), arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[Call(func=Name(id='Header', ctx=Load()), args=[Constant(value=Ellipsis)], keywords=[keyword(arg='alias', value=Constant(value='X-Upload-Session-ID')), keyword(arg='min_length', value=Constant(value=32)), keyword(arg='max_length', value=Constant(value=128))]), Constant(value=None), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_db_session', ctx=Load())], keywords=[])]), body=[Assign(targets=[Name(id='group', ctx=Store())], value=Await(value=Call(func=Attribute(value=Call(func=Name(id='ClientGroupRepository', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[]), attr='get_by_token', ctx=Load()), args=[Name(id='token', ctx=Load())], keywords=[]))), If(test=BoolOp(op=Or(), values=[Compare(left=Name(id='group', ctx=Load()), ops=[Is()], comparators=[Constant(value=None)]), UnaryOp(op=Not(), operand=Call(func=Name(id='public_upload_is_active', ctx=Load()), args=[Name(id='group', ctx=Load())], keywords=[]))]), body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_404_NOT_FOUND', ctx=Load())), keyword(arg='detail', value=Constant(value='Upload link was not found'))]))], orelse=[]), Assign(targets=[Name(id='submission', ctx=Store())], value=Await(value=Call(func=Attribute(value=Call(func=Name(id='PassportSubmissionRepository', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[]), attr='get_by_id', ctx=Load()), args=[Name(id='submission_id', ctx=Load())], keywords=[]))), If(test=BoolOp(op=Or(), values=[UnaryOp(op=Not(), operand=Name(id='submission', ctx=Load())), Compare(left=Attribute(value=Name(id='submission', ctx=Load()), attr='group_id', ctx=Load()), ops=[NotEq()], comparators=[Attribute(value=Name(id='group', ctx=Load()), attr='id', ctx=Load())])]), body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_404_NOT_FOUND', ctx=Load())), keyword(arg='detail', value=Constant(value='Passport submission was not found'))]))], orelse=[]), Expr(value=Call(func=Name(id='_require_public_upload_credential', ctx=Load()), args=[Name(id='submission', ctx=Load()), Name(id='upload_session_id', ctx=Load())], keywords=[])), If(test=UnaryOp(op=Not(), operand=Attribute(value=Name(id='submission', ctx=Load()), attr='image_s3_key', ctx=Load())), body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Constant(value=404)), keyword(arg='detail', value=Constant(value='The passport personal details page was not uploaded.'))]))], orelse=[]), Return(value=Await(value=Call(func=Name(id='private_object_streaming_response', ctx=Load()), args=[], keywords=[keyword(arg='storage', value=Call(func=Name(id='MinioStorageRepository', ctx=Load()), args=[], keywords=[])), keyword(arg='key', value=Attribute(value=Name(id='submission', ctx=Load()), attr='image_s3_key', ctx=Load())), keyword(arg='media_type', value=BoolOp(op=Or(), values=[Subscript(value=Call(func=Attribute(value=Name(id='mimetypes', ctx=Load()), attr='guess_type', ctx=Load()), args=[Attribute(value=Name(id='submission', ctx=Load()), attr='image_s3_key', ctx=Load())], keywords=[]), slice=Constant(value=0), ctx=Load()), Constant(value='image/jpeg')])), keyword(arg='content_disposition', value=Constant(value='inline; filename=\"passport.jpg\"')), keyword(arg='range_header', value=Name(id='range_header', ctx=Load()))])))], decorator_list=[Call(func=Attribute(value=Name(id='router', ctx=Load()), attr='get', ctx=Load()), args=[Constant(value='/upload/{token}/{submission_id}/image')], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_200_OK', ctx=Load())), keyword(arg='summary', value=Constant(value='Stream a public upload passport image through the API')), keyword(arg='response_class', value=Name(id='Response', ctx=Load())), keyword(arg='responses', value=Call(func=Name(id='binary_responses', ctx=Load()), args=[Constant(value='image/*')], keywords=[keyword(arg='range_requests', value=Constant(value=True))]))])], returns=Name(id='StreamingResponse', ctx=Load()))",
+      "signature": "(token: 'str', submission_id: 'uuid.UUID', upload_session_id: 'str' = Header(PydanticUndefined), range_header: \"Annotated[str | None, Header(alias='Range')]\" = None, session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x00000236FEAA7880>, use_cache=True, scope=None)) -> 'StreamingResponse'",
+      "hints": {
+        "token": "<class 'str'>",
+        "submission_id": "<class 'uuid.UUID'>",
+        "upload_session_id": "<class 'str'>",
+        "range_header": "str | None",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "return": "<class 'starlette.responses.StreamingResponse'>"
+      },
+      "module": "app.presentation.api.v1.routes.passport_routes.public_upload",
+      "qualname": "get_public_upload_passport_image",
+      "pickle_hex": "80049565000000000000008c3c6170702e70726573656e746174696f6e2e6170692e76312e726f757465732e70617373706f72745f726f757465732e7075626c69635f75706c6f6164948c206765745f7075626c69635f75706c6f61645f70617373706f72745f696d6167659493942e"
+    },
+    "get_public_upload_passport_document": {
+      "ast": "AsyncFunctionDef(name='get_public_upload_passport_document', args=arguments(posonlyargs=[], args=[arg(arg='token', annotation=Name(id='str', ctx=Load())), arg(arg='submission_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='document_type', annotation=Name(id='str', ctx=Load())), arg(arg='upload_session_id', annotation=Name(id='str', ctx=Load())), arg(arg='range_header', annotation=Subscript(value=Name(id='Annotated', ctx=Load()), slice=Tuple(elts=[BinOp(left=Name(id='str', ctx=Load()), op=BitOr(), right=Constant(value=None)), Call(func=Name(id='Header', ctx=Load()), args=[], keywords=[keyword(arg='alias', value=Constant(value='Range'))])], ctx=Load()), ctx=Load())), arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[Call(func=Name(id='Header', ctx=Load()), args=[Constant(value=Ellipsis)], keywords=[keyword(arg='alias', value=Constant(value='X-Upload-Session-ID')), keyword(arg='min_length', value=Constant(value=32)), keyword(arg='max_length', value=Constant(value=128))]), Constant(value=None), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_db_session', ctx=Load())], keywords=[])]), body=[Assign(targets=[Name(id='group', ctx=Store())], value=Await(value=Call(func=Attribute(value=Call(func=Name(id='ClientGroupRepository', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[]), attr='get_by_token', ctx=Load()), args=[Name(id='token', ctx=Load())], keywords=[]))), If(test=BoolOp(op=Or(), values=[Compare(left=Name(id='group', ctx=Load()), ops=[Is()], comparators=[Constant(value=None)]), UnaryOp(op=Not(), operand=Call(func=Name(id='public_upload_is_active', ctx=Load()), args=[Name(id='group', ctx=Load())], keywords=[]))]), body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_404_NOT_FOUND', ctx=Load())), keyword(arg='detail', value=Constant(value='Upload link was not found'))]))], orelse=[]), Assign(targets=[Name(id='submission', ctx=Store())], value=Await(value=Call(func=Attribute(value=Call(func=Name(id='PassportSubmissionRepository', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[]), attr='get_by_id', ctx=Load()), args=[Name(id='submission_id', ctx=Load())], keywords=[]))), If(test=BoolOp(op=Or(), values=[UnaryOp(op=Not(), operand=Name(id='submission', ctx=Load())), Compare(left=Attribute(value=Name(id='submission', ctx=Load()), attr='group_id', ctx=Load()), ops=[NotEq()], comparators=[Attribute(value=Name(id='group', ctx=Load()), attr='id', ctx=Load())])]), body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_404_NOT_FOUND', ctx=Load())), keyword(arg='detail', value=Constant(value='Passport submission was not found'))]))], orelse=[]), Expr(value=Call(func=Name(id='_require_public_upload_credential', ctx=Load()), args=[Name(id='submission', ctx=Load()), Name(id='upload_session_id', ctx=Load())], keywords=[])), Assign(targets=[Name(id='keys', ctx=Store())], value=Dict(keys=[Constant(value='front'), Constant(value='back'), Constant(value='photo'), Constant(value='cover'), Constant(value='back_cover')], values=[Attribute(value=Name(id='submission', ctx=Load()), attr='image_s3_key', ctx=Load()), Attribute(value=Name(id='submission', ctx=Load()), attr='passport_back_s3_key', ctx=Load()), Attribute(value=Name(id='submission', ctx=Load()), attr='passport_photo_s3_key', ctx=Load()), Attribute(value=Name(id='submission', ctx=Load()), attr='passport_cover_s3_key', ctx=Load()), Attribute(value=Name(id='submission', ctx=Load()), attr='passport_back_cover_s3_key', ctx=Load())])), If(test=Compare(left=Name(id='document_type', ctx=Load()), ops=[NotIn()], comparators=[Name(id='keys', ctx=Load())]), body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_400_BAD_REQUEST', ctx=Load())), keyword(arg='detail', value=Constant(value='Choose front, back, cover, back_cover, or photo.'))]))], orelse=[]), Assign(targets=[Name(id='key', ctx=Store())], value=Subscript(value=Name(id='keys', ctx=Load()), slice=Name(id='document_type', ctx=Load()), ctx=Load())), If(test=UnaryOp(op=Not(), operand=Name(id='key', ctx=Load())), body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_404_NOT_FOUND', ctx=Load())), keyword(arg='detail', value=Constant(value='The requested passport document was not uploaded.'))]))], orelse=[]), Return(value=Await(value=Call(func=Name(id='private_object_streaming_response', ctx=Load()), args=[], keywords=[keyword(arg='storage', value=Call(func=Name(id='MinioStorageRepository', ctx=Load()), args=[], keywords=[])), keyword(arg='key', value=Name(id='key', ctx=Load())), keyword(arg='media_type', value=BoolOp(op=Or(), values=[Subscript(value=Call(func=Attribute(value=Name(id='mimetypes', ctx=Load()), attr='guess_type', ctx=Load()), args=[Name(id='key', ctx=Load())], keywords=[]), slice=Constant(value=0), ctx=Load()), Constant(value='image/jpeg')])), keyword(arg='content_disposition', value=JoinedStr(values=[Constant(value='inline; filename=\"passport-'), FormattedValue(value=Name(id='document_type', ctx=Load()), conversion=-1), Constant(value='\"')])), keyword(arg='range_header', value=Name(id='range_header', ctx=Load()))])))], decorator_list=[Call(func=Attribute(value=Name(id='router', ctx=Load()), attr='get', ctx=Load()), args=[Constant(value='/upload/{token}/{submission_id}/image/{document_type}')], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_200_OK', ctx=Load())), keyword(arg='summary', value=Constant(value='Stream one stored public passport document through the API')), keyword(arg='response_class', value=Name(id='Response', ctx=Load())), keyword(arg='responses', value=Call(func=Name(id='binary_responses', ctx=Load()), args=[Constant(value='image/*')], keywords=[keyword(arg='range_requests', value=Constant(value=True))]))])], returns=Name(id='StreamingResponse', ctx=Load()))",
+      "signature": "(token: 'str', submission_id: 'uuid.UUID', document_type: 'str', upload_session_id: 'str' = Header(PydanticUndefined), range_header: \"Annotated[str | None, Header(alias='Range')]\" = None, session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x00000236FEAA7880>, use_cache=True, scope=None)) -> 'StreamingResponse'",
+      "hints": {
+        "token": "<class 'str'>",
+        "submission_id": "<class 'uuid.UUID'>",
+        "document_type": "<class 'str'>",
+        "upload_session_id": "<class 'str'>",
+        "range_header": "str | None",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "return": "<class 'starlette.responses.StreamingResponse'>"
+      },
+      "module": "app.presentation.api.v1.routes.passport_routes.public_upload",
+      "qualname": "get_public_upload_passport_document",
+      "pickle_hex": "80049568000000000000008c3c6170702e70726573656e746174696f6e2e6170692e76312e726f757465732e70617373706f72745f726f757465732e7075626c69635f75706c6f6164948c236765745f7075626c69635f75706c6f61645f70617373706f72745f646f63756d656e749493942e"
+    },
+    "discard_public_upload": {
+      "ast": "AsyncFunctionDef(name='discard_public_upload', args=arguments(posonlyargs=[], args=[arg(arg='token', annotation=Name(id='str', ctx=Load())), arg(arg='submission_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='upload_session_id', annotation=Name(id='str', ctx=Load())), arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[Call(func=Name(id='Header', ctx=Load()), args=[Constant(value=Ellipsis)], keywords=[keyword(arg='alias', value=Constant(value='X-Upload-Session-ID')), keyword(arg='min_length', value=Constant(value=32)), keyword(arg='max_length', value=Constant(value=128))]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_db_session', ctx=Load())], keywords=[])]), body=[Assign(targets=[Name(id='group', ctx=Store())], value=Await(value=Call(func=Attribute(value=Call(func=Name(id='ClientGroupRepository', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[]), attr='get_by_token', ctx=Load()), args=[Name(id='token', ctx=Load())], keywords=[]))), If(test=BoolOp(op=Or(), values=[Compare(left=Name(id='group', ctx=Load()), ops=[Is()], comparators=[Constant(value=None)]), UnaryOp(op=Not(), operand=Call(func=Name(id='public_upload_is_active', ctx=Load()), args=[Name(id='group', ctx=Load())], keywords=[]))]), body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Constant(value=404)), keyword(arg='detail', value=Constant(value='Passport draft was not found'))]))], orelse=[]), Assign(targets=[Name(id='locked_group', ctx=Store())], value=Constant(value=None)), If(test=BoolOp(op=And(), values=[Compare(left=Name(id='group', ctx=Load()), ops=[IsNot()], comparators=[Constant(value=None)]), Call(func=Name(id='public_upload_is_active', ctx=Load()), args=[Name(id='group', ctx=Load())], keywords=[])]), body=[Assign(targets=[Name(id='locked_group', ctx=Store())], value=Await(value=Call(func=Attribute(value=Name(id='session', ctx=Load()), attr='scalar', ctx=Load()), args=[Call(func=Attribute(value=Call(func=Attribute(value=Call(func=Name(id='select', ctx=Load()), args=[Name(id='ClientGroupModel', ctx=Load())], keywords=[]), attr='where', ctx=Load()), args=[Compare(left=Attribute(value=Name(id='ClientGroupModel', ctx=Load()), attr='id', ctx=Load()), ops=[Eq()], comparators=[Attribute(value=Name(id='group', ctx=Load()), attr='id', ctx=Load())]), Compare(left=Attribute(value=Name(id='ClientGroupModel', ctx=Load()), attr='agency_id', ctx=Load()), ops=[Eq()], comparators=[Attribute(value=Name(id='group', ctx=Load()), attr='agency_id', ctx=Load())]), Compare(left=Attribute(value=Name(id='ClientGroupModel', ctx=Load()), attr='status', ctx=Load()), ops=[Eq()], comparators=[Attribute(value=Attribute(value=Name(id='GroupStatus', ctx=Load()), attr='ACTIVE', ctx=Load()), attr='value', ctx=Load())]), Call(func=Attribute(value=Attribute(value=Name(id='ClientGroupModel', ctx=Load()), attr='deleted_at', ctx=Load()), attr='is_', ctx=Load()), args=[Constant(value=None)], keywords=[])], keywords=[]), attr='with_for_update', ctx=Load()), args=[], keywords=[])], keywords=[])))], orelse=[]), Assign(targets=[Name(id='submission_repo', ctx=Store())], value=Call(func=Name(id='PassportSubmissionRepository', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[])), Assign(targets=[Name(id='submission', ctx=Store())], value=Await(value=Call(func=Attribute(value=Name(id='submission_repo', ctx=Load()), attr='get_by_id_for_update', ctx=Load()), args=[Name(id='submission_id', ctx=Load())], keywords=[]))), If(test=BoolOp(op=Or(), values=[Compare(left=Name(id='group', ctx=Load()), ops=[Is()], comparators=[Constant(value=None)]), Compare(left=Name(id='locked_group', ctx=Load()), ops=[Is()], comparators=[Constant(value=None)]), Compare(left=Name(id='submission', ctx=Load()), ops=[Is()], comparators=[Constant(value=None)]), Compare(left=Attribute(value=Name(id='submission', ctx=Load()), attr='group_id', ctx=Load()), ops=[NotEq()], comparators=[Attribute(value=Name(id='group', ctx=Load()), attr='id', ctx=Load())])]), body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_404_NOT_FOUND', ctx=Load())), keyword(arg='detail', value=Constant(value='Passport draft was not found'))]))], orelse=[]), Try(body=[Expr(value=Call(func=Name(id='_require_public_upload_credential', ctx=Load()), args=[Name(id='submission', ctx=Load()), Name(id='upload_session_id', ctx=Load())], keywords=[]))], handlers=[ExceptHandler(type=Name(id='HTTPException', ctx=Load()), name='exc', body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_404_NOT_FOUND', ctx=Load())), keyword(arg='detail', value=Constant(value='Passport draft was not found'))]), cause=Name(id='exc', ctx=Load()))])], orelse=[], finalbody=[]), If(test=Compare(left=Attribute(value=Attribute(value=Name(id='submission', ctx=Load()), attr='status', ctx=Load()), attr='value', ctx=Load()), ops=[In()], comparators=[Name(id='OFFICE_VISIBLE_PASSPORT_STATUS_VALUES', ctx=Load())]), body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_409_CONFLICT', ctx=Load())), keyword(arg='detail', value=Constant(value='Submitted passports cannot be discarded'))]))], orelse=[]), Assign(targets=[Name(id='keys', ctx=Store())], value=ListComp(elt=Name(id='key', ctx=Load()), generators=[comprehension(target=Name(id='key', ctx=Store()), iter=Tuple(elts=[Attribute(value=Name(id='submission', ctx=Load()), attr='image_s3_key', ctx=Load()), Attribute(value=Name(id='submission', ctx=Load()), attr='thumbnail_s3_key', ctx=Load()), Attribute(value=Name(id='submission', ctx=Load()), attr='passport_photo_s3_key', ctx=Load()), Attribute(value=Name(id='submission', ctx=Load()), attr='passport_back_s3_key', ctx=Load()), Attribute(value=Name(id='submission', ctx=Load()), attr='passport_cover_s3_key', ctx=Load()), Attribute(value=Name(id='submission', ctx=Load()), attr='passport_back_cover_s3_key', ctx=Load())], ctx=Load()), ifs=[Name(id='key', ctx=Load())], is_async=0)])), Assign(targets=[Name(id='cleanup_jobs', ctx=Store())], value=Call(func=Name(id='stage_storage_cleanup_jobs', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[keyword(arg='agency_id', value=Attribute(value=Name(id='locked_group', ctx=Load()), attr='agency_id', ctx=Load())), keyword(arg='source', value=Constant(value='passport_submission_delete')), keyword(arg='context_id', value=JoinedStr(values=[Constant(value='public-draft:'), FormattedValue(value=Attribute(value=Name(id='submission', ctx=Load()), attr='id', ctx=Load()), conversion=-1)])), keyword(arg='storage_keys', value=Name(id='keys', ctx=Load()))])), Expr(value=Await(value=Call(func=Attribute(value=Name(id='submission_repo', ctx=Load()), attr='delete', ctx=Load()), args=[Attribute(value=Name(id='submission', ctx=Load()), attr='id', ctx=Load())], keywords=[]))), Expr(value=Await(value=Call(func=Attribute(value=Call(func=Name(id='AuditLogRepository', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[]), attr='record', ctx=Load()), args=[], keywords=[keyword(arg='action', value=Constant(value='public_passport_draft_discarded')), keyword(arg='entity_type', value=Constant(value='passport_submission')), keyword(arg='entity_id', value=Call(func=Name(id='str', ctx=Load()), args=[Attribute(value=Name(id='submission', ctx=Load()), attr='id', ctx=Load())], keywords=[])), keyword(arg='agency_id', value=Attribute(value=Name(id='locked_group', ctx=Load()), attr='agency_id', ctx=Load())), keyword(arg='metadata', value=Dict(keys=[Constant(value='storage_cleanup_job_count'), Constant(value='storage_objects_scheduled_for_cleanup')], values=[Call(func=Name(id='len', ctx=Load()), args=[Name(id='cleanup_jobs', ctx=Load())], keywords=[]), Call(func=Name(id='len', ctx=Load()), args=[Name(id='keys', ctx=Load())], keywords=[])]))]))), Expr(value=Await(value=Call(func=Attribute(value=Name(id='session', ctx=Load()), attr='commit', ctx=Load()), args=[], keywords=[]))), For(target=Name(id='cleanup_job', ctx=Store()), iter=Name(id='cleanup_jobs', ctx=Load()), body=[Try(body=[Expr(value=Await(value=Call(func=Name(id='process_storage_cleanup_job', ctx=Load()), args=[Attribute(value=Name(id='cleanup_job', ctx=Load()), attr='id', ctx=Load())], keywords=[])))], handlers=[ExceptHandler(type=Name(id='Exception', ctx=Load()), name='exc', body=[Expr(value=Call(func=Attribute(value=Name(id='logger', ctx=Load()), attr='warning', ctx=Load()), args=[Constant(value='discarded_passport_object_cleanup_deferred')], keywords=[keyword(arg='submission_id', value=Call(func=Name(id='str', ctx=Load()), args=[Attribute(value=Name(id='submission', ctx=Load()), attr='id', ctx=Load())], keywords=[])), keyword(arg='cleanup_job_id', value=Call(func=Name(id='str', ctx=Load()), args=[Attribute(value=Name(id='cleanup_job', ctx=Load()), attr='id', ctx=Load())], keywords=[])), keyword(arg='object_count', value=Attribute(value=Name(id='cleanup_job', ctx=Load()), attr='object_count', ctx=Load())), keyword(arg='error_type', value=Attribute(value=Call(func=Name(id='type', ctx=Load()), args=[Name(id='exc', ctx=Load())], keywords=[]), attr='__name__', ctx=Load()))]))])], orelse=[], finalbody=[])], orelse=[]), Expr(value=Call(func=Name(id='record_operational_event', ctx=Load()), args=[Attribute(value=Name(id='OperationalEvent', ctx=Load()), attr='PUBLIC_FLOW', ctx=Load()), Constant(value='upload_abandoned')], keywords=[])), Return(value=Dict(keys=[Constant(value='discarded')], values=[Constant(value=True)]))], decorator_list=[Call(func=Attribute(value=Name(id='router', ctx=Load()), attr='delete', ctx=Load()), args=[Constant(value='/upload/{token}/{submission_id}')], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_200_OK', ctx=Load())), keyword(arg='summary', value=Constant(value='Discard an unsubmitted public passport draft'))])], returns=Subscript(value=Name(id='dict', ctx=Load()), slice=Tuple(elts=[Name(id='str', ctx=Load()), Name(id='bool', ctx=Load())], ctx=Load()), ctx=Load()))",
+      "signature": "(token: 'str', submission_id: 'uuid.UUID', upload_session_id: 'str' = Header(PydanticUndefined), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x00000236FEAA7880>, use_cache=True, scope=None)) -> 'dict[str, bool]'",
+      "hints": {
+        "token": "<class 'str'>",
+        "submission_id": "<class 'uuid.UUID'>",
+        "upload_session_id": "<class 'str'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "return": "dict[str, bool]"
+      },
+      "module": "app.presentation.api.v1.routes.passport_routes.public_upload",
+      "qualname": "discard_public_upload",
+      "pickle_hex": "8004955a000000000000008c3c6170702e70726573656e746174696f6e2e6170692e76312e726f757465732e70617373706f72745f726f757465732e7075626c69635f75706c6f6164948c15646973636172645f7075626c69635f75706c6f61649493942e"
+    }
+  },
+  "logger_factory_name": [
+    "app.presentation.api.v1.routes.passport_routes.public_upload"
+  ]
+}

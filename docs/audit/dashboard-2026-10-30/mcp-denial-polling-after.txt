@@ -1,0 +1,9 @@
+
+ RUN  v4.1.12 C:/Users/nipun/Desktop/PassDetection/frontend
+
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  01:18:10
+   Duration  960ms (transform 70ms, setup 139ms, import 149ms, tests 98ms, environment 489ms)
+

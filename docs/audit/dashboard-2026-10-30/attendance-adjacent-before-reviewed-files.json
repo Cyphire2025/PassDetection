@@ -1,0 +1,83 @@
+[
+  {
+    "path": "backend/app/presentation/api/v1/routes/attendance_runtime.py",
+    "sha256": "e5e315a572ea3b44489ce1dd3905739e333d523db29612cfaea09c57bf515682",
+    "lines": 618,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete original current physical source read before next coherent adjacent attendance/audit tranche. Native application excluded; shared backend/PWA only. Source-backed candidates traced separately, no transitive qualification."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/schemas/attendance_runtime_schemas.py",
+    "sha256": "d6a63d149118db4a7c711f7d5e8f940f24e52b13cffa9d4166fe7255de946e7d",
+    "lines": 244,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete original current physical source read before next coherent adjacent attendance/audit tranche. Native application excluded; shared backend/PWA only. Source-backed candidates traced separately, no transitive qualification."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/schemas/attendance_closeout_schemas.py",
+    "sha256": "8d0ae0839744210762ae747f1c4ae1a146e0628cfeedeaa7365dcc57cca92e60",
+    "lines": 92,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete original current physical source read before next coherent adjacent attendance/audit tranche. Native application excluded; shared backend/PWA only. Source-backed candidates traced separately, no transitive qualification."
+  },
+  {
+    "path": "backend/app/application/use_cases/attendance_dashboard.py",
+    "sha256": "329818b0b5883059fa2fb2da9187d92fa7a306199c9fefb931e1859e3cfbb35f",
+    "lines": 436,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete original current physical source read before next coherent adjacent attendance/audit tranche. Native application excluded; shared backend/PWA only. Source-backed candidates traced separately, no transitive qualification."
+  },
+  {
+    "path": "backend/app/application/use_cases/attendance_projection.py",
+    "sha256": "8d4b499b968e6c6abfc95e91db921d3e86aa5bfac96b03d2dbe5720906a07ed7",
+    "lines": 36,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete original current physical source read before next coherent adjacent attendance/audit tranche. Native application excluded; shared backend/PWA only. Source-backed candidates traced separately, no transitive qualification."
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/coordinator_assignment_lifecycle.py",
+    "sha256": "0a7ec89144ce7a41c5e67ab5454e5eae1d17669b5de1b52bb8404b8cda6dfbb9",
+    "lines": 156,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete original current physical source read before next coherent adjacent attendance/audit tranche. Native application excluded; shared backend/PWA only. Source-backed candidates traced separately, no transitive qualification."
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/operational_roster.py",
+    "sha256": "96bc197d330b0ab314334e37e4de726b5224529432b1ff08d89367f4033532eb",
+    "lines": 67,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete original current physical source read before next coherent adjacent attendance/audit tranche. Native application excluded; shared backend/PWA only. Source-backed candidates traced separately, no transitive qualification."
+  },
+  {
+    "path": "backend/app/application/mobile/attendance_qr_evidence.py",
+    "sha256": "e63fc500f290fbda49f869639a72779ade2719c4e7d164c2bfdd7ea1c555cdf9",
+    "lines": 117,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete original current physical source read before next coherent adjacent attendance/audit tranche. Native application excluded; shared backend/PWA only. Source-backed candidates traced separately, no transitive qualification."
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/audit_log_repository.py",
+    "sha256": "c79e88e1d9bcccd6f4a8fbbb3faa6f4ff1c4c320dc6db7b8996ae1f58a35fca9",
+    "lines": 554,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete original current physical source read before next coherent adjacent attendance/audit tranche. Native application excluded; shared backend/PWA only. Source-backed candidates traced separately, no transitive qualification."
+  }
+]

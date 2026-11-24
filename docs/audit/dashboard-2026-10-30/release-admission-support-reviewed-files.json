@@ -1,0 +1,10 @@
+[
+  {
+    "path": "backend/app/domain/entities/__init__.py",
+    "sha256": "5cc58c46b7ce501cf98e236127603629092da502b29a510a5f19e368b537b0bd",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical current source is one package docstring, no imports or executable behavior. Read directly during exact admission review; not attributed to root domain29 ledger."
+  }
+]

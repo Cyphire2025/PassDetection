@@ -1,0 +1,73 @@
+{
+  "argv": [
+    "C:\\Users\\nipun\\AppData\\Local\\Programs\\node-v24.21.0-win-x64\\node.exe",
+    "node_modules/@playwright/test/cli.js",
+    "test",
+    "--config",
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\final-frontend-qualification\\production.config.ts"
+  ],
+  "exit_code": 1,
+  "seconds": 839.859,
+  "source_drift": {
+    "frontend/%SystemDrive%/ProgramData/Microsoft/Windows/Caches/{DDF571F2-BE98-426D-8288-1A9A39C3FDA2}.2.ver0x0000000000000001.db": [
+      null,
+      "8a839443a17272ae203611d0d24c4903365d2cba247aca7880bff4fb84a61248"
+    ],
+    "frontend/%SystemDrive%/ProgramData/Microsoft/Windows/Caches/{7D851A3E-B9C7-4594-96CF-A6824E88D32D}.2.ver0x0000000000000001.db": [
+      null,
+      "31eda3eac3f78314ca8b810de4fbe1720bcda03b0108951bf95cb8f058fa6b93"
+    ],
+    "frontend/%SystemDrive%/ProgramData/Microsoft/Windows/Caches/cversions.2.db": [
+      null,
+      "95c47fc860664e3e22dd950bd0c02734ada4f816a99b1183d56ce28da7448351"
+    ],
+    "frontend/%SystemDrive%/ProgramData/Microsoft/Windows/Caches/{6AF0698E-D558-4F6E-9B3C-3716689AF493}.2.ver0x0000000000000001.db": [
+      null,
+      "a55817fc1704dfa6946c483b389d4fb6b3ed7696658956d354d43ffbe29d8888"
+    ]
+  },
+  "log_sha256": "094c8f760ecabbfcd70b9349acc59869823b2b81566c98572199c8fa8a332437",
+  "branding_screenshots": {
+    "company-logo-preview.png": {
+      "sha256": "aacfca472f400c3dce734a0a428db45185a542a483432a8e9d9c067284405fcc",
+      "path": "docs/audit/dashboard-2026-10-30/final-retained-frontend-20261101-001/branding-screenshots/company-logo-preview.png"
+    },
+    "all-groups-desktop.png": {
+      "sha256": "b0547142883fe73832c2baeb7f45fa7b384dd14e8b7cad70194118cbdb7984d1",
+      "path": "docs/audit/dashboard-2026-10-30/final-retained-frontend-20261101-001/branding-screenshots/all-groups-desktop.png"
+    },
+    "company-logo-editor.png": {
+      "sha256": "6c540b36cdced0301ca38549921ffba4c31469fcbb0879ffa2ae654293d6b764",
+      "path": "docs/audit/dashboard-2026-10-30/final-retained-frontend-20261101-001/branding-screenshots/company-logo-editor.png"
+    },
+    "group-banner-desktop.png": {
+      "sha256": "ee3dfdbafccd9f76c4234651382cfcd43c1079c59bc77a8e1cc6a988ccec0e76",
+      "path": "docs/audit/dashboard-2026-10-30/final-retained-frontend-20261101-001/branding-screenshots/group-banner-desktop.png"
+    },
+    "group-banner-mobile.png": {
+      "sha256": "5de2059a056956603bf1dd106383e2cc8e7b085da532aa7bdf8808c9c18cd9e6",
+      "path": "docs/audit/dashboard-2026-10-30/final-retained-frontend-20261101-001/branding-screenshots/group-banner-mobile.png"
+    },
+    "visa-company-logo.png": {
+      "sha256": "f6f9625c2d18d807208db3a1f500ffeab22566bc514f145d32b774389c33185b",
+      "path": "docs/audit/dashboard-2026-10-30/final-retained-frontend-20261101-001/branding-screenshots/visa-company-logo.png"
+    },
+    "group-background-editor.png": {
+      "sha256": "c25df891fc403635d3d53c6c6a048ed008b32ebb41e383554267bce0b251c075",
+      "path": "docs/audit/dashboard-2026-10-30/final-retained-frontend-20261101-001/branding-screenshots/group-background-editor.png"
+    },
+    "group-background-desktop.png": {
+      "sha256": "0342bae7ed4e2cb98c6000cae8ff8904545523a4b43dbe1dc3a57f2702f4a4ae",
+      "path": "docs/audit/dashboard-2026-10-30/final-retained-frontend-20261101-001/branding-screenshots/group-background-desktop.png"
+    },
+    "group-background-mobile.png": {
+      "sha256": "f83a9d3823089496c722f4b6475548f1722fd550310ab9df9a75a11b0b080256",
+      "path": "docs/audit/dashboard-2026-10-30/final-retained-frontend-20261101-001/branding-screenshots/group-background-mobile.png"
+    },
+    "group-background-editor-mobile.png": {
+      "sha256": "6a468e64a2add2ef934b8b6d0a6a7a33d6b4ddd9e9b1e1a89aa9013d4875ac43",
+      "path": "docs/audit/dashboard-2026-10-30/final-retained-frontend-20261101-001/branding-screenshots/group-background-editor-mobile.png"
+    }
+  },
+  "limits": "Chromium production build with synthetic API/browser fixtures. No actual backend/service/provider/mobile device or VPS qualification."
+}

@@ -1,0 +1,285 @@
+[
+  {
+    "path": "backend/app/infrastructure/ai/gemini_email_analysis_service.py",
+    "sha256": "58574318563ce7065633ec923be2fc176fd51c8e2b58641bb803beb02a24426b",
+    "lines": 320,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Complete original1027-line and complete final physical source reads. Fixed eager provider buffering/error body consumption by existing bounded stream transport; rejects unsupported compression/oversize and never follows redirects even with injected client defaults. Maintains original timeout/status classification and exactly one schema-repair attempt; metadata-only logs and public facade methods remain.",
+    "verification": "email-ai-refactor-verification.json"
+  },
+  {
+    "path": "backend/app/infrastructure/ai/gemini_email_codec.py",
+    "sha256": "249442f2cb40c5d0720f7a3fed05399162c6dfd57e41802d0883e36b4c52199d",
+    "lines": 79,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete final physical read. Exact envelope/schema/status/visible-alias validators with explicit current original byte/text/thought-signature limits. Strict provider validation does not execute model suggestions; remaining branch gaps recorded, not certified fully covered.",
+    "verification": "email-ai-refactor-verification.json"
+  },
+  {
+    "path": "backend/app/infrastructure/ai/gemini_email_facts.py",
+    "sha256": "faf737b98bd98e1486efc60d1f8e558e9f9f27ffe0bbf883a874e5d565cd92c6",
+    "lines": 78,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete final physical read. Original occupied-span factual-anchor extraction/canonicalization intact; diagnostics contain field/kind/count/model only, no extracted anchor values or private text.",
+    "verification": "email-ai-refactor-verification.json"
+  },
+  {
+    "path": "backend/app/infrastructure/ai/gemini_email_grounding.py",
+    "sha256": "8ad9de9762940c20b96e245a84efe54b26d2566200e5149594a359c599b1ad66",
+    "lines": 142,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete final physical read. Summary/display factual rejection, unsupported draft removal and source-grounded deterministic deadline resolution exact after purpose-helper expansion. Safe derivation/threshold behavior preserved; no automatic sends/actions.",
+    "verification": "email-ai-refactor-verification.json"
+  },
+  {
+    "path": "backend/app/infrastructure/ai/gemini_email_patterns.py",
+    "sha256": "bfa6964e79bfe85d65aaec3745eeb5c52f812c666825888201c335e2908686fe",
+    "lines": 110,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete final physical read. Every original regex/rule/derivation constant exact AST; no broadening of accepted input/normalization or removal of private-value minimization.",
+    "verification": "email-ai-refactor-verification.json"
+  },
+  {
+    "path": "backend/app/infrastructure/ai/gemini_email_payload.py",
+    "sha256": "53394f442a64643234b904a3b7ae1314030de20d07bb43c8bd89cd8c918a8e9b",
+    "lines": 113,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete final physical read. Same minimized bounded reference/untrusted email parts, original instruction fence, repair prompt and explicit unsent/no-tools proposal contract; raw previous invalid response never echoed in repair.",
+    "verification": "email-ai-refactor-verification.json"
+  },
+  {
+    "path": "backend/app/infrastructure/ai/gemini_email_result.py",
+    "sha256": "253256f772b1d3545b056179236c2c0ca3e65860dd6e1d7e7e3877860a3a8201",
+    "lines": 164,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete final physical read. Long mixed result method now composes grounding/policy/review purposes; whole expanded body exact after typed threshold/model/action-policy injection. Same decisions, ambiguity, review flags and response values.",
+    "verification": "email-ai-refactor-verification.json"
+  },
+  {
+    "path": "backend/app/infrastructure/ai/gemini_email_schema.py",
+    "sha256": "28fd1c5f5cc4f7e8ef5c02342c133ef829a44743098d02edf75e460364486a36",
+    "lines": 158,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete final physical read. Whole original bounded schema AST and enum values retained, candidate allowlist remains current visible aliases. No public API snapshot/schema mutation.",
+    "verification": "email-ai-refactor-verification.json"
+  },
+  {
+    "path": "backend/app/infrastructure/ai/gemini_email_text.py",
+    "sha256": "8cfef1131369174c97efa4c0fb34b46ef6e6a2976bbe24b5c9ed50dcd66f6096",
+    "lines": 115,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete final physical read. Original NFKC/control/private-value minimization and bounded trusted fact corpus/deadline exact phrase grounding retained. Domain extraction supplies domains only; no full sender address/API credential sent in payload.",
+    "verification": "email-ai-refactor-verification.json"
+  },
+  {
+    "path": "backend/app/infrastructure/email/ai_claim.py",
+    "sha256": "d34dc634b705fa16701aa941184b971794fd88fab77437862fc0cbffdc6d878e",
+    "lines": 33,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete final physical read. Original frozen leased-task dataclass and task_kwargs body/field order exact; single class alias retains original module for pickle/introspection. Queue payload contents not altered or logged here.",
+    "verification": "email-ai-refactor-verification.json"
+  },
+  {
+    "path": "backend/app/infrastructure/email/ai_claim_lifecycle.py",
+    "sha256": "407c5565a92cd1975138a7fea4248ae236c9afab1b8435507e289c3abf8ace6d",
+    "lines": 172,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete final physical read. Recovery loads the currently matching claim before mutation; stale returns without commit/notification. Refunded admission/broker attempts vs consumed provider attempts, retry/backoff and exhausted-finalization behavior preserved.14 meaningful facade recovery negatives supplement real existing business cases.",
+    "verification": "email-ai-refactor-verification.json"
+  },
+  {
+    "path": "backend/app/infrastructure/email/ai_claim_query.py",
+    "sha256": "7ae95c8332d9ce8b7e7e602cc24a3e3fdb142a9c288401404c575efdae168587",
+    "lines": 181,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete final physical read. Original owner fairness/starvation/ranking/pending-expired joins and row lock query preserved after exact argument substitution. No new admission/quota/SQL/locking policy.",
+    "verification": "email-ai-refactor-verification.json"
+  },
+  {
+    "path": "backend/app/infrastructure/email/ai_claim_repository.py",
+    "sha256": "74e60842f62fd1e66febf42b02599cdc3fcc38394499dd1546eece247ae969a6",
+    "lines": 77,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete final physical read. Same agency/user/connection/message/provider account/generation/token/processing/office-owner predicates and optional row lock. Lease expiry/agency-active/role-change requirements remain separate unvalidated lifecycle-policy traces, not declared vulnerabilities from missing predicates alone.",
+    "verification": "email-ai-refactor-verification.json"
+  },
+  {
+    "path": "backend/app/infrastructure/email/ai_dispatch.py",
+    "sha256": "db7a56277838c6af29f4df227cfea27c408aa62c6fca9e4528e14b3f15e14bd8",
+    "lines": 113,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete final physical read. Seeding/count/admission/lease updates/commit order unchanged whole expanded body. SQL factories receive original facade constants at call time; current seed hash callback retained.",
+    "verification": "email-ai-refactor-verification.json"
+  },
+  {
+    "path": "backend/app/infrastructure/email/ai_link_policy.py",
+    "sha256": "6314c42cf08ff054e9a6e5b0ec4f698254fd1302c6101130da9f58c80c4cc0e0",
+    "lines": 169,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete final physical read. Canonical group/passenger links and ambiguity checks use only authorized context aliases and parent/name facts. Whole declarations unchanged; canonical complexity27 remains honest debt rather than merging distinct confidence policies.",
+    "verification": "email-ai-refactor-verification.json"
+  },
+  {
+    "path": "backend/app/infrastructure/email/ai_notifications.py",
+    "sha256": "111fe6fb53a6cbad20ff30516bdbd6d69f6abec908fda3dcc24478bd532061c4",
+    "lines": 143,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete final physical read. Original transactional activity metadata and targeted attention/dedup policy preserved; notification repository captured at original facade seam. No real provider send. Classification complexity26 remains explicit debt.",
+    "verification": "email-ai-refactor-verification.json"
+  },
+  {
+    "path": "backend/app/infrastructure/email/ai_persistence.py",
+    "sha256": "50c4b86a5f8cc774a1efc0a3ece857ee535c6bcc1e80cb83a288f9dd23ceaca7",
+    "lines": 167,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete final physical read. Matching current claim and rollout namespace lock checked before transactional result writes; approved-only proposals remain unexecuted and reply drafts unsent. Staging helper macro expansion exactly preserves persistence body and final commit.",
+    "verification": "email-ai-refactor-verification.json"
+  },
+  {
+    "path": "backend/app/infrastructure/email/ai_result_records.py",
+    "sha256": "7220d9ecc56f7be2cbe04cb24fc32d261b0830215e7bca9468813bf030b0998b",
+    "lines": 168,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete final physical read. Deadline source-fingerprint and proposal idempotency de-duplication, target alias mapping, approval-only/blocked states and safe-address unsent draft staging preserved exactly. No partial commits or external IO.",
+    "verification": "email-ai-refactor-verification.json"
+  },
+  {
+    "path": "backend/app/infrastructure/email/ai_runtime.py",
+    "sha256": "c0df0f57423cc18dd2fa25749489d8dc0d5302e22ed4fba47a5d5ac5ba1f5e4e",
+    "lines": 356,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete original1436-line and final physical reads. Original run orchestration exact AST, thin typed call-time wrappers retain factory/claim loader/provider/policy/notification seams. Original schema version and explicit uuid alias restored for legacy serialization/type-hint identity; no new auth grant.",
+    "verification": "email-ai-refactor-verification.json"
+  },
+  {
+    "path": "backend/app/infrastructure/email/ai_runtime_dependencies.py",
+    "sha256": "f691a230887b959419b5c8b2730f2996b40f4fcde79e3883a8f9ef992f404130",
+    "lines": 74,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete final physical read. Frozen explicit typed callable/context-manager boundaries capture reviewed original services; no global mutable injection bucket, new request authority or dynamic import behavior.",
+    "verification": "email-ai-refactor-verification.json"
+  },
+  {
+    "path": "backend/app/infrastructure/email/ai_seed_query.py",
+    "sha256": "808abbd8b0509e8c582e2518d399c2f57e41475281301e894e29e3ec144b5f52",
+    "lines": 161,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete final physical read. Original settled-message/current-owner/connection/rollout/no-existing-analysis joins, fair newest/oldest priority and limit/skip-locked selection retained after exact substitution.",
+    "verification": "email-ai-refactor-verification.json"
+  },
+  {
+    "path": "backend/app/infrastructure/email/ai_values.py",
+    "sha256": "c5a10b922d8b3fe4c503ed7949c808e643f873d41b7d245fb5dac44724a3bc34",
+    "lines": 72,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete final physical read. UTC conversion, safe retry-generation parsing, stable seed hash, bounded reply address validation and policy pause transitions unchanged whole AST.",
+    "verification": "email-ai-refactor-verification.json"
+  },
+  {
+    "path": "backend/app/infrastructure/email/ai_context.py",
+    "sha256": "97301353ab60ccc83c21d641f92925c08b592b97582d991b47df7d1709ecdad0",
+    "lines": 518,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical read of unchanged518-line context source. Current active owner/agency and visibility SQL precede bounded group/passenger scans; payload uses minimized facts/aliases/domains plus bounded attachment filenames. No SQL/session crosses provider. Current-context changes during external analysis remain a distinct policy trace, not certification by initial snapshot.",
+    "verification": "email-ai-refactor-verification.json"
+  },
+  {
+    "path": "backend/app/infrastructure/ai/bounded_vision_http.py",
+    "sha256": "8a66e9bc0f728cee96334bbfcdacbe2f681c373268e730d0e6eff1424ae447a3",
+    "lines": 68,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical read of unchanged existing helper before reuse. Redirects false, identity encoding, declared/streamed byte limit and non-success body avoidance occur before parsing/full buffering. Caller owns attempt timeout/repair/status decisions. Actual AsyncByteStream controls prove cancellation/close/consumption behavior; no live network used.",
+    "verification": "email-ai-refactor-verification.json"
+  },
+  {
+    "path": "backend/app/application/use_cases/email_integrations/rollout_policy.py",
+    "sha256": "742101916bb990b85e37df339ec38a29be7b12b21c5880b0b92211fdaa1685fa",
+    "lines": 87,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical read. Agency/user/connection explicit deny expression; namespace lock serializes final AI writes and policy mutations. Agency existence lock does not itself require is_active; that is an open broader lifecycle policy trace, not a proven bug in this checkpoint.",
+    "verification": "email-ai-refactor-verification.json"
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_gemini_email_analysis_transport.py",
+    "sha256": "58727c7d7d0a800e2be902de42f97f6fcd3cc2ea1b23defc5cd9e46826e7cb84",
+    "lines": 137,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "kind": "test",
+    "notes": "Complete final physical source read. Synthetic stream/transport, class serialization or claim recovery fixtures; meaningful denied/bounded/unchanged-success behavior, no actual mailbox/provider/broker/business messages.",
+    "verification": "email-ai-refactor-verification.json"
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_email_ai_architecture_compatibility.py",
+    "sha256": "bdee76b044e8487e8f5a86a4214b4a12e79e0dc085752930d1c9ffd172ad8146",
+    "lines": 38,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "kind": "test",
+    "notes": "Complete final physical source read. Synthetic stream/transport, class serialization or claim recovery fixtures; meaningful denied/bounded/unchanged-success behavior, no actual mailbox/provider/broker/business messages.",
+    "verification": "email-ai-refactor-verification.json"
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_email_ai_claim_lifecycle.py",
+    "sha256": "30cc16614848c1c8a920afdfb5b57e8b09462029596a942983efbcb9fc53ebc8",
+    "lines": 183,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "kind": "test",
+    "notes": "Complete final physical source read. Synthetic stream/transport, class serialization or claim recovery fixtures; meaningful denied/bounded/unchanged-success behavior, no actual mailbox/provider/broker/business messages.",
+    "verification": "email-ai-refactor-verification.json"
+  }
+]

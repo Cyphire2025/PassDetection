@@ -1,0 +1,80 @@
+{
+  "source_fence_paths_unchanged": 18,
+  "fresh_coverage": true,
+  "coverage_only_owner_rows_qualified": [
+    "backend/app/infrastructure/email/deadline_notification_policy.py",
+    "backend/app/infrastructure/email/deadline_notification_coverage.py",
+    "backend/app/infrastructure/email/deadline_notification_emit.py",
+    "backend/app/infrastructure/email/deadline_notification_initial.py",
+    "backend/app/infrastructure/email/deadline_notification_visibility.py",
+    "backend/app/infrastructure/email/deadline_notifications.py"
+  ],
+  "coverage_source_directory_reason": "Dotted module import probes initialize email package before conftest settings. Directory source instrumentation preserves normal fixture startup; no app/native-library changes or suppressed errors. Unrelated directory rows are not qualified by this batch.",
+  "commands": [
+    {
+      "label": "lint",
+      "command": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "ruff",
+        "check",
+        "--no-fix",
+        "app/infrastructure/email/deadline_notification_policy.py",
+        "app/infrastructure/email/deadline_notification_coverage.py",
+        "app/infrastructure/email/deadline_notification_emit.py",
+        "app/infrastructure/email/deadline_notification_initial.py",
+        "app/infrastructure/email/deadline_notification_visibility.py",
+        "app/infrastructure/email/deadline_notifications.py",
+        "tests/unit/infrastructure/test_email_deadline_coverage.py",
+        "tests/unit/infrastructure/test_email_deadline_batches.py",
+        "tests/unit/infrastructure/test_email_deadline_visibility.py"
+      ],
+      "exit_code": 0,
+      "log": "docs/audit/dashboard-2026-10-30/email-deadline-final-lint.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "label": "types",
+      "command": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "mypy",
+        "app/infrastructure/email/deadline_notification_policy.py",
+        "app/infrastructure/email/deadline_notification_coverage.py",
+        "app/infrastructure/email/deadline_notification_emit.py",
+        "app/infrastructure/email/deadline_notification_initial.py",
+        "app/infrastructure/email/deadline_notification_visibility.py",
+        "app/infrastructure/email/deadline_notifications.py"
+      ],
+      "exit_code": 0,
+      "log": "docs/audit/dashboard-2026-10-30/email-deadline-final-types.log",
+      "sha256": "ab35ee42183d4d6d3ba483825ab037d18a5a15622d03be01d82220b1564851ff"
+    },
+    {
+      "label": "tests",
+      "command": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/unit/infrastructure/test_email_deadline_coverage.py",
+        "tests/unit/infrastructure/test_email_deadline_batches.py",
+        "tests/unit/infrastructure/test_email_deadline_visibility.py",
+        "tests/unit/infrastructure/test_email_ai_deadline_notifications.py",
+        "tests/unit/infrastructure/test_email_task_routing.py::test_email_tasks_use_a_dedicated_durable_queue",
+        "tests/unit/infrastructure/test_email_task_routing.py::test_email_dispatch_has_a_single_periodic_schedule",
+        "tests/unit/infrastructure/test_email_ai_runtime.py::test_claim_persists_auditable_proposal_draft_and_owner_notification",
+        "--cov=app/infrastructure/email",
+        "--cov-branch",
+        "--cov-report=",
+        "--cov-report=json:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\email-deadline-final-coverage.json",
+        "--cov-report=xml:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\email-deadline-final-coverage.xml"
+      ],
+      "exit_code": 0,
+      "log": "docs/audit/dashboard-2026-10-30/email-deadline-final-tests.log",
+      "sha256": "e4d05bcbbfeb51b50196fc9c4a0969003fb7544b5c9e30dc85c637ffb199c213"
+    }
+  ]
+}

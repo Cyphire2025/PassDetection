@@ -199,6 +199,14 @@ and keep Nginx as the only caller allowed to reach the backend service.
 
 ## Deployment and checks
 
+The direct-Compose sequence below records the original policy rollout. For a
+current deployment, use the exact qualified
+[release manifest](../../backend/app/core/config/release_manifest.json) and
+[deployment selector](../deployment-modes.md). Its schema, resource, image,
+backup and recovery gates remain required; the historical commands below do not
+replace that procedure. Runtime Nginx/application configuration governs the
+active routes and their limits.
+
 Run these from the host PowerShell terminal in the repository root, not inside a
 running container:
 

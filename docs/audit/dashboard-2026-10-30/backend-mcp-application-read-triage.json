@@ -1,0 +1,517 @@
+{
+  "purpose": "Automated current-hash triage, not manual source coverage",
+  "already_full_current": [
+    {
+      "path": "backend/app/application/mcp/native_transfer_runtime.py",
+      "sha256": "233e0fc056220b26757f0fe72d0b46f9fefb93bbb8e7d93cee3d1c0670f55225",
+      "physical_lines": 210,
+      "existing_full_ledgers": [
+        "backend-mcp-supporting-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "backend/app/application/mcp/read_context.py",
+      "sha256": "82a803644db66e939797fd407c0420386d3691b08d000a149cf1eedaffc37120",
+      "physical_lines": 74,
+      "existing_full_ledgers": [
+        "backend-mcp-supporting-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "backend/app/application/mcp/read_projection.py",
+      "sha256": "ebed0d86e9d33edfe0dc4f764c7ee4f4681bb86dff989da42459eeae2f4b03d3",
+      "physical_lines": 184,
+      "existing_full_ledgers": [
+        "backend-mcp-supporting-reviewed-files.json"
+      ]
+    }
+  ],
+  "pending_physical_reads": [
+    {
+      "path": "backend/app/application/mcp/__init__.py",
+      "sha256": "9521c6b39f2737adde92c913937d073ae14594ecd33b8647e7420e1fff4051fd",
+      "physical_lines": 1,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/access_changes.py",
+      "sha256": "8d6bddaeae87074ba6efbc8989fa45acf4b210bcf08a8184e2803d0059ae2f81",
+      "physical_lines": 274,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/account_creation.py",
+      "sha256": "fa069508b1a3aaac1fd4f77c34a95d82a3ea1373fdf9dec0cf57422c8117f8ae",
+      "physical_lines": 270,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/additive_mobile.py",
+      "sha256": "d967092e508375be247468933119529f7939a1638c02cc3157267af2337f97a4",
+      "physical_lines": 110,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/admin_overview_reads.py",
+      "sha256": "de7905201a272cc5ef2420931de0ad9cdda113aaee266f3e4379d442bbd30a57",
+      "physical_lines": 60,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/analytics_reads.py",
+      "sha256": "ddb0c1cc0a58b254e5d7cc9c0277cbad6aaa973802cc3f0b3aeb41c2ea485386",
+      "physical_lines": 111,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/announcement_changes.py",
+      "sha256": "546293342c435e1945a9dd377eccf801f8aba1b6bc1f6a88063965b2e0b229ea",
+      "physical_lines": 151,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/artifacts.py",
+      "sha256": "39b4a7df6452cde2743703537b64215088b5cdc8338e04b9b0a856b321a86abe",
+      "physical_lines": 692,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/attendance_reads.py",
+      "sha256": "d0cd7a0b8f412bc3356d16e9052c7efa0dadda45c3b7b561b6534b272d3ce172",
+      "physical_lines": 237,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/authorization.py",
+      "sha256": "8e9b9b9d95392262d07dd60184397779e0898bb2b1e543737fff6eb0192ac56f",
+      "physical_lines": 349,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/broadcast_link_changes.py",
+      "sha256": "424f72e02a089dfe0740e5e50b2addab94580a4fd4c2e078e4b06de426748246",
+      "physical_lines": 233,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/broadcast_link_plan.py",
+      "sha256": "e1ce28cd3494ecb8895be64c64a317b22dad65dce2f1382d225e795d202cbf3c",
+      "physical_lines": 157,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/broadcast_link_source.py",
+      "sha256": "4c2482262e3c979e88179d24131451ad0d51715a751b3111ace825092cb37e50",
+      "physical_lines": 289,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/change_context.py",
+      "sha256": "9d4fa84593dab9626380327f16ce80a99687a43eedb51c4e65a909ef53d805f6",
+      "physical_lines": 72,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/client_detail_changes.py",
+      "sha256": "245a26a2962d485c0ff24636e37aeb4586755ca199e870f89a0b3a57cfef7520",
+      "physical_lines": 131,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/client_detail_revisions.py",
+      "sha256": "d509591bf085baed4cfa0e29ab86fe6132bd0f83959aa454de60699534401670",
+      "physical_lines": 110,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/client_policy.py",
+      "sha256": "fa787ba2203f881b2a2c44557d8f3ed029aec4414d0d8b70dcb324aaaaf26351",
+      "physical_lines": 205,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/connection_requests.py",
+      "sha256": "0ab3e60df97ec6a3c439267a82fd0952fbc8e08f8ee346e2a09b56496ff640a6",
+      "physical_lines": 359,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/contact_broadcasts.py",
+      "sha256": "a6deb4768ad14fad21df42b476b3e15a2589032b98ed0646b8fb7b204820c67f",
+      "physical_lines": 202,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/contact_mapping.py",
+      "sha256": "6e7f4781407269bc3a455055de9aff33aa6b38d424ce053daed2d08be92c82d2",
+      "physical_lines": 196,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/contact_uploads.py",
+      "sha256": "4049641480ae15a5d44a67be0954064f71d1c91b73ead316fa8c03c876f529d5",
+      "physical_lines": 211,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/content_reads.py",
+      "sha256": "238181db9c2fb2ccfe73662ccbe99508d00c3fc3261d988ab1fc4222bb273f3d",
+      "physical_lines": 106,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/credentials.py",
+      "sha256": "9cd9315461818f7c9bf08c1bb07449332675e7a89d0f2bd619c3325c4da562bb",
+      "physical_lines": 43,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/dashboard_reads.py",
+      "sha256": "f5b03f891676f2b293c4de0578460be66eba518e23da8718900394231571a74e",
+      "physical_lines": 66,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/delivery_reads.py",
+      "sha256": "2ebd1a33e0294fd963803743fc063fab02f8cd9defbc69112abd764897a74a8c",
+      "physical_lines": 137,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/diagnostics.py",
+      "sha256": "90a05b205a05ca55c4bc0d167d80e38b9507ca225dfb106f19f3fdd49533f1d1",
+      "physical_lines": 158,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/document_delivery.py",
+      "sha256": "022ba21a26bda419a7c51fcd7ebf70bf34c5b70ad7e339409747a5e5afe9ab9c",
+      "physical_lines": 144,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/document_delivery_capacity.py",
+      "sha256": "cfb7487a053650da0c29f366c11b1cd7fea6512120f47ed9931494226c3818d6",
+      "physical_lines": 47,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/document_delivery_dto.py",
+      "sha256": "199dc3e35ec430e28b8f03f1016e16fd5273fb696293c1572baa13924499605d",
+      "physical_lines": 39,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/document_delivery_sources.py",
+      "sha256": "6691b0f935e09dc84595feb3b5cd05c4c830c9e2284c588fd35328116f268e09",
+      "physical_lines": 20,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/document_export_source.py",
+      "sha256": "b6a82db2e81e816c07a0f5bc6d69925da27cd4187af03124bd98f67dbe307b02",
+      "physical_lines": 140,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/document_export_workbook.py",
+      "sha256": "ab8b4c84fd7dc284a596617ba539311b0379f6bdfa1bfd32af495debac4ca311",
+      "physical_lines": 98,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/document_exports.py",
+      "sha256": "e3806695ff81e864ab284468a95f58a4166ec3b2996da3e41650f172c0601fb6",
+      "physical_lines": 268,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/document_reads.py",
+      "sha256": "7bec973a7c9b1dea4cc1602fd03deb7726c1c613ac392498242226f18c64811e",
+      "physical_lines": 135,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/ecr_reads.py",
+      "sha256": "a59e0a4ac1c78a83de3a7675f66f97cab58c002973913b2c88f48b921b7c5ecb",
+      "physical_lines": 222,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/email_overview_reads.py",
+      "sha256": "8bcc1fd0e9804b69341d6c7ed5cd571387ab1d83229b5bd695d99fd106e98384",
+      "physical_lines": 87,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/excel_options.py",
+      "sha256": "228fd4d83fc09bbd169c8a2abfc93e6a86c21a2a163989af318a591ccd3b05ac",
+      "physical_lines": 157,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/excel_source_admission.py",
+      "sha256": "108ec1ffc3b51aa943e2a06164996f60966a60cfa9f0a1b507f5183bf49edb1b",
+      "physical_lines": 80,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/export_capacity.py",
+      "sha256": "15d193ab89252bd45154506727950657bba25270b5dee6c0d7bc7f43aceda04d",
+      "physical_lines": 30,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/export_history_reads.py",
+      "sha256": "b0b648166e55b61f969f94f43c26d81cfed0399d418cce0f2ac09d3e4865be5c",
+      "physical_lines": 196,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/export_source_budget.py",
+      "sha256": "a46f2e5bbad06462eb80d5a8b0c3a020ed2a86a6d7157840863d9285eb633725",
+      "physical_lines": 61,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/exports.py",
+      "sha256": "1e2c0f10ffc9f12ebd9131df9e8f23406841a9de6641446c4a998e0508e7e95f",
+      "physical_lines": 422,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/gc_push_drafts.py",
+      "sha256": "dd2f5f07f9d0137c3dca0eb806053027107a108850f4a889940d1a266cfbec8b",
+      "physical_lines": 84,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/gc_push_intents.py",
+      "sha256": "24f3f58d25386db0c54b85eab163559b08eff8c8a5f632d68102759c310c6193",
+      "physical_lines": 221,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/gc_push_progress.py",
+      "sha256": "6c786d096fb55690f36c280591b1ec84a376f1490c9e569fbbc64c79b13a247a",
+      "physical_lines": 81,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/gc_push_snapshots.py",
+      "sha256": "60f113dbe3bf4a77aa8f5611319ba696ad06188ada3dbf5571958243af433168",
+      "physical_lines": 202,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/group_changes.py",
+      "sha256": "75bf0e3ea2e75ef32776afd5acda883a88c7dffd00ef29355e81bec64a29a023",
+      "physical_lines": 143,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/group_reads.py",
+      "sha256": "84c705f4426739562cf7fcb5feb0dd717f36915d046c021ccb54cae720a2ce8c",
+      "physical_lines": 136,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/group_workbook_import.py",
+      "sha256": "c6a03c902e72925e225068f468ec37bd65f0dbb98b6a29d44e0faf8488c943f1",
+      "physical_lines": 180,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/group_workbook_plan.py",
+      "sha256": "ce9d781b12d76d3cbc39fdd1717bec023b3d7c4ef2dea3b69ee61bd9258b57e6",
+      "physical_lines": 333,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/group_workbook_source.py",
+      "sha256": "c6bdf83a234e085e00acc603bc5b81ed3396fba4152c3387513ef67fe1f736b9",
+      "physical_lines": 89,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/image_exports.py",
+      "sha256": "06758a373a7b9726f4dcf1c2317e2edf2e6238c571197b364d3053ec2e9f31fc",
+      "physical_lines": 368,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/input_errors.py",
+      "sha256": "ac0dd19af93920bede6926a272886450832570be4cac1e04832414f4659533de",
+      "physical_lines": 9,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/itinerary_changes.py",
+      "sha256": "85f5acc04b258a8ebb89e9c41ac8d0b13aabc9875f765c0aa8ef5f61e9fddae5",
+      "physical_lines": 122,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/native_source_bindings.py",
+      "sha256": "2bf85d27301027c1c9139d1c2cddc32435b60dac485b30c9ebbae922a644f232",
+      "physical_lines": 67,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/native_transfer_dto.py",
+      "sha256": "d7a2c4d127f633e894d9d6ca098eb51c738eb1560bb312ce2ea712d97ee41dc8",
+      "physical_lines": 50,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/native_transfers.py",
+      "sha256": "c52b2f7a8c1a3c5e8de7b2fd253aeeb7e3c16cfaaf86336bd8ed1ce8787f4f3a",
+      "physical_lines": 455,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/notification_changes.py",
+      "sha256": "6999715d58172dc93aae7bd75ad769314a1d5cef87b2e058a7ec9ecf6ddb6c71",
+      "physical_lines": 83,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/notification_reads.py",
+      "sha256": "ebf3c20812be05307d995185c9d5e241fcdfe2392d09f44f69845267443faf69",
+      "physical_lines": 40,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/office_changes.py",
+      "sha256": "48685f22fa43633f55f9f8a4a4f33f488535182fc39c489f1c9b58a41825abb5",
+      "physical_lines": 185,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/operations.py",
+      "sha256": "88a52fbc2145bd73de84d87572bcb63782d79d45733f3cf7167fc9a7eb0c25f4",
+      "physical_lines": 446,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/operations_reads.py",
+      "sha256": "eac47ef03d3c51db6e56cdb7af49b665855a3e2732a798153a711f92e6f68b46",
+      "physical_lines": 115,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/pdf_ingestion.py",
+      "sha256": "beb2d5e2798571769eb5c7e99213c083dd0f57833513ce1c119b13a6f8ec7f76",
+      "physical_lines": 682,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/permissions.py",
+      "sha256": "7fca80d23fb04e16388ee14c91d01e739e905e83118e51a5a5a98d15c38c9f4b",
+      "physical_lines": 127,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/phone_difference_reads.py",
+      "sha256": "4495996e353a2732e28161a4cf75b3022b8bbdf40ff14a23feb509a48f001d6c",
+      "physical_lines": 166,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/read_access.py",
+      "sha256": "0b67d77688f49a1520acc151ce95b56b5577ae9e21a845e397d34d608560f665",
+      "physical_lines": 46,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/read_cursor.py",
+      "sha256": "6da2fc445c69df0b646efc41a7b3d3ba065cc368e3d7658e1b3bb435130ec3d8",
+      "physical_lines": 53,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/rename_reads.py",
+      "sha256": "8466963f4c6681e7cd8e1b05abd5b1122c4464ade754d89364710c6cd5403d9e",
+      "physical_lines": 117,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/retention_reads.py",
+      "sha256": "a58715051ec4878dc347ced2d7f95598b7ae2d534203b6f20ad74bdefef20ad6",
+      "physical_lines": 86,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/rooming_export_source.py",
+      "sha256": "9a2c58c5446f999c6cfcd16b7f1315cf373aff1989a6605d45d669f2ab7aab63",
+      "physical_lines": 152,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/rooming_exports.py",
+      "sha256": "026a8f31760752fa9afb1c593d5487212855f6f360a04f88fb1e71f211e752e3",
+      "physical_lines": 274,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/roster_reads.py",
+      "sha256": "6e6aaf9fe3888294c1087581135768f2a0a0a096aa3415f9de69ff8d3bf6f67b",
+      "physical_lines": 158,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/tour_changes.py",
+      "sha256": "3507965fb3c6934f52b5ab736d1161adf18a3e8542030cc896d40e14f74f682a",
+      "physical_lines": 248,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/tour_evidence_reads.py",
+      "sha256": "a34b3ffc8fe1163bf30c912d56d030be1645bef3c381a22925fb3229a76a3025",
+      "physical_lines": 179,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/tracking_export_source.py",
+      "sha256": "4b6c81e279b32c1a3ff1d6f7e5b70f966f49f0b84ca8b552bad159802172fcac",
+      "physical_lines": 118,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/tracking_exports.py",
+      "sha256": "f11fb2f601f1deaa84358121118066ec78315ee1a1e9cbdd70b4c6e47183b0bb",
+      "physical_lines": 264,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/travel_tracker.py",
+      "sha256": "b8efdf5bf1b0fbbf797281263c4e1adc631677b80069411822107a067f8d44f5",
+      "physical_lines": 482,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/whatsapp_intents.py",
+      "sha256": "4e25b738fa87e54cf8853abd9563860d3ec7c68015fb654f52e2a6e02f07418f",
+      "physical_lines": 252,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/whatsapp_media_access.py",
+      "sha256": "f1fb53340b6bccaad83b27455562d1f9c603548bdd1dea06e87078eb81e74a12",
+      "physical_lines": 211,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/whatsapp_media_uploads.py",
+      "sha256": "906c391889de30bdd4a83f255bfefdb62c184337adecd70b7ce0f8a5e7ffb2fc",
+      "physical_lines": 374,
+      "existing_full_ledgers": []
+    },
+    {
+      "path": "backend/app/application/mcp/whatsapp_reads.py",
+      "sha256": "4eb07200ccf01a3864bee3a852ad3bae2460538a725812133056e01ba291fc36",
+      "physical_lines": 150,
+      "existing_full_ledgers": []
+    }
+  ]
+}

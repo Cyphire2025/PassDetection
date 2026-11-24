@@ -1,0 +1,189 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Users\\nipun\\AppData\\Local\\Programs\\node-v24.21.0-win-x64\\node.exe",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      ".tmp/ui-pwa-batch/playwright.selection-toolbar.config.ts"
+    ],
+    "configFile": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\ui-pwa-batch\\playwright.selection-toolbar.config.ts",
+    "rootDir": "C:/Users/nipun/Desktop/PassDetection/frontend/e2e-fixtures",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/nipun/Desktop/PassDetection/.tmp/ui-pwa-batch/selection-toolbar-after-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/Users/nipun/Desktop/PassDetection/frontend/e2e-fixtures",
+        "testIgnore": [],
+        "testMatch": [
+          "passport-selection-toolbar.spec.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\selection-toolbar-browser-after.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.62.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "passport-selection-toolbar.spec.ts",
+      "file": "passport-selection-toolbar.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "bulk action bounds, focus and pointer activation at 1440px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 659,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T04:31:44.861Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e889e84c9888a7877cb2-6e1849904b6a3c99f8ce",
+          "file": "passport-selection-toolbar.spec.ts",
+          "line": 34,
+          "column": 7
+        },
+        {
+          "title": "bulk action bounds, focus and pointer activation at 390px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 550,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T04:31:54.819Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e889e84c9888a7877cb2-c48e6962c06ecfc1c1a3",
+          "file": "passport-selection-toolbar.spec.ts",
+          "line": 34,
+          "column": 7
+        },
+        {
+          "title": "bulk action bounds, focus and pointer activation at 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 521,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T04:31:55.391Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e889e84c9888a7877cb2-5b6027b9bfb53d5c2053",
+          "file": "passport-selection-toolbar.spec.ts",
+          "line": 34,
+          "column": 7
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-31T04:31:44.564Z",
+    "duration": 11447.978,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

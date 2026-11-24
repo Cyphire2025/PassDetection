@@ -1,0 +1,11 @@
+[
+  {
+    "path": "frontend/features/documents/components/document-workspace-dialogs.tsx",
+    "sha256": "0a46db86357155b8b0725515247743abcb2c77b6c3011ccedde08c1e38d187e0",
+    "physical_lines": 547,
+    "review_scope": "full",
+    "reviewer": "branding_visuals",
+    "status": "needs-follow-up",
+    "notes": "Full current source read in the wrapping tranche. Its actual delivery preview overflow is fixed and verified; this547-line multi-dialog owner still requires cohesive architecture follow-through. Do not let narrow wrapping success close the older structure work."
+  }
+]

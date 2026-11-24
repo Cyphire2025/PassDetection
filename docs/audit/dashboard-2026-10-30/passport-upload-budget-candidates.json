@@ -1,0 +1,156 @@
+[
+  {
+    "path": "features/passports/components/passport-image-crop-editor.tsx",
+    "baselineLines": 198,
+    "maximumLines": 210,
+    "baselineMaxFunctionComplexity": 23,
+    "maximumFunctionComplexity": 25
+  },
+  {
+    "path": "features/passports/components/passport-image-library-panel.tsx",
+    "baselineLines": 178,
+    "maximumLines": 190,
+    "baselineMaxFunctionComplexity": 10,
+    "maximumFunctionComplexity": 12
+  },
+  {
+    "path": "features/passports/components/visa-ai-image-panel.tsx",
+    "baselineLines": 152,
+    "maximumLines": 170,
+    "baselineMaxFunctionComplexity": 8,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/passports/hooks/use-passport-image-crop-editor.ts",
+    "baselineLines": 79,
+    "maximumLines": 90,
+    "baselineMaxFunctionComplexity": 5,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/passports/hooks/use-passport-image-crop-controls.ts",
+    "baselineLines": 49,
+    "maximumLines": 60,
+    "baselineMaxFunctionComplexity": 7,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/passports/hooks/use-passport-image-editor-source.ts",
+    "baselineLines": 59,
+    "maximumLines": 70,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/passports/hooks/use-passport-image-editor-draft.ts",
+    "baselineLines": 141,
+    "maximumLines": 160,
+    "baselineMaxFunctionComplexity": 5,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/passports/hooks/use-passport-image-editor-actions.ts",
+    "baselineLines": 136,
+    "maximumLines": 150,
+    "baselineMaxFunctionComplexity": 7,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/passports/hooks/use-visa-ai-image-generation.ts",
+    "baselineLines": 177,
+    "maximumLines": 190,
+    "baselineMaxFunctionComplexity": 9,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/passports/utils/passport-image-editor-preview.ts",
+    "baselineLines": 81,
+    "maximumLines": 100,
+    "baselineMaxFunctionComplexity": 6,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/passports/utils/passport-image-editor-state.ts",
+    "baselineLines": 49,
+    "maximumLines": 60,
+    "baselineMaxFunctionComplexity": 10,
+    "maximumFunctionComplexity": 12
+  },
+  {
+    "path": "features/passports/services/visa-ai-generation-polling.ts",
+    "baselineLines": 50,
+    "maximumLines": 60,
+    "baselineMaxFunctionComplexity": 6,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/upload/components/upload-flow.tsx",
+    "baselineLines": 13,
+    "maximumLines": 30,
+    "baselineMaxFunctionComplexity": 1,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/upload/components/upload-flow-screen.tsx",
+    "baselineLines": 98,
+    "maximumLines": 110,
+    "baselineMaxFunctionComplexity": 25,
+    "maximumFunctionComplexity": 27
+  },
+  {
+    "path": "features/upload/components/upload-flow-capture-stage.tsx",
+    "baselineLines": 123,
+    "maximumLines": 140,
+    "baselineMaxFunctionComplexity": 7,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/upload/components/upload-flow-review-stage.tsx",
+    "baselineLines": 165,
+    "maximumLines": 180,
+    "baselineMaxFunctionComplexity": 7,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/upload/components/upload-flow-selection-stage.tsx",
+    "baselineLines": 285,
+    "maximumLines": 300,
+    "baselineMaxFunctionComplexity": 19,
+    "maximumFunctionComplexity": 21
+  },
+  {
+    "path": "features/upload/components/upload-acquisition-actions.ts",
+    "baselineLines": 113,
+    "maximumLines": 130,
+    "baselineMaxFunctionComplexity": 7,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/upload/hooks/use-upload-flow-controller.ts",
+    "baselineLines": 279,
+    "maximumLines": 290,
+    "baselineMaxFunctionComplexity": 6,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/upload/hooks/use-upload-traveller-draft.ts",
+    "baselineLines": 59,
+    "maximumLines": 70,
+    "baselineMaxFunctionComplexity": 1,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/upload/hooks/use-upload-qualifier.ts",
+    "baselineLines": 98,
+    "maximumLines": 110,
+    "baselineMaxFunctionComplexity": 11,
+    "maximumFunctionComplexity": 13
+  },
+  {
+    "path": "features/upload/hooks/use-upload-flow-bootstrap.ts",
+    "baselineLines": 104,
+    "maximumLines": 120,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 5
+  }
+]

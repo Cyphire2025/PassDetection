@@ -1,0 +1,74 @@
+{
+  "scope": "Current frontend-only follow-through after root manual review; previous35-case artifacts remain immutable history.",
+  "actual_current_changed_paths": [
+    "frontend/features/upload/components/fresh-qualifier-editor.tsx",
+    "frontend/features/upload/components/fresh-qualifier.test.tsx",
+    "frontend/features/upload/hooks/use-qualifier-selection-editor.ts"
+  ],
+  "all_other_three_qualifier_paths_byte_unchanged": {
+    "frontend/features/upload/components/fresh-qualifier.tsx": "742ecf4bfaaec141e7a0e422419f57889eb44090679e70e47783cbbf0c6bf72c",
+    "frontend/features/passports/api/public-upload-link.api.ts": "d720cbf0a79ce838006b30e56b63b69ec992c96881ffa3cb62d3df0f2b3d005b",
+    "frontend/e2e/qualifier-relationship-methods.spec.ts": "d37bab442b0c382f07f6c3b7e5ccda56c858a60b43c5abc19c60254689dc618c"
+  },
+  "prior35_receipt_sha256": "3c4660b4f35cdc5b6bac56d24bbc0ecb39ef4e1ceaac290454b7b35332b2ae7b",
+  "prior_aa4394_budget_candidate_sha256": "aa4394dc956126bfa8a61af8f435989fc7634cf674e0ddc94e75863f4f4772ad",
+  "all_prior35_linked_artifacts_byte_unchanged": true,
+  "original13_component_controls_byte_exact_after_removing_only_new_case": true,
+  "new_case_preserves_real_contract": "SavedOther GET400 afterOthermethoddisabled; listmethodstillenabled. Retry remains available, fallback cancels pendingretry and guards ignoredabort late result; previous opaque proof survives until explicit validSpouse save returnsnewproof.",
+  "frontend_delta": [
+    "Add explicit Choose another relationship only after a restore error.",
+    "Abort and null current owned GET controller before opening blank editor.",
+    "Keep the existing generic error during retry so manual fallback remains reachable while a retry hangs.",
+    "Do not clear draft proof, POST or autosave when opening/reselecting. Existing explicit save changesproof after success only."
+  ],
+  "backend_focused_evidence": [
+    {
+      "path": "backend/app/presentation/api/v1/schemas/client_group_request_schemas.py",
+      "sha256": "05119ad00c36913fca7f40df7c8e466a017661f7bbc14a0512d0a2c357667e82",
+      "symbol": "UpdateClientGroupRequest",
+      "line": 127,
+      "fact": "upload_configuration accepts existingBoolean methodflags; enabledrelationship requires at leastone method, so listtrue/Otherfalse is valid.",
+      "review_credit": "Focused sourceflow reasoning only; no fresh full backend physical review/test execution credit."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_configuration.py",
+      "sha256": "925faec9ce0fcaad02be70b0207ce7339fa9e941a6ae28f2131cf30b18a1f993",
+      "symbol": "update_client_group",
+      "line": 157,
+      "fact": "Authorized managegroup path persists upload_configuration through group.update_configuration.",
+      "review_credit": "Focused sourceflow reasoning only; no fresh full backend physical review/test execution credit."
+    },
+    {
+      "path": "backend/app/domain/value_objects/qualifier_relations.py",
+      "sha256": "9f50acde7e0eede23f2a39fbfced5bb3afab73fb7788d53b76e7ab1a0b919520",
+      "symbol": "require_enabled_qualifier_choice",
+      "line": 121,
+      "fact": "Active savedOther is rejected whencurrentOtherflagfalse; active savedlist is rejected whenlistmethodfalse. Does not itself implement configurable per-option deletion.",
+      "review_credit": "Focused sourceflow reasoning only; no fresh full backend physical review/test execution credit."
+    },
+    {
+      "path": "backend/app/application/use_cases/client_groups/get_qualifier_selection_use_case.py",
+      "sha256": "30fa653479f7917ec0e5cc6b60f87e342b972da52f38c3ea0f3012c8abb37a9c",
+      "symbol": "GetQualifierSelectionUseCase",
+      "line": 19,
+      "fact": "Rechecks currentmethodguard foractive savedchoice, so permanentlyinvalidoldmethod canfailread.",
+      "review_credit": "Focused sourceflow reasoning only; no fresh full backend physical review/test execution credit."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_public_collection.py",
+      "sha256": "accb96e643cabdf450bc456fca5284e4a0007c490abac2b74630540f10c77bd6",
+      "symbol": "get_qualifier_selection",
+      "line": 119,
+      "fact": "Existing adapter maps domainvalidation failure to400; no weakening or backendchange.",
+      "review_credit": "Focused sourceflow reasoning only; no fresh full backend physical review/test execution credit."
+    },
+    {
+      "path": "backend/app/application/use_cases/client_groups/create_qualifier_selection_use_case.py",
+      "sha256": "a1728ffa9e42ef3548017dfe1dc515fed229fb6ea33ebefccc8552b9027e994f",
+      "symbol": "CreateQualifierSelectionUseCase",
+      "line": 31,
+      "fact": "Explicit replacement creation retains groupactive checks, normalization and same currentmethodguard; list-enabledSpouse is valid even if priorOther lookup fails.",
+      "review_credit": "Focused sourceflow reasoning only; no fresh full backend physical review/test execution credit."
+    }
+  ]
+}

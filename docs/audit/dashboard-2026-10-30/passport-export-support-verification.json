@@ -1,0 +1,76 @@
+{
+  "scope": "Dashboard/shared-backend passport Excel/tracking/selected export helper architecture, exact normalization-work optimization and caller/privacy/serialization/archive traces. Native app excluded.",
+  "source_state": "frozen for integration",
+  "source_sha256": {
+    "backend/app/presentation/api/v1/routes/passport_export_support.py": "3bf9cd6a6c6854971df328266b2f2610ad0bfa18bb83cdbeab1bed8ea426bd13",
+    "backend/app/presentation/api/v1/routes/passport_export_metadata.py": "b6f4e2ee77c4d126d0e8a105e1a7855a383ea2f99ce40d540366c57c15a06c8c",
+    "backend/app/presentation/api/v1/routes/passport_export_recipient_values.py": "1e21745b332529dc9f9b9b6979cf1f7f71167a67f386cdaec2e63d67cd1f823a",
+    "backend/app/presentation/api/v1/routes/passport_export_match_sources.py": "2144e3857498d2269adca494ee42b1644bb7e0ab6aeb4ac1fb2249559b324fc2",
+    "backend/app/presentation/api/v1/routes/passport_export_tracking_rows.py": "f7c1be2c999d9e4eb341da3f82f820ce730c4d7a1ffaab3d651fac8fbc767b9b",
+    "backend/app/presentation/api/v1/routes/passport_export_pending_rows.py": "50027566077518a6996a98c8304f21ebcfb20f1bb0a51931b68e035bc49ff041",
+    "backend/app/presentation/api/v1/routes/passport_export_catalog.py": "9a62384f4cdbc8b6fa1a6e49c44075658fd5cd2be823ce98471e97c79d927d0f",
+    "backend/app/presentation/api/v1/routes/passport_export_agency_matches.py": "aefbe4a35305fab3b93990609caa7d64cb0737abfbc4c54a23a4e7c7ee4c3f3e"
+  },
+  "manual_coverage": {
+    "original_files": 1,
+    "original_lines": 1374,
+    "current_primary_runtime": 8,
+    "support_runtime_full_reads": 4,
+    "full_new_tests": 1,
+    "ledger": "passport-export-support-reviewed-files.json"
+  },
+  "architecture": "1374-line mixed helper replaced by133-line stable alias facade +7cohesive82..313-line metadata/recipient values/match source/tracking/pending/catalog/agency owners. Exact original public aliases, constants, class identities and route/usecase injection seams retained.",
+  "proof": {
+    "artifact": "passport-export-support-structural-work-proof.json",
+    "exact_structural_checks": 40,
+    "scalar_and_group_parity_cohorts": 9,
+    "performance": {
+      "submissions": 120,
+      "recipient_rows": 80,
+      "same_output": true,
+      "normalization_calls_before": 19400,
+      "normalization_calls_after": 400,
+      "retention": "Cache is local to one export invocation, no global/private-data retention",
+      "complexity": "Normalization O(SR*L) -> O((S+R)*L) work for this pair-scoring phase; SequenceMatcher pair search remains unchanged O(SR) calls with its original per-string costs. Extra local dictionary O(S+R) entries."
+    }
+  },
+  "security": "No new tenant leak proved. Full actual HTTP routes authorize group/selected scope before helper inputs; same SQL/filter and workbook field/contact/ambiguity policies. ZIP/archive/Excel/HTTP/SDK negatives exercised by affected tests; not a fresh full physical review of every archive/storage implementation.",
+  "verification": {
+    "junit": "passport-export-support-affected-tests.xml",
+    "name": "pytest",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0",
+    "tests": "241",
+    "time": "113.163",
+    "timestamp": "2026-10-31T10:25:46.970599+05:30",
+    "hostname": "Nipun5070ti",
+    "commands": "passport-export-support-test-command.json",
+    "coverage": "passport-export-support-coverage.json",
+    "static": {
+      "mypy": "passport-export-support-final-mypy.txt:8pass",
+      "ruff": "passport-export-support-final-ruff.txt:8runtime+1test pass",
+      "architecture": "passport-export-support-final-architecture.txt:unchanged policy/checker pass"
+    },
+    "initial": "52existing extraction+8new meaningful control cases included in final affected run; not extra unique cases"
+  },
+  "remaining_debt": [
+    "Tracking reconstruction functioncomplexity32, pending row builder23 and catalogmerge19 retained explicitly; original SQL/query/workflow policy unchanged",
+    "Exact pair search still O(SR) with original SequenceMatcher string costs; local pure normalization memoization adds O(S+R) entries, no production elapsed-time/capacity claim",
+    "Shared preparation Callable[...,Any] boundaries remain prior architecture debt; no arbitrary callable is supplied by request",
+    "No live PostgreSQL/Redis/private object-store/provider sends or deployed VPS qualification; no full backend/application suite rerun",
+    "Whole dashboard manual audit remains open"
+  ],
+  "artifacts_sha256": {
+    "passport-export-support-reviewed-files.json": "a065c7ad61c80063ac09d51a0694a166ea083570ef559fac3d3d8c39bca7331d",
+    "passport-export-support-before-reviewed-files.json": "b6dedd24bcfe9cad73aac40b60487102f9b608cc0e4aeb092b121982c38bd454",
+    "passport-export-support-budget-candidates.json": "09ef97756a8d9265cb46536b60d9b0caa1288d01affaa59fd2d15fc629723fbd",
+    "passport-export-support-structural-work-proof.json": "c40e6d34fed430ee685a1cd5f1be9953e26a56f9687c6d5c0c315d472fd14773",
+    "passport-export-support-test-command.json": "85ae195354493ed816d1ab92523247cd1e5d3ee15bba56168514f6ecea4fe317",
+    "passport-export-support-affected-tests.xml": "ffc00e121304f032de0dd3ae2a831b6f369f10930ad758722d566b985238c7bb",
+    "passport-export-support-coverage.json": "a62ed0db99320ae39f0446e9000ee8462449c3a2036f3e807c7498b9e6e97c58",
+    "passport-export-support-final-mypy.txt": "7aefcacc6d445354a115cf76fcdea696165be7ad8cf9b86a60ea98727c6e96f6",
+    "passport-export-support-final-ruff.txt": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0",
+    "passport-export-support-final-architecture.txt": "895bfbeca4c78591066dcf214c4bfe9de43b5d7ed5d3f518fe398563a7bcc992"
+  }
+}

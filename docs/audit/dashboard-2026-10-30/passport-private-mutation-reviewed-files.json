@@ -1,0 +1,352 @@
+{
+  "recorded_at": "2026-10-30T21:49:29.469Z",
+  "runtime_files": 26,
+  "review_scope": "full",
+  "records": [
+    {
+      "path": "frontend/features/passports/hooks/use-passports.ts",
+      "sha256": "4d9a252ab716212aec0a148d634f319c3605825bc64bb91b68f3b28b982fa520",
+      "physical_lines": 36,
+      "max_function_complexity": 0,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Full original physical source read before extraction; authored ownership deltas and current module wiring reviewed. Mechanical movement is recorded separately from deliberate behavior fixes."
+    },
+    {
+      "path": "frontend/features/passports/hooks/use-upload-links.ts",
+      "sha256": "aa0065e6ee5a105f2ca5986884e58ab4bd3d9e31a4ed38c2116f49055044610a",
+      "physical_lines": 23,
+      "max_function_complexity": 0,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Full original physical source read before extraction; authored ownership deltas and current module wiring reviewed. Mechanical movement is recorded separately from deliberate behavior fixes."
+    },
+    {
+      "path": "frontend/features/passports/hooks/use-client-details.ts",
+      "sha256": "741c64e8c239fb49fd67aad10e4ea92b88a32ca2c670e0feb672bfb56ccdc195",
+      "physical_lines": 37,
+      "max_function_complexity": 1,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Full original physical source read before extraction; authored ownership deltas and current module wiring reviewed. Mechanical movement is recorded separately from deliberate behavior fixes."
+    },
+    {
+      "path": "frontend/features/passports/hooks/use-display-name.ts",
+      "sha256": "3b01fad7942ef962396fb6b7732422d6618d18d2bcea83c023c1d4903640b28d",
+      "physical_lines": 31,
+      "max_function_complexity": 1,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Full original physical source read before extraction; authored ownership deltas and current module wiring reviewed. Mechanical movement is recorded separately from deliberate behavior fixes."
+    },
+    {
+      "path": "frontend/features/passports/hooks/use-passport-queries.ts",
+      "sha256": "d14a1927912ede90a40d37ac02b41965d40823bb8f6e10a6d5793cc5970958a4",
+      "physical_lines": 135,
+      "max_function_complexity": 3,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Full original physical source read before extraction; authored ownership deltas and current module wiring reviewed. Mechanical movement is recorded separately from deliberate behavior fixes."
+    },
+    {
+      "path": "frontend/features/passports/hooks/use-passport-export-mutations.ts",
+      "sha256": "98ae802b014f200910f6cf5341a1f427b8ae157208204477eb70ac6bcbef930e",
+      "physical_lines": 62,
+      "max_function_complexity": 1,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Full original physical source read before extraction; authored ownership deltas and current module wiring reviewed. Mechanical movement is recorded separately from deliberate behavior fixes."
+    },
+    {
+      "path": "frontend/features/passports/hooks/use-passport-import-mutations.ts",
+      "sha256": "7e9a008c3c78802c3fcd5f87fc7651c68f6208c5c42b7d562b92e98951b557ac",
+      "physical_lines": 37,
+      "max_function_complexity": 1,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Full original physical source read before extraction; authored ownership deltas and current module wiring reviewed. Mechanical movement is recorded separately from deliberate behavior fixes."
+    },
+    {
+      "path": "frontend/features/passports/hooks/use-passport-bulk-mutations.ts",
+      "sha256": "e2a4524eb2069480060a3d69aa7f66611661214d8f08cd84cdb9a19403808220",
+      "physical_lines": 45,
+      "max_function_complexity": 1,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Full original physical source read before extraction; authored ownership deltas and current module wiring reviewed. Mechanical movement is recorded separately from deliberate behavior fixes."
+    },
+    {
+      "path": "frontend/features/passports/hooks/use-passport-review-mutations.ts",
+      "sha256": "2955d811798538f5a1f8f85a65faefe1f2c4b547df8bb1743ec518d3d158e3d7",
+      "physical_lines": 87,
+      "max_function_complexity": 3,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Full original physical source read before extraction; authored ownership deltas and current module wiring reviewed. Mechanical movement is recorded separately from deliberate behavior fixes."
+    },
+    {
+      "path": "frontend/features/passports/hooks/upload-link-query-keys.ts",
+      "sha256": "4c23452cb33d065b31b17968c5ca8b26a884d873ac4c2a238a08e8e1fc570738",
+      "physical_lines": 17,
+      "max_function_complexity": 2,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Full original physical source read before extraction; authored ownership deltas and current module wiring reviewed. Mechanical movement is recorded separately from deliberate behavior fixes."
+    },
+    {
+      "path": "frontend/features/passports/hooks/use-upload-link-queries.ts",
+      "sha256": "00b92e514dcf62ef0c014368aff0b17724036d8d797ca803ed9239eab47752c8",
+      "physical_lines": 68,
+      "max_function_complexity": 3,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Full original physical source read before extraction; authored ownership deltas and current module wiring reviewed. Mechanical movement is recorded separately from deliberate behavior fixes."
+    },
+    {
+      "path": "frontend/features/passports/hooks/use-upload-link-mutations.ts",
+      "sha256": "e7665f293bc4c2fc043b62b6e580bf11057892f1e9bac879272d8dbd52beec2c",
+      "physical_lines": 103,
+      "max_function_complexity": 3,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Full original physical source read before extraction; authored ownership deltas and current module wiring reviewed. Mechanical movement is recorded separately from deliberate behavior fixes."
+    },
+    {
+      "path": "frontend/features/passports/hooks/use-upload-link-roster-mutations.ts",
+      "sha256": "5853862383d0b0f6f6dc03f0caa2ef00bc6b2c3bdc249c8b3c28737856b6cdf5",
+      "physical_lines": 124,
+      "max_function_complexity": 1,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Full original physical source read before extraction; authored ownership deltas and current module wiring reviewed. Mechanical movement is recorded separately from deliberate behavior fixes."
+    },
+    {
+      "path": "frontend/features/passports/api/passport-records.api.ts",
+      "sha256": "afc54c35060435a45d61ad3e3cedd551af0cbb5409c0fcfa4db4f45e597773eb",
+      "physical_lines": 161,
+      "max_function_complexity": 7,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Full original physical source read before extraction; authored ownership deltas and current module wiring reviewed. Mechanical movement is recorded separately from deliberate behavior fixes."
+    },
+    {
+      "path": "frontend/features/passports/api/passport-imports.api.ts",
+      "sha256": "3d7c4d17975f2a4b7b609e754925f277d64cb8af809cfa93d56f0d5684dec7d3",
+      "physical_lines": 131,
+      "max_function_complexity": 6,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Full original physical source read before extraction; authored ownership deltas and current module wiring reviewed. Mechanical movement is recorded separately from deliberate behavior fixes."
+    },
+    {
+      "path": "frontend/features/passports/api/passport-group-exports.api.ts",
+      "sha256": "5ff7dae44f86f6dae3ac64de93a84ec7aa7aafb75e02d2dd5af4343c2f5e4392",
+      "physical_lines": 143,
+      "max_function_complexity": 3,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Full original physical source read before extraction; authored ownership deltas and current module wiring reviewed. Mechanical movement is recorded separately from deliberate behavior fixes."
+    },
+    {
+      "path": "frontend/features/passports/api/passport-selection-exports.api.ts",
+      "sha256": "4eafc1d6655ec17e8947cd963c5795734aaa417b9d43a6e855998e6a5cc54474",
+      "physical_lines": 62,
+      "max_function_complexity": 2,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Full original physical source read before extraction; authored ownership deltas and current module wiring reviewed. Mechanical movement is recorded separately from deliberate behavior fixes."
+    },
+    {
+      "path": "frontend/features/passports/api/upload-links.api.ts",
+      "sha256": "ba78888486139cbb6634e8cb2e18ca22ba0be4013cba1c7116933106bb9e52fc",
+      "physical_lines": 34,
+      "max_function_complexity": 0,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Full original physical source read before extraction; authored ownership deltas and current module wiring reviewed. Mechanical movement is recorded separately from deliberate behavior fixes."
+    },
+    {
+      "path": "frontend/features/passports/api/client-details.api.ts",
+      "sha256": "705eaf6f8d12fe15ad91bf4aacf1df640f972acee67195bd90d7cef837d3c69d",
+      "physical_lines": 49,
+      "max_function_complexity": 1,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Full original physical source read before extraction; authored ownership deltas and current module wiring reviewed. Mechanical movement is recorded separately from deliberate behavior fixes."
+    },
+    {
+      "path": "frontend/features/passports/api/display-name.api.ts",
+      "sha256": "b04c6649f20c144491efe226510a40da0a76092e930d23b571b32a6c7de238b3",
+      "physical_lines": 21,
+      "max_function_complexity": 1,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Full original physical source read before extraction; authored ownership deltas and current module wiring reviewed. Mechanical movement is recorded separately from deliberate behavior fixes."
+    },
+    {
+      "path": "frontend/features/passports/api/upload-link.types.ts",
+      "sha256": "3335bc9b14f473a73b45c93edf58683155e564753067c5763e57976fc641543e",
+      "physical_lines": 254,
+      "max_function_complexity": 0,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Full original physical source read before extraction; authored ownership deltas and current module wiring reviewed. Mechanical movement is recorded separately from deliberate behavior fixes."
+    },
+    {
+      "path": "frontend/features/passports/api/upload-link-management.api.ts",
+      "sha256": "a796283f32524ad248c505fc9cdec1aa5263f5aaf0bb5295f518237e4caa35f3",
+      "physical_lines": 56,
+      "max_function_complexity": 2,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Full original physical source read before extraction; authored ownership deltas and current module wiring reviewed. Mechanical movement is recorded separately from deliberate behavior fixes."
+    },
+    {
+      "path": "frontend/features/passports/api/upload-link-roster.api.ts",
+      "sha256": "d1687841ec9061f0e17bb85bb0034cb9db88d032795d9e63a606451a2430ad82",
+      "physical_lines": 104,
+      "max_function_complexity": 2,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Full original physical source read before extraction; authored ownership deltas and current module wiring reviewed. Mechanical movement is recorded separately from deliberate behavior fixes."
+    },
+    {
+      "path": "frontend/features/passports/api/public-upload-link.api.ts",
+      "sha256": "19832df14ca7a10e3a30b0557650cff5c4269f66ea432cb6e82f3a2a68fdc467",
+      "physical_lines": 79,
+      "max_function_complexity": 1,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Full original physical source read before extraction; authored ownership deltas and current module wiring reviewed. Mechanical movement is recorded separately from deliberate behavior fixes."
+    },
+    {
+      "path": "frontend/features/passports/api/passport-request-config.ts",
+      "sha256": "c02d3238f0a1f961d10acfc2ca53713bea562c48a807dbd2ea8dd62f4d2e273a",
+      "physical_lines": 22,
+      "max_function_complexity": 2,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Full original physical source read before extraction; authored ownership deltas and current module wiring reviewed. Mechanical movement is recorded separately from deliberate behavior fixes."
+    },
+    {
+      "path": "frontend/features/passports/api/passport-export-transfer.ts",
+      "sha256": "b9216a2de12d5b1d551aabadd55fcc707beeb24af4b775d7446cc34463bb88f9",
+      "physical_lines": 16,
+      "max_function_complexity": 1,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Full original physical source read before extraction; authored ownership deltas and current module wiring reviewed. Mechanical movement is recorded separately from deliberate behavior fixes."
+    }
+  ],
+  "test_records": [
+    {
+      "path": "frontend/features/passports/hooks/private-passport-mutations.test.tsx",
+      "sha256": "1654197155cfa798e2460b3579f487c99501a32c13c4d8951775c69f0e4716fb",
+      "physical_lines": 159,
+      "review_scope": "full",
+      "status": "reviewed-and-updated"
+    },
+    {
+      "path": "frontend/features/passports/hooks/use-upload-links.test.tsx",
+      "sha256": "efae9bbfd0ef0a3f6aba59234abb0cbcdb9e791f1e02cf98409b05bcc09c73da",
+      "physical_lines": 49,
+      "review_scope": "full",
+      "status": "reviewed-and-updated"
+    },
+    {
+      "path": "frontend/features/passports/api/passport-request-config.test.ts",
+      "sha256": "f45b1f20404ac8bf008e2987730a18ed7a4a679b55dad6554c567a8d8f7df7a0",
+      "physical_lines": 50,
+      "review_scope": "full",
+      "status": "reviewed-and-updated"
+    },
+    {
+      "path": "frontend/features/passports/components/client-details-edit-dialog.test.tsx",
+      "sha256": "e2a017b98c6fc4fb6ec3a03656882873ccd073dd60c533a80ff98ec7eeae96ba",
+      "physical_lines": 229,
+      "review_scope": "full",
+      "status": "reviewed-and-updated"
+    },
+    {
+      "path": "frontend/features/passports/components/passport-document-follow-up.test.tsx",
+      "sha256": "13ac90a00e8dff37472e1073264ddbdc7948f02dcc4ae2500292f08ae5627c2d",
+      "physical_lines": 356,
+      "review_scope": "full",
+      "status": "reviewed-and-updated"
+    },
+    {
+      "path": "frontend/features/passports/components/upload-link-list.test.tsx",
+      "sha256": "960af70d08f6a4c051ab3cfdbeb5bf2ef9896053f60a966ea45525a35d502df7",
+      "physical_lines": 348,
+      "review_scope": "full",
+      "status": "reviewed-and-updated"
+    },
+    {
+      "path": "frontend/features/passports/hooks/passport-hooks-source.contract-helper.mjs",
+      "sha256": "44294b954072d70377406c6088ed0dd6f029f4d6449d9a208e6693e3743e9f13",
+      "physical_lines": 12,
+      "review_scope": "full",
+      "status": "reviewed-and-updated"
+    },
+    {
+      "path": "frontend/features/passports/api/upload-link-api-source.contract-helper.mjs",
+      "sha256": "8a8437293550790cb4ddbbe28747fb793bb6742d057c9f7f398f3c56a721b07b",
+      "physical_lines": 6,
+      "review_scope": "full",
+      "status": "reviewed-and-updated"
+    },
+    {
+      "path": "frontend/features/passports/api/passport-api-source.contract-helper.mjs",
+      "sha256": "4933d17ac5c3736df934242ac540de2785bdea19304a7e771c50ced348676805",
+      "physical_lines": 9,
+      "review_scope": "full",
+      "status": "reviewed-and-updated"
+    },
+    {
+      "path": "frontend/features/passports/components/group-whatsapp-broadcast-panel.contract.test.mjs",
+      "sha256": "bba9075697560b9fb0a00f814fe9ba48c4ff4ad7afc26044a14d8fe91b17fa8d",
+      "physical_lines": 243,
+      "review_scope": "full",
+      "status": "reviewed-and-updated"
+    },
+    {
+      "path": "frontend/features/passports/components/passport-detail.contract.test.mjs",
+      "sha256": "0cc127085932ba9b34fdd5ce8907cffb777c5092e64d5a90a0e420d53af640f6",
+      "physical_lines": 105,
+      "review_scope": "full",
+      "status": "reviewed-and-updated"
+    },
+    {
+      "path": "frontend/features/passports/components/passport-bulk-delete.contract.test.mjs",
+      "sha256": "dda81b609fb2e39814c63eddcd53a9e8823da287249a2435b29d31eb8ef11792",
+      "physical_lines": 88,
+      "review_scope": "full",
+      "status": "reviewed-and-updated"
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-detail.contract.test.mjs",
+      "sha256": "db871896e049f49a0bafb09dd2da82494d635b9a8f3b6095774422bbe898f4aa",
+      "physical_lines": 366,
+      "review_scope": "full",
+      "status": "reviewed-and-updated"
+    },
+    {
+      "path": "frontend/features/passports/components/trip-timezone.contract.test.mjs",
+      "sha256": "37172fc4cefb1401f8b4b46e4e60900027ed6485aed1a7ea2bf09d624ec405a4",
+      "physical_lines": 37,
+      "review_scope": "full",
+      "status": "reviewed-and-updated"
+    },
+    {
+      "path": "frontend/features/passports/api/public-flow-telemetry-contract.test.mjs",
+      "sha256": "c6ca8c1792efeb0762585d3cd16f30b9b1236b60e43ab38d375cd3e1424f04fa",
+      "physical_lines": 30,
+      "review_scope": "full",
+      "status": "reviewed-and-updated"
+    }
+  ],
+  "limitations": [
+    "This source checkpoint covers private mutation ownership and three large hook/API owners. The other16 oversized passport/upload owners remain queued for coherent UI/architecture follow-through.",
+    "No production send, deployment, hardware camera qualification, whole application build or whole suite was performed in this batch."
+  ]
+}

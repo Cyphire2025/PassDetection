@@ -1,0 +1,37 @@
+{
+  "status": "passed current explicit cleanup proof",
+  "exact_whole_functions": [
+    "create_staff_account",
+    "reset_managed_account_password",
+    "revoke_managed_account_sessions",
+    "reset_managed_account_mfa",
+    "set_managed_account_status",
+    "delete_managed_account",
+    "list_staff_accounts",
+    "_deactivate_coordinator_assignments",
+    "_fence_dashboard_sessions",
+    "_fence_coordinator_mobile_sessions",
+    "_validated_credential_state",
+    "_audit_account_action",
+    "_account_response"
+  ],
+  "exact_function_count": 13,
+  "evaluated_annotation_contracts": 15,
+  "declared_policy_cleanup": "Shared agency-admin/manager staff+coordinator return combined by distributivity; all super-admin, agency, self-management, manager and fallback statements verified exact before complete restoration.",
+  "declared_query_cleanup": "Remove only a second identical staff/coordinator IN predicate already imposed by the unchanged LISTED_ACCOUNT_ROLES tuple; agency/deleted/sort/projection clauses exact. No new query or changed selection.",
+  "persisted_policy_cases": {
+    "before": "managed-account-scope-before-cleanup.txt:25pass",
+    "after": "managed-account-scope-after-cleanup.txt:25pass"
+  },
+  "files": {
+    "backend/app/presentation/api/v1/routes/admin_accounts.py": "75ff6a0e79de56d0397c4ed7f980e2ffa1135a41dcf2f9e07d137edeb522a2ac",
+    "backend/app/presentation/api/v1/routes/managed_account_creation.py": "6b377cce932b283ec9cd83b4ec8d7020eda70165330c57fad96ab6b344ced05f",
+    "backend/app/presentation/api/v1/routes/managed_account_credentials.py": "067cfca4e972d2caaff00aa6b2dc81fbe3bcff6f2bb7bb39b0c4a5fee114a778",
+    "backend/app/presentation/api/v1/routes/managed_account_mutations.py": "b5a6857bf9589e9e8ea07f5b73b1b9173234544d1d9d04bcb1ad4469a5ceb68b",
+    "backend/app/presentation/api/v1/routes/managed_account_queries.py": "7a6551812cf5935088b20d795e42660f7e787b4459bef731da77c8fb7a1a8e4c",
+    "backend/app/presentation/api/v1/routes/managed_account_scope.py": "c1b80c32d6b6f88f3bdfdcd28f7b57dbf1c82eb8df58b40a7da9fc6c6f33ee11",
+    "backend/app/presentation/api/v1/routes/managed_account_sessions.py": "64828e2872daadeaee2362b07c4a353f43c6408e4598e59e7287ebb96b628043",
+    "backend/app/presentation/api/v1/routes/managed_account_values.py": "1b89f19ee3ede770ebf6f7751c91bf8669ed08c7778e6cae51793eeece3a5f83"
+  },
+  "test_instrumentation_cleanup": "managed-account-unused-test-mocks.json preserves whole test AST except six proven-unused setup/patch nodes; all original assertions retained."
+}

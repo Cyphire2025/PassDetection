@@ -1,0 +1,25 @@
+{
+  "before_modules": 187,
+  "after_modules": 188,
+  "prior187_module_entries_and_all_global_critical_floors_unchanged": true,
+  "added_module": {
+    "path": "app/infrastructure/travellers/company_export_native_work.py",
+    "baseline_lines": 26,
+    "maximum_lines": 35,
+    "baseline_max_function_complexity": 6,
+    "maximum_function_complexity": 6,
+    "minimum_coverage_percent": 100
+  },
+  "added_critical_gate": {
+    "path": "app/infrastructure/travellers/company_export_native_work.py",
+    "minimum_line_percent": 100,
+    "minimum_branch_percent": 70
+  },
+  "measured_line_percent": 100,
+  "measured_branch_percent": 75.0,
+  "before_raw_sha256": "bd593ed828bf7d45eca7a279de304e94394b1baa6849964ab06791b5fd8a88f0",
+  "after_raw_sha256": "86931c2a6b9ea5916b62d23d0649f1836105d366c3ec3e21df5ea6cd80bed7a4",
+  "after_normalized_sha256": "3b7395fe1ee46fac1de4934eb987ee6be0eecb29a7fd9a85b5cb783bb86c11e4",
+  "strict_policy_scope": "Only reviewed current backend budget AFTER binding refreshed; both exact baseline BEFORE and frontend245 binding unchanged.",
+  "coverage_scope": "Focused native helper +assembly coverage; not a whole-backend coverage qualification."
+}

@@ -1,0 +1,78 @@
+{
+  "scope": "Dashboard verified PDF receipt staging only",
+  "runtime_sources": 5,
+  "old_owner_lines": 561,
+  "current_owner_lines": {
+    "app/infrastructure/documents/verification_receipt_cipher.py": 96,
+    "app/infrastructure/documents/verification_receipt_models.py": 94,
+    "app/infrastructure/documents/verification_receipt_payload.py": 162,
+    "app/infrastructure/documents/verification_receipt_scope.py": 153,
+    "app/infrastructure/documents/verification_staging.py": 247
+  },
+  "finding": "A validly bounded ASCII receipt with a5000-digit version passed admission but int conversion escaped the existing invalid-receipt boundary. Actual upload route raised ValueError before the fix; two ordinary malformed/unknown-key controls already returned409. All three now return409 without ingestion, commit or eager cleanup.",
+  "baseline": {
+    "exit_code": 3,
+    "cases": {
+      "expected_regression_failures": 1,
+      "passing_controls": 35
+    },
+    "note": "Before runner incorrectly requested coverage for not-yet-created owners; pytest-cov emitted a teardown module-not-imported warning under warnings-as-errors and returned3 after all36 actual cases executed. Original output retained. This is not reported as a clean failing-suite exit."
+  },
+  "current": {
+    "cases_passed": 38,
+    "files": 2,
+    "source_frozen": true,
+    "command": "verification-receipt-final-command.json"
+  },
+  "proof": "verification-receipt-extraction-proof.json",
+  "test_preservation": "verification-receipt-test-preservation.json",
+  "checks": [
+    {
+      "argv": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "mypy",
+        "app/infrastructure/documents/verification_receipt_cipher.py",
+        "app/infrastructure/documents/verification_receipt_models.py",
+        "app/infrastructure/documents/verification_receipt_payload.py",
+        "app/infrastructure/documents/verification_receipt_scope.py",
+        "app/infrastructure/documents/verification_staging.py"
+      ],
+      "exit_code": 0,
+      "output": "verification-receipt-static-1.txt"
+    },
+    {
+      "argv": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "ruff",
+        "check",
+        "--no-fix",
+        "tests/unit/infrastructure/test_document_verification_staging.py",
+        "tests/unit/presentation/test_document_distribution_staging_routes.py",
+        "app/infrastructure/documents/verification_receipt_cipher.py",
+        "app/infrastructure/documents/verification_receipt_models.py",
+        "app/infrastructure/documents/verification_receipt_payload.py",
+        "app/infrastructure/documents/verification_receipt_scope.py",
+        "app/infrastructure/documents/verification_staging.py"
+      ],
+      "exit_code": 0,
+      "output": "verification-receipt-static-2.txt"
+    },
+    {
+      "argv": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "scripts/verify_architecture_boundaries.py"
+      ],
+      "exit_code": 0,
+      "output": "verification-receipt-static-3.txt"
+    }
+  ],
+  "candidate_budgets": "verification-receipt-budget-candidates.json",
+  "limitations": [
+    "No real PostgreSQL, Redis, object storage, provider send or VPS run.",
+    "The720-line upload route has a separate architecture follow-up; this receipt does not close it.",
+    "No broad application suite/build/browser run in this batch."
+  ],
+  "records": "verification-receipt-reviewed-files.json"
+}

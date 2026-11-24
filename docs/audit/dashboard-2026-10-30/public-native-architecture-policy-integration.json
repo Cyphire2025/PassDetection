@@ -1,0 +1,33 @@
+{
+  "path": "backend/architecture-dependencies.json",
+  "before_sha256": "a125cdef07e6e191b1f66b39e2fdecebe105fe54a644b4d98fce2a6346d6215d",
+  "after_sha256": "a58f5de184c44cb91adcc26f9c26b256412510e249bc25caba9d3201203444ef",
+  "old_entry": {
+    "owner": "repository maintainers",
+    "review_by": "2026-12-31",
+    "reason": "Passport and durable extraction/verification job transitions must commit consistently across retry boundaries.",
+    "imports": [
+      "app.infrastructure.processing.job_repository",
+      "app.infrastructure.processing.job_repository.PassportProcessingJobRepository",
+      "app.infrastructure.processing.job_state",
+      "app.infrastructure.processing.job_state.ProcessingJobStatus"
+    ]
+  },
+  "new_entry": {
+    "owner": "repository maintainers",
+    "review_by": "2026-12-31",
+    "reason": "Passport and durable extraction/verification job transitions must commit consistently across retry boundaries. Native uploads must finish before cancellation compensates attempt-owned storage keys.",
+    "imports": [
+      "app.infrastructure.documents.storage_transfers",
+      "app.infrastructure.documents.storage_transfers.finish_cleanup_despite_cancellation",
+      "app.infrastructure.documents.storage_transfers.run_bounded_storage_operations",
+      "app.infrastructure.processing.job_repository",
+      "app.infrastructure.processing.job_repository.PassportProcessingJobRepository",
+      "app.infrastructure.processing.job_state",
+      "app.infrastructure.processing.job_state.ProcessingJobStatus"
+    ]
+  },
+  "all_other_bytes_preserved_by_exact_single_block_replacement": true,
+  "all_other_policy_values_owner_review_dates_and_forbidden_rules_unchanged": true,
+  "reason": "Native cancellation correction uses the already-reviewed storage drain/compensation helper from this existing transaction-service owner. Exactly three qualified import edges admitted; no wildcard or boundary rule change."
+}

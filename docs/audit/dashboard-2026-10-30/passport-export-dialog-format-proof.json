@@ -1,0 +1,46 @@
+{
+  "records": [
+    {
+      "path": "frontend/features/passports/components/passport-export-dialog.tsx",
+      "before_sha256": "b6b413640c7d5eeeda0ee738a16db689526ab6d46a007ec0615238ae3f9e2e3c",
+      "current_sha256": "72d9d9d566e74f5b6f91f038c0f8c9384d1cbe329ca03c0317ceb7065fe91f9c",
+      "emitted_AST_unchanged": true,
+      "intentional_change": "Do not expose unused role field inferred from a JSX attribute name; actual role-based permission guards unchanged."
+    },
+    {
+      "path": "frontend/features/passports/components/use-passport-export-dialog.ts",
+      "before_sha256": "a2e3c27cb53708e6b5386b54135b0e612897b05ccb35ffe0e8feb0602cd758ad",
+      "current_sha256": "9d52a444569ec04a12c22dc613ace2f988fbe1dcf4e3ebe1875c28f428131c30",
+      "emitted_AST_unchanged": true,
+      "intentional_change": "Do not expose unused role field inferred from a JSX attribute name; actual role-based permission guards unchanged."
+    },
+    {
+      "path": "frontend/features/passports/components/passport-export-fields.tsx",
+      "before_sha256": "3c9c352ea0b6711b7b69afe3e14fd58b1facc4885f72fa2e20f75997c16a2e08",
+      "current_sha256": "f95c822fc330ae67cfdb7f7c60d3cd8a1eb5d7c8aa874cdd6bb74a32bb5d0f99",
+      "emitted_AST_unchanged": true,
+      "intentional_change": "Do not expose unused role field inferred from a JSX attribute name; actual role-based permission guards unchanged."
+    },
+    {
+      "path": "frontend/features/passports/components/passport-export-history-detail.tsx",
+      "before_sha256": "7fc857f0c150eb3a642ae5e6abf2cb30941c7fd38e3e8bbf691959000a967014",
+      "current_sha256": "bd165b2a1f5edd9576a4938dd14cd3ab9fb4bf598d533e8a8669e1fe97bc0650",
+      "emitted_AST_unchanged": true,
+      "intentional_change": "Do not expose unused role field inferred from a JSX attribute name; actual role-based permission guards unchanged."
+    },
+    {
+      "path": "frontend/features/passports/components/passport-export-options.tsx",
+      "before_sha256": "bcb46ae0ae948b2586bf2cb78b22e66b7eb9a503e6d8f212139df2c801a48422",
+      "current_sha256": "d188375c6296f37907c7aea7dc79bea39edad9a9a6cdf6cb1c5bf3a1c19f17fb",
+      "emitted_AST_unchanged": true,
+      "intentional_change": "Do not expose unused role field inferred from a JSX attribute name; actual role-based permission guards unchanged."
+    },
+    {
+      "path": "frontend/features/passports/components/passport-export-footer.tsx",
+      "before_sha256": "2f4c9431f2351c8d74e060a361efa92f1e5f55569213ff3442a22064ec1465f8",
+      "current_sha256": "a58a5e5daa3d70b49d3976acc53e70cecadde851136df1a7678e810e65451987",
+      "emitted_AST_unchanged": true,
+      "intentional_change": "Do not expose unused role field inferred from a JSX attribute name; actual role-based permission guards unchanged."
+    }
+  ]
+}

@@ -1,0 +1,1193 @@
+{
+  "exitstatus": 0,
+  "functions": {
+    "_RolloutTargetRow": {
+      "module": "app.presentation.api.v1.routes.email_ai_rollout_admin",
+      "qualname": "_RolloutTargetRow",
+      "signature": "(agency_id: 'uuid.UUID', target_id: 'uuid.UUID', owner_user_id: 'uuid.UUID | None', connection_id: 'uuid.UUID | None', label: 'str', detail: 'str') -> None",
+      "hints": {
+        "agency_id": "<class 'uuid.UUID'>",
+        "target_id": "<class 'uuid.UUID'>",
+        "owner_user_id": "uuid.UUID | None",
+        "connection_id": "uuid.UUID | None",
+        "label": "<class 'str'>",
+        "detail": "<class 'str'>"
+      }
+    },
+    "list_email_ai_rollout_targets": {
+      "module": "app.presentation.api.v1.routes.email_ai_rollout_admin",
+      "qualname": "list_email_ai_rollout_targets",
+      "signature": "(scope_type: 'RolloutScope' = Query(PydanticUndefined), search: 'str | None' = Query(None), current_user: 'User' = Depends(dependency=<function require_role.<locals>._check_role at 0x0000021991055120>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x00000219DC926DE0>, use_cache=True, scope=None)) -> 'EmailAiRolloutTargetsResponse'",
+      "hints": {
+        "scope_type": "typing.Literal['agency', 'user', 'connection']",
+        "search": "str | None",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "return": "<class 'app.presentation.api.v1.schemas.email_ai_schemas.EmailAiRolloutTargetsResponse'>"
+      }
+    },
+    "update_email_ai_rollout_policy": {
+      "module": "app.presentation.api.v1.routes.email_ai_rollout_admin",
+      "qualname": "update_email_ai_rollout_policy",
+      "signature": "(payload: 'UpdateEmailAiRolloutPolicyRequest', current_user: 'User' = Depends(dependency=<function require_role.<locals>._check_role at 0x0000021991055120>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x00000219DC926DE0>, use_cache=True, scope=None)) -> 'EmailAiRolloutTargetResponse'",
+      "hints": {
+        "payload": "<class 'app.presentation.api.v1.schemas.email_ai_schemas.UpdateEmailAiRolloutPolicyRequest'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "return": "<class 'app.presentation.api.v1.schemas.email_ai_schemas.EmailAiRolloutTargetResponse'>"
+      }
+    },
+    "_target_rows": {
+      "module": "app.presentation.api.v1.routes.email_ai_rollout_admin",
+      "qualname": "_target_rows",
+      "signature": "(session: 'AsyncSession', *, scope_type: 'RolloutScope', limit: 'int', search: 'str' = '', agency_id: 'uuid.UUID | None' = None, target_id: 'uuid.UUID | None' = None, requesting_user_id: 'uuid.UUID | None' = None, offset: 'int' = 0) -> 'list[_RolloutTargetRow]'",
+      "hints": {
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "scope_type": "typing.Literal['agency', 'user', 'connection']",
+        "limit": "<class 'int'>",
+        "search": "<class 'str'>",
+        "agency_id": "uuid.UUID | None",
+        "target_id": "uuid.UUID | None",
+        "requesting_user_id": "uuid.UUID | None",
+        "offset": "<class 'int'>",
+        "return": "list[app.presentation.api.v1.routes.email_ai_rollout_admin._RolloutTargetRow]"
+      }
+    },
+    "_load_policy_map": {
+      "module": "app.presentation.api.v1.routes.email_ai_rollout_admin",
+      "qualname": "_load_policy_map",
+      "signature": "(session: 'AsyncSession', rows: 'Sequence[_RolloutTargetRow]') -> 'dict[PolicyKey, EmailAiRolloutPolicyModel]'",
+      "hints": {
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "rows": "collections.abc.Sequence[app.presentation.api.v1.routes.email_ai_rollout_admin._RolloutTargetRow]",
+        "return": "dict[tuple[str, uuid.UUID, uuid.UUID | None, uuid.UUID | None], app.infrastructure.database.email_ai_models.EmailAiRolloutPolicyModel]"
+      }
+    },
+    "_target_response": {
+      "module": "app.presentation.api.v1.routes.email_ai_rollout_admin",
+      "qualname": "_target_response",
+      "signature": "(row: '_RolloutTargetRow', *, scope_type: 'RolloutScope', policy_map: 'dict[PolicyKey, EmailAiRolloutPolicyModel]', global_enabled: 'bool') -> 'EmailAiRolloutTargetResponse'",
+      "hints": {
+        "row": "<class 'app.presentation.api.v1.routes.email_ai_rollout_admin._RolloutTargetRow'>",
+        "scope_type": "typing.Literal['agency', 'user', 'connection']",
+        "policy_map": "dict[tuple[str, uuid.UUID, uuid.UUID | None, uuid.UUID | None], app.infrastructure.database.email_ai_models.EmailAiRolloutPolicyModel]",
+        "global_enabled": "<class 'bool'>",
+        "return": "<class 'app.presentation.api.v1.schemas.email_ai_schemas.EmailAiRolloutTargetResponse'>"
+      }
+    },
+    "_target_key": {
+      "module": "app.presentation.api.v1.routes.email_ai_rollout_admin",
+      "qualname": "_target_key",
+      "signature": "(row: '_RolloutTargetRow', scope_type: 'RolloutScope') -> 'PolicyKey'",
+      "hints": {
+        "row": "<class 'app.presentation.api.v1.routes.email_ai_rollout_admin._RolloutTargetRow'>",
+        "scope_type": "typing.Literal['agency', 'user', 'connection']",
+        "return": "tuple[str, uuid.UUID, uuid.UUID | None, uuid.UUID | None]"
+      }
+    },
+    "_policy_key": {
+      "module": "app.presentation.api.v1.routes.email_ai_rollout_admin",
+      "qualname": "_policy_key",
+      "signature": "(scope_type: 'str', *, agency_id: 'uuid.UUID', owner_user_id: 'uuid.UUID | None', connection_id: 'uuid.UUID | None') -> 'PolicyKey'",
+      "hints": {
+        "scope_type": "<class 'str'>",
+        "agency_id": "<class 'uuid.UUID'>",
+        "owner_user_id": "uuid.UUID | None",
+        "connection_id": "uuid.UUID | None",
+        "return": "tuple[str, uuid.UUID, uuid.UUID | None, uuid.UUID | None]"
+      }
+    },
+    "_policy_predicates": {
+      "module": "app.presentation.api.v1.routes.email_ai_rollout_admin",
+      "qualname": "_policy_predicates",
+      "signature": "(scope_type: 'RolloutScope', *, agency_id: 'uuid.UUID', owner_user_id: 'uuid.UUID | None', connection_id: 'uuid.UUID | None') -> 'tuple[ColumnElement[bool], ...]'",
+      "hints": {
+        "scope_type": "typing.Literal['agency', 'user', 'connection']",
+        "agency_id": "<class 'uuid.UUID'>",
+        "owner_user_id": "uuid.UUID | None",
+        "connection_id": "uuid.UUID | None",
+        "return": "tuple[sqlalchemy.sql.elements.ColumnElement[bool], ...]"
+      }
+    },
+    "_same_instant": {
+      "module": "app.presentation.api.v1.routes.email_ai_rollout_admin",
+      "qualname": "_same_instant",
+      "signature": "(left: 'datetime', right: 'datetime') -> 'bool'",
+      "hints": {
+        "left": "<class 'datetime.datetime'>",
+        "right": "<class 'datetime.datetime'>",
+        "return": "<class 'bool'>"
+      }
+    },
+    "_aware_utc": {
+      "module": "app.presentation.api.v1.routes.email_ai_rollout_admin",
+      "qualname": "_aware_utc",
+      "signature": "(value: 'datetime') -> 'datetime'",
+      "hints": {
+        "value": "<class 'datetime.datetime'>",
+        "return": "<class 'datetime.datetime'>"
+      }
+    }
+  },
+  "methods": {
+    "__init__": {
+      "module": "app.presentation.api.v1.routes.email_ai_rollout_admin",
+      "qualname": "_RolloutTargetRow.__init__",
+      "signature": "(self, agency_id: 'uuid.UUID', target_id: 'uuid.UUID', owner_user_id: 'uuid.UUID | None', connection_id: 'uuid.UUID | None', label: 'str', detail: 'str') -> None"
+    },
+    "__repr__": {
+      "module": "app.presentation.api.v1.routes.email_ai_rollout_admin",
+      "qualname": "_RolloutTargetRow.__repr__",
+      "signature": "(self)"
+    },
+    "__eq__": {
+      "module": "app.presentation.api.v1.routes.email_ai_rollout_admin",
+      "qualname": "_RolloutTargetRow.__eq__",
+      "signature": "(self, other)"
+    },
+    "__setattr__": {
+      "module": "app.presentation.api.v1.routes.email_ai_rollout_admin",
+      "qualname": "_RolloutTargetRow.__setattr__",
+      "signature": "(self, name, value)"
+    },
+    "__delattr__": {
+      "module": "app.presentation.api.v1.routes.email_ai_rollout_admin",
+      "qualname": "_RolloutTargetRow.__delattr__",
+      "signature": "(self, name)"
+    },
+    "__hash__": {
+      "module": "app.presentation.api.v1.routes.email_ai_rollout_admin",
+      "qualname": "_RolloutTargetRow.__hash__",
+      "signature": "(self)"
+    },
+    "__getstate__": {
+      "module": "dataclasses",
+      "qualname": "_dataclass_getstate",
+      "signature": "(self)"
+    },
+    "__setstate__": {
+      "module": "dataclasses",
+      "qualname": "_dataclass_setstate",
+      "signature": "(self, state)"
+    }
+  },
+  "fields": [
+    {
+      "name": "agency_id",
+      "type": "'uuid.UUID'",
+      "init": true,
+      "repr": true,
+      "compare": true,
+      "hash": null,
+      "kw_only": false,
+      "missing_default": true
+    },
+    {
+      "name": "target_id",
+      "type": "'uuid.UUID'",
+      "init": true,
+      "repr": true,
+      "compare": true,
+      "hash": null,
+      "kw_only": false,
+      "missing_default": true
+    },
+    {
+      "name": "owner_user_id",
+      "type": "'uuid.UUID | None'",
+      "init": true,
+      "repr": true,
+      "compare": true,
+      "hash": null,
+      "kw_only": false,
+      "missing_default": true
+    },
+    {
+      "name": "connection_id",
+      "type": "'uuid.UUID | None'",
+      "init": true,
+      "repr": true,
+      "compare": true,
+      "hash": null,
+      "kw_only": false,
+      "missing_default": true
+    },
+    {
+      "name": "label",
+      "type": "'str'",
+      "init": true,
+      "repr": true,
+      "compare": true,
+      "hash": null,
+      "kw_only": false,
+      "missing_default": true
+    },
+    {
+      "name": "detail",
+      "type": "'str'",
+      "init": true,
+      "repr": true,
+      "compare": true,
+      "hash": null,
+      "kw_only": false,
+      "missing_default": true
+    }
+  ],
+  "dataclass": {
+    "frozen": true,
+    "eq": true,
+    "slots": [
+      "agency_id",
+      "target_id",
+      "owner_user_id",
+      "connection_id",
+      "label",
+      "detail"
+    ],
+    "match_args": [
+      "agency_id",
+      "target_id",
+      "owner_user_id",
+      "connection_id",
+      "label",
+      "detail"
+    ],
+    "pickle_round_trip": true
+  },
+  "aliases": {
+    "RolloutScope": "typing.Literal['agency', 'user', 'connection']",
+    "PolicyKey": "tuple[str, uuid.UUID, uuid.UUID | None, uuid.UUID | None]"
+  },
+  "routes": [
+    {
+      "path": "/api/v1/admin/email-ai-rollout",
+      "methods": [
+        "GET"
+      ],
+      "name": "list_email_ai_rollout_targets",
+      "status_code": null,
+      "response_model": "<class 'app.presentation.api.v1.schemas.email_ai_schemas.EmailAiRolloutTargetsResponse'>",
+      "dependencies": [
+        {
+          "name": "current_user",
+          "call": "app.presentation.dependencies.auth.require_role.<locals>._check_role",
+          "use_cache": true
+        },
+        {
+          "name": "session",
+          "call": "app.infrastructure.database.session.get_db_session",
+          "use_cache": true
+        }
+      ]
+    },
+    {
+      "path": "/api/v1/admin/email-ai-rollout",
+      "methods": [
+        "PUT"
+      ],
+      "name": "update_email_ai_rollout_policy",
+      "status_code": null,
+      "response_model": "<class 'app.presentation.api.v1.schemas.email_ai_schemas.EmailAiRolloutTargetResponse'>",
+      "dependencies": [
+        {
+          "name": null,
+          "call": "app.presentation.dependencies.csrf.require_cookie_csrf",
+          "use_cache": true
+        },
+        {
+          "name": "current_user",
+          "call": "app.presentation.dependencies.auth.require_role.<locals>._check_role",
+          "use_cache": true
+        },
+        {
+          "name": "session",
+          "call": "app.infrastructure.database.session.get_db_session",
+          "use_cache": true
+        }
+      ]
+    }
+  ],
+  "openapi_paths": {
+    "/api/v1/admin/email-ai-rollout": {
+      "get": {
+        "tags": [
+          "AI Travel Operations Rollout"
+        ],
+        "summary": "List Email Ai Rollout Targets",
+        "operationId": "list_email_ai_rollout_targets_api_v1_admin_email_ai_rollout_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "DashboardAccessCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "scope_type",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "enum": [
+                "agency",
+                "user",
+                "connection"
+              ],
+              "type": "string",
+              "title": "Scope Type"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 120
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Search"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmailAiRolloutTargetsResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "REQUEST_VALIDATION_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD_REQUEST",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "AUTHENTICATION_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "AUTHORIZATION_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "METHOD_NOT_ALLOWED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "408": {
+            "description": "REQUEST_TIMEOUT",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "CONFLICT",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "GONE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "PAYLOAD_TOO_LARGE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "UNSUPPORTED_MEDIA_TYPE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMIT_EXCEEDED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_SERVER_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "BAD_GATEWAY",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "DEPENDENCY_UNAVAILABLE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "GATEWAY_TIMEOUT",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "AI Travel Operations Rollout"
+        ],
+        "summary": "Update Email Ai Rollout Policy",
+        "operationId": "update_email_ai_rollout_policy_api_v1_admin_email_ai_rollout_put",
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "DashboardAccessCookie": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateEmailAiRolloutPolicyRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmailAiRolloutTargetResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "REQUEST_VALIDATION_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD_REQUEST",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "AUTHENTICATION_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "AUTHORIZATION_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "METHOD_NOT_ALLOWED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "408": {
+            "description": "REQUEST_TIMEOUT",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "CONFLICT",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "GONE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "PAYLOAD_TOO_LARGE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "UNSUPPORTED_MEDIA_TYPE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMIT_EXCEEDED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_SERVER_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "BAD_GATEWAY",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "DEPENDENCY_UNAVAILABLE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "GATEWAY_TIMEOUT",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "x-cookie-csrf": "Trusted Origin or Referer is required for cookies when no Bearer header is supplied"
+      }
+    }
+  },
+  "openapi_schemas": {
+    "EmailAiRolloutTargetResponse": {
+      "properties": {
+        "scope_type": {
+          "type": "string",
+          "enum": [
+            "agency",
+            "user",
+            "connection"
+          ],
+          "title": "Scope Type"
+        },
+        "target_id": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Target Id"
+        },
+        "agency_id": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Agency Id"
+        },
+        "owner_user_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Owner User Id"
+        },
+        "connection_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Connection Id"
+        },
+        "label": {
+          "type": "string",
+          "title": "Label"
+        },
+        "detail": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Detail"
+        },
+        "direct_enabled": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Direct Enabled"
+        },
+        "effective_enabled": {
+          "type": "boolean",
+          "title": "Effective Enabled"
+        },
+        "updated_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Updated At"
+        }
+      },
+      "type": "object",
+      "required": [
+        "scope_type",
+        "target_id",
+        "agency_id",
+        "label",
+        "effective_enabled"
+      ],
+      "title": "EmailAiRolloutTargetResponse"
+    },
+    "EmailAiRolloutTargetsResponse": {
+      "properties": {
+        "global_enabled": {
+          "type": "boolean",
+          "title": "Global Enabled"
+        },
+        "global_notifications_enabled": {
+          "type": "boolean",
+          "title": "Global Notifications Enabled"
+        },
+        "scope_type": {
+          "type": "string",
+          "enum": [
+            "agency",
+            "user",
+            "connection"
+          ],
+          "title": "Scope Type"
+        },
+        "items": {
+          "items": {
+            "$ref": "#/components/schemas/EmailAiRolloutTargetResponse"
+          },
+          "type": "array",
+          "title": "Items"
+        },
+        "truncated": {
+          "type": "boolean",
+          "title": "Truncated",
+          "default": false
+        }
+      },
+      "type": "object",
+      "required": [
+        "global_enabled",
+        "global_notifications_enabled",
+        "scope_type"
+      ],
+      "title": "EmailAiRolloutTargetsResponse"
+    },
+    "UpdateEmailAiRolloutPolicyRequest": {
+      "properties": {
+        "scope_type": {
+          "type": "string",
+          "enum": [
+            "agency",
+            "user",
+            "connection"
+          ],
+          "title": "Scope Type"
+        },
+        "target_id": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Target Id"
+        },
+        "agency_id": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Agency Id"
+        },
+        "enabled": {
+          "type": "boolean",
+          "title": "Enabled"
+        },
+        "expected_updated_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Expected Updated At"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "scope_type",
+        "target_id",
+        "agency_id",
+        "enabled"
+      ],
+      "title": "UpdateEmailAiRolloutPolicyRequest"
+    }
+  },
+  "class_source_inspect": "OSError"
+}

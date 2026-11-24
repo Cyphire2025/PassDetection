@@ -1,0 +1,10 @@
+{
+  "basis": "Actual route regression measured460800 assignment-owner reads for12managers/160groups/240assignments; current route passes3000read bound with same four queries. Entire old list_managers function AST is exact after restoring only two original projection comprehensions and removing the explicit one-time index. Thus SQL, role/default/decorator/header/signature/security-state checks and all DTO fields remain exact.100 executed original/current DTO-kwargs cohorts use the actual current helper and original/current list-return expressions, including empty/Unicode/archived/missing/duplicate rows; actual Pydantic response construction is separately exercised by the five passing affected route tests. No database concurrency or production latency claim.",
+  "pure_projection_comparisons": 100,
+  "entire_route_AST_exact_after_declared_projection_change": true,
+  "sql_query_statements_unchanged": true,
+  "source_sha256": {
+    "backend/app/presentation/api/v1/routes/admin.py": "f72a3f3c08fc462ee5bcdaba9e9f930d95d43f8032b461aac1282b94e4c62bb8",
+    "backend/app/presentation/api/v1/routes/admin_group_projection.py": "2b2fa1bf320a9166e045486262293d9cc8d161a2967e3870a0430384c8ba490e"
+  }
+}

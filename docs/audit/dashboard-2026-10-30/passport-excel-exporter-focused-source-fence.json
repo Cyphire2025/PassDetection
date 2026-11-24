@@ -1,0 +1,46 @@
+[
+  {
+    "path": "backend/app/infrastructure/export/passport_excel_columns.py",
+    "sha256": "05a2b1f5b656b7a25427594af9b5801d3ef28da809e3d6f30042d7dac2010b66"
+  },
+  {
+    "path": "backend/app/infrastructure/export/passport_excel_values.py",
+    "sha256": "7673af6c34f8a7a4d5dee05580103b32be71705903cc890baa15a4167956b689"
+  },
+  {
+    "path": "backend/app/infrastructure/export/passport_excel_rows.py",
+    "sha256": "2e4c17f38cd86b4f3197c23b69cee9ab79a312fb7efa759c1c93d70d1db673c4"
+  },
+  {
+    "path": "backend/app/infrastructure/export/passport_excel_workbook.py",
+    "sha256": "6929667ee3bf7eeaa8838ee71dde49c0ad1df96ec408f9dafb8eb2a9e54c8cac"
+  },
+  {
+    "path": "backend/app/infrastructure/export/passport_excel_exporter.py",
+    "sha256": "61c02b0917f77b63ab27fc26068c26f6f4c6f2877a94ff6e2ec968cfcbf20537"
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_passport_excel_exporter.py",
+    "sha256": "33da13e78d3dabaaeabca696b59e4a67a91522cbe2f4adcc6417cf70a57952ba"
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_passport_excel_exporter_contracts.py",
+    "sha256": "f93c740bc81db14abe911d45d6812c963f33b44cd98a3cb58e504047e2ec70df"
+  },
+  {
+    "path": "backend/app/infrastructure/export/workbook_values.py",
+    "sha256": "bd7cbaf14a7b682e8e4bee6ece7475e38b9696e74e17bda0b573b49df2d32ec8"
+  },
+  {
+    "path": "backend/app/infrastructure/export/workbook_capacity.py",
+    "sha256": "d89b318bf7d921e83afa54f943cf666c58cff365f622951930572dc507126a10"
+  },
+  {
+    "path": "backend/app/infrastructure/export/passport_excel_phone_columns.py",
+    "sha256": "e3e14430dc05d96ccf0a583c886fb3eb9ec189246da70debbc368d09beea6eb9"
+  },
+  {
+    "path": "backend/app/application/mobile/passenger_phone_authority.py",
+    "sha256": "cfdae64fffe06c53806bfefb84d0ab8aa38180cf952798086752ab38275e38d0"
+  }
+]

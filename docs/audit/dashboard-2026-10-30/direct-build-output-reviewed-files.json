@@ -1,0 +1,26 @@
+[
+  {
+    "path": "scripts/mcp_direct_build.py",
+    "sha256": "72f880a173cc252abe47ce0a9f51602122b8ad0682794f49c1bd7ecddec6f780",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Whole source, caller/default/error/lifetime review. Actual maintained execute baseline16MiB accepted; current8MiB combined limit refuses with static error.52affected cases+61separate subtests/no-fixRuff3/stricthelper/format2 pass. All other whole build module AST exact; original stderr/log order and typed retained-builder timeout recovery preserved. Prior capture callers unchanged. No Docker/build/provider/network/real services/current production or OS RSS qualification. See direct-build-output-verification.json."
+  },
+  {
+    "path": "scripts/bounded_command_output.py",
+    "sha256": "d190aeabcbf00b2fdec0652e4cf6fa7b57bf13b4f3d7e572ea7eab58e69b9c7b",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Whole source, caller/default/error/lifetime review. Actual maintained execute baseline16MiB accepted; current8MiB combined limit refuses with static error.52affected cases+61separate subtests/no-fixRuff3/stricthelper/format2 pass. All other whole build module AST exact; original stderr/log order and typed retained-builder timeout recovery preserved. Prior capture callers unchanged. No Docker/build/provider/network/real services/current production or OS RSS qualification. See direct-build-output-verification.json."
+  },
+  {
+    "path": "scripts/test_mcp_direct_output.py",
+    "sha256": "864548e27066750e4dff5e35c97e86df783e71825b82dd485804d1e5e419aff1",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Whole source, caller/default/error/lifetime review. Actual maintained execute baseline16MiB accepted; current8MiB combined limit refuses with static error.52affected cases+61separate subtests/no-fixRuff3/stricthelper/format2 pass. All other whole build module AST exact; original stderr/log order and typed retained-builder timeout recovery preserved. Prior capture callers unchanged. No Docker/build/provider/network/real services/current production or OS RSS qualification. See direct-build-output-verification.json."
+  }
+]

@@ -1,0 +1,215 @@
+{
+  "all_13_owner_first_entries_match_public_baseline": true,
+  "actual_full_metadata_comparison_per_entry": true,
+  "baseline_sha256": "abcd48501b5240ad213c26f30fada29ff7309b66ea952a9fbb543b26a96b520f",
+  "entries": [
+    {
+      "mode": "verify-owner",
+      "entry": "app.infrastructure.database._core_models.identity",
+      "tables": 174,
+      "mappers": 174,
+      "core_classes": 22,
+      "compile_errors": 0,
+      "annotation_results": {
+        "ClientGroupModel": {
+          "ok": false,
+          "error_type": "builtins.NameError",
+          "message": "name 'ClientOrganizationModel' is not defined"
+        }
+      },
+      "matches_before": true
+    },
+    {
+      "mode": "verify-owner",
+      "entry": "app.infrastructure.database._core_models.groups",
+      "tables": 174,
+      "mappers": 174,
+      "core_classes": 22,
+      "compile_errors": 0,
+      "annotation_results": {
+        "ClientGroupModel": {
+          "ok": false,
+          "error_type": "builtins.NameError",
+          "message": "name 'ClientOrganizationModel' is not defined"
+        }
+      },
+      "matches_before": true
+    },
+    {
+      "mode": "verify-owner",
+      "entry": "app.infrastructure.database._core_models.access",
+      "tables": 174,
+      "mappers": 174,
+      "core_classes": 22,
+      "compile_errors": 0,
+      "annotation_results": {
+        "ClientGroupModel": {
+          "ok": false,
+          "error_type": "builtins.NameError",
+          "message": "name 'ClientOrganizationModel' is not defined"
+        }
+      },
+      "matches_before": true
+    },
+    {
+      "mode": "verify-owner",
+      "entry": "app.infrastructure.database._core_models.passport",
+      "tables": 174,
+      "mappers": 174,
+      "core_classes": 22,
+      "compile_errors": 0,
+      "annotation_results": {
+        "ClientGroupModel": {
+          "ok": false,
+          "error_type": "builtins.NameError",
+          "message": "name 'ClientOrganizationModel' is not defined"
+        }
+      },
+      "matches_before": true
+    },
+    {
+      "mode": "verify-owner",
+      "entry": "app.infrastructure.database._core_models.exports",
+      "tables": 174,
+      "mappers": 174,
+      "core_classes": 22,
+      "compile_errors": 0,
+      "annotation_results": {
+        "ClientGroupModel": {
+          "ok": false,
+          "error_type": "builtins.NameError",
+          "message": "name 'ClientOrganizationModel' is not defined"
+        }
+      },
+      "matches_before": true
+    },
+    {
+      "mode": "verify-owner",
+      "entry": "app.infrastructure.database._core_models.roster",
+      "tables": 174,
+      "mappers": 174,
+      "core_classes": 22,
+      "compile_errors": 0,
+      "annotation_results": {
+        "ClientGroupModel": {
+          "ok": false,
+          "error_type": "builtins.NameError",
+          "message": "name 'ClientOrganizationModel' is not defined"
+        }
+      },
+      "matches_before": true
+    },
+    {
+      "mode": "verify-owner",
+      "entry": "app.infrastructure.database._core_models.images",
+      "tables": 174,
+      "mappers": 174,
+      "core_classes": 22,
+      "compile_errors": 0,
+      "annotation_results": {
+        "ClientGroupModel": {
+          "ok": false,
+          "error_type": "builtins.NameError",
+          "message": "name 'ClientOrganizationModel' is not defined"
+        }
+      },
+      "matches_before": true
+    },
+    {
+      "mode": "verify-owner",
+      "entry": "app.infrastructure.database._core_models.upload_workflow",
+      "tables": 174,
+      "mappers": 174,
+      "core_classes": 22,
+      "compile_errors": 0,
+      "annotation_results": {
+        "ClientGroupModel": {
+          "ok": false,
+          "error_type": "builtins.NameError",
+          "message": "name 'ClientOrganizationModel' is not defined"
+        }
+      },
+      "matches_before": true
+    },
+    {
+      "mode": "verify-owner",
+      "entry": "app.infrastructure.database._core_models.broadcast_links",
+      "tables": 174,
+      "mappers": 174,
+      "core_classes": 22,
+      "compile_errors": 0,
+      "annotation_results": {
+        "ClientGroupModel": {
+          "ok": false,
+          "error_type": "builtins.NameError",
+          "message": "name 'ClientOrganizationModel' is not defined"
+        }
+      },
+      "matches_before": true
+    },
+    {
+      "mode": "verify-owner",
+      "entry": "app.infrastructure.database._core_models.verification_jobs",
+      "tables": 174,
+      "mappers": 174,
+      "core_classes": 22,
+      "compile_errors": 0,
+      "annotation_results": {
+        "ClientGroupModel": {
+          "ok": false,
+          "error_type": "builtins.NameError",
+          "message": "name 'ClientOrganizationModel' is not defined"
+        }
+      },
+      "matches_before": true
+    },
+    {
+      "mode": "verify-owner",
+      "entry": "app.infrastructure.database._core_models.audit",
+      "tables": 174,
+      "mappers": 174,
+      "core_classes": 22,
+      "compile_errors": 0,
+      "annotation_results": {
+        "ClientGroupModel": {
+          "ok": false,
+          "error_type": "builtins.NameError",
+          "message": "name 'ClientOrganizationModel' is not defined"
+        }
+      },
+      "matches_before": true
+    },
+    {
+      "mode": "verify-owner",
+      "entry": "app.infrastructure.database._core_models.notifications",
+      "tables": 174,
+      "mappers": 174,
+      "core_classes": 22,
+      "compile_errors": 0,
+      "annotation_results": {
+        "ClientGroupModel": {
+          "ok": false,
+          "error_type": "builtins.NameError",
+          "message": "name 'ClientOrganizationModel' is not defined"
+        }
+      },
+      "matches_before": true
+    },
+    {
+      "mode": "verify-owner",
+      "entry": "app.infrastructure.database._core_models.platform",
+      "tables": 174,
+      "mappers": 174,
+      "core_classes": 22,
+      "compile_errors": 0,
+      "annotation_results": {
+        "ClientGroupModel": {
+          "ok": false,
+          "error_type": "builtins.NameError",
+          "message": "name 'ClientOrganizationModel' is not defined"
+        }
+      },
+      "matches_before": true
+    }
+  ]
+}

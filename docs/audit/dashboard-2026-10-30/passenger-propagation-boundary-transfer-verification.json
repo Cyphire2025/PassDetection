@@ -1,0 +1,53 @@
+{
+  "status": "verified exact two-row reviewed ownership transfer; actual whole architecture checker passes",
+  "proposal": {
+    "path": "passenger-propagation-boundary-transfer-proposal.json",
+    "sha256": "46c56f68a09278eb56c86102b7d4a54ba475a0dfc22b01e6be31ffbb2fc15f27"
+  },
+  "policy_before": {
+    "path": "passenger-boundary-policy-before-transfer.json",
+    "sha256": "3681bf6ca3b2bab52dcde5d0adbb4921cc8dd54771411193c2553ddaceb08b6e"
+  },
+  "policy_after_sha256": "b08e5358d637c79ac89d84fca765fa476a6669bc460a72766d1af64c880be2e6",
+  "two_rows_only": true,
+  "whole_policy_byte_inverse_exact": true,
+  "all_existing_rows_and_global_values_exact": true,
+  "main_row_preserved": true,
+  "edge_union_unchanged": true,
+  "actual_owner_edges": {
+    "app/application/mobile/passenger_change_identities.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.GCGroupAccessModel",
+        "app.infrastructure.database.gc_mobile_models.MobilePassengerIdentityModel"
+      ]
+    },
+    "app/application/mobile/passenger_change_journal.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.GCGroupAccessModel",
+        "app.infrastructure.database.gc_mobile_models.MobileSyncChangeModel"
+      ]
+    }
+  },
+  "source": {
+    "backend/app/application/mobile/passenger_change_identities.py": "0e663f42d3f78ab195b2cda8b51b7021a8a231f9dcdd3098a3f989e3921bbd7d",
+    "backend/app/application/mobile/passenger_change_journal.py": "dee981f849e150af11a70bf3d7d3db990d4eb6b885ce293372e2f4b0ab37ce16"
+  },
+  "failed_original_architecture_log": {
+    "path": "passenger-whatsapp-authority-architecture-before-transfer.txt",
+    "sha256": "ba1f23f0787a527d58d44f15f7af38c5a976bcb712641957b2b1bde5763e8c6b"
+  },
+  "limits": "Already reviewed transaction responsibility/source ownership only; no new service/import permission, wildcard or suppressed architecture check. No app source/test changed or repeated behavioral suite.",
+  "successful_architecture_log": {
+    "path": "passenger-whatsapp-authority-architecture.txt",
+    "sha256": "895bfbeca4c78591066dcf214c4bfe9de43b5d7ed5d3f518fe398563a7bcc992"
+  },
+  "qualification_note": "Initial serialization assertion correctly refused CRLF-to-LF normalization before any policy writes. Final policy preserves all original CRLF bytes outside the two inserted JSON rows; removing those rows restores original raw bytes. No app/runtime/test edits or repeated behavior suite."
+}

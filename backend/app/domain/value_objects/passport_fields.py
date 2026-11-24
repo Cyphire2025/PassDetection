@@ -119,7 +119,7 @@ def normalize_reviewed_passport_fields(fields: dict[str, str]) -> dict[str, str]
 
 
 def normalize_extracted_passport_dates(fields: dict[str, Any]) -> dict[str, Any]:
-    """Keep OCR dates only when they are valid, canonical, and mutually possible."""
+    """Keep extracted dates only when valid, canonical, and mutually possible."""
 
     normalized = dict(fields)
     for field in PASSPORT_DATE_FIELDS:
@@ -132,21 +132,22 @@ def normalize_extracted_passport_dates(fields: dict[str, Any]) -> dict[str, Any]
         except ValidationError:
             normalized.pop(field, None)
 
-    try:
-        _validate_date_order(
-            {
-                field: value
-                for field in PASSPORT_DATE_FIELDS
-                if isinstance((value := normalized.get(field)), str)
-            }
-        )
-    except ValidationError as exc:
-        # Date of issue is the non-MRZ visual field and therefore the least
-        # authoritative when it conflicts with checksum-backed passport dates.
-        if exc.field == "date_of_issue":
-            normalized.pop("date_of_issue", None)
-        else:
+    # Preserve the existing priority: discard a conflicting issue date before
+    # expiry. Recheck the remaining dates because one extraction may contain
+    # more than one conflict. Each failed pass removes one of three fields.
+    for _ in PASSPORT_DATE_FIELDS:
+        try:
+            _validate_date_order(
+                {
+                    field: value
+                    for field in PASSPORT_DATE_FIELDS
+                    if isinstance((value := normalized.get(field)), str)
+                }
+            )
+        except ValidationError as exc:
             normalized.pop(exc.field or "", None)
+        else:
+            break
     return normalized
 
 

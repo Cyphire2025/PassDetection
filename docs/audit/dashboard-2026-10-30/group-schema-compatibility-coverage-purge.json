@@ -1,0 +1,18 @@
+{
+  "changed_path": "backend/app/presentation/api/v1/schemas/client_group_match_schemas.py",
+  "purged_entry": "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\presentation\\api\\v1\\schemas\\client_group_match_schemas.py",
+  "preserved_other_source_sha256": {
+    "backend/app/presentation/api/v1/schemas/client_group_request_validation.py": "44d1e55d31a9efaced9249b25ff91d1c09680b0fc3a1a9c4c65218948692643a",
+    "backend/app/presentation/api/v1/schemas/client_group_collection_schemas.py": "98f2914847f3c9866f6265dd50f377f5919b365d7bc6f53fe267ded287257f0f",
+    "backend/app/presentation/api/v1/schemas/client_group_request_schemas.py": "05119ad00c36913fca7f40df7c8e466a017661f7bbc14a0512d0a2c357667e82",
+    "backend/app/presentation/api/v1/schemas/client_group_response_schemas.py": "c5136b47fdc551c8fc68f70e0a87bd2614fefc4c3c3de869238c3544fcaf362f",
+    "backend/app/presentation/api/v1/schemas/client_group_broadcast_schemas.py": "86a9295d24b295ff8018d55cfb775f60626f3d5dce799d18ce78a34d928c6bae",
+    "backend/app/presentation/api/v1/schemas/client_group_qualifier_schemas.py": "5360d1e3c4a935df8e9b6b1a210be2dc79b0e45d26310b9095f802475c11e59b",
+    "backend/app/presentation/api/v1/schemas/public_flow_telemetry_schema.py": "b71dc74b07dc2c788acea6351cb8a9f8325639cda62c5946571fb7ec34093d47",
+    "backend/app/presentation/api/v1/schemas/client_group_schemas.py": "3c4e4bcc5c3d84548c5b2be38a5464b5a5bece5879306b4604cf9fc9c123c96b",
+    "backend/app/domain/entities/client_group.py": "3611455105d0b61425774efb899b883fe9d4e3e192b4e3ca39330c955d5b50f2",
+    "backend/app/domain/entities/client_group_configuration.py": "3486a83b66db4ec1658e74ba47bdd0052423d7a122fb5cc6bcbbb5fc633606db",
+    "backend/app/domain/value_objects/group_trip_settings.py": "e4db9450f179fef74a62e880c2c6286454ba5d927a8ac2e4f959e8c57d7ae78a"
+  },
+  "reason": "One explicit public Pydantic module identity keeps an already-published qualified OpenAPI component stable. All other runtime owners remain frozen."
+}

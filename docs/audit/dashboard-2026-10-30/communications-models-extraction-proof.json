@@ -1,0 +1,590 @@
+{
+  "moved_classes": [
+    {
+      "class": "WhatsAppBroadcastGroupModel",
+      "owner": "backend/app/infrastructure/database/_communications_models/broadcast.py",
+      "entire_ast_after_only_explicit_legacy_orm_namespace": true
+    },
+    {
+      "class": "WhatsAppBroadcastRecipientModel",
+      "owner": "backend/app/infrastructure/database/_communications_models/broadcast.py",
+      "entire_ast_after_only_explicit_legacy_orm_namespace": true
+    },
+    {
+      "class": "WhatsAppBroadcastSourceContactModel",
+      "owner": "backend/app/infrastructure/database/_communications_models/source.py",
+      "entire_ast_after_only_explicit_legacy_orm_namespace": true
+    },
+    {
+      "class": "WhatsAppTravellerPhoneOverrideModel",
+      "owner": "backend/app/infrastructure/database/_communications_models/source.py",
+      "entire_ast_after_only_explicit_legacy_orm_namespace": true
+    },
+    {
+      "class": "WhatsAppBroadcastRejectedContactModel",
+      "owner": "backend/app/infrastructure/database/_communications_models/source.py",
+      "entire_ast_after_only_explicit_legacy_orm_namespace": true
+    },
+    {
+      "class": "WhatsAppBroadcastSupportContactModel",
+      "owner": "backend/app/infrastructure/database/_communications_models/source.py",
+      "entire_ast_after_only_explicit_legacy_orm_namespace": true
+    },
+    {
+      "class": "WhatsAppMessageLogModel",
+      "owner": "backend/app/infrastructure/database/_communications_models/delivery.py",
+      "entire_ast_after_only_explicit_legacy_orm_namespace": true
+    },
+    {
+      "class": "WhatsAppRecipientMessageStateModel",
+      "owner": "backend/app/infrastructure/database/_communications_models/delivery.py",
+      "entire_ast_after_only_explicit_legacy_orm_namespace": true
+    },
+    {
+      "class": "WhatsAppPhoneWelcomeModel",
+      "owner": "backend/app/infrastructure/database/_communications_models/welcome.py",
+      "entire_ast_after_only_explicit_legacy_orm_namespace": true
+    },
+    {
+      "class": "WhatsAppPhoneWelcomeAttemptModel",
+      "owner": "backend/app/infrastructure/database/_communications_models/welcome.py",
+      "entire_ast_after_only_explicit_legacy_orm_namespace": true
+    }
+  ],
+  "whole_original_class_count": 10,
+  "actual_constructor/default/constraint_global_bindings": [
+    {
+      "class": "WhatsAppBroadcastGroupModel",
+      "dependency": "Base"
+    },
+    {
+      "class": "WhatsAppBroadcastGroupModel",
+      "dependency": "DateTime"
+    },
+    {
+      "class": "WhatsAppBroadcastGroupModel",
+      "dependency": "ForeignKey"
+    },
+    {
+      "class": "WhatsAppBroadcastGroupModel",
+      "dependency": "Index"
+    },
+    {
+      "class": "WhatsAppBroadcastGroupModel",
+      "dependency": "JSONB"
+    },
+    {
+      "class": "WhatsAppBroadcastGroupModel",
+      "dependency": "String"
+    },
+    {
+      "class": "WhatsAppBroadcastGroupModel",
+      "dependency": "UUID"
+    },
+    {
+      "class": "WhatsAppBroadcastGroupModel",
+      "dependency": "_utcnow"
+    },
+    {
+      "class": "WhatsAppBroadcastGroupModel",
+      "dependency": "mapped_column"
+    },
+    {
+      "class": "WhatsAppBroadcastGroupModel",
+      "dependency": "relationship"
+    },
+    {
+      "class": "WhatsAppBroadcastGroupModel",
+      "dependency": "uuid"
+    },
+    {
+      "class": "WhatsAppBroadcastRecipientModel",
+      "dependency": "Base"
+    },
+    {
+      "class": "WhatsAppBroadcastRecipientModel",
+      "dependency": "BigInteger"
+    },
+    {
+      "class": "WhatsAppBroadcastRecipientModel",
+      "dependency": "Boolean"
+    },
+    {
+      "class": "WhatsAppBroadcastRecipientModel",
+      "dependency": "DateTime"
+    },
+    {
+      "class": "WhatsAppBroadcastRecipientModel",
+      "dependency": "ForeignKey"
+    },
+    {
+      "class": "WhatsAppBroadcastRecipientModel",
+      "dependency": "Index"
+    },
+    {
+      "class": "WhatsAppBroadcastRecipientModel",
+      "dependency": "JSONB"
+    },
+    {
+      "class": "WhatsAppBroadcastRecipientModel",
+      "dependency": "String"
+    },
+    {
+      "class": "WhatsAppBroadcastRecipientModel",
+      "dependency": "UUID"
+    },
+    {
+      "class": "WhatsAppBroadcastRecipientModel",
+      "dependency": "UniqueConstraint"
+    },
+    {
+      "class": "WhatsAppBroadcastRecipientModel",
+      "dependency": "_utcnow"
+    },
+    {
+      "class": "WhatsAppBroadcastRecipientModel",
+      "dependency": "mapped_column"
+    },
+    {
+      "class": "WhatsAppBroadcastRecipientModel",
+      "dependency": "text"
+    },
+    {
+      "class": "WhatsAppBroadcastRecipientModel",
+      "dependency": "uuid"
+    },
+    {
+      "class": "WhatsAppBroadcastSourceContactModel",
+      "dependency": "Base"
+    },
+    {
+      "class": "WhatsAppBroadcastSourceContactModel",
+      "dependency": "DateTime"
+    },
+    {
+      "class": "WhatsAppBroadcastSourceContactModel",
+      "dependency": "ForeignKey"
+    },
+    {
+      "class": "WhatsAppBroadcastSourceContactModel",
+      "dependency": "Index"
+    },
+    {
+      "class": "WhatsAppBroadcastSourceContactModel",
+      "dependency": "JSONB"
+    },
+    {
+      "class": "WhatsAppBroadcastSourceContactModel",
+      "dependency": "String"
+    },
+    {
+      "class": "WhatsAppBroadcastSourceContactModel",
+      "dependency": "Text"
+    },
+    {
+      "class": "WhatsAppBroadcastSourceContactModel",
+      "dependency": "UUID"
+    },
+    {
+      "class": "WhatsAppBroadcastSourceContactModel",
+      "dependency": "UniqueConstraint"
+    },
+    {
+      "class": "WhatsAppBroadcastSourceContactModel",
+      "dependency": "_utcnow"
+    },
+    {
+      "class": "WhatsAppBroadcastSourceContactModel",
+      "dependency": "mapped_column"
+    },
+    {
+      "class": "WhatsAppBroadcastSourceContactModel",
+      "dependency": "uuid"
+    },
+    {
+      "class": "WhatsAppTravellerPhoneOverrideModel",
+      "dependency": "Base"
+    },
+    {
+      "class": "WhatsAppTravellerPhoneOverrideModel",
+      "dependency": "DateTime"
+    },
+    {
+      "class": "WhatsAppTravellerPhoneOverrideModel",
+      "dependency": "ForeignKey"
+    },
+    {
+      "class": "WhatsAppTravellerPhoneOverrideModel",
+      "dependency": "Index"
+    },
+    {
+      "class": "WhatsAppTravellerPhoneOverrideModel",
+      "dependency": "String"
+    },
+    {
+      "class": "WhatsAppTravellerPhoneOverrideModel",
+      "dependency": "UUID"
+    },
+    {
+      "class": "WhatsAppTravellerPhoneOverrideModel",
+      "dependency": "UniqueConstraint"
+    },
+    {
+      "class": "WhatsAppTravellerPhoneOverrideModel",
+      "dependency": "_utcnow"
+    },
+    {
+      "class": "WhatsAppTravellerPhoneOverrideModel",
+      "dependency": "mapped_column"
+    },
+    {
+      "class": "WhatsAppTravellerPhoneOverrideModel",
+      "dependency": "uuid"
+    },
+    {
+      "class": "WhatsAppBroadcastRejectedContactModel",
+      "dependency": "Base"
+    },
+    {
+      "class": "WhatsAppBroadcastRejectedContactModel",
+      "dependency": "BigInteger"
+    },
+    {
+      "class": "WhatsAppBroadcastRejectedContactModel",
+      "dependency": "CheckConstraint"
+    },
+    {
+      "class": "WhatsAppBroadcastRejectedContactModel",
+      "dependency": "DateTime"
+    },
+    {
+      "class": "WhatsAppBroadcastRejectedContactModel",
+      "dependency": "ForeignKey"
+    },
+    {
+      "class": "WhatsAppBroadcastRejectedContactModel",
+      "dependency": "Index"
+    },
+    {
+      "class": "WhatsAppBroadcastRejectedContactModel",
+      "dependency": "Integer"
+    },
+    {
+      "class": "WhatsAppBroadcastRejectedContactModel",
+      "dependency": "JSONB"
+    },
+    {
+      "class": "WhatsAppBroadcastRejectedContactModel",
+      "dependency": "String"
+    },
+    {
+      "class": "WhatsAppBroadcastRejectedContactModel",
+      "dependency": "UUID"
+    },
+    {
+      "class": "WhatsAppBroadcastRejectedContactModel",
+      "dependency": "UniqueConstraint"
+    },
+    {
+      "class": "WhatsAppBroadcastRejectedContactModel",
+      "dependency": "_utcnow"
+    },
+    {
+      "class": "WhatsAppBroadcastRejectedContactModel",
+      "dependency": "mapped_column"
+    },
+    {
+      "class": "WhatsAppBroadcastRejectedContactModel",
+      "dependency": "relationship"
+    },
+    {
+      "class": "WhatsAppBroadcastRejectedContactModel",
+      "dependency": "uuid"
+    },
+    {
+      "class": "WhatsAppBroadcastSupportContactModel",
+      "dependency": "Base"
+    },
+    {
+      "class": "WhatsAppBroadcastSupportContactModel",
+      "dependency": "DateTime"
+    },
+    {
+      "class": "WhatsAppBroadcastSupportContactModel",
+      "dependency": "ForeignKey"
+    },
+    {
+      "class": "WhatsAppBroadcastSupportContactModel",
+      "dependency": "Index"
+    },
+    {
+      "class": "WhatsAppBroadcastSupportContactModel",
+      "dependency": "Integer"
+    },
+    {
+      "class": "WhatsAppBroadcastSupportContactModel",
+      "dependency": "String"
+    },
+    {
+      "class": "WhatsAppBroadcastSupportContactModel",
+      "dependency": "UUID"
+    },
+    {
+      "class": "WhatsAppBroadcastSupportContactModel",
+      "dependency": "UniqueConstraint"
+    },
+    {
+      "class": "WhatsAppBroadcastSupportContactModel",
+      "dependency": "_utcnow"
+    },
+    {
+      "class": "WhatsAppBroadcastSupportContactModel",
+      "dependency": "mapped_column"
+    },
+    {
+      "class": "WhatsAppBroadcastSupportContactModel",
+      "dependency": "uuid"
+    },
+    {
+      "class": "WhatsAppMessageLogModel",
+      "dependency": "Base"
+    },
+    {
+      "class": "WhatsAppMessageLogModel",
+      "dependency": "Boolean"
+    },
+    {
+      "class": "WhatsAppMessageLogModel",
+      "dependency": "DateTime"
+    },
+    {
+      "class": "WhatsAppMessageLogModel",
+      "dependency": "ForeignKey"
+    },
+    {
+      "class": "WhatsAppMessageLogModel",
+      "dependency": "Index"
+    },
+    {
+      "class": "WhatsAppMessageLogModel",
+      "dependency": "JSONB"
+    },
+    {
+      "class": "WhatsAppMessageLogModel",
+      "dependency": "String"
+    },
+    {
+      "class": "WhatsAppMessageLogModel",
+      "dependency": "Text"
+    },
+    {
+      "class": "WhatsAppMessageLogModel",
+      "dependency": "UUID"
+    },
+    {
+      "class": "WhatsAppMessageLogModel",
+      "dependency": "_utcnow"
+    },
+    {
+      "class": "WhatsAppMessageLogModel",
+      "dependency": "mapped_column"
+    },
+    {
+      "class": "WhatsAppMessageLogModel",
+      "dependency": "text"
+    },
+    {
+      "class": "WhatsAppMessageLogModel",
+      "dependency": "uuid"
+    },
+    {
+      "class": "WhatsAppRecipientMessageStateModel",
+      "dependency": "Base"
+    },
+    {
+      "class": "WhatsAppRecipientMessageStateModel",
+      "dependency": "DateTime"
+    },
+    {
+      "class": "WhatsAppRecipientMessageStateModel",
+      "dependency": "ForeignKey"
+    },
+    {
+      "class": "WhatsAppRecipientMessageStateModel",
+      "dependency": "Index"
+    },
+    {
+      "class": "WhatsAppRecipientMessageStateModel",
+      "dependency": "String"
+    },
+    {
+      "class": "WhatsAppRecipientMessageStateModel",
+      "dependency": "UUID"
+    },
+    {
+      "class": "WhatsAppRecipientMessageStateModel",
+      "dependency": "UniqueConstraint"
+    },
+    {
+      "class": "WhatsAppRecipientMessageStateModel",
+      "dependency": "_utcnow"
+    },
+    {
+      "class": "WhatsAppRecipientMessageStateModel",
+      "dependency": "mapped_column"
+    },
+    {
+      "class": "WhatsAppRecipientMessageStateModel",
+      "dependency": "uuid"
+    },
+    {
+      "class": "WhatsAppPhoneWelcomeModel",
+      "dependency": "Base"
+    },
+    {
+      "class": "WhatsAppPhoneWelcomeModel",
+      "dependency": "DateTime"
+    },
+    {
+      "class": "WhatsAppPhoneWelcomeModel",
+      "dependency": "ForeignKey"
+    },
+    {
+      "class": "WhatsAppPhoneWelcomeModel",
+      "dependency": "String"
+    },
+    {
+      "class": "WhatsAppPhoneWelcomeModel",
+      "dependency": "UUID"
+    },
+    {
+      "class": "WhatsAppPhoneWelcomeModel",
+      "dependency": "UniqueConstraint"
+    },
+    {
+      "class": "WhatsAppPhoneWelcomeModel",
+      "dependency": "_utcnow"
+    },
+    {
+      "class": "WhatsAppPhoneWelcomeModel",
+      "dependency": "mapped_column"
+    },
+    {
+      "class": "WhatsAppPhoneWelcomeModel",
+      "dependency": "uuid"
+    },
+    {
+      "class": "WhatsAppPhoneWelcomeAttemptModel",
+      "dependency": "Base"
+    },
+    {
+      "class": "WhatsAppPhoneWelcomeAttemptModel",
+      "dependency": "DateTime"
+    },
+    {
+      "class": "WhatsAppPhoneWelcomeAttemptModel",
+      "dependency": "ForeignKey"
+    },
+    {
+      "class": "WhatsAppPhoneWelcomeAttemptModel",
+      "dependency": "Index"
+    },
+    {
+      "class": "WhatsAppPhoneWelcomeAttemptModel",
+      "dependency": "JSONB"
+    },
+    {
+      "class": "WhatsAppPhoneWelcomeAttemptModel",
+      "dependency": "String"
+    },
+    {
+      "class": "WhatsAppPhoneWelcomeAttemptModel",
+      "dependency": "Text"
+    },
+    {
+      "class": "WhatsAppPhoneWelcomeAttemptModel",
+      "dependency": "UUID"
+    },
+    {
+      "class": "WhatsAppPhoneWelcomeAttemptModel",
+      "dependency": "_utcnow"
+    },
+    {
+      "class": "WhatsAppPhoneWelcomeAttemptModel",
+      "dependency": "mapped_column"
+    },
+    {
+      "class": "WhatsAppPhoneWelcomeAttemptModel",
+      "dependency": "uuid"
+    }
+  ],
+  "original_runtime_import_aliases": [
+    "uuid",
+    "datetime",
+    "TYPE_CHECKING",
+    "Any",
+    "BigInteger",
+    "Boolean",
+    "CheckConstraint",
+    "DateTime",
+    "ForeignKey",
+    "Index",
+    "Integer",
+    "String",
+    "Text",
+    "UniqueConstraint",
+    "text",
+    "UUID",
+    "Mapped",
+    "mapped_column",
+    "relationship",
+    "JSONB",
+    "Base",
+    "_utcnow"
+  ],
+  "class_table_base_mapper_public_alias_qualified_registry_and_pickle_identity": true,
+  "all_default_callable_unwrapped_identities_exact": true,
+  "original_registration_order_preserved": true,
+  "all_metadata_entry_modes_exact": [
+    "model_registry",
+    "models",
+    "communications_models",
+    "broadcast",
+    "source",
+    "delivery",
+    "welcome"
+  ],
+  "tables": 174,
+  "mappers": 174,
+  "columns": 2727,
+  "indexes": 509,
+  "relationships": 19,
+  "both_dialects": [
+    "postgresql",
+    "sqlite"
+  ],
+  "ddl_compile_errors": 0,
+  "unchanged_support_and_test_bytes": [
+    "backend/app/infrastructure/database/models.py",
+    "backend/app/infrastructure/database/model_base.py",
+    "backend/app/infrastructure/database/model_registry.py",
+    "backend/tests/unit/infrastructure/test_database_model_decomposition.py",
+    "backend/tests/unit/infrastructure/test_broadcast_welcome_scope.py",
+    "backend/tests/unit/infrastructure/test_phone_welcome.py",
+    "backend/tests/unit/infrastructure/test_whatsapp_source_group_sync.py",
+    "backend/tests/unit/infrastructure/test_whatsapp_source_contacts_migration.py",
+    "backend/tests/unit/infrastructure/test_whatsapp_retry_transactions.py",
+    "backend/tests/integration/test_mcp_whatsapp_reads.py"
+  ],
+  "published_migrations_unchanged": 142,
+  "original_baseline_provenance": "Actual original registry-first metadata capture equals archived-original-source registry replay exactly; alternate original public/facade-first baselines use that validated source replay. Seven current fresh startup modes compare exact entry-matched table order, not sorted order.",
+  "prototype_history": [
+    "Flat owner direct-first prototype failed SQLAlchemy annotation namespace resolution before qualification; established private-package namespace primer fixes direct-first imports.",
+    "First owner-first snapshot was compared to a different registry-first startup order; only table-registration order differed. Entry-matched original-source baselines now match all metadata, including registration order."
+  ],
+  "limits": [
+    "Compiled PostgreSQL/SQLite DDL and actual ORM mapper/default/relationship metadata; no live DB migration or PostgreSQL execution.",
+    "Existing raw get_type_hints on BroadcastGroup still lacks the TYPE_CHECKING-only ClientGroup link symbol; exact prior NameError is preserved. SQLAlchemy registry relationships and configured mypy resolve actual types.",
+    "inspect.getsource(class) may resolve the stable facade and raise OSError; actual owner modules are explicit in this manifest. No introspection monkeypatch/proxy or mapping mixin."
+  ]
+}

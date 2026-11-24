@@ -1,0 +1,299 @@
+{
+  "status": "qualified",
+  "source_fence": {
+    "backend/app/presentation/api/v1/schemas/passport_schemas.py": "e65dfebc4a7e69839acee9e17aa7c3eeb448e34b621a68cd7beff8d394ee467f",
+    "backend/tests/unit/domain/test_phone_number.py": "6153360303ebcb869f7d929e8e03a8f0115ca1f354b781a4eca297b48b8d431a",
+    "backend/tests/unit/presentation/test_passport_submission_view_schema.py": "fbdfd1f233d7298b2aacaddd6df41ca81aab4f76961b859e88f009c321d80983",
+    "backend/tests/unit/presentation/test_passport_response_support.py": "d2f4f431021110f6f68f971a277f98fbbb4b15e07e07f358c9ee524cb18c25a6",
+    "backend/tests/unit/presentation/test_staff_approval_route.py": "7c4f7ad03c84ee67df04c7116ea5ff21b51881f7d5aa4fa2c3b5916a2a77a86f",
+    "backend/tests/unit/presentation/test_passport_image_crop_routes.py": "2a9f6650cf4499438f02d7cf1c0ca34a780f179a9dffdc82f6a37611b48e1343",
+    "backend/tests/unit/presentation/test_selected_passport_image_export.py": "28a63bea5771e02c68b597348dec77743f6e5cf5d0f4f5c0fd14c0519b3d761e",
+    "backend/tests/unit/presentation/test_selected_groups_export.py": "e8f1d33df3ba15d3dafa173c4b5e013a3de9ab8fdbee2eb55ce42323c6888019",
+    "backend/tests/unit/presentation/test_passport_upload_reconciliation_route.py": "d898d2c6cbe2641375f102e0d7d6936693c354a87ba899d1d6bd27a2649f0790",
+    "backend/app/presentation/api/v1/schemas/passport_bulk_schemas.py": "e7c6eb8107691478ddfe5f2ea058c15ed6d7c706680b64d68fec2ab00d43b094",
+    "backend/app/presentation/api/v1/schemas/passport_client_details_schemas.py": "db20842c261ff9e34742c292bb94645b8207fe2b641396b059f0ede494e70c67",
+    "backend/app/presentation/api/v1/schemas/passport_collection_schemas.py": "4b1e66514628cb897194c601cf67ba2fc743d4efb12dbd389d01714c38fed495",
+    "backend/app/presentation/api/v1/schemas/passport_display_name_schemas.py": "0da556d258c610537ca51425fbc430db20726455d75ed016f8b0fc2222673d9a",
+    "backend/app/presentation/api/v1/schemas/passport_document_schemas.py": "3c47bde24b68bed922caff38031f9fc69b489c4c05a798613594deb29b8d500d",
+    "backend/app/presentation/api/v1/schemas/passport_editing_schemas.py": "678bb7478edf71d0022a05fc5c602f1549080e38f5658c9b2818a6c515b9cd9a",
+    "backend/app/presentation/api/v1/schemas/passport_export_schemas.py": "f8e5d873633607d284bdb54643d297ed6a25debcf39cdef8b06b937b4572649c",
+    "backend/app/presentation/api/v1/schemas/passport_image_library_schemas.py": "0ba571644f4735a11a17cb7c75c3c3ada223e5f0c86cb12c32dd3785a90cc8a5",
+    "backend/app/presentation/api/v1/schemas/passport_summary_schemas.py": "4703e0d450cdd5e553cf4b3dfad90dffe583700a47d4e95b9338a528c3b934a3",
+    "backend/app/presentation/api/v1/schemas/passport_verification_schemas.py": "26a04422ce79ae200f880cc9960252c6d903bf56a65e8038151f14c75278430e",
+    "backend/app/presentation/api/v1/schemas/passport_view_schemas.py": "7e9c87d2d36714dd53b61e70f62de1a94a8c15ac8c3011e2c1f6ba88721cc2a4"
+  },
+  "runtime_owners": [
+    "backend/app/presentation/api/v1/schemas/passport_schemas.py",
+    "backend/app/presentation/api/v1/schemas/passport_editing_schemas.py",
+    "backend/app/presentation/api/v1/schemas/passport_collection_schemas.py",
+    "backend/app/presentation/api/v1/schemas/passport_bulk_schemas.py",
+    "backend/app/presentation/api/v1/schemas/passport_export_schemas.py",
+    "backend/app/presentation/api/v1/schemas/passport_document_schemas.py",
+    "backend/app/presentation/api/v1/schemas/passport_verification_schemas.py",
+    "backend/app/presentation/api/v1/schemas/passport_view_schemas.py",
+    "backend/app/presentation/api/v1/schemas/passport_summary_schemas.py"
+  ],
+  "source_measurements": [
+    {
+      "path": "backend/app/presentation/api/v1/schemas/passport_schemas.py",
+      "lines": 176,
+      "complexity": 0,
+      "coverage": {
+        "covered_lines": 65,
+        "num_statements": 65,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 0,
+        "num_partial_branches": 0,
+        "covered_branches": 0,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      }
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/passport_editing_schemas.py",
+      "lines": 97,
+      "complexity": 3,
+      "coverage": {
+        "covered_lines": 63,
+        "num_statements": 64,
+        "percent_covered": 96.96969696969697,
+        "percent_covered_display": "97",
+        "missing_lines": 1,
+        "excluded_lines": 0,
+        "percent_statements_covered": 98.4375,
+        "percent_statements_covered_display": "98",
+        "num_branches": 2,
+        "num_partial_branches": 1,
+        "covered_branches": 1,
+        "missing_branches": 1,
+        "percent_branches_covered": 50.0,
+        "percent_branches_covered_display": "50"
+      }
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/passport_collection_schemas.py",
+      "lines": 112,
+      "complexity": 4,
+      "coverage": {
+        "covered_lines": 66,
+        "num_statements": 68,
+        "percent_covered": 94.5945945945946,
+        "percent_covered_display": "95",
+        "missing_lines": 2,
+        "excluded_lines": 0,
+        "percent_statements_covered": 97.05882352941177,
+        "percent_statements_covered_display": "97",
+        "num_branches": 6,
+        "num_partial_branches": 2,
+        "covered_branches": 4,
+        "missing_branches": 2,
+        "percent_branches_covered": 66.66666666666667,
+        "percent_branches_covered_display": "67"
+      }
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/passport_bulk_schemas.py",
+      "lines": 93,
+      "complexity": 0,
+      "coverage": {
+        "covered_lines": 53,
+        "num_statements": 53,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 0,
+        "num_partial_branches": 0,
+        "covered_branches": 0,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      }
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/passport_export_schemas.py",
+      "lines": 116,
+      "complexity": 0,
+      "coverage": {
+        "covered_lines": 85,
+        "num_statements": 85,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 0,
+        "num_partial_branches": 0,
+        "covered_branches": 0,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      }
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/passport_document_schemas.py",
+      "lines": 53,
+      "complexity": 0,
+      "coverage": {
+        "covered_lines": 37,
+        "num_statements": 37,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 0,
+        "num_partial_branches": 0,
+        "covered_branches": 0,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      }
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/passport_verification_schemas.py",
+      "lines": 47,
+      "complexity": 0,
+      "coverage": {
+        "covered_lines": 23,
+        "num_statements": 23,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 0,
+        "num_partial_branches": 0,
+        "covered_branches": 0,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      }
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/passport_view_schemas.py",
+      "lines": 163,
+      "complexity": 0,
+      "coverage": {
+        "covered_lines": 117,
+        "num_statements": 117,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 0,
+        "num_partial_branches": 0,
+        "covered_branches": 0,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      }
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/passport_summary_schemas.py",
+      "lines": 49,
+      "complexity": 0,
+      "coverage": {
+        "covered_lines": 41,
+        "num_statements": 41,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 0,
+        "num_partial_branches": 0,
+        "covered_branches": 0,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      }
+    }
+  ],
+  "tests": {
+    "baseline_command": "passport-schema-baseline-command.json",
+    "extracted_command": "passport-schema-extracted-command.json",
+    "same_selection": "77passed plus2subtests/8files before and after; no test/mocks changed"
+  },
+  "proof": "passport-schema-extraction-proof.json",
+  "proof_sha256": "195f26ae2b600c1915a6252c1ea3395a6fb761e36dbc14295d1b7919ac9d5d47",
+  "checks": [
+    {
+      "name": "types",
+      "argv": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "mypy",
+        "app/presentation/api/v1/schemas/passport_schemas.py",
+        "app/presentation/api/v1/schemas/passport_editing_schemas.py",
+        "app/presentation/api/v1/schemas/passport_collection_schemas.py",
+        "app/presentation/api/v1/schemas/passport_bulk_schemas.py",
+        "app/presentation/api/v1/schemas/passport_export_schemas.py",
+        "app/presentation/api/v1/schemas/passport_document_schemas.py",
+        "app/presentation/api/v1/schemas/passport_verification_schemas.py",
+        "app/presentation/api/v1/schemas/passport_view_schemas.py",
+        "app/presentation/api/v1/schemas/passport_summary_schemas.py"
+      ],
+      "exit_code": 0,
+      "output": "passport-schema-types.txt"
+    },
+    {
+      "name": "lint",
+      "argv": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "ruff",
+        "check",
+        "--no-fix",
+        "app/presentation/api/v1/schemas/passport_schemas.py",
+        "app/presentation/api/v1/schemas/passport_editing_schemas.py",
+        "app/presentation/api/v1/schemas/passport_collection_schemas.py",
+        "app/presentation/api/v1/schemas/passport_bulk_schemas.py",
+        "app/presentation/api/v1/schemas/passport_export_schemas.py",
+        "app/presentation/api/v1/schemas/passport_document_schemas.py",
+        "app/presentation/api/v1/schemas/passport_verification_schemas.py",
+        "app/presentation/api/v1/schemas/passport_view_schemas.py",
+        "app/presentation/api/v1/schemas/passport_summary_schemas.py"
+      ],
+      "exit_code": 0,
+      "output": "passport-schema-lint.txt"
+    },
+    {
+      "name": "isolated-direct-owner-import",
+      "argv": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-I",
+        "-c",
+        "import importlib,inspect,sys\nsys.path.insert(0, 'C:\\\\Users\\\\nipun\\\\Desktop\\\\PassDetection\\\\backend')\nfrom pydantic import BaseModel\nfor owner in ['app.presentation.api.v1.schemas.passport_editing_schemas', 'app.presentation.api.v1.schemas.passport_collection_schemas', 'app.presentation.api.v1.schemas.passport_bulk_schemas', 'app.presentation.api.v1.schemas.passport_export_schemas', 'app.presentation.api.v1.schemas.passport_document_schemas', 'app.presentation.api.v1.schemas.passport_verification_schemas', 'app.presentation.api.v1.schemas.passport_view_schemas', 'app.presentation.api.v1.schemas.passport_summary_schemas']:\n module=importlib.import_module(owner)\n for value in vars(module).values():\n  if inspect.isclass(value) and issubclass(value,BaseModel) and value.__module__==owner:\n   assert value.__pydantic_complete__,value\n   value.model_json_schema()\nassert \"app.presentation.api.v1.schemas.passport_schemas\" not in sys.modules\nprint(\"Eight direct owners resolve every model without importing the legacy facade\")\n"
+      ],
+      "exit_code": 0,
+      "output": "passport-schema-standalone-imports.txt"
+    }
+  ],
+  "budget_candidates": "passport-schema-budget-candidates.json",
+  "coverage_json": "passport-schema-extracted-coverage.json",
+  "coverage_xml": "passport-schema-extracted-coverage.xml",
+  "floor_responsibility": "Previously unbudgeted667-line declaration catalog now has nine additive95-line-coverage rows; no existing budget/critical/global floor change proposed.",
+  "design": "Stable explicit facade plus editing, collection, bulk, export, document, verification, view and summary schema owners. Original class/type-alias ASTs, decorators, bounds, defaults and validation/serialization JSON schemas stay exact. No factory/reflection/proxy or inheritance added.",
+  "compatibility": "Python types/functions naturally identify actual owners. All old saved model/validator pickles decode through the stable facade; new pickles roundtrip. Signatures/evaluated type shapes equal after only the eight declared owner-module prefixes are normalized; literal repr/new-pickle bytes intentionally differ.",
+  "api": "Full58route passports OpenAPI hash/order exact;214 actual imported/global bindings and12legacyimportaliases exact.",
+  "design_record": "passport-schema-design-decision.json",
+  "limitations": [
+    "No new live database/provider/security exploit or measured user latency claim; this is source architecture and contract preservation.",
+    "Nine-owner import/type/lint/current focused controls do not qualify unrelated dashboard workflows or the final combined release."
+  ]
+}

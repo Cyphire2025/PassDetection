@@ -5,6 +5,8 @@ Get Upload Link By Token Use Case
 
 from __future__ import annotations
 
+from dataclasses import replace
+
 from app.application.dtos.client_group_dtos import (
     ClientGroupOutputDTO,
     client_group_output_from_entity,
@@ -38,4 +40,6 @@ class GetClientGroupByTokenUseCase:
             else:
                 raise ValidationError("Upload link is not active")
 
-        return client_group_output_from_entity(link)
+        # Group notes belong to the authenticated office workspace. The bearer
+        # upload link needs collection settings, not the saved internal note.
+        return replace(client_group_output_from_entity(link), notes=None)

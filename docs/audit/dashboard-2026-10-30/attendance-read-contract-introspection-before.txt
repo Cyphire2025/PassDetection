@@ -1,0 +1,21 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+_ test_shared_read_contracts_preserve_single_identity_pickle_and_type_resolution _
+tests\unit\application\test_attendance_read_contract_aliases.py:45: in test_shared_read_contracts_preserve_single_identity_pickle_and_type_resolution
+    assert set(get_type_hints(kind)) == {field.name for field in dataclasses.fields(kind)}
+               ^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\typing.py:2377: in get_type_hints
+    value = _eval_type(value, base_globals, base_locals)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\typing.py:395: in _eval_type
+    return t._evaluate(globalns, localns, recursive_guard)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\typing.py:905: in _evaluate
+    eval(self.__forward_code__, globalns, localns),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<string>:1: in <module>
+    ???
+E   NameError: name 'datetime' is not defined
+=========================== short test summary info ===========================
+FAILED tests/unit/application/test_attendance_read_contract_aliases.py::test_shared_read_contracts_preserve_single_identity_pickle_and_type_resolution
+1 failed in 0.44s

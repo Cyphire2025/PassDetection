@@ -1,0 +1,285 @@
+{
+  "files": [
+    {
+      "path": "backend/alembic/versions/0013_auth_hardening.py",
+      "sha256": "fbb555ee776f88d20e93642fcb0b53b49bcb793156908ac5e1b74869d74d7126",
+      "physical_lines": 42,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0013_auth_hardening",
+        "down_revision": "0012_departure_cities",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Creates unique hashed password-reset tokens with expiry/use time, user cascade and lookup indexes; no plaintext reset token column in this table. Historical table is explicitly removed by0015, so this alone is not current reset policy proof."
+    },
+    {
+      "path": "backend/alembic/versions/0014_secure_qr_tokens.py",
+      "sha256": "772f6a1493237822a0dffc688fc1438b19720e01c22ec30489627bca028c5ea1",
+      "physical_lines": 48,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0014_secure_qr_tokens",
+        "down_revision": "0013_auth_hardening",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds expiry nullable, revokes every existing predictable UUID5 token (is_active false, revoked_at coalesced, expires_at now), then makes expiry non-null and indexes it. Downgrade removes expiry only and does not reactivate revoked tokens; runtime entropy, scan validation and current retention require caller evidence."
+    },
+    {
+      "path": "backend/alembic/versions/0015_internal_account_management.py",
+      "sha256": "f77e93398dd09a6de084e51b9baee1271957f23e1d4c7d1edf2919aa74c9d08f",
+      "physical_lines": 40,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0015_internal_accounts",
+        "down_revision": "0014_secure_qr_tokens",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Explicitly removes the legacy public-reset token table, with downgrade reconstructing its schema/indexes but no deleted rows. Historical intentional account-policy change; do not rewrite published script or describe this as a new data-loss vulnerability."
+    },
+    {
+      "path": "backend/alembic/versions/0016_rooming_lists.py",
+      "sha256": "1b9db973859f87c2e441ceaa8a9c4975dbc46f7358848bf303239df197f55803",
+      "physical_lines": 109,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0016_rooming_lists",
+        "down_revision": "0015_internal_accounts",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Rooming foundation fully read: hotels/rooms/preferences/assignments, check constraints for names/types/capacity/tags, hotel-room and passenger uniqueness, entity cascades and creator SETNULL. Individual entity FKs do not alone establish same-hotel/group/tenant or position-capacity invariants; later migrations/runtime must supply those guarantees before any active defect claim."
+    },
+    {
+      "path": "backend/alembic/versions/0017_rooming_room_state.py",
+      "sha256": "432d085da422296009ffbcc98523b2564d2edd93356d03724a94eb76aa7724f6",
+      "physical_lines": 30,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0017_rooming_room_state",
+        "down_revision": "0016_rooming_lists",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds non-null saved/order fields using temporary false/0 defaults, deterministically derives hotel-local row order from created_at and room_number, then removes defaults. Upgrade keeps existing rooms; populated PostgreSQL ordering/locking not executed."
+    },
+    {
+      "path": "backend/alembic/versions/0018_rooming_room_vip_tag.py",
+      "sha256": "815f48be50e2dd449a9539d094ae811b728631b8a9bdc900f856c2363bf322c5",
+      "physical_lines": 29,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "needs-follow-up",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0018_rooming_room_vip_tag",
+        "down_revision": "0017_rooming_room_state",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Extends only room tag check with vip; downgrade restores the old check without normalizing vip rows. Source-confirmed conditional rollback compatibility candidate if persisted vip rows exist, not a demonstrated supported production rollback failure. Published script unchanged."
+    },
+    {
+      "path": "backend/alembic/versions/0019_rooming_checkins.py",
+      "sha256": "920cf6be14c496c9683df69e2e02667e9eea1d9d98cef3fd0d622ed091b97a67",
+      "physical_lines": 41,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0019_rooming_checkins",
+        "down_revision": "0018_rooming_room_vip_tag",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Creates check-in status/timestamp/key/welcome-letter/remarks records with agency/entity cascades, editor SETNULL and one hotel/passenger uniqueness. Later composite ownership constraints and service transitions are independent proof obligations; no source-only tenant bypass claim."
+    },
+    {
+      "path": "backend/alembic/versions/0020_persist_passenger_qr_payloads.py",
+      "sha256": "41ab7253af54558c77f133ca57ce00ac233f9112d48b779712ef229e19b133b2",
+      "physical_lines": 25,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0020_qr_payloads",
+        "down_revision": "0019_rooming_checkins",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds nullable QR payload for office reprints; no automatic backfill or auth changes. Sensitive bearer-payload handling/retention must be established from actual current runtime and later schema, not inferred safe from the field alone."
+    },
+    {
+      "path": "backend/alembic/versions/0021_family_passport_submissions.py",
+      "sha256": "be45250d5c243c184bbed6c40aa6be04d51f5cdd67955525cf5036eaaf48bcd4",
+      "physical_lines": 49,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0021_family_submissions",
+        "down_revision": "0020_qr_payloads",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds single-by-default family submission mode, nullable family relation/head/contact fields, family grouping index and false broadcast flag; preserves old rows. Shared family data security/tenant/retention semantics require service and later schema evidence."
+    },
+    {
+      "path": "backend/alembic/versions/0022_document_distribution.py",
+      "sha256": "b25b061a040733b7b86d67c47a5ce6c788b6c77bc90bfa2bffa1f979210596ad",
+      "physical_lines": 101,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0022_document_distribution",
+        "down_revision": "0021_family_submissions",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Creates document distribution batch/item metadata and storage references with agency/group/batch cascades, nullable passenger SETNULL and indexed group/type/batch queries. Deleting relational rows alone does not prove object-store cleanup; current owner-authority and cross-column scope require later-chain/runtime trace."
+    },
+    {
+      "path": "backend/alembic/versions/0023_document_rename_batches.py",
+      "sha256": "a25fca0931b9d97984ebf13d91b04830fbaf51d3e111fd53a4a91b359c76dfbb",
+      "physical_lines": 77,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0023_document_rename_batches",
+        "down_revision": "0022_document_distribution",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Creates agency-owned rename batches/items with durable file/storage/match metadata, creator SETNULL and batch cascade; downgrade drops child before parent. Source schema does not itself validate storage key isolation or lifetime; current service and later migrations remain separate."
+    },
+    {
+      "path": "backend/alembic/versions/0024_document_rename_batch_title.py",
+      "sha256": "23e9b180e8dc5f9e6f62992a2c5270b30dbd544578dd04954bc11b4c297138e5",
+      "physical_lines": 29,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0024_document_rename_batch_title",
+        "down_revision": "0023_document_rename_batches",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds required rename title using temporary Rename Batch server default for preexisting rows, then removes default; reversible column addition. No data-service qualification from manual source reading."
+    },
+    {
+      "path": "backend/alembic/versions/0025_split_manager_staff_roles.py",
+      "sha256": "50bf9c03e4010dafa634d0dc96bce50c99fce24fef742cd8f501b15fd8a12145",
+      "physical_lines": 26,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0025_split_manager_staff_roles",
+        "down_revision": "0024_document_rename_batch_title",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds agency_manager enum label inside explicit autocommit block and maps all legacy agency_staff rows to manager; downgrade maps manager back without removing enum label. Historical role transition preserved; no inference that current role authorization is permissive or correct from this alone."
+    },
+    {
+      "path": "backend/alembic/versions/0026_whatsapp_broadcasts.py",
+      "sha256": "dd71861b8757216f419e080236d2b75b343fcd05912951aa04c312d7cdb600c1",
+      "physical_lines": 95,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0026_whatsapp_broadcasts",
+        "down_revision": "0025_split_manager_staff_roles",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "WhatsApp broadcast groups/normalized recipients/logs have agency/entity cascades, group-phone uniqueness and query indexes; retained dashboard domain, separate from user-deferred Operations Inbox. Provider error text storage and cross-column ownership need current runtime/later schema evidence; no provider actions performed."
+    },
+    {
+      "path": "backend/alembic/versions/0027_passport_excel_staff_metadata_and_images.py",
+      "sha256": "0198c37d57ae323baf6bb1aeb211aa988e716a80e474522a4a58cb0ff375e16f",
+      "physical_lines": 30,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0027_staff_passport_docs",
+        "down_revision": "0026_whatsapp_broadcasts",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds nullable staff JSON metadata and two passport image storage-key columns; existing rows and object bytes untouched. Current sensitive-data validation and object cleanup not proven by additive schema."
+    },
+    {
+      "path": "backend/alembic/versions/0028_group_client_field_options.py",
+      "sha256": "6540c2221db456487cd208856d28934b5c0e664be8751b1358d7e9310c07291e",
+      "physical_lines": 48,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0028_group_field_options",
+        "down_revision": "0027_staff_passport_docs",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds four false-by-default client-field flags and backfills the airport flag only for preexisting groups with nonempty departure-city arrays, preserving prior configured behavior. JSONB array shape is assumed from earlier application data; no live data or malformed-payload probing performed."
+    }
+  ],
+  "manual_full_migrations": 16,
+  "manual_full_migration_lines": 819,
+  "source_selection": "published-migration-selection.json",
+  "selection_sha256": "4abe992207977e40d3c4809127682ab96f25da3b347aa5ac2b4000f43c9f4107",
+  "current_explicit_full_ledgers_checked_before_reads": true,
+  "no_duplicate_full_credit": true,
+  "all142published_files_unchanged": true,
+  "no_tests_or_migration_execution_for_this_read_only_cohort": true,
+  "notes": "All source lines physically read in two bounded outputs for0013\u20130028. Metadata and old passing tests are not manual read credit. All published bytes preserved. Shared outgoing authentication retained; no dedicated Inbox source investigation."
+}

@@ -1,0 +1,65 @@
+[
+  {
+    "path": "backend/tests/unit/infrastructure/test_operational_retention.py",
+    "sha256": "271551a0a56461a2539637254b3c2f6094e6e28d99916e4bc960cee7307d4ed9",
+    "physical_lines": 177,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole177lines. Bounded operational row cleanup stages encrypted quarantine locator storage jobs, returns audited counters/flush, compiledPGskiplocked/expiry/registration restrictions; corrupt authenticated locator retained with safe code instead of deleted. Mock session/real syntheticcipher design, no actual deletion/storage/retention execution. Complete current physical test-source read; source unchanged, no new test execution/runtime fix/validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_operational_roster_membership.py",
+    "sha256": "72a771bf758a4c8937abc4a427367be3408f12a1f27e796a85cba34c5c9c237e",
+    "physical_lines": 113,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole113lines. Minimal localSQLite tables preserve rejected/replaced historical attendance while operational roster togglesrestored, exact crossagency/group exclusions and PGJSONmembership predicate compilation reviewed. Shared dashboard operational roster, no nativeclient audit or PGconcurrency claim. Complete current physical test-source read; source unchanged, no new test execution/runtime fix/validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_platform_lifecycle_tasks.py",
+    "sha256": "2c49f2772c111ba5f1f13ffab2dbfc10bd1cede648c54d636323994142b7697c",
+    "physical_lines": 138,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole138lines. Retained platform+operational+WhatsApp receipt retention share one transaction/commit, any phasefailure rollback, schedulerheartbeat expiring brokerkey/timeouts/clientclose and schedule less thanTTL reviewed. Mocked policy/session/Redis tasks only, no beat/broker/deletion action. Complete current physical test-source read; source unchanged, no new test execution/runtime fix/validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_traveller_private_delivery.py",
+    "sha256": "98f6f08cb4abc7d106d4943049b35e0542409e5c80bc94e867d4881566c4c29d",
+    "physical_lines": 251,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole251lines. Passenger-bound current phone never generic qualifier/familyhead fallback, explicitly shared phone document allowed while importedQR stricter, documents versus QR welcome business differences, approval/optin/roster/group mutation denial, newphonewelcome isolation and providerbeforecurrent policy matrix reviewed. LocalSQLite/synthetic send/render/storage; no nativeUI/provider execution. Complete current physical test-source read; source unchanged, no new test execution/runtime fix/validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_traveller_reconciliation_runtime.py",
+    "sha256": "842d4f4b41cbb99e637763f7de93ee9c778df67431436916d75262c4e1b3d9c7",
+    "physical_lines": 162,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole162lines.40page/1000item burst bounds, rechecked deadline/blocked cancellation, deniedPGadvisory slot releasesclaim, separate failure transaction/dirtyflag preservation/retrybudget and exact stalelease/attempt predicates plus bounded safeSQLSTATE diagnostics reviewed. Mockadvisory/claim/session design, no actual distributedPG/throughput qualification. Complete current physical test-source read; source unchanged, no new test execution/runtime fix/validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_traveller_worker_pool.py",
+    "sha256": "da1920f1b7da1a9a3cf18342a6ad775d393a0486ee40bc5ec58eb6c298eff211",
+    "physical_lines": 140,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole140lines. Actual one-connection SQLite AsyncAdaptedQueuePool design with simulated transactionPGfences tests no nestedcheckout, atmost2global slots, release/cleanup and sameconnection impact page/publication order. Explicit boundedwaits/enginefinally; simulated advisorylock, not livePostgres service concurrency or runtime execution now. Complete current physical test-source read; source unchanged, no new test execution/runtime fix/validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_upload_link_features.py",
+    "sha256": "d2e0b41d544e917c2174f057902733a018ae33b064c59506fe3ddeb0fb749778",
+    "physical_lines": 88,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole88lines. Retained public group link ECR/language defaults, storage/domain/DTO/publicresponse/edit preservation, distinct supportedlanguage order/implicitEnglish, switch admission/offpreserveschoices, passport/backpage/filecamera requirements and importonly disabledfeatures reviewed. Pure/entity/repository mapping design, no provider/upload/camera/nativeUI execution. Complete current physical test-source read; source unchanged, no new test execution/runtime fix/validated defect."
+  }
+]

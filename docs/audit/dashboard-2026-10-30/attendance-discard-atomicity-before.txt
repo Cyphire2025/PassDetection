@@ -1,0 +1,46 @@
+F..                                                                      [100%]
+================================== FAILURES ===================================
+________ test_rejected_discard_group_cannot_commit_new_evidence[False] ________
+
+client = <httpx.AsyncClient object at 0x0000027421497B50>
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000002741DEB3C90>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002741DB14D50>
+independent_group = False
+
+    @pytest.mark.parametrize("independent_group", [False, True])
+    async def test_rejected_discard_group_cannot_commit_new_evidence(
+        client,
+        db_session,
+        monkeypatch,
+        independent_group,
+    ):
+        f = await _cohort(db_session)
+        conflict, fresh = uuid.uuid4(), uuid.uuid4()
+        rejected_index = int(independent_group)
+        await _existing_receipt(db_session, f, conflict, index=rejected_index)
+        _commit_requests(client, db_session, monkeypatch)
+        replies = await _post(client, f, [_item(f, fresh), _item(f, conflict, index=rejected_index)])
+        assert [item["status"] for item in replies] == (
+            ["accepted", "rejected"] if independent_group else ["rejected", "rejected"]
+        )
+        sessions = async_sessionmaker(db_session.bind, expire_on_commit=False)
+        async with sessions() as independent_reader:
+            receipts = list(
+                (await independent_reader.scalars(select(AttendanceDiscardTombstoneModel))).all()
+            )
+            expected_events = {conflict, fresh} if independent_group else {conflict}
+>           assert {row.discard_event_id for row in receipts} == expected_events
+E           AssertionError: assert {UUID('4ab224...eea50da63cb')} == {UUID('e363d8...eea50da63cb')}
+E             
+E             Extra items in the left set:
+E             UUID('4ab224ae-a8ce-4adf-b756-58dd7b369809')
+E             Use -v to get more diff
+
+tests\integration\test_browser_attendance_discard_atomicity.py:216: AssertionError
+---------------------------- Captured stdout call -----------------------------
+2026-10-30T23:26:17.132528Z [info     ] refresh_token_created          [app.infrastructure.repositories.refresh_token_repository] user_id=75a801be-5503-40dc-a4a8-12652f1e80af
+------------------------------ Captured log call ------------------------------
+INFO     app.infrastructure.repositories.refresh_token_repository:refresh_token_repository.py:77 {'user_id': '75a801be-5503-40dc-a4a8-12652f1e80af', 'event': 'refresh_token_created', 'logger': 'app.infrastructure.repositories.refresh_token_repository', 'level': 'info', 'timestamp': '2026-10-30T23:26:17.132528Z'}
+=========================== short test summary info ===========================
+FAILED tests/integration/test_browser_attendance_discard_atomicity.py::test_rejected_discard_group_cannot_commit_new_evidence[False]
+1 failed, 2 passed in 4.50s

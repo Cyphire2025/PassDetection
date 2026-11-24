@@ -75,6 +75,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
 
       - name: Bind a manually selected release to its exact revision
         if: ${{ github.event_name == 'workflow_dispatch' }}
@@ -949,6 +951,7 @@ jobs:
       - name: Validate k6 harness syntax
         run: |
           node --check load-tests/k6/passport-extraction.js
+          node --test load-tests/k6/passport-extraction.test.mjs
           node --check load-tests/k6/dashboard-load-contract.mjs
           node --check load-tests/k6/dashboard-load.js
           node --check load-tests/k6/mobile-load-contract.mjs

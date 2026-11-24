@@ -2,15 +2,18 @@ import { act, cleanup, render, screen, waitFor, within } from "@testing-library/
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { useAuthStore } from "@/stores/auth.store";
+import type { User } from "@/types";
 import { AppControlsPage } from "./app-controls-page";
 
 const http = vi.hoisted(() => ({ get: vi.fn(), put: vi.fn(), post: vi.fn(), delete: vi.fn() }));
 const session = vi.hoisted(() => ({ agencyId: "agency-1", role: "agency_manager" }));
 vi.mock("@/lib/api/client", () => ({ default: http }));
-vi.mock("@/stores/auth.store", () => ({ selectUser: () => undefined, useAuthStore: () => ({ role: session.role }) }));
 vi.mock("./gc-app-agency-scope", () => ({ useGcAppAgencyScope: () => ({ agencyId: session.agencyId, isReady: true }) }));
 const ROOT = "/api/v1/gc-app/admin";
 const clients: QueryClient[] = [];
+const initialAuth = useAuthStore.getState();
+const ACTOR_ID = "synthetic-removal-actor";
 
 function group(id = "trip", lifecycle = "archived") {
   return { id, name: `Old group ${id}`, destination: "Dubai", lifecycle_status: lifecycle,
@@ -63,8 +66,11 @@ async function open(user: ReturnType<typeof userEvent.setup>, name = "Old group 
   return screen.getByRole("dialog", { name: "Remove group from GC App?" });
 }
 
-beforeEach(() => { vi.resetAllMocks(); session.agencyId = "agency-1"; session.role = "agency_manager"; });
-afterEach(() => { cleanup(); clients.splice(0).forEach((client) => client.clear()); });
+beforeEach(() => {
+  vi.resetAllMocks(); session.agencyId = "agency-1"; session.role = "agency_manager";
+  useAuthStore.setState({ user: { id: ACTOR_ID, role: session.role, agency_id: session.agencyId } as User });
+});
+afterEach(() => { cleanup(); clients.splice(0).forEach((client) => client.clear()); useAuthStore.setState(initialAuth); });
 
 describe("Manual GC App group removal", () => {
   it.each(["archived", "deleted"])("confirms removal of an old %s group while keeping the source records", async (lifecycle) => {
@@ -81,13 +87,18 @@ describe("Manual GC App group removal", () => {
     await user.click(within(dialog).getByRole("button", { name: "Remove from GC App" }));
     expect(await screen.findByText("No GC App trips found")).toBeVisible();
     expect(screen.getByRole("status")).toHaveTextContent("The original group and its records are kept");
-    expect(http.delete).toHaveBeenCalledExactlyOnceWith(`${ROOT}/groups/trip/app-setup`, { params: { agency_id: "agency-1", expected_revision: 7 } });
+    expect(http.delete).toHaveBeenCalledExactlyOnceWith(`${ROOT}/groups/trip/app-setup`, {
+      expectedOwnerUserId: ACTOR_ID,
+      expectedAuthorityKey: JSON.stringify([ACTOR_ID, "agency_manager", "agency-1"]),
+      params: { agency_id: "agency-1", expected_revision: 7 },
+    });
     expect(http.put).not.toHaveBeenCalled();
     expect(http.post).not.toHaveBeenCalled();
   });
 
   it("hides removal from normal staff even if a page is mounted directly", async () => {
     directory(); session.role = "agency_staff";
+    useAuthStore.setState({ user: { ...useAuthStore.getState().user!, role: "agency_staff" } });
     renderControls();
     await screen.findByText("Old group trip");
     expect(screen.queryByRole("button", { name: "Remove from GC App" })).not.toBeInTheDocument();
@@ -161,7 +172,9 @@ describe("Manual GC App group removal", () => {
     expect(within(dialog).getByRole("button", { name: "Cancel" })).toBeDisabled();
     await user.keyboard("{Escape}");
     expect(dialog).toBeVisible();
-    session.agencyId = "agency-2"; view.refresh();
+    session.agencyId = "agency-2";
+    act(() => { useAuthStore.setState({ user: { ...useAuthStore.getState().user!, agency_id: session.agencyId } }); });
+    view.refresh();
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     await act(async () => { resolve({ data: undefined }); });
     await screen.findByText("Old group trip");

@@ -1,0 +1,163 @@
+============================= test session starts =============================
+platform win32 -- Python 3.11.15, pytest-9.0.3, pluggy-1.6.0 -- C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\nipun\Desktop\PassDetection\backend
+configfile: pyproject.toml
+plugins: anyio-4.14.2, platformdirs-4.12.0, asyncio-1.4.0, cov-5.0.0, xdist-3.8.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=function, asyncio_default_test_loop_scope=function
+collecting ... collected 1 item
+
+tests/integration/test_broadcast_incremental_matching.py::test_second_import_assigns_new_person_without_relink_and_preserves_first_snapshot FAILED [100%]
+
+================================== FAILURES ===================================
+_ test_second_import_assigns_new_person_without_relink_and_preserves_first_snapshot _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000001342747E8D0>
+test_settings = Settings(app_env='development', app_debug=True, app_version='1.0.0', app_revision='unknown', expected_database_schema_...me='qrcode_v1', whatsapp_otp_template_name='', whatsapp_otp_template_language='en_US', whatsapp_delivery_concurrency=4)
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001342718F010>
+
+    async def test_second_import_assigns_new_person_without_relink_and_preserves_first_snapshot(db_session, test_settings, monkeypatch):
+        service, _, target = await reuse_context(db_session, test_settings)
+        actor = UserModel(agency_id=target.agency_id, email=f"{uuid.uuid4()}@example.invalid",
+            full_name="Synthetic importer", hashed_password="unused", role="agency_admin")
+        broadcast = WhatsAppBroadcastGroupModel(agency_id=target.agency_id, name="Synthetic import")
+        db_session.add_all([actor, broadcast])
+        await db_session.flush()
+        db_session.add(ClientGroupWhatsAppBroadcastLinkModel(agency_id=target.agency_id,
+            client_group_id=target.id, broadcast_group_id=broadcast.id))
+        await db_session.flush()
+        user = SimpleNamespace(id=actor.id, agency_id=actor.agency_id, role=UserRole.AGENCY_ADMIN)
+        monkeypatch.setattr(additions, "_group_detail", AsyncMock(return_value="saved"))
+        monkeypatch.setattr(additions, "reconcile_mobile_passenger_access_for_broadcast", AsyncMock())
+        first_source_id = None
+        for index in (1, 2):
+            person = await seed_person(service, target, index, phone=f"+91987654321{index}")
+            name = f"Synthetic{index} Surname{index}"
+            fields = {"name": name, "passport_number": person.number, "date_of_birth": "1990-02-03"}
+            await replace_identity_evidence(db_session, person=person.profile,
+                evidence=identity_evidence(fields, name=name, phone=person.phone), crypto=service.crypto,
+                source={"kind": "synthetic_test"})
+>           assert await additions.add_validated_broadcast_recipients(group_id=broadcast.id,
+                contacts=[WhatsAppRecipientInput(name=name, phone_number=person.phone, imported_fields=fields)],
+                rejected_contacts=[], declared_field_keys=list(fields), recipient_opt_in_confirmed=True,
+                current_user=user, session=db_session) == "saved"
+
+tests\integration\test_broadcast_incremental_matching.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    async def add_validated_broadcast_recipients(
+        *, group_id: uuid.UUID, contacts: list[WhatsAppRecipientInput],
+        rejected_contacts: list[WhatsAppRejectedContactInput], declared_field_keys: list[str],
+        recipient_opt_in_confirmed: bool, current_user: User, session: AsyncSession,
+    ) -> WhatsAppBroadcastGroupDetailResponse:
+        """Shared flush-only persistence after untrusted workbook parsing has finished."""
+        normalized_contacts = _normalized_recipient_inputs(contacts) if contacts else {}
+        if not normalized_contacts and not rejected_contacts:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Add at least one valid or rejected WhatsApp contact",
+            )
+        if normalized_contacts and not recipient_opt_in_confirmed:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Confirm recipient WhatsApp opt-in before adding contacts",
+            )
+    
+>       actor = await _lock_active_whatsapp_actor(
+            session,
+            current_user=current_user,
+            require_agency=current_user.role != UserRole.SUPER_ADMIN,
+        )
+
+app\presentation\api\v1\routes\whatsapp_recipient_additions.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000001342747E8D0>
+
+    async def _lock_active_whatsapp_actor(
+        session: AsyncSession,
+        *,
+        current_user: User,
+        require_agency: bool,
+    ) -> UserModel | User:
+        """Lock current actor/agency after parsing releases the auth transaction.
+    
+        Refresh credential/session authority before any roster mutation, while
+        retaining the original ORM/effective-role return contracts.
+        """
+    
+        statement = _whatsapp_actor_lock_statement(current_user, require_agency=require_agency)
+        result = await session.execute(statement.execution_options(populate_existing=True))
+        actor = result.scalar_one_or_none()
+        if actor is None:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Your account is no longer authorized for WhatsApp broadcasts.",
+            )
+>       refreshed = await refresh_locked_whatsapp_credentials(session, current_user)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+app\presentation\api\v1\routes\whatsapp_scope.py:82: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000001342747E8D0>
+current_user = namespace(id=UUID('da50176f-53f4-43e9-a630-90617b3840e8'), agency_id=UUID('21f2f0a9-834d-4f06-9aac-ebf1ff1c3153'), role=<UserRole.AGENCY_ADMIN: 'agency_admin'>)
+
+    async def refresh_locked_whatsapp_credentials(
+        session: AsyncSession,
+        current_user: User,
+    ) -> User:
+        """Retain canonical legacy/effective-role behavior with current security state."""
+        # The existing parent account lock serializes creation of a legacy state row.
+        # Refresh identity-map state before the canonical repository projects it.
+        result = await session.execute(
+            select(UserSecurityStateModel)
+            .where(UserSecurityStateModel.user_id == current_user.id)
+            .with_for_update(of=UserSecurityStateModel)
+            .execution_options(populate_existing=True)
+        )
+        result.scalar_one_or_none()
+        try:
+>           return await refresh_access_level_actor(session, current_user)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+app\presentation\api\v1\routes\whatsapp_actor_credentials.py:30: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000001342747E8D0>
+snapshot = namespace(id=UUID('da50176f-53f4-43e9-a630-90617b3840e8'), agency_id=UUID('21f2f0a9-834d-4f06-9aac-ebf1ff1c3153'), role=<UserRole.AGENCY_ADMIN: 'agency_admin'>)
+
+    async def refresh_access_level_actor(session: AsyncSession, snapshot: User) -> User:
+        """Read current credential/session state after the caller locks the user row."""
+    
+        refreshed = await UserRepository(session).get_by_id(snapshot.id)
+        if refreshed is None:
+            raise AuthorizationError("Your account is no longer available")
+>       return revalidate_access_level_actor(snapshot, refreshed)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+app\application\security\access_level_actor.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+snapshot = namespace(id=UUID('da50176f-53f4-43e9-a630-90617b3840e8'), agency_id=UUID('21f2f0a9-834d-4f06-9aac-ebf1ff1c3153'), role=<UserRole.AGENCY_ADMIN: 'agency_admin'>)
+refreshed = User(id=UUID('da50176f-53f4-43e9-a630-90617b3840e8'), email='cdfdc10d-f563-41a9-8caf-4fbd2a9a1999@example.invalid', ha...rsion=1, mfa_required=False, mfa_enabled=False, actual_role=None, actual_agency_id=None, access_level_agency_name=None)
+
+    def revalidate_access_level_actor(snapshot: User, refreshed: User) -> User:
+        """Reapply a restricted role only after checking the current real identity."""
+    
+        if (
+            refreshed.id != snapshot.id
+            or not refreshed.is_active
+            or refreshed.credential_state != "active"
+            or refreshed.role != actual_user_role(snapshot)
+            or refreshed.agency_id != actual_user_agency_id(snapshot)
+>           or refreshed.session_version != snapshot.session_version
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^
+        ):
+E       AttributeError: 'types.SimpleNamespace' object has no attribute 'session_version'
+
+app\application\security\access_level_actor.py:32: AttributeError
+- generated xml file: C:\Users\nipun\Desktop\PassDetection\docs\audit\dashboard-2026-10-30\final-retained-backend-incremental-match-diagnostic-20261101-001\junit.xml -
+=========================== short test summary info ===========================
+FAILED tests/integration/test_broadcast_incremental_matching.py::test_second_import_assigns_new_person_without_relink_and_preserves_first_snapshot - AttributeError: 'types.SimpleNamespace' object has no attribute 'session_version'
+============================== 1 failed in 1.15s ==============================

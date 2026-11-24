@@ -7,14 +7,18 @@ contains bounded operational metadata, never full environment/config/log data.
 from __future__ import annotations
 
 import argparse
+import io
 import json
 import os
 import re
-import subprocess
 import sys
+import tempfile
+from collections.abc import Callable
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
+from bounded_command_output import CommandOutputError, capture_command
 from release_reliability import ReliabilityRelease
 from release_traveller_whatsapp import ReleaseError
 
@@ -47,18 +51,23 @@ class BaselineError(RuntimeError):
 
 def run(*arguments: str) -> str:
     try:
-        result = subprocess.run(arguments, capture_output=True, text=True, timeout=30, check=False)
-    except (OSError, subprocess.TimeoutExpired):
+        with tempfile.TemporaryFile() as output:
+            capture_command(list(arguments), timeout=30, maximum_bytes=8 * 1024 * 1024,
+                            output=output, merge_stderr=False)
+            output.seek(0)
+            with io.TextIOWrapper(output) as text:
+                return text.read().strip()
+    except CommandOutputError as error:
+        if error.reason != "capture_failed_or_timed_out":
+            raise BaselineError("A required read-only probe failed or exceeded its output bound") from None
         raise BaselineError("A required read-only probe could not finish") from None
-    if result.returncode or len(result.stdout) > 8 * 1024 * 1024:
-        # Commands can fail with environment values in stderr. Never expose them.
-        raise BaselineError("A required read-only probe failed or exceeded its output bound")
-    return result.stdout.strip()
+    except OSError:
+        raise BaselineError("A required read-only probe could not finish") from None
 
 
-def runtime_configuration(container: dict) -> dict:
+def runtime_configuration(container: dict[str, Any]) -> dict[str, Any]:
     values = dict(value.split("=", 1) for value in container.get("Config", {}).get("Env", []) if "=" in value)
-    output = {name: int(values[name]) if values.get(name, "").isascii()
+    output: dict[str, Any] = {name: int(values[name]) if values.get(name, "").isascii()
               and values.get(name, "").isdigit() else None for name in NUMERIC_SETTINGS}
     revision, schema = values.get("APP_REVISION", ""), values.get("EXPECTED_DATABASE_SCHEMA_REVISION", "")
     output["revision"] = revision if REVISION.fullmatch(revision) else None
@@ -73,14 +82,15 @@ def runtime_configuration(container: dict) -> dict:
     return output
 
 
-def memory_snapshot(source: str) -> dict:
+def memory_snapshot(source: str) -> dict[str, int]:
     fields = dict(re.findall(r"^(MemTotal|MemAvailable|SwapTotal|SwapFree):\s+(\d+) kB$", source, re.MULTILINE))
     if set(fields) != {"MemTotal", "MemAvailable", "SwapTotal", "SwapFree"}:
         raise BaselineError("Host memory observation is incomplete")
     return {name + "_bytes": int(value) * 1024 for name, value in fields.items()}
 
 
-def collect(root: Path, *, runner=run, memory: str | None = None) -> dict:
+def collect(root: Path, *, runner: Callable[..., str] = run,
+            memory: str | None = None) -> dict[str, Any]:
     if os.environ.get("DOCKER_HOST") or os.environ.get("DOCKER_CONTEXT"):
         raise BaselineError("Use the authorized default local Docker context")
     endpoint = runner("docker", "context", "inspect", "--format", "{{.Endpoints.docker.Host}}")

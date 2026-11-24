@@ -1,0 +1,162 @@
+{
+  "modules": [
+    {
+      "path": "app/presentation/api/v1/routes/gc_app_group_directory.py",
+      "source_sha256": "afdb38527c34adc9959a46a05a20e3721d0f1acf7e81eb11a96b255d6677f929",
+      "previous": {
+        "path": "app/presentation/api/v1/routes/gc_app_group_directory.py",
+        "baseline_lines": 351,
+        "maximum_lines": 369,
+        "baseline_max_function_complexity": 28,
+        "maximum_function_complexity": 28,
+        "minimum_coverage_percent": 75
+      },
+      "baseline_lines": 166,
+      "maximum_lines": 170,
+      "baseline_max_function_complexity": 6,
+      "maximum_function_complexity": 6,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/gc_group_directory_filters.py",
+      "source_sha256": "10eea059002d7af41dbf80a7040fbe0776ed041e2b66804f7422d25df3ea5f2e",
+      "previous": null,
+      "baseline_lines": 94,
+      "maximum_lines": 100,
+      "baseline_max_function_complexity": 13,
+      "maximum_function_complexity": 13,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/gc_group_directory_query.py",
+      "source_sha256": "2de6566fb5e1df37eebd32e5740f874c9eb6c36542d3524268f2ada299f036db",
+      "previous": null,
+      "baseline_lines": 144,
+      "maximum_lines": 150,
+      "baseline_max_function_complexity": 9,
+      "maximum_function_complexity": 9,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/gc_group_directory_projection.py",
+      "source_sha256": "b98c55e8b2dd580f52194875cbe8914e8e00979780c566a51f8616d13ef3eb0e",
+      "previous": null,
+      "baseline_lines": 64,
+      "maximum_lines": 70,
+      "baseline_max_function_complexity": 8,
+      "maximum_function_complexity": 8,
+      "minimum_coverage_percent": 95
+    }
+  ],
+  "critical_modules": [],
+  "measurements": [
+    {
+      "path": "app/presentation/api/v1/routes/gc_app_group_directory.py",
+      "lines": 166,
+      "complexity": 6,
+      "line_percent": 100.0,
+      "branch_percent": 100.0,
+      "summary": {
+        "covered_lines": 48,
+        "num_statements": 48,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 6,
+        "num_partial_branches": 0,
+        "covered_branches": 6,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      },
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    {
+      "path": "app/presentation/api/v1/routes/gc_group_directory_filters.py",
+      "lines": 94,
+      "complexity": 13,
+      "line_percent": 97.05882352941177,
+      "branch_percent": 95.0,
+      "summary": {
+        "covered_lines": 33,
+        "num_statements": 34,
+        "percent_covered": 96.29629629629629,
+        "percent_covered_display": "96",
+        "missing_lines": 1,
+        "excluded_lines": 0,
+        "percent_statements_covered": 97.05882352941177,
+        "percent_statements_covered_display": "97",
+        "num_branches": 20,
+        "num_partial_branches": 1,
+        "covered_branches": 19,
+        "missing_branches": 1,
+        "percent_branches_covered": 95.0,
+        "percent_branches_covered_display": "95"
+      },
+      "missing_lines": [
+        33
+      ],
+      "missing_branches": [
+        [
+          32,
+          33
+        ]
+      ]
+    },
+    {
+      "path": "app/presentation/api/v1/routes/gc_group_directory_query.py",
+      "lines": 144,
+      "complexity": 9,
+      "line_percent": 100.0,
+      "branch_percent": 100.0,
+      "summary": {
+        "covered_lines": 24,
+        "num_statements": 24,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 4,
+        "num_partial_branches": 0,
+        "covered_branches": 4,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      },
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    {
+      "path": "app/presentation/api/v1/routes/gc_group_directory_projection.py",
+      "lines": 64,
+      "complexity": 8,
+      "line_percent": 100.0,
+      "branch_percent": 100.0,
+      "summary": {
+        "covered_lines": 10,
+        "num_statements": 10,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 2,
+        "num_partial_branches": 0,
+        "covered_branches": 2,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      },
+      "missing_lines": [],
+      "missing_branches": []
+    }
+  ],
+  "responsibility": "Original75 normal line floor follows every actual moved logic owner at proposed95. All size/complexity ratchets actual-specific and below original369/C28; original family had no critical membership, none fabricated."
+}

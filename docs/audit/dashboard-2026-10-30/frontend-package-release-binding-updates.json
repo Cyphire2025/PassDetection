@@ -1,0 +1,16 @@
+[
+  {
+    "path": "frontend/package.json",
+    "source0140_sha256": "2af0aef08b986e7ea44ad5ab6039716c695f63d1a8d2564b216d9310131ec754",
+    "source0141_sha256": "2af0aef08b986e7ea44ad5ab6039716c695f63d1a8d2564b216d9310131ec754",
+    "candidate_sha256": "5de0ee57a35e13692336a9f2821504061aae67cc2df94e428fdc411b73c5fca8",
+    "agent_supplied_byte_sha256": "8c8e2c46658b76bb4b0c7578330ba610d4741be63f30943d5fb262ed73030463"
+  },
+  {
+    "path": "frontend/package-lock.json",
+    "source0140_sha256": "8fad36f5d051e3d3b57c4db03d042d152c4dc8ddfaccf43e1df385d06681b0a8",
+    "source0141_sha256": "8fad36f5d051e3d3b57c4db03d042d152c4dc8ddfaccf43e1df385d06681b0a8",
+    "candidate_sha256": "aa4adc3d5ff8e8fba20dc8454d60c953011da383a74fba26dda48c36f96ff029",
+    "agent_supplied_byte_sha256": "566c274823b6a1d7223afbe17b0159839f090d46eb0ea9cea833543af5962f91"
+  }
+]

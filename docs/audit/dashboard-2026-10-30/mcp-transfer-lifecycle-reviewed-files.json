@@ -1,0 +1,83 @@
+[
+  {
+    "path": "frontend/features/mcp/hooks/use-mcp-file-transfer.ts",
+    "sha256": "8d85a56f49754664bc389f8db71554b2f75f8ba90f494f7b1c465f11ca7ff862",
+    "physical_lines": 96,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete current physical-source and caller/lifecycle read. Fragment-only bounded bearer transfer remains independent of dashboard account state; credentials omitted. Four actual unmount failures corrected with route-lifetime signal and post-await checks;8current hook cases include StrictMode/upload/save/anchor controls and dispatched-PUT limitation.34affected tests and scoped types/lint pass. No live service/browser/production qualification in this batch."
+  },
+  {
+    "path": "frontend/features/mcp/api/mcp-transfer.api.ts",
+    "sha256": "cf7a4a0a95df4e944d3d60bc144130b513f49ce7d7b69745769790f130dc2aab",
+    "physical_lines": 45,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete current physical-source and caller/lifecycle read. Fragment-only bounded bearer transfer remains independent of dashboard account state; credentials omitted. Four actual unmount failures corrected with route-lifetime signal and post-await checks;8current hook cases include StrictMode/upload/save/anchor controls and dispatched-PUT limitation.34affected tests and scoped types/lint pass. No live service/browser/production qualification in this batch."
+  },
+  {
+    "path": "frontend/features/mcp/utils/file-transfer.ts",
+    "sha256": "79e3413c12bfab33c3369d0bd345c4154d0f90083aa24116bb99ae29af82dee0",
+    "physical_lines": 89,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete current physical-source and caller/lifecycle read. Fragment-only bounded bearer transfer remains independent of dashboard account state; credentials omitted. Four actual unmount failures corrected with route-lifetime signal and post-await checks;8current hook cases include StrictMode/upload/save/anchor controls and dispatched-PUT limitation.34affected tests and scoped types/lint pass. No live service/browser/production qualification in this batch."
+  },
+  {
+    "path": "frontend/features/mcp/utils/read-transfer-body.ts",
+    "sha256": "53fc62863d8575b1d5a1213c90e2973a6b844a0f1ee5949b12fc29de1386dc16",
+    "physical_lines": 32,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete current physical-source and caller/lifecycle read. Fragment-only bounded bearer transfer remains independent of dashboard account state; credentials omitted. Four actual unmount failures corrected with route-lifetime signal and post-await checks;8current hook cases include StrictMode/upload/save/anchor controls and dispatched-PUT limitation.34affected tests and scoped types/lint pass. No live service/browser/production qualification in this batch."
+  },
+  {
+    "path": "frontend/features/mcp/utils/save-transfer-file.ts",
+    "sha256": "d240c76cc5295ffc3be65626be1e2d15d1e9748ba0c3c95d11d91fa08b7449e3",
+    "physical_lines": 29,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete current physical-source and caller/lifecycle read. Fragment-only bounded bearer transfer remains independent of dashboard account state; credentials omitted. Four actual unmount failures corrected with route-lifetime signal and post-await checks;8current hook cases include StrictMode/upload/save/anchor controls and dispatched-PUT limitation.34affected tests and scoped types/lint pass. No live service/browser/production qualification in this batch."
+  },
+  {
+    "path": "frontend/features/mcp/hooks/use-mcp-file-transfer.test.tsx",
+    "sha256": "f719f5e1585bb75aa34057c5627f92b67363fdc27c5989685b14ab15de924dce",
+    "physical_lines": 181,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete affected test source read. Real hook/API/stream/hash/save-helper pipeline with synthetic bytes/fetch/native picker/writer boundaries; no mock replacement of changed production helpers. Existing validation/error tests retained. Actual browser picker cancellation and server commit timing require separate final qualification."
+  },
+  {
+    "path": "frontend/features/mcp/utils/file-transfer.test.ts",
+    "sha256": "3597aca541bb93c33a7163e2eb2c86d39af0a5275f0a51e107a1b17db8fe1d67",
+    "physical_lines": 80,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete affected test source read. Real hook/API/stream/hash/save-helper pipeline with synthetic bytes/fetch/native picker/writer boundaries; no mock replacement of changed production helpers. Existing validation/error tests retained. Actual browser picker cancellation and server commit timing require separate final qualification."
+  },
+  {
+    "path": "frontend/features/mcp/utils/save-transfer-file.test.ts",
+    "sha256": "74a249dd5513ec46ba5a693306b4641aaa9231640e5cd69b6cd07f21aff7d4e5",
+    "physical_lines": 27,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete affected test source read. Real hook/API/stream/hash/save-helper pipeline with synthetic bytes/fetch/native picker/writer boundaries; no mock replacement of changed production helpers. Existing validation/error tests retained. Actual browser picker cancellation and server commit timing require separate final qualification."
+  },
+  {
+    "path": "frontend/features/mcp/api/mcp-transfer.api.test.ts",
+    "sha256": "2847f9d0216d591901b1d621ded686cdb17dd765ab82687553839d87ee099bf5",
+    "physical_lines": 40,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete affected test source read. Real hook/API/stream/hash/save-helper pipeline with synthetic bytes/fetch/native picker/writer boundaries; no mock replacement of changed production helpers. Existing validation/error tests retained. Actual browser picker cancellation and server commit timing require separate final qualification."
+  }
+]

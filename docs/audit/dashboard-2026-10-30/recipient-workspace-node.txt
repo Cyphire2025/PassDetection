@@ -1,0 +1,21 @@
+✔ dashboard owns one durable cross-route WhatsApp activity provider (0.7667ms)
+✔ the current composer and update sender register their durable broadcast IDs (0.4886ms)
+✔ registered activity preserves the message and group labels while historical resend refreshes its history (0.0956ms)
+✔ floating progress hides on sender pages and remains draggable elsewhere (0.1303ms)
+✔ floating progress uses a green capsule while inline progress remains unchanged (0.5408ms)
+✔ failed names load only after the failure arrow is expanded (0.1039ms)
+✔ current recipients expose deferred passenger search and a recoverable empty state (0.0902ms)
+✔ current recipients and exception records have distinct live owners (0.6255ms)
+✔ source passengers and merged imported details retain individual rows without discarding headings (0.1103ms)
+✔ search and sorting use memoized derivations and a bounded current-recipient page (0.0872ms)
+✔ broadcast summaries distinguish all contact records from valid WhatsApp recipients (0.0679ms)
+✔ rejected corrections retain group and rejected-row identity plus explicit consent (0.0987ms)
+✔ replaced contacts use the durable resolution and unidentified uploads retain the matching deep link (0.1262ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 75.706

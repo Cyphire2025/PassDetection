@@ -1,0 +1,344 @@
+{
+  "shared_gates_edited": false,
+  "measurements": [
+    {
+      "path": "app/infrastructure/database/models.py",
+      "lines": 198,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/__init__.py",
+      "lines": 8,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/identity.py",
+      "lines": 150,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/groups.py",
+      "lines": 225,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/access.py",
+      "lines": 125,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/passport.py",
+      "lines": 326,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/exports.py",
+      "lines": 135,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/roster.py",
+      "lines": 141,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/images.py",
+      "lines": 261,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/upload_workflow.py",
+      "lines": 154,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/broadcast_links.py",
+      "lines": 81,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/verification_jobs.py",
+      "lines": 80,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/audit.py",
+      "lines": 142,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/notifications.py",
+      "lines": 73,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/platform.py",
+      "lines": 25,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "coverage_percent": null
+    }
+  ],
+  "previous_budgets": {
+    "app/infrastructure/database/models.py": null,
+    "app/infrastructure/database/_core_models/__init__.py": null,
+    "app/infrastructure/database/_core_models/identity.py": null,
+    "app/infrastructure/database/_core_models/groups.py": null,
+    "app/infrastructure/database/_core_models/access.py": null,
+    "app/infrastructure/database/_core_models/passport.py": null,
+    "app/infrastructure/database/_core_models/exports.py": null,
+    "app/infrastructure/database/_core_models/roster.py": null,
+    "app/infrastructure/database/_core_models/images.py": null,
+    "app/infrastructure/database/_core_models/upload_workflow.py": null,
+    "app/infrastructure/database/_core_models/broadcast_links.py": null,
+    "app/infrastructure/database/_core_models/verification_jobs.py": null,
+    "app/infrastructure/database/_core_models/audit.py": null,
+    "app/infrastructure/database/_core_models/notifications.py": null,
+    "app/infrastructure/database/_core_models/platform.py": null
+  },
+  "previous_critical_floors": {
+    "app/infrastructure/database/models.py": null,
+    "app/infrastructure/database/_core_models/__init__.py": null,
+    "app/infrastructure/database/_core_models/identity.py": null,
+    "app/infrastructure/database/_core_models/groups.py": null,
+    "app/infrastructure/database/_core_models/access.py": null,
+    "app/infrastructure/database/_core_models/passport.py": null,
+    "app/infrastructure/database/_core_models/exports.py": null,
+    "app/infrastructure/database/_core_models/roster.py": null,
+    "app/infrastructure/database/_core_models/images.py": null,
+    "app/infrastructure/database/_core_models/upload_workflow.py": null,
+    "app/infrastructure/database/_core_models/broadcast_links.py": null,
+    "app/infrastructure/database/_core_models/verification_jobs.py": null,
+    "app/infrastructure/database/_core_models/audit.py": null,
+    "app/infrastructure/database/_core_models/notifications.py": null,
+    "app/infrastructure/database/_core_models/platform.py": null
+  },
+  "candidates": [
+    {
+      "path": "app/infrastructure/database/models.py",
+      "baseline_lines": 198,
+      "maximum_lines": 198,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/__init__.py",
+      "baseline_lines": 8,
+      "maximum_lines": 8,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/identity.py",
+      "baseline_lines": 150,
+      "maximum_lines": 150,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/groups.py",
+      "baseline_lines": 225,
+      "maximum_lines": 225,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/access.py",
+      "baseline_lines": 125,
+      "maximum_lines": 125,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/passport.py",
+      "baseline_lines": 326,
+      "maximum_lines": 326,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/exports.py",
+      "baseline_lines": 135,
+      "maximum_lines": 135,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/roster.py",
+      "baseline_lines": 141,
+      "maximum_lines": 141,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/images.py",
+      "baseline_lines": 261,
+      "maximum_lines": 261,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/upload_workflow.py",
+      "baseline_lines": 154,
+      "maximum_lines": 154,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/broadcast_links.py",
+      "baseline_lines": 81,
+      "maximum_lines": 81,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/verification_jobs.py",
+      "baseline_lines": 80,
+      "maximum_lines": 80,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/audit.py",
+      "baseline_lines": 142,
+      "maximum_lines": 142,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/notifications.py",
+      "baseline_lines": 73,
+      "maximum_lines": 73,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/platform.py",
+      "baseline_lines": 25,
+      "maximum_lines": 25,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 95
+    }
+  ],
+  "proposed_critical_floors": [
+    {
+      "path": "app/infrastructure/database/models.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/__init__.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/identity.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/groups.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/access.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/passport.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/exports.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/roster.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/images.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/upload_workflow.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/broadcast_links.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/verification_jobs.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/audit.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/notifications.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/platform.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    }
+  ],
+  "owner_size_exception": "PassportSubmissionModel remains one complete 287-line declaration. Its focused owner includes necessary imports and a legacy module assignment; no mapping mixin or existing cap/floor was relaxed."
+}

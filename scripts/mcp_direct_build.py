@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import copy
 import hashlib
+import io
 import json
 import re
 import subprocess
@@ -15,12 +16,14 @@ from collections.abc import Callable
 from pathlib import Path
 from urllib.parse import urlencode
 
+from bounded_command_output import CommandOutputError, capture_command
 from mcp_direct_containers import LocalDocker
 
 GIB = 1024**3
 IMAGE = re.compile(r"sha256:[a-f0-9]{64}")
 REVISION = re.compile(r"[a-f0-9]{40}")
 NODE_IMAGE = "node:24-alpine@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1"
+MAX_COMMAND_OUTPUT_BYTES = 8 * 1024 * 1024
 
 
 class BuildError(ValueError):
@@ -34,10 +37,30 @@ def contract_digest(source: bytes) -> str:
 
 
 def command(*args: str, timeout: int = 60) -> str:
-    result = subprocess.run(args, capture_output=True, text=True, timeout=timeout, check=False)
-    if result.returncode:
-        raise BuildError("direct_build_command_failed")
-    return (result.stdout + (result.stderr if args[:2] == ("docker", "logs") else "")).strip()
+    with io.BytesIO() as stdout, io.BytesIO() as stderr:
+        try:
+            capture_command(
+                list(args), timeout=timeout, maximum_bytes=MAX_COMMAND_OUTPUT_BYTES,
+                output=stdout, merge_stderr=False,
+                stderr_output=stderr if args[:2] == ("docker", "logs") else None,
+            )
+        except CommandOutputError as error:
+            if error.timed_out:
+                # Keep execute()'s retained-builder timeout boundary without
+                # exposing command arguments or partial private diagnostics.
+                raise subprocess.TimeoutExpired("direct-build-command", timeout) from None
+            reason = ("direct_build_command_output_limit" if error.output_limit
+                      else "direct_build_command_failed")
+            raise BuildError(reason) from None
+        try:
+            stdout.seek(0)
+            stderr.seek(0)
+            # TextIOWrapper retains subprocess text mode's locale and universal
+            # newlines. Logs keep the original stdout-then-stderr concatenation.
+            with io.TextIOWrapper(stdout) as out, io.TextIOWrapper(stderr) as err:
+                return (out.read() + err.read()).strip()
+        except UnicodeError:
+            raise BuildError("direct_build_command_failed") from None
 
 
 def dependency_delta(previous: str, current: str) -> str:
@@ -81,7 +104,7 @@ class RetainedBuild:
             raise BuildError("invalid_build_source")
         if output.resolve() != output or not output.is_dir() or output.is_symlink():
             raise BuildError("invalid_build_output")
-        if schema_revision not in {"0122_mcp_gc_push", "0129_travel_tracker", "0133_traveller_document_impact", "0135_company_removal_history", "0138_verified_portal_lookup", "0140_document_update_context", "0141_workspace_branding"}:
+        if schema_revision not in {"0122_mcp_gc_push", "0129_travel_tracker", "0133_traveller_document_impact", "0135_company_removal_history", "0138_verified_portal_lookup", "0140_document_update_context", "0141_workspace_branding", "0142_group_background"}:
             raise BuildError("unreviewed_build_schema")
         self.source, self.output, self.revision, self.run = source, output, revision, run
         self.client = client

@@ -1,0 +1,28 @@
+{
+  "status": "complete current physical retained test-source review only",
+  "files": 7,
+  "physical_lines": 1518,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-resource-persistence-test-source-reviewed-files.json",
+    "sha256": "59a688ec4866cf2b3b5da5422021acdd1aa617d9622afd94339c115122b984ba"
+  },
+  "source_before_equals_after": true,
+  "source_fence": {
+    "backend/tests/unit/infrastructure/test_private_celery_diagnostics.py": "e02a4417343e30058015bd653aa2272b6712849300416f1b7360065564c98f94",
+    "backend/tests/unit/infrastructure/test_post_submission_verification_dispatcher.py": "47fbff3264e72e79cab9e6c968ec141240298caebc510726cf6673737b493224",
+    "backend/tests/unit/infrastructure/test_passport_roster_resolution_repository.py": "bb98dd004c822efb2bf71fcbfb1a55d591b020e2a8c4c73e493a07a9fb08cc48",
+    "backend/tests/unit/infrastructure/test_passport_whatsapp_comparison_cache.py": "4d3ae4a0067c69b1065a900f4f6ff115cf05f4c69e3427013a8b41dff628abca",
+    "backend/tests/unit/infrastructure/test_upload_security.py": "4280e3eac5cf0a1308b3a9fe83d671653d021395d7728880aaa85a332d69f3b7",
+    "backend/tests/unit/infrastructure/test_visa_generation_claim_fence.py": "03d70e399890db1d1c18dd014ece2566cc6951de32b05e5620258c7994c0e1c4",
+    "backend/tests/unit/infrastructure/test_visa_image_capacity_retry.py": "b84eec15dce53894772d6634e231d4da49a692379eb43ee2d95f3f6fb2dd7a8c"
+  },
+  "new_execution": false,
+  "runtime_mutation": false,
+  "new_validated_findings": [],
+  "scope": "Retained passport verification/job/cache/roster/scan and shared Celery diagnostic test contracts. No dedicated Inbox/native application paths selected.",
+  "limits": [
+    "Test source of realSQLite/Celery or fake providers is not a current passing execution/service qualification.",
+    "Exact source/private payload/counter/claim controls retain earlier own verification scopes.",
+    "No broad checks, provider/Docker/VPS actions or quality gate edits."
+  ]
+}

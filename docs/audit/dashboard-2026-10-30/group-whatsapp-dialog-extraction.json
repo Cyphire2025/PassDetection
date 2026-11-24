@@ -1,0 +1,6 @@
+{
+  "origin_path": "frontend/features/passports/components/group-whatsapp-dialogs.tsx",
+  "origin_sha256": "8d2f37d59b274b153271119c7240915362014755661e68980dd10bc5b0c04a00",
+  "backup": ".tmp/group-whatsapp-dialogs-before-decomposition.tsx",
+  "note": "Native radio correction precedes movement. Manage dialog moves unchanged; replacement dialog delegates one recipient choice with explicit candidate/selected/pending/group-name/onSelect props. UI state and mutation request ID stay in the dialog owner."
+}

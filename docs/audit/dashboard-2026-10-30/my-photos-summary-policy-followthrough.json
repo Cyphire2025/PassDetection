@@ -1,0 +1,18 @@
+{
+  "status": "original outputs and typed record/public signature preserved",
+  "before_source_sha256": "03d083cc4f4fd2d15d87d4620850bddee2ca13b379a935ff007978a352690758",
+  "after_source_sha256": "60a25389f66e9064287b3c5ffb06c580387c106fe8a99bbf1a0555bb18a37016",
+  "mechanical_proof_sha256": "cd10966babfe5dc61870fc6788fe65a3e0bbfeee6fc0660b4963fbdc27b4b6da",
+  "same_output_cases": 181440,
+  "ordered_output_sha256": "3f996a28ca412ab56509e066e5361662dc6905bc066f204f5c365d27f5d6999c",
+  "unchanged14runtime_source_hashes": true,
+  "original29unaffected_structural_checks_retained": true,
+  "two_state_dependent_structural_checks_superseded_by_same_output_proof": true,
+  "complexity": {
+    "before": 36,
+    "after": 9,
+    "new_most_complex_function": "_result_state"
+  },
+  "change": "Replace one long ordered chain with pure gallery/enrollment/results decisions and fixed closed tables; preserve precedence and all181440original outputs.",
+  "limits": "Synthetic policy equivalence only; no live Redis/PostgreSQL/provider or production throughput qualification."
+}

@@ -1,0 +1,12 @@
+[
+  {
+    "path": "app/core/logging/exception_diagnostics.py",
+    "minimum_line_percent": 95,
+    "minimum_branch_percent": 90
+  },
+  {
+    "path": "app/core/logging/server_diagnostics.py",
+    "minimum_line_percent": 95,
+    "minimum_branch_percent": 80
+  }
+]

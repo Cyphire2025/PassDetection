@@ -1,0 +1,32 @@
+{
+  "status": "Retained deterministic roster identity/evidence matching source cohort; physical reads complete",
+  "files": [
+    {
+      "path": "backend/tests/unit/application/test_group_submission_matching.py",
+      "sha256": "eebba542677fc7a5b68a5055787d203de877fcc4ddbb931c8c96c2c0146e1a10",
+      "physical_lines": 797,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-797 in bounded1-205/206-405/406-605/606-797. Logical duplicate-phone contacts retain all broadcast/source evidence; current public contact supersedes stale imported aliases, verified import column takes priority even if invalid/blank, household matching remains distinct from duplicate passport identity. Legacy name-only review versus unique compound identity, cross-recipient contradictory identifiers and low-cardinality ambiguity stay reviewable. Explicit selected fields use configured OR semantics without unselected/empty fallback; confirmed corrections suppress old extracted/staff aliases and missing-like values never identify. Selected roster assignment can join party members but never implicitly authorizes private delivery; only unique confirmed contact evidence is private under selected policy. Pure fixtures physically read only, no tests/performance/security probes."
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/private_delivery_identity.py",
+      "sha256": "07d1d03caf28648a0b59a4378bead83e74144a81600db57f0128856e443da3f5",
+      "physical_lines": 47,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-47 reread. Existing evidence-kind policy plus per-submission confirmed flag and one-to-one submitted-row requirement preserved; legacy missing flag compatibility remains established policy. Explicit False evidence from configured party assignment cannot unlock private delivery. No changed role/evidence policy or provider execution."
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/group_submission_matching.py",
+      "sha256": "dc85ecd81a87dd90451b9558d40a5007d338d93c3af30570cbff7d92b6ceb2e3",
+      "physical_lines": 201,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "focused",
+      "notes": "Physical1-95 only. Actual stable public compare/evidence/field/normalization imports trace the previously fully reviewed owner family. No full facade reread or automatic imported-leaf credit; existing architecture/work counters not reopened from coordinator name."
+    }
+  ]
+}

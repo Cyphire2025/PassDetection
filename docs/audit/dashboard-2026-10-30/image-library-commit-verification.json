@@ -1,0 +1,47 @@
+{
+  "scope": "Narrow commit acknowledgement correction only; broader image audit continues",
+  "before": {
+    "cases": 8,
+    "failed": 4,
+    "passed": 4,
+    "command": "image-library-commit-baseline-command.json"
+  },
+  "after": {
+    "cases": 8,
+    "passed": 8,
+    "command": "image-library-commit-fixed-command.json"
+  },
+  "checks": [
+    {
+      "argv": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "mypy",
+        "app/presentation/api/v1/routes/passport_image_library.py"
+      ],
+      "exit_code": 0,
+      "output": "image-library-commit-types.txt"
+    },
+    {
+      "argv": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "ruff",
+        "check",
+        "--no-fix",
+        "app/presentation/api/v1/routes/passport_image_library.py",
+        "tests/unit/presentation/test_passport_image_library_commit_outcomes.py"
+      ],
+      "exit_code": 0,
+      "output": "image-library-commit-lint.txt"
+    }
+  ],
+  "proof": "image-library-commit-proof.json",
+  "review_ledger": "image-library-commit-reviewed-files.json",
+  "limitations": [
+    "Synthetic storage adapter; actual local SQLite persistence, not real PostgreSQL/object storage/provider/VPS.",
+    "Indeterminate failed commits retain new keys; orphan reconciliation/lifetimes remain separate open follow-throughs.",
+    "Mixed image-library architecture and post-await reauthorization remain open.",
+    "Initial large tool-output fragment is preserved separately; the complete concise baseline command/log is canonical."
+  ]
+}

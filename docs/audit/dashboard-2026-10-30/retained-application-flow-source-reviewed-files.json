@@ -1,0 +1,77 @@
+{
+  "status": "Retained qualifier/upload field/staff correction/dashboard notification-status source cohort; physical reads complete",
+  "files": [
+    {
+      "path": "backend/tests/unit/application/test_qualifier_selection_flow.py",
+      "sha256": "73cc6a65858cc04cefb2d18c7084d8dbb62b0d74eb1c1b0e81dd79c2c9467b5a",
+      "physical_lines": 326,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-326. Hashed qualifier bearer token, server-side supported relationship/active-group checks, active/expired/consumed resume and upload pre-storage expiry/group/method binding reviewed. Snapshot self/other/custom labels remain immutable; old disabled entry method cannot strand exact already-saved idempotent replay, different key cannot reuse selection. Disabled legacy group keeps established no-qualifier path. Existing mocks only, no storage/native/upload/tests run."
+    },
+    {
+      "path": "backend/tests/unit/application/test_announcement_notification_status.py",
+      "sha256": "e5be6cbb35ff010e4918c961c5aff97767562a7011f40c54846702763bffc351",
+      "physical_lines": 352,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-352. Dashboard notification-status aggregate fixtures separate recipient/device counts and scope every query by agency/group/access/announcement/type; second-device acceptance never becomes separate person or visible-alert guarantee. Unknown provider outcomes remain distinct from failed/cancelled; safe failure-code allowlist redacts arbitrary private provider messages. Existing SQLite minimal-table fixture source read only, no native/provider feature or service execution."
+    },
+    {
+      "path": "backend/tests/unit/application/test_correct_client_details.py",
+      "sha256": "39d8bcd07710bca86106770c3b5585fbeff441d22713d67a2b6549df288c11af",
+      "physical_lines": 388,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-388. Sparse staff detail edits validate completely before mutation, preserve passport/approval/extraction/verification revisions, canonical phone/email plus every matching alias, historical custom labels/retired answers/current options and extraction-only legacy projection. Imported source phone edits do not create OTP authority; family/source contacts use canonical source, format-only edits no-op. Request schema rejects arbitrary fields/labels/naive revision and unknown custom IDs; no runtime edits/tests."
+    },
+    {
+      "path": "backend/tests/unit/application/test_client_group_field_options.py",
+      "sha256": "a1f67b09fa2e64022476bc43063b9398e1c98af4c3140e7993b7d2f9a5f6cc7d",
+      "physical_lines": 603,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-603 in bounded1-240/241-430/431-603 reads. Final submission fails closed without passport classification, canonicalizes only enabled required fields and strips disabled hidden values; numeric code/typed/custom options validated. Exact family replay retained; changed fields rejected, required public contacts independent of optional platform policy and platform duplicate checks include family head/member. Qualifier cannot become family; required front/back/configured selfie/acquisition mode enforced before storage. Public shared workflow source only, no native/UI/provider execution."
+    },
+    {
+      "path": "backend/app/application/mobile/announcement_notification_status.py",
+      "sha256": "cefe730a4a7eb143521edbdd929555bbbe7226d94a7dddbbf8ff1ae56fb65b91",
+      "physical_lines": 198,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-198. Retained dashboard read-only status engine, not native ingress/device feature work. Two scoped aggregate queries distinguish recipient and delivery counts; bounded public failure-code allowlist, unknown vs failed semantics, deterministic sorted DTO projection and checked timestamp. Existing cohesive code unchanged; no real provider/SQL/test execution."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_announcements.py",
+      "sha256": "fa477ecd36f4bc9cc6991314d5c9a173fff479273d6687fb620c3eebefc92530",
+      "physical_lines": 293,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "focused",
+      "notes": "Physical129-189 only. Actual dashboard status caller uses GC content role/admin tenant-group/access and announcement gates before aggregate; provider-enabled is configuration metadata. Following create action CSRF/revision/publication boundary traced only; no whole-file credit or native send qualification."
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/client_submit_passport_use_case.py",
+      "sha256": "aee3271b832c45f09989735136583602051456bd830a01c278a766b77b6bdc72",
+      "physical_lines": 521,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "focused",
+      "notes": "Physical90-159 only. Actual group-link lifecycle and loaded submission group binding, imported-without-front rejection, configured documents/acquisition/photo validation and qualifier snapshot requirement before extraction-job fallback. Other current whole-file qualification remains historical; no new full credit from importing tests."
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/correct_client_details.py",
+      "sha256": "9d65e96f9e34da637b610dce21c8d91c87cb135abc404973aa2a1bf1bd1d89d6",
+      "physical_lines": 167,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "focused",
+      "notes": "Physical81-167 only. Actual purpose-specific immutable sparse correction, all-alias matching suppression, custom patch and extraction-only field merge revisited. Existing current full client-correction-simplification ledger reused; not reopened as architectural debt."
+    }
+  ]
+}

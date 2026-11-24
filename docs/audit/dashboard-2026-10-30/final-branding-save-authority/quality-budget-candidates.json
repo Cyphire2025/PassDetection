@@ -1,0 +1,98 @@
+{
+  "status": "LATEST6 brandingruntime owner candidates afterauthorityfix; geometry5candidate remainsimmutablehistorical/staleforDialog.",
+  "existingNormalRows": 661,
+  "measurements": [
+    {
+      "path": "features/branding/components/group-banner.tsx",
+      "sha256": "d54d0b135c0fdd993c453e6703bd2ddda29cc51e099012c946848943c41fb459",
+      "physicalLines": 41,
+      "maximumFunctionComplexity": 8,
+      "existingBudget": null
+    },
+    {
+      "path": "features/branding/components/group-banner-action.tsx",
+      "sha256": "8fa3dfd6610baadf728db116ccc2490c4e2a7770f9ba216dd3b96ff6f9c1e4cd",
+      "physicalLines": 25,
+      "maximumFunctionComplexity": 7,
+      "existingBudget": null
+    },
+    {
+      "path": "features/branding/components/group-image-dialog.tsx",
+      "sha256": "219fe7ee75ae4aef5121e87d43b5ee8a4a8d698b89117e22531cc5f3f82f3b0e",
+      "physicalLines": 95,
+      "maximumFunctionComplexity": 11,
+      "existingBudget": null
+    },
+    {
+      "path": "features/branding/components/group-banner-frame.ts",
+      "sha256": "754ca8518df4e57f6b832e8e739238287f31afc98ceab52f6f3c47f85afbb6c2",
+      "physicalLines": 12,
+      "maximumFunctionComplexity": 0,
+      "existingBudget": null
+    },
+    {
+      "path": "features/branding/components/use-group-image-aspect.ts",
+      "sha256": "8774bd9add3379488f59da76e254114ff3349d5faebadccbc24d6923ecae16bd",
+      "physicalLines": 59,
+      "maximumFunctionComplexity": 9,
+      "existingBudget": null
+    },
+    {
+      "path": "features/branding/api/branding-images.api.ts",
+      "sha256": "e168b6ea253acf3e4b85b54ff71abcfd80bf3c4bf21ab3d06e352ca4e70894c6",
+      "physicalLines": 45,
+      "maximumFunctionComplexity": 3,
+      "existingBudget": null
+    }
+  ],
+  "newNormalRows": [
+    {
+      "path": "features/branding/components/group-banner.tsx",
+      "baselineLines": 41,
+      "maximumLines": 50,
+      "baselineMaxFunctionComplexity": 8,
+      "maximumFunctionComplexity": 9
+    },
+    {
+      "path": "features/branding/components/group-banner-action.tsx",
+      "baselineLines": 25,
+      "maximumLines": 30,
+      "baselineMaxFunctionComplexity": 7,
+      "maximumFunctionComplexity": 8
+    },
+    {
+      "path": "features/branding/components/group-image-dialog.tsx",
+      "baselineLines": 95,
+      "maximumLines": 100,
+      "baselineMaxFunctionComplexity": 11,
+      "maximumFunctionComplexity": 12
+    },
+    {
+      "path": "features/branding/components/group-banner-frame.ts",
+      "baselineLines": 12,
+      "maximumLines": 20,
+      "baselineMaxFunctionComplexity": 0,
+      "maximumFunctionComplexity": 1
+    },
+    {
+      "path": "features/branding/components/use-group-image-aspect.ts",
+      "baselineLines": 59,
+      "maximumLines": 60,
+      "baselineMaxFunctionComplexity": 9,
+      "maximumFunctionComplexity": 10
+    },
+    {
+      "path": "features/branding/api/branding-images.api.ts",
+      "baselineLines": 45,
+      "maximumLines": 50,
+      "baselineMaxFunctionComplexity": 3,
+      "maximumFunctionComplexity": 4
+    }
+  ],
+  "newCriticalRows": [],
+  "constraints": "No oldcap/floor changes. Same facadeexports/default+legacy6argument HTTPbody/version/partorder; optionalarg7 onlyin-memory frozenauthority/signal metadata. No schema/backend/policy change.",
+  "supersedes_geometry_candidates": {
+    "path": "docs/audit/dashboard-2026-10-30/final-banner-target-frame/quality-budget-candidates.json",
+    "sha256": "6534a76ac5511a95de87f35ba575e1fada2ec9c79b9b4504c13cc510f2a119ce"
+  }
+}

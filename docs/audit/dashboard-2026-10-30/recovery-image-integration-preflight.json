@@ -1,0 +1,21 @@
+{
+  "status": "preflight_stopped_before_shared_mutations",
+  "image_runtime8_hashes_still_match": true,
+  "changes_since_immutable_image91qualification": [
+    {
+      "path": "backend/tests/unit/presentation/test_passport_image_crop_routes.py",
+      "qualified_sha256": "65f9e7c2118e5caf2c7f0adf4114eef906cd815f94b826304e123ae8f004866c",
+      "current_sha256": "2a9f6650cf4499438f02d7cf1c0ca34a780f179a9dffdc82f6a37611b48e1343",
+      "runtime": false
+    },
+    {
+      "path": "backend/tests/route_dependencies.py",
+      "qualified_sha256": "86bfcb5c69cd58777dea86cb9f1b80932e8ef5d4249c1c0fae6cee9f250e22d8",
+      "current_sha256": "36ab3ffd5c252f94e5137925158c7dfc4ec5ac4c05d482c7d826ae0cfd40e5a9",
+      "runtime": false
+    }
+  ],
+  "budget_modules": 586,
+  "bindings_count": 102,
+  "note": "Later sibling test work must not be mislabeled as the old16file qualification fence. Original runtime coverage proof remains sourcebound; awaiting owner-described test delta."
+}

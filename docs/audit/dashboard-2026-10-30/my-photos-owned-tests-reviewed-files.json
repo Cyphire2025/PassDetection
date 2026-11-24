@@ -1,0 +1,278 @@
+{
+  "files": [
+    {
+      "path": "backend/tests/integration/my_photos_operational_fixtures.py",
+      "sha256": "f29c1c8f04c264ca9fa38c99d65274ec97022da089f195ca026464bb74f197cf",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "verified",
+      "notes": "Authored and completely read current synthetic regression/fixture source: actual persisted claim/output/error authority, bounded integrity validation, ordered native cancellation, partial index/replay/checkpoint recovery, or original refresh dispatch as applicable.170-case initial fixture media helper body preserved exactly; later added import/index helper and corrected test-only active windows/minimum supported batch size are explicit. Failed fixture runs remain historical and are not counted as passing invocations."
+    },
+    {
+      "path": "backend/tests/integration/test_my_photos_catalog.py",
+      "sha256": "1d33de3b68881e02f2d714b6eeae3ee9163ad65e63e2b024ad60f17a27d56e28",
+      "review_status": "full",
+      "reviewer": "ai_extraction",
+      "review_scope": "Fully authored/read synthetic integration fixtures and positive/negative assertions",
+      "notes": "Actual isolated SQLite ORM/state workflows, synthetic providers only; PostgreSQL-compiled ordering cases do not imply live PostgreSQL concurrency qualification."
+    },
+    {
+      "path": "backend/tests/integration/test_my_photos_delivery_freshness.py",
+      "sha256": "2655dd50a8ceac588562d97b8555f37622907de4bbbe5fbcd1d9f89e2930b04a",
+      "review_status": "full",
+      "reviewer": "ai_extraction",
+      "review_scope": "Fully authored/read synthetic integration fixtures and positive/negative assertions",
+      "notes": "Actual isolated SQLite ORM/state workflows, synthetic providers only; PostgreSQL-compiled ordering cases do not imply live PostgreSQL concurrency qualification."
+    },
+    {
+      "path": "backend/tests/integration/test_my_photos_delivery_workflows.py",
+      "sha256": "736df6c0e3129fa651142d66410caf2b8c9673ef0f73173595640eace297bf32",
+      "review_status": "full",
+      "reviewer": "ai_extraction",
+      "review_scope": "Fully authored/read synthetic integration fixtures and positive/negative assertions",
+      "notes": "Actual isolated SQLite ORM/state workflows, synthetic providers only; PostgreSQL-compiled ordering cases do not imply live PostgreSQL concurrency qualification."
+    },
+    {
+      "path": "backend/tests/integration/test_my_photos_enrollment_lifecycle.py",
+      "sha256": "e11cd3603e2f4aea495aceb239247469562b47b93b41cc2b7e6f903c8c1be4e1",
+      "review_status": "full",
+      "reviewer": "ai_extraction",
+      "review_scope": "Fully authored/read synthetic integration fixtures and positive/negative assertions",
+      "notes": "Actual isolated SQLite ORM/state workflows, synthetic providers only; PostgreSQL-compiled ordering cases do not imply live PostgreSQL concurrency qualification."
+    },
+    {
+      "path": "backend/tests/integration/test_my_photos_index_checkpoint_recovery.py",
+      "sha256": "7ec0b5e66a50663a970ab4b673cc6a1f738b378715a6343d88a345008f73930d",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "verified",
+      "notes": "Authored and completely read current synthetic regression/fixture source: actual persisted claim/output/error authority, bounded integrity validation, ordered native cancellation, partial index/replay/checkpoint recovery, or original refresh dispatch as applicable.170-case initial fixture media helper body preserved exactly; later added import/index helper and corrected test-only active windows/minimum supported batch size are explicit. Failed fixture runs remain historical and are not counted as passing invocations."
+    },
+    {
+      "path": "backend/tests/integration/test_my_photos_index_lifecycle.py",
+      "sha256": "7e9507acf9b7802d86d157318f943a928fb13d6926c4de44dd670932d028f094",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "verified",
+      "notes": "Authored and completely read current synthetic regression/fixture source: actual persisted claim/output/error authority, bounded integrity validation, ordered native cancellation, partial index/replay/checkpoint recovery, or original refresh dispatch as applicable.170-case initial fixture media helper body preserved exactly; later added import/index helper and corrected test-only active windows/minimum supported batch size are explicit. Failed fixture runs remain historical and are not counted as passing invocations."
+    },
+    {
+      "path": "backend/tests/integration/test_my_photos_index_publication.py",
+      "sha256": "d599bbe660ab9e190072e62c484d8c4ebf828df8b9a5f30f59ae1b7b44299dba",
+      "review_status": "full",
+      "reviewer": "ai_extraction",
+      "review_scope": "Fully authored/read synthetic integration fixtures and positive/negative assertions",
+      "notes": "Actual isolated SQLite ORM/state workflows, synthetic providers only; PostgreSQL-compiled ordering cases do not imply live PostgreSQL concurrency qualification."
+    },
+    {
+      "path": "backend/tests/integration/test_my_photos_liveness_transitions.py",
+      "sha256": "7641a16b4d0a68f3d18bfd5ab19c7e5014d2618ad67d59cfa1f2b4f4565af911",
+      "review_status": "full",
+      "reviewer": "ai_extraction",
+      "review_scope": "Fully authored/read synthetic integration fixtures and positive/negative assertions",
+      "notes": "Actual isolated SQLite ORM/state workflows, synthetic providers only; PostgreSQL-compiled ordering cases do not imply live PostgreSQL concurrency qualification."
+    },
+    {
+      "path": "backend/tests/integration/test_my_photos_lock_order.py",
+      "sha256": "077e7baa5dddb6b337f24f9266a277e3e74cf695266110e44956cea491abda21",
+      "review_status": "full",
+      "reviewer": "ai_extraction",
+      "review_scope": "Fully authored/read synthetic integration fixtures and positive/negative assertions",
+      "notes": "Actual isolated SQLite ORM/state workflows, synthetic providers only; PostgreSQL-compiled ordering cases do not imply live PostgreSQL concurrency qualification."
+    },
+    {
+      "path": "backend/tests/integration/test_my_photos_media_preparation.py",
+      "sha256": "28dfa53637eeb7ae2358dd193d78ee4287b7d72855436929fb82bae3a78022e1",
+      "review_status": "full",
+      "reviewer": "ai_extraction",
+      "review_scope": "Fully authored/read synthetic integration fixtures and positive/negative assertions",
+      "notes": "Actual isolated SQLite ORM/state workflows, synthetic providers only; PostgreSQL-compiled ordering cases do not imply live PostgreSQL concurrency qualification."
+    },
+    {
+      "path": "backend/tests/integration/test_my_photos_media_provider_ownership.py",
+      "sha256": "27557f84bf6ad1a93211d4ecc2287144233082b0b264a74c5d3bec924b239f53",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "verified",
+      "notes": "Authored and completely read current synthetic regression/fixture source: actual persisted claim/output/error authority, bounded integrity validation, ordered native cancellation, partial index/replay/checkpoint recovery, or original refresh dispatch as applicable.170-case initial fixture media helper body preserved exactly; later added import/index helper and corrected test-only active windows/minimum supported batch size are explicit. Failed fixture runs remain historical and are not counted as passing invocations."
+    },
+    {
+      "path": "backend/tests/integration/test_my_photos_media_publication.py",
+      "sha256": "0d7b8f6f82abc93cca8eeb45a2aa095785cc98e63ba87b56a568558884bd51ee",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "verified",
+      "notes": "Authored/full physical current regression source read. Actual JSON metadata rejection, status transaction ownership, confirmed face cleanup/resume, class annotation/pickle namespace, or independent-session media authority/compiled lock-order controls as applicable. Synthetic fixtures only; no real provider or PostgreSQL claim. Existing fixture-module imports do not upgrade the full file review status of their source."
+    },
+    {
+      "path": "backend/tests/integration/test_my_photos_operational_claims.py",
+      "sha256": "fdc8ecf0b18dba7136a8ee6edbb91380d41adfcc04a37d61db16c91118d8d5b6",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "verified",
+      "notes": "Authored and completely read current synthetic regression/fixture source: actual persisted claim/output/error authority, bounded integrity validation, ordered native cancellation, partial index/replay/checkpoint recovery, or original refresh dispatch as applicable.170-case initial fixture media helper body preserved exactly; later added import/index helper and corrected test-only active windows/minimum supported batch size are explicit. Failed fixture runs remain historical and are not counted as passing invocations."
+    },
+    {
+      "path": "backend/tests/integration/test_my_photos_operational_dispatch.py",
+      "sha256": "fbbf030d0590c0b7b12dcba3a57a319541968d9cbd369badda9774eab2e0632a",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "verified",
+      "notes": "Authored and completely read current synthetic regression/fixture source: actual persisted claim/output/error authority, bounded integrity validation, ordered native cancellation, partial index/replay/checkpoint recovery, or original refresh dispatch as applicable.170-case initial fixture media helper body preserved exactly; later added import/index helper and corrected test-only active windows/minimum supported batch size are explicit. Failed fixture runs remain historical and are not counted as passing invocations."
+    },
+    {
+      "path": "backend/tests/integration/test_my_photos_operational_failure_authority.py",
+      "sha256": "41eefb67433bddc8b5d85ce3d7bd8f6b11a3a81f12499b5d50be6af63996ed7b",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "verified",
+      "notes": "Authored and completely read current synthetic regression/fixture source: actual persisted claim/output/error authority, bounded integrity validation, ordered native cancellation, partial index/replay/checkpoint recovery, or original refresh dispatch as applicable.170-case initial fixture media helper body preserved exactly; later added import/index helper and corrected test-only active windows/minimum supported batch size are explicit. Failed fixture runs remain historical and are not counted as passing invocations."
+    },
+    {
+      "path": "backend/tests/integration/test_my_photos_operational_lock_order.py",
+      "sha256": "c79536613f5affc813d5e14818d149eddda32041bbae16de2407fe8cf517dddd",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "verified",
+      "notes": "Authored and completely read actual ORM session recording, compiled FOR UPDATE gallery/job/asset order for queued/exhausted/disabled claims, and independent-session job/gallery deletion between immutable lookup and row locks. Initial3 order negatives failed; final5 controls pass among15 current admission cases. No source-pattern-only check or live PostgreSQL concurrency claim."
+    },
+    {
+      "path": "backend/tests/integration/test_my_photos_provider_claim_freshness.py",
+      "sha256": "c913266459f76257dfb7f0e7fb6cb53e161e24f8685443c1f7ef24255b840072",
+      "review_status": "full",
+      "reviewer": "ai_extraction",
+      "review_scope": "Fully authored/read synthetic integration fixtures and positive/negative assertions",
+      "notes": "Actual isolated SQLite ORM/state workflows, synthetic providers only; PostgreSQL-compiled ordering cases do not imply live PostgreSQL concurrency qualification."
+    },
+    {
+      "path": "backend/tests/integration/test_my_photos_recovery_claim_fencing.py",
+      "sha256": "3aff2d8838be88552f70c36f7949ca32c5c7c21ce38a874feca13e825036559a",
+      "review_status": "full",
+      "reviewer": "ai_extraction",
+      "review_scope": "Fully authored/read synthetic integration fixtures and positive/negative assertions",
+      "notes": "Actual isolated SQLite ORM/state workflows, synthetic providers only; PostgreSQL-compiled ordering cases do not imply live PostgreSQL concurrency qualification."
+    },
+    {
+      "path": "backend/tests/integration/test_my_photos_reference_freshness.py",
+      "sha256": "7fcc52aff7e86a0957989b856ede6016c9eb33eee123658f1ce6a39ce53aba07",
+      "review_status": "full",
+      "reviewer": "ai_extraction",
+      "review_scope": "Fully authored/read synthetic integration fixtures and positive/negative assertions",
+      "notes": "Actual isolated SQLite ORM/state workflows, synthetic providers only; PostgreSQL-compiled ordering cases do not imply live PostgreSQL concurrency qualification."
+    },
+    {
+      "path": "backend/tests/integration/test_my_photos_search_admission.py",
+      "sha256": "e401895db8f9e883806058367ab6458cf80e5d3b0ee888ca6cb0eb3b6c40522a",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "verified",
+      "notes": "Completely read/authored current search worker tests: actual file-backed SQLite current dual leases, after-last-lock clock expiry, cancellation/owner controls, persisted pre-provider admission, feedback carry-forward, strongest per-asset projection and deterministic replay. Existing unit source retains every assertion/statement through exact two audit-target retargets after one required realistic job-expiry field; no guard weakening, real provider or live PostgreSQL claim."
+    },
+    {
+      "path": "backend/tests/integration/test_my_photos_search_failure_authority.py",
+      "sha256": "89120409a8e80fc9016763d92c2bc90acf332561a6277ca4803f1ae888bdd860",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "verified",
+      "notes": "Completely read/authored current search worker tests: actual file-backed SQLite current dual leases, after-last-lock clock expiry, cancellation/owner controls, persisted pre-provider admission, feedback carry-forward, strongest per-asset projection and deterministic replay. Existing unit source retains every assertion/statement through exact two audit-target retargets after one required realistic job-expiry field; no guard weakening, real provider or live PostgreSQL claim."
+    },
+    {
+      "path": "backend/tests/integration/test_my_photos_search_publication.py",
+      "sha256": "b5255d1bf9a490ba17022f74f7f015e4925a41bb9f5a62dea2a23b4756d4ff15",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "verified",
+      "notes": "Completely read/authored current search worker tests: actual file-backed SQLite current dual leases, after-last-lock clock expiry, cancellation/owner controls, persisted pre-provider admission, feedback carry-forward, strongest per-asset projection and deterministic replay. Existing unit source retains every assertion/statement through exact two audit-target retargets after one required realistic job-expiry field; no guard weakening, real provider or live PostgreSQL claim."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_my_photos_aws_providers.py",
+      "sha256": "a0d884072b18a9fbe5ac3d89cc1eb148f41951784cf571aa33944fbafdbc9e89",
+      "review_status": "partial",
+      "reviewer": "ai_extraction",
+      "review_scope": "Authored deltas plus directly relevant SDK/response/aggregate/projection test fixture and assertions; full original test file remains pending",
+      "notes": "No claim to a new complete test-file physical review; actual current regression outcomes recorded in the checkpoint."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_my_photos_contracts.py",
+      "sha256": "5eba6233ab282377aa29b358f23efbbc671563aaf77e022f4dda1696ae28f813",
+      "review_status": "partial",
+      "reviewer": "ai_extraction",
+      "review_scope": "Authored deltas plus directly relevant SDK/response/aggregate/projection test fixture and assertions; full original test file remains pending",
+      "notes": "No claim to a new complete test-file physical review; actual current regression outcomes recorded in the checkpoint."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_my_photos_index_provider_ownership.py",
+      "sha256": "1d865a4ce8c599cf947d2c7ac7bac45c2c9fed986ea8cb048d18f68ed8fee939",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "verified",
+      "notes": "Authored and completely read current synthetic regression/fixture source: actual persisted claim/output/error authority, bounded integrity validation, ordered native cancellation, partial index/replay/checkpoint recovery, or original refresh dispatch as applicable.170-case initial fixture media helper body preserved exactly; later added import/index helper and corrected test-only active windows/minimum supported batch size are explicit. Failed fixture runs remain historical and are not counted as passing invocations."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_my_photos_manifest_critical_boundaries.py",
+      "sha256": "9c2a17cb5e22f10f42f9f950dbb132400447d0a1ba84c2836b91ee5491258af0",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "verified",
+      "notes": "Authored/full physical current regression source read. Actual JSON metadata rejection, status transaction ownership, confirmed face cleanup/resume, class annotation/pickle namespace, or independent-session media authority/compiled lock-order controls as applicable. Synthetic fixtures only; no real provider or PostgreSQL claim. Existing fixture-module imports do not upgrade the full file review status of their source."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_my_photos_manifest_file_bounds.py",
+      "sha256": "f03d932ff06b4b70a9eff67b85f5a4f29c9249d3e38c22c53631390ca006bdca",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "verified",
+      "notes": "Authored/fullread two realtemporaryfile metadata controls. ValidcompleteJSON preserved; actualfile growth afterpreflight rejected. No provider/credentialcalls."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_my_photos_manifest_provider_ownership.py",
+      "sha256": "b88698e1e7fc931298ffe3a36fc7074ecb8fe7430b48a9a063a7516a848e4930",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "verified",
+      "notes": "Authored/full physical regression source read. Real blocked threads/events prove native admission and owned sibling draining on success, late native failure and repeated cancellation, using only synthetic providers. Existing fixture imports are attributed and not upgraded to full-file review."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_my_photos_manifest_type_contracts.py",
+      "sha256": "7b3a0f6102398364ba05351f229bc019d4333f09a5df4c4e98a9cfc1b72a4d00",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "verified",
+      "notes": "Authored/full physical current regression source read. Actual JSON metadata rejection, status transaction ownership, confirmed face cleanup/resume, class annotation/pickle namespace, or independent-session media authority/compiled lock-order controls as applicable. Synthetic fixtures only; no real provider or PostgreSQL claim. Existing fixture-module imports do not upgrade the full file review status of their source."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_my_photos_native_dispatch.py",
+      "sha256": "30d2df0754c647088b5f133c7ec896eda3d29f6325c502b045fe09757809396d",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "verified",
+      "notes": "Authored/full physical regression source read. Real blocked threads/events prove native admission and owned sibling draining on success, late native failure and repeated cancellation, using only synthetic providers. Existing fixture imports are attributed and not upgraded to full-file review."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_my_photos_operational_policy.py",
+      "sha256": "7ed55cf274c59652e297c0c62a906b61899ef64cdebbc524d4b253e7f6e79444",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "verified",
+      "notes": "Authored and completely read current synthetic regression/fixture source: actual persisted claim/output/error authority, bounded integrity validation, ordered native cancellation, partial index/replay/checkpoint recovery, or original refresh dispatch as applicable.170-case initial fixture media helper body preserved exactly; later added import/index helper and corrected test-only active windows/minimum supported batch size are explicit. Failed fixture runs remain historical and are not counted as passing invocations."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_my_photos_provider_tasks.py",
+      "sha256": "5205e3981e33456b553a538fc5be7bd8ccd02b37cd109a8230f22b35b59d3fa3",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "verified",
+      "notes": "Authored and completely read current synthetic regression/fixture source: actual persisted claim/output/error authority, bounded integrity validation, ordered native cancellation, partial index/replay/checkpoint recovery, or original refresh dispatch as applicable.170-case initial fixture media helper body preserved exactly; later added import/index helper and corrected test-only active windows/minimum supported batch size are explicit. Failed fixture runs remain historical and are not counted as passing invocations."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_my_photos_worker_runtime.py",
+      "sha256": "392603dcf53e1fc9495b27ce5fa2500bb432f95048ad7fb6bbd7df1c1f0bd2c2",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "verified",
+      "notes": "Completely read/authored current search worker tests: actual file-backed SQLite current dual leases, after-last-lock clock expiry, cancellation/owner controls, persisted pre-provider admission, feedback carry-forward, strongest per-asset projection and deterministic replay. Existing unit source retains every assertion/statement through exact two audit-target retargets after one required realistic job-expiry field; no guard weakening, real provider or live PostgreSQL claim."
+    }
+  ],
+  "runtime_ledger": "my-photos-backend-reviewed-files.json",
+  "limits": "Test reads are separate from runtime coverage and live-service qualification."
+}

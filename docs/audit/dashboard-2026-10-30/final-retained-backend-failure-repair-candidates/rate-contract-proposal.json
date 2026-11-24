@@ -1,0 +1,26 @@
+{
+  "status": "Prepared only; actual test source remains frozen and unchanged; no candidate test execution",
+  "source": "backend/tests/unit/presentation/test_rate_limit_middleware.py",
+  "before_sha256": "5818e5b8fd2f861747ec8a90c71e67a1b12ca4019ec8c53c093335dd1cc7a02b",
+  "candidate_sha256": "98e6cff02ba803e4c852d5fe2c3915f520d903b427626b19a54cd60cadf9c2a5",
+  "only_changed_method": "PublicUploadProxyContractTests.test_nginx_and_browser_client_keep_the_two_tier_contract",
+  "namespace_AST_outside_method_exact": true,
+  "all_old_method_statements_except_final_assert_exact": true,
+  "final_original_assert_only_receiver_moved_to_exact_wired_owner": true,
+  "minimum_header_count_unchanged": 3,
+  "wired_owner_observed_header_calls": 5,
+  "facade_import_and_composition_assertions_added": true,
+  "facade_source_sha256": "ba78888486139cbb6634e8cb2e18ca22ba0be4013cba1c7116933106bb9e52fc",
+  "wired_owner_source_sha256": "19832df14ca7a10e3a30b0557650cff5c4269f66ea432cb6e82f3a2a68fdc467",
+  "original_bytes_saved": true,
+  "source_fence_exact_after_preparation": true,
+  "artifacts": {
+    "rate-contract-candidate.py.txt": "98e6cff02ba803e4c852d5fe2c3915f520d903b427626b19a54cd60cadf9c2a5",
+    "rate-contract-original.py.txt": "5818e5b8fd2f861747ec8a90c71e67a1b12ca4019ec8c53c093335dd1cc7a02b",
+    "rate-contract.patch": "8e7da07e72702646a1d8f2c273c950a84b07423eab38240114e15b568f739040"
+  },
+  "limits": [
+    "Root GO required after original combined-run and static fences finish before applying candidate.",
+    "No app/frontend/runtime changes; no unrelated file concatenation, assertion deletion or weakening."
+  ]
+}

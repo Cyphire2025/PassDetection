@@ -1,0 +1,92 @@
+..FF..                                                                   [100%]
+================================== FAILURES ===================================
+___ test_history_counts_and_latest_details_do_not_retain_every_attempt[64] ____
+
+group_update = namespace(session=<sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000001F32C3DD150>, agency=<app.infrastructu...cClient object at 0x000001F32C49F1D0>, publish=<AsyncMock id='2143932594128'>, provider=<AsyncMock id='2143931833040'>)
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001F32C4CCBD0>
+count = 64
+
+    @pytest.mark.parametrize("count", [0, 1, 64, 512])
+    async def test_history_counts_and_latest_details_do_not_retain_every_attempt(
+        group_update, monkeypatch, count,
+    ):
+        contacts, logs = await seed_history(group_update, count)
+        observed, metrics = observe_constructions(preview.GroupUpdateAttempt)
+        monkeypatch.setattr(preview, "GroupUpdateAttempt", observed)
+    
+        result = await preview.build_group_update_preview(
+            group_update.session, group=group_update.group, audience=GroupUpdateAudience(),
+        )
+    
+        # Every row is still validated, including old/unselected historical rows.
+        assert metrics.created == count
+        assert [row.audience_key for row in result.recipients] == [row.audience_key for row in contacts]
+        for index, row in enumerate(result.recipients):
+            own_logs = logs[index::len(contacts)]
+            assert row.update_attempt_count == len(own_logs)
+            if own_logs:
+                latest = own_logs[-1]
+                assert row.latest_update.id == latest.id
+                assert row.latest_update_status == latest.status
+                assert row.latest_update.message == latest.rendered_message
+                assert row.latest_update.phone_number == latest.normalized_phone_number
+                assert row.eligible is not any(log.status in ACTIVE for log in own_logs)
+            else:
+                assert row.latest_update is None and row.latest_update_status is None
+        # The history maps still scan all rows. Only retained detail DTOs are bounded
+        # by current audience keys/phones plus the current validation temporary.
+        keys = {contact.audience_key for contact in contacts}
+        keys.update(f"phone:{contact.phone_number}" for contact in contacts if contact.phone_number)
+>       assert metrics.peak <= len(keys) + 1
+E       AssertionError: assert 64 <= (8 + 1)
+E        +  where 64 = namespace(created=64, live=4, peak=64).peak
+E        +  and   8 = len({'phone:+919123456700', 'phone:+919123456701', 'phone:+919123456702', 'phone:+919876543203', 'recipient:2baefcba-4ecd-4f15-bd20-4075bad7ab6e', 'submission:52c186fa-1414-4765-9416-5f64cf56814f', ...})
+
+tests\integration\test_group_update_preview_retention.py:99: AssertionError
+___ test_history_counts_and_latest_details_do_not_retain_every_attempt[512] ___
+
+group_update = namespace(session=<sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000001F32C49CC50>, agency=<app.infrastructu...cClient object at 0x000001F32D897F10>, publish=<AsyncMock id='2143931830416'>, provider=<AsyncMock id='2143933361488'>)
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001F32C542E50>
+count = 512
+
+    @pytest.mark.parametrize("count", [0, 1, 64, 512])
+    async def test_history_counts_and_latest_details_do_not_retain_every_attempt(
+        group_update, monkeypatch, count,
+    ):
+        contacts, logs = await seed_history(group_update, count)
+        observed, metrics = observe_constructions(preview.GroupUpdateAttempt)
+        monkeypatch.setattr(preview, "GroupUpdateAttempt", observed)
+    
+        result = await preview.build_group_update_preview(
+            group_update.session, group=group_update.group, audience=GroupUpdateAudience(),
+        )
+    
+        # Every row is still validated, including old/unselected historical rows.
+        assert metrics.created == count
+        assert [row.audience_key for row in result.recipients] == [row.audience_key for row in contacts]
+        for index, row in enumerate(result.recipients):
+            own_logs = logs[index::len(contacts)]
+            assert row.update_attempt_count == len(own_logs)
+            if own_logs:
+                latest = own_logs[-1]
+                assert row.latest_update.id == latest.id
+                assert row.latest_update_status == latest.status
+                assert row.latest_update.message == latest.rendered_message
+                assert row.latest_update.phone_number == latest.normalized_phone_number
+                assert row.eligible is not any(log.status in ACTIVE for log in own_logs)
+            else:
+                assert row.latest_update is None and row.latest_update_status is None
+        # The history maps still scan all rows. Only retained detail DTOs are bounded
+        # by current audience keys/phones plus the current validation temporary.
+        keys = {contact.audience_key for contact in contacts}
+        keys.update(f"phone:{contact.phone_number}" for contact in contacts if contact.phone_number)
+>       assert metrics.peak <= len(keys) + 1
+E       AssertionError: assert 512 <= (8 + 1)
+E        +  where 512 = namespace(created=512, live=4, peak=512).peak
+E        +  and   8 = len({'phone:+919123456700', 'phone:+919123456701', 'phone:+919123456702', 'phone:+919876543203', 'recipient:92b126c5-eb90-41d4-9121-fa5d9c76ec6a', 'submission:0c488f75-b974-4a79-af71-04df1dd6045c', ...})
+
+tests\integration\test_group_update_preview_retention.py:99: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/integration/test_group_update_preview_retention.py::test_history_counts_and_latest_details_do_not_retain_every_attempt[64]
+FAILED tests/integration/test_group_update_preview_retention.py::test_history_counts_and_latest_details_do_not_retain_every_attempt[512]
+2 failed, 4 passed in 5.26s

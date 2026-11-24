@@ -1,0 +1,158 @@
+{
+  "recorded_at": "2026-10-30T21:49:29.470Z",
+  "baseline": {
+    "path": ".tmp/passport-private-mutations-before.json",
+    "files": 1,
+    "tests": 28,
+    "passed": 0,
+    "failed": 28
+  },
+  "focused": {
+    "path": ".tmp/passport-private-final-focused.json",
+    "files": 7,
+    "tests": 89,
+    "passed": 89,
+    "failed": 0
+  },
+  "compatibility": {
+    "path": ".tmp/passport-private-fixture-compatibility.json",
+    "files": 3,
+    "tests": 39,
+    "passed": 39,
+    "failed": 0
+  },
+  "historical_affected_feature_run": {
+    "path": ".tmp/passport-private-feature-unit.json",
+    "files": 38,
+    "tests": 272,
+    "passed": 255,
+    "failed": 17
+  },
+  "historical_failure_explanation": "All17 failures in the wider affected-feature run were missing synthetic initiating actors or old strict two-argument spy assertions in three fixture files. Corrected fixtures retain exact existing values and add separate original authority metadata; all39 tests in those files passed subsequently.",
+  "node_contracts": {
+    "path": ".tmp/passport-private-source-contracts.txt",
+    "files": 7,
+    "tests": 59,
+    "passed": 59
+  },
+  "existing_passport_budgets": {
+    "modules": 55,
+    "passed": true
+  },
+  "runtime_sources": [
+    {
+      "path": "frontend/features/passports/hooks/use-passports.ts",
+      "sha256": "4d9a252ab716212aec0a148d634f319c3605825bc64bb91b68f3b28b982fa520"
+    },
+    {
+      "path": "frontend/features/passports/hooks/use-upload-links.ts",
+      "sha256": "aa0065e6ee5a105f2ca5986884e58ab4bd3d9e31a4ed38c2116f49055044610a"
+    },
+    {
+      "path": "frontend/features/passports/hooks/use-client-details.ts",
+      "sha256": "741c64e8c239fb49fd67aad10e4ea92b88a32ca2c670e0feb672bfb56ccdc195"
+    },
+    {
+      "path": "frontend/features/passports/hooks/use-display-name.ts",
+      "sha256": "3b01fad7942ef962396fb6b7732422d6618d18d2bcea83c023c1d4903640b28d"
+    },
+    {
+      "path": "frontend/features/passports/hooks/use-passport-queries.ts",
+      "sha256": "d14a1927912ede90a40d37ac02b41965d40823bb8f6e10a6d5793cc5970958a4"
+    },
+    {
+      "path": "frontend/features/passports/hooks/use-passport-export-mutations.ts",
+      "sha256": "98ae802b014f200910f6cf5341a1f427b8ae157208204477eb70ac6bcbef930e"
+    },
+    {
+      "path": "frontend/features/passports/hooks/use-passport-import-mutations.ts",
+      "sha256": "7e9a008c3c78802c3fcd5f87fc7651c68f6208c5c42b7d562b92e98951b557ac"
+    },
+    {
+      "path": "frontend/features/passports/hooks/use-passport-bulk-mutations.ts",
+      "sha256": "e2a4524eb2069480060a3d69aa7f66611661214d8f08cd84cdb9a19403808220"
+    },
+    {
+      "path": "frontend/features/passports/hooks/use-passport-review-mutations.ts",
+      "sha256": "2955d811798538f5a1f8f85a65faefe1f2c4b547df8bb1743ec518d3d158e3d7"
+    },
+    {
+      "path": "frontend/features/passports/hooks/upload-link-query-keys.ts",
+      "sha256": "4c23452cb33d065b31b17968c5ca8b26a884d873ac4c2a238a08e8e1fc570738"
+    },
+    {
+      "path": "frontend/features/passports/hooks/use-upload-link-queries.ts",
+      "sha256": "00b92e514dcf62ef0c014368aff0b17724036d8d797ca803ed9239eab47752c8"
+    },
+    {
+      "path": "frontend/features/passports/hooks/use-upload-link-mutations.ts",
+      "sha256": "e7665f293bc4c2fc043b62b6e580bf11057892f1e9bac879272d8dbd52beec2c"
+    },
+    {
+      "path": "frontend/features/passports/hooks/use-upload-link-roster-mutations.ts",
+      "sha256": "5853862383d0b0f6f6dc03f0caa2ef00bc6b2c3bdc249c8b3c28737856b6cdf5"
+    },
+    {
+      "path": "frontend/features/passports/api/passport-records.api.ts",
+      "sha256": "afc54c35060435a45d61ad3e3cedd551af0cbb5409c0fcfa4db4f45e597773eb"
+    },
+    {
+      "path": "frontend/features/passports/api/passport-imports.api.ts",
+      "sha256": "3d7c4d17975f2a4b7b609e754925f277d64cb8af809cfa93d56f0d5684dec7d3"
+    },
+    {
+      "path": "frontend/features/passports/api/passport-group-exports.api.ts",
+      "sha256": "5ff7dae44f86f6dae3ac64de93a84ec7aa7aafb75e02d2dd5af4343c2f5e4392"
+    },
+    {
+      "path": "frontend/features/passports/api/passport-selection-exports.api.ts",
+      "sha256": "4eafc1d6655ec17e8947cd963c5795734aaa417b9d43a6e855998e6a5cc54474"
+    },
+    {
+      "path": "frontend/features/passports/api/upload-links.api.ts",
+      "sha256": "ba78888486139cbb6634e8cb2e18ca22ba0be4013cba1c7116933106bb9e52fc"
+    },
+    {
+      "path": "frontend/features/passports/api/client-details.api.ts",
+      "sha256": "705eaf6f8d12fe15ad91bf4aacf1df640f972acee67195bd90d7cef837d3c69d"
+    },
+    {
+      "path": "frontend/features/passports/api/display-name.api.ts",
+      "sha256": "b04c6649f20c144491efe226510a40da0a76092e930d23b571b32a6c7de238b3"
+    },
+    {
+      "path": "frontend/features/passports/api/upload-link.types.ts",
+      "sha256": "3335bc9b14f473a73b45c93edf58683155e564753067c5763e57976fc641543e"
+    },
+    {
+      "path": "frontend/features/passports/api/upload-link-management.api.ts",
+      "sha256": "a796283f32524ad248c505fc9cdec1aa5263f5aaf0bb5295f518237e4caa35f3"
+    },
+    {
+      "path": "frontend/features/passports/api/upload-link-roster.api.ts",
+      "sha256": "d1687841ec9061f0e17bb85bb0034cb9db88d032795d9e63a606451a2430ad82"
+    },
+    {
+      "path": "frontend/features/passports/api/public-upload-link.api.ts",
+      "sha256": "19832df14ca7a10e3a30b0557650cff5c4269f66ea432cb6e82f3a2a68fdc467"
+    },
+    {
+      "path": "frontend/features/passports/api/passport-request-config.ts",
+      "sha256": "c02d3238f0a1f961d10acfc2ca53713bea562c48a807dbd2ea8dd62f4d2e273a"
+    },
+    {
+      "path": "frontend/features/passports/api/passport-export-transfer.ts",
+      "sha256": "b9216a2de12d5b1d551aabadd55fcc707beeb24af4b775d7446cc34463bb88f9"
+    }
+  ],
+  "preserved": [
+    "All28 private hook public variables, mutation results and callbacks use the existing shared wrapper.",
+    "Public token, telemetry, keepalive and qualifier transport bodies and session headers unchanged.",
+    "Payloads, revisions, idempotency/request IDs, retention choices, export completion handshake, Save As cancellation and private transfer lifetime remain intact."
+  ],
+  "remaining": [
+    "Parent integrates additive/lowered26 module budget candidates; no shared budget edit in this lane.",
+    "Parent next combined checkpoint supplies whole application validation.",
+    "Other16 oversized UI/helper owners remain open."
+  ]
+}

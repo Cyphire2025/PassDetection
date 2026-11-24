@@ -1,0 +1,42 @@
+[
+  {
+    "path": "backend/app/infrastructure/imports/passport_document_importer.py",
+    "sha256": "950e1c3b07c4efbc1b370e4c3ad64cd72d3816301fd041584c875ab039d4b69f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical source/current tests read. Three close-failure protocols over actual rolled native spools failed before; every owned spool now closes once and first exception is retained.15affectedcases pass. Separate pre-existing stale crop-source contract follows its actual storage helper with all old assertions preserved."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_passport_document_import_staging.py",
+    "sha256": "c2e218d272359f43aeed99d60b3abddfdd9f6ab876f0f72d4dff6d0e2f507f49",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical source/current tests read. Three close-failure protocols over actual rolled native spools failed before; every owned spool now closes once and first exception is retained.15affectedcases pass. Separate pre-existing stale crop-source contract follows its actual storage helper with all old assertions preserved."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_passport_document_workspace_cleanup.py",
+    "sha256": "49ffef50613d62a8b202e482a93a80017696e5098205d75d75d282f60944f778",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical source/current tests read. Three close-failure protocols over actual rolled native spools failed before; every owned spool now closes once and first exception is retained.15affectedcases pass. Separate pre-existing stale crop-source contract follows its actual storage helper with all old assertions preserved."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_document_import_staging_route.py",
+    "sha256": "ad5ab7c3f362624f15332afe51832d5b65ab690d00b8d4d113076fa4a0506e63",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical source/current tests read. Three close-failure protocols over actual rolled native spools failed before; every owned spool now closes once and first exception is retained.15affectedcases pass. Separate pre-existing stale crop-source contract follows its actual storage helper with all old assertions preserved."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_crop_lifecycle_contract.py",
+    "sha256": "b935560711758ef7dc8e8561f72c45d9a7c43fded3a3d128613cf39771a8eb96",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical source/current tests read. Three close-failure protocols over actual rolled native spools failed before; every owned spool now closes once and first exception is retained.15affectedcases pass. Separate pre-existing stale crop-source contract follows its actual storage helper with all old assertions preserved."
+  }
+]

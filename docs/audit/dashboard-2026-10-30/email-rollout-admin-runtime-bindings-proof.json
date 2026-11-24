@@ -1,0 +1,517 @@
+{
+  "original_imported_objects": 33,
+  "original_imported_names": [
+    "annotations",
+    "uuid",
+    "Sequence",
+    "dataclass",
+    "UTC",
+    "datetime",
+    "Literal",
+    "APIRouter",
+    "Depends",
+    "HTTPException",
+    "Query",
+    "status",
+    "and_",
+    "func",
+    "or_",
+    "select",
+    "AsyncSession",
+    "ColumnElement",
+    "lock_email_ai_policy_namespace",
+    "get_settings",
+    "User",
+    "UserRole",
+    "EmailAiRolloutPolicyModel",
+    "EmailConnectionModel",
+    "AgencyModel",
+    "UserModel",
+    "get_db_session",
+    "AuditLogRepository",
+    "EmailAiRolloutTargetResponse",
+    "EmailAiRolloutTargetsResponse",
+    "UpdateEmailAiRolloutPolicyRequest",
+    "require_role",
+    "require_cookie_csrf"
+  ],
+  "direct_declarations": [
+    {
+      "name": "_RolloutTargetRow",
+      "actual_owner": "app.presentation.api.v1.routes.email_rollout_targets",
+      "direct_identity": true
+    },
+    {
+      "name": "list_email_ai_rollout_targets",
+      "actual_owner": "app.presentation.api.v1.routes.email_ai_rollout_admin",
+      "direct_identity": true
+    },
+    {
+      "name": "update_email_ai_rollout_policy",
+      "actual_owner": "app.presentation.api.v1.routes.email_ai_rollout_admin",
+      "direct_identity": true
+    },
+    {
+      "name": "_target_rows",
+      "actual_owner": "app.presentation.api.v1.routes.email_rollout_targets",
+      "direct_identity": true
+    },
+    {
+      "name": "_load_policy_map",
+      "actual_owner": "app.presentation.api.v1.routes.email_rollout_policy_mapping",
+      "direct_identity": true
+    },
+    {
+      "name": "_target_response",
+      "actual_owner": "app.presentation.api.v1.routes.email_rollout_policy_mapping",
+      "direct_identity": true
+    },
+    {
+      "name": "_target_key",
+      "actual_owner": "app.presentation.api.v1.routes.email_rollout_policy_mapping",
+      "direct_identity": true
+    },
+    {
+      "name": "_policy_key",
+      "actual_owner": "app.presentation.api.v1.routes.email_rollout_policy_mapping",
+      "direct_identity": true
+    },
+    {
+      "name": "_policy_predicates",
+      "actual_owner": "app.presentation.api.v1.routes.email_rollout_policy_mapping",
+      "direct_identity": true
+    },
+    {
+      "name": "_same_instant",
+      "actual_owner": "app.presentation.api.v1.routes.email_ai_rollout_admin",
+      "direct_identity": true
+    },
+    {
+      "name": "_aware_utc",
+      "actual_owner": "app.presentation.api.v1.routes.email_ai_rollout_admin",
+      "direct_identity": true
+    }
+  ],
+  "actual_original_global_bindings": [
+    {
+      "declaration": "_RolloutTargetRow",
+      "name": "dataclass",
+      "actual_identity": true
+    },
+    {
+      "declaration": "_RolloutTargetRow",
+      "name": "uuid",
+      "actual_identity": true
+    },
+    {
+      "declaration": "list_email_ai_rollout_targets",
+      "name": "AsyncSession",
+      "actual_identity": true
+    },
+    {
+      "declaration": "list_email_ai_rollout_targets",
+      "name": "Depends",
+      "actual_identity": true
+    },
+    {
+      "declaration": "list_email_ai_rollout_targets",
+      "name": "EmailAiRolloutTargetsResponse",
+      "actual_identity": true
+    },
+    {
+      "declaration": "list_email_ai_rollout_targets",
+      "name": "Query",
+      "actual_identity": true
+    },
+    {
+      "declaration": "list_email_ai_rollout_targets",
+      "name": "RolloutScope",
+      "actual_identity": true
+    },
+    {
+      "declaration": "list_email_ai_rollout_targets",
+      "name": "User",
+      "actual_identity": true
+    },
+    {
+      "declaration": "list_email_ai_rollout_targets",
+      "name": "_TARGET_LIMIT",
+      "actual_identity": true
+    },
+    {
+      "declaration": "list_email_ai_rollout_targets",
+      "name": "_load_policy_map",
+      "actual_identity": true
+    },
+    {
+      "declaration": "list_email_ai_rollout_targets",
+      "name": "_super_admin",
+      "actual_identity": true
+    },
+    {
+      "declaration": "list_email_ai_rollout_targets",
+      "name": "_target_response",
+      "actual_identity": true
+    },
+    {
+      "declaration": "list_email_ai_rollout_targets",
+      "name": "_target_rows",
+      "actual_identity": true
+    },
+    {
+      "declaration": "list_email_ai_rollout_targets",
+      "name": "get_db_session",
+      "actual_identity": true
+    },
+    {
+      "declaration": "list_email_ai_rollout_targets",
+      "name": "get_settings",
+      "actual_identity": true
+    },
+    {
+      "declaration": "list_email_ai_rollout_targets",
+      "name": "router",
+      "actual_identity": true
+    },
+    {
+      "declaration": "update_email_ai_rollout_policy",
+      "name": "AsyncSession",
+      "actual_identity": true
+    },
+    {
+      "declaration": "update_email_ai_rollout_policy",
+      "name": "AuditLogRepository",
+      "actual_identity": true
+    },
+    {
+      "declaration": "update_email_ai_rollout_policy",
+      "name": "Depends",
+      "actual_identity": true
+    },
+    {
+      "declaration": "update_email_ai_rollout_policy",
+      "name": "EmailAiRolloutPolicyModel",
+      "actual_identity": true
+    },
+    {
+      "declaration": "update_email_ai_rollout_policy",
+      "name": "EmailAiRolloutTargetResponse",
+      "actual_identity": true
+    },
+    {
+      "declaration": "update_email_ai_rollout_policy",
+      "name": "HTTPException",
+      "actual_identity": true
+    },
+    {
+      "declaration": "update_email_ai_rollout_policy",
+      "name": "UTC",
+      "actual_identity": true
+    },
+    {
+      "declaration": "update_email_ai_rollout_policy",
+      "name": "UpdateEmailAiRolloutPolicyRequest",
+      "actual_identity": true
+    },
+    {
+      "declaration": "update_email_ai_rollout_policy",
+      "name": "User",
+      "actual_identity": true
+    },
+    {
+      "declaration": "update_email_ai_rollout_policy",
+      "name": "_load_policy_map",
+      "actual_identity": true
+    },
+    {
+      "declaration": "update_email_ai_rollout_policy",
+      "name": "_policy_predicates",
+      "actual_identity": true
+    },
+    {
+      "declaration": "update_email_ai_rollout_policy",
+      "name": "_same_instant",
+      "actual_identity": true
+    },
+    {
+      "declaration": "update_email_ai_rollout_policy",
+      "name": "_super_admin",
+      "actual_identity": true
+    },
+    {
+      "declaration": "update_email_ai_rollout_policy",
+      "name": "_target_key",
+      "actual_identity": true
+    },
+    {
+      "declaration": "update_email_ai_rollout_policy",
+      "name": "_target_response",
+      "actual_identity": true
+    },
+    {
+      "declaration": "update_email_ai_rollout_policy",
+      "name": "_target_rows",
+      "actual_identity": true
+    },
+    {
+      "declaration": "update_email_ai_rollout_policy",
+      "name": "datetime",
+      "actual_identity": true
+    },
+    {
+      "declaration": "update_email_ai_rollout_policy",
+      "name": "get_db_session",
+      "actual_identity": true
+    },
+    {
+      "declaration": "update_email_ai_rollout_policy",
+      "name": "get_settings",
+      "actual_identity": true
+    },
+    {
+      "declaration": "update_email_ai_rollout_policy",
+      "name": "lock_email_ai_policy_namespace",
+      "actual_identity": true
+    },
+    {
+      "declaration": "update_email_ai_rollout_policy",
+      "name": "require_cookie_csrf",
+      "actual_identity": true
+    },
+    {
+      "declaration": "update_email_ai_rollout_policy",
+      "name": "router",
+      "actual_identity": true
+    },
+    {
+      "declaration": "update_email_ai_rollout_policy",
+      "name": "select",
+      "actual_identity": true
+    },
+    {
+      "declaration": "update_email_ai_rollout_policy",
+      "name": "status",
+      "actual_identity": true
+    },
+    {
+      "declaration": "_target_rows",
+      "name": "AgencyModel",
+      "actual_identity": true
+    },
+    {
+      "declaration": "_target_rows",
+      "name": "AsyncSession",
+      "actual_identity": true
+    },
+    {
+      "declaration": "_target_rows",
+      "name": "EmailConnectionModel",
+      "actual_identity": true
+    },
+    {
+      "declaration": "_target_rows",
+      "name": "RolloutScope",
+      "actual_identity": true
+    },
+    {
+      "declaration": "_target_rows",
+      "name": "UserModel",
+      "actual_identity": true
+    },
+    {
+      "declaration": "_target_rows",
+      "name": "_OFFICE_ROLES",
+      "actual_identity": true
+    },
+    {
+      "declaration": "_target_rows",
+      "name": "_RolloutTargetRow",
+      "actual_identity": true
+    },
+    {
+      "declaration": "_target_rows",
+      "name": "func",
+      "actual_identity": true
+    },
+    {
+      "declaration": "_target_rows",
+      "name": "or_",
+      "actual_identity": true
+    },
+    {
+      "declaration": "_target_rows",
+      "name": "select",
+      "actual_identity": true
+    },
+    {
+      "declaration": "_target_rows",
+      "name": "uuid",
+      "actual_identity": true
+    },
+    {
+      "declaration": "_load_policy_map",
+      "name": "AsyncSession",
+      "actual_identity": true
+    },
+    {
+      "declaration": "_load_policy_map",
+      "name": "EmailAiRolloutPolicyModel",
+      "actual_identity": true
+    },
+    {
+      "declaration": "_load_policy_map",
+      "name": "PolicyKey",
+      "actual_identity": true
+    },
+    {
+      "declaration": "_load_policy_map",
+      "name": "Sequence",
+      "actual_identity": true
+    },
+    {
+      "declaration": "_load_policy_map",
+      "name": "_RolloutTargetRow",
+      "actual_identity": true
+    },
+    {
+      "declaration": "_load_policy_map",
+      "name": "_policy_key",
+      "actual_identity": true
+    },
+    {
+      "declaration": "_load_policy_map",
+      "name": "and_",
+      "actual_identity": true
+    },
+    {
+      "declaration": "_load_policy_map",
+      "name": "or_",
+      "actual_identity": true
+    },
+    {
+      "declaration": "_load_policy_map",
+      "name": "select",
+      "actual_identity": true
+    },
+    {
+      "declaration": "_target_response",
+      "name": "EmailAiRolloutPolicyModel",
+      "actual_identity": true
+    },
+    {
+      "declaration": "_target_response",
+      "name": "EmailAiRolloutTargetResponse",
+      "actual_identity": true
+    },
+    {
+      "declaration": "_target_response",
+      "name": "PolicyKey",
+      "actual_identity": true
+    },
+    {
+      "declaration": "_target_response",
+      "name": "RolloutScope",
+      "actual_identity": true
+    },
+    {
+      "declaration": "_target_response",
+      "name": "_RolloutTargetRow",
+      "actual_identity": true
+    },
+    {
+      "declaration": "_target_response",
+      "name": "_policy_key",
+      "actual_identity": true
+    },
+    {
+      "declaration": "_target_response",
+      "name": "_target_key",
+      "actual_identity": true
+    },
+    {
+      "declaration": "_target_key",
+      "name": "PolicyKey",
+      "actual_identity": true
+    },
+    {
+      "declaration": "_target_key",
+      "name": "RolloutScope",
+      "actual_identity": true
+    },
+    {
+      "declaration": "_target_key",
+      "name": "_RolloutTargetRow",
+      "actual_identity": true
+    },
+    {
+      "declaration": "_target_key",
+      "name": "_policy_key",
+      "actual_identity": true
+    },
+    {
+      "declaration": "_policy_key",
+      "name": "PolicyKey",
+      "actual_identity": true
+    },
+    {
+      "declaration": "_policy_key",
+      "name": "uuid",
+      "actual_identity": true
+    },
+    {
+      "declaration": "_policy_predicates",
+      "name": "ColumnElement",
+      "actual_identity": true
+    },
+    {
+      "declaration": "_policy_predicates",
+      "name": "EmailAiRolloutPolicyModel",
+      "actual_identity": true
+    },
+    {
+      "declaration": "_policy_predicates",
+      "name": "RolloutScope",
+      "actual_identity": true
+    },
+    {
+      "declaration": "_policy_predicates",
+      "name": "uuid",
+      "actual_identity": true
+    },
+    {
+      "declaration": "_same_instant",
+      "name": "_aware_utc",
+      "actual_identity": true
+    },
+    {
+      "declaration": "_same_instant",
+      "name": "datetime",
+      "actual_identity": true
+    },
+    {
+      "declaration": "_aware_utc",
+      "name": "UTC",
+      "actual_identity": true
+    },
+    {
+      "declaration": "_aware_utc",
+      "name": "datetime",
+      "actual_identity": true
+    }
+  ],
+  "actual_original_global_binding_count": 81,
+  "public_route_count": 2,
+  "openapi_path_count": 1,
+  "evaluated_class_function_hints": 11,
+  "generated_dataclass_methods": 8,
+  "raw_before_after_contracts_retained": true,
+  "runtime_api_schema_route_dependency_slots_frozen_fields_pickle_and_method_contracts_equal": true,
+  "normalization": "Only process-specific function memory addresses in inspect.signature strings were removed for comparison. Actual route dependency module/qualnames and current object wiring independently preserved. No source or inspect monkeypatch.",
+  "introspection": {
+    "before": "available",
+    "after": "OSError",
+    "actual_class_definition": "backend/app/presentation/api/v1/routes/email_rollout_targets.py"
+  },
+  "before_raw_sha256": "03d931662d2c95b241e15b540303a7248889fdfe78c89e7d46e08cffff29d3ee",
+  "after_raw_sha256": "f0d979737b2436f4ae48427a9857a9fe72fea41f73dfde3477d82cec00c9609d"
+}

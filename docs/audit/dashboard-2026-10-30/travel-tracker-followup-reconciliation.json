@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "tracker-owned-native-work",
+      "status": "fixed",
+      "receipt": "travel-tracker-worker-verification.json"
+    },
+    {
+      "id": "tracker-oversized-query-workbook-owners",
+      "status": "resolved-with-cohesive-composition",
+      "receipt": "travel-tracker-composition-verification.json"
+    },
+    {
+      "id": "tracker-mcp-direct-native-awaits",
+      "status": "candidate-open",
+      "source": "backend/app/application/mcp/travel_tracker.py",
+      "scope": "preview_workbook direct parse/match run_sync awaits; requires actual MCP normal cancellation proof beyond local service helper, preserve source/native/revision protocols",
+      "owner_coordination": "AI notified; no applicationMCP source changes"
+    }
+  ],
+  "scope": "Only explicitly qualified findings reconciled; manual full source read is not closure of independent runtime/architecture followups."
+}

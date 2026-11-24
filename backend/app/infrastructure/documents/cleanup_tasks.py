@@ -8,8 +8,8 @@ from app.infrastructure.celery_async_runtime import celery_async_runtime
 from app.infrastructure.documents.orphan_reconciliation import (
     DocumentOrphanReconciliationResult,
 )
-from app.infrastructure.documents.orphan_reconciliation import (
-    reconcile_document_storage_orphans as _reconcile_document_storage_orphans,
+from app.infrastructure.documents.passport_orphan_reconciliation import (
+    reconcile_sensitive_storage_orphans as _reconcile_document_storage_orphans,
 )
 from app.infrastructure.documents.storage_cleanup import (
     process_due_storage_cleanup_jobs,
@@ -41,7 +41,7 @@ def cleanup_document_storage() -> int:
     queue="passport_ocr",
 )
 def reconcile_document_storage_orphans() -> dict[str, int]:
-    """Reconcile one bounded page per fixed travel-document namespace."""
+    """Reconcile one bounded page per fixed document and private-image namespace."""
 
     try:
         result: DocumentOrphanReconciliationResult = celery_async_runtime.run(

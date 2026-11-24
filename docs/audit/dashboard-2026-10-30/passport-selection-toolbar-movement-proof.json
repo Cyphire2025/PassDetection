@@ -1,0 +1,105 @@
+{
+  "recorded_at": "2026-10-31T04:34:03.852Z",
+  "original_sha256": "2afdefd3960e5a1848b3447720b1475fd8c4fef8a07ebd900f6de95b2139d1f8",
+  "records": [
+    {
+      "kind": "search",
+      "rendered_JSX_AST": true
+    },
+    {
+      "kind": "view-switch-and-toolbar-surface",
+      "exact_AST": true
+    },
+    {
+      "kind": "public-Pick-prop-contract",
+      "exact_AST": true
+    },
+    {
+      "kind": "nonempty-selection-admission",
+      "exact_condition_AST": true,
+      "child_component": "PassportGroupSelectedActions"
+    },
+    {
+      "kind": "filter-node",
+      "index": 0,
+      "rendered_JSX_AST": true
+    },
+    {
+      "kind": "filter-node",
+      "index": 1,
+      "rendered_JSX_AST": true
+    },
+    {
+      "kind": "filter-node",
+      "index": 2,
+      "rendered_JSX_AST": true
+    },
+    {
+      "kind": "filter-node",
+      "index": 3,
+      "rendered_JSX_AST": true
+    },
+    {
+      "kind": "filter-node",
+      "index": 4,
+      "rendered_JSX_AST": true
+    },
+    {
+      "kind": "filter-node",
+      "index": 5,
+      "rendered_JSX_AST": true
+    },
+    {
+      "kind": "filter-node",
+      "index": 6,
+      "rendered_JSX_AST": true
+    },
+    {
+      "kind": "filter-node",
+      "index": 7,
+      "rendered_JSX_AST": true
+    },
+    {
+      "kind": "filter-node",
+      "index": 8,
+      "rendered_JSX_AST": true
+    },
+    {
+      "kind": "selected-action-view",
+      "declared_portal_ref_and_bounded_surface_changes_only": true
+    },
+    {
+      "kind": "all-action-callbacks",
+      "count": 7,
+      "exact_complete_AST": true
+    },
+    {
+      "kind": "all-action-inputs",
+      "count": 21,
+      "unchanged": true
+    }
+  ],
+  "files": [
+    {
+      "path": "frontend/features/passports/components/passport-group-selection-toolbar.tsx",
+      "sha256": "b0b0a885cb2b634a350fc5a563620c3b1e997b97c323fe2e1780cf0c36fc66f0"
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-filter-controls.tsx",
+      "sha256": "91b5a55f5fdd944b60c2770d2e4127fb79a82f30dd8712f09df0f6ea4d4dc8a3"
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-selected-actions.tsx",
+      "sha256": "80070db51a3ca808aa6ee1a824485fcca91991a63d1b93e6d310aa1135f94950"
+    },
+    {
+      "path": "frontend/features/passports/components/use-passport-bulk-menu-position.ts",
+      "sha256": "e102ded0528ddc0111b28974ecb7ad0c935106e028e5f6cad222c7607fda4e2b"
+    },
+    {
+      "path": "frontend/features/passports/components/use-passport-group-menus.ts",
+      "sha256": "1efc2323f8748c292acf977f02647e58e23d1c39afd140a7d85648250c74ed76"
+    }
+  ],
+  "basis": "The initial pure three-owner movement is preserved in the origin manifest. Final search/filter/view/public props and selection gate remain exact. The selected view matches only declared portal/ref/bounded/focus attributes, and all original action callbacks plus21inputs are exact. Positioning and pointer/viewport lifetime corrections are separately reviewed/tested, not claimed as mechanical equivalence."
+}

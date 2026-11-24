@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import unittest
+from contextlib import asynccontextmanager
 from unittest.mock import patch
 
 import httpx
@@ -158,12 +159,20 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
                 self.payload_ids: list[int] = []
                 self.endpoints: list[str] = []
 
-            async def post(self, endpoint: str, **kwargs) -> httpx.Response:  # type: ignore[no-untyped-def]
+            @asynccontextmanager
+            async def stream(self, method: str, endpoint: str, **kwargs):  # type: ignore[no-untyped-def]
+                assert method == "POST"
                 self.endpoints.append(endpoint)
                 self.payload_ids.append(id(kwargs["json"]))
                 if len(self.payload_ids) == 1:
-                    return httpx.Response(503, json={"error": "temporary"})
-                return _extracted_passport_response()
+                    response = httpx.Response(503, json={"error": "temporary"})
+                else:
+                    response = _extracted_passport_response()
+                response.request = httpx.Request(method, endpoint)
+                try:
+                    yield response
+                finally:
+                    await response.aclose()
 
         client = _Client()
         result = await GeminiPassportVerificationService(

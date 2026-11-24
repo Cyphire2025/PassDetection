@@ -1,0 +1,25 @@
+{
+  "files": {
+    "backend/app/infrastructure/database/email_models.py": "32a81aa48643647e4824e52fcdb9e0f4257743ddfe86c6de395979f127425f80",
+    "backend/app/infrastructure/database/_email_models/__init__.py": "65cd01f934adfa7ece5ab4f50a45149c7e77c6b77436a24b6800b119ec1853e6",
+    "backend/app/infrastructure/database/_email_models/activity.py": "714dd1b409616b913a23da16ead69983fb6acd43ac660b74f379a5c69e4846cf",
+    "backend/app/infrastructure/database/_email_models/artifacts.py": "7d4474d422e6cda3cb53624d6d04d836f4866bb4e6778b538aa5acbd22ee4aef",
+    "backend/app/infrastructure/database/_email_models/connections.py": "9dcd5be5f425cc9c5e13ec923f8d3293f55b4aeb2c611ff820ab46ad1b8c70b9",
+    "backend/app/infrastructure/database/_email_models/documents.py": "e9931b4d41f4ea92ce3416a63f20121f6189e6c302da5e133017832bcc67a0ba",
+    "backend/app/infrastructure/database/_email_models/messages.py": "b1c99cf70266f258a714752105267adb5018dfccf7953914fdd4cfc7764ebfac",
+    "backend/app/infrastructure/database/_email_models/oauth.py": "975b7807e2c6f4a0542e5ec31b8b839ee2d4cb73fe9507c39190612a89637de7",
+    "backend/app/infrastructure/database/_email_models/reviews.py": "a5f7bf9ec9c011b87b7919046d2aa41722b9fcd883122481942d6fee73379dd8",
+    "backend/tests/unit/infrastructure/test_email_models.py": "76f013c78c578dfa9132282751ab75da2614fcfcc585561240acfe00a0cf2914",
+    "backend/tests/unit/infrastructure/test_email_integrations_migration.py": "8fbefd1b0f1cca8ea2d1984efcb302305b43dec1fd76c70e32e1ea0f17adbdda",
+    "backend/tests/unit/presentation/test_email_oauth_persistence.py": "71d0a956869913c95d3be6658b0d128f8f6951f1f6b9657f4ff57cea1248a2a6",
+    "backend/tests/unit/infrastructure/test_email_model_persistence_contracts.py": "a5b5ce9277abc04af2a4357efd9487b395c79f4fe6813964625d5d860d6f9a5f",
+    "backend/tests/unit/infrastructure/test_email_model_owner_compatibility.py": "44d46732e7654d5f16e2eeb94693cbc4c8f063a141f5432ef67f62180d899051",
+    "backend/tests/email_model_persistence_fixtures.py": "bab1b399c9501f6ea03c6aadaa2b317d1c977ff602eebd87e6721bd391f45ad0",
+    "backend/tests/email_ownership_constraints.py": "0e8af1eae0c3c46f664dec89a9d2021d4eae342ad3044a945407e7ab37036e01"
+  },
+  "checks": [
+    "focused-tests",
+    "scoped-types",
+    "scoped-lint"
+  ]
+}

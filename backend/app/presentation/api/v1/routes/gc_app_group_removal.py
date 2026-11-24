@@ -23,9 +23,7 @@ from app.presentation.dependencies.csrf import require_cookie_csrf
 router = APIRouter()
 
 
-@router.delete(
-    "/groups/{group_id}", status_code=204, dependencies=[Depends(require_cookie_csrf)]
-)
+@router.delete("/groups/{group_id}", status_code=204, dependencies=[Depends(require_cookie_csrf)])
 async def emergency_revoke_gc_group_access(
     group_id: uuid.UUID,
     request: Request,
@@ -54,31 +52,49 @@ async def emergency_revoke_gc_group_access(
     access.updated_at = now
     roles = {"passenger", "client_manager", "coordinator"}
     await _revoke_group_mobile_sessions(
-        session, access, subject_roles={"passenger", "client_manager", "coordinator"},
+        session,
+        access,
+        subject_roles={"passenger", "client_manager", "coordinator"},
         reason="group_access_revoked",
     )
     await append_mobile_sync_change(
-        session, access=access, entity_type="group_access", entity_id=access.id,
-        operation="revoke", version=access.manifest_version,
+        session,
+        access=access,
+        entity_type="group_access",
+        entity_id=access.id,
+        operation="revoke",
+        version=access.manifest_version,
         changed_by_user_id=current_user.id,
         payload={
             "resource_path": f"/api/v1/mobile/trips/{group_id}/manifest",
-            "purge_required": True, "revoked_roles": sorted(roles),
+            "purge_required": True,
+            "revoked_roles": sorted(roles),
         },
     )
     for role in ("passenger", "client_manager", "coordinator"):
         await append_mobile_sync_change(
-            session, access=access, audience=role, entity_type="role_access",
-            entity_id=access.id, operation="revoke", version=access.manifest_version,
+            session,
+            access=access,
+            audience=role,
+            entity_type="role_access",
+            entity_id=access.id,
+            operation="revoke",
+            version=access.manifest_version,
             changed_by_user_id=current_user.id,
             payload={
                 "resource_path": f"/api/v1/mobile/trips/{group_id}/manifest",
-                "purge_required": True, "role": role,
+                "purge_required": True,
+                "role": role,
             },
         )
     await _audit(
-        session, current_user, request, agency_id=tenant_id,
-        action="gc_app.group_revoked", entity_type="gc_group_access", entity_id=access.id,
+        session,
+        current_user,
+        request,
+        agency_id=tenant_id,
+        action="gc_app.group_revoked",
+        entity_type="gc_group_access",
+        entity_id=access.id,
         metadata={"group_id": str(group_id), "access_generation": access.access_generation},
     )
     await session.commit()
@@ -120,8 +136,12 @@ async def remove_gc_group_access(
     # Fence this trip's grants, not the account's sessions: one passenger or
     # coordinator may legitimately retain access to several unrelated trips.
     await append_mobile_sync_change(
-        session, access=access, entity_type="group_access", entity_id=access.id,
-        operation="revoke", version=access.manifest_version,
+        session,
+        access=access,
+        entity_type="group_access",
+        entity_id=access.id,
+        operation="revoke",
+        version=access.manifest_version,
         changed_by_user_id=current_user.id,
         payload={
             "resource_path": f"/api/v1/mobile/trips/{group_id}/manifest",
@@ -131,8 +151,13 @@ async def remove_gc_group_access(
         },
     )
     await _audit(
-        session, current_user, request, agency_id=tenant_id,
-        action="gc_app.group_removed", entity_type="gc_group_access", entity_id=access.id,
+        session,
+        current_user,
+        request,
+        agency_id=tenant_id,
+        action="gc_app.group_removed",
+        entity_type="gc_group_access",
+        entity_id=access.id,
         metadata={"group_id": str(group_id), "access_generation": access.access_generation},
     )
     # A success response acknowledges a durable removal, including its audit

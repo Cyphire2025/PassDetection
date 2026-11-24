@@ -1,0 +1,22 @@
+{
+  "status": "read-only source review continues",
+  "new_full_migrations": 9,
+  "new_full_lines": 2750,
+  "cumulative_new_full_migrations": 87,
+  "prior_full_migrations": 2,
+  "total_current_full_migrations": 89,
+  "total_migrations": 142,
+  "focused_migrations": 2,
+  "wholly_inbox_deferred": 2,
+  "wholly_native_excluded": 3,
+  "remaining_unread_and_unclassified": 46,
+  "ledger": {
+    "path": "docs/audit/dashboard-2026-10-30/published-migration-cohort-06-reviewed-files.json",
+    "sha256": "1c38f66bd3684b775d8776e0dd8f6c0d723c2cf519acdfae791e93301801d968"
+  },
+  "findings": {
+    "path": "docs/audit/dashboard-2026-10-30/published-migration-cohort-06-findings.json",
+    "sha256": "a7be9e893e19c6700c0b615660c8a1e21afae5b070c2048c37293218ef271b84"
+  },
+  "notes": "142=89full+2focused+2Inboxdeferred+3mobileexcluded+46pending0095\u20130140."
+}

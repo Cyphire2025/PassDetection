@@ -1,0 +1,131 @@
+{
+  "status": "sealed-focused-current-source-checkpoint",
+  "finding": {
+    "id": "SAM01",
+    "classification": "Local active-asset authoring resource-lifetime bug, not dashboard runtime/private-data disclosure.",
+    "before": "Exact ordinary-main NodeVM synthetic renderer/drain failures left owned encoder alive:2failed,1healthycontrol passed.",
+    "after": "8focused controls pass with original failure identity; native child close/memory/FFmpeg behavior not claimed."
+  },
+  "source_fence": [
+    {
+      "path": "assets/branding/global-connect/journey-film/source/render.cjs",
+      "sha256": "50261e9fca5cd731ac71ebb086b12e253ea6c35f0493b92457e5325eaa76690a",
+      "physical_lines": 65,
+      "review_scope": "full",
+      "status": "reviewed-and-fixed",
+      "reviewer": "branding_visuals",
+      "notes": "Full29line original authored source physically read, every narrow new wait/close/failure change manually authored/reviewed. Original6main setup statements and entire FFmpeg spawn args AST exact.8actual ordinary-main NodeVM controls simulate native canvas/scene/encoder, original renderer/drain errors persist and owned encoder closes; early encoder close/error wakes drain and bounded signal fallback does not mask original. No native FFmpeg/OS child/physical memory/media rendering proof."
+    },
+    {
+      "path": "scripts/test_journey_film_renderer.mjs",
+      "sha256": "113478425d49b4837e5f768a7d02960a89e7deaa46860564751c7e8c83212add",
+      "physical_lines": 141,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete authored actual-source NodeVM protocol fixture reviewed. Baseline healthy1pass/render+drain2fail retained before runtime patch.8current methods preserve healthy encoding/output/windowsHide arguments, exact triggering error identity, early process completion/failure, bounded fallback timers/signal errors/secondary destroy. Real source loaded from maintained file; no native addon/encoder/files generated. Timer expiries in fallback controls are synthetic microtasks with exact5000msargument assertions, not measured5second wallclock/OS teardown proof."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/README.md",
+      "sha256": "ded1a5e1e910b4ae09c1143c268adaa76858bf12017f4871b601cd75ae35b93d",
+      "physical_lines": 70,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "All70 authored lines physically read, retained active output/provenance/library/license/re-render context, plus sole last-paragraph current navigation change fully reviewed. Prefix69lines exact to original. Active masters/producers/shared geography/other QA all retained; only five approved temporary color probes archived with local link and original relative media structure. Claimed historical FFmpeg/color/loop results not rerun or promoted to current render qualification."
+    },
+    {
+      "path": "assets/branding/global-connect/login-background/README.md",
+      "sha256": "ae14e43ad40eb81e32389d1e2d1e8522bade87c097a38e9991fc80cca1185575",
+      "physical_lines": 16,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete16 authored lines physically read. Current wing/paper and prior atlas/source-reference distinction, source geometry/re-render/provenance/license declarations and active transparent logo crop/palette notes assessed. Shared JourneyGeoJSON dependency prevents wholesale journey source retirement. No artwork/public bytes changed or native renderer executed."
+    }
+  ],
+  "full_ledger": {
+    "path": "docs/audit/dashboard-2026-10-30/journey-film-lifetime-reviewed-files.json",
+    "sha256": "61962a2d429f0ad7c4e944e716bcdff166f91fbe84ba390dd9516adcf3e4e17c"
+  },
+  "source_proof": {
+    "path": "docs/audit/dashboard-2026-10-30/journey-film-lifetime-source-proof.json",
+    "sha256": "8c15ef42305b85491b0229a88d0e60f6a0d26f6d3c3c62770e0152401a61a714"
+  },
+  "raw_before": {
+    "path": ".tmp/journey-film-lifetime/before.txt",
+    "sha256": "9e5d22f9927037fa9d1164eb50f164fcd03aee0afe84d44bc6e7d4a763dad57b"
+  },
+  "checks": [
+    {
+      "command": [
+        "node",
+        "--test",
+        "scripts/test_journey_film_renderer.mjs"
+      ],
+      "exit_code": 0,
+      "raw": ".tmp/journey-film-lifetime/after.txt",
+      "sha256": "7e8c67a35670d06bd8e13d455c35966a77643de09de8b553855602878b09e439",
+      "receipt_note": "Actual preceding subprocess returned0 and raw was saved; parent reporting script then hit cp1252 console printing error before JSON. This preserves that run, no repeated test."
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "assets/branding/global-connect/journey-film/source/render.cjs"
+      ],
+      "exit_code": 0,
+      "raw": ".tmp/journey-film-lifetime/renderer-syntax.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "scripts/test_journey_film_renderer.mjs"
+      ],
+      "exit_code": 0,
+      "raw": ".tmp/journey-film-lifetime/test-syntax.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "retirement": {
+    "path": "docs/audit/dashboard-2026-10-30/journey-color-probes-retirement-manifest.json",
+    "sha256": "2bdf19311a4899a7007568dd19f92381600259c9311d6e8b4f1f16662f70f8f7",
+    "exact_entries": 5,
+    "scope": "Only unused local color comparison folder; all active producers/media/master/provenance/shared geography retained. Existing inventory ingestion awaits exact five-path admission by root; no broad asset allowance."
+  },
+  "preserved_public_media": [
+    {
+      "original": "assets/branding/global-connect/journey-film/journey-film-web.mp4",
+      "publicCopy": "frontend/public/assets/branding/global-connect/journey-film/journey-film-web.mp4",
+      "sha256": "a1af2d0afde7b5fecfc1d09af4656d1a6e8a781e2f1fe829bd324fed5f36f4eb",
+      "decoded": false
+    },
+    {
+      "original": "assets/branding/global-connect/journey-film/journey-film-poster.jpg",
+      "publicCopy": "frontend/public/assets/branding/global-connect/journey-film/journey-film-poster.jpg",
+      "sha256": "eb8d3cee87c283445e29cc8115936bee1eba578809e92e659bb8e92e0d9b6cd5",
+      "decoded": false
+    }
+  ],
+  "changes": [
+    "Authoring source observes own encoder close and races drain with early encoder exit. On body failure it destroys only own input, attempts SIGTERM then SIGKILL with bounded5second close waits; original error wins, cleanup failure remains explicit static warning.",
+    "README final paragraph alone redirects local archive navigation; original69line prefix, historical claims and every re-render command preserved.",
+    "Archived5fixed comparison files retain original bytes/hierarchy, are ignored and leave public delivery unchanged."
+  ],
+  "limits": [
+    "No native addon/ffmpeg/browser/media decode/re-encode, Docker/provider/live release/customer data/private workbook or actual OS-FD/process cleanup qualification.",
+    "No application runtime/workflow/backend/API/schema/native-client/Inbox or current advisory/pin changes; no shared gates or broad suite/build.",
+    "Standalone Node test explicitly executed; no claim automatically discovered by existing CI job.",
+    "Prior supporting source-only SAM01 candidate/history remains immutable; current fix closes only actual synthetic failure paths and named archive closure.",
+    "Reporting first encountered a cp1252 console error after successful8case subprocess/raw-save; original saved successful run preserved without repeating it. Initial folder move attempt failed before mutation; corrected native path operation and exact byte verification recorded in retirement manifest."
+  ],
+  "pre_handoff_metadata_correction": {
+    "note": "Login README prose note18 corrected to actual16; measured physical_lines was already16. No source/verification change or rerun. Original unpublished metadata retained locally.",
+    "previous_receipt": ".tmp/journey-film-lifetime/pre-handoff-receipt.json",
+    "previous_receipt_sha256": "c049c8647b0d0c8c5bd8cd72705541c22dce9bc9f9da79975595e8a920d54e5a",
+    "previous_ledger": ".tmp/journey-film-lifetime/pre-handoff-ledger.json",
+    "previous_ledger_sha256": "88e88ba6d587f97a5539871ba01eca5ce60ab12267b79ff44a03ef6ddfbc5212"
+  }
+}

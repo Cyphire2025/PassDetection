@@ -1,0 +1,38 @@
+[
+  {
+    "path": "load-tests/k6/dashboard-load-contract.test.mjs",
+    "sha256": "cc2319a762be8105f1cad8818cd300a116c7509ede98d1e6ee489d884ac2dd3b",
+    "physical_lines": 338,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole338lines. Exact100/200 VU staging-only approved origin/revision and run-specific external short-lived cookie manifest, unique principals/session secrets, lifetime/count/PII/absolute-path bounds, latency/error thresholds and read-only no-body/no-log cookie harness source assertions reviewed. Synthetic constants and source text only, no k6/load/browser/API calls or performance result. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "load-tests/k6/mobile-attendance-load-contract.test.mjs",
+    "sha256": "e30bb88e6035c23567e53a047f591c2fb30fc968e5c7dd8b320f248c2ffe87c9",
+    "physical_lines": 165,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole165lines. Explicit shared main-CI compatibility contract fixes25coordinators/800fresh+100duplicates, immutable per-target fixture projection, exact authoritative before/after counts and schema, unique token/QR/event identifiers and no bearer echo reviewed. Only contract data/source review; native attendance workload, mobile UI and coordinator runtime not executed or audited anew. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "load-tests/k6/mobile-load-contract.test.mjs",
+    "sha256": "47f7ac93289ae97828a04b18db6dfffd50a5ced9282a952e478359f8573069f1",
+    "physical_lines": 122,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole122lines. Existing shared main-CI support contract for profile shape, exact approved staging versus normalized production origin/path, isolated token and trip/cursor admission, authorized multi-trip projection and integer resource settings reviewed. Synthetic fixture contract, no1000-user run, native feature or provider execution. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "load-tests/k6/my-photos-load-contract.test.mjs",
+    "sha256": "4b87465569ac4e14985b7975d2d88a8d7467800139858ecd1d0cad1174bfe4a3",
+    "physical_lines": 103,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole103lines. Deterministic5000asset/57match/38best+19possible synthetic shared media identity, dual-passenger association, orientation/storage/preparation/resume/corruption states, bounded revision-bound paging and download concurrency2 reviewed. Source contract assertions are not real memory/throughput, biometric quality, native client or storage service qualification. Complete current physical test-source read; no new execution/source fix/validated defect."
+  }
+]

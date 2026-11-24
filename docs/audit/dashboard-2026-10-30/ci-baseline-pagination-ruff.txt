@@ -1,0 +1,23 @@
+B023 Function definition does not bind loop variable `count`
+   --> scripts\test_ci_pipeline.py:224:28
+    |
+222 |                     if "/workflows/" in path:
+223 |                         result = {"workflow_runs": self.runs}
+224 |                         if count is not None:
+    |                            ^^^^^
+225 |                             result["total_count"] = count
+226 |                         return result
+    |
+
+B023 Function definition does not bind loop variable `count`
+   --> scripts\test_ci_pipeline.py:225:53
+    |
+223 |                         result = {"workflow_runs": self.runs}
+224 |                         if count is not None:
+225 |                             result["total_count"] = count
+    |                                                     ^^^^^
+226 |                         return result
+227 |                     return self.api(path)
+    |
+
+Found 2 errors.

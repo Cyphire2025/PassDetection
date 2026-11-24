@@ -1,0 +1,21 @@
+{
+  "reviewer": "manual_security",
+  "source_sha256": {
+    "backend/app/presentation/api/v1/routes/email_integration_connections.py": "68eb50e328e057aa7d79b7d8304fffb5ec909d056967afc038a1391617c501df",
+    "backend/app/infrastructure/email/ai_claim_repository.py": "74e60842f62fd1e66febf42b02599cdc3fcc38394499dd1546eece247ae969a6",
+    "backend/app/presentation/api/v1/routes/email_integration_credentials.py": "2261ae5ae3a21b4b3011c3f4ed4401f913cfa3b91bcef1a00fee4c930f453fca"
+  },
+  "trace": "disconnect_email_connection -> fence_connection_sync (sync_generation +=1, blocked, lease cleared) -> session.commit -> provider revoke -> locked connection reload -> final status. Current AI claim lookup requires matching generation.",
+  "conclusion": "Missing connection status predicate alone is not an established disconnect bypass; exact current disconnect writer invalidates older claims before external provider IO.",
+  "scope": {
+    "email_integration_connections.py": "bounded complete disconnect route function, not full physical file",
+    "email_integration_credentials.py": "full physical file",
+    "ai_claim_repository.py": "full physical source from sealed email-AI checkpoint"
+  },
+  "remaining": [
+    "Agency-disable background-worker contract",
+    "Lease expiry before replacement contract",
+    "Effective record visibility changes during provider await"
+  ],
+  "checks": "Read-only trace, no new tests/build/suite rerun; sealed prior151-case receipt remains historical unchanged."
+}

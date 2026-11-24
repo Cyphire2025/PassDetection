@@ -1,0 +1,8 @@
+........................................................................ [ 62%]
+...........................................                              [100%]
+
+---------- coverage: platform win32, python 3.11.15-final-0 ----------
+Coverage XML written to file C:\Users\nipun\Desktop\PassDetection\docs\audit\dashboard-2026-10-30\whatsapp-import-authority-coverage.xml
+Coverage JSON written to file C:\Users\nipun\Desktop\PassDetection\docs\audit\dashboard-2026-10-30\whatsapp-import-authority-coverage.json
+
+115 passed, 15 deselected in 66.57s (0:01:06)

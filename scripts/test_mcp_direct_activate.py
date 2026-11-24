@@ -25,9 +25,7 @@ class ActivationTests(unittest.TestCase):
         self.addCleanup(temporary.cleanup)
         self.state.directory = Path(temporary.name)
         self.state.revision = "d" * 40
-        self.state.event.side_effect = lambda name, **kw: self.events.append(
-            ("event", name)
-        )
+        self.state.event.side_effect = lambda name, **kw: self.events.append(("event", name))
         self.deployment.project = "mcp-direct-test"
         self.deployment.client = Mock()
         self.originals = {}
@@ -52,29 +50,35 @@ class ActivationTests(unittest.TestCase):
         self.deployment.schema = Mock(return_value="0113_document_follow_up")
         self.deployment.client.graceful_stop.side_effect = self.stop
         self.deployment.start = Mock(side_effect=self.start)
-        self.deployment.migrate = Mock(
-            side_effect=lambda: self.events.append(("migrate",))
-        )
+        self.deployment.migrate = Mock(side_effect=lambda: self.events.append(("migrate",)))
         self.deployment.await_health = Mock(
             side_effect=lambda rows: self.events.append(("health", set(rows)))
         )
-        self.deployment.verify = Mock(
-            side_effect=lambda: self.events.append(("verify",))
-        )
+        self.deployment.verify = Mock(side_effect=lambda: self.events.append(("verify",)))
         self.deployment.memory_checkpoint = Mock()
         self.addCleanup(patch.stopall)
-        patch(
-            "mcp_direct_activate.bound_original",
-            side_effect=lambda row: self.rows[row["Id"]],
-        ).start()
-        self.command = patch(
-            "mcp_direct_activate.command", side_effect=self.run_command
-        ).start()
+        for owner in (
+            "mcp_activation_identity",
+            "mcp_activation_staging",
+            "mcp_activation_database",
+            "mcp_activation_readiness",
+            "mcp_activation_lifecycle",
+        ):
+            patch(owner + ".bound_original", side_effect=lambda row: self.rows[row["Id"]]).start()
+        self.command = Mock(side_effect=self.run_command)
+        for owner in (
+            "mcp_activation_staging",
+            "mcp_activation_database",
+            "mcp_activation_readiness",
+            "mcp_activation_lifecycle",
+        ):
+            patch(owner + ".command", new=self.command).start()
         self.idle = patch(
-            "mcp_direct_activate.require_idle",
+            "mcp_activation_lifecycle.require_idle",
             side_effect=lambda _: self.events.append(("idle",)),
         ).start()
-        patch("mcp_direct_activate.capture_memory", side_effect=self.memory).start()
+        for owner in ("mcp_activation_identity", "mcp_activation_readiness"):
+            patch(owner + ".capture_memory", side_effect=self.memory).start()
 
     def memory(self, rows, **kwargs):
         return {
@@ -103,9 +107,7 @@ class ActivationTests(unittest.TestCase):
 
     def run_command(self, *args, **kwargs):
         if args == ("docker", "ps", "-q", "--no-trunc"):
-            return "\n".join(
-                key for key, row in self.rows.items() if row["State"]["Running"]
-            )
+            return "\n".join(key for key, row in self.rows.items() if row["State"]["Running"])
         raise AssertionError(args)
 
     def stop_originals(self):
@@ -117,21 +119,11 @@ class ActivationTests(unittest.TestCase):
     ):
         self.deployment.activate()
         stops = [event[1] for event in self.events if event[0] == "stop"]
-        self.assertEqual(
-            stops, ["email-beat", "nginx", *WORKERS, "frontend", "backend"]
-        )
-        self.assertLess(
-            self.events.index(("stop", "nginx")), self.events.index(("idle",))
-        )
-        self.assertLess(
-            self.events.index(("idle",)), self.events.index(("stop", "worker"))
-        )
-        self.assertLess(
-            self.events.index(("stop", "backend")), self.events.index(("migrate",))
-        )
-        self.assertLess(
-            self.events.index(("migrate",)), self.events.index(("start", "worker"))
-        )
+        self.assertEqual(stops, ["email-beat", "nginx", *WORKERS, "frontend", "backend"])
+        self.assertLess(self.events.index(("stop", "nginx")), self.events.index(("idle",)))
+        self.assertLess(self.events.index(("idle",)), self.events.index(("stop", "worker")))
+        self.assertLess(self.events.index(("stop", "backend")), self.events.index(("migrate",)))
+        self.assertLess(self.events.index(("migrate",)), self.events.index(("start", "worker")))
         self.assertLess(
             self.events.index(("health", WRITERS - {"nginx"})),
             self.events.index(("start", "nginx")),
@@ -154,9 +146,7 @@ class ActivationTests(unittest.TestCase):
         with self.assertRaisesRegex(BuildError, "forward_repair"):
             self.deployment.activate()
         self.deployment.start.assert_not_called()
-        self.assertTrue(
-            all(not self.originals[name]["State"]["Running"] for name in WRITERS)
-        )
+        self.assertTrue(all(not self.originals[name]["State"]["Running"] for name in WRITERS))
 
     def test_wrong_start_schema_rejects_before_any_stop(self):
         self.deployment.schema.return_value = TARGET
@@ -195,9 +185,7 @@ class ActivationTests(unittest.TestCase):
         with self.assertRaisesRegex(BuildError, "unexpected_running"):
             self.deployment.fence()
         self.rows["f" * 64]["State"]["Running"] = False
-        self.originals["db"]["NetworkSettings"]["Networks"]["original-net"][
-            "NetworkID"
-        ] = "changed"
+        self.originals["db"]["NetworkSettings"]["Networks"]["original-net"]["NetworkID"] = "changed"
         with self.assertRaisesRegex(BuildError, "network_binding"):
             self.deployment.fence()
 
@@ -205,9 +193,7 @@ class ActivationTests(unittest.TestCase):
         self.stop_originals()
         self.deployment.recover_original()
         starts = [event[1] for event in self.events if event[0] == "start"]
-        self.assertEqual(
-            starts, [*WORKERS, "backend", "frontend", "email-beat", "nginx"]
-        )
+        self.assertEqual(starts, [*WORKERS, "backend", "frontend", "email-beat", "nginx"])
         self.assertGreaterEqual(self.deployment.schema.call_count, len(starts) + 1)
         self.state.verify_retention.assert_called_once()
 
@@ -235,18 +221,12 @@ class ActivationTests(unittest.TestCase):
 
     def test_start_admits_current_whole_host_budget_before_starting_container(self):
         self.command.side_effect = ["", str(16 * GIB)]
-        DirectActivation.start(
-            self.deployment, self.candidate_rows["backend"], "backend"
-        )
-        self.deployment.client.start.assert_called_once_with(
-            self.candidate_rows["backend"]["Id"]
-        )
+        DirectActivation.start(self.deployment, self.candidate_rows["backend"], "backend")
+        self.deployment.client.start.assert_called_once_with(self.candidate_rows["backend"]["Id"])
         self.deployment.client.start.reset_mock()
         self.command.side_effect = ["", str(2 * GIB)]
         with self.assertRaisesRegex(BuildError, "host_reserve"):
-            DirectActivation.start(
-                self.deployment, self.candidate_rows["backend"], "backend"
-            )
+            DirectActivation.start(self.deployment, self.candidate_rows["backend"], "backend")
         self.deployment.client.start.assert_not_called()
 
     def test_verify_checks_real_disabled_control_revision_and_exact_metadata_path(self):
@@ -279,9 +259,7 @@ class ActivationTests(unittest.TestCase):
 
         with patch("mcp_direct_activate.urllib.request.urlopen", side_effect=response):
             DirectActivation.verify(self.deployment)
-        self.assertEqual(
-            visited[-1], ORIGIN + "/.well-known/oauth-protected-resource/mcp"
-        )
+        self.assertEqual(visited[-1], ORIGIN + "/.well-known/oauth-protected-resource/mcp")
         self.deployment.database_command.return_value = "t"
         with self.assertRaisesRegex(BuildError, "control_not_disabled"):
             DirectActivation.verify(self.deployment)
@@ -297,16 +275,23 @@ class ActivationTests(unittest.TestCase):
     def test_migration_cannot_run_before_memory_admission_releases_unique_gate(self):
         helper = copy.deepcopy(self.candidate_rows["backend"])
         self.deployment.images = {"backend": {"image_id": helper["Image"]}}
-        self.state.source = PurePosixPath("/opt/GlobalConnectsDashboard/tmp/mcp-direct-" + "d" * 40 + "/source")
+        self.state.source = PurePosixPath(
+            "/opt/GlobalConnectsDashboard/tmp/mcp-direct-" + "d" * 40 + "/source"
+        )
         (self.state.directory / "migration-credentials.private.json").write_text(
             json.dumps({"POSTGRES_USER": "owner", "POSTGRES_PASSWORD": "test"})
         )
         self.deployment.fence = Mock()
         self.deployment.client.request.return_value = {"Id": helper["Id"]}
         backup = {"filename": "new.pgdump", "bytes": 1, "sha256": "f" * 64}
-        request = {"image_id": helper["Image"], "environment": {},
-                   "arguments": ["python", "scripts/apply_mcp_additive_upgrade.py"],
-                   "timeout": 30, "proof": "f" * 64}
+        request = {
+            "image_id": helper["Image"],
+            "environment": {},
+            "arguments": ["python", "scripts/apply_mcp_additive_upgrade.py"],
+            "timeout": 30,
+            "proof": "f" * 64,
+        }
+
         def run(*arguments, **kwargs):
             if arguments[:2] == ("docker", "exec"):
                 self.assertTrue(self.deployment.start.called)
@@ -317,9 +302,11 @@ class ActivationTests(unittest.TestCase):
                 self.assertIn(("gate",), self.events)
                 return "0"
             raise AssertionError(arguments)
+
         self.command.side_effect = run
-        with patch("mcp_direct_activate.MCPDatabaseRelease") as database, patch(
-            "mcp_direct_activate.inspect", return_value=helper
+        with (
+            patch("mcp_activation_database.MCPDatabaseRelease") as database,
+            patch("mcp_activation_database.inspect", return_value=helper),
         ):
             database.return_value.backup.return_value = backup
             database.return_value.migration_request.return_value = request
@@ -343,10 +330,7 @@ class ActivationTests(unittest.TestCase):
                 with self.assertRaisesRegex(BuildError, "source_release"):
                     resume_original_workers(self.state, self.deployment.baseline)
                 self.assertFalse(
-                    any(
-                        call.args[:2] == ("docker", "start")
-                        for call in run.call_args_list
-                    )
+                    any(call.args[:2] == ("docker", "start") for call in run.call_args_list)
                 )
             with patch(
                 "mcp_direct_release.command",
@@ -355,10 +339,7 @@ class ActivationTests(unittest.TestCase):
                 with self.assertRaisesRegex(BuildError, "helper_or_candidate"):
                     resume_original_workers(self.state, self.deployment.baseline)
                 self.assertFalse(
-                    any(
-                        call.args[:2] == ("docker", "start")
-                        for call in run.call_args_list
-                    )
+                    any(call.args[:2] == ("docker", "start") for call in run.call_args_list)
                 )
 
 

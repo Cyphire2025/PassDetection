@@ -1,0 +1,10 @@
+[
+  {
+    "path": "docs/implementation/mcp-workflow-coverage.json",
+    "sha256": "1e86f32ba59659a487dac7bd7b1a44f03e2d58715933ebd77a2388617987a1d0",
+    "reviewer": "root; gc_models_finish",
+    "review_scope": "focused",
+    "status": "generated-metadata-reviewed",
+    "notes": "Complete structured2036surface provenance review continued from final-mcp-current-reviewed-files.json. Exactlyoneexisting API fingerprint updates for optionalAbortSignal;2035otherrows andall2036non-surface policies exact. Wholepriorbytes preserved, actualCLI --check passes; historicaldate/status/evidence/17compatibility policies unchanged. No wholephysical-line/generatedbody/runtime/production verification claimed. See final-mcp-qualifier-integration.json."
+  }
+]

@@ -18,8 +18,9 @@ from scripts.workspace_branding_release import (
 )
 
 
-def contract():
-    return {**POLICY, "migrations": migration_entries(helper.ROOT)}
+def contract(source_schema=SOURCE):
+    return {**POLICY, "source_schema": source_schema,
+            "migrations": migration_entries(helper.ROOT, source_schema)}
 
 
 @pytest.fixture
@@ -127,6 +128,26 @@ def test_committed_revision_checkpoint_mismatch_stops_forward_execution(database
         helper.apply_upgrade(contract())
     assert upgrade.call_count == 1
     assert state["schema"] == SOURCE
+
+
+def test_live_branding_baseline_preserves_existing_values_and_applies_only_background(database, monkeypatch):
+    state, upgrade, _ = database
+    state.update(schema=CHAIN[0], snapshot={"rows": {"logo": "existing-logo", "banner": "existing-banner"}})
+    original = helper.apply_upgrade(contract(CHAIN[0]), capture_baseline=True)
+    assert original["source_schema"] == CHAIN[0]
+    monkeypatch.setenv("MCP_RELEASE_BASELINE_SHA256", original["preservation_sha256"])
+    result = helper.apply_upgrade(contract(CHAIN[0]))
+    assert result["source_schema"] == CHAIN[0]
+    assert result["executed_revisions"] == [TARGET]
+    assert result["preservation_sha256"] == original["preservation_sha256"]
+    assert upgrade.call_args.args[1] == TARGET
+
+
+def test_background_contract_cannot_capture_an_older_schema(database):
+    _, upgrade, _ = database
+    with pytest.raises(ValueError, match="original_source_required_for_baseline"):
+        helper.apply_upgrade(contract(CHAIN[0]), capture_baseline=True)
+    upgrade.assert_not_called()
 
 
 def test_cli_failure_never_exposes_snapshot_or_credentials(monkeypatch, capsys):

@@ -1,0 +1,162 @@
+{
+  "status": "verified at this focused source checkpoint",
+  "before_modules": 851,
+  "after_modules": 856,
+  "normal_additions": 5,
+  "all851old_normal_rows_exact": true,
+  "critical_before": 159,
+  "critical_after": 162,
+  "all159old_critical_and_global_values_exact": true,
+  "critical_additions": [
+    {
+      "path": "app/presentation/api/v1/routes/passport_excel_identity.py",
+      "minimum_line_percent": 80,
+      "minimum_branch_percent": 60
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_excel_rows.py",
+      "minimum_line_percent": 80,
+      "minimum_branch_percent": 60
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_excel_merge.py",
+      "minimum_line_percent": 80,
+      "minimum_branch_percent": 60
+    }
+  ],
+  "measurements": [
+    {
+      "path": "app/presentation/api/v1/routes/passport_excel_import_support.py",
+      "sha256": "be028c1afb810ccb1546088b1ca0814808a4009144f20cb0a1e991ae47c59c0b",
+      "lines": 58,
+      "complexity": 0,
+      "line_percent": 100.0,
+      "branch_percent": null,
+      "branch_sites": 0
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_excel_identity.py",
+      "sha256": "e19c861675a2992601b599a2ffbb21175c4182bbf1ca20257a2ca9615e88d565",
+      "lines": 224,
+      "complexity": 24,
+      "line_percent": 85.45454545454545,
+      "branch_percent": 73.80952380952381,
+      "branch_sites": 42
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_excel_rows.py",
+      "sha256": "c53b6110d7d546c23feb21420002d007d52c6496d24e90191d9ccd7370eccfed",
+      "lines": 136,
+      "complexity": 23,
+      "line_percent": 81.66666666666667,
+      "branch_percent": 61.76470588235294,
+      "branch_sites": 34
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_excel_merge.py",
+      "sha256": "8c1d12c9c215af144b9c64029a20585caa31b2e11d6015e500041aaf2b6c2c59",
+      "lines": 103,
+      "complexity": 10,
+      "line_percent": 93.33333333333333,
+      "branch_percent": 83.33333333333333,
+      "branch_sites": 18
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_source_groups.py",
+      "sha256": "987e6b0ef5e4a3d59331157dc51c5a0675b8f4b10486ee686c712ce7d6784139",
+      "lines": 283,
+      "complexity": 19,
+      "line_percent": 95.49549549549549,
+      "branch_percent": 83.33333333333333,
+      "branch_sites": 18
+    }
+  ],
+  "source_fence": {
+    "backend/app/presentation/api/v1/routes/whatsapp_recipient_details.py": "cbf2a7caef9dec783ffb6252f6e3aa5ca3c6108e7e19df9d2a6308d55f098b0e",
+    "backend/app/presentation/api/v1/routes/whatsapp_recipient_phone_identity.py": "569623532a6da96476575a413e74aa9ce6721d9ec2de648f7c2d97beb174553e",
+    "backend/app/presentation/api/v1/routes/whatsapp_recipients.py": "f2cd931620b7b155a079b10f1cb58b8faa4dd56183282a3f17749af4d49edc05",
+    "backend/app/presentation/api/v1/routes/whatsapp_rejected_contacts.py": "1e58dacd0f9846c38e9c2d3e47d22b5635c0fb31450a4f4935acbc4a487a622c",
+    "backend/app/presentation/api/v1/routes/whatsapp_send_intents.py": "462de74cb9c8fa305e26ec299815876c7439a72ba4436d4adf96d590178f5e51",
+    "backend/app/presentation/api/v1/routes/whatsapp_source_groups.py": "987e6b0ef5e4a3d59331157dc51c5a0675b8f4b10486ee686c712ce7d6784139",
+    "backend/app/presentation/api/v1/routes/whatsapp_update_resend.py": "6a4030480233fc5b6865a6b49452eb685f21a8a58012601611b552a6eb73a2b6",
+    "backend/app/presentation/api/v1/routes/whatsapp_phone_welcome.py": "5bfe0b3e22e078f786633d32556118dc353d0aae1ff7b9d9663c308976f9e05e",
+    "backend/app/presentation/api/v1/routes/whatsapp_workspace_passengers.py": "b787f21714f8ed58155f6ee89a04902e54dc4a2d98aea9972a0cdfa43888972d",
+    "backend/app/presentation/api/v1/routes/whatsapp_welcome_view.py": "e12fdb14e5e9da76df4c7f4decfe9ba17d7f13d71b8a836f35cc493a685121f5",
+    "backend/tests/unit/presentation/test_whatsapp_source_roster_work.py": "fefda4142ba43fb7d50c03d53f8bed9389d0ab8a7c89dbfdbb8df98b81feee9f",
+    "backend/tests/unit/presentation/test_whatsapp_source_groups.py": "8de4d0276f7316af0451c8f29d287373b9135ac337b009ac1c94394856f87ca2",
+    "backend/tests/unit/presentation/test_whatsapp_route_decomposition.py": "a4fa48821a7c9ec5e483f797939e96aa23b68e17a1b74c9eaaf2ee29ea18e7c6",
+    "backend/app/application/security/authorization_policy.py": "6a1ee49097b124715ce52fb5810387c6be5a3a5e18f4896676340c6e6dabe663",
+    "backend/app/application/security/access_level_actor.py": "3a8eec715f67356a378986999a012723bdd21f5510518ee7320ce7d0809013a6",
+    "backend/app/presentation/api/v1/routes/whatsapp_scope.py": "31d4d2d26d1057b267463fe0116a3faee14a6cdecf08773bc9a22dd6acf4868f",
+    "backend/app/presentation/api/v1/schemas/whatsapp_source_group_schemas.py": "30f2bf41344462b75cf0ffb27473d78d9da525ce1c21f4b3cff104773e7172fc",
+    "backend/app/application/travellers/broadcast_history_schedule.py": "a05d07b8696d41ae74543d64360afe984c1db962c1279131f607ed4b97f8d9af",
+    "backend/app/infrastructure/whatsapp/web_publication.py": "d5132698ea97f869e6add9b5df5fbc8b78ece0cac4b664e3458d28e0294cf0ee",
+    "backend/app/presentation/api/v1/routes/passport_excel_import_support.py": "be028c1afb810ccb1546088b1ca0814808a4009144f20cb0a1e991ae47c59c0b",
+    "backend/app/presentation/api/v1/routes/passport_excel_identity.py": "e19c861675a2992601b599a2ffbb21175c4182bbf1ca20257a2ca9615e88d565",
+    "backend/app/presentation/api/v1/routes/passport_excel_rows.py": "c53b6110d7d546c23feb21420002d007d52c6496d24e90191d9ccd7370eccfed",
+    "backend/app/presentation/api/v1/routes/passport_excel_merge.py": "8c1d12c9c215af144b9c64029a20585caa31b2e11d6015e500041aaf2b6c2c59",
+    "backend/app/presentation/api/v1/routes/passport_routes/constants.py": "fde4a454674243207fe194ab20cd456ca3b341dfd6e9c99d2f06e1b77d13bffc",
+    "backend/app/presentation/api/v1/routes/passport_routes/covers.py": "cb198e068daf86be101b7c30f5047c762431fbfc8588fac3f63e2ce34441489e",
+    "backend/app/presentation/api/v1/routes/passport_routes/dependencies.py": "f0ca30e150dad79248eac8ad4317bc61de8ce54deca829e9dc8b0108a6928a82",
+    "backend/app/presentation/api/v1/routes/passport_routes/display_name.py": "1d3e7d3339247a7bc3828a9300c1f7f84ea7a234c076bfcc2f3d16a3dd77ea83",
+    "backend/app/presentation/api/v1/routes/passport_routes/document_follow_up.py": "c68fe92b5bbf3e7949763f26f9e64689b648b4988c15c0c5ab8e3a0745605572",
+    "backend/app/presentation/api/v1/routes/passport_routes/export_history.py": "ad4ed57b819b8f246d91a3d2b04d0cc6ff7cfd34851b39b0d2d356bdc58ed59d",
+    "backend/app/presentation/api/v1/routes/passport_routes/queries.py": "800f98cf5ccf8cfb8fc624ba33f8f7befbb995bbd929dbfe86833558df759d4f",
+    "backend/app/presentation/api/v1/routes/passport_routes/processing_support.py": "0e29abdbccc1eaabc018811d319d9aff808ded7e8905fe5be27a886684100c74",
+    "backend/tests/unit/presentation/test_passport_excel_owner_contract.py": "7e9ed43ecd70c8288d64edd0e512ad53ad0b56e42e421195501734e0603a28c1",
+    "backend/tests/unit/presentation/test_passport_excel_import_route.py": "b06af56b1c9378bfc1ebb3e4d167747c791bd25d4a69c04f180c36b4a9551989",
+    "backend/tests/unit/application/test_client_collection_provenance.py": "e29d62f56d22080c6aa3216868b89fec8b818ec2792911cdddcedffe11bce49d",
+    "backend/tests/unit/presentation/test_passport_route_decomposition.py": "7b1ee92647844d22d84a29cc90180c58c1888c51c1cfbb1b0a0751d6efafec49",
+    "backend/tests/integration/test_import_only_group_workflow.py": "4c6968d8599316f0395aeba4e1fa6374a83a73090ead2b8d5e9a7fc18d069734",
+    "backend/tests/integration/test_mcp_group_workbook_import.py": "eebedbfd0e4ecd2665b06531d8e9819f920c0ced4679f922c71ac569b2f72eb3"
+  },
+  "review_basis": "Peer-attributed complete Excel4 source/equivalence/88case current coverage; independent current source/metric/floor verification and parent-approved3actual semantic80/60 obligations. Own WA recipient/source10+support physical reads and actual32case source-roster34304to2048 work proof; no second full reread of Excel owners claimed.",
+  "declaration_limit": "Excel facade branchless normal80 only; three actual identity/row/merge implementations carry80L60B. No facade/type-only critical invented; no critical proposal for source-roster performance owner.",
+  "release": {
+    "paths": 125,
+    "all125BEFORE_pairs_and124other_AFTER_values_exact": true,
+    "only_known_BE856_budget_AFTER_updated": true,
+    "frontend661_unchanged": true,
+    "backend_budget_sha256": "3fda79815ee546566ed7547d1582822d4124b8a27d8c0891ae08d25725541b32",
+    "bindings_sha256": "182ce4b0fa7cf1792f67e2773221e9bea915496c159c585376298e408bf192be"
+  },
+  "artifacts": {
+    "passport-office-verification.json": "ecf8cfe52b5205bd5752f39d14b13cad1856a0b6639d992cbed046c8a5556d2b",
+    "whatsapp-recipient-routes-verification.json": "fab0302986983ef570bae47ace7421b986dcef212269ec566e92bef1946f41fa",
+    "passport-excel-owner-budget-candidates.json": "484dde2e0be382b177857ecd7a501bdd692e20ff1597885fa28c9ba32d38fb5c",
+    "passport-excel-owner-source-equivalence.json": "6639599551c76b25501159c23b4922151b4e15b47ba2baab3ace64821ad61acc",
+    "passport-excel-owner-qualified-coverage.json": "d40929b1151254f22cf582d3a93e34461c087df54ec77d99541049e65a7af554",
+    "passport-excel-owner-qualified-coverage.xml": "a9b07d9faab7b05f29fe0a19a4cfb5985b65004e8365b34f52dcd9e9648a9ef8",
+    "whatsapp-source-roster-work-budget-candidates.json": "23486d9aec2fe883c5d5051a99596b1737e32f3fea06d22661623c437ef980f1",
+    "whatsapp-source-roster-work-source-proof.json": "b3dd43c0bc58139f85aa1679bf128b70b3a2c2413f151bfeec4cc5e4d0284847",
+    "whatsapp-source-roster-work-coverage.json": "e517fab96bbb8159f6f60e452b0f6ce9236292866a3d25dd51af6e8a03cf8a5c",
+    "whatsapp-source-roster-work-coverage.xml": "3aa26474df1f24c295bc41b1936704e3403dc0b0889df381ad4ffa5aa4ac8ce7",
+    "excel-source-roster-previous-values.json": "f78abbb28b8fb768d1ad42b8025eb990641bfbb2ab1516f6bad9b2d12b66318e",
+    "excel-source-roster-budgets.txt": "6c4b5fb43696b276caa388a844c500e88cea3af32480fcd296d75053cf81bd95",
+    "excel-source-roster-architecture.txt": "895bfbeca4c78591066dcf214c4bfe9de43b5d7ed5d3f518fe398563a7bcc992",
+    "excel-source-roster-bindings.txt": "0b3a28123d392018d244d078942a9d6d98ae49544fafd0e052f4237b0e263f39",
+    "excel-source-roster-loader-tests.txt": "15e9d2d098c3748eb71acac43ee26c7714a947c651151f95af80702f18fb00ea",
+    "excel-source-roster-exact-bindings.json": "5f051ce549171ce50e8d9beeae43dfe6d1ec1dd4824dd626a8c8f6fc82868acb"
+  },
+  "limits": [
+    "No broad app/build/browser/servicePG/provider/VPS qualification",
+    "MCP1990historical, complete current classification/permission/owner reconciliation pending",
+    "Excel private helper/class/TypeVar natural implementation provenance moves explicitly; canonical facade and actualMCP aliases maintained, no serialized consumer found",
+    "Source-roster work counters are actual route field reads on DB-shaped rows, not wall-time/PG/resource-capacity proof; originalSQLite policy controls separately pass",
+    "Rootcopy operator proof is independent, source outside protected125; historical qualified_sources not repinned"
+  ],
+  "checks": {
+    "backend_static_budgets": "856normal/162critical limits pass",
+    "architecture": "whole static checker pass",
+    "exact_bindings": "125current AFTER+bothactualGit immutable BEFOREs pass",
+    "loader": "14focused tests pass",
+    "source_fence": "All attributed current Excel4+supports/test fences and own WA10/source-roster identities rechecked after gates",
+    "frontend": "661already bound and unchanged, no repeat app/build qualification"
+  },
+  "controls": {
+    "backend/backend_quality_budgets.json": "3fda79815ee546566ed7547d1582822d4124b8a27d8c0891ae08d25725541b32",
+    "scripts/release_workspace_branding_bindings.json": "182ce4b0fa7cf1792f67e2773221e9bea915496c159c585376298e408bf192be",
+    "scripts/release_workspace_branding_policy.py": "2e9b8830abc9b76c21156cefb37fa84cf279b2b288a9921a3ffab5e2c110a1d8",
+    "backend/architecture-dependencies.json": "3681bf6ca3b2bab52dcde5d0adbb4921cc8dd54771411193c2553ddaceb08b6e"
+  }
+}

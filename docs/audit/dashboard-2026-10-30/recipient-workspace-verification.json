@@ -1,0 +1,122 @@
+{
+  "status": "passed affected-source checks; final combined qualification remains open",
+  "runtime_owners": 9,
+  "ledger_paths": 14,
+  "original_sizes": {
+    "page": 357,
+    "details": 274,
+    "legacy": 450
+  },
+  "current_measurements": [
+    {
+      "path": "features/whatsapp/workspace/recipients-page.tsx",
+      "baselineLines": 119,
+      "maximumLines": 120,
+      "baselineMaxFunctionComplexity": 10,
+      "maximumFunctionComplexity": 11
+    },
+    {
+      "path": "features/whatsapp/workspace/recipient-details-rail.tsx",
+      "baselineLines": 221,
+      "maximumLines": 230,
+      "baselineMaxFunctionComplexity": 7,
+      "maximumFunctionComplexity": 8
+    },
+    {
+      "path": "features/whatsapp/workspace/recipient-roster-model.ts",
+      "baselineLines": 92,
+      "maximumLines": 100,
+      "baselineMaxFunctionComplexity": 5,
+      "maximumFunctionComplexity": 6
+    },
+    {
+      "path": "features/whatsapp/workspace/use-recipient-roster.ts",
+      "baselineLines": 74,
+      "maximumLines": 80,
+      "baselineMaxFunctionComplexity": 6,
+      "maximumFunctionComplexity": 7
+    },
+    {
+      "path": "features/whatsapp/workspace/recipient-roster-filters.tsx",
+      "baselineLines": 77,
+      "maximumLines": 80,
+      "baselineMaxFunctionComplexity": 2,
+      "maximumFunctionComplexity": 3
+    },
+    {
+      "path": "features/whatsapp/workspace/recipient-roster-table.tsx",
+      "baselineLines": 131,
+      "maximumLines": 140,
+      "baselineMaxFunctionComplexity": 3,
+      "maximumFunctionComplexity": 4
+    },
+    {
+      "path": "features/whatsapp/components/group-update-recipient-details.tsx",
+      "baselineLines": 81,
+      "maximumLines": 90,
+      "baselineMaxFunctionComplexity": 20,
+      "maximumFunctionComplexity": 21
+    },
+    {
+      "path": "features/whatsapp/components/whatsapp-recipient-roster-rows.tsx",
+      "baselineLines": 5,
+      "maximumLines": 10,
+      "baselineMaxFunctionComplexity": 0,
+      "maximumFunctionComplexity": 1
+    },
+    {
+      "path": "features/whatsapp/utils/recipient-detail-fields.ts",
+      "baselineLines": 19,
+      "maximumLines": 20,
+      "baselineMaxFunctionComplexity": 2,
+      "maximumFunctionComplexity": 3
+    }
+  ],
+  "behavior": {
+    "before_actual_unit_controls": 4,
+    "before_actual_work_counter_failure": "2099 > 100 reads for one search change in512-recipient roster",
+    "after_actual_unit_cases": 26,
+    "after_unit_files": 4,
+    "node_contracts": 13,
+    "pure_executed_comparisons": 1460,
+    "type_check": "Scoped complete WhatsApp ts/tsx dependency project, zero diagnostics",
+    "lint": "Fourteen changed source/test/helper paths, zero diagnostics"
+  },
+  "source_sha256": {
+    "frontend/features/whatsapp/workspace/recipients-page.tsx": "c9927e48fee8c8b4bf188d55196b43d96f2f22d4f42dafb9bc140035e0be90d6",
+    "frontend/features/whatsapp/workspace/recipient-details-rail.tsx": "672ed014c1e8e74be5ae0459fff8c127d8721dbfffc7c534387509cdcf9ba889",
+    "frontend/features/whatsapp/workspace/recipient-roster-model.ts": "e3f2e50cee541ed983154f9f050a73ee5f0a1e5db8f7a5d6189ca6b29b071295",
+    "frontend/features/whatsapp/workspace/use-recipient-roster.ts": "3484dd0871ed5d256fa87ddec142401e794f4da6243fde9e96137875ae508a30",
+    "frontend/features/whatsapp/workspace/recipient-roster-filters.tsx": "e573b4bdd6243cada260ca9841243d4797aa616c57a9520839de4ce1f9b9ebbe",
+    "frontend/features/whatsapp/workspace/recipient-roster-table.tsx": "4c91949a858fd73efd81b59d5d3ac803671d6fc098ae6477ef473d7ab331291e",
+    "frontend/features/whatsapp/components/group-update-recipient-details.tsx": "b2ada0fde569c98f6d7cef3da8b79f7756b1adab03a5b6a9e5b3d0daf3e48537",
+    "frontend/features/whatsapp/components/whatsapp-recipient-roster-rows.tsx": "6a73351544da7e44e9244a89bc2fff76a5d3c79d363667b2e4a673f2704395dc",
+    "frontend/features/whatsapp/utils/recipient-detail-fields.ts": "2b4f6906ee758f14148bafc3ab341348ce0a45f1bd5f26a12dfc689336aba767",
+    "frontend/features/whatsapp/components/whatsapp-source.contract-helper.mjs": "ad1ac54c5b7645aa289cc61cb6dd3657cd25b1fe6a2d760bf175f8dbc2828554",
+    "frontend/features/whatsapp/components/whatsapp-recipient-roster.contract.test.mjs": "961e1eef552fdd32f028e2323acc1fc6ba85c60a67b7df425249144d17c1e11c",
+    "frontend/features/whatsapp/components/whatsapp-activity-tracker.contract.test.mjs": "ee30f4aed57fd6c8fcf569c2ec3fdeee4297f79eba112861475e5f828a6cb791",
+    "frontend/features/whatsapp/workspace/recipients-page.test.tsx": "83152a76e27c3320c658415206c7e53d67222efada2efb4d4d3751e0f2b0b848",
+    "frontend/features/whatsapp/workspace/recipient-workspace.test-fixture.ts": "c3210edce1b3efaf7ef3e9cf631ac60fd696e0b1f60418ab6ddef679e87ef490"
+  },
+  "evidence_sha256": {
+    "docs/audit/dashboard-2026-10-30/recipient-workspace-current-extraction-proof.json": "a9ae51c9a4cccc1caf1dd6261e37f4765f032de52e561bfd717352bd0bfe4f02",
+    "docs/audit/dashboard-2026-10-30/whatsapp-roster-rows-retirement-manifest.json": "2736fa7585eaea9db73ac7fab62f15dc54806fba8735fd5b255dfc3354c55adb",
+    "docs/audit/dashboard-2026-10-30/whatsapp-roster-rows-retained-proof.json": "689769a1062a889a991c1c7a5f9a594ff4c21fa105e51a6b300acee61c09e16b",
+    "docs/audit/dashboard-2026-10-30/recipient-workspace-format-equivalence.json": "4f9521eb603f85534123fb57cc5c6f002ceaa228731c1ecc33f6ae3314d6a40d",
+    "docs/audit/dashboard-2026-10-30/recipient-rows-before-unit.txt": "27b11b22afaa56a98fae11b822f6ab479e146af7f671e0b9412d8ead5df85108",
+    "docs/audit/dashboard-2026-10-30/recipient-workspace-before-unit.txt": "aaea9bb2df957c884a7da37b5369e8e9f2d28cc50c1e84efd263ab279e46f963",
+    "docs/audit/dashboard-2026-10-30/recipient-workspace-after-unit.txt": "a6bd11fafcffc3b06669f2f3e7fa5a52cd7013c221d664ee2ed98e734ad02886",
+    "docs/audit/dashboard-2026-10-30/recipient-workspace-types.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/audit/dashboard-2026-10-30/recipient-workspace-lint.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/audit/dashboard-2026-10-30/recipient-workspace-node.txt": "1b18ddc268b20e71caeaf3e59c4079775d5f17dd578f2ea63cbc09328608716a",
+    "docs/audit/dashboard-2026-10-30/recipient-workspace-budget-candidates.json": "cbe666f8313ef30be205d73faf30339cdac586aa66b272be62242ebb266f2258",
+    "docs/audit/dashboard-2026-10-30/recipient-workspace-reviewed-files.json": "2d20a6063d3e310b4187d8dfa8aa9ee8bb9000287914dee2c0e66ddab8a19467"
+  },
+  "limits": [
+    "Repeated welcome scans eliminated for unchanged recipient/source arrays; per-visible-row badge reads remain bounded by50. No production latency/capacity claim.",
+    "Open details lookup preserves first match, request order, duplicate requested keys and object identity; usesO(N) temporary references in place of repeatedO(N*K) scans when details change.",
+    "Whole-program retirement graph covers the TypeScript frontend; independent raw repository search and physical owner review supplied non-TypeScript/current workflow evidence.",
+    "The intermediate proof script first missed a parenthesized view expansion, then attempted to evaluate an untranspiled TypeScript annotation; both instrumentation-only failures were corrected before the final successful proof. No runtime test failures were hidden.",
+    "No current production build or browser qualification was run for this tranche."
+  ]
+}

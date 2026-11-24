@@ -1,0 +1,156 @@
+{
+  "sealed_at": "2026-10-31T12:15:16.551420+00:00",
+  "status": "five runtime owners and six focused/retargeted test sources frozen; focused qualification complete",
+  "original_sha256": "68eb50e328e057aa7d79b7d8304fffb5ec909d056967afc038a1391617c501df",
+  "original_lines": 604,
+  "runtime_owner_lines": {
+    "backend/app/presentation/api/v1/routes/email_connection_monitoring.py": 171,
+    "backend/app/presentation/api/v1/routes/email_connection_disconnect.py": 151,
+    "backend/app/presentation/api/v1/routes/email_connection_removal.py": 200,
+    "backend/app/presentation/api/v1/routes/email_connection_ai_settings.py": 118,
+    "backend/app/presentation/api/v1/routes/email_integration_connections.py": 114
+  },
+  "focused_cases_passed": 95,
+  "unchanged_original_affected_cases": 64,
+  "new_focused_cases": 25,
+  "existing_MCP_status_parity_cases": 6,
+  "mypy_runtime_files": 5,
+  "ruff_runtime_and_test_files": 11,
+  "all5actual_owner_line_branch_percent": 100,
+  "fresh_single_coverage_run_no_merge": true,
+  "source_fence_paths_unchanged": 29,
+  "whole_fixed_endpoint_AST_exact": 8,
+  "original6whole_functions_exact_plus2narrow_guard_fixes": true,
+  "original_global_binding_identities": 78,
+  "original_existing_assertions_unchanged": 180,
+  "all_other_inbox_functions_exact": 8,
+  "runtime_contracts_openapi_equal": true,
+  "normal_candidate_additions": 4,
+  "normal_candidate_tightened": 1,
+  "normal95floors": 5,
+  "critical_candidate_additions": 2,
+  "critical95line90branch_each": true,
+  "original_family_MCC11_preserved_for_every_owner": true,
+  "manual_review": {
+    "current_full_files": 28,
+    "current_full_physical_lines": 6764,
+    "reused_context_separate": true
+  },
+  "historical_checks": "Original64affected checks pass. First race fixture incorrectly implicit-refreshed deferred token fields; corrected to explicit loads, first3fail/1pass log retained distinct from actual2fail/2pass baseline. Narrow fix30passes before refactor; full8post-fix declarations move exactly. Generator transient invalid stdlib import corrected before first cold import/check; initial owner map is historical, final source proof authoritative. Preseal AI settings candidate MCC12 tightened to original11 without app changes/check rerun; initial proposal retained as history.",
+  "scope_limits": [
+    "No real provider/OAuth/token revocation, broker/storage mutation outside synthetic fixtures, credentials/production data or network probing.",
+    "No full backend/frontend suite, production build/browser, scanner, broad shared quality run, dependency/config/gate/release/migration/strict baseline edit, deployment or push.",
+    "No provider-side newer-grant preservation or real PostgreSQL concurrency/locking guarantee; this is local SQLite retained-identity-map and database-outcome proof.",
+    "Separate callback/account-removal/test-file architecture follow-ups and final combined repository qualification remain open."
+  ],
+  "artifacts": [
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-connections-reviewed-files.json",
+      "sha256": "2014871237260f3b4684af8e7bf344e02fcddeb9a100aa2d9a98a66a49236c8e"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-connections-source-manifest.json",
+      "sha256": "46ea6f21a81bbec62e1fe5b33136a22d3530aa3e40b3794441f97243e00642f7"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-connections-findings-and-follow-ups.json",
+      "sha256": "a758e5d665fd30b302d50eb7fd19f0188704d6bfdecb78311a4bd2d254413da4"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-connections-original-sources.json",
+      "sha256": "1f8df93a14d8858f75a20f1f3f6bc982b43bf7e10b87648cb7c3a20480367011"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-connections-generation-fix-proof.json",
+      "sha256": "769e38fc0db33395580633ac5b76ed2a91b910b705649d7dbde7e8ad3171b193"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-connections-owner-map.json",
+      "sha256": "e31d51f96a0ab9878205fa1b494380d2fce5f8fcf3219694ad97e841f6d84c14"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-connections-extraction-proof.json",
+      "sha256": "dbd568500c75e8a222390e1fb941bdb3fd4f92b1750935cd2bce79840d83414b"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-connections-before-runtime-contracts.json",
+      "sha256": "c6dbd1f6b8c40862bf7d5a52442203f91986fb74c06c3c6896b43e1cfb1bac25"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-connections-after-mechanical-runtime-contracts.json",
+      "sha256": "c6dbd1f6b8c40862bf7d5a52442203f91986fb74c06c3c6896b43e1cfb1bac25"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-connections-after-final-runtime-contracts.json",
+      "sha256": "c6dbd1f6b8c40862bf7d5a52442203f91986fb74c06c3c6896b43e1cfb1bac25"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-connections-final-source-fence.json",
+      "sha256": "f9c9e2f258124b9469fb8caf21e9c09ace57be4bc0114c36608d08e95aa87207"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-connections-final-checks.json",
+      "sha256": "c2006d4fa934d5ad420b9b75b92b5bb71bb151a8af986a68084326f7f29de1b8"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-connections-final-tests.log",
+      "sha256": "bd4da5c91c072c1d8599270f9ef5caa76084d400409eb4a78c71c72c2259a3d4"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-connections-final-lint.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-connections-final-types.log",
+      "sha256": "e317872697c2cbfdefa321527a6efe73290dff3a390b0fa8723b87092eccba6a"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-connections-final-coverage.json",
+      "sha256": "3bde0173e944e2f767014c48d68aa665983b5e147db5b1ca7e31a0120f3e64d2"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-connections-final-coverage.xml",
+      "sha256": "5d197b4bbb809ea884ee50c14f1223374a8e5e1f395e7e5938bdba34439d69ab"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-connections-owner-coverage.json",
+      "sha256": "4789af2af32a801c772ec44ba01257a152d933874e8ea41124fa809c2c3251eb"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-connections-owner-coverage.xml",
+      "sha256": "967a4ee4d726bad5ecc71059de034c857e195be963f0b05544f520f417a26a43"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-connections-budget-candidates.json",
+      "sha256": "33a4bd98199895f9cbaf78b615164308bb65f51f6d481b8ec5107d914adb3584"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-connections-initial-budget-candidates.json",
+      "sha256": "517a681cce7c9f9e3e50fe0e1739657b3eda9bc1c4d07795f9bbdfe1c0c04807"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-connections-baseline-tests.log",
+      "sha256": "08a3c0a9f40574b2f558aa5b9f2f6e7b06fd282bc6793e9e992ab6fc10a3f8ba"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-connections-revocation-race-before.log",
+      "sha256": "627deaf5266650d37077c9f3aaf17e86dcaaa62feaf3cebc73cc89beb451ab62"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-connections-revocation-race-before-corrected.log",
+      "sha256": "580858bf89126fdc4824f7e3892a6ccea9418216ad5a87c0382bc8ecd021152b"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-connections-revocation-fixed-tests.log",
+      "sha256": "ddd8959da9cf5824b1739a180cda9457c37e1c264ae4db69832c645c78305b0d"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-connections-initial-types.log",
+      "sha256": "718df785efbbd4b57e63b5f64aff2c5b5592e433447681f759b307f97a3ec96a"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-connections-decomposition-tests.log",
+      "sha256": "3a4b1aadc596078e1baba312f0d6aabaa4c584c575c63edbd96fa32b8068bacf"
+    }
+  ]
+}

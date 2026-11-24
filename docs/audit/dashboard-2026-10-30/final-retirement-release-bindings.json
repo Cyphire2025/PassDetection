@@ -1,0 +1,129 @@
+{
+  "source_baselines_preserved": {
+    "0140": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+    "0141": "875d17b25da2687b5673148fabe9d10346ae0e4a"
+  },
+  "exact_bindings_verified": [
+    {
+      "path": "nginx/conf.d/default.conf",
+      "source0140_sha256": "b023517acaf89fdc07bcef11d72be7cf43f20b48507bab55e96ab18c4e06cd42",
+      "source0141_sha256": "b023517acaf89fdc07bcef11d72be7cf43f20b48507bab55e96ab18c4e06cd42",
+      "candidate_sha256": "d4785794a3bf927c59dab74d4c1c99ed6b5919c26ffa0df06842821b3470f183"
+    },
+    {
+      "path": "backend/alembic/versions/0141_workspace_branding.py",
+      "source0140_sha256": null,
+      "source0141_sha256": "f511c957f633c5bf3c2065b80270f61f89b4d4d75e5c4c3ca1e3c71f3b2d4567",
+      "candidate_sha256": "f511c957f633c5bf3c2065b80270f61f89b4d4d75e5c4c3ca1e3c71f3b2d4567"
+    },
+    {
+      "path": "backend/app/core/config/release_manifest.json",
+      "source0140_sha256": "c299ce7831e45c560772460e88adb90425601d9a8eefa2e705300f6b5494c37f",
+      "source0141_sha256": "cc268e4b24d58b50ec72f95c3ccd03350c96033833db061fd3ba5fe63b0fdf80",
+      "candidate_sha256": "122e7b38970b18609cf46b20b99d4b2c093c4f8b471bcd484b8c59a7080c6119"
+    },
+    {
+      "path": "backend/app/core/config/settings.py",
+      "source0140_sha256": "f03d2164785e577d5cdceb05d821b793fc7602a8e01d2992a3c7561d0d42d41e",
+      "source0141_sha256": "ca8a8ebd3333f588766d85071e5c963ef10dbb01e9d5ee2891d94fbe64cd9017",
+      "candidate_sha256": "f6e6367b606ae324308eead97ae1ca8c974bd1eacca2f300f23f650d4efb5418"
+    },
+    {
+      "path": "backend/app/domain/entities/entities.py",
+      "source0140_sha256": "0d6ca59ea43f42daddbb686fb79f21e04c27157c589bf4227f1bc169ffdd96d2",
+      "source0141_sha256": "ff83a9b8c350d7d3bfd0b75922d67ee32bec62a7164cf1ca2d13e77e6e19e225",
+      "candidate_sha256": "13d580b111a7abdddc7226ef4c86726b49465ec92097264b7f6c7414475c400d"
+    },
+    {
+      "path": "backend/app/infrastructure/database/communications_models.py",
+      "source0140_sha256": "f28acf7b3c2e90f758202a18e4dcbc56bbec2d93d4db9c38e4bde3bfb58240a0",
+      "source0141_sha256": "1945ccceb8ee2c8e7b937eacd5370dc26cbc6bfacd80376c4cdfa42446a48297",
+      "candidate_sha256": "1945ccceb8ee2c8e7b937eacd5370dc26cbc6bfacd80376c4cdfa42446a48297"
+    },
+    {
+      "path": "backend/app/infrastructure/database/gc_mobile_models.py",
+      "source0140_sha256": "d9bed4d91e3c30690de5fe575373b48a6b8a51edb7feb77527aa20b7a85fba61",
+      "source0141_sha256": "401154b6e85d45ebbbfd2151d84e30cf50a74721c50a472ef95f5fae25536b34",
+      "candidate_sha256": "401154b6e85d45ebbbfd2151d84e30cf50a74721c50a472ef95f5fae25536b34"
+    },
+    {
+      "path": "backend/app/infrastructure/database/models.py",
+      "source0140_sha256": "4c4b5d0d51d39a359fe5467a5aa26c3e7fb9eef41a5ef609036dbfcab6eb7da7",
+      "source0141_sha256": "6d5fd4469e2b5321800a713c0bf3ecce48d0d6d3a78cd6ecbcab36f76ac90abb",
+      "candidate_sha256": "cca0de0deb12e7cdc7368501e8a3ac0012e513d691ddcf10a3ead67ec4ec2ed0"
+    },
+    {
+      "path": "backend/app/infrastructure/storage/branding_urls.py",
+      "source0140_sha256": null,
+      "source0141_sha256": "d6372bdb551e4def9cc5edeed8904e9edff162d39259458b5083c909a6466b22",
+      "candidate_sha256": "9b75c427c919f2a0ed48bb99979ccd69bc7a3ba94d9514e7b45ba5a52d838b29"
+    },
+    {
+      "path": "docker-compose.yml",
+      "source0140_sha256": "e7e44f8ad4aa6fd39c6fbbdd1befec7750470d4c64c4eac623cf308cfc861e45",
+      "source0141_sha256": "37a1d21f0e313c9e0e0c3d9fde4a662743317751aae059965d01ab6eb53ea8a8",
+      "candidate_sha256": "37a1d21f0e313c9e0e0c3d9fde4a662743317751aae059965d01ab6eb53ea8a8"
+    },
+    {
+      "path": "frontend/scripts/verify-whatsapp-recipient-bulk-browser.mjs",
+      "source0140_sha256": "bfd36aa9eed6d26eca5ae998a0f73b8fd278d045008ecccba3465da7e9c8b143",
+      "source0141_sha256": "99c936a2da8696e77d8f986700f91058070479b7f2bbe9a67b0bb6b0e04f7ab5",
+      "candidate_sha256": "99c936a2da8696e77d8f986700f91058070479b7f2bbe9a67b0bb6b0e04f7ab5"
+    },
+    {
+      "path": "backend/alembic/versions/0142_group_background.py",
+      "source0140_sha256": null,
+      "source0141_sha256": null,
+      "candidate_sha256": "171477cb03f92d19b65b26c1c1580a23dc95e3a3c462732aa7c58914f0fb0af0"
+    },
+    {
+      "path": "nginx/nginx.conf",
+      "source0140_sha256": "c6b821810504df2ad51866a7929210ed913e9f0debcc6a59d62eaf38d2520024",
+      "source0141_sha256": "c6b821810504df2ad51866a7929210ed913e9f0debcc6a59d62eaf38d2520024",
+      "candidate_sha256": "383ad2de629ba95d564b8ae302ef485ac4f9d22bcbe599abd691dc0b5583edb1"
+    },
+    {
+      "path": "frontend/scripts/verify-frontend-module-budgets.mjs",
+      "source0140_sha256": "dd6bad57c8eae5afe4e0ca49d7d28568c0637a716b434da8a7c07f869723fabe",
+      "source0141_sha256": "dd6bad57c8eae5afe4e0ca49d7d28568c0637a716b434da8a7c07f869723fabe",
+      "candidate_sha256": "8596ea0b4e7af3c817c0ec58e5d319cf81c0ba0580a7c56016b6214bf3b9d418"
+    },
+    {
+      "path": "backend/requirements.txt",
+      "source0140_sha256": "85806e4acd976cfb1d86437cb6af229505ec9c86ef714e015c91e19883344282",
+      "source0141_sha256": "85806e4acd976cfb1d86437cb6af229505ec9c86ef714e015c91e19883344282",
+      "candidate_sha256": "e19ae0b0079c0375e8ac06ff53e73e5916eef52e4b05ad51adfcd7f23d5735e2"
+    },
+    {
+      "path": "backend/requirements.lock",
+      "source0140_sha256": "1504909b310b33fcfbdd6a45d90f41dc6df8b743ec97f77e3ed918013fa43c75",
+      "source0141_sha256": "1504909b310b33fcfbdd6a45d90f41dc6df8b743ec97f77e3ed918013fa43c75",
+      "candidate_sha256": "fdcc91a5eb87f6f678fe03ef37c83109edb639527eba387d73d031114a4188b6"
+    },
+    {
+      "path": "backend/requirements-dev.lock",
+      "source0140_sha256": "558e52f32ca3b6225d39b7ee86a036f79c13225baf4a78f051925bef511e146c",
+      "source0141_sha256": "558e52f32ca3b6225d39b7ee86a036f79c13225baf4a78f051925bef511e146c",
+      "candidate_sha256": "7ea4f5b8c8ecbc7831892949564679349d2852fa1f0f0b60f88af994f6c1f4f2"
+    },
+    {
+      "path": "backend/app/infrastructure/storage/minio_repository.py",
+      "source0140_sha256": "dde40a198aff9f1ecbd7e36aa6e4069ebfd58808329744ccf6cac54a669294e1",
+      "source0141_sha256": "dde40a198aff9f1ecbd7e36aa6e4069ebfd58808329744ccf6cac54a669294e1",
+      "candidate_sha256": "f31fe249d63c18ea0e400bae0ee3161eb05db6b194527e2bdab39bf88626180c"
+    },
+    {
+      "path": "backend/backend_quality_budgets.json",
+      "source0140_sha256": "1a0a15cddd6a58eecdf40e7f401c1a8475b559525def093289d51fdb1ee790b0",
+      "source0141_sha256": "1a0a15cddd6a58eecdf40e7f401c1a8475b559525def093289d51fdb1ee790b0",
+      "candidate_sha256": "4a15035a3705a5509b8d8dec1b418906e5c30f8b418f21022f873cd6e81fbc18"
+    }
+  ],
+  "policy_sha256": "73bce28c53a33f6df55d73557128350a3724e287aa93fc38a166f3a502943d0f",
+  "checks": [
+    "All reviewed BEFORE hashes independently verified against exact two baseline commits (or absent files verified with git ls-tree).",
+    "All candidate AFTER hashes match normalized current source.",
+    "No runtime permissions, allowed source baselines, task contracts, published migrations or release proof requirements broadened."
+  ],
+  "new_binding_review": "nginx/conf.d/default.conf exact diff adds only native-transfer backend proxy location using existing mcp-proxy include, 10MiB body limit, request buffering off, access log off. Real Docker Nginx routing qualification unavailable in this environment; source checks and regression tests cannot establish real-service deployment qualification."
+}

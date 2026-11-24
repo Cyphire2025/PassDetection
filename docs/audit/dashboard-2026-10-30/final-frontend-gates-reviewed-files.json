@@ -1,0 +1,38 @@
+[
+  {
+    "path": "frontend/scripts/verify-frontend-module-budgets.mjs",
+    "sha256": "45ddf8fd2ae390af222eb72f224d4b513368470a82ddcf083b69088827febde6",
+    "physical_lines": 803,
+    "reviewer": "root; gc_models_finish",
+    "review_scope": "focused",
+    "status": "verified-focused",
+    "notes": "Current structured/source integration: all8 new measured rows reviewed, original661 rows and entire unaffected verifier bytes inverse-exact; original31 critical includes/floors preserved with3 additive includes. Onlyone reviewed canonical AFTER binding and manifest digest changed; 144 AFTER/288 actual Git BEFORE match, strictloader14cases+335subtests PASS. Full prior source review provenance retained without new whole generated-body credit; no historical release qualification renewed. See final-frontend-gates-verification.json."
+  },
+  {
+    "path": "scripts/release_workspace_branding_bindings.json",
+    "sha256": "b98d6e57df317ad83f602a529634ac01410eaa5c7689b26b51102778bd944f48",
+    "physical_lines": 869,
+    "reviewer": "root; gc_models_finish",
+    "review_scope": "focused",
+    "status": "verified-focused",
+    "notes": "Current structured/source integration: all8 new measured rows reviewed, original661 rows and entire unaffected verifier bytes inverse-exact; original31 critical includes/floors preserved with3 additive includes. Onlyone reviewed canonical AFTER binding and manifest digest changed; 144 AFTER/288 actual Git BEFORE match, strictloader14cases+335subtests PASS. Full prior source review provenance retained without new whole generated-body credit; no historical release qualification renewed. See final-frontend-gates-verification.json."
+  },
+  {
+    "path": "scripts/release_workspace_branding_policy.py",
+    "sha256": "f9aa29d4e02812dbc044916e32e919a6e36a5a105a465e66654bc2fcd9d7bd1b",
+    "physical_lines": 72,
+    "reviewer": "root; gc_models_finish",
+    "review_scope": "focused",
+    "status": "verified-focused",
+    "notes": "Current structured/source integration: all8 new measured rows reviewed, original661 rows and entire unaffected verifier bytes inverse-exact; original31 critical includes/floors preserved with3 additive includes. Onlyone reviewed canonical AFTER binding and manifest digest changed; 144 AFTER/288 actual Git BEFORE match, strictloader14cases+335subtests PASS. Full prior source review provenance retained without new whole generated-body credit; no historical release qualification renewed. See final-frontend-gates-verification.json."
+  },
+  {
+    "path": "frontend/vitest.config.mts",
+    "sha256": "5e80c5305955ce1a682aefbf65a53f7d12aea50c103235299474460b6dd5d20c",
+    "physical_lines": 63,
+    "reviewer": "root; gc_models_finish",
+    "review_scope": "focused",
+    "status": "verified-focused",
+    "notes": "Current structured/source integration: all8 new measured rows reviewed, original661 rows and entire unaffected verifier bytes inverse-exact; original31 critical includes/floors preserved with3 additive includes. Onlyone reviewed canonical AFTER binding and manifest digest changed; 144 AFTER/288 actual Git BEFORE match, strictloader14cases+335subtests PASS. Full prior source review provenance retained without new whole generated-body credit; no historical release qualification renewed. See final-frontend-gates-verification.json."
+  }
+]

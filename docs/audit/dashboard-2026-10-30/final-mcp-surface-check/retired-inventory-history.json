@@ -1,0 +1,4166 @@
+{
+  "prior_matrix_sha256": "0655e79c9e009dc9d01b41cf7507f3609b7b30f2daf979a982e98c1342636523",
+  "historical_reviewed_at": "2026-10-30",
+  "reason": "Retain complete original rows for inventory IDs moved or omitted by discovery after extraction. Reconciled current discovery is not permission to discard planned workflows or removal boundaries.",
+  "rows": [
+    {
+      "surface": {
+        "id": "frontend:frontend/features/documents/api/document-distribution.api.ts:abortUpload",
+        "kind": "frontend_callable",
+        "source": "frontend/features/documents/api/document-distribution.api.ts",
+        "handler": "abortUpload"
+      },
+      "workflow": "documents.abortUpload",
+      "disposition": "implement",
+      "phase": 5,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/documents/api/document-distribution.api.ts:deleteDocuments",
+        "kind": "frontend_callable",
+        "source": "frontend/features/documents/api/document-distribution.api.ts",
+        "handler": "deleteDocuments"
+      },
+      "workflow": "documents.deleteDocuments",
+      "disposition": "manual_removal",
+      "phase": null,
+      "rationale": "Record, file, membership, archive or destructive cancellation/removal effects are outside MCP authority and remain manual.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      },
+      "exclusion_boundary": "no_removal"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/documents/api/document-distribution.api.ts:exportReview",
+        "kind": "frontend_callable",
+        "source": "frontend/features/documents/api/document-distribution.api.ts",
+        "handler": "exportReview"
+      },
+      "workflow": "documents.exportReview",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "protected_artifact_and_verified_delivery",
+        "preserve_export_history_generation_vs_delivery",
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/document_export_tools.py",
+        "evidence": [
+          "docs/implementation/mcp-document-assignment-exports.md",
+          "backend/tests/integration/test_mcp_document_exports.py",
+          "backend/tests/service_integration/test_mcp_document_exports_postgresql.py",
+          "mcp-connector/tests/test_document_exports_tcp.py"
+        ]
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/documents/api/document-distribution.api.ts:getDeliveryTracking",
+        "kind": "frontend_callable",
+        "source": "frontend/features/documents/api/document-distribution.api.ts",
+        "handler": "getDeliveryTracking"
+      },
+      "workflow": "documents.getDeliveryTracking",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/documents/api/document-distribution.api.ts:getReview",
+        "kind": "frontend_callable",
+        "source": "frontend/features/documents/api/document-distribution.api.ts",
+        "handler": "getReview"
+      },
+      "workflow": "documents.getReview",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/documents/api/document-distribution.api.ts:listGroups",
+        "kind": "frontend_callable",
+        "source": "frontend/features/documents/api/document-distribution.api.ts",
+        "handler": "listGroups"
+      },
+      "workflow": "documents.listGroups",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/documents/api/document-distribution.api.ts:manualUploadPassengerDocument",
+        "kind": "frontend_callable",
+        "source": "frontend/features/documents/api/document-distribution.api.ts",
+        "handler": "manualUploadPassengerDocument"
+      },
+      "workflow": "documents.manual-management-and-updates",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Website document upload, retained replacement, update messaging or display-name action. MCP support remains planned and requires scoped previews, explicit effect authorization and preservation of unknown delivery outcomes.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "explicit_send_authorization",
+        "no_automatic_resend",
+        "retained_document_history"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/documents/api/document-distribution.api.ts:manuallyVerifyDocument",
+        "kind": "frontend_callable",
+        "source": "frontend/features/documents/api/document-distribution.api.ts",
+        "handler": "manuallyVerifyDocument"
+      },
+      "workflow": "documents.manuallyVerifyDocument",
+      "disposition": "implement",
+      "phase": 5,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/documents/api/document-distribution.api.ts:previewWhatsAppDelivery",
+        "kind": "frontend_callable",
+        "source": "frontend/features/documents/api/document-distribution.api.ts",
+        "handler": "previewWhatsAppDelivery"
+      },
+      "workflow": "documents.previewWhatsAppDelivery",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/documents/api/document-distribution.api.ts:reuploadPassengerDocument",
+        "kind": "frontend_callable",
+        "source": "frontend/features/documents/api/document-distribution.api.ts",
+        "handler": "reuploadPassengerDocument"
+      },
+      "workflow": "documents.reuploadPassengerDocument",
+      "disposition": "implement",
+      "phase": 5,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/documents/api/document-distribution.api.ts:saveBatch",
+        "kind": "frontend_callable",
+        "source": "frontend/features/documents/api/document-distribution.api.ts",
+        "handler": "saveBatch"
+      },
+      "workflow": "documents.saveBatch",
+      "disposition": "implement",
+      "phase": 5,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/documents/api/document-distribution.api.ts:sendWhatsAppDelivery",
+        "kind": "frontend_callable",
+        "source": "frontend/features/documents/api/document-distribution.api.ts",
+        "handler": "sendWhatsAppDelivery"
+      },
+      "workflow": "documents.sendWhatsAppDelivery",
+      "disposition": "implement",
+      "phase": 6,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "immutable_preparation_and_explicit_user_send_intent",
+        "dispatch_authority_recheck",
+        "business_dispatch_idempotency",
+        "provider_receipt_reconciliation",
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/documents/api/document-distribution.api.ts:unassignDocuments",
+        "kind": "frontend_callable",
+        "source": "frontend/features/documents/api/document-distribution.api.ts",
+        "handler": "unassignDocuments"
+      },
+      "workflow": "documents.unassignDocuments",
+      "disposition": "manual_removal",
+      "phase": null,
+      "rationale": "Record, file, membership, archive or destructive cancellation/removal effects are outside MCP authority and remain manual.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      },
+      "exclusion_boundary": "no_removal"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/documents/api/document-distribution.api.ts:uploadDocuments",
+        "kind": "frontend_callable",
+        "source": "frontend/features/documents/api/document-distribution.api.ts",
+        "handler": "uploadDocuments"
+      },
+      "workflow": "documents.uploadDocuments",
+      "disposition": "implement",
+      "phase": 5,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/documents/api/document-distribution.api.ts:verifyDocuments",
+        "kind": "frontend_callable",
+        "source": "frontend/features/documents/api/document-distribution.api.ts",
+        "handler": "verifyDocuments"
+      },
+      "workflow": "documents.verifyDocuments",
+      "disposition": "implement",
+      "phase": 5,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:adminGroups",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "adminGroups"
+      },
+      "workflow": "operations.adminGroups",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:adminOverview",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "adminOverview"
+      },
+      "workflow": "operations.adminOverview",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "current_superadmin_read_authorization",
+        "canonical_website_read_scope",
+        "bounded_observation_and_completeness"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/admin_overview_read_tools.py",
+        "evidence": [
+          "docs/implementation/mcp-admin-overview-checkpoint.md",
+          "backend/tests/integration/test_mcp_admin_overview_reads.py",
+          "backend/tests/integration/test_mcp_admin_overview_http.py",
+          "backend/tests/service_integration/test_mcp_admin_overview_postgresql.py"
+        ]
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:analyticsSummary",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "analyticsSummary"
+      },
+      "workflow": "operations.analyticsSummary",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "Revalidate the current locked MCP principal and mcp:read capability. Preserve canonical Superadmin analytics across all agencies, including Superadmin without an agency. The website's non-Superadmin own-agency scope and empty response without an agency stay unchanged; there is no caller agency argument or active-agency/group filter.",
+        "Use the shared three scalar SQL queries with exactly OFFICE_VISIBLE_PASSPORT_STATUS_VALUES and created_at >= now minus days, where integer days defaults to 30 and clamps to 1..365. Preserve the lower-only rolling cutoff including future-dated records; do not invent an upper bound or apply operational roster membership.",
+        "Keep canonical confidence buckets high >=0.9, medium between0.75 and0.899 inclusive, low <0.75 and missing SQL NULL. Values strictly between0.899 and0.9 fall in no bucket but enter the non-NULL average, rounded to three decimals. Do not force bucket, status and date totals to agree across separate live queries.",
+        "Group dates with PostgreSQL CAST(created_at AS DATE) in the database session timezone and ascending date order. Report the lower rolling cutoff and live multi-query non-atomic semantics; the timezone name is not observed and no historical or repeatable snapshot is promised.",
+        "Admit at most366 date groups using LIMIT367 on the actual materialization query, including future dates; reject the whole MCP result above the bound. Use scalar counts only, int64 nonnegative count and finite-average checks, a five-second service deadline including current authority, and a64KiB complete ASCII response budget including the common envelope. Website default queries and response shape remain unchanged.",
+        "Return only status/date/count/average and code-owned semantics, not passport ORM rows, names, email, private JSON, storage keys, files or provider data. Static errors distinguish invalid input, exceeded bounds and busy reads. The shared invocation audit is the only effect; no business mutation/removal, export/history, operation/idempotency, file/provider work or new attendance evidence."
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/analytics_read_tools.py",
+        "evidence": [
+          "backend/tests/integration/test_mcp_analytics_reads.py",
+          "backend/tests/service_integration/test_mcp_analytics_reads_postgresql.py",
+          "docs/implementation/mcp-passport-analytics-read-checkpoint.md"
+        ]
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:assignManagerGroups",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "assignManagerGroups"
+      },
+      "workflow": "operations.assignManagerGroups",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:assignStaffGroups",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "assignStaffGroups"
+      },
+      "workflow": "operations.assignStaffGroups",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:assignTourGroupCoordinators",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "assignTourGroupCoordinators"
+      },
+      "workflow": "operations.assignTourGroupCoordinators",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:assignTourGroupPassengers",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "assignTourGroupPassengers"
+      },
+      "workflow": "operations.assignTourGroupPassengers",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:auditLogPage",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "auditLogPage"
+      },
+      "workflow": "operations.auditLogPage",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:autoAllocateRoomingHotel",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "autoAllocateRoomingHotel"
+      },
+      "workflow": "operations.autoAllocateRoomingHotel",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:completeManagedAttendanceSession",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "completeManagedAttendanceSession"
+      },
+      "workflow": "operations.completeManagedAttendanceSession",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Preserve real event evidence, signed runtime/device context and attendance-closeout policy; do not fabricate scans."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:createManagedAttendanceSession",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "createManagedAttendanceSession"
+      },
+      "workflow": "operations.createManagedAttendanceSession",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Preserve real event evidence, signed runtime/device context and attendance-closeout policy; do not fabricate scans."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:createManager",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "createManager"
+      },
+      "workflow": "operations.createManager",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:createRoomingHotel",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "createRoomingHotel"
+      },
+      "workflow": "operations.createRoomingHotel",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Shared flush-only additive creation, explicit scope, current category revision where applicable, durable idempotency and current receipt entity authorization. Local SQLite/SDK/PostgreSQL evidence is retained; production and broader domain completion remain open.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/office_change_tools.py",
+        "evidence": [
+          "backend/tests/integration/test_mcp_office_changes.py",
+          "backend/tests/service_integration/test_mcp_office_postgresql.py",
+          "docs/implementation/mcp-office-creations.md"
+        ]
+      },
+      "effect_review": "additive_adapter_locally_tested"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:createStaff",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "createStaff"
+      },
+      "workflow": "operations.createStaff",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:createTourCoordinator",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "createTourCoordinator"
+      },
+      "workflow": "operations.createTourCoordinator",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:deleteManagedAccount",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "deleteManagedAccount"
+      },
+      "workflow": "operations.deleteManagedAccount",
+      "disposition": "manual_removal",
+      "phase": null,
+      "rationale": "Record, file, membership, archive or destructive cancellation/removal effects are outside MCP authority and remain manual.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      },
+      "exclusion_boundary": "no_removal"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:deleteManager",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "deleteManager"
+      },
+      "workflow": "operations.deleteManager",
+      "disposition": "manual_removal",
+      "phase": null,
+      "rationale": "Record, file, membership, archive or destructive cancellation/removal effects are outside MCP authority and remain manual.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      },
+      "exclusion_boundary": "no_removal"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:exportAuditLogs",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "exportAuditLogs"
+      },
+      "workflow": "operations.exportAuditLogs",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "protected_artifact_and_verified_delivery",
+        "preserve_export_history_generation_vs_delivery",
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:exportHotelCheckins",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "exportHotelCheckins"
+      },
+      "workflow": "operations.exportHotelCheckins",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "protected_artifact_and_verified_delivery",
+        "preserve_export_history_generation_vs_delivery",
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Preserve real event evidence, signed runtime/device context and attendance-closeout policy; do not fabricate scans."
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/rooming_export_tools.py",
+        "evidence": [
+          "docs/implementation/mcp-rooming-exports.md",
+          "backend/tests/integration/test_mcp_rooming_exports.py",
+          "backend/tests/service_integration/test_mcp_rooming_exports_postgresql.py",
+          "mcp-connector/tests/test_rooming_exports_tcp.py"
+        ]
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:exportRoomingHotel",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "exportRoomingHotel"
+      },
+      "workflow": "operations.exportRoomingHotel",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "protected_artifact_and_verified_delivery",
+        "preserve_export_history_generation_vs_delivery",
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/rooming_export_tools.py",
+        "evidence": [
+          "docs/implementation/mcp-rooming-exports.md",
+          "backend/tests/integration/test_mcp_rooming_exports.py",
+          "backend/tests/service_integration/test_mcp_rooming_exports_postgresql.py",
+          "mcp-connector/tests/test_rooming_exports_tcp.py"
+        ]
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:generatePassengerQr",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "generatePassengerQr"
+      },
+      "workflow": "operations.generatePassengerQr",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:groupAttendanceMissingPassengers",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "groupAttendanceMissingPassengers"
+      },
+      "workflow": "operations.groupAttendanceMissingPassengers",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "Revalidate current MCP read authority and the connected account's current agency. Require the exact own-agency non-deleted-status group and canonical AuthorizationPolicy.require_assign_coordinator; no caller agency or cross-agency override. Preserve the website's retained deleted_at semantics and role policy without widening MCP eligibility.",
+        "Share canonical activity aliases, approved operational roster predicates, first-scan coordinator attribution and reported checkpoint readiness. present_count retains distinct family-record passenger IDs; missing_count is max(current approved roster count minus retained present count, 0), while missing pages apply current roster membership, so their row counts can diverge after roster changes. Neither count nor metadata readiness proves physical presence or authorizes closing.",
+        "Return the complete activity summary within a 100-activity admission. Preserve the website's deterministic 25-coordinator projection with explicit count/truncation and MCP partial completeness. Page missing UUID/name rows in UUID ascending order with size 1 to 100 and literal normalized search up to 120 characters. Signed 30-minute cursors bind actor, agency, group, canonical session, nested activity revision, search and page size.",
+        "Use the shared optimistic before/after canonical activity and roster revision fence; reject changed revisions and require a refreshed summary. Top-level snapshot_revision is the group or page revision, nested session revision is the missing-page input, and top-level revision identifies deployed code. Summary and counts are live queries, not an atomic or immutable snapshot.",
+        "Bound the actual materialization queries with limit-plus-sentinel: 100 canonical activities, 5000 rows per assignment/checkpoint/runtime/participant source, and at most 10000 conservative activity-times-assignment/checkpoint/participant combinations before classification. Use scalar projections and database-side 160/255 character sentinels, page-plus-one missing rows, a five-second service deadline including fresh authority/scope, and a 512 KiB complete structured-response budget. Reject exceeded limits without silent partial source truncation.",
+        "Treat group/activity/coordinator/passenger names as untrusted authorized text. Exclude private runtime identifiers, device and event secrets, passport JSON, email, phone, document locators and file bytes. Use only fixed safe error codes; preserve reported evidence and allow only the shared invocation audit. No scan/checkpoint/close/ACK, device impersonation, business mutation/removal, provider/file/export call, operation receipt or idempotency key."
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/attendance_read_tools.py",
+        "evidence": [
+          "backend/tests/integration/test_mcp_attendance_reads.py",
+          "backend/tests/unit/application/test_attendance_dashboard.py",
+          "backend/tests/unit/presentation/test_attendance_dashboard_routes.py",
+          "backend/tests/unit/infrastructure/test_attendance_dashboard_repository.py",
+          "backend/tests/unit/infrastructure/test_attendance_closeout_repository.py",
+          "backend/tests/service_integration/test_mcp_attendance_reads_postgresql.py",
+          "docs/implementation/mcp-attendance-read-checkpoint.md"
+        ]
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:groupAttendanceOverview",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "groupAttendanceOverview"
+      },
+      "workflow": "operations.groupAttendanceOverview",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Preserve real event evidence, signed runtime/device context and attendance-closeout policy; do not fabricate scans."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:groupAttendanceSummary",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "groupAttendanceSummary"
+      },
+      "workflow": "operations.groupAttendanceSummary",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "Revalidate current MCP read authority and the connected account's current agency. Require the exact own-agency non-deleted-status group and canonical AuthorizationPolicy.require_assign_coordinator; no caller agency or cross-agency override. Preserve the website's retained deleted_at semantics and role policy without widening MCP eligibility.",
+        "Share canonical activity aliases, approved operational roster predicates, first-scan coordinator attribution and reported checkpoint readiness. present_count retains distinct family-record passenger IDs; missing_count is max(current approved roster count minus retained present count, 0), while missing pages apply current roster membership, so their row counts can diverge after roster changes. Neither count nor metadata readiness proves physical presence or authorizes closing.",
+        "Return the complete activity summary within a 100-activity admission. Preserve the website's deterministic 25-coordinator projection with explicit count/truncation and MCP partial completeness. Page missing UUID/name rows in UUID ascending order with size 1 to 100 and literal normalized search up to 120 characters. Signed 30-minute cursors bind actor, agency, group, canonical session, nested activity revision, search and page size.",
+        "Use the shared optimistic before/after canonical activity and roster revision fence; reject changed revisions and require a refreshed summary. Top-level snapshot_revision is the group or page revision, nested session revision is the missing-page input, and top-level revision identifies deployed code. Summary and counts are live queries, not an atomic or immutable snapshot.",
+        "Bound the actual materialization queries with limit-plus-sentinel: 100 canonical activities, 5000 rows per assignment/checkpoint/runtime/participant source, and at most 10000 conservative activity-times-assignment/checkpoint/participant combinations before classification. Use scalar projections and database-side 160/255 character sentinels, page-plus-one missing rows, a five-second service deadline including fresh authority/scope, and a 512 KiB complete structured-response budget. Reject exceeded limits without silent partial source truncation.",
+        "Treat group/activity/coordinator/passenger names as untrusted authorized text. Exclude private runtime identifiers, device and event secrets, passport JSON, email, phone, document locators and file bytes. Use only fixed safe error codes; preserve reported evidence and allow only the shared invocation audit. No scan/checkpoint/close/ACK, device impersonation, business mutation/removal, provider/file/export call, operation receipt or idempotency key."
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/attendance_read_tools.py",
+        "evidence": [
+          "backend/tests/integration/test_mcp_attendance_reads.py",
+          "backend/tests/unit/application/test_attendance_dashboard.py",
+          "backend/tests/unit/presentation/test_attendance_dashboard_routes.py",
+          "backend/tests/unit/infrastructure/test_attendance_dashboard_repository.py",
+          "backend/tests/unit/infrastructure/test_attendance_closeout_repository.py",
+          "backend/tests/service_integration/test_mcp_attendance_reads_postgresql.py",
+          "docs/implementation/mcp-attendance-read-checkpoint.md"
+        ]
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:groupQrCodes",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "groupQrCodes"
+      },
+      "workflow": "operations.groupQrCodes",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:hotelCheckins",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "hotelCheckins"
+      },
+      "workflow": "operations.hotelCheckins",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Preserve real event evidence, signed runtime/device context and attendance-closeout policy; do not fabricate scans."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:managedAccounts",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "managedAccounts"
+      },
+      "workflow": "operations.managedAccounts",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:managedAttendanceCloseoutStatus",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "managedAttendanceCloseoutStatus"
+      },
+      "workflow": "operations.managedAttendanceCloseoutStatus",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Preserve real event evidence, signed runtime/device context and attendance-closeout policy; do not fabricate scans."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:managers",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "managers"
+      },
+      "workflow": "operations.managers",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:myAttendanceSessionDetails",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "myAttendanceSessionDetails"
+      },
+      "workflow": "operations.myAttendanceSessionDetails",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Preserve real event evidence, signed runtime/device context and attendance-closeout policy; do not fabricate scans."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:myAttendanceSessions",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "myAttendanceSessions"
+      },
+      "workflow": "operations.myAttendanceSessions",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Preserve real event evidence, signed runtime/device context and attendance-closeout policy; do not fabricate scans."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:myTourGroupPassenger",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "myTourGroupPassenger"
+      },
+      "workflow": "operations.myTourGroupPassenger",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:myTourGroupPassengers",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "myTourGroupPassengers"
+      },
+      "workflow": "operations.myTourGroupPassengers",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:myTourGroups",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "myTourGroups"
+      },
+      "workflow": "operations.myTourGroups",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:publishMyAttendanceCloseoutCheckpoint",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "publishMyAttendanceCloseoutCheckpoint"
+      },
+      "workflow": "operations.publishMyAttendanceCloseoutCheckpoint",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Preserve real event evidence, signed runtime/device context and attendance-closeout policy; do not fabricate scans."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:qrDeliveryPreview",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "qrDeliveryPreview"
+      },
+      "workflow": "operations.qrDeliveryPreview",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:regeneratePassengerQr",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "regeneratePassengerQr"
+      },
+      "workflow": "operations.regeneratePassengerQr",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:resetManagedAccountMfa",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "resetManagedAccountMfa"
+      },
+      "workflow": "operations.resetManagedAccountMfa",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:resetManagedAccountPassword",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "resetManagedAccountPassword"
+      },
+      "workflow": "operations.resetManagedAccountPassword",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:revokeManagedAccountSessions",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "revokeManagedAccountSessions"
+      },
+      "workflow": "operations.revokeManagedAccountSessions",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:revokePassengerQr",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "revokePassengerQr"
+      },
+      "workflow": "operations.revokePassengerQr",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:roomingPriorityFields",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "roomingPriorityFields"
+      },
+      "workflow": "operations.roomingPriorityFields",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:roomingRosterFieldValues",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "roomingRosterFieldValues"
+      },
+      "workflow": "operations.roomingRosterFieldValues",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:roomingWorkspace",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "roomingWorkspace"
+      },
+      "workflow": "operations.roomingWorkspace",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:scanHotelCheckin",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "scanHotelCheckin"
+      },
+      "workflow": "operations.scanHotelCheckin",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Preserve real event evidence, signed runtime/device context and attendance-closeout policy; do not fabricate scans."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:scanMyAttendanceSession",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "scanMyAttendanceSession"
+      },
+      "workflow": "operations.scanMyAttendanceSession",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Preserve real event evidence, signed runtime/device context and attendance-closeout policy; do not fabricate scans."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:scanMyAttendanceSessionBatch",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "scanMyAttendanceSessionBatch"
+      },
+      "workflow": "operations.scanMyAttendanceSessionBatch",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Preserve real event evidence, signed runtime/device context and attendance-closeout policy; do not fabricate scans."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:sendQrBroadcast",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "sendQrBroadcast"
+      },
+      "workflow": "operations.sendQrBroadcast",
+      "disposition": "implement",
+      "phase": 6,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "immutable_preparation_and_explicit_user_send_intent",
+        "dispatch_authority_recheck",
+        "business_dispatch_idempotency",
+        "provider_receipt_reconciliation",
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:setManagedAccountStatus",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "setManagedAccountStatus"
+      },
+      "workflow": "operations.setManagedAccountStatus",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:setPassengerQrActive",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "setPassengerQrActive"
+      },
+      "workflow": "operations.setPassengerQrActive",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:setPassengerQrExpiration",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "setPassengerQrExpiration"
+      },
+      "workflow": "operations.setPassengerQrExpiration",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:staffAccessAccounts",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "staffAccessAccounts"
+      },
+      "workflow": "operations.staffAccessAccounts",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:staffAccounts",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "staffAccounts"
+      },
+      "workflow": "operations.staffAccounts",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:tourCoordinators",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "tourCoordinators"
+      },
+      "workflow": "operations.tourCoordinators",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:tourGroupPassengers",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "tourGroupPassengers"
+      },
+      "workflow": "operations.tourGroupPassengers",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:tourGroups",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "tourGroups"
+      },
+      "workflow": "operations.tourGroups",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:tourOperationsArchitecture",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "tourOperationsArchitecture"
+      },
+      "workflow": "operations.tourOperationsArchitecture",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:updateHotelCheckin",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "updateHotelCheckin"
+      },
+      "workflow": "operations.updateHotelCheckin",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Preserve real event evidence, signed runtime/device context and attendance-closeout policy; do not fabricate scans."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:updateRoomingHotel",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "updateRoomingHotel"
+      },
+      "workflow": "operations.updateRoomingHotel",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:updateRoomingPassengerSelection",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "updateRoomingPassengerSelection"
+      },
+      "workflow": "operations.updateRoomingPassengerSelection",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/operations/api/operations.api.ts:updateRoomingVip",
+        "kind": "frontend_callable",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "handler": "updateRoomingVip"
+      },
+      "workflow": "operations.updateRoomingVip",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:acknowledgeRejectedAttendanceScans",
+        "kind": "frontend_callable",
+        "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+        "handler": "acknowledgeRejectedAttendanceScans"
+      },
+      "workflow": "tour-operations.acknowledgeRejectedAttendanceScans",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Preserve real event evidence, signed runtime/device context and attendance-closeout policy; do not fabricate scans."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:collectBrowserAttendanceQueueCloseout",
+        "kind": "frontend_callable",
+        "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+        "handler": "collectBrowserAttendanceQueueCloseout"
+      },
+      "workflow": "tour-operations.collectBrowserAttendanceQueueCloseout",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Preserve real event evidence, signed runtime/device context and attendance-closeout policy; do not fabricate scans."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:countPendingAttendanceDiscardAudits",
+        "kind": "frontend_callable",
+        "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+        "handler": "countPendingAttendanceDiscardAudits"
+      },
+      "workflow": "tour-operations.countPendingAttendanceDiscardAudits",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Preserve real event evidence, signed runtime/device context and attendance-closeout policy; do not fabricate scans."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:countPendingAttendanceScans",
+        "kind": "frontend_callable",
+        "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+        "handler": "countPendingAttendanceScans"
+      },
+      "workflow": "tour-operations.countPendingAttendanceScans",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Preserve real event evidence, signed runtime/device context and attendance-closeout policy; do not fabricate scans."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:countRejectedAttendanceScans",
+        "kind": "frontend_callable",
+        "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+        "handler": "countRejectedAttendanceScans"
+      },
+      "workflow": "tour-operations.countRejectedAttendanceScans",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Preserve real event evidence, signed runtime/device context and attendance-closeout policy; do not fabricate scans."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:enqueueAttendanceScan",
+        "kind": "frontend_callable",
+        "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+        "handler": "enqueueAttendanceScan"
+      },
+      "workflow": "tour-operations.enqueueAttendanceScan",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Preserve real event evidence, signed runtime/device context and attendance-closeout policy; do not fabricate scans."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:getBrowserAttendanceQueueSafetySnapshot",
+        "kind": "frontend_callable",
+        "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+        "handler": "getBrowserAttendanceQueueSafetySnapshot"
+      },
+      "workflow": "tour-operations.getBrowserAttendanceQueueSafetySnapshot",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Attendance browser safety dependency. Requires the current browser owner and reads that owner's local queue safety state; authoritative server closeout evidence remains governed by the existing signed runtime/checkpoint protocol.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:getNextPendingAttendanceAttemptAt",
+        "kind": "frontend_callable",
+        "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+        "handler": "getNextPendingAttendanceAttemptAt"
+      },
+      "workflow": "tour-operations.getNextPendingAttendanceAttemptAt",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Attendance browser retry-scheduling dependency. Computes the next local attempt from owner-scoped pending scans and discard tombstones; it neither represents an administrator query nor supplies physical-event or runtime authority to MCP.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:listPendingAttendanceScans",
+        "kind": "frontend_callable",
+        "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+        "handler": "listPendingAttendanceScans"
+      },
+      "workflow": "tour-operations.listPendingAttendanceScans",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Attendance browser transport dependency. Reads pending scans from the current signed-in owner's local IndexedDB queue for client synchronization; server-retained attendance reads remain separate and cannot attest this device-local queue.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:listRejectedAttendanceScans",
+        "kind": "frontend_callable",
+        "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+        "handler": "listRejectedAttendanceScans"
+      },
+      "workflow": "tour-operations.listRejectedAttendanceScans",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Attendance browser transport dependency. Reads and sorts the current owner's local rejected scan queue for a group/session. MCP server reads may inspect retained server evidence but do not impersonate this browser or manufacture its unsynchronized queue.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:publishBrowserAttendanceQueueCloseout",
+        "kind": "frontend_callable",
+        "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+        "handler": "publishBrowserAttendanceQueueCloseout"
+      },
+      "workflow": "tour-operations.publishBrowserAttendanceQueueCloseout",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Preserve real event evidence, signed runtime/device context and attendance-closeout policy; do not fabricate scans."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:removePendingAttendanceScan",
+        "kind": "frontend_callable",
+        "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+        "handler": "removePendingAttendanceScan"
+      },
+      "workflow": "tour-operations.removePendingAttendanceScan",
+      "disposition": "manual_removal",
+      "phase": null,
+      "rationale": "Record, file, membership, archive or destructive cancellation/removal effects are outside MCP authority and remain manual.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      },
+      "exclusion_boundary": "no_removal"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:runAttendanceQueueLogoutBoundary",
+        "kind": "frontend_callable",
+        "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+        "handler": "runAttendanceQueueLogoutBoundary"
+      },
+      "workflow": "tour-operations.runAttendanceQueueLogoutBoundary",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Preserve real event evidence, signed runtime/device context and attendance-closeout policy; do not fabricate scans."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:subscribeAttendanceQueueScheduleChanges",
+        "kind": "frontend_callable",
+        "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+        "handler": "subscribeAttendanceQueueScheduleChanges"
+      },
+      "workflow": "tour-operations.subscribeAttendanceQueueScheduleChanges",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Preserve real event evidence, signed runtime/device context and attendance-closeout policy; do not fabricate scans."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:syncAttendanceDiscardTombstones",
+        "kind": "frontend_callable",
+        "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+        "handler": "syncAttendanceDiscardTombstones"
+      },
+      "workflow": "tour-operations.syncAttendanceDiscardTombstones",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Preserve real event evidence, signed runtime/device context and attendance-closeout policy; do not fabricate scans."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:syncPendingAttendanceScans",
+        "kind": "frontend_callable",
+        "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+        "handler": "syncPendingAttendanceScans"
+      },
+      "workflow": "tour-operations.syncPendingAttendanceScans",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Preserve real event evidence, signed runtime/device context and attendance-closeout policy; do not fabricate scans."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:tryRecordAttendanceScan",
+        "kind": "frontend_callable",
+        "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+        "handler": "tryRecordAttendanceScan"
+      },
+      "workflow": "tour-operations.tryRecordAttendanceScan",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Preserve real event evidence, signed runtime/device context and attendance-closeout policy; do not fabricate scans."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend_api:frontend/features/documents/api/document-distribution.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/documents/api/document-distribution.api.ts",
+        "contract_sha256": "d546bc3428a26d8c2dbe360456cb79cd702c83785c2c32e4b2efd76e79b0c2f4"
+      },
+      "workflow": "transport.frontend.features.documents.api.document-distribution.api.ts",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Routing or frontend transport facade implementing the individually classified business operations; fingerprint forces review of prefix/registration/alias and nonstandard action changes.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend_api:frontend/features/operations/api/operations.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "contract_sha256": "d1a2cb128065e70bd6d016b91683d5a8d5c06bd9ea449e3805fcbc119c92afc0"
+      },
+      "workflow": "transport.frontend.features.operations.api.operations.api.ts",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Routing or frontend transport facade implementing the individually classified business operations; fingerprint forces review of prefix/registration/alias and nonstandard action changes.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/admin.py:assign_manager_groups:PUT:/managers/{manager_id}/groups",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/admin.py",
+        "handler": "assign_manager_groups",
+        "method": "PUT",
+        "local_path": "/managers/{manager_id}/groups",
+        "contract_sha256": "2bcc624ae97a1cf1cebc87ec7784c0156c9d397e0cee77a15b049bc5a2a088cf",
+        "summary": "Replace a manager's extra assigned group access",
+        "schema_visible": true
+      },
+      "workflow": "admin.assign-manager-groups",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "MCP additive access adapter preserves existing memberships and recent MFA; website retains its explicit replacement behavior with shared target lock. Removals remain outside MCP.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Add access grants without deleting existing ManagerGroupAccess rows; permission removal remains manual."
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/access_change_tools.py",
+        "evidence": [
+          "docs/implementation/mcp-access-additions.md"
+        ]
+      },
+      "effect_review": "confirmed_adapter_required"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/admin.py:assign_staff_groups:PUT:/staff/{staff_id}/groups",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/admin.py",
+        "handler": "assign_staff_groups",
+        "method": "PUT",
+        "local_path": "/staff/{staff_id}/groups",
+        "contract_sha256": "22fbc3675cc5100dbad4a8132d81d30b58dca43ca78054bcaf0af49aa55709fc",
+        "summary": "Replace a staff member's assigned group access",
+        "schema_visible": true
+      },
+      "workflow": "admin.assign-staff-groups",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "MCP additive access adapter preserves existing memberships and recent MFA; website retains its explicit replacement behavior with shared target lock. Removals remain outside MCP.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Add access grants without deleting existing ManagerGroupAccess rows; permission removal remains manual."
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/access_change_tools.py",
+        "evidence": [
+          "docs/implementation/mcp-access-additions.md"
+        ]
+      },
+      "effect_review": "confirmed_adapter_required"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/admin.py:create_manager:POST:/managers",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/admin.py",
+        "handler": "create_manager",
+        "method": "POST",
+        "local_path": "/managers",
+        "contract_sha256": "1333196078921093d3373fd1486555f3783cb78aebf614461735f238fcce7d32",
+        "summary": "Create a limited manager account",
+        "schema_visible": true
+      },
+      "workflow": "admin.create-manager",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/admin.py:delete_manager:DELETE:/managers/{manager_id}",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/admin.py",
+        "handler": "delete_manager",
+        "method": "DELETE",
+        "local_path": "/managers/{manager_id}",
+        "contract_sha256": "dcabec8b784fb32a8d30b1e8a9b804926ad66e9e964a279c91779d17f5d6c03f",
+        "summary": "Delete a manager account",
+        "schema_visible": true
+      },
+      "workflow": "admin.delete-manager",
+      "disposition": "manual_removal",
+      "phase": null,
+      "rationale": "Record, file, membership, archive or destructive cancellation/removal effects are outside MCP authority and remain manual.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      },
+      "exclusion_boundary": "no_removal"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/admin.py:get_admin_overview:GET:/overview",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/admin.py",
+        "handler": "get_admin_overview",
+        "method": "GET",
+        "local_path": "/overview",
+        "contract_sha256": "e6756e2db1e11490f559d1ac345e97bbaf6d74d8ad0d3f6f3813495e0b850d19",
+        "summary": "Get administrative platform overview",
+        "schema_visible": true
+      },
+      "workflow": "admin.get-admin-overview",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/admin_overview_read_tools.py",
+        "evidence": [
+          "docs/implementation/mcp-admin-overview-checkpoint.md",
+          "backend/tests/integration/test_mcp_admin_overview_reads.py",
+          "backend/tests/integration/test_mcp_admin_overview_http.py",
+          "backend/tests/service_integration/test_mcp_admin_overview_postgresql.py"
+        ]
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/admin.py:get_group_passport_retention:GET:/groups/{group_id}/passport-retention",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/admin.py",
+        "handler": "get_group_passport_retention",
+        "method": "GET",
+        "local_path": "/groups/{group_id}/passport-retention",
+        "contract_sha256": "1c207ec0d93f655e23f3542714bb2f3bf03cf4d2e934be0659198170b6964307",
+        "summary": "Inspect an explicit group passport-retention schedule",
+        "schema_visible": true
+      },
+      "workflow": "admin.get-group-passport-retention",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/retention_read_tools.py",
+        "evidence": [
+          "docs/implementation/mcp-passport-retention-read-checkpoint.md",
+          "backend/tests/integration/test_mcp_retention_reads.py",
+          "backend/tests/integration/test_platform_retention_admin_controls.py",
+          "backend/tests/service_integration/test_mcp_retention_reads_postgresql.py"
+        ]
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/admin.py:get_platform_settings:GET:/settings",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/admin.py",
+        "handler": "get_platform_settings",
+        "method": "GET",
+        "local_path": "/settings",
+        "contract_sha256": "67a1cd0fd513fadf6aa17dd8e7017de1382d27a2dd222edb37b097958437facf",
+        "summary": "Get editable platform settings",
+        "schema_visible": true
+      },
+      "workflow": "admin.get-platform-settings",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/admin.py:list_admin_groups:GET:/groups",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/admin.py",
+        "handler": "list_admin_groups",
+        "method": "GET",
+        "local_path": "/groups",
+        "contract_sha256": "1b531e3d64d7e7de5809714e341659b2f58a069fa82be0930e34f18de5c52b17",
+        "summary": "List groups available for account access assignment",
+        "schema_visible": true
+      },
+      "workflow": "admin.list-admin-groups",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/admin.py:list_managers:GET:/managers",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/admin.py",
+        "handler": "list_managers",
+        "method": "GET",
+        "local_path": "/managers",
+        "contract_sha256": "c6b022d6daca38d12a046a2bac4e847b414e18b86a2e89daa7bc6d97a3cf855e",
+        "summary": "List manager accounts",
+        "schema_visible": true
+      },
+      "workflow": "admin.list-managers",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/admin.py:list_staff_for_access:GET:/staff",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/admin.py",
+        "handler": "list_staff_for_access",
+        "method": "GET",
+        "local_path": "/staff",
+        "contract_sha256": "a71c57381981ce8ee1140c13544570d89255e52e0f475cdfecf08a7ce6341f05",
+        "summary": "List staff accounts with group access",
+        "schema_visible": true
+      },
+      "workflow": "admin.list-staff-for-access",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/admin.py:purge_passport_data:DELETE:/passport-data",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/admin.py",
+        "handler": "purge_passport_data",
+        "method": "DELETE",
+        "local_path": "/passport-data",
+        "contract_sha256": "4910cfb6a3282125bd4f52a89af530d002b4b481c2c0050b8d8c79ae4b5505e3",
+        "summary": "Permanently delete passport and WhatsApp broadcast data",
+        "schema_visible": true
+      },
+      "workflow": "admin.purge-passport-data",
+      "disposition": "manual_removal",
+      "phase": null,
+      "rationale": "Record, file, membership, archive or destructive cancellation/removal effects are outside MCP authority and remain manual.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      },
+      "exclusion_boundary": "no_removal"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/admin.py:update_platform_settings:PUT:/settings",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/admin.py",
+        "handler": "update_platform_settings",
+        "method": "PUT",
+        "local_path": "/settings",
+        "contract_sha256": "e2951424a35ab7011ffa73b393c80ecd891971d27a6d3026605977de6cc0eccb",
+        "summary": "Update editable platform settings",
+        "schema_visible": true
+      },
+      "workflow": "admin.update-platform-settings",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool. Global policy mutation requires the effective super-admin role; agency administrators retain read access only (security review 2026-10-06).",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Reject settings that reduce retention or schedule archiving/purge; MCP cannot change its own controls."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "confirmed_adapter_required"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/admin_accounts.py:create_staff_account:POST:/staff",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/admin_accounts.py",
+        "handler": "create_staff_account",
+        "method": "POST",
+        "local_path": "/staff",
+        "contract_sha256": "d0d9d9d394c293206b3d252f216465025acd3adf9876311b055c24672a003fbd",
+        "summary": "Create a staff account",
+        "schema_visible": true
+      },
+      "workflow": "admin.create-staff-account",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/admin_accounts.py:delete_managed_account:DELETE:/{account_id}",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/admin_accounts.py",
+        "handler": "delete_managed_account",
+        "method": "DELETE",
+        "local_path": "/{account_id}",
+        "contract_sha256": "09684e40440249409d0ebf4efe12b96c1cf1172944060a21b7d0c3f0bf8fb7d3",
+        "summary": "Remove a staff or coordinator account while preserving required history",
+        "schema_visible": true
+      },
+      "workflow": "admin.delete-managed-account",
+      "disposition": "manual_removal",
+      "phase": null,
+      "rationale": "Record, file, membership, archive or destructive cancellation/removal effects are outside MCP authority and remain manual.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      },
+      "exclusion_boundary": "no_removal"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/admin_accounts.py:list_managed_accounts:GET:",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/admin_accounts.py",
+        "handler": "list_managed_accounts",
+        "method": "GET",
+        "local_path": "",
+        "contract_sha256": "6729cc2b1407f87a16b122144b8ddb5a74dce0e097280548daf39f0356c6cb0e",
+        "summary": "List accounts within the caller's management scope",
+        "schema_visible": true
+      },
+      "workflow": "admin.list-managed-accounts",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/admin_accounts.py:list_staff_accounts:GET:/staff",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/admin_accounts.py",
+        "handler": "list_staff_accounts",
+        "method": "GET",
+        "local_path": "/staff",
+        "contract_sha256": "33d162190f42946fbefaabb9b1cbccbf68f1710550232b02e7dff6f9ecd9ceb5",
+        "summary": "List staff accounts",
+        "schema_visible": true
+      },
+      "workflow": "admin.list-staff-accounts",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/admin_accounts.py:reset_managed_account_mfa:POST:/{account_id}/reset-mfa",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/admin_accounts.py",
+        "handler": "reset_managed_account_mfa",
+        "method": "POST",
+        "local_path": "/{account_id}/reset-mfa",
+        "contract_sha256": "610ea59d751e33b303d06080aa20c922a021f5be91f45ade2eb9eef2e5fd6e87",
+        "summary": "Reset a managed account's MFA and revoke every existing session",
+        "schema_visible": true
+      },
+      "workflow": "admin.reset-managed-account-mfa",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Preserve existing recent-MFA and identity-security-version rules; no MCP self-authority controls."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/admin_accounts.py:reset_managed_account_password:POST:/{account_id}/reset-password",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/admin_accounts.py",
+        "handler": "reset_managed_account_password",
+        "method": "POST",
+        "local_path": "/{account_id}/reset-password",
+        "contract_sha256": "72fae8d91c4cae298b8b7c9a6e95e9211ae39b1a207ad661f2a1ab4b24c3c882",
+        "summary": "Issue a one-time credential reset link and revoke every existing session",
+        "schema_visible": true
+      },
+      "workflow": "admin.reset-managed-account-password",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Preserve existing recent-MFA and identity-security-version rules; no MCP self-authority controls."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/admin_accounts.py:revoke_managed_account_sessions:POST:/{account_id}/revoke-sessions",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/admin_accounts.py",
+        "handler": "revoke_managed_account_sessions",
+        "method": "POST",
+        "local_path": "/{account_id}/revoke-sessions",
+        "contract_sha256": "f5d6a905f1d7bcd7dff5236daba346ea6c3f960c37bfd2e692e557e8259da950",
+        "summary": "Force an account to sign out on every device",
+        "schema_visible": true
+      },
+      "workflow": "admin.revoke-managed-account-sessions",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Preserve existing recent-MFA and identity-security-version rules; no MCP self-authority controls."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/admin_accounts.py:set_managed_account_status:PATCH:/{account_id}/status",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/admin_accounts.py",
+        "handler": "set_managed_account_status",
+        "method": "PATCH",
+        "local_path": "/{account_id}/status",
+        "contract_sha256": "92cea548834d0b180f4ab2d449e39fe3a3dca22153624cbe2c232f50aaf5288e",
+        "summary": "Activate or deactivate a managed account",
+        "schema_visible": true
+      },
+      "workflow": "admin.set-managed-account-status",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Preserve existing recent-MFA and identity-security-version rules; no MCP self-authority controls."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/document_distribution_assignments.py:delete_distribution_documents:POST:/groups/{group_id}/{document_type}/documents/delete",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/document_distribution_assignments.py",
+        "handler": "delete_distribution_documents",
+        "method": "POST",
+        "local_path": "/groups/{group_id}/{document_type}/documents/delete",
+        "contract_sha256": "8a7b4e77f425ed2e7635826927feb417225e6af79e64f6557438fa4413971eaf",
+        "summary": "delete distribution documents",
+        "schema_visible": true
+      },
+      "workflow": "document-distribution.delete-distribution-documents",
+      "disposition": "manual_removal",
+      "phase": null,
+      "rationale": "Record, file, membership, archive or destructive cancellation/removal effects are outside MCP authority and remain manual.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      },
+      "exclusion_boundary": "no_removal"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/document_distribution_assignments.py:unassign_distribution_documents:POST:/groups/{group_id}/{document_type}/documents/unassign",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/document_distribution_assignments.py",
+        "handler": "unassign_distribution_documents",
+        "method": "POST",
+        "local_path": "/groups/{group_id}/{document_type}/documents/unassign",
+        "contract_sha256": "f6cff1b38b65fbe07c4e8227b4127a49617c32c336f691d649113a3d439a51fe",
+        "summary": "unassign distribution documents",
+        "schema_visible": true
+      },
+      "workflow": "document-distribution.unassign-distribution-documents",
+      "disposition": "manual_removal",
+      "phase": null,
+      "rationale": "Record, file, membership, archive or destructive cancellation/removal effects are outside MCP authority and remain manual.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      },
+      "exclusion_boundary": "no_removal"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/ecr_checker.py:create_ecr_batch:POST:/batches",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/ecr_checker.py",
+        "handler": "create_ecr_batch",
+        "method": "POST",
+        "local_path": "/batches",
+        "contract_sha256": "f9e2624cbcf76bd03f90d9c536d7c62e7995f91898a7cf983f30d388d596a2e9",
+        "summary": "create ecr batch",
+        "schema_visible": true
+      },
+      "workflow": "ecr-checker.create-ecr-batch",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/ecr_checker.py:export_ecr_batch:GET:/batches/{batch_id}/export.xlsx",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/ecr_checker.py",
+        "handler": "export_ecr_batch",
+        "method": "GET",
+        "local_path": "/batches/{batch_id}/export.xlsx",
+        "contract_sha256": "4d69af24a9c5d4edad7eb8dc72676578ff5898a9a4f5f8184a0cf6eff1bdc6f2",
+        "summary": "export ecr batch",
+        "schema_visible": true
+      },
+      "workflow": "ecr-checker.export-ecr-batch",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "protected_artifact_and_verified_delivery",
+        "preserve_export_history_generation_vs_delivery"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/ecr_checker.py:get_ecr_batch:GET:/batches/{batch_id}",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/ecr_checker.py",
+        "handler": "get_ecr_batch",
+        "method": "GET",
+        "local_path": "/batches/{batch_id}",
+        "contract_sha256": "a019c4cca5fea3bf39930ce085b2fd967fb6c93df7a25c86b676721b587b096c",
+        "summary": "get ecr batch",
+        "schema_visible": true
+      },
+      "workflow": "ecr-checker.get-ecr-batch",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "Revalidate current MCP read authority and use only the connected account's current active agency; preserve canonical allowed roles and staff creator ownership. No caller agency, impersonation or cross-agency aggregate is available.",
+        "Page bounded scalar batch metadata in created_at DESC then UUID DESC order, and exact-batch items in canonical created_at ASC then UUID ASC order. Signed cursors bind actor, agency, query, batch, size and a creation cutoff; page size is 1 to 100 and pagination can enumerate beyond the website latest-50 view.",
+        "Preserve all six canonical database-side item counters across the entire live batch, separately from the item page and creation cutoff. Counts, statuses and rows are independent live queries, not an atomic snapshot or evidence of processing, file availability or delivery.",
+        "Bound title to 160 characters and filename/reason to 255 with database-side sentinel projections; reject oversized retained values or a complete response above 256 KiB, including the common envelope, without silent truncation. Bound the service read to five seconds; authorization/transport/audit bounds remain separate.",
+        "Mark titles, filenames and reasons as untrusted business text. Exclude storage locators, file bytes, hashes, processing leases, model internals and token usage from the projection; use static safe errors for unavailable scope, invalid cursors and resource bounds.",
+        "Allow only the shared invocation audit as an MCP effect; no business write/removal, processing/retry/upload/export, AI/provider/storage call, operation/idempotency key, artifact or export-history change."
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/ecr_read_tools.py",
+        "evidence": [
+          "backend/tests/integration/test_mcp_ecr_reads.py",
+          "backend/tests/unit/presentation/test_ecr_checker.py",
+          "backend/tests/service_integration/test_mcp_ecr_reads_postgresql.py",
+          "docs/implementation/mcp-ecr-read-checkpoint.md"
+        ]
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/ecr_checker.py:list_ecr_batches:GET:/batches",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/ecr_checker.py",
+        "handler": "list_ecr_batches",
+        "method": "GET",
+        "local_path": "/batches",
+        "contract_sha256": "5e777a46ff36cdbcf64ebbcb279f6a957dc355937e59238911a6acfba67cbda2",
+        "summary": "list ecr batches",
+        "schema_visible": true
+      },
+      "workflow": "ecr-checker.list-ecr-batches",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "Revalidate current MCP read authority and use only the connected account's current active agency; preserve canonical allowed roles and staff creator ownership. No caller agency, impersonation or cross-agency aggregate is available.",
+        "Page bounded scalar batch metadata in created_at DESC then UUID DESC order, and exact-batch items in canonical created_at ASC then UUID ASC order. Signed cursors bind actor, agency, query, batch, size and a creation cutoff; page size is 1 to 100 and pagination can enumerate beyond the website latest-50 view.",
+        "Preserve all six canonical database-side item counters across the entire live batch, separately from the item page and creation cutoff. Counts, statuses and rows are independent live queries, not an atomic snapshot or evidence of processing, file availability or delivery.",
+        "Bound title to 160 characters and filename/reason to 255 with database-side sentinel projections; reject oversized retained values or a complete response above 256 KiB, including the common envelope, without silent truncation. Bound the service read to five seconds; authorization/transport/audit bounds remain separate.",
+        "Mark titles, filenames and reasons as untrusted business text. Exclude storage locators, file bytes, hashes, processing leases, model internals and token usage from the projection; use static safe errors for unavailable scope, invalid cursors and resource bounds.",
+        "Allow only the shared invocation audit as an MCP effect; no business write/removal, processing/retry/upload/export, AI/provider/storage call, operation/idempotency key, artifact or export-history change."
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/ecr_read_tools.py",
+        "evidence": [
+          "backend/tests/integration/test_mcp_ecr_reads.py",
+          "backend/tests/unit/presentation/test_ecr_checker.py",
+          "backend/tests/service_integration/test_mcp_ecr_reads_postgresql.py",
+          "docs/implementation/mcp-ecr-read-checkpoint.md"
+        ]
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/ecr_checker.py:retry_ecr_batch:POST:/batches/{batch_id}/retry",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/ecr_checker.py",
+        "handler": "retry_ecr_batch",
+        "method": "POST",
+        "local_path": "/batches/{batch_id}/retry",
+        "contract_sha256": "11da4e3d88d192562b9d94fc8f31958d6b940be0e942adb7e2d4deff085fa3a9",
+        "summary": "retry ecr batch",
+        "schema_visible": true
+      },
+      "workflow": "ecr-checker.retry-ecr-batch",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/ecr_checker.py:start_ecr_batch:POST:/batches/{batch_id}/start",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/ecr_checker.py",
+        "handler": "start_ecr_batch",
+        "method": "POST",
+        "local_path": "/batches/{batch_id}/start",
+        "contract_sha256": "0feb1a8a29ff28e3d30efb2b2dcedf7d3750d38adae8edfb6f18c21b86a837f6",
+        "summary": "start ecr batch",
+        "schema_visible": true
+      },
+      "workflow": "ecr-checker.start-ecr-batch",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/ecr_checker.py:upload_ecr_items:POST:/batches/{batch_id}/items",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/ecr_checker.py",
+        "handler": "upload_ecr_items",
+        "method": "POST",
+        "local_path": "/batches/{batch_id}/items",
+        "contract_sha256": "3dd8028dc203151e7ca29242cf57c607ff6b86aaaa44b95dedd9c80527820a50",
+        "summary": "upload ecr items",
+        "schema_visible": true
+      },
+      "workflow": "ecr-checker.upload-ecr-items",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/email_integration_connections.py:disconnect_email_connection:DELETE:/connections/{connection_id}",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/email_integration_connections.py",
+        "handler": "disconnect_email_connection",
+        "method": "DELETE",
+        "local_path": "/connections/{connection_id}",
+        "contract_sha256": "731d89237cb2943c3b792a4617fdf28587c6fc23edb498f5a9f03c5be110944d",
+        "summary": "disconnect email connection",
+        "schema_visible": true
+      },
+      "workflow": "email.disconnect-email-connection",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Disconnect provider access while retaining the mailbox connection and its business data. Credential revocation and disposal are security controls; the separate connection-and-data removal endpoint remains outside MCP authority.",
+      "adapter_requirements": [
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "preserve_mailbox_business_data_and_audit",
+        "provider_revocation_reconciliation",
+        "owned_connection_authorization",
+        "no_removal_effect_audit"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "source_reviewed_adapter_verification_required"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/email_integration_connections.py:pause_connection:POST:/connections/{connection_id}/pause",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/email_integration_connections.py",
+        "handler": "pause_connection",
+        "method": "POST",
+        "local_path": "/connections/{connection_id}/pause",
+        "contract_sha256": "8aa92943eff528d0e5679abb4349ea2cc2327bfd6ce48d74c32142eab3a3a3f9",
+        "summary": "pause connection",
+        "schema_visible": true
+      },
+      "workflow": "email.pause-connection",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/email_integration_connections.py:remove_email_connection_and_data:DELETE:/connections/{connection_id}/data",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/email_integration_connections.py",
+        "handler": "remove_email_connection_and_data",
+        "method": "DELETE",
+        "local_path": "/connections/{connection_id}/data",
+        "contract_sha256": "5447440799d060f7a8caf67ab5f73d9eeda841cf52fc78d4dd929d10f2282b6d",
+        "summary": "remove email connection and data",
+        "schema_visible": true
+      },
+      "workflow": "email.remove-email-connection-and-data",
+      "disposition": "manual_removal",
+      "phase": null,
+      "rationale": "Record, file, membership, archive or destructive cancellation/removal effects are outside MCP authority and remain manual.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      },
+      "exclusion_boundary": "no_removal"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/email_integration_connections.py:resume_connection:POST:/connections/{connection_id}/resume",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/email_integration_connections.py",
+        "handler": "resume_connection",
+        "method": "POST",
+        "local_path": "/connections/{connection_id}/resume",
+        "contract_sha256": "fd1136ce1908e820f9b7a731a82414634e39dddb3e608ae3e3ac1006e7e8f0e7",
+        "summary": "resume connection",
+        "schema_visible": true
+      },
+      "workflow": "email.resume-connection",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/email_integration_connections.py:sync_connection:POST:/connections/{connection_id}/sync",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/email_integration_connections.py",
+        "handler": "sync_connection",
+        "method": "POST",
+        "local_path": "/connections/{connection_id}/sync",
+        "contract_sha256": "81a0ff627a56f376ae373f5398a0ee727feadf19074763f29f28ddf807a3c7c9",
+        "summary": "sync connection",
+        "schema_visible": true
+      },
+      "workflow": "email.sync-connection",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/email_integration_connections.py:update_connection_ai_settings:PUT:/connections/{connection_id}/ai-settings",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/email_integration_connections.py",
+        "handler": "update_connection_ai_settings",
+        "method": "PUT",
+        "local_path": "/connections/{connection_id}/ai-settings",
+        "contract_sha256": "5d8a909a7b540884ec35fe4eb83bb619b4dbf2eee06c02a98a96bb08eabfbe79",
+        "summary": "update connection ai settings",
+        "schema_visible": true
+      },
+      "workflow": "email.update-connection-ai-settings",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/passport_image_library.py:get_passport_image_library_item:GET:/{submission_id}/images/{image_type}/library/{item_id}/image",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/passport_image_library.py",
+        "handler": "get_passport_image_library_item",
+        "method": "GET",
+        "local_path": "/{submission_id}/images/{image_type}/library/{item_id}/image",
+        "contract_sha256": "b979c845052e882a75b456f6afdcaba114efa03a549c4da1b886be2692843b5e",
+        "summary": "Stream one authorized passport image-library item",
+        "schema_visible": true
+      },
+      "workflow": "passport.get-passport-image-library-item",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "protected_artifact_and_verified_delivery",
+        "preserve_export_history_generation_vs_delivery"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/passport_image_library.py:list_passport_image_library:GET:/{submission_id}/images/{image_type}/library",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/passport_image_library.py",
+        "handler": "list_passport_image_library",
+        "method": "GET",
+        "local_path": "/{submission_id}/images/{image_type}/library",
+        "contract_sha256": "3aa091132dcec054084a847eba082d68210d9a8bf3f45adec3123a44530d05cb",
+        "summary": "List original, manual, and AI variants for one passport image",
+        "schema_visible": true
+      },
+      "workflow": "passport.list-passport-image-library",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "protected_artifact_and_verified_delivery",
+        "preserve_export_history_generation_vs_delivery"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/passport_image_library.py:upload_passport_image_library_item:POST:/{submission_id}/images/{image_type}/library",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/passport_image_library.py",
+        "handler": "upload_passport_image_library_item",
+        "method": "POST",
+        "local_path": "/{submission_id}/images/{image_type}/library",
+        "contract_sha256": "3e9990626537a043782e580f4122a327c8304ac25f2272f9b77c7e02a4dddedd",
+        "summary": "Upload a manual image and make it the current passport image",
+        "schema_visible": true
+      },
+      "workflow": "passport.upload-passport-image-library-item",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "protected_artifact_and_verified_delivery",
+        "preserve_export_history_generation_vs_delivery",
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/passport_image_library.py:use_passport_image_library_item:POST:/{submission_id}/images/{image_type}/library/{item_id}/use",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/passport_image_library.py",
+        "handler": "use_passport_image_library_item",
+        "method": "POST",
+        "local_path": "/{submission_id}/images/{image_type}/library/{item_id}/use",
+        "contract_sha256": "ef9b7881a4ea346e1a661ff16b6d170eacfffba54e78b471a7ccdce9ac2031a6",
+        "summary": "Make one original, manual, or AI library item current",
+        "schema_visible": true
+      },
+      "workflow": "passport.use-passport-image-library-item",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "protected_artifact_and_verified_delivery",
+        "preserve_export_history_generation_vs_delivery",
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Retain source/library/edit history when activating a version."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "confirmed_adapter_required"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/passport_routes/bulk_actions.py:bulk_delete_passport_submissions:POST:/groups/{group_id}/bulk-delete",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions.py",
+        "handler": "bulk_delete_passport_submissions",
+        "method": "POST",
+        "local_path": "/groups/{group_id}/bulk-delete",
+        "contract_sha256": "30552f94d487a6635d2f69cc3be3520feec4778969fc911a4d56a2c6997c8a25",
+        "summary": "Permanently delete selected passport submissions from a group",
+        "schema_visible": true
+      },
+      "workflow": "passport.bulk-delete-passport-submissions",
+      "disposition": "manual_removal",
+      "phase": null,
+      "rationale": "Record, file, membership, archive or destructive cancellation/removal effects are outside MCP authority and remain manual.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      },
+      "exclusion_boundary": "no_removal"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/passport_routes/bulk_actions.py:bulk_staff_approve_passport_submissions:POST:/groups/{group_id}/bulk-staff-approve",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions.py",
+        "handler": "bulk_staff_approve_passport_submissions",
+        "method": "POST",
+        "local_path": "/groups/{group_id}/bulk-staff-approve",
+        "contract_sha256": "fdab212b4c05d6db27f741aadf8ac8faa96d45bd899f54556ccd142c7b49456b",
+        "summary": "Staff approve selected completed passport submissions",
+        "schema_visible": true
+      },
+      "workflow": "passport.bulk-staff-approve-passport-submissions",
+      "disposition": "implement",
+      "phase": 5,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/passport_routes/contact_verification.py:request_public_contact_otp:POST:/{submission_id}/contact-otp/request",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/passport_routes/contact_verification.py",
+        "handler": "request_public_contact_otp",
+        "method": "POST",
+        "local_path": "/{submission_id}/contact-otp/request",
+        "contract_sha256": "9bb825a4b668b86adce1eed4458860e1a45eaaa1d826b0c4c61a1751b5c1a31f",
+        "summary": "request public contact otp",
+        "schema_visible": true
+      },
+      "workflow": "passport.request-public-contact-otp",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Existing UI, authentication, provider callback or physical/device protocol dependency; business adapters use the corresponding application services without fabricating client/physical evidence or bypassing consent.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/passport_routes/contact_verification.py:verify_public_contact_otp:POST:/{submission_id}/contact-otp/verify",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/passport_routes/contact_verification.py",
+        "handler": "verify_public_contact_otp",
+        "method": "POST",
+        "local_path": "/{submission_id}/contact-otp/verify",
+        "contract_sha256": "a03dcb109f429dc617c99c117e9c8d8b091e10460766244cbdf8f77b6fb04065",
+        "summary": "verify public contact otp",
+        "schema_visible": true
+      },
+      "workflow": "passport.verify-public-contact-otp",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Existing UI, authentication, provider callback or physical/device protocol dependency; business adapters use the corresponding application services without fabricating client/physical evidence or bypassing consent.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/passport_routes/images.py:get_passport_image_crop:GET:/{submission_id}/images/{image_type}/crop",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/passport_routes/images.py",
+        "handler": "get_passport_image_crop",
+        "method": "GET",
+        "local_path": "/{submission_id}/images/{image_type}/crop",
+        "contract_sha256": "a43d816854e1791f19b58235510e4d5285f466ae133f3a3b8878eba3d9c03e25",
+        "summary": "Get crop-editor metadata for one passport image",
+        "schema_visible": true
+      },
+      "workflow": "passport.get-passport-image-crop",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "protected_artifact_and_verified_delivery",
+        "preserve_export_history_generation_vs_delivery"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/passport_routes/images.py:get_passport_image_edit_source:GET:/{submission_id}/images/{image_type}/edit-source",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/passport_routes/images.py",
+        "handler": "get_passport_image_edit_source",
+        "method": "GET",
+        "local_path": "/{submission_id}/images/{image_type}/edit-source",
+        "contract_sha256": "cd8b35743f5a626af61a36b04955a408cf555b9c1a4811e1115db5c4861fae35",
+        "summary": "Stream the current full-resolution source to an authorized image editor",
+        "schema_visible": true
+      },
+      "workflow": "passport.get-passport-image-edit-source",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "protected_artifact_and_verified_delivery",
+        "preserve_export_history_generation_vs_delivery"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/passport_routes/images.py:get_passport_image_original:GET:/{submission_id}/images/{image_type}/original",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/passport_routes/images.py",
+        "handler": "get_passport_image_original",
+        "method": "GET",
+        "local_path": "/{submission_id}/images/{image_type}/original",
+        "contract_sha256": "93a5a81a5d3b1b3c9f02b7b2f812fcef18ef8443e13a3e9ad939aa3a961439ef",
+        "summary": "Stream an immutable original image to an authorized crop editor",
+        "schema_visible": true
+      },
+      "workflow": "passport.get-passport-image-original",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "protected_artifact_and_verified_delivery",
+        "preserve_export_history_generation_vs_delivery"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/passport_routes/images.py:get_passport_image_thumbnail:GET:/{submission_id}/images/{image_type}/thumbnail",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/passport_routes/images.py",
+        "handler": "get_passport_image_thumbnail",
+        "method": "GET",
+        "local_path": "/{submission_id}/images/{image_type}/thumbnail",
+        "contract_sha256": "a0031156f8dbc0dfda62a1dd1e6562ea9209606c771c0440633d88b9263c8305",
+        "summary": "Return a bounded authenticated dashboard thumbnail",
+        "schema_visible": true
+      },
+      "workflow": "passport.get-passport-image-thumbnail",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "protected_artifact_and_verified_delivery",
+        "preserve_export_history_generation_vs_delivery"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/passport_routes/images.py:get_passport_image_view:GET:/{submission_id}/images/{image_type}",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/passport_routes/images.py",
+        "handler": "get_passport_image_view",
+        "method": "GET",
+        "local_path": "/{submission_id}/images/{image_type}",
+        "contract_sha256": "9ec84f5367a270a11053deec4a7f528ad9587900b3742b209385ee3099b6a30a",
+        "summary": "Stream the effective staff view of a passport image",
+        "schema_visible": true
+      },
+      "workflow": "passport.get-passport-image-view",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "protected_artifact_and_verified_delivery",
+        "preserve_export_history_generation_vs_delivery"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/passport_routes/images.py:reset_passport_image_crop:DELETE:/{submission_id}/images/{image_type}/crop",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/passport_routes/images.py",
+        "handler": "reset_passport_image_crop",
+        "method": "DELETE",
+        "local_path": "/{submission_id}/images/{image_type}/crop",
+        "contract_sha256": "746c6b9f4eb270dd000417f0e459315c6bcce4c4516e41835efec7508eb188d0",
+        "summary": "Reset a passport image to its immutable original",
+        "schema_visible": true
+      },
+      "workflow": "passport.reset-passport-image-crop",
+      "disposition": "manual_removal",
+      "phase": null,
+      "rationale": "Record, file, membership, archive or destructive cancellation/removal effects are outside MCP authority and remain manual.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      },
+      "exclusion_boundary": "no_removal"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/passport_routes/images.py:update_passport_image_crop:PUT:/{submission_id}/images/{image_type}/crop",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/passport_routes/images.py",
+        "handler": "update_passport_image_crop",
+        "method": "PUT",
+        "local_path": "/{submission_id}/images/{image_type}/crop",
+        "contract_sha256": "2ca203ada4d021381f58acf8d54c3da67a489bbc53bfe0b69c24aad3fea6c7aa",
+        "summary": "Save a non-destructive crop for one passport image",
+        "schema_visible": true
+      },
+      "workflow": "passport.update-passport-image-crop",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "protected_artifact_and_verified_delivery",
+        "preserve_export_history_generation_vs_delivery",
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Keep source image, crop/edit versions and prior artifacts; no derived-file purge."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "confirmed_adapter_required"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/passport_routes/public_upload.py:discard_public_upload:DELETE:/upload/{token}/{submission_id}",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/passport_routes/public_upload.py",
+        "handler": "discard_public_upload",
+        "method": "DELETE",
+        "local_path": "/upload/{token}/{submission_id}",
+        "contract_sha256": "58983f6734247a6b5ff3710ad197c6389a685533f95e1d3e1711c48f8783e28a",
+        "summary": "Discard an unsubmitted public passport draft",
+        "schema_visible": true
+      },
+      "workflow": "passport.discard-public-upload",
+      "disposition": "manual_removal",
+      "phase": null,
+      "rationale": "Record, file, membership, archive or destructive cancellation/removal effects are outside MCP authority and remain manual.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      },
+      "exclusion_boundary": "no_removal"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/passport_routes/public_upload.py:get_public_upload_passport_document:GET:/upload/{token}/{submission_id}/image/{document_type}",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/passport_routes/public_upload.py",
+        "handler": "get_public_upload_passport_document",
+        "method": "GET",
+        "local_path": "/upload/{token}/{submission_id}/image/{document_type}",
+        "contract_sha256": "ce6c3bd230e6408b4fdd220bbdbd8ddeb4adb0f6436dd702f8d31a742cfb9bf5",
+        "summary": "Stream one stored public passport document through the API",
+        "schema_visible": true
+      },
+      "workflow": "passport.get-public-upload-passport-document",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Existing UI, authentication, provider callback or physical/device protocol dependency; business adapters use the corresponding application services without fabricating client/physical evidence or bypassing consent.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/passport_routes/public_upload.py:get_public_upload_passport_image:GET:/upload/{token}/{submission_id}/image",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/passport_routes/public_upload.py",
+        "handler": "get_public_upload_passport_image",
+        "method": "GET",
+        "local_path": "/upload/{token}/{submission_id}/image",
+        "contract_sha256": "5fdd2fb12158a426a589b338d496dfb3fb2617d611c07dd6cf5da56190097a76",
+        "summary": "Stream a public upload passport image through the API",
+        "schema_visible": true
+      },
+      "workflow": "passport.get-public-upload-passport-image",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Existing UI, authentication, provider callback or physical/device protocol dependency; business adapters use the corresponding application services without fabricating client/physical evidence or bypassing consent.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/passport_routes/public_upload.py:get_upload_passport_status:GET:/upload/{token}/{submission_id}/status",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/passport_routes/public_upload.py",
+        "handler": "get_upload_passport_status",
+        "method": "GET",
+        "local_path": "/upload/{token}/{submission_id}/status",
+        "contract_sha256": "a44e199cdf5e771443d260cab67118c6285875b60fbca89eed732f31dc31a15c",
+        "summary": "Poll passport extraction status for a public upload",
+        "schema_visible": true
+      },
+      "workflow": "passport.get-upload-passport-status",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Existing UI, authentication, provider callback or physical/device protocol dependency; business adapters use the corresponding application services without fabricating client/physical evidence or bypassing consent.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/passport_routes/public_upload.py:prepare_public_upload_file:POST:/upload/{token}/prepare-file",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/passport_routes/public_upload.py",
+        "handler": "prepare_public_upload_file",
+        "method": "POST",
+        "local_path": "/upload/{token}/prepare-file",
+        "contract_sha256": "5a34e854a06a9ef90254d8187bbf91942a866225a230143bddf05b8c7db92dec",
+        "summary": "Validate and preview one passport page or Visa Photo file (Public)",
+        "schema_visible": true
+      },
+      "workflow": "passport.prepare-public-upload-file",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Existing UI, authentication, provider callback or physical/device protocol dependency; business adapters use the corresponding application services without fabricating client/physical evidence or bypassing consent.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/passport_routes/public_upload.py:reconcile_passport_upload:PUT:/upload/{token}",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/passport_routes/public_upload.py",
+        "handler": "reconcile_passport_upload",
+        "method": "PUT",
+        "local_path": "/upload/{token}",
+        "contract_sha256": "a8291c8888a4f08010899cb26a8643713a643b3fdab0421dab69dac7e6aa6e99",
+        "summary": "Recover a durable passport upload by its attempt identifier (Public)",
+        "schema_visible": true
+      },
+      "workflow": "passport.reconcile-passport-upload",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Existing UI, authentication, provider callback or physical/device protocol dependency; business adapters use the corresponding application services without fabricating client/physical evidence or bypassing consent.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/passport_routes/public_upload.py:scan_again_public_upload:POST:/upload/{token}/{submission_id}/scan-again",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/passport_routes/public_upload.py",
+        "handler": "scan_again_public_upload",
+        "method": "POST",
+        "local_path": "/upload/{token}/{submission_id}/scan-again",
+        "contract_sha256": "f21a7230ca36ed47195735efc34afed11414da0bc4b43f7f525c07e842441272",
+        "summary": "Retry AI passport extraction for a public upload",
+        "schema_visible": true
+      },
+      "workflow": "passport.scan-again-public-upload",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Existing UI, authentication, provider callback or physical/device protocol dependency; business adapters use the corresponding application services without fabricating client/physical evidence or bypassing consent.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/passport_routes/public_upload.py:upload_passport:POST:/upload/{token}",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/passport_routes/public_upload.py",
+        "handler": "upload_passport",
+        "method": "POST",
+        "local_path": "/upload/{token}",
+        "contract_sha256": "1e1c5f72876b5bc49cb57ca2a6a2bc99fe4cda83173aa733ad5ec3d3036fa549",
+        "summary": "Submit a passport image using a secure token (Public)",
+        "schema_visible": true
+      },
+      "workflow": "passport.upload-passport",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Existing UI, authentication, provider callback or physical/device protocol dependency; business adapters use the corresponding application services without fabricating client/physical evidence or bypassing consent.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/passport_routes/submission_review.py:cancel_passport_processing:POST:/{submission_id}/cancel-processing",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/passport_routes/submission_review.py",
+        "handler": "cancel_passport_processing",
+        "method": "POST",
+        "local_path": "/{submission_id}/cancel-processing",
+        "contract_sha256": "e9010aad114f3bc3085e3592161b70d9866985cc4045d7ce3f57a76e587b1b4c",
+        "summary": "Request cancellation of queued passport extraction",
+        "schema_visible": true
+      },
+      "workflow": "passport.cancel-passport-processing",
+      "disposition": "implement",
+      "phase": 5,
+      "rationale": "Cancel retained processing work through an authorized operation: the source requests cancellation and marks retained job/submission state; it does not remove the business record or source file.",
+      "adapter_requirements": [
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "preserve_job_submission_and_source_files",
+        "verify_worker_cancellation_preserves_extracted_fields_and_revisions",
+        "no_removal_effect_audit"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "source_reviewed_adapter_verification_required"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/passport_routes/submission_review.py:client_submit_passport:POST:/{submission_id}/client-submit",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/passport_routes/submission_review.py",
+        "handler": "client_submit_passport",
+        "method": "POST",
+        "local_path": "/{submission_id}/client-submit",
+        "contract_sha256": "789dfb1807af97bd3de897b95d424d4963f9367420e33a4fedb8bc83c789cf96",
+        "summary": "Submit client-reviewed passport fields (Public)",
+        "schema_visible": true
+      },
+      "workflow": "passport.client-submit-passport",
+      "disposition": "implement",
+      "phase": 5,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/passport_routes/submission_review.py:confirm_passport:POST:/{submission_id}/confirm",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/passport_routes/submission_review.py",
+        "handler": "confirm_passport",
+        "method": "POST",
+        "local_path": "/{submission_id}/confirm",
+        "contract_sha256": "bab53ac3bc89c7fe6ecdc6a30012c68b376a486632c16c5bcdf0ece639572077",
+        "summary": "Confirm reviewed passport fields",
+        "schema_visible": true
+      },
+      "workflow": "passport.confirm-passport",
+      "disposition": "implement",
+      "phase": 5,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/passport_routes/submission_review.py:get_passport:GET:/{submission_id}",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/passport_routes/submission_review.py",
+        "handler": "get_passport",
+        "method": "GET",
+        "local_path": "/{submission_id}",
+        "contract_sha256": "308b1070ce8d9dc0892749b2f4e7bb3290c3207d995a1cfa7d51b7b34877e96d",
+        "summary": "Get a passport submission by id",
+        "schema_visible": true
+      },
+      "workflow": "passport.get-passport",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/passport_routes/submission_review.py:reextract_passport:POST:/{submission_id}/reextract",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/passport_routes/submission_review.py",
+        "handler": "reextract_passport",
+        "method": "POST",
+        "local_path": "/{submission_id}/reextract",
+        "contract_sha256": "860ae4932be3751d3a4d2725446d6df3ef97e58a6afb7d9afd584af0d5122bc8",
+        "summary": "Rerun automatic extraction for a passport submission",
+        "schema_visible": true
+      },
+      "workflow": "passport.reextract-passport",
+      "disposition": "implement",
+      "phase": 5,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/passport_routes/submission_review.py:retry_post_submission_verification:POST:/{submission_id}/retry-ai-verification",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/passport_routes/submission_review.py",
+        "handler": "retry_post_submission_verification",
+        "method": "POST",
+        "local_path": "/{submission_id}/retry-ai-verification",
+        "contract_sha256": "ed7bcb2718964691bc093612d1dc3c539c2395791a6e1fc7551ec43557347897",
+        "summary": "Retry AI verification after a temporary provider failure",
+        "schema_visible": true
+      },
+      "workflow": "passport.retry-post-submission-verification",
+      "disposition": "implement",
+      "phase": 5,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/passport_routes/submission_review.py:staff_approve_passport:POST:/{submission_id}/staff-approve",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/passport_routes/submission_review.py",
+        "handler": "staff_approve_passport",
+        "method": "POST",
+        "local_path": "/{submission_id}/staff-approve",
+        "contract_sha256": "3d007480340a9fce0349cbd6c41dbcfd416d866a7bf6b38d68656b3afc5eac4d",
+        "summary": "Approve a passport that needs post-submission review",
+        "schema_visible": true
+      },
+      "workflow": "passport.staff-approve-passport",
+      "disposition": "implement",
+      "phase": 5,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/passport_routes/visa_ai_edits.py:apply_visa_ai_image_edit:POST:/{submission_id}/images/visa_photo/ai-apply",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_edits.py",
+        "handler": "apply_visa_ai_image_edit",
+        "method": "POST",
+        "local_path": "/{submission_id}/images/visa_photo/ai-apply",
+        "contract_sha256": "7b7b2bedc1b632b84d2491f4ca793adaa27dc21d2f9fa210e14f90568274a5b9",
+        "summary": "Save a Visa AI edit with crop and sharpness metadata",
+        "schema_visible": true
+      },
+      "workflow": "passport.apply-visa-ai-image-edit",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "protected_artifact_and_verified_delivery",
+        "preserve_export_history_generation_vs_delivery",
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Keep original image and every existing derived version; no replacement cleanup."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "confirmed_adapter_required"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/passport_routes/visa_ai_edits.py:preview_visa_ai_image_edit:POST:/{submission_id}/images/visa_photo/ai-preview",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_edits.py",
+        "handler": "preview_visa_ai_image_edit",
+        "method": "POST",
+        "local_path": "/{submission_id}/images/visa_photo/ai-preview",
+        "contract_sha256": "e2461a62df7812adf509207bf7c53e204f679209feeb5062903e58f4883ef050",
+        "summary": "Generate an identity-preserving Visa photo edit preview",
+        "schema_visible": true
+      },
+      "workflow": "passport.preview-visa-ai-image-edit",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "protected_artifact_and_verified_delivery",
+        "preserve_export_history_generation_vs_delivery",
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library.py:create_visa_ai_library_image:POST:/{submission_id}/images/visa_photo/ai-library",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library.py",
+        "handler": "create_visa_ai_library_image",
+        "method": "POST",
+        "local_path": "/{submission_id}/images/visa_photo/ai-library",
+        "contract_sha256": "84cfd6a21faaec3a2ef0d36414acc8e0cea946b9b7bbd30f243798d71b680a4f",
+        "summary": "Generate and automatically save a Visa AI image",
+        "schema_visible": true
+      },
+      "workflow": "passport.create-visa-ai-library-image",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "protected_artifact_and_verified_delivery",
+        "preserve_export_history_generation_vs_delivery",
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library.py:get_visa_ai_library_image:GET:/{submission_id}/images/visa_photo/ai-library/{generation_id}/image",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library.py",
+        "handler": "get_visa_ai_library_image",
+        "method": "GET",
+        "local_path": "/{submission_id}/images/visa_photo/ai-library/{generation_id}/image",
+        "contract_sha256": "15de5edc3459284719b445fbe1d1a957262bb503a4294875ba9cf85bdf94fd1f",
+        "summary": "Stream one saved Visa AI image generation",
+        "schema_visible": true
+      },
+      "workflow": "passport.get-visa-ai-library-image",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "protected_artifact_and_verified_delivery",
+        "preserve_export_history_generation_vs_delivery"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library.py:list_visa_ai_image_library:GET:/{submission_id}/images/visa_photo/ai-library",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library.py",
+        "handler": "list_visa_ai_image_library",
+        "method": "GET",
+        "local_path": "/{submission_id}/images/visa_photo/ai-library",
+        "contract_sha256": "d62e91b19bf481ab2fafb2dddf686c763632194f70d7303982887c17fa92ea26",
+        "summary": "List saved Visa AI image generations",
+        "schema_visible": true
+      },
+      "workflow": "passport.list-visa-ai-image-library",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "protected_artifact_and_verified_delivery",
+        "preserve_export_history_generation_vs_delivery"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library.py:use_visa_ai_library_image:POST:/{submission_id}/images/visa_photo/ai-library/{generation_id}/use",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library.py",
+        "handler": "use_visa_ai_library_image",
+        "method": "POST",
+        "local_path": "/{submission_id}/images/visa_photo/ai-library/{generation_id}/use",
+        "contract_sha256": "3dade8767baddc03d8371450770a88c358fd4ac1d057fc2878e0a62fb3435bed",
+        "summary": "Use one saved Visa AI image as the active Visa photo",
+        "schema_visible": true
+      },
+      "workflow": "passport.use-visa-ai-library-image",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "protected_artifact_and_verified_delivery",
+        "preserve_export_history_generation_vs_delivery",
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Retain source/library/edit history when activating a version."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "confirmed_adapter_required"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/whatsapp_composer.py:upload_welcome_media:POST:/groups/{group_id}/welcome-media",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/whatsapp_composer.py",
+        "handler": "upload_welcome_media",
+        "method": "POST",
+        "local_path": "/groups/{group_id}/welcome-media",
+        "contract_sha256": "99e941068ac445d037ca65c222324c5d9dbd1fdf9795e5006d461a991ae3c6a8",
+        "summary": "upload welcome media",
+        "schema_visible": true
+      },
+      "workflow": "whatsapp.upload-welcome-media",
+      "disposition": "implement",
+      "phase": 5,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    }
+  ]
+}

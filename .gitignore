@@ -1,5 +1,5 @@
 # ============================================================
-# .gitignore — PassDetection Platform
+# .gitignore — Global Connects Dashboard
 # ============================================================
 
 # ── Environment & Secrets ─────────────────────────────────
@@ -113,3 +113,6 @@ Smart COPY-PASTE/
 /.tmp/
 /output/
 /full_chat_transcript_*.txt
+
+# Local unrelated utilities and private office documents relocated together.
+/Not related to project/

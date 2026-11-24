@@ -1,0 +1,30 @@
+{
+  "exit_code": 0,
+  "tests": [
+    "tests/integration/test_my_photos_index_publication.py",
+    "tests/integration/test_my_photos_delivery_freshness.py",
+    "tests/integration/test_my_photos_reference_freshness.py",
+    "tests/unit/infrastructure/test_my_photos_migration.py"
+  ],
+  "source_and_test_sha256": {
+    "backend/app/infrastructure/database/my_photo_delivery_models.py": "53f6c59cf80557b2637dac2ee695fc3fc289404cc9adb65d76f3c1fa2abf1372",
+    "backend/app/infrastructure/database/my_photo_enrollment_models.py": "12c5485971cb84d4352aa9da033093e5b45a06620b1a57c3c9f690c186367092",
+    "backend/app/infrastructure/database/my_photo_face_models.py": "815ac41087eb0de4d91e2866a13aa09b86fd76fb95b278b21dce3e7f2c6d1e53",
+    "backend/app/infrastructure/database/my_photo_gallery_models.py": "85a36a0d57fcf4785ec99c91197c7d1f1069ba9c8b9b303800285021093ea1f7",
+    "backend/app/infrastructure/database/my_photo_job_models.py": "1c058f8337a89b3e9b33beeca07ac5bff03f08e7f95140a0d80ad620cdf253c0",
+    "backend/app/infrastructure/database/my_photo_liveness_models.py": "9940d1ee388d9e6026e9e096c5b6421187a9e1547f8d04a4a5bfffef10c022fd",
+    "backend/app/infrastructure/database/my_photo_media_models.py": "f2553c9fc595913e71a896e91dadc2755bda211459cc61bc53c42dff799844a6",
+    "backend/app/infrastructure/database/my_photo_search_models.py": "8e20ef722c49997afc5f7ac857609cd142ebc16baa848ffd570138c7e2c05a67",
+    "backend/app/infrastructure/database/my_photos_models.py": "4b0e472e09be93233015330d740be5951cf0327bba7d3d64a6ceb40435bee93f",
+    "backend/tests/integration/test_my_photos_index_publication.py": "d599bbe660ab9e190072e62c484d8c4ebf828df8b9a5f30f59ae1b7b44299dba",
+    "backend/tests/integration/test_my_photos_delivery_freshness.py": "2655dd50a8ceac588562d97b8555f37622907de4bbbe5fbcd1d9f89e2930b04a",
+    "backend/tests/integration/test_my_photos_reference_freshness.py": "7fcc52aff7e86a0957989b856ede6016c9eb33eee123658f1ce6a39ce53aba07",
+    "backend/tests/unit/infrastructure/test_my_photos_migration.py": "7de4abff3f565c5fa1874a4682ef5cc9414b7d3adfe1cab75e666351bab8e485"
+  },
+  "source_fence_unchanged": true,
+  "coverage_file": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\my-photos-model-checkpoint.coverage",
+  "fresh_process_metadata_equal": true,
+  "registered_tables_and_mappers": 174,
+  "photo_tables": 12,
+  "limits": "Actual isolated SQLite workflows plus byte-equal compiled PG/SQLite DDL/mapper/default/alias metadata; not live PostgreSQL or populated migration qualification. No production state, providers or schema operations."
+}

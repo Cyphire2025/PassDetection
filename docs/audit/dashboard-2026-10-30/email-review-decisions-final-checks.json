@@ -1,0 +1,36 @@
+{
+  "command": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "tests/unit/presentation/test_email_review_decision_paths.py",
+    "tests/unit/presentation/test_email_review_decision_storage.py",
+    "tests/unit/presentation/test_email_ai_inbox_isolation.py::test_marking_message_unrelated_revokes_an_inflight_ai_claim",
+    "tests/unit/presentation/test_email_integration_route_decomposition.py",
+    "tests/unit/presentation/test_email_integration_contract.py::test_review_actions_require_a_staged_assignable_document",
+    "tests/unit/presentation/test_email_integration_contract.py::test_human_review_can_supply_a_supported_document_type",
+    "--cov=app/presentation/api/v1/routes",
+    "--cov-branch",
+    "--cov-report=",
+    "--cov-report=json:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\email-review-decisions-final-coverage.json",
+    "--cov-report=xml:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\email-review-decisions-final-coverage.xml"
+  ],
+  "exit_code": 0,
+  "log": "docs/audit/dashboard-2026-10-30/email-review-decisions-final-tests.log",
+  "sha256": "3d33c16abe44c1c315cbd4543de0ea680cca0f87fac1abdc5328344daee55356",
+  "source_fence": {
+    "backend/app/presentation/api/v1/routes/email_integration_review_decisions.py": "c42a2e6cc6bd7e9137cc9e106c35114dd95a608def14154aaaac63f053d83bd1",
+    "backend/app/presentation/api/v1/routes/email_integrations.py": "6b8b8df006d06009b7202f030b91d0f884eed7dcc6880416e04aa0db512d26bf",
+    "backend/app/presentation/api/v1/routes/email_review_actions.py": "6c27816ec4946d43dc5340334fe7da50896fe3085de4768abc200ae9b1844f98",
+    "backend/app/presentation/api/v1/routes/email_review_context.py": "7f09eb79d73d14c2816417d675c48f2b35b9d4acb581e49c3566f87908b3b066",
+    "backend/tests/email_review_decision_fixtures.py": "6fc758bbaf9634e41e677802294e320ea19f659df109f11b7bcfcf26de8fb026",
+    "backend/tests/unit/presentation/test_email_ai_inbox_isolation.py": "5e8ac0d2db1cd7d29af3bbdd4cfe864295563f1a77dcf5405d2574bf88e13a8c",
+    "backend/tests/unit/presentation/test_email_integration_contract.py": "90600186690bfeb92fa3abeee378c071c8227a1dcb8dea82be958daecfc80c2f",
+    "backend/tests/unit/presentation/test_email_integration_route_decomposition.py": "7a0dc81a5b12e9f3a95b70aaf149976051b82c0ed06f981d47bbd5a7faf4ebf4",
+    "backend/tests/unit/presentation/test_email_review_decision_paths.py": "71f42a1adf4117bb3e171b7537ec17dcfed5f6b508b5d69550d8e20e13a071c9",
+    "backend/tests/unit/presentation/test_email_review_decision_storage.py": "c35d977b0aae6e287a8853c9be66c7d028a274829b089c50749c99fee4669a28"
+  }
+}

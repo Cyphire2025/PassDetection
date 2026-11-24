@@ -1,0 +1,166 @@
+{
+  "status": "passed; current sources frozen at focused99case fence",
+  "neutral_algorithm_whole_AST_inverse_exact": true,
+  "neutral_engine_deltas": "Only original private check function renamed to neutral public check and original member-limit exception name replaced by generic core exception. Footer/header/offset/actualrecord/ZIP64/truncation algorithm exact; no quota default.",
+  "original_passport_exception_class_and_public_cursor_function_whole_AST_exact": true,
+  "six_constant_aliases_canonical": [
+    "_CENTRAL_HEADER",
+    "_CENTRAL_SIGNATURE",
+    "_END_DIRECTORY_SIZE",
+    "_END_DIRECTORY_LOCATION",
+    "_VARIABLE_LENGTH_FIELDS",
+    "_EndRecordReader"
+  ],
+  "original_passport_function_and_exception_pickle_roundtrip": true,
+  "all_original_interfaces_signatures_evaluated_hints_exact": [
+    "admit_passport_zip_directory",
+    "_check_directory",
+    "_append_excel_contact_rejection",
+    "_unlabelled_phone_candidates",
+    "_parse_excel_contact_bytes",
+    "_parse_excel_contact_preview",
+    "_parse_excel_contacts_result",
+    "_parse_excel_contacts",
+    "preview_excel_contacts"
+  ],
+  "whatsapp_values_module_AST_inverse_exact": true,
+  "whatsapp_parser_module_AST_inverse_exact": true,
+  "explicit_changes": [
+    "Original passport private checker is a translation wrapper; local public exception type/message/aliases retained, new generic error cause is an explicit implementation detail",
+    "WA constructs BytesIO and checks actual ZIP directory before ZipInfo allocation, translating only member quota to exact old SpreadsheetArchiveCapacityError/message; original whole downstream validation loop unchanged",
+    "One reset_dimensions call uses actual XML cells and rows, correcting understated-dimension cell loss and avoiding forged empty-column materialization; original constructor, row/sheet/recipient policies and HTTP route definitions exact"
+  ],
+  "normal_complete_parse_and_JSON_parities": [
+    {
+      "layout": "standard",
+      "actual_rows": 2,
+      "complete_result_and_JSON_equal": true
+    },
+    {
+      "layout": "standard",
+      "actual_rows": 3,
+      "complete_result_and_JSON_equal": true
+    },
+    {
+      "layout": "standard",
+      "actual_rows": 7,
+      "complete_result_and_JSON_equal": true
+    },
+    {
+      "layout": "given_surname",
+      "actual_rows": 2,
+      "complete_result_and_JSON_equal": true
+    },
+    {
+      "layout": "given_surname",
+      "actual_rows": 3,
+      "complete_result_and_JSON_equal": true
+    },
+    {
+      "layout": "given_surname",
+      "actual_rows": 7,
+      "complete_result_and_JSON_equal": true
+    },
+    {
+      "layout": "headerless",
+      "actual_rows": 2,
+      "complete_result_and_JSON_equal": true
+    },
+    {
+      "layout": "headerless",
+      "actual_rows": 3,
+      "complete_result_and_JSON_equal": true
+    },
+    {
+      "layout": "headerless",
+      "actual_rows": 7,
+      "complete_result_and_JSON_equal": true
+    },
+    {
+      "layout": "wide",
+      "actual_rows": 2,
+      "complete_result_and_JSON_equal": true
+    },
+    {
+      "layout": "wide",
+      "actual_rows": 3,
+      "complete_result_and_JSON_equal": true
+    },
+    {
+      "layout": "wide",
+      "actual_rows": 7,
+      "complete_result_and_JSON_equal": true
+    },
+    {
+      "layout": "multisheet",
+      "actual_rows": 2,
+      "complete_result_and_JSON_equal": true
+    },
+    {
+      "layout": "multisheet",
+      "actual_rows": 3,
+      "complete_result_and_JSON_equal": true
+    },
+    {
+      "layout": "multisheet",
+      "actual_rows": 7,
+      "complete_result_and_JSON_equal": true
+    }
+  ],
+  "work_counters": {
+    "archive_payload_bytes": 1117802,
+    "existing_WA_quota": 2000,
+    "before_actual_ZipInfo_constructions": 10000,
+    "after_actual_ZipInfo_constructions": 0,
+    "forged64row_actual_tuple_slots": {
+      "before": {
+        "tuple_slots": 1048576,
+        "rows": 64,
+        "max_width": 16384
+      },
+      "after": {
+        "tuple_slots": 4,
+        "rows": 64,
+        "max_width": 2
+      }
+    }
+  },
+  "parity_scope_note": "Original parser source loaded with unchanged shared normal-input helpers; archive validation improvements separately tested through actual current parser and old before-probe. Normal actual-cell result/JSON comparisons are not a claim that incorrect understated dimension behavior remains unchanged.",
+  "unchanged_downstream_source_policies": [
+    "backend/app/infrastructure/imports/passport_zip_reader.py",
+    "backend/app/infrastructure/imports/passport_document_importer.py",
+    "backend/app/infrastructure/imports/passport_zip_members.py",
+    "backend/app/infrastructure/imports/passport_document_streams.py",
+    "backend/app/infrastructure/security/contact_spreadsheet_security.py"
+  ],
+  "source_fence": {
+    "backend/app/core/zip_directory_admission.py": "b15f7007473b7f2f895a1f9fcf4a883c51252d54d0ba41be8e45cc9d268cef21",
+    "backend/app/infrastructure/imports/passport_zip_admission.py": "bd6d3a73be7fc1a82ca612b7b2403ef370982a41a260a9feba053e243541d3bd",
+    "backend/app/application/use_cases/whatsapp/spreadsheet_values.py": "2a2680e0e53d7388f6bd0fff4ef263936ae71c9c97b91d83c18841a6d681f275",
+    "backend/app/presentation/api/v1/routes/whatsapp_contact_import.py": "b0ba7bf421b699533d4557eb94e3b994c151655bf519bb3d2f73f55002be0cd5",
+    "backend/app/infrastructure/imports/passport_zip_reader.py": "8c5d054b922a9f3878ba1ded3b7971a873286b36a3cf84356fe2cb9c366d88ea",
+    "backend/app/infrastructure/imports/passport_document_importer.py": "1431aac22fdf7d255516c02f34d1f6ad8102ca083668a5f609bc9b74b7c65d92",
+    "backend/app/infrastructure/imports/passport_zip_members.py": "88ef17047879d07ae2720d99dee680b4744c49d68baf59e7de33821ce6e3628c",
+    "backend/app/infrastructure/imports/passport_document_streams.py": "6ab71940f43d46edff2ece4e5c80706428ab087702e99f65eff5f2f3ed6a4caf",
+    "backend/app/infrastructure/imports/passport_document_workspace.py": "78260b471bcc10d9edd1ed44b06dc732e5468802ea723ca8891964c12add98f7",
+    "backend/app/infrastructure/security/contact_spreadsheet_security.py": "731d5489216a25e4688f042e8c9c0695d50bc36e297a795ea546c742af23b167",
+    "backend/app/presentation/api/v1/routes/whatsapp_actor_credentials.py": "0e82cb8ba583b039c8d85c1ab6b3a835532360a14a7c035e63bd7454f9f4e69f",
+    "backend/app/presentation/api/v1/routes/whatsapp_scope.py": "fb1f5adf2ca2f924c57da9efbeb057ad013c4af1f2fc37704ac0883879b9da4c",
+    "backend/app/presentation/api/v1/routes/whatsapp_contact_values.py": "3a6c521cbd30e24af2492d3807d398b61c028ec305b5f66368b84e427da713a3",
+    "backend/app/presentation/api/v1/routes/whatsapp_creation.py": "80d28f482839d06f304973b37242e3c7ba60e0b50ee3db994d67fed5da8522eb",
+    "backend/app/presentation/api/v1/routes/whatsapp_recipient_additions.py": "278d992f0ac8343d4754aba07fd93c7412f5ff9003c8333d5aa42784b80800f4",
+    "backend/tests/unit/presentation/test_whatsapp_workbook_resource_admission.py": "809a94a0f35934ed0cb116d2607a730c4748db8587165425faf95a99edcffa56",
+    "backend/tests/unit/infrastructure/test_passport_zip_member_admission.py": "a0975f2180c69445f3e167808192a304d8028b8b4d507717ba2af6a4fad1b3e4",
+    "backend/tests/unit/infrastructure/test_passport_document_import_policies.py": "8da8e50b0ba9a1879d6be35c0e40329ca4825caa7796de2387f45e5c07ea8247",
+    "backend/tests/unit/infrastructure/test_passport_document_import_staging.py": "c221d9bfba0d176b12c7812ff42c9dd46d2ac40219edf25400761677e91f845f",
+    "backend/tests/unit/presentation/test_whatsapp_delivery_ledger.py": "c0b534ee0e5a15b1aca8587c31ef45d4bbd8a0dd3d7ed1249b83023331732ac5",
+    "backend/tests/unit/presentation/test_whatsapp_recipient_capacity.py": "d219e684df5548dcfe9b8e8819ba6b76226b41f46869bef60ad30e3149d53507",
+    "backend/tests/integration/test_mcp_contact_imports.py": "0fafeb285a48dfa284eca079a20890f20ad8075611636b80d319d954f2bc9be9"
+  },
+  "limits": [
+    "Actual ZipInfo/tuple-slot counts only; no peakRSS/latency/production concurrency or liveprovider claim",
+    "Pinned CPython3.11 private footer ABI remains the one existing seam, not a new broad compatibility promise",
+    "Public exception type/message/whole public cursor body stable; generic inner cause and private checker implementation ownership deliberately changed",
+    "Historical passport/WA authority receipts remain historical; no broad app/MCP qualification"
+  ]
+}

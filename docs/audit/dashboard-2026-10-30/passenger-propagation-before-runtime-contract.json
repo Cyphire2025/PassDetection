@@ -1,0 +1,290 @@
+{
+  "actual_DATA_instance_pickle": true,
+  "actual_callback_import_identities": [
+    "app.infrastructure.whatsapp.document_delivery_runtime",
+    "app.infrastructure.whatsapp.receipt_runtime",
+    "app.presentation.api.v1.routes.document_distribution_assignment_unassign",
+    "app.presentation.api.v1.routes.document_distribution_assignment_delete",
+    "app.presentation.api.v1.routes.passport_routes.document_import",
+    "app.presentation.api.v1.routes.passport_routes.excel_import",
+    "ClientDetailDependencies.for_session.propagate"
+  ],
+  "constants": {
+    "MobilePassengerChangeKind": "typing.Literal['profile', 'documents']",
+    "_PASSENGER_CHANGE_ID_NAMESPACE": "9f5c33ec-0705-456b-b01a-31f0889464d7",
+    "_TARGETED_COORDINATOR_CHANGE_LIMIT": "100",
+    "_TARGETED_IDENTITY_CHANGE_LIMIT": "8"
+  },
+  "declarations": {
+    "MobilePassengerChangeEvent": {
+      "doc": "MobilePassengerChangeEvent(audience: \"Literal['passenger', 'client_manager', 'coordinator']\", passenger_identity_id: 'uuid.UUID | None', entity_type: 'str', entity_id: 'uuid.UUID | None', operation: 'SyncOperation', payload: 'dict[str, object]')",
+      "evaluated_hints": {
+        "audience": "typing.Literal['passenger', 'client_manager', 'coordinator']",
+        "entity_id": "uuid.UUID | None",
+        "entity_type": "<class 'str'>",
+        "operation": "typing.Literal['upsert', 'delete', 'revoke', 'publish']",
+        "passenger_identity_id": "uuid.UUID | None",
+        "payload": "dict[str, object]"
+      },
+      "fields": [
+        [
+          "audience",
+          "Literal['passenger', 'client_manager', 'coordinator']",
+          "<dataclasses._MISSING_TYPE object>"
+        ],
+        [
+          "passenger_identity_id",
+          "uuid.UUID | None",
+          "<dataclasses._MISSING_TYPE object>"
+        ],
+        [
+          "entity_type",
+          "str",
+          "<dataclasses._MISSING_TYPE object>"
+        ],
+        [
+          "entity_id",
+          "uuid.UUID | None",
+          "<dataclasses._MISSING_TYPE object>"
+        ],
+        [
+          "operation",
+          "SyncOperation",
+          "<dataclasses._MISSING_TYPE object>"
+        ],
+        [
+          "payload",
+          "dict[str, object]",
+          "<dataclasses._MISSING_TYPE object>"
+        ]
+      ],
+      "generated_methods": {
+        "__delattr__": {
+          "module": "app.application.mobile.passenger_change_propagation",
+          "qualname": "MobilePassengerChangeEvent.__delattr__",
+          "signature": "(self, name)"
+        },
+        "__eq__": {
+          "module": "app.application.mobile.passenger_change_propagation",
+          "qualname": "MobilePassengerChangeEvent.__eq__",
+          "signature": "(self, other)"
+        },
+        "__hash__": {
+          "module": "app.application.mobile.passenger_change_propagation",
+          "qualname": "MobilePassengerChangeEvent.__hash__",
+          "signature": "(self)"
+        },
+        "__init__": {
+          "module": "app.application.mobile.passenger_change_propagation",
+          "qualname": "MobilePassengerChangeEvent.__init__",
+          "signature": "(self, audience: \"Literal['passenger', 'client_manager', 'coordinator']\", passenger_identity_id: 'uuid.UUID | None', entity_type: 'str', entity_id: 'uuid.UUID | None', operation: 'SyncOperation', payload: 'dict[str, object]') -> None"
+        },
+        "__repr__": {
+          "module": "app.application.mobile.passenger_change_propagation",
+          "qualname": "MobilePassengerChangeEvent.__repr__",
+          "signature": "(self)"
+        },
+        "__setattr__": {
+          "module": "app.application.mobile.passenger_change_propagation",
+          "qualname": "MobilePassengerChangeEvent.__setattr__",
+          "signature": "(self, name, value)"
+        }
+      },
+      "match_args": [
+        "audience",
+        "passenger_identity_id",
+        "entity_type",
+        "entity_id",
+        "operation",
+        "payload"
+      ],
+      "module": "app.application.mobile.passenger_change_propagation",
+      "qualname": "MobilePassengerChangeEvent",
+      "signature": "(audience: \"Literal['passenger', 'client_manager', 'coordinator']\", passenger_identity_id: 'uuid.UUID | None', entity_type: 'str', entity_id: 'uuid.UUID | None', operation: 'SyncOperation', payload: 'dict[str, object]') -> None",
+      "slots": [
+        "audience",
+        "passenger_identity_id",
+        "entity_type",
+        "entity_id",
+        "operation",
+        "payload"
+      ]
+    },
+    "MobilePassengerPropagationResult": {
+      "doc": "MobilePassengerPropagationResult(enabled: 'bool', identity_reconciliation: 'PassengerIdentityReconciliationResult | None', sync_changes: 'int', push_notifications: 'int' = 0)",
+      "evaluated_hints": {
+        "enabled": "<class 'bool'>",
+        "identity_reconciliation": "app.application.mobile.passenger_identity_reconciliation.PassengerIdentityReconciliationResult | None",
+        "push_notifications": "<class 'int'>",
+        "sync_changes": "<class 'int'>"
+      },
+      "fields": [
+        [
+          "enabled",
+          "bool",
+          "<dataclasses._MISSING_TYPE object>"
+        ],
+        [
+          "identity_reconciliation",
+          "PassengerIdentityReconciliationResult | None",
+          "<dataclasses._MISSING_TYPE object>"
+        ],
+        [
+          "sync_changes",
+          "int",
+          "<dataclasses._MISSING_TYPE object>"
+        ],
+        [
+          "push_notifications",
+          "int",
+          "0"
+        ]
+      ],
+      "generated_methods": {
+        "__delattr__": {
+          "module": "app.application.mobile.passenger_change_propagation",
+          "qualname": "MobilePassengerPropagationResult.__delattr__",
+          "signature": "(self, name)"
+        },
+        "__eq__": {
+          "module": "app.application.mobile.passenger_change_propagation",
+          "qualname": "MobilePassengerPropagationResult.__eq__",
+          "signature": "(self, other)"
+        },
+        "__hash__": {
+          "module": "app.application.mobile.passenger_change_propagation",
+          "qualname": "MobilePassengerPropagationResult.__hash__",
+          "signature": "(self)"
+        },
+        "__init__": {
+          "module": "app.application.mobile.passenger_change_propagation",
+          "qualname": "MobilePassengerPropagationResult.__init__",
+          "signature": "(self, enabled: 'bool', identity_reconciliation: 'PassengerIdentityReconciliationResult | None', sync_changes: 'int', push_notifications: 'int' = 0) -> None"
+        },
+        "__repr__": {
+          "module": "app.application.mobile.passenger_change_propagation",
+          "qualname": "MobilePassengerPropagationResult.__repr__",
+          "signature": "(self)"
+        },
+        "__setattr__": {
+          "module": "app.application.mobile.passenger_change_propagation",
+          "qualname": "MobilePassengerPropagationResult.__setattr__",
+          "signature": "(self, name, value)"
+        }
+      },
+      "match_args": [
+        "enabled",
+        "identity_reconciliation",
+        "sync_changes",
+        "push_notifications"
+      ],
+      "module": "app.application.mobile.passenger_change_propagation",
+      "qualname": "MobilePassengerPropagationResult",
+      "signature": "(enabled: 'bool', identity_reconciliation: 'PassengerIdentityReconciliationResult | None', sync_changes: 'int', push_notifications: 'int' = 0) -> None",
+      "slots": [
+        "enabled",
+        "identity_reconciliation",
+        "sync_changes",
+        "push_notifications"
+      ]
+    },
+    "_passenger_change_event_id": {
+      "doc": "Derive a PII-free durable id so worker retries cannot append twice.",
+      "evaluated_hints": {
+        "event": "<class 'app.application.mobile.passenger_change_propagation.MobilePassengerChangeEvent'>",
+        "group_id": "<class 'uuid.UUID'>",
+        "propagation_key": "<class 'str'>",
+        "return": "<class 'uuid.UUID'>"
+      },
+      "module": "app.application.mobile.passenger_change_propagation",
+      "qualname": "_passenger_change_event_id",
+      "signature": "(*, propagation_key: 'str', group_id: 'uuid.UUID', event: 'MobilePassengerChangeEvent') -> 'uuid.UUID'"
+    },
+    "plan_mobile_passenger_change_events": {
+      "doc": "Build PII-free, bounded journal events for one tenant-scoped group.",
+      "evaluated_hints": {
+        "change_kind": "typing.Literal['profile', 'documents']",
+        "client_manager_access_enabled": "<class 'bool'>",
+        "coordinator_access_enabled": "<class 'bool'>",
+        "group_id": "<class 'uuid.UUID'>",
+        "operation": "typing.Literal['upsert', 'delete']",
+        "passenger_access_enabled": "<class 'bool'>",
+        "passenger_identities": "collections.abc.Sequence[tuple[uuid.UUID, uuid.UUID]]",
+        "passenger_submission_ids": "collections.abc.Sequence[uuid.UUID]",
+        "return": "tuple[app.application.mobile.passenger_change_propagation.MobilePassengerChangeEvent, ...]"
+      },
+      "module": "app.application.mobile.passenger_change_propagation",
+      "qualname": "plan_mobile_passenger_change_events",
+      "signature": "(*, group_id: 'uuid.UUID', passenger_submission_ids: 'Sequence[uuid.UUID]', passenger_identities: 'Sequence[tuple[uuid.UUID, uuid.UUID]]', operation: \"Literal['upsert', 'delete']\", change_kind: 'MobilePassengerChangeKind', passenger_access_enabled: 'bool', client_manager_access_enabled: 'bool', coordinator_access_enabled: 'bool') -> 'tuple[MobilePassengerChangeEvent, ...]'"
+    },
+    "propagate_mobile_passenger_change": {
+      "doc": "Reconcile and publish one passenger mutation in the caller's transaction.\n\n    Source-linked WhatsApp contacts follow roster changes independently of GC\n    App. The mobile journal remains a no-op for groups without GC App enabled.\n    It never serializes passenger fields into the journal.\n    ",
+      "evaluated_hints": {
+        "actor_user_id": "uuid.UUID | None",
+        "agency_id": "<class 'uuid.UUID'>",
+        "change_kind": "typing.Literal['profile', 'documents']",
+        "group_id": "<class 'uuid.UUID'>",
+        "operation": "typing.Literal['upsert', 'delete']",
+        "passenger_submission_ids": "collections.abc.Iterable[uuid.UUID]",
+        "propagation_key": "str | None",
+        "reconcile_identities": "<class 'bool'>",
+        "return": "<class 'app.application.mobile.passenger_change_propagation.MobilePassengerPropagationResult'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "sync_broadcast_contacts": "<class 'bool'>"
+      },
+      "module": "app.application.mobile.passenger_change_propagation",
+      "qualname": "propagate_mobile_passenger_change",
+      "signature": "(session: 'AsyncSession', *, agency_id: 'uuid.UUID', group_id: 'uuid.UUID', passenger_submission_ids: 'Iterable[uuid.UUID]', actor_user_id: 'uuid.UUID | None', operation: \"Literal['upsert', 'delete']\" = 'upsert', change_kind: 'MobilePassengerChangeKind' = 'profile', reconcile_identities: 'bool' = True, propagation_key: 'str | None' = None, sync_broadcast_contacts: 'bool' = False) -> 'MobilePassengerPropagationResult'"
+    },
+    "reconcile_mobile_passenger_access_for_broadcast": {
+      "doc": "Reconcile all explicitly linked GC groups after a recipient mutation.",
+      "evaluated_hints": {
+        "actor_user_id": "uuid.UUID | None",
+        "agency_id": "<class 'uuid.UUID'>",
+        "broadcast_group_id": "<class 'uuid.UUID'>",
+        "return": "<class 'int'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>"
+      },
+      "module": "app.application.mobile.passenger_change_propagation",
+      "qualname": "reconcile_mobile_passenger_access_for_broadcast",
+      "signature": "(session: 'AsyncSession', *, agency_id: 'uuid.UUID', broadcast_group_id: 'uuid.UUID', actor_user_id: 'uuid.UUID | None') -> 'int'"
+    },
+    "reconcile_mobile_passenger_access_for_group": {
+      "doc": "Reconcile one enabled passenger-access group after identity-source edits.",
+      "evaluated_hints": {
+        "actor_user_id": "uuid.UUID | None",
+        "agency_id": "<class 'uuid.UUID'>",
+        "group_id": "<class 'uuid.UUID'>",
+        "return": "app.application.mobile.passenger_identity_reconciliation.PassengerIdentityReconciliationResult | None",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>"
+      },
+      "module": "app.application.mobile.passenger_change_propagation",
+      "qualname": "reconcile_mobile_passenger_access_for_group",
+      "signature": "(session: 'AsyncSession', *, agency_id: 'uuid.UUID', group_id: 'uuid.UUID', actor_user_id: 'uuid.UUID | None') -> 'PassengerIdentityReconciliationResult | None'"
+    }
+  },
+  "original_import_object_bindings": [
+    "hashlib",
+    "uuid",
+    "Iterable",
+    "Sequence",
+    "dataclass",
+    "UTC",
+    "datetime",
+    "Literal",
+    "select",
+    "AsyncSession",
+    "coordinator_roster_revision",
+    "enqueue_personal_document_change_notifications",
+    "PassengerIdentityReconciliationResult",
+    "reconcile_passenger_identities",
+    "reconcile_passenger_identities_for_changes",
+    "SyncOperation",
+    "append_mobile_sync_change",
+    "GCGroupAccessModel",
+    "MobilePassengerIdentityModel",
+    "MobileSyncChangeModel",
+    "ClientGroupWhatsAppBroadcastLinkModel",
+    "sync_group_broadcast_contacts"
+  ]
+}

@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\dashboard_audit_inventory.py", line 179, in <module>
+    result = refresh(options.mark, options.status, options.reviewer, options.notes)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\dashboard_audit_inventory.py", line 90, in refresh
+    records = records["files"]
+              ~~~~~~~^^^^^^^^^
+KeyError: 'files'

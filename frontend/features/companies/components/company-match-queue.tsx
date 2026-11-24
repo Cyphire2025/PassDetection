@@ -20,10 +20,11 @@ export function CompanyMatchQueue({ agencyId, companyId, onClose }: { agencyId: 
   const [group, setGroup] = useState<CompanyGroup>();
   const title = useId();
   const dialogRef = useRef<HTMLDivElement>(null);
-  const keyboard = useModalKeyboardBoundary({ dialogRef, isOpen: !group, canClose: true, onClose });
   const groups = useCompanyGroups(agencyId, companyId, { search: term, cursor, page_size: 25, phase: "all" });
+  const activeGroup = ready && !groups.isError ? group : undefined;
+  const keyboard = useModalKeyboardBoundary({ dialogRef, isOpen: !activeGroup, canClose: true, onClose });
   const loading = !ready || groups.isLoading || search.trim() !== term;
-  if (ready && !groups.isError && group) return <CompanyMatchingDialog key={`${scope.join(":")}:${group.id}`} agencyId={agencyId} companyId={companyId} group={group} onClose={() => setGroup(undefined)} />;
+  if (activeGroup) return <CompanyMatchingDialog key={`${scope.join(":")}:${activeGroup.id}`} agencyId={agencyId} companyId={companyId} group={activeGroup} onClose={() => setGroup(undefined)} />;
   return <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby={title} onKeyDown={keyboard} className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-3"><section className="max-h-[90dvh] w-full max-w-xl space-y-4 overflow-y-auto rounded-2xl bg-white p-4 shadow-xl sm:p-5">
     <header className="flex items-center justify-between gap-3"><h2 id={title} className="text-lg font-semibold text-slate-950">Review matches</h2><Button type="button" variant="ghost" onClick={onClose}>Close</Button></header>
     <Input label="Search groups to review" value={search} onChange={(event) => { setSearch(event.target.value); setCursor(undefined); }} placeholder="Search groups" />

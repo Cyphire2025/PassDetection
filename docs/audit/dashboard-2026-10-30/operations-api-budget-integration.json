@@ -1,0 +1,12 @@
+{
+  "candidates": "docs/audit/dashboard-2026-10-30/operations-api-budget-candidates.json",
+  "before_sha256": "d0b4167226b11543a4bbd090a0ba57fd9f299fc9c648122bab75b5513a313d3d",
+  "sha256": "8af376e97fe8c8071a79e5d85dfeac4c2bcef811de17ba4027361970ea290be2",
+  "lf_normalized_sha256": "da111333e51be1541c1514c2d6b6e8d04f96374b813d31edce66056cc5c13a80",
+  "added": 15,
+  "updated_existing": 0,
+  "lowered_existing": 0,
+  "lowered_existing_paths": [],
+  "existing_ceilings_preserved": true,
+  "previous_ceilings_sha256": "112197b9ce71c29a32f9d42b86567f051c9e049aa9964c0ff0238abec30508a6"
+}

@@ -1,0 +1,34 @@
+[
+  {
+    "path": "scripts/release_companies_credentials.py",
+    "sha256": "21461f6879da9d3b14f7e0c44c3d4b8c2620037735b3ea72de65dd776fec5ad9",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read: exactlyexisting maintenance credentials from boundedCompose output, separatebootstrap/runtime/migrator values, liveIP/database/source binding, retainedprivate exclusive16KiB custody and hash/owner/permission checks. Readonly owner/defaultgrant preflight uses stdin, no credentialsinargv/output. Recovery validates existingreceipt ratherthan provisioning. No real.env/credentials/Docker/DB read or execution performed. Dedicated OperationsInbox remains deferred; sharedrelease topologycompatibility is retained."
+  },
+  {
+    "path": "scripts/release_companies_secrets.py",
+    "sha256": "26e0d7a14a6edc1eab500024e85420dabfa860e6d8a9aba3766907fc18199a4f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read: existingtenant reuse lookup/Fernet/key-version/disclosure values retained consistently across appworkers, privateexclusive custody/hash/owner/size checks, no keygeneration or company/person permission expansion. Fixedfrontend/nginx exclusions and recovery semantics preserved; no realsecretfilesopened. Dedicated OperationsInbox remains deferred; sharedrelease topologycompatibility is retained."
+  },
+  {
+    "path": "scripts/release_companies_policy.py",
+    "sha256": "8932c6075fbd14828db8dac4fac98e60f21591b1762c5025ac03e13649dc80f5",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read: closed additive persistent-path/task/scheduler contracts, exactsourceGit/ancestor/schema routeallowlist and unchangedworker topology. TypedAST removal only reviewednew includes/schedules, publishedmigrations cannotbe modified. No releaseexecution or policyrelaxation. Dedicated OperationsInbox remains deferred; sharedrelease topologycompatibility is retained."
+  },
+  {
+    "path": "backend/app/infrastructure/qr/approved_passenger_qr_issuer.py",
+    "sha256": "f4f4a1195f1156dacc734ee177a33b8372250c1d0da670a7cff516ebb27db2fa",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Complete current formatted source physically reread after ownedformat. Same14affected tests qualified pre-format source; wholemodule AST is exact across byte-only formatting, saved source/sha proof. Current no-fixRuff2 and formatter2 pass; original runfence/receipt remain immutable. Dategrace correction/726representabledate+1TTLparities retained. Native ingressfeature audit excluded. See approved-qr-calendar-formatting-verification.json."
+  }
+]

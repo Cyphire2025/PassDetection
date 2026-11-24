@@ -1,0 +1,65 @@
+[
+  {
+    "path": "backend/tests/unit/infrastructure/test_ai_priority_coordinator.py",
+    "sha256": "16b532d668084e1399cf0652464580f56bb192ea4775b618802c5e7bbe29cf3f",
+    "physical_lines": 742,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete742-line physical read including lock-backed memory store and all deterministic concurrency cases. Traced waiting/dispatching/active states, public reservation ownership, independent verification capacity, extraction priority/quiet window, generation-safe heartbeat/release/expiry, duplicate replay and fail-open extraction versus fail-closed verification. Memory-store model is synthetic and does not establish actual Redis Lua equivalence, distributed concurrency or provider execution. Source unchanged; no new test run, fix or runtime finding claimed. Earlier runtime audit/behavior receipts retain their own source-bound scope."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_ai_priority_identity.py",
+    "sha256": "4a13ec648f0c3d80da984406a11229d4351781bb07b9ddf2558d549b18e51784",
+    "physical_lines": 121,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete121-line physical read. Synthetic settings exercise safe endpoint projection stripping userinfo/query, key-present boolean, alias/capacity/credentials readiness and disabled-verification extraction gates. All displayed credentials are authored test material. Source review does not qualify production configuration or real key/provider access. Source unchanged; no new test run, fix or runtime finding claimed. Earlier runtime audit/behavior receipts retain their own source-bound scope."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_ai_priority_metrics.py",
+    "sha256": "0cd830a331c6ac8d73b01e46a8dd8f73d6c29c8e6ba1644deec305e3daeb8658",
+    "physical_lines": 324,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete324-line physical read. Reviewed bounded latest-N windows/count totals/percentiles, generation-local once-only lifecycle events, privacy of raw job references, allowlisted metric labels, fallback circuit/status and mocked Redis pipeline/key hashing. Normal and failure controls are represented; no execution or cross-process Redis/latency/throughput claim from this read. Source unchanged; no new test run, fix or runtime finding claimed. Earlier runtime audit/behavior receipts retain their own source-bound scope."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_ai_priority_queue_routing.py",
+    "sha256": "4b28f3bc52aba403407b786aedb591fdd926ed5eee0fe0f2d675f013ce8b9d2a",
+    "physical_lines": 186,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete186-line physical read. Exact durable queue/task route identities, extraction/verification dispatch boundaries, one Redis eval/hash-tag slot, server-time script source contract, waiting-lease occurrences and bounded settings are asserted using in-process synthetic tasks/Redis. Redis script source assertions are narrower than actual service semantics; no broker/provider/service probe executed. Source unchanged; no new test run, fix or runtime finding claimed. Earlier runtime audit/behavior receipts retain their own source-bound scope."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_ai_priority_retry.py",
+    "sha256": "3d8b2035f872514a230056876e56ca7bd0338f94341af06f789f92486ac604db",
+    "physical_lines": 111,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete111-line physical read. Numeric and HTTP-date Retry-After conversion, malformed/nonfinite rejection, injected bounded jitter/backoff, attempt bounds and remaining-deadline abandonment controls reviewed. No waiting/network execution occurred for review credit; tests themselves use deterministic pure inputs. Source unchanged; no new test run, fix or runtime finding claimed. Earlier runtime audit/behavior receipts retain their own source-bound scope."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_ai_priority_runtime.py",
+    "sha256": "a90c3c917072343f236e321c78fbfb985c8377da87dea70dc3c8a0405651f6e2",
+    "physical_lines": 205,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete205-line physical read. Synthetic admission decisions ensure capacity/duplicate/fail-closed verification return before admitted runtime, accepted lease release on success/provider exception, original redelivery reason/delay propagated. Admitted private workload bodies are AsyncMock, so this source alone does not exercise database/provider/native cancellation internals. Source unchanged; no new test run, fix or runtime finding claimed. Earlier runtime audit/behavior receipts retain their own source-bound scope."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_ai_priority_worker_readiness.py",
+    "sha256": "ff368add7f448dc5c66b43260832aa6ba6ad63b7fedb0c023c3b6c155795c52d",
+    "physical_lines": 260,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete260-line physical read. Lazy import subprocess, cached exact queue probe/TTL/failure caching, environment/backend/verification-disable matrix, active-queue parser and container healthcheck required queue/timeout controls traced. Synthetic Celery snapshots and direct subprocess command sources only; no subprocess or worker control/service probe executed during this review. Source unchanged; no new test run, fix or runtime finding claimed. Earlier runtime audit/behavior receipts retain their own source-bound scope."
+  }
+]

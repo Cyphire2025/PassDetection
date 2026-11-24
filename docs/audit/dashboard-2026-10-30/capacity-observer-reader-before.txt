@@ -1,0 +1,54 @@
+FF                                                                       [100%]
+================================== FAILURES ===================================
+______ test_remote_reader_has_explicit_redis_connect_and_command_budgets ______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000028E20E21B50>
+
+    @pytest.mark.asyncio
+    async def test_remote_reader_has_explicit_redis_connect_and_command_budgets(monkeypatch):
+        module = reader(monkeypatch)
+        connection = RedisClient()
+        factory = Mock(return_value=connection)
+        monkeypatch.setattr(Redis, "from_url", factory)
+        monkeypatch.setattr(module, "time", SimpleNamespace(monotonic=Mock(side_effect=[0, 1])))
+        await module.observe("0" * 32, seconds=1)
+        assert connection.closed
+>       assert factory.call_args.kwargs["socket_connect_timeout"] == 5
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'socket_connect_timeout'
+
+tests\unit\infrastructure\test_capacity_observer_reader_bounds.py:65: KeyError
+_ test_remote_reader_deadline_covers_a_stalled_await_without_false_measurements _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000028E20BB5990>
+
+    @pytest.mark.asyncio
+    async def test_remote_reader_deadline_covers_a_stalled_await_without_false_measurements(monkeypatch):
+        module = reader(monkeypatch)
+        connection = RedisClient()
+        monkeypatch.setattr(Redis, "from_url", lambda *_a, **_kw: connection)
+        real_timeout = asyncio.timeout
+        budgets = []
+    
+        def deadline(seconds):
+            budgets.append(seconds)
+            return real_timeout(0.01)
+    
+        monkeypatch.setattr(module.asyncio, "timeout", deadline)
+        printed = Mock()
+        monkeypatch.setattr(module, "print", printed, raising=False)
+        task = asyncio.create_task(module.observe("0" * 32, seconds=1))
+        try:
+            await connection.entered_read.wait()
+            await asyncio.sleep(0.03)
+>           assert task.done(), "Nominal duration must bound awaited Redis/database I/O as well"
+E           AssertionError: Nominal duration must bound awaited Redis/database I/O as well
+E           assert False
+E            +  where False = <built-in method done of _asyncio.Task object at 0x0000028E2114E680>()
+E            +    where <built-in method done of _asyncio.Task object at 0x0000028E2114E680> = <Task pending name='Task-5' coro=<observe() running at C:\Users\nipun\Desktop\PassDetection\scripts\qa\capacity_fixtures.py:368> wait_for=<Future pending cb=[Task.task_wakeup()]>>.done
+
+tests\unit\infrastructure\test_capacity_observer_reader_bounds.py:88: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/unit/infrastructure/test_capacity_observer_reader_bounds.py::test_remote_reader_has_explicit_redis_connect_and_command_budgets
+FAILED tests/unit/infrastructure/test_capacity_observer_reader_bounds.py::test_remote_reader_deadline_covers_a_stalled_await_without_false_measurements
+2 failed in 0.56s

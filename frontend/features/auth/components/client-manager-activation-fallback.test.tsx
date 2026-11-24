@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { ClientManagerActivationFallback } from "./client-manager-activation-fallback";
+import { StrictMode } from "react";
 
 const originalPath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
 
@@ -9,6 +10,12 @@ afterEach(() => {
 });
 
 describe("ClientManagerActivationFallback", () => {
+  it("retains the captured credential through Strict Mode effect replay after scrubbing the address", async () => {
+    window.history.replaceState(null, "", `/gc/activate?token=${"S".repeat(43)}`);
+    render(<StrictMode><ClientManagerActivationFallback /></StrictMode>);
+    expect(await screen.findByRole("button", { name: "Open the mobile app" })).toBeInTheDocument();
+    expect(window.location.search).toBe("");
+  });
   it("retains a valid credential only in memory and immediately scrubs the address bar", async () => {
     const token = "A".repeat(43);
     window.history.replaceState(null, "", `/gc/activate?token=${token}`);

@@ -1,0 +1,585 @@
+FFFF                                                                     [100%]
+================================== FAILURES ===================================
+_______ test_manager_activation_response_waits_for_commit[False-create] _______
+
+fut = <Task cancelled name='Task-8' coro=<Event.wait() done, defined at C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\asyncio\locks.py:200>>
+timeout = 10
+
+    async def wait_for(fut, timeout):
+        """Wait for the single Future or coroutine to complete, with timeout.
+    
+        Coroutine will be wrapped in Task.
+    
+        Returns result of the Future or coroutine.  When a timeout occurs,
+        it cancels the task and raises TimeoutError.  To avoid the task
+        cancellation, wrap it in shield().
+    
+        If the wait is cancelled, the task is also cancelled.
+    
+        This function is a coroutine.
+        """
+        loop = events.get_running_loop()
+    
+        if timeout is None:
+            return await fut
+    
+        if timeout <= 0:
+            fut = ensure_future(fut, loop=loop)
+    
+            if fut.done():
+                return fut.result()
+    
+            await _cancel_and_wait(fut, loop=loop)
+            try:
+                return fut.result()
+            except exceptions.CancelledError as exc:
+                raise exceptions.TimeoutError() from exc
+    
+        waiter = loop.create_future()
+        timeout_handle = loop.call_later(timeout, _release_waiter, waiter)
+        cb = functools.partial(_release_waiter, waiter)
+    
+        fut = ensure_future(fut, loop=loop)
+        fut.add_done_callback(cb)
+    
+        try:
+            # wait until the future completes or the timeout
+            try:
+                await waiter
+            except exceptions.CancelledError:
+                if fut.done():
+                    return fut.result()
+                else:
+                    fut.remove_done_callback(cb)
+                    # We must ensure that the task is not running
+                    # after wait_for() returns.
+                    # See https://bugs.python.org/issue32751
+                    await _cancel_and_wait(fut, loop=loop)
+                    raise
+    
+            if fut.done():
+                return fut.result()
+            else:
+                fut.remove_done_callback(cb)
+                # We must ensure that the task is not running
+                # after wait_for() returns.
+                # See https://bugs.python.org/issue32751
+                await _cancel_and_wait(fut, loop=loop)
+                # In case task cancellation failed with some
+                # exception, we should re-raise it
+                # See https://bugs.python.org/issue40607
+                try:
+>                   return fut.result()
+                           ^^^^^^^^^^^^
+
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\asyncio\tasks.py:500: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <asyncio.locks.Event object at 0x000001F2A9DEA610 [unset]>
+
+    async def wait(self):
+        """Block until the internal flag is true.
+    
+        If the internal flag is true on entry, return True
+        immediately.  Otherwise, block until another coroutine calls
+        set() to set the flag to true, then return True.
+        """
+        if self._value:
+            return True
+    
+        fut = self._get_loop().create_future()
+        self._waiters.append(fut)
+        try:
+>           await fut
+E           asyncio.exceptions.CancelledError
+
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\asyncio\locks.py:213: CancelledError
+
+The above exception was the direct cause of the following exception:
+
+auth_database = namespace(app=<fastapi.applications.FastAPI object at 0x000001F2A9E88CD0>, sessions=async_sessionmaker(class_='AsyncSe...t object at 0x000001F2A9DEA610 [unset]>, release=<asyncio.locks.Event object at 0x000001F2A9EA4790 [set]>, fail=False))
+flow = 'create', commit_fails = False
+
+    @pytest.mark.parametrize("flow", ["create", "reinvite"])
+    @pytest.mark.parametrize("commit_fails", [False, True])
+    async def test_manager_activation_response_waits_for_commit(auth_database, flow, commit_fails):
+        env = auth_database
+        env.app.include_router(router, prefix=BASE)
+        register_exception_handlers(env.app)
+        path, headers, payload = await prepare_manager_command(env, flow)
+        before = await manager_snapshot(env.sessions)
+        env.gate.fail = commit_fails
+        messages = []
+    
+        async def receive():
+            return {"type": "http.request", "body": payload, "more_body": False}
+    
+        async def send(message):
+            messages.append(message)
+    
+        scope = {
+            "type": "http",
+            "asgi": {"version": "3.0"},
+            "http_version": "1.1",
+            "method": "POST",
+            "scheme": "http",
+            "path": path,
+            "raw_path": path.encode(),
+            "query_string": b"",
+            "root_path": "",
+            "headers": headers,
+            "client": None,
+            "server": ("testserver", 80),
+        }
+        task = asyncio.create_task(env.app(scope, receive, send))
+        try:
+>           await asyncio.wait_for(env.gate.entered.wait(), 10)
+
+tests\integration\test_gc_manager_response_durability.py:159: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+fut = <Task cancelled name='Task-8' coro=<Event.wait() done, defined at C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\asyncio\locks.py:200>>
+timeout = 10
+
+    async def wait_for(fut, timeout):
+        """Wait for the single Future or coroutine to complete, with timeout.
+    
+        Coroutine will be wrapped in Task.
+    
+        Returns result of the Future or coroutine.  When a timeout occurs,
+        it cancels the task and raises TimeoutError.  To avoid the task
+        cancellation, wrap it in shield().
+    
+        If the wait is cancelled, the task is also cancelled.
+    
+        This function is a coroutine.
+        """
+        loop = events.get_running_loop()
+    
+        if timeout is None:
+            return await fut
+    
+        if timeout <= 0:
+            fut = ensure_future(fut, loop=loop)
+    
+            if fut.done():
+                return fut.result()
+    
+            await _cancel_and_wait(fut, loop=loop)
+            try:
+                return fut.result()
+            except exceptions.CancelledError as exc:
+                raise exceptions.TimeoutError() from exc
+    
+        waiter = loop.create_future()
+        timeout_handle = loop.call_later(timeout, _release_waiter, waiter)
+        cb = functools.partial(_release_waiter, waiter)
+    
+        fut = ensure_future(fut, loop=loop)
+        fut.add_done_callback(cb)
+    
+        try:
+            # wait until the future completes or the timeout
+            try:
+                await waiter
+            except exceptions.CancelledError:
+                if fut.done():
+                    return fut.result()
+                else:
+                    fut.remove_done_callback(cb)
+                    # We must ensure that the task is not running
+                    # after wait_for() returns.
+                    # See https://bugs.python.org/issue32751
+                    await _cancel_and_wait(fut, loop=loop)
+                    raise
+    
+            if fut.done():
+                return fut.result()
+            else:
+                fut.remove_done_callback(cb)
+                # We must ensure that the task is not running
+                # after wait_for() returns.
+                # See https://bugs.python.org/issue32751
+                await _cancel_and_wait(fut, loop=loop)
+                # In case task cancellation failed with some
+                # exception, we should re-raise it
+                # See https://bugs.python.org/issue40607
+                try:
+                    return fut.result()
+                except exceptions.CancelledError as exc:
+>                   raise exceptions.TimeoutError() from exc
+E                   TimeoutError
+
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\asyncio\tasks.py:502: TimeoutError
+---------------------------- Captured stdout call -----------------------------
+2026-10-30T20:42:53.993829Z [info     ] refresh_token_created          [app.infrastructure.repositories.refresh_token_repository] user_id=06548ce0-e0e6-420e-9d3b-f3d3a472f0c3
+------------------------------ Captured log call ------------------------------
+INFO     app.infrastructure.repositories.refresh_token_repository:refresh_token_repository.py:77 {'user_id': '06548ce0-e0e6-420e-9d3b-f3d3a472f0c3', 'event': 'refresh_token_created', 'logger': 'app.infrastructure.repositories.refresh_token_repository', 'level': 'info', 'timestamp': '2026-10-30T20:42:53.993829Z'}
+______ test_manager_activation_response_waits_for_commit[False-reinvite] ______
+
+auth_database = namespace(app=<fastapi.applications.FastAPI object at 0x000001F2ABBF2250>, sessions=async_sessionmaker(class_='AsyncSe...ent object at 0x000001F2ABC7DC50 [set]>, release=<asyncio.locks.Event object at 0x000001F2ABC7DBD0 [set]>, fail=False))
+flow = 'reinvite', commit_fails = False
+
+    @pytest.mark.parametrize("flow", ["create", "reinvite"])
+    @pytest.mark.parametrize("commit_fails", [False, True])
+    async def test_manager_activation_response_waits_for_commit(auth_database, flow, commit_fails):
+        env = auth_database
+        env.app.include_router(router, prefix=BASE)
+        register_exception_handlers(env.app)
+        path, headers, payload = await prepare_manager_command(env, flow)
+        before = await manager_snapshot(env.sessions)
+        env.gate.fail = commit_fails
+        messages = []
+    
+        async def receive():
+            return {"type": "http.request", "body": payload, "more_body": False}
+    
+        async def send(message):
+            messages.append(message)
+    
+        scope = {
+            "type": "http",
+            "asgi": {"version": "3.0"},
+            "http_version": "1.1",
+            "method": "POST",
+            "scheme": "http",
+            "path": path,
+            "raw_path": path.encode(),
+            "query_string": b"",
+            "root_path": "",
+            "headers": headers,
+            "client": None,
+            "server": ("testserver", 80),
+        }
+        task = asyncio.create_task(env.app(scope, receive, send))
+        try:
+            await asyncio.wait_for(env.gate.entered.wait(), 10)
+>           assert not messages, "One-time manager credential escaped before its commit"
+E           AssertionError: One-time manager credential escaped before its commit
+E           assert not [{'headers': [(b'content-length', b'634'), (b'content-type', b'application/json'), (b'cache-control', b'private, no-st...orary_password":null,"activation_token":"-mL0pzrlRF1vd-YZzWeaUcieo51ENb5Rdy7jCIKrxMc"}', 'type': 'http.response.body'}]
+
+tests\integration\test_gc_manager_response_durability.py:160: AssertionError
+---------------------------- Captured stdout call -----------------------------
+2026-10-30T20:43:07.736381Z [info     ] refresh_token_created          [app.infrastructure.repositories.refresh_token_repository] user_id=741ee149-30fd-4526-a793-d763689c0ba5
+------------------------------ Captured log call ------------------------------
+INFO     app.infrastructure.repositories.refresh_token_repository:refresh_token_repository.py:77 {'user_id': '741ee149-30fd-4526-a793-d763689c0ba5', 'event': 'refresh_token_created', 'logger': 'app.infrastructure.repositories.refresh_token_repository', 'level': 'info', 'timestamp': '2026-10-30T20:43:07.736381Z'}
+_______ test_manager_activation_response_waits_for_commit[True-create] ________
+
+fut = <Task cancelled name='Task-33' coro=<Event.wait() done, defined at C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\asyncio\locks.py:200>>
+timeout = 10
+
+    async def wait_for(fut, timeout):
+        """Wait for the single Future or coroutine to complete, with timeout.
+    
+        Coroutine will be wrapped in Task.
+    
+        Returns result of the Future or coroutine.  When a timeout occurs,
+        it cancels the task and raises TimeoutError.  To avoid the task
+        cancellation, wrap it in shield().
+    
+        If the wait is cancelled, the task is also cancelled.
+    
+        This function is a coroutine.
+        """
+        loop = events.get_running_loop()
+    
+        if timeout is None:
+            return await fut
+    
+        if timeout <= 0:
+            fut = ensure_future(fut, loop=loop)
+    
+            if fut.done():
+                return fut.result()
+    
+            await _cancel_and_wait(fut, loop=loop)
+            try:
+                return fut.result()
+            except exceptions.CancelledError as exc:
+                raise exceptions.TimeoutError() from exc
+    
+        waiter = loop.create_future()
+        timeout_handle = loop.call_later(timeout, _release_waiter, waiter)
+        cb = functools.partial(_release_waiter, waiter)
+    
+        fut = ensure_future(fut, loop=loop)
+        fut.add_done_callback(cb)
+    
+        try:
+            # wait until the future completes or the timeout
+            try:
+                await waiter
+            except exceptions.CancelledError:
+                if fut.done():
+                    return fut.result()
+                else:
+                    fut.remove_done_callback(cb)
+                    # We must ensure that the task is not running
+                    # after wait_for() returns.
+                    # See https://bugs.python.org/issue32751
+                    await _cancel_and_wait(fut, loop=loop)
+                    raise
+    
+            if fut.done():
+                return fut.result()
+            else:
+                fut.remove_done_callback(cb)
+                # We must ensure that the task is not running
+                # after wait_for() returns.
+                # See https://bugs.python.org/issue32751
+                await _cancel_and_wait(fut, loop=loop)
+                # In case task cancellation failed with some
+                # exception, we should re-raise it
+                # See https://bugs.python.org/issue40607
+                try:
+>                   return fut.result()
+                           ^^^^^^^^^^^^
+
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\asyncio\tasks.py:500: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <asyncio.locks.Event object at 0x000001F2ABFE9C50 [unset]>
+
+    async def wait(self):
+        """Block until the internal flag is true.
+    
+        If the internal flag is true on entry, return True
+        immediately.  Otherwise, block until another coroutine calls
+        set() to set the flag to true, then return True.
+        """
+        if self._value:
+            return True
+    
+        fut = self._get_loop().create_future()
+        self._waiters.append(fut)
+        try:
+>           await fut
+E           asyncio.exceptions.CancelledError
+
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\asyncio\locks.py:213: CancelledError
+
+The above exception was the direct cause of the following exception:
+
+auth_database = namespace(app=<fastapi.applications.FastAPI object at 0x000001F2AC01B510>, sessions=async_sessionmaker(class_='AsyncSe...nt object at 0x000001F2ABFE9C50 [unset]>, release=<asyncio.locks.Event object at 0x000001F2AC06B650 [set]>, fail=True))
+flow = 'create', commit_fails = True
+
+    @pytest.mark.parametrize("flow", ["create", "reinvite"])
+    @pytest.mark.parametrize("commit_fails", [False, True])
+    async def test_manager_activation_response_waits_for_commit(auth_database, flow, commit_fails):
+        env = auth_database
+        env.app.include_router(router, prefix=BASE)
+        register_exception_handlers(env.app)
+        path, headers, payload = await prepare_manager_command(env, flow)
+        before = await manager_snapshot(env.sessions)
+        env.gate.fail = commit_fails
+        messages = []
+    
+        async def receive():
+            return {"type": "http.request", "body": payload, "more_body": False}
+    
+        async def send(message):
+            messages.append(message)
+    
+        scope = {
+            "type": "http",
+            "asgi": {"version": "3.0"},
+            "http_version": "1.1",
+            "method": "POST",
+            "scheme": "http",
+            "path": path,
+            "raw_path": path.encode(),
+            "query_string": b"",
+            "root_path": "",
+            "headers": headers,
+            "client": None,
+            "server": ("testserver", 80),
+        }
+        task = asyncio.create_task(env.app(scope, receive, send))
+        try:
+>           await asyncio.wait_for(env.gate.entered.wait(), 10)
+
+tests\integration\test_gc_manager_response_durability.py:159: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+fut = <Task cancelled name='Task-33' coro=<Event.wait() done, defined at C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\asyncio\locks.py:200>>
+timeout = 10
+
+    async def wait_for(fut, timeout):
+        """Wait for the single Future or coroutine to complete, with timeout.
+    
+        Coroutine will be wrapped in Task.
+    
+        Returns result of the Future or coroutine.  When a timeout occurs,
+        it cancels the task and raises TimeoutError.  To avoid the task
+        cancellation, wrap it in shield().
+    
+        If the wait is cancelled, the task is also cancelled.
+    
+        This function is a coroutine.
+        """
+        loop = events.get_running_loop()
+    
+        if timeout is None:
+            return await fut
+    
+        if timeout <= 0:
+            fut = ensure_future(fut, loop=loop)
+    
+            if fut.done():
+                return fut.result()
+    
+            await _cancel_and_wait(fut, loop=loop)
+            try:
+                return fut.result()
+            except exceptions.CancelledError as exc:
+                raise exceptions.TimeoutError() from exc
+    
+        waiter = loop.create_future()
+        timeout_handle = loop.call_later(timeout, _release_waiter, waiter)
+        cb = functools.partial(_release_waiter, waiter)
+    
+        fut = ensure_future(fut, loop=loop)
+        fut.add_done_callback(cb)
+    
+        try:
+            # wait until the future completes or the timeout
+            try:
+                await waiter
+            except exceptions.CancelledError:
+                if fut.done():
+                    return fut.result()
+                else:
+                    fut.remove_done_callback(cb)
+                    # We must ensure that the task is not running
+                    # after wait_for() returns.
+                    # See https://bugs.python.org/issue32751
+                    await _cancel_and_wait(fut, loop=loop)
+                    raise
+    
+            if fut.done():
+                return fut.result()
+            else:
+                fut.remove_done_callback(cb)
+                # We must ensure that the task is not running
+                # after wait_for() returns.
+                # See https://bugs.python.org/issue32751
+                await _cancel_and_wait(fut, loop=loop)
+                # In case task cancellation failed with some
+                # exception, we should re-raise it
+                # See https://bugs.python.org/issue40607
+                try:
+                    return fut.result()
+                except exceptions.CancelledError as exc:
+>                   raise exceptions.TimeoutError() from exc
+E                   TimeoutError
+
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\asyncio\tasks.py:502: TimeoutError
+
+During handling of the above exception, another exception occurred:
+
+auth_database = namespace(app=<fastapi.applications.FastAPI object at 0x000001F2AC01B510>, sessions=async_sessionmaker(class_='AsyncSe...nt object at 0x000001F2ABFE9C50 [unset]>, release=<asyncio.locks.Event object at 0x000001F2AC06B650 [set]>, fail=True))
+flow = 'create', commit_fails = True
+
+    @pytest.mark.parametrize("flow", ["create", "reinvite"])
+    @pytest.mark.parametrize("commit_fails", [False, True])
+    async def test_manager_activation_response_waits_for_commit(auth_database, flow, commit_fails):
+        env = auth_database
+        env.app.include_router(router, prefix=BASE)
+        register_exception_handlers(env.app)
+        path, headers, payload = await prepare_manager_command(env, flow)
+        before = await manager_snapshot(env.sessions)
+        env.gate.fail = commit_fails
+        messages = []
+    
+        async def receive():
+            return {"type": "http.request", "body": payload, "more_body": False}
+    
+        async def send(message):
+            messages.append(message)
+    
+        scope = {
+            "type": "http",
+            "asgi": {"version": "3.0"},
+            "http_version": "1.1",
+            "method": "POST",
+            "scheme": "http",
+            "path": path,
+            "raw_path": path.encode(),
+            "query_string": b"",
+            "root_path": "",
+            "headers": headers,
+            "client": None,
+            "server": ("testserver", 80),
+        }
+        task = asyncio.create_task(env.app(scope, receive, send))
+        try:
+            await asyncio.wait_for(env.gate.entered.wait(), 10)
+            assert not messages, "One-time manager credential escaped before its commit"
+            assert await manager_snapshot(env.sessions) == before
+        finally:
+            env.gate.release.set()
+            if commit_fails:
+>               with pytest.raises(SQLAlchemyError, match="synthetic commit failure"):
+E               Failed: DID NOT RAISE <class 'sqlalchemy.exc.SQLAlchemyError'>
+
+tests\integration\test_gc_manager_response_durability.py:165: Failed
+---------------------------- Captured stdout call -----------------------------
+2026-10-30T20:43:11.388754Z [info     ] refresh_token_created          [app.infrastructure.repositories.refresh_token_repository] user_id=6cc41ca0-f64e-4560-a11c-a403fc723249
+------------------------------ Captured log call ------------------------------
+INFO     app.infrastructure.repositories.refresh_token_repository:refresh_token_repository.py:77 {'user_id': '6cc41ca0-f64e-4560-a11c-a403fc723249', 'event': 'refresh_token_created', 'logger': 'app.infrastructure.repositories.refresh_token_repository', 'level': 'info', 'timestamp': '2026-10-30T20:43:11.388754Z'}
+______ test_manager_activation_response_waits_for_commit[True-reinvite] _______
+
+auth_database = namespace(app=<fastapi.applications.FastAPI object at 0x000001F2AC1AAA90>, sessions=async_sessionmaker(class_='AsyncSe...vent object at 0x000001F2AC18C890 [set]>, release=<asyncio.locks.Event object at 0x000001F2AC1ABB10 [set]>, fail=True))
+flow = 'reinvite', commit_fails = True
+
+    @pytest.mark.parametrize("flow", ["create", "reinvite"])
+    @pytest.mark.parametrize("commit_fails", [False, True])
+    async def test_manager_activation_response_waits_for_commit(auth_database, flow, commit_fails):
+        env = auth_database
+        env.app.include_router(router, prefix=BASE)
+        register_exception_handlers(env.app)
+        path, headers, payload = await prepare_manager_command(env, flow)
+        before = await manager_snapshot(env.sessions)
+        env.gate.fail = commit_fails
+        messages = []
+    
+        async def receive():
+            return {"type": "http.request", "body": payload, "more_body": False}
+    
+        async def send(message):
+            messages.append(message)
+    
+        scope = {
+            "type": "http",
+            "asgi": {"version": "3.0"},
+            "http_version": "1.1",
+            "method": "POST",
+            "scheme": "http",
+            "path": path,
+            "raw_path": path.encode(),
+            "query_string": b"",
+            "root_path": "",
+            "headers": headers,
+            "client": None,
+            "server": ("testserver", 80),
+        }
+        task = asyncio.create_task(env.app(scope, receive, send))
+        try:
+            await asyncio.wait_for(env.gate.entered.wait(), 10)
+>           assert not messages, "One-time manager credential escaped before its commit"
+E           AssertionError: One-time manager credential escaped before its commit
+E           assert not [{'headers': [(b'content-length', b'634'), (b'content-type', b'application/json'), (b'cache-control', b'private, no-st...orary_password":null,"activation_token":"4oI-ne6RzJJnxm13e_YdU84o9Sdyvp9TEArRsGvos0g"}', 'type': 'http.response.body'}]
+
+tests\integration\test_gc_manager_response_durability.py:160: AssertionError
+---------------------------- Captured stdout call -----------------------------
+2026-10-30T20:43:24.697606Z [info     ] refresh_token_created          [app.infrastructure.repositories.refresh_token_repository] user_id=e5c3c6cc-8457-4300-86b1-64dca3675366
+2026-10-30T20:43:26.088114Z [error    ] unhandled_exception            [app.presentation.middleware.error_handler] error_type=SQLAlchemyError request_id=None
+------------------------------ Captured log call ------------------------------
+INFO     app.infrastructure.repositories.refresh_token_repository:refresh_token_repository.py:77 {'user_id': 'e5c3c6cc-8457-4300-86b1-64dca3675366', 'event': 'refresh_token_created', 'logger': 'app.infrastructure.repositories.refresh_token_repository', 'level': 'info', 'timestamp': '2026-10-30T20:43:24.697606Z'}
+ERROR    app.presentation.middleware.error_handler:error_handler.py:218 {'error_type': 'SQLAlchemyError', 'request_id': None, 'event': 'unhandled_exception', 'logger': 'app.presentation.middleware.error_handler', 'level': 'error', 'timestamp': '2026-10-30T20:43:26.088114Z'}
+=========================== short test summary info ===========================
+FAILED tests/integration/test_gc_manager_response_durability.py::test_manager_activation_response_waits_for_commit[False-create]
+FAILED tests/integration/test_gc_manager_response_durability.py::test_manager_activation_response_waits_for_commit[False-reinvite]
+FAILED tests/integration/test_gc_manager_response_durability.py::test_manager_activation_response_waits_for_commit[True-create]
+FAILED tests/integration/test_gc_manager_response_durability.py::test_manager_activation_response_waits_for_commit[True-reinvite]
+4 failed in 35.44s

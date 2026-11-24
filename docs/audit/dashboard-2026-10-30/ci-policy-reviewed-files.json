@@ -1,0 +1,50 @@
+[
+  {
+    "path": "scripts/ci_pipeline.py",
+    "sha256": "c95111a963915bd59f2172278b829857120c6a7f10ffe36887cbe6bbf8ebf91c",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Full incoming/current physical source read. Five negative pagination/count conditions now require fresh checks when bounded history cannot establish every outcome; a complete20-run history and all old time/source/attempt/negative-gate controls remain eligible. GitHub official workflow-run API total_count/per_page contract inspected; no repository workflow/API writes or real deployment. CI388\u2192four current245/76/42/71-line owners,13whole function ASTs/public callable signatures exact after the narrow guard fix. All86affected CI/input/reuse/artifact cases pass after extraction; final Ruff passes. Original pre-fix bytes recovered exactly against incoming inventory SHA. Script entry, job names, release permissions and environment/setup unchanged."
+  },
+  {
+    "path": "scripts/ci_gate_policy.py",
+    "sha256": "711b275d6bd1490ef492a1038814ba921e0872eebcff5c62b03187b25c5ba294",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Full incoming/current physical source read. Five negative pagination/count conditions now require fresh checks when bounded history cannot establish every outcome; a complete20-run history and all old time/source/attempt/negative-gate controls remain eligible. GitHub official workflow-run API total_count/per_page contract inspected; no repository workflow/API writes or real deployment. CI388\u2192four current245/76/42/71-line owners,13whole function ASTs/public callable signatures exact after the narrow guard fix. All86affected CI/input/reuse/artifact cases pass after extraction; final Ruff passes. Original pre-fix bytes recovered exactly against incoming inventory SHA. Script entry, job names, release permissions and environment/setup unchanged."
+  },
+  {
+    "path": "scripts/ci_shards.py",
+    "sha256": "12f22eff7f4e5a7cf785c3939f7b5fae00be47d1aaf95c6a55f90b5f702fc219",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Full incoming/current physical source read. Five negative pagination/count conditions now require fresh checks when bounded history cannot establish every outcome; a complete20-run history and all old time/source/attempt/negative-gate controls remain eligible. GitHub official workflow-run API total_count/per_page contract inspected; no repository workflow/API writes or real deployment. CI388\u2192four current245/76/42/71-line owners,13whole function ASTs/public callable signatures exact after the narrow guard fix. All86affected CI/input/reuse/artifact cases pass after extraction; final Ruff passes. Original pre-fix bytes recovered exactly against incoming inventory SHA. Script entry, job names, release permissions and environment/setup unchanged."
+  },
+  {
+    "path": "scripts/ci_push_baseline.py",
+    "sha256": "f8fec4e5843a8eac4d7b7e4ed650c18d375197f3dd6d7c1f0c73a8e0d956bdeb",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Full incoming/current physical source read. Five negative pagination/count conditions now require fresh checks when bounded history cannot establish every outcome; a complete20-run history and all old time/source/attempt/negative-gate controls remain eligible. GitHub official workflow-run API total_count/per_page contract inspected; no repository workflow/API writes or real deployment. CI388\u2192four current245/76/42/71-line owners,13whole function ASTs/public callable signatures exact after the narrow guard fix. All86affected CI/input/reuse/artifact cases pass after extraction; final Ruff passes. Original pre-fix bytes recovered exactly against incoming inventory SHA. Script entry, job names, release permissions and environment/setup unchanged."
+  },
+  {
+    "path": "scripts/release_artifacts.py",
+    "sha256": "809a4fcad80516020d1a942487574aa4c85d8dfe3907eb7845087b75a2a7c916",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All322physical source lines read. Source/ref/workflow/issuer signature checks precede interpretation, exact image manifest/config digests and local config readback remain authoritative; Docker tar members are read without path extraction; current dependency-policy expiry and source deployment contract enforced before promotion. Resume accepts only identical qualified bytes. Fixed argv paths/digest validation and trusted signed-artifact boundaries traced. Existing affected artifact mocks pass within86-case CI tranche; mocks do not establish a GitHub signature, real registry/container or VPS qualification. No artifact publication/retrieval command executed."
+  },
+  {
+    "path": "scripts/test_ci_pipeline.py",
+    "sha256": "fc7885c59d447a7993c9187fbc9cb60703eca81ecca43b408ad9358b9a8fc496",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Full incoming/current physical source read. Five negative pagination/count conditions now require fresh checks when bounded history cannot establish every outcome; a complete20-run history and all old time/source/attempt/negative-gate controls remain eligible. GitHub official workflow-run API total_count/per_page contract inspected; no repository workflow/API writes or real deployment. CI388\u2192four current245/76/42/71-line owners,13whole function ASTs/public callable signatures exact after the narrow guard fix. All86affected CI/input/reuse/artifact cases pass after extraction; final Ruff passes. Original pre-fix bytes recovered exactly against incoming inventory SHA. Script entry, job names, release permissions and environment/setup unchanged."
+  }
+]

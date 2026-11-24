@@ -1,0 +1,60 @@
+{
+  "status": "qualified-behavior-architecture-open",
+  "source_fence": {
+    "backend/app/infrastructure/imports/passport_document_importer.py": "950e1c3b07c4efbc1b370e4c3ad64cd72d3816301fd041584c875ab039d4b69f",
+    "backend/tests/unit/infrastructure/test_passport_document_import_staging.py": "c2e218d272359f43aeed99d60b3abddfdd9f6ab876f0f72d4dff6d0e2f507f49",
+    "backend/tests/unit/infrastructure/test_passport_document_workspace_cleanup.py": "49ffef50613d62a8b202e482a93a80017696e5098205d75d75d282f60944f778",
+    "backend/tests/unit/presentation/test_passport_document_import_staging_route.py": "ad5ab7c3f362624f15332afe51832d5b65ab690d00b8d4d113076fa4a0506e63",
+    "backend/tests/unit/presentation/test_passport_crop_lifecycle_contract.py": "b935560711758ef7dc8e8561f72c45d9a7c43fded3a3d128613cf39771a8eb96"
+  },
+  "baseline": {
+    "command": "passport-workspace-before-command.json",
+    "result": "3new close-drain failures +1pre-existing stale crop source-contract failure;11controlsPASS"
+  },
+  "final": {
+    "command": "passport-workspace-final-command.json",
+    "result": "15passed/4testfiles/0.36s"
+  },
+  "checks": [
+    {
+      "name": "types",
+      "argv": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "mypy",
+        "app/infrastructure/imports/passport_document_importer.py"
+      ],
+      "exit_code": 0,
+      "output": "passport-workspace-types.txt"
+    },
+    {
+      "name": "lint",
+      "argv": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "ruff",
+        "check",
+        "--no-fix",
+        "app/infrastructure/imports/passport_document_importer.py",
+        "tests/unit/infrastructure/test_passport_document_import_staging.py",
+        "tests/unit/infrastructure/test_passport_document_workspace_cleanup.py",
+        "tests/unit/presentation/test_passport_document_import_staging_route.py",
+        "tests/unit/presentation/test_passport_crop_lifecycle_contract.py"
+      ],
+      "exit_code": 0,
+      "output": "passport-workspace-lint.txt"
+    }
+  ],
+  "proof": {
+    "runtime": "Entire original importer508 module AST restored after only validated close() replacement; no API/signature/healthy import/validation/budget/parser changes.",
+    "tests": "Whole old crop contract non-import module AST restores after only four explicit helper-binding/source statements; every original assertion intact, two additive real-binding assertions. Other test bytes unchanged.",
+    "post_test_layout": "Only reordered new canonical-helper import to satisfy Ruff; tested/current non-import module AST and complete import-node multiset identical. No test rerun for import order."
+  },
+  "correction": "Attempt every owned stream close even after one reports an Exception; clear handles and byte accounting; preserve first error identity and closed/idempotent behavior.",
+  "architecture": "Importer remains516lines with longZIP orchestration; separate cohesive architecture/resource-boundary review remains open. Route native-cancellation tranche is AI-owned and separately evidenced.",
+  "limits": [
+    "Fault injection happens after each selected actual native rolled spool closes. This proves cleanup protocol for remaining real spools, not an observed production disk failure/leak.",
+    "No new line/critical budget proposal; importer is currently below the unchanged untracked-module threshold. No shared/runtime storage/native helper edit.",
+    "Unrelated crop fixture was already stale before this behavior correction; no product image/crop source changed and no claim historical image174 selection contained it."
+  ]
+}

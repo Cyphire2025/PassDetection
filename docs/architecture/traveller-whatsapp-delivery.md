@@ -96,9 +96,12 @@ Verify the image revision, migration head, Nginx configuration/reload, readiness
 and service health. Do not run a database downgrade to roll back application code:
 the additive tables may be retained while restoring a compatible previous image.
 
-The readiness expectation is `0093_phone_welcome`. Update an existing explicit
-`EXPECTED_DATABASE_SCHEMA_REVISION` environment override along with `APP_REVISION`;
-an older `.env` value takes precedence over the new source and Compose defaults.
+The historical rollout expected `0093_phone_welcome`. Current readiness uses
+`schema_revision` from the [packaged release manifest](../../backend/app/core/config/release_manifest.json).
+Any explicit `EXPECTED_DATABASE_SCHEMA_REVISION` environment override must match
+the qualified release; an older `.env` value takes precedence over source defaults.
+Use the [current release procedure](../CURRENT_RELEASE_AND_STORAGE.md) for current
+activation. The legacy commands below describe the historical rollout only.
 
 The release helper keeps VPS commands short. From the exact pushed checkout, run
 `python3 scripts/release_traveller_whatsapp.py prepare --revision <full-commit-sha>`.

@@ -6,6 +6,7 @@ import hashlib
 import hmac
 import time
 from collections import defaultdict
+from contextlib import suppress
 
 from redis.asyncio import Redis
 
@@ -38,6 +39,18 @@ class MobileOTPRateLimiter:
             self._redis = None
 
     async def consume(self, *, normalized_phone: str, ip_address: str | None) -> None:
+        # All three callers create request-scoped clients. Capture the pool
+        # before a failed counter may clear self._redis for local fallback.
+        redis = self._redis
+        try:
+            await self._consume(normalized_phone=normalized_phone, ip_address=ip_address)
+        finally:
+            if redis is not None:
+                # Cleanup cannot replace a quota rejection or cancellation.
+                with suppress(Exception):
+                    await redis.aclose()
+
+    async def _consume(self, *, normalized_phone: str, ip_address: str | None) -> None:
         phone_key = self._key("phone", normalized_phone)
         ip_key = self._key("ip", ip_address or "unknown")
         limits = (

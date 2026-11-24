@@ -1,0 +1,28 @@
+{
+  "status": "current complete physical test-source review only",
+  "files": 7,
+  "physical_lines": 1624,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-delivery-test-source-reviewed-files.json",
+    "sha256": "e7172d835a287fc25c32b5b0eebe2522c541ed27bd09ad29b10d7d80932add29"
+  },
+  "source_before_equals_after": true,
+  "source_fence": {
+    "backend/tests/unit/infrastructure/test_bounded_delivery.py": "6ad2a58d927791ca340c2a1a7a148a1e84af9b89220c452d7a8164b3904cd5a6",
+    "backend/tests/unit/infrastructure/test_bounded_vision_http.py": "e26b600ccdd5c1a7cb724a3f75eb13f62fd127d634f9cf6e62e951c677ce21ce",
+    "backend/tests/unit/infrastructure/test_document_delivery_slices.py": "746667eeebfd1e13bbdacebcadd484e22ae10bdc6d83aab4054f1b716d3737e3",
+    "backend/tests/unit/infrastructure/test_document_update_runtime.py": "c4033646820e3e5da848c31b96e3ed93231d93132fed85a1864f9bbf3e7954a4",
+    "backend/tests/unit/infrastructure/test_document_update_receipts.py": "4f1af992559cc3d5ae50dcde92e796f4a92429a958a664f287163ac115b48479",
+    "backend/tests/unit/infrastructure/test_document_whatsapp_delivery.py": "c0b81a26f33b44de26023316cb4062cedb68295069a5f9650f5bcb40c81a0dca",
+    "backend/tests/unit/infrastructure/test_qr_whatsapp_delivery.py": "90975f9cca1666e3f1565ab5b72da46e1b657fe107b77c82f761f51d74735010"
+  },
+  "new_execution": false,
+  "runtime_mutation": false,
+  "new_validated_findings": [],
+  "scope": "Retained dashboard document/text/QR delivery, shared bounded vision transport and cross-ledger receipt outcomes. Dedicated Inbox/native application paths excluded.",
+  "limits": [
+    "Source of existing real SQLite controls is distinct from running them now.",
+    "Mock transports/stores/providers and compiled SQL cannot establish live service/PG race/production speed.",
+    "No earlier source-bound runtime authority/resource follow-up automatically closed."
+  ]
+}

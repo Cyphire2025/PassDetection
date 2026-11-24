@@ -1,0 +1,36 @@
+{
+  "command": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "tests/integration/test_my_photos_operational_claims.py",
+    "tests/integration/test_my_photos_operational_lock_order.py",
+    "--cov=app.infrastructure.my_photos.aws_face_search",
+    "--cov=app.infrastructure.my_photos.gallery_manifest_providers",
+    "--cov=app.infrastructure.my_photos.operational_claim_queries",
+    "--cov=app.infrastructure.my_photos.operational_index_jobs",
+    "--cov=app.infrastructure.my_photos.operational_index_publication",
+    "--cov=app.infrastructure.my_photos.operational_job_claims",
+    "--cov=app.infrastructure.my_photos.operational_job_contracts",
+    "--cov=app.infrastructure.my_photos.operational_job_lifecycle",
+    "--cov=app.infrastructure.my_photos.operational_job_policy",
+    "--cov=app.infrastructure.my_photos.operational_job_queries",
+    "--cov=app.infrastructure.my_photos.operational_media_jobs",
+    "--cov=app.infrastructure.my_photos.operational_runtime",
+    "--cov=app.infrastructure.my_photos.provider_tasks",
+    "--cov-branch",
+    "--cov-append",
+    "--cov-report=json:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\operational-claim-lock-order-coverage.json",
+    "--cov-report=xml:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\operational-claim-lock-order-coverage.xml"
+  ],
+  "exit_code": 0,
+  "purged_changed_owners": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\infrastructure\\my_photos\\operational_job_claims.py",
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\infrastructure\\my_photos\\operational_claim_queries.py"
+  ],
+  "retained11_other_source_hashes_match": true,
+  "scope": "Final15 actual admission/order/deletion cases replay both owners after explicit gallery-eligibility predicate extraction; earlier40 affected and original191 checkpoints retain source attribution. No broad rerun."
+}

@@ -1,0 +1,223 @@
+{
+  "original": "aa160e1bdcd3f651706adfc6b18edfbb2b2d08784f8d32ce7080c23289b29b7e",
+  "public_names": [
+    "AttendanceScanInput",
+    "AttendanceScanRecoveryContext",
+    "PendingAttendanceScan",
+    "RejectedAttendanceScan",
+    "AttendanceQueueCapacityError",
+    "AttendanceDiscardReason",
+    "AttendanceDiscardTombstone",
+    "AttendanceScanSyncResult",
+    "AttendanceScanSyncUpdate",
+    "MAX_PENDING_ATTENDANCE_SCANS_PER_OWNER",
+    "enqueueAttendanceScan",
+    "countPendingAttendanceScans",
+    "listPendingAttendanceScans",
+    "getNextPendingAttendanceAttemptAt",
+    "removePendingAttendanceScan",
+    "countRejectedAttendanceScans",
+    "listRejectedAttendanceScans",
+    "acknowledgeRejectedAttendanceScans",
+    "syncPendingAttendanceScans",
+    "countPendingAttendanceDiscardAudits",
+    "syncAttendanceDiscardTombstones",
+    "tryRecordAttendanceScan",
+    "getBrowserAttendanceQueueSafetySnapshot",
+    "collectBrowserAttendanceQueueCloseout",
+    "publishBrowserAttendanceQueueCloseout",
+    "runAttendanceQueueLogoutBoundary",
+    "subscribeAttendanceQueueScheduleChanges"
+  ],
+  "owners": [
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-contracts.ts",
+      "declarations": [
+        "AttendanceScanInput",
+        "AttendanceScanRecoveryContext",
+        "PendingAttendanceScan",
+        "RejectedAttendanceScan",
+        "StoredPendingAttendanceScan",
+        "StoredRejectedAttendanceScan",
+        "AttendanceQueueCapacityError",
+        "AttendanceDiscardReason",
+        "AttendanceDiscardTombstone",
+        "AttendanceScanSyncResult",
+        "AttendanceScanSyncUpdate",
+        "MAX_PENDING_ATTENDANCE_SCANS_PER_OWNER",
+        "AttendanceSyncChunkResult"
+      ],
+      "sha256": "1334b70770246b7a59ea3b531aa63c0f3fd809ebafa88f21ccc85a0dd649fc15",
+      "physical_lines": 117
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-runtime.ts",
+      "declarations": [
+        "SCHEDULE_EVENT",
+        "SCHEDULE_CHANNEL",
+        "MIGRATION_LOCK",
+        "OWNER_LOCK_PREFIX",
+        "DRAIN_LOCK_PREFIX",
+        "fallbackOwnerLanes",
+        "subscribeAttendanceQueueScheduleChanges",
+        "getCurrentUserId",
+        "requireCurrentUserId",
+        "assertCurrentOwner",
+        "assertAuthenticationSnapshotCurrent",
+        "announceScheduleChanged",
+        "withOwnerQueueLock",
+        "withBrowserLock"
+      ],
+      "sha256": "b3791303f7115ceb2d353a91cced27c72ecb30e4733ea783dd3c2d0525ecdaea",
+      "physical_lines": 94
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-idb.ts",
+      "declarations": [
+        "PENDING_STORE_NAME",
+        "REJECTED_STORE_NAME",
+        "OWNER_INDEX",
+        "readAllUnknown",
+        "requestToPromise",
+        "transactionToPromise"
+      ],
+      "sha256": "c6f24dc58052778137d9e05a1de751f041f6b794a7d156e3932ba5b54b626bd5",
+      "physical_lines": 31
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-codec.ts",
+      "declarations": [
+        "protectPendingAttendanceScan",
+        "restorePendingAttendanceScan",
+        "protectRejectedAttendanceScan",
+        "restoreRejectedAttendanceScan",
+        "pendingScanAssociatedData",
+        "rejectedScanAssociatedData",
+        "isProtectedBrowserValue",
+        "recoveryContext",
+        "normalizeRecoveryContext"
+      ],
+      "sha256": "0d36fc4c837dcfb3ef6837d907e2a13b85e5ecac7606340a60cf608d1b41660c",
+      "physical_lines": 163
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-migration.ts",
+      "declarations": [
+        "migrateLegacyQueueRecords",
+        "normalizePendingAttendanceScan",
+        "normalizeRejectedAttendanceScan",
+        "replaceMigratedRows",
+        "normalizedIso",
+        "normalizedOptionalIso",
+        "stringValue"
+      ],
+      "sha256": "b889513ef674409de884ba507d5f07891195cd21495fee863ad4cc97ac4362f0",
+      "physical_lines": 153
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-storage.ts",
+      "declarations": [
+        "SYNCHRONIZED_DISCARD_RETENTION_MS",
+        "privacyMigrationPromise",
+        "listPendingForOwner",
+        "listRejectedForOwner",
+        "removePendingForOwner",
+        "openDb",
+        "listDiscardTombstonesForOwner",
+        "updateDiscardTombstones",
+        "purgeExpiredSynchronizedDiscardTombstones"
+      ],
+      "sha256": "d8b70f13b825c59d265e046b0daf81fad33d175b511d49f7fe7718108f194458",
+      "physical_lines": 132
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-delivery-state.ts",
+      "declarations": [
+        "quarantineRejectedAttendanceScan",
+        "markPendingAttendanceRetry",
+        "claimPendingAttendanceDelivery",
+        "releasePendingAttendanceDelivery"
+      ],
+      "sha256": "ae0339689f560f757aa2a10a921a9aebbe4fe3e25db224ba26d5eb4b3bb84a48",
+      "physical_lines": 121
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-commands.ts",
+      "declarations": [
+        "enqueueAttendanceScan",
+        "countPendingAttendanceScans",
+        "listPendingAttendanceScans",
+        "getNextPendingAttendanceAttemptAt",
+        "removePendingAttendanceScan",
+        "countRejectedAttendanceScans",
+        "listRejectedAttendanceScans",
+        "acknowledgeRejectedAttendanceScans"
+      ],
+      "sha256": "029ebe4f9e2d0e4dcff585fe9bfcc4a524152350ddbefa378d358962061ae3cc",
+      "physical_lines": 221
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-discards.ts",
+      "declarations": [
+        "countPendingAttendanceDiscardAudits",
+        "AttendanceDiscardBatchResponse",
+        "syncAttendanceDiscardTombstones",
+        "createDiscardTombstone"
+      ],
+      "sha256": "415f87b31c3e2606721182dfb36aae75dee8cbc48c5a6be6b890512fb0d4c601",
+      "physical_lines": 174
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-replay.ts",
+      "declarations": [
+        "activeSync",
+        "syncPendingAttendanceScans",
+        "performPendingAttendanceScanSync",
+        "tryRecordAttendanceScan",
+        "emptySyncResult"
+      ],
+      "sha256": "804dae99281c312061b4b8f60dd7855f1961b04bccb8239e03103ab73dddc979",
+      "physical_lines": 148
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-outcomes.ts",
+      "declarations": [
+        "syncPendingAttendanceScanBatch",
+        "syncLegacyPendingAttendanceScan",
+        "publishAttendanceProgress",
+        "isBatchCompatiblePendingScan",
+        "createAttendanceScanBatchId",
+        "releaseAttendanceBatchClaims",
+        "emptySyncChunkResult"
+      ],
+      "sha256": "023d17fa2f90d54f3e7a4809a9d6dd6027a9fb58a7cc4d8821f93bf34465a4a1",
+      "physical_lines": 245
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-errors.ts",
+      "declarations": [
+        "isLikelyNetworkFailure",
+        "getErrorCode",
+        "getRetryAfterMs",
+        "getErrorMessage"
+      ],
+      "sha256": "2d64d7da2d55c2685655b833041db51791b7ee7d2f67b4a7b171aec2f0841234",
+      "physical_lines": 30
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-closeout.ts",
+      "declarations": [
+        "getBrowserAttendanceQueueSafetySnapshot",
+        "collectBrowserAttendanceQueueCloseout",
+        "publishBrowserAttendanceQueueCloseout",
+        "collectQueueCloseoutUnlocked",
+        "runAttendanceQueueLogoutBoundary",
+        "readQueueSafetySnapshot",
+        "purgeQueueForOwner"
+      ],
+      "sha256": "46ee22ac8f1bcaa731e1ba515d759efb33beb939bea4ca66ef5fff189cbed25f",
+      "physical_lines": 179
+    }
+  ],
+  "facade": "export { type AttendanceScanInput, type AttendanceScanRecoveryContext, type PendingAttendanceScan, type RejectedAttendanceScan, AttendanceQueueCapacityError, type AttendanceDiscardReason, type AttendanceDiscardTombstone, type AttendanceScanSyncResult, type AttendanceScanSyncUpdate, MAX_PENDING_ATTENDANCE_SCANS_PER_OWNER } from \"./attendance-queue-contracts\";\nexport { subscribeAttendanceQueueScheduleChanges } from \"./attendance-queue-runtime\";\nexport { enqueueAttendanceScan, countPendingAttendanceScans, listPendingAttendanceScans, getNextPendingAttendanceAttemptAt, removePendingAttendanceScan, countRejectedAttendanceScans, listRejectedAttendanceScans, acknowledgeRejectedAttendanceScans } from \"./attendance-queue-commands\";\nexport { countPendingAttendanceDiscardAudits, syncAttendanceDiscardTombstones } from \"./attendance-queue-discards\";\nexport { syncPendingAttendanceScans, tryRecordAttendanceScan } from \"./attendance-queue-replay\";\nexport { getBrowserAttendanceQueueSafetySnapshot, collectBrowserAttendanceQueueCloseout, publishBrowserAttendanceQueueCloseout, runAttendanceQueueLogoutBoundary } from \"./attendance-queue-closeout\";\n"
+}

@@ -1,37 +1,26 @@
 /**
- * Real Chromium regression for the existing MediaPipe model and upload validator.
+ * Real Chromium regression for the current MediaPipe loader and strict final-JPEG camera validator.
  * Run from frontend: node scripts/verify-visa-photo-browser.mjs [--baseline]
  * Uses local assets and a public MediaPipe test portrait, never production data.
  * Results/fixture cache are written below ignored test-results/visa-photo-browser.
  */
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
-import { createHash, randomBytes } from "node:crypto";
+import { randomBytes } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { build } from "vite";
+import { verifiedPortrait, portraitUrl as fixtureUrl, portraitSha256 as fixtureSha256 } from "./browser-verification-portrait.mjs";
 
 const frontend = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const outputDirectory = join(frontend, "test-results", "visa-photo-browser");
 const baseline = process.argv.includes("--baseline");
 const selectedScenario = process.argv.find(argument => argument.startsWith("--scenario="))?.slice("--scenario=".length);
-const fixtureUrl = "https://storage.googleapis.com/mediapipe-assets/portrait.jpg";
-const fixtureSha256 = "a6f11efaa834706db23f275b6115058fa87fc7f14362681e6abe14e82749de3e";
 const nonce = randomBytes(24).toString("base64");
 await mkdir(outputDirectory, { recursive: true });
-const fixturePath = join(outputDirectory, "portrait.jpg");
-let fixture;
-try {
-  fixture = await readFile(fixturePath);
-} catch {
-  const response = await fetch(fixtureUrl, { signal: AbortSignal.timeout(15_000) });
-  assert.equal(response.status, 200, "MediaPipe test portrait must download");
-  fixture = Buffer.from(await response.arrayBuffer());
-  await writeFile(fixturePath, fixture);
-}
-assert.equal(createHash("sha256").update(fixture).digest("hex"), fixtureSha256, "Unexpected test portrait revision");
+const fixture = await verifiedPortrait(frontend);
 
 // Extract the real policy function without importing Next's server-only module.
 const proxySource = (await readFile(join(frontend, "proxy.ts"), "utf8")).replaceAll("\r\n", "\n");
@@ -44,13 +33,13 @@ const nodePolicy = policyFunction[0]
 const csp = new Function(`${nodePolicy}; return buildContentSecurityPolicy;`)()(nonce, false);
 assert.ok(!/(?:^|\s)'unsafe-eval'(?:\s|;|$)/.test(csp));
 
-const runtimePath = join(frontend, "features/upload/services/visa-photo-upload-validation.ts").replaceAll("\\", "/");
-const prewarmPath = join(frontend, "features/upload/services/visa-photo-upload-detector.ts").replaceAll("\\", "/");
+const runtimePath = join(frontend, "features/upload/services/visa-camera-final-validation.ts").replaceAll("\\", "/");
+const qualityPath = join(frontend, "features/upload/components/visa-selfie-quality.ts").replaceAll("\\", "/");
 const loaderPath = join(frontend, "features/upload/services/visa-face-detection-loader.ts").replaceAll("\\", "/");
 const entrySource = `
-import { verifyUploadedVisaPhoto } from ${JSON.stringify(runtimePath)};
-${baseline ? "" : `import { prewarmUploadedVisaPhotoDetector } from ${JSON.stringify(prewarmPath)};`}
-${baseline ? "" : `import { loadVisaFaceDetection } from ${JSON.stringify(loaderPath)};`}
+import { validateCapturedVisaPhoto } from ${JSON.stringify(runtimePath)};
+import { encodeVisaJpegUnderLimit } from ${JSON.stringify(qualityPath)};
+${baseline ? "" : `import { loadVisaFaceDetection, initializeVisaFaceDetection } from ${JSON.stringify(loaderPath)};`}
 window.testViolations = [];
 document.addEventListener("securitypolicyviolation", event => {
   window.testViolations.push({ directive: event.effectiveDirective, blocked: event.blockedURI });
@@ -78,41 +67,40 @@ window.runDetector = async () => {
       if (detections.length < 1) throw new Error("Warm face detection lost the face");
       warmMs.push(performance.now() - before);
     }
-    await detector.close();
     return {coldMs, faceCount, blankFaceCount, warmMs};
   } catch (error) {
     return {error: String(error), elapsedMs: performance.now() - start};
-  }
+  } finally { await detector.close(); }
 };
-window.prewarmDetector = async () => {
-  const before = performance.now();
-  ${baseline ? "" : "await prewarmUploadedVisaPhotoDetector();"}
-  return performance.now() - before;
-};
-window.verifyFixture = async kind => {
+window.verifyFixture = async (kind, captureMode = "validated") => {
   const canvas = document.createElement("canvas"); canvas.width = 800; canvas.height = 1200;
   const context = canvas.getContext("2d");
   context.fillStyle = kind === "colored" ? "#406070" : "white";
   context.fillRect(0, 0, 800, 1200);
   if (kind !== "blank") {
     const image = new Image(); image.src = "/portrait.jpg"; await image.decode();
-    // Synthetic test composite: face interior with clear outer strips. This is
-    // not a product sample and is not evidence of broad biometric accuracy.
-    context.drawImage(image, 258, 20, 310, 440, 155, 170, 490, 700);
+    // A pinned public portrait composite with clear outer strips, never product data.
+    context.drawImage(image, 278, 30, 255, 360, 120, 110, 560, 790);
   }
-  const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
-  const file = new File([blob], kind + ".png", {type: "image/png"});
   const before = performance.now();
+  let detector;
   try {
-    const result = await verifyUploadedVisaPhoto(file);
-    const elapsedMs = performance.now() - before;
-    const exactOutput = await createImageBitmap(result.file);
-    const dimensions = [exactOutput.width, exactOutput.height]; exactOutput.close();
-    return {elapsedMs, validation: result.validation, dimensions,
-      bytes: result.file.size, type: result.file.type};
-  } catch (error) {
-    return {error: String(error), elapsedMs: performance.now() - before};
-  }
+    const encoded = await encodeVisaJpegUnderLimit(quality => new Promise((resolve, reject) =>
+      canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error("JPEG encoding failed")), "image/jpeg", quality)), 2 * 1024 * 1024);
+    const { FaceDetection } = await loadVisaFaceDetection();
+    detector = new FaceDetection({ locateFile: file => "/mediapipe/face_detection/" + file });
+    detector.setOptions({model: "short", selfieMode: false, minDetectionConfidence: 0.55});
+    await initializeVisaFaceDetection(detector);
+    const validation = await validateCapturedVisaPhoto({blob: encoded.blob, finalCanvas: document.createElement("canvas"),
+      mode: captureMode, isCurrentCapture: () => true, detectFinalFaces: async image => {
+        let detections = []; detector.onResults(result => { detections = result.detections; });
+        await detector.send({ image }); return detections;
+      }});
+    const image = await createImageBitmap(encoded.blob);
+    const dimensions = [image.width, image.height]; image.close();
+    return {elapsedMs: performance.now() - before, validation, dimensions, bytes: encoded.blob.size, type: encoded.blob.type};
+  } catch (error) { return {error: String(error), elapsedMs: performance.now() - before}; }
+  finally { if (detector) await detector.close(); }
 };
 window.testReady = true;
 `;
@@ -172,14 +160,21 @@ const server = createServer(async (request, response) => {
 });
 await new Promise(resolve => server.listen(0, "127.0.0.1", resolve));
 const origin = `http://127.0.0.1:${server.address().port}`;
-const report = {baseline, fixture: {url: fixtureUrl, sha256: createHash("sha256").update(fixture).digest("hex")}, csp, results: []};
+const report = {baseline, fixture: {url: fixtureUrl, sha256: fixtureSha256}, csp, results: []};
 let browser;
 try {
   browser = await chromium.launch({headless: true, args: ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader"]});
   report.browser = browser.version();
+  const context = await browser.newContext({ serviceWorkers: "block" });
+  const externalRequests = [];
+  await context.routeWebSocket("**/*", socket => socket.close());
+  await context.route("**/*", route => {
+    if (new URL(route.request().url()).origin === origin) return route.continue();
+    externalRequests.push(route.request().url()); return route.abort("blockedbyclient");
+  });
   for (const selectedMode of selectedScenario ? [] : ["simd", "scalar"]) {
     mode = selectedMode;
-    const page = await browser.newPage();
+    const page = await context.newPage();
     const errors = [];
     page.on("pageerror", error => errors.push(String(error)));
     const requestStart = requests.length;
@@ -202,11 +197,12 @@ try {
     await page.close();
     if (baseline) continue;
 
-    const uploadPage = await browser.newPage();
+    const uploadPage = await context.newPage();
     await uploadPage.goto(origin);
     await uploadPage.waitForFunction(() => window.testReady);
-    const prewarmMs = await uploadPage.evaluate(() => window.prewarmDetector());
+
     const uploadResults = [];
+    report.results.push({kind: "current-strict-final-jpeg-validation", mode, uploadResults});
     for (const kind of ["white", "white", "blank", "colored", "white"]) {
       const result = await uploadPage.evaluate(kind => window.verifyFixture(kind), kind);
       uploadResults.push({kind, ...result});
@@ -214,13 +210,14 @@ try {
       assert.equal(result.type, "image/jpeg");
       assert.deepEqual(result.dimensions, [800, 1200]);
       assert.ok(result.bytes > 0 && result.bytes <= 2 * 1024 * 1024);
-      assert.equal(result.validation.outcome, kind === "white" ? "pass" : "hard_failure");
-      assert.equal(result.validation.facePresent, kind !== "blank");
+      assert.equal(result.validation.outcome, kind === "white" ? "borderline" : "hard_failure", `${mode} ${kind}: ${result.validation.message}`);
+      if (kind === "white") assert.match(result.validation.message, /Confirm|confirm/, "The real composite remains explicitly reviewable, never auto-accepted");
+      assert.equal(result.validation.faceCount, kind === "blank" ? "no_face" : "one_face");
       if (kind === "colored") assert.equal(result.validation.background.isLightNeutral, false);
     }
     const uploadViolations = await uploadPage.evaluate(() => window.testViolations);
     assert.deepEqual(uploadViolations, []);
-    report.results.push({kind: "exact-output-validation", mode, prewarmMs, uploadResults, violations: uploadViolations});
+    report.results.at(-1).violations = uploadViolations;
     await uploadPage.close();
   }
   for (const scenario of baseline ? [] : selectedScenario ? [selectedScenario] : ["graph-http503", "graph-network-failure-delayed-loader", "loader-http522"]) {
@@ -228,7 +225,7 @@ try {
     failedModelRequests = scenario === "graph-http503" ? 1 : 0;
     delayedLoaderRequests = scenario === "graph-network-failure-delayed-loader" ? 1 : 0;
     failedLoaderRequests = scenario === "loader-http522" ? 1 : 0;
-    const recoveryPage = await browser.newPage();
+    const recoveryPage = await context.newPage();
     const errors = [];
     const consoleErrors = [];
     recoveryPage.on("pageerror", error => errors.push(String(error)));
@@ -247,11 +244,12 @@ try {
     assert.ok(failedAttempt.error, "Failed model must reject rather than accept an unchecked image");
     assert.ok(failedAttempt.elapsedMs < 10_000, "Network failure must reject within a bounded timeout");
     assert.ok(!retry.error, `Retry after transient model failure: ${retry.error}`);
-    assert.equal(retry.validation.outcome, "pass");
+    assert.notEqual(retry.validation.outcome, "hard_failure", retry.validation.message);
     assert.deepEqual(violations, []);
     assert.deepEqual(errors, [], "Network retry must not cause uncaught runtime errors");
     await recoveryPage.close();
   }
+  assert.deepEqual(externalRequests, [], "Detector probes must remain entirely loopback after acquiring the pinned public fixture");
   report.passed = true;
 } catch (error) {
   report.passed = false; report.failure = String(error); process.exitCode = 1;
@@ -262,8 +260,8 @@ try {
   await writeFile(reportPath, JSON.stringify(report, null, 2));
   console.log(JSON.stringify({
     passed: report.passed, baseline, browser: report.browser, failure: report.failure,
-    results: report.results.map(({kind, mode, scenario, coldMs, warmMs, prewarmMs, uploadResults, failedAttempt, retry, error, violations, errors}) => ({
-      kind, mode, scenario, coldMs, warmMs, prewarmMs, error, violations, errors,
+    results: report.results.map(({kind, mode, scenario, coldMs, warmMs, uploadResults, failedAttempt, retry, error, violations, errors}) => ({
+      kind, mode, scenario, coldMs, warmMs, error, violations, errors,
       uploadResults: uploadResults?.map(({kind, elapsedMs, validation}) => ({kind, elapsedMs, outcome: validation?.outcome})),
       failedAttempt, retry,
     })),

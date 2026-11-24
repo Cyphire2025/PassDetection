@@ -1,0 +1,59 @@
+{
+  "status": "Retained passenger/group deletion authority and deferred object-cleanup source cohort; physical reads complete",
+  "files": [
+    {
+      "path": "backend/tests/unit/presentation/test_client_group_storage_cleanup.py",
+      "sha256": "b22d9e7f1f02a90af2943aab92f56a3bf8c84020eee6a97c1475412632fcda0a",
+      "physical_lines": 388,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-388. Group permanent-delete route requires explicit cookie CSRF/recent MFA. Every original/thumbnail/back/photo plus derived/edit object key staged, passport rows deleted before qualifier FK rows; source contact sync receives captured broadcast IDs. Commit failure records separate safe failure without synchronous object deletion, active roster decisions block before cleanup, exact same-retention retry returns durable historical count without new cleanup. Existing inert legacy hold field policy retained. Fake DB controls read only; no tests/services run."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_passport_submission_delete_access.py",
+      "sha256": "5848bdbdec5005e834af0c49cedc68f373985258f88b72faef65930ae1510d05",
+      "physical_lines": 482,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-482 in bounded1-240/241-482. HTTP/real relational fixture source checks tenant-private access, specific manager/admin/platform passenger-delete authority without granting whole-group deletion, staff/coordinator/client-manager denial and all-or-nothing mixed selection. Active/unknown QR private deliveries block before cascade; queued row cancelled first. All canonical covers/edits cleanup encrypted and tenant-bound; successful journal/notification deletion/source propagation preserved. Existing legacy hold remains inert and global purge explicit. No DB, native/provider or HTTP execution in this pass."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_passport_bulk_delete_route.py",
+      "sha256": "f04b6d8acee374694823a556e1eb8fb0b75cbdb295c87e99ea2a2da628c759b9",
+      "physical_lines": 595,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-595 in bounded1-220/221-420/421-595. Explicit route CSRF/recent MFA, same selected ID/order and every stored object variant, durable commit before bounded inline cleanup, deferred501-object path and unknown storage failures, missing selection all-or-nothing, FOR UPDATE precedes active roster lookup, exact committed audit replay and no cleanup on failed commit. Instrumentation helper resolves actual owner; original business assertions unchanged. Source read only; previously qualified root bulk implementation remains frozen."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_permanent_delete.py",
+      "sha256": "7bca9c679fe968144e0ca24759cd4115c459d9b0a47c10fceee7ba9614b42818",
+      "physical_lines": 300,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-300 in bounded1-170/171-300. Existing authoritative locked tenant group and archived-only/retention-consistent replay, active roster gate, linked broadcast locks/private delivery cancellation, all scoped passport variants and captured sync links, conditional retained provenance/cleanup and FK deletion order, policy deadline/audit/commit failure. Real transaction responsibility reviewed without automatic line-count refactor or altered semantics; no provider/object/DB operations executed."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions.py",
+      "sha256": "c7f71262abc162e63839c977f407770a2837651f8995472ef52154f990334d40",
+      "physical_lines": 134,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "focused",
+      "notes": "Physical107-133 only: actual stable bulk facade reexports current deletion/approval owners and ordered router inclusion. Exact original caller alias traced; no whole-file credit."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_groups.py",
+      "sha256": "b48a7e4843e9f1b8d48d7a3483e5ad4d52eac984e65c05a9b78b716559b13179",
+      "physical_lines": 859,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "focused",
+      "notes": "Physical803-832 only: actual permanent-delete HTTP CSRF/recent-MFA declaration and typed dependency dispatch to current owner, followed by restore-route boundary. No whole-file or new authority/service claim."
+    }
+  ]
+}

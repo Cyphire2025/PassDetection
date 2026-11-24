@@ -15,6 +15,7 @@ from sqlalchemy.dialects import postgresql
 
 from app.presentation.api.v1.routes import whatsapp_bulk_resend_composer as composer
 from app.presentation.api.v1.routes import whatsapp_bulk_resend_preview as preview_route
+from app.presentation.api.v1.routes import whatsapp_bulk_resend_preview_values as preview_values
 from app.presentation.api.v1.routes import whatsapp_bulk_resend_support as support
 from app.presentation.api.v1.schemas.whatsapp_schemas import (
     WhatsAppBulkResendPreviewRequest,
@@ -35,8 +36,8 @@ def preview_fixture(bulk_resend_fixture, monkeypatch):
     fixture = bulk_resend_fixture
     async def welcomed_phones(*args, **kwargs):
         return {recipient.normalized_phone_number: "delivered" for recipient in fixture.recipients} if fixture.body.message_type != "welcome" else {}
-    monkeypatch.setattr(preview_route, "welcome_states_for_phones", welcomed_phones)
-    monkeypatch.setattr(preview_route, "broadcast_welcome_states", AsyncMock(return_value={}))
+    monkeypatch.setattr(preview_values, "welcome_states_for_phones", welcomed_phones)
+    monkeypatch.setattr(preview_values, "broadcast_welcome_states", AsyncMock(return_value={}))
 
     for recipient in fixture.recipients:
         recipient.name = f"Passenger {recipient.id}"
@@ -77,10 +78,10 @@ async def test_welcome_resend_preview_accepts_saved_delivery_and_skips_active_ph
     fixture = preview_fixture
     fixture.body = fixture.body.model_copy(update={"message_type": "welcome"})
     fixture.sources.update({person.id: source(person) for person in fixture.recipients})
-    monkeypatch.setattr(preview_route, "welcome_states_for_phones", AsyncMock(return_value={
+    monkeypatch.setattr(preview_values, "welcome_states_for_phones", AsyncMock(return_value={
         person.normalized_phone_number: "read" for person in fixture.recipients
     }))
-    monkeypatch.setattr(preview_route, "broadcast_welcome_states", AsyncMock(return_value={
+    monkeypatch.setattr(preview_values, "broadcast_welcome_states", AsyncMock(return_value={
         fixture.recipients[0].normalized_phone_number: "processing",
         fixture.recipients[1].normalized_phone_number: "delivery_unknown",
     }))

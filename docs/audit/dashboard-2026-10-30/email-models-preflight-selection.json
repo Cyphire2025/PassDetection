@@ -1,0 +1,10 @@
+{
+  "path": "backend/app/infrastructure/database/email_models.py",
+  "lines": 1417,
+  "sha256": "1801ba03397d6b0ac28d032683778592184f22f9b559c5b23d3a524f0a57cadd",
+  "inventory_current": true,
+  "current_full_ledgers": [],
+  "current_full_records": [],
+  "current_other_records": [],
+  "excluded_active_or_native": false
+}

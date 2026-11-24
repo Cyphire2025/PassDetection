@@ -1,0 +1,28 @@
+
+ RUN  v4.1.12 C:/Users/nipun/Desktop/PassDetection/frontend
+
+ ❯ features/mcp/hooks/use-mcp-owner.test.tsx (7 tests | 2 failed) 87ms
+   × stops automatic private requests polling after denial and retains explicit recovery 7ms
+   × stops automatic private operations polling after denial and retains explicit recovery 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  features/mcp/hooks/use-mcp-owner.test.tsx > stops automatic private requests polling after denial and retains explicit recovery
+ FAIL  features/mcp/hooks/use-mcp-owner.test.tsx > stops automatic private operations polling after denial and retains explicit recovery
+AssertionError: expected "vi.fn()" to be called 2 times, but got 5 times
+ ❯ features/mcp/hooks/use-mcp-owner.test.tsx:84:21
+     82|     expect(request).toHaveBeenCalledTimes(2);
+     83|     await act(async () => { await vi.advanceTimersByTimeAsync(15_000);…
+     84|     expect(request).toHaveBeenCalledTimes(2);
+       |                     ^
+     85|     request.mockResolvedValue(data as never);
+     86|     await act(async () => { expect((await view.result.current.refetch(…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 5 passed (7)
+   Start at  01:12:09
+   Duration  965ms (transform 67ms, setup 142ms, import 148ms, tests 87ms, environment 497ms)
+

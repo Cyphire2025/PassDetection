@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="1" failures="3" skipped="0" tests="3" time="0.472" timestamp="2026-10-31T10:32:35.642931+05:30" hostname="Nipun5070ti"><testcase classname="tests.unit.presentation.test_document_rename_archive_native_cancellation" name="test_cancelled_zip_write_drains_before_closing_spool_or_releasing_admission[False]" time="0.008"><failure message="AssertionError: Spool closed while a real ZipFile native write was still blocked&#10;assert not True">backend\tests\unit\presentation\test_document_rename_archive_native_cancellation.py:74: in test_cancelled_zip_write_drains_before_closing_spool_or_releasing_admission
+    assert not closed_early, "Spool closed while a real ZipFile native write was still blocked"
+E   AssertionError: Spool closed while a real ZipFile native write was still blocked
+E   assert not True</failure></testcase><testcase classname="tests.unit.presentation.test_document_rename_archive_native_cancellation" name="test_cancelled_zip_write_drains_before_closing_spool_or_releasing_admission[True]" time="0.005"><failure message="AssertionError: Spool closed while a real ZipFile native write was still blocked&#10;assert not True">backend\tests\unit\presentation\test_document_rename_archive_native_cancellation.py:74: in test_cancelled_zip_write_drains_before_closing_spool_or_releasing_admission
+    assert not closed_early, "Spool closed while a real ZipFile native write was still blocked"
+E   AssertionError: Spool closed while a real ZipFile native write was still blocked
+E   assert not True</failure></testcase><testcase classname="tests.unit.presentation.test_document_rename_archive_native_cancellation" name="test_cancelled_stream_read_drains_before_closing_owned_file" time="0.002"><failure message="assert (not True)">backend\tests\unit\presentation\test_document_rename_archive_native_cancellation.py:114: in test_cancelled_stream_read_drains_before_closing_owned_file
+    assert not closed_early and not released_early
+E   assert (not True)</failure></testcase><testcase classname="tests.unit.presentation.test_document_rename_archive_native_cancellation" name="test_cancelled_stream_read_drains_before_closing_owned_file" time="0.001"><error message="failed on teardown with &quot;ExceptionGroup: multiple unraisable exception warnings (2 sub-exceptions)&quot;">+ Exception Group Traceback (most recent call last):
+  |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\_pytest\runner.py", line 353, in from_call
+  |     result: TResult | None = func()
+  |                              ^^^^^^
+  |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\_pytest\runner.py", line 245, in &lt;lambda&gt;
+  |     lambda: runtest_hook(item=item, **kwds),
+  |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_hooks.py", line 512, in __call__
+  |     return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_manager.py", line 120, in _hookexec
+  |     return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 167, in _multicall
+  |     raise exception
+  |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 139, in _multicall
+  |     teardown.throw(exception)
+  |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\_pytest\logging.py", line 858, in pytest_runtest_teardown
+  |     yield
+  |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 139, in _multicall
+  |     teardown.throw(exception)
+  |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\_pytest\capture.py", line 905, in pytest_runtest_teardown
+  |     return (yield)
+  |             ^^^^^
+  |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 121, in _multicall
+  |     res = hook_impl.function(*args)
+  |           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\_pytest\unraisableexception.py", line 163, in pytest_runtest_teardown
+  |     collect_unraisable(item.config)
+  |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\_pytest\unraisableexception.py", line 81, in collect_unraisable
+  |     raise ExceptionGroup("multiple unraisable exception warnings", errors)
+  | ExceptionGroup: multiple unraisable exception warnings (2 sub-exceptions)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\zipfile.py", line 1908, in __del__
+    |     self.close()
+    |   File "C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\zipfile.py", line 1925, in close
+    |     self.fp.seek(self.start_dir)
+    | ValueError: I/O operation on closed file.
+    | 
+    | The above exception was the direct cause of the following exception:
+    | 
+    | Traceback (most recent call last):
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\_pytest\unraisableexception.py", line 67, in collect_unraisable
+    |     warnings.warn(pytest.PytestUnraisableExceptionWarning(msg))
+    | pytest.PytestUnraisableExceptionWarning: Exception ignored in: &lt;function ZipFile.__del__ at 0x0000021EF9B89620&gt;
+    | Enable tracemalloc to get traceback where the object was allocated.
+    | See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+    +---------------- 2 ----------------
+    | Traceback (most recent call last):
+    |   File "C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\zipfile.py", line 1908, in __del__
+    |     self.close()
+    |   File "C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\zipfile.py", line 1925, in close
+    |     self.fp.seek(self.start_dir)
+    | ValueError: I/O operation on closed file.
+    | 
+    | The above exception was the direct cause of the following exception:
+    | 
+    | Traceback (most recent call last):
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\_pytest\unraisableexception.py", line 67, in collect_unraisable
+    |     warnings.warn(pytest.PytestUnraisableExceptionWarning(msg))
+    | pytest.PytestUnraisableExceptionWarning: Exception ignored in: &lt;function ZipFile.__del__ at 0x0000021EF9B89620&gt;
+    | Enable tracemalloc to get traceback where the object was allocated.
+    | See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+    +------------------------------------</error></testcase></testsuite></testsuites>

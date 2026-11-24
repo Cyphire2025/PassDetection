@@ -1,0 +1,1826 @@
+..........FFFFFFFFFFFFFF..FF..............                               [100%]
+================================== FAILURES ===================================
+_ test_common_document_rechecks_current_authority_and_compensates[disabled-403-validation] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000001377E829290>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001377E87B610>
+phase = 'validation', change = 'disabled', expected_status = 403
+
+    @pytest.mark.parametrize("phase", ["validation", "storage"])
+    @pytest.mark.parametrize(
+        ("change", "expected_status"),
+        [
+            ("healthy", None), ("profile", None), ("legacy", None),
+            ("access_level", None), ("global_admin", None),
+            ("disabled", 403), ("soft_deleted", 403), ("role", 403),
+            ("agency", 403), ("session", 403), ("invited", 403),
+            ("access_level_revoked", 403),
+            ("revision", 409), ("removed", 404), ("archived", 409),
+        ],
+    )
+    async def test_common_document_rechecks_current_authority_and_compensates(
+        db_session: AsyncSession, monkeypatch: pytest.MonkeyPatch,
+        phase: str, change: str, expected_status: int | None,
+    ) -> None:
+        scope = await document_scope(db_session, change)
+        entered, release = asyncio.Event(), asyncio.Event()
+        objects: dict[str, bytes] = {"unrelated/owned.pdf": b"unrelated"}
+        uploads, deletes, validation_calls = [], [], []
+        payload = b"%PDF-1.7\nsynthetic normalized document"
+    
+        async def wait_at(selected: str) -> None:
+            if phase == selected:
+                entered.set()
+                await release.wait()
+    
+        async def validate(file: UploadFile) -> SimpleNamespace:
+            validation_calls.append(await file.read())
+            await file.close()
+            await wait_at("validation")
+            return SimpleNamespace(content=payload, content_type="application/pdf",
+                                   filename="synthetic.pdf", sha256_hex=hashlib.sha256(payload).hexdigest())
+    
+        class Storage:
+            async def upload_file(self, content: bytes, key: str, content_type: str) -> str:
+                assert content_type == "application/pdf"
+                uploads.append(key)
+                objects[key] = content
+                await wait_at("storage")
+                return key
+    
+            async def delete_files(self, keys: list[str]) -> int:
+                deletes.extend(keys)
+                for key in keys:
+                    objects.pop(key, None)
+                return len(keys)
+    
+        monkeypatch.setattr(staging, "_validated_common_pdf", validate)
+        monkeypatch.setattr(staging, "MinioStorageRepository", Storage)
+        file = UploadFile(io.BytesIO(b"synthetic input"), filename="synthetic.pdf")
+        task = asyncio.create_task(routes.upload_common_document(
+            group_id=scope.group_id, request=Request({"type": "http", "headers": []}),
+            file=file, category="travel_tips", display_name="Synthetic guide", offline_available=True,
+            expected_access_revision=1, agency_id=scope.agency_id, current_user=scope.actor, session=db_session,
+        ))
+        try:
+            await asyncio.wait_for(entered.wait(), timeout=5)
+            assert not db_session.in_transaction()
+            assert file.file.closed
+            factory = async_sessionmaker(db_session.bind, expire_on_commit=False)
+            async with factory() as writer:
+                await change_stored_authority(writer, scope, change)
+            release.set()
+            if expected_status is None:
+                response = await task
+                assert response.version == 1 and response.status == "draft"
+                assert response.display_name == "Synthetic guide"
+                assert "storage_key" not in response.model_dump()
+                assert deletes == []
+            else:
+>               with pytest.raises(HTTPException) as denied:
+E               Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+
+tests\unit\presentation\test_gc_common_document_current_authority.py:163: Failed
+_ test_common_document_rechecks_current_authority_and_compensates[disabled-403-storage] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000001377BBBEDD0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001377E8CDC90>
+phase = 'storage', change = 'disabled', expected_status = 403
+
+    @pytest.mark.parametrize("phase", ["validation", "storage"])
+    @pytest.mark.parametrize(
+        ("change", "expected_status"),
+        [
+            ("healthy", None), ("profile", None), ("legacy", None),
+            ("access_level", None), ("global_admin", None),
+            ("disabled", 403), ("soft_deleted", 403), ("role", 403),
+            ("agency", 403), ("session", 403), ("invited", 403),
+            ("access_level_revoked", 403),
+            ("revision", 409), ("removed", 404), ("archived", 409),
+        ],
+    )
+    async def test_common_document_rechecks_current_authority_and_compensates(
+        db_session: AsyncSession, monkeypatch: pytest.MonkeyPatch,
+        phase: str, change: str, expected_status: int | None,
+    ) -> None:
+        scope = await document_scope(db_session, change)
+        entered, release = asyncio.Event(), asyncio.Event()
+        objects: dict[str, bytes] = {"unrelated/owned.pdf": b"unrelated"}
+        uploads, deletes, validation_calls = [], [], []
+        payload = b"%PDF-1.7\nsynthetic normalized document"
+    
+        async def wait_at(selected: str) -> None:
+            if phase == selected:
+                entered.set()
+                await release.wait()
+    
+        async def validate(file: UploadFile) -> SimpleNamespace:
+            validation_calls.append(await file.read())
+            await file.close()
+            await wait_at("validation")
+            return SimpleNamespace(content=payload, content_type="application/pdf",
+                                   filename="synthetic.pdf", sha256_hex=hashlib.sha256(payload).hexdigest())
+    
+        class Storage:
+            async def upload_file(self, content: bytes, key: str, content_type: str) -> str:
+                assert content_type == "application/pdf"
+                uploads.append(key)
+                objects[key] = content
+                await wait_at("storage")
+                return key
+    
+            async def delete_files(self, keys: list[str]) -> int:
+                deletes.extend(keys)
+                for key in keys:
+                    objects.pop(key, None)
+                return len(keys)
+    
+        monkeypatch.setattr(staging, "_validated_common_pdf", validate)
+        monkeypatch.setattr(staging, "MinioStorageRepository", Storage)
+        file = UploadFile(io.BytesIO(b"synthetic input"), filename="synthetic.pdf")
+        task = asyncio.create_task(routes.upload_common_document(
+            group_id=scope.group_id, request=Request({"type": "http", "headers": []}),
+            file=file, category="travel_tips", display_name="Synthetic guide", offline_available=True,
+            expected_access_revision=1, agency_id=scope.agency_id, current_user=scope.actor, session=db_session,
+        ))
+        try:
+            await asyncio.wait_for(entered.wait(), timeout=5)
+            assert not db_session.in_transaction()
+            assert file.file.closed
+            factory = async_sessionmaker(db_session.bind, expire_on_commit=False)
+            async with factory() as writer:
+                await change_stored_authority(writer, scope, change)
+            release.set()
+            if expected_status is None:
+                response = await task
+                assert response.version == 1 and response.status == "draft"
+                assert response.display_name == "Synthetic guide"
+                assert "storage_key" not in response.model_dump()
+                assert deletes == []
+            else:
+>               with pytest.raises(HTTPException) as denied:
+E               Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+
+tests\unit\presentation\test_gc_common_document_current_authority.py:163: Failed
+_ test_common_document_rechecks_current_authority_and_compensates[soft_deleted-403-validation] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000001377E5F6890>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001377E7B3390>
+phase = 'validation', change = 'soft_deleted', expected_status = 403
+
+    @pytest.mark.parametrize("phase", ["validation", "storage"])
+    @pytest.mark.parametrize(
+        ("change", "expected_status"),
+        [
+            ("healthy", None), ("profile", None), ("legacy", None),
+            ("access_level", None), ("global_admin", None),
+            ("disabled", 403), ("soft_deleted", 403), ("role", 403),
+            ("agency", 403), ("session", 403), ("invited", 403),
+            ("access_level_revoked", 403),
+            ("revision", 409), ("removed", 404), ("archived", 409),
+        ],
+    )
+    async def test_common_document_rechecks_current_authority_and_compensates(
+        db_session: AsyncSession, monkeypatch: pytest.MonkeyPatch,
+        phase: str, change: str, expected_status: int | None,
+    ) -> None:
+        scope = await document_scope(db_session, change)
+        entered, release = asyncio.Event(), asyncio.Event()
+        objects: dict[str, bytes] = {"unrelated/owned.pdf": b"unrelated"}
+        uploads, deletes, validation_calls = [], [], []
+        payload = b"%PDF-1.7\nsynthetic normalized document"
+    
+        async def wait_at(selected: str) -> None:
+            if phase == selected:
+                entered.set()
+                await release.wait()
+    
+        async def validate(file: UploadFile) -> SimpleNamespace:
+            validation_calls.append(await file.read())
+            await file.close()
+            await wait_at("validation")
+            return SimpleNamespace(content=payload, content_type="application/pdf",
+                                   filename="synthetic.pdf", sha256_hex=hashlib.sha256(payload).hexdigest())
+    
+        class Storage:
+            async def upload_file(self, content: bytes, key: str, content_type: str) -> str:
+                assert content_type == "application/pdf"
+                uploads.append(key)
+                objects[key] = content
+                await wait_at("storage")
+                return key
+    
+            async def delete_files(self, keys: list[str]) -> int:
+                deletes.extend(keys)
+                for key in keys:
+                    objects.pop(key, None)
+                return len(keys)
+    
+        monkeypatch.setattr(staging, "_validated_common_pdf", validate)
+        monkeypatch.setattr(staging, "MinioStorageRepository", Storage)
+        file = UploadFile(io.BytesIO(b"synthetic input"), filename="synthetic.pdf")
+        task = asyncio.create_task(routes.upload_common_document(
+            group_id=scope.group_id, request=Request({"type": "http", "headers": []}),
+            file=file, category="travel_tips", display_name="Synthetic guide", offline_available=True,
+            expected_access_revision=1, agency_id=scope.agency_id, current_user=scope.actor, session=db_session,
+        ))
+        try:
+            await asyncio.wait_for(entered.wait(), timeout=5)
+            assert not db_session.in_transaction()
+            assert file.file.closed
+            factory = async_sessionmaker(db_session.bind, expire_on_commit=False)
+            async with factory() as writer:
+                await change_stored_authority(writer, scope, change)
+            release.set()
+            if expected_status is None:
+                response = await task
+                assert response.version == 1 and response.status == "draft"
+                assert response.display_name == "Synthetic guide"
+                assert "storage_key" not in response.model_dump()
+                assert deletes == []
+            else:
+>               with pytest.raises(HTTPException) as denied:
+E               Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+
+tests\unit\presentation\test_gc_common_document_current_authority.py:163: Failed
+_ test_common_document_rechecks_current_authority_and_compensates[soft_deleted-403-storage] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000001377E633510>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001377E683D90>
+phase = 'storage', change = 'soft_deleted', expected_status = 403
+
+    @pytest.mark.parametrize("phase", ["validation", "storage"])
+    @pytest.mark.parametrize(
+        ("change", "expected_status"),
+        [
+            ("healthy", None), ("profile", None), ("legacy", None),
+            ("access_level", None), ("global_admin", None),
+            ("disabled", 403), ("soft_deleted", 403), ("role", 403),
+            ("agency", 403), ("session", 403), ("invited", 403),
+            ("access_level_revoked", 403),
+            ("revision", 409), ("removed", 404), ("archived", 409),
+        ],
+    )
+    async def test_common_document_rechecks_current_authority_and_compensates(
+        db_session: AsyncSession, monkeypatch: pytest.MonkeyPatch,
+        phase: str, change: str, expected_status: int | None,
+    ) -> None:
+        scope = await document_scope(db_session, change)
+        entered, release = asyncio.Event(), asyncio.Event()
+        objects: dict[str, bytes] = {"unrelated/owned.pdf": b"unrelated"}
+        uploads, deletes, validation_calls = [], [], []
+        payload = b"%PDF-1.7\nsynthetic normalized document"
+    
+        async def wait_at(selected: str) -> None:
+            if phase == selected:
+                entered.set()
+                await release.wait()
+    
+        async def validate(file: UploadFile) -> SimpleNamespace:
+            validation_calls.append(await file.read())
+            await file.close()
+            await wait_at("validation")
+            return SimpleNamespace(content=payload, content_type="application/pdf",
+                                   filename="synthetic.pdf", sha256_hex=hashlib.sha256(payload).hexdigest())
+    
+        class Storage:
+            async def upload_file(self, content: bytes, key: str, content_type: str) -> str:
+                assert content_type == "application/pdf"
+                uploads.append(key)
+                objects[key] = content
+                await wait_at("storage")
+                return key
+    
+            async def delete_files(self, keys: list[str]) -> int:
+                deletes.extend(keys)
+                for key in keys:
+                    objects.pop(key, None)
+                return len(keys)
+    
+        monkeypatch.setattr(staging, "_validated_common_pdf", validate)
+        monkeypatch.setattr(staging, "MinioStorageRepository", Storage)
+        file = UploadFile(io.BytesIO(b"synthetic input"), filename="synthetic.pdf")
+        task = asyncio.create_task(routes.upload_common_document(
+            group_id=scope.group_id, request=Request({"type": "http", "headers": []}),
+            file=file, category="travel_tips", display_name="Synthetic guide", offline_available=True,
+            expected_access_revision=1, agency_id=scope.agency_id, current_user=scope.actor, session=db_session,
+        ))
+        try:
+            await asyncio.wait_for(entered.wait(), timeout=5)
+            assert not db_session.in_transaction()
+            assert file.file.closed
+            factory = async_sessionmaker(db_session.bind, expire_on_commit=False)
+            async with factory() as writer:
+                await change_stored_authority(writer, scope, change)
+            release.set()
+            if expected_status is None:
+                response = await task
+                assert response.version == 1 and response.status == "draft"
+                assert response.display_name == "Synthetic guide"
+                assert "storage_key" not in response.model_dump()
+                assert deletes == []
+            else:
+>               with pytest.raises(HTTPException) as denied:
+E               Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+
+tests\unit\presentation\test_gc_common_document_current_authority.py:163: Failed
+_ test_common_document_rechecks_current_authority_and_compensates[role-403-validation] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000001377C6A9390>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001377E6807D0>
+phase = 'validation', change = 'role', expected_status = 403
+
+    @pytest.mark.parametrize("phase", ["validation", "storage"])
+    @pytest.mark.parametrize(
+        ("change", "expected_status"),
+        [
+            ("healthy", None), ("profile", None), ("legacy", None),
+            ("access_level", None), ("global_admin", None),
+            ("disabled", 403), ("soft_deleted", 403), ("role", 403),
+            ("agency", 403), ("session", 403), ("invited", 403),
+            ("access_level_revoked", 403),
+            ("revision", 409), ("removed", 404), ("archived", 409),
+        ],
+    )
+    async def test_common_document_rechecks_current_authority_and_compensates(
+        db_session: AsyncSession, monkeypatch: pytest.MonkeyPatch,
+        phase: str, change: str, expected_status: int | None,
+    ) -> None:
+        scope = await document_scope(db_session, change)
+        entered, release = asyncio.Event(), asyncio.Event()
+        objects: dict[str, bytes] = {"unrelated/owned.pdf": b"unrelated"}
+        uploads, deletes, validation_calls = [], [], []
+        payload = b"%PDF-1.7\nsynthetic normalized document"
+    
+        async def wait_at(selected: str) -> None:
+            if phase == selected:
+                entered.set()
+                await release.wait()
+    
+        async def validate(file: UploadFile) -> SimpleNamespace:
+            validation_calls.append(await file.read())
+            await file.close()
+            await wait_at("validation")
+            return SimpleNamespace(content=payload, content_type="application/pdf",
+                                   filename="synthetic.pdf", sha256_hex=hashlib.sha256(payload).hexdigest())
+    
+        class Storage:
+            async def upload_file(self, content: bytes, key: str, content_type: str) -> str:
+                assert content_type == "application/pdf"
+                uploads.append(key)
+                objects[key] = content
+                await wait_at("storage")
+                return key
+    
+            async def delete_files(self, keys: list[str]) -> int:
+                deletes.extend(keys)
+                for key in keys:
+                    objects.pop(key, None)
+                return len(keys)
+    
+        monkeypatch.setattr(staging, "_validated_common_pdf", validate)
+        monkeypatch.setattr(staging, "MinioStorageRepository", Storage)
+        file = UploadFile(io.BytesIO(b"synthetic input"), filename="synthetic.pdf")
+        task = asyncio.create_task(routes.upload_common_document(
+            group_id=scope.group_id, request=Request({"type": "http", "headers": []}),
+            file=file, category="travel_tips", display_name="Synthetic guide", offline_available=True,
+            expected_access_revision=1, agency_id=scope.agency_id, current_user=scope.actor, session=db_session,
+        ))
+        try:
+            await asyncio.wait_for(entered.wait(), timeout=5)
+            assert not db_session.in_transaction()
+            assert file.file.closed
+            factory = async_sessionmaker(db_session.bind, expire_on_commit=False)
+            async with factory() as writer:
+                await change_stored_authority(writer, scope, change)
+            release.set()
+            if expected_status is None:
+                response = await task
+                assert response.version == 1 and response.status == "draft"
+                assert response.display_name == "Synthetic guide"
+                assert "storage_key" not in response.model_dump()
+                assert deletes == []
+            else:
+>               with pytest.raises(HTTPException) as denied:
+E               Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+
+tests\unit\presentation\test_gc_common_document_current_authority.py:163: Failed
+_ test_common_document_rechecks_current_authority_and_compensates[role-403-storage] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000001377C59E810>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001377F942C50>
+phase = 'storage', change = 'role', expected_status = 403
+
+    @pytest.mark.parametrize("phase", ["validation", "storage"])
+    @pytest.mark.parametrize(
+        ("change", "expected_status"),
+        [
+            ("healthy", None), ("profile", None), ("legacy", None),
+            ("access_level", None), ("global_admin", None),
+            ("disabled", 403), ("soft_deleted", 403), ("role", 403),
+            ("agency", 403), ("session", 403), ("invited", 403),
+            ("access_level_revoked", 403),
+            ("revision", 409), ("removed", 404), ("archived", 409),
+        ],
+    )
+    async def test_common_document_rechecks_current_authority_and_compensates(
+        db_session: AsyncSession, monkeypatch: pytest.MonkeyPatch,
+        phase: str, change: str, expected_status: int | None,
+    ) -> None:
+        scope = await document_scope(db_session, change)
+        entered, release = asyncio.Event(), asyncio.Event()
+        objects: dict[str, bytes] = {"unrelated/owned.pdf": b"unrelated"}
+        uploads, deletes, validation_calls = [], [], []
+        payload = b"%PDF-1.7\nsynthetic normalized document"
+    
+        async def wait_at(selected: str) -> None:
+            if phase == selected:
+                entered.set()
+                await release.wait()
+    
+        async def validate(file: UploadFile) -> SimpleNamespace:
+            validation_calls.append(await file.read())
+            await file.close()
+            await wait_at("validation")
+            return SimpleNamespace(content=payload, content_type="application/pdf",
+                                   filename="synthetic.pdf", sha256_hex=hashlib.sha256(payload).hexdigest())
+    
+        class Storage:
+            async def upload_file(self, content: bytes, key: str, content_type: str) -> str:
+                assert content_type == "application/pdf"
+                uploads.append(key)
+                objects[key] = content
+                await wait_at("storage")
+                return key
+    
+            async def delete_files(self, keys: list[str]) -> int:
+                deletes.extend(keys)
+                for key in keys:
+                    objects.pop(key, None)
+                return len(keys)
+    
+        monkeypatch.setattr(staging, "_validated_common_pdf", validate)
+        monkeypatch.setattr(staging, "MinioStorageRepository", Storage)
+        file = UploadFile(io.BytesIO(b"synthetic input"), filename="synthetic.pdf")
+        task = asyncio.create_task(routes.upload_common_document(
+            group_id=scope.group_id, request=Request({"type": "http", "headers": []}),
+            file=file, category="travel_tips", display_name="Synthetic guide", offline_available=True,
+            expected_access_revision=1, agency_id=scope.agency_id, current_user=scope.actor, session=db_session,
+        ))
+        try:
+            await asyncio.wait_for(entered.wait(), timeout=5)
+            assert not db_session.in_transaction()
+            assert file.file.closed
+            factory = async_sessionmaker(db_session.bind, expire_on_commit=False)
+            async with factory() as writer:
+                await change_stored_authority(writer, scope, change)
+            release.set()
+            if expected_status is None:
+                response = await task
+                assert response.version == 1 and response.status == "draft"
+                assert response.display_name == "Synthetic guide"
+                assert "storage_key" not in response.model_dump()
+                assert deletes == []
+            else:
+>               with pytest.raises(HTTPException) as denied:
+E               Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+
+tests\unit\presentation\test_gc_common_document_current_authority.py:163: Failed
+_ test_common_document_rechecks_current_authority_and_compensates[agency-403-validation] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000001377FC3EB90>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001377F952390>
+phase = 'validation', change = 'agency', expected_status = 403
+
+    @pytest.mark.parametrize("phase", ["validation", "storage"])
+    @pytest.mark.parametrize(
+        ("change", "expected_status"),
+        [
+            ("healthy", None), ("profile", None), ("legacy", None),
+            ("access_level", None), ("global_admin", None),
+            ("disabled", 403), ("soft_deleted", 403), ("role", 403),
+            ("agency", 403), ("session", 403), ("invited", 403),
+            ("access_level_revoked", 403),
+            ("revision", 409), ("removed", 404), ("archived", 409),
+        ],
+    )
+    async def test_common_document_rechecks_current_authority_and_compensates(
+        db_session: AsyncSession, monkeypatch: pytest.MonkeyPatch,
+        phase: str, change: str, expected_status: int | None,
+    ) -> None:
+        scope = await document_scope(db_session, change)
+        entered, release = asyncio.Event(), asyncio.Event()
+        objects: dict[str, bytes] = {"unrelated/owned.pdf": b"unrelated"}
+        uploads, deletes, validation_calls = [], [], []
+        payload = b"%PDF-1.7\nsynthetic normalized document"
+    
+        async def wait_at(selected: str) -> None:
+            if phase == selected:
+                entered.set()
+                await release.wait()
+    
+        async def validate(file: UploadFile) -> SimpleNamespace:
+            validation_calls.append(await file.read())
+            await file.close()
+            await wait_at("validation")
+            return SimpleNamespace(content=payload, content_type="application/pdf",
+                                   filename="synthetic.pdf", sha256_hex=hashlib.sha256(payload).hexdigest())
+    
+        class Storage:
+            async def upload_file(self, content: bytes, key: str, content_type: str) -> str:
+                assert content_type == "application/pdf"
+                uploads.append(key)
+                objects[key] = content
+                await wait_at("storage")
+                return key
+    
+            async def delete_files(self, keys: list[str]) -> int:
+                deletes.extend(keys)
+                for key in keys:
+                    objects.pop(key, None)
+                return len(keys)
+    
+        monkeypatch.setattr(staging, "_validated_common_pdf", validate)
+        monkeypatch.setattr(staging, "MinioStorageRepository", Storage)
+        file = UploadFile(io.BytesIO(b"synthetic input"), filename="synthetic.pdf")
+        task = asyncio.create_task(routes.upload_common_document(
+            group_id=scope.group_id, request=Request({"type": "http", "headers": []}),
+            file=file, category="travel_tips", display_name="Synthetic guide", offline_available=True,
+            expected_access_revision=1, agency_id=scope.agency_id, current_user=scope.actor, session=db_session,
+        ))
+        try:
+            await asyncio.wait_for(entered.wait(), timeout=5)
+            assert not db_session.in_transaction()
+            assert file.file.closed
+            factory = async_sessionmaker(db_session.bind, expire_on_commit=False)
+            async with factory() as writer:
+                await change_stored_authority(writer, scope, change)
+            release.set()
+            if expected_status is None:
+                response = await task
+                assert response.version == 1 and response.status == "draft"
+                assert response.display_name == "Synthetic guide"
+                assert "storage_key" not in response.model_dump()
+                assert deletes == []
+            else:
+>               with pytest.raises(HTTPException) as denied:
+E               Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+
+tests\unit\presentation\test_gc_common_document_current_authority.py:163: Failed
+_ test_common_document_rechecks_current_authority_and_compensates[agency-403-storage] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000001377FCA03D0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001377FC97ED0>
+phase = 'storage', change = 'agency', expected_status = 403
+
+    @pytest.mark.parametrize("phase", ["validation", "storage"])
+    @pytest.mark.parametrize(
+        ("change", "expected_status"),
+        [
+            ("healthy", None), ("profile", None), ("legacy", None),
+            ("access_level", None), ("global_admin", None),
+            ("disabled", 403), ("soft_deleted", 403), ("role", 403),
+            ("agency", 403), ("session", 403), ("invited", 403),
+            ("access_level_revoked", 403),
+            ("revision", 409), ("removed", 404), ("archived", 409),
+        ],
+    )
+    async def test_common_document_rechecks_current_authority_and_compensates(
+        db_session: AsyncSession, monkeypatch: pytest.MonkeyPatch,
+        phase: str, change: str, expected_status: int | None,
+    ) -> None:
+        scope = await document_scope(db_session, change)
+        entered, release = asyncio.Event(), asyncio.Event()
+        objects: dict[str, bytes] = {"unrelated/owned.pdf": b"unrelated"}
+        uploads, deletes, validation_calls = [], [], []
+        payload = b"%PDF-1.7\nsynthetic normalized document"
+    
+        async def wait_at(selected: str) -> None:
+            if phase == selected:
+                entered.set()
+                await release.wait()
+    
+        async def validate(file: UploadFile) -> SimpleNamespace:
+            validation_calls.append(await file.read())
+            await file.close()
+            await wait_at("validation")
+            return SimpleNamespace(content=payload, content_type="application/pdf",
+                                   filename="synthetic.pdf", sha256_hex=hashlib.sha256(payload).hexdigest())
+    
+        class Storage:
+            async def upload_file(self, content: bytes, key: str, content_type: str) -> str:
+                assert content_type == "application/pdf"
+                uploads.append(key)
+                objects[key] = content
+                await wait_at("storage")
+                return key
+    
+            async def delete_files(self, keys: list[str]) -> int:
+                deletes.extend(keys)
+                for key in keys:
+                    objects.pop(key, None)
+                return len(keys)
+    
+        monkeypatch.setattr(staging, "_validated_common_pdf", validate)
+        monkeypatch.setattr(staging, "MinioStorageRepository", Storage)
+        file = UploadFile(io.BytesIO(b"synthetic input"), filename="synthetic.pdf")
+        task = asyncio.create_task(routes.upload_common_document(
+            group_id=scope.group_id, request=Request({"type": "http", "headers": []}),
+            file=file, category="travel_tips", display_name="Synthetic guide", offline_available=True,
+            expected_access_revision=1, agency_id=scope.agency_id, current_user=scope.actor, session=db_session,
+        ))
+        try:
+            await asyncio.wait_for(entered.wait(), timeout=5)
+            assert not db_session.in_transaction()
+            assert file.file.closed
+            factory = async_sessionmaker(db_session.bind, expire_on_commit=False)
+            async with factory() as writer:
+                await change_stored_authority(writer, scope, change)
+            release.set()
+            if expected_status is None:
+                response = await task
+                assert response.version == 1 and response.status == "draft"
+                assert response.display_name == "Synthetic guide"
+                assert "storage_key" not in response.model_dump()
+                assert deletes == []
+            else:
+>               with pytest.raises(HTTPException) as denied:
+E               Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+
+tests\unit\presentation\test_gc_common_document_current_authority.py:163: Failed
+_ test_common_document_rechecks_current_authority_and_compensates[session-403-validation] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000001377FC7C950>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001377E683490>
+phase = 'validation', change = 'session', expected_status = 403
+
+    @pytest.mark.parametrize("phase", ["validation", "storage"])
+    @pytest.mark.parametrize(
+        ("change", "expected_status"),
+        [
+            ("healthy", None), ("profile", None), ("legacy", None),
+            ("access_level", None), ("global_admin", None),
+            ("disabled", 403), ("soft_deleted", 403), ("role", 403),
+            ("agency", 403), ("session", 403), ("invited", 403),
+            ("access_level_revoked", 403),
+            ("revision", 409), ("removed", 404), ("archived", 409),
+        ],
+    )
+    async def test_common_document_rechecks_current_authority_and_compensates(
+        db_session: AsyncSession, monkeypatch: pytest.MonkeyPatch,
+        phase: str, change: str, expected_status: int | None,
+    ) -> None:
+        scope = await document_scope(db_session, change)
+        entered, release = asyncio.Event(), asyncio.Event()
+        objects: dict[str, bytes] = {"unrelated/owned.pdf": b"unrelated"}
+        uploads, deletes, validation_calls = [], [], []
+        payload = b"%PDF-1.7\nsynthetic normalized document"
+    
+        async def wait_at(selected: str) -> None:
+            if phase == selected:
+                entered.set()
+                await release.wait()
+    
+        async def validate(file: UploadFile) -> SimpleNamespace:
+            validation_calls.append(await file.read())
+            await file.close()
+            await wait_at("validation")
+            return SimpleNamespace(content=payload, content_type="application/pdf",
+                                   filename="synthetic.pdf", sha256_hex=hashlib.sha256(payload).hexdigest())
+    
+        class Storage:
+            async def upload_file(self, content: bytes, key: str, content_type: str) -> str:
+                assert content_type == "application/pdf"
+                uploads.append(key)
+                objects[key] = content
+                await wait_at("storage")
+                return key
+    
+            async def delete_files(self, keys: list[str]) -> int:
+                deletes.extend(keys)
+                for key in keys:
+                    objects.pop(key, None)
+                return len(keys)
+    
+        monkeypatch.setattr(staging, "_validated_common_pdf", validate)
+        monkeypatch.setattr(staging, "MinioStorageRepository", Storage)
+        file = UploadFile(io.BytesIO(b"synthetic input"), filename="synthetic.pdf")
+        task = asyncio.create_task(routes.upload_common_document(
+            group_id=scope.group_id, request=Request({"type": "http", "headers": []}),
+            file=file, category="travel_tips", display_name="Synthetic guide", offline_available=True,
+            expected_access_revision=1, agency_id=scope.agency_id, current_user=scope.actor, session=db_session,
+        ))
+        try:
+            await asyncio.wait_for(entered.wait(), timeout=5)
+            assert not db_session.in_transaction()
+            assert file.file.closed
+            factory = async_sessionmaker(db_session.bind, expire_on_commit=False)
+            async with factory() as writer:
+                await change_stored_authority(writer, scope, change)
+            release.set()
+            if expected_status is None:
+                response = await task
+                assert response.version == 1 and response.status == "draft"
+                assert response.display_name == "Synthetic guide"
+                assert "storage_key" not in response.model_dump()
+                assert deletes == []
+            else:
+>               with pytest.raises(HTTPException) as denied:
+E               Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+
+tests\unit\presentation\test_gc_common_document_current_authority.py:163: Failed
+_ test_common_document_rechecks_current_authority_and_compensates[session-403-storage] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000001377FD836D0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001377FC96C90>
+phase = 'storage', change = 'session', expected_status = 403
+
+    @pytest.mark.parametrize("phase", ["validation", "storage"])
+    @pytest.mark.parametrize(
+        ("change", "expected_status"),
+        [
+            ("healthy", None), ("profile", None), ("legacy", None),
+            ("access_level", None), ("global_admin", None),
+            ("disabled", 403), ("soft_deleted", 403), ("role", 403),
+            ("agency", 403), ("session", 403), ("invited", 403),
+            ("access_level_revoked", 403),
+            ("revision", 409), ("removed", 404), ("archived", 409),
+        ],
+    )
+    async def test_common_document_rechecks_current_authority_and_compensates(
+        db_session: AsyncSession, monkeypatch: pytest.MonkeyPatch,
+        phase: str, change: str, expected_status: int | None,
+    ) -> None:
+        scope = await document_scope(db_session, change)
+        entered, release = asyncio.Event(), asyncio.Event()
+        objects: dict[str, bytes] = {"unrelated/owned.pdf": b"unrelated"}
+        uploads, deletes, validation_calls = [], [], []
+        payload = b"%PDF-1.7\nsynthetic normalized document"
+    
+        async def wait_at(selected: str) -> None:
+            if phase == selected:
+                entered.set()
+                await release.wait()
+    
+        async def validate(file: UploadFile) -> SimpleNamespace:
+            validation_calls.append(await file.read())
+            await file.close()
+            await wait_at("validation")
+            return SimpleNamespace(content=payload, content_type="application/pdf",
+                                   filename="synthetic.pdf", sha256_hex=hashlib.sha256(payload).hexdigest())
+    
+        class Storage:
+            async def upload_file(self, content: bytes, key: str, content_type: str) -> str:
+                assert content_type == "application/pdf"
+                uploads.append(key)
+                objects[key] = content
+                await wait_at("storage")
+                return key
+    
+            async def delete_files(self, keys: list[str]) -> int:
+                deletes.extend(keys)
+                for key in keys:
+                    objects.pop(key, None)
+                return len(keys)
+    
+        monkeypatch.setattr(staging, "_validated_common_pdf", validate)
+        monkeypatch.setattr(staging, "MinioStorageRepository", Storage)
+        file = UploadFile(io.BytesIO(b"synthetic input"), filename="synthetic.pdf")
+        task = asyncio.create_task(routes.upload_common_document(
+            group_id=scope.group_id, request=Request({"type": "http", "headers": []}),
+            file=file, category="travel_tips", display_name="Synthetic guide", offline_available=True,
+            expected_access_revision=1, agency_id=scope.agency_id, current_user=scope.actor, session=db_session,
+        ))
+        try:
+            await asyncio.wait_for(entered.wait(), timeout=5)
+            assert not db_session.in_transaction()
+            assert file.file.closed
+            factory = async_sessionmaker(db_session.bind, expire_on_commit=False)
+            async with factory() as writer:
+                await change_stored_authority(writer, scope, change)
+            release.set()
+            if expected_status is None:
+                response = await task
+                assert response.version == 1 and response.status == "draft"
+                assert response.display_name == "Synthetic guide"
+                assert "storage_key" not in response.model_dump()
+                assert deletes == []
+            else:
+>               with pytest.raises(HTTPException) as denied:
+E               Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+
+tests\unit\presentation\test_gc_common_document_current_authority.py:163: Failed
+_ test_common_document_rechecks_current_authority_and_compensates[invited-403-validation] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000001377FD3A8D0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001377FD1EC10>
+phase = 'validation', change = 'invited', expected_status = 403
+
+    @pytest.mark.parametrize("phase", ["validation", "storage"])
+    @pytest.mark.parametrize(
+        ("change", "expected_status"),
+        [
+            ("healthy", None), ("profile", None), ("legacy", None),
+            ("access_level", None), ("global_admin", None),
+            ("disabled", 403), ("soft_deleted", 403), ("role", 403),
+            ("agency", 403), ("session", 403), ("invited", 403),
+            ("access_level_revoked", 403),
+            ("revision", 409), ("removed", 404), ("archived", 409),
+        ],
+    )
+    async def test_common_document_rechecks_current_authority_and_compensates(
+        db_session: AsyncSession, monkeypatch: pytest.MonkeyPatch,
+        phase: str, change: str, expected_status: int | None,
+    ) -> None:
+        scope = await document_scope(db_session, change)
+        entered, release = asyncio.Event(), asyncio.Event()
+        objects: dict[str, bytes] = {"unrelated/owned.pdf": b"unrelated"}
+        uploads, deletes, validation_calls = [], [], []
+        payload = b"%PDF-1.7\nsynthetic normalized document"
+    
+        async def wait_at(selected: str) -> None:
+            if phase == selected:
+                entered.set()
+                await release.wait()
+    
+        async def validate(file: UploadFile) -> SimpleNamespace:
+            validation_calls.append(await file.read())
+            await file.close()
+            await wait_at("validation")
+            return SimpleNamespace(content=payload, content_type="application/pdf",
+                                   filename="synthetic.pdf", sha256_hex=hashlib.sha256(payload).hexdigest())
+    
+        class Storage:
+            async def upload_file(self, content: bytes, key: str, content_type: str) -> str:
+                assert content_type == "application/pdf"
+                uploads.append(key)
+                objects[key] = content
+                await wait_at("storage")
+                return key
+    
+            async def delete_files(self, keys: list[str]) -> int:
+                deletes.extend(keys)
+                for key in keys:
+                    objects.pop(key, None)
+                return len(keys)
+    
+        monkeypatch.setattr(staging, "_validated_common_pdf", validate)
+        monkeypatch.setattr(staging, "MinioStorageRepository", Storage)
+        file = UploadFile(io.BytesIO(b"synthetic input"), filename="synthetic.pdf")
+        task = asyncio.create_task(routes.upload_common_document(
+            group_id=scope.group_id, request=Request({"type": "http", "headers": []}),
+            file=file, category="travel_tips", display_name="Synthetic guide", offline_available=True,
+            expected_access_revision=1, agency_id=scope.agency_id, current_user=scope.actor, session=db_session,
+        ))
+        try:
+            await asyncio.wait_for(entered.wait(), timeout=5)
+            assert not db_session.in_transaction()
+            assert file.file.closed
+            factory = async_sessionmaker(db_session.bind, expire_on_commit=False)
+            async with factory() as writer:
+                await change_stored_authority(writer, scope, change)
+            release.set()
+            if expected_status is None:
+                response = await task
+                assert response.version == 1 and response.status == "draft"
+                assert response.display_name == "Synthetic guide"
+                assert "storage_key" not in response.model_dump()
+                assert deletes == []
+            else:
+>               with pytest.raises(HTTPException) as denied:
+E               Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+
+tests\unit\presentation\test_gc_common_document_current_authority.py:163: Failed
+_ test_common_document_rechecks_current_authority_and_compensates[invited-403-storage] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000001377FE4F050>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001377FCCF210>
+phase = 'storage', change = 'invited', expected_status = 403
+
+    @pytest.mark.parametrize("phase", ["validation", "storage"])
+    @pytest.mark.parametrize(
+        ("change", "expected_status"),
+        [
+            ("healthy", None), ("profile", None), ("legacy", None),
+            ("access_level", None), ("global_admin", None),
+            ("disabled", 403), ("soft_deleted", 403), ("role", 403),
+            ("agency", 403), ("session", 403), ("invited", 403),
+            ("access_level_revoked", 403),
+            ("revision", 409), ("removed", 404), ("archived", 409),
+        ],
+    )
+    async def test_common_document_rechecks_current_authority_and_compensates(
+        db_session: AsyncSession, monkeypatch: pytest.MonkeyPatch,
+        phase: str, change: str, expected_status: int | None,
+    ) -> None:
+        scope = await document_scope(db_session, change)
+        entered, release = asyncio.Event(), asyncio.Event()
+        objects: dict[str, bytes] = {"unrelated/owned.pdf": b"unrelated"}
+        uploads, deletes, validation_calls = [], [], []
+        payload = b"%PDF-1.7\nsynthetic normalized document"
+    
+        async def wait_at(selected: str) -> None:
+            if phase == selected:
+                entered.set()
+                await release.wait()
+    
+        async def validate(file: UploadFile) -> SimpleNamespace:
+            validation_calls.append(await file.read())
+            await file.close()
+            await wait_at("validation")
+            return SimpleNamespace(content=payload, content_type="application/pdf",
+                                   filename="synthetic.pdf", sha256_hex=hashlib.sha256(payload).hexdigest())
+    
+        class Storage:
+            async def upload_file(self, content: bytes, key: str, content_type: str) -> str:
+                assert content_type == "application/pdf"
+                uploads.append(key)
+                objects[key] = content
+                await wait_at("storage")
+                return key
+    
+            async def delete_files(self, keys: list[str]) -> int:
+                deletes.extend(keys)
+                for key in keys:
+                    objects.pop(key, None)
+                return len(keys)
+    
+        monkeypatch.setattr(staging, "_validated_common_pdf", validate)
+        monkeypatch.setattr(staging, "MinioStorageRepository", Storage)
+        file = UploadFile(io.BytesIO(b"synthetic input"), filename="synthetic.pdf")
+        task = asyncio.create_task(routes.upload_common_document(
+            group_id=scope.group_id, request=Request({"type": "http", "headers": []}),
+            file=file, category="travel_tips", display_name="Synthetic guide", offline_available=True,
+            expected_access_revision=1, agency_id=scope.agency_id, current_user=scope.actor, session=db_session,
+        ))
+        try:
+            await asyncio.wait_for(entered.wait(), timeout=5)
+            assert not db_session.in_transaction()
+            assert file.file.closed
+            factory = async_sessionmaker(db_session.bind, expire_on_commit=False)
+            async with factory() as writer:
+                await change_stored_authority(writer, scope, change)
+            release.set()
+            if expected_status is None:
+                response = await task
+                assert response.version == 1 and response.status == "draft"
+                assert response.display_name == "Synthetic guide"
+                assert "storage_key" not in response.model_dump()
+                assert deletes == []
+            else:
+>               with pytest.raises(HTTPException) as denied:
+E               Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+
+tests\unit\presentation\test_gc_common_document_current_authority.py:163: Failed
+_ test_common_document_rechecks_current_authority_and_compensates[access_level_revoked-403-validation] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000001370001CC90>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001377FEF1490>
+phase = 'validation', change = 'access_level_revoked', expected_status = 403
+
+    @pytest.mark.parametrize("phase", ["validation", "storage"])
+    @pytest.mark.parametrize(
+        ("change", "expected_status"),
+        [
+            ("healthy", None), ("profile", None), ("legacy", None),
+            ("access_level", None), ("global_admin", None),
+            ("disabled", 403), ("soft_deleted", 403), ("role", 403),
+            ("agency", 403), ("session", 403), ("invited", 403),
+            ("access_level_revoked", 403),
+            ("revision", 409), ("removed", 404), ("archived", 409),
+        ],
+    )
+    async def test_common_document_rechecks_current_authority_and_compensates(
+        db_session: AsyncSession, monkeypatch: pytest.MonkeyPatch,
+        phase: str, change: str, expected_status: int | None,
+    ) -> None:
+        scope = await document_scope(db_session, change)
+        entered, release = asyncio.Event(), asyncio.Event()
+        objects: dict[str, bytes] = {"unrelated/owned.pdf": b"unrelated"}
+        uploads, deletes, validation_calls = [], [], []
+        payload = b"%PDF-1.7\nsynthetic normalized document"
+    
+        async def wait_at(selected: str) -> None:
+            if phase == selected:
+                entered.set()
+                await release.wait()
+    
+        async def validate(file: UploadFile) -> SimpleNamespace:
+            validation_calls.append(await file.read())
+            await file.close()
+            await wait_at("validation")
+            return SimpleNamespace(content=payload, content_type="application/pdf",
+                                   filename="synthetic.pdf", sha256_hex=hashlib.sha256(payload).hexdigest())
+    
+        class Storage:
+            async def upload_file(self, content: bytes, key: str, content_type: str) -> str:
+                assert content_type == "application/pdf"
+                uploads.append(key)
+                objects[key] = content
+                await wait_at("storage")
+                return key
+    
+            async def delete_files(self, keys: list[str]) -> int:
+                deletes.extend(keys)
+                for key in keys:
+                    objects.pop(key, None)
+                return len(keys)
+    
+        monkeypatch.setattr(staging, "_validated_common_pdf", validate)
+        monkeypatch.setattr(staging, "MinioStorageRepository", Storage)
+        file = UploadFile(io.BytesIO(b"synthetic input"), filename="synthetic.pdf")
+        task = asyncio.create_task(routes.upload_common_document(
+            group_id=scope.group_id, request=Request({"type": "http", "headers": []}),
+            file=file, category="travel_tips", display_name="Synthetic guide", offline_available=True,
+            expected_access_revision=1, agency_id=scope.agency_id, current_user=scope.actor, session=db_session,
+        ))
+        try:
+            await asyncio.wait_for(entered.wait(), timeout=5)
+            assert not db_session.in_transaction()
+            assert file.file.closed
+            factory = async_sessionmaker(db_session.bind, expire_on_commit=False)
+            async with factory() as writer:
+                await change_stored_authority(writer, scope, change)
+            release.set()
+            if expected_status is None:
+                response = await task
+                assert response.version == 1 and response.status == "draft"
+                assert response.display_name == "Synthetic guide"
+                assert "storage_key" not in response.model_dump()
+                assert deletes == []
+            else:
+>               with pytest.raises(HTTPException) as denied:
+E               Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+
+tests\unit\presentation\test_gc_common_document_current_authority.py:163: Failed
+_ test_common_document_rechecks_current_authority_and_compensates[access_level_revoked-403-storage] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000013700078FD0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001370003A410>
+phase = 'storage', change = 'access_level_revoked', expected_status = 403
+
+    @pytest.mark.parametrize("phase", ["validation", "storage"])
+    @pytest.mark.parametrize(
+        ("change", "expected_status"),
+        [
+            ("healthy", None), ("profile", None), ("legacy", None),
+            ("access_level", None), ("global_admin", None),
+            ("disabled", 403), ("soft_deleted", 403), ("role", 403),
+            ("agency", 403), ("session", 403), ("invited", 403),
+            ("access_level_revoked", 403),
+            ("revision", 409), ("removed", 404), ("archived", 409),
+        ],
+    )
+    async def test_common_document_rechecks_current_authority_and_compensates(
+        db_session: AsyncSession, monkeypatch: pytest.MonkeyPatch,
+        phase: str, change: str, expected_status: int | None,
+    ) -> None:
+        scope = await document_scope(db_session, change)
+        entered, release = asyncio.Event(), asyncio.Event()
+        objects: dict[str, bytes] = {"unrelated/owned.pdf": b"unrelated"}
+        uploads, deletes, validation_calls = [], [], []
+        payload = b"%PDF-1.7\nsynthetic normalized document"
+    
+        async def wait_at(selected: str) -> None:
+            if phase == selected:
+                entered.set()
+                await release.wait()
+    
+        async def validate(file: UploadFile) -> SimpleNamespace:
+            validation_calls.append(await file.read())
+            await file.close()
+            await wait_at("validation")
+            return SimpleNamespace(content=payload, content_type="application/pdf",
+                                   filename="synthetic.pdf", sha256_hex=hashlib.sha256(payload).hexdigest())
+    
+        class Storage:
+            async def upload_file(self, content: bytes, key: str, content_type: str) -> str:
+                assert content_type == "application/pdf"
+                uploads.append(key)
+                objects[key] = content
+                await wait_at("storage")
+                return key
+    
+            async def delete_files(self, keys: list[str]) -> int:
+                deletes.extend(keys)
+                for key in keys:
+                    objects.pop(key, None)
+                return len(keys)
+    
+        monkeypatch.setattr(staging, "_validated_common_pdf", validate)
+        monkeypatch.setattr(staging, "MinioStorageRepository", Storage)
+        file = UploadFile(io.BytesIO(b"synthetic input"), filename="synthetic.pdf")
+        task = asyncio.create_task(routes.upload_common_document(
+            group_id=scope.group_id, request=Request({"type": "http", "headers": []}),
+            file=file, category="travel_tips", display_name="Synthetic guide", offline_available=True,
+            expected_access_revision=1, agency_id=scope.agency_id, current_user=scope.actor, session=db_session,
+        ))
+        try:
+            await asyncio.wait_for(entered.wait(), timeout=5)
+            assert not db_session.in_transaction()
+            assert file.file.closed
+            factory = async_sessionmaker(db_session.bind, expire_on_commit=False)
+            async with factory() as writer:
+                await change_stored_authority(writer, scope, change)
+            release.set()
+            if expected_status is None:
+                response = await task
+                assert response.version == 1 and response.status == "draft"
+                assert response.display_name == "Synthetic guide"
+                assert "storage_key" not in response.model_dump()
+                assert deletes == []
+            else:
+>               with pytest.raises(HTTPException) as denied:
+E               Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+
+tests\unit\presentation\test_gc_common_document_current_authority.py:163: Failed
+_ test_common_document_rechecks_current_authority_and_compensates[removed-404-validation] _
+
+self = <sqlalchemy.engine.base.Connection object at 0x0000013700212BD0>
+dialect = <sqlalchemy.dialects.sqlite.aiosqlite.SQLiteDialect_aiosqlite object at 0x00000137001D0C10>
+context = <sqlalchemy.dialects.sqlite.aiosqlite.SQLiteExecutionContext_aiosqlite object at 0x000001370020ABD0>
+statement = <sqlalchemy.dialects.sqlite.base.SQLiteCompiler object at 0x000001370020ADD0>
+parameters = [('2026-10-31 20:55:26.366442', '2026-10-31 20:55:26.367541', '6efedfc42c7a48829176618e0cf189cc')]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1967: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:147: in execute
+    self._adapt_connection._handle_exception(error)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:298: in _handle_exception
+    raise error
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:129: in execute
+    self.await_(_cursor.execute(operation, parameters))
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+            ^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\cursor.py:48: in execute
+    await self._execute(self._cursor.execute, sql, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\cursor.py:40: in _execute
+    return await self._conn._execute(fn, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\core.py:132: in _execute
+    return await future
+           ^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <Connection(Thread-27, started daemon 42736)>
+
+    def run(self) -> None:
+        """
+        Execute function calls on a separate thread.
+    
+        :meta private:
+        """
+        while True:
+            # Continues running until all queue items are processed,
+            # even after connection is closed (so we can finalize all
+            # futures)
+    
+            tx_item = self._tx.get()
+            if tx_item is _STOP_RUNNING_SENTINEL:
+                break
+    
+            future, function = tx_item
+    
+            try:
+                LOG.debug("executing %s", function)
+>               result = function()
+                         ^^^^^^^^^^
+E               sqlite3.IntegrityError: CHECK constraint failed: ck_gc_group_access_removed_disabled
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\core.py:115: IntegrityError
+
+The above exception was the direct cause of the following exception:
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x00000137001D0890>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001370019AC10>
+phase = 'validation', change = 'removed', expected_status = 404
+
+    @pytest.mark.parametrize("phase", ["validation", "storage"])
+    @pytest.mark.parametrize(
+        ("change", "expected_status"),
+        [
+            ("healthy", None), ("profile", None), ("legacy", None),
+            ("access_level", None), ("global_admin", None),
+            ("disabled", 403), ("soft_deleted", 403), ("role", 403),
+            ("agency", 403), ("session", 403), ("invited", 403),
+            ("access_level_revoked", 403),
+            ("revision", 409), ("removed", 404), ("archived", 409),
+        ],
+    )
+    async def test_common_document_rechecks_current_authority_and_compensates(
+        db_session: AsyncSession, monkeypatch: pytest.MonkeyPatch,
+        phase: str, change: str, expected_status: int | None,
+    ) -> None:
+        scope = await document_scope(db_session, change)
+        entered, release = asyncio.Event(), asyncio.Event()
+        objects: dict[str, bytes] = {"unrelated/owned.pdf": b"unrelated"}
+        uploads, deletes, validation_calls = [], [], []
+        payload = b"%PDF-1.7\nsynthetic normalized document"
+    
+        async def wait_at(selected: str) -> None:
+            if phase == selected:
+                entered.set()
+                await release.wait()
+    
+        async def validate(file: UploadFile) -> SimpleNamespace:
+            validation_calls.append(await file.read())
+            await file.close()
+            await wait_at("validation")
+            return SimpleNamespace(content=payload, content_type="application/pdf",
+                                   filename="synthetic.pdf", sha256_hex=hashlib.sha256(payload).hexdigest())
+    
+        class Storage:
+            async def upload_file(self, content: bytes, key: str, content_type: str) -> str:
+                assert content_type == "application/pdf"
+                uploads.append(key)
+                objects[key] = content
+                await wait_at("storage")
+                return key
+    
+            async def delete_files(self, keys: list[str]) -> int:
+                deletes.extend(keys)
+                for key in keys:
+                    objects.pop(key, None)
+                return len(keys)
+    
+        monkeypatch.setattr(staging, "_validated_common_pdf", validate)
+        monkeypatch.setattr(staging, "MinioStorageRepository", Storage)
+        file = UploadFile(io.BytesIO(b"synthetic input"), filename="synthetic.pdf")
+        task = asyncio.create_task(routes.upload_common_document(
+            group_id=scope.group_id, request=Request({"type": "http", "headers": []}),
+            file=file, category="travel_tips", display_name="Synthetic guide", offline_available=True,
+            expected_access_revision=1, agency_id=scope.agency_id, current_user=scope.actor, session=db_session,
+        ))
+        try:
+            await asyncio.wait_for(entered.wait(), timeout=5)
+            assert not db_session.in_transaction()
+            assert file.file.closed
+            factory = async_sessionmaker(db_session.bind, expire_on_commit=False)
+            async with factory() as writer:
+>               await change_stored_authority(writer, scope, change)
+
+tests\unit\presentation\test_gc_common_document_current_authority.py:154: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\unit\presentation\test_gc_common_document_current_authority.py:88: in change_stored_authority
+    await session.execute(statement)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\ext\asyncio\session.py:461: in execute
+    result = await greenlet_spawn(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:201: in greenlet_spawn
+    result = context.throw(*sys.exc_info())
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2351: in execute
+    return self._execute_internal(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2236: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\bulk_persistence.py:1624: in orm_execute_statement
+    return super().orm_execute_statement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\context.py:293: in orm_execute_statement
+    result = conn.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1418: in execute
+    return meth(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\sql\elements.py:515: in _execute_on_connection
+    return connection._execute_clauseelement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1640: in _execute_clauseelement
+    ret = self._execute_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:2353: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:147: in execute
+    self._adapt_connection._handle_exception(error)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:298: in _handle_exception
+    raise error
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:129: in execute
+    self.await_(_cursor.execute(operation, parameters))
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+            ^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\cursor.py:48: in execute
+    await self._execute(self._cursor.execute, sql, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\cursor.py:40: in _execute
+    return await self._conn._execute(fn, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\core.py:132: in _execute
+    return await future
+           ^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <Connection(Thread-27, started daemon 42736)>
+
+    def run(self) -> None:
+        """
+        Execute function calls on a separate thread.
+    
+        :meta private:
+        """
+        while True:
+            # Continues running until all queue items are processed,
+            # even after connection is closed (so we can finalize all
+            # futures)
+    
+            tx_item = self._tx.get()
+            if tx_item is _STOP_RUNNING_SENTINEL:
+                break
+    
+            future, function = tx_item
+    
+            try:
+                LOG.debug("executing %s", function)
+>               result = function()
+                         ^^^^^^^^^^
+E               sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) CHECK constraint failed: ck_gc_group_access_removed_disabled
+E               [SQL: UPDATE gc_group_access SET removed_at=?, updated_at=? WHERE gc_group_access.id = ?]
+E               [parameters: ('2026-10-31 20:55:26.366442', '2026-10-31 20:55:26.367541', '6efedfc42c7a48829176618e0cf189cc')]
+E               (Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\core.py:115: IntegrityError
+_ test_common_document_rechecks_current_authority_and_compensates[removed-404-storage] _
+
+self = <sqlalchemy.engine.base.Connection object at 0x000001370049E3D0>
+dialect = <sqlalchemy.dialects.sqlite.aiosqlite.SQLiteDialect_aiosqlite object at 0x0000013701784A90>
+context = <sqlalchemy.dialects.sqlite.aiosqlite.SQLiteExecutionContext_aiosqlite object at 0x000001370049EB50>
+statement = <sqlalchemy.dialects.sqlite.base.SQLiteCompiler object at 0x0000013700A2FD90>
+parameters = [('2026-10-31 20:55:27.048871', '2026-10-31 20:55:27.048871', 'e55f5af1caba445e886f8f88e4da2e66')]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1967: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:147: in execute
+    self._adapt_connection._handle_exception(error)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:298: in _handle_exception
+    raise error
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:129: in execute
+    self.await_(_cursor.execute(operation, parameters))
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+            ^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\cursor.py:48: in execute
+    await self._execute(self._cursor.execute, sql, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\cursor.py:40: in _execute
+    return await self._conn._execute(fn, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\core.py:132: in _execute
+    return await future
+           ^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <Connection(Thread-28, started daemon 38284)>
+
+    def run(self) -> None:
+        """
+        Execute function calls on a separate thread.
+    
+        :meta private:
+        """
+        while True:
+            # Continues running until all queue items are processed,
+            # even after connection is closed (so we can finalize all
+            # futures)
+    
+            tx_item = self._tx.get()
+            if tx_item is _STOP_RUNNING_SENTINEL:
+                break
+    
+            future, function = tx_item
+    
+            try:
+                LOG.debug("executing %s", function)
+>               result = function()
+                         ^^^^^^^^^^
+E               sqlite3.IntegrityError: CHECK constraint failed: ck_gc_group_access_removed_disabled
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\core.py:115: IntegrityError
+
+The above exception was the direct cause of the following exception:
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000001377FE5FA50>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001377E6B7190>
+phase = 'storage', change = 'removed', expected_status = 404
+
+    @pytest.mark.parametrize("phase", ["validation", "storage"])
+    @pytest.mark.parametrize(
+        ("change", "expected_status"),
+        [
+            ("healthy", None), ("profile", None), ("legacy", None),
+            ("access_level", None), ("global_admin", None),
+            ("disabled", 403), ("soft_deleted", 403), ("role", 403),
+            ("agency", 403), ("session", 403), ("invited", 403),
+            ("access_level_revoked", 403),
+            ("revision", 409), ("removed", 404), ("archived", 409),
+        ],
+    )
+    async def test_common_document_rechecks_current_authority_and_compensates(
+        db_session: AsyncSession, monkeypatch: pytest.MonkeyPatch,
+        phase: str, change: str, expected_status: int | None,
+    ) -> None:
+        scope = await document_scope(db_session, change)
+        entered, release = asyncio.Event(), asyncio.Event()
+        objects: dict[str, bytes] = {"unrelated/owned.pdf": b"unrelated"}
+        uploads, deletes, validation_calls = [], [], []
+        payload = b"%PDF-1.7\nsynthetic normalized document"
+    
+        async def wait_at(selected: str) -> None:
+            if phase == selected:
+                entered.set()
+                await release.wait()
+    
+        async def validate(file: UploadFile) -> SimpleNamespace:
+            validation_calls.append(await file.read())
+            await file.close()
+            await wait_at("validation")
+            return SimpleNamespace(content=payload, content_type="application/pdf",
+                                   filename="synthetic.pdf", sha256_hex=hashlib.sha256(payload).hexdigest())
+    
+        class Storage:
+            async def upload_file(self, content: bytes, key: str, content_type: str) -> str:
+                assert content_type == "application/pdf"
+                uploads.append(key)
+                objects[key] = content
+                await wait_at("storage")
+                return key
+    
+            async def delete_files(self, keys: list[str]) -> int:
+                deletes.extend(keys)
+                for key in keys:
+                    objects.pop(key, None)
+                return len(keys)
+    
+        monkeypatch.setattr(staging, "_validated_common_pdf", validate)
+        monkeypatch.setattr(staging, "MinioStorageRepository", Storage)
+        file = UploadFile(io.BytesIO(b"synthetic input"), filename="synthetic.pdf")
+        task = asyncio.create_task(routes.upload_common_document(
+            group_id=scope.group_id, request=Request({"type": "http", "headers": []}),
+            file=file, category="travel_tips", display_name="Synthetic guide", offline_available=True,
+            expected_access_revision=1, agency_id=scope.agency_id, current_user=scope.actor, session=db_session,
+        ))
+        try:
+            await asyncio.wait_for(entered.wait(), timeout=5)
+            assert not db_session.in_transaction()
+            assert file.file.closed
+            factory = async_sessionmaker(db_session.bind, expire_on_commit=False)
+            async with factory() as writer:
+>               await change_stored_authority(writer, scope, change)
+
+tests\unit\presentation\test_gc_common_document_current_authority.py:154: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\unit\presentation\test_gc_common_document_current_authority.py:88: in change_stored_authority
+    await session.execute(statement)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\ext\asyncio\session.py:461: in execute
+    result = await greenlet_spawn(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:201: in greenlet_spawn
+    result = context.throw(*sys.exc_info())
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2351: in execute
+    return self._execute_internal(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:2236: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\bulk_persistence.py:1624: in orm_execute_statement
+    return super().orm_execute_statement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\context.py:293: in orm_execute_statement
+    result = conn.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1418: in execute
+    return meth(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\sql\elements.py:515: in _execute_on_connection
+    return connection._execute_clauseelement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1640: in _execute_clauseelement
+    ret = self._execute_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:2353: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:147: in execute
+    self._adapt_connection._handle_exception(error)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:298: in _handle_exception
+    raise error
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:129: in execute
+    self.await_(_cursor.execute(operation, parameters))
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+            ^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\cursor.py:48: in execute
+    await self._execute(self._cursor.execute, sql, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\cursor.py:40: in _execute
+    return await self._conn._execute(fn, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\core.py:132: in _execute
+    return await future
+           ^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <Connection(Thread-28, started daemon 38284)>
+
+    def run(self) -> None:
+        """
+        Execute function calls on a separate thread.
+    
+        :meta private:
+        """
+        while True:
+            # Continues running until all queue items are processed,
+            # even after connection is closed (so we can finalize all
+            # futures)
+    
+            tx_item = self._tx.get()
+            if tx_item is _STOP_RUNNING_SENTINEL:
+                break
+    
+            future, function = tx_item
+    
+            try:
+                LOG.debug("executing %s", function)
+>               result = function()
+                         ^^^^^^^^^^
+E               sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) CHECK constraint failed: ck_gc_group_access_removed_disabled
+E               [SQL: UPDATE gc_group_access SET removed_at=?, updated_at=? WHERE gc_group_access.id = ?]
+E               [parameters: ('2026-10-31 20:55:27.048871', '2026-10-31 20:55:27.048871', 'e55f5af1caba445e886f8f88e4da2e66')]
+E               (Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\core.py:115: IntegrityError
+=========================== short test summary info ===========================
+FAILED tests/unit/presentation/test_gc_common_document_current_authority.py::test_common_document_rechecks_current_authority_and_compensates[disabled-403-validation]
+FAILED tests/unit/presentation/test_gc_common_document_current_authority.py::test_common_document_rechecks_current_authority_and_compensates[disabled-403-storage]
+FAILED tests/unit/presentation/test_gc_common_document_current_authority.py::test_common_document_rechecks_current_authority_and_compensates[soft_deleted-403-validation]
+FAILED tests/unit/presentation/test_gc_common_document_current_authority.py::test_common_document_rechecks_current_authority_and_compensates[soft_deleted-403-storage]
+FAILED tests/unit/presentation/test_gc_common_document_current_authority.py::test_common_document_rechecks_current_authority_and_compensates[role-403-validation]
+FAILED tests/unit/presentation/test_gc_common_document_current_authority.py::test_common_document_rechecks_current_authority_and_compensates[role-403-storage]
+FAILED tests/unit/presentation/test_gc_common_document_current_authority.py::test_common_document_rechecks_current_authority_and_compensates[agency-403-validation]
+FAILED tests/unit/presentation/test_gc_common_document_current_authority.py::test_common_document_rechecks_current_authority_and_compensates[agency-403-storage]
+FAILED tests/unit/presentation/test_gc_common_document_current_authority.py::test_common_document_rechecks_current_authority_and_compensates[session-403-validation]
+FAILED tests/unit/presentation/test_gc_common_document_current_authority.py::test_common_document_rechecks_current_authority_and_compensates[session-403-storage]
+FAILED tests/unit/presentation/test_gc_common_document_current_authority.py::test_common_document_rechecks_current_authority_and_compensates[invited-403-validation]
+FAILED tests/unit/presentation/test_gc_common_document_current_authority.py::test_common_document_rechecks_current_authority_and_compensates[invited-403-storage]
+FAILED tests/unit/presentation/test_gc_common_document_current_authority.py::test_common_document_rechecks_current_authority_and_compensates[access_level_revoked-403-validation]
+FAILED tests/unit/presentation/test_gc_common_document_current_authority.py::test_common_document_rechecks_current_authority_and_compensates[access_level_revoked-403-storage]
+FAILED tests/unit/presentation/test_gc_common_document_current_authority.py::test_common_document_rechecks_current_authority_and_compensates[removed-404-validation]
+FAILED tests/unit/presentation/test_gc_common_document_current_authority.py::test_common_document_rechecks_current_authority_and_compensates[removed-404-storage]
+16 failed, 26 passed in 15.24s

@@ -2,6 +2,8 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import apiClient from "@/lib/api/client";
+import { useAuthStore } from "@/stores/auth.store";
+import { companyActor } from "../test-support/mutation-authority";
 import type { CompanyGroup } from "../types";
 import { CompanyMatchingDialog } from "./company-matching-dialog";
 
@@ -15,7 +17,7 @@ function setup() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
   render(<QueryClientProvider client={client}><CompanyMatchingDialog agencyId="agency" companyId="company" group={{ id: "group", name: "Group under review" } as CompanyGroup} onClose={vi.fn()} /></QueryClientProvider>);
 }
-beforeEach(() => { vi.clearAllMocks(); vi.mocked(apiClient.get).mockResolvedValue({ data: preview }); });
+beforeEach(() => { useAuthStore.setState({ user: companyActor, isChangingAccessLevel: false }); vi.clearAllMocks(); vi.mocked(apiClient.get).mockResolvedValue({ data: preview }); });
 async function acknowledge() {
   fireEvent.change(screen.getByLabelText(/Evidence and decision reason/), { target: { value: "Reviewed the accepted source and confirmed the exact existing profile." } });
   fireEvent.click(screen.getByRole("checkbox", { name: /reviewed the source evidence/ }));
@@ -41,7 +43,7 @@ describe("bounded human-reviewed matching", () => {
     fireEvent.click(screen.getByRole("checkbox", { name: /reviewed the source evidence/ }));
     fireEvent.click(screen.getByRole("button", { name: "Record roster decision" }));
     await screen.findByText("Roster decision saved");
-    expect(apiClient.post).toHaveBeenCalledWith("/api/v1/companies/company/groups/group/travellers/matches/case-one/resolve", { traveller_id: travellerId, expected_revision: 3, expected_group_revision: 9, evidence_reviewed: true, reason: "Reviewed the accepted source and confirmed the exact existing profile." }, { params: { agency_id: "agency" } });
+    expect(apiClient.post).toHaveBeenCalledWith("/api/v1/companies/company/groups/group/travellers/matches/case-one/resolve", { traveller_id: travellerId, expected_revision: 3, expected_group_revision: 9, evidence_reviewed: true, reason: "Reviewed the accepted source and confirmed the exact existing profile." }, { params: { agency_id: "agency" }, expectedOwnerUserId: companyActor.id, expectedAuthorityKey: JSON.stringify([companyActor.id, companyActor.role, companyActor.agency_id]) });
     expect(screen.getByText(/Membership state:/)).toHaveTextContent("pending");
     expect(screen.getByText(/does not grant document access, record consent/)).toBeVisible();
     expect(screen.queryByText("Trip information accepted")).not.toBeInTheDocument();

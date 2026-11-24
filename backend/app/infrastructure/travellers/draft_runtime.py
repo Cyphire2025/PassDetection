@@ -1,4 +1,4 @@
-"""Lease-fenced draft OCR and expiry; no canonical profiles or history writes.
+"""Lease-fenced draft AI extraction and expiry; no canonical profiles or history writes.
 
 One image <=10MiB per worker, globally <=2 extraction leases, <=3 attempts.
 Expiry stages <=100 isolated asset deletions per tick in the existing outbox.

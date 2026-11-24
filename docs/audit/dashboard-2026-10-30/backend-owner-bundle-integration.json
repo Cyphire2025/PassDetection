@@ -1,0 +1,1026 @@
+{
+  "before_modules": 528,
+  "after_modules": 562,
+  "added_modules": 34,
+  "updated_previous_rows": 1,
+  "all527_other_previous_rows_retained_verbatim": true,
+  "previous_upload_floor58_strengthened100_all_relocated_logic_rows_at_least70": true,
+  "before_critical": 60,
+  "after_critical": 69,
+  "all60_previous_critical_rows_retained_verbatim": true,
+  "critical_additions": [
+    {
+      "path": "app/infrastructure/my_photos/search_job_claims.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    },
+    {
+      "path": "app/infrastructure/my_photos/search_job_policy.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    },
+    {
+      "path": "app/infrastructure/my_photos/search_job_publication.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 90
+    },
+    {
+      "path": "app/infrastructure/my_photos/search_job_queries.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    },
+    {
+      "path": "app/infrastructure/documents/verification_receipt_cipher.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 80
+    },
+    {
+      "path": "app/infrastructure/documents/verification_receipt_scope.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 90
+    },
+    {
+      "path": "app/infrastructure/documents/verification_staging.py",
+      "minimum_line_percent": 90,
+      "minimum_branch_percent": 80
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_upload_persistence_scope.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 90
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_upload_commit.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 90
+    }
+  ],
+  "core_declaration_critical_proposals_not_adopted": [
+    {
+      "path": "app/infrastructure/database/models.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/__init__.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/identity.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/groups.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/access.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/passport.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/exports.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/roster.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/images.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/upload_workflow.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/broadcast_links.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/verification_jobs.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/audit.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/notifications.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/platform.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    }
+  ],
+  "core_qualification": "All15 normal size/import coverage rows adopted. Actual174-mapper/DDL/default/constraint/alias/hint and142 unchanged migration controls qualify the model split; declaration-only critical rows are not added or described as behavioral security guards.",
+  "global_and_other_gates_unchanged": true,
+  "before_budget_sha256": "619adff823bc7ff3723d0ec6219e53cfb597da662e94301c7b245889b762a586",
+  "after_budget_sha256": "4d726ac942c52d1a79c13b3a066767ad1e77fe56e6398cba22894e3345305014",
+  "before_bindings": 79,
+  "after_bindings": 93,
+  "exact_new_protected_files": [
+    {
+      "path": "backend/app/infrastructure/database/_core_models/__init__.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "faa1f24f577a07ccfdb3220f3525a0e2e01f529df5debff3909fb64dcc88c83f"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/identity.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "c8b6871bc2ebc4a75b0f4bd8ed3b1927d3f67a517fb8ed92212429d8bb935abf"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/groups.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "f21b171c859d22ce92d578dce8498c05ad060f8a2fa9719323bad024d25147f5"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/access.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "b18d92055a87b33ab6284b5ed8934d701a9a20cdf76b4a02182f8f180e5b1c23"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/passport.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "6c5db24c2bb231c3f9e191879cedb21dbf25d5502985b538db90f30c8cfaf44d"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/exports.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "8251fdad16fafec07e963cb941ac96c832f6e3dbab5032a733e916186cfd3551"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/roster.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "6fbdd6446f17e92e4cbeee06e757a95bfba49d42192c7ff3860c8c0773214793"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/images.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "d5ec6767f3b9c5beb8ba306a341361c3a0d650296fc3f6a4674f2b382ab9e641"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/upload_workflow.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "cf1a6a558e8ebdb6d212aca2f0540dd9961793481fe4fdb7d4c463c950b0a7e5"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/broadcast_links.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "3d86bf2528c510c2641e8f2b9bdf385831af7e35560e87ace323be68f729d559"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/verification_jobs.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "9b78f3c3c1f993a2414be562c660de8c51352c046b7c0efb8cb5b44ae66a46c6"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/audit.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "f52c5e0fa7fe5c43b9f4ca56426babcf647cff463c06594b7251d08a7e86644d"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/notifications.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "e11bc29fd02fc0df264f9476b64073f6beacf4c9c2dd319ac5b3081a30703096"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/platform.py",
+      "before_0140": null,
+      "before_0141": null,
+      "after": "4e33f21bcf30ea0630696b08e0add2c66e357d1b0eca375a1ffbc091f19dae6a"
+    }
+  ],
+  "known_updated_after_paths": [
+    "backend/app/infrastructure/database/models.py",
+    "backend/backend_quality_budgets.json",
+    "frontend/scripts/verify-frontend-module-budgets.mjs"
+  ],
+  "all79_original_both_before_maps_preserved": true,
+  "new14_paths_absent_from_both_baselines_and_HEAD": true,
+  "before_exact_manifest_sha256": "8e6db3ad9f55e75f2712ce8dc3436a457743a82dfca8dcc5c16db414971fe166",
+  "after_exact_manifest_sha256": "a0b8c9c3328c96d09bf7dc6d4a861c7a5f19b8fdb538b7932d50737826466b8b",
+  "measurements": [
+    {
+      "group": "search",
+      "path": "app/infrastructure/my_photos/worker_runtime.py",
+      "sha256": "fbaee6ad22a5e0fb054639eed785e6383affcbdef89ef867b0e63500d73e8931",
+      "lines": 163,
+      "complexity": 13,
+      "statement_percent": 92.64705882352942,
+      "branch_percent": 100.0,
+      "branches": 2
+    },
+    {
+      "group": "search",
+      "path": "app/infrastructure/my_photos/search_job_claims.py",
+      "sha256": "0f63c60008a03187b1d71626d9b68108c16c7c5b40ddd9114c28df9464bab354",
+      "lines": 195,
+      "complexity": 23,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "branches": 18
+    },
+    {
+      "group": "search",
+      "path": "app/infrastructure/my_photos/search_job_contracts.py",
+      "sha256": "483e287f85fe760f4d8ac86710d0b87a238e77cc9e1f420346a30a129a47b3a1",
+      "lines": 52,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_percent": null,
+      "branches": 0
+    },
+    {
+      "group": "search",
+      "path": "app/infrastructure/my_photos/search_job_lifecycle.py",
+      "sha256": "f2bb24c594528790694ec8f0c86ed8c9f3c695b1c5436fdc4a19bb3de48dcb3e",
+      "lines": 109,
+      "complexity": 4,
+      "statement_percent": 92.1875,
+      "branch_percent": 83.33333333333334,
+      "branches": 6
+    },
+    {
+      "group": "search",
+      "path": "app/infrastructure/my_photos/search_job_policy.py",
+      "sha256": "1c94ba6a6f7c7202fb1194943e2965e18c904ecee08b0147e0bee3f4747aa755",
+      "lines": 87,
+      "complexity": 19,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "branches": 8
+    },
+    {
+      "group": "search",
+      "path": "app/infrastructure/my_photos/search_job_publication.py",
+      "sha256": "99099cdc1e26452fc2e71305e48804a37ae2c3780308b13fcc62eea500c53398",
+      "lines": 217,
+      "complexity": 15,
+      "statement_percent": 97.46835443037975,
+      "branch_percent": 92.85714285714286,
+      "branches": 14
+    },
+    {
+      "group": "search",
+      "path": "app/infrastructure/my_photos/search_job_queries.py",
+      "sha256": "353bee1088cf89f7362a2a65222625392926f62f7ded19e0c4cd776d8ed9c1d5",
+      "lines": 55,
+      "complexity": 7,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "branches": 2
+    },
+    {
+      "group": "receipt",
+      "path": "app/infrastructure/documents/verification_receipt_cipher.py",
+      "sha256": "30913eac94b50e9741489d7c9404aa11660aa85b063bc9827c26dcd81f7b7ff3",
+      "lines": 96,
+      "complexity": 11,
+      "statement_percent": 96.0,
+      "branch_percent": 83.33333333333334,
+      "branches": 12
+    },
+    {
+      "group": "receipt",
+      "path": "app/infrastructure/documents/verification_receipt_models.py",
+      "sha256": "07da7bde5fd0596290e94f84d291b6cb0eb6217daa2a9f1b010079355e30edac",
+      "lines": 94,
+      "complexity": 1,
+      "statement_percent": 100.0,
+      "branch_percent": null,
+      "branches": 0
+    },
+    {
+      "group": "receipt",
+      "path": "app/infrastructure/documents/verification_receipt_payload.py",
+      "sha256": "0e88fe849a24ab6bd9b8e9e6068ac09c47f2a3d0811ea5a9207e6fb2e93f23b3",
+      "lines": 162,
+      "complexity": 17,
+      "statement_percent": 80.0,
+      "branch_percent": 50.0,
+      "branches": 10
+    },
+    {
+      "group": "receipt",
+      "path": "app/infrastructure/documents/verification_receipt_scope.py",
+      "sha256": "e2d24df8b74457cdbafaf61321c91c6397049138e2ce22478868434014949a0b",
+      "lines": 153,
+      "complexity": 21,
+      "statement_percent": 95.3125,
+      "branch_percent": 95.0,
+      "branches": 20
+    },
+    {
+      "group": "receipt",
+      "path": "app/infrastructure/documents/verification_staging.py",
+      "sha256": "80559887908423587b23589041e9eb5d3aca7ffe856f5267426eafa997a8ba74",
+      "lines": 247,
+      "complexity": 18,
+      "statement_percent": 94.56521739130434,
+      "branch_percent": 81.25,
+      "branches": 16
+    },
+    {
+      "group": "upload",
+      "path": "app/presentation/api/v1/routes/document_distribution_upload.py",
+      "sha256": "785af8f7ca63812a9ed52c2caae016e3ec3d39940ee58e94fff5c75003a49b18",
+      "lines": 73,
+      "complexity": 1,
+      "statement_percent": 100.0,
+      "branch_percent": null,
+      "branches": 0
+    },
+    {
+      "group": "upload",
+      "path": "app/presentation/api/v1/routes/document_distribution_upload_content.py",
+      "sha256": "10c94f1f6eb6fd920e85dafd0114065c7a46a1e0157e4d5d06bd4b450609e58f",
+      "lines": 151,
+      "complexity": 18,
+      "statement_percent": 94.23076923076923,
+      "branch_percent": 75.0,
+      "branches": 4
+    },
+    {
+      "group": "upload",
+      "path": "app/presentation/api/v1/routes/document_distribution_upload_chunk_state.py",
+      "sha256": "bdc91348c034db5edb2b4fbe77a7cb9db85c54fd0cb7c9c412f2d1f4bbe198b6",
+      "lines": 163,
+      "complexity": 10,
+      "statement_percent": 73.58490566037736,
+      "branch_percent": 43.75,
+      "branches": 16
+    },
+    {
+      "group": "upload",
+      "path": "app/presentation/api/v1/routes/document_distribution_upload_persistence_scope.py",
+      "sha256": "22dc6c290c106063f0d5c2f7dc09a1bd8d2ede9c8a7be9041b69ecf161c9166e",
+      "lines": 220,
+      "complexity": 16,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "branches": 14
+    },
+    {
+      "group": "upload",
+      "path": "app/presentation/api/v1/routes/document_distribution_upload_commit.py",
+      "sha256": "d6393043a46777e003a31f0a98c278a721ce38e1021f84a0763ecb33c8c38eb5",
+      "lines": 103,
+      "complexity": 8,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "branches": 4
+    },
+    {
+      "group": "upload",
+      "path": "app/presentation/api/v1/routes/document_distribution_upload_workflow.py",
+      "sha256": "79bea355820360e3645a28f3039146c738b92a91a7c0f99a68d6ef008cd4f014",
+      "lines": 318,
+      "complexity": 16,
+      "statement_percent": 76.08695652173914,
+      "branch_percent": 41.66666666666667,
+      "branches": 12
+    },
+    {
+      "group": "upload",
+      "path": "app/presentation/api/v1/routes/document_distribution_upload_match_scope.py",
+      "sha256": "e591b524a5a6501ef2e1accc8aa3eeae782b28c80883197bf4ee4f1373d1184e",
+      "lines": 125,
+      "complexity": 5,
+      "statement_percent": 97.61904761904762,
+      "branch_percent": 83.33333333333334,
+      "branches": 6
+    },
+    {
+      "group": "upload",
+      "path": "app/presentation/api/v1/routes/document_distribution_upload_response.py",
+      "sha256": "ee0e5277132af22da41bd9041f08dfaa176ac60241e415e45fb3a20c25f67dc3",
+      "lines": 67,
+      "complexity": 4,
+      "statement_percent": 93.33333333333333,
+      "branch_percent": 50.0,
+      "branches": 2
+    },
+    {
+      "group": "core_models",
+      "path": "app/infrastructure/database/models.py",
+      "sha256": "685526fd00128c49052195d84ac17d7e1ad66ace8e43dbcd70e260435be24c16",
+      "lines": 198,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_percent": null,
+      "branches": 0
+    },
+    {
+      "group": "core_models",
+      "path": "app/infrastructure/database/_core_models/__init__.py",
+      "sha256": "faa1f24f577a07ccfdb3220f3525a0e2e01f529df5debff3909fb64dcc88c83f",
+      "lines": 8,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_percent": null,
+      "branches": 0
+    },
+    {
+      "group": "core_models",
+      "path": "app/infrastructure/database/_core_models/identity.py",
+      "sha256": "c8b6871bc2ebc4a75b0f4bd8ed3b1927d3f67a517fb8ed92212429d8bb935abf",
+      "lines": 150,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_percent": null,
+      "branches": 0
+    },
+    {
+      "group": "core_models",
+      "path": "app/infrastructure/database/_core_models/groups.py",
+      "sha256": "f21b171c859d22ce92d578dce8498c05ad060f8a2fa9719323bad024d25147f5",
+      "lines": 225,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_percent": null,
+      "branches": 0
+    },
+    {
+      "group": "core_models",
+      "path": "app/infrastructure/database/_core_models/access.py",
+      "sha256": "b18d92055a87b33ab6284b5ed8934d701a9a20cdf76b4a02182f8f180e5b1c23",
+      "lines": 125,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_percent": null,
+      "branches": 0
+    },
+    {
+      "group": "core_models",
+      "path": "app/infrastructure/database/_core_models/passport.py",
+      "sha256": "6c5db24c2bb231c3f9e191879cedb21dbf25d5502985b538db90f30c8cfaf44d",
+      "lines": 326,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_percent": null,
+      "branches": 0
+    },
+    {
+      "group": "core_models",
+      "path": "app/infrastructure/database/_core_models/exports.py",
+      "sha256": "8251fdad16fafec07e963cb941ac96c832f6e3dbab5032a733e916186cfd3551",
+      "lines": 135,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_percent": null,
+      "branches": 0
+    },
+    {
+      "group": "core_models",
+      "path": "app/infrastructure/database/_core_models/roster.py",
+      "sha256": "6fbdd6446f17e92e4cbeee06e757a95bfba49d42192c7ff3860c8c0773214793",
+      "lines": 141,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_percent": null,
+      "branches": 0
+    },
+    {
+      "group": "core_models",
+      "path": "app/infrastructure/database/_core_models/images.py",
+      "sha256": "d5ec6767f3b9c5beb8ba306a341361c3a0d650296fc3f6a4674f2b382ab9e641",
+      "lines": 261,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_percent": null,
+      "branches": 0
+    },
+    {
+      "group": "core_models",
+      "path": "app/infrastructure/database/_core_models/upload_workflow.py",
+      "sha256": "cf1a6a558e8ebdb6d212aca2f0540dd9961793481fe4fdb7d4c463c950b0a7e5",
+      "lines": 154,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_percent": null,
+      "branches": 0
+    },
+    {
+      "group": "core_models",
+      "path": "app/infrastructure/database/_core_models/broadcast_links.py",
+      "sha256": "3d86bf2528c510c2641e8f2b9bdf385831af7e35560e87ace323be68f729d559",
+      "lines": 81,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_percent": null,
+      "branches": 0
+    },
+    {
+      "group": "core_models",
+      "path": "app/infrastructure/database/_core_models/verification_jobs.py",
+      "sha256": "9b78f3c3c1f993a2414be562c660de8c51352c046b7c0efb8cb5b44ae66a46c6",
+      "lines": 80,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_percent": null,
+      "branches": 0
+    },
+    {
+      "group": "core_models",
+      "path": "app/infrastructure/database/_core_models/audit.py",
+      "sha256": "f52c5e0fa7fe5c43b9f4ca56426babcf647cff463c06594b7251d08a7e86644d",
+      "lines": 142,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_percent": null,
+      "branches": 0
+    },
+    {
+      "group": "core_models",
+      "path": "app/infrastructure/database/_core_models/notifications.py",
+      "sha256": "e11bc29fd02fc0df264f9476b64073f6beacf4c9c2dd319ac5b3081a30703096",
+      "lines": 73,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_percent": null,
+      "branches": 0
+    },
+    {
+      "group": "core_models",
+      "path": "app/infrastructure/database/_core_models/platform.py",
+      "sha256": "4e33f21bcf30ea0630696b08e0add2c66e357d1b0eca375a1ffbc091f19dae6a",
+      "lines": 25,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_percent": null,
+      "branches": 0
+    }
+  ],
+  "budget_changes": [
+    {
+      "path": "app/infrastructure/my_photos/worker_runtime.py",
+      "kind": "new measured module",
+      "after": {
+        "path": "app/infrastructure/my_photos/worker_runtime.py",
+        "baseline_lines": 163,
+        "maximum_lines": 170,
+        "baseline_max_function_complexity": 13,
+        "maximum_function_complexity": 13,
+        "minimum_coverage_percent": 90
+      }
+    },
+    {
+      "path": "app/infrastructure/my_photos/search_job_claims.py",
+      "kind": "new measured module",
+      "after": {
+        "path": "app/infrastructure/my_photos/search_job_claims.py",
+        "baseline_lines": 195,
+        "maximum_lines": 203,
+        "baseline_max_function_complexity": 23,
+        "maximum_function_complexity": 23,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "path": "app/infrastructure/my_photos/search_job_contracts.py",
+      "kind": "new measured module",
+      "after": {
+        "path": "app/infrastructure/my_photos/search_job_contracts.py",
+        "baseline_lines": 52,
+        "maximum_lines": 55,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 100
+      }
+    },
+    {
+      "path": "app/infrastructure/my_photos/search_job_lifecycle.py",
+      "kind": "new measured module",
+      "after": {
+        "path": "app/infrastructure/my_photos/search_job_lifecycle.py",
+        "baseline_lines": 109,
+        "maximum_lines": 114,
+        "baseline_max_function_complexity": 4,
+        "maximum_function_complexity": 4,
+        "minimum_coverage_percent": 90
+      }
+    },
+    {
+      "path": "app/infrastructure/my_photos/search_job_policy.py",
+      "kind": "new measured module",
+      "after": {
+        "path": "app/infrastructure/my_photos/search_job_policy.py",
+        "baseline_lines": 87,
+        "maximum_lines": 91,
+        "baseline_max_function_complexity": 19,
+        "maximum_function_complexity": 19,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "path": "app/infrastructure/my_photos/search_job_publication.py",
+      "kind": "new measured module",
+      "after": {
+        "path": "app/infrastructure/my_photos/search_job_publication.py",
+        "baseline_lines": 217,
+        "maximum_lines": 226,
+        "baseline_max_function_complexity": 15,
+        "maximum_function_complexity": 15,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "path": "app/infrastructure/my_photos/search_job_queries.py",
+      "kind": "new measured module",
+      "after": {
+        "path": "app/infrastructure/my_photos/search_job_queries.py",
+        "baseline_lines": 55,
+        "maximum_lines": 58,
+        "baseline_max_function_complexity": 7,
+        "maximum_function_complexity": 7,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "path": "app/infrastructure/documents/verification_receipt_cipher.py",
+      "kind": "new measured module",
+      "after": {
+        "path": "app/infrastructure/documents/verification_receipt_cipher.py",
+        "baseline_lines": 96,
+        "maximum_lines": 99,
+        "baseline_max_function_complexity": 11,
+        "maximum_function_complexity": 11,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "path": "app/infrastructure/documents/verification_receipt_models.py",
+      "kind": "new measured module",
+      "after": {
+        "path": "app/infrastructure/documents/verification_receipt_models.py",
+        "baseline_lines": 94,
+        "maximum_lines": 97,
+        "baseline_max_function_complexity": 1,
+        "maximum_function_complexity": 1,
+        "minimum_coverage_percent": 100
+      }
+    },
+    {
+      "path": "app/infrastructure/documents/verification_receipt_payload.py",
+      "kind": "new measured module",
+      "after": {
+        "path": "app/infrastructure/documents/verification_receipt_payload.py",
+        "baseline_lines": 162,
+        "maximum_lines": 167,
+        "baseline_max_function_complexity": 17,
+        "maximum_function_complexity": 17,
+        "minimum_coverage_percent": 80
+      }
+    },
+    {
+      "path": "app/infrastructure/documents/verification_receipt_scope.py",
+      "kind": "new measured module",
+      "after": {
+        "path": "app/infrastructure/documents/verification_receipt_scope.py",
+        "baseline_lines": 153,
+        "maximum_lines": 158,
+        "baseline_max_function_complexity": 21,
+        "maximum_function_complexity": 21,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "path": "app/infrastructure/documents/verification_staging.py",
+      "kind": "new measured module",
+      "after": {
+        "path": "app/infrastructure/documents/verification_staging.py",
+        "baseline_lines": 247,
+        "maximum_lines": 255,
+        "baseline_max_function_complexity": 18,
+        "maximum_function_complexity": 18,
+        "minimum_coverage_percent": 90
+      }
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_upload.py",
+      "kind": "measured existing facade ceiling lowered; baseline follows new owner, complete historical row retained here",
+      "before": {
+        "path": "app/presentation/api/v1/routes/document_distribution_upload.py",
+        "baseline_lines": 667,
+        "maximum_lines": 720,
+        "baseline_max_function_complexity": 64,
+        "maximum_function_complexity": 64,
+        "minimum_coverage_percent": 58
+      },
+      "after": {
+        "path": "app/presentation/api/v1/routes/document_distribution_upload.py",
+        "baseline_lines": 73,
+        "maximum_lines": 76,
+        "baseline_max_function_complexity": 1,
+        "maximum_function_complexity": 1,
+        "minimum_coverage_percent": 100
+      }
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_upload_content.py",
+      "kind": "new measured module",
+      "after": {
+        "path": "app/presentation/api/v1/routes/document_distribution_upload_content.py",
+        "baseline_lines": 151,
+        "maximum_lines": 156,
+        "baseline_max_function_complexity": 18,
+        "maximum_function_complexity": 18,
+        "minimum_coverage_percent": 90
+      }
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_upload_chunk_state.py",
+      "kind": "new measured module",
+      "after": {
+        "path": "app/presentation/api/v1/routes/document_distribution_upload_chunk_state.py",
+        "baseline_lines": 163,
+        "maximum_lines": 168,
+        "baseline_max_function_complexity": 10,
+        "maximum_function_complexity": 10,
+        "minimum_coverage_percent": 70
+      }
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_upload_persistence_scope.py",
+      "kind": "new measured module",
+      "after": {
+        "path": "app/presentation/api/v1/routes/document_distribution_upload_persistence_scope.py",
+        "baseline_lines": 220,
+        "maximum_lines": 227,
+        "baseline_max_function_complexity": 16,
+        "maximum_function_complexity": 16,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_upload_commit.py",
+      "kind": "new measured module",
+      "after": {
+        "path": "app/presentation/api/v1/routes/document_distribution_upload_commit.py",
+        "baseline_lines": 103,
+        "maximum_lines": 107,
+        "baseline_max_function_complexity": 8,
+        "maximum_function_complexity": 8,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_upload_workflow.py",
+      "kind": "new measured module",
+      "after": {
+        "path": "app/presentation/api/v1/routes/document_distribution_upload_workflow.py",
+        "baseline_lines": 318,
+        "maximum_lines": 328,
+        "baseline_max_function_complexity": 16,
+        "maximum_function_complexity": 16,
+        "minimum_coverage_percent": 70
+      }
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_upload_match_scope.py",
+      "kind": "new measured module",
+      "after": {
+        "path": "app/presentation/api/v1/routes/document_distribution_upload_match_scope.py",
+        "baseline_lines": 125,
+        "maximum_lines": 129,
+        "baseline_max_function_complexity": 5,
+        "maximum_function_complexity": 5,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_upload_response.py",
+      "kind": "new measured module",
+      "after": {
+        "path": "app/presentation/api/v1/routes/document_distribution_upload_response.py",
+        "baseline_lines": 67,
+        "maximum_lines": 70,
+        "baseline_max_function_complexity": 4,
+        "maximum_function_complexity": 4,
+        "minimum_coverage_percent": 90
+      }
+    },
+    {
+      "path": "app/infrastructure/database/models.py",
+      "kind": "new measured module",
+      "after": {
+        "path": "app/infrastructure/database/models.py",
+        "baseline_lines": 198,
+        "maximum_lines": 198,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/__init__.py",
+      "kind": "new measured module",
+      "after": {
+        "path": "app/infrastructure/database/_core_models/__init__.py",
+        "baseline_lines": 8,
+        "maximum_lines": 8,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/identity.py",
+      "kind": "new measured module",
+      "after": {
+        "path": "app/infrastructure/database/_core_models/identity.py",
+        "baseline_lines": 150,
+        "maximum_lines": 150,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/groups.py",
+      "kind": "new measured module",
+      "after": {
+        "path": "app/infrastructure/database/_core_models/groups.py",
+        "baseline_lines": 225,
+        "maximum_lines": 225,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/access.py",
+      "kind": "new measured module",
+      "after": {
+        "path": "app/infrastructure/database/_core_models/access.py",
+        "baseline_lines": 125,
+        "maximum_lines": 125,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/passport.py",
+      "kind": "new measured module",
+      "after": {
+        "path": "app/infrastructure/database/_core_models/passport.py",
+        "baseline_lines": 326,
+        "maximum_lines": 326,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/exports.py",
+      "kind": "new measured module",
+      "after": {
+        "path": "app/infrastructure/database/_core_models/exports.py",
+        "baseline_lines": 135,
+        "maximum_lines": 135,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/roster.py",
+      "kind": "new measured module",
+      "after": {
+        "path": "app/infrastructure/database/_core_models/roster.py",
+        "baseline_lines": 141,
+        "maximum_lines": 141,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/images.py",
+      "kind": "new measured module",
+      "after": {
+        "path": "app/infrastructure/database/_core_models/images.py",
+        "baseline_lines": 261,
+        "maximum_lines": 261,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/upload_workflow.py",
+      "kind": "new measured module",
+      "after": {
+        "path": "app/infrastructure/database/_core_models/upload_workflow.py",
+        "baseline_lines": 154,
+        "maximum_lines": 154,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/broadcast_links.py",
+      "kind": "new measured module",
+      "after": {
+        "path": "app/infrastructure/database/_core_models/broadcast_links.py",
+        "baseline_lines": 81,
+        "maximum_lines": 81,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/verification_jobs.py",
+      "kind": "new measured module",
+      "after": {
+        "path": "app/infrastructure/database/_core_models/verification_jobs.py",
+        "baseline_lines": 80,
+        "maximum_lines": 80,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/audit.py",
+      "kind": "new measured module",
+      "after": {
+        "path": "app/infrastructure/database/_core_models/audit.py",
+        "baseline_lines": 142,
+        "maximum_lines": 142,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/notifications.py",
+      "kind": "new measured module",
+      "after": {
+        "path": "app/infrastructure/database/_core_models/notifications.py",
+        "baseline_lines": 73,
+        "maximum_lines": 73,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "path": "app/infrastructure/database/_core_models/platform.py",
+      "kind": "new measured module",
+      "after": {
+        "path": "app/infrastructure/database/_core_models/platform.py",
+        "baseline_lines": 25,
+        "maximum_lines": 25,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      }
+    }
+  ],
+  "review_provenance": [
+    "search-worker-verification.json",
+    "verification-receipt-verification.json",
+    "distribution-upload-verification.json",
+    "core-models-verification.json",
+    "document-operation-authority-budget-integration.json"
+  ],
+  "limits": "Source/measurement/equivalence integration only. Peer tests retain attribution/overlap limits. No broad suite/build/browser or real PostgreSQL/Redis/storage/VPS qualification; MCP reconciliation deliberately pending frozen rename batch."
+}

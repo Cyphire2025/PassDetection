@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="3" time="2.664" timestamp="2026-10-31T03:11:35.192312+05:30" hostname="Nipun5070ti"><testcase classname="tests.integration.test_menu_export_responsiveness" name="test_authenticated_meal_export_allows_event_loop_progress_during_native_render" time="2.218"><failure message="assert [False] == [True]&#10;  &#10;  At index 0 diff: False != True&#10;  Use -v to get more diff">client = &lt;httpx.AsyncClient object at 0x000001C67F082110&gt;
+db_session = &lt;sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000001C67BAC3B90&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001C67B6E0E90&gt;
+
+    @pytest.mark.asyncio
+    async def test_authenticated_meal_export_allows_event_loop_progress_during_native_render(
+        client,
+        db_session,
+        monkeypatch,
+    ):
+        agency_id, user_id, plan_id = uuid.uuid4(), uuid.uuid4(), uuid.uuid4()
+        db_session.add(
+            AgencyModel(id=agency_id, name="Synthetic meal export", email=f"{agency_id}@example.test")
+        )
+        await db_session.flush()
+        db_session.add(
+            UserModel(
+                id=user_id,
+                agency_id=agency_id,
+                email=f"{user_id}@example.test",
+                full_name="Synthetic operator",
+                hashed_password="unused",
+                role="agency_admin",
+                is_active=True,
+            )
+        )
+        db_session.add(
+            MealPlanModel(
+                id=plan_id,
+                agency_id=agency_id,
+                name="Saved snapshot plan",
+                trip_days=1,
+                selected_category_ids=[],
+                generation_seed=1,
+            )
+        )
+        await db_session.flush()
+        db_session.add_all(
+            [
+                MealPlanEntryModel(
+                    plan_id=plan_id,
+                    day_number=1,
+                    meal_type=meal,
+                    dish_name=f"Synthetic {meal}",
+                    category_name="Saved category",
+                )
+                for meal in ("lunch", "dinner")
+            ]
+        )
+        await db_session.commit()
+        token, _ = await issue_dashboard_access(
+            db_session,
+            user_id=user_id,
+            role="agency_admin",
+            agency_id=agency_id,
+        )
+        started, progressed = threading.Event(), threading.Event()
+        progress_during_render = []
+        loop = asyncio.get_running_loop()
+    
+        def render(_self, **_kwargs):
+            started.set()
+            progress_during_render.append(progressed.wait(timeout=0.75))
+            return b"PK-synthetic-workbook"
+    
+        def observe_loop():
+            if started.wait(timeout=3):
+                loop.call_soon_threadsafe(progressed.set)
+    
+        monkeypatch.setattr(menu.MealPlanExcelExporter, "export", render)
+        observer = threading.Thread(target=observe_loop)
+        observer.start()
+        try:
+            response = await client.get(
+                f"/api/v1/menu/plans/{plan_id}/export.xlsx",
+                headers={"Authorization": f"Bearer {token}"},
+            )
+        finally:
+            progressed.set()
+            observer.join(timeout=3)
+    
+        assert not observer.is_alive()
+        assert response.status_code == 200, response.text
+        assert response.content == b"PK-synthetic-workbook"
+&gt;       assert progress_during_render == [True]
+E       assert [False] == [True]
+E         
+E         At index 0 diff: False != True
+E         Use -v to get more diff
+
+tests\integration\test_menu_export_responsiveness.py:97: AssertionError</failure></testcase><testcase classname="tests.unit.presentation.test_rooming_export_native_drain" name="test_cancelled_rooming_export_drains_native_worker_before_return[rooming_list]" time="0.005"><failure message="assert not True">kind = 'rooming_list'
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001C67F732910&gt;
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("kind", ["rooming_list", "checkins"])
+    async def test_cancelled_rooming_export_drains_native_worker_before_return(kind, monkeypatch):
+        started, release, finished = threading.Event(), threading.Event(), threading.Event()
+        prepared = PreparedRoomingExcel(
+            kind=kind,
+            arguments={},
+            scope=(),
+            filename="synthetic.xlsx",
+            passenger_count=1,
+            priority_fields=[],
+        )
+    
+        def render(_self):
+            started.set()
+            try:
+                assert release.wait(timeout=5)
+                return b"PK-synthetic-workbook"
+            finally:
+                finished.set()
+    
+        monkeypatch.setattr(PreparedRoomingExcel, "render_sync", render)
+        monkeypatch.setattr(
+            rooming_exports,
+            "_get_rooming_hotel",
+            AsyncMock(return_value=(SimpleNamespace(), SimpleNamespace())),
+        )
+        prepare_name = "prepare_rooming_list" if kind == "rooming_list" else "prepare_checkins"
+        monkeypatch.setattr(rooming_exports, prepare_name, AsyncMock(return_value=prepared))
+        route = (
+            rooming_exports.export_hotel_rooming_list
+            if kind == "rooming_list"
+            else rooming_exports.export_hotel_checkins
+        )
+        task = asyncio.create_task(
+            route(
+                hotel_id=uuid.uuid4(),
+                request=SimpleNamespace(),
+                current_user=SimpleNamespace(),
+                session=AsyncMock(),
+            )
+        )
+        try:
+            assert await asyncio.to_thread(started.wait, 3)
+            task.cancel()
+            done, _ = await asyncio.wait({task}, timeout=0.05)
+            returned_before_worker_finished = bool(done)
+        finally:
+            release.set()
+            with pytest.raises(asyncio.CancelledError):
+                await task
+            assert await asyncio.to_thread(finished.wait, 3)
+    
+&gt;       assert not returned_before_worker_finished
+E       assert not True
+
+tests\unit\presentation\test_rooming_export_native_drain.py:70: AssertionError</failure></testcase><testcase classname="tests.unit.presentation.test_rooming_export_native_drain" name="test_cancelled_rooming_export_drains_native_worker_before_return[checkins]" time="0.004"><failure message="assert not True">kind = 'checkins'
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001C67B939210&gt;
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("kind", ["rooming_list", "checkins"])
+    async def test_cancelled_rooming_export_drains_native_worker_before_return(kind, monkeypatch):
+        started, release, finished = threading.Event(), threading.Event(), threading.Event()
+        prepared = PreparedRoomingExcel(
+            kind=kind,
+            arguments={},
+            scope=(),
+            filename="synthetic.xlsx",
+            passenger_count=1,
+            priority_fields=[],
+        )
+    
+        def render(_self):
+            started.set()
+            try:
+                assert release.wait(timeout=5)
+                return b"PK-synthetic-workbook"
+            finally:
+                finished.set()
+    
+        monkeypatch.setattr(PreparedRoomingExcel, "render_sync", render)
+        monkeypatch.setattr(
+            rooming_exports,
+            "_get_rooming_hotel",
+            AsyncMock(return_value=(SimpleNamespace(), SimpleNamespace())),
+        )
+        prepare_name = "prepare_rooming_list" if kind == "rooming_list" else "prepare_checkins"
+        monkeypatch.setattr(rooming_exports, prepare_name, AsyncMock(return_value=prepared))
+        route = (
+            rooming_exports.export_hotel_rooming_list
+            if kind == "rooming_list"
+            else rooming_exports.export_hotel_checkins
+        )
+        task = asyncio.create_task(
+            route(
+                hotel_id=uuid.uuid4(),
+                request=SimpleNamespace(),
+                current_user=SimpleNamespace(),
+                session=AsyncMock(),
+            )
+        )
+        try:
+            assert await asyncio.to_thread(started.wait, 3)
+            task.cancel()
+            done, _ = await asyncio.wait({task}, timeout=0.05)
+            returned_before_worker_finished = bool(done)
+        finally:
+            release.set()
+            with pytest.raises(asyncio.CancelledError):
+                await task
+            assert await asyncio.to_thread(finished.wait, 3)
+    
+&gt;       assert not returned_before_worker_finished
+E       assert not True
+
+tests\unit\presentation\test_rooming_export_native_drain.py:70: AssertionError</failure></testcase></testsuite></testsuites>

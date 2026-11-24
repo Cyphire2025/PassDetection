@@ -1,0 +1,23 @@
+{
+  "method": "Actual complete physical source reads; loader-only correction, no runtime change. Original full-read SHA remains historical in other reviewer ledger.",
+  "files": [
+    {
+      "path": "frontend/features/dashboard/components/dashboard-ui-transformation.contract.test.mjs",
+      "sha256": "bdae0536bb5e55912fcc9e4a7349d106616495c94aae8ebc7c1c1d2823b78076",
+      "physical_lines": 251,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete current source read. Dashboard loader now invokes the existing live rename aggregate; all original test bodies/assertions identical. The helper verifies named imports, rendered children and controller wiring before including real upload/saved/results sources."
+    },
+    {
+      "path": "frontend/features/documents/components/document-rename-source.contract-helper.mjs",
+      "sha256": "ea31bc8335013173a52ff222145ac5a2718b881837a6d1ce02ac0fbfa5669108",
+      "physical_lines": 20,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete current source read. Dashboard loader now invokes the existing live rename aggregate; all original test bodies/assertions identical. The helper verifies named imports, rendered children and controller wiring before including real upload/saved/results sources."
+    }
+  ]
+}

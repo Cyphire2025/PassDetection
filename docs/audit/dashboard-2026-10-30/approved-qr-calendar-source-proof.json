@@ -1,0 +1,11 @@
+{
+  "whole_module_inverse_ast_exact": true,
+  "intended_change": "Two-day grace saturates only beyond representable date range; no expiry later than mathematical original policy",
+  "representable_return_date_parities": 726,
+  "no_return_date_ttl_parities": 1,
+  "new_overflow_dates": [
+    "9999-12-30",
+    "9999-12-31"
+  ],
+  "scope": "Dashboard-approved persisted passenger; no native ingress change"
+}

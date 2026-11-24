@@ -1,0 +1,24 @@
+{
+  "unchanged_full_function_declarations": [
+    "captureTransferToken",
+    "fileExtension",
+    "validTransfer",
+    "samePreparedTransfer",
+    "attachmentFilename"
+  ],
+  "full_McpFileTransfer_DTO_unchanged": true,
+  "all_four_API_member_names_order_unchanged": true,
+  "three_API_whole_arrows_unchanged": [
+    "status",
+    "download",
+    "upload"
+  ],
+  "intentional_acknowledge_extension": "Optional trailing AbortSignal, only RequestInit.signal added; original POST path/body/credential/cache/redirect/referrer policies retained.",
+  "new_body_owner": "Resource-scoped bounded reader owns abort listener, cancellation, byte bound and lock release; immutable metadata and SHA256 verification remain original facade exports.",
+  "intentional_lifetime_deltas": [
+    "One current route AbortController shared by all initiated operations; StrictMode setup creates a fresh open lifetime without recapturing scrubbed token",
+    "Checks after uncancellable arrayBuffer/digest/picker/writer completion prevent late subsequent side effects",
+    "Pending reader cancels and releases lock; staged writable aborts after its pending operation drains; closed local files are not claimed rolled back",
+    "Already dispatched fetch receives best-effort abort; no server rollback or never-uploaded guarantee"
+  ]
+}

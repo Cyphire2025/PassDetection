@@ -1,0 +1,9 @@
+"use client";
+
+import type { UploadLinkResponse } from "@/features/passports/api/upload-links.api";
+import type { DraftQualifierInputs } from "../services/draft-input-contract";
+import { FreshQualifierEditor } from "./fresh-qualifier-editor";
+
+export function FreshQualifier(props: { state: DraftQualifierInputs; group: UploadLinkResponse }) {
+  return <FreshQualifierEditor {...props} />;
+}

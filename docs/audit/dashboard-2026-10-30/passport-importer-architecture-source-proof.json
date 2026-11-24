@@ -1,0 +1,106 @@
+{
+  "status": "complete structural and compatibility proof passed",
+  "whole_moved_declarations": [
+    {
+      "name": "PassportDocumentStagingError",
+      "owner": "passport_document_streams"
+    },
+    {
+      "name": "_read_exact_stream",
+      "owner": "passport_document_streams"
+    },
+    {
+      "name": "_read_forward_stream_exact",
+      "owner": "passport_document_streams"
+    },
+    {
+      "name": "PassportDocumentUploadSource",
+      "owner": "passport_document_workspace"
+    },
+    {
+      "name": "StagedValidatedUpload",
+      "owner": "passport_document_workspace"
+    },
+    {
+      "name": "PassportDocumentFile",
+      "owner": "passport_document_workspace"
+    },
+    {
+      "name": "RejectedPassportDocument",
+      "owner": "passport_document_workspace"
+    },
+    {
+      "name": "PassportDocumentImportWorkspace",
+      "owner": "passport_document_workspace"
+    },
+    {
+      "name": "_ImportBudget",
+      "owner": "passport_zip_members"
+    }
+  ],
+  "whole_class_inverse": "All importer class AST restores after four explicitly checked compatibility wrappers. Constructor, collect, detection and direct read body are otherwise exact.",
+  "image_pipeline_inverse": "All three moved methods restore after explicit function/argument/self-attribute naming projection; no branch/order/data changes.",
+  "archive_inverse": "Complete original archive function restores after checked member-rule expansion, exact validator invocation projection and explicit max_members DATA argument. Rule ASTs preserve every admission order; the sole control representation change raises the existing staging exception instead of returning accumulated rows at cumulative archive quota.",
+  "quota_equivalence": "Existing staging handler appends the identical source-named rejection and returns prior rows; original/current actual two-archive policy control passes. Both paths close archive and reset source cursor.",
+  "constants": 12,
+  "actual_import_identities": [
+    "re",
+    "stat",
+    "tempfile",
+    "zipfile",
+    "dataclass",
+    "field",
+    "PurePosixPath",
+    "IO",
+    "ImageValidationError",
+    "PassportZipMemberLimitError",
+    "admit_passport_zip_directory",
+    "UploadValidator",
+    "ValidatedUpload"
+  ],
+  "evaluated_hint_checks": [
+    "PassportDocumentStagingError",
+    "PassportDocumentUploadSource",
+    "StagedValidatedUpload",
+    "PassportDocumentFile",
+    "RejectedPassportDocument",
+    "PassportDocumentImportWorkspace",
+    "_ImportBudget",
+    "PassportDocumentImporter.__init__",
+    "PassportDocumentImporter.collect",
+    "PassportDocumentImporter._is_zip",
+    "PassportDocumentImporter._collect_zip",
+    "PassportDocumentImporter._collect_direct",
+    "PassportDocumentImporter._validate_one",
+    "PassportDocumentImporter._invalid_filename",
+    "PassportDocumentImporter._parse_name",
+    "_read_exact_stream",
+    "_read_forward_stream_exact"
+  ],
+  "legacy_class_function_pickles": 10,
+  "legacy_instance_pickles": 6,
+  "same_existing_signature_unavailability": [
+    {
+      "type": "app.infrastructure.imports.passport_document_importer.PassportDocumentStagingError",
+      "error": "no signature found for builtin type <class 'app.infrastructure.imports.passport_document_importer.PassportDocumentStagingError'>"
+    },
+    {
+      "type": "app.infrastructure.imports.passport_document_streams.PassportDocumentStagingError",
+      "error": "no signature found for builtin type <class 'app.infrastructure.imports.passport_document_streams.PassportDocumentStagingError'>"
+    }
+  ],
+  "test_inverse": "Complete existing staging test module restores after only one instrumentation import redirects to actual workspace owner. All original assertions/test bodies unchanged.",
+  "source_fence": {
+    "backend/app/infrastructure/imports/passport_document_importer.py": "1431aac22fdf7d255516c02f34d1f6ad8102ca083668a5f609bc9b74b7c65d92",
+    "backend/app/infrastructure/imports/passport_document_workspace.py": "78260b471bcc10d9edd1ed44b06dc732e5468802ea723ca8891964c12add98f7",
+    "backend/app/infrastructure/imports/passport_document_streams.py": "6ab71940f43d46edff2ece4e5c80706428ab087702e99f65eff5f2f3ed6a4caf",
+    "backend/app/infrastructure/imports/passport_document_images.py": "8f097d6a4b7a63f7c1fd2fb82615c351e3d7701baaed3c398349eabc2de60f0d",
+    "backend/app/infrastructure/imports/passport_zip_members.py": "88ef17047879d07ae2720d99dee680b4744c49d68baf59e7de33821ce6e3628c",
+    "backend/app/infrastructure/imports/passport_zip_reader.py": "8c5d054b922a9f3878ba1ded3b7971a873286b36a3cf84356fe2cb9c366d88ea"
+  },
+  "limits": [
+    "Moved class/function module provenance naturally identifies actual owners; old saved globals decode through explicit facade aliases, and new pickles round-trip. Literal new pickle bytes are not promised identical.",
+    "No repository subclass overrides private importer methods; new composed ZIP/image owners use canonical policy directly. Public constructor/collect/MRO, route monkeypatch seam and staged read seam remain stable.",
+    "This proof is structural/compatibility evidence, not a substitute for focused behavior checks or final current-tree service/browser qualification."
+  ]
+}

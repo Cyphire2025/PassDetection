@@ -1,4 +1,4 @@
-const CACHE_NAME = "passdetection-public-static-v10";
+const CACHE_NAME = "passdetection-public-static-v12";
 const PUBLIC_STATIC_ASSETS = [
   "/offline.html",
   "/offline-scanner.js",
@@ -8,7 +8,10 @@ const PUBLIC_STATIC_PATHS = new Set(PUBLIC_STATIC_ASSETS);
 const COORDINATOR_PATH_PATTERN = /^\/coordinator(?:\/|$)/;
 
 function cacheOfflineShell() {
-  return caches.open(CACHE_NAME).then((cache) => cache.addAll(PUBLIC_STATIC_ASSETS));
+  const requests = PUBLIC_STATIC_ASSETS.map((asset) => new Request(
+    new URL(asset, self.location.origin), { cache: "reload" },
+  ));
+  return caches.open(CACHE_NAME).then((cache) => cache.addAll(requests));
 }
 
 function warmOfflineShell() {

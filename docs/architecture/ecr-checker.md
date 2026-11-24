@@ -123,6 +123,13 @@ Sources: [pricing](https://ai.google.dev/gemini-api/docs/pricing#gemini-3.5-flas
 
 ## Deployment
 
+This section preserves the original `0106/0107` rollout and its implementation
+record. Current deployment uses the exact qualified
+[release manifest](../../backend/app/core/config/release_manifest.json) and
+[deployment selector](../deployment-modes.md), including their source/schema,
+image, preservation and recovery checks. The older schema override and direct
+Compose commands below are historical, not a current promotion procedure.
+
 The standalone checker was introduced by **0106_ecr_checker**. The current
 passport-link extension also requires **0107_passport_ecr_checks**. See
 [passport-link ECR and languages](passport-link-ecr-and-languages.md) for its

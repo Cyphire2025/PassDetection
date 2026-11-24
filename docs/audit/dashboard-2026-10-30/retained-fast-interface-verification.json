@@ -1,0 +1,71 @@
+{
+  "status": "verified focused retained operator interface correction",
+  "baseline": {
+    "synthetic_base_typed_substitution_errors": 5,
+    "separate_legacy_one_argument_control_passes": 1,
+    "existing_operational_fast_caller_failure_claimed": false
+  },
+  "checks": {
+    "affected_cases": 53,
+    "selected_modules": [
+      "test_retained_fast_interface",
+      "test_release_retained_update",
+      "test_mcp_direct_build",
+      "test_retained_release_owners"
+    ],
+    "new_cases_included": 6,
+    "owned_strict_type_files": 7,
+    "Ruff_paths": 2,
+    "live_services_or_commands": false
+  },
+  "proof": {
+    "whole_module_AST_inverse": true,
+    "only_deltas": [
+      "Path and BuildError imports",
+      "Optional trailing previous_lock:Path|None=None",
+      "Exact LF-normalized lock identity admission before any build action"
+    ],
+    "MRO_constructor_class_hints_aliases_pickles_unchanged": true,
+    "public_annotation_extension": "backend gains optional previous_lock parameter; old base_image and return hints unchanged. Existing one-argument call retains its exact program and side effects.",
+    "actual_dynamic_dispatch": "New base-typed call and actual subclass super control both pass; create/copy commands equal original one-argument call with UUID fixed. Changed/missing lock rejects before create/run/execute/commit.",
+    "qualification": "Existing QUALIFIED_SOURCES tuple unchanged; actual qualified_source_hashes includes new current owner digest and differs from old source. Old resource receipts remain stale/fail-closed; no qualification fabricated."
+  },
+  "caller_closure": {
+    "production_FastBuild_constructor": "retained_release_build.py::build_fast_images uses one positional image",
+    "base_builder_two_argument_caller": "mcp_direct_release.py instantiates RetainedBuild directly; no pre-existing production FastBuild two-argument call found",
+    "repo_owned_RetainedBuild_subclasses": [
+      "retained_release_fast.FastBuild",
+      "mcp_direct_repair.OwnershipRepair"
+    ],
+    "test_and_dynamic_limits": "Named source/class/super searches covered maintained scripts/backend/connector Python plus actual facade aliases and qualification tuple; no unseen third-party plugin compatibility claim."
+  },
+  "source_fence": {
+    "scripts/retained_release_fast.py": "fcff1b7fd28d148ff7c7d49e00c4472a822a854a1ed06427252e4dd374cb8459",
+    "scripts/retained_release_build.py": "4716c93c90f5cacd0e7fb30dbb1f1158869d5307a88f1856571eaf3531609a12",
+    "scripts/mcp_direct_build.py": "36b7d2e46b25e19332864d9b6d7b2acf9af220b7bc5e8c938b42598e868aeba2",
+    "scripts/mcp_direct_release.py": "1d74a7889f251d836fb946df1fdd5b5db72b4a648ea402c7ec4ec6306746440a",
+    "scripts/mcp_direct_repair.py": "8ded0926b66278b5b5f0cfd5d32150307440e04578a738685d91b60df58d1a6a",
+    "scripts/release_retained_update.py": "f000107c2ce6a03653dbc03e83e04311514bac16c4bba07f17e1301c8a9c8cd4",
+    "scripts/test_retained_fast_interface.py": "9a5a900eac529ab88b112e171d51d6ed5cb52d2976d13671386a3e52031c774d",
+    "scripts/test_release_retained_update.py": "cd6e1959c6a8114718999575a20f9007c18ccc9f3eff55ae91e7e19584484e62",
+    "scripts/test_mcp_direct_build.py": "44b63548dfdf72f81c4768aa472081c52324118a6a173fc65df6cf89836552dc",
+    "scripts/test_retained_release_owners.py": "30915e59c5b4e80fc8323f56208757512b4b9fd17055c618de58182967307661",
+    "scripts/release_document_resources.py": "46eec295cf594bd7fb9c683a7b4378e0e15a1edb8f24b4cbd71889121f7c971f"
+  },
+  "review_coverage": "Full review credit only current FastBuild owner and new interface tests. Base/caller/qualification owners traced at relevant constructors/backend calls/hash boundary; not upgraded to new full review by hashing.",
+  "remaining": [
+    "Generic operator subprocess stdout/log capture bound is still unproven/open; not fixed by arity correction",
+    "Historical broad imported-script typing diagnostics outside seven owned retained files remain separate; no suppression added",
+    "No runtime image/Docker/capacity/resource/VPS or release qualification from synthetic tests"
+  ],
+  "artifacts": {
+    "retained-fast-interface-original-source.json": "7718e392ee915bf493a62ad70af8b731ff04a56b33bd333c44b874d3b6466a87",
+    "retained-fast-interface-before-tests.txt": "d33a04fe385eda564a58eab81102d15c7c96ee27505a7c99d538d559a6cf427a",
+    "retained-fast-interface-before-control.txt": "00314bcb93032e26b644e3865a18e0f8ea2a564911cc95518a72057ec0a39308",
+    "retained-fast-interface-after-tests.txt": "27cf7777c161be0a18f54c9ff9c44ebf28511968b8a1213078aea50bee70842f",
+    "retained-fast-interface-affected-tests.txt": "43ae93fd2bcc29c6d173457bae3f59ce5eeea27203e95b82d7e354559f5594ae",
+    "retained-fast-interface-owned-types.txt": "e2702f9afc4c0f80ff1e8624f77af7a7d2689ca184512114aae5967a76229ba8",
+    "retained-fast-interface-ruff.txt": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0",
+    "retained-fast-interface-reviewed-files.json": "ffa88323176813a7db6d6aa315de12b86367c56f955076534457e9532958c6fb"
+  }
+}

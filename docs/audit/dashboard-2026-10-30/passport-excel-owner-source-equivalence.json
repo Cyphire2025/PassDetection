@@ -1,0 +1,204 @@
+{
+  "original_source_sha256": "95217c92807f682599f2c80d863046ebfc338451f7cf6c7313da20e6bb65616f",
+  "declarations": [
+    {
+      "name": "_excel_identity_key",
+      "actual_owner": "backend/app/presentation/api/v1/routes/passport_excel_identity.py",
+      "entire_declaration_ast_exact": true,
+      "signature_defaults_exact": true,
+      "actual_hints_equal_under_two_explicit_relocated_aliases": true
+    },
+    {
+      "name": "_merge_excel_fields",
+      "actual_owner": "backend/app/presentation/api/v1/routes/passport_excel_merge.py",
+      "entire_declaration_ast_exact": true,
+      "signature_defaults_exact": true,
+      "actual_hints_equal_under_two_explicit_relocated_aliases": true
+    },
+    {
+      "name": "_staff_code_for_submission",
+      "actual_owner": "backend/app/presentation/api/v1/routes/passport_excel_identity.py",
+      "entire_declaration_ast_exact": true,
+      "signature_defaults_exact": true,
+      "actual_hints_equal_under_two_explicit_relocated_aliases": true
+    },
+    {
+      "name": "_PassportExcelImportConflict",
+      "actual_owner": "backend/app/presentation/api/v1/routes/passport_excel_identity.py",
+      "entire_declaration_ast_exact": true,
+      "signature_defaults_exact": false,
+      "actual_hints_equal_under_two_explicit_relocated_aliases": false
+    },
+    {
+      "name": "_PassportExcelExistingIndexes",
+      "actual_owner": "backend/app/presentation/api/v1/routes/passport_excel_identity.py",
+      "entire_declaration_ast_exact": true,
+      "signature_defaults_exact": false,
+      "actual_hints_equal_under_two_explicit_relocated_aliases": false
+    },
+    {
+      "name": "_excel_scalar_text",
+      "actual_owner": "backend/app/presentation/api/v1/routes/passport_excel_identity.py",
+      "entire_declaration_ast_exact": true,
+      "signature_defaults_exact": true,
+      "actual_hints_equal_under_two_explicit_relocated_aliases": true
+    },
+    {
+      "name": "_canonical_excel_staff_code",
+      "actual_owner": "backend/app/presentation/api/v1/routes/passport_excel_identity.py",
+      "entire_declaration_ast_exact": true,
+      "signature_defaults_exact": true,
+      "actual_hints_equal_under_two_explicit_relocated_aliases": true
+    },
+    {
+      "name": "_canonical_excel_passport_number",
+      "actual_owner": "backend/app/presentation/api/v1/routes/passport_excel_identity.py",
+      "entire_declaration_ast_exact": true,
+      "signature_defaults_exact": true,
+      "actual_hints_equal_under_two_explicit_relocated_aliases": true
+    },
+    {
+      "name": "_preferred_submission_value",
+      "actual_owner": "backend/app/presentation/api/v1/routes/passport_excel_identity.py",
+      "entire_declaration_ast_exact": true,
+      "signature_defaults_exact": true,
+      "actual_hints_equal_under_two_explicit_relocated_aliases": true
+    },
+    {
+      "name": "_strict_passport_number_for_submission",
+      "actual_owner": "backend/app/presentation/api/v1/routes/passport_excel_identity.py",
+      "entire_declaration_ast_exact": true,
+      "signature_defaults_exact": true,
+      "actual_hints_equal_under_two_explicit_relocated_aliases": true
+    },
+    {
+      "name": "_strict_staff_code_for_submission",
+      "actual_owner": "backend/app/presentation/api/v1/routes/passport_excel_identity.py",
+      "entire_declaration_ast_exact": true,
+      "signature_defaults_exact": true,
+      "actual_hints_equal_under_two_explicit_relocated_aliases": true
+    },
+    {
+      "name": "_same_passport_submission",
+      "actual_owner": "backend/app/presentation/api/v1/routes/passport_excel_identity.py",
+      "entire_declaration_ast_exact": true,
+      "signature_defaults_exact": true,
+      "actual_hints_equal_under_two_explicit_relocated_aliases": true
+    },
+    {
+      "name": "_build_passport_excel_existing_indexes",
+      "actual_owner": "backend/app/presentation/api/v1/routes/passport_excel_identity.py",
+      "entire_declaration_ast_exact": true,
+      "signature_defaults_exact": true,
+      "actual_hints_equal_under_two_explicit_relocated_aliases": true
+    },
+    {
+      "name": "_passport_number_for_import_row",
+      "actual_owner": "backend/app/presentation/api/v1/routes/passport_excel_identity.py",
+      "entire_declaration_ast_exact": true,
+      "signature_defaults_exact": true,
+      "actual_hints_equal_under_two_explicit_relocated_aliases": true
+    },
+    {
+      "name": "_staff_code_for_import_row",
+      "actual_owner": "backend/app/presentation/api/v1/routes/passport_excel_identity.py",
+      "entire_declaration_ast_exact": true,
+      "signature_defaults_exact": true,
+      "actual_hints_equal_under_two_explicit_relocated_aliases": true
+    },
+    {
+      "name": "_normalized_excel_mapping_items",
+      "actual_owner": "backend/app/presentation/api/v1/routes/passport_excel_rows.py",
+      "entire_declaration_ast_exact": true,
+      "signature_defaults_exact": true,
+      "actual_hints_equal_under_two_explicit_relocated_aliases": true
+    },
+    {
+      "name": "_passport_excel_row_fingerprint",
+      "actual_owner": "backend/app/presentation/api/v1/routes/passport_excel_rows.py",
+      "entire_declaration_ast_exact": true,
+      "signature_defaults_exact": true,
+      "actual_hints_equal_under_two_explicit_relocated_aliases": true
+    },
+    {
+      "name": "_deduplicate_passport_excel_rows",
+      "actual_owner": "backend/app/presentation/api/v1/routes/passport_excel_rows.py",
+      "entire_declaration_ast_exact": true,
+      "signature_defaults_exact": true,
+      "actual_hints_equal_under_two_explicit_relocated_aliases": true
+    },
+    {
+      "name": "_resolve_existing_passport_excel_submission",
+      "actual_owner": "backend/app/presentation/api/v1/routes/passport_excel_identity.py",
+      "entire_declaration_ast_exact": true,
+      "signature_defaults_exact": true,
+      "actual_hints_equal_under_two_explicit_relocated_aliases": true
+    },
+    {
+      "name": "_apply_passport_excel_row_to_submission",
+      "actual_owner": "backend/app/presentation/api/v1/routes/passport_excel_merge.py",
+      "entire_declaration_ast_exact": true,
+      "signature_defaults_exact": true,
+      "actual_hints_equal_under_two_explicit_relocated_aliases": true
+    },
+    {
+      "name": "_preserve_existing_collection_contact",
+      "actual_owner": "backend/app/presentation/api/v1/routes/passport_excel_merge.py",
+      "entire_declaration_ast_exact": true,
+      "signature_defaults_exact": true,
+      "actual_hints_equal_under_two_explicit_relocated_aliases": true
+    }
+  ],
+  "type_variable_definition_ast_exact": true,
+  "actual_type_variable_alias_identity_preserved": true,
+  "all_original_imported_object_bindings_exact": [
+    "unicodedata",
+    "Callable",
+    "Mapping",
+    "dataclass",
+    "datetime",
+    "Any",
+    "TypeVar",
+    "authoritative_submission_phone",
+    "mark_client_collection_submitted",
+    "strip_client_collection_provenance",
+    "normalize_passport_number_identity",
+    "reconcile_confirmed_with_extraction",
+    "phone_numbers_equal",
+    "PassportSubmissionModel",
+    "ImportedPassportRow"
+  ],
+  "actual_captured_MCP_support_binding_identities": {
+    "indexes": "_build_passport_excel_existing_indexes",
+    "resolve": "_resolve_existing_passport_excel_submission",
+    "deduplicate": "_deduplicate_passport_excel_rows",
+    "apply": "_apply_passport_excel_row_to_submission",
+    "conflict_type": "_PassportExcelImportConflict"
+  },
+  "metadata_tradeoffs": "Pure helpers/private exception/index dataclass/TypeVar now identify actual owner modules. No maintained serialization/pickle/dynamic consumer found. Runtime hints explicitly preserve canonical facade aliases/TypeVar name, bound, constraints and variance; literal old/new class/TypeVar object identity is not falsely claimed.",
+  "all_referenced_internal_and_imported_function_globals_canonical": true,
+  "original_test_assertions_changed": 0,
+  "algorithm_changed": false,
+  "runtime": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_excel_import_support.py",
+      "sha256": "be028c1afb810ccb1546088b1ca0814808a4009144f20cb0a1e991ae47c59c0b",
+      "lines": 58
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_excel_identity.py",
+      "sha256": "e19c861675a2992601b599a2ffbb21175c4182bbf1ca20257a2ca9615e88d565",
+      "lines": 224
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_excel_rows.py",
+      "sha256": "c53b6110d7d546c23feb21420002d007d52c6496d24e90191d9ccd7370eccfed",
+      "lines": 136
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_excel_merge.py",
+      "sha256": "8c1d12c9c215af144b9c64029a20585caa31b2e11d6015e500041aaf2b6c2c59",
+      "lines": 103
+    }
+  ]
+}

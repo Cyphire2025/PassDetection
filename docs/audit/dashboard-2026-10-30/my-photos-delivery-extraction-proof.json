@@ -1,0 +1,181 @@
+{
+  "basis": "Post13-real-delivery-negative fix checkpoint, before owner partition. Not original checkout.",
+  "before_sha256": "dcba1682d6c1d4b5c56edbdeb7625cc1d5a68cc5fec02eacab309a86c5e0f171",
+  "before_lines": 1669,
+  "mappings": [
+    {
+      "name": "_delivery_deadline",
+      "to": "delivery_policy",
+      "transform": "unchanged function declaration",
+      "literal_normalized_declaration_identical": true
+    },
+    {
+      "name": "_as_utc",
+      "to": "delivery_policy",
+      "transform": "unchanged function declaration",
+      "literal_normalized_declaration_identical": true
+    },
+    {
+      "name": "_optimized_variant_is_downloadable",
+      "to": "delivery_policy",
+      "transform": "unchanged function declaration",
+      "literal_normalized_declaration_identical": true
+    },
+    {
+      "name": "_preview_variant_is_downloadable",
+      "to": "delivery_policy",
+      "transform": "unchanged function declaration",
+      "literal_normalized_declaration_identical": true
+    },
+    {
+      "name": "_content_version",
+      "to": "delivery_policy",
+      "transform": "unchanged function declaration",
+      "literal_normalized_declaration_identical": true
+    },
+    {
+      "name": "_delivery_request_fingerprint",
+      "to": "delivery_policy",
+      "transform": "unchanged function declaration",
+      "literal_normalized_declaration_identical": true
+    },
+    {
+      "name": "_authorization_identity",
+      "to": "delivery_policy",
+      "transform": "unchanged function declaration",
+      "literal_normalized_declaration_identical": true
+    },
+    {
+      "name": "_authorize_provider_batch",
+      "to": "delivery_provider",
+      "transform": "unchanged function declaration",
+      "literal_normalized_declaration_identical": true
+    },
+    {
+      "name": "_safe_provider_authorize",
+      "to": "delivery_provider",
+      "transform": "unchanged function declaration",
+      "literal_normalized_declaration_identical": true
+    },
+    {
+      "name": "_validated_delivery_authorization",
+      "to": "delivery_provider",
+      "transform": "unchanged function declaration",
+      "literal_normalized_declaration_identical": true
+    },
+    {
+      "name": "_stable_error_code",
+      "to": "delivery_provider",
+      "transform": "unchanged function declaration",
+      "literal_normalized_declaration_identical": true
+    },
+    {
+      "name": "photo_response",
+      "to": "delivery_projection",
+      "transform": "unused self removed; photo projection dependencies made explicit; static marker removed from pure metadata helper",
+      "normalized_body_identical_after_explicit_dependency_relocation": true
+    },
+    {
+      "name": "_delivery_response_item",
+      "to": "delivery_projection",
+      "transform": "unused self removed; photo projection dependencies made explicit; static marker removed from pure metadata helper",
+      "normalized_body_identical_after_explicit_dependency_relocation": true
+    },
+    {
+      "name": "_clear_delivery_metadata",
+      "to": "delivery_projection",
+      "transform": "unused self removed; photo projection dependencies made explicit; static marker removed from pure metadata helper",
+      "normalized_body_identical_after_explicit_dependency_relocation": true
+    },
+    {
+      "name": "_authorized_assets",
+      "to": "delivery_assets",
+      "transform": "self dependencies relocated to typed context; asset queries through explicit composed owner; response helpers through pure owner",
+      "normalized_body_identical_after_explicit_dependency_relocation": true
+    },
+    {
+      "name": "latest_optimized_variants",
+      "to": "delivery_assets",
+      "transform": "self dependencies relocated to typed context; asset queries through explicit composed owner; response helpers through pure owner",
+      "normalized_body_identical_after_explicit_dependency_relocation": true
+    },
+    {
+      "name": "latest_variants",
+      "to": "delivery_assets",
+      "transform": "self dependencies relocated to typed context; asset queries through explicit composed owner; response helpers through pure owner",
+      "normalized_body_identical_after_explicit_dependency_relocation": true
+    },
+    {
+      "name": "_current_delivery_asset",
+      "to": "delivery_assets",
+      "transform": "self dependencies relocated to typed context; asset queries through explicit composed owner; response helpers through pure owner",
+      "normalized_body_identical_after_explicit_dependency_relocation": true
+    },
+    {
+      "name": "prepare_media",
+      "to": "delivery_preparation",
+      "transform": "self dependencies relocated to typed context; asset queries through explicit composed owner; response helpers through pure owner",
+      "normalized_body_identical_after_explicit_dependency_relocation": true
+    },
+    {
+      "name": "authorize_downloads",
+      "to": "delivery_authorizations",
+      "transform": "self dependencies relocated to typed context; asset queries through explicit composed owner; response helpers through pure owner",
+      "normalized_body_identical_after_explicit_dependency_relocation": true
+    },
+    {
+      "name": "_finalize_delivery_claims",
+      "to": "delivery_authorizations",
+      "transform": "self dependencies relocated to typed context; asset queries through explicit composed owner; response helpers through pure owner",
+      "normalized_body_identical_after_explicit_dependency_relocation": true
+    },
+    {
+      "name": "download_plan",
+      "to": "delivery_plan",
+      "transform": "self dependencies relocated to typed context; asset queries through explicit composed owner; response helpers through pure owner",
+      "normalized_body_identical_after_explicit_dependency_relocation": true
+    },
+    {
+      "name": "development_download_content",
+      "to": "delivery_downloads",
+      "transform": "self dependencies relocated to typed context; asset queries through explicit composed owner; response helpers through pure owner",
+      "normalized_body_identical_after_explicit_dependency_relocation": true
+    },
+    {
+      "name": "production_download_location",
+      "to": "delivery_downloads",
+      "transform": "self dependencies relocated to typed context; asset queries through explicit composed owner; response helpers through pure owner",
+      "normalized_body_identical_after_explicit_dependency_relocation": true
+    },
+    {
+      "name": "development_preview_content",
+      "to": "delivery_previews",
+      "transform": "self dependencies relocated to typed context; asset queries through explicit composed owner; response helpers through pure owner",
+      "normalized_body_identical_after_explicit_dependency_relocation": true
+    },
+    {
+      "name": "production_preview_location",
+      "to": "delivery_previews",
+      "transform": "self dependencies relocated to typed context; asset queries through explicit composed owner; response helpers through pure owner",
+      "normalized_body_identical_after_explicit_dependency_relocation": true
+    }
+  ],
+  "constructor_and_public_signatures_preserved": true,
+  "context_changes_require_normalized_final_proof": true,
+  "final_current_sha256": {
+    "backend/app/infrastructure/my_photos/delivery_assets.py": "ac7552308e2ec93abb0ecbbb436f8ed3837eda85e7cd3f9399c3456963d7d0e9",
+    "backend/app/infrastructure/my_photos/delivery_authorizations.py": "d77ddc7b3ce0031c679869f60809d9e84d0266fb19ce3f2b977a6a4c559c3d83",
+    "backend/app/infrastructure/my_photos/delivery_context.py": "af629e7efa13952428cc21fe1a8bb7bd355c05ba1c5d25fbf29c5ef8600e39f3",
+    "backend/app/infrastructure/my_photos/delivery_downloads.py": "15c0de8a6b74c9e94d5e4b67fd14f64be018bfcbdcb994db3eb6d4e7011e6248",
+    "backend/app/infrastructure/my_photos/delivery_plan.py": "25eb7ce1a2faa35ab33a8e74cfe90dd1c104752ec23d85db66f7a3e372eaf850",
+    "backend/app/infrastructure/my_photos/delivery_policy.py": "673613f7140aec65ca3f6d46bbc1a442eb8dc215911996bf4a3130c383b0f704",
+    "backend/app/infrastructure/my_photos/delivery_preparation.py": "754fd9db68ddac41a2a3239b771d8ed0b4660265d5964ba5e30e19523bdcc24a",
+    "backend/app/infrastructure/my_photos/delivery_previews.py": "b043c34700d0a2fbf62f1b6b2fadb49491f742dbc35831b0685585488336fa5c",
+    "backend/app/infrastructure/my_photos/delivery_projection.py": "131282f9f76eb5fff5ccdb2f0a43fe2d9ddd6ccb09f9588ec78a2049802dcfbc",
+    "backend/app/infrastructure/my_photos/delivery_provider.py": "07ca9ff10ba44d177ab63baacae52954d47970e040bb164dfd702dce0d21181b",
+    "backend/app/infrastructure/my_photos/delivery_service.py": "97d6c44090c83acc01278a95b09f1f11a46a13839c2017698ce34bd1f481d5a9"
+  },
+  "all_26_moved_declarations_checked": true,
+  "original_method_and_constructor_signatures_preserved": 17,
+  "limits": "11pure declarations literal normalized AST equal;15method bodies equal after explicit context/asset/helper ownership normalization. Public facade delegation/new composition intentionally differ. Proof basis is post13fix checkpoint, not original checkout. No algorithm/authority equivalence is inferred from line counts."
+}

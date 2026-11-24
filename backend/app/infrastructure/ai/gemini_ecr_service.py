@@ -26,6 +26,10 @@ from PIL import Image, ImageOps, UnidentifiedImageError
 from app.core.config.settings import Settings, get_settings
 from app.core.native_image_admission import IMAGE_ADMISSION_WAIT_SECONDS, native_image_slot
 from app.domain.exceptions.resource_capacity import ImageProcessingBusy
+from app.infrastructure.ai.bounded_vision_http import (
+    VisionResponseRejected,
+    post_bounded_vision_response,
+)
 from app.infrastructure.ai.gemini_model_capabilities import thinking_level_for_model
 from app.infrastructure.ai_priority.retry import retry_after_delay_seconds
 
@@ -187,48 +191,41 @@ class GeminiEcrService:
             retry_after: str | None = None
             try:
                 async with asyncio.timeout(remaining):
-                    async with client.stream(
-                        "POST",
+                    response = await post_bounded_vision_response(
+                        client,
                         endpoint,
                         headers=headers,
-                        json=payload,
+                        payload=payload,
                         timeout=httpx.Timeout(remaining, connect=min(5.0, remaining)),
-                        follow_redirects=False,
-                    ) as response:
-                        retry_after = response.headers.get("Retry-After")
-                        status_code = response.status_code
-                        if status_code == 429:
-                            reason = "rate_limited"
-                        elif status_code in {408, 500, 502, 503, 504}:
-                            reason = "provider_unavailable"
-                        elif status_code in {401, 403}:
-                            return self._failure("permission_denied", attempts, usage)
-                        elif status_code != 200:
-                            return self._failure("provider_rejected_request", attempts, usage)
-                        else:
-                            body = bytearray()
-                            async for chunk in response.aiter_bytes():
-                                body.extend(chunk)
-                                if len(body) > _MAX_RESPONSE_BYTES:
-                                    raise _ResponseRejected("invalid_response")
-                            try:
-                                parsed = json.loads(body)
-                            except (ValueError, UnicodeError):
-                                raise _ResponseRejected("invalid_response") from None
-                            counts = self._usage(parsed)
-                            usage = [
-                                total + value for total, value in zip(usage, counts, strict=True)
-                            ]
-                            result_status, result_reason = self._parse_classification(parsed)
-                            return EcrClassification(
-                                status=result_status,
-                                reason=result_reason,
-                                model=self._model,
-                                input_tokens=usage[0],
-                                output_tokens=usage[1],
-                                thinking_tokens=usage[2],
-                                attempts=attempts,
-                            )
+                        maximum_bytes=_MAX_RESPONSE_BYTES,
+                    )
+                    retry_after = response.headers.get("Retry-After")
+                    status_code = response.status_code
+                    if status_code == 429:
+                        reason = "rate_limited"
+                    elif status_code in {408, 500, 502, 503, 504}:
+                        reason = "provider_unavailable"
+                    elif status_code in {401, 403}:
+                        return self._failure("permission_denied", attempts, usage)
+                    elif status_code != 200:
+                        return self._failure("provider_rejected_request", attempts, usage)
+                    else:
+                        try:
+                            parsed = response.json()
+                        except (ValueError, UnicodeError):
+                            raise _ResponseRejected("invalid_response") from None
+                        counts = self._usage(parsed)
+                        usage = [total + value for total, value in zip(usage, counts, strict=True)]
+                        result_status, result_reason = self._parse_classification(parsed)
+                        return EcrClassification(
+                            status=result_status,
+                            reason=result_reason,
+                            model=self._model,
+                            input_tokens=usage[0],
+                            output_tokens=usage[1],
+                            thinking_tokens=usage[2],
+                            attempts=attempts,
+                        )
             except (TimeoutError, httpx.TimeoutException):
                 reason = "timeout"
             except httpx.TransportError:
@@ -237,6 +234,8 @@ class GeminiEcrService:
                 return self._failure("provider_request_error", attempts, usage)
             except _ResponseRejected as exc:
                 return self._failure(str(exc), attempts, usage)
+            except VisionResponseRejected:
+                return self._failure("invalid_response", attempts, usage)
 
             if attempt >= max_attempts:
                 break

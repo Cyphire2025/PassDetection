@@ -1,0 +1,235 @@
+{
+  "files": [
+    {
+      "path": "docker-compose.audit.yml",
+      "sha256": "1213ea13750c871a1f1e298c598dc3d7437c61f8bbeba4a53d5f22c403ce8d31",
+      "physical_lines": 121,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "fixed-verified",
+      "notes": "Full121 physical source read before/after. Synthetic isolated names/credentials/loopback-only host ports and dependency order traced. Actual alembic upgrade-head disagreed with old explicit0093 expected revision; remove only obsolete override to inherit packaged current manifest. Actual Settings/SQLite/schema-helper2negative+3control proof. No running Docker or healthy-whole-stack claim."
+    },
+    {
+      "path": "docker-compose.kvm4.yml",
+      "sha256": "60029459198bf0080fe3f6e270612fe51473a19088882c0818e97bbe66aeccb0",
+      "physical_lines": 128,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full128 physical source read. Explicit per-service memory/worker/pool/queue limits, no-swap limits and Redis eviction split traced. Retained deployment resource-profile caller selects exact overlay only through guarded current-release lifecycle. Queue operational identities remain unchanged, including legacy named passport_ocr; no provider throughput/capacity or live host qualification."
+    },
+    {
+      "path": "docker-compose.qualification.yml",
+      "sha256": "8e9f0ae281370fcd466b406faa874454e8b7dada414be9c2c551491e67e4f4bd",
+      "physical_lines": 147,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full147 physical source read. Fixed synthetic disposable project, digest-pinned images, isolated storage-internal network, loopback HTTPS and public deterministic signing fixtures traced to actual orchestrator. APP_ENV production is intentional fixture behavior, not production credentials. No live Docker/readiness/crypto claim or new fixture/key setup."
+    },
+    {
+      "path": "docker-compose.storage-production.yml",
+      "sha256": "c682928e8c432c5cb12c548394762b9c2ccbe8352bae444982c7d9775ecc014f",
+      "physical_lines": 109,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full109 physical source read. Existing minio DNS/port and separate verified data volume retained; exact operator-provided identity/cutover proof mounts require existing paths. Anonymous TCP-only health probe correctly distinguished from authenticated app bucket-readiness gate. Maintenance staging/copy is guarded by existing release helper. No storage migration, volume mutation or credential access performed."
+    },
+    {
+      "path": "nginx/conf.d/includes/api-error-locations.inc",
+      "sha256": "c91a52430c45efa9f0d8fe2559b5c2ac76b709d3764a113c915e98046871deca",
+      "physical_lines": 82,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full82 physical source read. Eight literal JSON error bodies do not interpolate URI/query/upstream/exception values; no-store, request correlation and security response headers present. Exact include is loaded by active TLS server; explicit named handlers preserve generated status, while proxy interception remains off for upstream workflow errors. Existing actual container verifier supports repeated source use; not run in this read-only configuration cohort."
+    },
+    {
+      "path": "nginx/conf.d/includes/api-error-pages.inc",
+      "sha256": "ce2b2ea624c80b63bc8332762eb62d4ace2fb482ff6a1747c9381e13208bb414",
+      "physical_lines": 10,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full10 physical source read. Eight generated-error mappings correspond to literal named handlers;408 explicitly excluded because connection is terminated before error_page. Active server/location include use and existing verifier408/business-response controls traced. No Nginx syntax/network execution claim."
+    },
+    {
+      "path": "monitoring/alerts.test.yml",
+      "sha256": "26cf619af59db04ae6052f802682e795176919b64d953c6fd8a4151b3ac4e678",
+      "physical_lines": 79,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full79 physical source read. Existing synthetic time-series firing/resolution cases traced against actual alerts.yml and CI pinned promtool invocation. Missing probe/recovery evidence, absent ECR metrics, ECR downtime recovery/backlog and collection absence remain meaningful. Operational alert names/owners unchanged; no external alerts sent or promtool execution here."
+    },
+    {
+      "path": "scripts/qa/dashboard_readiness_rehearsal.py",
+      "sha256": "05fd8eb17efe8be4425abdcfa60299ee7fa6d8329adf9320bfabe1ad264acbdd",
+      "physical_lines": 67,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete source read. Fixed isolated project/Redis stop-start with finally recovery; baseline requires actual HTTP200 readiness, which stale schema could preclude. Not executed; future live runtime/teardown behavior remains outside local schema proof."
+    },
+    {
+      "path": "scripts/qa/dashboard_release_evidence.py",
+      "sha256": "532181d2a74e00d4f81b10e731c2a1d313d71ed2d570f98168d7237f3d332320",
+      "physical_lines": 99,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete source read. Fixed project, reviewed package/native parser/image checks and safe workspace hash path restrictions traced. Existing subprocess/raw diagnostics remain operator-synthetic scope; no execution or production data handling claim. Prior independent findings are not closed by this read."
+    },
+    {
+      "path": "scripts/qa/run_qualification_stack.py",
+      "sha256": "a7e1012ec04719b7f50b62c54c2db83ce97fcafde91e07591beb70ab092c2425",
+      "physical_lines": 123,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete source read. Fixed synthetic project/explicit env-example, disposable dependencies/admin/runtime role sequence/seed and loopback liveness/evidence/teardown traced. No Compose invocations executed or broad backend/runtime qualification claimed."
+    },
+    {
+      "path": "scripts/qa/qualify_proxy_errors.py",
+      "sha256": "392adf7bf99cf21899ce6611a188607637630ffc531e0f81902a6a3cd6071453",
+      "physical_lines": 139,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete source read first100 plus100-EOF. Existing uniquely named disposable fixture tests real include statuses,408 close,413/502, upstream business refusals and disabled native-transfer access logs; finally stops its own started container. No new Docker execution or source edit."
+    },
+    {
+      "path": "monitoring/alerts.yml",
+      "sha256": "5ffefad36fc17baa6f63109185bec1d7aaa1a1b873ea5422e057677afdbd987e",
+      "physical_lines": 66,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete source read. Actual PromQL expressions, durations and alert-label/annotation expectations compared to selected79line tests; broader high-error/latency/certificate/disk rules preserved. Manual source comparison is not promtool execution or external monitoring delivery proof."
+    },
+    {
+      "path": "monitoring/qualification-prometheus.yml",
+      "sha256": "33afe6ad3cdf3932aaa48f3ef1c4640cacb920e21804e7f626b28575c5adeaa5",
+      "physical_lines": 9,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete source read. Five-second disposable collector scrapes only local statsd; actual pinned qualification Compose mounts this file and alert rule source. No off-host production monitoring claim."
+    },
+    {
+      "path": "scripts/compose_runtime_contract.py",
+      "sha256": "12c0fe4ac2368f4ed6120d68d8c7224f2402a3b8b65d9075e507fdc55edcb3e3",
+      "physical_lines": 132,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete source read. Explicit existing pinned images/services/queue identities/schema-from-manifest values trace production overlays. Preserved exact service and queue names; no release activation/host capacity verification performed."
+    },
+    {
+      "path": "backend/app/core/config/release_contract.py",
+      "sha256": "7e11a007bc2d56d4807a9486509e62bdfd9fec37cf113b8a4fc037969faecb9b",
+      "physical_lines": 7,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete7line source read. Packaged JSON is canonical SCHEMA_REVISION owner, used by RuntimeSettingsFields; no private env loaded or edited."
+    },
+    {
+      "path": "backend/app/infrastructure/runtime_readiness_database.py",
+      "sha256": "e8d95878c10be43b82e7ade8a9b304c1c3825608365508be2d3985ac8c2ac71b",
+      "physical_lines": 73,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete current source reread supporting exact schema equality and optional savepoint backlog isolation. Prior full/readiness behavior qualification remains attributed separately. Unchanged by this QA Compose fix; no new PostgreSQL claim."
+    },
+    {
+      "path": "backend/scripts/verify_architecture_boundaries.py",
+      "sha256": "bc1a580902fc60808c0d01c3b0fa6d7cde4820a0eba13c8a70b782186821bcb0",
+      "physical_lines": 86,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete current source support read: dependency enforcement scans application/domain only, so new document-specific presentation compensation has no application-edge/policy delta. No checker execution or other-source review credit implied."
+    },
+    {
+      "path": "nginx/conf.d/default.conf",
+      "sha256": "fbdfc76a569b0484464b9f4a7fd6d7e80aa40911418ca96aee5a6ba99dac3963",
+      "physical_lines": 619,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Only0-80 and175-255 physical regions plus exact include reference searches read; active TLS/generated-error mappings and upstream defaults traced. No whole-file new credit; prior source records independent."
+    },
+    {
+      "path": "nginx/nginx.conf",
+      "sha256": "2a9515f14744385154c5169c47f07cd87dbf8a36d713037fd7fae599ee1aaa5f",
+      "physical_lines": 171,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "First110lines only physical support read; sanitized logging/proxy defaults traced. No whole-file credit or CIDR-currentness claim."
+    },
+    {
+      "path": "scripts/release_current.py",
+      "sha256": "3cf6947564401e8937800677d56d11d5ed533bf35489dc3de78cdaef4e942f2c",
+      "physical_lines": 357,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Only95-207 actual guarded overlay/profile construction/maintenance selection read; no whole-file credit or live operator invocation."
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "ab1f1961f774769a8efbebd80c4f0c5b66c52b77e6a3ddc79906e49259b63109",
+      "physical_lines": 1354,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Only1090-1113 pinned promtool/fixture workflow region read, plus targeted caller searches; no whole CI source credit."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/health.py",
+      "sha256": "fb9056f1b956503f10260b8569e7f9ee75fec830d7572bace2ba20fa3c744dbf",
+      "physical_lines": 325,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "First170 physical lines read. Actual database-runtime/schema readiness participates in bounded traffic gating; no whole-file credit or dedicated Inbox depth."
+    },
+    {
+      "path": "backend/app/core/config/runtime_settings_fields.py",
+      "sha256": "dd324d05455e837d57ca26aa4dba1f8a0e712214c544fbdc50aab21cd7495a86",
+      "physical_lines": 88,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "First72line source region only; packaged SCHEMA_REVISION default traced. No whole-module credit."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_audit_compose_schema.py",
+      "sha256": "f0a4d766c22af976e047fc275c4ad1e13a950ea6966c21c973722649b2a89151",
+      "physical_lines": 52,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full authored52line source read. Actual YAML environment+Settings and actual schema readiness helper against real local SQLite version table; single actual Alembic ScriptDirectory head plus current/old/missing/multihead controls. No mocked schema helper or live Docker/PostgreSQL claim."
+    }
+  ],
+  "historical_files": [
+    {
+      "path": "docker-compose.audit.yml",
+      "sha256": "b6b30b767120a5889541b09d4b827ec937301fda30317c66158c07a6cbad600d",
+      "physical_lines": 121,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "historical",
+      "notes": "Original physical source read; only obsolete expected-schema override changed, exact parsed YAML and whole EOL-normalized source inverse retained."
+    }
+  ],
+  "selected_new_full_sources": 7,
+  "selected_physical_lines": 676,
+  "separate_full_support_read_count": 10,
+  "not_independent_workflow_closure": "Physical supporting reads do not close prior architecture, lifecycle, release or service qualification findings."
+}

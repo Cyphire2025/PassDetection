@@ -51,6 +51,7 @@ it("verifies exact streamed download bytes and RFC5987 filename before creating 
   const response = new Response(bytes, { headers: { "Content-Type": "application/pdf", "Content-Disposition": `attachment; filename*=UTF-8''${encodeURIComponent(value.filename)}` } });
   const file = await verifiedDownload(response, value);
   expect(file.size).toBe(bytes.length); expect(Buffer.from(await file.arrayBuffer())).toEqual(bytes);
+  expect(response.body?.locked).toBe(false);
 });
 it.each([
   { "Content-Type": "text/html", "Content-Disposition": "attachment; filename=\"Passenger report.pdf\"" },
@@ -62,6 +63,18 @@ it.each([
 });
 it("cancels an oversized stream and refuses equal-size checksum corruption", async () => {
   const headers = { "Content-Type": "application/pdf", "Content-Disposition": "attachment; filename=\"Passenger report.pdf\"" };
-  await expect(verifiedDownload(new Response(Buffer.concat([bytes, bytes]), { headers }), ticket())).rejects.toThrow("larger");
-  await expect(verifiedDownload(new Response(Buffer.alloc(bytes.length, 1), { headers }), ticket())).rejects.toThrow("does not match");
+  const oversized = new Response(Buffer.concat([bytes, bytes]), { headers });
+  await expect(verifiedDownload(oversized, ticket())).rejects.toThrow("larger");
+  expect(oversized.body?.locked).toBe(false);
+  const corrupt = new Response(Buffer.alloc(bytes.length, 1), { headers });
+  await expect(verifiedDownload(corrupt, ticket())).rejects.toThrow("does not match");
+  expect(corrupt.body?.locked).toBe(false);
+});
+
+it("cancels an unread response as soon as its attachment metadata is rejected", async () => {
+  const cancel = vi.fn();
+  const response = new Response(new ReadableStream({ cancel }), { headers: { "Content-Type": "text/html" } });
+  await expect(verifiedDownload(response, ticket())).rejects.toThrow("did not match");
+  expect(cancel).toHaveBeenCalledOnce();
+  expect(response.body?.locked).toBe(false);
 });

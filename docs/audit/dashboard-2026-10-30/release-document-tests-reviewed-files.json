@@ -1,0 +1,88 @@
+{
+  "files": [
+    {
+      "path": "scripts/test_release_document_distribution_contract.py",
+      "sha256": "6fd8c0bedf7df54ee5e05b6c9b5142e12f48ec436d3857191ff6da1fde3470e5",
+      "physical_lines": 80,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete80 physicalsource read. Historicalfixturecopy has exact2nullablemigration chain. Actualpurecontract, retention/no-downgrade/history/nullpolicy typedmutants, same-schema refusal andintermediateschema resume usingoriginalsyntheticbackup/writerfence meaningful. SyntheticPGDMP/TOC callbacks are notrealbackupdecode/migration; no externalcommand executed here."
+    },
+    {
+      "path": "scripts/test_release_document_distribution_policy.py",
+      "sha256": "33c6eee108d33aa254dd1de768b32a85df110e02c020339b2b4ffffacc2226d9",
+      "physical_lines": 275,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete275physicalsource read0-118/118-223/recovered180-EOF. Purefield/schema/overlay/profile/tasksignaturepolicies plus realuniquetemporaryGithistory fixtures. Controls rejectdirty/untracked inputs, wrongHEAD, unrelatedpersistent/migration/scheduler/task/modelchanges whilepreservingexact reviewednullablefields/defaults/aliasimports/RAMRedisCPU/order/nulladditions. Gitfixturestubs onlysourcecontract because actualmigrationASTqualifiedelsewhere; no runtimeDBqualification or workspacecommit claim."
+    },
+    {
+      "path": "scripts/test_release_document_fast.py",
+      "sha256": "9a488f31d2eaa5e5871fd68a1d2062e73b2694f21f2a89acf17e3fc07a44194b",
+      "physical_lines": 177,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete177physicalsource read0-95+95-EOF. Historical source fixture binds Fast imagebase/revision/schema/config/strictmodeclaims/builderstopped/runtimeresponseAPIhash; exactprivate rehearsalreceipt/checks/type/bytes required. Fakehost tests pausedworkersduringbuild/rehearsal andunknownhelper preventingresume, oldreceiptrecovery avoidsrebuild. All hostcommands/migrationhelpers stubbed; FastnevercalledFullqualification. No source/stamp/image mutations."
+    },
+    {
+      "path": "scripts/test_release_document_retained_update.py",
+      "sha256": "29acec6ca4d165f57e086932387a88eaa07730ba2905cab284999dd088183d5c",
+      "physical_lines": 302,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete302physicalsource read0-150/150-250/250-EOF with78-91 clippingrecovery. Actualtransition/recovery/resourcehelper invoked overcompanyfakehostfixture; guards explicitmode, missing/badproof, source/target preflightorder, livehelpernostop, verifiedmigrationnullcolumns, exactclonedvolume/auth/image/CPU/DNS/resourcecaps/privateimmutableevidence, noforceRedisstop andnarrowemptyMountnormalization. FakeDocker/receiptclaims do notqualifyliveDDLRAMRedis. Checked-in syntheticpaths andprovider_calls=0 fixtures notexternal credentials."
+    },
+    {
+      "path": "scripts/test_release_pdf_checking_profile.py",
+      "sha256": "b0ad6ce121e06baf5fae65ce24a89d6d5a6f901a26fc8f1e5547b43b693aaae2",
+      "physical_lines": 95,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete95physicalsource read0-55+recovered55-EOF. Realpurebudget/clone/inventory/candidateenv functions overfixedfakehost. Tests explicitpause-fundedbackendcap/hostreserve, unchangedotherlimits/env/secrets, pausedservicelabel/projectmatching andschedulerprofile. Sharedresourcepause flagsexaminedonlyasdeploymentcompat; dedicatedInboxpipeline deferred andnotreviewed. No host/worker/provider execution."
+    },
+    {
+      "path": "scripts/legacy_document_contract_fixture.py",
+      "sha256": "07983b13356160eb31f6162e0b2bf8e49eb879081cdb963941fc97f46c3b0f08",
+      "physical_lines": 27,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete27physicalsource supportingread. UniqueTemporaryDirectory contains only synthetichistoricalmanifestandbytecopiesofmaintainedpublishedmigrations; contextmanagerownscleanup. Doesnotimportmigration/runtimeorreadactual.env. Priorread attribution remainsindependent."
+    },
+    {
+      "path": "scripts/release_document_retained_update.py",
+      "sha256": "602c697e721cc9dddd26779997bd54c3b6cfbda5fcb447ed61da19526be1fb48",
+      "physical_lines": 416,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Only310-406 transition/forwardrecovery/runpartial regions. Actualhelperorder andBaseExceptionholding behavior matchtestedoverrides. No whole-sourcecredit."
+    },
+    {
+      "path": "scripts/release_document_fast.py",
+      "sha256": "aba9546635fc24127bca4a062b829147f5d527e9a90d16eea585196b58a3b1d2",
+      "physical_lines": 122,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Only48-131 verifyimages/builders/privateexactrehearsalregions requested; outputclipped smallverifyimagesmiddle, notfullclaim. Typedbooleans/strictprivatebytes/unknownhelperguards tracedthroughactualfunctions."
+    },
+    {
+      "path": "scripts/release_document_distribution_policy.py",
+      "sha256": "8bf2544ebb641fc75b0ae47e04ff6a7df51b8aa15e8486c18167eabfe0dd6bcb",
+      "physical_lines": 255,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Only216-EOF actualGitadmission methodregionread, notwholemodule. EncodingUTF8/60sec/status/ancestry/allowedpaths/current-source validatorordering matchfixtureassertions. No checkerexecution orcurrentbothGitbaseline admission claim."
+    }
+  ],
+  "new_complete_test_files": 5,
+  "new_complete_test_lines": 929,
+  "supporting_complete_fixture_files": 1
+}

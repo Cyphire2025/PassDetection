@@ -1,0 +1,78 @@
+{
+  "scope": "Mechanical dashboard tour-contract architecture extraction; no validation/payload semantics changed.",
+  "source": [
+    {
+      "path": "backend/app/presentation/api/v1/schemas/tour_activity_schemas.py",
+      "sha256": "d7264fa118d2ac9966be93fd1b17912fcbf7a1cd9888a228371832c594eecc29",
+      "lines": 97,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete original541-line schema source and complete physical current owner read. All42 class/validator declaration ASTs and two constant assignments exact; all41model classes' validation+serialization JSON schemas equal in82comparisons. Original scan limit namespace retained and its live mutation test passes. Existing public class/validator aliases remain. No payload/type/default/limit/validation rule change. Full API snapshot has independently identified concurrent non-tour drift; mobile reviewed snapshot passes."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/tour_attendance_projection_schemas.py",
+      "sha256": "ad6a3c2fbe1183fd23a6e5b6c984c5ce921e6b40a6ab38d46af046555a602554",
+      "lines": 143,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete original541-line schema source and complete physical current owner read. All42 class/validator declaration ASTs and two constant assignments exact; all41model classes' validation+serialization JSON schemas equal in82comparisons. Original scan limit namespace retained and its live mutation test passes. Existing public class/validator aliases remain. No payload/type/default/limit/validation rule change. Full API snapshot has independently identified concurrent non-tour drift; mobile reviewed snapshot passes."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/tour_coordinator_schemas.py",
+      "sha256": "1ce8e157f43fa0ab827a960f10341a376f00a2ed100795203a6423ee203c315e",
+      "lines": 119,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete original541-line schema source and complete physical current owner read. All42 class/validator declaration ASTs and two constant assignments exact; all41model classes' validation+serialization JSON schemas equal in82comparisons. Original scan limit namespace retained and its live mutation test passes. Existing public class/validator aliases remain. No payload/type/default/limit/validation rule change. Full API snapshot has independently identified concurrent non-tour drift; mobile reviewed snapshot passes."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/tour_operations_schemas.py",
+      "sha256": "fd7ecf986739deee381054c462fee4afb9b83efd483473b8025bc58ac682bee0",
+      "lines": 187,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete original541-line schema source and complete physical current owner read. All42 class/validator declaration ASTs and two constant assignments exact; all41model classes' validation+serialization JSON schemas equal in82comparisons. Original scan limit namespace retained and its live mutation test passes. Existing public class/validator aliases remain. No payload/type/default/limit/validation rule change. Full API snapshot has independently identified concurrent non-tour drift; mobile reviewed snapshot passes."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/tour_qr_schemas.py",
+      "sha256": "62399206edc4abbb006acb56fd1bfcb33ec9ba14250b99e198003bed51680c5b",
+      "lines": 102,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete original541-line schema source and complete physical current owner read. All42 class/validator declaration ASTs and two constant assignments exact; all41model classes' validation+serialization JSON schemas equal in82comparisons. Original scan limit namespace retained and its live mutation test passes. Existing public class/validator aliases remain. No payload/type/default/limit/validation rule change. Full API snapshot has independently identified concurrent non-tour drift; mobile reviewed snapshot passes."
+    }
+  ],
+  "structure": {
+    "backend/app/presentation/api/v1/schemas/tour_activity_schemas.py": 97,
+    "backend/app/presentation/api/v1/schemas/tour_attendance_projection_schemas.py": 143,
+    "backend/app/presentation/api/v1/schemas/tour_coordinator_schemas.py": 119,
+    "backend/app/presentation/api/v1/schemas/tour_operations_schemas.py": 187,
+    "backend/app/presentation/api/v1/schemas/tour_qr_schemas.py": 102
+  },
+  "equivalence": "All42original declarations (41Pydantic models +schedule validator) and two constants exactAST;82original/current validation+serialization JSON schema comparisons identical. Six scan commands stay in original limit namespace so actual patchedaggregate-byte validation remains authoritative. Existing old-module class/helper aliases preserved, including imported closeout response compatibility alias.",
+  "verification": {
+    "passing_cases": 63,
+    "affected_contracts": "Bounded scan/item/result/aggregate syntax and negative limits; enterprise rolling compatibility; shared manager/coordinator attendance authorization/lifecycle; passenger/QR projection and opaque-token contracts; actual authenticated two-tenant office projections.",
+    "static": "Five runtime owners configured backend-cwd mypy/Ruff --no-fix and architecture boundaries pass.",
+    "mobile_api_snapshot": "Matches reviewed snapshot; no native mobile source edited.",
+    "complete_api_snapshot": "BLOCKED by five concurrent non-tour changes: two copyright attribution encoding values; replacement candidate qualified component old/new identity plus reference. Exact drift probe sent root, no snapshot regenerated or check relaxed. This tranche does not claim that combined gate passes.",
+    "coverage_limit": "Activity schedule validator retains pre-existing unexercised branches in this selection (69.70% statements/22.22% branches); other schema owners96.77\u2013100% statements. New floors are additive only and do not weaken any existing gate.",
+    "services": "Isolated SQLite and synthetic fixtures only; no live PostgreSQL/Redis/provider/storage/deployment qualification."
+  },
+  "remaining": "Function-level closeout/Rooming46/QR48 and legacy scaling work remains open; selected source review complete, entire project audit not complete.",
+  "artifacts": {
+    "tour-schema-reviewed-files.json": "28738836d78dceb3a9ae83d632ce547a2919ce9279b7db84319cc14ed1a5014d",
+    "tour-schema-budget-candidates.json": "0d40e18e2031738130904dd96a6637c8344cfea274c5566206f40c3b4834d297",
+    "tour-schema-extraction-proof.json": "710161cfcef385c811e39ab437ac362fc6e4bfbef1d019c1c8b6767e71c9fce8",
+    "tour-schema-openapi-drift-probe.json": "184ef6b231f8f379f025b1c32eb7403226c4ffa18b072a0ce497f8d86368deb5",
+    "tour-schema-coverage.json": "bb280055120e141adeace4a112a87df1443ac7a0f6859b43ab0eec9795d6804a",
+    "tour-schema-coverage.xml": "b05e7bb9de11cc99a350476cfd152dfee617e83e932423356dfda467c7ee7510",
+    "tour-schema-affected-tests.xml": "7e16e269d19d9d557dd9e45e347b83b5445b153c738c309e630e55beac02a284"
+  },
+  "central_gates": "Five additive measured candidates queued; all preceding caps/floors/critical/global gates untouched by this lane."
+}

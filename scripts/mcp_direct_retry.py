@@ -22,6 +22,12 @@ from mcp_direct_state import INFRASTRUCTURE, SERVICES, private_json
 SOURCE_SCHEMA = "0113_document_follow_up"
 OVERLAY_MODULES = (
     "mcp_direct_activate",
+    "mcp_activation_contract",
+    "mcp_activation_identity",
+    "mcp_activation_staging",
+    "mcp_activation_database",
+    "mcp_activation_readiness",
+    "mcp_activation_lifecycle",
     "mcp_direct_retry",
     "mcp_direct_release",
     "mcp_direct_state",

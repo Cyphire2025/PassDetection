@@ -1,0 +1,183 @@
+{
+  "recorded_at": "2026-10-31T06:02:22.976Z",
+  "status": "source-and-focused-checks-frozen-awaiting-new-production-browser-artifact",
+  "source_records": "docs/audit/dashboard-2026-10-30/returning-traveller-reviewed-files.json",
+  "budget_candidates": "docs/audit/dashboard-2026-10-30/returning-traveller-budget-candidates.json",
+  "source_paths": [
+    {
+      "path": "frontend/features/travellers/hooks/use-returning-claim.ts",
+      "sha256": "58a9c9cdfc9e3b5cd4c0be497288d755285f6e2507f0cd95335e1f2020fa43d5"
+    },
+    {
+      "path": "frontend/features/travellers/services/resolve-returning-transition.ts",
+      "sha256": "98c7dfb70e1d445f340cf4672b94d90706f1deed815523815cb05fa61abed74c"
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-review.tsx",
+      "sha256": "13a139b7842c886250846db82d41b5b2b595e520207b79107329713ae8b185c1"
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-review-header.tsx",
+      "sha256": "caefb57fefb05b40199a1d284e87a45c3bdb917d690420decb524dac76d6d2a4"
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-review-fields.tsx",
+      "sha256": "7c19413182d0a515e5968245ce958e97adf67b6d1fb9a3810664727e6c8c19a4"
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-review-confirmation.tsx",
+      "sha256": "f7b006477af2c1d98320870c96e7cf0abc7480e67913776cb1656f6648838b8f"
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-resume.tsx",
+      "sha256": "31088fbfc61bb5f4dbba894af820858395bd27d9ed544ff2f86bfae791ba00a2"
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-resume-content.tsx",
+      "sha256": "9f4e067e47b1e60fd0861202ce0e815d45179afdc97d303f6d1269288abb7b75"
+    },
+    {
+      "path": "frontend/features/travellers/hooks/use-returning-resume.ts",
+      "sha256": "db1c2814752feca3691369257e74de41b02a4f97343247bd3d2d56bf46a24f7c"
+    },
+    {
+      "path": "frontend/features/travellers/components/traveller-document.tsx",
+      "sha256": "17e0ed24c02f5d149e458b382a937e55b3d42be131d8f0a3db0d2b4a1aae72d0"
+    },
+    {
+      "path": "frontend/features/travellers/components/traveller-document-content.tsx",
+      "sha256": "440d3196b3f92255e7cbbd5631d596555125da16b8a2d0c2a2e9e5b76bc84207"
+    },
+    {
+      "path": "frontend/features/travellers/hooks/use-traveller-document-preview.ts",
+      "sha256": "ca4c48e35ab65ece1ecc5367adefd9694c454a902246a1be999e0bbb506f0b4e"
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-contact-dialog.tsx",
+      "sha256": "5b40a2aa787639a666bca29098195905ba9dca399e538904bc1d65e99a3caec7"
+    },
+    {
+      "path": "frontend/features/travellers/hooks/use-returning-contact.ts",
+      "sha256": "2ed209a86b4388789393c412c82a45cb9513d76cfda602e18bb063febc70dd13"
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-flow.tsx",
+      "sha256": "dfb6374d87f25a2e9bb229582116df0a3f724af1c887bcae937e5d198c0102f0"
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-offer.tsx",
+      "sha256": "222de89b576bfbd248155ae2d1f4f4b94c56080372abe9efdcee2a057413481a"
+    },
+    {
+      "path": "frontend/features/travellers/hooks/use-returning-claim.test.tsx",
+      "sha256": "5d895c182f0a68c9fbeb4c8a6a23f23e41475e9bd8adf2ef183b2feb1be40ef8"
+    },
+    {
+      "path": "frontend/features/travellers/components/traveller-document.test.tsx",
+      "sha256": "0482952614ca1e3ab3c4b794e67a80f0c873682cacd0f0f947b727e4f31015a8"
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-contact-dialog.test.tsx",
+      "sha256": "02267175ae8eef24dbd9f45cf75de4b0e167bb55bd6c28b2123ba5585e457559"
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-resume.test.tsx",
+      "sha256": "2d5809837f64a843db2ce8ea128276d1b4762f8f0e52ddf2bab70fe3d0f12e5c"
+    }
+  ],
+  "checks": {
+    "returning_feature_unit": {
+      "files": 15,
+      "tests": 123,
+      "passed": 123,
+      "failed": 0
+    },
+    "affected_node_contracts": {
+      "files": 2,
+      "tests": 13,
+      "passed": 13,
+      "failed": 0
+    },
+    "type_check": "passed",
+    "scoped_eslint": "20 changed runtime/test paths; zero warnings; passed",
+    "existing_budgets": "526 passed; shared script unchanged",
+    "architecture": "Six review regions/prop graphs and two whole expanded functions exact; resource24 statements and complete views/prop types exact; explicit16-key claim/facade/model glue exact."
+  },
+  "negative_proof": {
+    "initial_claim_cases": {
+      "total": 5,
+      "passed": 2,
+      "failed": 3
+    },
+    "fixed_claim_plus_flow": {
+      "total": 9,
+      "passed": 9
+    },
+    "interpretation": "Actual hook repeated automatic transitions and abandoned phone continuation were reproduced with finite synthetic API responses. No backend grant or cross-token privacy failure claimed."
+  },
+  "raw_receipts": [
+    {
+      "path": "docs/audit/dashboard-2026-10-30/returning-traveller-claim-before.json",
+      "sha256": "994941fa540382454b753631e70d1f83e72052b5fa8adf710395960977f2ed26"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/returning-traveller-claim-after.json",
+      "sha256": "d005222ae5eac2bde9349dfe7990b40d295af423ac53e46519c6dfd9fe40f0ae"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/returning-traveller-resource-controls-before.json",
+      "sha256": "915f60646dbf4bf6111fd399721b954b30e7cfa2789e6f003aa86ee61a344fc3"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/returning-traveller-resource-controls-after.json",
+      "sha256": "659a13e4935af7cb770763397ee6fc01d622679b3e7ebc92fbf837f992f2a19b"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/returning-traveller-resume-before.json",
+      "sha256": "27c83a92d7ac83769a9f09e6929f5f9ad7a8cafc14761f2fd5cffd2d5a925ae7"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/returning-traveller-review-closed-imports.json",
+      "sha256": "5d1c7e107c088968cc94ce41f550c61182eb3e938e47f7a926b2c406160a57ea"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/returning-traveller-final-unit.json",
+      "sha256": "6fc37ec79bb7401553516899549ab6c397fb5bc3defb1049869aa74b87c21c0b"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/returning-traveller-final-node-contracts.txt",
+      "sha256": "a82ecf495088feae17e68e0d3630fe1b41a50af733d354d12e4df7227c320139"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/returning-traveller-final-types.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/returning-traveller-final-lint.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/returning-traveller-final-existing-budgets.txt",
+      "sha256": "7d90c8edd96056f7cde7c757fe9c726a7270ec6576b90f62c58325fb071916fd"
+    }
+  ],
+  "preserved_intermediate_receipts": {
+    "fixture_phone_normalization": ".tmp/returning-followthrough/resource-controls-phone-fixture-mismatch.json",
+    "initial_extraction_import_error": ".tmp/returning-followthrough/types-stage1.txt",
+    "notes": "Fixture expected phone normalization and closed-import correction are documented development failures; not product findings or passing final evidence."
+  },
+  "browser": {
+    "status": "pending fresh parent build",
+    "suite": "frontend/e2e/returning-travellers.spec.ts",
+    "previous_wrapping_artifact": "jmn7rIY1ck17GZ_tqrKAH",
+    "limitation": "The prior artifact qualifies historical wrapping sources only, not this returning-traveller runtime tranche."
+  },
+  "unchanged_contracts": [
+    "No public/private API DTO changes",
+    "No backend/provider sends",
+    "No package/config changes",
+    "No mobile changes",
+    "No critical coverage floors or threshold changes",
+    "No token/claim-cookie/proof/recovery authority changes"
+  ]
+}

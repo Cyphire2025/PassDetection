@@ -1,0 +1,32 @@
+[
+  {
+    "path": "app/infrastructure/runtime_readiness_contracts.py",
+    "minimum_line_percent": 88,
+    "minimum_branch_percent": 63,
+    "source_obligation": "Original runtime_readiness.py88L63B follows exact mechanically relocated logic; no floor relaxation"
+  },
+  {
+    "path": "app/infrastructure/runtime_readiness_database.py",
+    "minimum_line_percent": 88,
+    "minimum_branch_percent": 63,
+    "source_obligation": "Original runtime_readiness.py88L63B follows exact mechanically relocated logic; no floor relaxation"
+  },
+  {
+    "path": "app/infrastructure/runtime_readiness_probes.py",
+    "minimum_line_percent": 88,
+    "minimum_branch_percent": 63,
+    "source_obligation": "Original runtime_readiness.py88L63B follows exact mechanically relocated logic; no floor relaxation"
+  },
+  {
+    "path": "app/infrastructure/runtime_readiness_capabilities.py",
+    "minimum_line_percent": 88,
+    "minimum_branch_percent": 63,
+    "source_obligation": "Original runtime_readiness.py88L63B follows exact mechanically relocated logic; no floor relaxation"
+  },
+  {
+    "path": "app/infrastructure/runtime_readiness.py",
+    "minimum_line_percent": 88,
+    "minimum_branch_percent": 63,
+    "source_obligation": "Original runtime_readiness.py88L63B follows exact mechanically relocated logic; no floor relaxation"
+  }
+]

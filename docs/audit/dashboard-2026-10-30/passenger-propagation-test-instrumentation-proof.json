@@ -1,0 +1,33 @@
+{
+  "files": [
+    {
+      "path": "backend/tests/unit/application/test_mobile_passenger_change_propagation.py",
+      "before_sha256": "c554faf704d0cb06bf389335cdf1e97c02c4441ebb730a03e87d2250d767d10a",
+      "after_sha256": "b1dd2b006c1482d68e55bb847b9e4315049e1d73958ededec9005a4ae8044e05",
+      "actual_global_hooks_retargeted": [
+        "coordinator_roster_revision",
+        "reconcile_passenger_identities_for_changes",
+        "reconcile_passenger_identities"
+      ],
+      "assertions_and_exception_controls_raw_source_and_ast_exact": true,
+      "line_endings_preserved": true,
+      "assertions": 38,
+      "raises": 0
+    },
+    {
+      "path": "backend/tests/unit/application/test_passenger_propagation_boundaries.py",
+      "before_sha256": "60ebd548266e5ead96d276f3e7d1a753eb393f1fd53c85ee322adbc8583cf403",
+      "after_sha256": "926baf2a5d6ba4f7658a26501993e7d1ee38c7d18fcfb0e0824c136e24107e75",
+      "actual_global_hooks_retargeted": [
+        "reconcile_passenger_identities_for_changes",
+        "reconcile_passenger_identities",
+        "reconcile_passenger_identities_for_changes"
+      ],
+      "assertions_and_exception_controls_raw_source_and_ast_exact": true,
+      "line_endings_preserved": true,
+      "assertions": 11,
+      "raises": 0
+    }
+  ],
+  "scope": "Imports and three actual consumer module references per source only; source sync remains in public main and all original control bytes remain exact. No production facade proxy."
+}

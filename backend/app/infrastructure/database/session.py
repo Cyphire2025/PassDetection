@@ -49,6 +49,7 @@ def _postgres_server_settings(database: DatabaseSettings) -> dict[str, str]:
 engine = create_async_engine(
     _database_settings.async_url,
     echo=_settings.app_debug,
+    hide_parameters=True,
     pool_size=_database_settings.pool_size,
     max_overflow=_database_settings.max_overflow,
     pool_timeout=_database_settings.pool_timeout_seconds,

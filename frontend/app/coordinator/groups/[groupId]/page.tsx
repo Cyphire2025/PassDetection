@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { CoordinatorGroupActivityPage } from "@/features/tour-operations/components/coordinator-group-activity-page";
 
 export const metadata: Metadata = {
-  title: "Coordinator Group | Global Connects Dashboard",
+  title: "Coordinator Group",
 };
 
 interface CoordinatorGroupPageProps {

@@ -4,69 +4,14 @@ import { Pencil, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui";
 import type {
-  WhatsAppRecipient,
   WhatsAppRecipientDetailsEdit,
 } from "../api/whatsapp.api";
 import { useUpdateWhatsAppRecipientDetails } from "../hooks/use-whatsapp";
-import type { WhatsAppBroadcastSourceContacts } from "../api/whatsapp-source-groups.api";
+import { detailLabel, type RecipientPerson } from "./recipient-roster-model";
+export { recipientPeople, detailLabel, type RecipientPerson } from "./recipient-roster-model";
 import { readErrorMessage } from "../components/whatsapp-dialog-ui";
 import { fieldClass } from "./workspace-ui";
 import styles from "./broadcast-workspace.module.css";
-
-export interface RecipientPerson {
-  key: string;
-  recipient: WhatsAppRecipient;
-  name: string;
-  fields: Record<string, string>;
-  mergedId: string | null;
-}
-export function recipientPeople(
-  recipients: WhatsAppRecipient[],
-  contacts: WhatsAppBroadcastSourceContacts["contacts"] = [],
-): RecipientPerson[] {
-  const byRecipient = new Map<
-    string,
-    WhatsAppBroadcastSourceContacts["contacts"]
-  >();
-  for (const contact of contacts) {
-    if (!contact.recipient_id) continue;
-    const entries = byRecipient.get(contact.recipient_id) ?? [];
-    entries.push(contact);
-    byRecipient.set(contact.recipient_id, entries);
-  }
-  return recipients.flatMap((recipient) => {
-    const sourcePeople = byRecipient.get(recipient.id) ?? [];
-    if (sourcePeople.length)
-      return sourcePeople.map((contact) => ({
-        key: `${recipient.id}:source:${contact.source_submission_id}`,
-        recipient: { ...recipient, is_source_managed: true },
-        name: contact.name || "Unnamed recipient",
-        fields: contact.imported_fields,
-        mergedId: null,
-      }));
-    return [
-      {
-        key: recipient.id,
-        recipient,
-        name: recipient.name || "Unnamed recipient",
-        fields: recipient.imported_fields,
-        mergedId: null,
-      },
-      ...(recipient.merged_contacts ?? []).map((contact) => ({
-        key: `${recipient.id}:${contact.id}`,
-        recipient,
-        name: contact.name || "Unnamed recipient",
-        fields: contact.imported_fields,
-        mergedId: contact.id,
-      })),
-    ];
-  });
-}
-export function detailLabel(key: string) {
-  return key
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (letter) => letter.toUpperCase());
-}
 
 export function RecipientDetailsRail({
   people,
@@ -227,7 +172,9 @@ function RecipientDetailCard({
             <dl className="space-y-3">
               {entries.map(([key, value]) => (
                 <div key={key}>
-                  <dt className="text-xs text-slate-500">{detailLabel(key)}</dt>
+                  <dt className="text-xs text-slate-500">
+                    {detailLabel(key)}
+                  </dt>
                   <dd className="mt-1 break-words text-sm text-slate-800">
                     {value || "—"}
                   </dd>
@@ -249,8 +196,8 @@ function RecipientDetailCard({
                     merged_contact_id: person.mergedId,
                     expected_name: person.mergedId
                       ? (person.recipient.merged_contacts?.find(
-                          (contact) => contact.id === person.mergedId,
-                        )?.name ?? null)
+                        (contact) => contact.id === person.mergedId,
+                      )?.name ?? null)
                       : person.recipient.name,
                     expected_imported_fields: { ...person.fields },
                     name: person.name,

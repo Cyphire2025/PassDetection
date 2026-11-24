@@ -1,0 +1,191 @@
+[
+  {
+    "path": "frontend/features/documents/components/document-workspace-dialogs.tsx",
+    "sha256": "95b3fd3e4d3f61e281a074a3bb8bb890baeef42e5fe08180e4d117965a808c05",
+    "physical_lines": 3,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "refactored",
+    "notes": "Complete original/current bodies and imports physically read/authored. Five whole functions and expanded delivery controller preserve emitted AST; four JSX regions,28same-identity values and original prop aliases verified. Later formatting has complete typed-AST equality. No new UI behavior/performance claim."
+  },
+  {
+    "path": "frontend/features/documents/components/abort-incomplete-upload-dialog.tsx",
+    "sha256": "05d9e99b834388f42422e0f6c05cc6627e7d665e597321393d7b0150a47b7cb0",
+    "physical_lines": 80,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "refactored",
+    "notes": "Complete original/current bodies and imports physically read/authored. Five whole functions and expanded delivery controller preserve emitted AST; four JSX regions,28same-identity values and original prop aliases verified. Later formatting has complete typed-AST equality. No new UI behavior/performance claim."
+  },
+  {
+    "path": "frontend/features/documents/components/remove-document-assignments-dialog.tsx",
+    "sha256": "bed392931d4a3d01e9fa1bd64c7dd31ce780fa94bf6b76e5ce53f83762ede27d",
+    "physical_lines": 105,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "refactored",
+    "notes": "Complete original/current bodies and imports physically read/authored. Five whole functions and expanded delivery controller preserve emitted AST; four JSX regions,28same-identity values and original prop aliases verified. Later formatting has complete typed-AST equality. No new UI behavior/performance claim."
+  },
+  {
+    "path": "frontend/features/documents/components/document-delivery-preview-dialog.tsx",
+    "sha256": "11f4c6496787d3a327a0dd78c0d11d03548b1be4e308fc4edb1fe1bd1c62d23e",
+    "physical_lines": 157,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "refactored",
+    "notes": "Complete original/current bodies and imports physically read/authored. Five whole functions and expanded delivery controller preserve emitted AST; four JSX regions,28same-identity values and original prop aliases verified. Later formatting has complete typed-AST equality. No new UI behavior/performance claim."
+  },
+  {
+    "path": "frontend/features/documents/components/document-delivery-preview-props.ts",
+    "sha256": "c16ea10f707b9809afff7f37ee5861ddfdfea0c6647d202539d4074edf67e96a",
+    "physical_lines": 21,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "refactored",
+    "notes": "Complete original/current bodies and imports physically read/authored. Five whole functions and expanded delivery controller preserve emitted AST; four JSX regions,28same-identity values and original prop aliases verified. Later formatting has complete typed-AST equality. No new UI behavior/performance claim."
+  },
+  {
+    "path": "frontend/features/documents/components/document-delivery-preview-summary.tsx",
+    "sha256": "18f00876992e48330a37f2e736ef7dc0ffaf35246664b7959c24f1b67e1fbc88",
+    "physical_lines": 105,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "refactored",
+    "notes": "Complete original/current bodies and imports physically read/authored. Five whole functions and expanded delivery controller preserve emitted AST; four JSX regions,28same-identity values and original prop aliases verified. Later formatting has complete typed-AST equality. No new UI behavior/performance claim."
+  },
+  {
+    "path": "frontend/features/documents/components/document-delivery-message-fields.tsx",
+    "sha256": "5a2866341935451dbcc00e90d8eb866c6d7b5b96def492f09746122ad9e5e51d",
+    "physical_lines": 73,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "refactored",
+    "notes": "Complete original/current bodies and imports physically read/authored. Five whole functions and expanded delivery controller preserve emitted AST; four JSX regions,28same-identity values and original prop aliases verified. Later formatting has complete typed-AST equality. No new UI behavior/performance claim."
+  },
+  {
+    "path": "frontend/features/documents/components/document-delivery-recipient-table.tsx",
+    "sha256": "48bacd0b72b6041cd68cabdebb5c01d00e4bee62bec18735aedb5dbd15629138",
+    "physical_lines": 144,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "refactored",
+    "notes": "Complete original/current bodies and imports physically read/authored. Five whole functions and expanded delivery controller preserve emitted AST; four JSX regions,28same-identity values and original prop aliases verified. Later formatting has complete typed-AST equality. No new UI behavior/performance claim."
+  },
+  {
+    "path": "frontend/features/documents/components/document-delivery-preview-footer.tsx",
+    "sha256": "b8d2710538182ec0786f6440769ee253bac99dfc9a47e4ec3b9e98a88f6ced81",
+    "physical_lines": 84,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "refactored",
+    "notes": "Complete original/current bodies and imports physically read/authored. Five whole functions and expanded delivery controller preserve emitted AST; four JSX regions,28same-identity values and original prop aliases verified. Later formatting has complete typed-AST equality. No new UI behavior/performance claim."
+  },
+  {
+    "path": "frontend/features/documents/components/document-workspace.tsx",
+    "sha256": "1c72f904a6963bd240b07d466beb03db4aea85e2060c198bae5557775886080e",
+    "physical_lines": 20,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "reviewed",
+    "notes": "Entire current source physically read/authored. Actual callers retain lazy facade imports and original callbacks.24affected React cases and32Node contracts pass at their recorded source/format scopes; contract retargets preserve every original assertion."
+  },
+  {
+    "path": "frontend/features/documents/components/document-workspace-actions.tsx",
+    "sha256": "78f2521fde253c26066c41b06031263d8cc96f4c9433d49748c974533360c9d6",
+    "physical_lines": 156,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "reviewed",
+    "notes": "Entire current source physically read/authored. Actual callers retain lazy facade imports and original callbacks.24affected React cases and32Node contracts pass at their recorded source/format scopes; contract retargets preserve every original assertion."
+  },
+  {
+    "path": "frontend/features/documents/components/document-workspace-bindings.tsx",
+    "sha256": "607bfad72de462d399e0e2a8c0a685d5541ea6e33f8da851f2a7eea5adae39e0",
+    "physical_lines": 60,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "reviewed",
+    "notes": "Entire current source physically read/authored. Actual callers retain lazy facade imports and original callbacks.24affected React cases and32Node contracts pass at their recorded source/format scopes; contract retargets preserve every original assertion."
+  },
+  {
+    "path": "frontend/features/documents/components/document-workspace-dialogs.test.tsx",
+    "sha256": "dac6e3e896afefac815f9f6f473321fb8f5e142c1059b4c84f67af23832eb970",
+    "physical_lines": 23,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "verified",
+    "notes": "Entire current source physically read/authored. Actual callers retain lazy facade imports and original callbacks.24affected React cases and32Node contracts pass at their recorded source/format scopes; contract retargets preserve every original assertion."
+  },
+  {
+    "path": "frontend/features/documents/components/document-processing-motion.test.tsx",
+    "sha256": "dd58ccf6ff5d2d8f9d842db181c55f08df83413a4715c980054cd0310379af19",
+    "physical_lines": 254,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "verified",
+    "notes": "Entire current source physically read/authored. Actual callers retain lazy facade imports and original callbacks.24affected React cases and32Node contracts pass at their recorded source/format scopes; contract retargets preserve every original assertion."
+  },
+  {
+    "path": "frontend/features/documents/components/traveller-document-eligibility.test.tsx",
+    "sha256": "aef5f6d43473f33b13ce3e63b33bbb46851a8d472501d91216622d6a618a2d1c",
+    "physical_lines": 41,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "verified",
+    "notes": "Entire current source physically read/authored. Actual callers retain lazy facade imports and original callbacks.24affected React cases and32Node contracts pass at their recorded source/format scopes; contract retargets preserve every original assertion."
+  },
+  {
+    "path": "frontend/features/documents/components/document-delivery-preview-behavior.test.tsx",
+    "sha256": "d9e6faeea86b32c8d38cbaa969cd98ba015a61b55bd996272527f8796f3e4885",
+    "physical_lines": 128,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "verified",
+    "notes": "Entire current source physically read/authored. Actual callers retain lazy facade imports and original callbacks.24affected React cases and32Node contracts pass at their recorded source/format scopes; contract retargets preserve every original assertion."
+  },
+  {
+    "path": "frontend/features/documents/components/document-whatsapp-delivery.contract.test.mjs",
+    "sha256": "3e43a91edbd549f86b16a9859219dff55fb74f21d7c62d8153b68efdc9a8497e",
+    "physical_lines": 99,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "reviewed",
+    "notes": "Entire current source physically read/authored. Actual callers retain lazy facade imports and original callbacks.24affected React cases and32Node contracts pass at their recorded source/format scopes; contract retargets preserve every original assertion."
+  },
+  {
+    "path": "frontend/features/documents/components/document-bulk-upload.contract.test.mjs",
+    "sha256": "c4d995a84ea5edf8dc1ba2d9c4bfbad40578f3041cdafd6a204c4db3f8cfd234",
+    "physical_lines": 469,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "reviewed",
+    "notes": "Entire current source physically read/authored. Actual callers retain lazy facade imports and original callbacks.24affected React cases and32Node contracts pass at their recorded source/format scopes; contract retargets preserve every original assertion."
+  },
+  {
+    "path": "frontend/features/documents/components/document-workspace-boundaries.contract.test.mjs",
+    "sha256": "322f85de4f2d34b472d0b8d18b3881ad7cd02e8624ca0960687812f8a308b6e5",
+    "physical_lines": 42,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "reviewed",
+    "notes": "Entire current source physically read/authored. Actual callers retain lazy facade imports and original callbacks.24affected React cases and32Node contracts pass at their recorded source/format scopes; contract retargets preserve every original assertion."
+  },
+  {
+    "path": "frontend/features/documents/components/document-dialogs-source.contract-helper.mjs",
+    "sha256": "955265742801699192f08dad49a178a2ff35e757be74f2b9b7e7dba93b8224be",
+    "physical_lines": 42,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "reviewed",
+    "notes": "Entire current source physically read/authored. Actual callers retain lazy facade imports and original callbacks.24affected React cases and32Node contracts pass at their recorded source/format scopes; contract retargets preserve every original assertion."
+  },
+  {
+    "path": "frontend/features/documents/components/traveller-welcome.test-fixtures.ts",
+    "sha256": "e01dc278aedbf553956626b9a2ff5b89c7fb479455bb976c7507573d094fa555",
+    "physical_lines": 7,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "reviewed",
+    "notes": "Entire current source physically read/authored. Actual callers retain lazy facade imports and original callbacks.24affected React cases and32Node contracts pass at their recorded source/format scopes; contract retargets preserve every original assertion."
+  }
+]

@@ -1,0 +1,356 @@
+{
+  "declarations": [
+    {
+      "name": "StorageCleanupPayloadError",
+      "owner": "app.infrastructure.documents.storage_cleanup_types",
+      "whole_ast_and_evaluated_metadata": true,
+      "actual_global_bindings": []
+    },
+    {
+      "name": "StorageCleanupIncompleteError",
+      "owner": "app.infrastructure.documents.storage_cleanup_types",
+      "whole_ast_and_evaluated_metadata": true,
+      "actual_global_bindings": []
+    },
+    {
+      "name": "StorageCleanupClaim",
+      "owner": "app.infrastructure.documents.storage_cleanup_types",
+      "whole_ast_and_evaluated_metadata": true,
+      "actual_global_bindings": [
+        "dataclass",
+        "uuid"
+      ]
+    },
+    {
+      "name": "StorageCleanupResult",
+      "owner": "app.infrastructure.documents.storage_cleanup_types",
+      "whole_ast_and_evaluated_metadata": true,
+      "actual_global_bindings": [
+        "dataclass",
+        "uuid"
+      ]
+    },
+    {
+      "name": "StorageCleanupCipher",
+      "owner": "app.infrastructure.documents.storage_cleanup_cipher",
+      "whole_ast_and_evaluated_metadata": true,
+      "actual_global_bindings": [
+        "InvalidToken",
+        "Mapping",
+        "STORAGE_CLEANUP_KEY_VERSION",
+        "Sequence",
+        "StorageCleanupCipher",
+        "StorageCleanupPayloadError",
+        "_secret_value",
+        "_storage_cleanup_fernet",
+        "get_settings",
+        "json"
+      ]
+    },
+    {
+      "name": "_secret_value",
+      "owner": "app.infrastructure.documents.storage_cleanup_cipher",
+      "whole_ast_and_evaluated_metadata": true,
+      "actual_global_bindings": []
+    },
+    {
+      "name": "_storage_cleanup_fernet",
+      "owner": "app.infrastructure.documents.storage_cleanup_cipher",
+      "whole_ast_and_evaluated_metadata": true,
+      "actual_global_bindings": [
+        "Fernet",
+        "StorageCleanupPayloadError",
+        "base64",
+        "hashlib"
+      ]
+    },
+    {
+      "name": "_validated_storage_keys",
+      "owner": "app.infrastructure.documents.storage_cleanup_policy",
+      "whole_ast_and_evaluated_metadata": true,
+      "actual_global_bindings": [
+        "MAX_STORAGE_CLEANUP_KEYS",
+        "MAX_STORAGE_CLEANUP_KEY_LENGTH",
+        "STORAGE_CLEANUP_SOURCES",
+        "Sequence",
+        "StorageCleanupPayloadError",
+        "_storage_key_matches_source"
+      ]
+    },
+    {
+      "name": "_storage_key_matches_source",
+      "owner": "app.infrastructure.documents.storage_cleanup_policy",
+      "whole_ast_and_evaluated_metadata": true,
+      "actual_global_bindings": [
+        "_CANONICAL_PASSPORT_OBJECT_KEY",
+        "get_settings"
+      ]
+    },
+    {
+      "name": "_stage_validated_storage_cleanup_job",
+      "owner": "app.infrastructure.documents.storage_cleanup_staging",
+      "whole_ast_and_evaluated_metadata": true,
+      "actual_global_bindings": [
+        "AsyncSession",
+        "StorageCleanupCipher",
+        "StorageCleanupJobModel",
+        "datetime",
+        "hashlib",
+        "uuid"
+      ]
+    },
+    {
+      "name": "stage_storage_cleanup_job",
+      "owner": "app.infrastructure.documents.storage_cleanup_staging",
+      "whole_ast_and_evaluated_metadata": true,
+      "actual_global_bindings": [
+        "AsyncSession",
+        "Sequence",
+        "StorageCleanupCipher",
+        "StorageCleanupJobModel",
+        "UTC",
+        "_stage_validated_storage_cleanup_job",
+        "_validated_storage_keys",
+        "datetime",
+        "uuid"
+      ]
+    },
+    {
+      "name": "stage_storage_cleanup_jobs",
+      "owner": "app.infrastructure.documents.storage_cleanup_staging",
+      "whole_ast_and_evaluated_metadata": true,
+      "actual_global_bindings": [
+        "AsyncSession",
+        "MAX_STORAGE_CLEANUP_KEYS",
+        "Sequence",
+        "StorageCleanupCipher",
+        "StorageCleanupJobModel",
+        "UTC",
+        "_stage_validated_storage_cleanup_job",
+        "_validated_storage_keys",
+        "datetime",
+        "uuid"
+      ]
+    },
+    {
+      "name": "persist_storage_cleanup_job",
+      "owner": "app.infrastructure.documents.storage_cleanup_staging",
+      "whole_ast_and_evaluated_metadata": true,
+      "actual_global_bindings": [
+        "AsyncSession",
+        "AsyncSessionFactory",
+        "Sequence",
+        "StorageCleanupCipher",
+        "async_sessionmaker",
+        "datetime",
+        "stage_storage_cleanup_job",
+        "uuid"
+      ]
+    },
+    {
+      "name": "_claim_storage_cleanup_job",
+      "owner": "app.infrastructure.documents.storage_cleanup_leases",
+      "whole_ast_and_evaluated_metadata": true,
+      "actual_global_bindings": [
+        "AsyncSession",
+        "STORAGE_CLEANUP_LEASE_SECONDS",
+        "StorageCleanupClaim",
+        "StorageCleanupJobModel",
+        "and_",
+        "async_sessionmaker",
+        "datetime",
+        "or_",
+        "select",
+        "timedelta",
+        "uuid"
+      ]
+    },
+    {
+      "name": "_complete_storage_cleanup_job",
+      "owner": "app.infrastructure.documents.storage_cleanup_leases",
+      "whole_ast_and_evaluated_metadata": true,
+      "actual_global_bindings": [
+        "AsyncSession",
+        "AuditLogModel",
+        "StorageCleanupClaim",
+        "StorageCleanupJobModel",
+        "UTC",
+        "async_sessionmaker",
+        "datetime",
+        "select",
+        "uuid"
+      ]
+    },
+    {
+      "name": "_defer_storage_cleanup_job",
+      "owner": "app.infrastructure.documents.storage_cleanup_leases",
+      "whole_ast_and_evaluated_metadata": true,
+      "actual_global_bindings": [
+        "AsyncSession",
+        "AuditLogModel",
+        "MAX_STORAGE_CLEANUP_ATTEMPTS",
+        "StorageCleanupClaim",
+        "StorageCleanupJobModel",
+        "async_sessionmaker",
+        "datetime",
+        "metrics",
+        "select",
+        "timedelta",
+        "uuid"
+      ]
+    },
+    {
+      "name": "_execute_storage_cleanup_claim",
+      "owner": "app.infrastructure.documents.storage_cleanup_execution",
+      "whole_ast_and_evaluated_metadata": true,
+      "actual_global_bindings": [
+        "AsyncSession",
+        "Callable",
+        "MAX_STORAGE_CLEANUP_ATTEMPTS",
+        "MinioStorageRepository",
+        "StorageCleanupCipher",
+        "StorageCleanupClaim",
+        "StorageCleanupIncompleteError",
+        "StorageCleanupPayloadError",
+        "StorageCleanupResult",
+        "UTC",
+        "_complete_storage_cleanup_job",
+        "_defer_storage_cleanup_job",
+        "_validated_storage_keys",
+        "async_sessionmaker",
+        "datetime",
+        "logger",
+        "metrics"
+      ]
+    },
+    {
+      "name": "process_storage_cleanup_job",
+      "owner": "app.infrastructure.documents.storage_cleanup_execution",
+      "whole_ast_and_evaluated_metadata": true,
+      "actual_global_bindings": [
+        "AsyncSession",
+        "AsyncSessionFactory",
+        "Callable",
+        "MinioStorageRepository",
+        "StorageCleanupCipher",
+        "StorageCleanupResult",
+        "UTC",
+        "_claim_storage_cleanup_job",
+        "_execute_storage_cleanup_claim",
+        "async_sessionmaker",
+        "datetime",
+        "uuid"
+      ]
+    },
+    {
+      "name": "process_due_storage_cleanup_jobs",
+      "owner": "app.infrastructure.documents.storage_cleanup_execution",
+      "whole_ast_and_evaluated_metadata": true,
+      "actual_global_bindings": [
+        "AsyncSession",
+        "AsyncSessionFactory",
+        "Callable",
+        "MinioStorageRepository",
+        "StorageCleanupCipher",
+        "UTC",
+        "_claim_storage_cleanup_job",
+        "_execute_storage_cleanup_claim",
+        "async_sessionmaker",
+        "datetime"
+      ]
+    }
+  ],
+  "whole_declarations": 19,
+  "actual_global_identities": 129,
+  "original_import_identities": 26,
+  "constants_ast_and_value_count": 8,
+  "default_session_and_storage_objects_exact": true,
+  "logger_original_factory_and_shared_alias": true,
+  "test_files": [
+    {
+      "path": "backend/tests/unit/infrastructure/test_storage_cleanup.py",
+      "whole_original_test_ast_after_only_declared_mock_targets": true,
+      "mock_target_changes": [
+        [
+          "cleanup_cipher",
+          "get_settings"
+        ],
+        [
+          "cleanup_execution",
+          "_defer_storage_cleanup_job"
+        ],
+        [
+          "cleanup_execution",
+          "_complete_storage_cleanup_job"
+        ]
+      ],
+      "original_assertions": 71
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_storage_cleanup_passport_covers.py",
+      "whole_original_test_ast_after_only_declared_mock_targets": true,
+      "mock_target_changes": [
+        [
+          "cleanup_execution",
+          "_claim_storage_cleanup_job"
+        ],
+        [
+          "cleanup_execution",
+          "_complete_storage_cleanup_job"
+        ],
+        [
+          "cleanup_execution",
+          "_defer_storage_cleanup_job"
+        ]
+      ],
+      "original_assertions": 13
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_storage_cleanup_migration.py",
+      "whole_original_test_ast_after_only_declared_mock_targets": true,
+      "mock_target_changes": [],
+      "original_assertions": 7
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_document_cleanup_task_diagnostics.py",
+      "whole_original_test_ast_after_only_declared_mock_targets": true,
+      "mock_target_changes": [],
+      "original_assertions": 7
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_passport_import_compensation.py",
+      "whole_original_test_ast_after_only_declared_mock_targets": true,
+      "mock_target_changes": [],
+      "original_assertions": 6
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_document_orphan_reconciliation.py",
+      "whole_original_test_ast_after_only_declared_mock_targets": true,
+      "mock_target_changes": [],
+      "original_assertions": 13
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_admin_passport_storage_cleanup.py",
+      "whole_original_test_ast_after_only_declared_mock_targets": true,
+      "mock_target_changes": [],
+      "original_assertions": 74
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_passport_deletion_support.py",
+      "whole_original_test_ast_after_only_declared_mock_targets": true,
+      "mock_target_changes": [],
+      "original_assertions": 7
+    },
+    {
+      "path": "backend/tests/integration/test_traveller_draft_runtime.py",
+      "whole_original_test_ast_after_only_declared_mock_targets": true,
+      "mock_target_changes": [],
+      "original_assertions": 13
+    }
+  ],
+  "retained_assertions": 211,
+  "notes": [
+    "Only process memory addresses in signature text are normalized; default session/storage factory identity is checked separately.",
+    "All class/function pickle module/qualname bytes and evaluated annotations retained; inspect.getsource on a legacy reexported class cannot locate its moved declaration. Actual owners are explicit above."
+  ]
+}

@@ -1,0 +1,283 @@
+{
+  "files": [
+    {
+      "path": "backend/alembic/versions/0029_group_require_selfie.py",
+      "sha256": "a5fc80f23298aac1b60c2280b946b44f2f43538ac2390df8ffd81a932654fd2d",
+      "physical_lines": 28,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0029_group_require_selfie",
+        "down_revision": "0028_group_field_options",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds false-by-default per-group selfie requirement; existing groups preserve previous optional behavior. Additive schema alone does not establish upload validation or biometric-data handling policy."
+    },
+    {
+      "path": "backend/alembic/versions/0030_whatsapp_broadcast_metadata.py",
+      "sha256": "0b9024ff4ab849669803bcc720c70e8469d8a964e0378f44d075b4ce471278cc",
+      "physical_lines": 97,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0030_whatsapp_metadata",
+        "down_revision": "0029_group_require_selfie",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds organizing company name via temporary empty default then removes default, nullable opt-in timestamp, unique normalized support contacts with ordered indexes and rendered/template message metadata. Current consent enforcement, message redaction and retention require runtime evidence; no provider call executed."
+    },
+    {
+      "path": "backend/alembic/versions/0031_whatsapp_message_batches.py",
+      "sha256": "4fb912ea9b2f92c2ed5acbb625b36b2fc4d06545ed15eea48c42f21de06369a0",
+      "physical_lines": 35,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0031_whatsapp_batches",
+        "down_revision": "0030_whatsapp_metadata",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds optional message batch UUID/index without fabricating existing batch associations; no FK is introduced here. Shared WhatsApp batching remains in scope independent of deferred Operations Inbox."
+    },
+    {
+      "path": "backend/alembic/versions/0032_whatsapp_status_timestamps.py",
+      "sha256": "0fd8bafeeda8ffe4e21708117cbe5fc62eb8e5d4c59c112067bf503d3057730d",
+      "physical_lines": 34,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0032_whatsapp_status_time",
+        "down_revision": "0031_whatsapp_batches",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds status_updated_at nullable, backfills created_at for every missing timestamp then makes it required. Keeps old log chronology instead of stamping migration time; populated Postgres execution/locks not qualified."
+    },
+    {
+      "path": "backend/alembic/versions/0033_passport_capture_fields.py",
+      "sha256": "ce5e565dca5aa888f434a8d24d062430e55afc4d14f0b5e3f6eb2a9580b5b2b8",
+      "physical_lines": 200,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0033_passport_capture_fields",
+        "down_revision": "0032_whatsapp_status_time",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds camera/file acquisition checks, group-scoped nullable upload idempotency uniqueness, nonnegative extraction revisions and explicit historical status backfill. Before active-revision unique index, deterministically ranks and cancels older queued/running jobs, preserving newest created_at/id row; current queue concurrency/cancellation not proven from schema alone."
+    },
+    {
+      "path": "backend/alembic/versions/0034_extraction_conflicts.py",
+      "sha256": "e19b454e43618a77c766ee9967993bcdbae336c9a5c1c7876a5f451d219cd0ea",
+      "physical_lines": 34,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0034_extraction_conflicts",
+        "down_revision": "0033_passport_capture_fields",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds non-null empty-list JSONB extraction conflicts without overwriting passport fields; downgrade removes only metadata. Current conflict merge/redaction/schema validation remain runtime obligations."
+    },
+    {
+      "path": "backend/alembic/versions/0035_post_submission_verification.py",
+      "sha256": "3b830525541ab208d869dcc03c5958d9d421810e5bcc457397fa34157eb42ae3",
+      "physical_lines": 201,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0035_post_submit_verify",
+        "down_revision": "0034_extraction_conflicts",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds canonical status enum labels, optional verification/reviewer metadata with reviewer SETNULL, nonnegative revisions and durable bounded-attempt revision-unique verification jobs. Downgrade maps canonical statuses to legacy labels with bindparams while deliberately retaining PG enum labels; no new labels are assigned to existing rows in upgrade. DB enum/transaction/runtime worker qualification not performed."
+    },
+    {
+      "path": "backend/alembic/versions/0036_whatsapp_recipient_delivery_ledger.py",
+      "sha256": "2d1756ab422b99598c14c823e81c49039521d556c0fabeff33d19a5a53242b70",
+      "physical_lines": 234,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0036_whatsapp_delivery",
+        "down_revision": "0035_post_submit_verify",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds recipient soft-removal and durable unique recipient/message-type state. Backfill expires old queued as failed, marks interrupted processing delivery_unknown and favors accepted/ambiguous outcomes over retryable failures using DISTINCT ON. Ambiguous external outcomes stay suppressed; automatic resend safety is not inferred. Downgrade narrows message_type64 to32 without truncation, a conditional historical populated rollback compatibility point, not a current supported-release failure."
+    },
+    {
+      "path": "backend/alembic/versions/0037_relation_with_qualifier.py",
+      "sha256": "e47251aa74130d41591bc8bcfa6e35e22ea5d68aef3cc3b2873dbe086bffeefd",
+      "physical_lines": 232,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0037_relation_qualifier",
+        "down_revision": "0036_whatsapp_delivery",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Qualifier choice, allowed relation codes, expiry ordering, unique hashed token, same-group composite FK and single-use selection uniqueness fully read. Snapshot check enforces disabled-null versus enabled complete Self/relation shape; upgrade leaves existing groups disabled. RESTRICT association deletion is intentional historical relational behavior; current purge and capability expiry enforcement require runtime evidence."
+    },
+    {
+      "path": "backend/alembic/versions/0038_whatsapp_explicit_resend.py",
+      "sha256": "ad4d3dec4e56d83ee936b11d0725386a5c05abd1c7431f95a452edd9c451346e",
+      "physical_lines": 58,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0038_whatsapp_resend",
+        "down_revision": "0037_relation_qualifier",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds stored template/header parameter snapshots plus false-by-default explicit resend. Partial unique recipient/message index includes queued/processing/delivery_unknown, preserving unknown-outcome duplicate suppression; no live send/idempotency behavior established from schema alone."
+    },
+    {
+      "path": "backend/alembic/versions/0039_group_whatsapp_broadcast_links.py",
+      "sha256": "9ffb37edd6af5403b95fcbe4438b2177361bdc03fa0a27b2177c0d007be99259",
+      "physical_lines": 129,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0039_group_whatsapp_links",
+        "down_revision": "0038_whatsapp_resend",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Creates unique client-group/broadcast link with agency/entity cascades, creator SETNULL and scoped indexes. Early individual FKs alone do not guarantee all linked owners match; later composite invariants/current authorization remain separate."
+    },
+    {
+      "path": "backend/alembic/versions/0040_whatsapp_recipient_imported_fields.py",
+      "sha256": "ca3be8b47a0962875d48d5d470f151b6cbd743353d03652bc7cc3cc977d2e956",
+      "physical_lines": 37,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0040_whatsapp_recipient_fields",
+        "down_revision": "0039_group_whatsapp_links",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds non-null empty-object recipient imported_fields JSONB; database has no JSON byte/shape bound in this declaration. Importer runtime limits must be traced separately; no input campaign or provider activity performed."
+    },
+    {
+      "path": "backend/alembic/versions/0041_global_connects_brand.py",
+      "sha256": "5c08217f1edfd4a5eade421645ff30a15ff094ccc31f3690322d1e0dd21a7b21",
+      "physical_lines": 49,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0041_global_connects_brand",
+        "down_revision": "0040_whatsapp_recipient_fields",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Updates persisted global platform name only when exact previous PassDetection default matches, preserving other custom values and JSON keys. Downgrade reverses only the exact new default; no deployment identifier/config changes."
+    },
+    {
+      "path": "backend/alembic/versions/0042_whatsapp_rejected_contacts.py",
+      "sha256": "b62be6bc1ab193921080d1f6b70b29d8b93556064488c895cc5d867dcb59cd00",
+      "physical_lines": 99,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0042_whatsapp_rejected_contacts",
+        "down_revision": "0041_global_connects_brand",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Creates separate non-sendable rejected contacts with row-number/reason-code checks, group+fingerprint uniqueness, agency/group cascades and indexed history. Raw name/phone/file metadata are sensitive retained data; current access/retention proof must come from later schema/runtime, not source declarations."
+    },
+    {
+      "path": "backend/alembic/versions/0043_rejected_imported_fields.py",
+      "sha256": "079a07dca3c1a216ca11ed9f60f739db669d7185978d816cd30620b8642d5518",
+      "physical_lines": 37,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0043_rejected_imported_fields",
+        "down_revision": "0042_whatsapp_rejected_contacts",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds empty-object imported fields to rejected contacts, preserving spreadsheet metadata without changing sendable recipient rows. Runtime data bounds and retention are independent obligations."
+    },
+    {
+      "path": "backend/alembic/versions/0044_passport_image_crops.py",
+      "sha256": "70000d428cef9854fdc3c642f289b310d4e65d58d36bde1dea0312a40e65054c",
+      "physical_lines": 100,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0044_passport_image_crops",
+        "down_revision": "0043_rejected_imported_fields",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Creates non-destructive crop metadata: source/derived references, bounded fractional crop, minimum dimensions, right-angle rotation, positive source sizes/revision and one submission/image type. Submission cascade/editor SETNULL preserved; relational deletion does not prove derived object deletion, and current authority remains runtime scope."
+    }
+  ],
+  "manual_full_migrations": 16,
+  "manual_full_migration_lines": 1604,
+  "current_explicit_full_ledgers_checked_before_reads": true,
+  "no_duplicate_credit": true,
+  "all142published_files_unchanged": true,
+  "no_tests_or_migration_execution_for_read_only_cohort": true,
+  "notes": "Complete0029\u20130044 physical reads in three bounded outputs. Operations Inbox deferred; retained WhatsApp/domain metadata is distinct. No runtime/migration changes or service proof."
+}

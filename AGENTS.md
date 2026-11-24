@@ -1,4 +1,4 @@
-# Working on PassDetection
+# Working on Global Connects Dashboard
 
 This repository contains the Python API and workers in `backend/`, the Next.js
 dashboard in `frontend/`, the Expo application in `mobile/`, and the desktop MCP

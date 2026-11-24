@@ -1,0 +1,31 @@
+{
+  "reason": "Generated Windows cache artifact from browser runner missing SYSTEMDRIVE, not authored source drift",
+  "original_result_preserved": true,
+  "source": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\%SystemDrive%",
+  "destination": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\final-frontend-qualification\\generated-windows-cache-before",
+  "identity_only": true,
+  "payload_opened": false,
+  "files": [
+    {
+      "path": "frontend/%SystemDrive%/ProgramData/Microsoft/Windows/Caches/{6AF0698E-D558-4F6E-9B3C-3716689AF493}.2.ver0x0000000000000001.db",
+      "sha256": "a55817fc1704dfa6946c483b389d4fb6b3ed7696658956d354d43ffbe29d8888",
+      "bytes": 309072
+    },
+    {
+      "path": "frontend/%SystemDrive%/ProgramData/Microsoft/Windows/Caches/{7D851A3E-B9C7-4594-96CF-A6824E88D32D}.2.ver0x0000000000000001.db",
+      "sha256": "31eda3eac3f78314ca8b810de4fbe1720bcda03b0108951bf95cb8f058fa6b93",
+      "bytes": 1240
+    },
+    {
+      "path": "frontend/%SystemDrive%/ProgramData/Microsoft/Windows/Caches/{DDF571F2-BE98-426D-8288-1A9A39C3FDA2}.2.ver0x0000000000000001.db",
+      "sha256": "8a839443a17272ae203611d0d24c4903365d2cba247aca7880bff4fb84a61248",
+      "bytes": 662488
+    },
+    {
+      "path": "frontend/%SystemDrive%/ProgramData/Microsoft/Windows/Caches/cversions.2.db",
+      "sha256": "95c47fc860664e3e22dd950bd0c02734ada4f816a99b1183d56ce28da7448351",
+      "bytes": 16384
+    }
+  ],
+  "future_runner_correction": "Include SYSTEMDRIVE, PROGRAMDATA, HOMEDRIVE, HOMEPATH in system environment allowlist"
+}

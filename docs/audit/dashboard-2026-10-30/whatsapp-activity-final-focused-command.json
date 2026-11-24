@@ -1,0 +1,53 @@
+{
+  "command": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-X",
+    "utf8",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "-p",
+    "whatsapp_activity_qualified_contract_plugin",
+    "tests/unit/presentation/test_whatsapp_activity_tracking.py",
+    "tests/unit/presentation/test_whatsapp_activity_pages.py",
+    "tests/unit/presentation/test_whatsapp_staff_access_flow.py",
+    "tests/unit/presentation/test_whatsapp_activity_owner_contract.py",
+    "--cov",
+    "--cov-config=C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\whatsapp-activity-coverage.rc",
+    "--cov-report=json:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\whatsapp-activity-final-coverage.json",
+    "--cov-report=xml:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\whatsapp-activity-final-coverage.xml"
+  ],
+  "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection\\backend",
+  "exit_code": 0,
+  "elapsed_seconds": 30.406000000002678,
+  "source_before": {
+    "backend/app/presentation/api/v1/routes/whatsapp_activity.py": "06bc0b05081180d73b24ae35a0718018f1344cf72a24f8a009e41d4e016de47f",
+    "backend/app/presentation/api/v1/routes/whatsapp_activity_access.py": "e9d3f4431e7039e99a31013a9dd0691fa48efd9b60d54d37f99514ac00b50753",
+    "backend/app/presentation/api/v1/routes/whatsapp_activity_document_queries.py": "c3c009bfd7fc66b55580696b04d962660a2f4a3e3439a220ae49de1dce932e54",
+    "backend/app/presentation/api/v1/routes/whatsapp_activity_failure_queries.py": "1819db2d3ba194a172f11add3b00e63768a046518a9ae1bd4979eb93199690e7",
+    "backend/app/presentation/api/v1/routes/whatsapp_activity_status.py": "1decabea2e92dd3f4cded7b1d81fdb55a0d82aad9a0e7b7025de70626ce9abd9",
+    "backend/app/presentation/api/v1/routes/whatsapp_activity_summary_queries.py": "c8a6d7375e95b8df076cde3d8763cf4043b35d71d4450d00cbb4bbf72f9086ff",
+    "backend/tests/unit/presentation/test_whatsapp_activity_pages.py": "c7a8229884e5665537f1875cdee75cc21c1ff5efe2d9f4e2b0602aba435471c4",
+    "backend/tests/unit/presentation/test_whatsapp_activity_tracking.py": "65ffabf131540f8eb58b187aee2f293e6eb4e2b0dcfdab7f822ddef700933bb3",
+    "backend/tests/unit/presentation/test_whatsapp_staff_access_flow.py": "fc94c30f4e089bc9af8cf219ea84b156276971a106944f08fe310eaaf530245b",
+    "backend/app/presentation/api/v1/schemas/whatsapp_activity_schemas.py": "8d9758a1716bb1f79ba8704068f96f33ce9d804828cdfec8a9db90c58f6ef367",
+    "backend/tests/unit/presentation/test_whatsapp_activity_owner_contract.py": "573cb24cf6ce1dc5475701a633dcbc035f7505a67f7e33dfdd2d51d2f5a0f495"
+  },
+  "source_after": {
+    "backend/app/presentation/api/v1/routes/whatsapp_activity.py": "06bc0b05081180d73b24ae35a0718018f1344cf72a24f8a009e41d4e016de47f",
+    "backend/app/presentation/api/v1/routes/whatsapp_activity_access.py": "e9d3f4431e7039e99a31013a9dd0691fa48efd9b60d54d37f99514ac00b50753",
+    "backend/app/presentation/api/v1/routes/whatsapp_activity_document_queries.py": "c3c009bfd7fc66b55580696b04d962660a2f4a3e3439a220ae49de1dce932e54",
+    "backend/app/presentation/api/v1/routes/whatsapp_activity_failure_queries.py": "1819db2d3ba194a172f11add3b00e63768a046518a9ae1bd4979eb93199690e7",
+    "backend/app/presentation/api/v1/routes/whatsapp_activity_status.py": "1decabea2e92dd3f4cded7b1d81fdb55a0d82aad9a0e7b7025de70626ce9abd9",
+    "backend/app/presentation/api/v1/routes/whatsapp_activity_summary_queries.py": "c8a6d7375e95b8df076cde3d8763cf4043b35d71d4450d00cbb4bbf72f9086ff",
+    "backend/tests/unit/presentation/test_whatsapp_activity_pages.py": "c7a8229884e5665537f1875cdee75cc21c1ff5efe2d9f4e2b0602aba435471c4",
+    "backend/tests/unit/presentation/test_whatsapp_activity_tracking.py": "65ffabf131540f8eb58b187aee2f293e6eb4e2b0dcfdab7f822ddef700933bb3",
+    "backend/tests/unit/presentation/test_whatsapp_staff_access_flow.py": "fc94c30f4e089bc9af8cf219ea84b156276971a106944f08fe310eaaf530245b",
+    "backend/app/presentation/api/v1/schemas/whatsapp_activity_schemas.py": "8d9758a1716bb1f79ba8704068f96f33ce9d804828cdfec8a9db90c58f6ef367",
+    "backend/tests/unit/presentation/test_whatsapp_activity_owner_contract.py": "573cb24cf6ce1dc5475701a633dcbc035f7505a67f7e33dfdd2d51d2f5a0f495"
+  },
+  "source_unchanged": true,
+  "output": "docs/audit/dashboard-2026-10-30/whatsapp-activity-final-focused-tests.txt"
+}

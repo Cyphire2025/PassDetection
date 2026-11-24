@@ -1,0 +1,188 @@
+{
+  "status": "Frozen scoped implementation qualified; broader dashboard audit remains active and Operations Inbox remains deferred by user",
+  "source_manifest": {
+    "path": "docs/audit/dashboard-2026-10-30/whatsapp-composition-final-source-manifest.json",
+    "sha256": "6485b5eab04fd2aa6e14e4aff892ccddd07e205a8dfed406f777035c4529fb1c"
+  },
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/whatsapp-composition-final-reviewed-files.json",
+    "sha256": "d5756fc812f88106d6dbc228b6f921ab695aa16b632d75f9cf4eb7c39ee6e7ee"
+  },
+  "budget_candidates": {
+    "path": "docs/audit/dashboard-2026-10-30/whatsapp-composition-final-budget-candidates.json",
+    "sha256": "8aa43de8a06b118007e119825fd2279d8d2b7bf19cc343376c1a3b5d44476cf2"
+  },
+  "implementation": [
+    "Seven previously mixed composition/resend sources partitioned into24 purpose-specific owners. Maximum current owner246physical lines; no arbitrary mixins, generic provider framework, callback bag or mutable facade proxy.",
+    "Preview audience/saved-snapshot/render phases, single resend claim/preparation/publication, bulk durable replay/exact selection/fresh inputs/canonical phone claims/publication, saved-message field editing and read-only selected-preview eligibility/projection are explicit typed phases.",
+    "Four new original route declarations expand to their complete behavior-corrected/original statements with exact authority/role/CSRF, SQL/lock/await, phone ordering, skip/continue, append/reset, durable receipt redaction, commit, queue publication and conservative compensation points.",
+    "All18 original composer support functions plus original frozen DATA declaration and all seven bulk-support functions retain complete ASTs. Existing saved composer policy and edit/render statements expand exactly; both original dataclasses remain whole-AST exact.",
+    "The sole independent deduplication replaces a seven-field inline worker payload with the already-existing frozen pure helper. Ordered keys/value ASTs are equivalent under one explicit ==/!= branch inversion;20 actual value cases pass. No cache or algorithmic speedup claim."
+  ],
+  "separate_behavior_history_preserved": [
+    {
+      "path": "docs/audit/dashboard-2026-10-30/whatsapp-welcome-media-verification.json",
+      "sha256": "57a7acfb8874841efb9b5edc6f0a7e0e977e88057839ba31979500028600e220"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/whatsapp-update-preview-verification.json",
+      "sha256": "08d06e58684e79b529a19a68ab94730035dde940b4c368e3b5e29cd233e35a9f"
+    }
+  ],
+  "qualification": {
+    "original_baseline144": {
+      "path": "docs/audit/dashboard-2026-10-30/whatsapp-composition-before-focused-command.json",
+      "sha256": "e82b03a2e09972208f10321c57db846b3cd7b11cc9cff34bf26ff94312f34273"
+    },
+    "original_adjacent_preview33": {
+      "path": "docs/audit/dashboard-2026-10-30/whatsapp-composition-helper-before-focused-command.json",
+      "sha256": "0e5de46353b1ab8f1836e6d6ca3fb1903f77e540d2823ca0c56bb100b64b0141"
+    },
+    "current180": {
+      "path": "docs/audit/dashboard-2026-10-30/whatsapp-composition-final-qualified-2-focused-command.json",
+      "sha256": "4df8f13a9d1226772ad8aeaa32880fb1e4dbc211518d00d90eff4c881b512683"
+    },
+    "existing_broker1": {
+      "path": "docs/audit/dashboard-2026-10-30/whatsapp-composition-broker-focused-command.json",
+      "sha256": "c6515768f18b6663ff91cd4d037669fe7190cae06471b0d460b9c52b290e4ea5"
+    },
+    "current180_log": {
+      "path": "docs/audit/dashboard-2026-10-30/whatsapp-composition-final-qualified-2-focused-tests.txt",
+      "sha256": "d92ee1edb2f798dbf9f2f05eca5d2ca693a65806f05637b075b556d56080b5af"
+    },
+    "current_broker_log": {
+      "path": "docs/audit/dashboard-2026-10-30/whatsapp-composition-broker-focused-tests.txt",
+      "sha256": "d5a3bbdcef9f8ccc9544fcd27c994057b9538f733b1d62ca6861b72f26a22073"
+    },
+    "current_same_source_combined_coverage_json": {
+      "path": "docs/audit/dashboard-2026-10-30/whatsapp-composition-combined-coverage.json",
+      "sha256": "cb47eabf75463d02a90a7de001e53faa78eb5014a0c9b71a90cb46d2fa1ed1a4"
+    },
+    "current_same_source_combined_coverage_xml": {
+      "path": "docs/audit/dashboard-2026-10-30/whatsapp-composition-combined-coverage.xml",
+      "sha256": "ee7895c07891bb1e4a3f2174e897ad324cd9b8a315d164f470597826660d33ab"
+    },
+    "static": {
+      "path": "docs/audit/dashboard-2026-10-30/whatsapp-composition-final-static-checks.json",
+      "sha256": "449ceec754e856ea1e5ceead825828a044d0cc8f6e9ca86b22ec3df8636406fc"
+    },
+    "strict_types": "24 runtime owners pass; scoped Ruff24runtime+5changed tests pass. No broad app suite/build/browser round.",
+    "test_count": 181,
+    "same_complete_source_fence": 59,
+    "weighted_owned_runtime_coverage": {
+      "covered_lines": 1270,
+      "executable_lines": 1338,
+      "line_percent": 94.91778774289985,
+      "covered_branches": 237,
+      "branches": 294,
+      "branch_percent": 80.61224489795919
+    },
+    "guard": "Actual unchanged welcome authority guard100%line/100%branch; frozen payload bytes remaind404e35dfb0eec737193e29f24de045324f456fe871f4048dbf851459c1e5789."
+  },
+  "source_proofs": [
+    {
+      "path": "docs/audit/dashboard-2026-10-30/whatsapp-composition-preview-expanded-source-proof.json",
+      "sha256": "89ae0e6c83c9b81d9b393724cc702aaaa1b7a74890c86e5bcfa31c258f0ad083"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/whatsapp-composition-single-expanded-source-proof.json",
+      "sha256": "0da41ad0d48e564df7fb48005978f926baeee7ef9d5ef966b87a0507573781cf"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/whatsapp-composition-bulk-mechanical-source-proof.json",
+      "sha256": "85bd0ec9b8e9ad11c0b20f02f1199fa93e3d617984264f2e8b945704e4e285b0"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/whatsapp-composition-bulk-final-source-proof.json",
+      "sha256": "4a2414a06141fd1588ae53a5a57a79f7ed37aea512a424b0f76b7260eb4dc652"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/whatsapp-composition-followthrough-source-proof.json",
+      "sha256": "0c85288fe45cc7733a12f4a66db15d3dad01c3d74fd6f83cc760fa7e482fabe1"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/whatsapp-composition-payload-dedup-proof.json",
+      "sha256": "83845bcac339422fee0d61b6465f57cf0265b940374c4f67533957d1bfbc6925"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/whatsapp-composition-test-control-proof.json",
+      "sha256": "9fddfdf9fd1d59ecdf4d58fc2b0f314ab223fa3d23edab1c1f0932f50fb8c15f"
+    }
+  ],
+  "runtime_contracts": {
+    "record": {
+      "path": "docs/audit/dashboard-2026-10-30/whatsapp-composition-final-qualified-2-runtime-contract.json",
+      "sha256": "6493d1b334ee812c9fc3ca05c4d52b5dbcbec9521988c2d14d2b66fb06505646"
+    },
+    "original_four_facade_object_records": 23,
+    "four_original_OpenAPI_and_import_contracts_exact": true,
+    "adjacent_original_three_helper_contracts_against_archived_declarations": "Exact including preview OpenAPI",
+    "owned_modules": 24,
+    "evaluated_owned_declarations": 59,
+    "direct_actual_import_binding_comparisons": 737,
+    "module_qualname_signature_doc_pickle_class_alias_fields_slots_generated_dataclass_methods": "Original public contracts preserved; all current59 owned declarations evaluate actual type hints.",
+    "inspect_getsource": "Implementation source locations changed; no inspect.getsource compatibility claim or monkeypatch. Actual definition owners are in source manifest."
+  },
+  "full_manual_read_count": 29,
+  "full_manual_read_lines": 6080,
+  "read_scope": "Only24runtime+five actual instrumented test sources get current full physical-read credit. The2115-line delivery ledger remains focused; dependency/model imports, coverage instrumentation and metadata checks do not create full-source read credit.",
+  "preserved_failed_harness_history": [
+    {
+      "path": "docs/audit/dashboard-2026-10-30/whatsapp-composition-final-focused-command.json",
+      "sha256": "325f92209b6b34e5429db70faf8f2e7689f9ca1675c742e69c264dd6278bc43e"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/whatsapp-composition-final-focused-tests.txt",
+      "sha256": "a070929d0f7671d9a971520855044f2f0cad370f4c2ed9d395fd298c8992a04a"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/whatsapp-composition-final-qualified-focused-command.json",
+      "sha256": "6fa68d46f6b3156a2aa20a6dcd8a7d81fa91549ea338e2f1b6ce0b3a3cf666a1"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/whatsapp-composition-final-qualified-focused-tests.txt",
+      "sha256": "0160669365cb84b7d12aab4e958339c992b9b32f26f863f4e162434e1d716518"
+    }
+  ],
+  "harness_corrections": "Two precollection-only audit-harness assumptions: non-slot BulkResendEdits and unchanged history TYPE_CHECKING-only annotation. No application cases ran in those failures; runtime stayed byte-unchanged. Normal pinned startup retained; no native error suppression/replacement.",
+  "remaining_follow_through": [
+    {
+      "kind": "source review",
+      "detail": "Delivery-ledger2115 remains only focused at explicit ranges; do not claim full file coverage."
+    },
+    {
+      "kind": "behavior coverage",
+      "detail": "Inherited unexecuted legacy-decoder/error/media/preview/claim/preparation/history policy branches remain. Per-owner measured missing lines/branches and honest normal floors are recorded; do not claim every owner95% or complete service coverage."
+    },
+    {
+      "kind": "introspection",
+      "detail": "Frozen unchanged whatsapp_history_resend.saved_resend_source still has its preexisting get_type_hints NameError from TYPE_CHECKING-only _WhatsAppComposerSnapshot. Actual archived/current errors equal; no runtime/schema change made."
+    },
+    {
+      "kind": "services",
+      "detail": "All external provider, scanner, object-storage and queue actions were synthetic. SQLite-backed authority regressions do not prove PostgreSQL lock contention/live provider outcome or individual session revocation beyond existing user.session_version."
+    },
+    {
+      "kind": "performance",
+      "detail": "No freshness-unsafe caching, provider/SQL order change, or measured faster-runtime claim. Earlier export comparison work-counter/cache admission follow-up remains independent and open."
+    },
+    {
+      "kind": "release",
+      "detail": "No deployment/push/provider sends or broad combined verification; root owns final combined verification after remaining authorized work. AI/root own shared ratchets and strict release admissions; this file only proposes24normal rows (22new+2tightened)."
+    }
+  ],
+  "freeze": "All24 owned runtime owners and five changed test sources are frozen for root/AI integration. Our lane made no shared authentication/native/provider/model/payload edits. Current59-source dependencies are unchanged across final180+1 qualification; separately owned root model catalog supersession is recorded explicitly. Original snapshots/behavior receipts remain historical.",
+  "shared_database_dependency_supersession": {
+    "scope": "Root independently moved shared communications/document model catalog implementations during this family. No schema/field/default/constraint behavior change was claimed by this lane. The final180 and broker1 used identical complete59-source fences containing the current frozen catalogs; original144 baseline evidence retains its own older dependency hashes. No false cross-batch byte-identity claim.",
+    "root_receipts": [
+      {
+        "path": "docs/audit/dashboard-2026-10-30/document-models-verification.json",
+        "sha256": "08581452f4f6bed25729e27e51142b6fbb9a77d97e738218b9b038c98e0907cc"
+      },
+      {
+        "path": "docs/audit/dashboard-2026-10-30/communications-models-verification.json",
+        "sha256": "c15e3f69b6833e760c8888f6845d158aa428e88f88ee5f8de247179d9283f011"
+      }
+    ]
+  }
+}

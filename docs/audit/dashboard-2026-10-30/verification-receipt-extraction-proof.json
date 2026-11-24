@@ -1,0 +1,192 @@
+{
+  "bug_fix": "Only two existing lookup/guard statements moved into the existing invalid-token exception boundary; reversing this movement restores the entire original module AST.",
+  "declarations": [
+    {
+      "name": "VerificationReceiptError",
+      "owner": "backend/app/infrastructure/documents/verification_receipt_models.py",
+      "whole_declaration_ast_equal": true,
+      "signature_equal": true,
+      "evaluated_hints_equal": true,
+      "module_qualname_equal": true,
+      "actual_alias_identity": true
+    },
+    {
+      "name": "VerificationReceiptExpiredError",
+      "owner": "backend/app/infrastructure/documents/verification_receipt_models.py",
+      "whole_declaration_ast_equal": true,
+      "signature_equal": true,
+      "evaluated_hints_equal": true,
+      "module_qualname_equal": true,
+      "actual_alias_identity": true
+    },
+    {
+      "name": "VerificationReceiptScopeChangedError",
+      "owner": "backend/app/infrastructure/documents/verification_receipt_models.py",
+      "whole_declaration_ast_equal": true,
+      "signature_equal": true,
+      "evaluated_hints_equal": true,
+      "module_qualname_equal": true,
+      "actual_alias_identity": true
+    },
+    {
+      "name": "VerificationReceiptBatchTooLargeError",
+      "owner": "backend/app/infrastructure/documents/verification_receipt_models.py",
+      "whole_declaration_ast_equal": true,
+      "signature_equal": true,
+      "evaluated_hints_equal": true,
+      "module_qualname_equal": true,
+      "actual_alias_identity": true
+    },
+    {
+      "name": "VerificationStagingInput",
+      "owner": "backend/app/infrastructure/documents/verification_receipt_models.py",
+      "whole_declaration_ast_equal": true,
+      "signature_equal": true,
+      "evaluated_hints_equal": true,
+      "module_qualname_equal": true,
+      "actual_alias_identity": true
+    },
+    {
+      "name": "StagedDocumentReceipt",
+      "owner": "backend/app/infrastructure/documents/verification_receipt_models.py",
+      "whole_declaration_ast_equal": true,
+      "signature_equal": true,
+      "evaluated_hints_equal": true,
+      "module_qualname_equal": true,
+      "actual_alias_identity": true
+    },
+    {
+      "name": "VerificationReceiptCipher",
+      "owner": "backend/app/infrastructure/documents/verification_receipt_cipher.py",
+      "whole_declaration_ast_equal": true,
+      "signature_equal": true,
+      "evaluated_hints_equal": true,
+      "module_qualname_equal": true,
+      "actual_alias_identity": true
+    },
+    {
+      "name": "_verification_receipt_fernet",
+      "owner": "backend/app/infrastructure/documents/verification_receipt_cipher.py",
+      "whole_declaration_ast_equal": true,
+      "signature_equal": true,
+      "evaluated_hints_equal": true,
+      "module_qualname_equal": true,
+      "actual_alias_identity": true
+    },
+    {
+      "name": "_staging_storage_key",
+      "owner": "backend/app/infrastructure/documents/verification_receipt_scope.py",
+      "whole_declaration_ast_equal": true,
+      "signature_equal": true,
+      "evaluated_hints_equal": true,
+      "module_qualname_equal": true,
+      "actual_alias_identity": true
+    },
+    {
+      "name": "_scope_fingerprint",
+      "owner": "backend/app/infrastructure/documents/verification_receipt_scope.py",
+      "whole_declaration_ast_equal": true,
+      "signature_equal": true,
+      "evaluated_hints_equal": true,
+      "module_qualname_equal": true,
+      "actual_alias_identity": true
+    },
+    {
+      "name": "verification_scope_fingerprints",
+      "owner": "backend/app/infrastructure/documents/verification_receipt_scope.py",
+      "whole_declaration_ast_equal": true,
+      "signature_equal": true,
+      "evaluated_hints_equal": true,
+      "module_qualname_equal": true,
+      "actual_alias_identity": true
+    },
+    {
+      "name": "validate_verification_receipt_token_batch",
+      "owner": "backend/app/infrastructure/documents/verification_receipt_scope.py",
+      "whole_declaration_ast_equal": true,
+      "signature_equal": true,
+      "evaluated_hints_equal": true,
+      "module_qualname_equal": true,
+      "actual_alias_identity": true
+    },
+    {
+      "name": "stage_verified_documents",
+      "owner": "backend/app/infrastructure/documents/verification_staging.py",
+      "whole_declaration_ast_equal": true,
+      "signature_equal": true,
+      "evaluated_hints_equal": true,
+      "module_qualname_equal": true,
+      "actual_alias_identity": true
+    },
+    {
+      "name": "decode_verification_receipts",
+      "owner": "backend/app/infrastructure/documents/verification_receipt_scope.py",
+      "whole_declaration_ast_equal": true,
+      "signature_equal": true,
+      "evaluated_hints_equal": true,
+      "module_qualname_equal": true,
+      "actual_alias_identity": true
+    },
+    {
+      "name": "staged_document_chunk_fingerprint",
+      "owner": "backend/app/infrastructure/documents/verification_receipt_scope.py",
+      "whole_declaration_ast_equal": true,
+      "signature_equal": true,
+      "evaluated_hints_equal": true,
+      "module_qualname_equal": true,
+      "actual_alias_identity": true
+    },
+    {
+      "name": "cleanup_staged_storage_keys",
+      "owner": "backend/app/infrastructure/documents/verification_staging.py",
+      "whole_declaration_ast_equal": true,
+      "signature_equal": true,
+      "evaluated_hints_equal": true,
+      "module_qualname_equal": true,
+      "actual_alias_identity": true
+    },
+    {
+      "name": "_receipt_payload",
+      "owner": "backend/app/infrastructure/documents/verification_receipt_payload.py",
+      "whole_declaration_ast_equal": true,
+      "signature_equal": true,
+      "evaluated_hints_equal": true,
+      "module_qualname_equal": true,
+      "actual_alias_identity": true
+    },
+    {
+      "name": "_receipt_from_payload",
+      "owner": "backend/app/infrastructure/documents/verification_receipt_payload.py",
+      "whole_declaration_ast_equal": true,
+      "signature_equal": true,
+      "evaluated_hints_equal": true,
+      "module_qualname_equal": true,
+      "actual_alias_identity": true
+    },
+    {
+      "name": "_serialized_receipt_payload",
+      "owner": "backend/app/infrastructure/documents/verification_receipt_payload.py",
+      "whole_declaration_ast_equal": true,
+      "signature_equal": true,
+      "evaluated_hints_equal": true,
+      "module_qualname_equal": true,
+      "actual_alias_identity": true
+    },
+    {
+      "name": "_optional_string",
+      "owner": "backend/app/infrastructure/documents/verification_receipt_payload.py",
+      "whole_declaration_ast_equal": true,
+      "signature_equal": true,
+      "evaluated_hints_equal": true,
+      "module_qualname_equal": true,
+      "actual_alias_identity": true
+    }
+  ],
+  "sha256": {
+    "backend/app/infrastructure/documents/verification_receipt_cipher.py": "30913eac94b50e9741489d7c9404aa11660aa85b063bc9827c26dcd81f7b7ff3",
+    "backend/app/infrastructure/documents/verification_receipt_models.py": "07da7bde5fd0596290e94f84d291b6cb0eb6217daa2a9f1b010079355e30edac",
+    "backend/app/infrastructure/documents/verification_receipt_payload.py": "0e88fe849a24ab6bd9b8e9e6068ac09c47f2a3d0811ea5a9207e6fb2e93f23b3",
+    "backend/app/infrastructure/documents/verification_receipt_scope.py": "e2d24df8b74457cdbafaf61321c91c6397049138e2ce22478868434014949a0b",
+    "backend/app/infrastructure/documents/verification_staging.py": "80559887908423587b23589041e9eb5d3aca7ffe856f5267426eafa997a8ba74"
+  }
+}

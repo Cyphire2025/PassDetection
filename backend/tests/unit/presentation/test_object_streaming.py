@@ -30,8 +30,9 @@ class _Storage:
         start: int,
         expected_bytes: int,
         chunk_size: int = 64 * 1024,
+        end: int | None = None,
     ) -> AsyncIterator[bytes]:
-        del chunk_size
+        del chunk_size, end
         self.stream_calls.append((key, start, expected_bytes))
         yield self.content[start : start + expected_bytes]
 
@@ -109,3 +110,43 @@ async def test_invalid_or_multi_range_request_fails_with_416(
 
     assert rejected.value.status_code == 416
     assert rejected.value.headers == {"Content-Range": "bytes */10"}
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("range_header", "expected_status", "expected_body"),
+    [
+        ("bytes=" + "9" * 5000 + "-", 416, None),
+        ("bytes=2-" + "9" * 5000, 206, b"23456789"),
+        ("bytes=-" + "9" * 5000, 206, b"0123456789"),
+        ("bytes=" + "0" * 5000 + "2-4", 206, b"234"),
+    ],
+    ids=["start-outside-object", "clamped-end", "clamped-suffix", "leading-zeroes"],
+)
+async def test_large_decimal_ranges_are_bounded_without_integer_conversion_failure(
+    range_header: str,
+    expected_status: int,
+    expected_body: bytes | None,
+) -> None:
+    storage = _Storage(b"0123456789")
+    if expected_status == 416:
+        with pytest.raises(HTTPException) as rejected:
+            await private_object_streaming_response(
+                storage=storage,  # type: ignore[arg-type]
+                key="private/object.jpg",
+                media_type="image/jpeg",
+                content_disposition='inline; filename="passport.jpg"',
+                range_header=range_header,
+            )
+        assert rejected.value.status_code == 416
+        assert storage.stream_calls == []
+        return
+    response = await private_object_streaming_response(
+        storage=storage,  # type: ignore[arg-type]
+        key="private/object.jpg",
+        media_type="image/jpeg",
+        content_disposition='inline; filename="passport.jpg"',
+        range_header=range_header,
+    )
+    assert response.status_code == expected_status
+    assert await _body(response) == expected_body

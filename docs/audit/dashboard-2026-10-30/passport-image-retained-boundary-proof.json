@@ -1,0 +1,19 @@
+{
+  "entire_generic_module_ast_restored_after_three_declared_policy_changes": true,
+  "original_locked_actor_scope_function_and_snapshot_policy_sources_unchanged": [
+    "backend/app/presentation/api/v1/routes/passport_image_library_authority.py",
+    "backend/app/application/travellers/snapshot_access.py",
+    "backend/app/application/travellers/asset_policy.py"
+  ],
+  "three_library_import_rebindings_only_non_import_module_asts_exact": [
+    "backend/app/presentation/api/v1/routes/passport_image_library.py",
+    "backend/app/presentation/api/v1/routes/passport_image_library_manual.py",
+    "backend/app/presentation/api/v1/routes/passport_image_library_selection.py"
+  ],
+  "same_import_set_after_declared_rebind_except_ruff_order": true,
+  "new_boundary_signature_and_evaluated_hints_exact_to_old_base": true,
+  "scope": "A retained source is rechecked after external work using the existing current-trip policy. Existing withdrawal permission is preserved; completed purge/hard delete denies publication.",
+  "regression": "passport-retained-images-before-command.json",
+  "fixed": "passport-retained-images-fixed-command.json",
+  "whole_family": "passport-image-family-command.json"
+}

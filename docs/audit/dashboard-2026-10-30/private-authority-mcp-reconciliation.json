@@ -1,0 +1,498 @@
+{
+  "basis": "Exact14 proved closed frontend WhatsApp source identities retired after42 live composer safety cases were ported; exact10 fingerprint changes reviewed against frozen1398-file source fence. No server/native endpoint retirement. Runtime review attributed to root/manual_security/branding_visuals; this reconciliation is classification maintenance, not another complete physical source review.",
+  "source_evidence": [
+    "private-authority-whatsapp-verification.json",
+    "whatsapp-core-retired-files.json",
+    "whatsapp-core-reviewed-files.json",
+    "camera-gc-current-source-checkpoint.json",
+    "camera-gc-authority-stream-verification.json",
+    "frontend-authority-final-source-checkpoint.json"
+  ],
+  "retired_rows": [
+    {
+      "surface": {
+        "id": "frontend:frontend/features/whatsapp/api/broadcast-message-reads.api.ts:batchStatus",
+        "kind": "frontend_callable",
+        "source": "frontend/features/whatsapp/api/broadcast-message-reads.api.ts",
+        "handler": "batchStatus"
+      },
+      "workflow": "whatsapp.batchStatus",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/whatsapp/api/broadcast-message-reads.api.ts:batchSummary",
+        "kind": "frontend_callable",
+        "source": "frontend/features/whatsapp/api/broadcast-message-reads.api.ts",
+        "handler": "batchSummary"
+      },
+      "workflow": "whatsapp.batchSummary",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/whatsapp/api/broadcast-message-reads.api.ts:previewRecipientsResend",
+        "kind": "frontend_callable",
+        "source": "frontend/features/whatsapp/api/broadcast-message-reads.api.ts",
+        "handler": "previewRecipientsResend"
+      },
+      "workflow": "whatsapp.previewRecipientsResend",
+      "disposition": "implement",
+      "phase": 6,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "immutable_preparation_and_explicit_user_send_intent",
+        "dispatch_authority_recheck",
+        "business_dispatch_idempotency",
+        "provider_receipt_reconciliation",
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/whatsapp/api/broadcast-recipients.api.ts:rejectedContacts",
+        "kind": "frontend_callable",
+        "source": "frontend/features/whatsapp/api/broadcast-recipients.api.ts",
+        "handler": "rejectedContacts"
+      },
+      "workflow": "whatsapp.rejectedContacts",
+      "disposition": "implement",
+      "phase": 5,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/whatsapp/api/broadcast-resend-payload.ts:bulkResendOverridesPayload",
+        "kind": "frontend_callable",
+        "source": "frontend/features/whatsapp/api/broadcast-resend-payload.ts",
+        "handler": "bulkResendOverridesPayload"
+      },
+      "workflow": "whatsapp.internal-resend-payload",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Pure extraction of the existing optional resend payload mapping; it cannot send, authorize, create consent or select recipients.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/whatsapp/api/broadcast-resend-payload.ts:validateBulkRecipientSelection",
+        "kind": "frontend_callable",
+        "source": "frontend/features/whatsapp/api/broadcast-resend-payload.ts",
+        "handler": "validateBulkRecipientSelection"
+      },
+      "workflow": "whatsapp.internal-resend-selection-validation",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Pure extraction of the existing nonempty, nonblank and unique recipient selection guard. Business send authorization, opt-in and retry/idempotency policy remain owned by the existing workflow.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/whatsapp/api/broadcast-resends.api.ts:resendRecipientMessage",
+        "kind": "frontend_callable",
+        "source": "frontend/features/whatsapp/api/broadcast-resends.api.ts",
+        "handler": "resendRecipientMessage"
+      },
+      "workflow": "whatsapp.resendRecipientMessage",
+      "disposition": "implement",
+      "phase": 6,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "immutable_preparation_and_explicit_user_send_intent",
+        "dispatch_authority_recheck",
+        "business_dispatch_idempotency",
+        "provider_receipt_reconciliation",
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/whatsapp/api/broadcast-resends.api.ts:resendRecipientsMessage",
+        "kind": "frontend_callable",
+        "source": "frontend/features/whatsapp/api/broadcast-resends.api.ts",
+        "handler": "resendRecipientsMessage"
+      },
+      "workflow": "whatsapp.resendRecipientsMessage",
+      "disposition": "implement",
+      "phase": 6,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "immutable_preparation_and_explicit_user_send_intent",
+        "dispatch_authority_recheck",
+        "business_dispatch_idempotency",
+        "provider_receipt_reconciliation",
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/whatsapp/api/broadcast-sends.api.ts:sendGroupInvite",
+        "kind": "frontend_callable",
+        "source": "frontend/features/whatsapp/api/broadcast-sends.api.ts",
+        "handler": "sendGroupInvite"
+      },
+      "workflow": "whatsapp.sendGroupInvite",
+      "disposition": "implement",
+      "phase": 6,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "immutable_preparation_and_explicit_user_send_intent",
+        "dispatch_authority_recheck",
+        "business_dispatch_idempotency",
+        "provider_receipt_reconciliation",
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/whatsapp/api/broadcast-sends.api.ts:sendPassportLink",
+        "kind": "frontend_callable",
+        "source": "frontend/features/whatsapp/api/broadcast-sends.api.ts",
+        "handler": "sendPassportLink"
+      },
+      "workflow": "whatsapp.sendPassportLink",
+      "disposition": "implement",
+      "phase": 6,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "immutable_preparation_and_explicit_user_send_intent",
+        "dispatch_authority_recheck",
+        "business_dispatch_idempotency",
+        "provider_receipt_reconciliation",
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/whatsapp/api/broadcast-sends.api.ts:sendReminder",
+        "kind": "frontend_callable",
+        "source": "frontend/features/whatsapp/api/broadcast-sends.api.ts",
+        "handler": "sendReminder"
+      },
+      "workflow": "whatsapp.sendReminder",
+      "disposition": "implement",
+      "phase": 6,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "immutable_preparation_and_explicit_user_send_intent",
+        "dispatch_authority_recheck",
+        "business_dispatch_idempotency",
+        "provider_receipt_reconciliation",
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/whatsapp/api/broadcast-sends.api.ts:sendWelcome",
+        "kind": "frontend_callable",
+        "source": "frontend/features/whatsapp/api/broadcast-sends.api.ts",
+        "handler": "sendWelcome"
+      },
+      "workflow": "whatsapp.sendWelcome",
+      "disposition": "implement",
+      "phase": 6,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "immutable_preparation_and_explicit_user_send_intent",
+        "dispatch_authority_recheck",
+        "business_dispatch_idempotency",
+        "provider_receipt_reconciliation",
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend_api:frontend/features/whatsapp/api/broadcast-resends.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/whatsapp/api/broadcast-resends.api.ts",
+        "contract_sha256": "d4927f68b5b57a473b793e73c367acca6183b95cd8e19a3795fd55f114566c1a"
+      },
+      "workflow": "transport.frontend.features.whatsapp.api.broadcast-resends.api.ts",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Routing or frontend transport facade implementing the individually classified business operations; fingerprint forces review of prefix/registration/alias and nonstandard action changes.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend_api:frontend/features/whatsapp/api/broadcast-sends.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/whatsapp/api/broadcast-sends.api.ts",
+        "contract_sha256": "409098caa610ec9aeea4eeb3436d2c250a7a4c47152e3976b7aec4ba74afdd25"
+      },
+      "workflow": "transport.frontend.features.whatsapp.api.broadcast-sends.api.ts",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Routing or frontend transport facade implementing the individually classified business operations; fingerprint forces review of prefix/registration/alias and nonstandard action changes.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    }
+  ],
+  "updated_fingerprints": [
+    {
+      "before": {
+        "id": "endpoint_registry:frontend/lib/api/endpoints.ts",
+        "kind": "frontend_endpoint_registry",
+        "source": "frontend/lib/api/endpoints.ts",
+        "contract_sha256": "b866e2fefa8285e40bfe081a801b0dc52894bedd1b19124e1dd831f7a99baf39"
+      },
+      "after": {
+        "id": "endpoint_registry:frontend/lib/api/endpoints.ts",
+        "kind": "frontend_endpoint_registry",
+        "source": "frontend/lib/api/endpoints.ts",
+        "contract_sha256": "8275d6762f2e00750e2ae20d94c1d7e82bc7991ee3b657277db1e3bea261ec41"
+      }
+    },
+    {
+      "before": {
+        "id": "frontend_api:frontend/features/branding/api/branding-images.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/branding/api/branding-images.api.ts",
+        "contract_sha256": "223346cb9bbd07ec8be5d07e4892f2bc91db53c054c71e7c12fda13690e1f43e"
+      },
+      "after": {
+        "id": "frontend_api:frontend/features/branding/api/branding-images.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/branding/api/branding-images.api.ts",
+        "contract_sha256": "2c6b39282474e505aa23f380693e910d59479cb2e5fbfb4578be862e24d20316"
+      }
+    },
+    {
+      "before": {
+        "id": "frontend_api:frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "contract_sha256": "5fdc6fe2875fc8b683ecfacc4b1e2576858580caec99ef0e6e002adfa66c3929"
+      },
+      "after": {
+        "id": "frontend_api:frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "contract_sha256": "0fdf0d1b8bfb649fd257e8057dd217db24c777ab47bb5cf1f0208f98eb4a6bd8"
+      }
+    },
+    {
+      "before": {
+        "id": "frontend_api:frontend/features/mcp/api/mcp.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/mcp/api/mcp.api.ts",
+        "contract_sha256": "68691a4b41c26020cc947fc921db9b29752bca20833e7ae5360e3861465e3a25"
+      },
+      "after": {
+        "id": "frontend_api:frontend/features/mcp/api/mcp.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/mcp/api/mcp.api.ts",
+        "contract_sha256": "5033b9d7f52836b50f46347bc82d6aca568b9de5bd707973435c28a709004732"
+      }
+    },
+    {
+      "before": {
+        "id": "frontend_api:frontend/features/passports/api/passports.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "contract_sha256": "c557dee693b37e162fdc0dc9e8c38369bec784eaf27e59e1a7d9fd9548d98da9"
+      },
+      "after": {
+        "id": "frontend_api:frontend/features/passports/api/passports.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "contract_sha256": "55dcdd062a023c61cb4a3635cd99a60764c19a881de6ac0eacc242067d780364"
+      }
+    },
+    {
+      "before": {
+        "id": "frontend_api:frontend/features/whatsapp/api/broadcast-message-reads.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/whatsapp/api/broadcast-message-reads.api.ts",
+        "contract_sha256": "91620722e07bb75baaa2ed40360bf5c15d646d9896bbd59ca504bb00e89410f9"
+      },
+      "after": {
+        "id": "frontend_api:frontend/features/whatsapp/api/broadcast-message-reads.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/whatsapp/api/broadcast-message-reads.api.ts",
+        "contract_sha256": "5779eb626ff66762e44634648ab7373d9fa02d7c006d90d9e85f7bd4c1091407"
+      }
+    },
+    {
+      "before": {
+        "id": "frontend_api:frontend/features/whatsapp/api/broadcast-recipients.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/whatsapp/api/broadcast-recipients.api.ts",
+        "contract_sha256": "1b4ed70bce7a9ee68026ca5593eaeae965297732e9ca300672d9986215d97918"
+      },
+      "after": {
+        "id": "frontend_api:frontend/features/whatsapp/api/broadcast-recipients.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/whatsapp/api/broadcast-recipients.api.ts",
+        "contract_sha256": "e67785eb5d88dc61814f00db3a4c315233d877b3d198b69c3a540d65a1abed2f"
+      }
+    },
+    {
+      "before": {
+        "id": "frontend_api:frontend/lib/api/client.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/lib/api/client.ts",
+        "contract_sha256": "ba4e64dfc7cddfc14fbfc7ef60cd8c8cb696ab129e29488e58ed47afc196751e"
+      },
+      "after": {
+        "id": "frontend_api:frontend/lib/api/client.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/lib/api/client.ts",
+        "contract_sha256": "2f35b7c6365220ec34ddff14961818aa681eae3596d95ad14489737ac60a36e6"
+      }
+    },
+    {
+      "before": {
+        "id": "frontend_api:frontend/lib/api/endpoints.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/lib/api/endpoints.ts",
+        "contract_sha256": "b866e2fefa8285e40bfe081a801b0dc52894bedd1b19124e1dd831f7a99baf39"
+      },
+      "after": {
+        "id": "frontend_api:frontend/lib/api/endpoints.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/lib/api/endpoints.ts",
+        "contract_sha256": "8275d6762f2e00750e2ae20d94c1d7e82bc7991ee3b657277db1e3bea261ec41"
+      }
+    },
+    {
+      "before": {
+        "id": "frontend_api:frontend/lib/api/streamed-download.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/lib/api/streamed-download.ts",
+        "contract_sha256": "69612a10ceb95d5762c7f0626672b1dd3290a06c93e76bccb7925091740358a0"
+      },
+      "after": {
+        "id": "frontend_api:frontend/lib/api/streamed-download.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/lib/api/streamed-download.ts",
+        "contract_sha256": "c9b1615e5015de8426afaa5496168b00d8a61c2d36ccae4857f85fce2a52dbce"
+      }
+    }
+  ],
+  "rationale_only_correction": {
+    "id": "frontend:frontend/lib/api/request-owner.ts:capturePrivateOperationOwner",
+    "before": "Reviewed initiating-actor capture across private async steps. It returns existing owner-bound request metadata and a mismatch assertion, grants no identity/tenant/role/server authority and leaves business authorization to existing routes. It does not claim role/agency continuity.",
+    "after": "Reviewed initiating-actor capture across private async steps. It captures the existing actor/role/agency tuple and rejects mismatches, grants no identity, tenant, role or server authority, and leaves business authorization to existing routes."
+  },
+  "all_surviving_classifications_phases_permissions_adapter_fields_preserved": true,
+  "reviewed_rows_before": 1947,
+  "reviewed_rows_after": 1933,
+  "discovered_rows": 1933,
+  "classification_errors": [],
+  "matrix_sha256": "001d8daf66913eea250b79c8d293cb47c5986403328d30ab8d137f2a4a8cd2eb"
+}

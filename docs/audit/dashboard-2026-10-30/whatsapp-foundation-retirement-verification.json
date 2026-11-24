@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "status": "frozen; exact closed prototype archived with current obligation qualification",
+  "manifest": "whatsapp-foundation-retirement-manifest.json",
+  "manifest_schema": "schema_version1; files[].path/original_path original maintained backend path; archive_path exact ignored local destination; sha256/archive_sha256 identical original SHA256; status=retired, bytes, physical_lines, review_scope=full. Ingest only these5 exact paths; no directory wildcard.",
+  "proof": "whatsapp-foundation-retirement-proof.json",
+  "source_ledger": "whatsapp-foundation-retirement-reviewed-files.json",
+  "original_runtime_files": 5,
+  "original_runtime_lines": 255,
+  "original_runtime_bytes": 8017,
+  "archive_hashes_verified": true,
+  "retained_whatsapp_source_controls": 139,
+  "retained_controls_unchanged": true,
+  "old_cap_floor_config_changes": [],
+  "checks": [
+    {
+      "name": "Existing prototype/message baseline",
+      "result": "9/9pass",
+      "raw": ".tmp/whatsapp-foundation/baseline-tests.txt"
+    },
+    {
+      "name": "Retired scaffold/current resolver affected test",
+      "result": "9/9pass",
+      "raw": ".tmp/whatsapp-foundation/after-tests.txt",
+      "exact_after_test_sha256": "a1cce6b5918b492251d960c4740f6302e316e79be0f3a6406ee7a9edfea2307d",
+      "later_formatter": "Current test whole-module AST exactly identical; pre-existing wrapping/EOL corrected only. No behavior test rerun for formatting."
+    },
+    {
+      "name": "Ruff check changed test",
+      "result": "pass; no fixes"
+    },
+    {
+      "name": "Ruff formatting",
+      "result": "Pre-existing baseline and pre-format after both failed same unchanged wrap/EOL; existing pinned Ruff formatter applied, whole module AST equivalence verified. Final pinned Ruff format --check passed (1 file already formatted)."
+    },
+    {
+      "name": "Whole maintained caller closure",
+      "result": "zero remaining runtime/test/tooling/metadata consumers; generated caches/audit/archive excluded deliberately",
+      "raw": ".tmp/whatsapp-foundation/current-maintained-closure.txt"
+    },
+    {
+      "name": "MCP compatibility",
+      "result": "ai_extraction actual discoverer +current matrix found zero identities for all5 paths; no MCP retirement required"
+    }
+  ],
+  "preserved_obligations": {
+    "untouched_message_tests": 8,
+    "whole_other_module_ast_exact": true,
+    "mapped_expected_values": [
+      "approved_welcome",
+      "approved_passport",
+      "en_US",
+      "en_US"
+    ],
+    "real_current_owners": [
+      "TemplateSettingsSnapshot.name",
+      "template_language"
+    ]
+  },
+  "runtime_boundary": "Only5 unreachable app source files retired. Actual WhatsApp resolver/settings/provider/billing/API schemas/source-sync/worker paths remain byte-identical; no migration/env/release/VPS setup change.",
+  "limits": [
+    "No live provider sends, service-dependent database/worker tests, production build/browser or VPS execution performed for this local source cleanup.",
+    "Static graphs alone do not establish arbitrary reflective Python closure; fixed dynamic registry/entrypoint/config and whole maintained symbol/module traces supplement them.",
+    "Original read-only DTO/interface conclusion/proposal receipts remain historical; DT01 is now resolved only by this new retirement proof."
+  ]
+}

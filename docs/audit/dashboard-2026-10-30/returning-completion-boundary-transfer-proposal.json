@@ -1,0 +1,38 @@
+{
+  "architecture_source_sha256": "b08e5358d637c79ac89d84fca765fa476a6669bc460a72766d1af64c880be2e6",
+  "source_sha256": "9860abbdfe7144b1f66005a410c86c5738264e72a3ced079be405268e35e6ea8",
+  "existing_row": "app/application/travellers/completion.py",
+  "existing_row_unchanged": {
+    "owner": "repository maintainers",
+    "review_by": "2026-12-31",
+    "reason": "One live authorized grant/person/group transaction validates the displayed review digest, questions and optional exact owned extraction before idempotent trip snapshot publication. Scoped participation/source/event models and shared platform requirements preserve prior trips; the canonical trip-local-date predicate permits the reviewed phone binding only on the current or future snapshot after real confirmation, without an extra read or document download.",
+    "imports": [
+      "app.infrastructure.database.models",
+      "app.infrastructure.database.models.PassportSubmissionModel",
+      "app.infrastructure.database.traveller_reuse_models",
+      "app.infrastructure.database.traveller_reuse_models.TravellerChangeEventModel",
+      "app.infrastructure.database.traveller_reuse_models.TravellerParticipationModel",
+      "app.infrastructure.repositories.coordinator_assignment_lifecycle",
+      "app.infrastructure.repositories.coordinator_assignment_lifecycle.current_trip_clause",
+      "app.infrastructure.repositories.platform_policy_repository",
+      "app.infrastructure.repositories.platform_policy_repository.PlatformPolicyRepository"
+    ]
+  },
+  "new_row_path": "app/application/travellers/completion_source.py",
+  "new_row": {
+    "owner": "repository maintainers",
+    "review_by": "2026-12-31",
+    "reason": "One live authorized grant/person/group transaction validates the displayed review digest, questions and optional exact owned extraction before idempotent trip snapshot publication. Scoped participation/source/event models and shared platform requirements preserve prior trips; the canonical trip-local-date predicate permits the reviewed phone binding only on the current or future snapshot after real confirmation, without an extra read or document download.",
+    "imports": [
+      "app.infrastructure.database.models",
+      "app.infrastructure.database.models.PassportSubmissionModel",
+      "app.infrastructure.database.traveller_reuse_models",
+      "app.infrastructure.database.traveller_reuse_models.TravellerParticipationModel",
+      "app.infrastructure.repositories.coordinator_assignment_lifecycle",
+      "app.infrastructure.repositories.coordinator_assignment_lifecycle.current_trip_clause"
+    ]
+  },
+  "strict_original_import_subset": true,
+  "all_other_policy_values_must_remain_exact": true,
+  "scope": "Only original source-row lock/historical and review-state protections moved to one purpose-specific application transaction helper. Original request/parent transaction/authority/publication unchanged; no generic exemption."
+}

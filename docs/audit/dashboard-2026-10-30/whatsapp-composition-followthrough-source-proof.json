@@ -1,0 +1,45 @@
+{
+  "saved_snapshot_original_declarations": [
+    "BulkResendEdits",
+    "SavedResendSnapshot",
+    "validate_bulk_resend_edits",
+    "resolve_saved_resend_snapshot"
+  ],
+  "all_preexisting_saved_composer_declarations_except_expanded_resolve_whole_ast_exact": true,
+  "complete_saved_snapshot_expanded_ast_exact": true,
+  "complete_selected_preview_expanded_ast_exact": true,
+  "all_seven_support_functions_whole_ast_exact": [
+    "selection_fingerprint",
+    "recipient_skip_reason",
+    "frozen_resend_log",
+    "expire_stale_explicit_claims",
+    "selection_delivery_maps",
+    "build_response",
+    "refresh_batch_response"
+  ],
+  "all_original_scope_authority_query_readonly_lock_false_order_selection_policy_template_private_link_header_response_and_error_statements": "Exact",
+  "new_data_fields": {
+    "BulkPreviewSelection": [
+      "group",
+      "recipients",
+      "by_id"
+    ],
+    "BulkPreviewSnapshots": [
+      "snapshots",
+      "reasons"
+    ]
+  },
+  "archived_before": {
+    "whatsapp_bulk_resend_composer.py": "ab61255d40c486c7ffa28aaa3fee83d6cb8c1fba4c35cbb2eccc6d55a922ea3d",
+    "whatsapp_bulk_resend_preview.py": "d9067315f2a5848aade12faade1a07420199244c30c3e517fd09253bd28b4a44",
+    "whatsapp_bulk_resend_support.py": "d4ecbe74c00180af07966d9018e0b12e922df57cd7660ebc1bc4881248b0e4a6"
+  },
+  "current": {
+    "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_composer.py": "c0092665a99fceef9dc464469c84a33ca89609b8d2f75304db6c2ae8ba8ebe78",
+    "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_preview.py": "a31bbf1e65f3ab58f5509bec48b2b9daf7c8cc45df5b6fad2cc1043ddffbfe6b",
+    "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_preview_values.py": "22578dd2b40732b222d39ff358deb09db16ea062fe07fda967ef5f62c509e213",
+    "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_support.py": "5e5005c5e9363de6f38e795d4d19c4640623eae3ff403ad36df49fab6bc6b326",
+    "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_history.py": "7aa092010e4484daa6acfe2952c3d23b0c1869d3418e6befdbcdc94d75863f9c",
+    "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_results.py": "a51ac1a8e56e844051c652837d464d763413ba43aa457ece15af57960dee1430"
+  }
+}

@@ -71,6 +71,7 @@ from app.infrastructure.storage.minio_repository import MinioStorageRepository
 from app.presentation.api.v1.routes.tour_operations import (
     _insert_canonical_attendance_record,
 )
+from tests.postgresql_connection import service_test_url as _postgres_url
 
 pytestmark = [
     pytest.mark.service_integration,
@@ -79,16 +80,6 @@ pytestmark = [
         reason="requires the isolated enterprise service-integration stack",
     ),
 ]
-
-
-def _postgres_url() -> str:
-    return (
-        "postgresql+asyncpg://"
-        f"{os.environ['POSTGRES_USER']}:{os.environ['POSTGRES_PASSWORD']}@"
-        f"{os.environ.get('POSTGRES_HOST', 'localhost')}:"
-        f"{os.environ.get('POSTGRES_PORT', '5432')}/"
-        f"{os.environ['POSTGRES_DB']}"
-    )
 
 
 @pytest.mark.asyncio

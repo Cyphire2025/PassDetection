@@ -1,0 +1,138 @@
+FF                                                                       [100%]
+================================== FAILURES ===================================
+_ test_rollback_failure_still_discards_the_owned_staged_object[CancelledError] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000016BB68D3950>
+rollback_error = <class 'asyncio.exceptions.CancelledError'>
+
+    @pytest.mark.parametrize("rollback_error", [asyncio.CancelledError, RuntimeError])
+    async def test_rollback_failure_still_discards_the_owned_staged_object(monkeypatch, rollback_error):
+        access_id, agency_id, group_id = uuid.uuid4(), uuid.uuid4(), uuid.uuid4()
+        initial = SimpleNamespace(id=access_id, agency_id=agency_id, group_id=group_id, revision=4)
+        changed = SimpleNamespace(id=access_id, agency_id=agency_id, group_id=group_id, revision=5)
+        group = SimpleNamespace(status="active")
+        storage = SimpleNamespace(delete_files=AsyncMock())
+        staged = gc_app_content._StagedCommonDocument(
+            document_id=uuid.uuid4(),
+            logical_document_id=uuid.uuid4(),
+            storage_key="gc-app/synthetic/isolated.pdf",
+            safe_filename="synthetic.pdf",
+            media_type="application/pdf",
+            byte_size=16,
+            checksum_sha256="a" * 64,
+            storage=storage,
+        )
+        session = MagicMock()
+        session.rollback = AsyncMock(
+            side_effect=[None, rollback_error("Synthetic rollback interruption")]
+        )
+        monkeypatch.setattr(
+            gc_app_content,
+            "_admin_access_context",
+            AsyncMock(side_effect=[(initial, group), (changed, group)]),
+        )
+        monkeypatch.setattr(gc_app_content, "_stage_common_document", AsyncMock(return_value=staged))
+        with pytest.raises(rollback_error):
+            await gc_app_content._store_common_document_version(
+                session,
+                request=Request({"type": "http", "headers": []}),
+                current_user=SimpleNamespace(id=uuid.uuid4()),
+                group_id=group_id,
+                agency_id=agency_id,
+                expected_access_revision=4,
+                file=MagicMock(),
+                category="travel_tips",
+                display_name="Synthetic",
+                offline_available=True,
+            )
+>       storage.delete_files.assert_awaited_once_with([staged.storage_key])
+
+tests\unit\presentation\test_gc_common_document_native_cancellation.py:130: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <AsyncMock id='1562007425552'>
+args = (['gc-app/synthetic/isolated.pdf'],), kwargs = {}
+msg = 'Expected mock to have been awaited once. Awaited 0 times.'
+
+    def assert_awaited_once_with(self, /, *args, **kwargs):
+        """
+        Assert that the mock was awaited exactly once and with the specified
+        arguments.
+        """
+        if not self.await_count == 1:
+            msg = (f"Expected {self._mock_name or 'mock'} to have been awaited once."
+                   f" Awaited {self.await_count} times.")
+>           raise AssertionError(msg)
+E           AssertionError: Expected mock to have been awaited once. Awaited 0 times.
+
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\unittest\mock.py:2311: AssertionError
+_ test_rollback_failure_still_discards_the_owned_staged_object[RuntimeError] __
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000016BB688E750>
+rollback_error = <class 'RuntimeError'>
+
+    @pytest.mark.parametrize("rollback_error", [asyncio.CancelledError, RuntimeError])
+    async def test_rollback_failure_still_discards_the_owned_staged_object(monkeypatch, rollback_error):
+        access_id, agency_id, group_id = uuid.uuid4(), uuid.uuid4(), uuid.uuid4()
+        initial = SimpleNamespace(id=access_id, agency_id=agency_id, group_id=group_id, revision=4)
+        changed = SimpleNamespace(id=access_id, agency_id=agency_id, group_id=group_id, revision=5)
+        group = SimpleNamespace(status="active")
+        storage = SimpleNamespace(delete_files=AsyncMock())
+        staged = gc_app_content._StagedCommonDocument(
+            document_id=uuid.uuid4(),
+            logical_document_id=uuid.uuid4(),
+            storage_key="gc-app/synthetic/isolated.pdf",
+            safe_filename="synthetic.pdf",
+            media_type="application/pdf",
+            byte_size=16,
+            checksum_sha256="a" * 64,
+            storage=storage,
+        )
+        session = MagicMock()
+        session.rollback = AsyncMock(
+            side_effect=[None, rollback_error("Synthetic rollback interruption")]
+        )
+        monkeypatch.setattr(
+            gc_app_content,
+            "_admin_access_context",
+            AsyncMock(side_effect=[(initial, group), (changed, group)]),
+        )
+        monkeypatch.setattr(gc_app_content, "_stage_common_document", AsyncMock(return_value=staged))
+        with pytest.raises(rollback_error):
+            await gc_app_content._store_common_document_version(
+                session,
+                request=Request({"type": "http", "headers": []}),
+                current_user=SimpleNamespace(id=uuid.uuid4()),
+                group_id=group_id,
+                agency_id=agency_id,
+                expected_access_revision=4,
+                file=MagicMock(),
+                category="travel_tips",
+                display_name="Synthetic",
+                offline_available=True,
+            )
+>       storage.delete_files.assert_awaited_once_with([staged.storage_key])
+
+tests\unit\presentation\test_gc_common_document_native_cancellation.py:130: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <AsyncMock id='1562135535888'>
+args = (['gc-app/synthetic/isolated.pdf'],), kwargs = {}
+msg = 'Expected mock to have been awaited once. Awaited 0 times.'
+
+    def assert_awaited_once_with(self, /, *args, **kwargs):
+        """
+        Assert that the mock was awaited exactly once and with the specified
+        arguments.
+        """
+        if not self.await_count == 1:
+            msg = (f"Expected {self._mock_name or 'mock'} to have been awaited once."
+                   f" Awaited {self.await_count} times.")
+>           raise AssertionError(msg)
+E           AssertionError: Expected mock to have been awaited once. Awaited 0 times.
+
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\unittest\mock.py:2311: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/unit/presentation/test_gc_common_document_native_cancellation.py::test_rollback_failure_still_discards_the_owned_staged_object[CancelledError]
+FAILED tests/unit/presentation/test_gc_common_document_native_cancellation.py::test_rollback_failure_still_discards_the_owned_staged_object[RuntimeError]
+2 failed, 2 deselected in 0.72s

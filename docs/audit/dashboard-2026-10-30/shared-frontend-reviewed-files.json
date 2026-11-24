@@ -1,0 +1,392 @@
+[
+  {
+    "path": "frontend/lib/api/api-error-detail.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "26fc47c586fdbbebeaafe7a7471a508d13c3bd1df1301f3ae2f25ef7eb6537c3",
+    "notes": "Full23lines: unknown structured-error normalization, optional metadata preservation and type narrowing; no HTML rendering or raw exception logging."
+  },
+  {
+    "path": "frontend/lib/api/client.ts",
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "200a50fbf8734bcf11d4dc6a20539ec9c0411f09bb138c4c466f43d79caee853",
+    "notes": "Full file read: same-origin API routing, typed errors, bounded refresh/step-up retries, public traveller exclusions and sensitive session reset inspected.",
+    "source_reference": "docs/audit/dashboard-2026-10-30/security-reviewed-files.json"
+  },
+  {
+    "path": "frontend/lib/api/download-destination.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "e844a68ae25c85f08791b5785c65cd5d0b8b48791d015fc9a728715c7ea7bd33",
+    "notes": "Full79lines: native save-picker selection during user gesture, safe filename helper, explicit prompt cancellation and compatible fallback; no remote file destination accepted."
+  },
+  {
+    "path": "frontend/lib/api/download-filename.ts",
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "6dc58741eb3d7e9213f288ad8d23e573fdbae1f5a87e341046e7130e56fd59e0",
+    "notes": "Suggested filename removes separators/control characters; sequence preference contains no personal data.",
+    "source_reference": "docs/audit/dashboard-2026-10-30/security-reviewed-files.json"
+  },
+  {
+    "path": "frontend/lib/api/endpoints.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "57ad4343e366fdbd3a72fad1e32fbdff6ef23b2a9008d747187327a6fdf500f6",
+    "notes": "Full474lines in bounded groups: static same-origin API route registry and typed/private image paths; no endpoint or runtime permission removed. Existing raw ID segments rely on scoped callers/backend validation and are not client authorization."
+  },
+  {
+    "path": "frontend/lib/api/error-status.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "059c2e8c3731530b0c5edc0e5e0780dde27f865272827f98b82b84da5c3792b9",
+    "notes": "Full14lines: normalized API errors and raw Axios status compatibility; no mutation or token persistence."
+  },
+  {
+    "path": "frontend/lib/api/retry-after.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "26a297e8c75dd81767fd7e4259241011c9264cb5024b617e88845c256f9f6866",
+    "notes": "Full44lines: seconds/HTTP-date parsing rejects nonfinite values, clamps to15minutes, supports header objects and array values; no unbounded timer or retry amplification."
+  },
+  {
+    "path": "frontend/lib/api/streamed-download.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "4829fc5dc12a741cbe146cad78be3eee1d641a14eb09366c36356a96587864e4",
+    "physical_lines": 301,
+    "notes": "Full current source reread after direct subscription authority refinement. Captured request owner now fences actor/role/agency through picker and body independently of reset bus. Two actual same-id scope changes resolved private2bytes before fix and now abort partialsink; unchanged authority/session renewal succeeds. Existing reset reason, timeouts, bounds, cancellation and subscription cleanup retained. Integration receipt camera-gc-authority-stream-verification.json records55focused tests plus typecheck/lint."
+  },
+  {
+    "path": "frontend/lib/hooks/use-live-history-feed.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "0a2364aa97e094f52c5b22420075a4d07fd015bf7d4616cde73d5bf5f924d2fe",
+    "notes": "Full124lines: independent scoped live head/history keys, abort signals, five history pages, validation/dedup and explicit return-to-latest removal; changing scope does not reuse the previous history cursor."
+  },
+  {
+    "path": "frontend/lib/navigation/application-route.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "d31054b0f03907254c806fd8ce8de52cdbf03e129e65faaa18d42490e8da9738",
+    "notes": "Full24lines: validates same-origin internal routes, rejects double slash/backslash/control whitespace, matches framework route templates and strips dynamic identifiers for reporting."
+  },
+  {
+    "path": "frontend/lib/observability/render-errors.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "b887eddf549f6531e5996af7bfb23a2e40ecd220a921b0ad098ea96c94b9138c",
+    "notes": "Full71lines: public route-template/release/error-kind metadata only, excludes exception messages/stacks/query/PII, ten-report cap, dedup,3s abort, no cookies/referrer and receipt validation."
+  },
+  {
+    "path": "frontend/lib/observability/use-render-error-report.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "ffbed588fb07b49c97f9fc2248e1c7c4e7212738475789d9bef494bfe79e9f21",
+    "notes": "Full16lines: stale/unmounted report responses ignored through active flag; state limited to validated support reference."
+  },
+  {
+    "path": "frontend/lib/utils/clipboard.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "fixed",
+    "sha256": "ac1e0e7d9e98c93aa12a39a3908c939ea78939ae1c7939d7956e8deabe9458fd",
+    "notes": "Full baseline/final: fixed hidden-textarea retention when legacy execCommand throws by unconditional finally removal; preserves both rejected-copy and thrown browser failure."
+  },
+  {
+    "path": "frontend/lib/utils/cn.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "d789f02e28dfdbf975cb2611be111df83a469c7556bb59bead763fee1dea5e90",
+    "notes": "Full15lines: pure clsx plus tailwind-merge helper; no side effects."
+  },
+  {
+    "path": "frontend/lib/utils/coordinator-device-id.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "0e2c221dffbc7c35b00c808994faeb71ea799f7cd9d8ac8ba0e7877128680631",
+    "notes": "Full21lines: nonauthorization correlation ID, stable per-tab fallback under blocked localStorage, no secrets."
+  },
+  {
+    "path": "frontend/lib/utils/format.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "78300eccb6fdc1e60c5afe2ed9158e8a930537a5e70f53fbe90261a12893ad34",
+    "notes": "Full91lines: pure date/relative/confidence/byte/truncation formatting; no mutation or private-data storage. Dates are expected from validated API values; this review did not broaden malformed-date semantics."
+  },
+  {
+    "path": "frontend/lib/utils/index.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "5a833877944d1f43f33fa4133fabe138c489abe7e0b229b1c612b951f6d816e2",
+    "notes": "Full5lines: utility re-export barrel only; runtime reachability remains separate from physical review."
+  },
+  {
+    "path": "frontend/lib/utils/passport-country.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "fixed",
+    "sha256": "b68e4156468bc96020cee88e7f76862d28114213eaf8513b0232e6ba8f45fdcb",
+    "notes": "Full90lines: corrected malformed four-character XKXK table entry that produced invalid one-letter K option; now preserves the intended three/two-letter code shapes. Existing tests now validate every selectable code length."
+  },
+  {
+    "path": "frontend/lib/utils/passport-date.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "f8433547cfd5376fce1786d375972335a29c31c9df74971a7184c25d3e34d00f",
+    "notes": "Full67lines: real UTC calendar validation1900..2200, reversible display parsing, bounded digit mask and lexical ISO range checks; shared detail workflow behavior preserved."
+  },
+  {
+    "path": "frontend/lib/utils/passport-fields.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "88ac1c5696d456b0e91f2b568bc559010b68eaff02d1451bec21e954fbccf9f5",
+    "notes": "Full13lines: accepts only text field values from typed optional source; no coercion/HTML rendering."
+  },
+  {
+    "path": "frontend/lib/utils/phone-number.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "a5987abd3d267d63f70e55b05297451257f7f97b20658115739908d29985d6f5",
+    "notes": "Full14lines: bounded input/character grammar, canonical prefix/length handling, explicit statement membership cannot be checked client-side."
+  },
+  {
+    "path": "frontend/lib/utils/public-url.ts",
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "cb80bfc54539c447e3dbc284f77e92fe3e44ecc1cbd92e381bb327c6b2fa851c",
+    "notes": "Full file read: configured share-link origin selection and loopback handling inspected. Actual VPS/domain environment matrix was not exercised.",
+    "source_reference": "docs/audit/dashboard-2026-10-30/security-reviewed-files.json"
+  },
+  {
+    "path": "frontend/lib/utils/role-access.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "90af3b11187f38a2a4d14c10cca295e02412b3a20e2f5e5fd69e20a2720358f9",
+    "notes": "Full69lines: explicit role sets and capability-driven GC App gate with authoritative present array and inactive-user checks; backend authorization remains required."
+  },
+  {
+    "path": "frontend/stores/auth.store.ts",
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "abc861c8200b3006861d01457454d6e8b705e029fe8331522f4c94660516f17a",
+    "notes": "In-memory authority only, version fencing and queue-safe signout boundary; backend remains authoritative.",
+    "source_reference": "docs/audit/dashboard-2026-10-30/security-reviewed-files.json"
+  },
+  {
+    "path": "frontend/stores/ui.store.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "d0e367614659fc9485f51124d8130f912cbe11d12de6e419c983b46fab2a2c1a",
+    "notes": "Full42lines: ephemeral UI-only booleans and selectors, no persisted/private state; graph-candidate status does not change this read coverage."
+  },
+  {
+    "path": "frontend/providers/query-provider.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "b0aa9b4ce63f48646c4620483ac892e6564906f3e256ad671e93752af92a9040",
+    "notes": "Full70lines: per-provider client, bounded retries/backoff/gc, no mutation retries, client/auth/rate-limit failures fail immediately; devtools development-only."
+  },
+  {
+    "path": "frontend/providers/session-lifecycle.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "0b7250386cdbfd7875aa5ece83ba023490fabfb3465b23cd0005d69d7066005d",
+    "notes": "Full132lines: same-flight/throttle/generation handling, access-change skip, offline/wake recovery, sensitive-reset cancel/clear, all listeners/intervals cleaned. Mutation replay remains the existing explicitly initiated paused-mutation behavior."
+  },
+  {
+    "path": "frontend/components/ui/badge.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "018aee65296227e827011aaa8e858246288e84459edf24106f9d6a9febc40b23",
+    "notes": "Full52lines: escaped text, static variants, decorative dot hidden from assistive technology; no interactive workflow."
+  },
+  {
+    "path": "frontend/components/ui/button.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "e8ab155e3f6446bfe5ec4b24287b82f4288f000b08731d11f8e8eb08993d0ea4",
+    "notes": "Full84lines: native button props/ref, loading disables interaction, focus-visible ring and hidden decorative spinner; existing native form type semantics preserved."
+  },
+  {
+    "path": "frontend/components/ui/card.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "a88aa500f9f886d03fd738bed43c544c851ec78727cecfe12fae38dede23a338",
+    "notes": "Full64lines: typed ref-forwarded structural surfaces and workspace transparency marker; no private-data or event logic."
+  },
+  {
+    "path": "frontend/components/ui/index.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "a91b81cc7813d4d14078a959cea24988e97e6b5b1a1bccab158b2b7ab67ac98f",
+    "notes": "Full29lines: explicit UI and type re-export surface; no independent side effects."
+  },
+  {
+    "path": "frontend/components/ui/input.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "fixed",
+    "sha256": "9a1dabb59a62de6e62c605f5f4901812504b40dec525afd033f9650651e90e49",
+    "notes": "Full baseline/final79lines: fixed custom aria-describedby replacing generated errors and hidden-hint references. Merges external descriptions with only the rendered error/hint, retaining labels/ref/required/input props."
+  },
+  {
+    "path": "frontend/components/ui/liquid-sculpture/engine.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "fixed",
+    "sha256": "8121b00c1f7c7bb5b001a0ffe1a19c4458bb255f67b9feaf1803183f61ca9ebf",
+    "notes": "Full original702lines plus final constructor guard in bounded sections: static-image WebGL2 renderer, clamped density/DPR/resolution, low-power detection, bounded animation cadence, offscreen/context-loss/reduced-motion handling and explicit GPU/RAF cleanup reviewed. No user shader/private image input. Large renderer remains decomposition/per-device-performance follow-up; no benchmark claim. Narrow resource fix: constructor failure releases its created WebGL context where supported, then rethrows; one fault-injection regression passes."
+  },
+  {
+    "path": "frontend/components/ui/liquid-sculpture/shaders.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "790055928b2de66f25bb196f9b6c0a3454a933c77edb2f0d2b73cda233ad0239",
+    "notes": "Full279lines including all shader strings: repository-constant noise/flow/simulation/particle/image passes, no runtime text/user input interpolation or external resources."
+  },
+  {
+    "path": "frontend/components/ui/liquid-sculpture/types.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "e1861d466b971ad0267d91e93c7faa128e5da259497d239d25b036e555cc6b8b",
+    "notes": "Full28lines: engine-only typed options/rect and numeric clamp."
+  },
+  {
+    "path": "frontend/components/ui/liquid-sculpture-hero.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "93db34394eba3ec6c1ee0108e939ae34f705a211da89cee7a90e064ac76b7769",
+    "notes": "Full117lines: controlled local assets, stale image-request guard, motion/mobile/visibility/intersection/resize handling, fallback image and observer/listener/engine/canvas cleanup reviewed. No private media optimizer changes."
+  },
+  {
+    "path": "frontend/components/ui/modal-focus-return.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "fecf7f9176adde2b0ef3e96030c1a8c865c5fc22d70f1f43d1422a7783c42a08",
+    "notes": "Full32lines: pointer/keyboard return-target tracker with disconnected-target check and listener cleanup; no retained credentials."
+  },
+  {
+    "path": "frontend/components/ui/modal-keyboard-boundary.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "fixed",
+    "sha256": "5e0bc3f3a5c5618470efaf6b63cc328201974323a01eff21ad2a2251a29d2f1f",
+    "notes": "Full baseline/final: nested top-dialog ordering, inert restoration, hidden/disabled focus exclusion, Escape/Tab containment, body scroll locking and fallback return. Added optional stable explicit return-target resolver so drawer preserves its existing header-trigger restoration even when initially mounted open."
+  },
+  {
+    "path": "frontend/components/ui/modal.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "76b2728d3ca9a69365b9ad33111fe4f9273b52a2aba92089cfe25f6bf64559df",
+    "notes": "Full178lines: labeled descriptions, safe initial cancel/input focus, busy close guards and shared boundary; pending/destructive confirmation semantics unchanged."
+  },
+  {
+    "path": "frontend/components/ui/password-input.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "4ee37bf64fe5363901ebfe0fc1745db68aca2f78abfa3aec300120d43befdf3a",
+    "notes": "Full27lines: explicit non-submit reveal button with accessible label and existing input props/autocomplete; no value persistence."
+  },
+  {
+    "path": "frontend/components/ui/separator.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "6205efa96a1e5eacddca369cd03c655acbeb032f14a82c4ef4cb7002459dee26",
+    "notes": "Full23lines: native decorative/structural horizontal rule and static orientation styling."
+  },
+  {
+    "path": "frontend/components/ui/skeleton.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "279de41cc306626628dc96e32c3ac44e8b48a9fe0d91f8bb092c46bb264c715a",
+    "notes": "Full16lines: decorative aria-hidden loading surface and scoped workspace transparency marker."
+  },
+  {
+    "path": "frontend/components/layout/dashboard-shell.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "8cfa5c19d281fa54d29d7fbafef936919cd1ad994a25a87a96673ad91f59385e",
+    "notes": "Full63lines: preferences hydration, responsive drawer close listener cleanup, fixed shell and one bounded main scroll pane; branding right-pane sizing remains compatible."
+  },
+  {
+    "path": "frontend/components/layout/header.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "fdfbf41c1bd8e91a818c2af3b9612e2b09a24ef18d65a36153804e72af6ba5ad",
+    "notes": "Full100lines: session-derived user display, accessible drawer/logout controls, route section label, global search and notification hosts; role changes/authorization delegated to existing providers/hooks."
+  },
+  {
+    "path": "frontend/components/layout/index.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "d5fd3c8e9531e6825bd4f33e325ff05bf9f11ea3a35c8fa1866e16ddaed9b5b7",
+    "notes": "Full5lines: layout re-export barrel only."
+  },
+  {
+    "path": "frontend/components/layout/mobile-navigation.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "fixed",
+    "sha256": "bc7a32a808a2a21c93f00c202d0d8a8f0f5f6458bccb4ca96facc7705226bfae",
+    "notes": "Full baseline103/final53lines: replaced partial duplicate trap with shared keyboard boundary. Background inert/focus containment, Tab/Escape, nested dialog stack, route-close, body scroll lock and explicit header-trigger return covered by existing/new regressions."
+  },
+  {
+    "path": "frontend/components/layout/sidebar.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "08d6b5f3810246c557686a5ce4f529d61b008bb089178816860a3f933399434d",
+    "notes": "Full196lines: existing capability-filtered links, exact/prefix active markers, collapsed accessible names, keyboard logo toggle, responsive scroll and route close callback preserved."
+  },
+  {
+    "path": "frontend/hooks/use-private-mutation.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "0e282bc7638a1c404fd07936d5e267f05cdb9d4a66c25cb1e4074f9232820250",
+    "physical_lines": 113,
+    "notes": "Full113-line shared hook authored/read. Captures initiating actor at actual mutate/mutateAsync invocation, before global/local TanStack onMutate awaits; internal envelope keeps concurrent actors separate, expected-owner requestConfig available to transport. Original variables/context, local/per-call success/error/settled, status/reset retained. Eight real hook tests plus actual GC/MCP deferred-start regressions; stale callbacks suppressed. Global MutationCache callbacks see internal envelope; production QueryProvider defines none."
+  }
+]

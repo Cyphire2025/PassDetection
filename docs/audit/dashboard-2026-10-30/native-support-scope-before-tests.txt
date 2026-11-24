@@ -1,0 +1,45 @@
+..............................................FFFFF..................... [ 67%]
+...................................                                      [100%]
+================================== FAILURES ===================================
+_ test_native_support_scope_is_explicit_and_keeps_dashboard_tooling[.github/workflows/mobile-ci.yml] _
+tests\unit\scripts\test_dashboard_audit_scope.py:329: in test_native_support_scope_is_explicit_and_keeps_dashboard_tooling
+    native = inventory.native_app_scope_rules()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\scripts\dashboard_audit_inventory.py:75: in native_app_scope_rules
+    raise ValueError("Native-only scope must contain unique literal relative backend Python paths")
+E   ValueError: Native-only scope must contain unique literal relative backend Python paths
+_ test_native_support_scope_is_explicit_and_keeps_dashboard_tooling[.github/workflows/coordinator-webview-ci.yml] _
+tests\unit\scripts\test_dashboard_audit_scope.py:329: in test_native_support_scope_is_explicit_and_keeps_dashboard_tooling
+    native = inventory.native_app_scope_rules()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\scripts\dashboard_audit_inventory.py:75: in native_app_scope_rules
+    raise ValueError("Native-only scope must contain unique literal relative backend Python paths")
+E   ValueError: Native-only scope must contain unique literal relative backend Python paths
+_ test_native_support_scope_is_explicit_and_keeps_dashboard_tooling[load-tests/k6/mobile-api.js] _
+tests\unit\scripts\test_dashboard_audit_scope.py:329: in test_native_support_scope_is_explicit_and_keeps_dashboard_tooling
+    native = inventory.native_app_scope_rules()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\scripts\dashboard_audit_inventory.py:75: in native_app_scope_rules
+    raise ValueError("Native-only scope must contain unique literal relative backend Python paths")
+E   ValueError: Native-only scope must contain unique literal relative backend Python paths
+_ test_native_support_scope_is_explicit_and_keeps_dashboard_tooling[load-tests/k6/mobile-attendance.js] _
+tests\unit\scripts\test_dashboard_audit_scope.py:329: in test_native_support_scope_is_explicit_and_keeps_dashboard_tooling
+    native = inventory.native_app_scope_rules()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\scripts\dashboard_audit_inventory.py:75: in native_app_scope_rules
+    raise ValueError("Native-only scope must contain unique literal relative backend Python paths")
+E   ValueError: Native-only scope must contain unique literal relative backend Python paths
+_ test_native_support_scope_is_explicit_and_keeps_dashboard_tooling[load-tests/k6/mobile-realtime.js] _
+tests\unit\scripts\test_dashboard_audit_scope.py:329: in test_native_support_scope_is_explicit_and_keeps_dashboard_tooling
+    native = inventory.native_app_scope_rules()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\scripts\dashboard_audit_inventory.py:75: in native_app_scope_rules
+    raise ValueError("Native-only scope must contain unique literal relative backend Python paths")
+E   ValueError: Native-only scope must contain unique literal relative backend Python paths
+=========================== short test summary info ===========================
+FAILED tests/unit/scripts/test_dashboard_audit_scope.py::test_native_support_scope_is_explicit_and_keeps_dashboard_tooling[.github/workflows/mobile-ci.yml]
+FAILED tests/unit/scripts/test_dashboard_audit_scope.py::test_native_support_scope_is_explicit_and_keeps_dashboard_tooling[.github/workflows/coordinator-webview-ci.yml]
+FAILED tests/unit/scripts/test_dashboard_audit_scope.py::test_native_support_scope_is_explicit_and_keeps_dashboard_tooling[load-tests/k6/mobile-api.js]
+FAILED tests/unit/scripts/test_dashboard_audit_scope.py::test_native_support_scope_is_explicit_and_keeps_dashboard_tooling[load-tests/k6/mobile-attendance.js]
+FAILED tests/unit/scripts/test_dashboard_audit_scope.py::test_native_support_scope_is_explicit_and_keeps_dashboard_tooling[load-tests/k6/mobile-realtime.js]
+5 failed, 102 passed in 2.77s

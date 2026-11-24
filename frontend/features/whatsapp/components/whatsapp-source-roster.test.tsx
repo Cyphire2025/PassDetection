@@ -1,10 +1,7 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
-import type { WhatsAppBroadcastGroup } from "../api/whatsapp.api";
-import type { WhatsAppBroadcastSourceContacts, WhatsAppSourceContact } from "../api/whatsapp-source-groups.api";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
+import type { WhatsAppSourceContact } from "../api/whatsapp-source-groups.api";
 import { SourceContactTable } from "./whatsapp-source-contact-table";
-import { SourceRosterPanel } from "./whatsapp-source-roster-panel";
-import { WhatsAppBroadcastList } from "./whatsapp-broadcast-list";
 
 function contact(id: number): WhatsAppSourceContact {
   return { source_submission_id: `submission-${id}`, name: `Traveller ${String(id).padStart(3, "0")}`, phone_number: `+91999999${String(id).padStart(4, "0")}`, normalized_phone_number: `+91999999${String(id).padStart(4, "0")}`, issue: null, imported_fields: {} };
@@ -36,35 +33,4 @@ describe("source traveller roster", () => {
     expect(screen.getByRole("navigation", { name: "Traveller list pagination" })).toHaveTextContent("1–1 of 1");
   });
 
-  it("marks import-only sources and keeps traveller counts separate from delivery numbers", () => {
-    const data: WhatsAppBroadcastSourceContacts = {
-      sources: [{ id: "source-a", name: "Imported trip", import_only: true }],
-      total_contacts: 377, unique_phone_count: 366, needs_attention_count: 2, shared_phone_count: 9,
-      contacts: [{ ...contact(1), source_group_id: "source-a", source_group_name: "Imported trip", source_import_only: true, recipient_id: "recipient-a" }],
-    };
-    render(<SourceRosterPanel data={data} isLoading={false} isFetching={false} error={null} onRetry={vi.fn()} />);
-    expect(screen.getByRole("link", { name: "Imported trip Import only" })).toHaveAttribute("href", "/passports/groups/source-a");
-    expect(screen.getByText("377")).toBeInTheDocument();
-    expect(screen.getByText("366")).toBeInTheDocument();
-    expect(screen.getByText(/9 additional travellers share/)).toBeInTheDocument();
-    expect(screen.getByText(/2 traveller rows need/)).toBeInTheDocument();
-  });
-
-  it("provides a refresh action after roster loading fails", () => {
-    const retry = vi.fn();
-    render(<SourceRosterPanel data={undefined} isLoading={false} isFetching={false} error={new Error("Source temporarily unavailable")} onRetry={retry} />);
-    expect(screen.getByRole("alert")).toHaveTextContent("Source temporarily unavailable");
-    fireEvent.click(screen.getByRole("button", { name: "Refresh travellers" }));
-    expect(retry).toHaveBeenCalledOnce();
-  });
-
-  it("shows source traveller totals and the import marker on broadcast cards without calling shared numbers exceptions", () => {
-    const group: WhatsAppBroadcastGroup = { id: "broadcast-a", name: "Imported travellers", recipient_count: 366, total_contact_count: 366, source_contact_count: 377, has_import_only_source: true, recipient_opt_in_confirmed: true, created_at: "2026-09-21T00:00:00Z", updated_at: "2026-09-21T00:00:00Z" };
-    render(<WhatsAppBroadcastList groups={[group]} totalCount={1} isLoading={false} renderActions={() => null} onCreate={vi.fn()} />);
-    const row = screen.getByRole("row", { name: /Imported travellers/ });
-    expect(within(row).getByText("Import only")).toBeInTheDocument();
-    expect(within(row).getByText("377 travellers")).toBeInTheDocument();
-    expect(within(row).getByText("366 delivery numbers")).toBeInTheDocument();
-    expect(screen.queryByText(/contact exceptions/)).not.toBeInTheDocument();
-  });
 });

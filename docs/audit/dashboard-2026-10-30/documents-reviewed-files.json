@@ -1,0 +1,373 @@
+[
+  {
+    "path": "frontend/features/documents/api/document-distribution.api.ts",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "390291cc880dd42d5d68c8f223cd67bfc7ce245d116f3f42aa2e76c344b1453b",
+    "notes": "Reviewed all388lines: private authenticated endpoints, receipt-only finalization, bounded verification chunks, selected scope and send-preview tokens retained; no direct arbitrary remote URL fetch added."
+  },
+  {
+    "path": "frontend/features/documents/api/document-rename.api.ts",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "2150cefe7f1a3564eebf0cf02884d840de24c0ceef45c7c5cb4a9c8da8232788",
+    "notes": "Reviewed complete adapter: stable upload IDs/chunk metadata and authenticated routes; obsolete workflow reachability classification is separate from API correctness."
+  },
+  {
+    "path": "frontend/features/documents/api/document-updates.api.ts",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "61ed3307504822ed38aa9403b4456c52a9ac4f159a2d5e59c4457addbde4379e",
+    "notes": "Reviewed complete typed preview/send contracts; preserved request_id and group/type/broadcast scoping. Backend/MCP contracts remain intact."
+  },
+  {
+    "path": "frontend/features/documents/api/ecr-checker.api.ts",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "6b08f38492bd5407b446a096f876d9de373887dddf53ec31433d8a17479f29a3",
+    "notes": "Reviewed complete adapter: bounded upload reporting/timeouts and streamed authenticated export; arbitrary file destinations are not accepted."
+  },
+  {
+    "path": "frontend/features/documents/components/document-broadcast-actions.tsx",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "1ed80a996f9bbaac5ab59bb367157bc5647053e03775e4a8209baa05e639d250",
+    "notes": "Reviewed complete15-line baseline: broadcast action opens document preview directly. Existing browser fixture incorrectly expected a retired chooser; corrected fixture to current workflow."
+  },
+  {
+    "path": "frontend/features/documents/components/document-delivery-activity.tsx",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "4e71206e0f383e1ee7ac7a80462befd7236f680337f12b5bad2926ff1322082e",
+    "notes": "Read complete287lines: group/type-scoped paginated50-row delivery history, abort signals, debounced search and bounded live polling; readonly refresh/action states and accessible progress reviewed. No document URLs stored in new client state."
+  },
+  {
+    "path": "frontend/features/documents/components/document-distribution-landing.tsx",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "a84f4b84b3977e4a2d67b24af439278ab5ae26afa0a6b91c52c1f57607ce82a6",
+    "notes": "Read complete route chooser; typed category navigation, static copy, responsive cards and intentional separate visa/flight journeys retained."
+  },
+  {
+    "path": "frontend/features/documents/components/document-filename-conflict-dialog.tsx",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "c0a1173b398510b7e477b7d77f5e2cc719764705410e921809defb9071be4442",
+    "notes": "Read complete confirmation dialog: stable IDs, safe initial focus, pending escape/close locks and per-file/apply-remaining decisions; no speculative saved mutations."
+  },
+  {
+    "path": "frontend/features/documents/components/document-group-distribution-chooser.tsx",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "03c1e245074942c68bebb556f1cb34e969d4192df2c1310a0f3335f2ba372bfd",
+    "notes": "Read complete group chooser: scoped group lookup, typed lane links and loading/empty states; existing group/category workflows retained."
+  },
+  {
+    "path": "frontend/features/documents/components/document-group-list.test.tsx",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "f7c310c37f9c43b89c6fa72082576a729672f4103c76cf77518f870606335bf5",
+    "notes": "Reviewed complete targeted regression/fixture source; active document download/search/manual assignment and eligibility behavior preserved after removal of welcome-only assertions/builders."
+  },
+  {
+    "path": "frontend/features/documents/components/document-group-list.tsx",
+    "reviewer": "branding_visuals",
+    "status": "fixed",
+    "sha256": "d801b5cc68f93bc63c78c6e4e3f30658275ca4e971c7976afa509a41c8fca40f",
+    "notes": "Read complete252lines; fixed empty base-list branch hiding successful server-backed passenger search results. Added results/empty-search React regressions; existing summary/error notices retained."
+  },
+  {
+    "path": "frontend/features/documents/components/document-hub.tsx",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "9f252af5c08444c7cc05b819558f0aa3f908e4ea53ec63414db8a052b5c42c69",
+    "notes": "Read complete hub and category cards; typed navigation, responsive grid, keyboard links and explanatory capability copy reviewed."
+  },
+  {
+    "path": "frontend/features/documents/components/document-manual-review-dialog.tsx",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "0d8934ec2a9d43fc75171aef5c1790f2bca674940f4d8fc9a6e61538df32260c",
+    "notes": "Read complete165lines: explicit passenger/type approval, in-flight close locks, local PDF blob URLs with cleanup/noopener, batch confirmation and progress maintained."
+  },
+  {
+    "path": "frontend/features/documents/components/document-rename-page.tsx",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "761af2e956de9020ba90c38145f9d5c45631fe8afb4cbbd0d2a06501ac9b7b2e",
+    "notes": "Read complete558lines in bounded sections: resumable upload session/title, results/private download URLs, saved batch selection/delete and classification filters reviewed. Existing module remains over300lines; coherent decomposition is a recorded follow-up, not claimed complete."
+  },
+  {
+    "path": "frontend/features/documents/components/document-upload-panel.tsx",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "1792d6482873cd7660db4f7175a31b923f80e12345fc4bca59af6e6fe4b35e0a",
+    "notes": "Read complete139lines: hidden file input, phase/operation/pending locks, incomplete upload resolution and explicit accepted upload actions reviewed; server validation retained."
+  },
+  {
+    "path": "frontend/features/documents/components/document-workspace-actions.tsx",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "78f2521fde253c26066c41b06031263d8cc96f4c9433d49748c974533360c9d6",
+    "notes": "Complete extracted module reviewed: preserves original workspace state/props/lazy loading and side-effect contracts; focused ownership, scoped abort checks and synchronous check/upload/send admission where applicable. No document matching or delivery rule changed."
+  },
+  {
+    "path": "frontend/features/documents/components/document-workspace-bindings.tsx",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "607bfad72de462d399e0e2a8c0a685d5541ea6e33f8da851f2a7eea5adae39e0",
+    "notes": "Complete extracted module reviewed: preserves original workspace state/props/lazy loading and side-effect contracts; focused ownership, scoped abort checks and synchronous check/upload/send admission where applicable. No document matching or delivery rule changed."
+  },
+  {
+    "path": "frontend/features/documents/components/document-workspace-dialogs.tsx",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "5e01b142c946f29ceda1fd756bf44bd198eceff73be81f065cc4f10dc96a1cb7",
+    "notes": "Read complete547lines: nondestructive initial focus, mutation close locks, preview token/eligibility/resend selection,600-character messages, excluded rows and responsive scroll/footer reviewed. Existing combined dialog module remains over300lines as follow-up."
+  },
+  {
+    "path": "frontend/features/documents/components/document-workspace-header.tsx",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "ad5b072326ef27abf10cef103caeb925f9d959e23cab8728e885a4ba157b5686",
+    "notes": "Complete extracted module reviewed: preserves original workspace state/props/lazy loading and side-effect contracts; focused ownership, scoped abort checks and synchronous check/upload/send admission where applicable. No document matching or delivery rule changed."
+  },
+  {
+    "path": "frontend/features/documents/components/document-workspace-model.ts",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "bd7258ca2acc868f0e417188dc3a3f2fa2624c82eb70c6dbad4f3cda26577a9d",
+    "notes": "Read complete289lines: map/set review derivation and filtering, stable assigned selections, explicit resend intersection, staging receipt and accepted upload selection; no unrelated algorithm rewrites introduced."
+  },
+  {
+    "path": "frontend/features/documents/components/document-workspace-review-controls.tsx",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "c4b34f47dcd6e923a25fc7ba08dceb92b6801d4b300538e0126b22bb545bf4d3",
+    "notes": "Read complete277lines: counts/filters, selection/export/delete/save guards, issue links and incomplete-upload/assignment warnings reviewed. No arbitrary client remote fetch added."
+  },
+  {
+    "path": "frontend/features/documents/components/document-workspace-review-rows.tsx",
+    "reviewer": "branding_visuals",
+    "status": "fixed",
+    "sha256": "6085bcc974b0f1759195f7a5a21a5c6eb006fe8333d8d87cd8cb9772c2a5c5c9",
+    "notes": "Read complete213line baseline: fixed placeholder href opening current page for unavailable document URLs. Missing URL now plain filename; actual private download links preserved with noopener/noreferrer. React regression covers both."
+  },
+  {
+    "path": "frontend/features/documents/components/document-workspace-review.tsx",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "bfa8a3e1a28bc73f1b191ccbf087d44fe8cd3c1e540288b187dd783a7f765610",
+    "notes": "Read complete476lines: verification selection/indeterminate state, manually approved/rejected rows, portal row-menu scroll/resize/keyboard cleanup and outcome badges reviewed. Existing cohesive extraction of verification/menu/renderers is a remaining size follow-up."
+  },
+  {
+    "path": "frontend/features/documents/components/document-workspace-roster.tsx",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "407999812ccb06543a7562f3b443e78c91cd659901d329fd8fa64c18053bedd5",
+    "notes": "Complete extracted module reviewed: preserves original workspace state/props/lazy loading and side-effect contracts; focused ownership, scoped abort checks and synchronous check/upload/send admission where applicable. No document matching or delivery rule changed."
+  },
+  {
+    "path": "frontend/features/documents/components/document-workspace-upload-status.tsx",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "3b228968f61cdf4553a317b2f6a08313f8300921c292309d6d67abd5b84fc712",
+    "notes": "Read complete146lines: uploading/checking progress, safely committed partial-upload recovery instructions and separate mutation error reporting preserved; verification view callback admission unchanged."
+  },
+  {
+    "path": "frontend/features/documents/components/document-workspace-upload.tsx",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "c9fe56677ee835a4c10cfa93f292af46bb22403670e730fd1ebefe6ab9dde3c0",
+    "notes": "Complete extracted module reviewed: preserves original workspace state/props/lazy loading and side-effect contracts; focused ownership, scoped abort checks and synchronous check/upload/send admission where applicable. No document matching or delivery rule changed."
+  },
+  {
+    "path": "frontend/features/documents/components/document-workspace.tsx",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "1c72f904a6963bd240b07d466beb03db4aea85e2060c198bae5557775886080e",
+    "notes": "Reviewed former982-line working module fully and reduced to20-line composition. Existing54documents+12dashboard contracts and desktop/mobile browser journeys passed."
+  },
+  {
+    "path": "frontend/features/documents/components/ecr-checker-page.tsx",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "9bc339f2e08c7be518a02c5f89b9576b125f212c8adb8e5385471757d6f3c78a",
+    "notes": "Reviewed complete121-line ECR page: controlled uploads/resume, live progress, scoped results and disabled busy controls; no feature changes made."
+  },
+  {
+    "path": "frontend/features/documents/components/ecr-results.tsx",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "3213e07af745fd316a7f1863975cd26f99beff8326b01462da724875ebc54b8f",
+    "notes": "Read complete108lines: deferred search and50-row pagination, stable page bounds, retry/export pending locks, accessible progress and source retention copy reviewed."
+  },
+  {
+    "path": "frontend/features/documents/components/flight-ticket-lane-navigation.tsx",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "ce5c946d7659d4bf210d05ff3f8f12344afc05f8c6c9467ccd365cf73271ac09",
+    "notes": "Read complete189lines: typed scope/leg routes, operation/discard locks and pending unsaved browser confirmation; no backend lane ownership or workflow changes."
+  },
+  {
+    "path": "frontend/features/documents/components/manual-passenger-document-dialog.test.tsx",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "e06da24cac889d47465c228e155209a3bb2da20d4c6ce7916fd67f0d90af03a0",
+    "notes": "Reviewed complete targeted regression/fixture source; active document download/search/manual assignment and eligibility behavior preserved after removal of welcome-only assertions/builders."
+  },
+  {
+    "path": "frontend/features/documents/components/manual-passenger-document-dialog.tsx",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "b392f2fd15c36bb2f1de09c799610bb9aa548487bdcad795989e724465b626f3",
+    "notes": "Read complete59lines: explicit add/replace passenger scope and exact selected version, pending locks, file reset and replacement warning preserved."
+  },
+  {
+    "path": "frontend/features/documents/components/traveller-document-eligibility.test.tsx",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "aef5f6d43473f33b13ce3e63b33bbb46851a8d472501d91216622d6a618a2d1c",
+    "notes": "Reviewed complete targeted regression/fixture source; active document download/search/manual assignment and eligibility behavior preserved after removal of welcome-only assertions/builders."
+  },
+  {
+    "path": "frontend/features/documents/components/traveller-welcome.test-fixtures.ts",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "e01dc278aedbf553956626b9a2ff5b89c7fb479455bb976c7507573d094fa555",
+    "notes": "Reviewed complete targeted regression/fixture source; active document download/search/manual assignment and eligibility behavior preserved after removal of welcome-only assertions/builders."
+  },
+  {
+    "path": "frontend/features/documents/config/document-distribution-lanes.ts",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "5e8cb007d04266c34f65116c5c46be582db8b0aed69ec82d1762039fa99a060b",
+    "notes": "Reviewed full146-line persisted-type/route registry. Legacy international lane identifiers and group-scoped links retained."
+  },
+  {
+    "path": "frontend/features/documents/hooks/use-document-distribution.ts",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "b7629f97348d5a4f6edbe2124a650f1af62b2b46f3c84d186c1f2feb097a504b",
+    "notes": "Reviewed complete284-line query/mutation hooks: scoped keys, fresh send previews, upload error invalidation and uncertain-send refresh retained."
+  },
+  {
+    "path": "frontend/features/documents/hooks/use-document-filename-conflicts.ts",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "a423b64c7a478edba632578224cb9a5e3e754e9651100aad0dbd097858552f96",
+    "notes": "Reviewed complete page-local state machine: cancellation and scope cleanup resolve pending decisions without saved document mutation."
+  },
+  {
+    "path": "frontend/features/documents/hooks/use-document-manual-review.ts",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "2351811eae0d508e61b88f6f0549f59e0eb124d117b64dc80050de08b49200e7",
+    "notes": "Reviewed complete222-line flow: synchronous request ownership, abort checks, selected approved receipts and resumable manual upload; no classification/matching relaxation."
+  },
+  {
+    "path": "frontend/features/documents/hooks/use-document-rename.ts",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "c87b1eeff33da576608f1613c3af78cff9cd34ea03e58048fbf35b69522cf378",
+    "notes": "Reviewed complete48-line hooks. Query/mutation integration preserved; runtime UI reachability and saved batch opening still need broader integration review."
+  },
+  {
+    "path": "frontend/features/documents/hooks/use-document-workspace-delivery.test.tsx",
+    "reviewer": "branding_visuals",
+    "status": "verified",
+    "sha256": "f316cfb41ab78c57c320c2966c61c021fe0f05ba7e84eb82a44dd8af5b50e05d",
+    "notes": "Meaningful regression coverage: duplicate/scope lifecycle, reviewed send token/selection and blocked storage behavior."
+  },
+  {
+    "path": "frontend/features/documents/hooks/use-document-workspace-delivery.ts",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "b359ae1b6663ab579f2b02b937d6cdf719e8b5dbfb342c3cfe0c3dcabde29690",
+    "notes": "Complete extracted module reviewed: preserves original workspace state/props/lazy loading and side-effect contracts; focused ownership, scoped abort checks and synchronous check/upload/send admission where applicable. No document matching or delivery rule changed. Whitespace normalized afterward with installed TypeScript; printer-normalized syntax proved unchanged."
+  },
+  {
+    "path": "frontend/features/documents/hooks/use-document-workspace-selection.ts",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "6f3ac21b3b4f1b78d47b6a09d5c1a59abea578b5763e833f0247a73424fc29d2",
+    "notes": "Complete extracted module reviewed: preserves original workspace state/props/lazy loading and side-effect contracts; focused ownership, scoped abort checks and synchronous check/upload/send admission where applicable. No document matching or delivery rule changed. Whitespace normalized afterward with installed TypeScript; printer-normalized syntax proved unchanged."
+  },
+  {
+    "path": "frontend/features/documents/hooks/use-document-workspace-upload.test.tsx",
+    "reviewer": "branding_visuals",
+    "status": "verified",
+    "sha256": "67f124f72ecbd36b36b4570232a79a8aae58a7ed8a5851cacbd0cb67e04acd1f",
+    "notes": "Meaningful regression coverage: duplicate/scope lifecycle, reviewed send token/selection and blocked storage behavior."
+  },
+  {
+    "path": "frontend/features/documents/hooks/use-document-workspace-upload.ts",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "89b5f2c07c553c31cf3956f0ce1b876f56ed22bf7c8e9de13042bcc05ec8cad6",
+    "notes": "Complete extracted module reviewed: preserves original workspace state/props/lazy loading and side-effect contracts; focused ownership, scoped abort checks and synchronous check/upload/send admission where applicable. No document matching or delivery rule changed."
+  },
+  {
+    "path": "frontend/features/documents/hooks/use-document-workspace.ts",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "913e530ef36bb20b4b130a8e83824a15370775c30b05dcfe9fa25f198aa3fb2f",
+    "notes": "Complete extracted module reviewed: preserves original workspace state/props/lazy loading and side-effect contracts; focused ownership, scoped abort checks and synchronous check/upload/send admission where applicable. No document matching or delivery rule changed. Whitespace normalized afterward with installed TypeScript; printer-normalized syntax proved unchanged."
+  },
+  {
+    "path": "frontend/features/documents/hooks/use-ecr-checker.ts",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "b7bdcc6cd3a9bafe805de1e7cfc338fbbd515315f5c42b266a68dc9a733d1156",
+    "notes": "Reviewed complete scoped polling hooks; pending statuses control polling intervals, server remains authorization authority."
+  },
+  {
+    "path": "frontend/features/documents/hooks/use-ecr-workspace.ts",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "a5d982ca696a803ccbca832dcd03ca4da09e3d0e12b22b7512dc04ee767f18fe",
+    "notes": "Reviewed complete121-line workspace hook; upload abort ownership present; action state-only admission and late-response handling remain candidates for later targeted review (not changed in this batch)."
+  },
+  {
+    "path": "frontend/features/documents/services/document-filename-conflicts.ts",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "db566f16fa25f1d37346d1c0eedea9e9853ff94a603f705dcdf642d843a56e25",
+    "notes": "Reviewed complete210-line deterministic filename/replacement planning: version snapshots and group/type checks preserved. conflictIndexes.indexOf per-step is a bounded quadratic optimization candidate, not changed during integration freeze."
+  },
+  {
+    "path": "frontend/features/documents/services/document-manual-review.ts",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "220cbf6475d14941c59cd1d557f6af3c00cb5162259f31af090b23e39a497978",
+    "notes": "Reviewed complete80-line plan helpers: passenger match and receipt checks precede manual append; display verification strips capabilities."
+  },
+  {
+    "path": "frontend/features/documents/services/document-upload-batching.ts",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "9c31e0dd473a89f3e70555dfb7d0ba8f3b7b6bb4826d320c8eba82609f12ff3c",
+    "notes": "Reviewed complete633-line batching/finalization implementation in three bounded reads. Concurrency/draining, idempotent retry IDs, progress acknowledgment and receipt byte limits retained; splitting this still-large module remains pending."
+  },
+  {
+    "path": "frontend/features/documents/services/document-upload-recovery.test.ts",
+    "reviewer": "branding_visuals",
+    "status": "verified",
+    "sha256": "5c9ec59fa7fdd9b795fa660b27980d46bf1d0b8df1ad39ed42ea622a8948f4b7",
+    "notes": "Meaningful regression coverage: duplicate/scope lifecycle, reviewed send token/selection and blocked storage behavior."
+  },
+  {
+    "path": "frontend/features/documents/services/document-upload-recovery.ts",
+    "reviewer": "branding_visuals",
+    "status": "fixed",
+    "sha256": "65c392a46fc680ba7854e2f97c2fae5413523022364395371892c079843b4282",
+    "notes": "Fixed blocked-browser-storage crash: catch now uses guarded cleanup instead of directly throwing again on removeItem. Privacy-restricted storage regression passed; receipt validation/capability stripping retained."
+  },
+  {
+    "path": "frontend/features/documents/services/ecr-upload.ts",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "sha256": "77f36be3c5989f400fcd86d5443049d813d2fcf068b4b99d5e5c9519a8ab0195",
+    "notes": "Reviewed complete160-line validation/resume/chunk helper: stable IDs, metadata fingerprints, bounded3-worker uploads and committed progress; empty-input progress guard and storage structure validation are candidates for later review."
+  }
+]

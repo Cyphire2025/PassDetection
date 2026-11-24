@@ -1,0 +1,2537 @@
+{
+  "basis": "Read-only TypeScript declaration-reference graph including current tests, computed/property and facade-escape classification. Reachability is supporting evidence; root must review every escape and preserve active approval/callback coverage before retirement.",
+  "scannedFiles": 1213,
+  "declarations": [
+    {
+      "name": "McpConsentPage",
+      "path": "frontend/features/mcp/components/mcp-consent-page.tsx",
+      "line": 15,
+      "references": [
+        {
+          "path": "frontend/features/mcp/components/mcp-consent-page.tsx",
+          "line": 15,
+          "definition": true,
+          "text": "McpConsentPage"
+        },
+        {
+          "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+          "line": 9,
+          "definition": false,
+          "text": "McpConsentPage"
+        },
+        {
+          "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+          "line": 51,
+          "definition": false,
+          "text": "McpConsentPage"
+        },
+        {
+          "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+          "line": 117,
+          "definition": false,
+          "text": "McpConsentPage"
+        },
+        {
+          "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+          "line": 129,
+          "definition": false,
+          "text": "McpConsentPage"
+        },
+        {
+          "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+          "line": 133,
+          "definition": false,
+          "text": "McpConsentPage"
+        },
+        {
+          "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+          "line": 145,
+          "definition": false,
+          "text": "McpConsentPage"
+        },
+        {
+          "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+          "line": 164,
+          "definition": false,
+          "text": "McpConsentPage"
+        },
+        {
+          "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+          "line": 174,
+          "definition": false,
+          "text": "McpConsentPage"
+        },
+        {
+          "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+          "line": 8,
+          "definition": false,
+          "text": "McpConsentPage"
+        },
+        {
+          "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+          "line": 194,
+          "definition": false,
+          "text": "McpConsentPage"
+        }
+      ]
+    },
+    {
+      "name": "McpAccessExamples",
+      "path": "frontend/features/mcp/components/mcp-access-examples.tsx",
+      "line": 11,
+      "references": [
+        {
+          "path": "frontend/features/mcp/components/mcp-access-examples.tsx",
+          "line": 11,
+          "definition": true,
+          "text": "McpAccessExamples"
+        }
+      ]
+    },
+    {
+      "name": "useMcpRevoke",
+      "path": "frontend/features/mcp/hooks/use-mcp.ts",
+      "line": 77,
+      "references": [
+        {
+          "path": "frontend/features/mcp/hooks/use-mcp.ts",
+          "line": 77,
+          "definition": true,
+          "text": "useMcpRevoke"
+        }
+      ]
+    },
+    {
+      "name": "useMcpAuthorize",
+      "path": "frontend/features/mcp/hooks/use-mcp.ts",
+      "line": 99,
+      "references": [
+        {
+          "path": "frontend/features/mcp/hooks/use-mcp.ts",
+          "line": 99,
+          "definition": true,
+          "text": "useMcpAuthorize"
+        },
+        {
+          "path": "frontend/features/mcp/components/mcp-consent-page.tsx",
+          "line": 9,
+          "definition": false,
+          "text": "useMcpAuthorize"
+        },
+        {
+          "path": "frontend/features/mcp/components/mcp-consent-page.tsx",
+          "line": 47,
+          "definition": false,
+          "text": "useMcpAuthorize"
+        }
+      ]
+    },
+    {
+      "name": "revoke",
+      "path": "frontend/features/mcp/api/mcp.api.ts",
+      "line": 146,
+      "references": [
+        {
+          "path": "frontend/features/mcp/api/mcp.api.ts",
+          "line": 146,
+          "definition": true,
+          "text": "revoke"
+        },
+        {
+          "path": "frontend/features/mcp/hooks/use-mcp.ts",
+          "line": 79,
+          "definition": false,
+          "text": "revoke"
+        },
+        {
+          "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+          "line": 39,
+          "definition": false,
+          "text": "revoke"
+        },
+        {
+          "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+          "line": 60,
+          "definition": false,
+          "text": "revoke"
+        },
+        {
+          "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+          "line": 75,
+          "definition": false,
+          "text": "revoke"
+        },
+        {
+          "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+          "line": 91,
+          "definition": false,
+          "text": "revoke"
+        },
+        {
+          "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+          "line": 105,
+          "definition": false,
+          "text": "revoke"
+        },
+        {
+          "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+          "line": 168,
+          "definition": false,
+          "text": "revoke"
+        },
+        {
+          "path": "frontend/features/mcp/components/mcp-devices.test.tsx",
+          "line": 63,
+          "definition": false,
+          "text": "revoke"
+        },
+        {
+          "path": "frontend/features/mcp/components/mcp-simple-access.test.tsx",
+          "line": 74,
+          "definition": false,
+          "text": "revoke"
+        }
+      ]
+    },
+    {
+      "name": "authorize",
+      "path": "frontend/features/mcp/api/mcp.api.ts",
+      "line": 161,
+      "references": [
+        {
+          "path": "frontend/features/mcp/api/mcp.api.ts",
+          "line": 161,
+          "definition": true,
+          "text": "authorize"
+        },
+        {
+          "path": "frontend/features/mcp/hooks/use-mcp.ts",
+          "line": 100,
+          "definition": false,
+          "text": "authorize"
+        },
+        {
+          "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+          "line": 41,
+          "definition": false,
+          "text": "authorize"
+        },
+        {
+          "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+          "line": 53,
+          "definition": false,
+          "text": "authorize"
+        },
+        {
+          "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+          "line": 116,
+          "definition": false,
+          "text": "authorize"
+        },
+        {
+          "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+          "line": 122,
+          "definition": false,
+          "text": "authorize"
+        },
+        {
+          "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+          "line": 123,
+          "definition": false,
+          "text": "authorize"
+        },
+        {
+          "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+          "line": 131,
+          "definition": false,
+          "text": "authorize"
+        },
+        {
+          "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+          "line": 132,
+          "definition": false,
+          "text": "authorize"
+        },
+        {
+          "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+          "line": 155,
+          "definition": false,
+          "text": "authorize"
+        },
+        {
+          "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+          "line": 159,
+          "definition": false,
+          "text": "authorize"
+        },
+        {
+          "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+          "line": 168,
+          "definition": false,
+          "text": "authorize"
+        },
+        {
+          "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+          "line": 173,
+          "definition": false,
+          "text": "authorize"
+        },
+        {
+          "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+          "line": 179,
+          "definition": false,
+          "text": "authorize"
+        },
+        {
+          "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+          "line": 180,
+          "definition": false,
+          "text": "authorize"
+        },
+        {
+          "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+          "line": 197,
+          "definition": false,
+          "text": "authorize"
+        },
+        {
+          "path": "frontend/features/mcp/components/mcp-simple-access.test.tsx",
+          "line": 74,
+          "definition": false,
+          "text": "authorize"
+        }
+      ]
+    },
+    {
+      "name": "update",
+      "path": "frontend/features/mcp/api/mcp-request.api.ts",
+      "line": 22,
+      "references": [
+        {
+          "path": "frontend/features/mcp/api/mcp-request.api.ts",
+          "line": 22,
+          "definition": true,
+          "text": "update"
+        }
+      ]
+    }
+  ],
+  "objectUses": [
+    {
+      "path": "frontend/features/mcp/api/mcp.api.ts",
+      "line": 129,
+      "object": "mcpApi",
+      "kind": "declaration",
+      "expression": "mcpApi = {\r\n  overview: async (signal?: AbortSignal) => (await apiClient.get<McpOverview>(API_ENDPOINTS.mcp.overview, { signal })).data,\r\n  readAccess: async (signal?: AbortSignal) => (await apiClient.get<McpReadAccess>(API_ENDPOINTS.mcp.re"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp.ts",
+      "line": 3,
+      "object": "mcpApi",
+      "kind": "import",
+      "expression": "mcpApi"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp.ts",
+      "line": 15,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.overview"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp.ts",
+      "line": 18,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.readAccess"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp.ts",
+      "line": 23,
+      "object": "mcpApi",
+      "kind": "escape-or-type",
+      "expression": "mcpApi.updateReadAccess"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp.ts",
+      "line": 23,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.updateReadAccess"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp.ts",
+      "line": 34,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.permissions"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp.ts",
+      "line": 39,
+      "object": "mcpApi",
+      "kind": "escape-or-type",
+      "expression": "mcpApi.updatePermissions"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp.ts",
+      "line": 39,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.updatePermissions"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp.ts",
+      "line": 53,
+      "object": "mcpApi",
+      "kind": "escape-or-type",
+      "expression": "mcpApi.updateConnectionPermissions"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp.ts",
+      "line": 53,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.updateConnectionPermissions"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp.ts",
+      "line": 57,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.connections"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp.ts",
+      "line": 60,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.activity"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp.ts",
+      "line": 63,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.inventory"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp.ts",
+      "line": 66,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.operations"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp.ts",
+      "line": 71,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.artifacts"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp.ts",
+      "line": 75,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.control"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp.ts",
+      "line": 79,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.revoke"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp.ts",
+      "line": 83,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.deleteConnection"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp.ts",
+      "line": 92,
+      "object": "mcpApi",
+      "kind": "escape-or-type",
+      "expression": "mcpApi.updateConnection"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp.ts",
+      "line": 92,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.updateConnection"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp.ts",
+      "line": 96,
+      "object": "mcpApi",
+      "kind": "escape-or-type",
+      "expression": "mcpApi.setConnectionAccess"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp.ts",
+      "line": 96,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.setConnectionAccess"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp.ts",
+      "line": 100,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.authorize"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp.ts",
+      "line": 103,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.requests"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp.ts",
+      "line": 108,
+      "object": "mcpApi",
+      "kind": "escape-or-type",
+      "expression": "mcpApi.approveRequest"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp.ts",
+      "line": 108,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.approveRequest"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp.ts",
+      "line": 112,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.rejectRequest"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp-owner.test.tsx",
+      "line": 6,
+      "object": "mcpApi",
+      "kind": "import",
+      "expression": "mcpApi"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp-owner.test.tsx",
+      "line": 11,
+      "object": "mcpApi",
+      "kind": "escape-or-type",
+      "expression": "mcpApi: {\n  updatePermissions: vi.fn(), updateReadAccess: vi.fn(), deleteConnection: vi.fn(),\n  operations: vi.fn(), requests: vi.fn(),\n}"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp-owner.test.tsx",
+      "line": 34,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.updatePermissions"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp-owner.test.tsx",
+      "line": 34,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.updateReadAccess"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp-owner.test.tsx",
+      "line": 34,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.deleteConnection"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp-owner.test.tsx",
+      "line": 39,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.updatePermissions"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp-owner.test.tsx",
+      "line": 40,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.updateReadAccess"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp-owner.test.tsx",
+      "line": 40,
+      "object": "mcpApi",
+      "kind": "escape-or-type",
+      "expression": "mcpApi.updateReadAccess"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp-owner.test.tsx",
+      "line": 41,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.deleteConnection"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp-owner.test.tsx",
+      "line": 73,
+      "object": "mcpApi",
+      "kind": "escape-or-type",
+      "expression": "mcpApi.requests"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp-owner.test.tsx",
+      "line": 77,
+      "object": "mcpApi",
+      "kind": "escape-or-type",
+      "expression": "mcpApi.operations"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp-owner.test.tsx",
+      "line": 78,
+      "object": "mcpApi",
+      "kind": "computed-property",
+      "expression": "mcpApi[flow]"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp-owner.test.tsx",
+      "line": 80,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.requests"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp-owner.test.tsx",
+      "line": 81,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.operations"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp-owner.test.tsx",
+      "line": 94,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.requests"
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp-owner.test.tsx",
+      "line": 95,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.operations"
+    },
+    {
+      "path": "frontend/features/mcp/api/mcp-request.api.ts",
+      "line": 20,
+      "object": "mcpRequestApi",
+      "kind": "declaration",
+      "expression": "mcpRequestApi = {\r\n  status: (id: string, signal?: AbortSignal) => requesterFetch<McpConnectionRequest>(id, \"GET\", undefined, signal),\r\n  update: (id: string, labels: { name: string; device_platform: McpDevicePlatform }) => requesterFetch<M"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-request-waiting-page.tsx",
+      "line": 8,
+      "object": "mcpRequestApi",
+      "kind": "import",
+      "expression": "mcpRequestApi"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-request-waiting-page.tsx",
+      "line": 31,
+      "object": "mcpRequestApi",
+      "kind": "direct-property",
+      "expression": "mcpRequestApi.status"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-request-waiting-page.tsx",
+      "line": 41,
+      "object": "mcpRequestApi",
+      "kind": "direct-property",
+      "expression": "mcpRequestApi.finalize"
+    },
+    {
+      "path": "frontend/features/mcp/api/mcp-request.api.test.ts",
+      "line": 2,
+      "object": "mcpRequestApi",
+      "kind": "import",
+      "expression": "mcpRequestApi"
+    },
+    {
+      "path": "frontend/features/mcp/api/mcp-request.api.test.ts",
+      "line": 9,
+      "object": "mcpRequestApi",
+      "kind": "direct-property",
+      "expression": "mcpRequestApi.status"
+    },
+    {
+      "path": "frontend/features/mcp/api/mcp-request.api.test.ts",
+      "line": 17,
+      "object": "mcpRequestApi",
+      "kind": "direct-property",
+      "expression": "mcpRequestApi.finalize"
+    },
+    {
+      "path": "frontend/features/mcp/api/mcp-request.api.test.ts",
+      "line": 24,
+      "object": "mcpRequestApi",
+      "kind": "direct-property",
+      "expression": "mcpRequestApi.status"
+    },
+    {
+      "path": "frontend/features/mcp/api/mcp.api.test.ts",
+      "line": 3,
+      "object": "mcpApi",
+      "kind": "import",
+      "expression": "mcpApi"
+    },
+    {
+      "path": "frontend/features/mcp/api/mcp.api.test.ts",
+      "line": 8,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.setConnectionAccess"
+    },
+    {
+      "path": "frontend/features/mcp/api/mcp.api.test.ts",
+      "line": 14,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.approveRequest"
+    },
+    {
+      "path": "frontend/features/mcp/api/mcp.api.test.ts",
+      "line": 20,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.rejectRequest"
+    },
+    {
+      "path": "frontend/features/mcp/api/mcp.api.test.ts",
+      "line": 25,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.deleteConnection"
+    },
+    {
+      "path": "frontend/features/mcp/api/mcp.api.test.ts",
+      "line": 31,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.deleteConnection"
+    },
+    {
+      "path": "frontend/features/mcp/api/mcp.api.test.ts",
+      "line": 38,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.updatePermissions"
+    },
+    {
+      "path": "frontend/features/mcp/api/mcp.api.test.ts",
+      "line": 46,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.updateConnectionPermissions"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+      "line": 6,
+      "object": "mcpApi",
+      "kind": "import",
+      "expression": "mcpApi"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+      "line": 13,
+      "object": "mcpApi",
+      "kind": "escape-or-type",
+      "expression": "mcpApi: { ...actual.mcpApi, overview: vi.fn(), connections: vi.fn(), inventory: vi.fn(), activity: vi.fn(), control: vi.fn(), revoke: vi.fn(), updateConnection: vi.fn(), authorize: vi.fn() }"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+      "line": 13,
+      "object": "mcpApi",
+      "kind": "escape-or-type",
+      "expression": "actual.mcpApi"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+      "line": 34,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.overview"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+      "line": 35,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.connections"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+      "line": 36,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.inventory"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+      "line": 37,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.activity"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+      "line": 38,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.control"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+      "line": 39,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.revoke"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+      "line": 40,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.updateConnection"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+      "line": 41,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.authorize"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+      "line": 50,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.overview"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+      "line": 52,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.overview"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+      "line": 53,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.authorize"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+      "line": 57,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.connections"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+      "line": 57,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.overview"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+      "line": 60,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.overview"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+      "line": 68,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.overview"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+      "line": 69,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.control"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+      "line": 75,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.control"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+      "line": 82,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.control"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+      "line": 83,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.control"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+      "line": 86,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.control"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+      "line": 90,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.control"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+      "line": 95,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.control"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+      "line": 103,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.updateConnection"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+      "line": 106,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.activity"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+      "line": 110,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.activity"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+      "line": 112,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.activity"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+      "line": 116,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.authorize"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+      "line": 122,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.authorize"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+      "line": 123,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.authorize"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+      "line": 131,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.authorize"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+      "line": 132,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.authorize"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+      "line": 143,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.overview"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+      "line": 155,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.authorize"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+      "line": 159,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.authorize"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+      "line": 163,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.overview"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+      "line": 168,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.authorize"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+      "line": 173,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.authorize"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+      "line": 179,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.authorize"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+      "line": 180,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.authorize"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+      "line": 7,
+      "object": "mcpApi",
+      "kind": "import",
+      "expression": "mcpApi"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+      "line": 12,
+      "object": "mcpApi",
+      "kind": "escape-or-type",
+      "expression": "mcpApi: { ...actual.mcpApi, overview: vi.fn(), connections: vi.fn(), inventory: vi.fn(), revoke: vi.fn(), deleteConnection: vi.fn(), setConnectionAccess: vi.fn() }"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+      "line": 12,
+      "object": "mcpApi",
+      "kind": "escape-or-type",
+      "expression": "actual.mcpApi"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+      "line": 38,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.overview"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+      "line": 39,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.connections"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+      "line": 40,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.deleteConnection"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+      "line": 41,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.inventory"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+      "line": 50,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.connections"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+      "line": 60,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.revoke"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+      "line": 67,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.deleteConnection"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+      "line": 74,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.deleteConnection"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+      "line": 75,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.revoke"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+      "line": 76,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.connections"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+      "line": 80,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.deleteConnection"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+      "line": 81,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.connections"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+      "line": 88,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.connections"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+      "line": 90,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.deleteConnection"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+      "line": 91,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.revoke"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+      "line": 95,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.connections"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+      "line": 96,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.deleteConnection"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+      "line": 97,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.connections"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+      "line": 102,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.deleteConnection"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+      "line": 105,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.deleteConnection"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+      "line": 105,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.revoke"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+      "line": 110,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.deleteConnection"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+      "line": 111,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.connections"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+      "line": 117,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.deleteConnection"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+      "line": 119,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.deleteConnection"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+      "line": 124,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.deleteConnection"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+      "line": 129,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.deleteConnection"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+      "line": 138,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.deleteConnection"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+      "line": 139,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.connections"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+      "line": 142,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.setConnectionAccess"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+      "line": 147,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.connections"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+      "line": 148,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.deleteConnection"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+      "line": 149,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.connections"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+      "line": 167,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.connections"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+      "line": 168,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.revoke"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-devices.test.tsx",
+      "line": 6,
+      "object": "mcpApi",
+      "kind": "import",
+      "expression": "mcpApi"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-devices.test.tsx",
+      "line": 12,
+      "object": "mcpApi",
+      "kind": "escape-or-type",
+      "expression": "mcpApi: { ...actual.mcpApi, connections: vi.fn(), setConnectionAccess: vi.fn(), revoke: vi.fn() }"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-devices.test.tsx",
+      "line": 12,
+      "object": "mcpApi",
+      "kind": "escape-or-type",
+      "expression": "actual.mcpApi"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-devices.test.tsx",
+      "line": 30,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.connections"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-devices.test.tsx",
+      "line": 43,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.setConnectionAccess"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-devices.test.tsx",
+      "line": 48,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.connections"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-devices.test.tsx",
+      "line": 49,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.setConnectionAccess"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-devices.test.tsx",
+      "line": 57,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.setConnectionAccess"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-devices.test.tsx",
+      "line": 61,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.setConnectionAccess"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-devices.test.tsx",
+      "line": 62,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.setConnectionAccess"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-devices.test.tsx",
+      "line": 63,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.revoke"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-devices.test.tsx",
+      "line": 68,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.setConnectionAccess"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-devices.test.tsx",
+      "line": 75,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.setConnectionAccess"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-devices.test.tsx",
+      "line": 76,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.connections"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-devices.test.tsx",
+      "line": 82,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.setConnectionAccess"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-devices.test.tsx",
+      "line": 89,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.setConnectionAccess"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-devices.test.tsx",
+      "line": 90,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.connections"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-devices.test.tsx",
+      "line": 94,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.connections"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-devices.test.tsx",
+      "line": 110,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.setConnectionAccess"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-permissions.test.tsx",
+      "line": 5,
+      "object": "mcpApi",
+      "kind": "import",
+      "expression": "mcpApi"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-permissions.test.tsx",
+      "line": 12,
+      "object": "mcpApi",
+      "kind": "escape-or-type",
+      "expression": "mcpApi: Object.fromEntries(Object.keys(actual.mcpApi).map((name) => [name, vi.fn()]))"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-permissions.test.tsx",
+      "line": 12,
+      "object": "mcpApi",
+      "kind": "escape-or-type",
+      "expression": "actual.mcpApi"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-permissions.test.tsx",
+      "line": 23,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.permissions"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-permissions.test.tsx",
+      "line": 24,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.updatePermissions"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-permissions.test.tsx",
+      "line": 25,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.updateConnectionPermissions"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-permissions.test.tsx",
+      "line": 39,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.updatePermissions"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-permissions.test.tsx",
+      "line": 46,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.permissions"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-permissions.test.tsx",
+      "line": 50,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.updatePermissions"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-permissions.test.tsx",
+      "line": 56,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.updatePermissions"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-permissions.test.tsx",
+      "line": 67,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.updatePermissions"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-permissions.test.tsx",
+      "line": 71,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.updatePermissions"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-permissions.test.tsx",
+      "line": 77,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.permissions"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-permissions.test.tsx",
+      "line": 85,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.permissions"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-permissions.test.tsx",
+      "line": 101,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.updateConnectionPermissions"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-permissions.test.tsx",
+      "line": 103,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.updateConnection"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-permissions.test.tsx",
+      "line": 108,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.updateConnectionPermissions"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-permissions.test.tsx",
+      "line": 119,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.updateConnectionPermissions"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-permissions.test.tsx",
+      "line": 122,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.updateConnection"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-permissions.test.tsx",
+      "line": 126,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.updateConnectionPermissions"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-permissions.test.tsx",
+      "line": 135,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.updateConnectionPermissions"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-permissions.test.tsx",
+      "line": 141,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.permissions"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-permissions.test.tsx",
+      "line": 144,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.updatePermissions"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-permissions.test.tsx",
+      "line": 148,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.permissions"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+      "line": 6,
+      "object": "mcpApi",
+      "kind": "import",
+      "expression": "mcpApi"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+      "line": 12,
+      "object": "mcpApi",
+      "kind": "escape-or-type",
+      "expression": "mcpApi: Object.fromEntries(Object.keys(actual.mcpApi).map((name) => [name, vi.fn()]))"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+      "line": 12,
+      "object": "mcpApi",
+      "kind": "escape-or-type",
+      "expression": "actual.mcpApi"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+      "line": 62,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.overview"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+      "line": 63,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.connections"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+      "line": 64,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.readAccess"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+      "line": 65,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.inventory"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+      "line": 66,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.activity"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+      "line": 67,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.updateConnection"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+      "line": 81,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.updateReadAccess"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+      "line": 92,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.operations"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+      "line": 92,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.artifacts"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+      "line": 96,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.updateReadAccess"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+      "line": 99,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.updateReadAccess"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+      "line": 101,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.updateReadAccess"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+      "line": 105,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.inventory"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+      "line": 110,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.updateReadAccess"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+      "line": 114,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.updateReadAccess"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+      "line": 122,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.updateReadAccess"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+      "line": 129,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.updateReadAccess"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+      "line": 138,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.readAccess"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+      "line": 142,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.updateReadAccess"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+      "line": 146,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.updateReadAccess"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+      "line": 152,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.updateReadAccess"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+      "line": 156,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.readAccess"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+      "line": 161,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.updateReadAccess"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+      "line": 167,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.readAccess"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+      "line": 178,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.inventory"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+      "line": 180,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.inventory"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+      "line": 190,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.updateConnection"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+      "line": 197,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.authorize"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+      "line": 201,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.overview"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+      "line": 219,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.overview"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+      "line": 220,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.operations"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-request-waiting-page.test.tsx",
+      "line": 7,
+      "object": "mcpRequestApi",
+      "kind": "import",
+      "expression": "mcpRequestApi"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-request-waiting-page.test.tsx",
+      "line": 13,
+      "object": "mcpRequestApi",
+      "kind": "escape-or-type",
+      "expression": "mcpRequestApi: { status: vi.fn(), finalize: vi.fn(), update: vi.fn() }"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-request-waiting-page.test.tsx",
+      "line": 27,
+      "object": "mcpRequestApi",
+      "kind": "direct-property",
+      "expression": "mcpRequestApi.status"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-request-waiting-page.test.tsx",
+      "line": 27,
+      "object": "mcpRequestApi",
+      "kind": "direct-property",
+      "expression": "mcpRequestApi.finalize"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-request-waiting-page.test.tsx",
+      "line": 35,
+      "object": "mcpRequestApi",
+      "kind": "direct-property",
+      "expression": "mcpRequestApi.status"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-request-waiting-page.test.tsx",
+      "line": 35,
+      "object": "mcpRequestApi",
+      "kind": "direct-property",
+      "expression": "mcpRequestApi.finalize"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-request-waiting-page.test.tsx",
+      "line": 40,
+      "object": "mcpRequestApi",
+      "kind": "direct-property",
+      "expression": "mcpRequestApi.status"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-request-waiting-page.test.tsx",
+      "line": 44,
+      "object": "mcpRequestApi",
+      "kind": "direct-property",
+      "expression": "mcpRequestApi.finalize"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-request-waiting-page.test.tsx",
+      "line": 49,
+      "object": "mcpRequestApi",
+      "kind": "direct-property",
+      "expression": "mcpRequestApi.status"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-request-waiting-page.test.tsx",
+      "line": 51,
+      "object": "mcpRequestApi",
+      "kind": "direct-property",
+      "expression": "mcpRequestApi.finalize"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-request-waiting-page.test.tsx",
+      "line": 60,
+      "object": "mcpRequestApi",
+      "kind": "direct-property",
+      "expression": "mcpRequestApi.status"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-request-waiting-page.test.tsx",
+      "line": 60,
+      "object": "mcpRequestApi",
+      "kind": "direct-property",
+      "expression": "mcpRequestApi.finalize"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-request-waiting-page.test.tsx",
+      "line": 65,
+      "object": "mcpRequestApi",
+      "kind": "direct-property",
+      "expression": "mcpRequestApi.finalize"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-request-waiting-page.test.tsx",
+      "line": 69,
+      "object": "mcpRequestApi",
+      "kind": "direct-property",
+      "expression": "mcpRequestApi.status"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-request-waiting-page.test.tsx",
+      "line": 71,
+      "object": "mcpRequestApi",
+      "kind": "direct-property",
+      "expression": "mcpRequestApi.finalize"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-request-waiting-page.test.tsx",
+      "line": 74,
+      "object": "mcpRequestApi",
+      "kind": "direct-property",
+      "expression": "mcpRequestApi.status"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-request-waiting-page.test.tsx",
+      "line": 78,
+      "object": "mcpRequestApi",
+      "kind": "direct-property",
+      "expression": "mcpRequestApi.finalize"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-request-waiting-page.test.tsx",
+      "line": 83,
+      "object": "mcpRequestApi",
+      "kind": "direct-property",
+      "expression": "mcpRequestApi.status"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-request-waiting-page.test.tsx",
+      "line": 87,
+      "object": "mcpRequestApi",
+      "kind": "direct-property",
+      "expression": "mcpRequestApi.status"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-request-waiting-page.test.tsx",
+      "line": 91,
+      "object": "mcpRequestApi",
+      "kind": "direct-property",
+      "expression": "mcpRequestApi.status"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-request-waiting-page.test.tsx",
+      "line": 94,
+      "object": "mcpRequestApi",
+      "kind": "direct-property",
+      "expression": "mcpRequestApi.finalize"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-request-waiting-page.test.tsx",
+      "line": 98,
+      "object": "mcpRequestApi",
+      "kind": "direct-property",
+      "expression": "mcpRequestApi.status"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-request-waiting-page.test.tsx",
+      "line": 103,
+      "object": "mcpRequestApi",
+      "kind": "direct-property",
+      "expression": "mcpRequestApi.finalize"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-request-waiting-page.test.tsx",
+      "line": 108,
+      "object": "mcpRequestApi",
+      "kind": "direct-property",
+      "expression": "mcpRequestApi.status"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-request-waiting-page.test.tsx",
+      "line": 109,
+      "object": "mcpRequestApi",
+      "kind": "direct-property",
+      "expression": "mcpRequestApi.finalize"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-request-waiting-page.test.tsx",
+      "line": 111,
+      "object": "mcpRequestApi",
+      "kind": "direct-property",
+      "expression": "mcpRequestApi.finalize"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-request-waiting-page.test.tsx",
+      "line": 119,
+      "object": "mcpRequestApi",
+      "kind": "direct-property",
+      "expression": "mcpRequestApi.status"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-request-waiting-page.test.tsx",
+      "line": 120,
+      "object": "mcpRequestApi",
+      "kind": "direct-property",
+      "expression": "mcpRequestApi.finalize"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-request-waiting-page.test.tsx",
+      "line": 122,
+      "object": "mcpRequestApi",
+      "kind": "direct-property",
+      "expression": "mcpRequestApi.finalize"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-request-waiting-page.test.tsx",
+      "line": 125,
+      "object": "mcpRequestApi",
+      "kind": "direct-property",
+      "expression": "mcpRequestApi.finalize"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-requests.test.tsx",
+      "line": 5,
+      "object": "mcpApi",
+      "kind": "import",
+      "expression": "mcpApi"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-requests.test.tsx",
+      "line": 11,
+      "object": "mcpApi",
+      "kind": "escape-or-type",
+      "expression": "mcpApi: { ...actual.mcpApi, requests: vi.fn(), approveRequest: vi.fn(), rejectRequest: vi.fn(), permissions: vi.fn() }"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-requests.test.tsx",
+      "line": 11,
+      "object": "mcpApi",
+      "kind": "escape-or-type",
+      "expression": "actual.mcpApi"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-requests.test.tsx",
+      "line": 29,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.requests"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-requests.test.tsx",
+      "line": 30,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.permissions"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-requests.test.tsx",
+      "line": 35,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.approveRequest"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-requests.test.tsx",
+      "line": 45,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.approveRequest"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-requests.test.tsx",
+      "line": 46,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.approveRequest"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-requests.test.tsx",
+      "line": 51,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.approveRequest"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-requests.test.tsx",
+      "line": 59,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.approveRequest"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-requests.test.tsx",
+      "line": 63,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.rejectRequest"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-requests.test.tsx",
+      "line": 64,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.requests"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-requests.test.tsx",
+      "line": 68,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.rejectRequest"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-requests.test.tsx",
+      "line": 71,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.rejectRequest"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-requests.test.tsx",
+      "line": 80,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.approveRequest"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-requests.test.tsx",
+      "line": 86,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.requests"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-requests.test.tsx",
+      "line": 95,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.requests"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-requests.test.tsx",
+      "line": 101,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.approveRequest"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-requests.test.tsx",
+      "line": 101,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.rejectRequest"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-requests.test.tsx",
+      "line": 105,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.approveRequest"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-requests.test.tsx",
+      "line": 112,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.approveRequest"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-requests.test.tsx",
+      "line": 117,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.approveRequest"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-requests.test.tsx",
+      "line": 125,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.approveRequest"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-requests.test.tsx",
+      "line": 130,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.permissions"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-requests.test.tsx",
+      "line": 135,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.approveRequest"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-simple-access.test.tsx",
+      "line": 6,
+      "object": "mcpApi",
+      "kind": "import",
+      "expression": "mcpApi"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-simple-access.test.tsx",
+      "line": 11,
+      "object": "mcpApi",
+      "kind": "escape-or-type",
+      "expression": "mcpApi: Object.fromEntries(Object.keys(actual.mcpApi).map((name) => [name, vi.fn()]))"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-simple-access.test.tsx",
+      "line": 11,
+      "object": "mcpApi",
+      "kind": "escape-or-type",
+      "expression": "actual.mcpApi"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-simple-access.test.tsx",
+      "line": 33,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.overview"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-simple-access.test.tsx",
+      "line": 34,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.connections"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-simple-access.test.tsx",
+      "line": 35,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.requests"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-simple-access.test.tsx",
+      "line": 36,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.activity"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-simple-access.test.tsx",
+      "line": 51,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.activity"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-simple-access.test.tsx",
+      "line": 51,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.inventory"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-simple-access.test.tsx",
+      "line": 51,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.requests"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-simple-access.test.tsx",
+      "line": 51,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.operations"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-simple-access.test.tsx",
+      "line": 51,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.artifacts"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-simple-access.test.tsx",
+      "line": 59,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.connections"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-simple-access.test.tsx",
+      "line": 59,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.activity"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-simple-access.test.tsx",
+      "line": 60,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.connections"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-simple-access.test.tsx",
+      "line": 60,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.inventory"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-simple-access.test.tsx",
+      "line": 61,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.activity"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-simple-access.test.tsx",
+      "line": 61,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.inventory"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-simple-access.test.tsx",
+      "line": 74,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.authorize"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-simple-access.test.tsx",
+      "line": 74,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.updateConnection"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-simple-access.test.tsx",
+      "line": 74,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.control"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-simple-access.test.tsx",
+      "line": 74,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.revoke"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-simple-access.test.tsx",
+      "line": 81,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.connections"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-simple-access.test.tsx",
+      "line": 90,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.overview"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-simple-access.test.tsx",
+      "line": 95,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.connections"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-work-results.test.tsx",
+      "line": 4,
+      "object": "mcpApi",
+      "kind": "import",
+      "expression": "mcpApi"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-work-results.test.tsx",
+      "line": 9,
+      "object": "mcpApi",
+      "kind": "escape-or-type",
+      "expression": "mcpApi: { ...actual.mcpApi, operations: vi.fn(), artifacts: vi.fn(), inventory: vi.fn() }"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-work-results.test.tsx",
+      "line": 9,
+      "object": "mcpApi",
+      "kind": "escape-or-type",
+      "expression": "actual.mcpApi"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-work-results.test.tsx",
+      "line": 20,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.operations"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-work-results.test.tsx",
+      "line": 21,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.artifacts"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-work-results.test.tsx",
+      "line": 26,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.operations"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-work-results.test.tsx",
+      "line": 39,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.operations"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-work-results.test.tsx",
+      "line": 42,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.operations"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-work-results.test.tsx",
+      "line": 48,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.artifacts"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-work-results.test.tsx",
+      "line": 58,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.artifacts"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-work-results.test.tsx",
+      "line": 75,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.inventory"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-work-results.test.tsx",
+      "line": 87,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.operations"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-work-results.test.tsx",
+      "line": 106,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.operations"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-work-results.test.tsx",
+      "line": 127,
+      "object": "mcpApi",
+      "kind": "direct-property",
+      "expression": "mcpApi.operations"
+    }
+  ],
+  "unreachable": [
+    "frontend/components/layout/index.ts",
+    "frontend/components/shared/error-boundary.tsx",
+    "frontend/components/shared/index.ts",
+    "frontend/config/e2e-isolation.ts",
+    "frontend/e2e-real-stack/workflow-support.ts",
+    "frontend/features/companies/test-support/navigation.ts",
+    "frontend/features/documents/components/traveller-welcome.test-fixtures.ts",
+    "frontend/features/gc-app/api/announcement-notification-status.api.ts",
+    "frontend/features/gc-app/components/announcement-notification-status.tsx",
+    "frontend/features/gc-app/components/itinerary-editor.tsx",
+    "frontend/features/gc-app/notifications/notification-test-fixtures.ts",
+    "frontend/features/mcp/components/mcp-access-examples.tsx",
+    "frontend/features/mcp/components/mcp-consent-page.tsx",
+    "frontend/features/mcp/utils/permissions.test-fixture.ts",
+    "frontend/features/operations/components/tour-operations-overview.tsx",
+    "frontend/features/passports/hooks/passport-image-editor.test-fixtures.ts",
+    "frontend/features/tour-operations/test-support/attendance-database.ts",
+    "frontend/features/upload/components/passport-detail-samples-original.tsx",
+    "frontend/features/upload/services/visa-photo-upload-detector.ts",
+    "frontend/features/upload/services/visa-photo-upload-validation.ts",
+    "frontend/lib/navigation/typed-routes.typecheck.ts",
+    "frontend/lib/utils/index.ts",
+    "frontend/playwright.ai.config.ts",
+    "frontend/playwright.config.ts",
+    "frontend/playwright.fixtures.config.ts",
+    "frontend/playwright.mcp-read-only.config.ts",
+    "frontend/playwright.real-stack.config.ts",
+    "frontend/stores/ui.store.ts",
+    "frontend/test-support/browser-locks.ts",
+    "frontend/vitest.setup.ts"
+  ],
+  "source_sha256": {
+    "frontend/features/mcp/components/mcp-consent-page.tsx": "fb9a145e02d4bee24d0131753b9d379f4341defdda29d5b19f747c711225d8ee",
+    "frontend/features/mcp/components/mcp-access-examples.tsx": "7cc24a102a91e085b7b7c160ad558a893e87c0031ce52933349691643227fd5b",
+    "frontend/features/mcp/hooks/use-mcp.ts": "fa113ac01eb6f800d41220929ee0da7d9e7ef61904b517f44a37b8251da1b817",
+    "frontend/features/mcp/api/mcp.api.ts": "800f0ecdb1d6f995143eeee2f6fb36b2ef1cc40abdcf749fbc7208f511c500a3",
+    "frontend/features/mcp/api/mcp-request.api.ts": "a7881b27520706949317a1528979664ccb9052e1e412876d38701a49a0d743b6"
+  }
+}

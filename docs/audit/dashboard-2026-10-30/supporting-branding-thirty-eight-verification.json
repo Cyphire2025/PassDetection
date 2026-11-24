@@ -1,0 +1,279 @@
+{
+  "status": "complete-disjoint-thirty-eight-authored-docs-source-review",
+  "files": [
+    {
+      "path": "docs/implementation/mcp-dependency-review.md",
+      "sha256": "e2b6dade52c7dc225478769c195c0ddc0485e47779a4778d91f4ce0870844646",
+      "review_scope": "full",
+      "physical_lines": 42,
+      "ledger": "supporting-mcp-domain-docs-reviewed-files.json"
+    },
+    {
+      "path": "docs/implementation/mcp-device-delete.md",
+      "sha256": "c8958d5ebf69c4e19e09e2ec3aa88a686741555470d48ca1617b1080d05482ff",
+      "review_scope": "full",
+      "physical_lines": 27,
+      "ledger": "supporting-mcp-domain-docs-reviewed-files.json"
+    },
+    {
+      "path": "docs/implementation/mcp-document-assignment-exports.md",
+      "sha256": "3e73c4c4b0abaefd3a6dcbe5173c14a63f3cebbd56f26f122f5fdc52b5327f6c",
+      "review_scope": "full",
+      "physical_lines": 52,
+      "ledger": "supporting-mcp-domain-docs-reviewed-files.json"
+    },
+    {
+      "path": "docs/implementation/mcp-excel-exports.md",
+      "sha256": "db1465ba9ff5c23a92b4a45a3c3d7ccc59a2284ba5b1308eb4b83e34855abc32",
+      "review_scope": "full",
+      "physical_lines": 31,
+      "ledger": "supporting-mcp-domain-docs-reviewed-files.json"
+    },
+    {
+      "path": "docs/implementation/mcp-image-exports.md",
+      "sha256": "a4b7d9a95d79a8564c93a97bbfeb0fe7f3063534824b0d4918f5f9969a5aa585",
+      "review_scope": "full",
+      "physical_lines": 40,
+      "ledger": "supporting-mcp-domain-docs-reviewed-files.json"
+    },
+    {
+      "path": "docs/implementation/mcp-office-creations.md",
+      "sha256": "2abf1e664d9cd1428383194765a0738e54719b6db81cae01082d5ce2381c01a7",
+      "review_scope": "full",
+      "physical_lines": 49,
+      "ledger": "supporting-mcp-domain-docs-reviewed-files.json"
+    },
+    {
+      "path": "docs/implementation/mcp-pdf-ingestion.md",
+      "sha256": "2883962fedaa33a91ae581e13029b9336adb2753ff27a678bce96364d466f7f4",
+      "review_scope": "full",
+      "physical_lines": 33,
+      "ledger": "supporting-mcp-domain-docs-reviewed-files.json"
+    },
+    {
+      "path": "docs/implementation/mcp-rooming-exports.md",
+      "sha256": "55e555715da010c566b799a1e3adc9e7c616c0820c308ff0a25bc1d92e0be3b7",
+      "review_scope": "full",
+      "physical_lines": 38,
+      "ledger": "supporting-mcp-domain-docs-reviewed-files.json"
+    },
+    {
+      "path": "docs/implementation/mcp-tracking-exports.md",
+      "sha256": "97a8abd9b05b6dae93404fc8df090b6af4fcf53dd87501c33ab703b3d7251455",
+      "review_scope": "full",
+      "physical_lines": 34,
+      "ledger": "supporting-mcp-domain-docs-reviewed-files.json"
+    },
+    {
+      "path": "docs/implementation/mcp-settings-navigation.md",
+      "sha256": "b59310b22309bb24c7335306cd58605e70229d32c5630d072c03b8407ce18ea3",
+      "review_scope": "full",
+      "physical_lines": 35,
+      "ledger": "supporting-mcp-domain-docs-reviewed-files.json"
+    },
+    {
+      "path": "docs/implementation/evidence/mcp-gc-announcement-checkpoint.md",
+      "sha256": "13efd867b0a2195b149c553b69e0cd8afdec5f2b72ef48aaded49c824fa2f677",
+      "review_scope": "full",
+      "physical_lines": 45,
+      "ledger": "supporting-mcp-checkpoint-cohort01-reviewed-files.json"
+    },
+    {
+      "path": "docs/implementation/evidence/mcp-gc-push-checkpoint.md",
+      "sha256": "ed5da305806a5ac182b79290f182a24ba993a2f62aac652607164ba919497859",
+      "review_scope": "full",
+      "physical_lines": 88,
+      "ledger": "supporting-mcp-checkpoint-cohort01-reviewed-files.json"
+    },
+    {
+      "path": "docs/implementation/mcp-additive-release-contract.md",
+      "sha256": "e6a8ebc7ac309df7eca402bb6edcc0c8fcb2a82afd6abf65802b4743793172ed",
+      "review_scope": "full",
+      "physical_lines": 188,
+      "ledger": "supporting-mcp-checkpoint-cohort01-reviewed-files.json"
+    },
+    {
+      "path": "docs/implementation/mcp-attendance-read-checkpoint.md",
+      "sha256": "857aa5e4d3ad76a008425b746dabc6ec7dd3a843493dc5f4ef2e8b699ff62eb2",
+      "review_scope": "full",
+      "physical_lines": 154,
+      "ledger": "supporting-mcp-checkpoint-cohort01-reviewed-files.json"
+    },
+    {
+      "path": "docs/implementation/mcp-business-v1-journey-checkpoint.md",
+      "sha256": "898ca1354f338c048237eb61f5bba75ba7476587b671a2f13c1551723a4782c7",
+      "review_scope": "full",
+      "physical_lines": 177,
+      "ledger": "supporting-mcp-checkpoint-cohort01-reviewed-files.json"
+    },
+    {
+      "path": "docs/implementation/mcp-codex-access-ui-checkpoint.md",
+      "sha256": "8e9a700cca8f202ccbd6eef840bfbc3de4074e26fc0debd25fd24eeb027a51f8",
+      "review_scope": "full",
+      "physical_lines": 124,
+      "ledger": "supporting-mcp-checkpoint-cohort01-reviewed-files.json"
+    },
+    {
+      "path": "docs/implementation/mcp-dashboard-detail-read-release.md",
+      "sha256": "ea29faf5fbc277fc7e6c41addfd2afa72642622cc138a90048639495973809bd",
+      "review_scope": "full",
+      "physical_lines": 100,
+      "ledger": "supporting-mcp-checkpoint-cohort01-reviewed-files.json"
+    },
+    {
+      "path": "docs/implementation/mcp-dashboard-read-contract-checkpoint.md",
+      "sha256": "d76084229072a09b9df81d842f666dceb2721af342aa21512c74f1dcbc408428",
+      "review_scope": "full",
+      "physical_lines": 75,
+      "ledger": "supporting-mcp-checkpoint-cohort01-reviewed-files.json"
+    },
+    {
+      "path": "docs/implementation/mcp-dashboard-summary-checkpoint.md",
+      "sha256": "a130732bf00906034deceda756cf738ac63e3b301604316da69e21a2ad04fdc2",
+      "review_scope": "full",
+      "physical_lines": 102,
+      "ledger": "supporting-mcp-checkpoint-cohort01-reviewed-files.json"
+    },
+    {
+      "path": "docs/implementation/mcp-dashboard-write-live-2026-10-03.md",
+      "sha256": "17031c8cae3ef8caf0fef4812df6ede9f42aa4134050de44882117d4741be535",
+      "review_scope": "full",
+      "physical_lines": 66,
+      "ledger": "supporting-mcp-checkpoint-cohort02-reviewed-files.json"
+    },
+    {
+      "path": "docs/implementation/mcp-dashboard-write.md",
+      "sha256": "88aba657bf1be2781331eb30d7ebe68eca5cec7cf7ea55775d58a106db19b9dd",
+      "review_scope": "full",
+      "physical_lines": 52,
+      "ledger": "supporting-mcp-checkpoint-cohort02-reviewed-files.json"
+    },
+    {
+      "path": "docs/implementation/mcp-direct-devices-inventory-checkpoint.md",
+      "sha256": "bcf3b3e9e94b025e18c9f5999f7a89b9b94ec2c3cdc986758185397d73ed447e",
+      "review_scope": "full",
+      "physical_lines": 49,
+      "ledger": "supporting-mcp-checkpoint-cohort02-reviewed-files.json"
+    },
+    {
+      "path": "docs/implementation/mcp-direct-devices-release-checkpoint.md",
+      "sha256": "7d31ab2d347fba18f82f68f4b26c2a886a262eac18819251e4c44c23c4a18e1a",
+      "review_scope": "full",
+      "physical_lines": 117,
+      "ledger": "supporting-mcp-checkpoint-cohort02-reviewed-files.json"
+    },
+    {
+      "path": "docs/implementation/mcp-direct-devices.md",
+      "sha256": "fbeca196414daf730d9586d2d6ec891a9a71e77294f371a8ad7ea6c10ee65937",
+      "review_scope": "full",
+      "physical_lines": 107,
+      "ledger": "supporting-mcp-checkpoint-cohort02-reviewed-files.json"
+    },
+    {
+      "path": "docs/implementation/mcp-direct-release-checkpoint.md",
+      "sha256": "a5e409344b843fba41fcef9fdb44ab90e6c0151a34c4d4ee5c595b137c85a251",
+      "review_scope": "full",
+      "physical_lines": 173,
+      "ledger": "supporting-mcp-checkpoint-cohort02-reviewed-files.json"
+    },
+    {
+      "path": "docs/implementation/mcp-minimum-read-only-guide.md",
+      "sha256": "bf0fe9decb45c7bcb6a2cc691cb811edb7eb73be394cf1df832e139a871f8fa7",
+      "review_scope": "full",
+      "physical_lines": 64,
+      "ledger": "supporting-mcp-checkpoint-cohort02-reviewed-files.json"
+    },
+    {
+      "path": "docs/implementation/mcp-management-release-checkpoint.md",
+      "sha256": "cb2798191430cfb716dea046fab171b5f5e8d827e19f573da72841e8f8835d4d",
+      "review_scope": "full",
+      "physical_lines": 202,
+      "ledger": "supporting-mcp-checkpoint-cohort02-reviewed-files.json"
+    },
+    {
+      "path": "docs/implementation/mcp-document-rename-reads-checkpoint.md",
+      "sha256": "e38c2707342b65eb4add3ed9200ddb532d885bcdde883ee70cd0ffa0b41943cd",
+      "review_scope": "full",
+      "physical_lines": 128,
+      "ledger": "supporting-mcp-checkpoint-cohort02-reviewed-files.json"
+    },
+    {
+      "path": "docs/implementation/mcp-ecr-read-checkpoint.md",
+      "sha256": "b134a50916cce48bb24fb9d4829c2115aaa45ad8152cf222a49611d4ada6920f",
+      "review_scope": "full",
+      "physical_lines": 105,
+      "ledger": "supporting-mcp-checkpoint-cohort02-reviewed-files.json"
+    },
+    {
+      "path": "docs/implementation/mcp-excel-options-checkpoint.md",
+      "sha256": "d5ad829424b848ca03793d9433871aeea6b60752715548674123f64199c240a7",
+      "review_scope": "full",
+      "physical_lines": 110,
+      "ledger": "supporting-mcp-checkpoint-cohort02-reviewed-files.json"
+    },
+    {
+      "path": "docs/implementation/mcp-export-history-checkpoint.md",
+      "sha256": "206fa4d4fb0df54068aa344ec78cde5d4d64cd6da3eccbf4e3419e5ce89525f6",
+      "review_scope": "full",
+      "physical_lines": 131,
+      "ledger": "supporting-mcp-checkpoint-cohort02-reviewed-files.json"
+    },
+    {
+      "path": "docs/implementation/mcp-export-memory-and-scope-review.md",
+      "sha256": "4f35f9da664dc4ee25a528b2222a39549103a87bd42a81adf1b64530a37e2010",
+      "review_scope": "full",
+      "physical_lines": 216,
+      "ledger": "supporting-mcp-checkpoint-cohort02-reviewed-files.json"
+    },
+    {
+      "path": "docs/implementation/mcp-live-codex-checkpoint.md",
+      "sha256": "3955910f36ed0c1e32a3c6a1a97675fad68afda169faa71d92c00576eee906db",
+      "review_scope": "full",
+      "physical_lines": 199,
+      "ledger": "supporting-mcp-checkpoint-cohort02-reviewed-files.json"
+    },
+    {
+      "path": "docs/implementation/mcp-options-dashboard-release-checkpoint.md",
+      "sha256": "6d53dd39e99deb01ba352864bd35c0e080379feecb716b197ce1fef00433c71c",
+      "review_scope": "full",
+      "physical_lines": 102,
+      "ledger": "supporting-mcp-checkpoint-cohort02-reviewed-files.json"
+    },
+    {
+      "path": "docs/implementation/mcp-passport-analytics-read-checkpoint.md",
+      "sha256": "acdf9217f7978571a124d4b33c2cc16834a8879982a6ab17d54d9038796a1440",
+      "review_scope": "full",
+      "physical_lines": 122,
+      "ledger": "supporting-mcp-checkpoint-cohort02-reviewed-files.json"
+    },
+    {
+      "path": "docs/implementation/mcp-passport-retention-read-checkpoint.md",
+      "sha256": "92a905562f815f04b2553633a7ac09fe0836ffdddb819eec4464d011c9e37dd6",
+      "review_scope": "full",
+      "physical_lines": 89,
+      "ledger": "supporting-mcp-checkpoint-cohort02-reviewed-files.json"
+    },
+    {
+      "path": "docs/implementation/mcp-personal-notifications-checkpoint.md",
+      "sha256": "c1388ae8e4f6707f2a20d3a99cc25c0bfb47d31772455256f202b53f5fecc892",
+      "review_scope": "full",
+      "physical_lines": 121,
+      "ledger": "supporting-mcp-checkpoint-cohort02-reviewed-files.json"
+    },
+    {
+      "path": "docs/implementation/mcp-phase-register.md",
+      "sha256": "94539437ceac154c9626c96ccf578cb217a77f1fade7689e1797c909d57a1570",
+      "review_scope": "full",
+      "physical_lines": 552,
+      "ledger": "supporting-mcp-checkpoint-cohort02-reviewed-files.json"
+    }
+  ],
+  "file_count": 38,
+  "physical_lines": 4139,
+  "source_mutations": [],
+  "checks_run": [],
+  "remaining_unstarted_own_partition": [],
+  "disjoint_parent20": "supporting-markdown-resume-partition.json#parent_twenty",
+  "disjoint_qualification_plan40": "supporting-qualification-plan-forty-handoff.json",
+  "limit": "This closes exact authored docphysicalread responsibility only, no unrelatedruntimefollowups/wholeaudit/finalqualification."
+}

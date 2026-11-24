@@ -1,0 +1,50 @@
+{
+  "status": "Read-only bounded retained service-test source cohort complete; broader audit active",
+  "new_current_full_tests": 9,
+  "test_physical_lines": 887,
+  "supporting_full_rows": 2,
+  "focused_rows": 4,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-service-test-source-reviewed-files.json",
+    "sha256": "1206e996b5fe1e7c099d4aef03b4c2303031f80e30927649c1263b108df5211d"
+  },
+  "prior_same_hash_physical_read": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-http-boundary-unit-source-reviewed-files.json",
+    "sha256": "ef8f5922184b54829ed1ded75307a859a82a3be04802a066576644e130acfd21",
+    "row": {
+      "path": "backend/app/presentation/api/v1/routes/frontend_errors.py",
+      "sha256": "aaa3769183ca3b8e304ca13389c9d32cd48b840acb45604442887ba3cd7a6d32",
+      "physical_lines": 191,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical read57-105 and157-end only: exact metadata schema/static route/origin guard, byte cap/admission/logger/receipt handler; Redis admission implementation/import setup not fully read here."
+    }
+  },
+  "source_fence": {
+    "backend/tests/service_integration/test_company_directory_postgresql.py": "19fc98ef802ed8ffc427c0f8435d084037d162d98b7f87ccddeecb4954a7023c",
+    "backend/tests/service_integration/test_audit_checkpoint_s3.py": "3db514463431ebd1476b668ca9b6ba48b5e889fe806a1d99fcae4384ad53a669",
+    "backend/tests/service_integration/test_data_invariants_postgresql.py": "d41b974aa4b3ef289faabff1ae9eb017ced53f4e7df120b1ca878413dfd75574",
+    "backend/tests/service_integration/test_frontend_error_admission.py": "45d4167d165e5c0df4223e793ac9b7e998ddfd0eb5b11495f86863d637f432b5",
+    "backend/tests/service_integration/test_postgresql_fixture_isolation.py": "f68ac290bb60357f6474e88c01d131c0570d92e8b53a762887f4749ac472569d",
+    "backend/tests/service_integration/test_returning_reuse_postgresql.py": "a465ef8787c473476a955390085849a42aa03b20a0ca672461f6a66885c84f00",
+    "backend/tests/service_integration/test_manual_review_postgresql.py": "50ff5f855a7d5487586ccf5d41ad78d62f98328c5064a4d94157ad50b19f07e6",
+    "backend/tests/service_integration/test_traveller_document_http_postgresql.py": "7fd1d290138c919e71cd96ed2146f406c8b4e975a5d38f792263ebe78b7d1861",
+    "backend/tests/service_integration/test_travel_tracker_upgrade_postgresql.py": "9b006f776637f64694b3723897e53171dd9e5cdaa43b61e7621ad1fb305b8a1c",
+    "backend/tests/data_invariants.py": "e977ae83e0f0ec439a9181a9389f05f1b8c9d56e36e1b426d754114c563c86bd",
+    "backend/app/presentation/api/v1/routes/frontend_errors.py": "aaa3769183ca3b8e304ca13389c9d32cd48b840acb45604442887ba3cd7a6d32",
+    "backend/tests/postgresql_schema.py": "f1ca039164a93073be3d4e0021f3de60cb6be659b65d09803502bb302ec34cb2",
+    "backend/tests/service_integration/test_fcm_dispatch_postgresql.py": "263b2f68f14fc045f7043f2167dd1f85dccd32dda6009dfd24d78d427c307624",
+    "backend/tests/service_integration/test_whatsapp_receipts_postgresql.py": "994b60ef497ffffff0ef5bc91be6330c56254d4e4959b7900f91c0b70c649d69",
+    "backend/app/infrastructure/audit/s3_checkpoint_sink.py": "175bc660c4003c095ba2a5c5079de79e8a93be5cf20e16b13f6d13a8747d5dcf"
+  },
+  "checks_run": [],
+  "changes": [],
+  "findings": [],
+  "proof_gaps": [
+    "No PostgreSQL/Redis/S3/provider/SDK/migration/subprocess work was performed; full source reads are not executed service acceptance.",
+    "Dedicated test environment variable names and synthetic material read only, never actual credential/environment values.",
+    "Shared pg_factory slice does not credit excluded native targets/device cases; shared schema operator seed displayed but not whole audited.",
+    "Historical upgrade assertions do not qualify current142-file topology/release/deployment or live role policies; strict root/source freezes preserved."
+  ]
+}

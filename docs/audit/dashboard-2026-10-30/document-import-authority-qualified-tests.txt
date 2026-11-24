@@ -1,0 +1,8 @@
+........................................................................ [ 64%]
+.......................................                                  [100%]
+
+---------- coverage: platform win32, python 3.11.15-final-0 ----------
+Coverage XML written to file ../docs/audit/dashboard-2026-10-30/document-import-authority-qualified-coverage.xml
+Coverage JSON written to file ../docs/audit/dashboard-2026-10-30/document-import-authority-qualified-coverage.json
+
+111 passed in 45.90s

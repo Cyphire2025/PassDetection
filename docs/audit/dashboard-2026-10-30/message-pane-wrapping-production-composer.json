@@ -1,0 +1,234 @@
+{
+  "origin": "http://127.0.0.1:3186",
+  "evidence": "Current Next production routes; synthetic per-context APIs; no provider calls or dispatch clicks",
+  "cases": [
+    {
+      "viewport": "desktop",
+      "type": "welcome",
+      "missingImageBlocksSend": true,
+      "stalePreviewBlocksSend": true,
+      "recipientSelectionVerified": true,
+      "reviewTextBounds": {
+        "clientWidth": 718,
+        "scrollWidth": 718,
+        "x": 361,
+        "width": 718,
+        "viewport": 1440,
+        "whiteSpace": "pre-wrap",
+        "overflowWrap": "anywhere"
+      },
+      "status": "passed",
+      "dimensions": {
+        "width": 1440,
+        "pageWidth": 1440,
+        "clientWidth": 1187,
+        "scrollWidth": 1187
+      },
+      "screenshot": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\test-results\\whatsapp-composer-browser\\desktop-welcome.png",
+      "keyboardBoundaryVerified": true,
+      "requests": [
+        "POST /api/v1/auth/refresh",
+        "GET /api/v1/notifications/feed",
+        "GET /api/v1/whatsapp/groups",
+        "GET /api/v1/whatsapp/groups",
+        "GET /api/v1/whatsapp/groups/synthetic-broadcast-a",
+        "GET /api/v1/whatsapp/message-catalog",
+        "POST /api/v1/whatsapp/groups/synthetic-broadcast-a/preview",
+        "POST /api/v1/whatsapp/groups/synthetic-broadcast-a/preview",
+        "POST /api/v1/whatsapp/groups/synthetic-broadcast-a/preview",
+        "POST /api/v1/whatsapp/groups/synthetic-broadcast-a/preview",
+        "POST /api/v1/whatsapp/groups/synthetic-broadcast-a/preview"
+      ]
+    },
+    {
+      "viewport": "desktop",
+      "type": "passport_link",
+      "missingImageBlocksSend": true,
+      "stalePreviewBlocksSend": true,
+      "recipientSelectionVerified": true,
+      "reviewTextBounds": {
+        "clientWidth": 718,
+        "scrollWidth": 718,
+        "x": 361,
+        "width": 718,
+        "viewport": 1440,
+        "whiteSpace": "pre-wrap",
+        "overflowWrap": "anywhere"
+      },
+      "status": "passed",
+      "dimensions": {
+        "width": 1440,
+        "pageWidth": 1440,
+        "clientWidth": 1187,
+        "scrollWidth": 1187
+      },
+      "screenshot": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\test-results\\whatsapp-composer-browser\\desktop-passport_link.png",
+      "keyboardBoundaryVerified": true,
+      "requests": [
+        "POST /api/v1/auth/refresh",
+        "GET /api/v1/notifications/feed",
+        "GET /api/v1/whatsapp/groups",
+        "GET /api/v1/whatsapp/groups",
+        "GET /api/v1/whatsapp/groups/synthetic-broadcast-a",
+        "GET /api/v1/whatsapp/message-catalog",
+        "POST /api/v1/whatsapp/groups/synthetic-broadcast-a/preview",
+        "POST /api/v1/whatsapp/groups/synthetic-broadcast-a/preview",
+        "POST /api/v1/whatsapp/groups/synthetic-broadcast-a/preview",
+        "POST /api/v1/whatsapp/groups/synthetic-broadcast-a/preview",
+        "POST /api/v1/whatsapp/groups/synthetic-broadcast-a/preview"
+      ]
+    },
+    {
+      "viewport": "desktop",
+      "type": "reminder",
+      "stalePreviewBlocksSend": true,
+      "recipientSelectionVerified": true,
+      "reviewTextBounds": {
+        "clientWidth": 718,
+        "scrollWidth": 718,
+        "x": 361,
+        "width": 718,
+        "viewport": 1440,
+        "whiteSpace": "pre-wrap",
+        "overflowWrap": "anywhere"
+      },
+      "status": "passed",
+      "dimensions": {
+        "width": 1440,
+        "pageWidth": 1440,
+        "clientWidth": 1187,
+        "scrollWidth": 1187
+      },
+      "screenshot": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\test-results\\whatsapp-composer-browser\\desktop-reminder.png",
+      "keyboardBoundaryVerified": true,
+      "requests": [
+        "POST /api/v1/auth/refresh",
+        "GET /api/v1/notifications/feed",
+        "GET /api/v1/whatsapp/groups",
+        "GET /api/v1/whatsapp/groups",
+        "GET /api/v1/whatsapp/groups/synthetic-broadcast-a",
+        "GET /api/v1/whatsapp/message-catalog",
+        "POST /api/v1/whatsapp/groups/synthetic-broadcast-a/preview",
+        "POST /api/v1/whatsapp/groups/synthetic-broadcast-a/preview",
+        "POST /api/v1/whatsapp/groups/synthetic-broadcast-a/preview",
+        "POST /api/v1/whatsapp/groups/synthetic-broadcast-a/preview",
+        "POST /api/v1/whatsapp/groups/synthetic-broadcast-a/preview"
+      ]
+    },
+    {
+      "viewport": "mobile",
+      "type": "welcome",
+      "missingImageBlocksSend": true,
+      "stalePreviewBlocksSend": true,
+      "recipientSelectionVerified": true,
+      "reviewTextBounds": {
+        "clientWidth": 308,
+        "scrollWidth": 308,
+        "x": 41,
+        "width": 308,
+        "viewport": 390,
+        "whiteSpace": "pre-wrap",
+        "overflowWrap": "anywhere"
+      },
+      "status": "passed",
+      "dimensions": {
+        "width": 390,
+        "pageWidth": 390,
+        "clientWidth": 385,
+        "scrollWidth": 385
+      },
+      "screenshot": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\test-results\\whatsapp-composer-browser\\mobile-welcome.png",
+      "keyboardBoundaryVerified": true,
+      "requests": [
+        "POST /api/v1/auth/refresh",
+        "GET /api/v1/notifications/feed",
+        "GET /api/v1/whatsapp/groups",
+        "GET /api/v1/whatsapp/groups",
+        "GET /api/v1/whatsapp/groups/synthetic-broadcast-a",
+        "GET /api/v1/whatsapp/message-catalog",
+        "POST /api/v1/whatsapp/groups/synthetic-broadcast-a/preview",
+        "POST /api/v1/whatsapp/groups/synthetic-broadcast-a/preview",
+        "POST /api/v1/whatsapp/groups/synthetic-broadcast-a/preview",
+        "POST /api/v1/whatsapp/groups/synthetic-broadcast-a/preview",
+        "POST /api/v1/whatsapp/groups/synthetic-broadcast-a/preview"
+      ]
+    },
+    {
+      "viewport": "mobile",
+      "type": "passport_link",
+      "missingImageBlocksSend": true,
+      "stalePreviewBlocksSend": true,
+      "recipientSelectionVerified": true,
+      "reviewTextBounds": {
+        "clientWidth": 308,
+        "scrollWidth": 308,
+        "x": 41,
+        "width": 308,
+        "viewport": 390,
+        "whiteSpace": "pre-wrap",
+        "overflowWrap": "anywhere"
+      },
+      "status": "passed",
+      "dimensions": {
+        "width": 390,
+        "pageWidth": 390,
+        "clientWidth": 385,
+        "scrollWidth": 385
+      },
+      "screenshot": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\test-results\\whatsapp-composer-browser\\mobile-passport_link.png",
+      "keyboardBoundaryVerified": true,
+      "requests": [
+        "POST /api/v1/auth/refresh",
+        "GET /api/v1/notifications/feed",
+        "GET /api/v1/whatsapp/groups",
+        "GET /api/v1/whatsapp/groups",
+        "GET /api/v1/whatsapp/groups/synthetic-broadcast-a",
+        "GET /api/v1/whatsapp/message-catalog",
+        "POST /api/v1/whatsapp/groups/synthetic-broadcast-a/preview",
+        "POST /api/v1/whatsapp/groups/synthetic-broadcast-a/preview",
+        "POST /api/v1/whatsapp/groups/synthetic-broadcast-a/preview",
+        "POST /api/v1/whatsapp/groups/synthetic-broadcast-a/preview",
+        "POST /api/v1/whatsapp/groups/synthetic-broadcast-a/preview"
+      ]
+    },
+    {
+      "viewport": "mobile",
+      "type": "reminder",
+      "stalePreviewBlocksSend": true,
+      "recipientSelectionVerified": true,
+      "reviewTextBounds": {
+        "clientWidth": 308,
+        "scrollWidth": 308,
+        "x": 41,
+        "width": 308,
+        "viewport": 390,
+        "whiteSpace": "pre-wrap",
+        "overflowWrap": "anywhere"
+      },
+      "status": "passed",
+      "dimensions": {
+        "width": 390,
+        "pageWidth": 390,
+        "clientWidth": 385,
+        "scrollWidth": 385
+      },
+      "screenshot": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\test-results\\whatsapp-composer-browser\\mobile-reminder.png",
+      "keyboardBoundaryVerified": true,
+      "requests": [
+        "POST /api/v1/auth/refresh",
+        "GET /api/v1/notifications/feed",
+        "GET /api/v1/whatsapp/groups",
+        "GET /api/v1/whatsapp/groups",
+        "GET /api/v1/whatsapp/groups/synthetic-broadcast-a",
+        "GET /api/v1/whatsapp/message-catalog",
+        "POST /api/v1/whatsapp/groups/synthetic-broadcast-a/preview",
+        "POST /api/v1/whatsapp/groups/synthetic-broadcast-a/preview",
+        "POST /api/v1/whatsapp/groups/synthetic-broadcast-a/preview",
+        "POST /api/v1/whatsapp/groups/synthetic-broadcast-a/preview",
+        "POST /api/v1/whatsapp/groups/synthetic-broadcast-a/preview"
+      ]
+    }
+  ],
+  "browser": "151.0.7922.34",
+  "passed": true
+}

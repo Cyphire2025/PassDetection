@@ -1,0 +1,95 @@
+{
+  "scope": "Specific unchanged source obligations; deliberate acquisition/lifetime/provenance semantics are NOT claimed mechanical.",
+  "checks": [
+    {
+      "source": "qualify_api_native_memory",
+      "parser_argument_calls_exact": 2,
+      "unchanged_complete_declarations": [],
+      "entire_isolation_and_resource_common_list_exact": true,
+      "fixture_generation_exact": true,
+      "readiness_top_payload_worker_stability_result_update_exact": true,
+      "client_invocation_exact": true
+    },
+    {
+      "source": "qualify_bounded_memory",
+      "parser_argument_calls_exact": 6,
+      "unchanged_complete_declarations": [],
+      "entire_isolation_and_resource_common_list_exact": true
+    },
+    {
+      "source": "qualify_postgres_memory",
+      "parser_argument_calls_exact": 1,
+      "unchanged_complete_declarations": [],
+      "ordered_SQL_calls_exact": 7,
+      "all_other_workload_statements_preserved": true,
+      "healthy_parallel_acquisition_order": "64 retained futures consumed in original submission order; successful body/SQL unchanged"
+    },
+    {
+      "source": "probe_bounded_memory",
+      "parser_argument_calls_exact": 4,
+      "unchanged_complete_declarations": [
+        "measure",
+        "generate",
+        "FixtureDigestScanner",
+        "execute",
+        "child"
+      ]
+    }
+  ],
+  "current_sources": [
+    {
+      "path": "scripts/qa/qualify_api_native_memory.py",
+      "sha256": "81689349e21f1d1b91309ef31e8af38797096deb72ff596abbbd4bb436ba474f",
+      "physical_lines": 259,
+      "max_function_complexity": 25
+    },
+    {
+      "path": "scripts/qa/qualify_bounded_memory.py",
+      "sha256": "1bd57ba7bd1f86965188bb234c3fcf9bbc97e20b07073b4f6e6149c7a982726a",
+      "physical_lines": 254,
+      "max_function_complexity": 25
+    },
+    {
+      "path": "scripts/qa/qualify_postgres_memory.py",
+      "sha256": "f3dcee80ea05a0964001134d2eace4c1b7c8e55ab8fbe53218defc1d436a9d3e",
+      "physical_lines": 230,
+      "max_function_complexity": 24
+    },
+    {
+      "path": "scripts/qa/probe_bounded_memory.py",
+      "sha256": "d8763acccf6761303e13b8d50dd494efaa789870ff0dc5dee20e4723151d29db",
+      "physical_lines": 351,
+      "max_function_complexity": 15
+    },
+    {
+      "path": "scripts/qa/owned_probe_container.py",
+      "sha256": "c66c213841f1fd6bf8833bd59f13fad12f0fa65befabc3aace51128e03105339",
+      "physical_lines": 112,
+      "max_function_complexity": 13
+    },
+    {
+      "path": "scripts/test_qa_bounded_memory_lifetime.py",
+      "sha256": "2a5bc6f8d4e255d4415745c6e463c1122e5a9edbd165e73234118bc02f909d5e",
+      "physical_lines": 291,
+      "max_function_complexity": 6
+    },
+    {
+      "path": "scripts/test_qa_native_memory_api.py",
+      "sha256": "65e3237c1e2d04bb63eb396f1c2f983fd0a617e175192daac324abde75e53270",
+      "physical_lines": 207,
+      "max_function_complexity": 19
+    },
+    {
+      "path": "scripts/test_qa_owned_probe_container.py",
+      "sha256": "63b9ef9a461f7154f793c4ba7b3c4f530e51d451d30e7129d178b0e2d9ca1637",
+      "physical_lines": 153,
+      "max_function_complexity": 6
+    },
+    {
+      "path": "scripts/test_qa_postgres_memory_lifetime.py",
+      "sha256": "9e0be5df2cfc100dcaf6d037d97f6754bc8be1200da5772524abbad3a3e3c3a5",
+      "physical_lines": 248,
+      "max_function_complexity": 8
+    }
+  ]
+}

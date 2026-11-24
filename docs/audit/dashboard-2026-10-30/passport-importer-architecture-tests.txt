@@ -1,0 +1,17 @@
+............................                                             [100%]
+
+---------- coverage: platform win32, python 3.11.15-final-0 ----------
+Name                                                        Stmts   Miss Branch BrPart  Cover
+---------------------------------------------------------------------------------------------
+app\infrastructure\imports\passport_document_images.py         31      8      6      3    70%
+app\infrastructure\imports\passport_document_importer.py      103     13     20      6    85%
+app\infrastructure\imports\passport_document_streams.py        27      1     10      2    92%
+app\infrastructure\imports\passport_document_workspace.py      80      5     14      2    93%
+app\infrastructure\imports\passport_zip_admission.py           51      3     18      3    91%
+app\infrastructure\imports\passport_zip_members.py             37      8     18      8    71%
+app\infrastructure\imports\passport_zip_reader.py              41      4     10      3    86%
+---------------------------------------------------------------------------------------------
+TOTAL                                                         370     42     96     27    85%
+Coverage JSON written to file ../docs/audit/dashboard-2026-10-30/passport-importer-architecture-coverage.json
+
+28 passed in 0.90s

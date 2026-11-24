@@ -1,0 +1,25 @@
+{
+  "runtime_sha256": {
+    "backend/app/infrastructure/my_photos/context.py": "5882eafd5f6279d7069588ef3f151a7e3aad3f811330b4c0293bbdefcf71f178",
+    "backend/app/infrastructure/my_photos/reference_lifecycle.py": "92eefe82dd72e6ea6cfb334a61d8397166f11da607a3c68487bcd4b9460e6f54",
+    "backend/app/infrastructure/my_photos/liveness_store.py": "c8b40f0851212897368909288ff614abc57d43012b59d3a72371000d74f95fb5",
+    "backend/app/infrastructure/my_photos/liveness_service.py": "e89205578fabce3fe0e9399e62725dac8c5c5b34366e68c40d4b4b346080ce20",
+    "backend/app/infrastructure/my_photos/enrollment_service.py": "58d3f2cd10df3657ee83a3c00a132098268fb79eb08285ba83d9c21bb92bea62",
+    "backend/app/infrastructure/my_photos/catalog_service.py": "d01b169cd6c52ab08342588dc91fea5adb1564643e990825361a148ae47f3e77",
+    "backend/app/infrastructure/my_photos/responses.py": "91fcb27b1bfd60b05d2d37da07ad16bce187a00ad508a4a0daa8a39bcc218331",
+    "backend/app/infrastructure/my_photos/service.py": "5b4bc5722156a745c37ab20205506baa319961cf94e35c40d9ab47704c99775e",
+    "backend/app/infrastructure/my_photos/liveness_validation.py": "8e016d8ad12f6a6c76b55d86ceaff9e188d92873b01625045a7a1d0b8bf93cf4"
+  },
+  "tests": [
+    "tests/integration/test_my_photos_provider_claim_freshness.py",
+    "tests/integration/test_my_photos_enrollment_lifecycle.py",
+    "tests/integration/test_my_photos_reference_freshness.py",
+    "tests/integration/test_my_photos_lock_order.py",
+    "tests/integration/test_my_photos_catalog.py",
+    "tests/unit/infrastructure/test_my_photos_contracts.py",
+    "tests/unit/presentation/test_my_photos_dispatch_contract.py"
+  ],
+  "coverage_policy": "First clean branch measurement for this source checkpoint. Isolated COVERAGE_FILE; no stale owner data appended and no global/full-suite claim.",
+  "status": "passed",
+  "exit_code": 0
+}

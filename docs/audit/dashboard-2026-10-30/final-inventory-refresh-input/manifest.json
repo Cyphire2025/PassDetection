@@ -1,0 +1,17 @@
+[
+  {
+    "path": "docs/audit/dashboard-2026-10-30/file-inventory.csv",
+    "sha256": "f03dc13ad24b3f94d1358d23d10df71153520e0900b4c57382d4a0a4b710f1a9",
+    "preserved_at": "docs/audit/dashboard-2026-10-30/final-inventory-refresh-input/file-inventory.csv"
+  },
+  {
+    "path": "docs/audit/dashboard-2026-10-30/inventory-summary.json",
+    "sha256": "fadbc7ab5879f47ea13898baa683907f0ca5901f065b4a5d015c7ab89f126cc0",
+    "preserved_at": "docs/audit/dashboard-2026-10-30/final-inventory-refresh-input/inventory-summary.json"
+  },
+  {
+    "path": "docs/audit/dashboard-2026-10-30/final-followup-disposition-summary.json",
+    "sha256": "d540101e6c5d0fc3db1adbb99810161f12c503215143391ce28001997964c46f",
+    "preserved_at": "docs/audit/dashboard-2026-10-30/final-inventory-refresh-input/final-followup-disposition-summary.json"
+  }
+]

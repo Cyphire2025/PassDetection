@@ -1,0 +1,495 @@
+{
+  "status": "owned40-source-review-complete-rootreservedseparate",
+  "basis": "Physicalfullsource review in7coherentcohorts. Execution neverinferred fromsource reads orotheragents runs.",
+  "complete_test_files": 40,
+  "complete_test_physical_lines": 8246,
+  "files": [
+    {
+      "path": "scripts/test_release_mcp_admin_approval_contract.py",
+      "sha256": "b2dbd244afd17fdf3c737f91bf3fb2ceb022be714aabd54dfe80d83fb188d36c",
+      "physical_lines": 153,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Full153physicalsource read0-83+83-EOF. Isolated fixture manifest/defaultschema strings and copied originalone migration protect exact newkind/parent/hash/policy includingstrictboolvsint, disabledinitialauthority, no retainedstate discard and historicalexecutor refusal. Planner must fail beforecommands/fences/reads/files for unsupportedkind. Real source validators called; checked-in .env.example only, no realenv read/provider calls."
+    },
+    {
+      "path": "scripts/test_release_mcp_contract.py",
+      "sha256": "0a8a1482789774073898304095ef642b7946d185ab2106095eb1b417b29c5a73",
+      "physical_lines": 103,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Full103physicalsource read. Temporary root copies exact historical migration bytes and constructs isolated originalrelease manifest; mutation tests protect retention, disabled initialcapabilities, exactchain/order/ancestry/path/hash/source/target/unknownkeys and same-schema refusal. Actual pure sourcecontract/validator called; no deployment/import ofmigration code asserted."
+    },
+    {
+      "path": "scripts/test_release_mcp_database.py",
+      "sha256": "531c406b5884e2ffd818260a56e2b8bdf1aa97a7d89c75b3743f5ee1a5990240",
+      "physical_lines": 217,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Full217physicalsource read0-120+120-EOF. Callback command/fence/schema stubs exercise real planner and local exclusive receipts/backups, sourcebindings/checkpoint order/partialretention/PGDMPmetadata/decode request/targetretry/refusal/staticerror redaction. Synthetic PGDMP bytes and callback pg_restore output do not prove actualbackupdecode/restore/PostgreSQL/durability. POSIX0600 assertions intentionallyconditional; Windowsfilemode not certified. Inimage helper import calls verify_sources only, no main/provider/deploy."
+    },
+    {
+      "path": "scripts/test_release_mcp_direct_devices_contract.py",
+      "sha256": "0360629dbb2b08a7128167bf0dce431459217f653f3b397a9cf6f3438d1e9d9a",
+      "physical_lines": 155,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Full155physicalsource read0-80+80-EOF. Historicalsourcefixture intentionally independentcurrentmanifest. Onepath/parent/hash/defaults+policy/currentauthorityretention typedmutants, historicalreadOnly/additivehelper refusal, and no-command unsupportedplanner controls meaningful. Actualpure validator/verify_sources calls do notqualify realdatabase migration/deviceauth/liveconnections."
+    },
+    {
+      "path": "scripts/test_release_mcp_read_only_contract.py",
+      "sha256": "28cb5b4278c9b92801bb597af07e50deebb64ad00688b198944779d38a0d4b52",
+      "physical_lines": 178,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Full178physicalsource read0-105+105-EOF. Isolated historicalmanifest/copiedmigration, disabledwrite/export/grantexpansion/cleanup/downgrade/source/path policy, exact dedicatedhelper planning usingexclusive syntheticarchive, fencebeforecommand, sourceverification andsame-schemarefusal. NoSQL/provider/realDocker executed by fixtures; callback output is deliberately notbackuprestore evidence."
+    },
+    {
+      "path": "scripts/test_release_artifacts.py",
+      "sha256": "770a1a0e115f89ecf96120d672640310de2b0a7c9939733de49fe44f7cac63c2",
+      "physical_lines": 217,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete217physical source read0-118+118-EOF. Trustcommand exactrepo/commit/main/workflow/issuer/hostedrunner/SBOM, signature-beforeparse/pull, unsignedactivation, immutableimage/config/localstore equivalence, localtar configdigest/layerchecks, strictOCIdefaultnormalization/nonmutation, unknown/type fields andactualfuture-policyclockfailure controls. GH/Docker responses are fake andlocaltar synthetic; notreal signature/build/layers/registry/deployment qualification."
+    },
+    {
+      "path": "scripts/test_release_ci_dispatch.py",
+      "sha256": "fd676f0693b24299c2e498c7ba7b4543d28b784235c21c219cb36e3bd5482e76",
+      "physical_lines": 67,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete67physical source read. Actual workflow YAML jobnames tested, restricted exactlowercaseSHA command rejects newline/shellsuffix/branchname, currentmain refresh refusal, exactrepository/workflow/branch/event/gateconclusion/missingjob controls. RealLinux flock only underPOSIXconditional; no Windowsclaim. GitHub/run/serveractions are supplied pure metadata/mocks, not liveCI/deployment authorization proof."
+    },
+    {
+      "path": "scripts/test_release_code_update.py",
+      "sha256": "04d6f5a150b824960857ad8671e468060182fe4138f83b21b6d50e7d8c4c4147",
+      "physical_lines": 383,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete383physical source read0-125/125-260/260-EOF. Typed Scenario overrides hostmethods while realtransition/recover runs: partialreadiness onlybackgroundpause, memoryreserve/foreign/unboundedcontainer accounting, narrowupstreamrewrite, persistedtask-signature/BOM rules, initial/preflight/late/partialreplacement rollback order, liveinflightgeneration retention andprotectedenv/overlay driftdetection. Optional actualCompose renderer uses synthetictemp env/config and30sdeadline only, no daemon required; not invoked here. FakeDocker host cannotqualify runningVPS/drain/memory/retaineddata safety."
+    },
+    {
+      "path": "scripts/test_release_connector.py",
+      "sha256": "6f5af22b55303c26765d4f478ac7ea662dfd3a648f881df3a30cab6950836c94",
+      "physical_lines": 66,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete66physical source read. Temporary synthetic package sources and output exercise realexact inventory/copy/digest/source-binding refusal; booleanversion, expandedpath, tamperedbytes and premature interactivequalification rejected. Signature failure patchedbeforeinvalidJSONinterpetation; actualattestation notclaimed. No connector login/vault/provider action."
+    },
+    {
+      "path": "scripts/test_release_manifest.py",
+      "sha256": "6ef3347a20dad9287bd7406ccbd9b15be1dd34845f417343f0c1264bcce08ea2",
+      "physical_lines": 57,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete57physical source read earlier as deployment support and reread for testcontract coherence; countedonce. Actual currentmanifest/default contract, per-servicestalerevision rejection, missingworker/wronghostname andeightworkerNode observations meaningful. Sourceverify functions/celerypayloadonly, no worker invocation or deployment. Operational queue/service identities preserved."
+    },
+    {
+      "path": "scripts/test_release_publication.py",
+      "sha256": "9b8f6a5fccb7d3838a14ed6c247ef115034f8d46fc8d41b031f7ea0a0220c982",
+      "physical_lines": 329,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete329physical source read0-115/115-230/230-EOF. Realpublication state machine runs over deterministic GH transport: exactall7assets/readback/tagidentity, matchingexistingtag/reuse, no immutablepublishedmutation, noDELETE/cleanup, missing/extra/duplicates/bytes/size/state IDs, auth/neterrors notabsence, pendingdraft/concurrenttag andambiguouscreate/upload/publish stopwithoutretry. Qualifiedassetverification intentionallystubbed for publicationcases; separate signature-beforeparse control exists. No actualGitHub request/publish/credential."
+    },
+    {
+      "path": "scripts/test_release_document_distribution_contract.py",
+      "sha256": "6fd8c0bedf7df54ee5e05b6c9b5142e12f48ec436d3857191ff6da1fde3470e5",
+      "physical_lines": 80,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete80 physicalsource read. Historicalfixturecopy has exact2nullablemigration chain. Actualpurecontract, retention/no-downgrade/history/nullpolicy typedmutants, same-schema refusal andintermediateschema resume usingoriginalsyntheticbackup/writerfence meaningful. SyntheticPGDMP/TOC callbacks are notrealbackupdecode/migration; no externalcommand executed here."
+    },
+    {
+      "path": "scripts/test_release_document_distribution_policy.py",
+      "sha256": "33c6eee108d33aa254dd1de768b32a85df110e02c020339b2b4ffffacc2226d9",
+      "physical_lines": 275,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete275physicalsource read0-118/118-223/recovered180-EOF. Purefield/schema/overlay/profile/tasksignaturepolicies plus realuniquetemporaryGithistory fixtures. Controls rejectdirty/untracked inputs, wrongHEAD, unrelatedpersistent/migration/scheduler/task/modelchanges whilepreservingexact reviewednullablefields/defaults/aliasimports/RAMRedisCPU/order/nulladditions. Gitfixturestubs onlysourcecontract because actualmigrationASTqualifiedelsewhere; no runtimeDBqualification or workspacecommit claim."
+    },
+    {
+      "path": "scripts/test_release_document_fast.py",
+      "sha256": "9a488f31d2eaa5e5871fd68a1d2062e73b2694f21f2a89acf17e3fc07a44194b",
+      "physical_lines": 177,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete177physicalsource read0-95+95-EOF. Historical source fixture binds Fast imagebase/revision/schema/config/strictmodeclaims/builderstopped/runtimeresponseAPIhash; exactprivate rehearsalreceipt/checks/type/bytes required. Fakehost tests pausedworkersduringbuild/rehearsal andunknownhelper preventingresume, oldreceiptrecovery avoidsrebuild. All hostcommands/migrationhelpers stubbed; FastnevercalledFullqualification. No source/stamp/image mutations."
+    },
+    {
+      "path": "scripts/test_release_document_retained_update.py",
+      "sha256": "29acec6ca4d165f57e086932387a88eaa07730ba2905cab284999dd088183d5c",
+      "physical_lines": 302,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete302physicalsource read0-150/150-250/250-EOF with78-91 clippingrecovery. Actualtransition/recovery/resourcehelper invoked overcompanyfakehostfixture; guards explicitmode, missing/badproof, source/target preflightorder, livehelpernostop, verifiedmigrationnullcolumns, exactclonedvolume/auth/image/CPU/DNS/resourcecaps/privateimmutableevidence, noforceRedisstop andnarrowemptyMountnormalization. FakeDocker/receiptclaims do notqualifyliveDDLRAMRedis. Checked-in syntheticpaths andprovider_calls=0 fixtures notexternal credentials."
+    },
+    {
+      "path": "scripts/test_release_pdf_checking_profile.py",
+      "sha256": "b0ad6ce121e06baf5fae65ce24a89d6d5a6f901a26fc8f1e5547b43b693aaae2",
+      "physical_lines": 95,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete95physicalsource read0-55+recovered55-EOF. Realpurebudget/clone/inventory/candidateenv functions overfixedfakehost. Tests explicitpause-fundedbackendcap/hostreserve, unchangedotherlimits/env/secrets, pausedservicelabel/projectmatching andschedulerprofile. Sharedresourcepause flagsexaminedonlyasdeploymentcompat; dedicatedInboxpipeline deferred andnotreviewed. No host/worker/provider execution."
+    },
+    {
+      "path": "scripts/test_release_persistent_resources.py",
+      "sha256": "9e0b6ee6da536fc11b87797f3acc73c947126821bfe7a1c11e7653749967fce7",
+      "physical_lines": 248,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete248physicalsource read0-125+125-EOF. Fixturemodels containers/images/volumes/process identity/fingerprints andfaults while actualapply/recover follows sameRedisprocess/unpause/all-target-beforemutation/verifiedbackup/PGDATA/mount guard/interruptedDB/fingerprint/volume/cluster/runtimewriter checks. Nativecgroup/fingerprint calls mocked deliberately; data-preservation in a dictionary is notPostgreSQL/Redis evidence. No rollback/purge/restore command introduced."
+    },
+    {
+      "path": "scripts/test_release_realtime_startup.py",
+      "sha256": "f03b213c8eb82b26fef29fb7ea00a0e2cb545b861f5ac34d456891df605f9cde",
+      "physical_lines": 85,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete85physicalsource read with0-35/30-45clippingrecovery andremaining45-EOF. FakeRetainedArtifactDocker + synthetictemp.env exercise historicalschema0098 backend/sharedworker update, nofrontend/downgrade/purge/cleanup, freshperactivationbackup, baddecodebeforeupgrade/up, optionalAPNSmountpreservation andprivatefixturevalue notstdout. Sharedstartuprelease surface retained; no nativeclient/provider/actualdeployment called."
+    },
+    {
+      "path": "scripts/test_release_redis_dataset_transition.py",
+      "sha256": "6f2d9257adef1d1ecffac1a1fc3b659027564bc3fee4c0d86d19d74ff53a3ea6",
+      "physical_lines": 220,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete220physicalsource read0-110+110-EOF. FakeRedisDocker/files/fingerprint/CLI executes actualtransitioncheckpoint code; old/new maxmemory auth/policy/duplicate flag validation, exactone-restart resume, retainedcache snapshot/volume, ambiguousarchive/start recovery, missingunexpired/value/absoluteTTL drift, legitimateexpiry andmemoryadmission tested. _runtime and nativefingerprint intentionallymocked; not actualRedis/Lua/persistence/clock qualification."
+    },
+    {
+      "path": "scripts/test_release_resource_budget.py",
+      "sha256": "5b513ba10d4fd9ff359e6c389448083c615952fe813adc80a7a4e6d873ffb336",
+      "physical_lines": 113,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete113physicalsource read includingrecovered99-EOF. Pureplanned/liveadmission asserts fixedhostreserve, declaredmaintenanceprofile/restart/phaseexclusion, allforeigncaps/unboundedIDs/overcommit, exactstoppedwriters andsinglehelper/provider overlap, no concurrentDBhelpers/Redisrestarts orbatchedpersistentservices. Syntheticinspectrows notlivephysicalmemory/process-state proof; no hostmutation."
+    },
+    {
+      "path": "scripts/test_release_resource_fence.py",
+      "sha256": "e7cb9e74a62b55eea119783e6f831a9a99cea02d1f083db4606715603b5d61ae",
+      "physical_lines": 179,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete179physicalsource read0-95+95-EOF. ResourceDocker inherits fakeFenceDocker while actual durableouterfence methods track stops/drains/checkpoints/config/project/image/mount/preparedcandidate identity/cleanexits/startcompletion andnetwork fallback. Storageinnerrestore mustnotrestartouter-fencedwriters. Exactcap/reserve/inheritedallowedSwap assertions meaningful overfakeinspectrows; no livekernel/Docker/acceptedjob/volume proof."
+    },
+    {
+      "path": "scripts/test_release_authored_notifications.py",
+      "sha256": "a494909f07567c5a3b1afa5d863736822e07f4ae1b8333bb2eb43ed224edc914",
+      "physical_lines": 96,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete96physicalsource read. RetainedArtifactDocker patch exercises historical0096->0097 realrelease prepare/activate/preflight: originalenv/provider config andallappservices/backup-beforemigration/acceptedbusyretry preserved, faileddecodeblockschange, optionalAPNSreadonlymount forbothphases. Onlysynthetic .env underownedtempdir, no credentials/notificationprovider/nativeclient execution."
+    },
+    {
+      "path": "scripts/test_release_gc_app_group_removal.py",
+      "sha256": "be430b652a8add3eb0adcf87880dfc5b1d3b89a29e0855872c5d3d729d5d7fd6",
+      "physical_lines": 96,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete96physicalsource read. Realhistorical0098->0099 release overfakehost protectsfrontend/sharedworkerpins, originalhistory/artifacts/env/providerconfig, no destructiveops/--rm, backupfailbeforemigration, retryoriginalbackup andAPNSmountcompat. DoesnotexerciseorqualifynativeclientorgroupmutationAPI."
+    },
+    {
+      "path": "scripts/test_release_gc_group_access.py",
+      "sha256": "cb15ff3e0e008879615fc22364cc461eaabd8bd3a2f35c724f4bc066a7ef1f2d",
+      "physical_lines": 87,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete87physicalsource read. Historical0095->0096 submittedphone-index release testsbackup-beforeupgrade/allappservicepins/providerconfig/history retention, targetretryrequiresexactoriginalpremigrationbackup andbusyworkerrecheck. Fakehostschema transitionsnotrealphoneauthorization/migration/volume qualification."
+    },
+    {
+      "path": "scripts/test_release_health_asset.py",
+      "sha256": "946363b761bfe7e4ca1a2da5612f4fd690a0c41591b40dfab17a57d58f478adb",
+      "physical_lines": 135,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete135physicalsource read0-75+75-EOF. Realcapturedfrontendpromise scripts runonlyunderlocalfakefetchwhitelist wheninvoked; success/loginfail/iconfail exitcontrols validatebothroutes, currentandbothGitsourcePWAiconPNG/Dockercopy andpublicHTTP200 checks meaningful. ExistingAI44case receipt attribution separate; no rerunhere. No realfetch/privatefixtures/liveprobe/archiveassets change."
+    },
+    {
+      "path": "scripts/test_release_import_groups_archive.py",
+      "sha256": "4f72c81fe0f1f5e886615f0b986a69b3fcff918d200507fad72fb0d4394e2bf6",
+      "physical_lines": 156,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete156physicalsource read0-98+98-EOF. Historical0099->0101 release fakehost guardsallappservices/premigrationbackup/hashdecode/retryemptyworkers/unknownintermediateschema/refusalwithoutoriginalevidence, provider/env/history retention, optionalAPNStruthystrings andexplicittrafficpauseCLIbeforecommand. No live migration/archival/API/provider result."
+    },
+    {
+      "path": "scripts/test_release_notification_guard.py",
+      "sha256": "960437170b799105791032b154af0069234ce5844b2ec3414633d89e421b6d93",
+      "physical_lines": 315,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete315physicalsource read0-125/125-230/230-EOF. RetainedArtifactDocker faithfullydifferentiatespreservedoneoffs fromoriginalfake; realsame-schema release guardedfreshperattemptbackup, nofallbackolderbackup, sharedlockbutdistinctreceipt namespaces, opt-inpartial/container/archive retention, olddefaultcleanupunchanged, busy/no-broader-schema/retag/wrongrevision/privateoutput/public503/frontendunchanged/explicittrafficpause controls. Nativepgdump/restore/containers mocked; no priorrelease workflow reset orrealproductionenv."
+    },
+    {
+      "path": "scripts/test_release_notification_workspace.py",
+      "sha256": "666bbc126a78a9bc6b48ac0166ab5492ca7a1b2d02ba70d120f48a82159d5a64",
+      "physical_lines": 96,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete96physicalsource read. Historical0097->0098 dashboardnotification release guardsfrontendinclusion/sharedservices, freshvalidatedbackup, ownedartifact/env/historyretention, busyretry andoptionalAPNSreadonlymount. No liveAPI/notificationsends/Postgres proof."
+    },
+    {
+      "path": "scripts/test_release_travel_tracker_contract.py",
+      "sha256": "cebb3eba2fc2ce52cb55ac6e626e4b5dba0314c39f9d22a9389e7ff055d117d9",
+      "physical_lines": 114,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete114physicalsource read. Uniquehistoricalmanifest/canonicalmigrationbytecopy exerciseactualsourceandpackagedhelperpolicies; strictversion/write/grant/settings/history/nulltable/downgrade retention mutations, exacthash/path/parentandduplicateassignment refusal. Inimagehelper onlyverify_sources called; no data/provider/schemaexecution orlive trackerqualification."
+    },
+    {
+      "path": "scripts/test_release_workspace_branding.py",
+      "sha256": "bc4940e5c52ee6ff9dd253d9b780f4f8d4ddd074fa67ff5cecb2cb4827508690",
+      "physical_lines": 157,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete157physicalsource read0-100+100-EOF. Actualsourcecontract/currentreviewedbindings, baselines/background-onlychain, stale/prohibitedpersistentpathbeforeGit, freshschedulerprocess-tick/PID/StartedAt guards andsource-vs-partial/target forwardrecovery distinction tested. Syntheticpartialrecords KeyError controls onlyproveoldwriterrecovernotcalled; notvalidrolloutsuccess. No stamps/bindings edits orruntimebuildclaim."
+    },
+    {
+      "path": "scripts/test_release_companies_credentials.py",
+      "sha256": "f991fa52cb36667ca605fb1260cef3a608c2f4a06bc56daa81fd336edf951dea",
+      "physical_lines": 281,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete281physicalsource read0-122+122-EOF. Actualcredentialcustody/preflight functions runovertempdirs/syntheticUnicodepasswords andmockedDockerdriver: distinct bootstrap/runtime/migrator, exactDB/endpoints/networks/sourcebindings, exclusiveprivatefile/symlink/hardlink/size/owner permissions, stdinnotargv, read-onlyquery/timeouts/defaultACLproof, stoppedoriginalnoexec, failedproofnocapability, drift/orphannotreplaced. ActualfixedPREFLIGHT exec usesfullystubbed psycopg2 only; notnativePGauth/ACL/realcredentialaccess. Reservedruntimehelper functions invokedbytestdefinitions butnotedited/testedhere."
+    },
+    {
+      "path": "scripts/test_release_companies_fast.py",
+      "sha256": "35ca1d1aeb2296c7f9d97c6ae301a98f25bb823d4bc924bd41253c484a86ceae",
+      "physical_lines": 235,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete235physicalsource read0-120+120-EOF. ActualFastimage/API/source/base/builder/privateexactrehearsalguards overfakeimage/containers. Tests minimumfixture/DDLrollback/splitrole/exacttrue checks, missingproofbeforelivebackup, pausedbeat/workersacrossbuild+rehearsal, cleanfailurevsunknownhelperresume, no rerunonrecovery andFullneverbuilder. Fakehost/receipt values notactualPostgres/RAM/browser/testqualification."
+    },
+    {
+      "path": "scripts/test_release_companies_retained_update.py",
+      "sha256": "8d8563effded7ad15af4c846e9a3766e9b70e9f56ec8874daa6a9b04ff59a575",
+      "physical_lines": 409,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete409physicalsource read0-125/125-265/265-EOF. Sharedrelease_fixture intentionallyobject.__new__+mockedhostsource/retention/proof/migrationidentity; realorchestration/policyfunctions protectexactcustodybeforestop/start, sourcecontract/hash/imagebindings, fixedtask/scheduler/interfaces, gatedhelpercaps/admission, drainordering/failure, bothwriter-generationsforwardfence, runninghelpernoaction, originalbackup/baselinecaptureandtargetrevalidation, no completedreceiptwithoutfinalproof, targetwritesvalidatedresume, same-schemafallback. Reservedhelperimplementation/root75caseactivitynotedited/executed; dictionary/Mockoutcomes notrealVPS/DDL/cgroup proof."
+    },
+    {
+      "path": "scripts/test_release_companies_secrets.py",
+      "sha256": "62efb95286194b02b24ad9ea934287f17e2c7b67fba7d7fee8a2c17b2c9fe591",
+      "physical_lines": 117,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete117physicalsource read. Existingprivatekeymaterial syntheticonly; actualruntime_values/verify_configuration preventbrowser/proxykeyprojection, partial/inconsistent/live-schema/keycustodydrift/newkeygeneration/orphanoverwrites andpreserveexistingdisabledflag. Fixturebase64/literals publictestmaterial, no existingkeyfilesread/providercontact."
+    },
+    {
+      "path": "scripts/test_release_companies_traveller_contract.py",
+      "sha256": "1b720c0a0fe3763403c86fd7a5e2fc1cc11ca0072d1382469efd9e6d6b8f2906",
+      "physical_lines": 148,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete148physicalsource read0-90+90-EOF. Historical3migrationbytecopies+actualpurecontract/helper compare strictpolicy/grant/reuse/history/no-downgrade/path/parent/order/hash; actualrun_revisions callbackinterruption commitsfirstthenresumesremaining, no-opattarget andoutside-schema/no-progress rejection. Syntheticbackup/plannerfencerequiresexactoriginalreceipt acrossintermediateheads; no realDDL/restore/data qualification."
+    },
+    {
+      "path": "scripts/test_release_current.py",
+      "sha256": "08591b169e3a56a809ee5cbaddd82a4793dd4e0e18ace024174f9bf69cf82262",
+      "physical_lines": 559,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete559physicalsource read0-100/100-225/225-350/350-465/465-EOF with98-116 clippingrecovery. CurrentDocker extendsRecoveryDocker withsyntheticroles/storage/network/helper/faultstate; realCurrentRelease controls outerfence/backup/role/migration/storagecutover/providerDNS/newnetworkretry/noovercommit/nativeisolation/currentmanifest targetidentity. Explicitdefaultpatches isolateinnerarchive/role/storage; enable_resource_lifecycle casesrestoreactualouterfence. Fakevolumes/copyreport/hash/SQL/dump outputs notlivePG/SeaweedFS/sourceversion preservation. ROOTsourcecopiespublicchecked-incontracts only; temp.envsynthetic. No realcredentials/providerkey/network/Docker."
+    },
+    {
+      "path": "scripts/test_release_mobile_fcm.py",
+      "sha256": "143c9d6fa27f2139115b987acb65b73972bba1380f6d54e3463f295ec319b58a",
+      "physical_lines": 258,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete258physicalsource read0-130+130-EOF. Historicalsharedserver0094->0095 release guard retainsallappservices/backups/oneoffcontainers, no providerenablement, strictsource/target/outside-schema/currentcommit archivedretry, corrupted/missingbackupblocked, busyworker/refusal/preparedpins/public503/trafficpause. Nativeclient/UI notaudited; FCMprovider transportnotcalled. FakeRetainedArtifactDocker andliteralfixturecredentials deliberately notrealprovider/PostgreSQL evidence."
+    },
+    {
+      "path": "scripts/test_release_reliability.py",
+      "sha256": "4b59a7ca51e522bb9f3ff3767cf8911e0a29c838f140462f5a0fd7afccf22e9e",
+      "physical_lines": 280,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete280physicalsource read0-110+110-EOF. RecoveryDocker introducesonlysyntheticPGDMP/copy/TOC/decode/hash/failureoutputs overFakeDocker; realrelease preservesimagesbeforebuild, readonlyinitialliveDBtarget andnetworkaliases, fresh/archiveintegrity-beforemigration/env, targetretryrequiresexactoriginalarchive andno automaticdowngrade. Tests role/DBhost/port/name/network drift beforebackup evenafterpreflight meaningful. restore_rehearsedFalse explicit; no actualpgdump/restore/DB/network qualification."
+    },
+    {
+      "path": "scripts/test_release_retained_update.py",
+      "sha256": "cd6e1959c6a8114718999575a20f9007c18ccc9f3eff55ae91e7e19584484e62",
+      "physical_lines": 488,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete488physicalsource read0-100/100-235/235-365/365-EOF withlast8clippingrecovery. ActualgeneratedFastbuilder runsmappedrealtempfiles withmodeledCHOWN-onlypermission/copy/deleteandstubAPIexport, secondgenerationuniquestaging preservesinheritedsource/dependencies; notnativeLinuxDACproof. Actualpureliveinventory/strictmodes/revisions/task/routes/privacyallowlist/readinessstability, runtimeenvpreservation, proxyrewrite andrecovery/workerdrain/unknownbuilder/nonoverlap/failure/explicitresourcepause controls overfakes. No realSSH orhostexecution; literalhost passeddeployment_command only. Existing sharedpause compatibility bounded, dedicatedInboxdeferred."
+    },
+    {
+      "path": "scripts/test_release_traveller_whatsapp.py",
+      "sha256": "31aa67604df33deef58f908ccf500236de203aef519dc412a872ee4f657d1e22",
+      "physical_lines": 520,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete520physicalsource read0-110/110-235/235-375/375-EOF. FakeDocker assertsrestrictedcommandshape/env/stdin andtracksactualschema/image/env/worker-nodefailurestate, raisingonunexpectedcommands. Reusedfixture meaningful forsmallercohorts butnotrealkernel/Docker. Actuallegacyrelease tests initialDBinspectionbeforecandidateComposeinterpolation, workerreplyschema failclosed, renderedimageidentity, atomicprivatewrites/retainedgenerictemp, imagepins/activationorder, jobarrivalsduringmigration/retry, wrongcheckout/dirty/untracked/configdrift, image mismatch andpublic503. Historical0093/defaultworkercleanupcontracts intentionallypreserved; no deployment/provider/productionenv read."
+    }
+  ],
+  "cohort_ledgers": [
+    {
+      "path": "release-mcp-tests-reviewed-files.json",
+      "sha256": "7db4b5fdd9f1dab37ec16c696174f125a1a4db28732eb1ead3f156b48a2db423"
+    },
+    {
+      "path": "release-controller-tests-reviewed-files.json",
+      "sha256": "878e99614985916f05ca7090a829e71378aca1465aae7bbb7b3153ca36425b9a"
+    },
+    {
+      "path": "release-document-tests-reviewed-files.json",
+      "sha256": "4fc1f29b15884a7253e3378e17f61881d9a1803a27807f7381a6c5601ec5e6e7"
+    },
+    {
+      "path": "release-resource-tests-reviewed-files.json",
+      "sha256": "56b8c5c20e7f8934890591ca744e9b1daa613f57f0df174d6b5dff438e39847c"
+    },
+    {
+      "path": "release-feature-tests-reviewed-files.json",
+      "sha256": "5e4dfadab51c9d82104357d7f93a5f910c6895663df44b3d5101350e6ef5a4d0"
+    },
+    {
+      "path": "release-company-tests-reviewed-files.json",
+      "sha256": "18e94080c9e4d6236ceb6ebb6a32ee9808479140b70fab896f7c69580f9a698a"
+    },
+    {
+      "path": "release-core-tests-reviewed-files.json",
+      "sha256": "199d938ae6cdfde5cb468361836c642c20e3c04c74ab12891f04da6827b7fbe5"
+    }
+  ],
+  "skipped_current_full_attributed": [
+    {
+      "path": "scripts/test_release_companies_runtime.py",
+      "sha256": "65d544624f33a2d923dd337c2c40f884d8e230ad54d6c47be04e87ba6cf46e74",
+      "lines": 139,
+      "matching_full": [
+        "migration-output-release-source-cohort-18-reviewed-files.json"
+      ],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": true
+    },
+    {
+      "path": "scripts/test_release_mcp_admin_approval_contract.py",
+      "sha256": "b2dbd244afd17fdf3c737f91bf3fb2ceb022be714aabd54dfe80d83fb188d36c",
+      "lines": 153,
+      "matching_full": [
+        "release-mcp-tests-reviewed-files.json"
+      ],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_mcp_contract.py",
+      "sha256": "0a8a1482789774073898304095ef642b7946d185ab2106095eb1b417b29c5a73",
+      "lines": 103,
+      "matching_full": [
+        "release-mcp-tests-reviewed-files.json"
+      ],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_mcp_database.py",
+      "sha256": "531c406b5884e2ffd818260a56e2b8bdf1aa97a7d89c75b3743f5ee1a5990240",
+      "lines": 217,
+      "matching_full": [
+        "release-mcp-tests-reviewed-files.json"
+      ],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_mcp_direct_devices_contract.py",
+      "sha256": "0360629dbb2b08a7128167bf0dce431459217f653f3b397a9cf6f3438d1e9d9a",
+      "lines": 155,
+      "matching_full": [
+        "release-mcp-tests-reviewed-files.json"
+      ],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_mcp_read_only_contract.py",
+      "sha256": "28cb5b4278c9b92801bb597af07e50deebb64ad00688b198944779d38a0d4b52",
+      "lines": 178,
+      "matching_full": [
+        "release-mcp-tests-reviewed-files.json"
+      ],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_resource_profile.py",
+      "sha256": "b54d5b155558fca5d34faefc4884ce56db05d3ad69502c1e5cd45d1ce89651ec",
+      "lines": 151,
+      "matching_full": [
+        "retained-release-source-cohort-03-reviewed-files.json"
+      ],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    },
+    {
+      "path": "scripts/test_release_workspace_branding_bindings.py",
+      "sha256": "d18cc4028e5082ffe99ca14797c78f4846da0de041f49c3c2d0ef7b662d98bff",
+      "lines": 163,
+      "matching_full": [
+        "release-bindings-reviewed-files.json"
+      ],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": false
+    }
+  ],
+  "root_reserved_pending_or_root_owned": [
+    {
+      "path": "scripts/test_release_companies_runtime.py",
+      "sha256": "65d544624f33a2d923dd337c2c40f884d8e230ad54d6c47be04e87ba6cf46e74",
+      "lines": 139,
+      "matching_full": [
+        "migration-output-release-source-cohort-18-reviewed-files.json"
+      ],
+      "inventory_scope": "operations-and-tooling",
+      "reserved": true
+    }
+  ],
+  "checks_run_for_read_only_cohorts": [],
+  "remaining_owned_source_reads": [],
+  "limits": "Wholeauditscope/runtime/operationalfindings independent. Rootreservedruntime/no broadqualification claimed."
+}

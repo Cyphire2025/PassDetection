@@ -1,0 +1,9 @@
+{
+  "command": [
+    "node",
+    "scripts/verify-frontend-module-budgets.mjs"
+  ],
+  "exit_code": 0,
+  "duration_seconds": 0.67,
+  "output": "docs/audit/dashboard-2026-10-30/camera-gc-checkpoint-ratchets.txt"
+}

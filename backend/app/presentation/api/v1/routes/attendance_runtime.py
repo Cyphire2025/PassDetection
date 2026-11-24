@@ -3,11 +3,9 @@
 from __future__ import annotations
 
 import uuid
-from collections import defaultdict
 from datetime import UTC, datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
-from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.mobile.coordinator_roster_revision import (
@@ -16,19 +14,11 @@ from app.application.mobile.coordinator_roster_revision import (
 from app.core.config.settings import get_settings
 from app.core.security.mobile_offline_lease import sign_offline_manifest
 from app.domain.entities.entities import (
-    OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES,
     User,
     UserRole,
 )
-from app.infrastructure.database.models import (
-    AttendanceSessionModel,
-    ClientGroupModel,
-    PassengerQRTokenModel,
-    PassportSubmissionModel,
-)
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.repositories.attendance_discard_repository import (
-    AttendanceDiscardInput,
     AttendanceDiscardRepository,
 )
 from app.infrastructure.repositories.attendance_runtime_repository import (
@@ -36,7 +26,19 @@ from app.infrastructure.repositories.attendance_runtime_repository import (
     AttendanceRuntimeRepository,
 )
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
-from app.infrastructure.repositories.operational_roster import operational_roster_member
+from app.presentation.api.v1.routes.attendance_discard_sync import (
+    synchronize_browser_discard_groups,
+)
+from app.presentation.api.v1.routes.attendance_offline_authorization import (
+    build_browser_offline_authorization,
+)
+from app.presentation.api.v1.routes.attendance_offline_sources import (
+    _offline_readiness_error as _offline_readiness_error,
+)
+from app.presentation.api.v1.routes.attendance_runtime_dependencies import (
+    DiscardSynchronizationDependencies,
+    OfflineAuthorizationDependencies,
+)
 from app.presentation.api.v1.routes.tour_operations import (
     _ensure_group_assigned_to_coordinator,
     _get_coordinator_attendance_session,
@@ -45,16 +47,11 @@ from app.presentation.api.v1.routes.tour_operations import (
 from app.presentation.api.v1.schemas.attendance_runtime_schemas import (
     AttendanceDiscardBatchRequest,
     AttendanceDiscardBatchResponse,
-    AttendanceDiscardItemRequest,
-    AttendanceDiscardItemResponse,
     AttendanceRuntimeDispositionRequest,
     AttendanceRuntimeDispositionResponse,
     AttendanceRuntimeRegistrationRequest,
     AttendanceRuntimeRegistrationResponse,
     BrowserOfflineAuthorizationBundleResponse,
-    BrowserOfflineAuthorizationPayload,
-    BrowserOfflineAuthorizedPassenger,
-    BrowserOfflineAuthorizedSession,
 )
 from app.presentation.dependencies.auth import require_recent_mfa, require_role
 from app.presentation.dependencies.csrf import require_cookie_csrf
@@ -279,222 +276,21 @@ async def provision_browser_offline_authorization(
     current_user: User = Depends(require_role([UserRole.AGENCY_COORDINATOR])),
     session: AsyncSession = Depends(get_db_session),
 ) -> BrowserOfflineAuthorizationBundleResponse:
-    settings = get_settings()
-    agency_id = _require_agency(current_user)
-    runtime = await resolve_browser_attendance_runtime(
-        request,
-        session=session,
-        agency_id=agency_id,
-        coordinator_user_id=current_user.id,
-        required=True,
-    )
-    if runtime is None:  # pragma: no cover - required=True is exhaustive
-        raise RuntimeError("Attendance runtime resolution was incomplete")
-    await _ensure_group_assigned_to_coordinator(
-        session,
-        agency_id,
+    return await build_browser_offline_authorization(
         group_id,
-        current_user.id,
-    )
-    group = await session.scalar(
-        select(ClientGroupModel).where(
-            ClientGroupModel.id == group_id,
-            ClientGroupModel.agency_id == agency_id,
-            ClientGroupModel.deleted_at.is_(None),
-            ClientGroupModel.status != "deleted",
-        )
-    )
-    if group is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-
-    attendance_sessions = list(
-        (
-            await session.execute(
-                select(AttendanceSessionModel)
-                .where(
-                    AttendanceSessionModel.agency_id == agency_id,
-                    AttendanceSessionModel.group_id == group_id,
-                    AttendanceSessionModel.id == AttendanceSessionModel.canonical_session_id,
-                    AttendanceSessionModel.status == "active",
-                )
-                .order_by(
-                    AttendanceSessionModel.scheduled_starts_at,
-                    AttendanceSessionModel.id,
-                )
-                .limit(201)
-            )
-        ).scalars()
-    )
-    if not attendance_sessions:
-        raise _offline_readiness_error(
-            "OFFLINE_ACTIVITY_NOT_AVAILABLE",
-            "No active attendance activity is available for offline scanning.",
-        )
-    if len(attendance_sessions) > 200:
-        raise _offline_readiness_error(
-            "OFFLINE_ACTIVITY_LIMIT_EXCEEDED",
-            "Too many active attendance activities are configured for offline use.",
-        )
-    scheduled_sessions: list[tuple[AttendanceSessionModel, datetime, datetime]] = []
-    for item in attendance_sessions:
-        scheduled_starts_at = item.scheduled_starts_at
-        scheduled_ends_at = item.scheduled_ends_at
-        if scheduled_starts_at is None or scheduled_ends_at is None:
-            raise _offline_readiness_error(
-                "ATTENDANCE_SCHEDULE_REQUIRED",
-                "Every active attendance activity needs an explicit start and end time.",
-            )
-        scheduled_sessions.append((item, scheduled_starts_at, scheduled_ends_at))
-
-    approved_count = int(
-        await session.scalar(
-            select(func.count(PassportSubmissionModel.id)).where(
-                PassportSubmissionModel.agency_id == agency_id,
-                PassportSubmissionModel.group_id == group_id,
-                PassportSubmissionModel.status.in_(OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES),
-                operational_roster_member(),
-            )
-        )
-        or 0
-    )
-    now = datetime.now(tz=UTC)
-    passenger_rows = list(
-        (
-            await session.execute(
-                select(
-                    PassportSubmissionModel.id,
-                    PassportSubmissionModel.client_name,
-                    PassengerQRTokenModel.token_hash,
-                    PassengerQRTokenModel.token_version,
-                    PassengerQRTokenModel.expires_at,
-                )
-                .join(
-                    PassengerQRTokenModel,
-                    PassengerQRTokenModel.passenger_id == PassportSubmissionModel.id,
-                )
-                .where(
-                    PassportSubmissionModel.agency_id == agency_id,
-                    PassportSubmissionModel.group_id == group_id,
-                    PassportSubmissionModel.status.in_(
-                        OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES
-                    ),
-                    operational_roster_member(),
-                    PassengerQRTokenModel.agency_id == agency_id,
-                    PassengerQRTokenModel.is_active.is_(True),
-                    PassengerQRTokenModel.revoked_at.is_(None),
-                    PassengerQRTokenModel.expires_at > now,
-                    func.length(PassengerQRTokenModel.token_hash) == 64,
-                )
-                .order_by(PassportSubmissionModel.id)
-                .limit(2_001)
-            )
-        ).all()
-    )
-    if approved_count == 0 or len(passenger_rows) != approved_count:
-        raise _offline_readiness_error(
-            "OFFLINE_ROSTER_INCOMPLETE",
-            "The approved roster does not yet have complete active QR authorization.",
-        )
-    if len(passenger_rows) > 2_000:
-        raise _offline_readiness_error(
-            "OFFLINE_ROSTER_LIMIT_EXCEEDED",
-            "The roster exceeds the supported offline authorization size.",
-        )
-
-    active_key_id = settings.mobile.offline_lease_active_kid
-    if not active_key_id:
-        raise _offline_readiness_error(
-            "OFFLINE_SIGNING_UNAVAILABLE",
-            "Offline authorization is temporarily unavailable.",
-            service_unavailable=True,
-        )
-    suspension_seconds = min(
-        settings.browser_offline_max_suspension_seconds,
-        settings.browser_offline_authorization_ttl_minutes * 60,
-    )
-    expires_at = min(
-        now + timedelta(seconds=suspension_seconds),
-        max(scheduled_ends_at for _, _, scheduled_ends_at in scheduled_sessions),
-    )
-    if expires_at <= now:
-        raise _offline_readiness_error(
-            "OFFLINE_ACTIVITY_OUTSIDE_WINDOW",
-            "The configured attendance activities have already ended.",
-        )
-    payload = BrowserOfflineAuthorizationPayload(
-        coordinator_user_id=current_user.id,
-        expires_at=expires_at,
-        group_id=group.id,
-        group_label=group.name,
-        issued_at=now,
-        key_id=active_key_id,
-        max_suspension_seconds=suspension_seconds,
-        not_before=now - timedelta(seconds=30),
-        passengers=[
-            BrowserOfflineAuthorizedPassenger(
-                id=row.id,
-                label=row.client_name,
-                token_hash=row.token_hash,
-                token_valid_until=row.expires_at,
-                token_version=row.token_version,
-            )
-            for row in passenger_rows
-        ],
-        roster_revision=await coordinator_roster_revision(
-            session,
-            agency_id=agency_id,
-            group_id=group_id,
+        request,
+        response,
+        current_user,
+        session,
+        dependencies=OfflineAuthorizationDependencies(
+            settings=get_settings(),
+            agency_id=_require_agency(current_user),
+            resolve_runtime=resolve_browser_attendance_runtime,
+            ensure_group=_ensure_group_assigned_to_coordinator,
+            roster_revision=coordinator_roster_revision,
+            sign_manifest=sign_offline_manifest,
+            audit_repository=AuditLogRepository,
         ),
-        server_time=now,
-        sessions=[
-            BrowserOfflineAuthorizedSession(
-                id=item.id,
-                label=item.name,
-                scheduled_starts_at=scheduled_starts_at,
-                scheduled_ends_at=scheduled_ends_at,
-            )
-            for item, scheduled_starts_at, scheduled_ends_at in scheduled_sessions
-        ],
-        tenant_id=agency_id,
-    )
-    signed = sign_offline_manifest(payload.model_dump(mode="json"))
-    response.headers["Cache-Control"] = "private, no-store, max-age=0"
-    response.headers["Pragma"] = "no-cache"
-    await AuditLogRepository(session).record(
-        action="attendance.offline_authorization_provisioned",
-        entity_type="attendance_runtime",
-        agency_id=agency_id,
-        user_id=current_user.id,
-        entity_id=str(runtime.id),
-        metadata={
-            "group_id": str(group_id),
-            "roster_revision": payload.roster_revision,
-            "passenger_count": len(payload.passengers),
-            "session_count": len(payload.sessions),
-            "expires_at": expires_at.isoformat(),
-            "key_id": signed.key_id,
-        },
-    )
-    return BrowserOfflineAuthorizationBundleResponse(
-        key_id=signed.key_id,
-        payload=signed.payload,
-        public_key=signed.public_key,
-        signature=signed.signature,
-    )
-
-
-def _offline_readiness_error(
-    code: str,
-    message: str,
-    *,
-    service_unavailable: bool = False,
-) -> HTTPException:
-    return HTTPException(
-        status_code=(
-            status.HTTP_503_SERVICE_UNAVAILABLE if service_unavailable else status.HTTP_409_CONFLICT
-        ),
-        detail={"code": code, "message": message},
-        headers={"Cache-Control": "private, no-store", "Retry-After": "30"},
     )
 
 
@@ -511,99 +307,20 @@ async def synchronize_attendance_discards(
     current_user: User = Depends(require_role([UserRole.AGENCY_COORDINATOR])),
     session: AsyncSession = Depends(get_db_session),
 ) -> AttendanceDiscardBatchResponse:
-    settings = get_settings()
-    agency_id = _require_agency(current_user)
-    runtime = await resolve_browser_attendance_runtime(
+    return await synchronize_browser_discard_groups(
+        body,
         request,
-        session=session,
-        agency_id=agency_id,
-        coordinator_user_id=current_user.id,
-        required=True,
-    )
-    if runtime is None:  # pragma: no cover - required=True is exhaustive
-        raise RuntimeError("Attendance runtime resolution was incomplete")
-
-    grouped: dict[tuple[uuid.UUID, uuid.UUID], list[AttendanceDiscardItemRequest]] = defaultdict(
-        list
-    )
-    for item in body.items:
-        grouped[(item.group_id, item.session_id)].append(item)
-
-    responses: dict[uuid.UUID, AttendanceDiscardItemResponse] = {}
-    accepted_count = 0
-    already_applied_count = 0
-    rejected_count = 0
-    for (group_id, session_id), items in grouped.items():
-        try:
-            await _ensure_group_assigned_to_coordinator(
-                session,
-                agency_id,
-                group_id,
-                current_user.id,
-            )
-            attendance_session = await _get_coordinator_attendance_session(
-                session,
-                agency_id,
-                session_id,
-                current_user.id,
-            )
-            if attendance_session.group_id != group_id:
-                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-            results = await AttendanceDiscardRepository(session).record_batch(
-                agency_id=agency_id,
-                group_id=group_id,
-                session_id=attendance_session.id,
-                coordinator_user_id=current_user.id,
-                runtime_registration_id=runtime.id,
-                items=tuple(
-                    AttendanceDiscardInput(
-                        discard_event_id=item.discard_event_id,
-                        scan_reference=item.scan_reference,
-                        reason_category=item.reason_category,
-                        captured_at=item.captured_at,
-                        discarded_at=item.discarded_at,
-                    )
-                    for item in items
-                ),
-                retention_days=settings.attendance_discard_retention_days,
-            )
-        except (HTTPException, AttendanceRuntimeError, ValueError):
-            for item in items:
-                responses[item.discard_event_id] = AttendanceDiscardItemResponse(
-                    discard_event_id=item.discard_event_id,
-                    status="rejected",
-                    reason_code="DISCARD_SCOPE_NOT_AUTHORIZED",
-                )
-                rejected_count += 1
-            continue
-        for result in results:
-            responses[result.discard_event_id] = AttendanceDiscardItemResponse(
-                discard_event_id=result.discard_event_id,
-                status=result.status,
-                received_at=result.received_at,
-            )
-            if result.status == "accepted":
-                accepted_count += 1
-            else:
-                already_applied_count += 1
-
-    await AuditLogRepository(session).record(
-        action="attendance.discard_evidence_synchronized",
-        entity_type="attendance_runtime",
-        agency_id=agency_id,
-        user_id=current_user.id,
-        entity_id=str(runtime.id),
-        result="blocked" if rejected_count and not accepted_count else "success",
-        metadata={
-            "accepted_count": accepted_count,
-            "already_applied_count": already_applied_count,
-            "rejected_count": rejected_count,
-            "runtime_kind": runtime.runtime_kind,
-            "reason_categories": sorted({item.reason_category for item in body.items}),
-        },
-    )
-    return AttendanceDiscardBatchResponse(
-        items=[responses[item.discard_event_id] for item in body.items]
+        current_user,
+        session,
+        dependencies=DiscardSynchronizationDependencies(
+            settings=get_settings(),
+            agency_id=_require_agency(current_user),
+            resolve_runtime=resolve_browser_attendance_runtime,
+            ensure_group=_ensure_group_assigned_to_coordinator,
+            get_session=_get_coordinator_attendance_session,
+            discard_repository=AttendanceDiscardRepository,
+            audit_repository=AuditLogRepository,
+        ),
     )
 
 

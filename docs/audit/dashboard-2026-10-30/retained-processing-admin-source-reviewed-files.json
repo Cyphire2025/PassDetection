@@ -1,0 +1,59 @@
+{
+  "status": "Retained post-submit verification/reliable processing and dashboard client-manager management source cohort; physical reads complete",
+  "files": [
+    {
+      "path": "backend/tests/unit/application/test_post_submission_verification_workflow.py",
+      "sha256": "ab94c73631caa5ef7fc66e8782bedaf12fa05d05631d298382557229b24d55bb",
+      "physical_lines": 619,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-619 in bounded1-215/216-430/431-619. Extraction/AI never overwrites confirmed client fields; client/staff decisions invalidate old revisions, absent surname explicitly allowed, approval preserves auxiliary fields and exact retries idempotent. Temporary provider failure retry differs from real review/approved states; payload allowlist/length/reason control cleaning, typed stale/unavailable errors and empty correction semantics reviewed. Concurrent fake repository/shared entity assertion does not establish PostgreSQL locking. No AI/test/DB execution or policy changes."
+    },
+    {
+      "path": "backend/tests/unit/application/test_passport_processing_reliability.py",
+      "sha256": "069bd11d0258367b5737071bddaed7d92aaf8cca81f1a8552fa2a3c1809d1507",
+      "physical_lines": 735,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-735 in bounded1-200/201-390/391-575/576-735. Persisted canonical front image is sole AI input, coverage/confidence/absent-field evidence; no local OCR/MRZ fallback, unavailable/wrong/empty classification safe failure distinctions and exact-revision application. Duplicate worker claim skips image, recoverable storage retry bounded, public diagnostics exclude private provider details. Upload replay preserves lifecycle gates, collision/ambiguous PUT cleanup only own intended keys, locked capacity recheck before persistence and exact retry avoids quota. Historical terminal_ocr test name is not an active OCR dependency; no provider/network/test execution."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_client_managers.py",
+      "sha256": "e0f5a0de47724bd3780bf188bf38ba89ad230a9aa657dc741f1b8b7765436d37",
+      "physical_lines": 480,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-480 in bounded1-240/241-480. Retained dashboard manager list/create/delete administration despite gc_app path: tenant/status/company/normalized-phone filters and deleted audit records; administrators cannot choose known passwords, one-use invitation returned only no-store with FK flush order. Email/phone race constraints translate precisely, unrelated integrity errors preserved and rolled back. Delete revokes assignments/session generation/invitation, disables credentials and releases email through tombstone. Shared compatibility session revocation only; no native ingress/device feature or live registration/provider qualification."
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/process_passport_submission_job_use_case.py",
+      "sha256": "998192ee86644c66578b549b637aa622264e97179ecba66b7fd2a3227260c4c5",
+      "physical_lines": 590,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "focused",
+      "notes": "Physical126-255 only. Actual persisted job claim/checkpoint/target/revision/cancellation controls, finite first-pass/AI budgets and reserve, canonical storage download, AI-only verification and current revision classification failure application. Rest of590-line owner not fully reread or implicitly qualified from tests/imports; no architecture change claimed."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_manager_creation.py",
+      "sha256": "d11ae641ad5e32496956609465046db83ffba3ebe8288c54d334734040bf6465",
+      "physical_lines": 210,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "focused",
+      "notes": "Physical54-130 only. Dashboard role/tenant and locked organization, bounded canonical phone/email duplicate queries, validated group assignments, unknown random initial password plus hashed seven-day invitation and invited profile. Later persistence/response flow not physically reread here, no whole-file credit."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_manager_profile.py",
+      "sha256": "e7f22a5da952fe5084ce284746e3b55c3e04116f5e50053a885bcb68935c9271",
+      "physical_lines": 275,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "focused",
+      "notes": "Physical226-275 only. Actual retained dashboard delete scopes and locks manager, revokes active assignments and established shared session lifetime, increments profile generation/revision, clears invitation, disables/tombstones user with random replacement secret, safe audit and204. No unrelated profile/native endpoints or whole-file read claimed."
+    }
+  ]
+}

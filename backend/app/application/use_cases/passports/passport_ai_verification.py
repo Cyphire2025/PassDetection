@@ -19,7 +19,7 @@ async def verify_passport_fields(
     extracted_fields: dict[str, Any],
     timeout_seconds: float | None = None,
 ) -> dict[str, Any]:
-    """Preserve OCR diagnostics while making verifier availability explicit to the caller."""
+    """Preserve existing fields while making verifier availability explicit to the caller."""
 
     original = dict(extracted_fields)
     if service is None:

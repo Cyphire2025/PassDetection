@@ -1,0 +1,83 @@
+[
+  {
+    "path": "backend/tests/ci_sharding.py",
+    "sha256": "ec1d3dc1813512059211ff2ecb7753f942ea8ea2d9612afb906b181b939e3590",
+    "physical_lines": 126,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole126lines. Opt-in paired bounded shard options, stable per-node SHA256 ownership independent of collection/worker order, original selection order/deselection and atomic complete collection fingerprint/selected-node report with temp cleanup reviewed. No collection/shard/test run; report alone does not prove successful execution or combined coverage. Complete current physical source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "backend/tests/postgresql_schema.py",
+    "sha256": "f1ca039164a93073be3d4e0021f3de60cb6be659b65d09803502bb302ec34cb2",
+    "physical_lines": 109,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole109lines. Explicit service-env/database/generated-name/current0113/noMCP guards for synthetic legacy role/default policy, safe identifier validation/formatted SQL and runtime CRUD/audit restrictions; isolated empty generated schema uses temporary public extension visibility with nested DDL rollback and finally restores search_path/full table equality reviewed. No SQL/role/schema/server operation executed, no real service authorization qualification. Complete current physical source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "backend/tests/release_source_fixtures.py",
+    "sha256": "1704a8e72f4076a15ac9c4979582d609a98a9dc478ce7d1cbc80513c8e41c0e6",
+    "physical_lines": 124,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole124lines. Historical additive source copies restrict migration maxima while preserving exact-head guards, explicit release manifests and helper files for0113\u21920122/0124\u21920125/0125\u21920128/0128\u21920129 synthetic proof contexts reviewed. Authored filesystem fixture only; no copy, historical baseline mutation, migration or deployment performed. Complete current physical source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "backend/tests/gc_app_workflow_fixtures.py",
+    "sha256": "b8679ff5ff9196654ff049226ab3ab28f6f2873441d4c4577e0e06116476b947",
+    "physical_lines": 97,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole97lines. Synthetic agency/admin/closed trip/enabled GC access, source passenger/identity/claim mapping and device exact grant membership/refresh-family fixtures reviewed as retained dashboard group lifecycle compatibility. No native login/UI execution or new feature investigation; fixture data only. Complete current physical source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "backend/tests/management_audit_fixtures.py",
+    "sha256": "90bd58849cc8a3c9cd4630090fcb97d05ddbfcc1e65a13ad9d7fe57cf4a08d87",
+    "physical_lines": 54,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole54lines. Autouse pytest.fail global audit factory blocks swallowed availability fallback/network; separate SQLite audit-only engine/foreign keys/session and disposed lifetime independent of business transaction reviewed. Design explicitly does not claim PostgreSQL locking or actor FK authorization; no fixture/database execution. Complete current physical source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "backend/tests/mcp_admin_overview_fixtures.py",
+    "sha256": "63f0c08362b86aa950f32c29666d664f13e83477f76a054970fc9d2897440617",
+    "physical_lines": 54,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole54lines. Synthetic cross-agency active/inactive/deleted/unassigned accounts, all group/passport statuses and deliberately opaque sensitive sentinels exercise aggregate projection without hydration reviewed. No actual private records or database seeding. Complete current physical source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "backend/tests/mcp_rename_fixtures.py",
+    "sha256": "a09f2f909693211688afc973194148b8c9e730c330b4968931aacb23ba706439",
+    "physical_lines": 50,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole50lines. Synthetic cross-tenant/actor/status cohorts and duplicate renamed names/source/reason/sensitive-field sentinels reviewed for retained read-only rename projection/count/scope tests. No uploaded documents, storage keys read or actual seed execution. Complete current physical source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "backend/tests/mcp_retention_fixtures.py",
+    "sha256": "8fa08f7c6e9118d5bd69f776c2ef1a3600f2e363ca8f5de60c637372da48c2d3",
+    "physical_lines": 46,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole46lines. Synthetic active/closed/archived/deleted retained group schedules, expired/future/null purge timing, legacy retention and legal-hold private sentinels reviewed. These fixtures are never real cleanup candidates; no worker or source data executed/read. Complete current physical source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "backend/tests/mcp_excel_message_journey_fixtures.py",
+    "sha256": "98e4f7f280d08c64c7b932819664f04fd04a97bf9e90c085454729ebdd6b50ab",
+    "physical_lines": 216,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole216lines. Local ASGI+SDK journey binds synthetic current agency/permissions/scopes, fake storage/scanner/media/worker/publication and SQLite claim seam, safe deterministic provider accepted/rejected/unknown paths, explicit external HTTP transport fail guard, exact transfer size/hash/idempotency, preview/create/audience cursor completeness reviewed. No SDK/request/provider/DB journey run now; this source fixture is not cloud/PG or actual delivery qualification. Complete current physical source read; no new execution/source fix/validated defect."
+  }
+]

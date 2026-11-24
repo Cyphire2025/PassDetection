@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "--tb=short",
+    "tests/unit/infrastructure/test_passport_document_import_staging.py",
+    "tests/unit/infrastructure/test_passport_document_workspace_cleanup.py",
+    "tests/unit/presentation/test_passport_document_import_staging_route.py",
+    "tests/unit/presentation/test_passport_crop_lifecycle_contract.py"
+  ],
+  "exit_code": 1,
+  "source_frozen": true,
+  "output": "passport-workspace-before-tests.txt"
+}

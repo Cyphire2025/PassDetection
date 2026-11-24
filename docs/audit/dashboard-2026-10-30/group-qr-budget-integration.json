@@ -1,0 +1,12 @@
+{
+  "candidates": "docs/audit/dashboard-2026-10-30/group-qr-budget-candidates.json",
+  "before_sha256": "8af376e97fe8c8071a79e5d85dfeac4c2bcef811de17ba4027361970ea290be2",
+  "sha256": "e2aee5c16bc5f79fe7c54a4af98b31099938bc07fd5928693ec56ee7b4fc603c",
+  "lf_normalized_sha256": "7930421cd8f3d93eba9d285c67321cbd9780645e0125aecab573174d93514476",
+  "added": 11,
+  "updated_existing": 0,
+  "lowered_existing": 0,
+  "lowered_existing_paths": [],
+  "existing_ceilings_preserved": true,
+  "previous_ceilings_sha256": "f446a1f6bff648aad652ead29613441c83c1ea21b310d9ebe68f19fb0708842e"
+}

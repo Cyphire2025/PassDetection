@@ -1,0 +1,62 @@
+{
+  "original_sha256": "591fb3b3b30248d2c2fd1f40ea6eb90cc6232c47833a3cea8f5e3950923ecb77",
+  "sources": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_review_decisions.py",
+      "sha256": "c42a2e6cc6bd7e9137cc9e106c35114dd95a608def14154aaaac63f053d83bd1",
+      "physical_lines": 184
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_review_context.py",
+      "sha256": "7f09eb79d73d14c2816417d675c48f2b35b9d4acb581e49c3566f87908b3b066",
+      "physical_lines": 154
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_review_actions.py",
+      "sha256": "6c27816ec4946d43dc5340334fe7da50896fe3085de4768abc200ae9b1844f98",
+      "physical_lines": 166
+    }
+  ],
+  "whole_expanded_public_handler_ast_exact": true,
+  "original_statement_count": 27,
+  "actual_helper_partitions": {
+    "prefix": [
+      0,
+      2
+    ],
+    "locked_context": [
+      3,
+      14
+    ],
+    "clock": [
+      15,
+      15
+    ],
+    "action": [
+      16,
+      18
+    ],
+    "route_orchestration": [
+      19,
+      26
+    ]
+  },
+  "typed_context_fields": [
+    "connection",
+    "message",
+    "artifact",
+    "review",
+    "agency_id"
+  ],
+  "typed_outcome_fields": [
+    "should_queue_retry",
+    "created_storage_keys",
+    "result_message"
+  ],
+  "actual_helper_calls_and_attribute_unpacking_verified": true,
+  "original12lock_and3action_statement_asts_exact": true,
+  "test_fixture_actual_ingestion_dependency_retargets": 1,
+  "fixture_body_ast_otherwise_exact": true,
+  "both_new_test_files_byte_unchanged": true,
+  "notes": "Purpose-specific typed data only; no callbackbag/proxy/framework. Full actual expanded AST preserves query/lock order, same timestamp, status/revision/allowed action checks, all mutations/counters, audit/flush/rollback/ambiguouscommit/storage cleanup and postcommit queue conditions. Original rawCRLF archive retained; current ownersUTF8LF. Initial CRLF comparison guard rejected before any runtime writes, then normalized only the mechanical working text."
+}

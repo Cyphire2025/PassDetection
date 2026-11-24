@@ -1,0 +1,47 @@
+[
+  {
+    "path": "backend/tests/integration/test_mcp_ecr_reads.py",
+    "sha256": "b3d420bb4beacf12567b08078e8b7ad82372a14dfdacd9fa7e844ecba95ceb18",
+    "physical_lines": 517,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all517 physical lines in contiguous1-180/181-360/361-517 segments: actual SDK/website ECR metadata parity without effects/keys/model/quota/private fields, historical statuses/counts and duplicate filenames preserved, bounded stable keyset cutoffs and signed query/actor/tenant cursors, active-agency/current grant/role/security guard, scalar-only bounded queries, strict retained text/Unicode byte envelope/deadline and static audited input failures. Explicit ECR active-agency policy is workflow-specific. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_client_details.py",
+    "sha256": "76a2e7d9f8a28d2d52533df791fce49b05c016bb0842a7f5b928eb79acc94aa3",
+    "physical_lines": 448,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all448 physical lines in contiguous halves: sparse correction preserves original passport/extraction/approval/image, exact changed-field-only revision provenance and private value-free receipt/audit, canonical alias/custom field labels, invalid/stale/destructive input all-or-nothing, active private delivery blocks, propagation failure rolls back history/business/audit, no-op creates no fake revision, current entity/grant replay check and exact SDK cross-grant idempotency. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_analytics_reads.py",
+    "sha256": "4155d3dc45f957fa76f4a1173471214aebb0ef4224c85395223405295c116f4c",
+    "physical_lines": 420,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all420 physical lines in contiguous halves: canonical global/agency analytics parity preserves confidence bucket gap and lower-bound-only/date clamp semantics, retained inactive-agency/deleted-group rows intentionally remain visible, SQLite DATE shim explicitly does not qualify PG timezone, exactly three scalar business queries without private hydration/effects, bounded day materialization/unsafe aggregate/whole envelope/static timeout and current authority guards. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/service_integration/test_mcp_client_details_postgresql.py",
+    "sha256": "f0e70de9562d1503f07aadc6187bfe20ba5d720a5839417b73b1ddaac71baf20",
+    "physical_lines": 175,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all175 physical lines: independent sessions serialize identical cross-grant correction to one exact revision/audit, distinct stale-version writers have one winner, retained raw passport/image fields unchanged. Isolated migration precondition and persisted row/result assertions traced; no actual PostgreSQL run. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/service_integration/test_mcp_analytics_reads_postgresql.py",
+    "sha256": "b5ccd0cee207657bff678ec06d9b661d31d72e63276ee1afda9e10986f86da87",
+    "physical_lines": 533,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all533 physical lines in contiguous1-180/181-360/361-533 segments: dedicated loopback retained UUID schema/deadlines and no external I/O, complete canonical global/role/date/confidence parity including session timezone DATE semantics, scalar-only bounded materialization/noeffects snapshots, nonfinite/Unicode/empty admission, current grant/identity/control denial before counts, real source/grant wait deadline rollback/retry and cancelled identity-lock release. Reading these controls does not claim PG timing/concurrency passes. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  }
+]

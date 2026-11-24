@@ -1,0 +1,56 @@
+[
+  {
+    "path": "scripts/test_branding_migration_qualification.py",
+    "sha256": "a1f13f6f2d96336d7d354079e033e7d5f8c06bbde8a70c111ab655d22c840e86",
+    "physical_lines": 45,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole45lines. Each source baseline needs its own branding migration receipt and matching exact contract/single marker; no unrelated source reuse reviewed. Pure authored JSON, no migration/provider/action execution. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "scripts/test_document_migration_ownership.py",
+    "sha256": "1dc613c642ffe0240333f4a23b223b021b6c032d0c6fe7af966657fdcec9ab9f",
+    "physical_lines": 112,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole112lines. Exact reviewed image volumes/disposable tmpfs and mount intent, unknown binds/volumes reject before probe, uncertain create discovers only exact ownership+immutable-ID cleanup, drift after probe blocks receipt reviewed. Mock Docker/temporary receipt paths only, no real cleanup or migration. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "scripts/test_document_migration_qualification.py",
+    "sha256": "12deb5eb64655e51d3acea3df1e849e19348b9fd499f6aa774bacc10b8acf6f1",
+    "physical_lines": 83,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole83lines. Complete exact source/target/image-bound synthetic/no-send/rollback/preservation/idempotency proof, strict booleans versus ints, single marker, probe+cleanup before exclusive receipt and failed probe no receipt reviewed. Synthetic JSON/mock qualifier, not actual migration rehearsal or full CI result. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "scripts/test_document_redis_preflight.py",
+    "sha256": "d5d82749f2568b7d10945cba02435d0a7d24402c4afae9e0f871f97fcc53d4d4",
+    "physical_lines": 181,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole181lines. Role-specific inventory limits/aggregate database key allowance and fail-before-value-read, initial+postfingerprint dataset/container headroom with OOM counter identity, readonly preparation/fenced current recheck and no partial receipt on unsupported values reviewed. Fake Redis/Docker/cgroup data only; no actual dataset inspection, mutation or memory qualification. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "scripts/test_document_resource_qualification.py",
+    "sha256": "26fadceac0dbe946c1515fd2721af97ba2f798b3aef0ab8e805b690aa3e1ef97",
+    "physical_lines": 209,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole209lines. Exact image/source/limit/workload evidence digests, strict zero OOM/max/nonboolean peak and running-donor checks, rewrite/retained-volume/TTL/one-writer lifecycle proof, full unique services, cleanup/source-drift blocks receipt and uncertain create exact-owned cleanup reviewed. All synthetic proofs and mocks, no container/resource/provider workload execution or historical source repin. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "scripts/test_document_resume_baseline.py",
+    "sha256": "cadebf2e0ce006b306f8a500b214403ba64a88ba3c085ce5a67d50fb3808d016",
+    "physical_lines": 190,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole190lines. Controlled fast quiescence preserves original inventory, permits only proved source restart reset with immutable old/post identity, rejects preexisting/new OOM/counter/config/clock/process drift, failed build or tampered/foreign resume receipts, full/same-schema path retains strict old fence reviewed. Shared release compatibility with paused email-beat is retained, not new Inbox work. Synthetic process states and real binding helper over mocked inspect; no stops/restarts/releases performed. Complete current physical test-source read; no new execution/source fix/validated defect."
+  }
+]

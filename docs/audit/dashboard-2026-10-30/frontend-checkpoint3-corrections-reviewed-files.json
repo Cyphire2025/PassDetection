@@ -1,0 +1,34 @@
+[
+  {
+    "path": "frontend/features/whatsapp/hooks/use-whatsapp-source-groups.test.tsx",
+    "sha256": "8ab159645d5b71bfbfc689984763152d3cd65f957dea1575646b748a27c03a8b",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete existing10-case fixture physically read. Only two imports and one beforeEach synthetic signed-in staff actor added after six real private-mutation precondition failures; removing those additions recovers exact original source bytes and every original assertion. All10 affected cases, scoped TypeScript/lint pass. No runtime authorization changed."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/message-composer-audience.tsx",
+    "sha256": "9d2aad39dfcff78e557a511e79c9dfbbb0614720e1680e27a8987675305bae0f",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "One unused import removed; exact emitted JavaScript before/after separately proven. Whole lint had one warning, corrected owner now scoped lint zero diagnostics. Original13-owner composer source receipt retained with supplemental current hash."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-bulk-delete.contract.test.mjs",
+    "sha256": "222f26eee91758f2d487853a06cb8473002e3bcd00597e165429b2dfebdd7d3f",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Approved current live-owner loader/one guard-syntax source-contract correction independently reviewed by branding lane; all original business/role/pending/confirmation assertions preserved in meaning, actual child wiring asserted. Seven affected Node cases pass, subsequent full668 Node contracts pass."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/whatsapp-role-access.contract.test.mjs",
+    "sha256": "ead347be8301c5ea58330bf0711819fcdf79c0cbc65d0265a033ba50fb0cdc1f",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Approved current live-owner loader/one guard-syntax source-contract correction independently reviewed by branding lane; all original business/role/pending/confirmation assertions preserved in meaning, actual child wiring asserted. Seven affected Node cases pass, subsequent full668 Node contracts pass."
+  }
+]

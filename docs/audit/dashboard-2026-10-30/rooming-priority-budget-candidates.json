@@ -1,0 +1,50 @@
+[
+  {
+    "path": "app/infrastructure/rooming/priority_field_catalog.py",
+    "baseline_lines": 137,
+    "maximum_lines": 143,
+    "baseline_max_function_complexity": 15,
+    "maximum_function_complexity": 15,
+    "minimum_coverage_percent": 90,
+    "observed_statement_coverage": 97.82608695652173,
+    "observed_branch_coverage": 95.0,
+    "sha256": "6ddf90261c444e4e6427d993bcc8fa0dbd51c9b6e6b60f7a49a71fd01dc59f04",
+    "previously_budgeted": false
+  },
+  {
+    "path": "app/infrastructure/rooming/priority_field_policy.py",
+    "baseline_lines": 263,
+    "maximum_lines": 274,
+    "baseline_max_function_complexity": 13,
+    "maximum_function_complexity": 13,
+    "minimum_coverage_percent": 90,
+    "observed_statement_coverage": 100.0,
+    "observed_branch_coverage": 100.0,
+    "sha256": "64598228c747cc778f034c60488f55faad7c10b3d0d40fcd377d16df9715861a",
+    "previously_budgeted": false
+  },
+  {
+    "path": "app/infrastructure/rooming/priority_field_values.py",
+    "baseline_lines": 103,
+    "maximum_lines": 108,
+    "baseline_max_function_complexity": 23,
+    "maximum_function_complexity": 23,
+    "minimum_coverage_percent": 90,
+    "observed_statement_coverage": 97.82608695652173,
+    "observed_branch_coverage": 95.83333333333333,
+    "sha256": "62715fc8274962cca138efe57cdfcba4ba05e173f5f36262d86231be2cddc868",
+    "previously_budgeted": false
+  },
+  {
+    "path": "app/infrastructure/rooming/priority_fields.py",
+    "baseline_lines": 231,
+    "maximum_lines": 241,
+    "baseline_max_function_complexity": 46,
+    "maximum_function_complexity": 46,
+    "minimum_coverage_percent": 90,
+    "observed_statement_coverage": 96.20253164556962,
+    "observed_branch_coverage": 87.5,
+    "sha256": "29d0ee199c2f9966e06dd96ede4cd9e3bc24ac21b0079aed4dbaf3fd656f5a0a",
+    "previously_budgeted": false
+  }
+]

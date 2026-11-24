@@ -53,9 +53,7 @@ async def _persist_terminal_needs_review(
         reason_code="verification_job_failed",
     )
     reason_code = fallback.reason_code or "verification_job_failed"
-    applied = await PassportSubmissionRepository(
-        session
-    ).apply_post_submission_verification(
+    applied = await PassportSubmissionRepository(session).apply_post_submission_verification(
         submission_id=submission_id,
         expected_revision=verification_revision,
         decision=fallback.decision.value,
@@ -159,6 +157,19 @@ async def _run_post_submission_verification_admitted(
         if job is None:
             await session.commit()
             return
+        if (
+            job.submission_id != submission_uuid
+            or job.verification_revision != verification_revision
+        ):
+            # Delivery arguments cannot select a different passport/revision
+            # from the locked durable job. Undo the claim so the correct
+            # queued delivery remains recoverable without spending an attempt.
+            await session.rollback()
+            logger.warning(
+                "post_submission_verification_job_target_mismatch",
+                job_id=str(job_uuid),
+            )
+            return
         if not claimed:
             if job.status == "failed":
                 await _persist_terminal_needs_review(
@@ -190,12 +201,8 @@ async def _run_post_submission_verification_admitted(
                         "group_id": str(result.group_id),
                         "verification_status": result.status,
                         "provider_status": verification.get("provider_status"),
-                        "incorrect_count": len(
-                            verification.get("incorrect_fields") or []
-                        ),
-                        "suspicious_count": len(
-                            verification.get("suspicious_fields") or []
-                        ),
+                        "incorrect_count": len(verification.get("incorrect_fields") or []),
+                        "suspicious_count": len(verification.get("suspicious_fields") or []),
                         "verification_revision": verification_revision,
                     },
                 )

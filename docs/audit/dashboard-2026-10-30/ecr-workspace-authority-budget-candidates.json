@@ -1,0 +1,9 @@
+[
+  {
+    "path": "features/documents/hooks/use-ecr-workspace.ts",
+    "baselineLines": 150,
+    "maximumLines": 160,
+    "baselineMaxFunctionComplexity": 15,
+    "maximumFunctionComplexity": 16
+  }
+]

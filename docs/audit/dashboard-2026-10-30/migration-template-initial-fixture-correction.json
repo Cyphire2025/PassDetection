@@ -1,0 +1,16 @@
+{
+  "kind": "explicit qualification correction; original artifact retained",
+  "initial_raw_artifact": {
+    "path": "docs/audit/dashboard-2026-10-30/migration-template-baseline-reproduction.json",
+    "sha256": "84fdced03a2e78864edcd147766536f851aaf853e293f6ff25ccb1dba1411c41"
+  },
+  "initial_artifact_confirmed_flag_is_incorrect_and_must_not_be_used_as_product_evidence": true,
+  "initial_actual_result": "Harness ConfigParser interpolation error from unescaped optional file_template;0generated revisions. Not a product-template reproduction.",
+  "valid_corrected_product_reproduction": {
+    "path": "docs/audit/dashboard-2026-10-30/migration-template-baseline-corrected-reproduction.json",
+    "sha256": "ae3d3a2cba574b6351dfb17e1c9a7a5ab3bbdb24300b4ebdb8580dddb6c4ad82"
+  },
+  "actual_confirmed_error": "Normal non-autogenerate revision generated the exact3line docstring-only file, then Alembic could not determine its revision id.",
+  "published_source_changes": 0,
+  "notes": "Corrected harness uses the real default filename template; no env/databaseURL/autogenerate/provider/config/application import. All old raw facts retained and qualification narrowed."
+}

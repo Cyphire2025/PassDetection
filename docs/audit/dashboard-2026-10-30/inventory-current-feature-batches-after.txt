@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\dashboard_audit_inventory.py", line 179, in <module>
+    result = refresh(options.mark, options.status, options.reviewer, options.notes)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\dashboard_audit_inventory.py", line 99, in refresh
+    raise ValueError(f"Review attribution must be text or a list of names: {record_file.name}")
+ValueError: Review attribution must be text or a list of names: whatsapp-backend-reviewed-files.json

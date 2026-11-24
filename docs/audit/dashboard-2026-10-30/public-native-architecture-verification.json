@@ -1,0 +1,40 @@
+{
+  "status": "qualified",
+  "main_receipt": "public-native-verification.json",
+  "main_receipt_sha256": "099fcd9d650c1bc3eebc3332c3f8c91302e5e5e3fb28c42396d7eca52a9fa7da",
+  "first_static_result": {
+    "exit_code": 1,
+    "message": "submit_passport_use_case.py dependency contract changed; review exact imports, remove stale entries"
+  },
+  "integration": "public-native-architecture-policy-integration.json",
+  "qualified_checks": [
+    {
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/unit/infrastructure/test_architecture_boundaries.py"
+      ],
+      "result": "4passed/1.20s",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "python",
+        "scripts/verify_architecture_boundaries.py"
+      ],
+      "result": "Architecture boundaries verified: isolated domain; no application HTTP dependencies; only explicitly reviewed infrastructure edges",
+      "exit_code": 0
+    }
+  ],
+  "source_fence": {
+    "backend/architecture-dependencies.json": "a58f5de184c44cb91adcc26f9c26b256412510e249bc25caba9d3201203444ef",
+    "backend/scripts/verify_architecture_boundaries.py": "bc1a580902fc60808c0d01c3b0fa6d7cde4820a0eba13c8a70b782186821bcb0",
+    "backend/tests/unit/infrastructure/test_architecture_boundaries.py": "d4b854368767d0746a3052988095712b665ff95f37da128a12d98d8326380ff0"
+  },
+  "runtime_family15_source_paths_still_frozen": true,
+  "notes": "Only this existing transaction-service entry gains3exact reviewed storage helper edges and matching rationale; all other policy bytes/values/dates/forbidden rules remain unchanged. No application test rerun for policy metadata."
+}

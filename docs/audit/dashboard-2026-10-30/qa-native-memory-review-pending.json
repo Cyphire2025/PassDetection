@@ -1,0 +1,54 @@
+{
+  "basis": "Automated currenthash/full-ledger triage only; no manualfullcredit.",
+  "pending": [
+    {
+      "path": "scripts/qa/probe_image_advisory_conditions.py",
+      "sha256": "61785cd5808cbb0ae3015c378ea4b5f366d1264a161aae19b90734f5e7e78ba3",
+      "lines": 116,
+      "matching_full": []
+    },
+    {
+      "path": "scripts/qa/gcc_runtime_policy.py",
+      "sha256": "53571c263d2f8cb4817f09bab146ede35a0d7d5e4700aba61c7b7e8099fda79b",
+      "lines": 149,
+      "matching_full": []
+    },
+    {
+      "path": "scripts/qa/gcc_runtime_manifest.json",
+      "sha256": "b090a6b080be7fe7b8107eda4447a7b54f291b346b1450d817a72be3814391a3",
+      "lines": 218,
+      "matching_full": []
+    },
+    {
+      "path": "scripts/qa/api_native_memory_app.py",
+      "sha256": "617d81899c3d991d01665db618f2817394fcfeedc4a17715fdfe6f31d56dc96c",
+      "lines": 102,
+      "matching_full": []
+    },
+    {
+      "path": "scripts/qa/qualify_api_native_memory.py",
+      "sha256": "87f3edbad942d423fd22808cc393f23ea9362b10680e3a26d77548ef5a7f7255",
+      "lines": 99,
+      "matching_full": []
+    },
+    {
+      "path": "scripts/qa/probe_bounded_memory.py",
+      "sha256": "39c0a74e860f5de5c591a58ce3e2bc553913e01427d274b06f71a9e564fda9a5",
+      "lines": 208,
+      "matching_full": []
+    },
+    {
+      "path": "scripts/qa/qualify_bounded_memory.py",
+      "sha256": "dab547e32821ea1c30f750786610d7dfd6f6db85d189e5542fd7021d59a359d0",
+      "lines": 88,
+      "matching_full": []
+    },
+    {
+      "path": "scripts/qa/qualify_postgres_memory.py",
+      "sha256": "50b12a4c912378be0ebd1e4250d1466cb3c41af4e1b8bbb1a58828c996ec06eb",
+      "lines": 115,
+      "matching_full": []
+    }
+  ],
+  "skipped_current_full": []
+}

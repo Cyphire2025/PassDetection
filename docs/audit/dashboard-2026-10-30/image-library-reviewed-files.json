@@ -1,0 +1,130 @@
+[
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_image_library.py",
+    "sha256": "d936d8892bdabc826671ea5a37bfd1c8acac083c4ff9d367587d12e8db7b2d6d",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete current source read; final91-case seven-file affected selection is source-fenced. Read routes retain the original audit wrapper; mutations release the initial read transaction, revalidate actual actor/session/group/assignment/source under locks, and audit only after that boundary. Native cancellation drains writes; failed precommit persistence rolls back and compensates; uncertain commits retain bytes. Synthetic external storage; actual FK-enabled SQLite authority/commit observers, no live service claim. Independent image-library-followups.json remains open; this record does not close crash durability or sibling routes."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_image_library_responses.py",
+    "sha256": "7192583ac9d2fef50efeb37ad39b9e5368c384d4748e9ccabe43f2e0e81aad5f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete current source read; final91-case seven-file affected selection is source-fenced. Read routes retain the original audit wrapper; mutations release the initial read transaction, revalidate actual actor/session/group/assignment/source under locks, and audit only after that boundary. Native cancellation drains writes; failed precommit persistence rolls back and compensates; uncertain commits retain bytes. Synthetic external storage; actual FK-enabled SQLite authority/commit observers, no live service claim. Independent image-library-followups.json remains open; this record does not close crash durability or sibling routes."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_image_library_reads.py",
+    "sha256": "c30bf3950088011d42655ea7b4f6390e88e01ca7615e1a3e9a9b15afe0cea478",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete current source read; final91-case seven-file affected selection is source-fenced. Read routes retain the original audit wrapper; mutations release the initial read transaction, revalidate actual actor/session/group/assignment/source under locks, and audit only after that boundary. Native cancellation drains writes; failed precommit persistence rolls back and compensates; uncertain commits retain bytes. Synthetic external storage; actual FK-enabled SQLite authority/commit observers, no live service claim. Independent image-library-followups.json remains open; this record does not close crash durability or sibling routes."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_image_library_manual.py",
+    "sha256": "8e5301f7e72de74aa0a5df100544230f847eed3e88ff5c1feb9bf416b00cfd07",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete current source read; final91-case seven-file affected selection is source-fenced. Read routes retain the original audit wrapper; mutations release the initial read transaction, revalidate actual actor/session/group/assignment/source under locks, and audit only after that boundary. Native cancellation drains writes; failed precommit persistence rolls back and compensates; uncertain commits retain bytes. Synthetic external storage; actual FK-enabled SQLite authority/commit observers, no live service claim. Independent image-library-followups.json remains open; this record does not close crash durability or sibling routes."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_image_library_selection.py",
+    "sha256": "5b68cff3bed59aa26a0ad432e141a71b5cab119b5a54aac07731fe4c1e00256a",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete current source read; final91-case seven-file affected selection is source-fenced. Read routes retain the original audit wrapper; mutations release the initial read transaction, revalidate actual actor/session/group/assignment/source under locks, and audit only after that boundary. Native cancellation drains writes; failed precommit persistence rolls back and compensates; uncertain commits retain bytes. Synthetic external storage; actual FK-enabled SQLite authority/commit observers, no live service claim. Independent image-library-followups.json remains open; this record does not close crash durability or sibling routes."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_image_library_authority.py",
+    "sha256": "1a3f020f32134e9eab62ccd3f24e116648af90e2f34f238b2813fa5129a6e390",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete current source read; final91-case seven-file affected selection is source-fenced. Read routes retain the original audit wrapper; mutations release the initial read transaction, revalidate actual actor/session/group/assignment/source under locks, and audit only after that boundary. Native cancellation drains writes; failed precommit persistence rolls back and compensates; uncertain commits retain bytes. Synthetic external storage; actual FK-enabled SQLite authority/commit observers, no live service claim. Independent image-library-followups.json remains open; this record does not close crash durability or sibling routes."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_image_storage_write.py",
+    "sha256": "11b12fdbb9b053c2b26f87d21ef97f3ce87490c3751c0a6c1d4922259ee804f7",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete current source read; final91-case seven-file affected selection is source-fenced. Read routes retain the original audit wrapper; mutations release the initial read transaction, revalidate actual actor/session/group/assignment/source under locks, and audit only after that boundary. Native cancellation drains writes; failed precommit persistence rolls back and compensates; uncertain commits retain bytes. Synthetic external storage; actual FK-enabled SQLite authority/commit observers, no live service claim. Independent image-library-followups.json remains open; this record does not close crash durability or sibling routes."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/image_support.py",
+    "sha256": "bb7f17f95e18abf65436f6e7ad71be2ce25926b04ced89b1382ae27334ee3e9f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete current source read; final91-case seven-file affected selection is source-fenced. Read routes retain the original audit wrapper; mutations release the initial read transaction, revalidate actual actor/session/group/assignment/source under locks, and audit only after that boundary. Native cancellation drains writes; failed precommit persistence rolls back and compensates; uncertain commits retain bytes. Synthetic external storage; actual FK-enabled SQLite authority/commit observers, no live service claim. Independent image-library-followups.json remains open; this record does not close crash durability or sibling routes."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_image_library_authority.py",
+    "sha256": "7f60b2f7949366c76ee5d497f63d339603f8a456ab245fa2d935b117c101deca",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete current source read; final91-case seven-file affected selection is source-fenced. Read routes retain the original audit wrapper; mutations release the initial read transaction, revalidate actual actor/session/group/assignment/source under locks, and audit only after that boundary. Native cancellation drains writes; failed precommit persistence rolls back and compensates; uncertain commits retain bytes. Synthetic external storage; actual FK-enabled SQLite authority/commit observers, no live service claim. Independent image-library-followups.json remains open; this record does not close crash durability or sibling routes."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_image_library_cancellation.py",
+    "sha256": "f689be6d76e04cff246956ee17be9f4dca573b5f50b40fe4f885eee603a24a43",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete current source read; final91-case seven-file affected selection is source-fenced. Read routes retain the original audit wrapper; mutations release the initial read transaction, revalidate actual actor/session/group/assignment/source under locks, and audit only after that boundary. Native cancellation drains writes; failed precommit persistence rolls back and compensates; uncertain commits retain bytes. Synthetic external storage; actual FK-enabled SQLite authority/commit observers, no live service claim. Independent image-library-followups.json remains open; this record does not close crash durability or sibling routes."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_image_library_commit_outcomes.py",
+    "sha256": "fcdfa283fd33a4f4a3b0ebfbc8b5daf3d7d620a24bb7d6e306a8d8c2df7de71f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete current source read; final91-case seven-file affected selection is source-fenced. Read routes retain the original audit wrapper; mutations release the initial read transaction, revalidate actual actor/session/group/assignment/source under locks, and audit only after that boundary. Native cancellation drains writes; failed precommit persistence rolls back and compensates; uncertain commits retain bytes. Synthetic external storage; actual FK-enabled SQLite authority/commit observers, no live service claim. Independent image-library-followups.json remains open; this record does not close crash durability or sibling routes."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_image_library_routes.py",
+    "sha256": "834bda1d53bdf2e200ef889a22ddb25981b69ad743844092bdcd2a786f5b7045",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete current source read; final91-case seven-file affected selection is source-fenced. Read routes retain the original audit wrapper; mutations release the initial read transaction, revalidate actual actor/session/group/assignment/source under locks, and audit only after that boundary. Native cancellation drains writes; failed precommit persistence rolls back and compensates; uncertain commits retain bytes. Synthetic external storage; actual FK-enabled SQLite authority/commit observers, no live service claim. Independent image-library-followups.json remains open; this record does not close crash durability or sibling routes."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_image_crop_routes.py",
+    "sha256": "65f9e7c2118e5caf2c7f0adf4114eef906cd815f94b826304e123ae8f004866c",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "needs-follow-up",
+    "notes": "Existing crop regression selection executed unchanged; no complete file-read credit."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_image_storage_write.py",
+    "sha256": "28ae066a497c9a07f6b5f78ff697c9fe0690798fd5570e46fd732e24e679b872",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete current source read; final91-case seven-file affected selection is source-fenced. Read routes retain the original audit wrapper; mutations release the initial read transaction, revalidate actual actor/session/group/assignment/source under locks, and audit only after that boundary. Native cancellation drains writes; failed precommit persistence rolls back and compensates; uncertain commits retain bytes. Synthetic external storage; actual FK-enabled SQLite authority/commit observers, no live service claim. Independent image-library-followups.json remains open; this record does not close crash durability or sibling routes."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_image_library_stream.py",
+    "sha256": "43e55b809f82306a27e1bd1f9a3bae201ad2a1131995bfb8c176634e352e94ba",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete current source read; final91-case seven-file affected selection is source-fenced. Read routes retain the original audit wrapper; mutations release the initial read transaction, revalidate actual actor/session/group/assignment/source under locks, and audit only after that boundary. Native cancellation drains writes; failed precommit persistence rolls back and compensates; uncertain commits retain bytes. Synthetic external storage; actual FK-enabled SQLite authority/commit observers, no live service claim. Independent image-library-followups.json remains open; this record does not close crash durability or sibling routes."
+  },
+  {
+    "path": "backend/tests/route_dependencies.py",
+    "sha256": "86bfcb5c69cd58777dea86cb9f1b80932e8ef5d4249c1c0fae6cee9f250e22d8",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete current source read; final91-case seven-file affected selection is source-fenced. Read routes retain the original audit wrapper; mutations release the initial read transaction, revalidate actual actor/session/group/assignment/source under locks, and audit only after that boundary. Native cancellation drains writes; failed precommit persistence rolls back and compensates; uncertain commits retain bytes. Synthetic external storage; actual FK-enabled SQLite authority/commit observers, no live service claim. Independent image-library-followups.json remains open; this record does not close crash durability or sibling routes."
+  }
+]

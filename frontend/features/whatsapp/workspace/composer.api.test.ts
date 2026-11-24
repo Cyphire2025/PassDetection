@@ -1,20 +1,20 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { useAuthStore } from "@/stores/auth.store";
+import type { User } from "@/types";
 import apiClient from "@/lib/api/client";
 import { composerApi } from "./composer.api";
-import type { WhatsAppSendIntent } from "../utils/normal-send-intent";
+import { WhatsAppSendIntent } from "../utils/normal-send-intent";
 
 afterEach(() => vi.restoreAllMocks());
+beforeEach(() => useAuthStore.setState({ user: { id: "composer-owner", role: "agency_admin", agency_id: "agency-a" } as User, isAuthenticated: true }));
 
 describe("shared broadcast dispatch contract", () => {
   it("removes preview sampling fields and binds the exact send body to its retained key", async () => {
     const post = vi
       .spyOn(apiClient, "post")
       .mockResolvedValue({ data: { batch_id: "batch", queued: 1 } });
-    const bind = vi.fn().mockResolvedValue(undefined);
-    const intent = {
-      key: "retained-business-intent",
-      bind,
-    } as unknown as WhatsAppSendIntent;
+    const intent = new WhatsAppSendIntent("retained-business-intent");
+    const bind = vi.spyOn(intent, "bind");
     await composerApi.send(
       {
         groupId: "broadcast",

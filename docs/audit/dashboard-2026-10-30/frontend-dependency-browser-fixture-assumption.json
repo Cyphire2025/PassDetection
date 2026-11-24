@@ -1,0 +1,461 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Users\\nipun\\AppData\\Local\\Programs\\node-v24.21.0-win-x64\\node.exe",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "../.tmp/frontend-dependency-remediation/playwright.production.config.ts"
+    ],
+    "configFile": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\frontend-dependency-remediation\\playwright.production.config.ts",
+    "rootDir": "C:/Users/nipun/Desktop/PassDetection/.tmp/frontend-dependency-remediation",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/nipun/Desktop/PassDetection/.tmp/frontend-dependency-remediation/browser-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "production-flows",
+        "name": "production-flows",
+        "testDir": "C:/Users/nipun/Desktop/PassDetection/frontend/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "authentication.spec.ts",
+          "fresh-travellers.spec.ts"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/nipun/Desktop/PassDetection/.tmp/frontend-dependency-remediation/browser-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "production-nonce",
+        "name": "production-nonce",
+        "testDir": "C:/Users/nipun/Desktop/PassDetection/.tmp/frontend-dependency-remediation",
+        "testIgnore": [],
+        "testMatch": [
+          "production-nonce.spec.mjs"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\frontend-dependency-browser.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.62.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "..\\..\\frontend\\e2e\\authentication.spec.ts",
+      "file": "../../frontend/e2e/authentication.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "credential login restores a cookie session and logout clears browser-owned state",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "production-flows",
+              "projectName": "production-flows",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1925,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T15:10:37.879Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "70f6afe7e350c931056e-0582eb902c8d690b3a4b",
+          "file": "../../frontend/e2e/authentication.spec.ts",
+          "line": 93,
+          "column": 5
+        },
+        {
+          "title": "a rejected refresh expires the local session and explains the redirect",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "production-flows",
+              "projectName": "production-flows",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 454,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T15:10:39.898Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "70f6afe7e350c931056e-5503a09cd7f9dbecbc0d",
+          "file": "../../frontend/e2e/authentication.spec.ts",
+          "line": 154,
+          "column": 5
+        },
+        {
+          "title": "a lower-privilege direct-link journey is denied and returned to its safe workspace",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "production-flows",
+              "projectName": "production-flows",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 521,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T15:10:40.359Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "70f6afe7e350c931056e-da4e012827aff6bb5466",
+          "file": "../../frontend/e2e/authentication.spec.ts",
+          "line": 160,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "..\\..\\frontend\\e2e\\fresh-travellers.spec.ts",
+      "file": "../../frontend/e2e/fresh-travellers.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "fresh private draft resumes and submits at 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "production-flows",
+              "projectName": "production-flows",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5357,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T15:10:40.895Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a9aaa940b692789b9677-abc82b8342a151761c58",
+          "file": "../../frontend/e2e/fresh-travellers.spec.ts",
+          "line": 70,
+          "column": 38
+        },
+        {
+          "title": "fresh private draft resumes and submits at 1440px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "production-flows",
+              "projectName": "production-flows",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5427,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T15:10:46.258Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a9aaa940b692789b9677-96922a61a6052d81e81e",
+          "file": "../../frontend/e2e/fresh-travellers.spec.ts",
+          "line": 70,
+          "column": 38
+        },
+        {
+          "title": "family members keep independent private drafts and head-first submissions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "production-flows",
+              "projectName": "production-flows",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7213,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T15:10:51.693Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a9aaa940b692789b9677-e953704f54f066f676a0",
+          "file": "../../frontend/e2e/fresh-travellers.spec.ts",
+          "line": 89,
+          "column": 5
+        },
+        {
+          "title": "an interrupted final response resumes the submitted receipt without a duplicate",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "production-flows",
+              "projectName": "production-flows",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5020,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T15:10:58.911Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a9aaa940b692789b9677-f74ff500edd83911b403",
+          "file": "../../frontend/e2e/fresh-travellers.spec.ts",
+          "line": 100,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "production-nonce.spec.mjs",
+      "file": "production-nonce.spec.mjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "production rewrites preserve the isolated backend response",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "production-nonce",
+              "projectName": "production-nonce",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 40,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\n\u001b[1mMatcher error\u001b[22m: \u001b[31mreceived\u001b[39m value must not be null nor undefined\n\nReceived has value: \u001b[31mundefined\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\n\u001b[1mMatcher error\u001b[22m: \u001b[31mreceived\u001b[39m value must not be null nor undefined\n\nReceived has value: \u001b[31mundefined\u001b[39m\n    at C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\frontend-dependency-remediation\\production-nonce.spec.mjs:13:49",
+                    "location": {
+                      "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\frontend-dependency-remediation\\production-nonce.spec.mjs",
+                      "column": 49,
+                      "line": 13
+                    },
+                    "snippet": "  11 |     expect(response.headers()[\"content-type\"]).toContain(\"application/json\");\n  12 |     expect(await response.json()).toEqual({ error: \"not_found\" });\n> 13 |     expect(response.headers()[\"cache-control\"]).toContain(\"no-store\");\n     |                                                 ^\n  14 |   }\n  15 | });\n  16 |"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\frontend-dependency-remediation\\production-nonce.spec.mjs",
+                        "column": 49,
+                        "line": 13
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\n\u001b[1mMatcher error\u001b[22m: \u001b[31mreceived\u001b[39m value must not be null nor undefined\n\nReceived has value: \u001b[31mundefined\u001b[39m\n\n  11 |     expect(response.headers()[\"content-type\"]).toContain(\"application/json\");\n  12 |     expect(await response.json()).toEqual({ error: \"not_found\" });\n> 13 |     expect(response.headers()[\"cache-control\"]).toContain(\"no-store\");\n     |                                                 ^\n  14 |   }\n  15 | });\n  16 |\n    at C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\frontend-dependency-remediation\\production-nonce.spec.mjs:13:49"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T15:11:04.357Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\frontend-dependency-remediation\\browser-results\\production-nonce-productio-9dcf8-e-isolated-backend-response-production-nonce\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\frontend-dependency-remediation\\browser-results\\production-nonce-productio-9dcf8-e-isolated-backend-response-production-nonce\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\frontend-dependency-remediation\\production-nonce.spec.mjs",
+                    "column": 49,
+                    "line": 13
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "1ab74f2ef83d1117f06f-53d807d5c49b9a843db8",
+          "file": "production-nonce.spec.mjs",
+          "line": 3,
+          "column": 1
+        },
+        {
+          "title": "production rendering applies a fresh CSP nonce to framework scripts",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "production-nonce",
+              "projectName": "production-nonce",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 615,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T15:11:04.730Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ab74f2ef83d1117f06f-f873fe3f4dcf78b48f40",
+          "file": "production-nonce.spec.mjs",
+          "line": 17,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-30T15:10:27.418Z",
+    "duration": 38412.193,
+    "expected": 8,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

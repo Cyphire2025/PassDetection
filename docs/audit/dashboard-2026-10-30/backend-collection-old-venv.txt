@@ -1,0 +1,16 @@
+
+=================================== ERRORS ====================================
+___ ERROR collecting tests/unit/infrastructure/test_document_pdf_xforms.py ____
+ImportError while importing test module 'C:\Users\nipun\Desktop\PassDetection\backend\tests\unit\infrastructure\test_document_pdf_xforms.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\importlib\__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\infrastructure\test_document_pdf_xforms.py:7: in <module>
+    from pypdf import PdfWriter, apply_configuration, get_configuration
+E   ImportError: cannot import name 'apply_configuration' from 'pypdf' (C:\Users\nipun\Desktop\PassDetection\backend\.venv311\Lib\site-packages\pypdf\__init__.py)
+=========================== short test summary info ===========================
+ERROR tests/unit/infrastructure/test_document_pdf_xforms.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+1 error in 4.92s

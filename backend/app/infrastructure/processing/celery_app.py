@@ -1,4 +1,4 @@
-"""Celery application for passport OCR processing."""
+"""Celery application for AI passport processing and shared background workflows."""
 
 from __future__ import annotations
 
@@ -7,6 +7,7 @@ from celery.signals import worker_process_init, worker_process_shutdown
 from kombu import Queue
 
 from app.core.config.settings import get_settings
+from app.core.logging.celery_diagnostics import install_celery_diagnostic_filters
 from app.infrastructure.ai_priority import EXTRACTION_QUEUE, VERIFICATION_QUEUE
 from app.infrastructure.celery_async_runtime import celery_async_runtime
 from app.infrastructure.ecr import (
@@ -79,6 +80,8 @@ celery_app = Celery(
     "passdetection",
     broker=settings.redis.broker_url,
     backend=settings.redis.broker_url,
+    task_cls="app.infrastructure.processing.private_task:PrivateTask",
+    loader="app.infrastructure.processing.private_task_loader:PrivateTaskLoader",
     include=[
         "app.infrastructure.processing.tasks",
         "app.infrastructure.verification.tasks",
@@ -407,6 +410,8 @@ celery_app.conf.update(
         },
     },
 )
+
+install_celery_diagnostic_filters()
 
 
 @worker_process_init.connect(weak=False)  # type: ignore[untyped-decorator]

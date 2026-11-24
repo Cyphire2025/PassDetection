@@ -1,0 +1,271 @@
+{
+  "basis": "Exact AST declaration movement after documented closed-chain retirement. No endpoint/body/query/cache/retry/actor/lifetime behavior changes during extraction. Facade import paths retained.",
+  "declarations": [
+    {
+      "name": "McpOverview",
+      "destination": "frontend/features/mcp/api/mcp.types.ts",
+      "ast_sha256": "335e28db580f9e50489482f97ee347a43021ba016eb5780d7ae3811c0fb9a24c"
+    },
+    {
+      "name": "McpReadSection",
+      "destination": "frontend/features/mcp/api/mcp.types.ts",
+      "ast_sha256": "fe2812cdf6e2460ec4a63ebcd5ea0eaccbd5dd9aabac517718deafa811aaeedf"
+    },
+    {
+      "name": "McpReadAccess",
+      "destination": "frontend/features/mcp/api/mcp.types.ts",
+      "ast_sha256": "5410c884343b302f5b9be76fb889efdbe770705934e6c3e72593c97289ad71fa"
+    },
+    {
+      "name": "McpReadAccessUpdate",
+      "destination": "frontend/features/mcp/api/mcp.types.ts",
+      "ast_sha256": "7e921e17364333a7de05d839d3069f567c8d504dab4703ed9c671c44fa15267e"
+    },
+    {
+      "name": "McpConnection",
+      "destination": "frontend/features/mcp/api/mcp.types.ts",
+      "ast_sha256": "8d3381acdc632ac5097df35a4f0ceb68369550e7bd133c3015baeea9a03bbf0a"
+    },
+    {
+      "name": "McpDevicePlatform",
+      "destination": "frontend/features/mcp/api/mcp.types.ts",
+      "ast_sha256": "2136ea35e07b66a56376642fa51be3c0a47ad65e0419e79c3819caded0c86669"
+    },
+    {
+      "name": "McpRequestStatus",
+      "destination": "frontend/features/mcp/api/mcp.types.ts",
+      "ast_sha256": "ee8e562f11d01ba69ea233db66d76e1bb3d87c7d6b269277b19f44c1134fefb4"
+    },
+    {
+      "name": "McpConnectionRequest",
+      "destination": "frontend/features/mcp/api/mcp.types.ts",
+      "ast_sha256": "77b7b87eca2370e7b8ee92d620cbb306b69e836c19570867cab62416d7894daa"
+    },
+    {
+      "name": "McpRequestApproval",
+      "destination": "frontend/features/mcp/api/mcp.types.ts",
+      "ast_sha256": "b65c80eefbe912f7b2cafea2213e311780e3f96e7e8549b507d2515ef9527ff8"
+    },
+    {
+      "name": "McpRequestCallback",
+      "destination": "frontend/features/mcp/api/mcp.types.ts",
+      "ast_sha256": "b94555a13a888b191d313283184693640e86e356b70460c3251b8decb4292701"
+    },
+    {
+      "name": "McpActivity",
+      "destination": "frontend/features/mcp/api/mcp.types.ts",
+      "ast_sha256": "74b955a6579701ec030ae3bca1f52054c8d1027e8fe5acb4ed2289d473b3014c"
+    },
+    {
+      "name": "McpPage",
+      "destination": "frontend/features/mcp/api/mcp.types.ts",
+      "ast_sha256": "9a0f204e2fb6eadb3e939745d3db1d4a8d2b4590e8e778011aae16ad9c85e6fb"
+    },
+    {
+      "name": "McpOperation",
+      "destination": "frontend/features/mcp/api/mcp.types.ts",
+      "ast_sha256": "6a7f07f2bc49f453160ae5cff49bd5d345fd809132ed1a9944fac27c50bd61e2"
+    },
+    {
+      "name": "McpArtifact",
+      "destination": "frontend/features/mcp/api/mcp.types.ts",
+      "ast_sha256": "5eb21f162a2e452dcbcdb678a8e2a0290c8f438a792f126561e8562f5bb792f7"
+    },
+    {
+      "name": "McpInventory",
+      "destination": "frontend/features/mcp/api/mcp.types.ts",
+      "ast_sha256": "aa8172e46d6864ac1a87c7c25358f6c9471fe87bde9c0f705c2e875a27f088a1"
+    },
+    {
+      "name": "isAccessDenied",
+      "destination": "frontend/features/mcp/hooks/use-mcp-queries.ts",
+      "ast_sha256": "09fa19369463da9180cfdddc8dbe057c5a2d368e08f3be9a93b8623277efa901"
+    },
+    {
+      "name": "useMcpRefresh",
+      "destination": "frontend/features/mcp/hooks/use-mcp-queries.ts",
+      "ast_sha256": "9853f52bdbea7eb8897feced64db10da6aedc563cf7a36b3f810be5ef9305dbb"
+    },
+    {
+      "name": "useMcpOverview",
+      "destination": "frontend/features/mcp/hooks/use-mcp-queries.ts",
+      "ast_sha256": "32412b160a632bbff3665dc7b388b52112ea1f59896dd69196baf6cf7c3c5555"
+    },
+    {
+      "name": "useMcpReadAccess",
+      "destination": "frontend/features/mcp/hooks/use-mcp-queries.ts",
+      "ast_sha256": "4d8f7f6b4ba8f61c37a01912e6e8fd0735990dcc664bc156242b8595fce86fcc"
+    },
+    {
+      "name": "useMcpPermissions",
+      "destination": "frontend/features/mcp/hooks/use-mcp-queries.ts",
+      "ast_sha256": "87b845212380da04cb5eec4296c536bf4749b4423b4799bffdb83ababb75b532"
+    },
+    {
+      "name": "useMcpConnections",
+      "destination": "frontend/features/mcp/hooks/use-mcp-queries.ts",
+      "ast_sha256": "fe97073b1e16fdb6eabb1a6e88aa8a54ebdf89302279837fb5098087703be6a0"
+    },
+    {
+      "name": "useMcpActivity",
+      "destination": "frontend/features/mcp/hooks/use-mcp-queries.ts",
+      "ast_sha256": "9abf88d9ecf67bf046de7fd5dd1de97ce2589ec396b4c3e4a66ca0cf1b9ba2f7"
+    },
+    {
+      "name": "useMcpInventory",
+      "destination": "frontend/features/mcp/hooks/use-mcp-queries.ts",
+      "ast_sha256": "7d6405312f18979eb1e118bbce5244d25c4a1a53c431f9aed1e554d2e1d73bc7"
+    },
+    {
+      "name": "useMcpOperations",
+      "destination": "frontend/features/mcp/hooks/use-mcp-queries.ts",
+      "ast_sha256": "4206a88aa2d24c46eff5334f6fb883df0d1d0cf6ad0ae614e9d05db707c25d09"
+    },
+    {
+      "name": "useMcpArtifacts",
+      "destination": "frontend/features/mcp/hooks/use-mcp-queries.ts",
+      "ast_sha256": "dbc1c81116a0c1eb94223cbe51af1e517cc4e7dabed07e663c17b77cebe86a58"
+    },
+    {
+      "name": "useMcpRequests",
+      "destination": "frontend/features/mcp/hooks/use-mcp-queries.ts",
+      "ast_sha256": "d8180491dc193237de1cf5e517b3a7df00f6342f2e5064c559fadee0698ca42c"
+    },
+    {
+      "name": "useMcpUpdateReadAccess",
+      "destination": "frontend/features/mcp/hooks/use-mcp-policy-mutations.ts",
+      "ast_sha256": "cb4137be9eebdef95eb0abd859a22a6bd20e70803f02b2956cfa8f10fc9d75f9"
+    },
+    {
+      "name": "useMcpUpdatePermissions",
+      "destination": "frontend/features/mcp/hooks/use-mcp-policy-mutations.ts",
+      "ast_sha256": "f091c06c4e83e498f2f4324c5dae35eddcf4537c07dae291fc78c02a0ce9a374"
+    },
+    {
+      "name": "useMcpUpdateConnectionPermissions",
+      "destination": "frontend/features/mcp/hooks/use-mcp-policy-mutations.ts",
+      "ast_sha256": "a1793bd3cdb775a95ea48c72564ac576270d7fe10281a507004cae9bc03aa318"
+    },
+    {
+      "name": "useMcpControl",
+      "destination": "frontend/features/mcp/hooks/use-mcp-policy-mutations.ts",
+      "ast_sha256": "b054104185842430df5c1462f0f93073c4cee9323ba6718c9750bae8d0517264"
+    },
+    {
+      "name": "useMcpDeleteConnection",
+      "destination": "frontend/features/mcp/hooks/use-mcp-connection-mutations.ts",
+      "ast_sha256": "c001e90bb0772a562ae3ff7ef0b4302f88113416063942c15a5b9e9f71d763ec"
+    },
+    {
+      "name": "useMcpUpdateConnection",
+      "destination": "frontend/features/mcp/hooks/use-mcp-connection-mutations.ts",
+      "ast_sha256": "9936ed4f0469541c080df9ebcaaa1f1190fd5da6d539cbde00cebdaa7056dd13"
+    },
+    {
+      "name": "useMcpSetConnectionAccess",
+      "destination": "frontend/features/mcp/hooks/use-mcp-connection-mutations.ts",
+      "ast_sha256": "a82ab38547348009e048713a064178e8482e5206721e12d49dd83b68d029caad"
+    },
+    {
+      "name": "useMcpApproveRequest",
+      "destination": "frontend/features/mcp/hooks/use-mcp-connection-mutations.ts",
+      "ast_sha256": "003d4ec9b6d9027d7ea82213898ca774ef8f9bf152c7e6e1c5bf4badb12f9a65"
+    },
+    {
+      "name": "useMcpRejectRequest",
+      "destination": "frontend/features/mcp/hooks/use-mcp-connection-mutations.ts",
+      "ast_sha256": "be644fde4901ef8ddfd0c1bfda181371d19a59b8d3687dd625a7754b8f23f315"
+    }
+  ],
+  "files": {
+    "frontend/features/mcp/api/mcp-capabilities.ts": "262a4d6c91f312c97b654fc1374f388dd67f16ceafb7ee150b65a83489ce5e75",
+    "frontend/features/mcp/api/mcp.types.ts": "e7e1c7cb8b3e670039ef256a46030da9fcfbd334a2c9fb146a4ed4ff0e4ce1a2",
+    "frontend/features/mcp/api/mcp.api.ts": "8951306146e020ca3dd3901fb642acc0e3417b82d5f4289eb174a218e009fe00",
+    "frontend/features/mcp/hooks/mcp-query-keys.ts": "dab49612ec94c974832ad3f7bac1b6c6bfbd78ed8c8d7cdde4d6fbbbb5509edb",
+    "frontend/features/mcp/hooks/use-mcp-queries.ts": "a8a3f8c4b665384ec59fc05a1ae22eb2ac957e1cd3003b927b87d2a062a09c7b",
+    "frontend/features/mcp/hooks/use-mcp-policy-mutations.ts": "4eca3147c30b9b43a355c5e5c59a8e5e3a44f5a1a55a879c4912c879c94756d5",
+    "frontend/features/mcp/hooks/use-mcp-connection-mutations.ts": "f321f7c43936535c21689c3d08c7ffa660be81b94092296c489ba47712d9cbd3",
+    "frontend/features/mcp/hooks/use-mcp.ts": "9bd0ef21c81fb692e56e9a151605751474a2361a78c1f7df13ffe97bbb06754a"
+  },
+  "note": "One unused intermediate export barrel was discarded before qualification; direct facade exports retained. Intentional import selection, line wrapping and indentation preserve all moved declaration ASTs. Its source/hash remain in retirement manifest.",
+  "transport_methods": [
+    {
+      "name": "overview",
+      "ast_sha256": "5c1f091585e30b724fb58f07160b378d8491665d1a217168fb76b163c8cbd9b8"
+    },
+    {
+      "name": "readAccess",
+      "ast_sha256": "2ea3991c866f458e9d52ee92bc3fb851c5a4e1055f594debc217b1b99be6525d"
+    },
+    {
+      "name": "updateReadAccess",
+      "ast_sha256": "ca4bebbb6d4f1593a45dc6ae8ce2c76b81f8bbd9e17ea27006bc8b99e02adaa6"
+    },
+    {
+      "name": "permissions",
+      "ast_sha256": "5ad94def94c4e40266728d720a4e4762afdca4504c5aa8440af2202a38b4a2e8"
+    },
+    {
+      "name": "updatePermissions",
+      "ast_sha256": "729679ef853ab0e2ea8000b72987eb91fb7b1b7c1cba1dde404e895529953a32"
+    },
+    {
+      "name": "updateConnectionPermissions",
+      "ast_sha256": "d8c3763fbd55c56b6a34067ab64b3a64a20b0284888bf5caace821648dba0c73"
+    },
+    {
+      "name": "connections",
+      "ast_sha256": "50ad7552f65c4d97d09fe665d05d25a5f7a0599c7f5a7c031df7e5ae4a6c6273"
+    },
+    {
+      "name": "activity",
+      "ast_sha256": "ba5987c249b47d6553c67d483dc88d5e6091867ac73e2beae77413821481c5d2"
+    },
+    {
+      "name": "inventory",
+      "ast_sha256": "0a096271bd993f69e36ed6ab89630026089684ea438e267cee3a768acbb23f2f"
+    },
+    {
+      "name": "operations",
+      "ast_sha256": "c7e2a71c7e052db4c191ec147b550caaf377fa704f7804e1f7c7f26e1e8b9d73"
+    },
+    {
+      "name": "artifacts",
+      "ast_sha256": "e4a3ccbf0e008db51240f9c887a40e008d5c660b4cea151cc78ff4ea242711d0"
+    },
+    {
+      "name": "control",
+      "ast_sha256": "ae6cc7d31bc1fecd282f08b8977a0944a090fc9cbf4459cba656582c37c3eea8"
+    },
+    {
+      "name": "deleteConnection",
+      "ast_sha256": "42368e5a944dda4bfa4008ab00c88c1db9826e168866de3e5236dad5d8ef5d27"
+    },
+    {
+      "name": "updateConnection",
+      "ast_sha256": "9f006ee93d4dd33a51d7bc57f92267cc40518dab18fa6969c34e4bcd5d0529d2"
+    },
+    {
+      "name": "setConnectionAccess",
+      "ast_sha256": "138534beb5036bae9fe4ea72cda76f970e79f7eb7ec55da92e6248b354b4dd3c"
+    },
+    {
+      "name": "requests",
+      "ast_sha256": "845f8f67bb3c7dfa20984bf08216b5642c131571fed6c984a2e87ab5a48c54b9"
+    },
+    {
+      "name": "approveRequest",
+      "ast_sha256": "df2222f85c53cce1cf093afb628cc5496d98a12f24c850a5158e0a44d4c68a80"
+    },
+    {
+      "name": "rejectRequest",
+      "ast_sha256": "a61f69ba1c42a028fea54d54e928e1e9d36500d132637d34cf712c5cb46c2406"
+    }
+  ],
+  "additional_checks": {
+    "transport_methods_exact": 18,
+    "capability_declaration_exact": true,
+    "query_key_initializer_exact": true,
+    "import_export_order": "Imports precede compatibility exports and implementation; no new export barrel."
+  }
+}

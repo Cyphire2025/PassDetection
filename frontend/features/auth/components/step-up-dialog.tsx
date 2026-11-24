@@ -5,6 +5,7 @@ import { ShieldCheck, X } from "lucide-react";
 import { Button, Input } from "@/components/ui";
 import { useModalKeyboardBoundary } from "@/components/ui/modal";
 import { authApi } from "../api/auth.api";
+import { cookieCoordinationFailureMessage } from "../services/cookie-mutation";
 import {
   cancelAuthenticationStepUp,
   completeAuthenticationStepUp,
@@ -50,8 +51,8 @@ export function StepUpDialog() {
       await authApi.stepUp(code.trim());
       setOpen(false);
       completeAuthenticationStepUp();
-    } catch {
-      setError("The authenticator or recovery code was rejected. Try a fresh code.");
+    } catch (error) {
+      setError(cookieCoordinationFailureMessage(error) ?? "The authenticator or recovery code was rejected. Try a fresh code.");
     } finally {
       setIsSubmitting(false);
     }

@@ -1,0 +1,242 @@
+[
+  {
+    "path": "backend/app/domain/entities/factories.py",
+    "sha256": "b74b82177ea101abeafdd188d5c197a9f6ea01f49e56ad06b438bbb491220950",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Current domain/schema coherent batch. All original entity/port/schema lines read; focused owners and facade imports reviewed. Exact ordered22entity/port metadata contracts, two complete trip-method ASTs after shared-rule expansion,30schema declarations with documented guard/compatibility exceptions,52unchanged model JSON schemas. Real HTTP invalid-list negative and valid-flow controls; no identity, permission or workflow retirement. Historical source receipts retained separately."
+  },
+  {
+    "path": "backend/app/domain/entities/enums.py",
+    "sha256": "4ef547c3c578e0c44d40ce03f8deaa0059077af2c59a78df40946b134ad88324",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Current domain/schema coherent batch. All original entity/port/schema lines read; focused owners and facade imports reviewed. Exact ordered22entity/port metadata contracts, two complete trip-method ASTs after shared-rule expansion,30schema declarations with documented guard/compatibility exceptions,52unchanged model JSON schemas. Real HTTP invalid-list negative and valid-flow controls; no identity, permission or workflow retirement. Historical source receipts retained separately."
+  },
+  {
+    "path": "backend/app/domain/entities/identity.py",
+    "sha256": "4e60b4cc3d4759f1c2b12b34984a4300ae388055694cf46581be33f632b94d9e",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Current domain/schema coherent batch. All original entity/port/schema lines read; focused owners and facade imports reviewed. Exact ordered22entity/port metadata contracts, two complete trip-method ASTs after shared-rule expansion,30schema declarations with documented guard/compatibility exceptions,52unchanged model JSON schemas. Real HTTP invalid-list negative and valid-flow controls; no identity, permission or workflow retirement. Historical source receipts retained separately."
+  },
+  {
+    "path": "backend/app/domain/entities/qualifier_selection.py",
+    "sha256": "79088b2e146a88ca46b17f4f716be932ca0aa37fcdadb6dd191e811761da67f4",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Current domain/schema coherent batch. All original entity/port/schema lines read; focused owners and facade imports reviewed. Exact ordered22entity/port metadata contracts, two complete trip-method ASTs after shared-rule expansion,30schema declarations with documented guard/compatibility exceptions,52unchanged model JSON schemas. Real HTTP invalid-list negative and valid-flow controls; no identity, permission or workflow retirement. Historical source receipts retained separately."
+  },
+  {
+    "path": "backend/app/domain/entities/client_group_state.py",
+    "sha256": "00d98b8ee7c09f2604903f2b6be2cbfff8b4a30679c645f9a7ae656d3244592b",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Current domain/schema coherent batch. All original entity/port/schema lines read; focused owners and facade imports reviewed. Exact ordered22entity/port metadata contracts, two complete trip-method ASTs after shared-rule expansion,30schema declarations with documented guard/compatibility exceptions,52unchanged model JSON schemas. Real HTTP invalid-list negative and valid-flow controls; no identity, permission or workflow retirement. Historical source receipts retained separately."
+  },
+  {
+    "path": "backend/app/domain/entities/client_group_configuration.py",
+    "sha256": "3486a83b66db4ec1658e74ba47bdd0052423d7a122fb5cc6bcbbb5fc633606db",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Current domain/schema coherent batch. All original entity/port/schema lines read; focused owners and facade imports reviewed. Exact ordered22entity/port metadata contracts, two complete trip-method ASTs after shared-rule expansion,30schema declarations with documented guard/compatibility exceptions,52unchanged model JSON schemas. Real HTTP invalid-list negative and valid-flow controls; no identity, permission or workflow retirement. Historical source receipts retained separately."
+  },
+  {
+    "path": "backend/app/domain/entities/client_group_lifecycle.py",
+    "sha256": "30910eb18732f1174995da1a49b021b6658d3acef96ab9253f9c2ddeeb51f55a",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Current domain/schema coherent batch. All original entity/port/schema lines read; focused owners and facade imports reviewed. Exact ordered22entity/port metadata contracts, two complete trip-method ASTs after shared-rule expansion,30schema declarations with documented guard/compatibility exceptions,52unchanged model JSON schemas. Real HTTP invalid-list negative and valid-flow controls; no identity, permission or workflow retirement. Historical source receipts retained separately."
+  },
+  {
+    "path": "backend/app/domain/entities/client_group.py",
+    "sha256": "3611455105d0b61425774efb899b883fe9d4e3e192b4e3ca39330c955d5b50f2",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Current domain/schema coherent batch. All original entity/port/schema lines read; focused owners and facade imports reviewed. Exact ordered22entity/port metadata contracts, two complete trip-method ASTs after shared-rule expansion,30schema declarations with documented guard/compatibility exceptions,52unchanged model JSON schemas. Real HTTP invalid-list negative and valid-flow controls; no identity, permission or workflow retirement. Historical source receipts retained separately."
+  },
+  {
+    "path": "backend/app/domain/entities/passport_state.py",
+    "sha256": "acdd388a8baab76b6a2f0436b3e34ab364605532b192d80d37d2bada30d21e4c",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Current domain/schema coherent batch. All original entity/port/schema lines read; focused owners and facade imports reviewed. Exact ordered22entity/port metadata contracts, two complete trip-method ASTs after shared-rule expansion,30schema declarations with documented guard/compatibility exceptions,52unchanged model JSON schemas. Real HTTP invalid-list negative and valid-flow controls; no identity, permission or workflow retirement. Historical source receipts retained separately."
+  },
+  {
+    "path": "backend/app/domain/entities/passport_extraction.py",
+    "sha256": "e745eb8f9d1b0827bf9bdeb2f8076ed898588fb0f3d1a0cb6c5baf5abc0d3cf1",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Current domain/schema coherent batch. All original entity/port/schema lines read; focused owners and facade imports reviewed. Exact ordered22entity/port metadata contracts, two complete trip-method ASTs after shared-rule expansion,30schema declarations with documented guard/compatibility exceptions,52unchanged model JSON schemas. Real HTTP invalid-list negative and valid-flow controls; no identity, permission or workflow retirement. Historical source receipts retained separately."
+  },
+  {
+    "path": "backend/app/domain/entities/passport_client_review.py",
+    "sha256": "591e2d935dd68ee27e7cfef3229b8080eb590f9e3fed2600cbe1ecb3b014f7cb",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Current domain/schema coherent batch. All original entity/port/schema lines read; focused owners and facade imports reviewed. Exact ordered22entity/port metadata contracts, two complete trip-method ASTs after shared-rule expansion,30schema declarations with documented guard/compatibility exceptions,52unchanged model JSON schemas. Real HTTP invalid-list negative and valid-flow controls; no identity, permission or workflow retirement. Historical source receipts retained separately."
+  },
+  {
+    "path": "backend/app/domain/entities/passport_staff_review.py",
+    "sha256": "3e93dfe727f18b35556bcd2522607d169d297cfa194d2ae1e62e90c6f6439e76",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Current domain/schema coherent batch. All original entity/port/schema lines read; focused owners and facade imports reviewed. Exact ordered22entity/port metadata contracts, two complete trip-method ASTs after shared-rule expansion,30schema declarations with documented guard/compatibility exceptions,52unchanged model JSON schemas. Real HTTP invalid-list negative and valid-flow controls; no identity, permission or workflow retirement. Historical source receipts retained separately."
+  },
+  {
+    "path": "backend/app/domain/entities/passport_submission.py",
+    "sha256": "b46b0a5e20840b903f9b9e4f9e5ba089f66e3f0857937b2eaa1475ccf97b63b2",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Current domain/schema coherent batch. All original entity/port/schema lines read; focused owners and facade imports reviewed. Exact ordered22entity/port metadata contracts, two complete trip-method ASTs after shared-rule expansion,30schema declarations with documented guard/compatibility exceptions,52unchanged model JSON schemas. Real HTTP invalid-list negative and valid-flow controls; no identity, permission or workflow retirement. Historical source receipts retained separately."
+  },
+  {
+    "path": "backend/app/domain/repositories/identity.py",
+    "sha256": "d3cdbb17519f5b05e9a6c810b0b554e74d602e98668dd6b1f2ce854ac2303b36",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Current domain/schema coherent batch. All original entity/port/schema lines read; focused owners and facade imports reviewed. Exact ordered22entity/port metadata contracts, two complete trip-method ASTs after shared-rule expansion,30schema declarations with documented guard/compatibility exceptions,52unchanged model JSON schemas. Real HTTP invalid-list negative and valid-flow controls; no identity, permission or workflow retirement. Historical source receipts retained separately."
+  },
+  {
+    "path": "backend/app/domain/repositories/client_groups.py",
+    "sha256": "0ae94781a7f1eb58dd7229aa7e6bd3327d68ed97f093dad91056de01477374da",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Current domain/schema coherent batch. All original entity/port/schema lines read; focused owners and facade imports reviewed. Exact ordered22entity/port metadata contracts, two complete trip-method ASTs after shared-rule expansion,30schema declarations with documented guard/compatibility exceptions,52unchanged model JSON schemas. Real HTTP invalid-list negative and valid-flow controls; no identity, permission or workflow retirement. Historical source receipts retained separately."
+  },
+  {
+    "path": "backend/app/domain/repositories/passport_submissions.py",
+    "sha256": "8bd1cd7ee3f5f82b034293a2bd05c239f10d10d679b37d02379de1d742109b4c",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Current domain/schema coherent batch. All original entity/port/schema lines read; focused owners and facade imports reviewed. Exact ordered22entity/port metadata contracts, two complete trip-method ASTs after shared-rule expansion,30schema declarations with documented guard/compatibility exceptions,52unchanged model JSON schemas. Real HTTP invalid-list negative and valid-flow controls; no identity, permission or workflow retirement. Historical source receipts retained separately."
+  },
+  {
+    "path": "backend/app/domain/repositories/object_storage.py",
+    "sha256": "af73f8bd469d7f73406c05d847fd5ccf77c9a6ea20b40005fb74d9901238207e",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Current domain/schema coherent batch. All original entity/port/schema lines read; focused owners and facade imports reviewed. Exact ordered22entity/port metadata contracts, two complete trip-method ASTs after shared-rule expansion,30schema declarations with documented guard/compatibility exceptions,52unchanged model JSON schemas. Real HTTP invalid-list negative and valid-flow controls; no identity, permission or workflow retirement. Historical source receipts retained separately."
+  },
+  {
+    "path": "backend/app/domain/entities/entities.py",
+    "sha256": "6e632388e2e0074771f336a1459c86d6a0712a3d0a93e14def7b2062270bf6fa",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Current domain/schema coherent batch. All original entity/port/schema lines read; focused owners and facade imports reviewed. Exact ordered22entity/port metadata contracts, two complete trip-method ASTs after shared-rule expansion,30schema declarations with documented guard/compatibility exceptions,52unchanged model JSON schemas. Real HTTP invalid-list negative and valid-flow controls; no identity, permission or workflow retirement. Historical source receipts retained separately."
+  },
+  {
+    "path": "backend/app/domain/repositories/interfaces.py",
+    "sha256": "996e38b40ad49a1ba1b604a8582f696f0f7fa5f17cf53696998c9ba5fbf465b0",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Current domain/schema coherent batch. All original entity/port/schema lines read; focused owners and facade imports reviewed. Exact ordered22entity/port metadata contracts, two complete trip-method ASTs after shared-rule expansion,30schema declarations with documented guard/compatibility exceptions,52unchanged model JSON schemas. Real HTTP invalid-list negative and valid-flow controls; no identity, permission or workflow retirement. Historical source receipts retained separately."
+  },
+  {
+    "path": "backend/app/domain/value_objects/group_trip_settings.py",
+    "sha256": "e4db9450f179fef74a62e880c2c6286454ba5d927a8ac2e4f959e8c57d7ae78a",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Current domain/schema coherent batch. All original entity/port/schema lines read; focused owners and facade imports reviewed. Exact ordered22entity/port metadata contracts, two complete trip-method ASTs after shared-rule expansion,30schema declarations with documented guard/compatibility exceptions,52unchanged model JSON schemas. Real HTTP invalid-list negative and valid-flow controls; no identity, permission or workflow retirement. Historical source receipts retained separately."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/schemas/client_group_broadcast_schemas.py",
+    "sha256": "86a9295d24b295ff8018d55cfb775f60626f3d5dce799d18ce78a34d928c6bae",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Current domain/schema coherent batch. All original entity/port/schema lines read; focused owners and facade imports reviewed. Exact ordered22entity/port metadata contracts, two complete trip-method ASTs after shared-rule expansion,30schema declarations with documented guard/compatibility exceptions,52unchanged model JSON schemas. Real HTTP invalid-list negative and valid-flow controls; no identity, permission or workflow retirement. Historical source receipts retained separately."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/schemas/client_group_collection_schemas.py",
+    "sha256": "98f2914847f3c9866f6265dd50f377f5919b365d7bc6f53fe267ded287257f0f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Current domain/schema coherent batch. All original entity/port/schema lines read; focused owners and facade imports reviewed. Exact ordered22entity/port metadata contracts, two complete trip-method ASTs after shared-rule expansion,30schema declarations with documented guard/compatibility exceptions,52unchanged model JSON schemas. Real HTTP invalid-list negative and valid-flow controls; no identity, permission or workflow retirement. Historical source receipts retained separately."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/schemas/client_group_match_schemas.py",
+    "sha256": "a5af1f8aa69f66361fd7744218187708db9ddb04f31a16c280462bea4674efe2",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Current domain/schema coherent batch. All original entity/port/schema lines read; focused owners and facade imports reviewed. Exact ordered22entity/port metadata contracts, two complete trip-method ASTs after shared-rule expansion,30schema declarations with documented guard/compatibility exceptions,52unchanged model JSON schemas. Real HTTP invalid-list negative and valid-flow controls; no identity, permission or workflow retirement. Historical source receipts retained separately."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/schemas/client_group_qualifier_schemas.py",
+    "sha256": "5360d1e3c4a935df8e9b6b1a210be2dc79b0e45d26310b9095f802475c11e59b",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Current domain/schema coherent batch. All original entity/port/schema lines read; focused owners and facade imports reviewed. Exact ordered22entity/port metadata contracts, two complete trip-method ASTs after shared-rule expansion,30schema declarations with documented guard/compatibility exceptions,52unchanged model JSON schemas. Real HTTP invalid-list negative and valid-flow controls; no identity, permission or workflow retirement. Historical source receipts retained separately."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/schemas/client_group_request_schemas.py",
+    "sha256": "05119ad00c36913fca7f40df7c8e466a017661f7bbc14a0512d0a2c357667e82",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Current domain/schema coherent batch. All original entity/port/schema lines read; focused owners and facade imports reviewed. Exact ordered22entity/port metadata contracts, two complete trip-method ASTs after shared-rule expansion,30schema declarations with documented guard/compatibility exceptions,52unchanged model JSON schemas. Real HTTP invalid-list negative and valid-flow controls; no identity, permission or workflow retirement. Historical source receipts retained separately."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/schemas/client_group_request_validation.py",
+    "sha256": "23e0b23716c88c8dfc29c795c49d4291934c2679763e1a804ef6ec31fb6bc525",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Current domain/schema coherent batch. All original entity/port/schema lines read; focused owners and facade imports reviewed. Exact ordered22entity/port metadata contracts, two complete trip-method ASTs after shared-rule expansion,30schema declarations with documented guard/compatibility exceptions,52unchanged model JSON schemas. Real HTTP invalid-list negative and valid-flow controls; no identity, permission or workflow retirement. Historical source receipts retained separately."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/schemas/client_group_response_schemas.py",
+    "sha256": "c5136b47fdc551c8fc68f70e0a87bd2614fefc4c3c3de869238c3544fcaf362f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Current domain/schema coherent batch. All original entity/port/schema lines read; focused owners and facade imports reviewed. Exact ordered22entity/port metadata contracts, two complete trip-method ASTs after shared-rule expansion,30schema declarations with documented guard/compatibility exceptions,52unchanged model JSON schemas. Real HTTP invalid-list negative and valid-flow controls; no identity, permission or workflow retirement. Historical source receipts retained separately."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/schemas/public_flow_telemetry_schema.py",
+    "sha256": "b71dc74b07dc2c788acea6351cb8a9f8325639cda62c5946571fb7ec34093d47",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Current domain/schema coherent batch. All original entity/port/schema lines read; focused owners and facade imports reviewed. Exact ordered22entity/port metadata contracts, two complete trip-method ASTs after shared-rule expansion,30schema declarations with documented guard/compatibility exceptions,52unchanged model JSON schemas. Real HTTP invalid-list negative and valid-flow controls; no identity, permission or workflow retirement. Historical source receipts retained separately."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/schemas/client_group_schemas.py",
+    "sha256": "3c4e4bcc5c3d84548c5b2be38a5464b5a5bece5879306b4604cf9fc9c123c96b",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Current domain/schema coherent batch. All original entity/port/schema lines read; focused owners and facade imports reviewed. Exact ordered22entity/port metadata contracts, two complete trip-method ASTs after shared-rule expansion,30schema declarations with documented guard/compatibility exceptions,52unchanged model JSON schemas. Real HTTP invalid-list negative and valid-flow controls; no identity, permission or workflow retirement. Historical source receipts retained separately."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_group_collection_input_contract.py",
+    "sha256": "8035b5c66a348e7f35103250fc0cfc7713b2d05992247c2057aa46baf5fc4cd6",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "55actual HTTP boundary cases use real request models/error handler and synthetic endpoint side-effect sentinels. Existing malformed-match contract included; no auth, DB or production handler claim."
+  }
+]

@@ -1,0 +1,58 @@
+{
+  "basis": "Add exactly five measured cohesive config owners requested by parent after parent full physical review and independently rechecked12 declaration AST hashes. Functionless JWT/S3 classes use a truthful zero baseline and zero function ceiling, with loader/evaluator regression rejecting introduced functions. All188 prior module budgets and global/critical floors remain byte-value identical. No physical read attribution is upgraded by this merge.",
+  "before_raw_sha256": "86931c2a6b9ea5916b62d23d0649f1836105d366c3ec3e21df5ea6cd80bed7a4",
+  "after_raw_sha256": "6eb5fbf6a51afceca5cde426122f3474f2327ffca29d4905ac33f4bc02d81aec",
+  "old_module_count": 188,
+  "new_module_count": 193,
+  "all_prior_module_caps_and_coverage_floors_preserved": true,
+  "all_global_and_critical_floors_preserved": true,
+  "new_modules": [
+    {
+      "path": "app/core/config/database_settings.py",
+      "baseline_lines": 111,
+      "maximum_lines": 130,
+      "baseline_max_function_complexity": 7,
+      "maximum_function_complexity": 8,
+      "minimum_coverage_percent": 75
+    },
+    {
+      "path": "app/core/config/redis_settings.py",
+      "baseline_lines": 188,
+      "maximum_lines": 200,
+      "baseline_max_function_complexity": 8,
+      "maximum_function_complexity": 9,
+      "minimum_coverage_percent": 75
+    },
+    {
+      "path": "app/core/config/jwt_settings.py",
+      "baseline_lines": 28,
+      "maximum_lines": 40,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 75
+    },
+    {
+      "path": "app/core/config/s3_settings.py",
+      "baseline_lines": 24,
+      "maximum_lines": 40,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 75
+    },
+    {
+      "path": "app/core/config/my_photos_settings.py",
+      "baseline_lines": 411,
+      "maximum_lines": 430,
+      "baseline_max_function_complexity": 47,
+      "maximum_function_complexity": 48,
+      "minimum_coverage_percent": 75
+    }
+  ],
+  "coverage_status": "New75% module floors are configured; parent focused217 core/MCP tests and additional photos tests passed, but that run did not measure coverage. Floors remain an explicit full CI coverage obligation.",
+  "source_evidence": [
+    "settings-reviewed-files.json",
+    "settings-extraction-proof.json",
+    "settings-module-candidates.json"
+  ],
+  "checker_regression_log": "zero-complexity-budget-tests.txt"
+}

@@ -1,0 +1,132 @@
+{
+  "status": "source/test frozen; focused behavior, exact-source, types/lint/architecture complete; shared integration next",
+  "scope": "dashboard/shared Gemini admission and synchronous shared metrics; no native UI code",
+  "reviewed_sources": "ai-priority-reviewed-files.json",
+  "sources": {
+    "backend/app/infrastructure/ai_priority/admission_context.py": "eca2ec309f6b415879351a293692a578940e0666172e5f95939515b78702468e",
+    "backend/app/infrastructure/ai_priority/config.py": "e0ad89c9f09a694e0e10e00b3fd0fe1cf6f256a90101eeacf1ddbcfd21d062d3",
+    "backend/app/infrastructure/ai_priority/coordinator.py": "bcbfdc68e32740b914686690413ea1c19f3d77e5b1dc67e2fec39b2d1ac28441",
+    "backend/app/infrastructure/ai_priority/extraction_admission.py": "5d61b7ab55d97cb7f0eef33e283a76a4e2c26c11bb327e40480eaf997f185f89",
+    "backend/app/infrastructure/ai_priority/factory.py": "7e70f7bb24bb5fd2bf336b11f98a527f2cba5d5aff74a922bb6bba49bc5d599b",
+    "backend/app/infrastructure/ai_priority/identity.py": "55c1c4bc29b2215bab07f1e386ec7f628f97ac67db4989cb88ea32fee91e60fc",
+    "backend/app/infrastructure/ai_priority/metrics.py": "58a549a1d768f5074537da9997ebcec08ab0d073d149a7705376d5e5f90dead3",
+    "backend/app/infrastructure/ai_priority/metrics_contract.py": "9e71389b39bf58e5de0ad2920533ca7f5f4042d078d4ff33b596ebe43f920c55",
+    "backend/app/infrastructure/ai_priority/metrics_memory.py": "29cb27cb8e5206b8d47cff511c3dc12698386722a214795dd352ea65c8f03b29",
+    "backend/app/infrastructure/ai_priority/metrics_policy.py": "27402108289975bcaf115601e7d260402a3bb8c54f31f39ef81a849031f7ed28",
+    "backend/app/infrastructure/ai_priority/metrics_redis.py": "858aab8f8a57603206d77b42535d3e3d2fac9390088ef3edb2c04151eaa2c8e0",
+    "backend/app/infrastructure/ai_priority/metrics_resilient.py": "aa3ae27d6efa650a780f5613013d0cb1786414024ae5c3960d6896bae5c849ff",
+    "backend/app/infrastructure/ai_priority/metrics_scripts.py": "cc25dcc0066df52ee96014736890a0604444eb73c85e65645d8adfe3978c887f",
+    "backend/app/infrastructure/ai_priority/provider_metrics.py": "f6a5b456136d2c42a1e649335d1e12842884a810301ba360c123ce0d5cbb4071",
+    "backend/app/infrastructure/ai_priority/redis_store.py": "d4ccbfb6910d73ad981ccd06b7153bb4fe14c6d8171aa1dd79acce5158b858f6",
+    "backend/app/infrastructure/ai_priority/retry.py": "5a0e7a5bfec2f0720e5cf8a9608584e8ae78603162d880c64b905d5bacc57a8e",
+    "backend/app/infrastructure/ai_priority/runtime.py": "7de45950107ea9569db2ae365c0cc8c90983c5b0985d8c0b2b94278ead8ab19d",
+    "backend/app/infrastructure/ai_priority/state.py": "3f183ae70c49e4b37f6bea3ca356ae68831b471ff61f6f163ed972c2f8176124",
+    "backend/app/infrastructure/ai_priority/verification_admission.py": "682c540ce4b86a2f7024213d63533e5aa12cf5409967838c5b31ccd8e06eeb48",
+    "backend/app/infrastructure/ai_priority/worker_healthcheck.py": "9abcd403552e07a0aa26075b00aa81b14c1fd6fa2dc80b9a046dd6bf9629a068",
+    "backend/app/infrastructure/ai_priority/worker_readiness.py": "4768c464dead1fa83aa3842863a8bfe057826be558c68eb1180338160268a8ee",
+    "backend/app/infrastructure/ai_priority/__init__.py": "435bbdd406d21cc18a599151f0629df067e8a9c982485defa8e6af51101dc1ce",
+    "backend/app/infrastructure/ai/passport_extraction_transport.py": "67b65e868f22310095e936bc9730a26222bcbc7d6a6c907f2e19a4470d7afc39",
+    "backend/app/infrastructure/ai/gemini_post_submission_verification_service.py": "9578c2a93cfba8c1cfe10d0d0d1f0dc57169ff6dc39865615da4d0668ca98216"
+  },
+  "findings_fixed": [
+    {
+      "trigger": "Synchronous shared metric writes in async extraction and verification handlers",
+      "before": "Two real caller regressions prevented unrelated loop progress while an Event-controlled metric store was blocked. The extraction regression is in initial3; verification separately restored the original source in an isolated test process.",
+      "after": "Await the same synchronous record_provider_event through a native thread and existing cancellation-drain helper. Event categories, arguments, order and all provider retries/results remain unchanged."
+    },
+    {
+      "trigger": "Context exit/repeated cancellation while heartbeat or lease release native work remains running",
+      "before": "Original context returned before heartbeat finished, abandoned a cancelled release, and failed to release after an unexpected already-failed heartbeat:3actual Event/error controls failed.",
+      "after": "Drain heartbeat native work before releasing; shield/drain the complete stop-and-release sequence; finally release before propagating an unexpected heartbeat failure."
+    }
+  ],
+  "architecture": {
+    "metrics_original_lines": 941,
+    "metrics_facade_lines": 241,
+    "metric_owners": 6,
+    "coordinator_original_lines": 471,
+    "coordinator_facade_lines": 240,
+    "workload_owner_lines": [
+      197,
+      109
+    ],
+    "typed_context_lines": 34,
+    "maximum_new_owner_lines": 209,
+    "equivalence": "47 exact AST/whole-module restoration checks; original13metric declarations and coordinator public method runtime signatures/evaluated hints/module/qualnames equal; four metric Lua bytes equal and admission Redis source unchanged; self override behavior exercised."
+  },
+  "verification": {
+    "current_unique_cases": 143,
+    "basis": "135passing cases+31subtests, followed by8new cases+7subtests with exact unchanged prior source/test SHA verification before/after coverage append. Earlier101and7passing selections overlap and are not added.",
+    "initial_negative_cases": 5,
+    "types": "24current source files pass strict configured mypy",
+    "lint": "24owned runtime+2new test files pass configured Ruff; unchanged non-owned legacy formatting not rewritten",
+    "architecture": "pass",
+    "existing_budgets": "562pass before additive integration",
+    "coverage": "All15 candidate owners97.47\u2013100%statements. Runtime100/100branch; provider offload helper100line/no Pythonbranches; no model/declaration critical proposals. External existingAI75floors retained and passed current scoped measurements."
+  },
+  "failed_or_historical_invocations": [
+    {
+      "artifact": "ai-priority-extra-boundaries-initial-probe.txt",
+      "reason": "Original-source injection imported app before pytest plugin startup, triggering assertion-rewrite warning-as-error. Corrected session-start injection reproduced2actual expected failures; no warnings/gates suppressed."
+    },
+    {
+      "artifacts": [
+        "ai-priority-inprocess-collection-failure.txt",
+        "ai-priority-absolute-path-collection-failure.txt",
+        "ai-priority-relative-path-collection-failure.txt"
+      ],
+      "reason": "Collection stopped at early native bcrypt initialization when requesting individual provider modules as coverage sources. Passing final CLI uses include-only instrumentation and normal application/test startup; no dependency or app config mutation."
+    }
+  ],
+  "preserved": [
+    "Exact admission fairness/capacity/quiet-period/lease/duplicate/fail-open extraction/fail-closed verification policies",
+    "All Lua strings and Redis time authority",
+    "Stable public imports, evaluated hints, subtype/monkeypatch self dispatch",
+    "Metrics circuit windows, local fallback/bounded samples and non-backfill contract",
+    "Provider payloads/response acceptance/retries/credential handling",
+    "No lock/schema/migration/deployment identity changes"
+  ],
+  "pending": [
+    {
+      "scope": "Redis expired-entry cleanup",
+      "state": "Source-scaling candidate only: existing Lua collects every expired sorted-set entry. No real backlog benchmark or changed algorithm; preserve fairness until a dedicated measured contract is available."
+    },
+    {
+      "scope": "Legacy record_ocr/record_ocr_stage observability names",
+      "state": "No current app caller found, but compatibility/test/docs closure not established; retained."
+    },
+    {
+      "scope": "Live Redis/multi-process fairness/outage qualification",
+      "state": "Not run. Fake atomic model, native synthetic Event and mocked Redis wire tests do not establish real service qualification."
+    },
+    {
+      "scope": "Whole repository and MyPhotos remaining architecture",
+      "state": "Still open in parent tracker. No complete audit or VPS qualification claim."
+    }
+  ],
+  "artifacts": {
+    "ai-priority-preflight-reviewed-files.json": "b4fb0fa6ed19b705fbc4d307e33ac1092d7645da7bb4f434fa08422770b05ad9",
+    "ai-priority-async-boundaries-before.txt": "e2d527240bde52e3113c7af5e0ce4cc5e7363b65669537880fc632f8f275ce14",
+    "ai-priority-extra-boundaries-before.txt": "1ddf121b6c878bd6c3377d080685b1c193af59cf37dc7f0cd6c601fc7a83fea9",
+    "ai-priority-async-boundaries-after.txt": "b2e962f67ed011d7dd467e36509d120610663f34c1fa8ef1a32d4a5cb7d21a54",
+    "ai-priority-async-controls.txt": "3c6bcf11daf374c7a8a909ca861927a8765f08b6417ddc1469c2c8ecd269588d",
+    "ai-priority-coherent-tests.txt": "29b0365bde4e6469bff99258725e6b016a2b71859192e6adb144e69961737319",
+    "ai-priority-qualified-tests.txt": "23db782b7384ad8c44d19f1423f7c94bab7736ab9db99930c3badc034d0c4ff9",
+    "ai-priority-qualified-source-test-fence.json": "ed74d655560ca1da72927898b56ccccb729815308fa35332346ab8f629e46caf",
+    "ai-priority-qualified-coverage.json": "188b155709a92750e195e8582781768a86a4d36d453b3778166a174b533bdd6e",
+    "ai-priority-boundary-supplement-tests.txt": "627149cda65782f1b1dd7c27b2d965715e9e1033e361a383dc3f1ae706c9a7e1",
+    "ai-priority-final-source-test-fence.json": "2aaa6e54bf1fba11504cb08a120188293a3c0c420f9ace51da64b61ccef34434",
+    "ai-priority-final-coverage.json": "7e1824900348a5df769fed9f4acb4ce0aaebe320729a175c62336a21027fc94d",
+    "ai-priority-final-coverage.xml": "d7ada1744fe726be361b7767971f59d93ea72785dc4000c9b9a413717383a0e7",
+    "ai-priority-extraction-proof.json": "23a71424d09ad1d9bb2d465911fd838d66169ab7f2e21da4da720c102e401ed6",
+    "ai-priority-runtime-contract-before.json": "40af4fc15c74dcda87947ff6b757765bd49715cfa5eda4a470893d5d36161be4",
+    "ai-priority-runtime-contract-after.json": "40af4fc15c74dcda87947ff6b757765bd49715cfa5eda4a470893d5d36161be4",
+    "ai-priority-budget-candidates.json": "8f8fd6e71a35d3e141cab3945dbd9f4f7d77dfc898e6e453cf5c444cab88a71f",
+    "ai-priority-reviewed-files.json": "6ffb84f83341567f5fe18c7af3ebbeb5ea935bb4ea51ca1a4958e95e8a62e845",
+    "ai-priority-tests-reviewed-files.json": "deeeee57dba759dbb90203150b610144e7ac0fdcc3216dbbf50045198ee42a13",
+    "ai-priority-ruff.txt": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0",
+    "ai-priority-mypy.txt": "653c24af21ad3bc4a8cf9a6ba237261490a6dc0b9703ef71eef912330b8ca539",
+    "ai-priority-architecture.txt": "895bfbeca4c78591066dcf214c4bfe9de43b5d7ed5d3f518fe398563a7bcc992",
+    "ai-priority-existing-budgets.txt": "da329bc489548b00c1a57fc686808d6efd0429a380927753022aa65cafe2d930"
+  }
+}

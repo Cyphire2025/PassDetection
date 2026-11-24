@@ -1,0 +1,33 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+____ test_delivery_rejects_signed_lifetime_past_its_absolute_authorization ____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000022B0E81C5D0>
+
+    @pytest.mark.asyncio
+    async def test_delivery_rejects_signed_lifetime_past_its_absolute_authorization(
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        now = [NOW]
+        s3 = FakeS3()
+        provider = S3DirectMediaDeliveryProvider(
+            s3_client=s3, config=aws_provider_config(_settings()), clock=lambda: now[0],
+        )
+        _, request, authorization = await _authorized_media(
+            provider, s3, asset_identity="signing-delayed-by-credentials",
+        )
+        original_sign = s3.generate_presigned_url
+    
+        def sign(method: str, **kwargs: object) -> str:
+            now[0] += timedelta(seconds=3)
+            s3.signing_time = now[0]
+            return original_sign(method, **kwargs)
+    
+        monkeypatch.setattr(s3, "generate_presigned_url", sign)
+>       with pytest.raises(MyPhotosUnavailable) as captured:
+E       Failed: DID NOT RAISE <class 'app.application.my_photos.errors.MyPhotosUnavailable'>
+
+tests\unit\infrastructure\test_my_photos_aws_providers.py:1382: Failed
+=========================== short test summary info ===========================
+FAILED tests/unit/infrastructure/test_my_photos_aws_providers.py::test_delivery_rejects_signed_lifetime_past_its_absolute_authorization
+1 failed, 38 deselected in 0.51s

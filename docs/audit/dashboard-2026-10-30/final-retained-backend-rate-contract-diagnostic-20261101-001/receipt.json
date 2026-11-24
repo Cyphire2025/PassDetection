@@ -1,0 +1,30 @@
+{
+  "command": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-vv",
+    "--tb=long",
+    "-o",
+    "addopts=",
+    "--no-cov",
+    "tests/unit/presentation/test_rate_limit_middleware.py::PublicUploadProxyContractTests::test_nginx_and_browser_client_keep_the_two_tier_contract",
+    "--junitxml=C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\final-retained-backend-rate-contract-diagnostic-20261101-001\\junit.xml"
+  ],
+  "exit_code": 1,
+  "seconds": 16.437,
+  "same_guard_minimal_environment": true,
+  "coverage_disabled": true,
+  "source_fence_exact_before_after": true,
+  "artifacts": {
+    "environment-guard-29180.json": "f62d9d52152be917de607a34e217fdbf908ad61d3b849af89160951eb5ce5da1",
+    "junit.xml": "d171bb7ce1149a17d36c3a162bff5f4a4af7a29d35a4d0cda9ae89d7501061e1",
+    "source-fence.json": "eb286986c046a4f1fa769bb0504d25b3222cff36943c3234e14a0a465b47e08c",
+    "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout.txt": "23193831eb371dd8ca47f9e25e52b7d9ff9b55df39ff2f29e097a1a8b3ed759c"
+  },
+  "limits": [
+    "Standalone diagnostic cannot replace the original failed combined-run evidence.",
+    "No source changes or coverage merging."
+  ]
+}

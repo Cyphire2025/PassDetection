@@ -65,6 +65,12 @@ test("missing batch responses are terminal", () => {
   assert.equal(shouldRetryWhatsAppBatchStatus(2, 404), false);
 });
 
+test("a normalized structured missing-resource failure stops batch retries", () => {
+  const status = whatsappBatchHttpStatus({ status: 404, code: "BATCH_NOT_FOUND", message: "This batch is unavailable." });
+  assert.equal(status, 404);
+  assert.equal(shouldRetryWhatsAppBatchStatus(0, status), false);
+});
+
 test("network and server failures retain bounded retries", () => {
   assert.equal(whatsappBatchHttpStatus({ code: "NETWORK_ERROR" }), undefined);
   assert.equal(whatsappBatchHttpStatus({ code: "HTTP_503" }), 503);
@@ -78,6 +84,16 @@ test("network and server failures retain bounded retries", () => {
     ),
     false,
   );
+});
+
+test("permanent client failures stop automatic retries while transient408and429remain bounded", () => {
+  for (const status of [400, 401, 403, 404, 409, 422]) {
+    assert.equal(shouldRetryWhatsAppBatchStatus(0, status), false, `HTTP${status}`);
+  }
+  for (const status of [408, 429]) {
+    assert.equal(shouldRetryWhatsAppBatchStatus(0, status), true);
+    assert.equal(shouldRetryWhatsAppBatchStatus(WHATSAPP_BATCH_TRANSIENT_RETRY_LIMIT, status), false);
+  }
 });
 
 test("dispatch completion keeps checking provider acceptance and late failure receipts", () => {

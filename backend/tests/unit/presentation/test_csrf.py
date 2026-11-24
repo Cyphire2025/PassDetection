@@ -104,3 +104,15 @@ class CookieCsrfTests(unittest.IsolatedAsyncioTestCase):
         ):
             with self.subTest(headers=headers), self.assertRaises(HTTPException):
                 await require_trusted_request_origin(_request(headers=headers))
+
+    async def test_malformed_origin_is_rejected_instead_of_raising_parser_error(self) -> None:
+        for origin in (
+            "https://office.example.com:invalid",
+            "https://office.example.com:99999",
+            "https://[invalid",
+        ):
+            with self.subTest(origin=origin):
+                for guard in (require_cookie_csrf, require_trusted_request_origin):
+                    with self.assertRaises(HTTPException) as raised:
+                        await guard(_request(headers={"Cookie": "access_token=cookie", "Origin": origin}))
+                    self.assertEqual(raised.exception.status_code, 403)

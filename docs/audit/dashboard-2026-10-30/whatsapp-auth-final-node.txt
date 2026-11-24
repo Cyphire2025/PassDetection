@@ -1,0 +1,105 @@
+✔ protected workspaces renew before mounting feature queries (0.7305ms)
+✔ only rejected refresh credentials expire the browser session (0.6597ms)
+✔ expired sessions redirect before bounded cleanup finishes (0.1375ms)
+✔ voluntary logout is owner-locked and blocked by default (0.642ms)
+✔ logout recovery offers sync first and requires two destructive confirmations (0.1316ms)
+✔ auth loss and account change preserve the owner-scoped queue (0.167ms)
+✔ terminal records and keys cannot retain the raw QR bearer (0.1143ms)
+✔ 429 and 503 API errors carry only a bounded Retry-After delay (0.1116ms)
+✔ closeout copy describes the account checkpoint and never claims device-fleet proof (0.1187ms)
+✔ dashboard owns one durable cross-route WhatsApp activity provider (0.8741ms)
+✔ the current composer and update sender register their durable broadcast IDs (0.6062ms)
+✔ registered activity preserves the message and group labels while historical resend refreshes its history (0.1309ms)
+✔ floating progress hides on sender pages and remains draggable elsewhere (0.138ms)
+✔ floating progress uses a green capsule while inline progress remains unchanged (0.1071ms)
+✔ failed names load only after the failure arrow is expanded (0.1211ms)
+✔ current recipients expose deferred passenger search and a recoverable empty state (0.1085ms)
+✔ batch summary 404 stops retries and interval polling (0.6948ms)
+✔ a missing tracked activity clears only its persisted progress (0.1634ms)
+✔ current recipients and exception records have distinct live owners (0.7522ms)
+✔ source passengers and merged imported details retain individual rows without discarding headings (0.1446ms)
+✔ search and sorting use memoized derivations and a bounded current-recipient page (0.128ms)
+✔ broadcast summaries distinguish all contact records from valid WhatsApp recipients (0.0924ms)
+✔ rejected corrections retain group and rejected-row identity plus explicit consent (0.1125ms)
+✔ replaced contacts use the durable resolution and unidentified uploads retain the matching deep link (0.213ms)
+✔ current create, add, and send actions have synchronous single-flight guards (0.6319ms)
+✔ superseded previews receive query cancellation and cannot authorize the latest draft (0.2622ms)
+✔ the live send gate requires reviewed content, approval, consent, welcome delivery and an active broadcast (0.1733ms)
+✔ an unconfirmed transport request retains its exact payload and reviewed snapshot for recovery (0.1554ms)
+✔ WhatsApp dialogs expose modal semantics and announce errors (0.1086ms)
+✔ mixed Excel previews preserve rejected rows and imported headings in both live mutation flows (0.2808ms)
+✔ the live composer uses one support contact and bounded searchable selection (0.1161ms)
+✔ the live library obtains approved message definitions and passes the selected definition to its composer (1.9075ms)
+✔ a not-submitted reminder resolves an active linked group before requesting a preview (0.2338ms)
+✔ the audience is the intersection of locally eligible people and server-confirmed preview IDs (0.1485ms)
+✔ historical resend names exactly one recipient and retains its original message identity (1.6897ms)
+✔ document history uses its dedicated resend route without a broadcast message override (0.2052ms)
+✔ resend has one retained request ID, synchronous single-flight protection, and no automatic retry (0.111ms)
+✔ accepted resends refresh current history and groups and announce the recorded request (0.1174ms)
+✔ the current recipient editor uses the scoped phone update and refreshes history (0.0959ms)
+✔ WhatsApp broadcast capability includes office staff (0.7568ms)
+✔ WhatsApp navigation and group integration use the shared access policies (0.2369ms)
+✔ direct WhatsApp routes redirect roles without broadcast access (0.1271ms)
+✔ the active WhatsApp index remains behind the route loading boundary (1.1987ms)
+✔ live create and add flows share exactly one recipient Excel preview implementation (0.162ms)
+✔ the current index clamps filtered pages and exposes recovery without losing archived history (0.1261ms)
+(node:27312) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/nipun/Desktop/PassDetection/frontend/features/whatsapp/utils/batch-polling.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\C:\Users\nipun\Desktop\PassDetection\frontend\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ terminal batch responses stop polling (0.8026ms)
+✔ queued batches back off within a bounded interval (0.1164ms)
+✔ old queued batches keep polling instead of expiring locally (0.0813ms)
+✔ missing batch responses are terminal (0.177ms)
+✔ a normalized structured missing-resource failure stops batch retries (0.1091ms)
+✔ network and server failures retain bounded retries (0.1243ms)
+✔ permanent client failures stop automatic retries while transient408and429remain bounded (0.1076ms)
+✔ dispatch completion keeps checking provider acceptance and late failure receipts (0.1544ms)
+✔ receipt checks are bounded, including uncertain outcomes and missing timing metadata (0.1473ms)
+✔ open rosters reconcile ordinary sends and resends without rapid perpetual polling (1.0565ms)
+(node:3244) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/nipun/Desktop/PassDetection/frontend/features/whatsapp/utils/recipient-delivery.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\C:\Users\nipun\Desktop\PassDetection\frontend\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ treats only a successful delivery ledger entry as already sent (0.7049ms)
+✔ supports future message types without changing the eligibility logic (0.2244ms)
+✔ suppresses an in-progress claim while allowing failed deliveries to retry (0.1076ms)
+✔ suppresses an unknown delivery outcome to prevent accidental duplicates (0.1014ms)
+✔ does not suppress one message type because another type was sent (0.1086ms)
+✔ a new reminder includes all completed earlier attempts, even previously accepted ones (0.102ms)
+✔ reminders wait for active deliveries without becoming permanently blocked (0.1054ms)
+✔ a reminder also waits for an active individual resend of that reminder (0.1064ms)
+(node:5276) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/nipun/Desktop/PassDetection/frontend/features/whatsapp/utils/recipient-import.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\C:\Users\nipun\Desktop\PassDetection\frontend\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ normalizes common Indian and international representations for merging (1.0454ms)
+✔ merges imported contacts while preserving existing contacts first (0.6834ms)
+✔ does not add phone numbers that already belong to the broadcast (0.1482ms)
+✔ deduplicates repeated rows inside the same spreadsheet preview (0.9351ms)
+✔ preserves imported spreadsheet fields for review and persistence (0.2707ms)
+✔ preserves every preview heading, including empty-column headings, across imports (0.2718ms)
+✔ keeps every valid contact from a mixed preview and returns every rejected source row (0.2106ms)
+✔ deduplicates accepted preview contacts against existing broadcast numbers without hiding backend rejections (0.148ms)
+✔ retains the full Saigon-shaped partial-success result (0.3609ms)
+✔ keeps manual contacts and exposes every row when a workbook has no valid recipients (0.1777ms)
+✔ supports the previous all-accepted preview during a staggered deployment (0.1136ms)
+✔ preserves the total rejected count when the backend caps rejection details (0.09ms)
+✔ accumulates rejected rows across files and deduplicates only exact source rows (0.1727ms)
+✔ preserves imported fields on rejected rows for later correction (0.0889ms)
+(node:37076) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/nipun/Desktop/PassDetection/frontend/features/whatsapp/utils/whatsapp-formatting.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\C:\Users\nipun\Desktop\PassDetection\frontend\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ wraps selected WhatsApp text in bold markers (1.051ms)
+✔ a second bold click removes markers around selected text (0.1367ms)
+✔ an empty selection starts and stops a bold typing region (0.1418ms)
+✔ parses WhatsApp bold markers into safe preview segments (0.25ms)
+ℹ tests 81
+ℹ suites 0
+ℹ pass 81
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1396.7793

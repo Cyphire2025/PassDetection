@@ -1,0 +1,49 @@
+{
+  "scope": "Recovery/revision/summary architecture follow-through after priority-email586/71/102 integration",
+  "status": "Behavior fixes focused-tested, decomposition not yet started",
+  "full_current_reads": [
+    {
+      "path": "backend/app/infrastructure/my_photos/recovery_runtime.py",
+      "sha256": "0579b5a131e067b4df2a22c53b694b6ce4de3d2b9b62711b2077ccb02b649979",
+      "review_scope": "full",
+      "reviewer": "ai_extraction",
+      "notes": "Prior complete MyPhotos source review refreshed with complete current3-file physical reads and direct worker/provider/query callers; current recovery/revision narrow patches authored after reproduced cases."
+    },
+    {
+      "path": "backend/app/infrastructure/my_photos/revision_runtime.py",
+      "sha256": "25ddb5e4d53e0e277a2a2c5f4dd5910f3fc92645c758cd393a8736aa9f1b0689",
+      "review_scope": "full",
+      "reviewer": "ai_extraction",
+      "notes": "Prior complete MyPhotos source review refreshed with complete current3-file physical reads and direct worker/provider/query callers; current recovery/revision narrow patches authored after reproduced cases."
+    },
+    {
+      "path": "backend/app/infrastructure/my_photos/summary_projector.py",
+      "sha256": "f7f617d1b6a517ec6fd10ae28e241cea8965f8d2712b65b569c833293f51177e",
+      "review_scope": "full",
+      "reviewer": "ai_extraction",
+      "notes": "Prior complete MyPhotos source review refreshed with complete current3-file physical reads and direct worker/provider/query callers; current recovery/revision narrow patches authored after reproduced cases."
+    }
+  ],
+  "runtime_changes": [
+    "Revision refresh reuses existing gallery\u2192job lock helper; requires running/uncancelled/unexpired current owner after DBawaits; single bounded parent-search flush before child-job additions prevents actualFKfailure.",
+    "Recovery cancellation locks bounded cancellation-linked searches first using innerjoin/FORUPDATE OF search SKIPLOCKED, then original ordered bounded jobquery rechecking status/cancellation and restricted to acquired searches or nonsearchjobs. Final state mutations unchanged."
+  ],
+  "passed": [
+    "Refresh11cases22.65seconds",
+    "Refresh5after-await expiry/rollback+stale-gallery controls9.64seconds",
+    "Recovery native4Event cases0.27seconds on UNCHANGED gather/actual SDK drain helper",
+    "Recovery lockorder +deletion claimfencing +native9cases10.27seconds"
+  ],
+  "pending": [
+    "Preserve refreshed public wrappers/calltimeFactory/typehints while decomposing3mixed owners",
+    "Add meaningful bounded ordering/replay/empty controls and final isolated coverage",
+    "Verify actual constructor/source proof and inherit any existing numerical obligations",
+    "No real PG interleavings/provider/deployment qualified"
+  ],
+  "historical_failure_evidence": [
+    "my-photos-refresh-authority-initial-fixture.json",
+    "my-photos-refresh-authority-before.txt",
+    "my-photos-refresh-lock-order-before.txt",
+    "my-photos-recovery-lock-order-before.txt"
+  ]
+}

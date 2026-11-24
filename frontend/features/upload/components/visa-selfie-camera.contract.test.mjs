@@ -1,11 +1,6 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import test from "node:test";
-
-const source = readFileSync(
-  new URL("./visa-selfie-camera.tsx", import.meta.url),
-  "utf8",
-);
+import { visaCameraSource as source } from "./visa-camera-source.contract-helper.mjs";
 
 test("a stalled face-model inference becomes a recoverable unavailable state", () => {
   assert.match(source, /const ANALYSIS_TIMEOUT_MS = 6_000;/);
@@ -117,12 +112,13 @@ test("the active strict profile retains the exact-JPEG recheck", () => {
 test("capture drains live inference before touching or stopping the video", () => {
   assert.match(
     source,
-    /stopAnalysis\(\);\s*if \(mode === "validated"\) \{\s*await waitForLiveAnalysis\(\);\s*\}\s*const videoCrop = getVisaCaptureCrop/,
+    /stopAnalysis\(\);\s*if \(mode === "validated"\) \{\s*await waitForLiveAnalysis\(\);\s*\}\s*if \(!isCurrentCapture\(\)\) return;\s*const videoCrop = getVisaCaptureCrop/,
   );
   assert.match(
     source,
-    /const detections = await detectFinalFaces\(decoded\.image\);[\s\S]*?stopStream\(\);/,
+    /const validation = await validateCapturedVisaPhoto\([\s\S]*?if \(!validation\) return;[\s\S]*?stopStream\(captureStream\);/,
   );
+  assert.match(source, /const detections = await detectFinalFaces\(decoded\.image\);\s*if \(!isCurrentCapture\(\)\) return null;/);
   assert.doesNotMatch(
     source,
     /stopStream\(\);\s*setIsCameraReady\(false\);\s*const \{ blob \}/,
@@ -168,7 +164,7 @@ test("camera tracks have a bounded drain path that faults a stalled detector", (
   );
   assert.match(
     source,
-    /if \(!drained && detectorGeneration === detectorGenerationRef\.current\)[\s\S]*?detectorRef\.current = null;[\s\S]*?stopStream\(\);/,
+    /if \(!drained && detectorGeneration === detectorGenerationRef\.current\)[\s\S]*?detectorRef\.current = null;[\s\S]*?stopStream\(stream\);/,
   );
 });
 

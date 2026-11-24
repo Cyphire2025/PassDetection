@@ -1,0 +1,163 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Users\\nipun\\AppData\\Local\\Programs\\node-v24.21.0-win-x64\\node.exe",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      ".tmp/ui-pwa-batch/playwright.selection-toolbar.config.ts",
+      "--grep",
+      "320px"
+    ],
+    "configFile": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\ui-pwa-batch\\playwright.selection-toolbar.config.ts",
+    "rootDir": "C:/Users/nipun/Desktop/PassDetection/frontend/e2e-fixtures",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/nipun/Desktop/PassDetection/.tmp/ui-pwa-batch/selection-toolbar-before-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/Users/nipun/Desktop/PassDetection/frontend/e2e-fixtures",
+        "testIgnore": [],
+        "testMatch": [
+          "passport-selection-toolbar.spec.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\selection-toolbar-browser-before.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.62.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "passport-selection-toolbar.spec.ts",
+      "file": "passport-selection-toolbar.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "bulk action bounds, focus and pointer activation at 320px",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 474,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m8\u001b[39m\nReceived:    \u001b[31m-191\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m8\u001b[39m\nReceived:    \u001b[31m-191\u001b[39m\n    at C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\passport-selection-toolbar.spec.ts:52:22",
+                    "location": {
+                      "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\passport-selection-toolbar.spec.ts",
+                      "column": 22,
+                      "line": 52
+                    },
+                    "snippet": "  50 |     const phase = process.env.PASSPORT_TOOLBAR_BASELINE === \"1\" ? \"before\" : \"after\";\n  51 |     await page.screenshot({ path: resolve(__dirname, `../../.tmp/ui-pwa-batch/selection-toolbar-${phase}-${viewport.width}.png`), fullPage: true });\n> 52 |     expect(bounds.x).toBeGreaterThanOrEqual(8);\n     |                      ^\n  53 |     expect(bounds.x + bounds.width).toBeLessThanOrEqual(viewport.width - 8);\n  54 |     expect(bounds.y).toBeGreaterThanOrEqual(8);\n  55 |     expect(bounds.y + bounds.height).toBeLessThanOrEqual(viewport.height - 8);"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\passport-selection-toolbar.spec.ts",
+                        "column": 22,
+                        "line": 52
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m8\u001b[39m\nReceived:    \u001b[31m-191\u001b[39m\n\n  50 |     const phase = process.env.PASSPORT_TOOLBAR_BASELINE === \"1\" ? \"before\" : \"after\";\n  51 |     await page.screenshot({ path: resolve(__dirname, `../../.tmp/ui-pwa-batch/selection-toolbar-${phase}-${viewport.width}.png`), fullPage: true });\n> 52 |     expect(bounds.x).toBeGreaterThanOrEqual(8);\n     |                      ^\n  53 |     expect(bounds.x + bounds.width).toBeLessThanOrEqual(viewport.width - 8);\n  54 |     expect(bounds.y).toBeGreaterThanOrEqual(8);\n  55 |     expect(bounds.y + bounds.height).toBeLessThanOrEqual(viewport.height - 8);\n    at C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\passport-selection-toolbar.spec.ts:52:22"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T04:17:30.525Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\ui-pwa-batch\\selection-toolbar-before-results\\passport-selection-toolbar-d8a2e-pointer-activation-at-320px-chromium\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\ui-pwa-batch\\selection-toolbar-before-results\\passport-selection-toolbar-d8a2e-pointer-activation-at-320px-chromium\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\ui-pwa-batch\\selection-toolbar-before-results\\passport-selection-toolbar-d8a2e-pointer-activation-at-320px-chromium\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\passport-selection-toolbar.spec.ts",
+                    "column": 22,
+                    "line": 52
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "e889e84c9888a7877cb2-5b6027b9bfb53d5c2053",
+          "file": "passport-selection-toolbar.spec.ts",
+          "line": 34,
+          "column": 7
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-31T04:17:30.174Z",
+    "duration": 9103.361,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "stage": "narrow canonical metadata + scanner health reliability fixes",
+  "files": [
+    {
+      "path": "backend/app/infrastructure/security/upload_validator.py",
+      "sha256": "dfb2683e620bcc1a3a5d4f97f5cb4c1cfda20105e493f6070e63b8574c11c73f",
+      "physical_lines": 345,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "fixed",
+      "notes": "Physically read all338original and345current lines. Canonical dimensions now measured after source pixel bounds, full decode, optional thumbnail, EXIF orientation and RGB conversion. Original scanner/decode/encoder body and strict scan verdicts preserved. PING uses bounded64-byte NUL-framed reader and total deadline; reader/ImageValidationError failures remain ConfigurationError at readiness boundary. Whole-module expected-delta proof excludes no unrelated semantic changes. No live ClamAV claim."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_upload_validator_metadata.py",
+      "sha256": "4fd0dc6a3cf634d12a7456dfbf8c2f045da0749e22788398d6164a137c084334",
+      "physical_lines": 49,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "added-regression",
+      "notes": "Authored and physically read every current line. Actual Pillow orientation6/8 + maxdimension metadata and actual workspace.stage match canonical bytes; original seven negative cases and unmodified-image positive recorded before fix."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_clamav_health_protocol.py",
+      "sha256": "f0b7b4f8148e234cf112cbc22d86f4c881fa1e80dbc3a57b5fa6dcd8a95e6e66",
+      "physical_lines": 131,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "added-regression",
+      "notes": "Authored and physically read every current line. Synthetic socket segmentation,64-byte reads, NUL framing, unknown replies, total connect/read deadline, socket errors/resource close and actual production readiness function covered. Original two fragmentation negatives/truncated false-healthy negative preserved; no actual daemon/server/service test."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_upload_validator.py",
+      "sha256": "4adae8595d80953f154c84390446723bdac1b63e6ee0d7ff0770f823cc953409",
+      "physical_lines": 254,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical source read; original bytes preserved. Existing original pixel-size limits, decode/truncation, MIME/content canonicalization, scanner invocation and startup policy assertions execute unchanged."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_clamav_scanner_protocol.py",
+      "sha256": "a4aa9a2edbfe782b99a79a76a1dc3f62db4a5d11b92cdaec430f18db2a7f7093",
+      "physical_lines": 93,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical source read; original bytes preserved. Existing INSTREAM chunk/original-byte, fragmented verdict, positive infection versus unavailable,4096 bound and total-timeout assertions execute unchanged."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_native_image_pixel_compatibility.py",
+      "sha256": "c84a8d606a2b1b9e6b5d01212df6c33733f1f6a8d1e69ba0865c4a6206cadce8",
+      "physical_lines": 127,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete127line physical source read. Only96affected upload pipeline cases executed this tranche; saved-crop cases were physically reviewed but not rerun. Original file bytes unchanged; all6modes\u00d78EXIF\u00d72bounds preserve exact legacy JPEG bytes/metadata stripping."
+    },
+    {
+      "path": "backend/app/infrastructure/imports/passport_document_workspace.py",
+      "sha256": "78260b471bcc10d9edd1ed44b06dc732e5468802ea723ca8891964c12add98f7",
+      "physical_lines": 131,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical source read supporting actual importer stage integration. Staged spool holds canonical content, dimensions copied from ValidatedUpload, total-byte bound and stream lifetime remain unchanged. Root-owned implementation not edited; only stage exercised by synthetic regression."
+    },
+    {
+      "path": "backend/app/infrastructure/imports/passport_document_images.py",
+      "sha256": "8f097d6a4b7a63f7c1fd2fb82615c351e3d7701baaed3c398349eabc2de60f0d",
+      "physical_lines": 66,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical source read of filename/staff allowlist/validation/staging/error projection. Confirms normal importer validates then stages canonical result. Root-owned implementation unchanged; no separate full importer pipeline qualification from this read."
+    }
+  ],
+  "supporting_partial_reads_not_promoted": [
+    {
+      "path": "backend/app/infrastructure/security/public_upload_pdf.py",
+      "review_scope": "partial",
+      "notes": "Only constructor/use-reference windows and100\u2013155 support previously read; not complete physical file coverage."
+    }
+  ],
+  "limitations": [
+    "Synthetic local Pillow/SQL-free importer spools and mocked TCP recv segments only; no live daemon, Postgres, Redis, object storage, provider or VPS."
+  ]
+}

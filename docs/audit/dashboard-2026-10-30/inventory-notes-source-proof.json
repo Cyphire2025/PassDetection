@@ -1,0 +1,49 @@
+{
+  "functions": [
+    {
+      "path": "scripts/dashboard_audit_inventory.py",
+      "before_sha256": "ffde99d121f92ca6795f9ad23d7358d16e011259bcf65d8774ce304a52150bfe",
+      "changed_existing_functions": [
+        "retired_source_history",
+        "refresh"
+      ],
+      "unchanged_original_functions": [
+        "file_identity",
+        "classify",
+        "review_record_digest",
+        "resolved_partial_reviews"
+      ],
+      "new_functions": [
+        "review_record_notes"
+      ]
+    },
+    {
+      "path": "backend/tests/unit/scripts/test_dashboard_audit_review_resolutions.py",
+      "before_sha256": "ad54f856bf475aec172c76015e028c6967101c3d1a46d35aeadebe7123cee2dc",
+      "changed_existing_functions": [],
+      "unchanged_original_functions": [
+        "_reviews",
+        "test_resolution_preserves_the_exact_original_ledger_and_independent_full_followup",
+        "test_a_full_read_can_close_partial_depth_while_its_own_finding_remains_open",
+        "test_invalid_resolution_cannot_hide_unreviewed_or_independently_open_work",
+        "test_resolution_is_explicit_and_record_digest_does_not_depend_on_json_key_order"
+      ],
+      "new_functions": [
+        "test_refresh_normalizes_display_notes_without_changing_original_record_digest",
+        "test_invalid_notes_fail_before_replacing_the_inventory",
+        "test_list_notes_stay_part_of_the_exact_partial_resolution_identity",
+        "test_legacy_contact_retirement_keeps_each_original_hash_and_physical_line_count",
+        "test_new_retirement_manifest_preserves_path_hash_conflict_and_source_validation",
+        "test_retirement_rejects_invalid_or_conflicting_line_metadata"
+      ]
+    }
+  ],
+  "historical_artifact_hashes": {
+    "audit-review-resolution-verification.json": "6b26bd179e6ca29d48c5ac2e1ca723f583d4e12063c25e0751ccd3494f3920ed",
+    "frontend-shared-other-tests-reviewed-files.json": "0906a14d435b44884ff8d9e0185bd3c3209a4169c35f761b04ba64bab83d1bdf",
+    "legacy-contact-retirement-manifest.json": "b9c5a02067543f1126fb87248e578c6abeee68dd9989a65d6093af8d01133f48"
+  },
+  "historical_artifacts_unchanged": true,
+  "notes_original_digest_precedes_copy_normalization": true,
+  "format_qualification": "Final UTF8 LF normalization preserves parsed AST of the exact passing implementation and controls; no application behavior/check is inferred."
+}

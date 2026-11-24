@@ -1,0 +1,157 @@
+{
+  "basis": "Explicit dictionary/BinaryIO/constructor annotation metadata and candidate receipt-shape follow-through, separate from whole post-health mechanical proof",
+  "mechanical_checkpoint_sha256": "fc6878656f379d5ccf2913a52427acbfa5eb5fb60fc54d056d4c4460360f1cee",
+  "all7whole_modules_restore_after_only_annotations_required_type_imports_and_candidate_object_guard": true,
+  "all_public_argument_names_order_defaults_variadic_shapes_unchanged": true,
+  "annotation_metadata_extensions": [
+    {
+      "path": "scripts/mcp_activation_contract.py",
+      "function": "environment",
+      "before": {
+        "container": "dict",
+        "return": "dict[str, str]"
+      },
+      "after": {
+        "container": "dict[str, Any]",
+        "return": "dict[str, str]"
+      }
+    },
+    {
+      "path": "scripts/mcp_activation_contract.py",
+      "function": "runtime_environment",
+      "before": {
+        "original": "dict",
+        "revision": "str",
+        "return": "dict[str, str]"
+      },
+      "after": {
+        "original": "dict[str, Any]",
+        "revision": "str",
+        "return": "dict[str, str]"
+      }
+    },
+    {
+      "path": "scripts/mcp_activation_contract.py",
+      "function": "clean_stop",
+      "before": {
+        "container": "dict",
+        "original": "dict | None",
+        "return": "None"
+      },
+      "after": {
+        "container": "dict[str, Any]",
+        "original": "dict[str, Any] | None",
+        "return": "None"
+      }
+    },
+    {
+      "path": "scripts/mcp_activation_identity.py",
+      "function": "_ActivationIdentity.memory_checkpoint",
+      "before": {
+        "label": "str",
+        "rows": "dict",
+        "first": "bool",
+        "return": "dict"
+      },
+      "after": {
+        "label": "str",
+        "rows": "dict[str, Any]",
+        "first": "bool",
+        "return": "dict[str, Any]"
+      }
+    },
+    {
+      "path": "scripts/mcp_activation_identity.py",
+      "function": "_ActivationIdentity.candidates",
+      "before": {
+        "return": "dict"
+      },
+      "after": {
+        "return": "dict[str, Any]"
+      }
+    },
+    {
+      "path": "scripts/mcp_activation_database.py",
+      "function": "_ActivationDatabase.database_command",
+      "before": {
+        "arguments": "tuple[str, ...]",
+        "timeout": "int",
+        "return": "str"
+      },
+      "after": {
+        "arguments": "tuple[str, ...]",
+        "timeout": "int",
+        "stdin_file": "BinaryIO | None",
+        "stdout_file": "BinaryIO | None",
+        "return": "str"
+      }
+    },
+    {
+      "path": "scripts/mcp_activation_readiness.py",
+      "function": "_ActivationReadiness.start",
+      "before": {
+        "candidate": "dict",
+        "service": "str",
+        "return": "None"
+      },
+      "after": {
+        "candidate": "dict[str, Any]",
+        "service": "str",
+        "return": "None"
+      }
+    },
+    {
+      "path": "scripts/mcp_activation_readiness.py",
+      "function": "_ActivationReadiness.await_health",
+      "before": {
+        "candidates": "dict",
+        "timeout": "int",
+        "return": "None"
+      },
+      "after": {
+        "candidates": "dict[str, Any]",
+        "timeout": "int",
+        "return": "None"
+      }
+    },
+    {
+      "path": "scripts/mcp_activation_lifecycle.py",
+      "function": "DirectActivation.__init__",
+      "before": {
+        "state": "DirectState",
+        "image_receipt": "str",
+        "project_suffix": "str"
+      },
+      "after": {
+        "state": "DirectState",
+        "image_receipt": "str",
+        "project_suffix": "str",
+        "return": "None"
+      }
+    }
+  ],
+  "actual_evaluated_hint_controls": [
+    "mcp_activation_contract:environment",
+    "mcp_activation_contract:runtime_environment",
+    "mcp_activation_contract:render_proxy",
+    "mcp_activation_contract:clean_stop",
+    "mcp_activation_identity:_ActivationIdentity.aliases",
+    "mcp_activation_identity:_ActivationIdentity.memory_checkpoint",
+    "mcp_activation_identity:_ActivationIdentity.candidates",
+    "mcp_activation_staging:_ActivationStaging.stage",
+    "mcp_activation_database:_ActivationDatabase.fence",
+    "mcp_activation_database:_ActivationDatabase.database_command",
+    "mcp_activation_database:_ActivationDatabase.schema",
+    "mcp_activation_database:_ActivationDatabase.migrate",
+    "mcp_activation_readiness:_ActivationReadiness.start",
+    "mcp_activation_readiness:_ActivationReadiness.await_health",
+    "mcp_activation_readiness:_ActivationReadiness.verify",
+    "mcp_activation_lifecycle:DirectActivation.__init__",
+    "mcp_activation_lifecycle:DirectActivation.activate",
+    "mcp_activation_lifecycle:DirectActivation.recover_original"
+  ],
+  "one_body_guard": "Candidate receipt must be a mapping before existing exact WRITERS inventory/identity verification; controlled existing error reason, no accepted mapping behavior changed",
+  "constructor_lifecycle_migration_memory_and_provider_bodies_unchanged": true,
+  "class_hints_MRO_aliases_and_getsource_tradeoff_unchanged_from_mechanical": true,
+  "no_typing_suppressions": true
+}

@@ -1,0 +1,70 @@
+{
+  "files": [
+    {
+      "path": "scripts/mcp_direct_activate.py",
+      "sha256": "d9f6f235c1d15eed4c7a28519ab6489c771bb306b49a8c00755395ac68c318e0",
+      "physical_lines": 628,
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "notes": "Complete625-line original and current guard follow-through read. Historical direct0113-to0122 cutover remains, clean_stop shared by current releases. Exact whole-module inverse; actual awaiting-health probes3falseadmissions fixed. Architecture remains open."
+    },
+    {
+      "path": "scripts/test_mcp_direct_health_admission.py",
+      "sha256": "29edc53aec774e60555f0ebe85eacb2aeb7e29281d81d8e283fbf7812a09869c",
+      "physical_lines": 77,
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "notes": "Complete authored/read six-test real-method module; synthetic records/clock only. Three false admissions reproduced; four ordinary/control methods retained. No Docker/process/HTTP calls."
+    },
+    {
+      "path": "scripts/test_mcp_direct_activate.py",
+      "sha256": "0d742df8a7551e36a72480ef20dff5eebcd109b8f47f68d3ab9961f9b4df94f0",
+      "physical_lines": 366,
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "notes": "Complete original fixture/cutover/recovery/source control tests read, unchanged; existing health method was mocked, so new real-method coverage added separately."
+    },
+    {
+      "path": "scripts/mcp_direct_retry.py",
+      "sha256": "7e8ff8eb0c8452b009c9194aaf0796ecf62ba976ecea44b4498056f9750c57e1",
+      "physical_lines": 196,
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "notes": "Complete original retry/source-baseline overlay read; source immutable, exact original healthcheck requirement confirms intended admission contract. New architecture must retain current MethodType memory checkpoint override and expand exact overlay-owner bindings."
+    },
+    {
+      "path": "scripts/mcp_direct_state.py",
+      "sha256": "7ad7fee19d2e0bcc1216e32258b5fc1b6a75a4969525d1e3bb2fa0c1c531b8ee",
+      "physical_lines": 195,
+      "reviewer": "ai_extraction",
+      "review_scope": "partial",
+      "review_status": "partial",
+      "status": "supporting-trace",
+      "notes": "Read source_inventory/verify_source/baseline/load_baseline and partial retention; symlink-copy candidate cleared by actual strict source inventory. Remaining owner not fully reviewed here."
+    },
+    {
+      "path": "scripts/mcp_direct_release.py",
+      "sha256": "1d74a7889f251d836fb946df1fdd5b5db72b4a648ea402c7ec4ec6306746440a",
+      "physical_lines": 318,
+      "reviewer": "ai_extraction",
+      "review_scope": "partial",
+      "review_status": "partial",
+      "status": "supporting-trace",
+      "notes": "Read actual CLI dispatch/safe bounded error projection and related resume worker calls. Do not claim whole owner source review."
+    }
+  ],
+  "pending": [
+    "DirectActivation625 coherent responsibility split",
+    "Database command capture-memory candidate not yet reproduced; no vulnerability assertion",
+    "Shared state/release support owners not fully reviewed here",
+    "LiveDocker/PostgreSQL/VPS qualification unexecuted"
+  ]
+}

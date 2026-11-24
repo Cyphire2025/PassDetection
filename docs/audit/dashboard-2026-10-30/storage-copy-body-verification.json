@@ -1,0 +1,37 @@
+{
+  "status": "fixed-and-verified-local",
+  "runtime_path": "backend/scripts/copy_storage_snapshot.py",
+  "runtime_sha256": "f98d341fd6efa67afc79820bf2dbb9e63550665703fe776141a810aaa500b217",
+  "baseline": {
+    "test_methods": 4,
+    "failing_subcases": 2,
+    "healthy_controls": 3,
+    "log": "storage-copy-body-baseline.log",
+    "actual_candidate": "Actual botocore StreamingBody wrapping a counted BytesIO is returned by source.get_object; a synthetic transient get_object_tagging error or operator KeyboardInterrupt exits before existing closing scope, leaving close_count0."
+  },
+  "current": {
+    "test_methods": 22,
+    "test_files": 3,
+    "negative_subcases": 2,
+    "log": "storage-copy-body-final22.log",
+    "source_fence": "storage-copy-body-source-fence.json",
+    "whole_module_source_inverse": "storage-copy-body-source-equivalence.json",
+    "strict_mypy_owned_sources": 1,
+    "ruff_no_fix_owned_sources": 2
+  },
+  "implementation": "Acquire existing closing ownership immediately after get_object so metadata/tag retrieval and encoding are protected as well as the original temporary-file/body-read/destination-put phase. Existing request, journal, version/hash/metadata/tag verification and quiescence/capacity/preservation policies remain exact.",
+  "preservation": {
+    "whole_module_ast_inverse_exact_outside_body_scope_timing": true,
+    "existing_runtime_import_order_exact": true,
+    "success_bytes_content_type_metadata_tags_sha256_and_version": true,
+    "ordinary_tag_and_destination_exception_identity": true,
+    "source_body_closed_once_during_ordinary_error_or_interrupt": true,
+    "temporary_file_failure_cleanup": true
+  },
+  "limits": [
+    "Synchronous copy-operator resource lifetime correction using synthetic no-network provider doubles, actual SQLite Row/temporary file and botocore StreamingBody; no live FD/S3/VPS copy or data migration.",
+    "Existing closing semantics still apply: one close attempt is made; a broken native close can raise, and close success is not guaranteed.",
+    "No arbitrary process cancellation, async S3 sink change, source deletion, endpoint cutover or throughput/asymptotic claim."
+  ],
+  "lint_history": "Initial Ruff command inherited repository automatic fix behavior and removed one blank import-group separator in the new test. Runtime import order stayed exact. Final explicit --no-fix check passes;22cases rerun on identical5-source before/after fence. Original log retained."
+}

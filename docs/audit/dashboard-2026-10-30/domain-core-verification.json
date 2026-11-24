@@ -1,0 +1,85 @@
+{
+  "status": "coherent-domain-core-source-frozen-and-affected-checks-pass",
+  "runtime_owners": 19,
+  "maximum_current_owner_lines": 246,
+  "original_modules": {
+    "entities": 1495,
+    "repository_interfaces": 344
+  },
+  "retired_unused_types": [
+    "AttendanceRecord",
+    "AttendanceScanSource",
+    "AttendanceSession",
+    "AttendanceSessionStatus",
+    "CoordinatorAssignment",
+    "PassengerQRToken"
+  ],
+  "preserved_contracts": {
+    "public_runtime_metadata": 22,
+    "executable_method_ASTs": 34,
+    "ordered_field_ASTs": 100,
+    "retained_whole_declarations": 17,
+    "exact_normalizer": 1,
+    "documentation_only_differences": [
+      "PassportExtractionStatus docstring: independent extraction state",
+      "prepare_without_passport_front docstring: extraction job",
+      "mark_extraction_failed docstring: extraction failure"
+    ],
+    "composition": "Single ordered dataclass state per entity with focused lifecycle/configuration/extraction/client-review/staff-review owners; public construction/facade paths retained. No proxy globals or duplicated field definitions."
+  },
+  "checks": {
+    "initial_affected_cases": 358,
+    "additional_distinct_workflow_cases": 103,
+    "distinct_affected_cases": 461,
+    "subtests": 64,
+    "mypy": "21domain source files pass",
+    "ruff": "all current entity/port files pass no-fix; initial import-order and one unused comprehension-name import correction preserved separately",
+    "architecture": "pass",
+    "api_and_mobile_snapshots": "both match; checks preceded final state whitespace/documentation-only changes, whose executable/field/enum values remain explicitly equivalent and whose extraction enum is not used by presentation/DTO schema imports",
+    "coverage": "Fresh358-case run plus103workflow cases. After grouping state declarations and correcting extraction docstrings, exactly4changed owners were purged and remeasured through358affected cases;15unchanged owner hashes retained. No coverage from different source versions combined.",
+    "candidate_floors": "19additive size/complexity/coverage candidates, actual line coverage85.53\u2013100%; proposed85/90/95/100floors appropriate to owners. Declaration-only import coverage is not a claim those schemas exhaustively test business behavior. No existing budget/floor changed by root.",
+    "no_full_backend_suite": true
+  },
+  "source_sha256": {
+    "backend/app/domain/entities/factories.py": "b74b82177ea101abeafdd188d5c197a9f6ea01f49e56ad06b438bbb491220950",
+    "backend/app/domain/entities/enums.py": "4ef547c3c578e0c44d40ce03f8deaa0059077af2c59a78df40946b134ad88324",
+    "backend/app/domain/entities/identity.py": "4e60b4cc3d4759f1c2b12b34984a4300ae388055694cf46581be33f632b94d9e",
+    "backend/app/domain/entities/qualifier_selection.py": "79088b2e146a88ca46b17f4f716be932ca0aa37fcdadb6dd191e811761da67f4",
+    "backend/app/domain/entities/client_group_state.py": "00d98b8ee7c09f2604903f2b6be2cbfff8b4a30679c645f9a7ae656d3244592b",
+    "backend/app/domain/entities/client_group_configuration.py": "61d5f3e4aa3e06ba451efad48a5d349edfd323189c3bd27206ac2ac9a5b03971",
+    "backend/app/domain/entities/client_group_lifecycle.py": "30910eb18732f1174995da1a49b021b6658d3acef96ab9253f9c2ddeeb51f55a",
+    "backend/app/domain/entities/client_group.py": "02e2c8c0349f037afc6652706710d916f81c788889224e823a31fc4d76b88497",
+    "backend/app/domain/entities/passport_state.py": "acdd388a8baab76b6a2f0436b3e34ab364605532b192d80d37d2bada30d21e4c",
+    "backend/app/domain/entities/passport_extraction.py": "e745eb8f9d1b0827bf9bdeb2f8076ed898588fb0f3d1a0cb6c5baf5abc0d3cf1",
+    "backend/app/domain/entities/passport_client_review.py": "591e2d935dd68ee27e7cfef3229b8080eb590f9e3fed2600cbe1ecb3b014f7cb",
+    "backend/app/domain/entities/passport_staff_review.py": "3e93dfe727f18b35556bcd2522607d169d297cfa194d2ae1e62e90c6f6439e76",
+    "backend/app/domain/entities/passport_submission.py": "b46b0a5e20840b903f9b9e4f9e5ba089f66e3f0857937b2eaa1475ccf97b63b2",
+    "backend/app/domain/repositories/identity.py": "d3cdbb17519f5b05e9a6c810b0b554e74d602e98668dd6b1f2ce854ac2303b36",
+    "backend/app/domain/repositories/client_groups.py": "0ae94781a7f1eb58dd7229aa7e6bd3327d68ed97f093dad91056de01477374da",
+    "backend/app/domain/repositories/passport_submissions.py": "8bd1cd7ee3f5f82b034293a2bd05c239f10d10d679b37d02379de1d742109b4c",
+    "backend/app/domain/repositories/object_storage.py": "af73f8bd469d7f73406c05d847fd5ccf77c9a6ea20b40005fb74d9901238207e",
+    "backend/app/domain/entities/entities.py": "6e632388e2e0074771f336a1459c86d6a0712a3d0a93e14def7b2062270bf6fa",
+    "backend/app/domain/repositories/interfaces.py": "996e38b40ad49a1ba1b604a8582f696f0f7fa5f17cf53696998c9ba5fbf465b0"
+  },
+  "receipts_sha256": {
+    "domain-core-import-reference-proof.json": "a4784e7cc39dc09d7d3e4f8fc4219af0bbc518ec01a257853375396d97d692f6",
+    "domain-core-extraction-proof.json": "ef2fda48b1613281de6331d8a23227ef6647c9b5da17ccf58eb7b8fdf979e4f7",
+    "domain-core-shape-before.json": "a2d54b0143ef6d66f078dac9b23d92729de5cd0f0fc9cabe106dbea866ad2ff1",
+    "domain-core-shape-after.json": "a2d54b0143ef6d66f078dac9b23d92729de5cd0f0fc9cabe106dbea866ad2ff1",
+    "domain-core-tests.xml": "13aadecd376c4c00f496e4045c79ce93fc61ce2e3ae36a7d2289ccb933cd9486",
+    "domain-core-current-tests.xml": "e29763be1f7d88f71722896173081a3136d8ff9448e4469fe160d58449d13da8",
+    "domain-core-workflow-supplement.xml": "a1495330d08441f876598533369260bb31294950571395092f20ed3d9a4be5ea",
+    "domain-core-current-coverage.json": "53a4a0cae931ff42f8c6768c72d20abd4899f128183e6a092f190347bf0c6ae3",
+    "domain-core-current-coverage.xml": "65944fcd8f3324d6e82b24641000e9b19459e643e5a988b6fbde9406a0f01338",
+    "domain-core-coverage-owner-purge.json": "663fb84949737ee98ebd559829313ebb08d7d0d7e0f40373916f7b0386c857f4",
+    "domain-core-coverage-source-fence.json": "0fe75350ceb0cca5ecad8d18dbb6e5e94d2375c6575667cf87279c379fb0d6f1",
+    "domain-core-types.txt": "a3ee8cc563d620855a76e1c43ed6f1118b5d68435d0c1b38b01ae7646398501f",
+    "domain-core-final-ruff-corrected.txt": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0",
+    "domain-core-architecture.txt": "895bfbeca4c78591066dcf214c4bfe9de43b5d7ed5d3f518fe398563a7bcc992",
+    "domain-core-api-contract.txt": "2915ff948d9df9f416031a0e1256a14fa9c04d08a26dbf09b2f3ccfff3be9bb6",
+    "domain-core-mobile-contract.txt": "105b01148caabae3108fa7be123122c045ccbfb394db218dd6dd3960175e169b",
+    "domain-core-budget-candidates.json": "cf0e8ad42f654efdcfda09bb8e0b9f3bdabf85c03dc02de940c362ac4f5b143b",
+    "domain-core-architecture-reviewed-files.json": "88ea1a4529ad8794dd8b957afa0b7d9269dddef28d3924811308a7240888e0da"
+  },
+  "limits": "Whole dashboard file review and structural follow-through continue. Physical class module ownership changes intentionally; no repository entity pickle consumer or module-owner comparisons found. Existing public imports and field/method contracts are preserved. No migrations, provider sends, deployment identities, push or VPS configuration changes."
+}

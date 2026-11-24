@@ -1,6 +1,13 @@
+import { capturePrivateOperationOwner } from "@/lib/api/request-owner";
+
 /** Identity for one reviewed send, including its resolved header media. */
 export class WhatsAppSendIntent {
   readonly key: string;
+  private readonly owner = capturePrivateOperationOwner();
+  readonly requestConfig = () => {
+    this.owner.assertCurrent();
+    return this.owner.requestConfig;
+  };
   private payload: string | null = null;
   private media: Promise<string> | null;
 
@@ -16,19 +23,23 @@ export class WhatsAppSendIntent {
   }
 
   async bind(groupId: string, payload: unknown) {
+    this.requestConfig();
     const signature = JSON.stringify([groupId, payload]);
     if (this.payload !== null && this.payload !== signature) {
       throw new Error("The reviewed send changed. Review it again before starting a new send.");
     }
     await this.retainPayload(signature);
+    this.requestConfig();
     this.payload = signature;
   }
 
   resolveImage(upload: () => Promise<string>): Promise<string> {
+    this.requestConfig();
     // Retain the resolved ID before sending. A retry must not change the
     // server's exact-payload fingerprint by uploading the same image again.
     if (!this.media) {
       this.media = upload().then((mediaId) => {
+        this.requestConfig();
         this.retainMedia(mediaId);
         return mediaId;
       }).catch((error) => {

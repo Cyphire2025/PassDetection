@@ -1,0 +1,645 @@
+{
+  "basis": "Exact frozen source-owner mappings and attributed root/branding/manual-security source review receipts. This integration is classification maintenance, not a second full physical read of their files or live workflow enablement.",
+  "source_review_receipts": [
+    "company-architecture-verification.json",
+    "passport-private-mutation-verification.json",
+    "menu-export-refactor-verification.json",
+    "menu-route-extraction-proof.json",
+    "menu-route-openapi-proof.json"
+  ],
+  "rows_before": 1973,
+  "rows_after": 1990,
+  "transferred_existing_classifications": {
+    "frontend:frontend/features/passports/api/upload-links.api.ts:assignCompany": "frontend:frontend/features/passports/api/upload-link-management.api.ts:assignCompany",
+    "frontend:frontend/features/passports/api/upload-links.api.ts:create": "frontend:frontend/features/passports/api/upload-link-management.api.ts:create",
+    "frontend:frontend/features/passports/api/upload-links.api.ts:list": "frontend:frontend/features/passports/api/upload-link-management.api.ts:list",
+    "frontend:frontend/features/passports/api/upload-links.api.ts:revoke": "frontend:frontend/features/passports/api/upload-link-management.api.ts:revoke",
+    "frontend:frontend/features/passports/api/upload-links.api.ts:delete": "frontend:frontend/features/passports/api/upload-link-management.api.ts:delete",
+    "frontend:frontend/features/passports/api/upload-links.api.ts:update": "frontend:frontend/features/passports/api/upload-link-management.api.ts:update",
+    "frontend:frontend/features/passports/api/upload-links.api.ts:permanentDelete": "frontend:frontend/features/passports/api/upload-link-management.api.ts:permanentDelete",
+    "frontend:frontend/features/passports/api/upload-links.api.ts:restore": "frontend:frontend/features/passports/api/upload-link-management.api.ts:restore",
+    "frontend:frontend/features/passports/api/upload-links.api.ts:getWhatsAppLinks": "frontend:frontend/features/passports/api/upload-link-roster.api.ts:getWhatsAppLinks",
+    "frontend:frontend/features/passports/api/upload-links.api.ts:updateWhatsAppLinks": "frontend:frontend/features/passports/api/upload-link-roster.api.ts:updateWhatsAppLinks",
+    "frontend:frontend/features/passports/api/upload-links.api.ts:getWhatsAppBroadcastOptions": "frontend:frontend/features/passports/api/upload-link-roster.api.ts:getWhatsAppBroadcastOptions",
+    "frontend:frontend/features/passports/api/upload-links.api.ts:getWhatsAppMatches": "frontend:frontend/features/passports/api/upload-link-roster.api.ts:getWhatsAppMatches",
+    "frontend:frontend/features/passports/api/upload-links.api.ts:getReplacementCandidates": "frontend:frontend/features/passports/api/upload-link-roster.api.ts:getReplacementCandidates",
+    "frontend:frontend/features/passports/api/upload-links.api.ts:resolveUnidentifiedReplacement": "frontend:frontend/features/passports/api/upload-link-roster.api.ts:resolveUnidentifiedReplacement",
+    "frontend:frontend/features/passports/api/upload-links.api.ts:rejectUnidentifiedUpload": "frontend:frontend/features/passports/api/upload-link-roster.api.ts:rejectUnidentifiedUpload",
+    "frontend:frontend/features/passports/api/upload-links.api.ts:restoreRosterResolution": "frontend:frontend/features/passports/api/upload-link-roster.api.ts:restoreRosterResolution",
+    "frontend:frontend/features/passports/api/upload-links.api.ts:getByToken": "frontend:frontend/features/passports/api/public-upload-link.api.ts:getByToken",
+    "frontend:frontend/features/passports/api/upload-links.api.ts:recordTelemetry": "frontend:frontend/features/passports/api/public-upload-link.api.ts:recordTelemetry",
+    "frontend:frontend/features/passports/api/upload-links.api.ts:createQualifierSelection": "frontend:frontend/features/passports/api/public-upload-link.api.ts:createQualifierSelection",
+    "frontend:frontend/features/passports/api/upload-links.api.ts:getQualifierSelection": "frontend:frontend/features/passports/api/public-upload-link.api.ts:getQualifierSelection",
+    "route:backend/app/presentation/api/v1/routes/menu.py:create_menu_category:POST:/categories": "route:backend/app/presentation/api/v1/routes/menu_categories.py:create_menu_category:POST:/categories",
+    "route:backend/app/presentation/api/v1/routes/menu.py:create_menu_dish:POST:/categories/{category_id}/dishes": "route:backend/app/presentation/api/v1/routes/menu_dishes.py:create_menu_dish:POST:/categories/{category_id}/dishes",
+    "route:backend/app/presentation/api/v1/routes/menu.py:delete_meal_plan:DELETE:/plans/{plan_id}": "route:backend/app/presentation/api/v1/routes/menu_plans.py:delete_meal_plan:DELETE:/plans/{plan_id}",
+    "route:backend/app/presentation/api/v1/routes/menu.py:delete_menu_category:DELETE:/categories/{category_id}": "route:backend/app/presentation/api/v1/routes/menu_categories.py:delete_menu_category:DELETE:/categories/{category_id}",
+    "route:backend/app/presentation/api/v1/routes/menu.py:delete_menu_dish:DELETE:/dishes/{dish_id}": "route:backend/app/presentation/api/v1/routes/menu_dishes.py:delete_menu_dish:DELETE:/dishes/{dish_id}",
+    "route:backend/app/presentation/api/v1/routes/menu.py:export_meal_plan:GET:/plans/{plan_id}/export.xlsx": "route:backend/app/presentation/api/v1/routes/menu_exports.py:export_meal_plan:GET:/plans/{plan_id}/export.xlsx",
+    "route:backend/app/presentation/api/v1/routes/menu.py:generate_meal_plan:POST:/plans/generate": "route:backend/app/presentation/api/v1/routes/menu_plans.py:generate_meal_plan:POST:/plans/generate",
+    "route:backend/app/presentation/api/v1/routes/menu.py:get_menu_workspace:GET:": "route:backend/app/presentation/api/v1/routes/menu_workspace.py:get_menu_workspace:GET:",
+    "route:backend/app/presentation/api/v1/routes/menu.py:regenerate_meal_plan:POST:/plans/{plan_id}/regenerate": "route:backend/app/presentation/api/v1/routes/menu_plans.py:regenerate_meal_plan:POST:/plans/{plan_id}/regenerate",
+    "route:backend/app/presentation/api/v1/routes/menu.py:update_meal_plan:PATCH:/plans/{plan_id}": "route:backend/app/presentation/api/v1/routes/menu_plans.py:update_meal_plan:PATCH:/plans/{plan_id}",
+    "route:backend/app/presentation/api/v1/routes/menu.py:update_meal_plan_entry:PATCH:/plans/{plan_id}/entries/{entry_id}": "route:backend/app/presentation/api/v1/routes/menu_plan_entries.py:update_meal_plan_entry:PATCH:/plans/{plan_id}/entries/{entry_id}",
+    "route:backend/app/presentation/api/v1/routes/menu.py:update_menu_category:PATCH:/categories/{category_id}": "route:backend/app/presentation/api/v1/routes/menu_categories.py:update_menu_category:PATCH:/categories/{category_id}",
+    "route:backend/app/presentation/api/v1/routes/menu.py:update_menu_dish:PATCH:/dishes/{dish_id}": "route:backend/app/presentation/api/v1/routes/menu_dishes.py:update_menu_dish:PATCH:/dishes/{dish_id}"
+  },
+  "all_surviving_classification_permission_phase_effect_adapter_metadata_unchanged": true,
+  "replaced_composition_only_contract": {
+    "surface": {
+      "id": "frontend_api:frontend/features/passports/api/upload-links.api.ts",
+      "kind": "frontend_api_contract",
+      "source": "frontend/features/passports/api/upload-links.api.ts",
+      "contract_sha256": "7cae53e363364d45600a5f3279c1ca0387acb29a0c27a6d14319e15e70b1a233"
+    },
+    "workflow": "transport.frontend.features.passports.api.upload-links.api.ts",
+    "disposition": "internal_dependency",
+    "phase": null,
+    "rationale": "Routing or frontend transport facade implementing the individually classified business operations; fingerprint forces review of prefix/registration/alias and nonstandard action changes.",
+    "adapter_requirements": [],
+    "implementation": {
+      "status": "not_applicable",
+      "adapter": null,
+      "evidence": []
+    }
+  },
+  "workflow_retirements": [],
+  "new_tool_or_backend_endpoint_grants": [],
+  "exact_changed_fingerprints": [
+    {
+      "before": {
+        "id": "frontend_api:frontend/features/companies/api/companies.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/companies/api/companies.api.ts",
+        "contract_sha256": "6e52008c7be11ebfdc427cd087378a1ac40b4abec48b148c468d89197f1944ef"
+      },
+      "after": {
+        "id": "frontend_api:frontend/features/companies/api/companies.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/companies/api/companies.api.ts",
+        "contract_sha256": "18ee51e907f2149e832cd83a94f5d1fd6258d8ffe8de3d18bb57559f2f7529ba"
+      }
+    },
+    {
+      "before": {
+        "id": "frontend_api:frontend/features/companies/api/company-data-exports.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/companies/api/company-data-exports.api.ts",
+        "contract_sha256": "32f858fe5b7e4303bacb9b28d40a82b0b90c13b29e81ce4795dc69e597536c2e"
+      },
+      "after": {
+        "id": "frontend_api:frontend/features/companies/api/company-data-exports.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/companies/api/company-data-exports.api.ts",
+        "contract_sha256": "3524194cea45dc5d042f86bbb714711f1e51f158e0ed2c65301d5c63ebea9b67"
+      }
+    },
+    {
+      "before": {
+        "id": "frontend_api:frontend/features/companies/api/company-matching.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/companies/api/company-matching.api.ts",
+        "contract_sha256": "dd3c1cb6492d5bb3af15a85993b5e22d7c222fea4f45d0fb926b0b06d4956747"
+      },
+      "after": {
+        "id": "frontend_api:frontend/features/companies/api/company-matching.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/companies/api/company-matching.api.ts",
+        "contract_sha256": "a766c07dda2a2ea048be7d74c6cd2499e4248fd21a0066b928fb7bb2e6a80835"
+      }
+    },
+    {
+      "before": {
+        "id": "frontend_api:frontend/features/companies/api/company-passports.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/companies/api/company-passports.api.ts",
+        "contract_sha256": "3ecee8097fc31b12d364810fbdabdd193a3b5a7ed3ccdec7b3ff3dcfd5c40567"
+      },
+      "after": {
+        "id": "frontend_api:frontend/features/companies/api/company-passports.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/companies/api/company-passports.api.ts",
+        "contract_sha256": "4ef113124fb03f4abaca0c47b70c1596f1f7a27995671096ae3ea8614a2a491a"
+      }
+    },
+    {
+      "before": {
+        "id": "frontend_api:frontend/features/companies/api/reuse-setup.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/companies/api/reuse-setup.api.ts",
+        "contract_sha256": "c8bbc4983790ab950272b2f0911a20da2a4033449f288896f76cb42848f908e3"
+      },
+      "after": {
+        "id": "frontend_api:frontend/features/companies/api/reuse-setup.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/companies/api/reuse-setup.api.ts",
+        "contract_sha256": "53d977bcb544fb94f04a6df6a51daae2e1d1914cc9b0af15fc44b43a629b7d9c"
+      }
+    },
+    {
+      "before": {
+        "id": "frontend_api:frontend/features/passports/api/client-details.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/passports/api/client-details.api.ts",
+        "contract_sha256": "7e58b9c4c7e30049092acd32e0f3495ce23673ce5a410e8c23ce1a1658b99edd"
+      },
+      "after": {
+        "id": "frontend_api:frontend/features/passports/api/client-details.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/passports/api/client-details.api.ts",
+        "contract_sha256": "3a41b6a77a14f54b24930b83b536382a5bc2c5aea2727634256e9731e6419801"
+      }
+    },
+    {
+      "before": {
+        "id": "frontend_api:frontend/features/passports/api/display-name.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/passports/api/display-name.api.ts",
+        "contract_sha256": "3289463b22739f9a38c17f1d52c3f207cfc2b3bc6a8e88ce1eb6c29b3c6289bc"
+      },
+      "after": {
+        "id": "frontend_api:frontend/features/passports/api/display-name.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/passports/api/display-name.api.ts",
+        "contract_sha256": "e5d50fad9a24ce7bc46b0246760f3e67bbda5bd6362ae9b962f94459b1c16b97"
+      }
+    },
+    {
+      "before": {
+        "id": "frontend_api:frontend/features/passports/api/passport-group-exports.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/passports/api/passport-group-exports.api.ts",
+        "contract_sha256": "b76293292523d942c23a505bba7d14db0bd793bd774067a53517428976ad09fe"
+      },
+      "after": {
+        "id": "frontend_api:frontend/features/passports/api/passport-group-exports.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/passports/api/passport-group-exports.api.ts",
+        "contract_sha256": "fd753bafd3211b89a1fdb659f4e03c209197baa359aea45179fcc460326c4996"
+      }
+    },
+    {
+      "before": {
+        "id": "frontend_api:frontend/features/passports/api/passport-imports.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/passports/api/passport-imports.api.ts",
+        "contract_sha256": "829562dd0ad993c745e326c95607b67b54f2b84be8708b8b0ddc04d026b1cfb6"
+      },
+      "after": {
+        "id": "frontend_api:frontend/features/passports/api/passport-imports.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/passports/api/passport-imports.api.ts",
+        "contract_sha256": "3d9f5a949453dd0b05a35697044b1380fe6516345f85c2f2263553780f9c7c2e"
+      }
+    },
+    {
+      "before": {
+        "id": "frontend_api:frontend/features/passports/api/passport-records.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/passports/api/passport-records.api.ts",
+        "contract_sha256": "976bd9d42cd455d2bdb97fe245f481a6f42a46918bddd66b89dfd47dffb03262"
+      },
+      "after": {
+        "id": "frontend_api:frontend/features/passports/api/passport-records.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/passports/api/passport-records.api.ts",
+        "contract_sha256": "c6f7413fdb0ebe39d73d4405812fe64a091a01edff7d979c8fc10a1c66b6eb0c"
+      }
+    },
+    {
+      "before": {
+        "id": "frontend_api:frontend/features/passports/api/passport-selection-exports.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/passports/api/passport-selection-exports.api.ts",
+        "contract_sha256": "f5dbfe3c2ca02b1a1e460f40d257fefb5fb8f8b812c0eecfc8176076cfe5f52a"
+      },
+      "after": {
+        "id": "frontend_api:frontend/features/passports/api/passport-selection-exports.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/passports/api/passport-selection-exports.api.ts",
+        "contract_sha256": "2b4d6bae120f2e08400238f5e92fb45750a56923b0e0c4b60d67b25f0dcc49b2"
+      }
+    },
+    {
+      "before": {
+        "id": "registration:backend/app/presentation/api/v1/routes/menu.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/menu.py",
+        "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+      },
+      "after": {
+        "id": "registration:backend/app/presentation/api/v1/routes/menu.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/menu.py",
+        "contract_sha256": "1a311f6ec08da848f0440c8e8b6c6876da75da0ac0fe06c5ac751e0dd4486893"
+      }
+    }
+  ],
+  "new_internal_rows": [
+    {
+      "surface": {
+        "id": "frontend:frontend/features/companies/api/company-request-config.ts:companyRequestConfig",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/api/company-request-config.ts",
+        "handler": "companyRequestConfig"
+      },
+      "workflow": "internal.frontend.features.companies.api.company-request-config.ts.companyRequestConfig",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Private initiating-authority/request-config or guarded export transfer primitive behind existing classified business adapters. No HTTP endpoint or authorization grant is introduced; public method permissions and backend checks remain authoritative.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/companies/test-support/mutation-authority.tsx:cleanupCompanyAuthority",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/test-support/mutation-authority.tsx",
+        "handler": "cleanupCompanyAuthority"
+      },
+      "workflow": "internal.frontend.features.companies.test-support.mutation-authority.tsx.cleanupCompanyAuthority",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Synthetic test-only scheduling/authority fixture; not imported by runtime and not a callable business/tool surface. Exact discovered identity recorded without adding any adapter or authority.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/companies/test-support/mutation-authority.tsx:companyWrites",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/test-support/mutation-authority.tsx",
+        "handler": "companyWrites"
+      },
+      "workflow": "internal.frontend.features.companies.test-support.mutation-authority.tsx.companyWrites",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Synthetic test-only scheduling/authority fixture; not imported by runtime and not a callable business/tool surface. Exact discovered identity recorded without adding any adapter or authority.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/companies/test-support/mutation-authority.tsx:queuedCompanyMutation",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/test-support/mutation-authority.tsx",
+        "handler": "queuedCompanyMutation"
+      },
+      "workflow": "internal.frontend.features.companies.test-support.mutation-authority.tsx.queuedCompanyMutation",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Synthetic test-only scheduling/authority fixture; not imported by runtime and not a callable business/tool surface. Exact discovered identity recorded without adding any adapter or authority.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/companies/test-support/mutation-authority.tsx:resetCompanyAuthority",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/test-support/mutation-authority.tsx",
+        "handler": "resetCompanyAuthority"
+      },
+      "workflow": "internal.frontend.features.companies.test-support.mutation-authority.tsx.resetCompanyAuthority",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Synthetic test-only scheduling/authority fixture; not imported by runtime and not a callable business/tool surface. Exact discovered identity recorded without adding any adapter or authority.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passport-export-transfer.ts:downloadPassportExport",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passport-export-transfer.ts",
+        "handler": "downloadPassportExport"
+      },
+      "workflow": "internal.frontend.features.passports.api.passport-export-transfer.ts.downloadPassportExport",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Private initiating-authority/request-config or guarded export transfer primitive behind existing classified business adapters. No HTTP endpoint or authorization grant is introduced; public method permissions and backend checks remain authoritative.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passport-request-config.ts:capturePassportOperationOwner",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passport-request-config.ts",
+        "handler": "capturePassportOperationOwner"
+      },
+      "workflow": "internal.frontend.features.passports.api.passport-request-config.ts.capturePassportOperationOwner",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Private initiating-authority/request-config or guarded export transfer primitive behind existing classified business adapters. No HTTP endpoint or authorization grant is introduced; public method permissions and backend checks remain authoritative.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passport-request-config.ts:optionalBodylessRequestConfig",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passport-request-config.ts",
+        "handler": "optionalBodylessRequestConfig"
+      },
+      "workflow": "internal.frontend.features.passports.api.passport-request-config.ts.optionalBodylessRequestConfig",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Private initiating-authority/request-config or guarded export transfer primitive behind existing classified business adapters. No HTTP endpoint or authorization grant is introduced; public method permissions and backend checks remain authoritative.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passport-request-config.ts:optionalRequestConfig",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passport-request-config.ts",
+        "handler": "optionalRequestConfig"
+      },
+      "workflow": "internal.frontend.features.passports.api.passport-request-config.ts.optionalRequestConfig",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Private initiating-authority/request-config or guarded export transfer primitive behind existing classified business adapters. No HTTP endpoint or authorization grant is introduced; public method permissions and backend checks remain authoritative.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend_api:frontend/features/passports/api/public-upload-link.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/passports/api/public-upload-link.api.ts",
+        "contract_sha256": "3591bc2fe0ce30ba73048e44838e60f0283580d9c86232f7834baab0d7e93088"
+      },
+      "workflow": "internal.frontend.features.passports.api.public-upload-link.api.ts",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Focused owner of the exact previously classified uploadLinksApi methods. Public traveller proof/session/telemetry bodies retain their own whole-file fingerprint, including unchanged keepalive transport; private methods add only optional initiating-authority metadata outside business payloads. No workflow is retired or enabled.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend_api:frontend/features/passports/api/upload-link-management.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/passports/api/upload-link-management.api.ts",
+        "contract_sha256": "996b77567417ace7ed7cf10d2853a773019658af45bfe07f2c7be9eef4034587"
+      },
+      "workflow": "internal.frontend.features.passports.api.upload-link-management.api.ts",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Focused owner of the exact previously classified uploadLinksApi methods. Public traveller proof/session/telemetry bodies retain their own whole-file fingerprint, including unchanged keepalive transport; private methods add only optional initiating-authority metadata outside business payloads. No workflow is retired or enabled.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend_api:frontend/features/passports/api/upload-link-roster.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/passports/api/upload-link-roster.api.ts",
+        "contract_sha256": "e434979401b38365f6e9454ce61ec338764dc17699833eb62e90d7e1ec70021b"
+      },
+      "workflow": "internal.frontend.features.passports.api.upload-link-roster.api.ts",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Focused owner of the exact previously classified uploadLinksApi methods. Public traveller proof/session/telemetry bodies retain their own whole-file fingerprint, including unchanged keepalive transport; private methods add only optional initiating-authority metadata outside business payloads. No workflow is retired or enabled.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/menu_categories.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/menu_categories.py",
+        "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+      },
+      "workflow": "internal.backend.app.presentation.api.v1.routes.menu_categories.py",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Resource owner composed by the original menu facade. All13 original HTTP operation contracts, dependency decorators and function aliases are retained; current-owner relocation adds no endpoint or permission.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/menu_dishes.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/menu_dishes.py",
+        "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+      },
+      "workflow": "internal.backend.app.presentation.api.v1.routes.menu_dishes.py",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Resource owner composed by the original menu facade. All13 original HTTP operation contracts, dependency decorators and function aliases are retained; current-owner relocation adds no endpoint or permission.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/menu_exports.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/menu_exports.py",
+        "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+      },
+      "workflow": "internal.backend.app.presentation.api.v1.routes.menu_exports.py",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Resource owner composed by the original menu facade. All13 original HTTP operation contracts, dependency decorators and function aliases are retained; current-owner relocation adds no endpoint or permission.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/menu_plan_entries.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/menu_plan_entries.py",
+        "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+      },
+      "workflow": "internal.backend.app.presentation.api.v1.routes.menu_plan_entries.py",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Resource owner composed by the original menu facade. All13 original HTTP operation contracts, dependency decorators and function aliases are retained; current-owner relocation adds no endpoint or permission.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/menu_plans.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/menu_plans.py",
+        "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+      },
+      "workflow": "internal.backend.app.presentation.api.v1.routes.menu_plans.py",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Resource owner composed by the original menu facade. All13 original HTTP operation contracts, dependency decorators and function aliases are retained; current-owner relocation adds no endpoint or permission.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/menu_workspace.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/menu_workspace.py",
+        "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+      },
+      "workflow": "internal.backend.app.presentation.api.v1.routes.menu_workspace.py",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Resource owner composed by the original menu facade. All13 original HTTP operation contracts, dependency decorators and function aliases are retained; current-owner relocation adds no endpoint or permission.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    }
+  ],
+  "author_source_sha256_fences": {
+    "frontend/features/companies/api/companies.api.ts": "18ee51e907f2149e832cd83a94f5d1fd6258d8ffe8de3d18bb57559f2f7529ba",
+    "frontend/features/companies/api/company-matching.api.ts": "a766c07dda2a2ea048be7d74c6cd2499e4248fd21a0066b928fb7bb2e6a80835",
+    "frontend/features/companies/api/company-passports.api.ts": "4ef113124fb03f4abaca0c47b70c1596f1f7a27995671096ae3ea8614a2a491a",
+    "frontend/features/companies/api/company-data-exports.api.ts": "3524194cea45dc5d042f86bbb714711f1e51f158e0ed2c65301d5c63ebea9b67",
+    "frontend/features/companies/api/reuse-setup.api.ts": "53d977bcb544fb94f04a6df6a51daae2e1d1914cc9b0af15fc44b43a629b7d9c",
+    "frontend/features/companies/hooks/use-companies.ts": "005c40a44385c7fe3fbaa82c32eedcca7e75097919ca590366bb1bc5056bdb28",
+    "frontend/features/companies/hooks/use-company-data-exports.ts": "5a4c0f83f0417ff2609b69f61415a67f278991a9f4f6cb03d5c1379d8e27dae6",
+    "frontend/features/companies/components/company-matching-dialog.tsx": "44394b68b7dc10004471a37c65e1e55d821844b0d2d75ea2112d6e84f04d0076",
+    "frontend/features/companies/components/company-match-resolution.tsx": "23e7454bb014fb83b824d557ebb8e6d21b7beffc868a64811e79a52ef7041a01",
+    "frontend/features/companies/components/company-passports.tsx": "f9f4d89d57db074a702d8be1b66bbdea1ba0e13e3538decb3916e24feb01c983",
+    "frontend/features/companies/components/company-settings.tsx": "1a1fda0c68b92f32ce1c8207d890a0f5a94bfdc4937df4726ef8b3212a3324e3",
+    "frontend/features/companies/components/company-reassignment-dialog.tsx": "96044f6c4eb9e82d6d663f29618c0e5dc4957b59ad12ecb8f90f915e8315ad88",
+    "frontend/features/companies/components/company-all-data.tsx": "40afb4f0da3614a83d21f84fed374f8bba5e8b2bd0edaec79fa0ceeac3bdeca2",
+    "frontend/features/companies/components/company-directory.tsx": "df0c6bfc8c6aa45129f76c77d3693c4d8ef1544055d2c00915a94ad4606e32c1",
+    "frontend/features/companies/components/company-person-page.tsx": "73a699590cd9ae2f1862dd59dafcdc12d7b3db7f81b93f25ea19cff4ecb54795",
+    "frontend/features/companies/components/company-picker.tsx": "e5e675b5c33a3f31798ff0b7cbbf560eff2fa4b36255753232df1054d7af3686",
+    "frontend/features/companies/api/company-request-config.ts": "062371a85ed1ebca8185d88b81dc754ca83e6b82658e28c707f5e299837dcfc3",
+    "frontend/features/companies/hooks/company-query-state.ts": "fb6557cb497ff2ac377c3795ac1d8095446de7a3dbddcae06f664b96d772ba44",
+    "frontend/features/companies/hooks/use-company-queries.ts": "f5874240b0539820954be15ea66eab9596eb1fe3ed34506009537bb4a51e3acd",
+    "frontend/features/companies/hooks/use-company-mutations.ts": "5cca17266ce8149129c37c0327b7d6766c3053025bb8135cd3d621624248f5b7",
+    "frontend/features/companies/hooks/use-company-reuse-policy.ts": "41d41a631363296387250161fe9a9e1c8ddde1d9c604fbd08adf34e5c247ea5f",
+    "frontend/features/companies/hooks/use-company-directory-state.ts": "d5195a52f34b7e741edbe267b8cf17ba23b189cc5fc5b56ae71ab2dc296d95d5",
+    "frontend/features/companies/hooks/use-company-person-page.ts": "1d496a5cf76e41e6f1c97de8b7e772ec21e34133e34dd45f70fbbd431b9e5b9a",
+    "frontend/features/companies/components/company-reuse-policy-card.tsx": "657b1c1e43c6c363ea99528691778dc49936e1d25c4f7d25444346e816c8ece1",
+    "frontend/features/companies/components/company-people-directory.tsx": "9ec769a064fa9d58c2376a8167de4fa70af63a9816f6608dbb0cd03140ddf205",
+    "frontend/features/companies/components/company-person-header.tsx": "bb6b486fc1a5c8bae05441a6db39cea4b0712873154a35e38b21c1f27727b24a",
+    "frontend/features/companies/components/company-person-content.tsx": "f4da1b39259d7007c376abb9e9c9a916b29443f34b85ef0e39e4fc2929c0e50d",
+    "frontend/features/companies/test-support/mutation-authority.tsx": "28efc08682153b57c9aa6f053d566c6abbb0e78f979e55cd4c061130f923f07e",
+    "frontend/features/companies/hooks/company-mutation-authority.test.tsx": "64b00d0e420b35aa60f14716344fcaeae15f4b721eeb2a54c6aa01bb48315bde",
+    "frontend/features/companies/components/company-mutation-authority.test.tsx": "a0c8d52868ed4251a0c26ddf89192e07b46a4667bc1d5fbc5640eaeae3b8d31c",
+    "frontend/features/companies/components/company-agency-scope.test.tsx": "f136b714661cbb81ecd7ce417fe390483a857466f9b4d19eb15522f4baa7ac22",
+    "frontend/features/companies/components/company-matching-dialog.test.tsx": "6fa03a7c616e1c1d7b8c7adf3a6ef2cea5a708edd4c09260be0e01b591641787",
+    "frontend/features/companies/components/company-passports.test.tsx": "0752232398c7207663b947133411d9d76744cadf7e8197a72b68bb5fba5e031f",
+    "frontend/features/companies/components/company-settings.test.tsx": "a8d4766d0fb85fd699f110117227ce44d73c2b93391b53e2e7f1a74a94eeee24",
+    "frontend/features/companies/components/group-company-assignment.test.tsx": "56629b64b4c9965b48038a33b6b913c274b1cc069de55bb9fc421eeedf024a89",
+    "frontend/features/passports/hooks/use-passports.ts": "4d9a252ab716212aec0a148d634f319c3605825bc64bb91b68f3b28b982fa520",
+    "frontend/features/passports/hooks/use-upload-links.ts": "aa0065e6ee5a105f2ca5986884e58ab4bd3d9e31a4ed38c2116f49055044610a",
+    "frontend/features/passports/hooks/use-client-details.ts": "741c64e8c239fb49fd67aad10e4ea92b88a32ca2c670e0feb672bfb56ccdc195",
+    "frontend/features/passports/hooks/use-display-name.ts": "3b01fad7942ef962396fb6b7732422d6618d18d2bcea83c023c1d4903640b28d",
+    "frontend/features/passports/hooks/use-passport-queries.ts": "d14a1927912ede90a40d37ac02b41965d40823bb8f6e10a6d5793cc5970958a4",
+    "frontend/features/passports/hooks/use-passport-export-mutations.ts": "98ae802b014f200910f6cf5341a1f427b8ae157208204477eb70ac6bcbef930e",
+    "frontend/features/passports/hooks/use-passport-import-mutations.ts": "7e9a008c3c78802c3fcd5f87fc7651c68f6208c5c42b7d562b92e98951b557ac",
+    "frontend/features/passports/hooks/use-passport-bulk-mutations.ts": "e2a4524eb2069480060a3d69aa7f66611661214d8f08cd84cdb9a19403808220",
+    "frontend/features/passports/hooks/use-passport-review-mutations.ts": "2955d811798538f5a1f8f85a65faefe1f2c4b547df8bb1743ec518d3d158e3d7",
+    "frontend/features/passports/hooks/upload-link-query-keys.ts": "4c23452cb33d065b31b17968c5ca8b26a884d873ac4c2a238a08e8e1fc570738",
+    "frontend/features/passports/hooks/use-upload-link-queries.ts": "00b92e514dcf62ef0c014368aff0b17724036d8d797ca803ed9239eab47752c8",
+    "frontend/features/passports/hooks/use-upload-link-mutations.ts": "e7665f293bc4c2fc043b62b6e580bf11057892f1e9bac879272d8dbd52beec2c",
+    "frontend/features/passports/hooks/use-upload-link-roster-mutations.ts": "5853862383d0b0f6f6dc03f0caa2ef00bc6b2c3bdc249c8b3c28737856b6cdf5",
+    "frontend/features/passports/api/passport-records.api.ts": "afc54c35060435a45d61ad3e3cedd551af0cbb5409c0fcfa4db4f45e597773eb",
+    "frontend/features/passports/api/passport-imports.api.ts": "3d7c4d17975f2a4b7b609e754925f277d64cb8af809cfa93d56f0d5684dec7d3",
+    "frontend/features/passports/api/passport-group-exports.api.ts": "5ff7dae44f86f6dae3ac64de93a84ec7aa7aafb75e02d2dd5af4343c2f5e4392",
+    "frontend/features/passports/api/passport-selection-exports.api.ts": "4eafc1d6655ec17e8947cd963c5795734aaa417b9d43a6e855998e6a5cc54474",
+    "frontend/features/passports/api/upload-links.api.ts": "ba78888486139cbb6634e8cb2e18ca22ba0be4013cba1c7116933106bb9e52fc",
+    "frontend/features/passports/api/client-details.api.ts": "705eaf6f8d12fe15ad91bf4aacf1df640f972acee67195bd90d7cef837d3c69d",
+    "frontend/features/passports/api/display-name.api.ts": "b04c6649f20c144491efe226510a40da0a76092e930d23b571b32a6c7de238b3",
+    "frontend/features/passports/api/upload-link.types.ts": "3335bc9b14f473a73b45c93edf58683155e564753067c5763e57976fc641543e",
+    "frontend/features/passports/api/upload-link-management.api.ts": "a796283f32524ad248c505fc9cdec1aa5263f5aaf0bb5295f518237e4caa35f3",
+    "frontend/features/passports/api/upload-link-roster.api.ts": "d1687841ec9061f0e17bb85bb0034cb9db88d032795d9e63a606451a2430ad82",
+    "frontend/features/passports/api/public-upload-link.api.ts": "19832df14ca7a10e3a30b0557650cff5c4269f66ea432cb6e82f3a2a68fdc467",
+    "frontend/features/passports/api/passport-request-config.ts": "c02d3238f0a1f961d10acfc2ca53713bea562c48a807dbd2ea8dd62f4d2e273a",
+    "frontend/features/passports/api/passport-export-transfer.ts": "b9216a2de12d5b1d551aabadd55fcc707beeb24af4b775d7446cc34463bb88f9",
+    "backend/app/presentation/api/v1/routes/menu_categories.py": "c52e3fbf50d3445c0326664cf2041cb7957213e86e5704763c4530789c70ca41",
+    "backend/app/presentation/api/v1/routes/menu_common.py": "a8c83fc43b472447611b522254b6a453522658a1775300ed07523ad61738aeac",
+    "backend/app/presentation/api/v1/routes/menu_creation_support.py": "74d94491b839c7ae7b9b8043eb7d261fd7217f27d79e12b90f67d63fd74430ad",
+    "backend/app/presentation/api/v1/routes/menu_dishes.py": "dfc98627e1173d24e0dea223f34d0ab77e5f4f8d56c8db499c646ac0cb9b6460",
+    "backend/app/presentation/api/v1/routes/menu_exports.py": "631b77aea299db2168b3c6652147fe892b7cce3e28d2f70755bfcc0f262722c0",
+    "backend/app/presentation/api/v1/routes/menu_plan_entries.py": "6fcbdcd00279115393e30a8a44e69826a4238c747866a58e99a2ce3c71836bb6",
+    "backend/app/presentation/api/v1/routes/menu_planner.py": "c4998f5f7f952075f2cc8eb396e44386785f3e10d3e0f39aa1e8954d3d6d1d0e",
+    "backend/app/presentation/api/v1/routes/menu_plans.py": "2614750d467f2971a0ca8867d97722b129dd0a55885c8453ba2f3ae51e9d7872",
+    "backend/app/presentation/api/v1/routes/menu_presenters.py": "a431ef3db23dc5631d2184862a9d8448c5b83403de9c727b0b3df6229115ba9b",
+    "backend/app/presentation/api/v1/routes/menu_queries.py": "7732012a3261e46ad44bce3e5ff491fbb06689e1701c13363fe665b33f98aea4",
+    "backend/app/presentation/api/v1/routes/menu_workspace.py": "b53765981a1855d48717f3bf77f449065a4e55e243c70cecad472e09eab94459",
+    "backend/app/presentation/api/v1/routes/menu.py": "a59bf39c2d021567aeb098fbaa74307e38a3820440ce121b5495793395221fb8",
+    "backend/app/presentation/api/v1/routes/menu_export_support.py": "64b5983b4d5028e0153f8b486cf3db9cbf90251bf99dad105444406c79bb8e60",
+    "backend/app/presentation/api/v1/routes/rooming_exports.py": "77abd1be6ecaaa91de1377c61dd769e7811fc66b1ce57b90bfd2294b03a0990e"
+  },
+  "before_matrix_sha256": "79e4be15502c4d107f3eb8b6d28e0eb515b6f61a9fe609134ad56420f76e6aea",
+  "after_matrix_sha256": "48dcc20b4b4861bc845844ab4fe2361e9c3f0d4084ba2ae62a04d5001a71163b",
+  "classification_errors": [],
+  "limits": "Current source identities are accounted for; runtime/live PostgreSQL/providers/VPS qualification is separate. Public recordTelemetryKeepalive is retained under its exact transport-file fingerprint because unchanged discovery does not emit a separate callable row."
+}

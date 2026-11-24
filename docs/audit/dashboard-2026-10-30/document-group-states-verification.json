@@ -1,0 +1,53 @@
+{
+  "recorded_at": "2026-10-31T08:48:34.076094+00:00",
+  "status": "frozen focused UI correctness tranche, parent final combined qualification pending",
+  "source_fence": [
+    {
+      "path": "frontend/features/documents/components/document-group-list.tsx",
+      "sha256": "360eb9dcc545f7b9261678b40a1928f0430a0674faee58cb6412b84dacfdd751",
+      "physical_lines": 262,
+      "review_scope": "full",
+      "status": "reviewed-and-fixed",
+      "reviewer": "branding_visuals",
+      "notes": "Full original/current group list read; active-list failure cannot become empty-success wording or fabricated zero portfolio. Cached successful scoped rows remain available with refresh notice, separate successful search results/no-match remain usable when base totals fail. Explicit retries target correct observer. No API/auth changes or permission-bypass claim."
+    },
+    {
+      "path": "frontend/features/documents/components/document-group-list.test.tsx",
+      "sha256": "54d5ebdddf13e36efe832f65f993d80166ecdba22774dfb22ca6dcb61fd23777",
+      "physical_lines": 96,
+      "review_scope": "full",
+      "status": "reviewed-and-fixed",
+      "reviewer": "branding_visuals",
+      "notes": "Full original/current rendered test read/authored. Deliberately replaces old contradictory expectation that a failed base list should show successful emptiness; six controls verify unavailable versus genuine empty, search versus portfolio independence, cached rows and explicit proper retry. Hook responses mocked, not live service/production browser evidence."
+    }
+  ],
+  "baseline": {
+    "cases": 6,
+    "passed": 3,
+    "failed": 3
+  },
+  "final": {
+    "cases": 6,
+    "passed": 6,
+    "failed": 0,
+    "node_contracts": 7,
+    "types": "passed",
+    "scoped_eslint": "passed"
+  },
+  "deliberate_assertion_change": "Original first test expected No groups are ready for distribution while base error was set. That assertion is intentionally replaced by failed-versus-empty negatives. Original successful search heading/link and genuine no-match assertions remain.",
+  "scope_limits": [
+    "Actual React component with synthetic query-hook responses in jsdom; no production browser geometry or server authorization/send proof.",
+    "One runtime and one test path only; no API/transport/shared SDK/auth/cookie/mobile/package/config/budget-script edit.",
+    "No broad suite/build/browser checks for this scoped fix.",
+    "Original critical coverage floors/includes and all existing caps unchanged; parent owns additive single budget candidate."
+  ],
+  "artifacts": {
+    "docs/audit/dashboard-2026-10-30/document-group-states-baseline.json": "4b4d9240bf048767bcda0bcb1f4da78749dbac7af63f484d59af9a22230cece6",
+    "docs/audit/dashboard-2026-10-30/document-group-states-baseline.txt": "562ece2f5fc2f9d09f967ee1b281c11e40eb81b28e11fc8d005f42f17b40930b",
+    "docs/audit/dashboard-2026-10-30/document-group-states-after.json": "8b12f654dca36481edaea0de864904e34dca759fe0946c634162a3c79e9f48e5",
+    "docs/audit/dashboard-2026-10-30/document-group-states-after.txt": "889180d6b463c34c5649d745f2b2d91508fe93a7219af43d01e99ca733fc2a3b",
+    "docs/audit/dashboard-2026-10-30/document-group-states-types.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/audit/dashboard-2026-10-30/document-group-states-lint.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/audit/dashboard-2026-10-30/document-group-states-contracts.txt": "7e942428585e8a9f3b85f6005f7e02a517b7d3e9c7a5375454c360e9381c4cdb"
+  }
+}

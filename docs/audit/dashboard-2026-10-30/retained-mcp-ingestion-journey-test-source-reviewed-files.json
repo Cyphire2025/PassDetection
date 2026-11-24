@@ -1,0 +1,38 @@
+[
+  {
+    "path": "backend/tests/integration/test_mcp_pdf_ingestion.py",
+    "sha256": "1d816367f97dcfef27387a308d820950397f66bde994d31be9fab3c67f209aac",
+    "physical_lines": 420,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete authored real PDF/parser and synthetic storage/scanner fixture, staged source then explicit queued ingestion into draft only, immutable intent and response-loss recovery, new-grant explicit resume, source integrity/scanning/storage retry, post-copy roster fences, unmatched rejection, retained completed result and cancellation/receipt-failure compensation protocols reviewed. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/service_integration/test_mcp_pdf_ingestion_postgresql.py",
+    "sha256": "864ccc66c91a31820bb626cb1d0ce983540994daf5b60b6cdfd64b680e2c0655",
+    "physical_lines": 232,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete PostgreSQL independent connection ingestion race with synthetic private copy barrier, loser-only compensation, current authority/roster changes during copy and explicit new-grant resume after original revocation reviewed; actual tables/storage/provider behavior not executed. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_excel_group_link_journey.py",
+    "sha256": "882d7e49ec8d9399cbb4198971446f0d66a4dec63943cd746f100bb1822acc5e",
+    "physical_lines": 280,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete actual SDK workbook-import/group-create/link/welcome-receipt/passport-link preview composition reviewed. Explicit owner/company/recipient/support contact selection, no guessed linking, delivered-versus-submitted prerequisite, immutable reconnect receipts, stable collection token and no duplicate send/identity effects all asserted with synthetic providers only. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_excel_message_journey.py",
+    "sha256": "a7ca19ed92457e6816b39ff05cff406e101354b545f7aa777d56d92b19be0bb7",
+    "physical_lines": 386,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete authored workbook-to-HTTP-SDK-to-exact-preview/confirm/fake-worker receipt journey, duplicate/rejected/provenance retention, private contact opt-in audit, immutable reconnect/replay, broker lost-ACK, unknown versus confirmed delivery, explicit 100-of-101 audience selection and incomplete-details no-effects controls reviewed; not real Codex/Meta qualification. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  }
+]

@@ -1,0 +1,362 @@
+{
+  "reviewer": "/root/branding_visuals",
+  "stage": "Before additional owner-clear/count-publication fixes",
+  "basis": "Every original function declaration compared as complete TypeScript AST. Export modifiers removed; exactly state owner/groups/session-map property qualification, authorization collaborator qualification and shorthand-property expansion normalized. No statements, literals, operators or thresholds discarded.",
+  "original_sha256": "e9a45c5ef03c3f0b664ebcc62e6099d85addc7f4fe7146a4d3b47956a9164c15",
+  "function_count": 58,
+  "functions": [
+    {
+      "name": "initialize",
+      "path": "frontend/features/tour-operations/offline-runtime/controller.js",
+      "normalized_ast_sha256": "705c7cfe6a2164dacf7017cc25bf43c96d2b576bf0f504cb01921ab9605c98c1"
+    },
+    {
+      "name": "readCurrentOwner",
+      "path": "frontend/features/tour-operations/offline-runtime/values.js",
+      "normalized_ast_sha256": "f1cf13062a73069e5cbd7d2f7f30029dec7872119d7ef70a0fa6f3a59c067e8a"
+    },
+    {
+      "name": "readRequestedSelection",
+      "path": "frontend/features/tour-operations/offline-runtime/values.js",
+      "normalized_ast_sha256": "881284fdbea4ee0b55cf28f1b57ac600a2e10a0cdae34d4ab6f391fcac9b8d39"
+    },
+    {
+      "name": "readAuthorizedCoordinatorSelections",
+      "path": "frontend/features/tour-operations/offline-runtime/authorization.js",
+      "normalized_ast_sha256": "8f8821aadb21a7cde278d883f6d80815607d8d657c5db17af4a2c39c428b0c74"
+    },
+    {
+      "name": "verifyStoredAuthorization",
+      "path": "frontend/features/tour-operations/offline-runtime/authorization-validation.js",
+      "normalized_ast_sha256": "a0828a36e0bed431d8266c71e8307fffbc003bee401fc039b7d903306ad6ba1a"
+    },
+    {
+      "name": "validateAuthorizationPayload",
+      "path": "frontend/features/tour-operations/offline-runtime/authorization-validation.js",
+      "normalized_ast_sha256": "c094c8a37c09ee69e055ade2650fee9dea1ea59aa5d1467051e2531dbbeb9413"
+    },
+    {
+      "name": "createAuthorizationRuntimeAnchor",
+      "path": "frontend/features/tour-operations/offline-runtime/trusted-time.js",
+      "normalized_ast_sha256": "c93459f0c3f916cc00ffcd967f17f4b37af18fcdf1602fc95dd25ff3c9ad5501"
+    },
+    {
+      "name": "resolveAuthorizationTrustedTime",
+      "path": "frontend/features/tour-operations/offline-runtime/trusted-time.js",
+      "normalized_ast_sha256": "006d3d9bcbc263f0ffe1477f83a5182801fe8c4d17c1ac1906913bf5db7f4c5f"
+    },
+    {
+      "name": "authorizeDecodedScan",
+      "path": "frontend/features/tour-operations/offline-runtime/authorization.js",
+      "normalized_ast_sha256": "a3fbb51af2e70869f4cd0cb517a20adc382728fae33c218c392b5a5829072aa1"
+    },
+    {
+      "name": "persistAuthorizationTrustedHighWater",
+      "path": "frontend/features/tour-operations/offline-runtime/authorization.js",
+      "normalized_ast_sha256": "18c86beb7c10d82e67de74a274237831c1008dff481f57d97824c3553c3cee59"
+    },
+    {
+      "name": "isRecord",
+      "path": "frontend/features/tour-operations/offline-runtime/values.js",
+      "normalized_ast_sha256": "5e657677cc78c02251146cf88e531b51c7fee898f33675da0813171c1eab158d"
+    },
+    {
+      "name": "isUuid",
+      "path": "frontend/features/tour-operations/offline-runtime/values.js",
+      "normalized_ast_sha256": "ebf50e4ce3f732a58d942cdd9f10836444360b1f01f6af7a5946c3df27de4d8d"
+    },
+    {
+      "name": "populateGroupOptions",
+      "path": "frontend/features/tour-operations/offline-runtime/view.js",
+      "normalized_ast_sha256": "a36cf2f3079ae59a48d3b805067571f54c03f9b49d8f32761e82e39587598fc7"
+    },
+    {
+      "name": "populateSessionOptions",
+      "path": "frontend/features/tour-operations/offline-runtime/view.js",
+      "normalized_ast_sha256": "d89a1a0cded0b3c7f27a9ee9ced363689657dd213ae8dcd461fc6bed50cd985e"
+    },
+    {
+      "name": "handleGroupChange",
+      "path": "frontend/features/tour-operations/offline-runtime/controller.js",
+      "normalized_ast_sha256": "f7151a391c3fe7b1cbf7711ea284d0fb9bcdfd0333ce269c61afa0a568192a00"
+    },
+    {
+      "name": "handleSessionChange",
+      "path": "frontend/features/tour-operations/offline-runtime/controller.js",
+      "normalized_ast_sha256": "e440a826f3ede4c313c76b591812b51aa3915d0b9ed3ca9f3b6db0a62b868a12"
+    },
+    {
+      "name": "updateSelectionSummary",
+      "path": "frontend/features/tour-operations/offline-runtime/view.js",
+      "normalized_ast_sha256": "f7226d30b5ad8e07c2e322efd7b571ac39d918cc5c4388f5e2a06ea987c0b8c9"
+    },
+    {
+      "name": "getSelectedSession",
+      "path": "frontend/features/tour-operations/offline-runtime/view.js",
+      "normalized_ast_sha256": "5aad4bf9a170ce0c80146e1001517165884f1a3a7a71e5508bd093fee4fad0a6"
+    },
+    {
+      "name": "startCamera",
+      "path": "frontend/features/tour-operations/offline-runtime/camera.js",
+      "normalized_ast_sha256": "ece6f17742e1b6ca944a93d8a4544098e290b9fed9d30c5c5d61eecdb7d04f73"
+    },
+    {
+      "name": "handleDecode",
+      "path": "frontend/features/tour-operations/offline-runtime/controller.js",
+      "normalized_ast_sha256": "60b2cd319e4f43c432ed5aa36bbe5b983f5649f8bb1d9cba654a5b0bbb78a79a"
+    },
+    {
+      "name": "enqueueScan",
+      "path": "frontend/features/tour-operations/offline-runtime/pending-scans.js",
+      "normalized_ast_sha256": "cbade2b5f0e92890accba0bb9979781b905811f1d2831f7c0f5d1295b78e6b12"
+    },
+    {
+      "name": "refreshPendingCount",
+      "path": "frontend/features/tour-operations/offline-runtime/controller.js",
+      "normalized_ast_sha256": "4a513ff4cf3fbcb00ead4648674d66a93c31c488566957998d3a71e44089414a"
+    },
+    {
+      "name": "openQueueDatabase",
+      "path": "frontend/features/tour-operations/offline-runtime/database.js",
+      "normalized_ast_sha256": "68ebdc9bd3f3f94c89ddab467e274ee74046eeb503a03bd4f5502ff802c2f854"
+    },
+    {
+      "name": "ensureOwnerScopedStore",
+      "path": "frontend/features/tour-operations/offline-runtime/database.js",
+      "normalized_ast_sha256": "ed93e2a82045505e7a966ba2378b5e0e25aa4d57db4161aa08aa75d52b7d4b75"
+    },
+    {
+      "name": "createScanReference",
+      "path": "frontend/features/tour-operations/offline-runtime/protected-storage.js",
+      "normalized_ast_sha256": "ae69a5d8054abb65b8337a550736258bc0973f5c8f8bc25bdefef2b1772d39c9"
+    },
+    {
+      "name": "hashReference",
+      "path": "frontend/features/tour-operations/offline-runtime/protected-storage.js",
+      "normalized_ast_sha256": "cbe5952c83655a7d314c73fb886e0a0bbdc64d1c7ff22d59457bc89089440097"
+    },
+    {
+      "name": "sha256HexBytes",
+      "path": "frontend/features/tour-operations/offline-runtime/protected-storage.js",
+      "normalized_ast_sha256": "d4f1f11cf452e4a46ea982977e2f6f2c640b239f29ef8c90c57b9592a84fbda9"
+    },
+    {
+      "name": "pendingScanAssociatedData",
+      "path": "frontend/features/tour-operations/offline-runtime/protected-storage.js",
+      "normalized_ast_sha256": "0309ea5dfde41809bd9926947528b297e102916716d80907c0ea7d14371cf035"
+    },
+    {
+      "name": "readStoredCryptoKey",
+      "path": "frontend/features/tour-operations/offline-runtime/protected-storage.js",
+      "normalized_ast_sha256": "10f1b01a2a782e172c0a0783516c28310f4e19ebfc8e1d06ae7d3482e37fdb7d"
+    },
+    {
+      "name": "encryptProtectedJson",
+      "path": "frontend/features/tour-operations/offline-runtime/protected-storage.js",
+      "normalized_ast_sha256": "d875c1f406d0fda896b8ce0ed6300da1ec7f7ecb233354235389544ce2a9ec9a"
+    },
+    {
+      "name": "decryptProtectedJson",
+      "path": "frontend/features/tour-operations/offline-runtime/protected-storage.js",
+      "normalized_ast_sha256": "84bad4120ba3a2c0795cb46b266d3f0b72db5a6e84660e919864582fa2b2d158"
+    },
+    {
+      "name": "decodeBase64url",
+      "path": "frontend/features/tour-operations/offline-runtime/protected-storage.js",
+      "normalized_ast_sha256": "badda213b70cd30f9036af7eaae7c44c97d25c75b7b597555dc187711a4c2727"
+    },
+    {
+      "name": "parseRequiredInstant",
+      "path": "frontend/features/tour-operations/offline-runtime/values.js",
+      "normalized_ast_sha256": "f46b3e9fbf2fdc5aeb9a790dccd706f591ce03ddd38bf68671b56dc6d17b1062"
+    },
+    {
+      "name": "isScanReference",
+      "path": "frontend/features/tour-operations/offline-runtime/values.js",
+      "normalized_ast_sha256": "d6348a4fe7781c2de2eda4e5686797526b20e93f3c316cb7945e345fb622f684"
+    },
+    {
+      "name": "migrateLegacyQueueRecords",
+      "path": "frontend/features/tour-operations/offline-runtime/queue-migration.js",
+      "normalized_ast_sha256": "1ca2d1fd83465d61c6a7dca1aee1f69a398a4a25a9b14236a354de8d35746249"
+    },
+    {
+      "name": "normalizePendingQueueRow",
+      "path": "frontend/features/tour-operations/offline-runtime/queue-migration.js",
+      "normalized_ast_sha256": "762c4a22c204ecfaf6e2d603408d773c71e1ebe36959eb803db472ab62f983b1"
+    },
+    {
+      "name": "sanitizeRejectedQueueRow",
+      "path": "frontend/features/tour-operations/offline-runtime/queue-migration.js",
+      "normalized_ast_sha256": "dd1c10080a00586093d366a0c95aa8d00661465cf1e918438456d783a0977497"
+    },
+    {
+      "name": "readAllQueueRows",
+      "path": "frontend/features/tour-operations/offline-runtime/queue-migration.js",
+      "normalized_ast_sha256": "f4a3cdaa0cee4502cf5c622a56a92581213ced4a60e6bd26c38775764d004858"
+    },
+    {
+      "name": "replaceQueueRows",
+      "path": "frontend/features/tour-operations/offline-runtime/queue-migration.js",
+      "normalized_ast_sha256": "d35a95a7237908ac8dd1139d5308dec45ab4c14d80805b50f8889b93e46282a7"
+    },
+    {
+      "name": "requiredString",
+      "path": "frontend/features/tour-operations/offline-runtime/values.js",
+      "normalized_ast_sha256": "4a333cd827caaff903cd90a7a21dc859638ebcfbbe20a8b7bad71fb4e1d43a71"
+    },
+    {
+      "name": "validIso",
+      "path": "frontend/features/tour-operations/offline-runtime/values.js",
+      "normalized_ast_sha256": "b527b20d48a7f9d7d4bfdb5b6cb563433b25cd809764cfc66938e6158ea64333"
+    },
+    {
+      "name": "requestToPromise",
+      "path": "frontend/features/tour-operations/offline-runtime/idb-requests.js",
+      "normalized_ast_sha256": "0c03f3a6910c24aee9ffed4ae38048df37fcab681c7b40df978c0779125be50f"
+    },
+    {
+      "name": "transactionToPromise",
+      "path": "frontend/features/tour-operations/offline-runtime/idb-requests.js",
+      "normalized_ast_sha256": "386119cbdcfcacad5a504a03d2f2fad895fa0034e37fbdb662f5255b185ea028"
+    },
+    {
+      "name": "createClientEventId",
+      "path": "frontend/features/tour-operations/offline-runtime/values.js",
+      "normalized_ast_sha256": "9643e53ec561c42920caa42d2dd58108969ba60f94f4eab09d5eef0361c57434"
+    },
+    {
+      "name": "secureRandomUuid",
+      "path": "frontend/features/tour-operations/offline-runtime/values.js",
+      "normalized_ast_sha256": "48a301469e6a66655fdfc99cf4b1912a3da11eb6ef5dad1ddbafcfe10242135a"
+    },
+    {
+      "name": "stopCamera",
+      "path": "frontend/features/tour-operations/offline-runtime/camera.js",
+      "normalized_ast_sha256": "68f5db6b2be08e2fb914fbf53cd4f1a810efc939d44512894b75b38a57c74ea5"
+    },
+    {
+      "name": "releaseCameraStreams",
+      "path": "frontend/features/tour-operations/offline-runtime/camera.js",
+      "normalized_ast_sha256": "16ed207eac0aef9f65e45e4b6f689172d25833829d186d138f532698044457da"
+    },
+    {
+      "name": "handleVisibilityChange",
+      "path": "frontend/features/tour-operations/offline-runtime/controller.js",
+      "normalized_ast_sha256": "0e140ff87998f9106c264d3c4dab18664cedec0edf4feb68584ed3d582cebf1a"
+    },
+    {
+      "name": "handlePageHide",
+      "path": "frontend/features/tour-operations/offline-runtime/controller.js",
+      "normalized_ast_sha256": "a9cd5d32a925bfa72907aa69d2d3a4a4440c7c044bb3b766b76f045dbb098746"
+    },
+    {
+      "name": "handleOnline",
+      "path": "frontend/features/tour-operations/offline-runtime/controller.js",
+      "normalized_ast_sha256": "199d0acca05625783af9bee5acd387c541e0ae90172496c1e13d8cc07b6257d9"
+    },
+    {
+      "name": "handleOnlineReturnClick",
+      "path": "frontend/features/tour-operations/offline-runtime/controller.js",
+      "normalized_ast_sha256": "2c6f17deded99a087138acdb7bd2bebe4b09efb068df1c7a6e2fcdd4461a4bb0"
+    },
+    {
+      "name": "handleStorageChange",
+      "path": "frontend/features/tour-operations/offline-runtime/controller.js",
+      "normalized_ast_sha256": "c358c9f61683a64189dc28aa44c63c0915582c59765641b5b74ca1863260f342"
+    },
+    {
+      "name": "handleOwnerChange",
+      "path": "frontend/features/tour-operations/offline-runtime/controller.js",
+      "normalized_ast_sha256": "e09f63dd57e4da1283f895f25b3695682d50dd582e41575fe18a0aea42e1d629"
+    },
+    {
+      "name": "getCoordinatorUrl",
+      "path": "frontend/features/tour-operations/offline-runtime/view.js",
+      "normalized_ast_sha256": "81e978435e10ff74d68dffc86e0785d8232e9c02784606a79246936b87d886b6"
+    },
+    {
+      "name": "getCameraErrorMessage",
+      "path": "frontend/features/tour-operations/offline-runtime/messages.js",
+      "normalized_ast_sha256": "d467c0eb67ce8720719a9383f832e6f34797ef3741c372d0d9b44ed95d5a7c8f"
+    },
+    {
+      "name": "offlineAuthorizationErrorMessage",
+      "path": "frontend/features/tour-operations/offline-runtime/messages.js",
+      "normalized_ast_sha256": "18bf5469dc2aec20bf4a702a7cebff27b97d78bed1e12872922f517dd5b59b5d"
+    },
+    {
+      "name": "setFeedback",
+      "path": "frontend/features/tour-operations/offline-runtime/view.js",
+      "normalized_ast_sha256": "d7c18d188c431912adf96679908698c2951643c3fb430018a25c6e0e6c882947"
+    },
+    {
+      "name": "showUnavailable",
+      "path": "frontend/features/tour-operations/offline-runtime/view.js",
+      "normalized_ast_sha256": "436e883a2b6e64409e27037e1008829052c46e84c24f9c0c7b561a38adc8412f"
+    }
+  ],
+  "authored_sources": [
+    {
+      "path": "frontend/features/tour-operations/offline-runtime/authorization-validation.js",
+      "sha256": "c8e7767c23168c094046d293e1bc805d66d14b52b33fbe9b5aef841b7e0a2a9b"
+    },
+    {
+      "path": "frontend/features/tour-operations/offline-runtime/authorization.js",
+      "sha256": "83bd76d6897b8f43604b9e94d422ae29dea662a8c656a5177599973fc5a2a75d"
+    },
+    {
+      "path": "frontend/features/tour-operations/offline-runtime/camera.js",
+      "sha256": "559e154306be465e77c64046fd7c702a6dd2671431e6225c686557f832d8186f"
+    },
+    {
+      "path": "frontend/features/tour-operations/offline-runtime/constants.js",
+      "sha256": "6f24d31022bf247cac6eeedaf6dc0646c7bc07095e24524beea70a1930fafbb3"
+    },
+    {
+      "path": "frontend/features/tour-operations/offline-runtime/controller.js",
+      "sha256": "2ec2ca7493722980928c9253e95f8fe7eb32e96cdd25c5b394990c0f4776e784"
+    },
+    {
+      "path": "frontend/features/tour-operations/offline-runtime/database.js",
+      "sha256": "e8a054e3a09b46cd499704bbe474ed7921d20c49fde979a74e919b69d8684ccd"
+    },
+    {
+      "path": "frontend/features/tour-operations/offline-runtime/idb-requests.js",
+      "sha256": "56501e939bd4b05ddc704c68a203f6d70c9798589d6d6536091fdfc8afb9c7b6"
+    },
+    {
+      "path": "frontend/features/tour-operations/offline-runtime/index.js",
+      "sha256": "3a4e13e77f6696a6a293e30aba38c51614d26a441da8fdfde630e53c699aa5fd"
+    },
+    {
+      "path": "frontend/features/tour-operations/offline-runtime/messages.js",
+      "sha256": "94ad55ac8c46cd02954b7aafacb537355d534213d475ebea88e0b23afe38de44"
+    },
+    {
+      "path": "frontend/features/tour-operations/offline-runtime/pending-scans.js",
+      "sha256": "0888c41e47efd53ead07114307cd3f0cbd02a0891a3672bd134ecc66872e5319"
+    },
+    {
+      "path": "frontend/features/tour-operations/offline-runtime/protected-storage.js",
+      "sha256": "757efbb556c8281892531670cbc71dd51145f7cba5a98680bf469b6ed818dafe"
+    },
+    {
+      "path": "frontend/features/tour-operations/offline-runtime/queue-migration.js",
+      "sha256": "19bf4e5330f1055ad198d5401d77994fe61bfac522c5394eb3bb50e19a1fcf62"
+    },
+    {
+      "path": "frontend/features/tour-operations/offline-runtime/trusted-time.js",
+      "sha256": "89f9dda1219af7c62434defac78fb789e2e58a9623e79f085042d302273d96af"
+    },
+    {
+      "path": "frontend/features/tour-operations/offline-runtime/values.js",
+      "sha256": "82207eb8df06b61ce6470c93ea59f19dbf52f841274cb4d3f74a63c570bf1c89"
+    },
+    {
+      "path": "frontend/features/tour-operations/offline-runtime/view.js",
+      "sha256": "b580f73aaec27b9daca373b58cb9f79b215ebb1f2229b8f3ba37225c77aec9bf"
+    }
+  ],
+  "limits": "Compiler AST movement and explicit module composition; not independent production browser/native IDB durability evidence."
+}

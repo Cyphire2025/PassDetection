@@ -1,0 +1,52 @@
+{
+  "status": "frozen; exact archive and narrow inventory integration complete",
+  "approved_proposal": "supporting-assets-closure-proposal.json",
+  "approved_proposal_sha256": "a559286844fe4a7ec8e071ddf5cf9657c932b84e75008859f38a117f1d02391e",
+  "manifest": "retired-branding-experiments-manifest.json",
+  "manifest_sha256": "aff0437b81ca811c5cf9d25efdd5c823a5d0108adcb2eec19d51035e86f3ca31",
+  "archived_files": 72,
+  "archived_bytes": 75308368,
+  "hierarchy_and_hashes_preserved": true,
+  "source_absent_archive_present": true,
+  "retained_ordinary_asset_hash_controls": 50,
+  "retained_ordinary_assets_unchanged": true,
+  "uncertain_workbook": "Left in place with same size; no worksheet parse/display/copy/attachment and no content-processing action. Not classified unused.",
+  "caller_closure": "No outside maintained reference to unique social cohort/film tokens across tracked/unignored source/docs/build/CI/native files. Internal dynamic directory/film renderer inputs closed; own logo copy preserved with cohort. Actual published source copies/master relationships kept.",
+  "inventory_admission": "Exact manifest name, schema, fixed social cohort prefix plus exact shortcut,72 unique entries/71cohort+1shortcut, original/archive digest+size/status, metadata-only/no-payload flags; generic source/hash/line/conflict guards preserved. No generalassets allowance.",
+  "checks": [
+    {
+      "name": "New tooling controls baseline",
+      "result": "11failed48deselected",
+      "raw": ".tmp/whatsapp-foundation/branding-inventory-baseline.txt"
+    },
+    {
+      "name": "Affected scope/retirement/resolution controls",
+      "result": "91passed",
+      "raw": ".tmp/whatsapp-foundation/branding-inventory-affected.txt"
+    },
+    {
+      "name": "Repository-config Ruff",
+      "result": "pass"
+    },
+    {
+      "name": "Actual inventory refresh",
+      "result": "pass72exact original source hashes retired;24native path scopes remain",
+      "raw": ".tmp/whatsapp-foundation/branding-inventory-refresh.txt"
+    }
+  ],
+  "current_tooling": [
+    {
+      "path": "scripts/dashboard_audit_inventory.py",
+      "sha256": "509e8e9c1d2091cdda70f3826f31a5ba37f836c67923a2e5891a41e95b5fbbe5"
+    },
+    {
+      "path": "backend/tests/unit/scripts/test_dashboard_audit_scope.py",
+      "sha256": "a4e7f0d03d87515ec9b0cdb8cf58d68fa45231e4de3d40468fdb3c854eb8b2d4"
+    }
+  ],
+  "limits": [
+    "No binary payload embedded in manifests/audit attachments; only source path/hash/size/provenance metadata.",
+    "ZIP central directory inspected, no archive extraction/execution. No video/audio rendering/decoding or externalrights/identity certification.",
+    "No dashboard/native runtime or provider/API/schema/config changes, no broad suite/build/browser/deploy round. Historical scope/tooling receipts preserved after this new exact-source receipt."
+  ]
+}

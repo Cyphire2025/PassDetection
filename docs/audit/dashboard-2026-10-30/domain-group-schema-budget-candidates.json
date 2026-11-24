@@ -1,0 +1,234 @@
+[
+  {
+    "path": "app/domain/entities/factories.py",
+    "baseline_lines": 14,
+    "maximum_lines": 20,
+    "baseline_max_function_complexity": 1,
+    "maximum_function_complexity": 2,
+    "minimum_coverage_percent": 100
+  },
+  {
+    "path": "app/domain/entities/enums.py",
+    "baseline_lines": 109,
+    "maximum_lines": 110,
+    "baseline_max_function_complexity": 0,
+    "maximum_function_complexity": 1,
+    "minimum_coverage_percent": 100
+  },
+  {
+    "path": "app/domain/entities/identity.py",
+    "baseline_lines": 112,
+    "maximum_lines": 120,
+    "baseline_max_function_complexity": 3,
+    "maximum_function_complexity": 4,
+    "minimum_coverage_percent": 90
+  },
+  {
+    "path": "app/domain/entities/qualifier_selection.py",
+    "baseline_lines": 63,
+    "maximum_lines": 70,
+    "baseline_max_function_complexity": 2,
+    "maximum_function_complexity": 3,
+    "minimum_coverage_percent": 95
+  },
+  {
+    "path": "app/domain/entities/client_group_state.py",
+    "baseline_lines": 75,
+    "maximum_lines": 80,
+    "baseline_max_function_complexity": 0,
+    "maximum_function_complexity": 1,
+    "minimum_coverage_percent": 100
+  },
+  {
+    "path": "app/domain/entities/client_group_configuration.py",
+    "baseline_lines": 119,
+    "maximum_lines": 120,
+    "baseline_max_function_complexity": 11,
+    "maximum_function_complexity": 12,
+    "minimum_coverage_percent": 85
+  },
+  {
+    "path": "app/domain/entities/client_group_lifecycle.py",
+    "baseline_lines": 75,
+    "maximum_lines": 80,
+    "baseline_max_function_complexity": 5,
+    "maximum_function_complexity": 6,
+    "minimum_coverage_percent": 90
+  },
+  {
+    "path": "app/domain/entities/client_group.py",
+    "baseline_lines": 121,
+    "maximum_lines": 130,
+    "baseline_max_function_complexity": 11,
+    "maximum_function_complexity": 12,
+    "minimum_coverage_percent": 85
+  },
+  {
+    "path": "app/domain/entities/passport_state.py",
+    "baseline_lines": 102,
+    "maximum_lines": 110,
+    "baseline_max_function_complexity": 1,
+    "maximum_function_complexity": 2,
+    "minimum_coverage_percent": 100
+  },
+  {
+    "path": "app/domain/entities/passport_extraction.py",
+    "baseline_lines": 246,
+    "maximum_lines": 250,
+    "baseline_max_function_complexity": 15,
+    "maximum_function_complexity": 16,
+    "minimum_coverage_percent": 95
+  },
+  {
+    "path": "app/domain/entities/passport_client_review.py",
+    "baseline_lines": 125,
+    "maximum_lines": 130,
+    "baseline_max_function_complexity": 31,
+    "maximum_function_complexity": 32,
+    "minimum_coverage_percent": 90
+  },
+  {
+    "path": "app/domain/entities/passport_staff_review.py",
+    "baseline_lines": 217,
+    "maximum_lines": 220,
+    "baseline_max_function_complexity": 11,
+    "maximum_function_complexity": 12,
+    "minimum_coverage_percent": 90
+  },
+  {
+    "path": "app/domain/entities/passport_submission.py",
+    "baseline_lines": 144,
+    "maximum_lines": 150,
+    "baseline_max_function_complexity": 6,
+    "maximum_function_complexity": 7,
+    "minimum_coverage_percent": 90
+  },
+  {
+    "path": "app/domain/repositories/identity.py",
+    "baseline_lines": 51,
+    "maximum_lines": 60,
+    "baseline_max_function_complexity": 1,
+    "maximum_function_complexity": 2,
+    "minimum_coverage_percent": 100
+  },
+  {
+    "path": "app/domain/repositories/client_groups.py",
+    "baseline_lines": 73,
+    "maximum_lines": 80,
+    "baseline_max_function_complexity": 1,
+    "maximum_function_complexity": 2,
+    "minimum_coverage_percent": 85
+  },
+  {
+    "path": "app/domain/repositories/passport_submissions.py",
+    "baseline_lines": 196,
+    "maximum_lines": 200,
+    "baseline_max_function_complexity": 1,
+    "maximum_function_complexity": 2,
+    "minimum_coverage_percent": 100
+  },
+  {
+    "path": "app/domain/repositories/object_storage.py",
+    "baseline_lines": 29,
+    "maximum_lines": 30,
+    "baseline_max_function_complexity": 1,
+    "maximum_function_complexity": 2,
+    "minimum_coverage_percent": 100
+  },
+  {
+    "path": "app/domain/entities/entities.py",
+    "baseline_lines": 37,
+    "maximum_lines": 40,
+    "baseline_max_function_complexity": 0,
+    "maximum_function_complexity": 1,
+    "minimum_coverage_percent": 100
+  },
+  {
+    "path": "app/domain/repositories/interfaces.py",
+    "baseline_lines": 23,
+    "maximum_lines": 30,
+    "baseline_max_function_complexity": 0,
+    "maximum_function_complexity": 1,
+    "minimum_coverage_percent": 100
+  },
+  {
+    "path": "app/domain/value_objects/group_trip_settings.py",
+    "baseline_lines": 63,
+    "maximum_lines": 70,
+    "baseline_max_function_complexity": 12,
+    "maximum_function_complexity": 13,
+    "minimum_coverage_percent": 90
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/client_group_broadcast_schemas.py",
+    "baseline_lines": 71,
+    "maximum_lines": 80,
+    "baseline_max_function_complexity": 3,
+    "maximum_function_complexity": 4,
+    "minimum_coverage_percent": 95
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/client_group_collection_schemas.py",
+    "baseline_lines": 54,
+    "maximum_lines": 60,
+    "baseline_max_function_complexity": 5,
+    "maximum_function_complexity": 6,
+    "minimum_coverage_percent": 95
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/client_group_match_schemas.py",
+    "baseline_lines": 148,
+    "maximum_lines": 150,
+    "baseline_max_function_complexity": 0,
+    "maximum_function_complexity": 1,
+    "minimum_coverage_percent": 95
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/client_group_qualifier_schemas.py",
+    "baseline_lines": 71,
+    "maximum_lines": 80,
+    "baseline_max_function_complexity": 11,
+    "maximum_function_complexity": 12,
+    "minimum_coverage_percent": 95
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/client_group_request_schemas.py",
+    "baseline_lines": 221,
+    "maximum_lines": 230,
+    "baseline_max_function_complexity": 16,
+    "maximum_function_complexity": 17,
+    "minimum_coverage_percent": 90
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/client_group_request_validation.py",
+    "baseline_lines": 80,
+    "maximum_lines": 90,
+    "baseline_max_function_complexity": 14,
+    "maximum_function_complexity": 15,
+    "minimum_coverage_percent": 95
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/client_group_response_schemas.py",
+    "baseline_lines": 63,
+    "maximum_lines": 70,
+    "baseline_max_function_complexity": 0,
+    "maximum_function_complexity": 1,
+    "minimum_coverage_percent": 95
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/public_flow_telemetry_schema.py",
+    "baseline_lines": 25,
+    "maximum_lines": 30,
+    "baseline_max_function_complexity": 0,
+    "maximum_function_complexity": 1,
+    "minimum_coverage_percent": 95
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/client_group_schemas.py",
+    "baseline_lines": 89,
+    "maximum_lines": 90,
+    "baseline_max_function_complexity": 0,
+    "maximum_function_complexity": 1,
+    "minimum_coverage_percent": 95
+  }
+]

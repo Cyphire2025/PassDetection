@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { TourGroupQrCodesPage } from "@/features/operations/components/tour-group-qr-codes-page";
 
 export const metadata: Metadata = {
-  title: "Tour Group QR Codes | Global Connects Dashboard",
+  title: "Tour Group QR Codes",
 };
 
 interface TourGroupQrCodesRouteProps {

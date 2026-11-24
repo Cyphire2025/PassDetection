@@ -152,11 +152,11 @@ async def test_session_fence_revokes_refresh_tokens_and_existing_access_tokens()
 
     with (
         patch(
-            "app.presentation.api.v1.routes.admin_accounts.IdentitySecurityRepository",
+            "app.presentation.api.v1.routes.managed_account_sessions.IdentitySecurityRepository",
             return_value=identity_repository,
         ),
         patch(
-            "app.presentation.api.v1.routes.admin_accounts.RefreshTokenRepository",
+            "app.presentation.api.v1.routes.managed_account_sessions.RefreshTokenRepository",
             return_value=refresh_tokens,
         ),
     ):
@@ -179,7 +179,7 @@ async def test_coordinator_session_fence_revokes_mobile_access_and_refresh_famil
     revoke_mobile = AsyncMock()
 
     with patch(
-        "app.presentation.api.v1.routes.admin_accounts.revoke_user_mobile_sessions",
+        "app.presentation.api.v1.routes.managed_account_sessions.revoke_user_mobile_sessions",
         new=revoke_mobile,
     ):
         await _fence_coordinator_mobile_sessions(  # type: ignore[arg-type]
@@ -214,19 +214,19 @@ async def test_supervised_mfa_reset_clears_factors_and_revokes_sessions() -> Non
 
     with (
         patch(
-            "app.presentation.api.v1.routes.admin_accounts._get_manageable_account",
+            "app.presentation.api.v1.routes.managed_account_credentials._get_manageable_account",
             AsyncMock(return_value=(account, "Agency")),
         ),
         patch(
-            "app.presentation.api.v1.routes.admin_accounts.IdentitySecurityRepository",
+            "app.presentation.api.v1.routes.managed_account_credentials.IdentitySecurityRepository",
             return_value=identity_repository,
         ),
         patch(
-            "app.presentation.api.v1.routes.admin_accounts.RefreshTokenRepository",
+            "app.presentation.api.v1.routes.managed_account_credentials.RefreshTokenRepository",
             return_value=refresh_tokens,
         ),
         patch(
-            "app.presentation.api.v1.routes.admin_accounts._audit_account_action",
+            "app.presentation.api.v1.routes.managed_account_credentials._audit_account_action",
             new=audit,
         ),
     ):
@@ -269,31 +269,31 @@ async def test_supervised_password_recovery_revokes_sessions_and_issues_only_one
 
     with (
         patch(
-            "app.presentation.api.v1.routes.admin_accounts._get_manageable_account",
+            "app.presentation.api.v1.routes.managed_account_credentials._get_manageable_account",
             AsyncMock(return_value=(account, "Agency")),
         ),
         patch(
-            "app.presentation.api.v1.routes.admin_accounts.IdentitySecurityRepository",
+            "app.presentation.api.v1.routes.managed_account_credentials.IdentitySecurityRepository",
             return_value=identity_repository,
         ),
         patch(
-            "app.presentation.api.v1.routes.admin_accounts.RefreshTokenRepository",
+            "app.presentation.api.v1.routes.managed_account_credentials.RefreshTokenRepository",
             return_value=refresh_tokens,
         ),
         patch(
-            "app.presentation.api.v1.routes.admin_accounts._fence_coordinator_mobile_sessions",
+            "app.presentation.api.v1.routes.managed_account_credentials._fence_coordinator_mobile_sessions",
             new=mobile_fence,
         ),
         patch(
-            "app.presentation.api.v1.routes.admin_accounts._audit_account_action",
+            "app.presentation.api.v1.routes.managed_account_credentials._audit_account_action",
             new=audit,
         ),
         patch(
-            "app.presentation.api.v1.routes.admin_accounts._account_response",
+            "app.presentation.api.v1.routes.managed_account_credentials._account_response",
             return_value=account_response,
         ) as build_response,
         patch(
-            "app.presentation.api.v1.routes.admin_accounts.hash_password",
+            "app.presentation.api.v1.routes.managed_account_credentials.hash_password",
             return_value="unusable-random-reset-hash",
         ),
     ):
@@ -367,26 +367,21 @@ async def test_deleting_staff_revokes_sessions_audits_and_removes_account() -> N
         execute=AsyncMock(return_value=_ScalarResult(0)),
         flush=AsyncMock(),
     )
-    refresh_tokens = SimpleNamespace(revoke_all_for_user=AsyncMock())
     session_fence = AsyncMock()
     audit_logs = SimpleNamespace(record=AsyncMock())
     request = SimpleNamespace(client=SimpleNamespace(host="127.0.0.1"))
 
     with (
         patch(
-            "app.presentation.api.v1.routes.admin_accounts._get_manageable_account",
+            "app.presentation.api.v1.routes.managed_account_mutations._get_manageable_account",
             AsyncMock(return_value=(staff, "Agency")),
         ),
         patch(
-            "app.presentation.api.v1.routes.admin_accounts.RefreshTokenRepository",
-            return_value=refresh_tokens,
-        ),
-        patch(
-            "app.presentation.api.v1.routes.admin_accounts._fence_dashboard_sessions",
+            "app.presentation.api.v1.routes.managed_account_mutations._fence_dashboard_sessions",
             new=session_fence,
         ),
         patch(
-            "app.presentation.api.v1.routes.admin_accounts.AuditLogRepository",
+            "app.presentation.api.v1.routes.managed_account_values.AuditLogRepository",
             return_value=audit_logs,
         ),
     ):
@@ -425,7 +420,6 @@ async def test_deleting_coordinator_with_attendance_history_removes_login_but_pr
         ),
         flush=AsyncMock(),
     )
-    refresh_tokens = SimpleNamespace(revoke_all_for_user=AsyncMock())
     session_fence = AsyncMock()
     audit_logs = SimpleNamespace(record=AsyncMock())
     request = SimpleNamespace(client=SimpleNamespace(host="127.0.0.1"))
@@ -433,27 +427,23 @@ async def test_deleting_coordinator_with_attendance_history_removes_login_but_pr
 
     with (
         patch(
-            "app.presentation.api.v1.routes.admin_accounts._get_manageable_account",
+            "app.presentation.api.v1.routes.managed_account_mutations._get_manageable_account",
             AsyncMock(return_value=(coordinator, "Agency")),
         ),
         patch(
-            "app.presentation.api.v1.routes.admin_accounts._deactivate_coordinator_assignments",
+            "app.presentation.api.v1.routes.managed_account_mutations._deactivate_coordinator_assignments",
             deactivate_assignments,
         ),
         patch(
-            "app.presentation.api.v1.routes.admin_accounts.RefreshTokenRepository",
-            return_value=refresh_tokens,
-        ),
-        patch(
-            "app.presentation.api.v1.routes.admin_accounts._fence_dashboard_sessions",
+            "app.presentation.api.v1.routes.managed_account_mutations._fence_dashboard_sessions",
             new=session_fence,
         ),
         patch(
-            "app.presentation.api.v1.routes.admin_accounts.AuditLogRepository",
+            "app.presentation.api.v1.routes.managed_account_values.AuditLogRepository",
             return_value=audit_logs,
         ),
         patch(
-            "app.presentation.api.v1.routes.admin_accounts.hash_password",
+            "app.presentation.api.v1.routes.managed_account_mutations.hash_password",
             return_value="revoked-password-hash",
         ),
     ):
@@ -488,30 +478,25 @@ async def test_deleting_staff_with_an_owned_mailbox_scrubs_credentials_and_prese
         execute=AsyncMock(side_effect=[_ScalarResult(1), SimpleNamespace()]),
         flush=AsyncMock(),
     )
-    refresh_tokens = SimpleNamespace(revoke_all_for_user=AsyncMock())
     session_fence = AsyncMock()
     audit_logs = SimpleNamespace(record=AsyncMock())
     request = SimpleNamespace(client=SimpleNamespace(host="127.0.0.1"))
 
     with (
         patch(
-            "app.presentation.api.v1.routes.admin_accounts._get_manageable_account",
+            "app.presentation.api.v1.routes.managed_account_mutations._get_manageable_account",
             AsyncMock(return_value=(staff, "Agency")),
         ),
         patch(
-            "app.presentation.api.v1.routes.admin_accounts.RefreshTokenRepository",
-            return_value=refresh_tokens,
-        ),
-        patch(
-            "app.presentation.api.v1.routes.admin_accounts._fence_dashboard_sessions",
+            "app.presentation.api.v1.routes.managed_account_mutations._fence_dashboard_sessions",
             new=session_fence,
         ),
         patch(
-            "app.presentation.api.v1.routes.admin_accounts.AuditLogRepository",
+            "app.presentation.api.v1.routes.managed_account_values.AuditLogRepository",
             return_value=audit_logs,
         ),
         patch(
-            "app.presentation.api.v1.routes.admin_accounts.hash_password",
+            "app.presentation.api.v1.routes.managed_account_mutations.hash_password",
             return_value="revoked-password-hash",
         ),
     ):

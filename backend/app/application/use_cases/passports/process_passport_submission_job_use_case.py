@@ -7,10 +7,7 @@ import mimetypes
 import uuid
 from typing import Any
 
-from app.application.interfaces.passport_extraction import (
-    IPassportExtractionService,
-    PassportExtractionResult,
-)
+from app.application.interfaces.passport_extraction import PassportExtractionResult
 from app.application.interfaces.passport_verification import IPassportVerificationService
 from app.application.use_cases.passports.passport_ai_verification import verify_passport_fields
 from app.core.config.settings import get_settings
@@ -114,7 +111,6 @@ class ProcessPassportSubmissionJobUseCase:
         *,
         passport_repo: IPassportSubmissionRepository,
         storage_repo: IObjectStorageRepository,
-        extraction_service: IPassportExtractionService | None,
         job_repo: PassportProcessingJobRepository,
         allow_retry: bool = True,
         verification_service: IPassportVerificationService | None = None,
@@ -122,10 +118,6 @@ class ProcessPassportSubmissionJobUseCase:
     ) -> None:
         self._passport_repo = passport_repo
         self._storage_repo = storage_repo
-        # Keep the local OCR/MRZ implementation dependency available for a
-        # future opt-in fallback. The active first pass intentionally does not
-        # invoke it: Gemini reads the persisted passport image directly.
-        self._dormant_local_extraction_service = extraction_service
         self._job_repo = job_repo
         self._allow_retry = allow_retry
         self._verification_service = verification_service
@@ -200,10 +192,6 @@ class ProcessPassportSubmissionJobUseCase:
                 )
                 await self._job_repo.checkpoint()
                 content_type = self._guess_content_type(submission.image_s3_key)
-                # Local OCR/MRZ is deliberately unwired for now. Its service,
-                # implementation, and dependency injection remain in place so
-                # it can be re-enabled later without reconstructing the stack.
-                # await self._dormant_local_extraction_service.extract(...)
                 await self._job_repo.update_progress(
                     job_id,
                     progress=0.70,
@@ -595,47 +583,6 @@ class ProcessPassportSubmissionJobUseCase:
                 "pipeline": {
                     "name": "gemini_image_primary",
                     "local_ocr_mrz_invoked": False,
-                },
-            },
-            mrz_raw=None,
-        )
-
-    @staticmethod
-    def _local_timeout_result(timeout_seconds: float) -> PassportExtractionResult:
-        return PassportExtractionResult(
-            extracted_fields={
-                "processing_note": "Local OCR timed out; AI image verification was attempted.",
-            },
-            overall_confidence=0.0,
-            confidence_score={
-                "overall": 0.0,
-                "pipeline": {
-                    "local_budget": {
-                        "timeout_seconds": timeout_seconds,
-                        "exhausted": True,
-                    }
-                },
-            },
-            mrz_raw=None,
-        )
-
-    @staticmethod
-    def _local_failure_result(timeout_seconds: float) -> PassportExtractionResult:
-        return PassportExtractionResult(
-            extracted_fields={
-                "processing_note": (
-                    "Local OCR was unavailable; AI image verification was attempted."
-                ),
-            },
-            overall_confidence=0.0,
-            confidence_score={
-                "overall": 0.0,
-                "pipeline": {
-                    "local_budget": {
-                        "timeout_seconds": timeout_seconds,
-                        "exhausted": False,
-                    },
-                    "local_status": "unavailable",
                 },
             },
             mrz_raw=None,

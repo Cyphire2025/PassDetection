@@ -1,0 +1,68 @@
+{
+  "files": [
+    {
+      "path": "backend/tests/unit/core/test_dashboard_session_deadline.py",
+      "sha256": "cf1db0559a2003d69f8d1faa3391e44e33649e8ee035bc94bfdcd730dc574418",
+      "physical_lines": 118,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete118 physical source read. Real signed access-token claim inspection under explicit clock verifies short expiry/min session deadline, opaque refresh UUID/hash distinction, fixed rotation deadline and expired-token denial. Signature remains verified while expiration/iat checks are disabled only to inspect deterministic past-clock claims; no application decode weakening or execution."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_refresh_token_atomic_consumption.py",
+      "sha256": "597d1e109aeffbc2784f83702de9e07edb282d237d1a1dcb9f87863bbce2baa9",
+      "physical_lines": 47,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete47 physical source read. Existing real SQLAlchemy statement is PostgreSQL-compiled and must be one conditional UPDATE/is_revoked/expiry/RETURNING, with lost-claim None. Mocked session is not actual database concurrency proof; source not rerun."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_weekly_auth_cookies.py",
+      "sha256": "b37b4e43f9fdd39592b7015a5723dcd24fa9317a32a2e5e241e9b4a9f23b4b17",
+      "physical_lines": 113,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete113 physical source read. Controlled clock/current Settings.jwt binding checks HttpOnly/path/SameSite/absolute Expiry/max-age bounds and production Secure enforcement; real current cookie helpers read unchanged. No browser/live TLS or production config execution claim."
+    },
+    {
+      "path": "backend/app/presentation/security/auth_cookies.py",
+      "sha256": "3d6fed44c2d311709523e9d18e4e2240fcaa5e0ab6bb4b726c95a96d21ef35e9",
+      "physical_lines": 82,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current shared helper source reread: existing expiry-bounded access/refresh cookies, production Secure, explicit paths/HttpOnly/SameSite, and shared logout clears access-level/attendance/legacy browser-binding cookies. Referenced dedicated Inbox binding implementation was not followed; no new Inbox investigation. No new-unreviewed credit if prior exact full ledger."
+    },
+    {
+      "path": "backend/app/application/use_cases/auth/logout_all_use_case.py",
+      "sha256": "8bde10b7b2aca510e85b6e66e6497816c3bc005b3290bad1171219e1510866dc",
+      "physical_lines": 24,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current shared25-line use-case physical reread: current identity session-generation fence then revoke-all in caller transaction. Existing full source evidence remains separate; no new-unreviewed credit if already exact-current/full, no native/Inbox extension."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_dashboard_audit_auth_regressions.py",
+      "sha256": "abd146962c8f50a3c20189e888950ec028d37a089f9c5fd5809187569c9ef50d",
+      "physical_lines": 98,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Retained physical source scope ONLY1-19 and27-77: complete synthetic account/digest-rejection/plaintext-row/logout-all controls. Dedicated Inbox OAuth imports20-24 and testcase78-98 are DEFERRED BY USER; incidental display does not grant full-file/source-audit credit and no email binding implementation/check followed. This mixed98-line source remains focused."
+    },
+    {
+      "path": "backend/app/core/security/jwt.py",
+      "sha256": "1a1e2ff5b2c962f744a9d5c8fe10631b2e7d33c848783453cceacbdc8c1ec17d",
+      "physical_lines": 151,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical read1-114 only: actual create access/refresh/hmac hash primitives and live _settings/datetime namespace used by controls; other verification functions not fully read here. Current signed session deadline/claim code unchanged; no whole-module/security execution claim."
+    }
+  ],
+  "scope": "Three genuine current-full-unmatched retained session unit files278lines. Seven current-full matches deliberately skipped without artificial read credit. Mixed Inbox test remains focused at retained slices; shared helper rereads are separate supporting scope."
+}

@@ -1,0 +1,1 @@
+Eight direct owners resolve every model without importing the legacy facade

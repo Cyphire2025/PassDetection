@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
+import {
+  gcAppApiSource, gcAppHooksSource, gcAppControlsSource,
+  gcAppManagerDetailsSource, gcAppDocumentsSource,
+} from "./gc-app-source.contract-helper.mjs";
 
 const read = (relativePath) => readFileSync(new URL(relativePath, import.meta.url), "utf8");
 
@@ -11,19 +15,19 @@ const roleAccess = read("../../lib/utils/role-access.ts");
 const routeCapabilities = read("../auth/config/route-capabilities.ts");
 const shell = read("./components/gc-app-shell.tsx");
 const agencyScope = read("./components/gc-app-agency-scope.tsx");
-const api = read("./api/gc-app-admin.api.ts");
-const hooks = read("./hooks/use-gc-app-admin.ts");
+const api = gcAppApiSource;
+const hooks = gcAppHooksSource;
 const managerPage = read("./components/client-manager-accounts-page.tsx");
 const managerForm = read("./components/client-manager-form-dialog.tsx");
-const managerDetails = read("./components/client-manager-details-dialog.tsx");
-const controls = read("./components/app-controls-page.tsx");
+const managerDetails = gcAppManagerDetailsSource;
+const controls = gcAppControlsSource;
 const groupCard = read("./components/group-control-card.tsx");
 const announcements = read("./components/announcements-panel.tsx");
 const select = read("./components/gc-select.tsx");
 const access = read("./components/group-access-panel.tsx");
 const workspace = read("./components/app-control-group-workspace.tsx");
 const overview = read("./components/group-app-overview.tsx");
-const commonDocuments = read("./components/common-documents-panel.tsx");
+const commonDocuments = gcAppDocumentsSource;
 const dialog = read("./components/gc-dialog.tsx");
 const feedback = read("./components/gc-app-feedback.tsx");
 const types = read("./types.ts");
@@ -120,7 +124,7 @@ test("group discovery is bounded and GC access mutations are revision safe", () 
   assert.match(agencyScope, /Agency workspace/);
   assert.match(api, /agency_id: agencyId \?\? undefined/);
   assert.doesNotMatch(api, /\/upload-links|passports\/upload|API_ENDPOINTS\.uploadLinks/);
-  assert.doesNotMatch(hooks, /onMutate/);
+  assert.doesNotMatch(hooks, /\bonMutate\s*:/);
   assert.match(access, /does not close, archive, delete, or revoke the passport collection group/);
 });
 
@@ -135,14 +139,18 @@ test("My Photos visibility uses a dedicated revision-safe group feature control"
   assert.match(api, /setMyPhotosEnabled:[\s\S]{0,500}features\/my-photos/);
   assert.match(api, /setMyPhotosEnabled:[\s\S]{0,500}enabled, expected_revision: control\.revision/);
   assert.doesNotMatch(fullControlBody, /my_photos_enabled/);
-  assert.match(hooks, /setMyPhotosEnabled: useMutation/);
+  assert.match(hooks, /import \{ usePrivateMutation \} from "@\/hooks\/use-private-mutation"/);
+  assert.match(hooks, /import type \{ PrivateOperationOwner \} from "@\/hooks\/use-private-mutation"/);
+  assert.match(hooks, /setMyPhotosEnabled: usePrivateMutation/);
+  assert.match(hooks, /gcAppAdminApi\.setMyPhotosEnabled\(agencyId, control, enabled, owner\.requestConfig\)/);
+  assert.match(hooks, /owner\.assertCurrent\(\);\s+const key = gcAppQueryKeys\.groupControl[\s\S]{0,180}await queryClient\.cancelQueries\(\{ queryKey: key \}\);\s+owner\.assertCurrent\(\);/);
   assert.match(hooks, /cancelQueries\(\{ queryKey: key \}\)/);
   assert.match(hooks, /setQueryData<GcAppGroupControl>\(key, \(current\)/);
   assert.match(hooks, /current\.revision > updated\.revision \? current : updated/);
   assert.match(workspace, /actions\.setMyPhotosEnabled\.mutateAsync/);
   assert.match(access, /<AccessSwitch[\s\S]{0,120}label="My Photos"/);
   assert.match(access, /checked=\{control\.my_photos_enabled\}/);
-  assert.doesNotMatch(hooks, /onMutate/);
+  assert.doesNotMatch(hooks, /\bonMutate\s*:/);
 });
 
 test("new groups explicitly enable every mobile role while settings live inside the trip", () => {

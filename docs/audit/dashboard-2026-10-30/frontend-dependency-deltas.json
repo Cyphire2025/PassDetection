@@ -1,0 +1,137 @@
+[
+  {
+    "path": "<root>",
+    "before": "0.1.0",
+    "after": "0.1.0"
+  },
+  {
+    "path": "node_modules/@next/env",
+    "before": "16.3.8",
+    "after": "16.4.3"
+  },
+  {
+    "path": "node_modules/@next/eslint-plugin-next",
+    "before": "16.3.8",
+    "after": "16.4.3"
+  },
+  {
+    "path": "node_modules/@next/swc-darwin-arm64",
+    "before": "16.3.8",
+    "after": "16.4.3"
+  },
+  {
+    "path": "node_modules/@next/swc-darwin-x64",
+    "before": "16.3.8",
+    "after": "16.4.3"
+  },
+  {
+    "path": "node_modules/@next/swc-linux-arm64-gnu",
+    "before": "16.3.8",
+    "after": "16.4.3"
+  },
+  {
+    "path": "node_modules/@next/swc-linux-arm64-musl",
+    "before": "16.3.8",
+    "after": "16.4.3"
+  },
+  {
+    "path": "node_modules/@next/swc-linux-x64-gnu",
+    "before": "16.3.8",
+    "after": "16.4.3"
+  },
+  {
+    "path": "node_modules/@next/swc-linux-x64-musl",
+    "before": "16.3.8",
+    "after": "16.4.3"
+  },
+  {
+    "path": "node_modules/@next/swc-win32-arm64-msvc",
+    "before": "16.3.8",
+    "after": "16.4.3"
+  },
+  {
+    "path": "node_modules/@next/swc-win32-x64-msvc",
+    "before": "16.3.8",
+    "after": "16.4.3"
+  },
+  {
+    "path": "node_modules/@vitest/coverage-v8",
+    "before": "4.1.11",
+    "after": "4.1.12"
+  },
+  {
+    "path": "node_modules/@vitest/expect",
+    "before": "4.1.11",
+    "after": "4.1.12"
+  },
+  {
+    "path": "node_modules/@vitest/mocker",
+    "before": "4.1.11",
+    "after": "4.1.12"
+  },
+  {
+    "path": "node_modules/@vitest/pretty-format",
+    "before": "4.1.11",
+    "after": "4.1.12"
+  },
+  {
+    "path": "node_modules/@vitest/runner",
+    "before": "4.1.11",
+    "after": "4.1.12"
+  },
+  {
+    "path": "node_modules/@vitest/snapshot",
+    "before": "4.1.11",
+    "after": "4.1.12"
+  },
+  {
+    "path": "node_modules/@vitest/spy",
+    "before": "4.1.11",
+    "after": "4.1.12"
+  },
+  {
+    "path": "node_modules/@vitest/utils",
+    "before": "4.1.11",
+    "after": "4.1.12"
+  },
+  {
+    "path": "node_modules/eslint-config-next",
+    "before": "16.3.8",
+    "after": "16.4.3"
+  },
+  {
+    "path": "node_modules/follow-redirects",
+    "before": "1.16.0",
+    "after": "1.16.1"
+  },
+  {
+    "path": "node_modules/jsdom/node_modules/undici",
+    "before": "8.10.2",
+    "after": null
+  },
+  {
+    "path": "node_modules/next",
+    "before": "16.3.8",
+    "after": "16.4.3"
+  },
+  {
+    "path": "node_modules/undici",
+    "before": null,
+    "after": "8.12.2"
+  },
+  {
+    "path": "node_modules/vite",
+    "before": "8.2.2",
+    "after": "8.2.4"
+  },
+  {
+    "path": "node_modules/vitest",
+    "before": "4.1.11",
+    "after": "4.1.12"
+  },
+  {
+    "path": "node_modules/zod",
+    "before": "4.4.3",
+    "after": "4.6.6"
+  }
+]

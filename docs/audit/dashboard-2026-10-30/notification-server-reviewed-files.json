@@ -1,0 +1,289 @@
+{
+  "stage": "current cohesive notification server architecture",
+  "files": [
+    {
+      "path": "backend/app/application/mobile/authored_notification_access.py",
+      "sha256": "e852a959c1901c6e80d885556e42a2bdfc2d1bed908ad127abbc125f2326da3d",
+      "physical_lines": 29,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Explicit old8function and exact recipient-key type alias exports. Original414line access facade reduced to29lines; no dynamic proxy."
+    },
+    {
+      "path": "backend/app/application/mobile/authored_notification_drafts.py",
+      "sha256": "a9a941c466adbf1ef31ceb90369bccabc479deeb9627928fa75039e2a1aa2dd1",
+      "physical_lines": 162,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Complete current focused implementation owner physically read after generation/format. All moved original complete declarations are AST exact, current imports were inspected, and original lifecycle/order/privacy/SQL semantics execute the same107 affected controls."
+    },
+    {
+      "path": "backend/app/application/mobile/authored_notification_grants.py",
+      "sha256": "9aa48574f95e52e68a851865a7e1174212e70ee428360bb3e94af9b2a9eb42d2",
+      "physical_lines": 134,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Complete current focused implementation owner physically read after generation/format. All moved original complete declarations are AST exact, current imports were inspected, and original lifecycle/order/privacy/SQL semantics execute the same107 affected controls."
+    },
+    {
+      "path": "backend/app/application/mobile/authored_notification_registrations.py",
+      "sha256": "57e7d9816df1ed537a3666be01c2ebf78f818bd046dd930c704aa545141b14ae",
+      "physical_lines": 158,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Complete current focused implementation owner physically read after generation/format. All moved original complete declarations are AST exact, current imports were inspected, and original lifecycle/order/privacy/SQL semantics execute the same107 affected controls."
+    },
+    {
+      "path": "backend/app/application/mobile/authored_notification_reviews.py",
+      "sha256": "5b48c4983345a310628638bc345b30962247aac63d75ea162bdabace3f4cd9c9",
+      "physical_lines": 89,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Complete current focused implementation owner physically read after generation/format. All moved original complete declarations are AST exact, current imports were inspected, and original lifecycle/order/privacy/SQL semantics execute the same107 affected controls."
+    },
+    {
+      "path": "backend/app/application/mobile/authored_notification_send.py",
+      "sha256": "3dd0fb03a063cb6857f417f7fd9c95022aea7215bba36a65db874a6e48a8f23b",
+      "physical_lines": 205,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Complete current focused implementation owner physically read after generation/format. All moved original complete declarations are AST exact, current imports were inspected, and original lifecycle/order/privacy/SQL semantics execute the same107 affected controls."
+    },
+    {
+      "path": "backend/app/application/mobile/authored_notification_service.py",
+      "sha256": "6b9ee4d199af95130c4e92555fb92f84e5c2c3a18a2ae5c81c2276e881eed72e",
+      "physical_lines": 18,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Explicit old10function aliases; draft/review/send implementations are actual owners. Original425line facade reduced to18lines without transport or workflow change."
+    },
+    {
+      "path": "backend/app/application/mobile/authored_notification_targets.py",
+      "sha256": "b626caaf4f5930a625761e29482940d5a29290173ea4bafa95623ac94774d57e",
+      "physical_lines": 158,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Complete current focused implementation owner physically read after generation/format. All moved original complete declarations are AST exact, current imports were inspected, and original lifecycle/order/privacy/SQL semantics execute the same107 affected controls."
+    },
+    {
+      "path": "backend/app/application/mobile/notification_announcements.py",
+      "sha256": "563585af06e23c380bbc6d20e00a52522492089bd0c047f0f6f7279897d0f2ec",
+      "physical_lines": 279,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Complete current focused implementation owner physically read after generation/format. All moved original complete declarations are AST exact, current imports were inspected, and original lifecycle/order/privacy/SQL semantics execute the same107 affected controls."
+    },
+    {
+      "path": "backend/app/application/mobile/notification_authority.py",
+      "sha256": "4bf9341bed08f6e0b80a2e0287bce79fe49d9eec1854a7e6cfed0f2345247f6f",
+      "physical_lines": 230,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "needs-follow-up",
+      "notes": "Exact full original current-authority declaration. Independent potential coordinator local-expiry inconsistency remains OPEN/unreproduced; architecture completion does not adopt or close it."
+    },
+    {
+      "path": "backend/app/application/mobile/notification_contracts.py",
+      "sha256": "76b02078cb47578f24ddf55995866d09eb383216665f79c43714077a9e96119e",
+      "physical_lines": 75,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Complete current focused implementation owner physically read after generation/format. All moved original complete declarations are AST exact, current imports were inspected, and original lifecycle/order/privacy/SQL semantics execute the same107 affected controls."
+    },
+    {
+      "path": "backend/app/application/mobile/notification_countdown_recipients.py",
+      "sha256": "93cea0065f9efba55f96ccd02679b431de265006c4cdbe4d77aea13361e07ee4",
+      "physical_lines": 195,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Complete current focused implementation owner physically read after generation/format. All moved original complete declarations are AST exact, current imports were inspected, and original lifecycle/order/privacy/SQL semantics execute the same107 affected controls."
+    },
+    {
+      "path": "backend/app/application/mobile/notification_countdown_schedule.py",
+      "sha256": "68547ff85ea97f4c8f15696793214c4d9604f9dc3bd2e77be3d49bf3b43c9ef0",
+      "physical_lines": 223,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Complete current focused implementation owner physically read after generation/format. All moved original complete declarations are AST exact, current imports were inspected, and original lifecycle/order/privacy/SQL semantics execute the same107 affected controls."
+    },
+    {
+      "path": "backend/app/application/mobile/notification_countdown_values.py",
+      "sha256": "3049121d16a2a51c2d6ca7eb6850caac0aa87caad94a0aae9d6e9136e2383e68",
+      "physical_lines": 60,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Complete current focused implementation owner physically read after generation/format. All moved original complete declarations are AST exact, current imports were inspected, and original lifecycle/order/privacy/SQL semantics execute the same107 affected controls."
+    },
+    {
+      "path": "backend/app/application/mobile/notification_delivery_states.py",
+      "sha256": "e8ca0f35b325a32b467ab522b583916dbd1de4bbd7800be2a4a5e33cdc3ad0b1",
+      "physical_lines": 144,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Complete current focused implementation owner physically read after generation/format. All moved original complete declarations are AST exact, current imports were inspected, and original lifecycle/order/privacy/SQL semantics execute the same107 affected controls."
+    },
+    {
+      "path": "backend/app/application/mobile/notification_dispatch.py",
+      "sha256": "e87fd826b35e792af14639b0b40aa71f620f04872e495ff30ccc8a61fd6332ab",
+      "physical_lines": 141,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Original public signature/defaults/order preserved. Three typed lifecycle phases expand back to the complete37original statements. No provider preparation/claim commit/source authorization boundary moved across its original await."
+    },
+    {
+      "path": "backend/app/application/mobile/notification_dispatch_claims.py",
+      "sha256": "ec801e44f48bb9f8fdb2ffbe22c98af2599bb1d6710b3de507951e97643cdbfe",
+      "physical_lines": 83,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Exact original due SQL statement and ordering/limit/skip-locked conditions. Original provider.name reads retained; no new actor or tenant policy."
+    },
+    {
+      "path": "backend/app/application/mobile/notification_dispatch_results.py",
+      "sha256": "44949a26ed3c9b52b147515524a0c50b0d255335b7e23ac5fe742987a8381c6c",
+      "physical_lines": 107,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Exact original returned-target matching, acceptance/unknown/retry/missing-ticket outcome blocks with explicit data aliases; same mutable persistence records and operational events."
+    },
+    {
+      "path": "backend/app/application/mobile/notification_dispatch_targets.py",
+      "sha256": "5f1eb1796997dd3e2798b89eb0bc909e0c9f56dd9783088d95e5699c46b589af",
+      "physical_lines": 212,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Exact original target preparation block and typed data result containing messages, deliveries and exact existing maps. No callback/session/provider retained inside result; no provider send or commit here. Original decryption/payload/tenant/attempt/TTL checks retained."
+    },
+    {
+      "path": "backend/app/application/mobile/notification_document_changes.py",
+      "sha256": "a7b19ccbc3fddf277d34618bebf517bc1082b779d5f756444069abdb697bbf0a",
+      "physical_lines": 272,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Complete current focused implementation owner physically read after generation/format. All moved original complete declarations are AST exact, current imports were inspected, and original lifecycle/order/privacy/SQL semantics execute the same107 affected controls."
+    },
+    {
+      "path": "backend/app/application/mobile/notification_receipts.py",
+      "sha256": "b296c55c6998f25a7669b2d7b6776ad493ec67779cb2dd4c57f2ae9f52632135",
+      "physical_lines": 169,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Complete current focused implementation owner physically read after generation/format. All moved original complete declarations are AST exact, current imports were inspected, and original lifecycle/order/privacy/SQL semantics execute the same107 affected controls."
+    },
+    {
+      "path": "backend/app/application/mobile/notification_registrations.py",
+      "sha256": "1f183b687f587d4d07cecce8e6e89eb51872fff2ead7985b09b1984e3c1c0d0d",
+      "physical_lines": 135,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Complete current focused implementation owner physically read after generation/format. All moved original complete declarations are AST exact, current imports were inspected, and original lifecycle/order/privacy/SQL semantics execute the same107 affected controls."
+    },
+    {
+      "path": "backend/app/application/mobile/notification_service.py",
+      "sha256": "8d94a4b2d4cf544dd6177b4b6e65c30b0d4f73cfe9f1f6545a9be95c3f373f4c",
+      "physical_lines": 113,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Explicit56-family declaration compatibility wiring retains original30 service declarations plus7constants and nine public exports. Current113line facade contains no reimplemented query/dispatch logic."
+    },
+    {
+      "path": "backend/app/application/mobile/authored_notification_audience.py",
+      "sha256": "4fcfe94e5b790e15acb1af41f3bd5662f68f95211e80a64d60a9044fbfc90ddc",
+      "physical_lines": 286,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Original286line cohort fully read and byte-unchanged: opaque person dedup/current scope/phone/claim generations, bounded optional source admission, deterministic fingerprint and immediate coordinator local expiry."
+    },
+    {
+      "path": "backend/app/application/mobile/authored_notification_preview.py",
+      "sha256": "b63b42fcf4cbe0fb5d0df49afb23531a951ee2c6a0a61701218b7022b63a885c",
+      "physical_lines": 86,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Original86line pure signed review/token/readiness owner fully read and byte-unchanged; no provider credential lookup or HTTP invocation."
+    },
+    {
+      "path": "backend/tests/unit/application/test_mobile_notification_service.py",
+      "sha256": "1341ef18d4d1e90b2ca1a39ca167bda2314787ea848d6c45178995a174639749",
+      "physical_lines": 1238,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Complete original physical source read plus reviewed sole current private instrumentation path delta. Whole-text inverse modulo EOL and full AST preserve every original assertion. No second full physical reread claimed; actual current lifecycle owner patched instead of facade alias."
+    },
+    {
+      "path": "backend/tests/unit/application/test_passenger_notification_authority.py",
+      "sha256": "3109a6029a255404ae4095b8c621f002b0b0f696581793f81e0dfc1718cb1dd1",
+      "physical_lines": 187,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Complete original physical source read plus reviewed sole current private instrumentation path delta. Whole-text inverse modulo EOL and full AST preserve every original assertion. No second full physical reread claimed; actual current lifecycle owner patched instead of facade alias."
+    },
+    {
+      "path": "backend/tests/unit/application/test_notification_service_compatibility.py",
+      "sha256": "0f92a56534ce79c17c41bb49738c0afbfc123f53314e230bfdb98c64d925535b",
+      "physical_lines": 131,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical source read; current source unchanged or authored fully. Two real metadata/import contracts plus four unchanged architecture controls passed."
+    },
+    {
+      "path": "backend/scripts/verify_architecture_boundaries.py",
+      "sha256": "bc1a580902fc60808c0d01c3b0fa6d7cde4820a0eba13c8a70b782186821bcb0",
+      "physical_lines": 86,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical source read; current source unchanged or authored fully. Two real metadata/import contracts plus four unchanged architecture controls passed."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_architecture_boundaries.py",
+      "sha256": "d4b854368767d0746a3052988095712b665ff95f37da128a12d98d8326380ff0",
+      "physical_lines": 78,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical source read; current source unchanged or authored fully. Two real metadata/import contracts plus four unchanged architecture controls passed."
+    },
+    {
+      "path": "backend/architecture-dependencies.json",
+      "sha256": "159998c7f6e330507feaffdbc6dabcb2130249c36a933854ba33d16c1ad774ad",
+      "physical_lines": 3166,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Only exact original3 and new18 transaction-service entries fully reviewed/transferred against actual authored imports. Entire unrelated large policy not claimed physically read. Exact original-byte inverse and unchanged other entries/restrictions proved."
+    }
+  ],
+  "historical_preflight_ledger": {
+    "path": "docs/audit/dashboard-2026-10-30/notification-server-preflight-reviewed-files.json",
+    "sha256": "2d5a2a8a6666b3308beb2ae4b67752c26de4dd940ba4a26e1dd26eadf6945282"
+  },
+  "open_followup": "NS02 coordinator local-expiry candidate: source-backed hypothesis only; normal dispatch reproduction still required."
+}

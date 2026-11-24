@@ -1,0 +1,7 @@
+{
+  "http_operations": 13,
+  "identical_full_openapi_contract": true,
+  "before_sha256": "855655c7c5136da68fa7d7a18bf363819a354875eba837d24a3ba9c214b18eb8",
+  "after_sha256": "855655c7c5136da68fa7d7a18bf363819a354875eba837d24a3ba9c214b18eb8",
+  "scope": "Actual current API router compared to a separately compiled complete pre-extraction module using the same current model/auth objects and isolated synthetic settings. Includes request/response schemas, methods, paths, operation IDs and security/dependency metadata exposed by OpenAPI; runtime authorization behavior qualified separately."
+}

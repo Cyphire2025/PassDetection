@@ -1,0 +1,137 @@
+[
+  {
+    "path": "backend/tests/unit/core/test_capacity_settings.py",
+    "sha256": "f5ea9c2b282428f1eba7ccc9adb17b99b58c5a53c13faeb2434d962dfba1be8e",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read: bounded shared settings and deployment budgets, safe task logging, deterministic sharding and shared cryptographic/configuration compatibility. Native token/integrity declarations were read only as existing server/browser/settings compatibility; no native feature review, provider validity, current tests, security certification or runtime edits inferred. Synthetic fixed test keys remain explicit fixtures.",
+    "physical_lines": 211
+  },
+  {
+    "path": "backend/tests/unit/core/test_celery_log_projection.py",
+    "sha256": "29674d3576a9b9bce01aa99bd9e66bf037a114e356e8e09030bacb50cde33ced",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read: bounded shared settings and deployment budgets, safe task logging, deterministic sharding and shared cryptographic/configuration compatibility. Native token/integrity declarations were read only as existing server/browser/settings compatibility; no native feature review, provider validity, current tests, security certification or runtime edits inferred. Synthetic fixed test keys remain explicit fixtures.",
+    "physical_lines": 88
+  },
+  {
+    "path": "backend/tests/unit/core/test_security_settings.py",
+    "sha256": "d7a4f0919635a51223240256b98e4adff109c7ea13be41f8d2bdcf6875b45e56",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read: bounded shared settings and deployment budgets, safe task logging, deterministic sharding and shared cryptographic/configuration compatibility. Native token/integrity declarations were read only as existing server/browser/settings compatibility; no native feature review, provider validity, current tests, security certification or runtime edits inferred. Synthetic fixed test keys remain explicit fixtures.",
+    "physical_lines": 202
+  },
+  {
+    "path": "backend/tests/unit/core/test_ci_sharding.py",
+    "sha256": "89e05db54800b7dfe25a67d07960b23efe04af628e011e4959aa43f8292976f1",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read: bounded shared settings and deployment budgets, safe task logging, deterministic sharding and shared cryptographic/configuration compatibility. Native token/integrity declarations were read only as existing server/browser/settings compatibility; no native feature review, provider validity, current tests, security certification or runtime edits inferred. Synthetic fixed test keys remain explicit fixtures.",
+    "physical_lines": 238
+  },
+  {
+    "path": "backend/tests/unit/core/test_mobile_integrity_settings.py",
+    "sha256": "a1250ca4ce8831e9805fadfdab8564644f23a6a47c5a13e3f766861e6e1334c2",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read: bounded shared settings and deployment budgets, safe task logging, deterministic sharding and shared cryptographic/configuration compatibility. Native token/integrity declarations were read only as existing server/browser/settings compatibility; no native feature review, provider validity, current tests, security certification or runtime edits inferred. Synthetic fixed test keys remain explicit fixtures.",
+    "physical_lines": 247
+  },
+  {
+    "path": "backend/tests/unit/core/test_mobile_jwt.py",
+    "sha256": "979e0f26797927605e73ecb61d3e974881aac6a911da418fff9bf3fdf432f93b",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read: bounded shared settings and deployment budgets, safe task logging, deterministic sharding and shared cryptographic/configuration compatibility. Native token/integrity declarations were read only as existing server/browser/settings compatibility; no native feature review, provider validity, current tests, security certification or runtime edits inferred. Synthetic fixed test keys remain explicit fixtures.",
+    "physical_lines": 254
+  },
+  {
+    "path": "backend/tests/unit/core/test_mobile_offline_lease.py",
+    "sha256": "8df52f36ad61c482f734a49a6fa5a6f0852f2c91e5dc97484f697752883b4f2e",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read: bounded shared settings and deployment budgets, safe task logging, deterministic sharding and shared cryptographic/configuration compatibility. Native token/integrity declarations were read only as existing server/browser/settings compatibility; no native feature review, provider validity, current tests, security certification or runtime edits inferred. Synthetic fixed test keys remain explicit fixtures.",
+    "physical_lines": 184
+  },
+  {
+    "path": "backend/tests/unit/scripts/test_document_distribution_release.py",
+    "sha256": "6b233b5a1bde02c9419287207c0e09fe9971c45085cf2730850f6742025984e2",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read: exact source/forward-only migration chains, retained original pre-DDL baselines, role/catalog/ACL and nullable additions, partial checkpoints, safe failures and original branding retention. Similar test setup remains local to distinct immutable release contracts rather than refactoring unrelated historical acceptance baselines. No DDL, fixtures, mocked tests or services executed for source credit.",
+    "physical_lines": 111
+  },
+  {
+    "path": "backend/tests/unit/scripts/test_release_companies_traveller_upgrade.py",
+    "sha256": "c50ed7cc415f7f5091a8750f922fb1bdcd4a4926dde23270531842e5f8ce4678",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read: exact source/forward-only migration chains, retained original pre-DDL baselines, role/catalog/ACL and nullable additions, partial checkpoints, safe failures and original branding retention. Similar test setup remains local to distinct immutable release contracts rather than refactoring unrelated historical acceptance baselines. No DDL, fixtures, mocked tests or services executed for source credit.",
+    "physical_lines": 118
+  },
+  {
+    "path": "backend/tests/unit/scripts/test_release_document_distribution_upgrade.py",
+    "sha256": "4b171243f6968135980fc4ec4ef85ce0da49e0a012932bb6163213bd3700527d",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read: exact source/forward-only migration chains, retained original pre-DDL baselines, role/catalog/ACL and nullable additions, partial checkpoints, safe failures and original branding retention. Similar test setup remains local to distinct immutable release contracts rather than refactoring unrelated historical acceptance baselines. No DDL, fixtures, mocked tests or services executed for source credit.",
+    "physical_lines": 137
+  },
+  {
+    "path": "backend/tests/unit/scripts/test_release_travel_tracker_upgrade.py",
+    "sha256": "5be41031fbfdbe5d2ad2ad922b8e5d88652f0729f3be64285ed4a2be4afe1f43",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read: exact source/forward-only migration chains, retained original pre-DDL baselines, role/catalog/ACL and nullable additions, partial checkpoints, safe failures and original branding retention. Similar test setup remains local to distinct immutable release contracts rather than refactoring unrelated historical acceptance baselines. No DDL, fixtures, mocked tests or services executed for source credit.",
+    "physical_lines": 88
+  },
+  {
+    "path": "backend/tests/unit/scripts/test_release_workspace_branding_upgrade.py",
+    "sha256": "11efa1c99982eb0a299c830b75fdf2db6cad8e264961fc7d2a7c3f803a31888c",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read: exact source/forward-only migration chains, retained original pre-DDL baselines, role/catalog/ACL and nullable additions, partial checkpoints, safe failures and original branding retention. Similar test setup remains local to distinct immutable release contracts rather than refactoring unrelated historical acceptance baselines. No DDL, fixtures, mocked tests or services executed for source credit.",
+    "physical_lines": 158
+  },
+  {
+    "path": "backend/tests/unit/scripts/test_workspace_branding_release_schema.py",
+    "sha256": "d887be0997371d556077a1ae144fd2b51ba255fcf6b13f54da0ec89e6ac72414",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read: exact source/forward-only migration chains, retained original pre-DDL baselines, role/catalog/ACL and nullable additions, partial checkpoints, safe failures and original branding retention. Similar test setup remains local to distinct immutable release contracts rather than refactoring unrelated historical acceptance baselines. No DDL, fixtures, mocked tests or services executed for source credit.",
+    "physical_lines": 66
+  },
+  {
+    "path": "backend/tests/service_integration/test_gc_app_group_removal_postgresql.py",
+    "sha256": "56e3d697ceef554e97c32bc918d210567ba34c077df4cce354e6fcf04a67d7be",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Real PostgreSQL row-lock contender orchestration refreshes cached access, rejects stale edit/remove/restore and retains original/history rows; additive removal migration/invalid state/downgrade checks. Imported unit functions intentionally receive a second database dialect, not duplicated production implementation. No PostgreSQL, seed, migrations, provider or test execution performed for this source review.",
+    "physical_lines": 152
+  },
+  {
+    "path": "backend/tests/service_integration/test_gc_app_workflow_postgresql.py",
+    "sha256": "c286959a5778e0648d543402ab1cbb08480aae9f65044959fd3716f828397349",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Dashboard publication revision race and post-transaction passenger-contact authority checks plus intentionally reused unit workflow contracts. Actual provider-free isolated PostgreSQL fixture is explicitly opt-in. No PostgreSQL, seed, migrations, provider or test execution performed for this source review.",
+    "physical_lines": 87
+  }
+]

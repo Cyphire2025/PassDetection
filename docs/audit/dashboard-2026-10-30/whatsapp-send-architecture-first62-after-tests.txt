@@ -1,0 +1,79 @@
+.........................................F....................           [100%]
+================================== FAILURES ===================================
+_ test_send_freezes_valid_invite_before_queue_and_keeps_existing_gates[None] __
+
+rig = namespace(group=namespace(id=UUID('8bdf34b3-2a0a-4927-943a-529c2f4d43b1'), agency_id=UUID('7a00da25-7bb2-4584-b115-6b1...ate_name='whatsapp_group_invite_v1', whatsapp_group_invite_template_language='en', whatsapp_template_language='en_US'))
+blocked = None
+
+    @pytest.mark.parametrize("blocked", [None, "archive", "opt_in", "missing_link", "missing_image"])
+    async def test_send_freezes_valid_invite_before_queue_and_keeps_existing_gates(rig, blocked):
+        rig.session.execute.side_effect = [db_result(rig.group), db_result(), db_result(), db_result(), db_result(rows=[rig.recipient.id])]
+        if blocked == "archive":
+            rig.group.archived_at = datetime.now(UTC)
+        elif blocked == "opt_in":
+            rig.group.recipient_opt_in_confirmed_at = None
+        body = WhatsAppSendRequest(message_type="group_invite", message_content=CONTENT, group_invite_link=None if blocked == "missing_link" else LINK, header_image_id=None if blocked == "missing_image" else "invite-media")
+        if blocked:
+            with pytest.raises(HTTPException):
+                await whatsapp_send.send_broadcast_message(rig.group.id, body, current_user=rig.user, session=rig.session)
+            rig.session.add.assert_not_called()
+            rig.publish.assert_not_awaited()
+            return
+>       response = await whatsapp_send.send_broadcast_message(rig.group.id, body, current_user=rig.user, session=rig.session)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\unit\presentation\test_whatsapp_group_invite.py:247: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+app\presentation\api\v1\routes\whatsapp_send.py:145: in send_broadcast_message
+    response, payload = await queue_broadcast_message(
+app\presentation\api\v1\routes\whatsapp_send.py:192: in queue_broadcast_message
+    prepared = await prepare_broadcast_send(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+group_id = UUID('8bdf34b3-2a0a-4927-943a-529c2f4d43b1')
+body = WhatsAppSendRequest(message_type='group_invite', passport_intro=None, passport_link=None, message_content='Please join...ne, update_submission='all', update_distribution='all', update_document_type='visa', include_previous_recipients=False)
+
+    async def prepare_broadcast_send(
+        group_id: uuid.UUID,
+        body: WhatsAppSendRequest,
+        *,
+        current_user: User,
+        session: AsyncSession,
+    ) -> PreparedBroadcastSend:
+        result = await session.execute(
+            select(WhatsAppBroadcastGroupModel)
+            .where(
+                WhatsAppBroadcastGroupModel.id == group_id,
+                *_agency_filter(current_user),
+            )
+            .with_for_update()
+        )
+        group = result.scalar_one_or_none()
+        if not group:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="WhatsApp broadcast group not found"
+            )
+        require_active_broadcast(group)
+        if group.recipient_opt_in_confirmed_at is None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Recipient WhatsApp opt-in has not been confirmed for this list",
+            )
+    
+        all_recipients = await _group_recipients(session, group.id)
+        if not all_recipients:
+>           raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="This WhatsApp list has no recipients",
+            )
+E           fastapi.exceptions.HTTPException: 400: This WhatsApp list has no recipients
+
+app\presentation\api\v1\routes\whatsapp_send_preparation.py:91: HTTPException
+
+---------- coverage: platform win32, python 3.11.15-final-0 ----------
+Coverage XML written to file C:\Users\nipun\Desktop\PassDetection\docs\audit\dashboard-2026-10-30\whatsapp-send-architecture-coverage.xml
+Coverage JSON written to file C:\Users\nipun\Desktop\PassDetection\docs\audit\dashboard-2026-10-30\whatsapp-send-architecture-coverage.json
+
+=========================== short test summary info ===========================
+FAILED tests/unit/presentation/test_whatsapp_group_invite.py::test_send_freezes_valid_invite_before_queue_and_keeps_existing_gates[None]
+1 failed, 61 passed in 48.02s

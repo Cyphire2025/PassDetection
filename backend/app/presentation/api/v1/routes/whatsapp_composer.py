@@ -1,180 +1,134 @@
-"""Whatsapp: composer."""
+"""Compatibility imports and public broadcast preview composition."""
 
 from __future__ import annotations
 
-import uuid
-from typing import Literal, cast
+import uuid as uuid
+from typing import Literal as Literal
+from typing import cast as cast
 
-import httpx
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
+import httpx as httpx
+from fastapi import APIRouter as APIRouter
+from fastapi import Depends as Depends
+from fastapi import File as File
+from fastapi import HTTPException as HTTPException
+from fastapi import UploadFile as UploadFile
+from fastapi import status as status
+from sqlalchemy import select as select
+from sqlalchemy.ext.asyncio import AsyncSession as AsyncSession
 
-from app.core.config.settings import get_settings
-from app.domain.entities.entities import User
-from app.domain.exceptions.exceptions import ImageValidationError
+from app.core.config.settings import get_settings as get_settings
+from app.domain.entities.entities import User as User
+from app.domain.exceptions.exceptions import ImageValidationError as ImageValidationError
 from app.infrastructure.database.models import (
-    WhatsAppBroadcastGroupModel,
-    WhatsAppRecipientMessageStateModel,
+    WhatsAppBroadcastGroupModel as WhatsAppBroadcastGroupModel,
 )
-from app.infrastructure.database.session import get_db_session
+from app.infrastructure.database.models import (
+    WhatsAppRecipientMessageStateModel as WhatsAppRecipientMessageStateModel,
+)
+from app.infrastructure.database.session import get_db_session as get_db_session
 from app.infrastructure.security.upload_security import (
-    UploadSecurityContext,
-    UploadSecurityEvidenceError,
-    UploadSecurityService,
+    UploadSecurityContext as UploadSecurityContext,
 )
-from app.infrastructure.security.upload_validator import MalwareScannerUnavailableError
+from app.infrastructure.security.upload_security import (
+    UploadSecurityEvidenceError as UploadSecurityEvidenceError,
+)
+from app.infrastructure.security.upload_security import (
+    UploadSecurityService as UploadSecurityService,
+)
+from app.infrastructure.security.upload_validator import (
+    MalwareScannerUnavailableError as MalwareScannerUnavailableError,
+)
 from app.infrastructure.whatsapp.cloud_api_provider import (
-    WhatsAppCloudApiError,
-    upload_whatsapp_image,
+    WhatsAppCloudApiError as WhatsAppCloudApiError,
+)
+from app.infrastructure.whatsapp.cloud_api_provider import (
+    upload_whatsapp_image as upload_whatsapp_image,
 )
 from app.infrastructure.whatsapp.group_invite_policy import (
-    group_invite_block_message,
-    group_invite_blocking_statuses,
+    group_invite_block_message as group_invite_block_message,
 )
-from app.infrastructure.whatsapp.template_settings import configured_template_name
-from app.presentation.api.v1.routes.whatsapp_archive_policy import require_active_broadcast
+from app.infrastructure.whatsapp.group_invite_policy import (
+    group_invite_blocking_statuses as group_invite_blocking_statuses,
+)
+from app.infrastructure.whatsapp.template_settings import (
+    configured_template_name as configured_template_name,
+)
+from app.presentation.api.v1.routes.whatsapp_archive_policy import (
+    require_active_broadcast as require_active_broadcast,
+)
+from app.presentation.api.v1.routes.whatsapp_composer_media import router as _media_router
+from app.presentation.api.v1.routes.whatsapp_composer_media import (
+    upload_welcome_media as upload_welcome_media,
+)
+from app.presentation.api.v1.routes.whatsapp_composer_preview import (
+    load_preview_selection,
+    load_preview_snapshot,
+)
+from app.presentation.api.v1.routes.whatsapp_composer_preview_response import build_preview_response
 from app.presentation.api.v1.routes.whatsapp_preview_recipient import (
     select_preview_recipient as select_preview_recipient,
 )
-from app.presentation.api.v1.routes.whatsapp_reminder_audience import resolve_reminder_audience
+from app.presentation.api.v1.routes.whatsapp_reminder_audience import (
+    resolve_reminder_audience as resolve_reminder_audience,
+)
 from app.presentation.api.v1.routes.whatsapp_shared import (
-    MAX_WHATSAPP_WELCOME_IMAGE_BYTES,
-    WHATSAPP_ACCEPTED_STATUSES,
-    WHATSAPP_ROLES,
-    WHATSAPP_UPLOAD_READ_CHUNK_BYTES,
-    _agency_filter,
-    _as_message_type,
-    _group_recipients,
-    _latest_composer_snapshot,
-    _merge_composer_snapshot,
-    _message_values,
-    _preview_message_metadata,
-    _recipient_delivery_counts,
-    _select_group_recipients,
-    _select_support_contacts,
-    _support_contacts_for_group,
-    _WhatsAppComposerSnapshot,
+    MAX_WHATSAPP_WELCOME_IMAGE_BYTES as MAX_WHATSAPP_WELCOME_IMAGE_BYTES,
 )
-from app.presentation.api.v1.routes.whatsapp_welcome_view import welcome_preview_values
+from app.presentation.api.v1.routes.whatsapp_shared import (
+    WHATSAPP_ACCEPTED_STATUSES as WHATSAPP_ACCEPTED_STATUSES,
+)
+from app.presentation.api.v1.routes.whatsapp_shared import WHATSAPP_ROLES as WHATSAPP_ROLES
+from app.presentation.api.v1.routes.whatsapp_shared import (
+    WHATSAPP_UPLOAD_READ_CHUNK_BYTES as WHATSAPP_UPLOAD_READ_CHUNK_BYTES,
+)
+from app.presentation.api.v1.routes.whatsapp_shared import _agency_filter as _agency_filter
+from app.presentation.api.v1.routes.whatsapp_shared import _as_message_type as _as_message_type
+from app.presentation.api.v1.routes.whatsapp_shared import _group_recipients as _group_recipients
+from app.presentation.api.v1.routes.whatsapp_shared import (
+    _latest_composer_snapshot as _latest_composer_snapshot,
+)
+from app.presentation.api.v1.routes.whatsapp_shared import (
+    _merge_composer_snapshot as _merge_composer_snapshot,
+)
+from app.presentation.api.v1.routes.whatsapp_shared import _message_values as _message_values
+from app.presentation.api.v1.routes.whatsapp_shared import (
+    _preview_message_metadata as _preview_message_metadata,
+)
+from app.presentation.api.v1.routes.whatsapp_shared import (
+    _recipient_delivery_counts as _recipient_delivery_counts,
+)
+from app.presentation.api.v1.routes.whatsapp_shared import (
+    _select_group_recipients as _select_group_recipients,
+)
+from app.presentation.api.v1.routes.whatsapp_shared import (
+    _select_support_contacts as _select_support_contacts,
+)
+from app.presentation.api.v1.routes.whatsapp_shared import (
+    _support_contacts_for_group as _support_contacts_for_group,
+)
+from app.presentation.api.v1.routes.whatsapp_shared import (
+    _WhatsAppComposerSnapshot as _WhatsAppComposerSnapshot,
+)
+from app.presentation.api.v1.routes.whatsapp_welcome_media_authority import (
+    authorized_welcome_media_upload as authorized_welcome_media_upload,
+)
+from app.presentation.api.v1.routes.whatsapp_welcome_view import (
+    welcome_preview_values as welcome_preview_values,
+)
 from app.presentation.api.v1.schemas.whatsapp_schemas import (
-    WhatsAppPreviewRequest,
-    WhatsAppPreviewResponse,
-    WhatsAppWelcomeMediaResponse,
+    WhatsAppPreviewRequest as WhatsAppPreviewRequest,
 )
-from app.presentation.dependencies.auth import require_role
-from app.presentation.dependencies.csrf import require_cookie_csrf
+from app.presentation.api.v1.schemas.whatsapp_schemas import (
+    WhatsAppPreviewResponse as WhatsAppPreviewResponse,
+)
+from app.presentation.api.v1.schemas.whatsapp_schemas import (
+    WhatsAppWelcomeMediaResponse as WhatsAppWelcomeMediaResponse,
+)
+from app.presentation.dependencies.auth import require_role as require_role
+from app.presentation.dependencies.csrf import require_cookie_csrf as require_cookie_csrf
 
 router = APIRouter()
-
-@router.post(
-    "/groups/{group_id}/welcome-media",
-    response_model=WhatsAppWelcomeMediaResponse,
-    dependencies=[Depends(require_cookie_csrf)],
-)
-async def upload_welcome_media(
-    group_id: uuid.UUID,
-    image: UploadFile = File(...),
-    current_user: User = Depends(require_role(WHATSAPP_ROLES)),
-    session: AsyncSession = Depends(get_db_session),
-) -> WhatsAppWelcomeMediaResponse:
-    result = await session.execute(
-        select(WhatsAppBroadcastGroupModel).where(
-            WhatsAppBroadcastGroupModel.id == group_id,
-            *_agency_filter(current_user),
-        )
-    )
-    group = result.scalar_one_or_none()
-    if group is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="WhatsApp broadcast group not found",
-        )
-    require_active_broadcast(group)
-    group_agency_id = group.agency_id
-    if image.content_type not in {"image/jpeg", "image/png"}:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Use a JPEG or PNG image for the message header",
-        )
-
-    payload = bytearray()
-    try:
-        while chunk := await image.read(WHATSAPP_UPLOAD_READ_CHUNK_BYTES):
-            payload.extend(chunk)
-            if len(payload) > MAX_WHATSAPP_WELCOME_IMAGE_BYTES:
-                try:
-                    await UploadSecurityService().validate_image(
-                        content=bytes(payload),
-                        filename=image.filename,
-                        declared_content_type=image.content_type,
-                        context=UploadSecurityContext(
-                            ingestion_flow="whatsapp_welcome_image",
-                            agency_id=group_agency_id,
-                            user_id=current_user.id,
-                        ),
-                        max_bytes=MAX_WHATSAPP_WELCOME_IMAGE_BYTES,
-                    )
-                except ImageValidationError:
-                    raise HTTPException(
-                        status_code=status.HTTP_413_CONTENT_TOO_LARGE,
-                        detail="The message header image must be 5 MB or smaller",
-                    ) from None
-    finally:
-        try:
-            await image.close()
-        except Exception:
-            pass
-    try:
-        validated = await UploadSecurityService().validate_image(
-            content=bytes(payload),
-            filename=image.filename,
-            declared_content_type=image.content_type,
-            context=UploadSecurityContext(
-                ingestion_flow="whatsapp_welcome_image",
-                agency_id=group_agency_id,
-                user_id=current_user.id,
-            ),
-            max_bytes=MAX_WHATSAPP_WELCOME_IMAGE_BYTES,
-        )
-    except (MalwareScannerUnavailableError, UploadSecurityEvidenceError) as exc:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Document security scanning is temporarily unavailable",
-            headers={"Retry-After": "30"},
-        ) from exc
-    except ImageValidationError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(exc),
-        ) from exc
-
-    settings = get_settings()
-    try:
-        async with httpx.AsyncClient(timeout=httpx.Timeout(30.0, connect=5.0)) as client:
-            media_id = await upload_whatsapp_image(
-                client=client,
-                settings=settings,
-                file_name=validated.filename,
-                file_content=validated.content,
-                content_type=validated.content_type,
-            )
-    except WhatsAppCloudApiError as exc:
-        response_status = (
-            status.HTTP_503_SERVICE_UNAVAILABLE
-            if exc.transient or exc.code == "WHATSAPP_PROVIDER_NOT_CONFIGURED"
-            else status.HTTP_502_BAD_GATEWAY
-        )
-        raise HTTPException(
-            status_code=response_status,
-            detail=str(exc),
-        ) from exc
-
-    return WhatsAppWelcomeMediaResponse(
-        media_id=media_id,
-        file_name=validated.filename,
-        content_type=validated.content_type,
-    )
+router.include_router(_media_router)
 
 
 @router.post("/groups/{group_id}/preview", response_model=WhatsAppPreviewResponse)
@@ -184,177 +138,12 @@ async def preview_broadcast_message(
     current_user: User = Depends(require_role(WHATSAPP_ROLES)),
     session: AsyncSession = Depends(get_db_session),
 ) -> WhatsAppPreviewResponse:
-    result = await session.execute(
-        select(WhatsAppBroadcastGroupModel).where(
-            WhatsAppBroadcastGroupModel.id == group_id,
-            *_agency_filter(current_user),
-        )
+    selection = await load_preview_selection(session, group_id, body, current_user)
+    saved = await load_preview_snapshot(
+        session,
+        body,
+        selection.group,
+        selection.recipient,
+        selection.message_type,
     )
-    group = result.scalar_one_or_none()
-    if not group:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="WhatsApp broadcast group not found",
-        )
-    require_active_broadcast(group)
-
-    all_recipients = await _group_recipients(session, group.id)
-    if not all_recipients:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="This WhatsApp list has no recipients",
-        )
-    if body.recipient_id and body.resend_recipient_id:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Choose either a preview recipient or a resend recipient, not both",
-        )
-    source_recipients = _select_group_recipients(all_recipients, body.recipient_ids)
-    message_type = _as_message_type(body.message_type)
-    audience_resolution = await resolve_reminder_audience(
-        session, message_request=body,
-        broadcast_group=group,
-        recipients=source_recipients,
-        audience=body.audience,
-        audience_client_group_id=body.audience_client_group_id,
-        current_user=current_user,
-        roster_recipients=all_recipients,
-    )
-    recipients = list(audience_resolution.recipients)
-    if (
-        body.resend_recipient_id
-        and body.recipient_ids is not None
-        and (len(recipients) != 1 or recipients[0].id != body.resend_recipient_id)
-    ):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="A resend preview can only target its selected recipient",
-        )
-    recipient = select_preview_recipient(recipients, body.resend_recipient_id or body.recipient_id)
-
-    snapshot: _WhatsAppComposerSnapshot | None = None
-    content_source: Literal["default", "latest_group", "latest_recipient"] = "default"
-    if body.resend_recipient_id:
-        if message_type == "group_invite":
-            invite_blocks = await group_invite_blocking_statuses(session, [recipient])
-            if recipient.id in invite_blocks:
-                raise HTTPException(
-                    status_code=409, detail=group_invite_block_message(invite_blocks[recipient.id])
-                )
-        state_result = await session.execute(
-            select(WhatsAppRecipientMessageStateModel).where(
-                WhatsAppRecipientMessageStateModel.recipient_id == body.resend_recipient_id,
-                WhatsAppRecipientMessageStateModel.message_type == message_type,
-            )
-        )
-        target_state = state_result.scalar_one_or_none()
-        if not target_state or (
-            target_state.status not in WHATSAPP_ACCEPTED_STATUSES
-            and target_state.status != "failed"
-        ):
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="Only a sent or failed WhatsApp message can be opened here",
-            )
-        snapshot = await _latest_composer_snapshot(
-            session,
-            group_id=group.id,
-            recipient_id=body.resend_recipient_id,
-            message_type=message_type,
-            accepted_only=target_state.status in WHATSAPP_ACCEPTED_STATUSES,
-            include_failed=target_state.status == "failed",
-            include_explicit_resends=True,
-        )
-        if snapshot:
-            content_source = "latest_recipient"
-    if snapshot is None and body.resend_recipient_id is None:
-        snapshot = await _latest_composer_snapshot(
-            session,
-            group_id=group.id,
-            message_type=message_type,
-            accepted_only=True,
-        )
-        if snapshot:
-            content_source = "latest_group"
-    if body.resend_recipient_id is not None and snapshot is None:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="No saved message is available to resend or retry for this recipient",
-        )
-    resolved_body = _merge_composer_snapshot(body, snapshot)
-    support_contacts = _select_support_contacts(
-        await _support_contacts_for_group(session, group.id),
-        resolved_body.support_contact_ids,
-        message_type=message_type,
-    )
-    (
-        message_type,
-        passport_intro,
-        passport_link,
-        message_content,
-        recipient_name,
-        rendered,
-        header_parameters,
-        parameters,
-    ) = _message_values(
-        group=group,
-        recipient=recipient,
-        support_contacts=support_contacts,
-        body=resolved_body,
-        preview=True,
-    )
-    if body.resend_recipient_id is not None:
-        recipient_count = 1
-        eligible_count = 1
-        already_sent_count = (
-            1
-            if target_state is not None and target_state.status in WHATSAPP_ACCEPTED_STATUSES
-            else 0
-        )
-        in_progress_count = 0
-        uncertain_count = 0
-    else:
-        recipient_count = len(source_recipients)
-        (
-            eligible_count,
-            already_sent_count,
-            in_progress_count,
-            uncertain_count,
-        ) = await _recipient_delivery_counts(
-            session,
-            recipients=recipients,
-            message_type=message_type,
-            include_previous_recipients=body.include_previous_recipients,
-        )
-    template_name = await configured_template_name(session, message_type)
-    preview_response = WhatsAppPreviewResponse(
-        message_type=message_type,
-        template_name=template_name,
-        recipient_id=recipient.id,
-        recipient_name=recipient_name,
-        recipient_count=recipient_count,
-        audience=cast(Literal["all", "not_submitted"], audience_resolution.audience),
-        audience_client_group_id=audience_resolution.client_group_id,
-        audience_recipient_count=len(recipients),
-        audience_recipient_ids=list(audience_resolution.selectable_recipient_ids),
-        excluded_submitted_count=audience_resolution.excluded_submitted_count,
-        excluded_needs_review_count=(audience_resolution.excluded_needs_review_count),
-        eligible_recipient_count=eligible_count,
-        already_sent_count=already_sent_count,
-        in_progress_count=in_progress_count,
-        uncertain_recipient_count=uncertain_count,
-        passport_intro=passport_intro,
-        **_preview_message_metadata(resolved_body, header_parameters),
-        message_content=message_content,
-        content_source=content_source,
-        rendered_message=rendered,
-        header_parameter_values=header_parameters,
-        parameter_values=parameters,
-    )
-    values = await welcome_preview_values(
-        session, agency_id=group.agency_id, message_type=message_type,
-        recipients=recipients, selected_recipient_id=body.resend_recipient_id,
-        explicit_resend=bool(body.resend_recipient_id and target_state
-            and target_state.status in WHATSAPP_ACCEPTED_STATUSES),
-    )
-    return preview_response.model_copy(update=values)
+    return await build_preview_response(session, body, selection, saved)

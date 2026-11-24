@@ -1,0 +1,3228 @@
+{
+  "all_mapper_class_table_identities": [
+    [
+      "AgencyModel",
+      "agencies"
+    ],
+    [
+      "AttendanceCloseoutCheckpointModel",
+      "attendance_closeout_checkpoints"
+    ],
+    [
+      "AttendanceDiscardTombstoneModel",
+      "attendance_discard_tombstones"
+    ],
+    [
+      "AttendanceRecordModel",
+      "attendance_records"
+    ],
+    [
+      "AttendanceRuntimeRegistrationModel",
+      "attendance_runtime_registrations"
+    ],
+    [
+      "AttendanceScanBatchModel",
+      "attendance_scan_batches"
+    ],
+    [
+      "AttendanceScanBatchResultModel",
+      "attendance_scan_batch_results"
+    ],
+    [
+      "AttendanceSessionModel",
+      "attendance_sessions"
+    ],
+    [
+      "AttendanceSessionRuntimeParticipantModel",
+      "attendance_session_runtime_participants"
+    ],
+    [
+      "AuditChainHeadModel",
+      "audit_chain_heads"
+    ],
+    [
+      "AuditLogModel",
+      "audit_logs"
+    ],
+    [
+      "ClientGroupModel",
+      "client_groups"
+    ],
+    [
+      "ClientGroupWhatsAppBroadcastLinkModel",
+      "client_group_whatsapp_broadcast_links"
+    ],
+    [
+      "ClientManagerGroupAssignmentModel",
+      "client_manager_group_assignments"
+    ],
+    [
+      "ClientManagerProfileModel",
+      "client_manager_profiles"
+    ],
+    [
+      "ClientOrganizationModel",
+      "client_organizations"
+    ],
+    [
+      "CompanyDataExportJobModel",
+      "company_data_export_jobs"
+    ],
+    [
+      "CompanyDataExportPartModel",
+      "company_data_export_parts"
+    ],
+    [
+      "CompanyDirectoryGroupCountModel",
+      "company_directory_group_counts"
+    ],
+    [
+      "CompanyDirectoryPersonModel",
+      "company_directory_people"
+    ],
+    [
+      "CompanyDirectoryPrefixModel",
+      "company_directory_prefixes"
+    ],
+    [
+      "CompanyDirectoryQueueModel",
+      "company_directory_queue"
+    ],
+    [
+      "CompanyDirectoryStateModel",
+      "company_directory_states"
+    ],
+    [
+      "CoordinatorAssignmentModel",
+      "coordinator_assignments"
+    ],
+    [
+      "CoordinatorGroupAssignmentModel",
+      "coordinator_group_assignments"
+    ],
+    [
+      "DashboardAuthChallengeModel",
+      "dashboard_auth_challenges"
+    ],
+    [
+      "DashboardSessionModel",
+      "dashboard_sessions"
+    ],
+    [
+      "DistributedDocumentModel",
+      "distributed_documents"
+    ],
+    [
+      "DocumentDistributionBatchModel",
+      "document_distribution_batches"
+    ],
+    [
+      "DocumentRenameBatchModel",
+      "document_rename_batches"
+    ],
+    [
+      "DocumentRenameItemModel",
+      "document_rename_items"
+    ],
+    [
+      "DocumentUploadChunkModel",
+      "document_upload_chunks"
+    ],
+    [
+      "DocumentWhatsAppDeliveryModel",
+      "document_whatsapp_deliveries"
+    ],
+    [
+      "EcrBatchModel",
+      "ecr_batches"
+    ],
+    [
+      "EcrItemModel",
+      "ecr_items"
+    ],
+    [
+      "EmailActionProposalModel",
+      "email_action_proposals"
+    ],
+    [
+      "EmailActivityEventModel",
+      "email_activity_events"
+    ],
+    [
+      "EmailAiAnalysisModel",
+      "email_ai_analyses"
+    ],
+    [
+      "EmailAiFeedbackModel",
+      "email_ai_feedback"
+    ],
+    [
+      "EmailAiRolloutPolicyModel",
+      "email_ai_rollout_policies"
+    ],
+    [
+      "EmailArtifactDocumentModel",
+      "email_artifact_documents"
+    ],
+    [
+      "EmailArtifactModel",
+      "email_artifacts"
+    ],
+    [
+      "EmailConnectionModel",
+      "email_connections"
+    ],
+    [
+      "EmailDetectedDeadlineModel",
+      "email_detected_deadlines"
+    ],
+    [
+      "EmailMessageModel",
+      "email_messages"
+    ],
+    [
+      "EmailOAuthStateModel",
+      "email_oauth_states"
+    ],
+    [
+      "EmailReplyDraftModel",
+      "email_reply_drafts"
+    ],
+    [
+      "EmailReviewItemModel",
+      "email_review_items"
+    ],
+    [
+      "GCAnnouncementModel",
+      "gc_announcements"
+    ],
+    [
+      "GCCommonDocumentModel",
+      "gc_common_documents"
+    ],
+    [
+      "GCGroupAccessModel",
+      "gc_group_access"
+    ],
+    [
+      "GCItineraryDayModel",
+      "gc_itinerary_days"
+    ],
+    [
+      "GCItineraryItemModel",
+      "gc_itinerary_items"
+    ],
+    [
+      "GCItineraryVersionModel",
+      "gc_itinerary_versions"
+    ],
+    [
+      "GCNotificationBatchModel",
+      "gc_notification_batches"
+    ],
+    [
+      "GCNotificationDraftModel",
+      "gc_notification_drafts"
+    ],
+    [
+      "GCNotificationRecipientGrantModel",
+      "gc_notification_recipient_grants"
+    ],
+    [
+      "GCNotificationRecipientModel",
+      "gc_notification_recipients"
+    ],
+    [
+      "IdentityActionTokenModel",
+      "identity_action_tokens"
+    ],
+    [
+      "IdentityNotificationOutboxModel",
+      "identity_notification_outbox"
+    ],
+    [
+      "MCPArtifactAccessModel",
+      "mcp_artifact_access"
+    ],
+    [
+      "MCPArtifactModel",
+      "mcp_artifacts"
+    ],
+    [
+      "MCPAuthorizationCodeModel",
+      "mcp_authorization_codes"
+    ],
+    [
+      "MCPConnectionRequestModel",
+      "mcp_connection_requests"
+    ],
+    [
+      "MCPContactImportUploadModel",
+      "mcp_contact_import_uploads"
+    ],
+    [
+      "MCPControlModel",
+      "mcp_control"
+    ],
+    [
+      "MCPDocumentDeliveryOutboxModel",
+      "mcp_document_delivery_outbox"
+    ],
+    [
+      "MCPDocumentDeliveryPlanModel",
+      "mcp_document_delivery_plans"
+    ],
+    [
+      "MCPGCPushOriginModel",
+      "mcp_gc_push_origins"
+    ],
+    [
+      "MCPGCPushPlanModel",
+      "mcp_gc_push_plans"
+    ],
+    [
+      "MCPGrantModel",
+      "mcp_grants"
+    ],
+    [
+      "MCPNativeTransferModel",
+      "mcp_native_transfers"
+    ],
+    [
+      "MCPOperationModel",
+      "mcp_operations"
+    ],
+    [
+      "MCPRecordRevisionModel",
+      "mcp_record_revisions"
+    ],
+    [
+      "MCPTokenModel",
+      "mcp_tokens"
+    ],
+    [
+      "MCPWhatsAppHeaderAccessModel",
+      "mcp_whatsapp_header_access"
+    ],
+    [
+      "MCPWhatsAppHeaderMediaModel",
+      "mcp_whatsapp_header_media"
+    ],
+    [
+      "MCPWhatsAppOutboxModel",
+      "mcp_whatsapp_outbox"
+    ],
+    [
+      "MCPWhatsAppPlanModel",
+      "mcp_whatsapp_plans"
+    ],
+    [
+      "MFARecoveryCodeModel",
+      "mfa_recovery_codes"
+    ],
+    [
+      "ManagerGroupAccessModel",
+      "manager_group_access"
+    ],
+    [
+      "MealPlanEntryModel",
+      "meal_plan_entries"
+    ],
+    [
+      "MealPlanModel",
+      "meal_plans"
+    ],
+    [
+      "MenuCategoryModel",
+      "menu_categories"
+    ],
+    [
+      "MenuDishModel",
+      "menu_dishes"
+    ],
+    [
+      "MobileAppAttestKeyModel",
+      "mobile_app_attest_keys"
+    ],
+    [
+      "MobileDeviceSessionModel",
+      "mobile_device_sessions"
+    ],
+    [
+      "MobileDocumentMetadataCacheModel",
+      "mobile_document_metadata_cache"
+    ],
+    [
+      "MobileIdempotencyReceiptModel",
+      "mobile_idempotency_receipts"
+    ],
+    [
+      "MobileIncidentModel",
+      "mobile_incidents"
+    ],
+    [
+      "MobileNotificationModel",
+      "mobile_notifications"
+    ],
+    [
+      "MobileOTPChallengeModel",
+      "mobile_otp_challenges"
+    ],
+    [
+      "MobilePassengerIdentityModel",
+      "mobile_passenger_identities"
+    ],
+    [
+      "MobilePassengerSessionIdentityModel",
+      "mobile_passenger_session_identities"
+    ],
+    [
+      "MobilePushDeliveryModel",
+      "mobile_push_deliveries"
+    ],
+    [
+      "MobilePushRegistrationModel",
+      "mobile_push_registrations"
+    ],
+    [
+      "MobileRefreshTokenModel",
+      "mobile_refresh_tokens"
+    ],
+    [
+      "MobileSyncChangeModel",
+      "mobile_sync_changes"
+    ],
+    [
+      "MyPhotoAssetVariantModel",
+      "my_photo_asset_variants"
+    ],
+    [
+      "MyPhotoDeliveryAuthorizationModel",
+      "my_photo_delivery_authorizations"
+    ],
+    [
+      "MyPhotoEnrollmentModel",
+      "my_photo_enrollments"
+    ],
+    [
+      "MyPhotoFaceOccurrenceModel",
+      "my_photo_face_occurrences"
+    ],
+    [
+      "MyPhotoGalleryManifestBatchModel",
+      "my_photo_gallery_manifest_batches"
+    ],
+    [
+      "MyPhotoGalleryManifestModel",
+      "my_photo_gallery_manifests"
+    ],
+    [
+      "MyPhotoGalleryModel",
+      "my_photo_galleries"
+    ],
+    [
+      "MyPhotoJobModel",
+      "my_photo_jobs"
+    ],
+    [
+      "MyPhotoLivenessSessionModel",
+      "my_photo_liveness_sessions"
+    ],
+    [
+      "MyPhotoMatchModel",
+      "my_photo_matches"
+    ],
+    [
+      "MyPhotoMediaAssetModel",
+      "my_photo_media_assets"
+    ],
+    [
+      "MyPhotoSearchRunModel",
+      "my_photo_search_runs"
+    ],
+    [
+      "NotificationModel",
+      "notifications"
+    ],
+    [
+      "PassengerFamilyDelegationModel",
+      "passenger_family_delegations"
+    ],
+    [
+      "PassengerQRTokenModel",
+      "passenger_qr_tokens"
+    ],
+    [
+      "PassengerQrWhatsAppDeliveryModel",
+      "passenger_qr_whatsapp_deliveries"
+    ],
+    [
+      "PassportEcrCheckModel",
+      "passport_ecr_checks"
+    ],
+    [
+      "PassportExportHistoryModel",
+      "passport_export_history"
+    ],
+    [
+      "PassportImageCropModel",
+      "passport_image_crops"
+    ],
+    [
+      "PassportImageLibraryItemModel",
+      "passport_image_library_items"
+    ],
+    [
+      "PassportPostSubmissionVerificationJobModel",
+      "passport_post_submission_verification_jobs"
+    ],
+    [
+      "PassportProcessingJobModel",
+      "passport_processing_jobs"
+    ],
+    [
+      "PassportRosterResolutionModel",
+      "passport_roster_resolutions"
+    ],
+    [
+      "PassportSubmissionModel",
+      "passport_submissions"
+    ],
+    [
+      "PassportVisaAiImageJobModel",
+      "passport_visa_ai_image_jobs"
+    ],
+    [
+      "PassportVisaAiImageModel",
+      "passport_visa_ai_images"
+    ],
+    [
+      "PlatformSettingModel",
+      "platform_settings"
+    ],
+    [
+      "PublicUploadContactChallengeModel",
+      "public_upload_contact_challenges"
+    ],
+    [
+      "QualifierSelectionModel",
+      "qualifier_selections"
+    ],
+    [
+      "RefreshTokenModel",
+      "refresh_tokens"
+    ],
+    [
+      "RoomingAssignmentModel",
+      "rooming_assignments"
+    ],
+    [
+      "RoomingCheckinModel",
+      "rooming_checkins"
+    ],
+    [
+      "RoomingHotelModel",
+      "rooming_hotels"
+    ],
+    [
+      "RoomingHotelPassengerModel",
+      "rooming_hotel_passengers"
+    ],
+    [
+      "RoomingPassengerPreferenceModel",
+      "rooming_passenger_preferences"
+    ],
+    [
+      "RoomingRoomModel",
+      "rooming_rooms"
+    ],
+    [
+      "StorageCleanupJobModel",
+      "storage_cleanup_jobs"
+    ],
+    [
+      "TravelTrackerModel",
+      "travel_tracker"
+    ],
+    [
+      "TravellerAttemptBudgetModel",
+      "traveller_attempt_budgets"
+    ],
+    [
+      "TravellerCandidateHandleModel",
+      "traveller_candidate_handles"
+    ],
+    [
+      "TravellerChallengeSelectionModel",
+      "traveller_challenge_selections"
+    ],
+    [
+      "TravellerChangeEventModel",
+      "traveller_change_events"
+    ],
+    [
+      "TravellerChangeFeedModel",
+      "traveller_change_feeds"
+    ],
+    [
+      "TravellerClaimModel",
+      "traveller_claims"
+    ],
+    [
+      "TravellerContactBindingModel",
+      "traveller_contact_bindings"
+    ],
+    [
+      "TravellerDocumentAssetModel",
+      "traveller_document_assets"
+    ],
+    [
+      "TravellerDocumentReviewTaskModel",
+      "traveller_document_review_tasks"
+    ],
+    [
+      "TravellerDocumentRevisionModel",
+      "traveller_document_revisions"
+    ],
+    [
+      "TravellerDraftAssetModel",
+      "traveller_draft_assets"
+    ],
+    [
+      "TravellerDraftContactProofModel",
+      "traveller_draft_contact_proofs"
+    ],
+    [
+      "TravellerGroupReuseConfigModel",
+      "traveller_group_reuse_configs"
+    ],
+    [
+      "TravellerHistoryGrantModel",
+      "traveller_history_grants"
+    ],
+    [
+      "TravellerIdentifierModel",
+      "traveller_identifiers"
+    ],
+    [
+      "TravellerMatchCaseModel",
+      "traveller_match_cases"
+    ],
+    [
+      "TravellerParticipationModel",
+      "traveller_participations"
+    ],
+    [
+      "TravellerPassportModel",
+      "traveller_passports"
+    ],
+    [
+      "TravellerProfileModel",
+      "traveller_profiles"
+    ],
+    [
+      "TravellerReconciliationJobModel",
+      "traveller_reconciliation_jobs"
+    ],
+    [
+      "TravellerReturningDraftModel",
+      "traveller_returning_drafts"
+    ],
+    [
+      "TravellerReusePolicyModel",
+      "traveller_reuse_policies"
+    ],
+    [
+      "UntrustedUploadScanModel",
+      "untrusted_upload_scans"
+    ],
+    [
+      "UserModel",
+      "users"
+    ],
+    [
+      "UserSecurityStateModel",
+      "user_security_states"
+    ],
+    [
+      "WhatsAppBroadcastGroupModel",
+      "whatsapp_broadcast_groups"
+    ],
+    [
+      "WhatsAppBroadcastRecipientModel",
+      "whatsapp_broadcast_recipients"
+    ],
+    [
+      "WhatsAppBroadcastRejectedContactModel",
+      "whatsapp_broadcast_rejected_contacts"
+    ],
+    [
+      "WhatsAppBroadcastSourceContactModel",
+      "whatsapp_broadcast_source_contacts"
+    ],
+    [
+      "WhatsAppBroadcastSupportContactModel",
+      "whatsapp_broadcast_support_contacts"
+    ],
+    [
+      "WhatsAppMessageLogModel",
+      "whatsapp_message_logs"
+    ],
+    [
+      "WhatsAppPhoneWelcomeAttemptModel",
+      "whatsapp_phone_welcome_attempts"
+    ],
+    [
+      "WhatsAppPhoneWelcomeModel",
+      "whatsapp_phone_welcomes"
+    ],
+    [
+      "WhatsAppProviderMessageBindingModel",
+      "whatsapp_provider_message_bindings"
+    ],
+    [
+      "WhatsAppProviderReceiptModel",
+      "whatsapp_provider_receipts"
+    ],
+    [
+      "WhatsAppRecipientMessageStateModel",
+      "whatsapp_recipient_message_states"
+    ],
+    [
+      "WhatsAppSendIntentModel",
+      "whatsapp_send_intents"
+    ],
+    [
+      "WhatsAppTravellerPhoneOverrideModel",
+      "whatsapp_traveller_phone_overrides"
+    ]
+  ],
+  "all_registered_tables": [
+    "agencies",
+    "attendance_closeout_checkpoints",
+    "attendance_discard_tombstones",
+    "attendance_records",
+    "attendance_runtime_registrations",
+    "attendance_scan_batch_results",
+    "attendance_scan_batches",
+    "attendance_session_runtime_participants",
+    "attendance_sessions",
+    "audit_chain_heads",
+    "audit_logs",
+    "client_group_whatsapp_broadcast_links",
+    "client_groups",
+    "client_manager_group_assignments",
+    "client_manager_profiles",
+    "client_organizations",
+    "company_data_export_jobs",
+    "company_data_export_parts",
+    "company_directory_group_counts",
+    "company_directory_people",
+    "company_directory_prefixes",
+    "company_directory_queue",
+    "company_directory_states",
+    "coordinator_assignments",
+    "coordinator_group_assignments",
+    "dashboard_auth_challenges",
+    "dashboard_sessions",
+    "distributed_documents",
+    "document_distribution_batches",
+    "document_rename_batches",
+    "document_rename_items",
+    "document_upload_chunks",
+    "document_whatsapp_deliveries",
+    "ecr_batches",
+    "ecr_items",
+    "email_action_proposals",
+    "email_activity_events",
+    "email_ai_analyses",
+    "email_ai_feedback",
+    "email_ai_rollout_policies",
+    "email_artifact_documents",
+    "email_artifacts",
+    "email_connections",
+    "email_detected_deadlines",
+    "email_messages",
+    "email_oauth_states",
+    "email_reply_drafts",
+    "email_review_items",
+    "gc_announcements",
+    "gc_common_documents",
+    "gc_group_access",
+    "gc_itinerary_days",
+    "gc_itinerary_items",
+    "gc_itinerary_versions",
+    "gc_notification_batches",
+    "gc_notification_drafts",
+    "gc_notification_recipient_grants",
+    "gc_notification_recipients",
+    "identity_action_tokens",
+    "identity_notification_outbox",
+    "manager_group_access",
+    "mcp_artifact_access",
+    "mcp_artifacts",
+    "mcp_authorization_codes",
+    "mcp_connection_requests",
+    "mcp_contact_import_uploads",
+    "mcp_control",
+    "mcp_document_delivery_outbox",
+    "mcp_document_delivery_plans",
+    "mcp_gc_push_origins",
+    "mcp_gc_push_plans",
+    "mcp_grants",
+    "mcp_native_transfers",
+    "mcp_operations",
+    "mcp_record_revisions",
+    "mcp_tokens",
+    "mcp_whatsapp_header_access",
+    "mcp_whatsapp_header_media",
+    "mcp_whatsapp_outbox",
+    "mcp_whatsapp_plans",
+    "meal_plan_entries",
+    "meal_plans",
+    "menu_categories",
+    "menu_dishes",
+    "mfa_recovery_codes",
+    "mobile_app_attest_keys",
+    "mobile_device_sessions",
+    "mobile_document_metadata_cache",
+    "mobile_idempotency_receipts",
+    "mobile_incidents",
+    "mobile_notifications",
+    "mobile_otp_challenges",
+    "mobile_passenger_identities",
+    "mobile_passenger_session_identities",
+    "mobile_push_deliveries",
+    "mobile_push_registrations",
+    "mobile_refresh_tokens",
+    "mobile_sync_changes",
+    "my_photo_asset_variants",
+    "my_photo_delivery_authorizations",
+    "my_photo_enrollments",
+    "my_photo_face_occurrences",
+    "my_photo_galleries",
+    "my_photo_gallery_manifest_batches",
+    "my_photo_gallery_manifests",
+    "my_photo_jobs",
+    "my_photo_liveness_sessions",
+    "my_photo_matches",
+    "my_photo_media_assets",
+    "my_photo_search_runs",
+    "notifications",
+    "passenger_family_delegations",
+    "passenger_qr_tokens",
+    "passenger_qr_whatsapp_deliveries",
+    "passport_ecr_checks",
+    "passport_export_history",
+    "passport_image_crops",
+    "passport_image_library_items",
+    "passport_post_submission_verification_jobs",
+    "passport_processing_jobs",
+    "passport_roster_resolutions",
+    "passport_submissions",
+    "passport_visa_ai_image_jobs",
+    "passport_visa_ai_images",
+    "platform_settings",
+    "public_upload_contact_challenges",
+    "qualifier_selections",
+    "refresh_tokens",
+    "rooming_assignments",
+    "rooming_checkins",
+    "rooming_hotel_passengers",
+    "rooming_hotels",
+    "rooming_passenger_preferences",
+    "rooming_rooms",
+    "storage_cleanup_jobs",
+    "travel_tracker",
+    "traveller_attempt_budgets",
+    "traveller_candidate_handles",
+    "traveller_challenge_selections",
+    "traveller_change_events",
+    "traveller_change_feeds",
+    "traveller_claims",
+    "traveller_contact_bindings",
+    "traveller_document_assets",
+    "traveller_document_review_tasks",
+    "traveller_document_revisions",
+    "traveller_draft_assets",
+    "traveller_draft_contact_proofs",
+    "traveller_group_reuse_configs",
+    "traveller_history_grants",
+    "traveller_identifiers",
+    "traveller_match_cases",
+    "traveller_participations",
+    "traveller_passports",
+    "traveller_profiles",
+    "traveller_reconciliation_jobs",
+    "traveller_returning_drafts",
+    "traveller_reuse_policies",
+    "untrusted_upload_scans",
+    "user_security_states",
+    "users",
+    "whatsapp_broadcast_groups",
+    "whatsapp_broadcast_recipients",
+    "whatsapp_broadcast_rejected_contacts",
+    "whatsapp_broadcast_source_contacts",
+    "whatsapp_broadcast_support_contacts",
+    "whatsapp_message_logs",
+    "whatsapp_phone_welcome_attempts",
+    "whatsapp_phone_welcomes",
+    "whatsapp_provider_message_bindings",
+    "whatsapp_provider_receipts",
+    "whatsapp_recipient_message_states",
+    "whatsapp_send_intents",
+    "whatsapp_traveller_phone_overrides"
+  ],
+  "ddl": {
+    "postgresql": {
+      "my_photo_asset_variants": {
+        "indexes": {
+          "ix_my_photo_variant_delivery": "CREATE INDEX ix_my_photo_variant_delivery ON my_photo_asset_variants (media_asset_id, variant_kind, availability_state)"
+        },
+        "table": "\nCREATE TABLE my_photo_asset_variants (\n\tid UUID NOT NULL, \n\tmedia_asset_id UUID NOT NULL, \n\tagency_id UUID NOT NULL, \n\tgroup_id UUID NOT NULL, \n\tvariant_kind VARCHAR(16) NOT NULL, \n\tstorage_reference VARCHAR(4096), \n\tmime_type VARCHAR(64) NOT NULL, \n\twidth INTEGER NOT NULL, \n\theight INTEGER NOT NULL, \n\tbyte_size BIGINT NOT NULL, \n\tchecksum_sha256 VARCHAR(64) NOT NULL, \n\tavailability_state VARCHAR(32) NOT NULL, \n\tdelivery_version BIGINT DEFAULT '1' NOT NULL, \n\texpires_at TIMESTAMP WITH TIME ZONE, \n\tcreated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tupdated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_my_photo_variant_scope UNIQUE (id, agency_id, group_id), \n\tCONSTRAINT uq_my_photo_variant_version UNIQUE (media_asset_id, variant_kind, delivery_version), \n\tCONSTRAINT fk_my_photo_variant_asset FOREIGN KEY(media_asset_id, agency_id, group_id) REFERENCES my_photo_media_assets (id, agency_id, group_id) ON DELETE CASCADE, \n\tCONSTRAINT ck_my_photo_variant_kind CHECK (variant_kind IN ('thumbnail', 'preview', 'analysis', 'original', 'optimized')), \n\tCONSTRAINT ck_my_photo_variant_availability CHECK (availability_state IN ('registered', 'awaiting_upload', 'processing', 'indexed', 'preview_available', 'original_available_online', 'archived_offline', 'rehydration_requested', 'preparing_delivery', 'delivery_available', 'expired', 'failed', 'removed')), \n\tCONSTRAINT ck_my_photo_variant_dimensions CHECK (width BETWEEN 1 AND 100000 AND height BETWEEN 1 AND 100000 AND byte_size BETWEEN 1 AND 209715200), \n\tCONSTRAINT ck_my_photo_variant_checksum CHECK (length(checksum_sha256) = 64 AND checksum_sha256 = lower(checksum_sha256)), \n\tCONSTRAINT ck_my_photo_variant_ref CHECK (storage_reference IS NULL OR storage_reference NOT LIKE '%%://%%'), \n\tCONSTRAINT ck_my_photo_variant_version CHECK (delivery_version >= 1)\n)\n\n"
+      },
+      "my_photo_delivery_authorizations": {
+        "indexes": {
+          "ix_my_photo_delivery_expiry": "CREATE INDEX ix_my_photo_delivery_expiry ON my_photo_delivery_authorizations (status, expires_at)"
+        },
+        "table": "\nCREATE TABLE my_photo_delivery_authorizations (\n\tid UUID NOT NULL, \n\tpassenger_identity_id UUID NOT NULL, \n\tpassenger_submission_id UUID NOT NULL, \n\tgc_group_access_id UUID NOT NULL, \n\tmedia_asset_id UUID NOT NULL, \n\tagency_id UUID NOT NULL, \n\tgroup_id UUID NOT NULL, \n\tquality VARCHAR(16) NOT NULL, \n\tstatus VARCHAR(16) NOT NULL, \n\tidempotency_key VARCHAR(128) NOT NULL, \n\trequest_fingerprint VARCHAR(64) NOT NULL, \n\tdelivery_version BIGINT DEFAULT '1' NOT NULL, \n\tprovider_authorization_reference VARCHAR(512), \n\ttransport VARCHAR(32) DEFAULT 'unavailable' NOT NULL, \n\tclaim_token VARCHAR(64), \n\tclaim_expires_at TIMESTAMP WITH TIME ZONE, \n\texpected_size_bytes BIGINT, \n\tchecksum_sha256 VARCHAR(64), \n\tcontent_type VARCHAR(64), \n\tsupports_ranges BOOLEAN DEFAULT 'false' NOT NULL, \n\texpires_at TIMESTAMP WITH TIME ZONE, \n\tstable_error_code VARCHAR(64), \n\tcreated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tupdated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_my_photo_delivery_scope UNIQUE (id, agency_id, group_id), \n\tCONSTRAINT uq_my_photo_delivery_idempotency UNIQUE (passenger_identity_id, media_asset_id, quality, idempotency_key), \n\tCONSTRAINT fk_my_photo_delivery_asset FOREIGN KEY(media_asset_id, agency_id, group_id) REFERENCES my_photo_media_assets (id, agency_id, group_id) ON DELETE CASCADE, \n\tCONSTRAINT fk_my_photo_delivery_passenger FOREIGN KEY(passenger_identity_id, gc_group_access_id, agency_id, group_id, passenger_submission_id) REFERENCES mobile_passenger_identities (id, gc_group_access_id, agency_id, group_id, passenger_submission_id) ON DELETE CASCADE, \n\tCONSTRAINT ck_my_photo_delivery_quality CHECK (quality IN ('original', 'optimized')), \n\tCONSTRAINT ck_my_photo_delivery_content_type CHECK (content_type IS NULL OR content_type IN ('image/jpeg', 'image/png', 'image/webp')), \n\tCONSTRAINT ck_my_photo_delivery_status CHECK (status IN ('authorizing', 'preparing', 'available', 'expired', 'failed', 'cancelled')), \n\tCONSTRAINT ck_my_photo_delivery_size CHECK (expected_size_bytes IS NULL OR expected_size_bytes BETWEEN 1 AND 209715200), \n\tCONSTRAINT ck_my_photo_delivery_checksum CHECK (checksum_sha256 IS NULL OR (length(checksum_sha256) = 64 AND checksum_sha256 = lower(checksum_sha256))), \n\tCONSTRAINT ck_my_photo_delivery_fingerprint CHECK (length(request_fingerprint) = 64 AND request_fingerprint = lower(request_fingerprint)), \n\tCONSTRAINT ck_my_photo_delivery_transport CHECK (transport IN ('unavailable', 'development_fixture', 'direct_object_storage')), \n\tCONSTRAINT ck_my_photo_delivery_claim CHECK ((status = 'authorizing' AND claim_token IS NOT NULL AND claim_expires_at IS NOT NULL) OR (status != 'authorizing' AND claim_token IS NULL AND claim_expires_at IS NULL)), \n\tCONSTRAINT ck_my_photo_delivery_available CHECK ((status = 'available' AND provider_authorization_reference IS NOT NULL AND expected_size_bytes IS NOT NULL AND checksum_sha256 IS NOT NULL AND content_type IS NOT NULL AND expires_at IS NOT NULL AND transport != 'unavailable') OR (status != 'available' AND provider_authorization_reference IS NULL AND expected_size_bytes IS NULL AND checksum_sha256 IS NULL AND content_type IS NULL AND expires_at IS NULL AND supports_ranges = false AND transport = 'unavailable'))\n)\n\n"
+      },
+      "my_photo_enrollments": {
+        "indexes": {
+          "ix_my_photo_enrollment_deletion_retry": "CREATE INDEX ix_my_photo_enrollment_deletion_retry ON my_photo_enrollments (provider_deletion_next_attempt_at, provider_deletion_attempt_count)",
+          "ix_my_photo_enrollment_group_status": "CREATE INDEX ix_my_photo_enrollment_group_status ON my_photo_enrollments (group_id, status)",
+          "ix_my_photo_enrollment_superseded_deletion_retry": "CREATE INDEX ix_my_photo_enrollment_superseded_deletion_retry ON my_photo_enrollments (superseded_deletion_next_attempt_at, superseded_deletion_attempt_count)"
+        },
+        "table": "\nCREATE TABLE my_photo_enrollments (\n\tid UUID NOT NULL, \n\tpassenger_identity_id UUID NOT NULL, \n\tpassenger_submission_id UUID NOT NULL, \n\tgc_group_access_id UUID NOT NULL, \n\tagency_id UUID NOT NULL, \n\tgroup_id UUID NOT NULL, \n\tconsent_version VARCHAR(64) NOT NULL, \n\tconsented_at TIMESTAMP WITH TIME ZONE NOT NULL, \n\tconsent_idempotency_key VARCHAR(128) NOT NULL, \n\tstatus VARCHAR(24) DEFAULT 'ready' NOT NULL, \n\tprovider_name VARCHAR(32), \n\tprovider_reference_handle VARCHAR(4096), \n\treference_version BIGINT DEFAULT '0' NOT NULL, \n\tattempt_count INTEGER DEFAULT '0' NOT NULL, \n\tmax_attempts INTEGER DEFAULT '5' NOT NULL, \n\tcooldown_until TIMESTAMP WITH TIME ZONE, \n\tenrolled_at TIMESTAMP WITH TIME ZONE, \n\trefreshed_at TIMESTAMP WITH TIME ZONE, \n\trevoked_at TIMESTAMP WITH TIME ZONE, \n\tdeleted_at TIMESTAMP WITH TIME ZONE, \n\tdeletion_idempotency_key VARCHAR(128), \n\tdeletion_scope VARCHAR(40), \n\tprovider_deletion_status VARCHAR(16) DEFAULT 'not_required' NOT NULL, \n\tprovider_deletion_error_code VARCHAR(64), \n\tprovider_deletion_requested_at TIMESTAMP WITH TIME ZONE, \n\tprovider_deletion_completed_at TIMESTAMP WITH TIME ZONE, \n\tsuperseded_provider_reference_handle VARCHAR(4096), \n\tsuperseded_reference_deletion_status VARCHAR(16) DEFAULT 'not_required' NOT NULL, \n\tsuperseded_reference_deletion_error_code VARCHAR(64), \n\tsuperseded_reference_deletion_requested_at TIMESTAMP WITH TIME ZONE, \n\tsuperseded_reference_deletion_completed_at TIMESTAMP WITH TIME ZONE, \n\tprovider_deletion_attempt_count INTEGER DEFAULT '0' NOT NULL, \n\tprovider_deletion_next_attempt_at TIMESTAMP WITH TIME ZONE, \n\tprovider_deletion_last_attempt_at TIMESTAMP WITH TIME ZONE, \n\tsuperseded_deletion_attempt_count INTEGER DEFAULT '0' NOT NULL, \n\tsuperseded_deletion_next_attempt_at TIMESTAMP WITH TIME ZONE, \n\tsuperseded_deletion_last_attempt_at TIMESTAMP WITH TIME ZONE, \n\tcreated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tupdated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_my_photo_enrollment_scope UNIQUE (id, agency_id, group_id), \n\tCONSTRAINT uq_my_photo_enrollment_passenger_scope UNIQUE (id, passenger_identity_id, agency_id, group_id), \n\tCONSTRAINT uq_my_photo_enrollment_passenger UNIQUE (passenger_identity_id, group_id), \n\tCONSTRAINT fk_my_photo_enrollment_passenger FOREIGN KEY(passenger_identity_id, gc_group_access_id, agency_id, group_id, passenger_submission_id) REFERENCES mobile_passenger_identities (id, gc_group_access_id, agency_id, group_id, passenger_submission_id) ON DELETE CASCADE, \n\tCONSTRAINT ck_my_photo_enrollment_status CHECK (status IN ('ready', 'session_pending', 'processing', 'enrolled', 'rejected', 'cooldown', 'revoked', 'deleted')), \n\tCONSTRAINT ck_my_photo_enrollment_consent CHECK (length(trim(consent_version)) BETWEEN 1 AND 64), \n\tCONSTRAINT ck_my_photo_enrollment_attempts CHECK (reference_version >= 0 AND attempt_count >= 0 AND max_attempts BETWEEN 1 AND 20), \n\tCONSTRAINT ck_my_photo_enrollment_cooldown CHECK ((status = 'cooldown' AND cooldown_until IS NOT NULL) OR status != 'cooldown'), \n\tCONSTRAINT ck_my_photo_enrollment_terminal CHECK ((status = 'revoked' AND revoked_at IS NOT NULL) OR (status = 'deleted' AND deleted_at IS NOT NULL) OR status NOT IN ('revoked', 'deleted')), \n\tCONSTRAINT ck_my_photo_enrollment_enrolled CHECK ((status = 'enrolled' AND provider_reference_handle IS NOT NULL AND reference_version >= 1 AND enrolled_at IS NOT NULL) OR status != 'enrolled'), \n\tCONSTRAINT ck_my_photo_enrollment_provider_deletion_status CHECK (provider_deletion_status IN ('not_required', 'pending', 'complete', 'failed')), \n\tCONSTRAINT ck_my_photo_enrollment_deletion_request CHECK ((deletion_idempotency_key IS NULL AND deletion_scope IS NULL) OR (deletion_idempotency_key IS NOT NULL AND deletion_scope IN ('enrollment_only', 'enrollment_and_search_data'))), \n\tCONSTRAINT ck_my_photo_enrollment_deleted_request CHECK ((status = 'deleted' AND deletion_idempotency_key IS NOT NULL) OR status != 'deleted'), \n\tCONSTRAINT ck_my_photo_enrollment_provider_deletion_shape CHECK ((provider_deletion_status = 'not_required' AND provider_deletion_requested_at IS NULL AND provider_deletion_completed_at IS NULL AND provider_deletion_error_code IS NULL) OR (provider_deletion_status = 'pending' AND provider_deletion_requested_at IS NOT NULL AND provider_deletion_completed_at IS NULL) OR (provider_deletion_status = 'complete' AND provider_deletion_requested_at IS NOT NULL AND provider_deletion_completed_at IS NOT NULL AND provider_deletion_error_code IS NULL AND provider_reference_handle IS NULL) OR (provider_deletion_status = 'failed' AND provider_deletion_requested_at IS NOT NULL AND provider_deletion_completed_at IS NULL AND provider_deletion_error_code IS NOT NULL)), \n\tCONSTRAINT ck_my_photo_enrollment_superseded_deletion_status CHECK (superseded_reference_deletion_status IN ('not_required', 'pending', 'complete', 'failed')), \n\tCONSTRAINT ck_my_photo_enrollment_deletion_attempts CHECK (provider_deletion_attempt_count BETWEEN 0 AND 20), \n\tCONSTRAINT ck_my_photo_enrollment_superseded_deletion_attempts CHECK (superseded_deletion_attempt_count BETWEEN 0 AND 20), \n\tCONSTRAINT ck_my_photo_enrollment_superseded_deletion_shape CHECK ((superseded_reference_deletion_status = 'not_required' AND superseded_provider_reference_handle IS NULL AND superseded_reference_deletion_requested_at IS NULL AND superseded_reference_deletion_completed_at IS NULL AND superseded_reference_deletion_error_code IS NULL) OR (superseded_reference_deletion_status = 'pending' AND superseded_provider_reference_handle IS NOT NULL AND superseded_reference_deletion_requested_at IS NOT NULL AND superseded_reference_deletion_completed_at IS NULL) OR (superseded_reference_deletion_status = 'complete' AND superseded_provider_reference_handle IS NULL AND superseded_reference_deletion_requested_at IS NOT NULL AND superseded_reference_deletion_completed_at IS NOT NULL AND superseded_reference_deletion_error_code IS NULL) OR (superseded_reference_deletion_status = 'failed' AND superseded_provider_reference_handle IS NOT NULL AND superseded_reference_deletion_requested_at IS NOT NULL AND superseded_reference_deletion_completed_at IS NULL AND superseded_reference_deletion_error_code IS NOT NULL))\n)\n\n"
+      },
+      "my_photo_face_occurrences": {
+        "indexes": {
+          "ix_my_photo_face_asset_active": "CREATE INDEX ix_my_photo_face_asset_active ON my_photo_face_occurrences (media_asset_id, active)"
+        },
+        "table": "\nCREATE TABLE my_photo_face_occurrences (\n\tid UUID NOT NULL, \n\tmedia_asset_id UUID NOT NULL, \n\tagency_id UUID NOT NULL, \n\tgroup_id UUID NOT NULL, \n\tprovider_name VARCHAR(32) NOT NULL, \n\tprovider_face_reference VARCHAR(512) NOT NULL, \n\tidempotency_identity VARCHAR(128) NOT NULL, \n\tbounding_left FLOAT NOT NULL, \n\tbounding_top FLOAT NOT NULL, \n\tbounding_width FLOAT NOT NULL, \n\tbounding_height FLOAT NOT NULL, \n\tquality_score FLOAT, \n\tquality_class VARCHAR(32), \n\tprovider_model_version VARCHAR(64) NOT NULL, \n\tindex_version BIGINT NOT NULL, \n\tactive BOOLEAN DEFAULT 'true' NOT NULL, \n\tdeleted_at TIMESTAMP WITH TIME ZONE, \n\tcreated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_my_photo_face_scope UNIQUE (id, agency_id, group_id), \n\tCONSTRAINT uq_my_photo_face_asset_scope UNIQUE (id, media_asset_id, agency_id, group_id), \n\tCONSTRAINT uq_my_photo_face_provider UNIQUE (agency_id, group_id, provider_name, index_version, provider_face_reference), \n\tCONSTRAINT uq_my_photo_face_idempotency UNIQUE (media_asset_id, idempotency_identity), \n\tCONSTRAINT fk_my_photo_face_asset FOREIGN KEY(media_asset_id, agency_id, group_id) REFERENCES my_photo_media_assets (id, agency_id, group_id) ON DELETE CASCADE, \n\tCONSTRAINT ck_my_photo_face_bounds CHECK (bounding_left BETWEEN 0 AND 1 AND bounding_top BETWEEN 0 AND 1 AND bounding_width > 0 AND bounding_width <= 1 AND bounding_height > 0 AND bounding_height <= 1 AND bounding_left + bounding_width <= 1.000001 AND bounding_top + bounding_height <= 1.000001), \n\tCONSTRAINT ck_my_photo_face_quality CHECK (quality_score IS NULL OR quality_score BETWEEN 0 AND 100), \n\tCONSTRAINT ck_my_photo_face_index_version CHECK (index_version >= 1), \n\tCONSTRAINT ck_my_photo_face_active CHECK ((active = true AND deleted_at IS NULL) OR (active = false))\n)\n\n"
+      },
+      "my_photo_galleries": {
+        "indexes": {
+          "ix_my_photo_gallery_availability": "CREATE INDEX ix_my_photo_gallery_availability ON my_photo_galleries (feature_enabled, status, group_id)",
+          "ix_my_photo_gallery_revision": "CREATE INDEX ix_my_photo_gallery_revision ON my_photo_galleries (group_id, published_revision)"
+        },
+        "table": "\nCREATE TABLE my_photo_galleries (\n\tid UUID NOT NULL, \n\tagency_id UUID NOT NULL, \n\tgroup_id UUID NOT NULL, \n\tgc_group_access_id UUID NOT NULL, \n\tfeature_enabled BOOLEAN DEFAULT 'false' NOT NULL, \n\tstatus VARCHAR(24) DEFAULT 'not_uploaded' NOT NULL, \n\tmedia_version BIGINT DEFAULT '0' NOT NULL, \n\tface_index_version BIGINT DEFAULT '0' NOT NULL, \n\tpublished_revision BIGINT DEFAULT '0' NOT NULL, \n\ttotal_asset_count INTEGER DEFAULT '0' NOT NULL, \n\tindexed_asset_count INTEGER DEFAULT '0' NOT NULL, \n\tfailed_asset_count INTEGER DEFAULT '0' NOT NULL, \n\tall_group_photos_enabled BOOLEAN DEFAULT 'false' NOT NULL, \n\tprovider_collection_reference VARCHAR(512), \n\tprovider_name VARCHAR(32), \n\tindex_model_version VARCHAR(64), \n\tmatch_config_version VARCHAR(64) DEFAULT 'unconfigured' NOT NULL, \n\tretention_policy_version VARCHAR(64) DEFAULT 'v1' NOT NULL, \n\tretention_days INTEGER, \n\tavailability_starts_at TIMESTAMP WITH TIME ZONE, \n\tavailability_ends_at TIMESTAMP WITH TIME ZONE, \n\tpublished_at TIMESTAMP WITH TIME ZONE, \n\tcreated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tupdated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_my_photo_gallery_group UNIQUE (group_id), \n\tCONSTRAINT uq_my_photo_gallery_access UNIQUE (gc_group_access_id, agency_id, group_id), \n\tCONSTRAINT uq_my_photo_gallery_scope UNIQUE (id, agency_id, group_id), \n\tCONSTRAINT fk_my_photo_gallery_access FOREIGN KEY(gc_group_access_id, agency_id, group_id) REFERENCES gc_group_access (id, agency_id, group_id) ON DELETE CASCADE, \n\tCONSTRAINT ck_my_photo_gallery_status CHECK (status IN ('not_uploaded', 'awaiting_upload', 'processing', 'indexing', 'ready', 'failed', 'removed')), \n\tCONSTRAINT ck_my_photo_gallery_versions CHECK (media_version >= 0 AND face_index_version >= 0 AND published_revision >= 0), \n\tCONSTRAINT ck_my_photo_gallery_counts CHECK (total_asset_count >= 0 AND indexed_asset_count >= 0 AND failed_asset_count >= 0 AND indexed_asset_count + failed_asset_count <= total_asset_count), \n\tCONSTRAINT ck_my_photo_gallery_window CHECK (availability_ends_at IS NULL OR availability_starts_at IS NULL OR availability_ends_at > availability_starts_at), \n\tCONSTRAINT ck_my_photo_gallery_retention CHECK (retention_days IS NULL OR retention_days BETWEEN 1 AND 3650), \n\tCONSTRAINT ck_my_photo_gallery_ready_shape CHECK ((status = 'ready' AND published_revision >= 1 AND published_at IS NOT NULL AND provider_collection_reference IS NOT NULL) OR status != 'ready'), \n\tFOREIGN KEY(agency_id) REFERENCES agencies (id) ON DELETE CASCADE, \n\tFOREIGN KEY(group_id) REFERENCES client_groups (id) ON DELETE CASCADE\n)\n\n"
+      },
+      "my_photo_gallery_manifest_batches": {
+        "indexes": {},
+        "table": "\nCREATE TABLE my_photo_gallery_manifest_batches (\n\tid UUID NOT NULL, \n\tmanifest_id UUID NOT NULL, \n\tagency_id UUID NOT NULL, \n\tgroup_id UUID NOT NULL, \n\tbatch_index INTEGER NOT NULL, \n\tbatch_fingerprint VARCHAR(64) NOT NULL, \n\tasset_count INTEGER NOT NULL, \n\tcreated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_my_photo_manifest_batch UNIQUE (manifest_id, batch_index), \n\tCONSTRAINT fk_my_photo_manifest_batch_manifest FOREIGN KEY(manifest_id, agency_id, group_id) REFERENCES my_photo_gallery_manifests (id, agency_id, group_id) ON DELETE CASCADE, \n\tCONSTRAINT ck_my_photo_manifest_batch_bounds CHECK (batch_index BETWEEN 0 AND 49 AND asset_count BETWEEN 1 AND 100), \n\tCONSTRAINT ck_my_photo_manifest_batch_fingerprint CHECK (length(batch_fingerprint) = 64 AND batch_fingerprint = lower(batch_fingerprint))\n)\n\n"
+      },
+      "my_photo_gallery_manifests": {
+        "indexes": {
+          "ix_my_photo_manifest_status": "CREATE INDEX ix_my_photo_manifest_status ON my_photo_gallery_manifests (status, created_at)",
+          "uq_my_photo_manifest_active_revision": "CREATE UNIQUE INDEX uq_my_photo_manifest_active_revision ON my_photo_gallery_manifests (gallery_id, target_revision) WHERE status <> 'cancelled'"
+        },
+        "table": "\nCREATE TABLE my_photo_gallery_manifests (\n\tid UUID NOT NULL, \n\tgallery_id UUID NOT NULL, \n\tagency_id UUID NOT NULL, \n\tgroup_id UUID NOT NULL, \n\tmanifest_identity VARCHAR(128) NOT NULL, \n\ttarget_revision BIGINT NOT NULL, \n\theader_fingerprint VARCHAR(64) NOT NULL, \n\tcontent_fingerprint VARCHAR(64), \n\ttotal_asset_count INTEGER NOT NULL, \n\tbatch_count INTEGER NOT NULL, \n\treceived_asset_count INTEGER DEFAULT '0' NOT NULL, \n\tstatus VARCHAR(16) DEFAULT 'receiving' NOT NULL, \n\tall_group_photos_enabled BOOLEAN DEFAULT 'false' NOT NULL, \n\tretention_policy_version VARCHAR(64) NOT NULL, \n\tretention_days INTEGER NOT NULL, \n\tavailability_starts_at TIMESTAMP WITH TIME ZONE NOT NULL, \n\tavailability_ends_at TIMESTAMP WITH TIME ZONE NOT NULL, \n\tprovider_collection_reference VARCHAR(512) NOT NULL, \n\tprovider_model_version VARCHAR(64) NOT NULL, \n\tmatch_config_version VARCHAR(64) NOT NULL, \n\tcreated_by_user_id UUID, \n\tfinalized_at TIMESTAMP WITH TIME ZONE, \n\tcancellation_requested_at TIMESTAMP WITH TIME ZONE, \n\tcreated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tupdated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_my_photo_manifest_scope UNIQUE (id, agency_id, group_id), \n\tCONSTRAINT uq_my_photo_manifest_identity UNIQUE (gallery_id, manifest_identity), \n\tCONSTRAINT fk_my_photo_manifest_gallery FOREIGN KEY(gallery_id, agency_id, group_id) REFERENCES my_photo_galleries (id, agency_id, group_id) ON DELETE CASCADE, \n\tCONSTRAINT ck_my_photo_manifest_status CHECK (status IN ('receiving', 'finalized', 'indexing', 'failed', 'cancelled')), \n\tCONSTRAINT ck_my_photo_manifest_counts CHECK (target_revision >= 1 AND total_asset_count BETWEEN 1 AND 5000 AND batch_count BETWEEN 1 AND 50 AND received_asset_count >= 0 AND received_asset_count <= total_asset_count), \n\tCONSTRAINT ck_my_photo_manifest_fingerprints CHECK (length(header_fingerprint) = 64 AND header_fingerprint = lower(header_fingerprint) AND (content_fingerprint IS NULL OR (length(content_fingerprint) = 64 AND content_fingerprint = lower(content_fingerprint)))), \n\tCONSTRAINT ck_my_photo_manifest_policy CHECK (retention_days BETWEEN 1 AND 3650 AND availability_ends_at > availability_starts_at), \n\tFOREIGN KEY(created_by_user_id) REFERENCES users (id) ON DELETE SET NULL\n)\n\n"
+      },
+      "my_photo_jobs": {
+        "indexes": {
+          "ix_my_photo_job_claim": "CREATE INDEX ix_my_photo_job_claim ON my_photo_jobs (job_type, status, next_attempt_at, created_at)",
+          "ix_my_photo_job_lease": "CREATE INDEX ix_my_photo_job_lease ON my_photo_jobs (status, lease_expires_at)"
+        },
+        "table": "\nCREATE TABLE my_photo_jobs (\n\tid UUID NOT NULL, \n\tgallery_id UUID NOT NULL, \n\tmedia_asset_id UUID, \n\tsearch_run_id UUID, \n\tagency_id UUID NOT NULL, \n\tgroup_id UUID NOT NULL, \n\tjob_type VARCHAR(32) NOT NULL, \n\tstatus VARCHAR(16) DEFAULT 'queued' NOT NULL, \n\tidempotency_key VARCHAR(128) NOT NULL, \n\trequest_fingerprint VARCHAR(64), \n\ttarget_revision BIGINT, \n\tattempt_count INTEGER DEFAULT '0' NOT NULL, \n\tmax_attempts INTEGER DEFAULT '5' NOT NULL, \n\tcheckpoint_cursor VARCHAR(512), \n\tprocessed_count INTEGER DEFAULT '0' NOT NULL, \n\ttotal_count INTEGER DEFAULT '0' NOT NULL, \n\tsucceeded_count INTEGER DEFAULT '0' NOT NULL, \n\tfailed_count INTEGER DEFAULT '0' NOT NULL, \n\tlease_owner VARCHAR(128), \n\tlease_expires_at TIMESTAMP WITH TIME ZONE, \n\theartbeat_at TIMESTAMP WITH TIME ZONE, \n\tnext_attempt_at TIMESTAMP WITH TIME ZONE, \n\tstable_error_code VARCHAR(64), \n\terror_detail VARCHAR(512), \n\tcorrelation_id VARCHAR(64) NOT NULL, \n\tcancellation_requested_at TIMESTAMP WITH TIME ZONE, \n\tstarted_at TIMESTAMP WITH TIME ZONE, \n\tcompleted_at TIMESTAMP WITH TIME ZONE, \n\tcreated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tupdated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_my_photo_job_scope UNIQUE (id, agency_id, group_id), \n\tCONSTRAINT uq_my_photo_job_idempotency UNIQUE (gallery_id, job_type, idempotency_key), \n\tCONSTRAINT fk_my_photo_job_gallery FOREIGN KEY(gallery_id, agency_id, group_id) REFERENCES my_photo_galleries (id, agency_id, group_id) ON DELETE CASCADE, \n\tCONSTRAINT fk_my_photo_job_asset FOREIGN KEY(media_asset_id, agency_id, group_id) REFERENCES my_photo_media_assets (id, agency_id, group_id) ON DELETE CASCADE, \n\tCONSTRAINT fk_my_photo_job_search FOREIGN KEY(search_run_id, agency_id, group_id) REFERENCES my_photo_search_runs (id, agency_id, group_id) ON DELETE CASCADE, \n\tCONSTRAINT ck_my_photo_job_type CHECK (job_type IN ('index_gallery', 'generate_variants', 'search_passenger', 'prepare_media', 'refresh_searches')), \n\tCONSTRAINT ck_my_photo_job_status CHECK (status IN ('queued', 'running', 'retrying', 'succeeded', 'cancelled', 'failed')), \n\tCONSTRAINT ck_my_photo_job_counts CHECK (attempt_count >= 0 AND max_attempts BETWEEN 1 AND 20 AND processed_count >= 0 AND total_count >= 0 AND processed_count <= total_count AND succeeded_count >= 0 AND failed_count >= 0 AND succeeded_count + failed_count <= processed_count), \n\tCONSTRAINT ck_my_photo_job_request_fingerprint CHECK (request_fingerprint IS NULL OR (length(request_fingerprint) = 64 AND request_fingerprint = lower(request_fingerprint))), \n\tCONSTRAINT ck_my_photo_job_target CHECK ((job_type IN ('index_gallery', 'refresh_searches') AND media_asset_id IS NULL AND search_run_id IS NULL AND target_revision IS NOT NULL) OR (job_type IN ('generate_variants', 'prepare_media') AND media_asset_id IS NOT NULL AND search_run_id IS NULL AND target_revision IS NULL) OR (job_type = 'search_passenger' AND media_asset_id IS NULL AND search_run_id IS NOT NULL AND target_revision IS NULL)), \n\tCONSTRAINT ck_my_photo_job_target_revision CHECK (target_revision IS NULL OR target_revision >= 1)\n)\n\n"
+      },
+      "my_photo_liveness_sessions": {
+        "indexes": {
+          "ix_my_photo_liveness_expiry": "CREATE INDEX ix_my_photo_liveness_expiry ON my_photo_liveness_sessions (status, expires_at)",
+          "ix_my_photo_liveness_provider_claim": "CREATE INDEX ix_my_photo_liveness_provider_claim ON my_photo_liveness_sessions (status, provider_claim_expires_at)",
+          "uq_my_photo_liveness_active_enrollment": "CREATE UNIQUE INDEX uq_my_photo_liveness_active_enrollment ON my_photo_liveness_sessions (enrollment_id) WHERE status IN ('creating', 'created', 'running')"
+        },
+        "table": "\nCREATE TABLE my_photo_liveness_sessions (\n\tid UUID NOT NULL, \n\tenrollment_id UUID NOT NULL, \n\tagency_id UUID NOT NULL, \n\tgroup_id UUID NOT NULL, \n\tidempotency_key VARCHAR(128) NOT NULL, \n\tchallenge_mode VARCHAR(32) NOT NULL, \n\tstatus VARCHAR(16) DEFAULT 'created' NOT NULL, \n\tprovider_name VARCHAR(32) NOT NULL, \n\tprovider_session_reference VARCHAR(512), \n\tnative_launch_handle VARCHAR(512), \n\tstable_error_code VARCHAR(64), \n\tcompletion_idempotency_key VARCHAR(128), \n\tcompletion_outcome VARCHAR(16), \n\tresult_retryable BOOLEAN, \n\tprovider_claim_token VARCHAR(64), \n\tprovider_claim_expires_at TIMESTAMP WITH TIME ZONE, \n\texpires_at TIMESTAMP WITH TIME ZONE NOT NULL, \n\tconsumed_at TIMESTAMP WITH TIME ZONE, \n\tcreated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tupdated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_my_photo_liveness_scope UNIQUE (id, agency_id, group_id), \n\tCONSTRAINT uq_my_photo_liveness_idempotency UNIQUE (enrollment_id, idempotency_key), \n\tCONSTRAINT fk_my_photo_liveness_enrollment FOREIGN KEY(enrollment_id, agency_id, group_id) REFERENCES my_photo_enrollments (id, agency_id, group_id) ON DELETE CASCADE, \n\tCONSTRAINT ck_my_photo_liveness_mode CHECK (challenge_mode IN ('movement_and_light', 'movement_only')), \n\tCONSTRAINT ck_my_photo_liveness_status CHECK (status IN ('creating', 'created', 'running', 'completed', 'cancelled', 'expired', 'rejected', 'failed')), \n\tCONSTRAINT ck_my_photo_liveness_expiry CHECK (expires_at > created_at), \n\tCONSTRAINT ck_my_photo_liveness_provider_reference CHECK ((provider_session_reference IS NULL AND status IN ('creating', 'failed')) OR (provider_session_reference IS NOT NULL AND status != 'creating')), \n\tCONSTRAINT ck_my_photo_liveness_native_launch_handle CHECK (native_launch_handle IS NULL OR status IN ('created', 'running')), \n\tCONSTRAINT ck_my_photo_liveness_completion CHECK ((completion_idempotency_key IS NULL AND completion_outcome IS NULL) OR (completion_idempotency_key IS NOT NULL AND completion_outcome IN ('completed', 'cancelled', 'expired', 'failed'))), \n\tCONSTRAINT ck_my_photo_liveness_provider_claim_shape CHECK ((provider_claim_token IS NULL) = (provider_claim_expires_at IS NULL)), \n\tCONSTRAINT ck_my_photo_liveness_provider_claim_status CHECK (provider_claim_token IS NULL OR status IN ('creating', 'running')), \n\tCONSTRAINT ck_my_photo_liveness_single_use CHECK ((consumed_at IS NULL AND status IN ('creating', 'created', 'running')) OR (consumed_at IS NOT NULL AND status IN ('completed', 'cancelled', 'expired', 'rejected', 'failed'))), \n\tCONSTRAINT ck_my_photo_liveness_retryable_shape CHECK ((status IN ('creating', 'created', 'running') AND result_retryable IS NULL) OR (status IN ('completed', 'cancelled', 'expired', 'rejected', 'failed') AND result_retryable IS NOT NULL))\n)\n\n"
+      },
+      "my_photo_matches": {
+        "indexes": {
+          "ix_my_photo_match_page": "CREATE INDEX ix_my_photo_match_page ON my_photo_matches (passenger_identity_id, gallery_revision, active, display_tier, sort_rank, media_asset_id)",
+          "uq_my_photo_match_active_asset": "CREATE UNIQUE INDEX uq_my_photo_match_active_asset ON my_photo_matches (passenger_identity_id, media_asset_id) WHERE active = true"
+        },
+        "table": "\nCREATE TABLE my_photo_matches (\n\tid UUID NOT NULL, \n\tsearch_run_id UUID NOT NULL, \n\tpassenger_identity_id UUID NOT NULL, \n\tmedia_asset_id UUID NOT NULL, \n\tface_occurrence_id UUID NOT NULL, \n\tagency_id UUID NOT NULL, \n\tgroup_id UUID NOT NULL, \n\tgallery_revision BIGINT NOT NULL, \n\tsimilarity FLOAT NOT NULL, \n\tdisplay_tier VARCHAR(16) NOT NULL, \n\tmatch_config_version VARCHAR(64) NOT NULL, \n\tfeedback VARCHAR(16) DEFAULT 'none' NOT NULL, \n\tfeedback_idempotency_key VARCHAR(128), \n\tactive BOOLEAN DEFAULT 'true' NOT NULL, \n\tsort_rank BIGINT NOT NULL, \n\tsuperseded_at TIMESTAMP WITH TIME ZONE, \n\tcreated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tupdated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_my_photo_match_scope UNIQUE (id, agency_id, group_id), \n\tCONSTRAINT uq_my_photo_match_run_asset UNIQUE (search_run_id, passenger_identity_id, media_asset_id), \n\tCONSTRAINT fk_my_photo_match_search FOREIGN KEY(search_run_id, passenger_identity_id, agency_id, group_id) REFERENCES my_photo_search_runs (id, passenger_identity_id, agency_id, group_id) ON DELETE CASCADE, \n\tCONSTRAINT fk_my_photo_match_asset FOREIGN KEY(media_asset_id, agency_id, group_id) REFERENCES my_photo_media_assets (id, agency_id, group_id) ON DELETE CASCADE, \n\tCONSTRAINT fk_my_photo_match_face FOREIGN KEY(face_occurrence_id, media_asset_id, agency_id, group_id) REFERENCES my_photo_face_occurrences (id, media_asset_id, agency_id, group_id) ON DELETE RESTRICT, \n\tCONSTRAINT ck_my_photo_match_similarity CHECK (similarity BETWEEN 0 AND 100), \n\tCONSTRAINT ck_my_photo_match_tier CHECK (display_tier IN ('best', 'possible')), \n\tCONSTRAINT ck_my_photo_match_feedback CHECK (feedback IN ('none', 'this_is_me', 'not_me')), \n\tCONSTRAINT ck_my_photo_match_active CHECK ((active = true AND superseded_at IS NULL) OR (active = false AND superseded_at IS NOT NULL))\n)\n\n"
+      },
+      "my_photo_media_assets": {
+        "indexes": {
+          "ix_my_photo_asset_availability": "CREATE INDEX ix_my_photo_asset_availability ON my_photo_media_assets (gallery_id, availability_state, id)",
+          "ix_my_photo_asset_checksum": "CREATE INDEX ix_my_photo_asset_checksum ON my_photo_media_assets (gallery_id, checksum_sha256)",
+          "ix_my_photo_asset_gallery_page": "CREATE INDEX ix_my_photo_asset_gallery_page ON my_photo_media_assets (gallery_id, published_revision, sort_rank, id)"
+        },
+        "table": "\nCREATE TABLE my_photo_media_assets (\n\tid UUID NOT NULL, \n\tgallery_id UUID NOT NULL, \n\tagency_id UUID NOT NULL, \n\tgroup_id UUID NOT NULL, \n\timmutable_asset_key VARCHAR(128) NOT NULL, \n\tmedia_type VARCHAR(16) DEFAULT 'photo' NOT NULL, \n\tarchive_reference VARCHAR(4096), \n\tstorage_reference VARCHAR(4096), \n\toriginal_filename VARCHAR(255) NOT NULL, \n\tmime_type VARCHAR(64) NOT NULL, \n\twidth INTEGER NOT NULL, \n\theight INTEGER NOT NULL, \n\taspect_ratio FLOAT NOT NULL, \n\tbyte_size BIGINT NOT NULL, \n\tchecksum_sha256 VARCHAR(64) NOT NULL, \n\tcaptured_at TIMESTAMP WITH TIME ZONE, \n\torientation INTEGER DEFAULT '1' NOT NULL, \n\tprocessing_state VARCHAR(24) DEFAULT 'registered' NOT NULL, \n\tavailability_state VARCHAR(32) DEFAULT 'registered' NOT NULL, \n\tpublished_revision BIGINT NOT NULL, \n\tsort_rank BIGINT NOT NULL, \n\tcreated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tupdated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_my_photo_asset_scope UNIQUE (id, agency_id, group_id), \n\tCONSTRAINT uq_my_photo_asset_gallery_key UNIQUE (gallery_id, immutable_asset_key), \n\tCONSTRAINT fk_my_photo_asset_gallery FOREIGN KEY(gallery_id, agency_id, group_id) REFERENCES my_photo_galleries (id, agency_id, group_id) ON DELETE CASCADE, \n\tCONSTRAINT ck_my_photo_asset_media_type CHECK (media_type = 'photo'), \n\tCONSTRAINT ck_my_photo_asset_mime CHECK (mime_type IN ('image/jpeg', 'image/png', 'image/webp', 'image/heic')), \n\tCONSTRAINT ck_my_photo_asset_dimensions CHECK (width BETWEEN 1 AND 100000 AND height BETWEEN 1 AND 100000 AND aspect_ratio > 0 AND aspect_ratio <= 100), \n\tCONSTRAINT ck_my_photo_asset_size CHECK (byte_size BETWEEN 1 AND 209715200), \n\tCONSTRAINT ck_my_photo_asset_checksum CHECK (length(checksum_sha256) = 64 AND checksum_sha256 = lower(checksum_sha256)), \n\tCONSTRAINT ck_my_photo_asset_orientation CHECK (orientation BETWEEN 1 AND 8), \n\tCONSTRAINT ck_my_photo_asset_revision_rank CHECK (published_revision >= 1 AND sort_rank >= 0), \n\tCONSTRAINT ck_my_photo_asset_processing CHECK (processing_state IN ('registered', 'awaiting_upload', 'processing', 'indexed', 'failed', 'removed')), \n\tCONSTRAINT ck_my_photo_asset_availability CHECK (availability_state IN ('registered', 'awaiting_upload', 'processing', 'indexed', 'preview_available', 'original_available_online', 'archived_offline', 'rehydration_requested', 'preparing_delivery', 'delivery_available', 'expired', 'failed', 'removed')), \n\tCONSTRAINT ck_my_photo_asset_filename CHECK (length(trim(original_filename)) BETWEEN 1 AND 255 AND original_filename NOT LIKE '%%/%%' AND original_filename NOT LIKE '%%\\%%'), \n\tCONSTRAINT ck_my_photo_asset_refs CHECK ((archive_reference IS NULL OR archive_reference NOT LIKE '%%://%%') AND (storage_reference IS NULL OR storage_reference NOT LIKE '%%://%%'))\n)\n\n"
+      },
+      "my_photo_search_runs": {
+        "indexes": {
+          "ix_my_photo_search_lease": "CREATE INDEX ix_my_photo_search_lease ON my_photo_search_runs (status, lease_expires_at)",
+          "ix_my_photo_search_passenger_current": "CREATE INDEX ix_my_photo_search_passenger_current ON my_photo_search_runs (passenger_identity_id, group_id, gallery_revision, created_at)"
+        },
+        "table": "\nCREATE TABLE my_photo_search_runs (\n\tid UUID NOT NULL, \n\tenrollment_id UUID NOT NULL, \n\tpassenger_identity_id UUID NOT NULL, \n\tgallery_id UUID NOT NULL, \n\tagency_id UUID NOT NULL, \n\tgroup_id UUID NOT NULL, \n\tgallery_revision BIGINT NOT NULL, \n\tface_index_version BIGINT NOT NULL, \n\tenrollment_version BIGINT NOT NULL, \n\tidempotency_key VARCHAR(128) NOT NULL, \n\tstatus VARCHAR(16) DEFAULT 'queued' NOT NULL, \n\tprocessed_face_count INTEGER DEFAULT '0' NOT NULL, \n\ttotal_face_count INTEGER DEFAULT '0' NOT NULL, \n\tmatched_asset_count INTEGER DEFAULT '0' NOT NULL, \n\tbest_match_count INTEGER DEFAULT '0' NOT NULL, \n\tpossible_match_count INTEGER DEFAULT '0' NOT NULL, \n\tattempt_count INTEGER DEFAULT '0' NOT NULL, \n\tmax_attempts INTEGER DEFAULT '5' NOT NULL, \n\tcheckpoint_cursor VARCHAR(512), \n\tlease_owner VARCHAR(128), \n\tlease_expires_at TIMESTAMP WITH TIME ZONE, \n\theartbeat_at TIMESTAMP WITH TIME ZONE, \n\tstable_error_code VARCHAR(64), \n\tcorrelation_id VARCHAR(64) NOT NULL, \n\tstarted_at TIMESTAMP WITH TIME ZONE, \n\tcompleted_at TIMESTAMP WITH TIME ZONE, \n\tcreated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tupdated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_my_photo_search_scope UNIQUE (id, passenger_identity_id, agency_id, group_id), \n\tCONSTRAINT uq_my_photo_search_trip_scope UNIQUE (id, agency_id, group_id), \n\tCONSTRAINT uq_my_photo_search_idempotency UNIQUE (passenger_identity_id, group_id, idempotency_key), \n\tCONSTRAINT fk_my_photo_search_enrollment FOREIGN KEY(enrollment_id, passenger_identity_id, agency_id, group_id) REFERENCES my_photo_enrollments (id, passenger_identity_id, agency_id, group_id) ON DELETE CASCADE, \n\tCONSTRAINT fk_my_photo_search_gallery FOREIGN KEY(gallery_id, agency_id, group_id) REFERENCES my_photo_galleries (id, agency_id, group_id) ON DELETE CASCADE, \n\tCONSTRAINT ck_my_photo_search_status CHECK (status IN ('queued', 'searching', 'complete', 'failed', 'cancelled')), \n\tCONSTRAINT ck_my_photo_search_versions CHECK (gallery_revision >= 1 AND face_index_version >= 1 AND enrollment_version >= 1), \n\tCONSTRAINT ck_my_photo_search_progress CHECK (processed_face_count >= 0 AND total_face_count >= 0 AND processed_face_count <= total_face_count AND matched_asset_count >= 0 AND matched_asset_count <= total_face_count AND best_match_count >= 0 AND possible_match_count >= 0 AND best_match_count + possible_match_count = matched_asset_count), \n\tCONSTRAINT ck_my_photo_search_attempts CHECK (attempt_count >= 0 AND max_attempts BETWEEN 1 AND 20)\n)\n\n"
+      }
+    },
+    "sqlite": {
+      "my_photo_asset_variants": {
+        "indexes": {
+          "ix_my_photo_variant_delivery": "CREATE INDEX ix_my_photo_variant_delivery ON my_photo_asset_variants (media_asset_id, variant_kind, availability_state)"
+        },
+        "table": "\nCREATE TABLE my_photo_asset_variants (\n\tid CHAR(32) NOT NULL, \n\tmedia_asset_id CHAR(32) NOT NULL, \n\tagency_id CHAR(32) NOT NULL, \n\tgroup_id CHAR(32) NOT NULL, \n\tvariant_kind VARCHAR(16) NOT NULL, \n\tstorage_reference VARCHAR(4096), \n\tmime_type VARCHAR(64) NOT NULL, \n\twidth INTEGER NOT NULL, \n\theight INTEGER NOT NULL, \n\tbyte_size BIGINT NOT NULL, \n\tchecksum_sha256 VARCHAR(64) NOT NULL, \n\tavailability_state VARCHAR(32) NOT NULL, \n\tdelivery_version BIGINT DEFAULT '1' NOT NULL, \n\texpires_at DATETIME, \n\tcreated_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tupdated_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_my_photo_variant_scope UNIQUE (id, agency_id, group_id), \n\tCONSTRAINT uq_my_photo_variant_version UNIQUE (media_asset_id, variant_kind, delivery_version), \n\tCONSTRAINT fk_my_photo_variant_asset FOREIGN KEY(media_asset_id, agency_id, group_id) REFERENCES my_photo_media_assets (id, agency_id, group_id) ON DELETE CASCADE, \n\tCONSTRAINT ck_my_photo_variant_kind CHECK (variant_kind IN ('thumbnail', 'preview', 'analysis', 'original', 'optimized')), \n\tCONSTRAINT ck_my_photo_variant_availability CHECK (availability_state IN ('registered', 'awaiting_upload', 'processing', 'indexed', 'preview_available', 'original_available_online', 'archived_offline', 'rehydration_requested', 'preparing_delivery', 'delivery_available', 'expired', 'failed', 'removed')), \n\tCONSTRAINT ck_my_photo_variant_dimensions CHECK (width BETWEEN 1 AND 100000 AND height BETWEEN 1 AND 100000 AND byte_size BETWEEN 1 AND 209715200), \n\tCONSTRAINT ck_my_photo_variant_checksum CHECK (length(checksum_sha256) = 64 AND checksum_sha256 = lower(checksum_sha256)), \n\tCONSTRAINT ck_my_photo_variant_ref CHECK (storage_reference IS NULL OR storage_reference NOT LIKE '%://%'), \n\tCONSTRAINT ck_my_photo_variant_version CHECK (delivery_version >= 1)\n)\n\n"
+      },
+      "my_photo_delivery_authorizations": {
+        "indexes": {
+          "ix_my_photo_delivery_expiry": "CREATE INDEX ix_my_photo_delivery_expiry ON my_photo_delivery_authorizations (status, expires_at)"
+        },
+        "table": "\nCREATE TABLE my_photo_delivery_authorizations (\n\tid CHAR(32) NOT NULL, \n\tpassenger_identity_id CHAR(32) NOT NULL, \n\tpassenger_submission_id CHAR(32) NOT NULL, \n\tgc_group_access_id CHAR(32) NOT NULL, \n\tmedia_asset_id CHAR(32) NOT NULL, \n\tagency_id CHAR(32) NOT NULL, \n\tgroup_id CHAR(32) NOT NULL, \n\tquality VARCHAR(16) NOT NULL, \n\tstatus VARCHAR(16) NOT NULL, \n\tidempotency_key VARCHAR(128) NOT NULL, \n\trequest_fingerprint VARCHAR(64) NOT NULL, \n\tdelivery_version BIGINT DEFAULT '1' NOT NULL, \n\tprovider_authorization_reference VARCHAR(512), \n\ttransport VARCHAR(32) DEFAULT 'unavailable' NOT NULL, \n\tclaim_token VARCHAR(64), \n\tclaim_expires_at DATETIME, \n\texpected_size_bytes BIGINT, \n\tchecksum_sha256 VARCHAR(64), \n\tcontent_type VARCHAR(64), \n\tsupports_ranges BOOLEAN DEFAULT 'false' NOT NULL, \n\texpires_at DATETIME, \n\tstable_error_code VARCHAR(64), \n\tcreated_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tupdated_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_my_photo_delivery_scope UNIQUE (id, agency_id, group_id), \n\tCONSTRAINT uq_my_photo_delivery_idempotency UNIQUE (passenger_identity_id, media_asset_id, quality, idempotency_key), \n\tCONSTRAINT fk_my_photo_delivery_asset FOREIGN KEY(media_asset_id, agency_id, group_id) REFERENCES my_photo_media_assets (id, agency_id, group_id) ON DELETE CASCADE, \n\tCONSTRAINT fk_my_photo_delivery_passenger FOREIGN KEY(passenger_identity_id, gc_group_access_id, agency_id, group_id, passenger_submission_id) REFERENCES mobile_passenger_identities (id, gc_group_access_id, agency_id, group_id, passenger_submission_id) ON DELETE CASCADE, \n\tCONSTRAINT ck_my_photo_delivery_quality CHECK (quality IN ('original', 'optimized')), \n\tCONSTRAINT ck_my_photo_delivery_content_type CHECK (content_type IS NULL OR content_type IN ('image/jpeg', 'image/png', 'image/webp')), \n\tCONSTRAINT ck_my_photo_delivery_status CHECK (status IN ('authorizing', 'preparing', 'available', 'expired', 'failed', 'cancelled')), \n\tCONSTRAINT ck_my_photo_delivery_size CHECK (expected_size_bytes IS NULL OR expected_size_bytes BETWEEN 1 AND 209715200), \n\tCONSTRAINT ck_my_photo_delivery_checksum CHECK (checksum_sha256 IS NULL OR (length(checksum_sha256) = 64 AND checksum_sha256 = lower(checksum_sha256))), \n\tCONSTRAINT ck_my_photo_delivery_fingerprint CHECK (length(request_fingerprint) = 64 AND request_fingerprint = lower(request_fingerprint)), \n\tCONSTRAINT ck_my_photo_delivery_transport CHECK (transport IN ('unavailable', 'development_fixture', 'direct_object_storage')), \n\tCONSTRAINT ck_my_photo_delivery_claim CHECK ((status = 'authorizing' AND claim_token IS NOT NULL AND claim_expires_at IS NOT NULL) OR (status != 'authorizing' AND claim_token IS NULL AND claim_expires_at IS NULL)), \n\tCONSTRAINT ck_my_photo_delivery_available CHECK ((status = 'available' AND provider_authorization_reference IS NOT NULL AND expected_size_bytes IS NOT NULL AND checksum_sha256 IS NOT NULL AND content_type IS NOT NULL AND expires_at IS NOT NULL AND transport != 'unavailable') OR (status != 'available' AND provider_authorization_reference IS NULL AND expected_size_bytes IS NULL AND checksum_sha256 IS NULL AND content_type IS NULL AND expires_at IS NULL AND supports_ranges = false AND transport = 'unavailable'))\n)\n\n"
+      },
+      "my_photo_enrollments": {
+        "indexes": {
+          "ix_my_photo_enrollment_deletion_retry": "CREATE INDEX ix_my_photo_enrollment_deletion_retry ON my_photo_enrollments (provider_deletion_next_attempt_at, provider_deletion_attempt_count)",
+          "ix_my_photo_enrollment_group_status": "CREATE INDEX ix_my_photo_enrollment_group_status ON my_photo_enrollments (group_id, status)",
+          "ix_my_photo_enrollment_superseded_deletion_retry": "CREATE INDEX ix_my_photo_enrollment_superseded_deletion_retry ON my_photo_enrollments (superseded_deletion_next_attempt_at, superseded_deletion_attempt_count)"
+        },
+        "table": "\nCREATE TABLE my_photo_enrollments (\n\tid CHAR(32) NOT NULL, \n\tpassenger_identity_id CHAR(32) NOT NULL, \n\tpassenger_submission_id CHAR(32) NOT NULL, \n\tgc_group_access_id CHAR(32) NOT NULL, \n\tagency_id CHAR(32) NOT NULL, \n\tgroup_id CHAR(32) NOT NULL, \n\tconsent_version VARCHAR(64) NOT NULL, \n\tconsented_at DATETIME NOT NULL, \n\tconsent_idempotency_key VARCHAR(128) NOT NULL, \n\tstatus VARCHAR(24) DEFAULT 'ready' NOT NULL, \n\tprovider_name VARCHAR(32), \n\tprovider_reference_handle VARCHAR(4096), \n\treference_version BIGINT DEFAULT '0' NOT NULL, \n\tattempt_count INTEGER DEFAULT '0' NOT NULL, \n\tmax_attempts INTEGER DEFAULT '5' NOT NULL, \n\tcooldown_until DATETIME, \n\tenrolled_at DATETIME, \n\trefreshed_at DATETIME, \n\trevoked_at DATETIME, \n\tdeleted_at DATETIME, \n\tdeletion_idempotency_key VARCHAR(128), \n\tdeletion_scope VARCHAR(40), \n\tprovider_deletion_status VARCHAR(16) DEFAULT 'not_required' NOT NULL, \n\tprovider_deletion_error_code VARCHAR(64), \n\tprovider_deletion_requested_at DATETIME, \n\tprovider_deletion_completed_at DATETIME, \n\tsuperseded_provider_reference_handle VARCHAR(4096), \n\tsuperseded_reference_deletion_status VARCHAR(16) DEFAULT 'not_required' NOT NULL, \n\tsuperseded_reference_deletion_error_code VARCHAR(64), \n\tsuperseded_reference_deletion_requested_at DATETIME, \n\tsuperseded_reference_deletion_completed_at DATETIME, \n\tprovider_deletion_attempt_count INTEGER DEFAULT '0' NOT NULL, \n\tprovider_deletion_next_attempt_at DATETIME, \n\tprovider_deletion_last_attempt_at DATETIME, \n\tsuperseded_deletion_attempt_count INTEGER DEFAULT '0' NOT NULL, \n\tsuperseded_deletion_next_attempt_at DATETIME, \n\tsuperseded_deletion_last_attempt_at DATETIME, \n\tcreated_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tupdated_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_my_photo_enrollment_scope UNIQUE (id, agency_id, group_id), \n\tCONSTRAINT uq_my_photo_enrollment_passenger_scope UNIQUE (id, passenger_identity_id, agency_id, group_id), \n\tCONSTRAINT uq_my_photo_enrollment_passenger UNIQUE (passenger_identity_id, group_id), \n\tCONSTRAINT fk_my_photo_enrollment_passenger FOREIGN KEY(passenger_identity_id, gc_group_access_id, agency_id, group_id, passenger_submission_id) REFERENCES mobile_passenger_identities (id, gc_group_access_id, agency_id, group_id, passenger_submission_id) ON DELETE CASCADE, \n\tCONSTRAINT ck_my_photo_enrollment_status CHECK (status IN ('ready', 'session_pending', 'processing', 'enrolled', 'rejected', 'cooldown', 'revoked', 'deleted')), \n\tCONSTRAINT ck_my_photo_enrollment_consent CHECK (length(trim(consent_version)) BETWEEN 1 AND 64), \n\tCONSTRAINT ck_my_photo_enrollment_attempts CHECK (reference_version >= 0 AND attempt_count >= 0 AND max_attempts BETWEEN 1 AND 20), \n\tCONSTRAINT ck_my_photo_enrollment_cooldown CHECK ((status = 'cooldown' AND cooldown_until IS NOT NULL) OR status != 'cooldown'), \n\tCONSTRAINT ck_my_photo_enrollment_terminal CHECK ((status = 'revoked' AND revoked_at IS NOT NULL) OR (status = 'deleted' AND deleted_at IS NOT NULL) OR status NOT IN ('revoked', 'deleted')), \n\tCONSTRAINT ck_my_photo_enrollment_enrolled CHECK ((status = 'enrolled' AND provider_reference_handle IS NOT NULL AND reference_version >= 1 AND enrolled_at IS NOT NULL) OR status != 'enrolled'), \n\tCONSTRAINT ck_my_photo_enrollment_provider_deletion_status CHECK (provider_deletion_status IN ('not_required', 'pending', 'complete', 'failed')), \n\tCONSTRAINT ck_my_photo_enrollment_deletion_request CHECK ((deletion_idempotency_key IS NULL AND deletion_scope IS NULL) OR (deletion_idempotency_key IS NOT NULL AND deletion_scope IN ('enrollment_only', 'enrollment_and_search_data'))), \n\tCONSTRAINT ck_my_photo_enrollment_deleted_request CHECK ((status = 'deleted' AND deletion_idempotency_key IS NOT NULL) OR status != 'deleted'), \n\tCONSTRAINT ck_my_photo_enrollment_provider_deletion_shape CHECK ((provider_deletion_status = 'not_required' AND provider_deletion_requested_at IS NULL AND provider_deletion_completed_at IS NULL AND provider_deletion_error_code IS NULL) OR (provider_deletion_status = 'pending' AND provider_deletion_requested_at IS NOT NULL AND provider_deletion_completed_at IS NULL) OR (provider_deletion_status = 'complete' AND provider_deletion_requested_at IS NOT NULL AND provider_deletion_completed_at IS NOT NULL AND provider_deletion_error_code IS NULL AND provider_reference_handle IS NULL) OR (provider_deletion_status = 'failed' AND provider_deletion_requested_at IS NOT NULL AND provider_deletion_completed_at IS NULL AND provider_deletion_error_code IS NOT NULL)), \n\tCONSTRAINT ck_my_photo_enrollment_superseded_deletion_status CHECK (superseded_reference_deletion_status IN ('not_required', 'pending', 'complete', 'failed')), \n\tCONSTRAINT ck_my_photo_enrollment_deletion_attempts CHECK (provider_deletion_attempt_count BETWEEN 0 AND 20), \n\tCONSTRAINT ck_my_photo_enrollment_superseded_deletion_attempts CHECK (superseded_deletion_attempt_count BETWEEN 0 AND 20), \n\tCONSTRAINT ck_my_photo_enrollment_superseded_deletion_shape CHECK ((superseded_reference_deletion_status = 'not_required' AND superseded_provider_reference_handle IS NULL AND superseded_reference_deletion_requested_at IS NULL AND superseded_reference_deletion_completed_at IS NULL AND superseded_reference_deletion_error_code IS NULL) OR (superseded_reference_deletion_status = 'pending' AND superseded_provider_reference_handle IS NOT NULL AND superseded_reference_deletion_requested_at IS NOT NULL AND superseded_reference_deletion_completed_at IS NULL) OR (superseded_reference_deletion_status = 'complete' AND superseded_provider_reference_handle IS NULL AND superseded_reference_deletion_requested_at IS NOT NULL AND superseded_reference_deletion_completed_at IS NOT NULL AND superseded_reference_deletion_error_code IS NULL) OR (superseded_reference_deletion_status = 'failed' AND superseded_provider_reference_handle IS NOT NULL AND superseded_reference_deletion_requested_at IS NOT NULL AND superseded_reference_deletion_completed_at IS NULL AND superseded_reference_deletion_error_code IS NOT NULL))\n)\n\n"
+      },
+      "my_photo_face_occurrences": {
+        "indexes": {
+          "ix_my_photo_face_asset_active": "CREATE INDEX ix_my_photo_face_asset_active ON my_photo_face_occurrences (media_asset_id, active)"
+        },
+        "table": "\nCREATE TABLE my_photo_face_occurrences (\n\tid CHAR(32) NOT NULL, \n\tmedia_asset_id CHAR(32) NOT NULL, \n\tagency_id CHAR(32) NOT NULL, \n\tgroup_id CHAR(32) NOT NULL, \n\tprovider_name VARCHAR(32) NOT NULL, \n\tprovider_face_reference VARCHAR(512) NOT NULL, \n\tidempotency_identity VARCHAR(128) NOT NULL, \n\tbounding_left FLOAT NOT NULL, \n\tbounding_top FLOAT NOT NULL, \n\tbounding_width FLOAT NOT NULL, \n\tbounding_height FLOAT NOT NULL, \n\tquality_score FLOAT, \n\tquality_class VARCHAR(32), \n\tprovider_model_version VARCHAR(64) NOT NULL, \n\tindex_version BIGINT NOT NULL, \n\tactive BOOLEAN DEFAULT 'true' NOT NULL, \n\tdeleted_at DATETIME, \n\tcreated_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_my_photo_face_scope UNIQUE (id, agency_id, group_id), \n\tCONSTRAINT uq_my_photo_face_asset_scope UNIQUE (id, media_asset_id, agency_id, group_id), \n\tCONSTRAINT uq_my_photo_face_provider UNIQUE (agency_id, group_id, provider_name, index_version, provider_face_reference), \n\tCONSTRAINT uq_my_photo_face_idempotency UNIQUE (media_asset_id, idempotency_identity), \n\tCONSTRAINT fk_my_photo_face_asset FOREIGN KEY(media_asset_id, agency_id, group_id) REFERENCES my_photo_media_assets (id, agency_id, group_id) ON DELETE CASCADE, \n\tCONSTRAINT ck_my_photo_face_bounds CHECK (bounding_left BETWEEN 0 AND 1 AND bounding_top BETWEEN 0 AND 1 AND bounding_width > 0 AND bounding_width <= 1 AND bounding_height > 0 AND bounding_height <= 1 AND bounding_left + bounding_width <= 1.000001 AND bounding_top + bounding_height <= 1.000001), \n\tCONSTRAINT ck_my_photo_face_quality CHECK (quality_score IS NULL OR quality_score BETWEEN 0 AND 100), \n\tCONSTRAINT ck_my_photo_face_index_version CHECK (index_version >= 1), \n\tCONSTRAINT ck_my_photo_face_active CHECK ((active = true AND deleted_at IS NULL) OR (active = false))\n)\n\n"
+      },
+      "my_photo_galleries": {
+        "indexes": {
+          "ix_my_photo_gallery_availability": "CREATE INDEX ix_my_photo_gallery_availability ON my_photo_galleries (feature_enabled, status, group_id)",
+          "ix_my_photo_gallery_revision": "CREATE INDEX ix_my_photo_gallery_revision ON my_photo_galleries (group_id, published_revision)"
+        },
+        "table": "\nCREATE TABLE my_photo_galleries (\n\tid CHAR(32) NOT NULL, \n\tagency_id CHAR(32) NOT NULL, \n\tgroup_id CHAR(32) NOT NULL, \n\tgc_group_access_id CHAR(32) NOT NULL, \n\tfeature_enabled BOOLEAN DEFAULT 'false' NOT NULL, \n\tstatus VARCHAR(24) DEFAULT 'not_uploaded' NOT NULL, \n\tmedia_version BIGINT DEFAULT '0' NOT NULL, \n\tface_index_version BIGINT DEFAULT '0' NOT NULL, \n\tpublished_revision BIGINT DEFAULT '0' NOT NULL, \n\ttotal_asset_count INTEGER DEFAULT '0' NOT NULL, \n\tindexed_asset_count INTEGER DEFAULT '0' NOT NULL, \n\tfailed_asset_count INTEGER DEFAULT '0' NOT NULL, \n\tall_group_photos_enabled BOOLEAN DEFAULT 'false' NOT NULL, \n\tprovider_collection_reference VARCHAR(512), \n\tprovider_name VARCHAR(32), \n\tindex_model_version VARCHAR(64), \n\tmatch_config_version VARCHAR(64) DEFAULT 'unconfigured' NOT NULL, \n\tretention_policy_version VARCHAR(64) DEFAULT 'v1' NOT NULL, \n\tretention_days INTEGER, \n\tavailability_starts_at DATETIME, \n\tavailability_ends_at DATETIME, \n\tpublished_at DATETIME, \n\tcreated_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tupdated_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_my_photo_gallery_group UNIQUE (group_id), \n\tCONSTRAINT uq_my_photo_gallery_access UNIQUE (gc_group_access_id, agency_id, group_id), \n\tCONSTRAINT uq_my_photo_gallery_scope UNIQUE (id, agency_id, group_id), \n\tCONSTRAINT fk_my_photo_gallery_access FOREIGN KEY(gc_group_access_id, agency_id, group_id) REFERENCES gc_group_access (id, agency_id, group_id) ON DELETE CASCADE, \n\tCONSTRAINT ck_my_photo_gallery_status CHECK (status IN ('not_uploaded', 'awaiting_upload', 'processing', 'indexing', 'ready', 'failed', 'removed')), \n\tCONSTRAINT ck_my_photo_gallery_versions CHECK (media_version >= 0 AND face_index_version >= 0 AND published_revision >= 0), \n\tCONSTRAINT ck_my_photo_gallery_counts CHECK (total_asset_count >= 0 AND indexed_asset_count >= 0 AND failed_asset_count >= 0 AND indexed_asset_count + failed_asset_count <= total_asset_count), \n\tCONSTRAINT ck_my_photo_gallery_window CHECK (availability_ends_at IS NULL OR availability_starts_at IS NULL OR availability_ends_at > availability_starts_at), \n\tCONSTRAINT ck_my_photo_gallery_retention CHECK (retention_days IS NULL OR retention_days BETWEEN 1 AND 3650), \n\tCONSTRAINT ck_my_photo_gallery_ready_shape CHECK ((status = 'ready' AND published_revision >= 1 AND published_at IS NOT NULL AND provider_collection_reference IS NOT NULL) OR status != 'ready'), \n\tFOREIGN KEY(agency_id) REFERENCES agencies (id) ON DELETE CASCADE, \n\tFOREIGN KEY(group_id) REFERENCES client_groups (id) ON DELETE CASCADE\n)\n\n"
+      },
+      "my_photo_gallery_manifest_batches": {
+        "indexes": {},
+        "table": "\nCREATE TABLE my_photo_gallery_manifest_batches (\n\tid CHAR(32) NOT NULL, \n\tmanifest_id CHAR(32) NOT NULL, \n\tagency_id CHAR(32) NOT NULL, \n\tgroup_id CHAR(32) NOT NULL, \n\tbatch_index INTEGER NOT NULL, \n\tbatch_fingerprint VARCHAR(64) NOT NULL, \n\tasset_count INTEGER NOT NULL, \n\tcreated_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_my_photo_manifest_batch UNIQUE (manifest_id, batch_index), \n\tCONSTRAINT fk_my_photo_manifest_batch_manifest FOREIGN KEY(manifest_id, agency_id, group_id) REFERENCES my_photo_gallery_manifests (id, agency_id, group_id) ON DELETE CASCADE, \n\tCONSTRAINT ck_my_photo_manifest_batch_bounds CHECK (batch_index BETWEEN 0 AND 49 AND asset_count BETWEEN 1 AND 100), \n\tCONSTRAINT ck_my_photo_manifest_batch_fingerprint CHECK (length(batch_fingerprint) = 64 AND batch_fingerprint = lower(batch_fingerprint))\n)\n\n"
+      },
+      "my_photo_gallery_manifests": {
+        "indexes": {
+          "ix_my_photo_manifest_status": "CREATE INDEX ix_my_photo_manifest_status ON my_photo_gallery_manifests (status, created_at)",
+          "uq_my_photo_manifest_active_revision": "CREATE UNIQUE INDEX uq_my_photo_manifest_active_revision ON my_photo_gallery_manifests (gallery_id, target_revision) WHERE status <> 'cancelled'"
+        },
+        "table": "\nCREATE TABLE my_photo_gallery_manifests (\n\tid CHAR(32) NOT NULL, \n\tgallery_id CHAR(32) NOT NULL, \n\tagency_id CHAR(32) NOT NULL, \n\tgroup_id CHAR(32) NOT NULL, \n\tmanifest_identity VARCHAR(128) NOT NULL, \n\ttarget_revision BIGINT NOT NULL, \n\theader_fingerprint VARCHAR(64) NOT NULL, \n\tcontent_fingerprint VARCHAR(64), \n\ttotal_asset_count INTEGER NOT NULL, \n\tbatch_count INTEGER NOT NULL, \n\treceived_asset_count INTEGER DEFAULT '0' NOT NULL, \n\tstatus VARCHAR(16) DEFAULT 'receiving' NOT NULL, \n\tall_group_photos_enabled BOOLEAN DEFAULT 'false' NOT NULL, \n\tretention_policy_version VARCHAR(64) NOT NULL, \n\tretention_days INTEGER NOT NULL, \n\tavailability_starts_at DATETIME NOT NULL, \n\tavailability_ends_at DATETIME NOT NULL, \n\tprovider_collection_reference VARCHAR(512) NOT NULL, \n\tprovider_model_version VARCHAR(64) NOT NULL, \n\tmatch_config_version VARCHAR(64) NOT NULL, \n\tcreated_by_user_id CHAR(32), \n\tfinalized_at DATETIME, \n\tcancellation_requested_at DATETIME, \n\tcreated_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tupdated_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_my_photo_manifest_scope UNIQUE (id, agency_id, group_id), \n\tCONSTRAINT uq_my_photo_manifest_identity UNIQUE (gallery_id, manifest_identity), \n\tCONSTRAINT fk_my_photo_manifest_gallery FOREIGN KEY(gallery_id, agency_id, group_id) REFERENCES my_photo_galleries (id, agency_id, group_id) ON DELETE CASCADE, \n\tCONSTRAINT ck_my_photo_manifest_status CHECK (status IN ('receiving', 'finalized', 'indexing', 'failed', 'cancelled')), \n\tCONSTRAINT ck_my_photo_manifest_counts CHECK (target_revision >= 1 AND total_asset_count BETWEEN 1 AND 5000 AND batch_count BETWEEN 1 AND 50 AND received_asset_count >= 0 AND received_asset_count <= total_asset_count), \n\tCONSTRAINT ck_my_photo_manifest_fingerprints CHECK (length(header_fingerprint) = 64 AND header_fingerprint = lower(header_fingerprint) AND (content_fingerprint IS NULL OR (length(content_fingerprint) = 64 AND content_fingerprint = lower(content_fingerprint)))), \n\tCONSTRAINT ck_my_photo_manifest_policy CHECK (retention_days BETWEEN 1 AND 3650 AND availability_ends_at > availability_starts_at), \n\tFOREIGN KEY(created_by_user_id) REFERENCES users (id) ON DELETE SET NULL\n)\n\n"
+      },
+      "my_photo_jobs": {
+        "indexes": {
+          "ix_my_photo_job_claim": "CREATE INDEX ix_my_photo_job_claim ON my_photo_jobs (job_type, status, next_attempt_at, created_at)",
+          "ix_my_photo_job_lease": "CREATE INDEX ix_my_photo_job_lease ON my_photo_jobs (status, lease_expires_at)"
+        },
+        "table": "\nCREATE TABLE my_photo_jobs (\n\tid CHAR(32) NOT NULL, \n\tgallery_id CHAR(32) NOT NULL, \n\tmedia_asset_id CHAR(32), \n\tsearch_run_id CHAR(32), \n\tagency_id CHAR(32) NOT NULL, \n\tgroup_id CHAR(32) NOT NULL, \n\tjob_type VARCHAR(32) NOT NULL, \n\tstatus VARCHAR(16) DEFAULT 'queued' NOT NULL, \n\tidempotency_key VARCHAR(128) NOT NULL, \n\trequest_fingerprint VARCHAR(64), \n\ttarget_revision BIGINT, \n\tattempt_count INTEGER DEFAULT '0' NOT NULL, \n\tmax_attempts INTEGER DEFAULT '5' NOT NULL, \n\tcheckpoint_cursor VARCHAR(512), \n\tprocessed_count INTEGER DEFAULT '0' NOT NULL, \n\ttotal_count INTEGER DEFAULT '0' NOT NULL, \n\tsucceeded_count INTEGER DEFAULT '0' NOT NULL, \n\tfailed_count INTEGER DEFAULT '0' NOT NULL, \n\tlease_owner VARCHAR(128), \n\tlease_expires_at DATETIME, \n\theartbeat_at DATETIME, \n\tnext_attempt_at DATETIME, \n\tstable_error_code VARCHAR(64), \n\terror_detail VARCHAR(512), \n\tcorrelation_id VARCHAR(64) NOT NULL, \n\tcancellation_requested_at DATETIME, \n\tstarted_at DATETIME, \n\tcompleted_at DATETIME, \n\tcreated_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tupdated_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_my_photo_job_scope UNIQUE (id, agency_id, group_id), \n\tCONSTRAINT uq_my_photo_job_idempotency UNIQUE (gallery_id, job_type, idempotency_key), \n\tCONSTRAINT fk_my_photo_job_gallery FOREIGN KEY(gallery_id, agency_id, group_id) REFERENCES my_photo_galleries (id, agency_id, group_id) ON DELETE CASCADE, \n\tCONSTRAINT fk_my_photo_job_asset FOREIGN KEY(media_asset_id, agency_id, group_id) REFERENCES my_photo_media_assets (id, agency_id, group_id) ON DELETE CASCADE, \n\tCONSTRAINT fk_my_photo_job_search FOREIGN KEY(search_run_id, agency_id, group_id) REFERENCES my_photo_search_runs (id, agency_id, group_id) ON DELETE CASCADE, \n\tCONSTRAINT ck_my_photo_job_type CHECK (job_type IN ('index_gallery', 'generate_variants', 'search_passenger', 'prepare_media', 'refresh_searches')), \n\tCONSTRAINT ck_my_photo_job_status CHECK (status IN ('queued', 'running', 'retrying', 'succeeded', 'cancelled', 'failed')), \n\tCONSTRAINT ck_my_photo_job_counts CHECK (attempt_count >= 0 AND max_attempts BETWEEN 1 AND 20 AND processed_count >= 0 AND total_count >= 0 AND processed_count <= total_count AND succeeded_count >= 0 AND failed_count >= 0 AND succeeded_count + failed_count <= processed_count), \n\tCONSTRAINT ck_my_photo_job_request_fingerprint CHECK (request_fingerprint IS NULL OR (length(request_fingerprint) = 64 AND request_fingerprint = lower(request_fingerprint))), \n\tCONSTRAINT ck_my_photo_job_target CHECK ((job_type IN ('index_gallery', 'refresh_searches') AND media_asset_id IS NULL AND search_run_id IS NULL AND target_revision IS NOT NULL) OR (job_type IN ('generate_variants', 'prepare_media') AND media_asset_id IS NOT NULL AND search_run_id IS NULL AND target_revision IS NULL) OR (job_type = 'search_passenger' AND media_asset_id IS NULL AND search_run_id IS NOT NULL AND target_revision IS NULL)), \n\tCONSTRAINT ck_my_photo_job_target_revision CHECK (target_revision IS NULL OR target_revision >= 1)\n)\n\n"
+      },
+      "my_photo_liveness_sessions": {
+        "indexes": {
+          "ix_my_photo_liveness_expiry": "CREATE INDEX ix_my_photo_liveness_expiry ON my_photo_liveness_sessions (status, expires_at)",
+          "ix_my_photo_liveness_provider_claim": "CREATE INDEX ix_my_photo_liveness_provider_claim ON my_photo_liveness_sessions (status, provider_claim_expires_at)",
+          "uq_my_photo_liveness_active_enrollment": "CREATE UNIQUE INDEX uq_my_photo_liveness_active_enrollment ON my_photo_liveness_sessions (enrollment_id) WHERE status IN ('creating', 'created', 'running')"
+        },
+        "table": "\nCREATE TABLE my_photo_liveness_sessions (\n\tid CHAR(32) NOT NULL, \n\tenrollment_id CHAR(32) NOT NULL, \n\tagency_id CHAR(32) NOT NULL, \n\tgroup_id CHAR(32) NOT NULL, \n\tidempotency_key VARCHAR(128) NOT NULL, \n\tchallenge_mode VARCHAR(32) NOT NULL, \n\tstatus VARCHAR(16) DEFAULT 'created' NOT NULL, \n\tprovider_name VARCHAR(32) NOT NULL, \n\tprovider_session_reference VARCHAR(512), \n\tnative_launch_handle VARCHAR(512), \n\tstable_error_code VARCHAR(64), \n\tcompletion_idempotency_key VARCHAR(128), \n\tcompletion_outcome VARCHAR(16), \n\tresult_retryable BOOLEAN, \n\tprovider_claim_token VARCHAR(64), \n\tprovider_claim_expires_at DATETIME, \n\texpires_at DATETIME NOT NULL, \n\tconsumed_at DATETIME, \n\tcreated_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tupdated_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_my_photo_liveness_scope UNIQUE (id, agency_id, group_id), \n\tCONSTRAINT uq_my_photo_liveness_idempotency UNIQUE (enrollment_id, idempotency_key), \n\tCONSTRAINT fk_my_photo_liveness_enrollment FOREIGN KEY(enrollment_id, agency_id, group_id) REFERENCES my_photo_enrollments (id, agency_id, group_id) ON DELETE CASCADE, \n\tCONSTRAINT ck_my_photo_liveness_mode CHECK (challenge_mode IN ('movement_and_light', 'movement_only')), \n\tCONSTRAINT ck_my_photo_liveness_status CHECK (status IN ('creating', 'created', 'running', 'completed', 'cancelled', 'expired', 'rejected', 'failed')), \n\tCONSTRAINT ck_my_photo_liveness_expiry CHECK (expires_at > created_at), \n\tCONSTRAINT ck_my_photo_liveness_provider_reference CHECK ((provider_session_reference IS NULL AND status IN ('creating', 'failed')) OR (provider_session_reference IS NOT NULL AND status != 'creating')), \n\tCONSTRAINT ck_my_photo_liveness_native_launch_handle CHECK (native_launch_handle IS NULL OR status IN ('created', 'running')), \n\tCONSTRAINT ck_my_photo_liveness_completion CHECK ((completion_idempotency_key IS NULL AND completion_outcome IS NULL) OR (completion_idempotency_key IS NOT NULL AND completion_outcome IN ('completed', 'cancelled', 'expired', 'failed'))), \n\tCONSTRAINT ck_my_photo_liveness_provider_claim_shape CHECK ((provider_claim_token IS NULL) = (provider_claim_expires_at IS NULL)), \n\tCONSTRAINT ck_my_photo_liveness_provider_claim_status CHECK (provider_claim_token IS NULL OR status IN ('creating', 'running')), \n\tCONSTRAINT ck_my_photo_liveness_single_use CHECK ((consumed_at IS NULL AND status IN ('creating', 'created', 'running')) OR (consumed_at IS NOT NULL AND status IN ('completed', 'cancelled', 'expired', 'rejected', 'failed'))), \n\tCONSTRAINT ck_my_photo_liveness_retryable_shape CHECK ((status IN ('creating', 'created', 'running') AND result_retryable IS NULL) OR (status IN ('completed', 'cancelled', 'expired', 'rejected', 'failed') AND result_retryable IS NOT NULL))\n)\n\n"
+      },
+      "my_photo_matches": {
+        "indexes": {
+          "ix_my_photo_match_page": "CREATE INDEX ix_my_photo_match_page ON my_photo_matches (passenger_identity_id, gallery_revision, active, display_tier, sort_rank, media_asset_id)",
+          "uq_my_photo_match_active_asset": "CREATE UNIQUE INDEX uq_my_photo_match_active_asset ON my_photo_matches (passenger_identity_id, media_asset_id) WHERE active = true"
+        },
+        "table": "\nCREATE TABLE my_photo_matches (\n\tid CHAR(32) NOT NULL, \n\tsearch_run_id CHAR(32) NOT NULL, \n\tpassenger_identity_id CHAR(32) NOT NULL, \n\tmedia_asset_id CHAR(32) NOT NULL, \n\tface_occurrence_id CHAR(32) NOT NULL, \n\tagency_id CHAR(32) NOT NULL, \n\tgroup_id CHAR(32) NOT NULL, \n\tgallery_revision BIGINT NOT NULL, \n\tsimilarity FLOAT NOT NULL, \n\tdisplay_tier VARCHAR(16) NOT NULL, \n\tmatch_config_version VARCHAR(64) NOT NULL, \n\tfeedback VARCHAR(16) DEFAULT 'none' NOT NULL, \n\tfeedback_idempotency_key VARCHAR(128), \n\tactive BOOLEAN DEFAULT 'true' NOT NULL, \n\tsort_rank BIGINT NOT NULL, \n\tsuperseded_at DATETIME, \n\tcreated_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tupdated_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_my_photo_match_scope UNIQUE (id, agency_id, group_id), \n\tCONSTRAINT uq_my_photo_match_run_asset UNIQUE (search_run_id, passenger_identity_id, media_asset_id), \n\tCONSTRAINT fk_my_photo_match_search FOREIGN KEY(search_run_id, passenger_identity_id, agency_id, group_id) REFERENCES my_photo_search_runs (id, passenger_identity_id, agency_id, group_id) ON DELETE CASCADE, \n\tCONSTRAINT fk_my_photo_match_asset FOREIGN KEY(media_asset_id, agency_id, group_id) REFERENCES my_photo_media_assets (id, agency_id, group_id) ON DELETE CASCADE, \n\tCONSTRAINT fk_my_photo_match_face FOREIGN KEY(face_occurrence_id, media_asset_id, agency_id, group_id) REFERENCES my_photo_face_occurrences (id, media_asset_id, agency_id, group_id) ON DELETE RESTRICT, \n\tCONSTRAINT ck_my_photo_match_similarity CHECK (similarity BETWEEN 0 AND 100), \n\tCONSTRAINT ck_my_photo_match_tier CHECK (display_tier IN ('best', 'possible')), \n\tCONSTRAINT ck_my_photo_match_feedback CHECK (feedback IN ('none', 'this_is_me', 'not_me')), \n\tCONSTRAINT ck_my_photo_match_active CHECK ((active = true AND superseded_at IS NULL) OR (active = false AND superseded_at IS NOT NULL))\n)\n\n"
+      },
+      "my_photo_media_assets": {
+        "indexes": {
+          "ix_my_photo_asset_availability": "CREATE INDEX ix_my_photo_asset_availability ON my_photo_media_assets (gallery_id, availability_state, id)",
+          "ix_my_photo_asset_checksum": "CREATE INDEX ix_my_photo_asset_checksum ON my_photo_media_assets (gallery_id, checksum_sha256)",
+          "ix_my_photo_asset_gallery_page": "CREATE INDEX ix_my_photo_asset_gallery_page ON my_photo_media_assets (gallery_id, published_revision, sort_rank, id)"
+        },
+        "table": "\nCREATE TABLE my_photo_media_assets (\n\tid CHAR(32) NOT NULL, \n\tgallery_id CHAR(32) NOT NULL, \n\tagency_id CHAR(32) NOT NULL, \n\tgroup_id CHAR(32) NOT NULL, \n\timmutable_asset_key VARCHAR(128) NOT NULL, \n\tmedia_type VARCHAR(16) DEFAULT 'photo' NOT NULL, \n\tarchive_reference VARCHAR(4096), \n\tstorage_reference VARCHAR(4096), \n\toriginal_filename VARCHAR(255) NOT NULL, \n\tmime_type VARCHAR(64) NOT NULL, \n\twidth INTEGER NOT NULL, \n\theight INTEGER NOT NULL, \n\taspect_ratio FLOAT NOT NULL, \n\tbyte_size BIGINT NOT NULL, \n\tchecksum_sha256 VARCHAR(64) NOT NULL, \n\tcaptured_at DATETIME, \n\torientation INTEGER DEFAULT '1' NOT NULL, \n\tprocessing_state VARCHAR(24) DEFAULT 'registered' NOT NULL, \n\tavailability_state VARCHAR(32) DEFAULT 'registered' NOT NULL, \n\tpublished_revision BIGINT NOT NULL, \n\tsort_rank BIGINT NOT NULL, \n\tcreated_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tupdated_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_my_photo_asset_scope UNIQUE (id, agency_id, group_id), \n\tCONSTRAINT uq_my_photo_asset_gallery_key UNIQUE (gallery_id, immutable_asset_key), \n\tCONSTRAINT fk_my_photo_asset_gallery FOREIGN KEY(gallery_id, agency_id, group_id) REFERENCES my_photo_galleries (id, agency_id, group_id) ON DELETE CASCADE, \n\tCONSTRAINT ck_my_photo_asset_media_type CHECK (media_type = 'photo'), \n\tCONSTRAINT ck_my_photo_asset_mime CHECK (mime_type IN ('image/jpeg', 'image/png', 'image/webp', 'image/heic')), \n\tCONSTRAINT ck_my_photo_asset_dimensions CHECK (width BETWEEN 1 AND 100000 AND height BETWEEN 1 AND 100000 AND aspect_ratio > 0 AND aspect_ratio <= 100), \n\tCONSTRAINT ck_my_photo_asset_size CHECK (byte_size BETWEEN 1 AND 209715200), \n\tCONSTRAINT ck_my_photo_asset_checksum CHECK (length(checksum_sha256) = 64 AND checksum_sha256 = lower(checksum_sha256)), \n\tCONSTRAINT ck_my_photo_asset_orientation CHECK (orientation BETWEEN 1 AND 8), \n\tCONSTRAINT ck_my_photo_asset_revision_rank CHECK (published_revision >= 1 AND sort_rank >= 0), \n\tCONSTRAINT ck_my_photo_asset_processing CHECK (processing_state IN ('registered', 'awaiting_upload', 'processing', 'indexed', 'failed', 'removed')), \n\tCONSTRAINT ck_my_photo_asset_availability CHECK (availability_state IN ('registered', 'awaiting_upload', 'processing', 'indexed', 'preview_available', 'original_available_online', 'archived_offline', 'rehydration_requested', 'preparing_delivery', 'delivery_available', 'expired', 'failed', 'removed')), \n\tCONSTRAINT ck_my_photo_asset_filename CHECK (length(trim(original_filename)) BETWEEN 1 AND 255 AND original_filename NOT LIKE '%/%' AND original_filename NOT LIKE '%\\%'), \n\tCONSTRAINT ck_my_photo_asset_refs CHECK ((archive_reference IS NULL OR archive_reference NOT LIKE '%://%') AND (storage_reference IS NULL OR storage_reference NOT LIKE '%://%'))\n)\n\n"
+      },
+      "my_photo_search_runs": {
+        "indexes": {
+          "ix_my_photo_search_lease": "CREATE INDEX ix_my_photo_search_lease ON my_photo_search_runs (status, lease_expires_at)",
+          "ix_my_photo_search_passenger_current": "CREATE INDEX ix_my_photo_search_passenger_current ON my_photo_search_runs (passenger_identity_id, group_id, gallery_revision, created_at)"
+        },
+        "table": "\nCREATE TABLE my_photo_search_runs (\n\tid CHAR(32) NOT NULL, \n\tenrollment_id CHAR(32) NOT NULL, \n\tpassenger_identity_id CHAR(32) NOT NULL, \n\tgallery_id CHAR(32) NOT NULL, \n\tagency_id CHAR(32) NOT NULL, \n\tgroup_id CHAR(32) NOT NULL, \n\tgallery_revision BIGINT NOT NULL, \n\tface_index_version BIGINT NOT NULL, \n\tenrollment_version BIGINT NOT NULL, \n\tidempotency_key VARCHAR(128) NOT NULL, \n\tstatus VARCHAR(16) DEFAULT 'queued' NOT NULL, \n\tprocessed_face_count INTEGER DEFAULT '0' NOT NULL, \n\ttotal_face_count INTEGER DEFAULT '0' NOT NULL, \n\tmatched_asset_count INTEGER DEFAULT '0' NOT NULL, \n\tbest_match_count INTEGER DEFAULT '0' NOT NULL, \n\tpossible_match_count INTEGER DEFAULT '0' NOT NULL, \n\tattempt_count INTEGER DEFAULT '0' NOT NULL, \n\tmax_attempts INTEGER DEFAULT '5' NOT NULL, \n\tcheckpoint_cursor VARCHAR(512), \n\tlease_owner VARCHAR(128), \n\tlease_expires_at DATETIME, \n\theartbeat_at DATETIME, \n\tstable_error_code VARCHAR(64), \n\tcorrelation_id VARCHAR(64) NOT NULL, \n\tstarted_at DATETIME, \n\tcompleted_at DATETIME, \n\tcreated_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tupdated_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_my_photo_search_scope UNIQUE (id, passenger_identity_id, agency_id, group_id), \n\tCONSTRAINT uq_my_photo_search_trip_scope UNIQUE (id, agency_id, group_id), \n\tCONSTRAINT uq_my_photo_search_idempotency UNIQUE (passenger_identity_id, group_id, idempotency_key), \n\tCONSTRAINT fk_my_photo_search_enrollment FOREIGN KEY(enrollment_id, passenger_identity_id, agency_id, group_id) REFERENCES my_photo_enrollments (id, passenger_identity_id, agency_id, group_id) ON DELETE CASCADE, \n\tCONSTRAINT fk_my_photo_search_gallery FOREIGN KEY(gallery_id, agency_id, group_id) REFERENCES my_photo_galleries (id, agency_id, group_id) ON DELETE CASCADE, \n\tCONSTRAINT ck_my_photo_search_status CHECK (status IN ('queued', 'searching', 'complete', 'failed', 'cancelled')), \n\tCONSTRAINT ck_my_photo_search_versions CHECK (gallery_revision >= 1 AND face_index_version >= 1 AND enrollment_version >= 1), \n\tCONSTRAINT ck_my_photo_search_progress CHECK (processed_face_count >= 0 AND total_face_count >= 0 AND processed_face_count <= total_face_count AND matched_asset_count >= 0 AND matched_asset_count <= total_face_count AND best_match_count >= 0 AND possible_match_count >= 0 AND best_match_count + possible_match_count = matched_asset_count), \n\tCONSTRAINT ck_my_photo_search_attempts CHECK (attempt_count >= 0 AND max_attempts BETWEEN 1 AND 20)\n)\n\n"
+      }
+    }
+  },
+  "global_facade_alias_identities": [],
+  "legacy_module_all": [
+    "MyPhotoAssetVariantModel",
+    "MyPhotoDeliveryAuthorizationModel",
+    "MyPhotoEnrollmentModel",
+    "MyPhotoFaceOccurrenceModel",
+    "MyPhotoGalleryModel",
+    "MyPhotoJobModel",
+    "MyPhotoLivenessSessionModel",
+    "MyPhotoMatchModel",
+    "MyPhotoMediaAssetModel",
+    "MyPhotoSearchRunModel"
+  ],
+  "mapped": {
+    "MyPhotoAssetVariantModel": {
+      "columns": {
+        "agency_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "availability_state": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "byte_size": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "checksum_sha256": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "created_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "delivery_version": {
+          "default": "1",
+          "info": {},
+          "onupdate": null
+        },
+        "expires_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "group_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "height": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "id": {
+          "default": {
+            "callable": "uuid.uuid4"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "media_asset_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "mime_type": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "storage_reference": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "updated_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          }
+        },
+        "variant_kind": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "width": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        }
+      },
+      "ordered_attributes": [
+        "id",
+        "media_asset_id",
+        "agency_id",
+        "group_id",
+        "variant_kind",
+        "storage_reference",
+        "mime_type",
+        "width",
+        "height",
+        "byte_size",
+        "checksum_sha256",
+        "availability_state",
+        "delivery_version",
+        "expires_at",
+        "created_at",
+        "updated_at"
+      ],
+      "ordered_columns": [
+        "id",
+        "media_asset_id",
+        "agency_id",
+        "group_id",
+        "variant_kind",
+        "storage_reference",
+        "mime_type",
+        "width",
+        "height",
+        "byte_size",
+        "checksum_sha256",
+        "availability_state",
+        "delivery_version",
+        "expires_at",
+        "created_at",
+        "updated_at"
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "relationships": {},
+      "table": "my_photo_asset_variants"
+    },
+    "MyPhotoDeliveryAuthorizationModel": {
+      "columns": {
+        "agency_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "checksum_sha256": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "claim_expires_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "claim_token": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "content_type": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "created_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "delivery_version": {
+          "default": "1",
+          "info": {},
+          "onupdate": null
+        },
+        "expected_size_bytes": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "expires_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "gc_group_access_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "group_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "id": {
+          "default": {
+            "callable": "uuid.uuid4"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "idempotency_key": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "media_asset_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "passenger_identity_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "passenger_submission_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "provider_authorization_reference": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "quality": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "request_fingerprint": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "stable_error_code": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "status": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "supports_ranges": {
+          "default": "False",
+          "info": {},
+          "onupdate": null
+        },
+        "transport": {
+          "default": "unavailable",
+          "info": {},
+          "onupdate": null
+        },
+        "updated_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          }
+        }
+      },
+      "ordered_attributes": [
+        "id",
+        "passenger_identity_id",
+        "passenger_submission_id",
+        "gc_group_access_id",
+        "media_asset_id",
+        "agency_id",
+        "group_id",
+        "quality",
+        "status",
+        "idempotency_key",
+        "request_fingerprint",
+        "delivery_version",
+        "provider_authorization_reference",
+        "transport",
+        "claim_token",
+        "claim_expires_at",
+        "expected_size_bytes",
+        "checksum_sha256",
+        "content_type",
+        "supports_ranges",
+        "expires_at",
+        "stable_error_code",
+        "created_at",
+        "updated_at"
+      ],
+      "ordered_columns": [
+        "id",
+        "passenger_identity_id",
+        "passenger_submission_id",
+        "gc_group_access_id",
+        "media_asset_id",
+        "agency_id",
+        "group_id",
+        "quality",
+        "status",
+        "idempotency_key",
+        "request_fingerprint",
+        "delivery_version",
+        "provider_authorization_reference",
+        "transport",
+        "claim_token",
+        "claim_expires_at",
+        "expected_size_bytes",
+        "checksum_sha256",
+        "content_type",
+        "supports_ranges",
+        "expires_at",
+        "stable_error_code",
+        "created_at",
+        "updated_at"
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "relationships": {},
+      "table": "my_photo_delivery_authorizations"
+    },
+    "MyPhotoEnrollmentModel": {
+      "columns": {
+        "agency_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "attempt_count": {
+          "default": "0",
+          "info": {},
+          "onupdate": null
+        },
+        "consent_idempotency_key": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "consent_version": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "consented_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "cooldown_until": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "created_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "deleted_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "deletion_idempotency_key": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "deletion_scope": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "enrolled_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "gc_group_access_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "group_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "id": {
+          "default": {
+            "callable": "uuid.uuid4"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "max_attempts": {
+          "default": "5",
+          "info": {},
+          "onupdate": null
+        },
+        "passenger_identity_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "passenger_submission_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "provider_deletion_attempt_count": {
+          "default": "0",
+          "info": {},
+          "onupdate": null
+        },
+        "provider_deletion_completed_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "provider_deletion_error_code": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "provider_deletion_last_attempt_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "provider_deletion_next_attempt_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "provider_deletion_requested_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "provider_deletion_status": {
+          "default": "not_required",
+          "info": {},
+          "onupdate": null
+        },
+        "provider_name": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "provider_reference_handle": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "reference_version": {
+          "default": "0",
+          "info": {},
+          "onupdate": null
+        },
+        "refreshed_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "revoked_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "status": {
+          "default": "ready",
+          "info": {},
+          "onupdate": null
+        },
+        "superseded_deletion_attempt_count": {
+          "default": "0",
+          "info": {},
+          "onupdate": null
+        },
+        "superseded_deletion_last_attempt_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "superseded_deletion_next_attempt_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "superseded_provider_reference_handle": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "superseded_reference_deletion_completed_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "superseded_reference_deletion_error_code": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "superseded_reference_deletion_requested_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "superseded_reference_deletion_status": {
+          "default": "not_required",
+          "info": {},
+          "onupdate": null
+        },
+        "updated_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          }
+        }
+      },
+      "ordered_attributes": [
+        "id",
+        "passenger_identity_id",
+        "passenger_submission_id",
+        "gc_group_access_id",
+        "agency_id",
+        "group_id",
+        "consent_version",
+        "consented_at",
+        "consent_idempotency_key",
+        "status",
+        "provider_name",
+        "provider_reference_handle",
+        "reference_version",
+        "attempt_count",
+        "max_attempts",
+        "cooldown_until",
+        "enrolled_at",
+        "refreshed_at",
+        "revoked_at",
+        "deleted_at",
+        "deletion_idempotency_key",
+        "deletion_scope",
+        "provider_deletion_status",
+        "provider_deletion_error_code",
+        "provider_deletion_requested_at",
+        "provider_deletion_completed_at",
+        "superseded_provider_reference_handle",
+        "superseded_reference_deletion_status",
+        "superseded_reference_deletion_error_code",
+        "superseded_reference_deletion_requested_at",
+        "superseded_reference_deletion_completed_at",
+        "provider_deletion_attempt_count",
+        "provider_deletion_next_attempt_at",
+        "provider_deletion_last_attempt_at",
+        "superseded_deletion_attempt_count",
+        "superseded_deletion_next_attempt_at",
+        "superseded_deletion_last_attempt_at",
+        "created_at",
+        "updated_at"
+      ],
+      "ordered_columns": [
+        "id",
+        "passenger_identity_id",
+        "passenger_submission_id",
+        "gc_group_access_id",
+        "agency_id",
+        "group_id",
+        "consent_version",
+        "consented_at",
+        "consent_idempotency_key",
+        "status",
+        "provider_name",
+        "provider_reference_handle",
+        "reference_version",
+        "attempt_count",
+        "max_attempts",
+        "cooldown_until",
+        "enrolled_at",
+        "refreshed_at",
+        "revoked_at",
+        "deleted_at",
+        "deletion_idempotency_key",
+        "deletion_scope",
+        "provider_deletion_status",
+        "provider_deletion_error_code",
+        "provider_deletion_requested_at",
+        "provider_deletion_completed_at",
+        "superseded_provider_reference_handle",
+        "superseded_reference_deletion_status",
+        "superseded_reference_deletion_error_code",
+        "superseded_reference_deletion_requested_at",
+        "superseded_reference_deletion_completed_at",
+        "provider_deletion_attempt_count",
+        "provider_deletion_next_attempt_at",
+        "provider_deletion_last_attempt_at",
+        "superseded_deletion_attempt_count",
+        "superseded_deletion_next_attempt_at",
+        "superseded_deletion_last_attempt_at",
+        "created_at",
+        "updated_at"
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "relationships": {},
+      "table": "my_photo_enrollments"
+    },
+    "MyPhotoFaceOccurrenceModel": {
+      "columns": {
+        "active": {
+          "default": "True",
+          "info": {},
+          "onupdate": null
+        },
+        "agency_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "bounding_height": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "bounding_left": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "bounding_top": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "bounding_width": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "created_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "deleted_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "group_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "id": {
+          "default": {
+            "callable": "uuid.uuid4"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "idempotency_identity": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "index_version": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "media_asset_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "provider_face_reference": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "provider_model_version": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "provider_name": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "quality_class": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "quality_score": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        }
+      },
+      "ordered_attributes": [
+        "id",
+        "media_asset_id",
+        "agency_id",
+        "group_id",
+        "provider_name",
+        "provider_face_reference",
+        "idempotency_identity",
+        "bounding_left",
+        "bounding_top",
+        "bounding_width",
+        "bounding_height",
+        "quality_score",
+        "quality_class",
+        "provider_model_version",
+        "index_version",
+        "active",
+        "deleted_at",
+        "created_at"
+      ],
+      "ordered_columns": [
+        "id",
+        "media_asset_id",
+        "agency_id",
+        "group_id",
+        "provider_name",
+        "provider_face_reference",
+        "idempotency_identity",
+        "bounding_left",
+        "bounding_top",
+        "bounding_width",
+        "bounding_height",
+        "quality_score",
+        "quality_class",
+        "provider_model_version",
+        "index_version",
+        "active",
+        "deleted_at",
+        "created_at"
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "relationships": {},
+      "table": "my_photo_face_occurrences"
+    },
+    "MyPhotoGalleryManifestBatchModel": {
+      "columns": {
+        "agency_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "asset_count": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "batch_fingerprint": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "batch_index": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "created_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "group_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "id": {
+          "default": {
+            "callable": "uuid.uuid4"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "manifest_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        }
+      },
+      "ordered_attributes": [
+        "id",
+        "manifest_id",
+        "agency_id",
+        "group_id",
+        "batch_index",
+        "batch_fingerprint",
+        "asset_count",
+        "created_at"
+      ],
+      "ordered_columns": [
+        "id",
+        "manifest_id",
+        "agency_id",
+        "group_id",
+        "batch_index",
+        "batch_fingerprint",
+        "asset_count",
+        "created_at"
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "relationships": {},
+      "table": "my_photo_gallery_manifest_batches"
+    },
+    "MyPhotoGalleryManifestModel": {
+      "columns": {
+        "agency_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "all_group_photos_enabled": {
+          "default": "False",
+          "info": {},
+          "onupdate": null
+        },
+        "availability_ends_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "availability_starts_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "batch_count": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "cancellation_requested_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "content_fingerprint": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "created_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "created_by_user_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "finalized_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "gallery_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "group_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "header_fingerprint": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "id": {
+          "default": {
+            "callable": "uuid.uuid4"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "manifest_identity": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "match_config_version": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "provider_collection_reference": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "provider_model_version": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "received_asset_count": {
+          "default": "0",
+          "info": {},
+          "onupdate": null
+        },
+        "retention_days": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "retention_policy_version": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "status": {
+          "default": "receiving",
+          "info": {},
+          "onupdate": null
+        },
+        "target_revision": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "total_asset_count": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "updated_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          }
+        }
+      },
+      "ordered_attributes": [
+        "id",
+        "gallery_id",
+        "agency_id",
+        "group_id",
+        "manifest_identity",
+        "target_revision",
+        "header_fingerprint",
+        "content_fingerprint",
+        "total_asset_count",
+        "batch_count",
+        "received_asset_count",
+        "status",
+        "all_group_photos_enabled",
+        "retention_policy_version",
+        "retention_days",
+        "availability_starts_at",
+        "availability_ends_at",
+        "provider_collection_reference",
+        "provider_model_version",
+        "match_config_version",
+        "created_by_user_id",
+        "finalized_at",
+        "cancellation_requested_at",
+        "created_at",
+        "updated_at"
+      ],
+      "ordered_columns": [
+        "id",
+        "gallery_id",
+        "agency_id",
+        "group_id",
+        "manifest_identity",
+        "target_revision",
+        "header_fingerprint",
+        "content_fingerprint",
+        "total_asset_count",
+        "batch_count",
+        "received_asset_count",
+        "status",
+        "all_group_photos_enabled",
+        "retention_policy_version",
+        "retention_days",
+        "availability_starts_at",
+        "availability_ends_at",
+        "provider_collection_reference",
+        "provider_model_version",
+        "match_config_version",
+        "created_by_user_id",
+        "finalized_at",
+        "cancellation_requested_at",
+        "created_at",
+        "updated_at"
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "relationships": {},
+      "table": "my_photo_gallery_manifests"
+    },
+    "MyPhotoGalleryModel": {
+      "columns": {
+        "agency_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "all_group_photos_enabled": {
+          "default": "False",
+          "info": {},
+          "onupdate": null
+        },
+        "availability_ends_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "availability_starts_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "created_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "face_index_version": {
+          "default": "0",
+          "info": {},
+          "onupdate": null
+        },
+        "failed_asset_count": {
+          "default": "0",
+          "info": {},
+          "onupdate": null
+        },
+        "feature_enabled": {
+          "default": "False",
+          "info": {},
+          "onupdate": null
+        },
+        "gc_group_access_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "group_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "id": {
+          "default": {
+            "callable": "uuid.uuid4"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "index_model_version": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "indexed_asset_count": {
+          "default": "0",
+          "info": {},
+          "onupdate": null
+        },
+        "match_config_version": {
+          "default": "unconfigured",
+          "info": {},
+          "onupdate": null
+        },
+        "media_version": {
+          "default": "0",
+          "info": {},
+          "onupdate": null
+        },
+        "provider_collection_reference": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "provider_name": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "published_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "published_revision": {
+          "default": "0",
+          "info": {},
+          "onupdate": null
+        },
+        "retention_days": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "retention_policy_version": {
+          "default": "v1",
+          "info": {},
+          "onupdate": null
+        },
+        "status": {
+          "default": "not_uploaded",
+          "info": {},
+          "onupdate": null
+        },
+        "total_asset_count": {
+          "default": "0",
+          "info": {},
+          "onupdate": null
+        },
+        "updated_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          }
+        }
+      },
+      "ordered_attributes": [
+        "id",
+        "agency_id",
+        "group_id",
+        "gc_group_access_id",
+        "feature_enabled",
+        "status",
+        "media_version",
+        "face_index_version",
+        "published_revision",
+        "total_asset_count",
+        "indexed_asset_count",
+        "failed_asset_count",
+        "all_group_photos_enabled",
+        "provider_collection_reference",
+        "provider_name",
+        "index_model_version",
+        "match_config_version",
+        "retention_policy_version",
+        "retention_days",
+        "availability_starts_at",
+        "availability_ends_at",
+        "published_at",
+        "created_at",
+        "updated_at"
+      ],
+      "ordered_columns": [
+        "id",
+        "agency_id",
+        "group_id",
+        "gc_group_access_id",
+        "feature_enabled",
+        "status",
+        "media_version",
+        "face_index_version",
+        "published_revision",
+        "total_asset_count",
+        "indexed_asset_count",
+        "failed_asset_count",
+        "all_group_photos_enabled",
+        "provider_collection_reference",
+        "provider_name",
+        "index_model_version",
+        "match_config_version",
+        "retention_policy_version",
+        "retention_days",
+        "availability_starts_at",
+        "availability_ends_at",
+        "published_at",
+        "created_at",
+        "updated_at"
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "relationships": {},
+      "table": "my_photo_galleries"
+    },
+    "MyPhotoJobModel": {
+      "columns": {
+        "agency_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "attempt_count": {
+          "default": "0",
+          "info": {},
+          "onupdate": null
+        },
+        "cancellation_requested_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "checkpoint_cursor": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "completed_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "correlation_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "created_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "error_detail": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "failed_count": {
+          "default": "0",
+          "info": {},
+          "onupdate": null
+        },
+        "gallery_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "group_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "heartbeat_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "id": {
+          "default": {
+            "callable": "uuid.uuid4"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "idempotency_key": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "job_type": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "lease_expires_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "lease_owner": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "max_attempts": {
+          "default": "5",
+          "info": {},
+          "onupdate": null
+        },
+        "media_asset_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "next_attempt_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "processed_count": {
+          "default": "0",
+          "info": {},
+          "onupdate": null
+        },
+        "request_fingerprint": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "search_run_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "stable_error_code": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "started_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "status": {
+          "default": "queued",
+          "info": {},
+          "onupdate": null
+        },
+        "succeeded_count": {
+          "default": "0",
+          "info": {},
+          "onupdate": null
+        },
+        "target_revision": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "total_count": {
+          "default": "0",
+          "info": {},
+          "onupdate": null
+        },
+        "updated_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          }
+        }
+      },
+      "ordered_attributes": [
+        "id",
+        "gallery_id",
+        "media_asset_id",
+        "search_run_id",
+        "agency_id",
+        "group_id",
+        "job_type",
+        "status",
+        "idempotency_key",
+        "request_fingerprint",
+        "target_revision",
+        "attempt_count",
+        "max_attempts",
+        "checkpoint_cursor",
+        "processed_count",
+        "total_count",
+        "succeeded_count",
+        "failed_count",
+        "lease_owner",
+        "lease_expires_at",
+        "heartbeat_at",
+        "next_attempt_at",
+        "stable_error_code",
+        "error_detail",
+        "correlation_id",
+        "cancellation_requested_at",
+        "started_at",
+        "completed_at",
+        "created_at",
+        "updated_at"
+      ],
+      "ordered_columns": [
+        "id",
+        "gallery_id",
+        "media_asset_id",
+        "search_run_id",
+        "agency_id",
+        "group_id",
+        "job_type",
+        "status",
+        "idempotency_key",
+        "request_fingerprint",
+        "target_revision",
+        "attempt_count",
+        "max_attempts",
+        "checkpoint_cursor",
+        "processed_count",
+        "total_count",
+        "succeeded_count",
+        "failed_count",
+        "lease_owner",
+        "lease_expires_at",
+        "heartbeat_at",
+        "next_attempt_at",
+        "stable_error_code",
+        "error_detail",
+        "correlation_id",
+        "cancellation_requested_at",
+        "started_at",
+        "completed_at",
+        "created_at",
+        "updated_at"
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "relationships": {},
+      "table": "my_photo_jobs"
+    },
+    "MyPhotoLivenessSessionModel": {
+      "columns": {
+        "agency_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "challenge_mode": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "completion_idempotency_key": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "completion_outcome": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "consumed_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "created_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "enrollment_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "expires_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "group_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "id": {
+          "default": {
+            "callable": "uuid.uuid4"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "idempotency_key": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "native_launch_handle": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "provider_claim_expires_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "provider_claim_token": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "provider_name": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "provider_session_reference": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "result_retryable": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "stable_error_code": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "status": {
+          "default": "created",
+          "info": {},
+          "onupdate": null
+        },
+        "updated_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          }
+        }
+      },
+      "ordered_attributes": [
+        "id",
+        "enrollment_id",
+        "agency_id",
+        "group_id",
+        "idempotency_key",
+        "challenge_mode",
+        "status",
+        "provider_name",
+        "provider_session_reference",
+        "native_launch_handle",
+        "stable_error_code",
+        "completion_idempotency_key",
+        "completion_outcome",
+        "result_retryable",
+        "provider_claim_token",
+        "provider_claim_expires_at",
+        "expires_at",
+        "consumed_at",
+        "created_at",
+        "updated_at"
+      ],
+      "ordered_columns": [
+        "id",
+        "enrollment_id",
+        "agency_id",
+        "group_id",
+        "idempotency_key",
+        "challenge_mode",
+        "status",
+        "provider_name",
+        "provider_session_reference",
+        "native_launch_handle",
+        "stable_error_code",
+        "completion_idempotency_key",
+        "completion_outcome",
+        "result_retryable",
+        "provider_claim_token",
+        "provider_claim_expires_at",
+        "expires_at",
+        "consumed_at",
+        "created_at",
+        "updated_at"
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "relationships": {},
+      "table": "my_photo_liveness_sessions"
+    },
+    "MyPhotoMatchModel": {
+      "columns": {
+        "active": {
+          "default": "True",
+          "info": {},
+          "onupdate": null
+        },
+        "agency_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "created_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "display_tier": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "face_occurrence_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "feedback": {
+          "default": "none",
+          "info": {},
+          "onupdate": null
+        },
+        "feedback_idempotency_key": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "gallery_revision": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "group_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "id": {
+          "default": {
+            "callable": "uuid.uuid4"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "match_config_version": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "media_asset_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "passenger_identity_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "search_run_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "similarity": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "sort_rank": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "superseded_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "updated_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          }
+        }
+      },
+      "ordered_attributes": [
+        "id",
+        "search_run_id",
+        "passenger_identity_id",
+        "media_asset_id",
+        "face_occurrence_id",
+        "agency_id",
+        "group_id",
+        "gallery_revision",
+        "similarity",
+        "display_tier",
+        "match_config_version",
+        "feedback",
+        "feedback_idempotency_key",
+        "active",
+        "sort_rank",
+        "superseded_at",
+        "created_at",
+        "updated_at"
+      ],
+      "ordered_columns": [
+        "id",
+        "search_run_id",
+        "passenger_identity_id",
+        "media_asset_id",
+        "face_occurrence_id",
+        "agency_id",
+        "group_id",
+        "gallery_revision",
+        "similarity",
+        "display_tier",
+        "match_config_version",
+        "feedback",
+        "feedback_idempotency_key",
+        "active",
+        "sort_rank",
+        "superseded_at",
+        "created_at",
+        "updated_at"
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "relationships": {},
+      "table": "my_photo_matches"
+    },
+    "MyPhotoMediaAssetModel": {
+      "columns": {
+        "agency_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "archive_reference": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "aspect_ratio": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "availability_state": {
+          "default": "registered",
+          "info": {},
+          "onupdate": null
+        },
+        "byte_size": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "captured_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "checksum_sha256": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "created_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "gallery_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "group_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "height": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "id": {
+          "default": {
+            "callable": "uuid.uuid4"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "immutable_asset_key": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "media_type": {
+          "default": "photo",
+          "info": {},
+          "onupdate": null
+        },
+        "mime_type": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "orientation": {
+          "default": "1",
+          "info": {},
+          "onupdate": null
+        },
+        "original_filename": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "processing_state": {
+          "default": "registered",
+          "info": {},
+          "onupdate": null
+        },
+        "published_revision": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "sort_rank": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "storage_reference": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "updated_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          }
+        },
+        "width": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        }
+      },
+      "ordered_attributes": [
+        "id",
+        "gallery_id",
+        "agency_id",
+        "group_id",
+        "immutable_asset_key",
+        "media_type",
+        "archive_reference",
+        "storage_reference",
+        "original_filename",
+        "mime_type",
+        "width",
+        "height",
+        "aspect_ratio",
+        "byte_size",
+        "checksum_sha256",
+        "captured_at",
+        "orientation",
+        "processing_state",
+        "availability_state",
+        "published_revision",
+        "sort_rank",
+        "created_at",
+        "updated_at"
+      ],
+      "ordered_columns": [
+        "id",
+        "gallery_id",
+        "agency_id",
+        "group_id",
+        "immutable_asset_key",
+        "media_type",
+        "archive_reference",
+        "storage_reference",
+        "original_filename",
+        "mime_type",
+        "width",
+        "height",
+        "aspect_ratio",
+        "byte_size",
+        "checksum_sha256",
+        "captured_at",
+        "orientation",
+        "processing_state",
+        "availability_state",
+        "published_revision",
+        "sort_rank",
+        "created_at",
+        "updated_at"
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "relationships": {},
+      "table": "my_photo_media_assets"
+    },
+    "MyPhotoSearchRunModel": {
+      "columns": {
+        "agency_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "attempt_count": {
+          "default": "0",
+          "info": {},
+          "onupdate": null
+        },
+        "best_match_count": {
+          "default": "0",
+          "info": {},
+          "onupdate": null
+        },
+        "checkpoint_cursor": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "completed_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "correlation_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "created_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "enrollment_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "enrollment_version": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "face_index_version": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "gallery_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "gallery_revision": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "group_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "heartbeat_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "id": {
+          "default": {
+            "callable": "uuid.uuid4"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "idempotency_key": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "lease_expires_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "lease_owner": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "matched_asset_count": {
+          "default": "0",
+          "info": {},
+          "onupdate": null
+        },
+        "max_attempts": {
+          "default": "5",
+          "info": {},
+          "onupdate": null
+        },
+        "passenger_identity_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "possible_match_count": {
+          "default": "0",
+          "info": {},
+          "onupdate": null
+        },
+        "processed_face_count": {
+          "default": "0",
+          "info": {},
+          "onupdate": null
+        },
+        "stable_error_code": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "started_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "status": {
+          "default": "queued",
+          "info": {},
+          "onupdate": null
+        },
+        "total_face_count": {
+          "default": "0",
+          "info": {},
+          "onupdate": null
+        },
+        "updated_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          }
+        }
+      },
+      "ordered_attributes": [
+        "id",
+        "enrollment_id",
+        "passenger_identity_id",
+        "gallery_id",
+        "agency_id",
+        "group_id",
+        "gallery_revision",
+        "face_index_version",
+        "enrollment_version",
+        "idempotency_key",
+        "status",
+        "processed_face_count",
+        "total_face_count",
+        "matched_asset_count",
+        "best_match_count",
+        "possible_match_count",
+        "attempt_count",
+        "max_attempts",
+        "checkpoint_cursor",
+        "lease_owner",
+        "lease_expires_at",
+        "heartbeat_at",
+        "stable_error_code",
+        "correlation_id",
+        "started_at",
+        "completed_at",
+        "created_at",
+        "updated_at"
+      ],
+      "ordered_columns": [
+        "id",
+        "enrollment_id",
+        "passenger_identity_id",
+        "gallery_id",
+        "agency_id",
+        "group_id",
+        "gallery_revision",
+        "face_index_version",
+        "enrollment_version",
+        "idempotency_key",
+        "status",
+        "processed_face_count",
+        "total_face_count",
+        "matched_asset_count",
+        "best_match_count",
+        "possible_match_count",
+        "attempt_count",
+        "max_attempts",
+        "checkpoint_cursor",
+        "lease_owner",
+        "lease_expires_at",
+        "heartbeat_at",
+        "stable_error_code",
+        "correlation_id",
+        "started_at",
+        "completed_at",
+        "created_at",
+        "updated_at"
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "relationships": {},
+      "table": "my_photo_search_runs"
+    }
+  },
+  "photo_tables": [
+    "my_photo_asset_variants",
+    "my_photo_delivery_authorizations",
+    "my_photo_enrollments",
+    "my_photo_face_occurrences",
+    "my_photo_galleries",
+    "my_photo_gallery_manifest_batches",
+    "my_photo_gallery_manifests",
+    "my_photo_jobs",
+    "my_photo_liveness_sessions",
+    "my_photo_matches",
+    "my_photo_media_assets",
+    "my_photo_search_runs"
+  ]
+}

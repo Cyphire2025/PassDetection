@@ -88,22 +88,23 @@ def copy_version(source: Any, destination: Any, bucket: str, row: sqlite3.Row) -
     if row["size"] > 5 * 1024**3:
         raise RuntimeError("Object exceeds the reviewed single-object migration limit")
     response = source.get_object(Bucket=bucket, Key=key, VersionId=version, IfMatch=row["etag"])
-    properties = {key: response[key] for key in COPY_PROPERTIES if key in response}
-    tags = source.get_object_tagging(Bucket=bucket, Key=key, VersionId=version).get("TagSet", [])
-    if tags:
-        properties["Tagging"] = urlencode([(item["Key"], item["Value"]) for item in tags])
-    digest, size = hashlib.sha256(), 0
-    with closing(response["Body"]) as body, tempfile.TemporaryFile() as temporary:
-        for block in iter(lambda: body.read(CHUNK_BYTES), b""):
-            size += len(block)
-            if size > row["size"]:
-                raise RuntimeError("Source object grew during copy")
-            digest.update(block)
-            temporary.write(block)
-        if size != row["size"]:
-            raise RuntimeError("Source object was truncated during copy")
-        temporary.seek(0)
-        result = destination.put_object(Bucket=bucket, Key=key, Body=temporary, **properties)
+    with closing(response["Body"]) as body:
+        properties = {key: response[key] for key in COPY_PROPERTIES if key in response}
+        tags = source.get_object_tagging(Bucket=bucket, Key=key, VersionId=version).get("TagSet", [])
+        if tags:
+            properties["Tagging"] = urlencode([(item["Key"], item["Value"]) for item in tags])
+        digest, size = hashlib.sha256(), 0
+        with tempfile.TemporaryFile() as temporary:
+            for block in iter(lambda: body.read(CHUNK_BYTES), b""):
+                size += len(block)
+                if size > row["size"]:
+                    raise RuntimeError("Source object grew during copy")
+                digest.update(block)
+                temporary.write(block)
+            if size != row["size"]:
+                raise RuntimeError("Source object was truncated during copy")
+            temporary.seek(0)
+            result = destination.put_object(Bucket=bucket, Key=key, Body=temporary, **properties)
     copied_version = result.get("VersionId")
     if not copied_version or copied_version == "null":
         raise RuntimeError("Destination failed to retain a stable object version")

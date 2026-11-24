@@ -1,0 +1,10 @@
+[
+  {
+    "path": "frontend/features/auth/hooks/use-me.ts",
+    "status": "retired",
+    "review_scope": "full",
+    "sha256": "f4c5fd82dd34807fef303562067efbdfbd8106fd3dfd7cded0087519c91b95de",
+    "notes": "Proven unconsumed useMe chain removed; AbortSignal/stale role regression ported to active AuthHydrator.",
+    "attribution": "manual_security direct physical-file read"
+  }
+]

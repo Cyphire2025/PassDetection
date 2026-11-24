@@ -1,0 +1,149 @@
+{
+  "files": [
+    {
+      "path": "backend/tests/integration/test_draft_ecr.py",
+      "sha256": "016d694f91b9f667011b28019f9fd2f97dea18a07ee0574c28e4169c5c3a1ca3",
+      "physical_lines": 115,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete115 physical source read. Opt-in back-only ECR isolation, bounded retry exhaustion, newer-back result fence and old-front-only-worker regression use injected synthetic checker/extractor. Actual runtime reserve_extraction global call traced at80-147; no provider/production execution or full runtime read credit."
+    },
+    {
+      "path": "backend/tests/integration/test_draft_expiry_sessions.py",
+      "sha256": "257c80dff9d7e7c0dbc0016e2e83fd5909ac4b05e82a2c3e5d2ca979b766e276",
+      "physical_lines": 103,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete103 physical source read. Source asserts autoflush=False explicit flush expiry, same-tick encrypted cleanup intent, duplicate orphan prevention, adopted source retention and official-profile nonmutation. Different SQLite sessions/synthetic clocks are not live PostgreSQL lock/storage proof."
+    },
+    {
+      "path": "backend/tests/integration/test_draft_extraction_retry.py",
+      "sha256": "1d90b08314159a6a7a104cab20a6fddb21ec5671bbee19484fb3a145e98f3f1d",
+      "physical_lines": 101,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete101 physical source read. Synthetic verifier timeout/unavailable retry/backoff, attempts3 terminal and no unverified field publication; rejected/unknown documents remain distinct from transient provider failure. No new provider campaign/runtime edits or execution."
+    },
+    {
+      "path": "backend/tests/integration/test_draft_production_sessions.py",
+      "sha256": "18d8f04cb4860e431c42e0e694935d7e4223db33a08605858097233851dc7fbc",
+      "physical_lines": 97,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete97 physical source read. Explicit-flush current upload readiness, front/back and fresh/returning worker publication, same-side replacement and saved/manual edited fields retain distinction from OCR. Source uses synthetic extraction callbacks; no claim of real-service concurrency."
+    },
+    {
+      "path": "backend/tests/integration/test_draft_replacement_resume.py",
+      "sha256": "6a6381cfe0d7156633d93272dc4e0e0d27a4fb13e41eb78145775e93610abcad",
+      "physical_lines": 47,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete47 physical source read. Source asserts retained replacement text cannot finalize with prior image after resume, official history remains unchanged and discarded temporary asset/current active text persist. Existing helper/callers traced only; not rerun."
+    },
+    {
+      "path": "backend/tests/integration/test_draft_retention.py",
+      "sha256": "8b405421dac0ba90951cb05474a9f47b6a7118ac27345b41bbcb77c51a0221c2",
+      "physical_lines": 173,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete173 physical source read. Source asserts temporary-only cleanup, stale/future revision cutoffs, adopted-key rejection, private exact-key rejection, presence outage fail-closed and keyset orphan progress. Fake Presence and memory storage do not prove Redis/private-store availability or actual transaction locks."
+    },
+    {
+      "path": "backend/tests/integration/test_draft_upload_cleanup_lifetime.py",
+      "sha256": "56b595321e5c9cf888f1b4a90d75d42aa72c64f68d2e03780f77436fd54c8673",
+      "physical_lines": 104,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete104 physical source read. Real Python thread plus synthetic storage lifecycle covers timeout, durable delayed cleanup intent and late byte write; explicit5s thread wait/2s synchronization bounds are fixture timing assumptions, not measured production envelopes. No test failure reproduced or source changed."
+    },
+    {
+      "path": "backend/tests/integration/test_draft_upload_races.py",
+      "sha256": "0a57653a0590cd66b3c80f733943a938a95922e19a852871ab1c9fcc89e771c5",
+      "physical_lines": 165,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete165 physical source read. Callback interleavings cover unrelated autosave, reverse side completion, last same-side intent, retry reservation, discard cutoff and transaction-start timestamp ordering. Synthetic callback interleaving is not multi-process PostgreSQL concurrency proof."
+    },
+    {
+      "path": "backend/tests/integration/test_returning_owned_extraction.py",
+      "sha256": "91dfdf3798eb84ee8f5e964efec0fb768bc5a0c918d9bec898c3b0cfca4c624a",
+      "physical_lines": 110,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete110 physical source read. Detection boolean creates no claim/grant, ambiguity hides hint, completion binds exact owned member/revision/capability/group and retries without mutating source siblings. Synthetic scoped fixtures only; no newly validated defect."
+    },
+    {
+      "path": "backend/tests/integration/test_returning_legacy_approval.py",
+      "sha256": "d52fe7559d4673ab01097e9409b05a65dbeb08a104d229282599dac2949e66da",
+      "physical_lines": 147,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete147 physical source read. Source asserts proof before allowlisted legacy history, wrong answer/code rejection, issuer uncertainty/collision handling, company scope and no internal source evidence disclosure. Crypto/DB fixture context read; actual provider not invoked."
+    },
+    {
+      "path": "backend/tests/integration/test_returning_replacement.py",
+      "sha256": "f682261fcd450a5f70cf679ed98c0ac6aa1f183688fee3ac8f29c4e30524280a",
+      "physical_lines": 94,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete94 physical source read. Source asserts provisional/idempotent replacement requires upload capability, staff acceptance creates authorized new passport and edited/unacknowledged association rejects. No source/test changes or service proof inferred."
+    },
+    {
+      "path": "backend/tests/integration/test_traveller_draft_runtime.py",
+      "sha256": "4bd3e855892e2c1030c1480930a388d47d6cf75da8cbd59ae73ecd47def4c51c",
+      "physical_lines": 118,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete118 physical support-test read after current-full mismatch discovery. Actual injected StreamStorage/Extractor callback/error ownership, bounded leases/backpressure/retry and expiry-adopted retention controls. No test execution during this read-only cohort."
+    },
+    {
+      "path": "backend/tests/integration/traveller_reuse_fixtures.py",
+      "sha256": "9ccb9c675db6dff12324374e4fc08cffb55ec33037361c39f69f0f3284a207b7",
+      "physical_lines": 109,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete109 shared fixture physical reread; exact-current full record already exists in suitability-calendar-reviewed-files.json, so no new-unreviewed credit. Per-fixture generated synthetic encryption, scoped test-only identities/storage keys and FakeOTP/FakeLimiter explicitly prevent external sends; dummy limiter is not a production quota proof."
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/draft_runtime.py",
+      "sha256": "0d2919cf84fcd8f7f25c20f36b4ca22f8dcd26de33beb26f6766e371ff9e6b3e",
+      "physical_lines": 142,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical read80-end only, complete run_draft_extraction: real global reserve hook, bounded bytes/hash/provider path, draft/asset lease and current-state fence, deferred/failed attempt publication and fields revision guard. Imports/reservation owner not full read here; no new full runtime credit."
+    },
+    {
+      "path": "backend/app/application/travellers/draft_uploads.py",
+      "sha256": "8b0c1414943e07d89e24f68bab728ffd6009232e9a0eb07225f37fa35761f008",
+      "physical_lines": 174,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical read120-end only, complete store_draft_document: exact input/capability/idempotency/current-side/revision gates, durable reservation commit before bytes, post-I/O authorization/current asset checks and cleanup/publish calls. Not a whole upload-owner read or provider test."
+    },
+    {
+      "path": "backend/tests/integration/test_returning_drafts.py",
+      "sha256": "b68bffa5b0275eb8811b28a7e30b1289bf49982d833ef8eb3d49f33c63d4b32d",
+      "physical_lines": 273,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical read1-65 only: synthetic MemoryStorage/draft_context and completion/save helpers. Actual callers of these helpers traced; remainder not manually read in this cohort and receives no full-file credit."
+    }
+  ],
+  "scope": "Read-only physical source cohort, no runtime/test/config mutation, no test/check rerun or provider/DB service activity. Twelve tests newly exact-current full, plus one109-line already-full shared fixture reread; three focused dependencies stay focused. Native ingress/UI and Operations Inbox remain excluded/deferred."
+}

@@ -1,0 +1,64 @@
+{
+  "review_date": "2026-10-30",
+  "status": "runtime/testconfig frozen; focused checks passed",
+  "retirement": {
+    "runtime_files": 44,
+    "runtime_lines": 5204,
+    "test_helper_files": 24,
+    "test_helper_lines": 2246,
+    "retired_frontend_api_identities": []
+  },
+  "unit_coverage": {
+    "test_files": 13,
+    "tests": 85,
+    "critical_source_files": 14,
+    "all_per_file_floors_passed": true,
+    "floors": {
+      "statements": 74,
+      "branches": 50,
+      "functions": 75,
+      "lines": 75
+    },
+    "aggregate_percent": {
+      "statements": 89.2,
+      "branches": 81.03,
+      "functions": 88.48,
+      "lines": 97.2
+    }
+  },
+  "supplemental_query_tests": {
+    "files": 2,
+    "tests": 3,
+    "passed": true
+  },
+  "node_contracts": {
+    "tests": 50,
+    "passed": true
+  },
+  "browser": {
+    "tests": 20,
+    "passed": true,
+    "seconds": 59.2,
+    "output": "C:/Users/nipun/Desktop/PassDetection/.tmp/lean-public-upload-browser"
+  },
+  "typescript": "passed after all44runtime removals",
+  "scoped_eslint": "passed; final orphan deletions introduced no new source text",
+  "source_candidates": "legacy-upload-ratchet-changes.json",
+  "current_review_manifest": "legacy-upload-current-reviewed-files.json",
+  "pending_runtime": {
+    "files": 111,
+    "total": 169
+  },
+  "limits": [
+    "Focused unit/source/browser receipts; parent owns final combined frontend/release qualification.",
+    "Isolated browser API fixtures do not establish real provider, private storage, PostgreSQL or VPS behavior.",
+    "Static unreachable candidates retained unless manual production caller proof established closure."
+  ],
+  "fingerprints": {
+    "legacy-upload-retired-files.json": "df942d3470474c1c4f52b9b4c0e8eeaef7fad06ac3caad49d18a7f4b71fe657d",
+    "legacy-upload-coverage-responsibilities.json": "8180f3f685842aae1ad72b2300d6107832fce94bf9b469ca9a678aa5a981660e",
+    "legacy-upload-active-coverage.json": "505a9579c97e075e9f36ebe40c5d60c9728ff8ae34e0564d64741422034da0f4",
+    "legacy-upload-current-reviewed-files.json": "6946dd0e90d90b1f6e00dcd5ed6f8277c242c3527a84cb4fec8e1a8a21763d60",
+    "legacy-upload-ratchet-changes.json": "eac16a6574f63ca7a880799aa488f97000a0982463f23e372dd628ab01f37913"
+  }
+}

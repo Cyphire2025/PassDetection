@@ -1,0 +1,40 @@
+{
+  "finding": "Cancellation released concurrency admission before a native SDK thread exited.",
+  "before_source_sha256": "b976351ba066c19c030d21a33efa231fb48225a8a4de201fa19ef6faefb3b91b",
+  "source_and_test_fence": {
+    "backend/app/infrastructure/my_photos/aws_client_runtime.py": "c488753eaf3a76d22166e94d96ca3e51f2fe5104e37661a373d0b14f132a8cbe",
+    "backend/app/infrastructure/documents/storage_transfers.py": "a15cde9b255188896500d54e4de7faf9dafbbe332f13f3163b1590f38a1c58d1",
+    "backend/tests/unit/infrastructure/test_my_photos_native_dispatch.py": "30d2df0754c647088b5f133c7ec896eda3d29f6325c502b045fe09757809396d",
+    "backend/tests/unit/infrastructure/test_my_photos_aws_providers.py": "a0d884072b18a9fbe5ac3d89cc1eb148f41951784cf571aa33944fbafdbc9e89"
+  },
+  "before_result": "2 failed,1 passed; my-photos-native-dispatch-before.txt",
+  "after_result": "48 passed, my-photos-native-dispatch-after.txt",
+  "reporting_note": "The passing command and unchanged source fence completed; report assembly initially assumed a list rather than files-wrapper ledger. Repaired report only, no test or runtime change and no unnecessary test rerun.",
+  "changed_runtime_files": [
+    "backend/app/infrastructure/my_photos/aws_client_runtime.py"
+  ],
+  "implementation": "Reuse existing documents.storage_transfers.run_bounded_storage_operations with one operation and concurrency1. No duplicated cancellation loop, shared helper change, provider request argument, response/error projection, retry/timeout setting or public signature change.",
+  "fresh_statement_coverage_percent": 76.74418604651163,
+  "fresh_coverage_summary": {
+    "covered_lines": 33,
+    "num_statements": 43,
+    "percent_covered": 70.58823529411765,
+    "percent_covered_display": "71",
+    "missing_lines": 10,
+    "excluded_lines": 0,
+    "percent_statements_covered": 76.74418604651163,
+    "percent_statements_covered_display": "77",
+    "num_branches": 8,
+    "num_partial_branches": 3,
+    "covered_branches": 3,
+    "missing_branches": 5,
+    "percent_branches_covered": 37.5,
+    "percent_branches_covered_display": "38"
+  },
+  "all_existing_budget_and_critical_floors_unchanged": true,
+  "no_native_service_qualification": true,
+  "remaining": [
+    "Batch asyncio.gather failure/cancellation sibling ownership in gallery/index/media preparation requires its own regression and coherent follow-through.",
+    "Cancellation waits for native SDK completion; configured native SDK connect/read/retries still govern the bound. No instant underlying network cancellation claim."
+  ]
+}

@@ -1,0 +1,66 @@
+[
+  {
+    "path": "app/application/use_cases/whatsapp/group_submission_matching.py",
+    "lines": 201,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": null,
+    "sha256": "dc85ecd81a87dd90451b9558d40a5007d338d93c3af30570cbff7d92b6ceb2e3"
+  },
+  {
+    "path": "app/application/use_cases/whatsapp/group_match_coordinator.py",
+    "lines": 188,
+    "max_function_complexity": 47,
+    "most_complex_function": "compare_group_submissions",
+    "coverage_percent": null,
+    "sha256": "d409da422bab1a779bf75a3b4c10e98e0ec5b036735d5161d11af5f35fb7f76f"
+  },
+  {
+    "path": "app/application/use_cases/whatsapp/group_match_evidence.py",
+    "lines": 295,
+    "max_function_complexity": 16,
+    "most_complex_function": "_pair_evidence",
+    "coverage_percent": null,
+    "sha256": "cf662891cd0d635b070cc93a5a68de3b2e660421e7b37545510d8dfd03aefb8b"
+  },
+  {
+    "path": "app/application/use_cases/whatsapp/group_match_fields.py",
+    "lines": 161,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": null,
+    "sha256": "43ff801155b533fbf5b3c5a1172dd18c9bc4748d191e24433d8dde6582573a17"
+  },
+  {
+    "path": "app/application/use_cases/whatsapp/group_match_normalization.py",
+    "lines": 172,
+    "max_function_complexity": 9,
+    "most_complex_function": "_selected_field_normalizer",
+    "coverage_percent": null,
+    "sha256": "5b6d8982eb966989959ac6c8995b0b3278f1a20594e5aa375a001f06c1118f34"
+  },
+  {
+    "path": "app/application/use_cases/whatsapp/group_match_profiles.py",
+    "lines": 297,
+    "max_function_complexity": 27,
+    "most_complex_function": "_recipient_profile",
+    "coverage_percent": null,
+    "sha256": "fc8a2101cf3abc2bc1b2df737e6572b540faa32b5c353c572e90b14f09afd900"
+  },
+  {
+    "path": "app/application/use_cases/whatsapp/group_match_rows.py",
+    "lines": 231,
+    "max_function_complexity": 20,
+    "most_complex_function": "_recipient_row",
+    "coverage_percent": null,
+    "sha256": "8c712fa4e4529434139a45acba392f9119ac842191154d0bf62caa101a732369"
+  },
+  {
+    "path": "app/application/use_cases/whatsapp/group_match_types.py",
+    "lines": 155,
+    "max_function_complexity": 3,
+    "most_complex_function": "all_values",
+    "coverage_percent": null,
+    "sha256": "fc8546d246a221ed0dcf6834aa753e1b51fa877dffd2029e522e5f6ce4dfcf1f"
+  }
+]

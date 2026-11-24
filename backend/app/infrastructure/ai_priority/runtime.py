@@ -7,6 +7,7 @@ from types import TracebackType
 
 from app.infrastructure.ai_priority.coordinator import AiPriorityCoordinator
 from app.infrastructure.ai_priority.state import PriorityLease
+from app.infrastructure.documents.storage_transfers import finish_cleanup_despite_cancellation
 
 
 class AiPriorityAdmissionDeferred(RuntimeError):
@@ -46,16 +47,25 @@ class MaintainPriorityLease:
         exc: BaseException | None,
         traceback: TracebackType | None,
     ) -> None:
-        if self._heartbeat_task is not None:
-            self._heartbeat_task.cancel()
-            try:
-                await self._heartbeat_task
-            except asyncio.CancelledError:
-                pass
-        await asyncio.to_thread(self._coordinator.release, self._lease)
+        await finish_cleanup_despite_cancellation(self._stop_and_release())
+
+    async def _stop_and_release(self) -> None:
+        try:
+            if self._heartbeat_task is not None:
+                self._heartbeat_task.cancel()
+                try:
+                    await self._heartbeat_task
+                except asyncio.CancelledError:
+                    pass
+        finally:
+            await asyncio.to_thread(self._coordinator.release, self._lease)
 
     async def _heartbeat_loop(self) -> None:
         interval_seconds = max(0.05, self._lease.lease_ms / 3_000.0)
         while True:
             await asyncio.sleep(interval_seconds)
-            await asyncio.to_thread(self._coordinator.heartbeat, self._lease)
+            # Cancelling the await cannot stop the Redis/native worker. Drain
+            # that owned call before the exit path releases the same lease.
+            await finish_cleanup_despite_cancellation(
+                asyncio.to_thread(self._coordinator.heartbeat, self._lease)
+            )

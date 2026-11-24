@@ -1,0 +1,11 @@
+
+ RUN  v4.1.12 C:/Users/nipun/Desktop/PassDetection/frontend
+
+ ❯ features/upload/components/fresh-qualifier.test.tsx (14 tests | 1 failed | 13 skipped) 109ms
+     × allows an explicit current-config replacement after a rejected restore without losing the old proof 108ms
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 13 skipped (14)
+   Start at  05:45:53
+   Duration  15.16s (transform 300ms, setup 2.57s, import 1.36s, tests 109ms, environment 10.59s)
+

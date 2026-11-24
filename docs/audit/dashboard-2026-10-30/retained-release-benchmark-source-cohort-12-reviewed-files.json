@@ -1,0 +1,170 @@
+[
+  {
+    "path": "backend/scripts/apply_mcp_admin_approval_upgrade.py",
+    "sha256": "5b039cd78190ba5ac0d8ce6fa85152ac65fbd825164941d41364d630f9071988",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read in two contiguous ranges: exact request-table/constraint/index shape, original grant/token/control streaming digest, owner/head/source contract checks, boundedPG settings and safe output. Declarative historical schema checkpoints are purposeful; no arbitrary line-count split. No new live database/provider/release or benchmark execution. Dedicated Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/scripts/apply_mcp_direct_devices_upgrade.py",
+    "sha256": "6fe78f8d1cc622f2d98eaf007d64bf66c1ed568ca537f6e41571f1e4bf1dbc04",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read: exact nullable platform/enable additions, pure two-operand platform predicate, version-specific normalization of added fields, original authority preservation and denied mixed schema/head. No new live database/provider/release or benchmark execution. Dedicated Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/scripts/mcp_dashboard_write_schema.py",
+    "sha256": "6d6b3da11e454bf682ca3075629f0b0d7ba6ba7fe19551e0142439ec9e02ba24",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read: bounded512-table catalog, typed shape snapshots and empty/newpermission default-deny checks, original fields retained through quoted bounded streaming row hashes. No new live database/provider/release or benchmark execution. Dedicated Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/scripts/qualify_data_invariants.py",
+    "sha256": "f43f3b71991804962c677be9ad2a8de0f0800baeda2b740698577b09e5bba6eb",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read: exact namedCI database/current-schema guard, synthetic invalid-row savepoints and preserved original snapshots before/after migration. All row tables fixed; no user-controlled SQL identifiers. No new live database/provider/release or benchmark execution. Dedicated Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/scripts/qualify_roster_cache.py",
+    "sha256": "a0dbe7c2aa6a17b3ef6a404bdab60665f6a66263f6e036f30ea837ad22d330bb",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read: isolated synthetic service benchmark, four authorized actors, warm projection guard and separately sampled allocation evidence. Apparent cold-key equivalence concern cleared by actual maintained service/cache source: search=None and empty string retain distinct serialized cache identities. No new performance/SLO claim. No new live database/provider/release or benchmark execution. Dedicated Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/scripts/qualify_search_plans.py",
+    "sha256": "4c28c75ad0875a8011c1834e5b8bae4edefc644ad91fec1cabe12ff7b8840f51",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read: namedCI database plus actualidentity/emptydataset guard, server-seeded synthetic100k records, bounded output/index checks and explicitly limited warm localPG measurements. No new live database/provider/release or benchmark execution. Dedicated Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/scripts/qualify_populated_search_roster_migrations.py",
+    "sha256": "7eb631e09c2153155335647a3d12b59db1e5917d0fdaaa24b2a8a3d4dc231e74",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read: exact loopback/port/CI identity/revision gate, retained streamed row digests across deliberate lock timeout and index-only ownedfixture downgrade/upgrade. Unbounded command-capture hardening is unvalidated, not counted as a proved defect. No new live database/provider/release or benchmark execution. Dedicated Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/scripts/verify_traveller_worker_pool.py",
+    "sha256": "033f7759afdc471ff00ee686f8302ce0a875b24bccb68ddcfadcf517135828e5",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical shared worker qualification source read: opt-in marker plus exact fresh private synthetic database, independent one-connection blocker pool, lease-owner staleclaim/retry/impact controls and safe exception projection. Native-named database is a fixed fixture name, not a native feature audit. No new live database/provider/release or benchmark execution. Dedicated Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/scripts/bootstrap_my_photos_demo.py",
+    "sha256": "fa818846f999bcd1148fa24e3c441793bb53efc770a8adbba4723378abc6fc81",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read for shared gallery tooling: development environment, explicitfixture enable and allthree development providers required, scoped group/access lookup and positive batch cap. No real-media bootstrap performed. No new live database/provider/release or benchmark execution. Dedicated Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/scripts/diagnose_mobile_notifications.py",
+    "sha256": "2943e7349a4fc54dc85eac5e63dd7527211bd2b2c6379750925191cd553f4486",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical shared dashboard-publish diagnostic source read: server-enforced SELECT-only transaction,15squerytimeout, projected registration/queue counts, bounded tenannouncement selection and safe CLI errors. No token values/messages printed; device/banners explicitly separate evidence. No native feature audit. No new live database/provider/release or benchmark execution. Dedicated Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/scripts/qualify_document_distribution_release.py",
+    "sha256": "787c70a5cdcb26bbbb7b43f60fec3453200b928c67516ffa30f8f539aa77633a",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read: ownedharness exactbaseline binding, heldwrite-lock rejection, intermediate resume/idempotence and original row/catalog/default-value mutation negatives; no execution or production downgrade. No new live database/provider/release or benchmark execution. Dedicated Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/scripts/release_companies_traveller_upgrade.py",
+    "sha256": "1e01e79dc78d4534a779559858434e3b68d3c5d86057cba4becf4cb950d8012d",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read: distinct version-specific release contract, original backup baseline required across resume, one frozen revision/checkpoint pertransaction and preserved original rows/catalog/ACL. Existing packaging/operational IDs retained. No new live database/provider/release or benchmark execution. Dedicated Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/scripts/release_document_distribution_upgrade.py",
+    "sha256": "fce36f3e127abaf5117dcf4825c605245fff882013d2129875026ec151ba7144",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed-and-documented",
+    "notes": "Complete physical source read: distinct document-column release contract, original0138 baseline required across resume and exact0140 target. Corrected only copied module description from0135-0138 to actual0138-0140; all executable declarations unchanged. Historical output compatibility retained. No new live database/provider/release or benchmark execution. Dedicated Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/scripts/qualify_document_distribution_upgrade.py",
+    "sha256": "2f8afaee1cb5d472c6a7e0621cb1bc42b9e0990df5c83281fdf4b1e9a0b36919",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read: localCI guard, newlyrandomowned database, createdflag-limited cleanup, retained synthetic row fields, source/intermediate/target/lock/ORMrollback checks; no generatedrealmessages or productiondatabase command. No new live database/provider/release or benchmark execution. Dedicated Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/scripts/release_mcp_dashboard_write.py",
+    "sha256": "6bbb0b8166614205f3f1c33f7a300a0c782b13d3f1c4dd80a4268367cb06921e",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read: source/digest/ancestor/schema-profile bindings, explicit mixed-code capability/export ceiling, original catalog/authority hash and new default-deny state, safe no-auto-downgrade output. No new live database/provider/release or benchmark execution. Dedicated Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/scripts/release_travel_tracker_upgrade.py",
+    "sha256": "cc52d6080103a6cfd08029fbb7eb5b49b8e5e3d1af670b16c688a35817dcf543",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read in two contiguous ranges: exact additive target schema/constraints/indexes, streaming original fields and ACLs, runtimegrant inclusion, emptytableactivation gate, migration owner/head/contract and safe errors. No new live database/provider/release or benchmark execution. Dedicated Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/scripts/benchmark_company_records.py",
+    "sha256": "d563d16a7435d8790fb78cfcbe2faa67a6fdcfa08a3bb76ac0392aff9bb50dba",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read: newlycreated output isolation, bounded500row batches/fourSQLite readers/capped retained samples, actualcompanyroute helper/cursor/search/assertions, explicitnonHTTP/nonPG limitations. No productioncapacity claim. No new live database/provider/release or benchmark execution. Dedicated Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/scripts/benchmark_traveller_queries.py",
+    "sha256": "1a3fd93534a752de1615cf3faad5df80d6106eff273fc9f9432db464494aedbb",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed-and-documented",
+    "notes": "Complete physical source read: synthetic-only HMACidentities, newSQLite fixture,500row batches/boundedreservoir/fourreadonly readers and explicitquery-shape limitations. Corrected only stale module guide from.venv311 to reviewed.venv; executable declarations unchanged. No new live database/provider/release or benchmark execution. Dedicated Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/app/infrastructure/passports/roster_view_service.py",
+    "sha256": "54600492420b5bf44825f4719be6ecad8ab476db8861030a487ae215dedb9e09",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source reread: live revision/authority read before cache, actor/agency/role/revision/options in identity, SQLite uncached, bounded single-flight fallback and token/client cleanup. Existing earlier full review credit is not a newlyunreviewed file. No new live database/provider/release or benchmark execution. Dedicated Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/app/infrastructure/passports/roster_cache.py",
+    "sha256": "59aa105e42abd884ed539915d798974a2969d249dbdbeb3668a66c8fe3292287",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source reread: encrypted identity-bound payloads, HMACcache keys, atomic entry/byte eviction and cachemiss/failure fallback; same actor-scoped key None/empty-string distinction verified statically. No new Redis runtime result. No new live database/provider/release or benchmark execution. Dedicated Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/queries.py",
+    "sha256": "800f98cf5ccf8cfb8fc624ba33f8f7befbb995bbd929dbfe86833558df759d4f",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "reviewed",
+    "notes": "Retained submissions-view handler slice130-235 reviewed to trace actual search/options/authority/revision and scopedpagedetails behavior. Rest of query module not claimed as full here. No new live database/provider/release or benchmark execution. Dedicated Operations Inbox remains deferred."
+  }
+]

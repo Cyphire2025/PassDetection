@@ -149,6 +149,7 @@ async function executePublisherRequest(
           groupId: request.groupId,
           sessionId: request.sessionId,
           checkpoint: runtimeAwareCheckpoint,
+          expectedOwnerUserId: request.authentication.userId,
         });
         assertBrowserAuthenticationSnapshotCurrent(request.authentication);
         return response;

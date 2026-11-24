@@ -1,0 +1,34 @@
+[
+  {
+    "path": "backend/app/infrastructure/database/session.py",
+    "sha256": "ffe7cb50459ed4c30754455477b86b47d67e8de2233aa430fe370e808f63f296",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "needs-follow-up",
+    "notes": "Complete current source read. Runtimeengine hide_parameters nowprevents boundvalue rendering in SQLAlchemySQLlogs/string/traceback, proven6actualSQLiteconstraint negatives\u219240focused privacy/deadline/rolepolicy tests pass. Transaction/pool/DSN/currentrole/deadline semantics unchanged. PostgreSQLdriver-generated DETAIL and Celery exception args/result sinks are separate open follow-ups; this flag does not redact arbitrary DB-origin messages. No actualPostgreSQL/service claim."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_database_parameter_privacy.py",
+    "sha256": "ab91aa303883b5bccbee9b5c69355ff8f48833bfc752362abcf905b9f114c8b2",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete current source read. Runtimeengine hide_parameters nowprevents boundvalue rendering in SQLAlchemySQLlogs/string/traceback, proven6actualSQLiteconstraint negatives\u219240focused privacy/deadline/rolepolicy tests pass. Transaction/pool/DSN/currentrole/deadline semantics unchanged. PostgreSQLdriver-generated DETAIL and Celery exception args/result sinks are separate open follow-ups; this flag does not redact arbitrary DB-origin messages. No actualPostgreSQL/service claim."
+  },
+  {
+    "path": "backend/app/core/logging/logger.py",
+    "sha256": "770bc8714a5e9f2055dcc8c7a0b07f270e045a0276cef5f615bec8e72815fdb1",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "needs-follow-up",
+    "notes": "Complete current source read while tracing log/exception privacy. No mutation. Applicationlogginglevel/structured/fallback boundaries inspected; DB-origin error details and Celery persistence/foreignformatter sinks require separate actualproof. No extra build or broadtest triggered by reads."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_database_session_deadlines.py",
+    "sha256": "89b8a78bacb93149c03e923bb6773159f0693aebe9397ccaffba6b52bb645086",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current source read while tracing log/exception privacy. No mutation. Applicationlogginglevel/structured/fallback boundaries inspected; DB-origin error details and Celery persistence/foreignformatter sinks require separate actualproof. No extra build or broadtest triggered by reads."
+  }
+]

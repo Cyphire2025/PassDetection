@@ -1,0 +1,2401 @@
+{
+  "recorded_at": "2026-10-31T10:11:33.264741+00:00",
+  "method": "Coverage bookkeeping only; no tests/builds for read-only source. Full reads require explicit matching path+currentSHA from actual review ledgers; focused assets remain separate.",
+  "new_manual_ledgers": {
+    "runtime_docs_assets_full": {
+      "path": "frontend-residual-reviewed-files.json",
+      "records": 56
+    },
+    "test_sources_full": {
+      "path": "frontend-residual-tests-reviewed-files.json",
+      "records": 182
+    },
+    "separate_frozen_fixes": [
+      "document-rename-reviewed-files.json",
+      "document-group-states-reviewed-files.json"
+    ]
+  },
+  "initial_pending_count": 323,
+  "now_closed_current_full_count": 320,
+  "now_pending_count": 2,
+  "closed_current_full": [
+    {
+      "path": "frontend/CLAUDE.md",
+      "sha256": "336cc4fbf19beaada7ccf9986414fa91851a8d7a07dfb3ccbe800a69eed0ab49",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/public/assets/branding/global-connect/login-background/paper-routes.svg",
+      "sha256": "20c44ca2502f3db21dda0ebd50d7e0f1e4c98d4e812a5e5585c4a327416bef3a",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/public/file.svg",
+      "sha256": "2b67812c325c199a02536cdbeea0c593a72f707d323b72ee3e08dbab06753bd4",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/public/globe.svg",
+      "sha256": "b614b9bf183925957661ac851498fe1d8029fd43a62fbfed86f9e2624a57e7cf",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/public/next.svg",
+      "sha256": "55995dfad6ecb4945a1e856ddca03c5e16aa5bf13fd21b4df6a74ae79357bcfc",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/public/vercel.svg",
+      "sha256": "f081337b2fee635b455b63275406a3e7f39d6a014e25ad90dab5a67e62a12ac4",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/public/window.svg",
+      "sha256": "644768c4aaeb4767bce293344eeb0c125fb804a94d801440424072202d85e3a1",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/public/pwa-icon.svg",
+      "sha256": "10e7682b8551b40971d6614e5f0b345d031a0a3313191b28e2b232d9e5b5399f",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/public/ai/ATTRIBUTION.md",
+      "sha256": "2279f2feabf62ad7589a3cac310d01a447841f40e8c093453b117e7dd186357b",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/tooling/npm-security/package.json",
+      "sha256": "59014509d3fd2a26feca1453e8ac50d3d8562d8fad81acd31bc06ed558f74025",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/components/document-broadcast-actions.tsx",
+      "sha256": "1ed80a996f9bbaac5ab59bb367157bc5647053e03775e4a8209baa05e639d250",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/hooks/use-ecr-checker.ts",
+      "sha256": "b7bdcc6cd3a9bafe805de1e7cfc338fbbd515315f5c42b266a68dc9a733d1156",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/docs/dashboard-state-ownership.md",
+      "sha256": "00eded9035ff5ad49bbf3e849fd0f24fed7332e0fb79930d7331c72cfaffe7d4",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/public/assets/branding/global-connect/login-background/wing-architecture.svg",
+      "sha256": "6bd680e3a17b0f5d671a9e617aa3c1162a595ac916769e37497e9b2b3064b11d",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/public/assets/upload-samples/README.md",
+      "sha256": "218fb1193c1e8aef0ed071ca005fcc1712ff2da1684b5dcd8a79f270f5284117",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/README.md",
+      "sha256": "d289440d2516265dcbdc0f0ea13588c2f9bf016f17e94e7534c1e9914b55eda5",
+      "full_read_ledgers": [
+        "frontend-readme-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/api/ecr-checker.api.ts",
+      "sha256": "6b08f38492bd5407b446a096f876d9de373887dddf53ec31433d8a17479f29a3",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/hooks/use-document-rename.ts",
+      "sha256": "f4b933071c0e86752a9f90ef25387901d65b3b69e29974b790d3b82c02af99bc",
+      "full_read_ledgers": [
+        "document-rename-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/public/assets/upload-samples/indian-passport-address-details.svg",
+      "sha256": "505a217edeab8bff92b9b355cb7368cbc44e07865048d220c17b23f833b31351",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/components/document-workspace-header.tsx",
+      "sha256": "ad5b072326ef27abf10cef103caeb925f9d959e23cab8728e885a4ba157b5686",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/hooks/use-document-workspace.ts",
+      "sha256": "913e530ef36bb20b4b130a8e83824a15370775c30b05dcfe9fa25f198aa3fb2f",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/api/document-updates.api.ts",
+      "sha256": "61ed3307504822ed38aa9403b4456c52a9ac4f159a2d5e59c4457addbde4379e",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/components/manual-passenger-document-dialog.tsx",
+      "sha256": "b392f2fd15c36bb2f1de09c799610bb9aa548487bdcad795989e724465b626f3",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/api/document-rename.api.ts",
+      "sha256": "b061e3339b305aea068165e9993d3998725ad01c51cc7135c42cdbd4485c69bc",
+      "full_read_ledgers": [
+        "document-rename-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/public/assets/upload-samples/indian-passport-personal-details.svg",
+      "sha256": "08c969a013796f61e4a780e02620f59ab253bf13fc3c0b5ae936400be6b85df4",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/services/document-manual-review.ts",
+      "sha256": "220cbf6475d14941c59cd1d557f6af3c00cb5162259f31af090b23e39a497978",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/hooks/use-document-filename-conflicts.ts",
+      "sha256": "a423b64c7a478edba632578224cb9a5e3e754e9651100aad0dbd097858552f96",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/hooks/use-document-workspace-selection.ts",
+      "sha256": "6f3ac21b3b4f1b78d47b6a09d5c1a59abea578b5763e833f0247a73424fc29d2",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/companies/README.md",
+      "sha256": "525414285854c3d4f5e085b866b462cb15ae9e07fb39c684bded375ac139ee21",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/hooks/use-document-workspace-delivery.ts",
+      "sha256": "b359ae1b6663ab579f2b02b937d6cdf719e8b5dbfb342c3cfe0c3dcabde29690",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/components/document-distribution-landing.tsx",
+      "sha256": "a84f4b84b3977e4a2d67b24af439278ab5ae26afa0a6b91c52c1f57607ce82a6",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/components/document-workspace-upload.tsx",
+      "sha256": "c9fe56677ee835a4c10cfa93f292af46bb22403670e730fd1ebefe6ab9dde3c0",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/components/ecr-results.tsx",
+      "sha256": "3213e07af745fd316a7f1863975cd26f99beff8326b01462da724875ebc54b8f",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/components/document-filename-conflict-dialog.tsx",
+      "sha256": "c0a1173b398510b7e477b7d77f5e2cc719764705410e921809defb9071be4442",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/components/ecr-checker-page.tsx",
+      "sha256": "9bc339f2e08c7be518a02c5f89b9576b125f212c8adb8e5385471757d6f3c78a",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/hooks/use-ecr-workspace.ts",
+      "sha256": "530fc5554a6d22abbf2b26a4ca413ab1ad49c7374936428f32e763324ce6b5a0",
+      "full_read_ledgers": [
+        "ecr-workspace-authority-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/components/document-group-distribution-chooser.tsx",
+      "sha256": "03c1e245074942c68bebb556f1cb34e969d4192df2c1310a0f3335f2ba372bfd",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/components/document-hub.tsx",
+      "sha256": "9f252af5c08444c7cc05b819558f0aa3f908e4ea53ec63414db8a052b5c42c69",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/components/document-upload-panel.tsx",
+      "sha256": "1792d6482873cd7660db4f7175a31b923f80e12345fc4bca59af6e6fe4b35e0a",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/components/document-workspace-upload-status.tsx",
+      "sha256": "3b228968f61cdf4553a317b2f6a08313f8300921c292309d6d67abd5b84fc712",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/config/document-distribution-lanes.ts",
+      "sha256": "5e8cb007d04266c34f65116c5c46be582db8b0aed69ec82d1762039fa99a060b",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/components/document-manual-review-dialog.tsx",
+      "sha256": "0d8934ec2a9d43fc75171aef5c1790f2bca674940f4d8fc9a6e61538df32260c",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/message-composer-audience.tsx",
+      "sha256": "9d2aad39dfcff78e557a511e79c9dfbbb0614720e1680e27a8987675305bae0f",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/components/document-workspace-roster.tsx",
+      "sha256": "407999812ccb06543a7562f3b443e78c91cd659901d329fd8fa64c18053bedd5",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/components/flight-ticket-lane-navigation.tsx",
+      "sha256": "ce5c946d7659d4bf210d05ff3f8f12344afc05f8c6c9467ccd365cf73271ac09",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/services/document-filename-conflicts.ts",
+      "sha256": "db566f16fa25f1d37346d1c0eedea9e9853ff94a603f705dcdf642d843a56e25",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/components/document-workspace-review-rows.tsx",
+      "sha256": "6085bcc974b0f1759195f7a5a21a5c6eb006fe8333d8d87cd8cb9772c2a5c5c9",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/services/document-upload-recovery.ts",
+      "sha256": "65c392a46fc680ba7854e2f97c2fae5413523022364395371892c079843b4282",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/components/document-workspace-review-controls.tsx",
+      "sha256": "c4b34f47dcd6e923a25fc7ba08dceb92b6801d4b300538e0126b22bb545bf4d3",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/components/document-delivery-activity.tsx",
+      "sha256": "4e71206e0f383e1ee7ac7a80462befd7236f680337f12b5bad2926ff1322082e",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/components/document-workspace-model.ts",
+      "sha256": "bd7258ca2acc868f0e417188dc3a3f2fa2624c82eb70c6dbad4f3cda26577a9d",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/components/document-workspace-review.tsx",
+      "sha256": "6f8ae8c3da389fa524286a90cd24b9c2b8e9288780fa84c6fd254386c0eec0e4",
+      "full_read_ledgers": [
+        "document-review-architecture-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/components/document-rename-page.tsx",
+      "sha256": "20da69552287b5b7e3ef8ae9535ed3477b3a8197f80713e39ee9a3e4401f2964",
+      "full_read_ledgers": [
+        "document-rename-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/services/document-upload-batching.ts",
+      "sha256": "d4c95c411e9e9d82c7573f42c55a67532ca1b3c213cec73db98c3df6ae963d8e",
+      "full_read_ledgers": [
+        "document-batching-architecture-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/components/document-group-search.contract.test.mjs",
+      "sha256": "21272b21a58492047953323f636e3ea31c720e8e85b69d8d268ec3377ee35c29",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/upload/components/visa-camera-source.contract-helper.mjs",
+      "sha256": "116007c1cd55c28a59ca1370ce5b2242b1bbae9321a43716bc8c541d31e65a9c",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/upload/services/passport-camera-crop.test.ts",
+      "sha256": "29951a5e4ae44f1b51a4cc495f83773d23c336b843278462b7c7e1176c81bd76",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/workspace-pagination.test.tsx",
+      "sha256": "3de921fb86ab096eb12c8f9997e1da3194abb6f041c50e1a809413de9fbe85e7",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/components/shared/error-boundary.test.tsx",
+      "sha256": "625318cf0f6b805550b98b3edd74c6bad785efd73e4a470079b17477766b872e",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e-fixtures/camera-source.spec.ts",
+      "sha256": "c9fa2577af232f0937c026a5a382eba2a570699c8f18072254df33f37d461290",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/companies/components/company-person-trips.test.tsx",
+      "sha256": "837e802088d5bcad89c21bc903086d29c7dc15d2b565ba7785bef0a118ac3097",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/operations/components/managed-account-controls.contract.test.mjs",
+      "sha256": "4dea0922b9676f77889d3474445be4dd994e4400cecc6eeb7a6e831413ca7b55",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/whatsapp/api/whatsapp-archive.test.ts",
+      "sha256": "e4b82771357eaf420e42578a839284d285875f55480760cc16aacd41ee235f6b",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/whatsapp/components/contact-editor.test.tsx",
+      "sha256": "52cb1fc6a8ce702b7078424b7debff410ef8888d2068b0e3a98fe02689f8eea2",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/components/document-rename.contract.test.mjs",
+      "sha256": "3017585571e2318590bc9bce18ce5f2ea397411b2cc8ff3ffee4c7db53ddd615",
+      "full_read_ledgers": [
+        "document-rename-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/operations/components/managed-accounts-panel.contract.test.mjs",
+      "sha256": "9b79ea8d081d41c8a6bd05a386045d1e8fad0767a9b09be310281a792f6bee05",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/operations/components/tour-operations-ui.test.tsx",
+      "sha256": "0906c0cba23ed8d03f264ce4745fa32110aa7e14d46f3f1c5fefe8fad2823cdc",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/stores/auth-restoration.test.ts",
+      "sha256": "7f970a32376b3fa754b986bdd9df07c6d39ccc651e077135e639c30cdcf577f0",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/mcp/api/mcp-transfer.api.test.ts",
+      "sha256": "ee26d44b3a982c38a5fe4eeb8c38defee3b1fb792cbbfa5e86b9df6ce875a229",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/utils/passport-workflow.test.mjs",
+      "sha256": "0c1ca3191f0f2e0aac2282f871a8221b3f24dd7a01b2df8de1abdde6bb1cc736",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/components/document-workspace-source.contract-helper.mjs",
+      "sha256": "6ef7beefca03a9fd68e2a3eedc841c6323eec9ecc28015d0ca4c7abab597bd76",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/mcp/api/mcp-request.api.test.ts",
+      "sha256": "018479ee8e5028e3199b297c4d200e55982e7896fe042005a093a2b5a71423aa",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/upload/components/fresh-documents.test.tsx",
+      "sha256": "e2d79fbf4799e04fe0cab2c35edf9b02c696db105ad2ba22876e954943701bf8",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/lib/api/retry-after.test.mjs",
+      "sha256": "97a4cce603db95f4a88a5806d7fee2be813344a73b587d94074910b80c82aaf0",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/branding/api/branding-images.api.test.ts",
+      "sha256": "e84a5a8502988fa55057cfda920db31b59a3b6521e136e80a7d8d880227bb13c",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/components/document-workspace-responsive.contract.test.mjs",
+      "sha256": "5d131e4dce4ea4e0c3378c269b13a46ccf185872d49606526caf7b5ed9f77a5b",
+      "full_read_ledgers": [
+        "document-review-architecture-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/components/whatsapp-match-evidence.test.ts",
+      "sha256": "55a89676dd0933f7101e95e95487e3bd50e370fede208af446f1f1efa2b56f51",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/whatsapp/utils/activity-tracking.test.ts",
+      "sha256": "76dc3c5bfb00d6b87864c50b5c1f59feda945e911d94cc08691919c9d9e9fbdb",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/gc-app/notifications/pending-send.test.ts",
+      "sha256": "6166d8b9c2d9741ef5f5ed28af37d27f7e70ef14ed14507424d3b3a23c8b099f",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/travellers/services/draft-readiness.test.ts",
+      "sha256": "e04321e4059526f74ad084aa0180ad6d1feb5700191c7aee3ad26958807f0dfe",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/auth/services/refresh-attempt.test.ts",
+      "sha256": "807560c08722b01ffaa97fadba667a1dbcdeaef8337581c37e53175b9bf0c267",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/lib/utils/clipboard.test.ts",
+      "sha256": "2114f329ca4a76ece2afa97f0f4b87bb013218442bb594bdd22a21cab0fe0306",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/operations/components/qr-whatsapp-delivery.contract.test.mjs",
+      "sha256": "89194783efb3544ed296e48eb1ff52ca321adf88e35b018b6063ae707f5ac408",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/whatsapp/hooks/use-group-update-audience.test.tsx",
+      "sha256": "ac3e13bde152297dbe38c55cca8dbac6ada328c0be23667ef833863584d1632a",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/lib/api/client-refresh.test.ts",
+      "sha256": "b70617fe7eadb89b73c0e731f126a9a17e3a09e94c4d3847c511b5795cadcb2f",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/lib/navigation/application-route.test.ts",
+      "sha256": "426850cb175d7d74bd66a7e40acc36287332c309fa35542a591af139a5112c3a",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/app/dashboard-layout.contract.test.mjs",
+      "sha256": "7b0cb4a6a22eda96395695e2c5b0297cb3f950afd8f05bbce689c91fcb3a1d6b",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/gc-app/gc-app-source.contract-helper.mjs",
+      "sha256": "e3ddab850e9199b8041a72a6e2966f4f03bdf2cd23347d6ab8fdcfc2a05d8861",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/companies/components/company-person-page.test.tsx",
+      "sha256": "d1cfbecafc789422fae067b035b3b6c4d7d75402c717dc0b6e31d3e26d07cce2",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/lib/utils/coordinator-device-id.test.ts",
+      "sha256": "74a28b1fb2204495aac2a2a10850623ac1b27bcd924fa8e5e83002568b23dd39",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/notifications/components/notification-bell.test.tsx",
+      "sha256": "162b2d38ee9dd714e5b7be1f42425545109ff990a9bd859cfdc46ee25412e3d6",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/companies/components/company-person-editor.test.tsx",
+      "sha256": "63aa55aae73ec759ce03f61dff3366651a8a50512198378e5f76779a71e008cf",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-source-roster.test.tsx",
+      "sha256": "60b7e5ec22738e2529d2083a29d83f00b398db6b28e10ecbd3c7328846158466",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-workspace-boundaries.contract.test.mjs",
+      "sha256": "8b0e4c81c02af60357ad80d45814d25f0c21c1f47be8ac3f77b38cc5984d1247",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/next-config.policy.test.ts",
+      "sha256": "d942150946acc998fd6f3377b98d7c4e2a1962b2aac1e246fe8f767742c967b5",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/api/staff-approval-contract.test.mjs",
+      "sha256": "b00000ae32cfa933a246c39fb1e7d443a2fb38becb381a21dec954addf70c569",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/components/document-assignment-export.contract.test.mjs",
+      "sha256": "be68addddb0914d37787dc5390a97d55a9e3b5557cf5320bf2bdcc4e14622c9e",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/settings/platform-settings-policy.test.ts",
+      "sha256": "a3180a25c10305b5dacb8dae7dd2df2be5d6a3f6ce1f1c3aa6c690eeab35b3d0",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/travellers/services/draft-reconcile.test.ts",
+      "sha256": "e7f33090c30e1e7d48db14874047670918c13a346080d8fc22238b31884accd1",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/upload/services/fresh-validation.test.ts",
+      "sha256": "51a4e0bcf80c7203822b66dee4c8d5d2101260599a78900ff4dbccf8967fa6cd",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/config/api-routing.test.ts",
+      "sha256": "f4d601c540a7acc75e42dc6ead5f04f66ab9381a1011c06c93cabc2e87ecc828",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/companies/components/company-groups.test.tsx",
+      "sha256": "2478ecbd8583c61a18051fee77d926e1da70fddbf6fb131802a2eb3431da21da",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/travellers/api/draft-requests.test.ts",
+      "sha256": "6865b4b773a3916c4d93b45cfba73fdc15c6577c96350526c8c05805941312c1",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/travellers/services/draft-module-budgets.test.ts",
+      "sha256": "cf3ee80851c066e02aa904bf2207ec5f0ace1343a5e6d064cedcce17d2f66b5e",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/app/(dashboard)/settings/settings-page.contract.test.mjs",
+      "sha256": "4778b84b4a73d697375a96330a50a4db498c393a9b4f9b0be41c589d53539db1",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e/support/public-contact-otp.ts",
+      "sha256": "2c8941b32d55c729a1e7bef51e92ce9fd88db12b18af8cdd186c1daa28d95d06",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/companies/components/company-data-exports.test.tsx",
+      "sha256": "cf680524e194b722b684b9e92aada5c6f95ace4d6c18a36492d8edb537236957",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/auth/components/step-up-dialog.test.tsx",
+      "sha256": "f0a15afc6aa0960e543e9389fb5d866c87395391a24af473c291aad5a92b0b6b",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/auth/services/session-continuity.test.ts",
+      "sha256": "359e1cb90161721c2bac8dd8b03c735bc0e284c17f76467258d3482ec99c697d",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/gc-app/notifications/notification-delivery-summary.test.tsx",
+      "sha256": "bdb361d85e7cba1ff40eaace276736478eb06362ada9e823691d7b6a45157b6b",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/utils/passport-reextract.test.mjs",
+      "sha256": "f322c9507fbb64f163d1ef94f0e1a81211b988a77609b2d13f7de22b87351b56",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/upload/services/passport-live-frame-adapter.test.ts",
+      "sha256": "c27f09e2122ccc86b1cfdb12c11e35d87336fcf3988d4e4e320a333e5800a2cf",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/components/ecr-results.test.tsx",
+      "sha256": "99585c6882edc5760092eaa66a3f7a520cf72dfd362a1bb2fa67a31968e02610",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/hooks/use-document-workspace-delivery.test.tsx",
+      "sha256": "f316cfb41ab78c57c320c2966c61c021fe0f05ba7e84eb82a44dd8af5b50e05d",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/utils/passport-image-library.test.mjs",
+      "sha256": "70dba3f217faf0210bfcb542e4baf7ce3d27e68994fa092a66093ab962b51293",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/tour-operations/components/browser-offline-readiness.contract.test.mjs",
+      "sha256": "1d6412ceba527a25c7a203e30cba1b8f818c4915867c1d685113cd83a9109834",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-large-import-form.test.tsx",
+      "sha256": "2d1e7e86f5d6097c5f1233077a776eeecd7006c254acf7bb4b7bc9809f4d25ac",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/dashboard/components/dashboard-overview.test.tsx",
+      "sha256": "0ed8c29abbe624101ef13cb58657a57e148a71eae0a4c56c4d03e3f0331e44bf",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/gc-app/components/gc-select.test.tsx",
+      "sha256": "48776aa15e2fbb709c3aabd52bb6a9f0fd7a91c7e0d0621ce6f9512c01eb29b8",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/whatsapp/api/whatsapp-source-groups.test.ts",
+      "sha256": "3e3841741c1aa3c06afabd0a606f9e1648b9660d970ffc583614f9486212f098",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/whatsapp/utils/whatsapp-formatting.test.mjs",
+      "sha256": "4bddcd3bd6489d42368da32f11c68e77bc7942981c8fec4e35f17e804442c07c",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/components/document-group-list.test.tsx",
+      "sha256": "54d5ebdddf13e36efe832f65f993d80166ecdba22774dfb22ca6dcb61fd23777",
+      "full_read_ledgers": [
+        "document-group-states-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/upload/api/configured-upload.api.test.ts",
+      "sha256": "b617e0a5f6a06a2643173943ecb895b4fb1d7c748b3356b683340b72029d9d5b",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/upload/components/visa-camera-footer.test.tsx",
+      "sha256": "8a9b1e873155bf61bfcae3c99b3c8c4023e2f1181225626b06e02405d39f4ce5",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/operations/services/attendance-invalidation.test.ts",
+      "sha256": "90ec827d59c4631499c26d10b2cae59a2e90a6feeee87c0c8cc83b9b8f6b6bb3",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/components/shared/processing-motion.test.tsx",
+      "sha256": "ac0bc68d30c8f9c2a4705094a2cb140fbbccb5c9ecb672ed6edf76cac7d6da3c",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/auth/hooks/use-identity-action-token.test.tsx",
+      "sha256": "191e912c9bb1d7617a0947b7de1a0af915c01a4c28dafe3f839c9dc4464419d4",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-detail-boundaries.contract.test.mjs",
+      "sha256": "babd6ba3e55b2369a507d713190d3c28d641970b96eccdc8714ff0371d618747",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/upload/services/camera-capture.test.mjs",
+      "sha256": "c84535eeda230de40ea05b247f1bb083c15c2324c9f8c96f44c171ab959d2410",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/upload/services/camera-quality-policy.test.mjs",
+      "sha256": "44b87c85f8cc660d3833215897cf91c1f7667e3ba2fc6c760dac49ba88833985",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-role-access.contract.test.mjs",
+      "sha256": "ead347be8301c5ea58330bf0711819fcdf79c0cbc65d0265a033ba50fb0cdc1f",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/lib/api/client-returning.test.ts",
+      "sha256": "7921a4cc246831cbd70b71479fa9d6cbf57594c329d37b3466d52e4e4b86f024",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/mcp/utils/permissions.test.ts",
+      "sha256": "229598f6753c46021ba4fe2cfbcd969b74885e5e7ecefef1a8d66089d66facf7",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/tour-operations/services/cold-offline-authorization.test.mjs",
+      "sha256": "6699edade4943308c08969aa4956351cc452bacfbffe223f209dfd63f5c57ad1",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/hooks/use-document-workspace-upload.test.tsx",
+      "sha256": "67f124f72ecbd36b36b4570232a79a8aae58a7ed8a5851cacbd0cb67e04acd1f",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/components/group-document-delivery-panel.test.tsx",
+      "sha256": "2f2a9b2ace925c1315cf0094e191f1cf3c8958288410616f8e6ede0e95cc2333",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/upload/services/passport-final-quality.browser.test.ts",
+      "sha256": "99218cb3a588d5246d3482117aa7ee8818fb6f2972141a9bc33dfe358c525673",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/lib/utils/passport-date.test.mjs",
+      "sha256": "cadbe863e28369523ae61600633d17d48e662a3e67dc749ba3dd7dcc3343f8f7",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/app/legal-pages.contract.test.mjs",
+      "sha256": "43bb7fa31ebaec69a41f79a5f19c6e6790da2bb4ada2454095bf52f5b23dbca9",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e-real-stack/public-upload.spec.ts",
+      "sha256": "f9d0f7e9134a313b349cd92c57caedb54c3ee6ad4d7787a86b58222a21672c46",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e/whatsapp-large-import.spec.ts",
+      "sha256": "e7ff55295aaf8ce61034ffdcbf044cecf99fdba2e5707ad0cc3fbbc3fcd5da8b",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/components/document-workspace-review-controls.test.tsx",
+      "sha256": "b96317dc61e1efb86ecaf9644b5d57144ebf0ac95187f789ce9796a39a0bd5fa",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/gc-app/notifications/notification-review-dialog.test.tsx",
+      "sha256": "21304979f7a00a66f8b17f1ac8273aeb51c9439a0683d3706f100a00d409cab3",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/lib/api/download-filename.test.ts",
+      "sha256": "7bc88601a086d6a63519f95795178c54feb03d65d6d2d523f82ca2e77052e8df",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/lib/utils/passport-country.test.mjs",
+      "sha256": "cf2da80b1d5dcaaf695a1b101d195009b2b942bc9abc7302a394fb8e9d5ac9b2",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e/settings-policies.spec.ts",
+      "sha256": "db57b7076e063a5e4f15b70ae3c63b4783ecedda4df91b806c2c53f84aa2eea5",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/auth/components/auth-session-renewal.contract.test.mjs",
+      "sha256": "5f8ebbbc0029c5a7c6e42c8184b2f0ef36eec2229a9730418e9de7fe362de52f",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/gc-app/notifications/notification-audience-picker.test.tsx",
+      "sha256": "1cfaf3a074d2723339f1cf5f12b95046515de414148df6cf8ea7ac87356b7ec0",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-permission-sections.test.tsx",
+      "sha256": "bed7998893ba822843e5655b014fe3c9cc0ac323d322f7f28475bc865329ab8b",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e-fixtures/passport-normalization.spec.ts",
+      "sha256": "516b5b1d6e44f2d2d4f1302a6b15a1988d616ee64ac23072c9e22a9e843d07ee",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e-real-stack/scanner-offline.spec.ts",
+      "sha256": "369d39811b4901ff6200e4e21e38cf59f11b21a63a3362872ccdffc0fe9f329e",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/operations/components/rooming-roster-grouping.test.mjs",
+      "sha256": "29867067d9f6b4d562a9906ea32fd97598a9eedbad09d737ed1307777bc51a13",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/upload/services/visa-photo-upload-validation.test.mjs",
+      "sha256": "92780f0d279a5283fb19f4e07bd2db8070e72e10c95bfec622a24085caa3a924",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/auth/services/queue-safe-sign-out.contract.test.mjs",
+      "sha256": "5404f3d607ac3f19a24deb30df751e46b21fb746c4e88f2790b1b60d0dcbc58f",
+      "full_read_ledgers": [
+        "attendance-queue-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/api/public-upload-session.test.mjs",
+      "sha256": "6eb571a9404c7c950edaac92f973c8078b1a73c516f01eb7f42425a9914299b0",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/travel-tracker/api.test.ts",
+      "sha256": "a3949f9436a93e8177406c88325120c8f79067216d2ab0788da2613a345a279c",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/upload/services/visa-face-detection-loader.test.ts",
+      "sha256": "037a9d8a8bae97fd5022c2a2ccf59bd6db840d516faece42399684d73b279159",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/scripts/verify-frontend-module-budgets.test.mjs",
+      "sha256": "ea078d8e575a62a1bc11fb0f780be786b4e660461f8ea6247e59b405bc600740",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-broadcast-motion.test.tsx",
+      "sha256": "edcdac62f9c3e1e0e9ac713625ded290249383df77ae2550d937bb97e6c6ff4b",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-batch-policy.test.ts",
+      "sha256": "a0cef94f0ad7a9dcd2bf0c57334e7d23a1da66041cd08777de8d8dfa5b60e18b",
+      "full_read_ledgers": [
+        "attendance-queue-reviewed-files.json",
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/upload/components/passport-camera-final-validation.contract.test.mjs",
+      "sha256": "d98f0ba08186ef449918a3cdab18457a07da61263ec1bb883802100933ad9299",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/companies/components/company-match-queue.test.tsx",
+      "sha256": "372214e26db1b5ccfd0f623f08958564924438cf6f6cda4989221609df83d27b",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/lib/observability/render-errors.test.ts",
+      "sha256": "0c25410594974c10590b64cfa9acde687299e1b5331ebd32decf8e28cfc433fe",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/components/passport-cover-images.test.tsx",
+      "sha256": "2e0d54a6c5770e45736fb8259bac3202c03ec4c085854ed7084a0ca5c4b06c94",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-privacy.test.mjs",
+      "sha256": "8c6c8b5052ce5dfc3b935fa8b15617fa58eb304f9689f7f0dc91658273c9c6d2",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/auth/components/activation-form.test.tsx",
+      "sha256": "cb81424b55ad558eacfaa80968387bf2e8350b033e8a53640bf30ec5ebff7d0d",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/upload/services/public-upload-file.test.ts",
+      "sha256": "b2fd9c39b2e983cbec234d235ddb3e299793234c71675604f8a9feb685f3f8e6",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/components/manual-passenger-document-dialog.test.tsx",
+      "sha256": "e06da24cac889d47465c228e155209a3bb2da20d4c6ce7916fd67f0d90af03a0",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e/travel-tracker.spec.ts",
+      "sha256": "f4b7ae3642663fab2f2f5e1fd3213d53b9996ea273ec1efc4c6a016332f52fb3",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/components/passport-workspace-dialogs.test.tsx",
+      "sha256": "1a57fba24b3c14780e61c6a6a84db66d59807da66b93246bc00f0d8e69e7f754",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e/dashboard-resilience.spec.ts",
+      "sha256": "05bad5b83688fed0c41f11d98c1ca498bfeea56e82675c0f0e96069901f64cc3",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/gc-app/notifications/notifications.api.test.ts",
+      "sha256": "d32e28e30fe9c8f596670ed7acf5f55637f031b5cba8d2791a2c0e7cbda2ca7c",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/upload/services/passport-document-verification.test.mjs",
+      "sha256": "99bcccfd35fe0e2988b945956edc0ddb82c6c1427d8caee2b7379253bd4863bb",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/api/passport-operation-owner.test.ts",
+      "sha256": "2c9dd6c23690157b79a0524cb092e4785d03df9a19698c91e40cb9d696f0a7b8",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-detail-source.contract-helper.mjs",
+      "sha256": "c540c85b3538cc4f50a27065de6fba7fa7ca92dce67ff1d4fffbfb5d7c607ac6",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/travellers/hooks/use-returning-draft.test.ts",
+      "sha256": "ebc18f8aa3cf929c2efecd6ad2eefed03c58398b126862dc407963618996068b",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/companies/components/company-person-documents.test.tsx",
+      "sha256": "86c8f2bd151ec3829dac4468c11b771af3e21ec0160a08e7586692b7b4602281",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-fresh-draft.test.tsx",
+      "sha256": "eccd346037b49c7d944a7013f3324a3c982af8695d2fa056a169642a80b9f7a8",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/email-integrations/utils/email-integrations.test.mjs",
+      "sha256": "42548b33d6a4f0b1d83042a79b6d5d1f552af8f3f99b27fd9f3184d9479c7e95",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e/passport-display-name.spec.ts",
+      "sha256": "25a7cbb1cfab16f5474618472df511163457580d921e249f65383a3725058e88",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/gc-app/components/common-documents-panel.test.tsx",
+      "sha256": "97f961b9b405fae2b60f89bf781c0c39136e22e1397d7c90b286c8c782656746",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-recipient-import.test.tsx",
+      "sha256": "962974aebf1247184bdcb6d0aeddea25c8c03b53858f66cabd807296f19c3fee",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/proxy.test.ts",
+      "sha256": "fe0bcefd586935ef670e274ac3182ff5431b7f3304ebd536f7a557ae9a7af32d",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/companies/components/company-picker.test.tsx",
+      "sha256": "e1760544e0914dcbd85813366bb0318f3dcba4e795e27bfd1aff59c79b51b1a1",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/components/document-row-action-menu.test.tsx",
+      "sha256": "93f6e65c4cdb791e1dd6d0628c237e1214c8d50311d5a0357c26f84abb162aca",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/components/document-manual-review-dialog.test.tsx",
+      "sha256": "830a66fd93c079d6478873f9eb85e5cc6230f81ebf5d3912ca383584422d92c7",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e/dashboard-enterprise.spec.ts",
+      "sha256": "7c6e296dc795167c2e4c3c1bc57651d5103b2f4b68f4f2b25c78bad93e7c6b15",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/components/passport-display-name-dialog.test.tsx",
+      "sha256": "2d286b5f8c00b4e7ab87c291bcdec776e2c640033c0c9967ddfce0ae9fb799c5",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-selection.test.tsx",
+      "sha256": "84976a57b83594a805f0cd36fdcd407e83241fa19c0f32bce93bbf8bf97100af",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-flow.test.tsx",
+      "sha256": "03b9750327164f6ca9e3c2ed0a5d1327f9133e27be03914bce3387f534ce8dfb",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/services/ecr-upload.test.ts",
+      "sha256": "92089b27c882371a5e6a945a44c034600926e1f2808de8eb8df422c68c43ec67",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/upload/components/camera-accessibility.contract.test.mjs",
+      "sha256": "736111e62244727fe28eb1d4fb59a44736f711c6c464cdef211fdc5b73aa33a9",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/gc-app/components/client-manager-details-dialog.test.tsx",
+      "sha256": "aaa6a1fa0054bb61679f656032aced210509896aac8aa10b8c22f3777d505a2e",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e-fixtures/offline-runtime-update.spec.ts",
+      "sha256": "718f990ee9a64ba45917585e17d2565d6c381bee59b22450886c90a4033dacfc",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/gc-app/components/announcements-panel.test.tsx",
+      "sha256": "df1ae01cd4840da86ed8b8444dfaf58899b547889ee80a98aa43dc47bb4d45ca",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/components/passport-bulk-delete.contract.test.mjs",
+      "sha256": "222f26eee91758f2d487853a06cb8473002e3bcd00597e165429b2dfebdd7d3f",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e/document-distribution-management.spec.ts",
+      "sha256": "ba6afe790014847f52e36d67f486523e293c1b600a57b4ab429695a6b7df9e4d",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/companies/components/company-all-data.test.tsx",
+      "sha256": "dc0edeb19002c1ac1e12d11d6e5f68e2743949c75a3ba6a2b0830b3f9490dd7e",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/utils/passport-image-crop-geometry.test.mjs",
+      "sha256": "c76566f82950d6cdab5327318ff1b5c88b43543b3e688861d918d40280d06d78",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/auth/services/access-level.test.ts",
+      "sha256": "ec18baab12584952eff6d4d37a58ddc2547ec0e1f10e09ddf99f6cae966a88d0",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/tour-operations/hooks/use-browser-offline-readiness.test.tsx",
+      "sha256": "4f5de1eb10b2ae3bbeea65d7e26e438d5b645fbeb9ae1c167d842ac49847e055",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e/whatsapp-archive.spec.ts",
+      "sha256": "e6080536d22e52d6806761abacbe8abb6d99310a382df88b4394bce8725f27f4",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/components/document-distribution-hierarchy.contract.test.mjs",
+      "sha256": "0cd35ede5aef3ecced167de3030402ace02ba5ecc4c07db9fd5c1b0e2f33e8a9",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e/support/dashboard-realtime-stub.mjs",
+      "sha256": "7da78b79b508dba1dcef4cc8f12d1179f8ef5a5b2075e849af2a2f75f3ce5db6",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/components/create-upload-link-modal.contract.test.mjs",
+      "sha256": "4fa83fbbf1ec3331480cf1d51235293b61375e1cd1da7d37c02bf2211e4303e4",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/settings/components/dashboard-settings-page.test.tsx",
+      "sha256": "ad45bdf5e88ead5a9a2aac740bba58e0e1c1e30b22998d7ef27cba7db072ef43",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e/support/travel-tracker-api.ts",
+      "sha256": "0e3b79cfec1bfa4871fd261f82f701a1ffd5ed204438d075791aa49e208223cd",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/components/passport-document-revisions.test.tsx",
+      "sha256": "f797a919f248f6fed376442f615895742d0d33fb8fce8f1d04a40e8bd685941c",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/whatsapp/utils/recipient-delivery.test.mjs",
+      "sha256": "d12022e2bc587b3a03b3d08955b4f1013c3e8eb8778d6796f2af0e973454be3e",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-simple-access.test.tsx",
+      "sha256": "36b85b4095967c5ddb4f8f02bdb52c79b6d68baafa7554f963770fe9ea971662",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/companies/hooks/use-companies.test.tsx",
+      "sha256": "0c7e0592b99b49c2e1391970ba9703ed5ce54a5bbf7d06e66da9e5ac6f04e1e1",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/components/document-whatsapp-delivery.contract.test.mjs",
+      "sha256": "6d9e96b3cb484fc9eb373c941f627a36f2a87c9945e86f3f8a8d25ab7c695cda",
+      "full_read_ledgers": [
+        "document-review-architecture-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-offer.test.tsx",
+      "sha256": "4283dafa159a149fabe25a7a901eca68506778743b301f9a08c4a1672532be18",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/whatsapp/utils/recipient-welcome-gate.test.ts",
+      "sha256": "4537152102d5d27f2e3a8b62f6d9eb4ef2c2363588531948cac81df6d06667ab",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/companies/components/company-document-upload.test.tsx",
+      "sha256": "eff4685d7291921d4bfb77202109daeb1598c7790e6e6c3c12a3ebc3fff1e8f6",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/auth/components/route-capability-boundary.test.tsx",
+      "sha256": "e8eb0e7bc580fcecfaf78f026f8aa863330844ad61cdf5e25e04ca414159dde6",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/travellers/hooks/use-draft-lifecycle.test.tsx",
+      "sha256": "a5ba2e6721d6193dee4800deb7c76c88ab188996c81a7985c43d9143388354e1",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/gc-app/components/announcement-notification-status.test.tsx",
+      "sha256": "2a21a8f8012b374cbe4239586db710a1d388c7ede5903339cac4f35c71cbac3d",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e/office-workspaces.spec.ts",
+      "sha256": "dc3990638eb530acb43274d0e71857997a212b1db7f444f5def88e2966f1788e",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/upload/components/relation-qualifier-step.test.tsx",
+      "sha256": "d08467b1317f4ee8c4ca4b2ca01f207ce378cf8b73710b1a18680c7ea3adf332",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e/fresh-travellers.spec.ts",
+      "sha256": "70aea7232b48bf2cf82193ba7a751a3c692f83db1e87c1293b88002e74deee11",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/operations/services/dashboard-realtime.test.ts",
+      "sha256": "8b7b7bafa208b8c094fe55ce87f834a3cd1e34118dc782db33287e2da7e683e0",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-devices.test.tsx",
+      "sha256": "ebd0fa1cef03da770e68840abb9aa02bd86d321f2a3530afb2b7c728973c98f1",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-role-access.test.tsx",
+      "sha256": "7a83e70f056129b4a260f65e3dc3e9afa356d5a8b89df629cf13d4d43747fba0",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/utils/passport-image-editor-viewport.test.mjs",
+      "sha256": "685e7cc5c6f47e610908b88a63aceb03164e84907d392d4a9fb7eed3d7ef2060",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e/gc-app-removal.spec.ts",
+      "sha256": "6357821c4c2886c8aa1710728c2ff3d641729156145d96399b6ff3728c426f69",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e/qualifier-relationship-methods.spec.ts",
+      "sha256": "aab9e6e497a0885f6f14a2420df7e9396150bd6d100beacc753b2d7884e16095",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/email-integrations/components/email-ai-rollout-control.contract.test.mjs",
+      "sha256": "04fe69a742c4f65a5188b30e723b576ff065dcccb50eec5f08b7633bc178607e",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/upload/services/relation-qualifier.test.mjs",
+      "sha256": "1107d39357866443e03ea6e0e4c24d9914f8747626cbdaa1fde0a0a7047b48dd",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/tour-operations/services/browser-offline-readiness.test.ts",
+      "sha256": "c96d104e915179023e199574b5d580f3cfa62f4b05ef0f184ad7683dbbfa6f9d",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e/ecr-checker.spec.ts",
+      "sha256": "e41fe411e09a2ccfbd889b1ed7e382c0e065f379143079a09447a714e154ca8f",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-retry-policy.test.mjs",
+      "sha256": "623d4e2787615fa4bf8b759a071894245485b05083190a4667afde19070109bc",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/upload/components/document-processing.test.tsx",
+      "sha256": "8e2b6338e3bf842ef4d43a4fbb98ab62c7f3e1b344c57e7ae3ab218cdfd6f233",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e/whatsapp-document-management.spec.ts",
+      "sha256": "d621c5a7c3a792bffd8a2df2108c9aa7fd11fc8864825a128c885241598c390d",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/upload/components/traveller-portal.test.tsx",
+      "sha256": "a8477ccff50398a90c25bdd9708ffbc1df19076d0359a824acce9874866a0690",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/services/document-upload-recovery.test.ts",
+      "sha256": "5c9ec59fa7fdd9b795fa660b27980d46bf1d0b8df1ad39ed42ea622a8948f4b7",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/gc-app/components/app-control-group-workspace.test.tsx",
+      "sha256": "00f0b8916c10de53af2ac6845708b84b59c2943d805816cbf48234652864156b",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-sync-policy.test.mjs",
+      "sha256": "6ff21f9a544f7366db313bce4ce26b0d38e253eb7f02f97087f9bdb26dcf820b",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/whatsapp/utils/batch-polling.test.mjs",
+      "sha256": "5ddc30d6f003a7d8cb10691194bc4991595425ca751fbde2981bb812fc40f6d7",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/lib/hooks/use-live-history-feed.test.tsx",
+      "sha256": "2e5a52a6ee6dc2ea31ddc62573208aad410ed617b5258c9d757484571c9f8c86",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/ai/hooks/use-voice-input.test.ts",
+      "sha256": "b27e71cd73751d5eae8d251b01196187295f79b36f1f67d6b3178ff84b44bb18",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-visa-photo-capture.test.tsx",
+      "sha256": "a76eb4eff4588d416a1be5332b90da293f1e885293a9f1e3cf0911fb2ca1840d",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/upload/services/visa-selfie-runtime.test.mjs",
+      "sha256": "884685cd98db1753341afd2227933f772eb9fb0048a4ce2686c34aa579694cb3",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e/passport-client-details.spec.ts",
+      "sha256": "6c6ea95edb452bc6887ae1aa36cfdf39a87d86560bd7d3dd35615ca4bbd0b61f",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/auth/config/route-capabilities.test.ts",
+      "sha256": "5e0e2a5d86715459c784b0ebc814f7d2ce6c59fe94720372b7121dac9b4c75be",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/services/document-thumbnail-loader.test.ts",
+      "sha256": "2ae1373fd89e2f40734a4f766ca5b40a176d4f523733253423e35cd02ef3444d",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-role-access.test.tsx",
+      "sha256": "dc7f11c927c7991ccdcfe6fc0c432e87503849aed2250c30581f8d551645bc7f",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e/ai-voice-preview.spec.ts",
+      "sha256": "93b6b99a812e7dde7792c8f71cb9ca7bfb3fa8512cf764cecafa01403b517a2f",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/gc-app/notifications/notifications-page.test.tsx",
+      "sha256": "155b0ed26a6829469ea4ef7c6594e3c46b93ec3b7586f612dd123517ddf0f400",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/gc-app/notifications/notification-history-page.test.tsx",
+      "sha256": "32a7244d94c9dc54d9dcf9454e99fb77b74cf99ee671dba0c27681101151492b",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e-real-stack/authentication.spec.ts",
+      "sha256": "3df761d159298ebe0cc639523168d55899f181938d3892ecda8ec0a41024d56a",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-work-results.test.tsx",
+      "sha256": "5ff49f8fa9c85dfa759c3bd4c5dbde69089ca757b674f1f92fb631729f1846d7",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/companies/hooks/use-company-people.test.tsx",
+      "sha256": "19a20c599a8926c5705f616b230fca15b38ce28f2cca2da21c0d97613fbc5c0c",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/components/passport-document-cell.test.tsx",
+      "sha256": "ae2cfb2409070133f8809c99ced57e7a3fcb799c5f4e2296aae67b1e780fea02",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e/mcp-read-only.spec.ts",
+      "sha256": "1a607acb0c3a1d8cf70d67fc7c1371e899ec851e3a370d37e9a204dca1e53bbb",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/auth/components/access-level-switcher.test.tsx",
+      "sha256": "7813afe0cbfc2e09191988f9f0de7b92fe1c9d04621719b43816dab2a5e9790b",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/upload/components/smart-camera.test.tsx",
+      "sha256": "3698d1bd660d52511573bb6cba04fa648ddd95c63fcebcccbfafe1a0607a614e",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/upload/components/visa-selfie-compatibility.test.mjs",
+      "sha256": "23f9146f4255c72a151342ff7c41774b3998f6bd6ed3001c206e2b9a90a996f3",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/upload/services/visa-photo-upload-detector.test.ts",
+      "sha256": "c6e96cdc24703400fa3737cd13579172257b1701aeb224073cc9339bde630043",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e/passport-group-overview.spec.ts",
+      "sha256": "fa1f4695339ade6a5c99ca1d3bdc2723ce7b8c09819f258b72deebcd08ffa974",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/travel-tracker/components/tracker-workspace.test.tsx",
+      "sha256": "3d9f75bc04c64e8301784ddc0ab4fc8324620033ec8559ee5a447ec4ca1bfda1",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/upload/components/visa-selfie-camera.test.tsx",
+      "sha256": "c65da2f61f4d28de2507e2e063d57f861ea6a7414f156a145eb4818690cbbcab",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/notifications/notifications.contract.test.mjs",
+      "sha256": "f849879d1ebb6917215481b505d2b018a89acac988392ee990886d1a03eb71f2",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/operations/components/dashboard-realtime-attendance-bridge.test.tsx",
+      "sha256": "ddcabae5206a8cc2cb0b6241a706c30fac6cacd36d711bf1cba0517d6fcd0193",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/operations/services/qr-image-generation.test.mjs",
+      "sha256": "1531d756620d09bad6aacbba16aefcbf6e5e63d9bb6e133d72ce3cf1375061d5",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/upload/services/public-flow-telemetry.test.mjs",
+      "sha256": "b00eef011c62227730f2f52e6c06a9e617d00bda5c525f59f68478d13efc7668",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e/whatsapp-group-invite.spec.ts",
+      "sha256": "819ce28739006861721d941165e159cb077d83d1d55f51faf0f5e0f61fcf9973",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-permissions.test.tsx",
+      "sha256": "cc93c8d6e8365e1c1302796df50f2269942a82f612becb198570ad7f19e05454",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/search/components/__tests__/global-search.test.tsx",
+      "sha256": "d3dcac433d530e5983dc7b9279587f2a68b221e16c1765667bc38b1513f3f15b",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/scripts/patch-npm-toolchain.test.mjs",
+      "sha256": "92532d08f429e437acdb0e4077a297703d27c6b78b925dfea4d2f70ee8434a22",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e/mcp-file-transfer.spec.ts",
+      "sha256": "f4f38059c7de51ddce13dc0d34ba3db5a3ed09497629b6deb3aa7c4cf81b43b5",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e/authentication.spec.ts",
+      "sha256": "945c87aa3344c64d0ddbfa7cb86d09ad2adfe77edf2120485f930a6f8642e5ea",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+      "sha256": "ffccf1f6091a4d16feefbc81e62527d92e4f435e83d5c0bc765072ea16a888cd",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/travellers/hooks/draft-response-races.test.tsx",
+      "sha256": "ce9a91d0f6a509297d43f738cd6bea4e9948ab4bc8434f5f93edf1490826214f",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e/whatsapp-from-group.spec.ts",
+      "sha256": "6bf04857e4206bc14bf09e1582c11e5e69a1009a9d7d7fb6c46ebfc88469c17f",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/whatsapp/components/group-update-dialog.test.tsx",
+      "sha256": "25243e4bf025d0ca913ba82dbacb4891e9c5913a0c96a1f6e09a4663258419d7",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/gc-app/api/gc-app-admin.api.test.ts",
+      "sha256": "85938d7c2d7a50f60ca66ff1cc1b2fa939bdc0ea316d5082f72dba40b6cc2b6d",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/upload/components/visa-selfie-camera.contract.test.mjs",
+      "sha256": "a0b9a463984023f5ad67975ceeb130114f8d307f4d33f86de0235f86b09d58e0",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/components/ui/modal.test.tsx",
+      "sha256": "e2f09f60be70ef468377936259dee9efccf1c37e4a7ae1586387c51fcd19f7de",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/gc-app/components/group-access-panel.test.tsx",
+      "sha256": "1a41c8f0e8bc75b10c4376fcca2b0debd251cb0b682daface55318b3bcbf11b9",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e/browser-session-persistence.spec.ts",
+      "sha256": "d0e157444db53cd45ca1f5c6e8000b91c95c30a3f2fa893c05ac8ff032d56c3d",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/auth/components/company-journey-film.test.tsx",
+      "sha256": "741d1f0c56652d37b12ae41d44ee843349e260d583458150954d3953a1a8c8eb",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-overview-panel.test.tsx",
+      "sha256": "6aeac9e706c0e2dcdb87fcb3df415c676460a0b00384a38931205c3738e66b15",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/components/whatsapp-broadcast-selector.test.tsx",
+      "sha256": "55955de7afcc99f7cb71d0f1a42fd5a9b4816be0b2228a33e508c01d3365b033",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/components/passport-image-crop-editor.contract.test.mjs",
+      "sha256": "e9aeb74e47825a5cd2f7566b7266ffaeeccf0f44d383c17c7e82c8e210141d05",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/gc-app/components/app-controls-removal.test.tsx",
+      "sha256": "45ca3161ef47e1657c39d952d51a5af831d280a824a27e01995cb7a5c109e01c",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/gc-app/components/app-controls-page.test.tsx",
+      "sha256": "f8e55300bbb64412bf1515b38f489d39bda3abc9615a9b991eef6d4ee8a5cb6d",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e/gc-app-workflow.spec.ts",
+      "sha256": "29652fee56d832ae0b207bd23f691a196072a016587cc309b3f21322c658cae9",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e/companies.spec.ts",
+      "sha256": "ab29fcb9a3203db06e5b216574e5877f68a8c5a36fcf49521b86ced86613d5c4",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/components/document-workspace-model.test.mjs",
+      "sha256": "5599cade37377f67a6f76fec16946250f5d705017354351c4c54e6a492093a2d",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+      "sha256": "07e866b8fcb0c3e0eb2a2eb53258e951de8e2165019e337e93713a7842b040a1",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/operations/services/rooming-allocation-mutations.test.ts",
+      "sha256": "bb89b956c4d8552a791ec724b100eee55cde011387afbdf3f73eeeffe8f5cf1b",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/gc-app/hooks/use-gc-app-admin.test.tsx",
+      "sha256": "377fce9906a232b9f8ee75dd769772a86a9314ac0db8585be4d632b9e4fdf325",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e/returning-travellers.spec.ts",
+      "sha256": "c4206f9377ff1012a8419df53ca1aaf89d07d8e9ee1968acc34b777c971b00a6",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/scripts/patch-mediapipe-csp.test.mjs",
+      "sha256": "eac5b2dcaccf42c4706e46fe0909565de407f8a934323d405679f29cad1448fc",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/dashboard/components/dashboard-ui-transformation.contract.test.mjs",
+      "sha256": "bdae0536bb5e55912fcc9e4a7349d106616495c94aae8ebc7c1c1d2823b78076",
+      "full_read_ledgers": [
+        "rename-table-contract-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/gc-app/gc-app-dashboard.contract.test.mjs",
+      "sha256": "6c5255cb4de1757800c3455bd3b80f5daae3768e96decd7a879dcc31d5408c43",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-review.test.tsx",
+      "sha256": "43390a27467e951d693a080ed8e47536fe43e622c47648708a5aaa92247e1f76",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e/whatsapp-delivery-types.spec.ts",
+      "sha256": "0b70036cbc589813167075ea7b3b96a8d4bad63bd84a635e0f821d40350493fe",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e/gc-app-notifications.spec.ts",
+      "sha256": "d1ef8541cdf966e6bbf1df5b4e2e60fd394508fe3c80112ba42cb213b08a9202",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/gc-app/notifications/use-notification-composer.test.tsx",
+      "sha256": "0ebd208f6351cfb3168da828b41634097b9ff206b70a7a6fd1768e72058daebb",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e/identity-lifecycle.spec.ts",
+      "sha256": "77e5784e710b4c56c057c8ca2559b6a516a75aaf2549b89fa93b2006aca8f392",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/upload/services/passport-rectangular-frame-detector.test.mjs",
+      "sha256": "41187c81f80f80f994671896afc0799f06ff3ea9e90e45fc2997ca19eb008a24",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/lib/api/streamed-download.test.ts",
+      "sha256": "d586b225cb99f01e50517e3a80ffebfb24f5593b1e9951862b08155cba1dc3b1",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/upload/services/passport-final-quality.test.mjs",
+      "sha256": "5f17ff811d48c81028e3c60ee9ece8c844532c0900595ceb09bbac321792fff3",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e/passport-image-editor.spec.ts",
+      "sha256": "89cfda7d1d61722937cacdfffd34897a8f79f2d939182c98734a7851111137d6",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/email-integrations/email-integrations.contract.test.mjs",
+      "sha256": "fb230eda9ea95191fe2978a8fb0e5b82006ca2c15f6ef0d0fb094f1303a920bd",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-detail.contract.test.mjs",
+      "sha256": "60401d9aea3b834af71e7a98931674784b11ded3fff5cfbdc13339998fc6f939",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-activity-motion.test.tsx",
+      "sha256": "dec26753383e8cf03fb488d837dcab2716edb64bfbda485ef9b34d430282cf38",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e/upload-link-configuration.spec.ts",
+      "sha256": "d3a310e3f4266bad75cbf59ab7a90a2b293aa75dfad769021ddf9fc0c01cb7f7",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/whatsapp/utils/recipient-import.test.mjs",
+      "sha256": "4f4fc98ce524f5c67c0c2f527befa5a02efb91efe6d1d6c8190569c630c62cb8",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e/whatsapp-workspace.spec.ts",
+      "sha256": "cbe3a72143666bf30403de1a0b17b69af014f1a856a5e8a5407a273ec0f1d0c4",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/tour-operations/components/coordinator-pwa.contract.test.mjs",
+      "sha256": "f9e2bd8eda246ea1ad55ff1c39078269f62e06c9800af44821b8982cd409ea1d",
+      "full_read_ledgers": [
+        "attendance-queue-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/components/document-bulk-upload.contract.test.mjs",
+      "sha256": "5955561d74fce4725b1d5e660a94a58bf06a5f7843923509ef4fbab36b9dde35",
+      "full_read_ledgers": [
+        "document-batching-architecture-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e/mcp-administration.spec.ts",
+      "sha256": "14abebd05ce80c7223dee886e7a082e919ecd61950212c90dc06aa47a15cc0fb",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e/support/whatsapp-workspace-fixture.ts",
+      "sha256": "7a5545c290b4eab35482b88ace812283bbca1493b02cb1b47a9ad4dba8bc08dd",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/e2e/passport-governance.spec.ts",
+      "sha256": "f2ea947659127fa47ddc5cbc55af274d0e2e8768ddf71dbbd684632ddfc8af04",
+      "full_read_ledgers": [
+        "frontend-shared-other-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/upload/components/visa-selfie-quality.test.mjs",
+      "sha256": "7385a96c8fc42f4b5ab47068d7e98ade34615f4f2b2ffd5383e4d3a9d67751b2",
+      "full_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/scripts/mediapipe-csp.md",
+      "sha256": "4cdd6675015247cc4d4855221417adb77ac2cb82a0160ff056191f469c44afac",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/scripts/visa-photo-browser-verification.md",
+      "sha256": "d977b0e450e6f449295cd774847ccff8b951d4bfaa432b5a8c11b219d78a3571",
+      "full_read_ledgers": [
+        "frontend-residual-reviewed-files.json"
+      ]
+    }
+  ],
+  "pending": [
+    {
+      "path": "frontend/public/assets/branding/global-connect/login-background/travel-atlas.svg",
+      "sha256": "0689859aca3bb8e5b8b0f81fd73623168c0d6f4c5b9ae058ee3e38b713f19b09",
+      "physical_lines": 1,
+      "kind": "runtime-or-config",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/tooling/npm-security/package-lock.json",
+      "sha256": "0602528d63f3c929c03fafad09d75b5d03c95012559b744a739aa1ab983ace45",
+      "physical_lines": 63,
+      "kind": "runtime-or-config",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    }
+  ],
+  "focused_asset_metadata": [
+    {
+      "path": "frontend/public/assets/branding/global-connect/login-background/travel-atlas.svg",
+      "sha256": "0689859aca3bb8e5b8b0f81fd73623168c0d6f4c5b9ae058ee3e38b713f19b09",
+      "review_scope": "focused",
+      "status": "asset-metadata-reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Declarative static SVG resource metadata/security surface read; all37 XML nodes and all non-geometry attributes inspected. Only svg/g/path/circle tags; no scripts/events/external links.53KB path geometry numbers not physically read and no full physical-source review claim. Asset shape metadata is not dependency implementation or rendered browser proof.",
+      "element_counts": {
+        "svg": 1,
+        "g": 3,
+        "path": 21,
+        "circle": 12
+      },
+      "geometry_character_count": 52144
+    },
+    {
+      "path": "frontend/tooling/npm-security/package-lock.json",
+      "sha256": "0602528d63f3c929c03fafad09d75b5d03c95012559b744a739aa1ab983ace45",
+      "review_scope": "focused",
+      "status": "generated-metadata-reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Entire63-line generated lock metadata physically read; matches private build-only security-patch package, pinned versions, HTTPS official registry URLs, integrity/license/engine entries. Dependency package implementation not physically read or newly scanned; no latest-vulnerability or package-install claim. Generated provenance, not application implementation review."
+    }
+  ],
+  "remaining_runtime_followups": [
+    "ECR controller operation lifetime/initial actor candidate requires actual reset/remount/client proof, not closed by full read.",
+    "Shared document-upload-batching633 and document-workspace-review476 coherent decomposition remains open.",
+    "Saved rename repeated selection scans and inherited nested link/button markup remain separate measured/rendered candidates.",
+    "Static travel-atlas path geometry intentionally has focused asset metadata scope, not full physical geometry read."
+  ],
+  "verification": "Only actual changed-behavior/fix affected suites in separate receipts; no broad suite/build/browser from this coverage batch.",
+  "coverage_history": [
+    {
+      "closed": 107,
+      "pending": 216,
+      "recorded_at": "2026-10-31T08:52:00.030377+00:00"
+    },
+    {
+      "closed": 177,
+      "pending": 146,
+      "recorded_at": "2026-10-31T09:04:59.866097+00:00"
+    },
+    {
+      "closed": 239,
+      "pending": 84,
+      "recorded_at": "2026-10-31T09:16:22.857228+00:00"
+    },
+    {
+      "closed": 321,
+      "pending": 2,
+      "recorded_at": "2026-10-31T09:34:11.492932+00:00"
+    }
+  ],
+  "completed_test_cohorts": [
+    {
+      "path": "frontend-residual-pending-document-company-email-whatsapp-tests.json",
+      "original_paths": 51,
+      "still_pending": 0
+    },
+    {
+      "path": "frontend-residual-pending-passport-upload-returning-tests.json",
+      "original_paths": 70,
+      "still_pending": 0
+    },
+    {
+      "path": "frontend-residual-pending-auth-gc-mcp-operations-tests.json",
+      "original_paths": 62,
+      "still_pending": 0
+    },
+    {
+      "path": "frontend-residual-pending-shared-and-other-tests.json",
+      "original_paths": 82,
+      "still_pending": 0,
+      "attribution": "document_ui_architecture: frontend-shared-other-tests-reviewed-files.json, with explicit historical-to-current transformation loader rebinding."
+    }
+  ],
+  "changed_batch_fences_rechecked": [
+    {
+      "receipt": "document-rename-verification.json",
+      "current_sources_unchanged_count": 10,
+      "intentionally_superseded_by_later_sealed_tranches": [
+        {
+          "path": "frontend/features/documents/components/saved-rename-batches.tsx",
+          "historical_sha256": "55527b26d468dacdba270cb2c3b759272d969ce7f007e2589f929b8010baf322",
+          "current_sha256": "a523e8b9a5fded4881f280e1e9c3c29b5d6e5636da69f629e336a99254206e38",
+          "qualified_later_full_read_ledger": "rename-controls-reviewed-files.json"
+        },
+        {
+          "path": "frontend/features/documents/components/rename-results.tsx",
+          "historical_sha256": "ffc0760accb98d4823a2bed25f0424bb120af239c5c027565a7ae1e0afe6309e",
+          "current_sha256": "819555f3908739b21bbd4de58ab98d55b91db1c29a1c3c0fa7d6f0ca82027acc",
+          "qualified_later_full_read_ledger": "rename-controls-reviewed-files.json"
+        },
+        {
+          "path": "frontend/features/documents/components/document-bulk-upload.contract.test.mjs",
+          "historical_sha256": "d8752f767c96554baf09e06b9f62ed351c4a59f7c7bb8bf4c4d48dea2e7e677d",
+          "current_sha256": "5955561d74fce4725b1d5e660a94a58bf06a5f7843923509ef4fbab36b9dde35",
+          "qualified_later_full_read_ledger": "document-batching-architecture-reviewed-files.json"
+        }
+      ]
+    },
+    {
+      "receipt": "document-group-states-verification.json",
+      "current_sources_unchanged_count": 2,
+      "intentionally_superseded_by_later_sealed_tranches": []
+    }
+  ],
+  "now_retired_with_original_full_review_count": 1,
+  "retired_with_original_full_review": [
+    {
+      "path": "frontend/features/upload/components/upload-contact-verification.test.tsx",
+      "original_sha256": "82822d13a636e55b1e0584ad1b1bc783a1417e3a3510b7499c1463da7d14c2ae",
+      "full_original_read_ledgers": [
+        "frontend-residual-tests-reviewed-files.json"
+      ],
+      "retirement_manifest": "legacy-contact-retirement-manifest.json"
+    }
+  ]
+}

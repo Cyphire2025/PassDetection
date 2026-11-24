@@ -1,0 +1,126 @@
+{
+  "files": [
+    {
+      "path": "backend/app/infrastructure/my_photos/recovery_contracts.py",
+      "sha256": "d037566eef9b6b427de95afc1f1976d40d7a71216da23a77dfdde6bb0aeaf948",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete original3source reads plus current authored glue and exact post-fix movement/expanded method proof. Public type/module aliases and call-time session factory reviewed; no independent second read claimed."
+    },
+    {
+      "path": "backend/app/infrastructure/my_photos/recovery_deletion_claims.py",
+      "sha256": "311a11102a96d5ecb0795c2e39e71015eb7d924555ab701d431e5ebb5d6584b6",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete original3source reads plus current authored glue and exact post-fix movement/expanded method proof. Public type/module aliases and call-time session factory reviewed; no independent second read claimed."
+    },
+    {
+      "path": "backend/app/infrastructure/my_photos/recovery_deletion_policy.py",
+      "sha256": "d86945b7fa3042e484a11fedafade9aa4345c068cc339111368879c6a6f0c510",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete original3source reads plus current authored glue and exact post-fix movement/expanded method proof. Public type/module aliases and call-time session factory reviewed; no independent second read claimed."
+    },
+    {
+      "path": "backend/app/infrastructure/my_photos/recovery_deletion_results.py",
+      "sha256": "54d36f744992a3f453f0a5b30e750e4ab5ec1541dae2ab18409deb582f602ab6",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete original3source reads plus current authored glue and exact post-fix movement/expanded method proof. Public type/module aliases and call-time session factory reviewed; no independent second read claimed."
+    },
+    {
+      "path": "backend/app/infrastructure/my_photos/recovery_dispatch.py",
+      "sha256": "4cb0782b1a4b73bb9571224bacc500e4ae2600d635081984f9c30ed26ff6bf55",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete original3source reads plus current authored glue and exact post-fix movement/expanded method proof. Public type/module aliases and call-time session factory reviewed; no independent second read claimed."
+    },
+    {
+      "path": "backend/app/infrastructure/my_photos/recovery_runtime.py",
+      "sha256": "f8cce11b8425da1e2477171056aaa6d36a6cd8bd46264687bfce28df3c40f039",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete original3source reads plus current authored glue and exact post-fix movement/expanded method proof. Public type/module aliases and call-time session factory reviewed; no independent second read claimed."
+    },
+    {
+      "path": "backend/app/infrastructure/my_photos/revision_contracts.py",
+      "sha256": "ef11937ab13464689f76279f70ea3ae6d3eb975255ae530c05d0fb76c9cb8f5d",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete original3source reads plus current authored glue and exact post-fix movement/expanded method proof. Public type/module aliases and call-time session factory reviewed; no independent second read claimed."
+    },
+    {
+      "path": "backend/app/infrastructure/my_photos/revision_policy.py",
+      "sha256": "e36496eb03da944383505621b8bf014224153da892237f81b4ece5d019b475f1",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete original3source reads plus current authored glue and exact post-fix movement/expanded method proof. Public type/module aliases and call-time session factory reviewed; no independent second read claimed."
+    },
+    {
+      "path": "backend/app/infrastructure/my_photos/revision_publication.py",
+      "sha256": "4231360e46b2c036ae69723e64b00d1674faa1e4a6d8b2732783c622d0ed72fe",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete original3source reads plus current authored glue and exact post-fix movement/expanded method proof. Public type/module aliases and call-time session factory reviewed; no independent second read claimed."
+    },
+    {
+      "path": "backend/app/infrastructure/my_photos/revision_refresh.py",
+      "sha256": "f11efdcc61935d884f7219e1eaa8710dcdf09650868759a298e500d82fafa42c",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete original3source reads plus current authored glue and exact post-fix movement/expanded method proof. Public type/module aliases and call-time session factory reviewed; no independent second read claimed."
+    },
+    {
+      "path": "backend/app/infrastructure/my_photos/revision_runtime.py",
+      "sha256": "152f40b2a0cb17c02a429aaa7748b2f017d55aca19536e40293724d14f02d557",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete original3source reads plus current authored glue and exact post-fix movement/expanded method proof. Public type/module aliases and call-time session factory reviewed; no independent second read claimed."
+    },
+    {
+      "path": "backend/app/infrastructure/my_photos/summary_counts.py",
+      "sha256": "767294893570227fdfc8c69fea3ba0fde042ec6b4decd52d12631236fb40b9d4",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete original3source reads plus current authored glue and exact post-fix movement/expanded method proof. Public type/module aliases and call-time session factory reviewed; no independent second read claimed."
+    },
+    {
+      "path": "backend/app/infrastructure/my_photos/summary_projector.py",
+      "sha256": "3af212f0e352bb194a5ebe90257fb33211d9d83fcad44282ea316715f8dcc8e1",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete original3source reads plus current authored glue and exact post-fix movement/expanded method proof. Public type/module aliases and call-time session factory reviewed; no independent second read claimed."
+    },
+    {
+      "path": "backend/app/infrastructure/my_photos/summary_responses.py",
+      "sha256": "6b0b2302b34058b9ff34b4de3a0532184c63f88179ecdfe7a47b588f8d5124fb",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete original3source reads plus current authored glue and exact post-fix movement/expanded method proof. Public type/module aliases and call-time session factory reviewed; no independent second read claimed."
+    },
+    {
+      "path": "backend/app/infrastructure/my_photos/summary_state.py",
+      "sha256": "60a25389f66e9064287b3c5ffb06c580387c106fe8a99bbf1a0555bb18a37016",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete authored final family-specific policy/closed tables and typed input record read; complexity36\u21929,181440original output comparisons and38current policy/public summary cases after oldcoverage purge."
+    }
+  ],
+  "full_count": 15,
+  "limits": "31mechanical AST checks are historical before final pure-state followthrough;29unaffected checks remain current and2state-dependent comparisons are superseded by equal original outputs. No live service/PGlocking claim."
+}

@@ -1,0 +1,516 @@
+{
+  "recorded_at": "2026-10-30T23:45:04.671Z",
+  "originals": {
+    "frontend/features/passports/utils/passport-group-navigation.ts": {
+      "sha256": "39f888b178c2db67a3b919f8e13886514f499077d7b05346ff585a5726ae2ecd",
+      "source": "import { ROUTES } from \"@/constants/routes\";\r\nimport type {\r\n  PassportGroupSubmissionFilter,\r\n  PassportGroupSubmissionSort,\r\n} from \"../api/passports.api\";\r\n\r\nexport type PassportGroupViewMode = \"table\" | \"docs\";\r\n\r\nexport interface PassportGroupViewState {\r\n  search: string;\r\n  submissionFilter: PassportGroupSubmissionFilter;\r\n  sortBy: PassportGroupSubmissionSort;\r\n  sortOrder: \"asc\" | \"desc\";\r\n  page: number;\r\n  viewMode: PassportGroupViewMode;\r\n}\r\n\r\nexport interface PassportDetailNavigationState {\r\n  token: string | null;\r\n  groupId: string;\r\n  includeDeleted: boolean;\r\n  viewState: PassportGroupViewState;\r\n}\r\n\r\nexport interface StoredPassportNavigationContext\r\n  extends PassportDetailNavigationState {\r\n  version: 1;\r\n  token: string;\r\n  userId: string;\r\n  orderedSubmissionIds: string[];\r\n  createdAt: number;\r\n}\r\n\r\nconst DEFAULT_VIEW_STATE: PassportGroupViewState = {\r\n  search: \"\",\r\n  submissionFilter: \"all\",\r\n  sortBy: \"name\",\r\n  sortOrder: \"asc\",\r\n  page: 1,\r\n  viewMode: \"table\",\r\n};\r\n\r\nconst SUBMISSION_FILTERS = new Set<PassportGroupSubmissionFilter>([\r\n  \"all\",\r\n  \"pending_ai\",\r\n  \"ai_approved\",\r\n  \"needs_review\",\r\n  \"staff_approved\",\r\n  \"duplicates\",\r\n  \"document_follow_up\",\r\n]);\r\nconst SORT_FIELDS = new Set<PassportGroupSubmissionSort>([\r\n  \"name\",\r\n  \"updated_at\",\r\n  \"verification_confidence\",\r\n]);\r\nconst SORT_ORDERS = new Set<PassportGroupViewState[\"sortOrder\"]>([\"asc\", \"desc\"]);\r\nconst VIEW_MODES = new Set<PassportGroupViewMode>([\"table\", \"docs\"]);\r\nconst STORAGE_PREFIX = \"passdetection:passport-navigation:\";\r\nconst CONTEXT_TTL_MS = 12 * 60 * 60 * 1000;\r\nconst MAX_NAVIGATION_ITEMS = 10_000;\r\nconst TOKEN_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;\r\nconst UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;\r\n\r\ntype SearchParamsReader = Pick<URLSearchParams, \"get\">;\r\n\r\nexport function parsePassportGroupViewState(\r\n  params: SearchParamsReader,\r\n  prefix = \"\",\r\n): PassportGroupViewState {\r\n  return {\r\n    search: (params.get(`${prefix}q`) ?? \"\").trim().slice(0, 200),\r\n    submissionFilter: readEnum(\r\n      params.get(`${prefix}filter`),\r\n      SUBMISSION_FILTERS,\r\n      DEFAULT_VIEW_STATE.submissionFilter,\r\n    ),\r\n    sortBy: readEnum(\r\n      params.get(`${prefix}sort`),\r\n      SORT_FIELDS,\r\n      DEFAULT_VIEW_STATE.sortBy,\r\n    ),\r\n    sortOrder: readEnum(\r\n      params.get(`${prefix}order`),\r\n      SORT_ORDERS,\r\n      DEFAULT_VIEW_STATE.sortOrder,\r\n    ),\r\n    page: readPositiveInteger(params.get(`${prefix}page`)),\r\n    viewMode: readEnum(\r\n      params.get(`${prefix}view`),\r\n      VIEW_MODES,\r\n      DEFAULT_VIEW_STATE.viewMode,\r\n    ),\r\n  };\r\n}\r\n\r\nexport function buildPassportGroupHref(\r\n  groupId: string,\r\n  state: PassportGroupViewState,\r\n  includeDeleted: boolean,\r\n) {\r\n  const params = serializeViewState(state);\r\n  if (includeDeleted) params.set(\"old_data\", \"1\");\r\n  const query = params.toString();\r\n  const pathname = ROUTES.dashboard.passportGroup(groupId);\r\n  return query ? `${pathname}?${query}` as const : pathname;\r\n}\r\n\r\nexport function buildPassportDetailNavigationHref(\r\n  submissionId: string,\r\n  navigation: PassportDetailNavigationState,\r\n) {\r\n  const params = serializeViewState(navigation.viewState, \"nav_\");\r\n  params.set(\"nav_group\", navigation.groupId);\r\n  if (navigation.includeDeleted) params.set(\"nav_old_data\", \"1\");\r\n  if (navigation.token) params.set(\"nav\", navigation.token);\r\n  return `${ROUTES.dashboard.passportDetail(submissionId)}?${params.toString()}` as const;\r\n}\r\n\r\nexport function parsePassportDetailNavigation(\r\n  params: SearchParamsReader,\r\n): PassportDetailNavigationState | null {\r\n  const groupId = (params.get(\"nav_group\") ?? \"\").trim();\r\n  if (!isUuid(groupId)) return null;\r\n  const tokenValue = (params.get(\"nav\") ?? \"\").trim();\r\n  return {\r\n    token: TOKEN_PATTERN.test(tokenValue) ? tokenValue : null,\r\n    groupId,\r\n    includeDeleted: params.get(\"nav_old_data\") === \"1\",\r\n    viewState: parsePassportGroupViewState(params, \"nav_\"),\r\n  };\r\n}\r\n\r\nexport function createPassportNavigationToken() {\r\n  if (typeof window === \"undefined\" || !window.crypto?.randomUUID) return null;\r\n  return window.crypto.randomUUID();\r\n}\r\n\r\nexport function storePassportNavigationContext(\r\n  context: Omit<StoredPassportNavigationContext, \"version\" | \"createdAt\">,\r\n) {\r\n  if (\r\n    typeof window === \"undefined\"\r\n    || !TOKEN_PATTERN.test(context.token)\r\n    || !isUuid(context.userId)\r\n    || !isUuid(context.groupId)\r\n    || context.orderedSubmissionIds.length > MAX_NAVIGATION_ITEMS\r\n    || context.orderedSubmissionIds.some((id) => !isUuid(id))\r\n  ) {\r\n    return false;\r\n  }\r\n\r\n  const stored: StoredPassportNavigationContext = {\r\n    ...context,\r\n    version: 1,\r\n    createdAt: Date.now(),\r\n    orderedSubmissionIds: [...context.orderedSubmissionIds],\r\n  };\r\n  try {\r\n    window.sessionStorage.setItem(\r\n      navigationStorageKey(context.userId, context.token),\r\n      JSON.stringify(stored),\r\n    );\r\n    pruneExpiredNavigationContexts(context.userId, context.token);\r\n    return true;\r\n  } catch {\r\n    return false;\r\n  }\r\n}\r\n\r\nexport function readPassportNavigationContext({\r\n  token,\r\n  userId,\r\n  groupId,\r\n}: {\r\n  token: string | null;\r\n  userId: string | null | undefined;\r\n  groupId: string;\r\n}): StoredPassportNavigationContext | null {\r\n  if (\r\n    typeof window === \"undefined\"\r\n    || !token\r\n    || !userId\r\n    || !TOKEN_PATTERN.test(token)\r\n    || !isUuid(userId)\r\n    || !isUuid(groupId)\r\n  ) {\r\n    return null;\r\n  }\r\n\r\n  const key = navigationStorageKey(userId, token);\r\n  try {\r\n    const raw = window.sessionStorage.getItem(key);\r\n    if (!raw) return null;\r\n    const parsed = JSON.parse(raw) as Partial<StoredPassportNavigationContext>;\r\n    if (\r\n      parsed.version !== 1\r\n      || parsed.token !== token\r\n      || parsed.userId !== userId\r\n      || parsed.groupId !== groupId\r\n      || typeof parsed.createdAt !== \"number\"\r\n      || parsed.createdAt > Date.now() + 60_000\r\n      || Date.now() - parsed.createdAt > CONTEXT_TTL_MS\r\n      || !Array.isArray(parsed.orderedSubmissionIds)\r\n      || parsed.orderedSubmissionIds.length > MAX_NAVIGATION_ITEMS\r\n      || parsed.orderedSubmissionIds.some((id) => !isUuid(id))\r\n      || !isValidViewState(parsed.viewState)\r\n      || typeof parsed.includeDeleted !== \"boolean\"\r\n    ) {\r\n      window.sessionStorage.removeItem(key);\r\n      return null;\r\n    }\r\n    return parsed as StoredPassportNavigationContext;\r\n  } catch {\r\n    // Storage access and cleanup can both be denied by browser privacy settings.\r\n    try { window.sessionStorage.removeItem(key); } catch { /* Use server navigation instead. */ }\r\n    return null;\r\n  }\r\n}\r\n\r\nexport function isPassportNavigationKeyboardTarget(target: EventTarget | null) {\r\n  if (!(target instanceof HTMLElement)) return false;\r\n  if (target.isContentEditable) return true;\r\n  if ([\"INPUT\", \"TEXTAREA\", \"SELECT\"].includes(target.tagName)) return true;\r\n  const role = target.getAttribute(\"role\");\r\n  return role === \"textbox\" || role === \"combobox\" || role === \"spinbutton\";\r\n}\r\n\r\nfunction serializeViewState(state: PassportGroupViewState, prefix = \"\") {\r\n  const params = new URLSearchParams();\r\n  if (state.search) params.set(`${prefix}q`, state.search);\r\n  if (state.submissionFilter !== DEFAULT_VIEW_STATE.submissionFilter) {\r\n    params.set(`${prefix}filter`, state.submissionFilter);\r\n  }\r\n  if (state.sortBy !== DEFAULT_VIEW_STATE.sortBy) {\r\n    params.set(`${prefix}sort`, state.sortBy);\r\n  }\r\n  if (state.sortOrder !== DEFAULT_VIEW_STATE.sortOrder) {\r\n    params.set(`${prefix}order`, state.sortOrder);\r\n  }\r\n  if (state.page !== DEFAULT_VIEW_STATE.page) {\r\n    params.set(`${prefix}page`, String(state.page));\r\n  }\r\n  if (state.viewMode !== DEFAULT_VIEW_STATE.viewMode) {\r\n    params.set(`${prefix}view`, state.viewMode);\r\n  }\r\n  return params;\r\n}\r\n\r\nfunction readEnum<T extends string>(\r\n  value: string | null,\r\n  allowed: ReadonlySet<T>,\r\n  fallback: T,\r\n) {\r\n  return value !== null && allowed.has(value as T) ? value as T : fallback;\r\n}\r\n\r\nfunction readPositiveInteger(value: string | null) {\r\n  if (!value || !/^\\d+$/.test(value)) return DEFAULT_VIEW_STATE.page;\r\n  const parsed = Number(value);\r\n  return Number.isSafeInteger(parsed) && parsed >= 1 ? parsed : DEFAULT_VIEW_STATE.page;\r\n}\r\n\r\nfunction isUuid(value: unknown): value is string {\r\n  return typeof value === \"string\" && UUID_PATTERN.test(value);\r\n}\r\n\r\nfunction isValidViewState(value: unknown): value is PassportGroupViewState {\r\n  if (!value || typeof value !== \"object\") return false;\r\n  const state = value as Partial<PassportGroupViewState>;\r\n  return (\r\n    typeof state.search === \"string\"\r\n    && state.search.length <= 200\r\n    && SUBMISSION_FILTERS.has(state.submissionFilter as PassportGroupSubmissionFilter)\r\n    && SORT_FIELDS.has(state.sortBy as PassportGroupSubmissionSort)\r\n    && SORT_ORDERS.has(state.sortOrder as PassportGroupViewState[\"sortOrder\"])\r\n    && Number.isSafeInteger(state.page)\r\n    && Number(state.page) >= 1\r\n    && VIEW_MODES.has(state.viewMode as PassportGroupViewMode)\r\n  );\r\n}\r\n\r\nfunction navigationStorageKey(userId: string, token: string) {\r\n  return `${STORAGE_PREFIX}${userId}:${token}`;\r\n}\r\n\r\nfunction pruneExpiredNavigationContexts(userId: string, activeToken: string) {\r\n  const prefix = `${STORAGE_PREFIX}${userId}:`;\r\n  const expiredKeys: string[] = [];\r\n  for (let index = 0; index < window.sessionStorage.length; index += 1) {\r\n    const key = window.sessionStorage.key(index);\r\n    if (!key?.startsWith(prefix) || key.endsWith(activeToken)) continue;\r\n    try {\r\n      const parsed = JSON.parse(\r\n        window.sessionStorage.getItem(key) ?? \"\",\r\n      ) as { createdAt?: unknown };\r\n      if (\r\n        typeof parsed.createdAt !== \"number\"\r\n        || Date.now() - parsed.createdAt > CONTEXT_TTL_MS\r\n      ) {\r\n        expiredKeys.push(key);\r\n      }\r\n    } catch {\r\n      expiredKeys.push(key);\r\n    }\r\n  }\r\n  expiredKeys.forEach((key) => window.sessionStorage.removeItem(key));\r\n}\r\n"
+    },
+    "frontend/features/passports/utils/passport-review.ts": {
+      "sha256": "b77ebb9be8153af5d0839f0539050e77e690c30aea89f41294d30e34bb98c99d",
+      "source": "import type {\n  ExtractedPassportFields,\n  PassportPostSubmissionVerification,\n  PassportSubmission,\n  StaffApprovalOutcome,\n  StaffApprovalRequest,\n  PassportVerificationField,\n  PassportVerificationFieldName,\n  PassportVerificationVerdict,\n} from \"@/types/passport.types\";\n\nexport const PASSPORT_REVIEW_FIELDS = [\n  \"surname\",\n  \"given_names\",\n  \"passport_number\",\n  \"nationality\",\n  \"place_of_issue\",\n  \"date_of_birth\",\n  \"date_of_issue\",\n  \"date_of_expiry\",\n  \"sex\",\n] as const satisfies readonly PassportVerificationFieldName[];\n\nexport type PassportReviewFieldName = typeof PASSPORT_REVIEW_FIELDS[number];\n\nexport type PassportFieldReview = Omit<PassportVerificationField, \"verdict\"> & {\n  verdict: Exclude<PassportVerificationVerdict, \"correct\">;\n  label: \"Incorrect\" | \"Suspicious\" | \"Not verified\";\n};\n\nexport type StaffApprovalFeedbackKind =\n  | \"success\"\n  | \"already_approved\"\n  | \"record_changed\"\n  | \"unavailable\"\n  | \"temporary_error\";\n\nexport interface StaffApprovalFeedback {\n  kind: StaffApprovalFeedbackKind;\n  message: string;\n}\n\nexport function cleanPassportReviewFields(\n  fields: Record<string, string>,\n): Record<string, string> {\n  return Object.fromEntries(\n    PASSPORT_REVIEW_FIELDS.flatMap((field) => {\n      if (!Object.prototype.hasOwnProperty.call(fields, field)) return [];\n      const value = fields[field]?.trim() ?? \"\";\n      return value || field === \"surname\"\n        ? [[field, value] as const]\n        : [];\n    }),\n  );\n}\n\nexport function buildStaffApprovalRequest(\n  fields: Record<string, string>,\n  expectedExtractionRevision: number,\n  reviewReason?: string,\n): StaffApprovalRequest {\n  const normalizedReason = reviewReason?.trim();\n  return {\n    confirmedFields: cleanPassportReviewFields(fields),\n    expectedExtractionRevision,\n    ...(normalizedReason ? { reviewReason: normalizedReason } : {}),\n  };\n}\n\nexport function getStaffApprovalOutcomeFeedback(\n  outcome: StaffApprovalOutcome,\n): StaffApprovalFeedback {\n  if (outcome === \"already_approved\") {\n    return {\n      kind: \"already_approved\",\n      message: (\n        \"This passport was already approved. The latest saved approval is shown \"\n        + \"and no duplicate action was created.\"\n      ),\n    };\n  }\n  return {\n    kind: \"success\",\n    message: \"Passport approved and reviewed corrections saved.\",\n  };\n}\n\nexport function getStaffApprovalErrorFeedback(\n  error: unknown,\n): StaffApprovalFeedback {\n  const candidate = (\n    error && typeof error === \"object\"\n      ? error as { code?: unknown; message?: unknown }\n      : null\n  );\n  const code = typeof candidate?.code === \"string\" ? candidate.code : \"\";\n  const serverMessage = (\n    typeof candidate?.message === \"string\" && candidate.message.trim()\n      ? candidate.message.trim()\n      : null\n  );\n\n  if (code === \"STAFF_APPROVAL_STALE\") {\n    return {\n      kind: \"record_changed\",\n      message: (\n        serverMessage\n        ?? \"This passport changed after you opened it. Review the refreshed record and approve again.\"\n      ),\n    };\n  }\n  if (\n    code === \"STAFF_APPROVAL_UNAVAILABLE\"\n    || code === \"VALIDATION_ERROR\"\n    || code === \"AUTHORIZATION_ERROR\"\n  ) {\n    return {\n      kind: \"unavailable\",\n      message: (\n        serverMessage\n        ?? \"This passport is not currently available for staff approval.\"\n      ),\n    };\n  }\n  return {\n    kind: \"temporary_error\",\n    message: (\n      serverMessage\n      ?? \"The approval response could not be confirmed. Refresh and safely retry.\"\n    ),\n  };\n}\n\ntype VerificationSource = Pick<\n  PassportSubmission,\n  \"status\" | \"post_submission_verification\"\n>;\n\ntype ReviewerSource = Pick<\n  PassportSubmission,\n  | \"verification_reviewed_by_user_id\"\n  | \"verification_reviewer_name\"\n>;\n\nconst RETRYABLE_AI_PROVIDER_STATUSES = new Set([\n  \"manual_review_required\",\n  \"network_error\",\n  \"provider_unavailable\",\n  \"rate_limited\",\n  \"timeout\",\n]);\nconst NO_READABLE_EVIDENCE_REASON_CODES = new Set([\n  \"unreadable\",\n  \"missing_submitted_value\",\n]);\n\nexport function canRetryPassportAiVerification(\n  passport: VerificationSource,\n) {\n  if (passport.status !== \"needs_review\") return false;\n  const providerStatus = passport.post_submission_verification?.provider_status;\n  return typeof providerStatus === \"string\"\n    && RETRYABLE_AI_PROVIDER_STATUSES.has(providerStatus.trim().toLowerCase());\n}\n\nexport function getPassportFieldReview(\n  passport: VerificationSource,\n  validation: ExtractedPassportFields[\"field_validation\"] | undefined,\n  field: PassportReviewFieldName,\n): PassportFieldReview | null {\n  if (passport.status === \"needs_review\") {\n    const verification = passport.post_submission_verification;\n    if (verification?.stale_after_staff_edit) {\n      return {\n        field,\n        verdict: \"suspicious\",\n        label: \"Not verified\",\n        observed_value: null,\n        confidence: 0,\n        reason_code: \"passport_record_changed\",\n      };\n    }\n    const providerUnavailable = typeof verification?.provider_status === \"string\"\n      && RETRYABLE_AI_PROVIDER_STATUSES.has(\n        verification.provider_status.trim().toLowerCase(),\n    );\n    const decisions = Array.isArray(verification?.fields) ? verification.fields : [];\n    const decision = decisions.find((item) => item.field === field);\n    if (decision?.verdict === \"correct\") return null;\n    if (decision?.verdict === \"suspicious\" || decision?.verdict === \"incorrect\") {\n      return {\n        field,\n        verdict: decision.verdict,\n        observed_value: decision.observed_value,\n        confidence: decision.confidence,\n        reason_code: decision.reason_code,\n        label: providerUnavailable\n          ? \"Not verified\"\n          : decision.verdict === \"incorrect\"\n            ? \"Incorrect\"\n            : \"Suspicious\",\n      };\n    }\n\n    const incorrectFields = Array.isArray(verification?.incorrect_fields)\n      ? verification.incorrect_fields\n      : [];\n    const suspiciousFields = Array.isArray(verification?.suspicious_fields)\n      ? verification.suspicious_fields\n      : [];\n    const listedVerdict = incorrectFields.includes(field)\n      ? \"incorrect\"\n      : suspiciousFields.includes(field)\n        ? \"suspicious\"\n        : null;\n    if (listedVerdict) {\n      return {\n        field,\n        verdict: listedVerdict,\n        label: providerUnavailable\n          ? \"Not verified\"\n          : listedVerdict === \"incorrect\"\n            ? \"Incorrect\"\n            : \"Suspicious\",\n        observed_value: null,\n        confidence: verification?.confidence ?? 0,\n        reason_code: verification?.reason_code ?? \"manual_review_required\",\n      };\n    }\n\n    if (decisions.length > 0 || incorrectFields.length > 0 || suspiciousFields.length > 0) {\n      return null;\n    }\n\n    return {\n      field,\n      verdict: \"suspicious\",\n      label: \"Not verified\",\n      observed_value: null,\n      confidence: verification?.confidence ?? 0,\n      reason_code: verification?.reason_code ?? \"verification_result_unavailable\",\n    };\n  }\n\n  const issue = validation?.issues?.find((candidate) => validationIssueMatchesField(candidate, field));\n  if (!issue) return null;\n  return {\n    field,\n    verdict: issue.severity.toLowerCase() === \"error\" ? \"incorrect\" : \"suspicious\",\n    label: issue.severity.toLowerCase() === \"error\" ? \"Incorrect\" : \"Suspicious\",\n    observed_value: null,\n    confidence: 0,\n    reason_code: issue.message,\n  };\n}\n\nexport function getPassportFieldReviewClassName(verdict?: PassportFieldReview[\"verdict\"]) {\n  if (verdict === \"incorrect\") {\n    return \"border-red-400 bg-red-50 hover:border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-200\";\n  }\n  if (verdict === \"suspicious\") {\n    return \"border-amber-400 bg-amber-50 hover:border-amber-500 focus:border-amber-500 focus:ring-2 focus:ring-amber-200\";\n  }\n  return \"border-slate-200 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100\";\n}\n\nexport function formatPassportFieldReviewConfidence(\n  review: Pick<\n    PassportFieldReview,\n    \"confidence\" | \"observed_value\" | \"reason_code\"\n  >,\n) {\n  if (\n    !review.observed_value?.trim()\n    || NO_READABLE_EVIDENCE_REASON_CODES.has(review.reason_code.trim().toLowerCase())\n    || !Number.isFinite(review.confidence)\n    || review.confidence <= 0\n  ) {\n    return null;\n  }\n  const percentage = review.confidence <= 1\n    ? review.confidence * 100\n    : Math.min(100, review.confidence);\n  return `${Math.round(percentage)}% confidence`;\n}\n\nexport function getPassportVerificationConfidence(\n  verification: PassportPostSubmissionVerification,\n) {\n  if (verification.stale_after_staff_edit) return null;\n  const containsLegacyInflatedUnreadableConfidence = verification.fields.some(\n    (field) =>\n      field.confidence > 0\n      && (\n        !field.observed_value?.trim()\n        || NO_READABLE_EVIDENCE_REASON_CODES.has(\n          field.reason_code.trim().toLowerCase(),\n        )\n      ),\n  );\n  if (\n    containsLegacyInflatedUnreadableConfidence\n    || !Number.isFinite(verification.confidence)\n  ) {\n    return null;\n  }\n  return verification.confidence;\n}\n\nexport function getPassportReviewActionState(\n  status: PassportSubmission[\"status\"],\n  isSaving: boolean,\n) {\n  if (isSaving) {\n    return {\n      disabled: true,\n      label: status === \"needs_review\"\n        ? \"Approving and saving corrections\"\n        : \"Saving Review\",\n    };\n  }\n\n  const inactiveLabels: Partial<Record<PassportSubmission[\"status\"], string>> = {\n    pending_extraction: \"Extraction Pending\",\n    extracting: \"Extraction in Progress\",\n    processing: \"Extraction in Progress\",\n    ready_for_client_review: \"Awaiting Client Review\",\n  };\n  const inactiveLabel = inactiveLabels[status];\n  if (inactiveLabel) return { disabled: true, label: inactiveLabel };\n  if (status === \"needs_review\") {\n    return { disabled: false, label: \"Approve After Manual Review\" };\n  }\n  if (status === \"submitted\") {\n    return { disabled: false, label: \"Save Changes for Review\" };\n  }\n  if (status === \"ai_approved\" || status === \"staff_approved\") {\n    return { disabled: false, label: \"Save Changes and Re-review\" };\n  }\n  return {\n    disabled: false,\n    label: status === \"confirmed\" ? \"Update Confirmed Fields\" : \"Confirm Reviewed Fields\",\n  };\n}\n\nexport function getPassportReviewerLabel(\n  passport: ReviewerSource,\n  currentUser: { id: string; full_name: string } | null,\n) {\n  if (passport.verification_reviewer_name?.trim()) {\n    return passport.verification_reviewer_name.trim();\n  }\n  if (!passport.verification_reviewed_by_user_id) return null;\n  if (passport.verification_reviewed_by_user_id === currentUser?.id) {\n    return currentUser.full_name;\n  }\n  return \"Verified by staff\";\n}\n\nexport function formatPassportVerificationReason(reasonCode: string) {\n  const trimmed = reasonCode.trim();\n  if (!trimmed) return \"Review this field manually.\";\n  if (trimmed.includes(\" \")) return /[.!?]$/.test(trimmed) ? trimmed : `${trimmed}.`;\n  const message = trimmed.replaceAll(\"_\", \" \").replace(/^./, (letter) => letter.toUpperCase());\n  return `${message}.`;\n}\n\nfunction validationIssueMatchesField(\n  issue: { field: string; message: string },\n  field: PassportReviewFieldName,\n) {\n  if (issue.field === field) return true;\n  const text = `${issue.field} ${issue.message}`.toLowerCase().replaceAll(\" \", \"_\");\n  if (field === \"surname\" || field === \"given_names\") {\n    return text.includes(field) || text.includes(\"name\");\n  }\n  const aliases: Record<PassportReviewFieldName, string[]> = {\n    surname: [],\n    given_names: [],\n    passport_number: [\"passport_number\"],\n    nationality: [\"nationality\"],\n    place_of_issue: [\"place_of_issue\"],\n    date_of_birth: [\"date_of_birth\", \"birth\"],\n    date_of_issue: [\"date_of_issue\", \"issue_date\"],\n    date_of_expiry: [\"date_of_expiry\", \"expiry\"],\n    sex: [\"sex\", \"gender\"],\n  };\n  return aliases[field].some((alias) => text.includes(alias));\n}\n"
+    }
+  },
+  "movement": [
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-routes.ts",
+      "name": "PassportGroupViewMode",
+      "source": "export type PassportGroupViewMode = \"table\" | \"docs\";",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-routes.ts",
+      "name": "PassportGroupViewState",
+      "source": "export interface PassportGroupViewState {\r\n  search: string;\r\n  submissionFilter: PassportGroupSubmissionFilter;\r\n  sortBy: PassportGroupSubmissionSort;\r\n  sortOrder: \"asc\" | \"desc\";\r\n  page: number;\r\n  viewMode: PassportGroupViewMode;\r\n}",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-routes.ts",
+      "name": "PassportDetailNavigationState",
+      "source": "export interface PassportDetailNavigationState {\r\n  token: string | null;\r\n  groupId: string;\r\n  includeDeleted: boolean;\r\n  viewState: PassportGroupViewState;\r\n}",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-routes.ts",
+      "name": "DEFAULT_VIEW_STATE",
+      "source": "const DEFAULT_VIEW_STATE: PassportGroupViewState = {\r\n  search: \"\",\r\n  submissionFilter: \"all\",\r\n  sortBy: \"name\",\r\n  sortOrder: \"asc\",\r\n  page: 1,\r\n  viewMode: \"table\",\r\n};",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-routes.ts",
+      "name": "SUBMISSION_FILTERS",
+      "source": "const SUBMISSION_FILTERS = new Set<PassportGroupSubmissionFilter>([\r\n  \"all\",\r\n  \"pending_ai\",\r\n  \"ai_approved\",\r\n  \"needs_review\",\r\n  \"staff_approved\",\r\n  \"duplicates\",\r\n  \"document_follow_up\",\r\n]);",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-routes.ts",
+      "name": "SORT_FIELDS",
+      "source": "const SORT_FIELDS = new Set<PassportGroupSubmissionSort>([\r\n  \"name\",\r\n  \"updated_at\",\r\n  \"verification_confidence\",\r\n]);",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-routes.ts",
+      "name": "SORT_ORDERS",
+      "source": "const SORT_ORDERS = new Set<PassportGroupViewState[\"sortOrder\"]>([\"asc\", \"desc\"]);",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-routes.ts",
+      "name": "VIEW_MODES",
+      "source": "const VIEW_MODES = new Set<PassportGroupViewMode>([\"table\", \"docs\"]);",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-routes.ts",
+      "name": "TOKEN_PATTERN",
+      "source": "const TOKEN_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;",
+      "shared_module_export_added": true
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-routes.ts",
+      "name": "UUID_PATTERN",
+      "source": "const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-routes.ts",
+      "name": "SearchParamsReader",
+      "source": "type SearchParamsReader = Pick<URLSearchParams, \"get\">;",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-routes.ts",
+      "name": "parsePassportGroupViewState",
+      "source": "export function parsePassportGroupViewState(\r\n  params: SearchParamsReader,\r\n  prefix = \"\",\r\n): PassportGroupViewState {\r\n  return {\r\n    search: (params.get(`${prefix}q`) ?? \"\").trim().slice(0, 200),\r\n    submissionFilter: readEnum(\r\n      params.get(`${prefix}filter`),\r\n      SUBMISSION_FILTERS,\r\n      DEFAULT_VIEW_STATE.submissionFilter,\r\n    ),\r\n    sortBy: readEnum(\r\n      params.get(`${prefix}sort`),\r\n      SORT_FIELDS,\r\n      DEFAULT_VIEW_STATE.sortBy,\r\n    ),\r\n    sortOrder: readEnum(\r\n      params.get(`${prefix}order`),\r\n      SORT_ORDERS,\r\n      DEFAULT_VIEW_STATE.sortOrder,\r\n    ),\r\n    page: readPositiveInteger(params.get(`${prefix}page`)),\r\n    viewMode: readEnum(\r\n      params.get(`${prefix}view`),\r\n      VIEW_MODES,\r\n      DEFAULT_VIEW_STATE.viewMode,\r\n    ),\r\n  };\r\n}",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-routes.ts",
+      "name": "buildPassportGroupHref",
+      "source": "export function buildPassportGroupHref(\r\n  groupId: string,\r\n  state: PassportGroupViewState,\r\n  includeDeleted: boolean,\r\n) {\r\n  const params = serializeViewState(state);\r\n  if (includeDeleted) params.set(\"old_data\", \"1\");\r\n  const query = params.toString();\r\n  const pathname = ROUTES.dashboard.passportGroup(groupId);\r\n  return query ? `${pathname}?${query}` as const : pathname;\r\n}",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-routes.ts",
+      "name": "buildPassportDetailNavigationHref",
+      "source": "export function buildPassportDetailNavigationHref(\r\n  submissionId: string,\r\n  navigation: PassportDetailNavigationState,\r\n) {\r\n  const params = serializeViewState(navigation.viewState, \"nav_\");\r\n  params.set(\"nav_group\", navigation.groupId);\r\n  if (navigation.includeDeleted) params.set(\"nav_old_data\", \"1\");\r\n  if (navigation.token) params.set(\"nav\", navigation.token);\r\n  return `${ROUTES.dashboard.passportDetail(submissionId)}?${params.toString()}` as const;\r\n}",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-routes.ts",
+      "name": "parsePassportDetailNavigation",
+      "source": "export function parsePassportDetailNavigation(\r\n  params: SearchParamsReader,\r\n): PassportDetailNavigationState | null {\r\n  const groupId = (params.get(\"nav_group\") ?? \"\").trim();\r\n  if (!isUuid(groupId)) return null;\r\n  const tokenValue = (params.get(\"nav\") ?? \"\").trim();\r\n  return {\r\n    token: TOKEN_PATTERN.test(tokenValue) ? tokenValue : null,\r\n    groupId,\r\n    includeDeleted: params.get(\"nav_old_data\") === \"1\",\r\n    viewState: parsePassportGroupViewState(params, \"nav_\"),\r\n  };\r\n}",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-routes.ts",
+      "name": "serializeViewState",
+      "source": "function serializeViewState(state: PassportGroupViewState, prefix = \"\") {\r\n  const params = new URLSearchParams();\r\n  if (state.search) params.set(`${prefix}q`, state.search);\r\n  if (state.submissionFilter !== DEFAULT_VIEW_STATE.submissionFilter) {\r\n    params.set(`${prefix}filter`, state.submissionFilter);\r\n  }\r\n  if (state.sortBy !== DEFAULT_VIEW_STATE.sortBy) {\r\n    params.set(`${prefix}sort`, state.sortBy);\r\n  }\r\n  if (state.sortOrder !== DEFAULT_VIEW_STATE.sortOrder) {\r\n    params.set(`${prefix}order`, state.sortOrder);\r\n  }\r\n  if (state.page !== DEFAULT_VIEW_STATE.page) {\r\n    params.set(`${prefix}page`, String(state.page));\r\n  }\r\n  if (state.viewMode !== DEFAULT_VIEW_STATE.viewMode) {\r\n    params.set(`${prefix}view`, state.viewMode);\r\n  }\r\n  return params;\r\n}",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-routes.ts",
+      "name": "readEnum",
+      "source": "function readEnum<T extends string>(\r\n  value: string | null,\r\n  allowed: ReadonlySet<T>,\r\n  fallback: T,\r\n) {\r\n  return value !== null && allowed.has(value as T) ? value as T : fallback;\r\n}",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-routes.ts",
+      "name": "readPositiveInteger",
+      "source": "function readPositiveInteger(value: string | null) {\r\n  if (!value || !/^\\d+$/.test(value)) return DEFAULT_VIEW_STATE.page;\r\n  const parsed = Number(value);\r\n  return Number.isSafeInteger(parsed) && parsed >= 1 ? parsed : DEFAULT_VIEW_STATE.page;\r\n}",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-routes.ts",
+      "name": "isUuid",
+      "source": "function isUuid(value: unknown): value is string {\r\n  return typeof value === \"string\" && UUID_PATTERN.test(value);\r\n}",
+      "shared_module_export_added": true
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-routes.ts",
+      "name": "isValidViewState",
+      "source": "function isValidViewState(value: unknown): value is PassportGroupViewState {\r\n  if (!value || typeof value !== \"object\") return false;\r\n  const state = value as Partial<PassportGroupViewState>;\r\n  return (\r\n    typeof state.search === \"string\"\r\n    && state.search.length <= 200\r\n    && SUBMISSION_FILTERS.has(state.submissionFilter as PassportGroupSubmissionFilter)\r\n    && SORT_FIELDS.has(state.sortBy as PassportGroupSubmissionSort)\r\n    && SORT_ORDERS.has(state.sortOrder as PassportGroupViewState[\"sortOrder\"])\r\n    && Number.isSafeInteger(state.page)\r\n    && Number(state.page) >= 1\r\n    && VIEW_MODES.has(state.viewMode as PassportGroupViewMode)\r\n  );\r\n}",
+      "shared_module_export_added": true
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-storage.ts",
+      "name": "StoredPassportNavigationContext",
+      "source": "export interface StoredPassportNavigationContext\r\n  extends PassportDetailNavigationState {\r\n  version: 1;\r\n  token: string;\r\n  userId: string;\r\n  orderedSubmissionIds: string[];\r\n  createdAt: number;\r\n}",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-storage.ts",
+      "name": "STORAGE_PREFIX",
+      "source": "const STORAGE_PREFIX = \"passdetection:passport-navigation:\";",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-storage.ts",
+      "name": "CONTEXT_TTL_MS",
+      "source": "const CONTEXT_TTL_MS = 12 * 60 * 60 * 1000;",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-storage.ts",
+      "name": "MAX_NAVIGATION_ITEMS",
+      "source": "const MAX_NAVIGATION_ITEMS = 10_000;",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-storage.ts",
+      "name": "storePassportNavigationContext",
+      "source": "export function storePassportNavigationContext(\r\n  context: Omit<StoredPassportNavigationContext, \"version\" | \"createdAt\">,\r\n) {\r\n  if (\r\n    typeof window === \"undefined\"\r\n    || !TOKEN_PATTERN.test(context.token)\r\n    || !isUuid(context.userId)\r\n    || !isUuid(context.groupId)\r\n    || context.orderedSubmissionIds.length > MAX_NAVIGATION_ITEMS\r\n    || context.orderedSubmissionIds.some((id) => !isUuid(id))\r\n  ) {\r\n    return false;\r\n  }\r\n\r\n  const stored: StoredPassportNavigationContext = {\r\n    ...context,\r\n    version: 1,\r\n    createdAt: Date.now(),\r\n    orderedSubmissionIds: [...context.orderedSubmissionIds],\r\n  };\r\n  try {\r\n    window.sessionStorage.setItem(\r\n      navigationStorageKey(context.userId, context.token),\r\n      JSON.stringify(stored),\r\n    );\r\n    pruneExpiredNavigationContexts(context.userId, context.token);\r\n    return true;\r\n  } catch {\r\n    return false;\r\n  }\r\n}",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-storage.ts",
+      "name": "readPassportNavigationContext",
+      "source": "export function readPassportNavigationContext({\r\n  token,\r\n  userId,\r\n  groupId,\r\n}: {\r\n  token: string | null;\r\n  userId: string | null | undefined;\r\n  groupId: string;\r\n}): StoredPassportNavigationContext | null {\r\n  if (\r\n    typeof window === \"undefined\"\r\n    || !token\r\n    || !userId\r\n    || !TOKEN_PATTERN.test(token)\r\n    || !isUuid(userId)\r\n    || !isUuid(groupId)\r\n  ) {\r\n    return null;\r\n  }\r\n\r\n  const key = navigationStorageKey(userId, token);\r\n  try {\r\n    const raw = window.sessionStorage.getItem(key);\r\n    if (!raw) return null;\r\n    const parsed = JSON.parse(raw) as Partial<StoredPassportNavigationContext>;\r\n    if (\r\n      parsed.version !== 1\r\n      || parsed.token !== token\r\n      || parsed.userId !== userId\r\n      || parsed.groupId !== groupId\r\n      || typeof parsed.createdAt !== \"number\"\r\n      || parsed.createdAt > Date.now() + 60_000\r\n      || Date.now() - parsed.createdAt > CONTEXT_TTL_MS\r\n      || !Array.isArray(parsed.orderedSubmissionIds)\r\n      || parsed.orderedSubmissionIds.length > MAX_NAVIGATION_ITEMS\r\n      || parsed.orderedSubmissionIds.some((id) => !isUuid(id))\r\n      || !isValidViewState(parsed.viewState)\r\n      || typeof parsed.includeDeleted !== \"boolean\"\r\n    ) {\r\n      window.sessionStorage.removeItem(key);\r\n      return null;\r\n    }\r\n    return parsed as StoredPassportNavigationContext;\r\n  } catch {\r\n    // Storage access and cleanup can both be denied by browser privacy settings.\r\n    try { window.sessionStorage.removeItem(key); } catch { /* Use server navigation instead. */ }\r\n    return null;\r\n  }\r\n}",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-storage.ts",
+      "name": "navigationStorageKey",
+      "source": "function navigationStorageKey(userId: string, token: string) {\r\n  return `${STORAGE_PREFIX}${userId}:${token}`;\r\n}",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-navigation-storage.ts",
+      "name": "pruneExpiredNavigationContexts",
+      "source": "function pruneExpiredNavigationContexts(userId: string, activeToken: string) {\r\n  const prefix = `${STORAGE_PREFIX}${userId}:`;\r\n  const expiredKeys: string[] = [];\r\n  for (let index = 0; index < window.sessionStorage.length; index += 1) {\r\n    const key = window.sessionStorage.key(index);\r\n    if (!key?.startsWith(prefix) || key.endsWith(activeToken)) continue;\r\n    try {\r\n      const parsed = JSON.parse(\r\n        window.sessionStorage.getItem(key) ?? \"\",\r\n      ) as { createdAt?: unknown };\r\n      if (\r\n        typeof parsed.createdAt !== \"number\"\r\n        || Date.now() - parsed.createdAt > CONTEXT_TTL_MS\r\n      ) {\r\n        expiredKeys.push(key);\r\n      }\r\n    } catch {\r\n      expiredKeys.push(key);\r\n    }\r\n  }\r\n  expiredKeys.forEach((key) => window.sessionStorage.removeItem(key));\r\n}",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "name": "createPassportNavigationToken",
+      "source": "export function createPassportNavigationToken() {\r\n  if (typeof window === \"undefined\" || !window.crypto?.randomUUID) return null;\r\n  return window.crypto.randomUUID();\r\n}",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "to": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "name": "isPassportNavigationKeyboardTarget",
+      "source": "export function isPassportNavigationKeyboardTarget(target: EventTarget | null) {\r\n  if (!(target instanceof HTMLElement)) return false;\r\n  if (target.isContentEditable) return true;\r\n  if ([\"INPUT\", \"TEXTAREA\", \"SELECT\"].includes(target.tagName)) return true;\r\n  const role = target.getAttribute(\"role\");\r\n  return role === \"textbox\" || role === \"combobox\" || role === \"spinbutton\";\r\n}",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-review-fields.ts",
+      "name": "PASSPORT_REVIEW_FIELDS",
+      "source": "export const PASSPORT_REVIEW_FIELDS = [\n  \"surname\",\n  \"given_names\",\n  \"passport_number\",\n  \"nationality\",\n  \"place_of_issue\",\n  \"date_of_birth\",\n  \"date_of_issue\",\n  \"date_of_expiry\",\n  \"sex\",\n] as const satisfies readonly PassportVerificationFieldName[];",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-review-fields.ts",
+      "name": "PassportReviewFieldName",
+      "source": "export type PassportReviewFieldName = typeof PASSPORT_REVIEW_FIELDS[number];",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-review-fields.ts",
+      "name": "PassportFieldReview",
+      "source": "export type PassportFieldReview = Omit<PassportVerificationField, \"verdict\"> & {\n  verdict: Exclude<PassportVerificationVerdict, \"correct\">;\n  label: \"Incorrect\" | \"Suspicious\" | \"Not verified\";\n};",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-staff-approval.ts",
+      "name": "StaffApprovalFeedbackKind",
+      "source": "export type StaffApprovalFeedbackKind =\n  | \"success\"\n  | \"already_approved\"\n  | \"record_changed\"\n  | \"unavailable\"\n  | \"temporary_error\";",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-staff-approval.ts",
+      "name": "StaffApprovalFeedback",
+      "source": "export interface StaffApprovalFeedback {\n  kind: StaffApprovalFeedbackKind;\n  message: string;\n}",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-staff-approval.ts",
+      "name": "cleanPassportReviewFields",
+      "source": "export function cleanPassportReviewFields(\n  fields: Record<string, string>,\n): Record<string, string> {\n  return Object.fromEntries(\n    PASSPORT_REVIEW_FIELDS.flatMap((field) => {\n      if (!Object.prototype.hasOwnProperty.call(fields, field)) return [];\n      const value = fields[field]?.trim() ?? \"\";\n      return value || field === \"surname\"\n        ? [[field, value] as const]\n        : [];\n    }),\n  );\n}",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-staff-approval.ts",
+      "name": "buildStaffApprovalRequest",
+      "source": "export function buildStaffApprovalRequest(\n  fields: Record<string, string>,\n  expectedExtractionRevision: number,\n  reviewReason?: string,\n): StaffApprovalRequest {\n  const normalizedReason = reviewReason?.trim();\n  return {\n    confirmedFields: cleanPassportReviewFields(fields),\n    expectedExtractionRevision,\n    ...(normalizedReason ? { reviewReason: normalizedReason } : {}),\n  };\n}",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-staff-approval.ts",
+      "name": "getStaffApprovalOutcomeFeedback",
+      "source": "export function getStaffApprovalOutcomeFeedback(\n  outcome: StaffApprovalOutcome,\n): StaffApprovalFeedback {\n  if (outcome === \"already_approved\") {\n    return {\n      kind: \"already_approved\",\n      message: (\n        \"This passport was already approved. The latest saved approval is shown \"\n        + \"and no duplicate action was created.\"\n      ),\n    };\n  }\n  return {\n    kind: \"success\",\n    message: \"Passport approved and reviewed corrections saved.\",\n  };\n}",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-staff-approval.ts",
+      "name": "getStaffApprovalErrorFeedback",
+      "source": "export function getStaffApprovalErrorFeedback(\n  error: unknown,\n): StaffApprovalFeedback {\n  const candidate = (\n    error && typeof error === \"object\"\n      ? error as { code?: unknown; message?: unknown }\n      : null\n  );\n  const code = typeof candidate?.code === \"string\" ? candidate.code : \"\";\n  const serverMessage = (\n    typeof candidate?.message === \"string\" && candidate.message.trim()\n      ? candidate.message.trim()\n      : null\n  );\n\n  if (code === \"STAFF_APPROVAL_STALE\") {\n    return {\n      kind: \"record_changed\",\n      message: (\n        serverMessage\n        ?? \"This passport changed after you opened it. Review the refreshed record and approve again.\"\n      ),\n    };\n  }\n  if (\n    code === \"STAFF_APPROVAL_UNAVAILABLE\"\n    || code === \"VALIDATION_ERROR\"\n    || code === \"AUTHORIZATION_ERROR\"\n  ) {\n    return {\n      kind: \"unavailable\",\n      message: (\n        serverMessage\n        ?? \"This passport is not currently available for staff approval.\"\n      ),\n    };\n  }\n  return {\n    kind: \"temporary_error\",\n    message: (\n      serverMessage\n      ?? \"The approval response could not be confirmed. Refresh and safely retry.\"\n    ),\n  };\n}",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-verification-review.ts",
+      "name": "VerificationSource",
+      "source": "type VerificationSource = Pick<\n  PassportSubmission,\n  \"status\" | \"post_submission_verification\"\n>;",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-verification-review.ts",
+      "name": "RETRYABLE_AI_PROVIDER_STATUSES",
+      "source": "const RETRYABLE_AI_PROVIDER_STATUSES = new Set([\n  \"manual_review_required\",\n  \"network_error\",\n  \"provider_unavailable\",\n  \"rate_limited\",\n  \"timeout\",\n]);",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-verification-review.ts",
+      "name": "canRetryPassportAiVerification",
+      "source": "export function canRetryPassportAiVerification(\n  passport: VerificationSource,\n) {\n  if (passport.status !== \"needs_review\") return false;\n  const providerStatus = passport.post_submission_verification?.provider_status;\n  return typeof providerStatus === \"string\"\n    && RETRYABLE_AI_PROVIDER_STATUSES.has(providerStatus.trim().toLowerCase());\n}",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-verification-review.ts",
+      "name": "getPassportFieldReview",
+      "source": "export function getPassportFieldReview(\n  passport: VerificationSource,\n  validation: ExtractedPassportFields[\"field_validation\"] | undefined,\n  field: PassportReviewFieldName,\n): PassportFieldReview | null {\n  if (passport.status === \"needs_review\") {\n    const verification = passport.post_submission_verification;\n    if (verification?.stale_after_staff_edit) {\n      return {\n        field,\n        verdict: \"suspicious\",\n        label: \"Not verified\",\n        observed_value: null,\n        confidence: 0,\n        reason_code: \"passport_record_changed\",\n      };\n    }\n    const providerUnavailable = typeof verification?.provider_status === \"string\"\n      && RETRYABLE_AI_PROVIDER_STATUSES.has(\n        verification.provider_status.trim().toLowerCase(),\n    );\n    const decisions = Array.isArray(verification?.fields) ? verification.fields : [];\n    const decision = decisions.find((item) => item.field === field);\n    if (decision?.verdict === \"correct\") return null;\n    if (decision?.verdict === \"suspicious\" || decision?.verdict === \"incorrect\") {\n      return {\n        field,\n        verdict: decision.verdict,\n        observed_value: decision.observed_value,\n        confidence: decision.confidence,\n        reason_code: decision.reason_code,\n        label: providerUnavailable\n          ? \"Not verified\"\n          : decision.verdict === \"incorrect\"\n            ? \"Incorrect\"\n            : \"Suspicious\",\n      };\n    }\n\n    const incorrectFields = Array.isArray(verification?.incorrect_fields)\n      ? verification.incorrect_fields\n      : [];\n    const suspiciousFields = Array.isArray(verification?.suspicious_fields)\n      ? verification.suspicious_fields\n      : [];\n    const listedVerdict = incorrectFields.includes(field)\n      ? \"incorrect\"\n      : suspiciousFields.includes(field)\n        ? \"suspicious\"\n        : null;\n    if (listedVerdict) {\n      return {\n        field,\n        verdict: listedVerdict,\n        label: providerUnavailable\n          ? \"Not verified\"\n          : listedVerdict === \"incorrect\"\n            ? \"Incorrect\"\n            : \"Suspicious\",\n        observed_value: null,\n        confidence: verification?.confidence ?? 0,\n        reason_code: verification?.reason_code ?? \"manual_review_required\",\n      };\n    }\n\n    if (decisions.length > 0 || incorrectFields.length > 0 || suspiciousFields.length > 0) {\n      return null;\n    }\n\n    return {\n      field,\n      verdict: \"suspicious\",\n      label: \"Not verified\",\n      observed_value: null,\n      confidence: verification?.confidence ?? 0,\n      reason_code: verification?.reason_code ?? \"verification_result_unavailable\",\n    };\n  }\n\n  const issue = validation?.issues?.find((candidate) => validationIssueMatchesField(candidate, field));\n  if (!issue) return null;\n  return {\n    field,\n    verdict: issue.severity.toLowerCase() === \"error\" ? \"incorrect\" : \"suspicious\",\n    label: issue.severity.toLowerCase() === \"error\" ? \"Incorrect\" : \"Suspicious\",\n    observed_value: null,\n    confidence: 0,\n    reason_code: issue.message,\n  };\n}",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-verification-review.ts",
+      "name": "validationIssueMatchesField",
+      "source": "function validationIssueMatchesField(\n  issue: { field: string; message: string },\n  field: PassportReviewFieldName,\n) {\n  if (issue.field === field) return true;\n  const text = `${issue.field} ${issue.message}`.toLowerCase().replaceAll(\" \", \"_\");\n  if (field === \"surname\" || field === \"given_names\") {\n    return text.includes(field) || text.includes(\"name\");\n  }\n  const aliases: Record<PassportReviewFieldName, string[]> = {\n    surname: [],\n    given_names: [],\n    passport_number: [\"passport_number\"],\n    nationality: [\"nationality\"],\n    place_of_issue: [\"place_of_issue\"],\n    date_of_birth: [\"date_of_birth\", \"birth\"],\n    date_of_issue: [\"date_of_issue\", \"issue_date\"],\n    date_of_expiry: [\"date_of_expiry\", \"expiry\"],\n    sex: [\"sex\", \"gender\"],\n  };\n  return aliases[field].some((alias) => text.includes(alias));\n}",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-review-presentation.ts",
+      "name": "ReviewerSource",
+      "source": "type ReviewerSource = Pick<\n  PassportSubmission,\n  | \"verification_reviewed_by_user_id\"\n  | \"verification_reviewer_name\"\n>;",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-review-presentation.ts",
+      "name": "NO_READABLE_EVIDENCE_REASON_CODES",
+      "source": "const NO_READABLE_EVIDENCE_REASON_CODES = new Set([\n  \"unreadable\",\n  \"missing_submitted_value\",\n]);",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-review-presentation.ts",
+      "name": "getPassportFieldReviewClassName",
+      "source": "export function getPassportFieldReviewClassName(verdict?: PassportFieldReview[\"verdict\"]) {\n  if (verdict === \"incorrect\") {\n    return \"border-red-400 bg-red-50 hover:border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-200\";\n  }\n  if (verdict === \"suspicious\") {\n    return \"border-amber-400 bg-amber-50 hover:border-amber-500 focus:border-amber-500 focus:ring-2 focus:ring-amber-200\";\n  }\n  return \"border-slate-200 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100\";\n}",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-review-presentation.ts",
+      "name": "formatPassportFieldReviewConfidence",
+      "source": "export function formatPassportFieldReviewConfidence(\n  review: Pick<\n    PassportFieldReview,\n    \"confidence\" | \"observed_value\" | \"reason_code\"\n  >,\n) {\n  if (\n    !review.observed_value?.trim()\n    || NO_READABLE_EVIDENCE_REASON_CODES.has(review.reason_code.trim().toLowerCase())\n    || !Number.isFinite(review.confidence)\n    || review.confidence <= 0\n  ) {\n    return null;\n  }\n  const percentage = review.confidence <= 1\n    ? review.confidence * 100\n    : Math.min(100, review.confidence);\n  return `${Math.round(percentage)}% confidence`;\n}",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-review-presentation.ts",
+      "name": "getPassportVerificationConfidence",
+      "source": "export function getPassportVerificationConfidence(\n  verification: PassportPostSubmissionVerification,\n) {\n  if (verification.stale_after_staff_edit) return null;\n  const containsLegacyInflatedUnreadableConfidence = verification.fields.some(\n    (field) =>\n      field.confidence > 0\n      && (\n        !field.observed_value?.trim()\n        || NO_READABLE_EVIDENCE_REASON_CODES.has(\n          field.reason_code.trim().toLowerCase(),\n        )\n      ),\n  );\n  if (\n    containsLegacyInflatedUnreadableConfidence\n    || !Number.isFinite(verification.confidence)\n  ) {\n    return null;\n  }\n  return verification.confidence;\n}",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-review-presentation.ts",
+      "name": "getPassportReviewActionState",
+      "source": "export function getPassportReviewActionState(\n  status: PassportSubmission[\"status\"],\n  isSaving: boolean,\n) {\n  if (isSaving) {\n    return {\n      disabled: true,\n      label: status === \"needs_review\"\n        ? \"Approving and saving corrections\"\n        : \"Saving Review\",\n    };\n  }\n\n  const inactiveLabels: Partial<Record<PassportSubmission[\"status\"], string>> = {\n    pending_extraction: \"Extraction Pending\",\n    extracting: \"Extraction in Progress\",\n    processing: \"Extraction in Progress\",\n    ready_for_client_review: \"Awaiting Client Review\",\n  };\n  const inactiveLabel = inactiveLabels[status];\n  if (inactiveLabel) return { disabled: true, label: inactiveLabel };\n  if (status === \"needs_review\") {\n    return { disabled: false, label: \"Approve After Manual Review\" };\n  }\n  if (status === \"submitted\") {\n    return { disabled: false, label: \"Save Changes for Review\" };\n  }\n  if (status === \"ai_approved\" || status === \"staff_approved\") {\n    return { disabled: false, label: \"Save Changes and Re-review\" };\n  }\n  return {\n    disabled: false,\n    label: status === \"confirmed\" ? \"Update Confirmed Fields\" : \"Confirm Reviewed Fields\",\n  };\n}",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-review-presentation.ts",
+      "name": "getPassportReviewerLabel",
+      "source": "export function getPassportReviewerLabel(\n  passport: ReviewerSource,\n  currentUser: { id: string; full_name: string } | null,\n) {\n  if (passport.verification_reviewer_name?.trim()) {\n    return passport.verification_reviewer_name.trim();\n  }\n  if (!passport.verification_reviewed_by_user_id) return null;\n  if (passport.verification_reviewed_by_user_id === currentUser?.id) {\n    return currentUser.full_name;\n  }\n  return \"Verified by staff\";\n}",
+      "shared_module_export_added": false
+    },
+    {
+      "from": "frontend/features/passports/utils/passport-review.ts",
+      "to": "frontend/features/passports/utils/passport-review-presentation.ts",
+      "name": "formatPassportVerificationReason",
+      "source": "export function formatPassportVerificationReason(reasonCode: string) {\n  const trimmed = reasonCode.trim();\n  if (!trimmed) return \"Review this field manually.\";\n  if (trimmed.includes(\" \")) return /[.!?]$/.test(trimmed) ? trimmed : `${trimmed}.`;\n  const message = trimmed.replaceAll(\"_\", \" \").replace(/^./, (letter) => letter.toUpperCase());\n  return `${message}.`;\n}",
+      "shared_module_export_added": false
+    }
+  ],
+  "public_exports": {
+    "navigation": {
+      "passport-navigation-routes.ts": [
+        {
+          "name": "PassportGroupViewMode",
+          "type": true
+        },
+        {
+          "name": "PassportGroupViewState",
+          "type": true
+        },
+        {
+          "name": "PassportDetailNavigationState",
+          "type": true
+        },
+        {
+          "name": "parsePassportGroupViewState",
+          "type": false
+        },
+        {
+          "name": "buildPassportGroupHref",
+          "type": false
+        },
+        {
+          "name": "buildPassportDetailNavigationHref",
+          "type": false
+        },
+        {
+          "name": "parsePassportDetailNavigation",
+          "type": false
+        }
+      ],
+      "passport-navigation-storage.ts": [
+        {
+          "name": "StoredPassportNavigationContext",
+          "type": true
+        },
+        {
+          "name": "storePassportNavigationContext",
+          "type": false
+        },
+        {
+          "name": "readPassportNavigationContext",
+          "type": false
+        }
+      ],
+      "passport-group-navigation.ts": [
+        {
+          "name": "createPassportNavigationToken",
+          "type": false
+        },
+        {
+          "name": "isPassportNavigationKeyboardTarget",
+          "type": false
+        }
+      ]
+    },
+    "review": {
+      "passport-review-fields.ts": [
+        {
+          "name": "PASSPORT_REVIEW_FIELDS",
+          "type": false
+        },
+        {
+          "name": "PassportReviewFieldName",
+          "type": true
+        },
+        {
+          "name": "PassportFieldReview",
+          "type": true
+        }
+      ],
+      "passport-staff-approval.ts": [
+        {
+          "name": "StaffApprovalFeedbackKind",
+          "type": true
+        },
+        {
+          "name": "StaffApprovalFeedback",
+          "type": true
+        },
+        {
+          "name": "cleanPassportReviewFields",
+          "type": false
+        },
+        {
+          "name": "buildStaffApprovalRequest",
+          "type": false
+        },
+        {
+          "name": "getStaffApprovalOutcomeFeedback",
+          "type": false
+        },
+        {
+          "name": "getStaffApprovalErrorFeedback",
+          "type": false
+        }
+      ],
+      "passport-verification-review.ts": [
+        {
+          "name": "canRetryPassportAiVerification",
+          "type": false
+        },
+        {
+          "name": "getPassportFieldReview",
+          "type": false
+        }
+      ],
+      "passport-review-presentation.ts": [
+        {
+          "name": "getPassportFieldReviewClassName",
+          "type": false
+        },
+        {
+          "name": "formatPassportFieldReviewConfidence",
+          "type": false
+        },
+        {
+          "name": "getPassportVerificationConfidence",
+          "type": false
+        },
+        {
+          "name": "getPassportReviewActionState",
+          "type": false
+        },
+        {
+          "name": "getPassportReviewerLabel",
+          "type": false
+        },
+        {
+          "name": "formatPassportVerificationReason",
+          "type": false
+        }
+      ]
+    }
+  },
+  "basis": "All original declarations explicitly assigned to focused responsibility owners. Runtime direct-Node review imports/reexports use.ts extensions under the already approved TypeScript option. Original façade export identities remain."
+}

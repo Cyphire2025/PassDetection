@@ -1,0 +1,45 @@
+{
+  "scope": "11original class/function ASTs unchanged; three intentional template paths replace duplicate HTTP/outcome blocks with one typed diagnostic policy. Wire/regression tests qualify behavior separately.",
+  "unchanged_definitions": [
+    "WhatsAppCloudApiError",
+    "_text_parameter",
+    "_image_parameter",
+    "_document_parameter",
+    "_meta_code",
+    "_meta_error_reference",
+    "upload_whatsapp_image",
+    "upload_whatsapp_document",
+    "send_whatsapp_authentication_template",
+    "send_whatsapp_template",
+    "send_whatsapp_document_update_template"
+  ],
+  "intentional_changed_definitions": [
+    "send_whatsapp_document_template",
+    "send_whatsapp_qr_template",
+    "_send_whatsapp_template_payload"
+  ],
+  "current_owners": {
+    "WhatsAppCloudApiError": "backend/app/infrastructure/whatsapp/provider_errors.py",
+    "_text_parameter": "backend/app/infrastructure/whatsapp/provider_payloads.py",
+    "_image_parameter": "backend/app/infrastructure/whatsapp/provider_payloads.py",
+    "_document_parameter": "backend/app/infrastructure/whatsapp/provider_payloads.py",
+    "_meta_code": "backend/app/infrastructure/whatsapp/provider_errors.py",
+    "_meta_error_reference": "backend/app/infrastructure/whatsapp/provider_errors.py",
+    "upload_whatsapp_image": "backend/app/infrastructure/whatsapp/provider_media.py",
+    "upload_whatsapp_document": "backend/app/infrastructure/whatsapp/provider_media.py",
+    "send_whatsapp_document_template": "backend/app/infrastructure/whatsapp/provider_messages.py",
+    "send_whatsapp_qr_template": "backend/app/infrastructure/whatsapp/provider_messages.py",
+    "_send_whatsapp_template_payload": "backend/app/infrastructure/whatsapp/provider_transport.py",
+    "send_whatsapp_authentication_template": "backend/app/infrastructure/whatsapp/provider_messages.py",
+    "send_whatsapp_template": "backend/app/infrastructure/whatsapp/provider_messages.py",
+    "send_whatsapp_document_update_template": "backend/app/infrastructure/whatsapp/provider_messages.py"
+  },
+  "before_sha256": "e30af34236ff0b12140733639f9225140e874fe46bf0e48b55b822d63498db8e",
+  "current_sha256": {
+    "backend/app/infrastructure/whatsapp/provider_errors.py": "4c02727abd437502c0ba08f6f79f49442ce3439bb43df1614b4e2335a1502b11",
+    "backend/app/infrastructure/whatsapp/provider_media.py": "b6b8d365bd633d0f595275913480df34d03fd934655440f2fee064e471b5224e",
+    "backend/app/infrastructure/whatsapp/provider_messages.py": "d99963e638323121343c1e017011f4318a0197b3cd384d2d9e3a5d0876ca29d7",
+    "backend/app/infrastructure/whatsapp/provider_payloads.py": "fb25ffeca9f1f2611839015d73800dec80325878fe1041a642eeb7e3bdeb0677",
+    "backend/app/infrastructure/whatsapp/provider_transport.py": "af003278470e812545dbc126818e85b0b3018de1f9c2c6e80d77c41559a6e23b"
+  }
+}

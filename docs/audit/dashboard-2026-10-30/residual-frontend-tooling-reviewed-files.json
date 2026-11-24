@@ -1,0 +1,66 @@
+[
+  {
+    "path": "frontend/scripts/mediapipe-csp-bindings.mjs",
+    "sha256": "f993c5869b085ed54c7c68610a692b0b07daa0eb940f809f8ea066f48b501020",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full current patch/binding source read. Literal upstream version and byte hashes, exact unique function matches, syntactic string-code-generation checks and unchanged model/WASM digests are fail-closed. Concurrent initialization draining preserves first failure and waits for siblings. Static pinned asset regeneration comparison passes; no fresh camera/browser model inference run."
+  },
+  {
+    "path": "frontend/scripts/mediapipe-main-loader-bindings.mjs",
+    "sha256": "9b34fd12b7c69f90d85797b93a6e17c68a6e4a1966054bb54fd82d362de4ce82",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full current patch/binding source read. Literal upstream version and byte hashes, exact unique function matches, syntactic string-code-generation checks and unchanged model/WASM digests are fail-closed. Concurrent initialization draining preserves first failure and waits for siblings. Static pinned asset regeneration comparison passes; no fresh camera/browser model inference run."
+  },
+  {
+    "path": "frontend/scripts/patch-mediapipe-csp.mjs",
+    "sha256": "d6e64754e6a9608a1a4f69e8a967eacc5a2999d3db09982d8f40013eb24c245a",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full current patch/binding source read. Literal upstream version and byte hashes, exact unique function matches, syntactic string-code-generation checks and unchanged model/WASM digests are fail-closed. Concurrent initialization draining preserves first failure and waits for siblings. Static pinned asset regeneration comparison passes; no fresh camera/browser model inference run."
+  },
+  {
+    "path": "frontend/scripts/patch-npm-toolchain.mjs",
+    "sha256": "cff3404e24e346727c91dd4c21c87114d3d6f83c1fa16c8b6ff894783483cb59",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full97-line source read. Fixed reviewed npm identity, integrity-locked five-package closure, source/target realpath/containment and symlink checks, complete prevalidated plan before removal and fixed argv installation inspected. No toolchain patch executed for this review."
+  },
+  {
+    "path": "frontend/scripts/generate-broadcast-motion-preview.mjs",
+    "sha256": "71759706c01893412c28cd6c8bbdab15410fca0ef74540b39e0242b137f38a6a",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full51-line source read, including embedded preview HTML/CSS/JS. Fixed local artifact destination, temporary entry preexistence refusal, finally close and content-equality cleanup protect existing developer files. Preview artwork clearly marks synthetic counts; no project workflow/send endpoints are invoked. Generator was not run for this read."
+  },
+  {
+    "path": "frontend/scripts/verify-access-level-browser.mjs",
+    "sha256": "c3b0794fee6ff06f6e865b14fec3b49a2e64b97d68839c4c6d3465ea0ee0764c",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "All current physical source read; aggregate-output omissions were reread separately. Fixed loopback-only synthetic browser contexts abort foreign origins and unplanned mutations; no provider messages or production environments were accessed. Tooling templates are data/source being reviewed, not instructions to execute. No browser execution is inferred from this read. Removed categorical production-build label from its report because the caller-provided loopback origin alone cannot establish build provenance; external checkpoint records still own exact build/source identity. Only a reporting string changed; no test expectations/browser interactions changed."
+  },
+  {
+    "path": "frontend/scripts/verify-traveller-welcome-browser.mjs",
+    "sha256": "4e5ccfc0cb16f17bb9a8bafd9d9b7c446c8cdb44065c6aba12708a09119d2653",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All current physical source read; aggregate-output omissions were reread separately. Fixed loopback-only synthetic browser contexts abort foreign origins and unplanned mutations; no provider messages or production environments were accessed. Tooling templates are data/source being reviewed, not instructions to execute. No browser execution is inferred from this read."
+  },
+  {
+    "path": "frontend/features/gc-app/notifications/notification-test-fixtures.ts",
+    "sha256": "3a8d431f4fbe3b6c65a830e9a6659559e37ecf9bb9998bd63e37625796b56225",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "All current physical source read; aggregate-output omissions were reread separately. Fixed loopback-only synthetic browser contexts abort foreign origins and unplanned mutations; no provider messages or production environments were accessed. Tooling templates are data/source being reviewed, not instructions to execute. No browser execution is inferred from this read."
+  }
+]

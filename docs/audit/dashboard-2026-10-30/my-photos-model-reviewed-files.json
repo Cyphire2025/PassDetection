@@ -1,0 +1,83 @@
+[
+  {
+    "path": "backend/app/infrastructure/database/my_photo_delivery_models.py",
+    "sha256": "53f6c59cf80557b2637dac2ee695fc3fc289404cc9adb65d76f3c1fa2abf1372",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "refactored",
+    "lines": 181,
+    "notes": "Complete original1437-line physical model review plus authored cohesive owner/import wiring; all12 class ASTs unchanged. Actual fresh174table/mapper registry,12PG/SQLite table/index/FK/default/ordered mapper/legacy alias snapshots byte-equal.32actual SQLite workflow cases pass. No sharedmodel/modelregistry/base edits, schema/data/migration change or live PostgreSQL qualification. Unchanged original class bodies are attributed to original full read and exact equivalence, not claimed as a duplicate new physical read."
+  },
+  {
+    "path": "backend/app/infrastructure/database/my_photo_enrollment_models.py",
+    "sha256": "12c5485971cb84d4352aa9da033093e5b45a06620b1a57c3c9f690c186367092",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "refactored",
+    "lines": 292,
+    "notes": "Complete original1437-line physical model review plus authored cohesive owner/import wiring; all12 class ASTs unchanged. Actual fresh174table/mapper registry,12PG/SQLite table/index/FK/default/ordered mapper/legacy alias snapshots byte-equal.32actual SQLite workflow cases pass. No sharedmodel/modelregistry/base edits, schema/data/migration change or live PostgreSQL qualification. Unchanged original class bodies are attributed to original full read and exact equivalence, not claimed as a duplicate new physical read."
+  },
+  {
+    "path": "backend/app/infrastructure/database/my_photo_face_models.py",
+    "sha256": "815ac41087eb0de4d91e2866a13aa09b86fd76fb95b278b21dce3e7f2c6d1e53",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "refactored",
+    "lines": 122,
+    "notes": "Complete original1437-line physical model review plus authored cohesive owner/import wiring; all12 class ASTs unchanged. Actual fresh174table/mapper registry,12PG/SQLite table/index/FK/default/ordered mapper/legacy alias snapshots byte-equal.32actual SQLite workflow cases pass. No sharedmodel/modelregistry/base edits, schema/data/migration change or live PostgreSQL qualification. Unchanged original class bodies are attributed to original full read and exact equivalence, not claimed as a duplicate new physical read."
+  },
+  {
+    "path": "backend/app/infrastructure/database/my_photo_gallery_models.py",
+    "sha256": "85a36a0d57fcf4785ec99c91197c7d1f1069ba9c8b9b303800285021093ea1f7",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "refactored",
+    "lines": 336,
+    "notes": "Complete original1437-line physical model review plus authored cohesive owner/import wiring; all12 class ASTs unchanged. Actual fresh174table/mapper registry,12PG/SQLite table/index/FK/default/ordered mapper/legacy alias snapshots byte-equal.32actual SQLite workflow cases pass. No sharedmodel/modelregistry/base edits, schema/data/migration change or live PostgreSQL qualification. Unchanged original class bodies are attributed to original full read and exact equivalence, not claimed as a duplicate new physical read."
+  },
+  {
+    "path": "backend/app/infrastructure/database/my_photo_job_models.py",
+    "sha256": "1c058f8337a89b3e9b33beeca07ac5bff03f08e7f95140a0d80ad620cdf253c0",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "refactored",
+    "lines": 190,
+    "notes": "Complete original1437-line physical model review plus authored cohesive owner/import wiring; all12 class ASTs unchanged. Actual fresh174table/mapper registry,12PG/SQLite table/index/FK/default/ordered mapper/legacy alias snapshots byte-equal.32actual SQLite workflow cases pass. No sharedmodel/modelregistry/base edits, schema/data/migration change or live PostgreSQL qualification. Unchanged original class bodies are attributed to original full read and exact equivalence, not claimed as a duplicate new physical read."
+  },
+  {
+    "path": "backend/app/infrastructure/database/my_photo_liveness_models.py",
+    "sha256": "9940d1ee388d9e6026e9e096c5b6421187a9e1547f8d04a4a5bfffef10c022fd",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "refactored",
+    "lines": 153,
+    "notes": "Complete original1437-line physical model review plus authored cohesive owner/import wiring; all12 class ASTs unchanged. Actual fresh174table/mapper registry,12PG/SQLite table/index/FK/default/ordered mapper/legacy alias snapshots byte-equal.32actual SQLite workflow cases pass. No sharedmodel/modelregistry/base edits, schema/data/migration change or live PostgreSQL qualification. Unchanged original class bodies are attributed to original full read and exact equivalence, not claimed as a duplicate new physical read."
+  },
+  {
+    "path": "backend/app/infrastructure/database/my_photo_media_models.py",
+    "sha256": "f2553c9fc595913e71a896e91dadc2755bda211459cc61bc53c42dff799844a6",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "refactored",
+    "lines": 266,
+    "notes": "Complete original1437-line physical model review plus authored cohesive owner/import wiring; all12 class ASTs unchanged. Actual fresh174table/mapper registry,12PG/SQLite table/index/FK/default/ordered mapper/legacy alias snapshots byte-equal.32actual SQLite workflow cases pass. No sharedmodel/modelregistry/base edits, schema/data/migration change or live PostgreSQL qualification. Unchanged original class bodies are attributed to original full read and exact equivalence, not claimed as a duplicate new physical read."
+  },
+  {
+    "path": "backend/app/infrastructure/database/my_photo_search_models.py",
+    "sha256": "8e20ef722c49997afc5f7ac857609cd142ebc16baa848ffd570138c7e2c05a67",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "refactored",
+    "lines": 308,
+    "notes": "Complete original1437-line physical model review plus authored cohesive owner/import wiring; all12 class ASTs unchanged. Actual fresh174table/mapper registry,12PG/SQLite table/index/FK/default/ordered mapper/legacy alias snapshots byte-equal.32actual SQLite workflow cases pass. No sharedmodel/modelregistry/base edits, schema/data/migration change or live PostgreSQL qualification. Unchanged original class bodies are attributed to original full read and exact equivalence, not claimed as a duplicate new physical read."
+  },
+  {
+    "path": "backend/app/infrastructure/database/my_photos_models.py",
+    "sha256": "4b0e472e09be93233015330d740be5951cf0327bba7d3d64a6ceb40435bee93f",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "refactored",
+    "lines": 54,
+    "notes": "Complete original1437-line physical model review plus authored cohesive owner/import wiring; all12 class ASTs unchanged. Actual fresh174table/mapper registry,12PG/SQLite table/index/FK/default/ordered mapper/legacy alias snapshots byte-equal.32actual SQLite workflow cases pass. No sharedmodel/modelregistry/base edits, schema/data/migration change or live PostgreSQL qualification. Unchanged original class bodies are attributed to original full read and exact equivalence, not claimed as a duplicate new physical read."
+  }
+]

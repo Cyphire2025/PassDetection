@@ -1,0 +1,28 @@
+{
+  "files": [
+    {
+      "path": ".env.example",
+      "sha256": "425c44a00321aa71a2295986b0d562ece8d03a7aeab7603f8be8bc97a331979c",
+      "review_status": "partial",
+      "notes": "Focused release-source defaults integration: source schema declarations align to0142, exact both-baseline policy hashes checked, source/rendered verification gates unchanged. Full870operator tests run865pass5skipped; no actualdeployment qualification."
+    },
+    {
+      "path": "docker-compose.yml",
+      "sha256": "918eb4fc3eccecb7c68ad56ab66b36a976754b3f0b1f0ce7a04081c8e309a357",
+      "review_status": "partial",
+      "notes": "Focused release-source defaults integration: source schema declarations align to0142, exact both-baseline policy hashes checked, source/rendered verification gates unchanged. Full870operator tests run865pass5skipped; no actualdeployment qualification."
+    },
+    {
+      "path": "scripts/release_workspace_branding_policy.py",
+      "sha256": "39e4c36ad4d96c37dceaf2b3fc1b1f3f1da26ec7e6ca69d37e617d894f075801",
+      "review_status": "partial",
+      "notes": "Focused release-source defaults integration: source schema declarations align to0142, exact both-baseline policy hashes checked, source/rendered verification gates unchanged. Full870operator tests run865pass5skipped; no actualdeployment qualification."
+    },
+    {
+      "path": "scripts/release_manifest.py",
+      "sha256": "e633683a378dc9f9aea99cbfb9bb0150c00ac7eead435a8364f05505f9aec1cd",
+      "review_status": "partial",
+      "notes": "Focused release-source defaults integration: source schema declarations align to0142, exact both-baseline policy hashes checked, source/rendered verification gates unchanged. Full870operator tests run865pass5skipped; no actualdeployment qualification."
+    }
+  ]
+}

@@ -1,0 +1,510 @@
+"""Maintain content-bound file coverage for the dashboard review (no secrets read)."""
+from __future__ import annotations
+
+import argparse
+import csv
+import hashlib
+import json
+import subprocess
+from collections import Counter
+from fnmatch import fnmatchcase
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+REPORT = ROOT / "docs/audit/dashboard-2026-10-30"
+FIELDS = ("path", "scope", "kind", "lines", "sha256", "status", "reviewer", "notes", "review_scope")
+SOURCE_SUFFIXES = {".py", ".ts", ".tsx", ".js", ".mjs", ".cjs", ".css", ".yml", ".yaml", ".toml"}
+FOUNDATION_RETIREMENT_PATHS = frozenset({
+    "backend/app/application/dtos/whatsapp_dtos.py",
+    "backend/app/application/interfaces/whatsapp_provider.py",
+    "backend/app/application/use_cases/whatsapp/plan_group_broadcast_use_case.py",
+    "backend/app/infrastructure/whatsapp/noop_provider.py",
+    "backend/app/infrastructure/whatsapp/pricing.py",
+})
+BRANDING_EXPERIMENT_PREFIX = "assets/branding/global-connect/social-motion-collection-2026-09-19/"
+BRANDING_EXPERIMENT_SHORTCUT = "assets/Emulator Screenshot.lnk"
+JOURNEY_PROBE_PREFIX = "assets/branding/global-connect/journey-film/qa/browser-color-probes/"
+JOURNEY_PROBE_PATHS = frozenset(JOURNEY_PROBE_PREFIX + name for name in (
+    "full-srgb.mp4", "index.html", "limited-709.mp4",
+    "limited-srgb.mp4", "limited-unspecified.mp4",
+))
+UNUSED_PLACEHOLDER_PATH = "backend/placeholder.txt"
+NATIVE_APP_SUPPORT_PATHS = frozenset({
+    "backend/tests/unit/infrastructure/fixtures/mobile_journey_london_photon.json",
+    ".github/workflows/mobile-ci.yml",
+    ".github/workflows/coordinator-webview-ci.yml",
+    "load-tests/k6/mobile-api.js",
+    "load-tests/k6/mobile-attendance.js",
+    "load-tests/k6/mobile-realtime.js",
+    "docs/MOBILE_ANDROID_BINARY_SIZE_POLICY.md",
+    "docs/MOBILE_APP_INTEGRITY.md",
+    "docs/MOBILE_KEY_ACCESSIBILITY.md",
+    "docs/MOBILE_LOCAL_DATA_RETENTION.md",
+    "load-tests/k6/MOBILE_LOAD_TESTING.md",
+    "load-tests/k6/mobile-load-contract.mjs",
+    "load-tests/k6/mobile-load-contract.test.mjs",
+    "load-tests/k6/mobile-attendance-load-contract.mjs",
+    "load-tests/k6/mobile-attendance-load-contract.test.mjs",
+})
+
+
+def file_identity(path: Path) -> tuple[str, int]:
+    """Hash large assets without allocating their full contents."""
+    digest = hashlib.sha256()
+    lines = 0
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+            lines += chunk.count(b"\n")
+    return digest.hexdigest(), lines
+
+
+def deferred_scope_rules() -> tuple[tuple[str, ...], frozenset[str]]:
+    """Load explicit user deferrals without changing historical review evidence."""
+    policy_path = REPORT / "audit-scope.json"
+    if not policy_path.is_file():
+        return (), frozenset()
+    policy = json.loads(policy_path.read_text(encoding="utf-8"))
+    if type(policy.get("schema_version")) is not int or policy["schema_version"] != 1:
+        raise ValueError("Audit scope policy needs schema_version1")
+    rules = []
+    for field in ("deferred_patterns", "retained_overrides"):
+        values = policy.get(field)
+        if not isinstance(values, list) or not all(
+            isinstance(value, str) and value and "\\" not in value
+            and not Path(value).is_absolute() and ".." not in Path(value).parts
+            and ":" not in value for value in values
+        ):
+            raise ValueError(f"Audit scope {field} must contain relative repository paths")
+        rules.append(values)
+    return tuple(rules[0]), frozenset(rules[1])
+
+
+def native_app_scope_rules() -> frozenset[str]:
+    """Load explicitly reviewed native-only files separately from Inbox deferrals."""
+    policy_path = REPORT / "audit-scope.json"
+    if not policy_path.is_file():
+        return frozenset()
+    policy = json.loads(policy_path.read_text(encoding="utf-8"))
+    if type(policy.get("schema_version")) is not int or policy["schema_version"] != 1:
+        raise ValueError("Audit scope policy needs schema_version1")
+    values = policy.get("native_app_only_paths", [])
+    if not isinstance(values, list) or not all(
+        isinstance(value, str) and (
+            (value.startswith("backend/") and Path(value).suffix == ".py")
+            or value in NATIVE_APP_SUPPORT_PATHS
+        )
+        and not any(character in value for character in "\\:*?[]")
+        and ".." not in Path(value).parts and Path(value).as_posix() == value
+        for value in values
+    ) or len(values) != len(set(values)):
+        raise ValueError(
+            "Native-only scope must contain unique literal relative backend Python paths "
+            "or exact reviewed native support paths"
+        )
+    return frozenset(values)
+
+
+def classify(
+    path: str, *, deferred_patterns: tuple[str, ...] = (),
+    retained_overrides: frozenset[str] = frozenset(),
+    native_app_only_paths: frozenset[str] = frozenset(),
+) -> tuple[str, str]:
+    if path.startswith(("mobile/", "Coordinators app/")) or path in native_app_only_paths:
+        scope = "mobile-excluded"
+    elif path not in retained_overrides and any(fnmatchcase(path, rule) for rule in deferred_patterns):
+        scope = "operations-inbox-deferred"
+    elif path.startswith(("frontend/", "backend/", "mcp-connector/")):
+        scope = path.split("/", 1)[0]
+    elif path.startswith(("docs/", "assets/")):
+        scope = "supporting-material"
+    else:
+        scope = "operations-and-tooling"
+    kind = "source" if Path(path).suffix in SOURCE_SUFFIXES else "reference-or-asset"
+    name = Path(path).name
+    if (any(segment in path for segment in ("/tests/", "/__tests__/", "/test-support/", "/e2e/"))
+            or any(marker in name for marker in (".test.", ".spec.", ".test-fixture.", ".test-fixtures.", ".contract-helper."))
+            or name.startswith("test_")):
+        kind = "test"
+    return scope, kind
+
+
+def validate_archived_identity(record: dict, archive_root: str) -> None:
+    """Check a literal original/archive identity without opening ignored payloads."""
+    path = record["path"]
+    if (
+        record.get("original_path") != path
+        or record.get("archive_path") != archive_root + path
+        or not isinstance(record.get("sha256"), str)
+        or record.get("archive_sha256") != record["sha256"]
+        or record.get("status") != "retired"
+        or type(record.get("bytes")) is not int or record["bytes"] < 0
+    ):
+        raise ValueError(f"Inconsistent retirement archive identity: {path}")
+
+
+def validate_foundation_retirement(document: dict, records: list) -> None:
+    """Admit the exact closed prototype, without requiring ignored local archives."""
+    if type(document.get("schema_version")) is not int or document["schema_version"] != 1:
+        raise ValueError("WhatsApp foundation retirement needs schema_version1")
+    if len(records) != len(FOUNDATION_RETIREMENT_PATHS) or not all(
+        isinstance(record, dict) and isinstance(record.get("path"), str)
+        and record["path"] in FOUNDATION_RETIREMENT_PATHS
+        for record in records
+    ) or {record["path"] for record in records} != FOUNDATION_RETIREMENT_PATHS:
+        raise ValueError("WhatsApp foundation retirement must contain exactly five approved paths")
+    for record in records:
+        validate_archived_identity(record, "Not related to project/retired-whatsapp-foundation/")
+
+
+def validate_branding_retirement(document: dict, records: list) -> None:
+    """Admit only the complete, fixed experiment cohort and one exact shortcut."""
+    if (
+        type(document.get("schema_version")) is not int or document["schema_version"] != 1
+        or document.get("source_cohort") != BRANDING_EXPERIMENT_PREFIX.rstrip("/")
+        or document.get("source_shortcut") != BRANDING_EXPERIMENT_SHORTCUT
+        or document.get("closed_entry_count") != 72 or len(records) != 72
+        or document.get("binary_payloads_embedded") is not False
+    ):
+        raise ValueError("Branding retirement must describe the exact closed72-entry cohort")
+    paths = []
+    for record in records:
+        path = record.get("path") if isinstance(record, dict) else None
+        if (
+            not isinstance(path, str)
+            or not (path.startswith(BRANDING_EXPERIMENT_PREFIX) or path == BRANDING_EXPERIMENT_SHORTCUT)
+            or any(character in path for character in "\\:*?[]")
+            or ".." in Path(path).parts or Path(path).as_posix() != path
+            or record.get("asset_metadata_only") is not True
+        ):
+            raise ValueError("Branding retirement contains an unapproved asset path or review claim")
+        validate_archived_identity(record, "Not related to project/retired-branding-experiments/")
+        paths.append(path)
+    if len(set(paths)) != 72 or paths.count(BRANDING_EXPERIMENT_SHORTCUT) != 1:
+        raise ValueError("Branding retirement needs71 distinct cohort files and one exact shortcut")
+
+
+def validate_journey_probe_retirement(document: dict, records: list) -> None:
+    """Admit only the five closed temporary color-comparison artifacts."""
+    if (
+        type(document.get("schema_version")) is not int or document["schema_version"] != 1
+        or document.get("source_cohort") != JOURNEY_PROBE_PREFIX.rstrip("/")
+        or document.get("closed_entry_count") != 5 or len(records) != 5
+        or document.get("status") != "retired"
+        or document.get("binary_payloads_embedded") is not False
+        or not all(isinstance(record, dict) and isinstance(record.get("path"), str)
+                   and record["path"] in JOURNEY_PROBE_PATHS
+                   for record in records)
+        or {record["path"] for record in records} != JOURNEY_PROBE_PATHS
+    ):
+        raise ValueError("Journey probe retirement requires the exact five approved artifacts")
+    for record in records:
+        if record.get("asset_metadata_only") is not True or "source" in record:
+            raise ValueError("Journey probes may include byte metadata only")
+        validate_archived_identity(record, "Not related to project/retired-branding-experiments/")
+
+
+def validate_placeholder_retirement(document: dict, records: list) -> None:
+    """Keep the one unused placeholder visible after a fresh inventory."""
+    if (
+        type(document.get("schema_version")) is not int or document["schema_version"] != 1
+        or type(document.get("closed_entry_count")) is not int
+        or document["closed_entry_count"] != 1 or len(records) != 1
+        or not isinstance(records[0], dict)
+        or records[0].get("path") != UNUSED_PLACEHOLDER_PATH
+        or document.get("binary_payloads_embedded") is not False
+        or records[0].get("asset_metadata_only") is not True or "source" in records[0]
+    ):
+        raise ValueError("Placeholder retirement requires its one literal metadata record")
+    validate_archived_identity(records[0], "Not related to project/retired-unused-placeholder/")
+
+
+def retired_source_history() -> dict[str, dict]:
+    """Keep proved new-then-retired modules visible without indexing local archives."""
+    manifests = (
+        ("legacy-upload-retired-files.json", "retired"),
+        ("whatsapp-core-retired-files.json", None),
+        ("mcp-legacy-retired-files.json", None),
+        ("upload-helper-retirement-manifest.json", "retired_files"),
+        ("legacy-contact-retirement-manifest.json", "original_files"),
+        ("retired-upload-samples-manifest.json", "files"),
+        ("whatsapp-foundation-retirement-manifest.json", "files"),
+        ("retired-branding-experiments-manifest.json", "files"),
+        ("journey-color-probes-retirement-manifest.json", "files"),
+        ("unused-placeholder-retirement-manifest.json", "files"),
+    )
+    result = {}
+    for name, key in manifests:
+        manifest = REPORT / name
+        if not manifest.is_file():
+            continue
+        document = json.loads(manifest.read_text(encoding="utf-8"))
+        records = document[key] if key else document
+        if not isinstance(records, list):
+            raise ValueError(f"Retirement manifest must contain a records list: {name}")
+        if name == "whatsapp-foundation-retirement-manifest.json":
+            validate_foundation_retirement(document, records)
+        elif name == "retired-branding-experiments-manifest.json":
+            validate_branding_retirement(document, records)
+        elif name == "journey-color-probes-retirement-manifest.json":
+            validate_journey_probe_retirement(document, records)
+        elif name == "unused-placeholder-retirement-manifest.json":
+            validate_placeholder_retirement(document, records)
+        for record in records:
+            path = record["path"]
+            relative = Path(path)
+            allowed = path.startswith(("frontend/features/", "frontend/e2e/"))
+            if name == "retired-upload-samples-manifest.json":
+                allowed = path in {
+                    "frontend/public/assets/upload-samples/passport-front-cover.png",
+                    "frontend/public/assets/upload-samples/passport-back-cover.png",
+                    "frontend/public/assets/upload-samples/visa-photo.png",
+                    "frontend/public/assets/upload-samples/README.md",
+                }
+            elif name == "whatsapp-foundation-retirement-manifest.json":
+                allowed = path in FOUNDATION_RETIREMENT_PATHS
+            elif name == "retired-branding-experiments-manifest.json":
+                allowed = path.startswith(BRANDING_EXPERIMENT_PREFIX) or path == BRANDING_EXPERIMENT_SHORTCUT
+            elif name == "journey-color-probes-retirement-manifest.json":
+                allowed = path in JOURNEY_PROBE_PATHS
+            elif name == "unused-placeholder-retirement-manifest.json":
+                allowed = path == UNUSED_PLACEHOLDER_PATH
+            if not allowed or relative.is_absolute() or ".." in relative.parts:
+                raise ValueError(f"Retirement history must be repository feature source: {path}")
+            digest = record["sha256"]
+            if len(digest) != 64 or any(character not in "0123456789abcdef" for character in digest):
+                raise ValueError(f"Invalid retirement digest: {path}")
+            if path in result and result[path]["sha256"] != digest:
+                raise ValueError(f"Conflicting retirement digests: {path}")
+            source = record.get("source")
+            if source is not None and (
+                not isinstance(source, str)
+                or hashlib.sha256(source.encode("utf-8")).hexdigest() != digest
+            ):
+                raise ValueError(f"Archived retirement source does not match its digest: {path}")
+            scope, kind = classify(path)
+            lines = record.get("physicalLines", record.get(
+                "physical_lines", len(source.splitlines()) if source is not None else 0,
+            ))
+            if not isinstance(lines, int) or isinstance(lines, bool) or lines < 0:
+                raise ValueError(f"Invalid retirement physical line count: {path}")
+            if "physicalLines" in record and "physical_lines" in record and (
+                record["physicalLines"] != record["physical_lines"]
+            ):
+                raise ValueError(f"Conflicting retirement physical line counts: {path}")
+            result[path] = dict(zip(FIELDS, (path, scope, kind, lines, digest,
+                "removed-in-working-tree", "", f"Original hash and caller proof: {name}; zero lines means unavailable.", "retired")))
+    return result
+
+
+def review_record_digest(record: dict) -> str:
+    """Identify one immutable ledger record independently of its file's formatting."""
+    payload = json.dumps(record, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def review_record_notes(record: dict, ledger_name: str) -> str:
+    """Normalize display text without mutating the digest-bound ledger record."""
+    value = record.get("notes")
+    if value is None:
+        value = record.get("review_method")
+    if value is None:
+        value = f"Exact review record: {ledger_name}"
+    if isinstance(value, str):
+        return value
+    if isinstance(value, list) and all(isinstance(note, str) for note in value):
+        return " | ".join(value)
+    raise ValueError(f"Review notes must be text or a list of text: {ledger_name}")
+
+
+def resolved_partial_reviews(reviews: dict[str, list[dict]]) -> set[tuple[str, str]]:
+    """Resolve only explicitly referenced partial reads of the same source bytes.
+
+    A later full read never automatically closes a finding or architecture task.
+    The original ledger and any independent full-review follow-up remain intact.
+    """
+    by_identity = {
+        (record["_ledger"], record["_record_digest"]): record
+        for records in reviews.values() for record in records
+    }
+    resolved = set()
+    for records in reviews.values():
+        for record in records:
+            references = record.get("resolves_partial_reviews", [])
+            if not isinstance(references, list):
+                raise ValueError("Partial review resolutions must be an explicit list")
+            for reference in references:
+                if record["review_scope"] != "full":
+                    raise ValueError("Only a completed full source read may resolve a partial read")
+                if not isinstance(reference, dict) or set(reference) != {
+                    "ledger", "record_sha256", "reason"
+                }:
+                    raise ValueError("A partial resolution needs an exact ledger, record and reason")
+                if not isinstance(reference["reason"], str) or not reference["reason"].strip():
+                    raise ValueError("A partial resolution needs a concrete review reason")
+                identity = (reference["ledger"], reference["record_sha256"])
+                target = by_identity.get(identity)
+                if target is None:
+                    raise ValueError(f"Partial review resolution target is missing or changed: {identity}")
+                if target["path"] != record["path"] or target["sha256"] != record["sha256"]:
+                    raise ValueError("A partial resolution must reference the same path and source hash")
+                if target["review_scope"] == "full" or target["status"] != "needs-follow-up":
+                    raise ValueError("A partial resolution cannot close an independent full-review task")
+                resolved.add(identity)
+    return resolved
+
+
+def refresh(mark: list[str], status: str, reviewer: str, notes: str) -> dict:
+    REPORT.mkdir(parents=True, exist_ok=True)
+    deferred_patterns, retained_overrides = deferred_scope_rules()
+    native_app_only_paths = native_app_scope_rules()
+    inventory = REPORT / "file-inventory.csv"
+    previous = {}
+    if inventory.exists():
+        with inventory.open(encoding="utf-8", newline="") as stream:
+            previous = {row["path"]: row for row in csv.DictReader(stream)}
+    reviews: dict[str, list[dict]] = {}
+    for record_file in sorted(REPORT.glob("*-reviewed-files.json")):
+        records = json.loads(record_file.read_text(encoding="utf-8"))
+        if isinstance(records, dict):
+            if "files" in records:
+                records = records["files"]
+            elif "records" in records:
+                runtime = records["records"]
+                tests = records.get("test_records", [])
+                if not isinstance(runtime, list) or not isinstance(tests, list):
+                    raise ValueError(f"Runtime and test reviews must be lists: {record_file.name}")
+                records = [*runtime, *tests]
+            else:
+                raise ValueError(f"Review document has no explicit records list: {record_file.name}")
+        if not isinstance(records, list):
+            raise ValueError(f"Review file must contain a records list: {record_file.name}")
+        for record in records:
+            depth = record.get("review_scope", record.get("review_depth", record.get("review_status", "focused")))
+            record_reviewer = record.get("reviewer", record_file.stem)
+            if isinstance(record_reviewer, list) and all(isinstance(name, str) for name in record_reviewer):
+                record_reviewer = "; ".join(sorted(set(record_reviewer)))
+            if not isinstance(record_reviewer, str):
+                raise ValueError(f"Review attribution must be text or a list of names: {record_file.name}")
+            record_status = record.get("status", "reviewed" if depth == "full" else "needs-follow-up")
+            record_status = {
+                "reviewed-and-improved": "fixed",
+                "reviewed-and-updated": "reviewed",
+                "reviewed-and-verified": "verified",
+                "reviewed-and-strengthened": "fixed",
+                "reviewed-and-restructured": "refactored",
+                "source-loader-retargeted": "refactored",
+                "source-contract-retargeted": "refactored",
+                "reviewed-unchanged": "reviewed",
+                "matching-full-review": "reviewed",
+                "reviewed_with_open_finding": "needs-follow-up",
+                "reviewed-follow-through-pending": "needs-follow-up",
+                "reviewed-with-verification-gap": "needs-follow-up",
+                "reviewed-current-verifier-or-regression": "reviewed",
+                "reviewed-current-regression": "reviewed",
+                "reviewed-existing-wrap-protection-unchanged": "reviewed",
+                "fixed-and-verified": "verified",
+                "fully-read-architecture-candidate": "needs-follow-up",
+                "physically-read-not-executed-in-freeze": "reviewed",
+                "needs_followup": "needs-follow-up",
+            }.get(record_status, record_status)
+            reviews.setdefault(record["path"], []).append({
+                **record, "reviewer": record_reviewer,
+                "_ledger": record_file.name,
+                "_record_digest": review_record_digest(record),
+                "review_scope": depth,
+                "status": record_status,
+                "notes": review_record_notes(record, record_file.name),
+            })
+    resolved = resolved_partial_reviews(reviews)
+    tracked = subprocess.check_output(["git", "ls-files", "-z"], cwd=ROOT).decode().split("\0")
+    added = subprocess.check_output(["git", "ls-files", "--others", "--exclude-standard", "-z"], cwd=ROOT).decode().split("\0")
+    retirement_history = retired_source_history()
+    paths = sorted(set(filter(None, tracked + added)) | retirement_history.keys())
+    rows = []
+    for path in paths:
+        if path.startswith("docs/audit/dashboard-2026-10-30/"):
+            continue
+        absolute = ROOT / path
+        if not absolute.is_file():
+            old = previous.get(path) or retirement_history.get(path)
+            if old:
+                rows.append({**old, "status": "removed-in-working-tree", "reviewer": "", "review_scope": "retired",
+                             "notes": "Review removal manifests and Git diff; not an unreviewed disappearance."})
+            continue
+        digest, lines = file_identity(absolute)
+        scope, kind = classify(path, deferred_patterns=deferred_patterns,
+                               retained_overrides=retained_overrides,
+                               native_app_only_paths=native_app_only_paths)
+        row = dict(zip(FIELDS, (path, scope, kind, lines, digest,
+                               "excluded" if scope == "mobile-excluded" else "inventoried", "", "",
+                               "excluded" if scope == "mobile-excluded" else "unreviewed")))
+        old = previous.get(path)
+        if old and old["sha256"] == digest:
+            row.update({key: old[key] for key in ("status", "reviewer", "notes")})
+            row["review_scope"] = old.get("review_scope", "unreviewed")
+        elif old and old["status"] not in {"inventoried", "excluded"}:
+            row.update(status="changed-needs-recheck", notes="Content changed after previous review.")
+        matching = [record for record in reviews.get(path, ()) if record.get("sha256") == digest]
+        if matching:
+            priorities = {"reviewed": 1, "fixed": 2, "refactored": 2, "verified": 3,
+                          "needs-followup": 4, "needs-follow-up": 4}
+            eligible = [record for record in matching
+                        if (record["_ledger"], record["_record_digest"]) not in resolved]
+            selected = max(eligible, key=lambda record: priorities.get(record["status"], 0))
+            row.update(status=selected["status"],
+                       reviewer="; ".join(sorted({record["reviewer"] for record in matching})),
+                       notes=" | ".join(record.get("notes", "") for record in matching))
+            row["review_scope"] = "full" if any(record["review_scope"] == "full" for record in matching) else "focused"
+        if row["status"] in {"needs-followup", "partially_reviewed", "partial"}:
+            row["status"] = "needs-follow-up"
+            if row["review_scope"] == "unreviewed":
+                row["review_scope"] = "partial"
+        if row["status"] == "excluded":
+            row["review_scope"] = "excluded"
+        if path in mark:
+            row.update(status=status, reviewer=reviewer, notes=notes)
+        rows.append(row)
+    unknown = set(mark) - {row["path"] for row in rows}
+    if unknown:
+        raise ValueError(f"Paths not present in tracked/unignored source: {sorted(unknown)}")
+    with inventory.open("w", encoding="utf-8", newline="") as stream:
+        writer = csv.DictWriter(stream, fieldnames=FIELDS)
+        writer.writeheader()
+        writer.writerows(rows)
+    active_rows = [row for row in rows
+                   if row["scope"] not in {"mobile-excluded", "operations-inbox-deferred"}
+                   and row["review_scope"] not in {"retired", "excluded"}]
+    deferred_rows = [row for row in rows if row["scope"] == "operations-inbox-deferred"]
+    summary = {
+        "files": len(rows),
+        "scope": dict(Counter(row["scope"] for row in rows)),
+        "status": dict(Counter(row["status"] for row in rows)),
+        "review_scope": dict(Counter(row.get("review_scope", "unreviewed") for row in rows)),
+        "active_files": len(active_rows),
+        "active_review_scope": dict(Counter(row["review_scope"] for row in active_rows)),
+        "deferred_by_user": {
+            "scope": "Operations Inbox", "files": len(deferred_rows),
+            "review_scope": dict(Counter(row["review_scope"] for row in deferred_rows)),
+            "historical_review_statuses_preserved": True,
+        },
+        "largest_source_modules": [
+            {key: row[key] for key in ("path", "lines", "status")}
+            for row in sorted(rows, key=lambda item: int(item["lines"]), reverse=True)
+            if row["kind"] == "source" and row["scope"] not in {"mobile-excluded", "supporting-material", "operations-inbox-deferred"}
+            and row["status"] != "removed-in-working-tree"
+        ][:80],
+    }
+    (REPORT / "inventory-summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
+    return summary
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--mark", nargs="*", default=[])
+    parser.add_argument("--status", choices=("reviewed", "fixed", "verified", "needs-follow-up"), default="reviewed")
+    parser.add_argument("--reviewer", default="root")
+    parser.add_argument("--notes", default="")
+    options = parser.parse_args()
+    result = refresh(options.mark, options.status, options.reviewer, options.notes)
+    print(json.dumps({key: result[key] for key in ("files", "scope", "status")}, indent=2))

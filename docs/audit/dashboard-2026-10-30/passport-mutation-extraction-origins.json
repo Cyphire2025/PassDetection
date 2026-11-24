@@ -1,0 +1,20 @@
+{
+  "note": "Post-ownership-fix source identities before exact function/method movement. Earlier invocation-boundary baseline is separate.",
+  "records": [
+    {
+      "path": "frontend/features/passports/hooks/use-passports.ts",
+      "sha256": "4bba226e876cdf8b3ef9f615ff5a4a984ee944afb8e111a4ad8bbd9f8f1a5db3",
+      "kind": "post-fix-before-extraction"
+    },
+    {
+      "path": "frontend/features/passports/hooks/use-upload-links.ts",
+      "sha256": "c017be8ecacb75b758060ae7a40cb82b22851de8fec4b07218d1646e0de02bd1",
+      "kind": "post-fix-before-extraction"
+    },
+    {
+      "path": "frontend/features/passports/api/upload-links.api.ts",
+      "sha256": "a99ae0dde54362e837bcdcbf8734aa3f5cca7de69f47b7a065f115a88bf3b8de",
+      "kind": "post-fix-before-extraction"
+    }
+  ]
+}

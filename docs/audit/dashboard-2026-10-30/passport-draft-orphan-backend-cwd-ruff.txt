@@ -1,0 +1,76 @@
+I001 [*] Import block is un-sorted or un-formatted
+  --> tests\integration\passport_orphan_fixtures.py:3:1
+   |
+ 1 |   """Synthetic durable owners for the private-image orphan reconciliation tests."""
+ 2 |
+ 3 | / from __future__ import annotations
+ 4 | |
+ 5 | | import uuid
+ 6 | | from datetime import UTC, datetime, timedelta
+ 7 | |
+ 8 | | from app.infrastructure.database.models import (
+ 9 | |     DistributedDocumentModel,
+10 | |     DocumentDistributionBatchModel,
+11 | |     DocumentRenameBatchModel,
+12 | |     DocumentRenameItemModel,
+13 | |     PassportImageCropModel,
+14 | |     PassportSubmissionModel,
+15 | |     PassportVisaAiImageJobModel,
+16 | |     PassportVisaAiImageModel,
+17 | | )
+18 | | from app.infrastructure.database.passport_ecr_models import PassportEcrCheckModel
+19 | | from app.infrastructure.database.passport_image_library_model import PassportImageLibraryItemModel
+20 | | from app.infrastructure.database.traveller_returning_draft_models import (
+21 | |     TravellerDraftAssetModel,
+22 | |     TravellerReturningDraftModel,
+23 | | )
+24 | |
+25 | | from tests.integration.traveller_reuse_fixtures import reuse_context, seed_person
+26 | | from tests.unit.application.test_traveller_reconciliation import _seed_scope
+   | |____________________________________________________________________________^
+27 |
+28 |   IMAGE_PREFIXES = (
+   |
+help: Organize imports
+   |
+23 | )
+   -
+24 | from tests.integration.traveller_reuse_fixtures import reuse_context, seed_person
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> tests\integration\test_passport_draft_orphan_reconciliation.py:3:1
+   |
+ 1 |   """Aged upload-attempt drafts: real durable references with synthetic storage."""
+ 2 |
+ 3 | / from __future__ import annotations
+ 4 | |
+ 5 | | import uuid
+ 6 | | from datetime import timedelta
+ 7 | |
+ 8 | | import pytest
+ 9 | | from app.application.use_cases.passports.submit_passport_use_case import SubmitPassportUseCase
+10 | | from app.infrastructure.database.models import PassportSubmissionModel
+11 | | from sqlalchemy import select, text
+12 | |
+13 | | from tests.integration.passport_orphan_fixtures import retained_image_keys
+14 | | from tests.integration.test_passport_orphan_reconciliation import NOW, OLD, reconcile
+15 | | from tests.unit.infrastructure.test_document_orphan_reconciliation import FakeStorage
+   | |_____________________________________________________________________________________^
+16 |
+17 |   DRAFT_PREFIX = "drafts/"
+   |
+help: Organize imports
+   |
+8  | import pytest
+9  + from sqlalchemy import select, text
+10 +
+11 | from app.application.use_cases.passports.submit_passport_use_case import SubmitPassportUseCase
+12 | from app.infrastructure.database.models import PassportSubmissionModel
+   - from sqlalchemy import select, text
+   -
+13 | from tests.integration.passport_orphan_fixtures import retained_image_keys
+   |
+
+Found 2 errors.
+[*] 2 fixable with the `--fix` option.

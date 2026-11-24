@@ -22,7 +22,8 @@ export function matchPreviewFiles(
 }
 
 export function formatBytes(bytes: number) {
-  if (!Number.isFinite(bytes) || bytes <= 0) return "0 MB";
+  if (!Number.isFinite(bytes) || bytes <= 0) return "0 B";
+  if (bytes < 1024) return `${Math.round(bytes)} B`;
   const mb = bytes / (1024 * 1024);
   if (mb < 1) return `${Math.round(bytes / 1024)} KB`;
   return `${mb.toFixed(mb >= 100 ? 0 : 1)} MB`;

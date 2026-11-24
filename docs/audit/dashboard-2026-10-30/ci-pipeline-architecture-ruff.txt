@@ -1,0 +1,69 @@
+F821 Undefined name `classify_paths`
+  --> scripts\ci_gate_policy.py:18:60
+   |
+16 |         raise ValueError("Unsupported CI source or event")
+17 |     full = event == "workflow_dispatch"
+18 |     selected = set(JOBS) if full or paths is None else set(classify_paths(paths))
+   |                                                            ^^^^^^^^^^^^^^
+19 |     # A stable check always validates workflow, policy, helper tests and docs.
+20 |     selected.add("backend-static-checks")
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> scripts\ci_pipeline.py:7:1
+   |
+ 5 |   No cache entry, skipped job, or prior image can qualify a Full deployment.
+ 6 |   """
+ 7 | / from __future__ import annotations
+ 8 | |
+ 9 | | import argparse
+10 | | import json
+11 | | import os
+12 | | import subprocess
+13 | | from pathlib import Path
+14 | |
+15 | | from ci_gate_policy import SHA, decide, validate_gate
+16 | | from ci_push_baseline import qualified_push_base
+17 | | from ci_shards import collection_digest as collection_digest
+18 | | from ci_shards import verify_shards
+19 | |
+20 | | from ci_job_inputs import (
+21 | |     JOBS,
+22 | |     REUSABLE_JOBS,
+23 | |     classify_paths,
+24 | |     fingerprints,
+25 | |     read_git_tree,
+26 | | )
+   | |_^
+27 |
+28 |   ROOT = Path(__file__).resolve().parents[1]
+   |
+help: Organize imports
+   |
+15 | from ci_gate_policy import SHA, decide, validate_gate
+   - from ci_push_baseline import qualified_push_base
+   - from ci_shards import collection_digest as collection_digest
+   - from ci_shards import verify_shards
+   -
+16 | from ci_job_inputs import (
+--------------------------------------------------------------------------------
+22 | )
+23 + from ci_push_baseline import qualified_push_base
+24 + from ci_shards import collection_digest as collection_digest
+25 + from ci_shards import verify_shards
+26 |
+   |
+
+PLC0414 Import alias does not rename original package
+  --> scripts\ci_pipeline.py:17:23
+   |
+15 | from ci_gate_policy import SHA, decide, validate_gate
+16 | from ci_push_baseline import qualified_push_base
+17 | from ci_shards import collection_digest as collection_digest
+   |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+18 | from ci_shards import verify_shards
+   |
+help: Remove import alias
+
+Found 3 errors.
+[*] 1 fixable with the `--fix` option (1 hidden fix can be enabled with the `--unsafe-fixes` option).

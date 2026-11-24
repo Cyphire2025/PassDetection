@@ -1,0 +1,158 @@
+[
+  {
+    "path": "frontend/e2e-real-stack/public-upload.spec.ts",
+    "sha256": "f9d0f7e9134a313b349cd92c57caedb54c3ee6ad4d7787a86b58222a21672c46",
+    "line": 55,
+    "exact_unicode_source": "  await expect(page.getByRole(\"heading\", { name: \"Submitted \u2014 awaiting staff review\", exact: true })).toBeVisible();"
+  },
+  {
+    "path": "frontend/e2e/fresh-travellers.spec.ts",
+    "sha256": "70aea7232b48bf2cf82193ba7a751a3c692f83db1e87c1293b88002e74deee11",
+    "line": 86,
+    "exact_unicode_source": "  await page.getByRole(\"button\", { name: \"Confirm details and submit\" }).click(); await expect(page.getByRole(\"heading\", { name: \"You\u2019re all set\" })).toBeVisible();"
+  },
+  {
+    "path": "frontend/e2e/fresh-travellers.spec.ts",
+    "sha256": "70aea7232b48bf2cf82193ba7a751a3c692f83db1e87c1293b88002e74deee11",
+    "line": 97,
+    "exact_unicode_source": "  await page.getByRole(\"button\", { name: \"Confirm details and submit\" }).click(); await expect(page.getByRole(\"heading\", { name: \"You\u2019re all set\" })).toBeVisible();"
+  },
+  {
+    "path": "frontend/e2e/fresh-travellers.spec.ts",
+    "sha256": "70aea7232b48bf2cf82193ba7a751a3c692f83db1e87c1293b88002e74deee11",
+    "line": 107,
+    "exact_unicode_source": "  await page.getByRole(\"button\", { name: \"Continue\", exact: true }).click(); await expect(page.getByRole(\"heading\", { name: \"You\u2019re all set\" })).toBeVisible();"
+  },
+  {
+    "path": "frontend/e2e/whatsapp-document-management.spec.ts",
+    "sha256": "d621c5a7c3a792bffd8a2df2108c9aa7fd11fc8864825a128c885241598c390d",
+    "line": 65,
+    "exact_unicode_source": "    const recipients = page.getByRole(\"dialog\", { name: \"Recipients \u2014 Document October\", exact: true });"
+  },
+  {
+    "path": "frontend/e2e/whatsapp-document-management.spec.ts",
+    "sha256": "d621c5a7c3a792bffd8a2df2108c9aa7fd11fc8864825a128c885241598c390d",
+    "line": 104,
+    "exact_unicode_source": "    const update = page.getByRole(\"dialog\", { name: \"Inform / update \u2014 Visa\", exact: true });"
+  },
+  {
+    "path": "frontend/e2e/browser-session-persistence.spec.ts",
+    "sha256": "d0e157444db53cd45ca1f5c6e8000b91c95c30a3f2fa893c05ac8ff032d56c3d",
+    "line": 155,
+    "exact_unicode_source": "  await expect(page.getByRole(\"alert\").filter({ hasText: \"Let\u2019s reconnect.\" })).toHaveText(/checked once the connection is back/);"
+  },
+  {
+    "path": "frontend/e2e/companies.spec.ts",
+    "sha256": "ab29fcb9a3203db06e5b216574e5877f68a8c5a36fcf49521b86ced86613d5c4",
+    "line": 138,
+    "exact_unicode_source": "    await expect(page.getByText(\"Version 2 \u00b7 Current\", { exact: true })).toBeVisible();"
+  },
+  {
+    "path": "frontend/e2e/companies.spec.ts",
+    "sha256": "ab29fcb9a3203db06e5b216574e5877f68a8c5a36fcf49521b86ced86613d5c4",
+    "line": 140,
+    "exact_unicode_source": "    await page.getByText(\"Version 2 \u00b7 Current\", { exact: true }).scrollIntoViewIfNeeded();"
+  },
+  {
+    "path": "frontend/e2e/companies.spec.ts",
+    "sha256": "ab29fcb9a3203db06e5b216574e5877f68a8c5a36fcf49521b86ced86613d5c4",
+    "line": 147,
+    "exact_unicode_source": "    await expect(page.getByText(\"Version 3 \u00b7 Current\", { exact: true })).toBeVisible();"
+  },
+  {
+    "path": "frontend/e2e/returning-travellers.spec.ts",
+    "sha256": "c4206f9377ff1012a8419df53ca1aaf89d07d8e9ee1968acc34b777c971b00a6",
+    "line": 54,
+    "exact_unicode_source": "    if (path.endsWith(\"/returning/candidates\")) return json(route, { items: [{ handle: \"opaque-one\", label: \"T********\", passport_hint: \"\u2022\u202267\" }], narrowing_required: false });"
+  },
+  {
+    "path": "frontend/e2e/returning-travellers.spec.ts",
+    "sha256": "c4206f9377ff1012a8419df53ca1aaf89d07d8e9ee1968acc34b777c971b00a6",
+    "line": 159,
+    "exact_unicode_source": "  await expect(page.getByRole(\"alert\").filter({ hasText: \"couldn\u2019t verify a saved record\" })).toBeVisible();"
+  },
+  {
+    "path": "frontend/e2e/gc-app-notifications.spec.ts",
+    "sha256": "d1ef8541cdf966e6bbf1df5b4e2e60fd394508fe3c80112ba42cb213b08a9202",
+    "line": 203,
+    "exact_unicode_source": "      await expect(page.getByText(\"Page 1 \u00b7 2 records on this page\")).toBeVisible();"
+  },
+  {
+    "path": "frontend/e2e/gc-app-notifications.spec.ts",
+    "sha256": "d1ef8541cdf966e6bbf1df5b4e2e60fd394508fe3c80112ba42cb213b08a9202",
+    "line": 229,
+    "exact_unicode_source": "      await expect(page.getByText(\"Page 1 \u00b7 2 records on this page\")).toBeVisible();"
+  },
+  {
+    "path": "frontend/e2e/passport-image-editor.spec.ts",
+    "sha256": "89cfda7d1d61722937cacdfffd34897a8f79f2d939182c98734a7851111137d6",
+    "line": 94,
+    "exact_unicode_source": "    <text x=\"140\" y=\"174\" fill=\"white\" font-family=\"sans-serif\" font-size=\"46\" font-weight=\"bold\">DOCUMENT EDITOR \u00b7 SAMPLE ONLY</text>"
+  },
+  {
+    "path": "frontend/e2e/passport-image-editor.spec.ts",
+    "sha256": "89cfda7d1d61722937cacdfffd34897a8f79f2d939182c98734a7851111137d6",
+    "line": 97,
+    "exact_unicode_source": "    <g fill=\"#335867\" font-family=\"sans-serif\"><text x=\"540\" y=\"328\" font-size=\"30\">PREVIEW DOCUMENT</text><text x=\"540\" y=\"390\" font-size=\"52\" font-weight=\"bold\">Clarity in every detail.</text><text x=\"540\" y=\"495\" font-size=\"30\">Synthetic image for layout verification</text><text x=\"540\" y=\"565\" font-size=\"30\">Crop \u00b7 Straighten \u00b7 Sharpen</text></g>"
+  },
+  {
+    "path": "frontend/features/email-integrations/email-integrations.contract.test.mjs",
+    "sha256": "fb230eda9ea95191fe2978a8fb0e5b82006ca2c15f6ef0d0fb094f1303a920bd",
+    "line": 148,
+    "exact_unicode_source": "  assert.match(message, /Prepared draft \u2014 sending remains manual/);"
+  },
+  {
+    "path": "frontend/e2e/upload-link-configuration.spec.ts",
+    "sha256": "d3a310e3f4266bad75cbf59ab7a90a2b293aa75dfad769021ddf9fc0c01cb7f7",
+    "line": 165,
+    "exact_unicode_source": "    await testInfo.attach(`Import group form \u2014 ${viewport.name}`, { path: formScreenshot, contentType: \"image/png\" });"
+  },
+  {
+    "path": "frontend/e2e/upload-link-configuration.spec.ts",
+    "sha256": "d3a310e3f4266bad75cbf59ab7a90a2b293aa75dfad769021ddf9fc0c01cb7f7",
+    "line": 189,
+    "exact_unicode_source": "    await testInfo.attach(`Import group workspace \u2014 ${viewport.name}`, { path: workspaceScreenshot, contentType: \"image/png\" });"
+  },
+  {
+    "path": "frontend/e2e/upload-link-configuration.spec.ts",
+    "sha256": "d3a310e3f4266bad75cbf59ab7a90a2b293aa75dfad769021ddf9fc0c01cb7f7",
+    "line": 233,
+    "exact_unicode_source": "    await testInfo.attach(`Create upload link \u2014 ${viewport.name}`, { path: screenshotPath, contentType: \"image/png\" });"
+  },
+  {
+    "path": "frontend/e2e/upload-link-configuration.spec.ts",
+    "sha256": "d3a310e3f4266bad75cbf59ab7a90a2b293aa75dfad769021ddf9fc0c01cb7f7",
+    "line": 363,
+    "exact_unicode_source": "    await testInfo.attach(`Closed group with Open action \u2014 ${viewport.name}`, { path: closedScreenshot, contentType: \"image/png\" });"
+  },
+  {
+    "path": "frontend/e2e/upload-link-configuration.spec.ts",
+    "sha256": "d3a310e3f4266bad75cbf59ab7a90a2b293aa75dfad769021ddf9fc0c01cb7f7",
+    "line": 384,
+    "exact_unicode_source": "    await testInfo.attach(`Reopened group \u2014 ${viewport.name}`, { path: activeScreenshot, contentType: \"image/png\" });"
+  },
+  {
+    "path": "frontend/e2e/whatsapp-workspace.spec.ts",
+    "sha256": "cbe3a72143666bf30403de1a0b17b69af014f1a856a5e8a5407a273ec0f1d0c4",
+    "line": 25,
+    "exact_unicode_source": "    .getByRole(\"link\", { name: \"Open Dubai \u00b7 October delegates\" })"
+  },
+  {
+    "path": "frontend/e2e/whatsapp-workspace.spec.ts",
+    "sha256": "cbe3a72143666bf30403de1a0b17b69af014f1a856a5e8a5407a273ec0f1d0c4",
+    "line": 108,
+    "exact_unicode_source": "    .getByRole(\"link\", { name: \"Open Dubai \u00b7 October delegates\" })"
+  },
+  {
+    "path": "frontend/e2e/whatsapp-workspace.spec.ts",
+    "sha256": "cbe3a72143666bf30403de1a0b17b69af014f1a856a5e8a5407a273ec0f1d0c4",
+    "line": 314,
+    "exact_unicode_source": "  ).toHaveValue(\"Dubai \u00b7 October delegates\");"
+  },
+  {
+    "path": "frontend/e2e/whatsapp-workspace.spec.ts",
+    "sha256": "cbe3a72143666bf30403de1a0b17b69af014f1a856a5e8a5407a273ec0f1d0c4",
+    "line": 375,
+    "exact_unicode_source": "    .getByRole(\"radio\", { name: \"Only people who haven\u2019t submitted\" })"
+  }
+]

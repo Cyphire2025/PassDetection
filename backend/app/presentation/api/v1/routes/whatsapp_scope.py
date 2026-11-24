@@ -11,7 +11,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.application.security.access_level_actor import (
     actual_user_agency_id,
     actual_user_role,
-    refresh_access_level_actor,
 )
 from app.application.use_cases.whatsapp.message_templates import WhatsAppMessageType
 from app.core.config.settings import get_settings
@@ -26,6 +25,9 @@ from app.infrastructure.database.session import get_db_session
 from app.infrastructure.whatsapp.private_delivery_policy import (
     PrivateDeliveryMutationBlocked,
     prepare_private_delivery_identity_mutation,
+)
+from app.presentation.api.v1.routes.whatsapp_actor_credentials import (
+    refresh_locked_whatsapp_credentials,
 )
 from app.presentation.api.v1.routes.whatsapp_archive_policy import require_active_broadcast
 from app.presentation.api.v1.routes.whatsapp_shared import _agency_filter
@@ -63,14 +65,10 @@ async def _lock_active_whatsapp_actor(
     current_user: User,
     require_agency: bool,
 ) -> UserModel | User:
-    """Re-authorize the actor after untrusted workbook parsing.
+    """Lock current actor/agency after parsing releases the auth transaction.
 
-    Authentication and role dependencies read the user before the route starts,
-    which opens a database transaction. Workbook bytes must be read and parsed
-    only after that transaction is released. The write transaction therefore
-    re-fetches and locks the actor (and their agency when agency scope is
-    required) so deactivation, role changes, reassignment, or agency suspension
-    during parsing fail closed before any roster mutation.
+    Refresh credential/session authority before any roster mutation, while
+    retaining the original ORM/effective-role return contracts.
     """
 
     statement = _whatsapp_actor_lock_statement(current_user, require_agency=require_agency)
@@ -81,8 +79,9 @@ async def _lock_active_whatsapp_actor(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Your account is no longer authorized for WhatsApp broadcasts.",
         )
+    refreshed = await refresh_locked_whatsapp_credentials(session, current_user)
     if getattr(current_user, "actual_role", None) is not None:
-        return await refresh_access_level_actor(session, current_user)
+        return refreshed
     return actor
 
 

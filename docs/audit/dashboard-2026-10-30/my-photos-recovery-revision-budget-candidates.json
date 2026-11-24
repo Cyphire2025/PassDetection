@@ -1,0 +1,397 @@
+{
+  "candidates": [
+    {
+      "path": "app/infrastructure/my_photos/recovery_contracts.py",
+      "baseline_lines": 59,
+      "maximum_lines": 62,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/my_photos/recovery_deletion_claims.py",
+      "baseline_lines": 129,
+      "maximum_lines": 135,
+      "baseline_max_function_complexity": 12,
+      "maximum_function_complexity": 12,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/my_photos/recovery_deletion_policy.py",
+      "baseline_lines": 118,
+      "maximum_lines": 123,
+      "baseline_max_function_complexity": 6,
+      "maximum_function_complexity": 6,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/my_photos/recovery_deletion_results.py",
+      "baseline_lines": 88,
+      "maximum_lines": 92,
+      "baseline_max_function_complexity": 11,
+      "maximum_function_complexity": 11,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/my_photos/recovery_dispatch.py",
+      "baseline_lines": 154,
+      "maximum_lines": 161,
+      "baseline_max_function_complexity": 7,
+      "maximum_function_complexity": 7,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/my_photos/recovery_runtime.py",
+      "baseline_lines": 137,
+      "maximum_lines": 143,
+      "baseline_max_function_complexity": 5,
+      "maximum_function_complexity": 5,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/my_photos/revision_contracts.py",
+      "baseline_lines": 25,
+      "maximum_lines": 26,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/my_photos/revision_policy.py",
+      "baseline_lines": 62,
+      "maximum_lines": 65,
+      "baseline_max_function_complexity": 7,
+      "maximum_function_complexity": 7,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/my_photos/revision_publication.py",
+      "baseline_lines": 156,
+      "maximum_lines": 163,
+      "baseline_max_function_complexity": 12,
+      "maximum_function_complexity": 12,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/my_photos/revision_refresh.py",
+      "baseline_lines": 186,
+      "maximum_lines": 194,
+      "baseline_max_function_complexity": 18,
+      "maximum_function_complexity": 18,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/my_photos/revision_runtime.py",
+      "baseline_lines": 44,
+      "maximum_lines": 46,
+      "baseline_max_function_complexity": 1,
+      "maximum_function_complexity": 1,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/my_photos/summary_counts.py",
+      "baseline_lines": 144,
+      "maximum_lines": 150,
+      "baseline_max_function_complexity": 11,
+      "maximum_function_complexity": 11,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/my_photos/summary_projector.py",
+      "baseline_lines": 206,
+      "maximum_lines": 215,
+      "baseline_max_function_complexity": 36,
+      "maximum_function_complexity": 36,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/my_photos/summary_responses.py",
+      "baseline_lines": 118,
+      "maximum_lines": 123,
+      "baseline_max_function_complexity": 19,
+      "maximum_function_complexity": 19,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/my_photos/summary_state.py",
+      "baseline_lines": 100,
+      "maximum_lines": 104,
+      "baseline_max_function_complexity": 9,
+      "maximum_function_complexity": 9,
+      "minimum_coverage_percent": 95
+    }
+  ],
+  "critical_candidates": [
+    {
+      "path": "app/infrastructure/my_photos/recovery_dispatch.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 80
+    },
+    {
+      "path": "app/infrastructure/my_photos/recovery_deletion_policy.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    },
+    {
+      "path": "app/infrastructure/my_photos/recovery_deletion_results.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    },
+    {
+      "path": "app/infrastructure/my_photos/revision_policy.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    },
+    {
+      "path": "app/infrastructure/my_photos/revision_refresh.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 90
+    },
+    {
+      "path": "app/infrastructure/my_photos/summary_projector.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    },
+    {
+      "path": "app/infrastructure/my_photos/summary_counts.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    }
+  ],
+  "previous_budgets": {
+    "app/infrastructure/my_photos/recovery_contracts.py": null,
+    "app/infrastructure/my_photos/recovery_deletion_claims.py": null,
+    "app/infrastructure/my_photos/recovery_deletion_policy.py": null,
+    "app/infrastructure/my_photos/recovery_deletion_results.py": null,
+    "app/infrastructure/my_photos/recovery_dispatch.py": null,
+    "app/infrastructure/my_photos/recovery_runtime.py": null,
+    "app/infrastructure/my_photos/revision_contracts.py": null,
+    "app/infrastructure/my_photos/revision_policy.py": null,
+    "app/infrastructure/my_photos/revision_publication.py": null,
+    "app/infrastructure/my_photos/revision_refresh.py": null,
+    "app/infrastructure/my_photos/revision_runtime.py": null,
+    "app/infrastructure/my_photos/summary_counts.py": null,
+    "app/infrastructure/my_photos/summary_projector.py": null,
+    "app/infrastructure/my_photos/summary_responses.py": null,
+    "app/infrastructure/my_photos/summary_state.py": null
+  },
+  "measurements": [
+    {
+      "path": "app/infrastructure/my_photos/recovery_contracts.py",
+      "sha256": "d037566eef9b6b427de95afc1f1976d40d7a71216da23a77dfdde6bb0aeaf948",
+      "lines": 59,
+      "complexity": 0,
+      "most_complex_function": null,
+      "statement_percent": 100.0,
+      "branch_percent": null,
+      "statements": 40,
+      "covered_lines": 40,
+      "branches": 0,
+      "covered_branches": 0
+    },
+    {
+      "path": "app/infrastructure/my_photos/recovery_deletion_claims.py",
+      "sha256": "311a11102a96d5ecb0795c2e39e71015eb7d924555ab701d431e5ebb5d6584b6",
+      "lines": 129,
+      "complexity": 12,
+      "most_complex_function": "_claim_provider_deletions",
+      "statement_percent": 97.14285714285714,
+      "branch_percent": 83.33333333333333,
+      "statements": 35,
+      "covered_lines": 34,
+      "branches": 6,
+      "covered_branches": 5
+    },
+    {
+      "path": "app/infrastructure/my_photos/recovery_deletion_policy.py",
+      "sha256": "d86945b7fa3042e484a11fedafade9aa4345c068cc339111368879c6a6f0c510",
+      "lines": 118,
+      "complexity": 6,
+      "most_complex_function": "_reference_unchanged",
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "statements": 62,
+      "covered_lines": 62,
+      "branches": 12,
+      "covered_branches": 12
+    },
+    {
+      "path": "app/infrastructure/my_photos/recovery_deletion_results.py",
+      "sha256": "54d36f744992a3f453f0a5b30e750e4ab5ec1541dae2ab18409deb582f602ab6",
+      "lines": 88,
+      "complexity": 11,
+      "most_complex_function": "_finalize_provider_deletions",
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "statements": 35,
+      "covered_lines": 35,
+      "branches": 10,
+      "covered_branches": 10
+    },
+    {
+      "path": "app/infrastructure/my_photos/recovery_dispatch.py",
+      "sha256": "4cb0782b1a4b73bb9571224bacc500e4ae2600d635081984f9c30ed26ff6bf55",
+      "lines": 154,
+      "complexity": 7,
+      "most_complex_function": "_due_dispatches",
+      "statement_percent": 100.0,
+      "branch_percent": 81.25,
+      "statements": 52,
+      "covered_lines": 52,
+      "branches": 16,
+      "covered_branches": 13
+    },
+    {
+      "path": "app/infrastructure/my_photos/recovery_runtime.py",
+      "sha256": "f8cce11b8425da1e2477171056aaa6d36a6cd8bd46264687bfce28df3c40f039",
+      "lines": 137,
+      "complexity": 5,
+      "most_complex_function": "delete_one",
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "statements": 62,
+      "covered_lines": 62,
+      "branches": 4,
+      "covered_branches": 4
+    },
+    {
+      "path": "app/infrastructure/my_photos/revision_contracts.py",
+      "sha256": "ef11937ab13464689f76279f70ea3ae6d3eb975255ae530c05d0fb76c9cb8f5d",
+      "lines": 25,
+      "complexity": 0,
+      "most_complex_function": null,
+      "statement_percent": 100.0,
+      "branch_percent": null,
+      "statements": 14,
+      "covered_lines": 14,
+      "branches": 0,
+      "covered_branches": 0
+    },
+    {
+      "path": "app/infrastructure/my_photos/revision_policy.py",
+      "sha256": "e36496eb03da944383505621b8bf014224153da892237f81b4ece5d019b475f1",
+      "lines": 62,
+      "complexity": 7,
+      "most_complex_function": "_refresh_claim_current",
+      "statement_percent": 95.1219512195122,
+      "branch_percent": 100.0,
+      "statements": 41,
+      "covered_lines": 39,
+      "branches": 2,
+      "covered_branches": 2
+    },
+    {
+      "path": "app/infrastructure/my_photos/revision_publication.py",
+      "sha256": "4231360e46b2c036ae69723e64b00d1674faa1e4a6d8b2732783c622d0ed72fe",
+      "lines": 156,
+      "complexity": 12,
+      "most_complex_function": "publish_gallery_revision",
+      "statement_percent": 95.74468085106383,
+      "branch_percent": 83.33333333333333,
+      "statements": 47,
+      "covered_lines": 45,
+      "branches": 12,
+      "covered_branches": 10
+    },
+    {
+      "path": "app/infrastructure/my_photos/revision_refresh.py",
+      "sha256": "f11efdcc61935d884f7219e1eaa8710dcdf09650868759a298e500d82fafa42c",
+      "lines": 186,
+      "complexity": 18,
+      "most_complex_function": "execute_refresh_fanout",
+      "statement_percent": 98.61111111111111,
+      "branch_percent": 91.66666666666667,
+      "statements": 72,
+      "covered_lines": 71,
+      "branches": 24,
+      "covered_branches": 22
+    },
+    {
+      "path": "app/infrastructure/my_photos/revision_runtime.py",
+      "sha256": "152f40b2a0cb17c02a429aaa7748b2f017d55aca19536e40293724d14f02d557",
+      "lines": 44,
+      "complexity": 1,
+      "most_complex_function": "execute_refresh_fanout",
+      "statement_percent": 100.0,
+      "branch_percent": null,
+      "statements": 16,
+      "covered_lines": 16,
+      "branches": 0,
+      "covered_branches": 0
+    },
+    {
+      "path": "app/infrastructure/my_photos/summary_counts.py",
+      "sha256": "767294893570227fdfc8c69fea3ba0fde042ec6b4decd52d12631236fb40b9d4",
+      "lines": 144,
+      "complexity": 11,
+      "most_complex_function": "active_result_counts",
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "statements": 16,
+      "covered_lines": 16,
+      "branches": 2,
+      "covered_branches": 2
+    },
+    {
+      "path": "app/infrastructure/my_photos/summary_projector.py",
+      "sha256": "3af212f0e352bb194a5ebe90257fb33211d9d83fcad44282ea316715f8dcc8e1",
+      "lines": 206,
+      "complexity": 36,
+      "most_complex_function": "build",
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "statements": 49,
+      "covered_lines": 49,
+      "branches": 6,
+      "covered_branches": 6
+    },
+    {
+      "path": "app/infrastructure/my_photos/summary_responses.py",
+      "sha256": "6b0b2302b34058b9ff34b4de3a0532184c63f88179ecdfe7a47b588f8d5124fb",
+      "lines": 118,
+      "complexity": 19,
+      "most_complex_function": "gallery_response",
+      "statement_percent": 100.0,
+      "branch_percent": null,
+      "statements": 15,
+      "covered_lines": 15,
+      "branches": 0,
+      "covered_branches": 0
+    },
+    {
+      "path": "app/infrastructure/my_photos/summary_state.py",
+      "sha256": "60a25389f66e9064287b3c5ffb06c580387c106fe8a99bbf1a0555bb18a37016",
+      "lines": 100,
+      "complexity": 9,
+      "most_complex_function": "_result_state",
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "statements": 59,
+      "covered_lines": 59,
+      "branches": 24,
+      "covered_branches": 24
+    }
+  ],
+  "source_sha256": {
+    "backend/app/infrastructure/my_photos/recovery_contracts.py": "d037566eef9b6b427de95afc1f1976d40d7a71216da23a77dfdde6bb0aeaf948",
+    "backend/app/infrastructure/my_photos/recovery_deletion_claims.py": "311a11102a96d5ecb0795c2e39e71015eb7d924555ab701d431e5ebb5d6584b6",
+    "backend/app/infrastructure/my_photos/recovery_deletion_policy.py": "d86945b7fa3042e484a11fedafade9aa4345c068cc339111368879c6a6f0c510",
+    "backend/app/infrastructure/my_photos/recovery_deletion_results.py": "54d36f744992a3f453f0a5b30e750e4ab5ec1541dae2ab18409deb582f602ab6",
+    "backend/app/infrastructure/my_photos/recovery_dispatch.py": "4cb0782b1a4b73bb9571224bacc500e4ae2600d635081984f9c30ed26ff6bf55",
+    "backend/app/infrastructure/my_photos/recovery_runtime.py": "f8cce11b8425da1e2477171056aaa6d36a6cd8bd46264687bfce28df3c40f039",
+    "backend/app/infrastructure/my_photos/revision_contracts.py": "ef11937ab13464689f76279f70ea3ae6d3eb975255ae530c05d0fb76c9cb8f5d",
+    "backend/app/infrastructure/my_photos/revision_policy.py": "e36496eb03da944383505621b8bf014224153da892237f81b4ece5d019b475f1",
+    "backend/app/infrastructure/my_photos/revision_publication.py": "4231360e46b2c036ae69723e64b00d1674faa1e4a6d8b2732783c622d0ed72fe",
+    "backend/app/infrastructure/my_photos/revision_refresh.py": "f11efdcc61935d884f7219e1eaa8710dcdf09650868759a298e500d82fafa42c",
+    "backend/app/infrastructure/my_photos/revision_runtime.py": "152f40b2a0cb17c02a429aaa7748b2f017d55aca19536e40293724d14f02d557",
+    "backend/app/infrastructure/my_photos/summary_counts.py": "767294893570227fdfc8c69fea3ba0fde042ec6b4decd52d12631236fb40b9d4",
+    "backend/app/infrastructure/my_photos/summary_projector.py": "3af212f0e352bb194a5ebe90257fb33211d9d83fcad44282ea316715f8dcc8e1",
+    "backend/app/infrastructure/my_photos/summary_responses.py": "6b0b2302b34058b9ff34b4de3a0532184c63f88179ecdfe7a47b588f8d5124fb",
+    "backend/app/infrastructure/my_photos/summary_state.py": "60a25389f66e9064287b3c5ffb06c580387c106fe8a99bbf1a0555bb18a37016"
+  },
+  "coverage_evidence": "my-photos-recovery-revision-current-coverage.json",
+  "coverage_sha256": "0c62d47f4c333f516010fc4b80ccc647f774b8203e1d23e086ac17eac464869d",
+  "source_fence": "my-photos-recovery-revision-current-source-test-fence.json",
+  "basis": "80current-source cases plus15supplement cases(7replayed,8new), then38current changed-summary-policy cases afterpurging allold summary_state lines/arcs.14unchanged runtime owners retained.95line floors actual95.12\u2013100%;allold586/71/global obligations unchanged.",
+  "critical_reason": "Actual cancellation lock order, durable reference completion fences, current lease/rollback publication, private window projection and bounded passenger result queries; no declaration-only critical gates."
+}

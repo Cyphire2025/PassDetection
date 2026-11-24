@@ -1,0 +1,9 @@
+{
+  "candidates": ".tmp/legacy-active-budget-candidates.json",
+  "before_sha256": "51843268b32de19eee788fa554f6951815903e467d53c0316e6125525b3bdbdc",
+  "sha256": "bfbbd6cf9527bead17b9e6dedc8363acb23af847b5fd75cbe516089ee27c3ae6",
+  "lf_normalized_sha256": "7b62351d57c125b53d9073163138ca9979cf3a425cbc64c2f7eb1d40aff5788d",
+  "added": 0,
+  "lowered_existing": 2,
+  "existing_ceilings_preserved": true
+}

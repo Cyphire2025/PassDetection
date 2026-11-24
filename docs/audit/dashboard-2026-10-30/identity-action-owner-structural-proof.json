@@ -1,0 +1,24 @@
+{
+  "public_facade_method_signatures_unchanged": [
+    "consume_action_token",
+    "get_valid_action_token",
+    "issue_action_token"
+  ],
+  "moved_method_asts_identical_after_four_explicit_clock_rebindings": true,
+  "all_other_repository_class_members_ast_identical": true,
+  "clock_contract": "Factory resolves current facade session and global datetime on each invocation; child clock callback is evaluated inside each original timing gate, including after account waits.",
+  "sources": [
+    {
+      "path": "backend/app/infrastructure/repositories/identity_security_repository.py",
+      "before_sha256": "e8108a7cf249d825b3592c54e9392f1ddf7898dbbd87df2aca65f78393b341df",
+      "sha256": "63b40c56e1b6a09d07a4c2f655fd9ee9cb37862a3eb5c8ce8990e93eb95ec984",
+      "lines": 341
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/identity_action_token_repository.py",
+      "before_sha256": null,
+      "sha256": "803107e6757730b9bfdeafe12307566331d5da2b04e77ae08c5f8917b41cd465",
+      "lines": 195
+    }
+  ]
+}

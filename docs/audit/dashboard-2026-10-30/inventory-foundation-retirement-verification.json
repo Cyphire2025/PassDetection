@@ -1,0 +1,46 @@
+{
+  "status": "frozen; inventory tool handed back to root",
+  "files": [
+    {
+      "path": "scripts/dashboard_audit_inventory.py",
+      "sha256": "bc6eaeb0744aed2c616c8f1931457d02f8b01efbfae4b2aa75da9b2cfcfafc13"
+    },
+    {
+      "path": "backend/tests/unit/scripts/test_dashboard_audit_scope.py",
+      "sha256": "1245580b4263d41f4c4dca76296cabaf10db75635bb7a84d254f4c010396a060"
+    },
+    {
+      "path": "backend/tests/unit/scripts/test_dashboard_audit_review_resolutions.py",
+      "sha256": "516f40f6a05fc0e6f37f6618f225a819146d344ccf4dcda5a0e9a4fe796c6dd7"
+    }
+  ],
+  "manifest": "whatsapp-foundation-retirement-manifest.json",
+  "admission": "Exact manifest filename and complete five-path set only, strict version/original/archive/hash/status/byte validation, existing generic digest/physical-line/conflict/source checks retained. No blanket backend admission.",
+  "checks": [
+    {
+      "name": "New controls before fix",
+      "result": "11failed16deselected",
+      "raw": ".tmp/whatsapp-foundation/inventory-baseline.txt"
+    },
+    {
+      "name": "Scope and partial-resolution affected controls",
+      "result": "59passed",
+      "raw": ".tmp/whatsapp-foundation/inventory-affected.txt"
+    },
+    {
+      "name": "Ruff repository config",
+      "result": "pass",
+      "command": "python -m ruff check --no-fix --config backend/pyproject.toml scripts/dashboard_audit_inventory.py backend/tests/unit/scripts/test_dashboard_audit_scope.py"
+    },
+    {
+      "name": "Actual inventory refresh",
+      "result": "pass; five original hashes/line counts/backend scope/removed-in-working-tree/retired status match manifest",
+      "raw": ".tmp/whatsapp-foundation/inventory-refresh.txt"
+    }
+  ],
+  "config_note": "An initial unconfigured root Ruff invocation selected ambient stricter rules, reporting existing TRY004 ValueError contracts and a different tests import grouping. Repository-pinned backend config was then applied explicitly; no exception contracts/rules were relaxed or changed.",
+  "limits": [
+    "Synthetic isolated file/report fixtures plus actual source metadata only; no backend production runtime/provider/deployment changes.",
+    "Historical full/partial review records and independently open findings are preserved."
+  ]
+}

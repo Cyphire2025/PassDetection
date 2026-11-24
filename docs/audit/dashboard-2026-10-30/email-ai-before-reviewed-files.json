@@ -1,0 +1,20 @@
+[
+  {
+    "path": "backend/app/infrastructure/email/ai_runtime.py",
+    "sha256": "dad4b58dcef2160a7016f9688f6f484ea8315a78a325223517e471b3b92306f9",
+    "lines": 1436,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete original physical source read before email-AI transport/architecture tranche; no native app source or live provider sends."
+  },
+  {
+    "path": "backend/app/infrastructure/ai/gemini_email_analysis_service.py",
+    "sha256": "f054e97135bfef5c9439767c35a0227de1f15bdb01afbfeac7e28336cae51cae",
+    "lines": 1027,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete original physical source read before email-AI transport/architecture tranche; no native app source or live provider sends."
+  }
+]

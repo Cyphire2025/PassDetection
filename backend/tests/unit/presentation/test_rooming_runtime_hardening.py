@@ -7,6 +7,7 @@ from types import SimpleNamespace
 import pytest
 from fastapi import HTTPException
 
+from app.application.use_cases.rooming.prepare_excel import PreparedRoomingExcel
 from app.domain.entities.entities import UserRole
 from app.presentation.api.v1.routes.rooming import (
     _checkin_dashboard,
@@ -168,10 +169,13 @@ def test_first_checkin_serializes_on_stable_assignment_before_insert() -> None:
 
 
 def test_rooming_exports_are_offloaded_from_the_async_event_loop() -> None:
+    renderer = inspect.getsource(PreparedRoomingExcel.render)
+    assert "run_bounded_storage_operations" in renderer
+    assert "asyncio.to_thread(self.render_sync)" in renderer
     for export_route in (export_hotel_rooming_list, export_hotel_checkins):
         source = inspect.getsource(export_route)
         rollback = source.index("await session.rollback()")
-        generation = source.index("await asyncio.to_thread")
+        generation = source.index("await prepared.render()")
         reauthorization = source.rindex("await _require_current_allocation")
         detached_generation = source[rollback:reauthorization]
 

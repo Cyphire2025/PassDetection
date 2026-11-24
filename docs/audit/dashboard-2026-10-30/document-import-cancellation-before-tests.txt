@@ -1,0 +1,383 @@
+FFFFFFFFFF..F                                                            [100%]
+================================== FAILURES ===================================
+_ test_request_waits_for_native_import_before_closing_spools[False-preview-measure] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002B792750A50>
+endpoint = 'preview', phase = 'measure', cancel_twice = False
+
+    @pytest.mark.parametrize("endpoint,phase", [
+        ("preview", "measure"), ("preview", "collect"),
+        ("save", "measure"), ("save", "collect"), ("save", "read"),
+    ])
+    @pytest.mark.parametrize("cancel_twice", [False, True])
+    async def test_request_waits_for_native_import_before_closing_spools(
+        monkeypatch, endpoint, phase, cancel_twice,
+    ):
+        context = install_import_context(monkeypatch)
+        if phase == "measure":
+            barrier = NativeBarrier(route._passport_document_upload_sources)
+            monkeypatch.setattr(route, "_passport_document_upload_sources", barrier)
+        elif phase == "collect":
+            barrier = NativeBarrier(PassportDocumentImporter.collect)
+            monkeypatch.setattr(PassportDocumentImporter, "collect", lambda self, *a, **kw: barrier(self, *a, **kw))
+        else:
+            barrier = NativeBarrier(StagedValidatedUpload.read_content)
+            monkeypatch.setattr(StagedValidatedUpload, "read_content", lambda self: barrier(self))
+        task = asyncio.create_task(invoke(context, endpoint))
+        returned_early = await cancel_held_operation(task, barrier, twice=cancel_twice)
+        closed = [workspace._closed for workspace in context.workspaces]
+        # Always release test-owned streams, even on an intentionally failing baseline.
+        for workspace in context.workspaces:
+            workspace.close()
+>       assert not returned_early, "Request released its spools while actual native import work was held"
+E       AssertionError: Request released its spools while actual native import work was held
+E       assert not True
+
+tests\unit\presentation\test_passport_document_import_cancellation.py:44: AssertionError
+_ test_request_waits_for_native_import_before_closing_spools[False-preview-collect] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002B792783190>
+endpoint = 'preview', phase = 'collect', cancel_twice = False
+
+    @pytest.mark.parametrize("endpoint,phase", [
+        ("preview", "measure"), ("preview", "collect"),
+        ("save", "measure"), ("save", "collect"), ("save", "read"),
+    ])
+    @pytest.mark.parametrize("cancel_twice", [False, True])
+    async def test_request_waits_for_native_import_before_closing_spools(
+        monkeypatch, endpoint, phase, cancel_twice,
+    ):
+        context = install_import_context(monkeypatch)
+        if phase == "measure":
+            barrier = NativeBarrier(route._passport_document_upload_sources)
+            monkeypatch.setattr(route, "_passport_document_upload_sources", barrier)
+        elif phase == "collect":
+            barrier = NativeBarrier(PassportDocumentImporter.collect)
+            monkeypatch.setattr(PassportDocumentImporter, "collect", lambda self, *a, **kw: barrier(self, *a, **kw))
+        else:
+            barrier = NativeBarrier(StagedValidatedUpload.read_content)
+            monkeypatch.setattr(StagedValidatedUpload, "read_content", lambda self: barrier(self))
+        task = asyncio.create_task(invoke(context, endpoint))
+        returned_early = await cancel_held_operation(task, barrier, twice=cancel_twice)
+        closed = [workspace._closed for workspace in context.workspaces]
+        # Always release test-owned streams, even on an intentionally failing baseline.
+        for workspace in context.workspaces:
+            workspace.close()
+>       assert not returned_early, "Request released its spools while actual native import work was held"
+E       AssertionError: Request released its spools while actual native import work was held
+E       assert not True
+
+tests\unit\presentation\test_passport_document_import_cancellation.py:44: AssertionError
+_ test_request_waits_for_native_import_before_closing_spools[False-save-measure] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002B793B08090>
+endpoint = 'save', phase = 'measure', cancel_twice = False
+
+    @pytest.mark.parametrize("endpoint,phase", [
+        ("preview", "measure"), ("preview", "collect"),
+        ("save", "measure"), ("save", "collect"), ("save", "read"),
+    ])
+    @pytest.mark.parametrize("cancel_twice", [False, True])
+    async def test_request_waits_for_native_import_before_closing_spools(
+        monkeypatch, endpoint, phase, cancel_twice,
+    ):
+        context = install_import_context(monkeypatch)
+        if phase == "measure":
+            barrier = NativeBarrier(route._passport_document_upload_sources)
+            monkeypatch.setattr(route, "_passport_document_upload_sources", barrier)
+        elif phase == "collect":
+            barrier = NativeBarrier(PassportDocumentImporter.collect)
+            monkeypatch.setattr(PassportDocumentImporter, "collect", lambda self, *a, **kw: barrier(self, *a, **kw))
+        else:
+            barrier = NativeBarrier(StagedValidatedUpload.read_content)
+            monkeypatch.setattr(StagedValidatedUpload, "read_content", lambda self: barrier(self))
+        task = asyncio.create_task(invoke(context, endpoint))
+        returned_early = await cancel_held_operation(task, barrier, twice=cancel_twice)
+        closed = [workspace._closed for workspace in context.workspaces]
+        # Always release test-owned streams, even on an intentionally failing baseline.
+        for workspace in context.workspaces:
+            workspace.close()
+>       assert not returned_early, "Request released its spools while actual native import work was held"
+E       AssertionError: Request released its spools while actual native import work was held
+E       assert not True
+
+tests\unit\presentation\test_passport_document_import_cancellation.py:44: AssertionError
+_ test_request_waits_for_native_import_before_closing_spools[False-save-collect] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002B793B216D0>
+endpoint = 'save', phase = 'collect', cancel_twice = False
+
+    @pytest.mark.parametrize("endpoint,phase", [
+        ("preview", "measure"), ("preview", "collect"),
+        ("save", "measure"), ("save", "collect"), ("save", "read"),
+    ])
+    @pytest.mark.parametrize("cancel_twice", [False, True])
+    async def test_request_waits_for_native_import_before_closing_spools(
+        monkeypatch, endpoint, phase, cancel_twice,
+    ):
+        context = install_import_context(monkeypatch)
+        if phase == "measure":
+            barrier = NativeBarrier(route._passport_document_upload_sources)
+            monkeypatch.setattr(route, "_passport_document_upload_sources", barrier)
+        elif phase == "collect":
+            barrier = NativeBarrier(PassportDocumentImporter.collect)
+            monkeypatch.setattr(PassportDocumentImporter, "collect", lambda self, *a, **kw: barrier(self, *a, **kw))
+        else:
+            barrier = NativeBarrier(StagedValidatedUpload.read_content)
+            monkeypatch.setattr(StagedValidatedUpload, "read_content", lambda self: barrier(self))
+        task = asyncio.create_task(invoke(context, endpoint))
+        returned_early = await cancel_held_operation(task, barrier, twice=cancel_twice)
+        closed = [workspace._closed for workspace in context.workspaces]
+        # Always release test-owned streams, even on an intentionally failing baseline.
+        for workspace in context.workspaces:
+            workspace.close()
+>       assert not returned_early, "Request released its spools while actual native import work was held"
+E       AssertionError: Request released its spools while actual native import work was held
+E       assert not True
+
+tests\unit\presentation\test_passport_document_import_cancellation.py:44: AssertionError
+_ test_request_waits_for_native_import_before_closing_spools[False-save-read] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002B793B51150>
+endpoint = 'save', phase = 'read', cancel_twice = False
+
+    @pytest.mark.parametrize("endpoint,phase", [
+        ("preview", "measure"), ("preview", "collect"),
+        ("save", "measure"), ("save", "collect"), ("save", "read"),
+    ])
+    @pytest.mark.parametrize("cancel_twice", [False, True])
+    async def test_request_waits_for_native_import_before_closing_spools(
+        monkeypatch, endpoint, phase, cancel_twice,
+    ):
+        context = install_import_context(monkeypatch)
+        if phase == "measure":
+            barrier = NativeBarrier(route._passport_document_upload_sources)
+            monkeypatch.setattr(route, "_passport_document_upload_sources", barrier)
+        elif phase == "collect":
+            barrier = NativeBarrier(PassportDocumentImporter.collect)
+            monkeypatch.setattr(PassportDocumentImporter, "collect", lambda self, *a, **kw: barrier(self, *a, **kw))
+        else:
+            barrier = NativeBarrier(StagedValidatedUpload.read_content)
+            monkeypatch.setattr(StagedValidatedUpload, "read_content", lambda self: barrier(self))
+        task = asyncio.create_task(invoke(context, endpoint))
+        returned_early = await cancel_held_operation(task, barrier, twice=cancel_twice)
+        closed = [workspace._closed for workspace in context.workspaces]
+        # Always release test-owned streams, even on an intentionally failing baseline.
+        for workspace in context.workspaces:
+            workspace.close()
+>       assert not returned_early, "Request released its spools while actual native import work was held"
+E       AssertionError: Request released its spools while actual native import work was held
+E       assert not True
+
+tests\unit\presentation\test_passport_document_import_cancellation.py:44: AssertionError
+_ test_request_waits_for_native_import_before_closing_spools[True-preview-measure] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002B793B53A90>
+endpoint = 'preview', phase = 'measure', cancel_twice = True
+
+    @pytest.mark.parametrize("endpoint,phase", [
+        ("preview", "measure"), ("preview", "collect"),
+        ("save", "measure"), ("save", "collect"), ("save", "read"),
+    ])
+    @pytest.mark.parametrize("cancel_twice", [False, True])
+    async def test_request_waits_for_native_import_before_closing_spools(
+        monkeypatch, endpoint, phase, cancel_twice,
+    ):
+        context = install_import_context(monkeypatch)
+        if phase == "measure":
+            barrier = NativeBarrier(route._passport_document_upload_sources)
+            monkeypatch.setattr(route, "_passport_document_upload_sources", barrier)
+        elif phase == "collect":
+            barrier = NativeBarrier(PassportDocumentImporter.collect)
+            monkeypatch.setattr(PassportDocumentImporter, "collect", lambda self, *a, **kw: barrier(self, *a, **kw))
+        else:
+            barrier = NativeBarrier(StagedValidatedUpload.read_content)
+            monkeypatch.setattr(StagedValidatedUpload, "read_content", lambda self: barrier(self))
+        task = asyncio.create_task(invoke(context, endpoint))
+        returned_early = await cancel_held_operation(task, barrier, twice=cancel_twice)
+        closed = [workspace._closed for workspace in context.workspaces]
+        # Always release test-owned streams, even on an intentionally failing baseline.
+        for workspace in context.workspaces:
+            workspace.close()
+>       assert not returned_early, "Request released its spools while actual native import work was held"
+E       AssertionError: Request released its spools while actual native import work was held
+E       assert not True
+
+tests\unit\presentation\test_passport_document_import_cancellation.py:44: AssertionError
+_ test_request_waits_for_native_import_before_closing_spools[True-preview-collect] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002B793B518D0>
+endpoint = 'preview', phase = 'collect', cancel_twice = True
+
+    @pytest.mark.parametrize("endpoint,phase", [
+        ("preview", "measure"), ("preview", "collect"),
+        ("save", "measure"), ("save", "collect"), ("save", "read"),
+    ])
+    @pytest.mark.parametrize("cancel_twice", [False, True])
+    async def test_request_waits_for_native_import_before_closing_spools(
+        monkeypatch, endpoint, phase, cancel_twice,
+    ):
+        context = install_import_context(monkeypatch)
+        if phase == "measure":
+            barrier = NativeBarrier(route._passport_document_upload_sources)
+            monkeypatch.setattr(route, "_passport_document_upload_sources", barrier)
+        elif phase == "collect":
+            barrier = NativeBarrier(PassportDocumentImporter.collect)
+            monkeypatch.setattr(PassportDocumentImporter, "collect", lambda self, *a, **kw: barrier(self, *a, **kw))
+        else:
+            barrier = NativeBarrier(StagedValidatedUpload.read_content)
+            monkeypatch.setattr(StagedValidatedUpload, "read_content", lambda self: barrier(self))
+        task = asyncio.create_task(invoke(context, endpoint))
+        returned_early = await cancel_held_operation(task, barrier, twice=cancel_twice)
+        closed = [workspace._closed for workspace in context.workspaces]
+        # Always release test-owned streams, even on an intentionally failing baseline.
+        for workspace in context.workspaces:
+            workspace.close()
+>       assert not returned_early, "Request released its spools while actual native import work was held"
+E       AssertionError: Request released its spools while actual native import work was held
+E       assert not True
+
+tests\unit\presentation\test_passport_document_import_cancellation.py:44: AssertionError
+_ test_request_waits_for_native_import_before_closing_spools[True-save-measure] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002B793B52850>
+endpoint = 'save', phase = 'measure', cancel_twice = True
+
+    @pytest.mark.parametrize("endpoint,phase", [
+        ("preview", "measure"), ("preview", "collect"),
+        ("save", "measure"), ("save", "collect"), ("save", "read"),
+    ])
+    @pytest.mark.parametrize("cancel_twice", [False, True])
+    async def test_request_waits_for_native_import_before_closing_spools(
+        monkeypatch, endpoint, phase, cancel_twice,
+    ):
+        context = install_import_context(monkeypatch)
+        if phase == "measure":
+            barrier = NativeBarrier(route._passport_document_upload_sources)
+            monkeypatch.setattr(route, "_passport_document_upload_sources", barrier)
+        elif phase == "collect":
+            barrier = NativeBarrier(PassportDocumentImporter.collect)
+            monkeypatch.setattr(PassportDocumentImporter, "collect", lambda self, *a, **kw: barrier(self, *a, **kw))
+        else:
+            barrier = NativeBarrier(StagedValidatedUpload.read_content)
+            monkeypatch.setattr(StagedValidatedUpload, "read_content", lambda self: barrier(self))
+        task = asyncio.create_task(invoke(context, endpoint))
+        returned_early = await cancel_held_operation(task, barrier, twice=cancel_twice)
+        closed = [workspace._closed for workspace in context.workspaces]
+        # Always release test-owned streams, even on an intentionally failing baseline.
+        for workspace in context.workspaces:
+            workspace.close()
+>       assert not returned_early, "Request released its spools while actual native import work was held"
+E       AssertionError: Request released its spools while actual native import work was held
+E       assert not True
+
+tests\unit\presentation\test_passport_document_import_cancellation.py:44: AssertionError
+_ test_request_waits_for_native_import_before_closing_spools[True-save-collect] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002B793BF1710>
+endpoint = 'save', phase = 'collect', cancel_twice = True
+
+    @pytest.mark.parametrize("endpoint,phase", [
+        ("preview", "measure"), ("preview", "collect"),
+        ("save", "measure"), ("save", "collect"), ("save", "read"),
+    ])
+    @pytest.mark.parametrize("cancel_twice", [False, True])
+    async def test_request_waits_for_native_import_before_closing_spools(
+        monkeypatch, endpoint, phase, cancel_twice,
+    ):
+        context = install_import_context(monkeypatch)
+        if phase == "measure":
+            barrier = NativeBarrier(route._passport_document_upload_sources)
+            monkeypatch.setattr(route, "_passport_document_upload_sources", barrier)
+        elif phase == "collect":
+            barrier = NativeBarrier(PassportDocumentImporter.collect)
+            monkeypatch.setattr(PassportDocumentImporter, "collect", lambda self, *a, **kw: barrier(self, *a, **kw))
+        else:
+            barrier = NativeBarrier(StagedValidatedUpload.read_content)
+            monkeypatch.setattr(StagedValidatedUpload, "read_content", lambda self: barrier(self))
+        task = asyncio.create_task(invoke(context, endpoint))
+        returned_early = await cancel_held_operation(task, barrier, twice=cancel_twice)
+        closed = [workspace._closed for workspace in context.workspaces]
+        # Always release test-owned streams, even on an intentionally failing baseline.
+        for workspace in context.workspaces:
+            workspace.close()
+>       assert not returned_early, "Request released its spools while actual native import work was held"
+E       AssertionError: Request released its spools while actual native import work was held
+E       assert not True
+
+tests\unit\presentation\test_passport_document_import_cancellation.py:44: AssertionError
+_ test_request_waits_for_native_import_before_closing_spools[True-save-read] __
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002B793B44050>
+endpoint = 'save', phase = 'read', cancel_twice = True
+
+    @pytest.mark.parametrize("endpoint,phase", [
+        ("preview", "measure"), ("preview", "collect"),
+        ("save", "measure"), ("save", "collect"), ("save", "read"),
+    ])
+    @pytest.mark.parametrize("cancel_twice", [False, True])
+    async def test_request_waits_for_native_import_before_closing_spools(
+        monkeypatch, endpoint, phase, cancel_twice,
+    ):
+        context = install_import_context(monkeypatch)
+        if phase == "measure":
+            barrier = NativeBarrier(route._passport_document_upload_sources)
+            monkeypatch.setattr(route, "_passport_document_upload_sources", barrier)
+        elif phase == "collect":
+            barrier = NativeBarrier(PassportDocumentImporter.collect)
+            monkeypatch.setattr(PassportDocumentImporter, "collect", lambda self, *a, **kw: barrier(self, *a, **kw))
+        else:
+            barrier = NativeBarrier(StagedValidatedUpload.read_content)
+            monkeypatch.setattr(StagedValidatedUpload, "read_content", lambda self: barrier(self))
+        task = asyncio.create_task(invoke(context, endpoint))
+        returned_early = await cancel_held_operation(task, barrier, twice=cancel_twice)
+        closed = [workspace._closed for workspace in context.workspaces]
+        # Always release test-owned streams, even on an intentionally failing baseline.
+        for workspace in context.workspaces:
+            workspace.close()
+>       assert not returned_early, "Request released its spools while actual native import work was held"
+E       AssertionError: Request released its spools while actual native import work was held
+E       assert not True
+
+tests\unit\presentation\test_passport_document_import_cancellation.py:44: AssertionError
+____________ test_cancelled_locked_lookup_closes_staging_workspace ____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002B793BC7C10>
+
+    async def test_cancelled_locked_lookup_closes_staging_workspace(monkeypatch):
+        context = install_import_context(monkeypatch)
+        original_execute = context.session.execute
+        entered = asyncio.Event()
+    
+        async def execute(statement):
+            if original_execute.await_count:
+                entered.set()
+                await asyncio.Event().wait()
+            return await original_execute(statement)
+    
+        context.session.execute = execute
+        task = asyncio.create_task(invoke(context, "save"))
+        await asyncio.wait_for(entered.wait(), 3)
+        task.cancel()
+        outcome = await asyncio.wait_for(asyncio.gather(task, return_exceptions=True), 3)
+        closed = context.workspaces[0]._closed
+        context.workspaces[0].close()
+        assert isinstance(outcome[0], asyncio.CancelledError)
+>       assert closed, "Cancellation during the locked lookup skipped workspace.close"
+E       AssertionError: Cancellation during the locked lookup skipped workspace.close
+E       assert False
+
+tests\unit\presentation\test_passport_document_import_cancellation.py:85: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/unit/presentation/test_passport_document_import_cancellation.py::test_request_waits_for_native_import_before_closing_spools[False-preview-measure]
+FAILED tests/unit/presentation/test_passport_document_import_cancellation.py::test_request_waits_for_native_import_before_closing_spools[False-preview-collect]
+FAILED tests/unit/presentation/test_passport_document_import_cancellation.py::test_request_waits_for_native_import_before_closing_spools[False-save-measure]
+FAILED tests/unit/presentation/test_passport_document_import_cancellation.py::test_request_waits_for_native_import_before_closing_spools[False-save-collect]
+FAILED tests/unit/presentation/test_passport_document_import_cancellation.py::test_request_waits_for_native_import_before_closing_spools[False-save-read]
+FAILED tests/unit/presentation/test_passport_document_import_cancellation.py::test_request_waits_for_native_import_before_closing_spools[True-preview-measure]
+FAILED tests/unit/presentation/test_passport_document_import_cancellation.py::test_request_waits_for_native_import_before_closing_spools[True-preview-collect]
+FAILED tests/unit/presentation/test_passport_document_import_cancellation.py::test_request_waits_for_native_import_before_closing_spools[True-save-measure]
+FAILED tests/unit/presentation/test_passport_document_import_cancellation.py::test_request_waits_for_native_import_before_closing_spools[True-save-collect]
+FAILED tests/unit/presentation/test_passport_document_import_cancellation.py::test_request_waits_for_native_import_before_closing_spools[True-save-read]
+FAILED tests/unit/presentation/test_passport_document_import_cancellation.py::test_cancelled_locked_lookup_closes_staging_workspace
+11 failed, 2 passed in 0.60s

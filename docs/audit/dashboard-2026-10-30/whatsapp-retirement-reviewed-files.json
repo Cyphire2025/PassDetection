@@ -1,0 +1,250 @@
+{
+  "files": [
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-source.contract-helper.mjs",
+      "sha256": "4fb9091de46e90eb5c2e6a513f25b8a5ec431b1afd7f29fec89b744f8d67a82c",
+      "review_status": "full",
+      "notes": "Replacement/current behavior regression test reviewed and verified."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-resend.contract.test.mjs",
+      "sha256": "cd62a861b8acbd5b620f416da335840f3f6ce8d1da36a2c31f822869e3c612b9",
+      "review_status": "full",
+      "notes": "Replacement/current behavior regression test reviewed and verified."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-reminder.contract.test.mjs",
+      "sha256": "0595ffca990c0cd4df6ded87fd5d3c2342200ec4b9465db1d484c9903d0d9bfb",
+      "review_status": "full",
+      "notes": "Replacement/current behavior regression test reviewed and verified."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-recipient-roster.contract.test.mjs",
+      "sha256": "b7f76876a1a9f58b7027192d7c2d38329fb9f6152f401b2882e324de2fa848c1",
+      "review_status": "full",
+      "notes": "Replacement/current behavior regression test reviewed and verified."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-reliability.contract.test.mjs",
+      "sha256": "afb7465939ebc65196f82272efa98ecca9d49a902dfd17d85f9c07e713991b81",
+      "review_status": "full",
+      "notes": "Replacement/current behavior regression test reviewed and verified."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-workspace-boundaries.contract.test.mjs",
+      "sha256": "f2627a819cfc76e8a606ff1c59cbce64736759b1d6a004c6e0e1c09c10d41824",
+      "review_status": "full",
+      "notes": "Replacement/current behavior regression test reviewed and verified."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-activity-tracker.contract.test.mjs",
+      "sha256": "88cebcf5cc4fdc916b452aa88bc4d831e316049736fc448ceb4256c62057e3e1",
+      "review_status": "full",
+      "notes": "Replacement/current behavior regression test reviewed and verified."
+    },
+    {
+      "path": "frontend/features/dashboard/components/dashboard-ui-transformation.contract.test.mjs",
+      "sha256": "ff53530f9b07fb333a491fd37f818c39b4838c4272ba77f7f9146b899a6936b4",
+      "review_status": "full",
+      "notes": "Replacement/current behavior regression test reviewed and verified."
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/use-message-composer.test.tsx",
+      "sha256": "334e7c1b0ad554eec9caf67c94f743619cb2fad9895ff559bb5f8c4f06ad0737",
+      "review_status": "full",
+      "notes": "Replacement/current behavior regression test reviewed and verified."
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/history.api.test.ts",
+      "sha256": "e8aa920e4cae3458c66a5626c1685b8adbdd419cf23ca5208ff651d245d5006c",
+      "review_status": "full",
+      "notes": "Replacement/current behavior regression test reviewed and verified."
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/use-message-composer.ts",
+      "sha256": "38b763f4063a29b8daba066cbdbe6f2a23f4376e9c6dee507e4e5808b163e0fa",
+      "review_status": "partial",
+      "notes": "Focused live owner review for contract migration: recipient audience/send/retry/history guards, source roster mapping, preview freshness, archived/consent states, import preservation, activity registration, changed fingerprint, or strict release hashes as applicable. Does not claim exhaustive whole-file security/UI audit."
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/history.api.ts",
+      "sha256": "a8d8187da049d90c2ebb3198354ca10e92c7c6796524109caa6ffeb27b587e34",
+      "review_status": "partial",
+      "notes": "Focused live owner review for contract migration: recipient audience/send/retry/history guards, source roster mapping, preview freshness, archived/consent states, import preservation, activity registration, changed fingerprint, or strict release hashes as applicable. Does not claim exhaustive whole-file security/UI audit."
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/historical-resend-dialog.tsx",
+      "sha256": "2cbea919ebd763543e5656bf0aa17249a22eb10a430876f86f59c2ebcb0fab83",
+      "review_status": "partial",
+      "notes": "Focused live owner review for contract migration: recipient audience/send/retry/history guards, source roster mapping, preview freshness, archived/consent states, import preservation, activity registration, changed fingerprint, or strict release hashes as applicable. Does not claim exhaustive whole-file security/UI audit."
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/recipients-page.tsx",
+      "sha256": "226f03da9d522ca4b09ba87595bbe6d10907e4cdc73a20a835a461182fb588a9",
+      "review_status": "partial",
+      "notes": "Focused live owner review for contract migration: recipient audience/send/retry/history guards, source roster mapping, preview freshness, archived/consent states, import preservation, activity registration, changed fingerprint, or strict release hashes as applicable. Does not claim exhaustive whole-file security/UI audit."
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/recipient-exceptions.tsx",
+      "sha256": "64403b9167acaf386a3f95b6fe3d30e679e45de3fc046f4de674bbdc1b95c3cd",
+      "review_status": "partial",
+      "notes": "Focused live owner review for contract migration: recipient audience/send/retry/history guards, source roster mapping, preview freshness, archived/consent states, import preservation, activity registration, changed fingerprint, or strict release hashes as applicable. Does not claim exhaustive whole-file security/UI audit."
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/recipient-details-rail.tsx",
+      "sha256": "7c01eec4ab18787b242d337eddbfb13466bdb9fb2f62dab687bc0849eee52815",
+      "review_status": "partial",
+      "notes": "Focused live owner review for contract migration: recipient audience/send/retry/history guards, source roster mapping, preview freshness, archived/consent states, import preservation, activity registration, changed fingerprint, or strict release hashes as applicable. Does not claim exhaustive whole-file security/UI audit."
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/recipient-controls.tsx",
+      "sha256": "337bdaa12fb4e9ffb15db67e3bc138cd3727ad7226c83ade83327139250b41b7",
+      "review_status": "partial",
+      "notes": "Focused live owner review for contract migration: recipient audience/send/retry/history guards, source roster mapping, preview freshness, archived/consent states, import preservation, activity registration, changed fingerprint, or strict release hashes as applicable. Does not claim exhaustive whole-file security/UI audit."
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/add-recipients-dialog.tsx",
+      "sha256": "5cf48d475df079500b1985d2209e2a09b635f58bcdd19341003e8bc6fe9cc49e",
+      "review_status": "partial",
+      "notes": "Focused live owner review for contract migration: recipient audience/send/retry/history guards, source roster mapping, preview freshness, archived/consent states, import preservation, activity registration, changed fingerprint, or strict release hashes as applicable. Does not claim exhaustive whole-file security/UI audit."
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/send-message-page.tsx",
+      "sha256": "88c506b3d8e26c9fa6d26e4fc3a58f79646b913279980e755faf7f94ff5950d4",
+      "review_status": "partial",
+      "notes": "Focused live owner review for contract migration: recipient audience/send/retry/history guards, source roster mapping, preview freshness, archived/consent states, import preservation, activity registration, changed fingerprint, or strict release hashes as applicable. Does not claim exhaustive whole-file security/UI audit."
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/composer.api.ts",
+      "sha256": "684316a467cf3b67a09399adaba34ad662fc14d8050042ed42bda10641b39404",
+      "review_status": "partial",
+      "notes": "Focused live owner review for contract migration: recipient audience/send/retry/history guards, source roster mapping, preview freshness, archived/consent states, import preservation, activity registration, changed fingerprint, or strict release hashes as applicable. Does not claim exhaustive whole-file security/UI audit."
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/message-composer.tsx",
+      "sha256": "f49b27f1081b429ce4f9a15708dca41db00de2dd080a035186b7127a10307acb",
+      "review_status": "partial",
+      "notes": "Focused live owner review for contract migration: recipient audience/send/retry/history guards, source roster mapping, preview freshness, archived/consent states, import preservation, activity registration, changed fingerprint, or strict release hashes as applicable. Does not claim exhaustive whole-file security/UI audit."
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/message-composer-audience.tsx",
+      "sha256": "d8a5c4dd6c8d756803ff87f98328efa780e70e4df0d20e7b7bef1c27f52b9c2c",
+      "review_status": "partial",
+      "notes": "Focused live owner review for contract migration: recipient audience/send/retry/history guards, source roster mapping, preview freshness, archived/consent states, import preservation, activity registration, changed fingerprint, or strict release hashes as applicable. Does not claim exhaustive whole-file security/UI audit."
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/broadcast-workspace-shell.tsx",
+      "sha256": "86fb71cccfaddd7843b031223c114f3a9e6bb3b43e13224e4fd4d63fc67ae1db",
+      "review_status": "partial",
+      "notes": "Focused live owner review for contract migration: recipient audience/send/retry/history guards, source roster mapping, preview freshness, archived/consent states, import preservation, activity registration, changed fingerprint, or strict release hashes as applicable. Does not claim exhaustive whole-file security/UI audit."
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/broadcast-index.tsx",
+      "sha256": "1b651be727b23f631c447a31ec6ab899cc5ce2a85a70422c2737e40ec2ccd4fa",
+      "review_status": "partial",
+      "notes": "Focused live owner review for contract migration: recipient audience/send/retry/history guards, source roster mapping, preview freshness, archived/consent states, import preservation, activity registration, changed fingerprint, or strict release hashes as applicable. Does not claim exhaustive whole-file security/UI audit."
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/document-composer.tsx",
+      "sha256": "7c2d191cfb3319f97787c624b95696c57669468aac5b2185e5bbbc285ea14292",
+      "review_status": "partial",
+      "notes": "Focused live owner review for contract migration: recipient audience/send/retry/history guards, source roster mapping, preview freshness, archived/consent states, import preservation, activity registration, changed fingerprint, or strict release hashes as applicable. Does not claim exhaustive whole-file security/UI audit."
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/update-message-composer.tsx",
+      "sha256": "68506bb8e252b7a9b44dc52884d4e4b1f5d2963400fc40f6831542c75fedca9a",
+      "review_status": "partial",
+      "notes": "Focused live owner review for contract migration: recipient audience/send/retry/history guards, source roster mapping, preview freshness, archived/consent states, import preservation, activity registration, changed fingerprint, or strict release hashes as applicable. Does not claim exhaustive whole-file security/UI audit."
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/message-delivery-report.tsx",
+      "sha256": "1add2d17f71c6c778170b4de1d01b05ad10dfcb4aacbe79ac9d809afb74a85e5",
+      "review_status": "partial",
+      "notes": "Focused live owner review for contract migration: recipient audience/send/retry/history guards, source roster mapping, preview freshness, archived/consent states, import preservation, activity registration, changed fingerprint, or strict release hashes as applicable. Does not claim exhaustive whole-file security/UI audit."
+    },
+    {
+      "path": "frontend/features/documents/hooks/use-document-workspace-delivery.ts",
+      "sha256": "b359ae1b6663ab579f2b02b937d6cdf719e8b5dbfb342c3cfe0c3dcabde29690",
+      "review_status": "partial",
+      "notes": "Focused live owner review for contract migration: recipient audience/send/retry/history guards, source roster mapping, preview freshness, archived/consent states, import preservation, activity registration, changed fingerprint, or strict release hashes as applicable. Does not claim exhaustive whole-file security/UI audit."
+    },
+    {
+      "path": "frontend/features/documents/components/document-workspace-header.tsx",
+      "sha256": "ad5b072326ef27abf10cef103caeb925f9d959e23cab8728e885a4ba157b5686",
+      "review_status": "partial",
+      "notes": "Focused live owner review for contract migration: recipient audience/send/retry/history guards, source roster mapping, preview freshness, archived/consent states, import preservation, activity registration, changed fingerprint, or strict release hashes as applicable. Does not claim exhaustive whole-file security/UI audit."
+    },
+    {
+      "path": "frontend/features/whatsapp/utils/recipient-delivery.ts",
+      "sha256": "0fbe7d5cf1e846de4d802098596bb884107b36b8a54eb13acfee6ccd97079568",
+      "review_status": "partial",
+      "notes": "Focused live owner review for contract migration: recipient audience/send/retry/history guards, source roster mapping, preview freshness, archived/consent states, import preservation, activity registration, changed fingerprint, or strict release hashes as applicable. Does not claim exhaustive whole-file security/UI audit."
+    },
+    {
+      "path": "frontend/features/whatsapp/utils/normal-send-storage.ts",
+      "sha256": "288a223b74f4ae45242c7eabb534eeae2c241f2b04d8a3d6ad6067d46176dbee",
+      "review_status": "partial",
+      "notes": "Focused live owner review for contract migration: recipient audience/send/retry/history guards, source roster mapping, preview freshness, archived/consent states, import preservation, activity registration, changed fingerprint, or strict release hashes as applicable. Does not claim exhaustive whole-file security/UI audit."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-activity-tracker.tsx",
+      "sha256": "719008f383e3d6d57ef4bcf923d992c3fb42e500195c52f00cdd74f6c48bf6cb",
+      "review_status": "partial",
+      "notes": "Focused live owner review for contract migration: recipient audience/send/retry/history guards, source roster mapping, preview freshness, archived/consent states, import preservation, activity registration, changed fingerprint, or strict release hashes as applicable. Does not claim exhaustive whole-file security/UI audit."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-recipient-import.tsx",
+      "sha256": "4017b7eab734611a1477b24d65a4100a75fc2737fdd695d736d98cba7ba2a587",
+      "review_status": "partial",
+      "notes": "Focused live owner review for contract migration: recipient audience/send/retry/history guards, source roster mapping, preview freshness, archived/consent states, import preservation, activity registration, changed fingerprint, or strict release hashes as applicable. Does not claim exhaustive whole-file security/UI audit."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-create-broadcast-dialog.tsx",
+      "sha256": "7712acb407674c58529a87884ae5c7814818c7f8f40b0c74fad701a7201fe9af",
+      "review_status": "partial",
+      "notes": "Focused live owner review for contract migration: recipient audience/send/retry/history guards, source roster mapping, preview freshness, archived/consent states, import preservation, activity registration, changed fingerprint, or strict release hashes as applicable. Does not claim exhaustive whole-file security/UI audit."
+    },
+    {
+      "path": "frontend/features/whatsapp/hooks/use-whatsapp.ts",
+      "sha256": "5ae330d0d4ac44b1a678e65e4bfc91e56f89a7c388ceb4fa6f0fc7f600c2a87c",
+      "review_status": "partial",
+      "notes": "Focused live owner review for contract migration: recipient audience/send/retry/history guards, source roster mapping, preview freshness, archived/consent states, import preservation, activity registration, changed fingerprint, or strict release hashes as applicable. Does not claim exhaustive whole-file security/UI audit."
+    },
+    {
+      "path": "frontend/features/whatsapp/api/whatsapp.api.ts",
+      "sha256": "74accaedfda1fc3f7cf510315ae8e5fa710adf578d4fe27f34282055c90b7bbd",
+      "review_status": "partial",
+      "notes": "Focused live owner review for contract migration: recipient audience/send/retry/history guards, source roster mapping, preview freshness, archived/consent states, import preservation, activity registration, changed fingerprint, or strict release hashes as applicable. Does not claim exhaustive whole-file security/UI audit."
+    },
+    {
+      "path": "frontend/lib/api/streamed-download.ts",
+      "sha256": "93842b4ed30b0d86d01cee2ee1cfa34399cd338406956277caa5ce28d94b0a51",
+      "review_status": "partial",
+      "notes": "Focused live owner review for contract migration: recipient audience/send/retry/history guards, source roster mapping, preview freshness, archived/consent states, import preservation, activity registration, changed fingerprint, or strict release hashes as applicable. Does not claim exhaustive whole-file security/UI audit."
+    },
+    {
+      "path": "nginx/conf.d/default.conf",
+      "sha256": "fbdfc76a569b0484464b9f4a7fd6d7e80aa40911418ca96aee5a6ba99dac3963",
+      "review_status": "partial",
+      "notes": "Focused live owner review for contract migration: recipient audience/send/retry/history guards, source roster mapping, preview freshness, archived/consent states, import preservation, activity registration, changed fingerprint, or strict release hashes as applicable. Does not claim exhaustive whole-file security/UI audit."
+    },
+    {
+      "path": "frontend/scripts/verify-frontend-module-budgets.mjs",
+      "sha256": "1aa30620fada5d81f74a379062f09f7a837490376eee7f4c198f763e7af3926c",
+      "review_status": "partial",
+      "notes": "Focused live owner review for contract migration: recipient audience/send/retry/history guards, source roster mapping, preview freshness, archived/consent states, import preservation, activity registration, changed fingerprint, or strict release hashes as applicable. Does not claim exhaustive whole-file security/UI audit."
+    },
+    {
+      "path": "docs/implementation/mcp-workflow-coverage.json",
+      "sha256": "0ff9cd916cd53523823bfa4370eef63ece7a667640da66d99f8c6c5cb3f4b8ef",
+      "review_status": "partial",
+      "notes": "Focused live owner review for contract migration: recipient audience/send/retry/history guards, source roster mapping, preview freshness, archived/consent states, import preservation, activity registration, changed fingerprint, or strict release hashes as applicable. Does not claim exhaustive whole-file security/UI audit."
+    },
+    {
+      "path": "scripts/release_workspace_branding_policy.py",
+      "sha256": "73bce28c53a33f6df55d73557128350a3724e287aa93fc38a166f3a502943d0f",
+      "review_status": "partial",
+      "notes": "Focused live owner review for contract migration: recipient audience/send/retry/history guards, source roster mapping, preview freshness, archived/consent states, import preservation, activity registration, changed fingerprint, or strict release hashes as applicable. Does not claim exhaustive whole-file security/UI audit."
+    }
+  ]
+}

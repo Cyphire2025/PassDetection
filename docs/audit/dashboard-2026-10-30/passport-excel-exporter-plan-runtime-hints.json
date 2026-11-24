@@ -1,0 +1,45 @@
+{
+  "evaluated": {
+    "PassportColumnPlan": {
+      "signature": "(columns: 'list[_ExportColumn]', dynamic_fields: 'list[dict[str, str]]', headers: 'list[str]', group_by_header: 'str | None') -> None",
+      "evaluated_hints": {
+        "columns": "list[app.infrastructure.export.passport_excel_exporter._ExportColumn]",
+        "dynamic_fields": "list[dict[str, str]]",
+        "headers": "list[str]",
+        "group_by_header": "str | None"
+      }
+    },
+    "build_passport_column_plan": {
+      "signature": "(policy: 'PassportColumnPolicy', submissions: 'list[PassportSubmission]', *, group_details: 'dict[uuid.UUID, dict[str, Any]] | None', additional_fields: 'list[dict[str, str]] | None', previous_names: 'dict[uuid.UUID, dict[str, str | None]] | None', group_by_field: 'str | None') -> 'PassportColumnPlan'",
+      "evaluated_hints": {
+        "policy": "<class 'app.infrastructure.export.passport_excel_plan.PassportColumnPolicy'>",
+        "submissions": "list[app.domain.entities.passport_submission.PassportSubmission]",
+        "group_details": "dict[uuid.UUID, dict[str, typing.Any]] | None",
+        "additional_fields": "list[dict[str, str]] | None",
+        "previous_names": "dict[uuid.UUID, dict[str, str | None]] | None",
+        "group_by_field": "str | None",
+        "return": "<class 'app.infrastructure.export.passport_excel_plan.PassportColumnPlan'>"
+      }
+    },
+    "policy_columns": {
+      "signature": "(self, group_details: 'dict[uuid.UUID, dict[str, Any]] | None', *, include_name_history: 'bool' = False) -> 'list[_ExportColumn]'",
+      "evaluated_hints": {
+        "group_details": "dict[uuid.UUID, dict[str, typing.Any]] | None",
+        "include_name_history": "<class 'bool'>",
+        "return": "list[app.infrastructure.export.passport_excel_exporter._ExportColumn]"
+      }
+    },
+    "policy_custom_fields": {
+      "signature": "(self, submissions: 'list[PassportSubmission]', group_details: 'dict[uuid.UUID, dict[str, Any]] | None', *, reserved_labels: 'set[str]') -> 'list[dict[str, str]]'",
+      "evaluated_hints": {
+        "submissions": "list[app.domain.entities.passport_submission.PassportSubmission]",
+        "group_details": "dict[uuid.UUID, dict[str, typing.Any]] | None",
+        "reserved_labels": "set[str]",
+        "return": "list[dict[str, str]]"
+      }
+    }
+  },
+  "actual_public_exporter_accepted": true,
+  "frozen_data_holder_preserves_original_list_objects": true,
+  "deep_collection_immutability_not_claimed": true
+}

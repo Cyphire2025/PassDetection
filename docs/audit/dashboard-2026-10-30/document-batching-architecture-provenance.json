@@ -1,0 +1,203 @@
+{
+  "originalPath": ".tmp/document-batching/document-upload-batching.original.ts",
+  "originalSha256": "9c31e0dd473a89f3e70555dfb7d0ba8f3b7b6bb4826d320c8eba82609f12ff3c",
+  "originalDeclarations": 31,
+  "moved": [
+    {
+      "declaration": "MAX_DOCUMENT_SELECTION_FILES",
+      "owner": "frontend/features/documents/services/document-upload-model.ts",
+      "declaration_text_equal_except_export_modifier": true
+    },
+    {
+      "declaration": "MAX_DOCUMENT_SELECTION_BYTES",
+      "owner": "frontend/features/documents/services/document-upload-model.ts",
+      "declaration_text_equal_except_export_modifier": true
+    },
+    {
+      "declaration": "MAX_DOCUMENT_CHUNK_FILES",
+      "owner": "frontend/features/documents/services/document-upload-model.ts",
+      "declaration_text_equal_except_export_modifier": true
+    },
+    {
+      "declaration": "TARGET_DOCUMENT_CHUNK_BYTES",
+      "owner": "frontend/features/documents/services/document-upload-model.ts",
+      "declaration_text_equal_except_export_modifier": true
+    },
+    {
+      "declaration": "MAX_DOCUMENT_RECEIPT_CHUNK_BYTES",
+      "owner": "frontend/features/documents/services/document-upload-model.ts",
+      "declaration_text_equal_except_export_modifier": true
+    },
+    {
+      "declaration": "MAX_DOCUMENT_VERIFICATION_CHUNK_FILES",
+      "owner": "frontend/features/documents/services/document-upload-model.ts",
+      "declaration_text_equal_except_export_modifier": true
+    },
+    {
+      "declaration": "TARGET_DOCUMENT_VERIFICATION_CHUNK_BYTES",
+      "owner": "frontend/features/documents/services/document-upload-model.ts",
+      "declaration_text_equal_except_export_modifier": true
+    },
+    {
+      "declaration": "MAX_DOCUMENT_VERIFICATION_CONCURRENCY",
+      "owner": "frontend/features/documents/services/document-upload-model.ts",
+      "declaration_text_equal_except_export_modifier": true
+    },
+    {
+      "declaration": "DocumentUploadSession",
+      "owner": "frontend/features/documents/services/document-upload-model.ts",
+      "declaration_text_equal_except_export_modifier": true
+    },
+    {
+      "declaration": "DocumentStagingChunk",
+      "owner": "frontend/features/documents/services/document-upload-model.ts",
+      "declaration_text_equal_except_export_modifier": true
+    },
+    {
+      "declaration": "DocumentFilenameReplacement",
+      "owner": "frontend/features/documents/services/document-upload-model.ts",
+      "declaration_text_equal_except_export_modifier": true
+    },
+    {
+      "declaration": "DocumentStagingManifest",
+      "owner": "frontend/features/documents/services/document-upload-model.ts",
+      "declaration_text_equal_except_export_modifier": true
+    },
+    {
+      "declaration": "DocumentUploadProgress",
+      "owner": "frontend/features/documents/services/document-upload-model.ts",
+      "declaration_text_equal_except_export_modifier": true
+    },
+    {
+      "declaration": "PassengerMatchedVerificationCandidate",
+      "owner": "frontend/features/documents/services/document-upload-model.ts",
+      "declaration_text_equal_except_export_modifier": true
+    },
+    {
+      "declaration": "isPassengerMatchedVerificationFile",
+      "owner": "frontend/features/documents/services/document-upload-model.ts",
+      "declaration_text_equal_except_export_modifier": true
+    },
+    {
+      "declaration": "RunChunkedUploadOptions",
+      "owner": "frontend/features/documents/services/document-upload-model.ts",
+      "declaration_text_equal_except_export_modifier": true
+    },
+    {
+      "declaration": "RunConcurrentUploadOptions",
+      "owner": "frontend/features/documents/services/document-upload-model.ts",
+      "declaration_text_equal_except_export_modifier": true
+    },
+    {
+      "declaration": "RunStagedUploadOptions",
+      "owner": "frontend/features/documents/services/document-upload-model.ts",
+      "declaration_text_equal_except_export_modifier": true
+    },
+    {
+      "declaration": "createDocumentUploadSession",
+      "owner": "frontend/features/documents/services/document-upload-sessions.ts",
+      "declaration_text_equal_except_export_modifier": true
+    },
+    {
+      "declaration": "createDocumentVerificationSession",
+      "owner": "frontend/features/documents/services/document-upload-sessions.ts",
+      "declaration_text_equal_except_export_modifier": true
+    },
+    {
+      "declaration": "createDocumentUploadSessionWithLimits",
+      "owner": "frontend/features/documents/services/document-upload-sessions.ts",
+      "declaration_text_equal_except_export_modifier": true
+    },
+    {
+      "declaration": "runConcurrentDocumentVerification",
+      "owner": "frontend/features/documents/services/document-verification-batches.ts",
+      "declaration_text_equal_except_export_modifier": true
+    },
+    {
+      "declaration": "createDocumentStagingManifest",
+      "owner": "frontend/features/documents/services/document-staging-manifest.ts",
+      "declaration_text_equal_except_export_modifier": true
+    },
+    {
+      "declaration": "canFinalizeDocumentReceiptChunk",
+      "owner": "frontend/features/documents/services/document-staging-manifest.ts",
+      "declaration_text_equal_except_export_modifier": true
+    },
+    {
+      "declaration": "cloneDocumentStagingManifest",
+      "owner": "frontend/features/documents/services/document-staging-manifest.ts",
+      "declaration_text_equal_except_export_modifier": true
+    },
+    {
+      "declaration": "runChunkedDocumentUpload",
+      "owner": "frontend/features/documents/services/document-upload-finalization.ts",
+      "declaration_text_equal_except_export_modifier": true
+    },
+    {
+      "declaration": "runStagedDocumentUpload",
+      "owner": "frontend/features/documents/services/document-upload-finalization.ts",
+      "declaration_text_equal_except_export_modifier": true
+    },
+    {
+      "declaration": "retryTransientDocumentChunk",
+      "owner": "frontend/features/documents/services/document-upload-retry.ts",
+      "declaration_text_equal_except_export_modifier": true
+    },
+    {
+      "declaration": "abortableDocumentRetryDelay",
+      "owner": "frontend/features/documents/services/document-upload-retry.ts",
+      "declaration_text_equal_except_export_modifier": true
+    },
+    {
+      "declaration": "documentUploadAbortError",
+      "owner": "frontend/features/documents/services/document-upload-retry.ts",
+      "declaration_text_equal_except_export_modifier": true
+    },
+    {
+      "declaration": "isTransientDocumentUploadError",
+      "owner": "frontend/features/documents/services/document-upload-retry.ts",
+      "declaration_text_equal_except_export_modifier": true
+    }
+  ],
+  "publicNamedExports": [
+    "DocumentFilenameReplacement",
+    "DocumentStagingChunk",
+    "DocumentStagingManifest",
+    "DocumentUploadProgress",
+    "DocumentUploadSession",
+    "MAX_DOCUMENT_CHUNK_FILES",
+    "MAX_DOCUMENT_RECEIPT_CHUNK_BYTES",
+    "MAX_DOCUMENT_SELECTION_BYTES",
+    "MAX_DOCUMENT_SELECTION_FILES",
+    "MAX_DOCUMENT_VERIFICATION_CHUNK_FILES",
+    "MAX_DOCUMENT_VERIFICATION_CONCURRENCY",
+    "PassengerMatchedVerificationCandidate",
+    "TARGET_DOCUMENT_CHUNK_BYTES",
+    "TARGET_DOCUMENT_VERIFICATION_CHUNK_BYTES",
+    "canFinalizeDocumentReceiptChunk",
+    "cloneDocumentStagingManifest",
+    "createDocumentStagingManifest",
+    "createDocumentUploadSession",
+    "createDocumentVerificationSession",
+    "isPassengerMatchedVerificationFile",
+    "runChunkedDocumentUpload",
+    "runConcurrentDocumentVerification",
+    "runStagedDocumentUpload"
+  ],
+  "publicFacadeExact": true,
+  "allOriginalTestBodiesIdentical": true,
+  "originalContractSha256": "d8752f767c96554baf09e06b9f62ed351c4a59f7c7bb8bf4c4d48dea2e7e677d",
+  "coverageObligations": {
+    "config": "frontend/vitest.config.mts",
+    "sha256": "43f8ef71f59df34257e296abc4e2d6181105066af32a39c66bf2dcca6268d37d",
+    "originalBatchingIncluded": false,
+    "originalFloorsPreserved": {
+      "statements": 74,
+      "branches": 50,
+      "functions": 75,
+      "lines": 75
+    },
+    "configUnmodified": true,
+    "note": "No original critical V8 include matched this module; original Node algorithm safety obligations now execute actual facade and relocated implementation graph, all unchanged23 cases plus4 negative/control algorithm cases."
+  }
+}

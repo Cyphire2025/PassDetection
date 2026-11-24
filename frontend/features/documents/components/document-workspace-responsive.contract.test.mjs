@@ -1,9 +1,10 @@
+import { readDocumentWorkspaceSource } from "./document-workspace-source.contract-helper.mjs";
+import { readDocumentReviewSource } from "./document-review-source.contract-helper.mjs";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import test from "node:test";
 
-const workspace = readFileSync(new URL("./document-workspace.tsx", import.meta.url), "utf8");
-const review = readFileSync(new URL("./document-workspace-review.tsx", import.meta.url), "utf8");
+const workspace = readDocumentWorkspaceSource();
+const review = readDocumentReviewSource();
 
 test("the review table preserves readable columns inside a keyboard-accessible horizontal scroller", () => {
   const tableMinimum = workspace.match(/<table\s+className="[^"]*min-w-\[(\d+)px\]/);

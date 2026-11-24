@@ -7,6 +7,8 @@ vi.mock("./client", () => ({
 }));
 
 import apiClient from "./client";
+import { useAuthStore } from "@/stores/auth.store";
+import type { User } from "@/types";
 import { dispatchSensitiveStateReset } from "@/features/auth/services/session-state";
 import {
   attachmentFilename,
@@ -38,6 +40,93 @@ describe("downloadStreamedResponse", () => {
     });
     vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => undefined);
     vi.spyOn(window, "prompt").mockReset().mockImplementation((_message, suggestedName) => suggestedName ?? "download.xlsx");
+  });
+
+  it("retains an explicit initiating actor across the native Save As dialog", async () => {
+    const previousUser = useAuthStore.getState().user;
+    let finishPicker!: (handle: unknown) => void;
+    useAuthStore.setState({ user: { id: "initial-actor" } as User });
+    Object.defineProperty(window, "showSaveFilePicker", {
+      configurable: true,
+      value: vi.fn(() => new Promise((resolve) => { finishPicker = resolve; })),
+    });
+    try {
+      const download = downloadStreamedResponse({
+        url: "/api/export", suggestedFilename: "export.xlsx", expectedOwnerUserId: "initial-actor",
+      });
+      const rejected = expect(download).rejects.toMatchObject({ code: "AUTH_REQUEST_OWNER_CHANGED" });
+      await Promise.resolve();
+      useAuthStore.setState({ user: { id: "replacement-actor" } as User });
+      finishPicker({ createWritable: vi.fn() });
+      await rejected;
+      expect(requestMock).not.toHaveBeenCalled();
+    } finally { useAuthStore.setState({ user: previousUser }); }
+  });
+
+  it.each([undefined, "initial-actor"])("discards private body delivery for owner %s when storage-denied replacement resets the session", async (expectedOwnerUserId) => {
+    const previousUser = useAuthStore.getState().user;
+    useAuthStore.setState({ user: { id: "initial-actor" } as User });
+    const readStorage = vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => { throw new DOMException("Storage denied", "SecurityError"); });
+    const abort = vi.fn(async () => undefined), close = vi.fn(async () => undefined);
+    const write = vi.fn(async () => { useAuthStore.getState().setSession({ id: "replacement-actor" } as User); });
+    Object.defineProperty(window, "showSaveFilePicker", { configurable: true, value: async () => ({ createWritable: async () => ({ write, abort, close }) }) });
+    requestMock.mockResolvedValue({ data: byteStream([1], [2]), headers: {} } as never);
+    try {
+      await expect(downloadStreamedResponse({ url: "/private-export", suggestedFilename: "Trip.xlsx", expectedOwnerUserId }))
+        .rejects.toBe("session-reset");
+      expect(write).toHaveBeenCalledOnce();
+      expect(close).not.toHaveBeenCalled();
+      expect(abort).toHaveBeenCalledOnce();
+    } finally { readStorage.mockRestore(); useAuthStore.setState({ user: previousUser }); }
+  });
+
+  it("releases its actor subscription after a completed download", async () => {
+    const previousUser = useAuthStore.getState().user;
+    useAuthStore.setState({ user: { id: "initial-actor" } as User });
+    requestMock.mockResolvedValue({ data: byteStream([1]), headers: {} } as never);
+    try {
+      await downloadStreamedResponse({ url: "/private-export", suggestedFilename: "Trip.xlsx" });
+      const signal = requestMock.mock.calls[0]![0]!.signal!;
+      useAuthStore.setState({ user: { id: "replacement-actor" } as User });
+      expect(signal.aborted).toBe(false);
+    } finally { useAuthStore.setState({ user: previousUser }); }
+  });
+
+  it.each([
+    { role: "agency_manager" as const },
+    { agency_id: "replacement-agency" },
+  ])("discards the private body when the same user's authority changes: %j", async (change) => {
+    const previousUser = useAuthStore.getState().user;
+    const initialUser = { id: "initial-actor", role: "agency_admin", agency_id: "initial-agency" } as User;
+    useAuthStore.setState({ user: initialUser });
+    const abort = vi.fn(async () => undefined), close = vi.fn(async () => undefined);
+    const write = vi.fn(async () => { useAuthStore.setState({ user: { ...initialUser, ...change } }); });
+    Object.defineProperty(window, "showSaveFilePicker", { configurable: true, value: async () => ({ createWritable: async () => ({ write, abort, close }) }) });
+    requestMock.mockResolvedValue({ data: byteStream([1], [2]), headers: {} } as never);
+    try {
+      await expect(downloadStreamedResponse({ url: "/private-export", suggestedFilename: "Trip.xlsx" }))
+        .rejects.toMatchObject({ code: "AUTH_REQUEST_OWNER_CHANGED" });
+      expect(write).toHaveBeenCalledOnce();
+      expect(close).not.toHaveBeenCalled();
+      expect(abort).toHaveBeenCalledOnce();
+    } finally { useAuthStore.setState({ user: previousUser }); }
+  });
+
+  it("keeps delivering when session renewal preserves the user's authority", async () => {
+    const previousState = useAuthStore.getState();
+    const initialUser = { id: "initial-actor", role: "agency_admin", agency_id: "initial-agency" } as User;
+    useAuthStore.setState({ user: initialUser });
+    const abort = vi.fn(async () => undefined), close = vi.fn(async () => undefined);
+    const write = vi.fn(async () => { useAuthStore.setState({ user: { ...initialUser, full_name: "Updated profile" }, sessionVersion: useAuthStore.getState().sessionVersion + 1 }); });
+    Object.defineProperty(window, "showSaveFilePicker", { configurable: true, value: async () => ({ createWritable: async () => ({ write, abort, close }) }) });
+    requestMock.mockResolvedValue({ data: byteStream([1], [2]), headers: {} } as never);
+    try {
+      await expect(downloadStreamedResponse({ url: "/private-export", suggestedFilename: "Trip.xlsx" }))
+        .resolves.toMatchObject({ bytesWritten: 2, delivery: "file-system" });
+      expect(write).toHaveBeenCalledTimes(2);
+      expect(close).toHaveBeenCalledOnce();
+      expect(abort).not.toHaveBeenCalled();
+    } finally { useAuthStore.setState({ user: previousState.user, sessionVersion: previousState.sessionVersion }); }
   });
 
   it("writes one response chunk at a time to a browser file sink", async () => {
@@ -255,5 +344,20 @@ describe("attachmentFilename", () => {
       "attachment; filename*=UTF-8''Trip%20A%2FPassports.zip",
       "fallback.zip",
     )).toBe("Trip A_Passports.zip");
+  });
+
+  it.each(["Report%20Final.xlsx", "100%.xlsx", "literal%2Fname.pdf"])(
+    "preserves literal percent characters in ordinary filename %s",
+    (filename) => {
+      expect(attachmentFilename(`attachment; filename="${filename}"`, "fallback.xlsx"))
+        .toBe(filename);
+      expect(attachmentFilename(`attachment; filename=${filename}`, "fallback.xlsx"))
+        .toBe(filename);
+    },
+  );
+
+  it("uses the safe fallback for malformed extended encoding", () => {
+    expect(attachmentFilename("attachment; filename*=UTF-8''invalid%ZZ.xlsx", "fallback.xlsx"))
+      .toBe("fallback.xlsx");
   });
 });

@@ -1,0 +1,58 @@
+[
+  {
+    "path": "features/passports/utils/passport-group-navigation.ts",
+    "baselineLines": 24,
+    "maximumLines": 30,
+    "baselineMaxFunctionComplexity": 6,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/passports/utils/passport-navigation-routes.ts",
+    "baselineLines": 176,
+    "maximumLines": 190,
+    "baselineMaxFunctionComplexity": 10,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/passports/utils/passport-navigation-storage.ts",
+    "baselineLines": 125,
+    "maximumLines": 130,
+    "baselineMaxFunctionComplexity": 22,
+    "maximumFunctionComplexity": 23
+  },
+  {
+    "path": "features/passports/utils/passport-review.ts",
+    "baselineLines": 18,
+    "maximumLines": 30,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/passports/utils/passport-review-fields.ts",
+    "baselineLines": 20,
+    "maximumLines": 30,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/passports/utils/passport-staff-approval.ts",
+    "baselineLines": 105,
+    "maximumLines": 110,
+    "baselineMaxFunctionComplexity": 13,
+    "maximumFunctionComplexity": 14
+  },
+  {
+    "path": "features/passports/utils/passport-verification-review.ts",
+    "baselineLines": 138,
+    "maximumLines": 150,
+    "baselineMaxFunctionComplexity": 27,
+    "maximumFunctionComplexity": 28
+  },
+  {
+    "path": "features/passports/utils/passport-review-presentation.ts",
+    "baselineLines": 124,
+    "maximumLines": 130,
+    "baselineMaxFunctionComplexity": 9,
+    "maximumFunctionComplexity": 10
+  }
+]

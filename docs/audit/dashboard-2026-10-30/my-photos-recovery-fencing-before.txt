@@ -1,0 +1,252 @@
+FFFF                                                                     [100%]
+================================== FAILURES ===================================
+_ test_late_provider_deletion_outcome_cannot_finalize_newer_claim[False-current] _
+
+photo_database = namespace(sessions=async_sessionmaker(class_='AsyncSession', bind=<sqlalchemy.ext.asyncio.engine.AsyncEngine object at...re.database.gc_mobile_models.MobilePassengerIdentityModel object at 0x00000148D743E010>, client_manager_profile=None)))
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000148D5846F90>
+kind = 'current', complete = False
+
+    @pytest.mark.parametrize("kind", ["current", "superseded"])
+    @pytest.mark.parametrize("complete", [False, True])
+    async def test_late_provider_deletion_outcome_cannot_finalize_newer_claim(
+        photo_database, monkeypatch, kind, complete,
+    ):
+        env = photo_database
+        monkeypatch.setattr(recovery_runtime, "AsyncSessionFactory", env.sessions)
+        now = datetime.now(UTC)
+        async with env.sessions() as session, session.begin():
+            enrollment = await session.scalar(select(MyPhotoEnrollmentModel))
+            enrollment_id = enrollment.id
+            enrollment.provider_name = "development"
+            enrollment.provider_reference_handle = "synthetic-current-reference"
+            enrollment.reference_version = 2
+            enrollment.enrolled_at = now
+            if kind == "current":
+                enrollment.status = "deleted"
+                enrollment.deleted_at = now
+                enrollment.deletion_idempotency_key = "synthetic-delete"
+                enrollment.deletion_scope = "enrollment_only"
+                enrollment.provider_deletion_status = "pending"
+                enrollment.provider_deletion_requested_at = now
+            else:
+                enrollment.status = "enrolled"
+                enrollment.superseded_provider_reference_handle = "synthetic-old-reference"
+                enrollment.superseded_reference_deletion_status = "pending"
+                enrollment.superseded_reference_deletion_requested_at = now
+    
+        first, = await recovery_runtime._claim_provider_deletions(env.settings)
+        next_field = (
+            "provider_deletion_next_attempt_at" if kind == "current"
+            else "superseded_deletion_next_attempt_at"
+        )
+        status_field = (
+            "provider_deletion_status" if kind == "current"
+            else "superseded_reference_deletion_status"
+        )
+        async with env.sessions() as session, session.begin():
+            enrollment = await session.get(MyPhotoEnrollmentModel, enrollment_id)
+            setattr(enrollment, next_field, now - timedelta(seconds=1))
+        second, = await recovery_runtime._claim_provider_deletions(env.settings)
+        assert first.attempt_count == 1 and second.attempt_count == 2
+        async with env.sessions() as session:
+            enrollment = await session.get(MyPhotoEnrollmentModel, enrollment_id)
+            second_deadline = getattr(enrollment, next_field)
+    
+        stale = recovery_runtime._DeletionOutcome(first, complete, None if complete else "PROVIDER_UNAVAILABLE")
+        result = await recovery_runtime._finalize_provider_deletions([stale], env.settings)
+>       assert (result.completed, result.retrying, result.terminal_failed) == (0, 0, 0)
+E       assert (0, 1, 0) == (0, 0, 0)
+E         
+E         At index 1 diff: 1 != 0
+E         Use -v to get more diff
+
+tests\integration\test_my_photos_recovery_claim_fencing.py:63: AssertionError
+_ test_late_provider_deletion_outcome_cannot_finalize_newer_claim[False-superseded] _
+
+photo_database = namespace(sessions=async_sessionmaker(class_='AsyncSession', bind=<sqlalchemy.ext.asyncio.engine.AsyncEngine object at...re.database.gc_mobile_models.MobilePassengerIdentityModel object at 0x00000148D74FC590>, client_manager_profile=None)))
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000148D58697D0>
+kind = 'superseded', complete = False
+
+    @pytest.mark.parametrize("kind", ["current", "superseded"])
+    @pytest.mark.parametrize("complete", [False, True])
+    async def test_late_provider_deletion_outcome_cannot_finalize_newer_claim(
+        photo_database, monkeypatch, kind, complete,
+    ):
+        env = photo_database
+        monkeypatch.setattr(recovery_runtime, "AsyncSessionFactory", env.sessions)
+        now = datetime.now(UTC)
+        async with env.sessions() as session, session.begin():
+            enrollment = await session.scalar(select(MyPhotoEnrollmentModel))
+            enrollment_id = enrollment.id
+            enrollment.provider_name = "development"
+            enrollment.provider_reference_handle = "synthetic-current-reference"
+            enrollment.reference_version = 2
+            enrollment.enrolled_at = now
+            if kind == "current":
+                enrollment.status = "deleted"
+                enrollment.deleted_at = now
+                enrollment.deletion_idempotency_key = "synthetic-delete"
+                enrollment.deletion_scope = "enrollment_only"
+                enrollment.provider_deletion_status = "pending"
+                enrollment.provider_deletion_requested_at = now
+            else:
+                enrollment.status = "enrolled"
+                enrollment.superseded_provider_reference_handle = "synthetic-old-reference"
+                enrollment.superseded_reference_deletion_status = "pending"
+                enrollment.superseded_reference_deletion_requested_at = now
+    
+        first, = await recovery_runtime._claim_provider_deletions(env.settings)
+        next_field = (
+            "provider_deletion_next_attempt_at" if kind == "current"
+            else "superseded_deletion_next_attempt_at"
+        )
+        status_field = (
+            "provider_deletion_status" if kind == "current"
+            else "superseded_reference_deletion_status"
+        )
+        async with env.sessions() as session, session.begin():
+            enrollment = await session.get(MyPhotoEnrollmentModel, enrollment_id)
+            setattr(enrollment, next_field, now - timedelta(seconds=1))
+        second, = await recovery_runtime._claim_provider_deletions(env.settings)
+        assert first.attempt_count == 1 and second.attempt_count == 2
+        async with env.sessions() as session:
+            enrollment = await session.get(MyPhotoEnrollmentModel, enrollment_id)
+            second_deadline = getattr(enrollment, next_field)
+    
+        stale = recovery_runtime._DeletionOutcome(first, complete, None if complete else "PROVIDER_UNAVAILABLE")
+        result = await recovery_runtime._finalize_provider_deletions([stale], env.settings)
+>       assert (result.completed, result.retrying, result.terminal_failed) == (0, 0, 0)
+E       assert (0, 1, 0) == (0, 0, 0)
+E         
+E         At index 1 diff: 1 != 0
+E         Use -v to get more diff
+
+tests\integration\test_my_photos_recovery_claim_fencing.py:63: AssertionError
+_ test_late_provider_deletion_outcome_cannot_finalize_newer_claim[True-current] _
+
+photo_database = namespace(sessions=async_sessionmaker(class_='AsyncSession', bind=<sqlalchemy.ext.asyncio.engine.AsyncEngine object at...re.database.gc_mobile_models.MobilePassengerIdentityModel object at 0x00000148D777DF10>, client_manager_profile=None)))
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000148D7709C50>
+kind = 'current', complete = True
+
+    @pytest.mark.parametrize("kind", ["current", "superseded"])
+    @pytest.mark.parametrize("complete", [False, True])
+    async def test_late_provider_deletion_outcome_cannot_finalize_newer_claim(
+        photo_database, monkeypatch, kind, complete,
+    ):
+        env = photo_database
+        monkeypatch.setattr(recovery_runtime, "AsyncSessionFactory", env.sessions)
+        now = datetime.now(UTC)
+        async with env.sessions() as session, session.begin():
+            enrollment = await session.scalar(select(MyPhotoEnrollmentModel))
+            enrollment_id = enrollment.id
+            enrollment.provider_name = "development"
+            enrollment.provider_reference_handle = "synthetic-current-reference"
+            enrollment.reference_version = 2
+            enrollment.enrolled_at = now
+            if kind == "current":
+                enrollment.status = "deleted"
+                enrollment.deleted_at = now
+                enrollment.deletion_idempotency_key = "synthetic-delete"
+                enrollment.deletion_scope = "enrollment_only"
+                enrollment.provider_deletion_status = "pending"
+                enrollment.provider_deletion_requested_at = now
+            else:
+                enrollment.status = "enrolled"
+                enrollment.superseded_provider_reference_handle = "synthetic-old-reference"
+                enrollment.superseded_reference_deletion_status = "pending"
+                enrollment.superseded_reference_deletion_requested_at = now
+    
+        first, = await recovery_runtime._claim_provider_deletions(env.settings)
+        next_field = (
+            "provider_deletion_next_attempt_at" if kind == "current"
+            else "superseded_deletion_next_attempt_at"
+        )
+        status_field = (
+            "provider_deletion_status" if kind == "current"
+            else "superseded_reference_deletion_status"
+        )
+        async with env.sessions() as session, session.begin():
+            enrollment = await session.get(MyPhotoEnrollmentModel, enrollment_id)
+            setattr(enrollment, next_field, now - timedelta(seconds=1))
+        second, = await recovery_runtime._claim_provider_deletions(env.settings)
+        assert first.attempt_count == 1 and second.attempt_count == 2
+        async with env.sessions() as session:
+            enrollment = await session.get(MyPhotoEnrollmentModel, enrollment_id)
+            second_deadline = getattr(enrollment, next_field)
+    
+        stale = recovery_runtime._DeletionOutcome(first, complete, None if complete else "PROVIDER_UNAVAILABLE")
+        result = await recovery_runtime._finalize_provider_deletions([stale], env.settings)
+>       assert (result.completed, result.retrying, result.terminal_failed) == (0, 0, 0)
+E       assert (1, 0, 0) == (0, 0, 0)
+E         
+E         At index 0 diff: 1 != 0
+E         Use -v to get more diff
+
+tests\integration\test_my_photos_recovery_claim_fencing.py:63: AssertionError
+_ test_late_provider_deletion_outcome_cannot_finalize_newer_claim[True-superseded] _
+
+photo_database = namespace(sessions=async_sessionmaker(class_='AsyncSession', bind=<sqlalchemy.ext.asyncio.engine.AsyncEngine object at...re.database.gc_mobile_models.MobilePassengerIdentityModel object at 0x00000148D7836590>, client_manager_profile=None)))
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000148D5855090>
+kind = 'superseded', complete = True
+
+    @pytest.mark.parametrize("kind", ["current", "superseded"])
+    @pytest.mark.parametrize("complete", [False, True])
+    async def test_late_provider_deletion_outcome_cannot_finalize_newer_claim(
+        photo_database, monkeypatch, kind, complete,
+    ):
+        env = photo_database
+        monkeypatch.setattr(recovery_runtime, "AsyncSessionFactory", env.sessions)
+        now = datetime.now(UTC)
+        async with env.sessions() as session, session.begin():
+            enrollment = await session.scalar(select(MyPhotoEnrollmentModel))
+            enrollment_id = enrollment.id
+            enrollment.provider_name = "development"
+            enrollment.provider_reference_handle = "synthetic-current-reference"
+            enrollment.reference_version = 2
+            enrollment.enrolled_at = now
+            if kind == "current":
+                enrollment.status = "deleted"
+                enrollment.deleted_at = now
+                enrollment.deletion_idempotency_key = "synthetic-delete"
+                enrollment.deletion_scope = "enrollment_only"
+                enrollment.provider_deletion_status = "pending"
+                enrollment.provider_deletion_requested_at = now
+            else:
+                enrollment.status = "enrolled"
+                enrollment.superseded_provider_reference_handle = "synthetic-old-reference"
+                enrollment.superseded_reference_deletion_status = "pending"
+                enrollment.superseded_reference_deletion_requested_at = now
+    
+        first, = await recovery_runtime._claim_provider_deletions(env.settings)
+        next_field = (
+            "provider_deletion_next_attempt_at" if kind == "current"
+            else "superseded_deletion_next_attempt_at"
+        )
+        status_field = (
+            "provider_deletion_status" if kind == "current"
+            else "superseded_reference_deletion_status"
+        )
+        async with env.sessions() as session, session.begin():
+            enrollment = await session.get(MyPhotoEnrollmentModel, enrollment_id)
+            setattr(enrollment, next_field, now - timedelta(seconds=1))
+        second, = await recovery_runtime._claim_provider_deletions(env.settings)
+        assert first.attempt_count == 1 and second.attempt_count == 2
+        async with env.sessions() as session:
+            enrollment = await session.get(MyPhotoEnrollmentModel, enrollment_id)
+            second_deadline = getattr(enrollment, next_field)
+    
+        stale = recovery_runtime._DeletionOutcome(first, complete, None if complete else "PROVIDER_UNAVAILABLE")
+        result = await recovery_runtime._finalize_provider_deletions([stale], env.settings)
+>       assert (result.completed, result.retrying, result.terminal_failed) == (0, 0, 0)
+E       assert (1, 0, 0) == (0, 0, 0)
+E         
+E         At index 0 diff: 1 != 0
+E         Use -v to get more diff
+
+tests\integration\test_my_photos_recovery_claim_fencing.py:63: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/integration/test_my_photos_recovery_claim_fencing.py::test_late_provider_deletion_outcome_cannot_finalize_newer_claim[False-current]
+FAILED tests/integration/test_my_photos_recovery_claim_fencing.py::test_late_provider_deletion_outcome_cannot_finalize_newer_claim[False-superseded]
+FAILED tests/integration/test_my_photos_recovery_claim_fencing.py::test_late_provider_deletion_outcome_cannot_finalize_newer_claim[True-current]
+FAILED tests/integration/test_my_photos_recovery_claim_fencing.py::test_late_provider_deletion_outcome_cannot_finalize_newer_claim[True-superseded]
+4 failed in 8.29s

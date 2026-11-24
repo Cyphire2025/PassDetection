@@ -1,0 +1,90 @@
+[
+  {
+    "path": "app/application/use_cases/whatsapp/group_submission_matching.py",
+    "baseline_lines": 201,
+    "maximum_lines": 209,
+    "baseline_max_function_complexity": 0,
+    "maximum_function_complexity": 0,
+    "minimum_coverage_percent": 90,
+    "observed_statement_coverage": 100.0,
+    "observed_branch_inclusive_coverage": 100.0,
+    "sha256": "dc85ecd81a87dd90451b9558d40a5007d338d93c3af30570cbff7d92b6ceb2e3"
+  },
+  {
+    "path": "app/application/use_cases/whatsapp/group_match_coordinator.py",
+    "baseline_lines": 188,
+    "maximum_lines": 195,
+    "baseline_max_function_complexity": 47,
+    "maximum_function_complexity": 47,
+    "minimum_coverage_percent": 90,
+    "observed_statement_coverage": 100.0,
+    "observed_branch_inclusive_coverage": 99.07407407407408,
+    "sha256": "d409da422bab1a779bf75a3b4c10e98e0ec5b036735d5161d11af5f35fb7f76f"
+  },
+  {
+    "path": "app/application/use_cases/whatsapp/group_match_evidence.py",
+    "baseline_lines": 295,
+    "maximum_lines": 306,
+    "baseline_max_function_complexity": 16,
+    "maximum_function_complexity": 16,
+    "minimum_coverage_percent": 90,
+    "observed_statement_coverage": 97.67441860465117,
+    "observed_branch_inclusive_coverage": 96.92307692307692,
+    "sha256": "cf662891cd0d635b070cc93a5a68de3b2e660421e7b37545510d8dfd03aefb8b"
+  },
+  {
+    "path": "app/application/use_cases/whatsapp/group_match_fields.py",
+    "baseline_lines": 161,
+    "maximum_lines": 167,
+    "baseline_max_function_complexity": 0,
+    "maximum_function_complexity": 0,
+    "minimum_coverage_percent": 90,
+    "observed_statement_coverage": 100.0,
+    "observed_branch_inclusive_coverage": 100.0,
+    "sha256": "43ff801155b533fbf5b3c5a1172dd18c9bc4748d191e24433d8dde6582573a17"
+  },
+  {
+    "path": "app/application/use_cases/whatsapp/group_match_normalization.py",
+    "baseline_lines": 172,
+    "maximum_lines": 178,
+    "baseline_max_function_complexity": 9,
+    "maximum_function_complexity": 9,
+    "minimum_coverage_percent": 90,
+    "observed_statement_coverage": 91.34615384615384,
+    "observed_branch_inclusive_coverage": 89.04109589041096,
+    "sha256": "5b6d8982eb966989959ac6c8995b0b3278f1a20594e5aa375a001f06c1118f34"
+  },
+  {
+    "path": "app/application/use_cases/whatsapp/group_match_profiles.py",
+    "baseline_lines": 297,
+    "maximum_lines": 308,
+    "baseline_max_function_complexity": 27,
+    "maximum_function_complexity": 27,
+    "minimum_coverage_percent": 90,
+    "observed_statement_coverage": 100.0,
+    "observed_branch_inclusive_coverage": 98.84393063583815,
+    "sha256": "fc8a2101cf3abc2bc1b2df737e6572b540faa32b5c353c572e90b14f09afd900"
+  },
+  {
+    "path": "app/application/use_cases/whatsapp/group_match_rows.py",
+    "baseline_lines": 231,
+    "maximum_lines": 240,
+    "baseline_max_function_complexity": 20,
+    "maximum_function_complexity": 20,
+    "minimum_coverage_percent": 90,
+    "observed_statement_coverage": 93.47826086956522,
+    "observed_branch_inclusive_coverage": 93.47826086956522,
+    "sha256": "8c712fa4e4529434139a45acba392f9119ac842191154d0bf62caa101a732369"
+  },
+  {
+    "path": "app/application/use_cases/whatsapp/group_match_types.py",
+    "baseline_lines": 155,
+    "maximum_lines": 161,
+    "baseline_max_function_complexity": 3,
+    "maximum_function_complexity": 3,
+    "minimum_coverage_percent": 90,
+    "observed_statement_coverage": 100.0,
+    "observed_branch_inclusive_coverage": 100.0,
+    "sha256": "fc8546d246a221ed0dcf6834aa753e1b51fa877dffd2029e522e5f6ce4dfcf1f"
+  }
+]

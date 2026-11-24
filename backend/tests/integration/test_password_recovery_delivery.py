@@ -251,6 +251,8 @@ async def test_replacement_invalidates_old_token_and_terminalizes_old_delivery(
 
     first_token, second_token = issued_token(first_raw), issued_token(second_raw)
     assert first_token.created_at == second_token.created_at
+    assert first_token.id == uuid.UUID("ffffffff-ffff-4fff-8fff-fffffffffff2")
+    assert second_token.id == uuid.UUID("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1")
     assert first_token.id > second_token.id
     assert first_token.invalidated_at is not None
     assert second_token.invalidated_at is None
@@ -270,6 +272,8 @@ async def test_replacement_invalidates_old_token_and_terminalizes_old_delivery(
     first_outbox = outboxes_by_token[first_token.id]
     second_outbox = outboxes_by_token[second_token.id]
     assert first_outbox.created_at == second_outbox.created_at
+    assert first_outbox.id == uuid.UUID("eeeeeeee-eeee-4eee-8eee-eeeeeeeeeee4")
+    assert second_outbox.id == uuid.UUID("bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb3")
     assert first_outbox.id > second_outbox.id
     assert (first_outbox.status, first_outbox.last_error_code) == ("dead_letter", "superseded")
     assert (second_outbox.status, second_outbox.last_error_code) == ("pending", None)

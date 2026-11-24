@@ -1,0 +1,13 @@
+ImportError while loading conftest 'C:\Users\nipun\Desktop\PassDetection\backend\tests\conftest.py'.
+tests\conftest.py:42: in <module>
+    from app.main import create_application  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\main.py:43: in <module>
+    from app.presentation.api.v1.router import api_v1_router
+app\presentation\api\v1\router.py:12: in <module>
+    from app.presentation.api.v1.routes.admin_accounts import router as admin_accounts_router
+app\presentation\api\v1\routes\admin_accounts.py:89: in <module>
+    router.include_router(managed_account_queries_router)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\fastapi\routing.py:1456: in include_router
+    raise FastAPIError(
+E   fastapi.exceptions.FastAPIError: Prefix and path cannot be both empty (path operation: list_managed_accounts)

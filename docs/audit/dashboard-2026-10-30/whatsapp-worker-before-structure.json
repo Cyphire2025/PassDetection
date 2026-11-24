@@ -1,0 +1,12 @@
+{
+  "sha256": "93405204ddcf87e8c1b13ddc540c4cb24d9b352c03ae8af94d1305ee83650bf2",
+  "functions": {
+    "_resolve_log_template_snapshot": "383cc76fe26f7880cf60e43dfecd52539aefd4a0d67e12c0dc59ace3abed9d63",
+    "_set_message_state": "32ffe9371aeb443a2fd57441348cb9ca95c6d43a002f35c2e990ca99ab02669f",
+    "_load_sendable_recipient": "15526a3d5d0a85128f2ba715e388d8cbd9441428933861056bca3fb223ea8b85",
+    "_heartbeat_queued_batch_claims": "2de6ee463150acffec44683b61cb300161bfa116709a1e1684a1bd6f948ff9a6",
+    "run_whatsapp_broadcast": "b3609315c8d9f6b5d09ce9e408e2616cd4ceddcbd389dd3a01d2c19bc61d5283",
+    "mark_whatsapp_batch_failed": "52ac177c9e44152c8ff79186b4c75ba5979a393b4f366eac35cee80b56191e7e"
+  },
+  "provider_loop_ast_sha256": "001ed17ee1fe7eb1a81b1908522e259242249460545e222b2762c21796b083f6"
+}

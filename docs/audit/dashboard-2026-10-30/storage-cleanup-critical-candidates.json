@@ -1,0 +1,27 @@
+[
+  {
+    "path": "app/infrastructure/documents/storage_cleanup_cipher.py",
+    "minimum_line_percent": 85,
+    "minimum_branch_percent": 60
+  },
+  {
+    "path": "app/infrastructure/documents/storage_cleanup_execution.py",
+    "minimum_line_percent": 95,
+    "minimum_branch_percent": 85
+  },
+  {
+    "path": "app/infrastructure/documents/storage_cleanup_leases.py",
+    "minimum_line_percent": 95,
+    "minimum_branch_percent": 75
+  },
+  {
+    "path": "app/infrastructure/documents/storage_cleanup_policy.py",
+    "minimum_line_percent": 85,
+    "minimum_branch_percent": 65
+  },
+  {
+    "path": "app/infrastructure/documents/storage_cleanup_staging.py",
+    "minimum_line_percent": 95,
+    "minimum_branch_percent": 60
+  }
+]

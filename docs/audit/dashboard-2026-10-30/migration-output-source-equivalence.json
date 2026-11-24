@@ -1,0 +1,32 @@
+{
+  "neutral_whole_module_inverse_ast_exact": true,
+  "neutral_explicit_extensions": [
+    "Float timeout accepts existing integers and fractional migration deadline",
+    "Explicit discard_stderr defaultsFalse: existingmerge/count unchanged; discard routesstderrDEVNULL",
+    "Optionalstdin defaultsNone; migration preservesits oldDEVNULLstdin",
+    "Staticoutput_limit boolean distinguishes quota failure from othercapture failure; reason/message oldvalues unchanged"
+  ],
+  "neutral_other_declarations_exact": true,
+  "migration_all_nonimport_non_capture_declarations_exact": true,
+  "migration_unchanged_functions": [
+    "helper_binding",
+    "bound_migration_helper",
+    "database_command",
+    "helper_payload",
+    "read_migration_result",
+    "run_migration_helper"
+  ],
+  "migration_capture_signature_return_annotation_doc_exact": true,
+  "old_stream_test_methods_ast_exact": 9,
+  "old_stream_business_assert_calls_exact": 11,
+  "fixture_retarget": "Only process helper/instrumentation moves from oldPopen to realneutralcapture; original9businessmethods exact across formatting",
+  "before_newtest_limit": "First3newcase baseline is recorded byactualrunlog; no original newtestrawsource snapshot existed. No independent rawbyte assertion-preservation claim for that newfixture adaptation.",
+  "formats": "migration-output-format-proof.json",
+  "fence": "migration-output-final-source-fence.json",
+  "current_source_hashes": {
+    "scripts/bounded_command_output.py": "9f4b0a539e9756a3d47be47017c4bfc83823a85c8ee60957354f4879dcc84bb0",
+    "scripts/release_companies_runtime.py": "3ecd9ffdf0c1e0de2f74ce4145d8c73833a15ad68fb59860558772882f2fb763",
+    "scripts/test_release_companies_runtime.py": "65d544624f33a2d923dd337c2c40f884d8e230ad54d6c47be04e87ba6cf46e74",
+    "scripts/test_migration_output_deadline.py": "eca8412aeec11e83c830236b3fbb21bddeb6de425e9e12499da9656885b6c385"
+  }
+}

@@ -1,0 +1,72 @@
+[
+  {
+    "path": "backend/app/infrastructure/my_photos/aws_client_runtime.py",
+    "lines": 84,
+    "max_complexity": 5,
+    "line_coverage": 75.60975609756098,
+    "branch_coverage": 37.5
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/aws_face_results.py",
+    "lines": 167,
+    "max_complexity": 14,
+    "line_coverage": 67.56756756756756,
+    "branch_coverage": 44.44444444444444
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/aws_face_search.py",
+    "lines": 379,
+    "max_complexity": 18,
+    "line_coverage": 71.17647058823529,
+    "branch_coverage": 48.275862068965516
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/aws_liveness.py",
+    "lines": 378,
+    "max_complexity": 16,
+    "line_coverage": 76.24309392265194,
+    "branch_coverage": 53.84615384615385
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/aws_media_delivery.py",
+    "lines": 422,
+    "max_complexity": 9,
+    "line_coverage": 79.72027972027972,
+    "branch_coverage": 64.70588235294117
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/aws_media_location.py",
+    "lines": 120,
+    "max_complexity": 31,
+    "line_coverage": 85.52631578947368,
+    "branch_coverage": 73.52941176470588
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/aws_media_metadata.py",
+    "lines": 142,
+    "max_complexity": 14,
+    "line_coverage": 88.13559322033899,
+    "branch_coverage": 75.0
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/aws_provider_config.py",
+    "lines": 82,
+    "max_complexity": 7,
+    "line_coverage": 93.02325581395348,
+    "branch_coverage": 50.0
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/aws_providers.py",
+    "lines": 140,
+    "max_complexity": 0,
+    "line_coverage": 100.0,
+    "branch_coverage": 100
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/aws_references.py",
+    "lines": 222,
+    "max_complexity": 10,
+    "line_coverage": 80.95238095238095,
+    "branch_coverage": 53.84615384615385
+  }
+]

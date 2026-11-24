@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+from contextlib import asynccontextmanager
 from types import SimpleNamespace
 from unittest.mock import Mock, PropertyMock, patch
 
@@ -8,7 +9,11 @@ import pytest
 
 from app.core.config.release_contract import SCHEMA_REVISION
 from app.core.config.settings import Settings
-from app.infrastructure import runtime_readiness
+from app.infrastructure import (
+    runtime_readiness,
+    runtime_readiness_capabilities,
+    runtime_readiness_probes,
+)
 from app.infrastructure.readiness_executor import ReadinessProbeExecutor
 from app.infrastructure.runtime_readiness import RuntimeReadinessProbe
 
@@ -18,7 +23,9 @@ def isolated_dependency_probe_executor(monkeypatch):
     # A timed-out real socket from another readiness test must not outlive its
     # mock configuration and occupy this test's single-flight probe slot.
     executor = ReadinessProbeExecutor()
-    monkeypatch.setattr("app.infrastructure.runtime_readiness.readiness_probe_executor", executor)
+    monkeypatch.setattr(
+        "app.infrastructure.runtime_readiness_capabilities.readiness_probe_executor", executor
+    )
     try:
         yield
     finally:
@@ -73,6 +80,10 @@ class _Database:
             "oldest_due_seconds": oldest_due_seconds,
         }
 
+    @asynccontextmanager
+    async def begin_nested(self):
+        yield
+
     async def execute(self, statement: object) -> object:
         sql = str(statement)
         if "alembic_version" in sql:
@@ -98,9 +109,12 @@ def _settings() -> Settings:
 async def test_security_redis_outage_fails_readiness_while_storage_remains_healthy() -> None:
     settings = _settings().model_copy(update={"dashboard_rate_limit_require_redis": True})
     with (
-        patch("app.infrastructure.runtime_readiness._probe_object_storage", return_value=True),
         patch(
-            "app.infrastructure.runtime_readiness._probe_security_redis",
+            "app.infrastructure.runtime_readiness_capabilities._probe_object_storage",
+            return_value=True,
+        ),
+        patch(
+            "app.infrastructure.runtime_readiness_capabilities._probe_security_redis",
             return_value=("unreachable", False),
         ),
     ):
@@ -115,7 +129,7 @@ async def test_security_redis_outage_fails_readiness_while_storage_remains_healt
 async def test_ready_snapshot_requires_schema_storage_and_core_dependencies() -> None:
     probe = RuntimeReadinessProbe(cache_seconds=30)
     with patch(
-        "app.infrastructure.runtime_readiness._probe_object_storage",
+        "app.infrastructure.runtime_readiness_capabilities._probe_object_storage",
         return_value=True,
     ):
         snapshot = await probe.snapshot(
@@ -152,7 +166,7 @@ async def test_schema_drift_fails_readiness_closed(
 ) -> None:
     probe = RuntimeReadinessProbe(cache_seconds=30)
     with patch(
-        "app.infrastructure.runtime_readiness._probe_object_storage",
+        "app.infrastructure.runtime_readiness_capabilities._probe_object_storage",
         return_value=True,
     ):
         snapshot = await probe.snapshot(
@@ -169,7 +183,7 @@ async def test_schema_drift_fails_readiness_closed(
 async def test_slow_network_probes_are_cached_by_configuration() -> None:
     probe = RuntimeReadinessProbe(cache_seconds=30)
     with patch(
-        "app.infrastructure.runtime_readiness._probe_object_storage",
+        "app.infrastructure.runtime_readiness_capabilities._probe_object_storage",
         return_value=True,
     ) as storage_probe:
         first = await probe.snapshot(
@@ -190,7 +204,7 @@ async def test_slow_network_probes_are_cached_by_configuration() -> None:
 async def test_cleanup_backlog_is_visible_without_causing_an_api_outage() -> None:
     probe = RuntimeReadinessProbe(cache_seconds=30)
     with patch(
-        "app.infrastructure.runtime_readiness._probe_object_storage",
+        "app.infrastructure.runtime_readiness_capabilities._probe_object_storage",
         return_value=True,
     ):
         snapshot = await probe.snapshot(
@@ -241,15 +255,22 @@ async def test_dependency_probe_timeout_is_cached_and_fails_core_closed() -> Non
     [(1000, 60, "backlog_warning:1000", True), (1, 86401, "oldest_due_over_24h", False)],
 )
 async def test_cleanup_warning_and_expiry_do_not_hide_healthy_core_dependencies(
-    due_count, age, expected_status, available,
+    due_count,
+    age,
+    expected_status,
+    available,
 ):
-    with patch.object(runtime_readiness, "_probe_object_storage", return_value=True):
+    with patch.object(runtime_readiness_capabilities, "_probe_object_storage", return_value=True):
         snapshot = await RuntimeReadinessProbe().snapshot(
-            db=_Database(due_count=due_count, oldest_due_seconds=age), settings=_settings(),
+            db=_Database(due_count=due_count, oldest_due_seconds=age),
+            settings=_settings(),
         )
     assert snapshot.core_ready is True
     assert snapshot.capabilities["storage_cleanup"] == {
-        "required": True, "available": available, "traffic_gate": False, "status": expected_status,
+        "required": True,
+        "available": available,
+        "traffic_gate": False,
+        "status": expected_status,
     }
 
 
@@ -259,11 +280,18 @@ def test_celery_worker_readiness_requires_scheduler_heartbeat_and_closes_redis(h
     client = Mock()
     client.get.return_value = heartbeat
     with (
-        patch.object(runtime_readiness, "celery_queue_readiness", return_value=("available", True)) as queue,
-        patch.object(runtime_readiness.Redis, "from_url", return_value=client) as redis,
+        patch.object(
+            runtime_readiness_probes, "celery_queue_readiness", return_value=("available", True)
+        ) as queue,
+        patch.object(runtime_readiness_probes.Redis, "from_url", return_value=client) as redis,
     ):
         actual = runtime_readiness._probe_worker_and_scheduler(settings)
-    assert actual == ("available", True, "heartbeat_recent" if heartbeat else "heartbeat_missing", bool(heartbeat))
+    assert actual == (
+        "available",
+        True,
+        "heartbeat_recent" if heartbeat else "heartbeat_missing",
+        bool(heartbeat),
+    )
     queue.assert_called_once_with(runtime_readiness.GENERAL_PROCESSING_QUEUE, settings)
     client.get.assert_called_once_with(runtime_readiness.PLATFORM_SCHEDULER_HEARTBEAT_KEY)
     client.close.assert_called_once_with()
@@ -274,7 +302,7 @@ def test_celery_worker_readiness_requires_scheduler_heartbeat_and_closes_redis(h
 def test_scheduler_redis_failure_closes_the_client_before_propagating():
     client = Mock()
     client.get.side_effect = ConnectionError("synthetic disconnected Redis")
-    with patch.object(runtime_readiness.Redis, "from_url", return_value=client):
+    with patch.object(runtime_readiness_probes.Redis, "from_url", return_value=client):
         with pytest.raises(ConnectionError):
             runtime_readiness._platform_scheduler_heartbeat_exists(_settings())
     client.close.assert_called_once_with()
@@ -288,31 +316,54 @@ def test_scheduler_redis_failure_closes_the_client_before_propagating():
         ((True, True, False), "celery", (), ("providers_not_ready", False, True)),
         ((True, True, True), "background", (), ("worker_backend_not_celery", False, True)),
         ((True, True, True), "celery", (True, True, True, True), ("available", True, True)),
-        ((True, True, True), "celery", (False, True, False, True), ("queues_unavailable:2", False, True)),
+        (
+            (True, True, True),
+            "celery",
+            (False, True, False, True),
+            ("queues_unavailable:2", False, True),
+        ),
     ],
 )
 def test_selected_photo_capability_requires_every_provider_and_queue(
-    providers_ready, backend, queue_ready, expected,
+    providers_ready,
+    backend,
+    queue_ready,
+    expected,
 ):
     settings = _settings()
     selected_photos = settings.my_photos.model_copy(update={"media_provider": "development"})
     settings = settings.model_copy(update={"processing_backend": backend})
-    providers = SimpleNamespace(**{
-        name: SimpleNamespace(ready=ready)
-        for name, ready in zip(("liveness", "face_search", "media"), providers_ready, strict=True)
-    })
+    providers = SimpleNamespace(
+        **{
+            name: SimpleNamespace(ready=ready)
+            for name, ready in zip(
+                ("liveness", "face_search", "media"), providers_ready, strict=True
+            )
+        }
+    )
     with (
-        patch.object(Settings, "my_photos", new_callable=PropertyMock, return_value=selected_photos),
-        patch.object(runtime_readiness, "build_provider_bundle", return_value=providers),
-        patch.object(runtime_readiness, "celery_queue_readiness", side_effect=[
-            ("available" if ready else "worker_missing", ready) for ready in queue_ready
-        ]) as queues,
+        patch.object(
+            Settings, "my_photos", new_callable=PropertyMock, return_value=selected_photos
+        ),
+        patch.object(runtime_readiness_probes, "build_provider_bundle", return_value=providers),
+        patch.object(
+            runtime_readiness_probes,
+            "celery_queue_readiness",
+            side_effect=[
+                ("available" if ready else "worker_missing", ready) for ready in queue_ready
+            ],
+        ) as queues,
     ):
         assert runtime_readiness._probe_my_photos(settings) == expected
     assert [call.args[0] for call in queues.call_args_list] == (
-        [runtime_readiness.MY_PHOTOS_CONTROL_QUEUE, runtime_readiness.MY_PHOTOS_INDEX_QUEUE,
-         runtime_readiness.MY_PHOTOS_MEDIA_QUEUE, runtime_readiness.MY_PHOTOS_SEARCH_QUEUE]
-        if queue_ready else []
+        [
+            runtime_readiness.MY_PHOTOS_CONTROL_QUEUE,
+            runtime_readiness.MY_PHOTOS_INDEX_QUEUE,
+            runtime_readiness.MY_PHOTOS_MEDIA_QUEUE,
+            runtime_readiness.MY_PHOTOS_SEARCH_QUEUE,
+        ]
+        if queue_ready
+        else []
     )
 
 
@@ -322,18 +373,39 @@ async def test_probe_exceptions_cannot_report_workers_or_selected_photo_capabili
     selected_photos = settings.my_photos.model_copy(update={"media_provider": "development"})
     settings = settings.model_copy(update={"processing_backend": "celery"})
     with (
-        patch.object(Settings, "my_photos", new_callable=PropertyMock, return_value=selected_photos),
-        patch.object(runtime_readiness, "_probe_object_storage", return_value=True),
-        patch.object(runtime_readiness, "_probe_security_redis", return_value=("not_required", True)),
-        patch.object(runtime_readiness, "_probe_malware_scanner", return_value=("available", True)),
-        patch.object(runtime_readiness, "_probe_worker_and_scheduler", side_effect=ConnectionError),
-        patch.object(runtime_readiness, "_probe_my_photos", side_effect=ConnectionError),
-        patch.object(runtime_readiness, "_probe_ecr_worker", return_value=("available", True)),
+        patch.object(
+            Settings, "my_photos", new_callable=PropertyMock, return_value=selected_photos
+        ),
+        patch.object(runtime_readiness_capabilities, "_probe_object_storage", return_value=True),
+        patch.object(
+            runtime_readiness_capabilities,
+            "_probe_security_redis",
+            return_value=("not_required", True),
+        ),
+        patch.object(
+            runtime_readiness_capabilities,
+            "_probe_malware_scanner",
+            return_value=("available", True),
+        ),
+        patch.object(
+            runtime_readiness_capabilities,
+            "_probe_worker_and_scheduler",
+            side_effect=ConnectionError,
+        ),
+        patch.object(
+            runtime_readiness_capabilities, "_probe_my_photos", side_effect=ConnectionError
+        ),
+        patch.object(
+            runtime_readiness_capabilities, "_probe_ecr_worker", return_value=("available", True)
+        ),
     ):
         snapshot = await RuntimeReadinessProbe().snapshot(db=_Database(), settings=settings)
     assert snapshot.core_ready is False
     assert snapshot.capabilities["background_processing"]["status"] == "probe_failed"
     assert snapshot.capabilities["lifecycle_scheduler"]["available"] is False
     assert snapshot.capabilities["my_photos"] == {
-        "required": True, "available": False, "traffic_gate": False, "status": "probe_failed",
+        "required": True,
+        "available": False,
+        "traffic_gate": False,
+        "status": "probe_failed",
     }

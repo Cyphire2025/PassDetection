@@ -3,6 +3,7 @@ import type { ComponentProps, ReactNode } from "react";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { useAuthStore } from "@/stores/auth.store";
 import type { RenameDocumentBatch } from "@/types/document-rename.types";
 import type { DocumentDeliveryPreview } from "@/types/document-distribution.types";
 import { documentRenameApi } from "../api/document-rename.api";
@@ -10,6 +11,7 @@ import type { DocumentUploadProgress } from "../services/document-upload-batchin
 import { DocumentRenamePage } from "./document-rename-page";
 import { DocumentWorkspaceUploadStatus } from "./document-workspace-upload-status";
 import { DocumentDeliveryPreviewDialog } from "./document-workspace-dialogs";
+import { renameActor } from "../test-support/rename-authority.test-fixture";
 
 vi.mock("@/components/shared/processing-motion", () => ({
   ProcessingMotion: ({ variant }: { variant: string }) => (
@@ -202,6 +204,7 @@ async function beginRename(fileCount = 1) {
 describe("rename motion uses the combined operation without inventing a stage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    useAuthStore.setState({ user: renameActor });
     vi.mocked(documentRenameApi.listBatches).mockResolvedValue([]);
   });
 

@@ -1,0 +1,16 @@
+{
+  "test_files": [
+    "tests/integration/test_group_delete_retained_documents.py",
+    "tests/unit/presentation/test_client_group_storage_cleanup.py",
+    "tests/unit/presentation/test_passport_crop_lifecycle_contract.py",
+    "tests/unit/presentation/test_passport_submission_delete_access.py",
+    "tests/unit/application/test_traveller_enrollment.py",
+    "tests/unit/core/test_storage_write_budget.py",
+    "tests/integration/test_private_copy_retry_envelope.py",
+    "tests/integration/test_draft_upload_cleanup_lifetime.py",
+    "tests/integration/test_draft_retention.py",
+    "tests/integration/test_returning_drafts.py",
+    "tests/integration/test_company_data_exports.py"
+  ],
+  "environment": ".tmp/dashboard-security-patch-venv-2"
+}

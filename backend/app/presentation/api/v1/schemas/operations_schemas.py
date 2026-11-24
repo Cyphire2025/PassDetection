@@ -122,11 +122,20 @@ class PassportRetentionControlResponse(BaseModel):
     passport_retention_days_applied: int | None = None
 
 
+def _normalized_invitation_name(value: str) -> str:
+    normalized = value.strip()
+    if len(normalized) < 2:
+        raise ValueError("full_name must contain at least two characters after trimming")
+    return normalized
+
+
 class CreateManagerRequest(BaseModel):
     full_name: str = Field(..., min_length=2, max_length=255)
     email: EmailStr
 
     model_config = {"extra": "forbid"}
+
+    _normalize_full_name = field_validator("full_name")(_normalized_invitation_name)
 
 
 class CreateStaffRequest(BaseModel):
@@ -134,6 +143,8 @@ class CreateStaffRequest(BaseModel):
     email: EmailStr
 
     model_config = {"extra": "forbid"}
+
+    _normalize_full_name = field_validator("full_name")(_normalized_invitation_name)
 
 
 class DeleteManagerRequest(BaseModel):

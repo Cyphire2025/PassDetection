@@ -1,0 +1,189 @@
+{
+  "recorded_at": "2026-10-30T23:34:20.787Z",
+  "records": [
+    {
+      "path": "frontend/features/passports/components/upload-link-list.tsx",
+      "sha256": "71fb506d74d2816e5b52c06ff4a7b78230edb5589257d811dd57778bb144261d",
+      "physical_lines": 26,
+      "max_function_complexity": 2,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "All original physical list source and all current focused owners read; module wiring and five state/lifetime corrections authored/reviewed. The41-part AST comparison is separately recorded, not substituted for source reading."
+    },
+    {
+      "path": "frontend/features/passports/components/use-upload-link-list.ts",
+      "sha256": "67470701329adda09e6035841aef516e0ad90a5928336e55276baad52b24f08b",
+      "physical_lines": 127,
+      "max_function_complexity": 3,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "All original physical list source and all current focused owners read; module wiring and five state/lifetime corrections authored/reviewed. The41-part AST comparison is separately recorded, not substituted for source reading."
+    },
+    {
+      "path": "frontend/features/passports/components/use-upload-link-copy.ts",
+      "sha256": "c57d0baf1ef73e9a0221a8f30a962eae803ed6559f668f12b3a6966bfd98737c",
+      "physical_lines": 37,
+      "max_function_complexity": 4,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "All original physical list source and all current focused owners read; module wiring and five state/lifetime corrections authored/reviewed. The41-part AST comparison is separately recorded, not substituted for source reading."
+    },
+    {
+      "path": "frontend/features/passports/components/upload-link-list-header.tsx",
+      "sha256": "b08a259f34d009de94b7b92f13c4ecd79520b11a6db554052f73b55594c0686e",
+      "physical_lines": 41,
+      "max_function_complexity": 3,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "All original physical list source and all current focused owners read; module wiring and five state/lifetime corrections authored/reviewed. The41-part AST comparison is separately recorded, not substituted for source reading."
+    },
+    {
+      "path": "frontend/features/passports/components/upload-link-list-summary.tsx",
+      "sha256": "3ad583c9e59b1c6105c2f97c20359236f874d37a615a5445bb6782fbd59064fe",
+      "physical_lines": 58,
+      "max_function_complexity": 8,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "All original physical list source and all current focused owners read; module wiring and five state/lifetime corrections authored/reviewed. The41-part AST comparison is separately recorded, not substituted for source reading."
+    },
+    {
+      "path": "frontend/features/passports/components/upload-link-list-sections.tsx",
+      "sha256": "84e875cdc6855987ec7cf01fba484ad1f9b372646a1662afc424dfc71967998d",
+      "physical_lines": 235,
+      "max_function_complexity": 24,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "All original physical list source and all current focused owners read; module wiring and five state/lifetime corrections authored/reviewed. The41-part AST comparison is separately recorded, not substituted for source reading."
+    },
+    {
+      "path": "frontend/features/passports/components/upload-link-list-dialogs.tsx",
+      "sha256": "a0307aad0b987457264a27d61046b9a05b7296fbade49840e5e9b470239a54fe",
+      "physical_lines": 73,
+      "max_function_complexity": 10,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "All original physical list source and all current focused owners read; module wiring and five state/lifetime corrections authored/reviewed. The41-part AST comparison is separately recorded, not substituted for source reading."
+    },
+    {
+      "path": "frontend/features/passports/components/upload-link-table.tsx",
+      "sha256": "5d8091dfcc6b66ab1ed232ad61a888c258a6e038d679504ece09dfe7b9e6ddfa",
+      "physical_lines": 143,
+      "max_function_complexity": 4,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "All original physical list source and all current focused owners read; module wiring and five state/lifetime corrections authored/reviewed. The41-part AST comparison is separately recorded, not substituted for source reading."
+    },
+    {
+      "path": "frontend/features/passports/components/upload-link-actions.tsx",
+      "sha256": "e3324c21932dfaa4ce95030921967889b73c6cca9bbd34addb64548e2352b01f",
+      "physical_lines": 92,
+      "max_function_complexity": 20,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "All original physical list source and all current focused owners read; module wiring and five state/lifetime corrections authored/reviewed. The41-part AST comparison is separately recorded, not substituted for source reading."
+    },
+    {
+      "path": "frontend/features/passports/components/group-delete-retention-dialog.tsx",
+      "sha256": "073e771fdad43933a7c3af50a3dd47df2b5430fd7f44d186326df9e5d3b7a288",
+      "physical_lines": 118,
+      "max_function_complexity": 4,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "All original physical list source and all current focused owners read; module wiring and five state/lifetime corrections authored/reviewed. The41-part AST comparison is separately recorded, not substituted for source reading."
+    },
+    {
+      "path": "frontend/features/passports/components/upload-link-filter.ts",
+      "sha256": "88ac34d3ca172c2c169af4f18926819ef61dd65e76246ca54f9b3985f72b7648",
+      "physical_lines": 17,
+      "max_function_complexity": 3,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "All original physical list source and all current focused owners read; module wiring and five state/lifetime corrections authored/reviewed. The41-part AST comparison is separately recorded, not substituted for source reading."
+    }
+  ],
+  "test_records": [
+    {
+      "path": "frontend/features/passports/components/upload-link-list-states.test.tsx",
+      "sha256": "696f83c723c6860c8f68edbb6ff1e064abb38b61974cf302b27799667eeec19c",
+      "review_scope": "full",
+      "status": "reviewed-and-verified"
+    },
+    {
+      "path": "frontend/features/passports/components/upload-link-list-source.contract-helper.mjs",
+      "sha256": "012205071de0c4d89ab7d481bfcf3f9945b6244efcd30d40ec5003b4cd860130",
+      "review_scope": "full",
+      "status": "reviewed-and-verified"
+    },
+    {
+      "path": "frontend/features/dashboard/components/dashboard-ui-transformation.contract.test.mjs",
+      "sha256": "948e47dec344c198ee85ac5aae7e58257d0f1447bc885167b7bd0ace834a9692",
+      "review_scope": "focused",
+      "status": "source-loader-retargeted",
+      "review_note": "Only the actual Group Links owner source loader changed. All original assertion bodies remain and passed; no new full physical-read claim for the shared contract test."
+    }
+  ],
+  "changed_runtime_files": 11,
+  "original_lines": 717,
+  "max_owner_lines": 235,
+  "fixes": [
+    "Initial active/archive fetch failures no longer render empty-success messages or zero totals for unavailable data; each list retries independently.",
+    "Failed refreshes explicitly label retained saved rows and disable retry while replacement fetching is active.",
+    "Each successful copy receives its own full two-second confirmation; older timers and out-of-order failures cannot clear the latest feedback.",
+    "Abandoned clipboard operations cannot schedule post-unmount feedback; effect cleanup cancels the pending timeout.",
+    "A stable empty list identity preserves filter memoization during unavailable renders."
+  ],
+  "proofs": {
+    "baseline": {
+      "path": ".tmp/upload-link-list-states-before.json",
+      "files": 1,
+      "cases": 6,
+      "passed": 1,
+      "failed": 5
+    },
+    "before_extraction_after_fixes": {
+      "path": ".tmp/upload-link-list-after-fixes.json",
+      "files": 2,
+      "cases": 17,
+      "passed": 17,
+      "failed": 0
+    },
+    "final": {
+      "path": ".tmp/upload-link-list-final-unit.json",
+      "files": 2,
+      "cases": 18,
+      "passed": 18,
+      "failed": 0
+    },
+    "node_contracts": {
+      "cases": 13,
+      "passed": 13,
+      "path": ".tmp/upload-link-list-contracts.txt"
+    },
+    "types": "passed",
+    "scoped_eslint": "passed14paths with zero warnings after stable empty default refinement",
+    "existing_passport_ratchets": {
+      "modules": 109,
+      "passed": true
+    },
+    "movement": {
+      "parts": 41,
+      "passed": true,
+      "path": "docs/audit/dashboard-2026-10-30/upload-link-list-movement-proof.json"
+    },
+    "formatting": {
+      "emitted_AST_unchanged": true,
+      "path": "docs/audit/dashboard-2026-10-30/upload-link-list-format-proof.json"
+    }
+  },
+  "preserved": [
+    "Existing11 actual archived disclosure/company-update/retention/error/pending/role-denial cases remain and pass.",
+    "One native anchor per import action, current public upload target URLs and original retry/retention request payloads.",
+    "Closed/archive confirmation text, reversible opening/restoration, archived disclosure, shared deferred search and modal keyboard guards.",
+    "Public component name and route imports unchanged; original source-contract assertion bodies unchanged."
+  ],
+  "remaining_original_oversized_owners": 6,
+  "limitations": [
+    "No whole application build/suite repeated in this affected feature batch.",
+    "Current affected rendering tests use jsdom; no new production-route browser qualification is claimed here."
+  ]
+}

@@ -1,0 +1,274 @@
+{
+  "files": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_composer.py",
+      "sha256": "8ffe7f51d1bf42bf82a3d2df3b17e45283dd98b0432c45cc860d65f5a5f920b2",
+      "physical_lines": 149,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded untruncated output after cohesive phase movement. Complete declaration/expanded statement proofs, current evaluated annotations/import identities and affected behavior checks retained. Read completion is separate from remaining coverage/service validation debt; see final receipt."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_composer_support.py",
+      "sha256": "1bdaa9f902ea5054f80cb1edf701720a63f461cfa5cb5efcf922073fccb20fca",
+      "physical_lines": 134,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded untruncated output after cohesive phase movement. Complete declaration/expanded statement proofs, current evaluated annotations/import identities and affected behavior checks retained. Read completion is separate from remaining coverage/service validation debt; see final receipt."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_composer_content.py",
+      "sha256": "920f7c816e41d3726049ff7dbb973d741a21d20602ca6ca87ecb8f3273449bf8",
+      "physical_lines": 184,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded untruncated output after cohesive phase movement. Complete declaration/expanded statement proofs, current evaluated annotations/import identities and affected behavior checks retained. Read completion is separate from remaining coverage/service validation debt; see final receipt."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_composer_rendering.py",
+      "sha256": "f28546ca8349a35fb307ee04fdd330a84f5eeb94b117042c80ef5d8009893784",
+      "physical_lines": 95,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded untruncated output after cohesive phase movement. Complete declaration/expanded statement proofs, current evaluated annotations/import identities and affected behavior checks retained. Read completion is separate from remaining coverage/service validation debt; see final receipt."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_composer_legacy.py",
+      "sha256": "01c45bce092c04f6e8a1b581d2bd60583ef9e5b5cc393494225c94e2936a8c27",
+      "physical_lines": 122,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded untruncated output after cohesive phase movement. Complete declaration/expanded statement proofs, current evaluated annotations/import identities and affected behavior checks retained. Read completion is separate from remaining coverage/service validation debt; see final receipt."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_composer_snapshots.py",
+      "sha256": "cd0995a829e55ee8e02a15357a05c6cb0a88361e51a0fe75842eb197d81e46ca",
+      "physical_lines": 203,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded untruncated output after cohesive phase movement. Complete declaration/expanded statement proofs, current evaluated annotations/import identities and affected behavior checks retained. Read completion is separate from remaining coverage/service validation debt; see final receipt."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_composer_media.py",
+      "sha256": "76be5978b5a0dc68cbc04bbc5746187b0991a70e9df30b04334bb9ba068c2d12",
+      "physical_lines": 156,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded untruncated output after cohesive phase movement. Complete declaration/expanded statement proofs, current evaluated annotations/import identities and affected behavior checks retained. Read completion is separate from remaining coverage/service validation debt; see final receipt."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_composer_preview.py",
+      "sha256": "e46be0a3c2166c1650c52591852ce33589e3a030edd3c6fd7d7089618ee8ff1e",
+      "physical_lines": 179,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded untruncated output after cohesive phase movement. Complete declaration/expanded statement proofs, current evaluated annotations/import identities and affected behavior checks retained. Read completion is separate from remaining coverage/service validation debt; see final receipt."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_composer_preview_response.py",
+      "sha256": "2ba3704eb3085a3c59a8f85b1326add1cca81a72e905cd09237a86c33901e957",
+      "physical_lines": 127,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded untruncated output after cohesive phase movement. Complete declaration/expanded statement proofs, current evaluated annotations/import identities and affected behavior checks retained. Read completion is separate from remaining coverage/service validation debt; see final receipt."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_resend.py",
+      "sha256": "e695316fe49e51e51f8d1c3cc45f6db84c5bed82287bf3344f93259a4b1b64ff",
+      "physical_lines": 233,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded untruncated output after cohesive phase movement. Complete declaration/expanded statement proofs, current evaluated annotations/import identities and affected behavior checks retained. Read completion is separate from remaining coverage/service validation debt; see final receipt."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_resend_claims.py",
+      "sha256": "cac51751dda4d3124233f2c54f889882ecdcd0663b1a0a21f70e0dcd4fa92fe8",
+      "physical_lines": 150,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded untruncated output after cohesive phase movement. Complete declaration/expanded statement proofs, current evaluated annotations/import identities and affected behavior checks retained. Read completion is separate from remaining coverage/service validation debt; see final receipt."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_resend_preparation.py",
+      "sha256": "3e3dabb7374324e38d37f8cf8e194eb647779a0cb702f9c2758e738870675c15",
+      "physical_lines": 181,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded untruncated output after cohesive phase movement. Complete declaration/expanded statement proofs, current evaluated annotations/import identities and affected behavior checks retained. Read completion is separate from remaining coverage/service validation debt; see final receipt."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_resend_publication.py",
+      "sha256": "589c7b567df25e42437e13293b4273d16d9271a2c35da2ffc53d620887b9b1ea",
+      "physical_lines": 106,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded untruncated output after cohesive phase movement. Complete declaration/expanded statement proofs, current evaluated annotations/import identities and affected behavior checks retained. Read completion is separate from remaining coverage/service validation debt; see final receipt."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend.py",
+      "sha256": "7d87f7da345264d54c1e14ef7e2c6e2e216e92d6921e876dfab1d18f2ea5f3ae",
+      "physical_lines": 150,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded untruncated output after cohesive phase movement. Complete declaration/expanded statement proofs, current evaluated annotations/import identities and affected behavior checks retained. Read completion is separate from remaining coverage/service validation debt; see final receipt."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_selection.py",
+      "sha256": "f23a5a32a53c98344caf3fbef41f6b3112e2d0a5ddfc9eb9241afb6981eafb0e",
+      "physical_lines": 103,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded untruncated output after cohesive phase movement. Complete declaration/expanded statement proofs, current evaluated annotations/import identities and affected behavior checks retained. Read completion is separate from remaining coverage/service validation debt; see final receipt."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_inputs.py",
+      "sha256": "b2a94f63ffe356dd88be7cb94d04cc7a2311aae9c9d8ee229d611bde5cae7e68",
+      "physical_lines": 75,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded untruncated output after cohesive phase movement. Complete declaration/expanded statement proofs, current evaluated annotations/import identities and affected behavior checks retained. Read completion is separate from remaining coverage/service validation debt; see final receipt."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_claims.py",
+      "sha256": "2833bbbdde3be16143c738ac423c20c2c195c7a86627ac1837f681c09f0b36c7",
+      "physical_lines": 160,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded untruncated output after cohesive phase movement. Complete declaration/expanded statement proofs, current evaluated annotations/import identities and affected behavior checks retained. Read completion is separate from remaining coverage/service validation debt; see final receipt."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_publication.py",
+      "sha256": "088449d63afee2a8d1bbd4c9e15dfbc54ec6a4c723e66a66aa0f5050913ad0af",
+      "physical_lines": 106,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded untruncated output after cohesive phase movement. Complete declaration/expanded statement proofs, current evaluated annotations/import identities and affected behavior checks retained. Read completion is separate from remaining coverage/service validation debt; see final receipt."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_support.py",
+      "sha256": "5e5005c5e9363de6f38e795d4d19c4640623eae3ff403ad36df49fab6bc6b326",
+      "physical_lines": 179,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded untruncated output after cohesive phase movement. Complete declaration/expanded statement proofs, current evaluated annotations/import identities and affected behavior checks retained. Read completion is separate from remaining coverage/service validation debt; see final receipt."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_history.py",
+      "sha256": "7aa092010e4484daa6acfe2952c3d23b0c1869d3418e6befdbcdc94d75863f9c",
+      "physical_lines": 182,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded untruncated output after cohesive phase movement. Complete declaration/expanded statement proofs, current evaluated annotations/import identities and affected behavior checks retained. Read completion is separate from remaining coverage/service validation debt; see final receipt."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_results.py",
+      "sha256": "a51ac1a8e56e844051c652837d464d763413ba43aa457ece15af57960dee1430",
+      "physical_lines": 88,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded untruncated output after cohesive phase movement. Complete declaration/expanded statement proofs, current evaluated annotations/import identities and affected behavior checks retained. Read completion is separate from remaining coverage/service validation debt; see final receipt."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_composer.py",
+      "sha256": "c0092665a99fceef9dc464469c84a33ca89609b8d2f75304db6c2ae8ba8ebe78",
+      "physical_lines": 246,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded untruncated output after cohesive phase movement. Complete declaration/expanded statement proofs, current evaluated annotations/import identities and affected behavior checks retained. Read completion is separate from remaining coverage/service validation debt; see final receipt."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_preview.py",
+      "sha256": "a31bbf1e65f3ab58f5509bec48b2b9daf7c8cc45df5b6fad2cc1043ddffbfe6b",
+      "physical_lines": 137,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded untruncated output after cohesive phase movement. Complete declaration/expanded statement proofs, current evaluated annotations/import identities and affected behavior checks retained. Read completion is separate from remaining coverage/service validation debt; see final receipt."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_preview_values.py",
+      "sha256": "22578dd2b40732b222d39ff358deb09db16ea062fe07fda967ef5f62c509e213",
+      "physical_lines": 183,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded untruncated output after cohesive phase movement. Complete declaration/expanded statement proofs, current evaluated annotations/import identities and affected behavior checks retained. Read completion is separate from remaining coverage/service validation debt; see final receipt."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_composer_persistence.py",
+      "sha256": "28c491d3d7fba80d5e028de835118ffcf36c58165d67cecf554ca0b80b615af7",
+      "physical_lines": 677,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical read (including all fixture/mock instrumentation and assertion bodies); old canonical consumer patches retargeted to real new owners. All264 existing assertions and36 pytest.raises controls across these five sources are AST/text exact after explicitly recorded CRLF-to-LF normalization. No assertion weakening, no live provider actions."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_bulk_resend.py",
+      "sha256": "607cfe85ba777cbcb723175962f5b7e27e8cfa0842b213090e2cd5f33722dad4",
+      "physical_lines": 562,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical read (including all fixture/mock instrumentation and assertion bodies); old canonical consumer patches retargeted to real new owners. All264 existing assertions and36 pytest.raises controls across these five sources are AST/text exact after explicitly recorded CRLF-to-LF normalization. No assertion weakening, no live provider actions."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_group_invite.py",
+      "sha256": "21da00839f108f8ad10e83097609326412f4dd8da86a6a981dc081cccda902ea",
+      "physical_lines": 361,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical read (including all fixture/mock instrumentation and assertion bodies); old canonical consumer patches retargeted to real new owners. All264 existing assertions and36 pytest.raises controls across these five sources are AST/text exact after explicitly recorded CRLF-to-LF normalization. No assertion weakening, no live provider actions."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_bulk_resend_preview.py",
+      "sha256": "46095b940459dcb93b7cc523ad7883a4daa33eaa61010932a88267975830b480",
+      "physical_lines": 512,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical read (including all fixture/mock instrumentation and assertion bodies); old canonical consumer patches retargeted to real new owners. All264 existing assertions and36 pytest.raises controls across these five sources are AST/text exact after explicitly recorded CRLF-to-LF normalization. No assertion weakening, no live provider actions."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_welcome_media_authority.py",
+      "sha256": "20023aa08d040d1f4fe74c1d200d3204b3c237a1e3a0481002178203e76301a0",
+      "physical_lines": 340,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical read (including all fixture/mock instrumentation and assertion bodies); old canonical consumer patches retargeted to real new owners. All264 existing assertions and36 pytest.raises controls across these five sources are AST/text exact after explicitly recorded CRLF-to-LF normalization. No assertion weakening, no live provider actions."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_delivery_ledger.py",
+      "sha256": "c0b534ee0e5a15b1aca8587c31ef45d4bbd8a0dd3d7ed1249b83023331732ac5",
+      "physical_lines": 2115,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "needs-follow-up",
+      "notes": "Physically read1\u201375 and1431\u20131545 from prior caller ledger, plus1835\u20131964 current follow-through. Complete broker-failure function1835\u20131948 read and its existing public-path case qualified once; adjacent next-test prefix is only partial. Three existing legacy controls are included in180 selection. No whole2115-line source-read credit; remaining file review remains open."
+    }
+  ]
+}

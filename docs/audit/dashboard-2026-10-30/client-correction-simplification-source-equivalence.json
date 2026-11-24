@@ -1,0 +1,6 @@
+{
+  "whole_module_ast_exact_after_only_dominated_guard_removal": true,
+  "guard_dominated_by_unchanged_key_not_in_same_local_dict_continue": true,
+  "comment_only_clarification": "Original OCR\u2192Original extraction; no extraction logic edited",
+  "current_runtime_sha256": "9d65e96f9e34da637b610dce21c8d91c87cb135abc404973aa2a1bf1bd1d89d6"
+}

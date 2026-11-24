@@ -1,18 +1,20 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
+import { readOperationsHooksSource } from "../hooks/operations-source.contract-helper.mjs";
+import { readOperationsApiSource } from "../api/operations-api-source.contract-helper.mjs";
 import {
   isRoomingPriorityFieldAllowed,
 } from "./rooming-priority-field-policy.mjs";
 
-const workspace = readFileSync(
-  new URL("./rooming-workspace-page.tsx", import.meta.url),
-  "utf8",
-);
-const passengerAllocation = readFileSync(
-  new URL("./rooming-passenger-hotel-allocation.tsx", import.meta.url),
-  "utf8",
-);
+const workspace = [
+  "./rooming-workspace-page.tsx", "./rooming-hotel-summary.tsx", "./rooming-hotel-dialog.tsx",
+  "./rooming-workspace-states.tsx", "../hooks/use-rooming-workspace-controller.ts",
+].map((path) => readFileSync(new URL(path, import.meta.url), "utf8")).join("\n");
+const passengerAllocation = [
+  "./rooming-passenger-hotel-allocation.tsx", "./rooming-roster-filters.tsx", "./rooming-selection-actions.tsx",
+  "./rooming-roster-group.tsx", "./rooming-roster-table.tsx", "../hooks/use-rooming-passenger-selection.ts",
+].map((path) => readFileSync(new URL(path, import.meta.url), "utf8")).join("\n");
 const autoAllocation = readFileSync(
   new URL("./rooming-auto-allocation.tsx", import.meta.url),
   "utf8",
@@ -29,14 +31,8 @@ const rosterGrouping = readFileSync(
   new URL("./rooming-roster-grouping.ts", import.meta.url),
   "utf8",
 );
-const api = readFileSync(
-  new URL("../api/operations.api.ts", import.meta.url),
-  "utf8",
-);
-const hooks = readFileSync(
-  new URL("../hooks/use-operations.ts", import.meta.url),
-  "utf8",
-);
+const api = readOperationsApiSource();
+const hooks = readOperationsHooksSource();
 const endpoints = readFileSync(
   new URL("../../../lib/api/endpoints.ts", import.meta.url),
   "utf8",
@@ -59,7 +55,7 @@ test("manual room generation and drag allocation are removed from product UI", (
   );
   assert.doesNotMatch(
     hooks,
-    /generateRooms:\s+useMutation|allocatePassenger:\s+useMutation|deleteRoom:\s+useMutation|updateRoom:\s+useMutation|orderRooms:\s+useMutation/,
+    /(?:generateRooms|allocatePassenger|deleteRoom|updateRoom|orderRooms):\s+use(?:Private)?Mutation/,
   );
   assert.doesNotMatch(api, /room_count/);
   assert.doesNotMatch(hooks, /room_count/);

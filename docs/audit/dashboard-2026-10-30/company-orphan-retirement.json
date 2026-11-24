@@ -1,0 +1,102 @@
+{
+  "proof": "All eight runtime modules are unreachable from all122 app/framework import roots, including type references and literal dynamic imports. Every incoming runtime edge is inside this retired set. Whole frontend/release/config/native source reference searches found no external runtime consumer. Associated tests render only these unreachable components; none tests the retained CompanySettings toggle or current company person/history/document/matching flows.",
+  "graph_file_count": 846,
+  "graph_roots": 122,
+  "incoming_edges": [
+    {
+      "from": "frontend/features/companies/components/company-review-tasks.tsx",
+      "to": "frontend/features/companies/api/company-review-tasks.api.ts"
+    },
+    {
+      "from": "frontend/features/companies/components/traveller-enrollment-dialog.tsx",
+      "to": "frontend/features/companies/api/traveller-enrollment.api.ts"
+    },
+    {
+      "from": "frontend/features/companies/components/traveller-enrollment-dialog.tsx",
+      "to": "frontend/features/companies/components/enrollment-document-context.tsx"
+    }
+  ],
+  "retired_files": [
+    {
+      "path": "frontend/features/companies/api/company-agency.api.ts",
+      "kind": "runtime",
+      "sha256": "a9fc57d23a3adffb5b88edace99f2efc435a7939f4f8c059faee88a7a3210887",
+      "physical_lines": 9
+    },
+    {
+      "path": "frontend/features/companies/api/company-review-tasks.api.ts",
+      "kind": "runtime",
+      "sha256": "b7360193b90e98f0c001351f3e46e03708fe36988b1a4f449f3ecb613305f4cd",
+      "physical_lines": 36
+    },
+    {
+      "path": "frontend/features/companies/api/traveller-enrollment.api.ts",
+      "kind": "runtime",
+      "sha256": "5b31f7e452620b9edc7d67360c71bdaea5c3cb1dfadc7fa2173a8eb487e01cf8",
+      "physical_lines": 16
+    },
+    {
+      "path": "frontend/features/companies/components/company-reuse-policy.tsx",
+      "kind": "runtime",
+      "sha256": "d7a4ae91656978413401720e42757acd9c5a30ae9942cd5dd60866dd1cedff45",
+      "physical_lines": 37
+    },
+    {
+      "path": "frontend/features/companies/components/company-review-tasks.tsx",
+      "kind": "runtime",
+      "sha256": "6a211d728b8e583e7c394b663b2d45ad839f0e70cf25de25d582fe56712ad4ec",
+      "physical_lines": 62
+    },
+    {
+      "path": "frontend/features/companies/components/enrollment-document-context.tsx",
+      "kind": "runtime",
+      "sha256": "810cd068ef40eca35608d222c1bf9bd70c285f2b5d7c06f63f49e2d7c29b7cc8",
+      "physical_lines": 17
+    },
+    {
+      "path": "frontend/features/companies/components/group-reuse-dialog.tsx",
+      "kind": "runtime",
+      "sha256": "b10fe872147ea428751e3eef8effb28917405ee03f3e9853270c3cd094a76ec0",
+      "physical_lines": 37
+    },
+    {
+      "path": "frontend/features/companies/components/traveller-enrollment-dialog.tsx",
+      "kind": "runtime",
+      "sha256": "a28b7224eec9b0c30f24c2ab4ba885869ce9deec984cd1eb6982e27a12bb55b9",
+      "physical_lines": 59
+    },
+    {
+      "path": "frontend/features/companies/components/reuse-setup.test.tsx",
+      "kind": "obsolete-component-test",
+      "sha256": "036ffd044fe3f9d7216e1f436dfd6a7c9a36fc273ca1ac20ca203873f8d049e7",
+      "physical_lines": 41
+    },
+    {
+      "path": "frontend/features/companies/components/company-review-tasks.test.tsx",
+      "kind": "obsolete-component-test",
+      "sha256": "bd43592e83a6fd163613139c1c9d8488e5245078ecd5d7067eb56776bff6a2c7",
+      "physical_lines": 38
+    },
+    {
+      "path": "frontend/features/companies/components/traveller-enrollment-dialog.test.tsx",
+      "kind": "obsolete-component-test",
+      "sha256": "26659dc8b12619b98319271e15a085fcefc33b40c24b19156529962cd4ee7740",
+      "physical_lines": 62
+    }
+  ],
+  "shared_api_trim": {
+    "path": "frontend/features/companies/api/reuse-setup.api.ts",
+    "removed_methods": [
+      "group",
+      "saveGroup"
+    ],
+    "preserved_methods": [
+      "policy",
+      "savePolicy"
+    ],
+    "before_sha256": "99b7c7c75b438b4bc6018ee7a92509d1abded88868bf589c0ee72970fdb83518",
+    "after_sha256": "ea23c6a3f5f1131c2a55a77b480cbecf9eb7aa5719592ee120450e03aec44c74"
+  },
+  "backend_routes": "Unchanged: frontend reachability is not proof that backend contracts have no MCP, native or external consumer.",
+  "critical_coverage_targets_removed": []
+}

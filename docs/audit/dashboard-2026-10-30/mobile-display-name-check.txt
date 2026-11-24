@@ -1,0 +1,16 @@
+npm warn "src/core/config/__tests__/release-config-contract.test.ts" is being parsed as a normal command line argument.
+npm warn Unknown cli config "--runInBand". This will stop working in the next major version of npm.
+
+> group-companion-mobile@1.0.10 test
+> jest --runInBand src/core/config/__tests__/release-config-contract.test.ts
+
+PASS src/core/config/__tests__/release-config-contract.test.ts
+  mobile release configuration
+    √ isolates OTA updates by native fingerprint and removes unused iOS permissions (24 ms)
+    √ keeps the store bundle and installable APK on the production EAS environment
+
+Test Suites: 1 passed, 1 total
+Tests:       2 passed, 2 total
+Snapshots:   0 total
+Time:        11.927 s
+Ran all test suites matching /src\\core\\config\\__tests__\\release-config-contract.test.ts/i.

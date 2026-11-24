@@ -1,0 +1,33 @@
+{
+  "refreshed_id": "frontend_api:frontend/features/auth/api/auth.api.ts",
+  "before": {
+    "id": "frontend_api:frontend/features/auth/api/auth.api.ts",
+    "kind": "frontend_api_contract",
+    "source": "frontend/features/auth/api/auth.api.ts",
+    "contract_sha256": "25864ca131fc09fbceec64203571a9be52f91ed846f61e2c6d4aeda5f8425cc9"
+  },
+  "after": {
+    "id": "frontend_api:frontend/features/auth/api/auth.api.ts",
+    "kind": "frontend_api_contract",
+    "source": "frontend/features/auth/api/auth.api.ts",
+    "contract_sha256": "785e4b67f03dcc6966fbc8723b305f681cebab079fc2a77f1d6ff287dbaf30be"
+  },
+  "operation_classifications_and_states_unchanged": true,
+  "retired_use_me_hook_ledger_identities": [],
+  "retirement_explanation": "No directly discovered transport/callable ledger identity existed for the removed use-me hook; no live authApi.getMe callable is removed.",
+  "review_basis": "Current authApi facade and continuity helper read; manual_security auth continuity/retirement evidence. Only AbortSignal/context stale-response guards changed; no endpoint, credential, scope or authority added.",
+  "evidence": [
+    "docs/audit/dashboard-2026-10-30/auth-continuity-verification.json",
+    "docs/audit/dashboard-2026-10-30/auth-retired-files.json"
+  ],
+  "sources": [
+    {
+      "path": "frontend/features/auth/api/auth.api.ts",
+      "sha256": "97c020b9cfc582f3ef0ca5bdc001181f2c8438c2cdebc7c149b0a9180a8a5b97"
+    },
+    {
+      "path": "frontend/features/auth/services/authentication-context.ts",
+      "sha256": "6f88a21ae49ef3ef0c16413d7ea8b6a1d368d5049109279621bb01a38aed527d"
+    }
+  ]
+}

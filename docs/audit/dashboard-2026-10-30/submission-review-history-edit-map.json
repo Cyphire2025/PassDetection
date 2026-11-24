@@ -1,0 +1,12 @@
+[
+  {
+    "function": "confirm_passport",
+    "whole_common_statements": 4,
+    "original_trigger": "f'staff-confirm:{result.id}:{result.extraction_revision}'"
+  },
+  {
+    "function": "staff_approve_passport",
+    "whole_common_statements": 4,
+    "original_trigger": "f'staff-approval:{result.id}:{result.extraction_revision}'"
+  }
+]

@@ -1,0 +1,37 @@
+{
+  "before_path": "backend/app/infrastructure/database/my_photos_models.py",
+  "before_sha256": "6c16a6e6226359219df62ecc6e23feacc48bb4cdb6667c05a863b75d4f013fa9",
+  "before_lines": 1437,
+  "class_owners": {
+    "MyPhotoGalleryModel": "backend/app/infrastructure/database/my_photo_gallery_models.py",
+    "MyPhotoGalleryManifestModel": "backend/app/infrastructure/database/my_photo_gallery_models.py",
+    "MyPhotoGalleryManifestBatchModel": "backend/app/infrastructure/database/my_photo_gallery_models.py",
+    "MyPhotoMediaAssetModel": "backend/app/infrastructure/database/my_photo_media_models.py",
+    "MyPhotoAssetVariantModel": "backend/app/infrastructure/database/my_photo_media_models.py",
+    "MyPhotoFaceOccurrenceModel": "backend/app/infrastructure/database/my_photo_face_models.py",
+    "MyPhotoEnrollmentModel": "backend/app/infrastructure/database/my_photo_enrollment_models.py",
+    "MyPhotoLivenessSessionModel": "backend/app/infrastructure/database/my_photo_liveness_models.py",
+    "MyPhotoSearchRunModel": "backend/app/infrastructure/database/my_photo_search_models.py",
+    "MyPhotoMatchModel": "backend/app/infrastructure/database/my_photo_search_models.py",
+    "MyPhotoJobModel": "backend/app/infrastructure/database/my_photo_job_models.py",
+    "MyPhotoDeliveryAuthorizationModel": "backend/app/infrastructure/database/my_photo_delivery_models.py"
+  },
+  "exact_class_ast_count": 12,
+  "original_module_all_preserved": true,
+  "limits": "No class/table/column/default/FK/index/constraint/ordered-field changes. Current12classASTs,174mapper/table registry and12PG/SQLite DDL/mapper/default/legacy alias snapshots byte-equal in fresh processes. Natural Python class __module__ follows focused owner; all old module attributes/global facade aliases and original __all__ remain. Not a live PostgreSQL/populated migration qualification.",
+  "final_current_sha256": {
+    "backend/app/infrastructure/database/my_photo_delivery_models.py": "53f6c59cf80557b2637dac2ee695fc3fc289404cc9adb65d76f3c1fa2abf1372",
+    "backend/app/infrastructure/database/my_photo_enrollment_models.py": "12c5485971cb84d4352aa9da033093e5b45a06620b1a57c3c9f690c186367092",
+    "backend/app/infrastructure/database/my_photo_face_models.py": "815ac41087eb0de4d91e2866a13aa09b86fd76fb95b278b21dce3e7f2c6d1e53",
+    "backend/app/infrastructure/database/my_photo_gallery_models.py": "85a36a0d57fcf4785ec99c91197c7d1f1069ba9c8b9b303800285021093ea1f7",
+    "backend/app/infrastructure/database/my_photo_job_models.py": "1c058f8337a89b3e9b33beeca07ac5bff03f08e7f95140a0d80ad620cdf253c0",
+    "backend/app/infrastructure/database/my_photo_liveness_models.py": "9940d1ee388d9e6026e9e096c5b6421187a9e1547f8d04a4a5bfffef10c022fd",
+    "backend/app/infrastructure/database/my_photo_media_models.py": "f2553c9fc595913e71a896e91dadc2755bda211459cc61bc53c42dff799844a6",
+    "backend/app/infrastructure/database/my_photo_search_models.py": "8e20ef722c49997afc5f7ac857609cd142ebc16baa848ffd570138c7e2c05a67",
+    "backend/app/infrastructure/database/my_photos_models.py": "4b0e472e09be93233015330d740be5951cf0327bba7d3d64a6ceb40435bee93f"
+  },
+  "post_format_all_12_class_asts_identical": true,
+  "fresh_process_metadata_equal": true,
+  "metadata_before_sha256": "43f80bdc97cc61bd8e88931dbfa088f99d8528871acb84505b999f01e3ff05ca",
+  "metadata_after_sha256": "43f80bdc97cc61bd8e88931dbfa088f99d8528871acb84505b999f01e3ff05ca"
+}

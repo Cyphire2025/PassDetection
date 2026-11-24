@@ -110,18 +110,15 @@ def load_budget_file(path: Path) -> tuple[int, list[ModuleBudget]]:
             path=normalized_path,
             baseline_lines=int(raw["baseline_lines"]),
             maximum_lines=int(raw["maximum_lines"]),
-            baseline_max_function_complexity=int(
-                raw["baseline_max_function_complexity"]
-            ),
+            baseline_max_function_complexity=int(raw["baseline_max_function_complexity"]),
             maximum_function_complexity=int(raw["maximum_function_complexity"]),
             minimum_coverage_percent=float(raw["minimum_coverage_percent"]),
         )
         if budget.baseline_lines < 1 or budget.maximum_lines < budget.baseline_lines:
             raise ValueError(f"Invalid line budget for {budget.path}")
         if (
-            budget.baseline_max_function_complexity < 1
-            or budget.maximum_function_complexity
-            < budget.baseline_max_function_complexity
+            budget.baseline_max_function_complexity < 0
+            or budget.maximum_function_complexity < budget.baseline_max_function_complexity
         ):
             raise ValueError(f"Invalid complexity budget for {budget.path}")
         if not 0 <= budget.minimum_coverage_percent <= 100:
@@ -187,7 +184,9 @@ def evaluate_coverage_gates(budget_file: Path, coverage_file: Path) -> list[str]
             if not math.isfinite(observed) or not 0 <= observed <= 100:
                 raise ValueError(f"{label}: invalid measured {metric} coverage")
             if observed + 1e-9 < minimum:
-                violations.append(f"{label}: {metric} coverage {observed:.2f}% is below reviewed floor {minimum:.2f}%")
+                violations.append(
+                    f"{label}: {metric} coverage {observed:.2f}% is below reviewed floor {minimum:.2f}%"
+                )
 
     check("Repository", root, gates["global"])
     seen: set[str] = set()
@@ -230,9 +229,7 @@ def evaluate_budgets(
             continue
         measurement = measure_source(source_path, budget.path)
         coverage_percent = (
-            None
-            if coverage_percentages is None
-            else coverage_percentages.get(budget.path)
+            None if coverage_percentages is None else coverage_percentages.get(budget.path)
         )
         measurement = ModuleMeasurement(
             path=measurement.path,

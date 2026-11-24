@@ -1,0 +1,23 @@
+{
+  "status": "Current additive frontend gates and strict loader qualified; final frontend runtime/build/browser checkpoint separate",
+  "staged_receipt_sha256": "5233ba24f62c36ef44bec2dd4a8159ff831b62bc5c95a20ca8161feb6458f93e",
+  "normal_modules": 669,
+  "critical_includes": 34,
+  "existing661_rows_and_caps_byte_exact": true,
+  "old31_includes_and_numerical_coverage_floors_exact": true,
+  "release_bindings": 144,
+  "actual_canonical_AFTER_matches": 144,
+  "actual_Git_BEFORE_matches": 288,
+  "strict_loader_cases": 14,
+  "passing_subtests_separate": 335,
+  "strict_loader_command_receipt_sha256": "052650ad6b4ae62bf14a15b0fb1211eb12cc53665e643372684f26f28bffa6ff",
+  "backend_normal900_critical165_and_architecture_unchanged": true,
+  "source_controls": {
+    "frontend/scripts/verify-frontend-module-budgets.mjs": "45ddf8fd2ae390af222eb72f224d4b513368470a82ddcf083b69088827febde6",
+    "scripts/release_workspace_branding_bindings.json": "b98d6e57df317ad83f602a529634ac01410eaa5c7689b26b51102778bd944f48",
+    "scripts/release_workspace_branding_policy.py": "f9aa29d4e02812dbc044916e32e919a6e36a5a105a465e66654bc2fcd9d7bd1b",
+    "frontend/vitest.config.mts": "5e80c5305955ce1a682aefbf65a53f7d12aea50c103235299474460b6dd5d20c"
+  },
+  "historical_qualification_stamps_renewed": 0,
+  "scope": "Reviewed measured additive frontend owners only; original manifests/policy/verifier preserved for exact inverse. No production release qualification."
+}

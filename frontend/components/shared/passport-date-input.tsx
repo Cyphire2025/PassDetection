@@ -55,6 +55,7 @@ export function PassportDateInput({
     : undefined;
 
   const handleTextChange = (nextValue: string) => {
+    if (props.disabled || props.readOnly) return;
     const masked = maskPassportDateForUi(nextValue);
     setDisplayValue(masked);
     setWasBlurred(false);
@@ -67,6 +68,7 @@ export function PassportDateInput({
   };
 
   const openPicker = () => {
+    if (props.disabled || props.readOnly) return;
     const picker = pickerRef.current;
     if (!picker) return;
     try {
@@ -101,7 +103,7 @@ export function PassportDateInput({
           isEditing.current = false;
           setWasBlurred(true);
           const parsed = parsePassportDateFromUi(displayValue);
-          if (parsed && isPassportIsoDateWithinRange(parsed, minIso, maxIso)) {
+          if (!props.disabled && !props.readOnly && parsed && isPassportIsoDateWithinRange(parsed, minIso, maxIso)) {
             setDisplayValue(formatPassportDateForUi(parsed));
             onValueChange(parsed);
           }
@@ -113,6 +115,7 @@ export function PassportDateInput({
             type="button"
             className="rounded p-0.5 text-slate-500 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
             aria-label="Choose date from calendar"
+            disabled={props.disabled || props.readOnly}
             onClick={openPicker}
           >
             <CalendarDays className="h-4 w-4" aria-hidden="true" />
@@ -124,11 +127,13 @@ export function PassportDateInput({
         type="date"
         tabIndex={-1}
         aria-hidden="true"
+        disabled={props.disabled || props.readOnly}
         className="sr-only"
         value={isValidPassportIsoDate(value) ? value : ""}
         min={minIso}
         max={maxIso}
         onChange={(event) => {
+          if (props.disabled || props.readOnly) return;
           const iso = event.target.value;
           if (!iso) {
             setDisplayValue("");

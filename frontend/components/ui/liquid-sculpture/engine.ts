@@ -97,7 +97,6 @@ export class LiquidEngine {
   private presence = 0
   private presenceTarget = 0
   private burst = 0
-  private lastInput = -1e9
   private settle = 1e9
   private touchRelease = 0
 
@@ -133,7 +132,12 @@ export class LiquidEngine {
       (nav.hardwareConcurrency || 8) <= 4 ||
       (nav.deviceMemory || 8) <= 4 ||
       window.matchMedia("(pointer: coarse)").matches
-    this.initGL()
+    try {
+      this.initGL()
+    } catch (error) {
+      gl.getExtension("WEBGL_lose_context")?.loseContext()
+      throw error
+    }
     canvas.addEventListener("webglcontextlost", this.onLost, false)
   }
 
@@ -414,7 +418,6 @@ export class LiquidEngine {
     this.target.x = x
     this.target.y = y
     this.presenceTarget = 1
-    this.lastInput = now
     this.settle = 0
     if (type === "down") {
       this.burst = 1

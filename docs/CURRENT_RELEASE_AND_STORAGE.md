@@ -1,12 +1,18 @@
 # Historical storage cutover procedure
 
-The current visa/flight tracker release is the reviewed additive contract
-`travel_tracker_additive_v1`: `0128_mcp_document_delivery → 0129_travel_tracker`.
-Use its writer-fenced retained migration executor and the deployment checks in
-[TRAVEL_TRACKER.md](TRAVEL_TRACKER.md). It preserves the existing database and
-storage volumes, all MCP permissions/settings/grants/requests, and historical
-business data. The procedure below records the earlier `0112 → 0113` storage
-cutover and is not the deployment path for the tracker release.
+For a current deployment, use [Choosing a deployment](deployment-modes.md) and
+the exact qualified checkout's
+[release manifest](../backend/app/core/config/release_manifest.json). Its
+deployment kind, admitted source revision/schema and target determine the
+reviewed operator path. Preserve the existing installation and its data; do not
+select an older feature migration merely from this document's commands.
+The procedure below records the earlier `0112 → 0113` storage cutover. The later
+tracker's original `travel_tracker_additive_v1` contract,
+`0128_mcp_document_delivery → 0129_travel_tracker`, is recorded in
+[TRAVEL_TRACKER.md](TRAVEL_TRACKER.md). Its preservation policy covers the existing
+database/storage volumes, MCP permissions/settings/grants/requests and business
+history. Neither historical boundary replaces the current manifest or the
+selected release's qualification and recovery checks.
 
 This procedure upgrades the existing single-VPS Compose installation. It is not
 a bootstrap command for an empty host. Use the exact reviewed, pushed main commit
@@ -14,12 +20,12 @@ from the installation's existing checkout and its protected `.env`. Local
 qualification used synthetic data; the Hostinger KVM 4 VPS has not been deployed
 or migrated by this work.
 
-The source of truth is [release_manifest.json](../backend/app/core/config/release_manifest.json):
+At the time of this storage cutover, the reviewed release manifest declared
 target schema `0113_document_follow_up`, upgrading the reviewed
 `0112_passport_cover_edits` baseline; workers `worker`, `email-worker`,
 `email-ai-worker`, `extraction-worker`, `verification-worker`, `visa-ai-worker`,
-`my-photos-worker`, `ecr-worker`; plus the `email-beat` scheduler. The current
-manifest accepts the reviewed `0112` baseline or its current `0113` head.
+`my-photos-worker`, `ecr-worker`; plus the `email-beat` scheduler. That historical
+manifest accepted the reviewed `0112` baseline or its `0113` head.
 Migration `0113` adds an initially false manual document follow-up flag to
 passport submissions. It preserves existing records, images and approval status;
 downgrade refuses to discard any active flags.

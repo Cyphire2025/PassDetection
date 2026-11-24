@@ -1,0 +1,19 @@
+{
+  "fresh_environment": ".tmp/dashboard-security-patch-venv-2",
+  "versions": {
+    "pyattest": "1.0.5",
+    "python-jose": "3.5.0",
+    "ecdsa": "0.19.2"
+  },
+  "source_sha256": {
+    "pyattest": "a17b1eca43f16f807bbc6585716f1dc4f4fcf0767428697d4cdec6214bf08eed",
+    "python-jose": "a7be317489c146c3ccb94e31ae766915606ca8bf04c3996e56f0199a362c80dd",
+    "ecdsa": "0922bc05140f766ccc85db444d84d92a0d7fb2bfba470ea6ab1a49da911b282b"
+  },
+  "application_sources_checked": 1176,
+  "verifier_modules_available": 25,
+  "only_lock_fingerprint_changed": true,
+  "runtime_lock_sha256": "1fe14679cfb5a5dce7043966982e4b348c5861d9d952dfc32183eea7ce1e2bd0",
+  "review_errors": [],
+  "owner_expiry_advisories_rationale_unchanged": true
+}

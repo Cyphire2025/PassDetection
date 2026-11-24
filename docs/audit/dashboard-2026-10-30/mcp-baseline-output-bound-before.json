@@ -1,0 +1,18 @@
+{
+  "source_sha256": "fffd4031b4c4f9c216c52cb5a04c587b6affa57b542f4ebb10cf16d472a4c1c9",
+  "cases": [
+    {
+      "synthetic_output_bytes": 512,
+      "status": "returned",
+      "producer_reached_side_effect_after_entire_output": true,
+      "seconds": 0.125
+    },
+    {
+      "synthetic_output_bytes": 9437184,
+      "status": "A required read-only probe failed or exceeded its output bound",
+      "producer_reached_side_effect_after_entire_output": true,
+      "seconds": 0.1559999999954016
+    }
+  ],
+  "scope": "Real local Python child only; no Docker/provider/network. Marker is synthetic fixture evidence. Oversize failure is after child has emitted full9MiB, proving existing8MiB check is post-capture, not continuous byte admission. No peak RSS or unbounded remote lifetime claim."
+}

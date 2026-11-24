@@ -5,7 +5,7 @@
 Template names default to backend settings loaded from the repository-root `.env`.
 Super administrators can now save persistent name overrides in Settings, or reset
 each name to its ENV default, without restarting services. See
-[WhatsApp template-name settings](whatsapp-template-settings.md) for all seven slots,
+[WhatsApp template-name settings](whatsapp-template-settings.md) for all nine slots,
 permissions, revision checks, and the current component contracts. The original
 Welcome/Passport Link ENV defaults are:
 

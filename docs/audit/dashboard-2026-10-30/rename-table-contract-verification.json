@@ -1,0 +1,47 @@
+{
+  "recorded_at": "2026-10-31T09:18:16.753513+00:00",
+  "status": "frozen",
+  "scope": "One test loader only; no runtime, API, budget, package, config or coverage threshold change.",
+  "before": {
+    "path": "frontend/features/dashboard/components/dashboard-ui-transformation.contract.test.mjs",
+    "sha256": "948e47dec344c198ee85ac5aae7e58257d0f1447bc885167b7bd0ace834a9692",
+    "source_snapshot": ".tmp/frontend-residual-coverage/rename-loader-before.mjs",
+    "actual_negative": ".tmp/frontend-residual-coverage/rename-loader-baseline.txt",
+    "failure": "Dense operational tables source contract failed its unchanged <caption className=\"sr-only\"> assertion because the composition page delegates tables to SavedRenameBatches and RenameResults."
+  },
+  "after": {
+    "path": "frontend/features/dashboard/components/dashboard-ui-transformation.contract.test.mjs",
+    "sha256": "bdae0536bb5e55912fcc9e4a7349d106616495c94aae8ebc7c1c1d2823b78076",
+    "physical_lines": 251,
+    "review_scope": "full",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "notes": "Complete current source read. Dashboard loader now invokes the existing live rename aggregate; all original test bodies/assertions identical. The helper verifies named imports, rendered children and controller wiring before including real upload/saved/results sources."
+  },
+  "supporting_live_helper": {
+    "path": "frontend/features/documents/components/document-rename-source.contract-helper.mjs",
+    "sha256": "ea31bc8335013173a52ff222145ac5a2718b881837a6d1ce02ac0fbfa5669108",
+    "physical_lines": 20,
+    "review_scope": "full",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "notes": "Complete current source read. Dashboard loader now invokes the existing live rename aggregate; all original test bodies/assertions identical. The helper verifies named imports, rendered children and controller wiring before including real upload/saved/results sources."
+  },
+  "assertion_preservation": {
+    "all_original_test_bodies_byte_identical": true,
+    "method": "Compare original/current raw source from first test declaration through end of file; only one import plus one loader initializer differs."
+  },
+  "actual_affected_check": {
+    "command": "node --test --test-reporter=tap features/dashboard/components/dashboard-ui-transformation.contract.test.mjs",
+    "working_directory": "frontend",
+    "passed": 13,
+    "failed": 0,
+    "skipped": 0,
+    "raw_log": ".tmp/frontend-residual-coverage/rename-loader-after.txt"
+  },
+  "limits": [
+    "Static source contract only; no claim of rendered/browser qualification.",
+    "No broad suite/build/browser run.",
+    "Frozen rename and group-state runtime/test source fences remain separately qualified by their own affected receipts."
+  ]
+}

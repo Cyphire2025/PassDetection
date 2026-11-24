@@ -1,0 +1,19 @@
+{
+  "raw_sha256": "e30af34236ff0b12140733639f9225140e874fe46bf0e48b55b822d63498db8e",
+  "definitions": {
+    "WhatsAppCloudApiError": "0b43de7e8903af0bfc6ee0b2d20c9aaeb323065ddada68b1ad020a9e915baf00",
+    "_text_parameter": "18eb4230b0803c9db0d9fb90f20061f993c2117cbe5e52ea1fc91bac51861195",
+    "_image_parameter": "63786cbb630f07c7d1ffa6a1dc5de7e71ebe476fb71206cfb78570fb97275618",
+    "_document_parameter": "aa76330e1e925bab5bb169ebd5f357da81d60057bc5d99433f6bf218d7cdefa9",
+    "_meta_code": "5e32acf450b4236effecc52c4bbcb501d21cf1e3c004f11d7c30d5e896f173f0",
+    "_meta_error_reference": "c1f28ba6001440dc46098bcf7fbc8e7b41f9975bb9b88df55c8f8b8c3774a202",
+    "upload_whatsapp_image": "8556b26cf52b115a35b0375a88003a5b111d63495144dea43af10ac83624834f",
+    "upload_whatsapp_document": "8517c11ff7a69392b2ce1f53f4f5fe8788d4599c2d243ad660356b05307e42b5",
+    "send_whatsapp_document_template": "ba059642d7338ad95055fc4a06ba7ebf77f6f35e742af8c56c5e2a481cc45bcf",
+    "send_whatsapp_qr_template": "f72cbf84376b7bb7b80475f3b76688512a994815a5e68f0e08aaeb7ab8a9c2f1",
+    "_send_whatsapp_template_payload": "afd7b89c89fc0d4cf30b259cbde14dd74545884f6e819c30fe9ecb5df7260b4c",
+    "send_whatsapp_authentication_template": "97acc6ca7f24ab532f30fa3059ceafd7996d60dd4677efbea6d0b4d0610b5cdd",
+    "send_whatsapp_template": "775eff8835ee8bb2acc59daf07096cc3344bbefba78c6d11a28dbb111de5ec1b",
+    "send_whatsapp_document_update_template": "cf29f8cd84a25da77b2bac0eabaee01401a4988838c2d613dbd99f49fa38592c"
+  }
+}

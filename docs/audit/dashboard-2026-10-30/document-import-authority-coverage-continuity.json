@@ -1,0 +1,48 @@
+{
+  "raw_original": "backend/.coverage",
+  "isolated_copy": ".tmp/document-import-authority/.coverage",
+  "sha256": "c25dd81b2da90dd0754dd4b4b3710c378f6af32d4dbb9cdb6693222cc95a3f0f",
+  "owned_runtime": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/document_import.py",
+      "sha256": "ec34e2f4c252e18cc192eb3ba6eff60f177243dfb33214e71dc5c793d10ef52d",
+      "lines_and_branches_match": true
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/document_import_authority.py",
+      "sha256": "73a0a685a17eb592a944db685de700c9fa120828451d7e0a832ef6114654bd82",
+      "lines_and_branches_match": true
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/document_import_failure.py",
+      "sha256": "50b0f10c49e96cd70b175131f1a120c3da71673251acfcf8f2f114bb747ebee5",
+      "lines_and_branches_match": true
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/document_import_persistence.py",
+      "sha256": "8683b7909356c0036d32493f4739e30d3466fc7a5c4130f662e03918788a9a97",
+      "lines_and_branches_match": true
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/document_import_preview.py",
+      "sha256": "4fe70fde54aa40be11051b8824388129936b4250131b2a97c7e196b154655695",
+      "lines_and_branches_match": true
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/document_import_processing.py",
+      "sha256": "85e5d17e7ace085980f79203fe869c55b03e0178e432648595431dbf3544dc63",
+      "lines_and_branches_match": true
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/document_import_staging.py",
+      "sha256": "e2af270a396ab3c58ea785d08b68ae2d5d3219e874f3ce5ce8432d83d78e1974",
+      "lines_and_branches_match": true
+    }
+  ],
+  "supplement_sources": {
+    "backend/tests/unit/presentation/document_import_authority_fixture.py": "3c31b2caedae1b086f3206768d3848e433b5a4215fc4793ee5d92c59f8435b1e",
+    "backend/tests/unit/presentation/test_document_import_retained_sources.py": "b55d99ec1ef74214173e40aeccd0a7f05d2835b828569f854242f4270e2bf8d4",
+    "backend/tests/unit/presentation/test_document_import_preview_boundary.py": "49908e643dae84a282d3b6b553a8b6aa7a83a8dc60621e480f3d0af3321af0e0"
+  },
+  "note": "Same seven runtime sources as 111-case invocation. Fixture adds only exposed synthetic client for retained-source supplement. The raw data is copied, not reconstructed from JSON."
+}

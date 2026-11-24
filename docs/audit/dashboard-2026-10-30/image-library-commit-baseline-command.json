@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "--tb=short",
+    "-o",
+    "addopts=",
+    "tests/unit/presentation/test_passport_image_library_commit_outcomes.py"
+  ],
+  "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection\\backend",
+  "exit_code": 1,
+  "before": {
+    "backend/app/presentation/api/v1/routes/passport_image_library.py": "f1f5e3dce2cb8e65f382458edcebb224ebe7812e6dadfc5ca217fa2245b8cb7a",
+    "backend/tests/unit/presentation/test_passport_image_library_commit_outcomes.py": "6aef308447cc921b0b01697fa6977a5dd030491d322c0862e1e0bfb7b6ddb10c"
+  },
+  "after": {
+    "backend/app/presentation/api/v1/routes/passport_image_library.py": "f1f5e3dce2cb8e65f382458edcebb224ebe7812e6dadfc5ca217fa2245b8cb7a",
+    "backend/tests/unit/presentation/test_passport_image_library_commit_outcomes.py": "6aef308447cc921b0b01697fa6977a5dd030491d322c0862e1e0bfb7b6ddb10c"
+  },
+  "source_frozen": true,
+  "output": "image-library-commit-baseline-tests.txt"
+}

@@ -1,0 +1,32 @@
+[
+  {
+    "path": "features/auth/services/cookie-mutation.ts",
+    "lines": 61,
+    "maxFunctionComplexity": 5
+  },
+  {
+    "path": "lib/api/request-owner.ts",
+    "lines": 82,
+    "maxFunctionComplexity": 10
+  },
+  {
+    "path": "stores/auth.store.ts",
+    "lines": 222,
+    "maxFunctionComplexity": 16
+  },
+  {
+    "path": "features/auth/api/auth.api.ts",
+    "lines": 96,
+    "maxFunctionComplexity": 2
+  },
+  {
+    "path": "features/auth/services/session-state.ts",
+    "lines": 214,
+    "maxFunctionComplexity": 7
+  },
+  {
+    "path": "test-support/browser-locks.ts",
+    "lines": 44,
+    "maxFunctionComplexity": 4
+  }
+]

@@ -5,13 +5,14 @@ from __future__ import annotations
 import unittest
 import uuid
 from types import SimpleNamespace
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock
 
 from fastapi import BackgroundTasks
 
 from app.presentation.api.v1.routes.passports import (
     retry_post_submission_verification,
 )
+from tests.route_dependencies import patch_route_dependency as patch_review_dependency
 
 
 class RetryPostSubmissionVerificationRouteTests(
@@ -69,23 +70,23 @@ class RetryPostSubmissionVerificationRouteTests(
         expected_response = object()
 
         with (
-            patch(
+            patch_review_dependency(
                 'app.presentation.api.v1.routes.passport_routes.submission_review.AuthorizationPolicy',
                 return_value=authorization,
             ),
-            patch(
+            patch_review_dependency(
                 'app.presentation.api.v1.routes.passport_routes.submission_review.PostSubmissionVerificationJobRepository',
                 return_value=job_repository,
             ),
-            patch(
+            patch_review_dependency(
                 'app.presentation.api.v1.routes.passport_routes.submission_review.AuditLogRepository',
                 return_value=audit_repository,
             ),
-            patch(
+            patch_review_dependency(
                 'app.presentation.api.v1.routes.passport_routes.submission_review.PostSubmissionVerificationDispatcher',
                 return_value=dispatcher,
             ),
-            patch(
+            patch_review_dependency(
                 'app.presentation.api.v1.routes.passport_routes.submission_review._response_from_dto',
                 new=AsyncMock(return_value=expected_response),
             ),

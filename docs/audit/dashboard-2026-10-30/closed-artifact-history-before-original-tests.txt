@@ -1,0 +1,599 @@
+FFFFFFFFFFFF                                                             [100%]
+================================== FAILURES ===================================
+___ test_closed_probes_survive_fresh_history_without_opening_ignored_media ____
+
+tmp_path = WindowsPath('C:/Users/nipun/AppData/Local/Temp/pytest-of-nipun/pytest-30/test_closed_probes_survive_fre0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002B20F369CD0>
+
+    def test_closed_probes_survive_fresh_history_without_opening_ignored_media(tmp_path, monkeypatch):
+        document = manifest()
+        write(tmp_path, document)
+        monkeypatch.setattr(inventory, "REPORT", tmp_path)
+        # The archive can be absent in a clean checkout: metadata is the evidence.
+        result = inventory.retired_source_history()
+>       assert set(result) == {PREFIX + name for name in FILENAMES}
+E       AssertionError: assert set() == {'assets/bran...pecified.mp4'}
+E         
+E         Extra items in the right set:
+E         'assets/branding/global-connect/journey-film/qa/browser-color-probes/limited-srgb.mp4'
+E         'assets/branding/global-connect/journey-film/qa/browser-color-probes/limited-unspecified.mp4'
+E         'assets/branding/global-connect/journey-film/qa/browser-color-probes/index.html'
+E         'assets/branding/global-connect/journey-film/qa/browser-color-probes/full-srgb.mp4'
+E         'assets/branding/global-connect/journey-film/qa/browser-color-probes/limited-709.mp4'
+E         Use -v to get more diff
+
+tests\unit\scripts\test_dashboard_audit_artifact_retirement.py:57: AssertionError
+__ test_probe_metadata_cannot_retire_another_asset_or_invent_source[missing] __
+
+tmp_path = WindowsPath('C:/Users/nipun/AppData/Local/Temp/pytest-of-nipun/pytest-30/test_probe_metadata_cannot_ret0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002B20F820710>
+mutation = 'missing'
+
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "missing",
+            "duplicate",
+            "foreign",
+            "wrong_archive",
+            "wrong_hash",
+            "boolean_bytes",
+            "payload",
+            "metadata_false",
+            "schema_bool",
+            "wrong_cohort",
+        ],
+    )
+    def test_probe_metadata_cannot_retire_another_asset_or_invent_source(
+        tmp_path, monkeypatch, mutation
+    ):
+        document = manifest()
+        row = document["files"][0]
+        if mutation == "missing":
+            document["files"].pop()
+        elif mutation == "duplicate":
+            document["files"][1] = copy.deepcopy(row)
+        elif mutation == "foreign":
+            row["path"] = row["original_path"] = "frontend/public/current-logo.svg"
+            row["archive_path"] = "Not related to project/retired-branding-experiments/" + row["path"]
+        elif mutation == "wrong_archive":
+            row["archive_path"] = "../outside.mp4"
+        elif mutation == "wrong_hash":
+            row["archive_sha256"] = "b" * 64
+        elif mutation == "boolean_bytes":
+            row["bytes"] = True
+        elif mutation == "payload":
+            row["source"] = "embedded bytes are not source-review evidence"
+        elif mutation == "metadata_false":
+            row["asset_metadata_only"] = False
+        elif mutation == "schema_bool":
+            document["schema_version"] = True
+        else:
+            document["source_cohort"] = "assets/current"
+        write(tmp_path, document)
+        monkeypatch.setattr(inventory, "REPORT", tmp_path)
+>       with pytest.raises(ValueError):
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\unit\scripts\test_dashboard_audit_artifact_retirement.py:104: Failed
+_ test_probe_metadata_cannot_retire_another_asset_or_invent_source[duplicate] _
+
+tmp_path = WindowsPath('C:/Users/nipun/AppData/Local/Temp/pytest-of-nipun/pytest-30/test_probe_metadata_cannot_ret1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002B20F3787D0>
+mutation = 'duplicate'
+
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "missing",
+            "duplicate",
+            "foreign",
+            "wrong_archive",
+            "wrong_hash",
+            "boolean_bytes",
+            "payload",
+            "metadata_false",
+            "schema_bool",
+            "wrong_cohort",
+        ],
+    )
+    def test_probe_metadata_cannot_retire_another_asset_or_invent_source(
+        tmp_path, monkeypatch, mutation
+    ):
+        document = manifest()
+        row = document["files"][0]
+        if mutation == "missing":
+            document["files"].pop()
+        elif mutation == "duplicate":
+            document["files"][1] = copy.deepcopy(row)
+        elif mutation == "foreign":
+            row["path"] = row["original_path"] = "frontend/public/current-logo.svg"
+            row["archive_path"] = "Not related to project/retired-branding-experiments/" + row["path"]
+        elif mutation == "wrong_archive":
+            row["archive_path"] = "../outside.mp4"
+        elif mutation == "wrong_hash":
+            row["archive_sha256"] = "b" * 64
+        elif mutation == "boolean_bytes":
+            row["bytes"] = True
+        elif mutation == "payload":
+            row["source"] = "embedded bytes are not source-review evidence"
+        elif mutation == "metadata_false":
+            row["asset_metadata_only"] = False
+        elif mutation == "schema_bool":
+            document["schema_version"] = True
+        else:
+            document["source_cohort"] = "assets/current"
+        write(tmp_path, document)
+        monkeypatch.setattr(inventory, "REPORT", tmp_path)
+>       with pytest.raises(ValueError):
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\unit\scripts\test_dashboard_audit_artifact_retirement.py:104: Failed
+__ test_probe_metadata_cannot_retire_another_asset_or_invent_source[foreign] __
+
+tmp_path = WindowsPath('C:/Users/nipun/AppData/Local/Temp/pytest-of-nipun/pytest-30/test_probe_metadata_cannot_ret2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002B20F27EA90>
+mutation = 'foreign'
+
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "missing",
+            "duplicate",
+            "foreign",
+            "wrong_archive",
+            "wrong_hash",
+            "boolean_bytes",
+            "payload",
+            "metadata_false",
+            "schema_bool",
+            "wrong_cohort",
+        ],
+    )
+    def test_probe_metadata_cannot_retire_another_asset_or_invent_source(
+        tmp_path, monkeypatch, mutation
+    ):
+        document = manifest()
+        row = document["files"][0]
+        if mutation == "missing":
+            document["files"].pop()
+        elif mutation == "duplicate":
+            document["files"][1] = copy.deepcopy(row)
+        elif mutation == "foreign":
+            row["path"] = row["original_path"] = "frontend/public/current-logo.svg"
+            row["archive_path"] = "Not related to project/retired-branding-experiments/" + row["path"]
+        elif mutation == "wrong_archive":
+            row["archive_path"] = "../outside.mp4"
+        elif mutation == "wrong_hash":
+            row["archive_sha256"] = "b" * 64
+        elif mutation == "boolean_bytes":
+            row["bytes"] = True
+        elif mutation == "payload":
+            row["source"] = "embedded bytes are not source-review evidence"
+        elif mutation == "metadata_false":
+            row["asset_metadata_only"] = False
+        elif mutation == "schema_bool":
+            document["schema_version"] = True
+        else:
+            document["source_cohort"] = "assets/current"
+        write(tmp_path, document)
+        monkeypatch.setattr(inventory, "REPORT", tmp_path)
+>       with pytest.raises(ValueError):
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\unit\scripts\test_dashboard_audit_artifact_retirement.py:104: Failed
+_ test_probe_metadata_cannot_retire_another_asset_or_invent_source[wrong_archive] _
+
+tmp_path = WindowsPath('C:/Users/nipun/AppData/Local/Temp/pytest-of-nipun/pytest-30/test_probe_metadata_cannot_ret3')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002B20F27F690>
+mutation = 'wrong_archive'
+
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "missing",
+            "duplicate",
+            "foreign",
+            "wrong_archive",
+            "wrong_hash",
+            "boolean_bytes",
+            "payload",
+            "metadata_false",
+            "schema_bool",
+            "wrong_cohort",
+        ],
+    )
+    def test_probe_metadata_cannot_retire_another_asset_or_invent_source(
+        tmp_path, monkeypatch, mutation
+    ):
+        document = manifest()
+        row = document["files"][0]
+        if mutation == "missing":
+            document["files"].pop()
+        elif mutation == "duplicate":
+            document["files"][1] = copy.deepcopy(row)
+        elif mutation == "foreign":
+            row["path"] = row["original_path"] = "frontend/public/current-logo.svg"
+            row["archive_path"] = "Not related to project/retired-branding-experiments/" + row["path"]
+        elif mutation == "wrong_archive":
+            row["archive_path"] = "../outside.mp4"
+        elif mutation == "wrong_hash":
+            row["archive_sha256"] = "b" * 64
+        elif mutation == "boolean_bytes":
+            row["bytes"] = True
+        elif mutation == "payload":
+            row["source"] = "embedded bytes are not source-review evidence"
+        elif mutation == "metadata_false":
+            row["asset_metadata_only"] = False
+        elif mutation == "schema_bool":
+            document["schema_version"] = True
+        else:
+            document["source_cohort"] = "assets/current"
+        write(tmp_path, document)
+        monkeypatch.setattr(inventory, "REPORT", tmp_path)
+>       with pytest.raises(ValueError):
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\unit\scripts\test_dashboard_audit_artifact_retirement.py:104: Failed
+_ test_probe_metadata_cannot_retire_another_asset_or_invent_source[wrong_hash] _
+
+tmp_path = WindowsPath('C:/Users/nipun/AppData/Local/Temp/pytest-of-nipun/pytest-30/test_probe_metadata_cannot_ret4')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002B20F301AD0>
+mutation = 'wrong_hash'
+
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "missing",
+            "duplicate",
+            "foreign",
+            "wrong_archive",
+            "wrong_hash",
+            "boolean_bytes",
+            "payload",
+            "metadata_false",
+            "schema_bool",
+            "wrong_cohort",
+        ],
+    )
+    def test_probe_metadata_cannot_retire_another_asset_or_invent_source(
+        tmp_path, monkeypatch, mutation
+    ):
+        document = manifest()
+        row = document["files"][0]
+        if mutation == "missing":
+            document["files"].pop()
+        elif mutation == "duplicate":
+            document["files"][1] = copy.deepcopy(row)
+        elif mutation == "foreign":
+            row["path"] = row["original_path"] = "frontend/public/current-logo.svg"
+            row["archive_path"] = "Not related to project/retired-branding-experiments/" + row["path"]
+        elif mutation == "wrong_archive":
+            row["archive_path"] = "../outside.mp4"
+        elif mutation == "wrong_hash":
+            row["archive_sha256"] = "b" * 64
+        elif mutation == "boolean_bytes":
+            row["bytes"] = True
+        elif mutation == "payload":
+            row["source"] = "embedded bytes are not source-review evidence"
+        elif mutation == "metadata_false":
+            row["asset_metadata_only"] = False
+        elif mutation == "schema_bool":
+            document["schema_version"] = True
+        else:
+            document["source_cohort"] = "assets/current"
+        write(tmp_path, document)
+        monkeypatch.setattr(inventory, "REPORT", tmp_path)
+>       with pytest.raises(ValueError):
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\unit\scripts\test_dashboard_audit_artifact_retirement.py:104: Failed
+_ test_probe_metadata_cannot_retire_another_asset_or_invent_source[boolean_bytes] _
+
+tmp_path = WindowsPath('C:/Users/nipun/AppData/Local/Temp/pytest-of-nipun/pytest-30/test_probe_metadata_cannot_ret5')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002B20F301110>
+mutation = 'boolean_bytes'
+
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "missing",
+            "duplicate",
+            "foreign",
+            "wrong_archive",
+            "wrong_hash",
+            "boolean_bytes",
+            "payload",
+            "metadata_false",
+            "schema_bool",
+            "wrong_cohort",
+        ],
+    )
+    def test_probe_metadata_cannot_retire_another_asset_or_invent_source(
+        tmp_path, monkeypatch, mutation
+    ):
+        document = manifest()
+        row = document["files"][0]
+        if mutation == "missing":
+            document["files"].pop()
+        elif mutation == "duplicate":
+            document["files"][1] = copy.deepcopy(row)
+        elif mutation == "foreign":
+            row["path"] = row["original_path"] = "frontend/public/current-logo.svg"
+            row["archive_path"] = "Not related to project/retired-branding-experiments/" + row["path"]
+        elif mutation == "wrong_archive":
+            row["archive_path"] = "../outside.mp4"
+        elif mutation == "wrong_hash":
+            row["archive_sha256"] = "b" * 64
+        elif mutation == "boolean_bytes":
+            row["bytes"] = True
+        elif mutation == "payload":
+            row["source"] = "embedded bytes are not source-review evidence"
+        elif mutation == "metadata_false":
+            row["asset_metadata_only"] = False
+        elif mutation == "schema_bool":
+            document["schema_version"] = True
+        else:
+            document["source_cohort"] = "assets/current"
+        write(tmp_path, document)
+        monkeypatch.setattr(inventory, "REPORT", tmp_path)
+>       with pytest.raises(ValueError):
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\unit\scripts\test_dashboard_audit_artifact_retirement.py:104: Failed
+__ test_probe_metadata_cannot_retire_another_asset_or_invent_source[payload] __
+
+tmp_path = WindowsPath('C:/Users/nipun/AppData/Local/Temp/pytest-of-nipun/pytest-30/test_probe_metadata_cannot_ret6')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002B20F340410>
+mutation = 'payload'
+
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "missing",
+            "duplicate",
+            "foreign",
+            "wrong_archive",
+            "wrong_hash",
+            "boolean_bytes",
+            "payload",
+            "metadata_false",
+            "schema_bool",
+            "wrong_cohort",
+        ],
+    )
+    def test_probe_metadata_cannot_retire_another_asset_or_invent_source(
+        tmp_path, monkeypatch, mutation
+    ):
+        document = manifest()
+        row = document["files"][0]
+        if mutation == "missing":
+            document["files"].pop()
+        elif mutation == "duplicate":
+            document["files"][1] = copy.deepcopy(row)
+        elif mutation == "foreign":
+            row["path"] = row["original_path"] = "frontend/public/current-logo.svg"
+            row["archive_path"] = "Not related to project/retired-branding-experiments/" + row["path"]
+        elif mutation == "wrong_archive":
+            row["archive_path"] = "../outside.mp4"
+        elif mutation == "wrong_hash":
+            row["archive_sha256"] = "b" * 64
+        elif mutation == "boolean_bytes":
+            row["bytes"] = True
+        elif mutation == "payload":
+            row["source"] = "embedded bytes are not source-review evidence"
+        elif mutation == "metadata_false":
+            row["asset_metadata_only"] = False
+        elif mutation == "schema_bool":
+            document["schema_version"] = True
+        else:
+            document["source_cohort"] = "assets/current"
+        write(tmp_path, document)
+        monkeypatch.setattr(inventory, "REPORT", tmp_path)
+>       with pytest.raises(ValueError):
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\unit\scripts\test_dashboard_audit_artifact_retirement.py:104: Failed
+_ test_probe_metadata_cannot_retire_another_asset_or_invent_source[metadata_false] _
+
+tmp_path = WindowsPath('C:/Users/nipun/AppData/Local/Temp/pytest-of-nipun/pytest-30/test_probe_metadata_cannot_ret7')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002B20F513E10>
+mutation = 'metadata_false'
+
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "missing",
+            "duplicate",
+            "foreign",
+            "wrong_archive",
+            "wrong_hash",
+            "boolean_bytes",
+            "payload",
+            "metadata_false",
+            "schema_bool",
+            "wrong_cohort",
+        ],
+    )
+    def test_probe_metadata_cannot_retire_another_asset_or_invent_source(
+        tmp_path, monkeypatch, mutation
+    ):
+        document = manifest()
+        row = document["files"][0]
+        if mutation == "missing":
+            document["files"].pop()
+        elif mutation == "duplicate":
+            document["files"][1] = copy.deepcopy(row)
+        elif mutation == "foreign":
+            row["path"] = row["original_path"] = "frontend/public/current-logo.svg"
+            row["archive_path"] = "Not related to project/retired-branding-experiments/" + row["path"]
+        elif mutation == "wrong_archive":
+            row["archive_path"] = "../outside.mp4"
+        elif mutation == "wrong_hash":
+            row["archive_sha256"] = "b" * 64
+        elif mutation == "boolean_bytes":
+            row["bytes"] = True
+        elif mutation == "payload":
+            row["source"] = "embedded bytes are not source-review evidence"
+        elif mutation == "metadata_false":
+            row["asset_metadata_only"] = False
+        elif mutation == "schema_bool":
+            document["schema_version"] = True
+        else:
+            document["source_cohort"] = "assets/current"
+        write(tmp_path, document)
+        monkeypatch.setattr(inventory, "REPORT", tmp_path)
+>       with pytest.raises(ValueError):
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\unit\scripts\test_dashboard_audit_artifact_retirement.py:104: Failed
+_ test_probe_metadata_cannot_retire_another_asset_or_invent_source[schema_bool] _
+
+tmp_path = WindowsPath('C:/Users/nipun/AppData/Local/Temp/pytest-of-nipun/pytest-30/test_probe_metadata_cannot_ret8')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002B20F805790>
+mutation = 'schema_bool'
+
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "missing",
+            "duplicate",
+            "foreign",
+            "wrong_archive",
+            "wrong_hash",
+            "boolean_bytes",
+            "payload",
+            "metadata_false",
+            "schema_bool",
+            "wrong_cohort",
+        ],
+    )
+    def test_probe_metadata_cannot_retire_another_asset_or_invent_source(
+        tmp_path, monkeypatch, mutation
+    ):
+        document = manifest()
+        row = document["files"][0]
+        if mutation == "missing":
+            document["files"].pop()
+        elif mutation == "duplicate":
+            document["files"][1] = copy.deepcopy(row)
+        elif mutation == "foreign":
+            row["path"] = row["original_path"] = "frontend/public/current-logo.svg"
+            row["archive_path"] = "Not related to project/retired-branding-experiments/" + row["path"]
+        elif mutation == "wrong_archive":
+            row["archive_path"] = "../outside.mp4"
+        elif mutation == "wrong_hash":
+            row["archive_sha256"] = "b" * 64
+        elif mutation == "boolean_bytes":
+            row["bytes"] = True
+        elif mutation == "payload":
+            row["source"] = "embedded bytes are not source-review evidence"
+        elif mutation == "metadata_false":
+            row["asset_metadata_only"] = False
+        elif mutation == "schema_bool":
+            document["schema_version"] = True
+        else:
+            document["source_cohort"] = "assets/current"
+        write(tmp_path, document)
+        monkeypatch.setattr(inventory, "REPORT", tmp_path)
+>       with pytest.raises(ValueError):
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\unit\scripts\test_dashboard_audit_artifact_retirement.py:104: Failed
+_ test_probe_metadata_cannot_retire_another_asset_or_invent_source[wrong_cohort] _
+
+tmp_path = WindowsPath('C:/Users/nipun/AppData/Local/Temp/pytest-of-nipun/pytest-30/test_probe_metadata_cannot_ret9')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002B20F3213D0>
+mutation = 'wrong_cohort'
+
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "missing",
+            "duplicate",
+            "foreign",
+            "wrong_archive",
+            "wrong_hash",
+            "boolean_bytes",
+            "payload",
+            "metadata_false",
+            "schema_bool",
+            "wrong_cohort",
+        ],
+    )
+    def test_probe_metadata_cannot_retire_another_asset_or_invent_source(
+        tmp_path, monkeypatch, mutation
+    ):
+        document = manifest()
+        row = document["files"][0]
+        if mutation == "missing":
+            document["files"].pop()
+        elif mutation == "duplicate":
+            document["files"][1] = copy.deepcopy(row)
+        elif mutation == "foreign":
+            row["path"] = row["original_path"] = "frontend/public/current-logo.svg"
+            row["archive_path"] = "Not related to project/retired-branding-experiments/" + row["path"]
+        elif mutation == "wrong_archive":
+            row["archive_path"] = "../outside.mp4"
+        elif mutation == "wrong_hash":
+            row["archive_sha256"] = "b" * 64
+        elif mutation == "boolean_bytes":
+            row["bytes"] = True
+        elif mutation == "payload":
+            row["source"] = "embedded bytes are not source-review evidence"
+        elif mutation == "metadata_false":
+            row["asset_metadata_only"] = False
+        elif mutation == "schema_bool":
+            document["schema_version"] = True
+        else:
+            document["source_cohort"] = "assets/current"
+        write(tmp_path, document)
+        monkeypatch.setattr(inventory, "REPORT", tmp_path)
+>       with pytest.raises(ValueError):
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\unit\scripts\test_dashboard_audit_artifact_retirement.py:104: Failed
+_______ test_placeholder_is_one_exact_path_with_bound_archive_identity ________
+
+tmp_path = WindowsPath('C:/Users/nipun/AppData/Local/Temp/pytest-of-nipun/pytest-30/test_placeholder_is_one_exact_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002B20F3206D0>
+
+    def test_placeholder_is_one_exact_path_with_bound_archive_identity(tmp_path, monkeypatch):
+        row = {
+            "path": "backend/placeholder.txt",
+            "original_path": "backend/placeholder.txt",
+            "archive_path": "Not related to project/retired-unused-placeholder/backend/placeholder.txt",
+            "sha256": "c" * 64,
+            "archive_sha256": "c" * 64,
+            "bytes": 77,
+            "status": "retired",
+            "asset_metadata_only": True,
+            "physical_lines": 1,
+        }
+        document = {
+            "schema_version": 1,
+            "closed_entry_count": 1,
+            "binary_payloads_embedded": False,
+            "files": [row],
+        }
+        write(tmp_path, document, "unused-placeholder-retirement-manifest.json")
+        monkeypatch.setattr(inventory, "REPORT", tmp_path)
+>       assert inventory.retired_source_history()["backend/placeholder.txt"]["lines"] == 1
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'backend/placeholder.txt'
+
+tests\unit\scripts\test_dashboard_audit_artifact_retirement.py:128: KeyError
+=========================== short test summary info ===========================
+FAILED tests/unit/scripts/test_dashboard_audit_artifact_retirement.py::test_closed_probes_survive_fresh_history_without_opening_ignored_media
+FAILED tests/unit/scripts/test_dashboard_audit_artifact_retirement.py::test_probe_metadata_cannot_retire_another_asset_or_invent_source[missing]
+FAILED tests/unit/scripts/test_dashboard_audit_artifact_retirement.py::test_probe_metadata_cannot_retire_another_asset_or_invent_source[duplicate]
+FAILED tests/unit/scripts/test_dashboard_audit_artifact_retirement.py::test_probe_metadata_cannot_retire_another_asset_or_invent_source[foreign]
+FAILED tests/unit/scripts/test_dashboard_audit_artifact_retirement.py::test_probe_metadata_cannot_retire_another_asset_or_invent_source[wrong_archive]
+FAILED tests/unit/scripts/test_dashboard_audit_artifact_retirement.py::test_probe_metadata_cannot_retire_another_asset_or_invent_source[wrong_hash]
+FAILED tests/unit/scripts/test_dashboard_audit_artifact_retirement.py::test_probe_metadata_cannot_retire_another_asset_or_invent_source[boolean_bytes]
+FAILED tests/unit/scripts/test_dashboard_audit_artifact_retirement.py::test_probe_metadata_cannot_retire_another_asset_or_invent_source[payload]
+FAILED tests/unit/scripts/test_dashboard_audit_artifact_retirement.py::test_probe_metadata_cannot_retire_another_asset_or_invent_source[metadata_false]
+FAILED tests/unit/scripts/test_dashboard_audit_artifact_retirement.py::test_probe_metadata_cannot_retire_another_asset_or_invent_source[schema_bool]
+FAILED tests/unit/scripts/test_dashboard_audit_artifact_retirement.py::test_probe_metadata_cannot_retire_another_asset_or_invent_source[wrong_cohort]
+FAILED tests/unit/scripts/test_dashboard_audit_artifact_retirement.py::test_placeholder_is_one_exact_path_with_bound_archive_identity
+12 failed in 0.48s

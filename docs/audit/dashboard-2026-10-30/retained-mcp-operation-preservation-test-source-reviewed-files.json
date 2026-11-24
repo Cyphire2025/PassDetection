@@ -1,0 +1,47 @@
+[
+  {
+    "path": "backend/tests/integration/test_mcp_operations.py",
+    "sha256": "f42c9aef9623c04856b8d6c46d8d7bd8e45ef2d8f5495a87ad978d2283ec28e0",
+    "physical_lines": 471,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all471 physical lines in contiguous1-160/161-320/321-471 segments. Shared synthetic fixture has explicit test-only reviewed tool sections/default-deny policy, durable exact cross-grant user/operation idempotency, original-grant provenance independent from current replay authority, canonical JSON/hash/input/link bounds, callback commit/rollback/cancel/invalid result atomicity, caller rollback, monotone CAS workflow progress and immutable initial/terminal receipt, current eight-way authority and nonmutating access callback contracts. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/service_integration/test_mcp_operations_postgresql.py",
+    "sha256": "b50190e35751031be03a758575e40660c0372009901bbe6fbc3ea26306ffcab6",
+    "physical_lines": 351,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all351 physical lines in contiguous halves: independent grant/operation-row contention, exactly one callback and persisted receipt under same/different connection retry, rolled-back first claimant permits contender, different payload conflict, canonical actual group creation one audit/company binding and control/grant/role/security writer lock fences waiting callback. Event listeners/tasks clean up; no PostgreSQL run. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_group_creation.py",
+    "sha256": "00f692317d45de364eb2cb9d47219f14118d70c5e8dd97437cbaa2bffa246983",
+    "physical_lines": 330,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all330 physical lines in contiguous halves: existing canonical use case executes once, sparse receipt conceals public upload credential, later legitimate edits survive retry, owner/tenant/company/activity/platform/default-retention/import-only policies preserved, invalid inputs/audit failure leave no group or reserved operation, strict creation schema and actual SDK commit/replay/safe validation audit. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_dashboard_edits.py",
+    "sha256": "0558cbd0b3772faba12d1936726a03a38f59cfba6fff925b4aa93455e2961f4e",
+    "physical_lines": 194,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all194 physical lines: canonical menu/group/broadcast/document edit adapters, revision fence/idempotent retry/current entity scope, retained before-image and no upload secret reflection, canonical contact dedupe never authorizes sending, real strict schemas/collection choices and save only reviewed assignment state without invented matches/delivery. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_dashboard_edit_preservation.py",
+    "sha256": "3f825030772440ee3204fe0f49bfc22c364ad1fb8765c91be22b0897f6caa6cb",
+    "physical_lines": 340,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all340 physical lines in contiguous halves: actual SDK partial group update preserves trip/airports/notes and explicit false/null semantics, merged date validation atomicity, inactive dish and plan/hotel history preserved unless explicitly changed, rooming revision CAS and canonical VIP audit chain, bounded broadcast before-image rejects before contacts/receipt/audit changes. No source edits or runtime claims. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  }
+]

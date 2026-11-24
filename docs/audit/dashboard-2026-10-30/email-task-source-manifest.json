@@ -1,0 +1,139 @@
+{
+  "frozen": true,
+  "runtime_files": [
+    {
+      "path": "backend/app/infrastructure/email/tasks.py",
+      "sha256": "8f6f1ffaeef887685738600dfedb599683b2c029e526829686557b3c9c30f186",
+      "physical_lines": 217,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "runtime",
+      "notes": "Complete current physical source read after whole-declaration movement. Ten declarations/decorators/SQL/transactions exact,78actual global bindings and30original imported object identities,11evaluated hints/contracts,4actual Celery registry identities. Focused32cases and strict4types/scopedRuff7 pass; actual4owner line/branch100%, normal95floor proposals. No behavior or deletion-policy change."
+    },
+    {
+      "path": "backend/app/infrastructure/email/task_dispatch.py",
+      "sha256": "86b9b4c57d77c9212aeb09da52319a344545600723358ef6987c543df0a7a231",
+      "physical_lines": 93,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "runtime",
+      "notes": "Complete current physical source read after whole-declaration movement. Ten declarations/decorators/SQL/transactions exact,78actual global bindings and30original imported object identities,11evaluated hints/contracts,4actual Celery registry identities. Focused32cases and strict4types/scopedRuff7 pass; actual4owner line/branch100%, normal95floor proposals. No behavior or deletion-policy change."
+    },
+    {
+      "path": "backend/app/infrastructure/email/task_retention.py",
+      "sha256": "8993ffeaf443ba7702d5dfcb8b82bd92ccb3f1a01c6fa56352826f1bd4c6a740",
+      "physical_lines": 206,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "runtime",
+      "notes": "Complete current physical source read after whole-declaration movement. Ten declarations/decorators/SQL/transactions exact,78actual global bindings and30original imported object identities,11evaluated hints/contracts,4actual Celery registry identities. Focused32cases and strict4types/scopedRuff7 pass; actual4owner line/branch100%, normal95floor proposals. No behavior or deletion-policy change."
+    },
+    {
+      "path": "backend/app/infrastructure/email/storage_reconciliation.py",
+      "sha256": "82c537430f63511991de71b143291cf7a4e8a6b8bf9a6ae53880399430b0b88c",
+      "physical_lines": 113,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "runtime",
+      "notes": "Complete current physical source read after whole-declaration movement. Ten declarations/decorators/SQL/transactions exact,78actual global bindings and30original imported object identities,11evaluated hints/contracts,4actual Celery registry identities. Focused32cases and strict4types/scopedRuff7 pass; actual4owner line/branch100%, normal95floor proposals. No behavior or deletion-policy change."
+    }
+  ],
+  "test_files": [
+    {
+      "path": "backend/tests/unit/infrastructure/test_email_task_routing.py",
+      "sha256": "91bf1fc647193d0fcf39ffcfafcd5bced5fbcc727f8ad17c714bc78043a34ebe",
+      "physical_lines": 358,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "test",
+      "notes": "Complete current physical source read. Existing11and new21ordinary outcomes/realSQLite retention controls all pass; all86assert/mock-assert AST nodes and complete baseline test functions unchanged except17actual-owner monkeypatch retargets. Initial3fixture failures lacked required proposal status; corrected before runtime edits, original failed log retained."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_email_task_outcomes.py",
+      "sha256": "b472ae89876ad44b79889daf0f30f96b3187caaf5a6dbe08b4f3e2b044d43f62",
+      "physical_lines": 196,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "test",
+      "notes": "Complete current physical source read. Existing11and new21ordinary outcomes/realSQLite retention controls all pass; all86assert/mock-assert AST nodes and complete baseline test functions unchanged except17actual-owner monkeypatch retargets. Initial3fixture failures lacked required proposal status; corrected before runtime edits, original failed log retained."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_email_retention_persistence.py",
+      "sha256": "fe7fed7f5c2941b588f7e617818ebe6ad3edfb603f0e0bdd73c293b629634dfb",
+      "physical_lines": 266,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "test",
+      "notes": "Complete current physical source read. Existing11and new21ordinary outcomes/realSQLite retention controls all pass; all86assert/mock-assert AST nodes and complete baseline test functions unchanged except17actual-owner monkeypatch retargets. Initial3fixture failures lacked required proposal status; corrected before runtime edits, original failed log retained."
+    }
+  ],
+  "exact_source_fence": {
+    "path": "docs/audit/dashboard-2026-10-30/email-task-source-fence.json",
+    "sha256": "8cc1b1371000ff08cef616e6236ac84cd20726344c79cb7a406a942d56b0f096"
+  },
+  "original_sources": [
+    {
+      "path": "backend/app/infrastructure/database/email_ai_models.py",
+      "sha256": "e9c03b48898c5a05f7e96bafbc96ccec06ec7d2702c47e55f9b4c80a5eff482f",
+      "physical_lines": 630,
+      "snapshot": ".tmp/email-residual-original/backend/app/infrastructure/database/email_ai_models.py"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_rollout_admin.py",
+      "sha256": "767500a1b9f4dd113b41bcefc0ea90fbebe984f34829b1ada8cd4ccbc24a51c3",
+      "physical_lines": 565,
+      "snapshot": ".tmp/email-residual-original/backend/app/presentation/api/v1/routes/email_ai_rollout_admin.py"
+    },
+    {
+      "path": "backend/app/infrastructure/email/tasks.py",
+      "sha256": "e6d2906d78fd9c504c2876dd59ffb91bf29114fb7dcbfd0a4fc6c8cfd6ca2846",
+      "physical_lines": 532,
+      "snapshot": ".tmp/email-residual-original/backend/app/infrastructure/email/tasks.py"
+    },
+    {
+      "path": "backend/app/infrastructure/email/mime.py",
+      "sha256": "c08b88379c1d0d1850a6225db3147342a8399bc57dfcbf3c68303772ce5af4e7",
+      "physical_lines": 389,
+      "snapshot": ".tmp/email-residual-original/backend/app/infrastructure/email/mime.py"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_review_decisions.py",
+      "sha256": "591fb3b3b30248d2c2fd1f40ea6eb90cc6232c47833a3cea8f5e3950923ecb77",
+      "physical_lines": 367,
+      "snapshot": ".tmp/email-residual-original/backend/app/presentation/api/v1/routes/email_integration_review_decisions.py"
+    }
+  ],
+  "original_tests": [
+    {
+      "path": "backend/tests/unit/infrastructure/test_email_task_routing.py",
+      "sha256": "68ff06458ca021fd8e9e58752d3eb9274d2a9c86d8747b290bf447c0b4364529",
+      "snapshot": ".tmp/email-residual-original/backend/tests/unit/infrastructure/test_email_task_routing.py"
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_email_task_outcomes.py",
+      "sha256": "65a93d0bd18c3a76dd38d39e1395c14d6755315db334d72d8228bf795bc3cf65",
+      "snapshot": ".tmp/email-residual-original/backend/tests/unit/infrastructure/test_email_task_outcomes.py"
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_email_retention_persistence.py",
+      "sha256": "074aa31181cdf394f891cddafb2ec120bcbb5cb39a60f35cfb367cfa1879ef28",
+      "snapshot": ".tmp/email-residual-original/backend/tests/unit/infrastructure/test_email_retention_persistence.py"
+    }
+  ],
+  "previous_oauth_connections_deadline_sources_unchanged": 31,
+  "introspection_tradeoff_recorded": true
+}

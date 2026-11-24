@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "--tb=short",
+    "tests/unit/infrastructure/test_passport_zip_member_admission.py"
+  ],
+  "exit_code": 1,
+  "source_frozen": true,
+  "output": "passport-zip-admission-before-tests.txt"
+}

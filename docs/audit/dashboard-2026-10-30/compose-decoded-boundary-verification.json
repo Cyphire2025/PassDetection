@@ -1,0 +1,36 @@
+{
+  "status": "source-frozen-focused",
+  "before": {
+    "failed_negative_subcases": 5,
+    "passing_methods": 4
+  },
+  "after": {
+    "passing_methods": 15,
+    "seconds": 0.037,
+    "files": 2,
+    "invalid_JSON_shapes": 5,
+    "valid_mapping_preserved": true
+  },
+  "strict_owned_sources": 7,
+  "type_config": "Unchanged backend/pyproject.toml strict=true; Linux target; imported source bodies excluded explicitly. No broad suppressions.",
+  "proof": {
+    "current_module_raw_bytes_restored_by_removing_only_exact_decoded_boundary": true,
+    "original_test_method_ASTs_preserved": 3,
+    "previous_receipt_immutable": true
+  },
+  "source_sha256": {
+    "scripts/verify_compose_runtime.py": "42add09eb4a67529104b15a0ff0b8f012bde541cbb94803df8c3344640fbefb1",
+    "scripts/test_compose_render_fixture.py": "0213cc5b0729ff9cb5ecf8c54250b83b784e7b29bde8f29bb5016731e39d8d95"
+  },
+  "artifacts": {
+    "compose-decoded-boundary-before.txt": "cc34870732288a6557a37c2698c67bc5460ce22da8c5007be89f253969590bcf",
+    "compose-decoded-boundary-after.txt": "a3ed2508caf0b18c9742dccaacac271c08ae196a9d462e12ffc4b1ee64f1cf04",
+    "compose-decoded-boundary-ruff.txt": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0",
+    "compose-owned-strict-mypy.txt": "e2702f9afc4c0f80ff1e8624f77af7a7d2689ca184512114aae5967a76229ba8",
+    "compose-decoded-boundary-reviewed-files.json": "91844b571c3e16094344ec09a2dca9cee7104b2c776093a64d72e8dce0d71b76"
+  },
+  "limits": [
+    "Input admission correctness and typing boundary only; no live Compose, Docker daemon or deployment execution.",
+    "Remaining25 imported/platform typing diagnostics and large operator architecture obligations remain open."
+  ]
+}

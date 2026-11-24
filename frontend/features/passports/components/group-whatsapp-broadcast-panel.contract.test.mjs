@@ -1,9 +1,12 @@
+import { uploadLinkApiSource as api } from "../api/upload-link-api-source.contract-helper.mjs";
+import { uploadLinkHooksSource as hooks } from "../hooks/passport-hooks-source.contract-helper.mjs";
+import { passportHooksSource as passportHooks } from "../hooks/passport-hooks-source.contract-helper.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
+import { passportApiSource as passportApi } from "../api/passport-api-source.contract-helper.mjs";
 
-const panel = ["group-whatsapp-broadcast-panel.tsx", "group-whatsapp-dialogs.tsx", "group-whatsapp-tracking-table.tsx", "group-whatsapp-tracking-model.ts"]
-  .map((name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8")).join("\n");
+import { groupWhatsAppSource as panel } from "./group-whatsapp-source.contract-helper.mjs";
 const summary = readFileSync(new URL("./group-whatsapp-summary.tsx", import.meta.url), "utf8");
 const selector = readFileSync(
   new URL("./whatsapp-broadcast-selector.tsx", import.meta.url),
@@ -17,22 +20,9 @@ const matchEvidence = readFileSync(
   new URL("./whatsapp-match-evidence.ts", import.meta.url),
   "utf8",
 );
-const api = readFileSync(
-  new URL("../api/upload-links.api.ts", import.meta.url),
-  "utf8",
-);
-const hooks = readFileSync(
-  new URL("../hooks/use-upload-links.ts", import.meta.url),
-  "utf8",
-);
-const passportApi = readFileSync(
-  new URL("../api/passports.api.ts", import.meta.url),
-  "utf8",
-);
-const passportHooks = readFileSync(
-  new URL("../hooks/use-passports.ts", import.meta.url),
-  "utf8",
-);
+
+
+
 const endpoints = readFileSync(
   new URL("../../../lib/api/endpoints.ts", import.meta.url),
   "utf8",

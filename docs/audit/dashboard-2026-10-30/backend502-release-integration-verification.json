@@ -1,0 +1,21 @@
+{
+  "backend_modules": 502,
+  "critical_entries": 43,
+  "frontend_modules": 549,
+  "source_bindings": 79,
+  "all_current_after_and_both_actual_git_before_sets": "pass",
+  "backend_static_budgets": "pass502",
+  "focused_operator_tests": {
+    "command": "python -m unittest test_release_code_update test_release_workspace_branding test_release_workspace_branding_bindings",
+    "cwd": "scripts",
+    "passed": 43,
+    "exit_code": 0
+  },
+  "server_privacy_raw_source_and_coverage_fence": "all7 source/test hashes and exact raw Coverage.py JSON digest match peer receipt; helper100/100 andfilter97.30/83.33 exceed new95/90 and95/80 floors",
+  "candidate_provenance": [
+    "server-log-privacy-budget-integration.json",
+    "contact-verification-budget-integration.json"
+  ],
+  "unchanged_contracts": "All previous module rows, critical entries, global gates and both exact baseline mappings retained. Only known backend budget AFTER and strict manifest pin refreshed.",
+  "limits": "Peer60 and99 behavior results retain attribution; no rerun of those unchanged sources required. No whole-backend coverage, PostgreSQL/Redis/provider, clean committed release or VPS rehearsal claimed. MyPhotos operational work remains independently open."
+}

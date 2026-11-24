@@ -1,0 +1,15 @@
+ImportError while loading conftest 'C:\Users\nipun\Desktop\PassDetection\backend\tests\conftest.py'.
+tests\conftest.py:42: in <module>
+    from app.main import create_application  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\main.py:43: in <module>
+    from app.presentation.api.v1.router import api_v1_router
+app\presentation\api\v1\router.py:11: in <module>
+    from app.presentation.api.v1.routes.admin import router as admin_router
+app\presentation\api\v1\routes\admin.py:31: in <module>
+    from app.core.security.password import hash_password, run_password_work
+app\core\security\password.py:16: in <module>
+    import bcrypt
+..\.tmp\dashboard-audit-venv\Lib\site-packages\bcrypt\__init__.py:13: in <module>
+    from ._bcrypt import (
+E   ImportError: PyO3 modules compiled for CPython 3.8 or older may only be initialized once per interpreter process

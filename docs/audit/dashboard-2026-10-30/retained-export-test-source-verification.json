@@ -1,0 +1,37 @@
+{
+  "status": "Bounded read-only retained exporter/history/archive source cohort complete; broader audit remains active",
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-export-test-source-reviewed-files.json",
+    "sha256": "6d733fc2e5060421a2777247754bb781b21c7b63c3dbd3b92e601692ebb18263"
+  },
+  "new_current_full_tests": 7,
+  "test_physical_lines": 1198,
+  "supporting_whole_rows": 4,
+  "supporting_whole_lines": 308,
+  "focused_rows": 2,
+  "source_fence": {
+    "backend/tests/unit/infrastructure/test_company_export_row_boundaries.py": "a17213030fa7862abcadffab77250241bb71b9a1e0f117c626242e16377cc252",
+    "backend/tests/unit/infrastructure/test_company_export_native_work.py": "cc75723078d96e57fb63526723f127e6db89d1505d065dc033d08d6536502fcd",
+    "backend/tests/unit/infrastructure/test_passport_image_zip_exporter.py": "55b0755a3a9843a3f930db1a9c3508a946e2ccc5c2be2f5e7886e4d4f407e93a",
+    "backend/tests/unit/infrastructure/test_passport_image_zip_crop_export.py": "05e7b501867f4f7bc9cfdd8536352ae5437e967aefcee5365cd5eac198348041",
+    "backend/tests/unit/infrastructure/test_passport_export_history_repository.py": "5f68ed179ac6399707d3fae8d81453629349223193961659dc90bed1a3a24549",
+    "backend/tests/unit/infrastructure/test_passport_exports_and_replacements_migration.py": "67f301a8f106199cf516177a0a19962618b4cb7f13ed06bb9403ee0b68efffe3",
+    "backend/tests/unit/infrastructure/test_passport_excel_phone_columns.py": "4212ef7c59fb2a7473f0d3dfbddd6b5808c0828aaf474ff28276c9571f8690a5",
+    "backend/app/infrastructure/travellers/company_export_native_work.py": "a1eb881381e063d0ce8ef77a1f79885e38a23b92a8e652244c093bac3a406a4f",
+    "backend/app/infrastructure/travellers/company_export_render.py": "4063ab9a2e155876a17184d55a993131b226191d43b376d8160433695322f828",
+    "backend/app/infrastructure/export/passport_excel_phone_columns.py": "e3e14430dc05d96ccf0a583c886fb3eb9ec189246da70debbc368d09beea6eb9",
+    "backend/app/domain/value_objects/passport_export_history.py": "237fb72310b4c5eaed98d05a7ff24192bc2c9e4dbeb4e9969d83bd1d6471dbfa",
+    "backend/app/infrastructure/export/passport_image_zip_exporter.py": "b827929f2b96502df76554d53f39f7cda63de0c96b3e201231b76980ebe4f01e",
+    "backend/app/infrastructure/repositories/passport_export_history_repository.py": "5a3726ce317c6f588c9cb1f039eccd6ee1a4a2fb74bdbc869bbf138cfcc4bc78"
+  },
+  "checks_run": [],
+  "changes": [],
+  "findings": [],
+  "proof_gaps": [
+    "Actual test source assertions/fixtures/import consumers inspected; no pass, workload timing, image decoding or provider-service result claimed.",
+    "Mocked repository sessions/Alembic operations and metadata index assertions are not real PostgreSQL migration/transaction proof; published migration bytes remain unchanged.",
+    "Bounded concurrency/thread/byte/crop source controls use synthetic storage/images; no production resource profile/live object store/native app workflow exercised.",
+    "Focused orchestration/repository modules remain partial, and supporting exact-current full rereads cannot inflate new-unreviewed coverage."
+  ],
+  "scope": "Retained dashboard exports/history/crops/workbook CPU ownership only; native app ingress/UI and Operations Inbox excluded/deferred. All existing source/test/config/migration/provider data untouched."
+}

@@ -1,0 +1,609 @@
+{
+  "before_modules": 283,
+  "after_modules": 325,
+  "added": 42,
+  "every_prior_module_global_and_critical_floor_unchanged": true,
+  "before_sha256": "ca254c5b935b22eab27418923b7b90b8db38881e05544f7b13c5964dc3ddf45e",
+  "after_sha256": "9d53fbb5f1b26026a6314eeac6397f355f7d75b1cc1591aac57e08d2004849fe",
+  "after_lf_sha256": "00add25ac525264151ad32d2eacd9ce24168bff1ffbe66dad1b4f8ea5fe2230d",
+  "source_review_attribution": [
+    "root:domain-group-schema-verification.json",
+    "manual_security:operations-model-refactor-verification.json",
+    "manual_security:tour-schema-refactor-verification.json"
+  ],
+  "not_another_full_physical_review": true,
+  "low_coverage_debt": "New tour_activity_schemas floor65 reflects observed69.70%statements/22.22%branches. It lowers no prior floor and does not establish full validator branch coverage; preserve explicit follow-through.",
+  "held_active_bundles": [
+    "superseded Rooming4/QR5/attendance5 candidates; await final22-current-owner bundle"
+  ],
+  "added_owners": [
+    {
+      "owner": "domain-group-schema",
+      "budget": {
+        "path": "app/domain/entities/factories.py",
+        "baseline_lines": 14,
+        "maximum_lines": 20,
+        "baseline_max_function_complexity": 1,
+        "maximum_function_complexity": 2,
+        "minimum_coverage_percent": 100
+      },
+      "sha256": "b74b82177ea101abeafdd188d5c197a9f6ea01f49e56ad06b438bbb491220950",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": null
+    },
+    {
+      "owner": "domain-group-schema",
+      "budget": {
+        "path": "app/domain/entities/enums.py",
+        "baseline_lines": 109,
+        "maximum_lines": 110,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 1,
+        "minimum_coverage_percent": 100
+      },
+      "sha256": "4ef547c3c578e0c44d40ce03f8deaa0059077af2c59a78df40946b134ad88324",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": null
+    },
+    {
+      "owner": "domain-group-schema",
+      "budget": {
+        "path": "app/domain/entities/identity.py",
+        "baseline_lines": 112,
+        "maximum_lines": 120,
+        "baseline_max_function_complexity": 3,
+        "maximum_function_complexity": 4,
+        "minimum_coverage_percent": 90
+      },
+      "sha256": "4e60b4cc3d4759f1c2b12b34984a4300ae388055694cf46581be33f632b94d9e",
+      "observed_statement_coverage": 92.5926,
+      "observed_branch_coverage": null
+    },
+    {
+      "owner": "domain-group-schema",
+      "budget": {
+        "path": "app/domain/entities/qualifier_selection.py",
+        "baseline_lines": 63,
+        "maximum_lines": 70,
+        "baseline_max_function_complexity": 2,
+        "maximum_function_complexity": 3,
+        "minimum_coverage_percent": 95
+      },
+      "sha256": "79088b2e146a88ca46b17f4f716be932ca0aa37fcdadb6dd191e811761da67f4",
+      "observed_statement_coverage": 96.1538,
+      "observed_branch_coverage": null
+    },
+    {
+      "owner": "domain-group-schema",
+      "budget": {
+        "path": "app/domain/entities/client_group_state.py",
+        "baseline_lines": 75,
+        "maximum_lines": 80,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 1,
+        "minimum_coverage_percent": 100
+      },
+      "sha256": "00d98b8ee7c09f2604903f2b6be2cbfff8b4a30679c645f9a7ae656d3244592b",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": null
+    },
+    {
+      "owner": "domain-group-schema",
+      "budget": {
+        "path": "app/domain/entities/client_group_configuration.py",
+        "baseline_lines": 119,
+        "maximum_lines": 120,
+        "baseline_max_function_complexity": 11,
+        "maximum_function_complexity": 12,
+        "minimum_coverage_percent": 85
+      },
+      "sha256": "3486a83b66db4ec1658e74ba47bdd0052423d7a122fb5cc6bcbbb5fc633606db",
+      "observed_statement_coverage": 96.1538,
+      "observed_branch_coverage": null
+    },
+    {
+      "owner": "domain-group-schema",
+      "budget": {
+        "path": "app/domain/entities/client_group_lifecycle.py",
+        "baseline_lines": 75,
+        "maximum_lines": 80,
+        "baseline_max_function_complexity": 5,
+        "maximum_function_complexity": 6,
+        "minimum_coverage_percent": 90
+      },
+      "sha256": "30910eb18732f1174995da1a49b021b6658d3acef96ab9253f9c2ddeeb51f55a",
+      "observed_statement_coverage": 95.4545,
+      "observed_branch_coverage": null
+    },
+    {
+      "owner": "domain-group-schema",
+      "budget": {
+        "path": "app/domain/entities/client_group.py",
+        "baseline_lines": 121,
+        "maximum_lines": 130,
+        "baseline_max_function_complexity": 11,
+        "maximum_function_complexity": 12,
+        "minimum_coverage_percent": 85
+      },
+      "sha256": "3611455105d0b61425774efb899b883fe9d4e3e192b4e3ca39330c955d5b50f2",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": null
+    },
+    {
+      "owner": "domain-group-schema",
+      "budget": {
+        "path": "app/domain/entities/passport_state.py",
+        "baseline_lines": 102,
+        "maximum_lines": 110,
+        "baseline_max_function_complexity": 1,
+        "maximum_function_complexity": 2,
+        "minimum_coverage_percent": 100
+      },
+      "sha256": "acdd388a8baab76b6a2f0436b3e34ab364605532b192d80d37d2bada30d21e4c",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": null
+    },
+    {
+      "owner": "domain-group-schema",
+      "budget": {
+        "path": "app/domain/entities/passport_extraction.py",
+        "baseline_lines": 246,
+        "maximum_lines": 250,
+        "baseline_max_function_complexity": 15,
+        "maximum_function_complexity": 16,
+        "minimum_coverage_percent": 95
+      },
+      "sha256": "e745eb8f9d1b0827bf9bdeb2f8076ed898588fb0f3d1a0cb6c5baf5abc0d3cf1",
+      "observed_statement_coverage": 96.6292,
+      "observed_branch_coverage": null
+    },
+    {
+      "owner": "domain-group-schema",
+      "budget": {
+        "path": "app/domain/entities/passport_client_review.py",
+        "baseline_lines": 125,
+        "maximum_lines": 130,
+        "baseline_max_function_complexity": 31,
+        "maximum_function_complexity": 32,
+        "minimum_coverage_percent": 90
+      },
+      "sha256": "591e2d935dd68ee27e7cfef3229b8080eb590f9e3fed2600cbe1ecb3b014f7cb",
+      "observed_statement_coverage": 94.9153,
+      "observed_branch_coverage": null
+    },
+    {
+      "owner": "domain-group-schema",
+      "budget": {
+        "path": "app/domain/entities/passport_staff_review.py",
+        "baseline_lines": 217,
+        "maximum_lines": 220,
+        "baseline_max_function_complexity": 11,
+        "maximum_function_complexity": 12,
+        "minimum_coverage_percent": 90
+      },
+      "sha256": "3e93dfe727f18b35556bcd2522607d169d297cfa194d2ae1e62e90c6f6439e76",
+      "observed_statement_coverage": 94.5652,
+      "observed_branch_coverage": null
+    },
+    {
+      "owner": "domain-group-schema",
+      "budget": {
+        "path": "app/domain/entities/passport_submission.py",
+        "baseline_lines": 144,
+        "maximum_lines": 150,
+        "baseline_max_function_complexity": 6,
+        "maximum_function_complexity": 7,
+        "minimum_coverage_percent": 90
+      },
+      "sha256": "b46b0a5e20840b903f9b9e4f9e5ba089f66e3f0857937b2eaa1475ccf97b63b2",
+      "observed_statement_coverage": 94.2308,
+      "observed_branch_coverage": null
+    },
+    {
+      "owner": "domain-group-schema",
+      "budget": {
+        "path": "app/domain/repositories/identity.py",
+        "baseline_lines": 51,
+        "maximum_lines": 60,
+        "baseline_max_function_complexity": 1,
+        "maximum_function_complexity": 2,
+        "minimum_coverage_percent": 100
+      },
+      "sha256": "d3cdbb17519f5b05e9a6c810b0b554e74d602e98668dd6b1f2ce854ac2303b36",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": null
+    },
+    {
+      "owner": "domain-group-schema",
+      "budget": {
+        "path": "app/domain/repositories/client_groups.py",
+        "baseline_lines": 73,
+        "maximum_lines": 80,
+        "baseline_max_function_complexity": 1,
+        "maximum_function_complexity": 2,
+        "minimum_coverage_percent": 85
+      },
+      "sha256": "0ae94781a7f1eb58dd7229aa7e6bd3327d68ed97f093dad91056de01477374da",
+      "observed_statement_coverage": 87.5,
+      "observed_branch_coverage": null
+    },
+    {
+      "owner": "domain-group-schema",
+      "budget": {
+        "path": "app/domain/repositories/passport_submissions.py",
+        "baseline_lines": 196,
+        "maximum_lines": 200,
+        "baseline_max_function_complexity": 1,
+        "maximum_function_complexity": 2,
+        "minimum_coverage_percent": 100
+      },
+      "sha256": "8bd1cd7ee3f5f82b034293a2bd05c239f10d10d679b37d02379de1d742109b4c",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": null
+    },
+    {
+      "owner": "domain-group-schema",
+      "budget": {
+        "path": "app/domain/repositories/object_storage.py",
+        "baseline_lines": 29,
+        "maximum_lines": 30,
+        "baseline_max_function_complexity": 1,
+        "maximum_function_complexity": 2,
+        "minimum_coverage_percent": 100
+      },
+      "sha256": "af73f8bd469d7f73406c05d847fd5ccf77c9a6ea20b40005fb74d9901238207e",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": null
+    },
+    {
+      "owner": "domain-group-schema",
+      "budget": {
+        "path": "app/domain/entities/entities.py",
+        "baseline_lines": 37,
+        "maximum_lines": 40,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 1,
+        "minimum_coverage_percent": 100
+      },
+      "sha256": "6e632388e2e0074771f336a1459c86d6a0712a3d0a93e14def7b2062270bf6fa",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": null
+    },
+    {
+      "owner": "domain-group-schema",
+      "budget": {
+        "path": "app/domain/repositories/interfaces.py",
+        "baseline_lines": 23,
+        "maximum_lines": 30,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 1,
+        "minimum_coverage_percent": 100
+      },
+      "sha256": "996e38b40ad49a1ba1b604a8582f696f0f7fa5f17cf53696998c9ba5fbf465b0",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": null
+    },
+    {
+      "owner": "domain-group-schema",
+      "budget": {
+        "path": "app/domain/value_objects/group_trip_settings.py",
+        "baseline_lines": 63,
+        "maximum_lines": 70,
+        "baseline_max_function_complexity": 12,
+        "maximum_function_complexity": 13,
+        "minimum_coverage_percent": 90
+      },
+      "sha256": "e4db9450f179fef74a62e880c2c6286454ba5d927a8ac2e4f959e8c57d7ae78a",
+      "observed_statement_coverage": 90.3226,
+      "observed_branch_coverage": null
+    },
+    {
+      "owner": "domain-group-schema",
+      "budget": {
+        "path": "app/presentation/api/v1/schemas/client_group_broadcast_schemas.py",
+        "baseline_lines": 71,
+        "maximum_lines": 80,
+        "baseline_max_function_complexity": 3,
+        "maximum_function_complexity": 4,
+        "minimum_coverage_percent": 95
+      },
+      "sha256": "86a9295d24b295ff8018d55cfb775f60626f3d5dce799d18ce78a34d928c6bae",
+      "observed_statement_coverage": 95.0,
+      "observed_branch_coverage": null
+    },
+    {
+      "owner": "domain-group-schema",
+      "budget": {
+        "path": "app/presentation/api/v1/schemas/client_group_collection_schemas.py",
+        "baseline_lines": 54,
+        "maximum_lines": 60,
+        "baseline_max_function_complexity": 5,
+        "maximum_function_complexity": 6,
+        "minimum_coverage_percent": 95
+      },
+      "sha256": "98f2914847f3c9866f6265dd50f377f5919b365d7bc6f53fe267ded287257f0f",
+      "observed_statement_coverage": 97.3684,
+      "observed_branch_coverage": null
+    },
+    {
+      "owner": "domain-group-schema",
+      "budget": {
+        "path": "app/presentation/api/v1/schemas/client_group_match_schemas.py",
+        "baseline_lines": 148,
+        "maximum_lines": 150,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 1,
+        "minimum_coverage_percent": 95
+      },
+      "sha256": "a5af1f8aa69f66361fd7744218187708db9ddb04f31a16c280462bea4674efe2",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": null
+    },
+    {
+      "owner": "domain-group-schema",
+      "budget": {
+        "path": "app/presentation/api/v1/schemas/client_group_qualifier_schemas.py",
+        "baseline_lines": 71,
+        "maximum_lines": 80,
+        "baseline_max_function_complexity": 11,
+        "maximum_function_complexity": 12,
+        "minimum_coverage_percent": 95
+      },
+      "sha256": "5360d1e3c4a935df8e9b6b1a210be2dc79b0e45d26310b9095f802475c11e59b",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": null
+    },
+    {
+      "owner": "domain-group-schema",
+      "budget": {
+        "path": "app/presentation/api/v1/schemas/client_group_request_schemas.py",
+        "baseline_lines": 221,
+        "maximum_lines": 230,
+        "baseline_max_function_complexity": 16,
+        "maximum_function_complexity": 17,
+        "minimum_coverage_percent": 90
+      },
+      "sha256": "05119ad00c36913fca7f40df7c8e466a017661f7bbc14a0512d0a2c357667e82",
+      "observed_statement_coverage": 93.662,
+      "observed_branch_coverage": null
+    },
+    {
+      "owner": "domain-group-schema",
+      "budget": {
+        "path": "app/presentation/api/v1/schemas/client_group_request_validation.py",
+        "baseline_lines": 80,
+        "maximum_lines": 90,
+        "baseline_max_function_complexity": 14,
+        "maximum_function_complexity": 15,
+        "minimum_coverage_percent": 95
+      },
+      "sha256": "23e0b23716c88c8dfc29c795c49d4291934c2679763e1a804ef6ec31fb6bc525",
+      "observed_statement_coverage": 98.2456,
+      "observed_branch_coverage": null
+    },
+    {
+      "owner": "domain-group-schema",
+      "budget": {
+        "path": "app/presentation/api/v1/schemas/client_group_response_schemas.py",
+        "baseline_lines": 63,
+        "maximum_lines": 70,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 1,
+        "minimum_coverage_percent": 95
+      },
+      "sha256": "c5136b47fdc551c8fc68f70e0a87bd2614fefc4c3c3de869238c3544fcaf362f",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": null
+    },
+    {
+      "owner": "domain-group-schema",
+      "budget": {
+        "path": "app/presentation/api/v1/schemas/public_flow_telemetry_schema.py",
+        "baseline_lines": 25,
+        "maximum_lines": 30,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 1,
+        "minimum_coverage_percent": 95
+      },
+      "sha256": "b71dc74b07dc2c788acea6351cb8a9f8325639cda62c5946571fb7ec34093d47",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": null
+    },
+    {
+      "owner": "domain-group-schema",
+      "budget": {
+        "path": "app/presentation/api/v1/schemas/client_group_schemas.py",
+        "baseline_lines": 89,
+        "maximum_lines": 90,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 1,
+        "minimum_coverage_percent": 95
+      },
+      "sha256": "3c4e4bcc5c3d84548c5b2be38a5464b5a5bece5879306b4604cf9fc9c123c96b",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": null
+    },
+    {
+      "owner": "operations-model",
+      "budget": {
+        "path": "app/infrastructure/database/attendance_activity_models.py",
+        "baseline_lines": 205,
+        "maximum_lines": 214,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      },
+      "sha256": "032b369aa88cd7dce0d19d6d19c2905f3e3cab16fa4a9bd8de25ef57d073b9b5",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 100.0
+    },
+    {
+      "owner": "operations-model",
+      "budget": {
+        "path": "app/infrastructure/database/attendance_batch_models.py",
+        "baseline_lines": 171,
+        "maximum_lines": 178,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      },
+      "sha256": "06eb473f6507d08e49d25acb2e4c68e62c4550bb70486a2c886203bff8f08ae7",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 100.0
+    },
+    {
+      "owner": "operations-model",
+      "budget": {
+        "path": "app/infrastructure/database/attendance_closeout_models.py",
+        "baseline_lines": 243,
+        "maximum_lines": 253,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      },
+      "sha256": "affc03c86907ae04fefb57be8920593393a6e2818837d6a9b816be63ff615878",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 100.0
+    },
+    {
+      "owner": "operations-model",
+      "budget": {
+        "path": "app/infrastructure/database/attendance_runtime_models.py",
+        "baseline_lines": 211,
+        "maximum_lines": 220,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      },
+      "sha256": "1798faed32a3c2528659180f3e8910b1ad0e9615299393caa1aa7556cf8739f5",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 100.0
+    },
+    {
+      "owner": "operations-model",
+      "budget": {
+        "path": "app/infrastructure/database/operations_models.py",
+        "baseline_lines": 54,
+        "maximum_lines": 57,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      },
+      "sha256": "c1b7d9231eca989eb9abd5a7d6bba605650b66bd7d9aba73abe2208519fe59f8",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 100.0
+    },
+    {
+      "owner": "operations-model",
+      "budget": {
+        "path": "app/infrastructure/database/passenger_qr_models.py",
+        "baseline_lines": 184,
+        "maximum_lines": 192,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      },
+      "sha256": "e815d9390a4a5c9544e43b2384f3791b4cb4d429a4b18bb7da7e37b897421d24",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 100.0
+    },
+    {
+      "owner": "operations-model",
+      "budget": {
+        "path": "app/infrastructure/database/rooming_allocation_models.py",
+        "baseline_lines": 139,
+        "maximum_lines": 145,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      },
+      "sha256": "a61c374e76078f8aa6f58f740b2c1415a3b20dcdd9d863b7a07465d6c376315f",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 100.0
+    },
+    {
+      "owner": "operations-model",
+      "budget": {
+        "path": "app/infrastructure/database/rooming_property_models.py",
+        "baseline_lines": 154,
+        "maximum_lines": 161,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      },
+      "sha256": "600b2c10646a400307fb2935a2785424b4a4e85aee77032581cb7435891ae839",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 100.0
+    },
+    {
+      "owner": "tour-schema",
+      "budget": {
+        "path": "app/presentation/api/v1/schemas/tour_activity_schemas.py",
+        "baseline_lines": 97,
+        "maximum_lines": 101,
+        "baseline_max_function_complexity": 16,
+        "maximum_function_complexity": 16,
+        "minimum_coverage_percent": 65
+      },
+      "sha256": "d7264fa118d2ac9966be93fd1b17912fcbf7a1cd9888a228371832c594eecc29",
+      "observed_statement_coverage": 69.6969696969697,
+      "observed_branch_coverage": 22.22222222222222
+    },
+    {
+      "owner": "tour-schema",
+      "budget": {
+        "path": "app/presentation/api/v1/schemas/tour_attendance_projection_schemas.py",
+        "baseline_lines": 143,
+        "maximum_lines": 149,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      },
+      "sha256": "ad6a3c2fbe1183fd23a6e5b6c984c5ce921e6b40a6ab38d46af046555a602554",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 100.0
+    },
+    {
+      "owner": "tour-schema",
+      "budget": {
+        "path": "app/presentation/api/v1/schemas/tour_coordinator_schemas.py",
+        "baseline_lines": 119,
+        "maximum_lines": 124,
+        "baseline_max_function_complexity": 1,
+        "maximum_function_complexity": 1,
+        "minimum_coverage_percent": 95
+      },
+      "sha256": "1ce8e157f43fa0ab827a960f10341a376f00a2ed100795203a6423ee203c315e",
+      "observed_statement_coverage": 96.7741935483871,
+      "observed_branch_coverage": 100.0
+    },
+    {
+      "owner": "tour-schema",
+      "budget": {
+        "path": "app/presentation/api/v1/schemas/tour_operations_schemas.py",
+        "baseline_lines": 187,
+        "maximum_lines": 195,
+        "baseline_max_function_complexity": 5,
+        "maximum_function_complexity": 5,
+        "minimum_coverage_percent": 95
+      },
+      "sha256": "fd7ecf986739deee381054c462fee4afb9b83efd483473b8025bc58ac682bee0",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 100.0
+    },
+    {
+      "owner": "tour-schema",
+      "budget": {
+        "path": "app/presentation/api/v1/schemas/tour_qr_schemas.py",
+        "baseline_lines": 102,
+        "maximum_lines": 107,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      },
+      "sha256": "62399206edc4abbb006acb56fd1bfcb33ec9ba14250b99e198003bed51680c5b",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 100.0
+    }
+  ]
+}

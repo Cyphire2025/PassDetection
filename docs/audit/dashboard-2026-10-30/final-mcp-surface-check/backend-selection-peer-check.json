@@ -1,0 +1,355 @@
+{
+  "reviewer": "gc_models_finish",
+  "checked_at_utc": "2026-10-31T23:18:24.392446+00:00",
+  "scope": "Read-only independent selected manifest/scope/mixed-function policy consistency check; no source or tests executed/read and no qualification result renewal. Runner remains active.",
+  "input_snapshots": {
+    "selection": {
+      "path": "docs/audit/dashboard-2026-10-30/final-retained-backend-20261101-001/selection.json",
+      "sha256_at_read": "8e097c2d09e646d8661196b78929a36179c4cd9c3892ff467431bcfc7b3663b1"
+    },
+    "scope": {
+      "path": "docs/audit/dashboard-2026-10-30/audit-scope.json",
+      "sha256_at_read": "079ffe822ee727a55f6c2541820aa4b8b406b5d5c55cec9349fb52561397bc64"
+    },
+    "mixed": {
+      "path": "docs/audit/dashboard-2026-10-30/retained-mixed-test-function-selection.json",
+      "sha256_at_read": "c6cbffc1888bad873264195b771a08cd54bbf86e110963c113d7bc6b594e6524"
+    }
+  },
+  "selection_stage_at_read": "executing",
+  "selection_identity_sha256": "ae30a614fd894656d72092f6ac54ea0dd1f41cb25bdd7fcfdd4936ff3ef09382",
+  "selection_reports_outcomes_excluded_from_identity": true,
+  "discovered_test_file_paths": 910,
+  "independently_expected_ignored_paths": 83,
+  "ignored_reasons": {
+    "mixed-whole-file-deferred": 3,
+    "operations-inbox-deferred": 57,
+    "native-excluded": 23
+  },
+  "planned_actual_and_independently_expected_ignored_exactly_equal": true,
+  "selected_nodeids": 9118,
+  "selected_unique": true,
+  "deselected_nodeids": 87,
+  "collected_nodeids": 9205,
+  "collection_partition_exact_unique_disjoint": true,
+  "selected_blocked_paths": [],
+  "nodeid_path_consistent": true,
+  "mixed_file_checks": [
+    {
+      "path": "backend/tests/unit/application/test_mobile_otp_provider.py",
+      "recommendation": "select-only-listed-complete-retained-functions",
+      "within_unit_integration_discovered_files": true,
+      "expected_original_function_names": [
+        "test_development_provider_fails_closed_in_production",
+        "test_development_provider_never_returns_the_code",
+        "test_disabled_provider_fails_without_leaking_destination"
+      ],
+      "actual_original_function_names": [
+        "test_development_provider_fails_closed_in_production",
+        "test_development_provider_never_returns_the_code",
+        "test_disabled_provider_fails_without_leaking_destination"
+      ],
+      "actual_parameterized_selected_cases": 3,
+      "equal": true
+    },
+    {
+      "path": "backend/tests/unit/application/test_passenger_session_authority.py",
+      "recommendation": "select-only-listed-complete-retained-functions",
+      "within_unit_integration_discovered_files": true,
+      "expected_original_function_names": [
+        "test_changed_nonselected_contact_revokes_session_durably_without_deleting_data",
+        "test_direct_trip_policy_rejects_old_broadcast_phone_after_contact_policy_change",
+        "test_unchanged_submitted_contacts_keep_existing_session_and_refresh_token"
+      ],
+      "actual_original_function_names": [
+        "test_changed_nonselected_contact_revokes_session_durably_without_deleting_data",
+        "test_direct_trip_policy_rejects_old_broadcast_phone_after_contact_policy_change",
+        "test_unchanged_submitted_contacts_keep_existing_session_and_refresh_token"
+      ],
+      "actual_parameterized_selected_cases": 7,
+      "equal": true
+    },
+    {
+      "path": "backend/tests/unit/application/test_mobile_realtime_authorization.py",
+      "recommendation": "select-only-listed-complete-retained-functions",
+      "within_unit_integration_discovered_files": true,
+      "expected_original_function_names": [
+        "test_authorization_is_tenant_scoped_and_live_revocation_removes_trip"
+      ],
+      "actual_original_function_names": [
+        "test_authorization_is_tenant_scoped_and_live_revocation_removes_trip"
+      ],
+      "actual_parameterized_selected_cases": 1,
+      "equal": true
+    },
+    {
+      "path": "backend/tests/unit/application/test_mobile_push_provider.py",
+      "recommendation": "select-only-listed-complete-retained-functions",
+      "within_unit_integration_discovered_files": true,
+      "expected_original_function_names": [
+        "test_disabled_provider_is_fail_closed",
+        "test_message_rejects_non_allowlisted_push_data"
+      ],
+      "actual_original_function_names": [
+        "test_disabled_provider_is_fail_closed",
+        "test_message_rejects_non_allowlisted_push_data"
+      ],
+      "actual_parameterized_selected_cases": 2,
+      "equal": true
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_mobile_authorization_matrix.py",
+      "recommendation": "select-only-listed-complete-retained-functions",
+      "within_unit_integration_discovered_files": true,
+      "expected_original_function_names": [
+        "test_access_policy_and_realtime_deny_cross_scope_and_lifecycle_rows"
+      ],
+      "actual_original_function_names": [
+        "test_access_policy_and_realtime_deny_cross_scope_and_lifecycle_rows"
+      ],
+      "actual_parameterized_selected_cases": 1,
+      "equal": true
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_mobile_historical_access_sync.py",
+      "recommendation": "select-only-listed-complete-retained-functions",
+      "within_unit_integration_discovered_files": true,
+      "expected_original_function_names": [
+        "test_projection_keeps_unrelated_or_unknown_revocations"
+      ],
+      "actual_original_function_names": [
+        "test_projection_keeps_unrelated_or_unknown_revocations"
+      ],
+      "actual_parameterized_selected_cases": 7,
+      "equal": true
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_mobile_ops.py",
+      "recommendation": "select-only-listed-complete-retained-functions",
+      "within_unit_integration_discovered_files": true,
+      "expected_original_function_names": [
+        "test_accessible_notification_groups_are_role_and_tenant_scoped",
+        "test_attendance_qr_batch_is_tenant_scoped_and_loaded_once",
+        "test_attendance_qr_snapshot_preserves_fail_closed_rejection_precedence",
+        "test_attendance_replay_batch_uses_one_canonical_family_read",
+        "test_attendance_session_batch_uses_two_bounded_scoped_reads",
+        "test_attendance_session_capacity_is_tenant_scoped_and_serialized",
+        "test_attendance_session_capacity_keeps_idempotent_active_name_retry",
+        "test_coordinator_imported_date_parser_fails_closed",
+        "test_hundred_scan_batch_bounds_reads_and_journal_flushes",
+        "test_notification_payload_uses_a_fixed_public_allowlist",
+        "test_trip_countdowns_are_excluded_from_the_durable_updates_feed"
+      ],
+      "actual_original_function_names": [
+        "test_accessible_notification_groups_are_role_and_tenant_scoped",
+        "test_attendance_qr_batch_is_tenant_scoped_and_loaded_once",
+        "test_attendance_qr_snapshot_preserves_fail_closed_rejection_precedence",
+        "test_attendance_replay_batch_uses_one_canonical_family_read",
+        "test_attendance_session_batch_uses_two_bounded_scoped_reads",
+        "test_attendance_session_capacity_is_tenant_scoped_and_serialized",
+        "test_attendance_session_capacity_keeps_idempotent_active_name_retry",
+        "test_coordinator_imported_date_parser_fails_closed",
+        "test_hundred_scan_batch_bounds_reads_and_journal_flushes",
+        "test_notification_payload_uses_a_fixed_public_allowlist",
+        "test_trip_countdowns_are_excluded_from_the_durable_updates_feed"
+      ],
+      "actual_parameterized_selected_cases": 11,
+      "equal": true
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_mobile_route_type_boundaries.py",
+      "recommendation": "defer",
+      "within_unit_integration_discovered_files": true,
+      "expected_original_function_names": [],
+      "actual_original_function_names": [],
+      "actual_parameterized_selected_cases": 0,
+      "equal": true
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_mobile_submitted_phone_auth.py",
+      "recommendation": "select-only-listed-complete-retained-functions",
+      "within_unit_integration_discovered_files": true,
+      "expected_original_function_names": [
+        "test_completed_collection_statuses_authorize_without_staff_approval",
+        "test_drafts_and_imported_numbers_are_not_collection_authority",
+        "test_explicit_public_completion_can_supersede_legacy_import_provenance"
+      ],
+      "actual_original_function_names": [
+        "test_completed_collection_statuses_authorize_without_staff_approval",
+        "test_drafts_and_imported_numbers_are_not_collection_authority",
+        "test_explicit_public_completion_can_supersede_legacy_import_provenance"
+      ],
+      "actual_parameterized_selected_cases": 12,
+      "equal": true
+    },
+    {
+      "path": "backend/tests/integration/test_mcp_content_read_http.py",
+      "recommendation": "defer",
+      "within_unit_integration_discovered_files": true,
+      "expected_original_function_names": [],
+      "actual_original_function_names": [],
+      "actual_parameterized_selected_cases": 0,
+      "equal": true
+    },
+    {
+      "path": "backend/tests/integration/test_mcp_dashboard_detail_reads.py",
+      "recommendation": "defer",
+      "within_unit_integration_discovered_files": true,
+      "expected_original_function_names": [],
+      "actual_original_function_names": [],
+      "actual_parameterized_selected_cases": 0,
+      "equal": true
+    },
+    {
+      "path": "backend/tests/integration/test_mcp_content_reads.py",
+      "recommendation": "select-only-listed-complete-retained-functions",
+      "within_unit_integration_discovered_files": true,
+      "expected_original_function_names": [
+        "test_gc_versions_optional_content_and_shared_availability",
+        "test_notification_history_reuses_recipient_and_device_projection_without_dispatch"
+      ],
+      "actual_original_function_names": [
+        "test_gc_versions_optional_content_and_shared_availability",
+        "test_notification_history_reuses_recipient_and_device_projection_without_dispatch"
+      ],
+      "actual_parameterized_selected_cases": 2,
+      "equal": true
+    },
+    {
+      "path": "backend/tests/service_integration/test_mcp_read_parity_postgresql.py",
+      "recommendation": "defer",
+      "within_unit_integration_discovered_files": false,
+      "expected_original_function_names": [],
+      "actual_original_function_names": [],
+      "actual_parameterized_selected_cases": 0,
+      "equal": true
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_delivery_ledger.py",
+      "recommendation": "select-only-listed-complete-retained-functions",
+      "within_unit_integration_discovered_files": true,
+      "expected_original_function_names": [
+        "test_batch_status_reports_ambiguous_outcomes_separately_from_failures",
+        "test_current_failed_receipt_releases_submitted_but_not_delivered",
+        "test_delivery_ledger_schema_is_generic_and_unique_per_recipient_type",
+        "test_eligibility_counts_failed_as_retryable_and_active_claim_as_skipped",
+        "test_excel_contact_direct_upload_remains_strict_but_allows_merged_duplicates",
+        "test_excel_contact_name_composes_given_names_and_surname",
+        "test_excel_contact_name_prefers_staffname_over_zone_name",
+        "test_excel_contact_preview_bounds_rejected_row_payload",
+        "test_excel_contact_preview_preserves_an_empty_column_heading",
+        "test_excel_contact_preview_rejects_empty_or_unnamed_contacts",
+        "test_excel_contact_preview_rejects_invalid_file_type",
+        "test_excel_contact_preview_returns_all_rejected_rows_without_a_server_error",
+        "test_excel_contact_preview_returns_named_normalized_recipients",
+        "test_excel_contact_preview_returns_valid_rows_and_actionable_rejections",
+        "test_excel_contact_preview_route_is_role_gated_and_has_stable_contract",
+        "test_excel_contact_preview_skips_structural_header_variants",
+        "test_excel_contact_upload_converts_unexpected_parser_error_to_400",
+        "test_excel_contact_upload_detects_headers_below_title_row",
+        "test_excel_contact_upload_distinguishes_contact_name_from_phone",
+        "test_excel_contact_upload_enforces_compressed_byte_limit",
+        "test_excel_contact_upload_preserves_bounded_fields_across_sheets",
+        "test_excel_contact_upload_stops_after_recipient_row_limit",
+        "test_explicit_resend_never_mutates_baseline_delivery_ledger",
+        "test_explicit_resend_route_is_role_gated_and_returns_send_contract",
+        "test_explicit_resend_schema_freezes_payload_and_has_single_active_guard",
+        "test_explicit_resend_webhook_updates_log_without_loading_baseline_state",
+        "test_explicit_resend_worker_guard_uses_log_claim_not_baseline_state",
+        "test_failed_receipt_before_acceptance_releases_retry_claim",
+        "test_group_delete_blocks_active_passport_replacement",
+        "test_group_delete_blocks_processing_explicit_resend",
+        "test_imported_recipient_field_limit_accepts_large_rosters_but_remains_bounded",
+        "test_late_failed_receipt_does_not_regress_accepted_checklist",
+        "test_late_failed_receipt_remains_scoped_to_its_original_batch",
+        "test_late_welcome_receipt_stays_batch_fenced_for_recipient_phone_changes",
+        "test_legacy_decoder_fails_closed_when_saved_render_is_modified",
+        "test_legacy_passport_snapshot_survives_later_group_and_support_edits",
+        "test_legacy_welcome_snapshot_is_byte_exact_and_keeps_original_support",
+        "test_manual_reactivation_does_not_erase_imported_fields",
+        "test_manual_recipient_rejects_non_phone_characters_and_excess_digits",
+        "test_mark_failed_skips_baseline_ledger_for_explicit_resend",
+        "test_older_provider_event_is_ignored",
+        "test_out_of_order_accepted_receipt_never_moves_status_backwards",
+        "test_readding_removed_phone_reactivates_same_row_and_preserves_identity",
+        "test_readding_replaced_phone_requires_roster_restore",
+        "test_recipient_checklist_only_marks_provider_accepted_states_as_sent",
+        "test_resend_endpoint_blocks_delivery_unknown_explicit_attempt",
+        "test_resend_endpoint_queues_one_edited_message_with_current_template",
+        "test_resend_endpoint_rejects_removed_or_missing_recipient",
+        "test_resend_queue_failure_does_not_release_baseline_sent_state",
+        "test_webhook_delivery_error_redacts_raw_meta_message",
+        "test_worker_acceptance_makes_inflight_provider_success_authoritative",
+        "test_worker_failure_releases_ledger_claim_for_safe_retry",
+        "test_worker_guard_rejects_later_same_phone_replacement_row",
+        "test_worker_guard_rejects_removed_recipient_before_provider_call",
+        "test_worker_guard_requires_current_processing_batch",
+        "test_worker_prefers_frozen_template_snapshot_over_current_group_values",
+        "test_worker_success_exits_retry_loop_and_remains_submitted"
+      ],
+      "actual_original_function_names": [
+        "test_batch_status_reports_ambiguous_outcomes_separately_from_failures",
+        "test_current_failed_receipt_releases_submitted_but_not_delivered",
+        "test_delivery_ledger_schema_is_generic_and_unique_per_recipient_type",
+        "test_eligibility_counts_failed_as_retryable_and_active_claim_as_skipped",
+        "test_excel_contact_direct_upload_remains_strict_but_allows_merged_duplicates",
+        "test_excel_contact_name_composes_given_names_and_surname",
+        "test_excel_contact_name_prefers_staffname_over_zone_name",
+        "test_excel_contact_preview_bounds_rejected_row_payload",
+        "test_excel_contact_preview_preserves_an_empty_column_heading",
+        "test_excel_contact_preview_rejects_empty_or_unnamed_contacts",
+        "test_excel_contact_preview_rejects_invalid_file_type",
+        "test_excel_contact_preview_returns_all_rejected_rows_without_a_server_error",
+        "test_excel_contact_preview_returns_named_normalized_recipients",
+        "test_excel_contact_preview_returns_valid_rows_and_actionable_rejections",
+        "test_excel_contact_preview_route_is_role_gated_and_has_stable_contract",
+        "test_excel_contact_preview_skips_structural_header_variants",
+        "test_excel_contact_upload_converts_unexpected_parser_error_to_400",
+        "test_excel_contact_upload_detects_headers_below_title_row",
+        "test_excel_contact_upload_distinguishes_contact_name_from_phone",
+        "test_excel_contact_upload_enforces_compressed_byte_limit",
+        "test_excel_contact_upload_preserves_bounded_fields_across_sheets",
+        "test_excel_contact_upload_stops_after_recipient_row_limit",
+        "test_explicit_resend_never_mutates_baseline_delivery_ledger",
+        "test_explicit_resend_route_is_role_gated_and_returns_send_contract",
+        "test_explicit_resend_schema_freezes_payload_and_has_single_active_guard",
+        "test_explicit_resend_webhook_updates_log_without_loading_baseline_state",
+        "test_explicit_resend_worker_guard_uses_log_claim_not_baseline_state",
+        "test_failed_receipt_before_acceptance_releases_retry_claim",
+        "test_group_delete_blocks_active_passport_replacement",
+        "test_group_delete_blocks_processing_explicit_resend",
+        "test_imported_recipient_field_limit_accepts_large_rosters_but_remains_bounded",
+        "test_late_failed_receipt_does_not_regress_accepted_checklist",
+        "test_late_failed_receipt_remains_scoped_to_its_original_batch",
+        "test_late_welcome_receipt_stays_batch_fenced_for_recipient_phone_changes",
+        "test_legacy_decoder_fails_closed_when_saved_render_is_modified",
+        "test_legacy_passport_snapshot_survives_later_group_and_support_edits",
+        "test_legacy_welcome_snapshot_is_byte_exact_and_keeps_original_support",
+        "test_manual_reactivation_does_not_erase_imported_fields",
+        "test_manual_recipient_rejects_non_phone_characters_and_excess_digits",
+        "test_mark_failed_skips_baseline_ledger_for_explicit_resend",
+        "test_older_provider_event_is_ignored",
+        "test_out_of_order_accepted_receipt_never_moves_status_backwards",
+        "test_readding_removed_phone_reactivates_same_row_and_preserves_identity",
+        "test_readding_replaced_phone_requires_roster_restore",
+        "test_recipient_checklist_only_marks_provider_accepted_states_as_sent",
+        "test_resend_endpoint_blocks_delivery_unknown_explicit_attempt",
+        "test_resend_endpoint_queues_one_edited_message_with_current_template",
+        "test_resend_endpoint_rejects_removed_or_missing_recipient",
+        "test_resend_queue_failure_does_not_release_baseline_sent_state",
+        "test_webhook_delivery_error_redacts_raw_meta_message",
+        "test_worker_acceptance_makes_inflight_provider_success_authoritative",
+        "test_worker_failure_releases_ledger_claim_for_safe_retry",
+        "test_worker_guard_rejects_later_same_phone_replacement_row",
+        "test_worker_guard_rejects_removed_recipient_before_provider_call",
+        "test_worker_guard_requires_current_processing_batch",
+        "test_worker_prefers_frozen_template_snapshot_over_current_group_values",
+        "test_worker_success_exits_retry_loop_and_remains_submitted"
+      ],
+      "actual_parameterized_selected_cases": 57,
+      "equal": true
+    }
+  ],
+  "all_retained_mixed_originalnames_exact": true,
+  "source_config_tests_gates_modified": false
+}

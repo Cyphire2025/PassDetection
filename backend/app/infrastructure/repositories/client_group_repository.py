@@ -35,6 +35,7 @@ class ClientGroupRepository(IClientGroupRepository):
             company_id=model.company_id,
             company_revision=model.company_revision,
             banner_url=branding_image_url("group-banner", model.id, model.agency_id, model.banner_image_key),
+            background_url=branding_image_url("group-background", model.id, model.agency_id, model.background_image_key),
             company=({"id": model.company.id, "name": model.company.name, "status": model.company.status, "logo_url": model.company.logo_url}
                      if model.company is not None else None),
             name=model.name,

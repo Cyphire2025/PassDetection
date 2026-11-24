@@ -1,0 +1,347 @@
+{
+  "method": "Actual complete original/current authored source reads; generated/lock artifacts are explicitly focused. Function AST and execution checks supplement, rather than replace, manual reads.",
+  "files": [
+    {
+      "path": "frontend/features/tour-operations/offline-runtime/authorization-validation.js",
+      "sha256": "b69c4c67e41024fc5600227846a6c6b50ef07a4d3a82f7a6952284f6174a351a",
+      "physical_lines": 124,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full current source: native Ed25519 verification uses persisted nonextractable key plus pinned digest; signed owner/tenant/group/runtime/expiry/session/passenger binding and all original bounds retained exactly. Canonical bounded base64url, UTF-8 decode and payload duplicate checks remain."
+    },
+    {
+      "path": "frontend/features/tour-operations/offline-runtime/authorization.js",
+      "sha256": "faf1e4d329fdca4c1f7d2252fa444a3e88476007fc3e70d4b2a1a3853d19f728",
+      "physical_lines": 132,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full current source: page-local verified group registry, owner-scoped authorization reads, roster/activity/token checks and monotonic high-water persistence against live owner/group record. Original function bodies exact; explicit registry clearing added on page owner loss."
+    },
+    {
+      "path": "frontend/features/tour-operations/offline-runtime/camera.js",
+      "sha256": "845a03d53edd4a402c30922d2e3f8dea90cad9b216af06bd95b35037a980031b",
+      "physical_lines": 106,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full current source: page-local decoder controls, synchronous starting lock, generation guard after async decoder, bounded resolution/frame rate and best-effort vendor/element stream cleanup retained. Focused actual controller tests use synthetic decoder/track handles, not physical camera hardware."
+    },
+    {
+      "path": "frontend/features/tour-operations/offline-runtime/constants.js",
+      "sha256": "e42a0979186440790bd8ffbf2fba93ee2fc985016a3dbb3150cbc4d36b9430ae",
+      "physical_lines": 17,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full current source: original DB v5/store/index/key/QR/UUID/path constants and owner capacity5000 retained; no public cache or persistence namespace changes."
+    },
+    {
+      "path": "frontend/features/tour-operations/offline-runtime/controller.js",
+      "sha256": "7ce53118b3a9081aa004447511a7cfe722d68b0f3d1a56399d2bd79d8a420d27",
+      "physical_lines": 279,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full current source: startup and selection listeners, serialized decode/reconnect pipeline, post-verification owner guard, state/DOM clearing on owner loss and selection/owner guards on async count success/error. Original visibility/pagehide/camera/reconnect wait behavior preserved. Native fixture proves hidden-DOM residual issue and stale count; no visible-paint or server bypass inference."
+    },
+    {
+      "path": "frontend/features/tour-operations/offline-runtime/database.js",
+      "sha256": "6b205fb1e12f6c339b9e297756c6318c7eefd20573c5321b39f44ce64940fee5",
+      "physical_lines": 75,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full current source: original v5 store/index upgrade, retained unscoped legacy rows, per-document shared migration promise/reset-on-failure, close-on-versionchange and error/blocked behavior. State remains private to module/bundle; no DB version/schema changes."
+    },
+    {
+      "path": "frontend/features/tour-operations/offline-runtime/idb-requests.js",
+      "sha256": "c208d142331255e07896bc60d3636af1ebb83d1fa3c3e493f92d47b65b0e374f",
+      "physical_lines": 16,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full current source: original request/transaction resolution, error/abort propagation retained; no new transaction commit or atomicity claim from test database."
+    },
+    {
+      "path": "frontend/features/tour-operations/offline-runtime/index.js",
+      "sha256": "ce08c51f5f066f3718d9f0a49b56731b88ad2b8fd0d936f9cb7cee8c8996af24",
+      "physical_lines": 3,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full3line current entry imports and invokes initializeOfflineScanner once; build emits one classic IIFE without runtime imports/assets."
+    },
+    {
+      "path": "frontend/features/tour-operations/offline-runtime/messages.js",
+      "sha256": "ce48af62d6f2b1edf3b41851ffd18440c2df450b06040c3ab8986041c435bae8",
+      "physical_lines": 32,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full current source: original bounded user-facing camera/authorization/capacity messages retained; arbitrary underlying error details are not placed in the UI."
+    },
+    {
+      "path": "frontend/features/tour-operations/offline-runtime/pending-scans.js",
+      "sha256": "5ec6152bfbd7e48f44b643bfed348d2e281edb4b74b94f82a6969f52bdd56f12",
+      "physical_lines": 88,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full current source: same stable owner/group/session/QR identity, signed runtimeId/deviceId, encrypted QR/recovery, transaction-local duplicate/capacity handling; new current-owner checks after native encryption and before final new put prevent stale local queue recreation. Original metadata/schema/AES associated-data ordering retained."
+    },
+    {
+      "path": "frontend/features/tour-operations/offline-runtime/protected-storage.js",
+      "sha256": "cf7fbc848da562bb4fbd92262b95b60252cbdca259c9acfe420a4727807b4449",
+      "physical_lines": 123,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full current source: original SHA identities, nonextractable stored-key requirement, bounded canonical signed bytes, AES-GCM envelope/additional-data validation and plaintext-buffer zeroing retained exactly."
+    },
+    {
+      "path": "frontend/features/tour-operations/offline-runtime/queue-migration.js",
+      "sha256": "9556d91522991b78b745cd1884d1340bdde6487013b047da8d3fef68460f3fbe",
+      "physical_lines": 177,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full current source: original protected-v5 identity verification, legacy encryption/readback, terminal metadata sanitization and old-ID replacement behavior retained. Null/corrupt/unattributable candidates are not erased; native-crypto fixture exercises legacy, quarantine and terminal cases."
+    },
+    {
+      "path": "frontend/features/tour-operations/offline-runtime/trusted-time.js",
+      "sha256": "2beafa0648931cea8d7e2e7b085e104a04b2cbebd55f1a963145b4334b5f4a3f",
+      "physical_lines": 53,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full current source: original monotonic/wall-clock rollback/drift tolerances, signed suspension/window bounds and high-water advancement unchanged; no threshold unification with separate online services."
+    },
+    {
+      "path": "frontend/features/tour-operations/offline-runtime/values.js",
+      "sha256": "5c4b77ff4d3834c30174a394898a48b47e4b424a398c6eb61b3bf7f3f48204f2",
+      "physical_lines": 68,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full current source: original record/string/UUID/reference/time validation, secure UUID generation/fallback and local owner/requested route selection parsing retained. No credentials/query logging/network operations."
+    },
+    {
+      "path": "frontend/features/tour-operations/offline-runtime/view.js",
+      "sha256": "58fa2160258f5a60183cd0f51626999133772cf399ca5f09fd916b2e3d285043",
+      "physical_lines": 113,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full current source: exact original textContent/options/encoded return URL behavior; selectors and private text/link/banner clear on owner loss. No raw private HTML insertion. Real camera stream methods remain in dedicated camera owner."
+    },
+    {
+      "path": "frontend/features/tour-operations/offline-runtime/README.md",
+      "sha256": "49a7aa21e98cb932eeb41429b8d2aa4fe51aad7818b12faa7f515be7f1bcbe85",
+      "physical_lines": 34,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Authored and fully reviewed: maintained modules, same single public artifact/regeneration/stale check, concrete domain ownership, persisted v5 compatibility and explicit native/fake fixture limits."
+    },
+    {
+      "path": "frontend/scripts/build-offline-scanner.mjs",
+      "sha256": "43f6ea6db77140818253850dc9a4501e98bfeb27d41c000cd1a4382e2db690cc",
+      "physical_lines": 88,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full authored source: existing pinned Vite only, disabled env/config/public loading, no write/delete side effect in check mode, single classic chunk/no imports, normalized portable source digest and region comments, exact stale-source/artifact rejection. Docker/prebuild wiring physically traced; no actual Docker/VPS execution claim."
+    },
+    {
+      "path": "frontend/public/offline-scanner.js",
+      "sha256": "36a7e25d730bacec2a513ac2729c931a786d1cfe3757dd84912a524736f17944",
+      "physical_lines": 967,
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "generated-artifact-verified",
+      "notes": "Generated first-party classic IIFE. Authored15owners manually read; exact original58-function movement and final55unchanged/3deliberate-delta proofs retained separately. Native execution and deterministic source/artifact checks qualify this output; no false manual full generated-bundle claim."
+    },
+    {
+      "path": "frontend/public/sw.js",
+      "sha256": "f0a8826075f217954a24d5a4364f1d5d75623ae957b02d66f539e026e26e0644",
+      "physical_lines": 121,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full original/current121lines: only cache name v11\u2192v12 changes. Same exact3public assets, reload-mode install, existing activation/claim/rewarm/message paths; no sensitive response caching, new asset path, forced reload or IDB/cache epoch purge."
+    },
+    {
+      "path": "frontend/package.json",
+      "sha256": "c2fdc3ba839461f27f1bda540e1d0b18506ef9f34238017ded2ac3831190baf5",
+      "physical_lines": 68,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full current manifest read; only this batch change prepends deterministic scanner --check to existing MediaPipe prebuild check. Existing dependency versions/lock/toolchain retained."
+    },
+    {
+      "path": "frontend/eslint.config.mjs",
+      "sha256": "c4b1341db6856abfebbe1bb898080c74ea5e9e97b90ee3cfb26268ff8f3fa405",
+      "physical_lines": 31,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full current config read; exact generated first-party public scanner artifact ignored while authored15owners remain linted. Existing third-party ignores unchanged."
+    },
+    {
+      "path": "frontend/features/tour-operations/services/cold-offline-startup.test.mjs",
+      "sha256": "bf919d00df052b6c8ea17dc6e9d778c7cef3ac4305cdeaf1218f2b16caf9c11f",
+      "physical_lines": 114,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full authored/current8cases: native signed/encrypted startup, initial-owner denial, pending-verification owner change, corrupt signature, same-owner refresh, post-start hidden-DOM cleanup, stale successful count and stale/current count errors. Actual IIFE/HTML, native crypto with test IDB/scheduling; no visibility paint claim."
+    },
+    {
+      "path": "frontend/features/tour-operations/services/cold-offline-authorization.test.mjs",
+      "sha256": "dc753e73d88fff88c170150401f89729f191bcec22e87b68d9d9b0341e9ff3f4",
+      "physical_lines": 126,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full current6cases replace all3meaningful old post-signature VM-stub obligations with actual signed native startup/camera-ready synthetic decoder/queue. Runtime/device/recovery encryption, wrongQR/no write, closedactivity/no write, capacity5000, stale encryption owner purge and valid same-owner continuation. No provider send/native camera claim."
+    },
+    {
+      "path": "frontend/features/tour-operations/services/cold-offline-migration.test.mjs",
+      "sha256": "405526a76cf24f3898360936045954f00552fb2f462abb06e90483f12f3703ec",
+      "physical_lines": 63,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full authored3native-crypto compatibility cases: valid legacy encrypt/readback/stable identity, unattributable row retained, rejected metadata sanitized without dropping reconciliation record. Async fixture does not establish browser transaction durability."
+    },
+    {
+      "path": "frontend/features/tour-operations/services/cold-offline-camera.test.mjs",
+      "sha256": "086c957f2b2b8eec557ef0e0f8fefcfd380677f5fae917e972c9a54afb150ccb",
+      "physical_lines": 76,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full authored3lifetime cases on actual generated camera controller: single-flight/start bounds, pagehide late controls/stream release/retry, selected-activity stop/restart. Decoder/tracks synthetic; no physical hardware qualification."
+    },
+    {
+      "path": "frontend/features/tour-operations/services/offline-scanner-artifact.test.mjs",
+      "sha256": "5591bfb8853f080614ba5a2ae68fdaab4ad4363a008440f93b5b19954bd0fd02",
+      "physical_lines": 57,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full authored4controls: deterministic actual artifact, stale artifact rejection, checkout CRLF and relocated-root/CRLF identical output, stale-source rejection, real Docker/prebuild/dev-tooling source wiring. Windows host; not a separately executed Linux build."
+    },
+    {
+      "path": "frontend/features/tour-operations/services/offline-runtime-source.contract-helper.mjs",
+      "sha256": "3462bdcec24a1d194a21f66f6839ca113b7760b15e73a4edba415e9d257adc17",
+      "physical_lines": 17,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full authored source: follows only real relative .js imports from wired index entry, rejects paths outside bounded authored directory and avoids duplicate traversal. No historical-expression injection."
+    },
+    {
+      "path": "frontend/features/tour-operations/test-support/cold-offline.test-fixture.mjs",
+      "sha256": "c88f328c2a900b429d4baf9b049c3276a2fdd3a588d5750204b0417cd633fb72",
+      "physical_lines": 135,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full authored source: isolated synthetic Ed25519 signatures/AES-GCM envelope/nonextractable keys; loads actual generated IIFE and HTML with visual JSDOM. Native results held only at explicit scheduling gates; existing async fake IDB extended locally with count/deferred reads, no production source/private-function/signature substitution. Closed callers are four cold-offline test files."
+    },
+    {
+      "path": "frontend/features/tour-operations/components/coordinator-pwa.contract.test.mjs",
+      "sha256": "5ef19a264cf99fb06f581b13375299383c891957972d93b84d5c834fa65f1567",
+      "physical_lines": 452,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full source read. Existing25meaningful role/idempotency/queue/encryption/CSP/no-network/lifetime assertions retained; scanner loader follows actual authored graph, qualified state owner reference and license artifact adjusted, exact intended SW cache v12 assertion. Generated const-folding/source-regex mismatch retained as historical failed run, not runtime regression."
+    },
+    {
+      "path": "frontend/e2e-fixtures/offline-runtime-update.spec.ts",
+      "sha256": "fee46078d6a9fa006a883c9772a052c0dc094140344cc201cdc19b37152f2ea6",
+      "physical_lines": 133,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full original/current isolated fixture read: actual WebKit installed synthetic previous v11 cache\u2192current v12 reload-mode update; exact3assets, no reload/document epoch/draft loss, pending v5 row/owner marker/high-water retained; nonextractable native AES key decrypts pre-update probe. It caches bundle but is not full offline scanner startup/camera proof."
+    },
+    {
+      "path": "frontend/features/tour-operations/services/public-offline-runtime-cache.test.mjs",
+      "sha256": "30af490f8d14444d596b8adcebd3864e3843b20828effac1d15326ea22a97928",
+      "physical_lines": 21,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full unchanged source: actual SW install in VM verifies only exact3public paths and cache:reload requests. No browser persistence claim from VM boundary."
+    },
+    {
+      "path": "frontend/features/tour-operations/test-support/attendance-database.ts",
+      "sha256": "818e0b50f7242e8164dd05a7dbff7add217bf4a5578c3298ecec13e86771a36d",
+      "physical_lines": 62,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full unchanged64line asynchronous IDB timing fixture read; deliberately limited transaction/read/write shape, not native DB upgrade/durability or AES implementation. Local cold-scanner fixture extends count/deferred reads without editing this frozen shared file."
+    },
+    {
+      "path": "frontend/Dockerfile",
+      "sha256": "793a2496a67c71838d1c4f7901e2dc1384d8383a25d2a2817e311157e39f2269",
+      "physical_lines": 69,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full69line source read: pinned base/npm security patch, npm ci with dev tooling in deps, builder copies node_modules/source then npm run build reaches prebuild, nonroot stripped standalone runtime. No actual container/VPS build performed by this tranche."
+    },
+    {
+      "path": "frontend/.dockerignore",
+      "sha256": "6a4024fa246fe813bedec0eaf950776f99b7a83d00e3c8abc10d67acb5dccce2",
+      "physical_lines": 17,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full current ignore source read: dependency/build/env/private key/log/output exclusions; maintained authored scanner modules are copied to builder and generated public script to runtime by existing Dockerfile."
+    },
+    {
+      "path": "frontend/.gitignore",
+      "sha256": "4699dc4b617e5061685296ee36a10b376bbea9fc1054f8c17b07e5cfe8825a59",
+      "physical_lines": 47,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full current ignore source read: dependencies/generated test/build/cache/env artifacts; no runtime behavior changes."
+    },
+    {
+      "path": "frontend/vitest.config.mts",
+      "sha256": "85ce4e7d5be4ff07748412030ccf1fca3177be52c388dbbada89053bcfc1a400",
+      "physical_lines": 60,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full current64line config read; original31critical runtime owners and per-file74statement/50branch/75function/75line floors unchanged. Old standalone public JS was never in V8 include; Node meaningful responsibilities moved to actual current generated/runtime owners."
+    },
+    {
+      "path": "frontend/package-lock.json",
+      "sha256": "566c274823b6a1d7223afbe17b0159839f090d46eb0ea9cea833543af5962f91",
+      "physical_lines": 9652,
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "metadata-verified",
+      "notes": "Generated dependency lock is not credited as manually read source. Byte SHA matches the pre-existing local preview checkpoint566c2748...; this batch changed no dependencies/lock. Vite8.2.4 already pinned by package override."
+    },
+    {
+      "path": "frontend/playwright.fixtures.config.ts",
+      "sha256": "405c7147f9ca3c04d6cab516be4f879b83f9b52636edf4138399896121f325e3",
+      "physical_lines": 13,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full current isolated fixture config read: one WebKit worker/no retries, ephemeral loopback fixture owns/closes server; no inherited dashboard server or provider service used."
+    }
+  ]
+}

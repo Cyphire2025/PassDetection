@@ -1,0 +1,12 @@
+{
+  "candidates": "docs/audit/dashboard-2026-10-30/document-api-architecture-budget-candidates.json",
+  "before_sha256": "5cd6595896ab77c9bea1ff4ccf2e79af6979e4996438a8fa5bd7a2703f75d2be",
+  "sha256": "d4de7fca64ebf71b8c1a95c3d5329d8e06d8fbe20a5e3d99dc6ace9f3d3a60b0",
+  "lf_normalized_sha256": "271ea71d436b034cfee74ed520c7859bacbbb64a90e0a5e5b1e68a97f80712d9",
+  "added": 7,
+  "updated_existing": 0,
+  "lowered_existing": 0,
+  "lowered_existing_paths": [],
+  "existing_ceilings_preserved": true,
+  "previous_ceilings_sha256": "79b9408ffde8e4fe69d3038b5d7ce2ad967cfe5f290bca77e3efd64facff44fa"
+}

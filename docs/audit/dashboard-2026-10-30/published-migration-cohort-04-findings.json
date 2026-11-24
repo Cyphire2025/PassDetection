@@ -1,0 +1,28 @@
+{
+  "current_runtime_defects_proved": [],
+  "historical_compatibility_observations": [
+    {
+      "path": "backend/alembic/versions/0057_meal_plan_category_dishes.py",
+      "sha256": "8c9222c37c44feefd18cddfb20b9279cf4f3c2e804d2e0d5368f35c421d704f8",
+      "evidence": "0057downgrade intentionally deletes additional category dishes before restoring former one-dish uniqueness.",
+      "qualification": "Explicit published rollback behavior, not tested current supported rollback or new vulnerability."
+    },
+    {
+      "path": "backend/alembic/versions/0051_passport_exports_and_replacements.py",
+      "sha256": "167436c225927754dee7dbee313a85c6f4e90d93808c5ab434252610259a5b8e",
+      "evidence": "Active replacement CHECK requires broadcast_recipient_id while its FK ondelete is SETNULL.",
+      "qualification": "Conditional deletion compatibility requires later-schema/runtime restore/delete policy trace before claiming defect; no actual deletion executed."
+    }
+  ],
+  "preserved_invariants": [
+    "Stable AI image IDs and legacy-source backfill without object deletion.",
+    "Deterministic cross-table roster display order without false exact Excel order recovery.",
+    "Attendance aliases retain historical sessions/status/attendance.",
+    "Fine rotation downgrade explicitly normalizes before narrowing constraint."
+  ],
+  "open_evidence": [
+    "Populated Postgres execution/locking/schema upgrade compatibility.",
+    "Sensitive snapshots/object lifecycle/tenant authority require actual current runtime and later schema.",
+    "No real provider/DB/service evidence from source-only review."
+  ]
+}

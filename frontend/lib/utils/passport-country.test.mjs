@@ -52,4 +52,7 @@ test("builds options that retain raw API code shapes", () => {
   assert.deepEqual(nationalityIndia, { value: "IND", label: "Indian" });
   assert.equal(isRecognizedPassportCountryCode("IND"), true);
   assert.equal(isRecognizedPassportCountryCode("India"), false);
+  assert.ok(getPassportCountryOptions(2).every((option) => /^[A-Z]{2}$/.test(option.value)));
+  assert.ok(getPassportCountryOptions(3).every((option) => /^[A-Z]{3}$/.test(option.value)));
+  assert.ok(getPassportCountryOptions(2).some((option) => option.value === "XK"));
 });

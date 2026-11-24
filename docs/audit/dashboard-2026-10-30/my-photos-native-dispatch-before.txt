@@ -1,0 +1,96 @@
+FF.                                                                      [100%]
+================================== FAILURES ===================================
+_ test_cancelled_dispatch_does_not_release_its_slot_while_sdk_thread_runs[False] _
+
+late_failure = False
+
+    @pytest.mark.parametrize("late_failure", [False, True])
+    async def test_cancelled_dispatch_does_not_release_its_slot_while_sdk_thread_runs(late_failure):
+        started, release, finished = threading.Event(), threading.Event(), threading.Event()
+        slot = asyncio.Semaphore(1)
+        second_entered = asyncio.Event()
+    
+        def native():
+            started.set()
+            try:
+                if not release.wait(5):
+                    raise AssertionError("Synthetic worker was never released")
+                if late_failure:
+                    raise ValueError("synthetic late SDK failure")
+                return {"ok": True}
+            finally:
+                finished.set()
+    
+        async def first():
+            async with slot:
+                return await _async_client_call(native)
+    
+        async def second():
+            async with slot:
+                second_entered.set()
+    
+        task = asyncio.create_task(first())
+        waiter = None
+        try:
+            assert await asyncio.to_thread(started.wait, 2)
+            task.cancel()
+            await asyncio.sleep(0)
+            waiter = asyncio.create_task(second())
+            for _ in range(3):
+                await asyncio.sleep(0)
+>           assert not second_entered.is_set(), "Cancelled SDK call released a live native worker's slot"
+E           AssertionError: Cancelled SDK call released a live native worker's slot
+E           assert not True
+E            +  where True = is_set()
+E            +    where is_set = <asyncio.locks.Event object at 0x0000019382F7D6D0 [set]>.is_set
+
+tests\unit\infrastructure\test_my_photos_native_dispatch.py:45: AssertionError
+_ test_cancelled_dispatch_does_not_release_its_slot_while_sdk_thread_runs[True] _
+
+late_failure = True
+
+    @pytest.mark.parametrize("late_failure", [False, True])
+    async def test_cancelled_dispatch_does_not_release_its_slot_while_sdk_thread_runs(late_failure):
+        started, release, finished = threading.Event(), threading.Event(), threading.Event()
+        slot = asyncio.Semaphore(1)
+        second_entered = asyncio.Event()
+    
+        def native():
+            started.set()
+            try:
+                if not release.wait(5):
+                    raise AssertionError("Synthetic worker was never released")
+                if late_failure:
+                    raise ValueError("synthetic late SDK failure")
+                return {"ok": True}
+            finally:
+                finished.set()
+    
+        async def first():
+            async with slot:
+                return await _async_client_call(native)
+    
+        async def second():
+            async with slot:
+                second_entered.set()
+    
+        task = asyncio.create_task(first())
+        waiter = None
+        try:
+            assert await asyncio.to_thread(started.wait, 2)
+            task.cancel()
+            await asyncio.sleep(0)
+            waiter = asyncio.create_task(second())
+            for _ in range(3):
+                await asyncio.sleep(0)
+>           assert not second_entered.is_set(), "Cancelled SDK call released a live native worker's slot"
+E           AssertionError: Cancelled SDK call released a live native worker's slot
+E           assert not True
+E            +  where True = is_set()
+E            +    where is_set = <asyncio.locks.Event object at 0x0000019382D771D0 [set]>.is_set
+
+tests\unit\infrastructure\test_my_photos_native_dispatch.py:45: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/unit/infrastructure/test_my_photos_native_dispatch.py::test_cancelled_dispatch_does_not_release_its_slot_while_sdk_thread_runs[False]
+FAILED tests/unit/infrastructure/test_my_photos_native_dispatch.py::test_cancelled_dispatch_does_not_release_its_slot_while_sdk_thread_runs[True]
+2 failed, 1 passed in 0.43s

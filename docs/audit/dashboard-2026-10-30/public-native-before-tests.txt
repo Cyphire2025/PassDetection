@@ -1,0 +1,18 @@
+.FF                                                                      [100%]
+
+================================== FAILURES ===================================
+_ test_cancelled_public_upload_waits_for_late_native_page_and_removes_owned_bytes[False] _
+tests\unit\application\test_public_upload_native_lifetime.py:111: in test_cancelled_public_upload_waits_for_late_native_page_and_removes_owned_bytes
+    assert not returned_before_native_write, native.events
+E   AssertionError: [('write', 'drafts/68eabed4-03b3-448f-b1a2-bca3c9dc7167/0577fd89-66c1-49f6-85a9-f8f267dfa32f/2c4e35e8-fde2-41f7-adc5-428974799402.jpg')]
+E   assert not True
+_ test_cancelled_public_upload_waits_for_late_native_page_and_removes_owned_bytes[True] _
+tests\unit\application\test_public_upload_native_lifetime.py:111: in test_cancelled_public_upload_waits_for_late_native_page_and_removes_owned_bytes
+    assert not returned_before_native_write, native.events
+E   AssertionError: [('write', 'drafts/558cc0db-4c02-475e-bb3b-bba00ccc0983/441c3320-141b-40cc-96cc-2f3538d30935/d71f2cc6-783a-458a-b742-7...cc0db-4c02-475e-bb3b-bba00ccc0983/441c3320-141b-40cc-96cc-2f3538d30935/d71f2cc6-783a-458a-b742-796c92ac03ab-back.jpg')]
+E   assert not True
+=========================== short test summary info ===========================
+FAILED tests/unit/application/test_public_upload_native_lifetime.py::test_cancelled_public_upload_waits_for_late_native_page_and_removes_owned_bytes[False]
+FAILED tests/unit/application/test_public_upload_native_lifetime.py::test_cancelled_public_upload_waits_for_late_native_page_and_removes_owned_bytes[True]
+2 failed, 1 passed in 1.93s
+

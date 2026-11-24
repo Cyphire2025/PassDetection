@@ -1,0 +1,38 @@
+{
+  "command": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-audit-venv\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "--tb=short",
+    "tests/unit/presentation/test_whatsapp_contact_json_boundaries.py",
+    "tests/unit/presentation/test_whatsapp_import_transactions.py",
+    "--junitxml=C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\whatsapp-contact-json-after.xml",
+    "--cov=app/presentation/api/v1/routes",
+    "--cov-branch",
+    "--cov-report=json:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\whatsapp-contact-json-coverage.json",
+    "--cov-report=xml:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\whatsapp-contact-json-coverage.xml"
+  ],
+  "cwd": "backend",
+  "source_sha256": {
+    "backend/app/presentation/api/v1/routes/whatsapp_contact_support.py": "c6640e915d3a22ceb880189bb4e3a89f0d7cfc3180a6a8b7582b446b709e1fce",
+    "backend/app/presentation/api/v1/routes/whatsapp_contact_values.py": "3a6c521cbd30e24af2492d3807d398b61c028ec305b5f66368b84e427da713a3",
+    "backend/app/presentation/api/v1/routes/whatsapp_imported_fields.py": "fc4ab60c67b8ba4da46dc0b50684264173f2af260696e138b1f40925049ba811",
+    "backend/app/presentation/api/v1/routes/whatsapp_contact_excel.py": "dd4fdbdb2ce0a78983ead4bfd5bd9ef311c3a1a366e68e207c72f3cdbfe300dc",
+    "backend/app/presentation/api/v1/routes/whatsapp_recipient_inputs.py": "b36a54b257d60ba8825ae02f253aa7f7f63998c34bf06a678fd4ef88524ecee8",
+    "backend/app/presentation/api/v1/routes/whatsapp_contact_rejections.py": "afeab1dc52e467c586a57b85b9b5289a7dcb45414035c1652a0bfd46d8f11e9e",
+    "backend/app/presentation/api/v1/routes/whatsapp_roster_order.py": "364fb303eb5ff6eb6f62e68bb9b47674f4596ef555ecbcf941a79efc85dbf997",
+    "backend/app/presentation/api/v1/routes/whatsapp_contact_responses.py": "04cdf2c58e178c1fbe733ec238efbe3d3eec3765fe938607cadf3b85e9c1cb14",
+    "backend/app/presentation/api/v1/routes/whatsapp_contact_parse_result.py": "473226263ce8155b0aa4177327c3338c7aff8442f96c0ba6ab862186fbc70aed",
+    "backend/app/presentation/api/v1/routes/whatsapp_groups_manage.py": "6c48d2e6838d056e9d83db1266521c09ca50a1eda61430c9922bfd93d8c1e924"
+  },
+  "test_sha256": {
+    "backend/tests/unit/presentation/test_whatsapp_contact_json_boundaries.py": "3c7f6365205a6b0e8b972c6df66b7de1f9153f87bea233812b3f58687f498e1c",
+    "backend/tests/unit/presentation/test_whatsapp_import_transactions.py": "c45ee8f2800eb2d8736000b785cd60086d2ad232ed41fe52dcab26422690d4ba"
+  },
+  "exit_code": 0,
+  "source_unchanged": true,
+  "test_source_unchanged": true
+}

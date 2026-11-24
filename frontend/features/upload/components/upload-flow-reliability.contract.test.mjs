@@ -1,222 +1,73 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { uploadFlowSource as source } from "./upload-flow-source.contract-helper.mjs";
+import { currentUploadSources as source, readUploadSource } from "./current-upload-source.contract-helper.mjs";
 
-test("initialization cleanup permits React effect replay", () => {
-  assert.match(
-    source,
-    /if \(initializedGroupTokenRef\.current === token\) \{\s*initializedGroupTokenRef\.current = null;/,
-  );
+test("current draft submission validates documents and fields before any completion request", () => {
+  const validate = source.submission.indexOf("freshValidation(settings");
+  const complete = source.submission.indexOf("await state.complete(proof.id)");
+  assert.ok(validate >= 0 && complete > validate);
+  assert.match(source.submission.slice(validate, complete), /if \(invalid\) return/);
+  assert.match(source.submission.slice(validate, complete), /proof\.expiresAt <= Date\.now\(\)/);
+  assert.match(source.documentValidation, /draft\.extraction_status !== "succeeded"/);
+  assert.match(source.documentValidation, /document\.state === "ready"/);
+  assert.match(source.documentValidation, /hasMissingRequiredFields\(payload\.passport_fields\)/);
+  assert.match(source.documentValidation, /hasValidReviewDates\(payload\.passport_fields\)/);
 });
 
-test("resume state is cleared before leaving the upload step", () => {
-  const successStart = source.indexOf(".then((result) => {");
-  const resumeClear = source.indexOf("clearResumeState();", successStart);
-  const reviewStep = source.indexOf('setStep("REVIEW")', resumeClear);
-
-  assert.ok(successStart >= 0);
-  assert.ok(resumeClear > successStart);
-  assert.ok(reviewStep > resumeClear);
-  assert.match(
-    source,
-    /if \(resumeInFlightRef\.current !== savedSubmission\.id\) return;/,
-  );
+test("verification reads the authoritative revision before exposing a proof", () => {
+  const verify = source.contact.indexOf("await state.api.verifyCode");
+  const refresh = source.contact.indexOf("await state.refresh()", verify);
+  const adopt = source.contact.indexOf("setProof(next)", refresh);
+  assert.ok(verify >= 0 && refresh > verify && adopt > refresh);
+  assert.match(source.contact.slice(refresh, adopt), /signal\.throwIfAborted\(\)/);
 });
 
-test("scan-again requests share the synchronous generation guard", () => {
-  assert.match(source, /const pending = begin\("retry"\);\s*if \(!pending\) return;/);
-  assert.match(source, /active\.current = operation;/);
-  assert.match(source, /if \(active\.current !== operation\) return;/);
+test("server-rejected proofs can be renewed without resetting private fields or final keys", () => {
+  assert.match(source.submission, /cause\.code === "verification_failed"/);
+  assert.match(source.submission, /setRejectedProof\(proof\); setProof\(null\)/);
+  assert.match(source.contact, /proof !== rejectedProof/);
+  assert.doesNotMatch(source.submission, /clearDraftResume|sessionStorage|localStorage|submissionKey:/);
 });
 
-test("camera cancellation and stable rejection reasons use fixed telemetry events", () => {
-  assert.match(source, /event: "passport_scanner_rejection"/);
-  assert.match(source, /event: "visa_photo_rejection"/);
-  assert.match(source, /reason: "camera_cancelled"/);
-  assert.match(source, /reportPublicFlowOnce\("recovery_started"\)/);
-  assert.match(source, /reportPublicFlowOnce\("recovery_succeeded"\)/);
-  assert.match(source, /reportPublicFlowOnce\("recovery_missed"\)/);
+test("latest edits save before upload and completion and uncertain operation keys remain stable", () => {
+  const upload = source.draft.indexOf("const upload =");
+  const complete = source.draft.indexOf("const complete =");
+  assert.match(source.draft.slice(upload, complete), /await save\(signal\)/);
+  assert.match(source.draft.slice(complete), /saved\.current !== version\.current/);
+  assert.match(source.draft.slice(complete), /member\.submissionKey/);
+  assert.match(source.draft, /retryUpload\.current = request/);
+  assert.match(source.draft, /retrySave\.current \?\?/);
 });
 
-test("single and family submission handlers fail closed on document verification", () => {
-  const singleStart = source.indexOf("const handleFinalSubmit");
-  const familyStart = source.indexOf("const handleFamilySubmit");
-  const singleGate = source.indexOf(
-    "validateSingleReview({ submission",
-    singleStart,
-  );
-  const singleSubmit = source.indexOf("await submitClientReview", singleStart);
-  const familyGate = source.indexOf(
-    "validateFamilyReview({ familyMembers",
-    familyStart,
-  );
-  const familySubmit = source.indexOf("await submitClientReview", familyStart);
-
-  assert.ok(singleStart >= 0);
-  assert.ok(singleGate > singleStart && singleGate < singleSubmit);
-  assert.ok(familyGate > familyStart && familyGate < familySubmit);
+test("failed extraction stays fail-closed while users correct fields or replace images", () => {
+  assert.match(source.form, /state\.draft\.extraction_status === "failed"/);
+  assert.match(source.form, /Replace the details page with a clearer image/);
+  assert.match(source.documentValidation, /hasPassport && draft\.extraction_status !== "succeeded"/);
+  assert.doesNotMatch(source.submission, /manual_review_submission_allowed|setStep\("SUCCESS"\)/);
 });
 
-test("unverified single and family records render recovery actions, not submit controls", () => {
-  assert.match(
-    source,
-    /!verificationGate\.accepted \? \(\s*<div[\s\S]*?<DocumentVerificationBlock/,
-  );
-  assert.match(
-    source,
-    /!verificationGate\.accepted \? \(\s*<DocumentVerificationBlock/,
-  );
-  assert.match(source, /gate\.action === "retry" \? onRetry : onReplace/);
-  assert.match(source, /!hasBlockedFamilyVerification \? \(/);
+test("current progress, errors and private save states remain accessible", () => {
+  const shell = readUploadSource("./upload-flow-shell.tsx");
+  const frame = readUploadSource("./document-processing-frame.tsx");
+  const footer = readUploadSource("./fresh-submission-footer.tsx");
+  assert.match(shell, /Loading secure upload/);
+  assert.match(frame, /role="status"/);
+  assert.match(footer, /role="alert"/);
+  assert.match(footer, /state\.pending \|\| uploadBusy \|\| !verified/);
 });
 
-test("restored and response-loss submissions return through the same gated review state", () => {
-  assert.match(
-    source,
-    /setSubmission\(result\.submission\);[\s\S]*?setStep\("REVIEW"\)/,
-  );
-  assert.match(
-    source,
-    /setSubmission\(persisted\);[\s\S]*?setStep\("REVIEW"\)/,
-  );
+test("shared current passport fields keep surname and issue date optional", () => {
+  const fields = readUploadSource("./upload-flow-review.tsx");
+  const validation = readUploadSource("./upload-flow.constants.ts");
+  assert.match(fields, /const isOptional = key === "date_of_issue" \|\| key === "surname"/);
+  assert.match(fields, /required=\{!isOptional\}/);
+  assert.match(validation, /field !== "date_of_issue" && field !== "surname"/);
 });
 
-test("a durable saved submission is restored before qualifier token recovery", () => {
-  const reconciliation = source.indexOf(
-    "const recoveryTarget = uploadRecoveryTarget",
-  );
-  const durableRestore = source.indexOf(
-    "if (recovery.submissionId)",
-    reconciliation,
-  );
-  const qualifierRestore = source.indexOf(
-    "const storedToken = readQualifierSelectionToken",
-    durableRestore,
-  );
-  const restoreBlock = source.slice(durableRestore, qualifierRestore);
-
-  assert.ok(reconciliation >= 0);
-  assert.ok(durableRestore > reconciliation);
-  assert.ok(qualifierRestore > durableRestore);
-  assert.match(restoreBlock, /setFlowMode\("single"\)/);
-  assert.match(
-    restoreBlock,
-    /await restoreSubmission\(recovery\.submissionId\)/,
-  );
+test("current public header preserves the brand, travel details and bounded group name", () => {
+  const header = readUploadSource("./upload-flow-shell.tsx");
+  assert.match(header, /import \{ BrandLogo \} from "@\/components\/brand\/brand-logo"/);
+  assert.match(header, /<BrandLogo[\s\S]*?priority/);
+  assert.match(header, /Prepare your documents for a smooth journey/);
+  assert.match(header, /<span className="truncate">\{groupName\}<\/span>/);
 });
-
-test("loading, failure, processing, and completion states are announced", () => {
-  assert.match(source, /<span className="sr-only">Loading secure upload<\/span>/);
-  assert.match(source, /function ErrorMessage[\s\S]*?role="alert"/);
-  assert.match(source, /function ProcessingScreen[\s\S]*?aria-busy="true"/);
-  assert.match(source, /role="progressbar"/);
-  assert.match(source, /aria-valuenow=\{progressPercent\}/);
-  assert.match(
-    source,
-    /step === "SUCCESS"[\s\S]*?role="status"[\s\S]*?aria-live="polite"/,
-  );
-});
-
-test("manual extraction recovery submits saved images for AI verification", () => {
-  const failureNotice =
-    "Automatic passport detail extraction failed. Your passport images are saved. Retry automatic reading or enter the details manually.";
-
-  assert.ok(source.includes(failureNotice), "response-loss recovery preserves the saved images");
-  assert.match(
-    source,
-    /if \(submission\.manual_review_submission_allowed\) \{[\s\S]*?AI verification will check them against your saved passport images/,
-  );
-  assert.match(
-    source,
-    /if \(submission\.extraction_status === "extraction_failed" \|\| submission\.status === "failed"\) \{\s*return "Automatic passport reading failed\. Your saved images are safe\. Retry reading or replace the image if it could not be verified as the correct passport page\.";/,
-  );
-  assert.doesNotMatch(
-    source,
-    /automatic reading could not be confirmed|some details could not be read automatically/i,
-  );
-});
-
-test("surname may be blank while every other canonical field remains required", () => {
-  assert.match(
-    source,
-    /field !== "date_of_issue" && field !== "surname"/,
-  );
-  assert.match(
-    source,
-    /const isOptional = key === "date_of_issue" \|\| key === "surname";/,
-  );
-  assert.match(
-    source,
-    /placeholder=\{key === "surname" \? "Leave blank if not present" : "Not extracted"\}/,
-  );
-  assert.match(source, /required=\{!isOptional\}/);
-  assert.match(
-    source,
-    /cleanPassportReviewFields as cleanReviewFields/,
-  );
-  assert.equal(
-    source.match(/confirmed_fields: cleanReviewFields\(/g)?.length,
-    2,
-    "single and family submissions must use the explicit-empty-aware cleaner",
-  );
-});
-
-test("public upload entry keeps Global Connect branding and the traveller heading", () => {
-  assert.match(
-    source,
-    /import \{ BrandLogo \} from "@\/components\/brand\/brand-logo";/,
-  );
-  assert.match(source, /<BrandLogo[\s\S]*?priority[\s\S]*?\/>/);
-  assert.match(
-    source,
-    /Prepare your documents for a smooth journey\./,
-  );
-  assert.match(source, />Your travel details<\/h1>/);
-  assert.match(source, /<span className="truncate">\{groupName\}<\/span>/);
-  assert.match(source, /file \? "Visa Photo ready" : "Upload Photo for Visa"/);
-  assert.doesNotMatch(
-    source,
-    /Your travel agency has requested passport details for|Capture Visa Photo/,
-  );
-});
-
-test("single and family flows share the configurable Visa Photo choice", () => {
-  assert.match(source, /\| "SELFIE_CAMERA"/);
-  assert.match(source, /\| "SELFIE_UPLOAD"/);
-  assert.equal(
-    source.match(/<VisaSelfieChoice/g)?.length,
-    2,
-    "single and family method selection must share the Visa Photo choice",
-  );
-  assert.match(source, /onCameraClick=\{\(\) => setStep\("SELFIE_CAMERA"\)\}/);
-  assert.match(source, /onUploadClick=\{\(\) => setStep\("SELFIE_UPLOAD"\)\}/);
-  assert.match(source, /step === "SELFIE_UPLOAD"[\s\S]*?<VisaPhotoUpload/);
-  const choiceStart = source.indexOf("function VisaSelfieChoice");
-  const choiceEnd = source.indexOf("function PassportUploadSection", choiceStart);
-  assert.doesNotMatch(source.slice(choiceStart, choiceEnd), /allowFilesFromDevice/);
-});
-
-test("the upload method shows only the plain studio-photo instruction", () => {
-  assert.match(source, /studio-taken photo with a plain white background/);
-  assert.doesNotMatch(source, /another phone or screen/);
-  assert.doesNotMatch(source, /printed or passport-size photograph/);
-  assert.doesNotMatch(source, /Live scanning is required\. Gallery and file-picker options are disabled/);
-});
-
-test("single and qualifier choices go directly to passport upload", () => {
-  assert.doesNotMatch(source, /NAME_INPUT/);
-  assert.match(
-    source,
-    /setStep\(mode === "single" \? "METHOD_SELECT" : "FAMILY_SETUP"\)/,
-  );
-  const qualifierStart = source.indexOf("const saveQualifierChoice");
-  const qualifierEnd = source.indexOf("const selectFamilyMember", qualifierStart);
-  assert.match(
-    source.slice(qualifierStart, qualifierEnd),
-    /setStep\("METHOD_SELECT"\)/,
-  );
-});
-
-// Required versus optional configured fields and custom answers are exercised
-// through real forms in configured-passport-upload.test.tsx and
-// upload-flow-configured.test.tsx, including final single and family payloads.

@@ -1,0 +1,14 @@
+{
+  "basis": "Current controller matches all16 post-fix projection/query statements after restoring the two exact interval callback ASTs. Same shared helper predicate used by both. Entire root rendered tree exactly equals the archived post-fix tree after explicit live UI expansion; original composing branch exact. Independent1920 original/current projection comparisons cover the intentional count optimization.",
+  "exact_controller_statements": 16,
+  "exact_interval_policies": 2,
+  "entire_expanded_rendered_tree_AST_exact": true,
+  "composing_branch_AST_exact": true,
+  "source_sha256": {
+    "frontend/features/whatsapp/workspace/broadcast-documents-page.tsx": "cd4154fac40c81e4d6b86ab0f0d1066657b1dbb2c31429fea9e162ddbde86a37",
+    "frontend/features/whatsapp/workspace/use-broadcast-documents.ts": "128a4e0bc3e92a1f0e2486a037227d792f37302252bd01a3daee0d8dee386f5e",
+    "frontend/features/whatsapp/workspace/broadcast-documents-model.ts": "29c8d314824a5c5a800be519443a11b09cfa670b03fe079ece5f6c982404dfb4",
+    "frontend/features/whatsapp/workspace/broadcast-document-controls.tsx": "9a66e9c0a3cd280c07f2161bc47d1200fbf1fb3a87e41bfecc7e5cef7e4fd145",
+    "frontend/features/whatsapp/workspace/broadcast-document-table.tsx": "0fe9b53388e669ff2a793a2a4919f7889ba8917e3eb473077955cf358f782536"
+  }
+}

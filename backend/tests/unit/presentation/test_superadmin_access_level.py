@@ -20,6 +20,7 @@ from app.infrastructure.database.models import AgencyModel, ClientGroupModel, Us
 from app.infrastructure.repositories.user_repository import UserRepository
 from app.presentation.security.access_level import set_access_level_cookie
 from tests.dashboard_session_fixtures import issue_dashboard_access
+from tests.route_dependencies import set_route_dependency
 
 
 async def _seed(session, client, *, role=UserRole.SUPER_ADMIN, own_agency=False):
@@ -288,8 +289,8 @@ async def test_signed_staff_then_manager_modes_enforce_real_submission_delete(
     ))
     await db_session.commit()
     propagate, cleanup = AsyncMock(), AsyncMock(return_value=None)
-    monkeypatch.setattr(bulk_actions, "propagate_mobile_passenger_change", propagate)
-    monkeypatch.setattr(bulk_actions, "process_storage_cleanup_job", cleanup)
+    set_route_dependency(monkeypatch, bulk_actions, "propagate_mobile_passenger_change", propagate)
+    set_route_dependency(monkeypatch, bulk_actions, "process_storage_cleanup_job", cleanup)
     switched = await client.post("/api/v1/auth/access-level", json={"role": "agency_staff"})
     assert switched.status_code == 200, switched.text
     path = f"/api/v1/passports/groups/{group_id}/bulk-delete"

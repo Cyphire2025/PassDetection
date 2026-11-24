@@ -1,0 +1,35 @@
+{
+  "coverage_gates": {
+    "global": {
+      "minimum_line_percent": 75,
+      "minimum_branch_percent": 58
+    },
+    "critical_modules": [
+      {
+        "path": "app/infrastructure/my_photos/provider_tasks.py",
+        "minimum_line_percent": 95,
+        "minimum_branch_percent": 90
+      },
+      {
+        "path": "app/infrastructure/my_photos/operational_job_claims.py",
+        "minimum_line_percent": 95,
+        "minimum_branch_percent": 90
+      },
+      {
+        "path": "app/infrastructure/my_photos/operational_job_queries.py",
+        "minimum_line_percent": 95,
+        "minimum_branch_percent": 85
+      },
+      {
+        "path": "app/infrastructure/my_photos/operational_index_publication.py",
+        "minimum_line_percent": 95,
+        "minimum_branch_percent": 90
+      },
+      {
+        "path": "app/infrastructure/my_photos/gallery_manifest_providers.py",
+        "minimum_line_percent": 75,
+        "minimum_branch_percent": 53
+      }
+    ]
+  }
+}

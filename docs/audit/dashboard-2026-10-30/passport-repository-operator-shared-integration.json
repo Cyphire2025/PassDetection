@@ -1,0 +1,162 @@
+{
+  "status": "verified at this focused source checkpoint",
+  "before_modules": 835,
+  "after_modules": 843,
+  "normal_additions": 8,
+  "all835old_normal_rows_exact": true,
+  "critical_before": 158,
+  "critical_after": 158,
+  "all158oldcritical_and_global_policy_exact": true,
+  "measurements": [
+    {
+      "path": "app/infrastructure/repositories/passport_submission_repository.py",
+      "sha256": "3aa855541a75e4efddeebb35f639bfa6ba4026152d38f8e255e0634e98a919b0",
+      "lines": 384,
+      "complexity": 1,
+      "line_percent": 94.79166666666667,
+      "branches_collected": false,
+      "branch_percent": null
+    },
+    {
+      "path": "app/infrastructure/repositories/passport_submission_mapping.py",
+      "sha256": "df419cb06bc2915c0642e5541ec49d3c4a633df54ef23291774abccdf0a26552",
+      "lines": 147,
+      "complexity": 4,
+      "line_percent": 100.0,
+      "branches_collected": false,
+      "branch_percent": null
+    },
+    {
+      "path": "app/infrastructure/repositories/passport_submission_persistence.py",
+      "sha256": "0c759e6b16f4a6659e1ac9394b39917b4d0fb2ae986faddf5de6b11b497aacfd",
+      "lines": 142,
+      "complexity": 4,
+      "line_percent": 91.83673469387755,
+      "branches_collected": false,
+      "branch_percent": null
+    },
+    {
+      "path": "app/infrastructure/repositories/passport_submission_processing.py",
+      "sha256": "3391aa1e39f14c06d698b704b92151561cc45754aa0d6bd27ad0881c342dab3a",
+      "lines": 148,
+      "complexity": 4,
+      "line_percent": 76.36363636363636,
+      "branches_collected": false,
+      "branch_percent": null
+    },
+    {
+      "path": "app/infrastructure/repositories/passport_submission_queries.py",
+      "sha256": "742694def1423be8b4ac175063f8d63cd1bd9c050b04e19e491d5e3751f059b2",
+      "lines": 122,
+      "complexity": 8,
+      "line_percent": 91.83673469387755,
+      "branches_collected": false,
+      "branch_percent": null
+    },
+    {
+      "path": "app/infrastructure/repositories/passport_submission_reads.py",
+      "sha256": "d7a140c34de53e971655d032cbdc185da126cb13bb8e1daff7e1ac778df7b20c",
+      "lines": 208,
+      "complexity": 6,
+      "line_percent": 98.0,
+      "branches_collected": false,
+      "branch_percent": null
+    },
+    {
+      "path": "app/infrastructure/repositories/passport_submission_groups.py",
+      "sha256": "21f669d09021264cffd029f90d3f9ff4d706f5bae44cdf5773e8d1ce3ff30078",
+      "lines": 183,
+      "complexity": 11,
+      "line_percent": 90.0,
+      "branches_collected": false,
+      "branch_percent": null
+    },
+    {
+      "path": "app/infrastructure/repositories/passport_submission_contacts.py",
+      "sha256": "c61b10a39d982e25d86ca25e720056960308d90f23b7625de4ff06ef07730346",
+      "lines": 79,
+      "complexity": 18,
+      "line_percent": 94.44444444444444,
+      "branches_collected": false,
+      "branch_percent": null
+    }
+  ],
+  "source_fence": {
+    "scripts/bounded_command_output.py": "313dfcbc4a37f5c184946973d8f2af364d693e820fc771eeb8b2d429bf3f53bb",
+    "scripts/qa/bounded_qualification_output.py": "a3f94f996defdb506fbfd24262065fda74fa9fedcdf2292f284424f8fc9e1a28",
+    "scripts/mcp_production_baseline.py": "21c4ca665fd5968cd31d3e8e653f66a16e92e1b325150b3b902b49302f06a130",
+    "scripts/test_mcp_production_baseline.py": "4eeebc2762934d0c1e58f666104f5e2049ddcac3ce130e15027e13b356663b66",
+    "scripts/test_mcp_baseline_output.py": "1fd0580b4742d7130505903e5cf05bb30e009d3bfb3d63ffeabaa3b30795f19b",
+    "scripts/release_companies_credentials.py": "21461f6879da9d3b14f7e0c44c3d4b8c2620037735b3ea72de65dd776fec5ad9",
+    "docs/implementation/mcp-production-observation.md": "9a2124b3a1dccb7be13e865b90e6dda65206a7adaf63bb24b870f0092bb150d0",
+    "scripts/test_bounded_qualification_output.py": "20c6f8551ca2511c0d51b24a6fb0151fc1d2433fb6a33e821192e34ecbb541a1",
+    "scripts/qa/companies_contact_qualification.py": "ffc90e3f4b63c52ee4378fd5f9d0b311b50f5c5efca49e90e94e9ba9aa9694f8",
+    "scripts/qa/qualify_companies_fast_migration.py": "1d51a0a2e2f02eea28a5d8b15c3794b12f12c0c7c6c86f41c3fbe0d869d0566e",
+    "scripts/qa/qualify_postgresql_client.py": "c8938a3213ca369cd173efafcdfe799d63c6bda43f9f3e6925bc4ee44e8245d1",
+    "scripts/test_companies_contact_qualification.py": "ae6c25e69f10247fd3ca13f00ead8bd16b9d83e5c0c0b9829a20719a2c9899ea",
+    "scripts/test_companies_fast_migration_qualification.py": "d394ec736698c8f0f8d5a6ff8bee15bc1f18fd28265c5222316b16c46e97e785",
+    "scripts/legacy_company_contract_fixture.py": "634c210313bdcd92d5dd6aad4eb46ebabd2adb4c6cc0630a6b28cf455edcf88e",
+    "scripts/release_companies_traveller_contract.py": "2d01358c2756cf2ce34584cf85f1e9dba9a7483bd1ced0a10cb63e232b62af7b",
+    "backend/app/infrastructure/repositories/passport_submission_repository.py": "3aa855541a75e4efddeebb35f639bfa6ba4026152d38f8e255e0634e98a919b0",
+    "backend/app/infrastructure/repositories/passport_submission_mapping.py": "df419cb06bc2915c0642e5541ec49d3c4a633df54ef23291774abccdf0a26552",
+    "backend/app/infrastructure/repositories/passport_submission_persistence.py": "0c759e6b16f4a6659e1ac9394b39917b4d0fb2ae986faddf5de6b11b497aacfd",
+    "backend/app/infrastructure/repositories/passport_submission_processing.py": "3391aa1e39f14c06d698b704b92151561cc45754aa0d6bd27ad0881c342dab3a",
+    "backend/app/infrastructure/repositories/passport_submission_queries.py": "742694def1423be8b4ac175063f8d63cd1bd9c050b04e19e491d5e3751f059b2",
+    "backend/app/infrastructure/repositories/passport_submission_reads.py": "d7a140c34de53e971655d032cbdc185da126cb13bb8e1daff7e1ac778df7b20c",
+    "backend/app/infrastructure/repositories/passport_submission_groups.py": "21f669d09021264cffd029f90d3f9ff4d706f5bae44cdf5773e8d1ce3ff30078",
+    "backend/app/infrastructure/repositories/passport_submission_contacts.py": "c61b10a39d982e25d86ca25e720056960308d90f23b7625de4ff06ef07730346",
+    "backend/tests/unit/infrastructure/test_passport_submission_repository_contract.py": "b2d6c9215b1d9080e196a55b1531a476f9057663bbfe2ff10f4b3157a2a7edd8",
+    "backend/tests/unit/infrastructure/test_passport_staff_approval_repository.py": "579f9ea523f92f9c856d2a02c0f6295bc84fc99b0ccad2fee662c4f36cc5c06c",
+    "backend/tests/unit/application/test_passport_reextraction_conflicts.py": "675c5e559e4ef9a8d6f9f325df6ecae7d13a27242b2c4f15f58083f99c00bd65"
+  },
+  "review_basis": "Peer-attributed full repository8/equivalence/focused128case coverage; independent integration checks hashes/current size/complexity/floors, no second full repository read claimed. Own retained operator21full source cohort and corrected neutral capture62focused proof sealed separately.",
+  "coverage_limit": "Repository run collected lines only. No branch percentage, critical proposal, declaration-only guard or inherited old membership invented; old family had neither normal nor critical row.",
+  "release": {
+    "paths": 125,
+    "all125old_BEFORE_pairs_and124other_AFTER_values_exact": true,
+    "only_known_BE843_budget_AFTER_updated": true,
+    "frontend661_unchanged": true,
+    "backend_budget_sha256": "40c9559338fe1e7ce5f8dbf8992da37ca9383f934d71d69a0e5dbb2508251d3c",
+    "bindings_sha256": "30cd607842909891565f22bcd6c53ac2205584a98129b17aa6c6310a97d745c6",
+    "new_operator_paths_not_in_protected125": true,
+    "historical_qualified_source_stamps_not_refreshed": true
+  },
+  "artifacts": {
+    "passport-submission-repository-verification.json": "aad8e386557503112f0d32be2179d54244160fba6f2b7c94358c766a4a5f883d",
+    "bounded-command-baseline-verification.json": "791bcd94d98ac90208ebc6d9596302b2df30cdf2de7686d5476b15ca2b98c228",
+    "passport-submission-repository-source-equivalence.json": "33669db9a4cf4d5b0df24db8087764645f91700616c526d031cc0c61852fc4cd",
+    "passport-submission-repository-budget-candidates.json": "d3d8b7127c798e732b857189763751014e9c7f85157bca8018368ad9369c1fac",
+    "passport-submission-repository-qualified-coverage.json": "9676cd8ef5fd20284ea8b1abf091544f522a42fe925b9c7e76b75824f439c3fd",
+    "passport-submission-repository-qualified-coverage.xml": "c5c50c7840046de1e860895c44b5fcc3cfb5291ebc90199ae9230dba1e7890d5",
+    "bounded-command-baseline-source-proof.json": "a9cc9c5fb3fb7dcf62a08a87e8f7167e8f57d5a203f31b8c3d2a1cae003053f8",
+    "retained-mcp-operator-preflight.json": "8a5736a2fe593d129f3d31c27b27781b92a2d68975177b0222d84e7f27b6b0d5",
+    "passport-repository-operator-previous-values.json": "3d82c9751de3d242d583efcff89d5ae4f880873e5ee04b35dbfcfa8a137f02a2",
+    "passport-repository-operator-budgets.txt": "283b6d23587de62bca1fd2c24dd91eb727646bff9a53b2666d492d4c58feaed8",
+    "passport-repository-operator-architecture.txt": "895bfbeca4c78591066dcf214c4bfe9de43b5d7ed5d3f518fe398563a7bcc992",
+    "passport-repository-operator-bindings.txt": "0b3a28123d392018d244d078942a9d6d98ae49544fafd0e052f4237b0e263f39",
+    "passport-repository-operator-loader-tests.txt": "e3742997036973e9ea801960114f160e4d42d4142f0159e612fb1609391cc266",
+    "passport-repository-operator-exact-bindings.json": "f71cbcd71adc84b110b0e168f1e021202b25fb1b5636ebeab30871b90fab1ccd"
+  },
+  "limits": [
+    "No broad app/build/browser/live provider/PG/VPS qualification",
+    "MCP1990historical, complete current source-owner matrix reconciliation remains pending",
+    "Neutral capture actualWindows-only, caller-owned remote/descendant lifetimes and10second local cleanup bound explicit",
+    "Existing generic direct-build capture issue remains independently open"
+  ],
+  "checks": {
+    "backend_static_budgets": "843normal/158critical limits pass",
+    "exact_bindings": "125current AFTERs and both actual immutable Git BEFOREs pass",
+    "loader_tests": "14focused tests pass",
+    "architecture": "whole static boundary checker pass after infrastructure-only repository8 split",
+    "source_fence": "All peer repository8/three tests and owned neutral command capture/helper/caller source hashes rechecked after focused gates",
+    "frontend": "661normal parent source already qualified/bound and unchanged; no repeat frontend checks",
+    "repository_coverage": "Eight independent measured line floors qualify; branches not collected, no critical additions",
+    "operator": "Separate62unique focused cases/strict3/Ruff5/standaloneCLI3 source-bound receipt"
+  },
+  "controls": {
+    "backend/backend_quality_budgets.json": "40c9559338fe1e7ce5f8dbf8992da37ca9383f934d71d69a0e5dbb2508251d3c",
+    "scripts/release_workspace_branding_bindings.json": "30cd607842909891565f22bcd6c53ac2205584a98129b17aa6c6310a97d745c6",
+    "scripts/release_workspace_branding_policy.py": "ed3d74bc7dadf3b70ec9992cb59576f852e6da87a188d25a76a4d66a6b2d9357",
+    "backend/architecture-dependencies.json": "3681bf6ca3b2bab52dcde5d0adbb4921cc8dd54771411193c2553ddaceb08b6e"
+  }
+}

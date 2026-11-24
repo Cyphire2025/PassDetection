@@ -1,0 +1,95 @@
+{
+  "origin_sha256": "d746c7fd37a62a0d17acc3db0b8a2c5f851777fd1963da1cdfe46046cde54dfb",
+  "method": "Recursive TypeScript kind/text/child equivalence for moved hook statements, card bodies and JSX subtrees. Normalize optional parenthesized wrappers and React-equivalent JSX indentation/text whitespace only; preserve other literal values/operators. Deliberate failure-state behavior was fixed before this movement and is covered separately.",
+  "results": [
+    {
+      "part": "hook statement { data, isLoading, isFetching, error, refetch }",
+      "matched": true
+    },
+    {
+      "part": "hook statement exportSelected",
+      "matched": true
+    },
+    {
+      "part": "hook statement [selectedGroups, setSelectedGroups]",
+      "matched": true
+    },
+    {
+      "part": "hook statement [statusFilter, setStatusFilter]",
+      "matched": true
+    },
+    {
+      "part": "hook statement [reviewFilter, setReviewFilter]",
+      "matched": true
+    },
+    {
+      "part": "hook statement [destinationFilter, setDestinationFilter]",
+      "matched": true
+    },
+    {
+      "part": "hook statement deferredDestinationFilter",
+      "matched": true
+    },
+    {
+      "part": "hook statement [isExportDialogOpen, setIsExportDialogOpen]",
+      "matched": true
+    },
+    {
+      "part": "hook statement selectedGroupSet",
+      "matched": true
+    },
+    {
+      "part": "hook statement summary",
+      "matched": true
+    },
+    {
+      "part": "hook statement filteredGroups",
+      "matched": true
+    },
+    {
+      "part": "hook statement toggleGroup",
+      "matched": true
+    },
+    {
+      "part": "hook statement resetFilters",
+      "matched": true
+    },
+    {
+      "part": "PassportGroupMobileCard body",
+      "matched": true
+    },
+    {
+      "part": "InfoPair body",
+      "matched": true
+    },
+    {
+      "part": "GroupStatusBadge body",
+      "matched": true
+    },
+    {
+      "part": "WorkspacePageHeader",
+      "matched": true
+    },
+    {
+      "part": "WorkspaceSummaryStrip",
+      "matched": true
+    },
+    {
+      "part": "WorkspaceToolbar",
+      "matched": true
+    },
+    {
+      "part": "responsive table/mobile loop",
+      "matched": true
+    },
+    {
+      "part": "{selectedGroups.length",
+      "matched": true
+    },
+    {
+      "part": "{isExportDialogOpen &&",
+      "matched": true
+    }
+  ],
+  "passed": true
+}

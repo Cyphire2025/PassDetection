@@ -1,0 +1,5 @@
+traveller_release_host.py:133: error: Returning Any from function declared to return "dict[str, Any]"  [no-any-return]
+traveller_release_host.py:202: error: Returning Any from function declared to return "str"  [no-any-return]
+traveller_release_readiness.py:107: error: Returning Any from function declared to return "str"  [no-any-return]
+release_traveller_whatsapp.py:44: error: Function is missing a return type annotation  [no-untyped-def]
+Found 4 errors in 3 files (checked 6 source files)

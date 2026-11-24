@@ -1,0 +1,28 @@
+
+ RUN  v4.1.12 C:/Users/nipun/Desktop/PassDetection/frontend
+
+ ❯ features/whatsapp/components/whatsapp-activity-motion.test.tsx (20 tests | 2 failed) 993ms
+   × stops private summary retries and interval requests after denial 25ms
+   × stops private failures retries and interval requests after denial 38ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  features/whatsapp/components/whatsapp-activity-motion.test.tsx > stops private summary retries and interval requests after denial
+ FAIL  features/whatsapp/components/whatsapp-activity-motion.test.tsx > stops private failures retries and interval requests after denial
+AssertionError: expected "vi.fn()" to be called 2 times, but got 5 times
+ ❯ features/whatsapp/components/whatsapp-activity-motion.test.tsx:378:21
+    376|     await act(async () => { await vi.advanceTimersByTimeAsync(2_100); …
+    377|     await act(async () => { await vi.advanceTimersByTimeAsync(20); });
+    378|     expect(request).toHaveBeenCalledTimes(2);
+       |                     ^
+    379|     await act(async () => { await vi.advanceTimersByTimeAsync(10_000);…
+    380|     expect(request).toHaveBeenCalledTimes(2);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 18 passed (20)
+   Start at  00:30:14
+   Duration  2.81s (transform 227ms, setup 294ms, import 413ms, tests 993ms, environment 924ms)
+

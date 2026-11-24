@@ -1,0 +1,77 @@
+{
+  "status": "Root integration candidate only for36case manualreselection correction. Old aa4394candidate remains historical unchanged.",
+  "existingNormalRows": 661,
+  "proposedNormalRows": 663,
+  "measurements": [
+    {
+      "path": "features/upload/components/fresh-qualifier.tsx",
+      "sha256": "742ecf4bfaaec141e7a0e422419f57889eb44090679e70e47783cbbf0c6bf72c",
+      "physicalLines": 10,
+      "maximumFunctionComplexity": 2,
+      "existingBudget": {
+        "path": "features/upload/components/fresh-qualifier.tsx",
+        "baselineLines": 24,
+        "maximumLines": 25,
+        "baselineMaxFunctionComplexity": 3,
+        "maximumFunctionComplexity": 3
+      }
+    },
+    {
+      "path": "features/upload/components/fresh-qualifier-editor.tsx",
+      "sha256": "0317940a84f37795a6646a378e6de1e99deae7e16594c34cdc7cb2369df824dc",
+      "physicalLines": 86,
+      "maximumFunctionComplexity": 6,
+      "existingBudget": null
+    },
+    {
+      "path": "features/upload/hooks/use-qualifier-selection-editor.ts",
+      "sha256": "9d5d9a03885b6ae4dd92c7ed91ad740c678297e4ff41f595b17f34d79ca91331",
+      "physicalLines": 96,
+      "maximumFunctionComplexity": 9,
+      "existingBudget": null
+    },
+    {
+      "path": "features/passports/api/public-upload-link.api.ts",
+      "sha256": "d720cbf0a79ce838006b30e56b63b69ec992c96881ffa3cb62d3df0f2b3d005b",
+      "physicalLines": 81,
+      "maximumFunctionComplexity": 1,
+      "existingBudget": {
+        "path": "features/passports/api/public-upload-link.api.ts",
+        "baselineLines": 79,
+        "maximumLines": 90,
+        "baselineMaxFunctionComplexity": 1,
+        "maximumFunctionComplexity": 2
+      }
+    }
+  ],
+  "newNormalRows": [
+    {
+      "path": "features/upload/components/fresh-qualifier-editor.tsx",
+      "baselineLines": 86,
+      "maximumLines": 90,
+      "baselineMaxFunctionComplexity": 6,
+      "maximumFunctionComplexity": 7
+    },
+    {
+      "path": "features/upload/hooks/use-qualifier-selection-editor.ts",
+      "baselineLines": 96,
+      "maximumLines": 100,
+      "baselineMaxFunctionComplexity": 9,
+      "maximumFunctionComplexity": 10
+    }
+  ],
+  "newCriticalIncludes": [
+    "features/upload/components/fresh-qualifier.tsx",
+    "features/upload/components/fresh-qualifier-editor.tsx",
+    "features/upload/hooks/use-qualifier-selection-editor.ts"
+  ],
+  "perFileCoverageFloors": {
+    "statements": 74,
+    "branches": 50,
+    "functions": 75,
+    "lines": 75
+  },
+  "all661ExistingNormalRowValuesAndCaps": "untouched by this agent",
+  "all31ExistingCriticalIncludesAndFloors": "untouched by this agent",
+  "backendOrActualGateWrites": false
+}

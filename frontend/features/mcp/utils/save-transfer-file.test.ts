@@ -17,3 +17,11 @@ it("does not report saved when the file picker is cancelled", async () => {
   Object.defineProperty(window, "showSaveFilePicker", { configurable: true, value: vi.fn().mockRejectedValue(new DOMException("Cancelled", "AbortError")) });
   await expect(saveTransferFile(new Blob(["bytes"]), "report.pdf", "application/pdf")).rejects.toMatchObject({ name: "AbortError" });
 });
+
+it("does not launch the anchor fallback after the transfer lifetime is aborted", async () => {
+  const controller = new AbortController();
+  controller.abort();
+  const anchor = vi.spyOn(document, "createElement");
+  await expect(saveTransferFile(new Blob(["bytes"]), "report.pdf", "application/pdf", controller.signal)).rejects.toMatchObject({ name: "AbortError" });
+  expect(anchor).not.toHaveBeenCalled();
+});

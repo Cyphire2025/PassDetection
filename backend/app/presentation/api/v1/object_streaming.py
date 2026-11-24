@@ -11,7 +11,7 @@ from fastapi.responses import StreamingResponse
 from app.domain.exceptions.exceptions import StorageError
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
 
-_SINGLE_RANGE = re.compile(r"^bytes=(\d*)-(\d*)$")
+_SINGLE_RANGE = re.compile(r"^bytes=([0-9]*)-([0-9]*)$")
 
 
 async def private_object_streaming_response(
@@ -50,19 +50,16 @@ async def private_object_streaming_response(
         "X-Content-Type-Options": "nosniff",
     }
     if partial:
-        headers["Content-Range"] = (
-            f"bytes {start}-{end}/{metadata.size_bytes}"
-        )
+        headers["Content-Range"] = f"bytes {start}-{end}/{metadata.size_bytes}"
 
     return StreamingResponse(
         storage.stream_file(
             key,
             start=start,
             expected_bytes=expected_bytes,
+            end=end if end < metadata.size_bytes - 1 else None,
         ),
-        status_code=(
-            status.HTTP_206_PARTIAL_CONTENT if partial else status.HTTP_200_OK
-        ),
+        status_code=(status.HTTP_206_PARTIAL_CONTENT if partial else status.HTTP_200_OK),
         media_type=media_type,
         headers=headers,
     )
@@ -83,19 +80,27 @@ def _requested_range(
         _raise_unsatisfiable(size_bytes)
 
     if start_text:
-        start = int(start_text)
+        start = _bounded_decimal(start_text, limit=size_bytes)
         if start >= size_bytes:
             _raise_unsatisfiable(size_bytes)
-        end = min(int(end_text), size_bytes - 1) if end_text else size_bytes - 1
+        end = _bounded_decimal(end_text, limit=size_bytes - 1) if end_text else size_bytes - 1
         if end < start:
             _raise_unsatisfiable(size_bytes)
         return start, end, True
 
-    suffix_bytes = int(end_text)
+    suffix_bytes = _bounded_decimal(end_text, limit=size_bytes)
     if suffix_bytes < 1:
         _raise_unsatisfiable(size_bytes)
     start = max(0, size_bytes - suffix_bytes)
     return start, size_bytes - 1, True
+
+
+def _bounded_decimal(value: str, *, limit: int) -> int:
+    """Clamp an ASCII decimal before converting arbitrarily large headers."""
+    normalized = value.lstrip("0") or "0"
+    if len(normalized) > len(str(limit)):
+        return limit
+    return min(int(normalized), limit)
 
 
 def _raise_unsatisfiable(size_bytes: int) -> NoReturn:

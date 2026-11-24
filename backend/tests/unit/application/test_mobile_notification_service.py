@@ -272,7 +272,7 @@ async def test_trip_countdown_scheduler_is_push_only_deduplicated_and_reschedula
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(
-        "app.application.mobile.notification_service._COUNTDOWN_CLEANUP_PAGE_SIZE",
+        "app.application.mobile.notification_countdown_schedule._COUNTDOWN_CLEANUP_PAGE_SIZE",
         2,
     )
     now = datetime(2026, 8, 4, 2, 0, tzinfo=UTC)

@@ -1,0 +1,61 @@
+[
+  {
+    "path": "backend/app/infrastructure/my_photos/context.py",
+    "sha256": "5882eafd5f6279d7069588ef3f151a7e3aad3f811330b4c0293bbdefcf71f178",
+    "lines": 177,
+    "review_scope": "full",
+    "reviewer": "manual_security (independent read-only review of ai_extraction-owned source)",
+    "status": "reviewed",
+    "notes": "Full physical source read. Gallery and enrollment populate_existing current-state queries, exclusive availability end, tenant/passenger identity row lock and claims/trip identity gate inspected. Caller authorization remains external; no transitive policy certification."
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/liveness_store.py",
+    "sha256": "355b16dcccd11f79d2561519f2066338098ca151d4020ddd960bd148f3bc19e9",
+    "lines": 396,
+    "review_scope": "full",
+    "reviewer": "manual_security (independent read-only review of ai_extraction-owned source)",
+    "status": "needs-followup",
+    "notes": "Full physical source read. Provider claim token/exclusive expiry, current enrollment+consent, liveness idempotency/reference fences and safe outcome projections inspected; state callbacks qualify failed/expired claims before effects. Finalizer takes identity then liveness then enrollment locks; opposite caller enrollment/liveness ordering is open for owner assessment, no actual PG reproduction by this reviewer."
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/reference_lifecycle.py",
+    "sha256": "92eefe82dd72e6ea6cfb334a61d8397166f11da607a3c68487bcd4b9460e6f54",
+    "lines": 254,
+    "review_scope": "full",
+    "reviewer": "manual_security (independent read-only review of ai_extraction-owned source)",
+    "status": "reviewed",
+    "notes": "Full physical current source read. Expected provider reference plus status/scope/idempotency fences guard current deletion results/failures; superseded cleanup checks current handle before durable bookkeeping. Actual pending cleanup start gate prevents next refresh overwriting one superseded slot. No remote providers invoked."
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/liveness_validation.py",
+    "sha256": "8e016d8ad12f6a6c76b55d86ceaff9e188d92873b01625045a7a1d0b8bf93cf4",
+    "lines": 127,
+    "review_scope": "full",
+    "reviewer": "manual_security (independent read-only review of ai_extraction-owned source)",
+    "status": "reviewed",
+    "notes": "Full physical source read. Nonempty bounded opaque provider values reject URLs, whitespace and nonprintable strings; valid outcomes and one-reference passed result, consent/version and exclusive claim expiry verified. No malformed provider response accepted by reviewed contract."
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/liveness_service.py",
+    "sha256": "ca66fb902cdf751606d8e8097448a6f33718da27a6b59c3095e7036293b4669a",
+    "lines": 430,
+    "review_scope": "full",
+    "reviewer": "manual_security (independent read-only review of ai_extraction-owned source)",
+    "status": "needs-followup",
+    "notes": "Full physical current source read. Durable claim commits release locks before provider awaits; gallery readiness is reloaded after create/result provider await; completion uses exact claim token and current-consent finalizer. Superseded pending/failed deletion blocks a new start. OPEN lock-order candidate: completion locks enrollment then liveness, while result finalization locks identity then liveness then enrollment. Sent to owning agent; no verified failure or runtime edit by this reviewer."
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/enrollment_service.py",
+    "sha256": "58d3f2cd10df3657ee83a3c00a132098268fb79eb08285ba83d9c21bb92bea62",
+    "review_scope": "partial",
+    "reviewer": "manual_security",
+    "status": "partial",
+    "read_ranges": [
+      [
+        261,
+        345
+      ]
+    ],
+    "notes": "Only current deletion caller sequence inspected, commit pending deletion before remote work and reference-specific result/failure callbacks. Rest of physical file not read by this reviewer."
+  }
+]

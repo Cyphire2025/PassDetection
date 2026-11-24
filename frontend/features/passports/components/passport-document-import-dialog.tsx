@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useId, useMemo, useRef, useState } from "react";
 import { Button, Card, CardContent } from "@/components/ui";
+import { useModalKeyboardBoundary } from "@/components/ui/modal";
 import type { PassportDocumentImportPreview } from "../api/passports.api";
 import {
   formatBytes,
@@ -18,25 +19,25 @@ export function PassportDocumentImportProgress({
   total: number;
   label: string;
 }) {
+  const titleId = useId();
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const handleKeyDown = useModalKeyboardBoundary({ dialogRef, isOpen: true, canClose: false, onClose: () => undefined });
   const percentage = total > 0 ? Math.min(100, Math.round((processed / total) * 100)) : 0;
-  const unit = total > 1024 * 1024 ? "bytes" : "files";
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/50 p-4">
+    <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby={titleId} onKeyDown={handleKeyDown} className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/50 p-4">
       <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <h2 className="text-lg font-semibold text-slate-900">Passport document import</h2>
+            <h2 id={titleId} className="text-lg font-semibold text-slate-900">Passport document import</h2>
             <p className="mt-1 text-sm text-slate-500">{label}</p>
           </div>
           <div className="text-sm font-semibold text-blue-700">{percentage}%</div>
         </div>
-        <div className="mt-5 h-3 overflow-hidden rounded-full bg-slate-100">
+        <div role="progressbar" aria-label={label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={percentage} className="mt-5 h-3 overflow-hidden rounded-full bg-slate-100">
           <div className="h-full rounded-full bg-blue-600 transition-all duration-150" style={{ width: `${Math.max(4, percentage)}%` }} />
         </div>
         <div className="mt-3 text-sm text-slate-500">
-          {unit === "bytes"
-            ? `${formatBytes(processed)} of ${formatBytes(total)}`
-            : `${processed.toLocaleString()} of ${total.toLocaleString()} files checked`}
+          {`${formatBytes(processed)} of ${formatBytes(total)}`}
         </div>
       </div>
     </div>
@@ -141,11 +142,14 @@ export function PassportDocumentImportDialog({
   onSave: () => void;
 }) {
   const [step, setStep] = useState<"distribution" | "documents">("distribution");
+  const titleId = useId();
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const handleKeyDown = useModalKeyboardBoundary({ dialogRef, isOpen: true, canClose: !saving, onClose });
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4">
+    <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby={titleId} onKeyDown={handleKeyDown} className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4">
       <div className="flex max-h-[85vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
         <div className="border-b border-slate-200 px-6 py-5">
-          <h2 className="text-lg font-semibold text-slate-900">Passport document distribution</h2>
+          <h2 id={titleId} className="text-lg font-semibold text-slate-900">Passport document distribution</h2>
           <p className="mt-1 text-sm text-slate-500">
             {step === "distribution"
               ? `${preview.accepted_count} accepted, ${preview.rejected_count} rejected. Only accepted files will be saved.`

@@ -1,0 +1,36 @@
+{
+  "status": "Read-only current source cohort complete; broader audit active",
+  "new_current_full_tests": 3,
+  "test_physical_lines": 861,
+  "supporting_full_rows": 1,
+  "focused_rows": 2,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-shared-journal-source-reviewed-files.json",
+    "sha256": "681eb34c591214d23d8458dd9a9d521d3c5915ff1468dddf577b7523f9141118"
+  },
+  "source_fence": {
+    "backend/tests/unit/application/test_mobile_passenger_identity_reconciliation.py": "f691b42f9eef3cf8f809f001d6c6311347ac3e5d2cb75026bc48f640e3290c73",
+    "backend/tests/unit/application/test_mobile_sync_journal.py": "f00292b58f757b4623d5ffdcefdd71dd9c63916f118cbcfb34a15cc845ebb6b9",
+    "backend/tests/unit/application/test_mobile_realtime_hints.py": "af4a023c3892aa4b383e9277cafe041614d2cdaef876e9072d368b2559724797",
+    "backend/app/application/mobile/sync_journal.py": "c8a5e7918ebde6d58d79ffb17862c99dc2a016e98f654b49b8e5606db986e34e",
+    "backend/app/application/mobile/passenger_identity_reconciliation.py": "542d8dcdb03dd5d32ab5c9051f0a62cb508ef8546a95bf7355271167da760217",
+    "backend/app/application/mobile/realtime_hints.py": "9c32a58f000b2837f4c541cc89ce20416f04b6c8a4ebaa1412e45c1d48e4011d"
+  },
+  "previous_current_full_support": [
+    {
+      "path": "backend/app/application/mobile/realtime_hints.py",
+      "sha256": "9c32a58f000b2837f4c541cc89ce20416f04b6c8a4ebaa1412e45c1d48e4011d",
+      "ledgers": [
+        "shared-realtime-behavior-reviewed-files.json"
+      ]
+    }
+  ],
+  "checks_run": [],
+  "changes": [],
+  "findings": [],
+  "limitations": [
+    "No app/test/database/provider/network/credential/scanner execution for source-read credit.",
+    "Previously full implementation owners and imported fixtures are not automatically new physical-read credit; focused slices remain focused.",
+    "No new architecture/security/performance claim based on source length or existing test names."
+  ]
+}

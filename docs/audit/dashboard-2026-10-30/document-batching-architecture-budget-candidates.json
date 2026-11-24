@@ -1,0 +1,51 @@
+[
+  {
+    "path": "features/documents/services/document-upload-batching.ts",
+    "baselineLines": 18,
+    "maximumLines": 30,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/documents/services/document-upload-model.ts",
+    "baselineLines": 107,
+    "maximumLines": 120,
+    "baselineMaxFunctionComplexity": 4,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/documents/services/document-upload-sessions.ts",
+    "baselineLines": 83,
+    "maximumLines": 90,
+    "baselineMaxFunctionComplexity": 13,
+    "maximumFunctionComplexity": 14
+  },
+  {
+    "path": "features/documents/services/document-verification-batches.ts",
+    "baselineLines": 134,
+    "maximumLines": 140,
+    "baselineMaxFunctionComplexity": 9,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/documents/services/document-staging-manifest.ts",
+    "baselineLines": 104,
+    "maximumLines": 110,
+    "baselineMaxFunctionComplexity": 13,
+    "maximumFunctionComplexity": 14
+  },
+  {
+    "path": "features/documents/services/document-upload-finalization.ts",
+    "baselineLines": 180,
+    "maximumLines": 190,
+    "baselineMaxFunctionComplexity": 9,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/documents/services/document-upload-retry.ts",
+    "baselineLines": 56,
+    "maximumLines": 70,
+    "baselineMaxFunctionComplexity": 7,
+    "maximumFunctionComplexity": 8
+  }
+]

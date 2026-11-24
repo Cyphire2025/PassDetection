@@ -1,0 +1,98 @@
+[
+  {
+    "path": "docs/API_CONTRACT.md",
+    "sha256": "8cc7f26f9317580168de350bb5ced9a09f982865529886d2b39884d97b6d2b17",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source/document read. Reviewed declared workflow and historical/current evidence boundaries; read guides as repository context, not authorization to execute release/provider/production commands. Historical receipts remain revision-scoped and no external assurance revalidated. Corrected Python environment example to the default backend/.venv created by reviewed bootstrap; no installation or API snapshot change."
+  },
+  {
+    "path": "docs/CONTRIBUTOR_GUIDE.md",
+    "sha256": "dde55a77f2dc306c5693e5018f3d4152bad4ab79118c0571d050986b9cf89b0a",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source/document read. Reviewed declared workflow and historical/current evidence boundaries; read guides as repository context, not authorization to execute release/provider/production commands. Historical receipts remain revision-scoped and no external assurance revalidated."
+  },
+  {
+    "path": "docs/IMMUTABLE_RELEASES.md",
+    "sha256": "37c035ff1dd2d8424f26b87e2a7c867adc494fb2b8b78de16645973e588f26f0",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source/document read. Reviewed declared workflow and historical/current evidence boundaries; read guides as repository context, not authorization to execute release/provider/production commands. Historical receipts remain revision-scoped and no external assurance revalidated."
+  },
+  {
+    "path": "docs/ENGINEERING_CLAIMS.md",
+    "sha256": "f286991dea08a9c44b461d7e0622e316d3b5066ef3de1b3ad6b37f0176f6477c",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source/document read. Reviewed declared workflow and historical/current evidence boundaries; read guides as repository context, not authorization to execute release/provider/production commands. Historical receipts remain revision-scoped and no external assurance revalidated."
+  },
+  {
+    "path": "docs/DATABASE_CONNECTION_CAPACITY.md",
+    "sha256": "29865382c923216586d92469484837aa7207111cfda90d6ebdb2690498759f71",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source/document read. Reviewed declared workflow and historical/current evidence boundaries; read guides as repository context, not authorization to execute release/provider/production commands. Historical receipts remain revision-scoped and no external assurance revalidated."
+  },
+  {
+    "path": "docs/DATABASE_CONNECTION_CAPACITY.generated.md",
+    "sha256": "d423cea580faab717d5882f79fce392e55017c5f7720d59fad3d8b906556394e",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source/document read. Reviewed declared workflow and historical/current evidence boundaries; read guides as repository context, not authorization to execute release/provider/production commands. Historical receipts remain revision-scoped and no external assurance revalidated."
+  },
+  {
+    "path": "docs/architecture/passport-workflow-state-machine.md",
+    "sha256": "aab16b0e77b385fcf384cce62dcd2670b24031bb09f43fff230e25dc74272d79",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source/document read. Reviewed declared workflow and historical/current evidence boundaries; read guides as repository context, not authorization to execute release/provider/production commands. Historical receipts remain revision-scoped and no external assurance revalidated."
+  },
+  {
+    "path": "docs/architecture/passport-dashboard-boundaries.md",
+    "sha256": "81672b05f48499b17ff247a827ae190c4996e60eec8911df983413b031fae5d5",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source/document read. Reviewed declared workflow and historical/current evidence boundaries; read guides as repository context, not authorization to execute release/provider/production commands. Historical receipts remain revision-scoped and no external assurance revalidated. Corrected stale active-legal-hold wording to match the explicit retirement contract and clarified durable extraction-job naming; no runtime or authorization policy change."
+  },
+  {
+    "path": "docs/architecture/passport-deletion.md",
+    "sha256": "6efd2cd6ecf953c9a1191445d87cb42ac3955593efc27c231031e5cfb4a5da03",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source/document read. Reviewed declared workflow and historical/current evidence boundaries; read guides as repository context, not authorization to execute release/provider/production commands. Historical receipts remain revision-scoped and no external assurance revalidated."
+  },
+  {
+    "path": "backend/app/infrastructure/ocr/td3_mrz_parser.py",
+    "sha256": "38a4165087ffa7388b9b70564d740f2a97cb5adc93cd8399783457aca9e109ce",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Retained parser performs no image reading/OCR/recovery and has one maintained accepted_source caller for saved historical/AI-returned evidence. Actual caller requires exactly2 ASCII44-character lines before invoking parser, so the suspected Unicode-digit parse exception is not reachable through that boundary. Public accepted-source validation compares exact identity/date/issuer/type and preserves approved AI/staff provenance. No unproved Unicode vulnerability fix, OCR runtime reintroduction or active validation removal; unchanged source and no new test execution."
+  },
+  {
+    "path": "backend/app/application/interfaces/mrz_parser.py",
+    "sha256": "7a37eff698173df230db518d93df86db2005432cc4668847f5faf12e07bc8a9a",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Retained parser performs no image reading/OCR/recovery and has one maintained accepted_source caller for saved historical/AI-returned evidence. Actual caller requires exactly2 ASCII44-character lines before invoking parser, so the suspected Unicode-digit parse exception is not reachable through that boundary. Public accepted-source validation compares exact identity/date/issuer/type and preserves approved AI/staff provenance. No unproved Unicode vulnerability fix, OCR runtime reintroduction or active validation removal; unchanged source and no new test execution."
+  },
+  {
+    "path": "backend/app/application/travellers/accepted_source.py",
+    "sha256": "7abecf156272742c1491e63838cf22810a5a28385216c8769b2034f8a13af4fc",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Retained parser performs no image reading/OCR/recovery and has one maintained accepted_source caller for saved historical/AI-returned evidence. Actual caller requires exactly2 ASCII44-character lines before invoking parser, so the suspected Unicode-digit parse exception is not reachable through that boundary. Public accepted-source validation compares exact identity/date/issuer/type and preserves approved AI/staff provenance. No unproved Unicode vulnerability fix, OCR runtime reintroduction or active validation removal; unchanged source and no new test execution."
+  }
+]

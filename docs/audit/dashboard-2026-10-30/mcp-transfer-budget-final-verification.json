@@ -1,0 +1,42 @@
+{
+  "status": "qualified measured MCP transfer budget integration",
+  "before_modules": 657,
+  "current_modules": 661,
+  "added_rows": 4,
+  "tightened_existing": "features/mcp/utils/file-transfer.ts:maximumLines110→90; complexity39 unchanged",
+  "all_other_original_rows_byte_value_equal": 656,
+  "source_sha256": "cb39d6c6ee5351e9fa166d560dd62c58a3b1b20021fc38a7c2a52d1017d94ff7",
+  "lf_normalized_sha256": "48ef93111680676d06cf152b7467f1b435f750f9fd14e5167b1c9e999a57cb1d",
+  "critical_config_sha256": "85ce4e7d5be4ff07748412030ccf1fca3177be52c388dbbada89053bcfc1a400",
+  "original_raw_source_snapshot": "mcp-transfer-budget-original-source.json",
+  "source_fence": {
+    "frontend/features/mcp/hooks/use-mcp-file-transfer.ts": "8d85a56f49754664bc389f8db71554b2f75f8ba90f494f7b1c465f11ca7ff862",
+    "frontend/features/mcp/api/mcp-transfer.api.ts": "cf7a4a0a95df4e944d3d60bc144130b513f49ce7d7b69745769790f130dc2aab",
+    "frontend/features/mcp/utils/file-transfer.ts": "79e3413c12bfab33c3369d0bd345c4154d0f90083aa24116bb99ae29af82dee0",
+    "frontend/features/mcp/utils/read-transfer-body.ts": "53fc62863d8575b1d5a1213c90e2973a6b844a0f1ee5949b12fc29de1386dc16",
+    "frontend/features/mcp/utils/save-transfer-file.ts": "d240c76cc5295ffc3be65626be1e2d15d1e9748ba0c3c95d11d91fa08b7449e3"
+  },
+  "checks": [
+    {
+      "name": "unit",
+      "argv": [
+        "node",
+        "--test",
+        "frontend/scripts/verify-frontend-module-budgets.test.mjs"
+      ],
+      "exit_code": 0,
+      "output": "mcp-transfer-budget-unit.txt"
+    },
+    {
+      "name": "static",
+      "argv": [
+        "node",
+        "frontend/scripts/verify-frontend-module-budgets.mjs"
+      ],
+      "exit_code": 0,
+      "output": "mcp-transfer-budget-static.txt"
+    }
+  ],
+  "proof": "Complete original raw source retained; outside only the budget-array data, code text is exact after line-ending normalization. Every original657 ceiling preserved/tightened;656 untouched complete rows exact. No unknown candidate metadata inserted into runtime source.",
+  "limits": "Static integration and existing Node checker controls only. No repeat whole frontend suite/build/browser/coverage round; no critical include or floor change. Feature behavior evidence is separately frozen in mcp-transfer-lifecycle-verification.json."
+}

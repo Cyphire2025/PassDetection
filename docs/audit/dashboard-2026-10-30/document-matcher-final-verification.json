@@ -1,0 +1,179 @@
+{
+  "status": "coherent architecture change verified and frozen",
+  "source_manifest": {
+    "path": "docs/audit/dashboard-2026-10-30/document-matcher-final-source-manifest.json",
+    "sha256": "0436c5852b55b128a1fd580c86956e9efde51a4da3f9a9da844d27bac0fc018b"
+  },
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/document-matcher-final-reviewed-files.json",
+    "sha256": "d16f98b9ed41fe561cafbcfd8796d72e6c6dba097859f25d84358366024957ea"
+  },
+  "budget_candidates": {
+    "path": "docs/audit/dashboard-2026-10-30/document-matcher-final-budget-candidates.json",
+    "sha256": "f6c1055ab5aa6b353c398a531280401c143c0d31705e21188b07252feed458d7"
+  },
+  "change": "Purpose-specific filename/content/result owners replace tangled matching orchestration while retaining publicclass/MRO/privateoverride/PDF/globalpolicy contracts. No newbehavioral correction or performance-speedup claim.",
+  "source_proof": {
+    "path": "docs/audit/dashboard-2026-10-30/document-matcher-expanded-statement-proof.json",
+    "sha256": "0e61391e19c435ff1a4f5831e8cfa5012f316fc8b672cb0bc9aeffa4e1acf9d1"
+  },
+  "public_runtime_contract": {
+    "path": "docs/audit/dashboard-2026-10-30/document-matcher-runtime-after-current-contract.json",
+    "sha256": "e8e1b9d68df0e43a1ba9f07883611f7e6cda95018f03e7728684be13f4cb6e8a"
+  },
+  "public_runtime_contract_before": {
+    "path": "docs/audit/dashboard-2026-10-30/document-matcher-runtime-before-contract.json",
+    "sha256": "e8e1b9d68df0e43a1ba9f07883611f7e6cda95018f03e7728684be13f4cb6e8a"
+  },
+  "new_owner_actual_hints_and_aliases": {
+    "path": "docs/audit/dashboard-2026-10-30/document-matcher-helper-runtime-contract.json",
+    "sha256": "41340835c85b9e28b1b588318e5f9a6ba7bedbe0c19b6c11fcdfdb88da4daacb"
+  },
+  "checks": {
+    "original_focused116": {
+      "path": "docs/audit/dashboard-2026-10-30/document-matcher-current-baseline-command.json",
+      "sha256": "e286262899ebe2b6d2fe40ef861b432eb6f178e2a2ec1db2da7ca84c628d53ac"
+    },
+    "original_beforeedit_public_controls5": {
+      "path": "docs/audit/dashboard-2026-10-30/document-matcher-evidence-before-command.json",
+      "sha256": "2e3226d8c06f6ccd93c94ee475dfc6e1faf2ae61f3300c53d29a1d029f1ec2cc"
+    },
+    "archived_original_public_controls11": {
+      "path": "docs/audit/dashboard-2026-10-30/document-matcher-evidence-original-replay-command.json",
+      "sha256": "6ef80e569deec6bc3452c66bc88dbfe4d579f76e2e7f3f7fc9955be317397a43"
+    },
+    "final_focused178": {
+      "path": "docs/audit/dashboard-2026-10-30/document-matcher-final-qualified-command.json",
+      "sha256": "7dc88ee9fc0e8d5372a865883ed9c8171491910f515da733419c9e76b575a2d6"
+    },
+    "final_coverage_json": {
+      "path": "docs/audit/dashboard-2026-10-30/document-matcher-final-qualified-coverage.json",
+      "sha256": "0d1bbc415d27d79128450b0d3b91ef1aabeebc9ee7243f75a6d11d94c9d07cfe"
+    },
+    "final_coverage_xml": {
+      "path": "docs/audit/dashboard-2026-10-30/document-matcher-final-qualified-coverage.xml",
+      "sha256": "5eff6880aa4b28d69001b6879e646528a63be3875d0a4e7b51cd38336fc1f3ea"
+    },
+    "final_test_files": 10,
+    "scoped_types": {
+      "files": 4,
+      "exit_code": 0,
+      "tool_chunk": "898879"
+    },
+    "scoped_ruff": {
+      "runtime_and_initial_test_files": 5,
+      "exit_code": 0,
+      "tool_chunk": "8a5a79",
+      "final_extended_test_exit_code": 0,
+      "final_test_tool_chunk": "09b2e9"
+    }
+  },
+  "measurements": {
+    "backend/app/infrastructure/documents/document_matcher.py": {
+      "sha256": "56d4bd08647d29d5d1a98b6469dc6e6149eb9e191effa1aab5e59febee89eb7e",
+      "physical_lines": 473,
+      "max_function_complexity": 11,
+      "line_percent": 92.63803680981596,
+      "branch_percent": 75.0,
+      "missing_lines": [
+        251,
+        274,
+        300,
+        341,
+        380,
+        396,
+        397,
+        398,
+        399,
+        409,
+        453,
+        466
+      ],
+      "missing_branches": [
+        [
+          273,
+          274
+        ],
+        [
+          297,
+          300
+        ],
+        [
+          340,
+          341
+        ],
+        [
+          379,
+          380
+        ],
+        [
+          397,
+          398
+        ],
+        [
+          397,
+          399
+        ]
+      ]
+    },
+    "backend/app/infrastructure/documents/document_filename_matching.py": {
+      "sha256": "3b9f3e31d1348cad060b5b3563a6af6b1481ebde18f372da70fdce0bc33b2955",
+      "physical_lines": 73,
+      "max_function_complexity": 14,
+      "line_percent": 100.0,
+      "branch_percent": 100.0,
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    "backend/app/infrastructure/documents/document_content_matching.py": {
+      "sha256": "e546765e17ec69ac174b8b812ae4a8d0fe79682b106e42d429be703b29fee48f",
+      "physical_lines": 117,
+      "max_function_complexity": 9,
+      "line_percent": 100.0,
+      "branch_percent": 95.45454545454545,
+      "missing_lines": [],
+      "missing_branches": [
+        [
+          72,
+          71
+        ]
+      ]
+    },
+    "backend/app/infrastructure/documents/document_match_results.py": {
+      "sha256": "9992c0747769477e54022ec3312241577201ad403836411bb797acb298bd6451",
+      "physical_lines": 117,
+      "max_function_complexity": 17,
+      "line_percent": 97.95918367346938,
+      "branch_percent": 93.75,
+      "missing_lines": [
+        56
+      ],
+      "missing_branches": [
+        [
+          52,
+          54
+        ],
+        [
+          55,
+          56
+        ]
+      ]
+    }
+  },
+  "qualified_limits": [
+    "ActualexistingPDF/nativehelpers byte-identical; pureAST and normalWindows/syntheticcontrols do not establish Linuxcgroup, realRedislease, provider, populatedPG or workloadlatency outcomes.",
+    "Facade473 preserves substantialpublishedalias/PDFcompatibilitysurface; resolution354/parser556/ingestion475 architecture remainsseparate.",
+    "Owned4fieldrecord adds constant-sized packaging/function-call overhead; existingresolverwork/tokenizationcount/order/outcomes provenunchanged, no fasterlatencyclaim.",
+    "OneNonepassenger defensive resultline and threebranchpaths unhit; measuredcoverage is reported, not fabricated100.",
+    "Original6testfiles and3workflowtestfiles byte-unchanged; new11case publiccontract test added; no test assertions weakened."
+  ],
+  "historical_harness_qualifications": [
+    "Initialruntime metadata serializer could not JSONencode__future__._Feature; corrected normalization before beforecontractartifact existed, no productfailure.",
+    "Initialexpandedproof expected17topstatements;actual16 mapcorrected withoutsourcechange before proofseal.",
+    "Initialoriginalreplay pre-importedconftest beforepytestmain, causing expectedpytestassertrewritewarning beforecollection;rawfailedartifact preserved, correctednormalpytest_sessionstart replay11pass withoutsuppressingwarnings.",
+    "Firstscopedlintcaught onlynewhelperimportordering, fixedusingownedfileIrule; final5filespass and finalextendedtestpass."
+  ],
+  "no_broad_suite_build_browser_scan_deployment_provider_production_data_credentials": true,
+  "all142published_migrations_unchanged": true,
+  "no_shared_config_dependencies_gates_pins_changed": true
+}

@@ -1,0 +1,171 @@
+{
+  "basis": "Focused Vitest V8 coverage from13testfiles85tests after retiring the final dormant dialog assertion. Actual current Fresh/returning owners; every file separately meets unchanged floors. Not overall repository coverage or real-service qualification.",
+  "floors": {
+    "statements": 74,
+    "branches": 50,
+    "functions": 75,
+    "lines": 75
+  },
+  "totals": {
+    "statements": 89.2,
+    "branches": 81.03,
+    "functions": 88.48,
+    "lines": 97.2
+  },
+  "per_file": [
+    {
+      "path": "frontend/features/travellers/hooks/use-draft-image-lifecycle.ts",
+      "sha256": "4d0ddefaa2f3100049d54745b650f361623fee8e2203e995161e7c74c9bed738",
+      "coverage_percent": {
+        "statements": 95.31,
+        "branches": 93.54,
+        "functions": 87.5,
+        "lines": 100
+      },
+      "passes_preserved_floors": true
+    },
+    {
+      "path": "frontend/features/travellers/hooks/use-draft-initialization.ts",
+      "sha256": "adb0daad0b4b79d50d0fc6faa64bb229ae828ec88795b44524c9e384607f937d",
+      "coverage_percent": {
+        "statements": 92,
+        "branches": 83.33,
+        "functions": 85.71,
+        "lines": 92.85
+      },
+      "passes_preserved_floors": true
+    },
+    {
+      "path": "frontend/features/travellers/hooks/use-draft-polling.ts",
+      "sha256": "bd58c85301e5fda5171fd5754c9f840ae52812634e96f6a4dc86206580a76164",
+      "coverage_percent": {
+        "statements": 92,
+        "branches": 86.66,
+        "functions": 87.5,
+        "lines": 100
+      },
+      "passes_preserved_floors": true
+    },
+    {
+      "path": "frontend/features/travellers/hooks/use-returning-draft.ts",
+      "sha256": "d932c99c17879f1d288095b3bc5cc38f6d85b295e4801a3efd1e7adafad18682",
+      "coverage_percent": {
+        "statements": 84.7,
+        "branches": 70,
+        "functions": 85.71,
+        "lines": 93.81
+      },
+      "passes_preserved_floors": true
+    },
+    {
+      "path": "frontend/features/travellers/services/draft-upload-operation.ts",
+      "sha256": "5053af15ffd0e5331dfd63deebacd9844b24958143f4c1b2d68df597c6dd141a",
+      "coverage_percent": {
+        "statements": 95.83,
+        "branches": 95.65,
+        "functions": 100,
+        "lines": 100
+      },
+      "passes_preserved_floors": true
+    },
+    {
+      "path": "frontend/features/upload/components/fresh-flow.tsx",
+      "sha256": "28defe51332f7c8d4b1ebb956412d651224b0e5e54269bd4a285150c21a3197d",
+      "coverage_percent": {
+        "statements": 91.42,
+        "branches": 88.88,
+        "functions": 92.3,
+        "lines": 94.11
+      },
+      "passes_preserved_floors": true
+    },
+    {
+      "path": "frontend/features/upload/components/fresh-member-form.tsx",
+      "sha256": "4965591d35be99c0a6b1d3f7b1420a6253448131e260d1e4d7c1358d6495e59d",
+      "coverage_percent": {
+        "statements": 90.9,
+        "branches": 72,
+        "functions": 75,
+        "lines": 100
+      },
+      "passes_preserved_floors": true
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-fresh-contact.ts",
+      "sha256": "dd8d39954c26850d6e2b216a9b4ccae05c77f938c4c5d0b06c1bb7e4a6026178",
+      "coverage_percent": {
+        "statements": 91.11,
+        "branches": 83.33,
+        "functions": 86.66,
+        "lines": 96.66
+      },
+      "passes_preserved_floors": true
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-fresh-draft.ts",
+      "sha256": "8404e81895fb5407b36442448999617e7500d57692c6ce51b908963e10a8d7d4",
+      "coverage_percent": {
+        "statements": 86.16,
+        "branches": 76.11,
+        "functions": 84.37,
+        "lines": 97.67
+      },
+      "passes_preserved_floors": true
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-fresh-member-submission.ts",
+      "sha256": "6b6e18c49566ee442c55e6237e8bf15b68c87fdca38d91d41da544918cc99935",
+      "coverage_percent": {
+        "statements": 82.6,
+        "branches": 65.21,
+        "functions": 100,
+        "lines": 100
+      },
+      "passes_preserved_floors": true
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-selected-document-uploads.ts",
+      "sha256": "4c18a5237b1f85be5c59e2f760a40c654042753b202e59bffc3005bb682a0e87",
+      "coverage_percent": {
+        "statements": 98.03,
+        "branches": 86.95,
+        "functions": 100,
+        "lines": 100
+      },
+      "passes_preserved_floors": true
+    },
+    {
+      "path": "frontend/features/upload/services/fresh-document-validation.ts",
+      "sha256": "b6bc4b703b530459334cafc7567932f9be87d27988144e9c8b33c1a12448b596",
+      "coverage_percent": {
+        "statements": 84.61,
+        "branches": 79.41,
+        "functions": 100,
+        "lines": 100
+      },
+      "passes_preserved_floors": true
+    },
+    {
+      "path": "frontend/features/upload/services/fresh-validation.ts",
+      "sha256": "782bdee55ad1b8245563aedbead9cbae9621e2d40cd81419589f06b188b479f8",
+      "coverage_percent": {
+        "statements": 92.3,
+        "branches": 90.32,
+        "functions": 100,
+        "lines": 100
+      },
+      "passes_preserved_floors": true
+    },
+    {
+      "path": "frontend/features/upload/services/review-submission-validation.ts",
+      "sha256": "71cf96d9acd695b630f2651429c6e5daeeefeb0b9c0f0b238dcc18dcd16320d3",
+      "coverage_percent": {
+        "statements": 100,
+        "branches": 100,
+        "functions": 100,
+        "lines": 100
+      },
+      "passes_preserved_floors": true
+    }
+  ]
+}

@@ -1,0 +1,303 @@
+{
+  "recorded_at": "2026-10-30T23:33:20.584Z",
+  "original_sha256": "318f842631e3d9b7e44f886cb6ebe03e41ea9abe80f82d012c870b67cbf6894a",
+  "records": [
+    {
+      "kind": "controller-statement",
+      "index": 0,
+      "passed": true,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 1,
+      "passed": true,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 2,
+      "passed": true,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 3,
+      "passed": true,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 4,
+      "passed": true,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 5,
+      "passed": true,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 6,
+      "passed": true,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 7,
+      "passed": true,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 8,
+      "passed": true,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 9,
+      "passed": true,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 10,
+      "passed": true,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 11,
+      "passed": true,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 12,
+      "passed": true,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 13,
+      "passed": true,
+      "declared_refinement": "Stable empty list identity avoids invalidating memo dependencies on every unavailable render; no rows/data behavior changed."
+    },
+    {
+      "kind": "controller-statement",
+      "index": 14,
+      "passed": true,
+      "declared_refinement": "Stable empty list identity avoids invalidating memo dependencies on every unavailable render; no rows/data behavior changed."
+    },
+    {
+      "kind": "controller-statement",
+      "index": 15,
+      "passed": true,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 16,
+      "passed": true,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 17,
+      "passed": true,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 18,
+      "passed": true,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 19,
+      "passed": true,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 20,
+      "passed": true,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 21,
+      "passed": true,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 22,
+      "passed": true,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 23,
+      "passed": true,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 24,
+      "passed": true,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 25,
+      "passed": true,
+      "exact_AST": true
+    },
+    {
+      "kind": "controller-statement",
+      "index": 26,
+      "passed": true,
+      "exact_AST": true
+    },
+    {
+      "kind": "view-node",
+      "owner": "upload-link-list-header.tsx",
+      "passed": true,
+      "rendered_JSX_AST": true
+    },
+    {
+      "kind": "view-node",
+      "owner": "upload-link-list-summary.tsx",
+      "passed": true,
+      "rendered_JSX_AST": true
+    },
+    {
+      "kind": "view-node",
+      "owner": "upload-link-list-sections.tsx",
+      "passed": true,
+      "rendered_JSX_AST": true
+    },
+    {
+      "kind": "view-node",
+      "owner": "upload-link-list-sections.tsx",
+      "passed": true,
+      "rendered_JSX_AST": true
+    },
+    {
+      "kind": "view-node",
+      "owner": "upload-link-list-dialogs.tsx",
+      "passed": true,
+      "rendered_JSX_AST": true
+    },
+    {
+      "kind": "view-node",
+      "owner": "upload-link-list-dialogs.tsx",
+      "passed": true,
+      "rendered_JSX_AST": true
+    },
+    {
+      "kind": "view-node",
+      "owner": "upload-link-list-dialogs.tsx",
+      "passed": true,
+      "rendered_JSX_AST": true
+    },
+    {
+      "kind": "declaration",
+      "name": "CompanyAssignmentLabel",
+      "owner": "upload-link-table.tsx",
+      "passed": true,
+      "body_and_parameters_exact_AST": true
+    },
+    {
+      "kind": "declaration",
+      "name": "StatusPill",
+      "owner": "upload-link-table.tsx",
+      "passed": true,
+      "body_and_parameters_exact_AST": true
+    },
+    {
+      "kind": "declaration",
+      "name": "GroupDeleteRetentionDialog",
+      "owner": "group-delete-retention-dialog.tsx",
+      "passed": true,
+      "body_and_parameters_exact_AST": true
+    },
+    {
+      "kind": "declaration",
+      "name": "filterUploadLinks",
+      "owner": "upload-link-filter.ts",
+      "passed": true,
+      "body_and_parameters_exact_AST": true
+    },
+    {
+      "kind": "declaration",
+      "name": "LoadingRows",
+      "owner": "upload-link-list-sections.tsx",
+      "passed": true,
+      "body_and_parameters_exact_AST": true
+    },
+    {
+      "kind": "actions-body",
+      "passed": true,
+      "body_exact_AST": true,
+      "all10closed_props_and2explicit_arguments_forwarded": true
+    },
+    {
+      "kind": "table-jsx",
+      "passed": true,
+      "declared_callsite_substitution_only": true
+    }
+  ],
+  "files": [
+    {
+      "path": "frontend/features/passports/components/upload-link-list.tsx",
+      "sha256": "71fb506d74d2816e5b52c06ff4a7b78230edb5589257d811dd57778bb144261d"
+    },
+    {
+      "path": "frontend/features/passports/components/use-upload-link-list.ts",
+      "sha256": "67470701329adda09e6035841aef516e0ad90a5928336e55276baad52b24f08b"
+    },
+    {
+      "path": "frontend/features/passports/components/use-upload-link-copy.ts",
+      "sha256": "c57d0baf1ef73e9a0221a8f30a962eae803ed6559f668f12b3a6966bfd98737c"
+    },
+    {
+      "path": "frontend/features/passports/components/upload-link-list-header.tsx",
+      "sha256": "b08a259f34d009de94b7b92f13c4ecd79520b11a6db554052f73b55594c0686e"
+    },
+    {
+      "path": "frontend/features/passports/components/upload-link-list-summary.tsx",
+      "sha256": "3ad583c9e59b1c6105c2f97c20359236f874d37a615a5445bb6782fbd59064fe"
+    },
+    {
+      "path": "frontend/features/passports/components/upload-link-list-sections.tsx",
+      "sha256": "84e875cdc6855987ec7cf01fba484ad1f9b372646a1662afc424dfc71967998d"
+    },
+    {
+      "path": "frontend/features/passports/components/upload-link-list-dialogs.tsx",
+      "sha256": "a0307aad0b987457264a27d61046b9a05b7296fbade49840e5e9b470239a54fe"
+    },
+    {
+      "path": "frontend/features/passports/components/upload-link-table.tsx",
+      "sha256": "5d8091dfcc6b66ab1ed232ad61a888c258a6e038d679504ece09dfe7b9e6ddfa"
+    },
+    {
+      "path": "frontend/features/passports/components/upload-link-actions.tsx",
+      "sha256": "e3324c21932dfaa4ce95030921967889b73c6cca9bbd34addb64548e2352b01f"
+    },
+    {
+      "path": "frontend/features/passports/components/group-delete-retention-dialog.tsx",
+      "sha256": "073e771fdad43933a7c3af50a3dd47df2b5430fd7f44d186326df9e5d3b7a288"
+    },
+    {
+      "path": "frontend/features/passports/components/upload-link-filter.ts",
+      "sha256": "88ac34d3ca172c2c169af4f18926819ef61dd65e76246ca54f9b3985f72b7648"
+    }
+  ],
+  "basis": "27 original controller statements,7 complete JSX nodes,5 helper declarations, action body+complete prop forwarding and table output checked against post-fix source. Two stable empty defaults are an explicit performance refinement; five reproduced state/lifetime fixes precede mechanical extraction."
+}

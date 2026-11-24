@@ -1,0 +1,68 @@
+{
+  "status": "Read-only planning snapshot; no suites/checkers executed or source/gates edited",
+  "snapshot": {
+    "budget_sha256": "0e292b4f0ecf53d0a1942fa3c2da521f19ebc58c8450627be85fd309eaf44305",
+    "scope_sha256": "c6ec43ad41653d3c49224d93f28ad8853495301657050993b63dc06998072238",
+    "normal": {
+      "all": 882,
+      "retained": 790,
+      "Inbox_deferred": 90,
+      "native_excluded": 2
+    },
+    "critical": {
+      "all": 165,
+      "retained": 163,
+      "Inbox_deferred": 2,
+      "native_excluded": 0
+    },
+    "repository_floors": {
+      "line": 75,
+      "branch": 58
+    },
+    "unit_integration_candidate_files": {
+      "all": 909,
+      "retained": 830,
+      "Inbox_deferred": 57,
+      "native_excluded": 22
+    }
+  },
+  "collection_plan": [
+    "Hash-bind scope, mixed function selection and all reviewed backend runtime/test sources after GC/model/gate freeze.",
+    "Use one serial pytest run over tests/unit and tests/integration; custom audit-only plugin ignores exact native/Inbox files and the four inseparable files before collection, then selects only real item.originalname values from mixed selection for remaining mixed files. Record actual collected/selected/deselected/ignored nodeIDs and source hashes; no fabricated parameter IDs.",
+    "Use -q -o addopts= followed by --cov=app --cov-branch and new XML/JSON/JUnit paths. Keep whole app denominator and branch measurement; do not use coverage omit or filtered budget to obtain a green global.",
+    "Clear inherited PYTEST_ADDOPTS, PYTEST_PLUGINS and XDIST shard-worker env in child profile; keep service opt-in disabled, use reviewed synthetic local fixtures, never load/copy production settings or run service integration.",
+    "Collection errors and runtime failures remain failures; scopes are applied before collection, while unavoidable shared imported native/Inbox models are compatibility only."
+  ],
+  "coverage_plan": [
+    "Run unmodified full budget verifier/static checker using all882-or-final reviewed rows. evaluate_budgets scans entire app for untracked oversized files, so passing only790 rows is incorrect.",
+    "Apply full evaluate_budgets and evaluate_coverage_gates to full --cov=app branch XML; preserve complete raw violations. Then separately classify exact per-path findings against unchanged scope policy: retained normal/critical, native and Inbox.",
+    "Keep Repository75/58 actual measured pass/fail explicit. A retained-selection coverage result does not establish original full-suite qualification. No gate floor, whole-global denominator or missing-module obligation is silently rewritten."
+  ],
+  "operator_connector_CI": {
+    "backend_cwd": [
+      "python ../scripts/release_manifest.py",
+      "python -m unittest discover -s ../scripts -p test_*.py"
+    ],
+    "qa_cwd": "python -m unittest test_workload_capacity test_mcp_capacity test_capacity_container_events",
+    "qa_followthrough": "Three additional current ownership/profile/lifecycle test modules exist; include test_workload_capacity_owners, test_mcp_capacity_profile, test_capacity_observer_lifecycle for affected retained QA lifecycle changes.",
+    "connector_cwd": [
+      "python -m ruff check --no-fix src tests",
+      "python -m pytest -q",
+      "python -m pip wheel --no-deps --no-build-isolation --wheel-dir <isolated-audit-directory> ."
+    ],
+    "limits": "112 top-level operator files, six QA unittest modules and24connector test files are currently retained by exact scope. These are discovery counts, not collected/pass counts; no dependency lock regeneration or install into developer environment."
+  },
+  "GC_gate_integration": [
+    "After adopting exact current GC19-file facade/17leaf/primer proof and measured candidates, preserve881other old normal rows/165critical/global values exact. Existing GCnormal99.81floor must remain or be substantively justified per actual owner evidence, never blanket lowered. Add only measured purpose owners; expected18new normal rows if primer included, normal total900.",
+    "Preserve architecture-dependencies raw bytes unless a separately reviewed exact boundary change is necessary; no structural exception expected for same-layer declaration movement.",
+    "Persistent admission includes whole backend/app/infrastructure/database. Add18 _gc_models source paths to bindings with both original BEFORE fields null, as proven absent in both actual Git baselines. ExistingGCfacade already bound; update itsAFTER plus backend-budgetAFTER. Preserve124other oldAFTER/all126oldBEFOREpairs. Final bindings144.",
+    "Recompute eachAFTER with normalized UTF8 LF source digest, write JSON UTF8 LF. Change only BINDINGS_SHA256 and BINDINGS_COUNT126to144 in policy; its digest-pin loader rejects unknown paths/duplicate keys/case aliases/unexpected data.",
+    "Read current144AFTER files and both actual immutable Git BEFOREsets (BASE98f4fb4f7ba982fc46f917d24db63d59993a74a8, BASE_0141875d17b25da2687b5673148fabe9d10346ae0e4a). ExistingGC BEFOREs: d9bed4d91e3c30690de5fe575373b48a6b8a51edb7feb77527aa20b7a85fba61 and401154b6e85d45ebbbfd2151d84e30cf50a74721c50a472ef95f5fae25536b34.",
+    "Run static budgets, whole architecture and focused test_release_workspace_branding_bindings.py controls; its prospective-path test includes git diff plus untracked paths, so omitting any of18newowners fails honestly. Preserve prior exact snapshots/receipt, write a new current source-fenced integration receipt rather than changing old proof."
+  ],
+  "independent_limits": [
+    "13 expired image disposition windows require real exact-image requalification; no date renewal from this source work.",
+    "Local daemon/service/native/image/real-provider/VPS qualification remains external/unrun.",
+    "Published migrations and operational IDs remain immutable; schema-source equivalence is not an applied migration."
+  ]
+}

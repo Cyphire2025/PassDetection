@@ -1,0 +1,65 @@
+[
+  {
+    "path": "backend/tests/unit/infrastructure/test_my_photos_aws_providers.py",
+    "sha256": "a0d884072b18a9fbe5ac3d89cc1eb148f41951784cf571aa33944fbafdbc9e89",
+    "physical_lines": 1466,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole1466lines. Fail-closed AWS config/region/KMS/owner/challenge admission, short idempotent liveness sessions and no/multi-face outcomes, exact scoped collection/index/search/delete shapes, opaque HMAC references/key rotation/version-byte bounds, native full-object checksum/encryption/version metadata, maximum media size, exact origin/port/key and signed expiry admission, after-await delivery deadlines and signing lifetime, credential-chain use and repr secret omission reviewed. Fake SDK clients and local real botocore presigning with authored synthetic credentials only; no AWS calls or native client execution. These are shared server/provider contracts despite mobile-facing DTO names. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_my_photos_contracts.py",
+    "sha256": "5eba6233ab282377aa29b358f23efbbc671563aaf77e022f4dda1696ae28f813",
+    "physical_lines": 846,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole846lines. Strict DTO/duplicate-item and signed scope/filter/revision cursor contracts, sanitized disabled/expired projections, dedicated Celery routes, no-store preview/rate-limit responses, provider result and native launch-handle shape validation, ordered bounded partial batch/timeout handling, durable claim versus timeout config, gallery revision coverage publication, usable optimized variants and mixed download estimates reviewed. Mock sessions/provider outcomes and isolated DTO/ORM object construction do not establish current SQL transaction/provider/client runtime qualification. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_my_photos_gallery_ingestion.py",
+    "sha256": "c809f197b205f7814e5ad97c5771d4892163c4255eb599e8edbd379bd2d0d138",
+    "physical_lines": 541,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole541lines. Manifest schema byte ceilings, synthetic agency/group/actor fixture, out-of-order two-batch idempotency/conflict and no partial publication, frozen match configuration, idempotent cancel/versioned object cleanup and target revision release, running-worker cancellation-pending then terminal cleanup reviewed. Existing design uses actual db_session persistence with fake media/face providers; no test execution or PostgreSQL concurrency/provider cleanup guarantee claimed. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_my_photos_manifest_cli.py",
+    "sha256": "552f8fdbf0efb210c640878b4fd224ac897844399fc362bc6dc08fc26ae6155f",
+    "physical_lines": 54,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole54lines. Fifty ordered100-item registrations share initiating actor/step-up time and progress checkpoint, with synthetic service/dispatch only. No CLI invocation or live staging execution. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_my_photos_migration.py",
+    "sha256": "7de4abff3f565c5fa1874a4682ef5cc9414b7d3adfe1cab75e666351bab8e485",
+    "physical_lines": 200,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole200lines. Foundation parent and reversible twelve-table order, active noncancelled revision index, long references, scoped composite FKs and active-match uniqueness, matching ORM/migration200MiB size guards reviewed. Migration import/upgrade/downgrade calls occur only in authored mocked test design; none executed now and published migration bytes not touched. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_my_photos_providers.py",
+    "sha256": "d53cd2289a5c9af5ccf1e2570d523fc3c1d49b2903bdac6401a1f45e76573418",
+    "physical_lines": 239,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole239lines. Production rejects development provider, disabled provider fails closed, deterministic short liveness outcomes/idempotent reference deletion,5000asset/6000face bounded batches and late search contract, partial/throttled outcomes, offline/preparation and stable exact synthetic media checksum/size delivery reviewed. Development simulators test contract behavior rather than biometric accuracy, actual cloud media or native application. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_my_photos_scale_fixture.py",
+    "sha256": "c635f6694cd1246d485e5c73e64d6ae212d452d48f83ed5801b053d73f6fe17c",
+    "physical_lines": 62,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole62lines. Synthetic5000asset/variant and6000unique face construction in250-item batches, per-variant size bound, portrait/landscape/square and offline/preparing cohorts reviewed. Counter fixture source is not whole-process memory/latency or production scaling qualification. Complete current physical test-source read; no new execution/source fix/validated defect."
+  }
+]

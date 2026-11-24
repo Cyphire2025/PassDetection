@@ -1,0 +1,1655 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Users\\nipun\\AppData\\Local\\Programs\\node-v24.21.0-win-x64\\node.exe",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "../.tmp/message-pane-wrapping/playwright.config.ts"
+    ],
+    "configFile": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\message-pane-wrapping\\playwright.config.ts",
+    "rootDir": "C:/Users/nipun/Desktop/PassDetection/frontend/e2e-fixtures",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/nipun/Desktop/PassDetection/.tmp/message-pane-wrapping/before-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/Users/nipun/Desktop/PassDetection/frontend/e2e-fixtures",
+        "testIgnore": [],
+        "testMatch": [
+          "message-pane-overflow.spec.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\message-pane-wrapping\\before-playwright.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.62.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "message-pane-overflow.spec.ts",
+      "file": "message-pane-overflow.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "review small inner message bounds at 390px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 418,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T05:23:22.933Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2049166aa4acb2ab0177-aa8da1e80514d420297c",
+          "file": "message-pane-overflow.spec.ts",
+          "line": 27,
+          "column": 7
+        },
+        {
+          "title": "review long inner message bounds at 390px",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 475,
+                  "error": {
+                    "message": "Error: Actual message text must wrap without a hidden horizontal scroll surface\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m309\u001b[39m\nReceived:    \u001b[31m1307\u001b[39m",
+                    "stack": "Error: Actual message text must wrap without a hidden horizontal scroll surface\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m309\u001b[39m\nReceived:    \u001b[31m1307\u001b[39m\n    at C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts:47:108",
+                    "location": {
+                      "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts",
+                      "column": 108,
+                      "line": 47
+                    },
+                    "snippet": "  45 |     expect(errors).toEqual([]); expect(unexpected).toEqual([]); expect(result.text).toContain(message);\n  46 |     expect(result.whiteSpace).toBe(pane === \"document-delivery\" ? \"pre-line\" : \"pre-wrap\");\n> 47 |     expect(result.scrollWidth, \"Actual message text must wrap without a hidden horizontal scroll surface\").toBeLessThanOrEqual(result.clientWidth + 1);\n     |                                                                                                            ^\n  48 |     expect(result.x).toBeGreaterThanOrEqual(-1); expect(result.x + result.width).toBeLessThanOrEqual(viewport.width + 1);\n  49 |     expect(outer.scrollWidth).toBeLessThanOrEqual(outer.clientWidth + 1); expect(outer.pageWidth).toBeLessThanOrEqual(outer.viewport + 1);\n  50 |     if (kind === \"long\" && viewport.width === 390) await page.screenshot({ path: resolve(output, `${phase}-${pane}-390.png`), fullPage: true });"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts",
+                        "column": 108,
+                        "line": 47
+                      },
+                      "message": "Error: Actual message text must wrap without a hidden horizontal scroll surface\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m309\u001b[39m\nReceived:    \u001b[31m1307\u001b[39m\n\n  45 |     expect(errors).toEqual([]); expect(unexpected).toEqual([]); expect(result.text).toContain(message);\n  46 |     expect(result.whiteSpace).toBe(pane === \"document-delivery\" ? \"pre-line\" : \"pre-wrap\");\n> 47 |     expect(result.scrollWidth, \"Actual message text must wrap without a hidden horizontal scroll surface\").toBeLessThanOrEqual(result.clientWidth + 1);\n     |                                                                                                            ^\n  48 |     expect(result.x).toBeGreaterThanOrEqual(-1); expect(result.x + result.width).toBeLessThanOrEqual(viewport.width + 1);\n  49 |     expect(outer.scrollWidth).toBeLessThanOrEqual(outer.clientWidth + 1); expect(outer.pageWidth).toBeLessThanOrEqual(outer.viewport + 1);\n  50 |     if (kind === \"long\" && viewport.width === 390) await page.screenshot({ path: resolve(output, `${phase}-${pane}-390.png`), fullPage: true });\n    at C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts:47:108"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T05:23:24.278Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\message-pane-wrapping\\before-results\\message-pane-overflow-revi-3012d-ner-message-bounds-at-390px-chromium\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\message-pane-wrapping\\before-results\\message-pane-overflow-revi-3012d-ner-message-bounds-at-390px-chromium\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\message-pane-wrapping\\before-results\\message-pane-overflow-revi-3012d-ner-message-bounds-at-390px-chromium\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts",
+                    "column": 108,
+                    "line": 47
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "2049166aa4acb2ab0177-30465d3707f7325be322",
+          "file": "message-pane-overflow.spec.ts",
+          "line": 27,
+          "column": 7
+        },
+        {
+          "title": "historical small inner message bounds at 390px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 422,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T05:23:25.252Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2049166aa4acb2ab0177-33f7d344d41b3be01e8c",
+          "file": "message-pane-overflow.spec.ts",
+          "line": 27,
+          "column": 7
+        },
+        {
+          "title": "historical long inner message bounds at 390px",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 477,
+                  "error": {
+                    "message": "Error: Actual message text must wrap without a hidden horizontal scroll surface\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m309\u001b[39m\nReceived:    \u001b[31m1307\u001b[39m",
+                    "stack": "Error: Actual message text must wrap without a hidden horizontal scroll surface\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m309\u001b[39m\nReceived:    \u001b[31m1307\u001b[39m\n    at C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts:47:108",
+                    "location": {
+                      "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts",
+                      "column": 108,
+                      "line": 47
+                    },
+                    "snippet": "  45 |     expect(errors).toEqual([]); expect(unexpected).toEqual([]); expect(result.text).toContain(message);\n  46 |     expect(result.whiteSpace).toBe(pane === \"document-delivery\" ? \"pre-line\" : \"pre-wrap\");\n> 47 |     expect(result.scrollWidth, \"Actual message text must wrap without a hidden horizontal scroll surface\").toBeLessThanOrEqual(result.clientWidth + 1);\n     |                                                                                                            ^\n  48 |     expect(result.x).toBeGreaterThanOrEqual(-1); expect(result.x + result.width).toBeLessThanOrEqual(viewport.width + 1);\n  49 |     expect(outer.scrollWidth).toBeLessThanOrEqual(outer.clientWidth + 1); expect(outer.pageWidth).toBeLessThanOrEqual(outer.viewport + 1);\n  50 |     if (kind === \"long\" && viewport.width === 390) await page.screenshot({ path: resolve(output, `${phase}-${pane}-390.png`), fullPage: true });"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts",
+                        "column": 108,
+                        "line": 47
+                      },
+                      "message": "Error: Actual message text must wrap without a hidden horizontal scroll surface\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m309\u001b[39m\nReceived:    \u001b[31m1307\u001b[39m\n\n  45 |     expect(errors).toEqual([]); expect(unexpected).toEqual([]); expect(result.text).toContain(message);\n  46 |     expect(result.whiteSpace).toBe(pane === \"document-delivery\" ? \"pre-line\" : \"pre-wrap\");\n> 47 |     expect(result.scrollWidth, \"Actual message text must wrap without a hidden horizontal scroll surface\").toBeLessThanOrEqual(result.clientWidth + 1);\n     |                                                                                                            ^\n  48 |     expect(result.x).toBeGreaterThanOrEqual(-1); expect(result.x + result.width).toBeLessThanOrEqual(viewport.width + 1);\n  49 |     expect(outer.scrollWidth).toBeLessThanOrEqual(outer.clientWidth + 1); expect(outer.pageWidth).toBeLessThanOrEqual(outer.viewport + 1);\n  50 |     if (kind === \"long\" && viewport.width === 390) await page.screenshot({ path: resolve(output, `${phase}-${pane}-390.png`), fullPage: true });\n    at C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts:47:108"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T05:23:26.622Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\message-pane-wrapping\\before-results\\message-pane-overflow-hist-3a05b-ner-message-bounds-at-390px-chromium\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\message-pane-wrapping\\before-results\\message-pane-overflow-hist-3a05b-ner-message-bounds-at-390px-chromium\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\message-pane-wrapping\\before-results\\message-pane-overflow-hist-3a05b-ner-message-bounds-at-390px-chromium\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts",
+                    "column": 108,
+                    "line": 47
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "2049166aa4acb2ab0177-9196445ce8c353ce438c",
+          "file": "message-pane-overflow.spec.ts",
+          "line": 27,
+          "column": 7
+        },
+        {
+          "title": "document-review small inner message bounds at 390px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 434,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T05:23:27.594Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2049166aa4acb2ab0177-09751bd7ba102d57d93a",
+          "file": "message-pane-overflow.spec.ts",
+          "line": 27,
+          "column": 7
+        },
+        {
+          "title": "document-review long inner message bounds at 390px",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 486,
+                  "error": {
+                    "message": "Error: Actual message text must wrap without a hidden horizontal scroll surface\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m309\u001b[39m\nReceived:    \u001b[31m1283\u001b[39m",
+                    "stack": "Error: Actual message text must wrap without a hidden horizontal scroll surface\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m309\u001b[39m\nReceived:    \u001b[31m1283\u001b[39m\n    at C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts:47:108",
+                    "location": {
+                      "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts",
+                      "column": 108,
+                      "line": 47
+                    },
+                    "snippet": "  45 |     expect(errors).toEqual([]); expect(unexpected).toEqual([]); expect(result.text).toContain(message);\n  46 |     expect(result.whiteSpace).toBe(pane === \"document-delivery\" ? \"pre-line\" : \"pre-wrap\");\n> 47 |     expect(result.scrollWidth, \"Actual message text must wrap without a hidden horizontal scroll surface\").toBeLessThanOrEqual(result.clientWidth + 1);\n     |                                                                                                            ^\n  48 |     expect(result.x).toBeGreaterThanOrEqual(-1); expect(result.x + result.width).toBeLessThanOrEqual(viewport.width + 1);\n  49 |     expect(outer.scrollWidth).toBeLessThanOrEqual(outer.clientWidth + 1); expect(outer.pageWidth).toBeLessThanOrEqual(outer.viewport + 1);\n  50 |     if (kind === \"long\" && viewport.width === 390) await page.screenshot({ path: resolve(output, `${phase}-${pane}-390.png`), fullPage: true });"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts",
+                        "column": 108,
+                        "line": 47
+                      },
+                      "message": "Error: Actual message text must wrap without a hidden horizontal scroll surface\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m309\u001b[39m\nReceived:    \u001b[31m1283\u001b[39m\n\n  45 |     expect(errors).toEqual([]); expect(unexpected).toEqual([]); expect(result.text).toContain(message);\n  46 |     expect(result.whiteSpace).toBe(pane === \"document-delivery\" ? \"pre-line\" : \"pre-wrap\");\n> 47 |     expect(result.scrollWidth, \"Actual message text must wrap without a hidden horizontal scroll surface\").toBeLessThanOrEqual(result.clientWidth + 1);\n     |                                                                                                            ^\n  48 |     expect(result.x).toBeGreaterThanOrEqual(-1); expect(result.x + result.width).toBeLessThanOrEqual(viewport.width + 1);\n  49 |     expect(outer.scrollWidth).toBeLessThanOrEqual(outer.clientWidth + 1); expect(outer.pageWidth).toBeLessThanOrEqual(outer.viewport + 1);\n  50 |     if (kind === \"long\" && viewport.width === 390) await page.screenshot({ path: resolve(output, `${phase}-${pane}-390.png`), fullPage: true });\n    at C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts:47:108"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T05:23:28.927Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\message-pane-wrapping\\before-results\\message-pane-overflow-docu-91434-ner-message-bounds-at-390px-chromium\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\message-pane-wrapping\\before-results\\message-pane-overflow-docu-91434-ner-message-bounds-at-390px-chromium\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\message-pane-wrapping\\before-results\\message-pane-overflow-docu-91434-ner-message-bounds-at-390px-chromium\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts",
+                    "column": 108,
+                    "line": 47
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "2049166aa4acb2ab0177-6350f7e91b74c8ff8f8c",
+          "file": "message-pane-overflow.spec.ts",
+          "line": 27,
+          "column": 7
+        },
+        {
+          "title": "trip-review small inner message bounds at 390px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 419,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T05:23:29.920Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2049166aa4acb2ab0177-4408f6c19b242dc6efde",
+          "file": "message-pane-overflow.spec.ts",
+          "line": 27,
+          "column": 7
+        },
+        {
+          "title": "trip-review long inner message bounds at 390px",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 488,
+                  "error": {
+                    "message": "Error: Actual message text must wrap without a hidden horizontal scroll surface\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m309\u001b[39m\nReceived:    \u001b[31m1287\u001b[39m",
+                    "stack": "Error: Actual message text must wrap without a hidden horizontal scroll surface\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m309\u001b[39m\nReceived:    \u001b[31m1287\u001b[39m\n    at C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts:47:108",
+                    "location": {
+                      "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts",
+                      "column": 108,
+                      "line": 47
+                    },
+                    "snippet": "  45 |     expect(errors).toEqual([]); expect(unexpected).toEqual([]); expect(result.text).toContain(message);\n  46 |     expect(result.whiteSpace).toBe(pane === \"document-delivery\" ? \"pre-line\" : \"pre-wrap\");\n> 47 |     expect(result.scrollWidth, \"Actual message text must wrap without a hidden horizontal scroll surface\").toBeLessThanOrEqual(result.clientWidth + 1);\n     |                                                                                                            ^\n  48 |     expect(result.x).toBeGreaterThanOrEqual(-1); expect(result.x + result.width).toBeLessThanOrEqual(viewport.width + 1);\n  49 |     expect(outer.scrollWidth).toBeLessThanOrEqual(outer.clientWidth + 1); expect(outer.pageWidth).toBeLessThanOrEqual(outer.viewport + 1);\n  50 |     if (kind === \"long\" && viewport.width === 390) await page.screenshot({ path: resolve(output, `${phase}-${pane}-390.png`), fullPage: true });"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts",
+                        "column": 108,
+                        "line": 47
+                      },
+                      "message": "Error: Actual message text must wrap without a hidden horizontal scroll surface\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m309\u001b[39m\nReceived:    \u001b[31m1287\u001b[39m\n\n  45 |     expect(errors).toEqual([]); expect(unexpected).toEqual([]); expect(result.text).toContain(message);\n  46 |     expect(result.whiteSpace).toBe(pane === \"document-delivery\" ? \"pre-line\" : \"pre-wrap\");\n> 47 |     expect(result.scrollWidth, \"Actual message text must wrap without a hidden horizontal scroll surface\").toBeLessThanOrEqual(result.clientWidth + 1);\n     |                                                                                                            ^\n  48 |     expect(result.x).toBeGreaterThanOrEqual(-1); expect(result.x + result.width).toBeLessThanOrEqual(viewport.width + 1);\n  49 |     expect(outer.scrollWidth).toBeLessThanOrEqual(outer.clientWidth + 1); expect(outer.pageWidth).toBeLessThanOrEqual(outer.viewport + 1);\n  50 |     if (kind === \"long\" && viewport.width === 390) await page.screenshot({ path: resolve(output, `${phase}-${pane}-390.png`), fullPage: true });\n    at C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts:47:108"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T05:23:31.285Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\message-pane-wrapping\\before-results\\message-pane-overflow-trip-816b6-ner-message-bounds-at-390px-chromium\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\message-pane-wrapping\\before-results\\message-pane-overflow-trip-816b6-ner-message-bounds-at-390px-chromium\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\message-pane-wrapping\\before-results\\message-pane-overflow-trip-816b6-ner-message-bounds-at-390px-chromium\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts",
+                    "column": 108,
+                    "line": 47
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "2049166aa4acb2ab0177-fc95997a4bbf643c9d9e",
+          "file": "message-pane-overflow.spec.ts",
+          "line": 27,
+          "column": 7
+        },
+        {
+          "title": "saved-update small inner message bounds at 390px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 438,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T05:23:32.257Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2049166aa4acb2ab0177-71c44dfe088d26d4d981",
+          "file": "message-pane-overflow.spec.ts",
+          "line": 27,
+          "column": 7
+        },
+        {
+          "title": "saved-update long inner message bounds at 390px",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 492,
+                  "error": {
+                    "message": "Error: Actual message text must wrap without a hidden horizontal scroll surface\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m331\u001b[39m\nReceived:    \u001b[31m1098\u001b[39m",
+                    "stack": "Error: Actual message text must wrap without a hidden horizontal scroll surface\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m331\u001b[39m\nReceived:    \u001b[31m1098\u001b[39m\n    at C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts:47:108",
+                    "location": {
+                      "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts",
+                      "column": 108,
+                      "line": 47
+                    },
+                    "snippet": "  45 |     expect(errors).toEqual([]); expect(unexpected).toEqual([]); expect(result.text).toContain(message);\n  46 |     expect(result.whiteSpace).toBe(pane === \"document-delivery\" ? \"pre-line\" : \"pre-wrap\");\n> 47 |     expect(result.scrollWidth, \"Actual message text must wrap without a hidden horizontal scroll surface\").toBeLessThanOrEqual(result.clientWidth + 1);\n     |                                                                                                            ^\n  48 |     expect(result.x).toBeGreaterThanOrEqual(-1); expect(result.x + result.width).toBeLessThanOrEqual(viewport.width + 1);\n  49 |     expect(outer.scrollWidth).toBeLessThanOrEqual(outer.clientWidth + 1); expect(outer.pageWidth).toBeLessThanOrEqual(outer.viewport + 1);\n  50 |     if (kind === \"long\" && viewport.width === 390) await page.screenshot({ path: resolve(output, `${phase}-${pane}-390.png`), fullPage: true });"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts",
+                        "column": 108,
+                        "line": 47
+                      },
+                      "message": "Error: Actual message text must wrap without a hidden horizontal scroll surface\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m331\u001b[39m\nReceived:    \u001b[31m1098\u001b[39m\n\n  45 |     expect(errors).toEqual([]); expect(unexpected).toEqual([]); expect(result.text).toContain(message);\n  46 |     expect(result.whiteSpace).toBe(pane === \"document-delivery\" ? \"pre-line\" : \"pre-wrap\");\n> 47 |     expect(result.scrollWidth, \"Actual message text must wrap without a hidden horizontal scroll surface\").toBeLessThanOrEqual(result.clientWidth + 1);\n     |                                                                                                            ^\n  48 |     expect(result.x).toBeGreaterThanOrEqual(-1); expect(result.x + result.width).toBeLessThanOrEqual(viewport.width + 1);\n  49 |     expect(outer.scrollWidth).toBeLessThanOrEqual(outer.clientWidth + 1); expect(outer.pageWidth).toBeLessThanOrEqual(outer.viewport + 1);\n  50 |     if (kind === \"long\" && viewport.width === 390) await page.screenshot({ path: resolve(output, `${phase}-${pane}-390.png`), fullPage: true });\n    at C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts:47:108"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T05:23:33.616Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\message-pane-wrapping\\before-results\\message-pane-overflow-save-659d1-ner-message-bounds-at-390px-chromium\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\message-pane-wrapping\\before-results\\message-pane-overflow-save-659d1-ner-message-bounds-at-390px-chromium\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\message-pane-wrapping\\before-results\\message-pane-overflow-save-659d1-ner-message-bounds-at-390px-chromium\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts",
+                    "column": 108,
+                    "line": 47
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "2049166aa4acb2ab0177-ef4ef51e8e08928726e8",
+          "file": "message-pane-overflow.spec.ts",
+          "line": 27,
+          "column": 7
+        },
+        {
+          "title": "document-delivery small inner message bounds at 390px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 459,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T05:23:34.604Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2049166aa4acb2ab0177-ccc98f0846bbae961f51",
+          "file": "message-pane-overflow.spec.ts",
+          "line": 27,
+          "column": 7
+        },
+        {
+          "title": "document-delivery long inner message bounds at 390px",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 531,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m391\u001b[39m\nReceived:    \u001b[31m1324.015625\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m391\u001b[39m\nReceived:    \u001b[31m1324.015625\u001b[39m\n    at C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts:48:82",
+                    "location": {
+                      "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts",
+                      "column": 82,
+                      "line": 48
+                    },
+                    "snippet": "  46 |     expect(result.whiteSpace).toBe(pane === \"document-delivery\" ? \"pre-line\" : \"pre-wrap\");\n  47 |     expect(result.scrollWidth, \"Actual message text must wrap without a hidden horizontal scroll surface\").toBeLessThanOrEqual(result.clientWidth + 1);\n> 48 |     expect(result.x).toBeGreaterThanOrEqual(-1); expect(result.x + result.width).toBeLessThanOrEqual(viewport.width + 1);\n     |                                                                                  ^\n  49 |     expect(outer.scrollWidth).toBeLessThanOrEqual(outer.clientWidth + 1); expect(outer.pageWidth).toBeLessThanOrEqual(outer.viewport + 1);\n  50 |     if (kind === \"long\" && viewport.width === 390) await page.screenshot({ path: resolve(output, `${phase}-${pane}-390.png`), fullPage: true });\n  51 |   });"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts",
+                        "column": 82,
+                        "line": 48
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m391\u001b[39m\nReceived:    \u001b[31m1324.015625\u001b[39m\n\n  46 |     expect(result.whiteSpace).toBe(pane === \"document-delivery\" ? \"pre-line\" : \"pre-wrap\");\n  47 |     expect(result.scrollWidth, \"Actual message text must wrap without a hidden horizontal scroll surface\").toBeLessThanOrEqual(result.clientWidth + 1);\n> 48 |     expect(result.x).toBeGreaterThanOrEqual(-1); expect(result.x + result.width).toBeLessThanOrEqual(viewport.width + 1);\n     |                                                                                  ^\n  49 |     expect(outer.scrollWidth).toBeLessThanOrEqual(outer.clientWidth + 1); expect(outer.pageWidth).toBeLessThanOrEqual(outer.viewport + 1);\n  50 |     if (kind === \"long\" && viewport.width === 390) await page.screenshot({ path: resolve(output, `${phase}-${pane}-390.png`), fullPage: true });\n  51 |   });\n    at C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts:48:82"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T05:23:36.022Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\message-pane-wrapping\\before-results\\message-pane-overflow-docu-481ef-ner-message-bounds-at-390px-chromium\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\message-pane-wrapping\\before-results\\message-pane-overflow-docu-481ef-ner-message-bounds-at-390px-chromium\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\message-pane-wrapping\\before-results\\message-pane-overflow-docu-481ef-ner-message-bounds-at-390px-chromium\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts",
+                    "column": 82,
+                    "line": 48
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "2049166aa4acb2ab0177-89cbcad0ec6ba2ec5153",
+          "file": "message-pane-overflow.spec.ts",
+          "line": 27,
+          "column": 7
+        },
+        {
+          "title": "inline-preview small inner message bounds at 390px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 395,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T05:23:37.044Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2049166aa4acb2ab0177-13615ac04288d8bf15e6",
+          "file": "message-pane-overflow.spec.ts",
+          "line": 27,
+          "column": 7
+        },
+        {
+          "title": "inline-preview long inner message bounds at 390px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 411,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T05:23:38.448Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2049166aa4acb2ab0177-d80dbd61c055db2e9e95",
+          "file": "message-pane-overflow.spec.ts",
+          "line": 27,
+          "column": 7
+        },
+        {
+          "title": "existing-delivery-preview small inner message bounds at 390px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 360,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T05:23:38.866Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2049166aa4acb2ab0177-58c8f0e5237dd11229db",
+          "file": "message-pane-overflow.spec.ts",
+          "line": 27,
+          "column": 7
+        },
+        {
+          "title": "existing-delivery-preview long inner message bounds at 390px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 393,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T05:23:39.231Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2049166aa4acb2ab0177-d6e2accd8598c1c2f7c7",
+          "file": "message-pane-overflow.spec.ts",
+          "line": 27,
+          "column": 7
+        },
+        {
+          "title": "review small inner message bounds at 1440px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 402,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T05:23:39.631Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2049166aa4acb2ab0177-075c37801c3f6b42ccc0",
+          "file": "message-pane-overflow.spec.ts",
+          "line": 27,
+          "column": 7
+        },
+        {
+          "title": "review long inner message bounds at 1440px",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 500,
+                  "error": {
+                    "message": "Error: Actual message text must wrap without a hidden horizontal scroll surface\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m719\u001b[39m\nReceived:    \u001b[31m1307\u001b[39m",
+                    "stack": "Error: Actual message text must wrap without a hidden horizontal scroll surface\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m719\u001b[39m\nReceived:    \u001b[31m1307\u001b[39m\n    at C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts:47:108",
+                    "location": {
+                      "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts",
+                      "column": 108,
+                      "line": 47
+                    },
+                    "snippet": "  45 |     expect(errors).toEqual([]); expect(unexpected).toEqual([]); expect(result.text).toContain(message);\n  46 |     expect(result.whiteSpace).toBe(pane === \"document-delivery\" ? \"pre-line\" : \"pre-wrap\");\n> 47 |     expect(result.scrollWidth, \"Actual message text must wrap without a hidden horizontal scroll surface\").toBeLessThanOrEqual(result.clientWidth + 1);\n     |                                                                                                            ^\n  48 |     expect(result.x).toBeGreaterThanOrEqual(-1); expect(result.x + result.width).toBeLessThanOrEqual(viewport.width + 1);\n  49 |     expect(outer.scrollWidth).toBeLessThanOrEqual(outer.clientWidth + 1); expect(outer.pageWidth).toBeLessThanOrEqual(outer.viewport + 1);\n  50 |     if (kind === \"long\" && viewport.width === 390) await page.screenshot({ path: resolve(output, `${phase}-${pane}-390.png`), fullPage: true });"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts",
+                        "column": 108,
+                        "line": 47
+                      },
+                      "message": "Error: Actual message text must wrap without a hidden horizontal scroll surface\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m719\u001b[39m\nReceived:    \u001b[31m1307\u001b[39m\n\n  45 |     expect(errors).toEqual([]); expect(unexpected).toEqual([]); expect(result.text).toContain(message);\n  46 |     expect(result.whiteSpace).toBe(pane === \"document-delivery\" ? \"pre-line\" : \"pre-wrap\");\n> 47 |     expect(result.scrollWidth, \"Actual message text must wrap without a hidden horizontal scroll surface\").toBeLessThanOrEqual(result.clientWidth + 1);\n     |                                                                                                            ^\n  48 |     expect(result.x).toBeGreaterThanOrEqual(-1); expect(result.x + result.width).toBeLessThanOrEqual(viewport.width + 1);\n  49 |     expect(outer.scrollWidth).toBeLessThanOrEqual(outer.clientWidth + 1); expect(outer.pageWidth).toBeLessThanOrEqual(outer.viewport + 1);\n  50 |     if (kind === \"long\" && viewport.width === 390) await page.screenshot({ path: resolve(output, `${phase}-${pane}-390.png`), fullPage: true });\n    at C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts:47:108"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T05:23:40.039Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\message-pane-wrapping\\before-results\\message-pane-overflow-revi-a70c0-er-message-bounds-at-1440px-chromium\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\message-pane-wrapping\\before-results\\message-pane-overflow-revi-a70c0-er-message-bounds-at-1440px-chromium\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\message-pane-wrapping\\before-results\\message-pane-overflow-revi-a70c0-er-message-bounds-at-1440px-chromium\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts",
+                    "column": 108,
+                    "line": 47
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "2049166aa4acb2ab0177-d3e3fc296687d9575b9b",
+          "file": "message-pane-overflow.spec.ts",
+          "line": 27,
+          "column": 7
+        },
+        {
+          "title": "historical small inner message bounds at 1440px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 484,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T05:23:41.056Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2049166aa4acb2ab0177-b630f8b50de2a08eab89",
+          "file": "message-pane-overflow.spec.ts",
+          "line": 27,
+          "column": 7
+        },
+        {
+          "title": "historical long inner message bounds at 1440px",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 508,
+                  "error": {
+                    "message": "Error: Actual message text must wrap without a hidden horizontal scroll surface\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m719\u001b[39m\nReceived:    \u001b[31m1307\u001b[39m",
+                    "stack": "Error: Actual message text must wrap without a hidden horizontal scroll surface\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m719\u001b[39m\nReceived:    \u001b[31m1307\u001b[39m\n    at C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts:47:108",
+                    "location": {
+                      "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts",
+                      "column": 108,
+                      "line": 47
+                    },
+                    "snippet": "  45 |     expect(errors).toEqual([]); expect(unexpected).toEqual([]); expect(result.text).toContain(message);\n  46 |     expect(result.whiteSpace).toBe(pane === \"document-delivery\" ? \"pre-line\" : \"pre-wrap\");\n> 47 |     expect(result.scrollWidth, \"Actual message text must wrap without a hidden horizontal scroll surface\").toBeLessThanOrEqual(result.clientWidth + 1);\n     |                                                                                                            ^\n  48 |     expect(result.x).toBeGreaterThanOrEqual(-1); expect(result.x + result.width).toBeLessThanOrEqual(viewport.width + 1);\n  49 |     expect(outer.scrollWidth).toBeLessThanOrEqual(outer.clientWidth + 1); expect(outer.pageWidth).toBeLessThanOrEqual(outer.viewport + 1);\n  50 |     if (kind === \"long\" && viewport.width === 390) await page.screenshot({ path: resolve(output, `${phase}-${pane}-390.png`), fullPage: true });"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts",
+                        "column": 108,
+                        "line": 47
+                      },
+                      "message": "Error: Actual message text must wrap without a hidden horizontal scroll surface\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m719\u001b[39m\nReceived:    \u001b[31m1307\u001b[39m\n\n  45 |     expect(errors).toEqual([]); expect(unexpected).toEqual([]); expect(result.text).toContain(message);\n  46 |     expect(result.whiteSpace).toBe(pane === \"document-delivery\" ? \"pre-line\" : \"pre-wrap\");\n> 47 |     expect(result.scrollWidth, \"Actual message text must wrap without a hidden horizontal scroll surface\").toBeLessThanOrEqual(result.clientWidth + 1);\n     |                                                                                                            ^\n  48 |     expect(result.x).toBeGreaterThanOrEqual(-1); expect(result.x + result.width).toBeLessThanOrEqual(viewport.width + 1);\n  49 |     expect(outer.scrollWidth).toBeLessThanOrEqual(outer.clientWidth + 1); expect(outer.pageWidth).toBeLessThanOrEqual(outer.viewport + 1);\n  50 |     if (kind === \"long\" && viewport.width === 390) await page.screenshot({ path: resolve(output, `${phase}-${pane}-390.png`), fullPage: true });\n    at C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts:47:108"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T05:23:42.513Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\message-pane-wrapping\\before-results\\message-pane-overflow-hist-8f916-er-message-bounds-at-1440px-chromium\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\message-pane-wrapping\\before-results\\message-pane-overflow-hist-8f916-er-message-bounds-at-1440px-chromium\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\message-pane-wrapping\\before-results\\message-pane-overflow-hist-8f916-er-message-bounds-at-1440px-chromium\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts",
+                    "column": 108,
+                    "line": 47
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "2049166aa4acb2ab0177-a325d58f4de534e886f2",
+          "file": "message-pane-overflow.spec.ts",
+          "line": 27,
+          "column": 7
+        },
+        {
+          "title": "document-review small inner message bounds at 1440px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 8,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 481,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T05:23:43.516Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2049166aa4acb2ab0177-43831b1e3e21329f0eb3",
+          "file": "message-pane-overflow.spec.ts",
+          "line": 27,
+          "column": 7
+        },
+        {
+          "title": "document-review long inner message bounds at 1440px",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 8,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 553,
+                  "error": {
+                    "message": "Error: Actual message text must wrap without a hidden horizontal scroll surface\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m719\u001b[39m\nReceived:    \u001b[31m1283\u001b[39m",
+                    "stack": "Error: Actual message text must wrap without a hidden horizontal scroll surface\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m719\u001b[39m\nReceived:    \u001b[31m1283\u001b[39m\n    at C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts:47:108",
+                    "location": {
+                      "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts",
+                      "column": 108,
+                      "line": 47
+                    },
+                    "snippet": "  45 |     expect(errors).toEqual([]); expect(unexpected).toEqual([]); expect(result.text).toContain(message);\n  46 |     expect(result.whiteSpace).toBe(pane === \"document-delivery\" ? \"pre-line\" : \"pre-wrap\");\n> 47 |     expect(result.scrollWidth, \"Actual message text must wrap without a hidden horizontal scroll surface\").toBeLessThanOrEqual(result.clientWidth + 1);\n     |                                                                                                            ^\n  48 |     expect(result.x).toBeGreaterThanOrEqual(-1); expect(result.x + result.width).toBeLessThanOrEqual(viewport.width + 1);\n  49 |     expect(outer.scrollWidth).toBeLessThanOrEqual(outer.clientWidth + 1); expect(outer.pageWidth).toBeLessThanOrEqual(outer.viewport + 1);\n  50 |     if (kind === \"long\" && viewport.width === 390) await page.screenshot({ path: resolve(output, `${phase}-${pane}-390.png`), fullPage: true });"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts",
+                        "column": 108,
+                        "line": 47
+                      },
+                      "message": "Error: Actual message text must wrap without a hidden horizontal scroll surface\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m719\u001b[39m\nReceived:    \u001b[31m1283\u001b[39m\n\n  45 |     expect(errors).toEqual([]); expect(unexpected).toEqual([]); expect(result.text).toContain(message);\n  46 |     expect(result.whiteSpace).toBe(pane === \"document-delivery\" ? \"pre-line\" : \"pre-wrap\");\n> 47 |     expect(result.scrollWidth, \"Actual message text must wrap without a hidden horizontal scroll surface\").toBeLessThanOrEqual(result.clientWidth + 1);\n     |                                                                                                            ^\n  48 |     expect(result.x).toBeGreaterThanOrEqual(-1); expect(result.x + result.width).toBeLessThanOrEqual(viewport.width + 1);\n  49 |     expect(outer.scrollWidth).toBeLessThanOrEqual(outer.clientWidth + 1); expect(outer.pageWidth).toBeLessThanOrEqual(outer.viewport + 1);\n  50 |     if (kind === \"long\" && viewport.width === 390) await page.screenshot({ path: resolve(output, `${phase}-${pane}-390.png`), fullPage: true });\n    at C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts:47:108"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T05:23:44.951Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\message-pane-wrapping\\before-results\\message-pane-overflow-docu-5c8d6-er-message-bounds-at-1440px-chromium\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\message-pane-wrapping\\before-results\\message-pane-overflow-docu-5c8d6-er-message-bounds-at-1440px-chromium\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\message-pane-wrapping\\before-results\\message-pane-overflow-docu-5c8d6-er-message-bounds-at-1440px-chromium\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts",
+                    "column": 108,
+                    "line": 47
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "2049166aa4acb2ab0177-4b3c74ac253450e95643",
+          "file": "message-pane-overflow.spec.ts",
+          "line": 27,
+          "column": 7
+        },
+        {
+          "title": "trip-review small inner message bounds at 1440px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 9,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 509,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T05:23:45.997Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2049166aa4acb2ab0177-3fe9379791625d91f421",
+          "file": "message-pane-overflow.spec.ts",
+          "line": 27,
+          "column": 7
+        },
+        {
+          "title": "trip-review long inner message bounds at 1440px",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 9,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 542,
+                  "error": {
+                    "message": "Error: Actual message text must wrap without a hidden horizontal scroll surface\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m719\u001b[39m\nReceived:    \u001b[31m1287\u001b[39m",
+                    "stack": "Error: Actual message text must wrap without a hidden horizontal scroll surface\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m719\u001b[39m\nReceived:    \u001b[31m1287\u001b[39m\n    at C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts:47:108",
+                    "location": {
+                      "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts",
+                      "column": 108,
+                      "line": 47
+                    },
+                    "snippet": "  45 |     expect(errors).toEqual([]); expect(unexpected).toEqual([]); expect(result.text).toContain(message);\n  46 |     expect(result.whiteSpace).toBe(pane === \"document-delivery\" ? \"pre-line\" : \"pre-wrap\");\n> 47 |     expect(result.scrollWidth, \"Actual message text must wrap without a hidden horizontal scroll surface\").toBeLessThanOrEqual(result.clientWidth + 1);\n     |                                                                                                            ^\n  48 |     expect(result.x).toBeGreaterThanOrEqual(-1); expect(result.x + result.width).toBeLessThanOrEqual(viewport.width + 1);\n  49 |     expect(outer.scrollWidth).toBeLessThanOrEqual(outer.clientWidth + 1); expect(outer.pageWidth).toBeLessThanOrEqual(outer.viewport + 1);\n  50 |     if (kind === \"long\" && viewport.width === 390) await page.screenshot({ path: resolve(output, `${phase}-${pane}-390.png`), fullPage: true });"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts",
+                        "column": 108,
+                        "line": 47
+                      },
+                      "message": "Error: Actual message text must wrap without a hidden horizontal scroll surface\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m719\u001b[39m\nReceived:    \u001b[31m1287\u001b[39m\n\n  45 |     expect(errors).toEqual([]); expect(unexpected).toEqual([]); expect(result.text).toContain(message);\n  46 |     expect(result.whiteSpace).toBe(pane === \"document-delivery\" ? \"pre-line\" : \"pre-wrap\");\n> 47 |     expect(result.scrollWidth, \"Actual message text must wrap without a hidden horizontal scroll surface\").toBeLessThanOrEqual(result.clientWidth + 1);\n     |                                                                                                            ^\n  48 |     expect(result.x).toBeGreaterThanOrEqual(-1); expect(result.x + result.width).toBeLessThanOrEqual(viewport.width + 1);\n  49 |     expect(outer.scrollWidth).toBeLessThanOrEqual(outer.clientWidth + 1); expect(outer.pageWidth).toBeLessThanOrEqual(outer.viewport + 1);\n  50 |     if (kind === \"long\" && viewport.width === 390) await page.screenshot({ path: resolve(output, `${phase}-${pane}-390.png`), fullPage: true });\n    at C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts:47:108"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T05:23:47.474Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\message-pane-wrapping\\before-results\\message-pane-overflow-trip-16be4-er-message-bounds-at-1440px-chromium\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\message-pane-wrapping\\before-results\\message-pane-overflow-trip-16be4-er-message-bounds-at-1440px-chromium\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\message-pane-wrapping\\before-results\\message-pane-overflow-trip-16be4-er-message-bounds-at-1440px-chromium\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts",
+                    "column": 108,
+                    "line": 47
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "2049166aa4acb2ab0177-512b11e8222dc8e71e17",
+          "file": "message-pane-overflow.spec.ts",
+          "line": 27,
+          "column": 7
+        },
+        {
+          "title": "saved-update small inner message bounds at 1440px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 10,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 462,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T05:23:48.518Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2049166aa4acb2ab0177-bfc6d7e34c7eefd02808",
+          "file": "message-pane-overflow.spec.ts",
+          "line": 27,
+          "column": 7
+        },
+        {
+          "title": "saved-update long inner message bounds at 1440px",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 10,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 570,
+                  "error": {
+                    "message": "Error: Actual message text must wrap without a hidden horizontal scroll surface\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m965\u001b[39m\nReceived:    \u001b[31m1098\u001b[39m",
+                    "stack": "Error: Actual message text must wrap without a hidden horizontal scroll surface\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m965\u001b[39m\nReceived:    \u001b[31m1098\u001b[39m\n    at C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts:47:108",
+                    "location": {
+                      "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts",
+                      "column": 108,
+                      "line": 47
+                    },
+                    "snippet": "  45 |     expect(errors).toEqual([]); expect(unexpected).toEqual([]); expect(result.text).toContain(message);\n  46 |     expect(result.whiteSpace).toBe(pane === \"document-delivery\" ? \"pre-line\" : \"pre-wrap\");\n> 47 |     expect(result.scrollWidth, \"Actual message text must wrap without a hidden horizontal scroll surface\").toBeLessThanOrEqual(result.clientWidth + 1);\n     |                                                                                                            ^\n  48 |     expect(result.x).toBeGreaterThanOrEqual(-1); expect(result.x + result.width).toBeLessThanOrEqual(viewport.width + 1);\n  49 |     expect(outer.scrollWidth).toBeLessThanOrEqual(outer.clientWidth + 1); expect(outer.pageWidth).toBeLessThanOrEqual(outer.viewport + 1);\n  50 |     if (kind === \"long\" && viewport.width === 390) await page.screenshot({ path: resolve(output, `${phase}-${pane}-390.png`), fullPage: true });"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts",
+                        "column": 108,
+                        "line": 47
+                      },
+                      "message": "Error: Actual message text must wrap without a hidden horizontal scroll surface\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m965\u001b[39m\nReceived:    \u001b[31m1098\u001b[39m\n\n  45 |     expect(errors).toEqual([]); expect(unexpected).toEqual([]); expect(result.text).toContain(message);\n  46 |     expect(result.whiteSpace).toBe(pane === \"document-delivery\" ? \"pre-line\" : \"pre-wrap\");\n> 47 |     expect(result.scrollWidth, \"Actual message text must wrap without a hidden horizontal scroll surface\").toBeLessThanOrEqual(result.clientWidth + 1);\n     |                                                                                                            ^\n  48 |     expect(result.x).toBeGreaterThanOrEqual(-1); expect(result.x + result.width).toBeLessThanOrEqual(viewport.width + 1);\n  49 |     expect(outer.scrollWidth).toBeLessThanOrEqual(outer.clientWidth + 1); expect(outer.pageWidth).toBeLessThanOrEqual(outer.viewport + 1);\n  50 |     if (kind === \"long\" && viewport.width === 390) await page.screenshot({ path: resolve(output, `${phase}-${pane}-390.png`), fullPage: true });\n    at C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts:47:108"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T05:23:49.929Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\message-pane-wrapping\\before-results\\message-pane-overflow-save-d9392-er-message-bounds-at-1440px-chromium\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\message-pane-wrapping\\before-results\\message-pane-overflow-save-d9392-er-message-bounds-at-1440px-chromium\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\message-pane-wrapping\\before-results\\message-pane-overflow-save-d9392-er-message-bounds-at-1440px-chromium\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts",
+                    "column": 108,
+                    "line": 47
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "2049166aa4acb2ab0177-f6a841e9b16aeb00bb6a",
+          "file": "message-pane-overflow.spec.ts",
+          "line": 27,
+          "column": 7
+        },
+        {
+          "title": "document-delivery small inner message bounds at 1440px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 11,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 543,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T05:23:50.994Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2049166aa4acb2ab0177-c45f42d7cc2c60f5936e",
+          "file": "message-pane-overflow.spec.ts",
+          "line": 27,
+          "column": 7
+        },
+        {
+          "title": "document-delivery long inner message bounds at 1440px",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 11,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 570,
+                  "error": {
+                    "message": "Error: Actual message text must wrap without a hidden horizontal scroll surface\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m511\u001b[39m\nReceived:    \u001b[31m1267\u001b[39m",
+                    "stack": "Error: Actual message text must wrap without a hidden horizontal scroll surface\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m511\u001b[39m\nReceived:    \u001b[31m1267\u001b[39m\n    at C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts:47:108",
+                    "location": {
+                      "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts",
+                      "column": 108,
+                      "line": 47
+                    },
+                    "snippet": "  45 |     expect(errors).toEqual([]); expect(unexpected).toEqual([]); expect(result.text).toContain(message);\n  46 |     expect(result.whiteSpace).toBe(pane === \"document-delivery\" ? \"pre-line\" : \"pre-wrap\");\n> 47 |     expect(result.scrollWidth, \"Actual message text must wrap without a hidden horizontal scroll surface\").toBeLessThanOrEqual(result.clientWidth + 1);\n     |                                                                                                            ^\n  48 |     expect(result.x).toBeGreaterThanOrEqual(-1); expect(result.x + result.width).toBeLessThanOrEqual(viewport.width + 1);\n  49 |     expect(outer.scrollWidth).toBeLessThanOrEqual(outer.clientWidth + 1); expect(outer.pageWidth).toBeLessThanOrEqual(outer.viewport + 1);\n  50 |     if (kind === \"long\" && viewport.width === 390) await page.screenshot({ path: resolve(output, `${phase}-${pane}-390.png`), fullPage: true });"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts",
+                        "column": 108,
+                        "line": 47
+                      },
+                      "message": "Error: Actual message text must wrap without a hidden horizontal scroll surface\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m511\u001b[39m\nReceived:    \u001b[31m1267\u001b[39m\n\n  45 |     expect(errors).toEqual([]); expect(unexpected).toEqual([]); expect(result.text).toContain(message);\n  46 |     expect(result.whiteSpace).toBe(pane === \"document-delivery\" ? \"pre-line\" : \"pre-wrap\");\n> 47 |     expect(result.scrollWidth, \"Actual message text must wrap without a hidden horizontal scroll surface\").toBeLessThanOrEqual(result.clientWidth + 1);\n     |                                                                                                            ^\n  48 |     expect(result.x).toBeGreaterThanOrEqual(-1); expect(result.x + result.width).toBeLessThanOrEqual(viewport.width + 1);\n  49 |     expect(outer.scrollWidth).toBeLessThanOrEqual(outer.clientWidth + 1); expect(outer.pageWidth).toBeLessThanOrEqual(outer.viewport + 1);\n  50 |     if (kind === \"long\" && viewport.width === 390) await page.screenshot({ path: resolve(output, `${phase}-${pane}-390.png`), fullPage: true });\n    at C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts:47:108"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T05:23:52.489Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\message-pane-wrapping\\before-results\\message-pane-overflow-docu-04338-er-message-bounds-at-1440px-chromium\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\message-pane-wrapping\\before-results\\message-pane-overflow-docu-04338-er-message-bounds-at-1440px-chromium\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\message-pane-wrapping\\before-results\\message-pane-overflow-docu-04338-er-message-bounds-at-1440px-chromium\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e-fixtures\\message-pane-overflow.spec.ts",
+                    "column": 108,
+                    "line": 47
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "2049166aa4acb2ab0177-8a79d4d3a3560cd1e50c",
+          "file": "message-pane-overflow.spec.ts",
+          "line": 27,
+          "column": 7
+        },
+        {
+          "title": "inline-preview small inner message bounds at 1440px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 12,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 399,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T05:23:53.565Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2049166aa4acb2ab0177-5cb067e050ac1e02b47b",
+          "file": "message-pane-overflow.spec.ts",
+          "line": 27,
+          "column": 7
+        },
+        {
+          "title": "inline-preview long inner message bounds at 1440px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 12,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 380,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T05:23:54.875Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2049166aa4acb2ab0177-9b850134f5ec07d6f912",
+          "file": "message-pane-overflow.spec.ts",
+          "line": 27,
+          "column": 7
+        },
+        {
+          "title": "existing-delivery-preview small inner message bounds at 1440px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 12,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 383,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T05:23:55.261Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2049166aa4acb2ab0177-33cfd508d96be911af60",
+          "file": "message-pane-overflow.spec.ts",
+          "line": 27,
+          "column": 7
+        },
+        {
+          "title": "existing-delivery-preview long inner message bounds at 1440px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 12,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 370,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T05:23:55.650Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2049166aa4acb2ab0177-49c0a35a6790b0b3c622",
+          "file": "message-pane-overflow.spec.ts",
+          "line": 27,
+          "column": 7
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-31T05:23:22.571Z",
+    "duration": 33518.55100000001,
+    "expected": 20,
+    "skipped": 0,
+    "unexpected": 12,
+    "flaky": 0
+  }
+}

@@ -1,0 +1,861 @@
+{
+  "basis": "Original fully read1495-line entity and344-line port source. Four attendance/QR domain dataclasses and two associated enums are closed by all573explicit repository imports and raw usage search; active ORM-backed tour/QR workflows and published schema remain. All retained field/default/decorator/method ASTs are exact; composition bases are explicit new state/workflow owners. Public runtime field/signature metadata is compared separately.",
+  "original_sha256": {
+    "entities.py": "13d580b111a7abdddc7226ef4c86726b49465ec92097264b7f6c7414475c400d",
+    "interfaces.py": "5c2e39834e42eb217d53c5c28bf558adc2712a5fd8c603c41405216a81322cf0"
+  },
+  "retired_declarations": [
+    "AttendanceRecord",
+    "AttendanceScanSource",
+    "AttendanceSession",
+    "AttendanceSessionStatus",
+    "CoordinatorAssignment",
+    "PassengerQRToken"
+  ],
+  "exact_methods": [
+    {
+      "entity": "ClientGroup",
+      "method": "update_configuration",
+      "owner": "entities/client_group_configuration.py",
+      "class": "ClientGroupConfiguration"
+    },
+    {
+      "entity": "ClientGroup",
+      "method": "_disable_public_collection",
+      "owner": "entities/client_group_configuration.py",
+      "class": "ClientGroupConfiguration"
+    },
+    {
+      "entity": "ClientGroup",
+      "method": "require_allowed_acquisition_mode",
+      "owner": "entities/client_group_configuration.py",
+      "class": "ClientGroupConfiguration"
+    },
+    {
+      "entity": "ClientGroup",
+      "method": "is_active",
+      "owner": "entities/client_group_lifecycle.py",
+      "class": "ClientGroupLifecycle"
+    },
+    {
+      "entity": "ClientGroup",
+      "method": "schedule_passport_purge",
+      "owner": "entities/client_group_lifecycle.py",
+      "class": "ClientGroupLifecycle"
+    },
+    {
+      "entity": "ClientGroup",
+      "method": "close",
+      "owner": "entities/client_group_lifecycle.py",
+      "class": "ClientGroupLifecycle"
+    },
+    {
+      "entity": "ClientGroup",
+      "method": "archive",
+      "owner": "entities/client_group_lifecycle.py",
+      "class": "ClientGroupLifecycle"
+    },
+    {
+      "entity": "ClientGroup",
+      "method": "restore",
+      "owner": "entities/client_group_lifecycle.py",
+      "class": "ClientGroupLifecycle"
+    },
+    {
+      "entity": "ClientGroup",
+      "method": "mark_deleted",
+      "owner": "entities/client_group_lifecycle.py",
+      "class": "ClientGroupLifecycle"
+    },
+    {
+      "entity": "ClientGroup",
+      "method": "create",
+      "owner": "entities/client_group.py",
+      "class": "ClientGroup"
+    },
+    {
+      "entity": "PassportSubmission",
+      "method": "manual_review_submission_allowed",
+      "owner": "entities/passport_state.py",
+      "class": "PassportSubmissionState"
+    },
+    {
+      "entity": "PassportSubmission",
+      "method": "mark_processing",
+      "owner": "entities/passport_extraction.py",
+      "class": "PassportExtraction"
+    },
+    {
+      "entity": "PassportSubmission",
+      "method": "ensure_reextract_allowed",
+      "owner": "entities/passport_extraction.py",
+      "class": "PassportExtraction"
+    },
+    {
+      "entity": "PassportSubmission",
+      "method": "mark_review_required",
+      "owner": "entities/passport_extraction.py",
+      "class": "PassportExtraction"
+    },
+    {
+      "entity": "PassportSubmission",
+      "method": "prepare_without_passport_front",
+      "owner": "entities/passport_extraction.py",
+      "class": "PassportExtraction"
+    },
+    {
+      "entity": "PassportSubmission",
+      "method": "mark_no_passport_verification_required",
+      "owner": "entities/passport_extraction.py",
+      "class": "PassportExtraction"
+    },
+    {
+      "entity": "PassportSubmission",
+      "method": "restore_legacy_provider_failure_evidence",
+      "owner": "entities/passport_extraction.py",
+      "class": "PassportExtraction"
+    },
+    {
+      "entity": "PassportSubmission",
+      "method": "mark_failed",
+      "owner": "entities/passport_extraction.py",
+      "class": "PassportExtraction"
+    },
+    {
+      "entity": "PassportSubmission",
+      "method": "mark_extraction_failed",
+      "owner": "entities/passport_extraction.py",
+      "class": "PassportExtraction"
+    },
+    {
+      "entity": "PassportSubmission",
+      "method": "confirm",
+      "owner": "entities/passport_client_review.py",
+      "class": "PassportClientReview"
+    },
+    {
+      "entity": "PassportSubmission",
+      "method": "submit_client_review",
+      "owner": "entities/passport_client_review.py",
+      "class": "PassportClientReview"
+    },
+    {
+      "entity": "PassportSubmission",
+      "method": "apply_post_submission_verification",
+      "owner": "entities/passport_staff_review.py",
+      "class": "PassportStaffReview"
+    },
+    {
+      "entity": "PassportSubmission",
+      "method": "request_post_submission_verification_retry",
+      "owner": "entities/passport_staff_review.py",
+      "class": "PassportStaffReview"
+    },
+    {
+      "entity": "PassportSubmission",
+      "method": "staff_approve_verification",
+      "owner": "entities/passport_staff_review.py",
+      "class": "PassportStaffReview"
+    },
+    {
+      "entity": "PassportSubmission",
+      "method": "bulk_staff_approve_completed_verification",
+      "owner": "entities/passport_staff_review.py",
+      "class": "PassportStaffReview"
+    },
+    {
+      "entity": "PassportSubmission",
+      "method": "update_reviewed_fields",
+      "owner": "entities/passport_staff_review.py",
+      "class": "PassportStaffReview"
+    },
+    {
+      "entity": "PassportSubmission",
+      "method": "create",
+      "owner": "entities/passport_submission.py",
+      "class": "PassportSubmission"
+    },
+    {
+      "entity": "PassportSubmission",
+      "method": "attach_qualifier_selection",
+      "owner": "entities/passport_submission.py",
+      "class": "PassportSubmission"
+    },
+    {
+      "entity": "PassportSubmission",
+      "method": "promote_passport_cover",
+      "owner": "entities/passport_submission.py",
+      "class": "PassportSubmission"
+    },
+    {
+      "entity": "PassportSubmission",
+      "method": "promote_passport_back_cover",
+      "owner": "entities/passport_submission.py",
+      "class": "PassportSubmission"
+    },
+    {
+      "entity": "PassportSubmission",
+      "method": "snapshot_collection_labels",
+      "owner": "entities/passport_submission.py",
+      "class": "PassportSubmission"
+    },
+    {
+      "entity": "PassportSubmission",
+      "method": "promote_image",
+      "owner": "entities/passport_submission.py",
+      "class": "PassportSubmission"
+    },
+    {
+      "entity": "PassportSubmission",
+      "method": "promote_passport_photo",
+      "owner": "entities/passport_submission.py",
+      "class": "PassportSubmission"
+    },
+    {
+      "entity": "PassportSubmission",
+      "method": "promote_passport_back",
+      "owner": "entities/passport_submission.py",
+      "class": "PassportSubmission"
+    }
+  ],
+  "exact_fields": [
+    {
+      "entity": "ClientGroup",
+      "field": "id",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "ClientGroup",
+      "field": "name",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "ClientGroup",
+      "field": "token",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "ClientGroup",
+      "field": "agency_id",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "ClientGroup",
+      "field": "status",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "ClientGroup",
+      "field": "created_by_user_id",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "ClientGroup",
+      "field": "company_id",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "ClientGroup",
+      "field": "company_revision",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "ClientGroup",
+      "field": "company",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "ClientGroup",
+      "field": "banner_url",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "ClientGroup",
+      "field": "background_url",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "ClientGroup",
+      "field": "import_only",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "ClientGroup",
+      "field": "created_at",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "ClientGroup",
+      "field": "closed_at",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "ClientGroup",
+      "field": "destination",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "ClientGroup",
+      "field": "travel_date",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "ClientGroup",
+      "field": "return_date",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "ClientGroup",
+      "field": "timezone",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "ClientGroup",
+      "field": "package_name",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "ClientGroup",
+      "field": "departure_cities",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "ClientGroup",
+      "field": "base_city_enabled",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "ClientGroup",
+      "field": "nearest_international_airport_enabled",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "ClientGroup",
+      "field": "staff_code_enabled",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "ClientGroup",
+      "field": "agent_employee_code_enabled",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "ClientGroup",
+      "field": "meal_preference_enabled",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "ClientGroup",
+      "field": "require_selfie",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "ClientGroup",
+      "field": "upload_configuration",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "ClientGroup",
+      "field": "allow_files_from_device",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "ClientGroup",
+      "field": "ask_nearest_domestic_airport",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "ClientGroup",
+      "field": "relation_with_qualifier_enabled",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "ClientGroup",
+      "field": "designation_enabled",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "ClientGroup",
+      "field": "agency_dealership_name_enabled",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "ClientGroup",
+      "field": "custom_questions",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "ClientGroup",
+      "field": "custom_details",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "ClientGroup",
+      "field": "notes",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "ClientGroup",
+      "field": "deleted_at",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "ClientGroup",
+      "field": "deleted_passport_count",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "ClientGroup",
+      "field": "deletion_retained_records",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "ClientGroup",
+      "field": "passport_purge_at",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "ClientGroup",
+      "field": "passport_retention_days_applied",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "ClientGroup",
+      "field": "passport_legal_hold",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "ClientGroup",
+      "field": "passport_legal_hold_reason",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "ClientGroup",
+      "field": "passport_legal_hold_set_at",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "ClientGroup",
+      "field": "passport_legal_hold_set_by_user_id",
+      "owner": "entities/client_group_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "id",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "group_id",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "agency_id",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "client_name",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "client_email",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "client_phone",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "departure_city",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "submission_mode",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "family_group_id",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "family_member_index",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "family_relation",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "family_gender",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "family_head_name",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "family_head_email",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "family_head_phone",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "family_broadcast_to_member",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "image_s3_key",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "thumbnail_s3_key",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "passport_photo_s3_key",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "passport_back_s3_key",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "staff_metadata",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "status",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "extracted_fields",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "confirmed_fields",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "overall_confidence",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "confidence_score",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "mrz_raw",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "error_message",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "passport_cover_s3_key",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "passport_back_cover_s3_key",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "document_follow_up",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "display_name",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "custom_answers",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "custom_detail_answers",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "qualifier_enabled_snapshot",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "qualifier_selection_id",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "qualifier_is_self",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "qualifier_relation_code",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "qualifier_relation_label",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "qualifier_selected_at",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "nearest_domestic_airport",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "acquisition_mode",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "upload_idempotency_key",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "extraction_status",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "extraction_revision",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "extraction_conflicts",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "post_submission_verification",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "post_submission_verification_revision",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "post_submission_verified_at",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "verification_reviewed_by_user_id",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "verification_reviewer_name",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "verification_reviewed_at",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "created_at",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "updated_at",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "client_reviewed_at",
+      "owner": "entities/passport_state.py"
+    },
+    {
+      "entity": "PassportSubmission",
+      "field": "confirmed_at",
+      "owner": "entities/passport_state.py"
+    }
+  ],
+  "exact_whole_declarations": [
+    {
+      "name": "_utcnow",
+      "owner": "entities/factories.py",
+      "kind": "exact-declaration"
+    },
+    {
+      "name": "_new_uuid",
+      "owner": "entities/factories.py",
+      "kind": "exact-declaration"
+    },
+    {
+      "name": "UserRole",
+      "owner": "entities/enums.py",
+      "kind": "exact-declaration"
+    },
+    {
+      "name": "PassportProcessingStatus",
+      "owner": "entities/enums.py",
+      "kind": "exact-declaration"
+    },
+    {
+      "name": "StaffApprovalOutcome",
+      "owner": "entities/enums.py",
+      "kind": "exact-declaration"
+    },
+    {
+      "name": "PassportExtractionStatus",
+      "owner": "entities/enums.py",
+      "kind": "exact-declaration"
+    },
+    {
+      "name": "GroupStatus",
+      "owner": "entities/enums.py",
+      "kind": "exact-declaration"
+    },
+    {
+      "name": "User",
+      "owner": "entities/identity.py",
+      "kind": "exact-declaration"
+    },
+    {
+      "name": "Agency",
+      "owner": "entities/identity.py",
+      "kind": "exact-declaration"
+    },
+    {
+      "name": "QualifierSelection",
+      "owner": "entities/qualifier_selection.py",
+      "kind": "exact-declaration"
+    },
+    {
+      "name": "IUserRepository",
+      "owner": "repositories/identity.py",
+      "kind": "exact-declaration"
+    },
+    {
+      "name": "IAgencyRepository",
+      "owner": "repositories/identity.py",
+      "kind": "exact-declaration"
+    },
+    {
+      "name": "IClientGroupRepository",
+      "owner": "repositories/client_groups.py",
+      "kind": "exact-declaration"
+    },
+    {
+      "name": "IQualifierSelectionRepository",
+      "owner": "repositories/client_groups.py",
+      "kind": "exact-declaration"
+    },
+    {
+      "name": "PassportSubmissionGroupSummary",
+      "owner": "repositories/passport_submissions.py",
+      "kind": "exact-declaration"
+    },
+    {
+      "name": "IPassportSubmissionRepository",
+      "owner": "repositories/passport_submissions.py",
+      "kind": "exact-declaration"
+    },
+    {
+      "name": "IObjectStorageRepository",
+      "owner": "repositories/object_storage.py",
+      "kind": "exact-declaration"
+    }
+  ],
+  "source_sha256": {
+    "backend/app/domain/entities/factories.py": "b74b82177ea101abeafdd188d5c197a9f6ea01f49e56ad06b438bbb491220950",
+    "backend/app/domain/entities/enums.py": "4ef547c3c578e0c44d40ce03f8deaa0059077af2c59a78df40946b134ad88324",
+    "backend/app/domain/entities/identity.py": "4e60b4cc3d4759f1c2b12b34984a4300ae388055694cf46581be33f632b94d9e",
+    "backend/app/domain/entities/qualifier_selection.py": "79088b2e146a88ca46b17f4f716be932ca0aa37fcdadb6dd191e811761da67f4",
+    "backend/app/domain/entities/client_group_state.py": "00d98b8ee7c09f2604903f2b6be2cbfff8b4a30679c645f9a7ae656d3244592b",
+    "backend/app/domain/entities/client_group_configuration.py": "61d5f3e4aa3e06ba451efad48a5d349edfd323189c3bd27206ac2ac9a5b03971",
+    "backend/app/domain/entities/client_group_lifecycle.py": "30910eb18732f1174995da1a49b021b6658d3acef96ab9253f9c2ddeeb51f55a",
+    "backend/app/domain/entities/client_group.py": "02e2c8c0349f037afc6652706710d916f81c788889224e823a31fc4d76b88497",
+    "backend/app/domain/entities/passport_state.py": "acdd388a8baab76b6a2f0436b3e34ab364605532b192d80d37d2bada30d21e4c",
+    "backend/app/domain/entities/passport_extraction.py": "e745eb8f9d1b0827bf9bdeb2f8076ed898588fb0f3d1a0cb6c5baf5abc0d3cf1",
+    "backend/app/domain/entities/passport_client_review.py": "591e2d935dd68ee27e7cfef3229b8080eb590f9e3fed2600cbe1ecb3b014f7cb",
+    "backend/app/domain/entities/passport_staff_review.py": "3e93dfe727f18b35556bcd2522607d169d297cfa194d2ae1e62e90c6f6439e76",
+    "backend/app/domain/entities/passport_submission.py": "b46b0a5e20840b903f9b9e4f9e5ba089f66e3f0857937b2eaa1475ccf97b63b2",
+    "backend/app/domain/repositories/identity.py": "d3cdbb17519f5b05e9a6c810b0b554e74d602e98668dd6b1f2ce854ac2303b36",
+    "backend/app/domain/repositories/client_groups.py": "0ae94781a7f1eb58dd7229aa7e6bd3327d68ed97f093dad91056de01477374da",
+    "backend/app/domain/repositories/passport_submissions.py": "8bd1cd7ee3f5f82b034293a2bd05c239f10d10d679b37d02379de1d742109b4c",
+    "backend/app/domain/repositories/object_storage.py": "af73f8bd469d7f73406c05d847fd5ccf77c9a6ea20b40005fb74d9901238207e",
+    "backend/app/domain/entities/entities.py": "6e632388e2e0074771f336a1459c86d6a0712a3d0a93e14def7b2062270bf6fa",
+    "backend/app/domain/repositories/interfaces.py": "996e38b40ad49a1ba1b604a8582f696f0f7fa5f17cf53696998c9ba5fbf465b0"
+  },
+  "module_owner_change": "Physical module/class ownership changes intentionally; original public facade imports remain. No entity pickle consumer or module-owner introspection was found in the repository. No proxy globals or method monkeypatch forwarding introduced.",
+  "additional_exact_helper": "_normalize_departure_cities",
+  "formatting": "Final Ruff formatting/import organization retains all34method/100field/17whole-declaration ASTs and the departure-city helper exactly. Domain-specific module descriptions replace generated scaffolding; physical class ownership changes are explicit. One unused dataclasses.field import inferred from a comprehension-local name was removed before the fresh coverage run; no retained declaration changed.",
+  "final_physical_lines": {
+    "backend/app/domain/entities/factories.py": 14,
+    "backend/app/domain/entities/enums.py": 109,
+    "backend/app/domain/entities/identity.py": 112,
+    "backend/app/domain/entities/qualifier_selection.py": 63,
+    "backend/app/domain/entities/client_group_state.py": 75,
+    "backend/app/domain/entities/client_group_configuration.py": 149,
+    "backend/app/domain/entities/client_group_lifecycle.py": 75,
+    "backend/app/domain/entities/client_group.py": 139,
+    "backend/app/domain/entities/passport_state.py": 102,
+    "backend/app/domain/entities/passport_extraction.py": 246,
+    "backend/app/domain/entities/passport_client_review.py": 125,
+    "backend/app/domain/entities/passport_staff_review.py": 217,
+    "backend/app/domain/entities/passport_submission.py": 144,
+    "backend/app/domain/repositories/identity.py": 51,
+    "backend/app/domain/repositories/client_groups.py": 73,
+    "backend/app/domain/repositories/passport_submissions.py": 196,
+    "backend/app/domain/repositories/object_storage.py": 29,
+    "backend/app/domain/entities/entities.py": 37,
+    "backend/app/domain/repositories/interfaces.py": 23
+  },
+  "documentation_only_differences": [
+    "PassportExtractionStatus docstring: independent extraction state",
+    "prepare_without_passport_front docstring: extraction job",
+    "mark_extraction_failed docstring: extraction failure"
+  ],
+  "equivalence_scope": "All34 executable method bodies/100ordered field declarations and defaults/17retained whole declarations (three listed documentation-only changes) plus city helper are exact AST. New composition bases/import ownership are explicitly reviewed separately; they are not claimed byte-identical to the old classes."
+}

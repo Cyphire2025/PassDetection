@@ -1,0 +1,23 @@
+{
+  "frozen_source_files": 34,
+  "total_batches": 11,
+  "completed_batches": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "full_current_records": 45,
+  "retired_original_files": [
+    "frontend/features/mcp/components/mcp-access-examples.tsx",
+    "frontend/features/mcp/components/mcp-consent-page.tsx"
+  ],
+  "remaining_original_files": []
+}

@@ -6,7 +6,7 @@ from io import BytesIO
 import pytest
 from openpyxl import Workbook
 
-import app.infrastructure.imports.passport_excel_importer as importer_module
+import app.infrastructure.imports.passport_excel_catalog as importer_module
 from app.infrastructure.imports.passport_excel_importer import PassportExcelImporter
 
 

@@ -1,0 +1,34 @@
+{
+  "status": "complete current physical retained test-source review only",
+  "files": 7,
+  "physical_lines": 1069,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-lifecycle-test-source-reviewed-files.json",
+    "sha256": "49b5c990715d4795f47b1b443b717bc48e341597891f8822a1d045b479b28c89"
+  },
+  "source_before_equals_after": true,
+  "source_fence": {
+    "backend/tests/unit/infrastructure/test_operational_retention.py": "271551a0a56461a2539637254b3c2f6094e6e28d99916e4bc960cee7307d4ed9",
+    "backend/tests/unit/infrastructure/test_operational_roster_membership.py": "72a771bf758a4c8937abc4a427367be3408f12a1f27e796a85cba34c5c9c237e",
+    "backend/tests/unit/infrastructure/test_platform_lifecycle_tasks.py": "2c49f2772c111ba5f1f13ffab2dbfc10bd1cede648c54d636323994142b7697c",
+    "backend/tests/unit/infrastructure/test_traveller_private_delivery.py": "98f6f08cb4abc7d106d4943049b35e0542409e5c80bc94e867d4881566c4c29d",
+    "backend/tests/unit/infrastructure/test_traveller_reconciliation_runtime.py": "842d4f4b41cbb99e637763f7de93ee9c778df67431436916d75262c4e1b3d9c7",
+    "backend/tests/unit/infrastructure/test_traveller_worker_pool.py": "da1920f1b7da1a9a3cf18342a6ad775d393a0486ee40bc5ec58eb6c298eff211",
+    "backend/tests/unit/infrastructure/test_upload_link_features.py": "d2e0b41d544e917c2174f057902733a018ae33b064c59506fe3ddeb0fb749778"
+  },
+  "new_execution": false,
+  "runtime_mutation": false,
+  "new_validated_findings": [],
+  "scope": "Retained shared platform/operational lifecycle, traveller delivery/reconciliation and public upload configuration tests.",
+  "deferred_after_scope_discovery": {
+    "path": "backend/tests/unit/infrastructure/test_notification_feed.py",
+    "evidence": "notification-feed-test-scope-deferral.json",
+    "sha256": "08d11896d568618a4348ae2625054af52dde9b12e7078439d5f8693771db9100",
+    "no_new_full_read_credit": true
+  },
+  "limits": [
+    "RealSQLite/localpool test design and synthetic locks are not new passing execution/livePG or production resource qualification.",
+    "No policy/storagecleanup/provider/schedule action or migrations changed.",
+    "Dedicated Inbox/native-only sources remain excluded; generic-named email notification test deferred after purpose discovery."
+  ]
+}

@@ -1,0 +1,133 @@
+[
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_export_support.py",
+    "sha256": "3bf9cd6a6c6854971df328266b2f2610ad0bfa18bb83cdbeab1bed8ea426bd13",
+    "lines": 133,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete original1374-line/final133-line physical reads. Original named helper/constant aliases and zone loader seam retained; dataclass legacy module/pickle/type resolution remains one class identity.40 exact declaration/constant/body restoration checks; no route or API schema change.",
+    "verification": "passport-export-support-verification.json"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_export_metadata.py",
+    "sha256": "b6f4e2ee77c4d126d0e8a105e1a7855a383ea2f99ce40d540366c57c15a06c8c",
+    "lines": 82,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete final physical read. Group feature settings/safe immutable person snapshots unchanged. Raw group-ID query is internal and receives only IDs from already authorized visible selected submissions; full actual selected route/preparation chain read. Passport values remain only in authorized business export/history, no new diagnostic sink.",
+    "verification": "passport-export-support-verification.json"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_export_recipient_values.py",
+    "sha256": "1e21745b332529dc9f9b9b6979cf1f7f71167a67f386cdaec2e63d67cd1f823a",
+    "lines": 211,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete final physical read. Canonical imported heading matching, conflicting recipient identity values blank, exact safe contact/zone projection and fallback name history unchanged. Keeps WhatsApp data distinct from uploaded contact values; no random ambiguous assignment.",
+    "verification": "passport-export-support-verification.json"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_export_match_sources.py",
+    "sha256": "2144e3857498d2269adca494ee42b1644bb7e0ab6aeb4ac1fb2249559b324fc2",
+    "lines": 124,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete final physical read. Same group/link/broadcast agency predicates, active recipient selection and per-group authoritative comparison. Export matching intentionally differs from unresolved reconciliation; no incorrect consolidation of those separate policies.",
+    "verification": "passport-export-support-verification.json"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_export_tracking_rows.py",
+    "sha256": "f7c1be2c999d9e4eb341da3f82f820ce730c4d7a1ffaab3d651fac8fbc767b9b",
+    "lines": 240,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete final physical read. Same tenant-scoped link/resolution/recipient reads and preserved durable manual replacement/rejection row reconstruction. Submission selection comes from authorized current route context. Functioncomplexity32 remains explicit debt; no query/permission/retention workflow change.",
+    "verification": "passport-export-support-verification.json"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_export_pending_rows.py",
+    "sha256": "50027566077518a6996a98c8304f21ebcfb20f1bb0a51931b68e035bc49ff041",
+    "lines": 236,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete final physical read. Original row eligibility/exclusion and ambiguous-name/contact mappings retained; strict row/source zip alignment remains. Same workbook column values/name-history semantics;178-line dictionary builder/complexity23 recorded honestly as remaining focused decomposition debt.",
+    "verification": "passport-export-support-verification.json"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_export_catalog.py",
+    "sha256": "9a62384f4cdbc8b6fa1a6e49c44075658fd5cd2be823ce98471e97c79d927d0f",
+    "lines": 313,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete final physical read. Fixed phone/PII/source metadata keys excluded from supplemental picker, explicit agency match options remain feature-gated; stable labels/collision suffixes/order/defaults and allowed selected values preserved.313-line cohesive catalog owner/mergecomplexity19 retained as debt.",
+    "verification": "passport-export-support-verification.json"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_export_agency_matches.py",
+    "sha256": "aefbe4a35305fab3b93990609caa7d64cb0737abfbc4c54a23a4e7c7ee4c3f3e",
+    "lines": 262,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete final physical read. Only performance change is export-local memoization of pure normalization. Preserve both original normalization passes (no idempotence assumption), exact/ambiguous/threshold behavior and effective row projection.120x80 same-output workload19,400→400 normalization calls; pair search unchanged, extra O(S+R) local cache memory cleared after operation.",
+    "verification": "passport-export-support-verification.json"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/excel_exports.py",
+    "sha256": "08b81ac9bc18324732f5daad5c795046d55b9a86e551adda3ee8aa8850df4b9c",
+    "lines": 350,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical read, no edits. Authenticated group lookup require_export_data before field/matching/tracking preparation; owner/visible submission scope and row limit. Hidden prepared export history uses nested uniqueness guard and current actor, browser completion remains separate. Fixed Content-Disposition filename uses typed UUID/status only; no new dynamic header input.",
+    "verification": "passport-export-support-verification.json"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/selected_exports.py",
+    "sha256": "1af700103fda455214e6bcf8934714746ad93758663fbf9b5315e0c50deb04a3",
+    "lines": 248,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical read, no edits. Coordinator/missingagency denial, selected group visibility/all-members-found check, operational current submission scope and1500 combined row admission. Support functions receive only authorized groups/submissions; catalogs/fields validated by shared preparation.",
+    "verification": "passport-export-support-verification.json"
+  },
+  {
+    "path": "backend/app/application/use_cases/passports/prepare_group_excel.py",
+    "sha256": "50cf87b65201eb33673f3658f6bbe1d3da6e665fe357bb80302a01feb01a20c7",
+    "lines": 344,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical read, no edits. Fixed code-owned dependencies, scoped baseline validation, selected fields/agency matching feature/options allowlist, coherent effective recipient row, pending exclusion, ECR and immutable bounded snapshot. Rendering offloads through maintained drain-aware helper; no history/storage write during preparation.",
+    "verification": "passport-export-support-verification.json"
+  },
+  {
+    "path": "backend/app/application/use_cases/passports/prepare_selected_excel.py",
+    "sha256": "0e1ed5b19831f2930e8134c2cd36a5a59ab44b89261a6335b4e1e809661e3b34",
+    "lines": 193,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical read, no edits. Same authorized selection input, merged catalog field allowlist, grouping policy and1500 total rows including pending. Exact frozen render/snapshot arguments feed shared web/MCP flows; no new dynamic callable supplied by request.",
+    "verification": "passport-export-support-verification.json"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_export_agency_work.py",
+    "sha256": "ec42472477aa188e5998b1c57e5e6ab15f4291824bcef9a0ae55898e07f69f73",
+    "lines": 94,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "kind": "test",
+    "status": "reviewed",
+    "notes": "Complete final physical read.8 meaningful Unicode/short/ambiguous/fresh-operation/normalization-work/legacy identity controls; synthetic domain-shape inputs, no external services. Explicit measured workload has fixed120submissions/80rows and output equivalence proved independently against archived original.",
+    "verification": "passport-export-support-verification.json"
+  }
+]

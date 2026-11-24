@@ -1,0 +1,50 @@
+{
+  "status": "Current fixture repairs and meaningful retained coverage additions verified; original failedrun preserved",
+  "reviewed_test_files": 5,
+  "review_ledger": "retained-backend-fixture-repairs-reviewed-files.json",
+  "ledger_sha256": "d80b28fda9c00b48d42489027f82624c99566b03d21780bca5e29a0e4493bd62",
+  "source_application_receipt_sha256": "639f5f10138c853764d0f1a9c1262765a4482ac08c020e3a8baaaa680aed774d",
+  "current_cohort": {
+    "path": "final-retained-company-fixture-cov-20261101-001",
+    "primary_passed": 101,
+    "subtests_passed": 18,
+    "ruff_no_fix_passed": true,
+    "receipt_sha256": "368e1824d2cff9f5c00d9e3c2d253ef2440216ad7ac366e229e44c85905c623b"
+  },
+  "separate_gc_peer_cohort": {
+    "primary_passed": 7,
+    "root_owned_peer_ledger": "gc-content-dashboard-scope-reviewed-files.json",
+    "eligible_data_sha256": "366066c29a98eff85b4269e0ce8e75954d4b6777a9bc7691d825de9a46e92a66"
+  },
+  "coverage_union": {
+    "receipt_sha256": "7a0cbaaae89e9bbdb90f96c0112526ffc6175387f71f382b85ea296259d1ca01",
+    "classification_sha256": "24fe6b1c54d1def1e7fc34cf477ac506a7d97f0e898fd9b98440818afd15f98d",
+    "global_observed": {
+      "line_percent": 84.11999999999999,
+      "branch_percent": 66.94,
+      "lines_valid": 104754,
+      "branches_valid": 23440
+    },
+    "normal_retained_passed": 808,
+    "critical_retained_passed": 163,
+    "retained_violations": 0,
+    "raw_original_verifier_exit_code": 1,
+    "native_excluded_violations": 2,
+    "Inbox_deferred_violations": 76,
+    "unchanged_floors": {
+      "minimum_line_percent": 75,
+      "minimum_branch_percent": 58
+    }
+  },
+  "preserved_history": {
+    "original_full_run": "4failed/9109passed/5platformskipped/87deselected/179subtests",
+    "original_full_receipt_sha256": "98a842e3b4e604015ee6b03e908713ddb6efca0b7f584b1b64957b548791871f",
+    "all_three_eligible_data_hashes_match_their_original_receipts": true,
+    "no_diagnostic_or_failed_gc001_data_merged": true
+  },
+  "limits": [
+    "Current application-source hashes equal original coverage owners before and after union; later cosmetic adoption needs its own exact executable-line continuity proof.",
+    "No new actual full9118case execution is claimed; current101+7cases qualify changed fixture bodies/new guards while all app bytes stay identical.",
+    "Platform/service/provider/production behavior remains independently qualified; no new live acceptance, performance or security certification."
+  ]
+}

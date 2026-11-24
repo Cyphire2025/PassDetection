@@ -1,0 +1,155 @@
+{
+  "basis": "Mechanical17-declaration proof retained unchanged. Final two optional-actor guards make existing invalid result explicit; two local collection annotations and output-stream local rename resolve body-check diagnostics without public signature changes.",
+  "mechanical_proof_sha256": "332dab72ab0f8ae39e622114996b7049338056a7aec3b11451c0f60b9055d428",
+  "definitions": [
+    {
+      "name": "percentile",
+      "owner": "C:\\Users\\nipun\\Desktop\\PassDetection\\scripts\\qa\\workload_capacity_measurements.py",
+      "metadata_exact": true,
+      "original_whole_AST_exact": true,
+      "explicit_inverse_type_followthrough": false
+    },
+    {
+      "name": "summarize",
+      "owner": "C:\\Users\\nipun\\Desktop\\PassDetection\\scripts\\qa\\workload_capacity_measurements.py",
+      "metadata_exact": true,
+      "original_whole_AST_exact": true,
+      "explicit_inverse_type_followthrough": false
+    },
+    {
+      "name": "measured",
+      "owner": "C:\\Users\\nipun\\Desktop\\PassDetection\\scripts\\qa\\workload_capacity_measurements.py",
+      "metadata_exact": true,
+      "original_whole_AST_exact": false,
+      "explicit_inverse_type_followthrough": true
+    },
+    {
+      "name": "begin_stage",
+      "owner": "C:\\Users\\nipun\\Desktop\\PassDetection\\scripts\\qa\\workload_capacity_measurements.py",
+      "metadata_exact": true,
+      "original_whole_AST_exact": true,
+      "explicit_inverse_type_followthrough": false
+    },
+    {
+      "name": "end_stage",
+      "owner": "C:\\Users\\nipun\\Desktop\\PassDetection\\scripts\\qa\\workload_capacity_measurements.py",
+      "metadata_exact": true,
+      "original_whole_AST_exact": true,
+      "explicit_inverse_type_followthrough": false
+    },
+    {
+      "name": "path_for",
+      "owner": "C:\\Users\\nipun\\Desktop\\PassDetection\\scripts\\qa\\workload_capacity_traffic.py",
+      "metadata_exact": true,
+      "original_whole_AST_exact": true,
+      "explicit_inverse_type_followthrough": false
+    },
+    {
+      "name": "paced_actor",
+      "owner": "C:\\Users\\nipun\\Desktop\\PassDetection\\scripts\\qa\\workload_capacity_traffic.py",
+      "metadata_exact": true,
+      "original_whole_AST_exact": true,
+      "explicit_inverse_type_followthrough": false
+    },
+    {
+      "name": "scans",
+      "owner": "C:\\Users\\nipun\\Desktop\\PassDetection\\scripts\\qa\\workload_capacity_traffic.py",
+      "metadata_exact": true,
+      "original_whole_AST_exact": true,
+      "explicit_inverse_type_followthrough": false
+    },
+    {
+      "name": "synthetic_jpeg",
+      "owner": "C:\\Users\\nipun\\Desktop\\PassDetection\\scripts\\qa\\workload_capacity_traffic.py",
+      "metadata_exact": true,
+      "original_whole_AST_exact": true,
+      "explicit_inverse_type_followthrough": false
+    },
+    {
+      "name": "uploads",
+      "owner": "C:\\Users\\nipun\\Desktop\\PassDetection\\scripts\\qa\\workload_capacity_traffic.py",
+      "metadata_exact": true,
+      "original_whole_AST_exact": true,
+      "explicit_inverse_type_followthrough": false
+    },
+    {
+      "name": "overload_actor",
+      "owner": "C:\\Users\\nipun\\Desktop\\PassDetection\\scripts\\qa\\workload_capacity_traffic.py",
+      "metadata_exact": true,
+      "original_whole_AST_exact": true,
+      "explicit_inverse_type_followthrough": false
+    },
+    {
+      "name": "tenant_negatives",
+      "owner": "C:\\Users\\nipun\\Desktop\\PassDetection\\scripts\\qa\\workload_capacity_traffic.py",
+      "metadata_exact": true,
+      "original_whole_AST_exact": true,
+      "explicit_inverse_type_followthrough": false
+    },
+    {
+      "name": "gates",
+      "owner": "C:\\Users\\nipun\\Desktop\\PassDetection\\scripts\\qa\\workload_capacity_gates.py",
+      "metadata_exact": true,
+      "original_whole_AST_exact": true,
+      "explicit_inverse_type_followthrough": false
+    },
+    {
+      "name": "observed_queue_drain_seconds",
+      "owner": "C:\\Users\\nipun\\Desktop\\PassDetection\\scripts\\qa\\workload_capacity_gates.py",
+      "metadata_exact": true,
+      "original_whole_AST_exact": true,
+      "explicit_inverse_type_followthrough": false
+    },
+    {
+      "name": "fixture",
+      "owner": "C:\\Users\\nipun\\Desktop\\PassDetection\\scripts\\qa\\workload_capacity_resources.py",
+      "metadata_exact": true,
+      "original_whole_AST_exact": true,
+      "explicit_inverse_type_followthrough": false
+    },
+    {
+      "name": "inspect_backend",
+      "owner": "C:\\Users\\nipun\\Desktop\\PassDetection\\scripts\\qa\\workload_capacity_resources.py",
+      "metadata_exact": true,
+      "original_whole_AST_exact": true,
+      "explicit_inverse_type_followthrough": false
+    },
+    {
+      "name": "main",
+      "owner": "C:\\Users\\nipun\\Desktop\\PassDetection\\scripts\\qa\\workload_capacity_run.py",
+      "metadata_exact": true,
+      "original_whole_AST_exact": false,
+      "explicit_inverse_type_followthrough": true
+    }
+  ],
+  "whole_module_inverse_proofs": {
+    "measurement_guards_removed": [
+      "roster",
+      "search"
+    ],
+    "run_local_annotations_removed": [
+      "samples",
+      "windows"
+    ],
+    "run_local_stream_references_renamed_back": 2,
+    "original_run_and_measurement_modules_AST_exact_after_only_these_explicit_edits": true
+  },
+  "actual_global_bindings_equal": 103,
+  "public_signatures_hints_aliases_module_qualname_pickle_exact": 17,
+  "constant_AST_and_values_unchanged_from_mechanical_proof": 14,
+  "source_sha256": {
+    "scripts/qa/qualify_workload_capacity.py": "ef67abbde653927b30fe191067cde38eedc06244aaa6955a5b29a82c75fdc4bb",
+    "scripts/qa/test_capacity_observer_lifecycle.py": "cdea0abebb404e413fa1fd0221f9140f7806731ec0b6f9c180e371e7c5bab35e",
+    "scripts/qa/test_mcp_capacity_profile.py": "e18ef81199a70a87bbaacbb02f8af00b1bfb1362576a57ab13db1bb3542620e1",
+    "scripts/qa/test_workload_capacity.py": "a0e1be994d760740c23a8dfa0373816211db47dc70b93f712352a73297ed118b",
+    "scripts/qa/test_workload_capacity_owners.py": "9dca3a95236c91e9b2ac9aac933841724997a7ca0cc89bab60cf4ef2293fa616",
+    "scripts/qa/workload_capacity_contract.py": "0b08119561bda6eb47d15843da63bc6af9f838a784707aa015508d3af1f1e743",
+    "scripts/qa/workload_capacity_gates.py": "b4de49ccedbbc05e1686b3be7fab2207f7bfb1bc5c58eacc7b233887b9c72f6f",
+    "scripts/qa/workload_capacity_measurements.py": "0fef0bd1c2c90e33046aae59c8de09f554051d66aa55379ed060384d851bc70b",
+    "scripts/qa/workload_capacity_resources.py": "bef9f6afc679413e818bc7fded99b1cdd858c6f46e6d5456a892fc98ca4b0747",
+    "scripts/qa/workload_capacity_run.py": "1a03b1d0303e9a1733d8f344af2b6810e5929c047e57548c4ea071bc3faa7d90",
+    "scripts/qa/workload_capacity_traffic.py": "3b77ec36912a1df4dca13ed566cd51dcf67bac684c01dbf65d816b67d44df250"
+  },
+  "history": "Initial use of inspect.getclosurevars included attribute spelling json as a false global dependency. Correct proof reads actual LOAD_GLOBAL instructions recursively; no unused json import added to satisfy instrumentation.",
+  "limits": "Preserves original public generic dict annotations; basic body typecheck is not repository strict-mode certification. No live Docker/Redis/PG/provider qualification or performance inference."
+}

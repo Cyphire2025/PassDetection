@@ -1,0 +1,8 @@
+{
+  "before_sha256": "1e8ba543be02fc38b8999b9a41fac657aaf7d42309811d0e7c23474196f115ba",
+  "sha256": "99f5344a639e79941b82f1895a71d0e66021cc731df1a6b3287017519031e0ba",
+  "lf_normalized_sha256": "9d2831a8b047b23bfbe65031bdab2dec5bce2b7d908e369d36d8dc55f21c4ea4",
+  "added": 21,
+  "lowered_existing": 1,
+  "existing_ceilings_preserved": true
+}

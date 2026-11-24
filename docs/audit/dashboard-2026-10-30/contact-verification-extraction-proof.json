@@ -1,0 +1,472 @@
+{
+  "original_sha256": "f44ded4789d0886c91c2612485d761e5d453f6e813e5b2386df925e671649ae5",
+  "function_movements": [
+    {
+      "function": "_no_store",
+      "owner": "backend/app/presentation/api/v1/routes/passport_routes/contact_challenges.py",
+      "whole_decorated_function_ast_equal": true,
+      "whole_decorated_function_lf_source_equal": true,
+      "facade_alias_identity": true,
+      "globals": []
+    },
+    {
+      "function": "_locked_upload",
+      "owner": "backend/app/presentation/api/v1/routes/passport_routes/contact_challenges.py",
+      "whole_decorated_function_ast_equal": true,
+      "whole_decorated_function_lf_source_equal": true,
+      "facade_alias_identity": true,
+      "globals": [
+        {
+          "name": "ClientGroupRepository",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "require_active_public_upload",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "EntityNotFoundError",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "HTTPException",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "PassportSubmissionRepository",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "_require_public_upload_credential",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "proof": "same runtime dependency object"
+        }
+      ]
+    },
+    {
+      "function": "_locked_challenge",
+      "owner": "backend/app/presentation/api/v1/routes/passport_routes/contact_challenges.py",
+      "whole_decorated_function_ast_equal": true,
+      "whole_decorated_function_lf_source_equal": true,
+      "facade_alias_identity": true,
+      "globals": [
+        {
+          "name": "select",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "PublicUploadContactChallengeModel",
+          "proof": "same runtime dependency object"
+        }
+      ]
+    },
+    {
+      "function": "request_public_contact_otp",
+      "owner": "backend/app/presentation/api/v1/routes/passport_routes/contact_issuance.py",
+      "whole_decorated_function_ast_equal": true,
+      "whole_decorated_function_lf_source_equal": true,
+      "facade_alias_identity": true,
+      "globals": [
+        {
+          "name": "_no_store",
+          "proof": "direct typed owner function with exact original body"
+        },
+        {
+          "name": "_locked_upload",
+          "proof": "direct typed owner function with exact original body"
+        },
+        {
+          "name": "get_settings",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "PublicUploadOTPRateLimiter",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "trusted_client_ip",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "OTPRateLimitExceeded",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "HTTPException",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "OTPRateLimitUnavailable",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "datetime",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "UTC",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "_locked_challenge",
+          "proof": "direct typed owner function with exact original body"
+        },
+        {
+          "name": "_digest",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "_utc",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "_remaining",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "hmac",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "PublicContactOTPRequestResponse",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "uuid",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "secrets",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "PublicUploadContactChallengeModel",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "math",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "_code_digest",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "timedelta",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "get_otp_provider",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "OTPDeliveryError",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "logger",
+          "proof": "same logger factory and original channel"
+        }
+      ]
+    },
+    {
+      "function": "verify_public_contact_otp",
+      "owner": "backend/app/presentation/api/v1/routes/passport_routes/contact_completion.py",
+      "whole_decorated_function_ast_equal": true,
+      "whole_decorated_function_lf_source_equal": true,
+      "facade_alias_identity": true,
+      "globals": [
+        {
+          "name": "_no_store",
+          "proof": "direct typed owner function with exact original body"
+        },
+        {
+          "name": "_locked_upload",
+          "proof": "direct typed owner function with exact original body"
+        },
+        {
+          "name": "_locked_challenge",
+          "proof": "direct typed owner function with exact original body"
+        },
+        {
+          "name": "datetime",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "UTC",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "hmac",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "_digest",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "_utc",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "PublicContactOTPVerifyResponse",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "_remaining",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "HTTPException",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "verify_contact_code",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "CONTACT_PROOF_TTL_SECONDS",
+          "proof": "same runtime dependency object"
+        }
+      ]
+    },
+    {
+      "function": "require_public_contact_proof",
+      "owner": "backend/app/presentation/api/v1/routes/passport_routes/contact_submission_proof.py",
+      "whole_decorated_function_ast_equal": true,
+      "whole_decorated_function_lf_source_equal": true,
+      "facade_alias_identity": true,
+      "globals": [
+        {
+          "name": "_locked_challenge",
+          "proof": "direct typed owner function with exact original body"
+        },
+        {
+          "name": "datetime",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "UTC",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "normalize_phone_number",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "hmac",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "_digest",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "_utc",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "HTTPException",
+          "proof": "same runtime dependency object"
+        }
+      ]
+    },
+    {
+      "function": "require_verified_family_head",
+      "owner": "backend/app/presentation/api/v1/routes/passport_routes/contact_family.py",
+      "whole_decorated_function_ast_equal": true,
+      "whole_decorated_function_lf_source_equal": true,
+      "facade_alias_identity": true,
+      "globals": [
+        {
+          "name": "normalize_phone_number",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "hmac",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "_digest",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "select",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "PassportSubmissionModel",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "PublicUploadContactChallengeModel",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+          "proof": "same runtime dependency object"
+        },
+        {
+          "name": "HTTPException",
+          "proof": "same runtime dependency object"
+        }
+      ]
+    }
+  ],
+  "function_count": 7,
+  "complete_original_test_functions": [
+    {
+      "name": "rig",
+      "scope": "only five dependency-patch owners retargeted; remaining fixture exact"
+    },
+    {
+      "name": "send",
+      "scope": "whole decorated original helper/test exact in source and AST"
+    },
+    {
+      "name": "verify",
+      "scope": "whole decorated original helper/test exact in source and AST"
+    },
+    {
+      "name": "proof",
+      "scope": "whole decorated original helper/test exact in source and AST"
+    },
+    {
+      "name": "saved",
+      "scope": "whole decorated original helper/test exact in source and AST"
+    },
+    {
+      "name": "test_request_persists_sending_state_before_provider_and_stores_only_hash",
+      "scope": "whole decorated original helper/test exact in source and AST"
+    },
+    {
+      "name": "test_valid_code_unlocks_bound_proof_and_verify_retry_does_not_extend_expiry",
+      "scope": "whole decorated original helper/test exact in source and AST"
+    },
+    {
+      "name": "test_unverified_challenge_cannot_authorize_submission",
+      "scope": "whole decorated original helper/test exact in source and AST"
+    },
+    {
+      "name": "test_wrong_code_attempts_are_committed_and_exhaustion_blocks_correct_code",
+      "scope": "whole decorated original helper/test exact in source and AST"
+    },
+    {
+      "name": "test_expired_code_rejected",
+      "scope": "whole decorated original helper/test exact in source and AST"
+    },
+    {
+      "name": "test_resend_during_cooldown_reuses_challenge_without_sending",
+      "scope": "whole decorated original helper/test exact in source and AST"
+    },
+    {
+      "name": "test_resend_rotates_id_and_invalidates_old_verified_proof",
+      "scope": "whole decorated original helper/test exact in source and AST"
+    },
+    {
+      "name": "test_provider_failure_is_durable_and_fails_closed",
+      "scope": "whole decorated original helper/test exact in source and AST"
+    },
+    {
+      "name": "test_abuse_limit_blocks_send",
+      "scope": "whole decorated original helper/test exact in source and AST"
+    },
+    {
+      "name": "test_verified_proof_cannot_change_scope",
+      "scope": "whole decorated original helper/test exact in source and AST"
+    },
+    {
+      "name": "test_request_requires_active_unsubmitted_upload_capability",
+      "scope": "whole decorated original helper/test exact in source and AST"
+    },
+    {
+      "name": "test_consumed_proof_allows_exact_submit_retry_after_expiry_only",
+      "scope": "whole decorated original helper/test exact in source and AST"
+    },
+    {
+      "name": "test_final_submit_rejects_bypass_before_usecase_or_storage",
+      "scope": "whole decorated original helper/test exact in source and AST"
+    },
+    {
+      "name": "test_final_submit_invokes_family_head_gate_before_usecase",
+      "scope": "whole decorated original helper/test exact in source and AST"
+    },
+    {
+      "name": "test_final_submit_consumes_proof_atomically_and_failed_commit_preserves_it",
+      "scope": "whole decorated original helper/test exact in source and AST"
+    },
+    {
+      "name": "test_final_schema_requires_contact_and_proof",
+      "scope": "whole decorated original helper/test exact in source and AST"
+    },
+    {
+      "name": "test_request_rejects_incomplete_or_ambiguous_phone",
+      "scope": "whole decorated original helper/test exact in source and AST"
+    },
+    {
+      "name": "test_challenge_select_locks_and_refreshes_existing_rows",
+      "scope": "whole decorated original helper/test exact in source and AST"
+    },
+    {
+      "name": "test_first_family_member_head_contact_must_match_own_verified_contact",
+      "scope": "whole decorated original helper/test exact in source and AST"
+    },
+    {
+      "name": "test_later_family_members_use_persisted_consumed_head_proof",
+      "scope": "whole decorated original helper/test exact in source and AST"
+    }
+  ],
+  "original_assertion_count": 40,
+  "original_assertions_unchanged": true,
+  "new_control_cases": 2,
+  "new_control_source_equal_to_before_refactor": true,
+  "no_lost_or_duplicate_functions": true,
+  "no_owner_imports_facade": true,
+  "runtime_routes_use_actual_owner_functions": true,
+  "submission_contact_imports_actual_gates": true,
+  "signature_normalization": "Only get_db_session's inspect repr process address; raw original/current snapshots retained. OpenAPI, evaluated type hints, route metadata and all other signature bytes compare exactly.",
+  "bound_sources": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/contact_challenges.py",
+      "sha256": "9ebe7f4cbbcf7948398da5833da3488c1e0a85a4c45decd2220266587dfebaf5",
+      "lines": 57
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/contact_completion.py",
+      "sha256": "4566bc44f3a6bcf4b98335d2d7d34111779c36c6b04384bb4899912a0f64cc6e",
+      "lines": 73
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/contact_family.py",
+      "sha256": "3cf631e7958f7215e4d0f23c07a89a728558fe163b24f8975942195b59a5ef77",
+      "lines": 80
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/contact_issuance.py",
+      "sha256": "501fa24ed5656c4ca760ef8549049211f274218ed5dffbbfc8c41355f8689121",
+      "lines": 152
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/contact_submission_proof.py",
+      "sha256": "fbee78b20904d554540e50eefe03a886c329f96cec15d33e0e20735e7a1c370f",
+      "lines": 67
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/contact_verification.py",
+      "sha256": "e0c3c985d3994ce9f36a65262081514e328b9469c87db1b77e3d4e5ab06265a0",
+      "lines": 17
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_public_upload_contact_otp.py",
+      "sha256": "a3a13a19ac9a8a7665e7ce2a68d53af3b7c0a448adad271b6b7bc106c6d981ee",
+      "lines": 493
+    }
+  ]
+}

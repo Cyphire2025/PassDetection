@@ -1,0 +1,357 @@
+{
+  "status": "narrow exact three original transaction boundaries transferred to18 actual infrastructure owners",
+  "policy_path": "backend/architecture-dependencies.json",
+  "before_sha256": "a58f5de184c44cb91adcc26f9c26b256412510e249bc25caba9d3201203444ef",
+  "after_sha256": "159998c7f6e330507feaffdbc6dabcb2130249c36a933854ba33d16c1ad774ad",
+  "original_rows": {
+    "app/application/mobile/authored_notification_access.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.MobileDeviceSessionModel",
+        "app.infrastructure.database.gc_mobile_models.MobileNotificationModel",
+        "app.infrastructure.database.gc_mobile_models.MobilePassengerSessionIdentityModel",
+        "app.infrastructure.database.gc_mobile_models.MobilePushDeliveryModel",
+        "app.infrastructure.database.gc_mobile_models.MobilePushRegistrationModel",
+        "app.infrastructure.database.gc_notification_models",
+        "app.infrastructure.database.gc_notification_models.GCNotificationRecipientGrantModel",
+        "app.infrastructure.database.gc_notification_models.GCNotificationRecipientModel"
+      ]
+    },
+    "app/application/mobile/authored_notification_service.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.GCGroupAccessModel",
+        "app.infrastructure.database.gc_mobile_models.MobileNotificationModel",
+        "app.infrastructure.database.gc_notification_models",
+        "app.infrastructure.database.gc_notification_models.GCNotificationBatchModel",
+        "app.infrastructure.database.gc_notification_models.GCNotificationDraftModel",
+        "app.infrastructure.database.gc_notification_models.GCNotificationRecipientGrantModel",
+        "app.infrastructure.database.gc_notification_models.GCNotificationRecipientModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.repositories.audit_log_repository",
+        "app.infrastructure.repositories.audit_log_repository.AuditLogRepository"
+      ]
+    },
+    "app/application/mobile/notification_service.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.ClientManagerGroupAssignmentModel",
+        "app.infrastructure.database.gc_mobile_models.ClientManagerProfileModel",
+        "app.infrastructure.database.gc_mobile_models.GCAnnouncementModel",
+        "app.infrastructure.database.gc_mobile_models.GCGroupAccessModel",
+        "app.infrastructure.database.gc_mobile_models.MobileDeviceSessionModel",
+        "app.infrastructure.database.gc_mobile_models.MobileNotificationModel",
+        "app.infrastructure.database.gc_mobile_models.MobilePassengerIdentityModel",
+        "app.infrastructure.database.gc_mobile_models.MobilePushDeliveryModel",
+        "app.infrastructure.database.gc_mobile_models.MobilePushRegistrationModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.models.CoordinatorGroupAssignmentModel",
+        "app.infrastructure.database.models.UserModel",
+        "app.infrastructure.observability.operational_events",
+        "app.infrastructure.observability.operational_events.OperationalEvent",
+        "app.infrastructure.observability.operational_events.record_operational_event"
+      ]
+    }
+  },
+  "new_rows": {
+    "app/application/mobile/notification_announcements.py": {
+      "origin": "app/application/mobile/notification_service.py",
+      "entry": {
+        "owner": "repository maintainers",
+        "review_by": "2026-12-31",
+        "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit. Exact original notification transaction declarations now live in this focused implementation owner; no new infrastructure authority or provider effect is admitted.",
+        "imports": [
+          "app.infrastructure.database.gc_mobile_models",
+          "app.infrastructure.database.gc_mobile_models.ClientManagerGroupAssignmentModel",
+          "app.infrastructure.database.gc_mobile_models.ClientManagerProfileModel",
+          "app.infrastructure.database.gc_mobile_models.GCAnnouncementModel",
+          "app.infrastructure.database.gc_mobile_models.GCGroupAccessModel",
+          "app.infrastructure.database.gc_mobile_models.MobileNotificationModel",
+          "app.infrastructure.database.gc_mobile_models.MobilePassengerIdentityModel",
+          "app.infrastructure.database.gc_mobile_models.MobilePushDeliveryModel",
+          "app.infrastructure.database.models",
+          "app.infrastructure.database.models.CoordinatorGroupAssignmentModel",
+          "app.infrastructure.database.models.UserModel"
+        ]
+      }
+    },
+    "app/application/mobile/notification_document_changes.py": {
+      "origin": "app/application/mobile/notification_service.py",
+      "entry": {
+        "owner": "repository maintainers",
+        "review_by": "2026-12-31",
+        "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit. Exact original notification transaction declarations now live in this focused implementation owner; no new infrastructure authority or provider effect is admitted.",
+        "imports": [
+          "app.infrastructure.database.gc_mobile_models",
+          "app.infrastructure.database.gc_mobile_models.ClientManagerGroupAssignmentModel",
+          "app.infrastructure.database.gc_mobile_models.ClientManagerProfileModel",
+          "app.infrastructure.database.gc_mobile_models.GCGroupAccessModel",
+          "app.infrastructure.database.gc_mobile_models.MobileNotificationModel",
+          "app.infrastructure.database.models",
+          "app.infrastructure.database.models.CoordinatorGroupAssignmentModel",
+          "app.infrastructure.database.models.UserModel"
+        ]
+      }
+    },
+    "app/application/mobile/notification_countdown_schedule.py": {
+      "origin": "app/application/mobile/notification_service.py",
+      "entry": {
+        "owner": "repository maintainers",
+        "review_by": "2026-12-31",
+        "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit. Exact original notification transaction declarations now live in this focused implementation owner; no new infrastructure authority or provider effect is admitted.",
+        "imports": [
+          "app.infrastructure.database.gc_mobile_models",
+          "app.infrastructure.database.gc_mobile_models.GCGroupAccessModel",
+          "app.infrastructure.database.gc_mobile_models.MobileNotificationModel",
+          "app.infrastructure.database.gc_mobile_models.MobilePushDeliveryModel",
+          "app.infrastructure.database.models",
+          "app.infrastructure.database.models.ClientGroupModel"
+        ]
+      }
+    },
+    "app/application/mobile/notification_countdown_recipients.py": {
+      "origin": "app/application/mobile/notification_service.py",
+      "entry": {
+        "owner": "repository maintainers",
+        "review_by": "2026-12-31",
+        "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit. Exact original notification transaction declarations now live in this focused implementation owner; no new infrastructure authority or provider effect is admitted.",
+        "imports": [
+          "app.infrastructure.database.gc_mobile_models",
+          "app.infrastructure.database.gc_mobile_models.ClientManagerGroupAssignmentModel",
+          "app.infrastructure.database.gc_mobile_models.ClientManagerProfileModel",
+          "app.infrastructure.database.gc_mobile_models.GCGroupAccessModel",
+          "app.infrastructure.database.gc_mobile_models.MobileNotificationModel",
+          "app.infrastructure.database.gc_mobile_models.MobilePassengerIdentityModel",
+          "app.infrastructure.database.models",
+          "app.infrastructure.database.models.CoordinatorGroupAssignmentModel",
+          "app.infrastructure.database.models.UserModel"
+        ]
+      }
+    },
+    "app/application/mobile/notification_countdown_values.py": {
+      "origin": "app/application/mobile/notification_service.py",
+      "entry": {
+        "owner": "repository maintainers",
+        "review_by": "2026-12-31",
+        "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit. Exact original notification transaction declarations now live in this focused implementation owner; no new infrastructure authority or provider effect is admitted.",
+        "imports": [
+          "app.infrastructure.database.gc_mobile_models",
+          "app.infrastructure.database.gc_mobile_models.GCGroupAccessModel"
+        ]
+      }
+    },
+    "app/application/mobile/notification_authority.py": {
+      "origin": "app/application/mobile/notification_service.py",
+      "entry": {
+        "owner": "repository maintainers",
+        "review_by": "2026-12-31",
+        "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit. Exact original notification transaction declarations now live in this focused implementation owner; no new infrastructure authority or provider effect is admitted.",
+        "imports": [
+          "app.infrastructure.database.gc_mobile_models",
+          "app.infrastructure.database.gc_mobile_models.ClientManagerGroupAssignmentModel",
+          "app.infrastructure.database.gc_mobile_models.ClientManagerProfileModel",
+          "app.infrastructure.database.gc_mobile_models.GCGroupAccessModel",
+          "app.infrastructure.database.gc_mobile_models.MobileNotificationModel",
+          "app.infrastructure.database.gc_mobile_models.MobilePassengerIdentityModel",
+          "app.infrastructure.database.gc_mobile_models.MobilePushDeliveryModel",
+          "app.infrastructure.database.models",
+          "app.infrastructure.database.models.ClientGroupModel",
+          "app.infrastructure.database.models.CoordinatorGroupAssignmentModel",
+          "app.infrastructure.database.models.UserModel"
+        ]
+      }
+    },
+    "app/application/mobile/notification_registrations.py": {
+      "origin": "app/application/mobile/notification_service.py",
+      "entry": {
+        "owner": "repository maintainers",
+        "review_by": "2026-12-31",
+        "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit. Exact original notification transaction declarations now live in this focused implementation owner; no new infrastructure authority or provider effect is admitted.",
+        "imports": [
+          "app.infrastructure.database.gc_mobile_models",
+          "app.infrastructure.database.gc_mobile_models.MobileDeviceSessionModel",
+          "app.infrastructure.database.gc_mobile_models.MobileNotificationModel",
+          "app.infrastructure.database.gc_mobile_models.MobilePushRegistrationModel"
+        ]
+      }
+    },
+    "app/application/mobile/notification_delivery_states.py": {
+      "origin": "app/application/mobile/notification_service.py",
+      "entry": {
+        "owner": "repository maintainers",
+        "review_by": "2026-12-31",
+        "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit. Exact original notification transaction declarations now live in this focused implementation owner; no new infrastructure authority or provider effect is admitted.",
+        "imports": [
+          "app.infrastructure.database.gc_mobile_models",
+          "app.infrastructure.database.gc_mobile_models.MobileNotificationModel",
+          "app.infrastructure.database.gc_mobile_models.MobilePushDeliveryModel",
+          "app.infrastructure.database.gc_mobile_models.MobilePushRegistrationModel"
+        ]
+      }
+    },
+    "app/application/mobile/notification_receipts.py": {
+      "origin": "app/application/mobile/notification_service.py",
+      "entry": {
+        "owner": "repository maintainers",
+        "review_by": "2026-12-31",
+        "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit. Exact original notification transaction declarations now live in this focused implementation owner; no new infrastructure authority or provider effect is admitted.",
+        "imports": [
+          "app.infrastructure.database.gc_mobile_models",
+          "app.infrastructure.database.gc_mobile_models.MobilePushDeliveryModel",
+          "app.infrastructure.database.gc_mobile_models.MobilePushRegistrationModel",
+          "app.infrastructure.observability.operational_events",
+          "app.infrastructure.observability.operational_events.OperationalEvent",
+          "app.infrastructure.observability.operational_events.record_operational_event"
+        ]
+      }
+    },
+    "app/application/mobile/authored_notification_drafts.py": {
+      "origin": "app/application/mobile/authored_notification_service.py",
+      "entry": {
+        "owner": "repository maintainers",
+        "review_by": "2026-12-31",
+        "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit. Exact original notification transaction declarations now live in this focused implementation owner; no new infrastructure authority or provider effect is admitted.",
+        "imports": [
+          "app.infrastructure.database.gc_notification_models",
+          "app.infrastructure.database.gc_notification_models.GCNotificationDraftModel",
+          "app.infrastructure.database.models",
+          "app.infrastructure.database.models.ClientGroupModel",
+          "app.infrastructure.repositories.audit_log_repository",
+          "app.infrastructure.repositories.audit_log_repository.AuditLogRepository"
+        ]
+      }
+    },
+    "app/application/mobile/authored_notification_reviews.py": {
+      "origin": "app/application/mobile/authored_notification_service.py",
+      "entry": {
+        "owner": "repository maintainers",
+        "review_by": "2026-12-31",
+        "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit. Exact original notification transaction declarations now live in this focused implementation owner; no new infrastructure authority or provider effect is admitted.",
+        "imports": [
+          "app.infrastructure.database.gc_notification_models",
+          "app.infrastructure.database.gc_notification_models.GCNotificationDraftModel"
+        ]
+      }
+    },
+    "app/application/mobile/authored_notification_send.py": {
+      "origin": "app/application/mobile/authored_notification_service.py",
+      "entry": {
+        "owner": "repository maintainers",
+        "review_by": "2026-12-31",
+        "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit. Exact original notification transaction declarations now live in this focused implementation owner; no new infrastructure authority or provider effect is admitted.",
+        "imports": [
+          "app.infrastructure.database.gc_mobile_models",
+          "app.infrastructure.database.gc_mobile_models.GCGroupAccessModel",
+          "app.infrastructure.database.gc_mobile_models.MobileNotificationModel",
+          "app.infrastructure.database.gc_notification_models",
+          "app.infrastructure.database.gc_notification_models.GCNotificationBatchModel",
+          "app.infrastructure.database.gc_notification_models.GCNotificationRecipientGrantModel",
+          "app.infrastructure.database.gc_notification_models.GCNotificationRecipientModel",
+          "app.infrastructure.repositories.audit_log_repository",
+          "app.infrastructure.repositories.audit_log_repository.AuditLogRepository"
+        ]
+      }
+    },
+    "app/application/mobile/authored_notification_grants.py": {
+      "origin": "app/application/mobile/authored_notification_access.py",
+      "entry": {
+        "owner": "repository maintainers",
+        "review_by": "2026-12-31",
+        "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit. Exact original notification transaction declarations now live in this focused implementation owner; no new infrastructure authority or provider effect is admitted.",
+        "imports": [
+          "app.infrastructure.database.gc_mobile_models",
+          "app.infrastructure.database.gc_mobile_models.MobileNotificationModel",
+          "app.infrastructure.database.gc_mobile_models.MobilePushDeliveryModel",
+          "app.infrastructure.database.gc_notification_models",
+          "app.infrastructure.database.gc_notification_models.GCNotificationRecipientGrantModel",
+          "app.infrastructure.database.gc_notification_models.GCNotificationRecipientModel"
+        ]
+      }
+    },
+    "app/application/mobile/authored_notification_registrations.py": {
+      "origin": "app/application/mobile/authored_notification_access.py",
+      "entry": {
+        "owner": "repository maintainers",
+        "review_by": "2026-12-31",
+        "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit. Exact original notification transaction declarations now live in this focused implementation owner; no new infrastructure authority or provider effect is admitted.",
+        "imports": [
+          "app.infrastructure.database.gc_mobile_models",
+          "app.infrastructure.database.gc_mobile_models.MobileDeviceSessionModel",
+          "app.infrastructure.database.gc_mobile_models.MobilePassengerSessionIdentityModel",
+          "app.infrastructure.database.gc_mobile_models.MobilePushRegistrationModel"
+        ]
+      }
+    },
+    "app/application/mobile/authored_notification_targets.py": {
+      "origin": "app/application/mobile/authored_notification_access.py",
+      "entry": {
+        "owner": "repository maintainers",
+        "review_by": "2026-12-31",
+        "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit. Exact original notification transaction declarations now live in this focused implementation owner; no new infrastructure authority or provider effect is admitted.",
+        "imports": [
+          "app.infrastructure.database.gc_mobile_models",
+          "app.infrastructure.database.gc_mobile_models.MobileDeviceSessionModel",
+          "app.infrastructure.database.gc_mobile_models.MobileNotificationModel",
+          "app.infrastructure.database.gc_mobile_models.MobilePushDeliveryModel",
+          "app.infrastructure.database.gc_mobile_models.MobilePushRegistrationModel"
+        ]
+      }
+    },
+    "app/application/mobile/notification_dispatch_claims.py": {
+      "origin": "app/application/mobile/notification_service.py",
+      "entry": {
+        "owner": "repository maintainers",
+        "review_by": "2026-12-31",
+        "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit. Exact original notification transaction declarations now live in this focused implementation owner; no new infrastructure authority or provider effect is admitted.",
+        "imports": [
+          "app.infrastructure.database.gc_mobile_models",
+          "app.infrastructure.database.gc_mobile_models.MobileNotificationModel",
+          "app.infrastructure.database.gc_mobile_models.MobilePushDeliveryModel"
+        ]
+      }
+    },
+    "app/application/mobile/notification_dispatch_targets.py": {
+      "origin": "app/application/mobile/notification_service.py",
+      "entry": {
+        "owner": "repository maintainers",
+        "review_by": "2026-12-31",
+        "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit. Exact original notification transaction declarations now live in this focused implementation owner; no new infrastructure authority or provider effect is admitted.",
+        "imports": [
+          "app.infrastructure.database.gc_mobile_models",
+          "app.infrastructure.database.gc_mobile_models.MobileNotificationModel",
+          "app.infrastructure.database.gc_mobile_models.MobilePushDeliveryModel",
+          "app.infrastructure.database.gc_mobile_models.MobilePushRegistrationModel"
+        ]
+      }
+    },
+    "app/application/mobile/notification_dispatch_results.py": {
+      "origin": "app/application/mobile/notification_service.py",
+      "entry": {
+        "owner": "repository maintainers",
+        "review_by": "2026-12-31",
+        "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit. Exact original notification transaction declarations now live in this focused implementation owner; no new infrastructure authority or provider effect is admitted.",
+        "imports": [
+          "app.infrastructure.observability.operational_events",
+          "app.infrastructure.observability.operational_events.OperationalEvent",
+          "app.infrastructure.observability.operational_events.record_operational_event"
+        ]
+      }
+    }
+  },
+  "every_new_edge_is_subset_of_exact_original_owner": true,
+  "all_other_entries_and_restrictions_unchanged": true,
+  "owner_and_review_date_preserved": true,
+  "no_glob_or_general_allowance": true,
+  "verifier_sha256": "bc1a580902fc60808c0d01c3b0fa6d7cde4820a0eba13c8a70b782186821bcb0"
+}

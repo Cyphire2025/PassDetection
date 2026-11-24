@@ -2,8 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { activeDeliverySelection } from "./document-workspace-model";
 import { DocumentDeliveryPreviewDialog } from "./document-workspace-dialogs";
-import { eligibleWelcomePhones, selectedWelcomePhones } from "./traveller-welcome-model";
-import { documentPreview, welcomeRecipient } from "./traveller-welcome.test-fixtures";
+import { documentPreview } from "./traveller-welcome.test-fixtures";
 
 describe("traveller document eligibility", () => {
   it("drops stale selections and resends when a changed phone is invalid", () => {
@@ -25,17 +24,6 @@ describe("traveller document eligibility", () => {
     Object.assign(data.recipients[0], { eligible: false, delivery_status: "already_sent", resend_allowed: true });
     expect(activeDeliverySelection(data, ["visa-1"], []).documentIds).toEqual([]);
     expect(activeDeliverySelection(data, ["visa-1"], ["visa-1"]).resendDocumentIds).toEqual(["visa-1"]);
-  });
-
-  it("deduplicates welcome destinations and requires a rendered message", () => {
-    expect(eligibleWelcomePhones([welcomeRecipient(), welcomeRecipient(), welcomeRecipient({ phone_number: "+919900000009", rendered_message: null })])).toEqual(["+919900000001"]);
-  });
-
-  it("bounds large welcome selections and leaves remaining numbers ready for the next send", () => {
-    const phones = Array.from({ length: 1_501 }, (_, index) => String(index));
-    expect(selectedWelcomePhones(phones, null)).toHaveLength(1_500);
-    expect(selectedWelcomePhones([phones[1_500]], null)).toEqual([phones[1_500]]);
-    expect(selectedWelcomePhones(phones, ["stale", "1", "1"])).toEqual(["1"]);
   });
 
   it("shows the submitted destination and allows document sending without welcome review", () => {

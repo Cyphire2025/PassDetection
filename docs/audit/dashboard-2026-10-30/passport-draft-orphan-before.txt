@@ -1,0 +1,118 @@
+FFFF...                                                                  [100%]
+================================== FAILURES ===================================
+_ test_scheduled_cleanup_recovers_aged_attempt_after_best_effort_delete_failure _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000002081BAF6550>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002081B6A4110>
+
+    @pytest.mark.asyncio
+    async def test_scheduled_cleanup_recovers_aged_attempt_after_best_effort_delete_failure(
+        db_session,
+        monkeypatch,
+    ):
+        key = attempt_key()
+        storage = RetryStorage({DRAFT_PREFIX: [(key, OLD)]})
+        use_case = object.__new__(SubmitPassportUseCase)
+        use_case._storage_repo = storage
+        await use_case._cleanup_uploads([key])
+        assert storage.failed_once and storage.deleted == []
+        result = await reconcile(storage, monkeypatch, db_session)
+>       assert storage.deleted == [[key]]
+E       AssertionError: assert [] == [['drafts/d84...6-cover.png']]
+E         
+E         Right contains one more item: ['drafts/d84d8041-2a88-4a48-b3b0-768d9e83fdcd/c55da6f3-205e-4d20-aeae-72fbc0593524/ceb5f623-8c90-4c16-950a-e5e091a1ae76-cover.png']
+E         Use -v to get more diff
+
+tests\integration\test_passport_draft_orphan_reconciliation.py:52: AssertionError
+---------------------------- Captured stdout call -----------------------------
+2026-10-31T13:32:49.795459Z [warning  ] passport_upload_compensation_failed [app.application.use_cases.passports.submit_passport_use_case] error_type=ConnectionError object_count=1
+------------------------------ Captured log call ------------------------------
+WARNING  app.application.use_cases.passports.submit_passport_use_case:submit_passport_use_case.py:434 {'object_count': 1, 'error_type': 'ConnectionError', 'event': 'passport_upload_compensation_failed', 'logger': 'app.application.use_cases.passports.submit_passport_use_case', 'level': 'warning', 'timestamp': '2026-10-31T13:32:49.795459Z'}
+______ test_every_durable_image_owner_also_holds_aged_upload_draft_keys _______
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000002081B5FE110>
+test_settings = Settings(app_env='development', app_debug=True, app_version='1.0.0', app_revision='unknown', expected_database_schema_...me='qrcode_v1', whatsapp_otp_template_name='', whatsapp_otp_template_language='en_US', whatsapp_delivery_concurrency=4)
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002081CDCEBD0>
+
+    @pytest.mark.asyncio
+    async def test_every_durable_image_owner_also_holds_aged_upload_draft_keys(
+        db_session,
+        test_settings,
+        monkeypatch,
+    ):
+        held = await retained_image_keys(db_session, test_settings, prefixes=(DRAFT_PREFIX,))
+        assert len(held) == 26
+        storage = FakeStorage({DRAFT_PREFIX: [(key, OLD) for key in sorted(held)]})
+        result = await reconcile(storage, monkeypatch, db_session)
+        assert await db_session.scalar(text("PRAGMA foreign_keys")) == 1
+>       assert result.scanned_count == result.stale_candidate_count == 26
+E       assert 0 == 26
+E        +  where 0 = DocumentOrphanReconciliationResult(scanned_count=0, stale_candidate_count=0, deleted_count=0).stale_candidate_count
+
+tests\integration\test_passport_draft_orphan_reconciliation.py:67: AssertionError
+______ test_committed_draft_is_held_after_a_lost_commit_acknowledgement _______
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000002081D70B5D0>
+test_settings = Settings(app_env='development', app_debug=True, app_version='1.0.0', app_revision='unknown', expected_database_schema_...me='qrcode_v1', whatsapp_otp_template_name='', whatsapp_otp_template_language='en_US', whatsapp_delivery_concurrency=4)
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002081B6BDE90>
+
+    @pytest.mark.asyncio
+    async def test_committed_draft_is_held_after_a_lost_commit_acknowledgement(
+        db_session,
+        test_settings,
+        monkeypatch,
+    ):
+        await retained_image_keys(db_session, test_settings)
+        owner = await db_session.scalar(select(PassportSubmissionModel).limit(1))
+        key = attempt_key()
+    
+        async def publish_then_lose_ack():
+            owner.passport_cover_s3_key = key
+            await db_session.commit()
+            raise ConnectionError("synthetic lost COMMIT acknowledgement")
+    
+        with pytest.raises(ConnectionError, match="synthetic lost COMMIT"):
+            await publish_then_lose_ack()
+        storage = FakeStorage({DRAFT_PREFIX: [(key, OLD)]})
+        result = await reconcile(storage, monkeypatch, db_session)
+>       assert result.scanned_count == result.stale_candidate_count == 1
+E       assert 0 == 1
+E        +  where 0 = DocumentOrphanReconciliationResult(scanned_count=0, stale_candidate_count=0, deleted_count=0).stale_candidate_count
+
+tests\integration\test_passport_draft_orphan_reconciliation.py:90: AssertionError
+________ test_draft_scan_keeps_recent_future_and_unknown_age_attempts _________
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000002081B9CEA90>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002081B8BCF90>
+
+    @pytest.mark.asyncio
+    async def test_draft_scan_keeps_recent_future_and_unknown_age_attempts(
+        db_session,
+        monkeypatch,
+    ):
+        cutoff = NOW - timedelta(hours=24)
+        old_key, recent, future, unknown = [attempt_key() for _ in range(4)]
+        storage = FakeStorage(
+            {
+                DRAFT_PREFIX: [
+                    (old_key, cutoff),
+                    (recent, cutoff + timedelta(microseconds=1)),
+                    (future, NOW + timedelta(days=1)),
+                    (unknown, None),
+                ]
+            }
+        )
+        result = await reconcile(storage, monkeypatch, db_session)
+>       assert storage.deleted == [[old_key]]
+E       AssertionError: assert [] == [['drafts/6e1...2-cover.png']]
+E         
+E         Right contains one more item: ['drafts/6e10a5ce-1832-4f78-b57c-6df182efd00e/d20a86a3-dc40-4c92-ad79-22642bd6cafb/7601ca1f-9da0-4130-85dd-3b97c0c72562-cover.png']
+E         Use -v to get more diff
+
+tests\integration\test_passport_draft_orphan_reconciliation.py:112: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/integration/test_passport_draft_orphan_reconciliation.py::test_scheduled_cleanup_recovers_aged_attempt_after_best_effort_delete_failure
+FAILED tests/integration/test_passport_draft_orphan_reconciliation.py::test_every_durable_image_owner_also_holds_aged_upload_draft_keys
+FAILED tests/integration/test_passport_draft_orphan_reconciliation.py::test_committed_draft_is_held_after_a_lost_commit_acknowledgement
+FAILED tests/integration/test_passport_draft_orphan_reconciliation.py::test_draft_scan_keeps_recent_future_and_unknown_age_attempts
+4 failed, 3 passed in 2.43s

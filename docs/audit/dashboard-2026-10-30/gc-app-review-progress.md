@@ -1,0 +1,18 @@
+# Dashboard companion administration review
+
+All41 original GC dashboard runtime files were fully read while integration ran; the current ledger has42 full runtime records including the new notification operation adapter. The original pending list is empty. Native mobile files were excluded. Source review is complete for this subtree; the larger-owner architecture follow-up remains open.
+
+## Current fixes
+
+- The select popup is portaled into its owning dialog layer, inside keyboard isolation and outside the animated/clipped panel. Search keeps focus, Escape closes the popup before the dialog, selection returns focus, loading options cannot be chosen, and active options/helper references are explicit. Real shared-dialog React regressions failed before the fix and pass afterward; desktop/phone browser journeys exercise search and Escape.
+- Private common-PDF preview results are generation/lifetime guarded. A request finishing after unmount no longer allocates a blob URL; old requests cannot replace newer previews/errors, and displayed URLs are revoked.
+- Manager status actions adopt the returned record/revision before another action. Reset secrets are kept out of the parent-selected record; per-profile keys clear private local state. Synchronous admission prevents duplicate security actions. Activation links remain available with a visible recoverable error if copying fails. Session labels distinguish revoked/expired/active and no longer claim another manager's active session is this device.
+- Agency/group fan-out and profile→assignment operations keep one initial actor, forwarding the existing HTTP mismatch precondition. All25 admin mutation/preview facades accept an optional trailing owner configuration outside request bodies; endpoints, agency/revision checks and public identities remain unchanged.
+- All25 admin mutation hooks now capture actor at actual invocation using usePrivateMutation, before global/local TanStack setup can await. The actual deferred-global-onMutate regression dispatched under a replacement actor before the fix; it now rejects before API invocation. Cache-writing callbacks assert original ownership before/after query cancellation. Public variables, callback arguments/context and normal flags/reset remain intact.
+- Notification save/review/send/recovery uses an actor/lifetime-bound adapter. Account changes/unmounts prevent continuation and stale cache effects; stale rejections or accepted lookups cannot clear the original actor's unresolved recovery marker. Current tests retain ambiguous-send request reuse, explicit review/resend, exact pre-send409 proof, locked410 deleted-without-send proof and provider-acceptance versus phone-display distinctions. No real send was performed.
+
+## Verification
+
+The combined owned checkpoint passed20 Vitest files/137 tests and70 Node contracts, plus TypeScript/scoped lint. The latest isolated GC browser run passed8 desktop/phone publishing/notification/recovery journeys. JSON is gc-passport-current-browser.json; screenshots are under the absolute workspace .tmp/gc-passport-checkpoint/browser-results directory. The parent owns full build/coverage qualification and shared ratchet integration. camera-gc-current-source-checkpoint.json binds75 current runtime/test paths and separates the later narrow streamed-body supplement.
+
+Larger GC API/hook/document/manager display-controller decomposition and action admission in remaining controllers remain open after the integration freeze. The isolated browser responses do not prove PostgreSQL/Redis/private storage/provider production behavior. Existing reviewed notification safety rules were preserved; no native app or deployment changes were made.

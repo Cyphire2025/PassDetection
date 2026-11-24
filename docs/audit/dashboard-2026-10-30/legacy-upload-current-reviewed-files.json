@@ -1,0 +1,178 @@
+[
+  {
+    "path": "frontend/features/upload/components/traveller-portal.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "b20bec7199f261561ebd27abb90a7cd2986421f0fde1f6c042705a430ffa3214",
+    "notes": "Complete portal reread/authored lean fallback. Only primary token query owns loading/error/refetch; existing error view reused with cancelRefetch:false. No recovery storage initialization, secondary observer or legacy happy-path import remains. Four real QueryClient fallback/cached-error tests and20current browser cases pass."
+  },
+  {
+    "path": "frontend/features/passports/hooks/use-upload-links.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "4ba2545c4e4a304177a3462590ec58a08bccaa5660f536ee9e9b67e172326fe1",
+    "notes": "Complete prior query/mutation source read; current whole-file digest refreshed after removing now-unused retryOnMount option. Default primary retry/remount behavior and bounded terminal/transient policy retained; cache mutation and primary remount3unit tests pass."
+  },
+  {
+    "path": "frontend/features/upload/components/upload-link-error-screen.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "3d0bbc91593e3488a126cdeea937c79b30682ce7ae74929ae7e0874e1ad73902",
+    "notes": "Complete29-line error view reread and reused directly. Same closed/missing/transient classification, accessible title, centered shell, bounded controls and explicit Check again/Retry; no data writes."
+  },
+  {
+    "path": "frontend/features/upload/components/upload-flow-shell.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "4ffaa0d71d1274933d8d4810eff8bef1f93e21cdfd4aecc15c014c42e26efff4",
+    "notes": "Complete shared shell/header source read. Current Fresh/returning header and centered loading/error shell remain; caller tracing confirms shared module retention. No UI/branding strings changed in retirement."
+  },
+  {
+    "path": "frontend/features/upload/services/review-submission-validation.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "71cf96d9acd695b630f2651429c6e5daeeefeb0b9c0f0b238dcc18dcd16320d3",
+    "notes": "Complete original mixed validation source and current27-line shared configured validator read. Removed named validators had only retired production callers. Enabled/disabled/optional settings, custom questions/details and labels preserved exactly; current direct tests produce100%coverage across all metrics."
+  },
+  {
+    "path": "frontend/features/travellers/hooks/use-returning-draft.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "d932c99c17879f1d288095b3bc5cc38f6d85b295e4801a3efd1e7adafad18682",
+    "notes": "Complete returning draft hook read in two bounded groups. Serialized save/upload/complete, remote revision rebase, owned-source binding, final key retention, scope cancellation and active image lifecycle inspected. Current private response-race and returning tests pass at preserved critical floors; no runtime changes."
+  },
+  {
+    "path": "frontend/features/travellers/services/private-preview-queue.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "3b16a2fa558c0661c2ff31cb9d9418389546c383068990e8122c4a7cea6168df",
+    "notes": "Complete two-transfer no-byte-cache queue read while adding private preview regressions. Queue cancellation removes waiting task, started task checks signal and releases slot in finally. Current late private response/unmount tests pass; no edits."
+  },
+  {
+    "path": "frontend/vitest.config.mts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "43f8ef71f59df34257e296abc4e2d6181105066af32a39c66bf2dcca6268d37d",
+    "notes": "Complete coverage config reread/authored. Nine retired implementation owners replaced by13actual Fresh/returning safety owners; current configured validator retained. Per-file floors74statements/50branches/75functions/75lines unchanged;14current files pass independently."
+  },
+  {
+    "path": "frontend/features/upload/components/configured-passport-upload.test.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "3bfb6a9219a349663c290818b76f5bb2e13aae620e812f3495a20c657d594641",
+    "notes": "Complete retained/migrated current test source read/authored. Obsolete implementation assertions replaced with actual current Fresh/returning responsibilities, while shared field/dialog and backend/API transport assertions remain. See legacy-upload-coverage-responsibilities.json and final verification."
+  },
+  {
+    "path": "frontend/features/upload/components/passport-camera-final-validation.contract.test.mjs",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "a78a09b656796a04f20be1327a8f4f243ed52f2c21c93a9bf87a832c2475ddf1",
+    "notes": "Complete retained/migrated current test source read/authored. Obsolete implementation assertions replaced with actual current Fresh/returning responsibilities, while shared field/dialog and backend/API transport assertions remain. See legacy-upload-coverage-responsibilities.json and final verification."
+  },
+  {
+    "path": "frontend/features/upload/components/protected-upload-document-image.contract.test.mjs",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "b8d3cf00a233031063103ef4069924bd53dede932fc8e5ccfcc22d667328e801",
+    "notes": "Complete retained/migrated current test source read/authored. Obsolete implementation assertions replaced with actual current Fresh/returning responsibilities, while shared field/dialog and backend/API transport assertions remain. See legacy-upload-coverage-responsibilities.json and final verification."
+  },
+  {
+    "path": "frontend/features/upload/components/relation-qualifier-step.contract.test.mjs",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "0aa359c5f6ce6a511024f9df9365bb965de59c8564309c2f5843e05f7ebde181",
+    "notes": "Complete retained/migrated current test source read/authored. Obsolete implementation assertions replaced with actual current Fresh/returning responsibilities, while shared field/dialog and backend/API transport assertions remain. See legacy-upload-coverage-responsibilities.json and final verification."
+  },
+  {
+    "path": "frontend/features/upload/components/upload-flow-boundaries.contract.test.mjs",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "984aad24043f1e9ccf9d2138a062e5672ce44e0c390be752f848751b7d19ef36",
+    "notes": "Complete retained/migrated current test source read/authored. Obsolete implementation assertions replaced with actual current Fresh/returning responsibilities, while shared field/dialog and backend/API transport assertions remain. See legacy-upload-coverage-responsibilities.json and final verification."
+  },
+  {
+    "path": "frontend/features/upload/components/upload-flow-reliability.contract.test.mjs",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "b55fe85b87761627a53d813e6bf2cb1c2fb029f051d7e3c33d812352264300a5",
+    "notes": "Complete retained/migrated current test source read/authored. Obsolete implementation assertions replaced with actual current Fresh/returning responsibilities, while shared field/dialog and backend/API transport assertions remain. See legacy-upload-coverage-responsibilities.json and final verification."
+  },
+  {
+    "path": "frontend/features/upload/components/visa-photo-upload.contract.test.mjs",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "36e0f66b9f6f448f3d51f9cdf14124b3dcfe66b588e49791e0d30780dcb82f0a",
+    "notes": "Complete retained/migrated current test source read/authored. Obsolete implementation assertions replaced with actual current Fresh/returning responsibilities, while shared field/dialog and backend/API transport assertions remain. See legacy-upload-coverage-responsibilities.json and final verification."
+  },
+  {
+    "path": "frontend/features/upload/api/upload-reconciliation-contract.test.mjs",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "798810861f8f4f6e66670d9706c799148963d8d371c37a294a52a93ac3218ad7",
+    "notes": "Complete retained/migrated current test source read/authored. Obsolete implementation assertions replaced with actual current Fresh/returning responsibilities, while shared field/dialog and backend/API transport assertions remain. See legacy-upload-coverage-responsibilities.json and final verification."
+  },
+  {
+    "path": "frontend/features/passports/api/public-flow-telemetry-contract.test.mjs",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "ced6352cb545f5f41dd4fe45740743e8b4193cc35f20cfd691489a9c0a5390ad",
+    "notes": "Complete retained/migrated current test source read/authored. Obsolete implementation assertions replaced with actual current Fresh/returning responsibilities, while shared field/dialog and backend/API transport assertions remain. See legacy-upload-coverage-responsibilities.json and final verification."
+  },
+  {
+    "path": "frontend/features/upload/services/review-submission-validation.test.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "2169e59680a193137542279a683dd00dcf6fb654ce333aa9045a9587b15e4b26",
+    "notes": "Complete retained/migrated current test source read/authored. Obsolete implementation assertions replaced with actual current Fresh/returning responsibilities, while shared field/dialog and backend/API transport assertions remain. See legacy-upload-coverage-responsibilities.json and final verification."
+  },
+  {
+    "path": "frontend/features/upload/components/traveller-portal-fallback.test.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "79dd368c9a3145caf36864e38025b72529eadab0b094667dff07c5aa0c12abb5",
+    "notes": "Complete new current-flow behavior/contract helper authored and read. Covers primary query ownership/credential retention, unchanged camera bytes, synchronous transfer admission, page-exit cancellation or private preview MIME/blob cleanup as applicable; no real provider/data used."
+  },
+  {
+    "path": "frontend/features/upload/hooks/use-selected-document-uploads.test.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "4c65e3758d202181ec9eb59a2626a26fee73952dd7ebea1c150a97f2b1a34c49",
+    "notes": "Complete new current-flow behavior/contract helper authored and read. Covers primary query ownership/credential retention, unchanged camera bytes, synchronous transfer admission, page-exit cancellation or private preview MIME/blob cleanup as applicable; no real provider/data used."
+  },
+  {
+    "path": "frontend/features/upload/components/fresh-document-preview.test.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "9f6091c578b718027e3ca11cc3e22834d6969ed12ca53dae9fdda0ad7f57a069",
+    "notes": "Complete new current-flow behavior/contract helper authored and read. Covers primary query ownership/credential retention, unchanged camera bytes, synchronous transfer admission, page-exit cancellation or private preview MIME/blob cleanup as applicable; no real provider/data used."
+  },
+  {
+    "path": "frontend/features/upload/components/current-upload-source.contract-helper.mjs",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "fdda9e2b50eb297b5e29dacc05abac1308e23ee04d51d693698ce523b5e2601d",
+    "notes": "Complete new current-flow behavior/contract helper authored and read. Covers primary query ownership/credential retention, unchanged camera bytes, synchronous transfer admission, page-exit cancellation or private preview MIME/blob cleanup as applicable; no real provider/data used."
+  }
+]

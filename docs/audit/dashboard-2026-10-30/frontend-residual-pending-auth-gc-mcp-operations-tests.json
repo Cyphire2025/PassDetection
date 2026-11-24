@@ -1,0 +1,501 @@
+{
+  "method": "Automated triage only, not source-read evidence. These rows lacked explicit matching full reads when inventoried; check latest ledgers/current hashes before claiming or rereading.",
+  "files": [
+    {
+      "path": "frontend/features/operations/components/managed-account-controls.contract.test.mjs",
+      "sha256": "4dea0922b9676f77889d3474445be4dd994e4400cecc6eeb7a6e831413ca7b55",
+      "physical_lines": 23,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/operations/components/managed-accounts-panel.contract.test.mjs",
+      "sha256": "9b79ea8d081d41c8a6bd05a386045d1e8fad0767a9b09be310281a792f6bee05",
+      "physical_lines": 24,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/operations/components/tour-operations-ui.test.tsx",
+      "sha256": "0906c0cba23ed8d03f264ce4745fa32110aa7e14d46f3f1c5fefe8fad2823cdc",
+      "physical_lines": 24,
+      "kind": "test",
+      "inventory_scope": "focused",
+      "inventory_status": "fixed"
+    },
+    {
+      "path": "frontend/features/mcp/api/mcp-transfer.api.test.ts",
+      "sha256": "ee26d44b3a982c38a5fe4eeb8c38defee3b1fb792cbbfa5e86b9df6ce875a229",
+      "physical_lines": 25,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/mcp/api/mcp-request.api.test.ts",
+      "sha256": "018479ee8e5028e3199b297c4d200e55982e7896fe042005a093a2b5a71423aa",
+      "physical_lines": 26,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/gc-app/notifications/pending-send.test.ts",
+      "sha256": "6166d8b9c2d9741ef5f5ed28af37d27f7e70ef14ed14507424d3b3a23c8b099f",
+      "physical_lines": 29,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/auth/services/refresh-attempt.test.ts",
+      "sha256": "807560c08722b01ffaa97fadba667a1dbcdeaef8337581c37e53175b9bf0c267",
+      "physical_lines": 31,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/operations/components/qr-whatsapp-delivery.contract.test.mjs",
+      "sha256": "89194783efb3544ed296e48eb1ff52ca321adf88e35b018b6063ae707f5ac408",
+      "physical_lines": 32,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/gc-app/gc-app-source.contract-helper.mjs",
+      "sha256": "e3ddab850e9199b8041a72a6e2966f4f03bdf2cd23347d6ab8fdcfc2a05d8861",
+      "physical_lines": 33,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/auth/components/step-up-dialog.test.tsx",
+      "sha256": "f0a15afc6aa0960e543e9389fb5d866c87395391a24af473c291aad5a92b0b6b",
+      "physical_lines": 44,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/auth/services/session-continuity.test.ts",
+      "sha256": "359e1cb90161721c2bac8dd8b03c735bc0e284c17f76467258d3482ec99c697d",
+      "physical_lines": 44,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/gc-app/notifications/notification-delivery-summary.test.tsx",
+      "sha256": "bdb361d85e7cba1ff40eaace276736478eb06362ada9e823691d7b6a45157b6b",
+      "physical_lines": 44,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/tour-operations/components/browser-offline-readiness.contract.test.mjs",
+      "sha256": "1d6412ceba527a25c7a203e30cba1b8f818c4915867c1d685113cd83a9109834",
+      "physical_lines": 45,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/gc-app/components/gc-select.test.tsx",
+      "sha256": "48776aa15e2fbb709c3aabd52bb6a9f0fd7a91c7e0d0621ce6f9512c01eb29b8",
+      "physical_lines": 46,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/operations/services/attendance-invalidation.test.ts",
+      "sha256": "90ec827d59c4631499c26d10b2cae59a2e90a6feeee87c0c8cc83b9b8f6b6bb3",
+      "physical_lines": 48,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/auth/hooks/use-identity-action-token.test.tsx",
+      "sha256": "191e912c9bb1d7617a0947b7de1a0af915c01a4c28dafe3f839c9dc4464419d4",
+      "physical_lines": 51,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/mcp/utils/permissions.test.ts",
+      "sha256": "229598f6753c46021ba4fe2cfbcd969b74885e5e7ecefef1a8d66089d66facf7",
+      "physical_lines": 55,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/tour-operations/services/cold-offline-authorization.test.mjs",
+      "sha256": "6699edade4943308c08969aa4956351cc452bacfbffe223f209dfd63f5c57ad1",
+      "physical_lines": 55,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/gc-app/notifications/notification-review-dialog.test.tsx",
+      "sha256": "21304979f7a00a66f8b17f1ac8273aeb51c9439a0683d3706f100a00d409cab3",
+      "physical_lines": 58,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/auth/components/auth-session-renewal.contract.test.mjs",
+      "sha256": "5f8ebbbc0029c5a7c6e42c8184b2f0ef36eec2229a9730418e9de7fe362de52f",
+      "physical_lines": 59,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/gc-app/notifications/notification-audience-picker.test.tsx",
+      "sha256": "1cfaf3a074d2723339f1cf5f12b95046515de414148df6cf8ea7ac87356b7ec0",
+      "physical_lines": 59,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-permission-sections.test.tsx",
+      "sha256": "bed7998893ba822843e5655b014fe3c9cc0ac323d322f7f28475bc865329ab8b",
+      "physical_lines": 59,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/operations/components/rooming-roster-grouping.test.mjs",
+      "sha256": "29867067d9f6b4d562a9906ea32fd97598a9eedbad09d737ed1307777bc51a13",
+      "physical_lines": 62,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/auth/services/queue-safe-sign-out.contract.test.mjs",
+      "sha256": "eec50dd1fb9b9e06f8c9228eb4036b57bd9f3a77053dfd2646d41a2531faff69",
+      "physical_lines": 63,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-batch-policy.test.ts",
+      "sha256": "a0cef94f0ad7a9dcd2bf0c57334e7d23a1da66041cd08777de8d8dfa5b60e18b",
+      "physical_lines": 67,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-privacy.test.mjs",
+      "sha256": "8c6c8b5052ce5dfc3b935fa8b15617fa58eb304f9689f7f0dc91658273c9c6d2",
+      "physical_lines": 69,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/auth/components/activation-form.test.tsx",
+      "sha256": "cb81424b55ad558eacfaa80968387bf2e8350b033e8a53640bf30ec5ebff7d0d",
+      "physical_lines": 70,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/gc-app/notifications/notifications.api.test.ts",
+      "sha256": "d32e28e30fe9c8f596670ed7acf5f55637f031b5cba8d2791a2c0e7cbda2ca7c",
+      "physical_lines": 74,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/gc-app/components/common-documents-panel.test.tsx",
+      "sha256": "97f961b9b405fae2b60f89bf781c0c39136e22e1397d7c90b286c8c782656746",
+      "physical_lines": 80,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/gc-app/components/client-manager-details-dialog.test.tsx",
+      "sha256": "aaa6a1fa0054bb61679f656032aced210509896aac8aa10b8c22f3777d505a2e",
+      "physical_lines": 88,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/gc-app/components/announcements-panel.test.tsx",
+      "sha256": "df1ae01cd4840da86ed8b8444dfaf58899b547889ee80a98aa43dc47bb4d45ca",
+      "physical_lines": 89,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/auth/services/access-level.test.ts",
+      "sha256": "ec18baab12584952eff6d4d37a58ddc2547ec0e1f10e09ddf99f6cae966a88d0",
+      "physical_lines": 93,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/tour-operations/hooks/use-browser-offline-readiness.test.tsx",
+      "sha256": "4f5de1eb10b2ae3bbeea65d7e26e438d5b645fbeb9ae1c167d842ac49847e055",
+      "physical_lines": 93,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-simple-access.test.tsx",
+      "sha256": "36b85b4095967c5ddb4f8f02bdb52c79b6d68baafa7554f963770fe9ea971662",
+      "physical_lines": 99,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/auth/components/route-capability-boundary.test.tsx",
+      "sha256": "e8eb0e7bc580fcecfaf78f026f8aa863330844ad61cdf5e25e04ca414159dde6",
+      "physical_lines": 106,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/gc-app/components/announcement-notification-status.test.tsx",
+      "sha256": "2a21a8f8012b374cbe4239586db710a1d388c7ede5903339cac4f35c71cbac3d",
+      "physical_lines": 107,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/operations/services/dashboard-realtime.test.ts",
+      "sha256": "8b7b7bafa208b8c094fe55ce87f834a3cd1e34118dc782db33287e2da7e683e0",
+      "physical_lines": 109,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-devices.test.tsx",
+      "sha256": "ebd0fa1cef03da770e68840abb9aa02bd86d321f2a3530afb2b7c728973c98f1",
+      "physical_lines": 111,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/tour-operations/services/browser-offline-readiness.test.ts",
+      "sha256": "c96d104e915179023e199574b5d580f3cfa62f4b05ef0f184ad7683dbbfa6f9d",
+      "physical_lines": 115,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-retry-policy.test.mjs",
+      "sha256": "623d4e2787615fa4bf8b759a071894245485b05083190a4667afde19070109bc",
+      "physical_lines": 117,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/gc-app/components/app-control-group-workspace.test.tsx",
+      "sha256": "00f0b8916c10de53af2ac6845708b84b59c2943d805816cbf48234652864156b",
+      "physical_lines": 121,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-sync-policy.test.mjs",
+      "sha256": "6ff21f9a544f7366db313bce4ce26b0d38e253eb7f02f97087f9bdb26dcf820b",
+      "physical_lines": 123,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/auth/config/route-capabilities.test.ts",
+      "sha256": "5e0e2a5d86715459c784b0ebc814f7d2ce6c59fe94720372b7121dac9b4c75be",
+      "physical_lines": 129,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/gc-app/notifications/notifications-page.test.tsx",
+      "sha256": "155b0ed26a6829469ea4ef7c6594e3c46b93ec3b7586f612dd123517ddf0f400",
+      "physical_lines": 133,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/gc-app/notifications/notification-history-page.test.tsx",
+      "sha256": "32a7244d94c9dc54d9dcf9454e99fb77b74cf99ee671dba0c27681101151492b",
+      "physical_lines": 134,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-work-results.test.tsx",
+      "sha256": "5ff49f8fa9c85dfa759c3bd4c5dbde69089ca757b674f1f92fb631729f1846d7",
+      "physical_lines": 135,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/auth/components/access-level-switcher.test.tsx",
+      "sha256": "7813afe0cbfc2e09191988f9f0de7b92fe1c9d04621719b43816dab2a5e9790b",
+      "physical_lines": 139,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/operations/components/dashboard-realtime-attendance-bridge.test.tsx",
+      "sha256": "ddcabae5206a8cc2cb0b6241a706c30fac6cacd36d711bf1cba0517d6fcd0193",
+      "physical_lines": 147,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/operations/services/qr-image-generation.test.mjs",
+      "sha256": "1531d756620d09bad6aacbba16aefcbf6e5e63d9bb6e133d72ce3cf1375061d5",
+      "physical_lines": 149,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-permissions.test.tsx",
+      "sha256": "cc93c8d6e8365e1c1302796df50f2269942a82f612becb198570ad7f19e05454",
+      "physical_lines": 152,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+      "sha256": "ffccf1f6091a4d16feefbc81e62527d92e4f435e83d5c0bc765072ea16a888cd",
+      "physical_lines": 169,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/gc-app/api/gc-app-admin.api.test.ts",
+      "sha256": "85938d7c2d7a50f60ca66ff1cc1b2fa939bdc0ea316d5082f72dba40b6cc2b6d",
+      "physical_lines": 180,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/gc-app/components/group-access-panel.test.tsx",
+      "sha256": "1a41c8f0e8bc75b10c4376fcca2b0debd251cb0b682daface55318b3bcbf11b9",
+      "physical_lines": 184,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/auth/components/company-journey-film.test.tsx",
+      "sha256": "741d1f0c56652d37b12ae41d44ee843349e260d583458150954d3953a1a8c8eb",
+      "physical_lines": 187,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/gc-app/components/app-controls-removal.test.tsx",
+      "sha256": "45ca3161ef47e1657c39d952d51a5af831d280a824a27e01995cb7a5c109e01c",
+      "physical_lines": 203,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/gc-app/components/app-controls-page.test.tsx",
+      "sha256": "f8e55300bbb64412bf1515b38f489d39bda3abc9615a9b991eef6d4ee8a5cb6d",
+      "physical_lines": 208,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+      "sha256": "07e866b8fcb0c3e0eb2a2eb53258e951de8e2165019e337e93713a7842b040a1",
+      "physical_lines": 221,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/operations/services/rooming-allocation-mutations.test.ts",
+      "sha256": "bb89b956c4d8552a791ec724b100eee55cde011387afbdf3f73eeeffe8f5cf1b",
+      "physical_lines": 225,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/gc-app/hooks/use-gc-app-admin.test.tsx",
+      "sha256": "377fce9906a232b9f8ee75dd769772a86a9314ac0db8585be4d632b9e4fdf325",
+      "physical_lines": 233,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/gc-app/gc-app-dashboard.contract.test.mjs",
+      "sha256": "6c5255cb4de1757800c3455bd3b80f5daae3768e96decd7a879dcc31d5408c43",
+      "physical_lines": 267,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/gc-app/notifications/use-notification-composer.test.tsx",
+      "sha256": "0ebd208f6351cfb3168da828b41634097b9ff206b70a7a6fd1768e72058daebb",
+      "physical_lines": 286,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/tour-operations/components/coordinator-pwa.contract.test.mjs",
+      "sha256": "1212f837a58f21ef9acb5e12a0ef5f32769fee720697af24164015be1626a969",
+      "physical_lines": 447,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    }
+  ]
+}

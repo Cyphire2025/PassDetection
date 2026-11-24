@@ -9,6 +9,7 @@ from unittest.mock import AsyncMock, patch
 
 from sqlalchemy.dialects import postgresql
 
+from app.infrastructure.repositories import passport_submission_reads
 from app.infrastructure.repositories.passport_submission_repository import (
     PassportSubmissionRepository,
 )
@@ -24,7 +25,7 @@ class PassportStaffApprovalRepositoryTests(unittest.IsolatedAsyncioTestCase):
         repository = PassportSubmissionRepository(session)  # type: ignore[arg-type]
 
         with patch.object(
-            PassportSubmissionRepository,
+            passport_submission_reads,
             "_to_entity",
             return_value=entity,
         ):

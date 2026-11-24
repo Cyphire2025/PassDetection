@@ -1,0 +1,50 @@
+[
+  {
+    "path": "backend/docker/build_postgresql_client.py",
+    "sha256": "b46e0f7737d9d64142a613be18a60f4756e305d23718954fad086ca6b5ed7987",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read, with one known synthetic passport literal redacted while its exact equality to both rehearsal evidence fields was independently checked. Reviewed fixed/pinned native build/provenance/linkage/package inputs and synthetic fixture/recovery semantics. No install/build, database/TLS/native probe, environment/credential read or provider execution. No new vulnerability adopted; XML downloader resource-bound concern is unvalidated source-only and not a remote exploit claim."
+  },
+  {
+    "path": "backend/docker/build_xml_security.py",
+    "sha256": "6b2d406890268c043efdbb14f6b3786176fdf3daf9f67dc2563db803b1476bcf",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read, with one known synthetic passport literal redacted while its exact equality to both rehearsal evidence fields was independently checked. Reviewed fixed/pinned native build/provenance/linkage/package inputs and synthetic fixture/recovery semantics. No install/build, database/TLS/native probe, environment/credential read or provider execution. No new vulnerability adopted; XML downloader resource-bound concern is unvalidated source-only and not a remote exploit claim."
+  },
+  {
+    "path": "backend/docker/verify_postgresql_client.py",
+    "sha256": "53696b49a0368ebe988b48acb0856ec75939d6106c46fff4091c82711d2db3a3",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read, with one known synthetic passport literal redacted while its exact equality to both rehearsal evidence fields was independently checked. Reviewed fixed/pinned native build/provenance/linkage/package inputs and synthetic fixture/recovery semantics. No install/build, database/TLS/native probe, environment/credential read or provider execution. No new vulnerability adopted; XML downloader resource-bound concern is unvalidated source-only and not a remote exploit claim."
+  },
+  {
+    "path": "backend/docker/verify_runtime_security_packages.py",
+    "sha256": "ebd0592ad8724512b7dfca07f06df7e1a1842d40fb6c522b3ec91e73ab83bb59",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read, with one known synthetic passport literal redacted while its exact equality to both rehearsal evidence fields was independently checked. Reviewed fixed/pinned native build/provenance/linkage/package inputs and synthetic fixture/recovery semantics. No install/build, database/TLS/native probe, environment/credential read or provider execution. No new vulnerability adopted; XML downloader resource-bound concern is unvalidated source-only and not a remote exploit claim."
+  },
+  {
+    "path": "backend/scripts/postgresql_rehearsal_fixture.py",
+    "sha256": "1f60400f7f47ea387fa7e38caab3e2d35e151073adc11fdd924bb197959095ee",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read, with one known synthetic passport literal redacted while its exact equality to both rehearsal evidence fields was independently checked. Reviewed fixed/pinned native build/provenance/linkage/package inputs and synthetic fixture/recovery semantics. No install/build, database/TLS/native probe, environment/credential read or provider execution. No new vulnerability adopted; XML downloader resource-bound concern is unvalidated source-only and not a remote exploit claim."
+  },
+  {
+    "path": "docs/remediation/ci-rehearsal-head-evidence.json",
+    "sha256": "3b28a933dadefdd68132c2856f6e5d5b201e3aab93309b80efbec59af2bad0eb",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "reviewed",
+    "notes": "Focused structural/privacy review only: top-level scope/resilience flags and two passport snapshot fields, exact match to explicit synthetic fixture; no current full artifact validation or entire report physical-read claim. See documentation-privacy-candidate-clearance.json."
+  }
+]

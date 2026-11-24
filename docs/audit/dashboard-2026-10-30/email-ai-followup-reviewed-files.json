@@ -1,0 +1,11 @@
+[
+  {
+    "path": "backend/app/presentation/api/v1/routes/email_integration_credentials.py",
+    "sha256": "2261ae5ae3a21b4b3011c3f4ed4401f913cfa3b91bcef1a00fee4c930f453fca",
+    "lines": 68,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Explicit disconnect fence marks blocked, increments generation and clears sync lease before provider revocation; token opening failure and unknown revoke failure retain fail-closed state. Bound caller trace confirms commit before provider await. No edits or new service test claim."
+  }
+]

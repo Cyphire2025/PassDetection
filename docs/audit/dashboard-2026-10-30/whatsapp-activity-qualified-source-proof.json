@@ -1,0 +1,966 @@
+{
+  "actual_global_alias_bindings": [
+    [
+      "_normalized_activity_status",
+      "case"
+    ],
+    [
+      "_normalized_activity_status",
+      "and_"
+    ],
+    [
+      "_normalized_activity_status",
+      "ACTIVE_STATUSES"
+    ],
+    [
+      "_status_aggregates",
+      "ACTIVE_STATUSES"
+    ],
+    [
+      "_status_aggregates",
+      "and_"
+    ],
+    [
+      "_status_aggregates",
+      "or_"
+    ],
+    [
+      "_status_aggregates",
+      "UNCERTAIN_STATUSES"
+    ],
+    [
+      "_status_aggregates",
+      "KNOWN_STATUSES"
+    ],
+    [
+      "_status_aggregates",
+      "_normalized_activity_status"
+    ],
+    [
+      "_status_aggregates",
+      "func"
+    ],
+    [
+      "_status_aggregates",
+      "SUCCESS_STATUSES"
+    ],
+    [
+      "_status_aggregates",
+      "ACTIVITY_STATUS_COUNT_KEYS"
+    ],
+    [
+      "_scope_client_group_statement",
+      "AuthorizationPolicy"
+    ],
+    [
+      "_broadcast_activity_statement",
+      "select"
+    ],
+    [
+      "_broadcast_activity_statement",
+      "WhatsAppMessageLogModel"
+    ],
+    [
+      "_broadcast_activity_statement",
+      "WhatsAppBroadcastGroupModel"
+    ],
+    [
+      "_broadcast_activity_statement",
+      "_status_aggregates"
+    ],
+    [
+      "_broadcast_activity_statement",
+      "func"
+    ],
+    [
+      "_broadcast_activity_statement",
+      "UserRole"
+    ],
+    [
+      "_document_activity_statement",
+      "select"
+    ],
+    [
+      "_document_activity_statement",
+      "DocumentWhatsAppDeliveryModel"
+    ],
+    [
+      "_document_activity_statement",
+      "ClientGroupModel"
+    ],
+    [
+      "_document_activity_statement",
+      "_status_aggregates"
+    ],
+    [
+      "_document_activity_statement",
+      "func"
+    ],
+    [
+      "_document_activity_statement",
+      "and_"
+    ],
+    [
+      "_document_activity_statement",
+      "_scope_client_group_statement"
+    ],
+    [
+      "_document_activity_deliveries_statement",
+      "select"
+    ],
+    [
+      "_document_activity_deliveries_statement",
+      "DocumentWhatsAppDeliveryModel"
+    ],
+    [
+      "_document_activity_deliveries_statement",
+      "_normalized_activity_status"
+    ],
+    [
+      "_document_activity_deliveries_statement",
+      "ClientGroupModel"
+    ],
+    [
+      "_document_activity_deliveries_statement",
+      "and_"
+    ],
+    [
+      "_document_activity_deliveries_statement",
+      "_scope_client_group_statement"
+    ],
+    [
+      "_document_activity_status_predicate",
+      "DocumentWhatsAppDeliveryModel"
+    ],
+    [
+      "_document_activity_status_predicate",
+      "SUCCESS_STATUSES"
+    ],
+    [
+      "_document_activity_status_predicate",
+      "_failed_status_predicate"
+    ],
+    [
+      "_document_activity_status_predicate",
+      "_normalized_activity_status"
+    ],
+    [
+      "_document_activity_status_predicate",
+      "UNCERTAIN_STATUSES"
+    ],
+    [
+      "_qr_activity_statement",
+      "select"
+    ],
+    [
+      "_qr_activity_statement",
+      "PassengerQrWhatsAppDeliveryModel"
+    ],
+    [
+      "_qr_activity_statement",
+      "ClientGroupModel"
+    ],
+    [
+      "_qr_activity_statement",
+      "_status_aggregates"
+    ],
+    [
+      "_qr_activity_statement",
+      "func"
+    ],
+    [
+      "_qr_activity_statement",
+      "_scope_client_group_statement"
+    ],
+    [
+      "_activity_statement",
+      "_broadcast_activity_statement"
+    ],
+    [
+      "_activity_statement",
+      "_document_activity_statement"
+    ],
+    [
+      "_activity_statement",
+      "_qr_activity_statement"
+    ],
+    [
+      "_failed_status_predicate",
+      "KNOWN_STATUSES"
+    ],
+    [
+      "_broadcast_failures_statement",
+      "select"
+    ],
+    [
+      "_broadcast_failures_statement",
+      "WhatsAppBroadcastRecipientModel"
+    ],
+    [
+      "_broadcast_failures_statement",
+      "func"
+    ],
+    [
+      "_broadcast_failures_statement",
+      "WhatsAppMessageLogModel"
+    ],
+    [
+      "_broadcast_failures_statement",
+      "WhatsAppBroadcastGroupModel"
+    ],
+    [
+      "_broadcast_failures_statement",
+      "_failed_status_predicate"
+    ],
+    [
+      "_broadcast_failures_statement",
+      "UserRole"
+    ],
+    [
+      "_document_failures_statement",
+      "select"
+    ],
+    [
+      "_document_failures_statement",
+      "DocumentWhatsAppDeliveryModel"
+    ],
+    [
+      "_document_failures_statement",
+      "ClientGroupModel"
+    ],
+    [
+      "_document_failures_statement",
+      "_failed_status_predicate"
+    ],
+    [
+      "_document_failures_statement",
+      "_scope_client_group_statement"
+    ],
+    [
+      "_qr_failures_statement",
+      "select"
+    ],
+    [
+      "_qr_failures_statement",
+      "PassengerQrWhatsAppDeliveryModel"
+    ],
+    [
+      "_qr_failures_statement",
+      "ClientGroupModel"
+    ],
+    [
+      "_qr_failures_statement",
+      "_failed_status_predicate"
+    ],
+    [
+      "_qr_failures_statement",
+      "_scope_client_group_statement"
+    ],
+    [
+      "_failures_statement",
+      "_broadcast_failures_statement"
+    ],
+    [
+      "_failures_statement",
+      "_document_failures_statement"
+    ],
+    [
+      "_failures_statement",
+      "_qr_failures_statement"
+    ],
+    [
+      "_ensure_kind_access",
+      "WHATSAPP_BROADCAST_ROLES"
+    ],
+    [
+      "_ensure_kind_access",
+      "HTTPException"
+    ],
+    [
+      "_ensure_kind_access",
+      "status"
+    ],
+    [
+      "_activity_title",
+      "_BROADCAST_TITLES"
+    ],
+    [
+      "_activity_title",
+      "document_type_label"
+    ],
+    [
+      "get_whatsapp_activity_summary",
+      "_ensure_kind_access"
+    ],
+    [
+      "get_whatsapp_activity_summary",
+      "_activity_statement"
+    ],
+    [
+      "get_whatsapp_activity_summary",
+      "datetime"
+    ],
+    [
+      "get_whatsapp_activity_summary",
+      "UTC"
+    ],
+    [
+      "get_whatsapp_activity_summary",
+      "ACTIVITY_STALE_AFTER"
+    ],
+    [
+      "get_whatsapp_activity_summary",
+      "HTTPException"
+    ],
+    [
+      "get_whatsapp_activity_summary",
+      "status"
+    ],
+    [
+      "get_whatsapp_activity_summary",
+      "WhatsAppActivitySummaryResponse"
+    ],
+    [
+      "get_whatsapp_activity_summary",
+      "_activity_title"
+    ],
+    [
+      "get_whatsapp_activity_summary",
+      "ACTIVITY_STATUS_COUNT_KEYS"
+    ],
+    [
+      "get_document_activity_deliveries",
+      "datetime"
+    ],
+    [
+      "get_document_activity_deliveries",
+      "UTC"
+    ],
+    [
+      "get_document_activity_deliveries",
+      "ACTIVITY_STALE_AFTER"
+    ],
+    [
+      "get_document_activity_deliveries",
+      "_document_activity_deliveries_statement"
+    ],
+    [
+      "get_document_activity_deliveries",
+      "DocumentWhatsAppDeliveryModel"
+    ],
+    [
+      "get_document_activity_deliveries",
+      "HTTPException"
+    ],
+    [
+      "get_document_activity_deliveries",
+      "status"
+    ],
+    [
+      "get_document_activity_deliveries",
+      "_document_activity_status_predicate"
+    ],
+    [
+      "get_document_activity_deliveries",
+      "or_"
+    ],
+    [
+      "get_document_activity_deliveries",
+      "func"
+    ],
+    [
+      "get_document_activity_deliveries",
+      "DocumentActivityDeliveriesResponse"
+    ],
+    [
+      "get_whatsapp_activity_failures",
+      "_ensure_kind_access"
+    ],
+    [
+      "get_whatsapp_activity_failures",
+      "_failures_statement"
+    ]
+  ],
+  "function_contracts": {
+    "_activity_statement": {
+      "hints": {
+        "batch_id": "<class 'uuid.UUID'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "kind": "typing.Literal['broadcast', 'document', 'qr']",
+        "return": "typing.Any",
+        "stale_cutoff": "<class 'datetime.datetime'>"
+      },
+      "signature": "(*, kind: 'WhatsAppActivityKind', batch_id: 'uuid.UUID', current_user: 'User', stale_cutoff: 'datetime') -> 'Any'",
+      "source_owner": "backend/app/presentation/api/v1/routes/whatsapp_activity.py"
+    },
+    "_activity_title": {
+      "hints": {
+        "activity_label": "str | None",
+        "kind": "typing.Literal['broadcast', 'document', 'qr']",
+        "return": "<class 'str'>"
+      },
+      "signature": "(kind: 'WhatsAppActivityKind', activity_label: 'str | None') -> 'str'",
+      "source_owner": "backend/app/presentation/api/v1/routes/whatsapp_activity.py"
+    },
+    "_broadcast_activity_statement": {
+      "hints": {
+        "batch_id": "<class 'uuid.UUID'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "return": "typing.Any",
+        "stale_cutoff": "<class 'datetime.datetime'>"
+      },
+      "signature": "(*, batch_id: 'uuid.UUID', current_user: 'User', stale_cutoff: 'datetime') -> 'Any'",
+      "source_owner": "backend/app/presentation/api/v1/routes/whatsapp_activity_summary_queries.py"
+    },
+    "_broadcast_failures_statement": {
+      "hints": {
+        "batch_id": "<class 'uuid.UUID'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "return": "typing.Any"
+      },
+      "signature": "(*, batch_id: 'uuid.UUID', current_user: 'User') -> 'Any'",
+      "source_owner": "backend/app/presentation/api/v1/routes/whatsapp_activity_failure_queries.py"
+    },
+    "_document_activity_deliveries_statement": {
+      "hints": {
+        "batch_id": "<class 'uuid.UUID'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "return": "typing.Any",
+        "stale_cutoff": "<class 'datetime.datetime'>"
+      },
+      "signature": "(*, batch_id: 'uuid.UUID', current_user: 'User', stale_cutoff: 'datetime') -> 'Any'",
+      "source_owner": "backend/app/presentation/api/v1/routes/whatsapp_activity_document_queries.py"
+    },
+    "_document_activity_statement": {
+      "hints": {
+        "batch_id": "<class 'uuid.UUID'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "return": "typing.Any",
+        "stale_cutoff": "<class 'datetime.datetime'>"
+      },
+      "signature": "(*, batch_id: 'uuid.UUID', current_user: 'User', stale_cutoff: 'datetime') -> 'Any'",
+      "source_owner": "backend/app/presentation/api/v1/routes/whatsapp_activity_summary_queries.py"
+    },
+    "_document_activity_status_predicate": {
+      "hints": {
+        "return": "typing.Any",
+        "stale_cutoff": "<class 'datetime.datetime'>",
+        "status_filter": "typing.Literal['all', 'queued', 'processing', 'sent', 'delivered', 'read', 'failed', 'needs_review']"
+      },
+      "signature": "(status_filter: 'DocumentActivityStatusFilter', *, stale_cutoff: 'datetime') -> 'Any'",
+      "source_owner": "backend/app/presentation/api/v1/routes/whatsapp_activity_document_queries.py"
+    },
+    "_document_failures_statement": {
+      "hints": {
+        "batch_id": "<class 'uuid.UUID'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "return": "typing.Any"
+      },
+      "signature": "(*, batch_id: 'uuid.UUID', current_user: 'User') -> 'Any'",
+      "source_owner": "backend/app/presentation/api/v1/routes/whatsapp_activity_failure_queries.py"
+    },
+    "_ensure_kind_access": {
+      "hints": {
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "kind": "typing.Literal['broadcast', 'document', 'qr']",
+        "return": "<class 'NoneType'>"
+      },
+      "signature": "(kind: 'WhatsAppActivityKind', current_user: 'User') -> 'None'",
+      "source_owner": "backend/app/presentation/api/v1/routes/whatsapp_activity_access.py"
+    },
+    "_failed_status_predicate": {
+      "hints": {
+        "return": "typing.Any",
+        "status_column": "typing.Any"
+      },
+      "signature": "(status_column: 'Any') -> 'Any'",
+      "source_owner": "backend/app/presentation/api/v1/routes/whatsapp_activity_status.py"
+    },
+    "_failures_statement": {
+      "hints": {
+        "batch_id": "<class 'uuid.UUID'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "kind": "typing.Literal['broadcast', 'document', 'qr']",
+        "return": "typing.Any"
+      },
+      "signature": "(*, kind: 'WhatsAppActivityKind', batch_id: 'uuid.UUID', current_user: 'User') -> 'Any'",
+      "source_owner": "backend/app/presentation/api/v1/routes/whatsapp_activity.py"
+    },
+    "_normalized_activity_status": {
+      "hints": {
+        "return": "typing.Any",
+        "stale_cutoff": "<class 'datetime.datetime'>",
+        "status_column": "typing.Any",
+        "status_updated_column": "typing.Any"
+      },
+      "signature": "(status_column: 'Any', status_updated_column: 'Any', *, stale_cutoff: 'datetime') -> 'Any'",
+      "source_owner": "backend/app/presentation/api/v1/routes/whatsapp_activity_status.py"
+    },
+    "_qr_activity_statement": {
+      "hints": {
+        "batch_id": "<class 'uuid.UUID'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "return": "typing.Any",
+        "stale_cutoff": "<class 'datetime.datetime'>"
+      },
+      "signature": "(*, batch_id: 'uuid.UUID', current_user: 'User', stale_cutoff: 'datetime') -> 'Any'",
+      "source_owner": "backend/app/presentation/api/v1/routes/whatsapp_activity_summary_queries.py"
+    },
+    "_qr_failures_statement": {
+      "hints": {
+        "batch_id": "<class 'uuid.UUID'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "return": "typing.Any"
+      },
+      "signature": "(*, batch_id: 'uuid.UUID', current_user: 'User') -> 'Any'",
+      "source_owner": "backend/app/presentation/api/v1/routes/whatsapp_activity_failure_queries.py"
+    },
+    "_scope_client_group_statement": {
+      "hints": {
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "return": "typing.Any",
+        "statement": "typing.Any"
+      },
+      "signature": "(statement: 'Any', current_user: 'User') -> 'Any'",
+      "source_owner": "backend/app/presentation/api/v1/routes/whatsapp_activity_access.py"
+    },
+    "_status_aggregates": {
+      "hints": {
+        "return": "tuple[typing.Any, ...]",
+        "stale_cutoff": "<class 'datetime.datetime'>",
+        "status_column": "typing.Any",
+        "status_updated_column": "typing.Any"
+      },
+      "signature": "(status_column: 'Any', status_updated_column: 'Any', *, stale_cutoff: 'datetime') -> 'tuple[Any, ...]'",
+      "source_owner": "backend/app/presentation/api/v1/routes/whatsapp_activity_status.py"
+    },
+    "get_document_activity_deliveries": {
+      "hints": {
+        "batch_id": "<class 'uuid.UUID'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "limit": "<class 'int'>",
+        "offset": "<class 'int'>",
+        "q": "<class 'str'>",
+        "return": "<class 'app.presentation.api.v1.schemas.whatsapp_activity_schemas.DocumentActivityDeliveriesResponse'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "status_filter": "typing.Literal['all', 'queued', 'processing', 'sent', 'delivered', 'read', 'failed', 'needs_review']"
+      },
+      "signature": "(batch_id: 'uuid.UUID', status_filter: 'DocumentActivityStatusFilter' = Query(all), q: 'str' = Query(), offset: 'int' = Query(0), limit: 'int' = Query(50), current_user: 'User' = Depends(dependency=<function require_role.<locals>._check_role>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session>, use_cache=True, scope=None)) -> 'DocumentActivityDeliveriesResponse'",
+      "source_owner": "backend/app/presentation/api/v1/routes/whatsapp_activity.py"
+    },
+    "get_whatsapp_activity_failures": {
+      "hints": {
+        "batch_id": "<class 'uuid.UUID'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "kind": "typing.Literal['broadcast', 'document', 'qr']",
+        "return": "list[app.presentation.api.v1.schemas.whatsapp_activity_schemas.WhatsAppActivityFailureResponse]",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>"
+      },
+      "signature": "(kind: \"Literal['broadcast', 'document', 'qr']\", batch_id: 'uuid.UUID', current_user: 'User' = Depends(dependency=<function require_role.<locals>._check_role>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session>, use_cache=True, scope=None)) -> 'list[WhatsAppActivityFailureResponse]'",
+      "source_owner": "backend/app/presentation/api/v1/routes/whatsapp_activity.py"
+    },
+    "get_whatsapp_activity_summary": {
+      "hints": {
+        "batch_id": "<class 'uuid.UUID'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "kind": "typing.Literal['broadcast', 'document', 'qr']",
+        "return": "<class 'app.presentation.api.v1.schemas.whatsapp_activity_schemas.WhatsAppActivitySummaryResponse'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>"
+      },
+      "signature": "(kind: \"Literal['broadcast', 'document', 'qr']\", batch_id: 'uuid.UUID', current_user: 'User' = Depends(dependency=<function require_role.<locals>._check_role>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session>, use_cache=True, scope=None)) -> 'WhatsAppActivitySummaryResponse'",
+      "source_owner": "backend/app/presentation/api/v1/routes/whatsapp_activity.py"
+    }
+  },
+  "limits": [
+    "inspect.getsource/getsourcefile now point at real implementation owners for13 moved helpers.",
+    "Pure source/SQL/annotation contracts and synthetic SQLite controls do not establish live PostgreSQL/provider behavior."
+  ],
+  "original_import_identities": [
+    "uuid",
+    "UTC",
+    "datetime",
+    "timedelta",
+    "Any",
+    "Literal",
+    "APIRouter",
+    "Depends",
+    "HTTPException",
+    "Query",
+    "status",
+    "and_",
+    "case",
+    "func",
+    "or_",
+    "select",
+    "AsyncSession",
+    "AuthorizationPolicy",
+    "User",
+    "UserRole",
+    "document_type_label",
+    "ClientGroupModel",
+    "DocumentWhatsAppDeliveryModel",
+    "PassengerQrWhatsAppDeliveryModel",
+    "WhatsAppBroadcastGroupModel",
+    "WhatsAppBroadcastRecipientModel",
+    "WhatsAppMessageLogModel",
+    "get_db_session",
+    "DocumentActivityDeliveriesResponse",
+    "DocumentActivityDeliveryResponse",
+    "DocumentActivityStatusFilter",
+    "WhatsAppActivityFailureResponse",
+    "WhatsAppActivityKind",
+    "WhatsAppActivitySummaryResponse",
+    "WHATSAPP_BROADCAST_ROLES",
+    "require_role"
+  ],
+  "original_sha256": "f8abd34251e84c59f704cdf2c279cd89dbd4b1813f928fb29667bd968e37b3d1",
+  "query_contracts": 50,
+  "raw_openapi_equal": true,
+  "role_closures_equal": true,
+  "source_fence": {
+    "backend/app/presentation/api/v1/routes/whatsapp_activity.py": "06bc0b05081180d73b24ae35a0718018f1344cf72a24f8a009e41d4e016de47f",
+    "backend/app/presentation/api/v1/routes/whatsapp_activity_access.py": "e9d3f4431e7039e99a31013a9dd0691fa48efd9b60d54d37f99514ac00b50753",
+    "backend/app/presentation/api/v1/routes/whatsapp_activity_document_queries.py": "c3c009bfd7fc66b55580696b04d962660a2f4a3e3439a220ae49de1dce932e54",
+    "backend/app/presentation/api/v1/routes/whatsapp_activity_failure_queries.py": "1819db2d3ba194a172f11add3b00e63768a046518a9ae1bd4979eb93199690e7",
+    "backend/app/presentation/api/v1/routes/whatsapp_activity_status.py": "1decabea2e92dd3f4cded7b1d81fdb55a0d82aad9a0e7b7025de70626ce9abd9",
+    "backend/app/presentation/api/v1/routes/whatsapp_activity_summary_queries.py": "c8a6d7375e95b8df076cde3d8763cf4043b35d71d4450d00cbb4bbf72f9086ff"
+  },
+  "whole_declarations_exact": [
+    {
+      "after_lines": [
+        78,
+        78
+      ],
+      "after_path": "backend/app/presentation/api/v1/routes/whatsapp_activity.py",
+      "declaration": "router",
+      "original_lines": [
+        35,
+        35
+      ]
+    },
+    {
+      "after_lines": [
+        14,
+        19
+      ],
+      "after_path": "backend/app/presentation/api/v1/routes/whatsapp_activity_access.py",
+      "declaration": "ACTIVITY_ROLES",
+      "original_lines": [
+        37,
+        42
+      ]
+    },
+    {
+      "after_lines": [
+        10,
+        10
+      ],
+      "after_path": "backend/app/presentation/api/v1/routes/whatsapp_activity_status.py",
+      "declaration": "ACTIVE_STATUSES",
+      "original_lines": [
+        43,
+        43
+      ]
+    },
+    {
+      "after_lines": [
+        11,
+        11
+      ],
+      "after_path": "backend/app/presentation/api/v1/routes/whatsapp_activity_status.py",
+      "declaration": "SUCCESS_STATUSES",
+      "original_lines": [
+        44,
+        44
+      ]
+    },
+    {
+      "after_lines": [
+        12,
+        12
+      ],
+      "after_path": "backend/app/presentation/api/v1/routes/whatsapp_activity_status.py",
+      "declaration": "UNCERTAIN_STATUSES",
+      "original_lines": [
+        45,
+        45
+      ]
+    },
+    {
+      "after_lines": [
+        13,
+        13
+      ],
+      "after_path": "backend/app/presentation/api/v1/routes/whatsapp_activity_status.py",
+      "declaration": "KNOWN_STATUSES",
+      "original_lines": [
+        46,
+        46
+      ]
+    },
+    {
+      "after_lines": [
+        14,
+        14
+      ],
+      "after_path": "backend/app/presentation/api/v1/routes/whatsapp_activity_status.py",
+      "declaration": "ACTIVITY_STALE_AFTER",
+      "original_lines": [
+        47,
+        47
+      ]
+    },
+    {
+      "after_lines": [
+        15,
+        18
+      ],
+      "after_path": "backend/app/presentation/api/v1/routes/whatsapp_activity_status.py",
+      "declaration": "ACTIVITY_STATUS_COUNT_KEYS",
+      "original_lines": [
+        48,
+        51
+      ]
+    },
+    {
+      "after_lines": [
+        81,
+        87
+      ],
+      "after_path": "backend/app/presentation/api/v1/routes/whatsapp_activity.py",
+      "declaration": "_BROADCAST_TITLES",
+      "original_lines": [
+        53,
+        59
+      ]
+    },
+    {
+      "after_lines": [
+        21,
+        33
+      ],
+      "after_path": "backend/app/presentation/api/v1/routes/whatsapp_activity_status.py",
+      "declaration": "_normalized_activity_status",
+      "original_lines": [
+        62,
+        74
+      ]
+    },
+    {
+      "after_lines": [
+        36,
+        62
+      ],
+      "after_path": "backend/app/presentation/api/v1/routes/whatsapp_activity_status.py",
+      "declaration": "_status_aggregates",
+      "original_lines": [
+        77,
+        103
+      ]
+    },
+    {
+      "after_lines": [
+        22,
+        23
+      ],
+      "after_path": "backend/app/presentation/api/v1/routes/whatsapp_activity_access.py",
+      "declaration": "_scope_client_group_statement",
+      "original_lines": [
+        106,
+        107
+      ]
+    },
+    {
+      "after_lines": [
+        23,
+        57
+      ],
+      "after_path": "backend/app/presentation/api/v1/routes/whatsapp_activity_summary_queries.py",
+      "declaration": "_broadcast_activity_statement",
+      "original_lines": [
+        110,
+        144
+      ]
+    },
+    {
+      "after_lines": [
+        60,
+        95
+      ],
+      "after_path": "backend/app/presentation/api/v1/routes/whatsapp_activity_summary_queries.py",
+      "declaration": "_document_activity_statement",
+      "original_lines": [
+        147,
+        182
+      ]
+    },
+    {
+      "after_lines": [
+        23,
+        54
+      ],
+      "after_path": "backend/app/presentation/api/v1/routes/whatsapp_activity_document_queries.py",
+      "declaration": "_document_activity_deliveries_statement",
+      "original_lines": [
+        185,
+        216
+      ]
+    },
+    {
+      "after_lines": [
+        57,
+        74
+      ],
+      "after_path": "backend/app/presentation/api/v1/routes/whatsapp_activity_document_queries.py",
+      "declaration": "_document_activity_status_predicate",
+      "original_lines": [
+        219,
+        236
+      ]
+    },
+    {
+      "after_lines": [
+        98,
+        128
+      ],
+      "after_path": "backend/app/presentation/api/v1/routes/whatsapp_activity_summary_queries.py",
+      "declaration": "_qr_activity_statement",
+      "original_lines": [
+        239,
+        269
+      ]
+    },
+    {
+      "after_lines": [
+        90,
+        113
+      ],
+      "after_path": "backend/app/presentation/api/v1/routes/whatsapp_activity.py",
+      "declaration": "_activity_statement",
+      "original_lines": [
+        272,
+        295
+      ]
+    },
+    {
+      "after_lines": [
+        65,
+        66
+      ],
+      "after_path": "backend/app/presentation/api/v1/routes/whatsapp_activity_status.py",
+      "declaration": "_failed_status_predicate",
+      "original_lines": [
+        298,
+        299
+      ]
+    },
+    {
+      "after_lines": [
+        23,
+        50
+      ],
+      "after_path": "backend/app/presentation/api/v1/routes/whatsapp_activity_failure_queries.py",
+      "declaration": "_broadcast_failures_statement",
+      "original_lines": [
+        302,
+        329
+      ]
+    },
+    {
+      "after_lines": [
+        53,
+        73
+      ],
+      "after_path": "backend/app/presentation/api/v1/routes/whatsapp_activity_failure_queries.py",
+      "declaration": "_document_failures_statement",
+      "original_lines": [
+        332,
+        352
+      ]
+    },
+    {
+      "after_lines": [
+        76,
+        96
+      ],
+      "after_path": "backend/app/presentation/api/v1/routes/whatsapp_activity_failure_queries.py",
+      "declaration": "_qr_failures_statement",
+      "original_lines": [
+        355,
+        375
+      ]
+    },
+    {
+      "after_lines": [
+        116,
+        126
+      ],
+      "after_path": "backend/app/presentation/api/v1/routes/whatsapp_activity.py",
+      "declaration": "_failures_statement",
+      "original_lines": [
+        378,
+        388
+      ]
+    },
+    {
+      "after_lines": [
+        26,
+        31
+      ],
+      "after_path": "backend/app/presentation/api/v1/routes/whatsapp_activity_access.py",
+      "declaration": "_ensure_kind_access",
+      "original_lines": [
+        391,
+        396
+      ]
+    },
+    {
+      "after_lines": [
+        129,
+        134
+      ],
+      "after_path": "backend/app/presentation/api/v1/routes/whatsapp_activity.py",
+      "declaration": "_activity_title",
+      "original_lines": [
+        399,
+        404
+      ]
+    },
+    {
+      "after_lines": [
+        141,
+        185
+      ],
+      "after_path": "backend/app/presentation/api/v1/routes/whatsapp_activity.py",
+      "declaration": "get_whatsapp_activity_summary",
+      "original_lines": [
+        411,
+        455
+      ]
+    },
+    {
+      "after_lines": [
+        192,
+        262
+      ],
+      "after_path": "backend/app/presentation/api/v1/routes/whatsapp_activity.py",
+      "declaration": "get_document_activity_deliveries",
+      "original_lines": [
+        462,
+        532
+      ]
+    },
+    {
+      "after_lines": [
+        269,
+        292
+      ],
+      "after_path": "backend/app/presentation/api/v1/routes/whatsapp_activity.py",
+      "declaration": "get_whatsapp_activity_failures",
+      "original_lines": [
+        539,
+        562
+      ]
+    }
+  ]
+}

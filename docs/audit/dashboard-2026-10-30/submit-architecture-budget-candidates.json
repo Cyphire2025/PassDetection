@@ -1,0 +1,34 @@
+[
+  {
+    "path": "app/application/use_cases/passports/submit_passport_use_case.py",
+    "baseline_lines": 369,
+    "maximum_lines": 380,
+    "baseline_max_function_complexity": 35,
+    "maximum_function_complexity": 35,
+    "minimum_coverage_percent": 85
+  },
+  {
+    "path": "app/application/use_cases/passports/passport_upload_plan.py",
+    "baseline_lines": 79,
+    "maximum_lines": 85,
+    "baseline_max_function_complexity": 5,
+    "maximum_function_complexity": 5,
+    "minimum_coverage_percent": 85
+  },
+  {
+    "path": "app/application/use_cases/passports/passport_upload_selection.py",
+    "baseline_lines": 68,
+    "maximum_lines": 75,
+    "baseline_max_function_complexity": 11,
+    "maximum_function_complexity": 11,
+    "minimum_coverage_percent": 85
+  },
+  {
+    "path": "app/application/use_cases/passports/passport_upload_submission.py",
+    "baseline_lines": 47,
+    "maximum_lines": 55,
+    "baseline_max_function_complexity": 8,
+    "maximum_function_complexity": 8,
+    "minimum_coverage_percent": 85
+  }
+]

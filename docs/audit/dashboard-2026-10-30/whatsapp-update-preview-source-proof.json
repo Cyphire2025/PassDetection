@@ -1,0 +1,15 @@
+{
+  "before": {
+    "path": ".tmp/whatsapp-composer-current/whatsapp_composer-authority-qualified.py",
+    "sha256": "df96370146f2f39152bf3ce3549c27237d3e38fa369c39a5eb3fbcd5b2be3901"
+  },
+  "after": {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_composer.py",
+    "sha256": "2979e690f4aac0945b54ed366e5a85c12d6d9a4350416b7c85d0e5a5a3daee31"
+  },
+  "unchanged_upload_complete_ast": true,
+  "preview_complete_ast_exact_after_removing_only_one_empty_guard": true,
+  "guard_position": "Immediately after actual resolved recipients, before sampled recipient selection",
+  "all_other_queries_policies_branches_values_order_and_public_signatures": "Exact AST",
+  "welcome_guard_frozen_sha256": "384a601014b11651d73f1b46dc01dbfdf8568c8efcc2ed84fddf46151af2029c"
+}

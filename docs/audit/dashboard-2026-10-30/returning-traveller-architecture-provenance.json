@@ -1,0 +1,756 @@
+{
+  "original_sources": [
+    {
+      "path": "frontend/features/travellers/hooks/use-returning-claim.ts",
+      "sha256": "6bbee8286214f1b18980b091c6fa32eac391d98357eef4f8dd6ac8711c00fe41",
+      "source": "\"use client\";\r\n\r\nimport { useEffect, useRef, useState } from \"react\";\r\nimport { returningApi } from \"../api/returning.api\";\r\nimport type { ClaimStart, ClaimTransition, DocumentQuestion, MaskedCandidates, PassportProof, ReturningHistory } from \"../types\";\r\n\r\n/** The server selects the next verification stage. Client state never grants access. */\r\nexport function useReturningClaim() {\r\n  const [transition, setTransition] = useState<ClaimTransition | null>(null);\r\n  const [candidates, setCandidates] = useState<MaskedCandidates | null>(null);\r\n  const [history, setHistory] = useState<ReturningHistory | null>(null);\r\n  const [pending, setPending] = useState(false);\r\n  const [error, setError] = useState<string>();\r\n  const [resendAt, setResendAt] = useState(0);\r\n  const [otpSent, setOtpSent] = useState(false);\r\n  const method = useRef<ClaimStart[\"method\"]>(\"phone\");\r\n  const groupToken = useRef<string | undefined>(undefined);\r\n  const active = useRef<AbortController | null>(null);\r\n  useEffect(() => () => active.current?.abort(), []);\r\n\r\n  const run = async (operation: (signal: AbortSignal) => Promise<void>) => {\r\n    if (active.current) return;\r\n    const controller = new AbortController();\r\n    active.current = controller;\r\n    setPending(true);\r\n    setError(undefined);\r\n    try { await operation(controller.signal); }\r\n    catch (cause) {\r\n      if (!controller.signal.aborted) setError(typeof cause === \"object\" && cause !== null && \"message\" in cause && typeof cause.message === \"string\" ? cause.message : \"We could not complete this step. Please retry or upload current documents.\");\r\n    } finally {\r\n      active.current = null;\r\n      if (!controller.signal.aborted) setPending(false);\r\n    }\r\n  };\r\n\r\n  const accept = async (next: ClaimTransition, signal: AbortSignal): Promise<void> => {\r\n    if (signal.aborted) return;\r\n    setTransition(next);\r\n    if (next.stage === \"confirm\" || next.stage === \"recovery\") {\r\n      return accept(await returningApi.authorize(signal), signal);\r\n    }\r\n    if (next.stage === \"identify\") {\r\n      if (method.current === \"passport\") return accept(await returningApi.passport({}, signal), signal);\r\n      if (method.current === \"code\") { setTransition({ stage: \"passport\" }); return; }\r\n      const people = await returningApi.candidates(signal);\r\n      if (signal.aborted) return;\r\n      setCandidates(people);\r\n      setTransition({ stage: people.narrowing_required || people.items.length === 0 ? \"passport\" : \"identify\" });\r\n      return;\r\n    }\r\n    if (next.stage === \"review\") {\r\n      const details = await returningApi.history(signal, groupToken.current);\r\n      if (!signal.aborted) setHistory(details);\r\n    }\r\n    if (!signal.aborted) setTransition(next);\r\n  };\r\n\r\n  const sendOtp = async (signal: AbortSignal) => {\r\n    const result = await returningApi.requestOtp(signal);\r\n    if (!signal.aborted) { setResendAt(Date.now() + result.resend_after_seconds * 1000); setOtpSent(true); }\r\n  };\r\n\r\n  return {\r\n    transition, candidates, history, pending, error, resendAt, otpSent,\r\n    start: (body: ClaimStart) => run(async (signal) => {\r\n      method.current = body.method;\r\n      groupToken.current = body.group_token;\r\n      await accept(await returningApi.start(body, signal), signal);\r\n      if (body.method === \"phone\") await sendOtp(signal);\r\n    }),\r\n    requestOtp: () => run(sendOtp),\r\n    verifyOtp: (code: string) => run(async (signal) => accept(await returningApi.verifyOtp(code, signal), signal)),\r\n    select: (handle: string) => run(async (signal) => accept(await returningApi.selectCandidate(handle, signal), signal)),\r\n    passport: (proof: PassportProof) => run(async (signal) => accept(await returningApi.passport(proof, signal), signal)),\r\n    challenge: (answers: Partial<Record<DocumentQuestion, string>>) => run(async (signal) => accept(await returningApi.challenge(answers, signal), signal)),\r\n    changeQuestion: (field: DocumentQuestion) => run(async (signal) => accept(await returningApi.changeQuestion(field, signal), signal)),\r\n    confirm: (recover: boolean, actingFor: \"self\" | \"family\") => run(async (signal) => accept(await returningApi.confirm(recover, actingFor, signal), signal)),\r\n    retryStage: () => run(async (signal) => { if (transition) await accept(transition, signal); }),\r\n  };\r\n}\r\n"
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-contact-dialog.tsx",
+      "sha256": "68b2d407803af17481ad20938f516ff5d55aad852fa447eb7542f2d35b4a9ef6",
+      "source": "\"use client\";\r\n\r\nimport { useEffect, useId, useRef, useState } from \"react\";\r\nimport { Button } from \"@/components/ui/button\";\r\nimport { Input } from \"@/components/ui/input\";\r\nimport { useModalKeyboardBoundary } from \"@/components/ui/modal\";\r\nimport { normalizePhoneNumber, PHONE_FORMAT_HELP } from \"@/lib/utils/phone-number\";\r\nimport { returningApi } from \"../api/returning.api\";\r\n\r\nexport function ReturningContactDialog({ draftId, onClose, onSaved }: { draftId: string; onClose: () => void; onSaved: () => void }) {\r\n  const [phone, setPhone] = useState(\"\");\r\n  const [code, setCode] = useState(\"\");\r\n  const [sent, setSent] = useState(false);\r\n  const [verified, setVerified] = useState(false);\r\n  const [confirmed, setConfirmed] = useState(false);\r\n  const [pending, setPending] = useState(false);\r\n  const [error, setError] = useState<string>();\r\n  const [resendAt, setResendAt] = useState(0);\r\n  const [now, setNow] = useState(0);\r\n  const operation = useRef<AbortController | null>(null);\r\n  const dialogRef = useRef<HTMLDivElement>(null);\r\n  const titleId = useId();\r\n  const keyboard = useModalKeyboardBoundary({ dialogRef, isOpen: true, canClose: !pending, onClose });\r\n  useEffect(() => () => operation.current?.abort(), []);\r\n  useEffect(() => { if (!resendAt) return; const timer = window.setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(timer); }, [resendAt]);\r\n  const run = async (verify: boolean) => {\r\n    if (operation.current) return;\r\n    const controller = new AbortController(); operation.current = controller; setPending(true); setError(undefined);\r\n    try {\r\n      if (verify) {\r\n        if (!verified) {\r\n          await returningApi.verifyContact(code, draftId, controller.signal);\r\n          if (!controller.signal.aborted) setVerified(true);\r\n        }\r\n        if (!controller.signal.aborted) onSaved();\r\n      } else {\r\n        const result = await returningApi.requestContact(normalizePhoneNumber(phone) ?? phone, draftId, controller.signal);\r\n        if (!controller.signal.aborted) { setSent(true); setNow(Date.now()); setResendAt(Date.now() + result.resend_after_seconds * 1000); }\r\n      }\r\n    } catch (cause) { if (!controller.signal.aborted) setError(typeof cause === \"object\" && cause !== null && \"message\" in cause && typeof cause.message === \"string\" ? cause.message : \"The contact change could not be confirmed. Retry when ready.\"); }\r\n    finally { operation.current = null; if (!controller.signal.aborted) setPending(false); }\r\n  };\r\n  const resendIn = Math.max(0, Math.ceil((resendAt - now) / 1000));\r\n  return <div ref={dialogRef} role=\"dialog\" aria-modal=\"true\" aria-labelledby={titleId} onKeyDown={keyboard} className=\"fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4\">\r\n    <form className=\"max-h-[90dvh] w-full max-w-md space-y-4 overflow-y-auto rounded-2xl bg-white p-5 shadow-xl\" onSubmit={(event) => { event.preventDefault(); if (!sent || confirmed) void run(sent); }}>\r\n      <h2 id={titleId} className=\"text-lg font-semibold text-slate-950\">Change WhatsApp contact</h2>\r\n      <p className=\"text-sm leading-6 text-slate-600\">Verify your current WhatsApp number. It will be saved with your trip only when you select Submit on the review page.</p>\r\n      <Input label=\"New WhatsApp number\" value={phone} type=\"tel\" autoComplete=\"tel\" maxLength={64} required onChange={(event) => setPhone(event.target.value)} disabled={pending || sent} hint={PHONE_FORMAT_HELP} data-dialog-initial-focus className=\"h-12 text-base\" />\r\n      {sent && <><Input label=\"WhatsApp verification code\" value={code} onChange={(event) => setCode(event.target.value.replace(/\\D/g, \"\"))} inputMode=\"numeric\" autoComplete=\"one-time-code\" required minLength={6} maxLength={6} disabled={pending} className=\"h-12 text-base\" /><Button type=\"button\" variant=\"ghost\" size=\"sm\" disabled={pending || verified || resendIn > 0} onClick={() => void run(false)}>{resendIn ? `Resend available in ${resendIn}s` : \"Resend code\"}</Button><label className=\"flex items-start gap-3 text-sm leading-6 text-slate-700\"><input type=\"checkbox\" required checked={confirmed} onChange={(event) => setConfirmed(event.target.checked)} className=\"mt-1\" />Use this verified number as this traveller’s current contact.</label></>}\r\n      {error && <p role=\"alert\" className=\"rounded-xl bg-red-50 p-3 text-sm text-red-800\">{error}</p>}\r\n      <div className=\"flex flex-wrap justify-end gap-2\"><Button type=\"button\" variant=\"secondary\" onClick={onClose} disabled={pending}>Cancel</Button><Button type=\"submit\" disabled={!normalizePhoneNumber(phone) || (sent && (!confirmed || code.length !== 6))} isLoading={pending}>{verified ? \"Use verified contact\" : sent ? \"Verify for this draft\" : \"Send WhatsApp code\"}</Button></div>\r\n    </form>\r\n  </div>;\r\n}\r\n"
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-flow.tsx",
+      "sha256": "336a3b4589785f6113334b3780af7d7c06c7ac47ee6e6cc1172e44372e50f970",
+      "source": "\"use client\";\r\n\r\nimport { useEffect, useRef, useState } from \"react\";\r\nimport { ArrowLeft, LockKeyhole } from \"lucide-react\";\r\nimport { Button } from \"@/components/ui/button\";\r\nimport { Input } from \"@/components/ui/input\";\r\nimport type { UploadLinkResponse } from \"@/features/passports/api/upload-links.api\";\r\nimport { UploadHeader } from \"@/features/upload/components/upload-flow-shell\";\r\nimport { TravellerShell } from \"@/features/upload/components/traveller-shell\";\r\nimport { useReturningClaim } from \"../hooks/use-returning-claim\";\r\nimport type { CompletionResult, ReplacementRequest, ReturningCapabilities, ReturningMethod, ReturningOwnedSource } from \"../types\";\r\nimport { PassportProofFields } from \"./returning-fields\";\r\nimport { ReturningChallenge } from \"./returning-challenge\";\r\nimport { ReturningPhone } from \"./returning-phone\";\r\nimport { ReturningReview } from \"./returning-review\";\r\n\r\ntype Props = {\r\n  token: string; group: UploadLinkResponse; initialMethod: ReturningMethod;\r\n  capabilities: ReturningCapabilities; onFresh: () => void; onBack?: () => void;\r\n  onReplace: (request: ReplacementRequest) => void; ownedSource?: ReturningOwnedSource;\r\n  onCompleted?: (result: CompletionResult) => void;\r\n};\r\nconst HEADINGS: Record<string, string> = {\r\n  phone: \"Verify your WhatsApp\", passport: \"Find your saved passport\", code: \"Enter your individual code\",\r\n  identify: \"Choose the traveller\", challenge: \"One more check\", confirm: \"Opening your passport\", recovery: \"Opening your passport\", review: \"Opening your passport\",\r\n};\r\n\r\nexport function ReturningFlow({ token, group, initialMethod, capabilities, onFresh, onBack, onReplace, ownedSource, onCompleted }: Props) {\r\n  const claim = useReturningClaim();\r\n  const [passport, setPassport] = useState(\"\");\r\n  const [code, setCode] = useState(\"\");\r\n  const freshButton = useRef<HTMLButtonElement>(null);\r\n  const stage = claim.transition?.stage;\r\n  const failedProof = Boolean(claim.error && (stage === \"challenge\" || stage === \"passport\"));\r\n  useEffect(() => { if (failedProof) freshButton.current?.focus({ preventScroll: true }); }, [failedProof]);\r\n  if (stage === \"review\" && claim.history) return <ReturningReview history={claim.history} groupName={group.name} group={group} groupToken={token} onFresh={onFresh} onReplace={onReplace} ownedSource={ownedSource} onCompleted={onCompleted} />;\r\n  const isPhone = initialMethod === \"phone\" && (!stage || stage === \"contact\");\r\n  const headingKey = isPhone ? \"phone\" : stage || initialMethod;\r\n  return <TravellerShell>\r\n    <UploadHeader groupName={group.name} departureDate={group.travel_date} returnDate={group.return_date} />\r\n    {onBack && <button type=\"button\" disabled={claim.pending} onClick={onBack} className=\"mb-3 inline-flex min-h-11 items-center gap-2 text-sm font-medium text-slate-600 hover:text-blue-700\"><ArrowLeft className=\"h-4 w-4\" />Other verification options</button>}\r\n    <section className=\"space-y-6 rounded-3xl border border-slate-200/80 bg-white p-5 shadow-[0_16px_50px_-30px_rgba(15,45,90,0.3)] sm:p-8\" aria-busy={claim.pending}>\r\n      <header>\r\n        <span className=\"mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-50 text-blue-600\"><LockKeyhole className=\"h-5 w-5\" aria-hidden=\"true\" /></span>\r\n        <p className=\"text-xs font-semibold uppercase tracking-[0.14em] text-blue-600\">Returning traveller</p>\r\n        <h2 className=\"mt-2 text-2xl font-semibold tracking-tight text-slate-950\">{HEADINGS[headingKey]}</h2>\r\n        <p className=\"mt-2 text-sm leading-6 text-slate-500\">{stage === \"challenge\" ? \"Enter the date exactly as printed on your passport. We’ll check it with your passport number before opening your saved details.\" : \"A quick verification keeps your saved travel documents private.\"}</p>\r\n      </header>\r\n      {claim.error && <div role=\"alert\" className=\"rounded-xl border border-red-200 bg-red-50 p-3 text-sm leading-6 text-red-800\">{failedProof ? \"We couldn’t verify a saved record with these details. Check your entries, try another verification option, or continue as a new traveller.\" : claim.error}</div>}\r\n      {isPhone && <ReturningPhone started={stage === \"contact\"} pending={claim.pending} otpSent={claim.otpSent} resendAt={claim.resendAt} onStart={(phone) => void claim.start({ group_token: token, method: \"phone\", phone_number: phone })} onResend={() => void claim.requestOtp()} onVerify={(otp) => void claim.verifyOtp(otp)} />}\r\n      {!stage && initialMethod !== \"phone\" && <form className=\"space-y-5\" onSubmit={(event) => {\r\n        event.preventDefault();\r\n        void claim.start({ group_token: token, method: initialMethod, ...(initialMethod === \"passport\" ? { passport_number: passport } : { individual_code: code }) });\r\n      }}>\r\n        {initialMethod === \"passport\" ? <PassportProofFields number={passport} onNumber={setPassport} disabled={claim.pending} /> : <Input label={capabilities.code_label ?? \"Agent / employee code\"} value={code} onChange={(event) => setCode(event.target.value)} maxLength={128} required autoComplete=\"off\" disabled={claim.pending} hint=\"Use your individual code, including any leading zeros.\" className=\"h-12 text-base\" />}\r\n        <Button type=\"submit\" className=\"min-h-12 w-full\" isLoading={claim.pending}>Continue</Button>\r\n      </form>}\r\n      {stage === \"identify\" && claim.candidates && <div className=\"space-y-3\"><p className=\"text-sm leading-6 text-slate-600\">Select your record, then confirm the full passport number.</p><ul className=\"space-y-2\">{claim.candidates.items.map((person) => <li key={person.handle}><Button type=\"button\" variant=\"secondary\" className=\"h-auto min-h-12 w-full justify-between whitespace-normal py-3 text-left\" disabled={claim.pending} onClick={() => void claim.select(person.handle)}><span>{person.label}</span><span className=\"text-xs text-slate-500\">{person.passport_hint}</span></Button></li>)}</ul></div>}\r\n      {stage === \"passport\" && <form className=\"space-y-5\" onSubmit={(event) => { event.preventDefault(); void claim.passport({ passport_number: passport }); }}><PassportProofFields number={passport} onNumber={setPassport} disabled={claim.pending} /><Button type=\"submit\" isLoading={claim.pending} className=\"min-h-12 w-full\">Verify passport</Button></form>}\r\n      {stage === \"challenge\" && claim.transition && <ReturningChallenge transition={claim.transition} pending={claim.pending} onVerify={(answers) => void claim.challenge(answers)} onChangeQuestion={(field) => void claim.changeQuestion(field)} />}\r\n      {((stage === \"identify\" && !claim.candidates) || stage === \"confirm\" || stage === \"recovery\" || stage === \"review\") && <Button type=\"button\" className=\"min-h-12 w-full\" isLoading={claim.pending} onClick={() => void claim.retryStage()}>Load verified details</Button>}\r\n      <div className=\"border-t border-slate-100 pt-5\"><Button ref={freshButton} type=\"button\" variant={failedProof ? \"secondary\" : \"ghost\"} className={`h-auto min-h-12 w-full whitespace-normal ${failedProof ? \"border-blue-400 bg-blue-50 text-blue-700 ring-2 ring-blue-100\" : \"\"}`} onClick={onFresh} disabled={claim.pending}>Continue as a new traveller</Button></div>\r\n    </section>\r\n  </TravellerShell>;\r\n}\r\n"
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-offer.tsx",
+      "sha256": "cabb37d14e557d8f1b6e8b4ffb9c8a3ef76a670214781cba11b1e63858d0d8df",
+      "source": "\"use client\";\r\n\r\nimport { useEffect, useRef, useState } from \"react\";\r\nimport { ArrowRight, FileCheck2, MessageCircle, BadgeCheck, Loader2 } from \"lucide-react\";\r\nimport { Button } from \"@/components/ui/button\";\r\nimport { useReturningCapabilities } from \"../hooks/use-returning-capabilities\";\r\nimport type { ReturningCapabilities, ReturningMethod } from \"../types\";\r\n\r\nexport function ReturningTravellerOffer({ token, onSelect, onFresh }: { token: string; onSelect: (method: ReturningMethod, capabilities: ReturningCapabilities) => void; onFresh?: () => void }) {\r\n  const capabilities = useReturningCapabilities(token);\r\n  const [pending, setPending] = useState<ReturningMethod | null>(null), [notice, setNotice] = useState<string>();\r\n  const selection = useRef<symbol | null>(null);\r\n  useEffect(() => () => { selection.current = null; }, [token]);\r\n  const select = async (method: ReturningMethod) => {\r\n    if (selection.current) return;\r\n    const request = Symbol(); selection.current = request; setPending(method); setNotice(undefined);\r\n    const result = capabilities.data ?? (await capabilities.refetch({ cancelRefetch: false })).data;\r\n    if (selection.current !== request) return;\r\n    selection.current = null; setPending(null);\r\n    if (!result?.enabled) return;\r\n    if (method === \"code\" && !result.code_label) { setNotice(\"Code verification is not enabled for this trip. Choose WhatsApp OTP or passport number.\"); return; }\r\n    onSelect(method, result);\r\n  };\r\n  if (capabilities.data?.enabled === false) return <section className=\"rounded-3xl border border-slate-200 bg-white p-6 text-sm text-slate-600\" aria-live=\"polite\">\r\n    <h2 className=\"text-lg font-semibold text-slate-900\">Upload documents for this trip</h2><p className=\"mt-2 leading-6\">Saved-document access is not available for this link. You can continue with a fresh submission.</p>{onFresh && <Button className=\"mt-5 w-full\" onClick={onFresh}>Continue as a new traveller</Button>}\r\n  </section>;\r\n  const options = [\r\n    { method: \"phone\" as const, label: \"WhatsApp OTP\", detail: \"Use your saved WhatsApp number.\", icon: MessageCircle },\r\n    { method: \"passport\" as const, label: \"Passport number\", detail: \"Verify with a detail from your passport.\", icon: FileCheck2 },\r\n    ...(!capabilities.data || capabilities.data.code_label ? [{ method: \"code\" as const, label: \"Agent / employee code\", detail: \"Use your individual code and passport number.\", icon: BadgeCheck }] : []),\r\n  ];\r\n  return <section aria-label=\"Returning traveller\" className=\"rounded-3xl border border-slate-200/80 bg-white p-5 shadow-[0_12px_48px_-24px_rgba(15,45,90,0.28)] sm:p-8\">\r\n    <p className=\"text-xs font-semibold uppercase tracking-[0.16em] text-blue-600\">Welcome back</p>\r\n    <h2 className=\"mt-2 text-2xl font-semibold tracking-tight text-slate-950\">Find your saved passport</h2>\r\n    <p className=\"mt-2 text-sm leading-6 text-slate-500\">Choose a way to verify your details securely.</p>\r\n    {capabilities.isError && !capabilities.data && <div role=\"alert\" className=\"mt-4 rounded-xl bg-red-50 p-4 text-sm text-red-700\">We couldn’t connect. Select your preferred option to try again.</div>}\r\n    {notice && <p role=\"status\" className=\"mt-4 text-sm text-slate-600\">{notice}</p>}\r\n    <div className=\"mt-6 grid gap-3\">{options.map(({ method, label, detail, icon: Icon }) => <button key={method} type=\"button\" disabled={pending !== null} aria-busy={pending === method} onClick={() => void select(method)} className=\"group flex min-h-20 items-center gap-3 rounded-2xl border border-slate-200 px-4 py-4 text-left transition-colors hover:border-blue-400 hover:bg-blue-50/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 disabled:cursor-wait\"><span className=\"flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600\"><Icon className=\"h-5 w-5\" aria-hidden=\"true\" /></span><span className=\"min-w-0 flex-1\"><span className=\"block text-sm font-semibold text-slate-900\">{label}</span><span className=\"mt-1 block text-xs leading-5 text-slate-500\">{pending === method ? \"Opening verification…\" : detail}</span></span>{pending === method ? <Loader2 className=\"h-4 w-4 shrink-0 animate-spin text-blue-600\" aria-hidden=\"true\" /> : <ArrowRight className=\"h-4 w-4 shrink-0 text-slate-400 group-hover:text-blue-600\" aria-hidden=\"true\" />}</button>)}</div>\r\n    {onFresh && <div className=\"mt-6 border-t border-slate-100 pt-4\"><Button variant=\"ghost\" className=\"w-full\" onClick={onFresh}>Continue as a new traveller</Button></div>}\r\n  </section>;\r\n}\r\n"
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-resume.tsx",
+      "sha256": "54e96cbb354b75b645b6859cf1739e79b9fe130f05c2e95a32e08f1c4ffaf01f",
+      "source": "\"use client\";\r\nimport { useEffect, useState } from \"react\";\r\nimport { returningApi } from \"../api/returning.api\";\r\nimport type { ReturningHistory } from \"../types\";\r\nimport { ReturningReview } from \"./returning-review\";\r\nimport { TravellerShell } from \"@/features/upload/components/traveller-shell\";\r\nimport { Button } from \"@/components/ui/button\";\r\nimport { BrandLogo } from \"@/components/brand/brand-logo\";\r\nimport type { UploadLinkResponse } from \"@/features/passports/api/upload-links.api\";\r\n\r\nexport function ReturningResume({ token, groupName, group, onFresh, onVerify }: { token: string; groupName: string; group?: UploadLinkResponse; onFresh: () => void; onVerify: () => void }) {\r\n  const [history, setHistory] = useState<ReturningHistory>();\r\n  const [verificationNeeded, setVerificationNeeded] = useState(false);\r\n  useEffect(() => {\r\n    const controller = new AbortController();\r\n    void returningApi.history(controller.signal, token).then((result) => { if (!controller.signal.aborted) setHistory(result); })\r\n      .catch(() => { if (!controller.signal.aborted) setVerificationNeeded(true); });\r\n    return () => controller.abort();\r\n  }, [token]);\r\n  if (history) return <ReturningReview history={history} groupName={groupName} group={group} groupToken={token} onFresh={onFresh} onReplace={onFresh} />;\r\n  return <TravellerShell><BrandLogo className=\"mx-auto mb-6\" priority /><section className=\"space-y-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm\">\r\n    <h1 className=\"text-2xl font-semibold text-slate-950\">Continue your saved draft</h1>\r\n    {verificationNeeded ? <><p className=\"text-sm leading-6 text-slate-500\">Your temporary draft stays saved for 24 hours. Verify your passport again to reopen your private details and continue.</p><Button type=\"button\" className=\"min-h-12 w-full\" onClick={onVerify}>Verify and continue</Button></> : <p role=\"status\" className=\"text-sm text-slate-500\">Opening your secure draft…</p>}\r\n  </section></TravellerShell>;\r\n}\r\n"
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-review.tsx",
+      "sha256": "baeaf7a47e40984791c30f7695ddf972ef49e5d170bd53550e039399e266f57d",
+      "source": "\"use client\";\r\n\r\nimport { useEffect, useRef, useState } from \"react\";\r\nimport { CheckCircle2, Clock3, MessageCircle, RefreshCw, Upload } from \"lucide-react\";\r\nimport { Button } from \"@/components/ui/button\";\r\nimport { BrandLogo } from \"@/components/brand/brand-logo\";\r\nimport { CustomDetailFields, CustomQuestionFields } from \"@/features/upload/components/upload-flow-fields\";\r\nimport { ReviewFields } from \"@/features/upload/components/upload-flow-review\";\r\nimport { TravellerShell } from \"@/features/upload/components/traveller-shell\";\r\nimport { ReviewDetailsColumn } from \"@/features/upload/components/review-details-column\";\r\nimport type { UploadLinkResponse } from \"@/features/passports/api/upload-links.api\";\r\nimport { useReturningDraft } from \"../hooks/use-returning-draft\";\r\nimport { returningApi } from \"../api/returning.api\";\r\nimport type { CompletionResult, ReplacementRequest, ReturningHistory, ReturningOwnedSource } from \"../types\";\r\nimport { ReturningContactDialog } from \"./returning-contact-dialog\";\r\nimport { ReturningCurrentDetails } from \"./returning-current-details\";\r\nimport { ReturningDraftImages } from \"./returning-draft-images\";\r\nimport { ReturningCollection } from \"./returning-collection\";\r\nimport { draftReviewReadiness } from \"../services/draft-readiness\";\r\n\r\ntype Props = { history: ReturningHistory; groupName: string; group?: UploadLinkResponse; groupToken?: string; onFresh: () => void; onReplace: (request: ReplacementRequest) => void; ownedSource?: ReturningOwnedSource; onCompleted?: (result: CompletionResult) => void };\r\n\r\nexport function ReturningReview(props: Props) {\r\n  const [history, setHistory] = useState(props.history);\r\n  const [loading, setLoading] = useState(false);\r\n  const [loadError, setLoadError] = useState<string>();\r\n  const operation = useRef<AbortController | null>(null);\r\n  useEffect(() => () => operation.current?.abort(), []);\r\n  const reload = async (passportId?: string) => {\r\n    if (operation.current) return;\r\n    const controller = new AbortController(); operation.current = controller; setLoading(true); setLoadError(undefined);\r\n    try {\r\n      const result = passportId ? await returningApi.selectPassport(passportId, controller.signal, props.groupToken) : await returningApi.history(controller.signal, props.groupToken);\r\n      if (!controller.signal.aborted) setHistory(result);\r\n    } catch { if (!controller.signal.aborted) setLoadError(\"The latest details could not be loaded. Your draft is still saved; please retry.\"); }\r\n    finally { operation.current = null; if (!controller.signal.aborted) setLoading(false); }\r\n  };\r\n  return <ReturningReviewContent key={history.review_version} {...props} history={history} loading={loading} loadError={loadError} reload={reload} />;\r\n}\r\n\r\nfunction ReturningReviewContent({ history, groupName, group, groupToken = \"\", ownedSource, onFresh, onCompleted, loading, loadError, reload }: Props & { loading: boolean; loadError?: string; reload: (id?: string) => Promise<void> }) {\r\n  const form = useReturningDraft(history, groupToken, ownedSource);\r\n  const [replacement, setReplacement] = useState(false);\r\n  const [contactOpen, setContactOpen] = useState(false);\r\n  const [confirmed, setConfirmed] = useState(false);\r\n  const [uploadBusy, setUploadBusy] = useState(false);\r\n  const [result, setResult] = useState<CompletionResult>();\r\n  const draft = form.draft;\r\n  const payload = form.payload;\r\n  const displayName = [payload?.passport_fields.given_names, payload?.passport_fields.surname].filter(Boolean).join(\" \") || history.display_name;\r\n  const { extracting, contact, needsContact, needsReplacement, needsBack, canSubmit } = draftReviewReadiness(history, draft, form.pending, confirmed, group);\r\n  const photoRequired = (history.missing_requirements ?? []).some((key) => key === \"fresh_photo\" || key === \"visa_photo\");\r\n  const qualifierRequired = (history.missing_requirements ?? []).includes(\"qualifier_relationship\");\r\n  if (result || draft?.status === \"submitted\") return <TravellerShell><BrandLogo className=\"mx-auto mb-6\" priority /><section className=\"space-y-5 rounded-3xl border border-emerald-100 bg-white p-8 text-center shadow-sm\"><CheckCircle2 className=\"mx-auto h-12 w-12 text-emerald-600\" aria-hidden=\"true\" /><h1 className=\"text-2xl font-semibold tracking-tight text-slate-950\">Your trip details are saved</h1><p className=\"text-sm leading-6 text-slate-500\">Thank you. Your information for {groupName} has been submitted.{(result?.status ?? draft?.result_status) === \"submitted\" ? \" Your travel team will review any remaining checks.\" : \"\"}</p><Button type=\"button\" variant=\"secondary\" className=\"h-auto min-h-12 whitespace-normal\" onClick={onFresh}>Continue for another traveller</Button></section></TravellerShell>;\r\n  return <TravellerShell wide>\r\n    <BrandLogo className=\"mx-auto mb-6 h-12 w-[190px] sm:mb-8 sm:h-14 sm:w-[210px]\" priority />\r\n    <header className=\"mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between\">\r\n      <div className=\"max-w-2xl\"><p className=\"text-sm font-medium text-blue-700\">{groupName}</p><h1 className=\"mt-2 text-3xl font-semibold tracking-tight text-slate-950\">Ready for your next journey</h1><p className=\"mt-3 text-sm leading-6 text-slate-500\">Review your passport and complete this trip’s details. If your passport hasn’t changed, you don’t need to upload it again.</p></div>\r\n      <span className=\"inline-flex w-fit shrink-0 items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-800\"><CheckCircle2 className=\"h-4 w-4\" />Passport verified</span>\r\n    </header>\r\n    {(history.available_passports?.length ?? 0) > 1 && <section className=\"mb-5 rounded-2xl border border-slate-200 bg-white p-4\"><label htmlFor=\"trip-passport\" className=\"text-sm font-medium text-slate-700\">Passport for this trip</label><select id=\"trip-passport\" value={history.passport?.id ?? \"\"} disabled={form.pending || loading} onChange={(event) => { const id = event.target.value; void form.flush().then(() => reload(id)).catch(() => undefined); }} className=\"mt-2 min-h-12 w-full rounded-xl border border-slate-200 bg-white px-3 text-base\">{history.available_passports?.map((passport) => <option key={passport.id} value={passport.id}>{passport.number}{passport.is_default ? \" · Usual passport\" : \"\"}</option>)}</select></section>}\r\n    {loadError && <p role=\"alert\" className=\"mb-4 rounded-xl bg-red-50 p-4 text-sm text-red-800\">{loadError}</p>}\r\n    <div className=\"mb-6 flex flex-col gap-4 rounded-2xl border border-blue-100 bg-white/95 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5\">\r\n      <div><p className=\"font-medium text-slate-900\">Has your passport changed?</p><p className=\"mt-1 text-sm leading-6 text-slate-500\">Upload new pages only for a renewed passport, corrected document, or clearer copy.</p></div>\r\n      <Button type=\"button\" variant=\"secondary\" className=\"h-auto min-h-12 shrink-0 whitespace-normal\" disabled={!draft || form.pending} aria-expanded={replacement} onClick={() => setReplacement(true)}><Upload className=\"h-4 w-4\" />Update Documents</Button>\r\n    </div>\r\n    {form.error && <div role=\"alert\" className=\"mb-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm leading-6 text-red-800\">{form.error}<button type=\"button\" onClick={form.retry} className=\"ml-3 min-h-10 font-semibold underline\">Retry</button><button type=\"button\" disabled={loading} onClick={() => void reload()} className=\"ml-3 min-h-10 font-semibold underline\">Refresh current trip requirements</button></div>}\r\n    {!draft || !payload ? <div role=\"status\" className=\"rounded-2xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-500\">Preparing your secure review…</div> : <form onSubmit={(event) => {\r\n      event.preventDefault(); if (!canSubmit || uploadBusy) return;\r\n      void form.complete().then((saved) => { setResult(saved); onCompleted?.(saved); }).catch(() => undefined);\r\n    }}>\r\n      <div className=\"grid items-start gap-6 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]\">\r\n        <div className=\"min-w-0 space-y-5\">\r\n          {group ? <ReturningCollection form={form} group={group} token={groupToken} documents={history.documents} updatesEnabled={replacement} qualifier={qualifierRequired} onChange={() => setConfirmed(false)} onUploadBusyChange={setUploadBusy} /> : <><p role=\"alert\" className=\"rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900\">The trip’s document settings could not be loaded. Refresh the link before completing these requirements.</p><ReturningDraftImages documents={history.documents} draft={draft} hidePhoto={photoRequired} /></>}\r\n        </div>\r\n        <ReviewDetailsColumn>\r\n          <section className=\"rounded-2xl border border-slate-200 bg-white p-5 sm:p-6\">\r\n            <div className=\"mb-5 flex items-center justify-between gap-3\"><div><p className=\"text-xs font-medium uppercase tracking-wider text-slate-400\">Passport details</p><h2 className=\"mt-1 break-words text-lg font-semibold text-slate-950\">{displayName}</h2></div><span className=\"rounded-full bg-slate-50 px-3 py-1 text-xs text-slate-500\">Review & edit</span></div>\r\n            {extracting && <p role=\"status\" className=\"mb-4 flex items-center gap-2 rounded-xl bg-blue-50 p-3 text-sm text-blue-800\"><RefreshCw className=\"h-4 w-4 animate-spin\" />Reading your updated details page…</p>}\r\n            {draft.extraction_status === \"failed\" && <p role=\"alert\" className=\"mb-4 rounded-xl bg-amber-50 p-3 text-sm leading-6 text-amber-900\">We couldn’t read this page reliably. Upload a clearer details page to continue.</p>}\r\n            <fieldset disabled={form.pending || extracting}><ReviewFields fields={payload.passport_fields} onChange={(key, value) => { setConfirmed(false); form.update(\"passport_fields\", key, value); }} /></fieldset>\r\n            <p className=\"mt-4 text-xs leading-5 text-slate-500\">Check that these details match the document shown. Changes stay in your draft until you submit.</p>\r\n          </section>\r\n          <section className=\"rounded-2xl border border-blue-200 bg-blue-50/80 p-5 sm:p-6\">\r\n            <div className=\"flex items-start gap-3\"><MessageCircle className=\"mt-0.5 h-5 w-5 shrink-0 text-blue-600\" /><div className=\"min-w-0 flex-1\"><h2 className=\"text-sm font-semibold text-slate-950\">Current WhatsApp contact</h2><p className=\"mt-2 break-words text-lg font-semibold text-slate-900\">{contact || \"Add your current number\"}</p><p className=\"mt-1 text-xs leading-5 text-slate-600\">{draft.verified_phone ? \"Verified for this draft. Your contact updates when you submit.\" : \"Use the number you want your travel team to contact for this trip.\"}</p></div></div>\r\n            <Button type=\"button\" variant=\"secondary\" className=\"mt-4 min-h-11\" disabled={form.pending} onClick={() => { void form.flush().then(() => setContactOpen(true)).catch(() => undefined); }}>{contact ? \"Change WhatsApp number\" : \"Add WhatsApp number\"}</Button>\r\n          </section>\r\n          <section className=\"rounded-2xl border border-slate-200 bg-white p-5 sm:p-6\">\r\n            <h2 className=\"text-lg font-semibold text-slate-950\">Details for this trip</h2><p className=\"mt-1 text-sm leading-6 text-slate-500\">Please complete the information requested by your travel team.</p>\r\n            <fieldset disabled={form.pending}>\r\n              <ReturningCurrentDetails fields={history.group_requirements.current_detail_fields ?? []} values={payload.current_details} onChange={(key, value) => { setConfirmed(false); form.update(\"current_details\", key, value); }} />\r\n              <CustomQuestionFields questions={history.group_requirements.custom_questions.filter((question) => question.enabled)} answers={payload.custom_answers} onChange={(key, value) => { setConfirmed(false); form.update(\"custom_answers\", key, value); }} />\r\n              <CustomDetailFields details={history.group_requirements.custom_details.filter((detail) => detail.enabled)} answers={payload.custom_detail_answers} onChange={(key, value) => { setConfirmed(false); form.update(\"custom_detail_answers\", key, value); }} />\r\n            </fieldset>\r\n          </section>\r\n        </ReviewDetailsColumn>\r\n      </div>\r\n      <section className=\"mt-6 space-y-4 rounded-2xl border border-slate-200 bg-white p-5 sm:p-6\" data-review-declaration>\r\n        {needsReplacement && <p role=\"status\" className=\"text-sm leading-6 text-amber-800\">This saved passport needs an updated document before it can be used for this trip. Upload your current passport pages above.</p>}\r\n        {needsContact && <p role=\"status\" className=\"text-sm text-amber-800\">Add and verify your current WhatsApp number before submitting.</p>}\r\n        {needsBack && <p role=\"status\" className=\"text-sm text-amber-800\">Add the address page of your updated passport before submitting.</p>}\r\n        <label className=\"flex cursor-pointer items-start gap-3 text-sm leading-6 text-slate-700\"><input type=\"checkbox\" required checked={confirmed} onChange={(event) => setConfirmed(event.target.checked)} disabled={form.pending || extracting || uploadBusy} className=\"mt-1 h-4 w-4 accent-blue-600\" />I have reviewed my passport and trip details, and the information is correct.</label>\r\n        <div className=\"flex flex-col gap-4 border-t border-slate-100 pt-4 sm:flex-row sm:items-center sm:justify-between\"><p role=\"status\" className=\"flex items-start gap-2 text-xs leading-5 text-slate-500\"><Clock3 className=\"mt-0.5 h-4 w-4 shrink-0\" /><span>{form.dirty ? \"Saving your details…\" : \"Details saved for 24 hours.\"}<br />Unsubmitted images are not kept when you leave. Your official record updates only after submission.</span></p><Button type=\"submit\" className=\"min-h-12 px-6\" disabled={!canSubmit || uploadBusy} isLoading={form.pending}>Submit trip details</Button></div>\r\n      </section>\r\n    </form>}\r\n    {contactOpen && draft && <ReturningContactDialog draftId={draft.id} onClose={() => setContactOpen(false)} onSaved={() => { setConfirmed(false); setContactOpen(false); void form.refresh().catch(() => undefined); }} />}\r\n  </TravellerShell>;\r\n}\r\n"
+    },
+    {
+      "path": "frontend/features/travellers/components/traveller-document.tsx",
+      "sha256": "665ac1d9cf382c5b402fd47b28e152cfef7794ef5c07ab2cbd8a4f0fe7196bb4",
+      "source": "\"use client\";\r\n\r\nimport { useEffect, useRef, useState } from \"react\";\r\nimport { FileImage, RotateCw } from \"lucide-react\";\r\nimport { returningApi } from \"../api/returning.api\";\r\nimport { returningDraftApi } from \"../api/returning-draft.api\";\r\nimport { queuedPrivatePreview } from \"../services/private-preview-queue\";\r\n\r\nexport function TravellerDocument({ id, label, draftId, temporary = false, available = true }: { id: string; label: string; draftId?: string; temporary?: boolean; available?: boolean }) {\r\n  const frame = useRef<HTMLElement>(null);\r\n  const [visible, setVisible] = useState(() => typeof IntersectionObserver === \"undefined\");\r\n  const [asset, setAsset] = useState<{ url: string; type: string }>();\r\n  const [error, setError] = useState(false);\r\n  const [attempt, setAttempt] = useState(0);\r\n  useEffect(() => {\r\n    if (!frame.current) return;\r\n    if (typeof IntersectionObserver === \"undefined\") return;\r\n    const observer = new IntersectionObserver(([entry]) => {\r\n      if (entry.isIntersecting) { setVisible(true); observer.disconnect(); }\r\n    }, { rootMargin: \"300px\" });\r\n    observer.observe(frame.current);\r\n    return () => observer.disconnect();\r\n  }, []);\r\n  useEffect(() => {\r\n    if (!visible || !available) return;\r\n    const controller = new AbortController();\r\n    let url: string | undefined;\r\n    void queuedPrivatePreview(() => temporary && draftId ? returningDraftApi.document(id, draftId, controller.signal) : returningApi.document(id, controller.signal), controller.signal).then((blob) => {\r\n      if (controller.signal.aborted) return;\r\n      if (!blob.size || blob.size > 20 * 1024 * 1024 || ![\"image/jpeg\", \"image/png\", \"image/webp\", \"application/pdf\"].includes(blob.type)) throw new Error(\"Unsupported preview\");\r\n      url = URL.createObjectURL(blob); setAsset({ url, type: blob.type });\r\n    }).catch(() => { if (!controller.signal.aborted) setError(true); });\r\n    return () => { controller.abort(); if (url) URL.revokeObjectURL(url); };\r\n  }, [id, draftId, temporary, visible, available, attempt]);\r\n  return <figure ref={frame} className=\"overflow-hidden rounded-2xl border border-slate-200 bg-white\">\r\n    <figcaption className=\"flex items-center justify-between gap-3 border-b border-slate-100 px-4 py-3 text-sm font-medium text-slate-700\"><span className=\"flex items-center gap-2\"><FileImage className=\"h-4 w-4 text-slate-400\" />{label}</span>{temporary && <span className=\"text-xs text-blue-600\">Updated draft</span>}</figcaption>\r\n    <div className=\"flex aspect-[4/3] w-full items-center justify-center bg-slate-50 p-3 sm:p-4\">\r\n      {!available || error ? <div className=\"space-y-3 text-center text-sm text-slate-500\"><p>{available ? \"Preview could not be loaded.\" : \"A readable copy is needed.\"}</p>{available && <button type=\"button\" onClick={() => { setError(false); setAsset(undefined); setAttempt((value) => value + 1); }} className=\"inline-flex min-h-11 items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 text-blue-700\"><RotateCw className=\"h-4 w-4\" />Retry preview</button>}</div> : !asset ? <p role=\"status\" className=\"text-sm text-slate-400\">Loading protected document…</p> : asset.type === \"application/pdf\" ? <iframe title={label} src={asset.url} className=\"h-full w-full border-0 bg-white\" /> : (\r\n        // Only authenticated, bounded image blobs reach this local object URL.\r\n        // eslint-disable-next-line @next/next/no-img-element\r\n        <img src={asset.url} alt={label} decoding=\"async\" onError={() => setError(true)} className=\"h-full w-full rounded-lg object-contain\" />\r\n      )}\r\n    </div>\r\n  </figure>;\r\n}\r\n"
+    }
+  ],
+  "review_extraction_origin": {
+    "originalPath": "frontend/features/travellers/components/returning-review.tsx",
+    "originalSource": "\"use client\";\r\n\r\nimport { useEffect, useRef, useState } from \"react\";\r\nimport { CheckCircle2, Clock3, MessageCircle, RefreshCw, Upload } from \"lucide-react\";\r\nimport { Button } from \"@/components/ui/button\";\r\nimport { BrandLogo } from \"@/components/brand/brand-logo\";\r\nimport { CustomDetailFields, CustomQuestionFields } from \"@/features/upload/components/upload-flow-fields\";\r\nimport { ReviewFields } from \"@/features/upload/components/upload-flow-review\";\r\nimport { TravellerShell } from \"@/features/upload/components/traveller-shell\";\r\nimport { ReviewDetailsColumn } from \"@/features/upload/components/review-details-column\";\r\nimport type { UploadLinkResponse } from \"@/features/passports/api/upload-links.api\";\r\nimport { useReturningDraft } from \"../hooks/use-returning-draft\";\r\nimport { returningApi } from \"../api/returning.api\";\r\nimport type { CompletionResult, ReplacementRequest, ReturningHistory, ReturningOwnedSource } from \"../types\";\r\nimport { ReturningContactDialog } from \"./returning-contact-dialog\";\r\nimport { ReturningCurrentDetails } from \"./returning-current-details\";\r\nimport { ReturningDraftImages } from \"./returning-draft-images\";\r\nimport { ReturningCollection } from \"./returning-collection\";\r\nimport { draftReviewReadiness } from \"../services/draft-readiness\";\r\n\r\ntype Props = { history: ReturningHistory; groupName: string; group?: UploadLinkResponse; groupToken?: string; onFresh: () => void; onReplace: (request: ReplacementRequest) => void; ownedSource?: ReturningOwnedSource; onCompleted?: (result: CompletionResult) => void };\r\n\r\nexport function ReturningReview(props: Props) {\r\n  const [history, setHistory] = useState(props.history);\r\n  const [loading, setLoading] = useState(false);\r\n  const [loadError, setLoadError] = useState<string>();\r\n  const operation = useRef<AbortController | null>(null);\r\n  useEffect(() => () => operation.current?.abort(), []);\r\n  const reload = async (passportId?: string) => {\r\n    if (operation.current) return;\r\n    const controller = new AbortController(); operation.current = controller; setLoading(true); setLoadError(undefined);\r\n    try {\r\n      const result = passportId ? await returningApi.selectPassport(passportId, controller.signal, props.groupToken) : await returningApi.history(controller.signal, props.groupToken);\r\n      if (!controller.signal.aborted) setHistory(result);\r\n    } catch { if (!controller.signal.aborted) setLoadError(\"The latest details could not be loaded. Your draft is still saved; please retry.\"); }\r\n    finally { operation.current = null; if (!controller.signal.aborted) setLoading(false); }\r\n  };\r\n  return <ReturningReviewContent key={history.review_version} {...props} history={history} loading={loading} loadError={loadError} reload={reload} />;\r\n}\r\n\r\nfunction ReturningReviewContent({ history, groupName, group, groupToken = \"\", ownedSource, onFresh, onCompleted, loading, loadError, reload }: Props & { loading: boolean; loadError?: string; reload: (id?: string) => Promise<void> }) {\r\n  const form = useReturningDraft(history, groupToken, ownedSource);\r\n  const [replacement, setReplacement] = useState(false);\r\n  const [contactOpen, setContactOpen] = useState(false);\r\n  const [confirmed, setConfirmed] = useState(false);\r\n  const [uploadBusy, setUploadBusy] = useState(false);\r\n  const [result, setResult] = useState<CompletionResult>();\r\n  const draft = form.draft;\r\n  const payload = form.payload;\r\n  const displayName = [payload?.passport_fields.given_names, payload?.passport_fields.surname].filter(Boolean).join(\" \") || history.display_name;\r\n  const { extracting, contact, needsContact, needsReplacement, needsBack, canSubmit } = draftReviewReadiness(history, draft, form.pending, confirmed, group);\r\n  const photoRequired = (history.missing_requirements ?? []).some((key) => key === \"fresh_photo\" || key === \"visa_photo\");\r\n  const qualifierRequired = (history.missing_requirements ?? []).includes(\"qualifier_relationship\");\r\n  if (result || draft?.status === \"submitted\") return <TravellerShell><BrandLogo className=\"mx-auto mb-6\" priority /><section className=\"space-y-5 rounded-3xl border border-emerald-100 bg-white p-8 text-center shadow-sm\"><CheckCircle2 className=\"mx-auto h-12 w-12 text-emerald-600\" aria-hidden=\"true\" /><h1 className=\"text-2xl font-semibold tracking-tight text-slate-950\">Your trip details are saved</h1><p className=\"text-sm leading-6 text-slate-500\">Thank you. Your information for {groupName} has been submitted.{(result?.status ?? draft?.result_status) === \"submitted\" ? \" Your travel team will review any remaining checks.\" : \"\"}</p><Button type=\"button\" variant=\"secondary\" className=\"h-auto min-h-12 whitespace-normal\" onClick={onFresh}>Continue for another traveller</Button></section></TravellerShell>;\r\n  return <TravellerShell wide>\r\n    <BrandLogo className=\"mx-auto mb-6 h-12 w-[190px] sm:mb-8 sm:h-14 sm:w-[210px]\" priority />\r\n    <header className=\"mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between\">\r\n      <div className=\"max-w-2xl\"><p className=\"text-sm font-medium text-blue-700\">{groupName}</p><h1 className=\"mt-2 text-3xl font-semibold tracking-tight text-slate-950\">Ready for your next journey</h1><p className=\"mt-3 text-sm leading-6 text-slate-500\">Review your passport and complete this trip’s details. If your passport hasn’t changed, you don’t need to upload it again.</p></div>\r\n      <span className=\"inline-flex w-fit shrink-0 items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-800\"><CheckCircle2 className=\"h-4 w-4\" />Passport verified</span>\r\n    </header>\r\n    {(history.available_passports?.length ?? 0) > 1 && <section className=\"mb-5 rounded-2xl border border-slate-200 bg-white p-4\"><label htmlFor=\"trip-passport\" className=\"text-sm font-medium text-slate-700\">Passport for this trip</label><select id=\"trip-passport\" value={history.passport?.id ?? \"\"} disabled={form.pending || loading} onChange={(event) => { const id = event.target.value; void form.flush().then(() => reload(id)).catch(() => undefined); }} className=\"mt-2 min-h-12 w-full rounded-xl border border-slate-200 bg-white px-3 text-base\">{history.available_passports?.map((passport) => <option key={passport.id} value={passport.id}>{passport.number}{passport.is_default ? \" · Usual passport\" : \"\"}</option>)}</select></section>}\r\n    {loadError && <p role=\"alert\" className=\"mb-4 rounded-xl bg-red-50 p-4 text-sm text-red-800\">{loadError}</p>}\r\n    <div className=\"mb-6 flex flex-col gap-4 rounded-2xl border border-blue-100 bg-white/95 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5\">\r\n      <div><p className=\"font-medium text-slate-900\">Has your passport changed?</p><p className=\"mt-1 text-sm leading-6 text-slate-500\">Upload new pages only for a renewed passport, corrected document, or clearer copy.</p></div>\r\n      <Button type=\"button\" variant=\"secondary\" className=\"h-auto min-h-12 shrink-0 whitespace-normal\" disabled={!draft || form.pending} aria-expanded={replacement} onClick={() => setReplacement(true)}><Upload className=\"h-4 w-4\" />Update Documents</Button>\r\n    </div>\r\n    {form.error && <div role=\"alert\" className=\"mb-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm leading-6 text-red-800\">{form.error}<button type=\"button\" onClick={form.retry} className=\"ml-3 min-h-10 font-semibold underline\">Retry</button><button type=\"button\" disabled={loading} onClick={() => void reload()} className=\"ml-3 min-h-10 font-semibold underline\">Refresh current trip requirements</button></div>}\r\n    {!draft || !payload ? <div role=\"status\" className=\"rounded-2xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-500\">Preparing your secure review…</div> : <form onSubmit={(event) => {\r\n      event.preventDefault(); if (!canSubmit || uploadBusy) return;\r\n      void form.complete().then((saved) => { setResult(saved); onCompleted?.(saved); }).catch(() => undefined);\r\n    }}>\r\n      <div className=\"grid items-start gap-6 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]\">\r\n        <div className=\"min-w-0 space-y-5\">\r\n          {group ? <ReturningCollection form={form} group={group} token={groupToken} documents={history.documents} updatesEnabled={replacement} qualifier={qualifierRequired} onChange={() => setConfirmed(false)} onUploadBusyChange={setUploadBusy} /> : <><p role=\"alert\" className=\"rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900\">The trip’s document settings could not be loaded. Refresh the link before completing these requirements.</p><ReturningDraftImages documents={history.documents} draft={draft} hidePhoto={photoRequired} /></>}\r\n        </div>\r\n        <ReviewDetailsColumn>\r\n          <section className=\"rounded-2xl border border-slate-200 bg-white p-5 sm:p-6\">\r\n            <div className=\"mb-5 flex items-center justify-between gap-3\"><div><p className=\"text-xs font-medium uppercase tracking-wider text-slate-400\">Passport details</p><h2 className=\"mt-1 break-words text-lg font-semibold text-slate-950\">{displayName}</h2></div><span className=\"rounded-full bg-slate-50 px-3 py-1 text-xs text-slate-500\">Review & edit</span></div>\r\n            {extracting && <p role=\"status\" className=\"mb-4 flex items-center gap-2 rounded-xl bg-blue-50 p-3 text-sm text-blue-800\"><RefreshCw className=\"h-4 w-4 animate-spin\" />Reading your updated details page…</p>}\r\n            {draft.extraction_status === \"failed\" && <p role=\"alert\" className=\"mb-4 rounded-xl bg-amber-50 p-3 text-sm leading-6 text-amber-900\">We couldn’t read this page reliably. Upload a clearer details page to continue.</p>}\r\n            <fieldset disabled={form.pending || extracting}><ReviewFields fields={payload.passport_fields} onChange={(key, value) => { setConfirmed(false); form.update(\"passport_fields\", key, value); }} /></fieldset>\r\n            <p className=\"mt-4 text-xs leading-5 text-slate-500\">Check that these details match the document shown. Changes stay in your draft until you submit.</p>\r\n          </section>\r\n          <section className=\"rounded-2xl border border-blue-200 bg-blue-50/80 p-5 sm:p-6\">\r\n            <div className=\"flex items-start gap-3\"><MessageCircle className=\"mt-0.5 h-5 w-5 shrink-0 text-blue-600\" /><div className=\"min-w-0 flex-1\"><h2 className=\"text-sm font-semibold text-slate-950\">Current WhatsApp contact</h2><p className=\"mt-2 break-words text-lg font-semibold text-slate-900\">{contact || \"Add your current number\"}</p><p className=\"mt-1 text-xs leading-5 text-slate-600\">{draft.verified_phone ? \"Verified for this draft. Your contact updates when you submit.\" : \"Use the number you want your travel team to contact for this trip.\"}</p></div></div>\r\n            <Button type=\"button\" variant=\"secondary\" className=\"mt-4 min-h-11\" disabled={form.pending} onClick={() => { void form.flush().then(() => setContactOpen(true)).catch(() => undefined); }}>{contact ? \"Change WhatsApp number\" : \"Add WhatsApp number\"}</Button>\r\n          </section>\r\n          <section className=\"rounded-2xl border border-slate-200 bg-white p-5 sm:p-6\">\r\n            <h2 className=\"text-lg font-semibold text-slate-950\">Details for this trip</h2><p className=\"mt-1 text-sm leading-6 text-slate-500\">Please complete the information requested by your travel team.</p>\r\n            <fieldset disabled={form.pending}>\r\n              <ReturningCurrentDetails fields={history.group_requirements.current_detail_fields ?? []} values={payload.current_details} onChange={(key, value) => { setConfirmed(false); form.update(\"current_details\", key, value); }} />\r\n              <CustomQuestionFields questions={history.group_requirements.custom_questions.filter((question) => question.enabled)} answers={payload.custom_answers} onChange={(key, value) => { setConfirmed(false); form.update(\"custom_answers\", key, value); }} />\r\n              <CustomDetailFields details={history.group_requirements.custom_details.filter((detail) => detail.enabled)} answers={payload.custom_detail_answers} onChange={(key, value) => { setConfirmed(false); form.update(\"custom_detail_answers\", key, value); }} />\r\n            </fieldset>\r\n          </section>\r\n        </ReviewDetailsColumn>\r\n      </div>\r\n      <section className=\"mt-6 space-y-4 rounded-2xl border border-slate-200 bg-white p-5 sm:p-6\" data-review-declaration>\r\n        {needsReplacement && <p role=\"status\" className=\"text-sm leading-6 text-amber-800\">This saved passport needs an updated document before it can be used for this trip. Upload your current passport pages above.</p>}\r\n        {needsContact && <p role=\"status\" className=\"text-sm text-amber-800\">Add and verify your current WhatsApp number before submitting.</p>}\r\n        {needsBack && <p role=\"status\" className=\"text-sm text-amber-800\">Add the address page of your updated passport before submitting.</p>}\r\n        <label className=\"flex cursor-pointer items-start gap-3 text-sm leading-6 text-slate-700\"><input type=\"checkbox\" required checked={confirmed} onChange={(event) => setConfirmed(event.target.checked)} disabled={form.pending || extracting || uploadBusy} className=\"mt-1 h-4 w-4 accent-blue-600\" />I have reviewed my passport and trip details, and the information is correct.</label>\r\n        <div className=\"flex flex-col gap-4 border-t border-slate-100 pt-4 sm:flex-row sm:items-center sm:justify-between\"><p role=\"status\" className=\"flex items-start gap-2 text-xs leading-5 text-slate-500\"><Clock3 className=\"mt-0.5 h-4 w-4 shrink-0\" /><span>{form.dirty ? \"Saving your details…\" : \"Details saved for 24 hours.\"}<br />Unsubmitted images are not kept when you leave. Your official record updates only after submission.</span></p><Button type=\"submit\" className=\"min-h-12 px-6\" disabled={!canSubmit || uploadBusy} isLoading={form.pending}>Submit trip details</Button></div>\r\n      </section>\r\n    </form>}\r\n    {contactOpen && draft && <ReturningContactDialog draftId={draft.id} onClose={() => setContactOpen(false)} onSaved={() => { setConfirmed(false); setContactOpen(false); void form.refresh().catch(() => undefined); }} />}\r\n  </TravellerShell>;\r\n}\r\n",
+    "originalSha256": "baeaf7a47e40984791c30f7695ddf972ef49e5d170bd53550e039399e266f57d",
+    "moves": [
+      {
+        "name": "ReturningPassportDetails",
+        "source": "<section className=\"rounded-2xl border border-slate-200 bg-white p-5 sm:p-6\">\r\n            <div className=\"mb-5 flex items-center justify-between gap-3\"><div><p className=\"text-xs font-medium uppercase tracking-wider text-slate-400\">Passport details</p><h2 className=\"mt-1 break-words text-lg font-semibold text-slate-950\">{displayName}</h2></div><span className=\"rounded-full bg-slate-50 px-3 py-1 text-xs text-slate-500\">Review & edit</span></div>\r\n            {extracting && <p role=\"status\" className=\"mb-4 flex items-center gap-2 rounded-xl bg-blue-50 p-3 text-sm text-blue-800\"><RefreshCw className=\"h-4 w-4 animate-spin\" />Reading your updated details page…</p>}\r\n            {draft.extraction_status === \"failed\" && <p role=\"alert\" className=\"mb-4 rounded-xl bg-amber-50 p-3 text-sm leading-6 text-amber-900\">We couldn’t read this page reliably. Upload a clearer details page to continue.</p>}\r\n            <fieldset disabled={form.pending || extracting}><ReviewFields fields={payload.passport_fields} onChange={(key, value) => { setConfirmed(false); form.update(\"passport_fields\", key, value); }} /></fieldset>\r\n            <p className=\"mt-4 text-xs leading-5 text-slate-500\">Check that these details match the document shown. Changes stay in your draft until you submit.</p>\r\n          </section>",
+        "props": [
+          "displayName",
+          "extracting",
+          "draft",
+          "payload",
+          "form",
+          "setConfirmed"
+        ]
+      },
+      {
+        "name": "ReturningContactDetails",
+        "source": "<section className=\"rounded-2xl border border-blue-200 bg-blue-50/80 p-5 sm:p-6\">\r\n            <div className=\"flex items-start gap-3\"><MessageCircle className=\"mt-0.5 h-5 w-5 shrink-0 text-blue-600\" /><div className=\"min-w-0 flex-1\"><h2 className=\"text-sm font-semibold text-slate-950\">Current WhatsApp contact</h2><p className=\"mt-2 break-words text-lg font-semibold text-slate-900\">{contact || \"Add your current number\"}</p><p className=\"mt-1 text-xs leading-5 text-slate-600\">{draft.verified_phone ? \"Verified for this draft. Your contact updates when you submit.\" : \"Use the number you want your travel team to contact for this trip.\"}</p></div></div>\r\n            <Button type=\"button\" variant=\"secondary\" className=\"mt-4 min-h-11\" disabled={form.pending} onClick={() => { void form.flush().then(() => setContactOpen(true)).catch(() => undefined); }}>{contact ? \"Change WhatsApp number\" : \"Add WhatsApp number\"}</Button>\r\n          </section>",
+        "props": [
+          "contact",
+          "draft",
+          "form",
+          "setContactOpen"
+        ]
+      },
+      {
+        "name": "ReturningTripFields",
+        "source": "<section className=\"rounded-2xl border border-slate-200 bg-white p-5 sm:p-6\">\r\n            <h2 className=\"text-lg font-semibold text-slate-950\">Details for this trip</h2><p className=\"mt-1 text-sm leading-6 text-slate-500\">Please complete the information requested by your travel team.</p>\r\n            <fieldset disabled={form.pending}>\r\n              <ReturningCurrentDetails fields={history.group_requirements.current_detail_fields ?? []} values={payload.current_details} onChange={(key, value) => { setConfirmed(false); form.update(\"current_details\", key, value); }} />\r\n              <CustomQuestionFields questions={history.group_requirements.custom_questions.filter((question) => question.enabled)} answers={payload.custom_answers} onChange={(key, value) => { setConfirmed(false); form.update(\"custom_answers\", key, value); }} />\r\n              <CustomDetailFields details={history.group_requirements.custom_details.filter((detail) => detail.enabled)} answers={payload.custom_detail_answers} onChange={(key, value) => { setConfirmed(false); form.update(\"custom_detail_answers\", key, value); }} />\r\n            </fieldset>\r\n          </section>",
+        "props": [
+          "history",
+          "payload",
+          "form",
+          "setConfirmed"
+        ]
+      },
+      {
+        "name": "ReturningReviewDeclaration",
+        "source": "<section className=\"mt-6 space-y-4 rounded-2xl border border-slate-200 bg-white p-5 sm:p-6\" data-review-declaration>\r\n        {needsReplacement && <p role=\"status\" className=\"text-sm leading-6 text-amber-800\">This saved passport needs an updated document before it can be used for this trip. Upload your current passport pages above.</p>}\r\n        {needsContact && <p role=\"status\" className=\"text-sm text-amber-800\">Add and verify your current WhatsApp number before submitting.</p>}\r\n        {needsBack && <p role=\"status\" className=\"text-sm text-amber-800\">Add the address page of your updated passport before submitting.</p>}\r\n        <label className=\"flex cursor-pointer items-start gap-3 text-sm leading-6 text-slate-700\"><input type=\"checkbox\" required checked={confirmed} onChange={(event) => setConfirmed(event.target.checked)} disabled={form.pending || extracting || uploadBusy} className=\"mt-1 h-4 w-4 accent-blue-600\" />I have reviewed my passport and trip details, and the information is correct.</label>\r\n        <div className=\"flex flex-col gap-4 border-t border-slate-100 pt-4 sm:flex-row sm:items-center sm:justify-between\"><p role=\"status\" className=\"flex items-start gap-2 text-xs leading-5 text-slate-500\"><Clock3 className=\"mt-0.5 h-4 w-4 shrink-0\" /><span>{form.dirty ? \"Saving your details…\" : \"Details saved for 24 hours.\"}<br />Unsubmitted images are not kept when you leave. Your official record updates only after submission.</span></p><Button type=\"submit\" className=\"min-h-12 px-6\" disabled={!canSubmit || uploadBusy} isLoading={form.pending}>Submit trip details</Button></div>\r\n      </section>",
+        "props": [
+          "needsReplacement",
+          "needsContact",
+          "needsBack",
+          "confirmed",
+          "setConfirmed",
+          "form",
+          "extracting",
+          "uploadBusy",
+          "canSubmit"
+        ]
+      },
+      {
+        "name": "ReturningReviewSuccess",
+        "source": "<TravellerShell><BrandLogo className=\"mx-auto mb-6\" priority /><section className=\"space-y-5 rounded-3xl border border-emerald-100 bg-white p-8 text-center shadow-sm\"><CheckCircle2 className=\"mx-auto h-12 w-12 text-emerald-600\" aria-hidden=\"true\" /><h1 className=\"text-2xl font-semibold tracking-tight text-slate-950\">Your trip details are saved</h1><p className=\"text-sm leading-6 text-slate-500\">Thank you. Your information for {groupName} has been submitted.{(result?.status ?? draft?.result_status) === \"submitted\" ? \" Your travel team will review any remaining checks.\" : \"\"}</p><Button type=\"button\" variant=\"secondary\" className=\"h-auto min-h-12 whitespace-normal\" onClick={onFresh}>Continue for another traveller</Button></section></TravellerShell>",
+        "props": [
+          "result",
+          "draft",
+          "groupName",
+          "onFresh"
+        ]
+      },
+      {
+        "name": "ReturningReviewHeader",
+        "source": "<><BrandLogo className=\"mx-auto mb-6 h-12 w-[190px] sm:mb-8 sm:h-14 sm:w-[210px]\" priority />\r\n    <header className=\"mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between\">\r\n      <div className=\"max-w-2xl\"><p className=\"text-sm font-medium text-blue-700\">{groupName}</p><h1 className=\"mt-2 text-3xl font-semibold tracking-tight text-slate-950\">Ready for your next journey</h1><p className=\"mt-3 text-sm leading-6 text-slate-500\">Review your passport and complete this trip’s details. If your passport hasn’t changed, you don’t need to upload it again.</p></div>\r\n      <span className=\"inline-flex w-fit shrink-0 items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-800\"><CheckCircle2 className=\"h-4 w-4\" />Passport verified</span>\r\n    </header>\r\n    {(history.available_passports?.length ?? 0) > 1 && <section className=\"mb-5 rounded-2xl border border-slate-200 bg-white p-4\"><label htmlFor=\"trip-passport\" className=\"text-sm font-medium text-slate-700\">Passport for this trip</label><select id=\"trip-passport\" value={history.passport?.id ?? \"\"} disabled={form.pending || loading} onChange={(event) => { const id = event.target.value; void form.flush().then(() => reload(id)).catch(() => undefined); }} className=\"mt-2 min-h-12 w-full rounded-xl border border-slate-200 bg-white px-3 text-base\">{history.available_passports?.map((passport) => <option key={passport.id} value={passport.id}>{passport.number}{passport.is_default ? \" · Usual passport\" : \"\"}</option>)}</select></section>}\r\n    {loadError && <p role=\"alert\" className=\"mb-4 rounded-xl bg-red-50 p-4 text-sm text-red-800\">{loadError}</p>}\r\n    <div className=\"mb-6 flex flex-col gap-4 rounded-2xl border border-blue-100 bg-white/95 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5\">\r\n      <div><p className=\"font-medium text-slate-900\">Has your passport changed?</p><p className=\"mt-1 text-sm leading-6 text-slate-500\">Upload new pages only for a renewed passport, corrected document, or clearer copy.</p></div>\r\n      <Button type=\"button\" variant=\"secondary\" className=\"h-auto min-h-12 shrink-0 whitespace-normal\" disabled={!draft || form.pending} aria-expanded={replacement} onClick={() => setReplacement(true)}><Upload className=\"h-4 w-4\" />Update Documents</Button>\r\n    </div>\r\n    {form.error && <div role=\"alert\" className=\"mb-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm leading-6 text-red-800\">{form.error}<button type=\"button\" onClick={form.retry} className=\"ml-3 min-h-10 font-semibold underline\">Retry</button><button type=\"button\" disabled={loading} onClick={() => void reload()} className=\"ml-3 min-h-10 font-semibold underline\">Refresh current trip requirements</button></div>}</>",
+        "props": [
+          "history",
+          "groupName",
+          "form",
+          "draft",
+          "loading",
+          "loadError",
+          "reload",
+          "replacement",
+          "setReplacement"
+        ]
+      }
+    ]
+  },
+  "review_movement": {
+    "original_sha256": "baeaf7a47e40984791c30f7695ddf972ef49e5d170bd53550e039399e266f57d",
+    "moved": [
+      {
+        "name": "ReturningPassportDetails",
+        "owner": "frontend/features/travellers/components/returning-review-fields.tsx",
+        "complete_jsx_emitted_AST_exact": true,
+        "props": [
+          "displayName",
+          "extracting",
+          "draft",
+          "payload",
+          "form",
+          "setConfirmed"
+        ]
+      },
+      {
+        "name": "ReturningContactDetails",
+        "owner": "frontend/features/travellers/components/returning-review-fields.tsx",
+        "complete_jsx_emitted_AST_exact": true,
+        "props": [
+          "contact",
+          "draft",
+          "form",
+          "setContactOpen"
+        ]
+      },
+      {
+        "name": "ReturningTripFields",
+        "owner": "frontend/features/travellers/components/returning-review-fields.tsx",
+        "complete_jsx_emitted_AST_exact": true,
+        "props": [
+          "history",
+          "payload",
+          "form",
+          "setConfirmed"
+        ]
+      },
+      {
+        "name": "ReturningReviewDeclaration",
+        "owner": "frontend/features/travellers/components/returning-review-confirmation.tsx",
+        "complete_jsx_emitted_AST_exact": true,
+        "props": [
+          "needsReplacement",
+          "needsContact",
+          "needsBack",
+          "confirmed",
+          "setConfirmed",
+          "form",
+          "extracting",
+          "uploadBusy",
+          "canSubmit"
+        ]
+      },
+      {
+        "name": "ReturningReviewSuccess",
+        "owner": "frontend/features/travellers/components/returning-review-confirmation.tsx",
+        "complete_jsx_emitted_AST_exact": true,
+        "props": [
+          "result",
+          "draft",
+          "groupName",
+          "onFresh"
+        ]
+      },
+      {
+        "name": "ReturningReviewHeader",
+        "owner": "frontend/features/travellers/components/returning-review-header.tsx",
+        "complete_jsx_emitted_AST_exact": true,
+        "props": [
+          "history",
+          "groupName",
+          "form",
+          "draft",
+          "loading",
+          "loadError",
+          "reload",
+          "replacement",
+          "setReplacement"
+        ]
+      }
+    ],
+    "wiring": [
+      {
+        "name": "ReturningReviewSuccess",
+        "attributes": [
+          {
+            "name": "result",
+            "value": "result"
+          },
+          {
+            "name": "draft",
+            "value": "draft"
+          },
+          {
+            "name": "groupName",
+            "value": "groupName"
+          },
+          {
+            "name": "onFresh",
+            "value": "onFresh"
+          }
+        ],
+        "exact": true
+      },
+      {
+        "name": "ReturningReviewHeader",
+        "attributes": [
+          {
+            "name": "history",
+            "value": "history"
+          },
+          {
+            "name": "groupName",
+            "value": "groupName"
+          },
+          {
+            "name": "form",
+            "value": "form"
+          },
+          {
+            "name": "draft",
+            "value": "draft"
+          },
+          {
+            "name": "loading",
+            "value": "loading"
+          },
+          {
+            "name": "loadError",
+            "value": "loadError"
+          },
+          {
+            "name": "reload",
+            "value": "reload"
+          },
+          {
+            "name": "replacement",
+            "value": "replacement"
+          },
+          {
+            "name": "setReplacement",
+            "value": "setReplacement"
+          }
+        ],
+        "exact": true
+      },
+      {
+        "name": "ReturningPassportDetails",
+        "attributes": [
+          {
+            "name": "displayName",
+            "value": "displayName"
+          },
+          {
+            "name": "extracting",
+            "value": "extracting"
+          },
+          {
+            "name": "draft",
+            "value": "draft"
+          },
+          {
+            "name": "payload",
+            "value": "payload"
+          },
+          {
+            "name": "form",
+            "value": "form"
+          },
+          {
+            "name": "setConfirmed",
+            "value": "setConfirmed"
+          }
+        ],
+        "exact": true
+      },
+      {
+        "name": "ReturningContactDetails",
+        "attributes": [
+          {
+            "name": "contact",
+            "value": "contact"
+          },
+          {
+            "name": "draft",
+            "value": "draft"
+          },
+          {
+            "name": "form",
+            "value": "form"
+          },
+          {
+            "name": "setContactOpen",
+            "value": "setContactOpen"
+          }
+        ],
+        "exact": true
+      },
+      {
+        "name": "ReturningTripFields",
+        "attributes": [
+          {
+            "name": "history",
+            "value": "history"
+          },
+          {
+            "name": "payload",
+            "value": "payload"
+          },
+          {
+            "name": "form",
+            "value": "form"
+          },
+          {
+            "name": "setConfirmed",
+            "value": "setConfirmed"
+          }
+        ],
+        "exact": true
+      },
+      {
+        "name": "ReturningReviewDeclaration",
+        "attributes": [
+          {
+            "name": "needsReplacement",
+            "value": "needsReplacement"
+          },
+          {
+            "name": "needsContact",
+            "value": "needsContact"
+          },
+          {
+            "name": "needsBack",
+            "value": "needsBack"
+          },
+          {
+            "name": "confirmed",
+            "value": "confirmed"
+          },
+          {
+            "name": "setConfirmed",
+            "value": "setConfirmed"
+          },
+          {
+            "name": "form",
+            "value": "form"
+          },
+          {
+            "name": "extracting",
+            "value": "extracting"
+          },
+          {
+            "name": "uploadBusy",
+            "value": "uploadBusy"
+          },
+          {
+            "name": "canSubmit",
+            "value": "canSubmit"
+          }
+        ],
+        "exact": true
+      }
+    ],
+    "functions": [
+      {
+        "name": "ReturningReview",
+        "expanded_complete_function_emitted_AST_exact": true
+      },
+      {
+        "name": "ReturningReviewContent",
+        "expanded_complete_function_emitted_AST_exact": true
+      }
+    ],
+    "normalization": "TypeScript emitted JavaScript AST; parentheses/trivia ignored, JSX semantic strings retained. Header grouping expanded back into original siblings before comparison.",
+    "source_hashes": [
+      {
+        "path": "frontend/features/travellers/components/returning-review.tsx",
+        "sha256": "13a139b7842c886250846db82d41b5b2b595e520207b79107329713ae8b185c1"
+      },
+      {
+        "path": "frontend/features/travellers/components/returning-review-header.tsx",
+        "sha256": "caefb57fefb05b40199a1d284e87a45c3bdb917d690420decb524dac76d6d2a4"
+      },
+      {
+        "path": "frontend/features/travellers/components/returning-review-fields.tsx",
+        "sha256": "7c19413182d0a515e5968245ce958e97adf67b6d1fb9a3810664727e6c8c19a4"
+      },
+      {
+        "path": "frontend/features/travellers/components/returning-review-confirmation.tsx",
+        "sha256": "f7b006477af2c1d98320870c96e7cf0abc7480e67913776cb1656f6648838b8f"
+      }
+    ]
+  },
+  "resource_extraction_origin": [
+    {
+      "path": "frontend/features/travellers/components/returning-resume.tsx",
+      "originalSource": "\"use client\";\r\nimport { useEffect, useState } from \"react\";\r\nimport { returningApi } from \"../api/returning.api\";\r\nimport type { ReturningHistory } from \"../types\";\r\nimport { ReturningReview } from \"./returning-review\";\r\nimport { TravellerShell } from \"@/features/upload/components/traveller-shell\";\r\nimport { Button } from \"@/components/ui/button\";\r\nimport { BrandLogo } from \"@/components/brand/brand-logo\";\r\nimport type { UploadLinkResponse } from \"@/features/passports/api/upload-links.api\";\r\n\r\nexport function ReturningResume({ token, groupName, group, onFresh, onVerify }: { token: string; groupName: string; group?: UploadLinkResponse; onFresh: () => void; onVerify: () => void }) {\r\n  const [history, setHistory] = useState<ReturningHistory>();\r\n  const [verificationNeeded, setVerificationNeeded] = useState(false);\r\n  useEffect(() => {\r\n    const controller = new AbortController();\r\n    void returningApi.history(controller.signal, token).then((result) => { if (!controller.signal.aborted) setHistory(result); })\r\n      .catch(() => { if (!controller.signal.aborted) setVerificationNeeded(true); });\r\n    return () => controller.abort();\r\n  }, [token]);\r\n  if (history) return <ReturningReview history={history} groupName={groupName} group={group} groupToken={token} onFresh={onFresh} onReplace={onFresh} />;\r\n  return <TravellerShell><BrandLogo className=\"mx-auto mb-6\" priority /><section className=\"space-y-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm\">\r\n    <h1 className=\"text-2xl font-semibold text-slate-950\">Continue your saved draft</h1>\r\n    {verificationNeeded ? <><p className=\"text-sm leading-6 text-slate-500\">Your temporary draft stays saved for 24 hours. Verify your passport again to reopen your private details and continue.</p><Button type=\"button\" className=\"min-h-12 w-full\" onClick={onVerify}>Verify and continue</Button></> : <p role=\"status\" className=\"text-sm text-slate-500\">Opening your secure draft…</p>}\r\n  </section></TravellerShell>;\r\n}\r\n",
+      "originalSha256": "54e96cbb354b75b645b6859cf1739e79b9fe130f05c2e95a32e08f1c4ffaf01f",
+      "logicStatements": [
+        "const [history, setHistory] = useState<ReturningHistory>();",
+        "const [verificationNeeded, setVerificationNeeded] = useState(false);",
+        "useEffect(() => {\r\n    const controller = new AbortController();\r\n    void returningApi.history(controller.signal, token).then((result) => { if (!controller.signal.aborted) setHistory(result); })\r\n      .catch(() => { if (!controller.signal.aborted) setVerificationNeeded(true); });\r\n    return () => controller.abort();\r\n  }, [token]);"
+      ],
+      "viewStatements": [
+        "if (history) return <ReturningReview history={history} groupName={groupName} group={group} groupToken={token} onFresh={onFresh} onReplace={onFresh} />;",
+        "return <TravellerShell><BrandLogo className=\"mx-auto mb-6\" priority /><section className=\"space-y-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm\">\r\n    <h1 className=\"text-2xl font-semibold text-slate-950\">Continue your saved draft</h1>\r\n    {verificationNeeded ? <><p className=\"text-sm leading-6 text-slate-500\">Your temporary draft stays saved for 24 hours. Verify your passport again to reopen your private details and continue.</p><Button type=\"button\" className=\"min-h-12 w-full\" onClick={onVerify}>Verify and continue</Button></> : <p role=\"status\" className=\"text-sm text-slate-500\">Opening your secure draft…</p>}\r\n  </section></TravellerShell>;"
+      ],
+      "publicProps": "{ token: string; groupName: string; group?: UploadLinkResponse; onFresh: () => void; onVerify: () => void }"
+    },
+    {
+      "path": "frontend/features/travellers/components/traveller-document.tsx",
+      "originalSource": "\"use client\";\r\n\r\nimport { useEffect, useRef, useState } from \"react\";\r\nimport { FileImage, RotateCw } from \"lucide-react\";\r\nimport { returningApi } from \"../api/returning.api\";\r\nimport { returningDraftApi } from \"../api/returning-draft.api\";\r\nimport { queuedPrivatePreview } from \"../services/private-preview-queue\";\r\n\r\nexport function TravellerDocument({ id, label, draftId, temporary = false, available = true }: { id: string; label: string; draftId?: string; temporary?: boolean; available?: boolean }) {\r\n  const frame = useRef<HTMLElement>(null);\r\n  const [visible, setVisible] = useState(() => typeof IntersectionObserver === \"undefined\");\r\n  const [asset, setAsset] = useState<{ url: string; type: string }>();\r\n  const [error, setError] = useState(false);\r\n  const [attempt, setAttempt] = useState(0);\r\n  useEffect(() => {\r\n    if (!frame.current) return;\r\n    if (typeof IntersectionObserver === \"undefined\") return;\r\n    const observer = new IntersectionObserver(([entry]) => {\r\n      if (entry.isIntersecting) { setVisible(true); observer.disconnect(); }\r\n    }, { rootMargin: \"300px\" });\r\n    observer.observe(frame.current);\r\n    return () => observer.disconnect();\r\n  }, []);\r\n  useEffect(() => {\r\n    if (!visible || !available) return;\r\n    const controller = new AbortController();\r\n    let url: string | undefined;\r\n    void queuedPrivatePreview(() => temporary && draftId ? returningDraftApi.document(id, draftId, controller.signal) : returningApi.document(id, controller.signal), controller.signal).then((blob) => {\r\n      if (controller.signal.aborted) return;\r\n      if (!blob.size || blob.size > 20 * 1024 * 1024 || ![\"image/jpeg\", \"image/png\", \"image/webp\", \"application/pdf\"].includes(blob.type)) throw new Error(\"Unsupported preview\");\r\n      url = URL.createObjectURL(blob); setAsset({ url, type: blob.type });\r\n    }).catch(() => { if (!controller.signal.aborted) setError(true); });\r\n    return () => { controller.abort(); if (url) URL.revokeObjectURL(url); };\r\n  }, [id, draftId, temporary, visible, available, attempt]);\r\n  return <figure ref={frame} className=\"overflow-hidden rounded-2xl border border-slate-200 bg-white\">\r\n    <figcaption className=\"flex items-center justify-between gap-3 border-b border-slate-100 px-4 py-3 text-sm font-medium text-slate-700\"><span className=\"flex items-center gap-2\"><FileImage className=\"h-4 w-4 text-slate-400\" />{label}</span>{temporary && <span className=\"text-xs text-blue-600\">Updated draft</span>}</figcaption>\r\n    <div className=\"flex aspect-[4/3] w-full items-center justify-center bg-slate-50 p-3 sm:p-4\">\r\n      {!available || error ? <div className=\"space-y-3 text-center text-sm text-slate-500\"><p>{available ? \"Preview could not be loaded.\" : \"A readable copy is needed.\"}</p>{available && <button type=\"button\" onClick={() => { setError(false); setAsset(undefined); setAttempt((value) => value + 1); }} className=\"inline-flex min-h-11 items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 text-blue-700\"><RotateCw className=\"h-4 w-4\" />Retry preview</button>}</div> : !asset ? <p role=\"status\" className=\"text-sm text-slate-400\">Loading protected document…</p> : asset.type === \"application/pdf\" ? <iframe title={label} src={asset.url} className=\"h-full w-full border-0 bg-white\" /> : (\r\n        // Only authenticated, bounded image blobs reach this local object URL.\r\n        // eslint-disable-next-line @next/next/no-img-element\r\n        <img src={asset.url} alt={label} decoding=\"async\" onError={() => setError(true)} className=\"h-full w-full rounded-lg object-contain\" />\r\n      )}\r\n    </div>\r\n  </figure>;\r\n}\r\n",
+      "originalSha256": "665ac1d9cf382c5b402fd47b28e152cfef7794ef5c07ab2cbd8a4f0fe7196bb4",
+      "logicStatements": [
+        "const frame = useRef<HTMLElement>(null);",
+        "const [visible, setVisible] = useState(() => typeof IntersectionObserver === \"undefined\");",
+        "const [asset, setAsset] = useState<{ url: string; type: string }>();",
+        "const [error, setError] = useState(false);",
+        "const [attempt, setAttempt] = useState(0);",
+        "useEffect(() => {\r\n    if (!frame.current) return;\r\n    if (typeof IntersectionObserver === \"undefined\") return;\r\n    const observer = new IntersectionObserver(([entry]) => {\r\n      if (entry.isIntersecting) { setVisible(true); observer.disconnect(); }\r\n    }, { rootMargin: \"300px\" });\r\n    observer.observe(frame.current);\r\n    return () => observer.disconnect();\r\n  }, []);",
+        "useEffect(() => {\r\n    if (!visible || !available) return;\r\n    const controller = new AbortController();\r\n    let url: string | undefined;\r\n    void queuedPrivatePreview(() => temporary && draftId ? returningDraftApi.document(id, draftId, controller.signal) : returningApi.document(id, controller.signal), controller.signal).then((blob) => {\r\n      if (controller.signal.aborted) return;\r\n      if (!blob.size || blob.size > 20 * 1024 * 1024 || ![\"image/jpeg\", \"image/png\", \"image/webp\", \"application/pdf\"].includes(blob.type)) throw new Error(\"Unsupported preview\");\r\n      url = URL.createObjectURL(blob); setAsset({ url, type: blob.type });\r\n    }).catch(() => { if (!controller.signal.aborted) setError(true); });\r\n    return () => { controller.abort(); if (url) URL.revokeObjectURL(url); };\r\n  }, [id, draftId, temporary, visible, available, attempt]);"
+      ],
+      "viewStatements": [
+        "return <figure ref={frame} className=\"overflow-hidden rounded-2xl border border-slate-200 bg-white\">\r\n    <figcaption className=\"flex items-center justify-between gap-3 border-b border-slate-100 px-4 py-3 text-sm font-medium text-slate-700\"><span className=\"flex items-center gap-2\"><FileImage className=\"h-4 w-4 text-slate-400\" />{label}</span>{temporary && <span className=\"text-xs text-blue-600\">Updated draft</span>}</figcaption>\r\n    <div className=\"flex aspect-[4/3] w-full items-center justify-center bg-slate-50 p-3 sm:p-4\">\r\n      {!available || error ? <div className=\"space-y-3 text-center text-sm text-slate-500\"><p>{available ? \"Preview could not be loaded.\" : \"A readable copy is needed.\"}</p>{available && <button type=\"button\" onClick={() => { setError(false); setAsset(undefined); setAttempt((value) => value + 1); }} className=\"inline-flex min-h-11 items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 text-blue-700\"><RotateCw className=\"h-4 w-4\" />Retry preview</button>}</div> : !asset ? <p role=\"status\" className=\"text-sm text-slate-400\">Loading protected document…</p> : asset.type === \"application/pdf\" ? <iframe title={label} src={asset.url} className=\"h-full w-full border-0 bg-white\" /> : (\r\n        // Only authenticated, bounded image blobs reach this local object URL.\r\n        // eslint-disable-next-line @next/next/no-img-element\r\n        <img src={asset.url} alt={label} decoding=\"async\" onError={() => setError(true)} className=\"h-full w-full rounded-lg object-contain\" />\r\n      )}\r\n    </div>\r\n  </figure>;"
+      ],
+      "retry": "() => { setError(false); setAsset(undefined); setAttempt((value) => value + 1); }",
+      "publicProps": "{ id: string; label: string; draftId?: string; temporary?: boolean; available?: boolean }"
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-contact-dialog.tsx",
+      "originalSource": "\"use client\";\r\n\r\nimport { useEffect, useId, useRef, useState } from \"react\";\r\nimport { Button } from \"@/components/ui/button\";\r\nimport { Input } from \"@/components/ui/input\";\r\nimport { useModalKeyboardBoundary } from \"@/components/ui/modal\";\r\nimport { normalizePhoneNumber, PHONE_FORMAT_HELP } from \"@/lib/utils/phone-number\";\r\nimport { returningApi } from \"../api/returning.api\";\r\n\r\nexport function ReturningContactDialog({ draftId, onClose, onSaved }: { draftId: string; onClose: () => void; onSaved: () => void }) {\r\n  const [phone, setPhone] = useState(\"\");\r\n  const [code, setCode] = useState(\"\");\r\n  const [sent, setSent] = useState(false);\r\n  const [verified, setVerified] = useState(false);\r\n  const [confirmed, setConfirmed] = useState(false);\r\n  const [pending, setPending] = useState(false);\r\n  const [error, setError] = useState<string>();\r\n  const [resendAt, setResendAt] = useState(0);\r\n  const [now, setNow] = useState(0);\r\n  const operation = useRef<AbortController | null>(null);\r\n  const dialogRef = useRef<HTMLDivElement>(null);\r\n  const titleId = useId();\r\n  const keyboard = useModalKeyboardBoundary({ dialogRef, isOpen: true, canClose: !pending, onClose });\r\n  useEffect(() => () => operation.current?.abort(), []);\r\n  useEffect(() => { if (!resendAt) return; const timer = window.setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(timer); }, [resendAt]);\r\n  const run = async (verify: boolean) => {\r\n    if (operation.current) return;\r\n    const controller = new AbortController(); operation.current = controller; setPending(true); setError(undefined);\r\n    try {\r\n      if (verify) {\r\n        if (!verified) {\r\n          await returningApi.verifyContact(code, draftId, controller.signal);\r\n          if (!controller.signal.aborted) setVerified(true);\r\n        }\r\n        if (!controller.signal.aborted) onSaved();\r\n      } else {\r\n        const result = await returningApi.requestContact(normalizePhoneNumber(phone) ?? phone, draftId, controller.signal);\r\n        if (!controller.signal.aborted) { setSent(true); setNow(Date.now()); setResendAt(Date.now() + result.resend_after_seconds * 1000); }\r\n      }\r\n    } catch (cause) { if (!controller.signal.aborted) setError(typeof cause === \"object\" && cause !== null && \"message\" in cause && typeof cause.message === \"string\" ? cause.message : \"The contact change could not be confirmed. Retry when ready.\"); }\r\n    finally { operation.current = null; if (!controller.signal.aborted) setPending(false); }\r\n  };\r\n  const resendIn = Math.max(0, Math.ceil((resendAt - now) / 1000));\r\n  return <div ref={dialogRef} role=\"dialog\" aria-modal=\"true\" aria-labelledby={titleId} onKeyDown={keyboard} className=\"fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4\">\r\n    <form className=\"max-h-[90dvh] w-full max-w-md space-y-4 overflow-y-auto rounded-2xl bg-white p-5 shadow-xl\" onSubmit={(event) => { event.preventDefault(); if (!sent || confirmed) void run(sent); }}>\r\n      <h2 id={titleId} className=\"text-lg font-semibold text-slate-950\">Change WhatsApp contact</h2>\r\n      <p className=\"text-sm leading-6 text-slate-600\">Verify your current WhatsApp number. It will be saved with your trip only when you select Submit on the review page.</p>\r\n      <Input label=\"New WhatsApp number\" value={phone} type=\"tel\" autoComplete=\"tel\" maxLength={64} required onChange={(event) => setPhone(event.target.value)} disabled={pending || sent} hint={PHONE_FORMAT_HELP} data-dialog-initial-focus className=\"h-12 text-base\" />\r\n      {sent && <><Input label=\"WhatsApp verification code\" value={code} onChange={(event) => setCode(event.target.value.replace(/\\D/g, \"\"))} inputMode=\"numeric\" autoComplete=\"one-time-code\" required minLength={6} maxLength={6} disabled={pending} className=\"h-12 text-base\" /><Button type=\"button\" variant=\"ghost\" size=\"sm\" disabled={pending || verified || resendIn > 0} onClick={() => void run(false)}>{resendIn ? `Resend available in ${resendIn}s` : \"Resend code\"}</Button><label className=\"flex items-start gap-3 text-sm leading-6 text-slate-700\"><input type=\"checkbox\" required checked={confirmed} onChange={(event) => setConfirmed(event.target.checked)} className=\"mt-1\" />Use this verified number as this traveller’s current contact.</label></>}\r\n      {error && <p role=\"alert\" className=\"rounded-xl bg-red-50 p-3 text-sm text-red-800\">{error}</p>}\r\n      <div className=\"flex flex-wrap justify-end gap-2\"><Button type=\"button\" variant=\"secondary\" onClick={onClose} disabled={pending}>Cancel</Button><Button type=\"submit\" disabled={!normalizePhoneNumber(phone) || (sent && (!confirmed || code.length !== 6))} isLoading={pending}>{verified ? \"Use verified contact\" : sent ? \"Verify for this draft\" : \"Send WhatsApp code\"}</Button></div>\r\n    </form>\r\n  </div>;\r\n}\r\n",
+      "originalSha256": "68b2d407803af17481ad20938f516ff5d55aad852fa447eb7542f2d35b4a9ef6",
+      "logicStatements": [
+        "const [phone, setPhone] = useState(\"\");",
+        "const [code, setCode] = useState(\"\");",
+        "const [sent, setSent] = useState(false);",
+        "const [verified, setVerified] = useState(false);",
+        "const [confirmed, setConfirmed] = useState(false);",
+        "const [pending, setPending] = useState(false);",
+        "const [error, setError] = useState<string>();",
+        "const [resendAt, setResendAt] = useState(0);",
+        "const [now, setNow] = useState(0);",
+        "const operation = useRef<AbortController | null>(null);",
+        "useEffect(() => () => operation.current?.abort(), []);",
+        "useEffect(() => { if (!resendAt) return; const timer = window.setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(timer); }, [resendAt]);",
+        "const run = async (verify: boolean) => {\r\n    if (operation.current) return;\r\n    const controller = new AbortController(); operation.current = controller; setPending(true); setError(undefined);\r\n    try {\r\n      if (verify) {\r\n        if (!verified) {\r\n          await returningApi.verifyContact(code, draftId, controller.signal);\r\n          if (!controller.signal.aborted) setVerified(true);\r\n        }\r\n        if (!controller.signal.aborted) onSaved();\r\n      } else {\r\n        const result = await returningApi.requestContact(normalizePhoneNumber(phone) ?? phone, draftId, controller.signal);\r\n        if (!controller.signal.aborted) { setSent(true); setNow(Date.now()); setResendAt(Date.now() + result.resend_after_seconds * 1000); }\r\n      }\r\n    } catch (cause) { if (!controller.signal.aborted) setError(typeof cause === \"object\" && cause !== null && \"message\" in cause && typeof cause.message === \"string\" ? cause.message : \"The contact change could not be confirmed. Retry when ready.\"); }\r\n    finally { operation.current = null; if (!controller.signal.aborted) setPending(false); }\r\n  };",
+        "const resendIn = Math.max(0, Math.ceil((resendAt - now) / 1000));"
+      ],
+      "viewStatements": [
+        "const dialogRef = useRef<HTMLDivElement>(null);",
+        "const titleId = useId();",
+        "const keyboard = useModalKeyboardBoundary({ dialogRef, isOpen: true, canClose: !pending, onClose });",
+        "return <div ref={dialogRef} role=\"dialog\" aria-modal=\"true\" aria-labelledby={titleId} onKeyDown={keyboard} className=\"fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4\">\r\n    <form className=\"max-h-[90dvh] w-full max-w-md space-y-4 overflow-y-auto rounded-2xl bg-white p-5 shadow-xl\" onSubmit={(event) => { event.preventDefault(); if (!sent || confirmed) void run(sent); }}>\r\n      <h2 id={titleId} className=\"text-lg font-semibold text-slate-950\">Change WhatsApp contact</h2>\r\n      <p className=\"text-sm leading-6 text-slate-600\">Verify your current WhatsApp number. It will be saved with your trip only when you select Submit on the review page.</p>\r\n      <Input label=\"New WhatsApp number\" value={phone} type=\"tel\" autoComplete=\"tel\" maxLength={64} required onChange={(event) => setPhone(event.target.value)} disabled={pending || sent} hint={PHONE_FORMAT_HELP} data-dialog-initial-focus className=\"h-12 text-base\" />\r\n      {sent && <><Input label=\"WhatsApp verification code\" value={code} onChange={(event) => setCode(event.target.value.replace(/\\D/g, \"\"))} inputMode=\"numeric\" autoComplete=\"one-time-code\" required minLength={6} maxLength={6} disabled={pending} className=\"h-12 text-base\" /><Button type=\"button\" variant=\"ghost\" size=\"sm\" disabled={pending || verified || resendIn > 0} onClick={() => void run(false)}>{resendIn ? `Resend available in ${resendIn}s` : \"Resend code\"}</Button><label className=\"flex items-start gap-3 text-sm leading-6 text-slate-700\"><input type=\"checkbox\" required checked={confirmed} onChange={(event) => setConfirmed(event.target.checked)} className=\"mt-1\" />Use this verified number as this traveller’s current contact.</label></>}\r\n      {error && <p role=\"alert\" className=\"rounded-xl bg-red-50 p-3 text-sm text-red-800\">{error}</p>}\r\n      <div className=\"flex flex-wrap justify-end gap-2\"><Button type=\"button\" variant=\"secondary\" onClick={onClose} disabled={pending}>Cancel</Button><Button type=\"submit\" disabled={!normalizePhoneNumber(phone) || (sent && (!confirmed || code.length !== 6))} isLoading={pending}>{verified ? \"Use verified contact\" : sent ? \"Verify for this draft\" : \"Send WhatsApp code\"}</Button></div>\r\n    </form>\r\n  </div>;"
+      ],
+      "modelFields": [
+        "phone",
+        "setPhone",
+        "code",
+        "setCode",
+        "sent",
+        "verified",
+        "confirmed",
+        "setConfirmed",
+        "pending",
+        "error",
+        "resendIn",
+        "run"
+      ],
+      "deliberateStructuralNote": "State/OTP lifecycle and timer effects now live in one controller hook; modal boundary still owns DOM/ref/focus. Each moved effect/handler body is identical. Hook effect registration precedes modal boundary instead of following it; no business requests/actions changed, cancellation and modal focus verified separately."
+    }
+  ],
+  "resource_movement": {
+    "records": [
+      {
+        "original_path": "frontend/features/travellers/components/returning-resume.tsx",
+        "original_sha256": "54e96cbb354b75b645b6859cf1739e79b9fe130f05c2e95a32e08f1c4ffaf01f",
+        "hook_path": "frontend/features/travellers/hooks/use-returning-resume.ts",
+        "view_path": "frontend/features/travellers/components/returning-resume-content.tsx",
+        "moved_logic_statements": 3,
+        "all_original_logic_statement_ASTs_exact": true,
+        "complete_view_AST_exact_after_named_retry_binding": true,
+        "public_prop_types_exact": true,
+        "facade_hook_call_arguments": [
+          [
+            "props.token"
+          ]
+        ],
+        "structural_note": "State/effects and complete view moved without behavior changes."
+      },
+      {
+        "original_path": "frontend/features/travellers/components/traveller-document.tsx",
+        "original_sha256": "665ac1d9cf382c5b402fd47b28e152cfef7794ef5c07ab2cbd8a4f0fe7196bb4",
+        "hook_path": "frontend/features/travellers/hooks/use-traveller-document-preview.ts",
+        "view_path": "frontend/features/travellers/components/traveller-document-content.tsx",
+        "moved_logic_statements": 7,
+        "all_original_logic_statement_ASTs_exact": true,
+        "complete_view_AST_exact_after_named_retry_binding": true,
+        "public_prop_types_exact": true,
+        "facade_hook_call_arguments": [
+          [
+            "id",
+            "draftId",
+            "temporary",
+            "available"
+          ]
+        ],
+        "structural_note": "State/effects and complete view moved without behavior changes."
+      },
+      {
+        "original_path": "frontend/features/travellers/components/returning-contact-dialog.tsx",
+        "original_sha256": "68b2d407803af17481ad20938f516ff5d55aad852fa447eb7542f2d35b4a9ef6",
+        "hook_path": "frontend/features/travellers/hooks/use-returning-contact.ts",
+        "view_path": "frontend/features/travellers/components/returning-contact-dialog.tsx",
+        "moved_logic_statements": 14,
+        "all_original_logic_statement_ASTs_exact": true,
+        "complete_view_AST_exact_after_named_retry_binding": true,
+        "public_prop_types_exact": true,
+        "facade_hook_call_arguments": [
+          [
+            "draftId",
+            "onSaved"
+          ]
+        ],
+        "structural_note": "State/OTP lifecycle and timer effects now live in one controller hook; modal boundary still owns DOM/ref/focus. Each moved effect/handler body is identical. Hook effect registration precedes modal boundary instead of following it; no business requests/actions changed, cancellation and modal focus verified separately."
+      }
+    ],
+    "normalization": "TypeScript emitted JavaScript AST for complete statements/views, JSX semantic strings preserved. Public TypeScript prop types compared structurally. Named retry callback expanded to its exact original arrow before view comparison."
+  },
+  "facade_model_glue": {
+    "records": [
+      {
+        "path": "frontend/features/travellers/components/returning-resume.tsx",
+        "hook": "useReturningResume",
+        "exact_arguments": [
+          "props.token"
+        ],
+        "sha256": "31088fbfc61bb5f4dbba894af820858395bd27d9ed544ff2f86bfae791ba00a2"
+      },
+      {
+        "path": "frontend/features/travellers/components/traveller-document.tsx",
+        "hook": "useTravellerDocumentPreview",
+        "exact_arguments": [
+          "id",
+          "draftId",
+          "temporary",
+          "available"
+        ],
+        "sha256": "17e0ed24c02f5d149e458b382a937e55b3d42be131d8f0a3db0d2b4a1aae72d0"
+      },
+      {
+        "path": "frontend/features/travellers/components/returning-contact-dialog.tsx",
+        "hook": "useReturningContact",
+        "exact_arguments": [
+          "draftId",
+          "onSaved"
+        ],
+        "sha256": "5b40a2aa787639a666bca29098195905ba9dca399e538904bc1d65e99a3caec7"
+      },
+      {
+        "path": "frontend/features/travellers/hooks/use-returning-resume.ts",
+        "exact_model_fields": [
+          "history",
+          "verificationNeeded"
+        ],
+        "sha256": "db1c2814752feca3691369257e74de41b02a4f97343247bd3d2d56bf46a24f7c"
+      },
+      {
+        "path": "frontend/features/travellers/hooks/use-traveller-document-preview.ts",
+        "exact_model_fields": [
+          "frame",
+          "asset",
+          "error",
+          "retry",
+          "setError"
+        ],
+        "sha256": "ca4c48e35ab65ece1ecc5367adefd9694c454a902246a1be999e0bbb506f0b4e"
+      },
+      {
+        "path": "frontend/features/travellers/hooks/use-returning-contact.ts",
+        "exact_model_fields": [
+          "phone",
+          "setPhone",
+          "code",
+          "setCode",
+          "sent",
+          "verified",
+          "confirmed",
+          "setConfirmed",
+          "pending",
+          "error",
+          "resendIn",
+          "run"
+        ],
+        "sha256": "2ed209a86b4388789393c412c82a45cb9513d76cfda602e18bb063febc70dd13"
+      },
+      {
+        "path": "frontend/features/travellers/hooks/use-returning-claim.ts",
+        "public_state_and_action_keys_exact": [
+          "transition",
+          "candidates",
+          "history",
+          "pending",
+          "error",
+          "resendAt",
+          "otpSent",
+          "start",
+          "requestOtp",
+          "verifyOtp",
+          "select",
+          "passport",
+          "challenge",
+          "changeQuestion",
+          "confirm",
+          "retryStage"
+        ],
+        "sha256": "58a9c9cdfc9e3b5cd4c0be497288d755285f6e2507f0cd95335e1f2020fa43d5"
+      }
+    ],
+    "facade_prop_forwarding_exact": true,
+    "defaults_preserved": true,
+    "contact_model_consumption_exact": true
+  },
+  "formatting_passes": [
+    {
+      "records": [
+        {
+          "path": "frontend/features/travellers/components/returning-review.tsx",
+          "before_sha256": "b6860c1f78923985c180d3e9e31fb35b18af641457d9a89b58e4e24061422885",
+          "after_sha256": "76498bf9afbb548bcc5ddf64167a6a299f7a7cc8a9b7bf61e6124a0dff967812",
+          "emitted_AST_unchanged": true,
+          "physical_lines": 168
+        },
+        {
+          "path": "frontend/features/travellers/components/returning-review-header.tsx",
+          "before_sha256": "2614bd0c3d41e185946152bf63c2cbf7030fd0fb113c118b578bc77110879154",
+          "after_sha256": "caefb57fefb05b40199a1d284e87a45c3bdb917d690420decb524dac76d6d2a4",
+          "emitted_AST_unchanged": true,
+          "physical_lines": 90
+        },
+        {
+          "path": "frontend/features/travellers/components/returning-review-fields.tsx",
+          "before_sha256": "4bd4751877afd9158c07843314250628a7c5e59646984e26069afcfd0e467e8c",
+          "after_sha256": "0d9173d3406da1cbfe782a4dd0e24ffde9dc83ab057dc4ea50c453ecdb5c25a2",
+          "emitted_AST_unchanged": true,
+          "physical_lines": 111
+        },
+        {
+          "path": "frontend/features/travellers/components/returning-review-confirmation.tsx",
+          "before_sha256": "e0c2fb1e6237b9226f98ee9040d456dc3d20b0ef6955377aa539a29bed392d53",
+          "after_sha256": "f7b006477af2c1d98320870c96e7cf0abc7480e67913776cb1656f6648838b8f",
+          "emitted_AST_unchanged": true,
+          "physical_lines": 84
+        }
+      ]
+    },
+    {
+      "records": [
+        {
+          "path": "frontend/features/travellers/components/returning-resume.tsx",
+          "before_sha256": "6459b8b9b39ec66eaffe1052fd6d6f1458834c875fba8b0fe0b7bf0322bbad58",
+          "after_sha256": "31088fbfc61bb5f4dbba894af820858395bd27d9ed544ff2f86bfae791ba00a2",
+          "emitted_AST_unchanged": true,
+          "physical_lines": 9
+        },
+        {
+          "path": "frontend/features/travellers/components/returning-resume-content.tsx",
+          "before_sha256": "0e95262aae96f8e63733cbd63317e4cc49be486b521af3f74c3b7705856abd94",
+          "after_sha256": "9f4e067e47b1e60fd0861202ce0e815d45179afdc97d303f6d1269288abb7b75",
+          "emitted_AST_unchanged": true,
+          "physical_lines": 36
+        },
+        {
+          "path": "frontend/features/travellers/hooks/use-returning-resume.ts",
+          "before_sha256": "188fe1ef2429e679f57a12e3a253768ecd86d53b662f4c47d513cddc280e8acc",
+          "after_sha256": "db1c2814752feca3691369257e74de41b02a4f97343247bd3d2d56bf46a24f7c",
+          "emitted_AST_unchanged": true,
+          "physical_lines": 20
+        },
+        {
+          "path": "frontend/features/travellers/components/traveller-document.tsx",
+          "before_sha256": "6c9a660cc986d24fa3e1557065a2384a298aaca52c4d8c0252f6af1acfac9ae5",
+          "after_sha256": "17e0ed24c02f5d149e458b382a937e55b3d42be131d8f0a3db0d2b4a1aae72d0",
+          "emitted_AST_unchanged": true,
+          "physical_lines": 9
+        },
+        {
+          "path": "frontend/features/travellers/components/traveller-document-content.tsx",
+          "before_sha256": "4666055ae626da041ee478affcbccc220462529a0bd8ad8c6e8b08f4169d76b6",
+          "after_sha256": "8d808c779b1e7509e03c15898270385b24ca06abff7e1b2cf442b3cedd0c62b4",
+          "emitted_AST_unchanged": true,
+          "physical_lines": 42
+        },
+        {
+          "path": "frontend/features/travellers/hooks/use-traveller-document-preview.ts",
+          "before_sha256": "2379f3d1ca1b27ba12d2c05c6c42dd874a5470140b317585fd1a902b20484718",
+          "after_sha256": "2c24071c9995ba829f9d35cdc648f659c6d5fc09171f59a9e0e8df557a5a3b3f",
+          "emitted_AST_unchanged": true,
+          "physical_lines": 48
+        },
+        {
+          "path": "frontend/features/travellers/components/returning-contact-dialog.tsx",
+          "before_sha256": "dd262830393dc30b4af62228375372bb1faf15859146f7245607ddb36fe4bcff",
+          "after_sha256": "5b40a2aa787639a666bca29098195905ba9dca399e538904bc1d65e99a3caec7",
+          "emitted_AST_unchanged": true,
+          "physical_lines": 104
+        },
+        {
+          "path": "frontend/features/travellers/hooks/use-returning-contact.ts",
+          "before_sha256": "9b64fe56e1d0fe7855ee256ca3960209efb68a1614bb65c8715bdc15b03ca3cc",
+          "after_sha256": "2ed209a86b4388789393c412c82a45cb9513d76cfda602e18bb063febc70dd13",
+          "emitted_AST_unchanged": true,
+          "physical_lines": 54
+        },
+        {
+          "path": "frontend/features/travellers/components/returning-flow.tsx",
+          "before_sha256": "336a3b4589785f6113334b3780af7d7c06c7ac47ee6e6cc1172e44372e50f970",
+          "after_sha256": "dfb6374d87f25a2e9bb229582116df0a3f724af1c887bcae937e5d198c0102f0",
+          "emitted_AST_unchanged": true,
+          "physical_lines": 189
+        },
+        {
+          "path": "frontend/features/travellers/components/returning-offer.tsx",
+          "before_sha256": "cabb37d14e557d8f1b6e8b4ffb9c8a3ef76a670214781cba11b1e63858d0d8df",
+          "after_sha256": "222de89b576bfbd248155ae2d1f4f4b94c56080372abe9efdcee2a057413481a",
+          "emitted_AST_unchanged": true,
+          "physical_lines": 101
+        }
+      ]
+    }
+  ],
+  "deliberate_changes": [
+    "The original recursive automatic accept transition is replaced with a per-operation visited-stage bound; explicit retry resets it. Repeated confirm/recovery/identify responses now produce a recoverable generic error.",
+    "The automatic phone-start OTP continuation now stops when the originating signal is aborted. The prior canceled-signal call was not evidence of an actual provider send.",
+    "Contact controller abort/timer effects register before the independent keyboard-boundary effect after extraction. Bodies/dependencies are exact; pending/unmount controls are tested.",
+    "After mechanical preview extraction, the existing native image decode-error setter is explicitly forwarded by the returned model; current movement and glue proof bind final sources."
+  ],
+  "limits": "Emitted AST comparisons normalize formatting/type erasure/parentheses, preserve semantic JSX text, and expand moved sections/retry callback only. They are supporting mechanical evidence, not a runtime security proof."
+}

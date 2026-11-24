@@ -1,7 +1,6 @@
 """A later shared-import call wakes an already completed linked roster job."""
 
 import uuid
-from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
 from sqlalchemy import func, select
@@ -20,6 +19,7 @@ from app.infrastructure.database.traveller_reuse_models import TravellerParticip
 from app.infrastructure.database.traveller_reuse_models import (
     TravellerReconciliationJobModel as Job,
 )
+from app.infrastructure.repositories.user_repository import UserRepository
 from app.presentation.api.v1.routes import whatsapp_recipient_additions as additions
 from app.presentation.api.v1.schemas.whatsapp_schemas import WhatsAppRecipientInput
 from tests.integration.traveller_reuse_fixtures import reuse_context, seed_person
@@ -35,7 +35,10 @@ async def test_second_import_assigns_new_person_without_relink_and_preserves_fir
     db_session.add(ClientGroupWhatsAppBroadcastLinkModel(agency_id=target.agency_id,
         client_group_id=target.id, broadcast_group_id=broadcast.id))
     await db_session.flush()
-    user = SimpleNamespace(id=actor.id, agency_id=actor.agency_id, role=UserRole.AGENCY_ADMIN)
+    user = await UserRepository(db_session).get_by_id(actor.id)
+    assert user is not None
+    assert user.role == UserRole.AGENCY_ADMIN
+    assert user.agency_id == actor.agency_id
     monkeypatch.setattr(additions, "_group_detail", AsyncMock(return_value="saved"))
     monkeypatch.setattr(additions, "reconcile_mobile_passenger_access_for_broadcast", AsyncMock())
     first_source_id = None

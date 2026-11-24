@@ -1,0 +1,169 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Users\\nipun\\AppData\\Local\\Programs\\node-v24.21.0-win-x64\\node.exe",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\final-qualifier-browser\\before.config.ts",
+      "--project=production-dashboard",
+      "--grep",
+      "saved Other text restores"
+    ],
+    "configFile": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\final-qualifier-browser\\before.config.ts",
+    "rootDir": "C:/Users/nipun/Desktop/PassDetection/.tmp/final-qualifier-browser/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/nipun/Desktop/PassDetection/.tmp/final-qualifier-browser/before-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "production-dashboard",
+        "name": "production-dashboard",
+        "testDir": "C:/Users/nipun/Desktop/PassDetection/frontend/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\final-qualifier-browser-preflight\\browser-before-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.62.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "..\\..\\..\\frontend\\e2e\\qualifier-relationship-methods.spec.ts",
+      "file": "../../../frontend/e2e/qualifier-relationship-methods.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "saved Other text restores after reload and editing creates a new selection",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "production-dashboard",
+              "projectName": "production-dashboard",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 13677,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveAttribute\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('radio', { name: /Other relationship/ })\nExpected: \u001b[32m\"\u001b[7mtru\u001b[27me\"\u001b[39m\nReceived: \u001b[31m\"\u001b[7mfals\u001b[27me\"\u001b[39m\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveAttribute\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('radio', { name: /Other relationship/ })\u001b[22m\n\u001b[2m    23 × locator resolved to <button role=\"radio\" type=\"button\" tabindex=\"-1\" aria-checked=\"false\" class=\"relative flex w-full min-w-0 flex-col gap-2 text-left disabled:cursor-not-allowed disabled:opacity-60 sm:flex-row sm:items-start\">…</button>\u001b[22m\n\u001b[2m       - unexpected value \"false\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveAttribute\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('radio', { name: /Other relationship/ })\nExpected: \u001b[32m\"\u001b[7mtru\u001b[27me\"\u001b[39m\nReceived: \u001b[31m\"\u001b[7mfals\u001b[27me\"\u001b[39m\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveAttribute\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('radio', { name: /Other relationship/ })\u001b[22m\n\u001b[2m    23 × locator resolved to <button role=\"radio\" type=\"button\" tabindex=\"-1\" aria-checked=\"false\" class=\"relative flex w-full min-w-0 flex-col gap-2 text-left disabled:cursor-not-allowed disabled:opacity-60 sm:flex-row sm:items-start\">…</button>\u001b[22m\n\u001b[2m       - unexpected value \"false\"\u001b[22m\n\n    at C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e\\qualifier-relationship-methods.spec.ts:154:73",
+                    "location": {
+                      "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e\\qualifier-relationship-methods.spec.ts",
+                      "column": 73,
+                      "line": 154
+                    },
+                    "snippet": "  152 |   await expect(page.getByText(\"Qualifier relationship saved\", { exact: true })).toBeVisible();\n  153 |   await page.getByRole(\"button\", { name: \"Change\", exact: true }).click();\n> 154 |   await expect(page.getByRole(\"radio\", { name: /Other relationship/ })).toHaveAttribute(\"aria-checked\", \"true\");\n      |                                                                         ^\n  155 |   await expect(page.getByRole(\"textbox\", { name: \"Specify relationship\" })).toHaveValue(\"Cousin\");\n  156 |   expect(fixture.qualifierReads).toEqual([originalProof]);\n  157 |   await page.getByRole(\"textbox\", { name: \"Specify relationship\" }).fill(\"Colleague\");"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e\\qualifier-relationship-methods.spec.ts",
+                        "column": 73,
+                        "line": 154
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveAttribute\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('radio', { name: /Other relationship/ })\nExpected: \u001b[32m\"\u001b[7mtru\u001b[27me\"\u001b[39m\nReceived: \u001b[31m\"\u001b[7mfals\u001b[27me\"\u001b[39m\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveAttribute\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('radio', { name: /Other relationship/ })\u001b[22m\n\u001b[2m    23 × locator resolved to <button role=\"radio\" type=\"button\" tabindex=\"-1\" aria-checked=\"false\" class=\"relative flex w-full min-w-0 flex-col gap-2 text-left disabled:cursor-not-allowed disabled:opacity-60 sm:flex-row sm:items-start\">…</button>\u001b[22m\n\u001b[2m       - unexpected value \"false\"\u001b[22m\n\n\n  152 |   await expect(page.getByText(\"Qualifier relationship saved\", { exact: true })).toBeVisible();\n  153 |   await page.getByRole(\"button\", { name: \"Change\", exact: true }).click();\n> 154 |   await expect(page.getByRole(\"radio\", { name: /Other relationship/ })).toHaveAttribute(\"aria-checked\", \"true\");\n      |                                                                         ^\n  155 |   await expect(page.getByRole(\"textbox\", { name: \"Specify relationship\" })).toHaveValue(\"Cousin\");\n  156 |   expect(fixture.qualifierReads).toEqual([originalProof]);\n  157 |   await page.getByRole(\"textbox\", { name: \"Specify relationship\" }).fill(\"Colleague\");\n    at C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e\\qualifier-relationship-methods.spec.ts:154:73"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T23:42:11.155Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\final-qualifier-browser\\before-results\\qualifier-relationship-met-31dc4-ing-creates-a-new-selection-production-dashboard\\test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\final-qualifier-browser\\before-results\\qualifier-relationship-met-31dc4-ing-creates-a-new-selection-production-dashboard\\video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\final-qualifier-browser\\before-results\\qualifier-relationship-met-31dc4-ing-creates-a-new-selection-production-dashboard\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\final-qualifier-browser\\before-results\\qualifier-relationship-met-31dc4-ing-creates-a-new-selection-production-dashboard\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e\\qualifier-relationship-methods.spec.ts",
+                    "column": 73,
+                    "line": 154
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "3363b7a17fd1b05ed0a7-13d7b486ba8d09dd75fc",
+          "file": "../../../frontend/e2e/qualifier-relationship-methods.spec.ts",
+          "line": 141,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-31T23:42:10.033Z",
+    "duration": 16741.15,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

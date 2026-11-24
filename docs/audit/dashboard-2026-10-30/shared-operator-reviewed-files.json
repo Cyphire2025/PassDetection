@@ -1,0 +1,64 @@
+{
+  "files": [
+    {
+      "path": "scripts/image_runtime_policy.py",
+      "sha256": "673087825215979c5f9eaf0d0d81cb7e0bc8e5a85db4fe09633a5743ab777cdd",
+      "physical_lines": 181,
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "notes": "Whole current physical source read. Shared release/CI boundary outside deferredInbox. Five complete module inverses prove only documented JSON/string guards, type annotations and equivalent local process variable changes; five-source configured strict typing and48affected synthetic cases pass. No real Docker/provider/config access."
+    },
+    {
+      "path": "scripts/release_manifest.py",
+      "sha256": "3f9f52c3bd3a4e965d4006901f581af725b17e4dfdbe00f7b32d6499b92c5cd1",
+      "physical_lines": 82,
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "notes": "Whole current physical source read. Shared release/CI boundary outside deferredInbox. Five complete module inverses prove only documented JSON/string guards, type annotations and equivalent local process variable changes; five-source configured strict typing and48affected synthetic cases pass. No real Docker/provider/config access."
+    },
+    {
+      "path": "scripts/verify_deployment_resource_budget.py",
+      "sha256": "ffa3b1159465bf57a750333bb708f03272b5f0130682a545593dc366a527e638",
+      "physical_lines": 192,
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "notes": "Whole current physical source read. Shared release/CI boundary outside deferredInbox. Five complete module inverses prove only documented JSON/string guards, type annotations and equivalent local process variable changes; five-source configured strict typing and48affected synthetic cases pass. No real Docker/provider/config access."
+    },
+    {
+      "path": "scripts/verify_database_deployment_budget.py",
+      "sha256": "18f49777f8d455f0af78d2c71d6330e29b16af2bd7eec51ccab8dc10a07a3803",
+      "physical_lines": 184,
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "notes": "Whole current physical source read. Shared release/CI boundary outside deferredInbox. Five complete module inverses prove only documented JSON/string guards, type annotations and equivalent local process variable changes; five-source configured strict typing and48affected synthetic cases pass. No real Docker/provider/config access."
+    },
+    {
+      "path": "scripts/database_identity_environment.py",
+      "sha256": "db9f8120c0e89a7bf8b0b3438d192a51a48912521f70e30f10ad79355d07edce",
+      "physical_lines": 40,
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "notes": "Whole current physical source read. Shared release/CI boundary outside deferredInbox. Five complete module inverses prove only documented JSON/string guards, type annotations and equivalent local process variable changes; five-source configured strict typing and48affected synthetic cases pass. No real Docker/provider/config access."
+    },
+    {
+      "path": "scripts/test_shared_operator_json_boundaries.py",
+      "sha256": "b37895b8d680ebf955c9b3634018d7c7fb9bd50a704db36d160ae9e6e5eab5da",
+      "physical_lines": 60,
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "notes": "Whole current physical source read. Shared release/CI boundary outside deferredInbox. Five complete module inverses prove only documented JSON/string guards, type annotations and equivalent local process variable changes; five-source configured strict typing and48affected synthetic cases pass. No real Docker/provider/config access."
+    }
+  ]
+}

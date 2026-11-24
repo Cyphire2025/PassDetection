@@ -1,0 +1,17 @@
+{
+  "status": "bound-parameter-path-fixed;database-origin-detail-follow-up-open",
+  "before_failed": 6,
+  "after_passed": 40,
+  "no_workflow_policy_change": true,
+  "real_service_qualification": false,
+  "source_sha256": {
+    "backend/app/infrastructure/database/session.py": "ffe7cb50459ed4c30754455477b86b47d67e8de2233aa430fe370e808f63f296",
+    "backend/tests/unit/infrastructure/test_database_parameter_privacy.py": "ab91aa303883b5bccbee9b5c69355ff8f48833bfc752362abcf905b9f114c8b2"
+  },
+  "receipt_sha256": {
+    "database-parameter-privacy-before.txt": "d331e7b59e8e8674a638863b5cfaf89c8614ae53321949d77f90ff8b4004c812",
+    "database-parameter-privacy-after.txt": "682615398b00fbf6c15f36c9041f260782816ad2244757f64b8bca2e693696c1",
+    "database-parameter-privacy-ruff.txt": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0",
+    "database-parameter-privacy-mypy.txt": "8e63ae22e8213e327a5e9cbd584067681681bd8ef7f25c869877887ccdcfc4ff"
+  }
+}

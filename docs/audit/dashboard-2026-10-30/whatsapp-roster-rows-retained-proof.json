@@ -1,0 +1,30 @@
+{
+  "basis": "Original full source and alias-aware reference closure retained separately; two literal whole declarations moved, live consumer import changed only, original path retains two explicit compatibility exports.",
+  "original_sha256": "9bb374ff76d7385c9ab413d0becac60243f35a6399166e4e032344dd565d4ce2",
+  "retired_declarations": [
+    "RejectedContactCorrection",
+    "visibleUnidentifiedDetailEntries",
+    "RejectedRosterRows",
+    "ReplacedRosterRow",
+    "UnidentifiedRosterRow",
+    "DeliveryBadge"
+  ],
+  "retained_declarations": [
+    "ROSTER_SOURCE_FIELD_KEYS",
+    "visibleImportedFieldEntries"
+  ],
+  "files": [
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-recipient-roster-rows.tsx",
+      "sha256": "6a73351544da7e44e9244a89bc2fff76a5d3c79d363667b2e4a673f2704395dc"
+    },
+    {
+      "path": "frontend/features/whatsapp/utils/recipient-detail-fields.ts",
+      "sha256": "2b4f6906ee758f14148bafc3ab341348ce0a45f1bd5f26a12dfc689336aba767"
+    },
+    {
+      "path": "frontend/features/whatsapp/components/group-update-recipient-details.tsx",
+      "sha256": "569179c35ae93c6e6799f3bf9ce6702fb2a76b24955488fde53a7954cfe3cfe3"
+    }
+  ]
+}

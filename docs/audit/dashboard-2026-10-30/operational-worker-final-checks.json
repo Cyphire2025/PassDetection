@@ -1,0 +1,111 @@
+[
+  {
+    "check": "tests",
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "-m",
+      "pytest",
+      "-q",
+      "-o",
+      "addopts=",
+      "tests/unit/infrastructure/test_my_photos_manifest_critical_boundaries.py",
+      "tests/unit/infrastructure/test_my_photos_manifest_type_contracts.py",
+      "tests/unit/infrastructure/test_my_photos_manifest_provider_ownership.py",
+      "tests/unit/infrastructure/test_my_photos_gallery_ingestion.py",
+      "tests/unit/infrastructure/test_my_photos_manifest_cli.py",
+      "tests/unit/infrastructure/test_my_photos_native_dispatch.py",
+      "tests/unit/infrastructure/test_my_photos_aws_providers.py",
+      "tests/integration/test_my_photos_index_publication.py",
+      "tests/integration/test_my_photos_media_publication.py",
+      "tests/integration/test_my_photos_operational_failure_authority.py",
+      "tests/integration/test_my_photos_operational_claims.py",
+      "tests/integration/test_my_photos_media_provider_ownership.py",
+      "tests/unit/infrastructure/test_my_photos_index_provider_ownership.py",
+      "tests/unit/infrastructure/test_my_photos_provider_tasks.py",
+      "tests/unit/infrastructure/test_my_photos_operational_policy.py",
+      "--cov=app.infrastructure.my_photos.operational_index_jobs",
+      "--cov=app.infrastructure.my_photos.operational_index_publication",
+      "--cov=app.infrastructure.my_photos.operational_job_claims",
+      "--cov=app.infrastructure.my_photos.operational_job_contracts",
+      "--cov=app.infrastructure.my_photos.operational_job_lifecycle",
+      "--cov=app.infrastructure.my_photos.operational_job_policy",
+      "--cov=app.infrastructure.my_photos.operational_job_queries",
+      "--cov=app.infrastructure.my_photos.operational_media_jobs",
+      "--cov=app.infrastructure.my_photos.operational_runtime",
+      "--cov=app.infrastructure.my_photos.provider_tasks",
+      "--cov=app.infrastructure.my_photos.aws_face_search",
+      "--cov=app.infrastructure.my_photos.gallery_manifest_providers",
+      "--cov-branch",
+      "--cov-report=json:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\operational-worker-final-coverage.json",
+      "--cov-report=xml:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\operational-worker-final-coverage.xml"
+    ],
+    "exit_code": 0
+  },
+  {
+    "check": "ruff",
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "-m",
+      "ruff",
+      "check",
+      "--no-fix",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\infrastructure\\my_photos\\operational_index_jobs.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\infrastructure\\my_photos\\operational_index_publication.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\infrastructure\\my_photos\\operational_job_claims.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\infrastructure\\my_photos\\operational_job_contracts.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\infrastructure\\my_photos\\operational_job_lifecycle.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\infrastructure\\my_photos\\operational_job_policy.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\infrastructure\\my_photos\\operational_job_queries.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\infrastructure\\my_photos\\operational_media_jobs.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\infrastructure\\my_photos\\operational_runtime.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\infrastructure\\my_photos\\provider_tasks.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\infrastructure\\my_photos\\aws_face_search.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\infrastructure\\my_photos\\gallery_manifest_providers.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\tests\\integration\\test_my_photos_operational_failure_authority.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\tests\\integration\\test_my_photos_operational_claims.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\tests\\integration\\test_my_photos_media_provider_ownership.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\tests\\unit\\infrastructure\\test_my_photos_index_provider_ownership.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\tests\\unit\\infrastructure\\test_my_photos_provider_tasks.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\tests\\unit\\infrastructure\\test_my_photos_operational_policy.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\tests\\integration\\my_photos_operational_fixtures.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "check": "mypy",
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "-m",
+      "mypy",
+      "app/infrastructure/my_photos/operational_index_jobs.py",
+      "app/infrastructure/my_photos/operational_index_publication.py",
+      "app/infrastructure/my_photos/operational_job_claims.py",
+      "app/infrastructure/my_photos/operational_job_contracts.py",
+      "app/infrastructure/my_photos/operational_job_lifecycle.py",
+      "app/infrastructure/my_photos/operational_job_policy.py",
+      "app/infrastructure/my_photos/operational_job_queries.py",
+      "app/infrastructure/my_photos/operational_media_jobs.py",
+      "app/infrastructure/my_photos/operational_runtime.py",
+      "app/infrastructure/my_photos/provider_tasks.py",
+      "app/infrastructure/my_photos/aws_face_search.py",
+      "app/infrastructure/my_photos/gallery_manifest_providers.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "check": "architecture",
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "scripts/verify_architecture_boundaries.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "check": "existing-budgets",
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "scripts/verify_backend_quality_budgets.py"
+    ],
+    "exit_code": 0
+  }
+]

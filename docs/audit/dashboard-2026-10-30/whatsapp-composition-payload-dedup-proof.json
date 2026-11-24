@@ -1,0 +1,113 @@
+{
+  "existing_helper_sha256_unchanged": "d404e35dfb0eec737193e29f24de045324f456fe871f4048dbf851459c1e5789",
+  "archived_mechanical_publication_sha256": "807398a62926f0ee690ed7d17779d6273d08653f9d12f7ad2fe113381c42390e",
+  "all7keys_order_and_pure_value_expression_ast_equal": true,
+  "sole_expression_normalization": [
+    "Canonical validated message-type string: != with swapped branches equals ==."
+  ],
+  "actual_existing_function_vs_archived_inline_value_cases": 20,
+  "cases": [
+    {
+      "message_type": "welcome",
+      "header_count": 0,
+      "blank_values": false
+    },
+    {
+      "message_type": "welcome",
+      "header_count": 0,
+      "blank_values": true
+    },
+    {
+      "message_type": "welcome",
+      "header_count": 1,
+      "blank_values": false
+    },
+    {
+      "message_type": "welcome",
+      "header_count": 1,
+      "blank_values": true
+    },
+    {
+      "message_type": "passport_link",
+      "header_count": 0,
+      "blank_values": false
+    },
+    {
+      "message_type": "passport_link",
+      "header_count": 0,
+      "blank_values": true
+    },
+    {
+      "message_type": "passport_link",
+      "header_count": 1,
+      "blank_values": false
+    },
+    {
+      "message_type": "passport_link",
+      "header_count": 1,
+      "blank_values": true
+    },
+    {
+      "message_type": "reminder",
+      "header_count": 0,
+      "blank_values": false
+    },
+    {
+      "message_type": "reminder",
+      "header_count": 0,
+      "blank_values": true
+    },
+    {
+      "message_type": "reminder",
+      "header_count": 1,
+      "blank_values": false
+    },
+    {
+      "message_type": "reminder",
+      "header_count": 1,
+      "blank_values": true
+    },
+    {
+      "message_type": "group_invite",
+      "header_count": 0,
+      "blank_values": false
+    },
+    {
+      "message_type": "group_invite",
+      "header_count": 0,
+      "blank_values": true
+    },
+    {
+      "message_type": "group_invite",
+      "header_count": 1,
+      "blank_values": false
+    },
+    {
+      "message_type": "group_invite",
+      "header_count": 1,
+      "blank_values": true
+    },
+    {
+      "message_type": "update",
+      "header_count": 0,
+      "blank_values": false
+    },
+    {
+      "message_type": "update",
+      "header_count": 0,
+      "blank_values": true
+    },
+    {
+      "message_type": "update",
+      "header_count": 1,
+      "blank_values": false
+    },
+    {
+      "message_type": "update",
+      "header_count": 1,
+      "blank_values": true
+    }
+  ],
+  "changed_evaluation_scope": "New helper receives only already-materialized UUID, validated message-type str and frozen parameter/header lists. No SQL/authority/await/commit/provider call reordering; no callback/configuration objects passed.",
+  "performance_claim": "Maintainability deduplication only: one O(1) payload assembly per published batch; no measured speedup claim."
+}

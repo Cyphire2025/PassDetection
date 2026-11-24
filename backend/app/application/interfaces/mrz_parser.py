@@ -24,8 +24,3 @@ class IMRZParser(ABC):
     def parse(self, raw_text: str | None) -> MRZParseResult | None:
         """Parse raw MRZ text into structured passport fields."""
         ...
-
-    @abstractmethod
-    def parse_from_ocr_text(self, text: str) -> MRZParseResult | None:
-        """Recover and parse MRZ lines from noisy OCR text."""
-        ...

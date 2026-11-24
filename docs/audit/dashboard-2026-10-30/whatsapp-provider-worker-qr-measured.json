@@ -1,0 +1,107 @@
+[
+  {
+    "path": "app/infrastructure/whatsapp/cloud_api_provider.py",
+    "lines": 53,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": null
+  },
+  {
+    "path": "app/infrastructure/whatsapp/provider_errors.py",
+    "lines": 92,
+    "max_function_complexity": 7,
+    "most_complex_function": "_meta_code",
+    "coverage_percent": null
+  },
+  {
+    "path": "app/infrastructure/whatsapp/provider_payloads.py",
+    "lines": 20,
+    "max_function_complexity": 1,
+    "most_complex_function": "_text_parameter",
+    "coverage_percent": null
+  },
+  {
+    "path": "app/infrastructure/whatsapp/provider_media.py",
+    "lines": 156,
+    "max_function_complexity": 15,
+    "most_complex_function": "upload_whatsapp_document",
+    "coverage_percent": null
+  },
+  {
+    "path": "app/infrastructure/whatsapp/provider_transport.py",
+    "lines": 121,
+    "max_function_complexity": 16,
+    "most_complex_function": "_send_whatsapp_template_payload",
+    "coverage_percent": null
+  },
+  {
+    "path": "app/infrastructure/whatsapp/provider_messages.py",
+    "lines": 251,
+    "max_function_complexity": 10,
+    "most_complex_function": "send_whatsapp_template",
+    "coverage_percent": null
+  },
+  {
+    "path": "app/infrastructure/whatsapp/worker_runtime.py",
+    "lines": 329,
+    "max_function_complexity": 16,
+    "most_complex_function": "run_whatsapp_broadcast",
+    "coverage_percent": null
+  },
+  {
+    "path": "app/infrastructure/whatsapp/broadcast_worker_policy.py",
+    "lines": 179,
+    "max_function_complexity": 25,
+    "most_complex_function": "_load_sendable_recipient",
+    "coverage_percent": null
+  },
+  {
+    "path": "app/infrastructure/whatsapp/broadcast_worker_state.py",
+    "lines": 153,
+    "max_function_complexity": 9,
+    "most_complex_function": "_set_message_state",
+    "coverage_percent": null
+  },
+  {
+    "path": "app/infrastructure/whatsapp/broadcast_worker_provider.py",
+    "lines": 185,
+    "max_function_complexity": 14,
+    "most_complex_function": "submit_broadcast_log",
+    "coverage_percent": null
+  },
+  {
+    "path": "app/infrastructure/whatsapp/qr_delivery_runtime.py",
+    "lines": 246,
+    "max_function_complexity": 12,
+    "most_complex_function": "run_qr_whatsapp_broadcast",
+    "coverage_percent": null
+  },
+  {
+    "path": "app/infrastructure/whatsapp/qr_delivery_types.py",
+    "lines": 40,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": null
+  },
+  {
+    "path": "app/infrastructure/whatsapp/qr_delivery_state.py",
+    "lines": 97,
+    "max_function_complexity": 11,
+    "most_complex_function": "apply_qr_provider_status",
+    "coverage_percent": null
+  },
+  {
+    "path": "app/infrastructure/whatsapp/qr_delivery_media.py",
+    "lines": 111,
+    "max_function_complexity": 12,
+    "most_complex_function": "prepare_qr_delivery_media",
+    "coverage_percent": null
+  },
+  {
+    "path": "app/infrastructure/whatsapp/qr_delivery_dispatch.py",
+    "lines": 224,
+    "max_function_complexity": 28,
+    "most_complex_function": "dispatch_qr_delivery",
+    "coverage_percent": null
+  }
+]

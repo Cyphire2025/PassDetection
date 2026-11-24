@@ -1,0 +1,197 @@
+[
+  {
+    "path": "frontend/features/upload/hooks/use-upload-qualifier.test.tsx",
+    "retiredTargets": [
+      "frontend/features/upload/hooks/use-upload-qualifier.ts"
+    ]
+  },
+  {
+    "path": "frontend/e2e/public-instruction-languages.spec.ts",
+    "retiredTargets": [
+      "frontend/features/upload/config/instruction-translations.ts",
+      "frontend/features/upload/config/visa-photo-guidelines.ts"
+    ]
+  },
+  {
+    "path": "frontend/features/passports/api/public-flow-telemetry-contract.test.mjs",
+    "retiredTargets": [
+      "frontend/features/upload/hooks/use-public-flow-telemetry.ts"
+    ]
+  },
+  {
+    "path": "frontend/features/travellers/components/detected-history-offer.test.tsx",
+    "retiredTargets": [
+      "frontend/features/travellers/components/detected-history-offer.tsx"
+    ]
+  },
+  {
+    "path": "frontend/features/travellers/components/returning-replacement.test.tsx",
+    "retiredTargets": [
+      "frontend/features/travellers/components/returning-replacement-status.tsx"
+    ]
+  },
+  {
+    "path": "frontend/features/upload/components/configured-passport-upload.test.tsx",
+    "retiredTargets": [
+      "frontend/features/upload/components/passport-upload-page.tsx",
+      "frontend/features/upload/components/upload-flow-passport-picker.tsx",
+      "frontend/features/upload/components/protected-upload-document-image.tsx"
+    ]
+  },
+  {
+    "path": "frontend/features/upload/components/extraction-polling.test.mjs",
+    "retiredTargets": [
+      "frontend/features/upload/components/extraction-polling.ts"
+    ]
+  },
+  {
+    "path": "frontend/features/upload/components/instruction-language.test.tsx",
+    "retiredTargets": [
+      "frontend/features/upload/components/passport-upload-page.tsx",
+      "frontend/features/upload/components/visa-photo-upload.tsx",
+      "frontend/features/upload/hooks/use-instruction-language.ts",
+      "frontend/features/upload/config/instruction-translations.ts",
+      "frontend/features/upload/config/visa-photo-guidelines.ts"
+    ]
+  },
+  {
+    "path": "frontend/features/upload/components/passport-camera-final-validation.contract.test.mjs",
+    "retiredTargets": [
+      "frontend/features/upload/hooks/use-upload-documents.ts"
+    ]
+  },
+  {
+    "path": "frontend/features/upload/components/protected-upload-document-image.contract.test.mjs",
+    "retiredTargets": [
+      "frontend/features/upload/components/protected-upload-document-image.tsx"
+    ]
+  },
+  {
+    "path": "frontend/features/upload/components/upload-flow-bootstrap.contract.test.mjs",
+    "retiredTargets": [
+      "frontend/features/upload/services/upload-flow-bootstrap.ts"
+    ]
+  },
+  {
+    "path": "frontend/features/upload/components/upload-flow-boundaries.contract.test.mjs",
+    "retiredTargets": [
+      "frontend/features/upload/components/upload-flow.tsx",
+      "frontend/features/upload/services/upload-flow-bootstrap.ts",
+      "frontend/features/upload/services/family-upload-state.ts",
+      "frontend/features/upload/hooks/use-upload-documents.ts"
+    ]
+  },
+  {
+    "path": "frontend/features/upload/components/upload-flow-configured.test.tsx",
+    "retiredTargets": [
+      "frontend/features/upload/components/upload-flow.tsx",
+      "frontend/features/upload/hooks/use-upload.ts",
+      "frontend/features/upload/hooks/use-public-flow-telemetry.ts",
+      "frontend/features/upload/components/protected-upload-document-image.tsx",
+      "frontend/features/upload/services/upload-flow-bootstrap.ts"
+    ]
+  },
+  {
+    "path": "frontend/features/upload/components/upload-flow-document-options.test.tsx",
+    "retiredTargets": [
+      "frontend/features/upload/components/upload-flow-document-options.tsx",
+      "frontend/features/upload/components/upload-flow-passport-picker.tsx"
+    ]
+  },
+  {
+    "path": "frontend/features/upload/components/upload-processing-motion.test.tsx",
+    "retiredTargets": [
+      "frontend/features/upload/components/upload-flow.tsx",
+      "frontend/features/upload/hooks/use-upload.ts",
+      "frontend/features/upload/hooks/use-public-flow-telemetry.ts",
+      "frontend/features/upload/components/protected-upload-document-image.tsx",
+      "frontend/features/upload/services/upload-flow-bootstrap.ts"
+    ]
+  },
+  {
+    "path": "frontend/features/upload/components/upload-review-panels.test.tsx",
+    "retiredTargets": [
+      "frontend/features/upload/components/upload-review-panels.tsx",
+      "frontend/features/upload/components/protected-upload-document-image.tsx"
+    ]
+  },
+  {
+    "path": "frontend/features/upload/components/visa-photo-upload.contract.test.mjs",
+    "retiredTargets": [
+      "frontend/features/upload/components/visa-photo-upload.tsx",
+      "frontend/features/upload/config/instruction-translations.ts"
+    ]
+  },
+  {
+    "path": "frontend/features/upload/components/visa-photo-upload.test.tsx",
+    "retiredTargets": [
+      "frontend/features/upload/components/visa-photo-upload.tsx"
+    ]
+  },
+  {
+    "path": "frontend/features/upload/hooks/use-returning-family.test.tsx",
+    "retiredTargets": [
+      "frontend/features/upload/hooks/use-returning-family.tsx"
+    ]
+  },
+  {
+    "path": "frontend/features/upload/hooks/use-upload-contact-verification.test.tsx",
+    "retiredTargets": [
+      "frontend/features/upload/hooks/use-upload-contact-verification.tsx"
+    ]
+  },
+  {
+    "path": "frontend/features/upload/hooks/use-upload-documents.test.tsx",
+    "retiredTargets": [
+      "frontend/features/upload/hooks/use-upload-documents.ts",
+      "frontend/features/upload/hooks/use-upload-operation.ts",
+      "frontend/features/upload/hooks/use-upload.ts",
+      "frontend/features/upload/services/saved-passport-extraction.ts"
+    ]
+  },
+  {
+    "path": "frontend/features/upload/hooks/use-upload-family.test.tsx",
+    "retiredTargets": [
+      "frontend/features/upload/hooks/use-upload-family.ts"
+    ]
+  },
+  {
+    "path": "frontend/features/upload/hooks/use-upload-operation.test.tsx",
+    "retiredTargets": [
+      "frontend/features/upload/hooks/use-upload-operation.ts"
+    ]
+  },
+  {
+    "path": "frontend/features/upload/hooks/use-upload-submission.test.tsx",
+    "retiredTargets": [
+      "frontend/features/upload/hooks/use-upload-operation.ts",
+      "frontend/features/upload/hooks/use-upload-submission.ts",
+      "frontend/features/upload/hooks/use-upload.ts"
+    ]
+  },
+  {
+    "path": "frontend/features/upload/services/family-upload-state.test.ts",
+    "retiredTargets": [
+      "frontend/features/upload/services/family-upload-state.ts",
+      "frontend/features/upload/services/upload-operation-state.ts"
+    ]
+  },
+  {
+    "path": "frontend/features/upload/services/passport-capture-transition.test.ts",
+    "retiredTargets": [
+      "frontend/features/upload/services/passport-capture-transition.ts"
+    ]
+  },
+  {
+    "path": "frontend/features/upload/services/saved-passport-extraction.test.ts",
+    "retiredTargets": [
+      "frontend/features/upload/services/saved-passport-extraction.ts"
+    ]
+  },
+  {
+    "path": "frontend/features/upload/services/upload-flow-bootstrap.test.ts",
+    "retiredTargets": [
+      "frontend/features/upload/services/upload-flow-bootstrap.ts"
+    ]
+  }
+]

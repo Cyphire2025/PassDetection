@@ -1,0 +1,36 @@
+{
+  "files": [
+    {
+      "path": "backend/app/infrastructure/documents/document_matcher.py",
+      "sha256": "56d4bd08647d29d5d1a98b6469dc6e6149eb9e191effa1aab5e59febee89eb7e",
+      "physical_lines": 473,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "new_unique_read_credit": false,
+      "notes": "Metadata-only prose clarification of same already fully read frozen473line source: match_all is52physical declaration lines330\u2013381 (original227), not64 in one finalledger note. Actual maxMCC53\u219211, completeexpandedAST proof/publicmetadata/sourcefences/178tests/measuredbudgetrows remainexact. No source or qualification reruns."
+    }
+  ],
+  "actual_current_method_geometry": {
+    "match": {
+      "start": 319,
+      "end": 328,
+      "physical_declaration_lines": 10
+    },
+    "match_all": {
+      "start": 330,
+      "end": 381,
+      "physical_declaration_lines": 52
+    },
+    "mark_duplicates": {
+      "start": 383,
+      "end": 384,
+      "physical_declaration_lines": 2
+    }
+  },
+  "corrects_only_prose_in": "document-matcher-final-reviewed-files.json and repeated ownedfile note in finalsource manifest",
+  "preserves_prior_receipt_hashes": true,
+  "new_read_or_check_credit": 0,
+  "new_owner_coverage_limits": "Content has1unhitdefensivebranch;results1unhitdefensive line/2branches; legacy facade12unhitlines/6branches remain explicitly reported in actualcoverage. No100claim forfacade/results."
+}

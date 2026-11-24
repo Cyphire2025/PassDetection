@@ -1,0 +1,19 @@
+{
+  "changed": "Reject nonpositive export repetition counts before any Git baseline loading or benchmark work. CLI input validation only.",
+  "controls": [
+    {
+      "repeats": "0",
+      "exit_code": 2,
+      "argument_rejection": true,
+      "no_output_created": true
+    },
+    {
+      "repeats": "-1",
+      "exit_code": 2,
+      "argument_rejection": true,
+      "no_output_created": true
+    }
+  ],
+  "runtime_claim": "No benchmark, source baseline execution or real data service run",
+  "validation": "AST parse plus actual isolated-cwd CLI negative controls; no new unit test file"
+}

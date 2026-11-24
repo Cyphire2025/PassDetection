@@ -1,0 +1,24 @@
+{
+  "path": "frontend/features/passports/components/passport-list.tsx",
+  "sha256": "d746c7fd37a62a0d17acc3db0b8a2c5f851777fd1963da1cdfe46046cde54dfb",
+  "backup": ".tmp/passport-list-before-decomposition.tsx",
+  "note": "Post-failure-state-fix source. JSX subtrees/functions/variable statements moved with getText; new props/imports and root composition are authored wiring, separate from the deliberate query-state correction.",
+  "owners": [
+    {
+      "path": "frontend/features/passports/components/passport-list-overview.tsx",
+      "jsx_sha256": "aa1d5f326c0b3f8358e5ad3579c8e576b7f21b2a5c2e36045914a7267b432df7"
+    },
+    {
+      "path": "frontend/features/passports/components/passport-list-filters.tsx",
+      "jsx_sha256": "a3a3ae8977f43b84768d5a340597343521ad39ac824448a426f64a76c5eebbb5"
+    },
+    {
+      "path": "frontend/features/passports/components/passport-list-export-controls.tsx",
+      "jsx_sha256": "d92364d58205be21a0da9a176b1f2920301d1809af0408581a102ed3b7df0c2d"
+    },
+    {
+      "path": "frontend/features/passports/components/passport-list-table.tsx",
+      "jsx_sha256": "ef3257a44f11ae229cb765f37a6d03ba4f3bcdc9444d907a90117e611b8c24e7"
+    }
+  ]
+}

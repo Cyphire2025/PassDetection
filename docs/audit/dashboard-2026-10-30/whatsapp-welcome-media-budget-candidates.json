@@ -1,0 +1,31 @@
+{
+  "source_manifest": {
+    "path": "docs/audit/dashboard-2026-10-30/whatsapp-welcome-media-source-manifest.json",
+    "sha256": "5c50a63794c050a41f524a8b84faf073597e2ea57c5af36221c10419426bf302"
+  },
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/whatsapp-welcome-media-reviewed-files.json",
+    "sha256": "855616abb87567f5eda23aaa7f8aa25d571ce01e2a4a73aa03dcbb4e9c6da2b1"
+  },
+  "normal_module_candidates": [
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_welcome_media_authority.py",
+      "sha256": "384a601014b11651d73f1b46dc01dbfdf8568c8efcc2ed84fddf46151af2029c",
+      "previous": null,
+      "baseline_lines": 92,
+      "maximum_lines": 100,
+      "baseline_max_function_complexity": 7,
+      "maximum_function_complexity": 8,
+      "minimum_coverage_percent": 95
+    }
+  ],
+  "critical_module_candidates": [
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_welcome_media_authority.py",
+      "minimum_line_coverage_percent": 95,
+      "minimum_branch_coverage_percent": 90,
+      "state": "Proposed effective behavior guard; parent adoption required, no shared write by this lane"
+    }
+  ],
+  "note": "No proposed composer floor from this partial behavior selection (actual84.17lines/61.76branches); broader composition follows separately. Preserve all existing normal/global/critical gates."
+}

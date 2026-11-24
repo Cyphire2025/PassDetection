@@ -1,0 +1,20 @@
+{
+  "runtime_path": "backend/app/infrastructure/database/email_models.py",
+  "runtime_sha256": "1801ba03397d6b0ac28d032683778592184f22f9b559c5b23d3a524f0a57cadd",
+  "command": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "tests/unit/infrastructure/test_email_models.py",
+    "tests/unit/infrastructure/test_email_integrations_migration.py",
+    "tests/unit/presentation/test_email_oauth_persistence.py",
+    "tests/unit/infrastructure/test_email_model_persistence_contracts.py"
+  ],
+  "result": "45 passed in 8.09s",
+  "exit_code": 0,
+  "evidence": "Original live command output preserved from exec session79959 before any runtime source movement. New compatibility tests (14 cases) were added only after the mechanical split. New persistence tests existed before movement; the subsequent Ruff edit changed only import order.",
+  "limits": "The 45-case command did not collect coverage and did not test real providers or PostgreSQL persistence."
+}

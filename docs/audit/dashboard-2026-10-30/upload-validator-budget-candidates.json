@@ -1,0 +1,21 @@
+{
+  "status": "frozen additive candidate; parent/AI owns integration",
+  "original_rows_present": [],
+  "no_existing_cap_or_floor_relaxed": true,
+  "budget_before_sha256": "54b2a9e1da4e3ed455cf5c6eea8cf8b72752339635030cf512ff26446d7eaf30",
+  "modules": [
+    {
+      "path": "app/infrastructure/security/upload_validator.py",
+      "source_sha256": "dfb2683e620bcc1a3a5d4f97f5cb4c1cfda20105e493f6070e63b8574c11c73f",
+      "baseline_lines": 345,
+      "maximum_lines": 350,
+      "baseline_max_function_complexity": 14,
+      "maximum_function_complexity": 14,
+      "minimum_coverage_percent": 90
+    }
+  ],
+  "measured": {
+    "line_percent": 93.47826086956522,
+    "branch_percent": 81.25
+  }
+}

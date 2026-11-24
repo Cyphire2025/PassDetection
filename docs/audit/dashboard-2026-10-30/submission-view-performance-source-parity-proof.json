@@ -1,0 +1,556 @@
+{
+  "declarations": [
+    {
+      "name": "SubmissionViewEntry",
+      "owner": "app.application.use_cases.passports.submission_view_types",
+      "entire_original_ast": true
+    },
+    {
+      "name": "ExpiryAlert",
+      "owner": "app.application.use_cases.passports.submission_view_types",
+      "entire_original_ast": true
+    },
+    {
+      "name": "DuplicateClusterPage",
+      "owner": "app.application.use_cases.passports.submission_view_types",
+      "entire_original_ast": true
+    },
+    {
+      "name": "SubmissionViewResult",
+      "owner": "app.application.use_cases.passports.submission_view_types",
+      "entire_original_ast": true
+    },
+    {
+      "name": "SubmissionViewIdentity",
+      "owner": "app.application.use_cases.passports.submission_view_types",
+      "entire_original_ast": true
+    },
+    {
+      "name": "PreparedSubmissionView",
+      "owner": "app.application.use_cases.passports.submission_view_types",
+      "entire_original_ast": true
+    },
+    {
+      "name": "_normalized_tokens",
+      "owner": "app.application.use_cases.passports.submission_view_fields",
+      "entire_original_ast": true
+    },
+    {
+      "name": "_normalized_identifier",
+      "owner": "app.application.use_cases.passports.submission_view_fields",
+      "entire_original_ast": true
+    },
+    {
+      "name": "_field_value",
+      "owner": "app.application.use_cases.passports.submission_view_fields",
+      "entire_original_ast": true
+    },
+    {
+      "name": "_passport_name",
+      "owner": "app.application.use_cases.passports.submission_view_fields",
+      "entire_original_ast": true
+    },
+    {
+      "name": "_place_of_issue_identity",
+      "owner": "app.application.use_cases.passports.submission_view_fields",
+      "entire_original_ast": true
+    },
+    {
+      "name": "duplicate_identity_key",
+      "owner": "app.application.use_cases.passports.submission_view_fields",
+      "entire_original_ast": true
+    },
+    {
+      "name": "_cluster_id",
+      "owner": "app.application.use_cases.passports.submission_view_fields",
+      "entire_original_ast": true
+    },
+    {
+      "name": "_verification_confidence",
+      "owner": "app.application.use_cases.passports.submission_view_fields",
+      "entire_original_ast": true
+    },
+    {
+      "name": "_build_blocks",
+      "owner": "app.application.use_cases.passports.submission_view_clustering",
+      "entire_original_ast": true
+    },
+    {
+      "name": "_display_name",
+      "owner": "app.application.use_cases.passports.submission_view_fields",
+      "entire_original_ast": true
+    },
+    {
+      "name": "_matches_search",
+      "owner": "app.application.use_cases.passports.submission_view_ordering",
+      "entire_original_ast": false
+    },
+    {
+      "name": "_status_matches",
+      "owner": "app.application.use_cases.passports.submission_view_ordering",
+      "entire_original_ast": true
+    },
+    {
+      "name": "_sort_value",
+      "owner": "app.application.use_cases.passports.submission_view_ordering",
+      "entire_original_ast": true
+    },
+    {
+      "name": "_sort_entries",
+      "owner": "app.application.use_cases.passports.submission_view_ordering",
+      "entire_original_ast": false
+    },
+    {
+      "name": "_sort_blocks",
+      "owner": "app.application.use_cases.passports.submission_view_ordering",
+      "entire_original_ast": false
+    },
+    {
+      "name": "_paginate_blocks",
+      "owner": "app.application.use_cases.passports.submission_view_pagination",
+      "entire_original_ast": true
+    },
+    {
+      "name": "_all_page_clusters",
+      "owner": "app.application.use_cases.passports.submission_view_pagination",
+      "entire_original_ast": true
+    },
+    {
+      "name": "_add_months",
+      "owner": "app.application.use_cases.passports.submission_view_expiry",
+      "entire_original_ast": true
+    },
+    {
+      "name": "_expiry_alerts",
+      "owner": "app.application.use_cases.passports.submission_view_expiry",
+      "entire_original_ast": true
+    },
+    {
+      "name": "build_submission_view",
+      "owner": "app.application.use_cases.passports.submission_view",
+      "entire_original_ast": true
+    },
+    {
+      "name": "prepare_submission_view",
+      "owner": "app.application.use_cases.passports.submission_view",
+      "entire_original_ast": false
+    }
+  ],
+  "original_declarations": 27,
+  "unchanged_whole_declarations": 23,
+  "separately_inverted_changed_functions": 4,
+  "whole_module_inverse_proof": "submission-view-performance-inverse-proof.json",
+  "actual_global_bindings": [
+    {
+      "declaration": "SubmissionViewEntry",
+      "dependency": "Any"
+    },
+    {
+      "declaration": "SubmissionViewEntry",
+      "dependency": "dataclass"
+    },
+    {
+      "declaration": "SubmissionViewEntry",
+      "dependency": "uuid"
+    },
+    {
+      "declaration": "ExpiryAlert",
+      "dependency": "dataclass"
+    },
+    {
+      "declaration": "ExpiryAlert",
+      "dependency": "uuid"
+    },
+    {
+      "declaration": "DuplicateClusterPage",
+      "dependency": "dataclass"
+    },
+    {
+      "declaration": "DuplicateClusterPage",
+      "dependency": "uuid"
+    },
+    {
+      "declaration": "SubmissionViewResult",
+      "dependency": "DuplicateClusterPage"
+    },
+    {
+      "declaration": "SubmissionViewResult",
+      "dependency": "ExpiryAlert"
+    },
+    {
+      "declaration": "SubmissionViewResult",
+      "dependency": "SubmissionViewEntry"
+    },
+    {
+      "declaration": "SubmissionViewResult",
+      "dependency": "dataclass"
+    },
+    {
+      "declaration": "SubmissionViewResult",
+      "dependency": "uuid"
+    },
+    {
+      "declaration": "SubmissionViewIdentity",
+      "dependency": "dataclass"
+    },
+    {
+      "declaration": "SubmissionViewIdentity",
+      "dependency": "datetime"
+    },
+    {
+      "declaration": "SubmissionViewIdentity",
+      "dependency": "uuid"
+    },
+    {
+      "declaration": "PreparedSubmissionView",
+      "dependency": "DuplicateClusterPage"
+    },
+    {
+      "declaration": "PreparedSubmissionView",
+      "dependency": "ExpiryAlert"
+    },
+    {
+      "declaration": "PreparedSubmissionView",
+      "dependency": "SubmissionViewEntry"
+    },
+    {
+      "declaration": "PreparedSubmissionView",
+      "dependency": "SubmissionViewResult"
+    },
+    {
+      "declaration": "PreparedSubmissionView",
+      "dependency": "dataclass"
+    },
+    {
+      "declaration": "PreparedSubmissionView",
+      "dependency": "uuid"
+    },
+    {
+      "declaration": "_normalized_tokens",
+      "dependency": "Any"
+    },
+    {
+      "declaration": "_normalized_tokens",
+      "dependency": "re"
+    },
+    {
+      "declaration": "_normalized_tokens",
+      "dependency": "unicodedata"
+    },
+    {
+      "declaration": "_normalized_identifier",
+      "dependency": "Any"
+    },
+    {
+      "declaration": "_normalized_identifier",
+      "dependency": "_normalized_tokens"
+    },
+    {
+      "declaration": "_field_value",
+      "dependency": "Any"
+    },
+    {
+      "declaration": "_passport_name",
+      "dependency": "Any"
+    },
+    {
+      "declaration": "_passport_name",
+      "dependency": "_field_value"
+    },
+    {
+      "declaration": "_passport_name",
+      "dependency": "_normalized_tokens"
+    },
+    {
+      "declaration": "_place_of_issue_identity",
+      "dependency": "Any"
+    },
+    {
+      "declaration": "_place_of_issue_identity",
+      "dependency": "_field_value"
+    },
+    {
+      "declaration": "_place_of_issue_identity",
+      "dependency": "_normalized_identifier"
+    },
+    {
+      "declaration": "_place_of_issue_identity",
+      "dependency": "canonical_country_identity"
+    },
+    {
+      "declaration": "duplicate_identity_key",
+      "dependency": "Any"
+    },
+    {
+      "declaration": "duplicate_identity_key",
+      "dependency": "_field_value"
+    },
+    {
+      "declaration": "duplicate_identity_key",
+      "dependency": "_normalized_identifier"
+    },
+    {
+      "declaration": "duplicate_identity_key",
+      "dependency": "_passport_name"
+    },
+    {
+      "declaration": "duplicate_identity_key",
+      "dependency": "_place_of_issue_identity"
+    },
+    {
+      "declaration": "duplicate_identity_key",
+      "dependency": "canonical_country_identity"
+    },
+    {
+      "declaration": "_cluster_id",
+      "dependency": "uuid"
+    },
+    {
+      "declaration": "_verification_confidence",
+      "dependency": "Any"
+    },
+    {
+      "declaration": "_verification_confidence",
+      "dependency": "math"
+    },
+    {
+      "declaration": "_build_blocks",
+      "dependency": "Any"
+    },
+    {
+      "declaration": "_build_blocks",
+      "dependency": "SubmissionViewEntry"
+    },
+    {
+      "declaration": "_build_blocks",
+      "dependency": "_cluster_id"
+    },
+    {
+      "declaration": "_build_blocks",
+      "dependency": "_field_value"
+    },
+    {
+      "declaration": "_build_blocks",
+      "dependency": "_normalized_identifier"
+    },
+    {
+      "declaration": "_build_blocks",
+      "dependency": "_passport_name"
+    },
+    {
+      "declaration": "_build_blocks",
+      "dependency": "_place_of_issue_identity"
+    },
+    {
+      "declaration": "_build_blocks",
+      "dependency": "_verification_confidence"
+    },
+    {
+      "declaration": "_build_blocks",
+      "dependency": "canonical_country_identity"
+    },
+    {
+      "declaration": "_display_name",
+      "dependency": "Any"
+    },
+    {
+      "declaration": "_matches_search",
+      "dependency": "SubmissionViewEntry"
+    },
+    {
+      "declaration": "_matches_search",
+      "dependency": "_matches_normalized_search"
+    },
+    {
+      "declaration": "_matches_search",
+      "dependency": "_normalized_tokens"
+    },
+    {
+      "declaration": "_status_matches",
+      "dependency": "SubmissionViewEntry"
+    },
+    {
+      "declaration": "_sort_value",
+      "dependency": "Any"
+    },
+    {
+      "declaration": "_sort_value",
+      "dependency": "SubmissionViewEntry"
+    },
+    {
+      "declaration": "_sort_value",
+      "dependency": "_display_name"
+    },
+    {
+      "declaration": "_sort_value",
+      "dependency": "_normalized_tokens"
+    },
+    {
+      "declaration": "_sort_entries",
+      "dependency": "SubmissionViewEntry"
+    },
+    {
+      "declaration": "_sort_entries",
+      "dependency": "_display_name"
+    },
+    {
+      "declaration": "_sort_entries",
+      "dependency": "_normalized_tokens"
+    },
+    {
+      "declaration": "_sort_entries",
+      "dependency": "_sort_value"
+    },
+    {
+      "declaration": "_sort_blocks",
+      "dependency": "SubmissionViewEntry"
+    },
+    {
+      "declaration": "_sort_blocks",
+      "dependency": "_sort_entries"
+    },
+    {
+      "declaration": "_sort_blocks",
+      "dependency": "_sort_value"
+    },
+    {
+      "declaration": "_paginate_blocks",
+      "dependency": "SubmissionViewEntry"
+    },
+    {
+      "declaration": "_all_page_clusters",
+      "dependency": "DuplicateClusterPage"
+    },
+    {
+      "declaration": "_all_page_clusters",
+      "dependency": "SubmissionViewEntry"
+    },
+    {
+      "declaration": "_add_months",
+      "dependency": "calendar"
+    },
+    {
+      "declaration": "_add_months",
+      "dependency": "date"
+    },
+    {
+      "declaration": "_expiry_alerts",
+      "dependency": "Any"
+    },
+    {
+      "declaration": "_expiry_alerts",
+      "dependency": "ExpiryAlert"
+    },
+    {
+      "declaration": "_expiry_alerts",
+      "dependency": "_add_months"
+    },
+    {
+      "declaration": "_expiry_alerts",
+      "dependency": "_display_name"
+    },
+    {
+      "declaration": "_expiry_alerts",
+      "dependency": "_field_value"
+    },
+    {
+      "declaration": "_expiry_alerts",
+      "dependency": "_normalized_tokens"
+    },
+    {
+      "declaration": "_expiry_alerts",
+      "dependency": "date"
+    },
+    {
+      "declaration": "build_submission_view",
+      "dependency": "Any"
+    },
+    {
+      "declaration": "build_submission_view",
+      "dependency": "SubmissionViewResult"
+    },
+    {
+      "declaration": "build_submission_view",
+      "dependency": "date"
+    },
+    {
+      "declaration": "build_submission_view",
+      "dependency": "prepare_submission_view"
+    },
+    {
+      "declaration": "prepare_submission_view",
+      "dependency": "Any"
+    },
+    {
+      "declaration": "prepare_submission_view",
+      "dependency": "PreparedSubmissionView"
+    },
+    {
+      "declaration": "prepare_submission_view",
+      "dependency": "UTC"
+    },
+    {
+      "declaration": "prepare_submission_view",
+      "dependency": "_all_page_clusters"
+    },
+    {
+      "declaration": "prepare_submission_view",
+      "dependency": "_build_blocks"
+    },
+    {
+      "declaration": "prepare_submission_view",
+      "dependency": "_expiry_alerts"
+    },
+    {
+      "declaration": "prepare_submission_view",
+      "dependency": "_matches_normalized_search"
+    },
+    {
+      "declaration": "prepare_submission_view",
+      "dependency": "_normalized_tokens"
+    },
+    {
+      "declaration": "prepare_submission_view",
+      "dependency": "_paginate_blocks"
+    },
+    {
+      "declaration": "prepare_submission_view",
+      "dependency": "_sort_blocks"
+    },
+    {
+      "declaration": "prepare_submission_view",
+      "dependency": "_status_matches"
+    },
+    {
+      "declaration": "prepare_submission_view",
+      "dependency": "date"
+    },
+    {
+      "declaration": "prepare_submission_view",
+      "dependency": "datetime"
+    }
+  ],
+  "six_old_saved_instance_pickles_decode_and_new_pickle_roundtrip": true,
+  "frozen_dataclass_fields_constructor_defaults_and_no_slots_change": true,
+  "same_real_source_replay_combinations": 864,
+  "full_prepared_and_four_page_outputs_per_combination_exact": true,
+  "decrypted_cache_json_bytes_exact_combinations": 864,
+  "current_codec_roundtrip": true,
+  "unchanged_support_and_test_bytes": [
+    "backend/app/infrastructure/passports/roster_view_service.py",
+    "backend/app/infrastructure/passports/roster_cache.py",
+    "backend/app/infrastructure/passports/roster_cache_codec.py",
+    "backend/tests/unit/application/test_submission_view.py",
+    "backend/tests/unit/infrastructure/test_roster_cache.py",
+    "backend/tests/unit/presentation/test_passport_view_page_hydration.py",
+    "backend/tests/integration/test_passport_view_search_projection.py",
+    "backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py",
+    "backend/tests/unit/presentation/test_passport_submission_view_schema.py"
+  ],
+  "test_or_mock_targets_changed": false,
+  "metadata": "Six dataclasses and private field/cluster/order/page/expiry helpers naturally identify actual owners. Old class/function/instance pickles still load through explicit facade aliases; signature/hint shapes normalize only the six declared owner prefixes.",
+  "limits": [
+    "Same synthetic namespace projections/actual encrypted codec for the source-replay matrix; no live PostgreSQL/Redis/concurrency claim.",
+    "Current two-module inverse proves only the explicit key-evaluation reductions; pure stable-projection semantics are separately source-replayed across the full matrix."
+  ]
+}

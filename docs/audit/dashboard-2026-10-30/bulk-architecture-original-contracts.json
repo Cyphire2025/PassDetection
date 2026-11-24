@@ -1,0 +1,456 @@
+{
+  "openapi": {
+    "openapi": "3.1.0",
+    "info": {
+      "title": "FastAPI",
+      "version": "0.1.0"
+    },
+    "paths": {
+      "/passports/groups/{group_id}/bulk-delete": {
+        "post": {
+          "summary": "Permanently delete selected passport submissions from a group",
+          "operationId": "bulk_delete_passport_submissions_passports_groups__group_id__bulk_delete_post",
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "group_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Group Id"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkDeletePassportSubmissionsRequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/BulkDeletePassportSubmissionsResponse"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/passports/groups/{group_id}/bulk-staff-approve": {
+        "post": {
+          "summary": "Staff approve selected completed passport submissions",
+          "description": "Atomically approve eligible rows while reporting ineligible rows.",
+          "operationId": "bulk_staff_approve_passport_submissions_passports_groups__group_id__bulk_staff_approve_post",
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "group_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Group Id"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkStaffApprovePassportSubmissionsRequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/BulkStaffApprovePassportSubmissionsResponse"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "BulkDeletePassportSubmissionsRequest": {
+          "properties": {
+            "submission_ids": {
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "type": "array",
+              "maxItems": 1500,
+              "minItems": 1,
+              "title": "Submission Ids"
+            }
+          },
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "submission_ids"
+          ],
+          "title": "BulkDeletePassportSubmissionsRequest"
+        },
+        "BulkDeletePassportSubmissionsResponse": {
+          "properties": {
+            "deleted_count": {
+              "type": "integer",
+              "title": "Deleted Count"
+            },
+            "deleted_submission_ids": {
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "type": "array",
+              "title": "Deleted Submission Ids"
+            },
+            "deleted_storage_objects": {
+              "type": "integer",
+              "title": "Deleted Storage Objects"
+            },
+            "deleted_notifications": {
+              "type": "integer",
+              "title": "Deleted Notifications"
+            },
+            "storage_cleanup_deferred": {
+              "type": "boolean",
+              "title": "Storage Cleanup Deferred"
+            }
+          },
+          "type": "object",
+          "required": [
+            "deleted_count",
+            "deleted_submission_ids",
+            "deleted_storage_objects",
+            "deleted_notifications",
+            "storage_cleanup_deferred"
+          ],
+          "title": "BulkDeletePassportSubmissionsResponse"
+        },
+        "BulkStaffApprovePassportSelection": {
+          "properties": {
+            "submission_id": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Submission Id"
+            },
+            "expected_extraction_revision": {
+              "type": "integer",
+              "minimum": 0.0,
+              "title": "Expected Extraction Revision"
+            }
+          },
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "submission_id",
+            "expected_extraction_revision"
+          ],
+          "title": "BulkStaffApprovePassportSelection"
+        },
+        "BulkStaffApprovePassportSubmissionsRequest": {
+          "properties": {
+            "submissions": {
+              "items": {
+                "$ref": "#/components/schemas/BulkStaffApprovePassportSelection"
+              },
+              "type": "array",
+              "maxItems": 1500,
+              "minItems": 1,
+              "title": "Submissions"
+            }
+          },
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "submissions"
+          ],
+          "title": "BulkStaffApprovePassportSubmissionsRequest"
+        },
+        "BulkStaffApprovePassportSubmissionsResponse": {
+          "properties": {
+            "requested_count": {
+              "type": "integer",
+              "minimum": 1.0,
+              "title": "Requested Count"
+            },
+            "approved_count": {
+              "type": "integer",
+              "minimum": 0.0,
+              "title": "Approved Count"
+            },
+            "already_approved_count": {
+              "type": "integer",
+              "minimum": 0.0,
+              "title": "Already Approved Count"
+            },
+            "skipped_count": {
+              "type": "integer",
+              "minimum": 0.0,
+              "title": "Skipped Count"
+            },
+            "approved_submission_ids": {
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "type": "array",
+              "title": "Approved Submission Ids"
+            },
+            "already_approved_submission_ids": {
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "type": "array",
+              "title": "Already Approved Submission Ids"
+            },
+            "skipped_submissions": {
+              "items": {
+                "$ref": "#/components/schemas/BulkStaffApproveSkippedSubmission"
+              },
+              "type": "array",
+              "title": "Skipped Submissions"
+            }
+          },
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "requested_count",
+            "approved_count",
+            "already_approved_count",
+            "skipped_count"
+          ],
+          "title": "BulkStaffApprovePassportSubmissionsResponse"
+        },
+        "BulkStaffApproveSkippedSubmission": {
+          "properties": {
+            "submission_id": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Submission Id"
+            },
+            "current_status": {
+              "type": "string",
+              "title": "Current Status"
+            },
+            "reason": {
+              "type": "string",
+              "enum": [
+                "not_completed",
+                "stale"
+              ],
+              "title": "Reason"
+            },
+            "expected_extraction_revision": {
+              "type": "integer",
+              "minimum": 0.0,
+              "title": "Expected Extraction Revision"
+            },
+            "current_extraction_revision": {
+              "type": "integer",
+              "minimum": 0.0,
+              "title": "Current Extraction Revision"
+            }
+          },
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "submission_id",
+            "current_status",
+            "reason",
+            "expected_extraction_revision",
+            "current_extraction_revision"
+          ],
+          "title": "BulkStaffApproveSkippedSubmission"
+        },
+        "HTTPValidationError": {
+          "properties": {
+            "detail": {
+              "items": {
+                "$ref": "#/components/schemas/ValidationError"
+              },
+              "type": "array",
+              "title": "Detail"
+            }
+          },
+          "type": "object",
+          "title": "HTTPValidationError"
+        },
+        "ValidationError": {
+          "properties": {
+            "loc": {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ]
+              },
+              "type": "array",
+              "title": "Location"
+            },
+            "msg": {
+              "type": "string",
+              "title": "Message"
+            },
+            "type": {
+              "type": "string",
+              "title": "Error Type"
+            },
+            "input": {
+              "title": "Input"
+            },
+            "ctx": {
+              "type": "object",
+              "title": "Context"
+            }
+          },
+          "type": "object",
+          "required": [
+            "loc",
+            "msg",
+            "type"
+          ],
+          "title": "ValidationError"
+        }
+      },
+      "securitySchemes": {
+        "HTTPBearer": {
+          "type": "http",
+          "scheme": "bearer"
+        }
+      }
+    }
+  },
+  "routes": [
+    [
+      "/groups/{group_id}/bulk-delete",
+      [
+        "POST"
+      ],
+      "bulk_delete_passport_submissions"
+    ],
+    [
+      "/groups/{group_id}/bulk-staff-approve",
+      [
+        "POST"
+      ],
+      "bulk_staff_approve_passport_submissions"
+    ]
+  ],
+  "declarations": {
+    "_lock_active_bulk_approval_actor": {
+      "ast": "AsyncFunctionDef(name='_lock_active_bulk_approval_actor', args=arguments(posonlyargs=[], args=[arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load())), arg(arg='current_user', annotation=Name(id='User', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[]), body=[Expr(value=Constant(value='Revalidate the unchanged bulk-approval actor under a row lock.')), Assign(targets=[Name(id='actual_agency_id', ctx=Store())], value=Call(func=Name(id='actual_user_agency_id', ctx=Load()), args=[Name(id='current_user', ctx=Load())], keywords=[])), Assign(targets=[Name(id='agency_filter', ctx=Store())], value=IfExp(test=Compare(left=Name(id='actual_agency_id', ctx=Load()), ops=[Is()], comparators=[Constant(value=None)]), body=Call(func=Attribute(value=Attribute(value=Name(id='UserModel', ctx=Load()), attr='agency_id', ctx=Load()), attr='is_', ctx=Load()), args=[Constant(value=None)], keywords=[]), orelse=Compare(left=Attribute(value=Name(id='UserModel', ctx=Load()), attr='agency_id', ctx=Load()), ops=[Eq()], comparators=[Name(id='actual_agency_id', ctx=Load())]))), Assign(targets=[Name(id='result', ctx=Store())], value=Await(value=Call(func=Attribute(value=Name(id='session', ctx=Load()), attr='execute', ctx=Load()), args=[Call(func=Attribute(value=Call(func=Attribute(value=Call(func=Attribute(value=Call(func=Name(id='select', ctx=Load()), args=[Name(id='UserModel', ctx=Load())], keywords=[]), attr='where', ctx=Load()), args=[Compare(left=Attribute(value=Name(id='UserModel', ctx=Load()), attr='id', ctx=Load()), ops=[Eq()], comparators=[Attribute(value=Name(id='current_user', ctx=Load()), attr='id', ctx=Load())]), Compare(left=Attribute(value=Name(id='UserModel', ctx=Load()), attr='role', ctx=Load()), ops=[Eq()], comparators=[Attribute(value=Call(func=Name(id='actual_user_role', ctx=Load()), args=[Name(id='current_user', ctx=Load())], keywords=[]), attr='value', ctx=Load())]), Name(id='agency_filter', ctx=Load()), Call(func=Attribute(value=Attribute(value=Name(id='UserModel', ctx=Load()), attr='is_active', ctx=Load()), attr='is_', ctx=Load()), args=[Constant(value=True)], keywords=[]), Call(func=Attribute(value=Attribute(value=Name(id='UserModel', ctx=Load()), attr='deleted_at', ctx=Load()), attr='is_', ctx=Load()), args=[Constant(value=None)], keywords=[])], keywords=[]), attr='with_for_update', ctx=Load()), args=[], keywords=[keyword(arg='of', value=Name(id='UserModel', ctx=Load()))]), attr='execution_options', ctx=Load()), args=[], keywords=[keyword(arg='populate_existing', value=Constant(value=True))])], keywords=[]))), Assign(targets=[Name(id='actor_model', ctx=Store())], value=Call(func=Attribute(value=Name(id='result', ctx=Load()), attr='scalar_one_or_none', ctx=Load()), args=[], keywords=[])), If(test=Compare(left=Name(id='actor_model', ctx=Load()), ops=[Is()], comparators=[Constant(value=None)]), body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_403_FORBIDDEN', ctx=Load())), keyword(arg='detail', value=Constant(value='Your account permissions changed. Sign in again and retry.'))]))], orelse=[]), Assign(targets=[Name(id='security_state', ctx=Store())], value=Call(func=Attribute(value=Await(value=Call(func=Attribute(value=Name(id='session', ctx=Load()), attr='execute', ctx=Load()), args=[Call(func=Attribute(value=Call(func=Attribute(value=Call(func=Attribute(value=Call(func=Name(id='select', ctx=Load()), args=[Name(id='UserSecurityStateModel', ctx=Load())], keywords=[]), attr='where', ctx=Load()), args=[Compare(left=Attribute(value=Name(id='UserSecurityStateModel', ctx=Load()), attr='user_id', ctx=Load()), ops=[Eq()], comparators=[Attribute(value=Name(id='current_user', ctx=Load()), attr='id', ctx=Load())])], keywords=[]), attr='with_for_update', ctx=Load()), args=[], keywords=[keyword(arg='of', value=Name(id='UserSecurityStateModel', ctx=Load()))]), attr='execution_options', ctx=Load()), args=[], keywords=[keyword(arg='populate_existing', value=Constant(value=True))])], keywords=[])), attr='scalar_one_or_none', ctx=Load()), args=[], keywords=[])), If(test=Compare(left=Call(func=Name(id='getattr', ctx=Load()), args=[Name(id='current_user', ctx=Load()), Constant(value='actual_role'), Constant(value=None)], keywords=[]), ops=[IsNot()], comparators=[Constant(value=None)]), body=[Return(value=Await(value=Call(func=Name(id='refresh_access_level_actor', ctx=Load()), args=[Name(id='session', ctx=Load()), Name(id='current_user', ctx=Load())], keywords=[])))], orelse=[]), Try(body=[Return(value=Call(func=Name(id='revalidate_access_level_actor', ctx=Load()), args=[Name(id='current_user', ctx=Load()), Call(func=Attribute(value=Name(id='UserRepository', ctx=Load()), attr='_to_entity', ctx=Load()), args=[Name(id='actor_model', ctx=Load()), Name(id='security_state', ctx=Load())], keywords=[])], keywords=[]))], handlers=[ExceptHandler(type=Name(id='AuthorizationError', ctx=Load()), name='exc', body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_403_FORBIDDEN', ctx=Load())), keyword(arg='detail', value=Attribute(value=Name(id='exc', ctx=Load()), attr='message', ctx=Load()))]), cause=Name(id='exc', ctx=Load()))])], orelse=[], finalbody=[])], decorator_list=[], returns=Name(id='User', ctx=Load()))",
+      "signature": "(session: 'AsyncSession', current_user: 'User') -> 'User'",
+      "hints": {
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "return": "<class 'app.domain.entities.identity.User'>"
+      },
+      "module": "app.presentation.api.v1.routes.passport_routes.bulk_actions",
+      "qualname": "_lock_active_bulk_approval_actor",
+      "pickle_hex": "80049564000000000000008c3b6170702e70726573656e746174696f6e2e6170692e76312e726f757465732e70617373706f72745f726f757465732e62756c6b5f616374696f6e73948c205f6c6f636b5f6163746976655f62756c6b5f617070726f76616c5f6163746f729493942e"
+    },
+    "_active_roster_resolution_references": {
+      "ast": "AsyncFunctionDef(name='_active_roster_resolution_references', args=arguments(posonlyargs=[], args=[arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load()))], kwonlyargs=[arg(arg='group_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='agency_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load()))], kw_defaults=[None, None], defaults=[]), body=[Expr(value=Constant(value='Return submissions whose deletion would corrupt an active roster decision.')), Assign(targets=[Name(id='result', ctx=Store())], value=Await(value=Call(func=Attribute(value=Name(id='session', ctx=Load()), attr='execute', ctx=Load()), args=[Call(func=Attribute(value=Call(func=Name(id='select', ctx=Load()), args=[Name(id='PassportRosterResolutionModel', ctx=Load())], keywords=[]), attr='where', ctx=Load()), args=[Compare(left=Attribute(value=Name(id='PassportRosterResolutionModel', ctx=Load()), attr='client_group_id', ctx=Load()), ops=[Eq()], comparators=[Name(id='group_id', ctx=Load())]), Compare(left=Attribute(value=Name(id='PassportRosterResolutionModel', ctx=Load()), attr='agency_id', ctx=Load()), ops=[Eq()], comparators=[Name(id='agency_id', ctx=Load())]), Compare(left=Attribute(value=Name(id='PassportRosterResolutionModel', ctx=Load()), attr='status', ctx=Load()), ops=[Eq()], comparators=[Constant(value='active')])], keywords=[])], keywords=[]))), AnnAssign(target=Name(id='referenced_ids', ctx=Store()), annotation=Subscript(value=Name(id='set', ctx=Load()), slice=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load()), ctx=Load()), value=Call(func=Name(id='set', ctx=Load()), args=[], keywords=[]), simple=1), For(target=Name(id='resolution', ctx=Store()), iter=Call(func=Attribute(value=Call(func=Attribute(value=Name(id='result', ctx=Load()), attr='scalars', ctx=Load()), args=[], keywords=[]), attr='all', ctx=Load()), args=[], keywords=[]), body=[Expr(value=Call(func=Attribute(value=Name(id='referenced_ids', ctx=Load()), attr='add', ctx=Load()), args=[Attribute(value=Name(id='resolution', ctx=Load()), attr='submission_id', ctx=Load())], keywords=[])), For(target=Name(id='value', ctx=Store()), iter=BoolOp(op=Or(), values=[Attribute(value=Name(id='resolution', ctx=Load()), attr='excluded_submission_ids', ctx=Load()), List(elts=[], ctx=Load())]), body=[Try(body=[Expr(value=Call(func=Attribute(value=Name(id='referenced_ids', ctx=Load()), attr='add', ctx=Load()), args=[Call(func=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load()), args=[Call(func=Name(id='str', ctx=Load()), args=[Name(id='value', ctx=Load())], keywords=[])], keywords=[])], keywords=[]))], handlers=[ExceptHandler(type=Tuple(elts=[Name(id='TypeError', ctx=Load()), Name(id='ValueError', ctx=Load()), Name(id='AttributeError', ctx=Load())], ctx=Load()), body=[Expr(value=Call(func=Attribute(value=Name(id='logger', ctx=Load()), attr='warning', ctx=Load()), args=[Constant(value='passport_roster_resolution_invalid_excluded_submission')], keywords=[keyword(arg='resolution_id', value=Call(func=Name(id='str', ctx=Load()), args=[Attribute(value=Name(id='resolution', ctx=Load()), attr='id', ctx=Load())], keywords=[])), keyword(arg='value_type', value=Attribute(value=Call(func=Name(id='type', ctx=Load()), args=[Name(id='value', ctx=Load())], keywords=[]), attr='__name__', ctx=Load()))])), Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_409_CONFLICT', ctx=Load())), keyword(arg='detail', value=Constant(value='An active replacement record failed its integrity check. Restore it before deleting passport uploads.'))]))])], orelse=[], finalbody=[])], orelse=[])], orelse=[]), Return(value=Name(id='referenced_ids', ctx=Load()))], decorator_list=[], returns=Subscript(value=Name(id='set', ctx=Load()), slice=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load()), ctx=Load()))",
+      "signature": "(session: 'AsyncSession', *, group_id: 'uuid.UUID', agency_id: 'uuid.UUID') -> 'set[uuid.UUID]'",
+      "hints": {
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "group_id": "<class 'uuid.UUID'>",
+        "agency_id": "<class 'uuid.UUID'>",
+        "return": "set[uuid.UUID]"
+      },
+      "module": "app.presentation.api.v1.routes.passport_routes.bulk_actions",
+      "qualname": "_active_roster_resolution_references",
+      "pickle_hex": "80049568000000000000008c3b6170702e70726573656e746174696f6e2e6170692e76312e726f757465732e70617373706f72745f726f757465732e62756c6b5f616374696f6e73948c245f6163746976655f726f737465725f7265736f6c7574696f6e5f7265666572656e6365739493942e"
+    },
+    "bulk_delete_passport_submissions": {
+      "ast": "AsyncFunctionDef(name='bulk_delete_passport_submissions', args=arguments(posonlyargs=[], args=[arg(arg='group_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='body', annotation=Name(id='BulkDeletePassportSubmissionsRequest', ctx=Load())), arg(arg='_csrf', annotation=Constant(value=None)), arg(arg='current_user', annotation=Name(id='User', ctx=Load())), arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='require_cookie_csrf', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='require_recent_mfa', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_db_session', ctx=Load())], keywords=[])]), body=[Assign(targets=[Name(id='submission_ids', ctx=Store())], value=Call(func=Name(id='list', ctx=Load()), args=[Call(func=Attribute(value=Name(id='dict', ctx=Load()), attr='fromkeys', ctx=Load()), args=[Attribute(value=Name(id='body', ctx=Load()), attr='submission_ids', ctx=Load())], keywords=[])], keywords=[])), Assign(targets=[Name(id='destructive_policy', ctx=Store())], value=Call(func=Name(id='DestructiveMutationPolicy', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[])), Assign(targets=[Name(id='mutation', ctx=Store())], value=Await(value=Call(func=Attribute(value=Name(id='destructive_policy', ctx=Load()), attr='require_group', ctx=Load()), args=[], keywords=[keyword(arg='user', value=Name(id='current_user', ctx=Load())), keyword(arg='group_id', value=Name(id='group_id', ctx=Load())), keyword(arg='action', value=Constant(value='passport_submissions_bulk_delete')), keyword(arg='target_ids', value=Name(id='submission_ids', ctx=Load())), keyword(arg='delete_scope', value=Constant(value='submissions'))]))), Assign(targets=[Name(id='group', ctx=Store())], value=Attribute(value=Name(id='mutation', ctx=Load()), attr='group', ctx=Load())), Expr(value=Await(value=Call(func=Name(id='lock_linked_whatsapp_broadcast_groups', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[keyword(arg='agency_id', value=Attribute(value=Name(id='group', ctx=Load()), attr='agency_id', ctx=Load())), keyword(arg='group_id', value=Name(id='group_id', ctx=Load()))]))), Assign(targets=[Name(id='selected_rows', ctx=Store())], value=Await(value=Call(func=Attribute(value=Name(id='session', ctx=Load()), attr='execute', ctx=Load()), args=[Call(func=Attribute(value=Call(func=Attribute(value=Call(func=Name(id='select', ctx=Load()), args=[Attribute(value=Name(id='PassportSubmissionModel', ctx=Load()), attr='id', ctx=Load()), Attribute(value=Name(id='PassportSubmissionModel', ctx=Load()), attr='image_s3_key', ctx=Load()), Attribute(value=Name(id='PassportSubmissionModel', ctx=Load()), attr='thumbnail_s3_key', ctx=Load()), Attribute(value=Name(id='PassportSubmissionModel', ctx=Load()), attr='passport_back_s3_key', ctx=Load()), Attribute(value=Name(id='PassportSubmissionModel', ctx=Load()), attr='passport_cover_s3_key', ctx=Load()), Attribute(value=Name(id='PassportSubmissionModel', ctx=Load()), attr='passport_back_cover_s3_key', ctx=Load()), Attribute(value=Name(id='PassportSubmissionModel', ctx=Load()), attr='passport_photo_s3_key', ctx=Load())], keywords=[]), attr='where', ctx=Load()), args=[Compare(left=Attribute(value=Name(id='PassportSubmissionModel', ctx=Load()), attr='group_id', ctx=Load()), ops=[Eq()], comparators=[Name(id='group_id', ctx=Load())]), Compare(left=Attribute(value=Name(id='PassportSubmissionModel', ctx=Load()), attr='agency_id', ctx=Load()), ops=[Eq()], comparators=[Attribute(value=Name(id='group', ctx=Load()), attr='agency_id', ctx=Load())]), Call(func=Attribute(value=Attribute(value=Name(id='PassportSubmissionModel', ctx=Load()), attr='id', ctx=Load()), attr='in_', ctx=Load()), args=[Name(id='submission_ids', ctx=Load())], keywords=[])], keywords=[]), attr='with_for_update', ctx=Load()), args=[], keywords=[])], keywords=[]))), Assign(targets=[Name(id='submissions', ctx=Store())], value=Call(func=Name(id='list', ctx=Load()), args=[Call(func=Attribute(value=Name(id='selected_rows', ctx=Load()), attr='all', ctx=Load()), args=[], keywords=[])], keywords=[])), Assign(targets=[Name(id='found_ids', ctx=Store())], value=SetComp(elt=Attribute(value=Name(id='row', ctx=Load()), attr='id', ctx=Load()), generators=[comprehension(target=Name(id='row', ctx=Store()), iter=Name(id='submissions', ctx=Load()), ifs=[], is_async=0)])), Assign(targets=[Name(id='missing_ids', ctx=Store())], value=ListComp(elt=Name(id='submission_id', ctx=Load()), generators=[comprehension(target=Name(id='submission_id', ctx=Store()), iter=Name(id='submission_ids', ctx=Load()), ifs=[Compare(left=Name(id='submission_id', ctx=Load()), ops=[NotIn()], comparators=[Name(id='found_ids', ctx=Load())])], is_async=0)])), If(test=Name(id='missing_ids', ctx=Load()), body=[Assign(targets=[Name(id='previous_result', ctx=Store())], value=Await(value=Call(func=Name(id='previous_bulk_delete_result', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[keyword(arg='group_id', value=Name(id='group_id', ctx=Load())), keyword(arg='request_fingerprint', value=Attribute(value=Name(id='mutation', ctx=Load()), attr='request_fingerprint', ctx=Load())), keyword(arg='requested_submission_ids', value=Name(id='submission_ids', ctx=Load()))]))), If(test=Compare(left=Name(id='previous_result', ctx=Load()), ops=[IsNot()], comparators=[Constant(value=None)]), body=[Expr(value=Await(value=Call(func=Attribute(value=Call(func=Name(id='AuditLogRepository', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[]), attr='record', ctx=Load()), args=[], keywords=[keyword(arg='action', value=Constant(value='passport_submissions_bulk_delete_idempotent_replay')), keyword(arg='entity_type', value=Constant(value='client_group')), keyword(arg='entity_id', value=Call(func=Name(id='str', ctx=Load()), args=[Name(id='group_id', ctx=Load())], keywords=[])), keyword(arg='agency_id', value=Attribute(value=Name(id='group', ctx=Load()), attr='agency_id', ctx=Load())), keyword(arg='user_id', value=Attribute(value=Name(id='current_user', ctx=Load()), attr='id', ctx=Load())), keyword(arg='actor_email', value=Attribute(value=Name(id='current_user', ctx=Load()), attr='email', ctx=Load())), keyword(arg='metadata', value=Dict(keys=[Constant(value='request_fingerprint'), Constant(value='target_count')], values=[Attribute(value=Name(id='mutation', ctx=Load()), attr='request_fingerprint', ctx=Load()), Call(func=Name(id='len', ctx=Load()), args=[Name(id='submission_ids', ctx=Load())], keywords=[])]))]))), Expr(value=Await(value=Call(func=Attribute(value=Name(id='session', ctx=Load()), attr='commit', ctx=Load()), args=[], keywords=[]))), Return(value=Name(id='previous_result', ctx=Load()))], orelse=[]), Expr(value=Await(value=Call(func=Attribute(value=Name(id='destructive_policy', ctx=Load()), attr='block_group', ctx=Load()), args=[Name(id='mutation', ctx=Load())], keywords=[keyword(arg='user', value=Name(id='current_user', ctx=Load())), keyword(arg='error', value=Call(func=Name(id='ConflictError', ctx=Load()), args=[Constant(value='One or more selected passport submissions were not found in this group. Refresh the page and try again.')], keywords=[keyword(arg='code', value=Constant(value='PASSPORT_DELETE_SELECTION_STALE'))]))])))], orelse=[]), Assign(targets=[Name(id='protected_submission_ids', ctx=Store())], value=Await(value=Call(func=Name(id='_active_roster_resolution_references', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[keyword(arg='group_id', value=Name(id='group_id', ctx=Load())), keyword(arg='agency_id', value=Attribute(value=Name(id='group', ctx=Load()), attr='agency_id', ctx=Load()))]))), Assign(targets=[Name(id='selected_protected_ids', ctx=Store())], value=Call(func=Attribute(value=Name(id='protected_submission_ids', ctx=Load()), attr='intersection', ctx=Load()), args=[Name(id='submission_ids', ctx=Load())], keywords=[])), If(test=Name(id='selected_protected_ids', ctx=Load()), body=[Expr(value=Await(value=Call(func=Attribute(value=Name(id='destructive_policy', ctx=Load()), attr='block_group', ctx=Load()), args=[Name(id='mutation', ctx=Load())], keywords=[keyword(arg='user', value=Name(id='current_user', ctx=Load())), keyword(arg='error', value=Call(func=Name(id='ConflictError', ctx=Load()), args=[Constant(value='One or more selected uploads belong to an active replacement or rejection. Restore that roster decision before permanently deleting the upload.')], keywords=[keyword(arg='code', value=Constant(value='PASSPORT_ROSTER_DECISION_ACTIVE'))]))])))], orelse=[]), Try(body=[Expr(value=Await(value=Call(func=Name(id='prepare_private_delivery_identity_mutation', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[keyword(arg='agency_id', value=Attribute(value=Name(id='group', ctx=Load()), attr='agency_id', ctx=Load())), keyword(arg='group_id', value=Name(id='group_id', ctx=Load())), keyword(arg='cancel_queued', value=Constant(value=True)), keyword(arg='cancellation_reason', value=Constant(value='Passenger removed before private WhatsApp delivery.'))])))], handlers=[ExceptHandler(type=Name(id='PrivateDeliveryMutationBlocked', ctx=Load()), name='exc', body=[Raise(exc=Call(func=Name(id='ConflictError', ctx=Load()), args=[Call(func=Name(id='str', ctx=Load()), args=[Name(id='exc', ctx=Load())], keywords=[])], keywords=[keyword(arg='code', value=Constant(value='WHATSAPP_SOURCE_SYNC_DELIVERY_ACTIVE'))]), cause=Name(id='exc', ctx=Load()))])], orelse=[], finalbody=[]), Assign(targets=[Name(id='storage_keys', ctx=Store())], value=Call(func=Name(id='passport_storage_keys', ctx=Load()), args=[Name(id='submissions', ctx=Load())], keywords=[])), Assign(targets=[Name(id='crop_repository', ctx=Store())], value=Call(func=Name(id='PassportImageCropRepository', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[])), Expr(value=Call(func=Attribute(value=Name(id='storage_keys', ctx=Load()), attr='extend', ctx=Load()), args=[Await(value=Call(func=Attribute(value=Name(id='crop_repository', ctx=Load()), attr='derived_storage_keys', ctx=Load()), args=[Name(id='submission_ids', ctx=Load())], keywords=[]))], keywords=[])), Expr(value=Call(func=Attribute(value=Name(id='storage_keys', ctx=Load()), attr='extend', ctx=Load()), args=[Await(value=Call(func=Attribute(value=Name(id='crop_repository', ctx=Load()), attr='edit_storage_keys', ctx=Load()), args=[Name(id='submission_ids', ctx=Load())], keywords=[]))], keywords=[])), Assign(targets=[Name(id='cleanup_jobs', ctx=Store())], value=Call(func=Name(id='stage_storage_cleanup_jobs', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[keyword(arg='agency_id', value=Attribute(value=Name(id='group', ctx=Load()), attr='agency_id', ctx=Load())), keyword(arg='source', value=Constant(value='passport_submission_delete')), keyword(arg='context_id', value=BinOp(left=JoinedStr(values=[FormattedValue(value=Name(id='group_id', ctx=Load()), conversion=-1), Constant(value=':')]), op=Add(), right=Call(func=Attribute(value=Constant(value=','), attr='join', ctx=Load()), args=[GeneratorExp(elt=Call(func=Name(id='str', ctx=Load()), args=[Name(id='item', ctx=Load())], keywords=[]), generators=[comprehension(target=Name(id='item', ctx=Store()), iter=Call(func=Name(id='sorted', ctx=Load()), args=[Name(id='submission_ids', ctx=Load())], keywords=[keyword(arg='key', value=Name(id='str', ctx=Load()))]), ifs=[], is_async=0)])], keywords=[]))), keyword(arg='storage_keys', value=Name(id='storage_keys', ctx=Load()))])), Assign(targets=[Name(id='notification_result', ctx=Store())], value=Await(value=Call(func=Attribute(value=Name(id='session', ctx=Load()), attr='execute', ctx=Load()), args=[Call(func=Attribute(value=Call(func=Name(id='delete', ctx=Load()), args=[Name(id='NotificationModel', ctx=Load())], keywords=[]), attr='where', ctx=Load()), args=[Compare(left=Attribute(value=Name(id='NotificationModel', ctx=Load()), attr='agency_id', ctx=Load()), ops=[Eq()], comparators=[Attribute(value=Name(id='group', ctx=Load()), attr='agency_id', ctx=Load())]), Compare(left=Attribute(value=Name(id='NotificationModel', ctx=Load()), attr='entity_type', ctx=Load()), ops=[Eq()], comparators=[Constant(value='passport_submission')]), Call(func=Attribute(value=Attribute(value=Name(id='NotificationModel', ctx=Load()), attr='entity_id', ctx=Load()), attr='in_', ctx=Load()), args=[ListComp(elt=Call(func=Name(id='str', ctx=Load()), args=[Name(id='submission_id', ctx=Load())], keywords=[]), generators=[comprehension(target=Name(id='submission_id', ctx=Store()), iter=Name(id='submission_ids', ctx=Load()), ifs=[], is_async=0)])], keywords=[])], keywords=[])], keywords=[]))), Assign(targets=[Name(id='deleted_notifications', ctx=Store())], value=Call(func=Name(id='int', ctx=Load()), args=[BoolOp(op=Or(), values=[Call(func=Name(id='getattr', ctx=Load()), args=[Name(id='notification_result', ctx=Load()), Constant(value='rowcount'), Constant(value=0)], keywords=[]), Constant(value=0)])], keywords=[])), ImportFrom(module='app.application.travellers.retention', names=[alias(name='detach_submission_provenance')], level=0), Expr(value=Await(value=Call(func=Name(id='detach_submission_provenance', ctx=Load()), args=[Name(id='session', ctx=Load()), Name(id='submission_ids', ctx=Load())], keywords=[]))), Assign(targets=[Name(id='delete_result', ctx=Store())], value=Await(value=Call(func=Attribute(value=Name(id='session', ctx=Load()), attr='execute', ctx=Load()), args=[Call(func=Attribute(value=Call(func=Name(id='delete', ctx=Load()), args=[Name(id='PassportSubmissionModel', ctx=Load())], keywords=[]), attr='where', ctx=Load()), args=[Compare(left=Attribute(value=Name(id='PassportSubmissionModel', ctx=Load()), attr='group_id', ctx=Load()), ops=[Eq()], comparators=[Name(id='group_id', ctx=Load())]), Compare(left=Attribute(value=Name(id='PassportSubmissionModel', ctx=Load()), attr='agency_id', ctx=Load()), ops=[Eq()], comparators=[Attribute(value=Name(id='group', ctx=Load()), attr='agency_id', ctx=Load())]), Call(func=Attribute(value=Attribute(value=Name(id='PassportSubmissionModel', ctx=Load()), attr='id', ctx=Load()), attr='in_', ctx=Load()), args=[Name(id='submission_ids', ctx=Load())], keywords=[])], keywords=[])], keywords=[]))), Assign(targets=[Name(id='deleted_count', ctx=Store())], value=Call(func=Name(id='int', ctx=Load()), args=[BoolOp(op=Or(), values=[Call(func=Name(id='getattr', ctx=Load()), args=[Name(id='delete_result', ctx=Load()), Constant(value='rowcount'), Constant(value=0)], keywords=[]), Constant(value=0)])], keywords=[])), If(test=Compare(left=Name(id='deleted_count', ctx=Load()), ops=[NotEq()], comparators=[Call(func=Name(id='len', ctx=Load()), args=[Name(id='submission_ids', ctx=Load())], keywords=[])]), body=[Raise(exc=Call(func=Name(id='ConflictError', ctx=Load()), args=[Constant(value='The selected submissions changed while deletion was in progress. Refresh the page and try again.')], keywords=[keyword(arg='code', value=Constant(value='PASSPORT_DELETE_CONCURRENT_CHANGE'))]))], orelse=[]), Expr(value=Await(value=Call(func=Name(id='propagate_mobile_passenger_change', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[keyword(arg='agency_id', value=Attribute(value=Name(id='group', ctx=Load()), attr='agency_id', ctx=Load())), keyword(arg='group_id', value=Name(id='group_id', ctx=Load())), keyword(arg='passenger_submission_ids', value=Name(id='submission_ids', ctx=Load())), keyword(arg='actor_user_id', value=Attribute(value=Name(id='current_user', ctx=Load()), attr='id', ctx=Load())), keyword(arg='operation', value=Constant(value='delete')), keyword(arg='change_kind', value=Constant(value='documents')), keyword(arg='sync_broadcast_contacts', value=Constant(value=True))]))), Expr(value=Await(value=Call(func=Attribute(value=Call(func=Name(id='AuditLogRepository', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[]), attr='record', ctx=Load()), args=[], keywords=[keyword(arg='action', value=Constant(value='passport_submissions_bulk_deleted')), keyword(arg='entity_type', value=Constant(value='client_group')), keyword(arg='entity_id', value=Call(func=Name(id='str', ctx=Load()), args=[Name(id='group_id', ctx=Load())], keywords=[])), keyword(arg='agency_id', value=Attribute(value=Name(id='group', ctx=Load()), attr='agency_id', ctx=Load())), keyword(arg='user_id', value=Attribute(value=Name(id='current_user', ctx=Load()), attr='id', ctx=Load())), keyword(arg='actor_email', value=Attribute(value=Name(id='current_user', ctx=Load()), attr='email', ctx=Load())), keyword(arg='metadata', value=Dict(keys=[Constant(value='deleted_count'), Constant(value='deleted_submission_ids'), Constant(value='storage_objects_scheduled_for_cleanup'), Constant(value='storage_cleanup_job_count'), Constant(value='deleted_notifications'), Constant(value='request_fingerprint')], values=[Name(id='deleted_count', ctx=Load()), ListComp(elt=Call(func=Name(id='str', ctx=Load()), args=[Name(id='submission_id', ctx=Load())], keywords=[]), generators=[comprehension(target=Name(id='submission_id', ctx=Store()), iter=Name(id='submission_ids', ctx=Load()), ifs=[], is_async=0)]), Call(func=Name(id='len', ctx=Load()), args=[Name(id='storage_keys', ctx=Load())], keywords=[]), Call(func=Name(id='len', ctx=Load()), args=[Name(id='cleanup_jobs', ctx=Load())], keywords=[]), Name(id='deleted_notifications', ctx=Load()), Attribute(value=Name(id='mutation', ctx=Load()), attr='request_fingerprint', ctx=Load())]))]))), Try(body=[Expr(value=Await(value=Call(func=Attribute(value=Name(id='session', ctx=Load()), attr='commit', ctx=Load()), args=[], keywords=[])))], handlers=[ExceptHandler(type=Name(id='Exception', ctx=Load()), name='exc', body=[Expr(value=Await(value=Call(func=Name(id='record_destructive_failure', ctx=Load()), args=[Name(id='mutation', ctx=Load())], keywords=[keyword(arg='user', value=Name(id='current_user', ctx=Load())), keyword(arg='error', value=Name(id='exc', ctx=Load()))]))), Raise()])], orelse=[], finalbody=[]), Assign(targets=[Name(id='deleted_storage_objects', ctx=Store())], value=Constant(value=0)), Assign(targets=[Name(id='cleanup_object_count', ctx=Store())], value=Call(func=Name(id='sum', ctx=Load()), args=[GeneratorExp(elt=Attribute(value=Name(id='job', ctx=Load()), attr='object_count', ctx=Load()), generators=[comprehension(target=Name(id='job', ctx=Store()), iter=Name(id='cleanup_jobs', ctx=Load()), ifs=[], is_async=0)])], keywords=[])), Assign(targets=[Name(id='storage_cleanup_deferred', ctx=Store())], value=Compare(left=Name(id='cleanup_object_count', ctx=Load()), ops=[Gt()], comparators=[Name(id='PASSPORT_DELETE_INLINE_CLEANUP_MAX_OBJECTS', ctx=Load())])), If(test=UnaryOp(op=Not(), operand=Name(id='storage_cleanup_deferred', ctx=Load())), body=[For(target=Name(id='cleanup_job', ctx=Store()), iter=Name(id='cleanup_jobs', ctx=Load()), body=[Try(body=[Assign(targets=[Name(id='cleanup_result', ctx=Store())], value=Await(value=Call(func=Name(id='process_storage_cleanup_job', ctx=Load()), args=[Attribute(value=Name(id='cleanup_job', ctx=Load()), attr='id', ctx=Load())], keywords=[]))), If(test=BoolOp(op=Or(), values=[Compare(left=Name(id='cleanup_result', ctx=Load()), ops=[Is()], comparators=[Constant(value=None)]), UnaryOp(op=Not(), operand=Attribute(value=Name(id='cleanup_result', ctx=Load()), attr='completed', ctx=Load()))]), body=[Assign(targets=[Name(id='storage_cleanup_deferred', ctx=Store())], value=Constant(value=True)), Continue()], orelse=[]), AugAssign(target=Name(id='deleted_storage_objects', ctx=Store()), op=Add(), value=Attribute(value=Name(id='cleanup_result', ctx=Load()), attr='deleted_count', ctx=Load()))], handlers=[ExceptHandler(type=Name(id='Exception', ctx=Load()), name='exc', body=[Assign(targets=[Name(id='storage_cleanup_deferred', ctx=Store())], value=Constant(value=True)), Expr(value=Call(func=Attribute(value=Name(id='logger', ctx=Load()), attr='warning', ctx=Load()), args=[Constant(value='passport_bulk_delete_storage_cleanup_deferred')], keywords=[keyword(arg='cleanup_job_id', value=Call(func=Name(id='str', ctx=Load()), args=[Attribute(value=Name(id='cleanup_job', ctx=Load()), attr='id', ctx=Load())], keywords=[])), keyword(arg='group_id', value=Call(func=Name(id='str', ctx=Load()), args=[Name(id='group_id', ctx=Load())], keywords=[])), keyword(arg='submission_count', value=Name(id='deleted_count', ctx=Load())), keyword(arg='object_count', value=Attribute(value=Name(id='cleanup_job', ctx=Load()), attr='object_count', ctx=Load())), keyword(arg='error_type', value=Attribute(value=Call(func=Name(id='type', ctx=Load()), args=[Name(id='exc', ctx=Load())], keywords=[]), attr='__name__', ctx=Load()))]))])], orelse=[], finalbody=[])], orelse=[])], orelse=[]), Return(value=Call(func=Name(id='BulkDeletePassportSubmissionsResponse', ctx=Load()), args=[], keywords=[keyword(arg='deleted_count', value=Name(id='deleted_count', ctx=Load())), keyword(arg='deleted_submission_ids', value=Name(id='submission_ids', ctx=Load())), keyword(arg='deleted_storage_objects', value=Name(id='deleted_storage_objects', ctx=Load())), keyword(arg='deleted_notifications', value=Name(id='deleted_notifications', ctx=Load())), keyword(arg='storage_cleanup_deferred', value=Name(id='storage_cleanup_deferred', ctx=Load()))]))], decorator_list=[Call(func=Attribute(value=Name(id='router', ctx=Load()), attr='post', ctx=Load()), args=[Constant(value='/groups/{group_id}/bulk-delete')], keywords=[keyword(arg='response_model', value=Name(id='BulkDeletePassportSubmissionsResponse', ctx=Load())), keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_200_OK', ctx=Load())), keyword(arg='summary', value=Constant(value='Permanently delete selected passport submissions from a group'))])], returns=Name(id='BulkDeletePassportSubmissionsResponse', ctx=Load()))",
+      "signature": "(group_id: 'uuid.UUID', body: 'BulkDeletePassportSubmissionsRequest', _csrf: 'None' = Depends(dependency=<function require_cookie_csrf at 0x000001F5256F59E0>, use_cache=True, scope=None), current_user: 'User' = Depends(dependency=<function require_recent_mfa at 0x000001F5256F6200>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x000001F5240731A0>, use_cache=True, scope=None)) -> 'BulkDeletePassportSubmissionsResponse'",
+      "hints": {
+        "group_id": "<class 'uuid.UUID'>",
+        "body": "<class 'app.presentation.api.v1.schemas.passport_schemas.BulkDeletePassportSubmissionsRequest'>",
+        "_csrf": "<class 'NoneType'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "return": "<class 'app.presentation.api.v1.schemas.passport_schemas.BulkDeletePassportSubmissionsResponse'>"
+      },
+      "module": "app.presentation.api.v1.routes.passport_routes.bulk_actions",
+      "qualname": "bulk_delete_passport_submissions",
+      "pickle_hex": "80049564000000000000008c3b6170702e70726573656e746174696f6e2e6170692e76312e726f757465732e70617373706f72745f726f757465732e62756c6b5f616374696f6e73948c2062756c6b5f64656c6574655f70617373706f72745f7375626d697373696f6e739493942e"
+    },
+    "bulk_staff_approve_passport_submissions": {
+      "ast": "AsyncFunctionDef(name='bulk_staff_approve_passport_submissions', args=arguments(posonlyargs=[], args=[arg(arg='group_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='body', annotation=Name(id='BulkStaffApprovePassportSubmissionsRequest', ctx=Load())), arg(arg='response', annotation=Name(id='Response', ctx=Load())), arg(arg='_csrf', annotation=Constant(value=None)), arg(arg='current_user', annotation=Name(id='User', ctx=Load())), arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='require_cookie_csrf', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_current_active_user', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_db_session', ctx=Load())], keywords=[])]), body=[Expr(value=Constant(value='Atomically approve eligible rows while reporting ineligible rows.')), Assign(targets=[Name(id='allowed_roles', ctx=Store())], value=Set(elts=[Attribute(value=Name(id='UserRole', ctx=Load()), attr='SUPER_ADMIN', ctx=Load()), Attribute(value=Name(id='UserRole', ctx=Load()), attr='AGENCY_ADMIN', ctx=Load()), Attribute(value=Name(id='UserRole', ctx=Load()), attr='AGENCY_MANAGER', ctx=Load()), Attribute(value=Name(id='UserRole', ctx=Load()), attr='AGENCY_STAFF', ctx=Load())])), If(test=Compare(left=Attribute(value=Name(id='current_user', ctx=Load()), attr='role', ctx=Load()), ops=[NotIn()], comparators=[Name(id='allowed_roles', ctx=Load())]), body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_403_FORBIDDEN', ctx=Load())), keyword(arg='detail', value=Constant(value='Insufficient permissions'))]))], orelse=[]), Assign(targets=[Name(id='actor', ctx=Store())], value=Await(value=Call(func=Name(id='_lock_active_bulk_approval_actor', ctx=Load()), args=[Name(id='session', ctx=Load()), Name(id='current_user', ctx=Load())], keywords=[]))), Assign(targets=[Name(id='group', ctx=Store())], value=Await(value=Call(func=Attribute(value=Call(func=Name(id='ClientGroupRepository', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[]), attr='get_by_id', ctx=Load()), args=[Name(id='group_id', ctx=Load())], keywords=[]))), Assign(targets=[Name(id='group_status', ctx=Store())], value=Call(func=Name(id='getattr', ctx=Load()), args=[Name(id='group', ctx=Load()), Constant(value='status'), Constant(value=None)], keywords=[])), Assign(targets=[Name(id='group_status_value', ctx=Store())], value=IfExp(test=Call(func=Name(id='isinstance', ctx=Load()), args=[Name(id='group_status', ctx=Load()), Name(id='GroupStatus', ctx=Load())], keywords=[]), body=Attribute(value=Name(id='group_status', ctx=Load()), attr='value', ctx=Load()), orelse=Name(id='group_status', ctx=Load()))), If(test=BoolOp(op=Or(), values=[UnaryOp(op=Not(), operand=Name(id='group', ctx=Load())), Compare(left=Call(func=Name(id='getattr', ctx=Load()), args=[Name(id='group', ctx=Load()), Constant(value='deleted_at'), Constant(value=None)], keywords=[]), ops=[IsNot()], comparators=[Constant(value=None)]), Compare(left=Name(id='group_status_value', ctx=Load()), ops=[In()], comparators=[Set(elts=[Attribute(value=Attribute(value=Name(id='GroupStatus', ctx=Load()), attr='ARCHIVED', ctx=Load()), attr='value', ctx=Load()), Attribute(value=Attribute(value=Name(id='GroupStatus', ctx=Load()), attr='DELETED', ctx=Load()), attr='value', ctx=Load())])])]), body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_404_NOT_FOUND', ctx=Load())), keyword(arg='detail', value=Constant(value='Client group was not found'))]))], orelse=[]), Assign(targets=[Name(id='policy', ctx=Store())], value=Call(func=Name(id='AuthorizationPolicy', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[])), If(test=UnaryOp(op=Not(), operand=Await(value=Call(func=Attribute(value=Name(id='policy', ctx=Load()), attr='can_view_group', ctx=Load()), args=[Name(id='actor', ctx=Load()), Name(id='group', ctx=Load())], keywords=[]))), body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_403_FORBIDDEN', ctx=Load())), keyword(arg='detail', value=Constant(value='You cannot approve passport submissions in this group'))]))], orelse=[]), AnnAssign(target=Name(id='selection_by_id', ctx=Store()), annotation=Subscript(value=Name(id='dict', ctx=Load()), slice=Tuple(elts=[Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load()), Name(id='int', ctx=Load())], ctx=Load()), ctx=Load()), value=Dict(keys=[], values=[]), simple=1), For(target=Name(id='selection', ctx=Store()), iter=Attribute(value=Name(id='body', ctx=Load()), attr='submissions', ctx=Load()), body=[Assign(targets=[Name(id='previous_revision', ctx=Store())], value=Call(func=Attribute(value=Name(id='selection_by_id', ctx=Load()), attr='setdefault', ctx=Load()), args=[Attribute(value=Name(id='selection', ctx=Load()), attr='submission_id', ctx=Load()), Attribute(value=Name(id='selection', ctx=Load()), attr='expected_extraction_revision', ctx=Load())], keywords=[])), If(test=Compare(left=Name(id='previous_revision', ctx=Load()), ops=[NotEq()], comparators=[Attribute(value=Name(id='selection', ctx=Load()), attr='expected_extraction_revision', ctx=Load())]), body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_400_BAD_REQUEST', ctx=Load())), keyword(arg='detail', value=Constant(value='A selected submission was supplied with conflicting revisions. Refresh the page and try again.'))]))], orelse=[])], orelse=[]), Assign(targets=[Name(id='requested_ids', ctx=Store())], value=Call(func=Name(id='list', ctx=Load()), args=[Name(id='selection_by_id', ctx=Load())], keywords=[])), Expr(value=Await(value=Call(func=Attribute(value=Name(id='session', ctx=Load()), attr='execute', ctx=Load()), args=[Call(func=Attribute(value=Call(func=Attribute(value=Call(func=Name(id='select', ctx=Load()), args=[Attribute(value=Name(id='ClientGroupModel', ctx=Load()), attr='id', ctx=Load())], keywords=[]), attr='where', ctx=Load()), args=[Compare(left=Attribute(value=Name(id='ClientGroupModel', ctx=Load()), attr='id', ctx=Load()), ops=[Eq()], comparators=[Name(id='group_id', ctx=Load())]), Compare(left=Attribute(value=Name(id='ClientGroupModel', ctx=Load()), attr='agency_id', ctx=Load()), ops=[Eq()], comparators=[Attribute(value=Name(id='group', ctx=Load()), attr='agency_id', ctx=Load())])], keywords=[]), attr='with_for_update', ctx=Load()), args=[], keywords=[])], keywords=[]))), Assign(targets=[Name(id='stmt', ctx=Store())], value=Call(func=Attribute(value=Call(func=Attribute(value=Call(func=Attribute(value=Call(func=Attribute(value=Call(func=Name(id='select', ctx=Load()), args=[Name(id='PassportSubmissionModel', ctx=Load())], keywords=[]), attr='join', ctx=Load()), args=[Name(id='ClientGroupModel', ctx=Load()), Compare(left=Attribute(value=Name(id='ClientGroupModel', ctx=Load()), attr='id', ctx=Load()), ops=[Eq()], comparators=[Attribute(value=Name(id='PassportSubmissionModel', ctx=Load()), attr='group_id', ctx=Load())])], keywords=[]), attr='where', ctx=Load()), args=[Compare(left=Attribute(value=Name(id='PassportSubmissionModel', ctx=Load()), attr='group_id', ctx=Load()), ops=[Eq()], comparators=[Name(id='group_id', ctx=Load())]), Call(func=Attribute(value=Attribute(value=Name(id='PassportSubmissionModel', ctx=Load()), attr='id', ctx=Load()), attr='in_', ctx=Load()), args=[Name(id='requested_ids', ctx=Load())], keywords=[]), Call(func=Attribute(value=Attribute(value=Name(id='ClientGroupModel', ctx=Load()), attr='deleted_at', ctx=Load()), attr='is_', ctx=Load()), args=[Constant(value=None)], keywords=[]), Call(func=Attribute(value=Attribute(value=Name(id='ClientGroupModel', ctx=Load()), attr='status', ctx=Load()), attr='notin_', ctx=Load()), args=[List(elts=[Attribute(value=Attribute(value=Name(id='GroupStatus', ctx=Load()), attr='ARCHIVED', ctx=Load()), attr='value', ctx=Load()), Attribute(value=Attribute(value=Name(id='GroupStatus', ctx=Load()), attr='DELETED', ctx=Load()), attr='value', ctx=Load())], ctx=Load())], keywords=[])], keywords=[]), attr='order_by', ctx=Load()), args=[Attribute(value=Name(id='PassportSubmissionModel', ctx=Load()), attr='id', ctx=Load())], keywords=[]), attr='with_for_update', ctx=Load()), args=[], keywords=[keyword(arg='of', value=Tuple(elts=[Name(id='ClientGroupModel', ctx=Load()), Name(id='PassportSubmissionModel', ctx=Load())], ctx=Load()))])), Assign(targets=[Name(id='stmt', ctx=Store())], value=Call(func=Attribute(value=Name(id='AuthorizationPolicy', ctx=Load()), attr='apply_passport_visibility_scope', ctx=Load()), args=[Name(id='stmt', ctx=Load()), Name(id='actor', ctx=Load())], keywords=[])), Assign(targets=[Name(id='result', ctx=Store())], value=Await(value=Call(func=Attribute(value=Name(id='session', ctx=Load()), attr='execute', ctx=Load()), args=[Name(id='stmt', ctx=Load())], keywords=[]))), Assign(targets=[Name(id='models', ctx=Store())], value=Call(func=Name(id='list', ctx=Load()), args=[Call(func=Attribute(value=Call(func=Attribute(value=Name(id='result', ctx=Load()), attr='scalars', ctx=Load()), args=[], keywords=[]), attr='all', ctx=Load()), args=[], keywords=[])], keywords=[])), If(test=Compare(left=Call(func=Name(id='len', ctx=Load()), args=[Name(id='models', ctx=Load())], keywords=[]), ops=[NotEq()], comparators=[Call(func=Name(id='len', ctx=Load()), args=[Name(id='requested_ids', ctx=Load())], keywords=[])]), body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_404_NOT_FOUND', ctx=Load())), keyword(arg='detail', value=Constant(value='One or more selected passport submissions were not found in this group. Refresh the page and try again.'))]))], orelse=[]), Assign(targets=[Name(id='approvable_statuses', ctx=Store())], value=Set(elts=[Attribute(value=Attribute(value=Name(id='PassportProcessingStatus', ctx=Load()), attr='CONFIRMED', ctx=Load()), attr='value', ctx=Load()), Attribute(value=Attribute(value=Name(id='PassportProcessingStatus', ctx=Load()), attr='CLIENT_SUBMITTED', ctx=Load()), attr='value', ctx=Load()), Attribute(value=Attribute(value=Name(id='PassportProcessingStatus', ctx=Load()), attr='SUBMITTED', ctx=Load()), attr='value', ctx=Load()), Attribute(value=Attribute(value=Name(id='PassportProcessingStatus', ctx=Load()), attr='AI_APPROVED', ctx=Load()), attr='value', ctx=Load()), Attribute(value=Attribute(value=Name(id='PassportProcessingStatus', ctx=Load()), attr='NEEDS_REVIEW', ctx=Load()), attr='value', ctx=Load()), Attribute(value=Attribute(value=Name(id='PassportProcessingStatus', ctx=Load()), attr='STAFF_APPROVED', ctx=Load()), attr='value', ctx=Load())])), AnnAssign(target=Name(id='approved_ids', ctx=Store()), annotation=Subscript(value=Name(id='list', ctx=Load()), slice=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load()), ctx=Load()), value=List(elts=[], ctx=Load()), simple=1), AnnAssign(target=Name(id='already_approved_ids', ctx=Store()), annotation=Subscript(value=Name(id='list', ctx=Load()), slice=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load()), ctx=Load()), value=List(elts=[], ctx=Load()), simple=1), AnnAssign(target=Name(id='skipped', ctx=Store()), annotation=Subscript(value=Name(id='list', ctx=Load()), slice=Name(id='BulkStaffApproveSkippedSubmission', ctx=Load()), ctx=Load()), value=List(elts=[], ctx=Load()), simple=1), AnnAssign(target=Name(id='audit_rows', ctx=Store()), annotation=Subscript(value=Name(id='list', ctx=Load()), slice=Name(id='AuditLogModel', ctx=Load()), ctx=Load()), value=List(elts=[], ctx=Load()), simple=1), Assign(targets=[Name(id='now', ctx=Store())], value=Call(func=Attribute(value=Name(id='datetime', ctx=Load()), attr='now', ctx=Load()), args=[], keywords=[keyword(arg='tz', value=Name(id='UTC', ctx=Load()))])), For(target=Name(id='model', ctx=Store()), iter=Name(id='models', ctx=Load()), body=[Assign(targets=[Name(id='expected_revision', ctx=Store())], value=Subscript(value=Name(id='selection_by_id', ctx=Load()), slice=Attribute(value=Name(id='model', ctx=Load()), attr='id', ctx=Load()), ctx=Load())), If(test=Compare(left=Attribute(value=Name(id='model', ctx=Load()), attr='status', ctx=Load()), ops=[Eq()], comparators=[Attribute(value=Attribute(value=Name(id='PassportProcessingStatus', ctx=Load()), attr='STAFF_APPROVED', ctx=Load()), attr='value', ctx=Load())]), body=[Expr(value=Call(func=Attribute(value=Name(id='already_approved_ids', ctx=Load()), attr='append', ctx=Load()), args=[Attribute(value=Name(id='model', ctx=Load()), attr='id', ctx=Load())], keywords=[])), Continue()], orelse=[]), If(test=Compare(left=Attribute(value=Name(id='model', ctx=Load()), attr='status', ctx=Load()), ops=[NotIn()], comparators=[Name(id='approvable_statuses', ctx=Load())]), body=[Expr(value=Call(func=Attribute(value=Name(id='skipped', ctx=Load()), attr='append', ctx=Load()), args=[Call(func=Name(id='BulkStaffApproveSkippedSubmission', ctx=Load()), args=[], keywords=[keyword(arg='submission_id', value=Attribute(value=Name(id='model', ctx=Load()), attr='id', ctx=Load())), keyword(arg='current_status', value=Attribute(value=Name(id='model', ctx=Load()), attr='status', ctx=Load())), keyword(arg='reason', value=Constant(value='not_completed')), keyword(arg='expected_extraction_revision', value=Name(id='expected_revision', ctx=Load())), keyword(arg='current_extraction_revision', value=Attribute(value=Name(id='model', ctx=Load()), attr='extraction_revision', ctx=Load()))])], keywords=[])), Continue()], orelse=[]), If(test=Compare(left=Attribute(value=Name(id='model', ctx=Load()), attr='extraction_revision', ctx=Load()), ops=[NotEq()], comparators=[Name(id='expected_revision', ctx=Load())]), body=[Expr(value=Call(func=Attribute(value=Name(id='skipped', ctx=Load()), attr='append', ctx=Load()), args=[Call(func=Name(id='BulkStaffApproveSkippedSubmission', ctx=Load()), args=[], keywords=[keyword(arg='submission_id', value=Attribute(value=Name(id='model', ctx=Load()), attr='id', ctx=Load())), keyword(arg='current_status', value=Attribute(value=Name(id='model', ctx=Load()), attr='status', ctx=Load())), keyword(arg='reason', value=Constant(value='stale')), keyword(arg='expected_extraction_revision', value=Name(id='expected_revision', ctx=Load())), keyword(arg='current_extraction_revision', value=Attribute(value=Name(id='model', ctx=Load()), attr='extraction_revision', ctx=Load()))])], keywords=[])), Continue()], orelse=[]), Assign(targets=[Name(id='entity', ctx=Store())], value=Call(func=Attribute(value=Name(id='PassportSubmissionRepository', ctx=Load()), attr='_to_entity', ctx=Load()), args=[Name(id='model', ctx=Load())], keywords=[])), Assign(targets=[Name(id='prior_status', ctx=Store())], value=Attribute(value=Attribute(value=Name(id='entity', ctx=Load()), attr='status', ctx=Load()), attr='value', ctx=Load())), Assign(targets=[Name(id='outcome', ctx=Store())], value=Call(func=Attribute(value=Name(id='entity', ctx=Load()), attr='bulk_staff_approve_completed_verification', ctx=Load()), args=[], keywords=[keyword(arg='reviewer_id', value=Attribute(value=Name(id='actor', ctx=Load()), attr='id', ctx=Load())), keyword(arg='reviewer_name', value=Attribute(value=Name(id='actor', ctx=Load()), attr='full_name', ctx=Load()))])), If(test=Compare(left=Name(id='outcome', ctx=Load()), ops=[Is()], comparators=[Attribute(value=Name(id='StaffApprovalOutcome', ctx=Load()), attr='ALREADY_APPROVED', ctx=Load())]), body=[Expr(value=Call(func=Attribute(value=Name(id='already_approved_ids', ctx=Load()), attr='append', ctx=Load()), args=[Attribute(value=Name(id='model', ctx=Load()), attr='id', ctx=Load())], keywords=[])), Continue()], orelse=[]), Assign(targets=[Attribute(value=Name(id='model', ctx=Load()), attr='status', ctx=Store())], value=Attribute(value=Attribute(value=Name(id='entity', ctx=Load()), attr='status', ctx=Load()), attr='value', ctx=Load())), Assign(targets=[Attribute(value=Name(id='model', ctx=Load()), attr='extraction_revision', ctx=Store())], value=Attribute(value=Name(id='entity', ctx=Load()), attr='extraction_revision', ctx=Load())), Assign(targets=[Attribute(value=Name(id='model', ctx=Load()), attr='post_submission_verification_revision', ctx=Store())], value=Attribute(value=Name(id='entity', ctx=Load()), attr='post_submission_verification_revision', ctx=Load())), Assign(targets=[Attribute(value=Name(id='model', ctx=Load()), attr='verification_reviewed_by_user_id', ctx=Store())], value=Attribute(value=Name(id='entity', ctx=Load()), attr='verification_reviewed_by_user_id', ctx=Load())), Assign(targets=[Attribute(value=Name(id='model', ctx=Load()), attr='verification_reviewer_name', ctx=Store())], value=Attribute(value=Name(id='entity', ctx=Load()), attr='verification_reviewer_name', ctx=Load())), Assign(targets=[Attribute(value=Name(id='model', ctx=Load()), attr='verification_reviewed_at', ctx=Store())], value=Attribute(value=Name(id='entity', ctx=Load()), attr='verification_reviewed_at', ctx=Load())), Assign(targets=[Attribute(value=Name(id='model', ctx=Load()), attr='confirmed_at', ctx=Store())], value=Attribute(value=Name(id='entity', ctx=Load()), attr='confirmed_at', ctx=Load())), Assign(targets=[Attribute(value=Name(id='model', ctx=Load()), attr='updated_at', ctx=Store())], value=Attribute(value=Name(id='entity', ctx=Load()), attr='updated_at', ctx=Load())), Expr(value=Call(func=Attribute(value=Name(id='approved_ids', ctx=Load()), attr='append', ctx=Load()), args=[Attribute(value=Name(id='model', ctx=Load()), attr='id', ctx=Load())], keywords=[])), Expr(value=Call(func=Attribute(value=Name(id='audit_rows', ctx=Load()), attr='append', ctx=Load()), args=[Call(func=Name(id='AuditLogModel', ctx=Load()), args=[], keywords=[keyword(arg='id', value=Call(func=Attribute(value=Name(id='uuid', ctx=Load()), attr='uuid4', ctx=Load()), args=[], keywords=[])), keyword(arg='agency_id', value=Attribute(value=Name(id='model', ctx=Load()), attr='agency_id', ctx=Load())), keyword(arg='user_id', value=Attribute(value=Name(id='actor', ctx=Load()), attr='id', ctx=Load())), keyword(arg='actor_email', value=Attribute(value=Name(id='actor', ctx=Load()), attr='email', ctx=Load())), keyword(arg='action', value=Constant(value='passport_staff_approved')), keyword(arg='entity_type', value=Constant(value='passport_submission')), keyword(arg='entity_id', value=Call(func=Name(id='str', ctx=Load()), args=[Attribute(value=Name(id='model', ctx=Load()), attr='id', ctx=Load())], keywords=[])), keyword(arg='metadata_json', value=Dict(keys=[Constant(value='group_id'), Constant(value='prior_status'), Constant(value='new_status'), Constant(value='outcome'), Constant(value='bulk'), Constant(value='extraction_revision'), Constant(value='verification_revision')], values=[Call(func=Name(id='str', ctx=Load()), args=[Name(id='group_id', ctx=Load())], keywords=[]), Name(id='prior_status', ctx=Load()), Attribute(value=Attribute(value=Name(id='PassportProcessingStatus', ctx=Load()), attr='STAFF_APPROVED', ctx=Load()), attr='value', ctx=Load()), Attribute(value=Attribute(value=Name(id='StaffApprovalOutcome', ctx=Load()), attr='APPROVED', ctx=Load()), attr='value', ctx=Load()), Constant(value=True), Attribute(value=Name(id='entity', ctx=Load()), attr='extraction_revision', ctx=Load()), Attribute(value=Name(id='entity', ctx=Load()), attr='post_submission_verification_revision', ctx=Load())])), keyword(arg='created_at', value=Name(id='now', ctx=Load()))])], keywords=[]))], orelse=[]), Try(body=[If(test=Name(id='audit_rows', ctx=Load()), body=[Expr(value=Call(func=Attribute(value=Name(id='session', ctx=Load()), attr='add_all', ctx=Load()), args=[Name(id='audit_rows', ctx=Load())], keywords=[]))], orelse=[]), Expr(value=Await(value=Call(func=Attribute(value=Name(id='session', ctx=Load()), attr='flush', ctx=Load()), args=[], keywords=[]))), If(test=Name(id='approved_ids', ctx=Load()), body=[ImportFrom(module='app.application.travellers.history_schedule', names=[alias(name='schedule_submission_history')], level=0), ImportFrom(module='app.application.travellers.snapshot_access', names=[alias(name='sync_approved_snapshot_participations')], level=0), Expr(value=Await(value=Call(func=Name(id='schedule_submission_history', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[keyword(arg='agency_id', value=Attribute(value=Name(id='group', ctx=Load()), attr='agency_id', ctx=Load())), keyword(arg='group_id', value=Name(id='group_id', ctx=Load())), keyword(arg='trigger', value=Constant(value='bulk_staff_approval'))]))), Expr(value=Await(value=Call(func=Name(id='sync_approved_snapshot_participations', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[keyword(arg='agency_id', value=Attribute(value=Name(id='group', ctx=Load()), attr='agency_id', ctx=Load())), keyword(arg='group_id', value=Name(id='group_id', ctx=Load())), keyword(arg='sources', value=Name(id='models', ctx=Load())), keyword(arg='approved_ids', value=Name(id='approved_ids', ctx=Load()))]))), Expr(value=Await(value=Call(func=Name(id='ensure_approved_passenger_qrs', ctx=Load()), args=[Name(id='session', ctx=Load()), Name(id='approved_ids', ctx=Load())], keywords=[keyword(arg='created_by_user_id', value=Attribute(value=Name(id='actor', ctx=Load()), attr='id', ctx=Load()))]))), Expr(value=Await(value=Call(func=Name(id='propagate_mobile_passenger_change', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[keyword(arg='agency_id', value=Attribute(value=Name(id='group', ctx=Load()), attr='agency_id', ctx=Load())), keyword(arg='group_id', value=Name(id='group_id', ctx=Load())), keyword(arg='passenger_submission_ids', value=Name(id='approved_ids', ctx=Load())), keyword(arg='actor_user_id', value=Attribute(value=Name(id='actor', ctx=Load()), attr='id', ctx=Load()))])))], orelse=[]), Expr(value=Await(value=Call(func=Attribute(value=Name(id='session', ctx=Load()), attr='commit', ctx=Load()), args=[], keywords=[])))], handlers=[ExceptHandler(type=Name(id='Exception', ctx=Load()), body=[Expr(value=Await(value=Call(func=Attribute(value=Name(id='session', ctx=Load()), attr='rollback', ctx=Load()), args=[], keywords=[]))), Expr(value=Call(func=Name(id='record_operational_event', ctx=Load()), args=[Attribute(value=Name(id='OperationalEvent', ctx=Load()), attr='STAFF_APPROVAL', ctx=Load()), Constant(value='unexpected_failure')], keywords=[keyword(arg='amount', value=Call(func=Name(id='len', ctx=Load()), args=[Name(id='requested_ids', ctx=Load())], keywords=[]))])), Raise()])], orelse=[], finalbody=[]), Assign(targets=[Subscript(value=Attribute(value=Name(id='response', ctx=Load()), attr='headers', ctx=Load()), slice=Constant(value='Cache-Control'), ctx=Store())], value=Constant(value='no-store')), If(test=Name(id='approved_ids', ctx=Load()), body=[Expr(value=Call(func=Name(id='record_operational_event', ctx=Load()), args=[Attribute(value=Name(id='OperationalEvent', ctx=Load()), attr='STAFF_APPROVAL', ctx=Load()), Constant(value='approved')], keywords=[keyword(arg='amount', value=Call(func=Name(id='len', ctx=Load()), args=[Name(id='approved_ids', ctx=Load())], keywords=[]))]))], orelse=[]), If(test=Name(id='already_approved_ids', ctx=Load()), body=[Expr(value=Call(func=Name(id='record_operational_event', ctx=Load()), args=[Attribute(value=Name(id='OperationalEvent', ctx=Load()), attr='STAFF_APPROVAL', ctx=Load()), Constant(value='already_approved')], keywords=[keyword(arg='amount', value=Call(func=Name(id='len', ctx=Load()), args=[Name(id='already_approved_ids', ctx=Load())], keywords=[]))]))], orelse=[]), If(test=Name(id='skipped', ctx=Load()), body=[Expr(value=Call(func=Name(id='record_operational_event', ctx=Load()), args=[Attribute(value=Name(id='OperationalEvent', ctx=Load()), attr='STAFF_APPROVAL', ctx=Load()), Constant(value='skipped')], keywords=[keyword(arg='amount', value=Call(func=Name(id='len', ctx=Load()), args=[Name(id='skipped', ctx=Load())], keywords=[]))]))], orelse=[]), Return(value=Call(func=Name(id='BulkStaffApprovePassportSubmissionsResponse', ctx=Load()), args=[], keywords=[keyword(arg='requested_count', value=Call(func=Name(id='len', ctx=Load()), args=[Name(id='requested_ids', ctx=Load())], keywords=[])), keyword(arg='approved_count', value=Call(func=Name(id='len', ctx=Load()), args=[Name(id='approved_ids', ctx=Load())], keywords=[])), keyword(arg='already_approved_count', value=Call(func=Name(id='len', ctx=Load()), args=[Name(id='already_approved_ids', ctx=Load())], keywords=[])), keyword(arg='skipped_count', value=Call(func=Name(id='len', ctx=Load()), args=[Name(id='skipped', ctx=Load())], keywords=[])), keyword(arg='approved_submission_ids', value=Name(id='approved_ids', ctx=Load())), keyword(arg='already_approved_submission_ids', value=Name(id='already_approved_ids', ctx=Load())), keyword(arg='skipped_submissions', value=Name(id='skipped', ctx=Load()))]))], decorator_list=[Call(func=Attribute(value=Name(id='router', ctx=Load()), attr='post', ctx=Load()), args=[Constant(value='/groups/{group_id}/bulk-staff-approve')], keywords=[keyword(arg='response_model', value=Name(id='BulkStaffApprovePassportSubmissionsResponse', ctx=Load())), keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_200_OK', ctx=Load())), keyword(arg='summary', value=Constant(value='Staff approve selected completed passport submissions'))])], returns=Name(id='BulkStaffApprovePassportSubmissionsResponse', ctx=Load()))",
+      "signature": "(group_id: 'uuid.UUID', body: 'BulkStaffApprovePassportSubmissionsRequest', response: 'Response', _csrf: 'None' = Depends(dependency=<function require_cookie_csrf at 0x000001F5256F59E0>, use_cache=True, scope=None), current_user: 'User' = Depends(dependency=<function get_current_active_user at 0x000001F5256F60C0>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x000001F5240731A0>, use_cache=True, scope=None)) -> 'BulkStaffApprovePassportSubmissionsResponse'",
+      "hints": {
+        "group_id": "<class 'uuid.UUID'>",
+        "body": "<class 'app.presentation.api.v1.schemas.passport_schemas.BulkStaffApprovePassportSubmissionsRequest'>",
+        "response": "<class 'starlette.responses.Response'>",
+        "_csrf": "<class 'NoneType'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "return": "<class 'app.presentation.api.v1.schemas.passport_schemas.BulkStaffApprovePassportSubmissionsResponse'>"
+      },
+      "module": "app.presentation.api.v1.routes.passport_routes.bulk_actions",
+      "qualname": "bulk_staff_approve_passport_submissions",
+      "pickle_hex": "8004956b000000000000008c3b6170702e70726573656e746174696f6e2e6170692e76312e726f757465732e70617373706f72745f726f757465732e62756c6b5f616374696f6e73948c2762756c6b5f73746166665f617070726f76655f70617373706f72745f7375626d697373696f6e739493942e"
+    }
+  },
+  "logger_factory_name": [
+    "app.presentation.api.v1.routes.passport_routes.bulk_actions"
+  ]
+}

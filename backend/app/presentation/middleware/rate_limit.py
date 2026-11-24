@@ -30,6 +30,11 @@ from app.infrastructure.observability.operational_events import (
     OperationalEvent,
     record_operational_event,
 )
+from app.presentation.middleware.local_rate_limit import (
+    consume_bucket,
+    discard_expired,
+    increment_window,
+)
 from app.presentation.security.client_ip import trusted_client_ip
 
 logger = get_logger(__name__)
@@ -125,7 +130,7 @@ class _AsyncRateLimitRedis(Protocol):
 
 class RateLimitMiddleware(BaseHTTPMiddleware):
     _local_counts: dict[str, tuple[int, float]] = defaultdict(lambda: (0, 0.0))
-    _local_token_buckets: dict[str, tuple[float, float]] = {}
+    _local_token_buckets: dict[str, tuple[float, float, float]] = {}
 
     def __init__(
         self,
@@ -141,6 +146,8 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         self._window_seconds = window_seconds
         self._key_secret = self._settings.app_secret_key.encode("utf-8")
         self._redis: _AsyncRateLimitRedis | None = redis_client
+        self._next_local_window_cleanup_at = 0.0
+        self._next_local_bucket_cleanup_at = 0.0
         if initialize_redis and self._redis is None and self._has_enabled_policy():
             try:
                 self._redis = cast(
@@ -590,14 +597,13 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
         if require_distributed:
             raise _RateLimitBackendUnavailable
-        count, expires_at = self._local_counts[key]
         now = time.time()
-        if now > expires_at:
-            count = 0
-            expires_at = now + self._window_seconds
-        count += 1
-        self._local_counts[key] = (count, expires_at)
-        return count
+        if now >= self._next_local_window_cleanup_at:
+            discard_expired(self._local_counts, now=now)
+            self._next_local_window_cleanup_at = now + self._window_seconds
+        return increment_window(
+            self._local_counts, key, now=now, window_seconds=self._window_seconds,
+        )
 
     async def _consume_token_bucket(
         self,
@@ -635,23 +641,14 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             raise _RateLimitBackendUnavailable
 
         now = time.monotonic()
-        tokens, updated_at = self._local_token_buckets.get(
-            key,
-            (float(capacity), now),
+        if now >= self._next_local_bucket_cleanup_at:
+            discard_expired(self._local_token_buckets, now=now)
+            self._next_local_bucket_cleanup_at = now + 60
+        return consume_bucket(
+            self._local_token_buckets, key, now=now,
+            refill_per_second=refill_per_second, capacity=capacity,
+            ttl_seconds=ttl_ms / 1000,
         )
-        tokens = min(
-            float(capacity),
-            tokens + (max(0.0, now - updated_at) * refill_per_second),
-        )
-        if tokens >= 1:
-            tokens -= 1
-            allowed = True
-            retry_ms = 0
-        else:
-            allowed = False
-            retry_ms = math.ceil(((1 - tokens) / refill_per_second) * 1000)
-        self._local_token_buckets[key] = (tokens, now)
-        return allowed, max(0, math.floor(tokens)), retry_ms
 
     def _error_response(
         self,

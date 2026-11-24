@@ -1,0 +1,19 @@
+.F                                                                       [100%]
+================================== FAILURES ===================================
+_ test_manager_projection_does_not_rescan_every_membership_for_every_group_and_account _
+
+    @pytest.mark.asyncio
+    async def test_manager_projection_does_not_rescan_every_membership_for_every_group_and_account() -> None:
+        session, actor, _, _, _, reads = _fixture()
+        response = await list_managers(current_user=actor, session=session)  # type: ignore[arg-type]
+    
+        assert len(response) == 12
+        assert sum(len(row.assigned_groups) for row in response) == 240
+        assert session.execute.await_count == 4
+>       assert reads[0] <= 3000
+E       assert 460800 <= 3000
+
+tests\unit\presentation\test_admin_account_projection.py:97: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/unit/presentation/test_admin_account_projection.py::test_manager_projection_does_not_rescan_every_membership_for_every_group_and_account
+1 failed, 1 passed in 0.58s

@@ -105,14 +105,20 @@ export function DocumentWorkspaceReviewRows({
                       key={document.id}
                       className="flex min-h-16 flex-col justify-center py-2 first:pt-0 last:pb-0"
                     >
-                      <a
-                        href={document.url ?? "#"}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="break-words font-medium text-blue-700 hover:underline"
-                      >
-                        {document.original_filename}
-                      </a>
+                      {document.url ? (
+                        <a
+                          href={document.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="break-words font-medium text-blue-700 hover:underline"
+                        >
+                          {document.original_filename}
+                        </a>
+                      ) : (
+                        <span className="break-words font-medium text-slate-700">
+                          {document.original_filename}
+                        </span>
+                      )}
                       <div className="mt-1 text-xs text-slate-500">
                         {document.source === "email" ? "Saved from email" : "Manual upload"}
                       </div>

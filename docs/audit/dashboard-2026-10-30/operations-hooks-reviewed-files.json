@@ -1,0 +1,239 @@
+{
+  "method": "Actual complete physical reads/authored source; compiler resolver/binding proof supplements manual source review. Earlier pre-retirement receipts remain historical.",
+  "files": [
+    {
+      "path": "frontend/features/operations/hooks/use-operations.ts",
+      "sha256": "ed01bed0cc2068dba015ab4db3735d8aefc145fe597fcf76266e60117806de54",
+      "physical_lines": 34,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full original752line/current source read; explicit compatibility facade retains34 live public named exports in exact original order. Seven source-closed wrappers retired after compiler graph trace."
+    },
+    {
+      "path": "frontend/features/operations/hooks/operations-query-scope.ts",
+      "sha256": "adfc24aed6799d2e4a90873a0c8a606f65837262696373527f19cb28801ea0d3",
+      "physical_lines": 18,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full shared query-key/scope source read;5 complete declarations exact except required internal export modifiers. Original authority/session key semantics and compatibility invalidation families retained."
+    },
+    {
+      "path": "frontend/features/operations/hooks/use-admin-operations.ts",
+      "sha256": "0e8fa6c9c7257a547c5cb926b8dd2d3ba7c660e41e84f65cc2ffbcde64612017",
+      "physical_lines": 43,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full admin query/manager write source read. Actual normal manager page+real transport adapter queued-start regression fixed by shared original-invocation owner wrapper. Two closed old hooks retired; API unchanged."
+    },
+    {
+      "path": "frontend/features/operations/hooks/use-managed-accounts.ts",
+      "sha256": "d583388a7df8ccd52e9a2cc9a7f0cbce629ac3e14745146f26b944cf4bdd3428",
+      "physical_lines": 83,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full staff-access and managed-account action source read; exact query/cache invalidation bodies preserved with original-owner mutation boundary. Closed duplicate old list wrappers retired; current staff-access consumer retained."
+    },
+    {
+      "path": "frontend/features/operations/hooks/use-audit-operations.ts",
+      "sha256": "8d35da695fd6c42f5eb14b33d8e4dbd6147dc2e036cea09a6ec95456ab836878",
+      "physical_lines": 40,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full analytics/paged audit/export source read. Original keyset cancellation/filter/abort behavior preserved. Existing audit export caller aborts on unmount/session renewal; no independent disclosure finding claimed."
+    },
+    {
+      "path": "frontend/features/operations/hooks/use-tour-operations.ts",
+      "sha256": "32b70b61571799449729df1c047fcf5e0c4b0dd1f7514406d1aee9c4bc3786c6",
+      "physical_lines": 78,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full coordinator/current-trip and passenger assignment source read; eligibility60s refresh, default broad historical listing and invalidation preserved. Closed architecture query hook retired; API retained."
+    },
+    {
+      "path": "frontend/features/operations/hooks/use-rooming-operations.ts",
+      "sha256": "1e88312fb79c8a35533d1e49ae5f66acb58ccded86d8fd14142d745190e31c96",
+      "physical_lines": 161,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full revision-aware rooming queries/actions source read; complete typed bodies exact after wrapper substitution, including live workspace checks, expected revisions, partial merge/error invalidation and original action set."
+    },
+    {
+      "path": "frontend/features/operations/hooks/use-coordinator-attendance.ts",
+      "sha256": "63fdbbe328ac43ec6ee30cc0da90265925c0ad7fa5a94a52a3f98ac4a161b885",
+      "physical_lines": 73,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full coordinator query/hint/repair schedule source read; enabled/scope/staleTime and cleanup exact. Unused single-scan hook retired; directly used queue SDK scan method unchanged."
+    },
+    {
+      "path": "frontend/features/operations/hooks/use-managed-attendance.ts",
+      "sha256": "3a5fb7519b6723e75af960e4f55ad3a3e1a9936aac7ff1daaf87abfd24b27138",
+      "physical_lines": 146,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full office session mutation/ETag summary/missing-cursor source read; hint publication/current revision/authority-key/pagination and cancellation preserved. Closed old overview hook retired; API kept."
+    },
+    {
+      "path": "frontend/features/operations/hooks/use-qr-operations.ts",
+      "sha256": "57ebf8d819185b834a4846353e776687cddbec5a626a56828d3db880bb948adb",
+      "physical_lines": 73,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full QR lifecycle/delivery source read; original refresh/expiry/passenger invalidation/preview interval preserved; original-owner queue boundary added without DTO or endpoint changes."
+    },
+    {
+      "path": "frontend/features/operations/hooks/use-operations-mutations.test.tsx",
+      "sha256": "5613b7b988c29c5486702e0c9bc104f45f650a26d9f828c01c34526854bc5a4d",
+      "physical_lines": 145,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full authored/read actual hook/component negative and same-authority controls, preserving public variables/callback/reset semantics. No live backend/provider/browser claim."
+    },
+    {
+      "path": "frontend/features/operations/hooks/use-operations-authority.test.tsx",
+      "sha256": "a123d10f011fc844ac39a7fd557bcfee6f1ff9afc6a02cb2ea3657002b1a4ad4",
+      "physical_lines": 53,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full authored/read actual hook/component negative and same-authority controls, preserving public variables/callback/reset semantics. No live backend/provider/browser claim."
+    },
+    {
+      "path": "frontend/features/operations/test-support/operations-authority.test-fixture.tsx",
+      "sha256": "1db836ce9fb25305cb5e3509c2ae2d99b0d5af4f550b2770575c7d8168beb641",
+      "physical_lines": 60,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full authored/read synthetic fixture. Real AuthenticatedContent remount, SessionLifecycle reset, manager page, API and owner-bound Axios adapter; only final network delegate is synthetic. Closed test-only caller chain."
+    },
+    {
+      "path": "frontend/features/operations/hooks/operations-source.contract-helper.mjs",
+      "sha256": "0bb5f123e91f48c2f8eeaef75c8dc85b5e60a8c17aff4468b300154f7323ef6c",
+      "physical_lines": 27,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full authored/read helper verifies actual facade named exports, real owned declarations/shared scope and26 private calls; no historical source injection."
+    },
+    {
+      "path": "frontend/features/operations/components/qr-whatsapp-delivery.contract.test.mjs",
+      "sha256": "5f8bfd77df280809db9b8ecf480344fbfef093c885ec2b3f01f417fd33adc923",
+      "physical_lines": 33,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full original/current contract read; actual moved-source loader only except deliberately stronger rooming forbidden-action guard under both mutation wrapper names. All other test bodies exact."
+    },
+    {
+      "path": "frontend/features/operations/components/rooming-redesign.contract.test.mjs",
+      "sha256": "40df551f8b283191ad66d70dd6c628b54551c6cad46857b08ab5f21ad46007d9",
+      "physical_lines": 232,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full original/current contract read; actual moved-source loader only except deliberately stronger rooming forbidden-action guard under both mutation wrapper names. All other test bodies exact."
+    },
+    {
+      "path": "frontend/features/operations/components/managed-accounts-panel.contract.test.mjs",
+      "sha256": "e074de6c2492395722231bdb42daa27e871e455b6a2c670017f2f15c56c8e49d",
+      "physical_lines": 22,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full original/current contract read; actual moved-source loader only except deliberately stronger rooming forbidden-action guard under both mutation wrapper names. All other test bodies exact."
+    },
+    {
+      "path": "frontend/features/tour-operations/components/coordinator-pwa.contract.test.mjs",
+      "sha256": "3c2c3e2ce06786caf3783fdd3427b63d150ed8c4679df57be5e0bb925a9f1b7b",
+      "physical_lines": 449,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-improved",
+      "notes": "Full original/current contract read; actual moved-source loader only except deliberately stronger rooming forbidden-action guard under both mutation wrapper names. All other test bodies exact."
+    },
+    {
+      "path": "frontend/features/operations/api/operations.api.ts",
+      "sha256": "7a686e1546a5235b19567421afc23c8bce0cccd550f5f619208e807b67da677d",
+      "physical_lines": 1200,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full1200line physical source read and byte-identical fence; synchronous single-request methods bind adapter before first await. API/type catalog multi-domain architecture remains a separate OPEN follow-up; hook split does not resolve it."
+    },
+    {
+      "path": "frontend/features/operations/api/operations-attendance.api.test.ts",
+      "sha256": "d52ec717a9124df96e78ae8c0d8039b31680c39e81e2ec22528cb595e2cae8b2",
+      "physical_lines": 189,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full physical source read; retained ordered scan events, explicit owner metadata outside payload, count-only closeout owner, ETag identity, bounded missing cursor/search/revision/abort and audit filter/cancellation assertions."
+    },
+    {
+      "path": "frontend/features/operations/api/operations-tour-groups.api.test.ts",
+      "sha256": "17a9ab5d14df001d1e664ca6b96d4ade2e3b6ee17289e161e2cc072fff209a16",
+      "physical_lines": 22,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full physical source read; current assignment-eligible trip query and broader default historical-list contracts retained."
+    },
+    {
+      "path": "frontend/features/operations/components/manager-administration/manager-administration-page.tsx",
+      "sha256": "b1d4b802eae999dd6dbc7a89c59b49f9039651768584adc7c76bbf14c4cf1f41",
+      "physical_lines": 197,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full physical source read of actual manager query/mutation/form/open/close/invitation normal caller. Runtime unchanged."
+    },
+    {
+      "path": "frontend/features/operations/components/manager-administration/create-manager-dialog.tsx",
+      "sha256": "fd1b695d3cde868a3dbf647cce6df24a9e54de38d6e7c6e156f2d22de303b926",
+      "physical_lines": 94,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full physical source read; actual required form labels and submit/pending control semantics, unchanged."
+    },
+    {
+      "path": "frontend/features/operations/components/manager-administration/manager-invitation-dialog.tsx",
+      "sha256": "9e7f790e9690f0e622ce074f748dadc26898667217ca0b9203adf9cc65b38596",
+      "physical_lines": 68,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full physical source read; synthetic invitation control uses actual dialog/copy behavior; no private provider delivery."
+    },
+    {
+      "path": "frontend/features/operations/components/manager-administration/manager-administration.test.tsx",
+      "sha256": "b4d76eb7000384c9dbb322a6fafac94c38e4d35b1741ec08e0fcd08592ac3a35",
+      "physical_lines": 81,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full physical source read; retained original current manager invitation, validation/role and deletion workflow checks."
+    },
+    {
+      "path": "frontend/app/(dashboard)/admin/page.tsx",
+      "sha256": "b3c333af6550b65ba72411c1280b9e88258fad4e48600ca5e85cf4651dcf4270",
+      "physical_lines": 3,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full physical route wrapper read; actual manager/managed account/audit route reachability traced."
+    }
+  ]
+}

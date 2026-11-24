@@ -1,0 +1,28 @@
+{
+  "status": "read-only source review continues; first cohort sealed",
+  "selection": "published-migration-selection.json",
+  "source_migrations": 142,
+  "source_lines": 17656,
+  "newly_full_read_migrations": 12,
+  "newly_full_read_migration_lines": 900,
+  "prior_current_full_migrations": 2,
+  "total_current_full_migrations": 14,
+  "remaining_unread_source_migrations": 128,
+  "remaining_retained_sources_before_mobile_scope_partition": 126,
+  "user_deferred_inbox_migrations": 2,
+  "mobile_only_scope_partition": "provisional, not counted as complete",
+  "current_hash_ledger": {
+    "path": "docs/audit/dashboard-2026-10-30/published-migration-cohort-01-reviewed-files.json",
+    "sha256": "af97c1c37a3274f6b218ac64dcf9b4c16eb2722ee1f4cd560469ae893886425e"
+  },
+  "findings": {
+    "path": "docs/audit/dashboard-2026-10-30/published-migration-cohort-01-findings.json",
+    "sha256": "a5e6464d8a47a7df15643ca528d2a7c2767c23a08c2815e74fa904f244cbfbe8"
+  },
+  "template_fix": {
+    "path": "docs/audit/dashboard-2026-10-30/migration-template-verification.json",
+    "sha256": "1e2ac8f75893cc9c0ac6ea39cf11da9d622bd25f805f13566baac4e5b6397f18"
+  },
+  "pre_seal_arithmetic_correction": "First12 actual source lines total900, not1000 in initial informal update/aborted ledger writer; no source-read rows or hashes changed.",
+  "notes": "Counts are source files, not an active-work denominator;2remainingInbox migrations explicitlydeferred, clearlymobile domains stillto be separated. No duplicatedpriorfull credit, no serviceproof."
+}

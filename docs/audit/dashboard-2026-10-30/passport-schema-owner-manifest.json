@@ -1,0 +1,95 @@
+[
+  {
+    "path": "backend/app/presentation/api/v1/schemas/passport_editing_schemas.py",
+    "declarations": [
+      "PassportImageTypeValue",
+      "PassportImageCropCoordinates",
+      "PassportImageCropUpdateRequest",
+      "PassportImageCropResetRequest",
+      "PassportImageCropResponse",
+      "PassportVisaAiPreviewRequest",
+      "PassportVisaAiImageResponse",
+      "PassportVisaAiImageListResponse",
+      "PassportVisaAiImageJobResponse",
+      "PassportVisaAiImageUseRequest"
+    ]
+  },
+  {
+    "path": "backend/app/presentation/api/v1/schemas/passport_collection_schemas.py",
+    "declarations": [
+      "ConfirmPassportSubmissionRequest",
+      "StaffApprovePassportRequest",
+      "ClientSubmitPassportRequest",
+      "ClientCustomAnswerRequest",
+      "ClientCustomDetailAnswerRequest",
+      "ReconcilePassportUploadRequest",
+      "ReconcilePassportUploadResponse"
+    ]
+  },
+  {
+    "path": "backend/app/presentation/api/v1/schemas/passport_bulk_schemas.py",
+    "declarations": [
+      "ExportSelectedPassportsRequest",
+      "ExportSelectedPassportImagesRequest",
+      "BulkDocumentFollowUpRequest",
+      "BulkDocumentFollowUpResponse",
+      "BulkDeletePassportSubmissionsRequest",
+      "BulkDeletePassportSubmissionsResponse",
+      "BulkStaffApprovePassportSelection",
+      "BulkStaffApprovePassportSubmissionsRequest",
+      "BulkStaffApproveSkippedSubmission",
+      "BulkStaffApprovePassportSubmissionsResponse",
+      "ExportSelectedGroupsRequest"
+    ]
+  },
+  {
+    "path": "backend/app/presentation/api/v1/schemas/passport_export_schemas.py",
+    "declarations": [
+      "PassportExportHistoryItemResponse",
+      "PassportExportHistoryListResponse",
+      "PassportExportHistorySubmissionResponse",
+      "PassportExportHistoryDetailResponse",
+      "PassportExportHistoryCompletionResponse",
+      "PassportExportFieldOptionResponse",
+      "PassportExportGroupingOptionResponse",
+      "PassportExportFieldOptionsResponse",
+      "PassportSelectedGroupsExportFieldOptionsResponse"
+    ]
+  },
+  {
+    "path": "backend/app/presentation/api/v1/schemas/passport_document_schemas.py",
+    "declarations": [
+      "ImportPassportGroupResponse",
+      "PassportDocumentImportItem",
+      "PassportDocumentImportPreviewResponse",
+      "PassportDocumentImportSaveResponse",
+      "PassengerQrStatusResponse",
+      "PassportExtractionConflictResponse"
+    ]
+  },
+  {
+    "path": "backend/app/presentation/api/v1/schemas/passport_verification_schemas.py",
+    "declarations": [
+      "PassportVerificationFieldName",
+      "PostSubmissionFieldOutcomeResponse",
+      "PostSubmissionVerificationResponse"
+    ]
+  },
+  {
+    "path": "backend/app/presentation/api/v1/schemas/passport_view_schemas.py",
+    "declarations": [
+      "PassportSubmissionResponse",
+      "PassportSubmissionViewItemResponse",
+      "PassportSubmissionSelectionSnapshotResponse",
+      "PassportExpiryAlertResponse",
+      "PassportDuplicateClusterPageResponse",
+      "PassportSubmissionsViewResponse"
+    ]
+  },
+  {
+    "path": "backend/app/presentation/api/v1/schemas/passport_summary_schemas.py",
+    "declarations": [
+      "PassportGroupSummaryResponse"
+    ]
+  }
+]

@@ -1,0 +1,15 @@
+{
+  "status": "source-verified prose correction only",
+  "before_sha256": "02eadb99ed705b61dd71835669adec9736de81c7956c4f692aff7deda8f154ce",
+  "after_sha256": "ce11f39d6b691a9ed95b7a1a41757aa9fb65361b34c2d445914ead231b91d27c",
+  "exact_prose_replacements": 2,
+  "all_other_normalized_text_exact": true,
+  "all_fenced_command_blocks_exact": true,
+  "basis": [
+    "Current synthetic seed emits browser fixture MFA secrets and QR payloads",
+    "Current full-stack contracts use private S3-compatible storage"
+  ],
+  "limits": [
+    "No services, seed, credentials, browser or runtime checks executed for documentation"
+  ]
+}

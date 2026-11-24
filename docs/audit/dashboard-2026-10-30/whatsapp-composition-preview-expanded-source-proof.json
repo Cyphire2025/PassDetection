@@ -1,0 +1,54 @@
+{
+  "original_current_composer_sha256": "2979e690f4aac0945b54ed366e5a85c12d6d9a4350416b7c85d0e5a5a3daee31",
+  "whole_support_functions_and_class_ast_exact": [
+    "_WhatsAppComposerSnapshot",
+    "_as_message_type",
+    "_resolve_message_content",
+    "_resolve_send_message_content",
+    "_resolve_passport_intro",
+    "_resolve_send_passport_intro",
+    "_resolve_send_header_image",
+    "_validate_passport_link",
+    "_validate_group_invite_link",
+    "_resolve_message_links",
+    "_preview_message_metadata",
+    "_snapshot_template_language",
+    "_message_values",
+    "_split_rendered_support_block",
+    "_decode_legacy_template_snapshot",
+    "_template_snapshot_from_log",
+    "_composer_snapshot_from_log",
+    "_latest_composer_snapshot",
+    "_merge_composer_snapshot"
+  ],
+  "whole_current_authorized_media_declaration_ast_exact": true,
+  "complete_preview_expanded_ast_exact": true,
+  "purpose_data_fields": {
+    "PreviewSelection": [
+      "group",
+      "source_recipients",
+      "audience_resolution",
+      "recipients",
+      "recipient",
+      "message_type"
+    ],
+    "PreviewSavedSnapshot": [
+      "snapshot",
+      "content_source",
+      "target_state"
+    ]
+  },
+  "explicit_new_bookkeeping": "Snapshot record initializes optional target_state=None only for the branch where the original code never reads that local. Initialization is pure; the exact old snapshot statements and all conditional reads remain unchanged.",
+  "router_wiring": "Public facade includes whole media router before its preview declaration, preserving original2route order and all role/CSRF/default dependency objects.",
+  "source": {
+    "backend/app/presentation/api/v1/routes/whatsapp_composer.py": "8ffe7f51d1bf42bf82a3d2df3b17e45283dd98b0432c45cc860d65f5a5f920b2",
+    "backend/app/presentation/api/v1/routes/whatsapp_composer_content.py": "920f7c816e41d3726049ff7dbb973d741a21d20602ca6ca87ecb8f3273449bf8",
+    "backend/app/presentation/api/v1/routes/whatsapp_composer_legacy.py": "01c45bce092c04f6e8a1b581d2bd60583ef9e5b5cc393494225c94e2936a8c27",
+    "backend/app/presentation/api/v1/routes/whatsapp_composer_media.py": "76be5978b5a0dc68cbc04bbc5746187b0991a70e9df30b04334bb9ba068c2d12",
+    "backend/app/presentation/api/v1/routes/whatsapp_composer_preview.py": "e46be0a3c2166c1650c52591852ce33589e3a030edd3c6fd7d7089618ee8ff1e",
+    "backend/app/presentation/api/v1/routes/whatsapp_composer_preview_response.py": "2ba3704eb3085a3c59a8f85b1326add1cca81a72e905cd09237a86c33901e957",
+    "backend/app/presentation/api/v1/routes/whatsapp_composer_rendering.py": "f28546ca8349a35fb307ee04fdd330a84f5eeb94b117042c80ef5d8009893784",
+    "backend/app/presentation/api/v1/routes/whatsapp_composer_snapshots.py": "cd0995a829e55ee8e02a15357a05c6cb0a88361e51a0fe75842eb197d81e46ca",
+    "backend/app/presentation/api/v1/routes/whatsapp_composer_support.py": "1bdaa9f902ea5054f80cb1edf701720a63f461cfa5cb5efcf922073fccb20fca"
+  }
+}

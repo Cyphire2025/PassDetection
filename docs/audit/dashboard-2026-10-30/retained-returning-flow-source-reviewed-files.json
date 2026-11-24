@@ -1,0 +1,149 @@
+{
+  "files": [
+    {
+      "path": "backend/tests/integration/test_returning_company_inheritance.py",
+      "sha256": "0061ae463f4489bf21b762db55d63eb254c45e99b1ca13d564797b181aafbc06",
+      "physical_lines": 57,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete57-line physical read. Attached roster inherits company closed reuse only while link/policy/current matched membership exists; unmatched person denied and explicit legacy open no-broadcast configuration retained. Whole active_scope/eligible_person function slices read; no WhatsApp/provider actions."
+    },
+    {
+      "path": "backend/tests/integration/test_returning_completion.py",
+      "sha256": "899766b271b0e16ff67babf2e4a647fc1667006ab04ecc0d6d956eddae534a24",
+      "physical_lines": 167,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete167-line physical read. Same-trip immutable accepted snapshots, one source/participation idempotent completion, current requirement/review/participation checks, custom details/phone policy, suitability/retention and past-trip rejection. Actual entire complete_reuse function traced; synthetic encrypted fixtures not production data."
+    },
+    {
+      "path": "backend/tests/integration/test_returning_contact_change.py",
+      "sha256": "dc72f0508854e33168827ae40e8067625a16b22a86590d8410564b39ad6a0941",
+      "physical_lines": 178,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete178-line physical read. OTP commit-gap retry stages once, promotion only final Submit, selected-person future binding and family grant isolation, no attempt/TTL reset, foreign grant rejection and refreshed source/profile/contact/expiry authority. Whole contact issuance/staging owners read; synthetic provider only source assertions, no sends or executed validation."
+    },
+    {
+      "path": "backend/tests/integration/test_returning_contact_scope.py",
+      "sha256": "ad0641f52e19beb95b9039eabbb01beea8f414b7b55cb7c5c931770ea3d8feeb",
+      "physical_lines": 196,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete196-line physical read. Current vs historical phone lookup/recovery proof, frozen previous trip/broadcast tables, future automatic vs invited current snapshot update, local-midnight cutoff and person-only contact revision. Provider counts describe synthetic fixtures, not provider calls performed; no cache/workflow edits."
+    },
+    {
+      "path": "backend/tests/integration/test_returning_document_controls.py",
+      "sha256": "b9345ef1bd2985d5ecefc19df7e86439da686b7ca153806499d3eca1b4384eb9",
+      "physical_lines": 73,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete73-line physical read (explicit smaller reread after combined output truncation). Same-person alternate passport selection/current review version, future default unchanged, foreign selection denied and lost-document authority revocation/change event. Whole selection/block owners traced, no storage/native implementation mutation."
+    },
+    {
+      "path": "backend/tests/integration/test_returning_draft_collection.py",
+      "sha256": "76d6a949afd0d7c4fbfa8d1b95dcd5c8eee227bbcae14921624d42afc48b1df5",
+      "physical_lines": 151,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete151-line physical read (explicit full smaller reread resolves truncated import/source region). Fresh web photo/capture-method and qualifier collection retains unchanged passport and still requires suitability/current requested pages/valid same-group qualifier, optional flags honored. Existing synthetic bytes/memory storage, no image/native/provider processing run."
+    },
+    {
+      "path": "backend/tests/integration/test_returning_http_flow.py",
+      "sha256": "a5c0f640999db7b033b0f1be3aae9296df27eee65102db94868c0b48a701b063",
+      "physical_lines": 88,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete88-line physical read. Retained public web three-entry cookie-bound flow, HttpOnly/Strict/scoped bearer, no preauthorization history/candidate leakage, same-person private object with origin denial, no-store and audit PII exclusion. Actual current cookie/origin/private document route owners read; ASGI/storage/source assertions not passing service/browser claim."
+    },
+    {
+      "path": "backend/app/application/travellers/passport_selection.py",
+      "sha256": "761d11063f9b673c51ef3140e03d15397121fa1861ebb2a155c38f8dec5a2dec",
+      "physical_lines": 40,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source physically read. Same-grant/current-group accepted passport selection and person/company-bound bounded listing; selection changes grant review evidence only, not future default."
+    },
+    {
+      "path": "backend/app/application/travellers/contact_change.py",
+      "sha256": "f5051d220373df7275ccff9209de293860eed25736b0798e96dd0edcd6f3e12e",
+      "physical_lines": 70,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source physically read. Current contact-change grant, normalized/scoped phone fingerprint, deterministic server-secret retry binding preserving attempts/expiry, current person revision copies, independently committed claim and resend-window handling. Shared OTP protocol import only; native provider implementation excluded."
+    },
+    {
+      "path": "backend/app/application/travellers/draft_contact.py",
+      "sha256": "a9773eb14f5646ec9e3dd747dbc6167716933556f53eca946b11f19f018ab3b9",
+      "physical_lines": 68,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source physically read. Draft/person/purpose provenance, independently committed OTP then reacquired draft/claim, stage-once revision and final staged evidence same-scope/current revision check. No contact promotion until completion."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/returning_history.py",
+      "sha256": "d8b0ef8add785c3738bf9f27bf38822eacabd1c0d14120a53a3383c0f6311d74",
+      "physical_lines": 63,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source physically read. Current grant/person/document revision/asset/retention authority before audit+commit/private bounded stream; no public URL, private headers and object metadata frozen before delivery. No live storage invocation."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/returning_dependencies.py",
+      "sha256": "66a1dceb02091608a1f37256d23b634e0aaf49cafd2f9d782e7b10447fbab9dd",
+      "physical_lines": 59,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source physically read. Returning web cookie names/path/secure/Strict/HttpOnly, mandatory origin and independent request/network quotas, canonical service dependency. Shared fresh-draft cookie selection is compatibility only; no native ingress."
+    },
+    {
+      "path": "backend/app/application/travellers/document_lifecycle.py",
+      "sha256": "b9adf24edb6d54101033112a7e689f6c7147dfd625359ca4dcef38f384b1fff5",
+      "physical_lines": 44,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source physically read. Dashboard explicit lost/cancelled/compromised marker with current scoped locked passport/revision, export invalidation, authorization/profile/document revision and metadata-only audit/change event. No deletion/provider action."
+    },
+    {
+      "path": "backend/app/application/travellers/completion.py",
+      "sha256": "ff83213778a3fef8585d6b8f5cd57670d45136883e29414761b66fb480f73446",
+      "physical_lines": 187,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical40-end complete complete_reuse function only; import/header prefix not reread. Current review/capabilities/requirements/owned-source, idempotency payload and current-trip source immutability/answer/publication/journal/commit timing traced. Complex existing function remains architecture follow-up; read claim does not close it."
+    },
+    {
+      "path": "backend/app/application/travellers/draft_completion.py",
+      "sha256": "e57cbbd30e03b3e009639bd37dc5b7b061f6af51160c217c951fc310ca6e6891",
+      "physical_lines": 186,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical123-end complete complete_draft orchestration only. Exact committed-receipt recovery, owned-source/review/revision, pending/current asset lock, purpose-specific changed/unchanged dispatch, contact promotion then receipt+commit. Other helpers/imports not reread/full credited."
+    },
+    {
+      "path": "backend/app/application/travellers/authority.py",
+      "sha256": "dcd35f002a1e29362ec8fd6857f128f181759ce68b960381ecb4aefbd579bead",
+      "physical_lines": 172,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical59-142 whole active_scope/check_claim_scope/eligible_person functions: group-before-company share lock, same-tenant company/policy/config, closed linked roster, current authority/retention and current participation. Accepted-document/catalog remainder not whole-file read."
+    }
+  ],
+  "scope": "Seven newly current-full returning web/dashboard test sources910lines; six whole supporting reads and three explicitly partial application slices. Source assertions only; native/Inbox excluded and frozen sources unchanged."
+}

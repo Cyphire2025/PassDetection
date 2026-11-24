@@ -1,0 +1,618 @@
+[
+  {
+    "path": "frontend/features/menu/components/meal-planner.tsx",
+    "status": "fixed",
+    "review_scope": "full",
+    "notes": "Full original1,079-line source read and responsibility extraction into164-line screen,292-line controller,260-line generator,239-line detail view,91-line meal slot and42-line formatting helper. Existing selection/action contracts retained; five new behavioral and five existing contracts pass.",
+    "sha256": "0b3e8fc45a6f4fcbe3953b6c1db8fda9f19c5e7c62cbaa2f45af1249975c2d1e"
+  },
+  {
+    "path": "frontend/features/menu/hooks/use-menu.ts",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Complete read: mutations obtain current query-cache revisions and category/dish/plan ownership before API requests, invalidate on settled outcomes and reconcile updated entries.",
+    "sha256": "75b255e8bf69685a78954310dd90fc9ec19a996428e6494a9d0df41ebd2fe433"
+  },
+  {
+    "path": "frontend/features/menu/utils/menu-errors.ts",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Complete read: typed UI error messages fall back to stable user-facing text.",
+    "sha256": "b84aac738756b2570b8fd81ca97cd339b486e5993f4807e3509675ac504ec446"
+  },
+  {
+    "path": "frontend/features/menu/api/menu.api.ts",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Full file read: versioned same-origin API registry, current revision envelopes for category/dish/plan mutations and shared bounded/cancellable download export retained.",
+    "sha256": "02263f3a5a00d7963389c4d57b4f56b38162d1fade2329fb5fb4364238b51699"
+  },
+  {
+    "path": "frontend/features/menu/components/menu-page.contract.test.mjs",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Complete read of existing navigation/API/revision and planner structural contracts before owner extraction. Behavioral workflow tests will supplement these contracts.",
+    "sha256": "bae26981b0e5358e821c0c6579427cfa1451f78ba89b1c600b74771f92027eff"
+  },
+  {
+    "path": "frontend/features/menu/components/generate-plan-dialog.tsx",
+    "status": "fixed",
+    "review_scope": "full",
+    "notes": "Full file review. Controlled generator form extracted without changing function body, focus boundary, shortage rules or pending-action controls.",
+    "sha256": "03987ee640b8b202333958c9ca90826e2ef20f16f7b8adbc438ab49091beda8c"
+  },
+  {
+    "path": "frontend/features/menu/components/meal-plan-details.tsx",
+    "status": "fixed",
+    "review_scope": "full",
+    "notes": "Full file review. Saved plan edit/action/day view extracted. Used-dish membership and category index are memoized by source data; per-entry category lookup now uses a Map.",
+    "sha256": "41fa26b3f122ec1e5879077620714807ea067c81fbcc2507d8dc8a69bd28a32f"
+  },
+  {
+    "path": "frontend/features/menu/components/meal-plan-slot.tsx",
+    "status": "fixed",
+    "review_scope": "full",
+    "notes": "Full file review. Meal selection view preserves current paused/removed dish projection and excludes used/paused alternatives. Category lookup uses the parent index rather than repeated linear scans.",
+    "sha256": "872885de49e36ce56bbcbe11f9613cc6cc7f39744464ed8ce5a446595d464454"
+  },
+  {
+    "path": "frontend/features/menu/hooks/use-meal-planner.ts",
+    "status": "fixed",
+    "review_scope": "full",
+    "notes": "Full file review. Workflow owner retains original async mutation/error/cancellation/selection statements, exposing controlled dialog/detail data to the screen. Current revision API hooks unchanged.",
+    "sha256": "948de19240fe50a1641e0982bb93efce70b962dc693f8ca1bdbad70767d19bf0"
+  },
+  {
+    "path": "frontend/features/menu/types/meal-planner.ts",
+    "status": "fixed",
+    "review_scope": "full",
+    "notes": "Full file review. Shared local edit and feedback value shapes only; no runtime authority or state storage.",
+    "sha256": "5490167150b5d123c8992f840b44b22ba1f0b3fe3846686fad0fdd42370df896"
+  },
+  {
+    "path": "frontend/features/menu/utils/meal-plan-format.ts",
+    "status": "fixed",
+    "review_scope": "full",
+    "notes": "Full file review. All three copied date, suggested-day and clipboard serialization function bodies are AST-identical to the reviewed original.",
+    "sha256": "321b9d8dcea7470cb215b972aaa47c3daf4bed93570da74eef773becc13ef791"
+  },
+  {
+    "path": "frontend/features/menu/components/meal-planner.test.tsx",
+    "status": "fixed",
+    "review_scope": "full",
+    "notes": "Full file review. Five UI behavior regressions cover generation payload/closure, shortage and selection admission, unused/current-paused choices, detail editing, quiet cancelled exports, failed deletion retry and removed-plan selection fallback.",
+    "sha256": "26a27535c192ee40e109543493df858c6c8c1edd17894bc087e898b66b3e4b77"
+  },
+  {
+    "path": "frontend/features/operations/components/rooming-passenger-hotel-allocation.tsx",
+    "status": "fixed",
+    "review_scope": "full",
+    "notes": "Full original 1,013-line file read. Replaced with 140-line composition over focused selection, filters/actions, grouping and paginated table owners. Every original state/mutation statement and five rendering helper bodies are AST-identical; six UI regressions pass.",
+    "sha256": "cec107a776e1788bc5f883c022488e7117d3a6e7567387e6fa3dfcf3515ac042"
+  },
+  {
+    "path": "frontend/features/operations/hooks/use-rooming-passenger-selection.ts",
+    "status": "fixed",
+    "review_scope": "full",
+    "notes": "Complete selection/filter/grouping and mutation state owner; current roster ID membership, scoped VIP selection, authorized field-value wait, pending controls and safe retry semantics retained. Original workflow statements are AST-identical.",
+    "sha256": "e89bc58a69a39a047ee0d8eda469845bab458f943bd31f5b77065962d7907fd5"
+  },
+  {
+    "path": "frontend/features/operations/components/rooming-roster-group.tsx",
+    "status": "fixed",
+    "review_scope": "full",
+    "notes": "Full file review. Group expansion/selection and mixed checkbox effects copied with unchanged function bodies; group controls preserve parent-held selections.",
+    "sha256": "612603a273c31ec70eba0b36a434c8838ceac666936255ce048e9daef4234709"
+  },
+  {
+    "path": "frontend/features/operations/components/rooming-roster-table.tsx",
+    "status": "fixed",
+    "review_scope": "full",
+    "notes": "Full file review. Paginated 50-row table, memoized passenger rows and gender normalizer copied with unchanged bodies; compatibility normalizer export remains at the original entry.",
+    "sha256": "b4244898d5ecef4a34eb181b512c88d4d17d70d4215255dd1cff65049d12ca46"
+  },
+  {
+    "path": "frontend/features/operations/components/rooming-roster-filters.tsx",
+    "status": "fixed",
+    "review_scope": "full",
+    "notes": "Full file review. Controlled search/status/grouping/value/sort views retain original markup and failure/loading admission. State remains in the selection owner.",
+    "sha256": "982955edb8e2563adac923ec421c223f21793ca47d041eee0f8e7ae965c98b0a"
+  },
+  {
+    "path": "frontend/features/operations/components/rooming-selection-actions.tsx",
+    "status": "fixed",
+    "review_scope": "full",
+    "notes": "Full file review. Bulk/all/first selection, target hotel assignment, active-hotel VIP and status/error views retain original callback and pending semantics.",
+    "sha256": "1b4d19cf5004d9a923cf74b184602f7db489feb0bf377ea99d9e3d2b9900c113"
+  },
+  {
+    "path": "frontend/features/operations/types/rooming-passenger-selection.ts",
+    "status": "fixed",
+    "review_scope": "full",
+    "notes": "Full file review. Shared local selection props/filter value contracts only; no runtime authority or retained state.",
+    "sha256": "0021f2d10330b9d6fe41c7704a06bf0e2709858486765ac471480e593c27d199"
+  },
+  {
+    "path": "frontend/features/operations/components/rooming-passenger-hotel-allocation.test.tsx",
+    "status": "fixed",
+    "review_scope": "full",
+    "notes": "Full file review. Six behavioral tests cover cross-page selection, hotel-scoped VIP, removed-ID pruning after refresh, mixed group checkboxes, authorized value loading and rejected-assignment retry.",
+    "sha256": "998e34ac30d127a120e1f4778124d7a876b05229dfeabdf54e9d7b1fd3df893f"
+  },
+  {
+    "path": "frontend/features/operations/components/rooming-workspace-page.tsx",
+    "status": "fixed",
+    "review_scope": "full",
+    "notes": "Complete original 855-line file read. Now 260-line page with state/export controller, hotel summary, loading/empty/context owners and a shared hotel form. Existing queries, mutation payloads, revision keys and stale-plan check-in gate retained.",
+    "sha256": "29f58c410081978b658a9753c779a90630cdab749ef1a2c45fc228940d3c7b08"
+  },
+  {
+    "path": "frontend/features/operations/hooks/use-rooming-workspace-controller.ts",
+    "status": "fixed",
+    "review_scope": "full",
+    "notes": "Full file review. Query/action wiring, selected hotel/tab/dialog state and cancellation-aware export owner; all original state/export statements are AST-identical.",
+    "sha256": "b5e768c8f3f465ecb3079a424f5d2dd72279e545eda9a445b96bae9e42818470"
+  },
+  {
+    "path": "frontend/features/operations/components/rooming-hotel-dialog.tsx",
+    "status": "fixed",
+    "review_scope": "full",
+    "notes": "Full file review. Consolidated duplicated create/edit fields and payload/error logic. Replaced custom global-keyboard/timer/overflow implementation with shared modal boundary for inert background, focus containment/return and pending dismissal guards.",
+    "sha256": "49e20083a26a8447e4ce4d5033ea378e15c09dff8439682be7ea45598b8528c5"
+  },
+  {
+    "path": "frontend/features/operations/components/rooming-hotel-summary.tsx",
+    "status": "fixed",
+    "review_scope": "full",
+    "notes": "Full file review. Hotel readiness/VIP/room summary and stat pill function bodies are AST-identical to the reviewed original.",
+    "sha256": "24c70ef2914f3d4bbda5806c26f514f3ee26d11ef930c851c2994991981f36d7"
+  },
+  {
+    "path": "frontend/features/operations/components/rooming-workspace-states.tsx",
+    "status": "fixed",
+    "review_scope": "full",
+    "notes": "Full file review. Header context, empty workspace and both loading views moved with AST-identical function bodies.",
+    "sha256": "c224a9092656a7b0b2aa5417c02460136044fb5ec42a8bb3c9f1689839fcee2b"
+  },
+  {
+    "path": "frontend/features/operations/components/rooming-hotel-dialog.test.tsx",
+    "status": "fixed",
+    "review_scope": "full",
+    "notes": "Full file review. Four UI regressions cover background isolation/programmatic focus/return, trimmed create payload/date minimum, failed edit retry and pending Escape/close/backdrop guards.",
+    "sha256": "a1a7fd14dc9c095b666f7f433ebbcd30ffd48b013d404373e02465166bca5b31"
+  },
+  {
+    "path": "frontend/features/operations/components/rooming-error-message.ts",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Complete file read. Converts direct or structured backend messages to React-rendered text and otherwise uses a stable fallback; no HTML sink.",
+    "sha256": "133ca7edf2ac7f8866561779ca84ee95931f7c39e9f9e290cb0ec45a06996ca2"
+  },
+  {
+    "path": "frontend/features/operations/components/rooming-roster-grouping.ts",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Complete file read. Stable Unicode/numeric sorting, NFKC grouping, missing-last buckets and value/count projections retain pure non-mutating source behavior.",
+    "sha256": "55586def7c53bcb9722c23bdd6b7b803ed1d319da08635982966e87e4948a835"
+  },
+  {
+    "path": "frontend/features/operations/components/rooming-redesign.contract.test.mjs",
+    "status": "fixed",
+    "review_scope": "full",
+    "notes": "Complete file read. Existing rooming workflow/revision/gender/export contracts now follow the logical feature through new owning modules without dropping assertions; all nine pass.",
+    "sha256": "617f7626eb3d7dd300d21f74fc6be436a40e4cc48ae39f2b34634e153d3cb23f"
+  },
+  {
+    "path": "frontend/features/operations/api/operations.api.ts",
+    "status": "fixed",
+    "review_scope": "full",
+    "notes": "Full original transport/type facade read. Proven-unused legacy audit-list interface/transport removed (current paged/export unchanged). Attendance scan/batch/closeout accept optional expected-owner transport metadata, excluded from JSON; server derives actual actor. Six focused API regressions pass.",
+    "sha256": "7a686e1546a5235b19567421afc23c8bce0cccd550f5f619208e807b67da677d"
+  },
+  {
+    "path": "frontend/features/operations/hooks/use-operations.ts",
+    "status": "fixed",
+    "review_scope": "full",
+    "notes": "Complete original 760-line file read: scoped queries, mutation invalidation, revision-aware rooming merge, authenticated attendance/audit scopes and QR lifecycle/delivery query behavior reviewed. Removed only unconsumed legacy useAuditLogs hook.",
+    "sha256": "cc0e4bc344b5cac65e7912bbc534e58bd7ab5e3304ad419bdd2ac15e8969ba73"
+  },
+  {
+    "path": "frontend/features/operations/services/rooming-allocation-mutations.ts",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Full read: current revision maps cover source/target hotels, delta scope/version/duplicates are checked before merging, incompatible/stale payloads retain current cache and trigger refresh at owning hook.",
+    "sha256": "4932fafde198d5b6187b20027c2786576a56fb0051e67ff262a1d2eb8b2fd209"
+  },
+  {
+    "path": "frontend/features/operations/config/tour-operations-flags.ts",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Full read: retired coordinator assignment compatibility UI is statically disabled. Complete consumer/retirement tracing remains in the relevant pending UI file scope.",
+    "sha256": "c0e548849b92bf3ff1b2ad2a25e79621430cb6329f87dd288ea0ef6611d1d63e"
+  },
+  {
+    "path": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+    "status": "fixed",
+    "review_scope": "full",
+    "notes": "Full full-length source read including protected copy/verify migrations, owner locks, claims, batch/legacy replay, tombstones, closeout/logout, recovery and private rows. Narrow fix checks captured owner after async claim/decryption/runtime hint, carries opt-in bound transport, suppresses stale progress/private rows, retains original claims as retryable on switch. Thirteen queue tests cover both batch and legacy races, stale success, discard evidence and stable-owner replay. Large responsibility hotspot remains; no broad refactor during integrated freeze.",
+    "sha256": "aa160e1bdcd3f651706adfc6b18edfbb2b2d08784f8d32ce7080c23289b29b7e"
+  },
+  {
+    "path": "frontend/features/tour-operations/services/browser-offline-authorization.ts",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Complete read: strict bounded signed manifests, Ed25519 verification-key pinning, tenant/coordinator/group scope, trusted-time expiry/high-water checks and encrypted persistence. Queue caller ownership checks traced. No live backend signature/key-rotation qualification performed. Potential concurrent stale-cleanup deletion availability concern remains unproven and unpatched, not counted as vulnerability.",
+    "sha256": "7772a4452127a44e9875773bef12e8a94fca6e35ca5e5f45638072da3a1ba6ba"
+  },
+  {
+    "path": "frontend/features/tour-operations/services/browser-offline-crypto.ts",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Complete read: non-exportable AES-GCM256 key, random12-byte IV, record-identity AAD, 2MiB plaintext bound and plaintext-buffer wipe; protected queue restore verifies scan-reference/owner identity. Queue timing tests stub this boundary and do not certify browser crypto integration.",
+    "sha256": "b3515fa69f85f64cea8797580129743f0b622e2b8acdc34be9a505d75a1f06e3"
+  },
+  {
+    "path": "frontend/features/tour-operations/services/browser-offline-database.ts",
+    "status": "fixed",
+    "review_scope": "full",
+    "notes": "Full read. Reproduced blocked open rejecting caller then later succeeding without a connection owner; late success now closes after prior failure, preserving normal success/versionchange behavior. Two deterministic lifecycle tests pass. No schema version, purge, migration or queue retention change.",
+    "sha256": "efac84fbbb1ddcedffdf29f571d9a7af674839ecda93f7bbd38c5fadfa3b7ab5"
+  },
+  {
+    "path": "frontend/features/tour-operations/services/browser-offline-readiness.ts",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Complete read: abort-aware refresh timeout and signed cached-readiness fallback; no unsigned authorization bypass found.",
+    "sha256": "55c75fa07c99d575be3acf615419cb137186e62644ce35ca2746cbd30d5a3018"
+  },
+  {
+    "path": "frontend/features/tour-operations/hooks/use-browser-offline-readiness.ts",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Complete read: effect cleanup aborts stale readiness evaluation, expiry refresh and current group/session source traced to actual capture authorization.",
+    "sha256": "94d70bf293a59c146bccca09f2a48a7d5cf7eb079972426ae4c3eadf3cef1fa9"
+  },
+  {
+    "path": "frontend/features/tour-operations/services/attendance-sync-policy.ts",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Complete read: successful replay states, permanent versus recoverable error classification. AUTH_REQUEST_OWNER_CHANGED is not a permanent rejection and does not cause queue deletion or offline capture under the new account.",
+    "sha256": "9541575e20aa13891ed7de757ffd1689cefde3c81bb5e18f704e67f051875944"
+  },
+  {
+    "path": "frontend/features/tour-operations/services/attendance-batch-policy.ts",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Complete read: exact batchID/eventID cardinality and uniqueness checks; only complete counted/duplicate outcomes delete a pending row, terminal rejections quarantine and ambiguous responses remain retryable.",
+    "sha256": "393e5adfa1a6e03c8e12786f7a5ab4c2e2600bf5baa9103bb3f4e76b1edb0710"
+  },
+  {
+    "path": "frontend/features/tour-operations/services/attendance-scan-queue-owner.test.ts",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Thirteen deterministic actual queue/checkpoint public-entrypoint tests: batch+legacy postclaim decryption switch, stale-success suppression, server409 mismatch before tab notices, retained original retries, foreign-owner preservation, discard audit retention, stable replay and owner-bound closeout publication.",
+    "sha256": "52f36f887760811273262f4120a2b2acdeeae7f5280c76b9da70c874c8acd460"
+  },
+  {
+    "path": "frontend/features/tour-operations/test-support/attendance-database.ts",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Full test-only async IDB request/completion harness including read/write event hooks; supports real public queue/snapshot entrypoint timing tests, not browser emulation or live crypto certification.",
+    "sha256": "818e0b50f7242e8164dd05a7dbff7add217bf4a5578c3298ecec13e86771a36d"
+  },
+  {
+    "path": "frontend/features/operations/api/operations-attendance.api.test.ts",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Six transport regressions retain ordered batch/revision/cursor/audit cancellation assertions and verify captured-owner metadata for scan/batch/closeout is separate from JSON payload.",
+    "sha256": "d52ec717a9124df96e78ae8c0d8039b31680c39e81e2ec22528cb595e2cae8b2"
+  },
+  {
+    "path": "frontend/features/operations/components/operations-ui-transformation.contract.test.mjs",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Complete read. Rooming memoization/offscreen-paint contract follows extracted hook/table source owners, retaining original assertions plus explicit entrypoint composition; seven Node tests passed.",
+    "sha256": "c89f2a2511b143aa7f02d34579371c773b4cdc644aab40a022a3922e48835926"
+  },
+  {
+    "path": "frontend/features/tour-operations/hooks/use-attendance-closeout-reporting.ts",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Full read: visible/online active-session count-only checkpoints use bounded30s refresh and cleanup; backend remains authoritative.",
+    "sha256": "a5b0643d2057aca28859bb7e6e95e376c41e9321fd114b71ebe0ebc474ee88d0"
+  },
+  {
+    "path": "frontend/features/tour-operations/hooks/use-attendance-scan-sync.ts",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Full read: queue count/private-issue refresh, replay aggregation, count invalidation hints and cleanup traced into owner-fenced queue/public scan entrypoints. No production device/network qualification performed.",
+    "sha256": "5d98e622157c9ef5829a3594d2f644995989e648599519e0c100960a752fd7e8"
+  },
+  {
+    "path": "frontend/features/tour-operations/hooks/use-network-status.ts",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Full read: external-store online/offline subscriptions and SSR snapshot cleanup.",
+    "sha256": "d750abeff60020fcdff654ebc254fcf9d738d0ef4935319850324be2ef062797"
+  },
+  {
+    "path": "frontend/features/tour-operations/hooks/use-continuous-qr-scanner.ts",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Full read: fixed QR pattern, duplicate suppression, bounded proof history/camera constraints, generation-based cancellation, stream release and visibility restart guard. No real camera/device profiling performed.",
+    "sha256": "e776597222d3d698e2d54f63f33fc37e07729012978487a26e14a87143eaf321"
+  },
+  {
+    "path": "frontend/features/tour-operations/services/attendance-closeout-checkpoint.ts",
+    "status": "fixed",
+    "review_scope": "full",
+    "notes": "Complete read: canonical count-only payload, owner/session snapshots, coalesced publisher lanes and cross-tab serialization. Captured owner now continues through protected transport to closeout PUT, preventing publication as a replacement actor during async authentication. Runtime hint switch and stable-owner tests pass.",
+    "sha256": "3f79eda74d3f7ce683b15117f62a56c8fd2e48635bf0dc4f6e758b828614f5c3"
+  },
+  {
+    "path": "frontend/features/tour-operations/services/attendance-queue-privacy.ts",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Full read: SHA256 references bind owner/group/session/QR; raw QR omitted from terminal evidence; invalid/unattributable legacy rows remain quarantined; secure-crypto requirement explicit.",
+    "sha256": "f4bc6c4123150b5b9bc5d04085801b474e8796177a895d1ec3b8b449ca113c48"
+  },
+  {
+    "path": "frontend/features/tour-operations/services/attendance-queue-safety-contract.ts",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Full read: pending/sending/retry/review/discard or unavailable storage all block unsafe signout; unavailable snapshot is fail-closed.",
+    "sha256": "b1d57d1512e6958de84280b172bd0ed98ebaa1f881ecd1706be4e7f666f9f46b"
+  },
+  {
+    "path": "frontend/features/tour-operations/services/attendance-retry-policy.ts",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Full read: capped exponential backoff, positive bounded jitter, server RetryAfter floor, canonical group/session closeout classification and oldest wakeup calculation.",
+    "sha256": "c52346bbcb643c0236b55ba3cea5ba2a529cbf4f0a36b0af6b1b6c04558cdc42"
+  },
+  {
+    "path": "frontend/features/tour-operations/services/attendance-session-progress.ts",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Full read: count-only account/group-scoped localStorage optimization; server-success reconciliation removes cached counters; JSON errors fall back safely. No passenger identifiers/contact/QR payload stored.",
+    "sha256": "b930338346cf77cf86d618e92b9b8762f638cb0bbce7be6ada4eac03285aed98"
+  },
+  {
+    "path": "frontend/features/tour-operations/services/offline-snapshot.ts",
+    "status": "fixed",
+    "review_scope": "full",
+    "notes": "Full physical read. Reproduced legacy A roster persisted under B/agencyB after awaited IDB read; identity-preserving persistence helper and continuity checks now prevent scope recapture, suppress stale decrypted return and retain legacy data on cancellation. Same-owner copy/verify/removal preserved. Three timing/storage tests plus three existing minimization/expiry tests pass. Concurrent cleanup availability candidate remains unproven, no deletion behavior broadened.",
+    "sha256": "7570014000b53dde51262f566f9f31a51e3660ed2c69945aeb555e6bcadb78d5"
+  },
+  {
+    "path": "frontend/features/tour-operations/services/offline-snapshot-owner.test.ts",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Three deterministic async-IDB/crypto boundary tests: proved A-to-B migration failure before fix, verify original legacy retention/no B record, same-owner verified migration/removal, and suppress roster returned after decryption owner change.",
+    "sha256": "53507be4363097654d8dd3659b2cee456fff1c6bc7db9a22050ebbb6b8a42a30"
+  },
+  {
+    "path": "frontend/features/tour-operations/services/offline-snapshot.test.ts",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Complete read: contact/family/passport/rawQR minimization and default/excessive/expired TTL contract tests retained, three pass.",
+    "sha256": "637d10c2c3d92169bf80b7768fd73fd5178cba68fc3f4950fc4cb27cd05e26cc"
+  },
+  {
+    "path": "frontend/features/tour-operations/services/browser-offline-database.test.ts",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Two lifecycle regressions: blocked-then-success close failed before fix, normal open remains live until versionchange; both pass.",
+    "sha256": "6dc08346fcda2895d7d5bcc218e60b2bed66449549754c267839378f48e0d0e0"
+  },
+  {
+    "path": "frontend/features/operations/services/attendance-invalidation.ts",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Full read: bounded identifier and source/date normalization, PII-free local/broadcast invalidation, listener cleanup and deterministic bounded polling jitter.",
+    "sha256": "f70a7b59ac666b6cc0bc0c1571b3c3cf6bea7fdcef93dbdc04e172f67759abbd"
+  },
+  {
+    "path": "frontend/features/operations/services/dashboard-realtime.ts",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Full read: same-origin websocket URL,1KiB frames, exact shape/key allowlists, bounded safe integers and enum, PII-free cache-family invalidation and capped reconnect jitter.",
+    "sha256": "b8b9b8ce444d06e0a92c6af9d448833e3eab4d46b3d5c19553e7faafe3ae68d9"
+  },
+  {
+    "path": "frontend/features/operations/services/qr-image-generation.ts",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Full read: four concurrent dynamic QR renderers, payload-aware cache planning, per-entry failure isolation and abort-aware incremental callback. No external fetch of QR values. Queue shift is an O(n) operation per queued render; an optional head-index optimization remains a performance follow-up, no measured lag claim.",
+    "sha256": "1364384a05e730952c770ca809aecde5b4e06ba4a3662e7ddb5a406af51d725f"
+  },
+  {
+    "path": "frontend/features/operations/components/dashboard-realtime-attendance-bridge.tsx",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Full read: authenticated active tenant/role gate, strict ready-before-hint protocol, monotonic group cursors, pause/reconnect cleanup and account/session effect replacement; frames contain invalidation hints only.",
+    "sha256": "391ed735d019c52acd992207906f9e22646f8e5db687decdfd12aabe3c32970a"
+  },
+  {
+    "path": "frontend/features/tour-operations/components/coordinator-group-scanner.tsx",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Full718-line read: camera capture, serial scan pipeline, signed offline readiness, owner-bound queue calls, count reconciliation, rejected recovery views and local-only finish workflow. Still mixes scanner controller and large UI; architecture hotspot recorded. No native mobile code touched.",
+    "sha256": "2636c78bce4853169f55eaed6308898f0aed229e288ea63d455ec9e7d3c14de4"
+  },
+  {
+    "path": "frontend/features/tour-operations/components/coordinator-offline-scan-drain.tsx",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Full read: exact persisted next-attempt scheduling, independent allSettled scan/discard lanes, visibility/network wakeup and timer/listener cleanup; no blind polling or queue purge.",
+    "sha256": "f3e622ed99b2628628ab1d3ce3690ac4aad08205cd5cc92a7c766e93d61188c7"
+  },
+  {
+    "path": "frontend/features/tour-operations/components/coordinator-passenger-detail-page.tsx",
+    "status": "fixed",
+    "review_scope": "full",
+    "notes": "Complete read. Reproduced snapshot notification causing a second write; dependency on newly rehydrated cached array otherwise creates an unbounded encryption/IDB/event loop. Equality of exactly persisted passenger id/name/city/status now stops redundant writes, while changed fields preserve other passengers. Two focused regressions pass.",
+    "sha256": "d1f057c893e180fe00be0a232e6fbb2f268f06361849796e6ed74f4d1cf87c6b"
+  },
+  {
+    "path": "frontend/features/tour-operations/components/coordinator-passenger-detail-page.test.tsx",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Two React tests simulate the next snapshot notification render and changed persisted fields: first failed before loop fix with2writes instead1; unchanged minimized row now writes once, changed status merges without losing other passengers.",
+    "sha256": "4221c688cc41db5dc4c3f2340820f011643bf94509612c6e83c405735f96dcce"
+  },
+  {
+    "path": "frontend/features/tour-operations/components/coordinator-mobile-shell.tsx",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Full read: in-browser coordinator role/authentication/hydration boundary, exact safe-login routes, server-preferred encrypted scoped fallback and resilient group cards. This is dashboard/PWA code, native mobile application excluded.",
+    "sha256": "404bebc3ec6863ba9464d1f95a8e2def88e796baec55978a5373e171ead73e9f"
+  },
+  {
+    "path": "frontend/features/operations/components/tour-group-qr-codes-page.tsx",
+    "status": "fixed",
+    "review_scope": "full",
+    "notes": "Full original925-line physical read: progressive48-card rendering, four-worker images/cancellation/cache, full print preparation, lifecycle and preview-driven individual delivery. Replaced duplicated document key handler with shared modal boundary for inert background/programmatic focus containment and pending dismissal guard; two modal behaviors plus10shared tests pass. Mixed screen/controller/dialog remains architectural hotspot.",
+    "sha256": "64ae6364bd00603b36c69f208d916ff537adcbf1571e33f5c6f98633daaac6d4"
+  },
+  {
+    "path": "frontend/features/operations/components/qr-delivery-preview-dialog.test.tsx",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Two actual preview-dialog tests verify inert background, external focus containment, restore trigger and pending/current Escape behavior. No real send or provider call occurs.",
+    "sha256": "ccf93d656eca3efb8f1c18602472eac769e979c2645e87c20d19228f757a109f"
+  },
+  {
+    "path": "frontend/features/operations/components/operations-workspace-ui.tsx",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Full read: reusable semantic header/summary/search/empty/error primitives, responsive breakpoints, accessible search/clear/status labels and caller-controlled actions.",
+    "sha256": "04774a60b5851c403afca1d9d479fa8006f489a0605537f1b6ac9cee7ede26e3"
+  },
+  {
+    "path": "frontend/features/operations/components/tour-operations-ui.tsx",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Complete read: group totals and scoped coordinator menu controls; document listeners installed only while open. Legacy passenger-allocation rendering/helpers remain intentionally behind disabled rollback compatibility flag; no retirement decision inferred from flag alone.",
+    "sha256": "b58ec32dbcbe095917fa2fd2f48033d33692f4166f62779e35244befb9f1f455"
+  },
+  {
+    "path": "frontend/features/operations/components/tour-operations-overview.tsx",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Complete read: read-only group/coordinator summary, canonical route links and responsive operational navigation. No data mutation or unsafe HTML insertion.",
+    "sha256": "41b9938ba568c44c77c5bbfb9a3b77e87a88e164812db010170a2e3443a97592"
+  },
+  {
+    "path": "frontend/features/operations/components/rooming-groups-page.tsx",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Complete read: deferred search/memoized portfolio summaries and scoped group route composition, loading/error/empty/filtered UI and defensive date formatting.",
+    "sha256": "9a7fd8cb454dd90367a371af3b9ad494a8f07a072e98f337bb41dfab3fa1bdaa"
+  },
+  {
+    "path": "frontend/features/operations/components/rooming-priority-field-policy.mjs",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Complete read: normalized key/label checks exclude fixed export fields and gender/sex-derived aliases from rooming priorities; this complements authoritative backend policy.",
+    "sha256": "9bc1c2ff225c7c1feb6e9a26682c35d11964da0b2ea616e0bcb00b3a8ed91a64"
+  },
+  {
+    "path": "frontend/features/menu/components/menu-page.tsx",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Complete read: dynamic workspace tabs, intent preloading, keyboard Home/End/arrows and tab semantics, current workspace capacity summary and skeleton/error states. No workflow changes.",
+    "sha256": "ebbe75b6e843888e2ad0f8b76e20bf2cae8187b33dea6511dd63d81eec9f5ec8"
+  },
+  {
+    "path": "frontend/features/operations/components/tour-group-passenger-assignment-page.tsx",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Complete read: current entry returns null under statically disabled compatibility flag; legacy rollback UI retains group-owned coordinator selection and server mutation hook. Kept intentionally documented rollback implementation, not classified as active workflow.",
+    "sha256": "b3bbf0244aad2581b780ffc1377733e504676e8c0b541aa671c664130cd62db9"
+  },
+  {
+    "path": "frontend/features/menu/components/menu-library.tsx",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Full716-line read: category/dish creation/edit/pause/delete, current revision hooks, selected-category fallback, escaped text and confirmation/error recovery. Large mixed action/sidebar/form/list owner remains architectural hotspot; no speculative workflow rewrite during integrated freeze.",
+    "sha256": "2138396230a886864660d7485ac6f714de55957665f943949d24b3e37369d92a"
+  },
+  {
+    "path": "frontend/features/operations/components/hotel-checkin-dashboard.tsx",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Full279-line read: scoped hotel query, authoritative passenger update/cache reconciliation, deferred filters/search, cancelled export handling and explicit no-record guards for key/kit/remark actions. Safe React text rendering. No live hotel/large-roster browser performance qualification.",
+    "sha256": "fa5322f4ebc523c1867f251742742b584746939a5a586650d38be57e48ad8d06"
+  },
+  {
+    "path": "frontend/features/operations/components/managed-account-controls.tsx",
+    "status": "fixed",
+    "review_scope": "full",
+    "notes": "Full original362-line read: session revoke/status/delete, current MFA/reset confirmations, one-time reset token only in component memory and shared modal focus boundary. Clipboard rejection now uses existing shared helper and visible manual-copy recovery without logging token; focused credential-reset test passes.",
+    "sha256": "71c22fa8ebd2f7208d25b9878009925b2a0bb597b11d4b191eff3c3152ffa18d"
+  },
+  {
+    "path": "frontend/features/operations/components/managed-accounts-panel.tsx",
+    "status": "fixed",
+    "review_scope": "full",
+    "notes": "Full original388-line read: staff creation/invitation, tenant/removed-group selection filters, current cache updates and error recovery. Shared clipboard helper catches invite-copy failures with manual-copy recovery; creation closeX now respects pending state like Cancel/Escape. Three focused behaviors pass.",
+    "sha256": "d64fe550d0a83efc94b90a343823430b5b1f7f323daf87af9649dadd842210d2"
+  },
+  {
+    "path": "frontend/features/operations/components/managed-account-copy.test.tsx",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Three actual UI regressions with synthetic identity tokens cover invite/reset clipboard rejection and retaining issued link, plus pending staff creation dismissal controls. Shared clipboard helper tests also pass; no outbound business send occurs.",
+    "sha256": "ca0f569b6400b1bd9928d4a1dc4a73d6f40f54e04449274358c6ce617c0a2ea5"
+  },
+  {
+    "path": "frontend/features/operations/components/rooming-auto-allocation.tsx",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Full539-line read: memoized allowed-field Map/selected priorities,6-slot compaction, removed-field admission, explicit passport-gender readiness, authoritative allocation/export-current gates, sorted memoized room cards and offscreen paint containment. Combined priority UI/generated-plan owner remains architectural hotspot.",
+    "sha256": "c1c9a3861393cf606e4b9b9865e06df342137508097357d55e10adfeaa8a26f2"
+  },
+  {
+    "path": "frontend/features/operations/components/tour-coordinators-page.tsx",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Full322-line read: deferred search, account coverage counters, restricted coordinator creation with password UI validation, pending/shared focus dialog and managed-account actions. Server authorization/credential policy remains authoritative; no credential logging/persistence added.",
+    "sha256": "4deb5ebf781bf0bc87fab5d0d275eee5efad1d25a4bd34932fe2c89012aa7962"
+  },
+  {
+    "path": "frontend/features/operations/components/tour-group-assignments-page.tsx",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Full296-line read: deferred coverage search/filters and selected group-owned coordinator mutation; caller membership assembled from canonical group roster, row-local pending feedback and canonical attendance/QR routes. Disabled rollback-only passenger assignment remains explicit.",
+    "sha256": "deb838777a9b9af1e7c72d9c34f5361cab37e961eba7981c08eb430fc4e084c4"
+  },
+  {
+    "path": "frontend/features/operations/components/tour-group-attendance-page.tsx",
+    "status": "fixed",
+    "review_scope": "full",
+    "notes": "Full original653-line read: role-gated prepare/global-close, refreshed authoritative counts/checkpoint evidence, explicit double confirmation and audited exception reason constraints, revision-scoped keyset missing-passenger pages. Replaced duplicated document key handler with shared modal boundary/initial-focus marker preserving backdrop/Escape behavior. Screen/controller/closeout/dialog remains architectural hotspot.",
+    "sha256": "1be15d1ae857c2f1335b9da1eb8a6bdcd967523e3f02358e5970a58e09e68bf7"
+  },
+  {
+    "path": "frontend/features/tour-operations/components/coordinator-group-activity-page.tsx",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Full510-line read: role/hydration, server-preferred encrypted saved groups/roster/sessions, count-only closeout reports, centrally prepared activity navigation, canonical detail reads and50-row progressive roster. Snapshot writes do not depend on cached roster, unlike the now-fixed passenger-detail loop. Large composition/UI owner remains hotspot.",
+    "sha256": "d67c3a8ac03cef079ee8e47252d379ad1ceab9759ca8279c87cc8a67b189e335"
+  },
+  {
+    "path": "frontend/features/tour-operations/components/coordinator-hotel-checkin.tsx",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Full674-line read: role/hydration, generation-fenced hotel loads, serial scanner pipeline and mounted/hotel identity checks, pause/review/next-passenger flow, explicit online-only check-ins and key/kit/remark writes. Default protected transport now binds HTTP actor. Large scanner/controller/picker/detail owner remains hotspot. No physical camera or live hotel service qualification.",
+    "sha256": "dd751cbbc31e4f58949eb15098d4e8c241be60481621a95129f572b7f481fb9e"
+  },
+  {
+    "path": "frontend/features/tour-operations/components/qr-scanner-proof.tsx",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Full241-line read: local in-memory QR diagnostics, bounded8-entry proof history, explicit camera activation/security-context guidance, Torch/camera controls and reset. No QR network send/persistent storage. Camera/torch rejection behavior on physical devices remains unqualified, not represented as passing browser/device evidence.",
+    "sha256": "e772ceed89e24697a4eb44e1e4889005c3e3b94ba31bf9306cfcc1731e290d97"
+  }
+]

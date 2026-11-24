@@ -1,0 +1,1262 @@
+{
+  "endpoints": {
+    "assign_manager_groups": {
+      "dependencies": [
+        "require_cookie_csrf",
+        "require_recent_mfa",
+        "require_role.<locals>._check_role",
+        "get_db_session"
+      ],
+      "methods": [
+        "PUT"
+      ],
+      "path": "/admin/managers/{manager_id}/groups",
+      "signature": "(manager_id: 'uuid.UUID', body: 'AssignManagerGroupsRequest', current_user: 'User' = Depends(dependency=<function require_role.<locals>._check_role at 0x0000019E17C4E480>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x0000019E17102840>, use_cache=True, scope=None)) -> 'ManagerResponse'"
+    },
+    "assign_staff_groups": {
+      "dependencies": [
+        "require_cookie_csrf",
+        "require_recent_mfa",
+        "require_role.<locals>._check_role",
+        "get_db_session"
+      ],
+      "methods": [
+        "PUT"
+      ],
+      "path": "/admin/staff/{staff_id}/groups",
+      "signature": "(staff_id: 'uuid.UUID', body: 'AssignManagerGroupsRequest', current_user: 'User' = Depends(dependency=<function require_role.<locals>._check_role at 0x0000019E17C4E020>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x0000019E17102840>, use_cache=True, scope=None)) -> 'ManagerResponse'"
+    },
+    "create_manager": {
+      "dependencies": [
+        "require_cookie_csrf",
+        "require_recent_mfa",
+        "require_role.<locals>._check_role",
+        "get_db_session"
+      ],
+      "methods": [
+        "POST"
+      ],
+      "path": "/admin/managers",
+      "signature": "(body: 'CreateManagerRequest', request: 'Request', response: 'Response', current_user: 'User' = Depends(dependency=<function require_role.<locals>._check_role at 0x0000019E17C4CEA0>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x0000019E17102840>, use_cache=True, scope=None)) -> 'ManagerResponse'"
+    },
+    "delete_manager": {
+      "dependencies": [
+        "require_cookie_csrf",
+        "require_recent_mfa",
+        "require_role.<locals>._check_role",
+        "get_db_session"
+      ],
+      "methods": [
+        "DELETE"
+      ],
+      "path": "/admin/managers/{manager_id}",
+      "signature": "(manager_id: 'uuid.UUID', body: 'DeleteManagerRequest | None' = None, current_user: 'User' = Depends(dependency=<function require_role.<locals>._check_role at 0x0000019E17C4E700>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x0000019E17102840>, use_cache=True, scope=None)) -> 'DeleteManagerResponse'"
+    },
+    "get_admin_overview": {
+      "dependencies": [
+        "require_role.<locals>._check_role",
+        "get_db_session"
+      ],
+      "methods": [
+        "GET"
+      ],
+      "path": "/admin/overview",
+      "signature": "(current_user: 'User' = Depends(dependency=<function require_role.<locals>._check_role at 0x0000019E17B2FEC0>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x0000019E17102840>, use_cache=True, scope=None)) -> 'AdminOverviewResponse'"
+    },
+    "get_group_passport_retention": {
+      "dependencies": [
+        "require_role.<locals>._check_role",
+        "get_db_session"
+      ],
+      "methods": [
+        "GET"
+      ],
+      "path": "/admin/groups/{group_id}/passport-retention",
+      "signature": "(group_id: 'uuid.UUID', current_user: 'User' = Depends(dependency=<function require_role.<locals>._check_role at 0x0000019E17C4D800>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x0000019E17102840>, use_cache=True, scope=None)) -> 'PassportRetentionControlResponse'"
+    },
+    "get_platform_settings": {
+      "dependencies": [
+        "require_role.<locals>._check_role",
+        "get_db_session"
+      ],
+      "methods": [
+        "GET"
+      ],
+      "path": "/admin/settings",
+      "signature": "(current_user: 'User' = Depends(dependency=<function require_role.<locals>._check_role at 0x0000019E17C4D120>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x0000019E17102840>, use_cache=True, scope=None)) -> 'PlatformSettingsResponse'"
+    },
+    "list_admin_groups": {
+      "dependencies": [
+        "require_role.<locals>._check_role",
+        "get_db_session"
+      ],
+      "methods": [
+        "GET"
+      ],
+      "path": "/admin/groups",
+      "signature": "(current_user: 'User' = Depends(dependency=<function require_role.<locals>._check_role at 0x0000019E17C4DA80>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x0000019E17102840>, use_cache=True, scope=None)) -> 'list[ManagerGroupAccessResponse]'"
+    },
+    "list_managers": {
+      "dependencies": [
+        "require_role.<locals>._check_role",
+        "get_db_session"
+      ],
+      "methods": [
+        "GET"
+      ],
+      "path": "/admin/managers",
+      "signature": "(current_user: 'User' = Depends(dependency=<function require_role.<locals>._check_role at 0x0000019E17C072E0>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x0000019E17102840>, use_cache=True, scope=None), skip: 'PageOffset' = 0, limit: 'PageSize' = 100) -> 'list[ManagerResponse]'"
+    },
+    "list_staff_for_access": {
+      "dependencies": [
+        "require_role.<locals>._check_role",
+        "get_db_session"
+      ],
+      "methods": [
+        "GET"
+      ],
+      "path": "/admin/staff",
+      "signature": "(current_user: 'User' = Depends(dependency=<function require_role.<locals>._check_role at 0x0000019E17C4DC60>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x0000019E17102840>, use_cache=True, scope=None)) -> 'list[ManagerResponse]'"
+    },
+    "purge_passport_data": {
+      "dependencies": [
+        "require_cookie_csrf",
+        "require_recent_mfa",
+        "require_role.<locals>._check_role",
+        "get_db_session"
+      ],
+      "methods": [
+        "DELETE"
+      ],
+      "path": "/admin/passport-data",
+      "signature": "(current_user: 'User' = Depends(dependency=<function require_role.<locals>._check_role at 0x0000019E17C4E840>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x0000019E17102840>, use_cache=True, scope=None)) -> 'PurgePassportDataResponse'"
+    },
+    "update_platform_settings": {
+      "dependencies": [
+        "require_cookie_csrf",
+        "require_recent_mfa",
+        "require_role.<locals>._check_role",
+        "get_db_session"
+      ],
+      "methods": [
+        "PUT"
+      ],
+      "path": "/admin/settings",
+      "signature": "(body: 'UpdatePlatformSettingsRequest', current_user: 'User' = Depends(dependency=<function require_role.<locals>._check_role at 0x0000019E17C4D3A0>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x0000019E17102840>, use_cache=True, scope=None)) -> 'PlatformSettingsResponse'"
+    }
+  },
+  "openapi": {
+    "components": {
+      "schemas": {
+        "AdminOverviewResponse": {
+          "properties": {
+            "agencies": {
+              "title": "Agencies",
+              "type": "integer"
+            },
+            "client_groups": {
+              "title": "Client Groups",
+              "type": "integer"
+            },
+            "client_submitted": {
+              "title": "Client Submitted",
+              "type": "integer"
+            },
+            "failed": {
+              "title": "Failed",
+              "type": "integer"
+            },
+            "passport_submissions": {
+              "title": "Passport Submissions",
+              "type": "integer"
+            },
+            "pending_review": {
+              "title": "Pending Review",
+              "type": "integer"
+            },
+            "users": {
+              "title": "Users",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "agencies",
+            "users",
+            "client_groups",
+            "passport_submissions",
+            "pending_review",
+            "client_submitted",
+            "failed"
+          ],
+          "title": "AdminOverviewResponse",
+          "type": "object"
+        },
+        "AssignManagerGroupsRequest": {
+          "properties": {
+            "group_ids": {
+              "items": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "title": "Group Ids",
+              "type": "array"
+            }
+          },
+          "title": "AssignManagerGroupsRequest",
+          "type": "object"
+        },
+        "CreateManagerRequest": {
+          "additionalProperties": false,
+          "properties": {
+            "email": {
+              "format": "email",
+              "title": "Email",
+              "type": "string"
+            },
+            "full_name": {
+              "maxLength": 255,
+              "minLength": 2,
+              "title": "Full Name",
+              "type": "string"
+            }
+          },
+          "required": [
+            "full_name",
+            "email"
+          ],
+          "title": "CreateManagerRequest",
+          "type": "object"
+        },
+        "DeleteManagerRequest": {
+          "properties": {
+            "delete_owned_data": {
+              "default": false,
+              "title": "Delete Owned Data",
+              "type": "boolean"
+            }
+          },
+          "title": "DeleteManagerRequest",
+          "type": "object"
+        },
+        "DeleteManagerResponse": {
+          "properties": {
+            "deleted_audit_logs": {
+              "default": 0,
+              "title": "Deleted Audit Logs",
+              "type": "integer"
+            },
+            "deleted_client_groups": {
+              "default": 0,
+              "title": "Deleted Client Groups",
+              "type": "integer"
+            },
+            "deleted_manager_id": {
+              "format": "uuid",
+              "title": "Deleted Manager Id",
+              "type": "string"
+            },
+            "deleted_notifications": {
+              "default": 0,
+              "title": "Deleted Notifications",
+              "type": "integer"
+            },
+            "deleted_owned_data": {
+              "title": "Deleted Owned Data",
+              "type": "boolean"
+            },
+            "deleted_passport_submissions": {
+              "default": 0,
+              "title": "Deleted Passport Submissions",
+              "type": "integer"
+            },
+            "deleted_processing_jobs": {
+              "default": 0,
+              "title": "Deleted Processing Jobs",
+              "type": "integer"
+            },
+            "deleted_storage_objects": {
+              "default": 0,
+              "title": "Deleted Storage Objects",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "deleted_manager_id",
+            "deleted_owned_data"
+          ],
+          "title": "DeleteManagerResponse",
+          "type": "object"
+        },
+        "HTTPValidationError": {
+          "properties": {
+            "detail": {
+              "items": {
+                "$ref": "#/components/schemas/ValidationError"
+              },
+              "title": "Detail",
+              "type": "array"
+            }
+          },
+          "title": "HTTPValidationError",
+          "type": "object"
+        },
+        "ManagerGroupAccessResponse": {
+          "properties": {
+            "agency_id": {
+              "format": "uuid",
+              "title": "Agency Id",
+              "type": "string"
+            },
+            "created_by_user_id": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Created By User Id"
+            },
+            "id": {
+              "format": "uuid",
+              "title": "Id",
+              "type": "string"
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            },
+            "status": {
+              "title": "Status",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "agency_id",
+            "name",
+            "status"
+          ],
+          "title": "ManagerGroupAccessResponse",
+          "type": "object"
+        },
+        "ManagerResponse": {
+          "properties": {
+            "activation_token": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Activation Token"
+            },
+            "agency_id": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Agency Id"
+            },
+            "assigned_groups": {
+              "items": {
+                "$ref": "#/components/schemas/ManagerGroupAccessResponse"
+              },
+              "title": "Assigned Groups",
+              "type": "array"
+            },
+            "created_at": {
+              "format": "date-time",
+              "title": "Created At",
+              "type": "string"
+            },
+            "created_groups": {
+              "items": {
+                "$ref": "#/components/schemas/ManagerGroupAccessResponse"
+              },
+              "title": "Created Groups",
+              "type": "array"
+            },
+            "credential_state": {
+              "default": "active",
+              "enum": [
+                "invited",
+                "active"
+              ],
+              "title": "Credential State",
+              "type": "string"
+            },
+            "email": {
+              "title": "Email",
+              "type": "string"
+            },
+            "full_name": {
+              "title": "Full Name",
+              "type": "string"
+            },
+            "id": {
+              "format": "uuid",
+              "title": "Id",
+              "type": "string"
+            },
+            "is_active": {
+              "title": "Is Active",
+              "type": "boolean"
+            },
+            "last_login_at": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Last Login At"
+            },
+            "role": {
+              "title": "Role",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "full_name",
+            "email",
+            "role",
+            "agency_id",
+            "is_active",
+            "created_at"
+          ],
+          "title": "ManagerResponse",
+          "type": "object"
+        },
+        "PassportRetentionControlResponse": {
+          "properties": {
+            "group_id": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            },
+            "passport_purge_at": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Passport Purge At"
+            },
+            "passport_retention_days_applied": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Passport Retention Days Applied"
+            }
+          },
+          "required": [
+            "group_id"
+          ],
+          "title": "PassportRetentionControlResponse",
+          "type": "object"
+        },
+        "PlatformSettingsResponse": {
+          "properties": {
+            "allow_manager_group_creation": {
+              "default": true,
+              "title": "Allow Manager Group Creation",
+              "type": "boolean"
+            },
+            "audit_log_retention_days": {
+              "default": 365,
+              "maximum": 3650.0,
+              "minimum": 1.0,
+              "title": "Audit Log Retention Days",
+              "type": "integer"
+            },
+            "auto_archive_closed_groups_days": {
+              "default": 90,
+              "maximum": 3650.0,
+              "minimum": 1.0,
+              "title": "Auto Archive Closed Groups Days",
+              "type": "integer"
+            },
+            "default_group_status": {
+              "default": "active",
+              "pattern": "^(active|closed)$",
+              "title": "Default Group Status",
+              "type": "string"
+            },
+            "duplicate_contact_policy": {
+              "default": "block_same_group",
+              "pattern": "^(block_same_group|allow|block_all)$",
+              "title": "Duplicate Contact Policy",
+              "type": "string"
+            },
+            "mrz_review_threshold": {
+              "default": 0.85,
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "Mrz Review Threshold",
+              "type": "number"
+            },
+            "passport_data_retention_days": {
+              "default": 365,
+              "maximum": 3650.0,
+              "minimum": 1.0,
+              "title": "Passport Data Retention Days",
+              "type": "integer"
+            },
+            "platform_name": {
+              "default": "Global Connects Dashboard",
+              "maxLength": 80,
+              "minLength": 2,
+              "title": "Platform Name",
+              "type": "string"
+            },
+            "require_client_email": {
+              "default": false,
+              "title": "Require Client Email",
+              "type": "boolean"
+            },
+            "require_client_phone": {
+              "default": false,
+              "title": "Require Client Phone",
+              "type": "boolean"
+            },
+            "updated_at": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Updated At"
+            }
+          },
+          "title": "PlatformSettingsResponse",
+          "type": "object"
+        },
+        "PurgePassportDataResponse": {
+          "properties": {
+            "deleted_audit_logs": {
+              "title": "Deleted Audit Logs",
+              "type": "integer"
+            },
+            "deleted_client_groups": {
+              "title": "Deleted Client Groups",
+              "type": "integer"
+            },
+            "deleted_notifications": {
+              "title": "Deleted Notifications",
+              "type": "integer"
+            },
+            "deleted_passport_submissions": {
+              "title": "Deleted Passport Submissions",
+              "type": "integer"
+            },
+            "deleted_processing_jobs": {
+              "title": "Deleted Processing Jobs",
+              "type": "integer"
+            },
+            "deleted_storage_objects": {
+              "title": "Deleted Storage Objects",
+              "type": "integer"
+            },
+            "deleted_whatsapp_broadcast_groups": {
+              "default": 0,
+              "title": "Deleted Whatsapp Broadcast Groups",
+              "type": "integer"
+            },
+            "deleted_whatsapp_delivery_states": {
+              "default": 0,
+              "title": "Deleted Whatsapp Delivery States",
+              "type": "integer"
+            },
+            "deleted_whatsapp_message_logs": {
+              "default": 0,
+              "title": "Deleted Whatsapp Message Logs",
+              "type": "integer"
+            },
+            "deleted_whatsapp_recipients": {
+              "default": 0,
+              "title": "Deleted Whatsapp Recipients",
+              "type": "integer"
+            },
+            "deleted_whatsapp_rejected_contacts": {
+              "default": 0,
+              "title": "Deleted Whatsapp Rejected Contacts",
+              "type": "integer"
+            },
+            "deleted_whatsapp_support_contacts": {
+              "default": 0,
+              "title": "Deleted Whatsapp Support Contacts",
+              "type": "integer"
+            },
+            "storage_cleanup_deferred": {
+              "default": false,
+              "title": "Storage Cleanup Deferred",
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "deleted_client_groups",
+            "deleted_passport_submissions",
+            "deleted_processing_jobs",
+            "deleted_notifications",
+            "deleted_audit_logs",
+            "deleted_storage_objects"
+          ],
+          "title": "PurgePassportDataResponse",
+          "type": "object"
+        },
+        "UpdatePlatformSettingsRequest": {
+          "additionalProperties": false,
+          "properties": {
+            "allow_manager_group_creation": {
+              "title": "Allow Manager Group Creation",
+              "type": "boolean"
+            },
+            "audit_log_retention_days": {
+              "maximum": 3650.0,
+              "minimum": 1.0,
+              "title": "Audit Log Retention Days",
+              "type": "integer"
+            },
+            "auto_archive_closed_groups_days": {
+              "maximum": 3650.0,
+              "minimum": 1.0,
+              "title": "Auto Archive Closed Groups Days",
+              "type": "integer"
+            },
+            "default_group_status": {
+              "pattern": "^(active|closed)$",
+              "title": "Default Group Status",
+              "type": "string"
+            },
+            "duplicate_contact_policy": {
+              "pattern": "^(block_same_group|allow|block_all)$",
+              "title": "Duplicate Contact Policy",
+              "type": "string"
+            },
+            "expected_updated_at": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Expected Updated At"
+            },
+            "mrz_review_threshold": {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "Mrz Review Threshold",
+              "type": "number"
+            },
+            "passport_data_retention_days": {
+              "maximum": 3650.0,
+              "minimum": 1.0,
+              "title": "Passport Data Retention Days",
+              "type": "integer"
+            },
+            "platform_name": {
+              "maxLength": 80,
+              "minLength": 2,
+              "title": "Platform Name",
+              "type": "string"
+            },
+            "require_client_email": {
+              "title": "Require Client Email",
+              "type": "boolean"
+            },
+            "require_client_phone": {
+              "title": "Require Client Phone",
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "platform_name",
+            "require_client_email",
+            "require_client_phone",
+            "duplicate_contact_policy",
+            "default_group_status",
+            "auto_archive_closed_groups_days",
+            "passport_data_retention_days",
+            "mrz_review_threshold",
+            "allow_manager_group_creation",
+            "audit_log_retention_days"
+          ],
+          "title": "UpdatePlatformSettingsRequest",
+          "type": "object"
+        },
+        "ValidationError": {
+          "properties": {
+            "ctx": {
+              "title": "Context",
+              "type": "object"
+            },
+            "input": {
+              "title": "Input"
+            },
+            "loc": {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ]
+              },
+              "title": "Location",
+              "type": "array"
+            },
+            "msg": {
+              "title": "Message",
+              "type": "string"
+            },
+            "type": {
+              "title": "Error Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "loc",
+            "msg",
+            "type"
+          ],
+          "title": "ValidationError",
+          "type": "object"
+        }
+      },
+      "securitySchemes": {
+        "HTTPBearer": {
+          "scheme": "bearer",
+          "type": "http"
+        }
+      }
+    },
+    "info": {
+      "title": "FastAPI",
+      "version": "0.1.0"
+    },
+    "openapi": "3.1.0",
+    "paths": {
+      "/admin/groups": {
+        "get": {
+          "operationId": "list_admin_groups_admin_groups_get",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "items": {
+                      "$ref": "#/components/schemas/ManagerGroupAccessResponse"
+                    },
+                    "title": "Response List Admin Groups Admin Groups Get",
+                    "type": "array"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "List groups available for account access assignment"
+        }
+      },
+      "/admin/groups/{group_id}/passport-retention": {
+        "get": {
+          "operationId": "get_group_passport_retention_admin_groups__group_id__passport_retention_get",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "group_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "title": "Group Id",
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PassportRetentionControlResponse"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Inspect an explicit group passport-retention schedule"
+        }
+      },
+      "/admin/managers": {
+        "get": {
+          "operationId": "list_managers_admin_managers_get",
+          "parameters": [
+            {
+              "description": "Zero-based offset; bulk export uses its own endpoint.",
+              "in": "query",
+              "name": "skip",
+              "required": false,
+              "schema": {
+                "default": 0,
+                "description": "Zero-based offset; bulk export uses its own endpoint.",
+                "maximum": 100000,
+                "minimum": 0,
+                "title": "Skip",
+                "type": "integer"
+              }
+            },
+            {
+              "description": "Maximum records returned. Continue with skip + limit.",
+              "in": "query",
+              "name": "limit",
+              "required": false,
+              "schema": {
+                "default": 100,
+                "description": "Maximum records returned. Continue with skip + limit.",
+                "maximum": 200,
+                "minimum": 1,
+                "title": "Limit",
+                "type": "integer"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "items": {
+                      "$ref": "#/components/schemas/ManagerResponse"
+                    },
+                    "title": "Response List Managers Admin Managers Get",
+                    "type": "array"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "List manager accounts"
+        },
+        "post": {
+          "operationId": "create_manager_admin_managers_post",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateManagerRequest"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "201": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ManagerResponse"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Create a limited manager account"
+        }
+      },
+      "/admin/managers/{manager_id}": {
+        "delete": {
+          "operationId": "delete_manager_admin_managers__manager_id__delete",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "manager_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "title": "Manager Id",
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/DeleteManagerRequest"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Body"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/DeleteManagerResponse"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Delete a manager account"
+        }
+      },
+      "/admin/managers/{manager_id}/groups": {
+        "put": {
+          "operationId": "assign_manager_groups_admin_managers__manager_id__groups_put",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "manager_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "title": "Manager Id",
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssignManagerGroupsRequest"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ManagerResponse"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Replace a manager's extra assigned group access"
+        }
+      },
+      "/admin/overview": {
+        "get": {
+          "operationId": "get_admin_overview_admin_overview_get",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/AdminOverviewResponse"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Get administrative platform overview"
+        }
+      },
+      "/admin/passport-data": {
+        "delete": {
+          "operationId": "purge_passport_data_admin_passport_data_delete",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PurgePassportDataResponse"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Permanently delete passport and WhatsApp broadcast data"
+        }
+      },
+      "/admin/settings": {
+        "get": {
+          "operationId": "get_platform_settings_admin_settings_get",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PlatformSettingsResponse"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Get editable platform settings"
+        },
+        "put": {
+          "operationId": "update_platform_settings_admin_settings_put",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdatePlatformSettingsRequest"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PlatformSettingsResponse"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Update editable platform settings"
+        }
+      },
+      "/admin/staff": {
+        "get": {
+          "operationId": "list_staff_for_access_admin_staff_get",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "items": {
+                      "$ref": "#/components/schemas/ManagerResponse"
+                    },
+                    "title": "Response List Staff For Access Admin Staff Get",
+                    "type": "array"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "List staff accounts with group access"
+        }
+      },
+      "/admin/staff/{staff_id}/groups": {
+        "put": {
+          "operationId": "assign_staff_groups_admin_staff__staff_id__groups_put",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "staff_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "title": "Staff Id",
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssignManagerGroupsRequest"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ManagerResponse"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Replace a staff member's assigned group access"
+        }
+      }
+    }
+  }
+}

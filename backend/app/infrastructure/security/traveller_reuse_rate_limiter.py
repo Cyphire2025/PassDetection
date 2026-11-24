@@ -11,15 +11,5 @@ class TravellerReuseRateLimiter(MobileOTPRateLimiter):
         if not self._settings.is_development:
             self._mobile = self._mobile.model_copy(update={"otp_require_redis": True})
 
-    async def consume(self, *, normalized_phone: str, ip_address: str | None) -> None:
-        # OTP limiters are request scoped; close their connection pool even when
-        # a quota is exceeded. Public request quotas use a shared bounded pool.
-        redis = self._redis
-        try:
-            await super().consume(normalized_phone=normalized_phone, ip_address=ip_address)
-        finally:
-            if redis is not None:
-                await redis.aclose()
-
     def _key(self, scope: str, value: str) -> str:
         return "traveller-reuse:" + super()._key(scope, value)

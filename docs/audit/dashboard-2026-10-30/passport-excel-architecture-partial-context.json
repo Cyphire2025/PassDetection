@@ -1,0 +1,20 @@
+[
+  {
+    "path": "backend/app/application/mcp/group_workbook_plan.py",
+    "review_scope": "partial",
+    "notes": "Only first170 lines physically read: ImportedPassportRow import, support type, parsed_checkpoint serialization and checkpoint_rows reconstruction/validation. Actual alias identity checked. Remaining DB preview/planning functions not rereviewed or credited as full.",
+    "sha256": "ce9d781b12d76d3cbc39fdd1717bec023b3d7c4ef2dea3b69ee61bd9258b57e6"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_excel_import_support.py",
+    "review_scope": "partial",
+    "notes": "Import/usage searches, lines171-248,304-313 and311-EOF physically read for row identity/fingerprint, resolution and apply/provenance caller behavior. Actual ImportedPassportRow alias checked. Omitted prefix/middle helpers prevent full-file review credit.",
+    "sha256": "95217c92807f682599f2c80d863046ebfc338451f7cf6c7313da20e6bb65616f"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_whatsapp_source_groups.py",
+    "review_scope": "partial",
+    "notes": "First68 lines and378-EOF physically read for existing importer round-trip and persisted-import/source-preview cases. Intervening unrelated API/authorization fixtures/tests not read in this tranche. These tests were not executed here and receive no full-file credit.",
+    "sha256": "8de4d0276f7316af0451c8f29d287373b9135ac337b009ac1c94394856f87ca2"
+  }
+]

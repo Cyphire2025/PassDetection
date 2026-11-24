@@ -1,0 +1,1320 @@
+{
+  "public_importer_module_qualname": [
+    "app.infrastructure.imports.passport_excel_importer",
+    "PassportExcelImporter"
+  ],
+  "row_module_qualname": [
+    "app.infrastructure.imports.passport_excel_importer",
+    "ImportedPassportRow"
+  ],
+  "error_module_qualname": [
+    "app.infrastructure.imports.passport_excel_importer",
+    "PassportExcelImportError"
+  ],
+  "row_signature": "(row_number: 'int', worksheet_name: 'str', client_name: 'str', client_email: 'str | None', client_phone: 'str | None', departure_city: 'str | None', nearest_domestic_airport: 'str | None', confirmed_fields: 'dict[str, str]', staff_metadata: 'dict[str, str]') -> None",
+  "row_type_hints": {
+    "row_number": "<class 'int'>",
+    "worksheet_name": "<class 'str'>",
+    "client_name": "<class 'str'>",
+    "client_email": "str | None",
+    "client_phone": "str | None",
+    "departure_city": "str | None",
+    "nearest_domestic_airport": "str | None",
+    "confirmed_fields": "dict[str, str]",
+    "staff_metadata": "dict[str, str]"
+  },
+  "row_fields": [
+    {
+      "name": "row_number",
+      "type": "int",
+      "init": true,
+      "repr": true,
+      "compare": true,
+      "kw_only": false,
+      "default": true,
+      "default_factory": true,
+      "metadata": {}
+    },
+    {
+      "name": "worksheet_name",
+      "type": "str",
+      "init": true,
+      "repr": true,
+      "compare": true,
+      "kw_only": false,
+      "default": true,
+      "default_factory": true,
+      "metadata": {}
+    },
+    {
+      "name": "client_name",
+      "type": "str",
+      "init": true,
+      "repr": true,
+      "compare": true,
+      "kw_only": false,
+      "default": true,
+      "default_factory": true,
+      "metadata": {}
+    },
+    {
+      "name": "client_email",
+      "type": "str | None",
+      "init": true,
+      "repr": true,
+      "compare": true,
+      "kw_only": false,
+      "default": true,
+      "default_factory": true,
+      "metadata": {}
+    },
+    {
+      "name": "client_phone",
+      "type": "str | None",
+      "init": true,
+      "repr": true,
+      "compare": true,
+      "kw_only": false,
+      "default": true,
+      "default_factory": true,
+      "metadata": {}
+    },
+    {
+      "name": "departure_city",
+      "type": "str | None",
+      "init": true,
+      "repr": true,
+      "compare": true,
+      "kw_only": false,
+      "default": true,
+      "default_factory": true,
+      "metadata": {}
+    },
+    {
+      "name": "nearest_domestic_airport",
+      "type": "str | None",
+      "init": true,
+      "repr": true,
+      "compare": true,
+      "kw_only": false,
+      "default": true,
+      "default_factory": true,
+      "metadata": {}
+    },
+    {
+      "name": "confirmed_fields",
+      "type": "dict[str, str]",
+      "init": true,
+      "repr": true,
+      "compare": true,
+      "kw_only": false,
+      "default": true,
+      "default_factory": true,
+      "metadata": {}
+    },
+    {
+      "name": "staff_metadata",
+      "type": "dict[str, str]",
+      "init": true,
+      "repr": true,
+      "compare": true,
+      "kw_only": false,
+      "default": true,
+      "default_factory": true,
+      "metadata": {}
+    }
+  ],
+  "row_dataclass_frozen": true,
+  "importer_signature": "()",
+  "importer_type_hints": {},
+  "methods": {
+    "import_rows": {
+      "signature": "(self, content: 'bytes') -> 'list[ImportedPassportRow]'",
+      "type_hints": {
+        "content": "<class 'bytes'>",
+        "return": "list[app.infrastructure.imports.passport_excel_importer.ImportedPassportRow]"
+      }
+    },
+    "_validate_archive": {
+      "signature": "(self, content: 'bytes') -> 'bool'",
+      "type_hints": {
+        "content": "<class 'bytes'>",
+        "return": "<class 'bool'>"
+      }
+    },
+    "_archive_member_contains_formula": {
+      "signature": "(self, archive: 'ZipFile', member: 'Any') -> 'bool'",
+      "type_hints": {
+        "archive": "<class 'zipfile.ZipFile'>",
+        "member": "typing.Any",
+        "return": "<class 'bool'>"
+      }
+    },
+    "_formula_row_usage": {
+      "signature": "(self, row: 'tuple[Any, ...] | None') -> 'tuple[frozenset[int], int]'",
+      "type_hints": {
+        "row": "tuple[typing.Any, ...] | None",
+        "return": "tuple[frozenset[int], int]"
+      }
+    },
+    "_next_formula_row_usage": {
+      "signature": "(self, formula_rows: 'Iterator[tuple[Any, ...]] | None') -> 'tuple[frozenset[int], int]'",
+      "type_hints": {
+        "formula_rows": "collections.abc.Iterator[tuple[typing.Any, ...]] | None",
+        "return": "tuple[frozenset[int], int]"
+      }
+    },
+    "_row_materialized_usage": {
+      "signature": "(self, text_values: 'tuple[str, ...]', *, formula_columns: 'frozenset[int]' = frozenset(), formula_source_characters: 'int' = 0, metadata_headers: 'dict[int, str] | None' = None) -> 'tuple[int, int]'",
+      "type_hints": {
+        "text_values": "tuple[str, ...]",
+        "formula_columns": "frozenset[int]",
+        "formula_source_characters": "<class 'int'>",
+        "metadata_headers": "dict[int, str] | None",
+        "return": "tuple[int, int]"
+      }
+    },
+    "_validate_row_count": {
+      "signature": "(self, total_rows: 'int') -> 'None'",
+      "type_hints": {
+        "total_rows": "<class 'int'>",
+        "return": "<class 'NoneType'>"
+      }
+    },
+    "_validate_materialized_budget": {
+      "signature": "(self, *, total_populated_cells: 'int', total_metadata_characters: 'int') -> 'None'",
+      "type_hints": {
+        "total_populated_cells": "<class 'int'>",
+        "total_metadata_characters": "<class 'int'>",
+        "return": "<class 'NoneType'>"
+      }
+    },
+    "_find_header_row": {
+      "signature": "(self, rows: 'list[tuple[Any, ...]]') -> 'int | None'",
+      "type_hints": {
+        "rows": "list[tuple[typing.Any, ...]]",
+        "return": "int | None"
+      }
+    },
+    "_map_headers": {
+      "signature": "(self, row: 'tuple[Any, ...]', *, worksheet_name: 'str' = 'worksheet') -> 'dict[int, str]'",
+      "type_hints": {
+        "row": "tuple[typing.Any, ...]",
+        "worksheet_name": "<class 'str'>",
+        "return": "dict[int, str]"
+      }
+    },
+    "_metadata_headers": {
+      "signature": "(self, row: 'tuple[Any, ...]') -> 'dict[int, str]'",
+      "type_hints": {
+        "row": "tuple[typing.Any, ...]",
+        "return": "dict[int, str]"
+      }
+    },
+    "_map_row": {
+      "signature": "(self, headers: 'dict[int, str]', row: 'tuple[str, ...]', *, source_row: 'tuple[Any, ...]', formula_columns: 'frozenset[int]' = frozenset()) -> 'dict[str, str]'",
+      "type_hints": {
+        "headers": "dict[int, str]",
+        "row": "tuple[str, ...]",
+        "source_row": "tuple[typing.Any, ...]",
+        "formula_columns": "frozenset[int]",
+        "return": "dict[str, str]"
+      }
+    },
+    "_confirmed_fields": {
+      "signature": "(self, mapped: 'dict[str, str]') -> 'dict[str, str]'",
+      "type_hints": {
+        "mapped": "dict[str, str]",
+        "return": "dict[str, str]"
+      }
+    },
+    "_map_metadata_row": {
+      "signature": "(self, headers: 'dict[int, str]', row: 'tuple[str, ...]', *, formula_columns: 'frozenset[int]' = frozenset()) -> 'dict[str, str]'",
+      "type_hints": {
+        "headers": "dict[int, str]",
+        "row": "tuple[str, ...]",
+        "formula_columns": "frozenset[int]",
+        "return": "dict[str, str]"
+      }
+    },
+    "_is_repeated_header_row": {
+      "signature": "(self, row: 'tuple[Any, ...]', headers: 'dict[int, str]') -> 'bool'",
+      "type_hints": {
+        "row": "tuple[typing.Any, ...]",
+        "headers": "dict[int, str]",
+        "return": "<class 'bool'>"
+      }
+    },
+    "_normalize_header": {
+      "signature": "(self, value: 'Any') -> 'str'",
+      "type_hints": {
+        "value": "typing.Any",
+        "return": "<class 'str'>"
+      }
+    },
+    "_stringify": {
+      "signature": "(self, value: 'Any') -> 'str'",
+      "type_hints": {
+        "value": "typing.Any",
+        "return": "<class 'str'>"
+      }
+    },
+    "_name_from_parts": {
+      "signature": "(self, mapped: 'dict[str, str]') -> 'str'",
+      "type_hints": {
+        "mapped": "dict[str, str]",
+        "return": "<class 'str'>"
+      }
+    },
+    "_normalize_email": {
+      "signature": "(self, value: 'str | None') -> 'str | None'",
+      "type_hints": {
+        "value": "str | None",
+        "return": "str | None"
+      }
+    },
+    "_bounded_value": {
+      "signature": "(self, value: 'str | None', *, limit: 'int', label: 'str') -> 'str | None'",
+      "type_hints": {
+        "value": "str | None",
+        "limit": "<class 'int'>",
+        "label": "<class 'str'>",
+        "return": "str | None"
+      }
+    }
+  },
+  "constant_values": {
+    "MAX_PASSPORT_EXCEL_WORKSHEETS": 50,
+    "MAX_PASSPORT_EXCEL_ROWS": 10000,
+    "MAX_PASSPORT_EXCEL_COLUMNS": 256,
+    "MAX_PASSPORT_EXCEL_ARCHIVE_MEMBERS": 2000,
+    "MAX_PASSPORT_EXCEL_UNCOMPRESSED_BYTES": 52428800,
+    "MAX_PASSPORT_EXCEL_COMPRESSION_RATIO": 250,
+    "PASSPORT_EXCEL_COMPRESSION_RATIO_MIN_BYTES": 1048576,
+    "PASSPORT_EXCEL_HEADER_SCAN_ROWS": 25,
+    "MAX_PASSPORT_NUMBER_LENGTH": 32,
+    "MAX_PASSPORT_EXCEL_CELL_CHARACTERS": 2048,
+    "MAX_PASSPORT_EXCEL_POPULATED_CELLS": 100000,
+    "MAX_PASSPORT_EXCEL_METADATA_CHARACTERS": 8000000,
+    "_NAME_FIELDS": {
+      "type": "frozenset",
+      "items": [
+        "client_name",
+        "given_names",
+        "surname"
+      ]
+    },
+    "_DATE_FIELDS": {
+      "type": "frozenset",
+      "items": [
+        "date_of_birth",
+        "date_of_expiry",
+        "date_of_issue"
+      ]
+    },
+    "_RESERVED_METADATA_KEYS": {
+      "type": "frozenset",
+      "items": [
+        "client_collection_submitted",
+        "source_sheet",
+        "source_zone"
+      ]
+    },
+    "_EMPTY_CELL_VALUES": {
+      "type": "frozenset",
+      "items": [
+        "",
+        "#n/a",
+        "-",
+        "--",
+        "n/a",
+        "na",
+        "none",
+        "null"
+      ]
+    },
+    "_EXCEL_ERROR_CELL_VALUES": {
+      "type": "frozenset",
+      "items": [
+        "#blocked!",
+        "#calc!",
+        "#connect!",
+        "#div/0!",
+        "#field!",
+        "#getting_data",
+        "#name?",
+        "#null!",
+        "#num!",
+        "#ref!",
+        "#spill!",
+        "#unknown!",
+        "#value!"
+      ]
+    },
+    "_MIXED_NUMERIC_DATE_PATTERN": {
+      "type": "re.Pattern",
+      "pattern": "^\\s*([0-9]{1,4})[\\s._/-]+([0-9]{1,2})[\\s._/-]+([0-9]{1,4})\\s*$",
+      "flags": 32
+    },
+    "_HEADER_ALIASES": {
+      "verified_whatsapp_numbers": {
+        "type": "tuple",
+        "items": [
+          "verified whatsapp numbers",
+          "verified whatsapp number"
+        ]
+      },
+      "client_name": {
+        "type": "tuple",
+        "items": [
+          "passenger name",
+          "full name",
+          "client name",
+          "traveller name",
+          "traveler name",
+          "guest name",
+          "recipient name",
+          "staff name",
+          "staffname",
+          "passenger",
+          "name"
+        ]
+      },
+      "client_email": {
+        "type": "tuple",
+        "items": [
+          "email address",
+          "client email",
+          "passenger email",
+          "email",
+          "e-mail"
+        ]
+      },
+      "client_phone": {
+        "type": "tuple",
+        "items": [
+          "whatsapp number",
+          "whatsapp no",
+          "mobile number",
+          "mobile no",
+          "phone number",
+          "phone no",
+          "contact number",
+          "contact no",
+          "client phone",
+          "telephone",
+          "whatsapp",
+          "mobile",
+          "phone",
+          "contact"
+        ]
+      },
+      "departure_city": {
+        "type": "tuple",
+        "items": [
+          "departure city",
+          "departure hub",
+          "hub",
+          "city"
+        ]
+      },
+      "nearest_domestic_airport": {
+        "type": "tuple",
+        "items": [
+          "nearest domestic airport",
+          "nearest airport domestic",
+          "domestic airport"
+        ]
+      },
+      "surname": {
+        "type": "tuple",
+        "items": [
+          "surname",
+          "sur name",
+          "family name",
+          "last name"
+        ]
+      },
+      "given_names": {
+        "type": "tuple",
+        "items": [
+          "given names",
+          "given name",
+          "first name",
+          "forenames",
+          "forename"
+        ]
+      },
+      "passport_number": {
+        "type": "tuple",
+        "items": [
+          "passport number",
+          "passport no",
+          "passport num",
+          "passport #",
+          "passport",
+          "pp number",
+          "pp no",
+          "ppt number",
+          "ppt no"
+        ]
+      },
+      "nationality": {
+        "type": "tuple",
+        "items": [
+          "nationality",
+          "citizenship"
+        ]
+      },
+      "place_of_issue": {
+        "type": "tuple",
+        "items": [
+          "place of issue",
+          "place of issuance",
+          "passport place of issue",
+          "issue place"
+        ]
+      },
+      "issuing_country": {
+        "type": "tuple",
+        "items": [
+          "issuing country",
+          "issue country",
+          "country of issue"
+        ]
+      },
+      "date_of_birth": {
+        "type": "tuple",
+        "items": [
+          "date of birth",
+          "birth date",
+          "birthdate",
+          "dob"
+        ]
+      },
+      "date_of_issue": {
+        "type": "tuple",
+        "items": [
+          "date of issue",
+          "date of issuance",
+          "passport issue date",
+          "passport issue",
+          "issue date",
+          "doi"
+        ]
+      },
+      "date_of_expiry": {
+        "type": "tuple",
+        "items": [
+          "date of expiry",
+          "date of expiration",
+          "passport expiry date",
+          "passport expiration date",
+          "passport expiry",
+          "passport expiration",
+          "expiry date",
+          "expiration date",
+          "expiry",
+          "expiration",
+          "valid until",
+          "valid till",
+          "doe"
+        ]
+      },
+      "sex": {
+        "type": "tuple",
+        "items": [
+          "gender",
+          "sex"
+        ]
+      },
+      "staff_code": {
+        "type": "tuple",
+        "items": [
+          "staff code",
+          "staffcode",
+          "employee code",
+          "employee id",
+          "staff id"
+        ]
+      }
+    },
+    "_HEADER_ALIAS_INDEX": {
+      "verifiedwhatsappnumbers": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "verified_whatsapp_numbers",
+          "priority": 0
+        }
+      },
+      "verifiedwhatsappnumber": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "verified_whatsapp_numbers",
+          "priority": 1
+        }
+      },
+      "passengername": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "client_name",
+          "priority": 0
+        }
+      },
+      "fullname": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "client_name",
+          "priority": 1
+        }
+      },
+      "clientname": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "client_name",
+          "priority": 2
+        }
+      },
+      "travellername": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "client_name",
+          "priority": 3
+        }
+      },
+      "travelername": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "client_name",
+          "priority": 4
+        }
+      },
+      "guestname": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "client_name",
+          "priority": 5
+        }
+      },
+      "recipientname": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "client_name",
+          "priority": 6
+        }
+      },
+      "staffname": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "client_name",
+          "priority": 7
+        }
+      },
+      "passenger": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "client_name",
+          "priority": 9
+        }
+      },
+      "name": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "client_name",
+          "priority": 10
+        }
+      },
+      "emailaddress": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "client_email",
+          "priority": 0
+        }
+      },
+      "clientemail": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "client_email",
+          "priority": 1
+        }
+      },
+      "passengeremail": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "client_email",
+          "priority": 2
+        }
+      },
+      "email": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "client_email",
+          "priority": 3
+        }
+      },
+      "whatsappnumber": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "client_phone",
+          "priority": 0
+        }
+      },
+      "whatsappno": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "client_phone",
+          "priority": 1
+        }
+      },
+      "mobilenumber": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "client_phone",
+          "priority": 2
+        }
+      },
+      "mobileno": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "client_phone",
+          "priority": 3
+        }
+      },
+      "phonenumber": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "client_phone",
+          "priority": 4
+        }
+      },
+      "phoneno": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "client_phone",
+          "priority": 5
+        }
+      },
+      "contactnumber": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "client_phone",
+          "priority": 6
+        }
+      },
+      "contactno": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "client_phone",
+          "priority": 7
+        }
+      },
+      "clientphone": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "client_phone",
+          "priority": 8
+        }
+      },
+      "telephone": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "client_phone",
+          "priority": 9
+        }
+      },
+      "whatsapp": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "client_phone",
+          "priority": 10
+        }
+      },
+      "mobile": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "client_phone",
+          "priority": 11
+        }
+      },
+      "phone": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "client_phone",
+          "priority": 12
+        }
+      },
+      "contact": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "client_phone",
+          "priority": 13
+        }
+      },
+      "departurecity": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "departure_city",
+          "priority": 0
+        }
+      },
+      "departurehub": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "departure_city",
+          "priority": 1
+        }
+      },
+      "hub": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "departure_city",
+          "priority": 2
+        }
+      },
+      "city": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "departure_city",
+          "priority": 3
+        }
+      },
+      "nearestdomesticairport": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "nearest_domestic_airport",
+          "priority": 0
+        }
+      },
+      "nearestairportdomestic": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "nearest_domestic_airport",
+          "priority": 1
+        }
+      },
+      "domesticairport": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "nearest_domestic_airport",
+          "priority": 2
+        }
+      },
+      "surname": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "surname",
+          "priority": 0
+        }
+      },
+      "familyname": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "surname",
+          "priority": 2
+        }
+      },
+      "lastname": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "surname",
+          "priority": 3
+        }
+      },
+      "givennames": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "given_names",
+          "priority": 0
+        }
+      },
+      "givenname": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "given_names",
+          "priority": 1
+        }
+      },
+      "firstname": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "given_names",
+          "priority": 2
+        }
+      },
+      "forenames": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "given_names",
+          "priority": 3
+        }
+      },
+      "forename": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "given_names",
+          "priority": 4
+        }
+      },
+      "passportnumber": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "passport_number",
+          "priority": 0
+        }
+      },
+      "passportno": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "passport_number",
+          "priority": 1
+        }
+      },
+      "passportnum": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "passport_number",
+          "priority": 2
+        }
+      },
+      "passport": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "passport_number",
+          "priority": 3
+        }
+      },
+      "ppnumber": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "passport_number",
+          "priority": 5
+        }
+      },
+      "ppno": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "passport_number",
+          "priority": 6
+        }
+      },
+      "pptnumber": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "passport_number",
+          "priority": 7
+        }
+      },
+      "pptno": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "passport_number",
+          "priority": 8
+        }
+      },
+      "nationality": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "nationality",
+          "priority": 0
+        }
+      },
+      "citizenship": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "nationality",
+          "priority": 1
+        }
+      },
+      "placeofissue": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "place_of_issue",
+          "priority": 0
+        }
+      },
+      "placeofissuance": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "place_of_issue",
+          "priority": 1
+        }
+      },
+      "passportplaceofissue": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "place_of_issue",
+          "priority": 2
+        }
+      },
+      "issueplace": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "place_of_issue",
+          "priority": 3
+        }
+      },
+      "issuingcountry": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "issuing_country",
+          "priority": 0
+        }
+      },
+      "issuecountry": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "issuing_country",
+          "priority": 1
+        }
+      },
+      "countryofissue": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "issuing_country",
+          "priority": 2
+        }
+      },
+      "dateofbirth": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "date_of_birth",
+          "priority": 0
+        }
+      },
+      "birthdate": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "date_of_birth",
+          "priority": 1
+        }
+      },
+      "dob": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "date_of_birth",
+          "priority": 3
+        }
+      },
+      "dateofissue": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "date_of_issue",
+          "priority": 0
+        }
+      },
+      "dateofissuance": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "date_of_issue",
+          "priority": 1
+        }
+      },
+      "passportissuedate": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "date_of_issue",
+          "priority": 2
+        }
+      },
+      "passportissue": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "date_of_issue",
+          "priority": 3
+        }
+      },
+      "issuedate": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "date_of_issue",
+          "priority": 4
+        }
+      },
+      "doi": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "date_of_issue",
+          "priority": 5
+        }
+      },
+      "dateofexpiry": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "date_of_expiry",
+          "priority": 0
+        }
+      },
+      "dateofexpiration": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "date_of_expiry",
+          "priority": 1
+        }
+      },
+      "passportexpirydate": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "date_of_expiry",
+          "priority": 2
+        }
+      },
+      "passportexpirationdate": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "date_of_expiry",
+          "priority": 3
+        }
+      },
+      "passportexpiry": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "date_of_expiry",
+          "priority": 4
+        }
+      },
+      "passportexpiration": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "date_of_expiry",
+          "priority": 5
+        }
+      },
+      "expirydate": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "date_of_expiry",
+          "priority": 6
+        }
+      },
+      "expirationdate": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "date_of_expiry",
+          "priority": 7
+        }
+      },
+      "expiry": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "date_of_expiry",
+          "priority": 8
+        }
+      },
+      "expiration": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "date_of_expiry",
+          "priority": 9
+        }
+      },
+      "validuntil": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "date_of_expiry",
+          "priority": 10
+        }
+      },
+      "validtill": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "date_of_expiry",
+          "priority": 11
+        }
+      },
+      "doe": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "date_of_expiry",
+          "priority": 12
+        }
+      },
+      "gender": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "sex",
+          "priority": 0
+        }
+      },
+      "sex": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "sex",
+          "priority": 1
+        }
+      },
+      "staffcode": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "staff_code",
+          "priority": 0
+        }
+      },
+      "employeecode": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "staff_code",
+          "priority": 2
+        }
+      },
+      "employeeid": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "staff_code",
+          "priority": 3
+        }
+      },
+      "staffid": {
+        "type": "_HeaderAlias",
+        "fields": {
+          "field": "staff_code",
+          "priority": 4
+        }
+      }
+    }
+  },
+  "class_catalog": {
+    "verified_whatsapp_numbers": [
+      "verified whatsapp numbers",
+      "verified whatsapp number"
+    ],
+    "client_name": [
+      "passenger name",
+      "full name",
+      "client name",
+      "traveller name",
+      "traveler name",
+      "guest name",
+      "recipient name",
+      "staff name",
+      "staffname",
+      "passenger",
+      "name"
+    ],
+    "client_email": [
+      "email address",
+      "client email",
+      "passenger email",
+      "email",
+      "e-mail"
+    ],
+    "client_phone": [
+      "whatsapp number",
+      "whatsapp no",
+      "mobile number",
+      "mobile no",
+      "phone number",
+      "phone no",
+      "contact number",
+      "contact no",
+      "client phone",
+      "telephone",
+      "whatsapp",
+      "mobile",
+      "phone",
+      "contact"
+    ],
+    "departure_city": [
+      "departure city",
+      "departure hub",
+      "hub",
+      "city"
+    ],
+    "nearest_domestic_airport": [
+      "nearest domestic airport",
+      "nearest airport domestic",
+      "domestic airport"
+    ],
+    "surname": [
+      "surname",
+      "sur name",
+      "family name",
+      "last name"
+    ],
+    "given_names": [
+      "given names",
+      "given name",
+      "first name",
+      "forenames",
+      "forename"
+    ],
+    "passport_number": [
+      "passport number",
+      "passport no",
+      "passport num",
+      "passport #",
+      "passport",
+      "pp number",
+      "pp no",
+      "ppt number",
+      "ppt no"
+    ],
+    "nationality": [
+      "nationality",
+      "citizenship"
+    ],
+    "place_of_issue": [
+      "place of issue",
+      "place of issuance",
+      "passport place of issue",
+      "issue place"
+    ],
+    "issuing_country": [
+      "issuing country",
+      "issue country",
+      "country of issue"
+    ],
+    "date_of_birth": [
+      "date of birth",
+      "birth date",
+      "birthdate",
+      "dob"
+    ],
+    "date_of_issue": [
+      "date of issue",
+      "date of issuance",
+      "passport issue date",
+      "passport issue",
+      "issue date",
+      "doi"
+    ],
+    "date_of_expiry": [
+      "date of expiry",
+      "date of expiration",
+      "passport expiry date",
+      "passport expiration date",
+      "passport expiry",
+      "passport expiration",
+      "expiry date",
+      "expiration date",
+      "expiry",
+      "expiration",
+      "valid until",
+      "valid till",
+      "doe"
+    ],
+    "sex": [
+      "gender",
+      "sex"
+    ],
+    "staff_code": [
+      "staff code",
+      "staffcode",
+      "employee code",
+      "employee id",
+      "staff id"
+    ]
+  },
+  "class_field_keys": [
+    "date_of_birth",
+    "date_of_expiry",
+    "date_of_issue",
+    "given_names",
+    "issuing_country",
+    "nationality",
+    "passport_number",
+    "place_of_issue",
+    "sex",
+    "staff_code",
+    "surname"
+  ]
+}

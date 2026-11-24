@@ -1,8 +1,7 @@
-"""Worker-side WhatsApp broadcast execution."""
+"""Worker-side WhatsApp broadcast orchestration with live compatibility seams."""
 
 from __future__ import annotations
 
-import asyncio
 import uuid
 from datetime import UTC, datetime, timedelta
 
@@ -15,9 +14,7 @@ from app.application.use_cases.whatsapp.message_templates import (
     format_support_contacts,
     template_header_parameters,
     template_parameters,
-    validate_template_parameters,
 )
-from app.application.use_cases.whatsapp.welcome_policy import requires_prior_welcome
 from app.core.config.settings import get_settings
 from app.infrastructure.database.models import (
     WhatsAppBroadcastGroupModel,
@@ -27,25 +24,17 @@ from app.infrastructure.database.models import (
     WhatsAppRecipientMessageStateModel,
 )
 from app.infrastructure.database.session import AsyncSessionFactory
-from app.infrastructure.repositories.passport_roster_resolution_repository import (
-    active_replacement_resolution_id_for_recipient,
+from app.infrastructure.whatsapp import broadcast_worker_policy as _policy
+from app.infrastructure.whatsapp import broadcast_worker_provider as _provider
+from app.infrastructure.whatsapp import broadcast_worker_state as _state
+from app.infrastructure.whatsapp.broadcast_worker_state import (
+    ACCEPTED_DELIVERY_STATUSES as ACCEPTED_DELIVERY_STATUSES,
 )
-from app.infrastructure.whatsapp.cloud_api_provider import (
-    WhatsAppCloudApiError,
-    send_whatsapp_template,
-)
-from app.infrastructure.whatsapp.group_invite_policy import (
-    group_invite_block_message,
-    group_invite_blocking_statuses,
-    message_phone_blocking_statuses,
-    passport_link_block_message,
-)
+from app.infrastructure.whatsapp.cloud_api_provider import send_whatsapp_template
 from app.infrastructure.whatsapp.mcp_dispatch import authorize_mcp_batch_dispatch
 from app.infrastructure.whatsapp.mcp_progress import refresh_mcp_dispatch_progress
 from app.infrastructure.whatsapp.phone_welcome import (
-    WELCOME_REQUIRED,
     assert_phone_welcome_claim,
-    require_welcome_delivered,
     sync_welcome_from_log,
 )
 from app.infrastructure.whatsapp.receipt_bindings import bind_source_provider_message
@@ -53,40 +42,10 @@ from app.infrastructure.whatsapp.worker_recovery import lock_interrupted_broadca
 
 MAX_PROVIDER_ATTEMPTS = 3
 WHATSAPP_BATCH_HEARTBEAT_INTERVAL = timedelta(minutes=5)
-ACCEPTED_DELIVERY_STATUSES = frozenset({"submitted", "sent", "delivered", "read"})
 
 
-def _resolve_log_template_snapshot(
-    *,
-    log: WhatsAppMessageLogModel,
-    message_type: WhatsAppMessageType,
-    fallback_header_parameters: list[str],
-    fallback_parameters: list[str],
-) -> tuple[list[str], list[str]]:
-    saved_header = getattr(log, "header_parameter_values", None)
-    saved_body = getattr(log, "template_parameter_values", None)
-    if saved_header is None and saved_body is None:
-        if getattr(log, "is_explicit_resend", False):
-            raise ValueError("Explicit resend is missing its frozen template parameters")
-        if message_type == "group_invite":
-            validate_template_parameters(
-                message_type=message_type,
-                header_parameters=fallback_header_parameters,
-                body_parameters=fallback_parameters,
-            )
-        return fallback_header_parameters, fallback_parameters
-    if not isinstance(saved_header, list) or not isinstance(saved_body, list):
-        raise ValueError("Saved WhatsApp template parameters are incomplete")
-    if any(not isinstance(value, str) for value in [*saved_header, *saved_body]):
-        raise ValueError("Saved WhatsApp template parameters are invalid")
-    header_parameters = list(saved_header)
-    parameters = list(saved_body)
-    validate_template_parameters(
-        message_type=message_type,
-        header_parameters=header_parameters,
-        body_parameters=parameters,
-    )
-    return header_parameters, parameters
+_resolve_log_template_snapshot = _policy._resolve_log_template_snapshot
+_heartbeat_queued_batch_claims = _state._heartbeat_queued_batch_claims
 
 
 async def _set_message_state(
@@ -98,49 +57,17 @@ async def _set_message_state(
     release_claim: bool = False,
     submitted: bool = False,
 ) -> None:
-    if log.message_type == "welcome":
-        await sync_welcome_from_log(session, log)
-    if getattr(log, "is_explicit_resend", False):
-        return
-    now = datetime.now(tz=UTC)
-    values: dict[str, object] = {
-        "status": state_status,
-        "status_updated_at": now,
-        "updated_at": now,
-    }
-    if release_claim:
-        values["batch_id"] = None
-    if submitted:
-        values["submitted_at"] = now
-        values["batch_id"] = expected_batch_id
-    predicates = [
-        WhatsAppRecipientMessageStateModel.recipient_id == log.recipient_id,
-        WhatsAppRecipientMessageStateModel.message_type == log.message_type,
-    ]
-    if submitted:
-        if log.message_type in {"reminder", "update", "passport_link"}:
-            # An earlier reminder completing late must not consume a newer
-            # deliberate reminder's claim or move its delivery timestamps.
-            predicates.append(WhatsAppRecipientMessageStateModel.batch_id == expected_batch_id)
-        # Provider acceptance is authoritative even if removal or stale-claim
-        # recovery changed the ledger while the HTTP request was in flight.
-        # Never regress a more advanced accepted state.
-        predicates.append(
-            ~WhatsAppRecipientMessageStateModel.status.in_(ACCEPTED_DELIVERY_STATUSES)
-        )
-    else:
-        predicates.append(WhatsAppRecipientMessageStateModel.batch_id == expected_batch_id)
-        if release_claim or state_status == "delivery_unknown":
-            predicates.append(
-                ~WhatsAppRecipientMessageStateModel.status.in_(ACCEPTED_DELIVERY_STATUSES)
-            )
-    await session.execute(
-        update(WhatsAppRecipientMessageStateModel)
-        .where(*predicates)
-        .values(**values)
-        .execution_options(synchronize_session=False)
+    await _state._set_message_state(
+        session,
+        log=log,
+        expected_batch_id=expected_batch_id,
+        state_status=state_status,
+        release_claim=release_claim,
+        submitted=submitted,
+        callbacks=_state.BroadcastStateCallbacks(
+            sync_welcome_from_log, refresh_mcp_dispatch_progress
+        ),
     )
-    await refresh_mcp_dispatch_progress(session, batch_id=expected_batch_id)
 
 
 async def _load_sendable_recipient(
@@ -150,123 +77,17 @@ async def _load_sendable_recipient(
     expected_batch_id: uuid.UUID,
     include_previous_recipients: bool = False,
 ) -> tuple[WhatsAppBroadcastRecipientModel | None, str | None]:
-    mcp_error = await authorize_mcp_batch_dispatch(session, log=log, settings=get_settings())
-    if mcp_error:
-        return None, mcp_error
-    group_result = await session.execute(
-        select(WhatsAppBroadcastGroupModel)
-        .where(WhatsAppBroadcastGroupModel.id == log.broadcast_group_id)
-        .with_for_update()
-        .execution_options(populate_existing=True)
-    )
-    group = group_result.scalar_one_or_none()
-    if not group:
-        return None, "WhatsApp broadcast group no longer exists"
-    if getattr(group, "archived_at", None) is not None:
-        return None, "WhatsApp broadcast is archived. Restore it before sending messages."
-
-    recipient_result = await session.execute(
-        select(WhatsAppBroadcastRecipientModel)
-        .where(WhatsAppBroadcastRecipientModel.id == log.recipient_id)
-        .execution_options(populate_existing=True)
-    )
-    recipient = recipient_result.scalar_one_or_none()
-    if not recipient:
-        return None, "WhatsApp recipient no longer exists"
-    if recipient.removed_at is not None:
-        return None, "WhatsApp recipient was removed"
-    if await active_replacement_resolution_id_for_recipient(
+    return await _policy._load_sendable_recipient(
         session,
-        recipient=recipient,
-    ):
-        return None, "WhatsApp recipient was replaced in a linked passport group"
-
-    frozen_phone = getattr(log, "normalized_phone_number", None)
-    if not frozen_phone or frozen_phone != recipient.normalized_phone_number:
-        return None, "WhatsApp destination changed or lacks a safe snapshot. Review and send again."
-    if log.message_type == "group_invite":
-        invite_blocks = await group_invite_blocking_statuses(session, [recipient], current_log=log)
-        if recipient.id in invite_blocks:
-            return None, group_invite_block_message(invite_blocks[recipient.id])
-    if log.message_type == "passport_link":
-        phone_blocks = await message_phone_blocking_statuses(
-            session, [recipient], message_type="passport_link", current_log=log,
-            include_accepted=not (log.is_explicit_resend or include_previous_recipients or (getattr(log, "document_update_context", None) or {}).get("passport_link_repeat") is True),
-        )
-        if recipient.id in phone_blocks:
-            return None, passport_link_block_message(phone_blocks[recipient.id])
-    if log.message_type == "welcome":
-        if not await assert_phone_welcome_claim(
-            session,
-            agency_id=log.agency_id,
-            phone=frozen_phone,
-            attempt_id=log.id, broadcast_group_id=log.broadcast_group_id,
-        ):
-            return None, "This number already has a welcome or another welcome is in progress."
-    elif requires_prior_welcome(log.message_type) and not await require_welcome_delivered(
-        session, agency_id=log.agency_id, phone=frozen_phone,
-        broadcast_group_id=log.broadcast_group_id,
-    ):
-        return None, WELCOME_REQUIRED
-    if getattr(log, "is_explicit_resend", False):
-        resend_claim_result = await session.execute(
-            select(WhatsAppMessageLogModel.id).where(
-                WhatsAppMessageLogModel.id == log.id,
-                WhatsAppMessageLogModel.batch_id == expected_batch_id,
-                WhatsAppMessageLogModel.status == "processing",
-                WhatsAppMessageLogModel.is_explicit_resend.is_(True),
-            )
-        )
-        if not resend_claim_result.scalar_one_or_none():
-            return None, "Explicit resend claim was superseded before provider submission"
-        return recipient, None
-
-    state_result = await session.execute(
-        select(WhatsAppRecipientMessageStateModel).where(
-            WhatsAppRecipientMessageStateModel.recipient_id == log.recipient_id,
-            WhatsAppRecipientMessageStateModel.message_type == log.message_type,
-        )
+        log=log,
+        expected_batch_id=expected_batch_id,
+        include_previous_recipients=include_previous_recipients,
+        callbacks=_policy.BroadcastPolicyCallbacks(
+            get_settings,
+            authorize_mcp_batch_dispatch,
+            assert_phone_welcome_claim,
+        ),
     )
-    delivery_state = state_result.scalar_one_or_none()
-    if (
-        not delivery_state
-        or delivery_state.batch_id != expected_batch_id
-        or delivery_state.status != "processing"
-    ):
-        return None, "Delivery claim was superseded before provider submission"
-    return recipient, None
-
-
-async def _heartbeat_queued_batch_claims(
-    session: AsyncSession,
-    *,
-    batch_id: uuid.UUID,
-    heartbeat_at: datetime,
-) -> None:
-    """Keep an actively processed large batch out of stale-claim recovery."""
-
-    await session.execute(
-        update(WhatsAppMessageLogModel)
-        .where(
-            WhatsAppMessageLogModel.batch_id == batch_id,
-            WhatsAppMessageLogModel.status == "queued",
-        )
-        .values(status_updated_at=heartbeat_at)
-        .execution_options(synchronize_session=False)
-    )
-    await session.execute(
-        update(WhatsAppRecipientMessageStateModel)
-        .where(
-            WhatsAppRecipientMessageStateModel.batch_id == batch_id,
-            WhatsAppRecipientMessageStateModel.status == "queued",
-        )
-        .values(
-            status_updated_at=heartbeat_at,
-            updated_at=heartbeat_at,
-        )
-        .execution_options(synchronize_session=False)
-    )
-    await session.commit()
 
 
 async def run_whatsapp_broadcast(
@@ -475,169 +296,34 @@ async def run_whatsapp_broadcast(
                     )
                     await session.commit()
                     continue
-                for attempt in range(MAX_PROVIDER_ATTEMPTS):
-                    recipient, claim_error = await _load_sendable_recipient(
-                        session,
-                        log=log,
-                        expected_batch_id=parsed_batch_id,
-                        include_previous_recipients=include_previous_recipients,
-                    )
-                    if not recipient:
-                        log.status = "failed"
-                        log.status_updated_at = datetime.now(tz=UTC)
-                        log.error_message = claim_error
-                        await _set_message_state(
-                            session,
-                            log=log,
-                            expected_batch_id=parsed_batch_id,
-                            state_status="failed",
-                            release_claim=True,
-                        )
-                        await session.commit()
-                        break
-                    try:
-                        provider_id = await send_whatsapp_template(
-                            client=client,
-                            settings=settings,
-                            to_number=recipient.normalized_phone_number,
-                            template_name=log.template_name or "",
-                            message_type=message_type,
-                            parameters=parameters,
-                            header_parameters=header_parameters,
-                            language_code=(
-                                getattr(log, "template_language", None)
-                                or (settings.whatsapp_group_invite_template_language if message_type == "group_invite" else settings.whatsapp_template_language)
-                            ),
-                        )
-                    except WhatsAppCloudApiError as exc:
-                        safe_error = exc.persistence_message[:2000]
-                        if exc.delivery_unknown:
-                            log.status = "delivery_unknown"
-                            log.status_updated_at = datetime.now(tz=UTC)
-                            log.error_message = safe_error
-                            await _set_message_state(
-                                session,
-                                log=log,
-                                expected_batch_id=parsed_batch_id,
-                                state_status="delivery_unknown",
-                            )
-                            await session.commit()
-                            break
-                        if exc.transient and attempt + 1 < MAX_PROVIDER_ATTEMPTS:
-                            log.status = "processing"
-                            log.status_updated_at = datetime.now(tz=UTC)
-                            log.error_message = (f"{exc.code}: Temporary provider error; retrying")[
-                                :2000
-                            ]
-                            await session.commit()
-                            await asyncio.sleep(2**attempt)
-                            continue
-                        log.status = "failed"
-                        log.status_updated_at = datetime.now(tz=UTC)
-                        log.error_message = safe_error
-                        await _set_message_state(
-                            session,
-                            log=log,
-                            expected_batch_id=parsed_batch_id,
-                            state_status="failed",
-                            release_claim=True,
-                        )
-                        await session.commit()
-                        break
-                    except Exception as exc:  # noqa: BLE001 - outcome may be ambiguous.
-                        log.status = "delivery_unknown"
-                        log.status_updated_at = datetime.now(tz=UTC)
-                        log.error_message = (f"WhatsApp delivery outcome is unknown: {exc}")[:2000]
-                        await _set_message_state(
-                            session,
-                            log=log,
-                            expected_batch_id=parsed_batch_id,
-                            state_status="delivery_unknown",
-                        )
-                        await session.commit()
-                        break
-
-                    try:
-                        log_id = log.id
-                        log.status = "submitted"
-                        log.status_updated_at = datetime.now(tz=UTC)
-                        log.provider_message_id = provider_id
-                        log.error_message = None
-                        await bind_source_provider_message(
-                            session, log, provider_phone_number_id=settings.whatsapp_phone_number_id
-                        )
-                        await _set_message_state(
-                            session,
-                            log=log,
-                            expected_batch_id=parsed_batch_id,
-                            state_status="submitted",
-                            submitted=True,
-                        )
-                        await session.commit()
-                        break
-                    except Exception:
-                        # Meta returned a provider ID. A local commit failure
-                        # must never release the recipient for another send.
-                        await session.rollback()
-                        reconciliation_result = await session.execute(
-                            select(WhatsAppMessageLogModel)
-                            .where(WhatsAppMessageLogModel.id == log_id)
-                            .with_for_update()
-                        )
-                        reconciliation_log = reconciliation_result.scalar_one_or_none()
-                        if reconciliation_log:
-                            if reconciliation_log.status not in ACCEPTED_DELIVERY_STATUSES:
-                                reconciliation_log.status = "submitted"
-                                reconciliation_log.status_updated_at = datetime.now(tz=UTC)
-                            reconciliation_log.provider_message_id = provider_id
-                            reconciliation_log.error_message = None
-                            await bind_source_provider_message(
-                                session, reconciliation_log,
-                                provider_phone_number_id=settings.whatsapp_phone_number_id,
-                            )
-                            await _set_message_state(
-                                session,
-                                log=reconciliation_log,
-                                expected_batch_id=parsed_batch_id,
-                                state_status="submitted",
-                                submitted=True,
-                            )
-                            await session.commit()
-                        else:
-                            raise
-                        break
+                await _provider.submit_broadcast_log(
+                    session,
+                    log=log,
+                    log_id=log_id,
+                    parsed_batch_id=parsed_batch_id,
+                    settings=settings,
+                    client=client,
+                    message_type=message_type,
+                    parameters=parameters,
+                    header_parameters=header_parameters,
+                    include_previous_recipients=include_previous_recipients,
+                    max_attempts=MAX_PROVIDER_ATTEMPTS,
+                    accepted_statuses=ACCEPTED_DELIVERY_STATUSES,
+                    callbacks=_provider.BroadcastProviderCallbacks(
+                        _load_sendable_recipient,
+                        _set_message_state,
+                        send_whatsapp_template,
+                        bind_source_provider_message,
+                    ),
+                )
 
 
 async def mark_whatsapp_batch_failed(*, batch_id: str, error_message: str) -> None:
     """Move any stranded queued rows to a terminal state after retries are exhausted."""
 
-    async with AsyncSessionFactory() as session:
-        result = await session.execute(
-            select(WhatsAppMessageLogModel)
-            .where(
-                WhatsAppMessageLogModel.batch_id == uuid.UUID(batch_id),
-                WhatsAppMessageLogModel.status.in_(["queued", "processing"]),
-            )
-            .order_by(
-                WhatsAppMessageLogModel.agency_id,
-                WhatsAppMessageLogModel.normalized_phone_number,
-                WhatsAppMessageLogModel.id,
-            )
-        )
-        for log in result.scalars().all():
-            was_processing = log.status == "processing"
-            log.status = "delivery_unknown" if was_processing else "failed"
-            log.status_updated_at = datetime.now(tz=UTC)
-            log.error_message = (
-                (f"{error_message}; delivery outcome is unknown and automatic resend is suppressed")
-                if was_processing
-                else error_message
-            )[:2000]
-            await _set_message_state(
-                session,
-                log=log,
-                expected_batch_id=uuid.UUID(batch_id),
-                state_status="delivery_unknown" if was_processing else "failed",
-                release_claim=not was_processing,
-            )
-        await session.commit()
+    await _state.mark_whatsapp_batch_failed(
+        batch_id=batch_id,
+        error_message=error_message,
+        session_factory=AsyncSessionFactory,
+        set_message_state=_set_message_state,
+    )

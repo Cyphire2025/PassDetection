@@ -1,0 +1,142 @@
+[
+  {
+    "path": "app/presentation/api/v1/routes/admin_accounts.py",
+    "baseline_lines": 94,
+    "maximum_lines": 97,
+    "baseline_max_function_complexity": 0,
+    "maximum_function_complexity": 0,
+    "minimum_coverage_percent": 95,
+    "observed_statement_coverage": 100.0,
+    "observed_branch_coverage": 100.0,
+    "sha256": "75ff6a0e79de56d0397c4ed7f980e2ffa1135a41dcf2f9e07d137edeb522a2ac",
+    "coverage_evidence": "managed-account-qualified-coverage.json",
+    "source_fence_evidence": "managed-account-coverage-union-proof.json",
+    "previously_budgeted": false,
+    "previous_budget": null
+  },
+  {
+    "path": "app/presentation/api/v1/routes/managed_account_creation.py",
+    "baseline_lines": 101,
+    "maximum_lines": 105,
+    "baseline_max_function_complexity": 4,
+    "maximum_function_complexity": 4,
+    "minimum_coverage_percent": 95,
+    "observed_statement_coverage": 100.0,
+    "observed_branch_coverage": 83.33333333333333,
+    "sha256": "6b377cce932b283ec9cd83b4ec8d7020eda70165330c57fad96ab6b344ced05f",
+    "coverage_evidence": "managed-account-qualified-coverage.json",
+    "source_fence_evidence": "managed-account-coverage-union-proof.json",
+    "previously_budgeted": false,
+    "previous_budget": null,
+    "proposed_critical_coverage_gate": {
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 80
+    }
+  },
+  {
+    "path": "app/presentation/api/v1/routes/managed_account_credentials.py",
+    "baseline_lines": 153,
+    "maximum_lines": 158,
+    "baseline_max_function_complexity": 2,
+    "maximum_function_complexity": 2,
+    "minimum_coverage_percent": 95,
+    "observed_statement_coverage": 100.0,
+    "observed_branch_coverage": 100.0,
+    "sha256": "067cfca4e972d2caaff00aa6b2dc81fbe3bcff6f2bb7bb39b0c4a5fee114a778",
+    "coverage_evidence": "managed-account-qualified-coverage.json",
+    "source_fence_evidence": "managed-account-coverage-union-proof.json",
+    "previously_budgeted": false,
+    "previous_budget": null,
+    "proposed_critical_coverage_gate": {
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    }
+  },
+  {
+    "path": "app/presentation/api/v1/routes/managed_account_mutations.py",
+    "baseline_lines": 178,
+    "maximum_lines": 184,
+    "baseline_max_function_complexity": 7,
+    "maximum_function_complexity": 7,
+    "minimum_coverage_percent": 95,
+    "observed_statement_coverage": 98.33333333333333,
+    "observed_branch_coverage": 90.0,
+    "sha256": "b5a6857bf9589e9e8ea07f5b73b1b9173234544d1d9d04bcb1ad4469a5ceb68b",
+    "coverage_evidence": "managed-account-qualified-coverage.json",
+    "source_fence_evidence": "managed-account-coverage-union-proof.json",
+    "previously_budgeted": false,
+    "previous_budget": null,
+    "proposed_critical_coverage_gate": {
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 85
+    }
+  },
+  {
+    "path": "app/presentation/api/v1/routes/managed_account_queries.py",
+    "baseline_lines": 87,
+    "maximum_lines": 90,
+    "baseline_max_function_complexity": 4,
+    "maximum_function_complexity": 4,
+    "minimum_coverage_percent": 95,
+    "observed_statement_coverage": 100.0,
+    "observed_branch_coverage": 100.0,
+    "sha256": "7a6551812cf5935088b20d795e42660f7e787b4459bef731da77c8fb7a1a8e4c",
+    "coverage_evidence": "managed-account-qualified-coverage.json",
+    "source_fence_evidence": "managed-account-coverage-union-proof.json",
+    "previously_budgeted": false,
+    "previous_budget": null
+  },
+  {
+    "path": "app/presentation/api/v1/routes/managed_account_scope.py",
+    "baseline_lines": 65,
+    "maximum_lines": 67,
+    "baseline_max_function_complexity": 10,
+    "maximum_function_complexity": 10,
+    "minimum_coverage_percent": 95,
+    "observed_statement_coverage": 100.0,
+    "observed_branch_coverage": 100.0,
+    "sha256": "c1b80c32d6b6f88f3bdfdcd28f7b57dbf1c82eb8df58b40a7da9fc6c6f33ee11",
+    "coverage_evidence": "managed-account-qualified-coverage.json",
+    "source_fence_evidence": "managed-account-coverage-union-proof.json",
+    "previously_budgeted": false,
+    "previous_budget": null,
+    "proposed_critical_coverage_gate": {
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    }
+  },
+  {
+    "path": "app/presentation/api/v1/routes/managed_account_sessions.py",
+    "baseline_lines": 102,
+    "maximum_lines": 106,
+    "baseline_max_function_complexity": 3,
+    "maximum_function_complexity": 3,
+    "minimum_coverage_percent": 95,
+    "observed_statement_coverage": 100.0,
+    "observed_branch_coverage": 100.0,
+    "sha256": "64828e2872daadeaee2362b07c4a353f43c6408e4598e59e7287ebb96b628043",
+    "coverage_evidence": "managed-account-qualified-coverage.json",
+    "source_fence_evidence": "managed-account-coverage-union-proof.json",
+    "previously_budgeted": false,
+    "previous_budget": null,
+    "proposed_critical_coverage_gate": {
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    }
+  },
+  {
+    "path": "app/presentation/api/v1/routes/managed_account_values.py",
+    "baseline_lines": 73,
+    "maximum_lines": 76,
+    "baseline_max_function_complexity": 2,
+    "maximum_function_complexity": 2,
+    "minimum_coverage_percent": 90,
+    "observed_statement_coverage": 94.44444444444444,
+    "observed_branch_coverage": 50.0,
+    "sha256": "1b89f19ee3ede770ebf6f7751c91bf8669ed08c7778e6cae51793eeece3a5f83",
+    "coverage_evidence": "managed-account-qualified-coverage.json",
+    "source_fence_evidence": "managed-account-coverage-union-proof.json",
+    "previously_budgeted": false,
+    "previous_budget": null
+  }
+]

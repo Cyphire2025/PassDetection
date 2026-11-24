@@ -1,0 +1,104 @@
+{
+  "status": "Separate proved current-authority fix qualified; guard frozen, composition work remains open",
+  "source_manifest": {
+    "path": "docs/audit/dashboard-2026-10-30/whatsapp-welcome-media-source-manifest.json",
+    "sha256": "5c50a63794c050a41f524a8b84faf073597e2ea57c5af36221c10419426bf302"
+  },
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/whatsapp-welcome-media-reviewed-files.json",
+    "sha256": "855616abb87567f5eda23aaa7f8aa25d571ce01e2a4a73aa03dcbb4e9c6da2b1"
+  },
+  "candidates": {
+    "path": "docs/audit/dashboard-2026-10-30/whatsapp-welcome-media-budget-candidates.json",
+    "sha256": "19f7d904aabbf6ae164848d35df355f11982431e4f9151d797ea051bb5dc027f"
+  },
+  "baseline": {
+    "original_source": {
+      "path": ".tmp/whatsapp-composer-current/whatsapp_composer.py",
+      "sha256": "29651e2747c95b9fd257458ea54fa89b93e3fba98c3d95b6bf7961eb52f726bf"
+    },
+    "result": "Untouched original360-line composer:10negative failures and5healthy/lifetime controls pass. Each failed current-authority case reached the mocked provider and returned success.",
+    "raw_log": {
+      "path": ".tmp/whatsapp-welcome-media-authority-before.log",
+      "sha256": "ef57b961a215970d202eef035184b6d46e76ce3f26a036a78ffc24246558ec43"
+    }
+  },
+  "qualified": {
+    "focused_cases": 43,
+    "new_authority_lifetime_cases": 21,
+    "source_fenced_command": {
+      "path": "docs/audit/dashboard-2026-10-30/whatsapp-welcome-media-focused-command.json",
+      "sha256": "e60c099835905e400c869d9b5afc2072eb52e30dd89c2680aeda3c9fc42a3339"
+    },
+    "current_focused_log": {
+      "path": "docs/audit/dashboard-2026-10-30/whatsapp-welcome-media-focused-tests.txt",
+      "sha256": "71e81ef69ab7016c48e277811b170c9fa42f2f81c0b09efeff7ba3a1a07740c7"
+    },
+    "original15_after_log": {
+      "path": ".tmp/whatsapp-welcome-media-authority-after.log",
+      "sha256": "4b2c47686eaa0f962d7e0defd721e556fb13a187590bdc7c43f9ea8e6cbb9688"
+    },
+    "owned_provider18_after_log": {
+      "path": ".tmp/whatsapp-welcome-media-owned-after.log",
+      "sha256": "f0512805a2376bea4aea96a4dad4f6ff027c4b80413c445bb15b7270b3331a0c"
+    },
+    "coverage": {
+      "path": "docs/audit/dashboard-2026-10-30/whatsapp-welcome-media-coverage.json",
+      "sha256": "63ad202e8a92ce6144350933325a0fc0d06410cc75ffa68a40611c1dda44eb81"
+    },
+    "guard_line_percent": 100,
+    "guard_branch_percent": 100,
+    "mypy2": {
+      "exit_code": 0,
+      "log": {
+        "path": ".tmp/whatsapp-welcome-media-types.log",
+        "sha256": "0c37c4158c91ef55c724ba017bf6465f26018199badb08e3ff13f98acdf056c2"
+      }
+    },
+    "ruff3": {
+      "exit_code": 0,
+      "log": {
+        "path": ".tmp/whatsapp-welcome-media-lint.log",
+        "sha256": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0"
+      }
+    },
+    "public_runtime_contract": {
+      "path": "docs/audit/dashboard-2026-10-30/whatsapp-welcome-media-runtime-contract.json",
+      "sha256": "057f402ad0ea9c034531e04aaa77fd1286294e3530528c1c3594e48ef6549e8b"
+    },
+    "original_import_identities": 52,
+    "source_proof": {
+      "path": "docs/audit/dashboard-2026-10-30/whatsapp-welcome-media-source-proof.json",
+      "sha256": "980cdf2c06d2720d9e953ad54160760239276f371920ba8a754d028b52c0e15b"
+    }
+  },
+  "behavior": [
+    "Release the initial read-only authorization transaction after accepted MIME validation and before awaited image reading/security validation.",
+    "After validation, acquire fresh locks in actor\u2192credential/session-state\u2192effective-agency\u2192broadcast order. Populate existing ORM entries at this specific boundary; preserve canonical active account/deleted state, actual/effective role and tenant, active credentials/session-version and legacy active/version1 defaults.",
+    "Reuse unchanged revalidate_access_level_actor and UserRepository mapping, existing agency-active mutation rule, tenant filter and require_active_broadcast. No new manager restriction, role allowlist or cache.",
+    "Retain guard transaction through the original owned HTTP client/provider await; rollback in finally for denial, success, safe provider error and cancellation. Never release authority locks and then start the media upload.",
+    "Actor deactivation/deletion/soft-deletion/role/tenant/session-version/credential/restricted-role changes and agency suspension return403; archived group409, moved/missing group404 before mocked provider.",
+    "Healthy/profile-only/legacy/global-admin/restricted-role controls retain successful media response. Owned UploadFile/client lifetime and provider payload fields remain exact."
+  ],
+  "exact_source_limits": [
+    "Complete preview function AST unchanged at this checkpoint. Complete upload function AST equals archived original after removing exactly one early read rollback and one context around the original complete provider/client block.",
+    "Actual original public signatures, evaluated hints and raw OpenAPI match; all original imported objects are identical. Shared auth, scope, validation, scanner/native, provider and model sources remain byte unchanged under the source fence."
+  ],
+  "qualification_limits": [
+    "Actual SQLite data changes and transaction lifetime with synthetic validator/provider prove these local outcomes. No PostgreSQL row-lock concurrency, live SDK upload, malware scanner, object storage or real credentials/service proof.",
+    "The session regression advances the stored user session_version. This receipt does not claim an independently exercised individual dashboard-session revocation mechanism or extend the existing canonical actor policy.",
+    "Security validation/evidence storage remains its existing unchanged implementation. No claim that all validator evidence writes are suppressed on account revocation; provider media publication is guarded after validation.",
+    "No performance/no-lag or whole-audit completion claim. Whole composer84.17line/61.76branch coverage from this focused selection is explicitly not an enterprise closure gate."
+  ],
+  "remaining": [
+    "Parent-reported valid update-filter empty preview candidate must be reproduced before any behavior correction; queued after this guard checkpoint.",
+    "Composer support/render/snapshot and preview/single/bulk resend purpose-based architecture and exact task-payload deduplication remain active; no unchanged large-function relocation.",
+    "Previously sealed exports comparison caching remains a separate deferred optimization; frozen exports/workbook/native owners unchanged."
+  ],
+  "scope": {
+    "shared_gates_edited": false,
+    "real_provider_actions": false,
+    "broad_suites_build_browser": false,
+    "operations_inbox": "Deferred by user; untouched"
+  }
+}

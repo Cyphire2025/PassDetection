@@ -22,6 +22,8 @@ from app.infrastructure.database.ecr_models import EcrBatchModel, EcrItemModel
 from app.infrastructure.database.models import AgencyModel, UserModel, UserSecurityStateModel
 from app.infrastructure.export.ecr_excel_exporter import build_ecr_workbook
 from app.presentation.api.v1.routes import ecr_checker as routes
+from app.presentation.api.v1.routes import ecr_checker_actions as actions
+from app.presentation.api.v1.routes import ecr_checker_upload as uploads
 from app.presentation.api.v1.schemas.ecr_schemas import CreateEcrBatch
 
 
@@ -83,9 +85,10 @@ def storage(monkeypatch):
             return_value=SimpleNamespace(content=_image(), content_type="image/jpeg", format="JPEG")
         )
     )
-    monkeypatch.setattr(routes, "MinioStorageRepository", lambda: storage)
-    monkeypatch.setattr(routes, "UploadSecurityService", lambda: security)
+    monkeypatch.setattr(uploads, "MinioStorageRepository", lambda: storage)
+    monkeypatch.setattr(uploads, "UploadSecurityService", lambda: security)
     monkeypatch.setattr(routes, "_dispatch", AsyncMock())
+    monkeypatch.setattr(actions, "_dispatch", routes._dispatch)
     return storage, security
 
 
@@ -576,7 +579,7 @@ async def test_waiting_upload_body_is_not_read_until_admission(monkeypatch):
             await release.wait()
         return content
 
-    monkeypatch.setattr(routes, "_upload_ecr_items_admitted", admitted_upload)
+    monkeypatch.setattr(uploads, "_upload_ecr_items_admitted", admitted_upload)
     session = SimpleNamespace(commit=AsyncMock())
     first = asyncio.create_task(
         routes.upload_ecr_items(uuid.uuid4(), _user(), session, [first_file], "[]")

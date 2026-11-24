@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta:__legacy__"
 [project]
 name = "passport-ocr-backend"
 version = "1.0.0"
-description = "Enterprise-grade Passport OCR Processing Platform — Backend API"
+description = "Global Connects Dashboard API for travel operations and AI passport processing"
 # Production images and every backend CI lane run CPython 3.11. Keep metadata
 # honest until a complete 3.12 dependency and native-wheel matrix has passed.
 requires-python = ">=3.11,<3.12"

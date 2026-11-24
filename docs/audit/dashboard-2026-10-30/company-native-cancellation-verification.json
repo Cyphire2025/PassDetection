@@ -1,0 +1,40 @@
+{
+  "finding": "Cancelling an asyncio.to_thread append or workbook save allowed finally cleanup to close/delete the XML/output while its native worker still ran.",
+  "before": {
+    "failed_cases": 4,
+    "seconds": 4.98,
+    "log": "company-workbook-cancellation-before-fix.txt"
+  },
+  "after": {
+    "passed": 32,
+    "seconds": 24.41,
+    "log": "company-native-cancellation-tests.txt",
+    "files": [
+      "tests/unit/infrastructure/test_company_export_native_work.py",
+      "tests/integration/test_company_workbook_cancellation.py",
+      "tests/unit/infrastructure/test_company_export_row_boundaries.py",
+      "tests/unit/infrastructure/test_company_export_workbook_lifetime.py",
+      "tests/integration/test_company_export_admission_compatibility.py",
+      "tests/integration/test_company_data_exports.py"
+    ]
+  },
+  "module": {
+    "path": "app/infrastructure/travellers/company_export_native_work.py",
+    "baseline_lines": 26,
+    "maximum_lines": 35,
+    "baseline_max_function_complexity": 6,
+    "maximum_function_complexity": 6,
+    "minimum_coverage_percent": 100
+  },
+  "critical_helper_candidate": {
+    "path": "app/infrastructure/travellers/company_export_native_work.py",
+    "minimum_line_percent": 100,
+    "minimum_branch_percent": 70
+  },
+  "measured_line_percent": 100.0,
+  "measured_branch_percent": 75.0,
+  "source_sha256": "a1eb881381e063d0ce8ef77a1f79885e38a23b92a8e652244c093bac3a406a4f",
+  "mechanism": "Shield each owned append/finish/close task, drain through repeated caller cancellation, retrieve a late worker exception, then propagate cancellation before any caller can delete owned files. Ordinary native failures still reach the existing export failure boundary. Existing global page admission and fixed data limits are unchanged.",
+  "limits": "Real local workbook/SQLite and Event-controlled threads; cooperative cancellation qualification only. No hard-kill, live storage, PostgreSQL locking or network latency claim.",
+  "current_api_signatures_and_workflows": "unchanged"
+}

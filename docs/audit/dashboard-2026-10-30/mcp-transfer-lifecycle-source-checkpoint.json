@@ -1,0 +1,11 @@
+{
+  "frontend/features/mcp/hooks/use-mcp-file-transfer.ts": "8d85a56f49754664bc389f8db71554b2f75f8ba90f494f7b1c465f11ca7ff862",
+  "frontend/features/mcp/api/mcp-transfer.api.ts": "cf7a4a0a95df4e944d3d60bc144130b513f49ce7d7b69745769790f130dc2aab",
+  "frontend/features/mcp/utils/file-transfer.ts": "79e3413c12bfab33c3369d0bd345c4154d0f90083aa24116bb99ae29af82dee0",
+  "frontend/features/mcp/utils/read-transfer-body.ts": "53fc62863d8575b1d5a1213c90e2973a6b844a0f1ee5949b12fc29de1386dc16",
+  "frontend/features/mcp/utils/save-transfer-file.ts": "d240c76cc5295ffc3be65626be1e2d15d1e9748ba0c3c95d11d91fa08b7449e3",
+  "frontend/features/mcp/hooks/use-mcp-file-transfer.test.tsx": "f719f5e1585bb75aa34057c5627f92b67363fdc27c5989685b14ab15de924dce",
+  "frontend/features/mcp/utils/file-transfer.test.ts": "3597aca541bb93c33a7163e2eb2c86d39af0a5275f0a51e107a1b17db8fe1d67",
+  "frontend/features/mcp/utils/save-transfer-file.test.ts": "74a249dd5513ec46ba5a693306b4641aaa9231640e5cd69b6cd07f21aff7d4e5",
+  "frontend/features/mcp/api/mcp-transfer.api.test.ts": "2847f9d0216d591901b1d621ded686cdb17dd765ab82687553839d87ee099bf5"
+}

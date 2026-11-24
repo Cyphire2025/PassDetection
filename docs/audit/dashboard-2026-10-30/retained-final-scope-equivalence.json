@@ -1,0 +1,80 @@
+{
+  "policy_inverse_all_old_values_exact": true,
+  "test_AST_inverse_all_original_bodies_assertions_exact": true,
+  "only_changes": [
+    "10 exact native test literals",
+    "2 exact dedicated Inbox reference literals",
+    "51to61 and37to47 counts/exactcohort union",
+    "10additional existing full/finding history preservation controls",
+    "2new actual checked-in Inbox receipt controls with mixed/lookalike/shared false positives"
+  ],
+  "selected12rows_historical_fields_exact": [
+    "sha256",
+    "status",
+    "reviewer",
+    "notes",
+    "review_scope"
+  ],
+  "rows": {
+    "backend/tests/unit/application/test_mobile_integrity_service.py": {
+      "before_scope": "backend",
+      "after_scope": "mobile-excluded",
+      "sha256": "32b29cf1cfee7a08f04dda86ddde4df240de20bcac57574de24bea9ef717d4ec"
+    },
+    "backend/tests/unit/presentation/test_mobile_activation.py": {
+      "before_scope": "backend",
+      "after_scope": "mobile-excluded",
+      "sha256": "d1984c6286dd5b23dad03b8a0ab12475eab79cc063a27ecdcb4188c55a632c0a"
+    },
+    "backend/tests/unit/presentation/test_mobile_auth_response_contract.py": {
+      "before_scope": "backend",
+      "after_scope": "mobile-excluded",
+      "sha256": "c21fde80e3cc1f29563c7c3f5bd969f80fb54ab726f8c0102c2494b6de69cc14"
+    },
+    "backend/tests/unit/presentation/test_mobile_auth_support_boundaries.py": {
+      "before_scope": "backend",
+      "after_scope": "mobile-excluded",
+      "sha256": "64e82c783447c9398de518b57e7863bd654bcf03794cb06e53ea9b438d764a80"
+    },
+    "backend/tests/unit/presentation/test_mobile_fcm_registration.py": {
+      "before_scope": "backend",
+      "after_scope": "mobile-excluded",
+      "sha256": "e33a3a2faaa3236e4e140c63281e11d8aa974db91f8d3bd5085683308878597e"
+    },
+    "backend/tests/unit/presentation/test_mobile_otp_auth.py": {
+      "before_scope": "backend",
+      "after_scope": "mobile-excluded",
+      "sha256": "d7be1ffc375482960c1aa3d501f6fd068c0be47d856d533dafa9ca1a3aee6351"
+    },
+    "backend/tests/unit/presentation/test_mobile_realtime_route.py": {
+      "before_scope": "backend",
+      "after_scope": "mobile-excluded",
+      "sha256": "abaa08127c17fb28fbab23ca55e0f2c26f418f139697d0a08bf80e2e9631156f"
+    },
+    "backend/tests/unit/presentation/test_mobile_refresh_trip_fallback.py": {
+      "before_scope": "backend",
+      "after_scope": "mobile-excluded",
+      "sha256": "936d5aaa41dec10e2ae997dbfcdbf411397d6ffc19eaa52075d71e2c6a616180"
+    },
+    "backend/tests/unit/presentation/test_mobile_resources.py": {
+      "before_scope": "backend",
+      "after_scope": "mobile-excluded",
+      "sha256": "4a5dc379eb2acf238cfda7bf579b16d4216d00158491b5861bdca3874c756a6e"
+    },
+    "backend/tests/service_integration/test_mobile_refresh_trip_fallback_postgresql.py": {
+      "before_scope": "backend",
+      "after_scope": "mobile-excluded",
+      "sha256": "16b2a78341f7e47f33bb6f435fca00dceb36ff6710ae9b502d3ebbf5d288953e"
+    },
+    "docs/remediation/email-constraint-evidence.json": {
+      "before_scope": "supporting-material",
+      "after_scope": "operations-inbox-deferred",
+      "sha256": "2f3fe8759d675f2bbdaa8329c9a8572c8f6d993b503ce4893a0b513c8581f52a"
+    },
+    "docs/remediation/email-constraints-sqlite.txt": {
+      "before_scope": "supporting-material",
+      "after_scope": "operations-inbox-deferred",
+      "sha256": "2cc1ec2409e7762a4b982d719d22e91cb51938835855eb7ef90ac3f30ba8c900"
+    }
+  }
+}

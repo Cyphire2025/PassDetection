@@ -1,0 +1,65 @@
+{
+  "basis": "Formatting only; exact emitted JS/JSX AST across each current owner.",
+  "files": [
+    {
+      "path": "frontend/features/documents/components/document-workspace-dialogs.tsx",
+      "before_sha256": "95b3fd3e4d3f61e281a074a3bb8bb890baeef42e5fe08180e4d117965a808c05",
+      "after_sha256": "95b3fd3e4d3f61e281a074a3bb8bb890baeef42e5fe08180e4d117965a808c05",
+      "emitted_JS_AST_sha256": "94acca2b93f1d7e4ace5d31e2f0809be793febc6a9d0889e669bd85a7a084af1"
+    },
+    {
+      "path": "frontend/features/documents/components/abort-incomplete-upload-dialog.tsx",
+      "before_sha256": "e16f37e943ccdba401ec7ea3a8e3cc83d51ebddb2b5c6f4038597fa13cca2b5c",
+      "after_sha256": "5714ba8596eeaedf674031cf8e4001893993334624bdef98cb412c4784864bd0",
+      "emitted_JS_AST_sha256": "af17099a7b426ed90c4184f4e6149bb6ee64bc9f0632c5272ef1859671e5efbf"
+    },
+    {
+      "path": "frontend/features/documents/components/remove-document-assignments-dialog.tsx",
+      "before_sha256": "6dcd087c8945c8f27155329c706e354a27777b89d43a7075721f761c170dd3ec",
+      "after_sha256": "67560e72089a278ccc075b64e2ad48a2e4040a9bc366b01cf7d5d58983f77f87",
+      "emitted_JS_AST_sha256": "749b5b1a901eb1c7a01fc1612991f5de2a7e00f51a97e70008e022b60a43658e"
+    },
+    {
+      "path": "frontend/features/documents/components/document-delivery-preview-dialog.tsx",
+      "before_sha256": "6ea12a6409e85130a8876f0b7e5aac80328cccbdc10f02f1f27c4ed178e4e568",
+      "after_sha256": "6563f169776fc3ff2b94b557c349d8f81623ef27873e5fa7c854c39c92322673",
+      "emitted_JS_AST_sha256": "9ec93d5dedbf78a02c72e4d7da72c03d5631e64237541e1f898909d17f0bca2f"
+    },
+    {
+      "path": "frontend/features/documents/components/document-delivery-preview-props.ts",
+      "before_sha256": "96ae5270efa7d70420387da6580fc2727da3c870598c783422ec968d370473a2",
+      "after_sha256": "c16ea10f707b9809afff7f37ee5861ddfdfea0c6647d202539d4074edf67e96a",
+      "emitted_JS_AST_sha256": "faf062e1d963ac4d56efca358e92636bfec24d6aec0a1ca1cc51e90daa384e1d"
+    },
+    {
+      "path": "frontend/features/documents/components/document-delivery-preview-summary.tsx",
+      "before_sha256": "851b072a26218a25c43ad5aaf36515f77d5920e6682353815153ee8ad68b438a",
+      "after_sha256": "5772a7235e28db2598559f47cb0aa092ac968a5736db96a7e1698c0b9fbc3b32",
+      "emitted_JS_AST_sha256": "196ddaeefb6c62f8870773c9e07a988377d564df9d7d6a0e031e786924dc2007"
+    },
+    {
+      "path": "frontend/features/documents/components/document-delivery-message-fields.tsx",
+      "before_sha256": "f53dbaf12f85ba63f14255430ed64e5ec6964b6eb2e15f30531196f68bf08de9",
+      "after_sha256": "a0cb7b6fba1a185999c35ed7621f2fb7392845faf10faee0681324b91a19d00a",
+      "emitted_JS_AST_sha256": "0168ada9b23d82f4d92d77e8a1f742cb14f7c5e8d06525992da1c93b4f8d74a6"
+    },
+    {
+      "path": "frontend/features/documents/components/document-delivery-recipient-table.tsx",
+      "before_sha256": "207033260b294bdfd513a5a28cc6b12a0df329bdc9dda70b3819aa9288bff633",
+      "after_sha256": "4c0aa7f540e72442549bacba95ca4818be4bad19ff59c838d11b4fcf9e575e50",
+      "emitted_JS_AST_sha256": "e1e46f5604a23db6ec6557fd8f273cd5de7fad693e657ff817359a3b308a9a32"
+    },
+    {
+      "path": "frontend/features/documents/components/document-delivery-preview-footer.tsx",
+      "before_sha256": "4c7e73db4b5b73357a51be84415c2a9052b8ff9919b47810e85fbccdd15d3ad4",
+      "after_sha256": "01696ee1c870942b8bfa7ebf55b6b9f84c04d28f7b5f90dd7854e2cde054ea1d",
+      "emitted_JS_AST_sha256": "0ae241167b850a9f60e1e695a9f4bf206f8e19ab01d1610f27f162f6ee801863"
+    },
+    {
+      "path": "frontend/features/documents/components/document-delivery-preview-behavior.test.tsx",
+      "before_sha256": "f4df2664dd558f2268d3a0e5fabd306a9880d1a6fe7664538c7462f8fc75359c",
+      "after_sha256": "d9e6faeea86b32c8d38cbaa969cd98ba015a61b55bd996272527f8796f3e4885",
+      "emitted_JS_AST_sha256": "8e71eed3989e946ee8aa3728b433c21eccbede7a61e9bf5c34a3a9afc1f30138"
+    }
+  ]
+}

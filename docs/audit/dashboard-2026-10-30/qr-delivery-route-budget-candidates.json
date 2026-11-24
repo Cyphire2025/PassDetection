@@ -1,0 +1,62 @@
+[
+  {
+    "path": "app/presentation/api/v1/routes/tour_operations_qr_delivery.py",
+    "baseline_lines": 187,
+    "maximum_lines": 195,
+    "baseline_max_function_complexity": 21,
+    "maximum_function_complexity": 21,
+    "minimum_coverage_percent": 85,
+    "observed_statement_coverage": 88.57142857142857,
+    "observed_branch_coverage": 60.0,
+    "sha256": "a65ca1f4b9c0fb0de069df0a2e6d3dcdb2ad7760799c3c517e6ff4de8ddb4037",
+    "previously_budgeted": false
+  },
+  {
+    "path": "app/presentation/api/v1/routes/tour_operations_qr_delivery_policy.py",
+    "baseline_lines": 142,
+    "maximum_lines": 148,
+    "baseline_max_function_complexity": 4,
+    "maximum_function_complexity": 4,
+    "minimum_coverage_percent": 85,
+    "observed_statement_coverage": 88.88888888888889,
+    "observed_branch_coverage": 50.0,
+    "sha256": "647846a7e4a3384954920280cbe46acc63555085680cb340be3148c5f6cbbf68",
+    "previously_budgeted": false
+  },
+  {
+    "path": "app/presentation/api/v1/routes/tour_operations_qr_delivery_preview.py",
+    "baseline_lines": 204,
+    "maximum_lines": 213,
+    "baseline_max_function_complexity": 48,
+    "maximum_function_complexity": 48,
+    "minimum_coverage_percent": 85,
+    "observed_statement_coverage": 89.65517241379311,
+    "observed_branch_coverage": 79.41176470588235,
+    "sha256": "3147020f9cf13b5dd58dee5ba6eae73ad8203371044dadc463ffb2823e319a0f",
+    "previously_budgeted": false
+  },
+  {
+    "path": "app/presentation/api/v1/routes/tour_operations_qr_delivery_queue.py",
+    "baseline_lines": 123,
+    "maximum_lines": 128,
+    "baseline_max_function_complexity": 10,
+    "maximum_function_complexity": 10,
+    "minimum_coverage_percent": 90,
+    "observed_statement_coverage": 94.54545454545455,
+    "observed_branch_coverage": 78.57142857142857,
+    "sha256": "526a2201c2015a668b4a6b52b9892b6ee076e05ccf9a9ec91606f73ba951169f",
+    "previously_budgeted": false
+  },
+  {
+    "path": "app/presentation/api/v1/routes/tour_operations_qr_delivery_roster.py",
+    "baseline_lines": 147,
+    "maximum_lines": 153,
+    "baseline_max_function_complexity": 11,
+    "maximum_function_complexity": 11,
+    "minimum_coverage_percent": 95,
+    "observed_statement_coverage": 97.5609756097561,
+    "observed_branch_coverage": 90.0,
+    "sha256": "5f5aaba4ae811aad884334238a01dec2d0e21ec577ac702b5eec234946540701",
+    "previously_budgeted": false
+  }
+]

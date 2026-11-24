@@ -1,0 +1,849 @@
+{
+  "status": "verified at this scoped source checkpoint",
+  "before_modules": 688,
+  "after_modules": 724,
+  "normal_additions": 36,
+  "existing_update": {
+    "path": "app/infrastructure/documents/document_matcher.py",
+    "before": {
+      "path": "app/infrastructure/documents/document_matcher.py",
+      "baseline_lines": 668,
+      "maximum_lines": 700,
+      "baseline_max_function_complexity": 53,
+      "maximum_function_complexity": 53,
+      "minimum_coverage_percent": 80
+    },
+    "after": {
+      "path": "app/infrastructure/documents/document_matcher.py",
+      "baseline_lines": 473,
+      "maximum_lines": 480,
+      "baseline_max_function_complexity": 11,
+      "maximum_function_complexity": 12,
+      "minimum_coverage_percent": 90
+    }
+  },
+  "all687other_normal_rows_unchanged": true,
+  "critical_before": 102,
+  "critical_after": 106,
+  "all102oldcritical_rows_unchanged": true,
+  "readiness_inherited_critical_additions": [
+    {
+      "gate": {
+        "path": "app/infrastructure/runtime_readiness_contracts.py",
+        "minimum_line_percent": 88,
+        "minimum_branch_percent": 63
+      },
+      "source_obligation": "Original runtime_readiness.py88L63B follows exact mechanically relocated logic; no floor relaxation",
+      "branch_count": 0,
+      "branch_percent": null
+    },
+    {
+      "gate": {
+        "path": "app/infrastructure/runtime_readiness_database.py",
+        "minimum_line_percent": 88,
+        "minimum_branch_percent": 63
+      },
+      "source_obligation": "Original runtime_readiness.py88L63B follows exact mechanically relocated logic; no floor relaxation",
+      "branch_count": 6,
+      "branch_percent": 100.0
+    },
+    {
+      "gate": {
+        "path": "app/infrastructure/runtime_readiness_probes.py",
+        "minimum_line_percent": 88,
+        "minimum_branch_percent": 63
+      },
+      "source_obligation": "Original runtime_readiness.py88L63B follows exact mechanically relocated logic; no floor relaxation",
+      "branch_count": 20,
+      "branch_percent": 95.0
+    },
+    {
+      "gate": {
+        "path": "app/infrastructure/runtime_readiness_capabilities.py",
+        "minimum_line_percent": 88,
+        "minimum_branch_percent": 63
+      },
+      "source_obligation": "Original runtime_readiness.py88L63B follows exact mechanically relocated logic; no floor relaxation",
+      "branch_count": 8,
+      "branch_percent": 100.0
+    }
+  ],
+  "declaration_contract_critical_limit": "Readiness contracts has0branches: inherited88line obligation reported, no exercised branch-coverage claim. Communications declaration-only models have normal ratchets only, no critical additions.",
+  "all_global_floors_caps_other_policy_unchanged": true,
+  "measurements": [
+    {
+      "group": "schema",
+      "path": "app/presentation/api/v1/schemas/passport_schemas.py",
+      "sha256": "e65dfebc4a7e69839acee9e17aa7c3eeb448e34b621a68cd7beff8d394ee467f",
+      "lines": 176,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_count": 0,
+      "branch_percent": null,
+      "new_budget": {
+        "path": "app/presentation/api/v1/schemas/passport_schemas.py",
+        "baseline_lines": 176,
+        "maximum_lines": 180,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "group": "schema",
+      "path": "app/presentation/api/v1/schemas/passport_editing_schemas.py",
+      "sha256": "678bb7478edf71d0022a05fc5c602f1549080e38f5658c9b2818a6c515b9cd9a",
+      "lines": 97,
+      "complexity": 3,
+      "statement_percent": 98.4375,
+      "branch_count": 2,
+      "branch_percent": 50.0,
+      "new_budget": {
+        "path": "app/presentation/api/v1/schemas/passport_editing_schemas.py",
+        "baseline_lines": 97,
+        "maximum_lines": 100,
+        "baseline_max_function_complexity": 3,
+        "maximum_function_complexity": 3,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "group": "schema",
+      "path": "app/presentation/api/v1/schemas/passport_collection_schemas.py",
+      "sha256": "4b1e66514628cb897194c601cf67ba2fc743d4efb12dbd389d01714c38fed495",
+      "lines": 112,
+      "complexity": 4,
+      "statement_percent": 97.05882352941177,
+      "branch_count": 6,
+      "branch_percent": 66.66666666666667,
+      "new_budget": {
+        "path": "app/presentation/api/v1/schemas/passport_collection_schemas.py",
+        "baseline_lines": 112,
+        "maximum_lines": 120,
+        "baseline_max_function_complexity": 4,
+        "maximum_function_complexity": 4,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "group": "schema",
+      "path": "app/presentation/api/v1/schemas/passport_bulk_schemas.py",
+      "sha256": "e7c6eb8107691478ddfe5f2ea058c15ed6d7c706680b64d68fec2ab00d43b094",
+      "lines": 93,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_count": 0,
+      "branch_percent": null,
+      "new_budget": {
+        "path": "app/presentation/api/v1/schemas/passport_bulk_schemas.py",
+        "baseline_lines": 93,
+        "maximum_lines": 100,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "group": "schema",
+      "path": "app/presentation/api/v1/schemas/passport_export_schemas.py",
+      "sha256": "f8e5d873633607d284bdb54643d297ed6a25debcf39cdef8b06b937b4572649c",
+      "lines": 116,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_count": 0,
+      "branch_percent": null,
+      "new_budget": {
+        "path": "app/presentation/api/v1/schemas/passport_export_schemas.py",
+        "baseline_lines": 116,
+        "maximum_lines": 120,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "group": "schema",
+      "path": "app/presentation/api/v1/schemas/passport_document_schemas.py",
+      "sha256": "3c47bde24b68bed922caff38031f9fc69b489c4c05a798613594deb29b8d500d",
+      "lines": 53,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_count": 0,
+      "branch_percent": null,
+      "new_budget": {
+        "path": "app/presentation/api/v1/schemas/passport_document_schemas.py",
+        "baseline_lines": 53,
+        "maximum_lines": 60,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "group": "schema",
+      "path": "app/presentation/api/v1/schemas/passport_verification_schemas.py",
+      "sha256": "26a04422ce79ae200f880cc9960252c6d903bf56a65e8038151f14c75278430e",
+      "lines": 47,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_count": 0,
+      "branch_percent": null,
+      "new_budget": {
+        "path": "app/presentation/api/v1/schemas/passport_verification_schemas.py",
+        "baseline_lines": 47,
+        "maximum_lines": 50,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "group": "schema",
+      "path": "app/presentation/api/v1/schemas/passport_view_schemas.py",
+      "sha256": "7e9c87d2d36714dd53b61e70f62de1a94a8c15ac8c3011e2c1f6ba88721cc2a4",
+      "lines": 163,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_count": 0,
+      "branch_percent": null,
+      "new_budget": {
+        "path": "app/presentation/api/v1/schemas/passport_view_schemas.py",
+        "baseline_lines": 163,
+        "maximum_lines": 170,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "group": "schema",
+      "path": "app/presentation/api/v1/schemas/passport_summary_schemas.py",
+      "sha256": "4703e0d450cdd5e553cf4b3dfad90dffe583700a47d4e95b9338a528c3b934a3",
+      "lines": 49,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_count": 0,
+      "branch_percent": null,
+      "new_budget": {
+        "path": "app/presentation/api/v1/schemas/passport_summary_schemas.py",
+        "baseline_lines": 49,
+        "maximum_lines": 50,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "group": "view",
+      "path": "app/application/use_cases/passports/submission_view.py",
+      "sha256": "2c3848011dcc8df2077ceece235100b3c3bb4a4153551924c07b394011905619",
+      "lines": 178,
+      "complexity": 21,
+      "statement_percent": 100.0,
+      "branch_count": 6,
+      "branch_percent": 100.0,
+      "new_budget": {
+        "path": "app/application/use_cases/passports/submission_view.py",
+        "baseline_lines": 178,
+        "maximum_lines": 180,
+        "baseline_max_function_complexity": 21,
+        "maximum_function_complexity": 21,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "group": "view",
+      "path": "app/application/use_cases/passports/submission_view_types.py",
+      "sha256": "54edcabd910675d4b866641a53f92314bf63ee5dfcc01de65d30be6d77405b37",
+      "lines": 93,
+      "complexity": 3,
+      "statement_percent": 100.0,
+      "branch_count": 0,
+      "branch_percent": null,
+      "new_budget": {
+        "path": "app/application/use_cases/passports/submission_view_types.py",
+        "baseline_lines": 93,
+        "maximum_lines": 100,
+        "baseline_max_function_complexity": 3,
+        "maximum_function_complexity": 3,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "group": "view",
+      "path": "app/application/use_cases/passports/submission_view_fields.py",
+      "sha256": "a54108cb403c4f25fceb23b771512ebe4ecc59d7eecdc512c136f7fc3e75e9b3",
+      "lines": 120,
+      "complexity": 19,
+      "statement_percent": 81.94444444444444,
+      "branch_count": 26,
+      "branch_percent": 69.23076923076923,
+      "new_budget": {
+        "path": "app/application/use_cases/passports/submission_view_fields.py",
+        "baseline_lines": 120,
+        "maximum_lines": 120,
+        "baseline_max_function_complexity": 19,
+        "maximum_function_complexity": 19,
+        "minimum_coverage_percent": 80
+      }
+    },
+    {
+      "group": "view",
+      "path": "app/application/use_cases/passports/submission_view_clustering.py",
+      "sha256": "4d19af2f8b2985d6dc5b837e2d56e6ee59b7824b00b699e49d8871bd334e632d",
+      "lines": 119,
+      "complexity": 31,
+      "statement_percent": 94.44444444444444,
+      "branch_count": 40,
+      "branch_percent": 85.0,
+      "new_budget": {
+        "path": "app/application/use_cases/passports/submission_view_clustering.py",
+        "baseline_lines": 119,
+        "maximum_lines": 120,
+        "baseline_max_function_complexity": 31,
+        "maximum_function_complexity": 31,
+        "minimum_coverage_percent": 90
+      }
+    },
+    {
+      "group": "view",
+      "path": "app/application/use_cases/passports/submission_view_ordering.py",
+      "sha256": "c50fa5ec80a603b1e26379494fc7664228ccdfccf134ceb1551c2b2c239e02ab",
+      "lines": 110,
+      "complexity": 6,
+      "statement_percent": 95.74468085106383,
+      "branch_count": 16,
+      "branch_percent": 93.75,
+      "new_budget": {
+        "path": "app/application/use_cases/passports/submission_view_ordering.py",
+        "baseline_lines": 110,
+        "maximum_lines": 110,
+        "baseline_max_function_complexity": 6,
+        "maximum_function_complexity": 6,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "group": "view",
+      "path": "app/application/use_cases/passports/submission_view_pagination.py",
+      "sha256": "f266be66d12c735d87ade56b48648b72905583564aee4cb73ff71faa8cbb71e8",
+      "lines": 57,
+      "complexity": 7,
+      "statement_percent": 100.0,
+      "branch_count": 16,
+      "branch_percent": 100.0,
+      "new_budget": {
+        "path": "app/application/use_cases/passports/submission_view_pagination.py",
+        "baseline_lines": 57,
+        "maximum_lines": 60,
+        "baseline_max_function_complexity": 7,
+        "maximum_function_complexity": 7,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "group": "view",
+      "path": "app/application/use_cases/passports/submission_view_expiry.py",
+      "sha256": "cb587c37b91dda43b362dfb44f590eab2c169bf1ba82a0e1328f222febe7a775",
+      "lines": 57,
+      "complexity": 8,
+      "statement_percent": 100.0,
+      "branch_count": 4,
+      "branch_percent": 100.0,
+      "new_budget": {
+        "path": "app/application/use_cases/passports/submission_view_expiry.py",
+        "baseline_lines": 57,
+        "maximum_lines": 60,
+        "baseline_max_function_complexity": 8,
+        "maximum_function_complexity": 8,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "group": "matcher",
+      "path": "app/infrastructure/documents/document_matcher.py",
+      "sha256": "56d4bd08647d29d5d1a98b6469dc6e6149eb9e191effa1aab5e59febee89eb7e",
+      "lines": 473,
+      "complexity": 11,
+      "statement_percent": 92.63803680981596,
+      "branch_count": 24,
+      "branch_percent": 75.0,
+      "new_budget": {
+        "path": "app/infrastructure/documents/document_matcher.py",
+        "baseline_lines": 473,
+        "maximum_lines": 480,
+        "baseline_max_function_complexity": 11,
+        "maximum_function_complexity": 12,
+        "minimum_coverage_percent": 90
+      }
+    },
+    {
+      "group": "matcher",
+      "path": "app/infrastructure/documents/document_filename_matching.py",
+      "sha256": "3b9f3e31d1348cad060b5b3563a6af6b1481ebde18f372da70fdce0bc33b2955",
+      "lines": 73,
+      "complexity": 14,
+      "statement_percent": 100.0,
+      "branch_count": 8,
+      "branch_percent": 100.0,
+      "new_budget": {
+        "path": "app/infrastructure/documents/document_filename_matching.py",
+        "baseline_lines": 73,
+        "maximum_lines": 80,
+        "baseline_max_function_complexity": 14,
+        "maximum_function_complexity": 15,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "group": "matcher",
+      "path": "app/infrastructure/documents/document_content_matching.py",
+      "sha256": "e546765e17ec69ac174b8b812ae4a8d0fe79682b106e42d429be703b29fee48f",
+      "lines": 117,
+      "complexity": 9,
+      "statement_percent": 100.0,
+      "branch_count": 22,
+      "branch_percent": 95.45454545454545,
+      "new_budget": {
+        "path": "app/infrastructure/documents/document_content_matching.py",
+        "baseline_lines": 117,
+        "maximum_lines": 125,
+        "baseline_max_function_complexity": 9,
+        "maximum_function_complexity": 10,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "group": "matcher",
+      "path": "app/infrastructure/documents/document_match_results.py",
+      "sha256": "9992c0747769477e54022ec3312241577201ad403836411bb797acb298bd6451",
+      "lines": 117,
+      "complexity": 17,
+      "statement_percent": 97.95918367346938,
+      "branch_count": 32,
+      "branch_percent": 93.75,
+      "new_budget": {
+        "path": "app/infrastructure/documents/document_match_results.py",
+        "baseline_lines": 117,
+        "maximum_lines": 125,
+        "baseline_max_function_complexity": 17,
+        "maximum_function_complexity": 18,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "group": "activity",
+      "path": "app/presentation/api/v1/routes/whatsapp_activity.py",
+      "sha256": "06bc0b05081180d73b24ae35a0718018f1344cf72a24f8a009e41d4e016de47f",
+      "lines": 292,
+      "complexity": 6,
+      "statement_percent": 100.0,
+      "branch_count": 22,
+      "branch_percent": 100.0,
+      "new_budget": {
+        "path": "app/presentation/api/v1/routes/whatsapp_activity.py",
+        "baseline_lines": 292,
+        "maximum_lines": 300,
+        "baseline_max_function_complexity": 6,
+        "maximum_function_complexity": 7,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "group": "activity",
+      "path": "app/presentation/api/v1/routes/whatsapp_activity_access.py",
+      "sha256": "e9d3f4431e7039e99a31013a9dd0691fa48efd9b60d54d37f99514ac00b50753",
+      "lines": 31,
+      "complexity": 3,
+      "statement_percent": 100.0,
+      "branch_count": 2,
+      "branch_percent": 100.0,
+      "new_budget": {
+        "path": "app/presentation/api/v1/routes/whatsapp_activity_access.py",
+        "baseline_lines": 31,
+        "maximum_lines": 40,
+        "baseline_max_function_complexity": 3,
+        "maximum_function_complexity": 4,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "group": "activity",
+      "path": "app/presentation/api/v1/routes/whatsapp_activity_document_queries.py",
+      "sha256": "c3c009bfd7fc66b55580696b04d962660a2f4a3e3439a220ae49de1dce932e54",
+      "lines": 74,
+      "complexity": 5,
+      "statement_percent": 100.0,
+      "branch_count": 8,
+      "branch_percent": 100.0,
+      "new_budget": {
+        "path": "app/presentation/api/v1/routes/whatsapp_activity_document_queries.py",
+        "baseline_lines": 74,
+        "maximum_lines": 80,
+        "baseline_max_function_complexity": 5,
+        "maximum_function_complexity": 6,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "group": "activity",
+      "path": "app/presentation/api/v1/routes/whatsapp_activity_failure_queries.py",
+      "sha256": "1819db2d3ba194a172f11add3b00e63768a046518a9ae1bd4979eb93199690e7",
+      "lines": 96,
+      "complexity": 2,
+      "statement_percent": 100.0,
+      "branch_count": 2,
+      "branch_percent": 100.0,
+      "new_budget": {
+        "path": "app/presentation/api/v1/routes/whatsapp_activity_failure_queries.py",
+        "baseline_lines": 96,
+        "maximum_lines": 105,
+        "baseline_max_function_complexity": 2,
+        "maximum_function_complexity": 3,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "group": "activity",
+      "path": "app/presentation/api/v1/routes/whatsapp_activity_status.py",
+      "sha256": "1decabea2e92dd3f4cded7b1d81fdb55a0d82aad9a0e7b7025de70626ce9abd9",
+      "lines": 66,
+      "complexity": 3,
+      "statement_percent": 100.0,
+      "branch_count": 0,
+      "branch_percent": null,
+      "new_budget": {
+        "path": "app/presentation/api/v1/routes/whatsapp_activity_status.py",
+        "baseline_lines": 66,
+        "maximum_lines": 75,
+        "baseline_max_function_complexity": 3,
+        "maximum_function_complexity": 4,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "group": "activity",
+      "path": "app/presentation/api/v1/routes/whatsapp_activity_summary_queries.py",
+      "sha256": "c8a6d7375e95b8df076cde3d8763cf4043b35d71d4450d00cbb4bbf72f9086ff",
+      "lines": 128,
+      "complexity": 2,
+      "statement_percent": 100.0,
+      "branch_count": 2,
+      "branch_percent": 100.0,
+      "new_budget": {
+        "path": "app/presentation/api/v1/routes/whatsapp_activity_summary_queries.py",
+        "baseline_lines": 128,
+        "maximum_lines": 135,
+        "baseline_max_function_complexity": 2,
+        "maximum_function_complexity": 3,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "group": "models",
+      "path": "app/infrastructure/database/communications_models.py",
+      "sha256": "0283ffad7b14ef05b16c2240fba2cf1a2580a7b68d29665ece26a284d67f7688",
+      "lines": 92,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_count": 0,
+      "branch_percent": null,
+      "new_budget": {
+        "path": "app/infrastructure/database/communications_models.py",
+        "baseline_lines": 92,
+        "maximum_lines": 100,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "group": "models",
+      "path": "app/infrastructure/database/_communications_models/__init__.py",
+      "sha256": "93f1ffe885e89709e8e59326a3c20db5be6969f0e63c6501052477226783237c",
+      "lines": 7,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_count": 0,
+      "branch_percent": null,
+      "new_budget": {
+        "path": "app/infrastructure/database/_communications_models/__init__.py",
+        "baseline_lines": 7,
+        "maximum_lines": 10,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "group": "models",
+      "path": "app/infrastructure/database/_communications_models/broadcast.py",
+      "sha256": "8fc27df633446ef911ad0598fbcf2491c36a17bbe2057863d9df6299bd2d6370",
+      "lines": 160,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_count": 0,
+      "branch_percent": null,
+      "new_budget": {
+        "path": "app/infrastructure/database/_communications_models/broadcast.py",
+        "baseline_lines": 160,
+        "maximum_lines": 160,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "group": "models",
+      "path": "app/infrastructure/database/_communications_models/source.py",
+      "sha256": "f57b7c4a3d07d5abc09a8edf6f4d964617ce2fb9da8058ad42f38c0b8805b0b0",
+      "lines": 237,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_count": 0,
+      "branch_percent": null,
+      "new_budget": {
+        "path": "app/infrastructure/database/_communications_models/source.py",
+        "baseline_lines": 237,
+        "maximum_lines": 240,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "group": "models",
+      "path": "app/infrastructure/database/_communications_models/delivery.py",
+      "sha256": "1fd04b74883bc0a355b94939b74a1173cabd9f2f9c9226ebaf9657df72a2af2c",
+      "lines": 157,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_count": 0,
+      "branch_percent": null,
+      "new_budget": {
+        "path": "app/infrastructure/database/_communications_models/delivery.py",
+        "baseline_lines": 157,
+        "maximum_lines": 160,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "group": "models",
+      "path": "app/infrastructure/database/_communications_models/welcome.py",
+      "sha256": "610fe7aaaeb5eb62bbd0defab28b9c298ba9cd7941b4efe73fff8988f0fae12c",
+      "lines": 98,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_count": 0,
+      "branch_percent": null,
+      "new_budget": {
+        "path": "app/infrastructure/database/_communications_models/welcome.py",
+        "baseline_lines": 98,
+        "maximum_lines": 100,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "group": "readiness",
+      "path": "app/infrastructure/runtime_readiness_contracts.py",
+      "sha256": "29b1aaa8a64ccfe32ab571d8ebb512a9ae600ad5bcacb681a83d927057e3462d",
+      "lines": 52,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_count": 0,
+      "branch_percent": null,
+      "new_budget": {
+        "path": "app/infrastructure/runtime_readiness_contracts.py",
+        "baseline_lines": 52,
+        "maximum_lines": 60,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 1,
+        "minimum_coverage_percent": 88
+      }
+    },
+    {
+      "group": "readiness",
+      "path": "app/infrastructure/runtime_readiness_database.py",
+      "sha256": "e8d95878c10be43b82e7ade8a9b304c1c3825608365508be2d3985ac8c2ac71b",
+      "lines": 73,
+      "complexity": 6,
+      "statement_percent": 100.0,
+      "branch_count": 6,
+      "branch_percent": 100.0,
+      "new_budget": {
+        "path": "app/infrastructure/runtime_readiness_database.py",
+        "baseline_lines": 73,
+        "maximum_lines": 80,
+        "baseline_max_function_complexity": 6,
+        "maximum_function_complexity": 7,
+        "minimum_coverage_percent": 88
+      }
+    },
+    {
+      "group": "readiness",
+      "path": "app/infrastructure/runtime_readiness_probes.py",
+      "sha256": "37dbb8ff36d5e19cad2afe0ba523030ac9bbc0c5e43df15e5b624fb1b2a63bf0",
+      "lines": 141,
+      "complexity": 10,
+      "statement_percent": 95.5223880597015,
+      "branch_count": 20,
+      "branch_percent": 95.0,
+      "new_budget": {
+        "path": "app/infrastructure/runtime_readiness_probes.py",
+        "baseline_lines": 141,
+        "maximum_lines": 150,
+        "baseline_max_function_complexity": 10,
+        "maximum_function_complexity": 11,
+        "minimum_coverage_percent": 88
+      }
+    },
+    {
+      "group": "readiness",
+      "path": "app/infrastructure/runtime_readiness_capabilities.py",
+      "sha256": "bc1904a1aada151631034e8fb60b5d366da1e5049fa019b6a03813f9866ab439",
+      "lines": 161,
+      "complexity": 5,
+      "statement_percent": 100.0,
+      "branch_count": 8,
+      "branch_percent": 100.0,
+      "new_budget": {
+        "path": "app/infrastructure/runtime_readiness_capabilities.py",
+        "baseline_lines": 161,
+        "maximum_lines": 170,
+        "baseline_max_function_complexity": 5,
+        "maximum_function_complexity": 6,
+        "minimum_coverage_percent": 88
+      }
+    },
+    {
+      "group": "readiness",
+      "path": "app/infrastructure/runtime_readiness.py",
+      "sha256": "b439d9d4174e8c0b1ae096a4f0f23c96ae7e10c6e2f0d636a0509a7c5f9783f0",
+      "lines": 278,
+      "complexity": 5,
+      "statement_percent": 100.0,
+      "branch_count": 8,
+      "branch_percent": 100.0,
+      "new_budget": {
+        "path": "app/infrastructure/runtime_readiness.py",
+        "baseline_lines": 278,
+        "maximum_lines": 290,
+        "baseline_max_function_complexity": 5,
+        "maximum_function_complexity": 6,
+        "minimum_coverage_percent": 88
+      }
+    }
+  ],
+  "explicit_qualified_source_supersessions": [
+    {
+      "path": "backend/app/infrastructure/passports/roster_cache.py",
+      "historical_sha256": "8eaba82501192453e1fa6dd8ab6aee880524dfe4673e2c6e64f898bbefc8b239",
+      "current_sha256": "59aa105e42abd884ed539915d798974a2969d249dbdbeb3668a66c8fe3292287",
+      "historical_basis": "view",
+      "current_basis": "roster-cache-shape-verification.json"
+    },
+    {
+      "path": "backend/app/infrastructure/database/communications_models.py",
+      "historical_sha256": "4a4224948d99b7ba12382ba679973f318734ff3c71b27f47e7757f2b07bcf7b3",
+      "current_sha256": "0283ffad7b14ef05b16c2240fba2cf1a2580a7b68d29665ece26a284d67f7688",
+      "historical_basis": "activity-focused_dependency_hashes",
+      "current_basis": "communications-models-verification.json"
+    }
+  ],
+  "integration_review_scope": "Peer full-source/metadata/equivalence/focused-coverage receipts used with attribution, exact hashes and raw measured coverage; no independent full second-read claim for37application owners",
+  "release": {
+    "before_paths": 112,
+    "after_paths": 117,
+    "all112oldBEFORE_pairs_and110otherAFTER_values_unchanged": true,
+    "new_exact_reviewed_model_rows": [
+      {
+        "path": "backend/app/infrastructure/database/_communications_models/__init__.py",
+        "before_0140": null,
+        "before_0141": null,
+        "after": "93f1ffe885e89709e8e59326a3c20db5be6969f0e63c6501052477226783237c"
+      },
+      {
+        "path": "backend/app/infrastructure/database/_communications_models/broadcast.py",
+        "before_0140": null,
+        "before_0141": null,
+        "after": "8fc27df633446ef911ad0598fbcf2491c36a17bbe2057863d9df6299bd2d6370"
+      },
+      {
+        "path": "backend/app/infrastructure/database/_communications_models/source.py",
+        "before_0140": null,
+        "before_0141": null,
+        "after": "f57b7c4a3d07d5abc09a8edf6f4d964617ce2fb9da8058ad42f38c0b8805b0b0"
+      },
+      {
+        "path": "backend/app/infrastructure/database/_communications_models/delivery.py",
+        "before_0140": null,
+        "before_0141": null,
+        "after": "1fd04b74883bc0a355b94939b74a1173cabd9f2f9c9226ebaf9657df72a2af2c"
+      },
+      {
+        "path": "backend/app/infrastructure/database/_communications_models/welcome.py",
+        "before_0140": null,
+        "before_0141": null,
+        "after": "610fe7aaaeb5eb62bbd0defab28b9c298ba9cd7941b4efe73fff8988f0fae12c"
+      }
+    ],
+    "each_new_before_verified_from_actual_both_Git_trees": true,
+    "only_known_backend_budget_and_communications_facade_AFTER_updated": true,
+    "after_backend_budget_sha256": "0858ebe8c995397ef084e4545d18e75e5b362c34e6ea23fa7cf895d18bbbdcaf",
+    "after_bindings_sha256": "7a540c306b3e90ca8f90435b0f830374a3b93cb9055a2aa96d53cdc888e843a8",
+    "frontend657_unchanged_raw": "f710cb513924bde02490b3cea751059cedcdc3b3af0f1cce1c5111fdd502df1e"
+  },
+  "artifacts": {
+    "passport-schema-verification.json": "af1528a1aae92faa43fa4f5bf35b7dc26c67ff4fbdb74ff750adbb94b4e601d7",
+    "submission-view-performance-verification.json": "b107ff83830d8aa43926681222f6adfc53f2d105d4e42db9a9d019b0e4a645a4",
+    "roster-cache-shape-verification.json": "6342f434a0ec81a77823f754217b1468dbd86123af4b9eed103afa39a2f30d5b",
+    "document-matcher-final-verification.json": "ed7e72605edbb54a78d28aa7dfb8f1c21918837f8468799547adcbc8c4093476",
+    "whatsapp-activity-final-verification.json": "7d1a6837d94483b135c5ad8d59a66e50cb873114c516b870304fa9d5ab82acfb",
+    "communications-models-verification.json": "c15e3f69b6833e760c8888f6845d158aa428e88f88ee5f8de247179d9283f011",
+    "runtime-readiness-verification.json": "167f3116e9e81eff11f057102ee815f1b63c93dbc50b077b73ed8b57e0ffaecf",
+    "readiness-model-view-activity-previous-values.json": "5e832bd61d28984467c131c794e91de2e5ffcc1785b9a61455586c9228087c8f",
+    "passport-schema-budget-candidates.json": "f9228082bfddb88ab27560cdbbd9521553c70138162bae3d88902031c325dee3",
+    "submission-view-performance-budget-candidates.json": "408853ac10761b9abaa66475569da4791fb244536f110c6ea04925d751b0c6dc",
+    "document-matcher-final-budget-candidates.json": "f6c1055ab5aa6b353c398a531280401c143c0d31705e21188b07252feed458d7",
+    "document-matcher-final-source-manifest.json": "0436c5852b55b128a1fd580c86956e9efde51a4da3f9a9da844d27bac0fc018b",
+    "whatsapp-activity-final-budget-candidates.json": "bf12ce0b716631f32ca67910294ef67bb9d9003642d00896399d87c16fef8677",
+    "whatsapp-activity-final-source-manifest.json": "2b228f7a7d6fa2b5f2c1fb4c61312dbf1b974a78b721baa1f5d23d25fc97522d",
+    "communications-models-budget-candidates.json": "20cf03c82f54a21d2762c432f47e6d0695cd9fdcf4ef7d4607a9eaa9d1ed29bf",
+    "runtime-readiness-budget-candidates.json": "ec30ad29c83164baf8017bed7fa44d9c8b400a3a819b4aefaac0f91a5fee1ce7",
+    "runtime-readiness-critical-candidates.json": "5827fc0e981162ff28eae8698567c259f29b3bce037f370a0f6e432d2f91ec36",
+    "passport-schema-extracted-coverage.json": "369edcf773f93eb5452a414e662cc455abf31fd5fd2a1c88cacf98f042b7a0d5",
+    "submission-view-performance-coverage.json": "3eb7451d67f498f9630a6aacc9daa75df5d3348ac05a81109a6935d4137d51ac",
+    "document-matcher-final-qualified-coverage.json": "0d1bbc415d27d79128450b0d3b91ef1aabeebc9ee7243f75a6d11d94c9d07cfe",
+    "whatsapp-activity-final-coverage.json": "dbc714bda4447c030fc19acf38a0c9a7695fa38646806c1f5856e66c7db12261",
+    "communications-models-extracted-coverage.json": "1953cad9ddf843124e6bc36ea5069284c2fc531bbbbfc4e3f753d3f4cb8382ba",
+    "runtime-readiness-qualified-coverage.json": "9633e1c9d78b763f4b0db8773e4a3f51f15494a2e891e5bda721b9c0d3f49d87",
+    "runtime-readiness-qualified-coverage.xml": "64fb4e9ce9ce851b1d376c442334a125130f4b93e2d66d762795929143c582c6",
+    "readiness-model-view-activity-budgets.txt": "94416a91754e0761fd12f3e2ecb30abfe3d7bb036498163a6f548e5c8e2f88ba",
+    "readiness-model-view-activity-bindings.txt": "e5fc95174277489c47ea2fb2e6d94559e16b1c8749b3ad853741978343f018e6",
+    "readiness-model-view-activity-loader-tests.txt": "eec69d2eff8b3c8749b42a80fbb95665a08b94d30ba3090f58df74e412db79d7",
+    "readiness-model-view-activity-exact-bindings.json": "5f9ef0cca2510bcccf5ac435eb6e78c330693b9d9047899901a1d141a3b3a037"
+  },
+  "limits": [
+    "No broad application/build/browser/live-service/VPS qualification",
+    "Source identity is static evidence, not proof of live VPS baseline/catalog/data",
+    "MCP1990 remains historical pending final source-owner reconciliation",
+    "Earlier activity/view dependency fences remain immutable; only declared newer cache/model proofs supersede named dependencies",
+    "DedicatedInbox remains deferred; these cohorts are retained shared/dashboard paths"
+  ],
+  "checks": {
+    "backend_static_budgets": "724 normal module limits passed;106 critical entries preserved or added as documented",
+    "exact_release_bindings": "117 current AFTERs plus both actual immutable Git BEFORE baselines passed",
+    "binding_loader_tests": "14 focused tests passed in7.780 seconds",
+    "frontend": "657 budget source unchanged; no frontend application qualification rerun"
+  },
+  "migration_count_correction": "Peer receipts call the142 current files published. Actual HEAD tree has141 committed migration files, all compared byte-for-byte after CRLF normalization; reviewed0142 is additional and independently exact-bound. No historical receipt rewritten.",
+  "controls": {
+    "backend/backend_quality_budgets.json": "0858ebe8c995397ef084e4545d18e75e5b362c34e6ea23fa7cf895d18bbbdcaf",
+    "scripts/release_workspace_branding_bindings.json": "7a540c306b3e90ca8f90435b0f830374a3b93cb9055a2aa96d53cdc888e843a8",
+    "scripts/release_workspace_branding_policy.py": "09587e4070e58362a620d21d6aab11032b5edfac462d18250282eb33a07c36c5"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "status": "retired-byte-exact",
+  "files": [
+    {
+      "path": "scripts/fix_status_logic.py",
+      "archive_path": "Not related to project/retired-one-time-renames/scripts/fix_status_logic.py",
+      "sha256": "7c94114056a3b4804ca4c1cfaa87595f8f3da31250256aefa60168695de39c4e",
+      "bytes": 1465,
+      "physical_lines": 38,
+      "source": "import os\n\nROOT = r\"C:\\Users\\nipun\\Desktop\\PassDetection\\backend\"\n\ndef process_file(filepath):\n    with open(filepath, 'r', encoding='utf-8') as f:\n        content = f.read()\n    \n    new_content = content\n    # Replace ClientGroupStatus with GroupStatus\n    new_content = new_content.replace(\"ClientGroupStatus\", \"GroupStatus\")\n    new_content = new_content.replace(\"UploadLinkExpiredError\", \"ClientGroupExpiredError\")\n    new_content = new_content.replace(\"UploadLinkUsedError\", \"ClientGroupClosedError\")\n    \n    # Replace logic checking for USED or REVOKED to CLOSED\n    new_content = new_content.replace(\"GroupStatus.USED\", \"GroupStatus.CLOSED\")\n    new_content = new_content.replace(\"GroupStatus.REVOKED\", \"GroupStatus.CLOSED\")\n    \n    # Fix exception names\n    new_content = new_content.replace(\"ClientGroupExpiredError\", \"GroupClosedError\")\n    new_content = new_content.replace(\"ClientGroupClosedError\", \"GroupClosedError\")\n    \n    if new_content != content:\n        with open(filepath, 'w', encoding='utf-8') as f:\n            f.write(new_content)\n        print(f\"Updated {filepath}\")\n        \ndef main():\n    for root, dirs, files in os.walk(ROOT):\n        if any(x in root for x in [\".venv\", \"venv\", \"__pycache__\", \".git\", \"alembic\"]):\n            continue\n        for file in files:\n            if file.endswith('.py'):\n                filepath = os.path.join(root, file)\n                process_file(filepath)\n\nif __name__ == \"__main__\":\n    main()\n",
+      "review_scope": "full",
+      "reason": "Obsolete machine-specific one-time source rewrite; old identifiers no longer exist in maintained app source; no current maintained runtime/build/CI/docs reference found.",
+      "archive_sha256": "7c94114056a3b4804ca4c1cfaa87595f8f3da31250256aefa60168695de39c4e",
+      "status": "retired"
+    },
+    {
+      "path": "scripts/migrate_upload_links_to_groups.py",
+      "archive_path": "Not related to project/retired-one-time-renames/scripts/migrate_upload_links_to_groups.py",
+      "sha256": "d6af0348170c723fdba1524ea19606e206ca9c4227e35e63ad5cc5b5ba682a01",
+      "bytes": 1978,
+      "physical_lines": 55,
+      "source": "import os\nimport re\n\nROOT = r\"C:\\Users\\nipun\\Desktop\\PassDetection\\backend\"\n\nREPLACEMENTS = [\n    (r\"UploadLinkModel\", \"ClientGroupModel\"),\n    (r\"upload_links\", \"client_groups\"),\n    (r\"upload_link\", \"client_group\"),\n    (r\"UploadLink\", \"ClientGroup\"),\n    (r\"UPLOAD_LINK\", \"CLIENT_GROUP\"),\n]\n\ndef process_file(filepath):\n    with open(filepath, 'r', encoding='utf-8') as f:\n        content = f.read()\n    \n    new_content = content\n    for old, new in REPLACEMENTS:\n        # Simple string replace works well here except we need to be careful, but given we are completely renaming the concept:\n        new_content = re.sub(old, new, new_content)\n        \n    if new_content != content:\n        with open(filepath, 'w', encoding='utf-8') as f:\n            f.write(new_content)\n        print(f\"Updated {filepath}\")\n        \ndef main():\n    for root, dirs, files in os.walk(ROOT):\n        # exclude some dirs\n        if any(x in root for x in [\".venv\", \"venv\", \"__pycache__\", \".git\", \"alembic\\\\versions\"]):\n            continue\n        for file in files:\n            if file.endswith('.py'):\n                filepath = os.path.join(root, file)\n                process_file(filepath)\n                \n    # Renaming files and dirs\n    for root, dirs, files in os.walk(ROOT, topdown=False):\n        for name in dirs:\n            if \"upload_link\" in name:\n                old_path = os.path.join(root, name)\n                new_path = os.path.join(root, name.replace(\"upload_link\", \"client_group\"))\n                os.rename(old_path, new_path)\n                print(f\"Renamed dir {old_path} -> {new_path}\")\n                \n        for name in files:\n            if \"upload_link\" in name:\n                old_path = os.path.join(root, name)\n                new_path = os.path.join(root, name.replace(\"upload_link\", \"client_group\"))\n                os.rename(old_path, new_path)\n                print(f\"Renamed file {old_path} -> {new_path}\")\n\nif __name__ == \"__main__\":\n    main()\n",
+      "review_scope": "full",
+      "reason": "Obsolete machine-specific one-time source rewrite; old identifiers no longer exist in maintained app source; no current maintained runtime/build/CI/docs reference found.",
+      "archive_sha256": "d6af0348170c723fdba1524ea19606e206ca9c4227e35e63ad5cc5b5ba682a01",
+      "status": "retired"
+    }
+  ],
+  "reference_check": {
+    "command": "rg -n --hidden (fix_status_logic|migrate_upload_links_to_groups) . with .git/.tmp/dependencies/audit/local archive excluded",
+    "exit_code": 1,
+    "matching_references": 0,
+    "limits": "Repository static caller review only; cannot establish absence of external/manual operator invocations."
+  },
+  "old_identifier_check": "Only the two historical helpers contain old status/model symbols in backend/app and scripts; published migrations untouched.",
+  "no_runtime_or_database_execution": true
+}

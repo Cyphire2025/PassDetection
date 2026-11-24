@@ -1,0 +1,29 @@
+{
+  "previous_errors": 37,
+  "distinct_error_causes": {
+    "source .env.example schema default0141 disagreed with manifest0142": 37
+  },
+  "operator_tests_run": 870,
+  "operator_tests_passed": 865,
+  "operator_tests_skipped": 5,
+  "operator_tests_failed": 0,
+  "operator_tests_errors": 0,
+  "seconds": 62.136,
+  "checks": [
+    "scripts/release_manifest.py passed source defaults",
+    "all20 exact source bindings match candidate and two reviewed baseline commits",
+    "strict admission remains unchanged apart from exact reviewed file/hash entries"
+  ],
+  "defaults_changed": {
+    ".env.example": "EXPECTED_DATABASE_SCHEMA_REVISION=0142_group_background",
+    "docker-compose.yml": "EXPECTED_DATABASE_SCHEMA_REVISION: ${EXPECTED_DATABASE_SCHEMA_REVISION:-0142_group_background}"
+  },
+  "preserved": [
+    "actual local/VPS environment files untouched",
+    "compose project/service/container/volume names unchanged",
+    "worker identities unchanged",
+    "existing forward migration/operator process unchanged",
+    "published migrations unchanged",
+    "source admission and proof gates unchanged"
+  ]
+}

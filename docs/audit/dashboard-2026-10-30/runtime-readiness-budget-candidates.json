@@ -1,0 +1,42 @@
+[
+  {
+    "path": "app/infrastructure/runtime_readiness_contracts.py",
+    "baseline_lines": 52,
+    "maximum_lines": 60,
+    "baseline_max_function_complexity": 0,
+    "maximum_function_complexity": 1,
+    "minimum_coverage_percent": 88
+  },
+  {
+    "path": "app/infrastructure/runtime_readiness_database.py",
+    "baseline_lines": 73,
+    "maximum_lines": 80,
+    "baseline_max_function_complexity": 6,
+    "maximum_function_complexity": 7,
+    "minimum_coverage_percent": 88
+  },
+  {
+    "path": "app/infrastructure/runtime_readiness_probes.py",
+    "baseline_lines": 141,
+    "maximum_lines": 150,
+    "baseline_max_function_complexity": 10,
+    "maximum_function_complexity": 11,
+    "minimum_coverage_percent": 88
+  },
+  {
+    "path": "app/infrastructure/runtime_readiness_capabilities.py",
+    "baseline_lines": 161,
+    "maximum_lines": 170,
+    "baseline_max_function_complexity": 5,
+    "maximum_function_complexity": 6,
+    "minimum_coverage_percent": 88
+  },
+  {
+    "path": "app/infrastructure/runtime_readiness.py",
+    "baseline_lines": 278,
+    "maximum_lines": 290,
+    "baseline_max_function_complexity": 5,
+    "maximum_function_complexity": 6,
+    "minimum_coverage_percent": 88
+  }
+]

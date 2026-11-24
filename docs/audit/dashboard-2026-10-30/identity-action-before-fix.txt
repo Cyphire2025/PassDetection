@@ -1,0 +1,219 @@
+FFF                                                                      [100%]
+================================== FAILURES ===================================
+_______________ test_redemption_locks_account_before_action_row _______________
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000001EBCE7D7710>
+
+    async def test_redemption_locks_account_before_action_row(db_session):
+        user = UserModel(
+            email="lock-order@example.invalid",
+            hashed_password="unused-synthetic",
+            full_name="Synthetic Lock Boundary",
+            role="agency_staff",
+            is_active=True,
+        )
+        db_session.add(user)
+        await db_session.flush()
+        repository = IdentitySecurityRepository(db_session)
+        locks = []
+    
+        def observe(orm_state):
+            statement = orm_state.statement
+            if orm_state.is_select and getattr(statement, "_for_update_arg", None) is not None:
+                locks.extend(table.name for table in statement.get_final_froms())
+    
+        event.listen(db_session.sync_session, "do_orm_execute", observe)
+        try:
+            _, raw_token = await repository.issue_action_token(
+                user_id=user.id,
+                purpose="password_recovery",
+                expires_in=timedelta(minutes=20),
+            )
+            assert locks[:2] == ["users", "identity_action_tokens"]
+            locks.clear()
+            token = await repository.get_valid_action_token(
+                raw_token=raw_token,
+                purpose="password_recovery",
+            )
+            assert token is not None
+>           assert locks[:2] == ["users", "identity_action_tokens"]
+E           AssertionError: assert ['identity_action_tokens'] == ['users', 'id...ction_tokens']
+E             
+E             At index 0 diff: 'identity_action_tokens' != 'users'
+E             Right contains one more item: 'identity_action_tokens'
+E             Use -v to get more diff
+
+tests\integration\test_identity_action_boundaries.py:50: AssertionError
+_ test_expiry_is_rechecked_after_password_work_before_consumption[activate_challenge] _
+
+auth_database = namespace(app=<fastapi.applications.FastAPI object at 0x000001EBCE2F1650>, sessions=async_sessionmaker(class_='AsyncSe...ent object at 0x000001EBCE2B55D0 [set]>, release=<asyncio.locks.Event object at 0x000001EBCE2B7690 [set]>, fail=False))
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001EBCFF50190>
+flow = 'activate_challenge'
+
+    @pytest.mark.parametrize("flow", ["activate_challenge", "recover_challenge"])
+    async def test_expiry_is_rechecked_after_password_work_before_consumption(
+        auth_database,
+        monkeypatch,
+        flow,
+    ):
+        env = auth_database
+        path, headers, payload = await prepare_request(env.sessions, flow)
+        baseline = await snapshot(env.sessions)
+        env.gate.release.set()
+    
+        class Clock(datetime):
+            instant = datetime.now(UTC)
+    
+            @classmethod
+            def now(cls, tz=None):
+                return cls.instant if tz is not None else cls.instant.replace(tzinfo=None)
+    
+        original_work = auth_identity.run_password_work
+    
+        async def delayed_work(function, *args, **kwargs):
+            result = await original_work(function, *args, **kwargs)
+            if function is auth_identity.verify_password:
+                # A bounded expensive operation or database wait may cross expiry.
+                # Advance only this synthetic request clock, with no wall-clock sleep.
+                Clock.instant += timedelta(minutes=10)
+            return result
+    
+        monkeypatch.setattr(auth_identity, "datetime", Clock)
+        monkeypatch.setattr(repository_module, "datetime", Clock)
+        monkeypatch.setattr(auth_identity, "run_password_work", delayed_work)
+    
+>       await post(env.app, path, headers, json.loads(payload))
+
+tests\integration\test_identity_action_boundaries.py:87: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+app = <fastapi.applications.FastAPI object at 0x000001EBCE2F1650>
+path = '/api/v1/auth/activate'
+headers = [(b'content-type', b'application/json')]
+body = {'new_password': 'ChangedStrongPassword8', 'token': 'mcUTR_Tee2RVPt3dDCbeTefNymYcIHERBpvJyjayd1E'}
+
+    async def post(app, path, headers, body):
+        payload = json.dumps(body).encode()
+        messages = []
+    
+        async def receive():
+            return {"type": "http.request", "body": payload, "more_body": False}
+    
+        async def send(message):
+            messages.append(message)
+    
+        scope = {
+            "type": "http",
+            "asgi": {"version": "3.0"},
+            "http_version": "1.1",
+            "method": "POST",
+            "scheme": "http",
+            "path": path,
+            "raw_path": path.encode(),
+            "query_string": b"",
+            "root_path": "",
+            "headers": headers,
+            "client": None,
+            "server": ("testserver", 80),
+        }
+        await app(scope, receive, send)
+        start = next(message for message in messages if message["type"] == "http.response.start")
+>       assert start["status"] == 401
+E       assert 200 == 401
+
+tests\integration\test_mfa_denial_durability.py:44: AssertionError
+---------------------------- Captured stdout call -----------------------------
+2026-10-30T19:04:42.764493Z [info     ] refresh_token_created          [app.infrastructure.repositories.refresh_token_repository] user_id=51671de7-3788-4f78-b580-933d8dec7b94
+2026-10-30T19:04:43.197102Z [info     ] all_refresh_tokens_revoked     [app.infrastructure.repositories.refresh_token_repository] user_id=51671de7-3788-4f78-b580-933d8dec7b94
+------------------------------ Captured log call ------------------------------
+INFO     app.infrastructure.repositories.refresh_token_repository:refresh_token_repository.py:77 {'user_id': '51671de7-3788-4f78-b580-933d8dec7b94', 'event': 'refresh_token_created', 'logger': 'app.infrastructure.repositories.refresh_token_repository', 'level': 'info', 'timestamp': '2026-10-30T19:04:42.764493Z'}
+INFO     app.infrastructure.repositories.refresh_token_repository:refresh_token_repository.py:244 {'user_id': '51671de7-3788-4f78-b580-933d8dec7b94', 'event': 'all_refresh_tokens_revoked', 'logger': 'app.infrastructure.repositories.refresh_token_repository', 'level': 'info', 'timestamp': '2026-10-30T19:04:43.197102Z'}
+_ test_expiry_is_rechecked_after_password_work_before_consumption[recover_challenge] _
+
+auth_database = namespace(app=<fastapi.applications.FastAPI object at 0x000001EBCFF58F90>, sessions=async_sessionmaker(class_='AsyncSe...ent object at 0x000001EBCE584D10 [set]>, release=<asyncio.locks.Event object at 0x000001EBD01F3D90 [set]>, fail=False))
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001EBCE705E10>
+flow = 'recover_challenge'
+
+    @pytest.mark.parametrize("flow", ["activate_challenge", "recover_challenge"])
+    async def test_expiry_is_rechecked_after_password_work_before_consumption(
+        auth_database,
+        monkeypatch,
+        flow,
+    ):
+        env = auth_database
+        path, headers, payload = await prepare_request(env.sessions, flow)
+        baseline = await snapshot(env.sessions)
+        env.gate.release.set()
+    
+        class Clock(datetime):
+            instant = datetime.now(UTC)
+    
+            @classmethod
+            def now(cls, tz=None):
+                return cls.instant if tz is not None else cls.instant.replace(tzinfo=None)
+    
+        original_work = auth_identity.run_password_work
+    
+        async def delayed_work(function, *args, **kwargs):
+            result = await original_work(function, *args, **kwargs)
+            if function is auth_identity.verify_password:
+                # A bounded expensive operation or database wait may cross expiry.
+                # Advance only this synthetic request clock, with no wall-clock sleep.
+                Clock.instant += timedelta(minutes=10)
+            return result
+    
+        monkeypatch.setattr(auth_identity, "datetime", Clock)
+        monkeypatch.setattr(repository_module, "datetime", Clock)
+        monkeypatch.setattr(auth_identity, "run_password_work", delayed_work)
+    
+>       await post(env.app, path, headers, json.loads(payload))
+
+tests\integration\test_identity_action_boundaries.py:87: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+app = <fastapi.applications.FastAPI object at 0x000001EBCFF58F90>
+path = '/api/v1/auth/password/recovery/complete'
+headers = [(b'content-type', b'application/json')]
+body = {'new_password': 'ChangedStrongPassword8', 'token': 'lQAQzayQXkHfhi0nY6MF3HcW0UidwdF0qMuNVdXzxIo'}
+
+    async def post(app, path, headers, body):
+        payload = json.dumps(body).encode()
+        messages = []
+    
+        async def receive():
+            return {"type": "http.request", "body": payload, "more_body": False}
+    
+        async def send(message):
+            messages.append(message)
+    
+        scope = {
+            "type": "http",
+            "asgi": {"version": "3.0"},
+            "http_version": "1.1",
+            "method": "POST",
+            "scheme": "http",
+            "path": path,
+            "raw_path": path.encode(),
+            "query_string": b"",
+            "root_path": "",
+            "headers": headers,
+            "client": None,
+            "server": ("testserver", 80),
+        }
+        await app(scope, receive, send)
+        start = next(message for message in messages if message["type"] == "http.response.start")
+>       assert start["status"] == 401
+E       assert 200 == 401
+
+tests\integration\test_mfa_denial_durability.py:44: AssertionError
+---------------------------- Captured stdout call -----------------------------
+2026-10-30T19:04:46.068792Z [info     ] refresh_token_created          [app.infrastructure.repositories.refresh_token_repository] user_id=d7b3a86a-b3ff-4495-9460-31f83ed3b107
+2026-10-30T19:04:46.504752Z [info     ] all_refresh_tokens_revoked     [app.infrastructure.repositories.refresh_token_repository] user_id=d7b3a86a-b3ff-4495-9460-31f83ed3b107
+------------------------------ Captured log call ------------------------------
+INFO     app.infrastructure.repositories.refresh_token_repository:refresh_token_repository.py:77 {'user_id': 'd7b3a86a-b3ff-4495-9460-31f83ed3b107', 'event': 'refresh_token_created', 'logger': 'app.infrastructure.repositories.refresh_token_repository', 'level': 'info', 'timestamp': '2026-10-30T19:04:46.068792Z'}
+INFO     app.infrastructure.repositories.refresh_token_repository:refresh_token_repository.py:244 {'user_id': 'd7b3a86a-b3ff-4495-9460-31f83ed3b107', 'event': 'all_refresh_tokens_revoked', 'logger': 'app.infrastructure.repositories.refresh_token_repository', 'level': 'info', 'timestamp': '2026-10-30T19:04:46.504752Z'}
+=========================== short test summary info ===========================
+FAILED tests/integration/test_identity_action_boundaries.py::test_redemption_locks_account_before_action_row
+FAILED tests/integration/test_identity_action_boundaries.py::test_expiry_is_rechecked_after_password_work_before_consumption[activate_challenge]
+FAILED tests/integration/test_identity_action_boundaries.py::test_expiry_is_rechecked_after_password_work_before_consumption[recover_challenge]
+3 failed in 7.93s

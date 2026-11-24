@@ -1,0 +1,83 @@
+[
+  {
+    "path": "backend/tests/unit/infrastructure/test_whatsapp_cloud_api_provider.py",
+    "sha256": "b5f72e3984b51e01349328d4fbc040f285af83ea0e4c028ec67256cac5db2b58",
+    "physical_lines": 440,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole440-line physical source read. Exact individual/template/header/body/language and saved-invite overrides, payload admission, shared auth-template digit/button contract, media upload and safe numeric provider diagnostics, connect-safe retry versus read/server/missing-ID ambiguity reviewed. All client post methods are AsyncMock/authored responses; shared transport authentication payload compatibility is not native UI/OTP feature audit. No real provider request or new execution. Current source unchanged; only physical-read coverage added, no runtime fix/new validated finding/test execution."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_whatsapp_provider_diagnostic_privacy.py",
+    "sha256": "128d4af6a159d1cfeef7a2854625d61b740d2ef7ce95f975b491e8af218397a5",
+    "physical_lines": 71,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole71-line physical source read. Four real adapter operations across400/429/500 use HTTPX MockTransport malformed code/subcode/message/details containing synthetic private marker; exception persistence/log records must not echo it, exact transient/unknown distinctions asserted. Networkless synthetic controls, not actual provider malformed replies or broad sink privacy certification. Current source unchanged; only physical-read coverage added, no runtime fix/new validated finding/test execution."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_whatsapp_provider_failure_boundaries.py",
+    "sha256": "53cb635b2f07df3b9d20c71ac5d2995ed6ce17567376ade63eff47867bfdb4cf",
+    "physical_lines": 175,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole175-line physical source read. Pre-dispatch credential/parameter admission, media connect/read retry safety distinct from message acceptance, invalidJSON/missingID ambiguity, auth rejection, frozen document-update body/language and empty approved-template refusal reviewed. Auth-template compatibility represented as shared transport, no separate native-only provider feature added. Current source unchanged; only physical-read coverage added, no runtime fix/new validated finding/test execution."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_whatsapp_provider_wire_payloads.py",
+    "sha256": "7fa4fede204255e4950f4a0639b56afeb8e273b2e1c49701ea622ecefc23add8",
+    "physical_lines": 54,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole54-line physical source read. HTTPX MockTransport exact URL/auth/media/body order,2or3document parameters for rolling releases and oneQR parameter, normalized number and original schema asserted. Authored synthetic credential/media/phone only; this is wire-construction source contract, not Meta acceptance/approved-template qualification. Current source unchanged; only physical-read coverage added, no runtime fix/new validated finding/test execution."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_whatsapp_worker_diagnostic_privacy.py",
+    "sha256": "c2e3935eaeb1beb652c9ef0cb10e52ebc6fbb22f0cd2b00696de7faa9eed4865",
+    "physical_lines": 41,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole41-line physical source read. Actual DB fixture with synthetic unexpected provider RuntimeError must persist generic unknown, suppress automatic retry and keep private marker out of durable error. No arbitrary exception detail projection inferred beyond exercised path; source read not a new test run. Current source unchanged; only physical-read coverage added, no runtime fix/new validated finding/test execution."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_whatsapp_worker_failure_safety.py",
+    "sha256": "a839db4159e33fcb404c18ae5849da861d681138597bca3541e51d7c184c839b",
+    "physical_lines": 181,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole181-line physical source read. Persisted provider unknown/rejection/rate-limit/retry acceptance, bounded sleeps, binding rollback recovery without resend, retry-time recipient authorization, corrupt saved payload refusal, superseded batch claim and queued-only heartbeat reviewed. Synthetic provider and scope-loader revocation fixture are narrower than independent-session revocation race/livePG claims. Current source unchanged; only physical-read coverage added, no runtime fix/new validated finding/test execution."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_whatsapp_retry_transactions.py",
+    "sha256": "fed5d4c9fa534841d8ba7bce58f51572d2981db8a85cd0652424e7a31bfb4822",
+    "physical_lines": 246,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole246-line physical source read. SQLite seed/claims across logs/recipient/globalwelcome, accepted versus interrupted row replay, frozen group-invite language/link/media gate independent welcome ledger, lost broker ACK compensation only queued and native thread publication keeps loop responsive. Explicit expunge matches new task identity maps. No broker/livePG/native process experiment executed now. Current source unchanged; only physical-read coverage added, no runtime fix/new validated finding/test execution."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_broadcast_welcome_scope.py",
+    "sha256": "f6efcf33b1795ef3a62e9a73fcd08c42f6492fcd88095ef4d82aad3887bf301e",
+    "physical_lines": 96,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole96-line physical source read. Persisted same-phone cross-broadcast claim isolation, original own-broadcast worker claim, explicit resend accepted history versus pending/processing/unknown attempt exclusion reviewed. Retains independent global welcome row semantics; no reinterpretation of current business resend policy or new execution. Current source unchanged; only physical-read coverage added, no runtime fix/new validated finding/test execution."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_phone_welcome.py",
+    "sha256": "5fb9ce8ad6b5e15ddc2db3b1c3d627a11a83d5b15a2bc3bf32974a5c71a68fd7",
+    "physical_lines": 426,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole426-line physical source read. Actual SQLite synthetic direct/broadcast welcome claims, tenant/phone identity, stale failure versus late success/retry, frozen content, current approval/phone/source opt-in/link/payload checks, unknown suppression, queued compensation, old-phone receipt guards, stale recovery, known acceptance commit retry and canonical receipt ordering reviewed. Row-lock ordering source assertions do not establish actual PostgreSQL races; provider/authoredphone fixtures only. Current source unchanged; only physical-read coverage added, no runtime fix/new validated finding/test execution."
+  }
+]

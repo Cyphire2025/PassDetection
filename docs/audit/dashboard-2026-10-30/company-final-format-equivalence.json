@@ -1,0 +1,167 @@
+{
+  "basis": "Formatting/line-ending cleanup after the intentional owner guard and architectural changes; every current file emitted AST unchanged. New helper state type annotations checked separately by TypeScript. Original ten moved hook declarations still exact TS AST.",
+  "files": [
+    {
+      "path": "frontend/features/companies/api/companies.api.ts",
+      "before_sha256": "db1a2f9a9129117a73f519a6bae26ac805fe472c500ccb51f71f542a496bd754",
+      "after_sha256": "18ee51e907f2149e832cd83a94f5d1fd6258d8ffe8de3d18bb57559f2f7529ba",
+      "emitted_JS_AST_sha256": "69cf9d8aef9229be57abf39194f8c48adb44abf8cd45e6df6f88ca1c924407d6"
+    },
+    {
+      "path": "frontend/features/companies/api/company-matching.api.ts",
+      "before_sha256": "b70fbebee6a1708965459507bd457624e774559d16e0d7e88f8b1b803d32f67d",
+      "after_sha256": "a766c07dda2a2ea048be7d74c6cd2499e4248fd21a0066b928fb7bb2e6a80835",
+      "emitted_JS_AST_sha256": "e4b7fbe9843de367c12049b4c3d3963dc95b181fd512152816c9994707a39593"
+    },
+    {
+      "path": "frontend/features/companies/api/company-passports.api.ts",
+      "before_sha256": "cc583b7f08a222b2f10592411012f38b0ad5925c921c92b587fcda6996053764",
+      "after_sha256": "4ef113124fb03f4abaca0c47b70c1596f1f7a27995671096ae3ea8614a2a491a",
+      "emitted_JS_AST_sha256": "d6ebd86df117b8cef2bddf883468b0dc47da54b4e533068998e1d4cf8be1cdbe"
+    },
+    {
+      "path": "frontend/features/companies/api/company-data-exports.api.ts",
+      "before_sha256": "aad36d4e6ba8d8ea40f5b4803a9ea63cca41e5d2468a254e623bd53f4655666b",
+      "after_sha256": "3524194cea45dc5d042f86bbb714711f1e51f158e0ed2c65301d5c63ebea9b67",
+      "emitted_JS_AST_sha256": "353a7268d4692c320ecc388dd69cf49c36f46fb68a8e79295100be2a80bdfb01"
+    },
+    {
+      "path": "frontend/features/companies/api/reuse-setup.api.ts",
+      "before_sha256": "bf81c5bf2a3fdb94354d3a6633f66e4798f22436e91ea177e01e9eb59dfe9f3e",
+      "after_sha256": "53d977bcb544fb94f04a6df6a51daae2e1d1914cc9b0af15fc44b43a629b7d9c",
+      "emitted_JS_AST_sha256": "61c2cbf72b56a48f8e29fd2795c277319cc3527e2c4d8279b07be0f6e8230ed6"
+    },
+    {
+      "path": "frontend/features/companies/hooks/use-companies.ts",
+      "before_sha256": "005c40a44385c7fe3fbaa82c32eedcca7e75097919ca590366bb1bc5056bdb28",
+      "after_sha256": "005c40a44385c7fe3fbaa82c32eedcca7e75097919ca590366bb1bc5056bdb28",
+      "emitted_JS_AST_sha256": "a068a6a55ff2b86951add885eefcb429bd3910627792980e2027e66de1cb0b30"
+    },
+    {
+      "path": "frontend/features/companies/hooks/use-company-data-exports.ts",
+      "before_sha256": "5a4c0f83f0417ff2609b69f61415a67f278991a9f4f6cb03d5c1379d8e27dae6",
+      "after_sha256": "5a4c0f83f0417ff2609b69f61415a67f278991a9f4f6cb03d5c1379d8e27dae6",
+      "emitted_JS_AST_sha256": "5c6fccc77615b9c4cf3ac9d247f9f74b53a39d9368976a0cc270d9041441a1a8"
+    },
+    {
+      "path": "frontend/features/companies/components/company-matching-dialog.tsx",
+      "before_sha256": "44394b68b7dc10004471a37c65e1e55d821844b0d2d75ea2112d6e84f04d0076",
+      "after_sha256": "44394b68b7dc10004471a37c65e1e55d821844b0d2d75ea2112d6e84f04d0076",
+      "emitted_JS_AST_sha256": "bfff9cec63e514bc7ab665beb7086e44be71284c59140ad100dc21aac94179a3"
+    },
+    {
+      "path": "frontend/features/companies/components/company-match-resolution.tsx",
+      "before_sha256": "23e7454bb014fb83b824d557ebb8e6d21b7beffc868a64811e79a52ef7041a01",
+      "after_sha256": "23e7454bb014fb83b824d557ebb8e6d21b7beffc868a64811e79a52ef7041a01",
+      "emitted_JS_AST_sha256": "c2db7c08aadf1d323b83562b27e8a9dc1a5e73b48035ad30611d5dd9bf024571"
+    },
+    {
+      "path": "frontend/features/companies/components/company-passports.tsx",
+      "before_sha256": "f9f4d89d57db074a702d8be1b66bbdea1ba0e13e3538decb3916e24feb01c983",
+      "after_sha256": "f9f4d89d57db074a702d8be1b66bbdea1ba0e13e3538decb3916e24feb01c983",
+      "emitted_JS_AST_sha256": "d12262182dfcc609bc0226731c49541ef2267e2b00558d19e450832bf03de48f"
+    },
+    {
+      "path": "frontend/features/companies/components/company-settings.tsx",
+      "before_sha256": "1a1fda0c68b92f32ce1c8207d890a0f5a94bfdc4937df4726ef8b3212a3324e3",
+      "after_sha256": "1a1fda0c68b92f32ce1c8207d890a0f5a94bfdc4937df4726ef8b3212a3324e3",
+      "emitted_JS_AST_sha256": "cff2ea378414a614344481306a4d253220c75cbfa4467438a0d28e90f32c9351"
+    },
+    {
+      "path": "frontend/features/companies/components/company-reassignment-dialog.tsx",
+      "before_sha256": "96044f6c4eb9e82d6d663f29618c0e5dc4957b59ad12ecb8f90f915e8315ad88",
+      "after_sha256": "96044f6c4eb9e82d6d663f29618c0e5dc4957b59ad12ecb8f90f915e8315ad88",
+      "emitted_JS_AST_sha256": "5c692a20e5f2698d0ef7d96fb2208f820a124e56d05360a3183a1932267f27a4"
+    },
+    {
+      "path": "frontend/features/companies/components/company-all-data.tsx",
+      "before_sha256": "40afb4f0da3614a83d21f84fed374f8bba5e8b2bd0edaec79fa0ceeac3bdeca2",
+      "after_sha256": "40afb4f0da3614a83d21f84fed374f8bba5e8b2bd0edaec79fa0ceeac3bdeca2",
+      "emitted_JS_AST_sha256": "a3c477bcadb6efa1ee8ab92702cd981fbbbd09edb75552bae4a21e32b73a2698"
+    },
+    {
+      "path": "frontend/features/companies/components/company-directory.tsx",
+      "before_sha256": "df0c6bfc8c6aa45129f76c77d3693c4d8ef1544055d2c00915a94ad4606e32c1",
+      "after_sha256": "df0c6bfc8c6aa45129f76c77d3693c4d8ef1544055d2c00915a94ad4606e32c1",
+      "emitted_JS_AST_sha256": "f484a9735d398af441421b0ba0d782ada87227d37c68bb6ae6e075c221231d70"
+    },
+    {
+      "path": "frontend/features/companies/components/company-person-page.tsx",
+      "before_sha256": "73a699590cd9ae2f1862dd59dafcdc12d7b3db7f81b93f25ea19cff4ecb54795",
+      "after_sha256": "73a699590cd9ae2f1862dd59dafcdc12d7b3db7f81b93f25ea19cff4ecb54795",
+      "emitted_JS_AST_sha256": "090f0eb3e74f8d9b31a6bcea350846ee9e45d0a683f43adb86cd2cc1dc5ec7a5"
+    },
+    {
+      "path": "frontend/features/companies/components/company-picker.tsx",
+      "before_sha256": "e5e675b5c33a3f31798ff0b7cbbf560eff2fa4b36255753232df1054d7af3686",
+      "after_sha256": "e5e675b5c33a3f31798ff0b7cbbf560eff2fa4b36255753232df1054d7af3686",
+      "emitted_JS_AST_sha256": "2a65cd48111a6bf27043c4a746af474c8384e177964f62c4c92f7e5f6ba08709"
+    },
+    {
+      "path": "frontend/features/companies/api/company-request-config.ts",
+      "before_sha256": "062371a85ed1ebca8185d88b81dc754ca83e6b82658e28c707f5e299837dcfc3",
+      "after_sha256": "062371a85ed1ebca8185d88b81dc754ca83e6b82658e28c707f5e299837dcfc3",
+      "emitted_JS_AST_sha256": "c81981c970a8a7f021d149397c42a0ca2430c97a50f31360561407706aec86d1"
+    },
+    {
+      "path": "frontend/features/companies/hooks/company-query-state.ts",
+      "before_sha256": "96ade68ff1546bf5901e3c6908575559e42ae2fa917b446410f2d3127d46251f",
+      "after_sha256": "fb6557cb497ff2ac377c3795ac1d8095446de7a3dbddcae06f664b96d772ba44",
+      "emitted_JS_AST_sha256": "19c4761ee5a3586021266c98cc5b00211930c38989c1cf7a7de607d07d924d5a"
+    },
+    {
+      "path": "frontend/features/companies/hooks/use-company-queries.ts",
+      "before_sha256": "f5874240b0539820954be15ea66eab9596eb1fe3ed34506009537bb4a51e3acd",
+      "after_sha256": "f5874240b0539820954be15ea66eab9596eb1fe3ed34506009537bb4a51e3acd",
+      "emitted_JS_AST_sha256": "d730da73c6fbed189cb662e3409f6cc806f265918f9d5f78e77f4c5c8a8b270f"
+    },
+    {
+      "path": "frontend/features/companies/hooks/use-company-mutations.ts",
+      "before_sha256": "5cca17266ce8149129c37c0327b7d6766c3053025bb8135cd3d621624248f5b7",
+      "after_sha256": "5cca17266ce8149129c37c0327b7d6766c3053025bb8135cd3d621624248f5b7",
+      "emitted_JS_AST_sha256": "0b4f2013dc4358090057c96d4add10b1e2888c25ec12b445f435fd19f23729dd"
+    },
+    {
+      "path": "frontend/features/companies/hooks/use-company-reuse-policy.ts",
+      "before_sha256": "41d41a631363296387250161fe9a9e1c8ddde1d9c604fbd08adf34e5c247ea5f",
+      "after_sha256": "41d41a631363296387250161fe9a9e1c8ddde1d9c604fbd08adf34e5c247ea5f",
+      "emitted_JS_AST_sha256": "82f1eb1f1b746a9f6444a314a7c0185e6143cd35bf1209c53d6c04d14018b001"
+    },
+    {
+      "path": "frontend/features/companies/hooks/use-company-directory-state.ts",
+      "before_sha256": "d5195a52f34b7e741edbe267b8cf17ba23b189cc5fc5b56ae71ab2dc296d95d5",
+      "after_sha256": "d5195a52f34b7e741edbe267b8cf17ba23b189cc5fc5b56ae71ab2dc296d95d5",
+      "emitted_JS_AST_sha256": "da4d370f066d85c04b0c4851c64aa092a7ff64da5002786fdfe13b9cc165a2e7"
+    },
+    {
+      "path": "frontend/features/companies/hooks/use-company-person-page.ts",
+      "before_sha256": "1d496a5cf76e41e6f1c97de8b7e772ec21e34133e34dd45f70fbbd431b9e5b9a",
+      "after_sha256": "1d496a5cf76e41e6f1c97de8b7e772ec21e34133e34dd45f70fbbd431b9e5b9a",
+      "emitted_JS_AST_sha256": "6e934b41085a163f5a4ef3384eb321d870f737d7b3db65990a07dd39dab40b1b"
+    },
+    {
+      "path": "frontend/features/companies/components/company-reuse-policy-card.tsx",
+      "before_sha256": "657b1c1e43c6c363ea99528691778dc49936e1d25c4f7d25444346e816c8ece1",
+      "after_sha256": "657b1c1e43c6c363ea99528691778dc49936e1d25c4f7d25444346e816c8ece1",
+      "emitted_JS_AST_sha256": "4a088c2e0ca01ab1893875443088cff1b2c492b89998467d8e7bd3b220d3037e"
+    },
+    {
+      "path": "frontend/features/companies/components/company-people-directory.tsx",
+      "before_sha256": "9ec769a064fa9d58c2376a8167de4fa70af63a9816f6608dbb0cd03140ddf205",
+      "after_sha256": "9ec769a064fa9d58c2376a8167de4fa70af63a9816f6608dbb0cd03140ddf205",
+      "emitted_JS_AST_sha256": "f325fe8e6175d74f88843918f6e9d6933423687a1d6d897f7acc2a85144e075d"
+    },
+    {
+      "path": "frontend/features/companies/components/company-person-header.tsx",
+      "before_sha256": "bb6b486fc1a5c8bae05441a6db39cea4b0712873154a35e38b21c1f27727b24a",
+      "after_sha256": "bb6b486fc1a5c8bae05441a6db39cea4b0712873154a35e38b21c1f27727b24a",
+      "emitted_JS_AST_sha256": "6bb19a26dec02d40ea610606fa0378a0faa4088fe6d335650d4c0960eba60c07"
+    },
+    {
+      "path": "frontend/features/companies/components/company-person-content.tsx",
+      "before_sha256": "f4da1b39259d7007c376abb9e9c9a916b29443f34b85ef0e39e4fc2929c0e50d",
+      "after_sha256": "f4da1b39259d7007c376abb9e9c9a916b29443f34b85ef0e39e4fc2929c0e50d",
+      "emitted_JS_AST_sha256": "5fc70e11519e03a87a948330fc52b9a9c87b949ba2b946c13e62e00dc7008c92"
+    }
+  ]
+}

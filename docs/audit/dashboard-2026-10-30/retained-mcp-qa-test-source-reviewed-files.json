@@ -1,0 +1,56 @@
+[
+  {
+    "path": "scripts/test_mcp_direct_containers.py",
+    "sha256": "8676fe428463b5f22a4880a35be6e917246ff88e60fb7c6abf24e61c524237c2",
+    "physical_lines": 138,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole138lines. Clone retains original host security/resource/mount/entrypoint/command and only isolated network aliases; rejects infrastructure/unbounded/privileged/exposed/colliding clones. Exact proxy readonly override, TERM versus nginx QUIT without hard-kill escalation, bounded integer Docker request timeout reaching socket and uncertain request closes once without retry/raw diagnostics reviewed. Mock UnixConnection/Docker only, no daemon/socket/action execution. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "scripts/test_mcp_direct_identity.py",
+    "sha256": "de143a30099c68d6ae6bab5a7be89ab3fa291015f399ce0148af6c9d3a8be62d",
+    "physical_lines": 69,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole69lines. Retained container identity canonicalizes only explicit false/null OomKillDisable and mount order, rejects missing/malformed/true/other host field changes, allows stopped Node frontend143 only without OOM reviewed. Patched inspection/stop metadata only, no container lifecycle performed. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "scripts/test_mcp_direct_idle.py",
+    "sha256": "f450b7005edd308f97054fc481b61877d14ae6a0caa22deb84f9632648337e82",
+    "physical_lines": 180,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole180lines. Monotonic total idle budget includes probes/backoff, late/expired results cannot authorize, only explicit busy retries, malformed/missing/duplicate JSON/counts fail closed; every active/reserved/scheduled worker count and paused-feature stop binding required, custom inventory cannot omit core workers reviewed. Synthetic clocks/commands/source evidence only, not actual worker drain/Docker or release observation. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "scripts/test_mcp_direct_retry.py",
+    "sha256": "a2a2ec5e30750ee04f382ddc21b2d6e1ddd930df0b3ba6d67dc23ed08e1b4f36",
+    "physical_lines": 185,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole185lines. Explicit unique retry snapshot preserves staged bytes, old OOM counters cannot hide new events/restarts/replacements, recovery requires exact start receipts and original schema/full healthy inventory, continuous infrastructure/backend fails closed, checkpoints detect tampering/restaging reviewed. Synthetic temporary receipts and mocked captures/commands; no baseline reset, actual retry, container restart or historical qualified-source repin. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "scripts/qa/test_capacity_container_events.py",
+    "sha256": "21f58a9d158f9fc0ae7500c162a084915436c39bfa0b32a21870134398142275",
+    "physical_lines": 116,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole116lines. Historical unchanged OOM counters versus new failures/restarts/replacements, strict missing/duplicate/nonnegative event parsing, exact container/proc/cgroup-v2 path, local daemon/project/root/oneoff/full inventory and no remote context admission reviewed. Temporary fake proc/cgroup trees and injected command function; no host kernel/Docker observer or workload run. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "scripts/qa/test_mcp_capacity.py",
+    "sha256": "b158ca3a8184f2e5924ec638c3153dd95ae361592f8ecbdc12ac7d04e9de2824",
+    "physical_lines": 233,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole233lines. Serialized export waiting included in unchanged timing samples,5000read cohort exports exact first100, same idempotency key busy refusal, preHTTP selection limit, roster scope/count, checksum/content/row identity and safe local canonical download/ack sequencing, exact capability/profile metadata reviewed. Synthetic workbook+MockTransport and metrics clocks only; no MCP provider/load/capacity/latency qualification, credentials or content retained outside fixtures. Complete current physical test-source read; no new execution/source fix/validated defect."
+  }
+]

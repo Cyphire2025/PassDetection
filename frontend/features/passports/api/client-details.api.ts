@@ -1,3 +1,5 @@
+import type { PassportRequestConfig } from "./passport-request-config";
+import { optionalRequestConfig } from "./passport-request-config";
 import apiClient from "@/lib/api/client";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import type { PassportSubmission } from "@/types/passport.types";
@@ -40,8 +42,8 @@ export const clientDetailsApi = {
     const { data } = await apiClient.get<ClientDetailsEditorResponse>(API_ENDPOINTS.passports.clientDetails(id));
     return data;
   },
-  update: async (id: string, body: ClientDetailsPatch): Promise<PassportSubmission> => {
-    const { data } = await apiClient.patch<PassportSubmission>(API_ENDPOINTS.passports.clientDetails(id), body);
+  update: async (id: string, body: ClientDetailsPatch, requestConfig?: PassportRequestConfig): Promise<PassportSubmission> => {
+    const { data } = await apiClient.patch<PassportSubmission>(API_ENDPOINTS.passports.clientDetails(id), body, ...optionalRequestConfig(requestConfig));
     return data;
   },
 };

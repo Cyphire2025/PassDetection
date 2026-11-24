@@ -1,0 +1,130 @@
+{
+  "status": "frozen; narrow retained dashboard authority fix qualified; broader audit active",
+  "source_manifest": {
+    "path": "docs/audit/dashboard-2026-10-30/gc-common-staging-authority-final-source-manifest.json",
+    "sha256": "6aa078f845c33e0e4de5c51d7ebf744eb3c1a63f3cfa4c04adb4fe2775301b2b"
+  },
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/gc-common-staging-authority-reviewed-files.json",
+    "sha256": "8d531f6cd0cbbd5df14c193739f9f03617c8ed0d04cf2dadf884e44f2d4a7754"
+  },
+  "budget_candidates": {
+    "path": "docs/audit/dashboard-2026-10-30/gc-common-staging-authority-budget-candidates.json",
+    "sha256": "247dace0a1b0545a0de9b8d582ce8a98181aa89eb28090261dd98c62deeab72b"
+  },
+  "source_proof": {
+    "path": "docs/audit/dashboard-2026-10-30/gc-common-staging-authority-source-proof.json",
+    "sha256": "bc3bcb2eccfa52ea27898cb7cdd1296ff81bd402bf7eb3fba1082db8be789e5e"
+  },
+  "focused_43_command": {
+    "path": "docs/audit/dashboard-2026-10-30/gc-common-staging-authority-focused-command.json",
+    "sha256": "6d0cead704f7fca9228af4a9e5b02105dd5160bcd803a76c4ffe8d43621832d4"
+  },
+  "focused_43_log": {
+    "path": "docs/audit/dashboard-2026-10-30/gc-common-staging-authority-focused-tests.txt",
+    "sha256": "3b87213180373d7408d43f0ef740296eca889e298fa13499c9ca23bbd6fbab57"
+  },
+  "coverage_json": {
+    "path": "docs/audit/dashboard-2026-10-30/gc-common-staging-authority-coverage.json",
+    "sha256": "b56bba8c05bec25d299c97dc6896f0d79a7a01d646378cdc6c2e58879bce41b7"
+  },
+  "original_snapshot_manifest": {
+    "path": ".tmp/gc-common-staging-authority-original/manifest.json",
+    "sha256": "8b06bb818b97f8b60c1505ba19bf490045a61f39aee64e29dce013d3cde46623"
+  },
+  "logs": {
+    "gc-common-staging-authority-baseline.txt": {
+      "path": "docs/audit/dashboard-2026-10-30/gc-common-staging-authority-baseline.txt",
+      "sha256": "297c12e6312ab6407dcf4e33d8259f051eef5a4d1dc698110722bb8246674b44"
+    },
+    "gc-common-staging-authority-baseline-removed-control.txt": {
+      "path": "docs/audit/dashboard-2026-10-30/gc-common-staging-authority-baseline-removed-control.txt",
+      "sha256": "d3644b08e34a1f7d0f3a0dbd39255e5eec2985bf314507c551bb397812b0a8ec"
+    },
+    "gc-common-staging-authority-after.txt": {
+      "path": "docs/audit/dashboard-2026-10-30/gc-common-staging-authority-after.txt",
+      "sha256": "5c78a5ef96f9de98d40d575d161087b74ea9d5e15512735b0835e5542697dc5a"
+    },
+    "gc-common-staging-authority-crlf-controls.txt": {
+      "path": "docs/audit/dashboard-2026-10-30/gc-common-staging-authority-crlf-controls.txt",
+      "sha256": "a9818c2bd0a8ecbf4c7b4d6946137fa08ae5121c058a43ed4b1a2860ec910eff"
+    },
+    "gc-common-staging-authority-types.txt": {
+      "path": "docs/audit/dashboard-2026-10-30/gc-common-staging-authority-types.txt",
+      "sha256": "0c37c4158c91ef55c724ba017bf6465f26018199badb08e3ff13f98acdf056c2"
+    },
+    "gc-common-staging-authority-lint-final.txt": {
+      "path": "docs/audit/dashboard-2026-10-30/gc-common-staging-authority-lint-final.txt",
+      "sha256": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0"
+    },
+    "gc-common-staging-contract-before.txt": {
+      "path": "docs/audit/dashboard-2026-10-30/gc-common-staging-contract-before.txt",
+      "sha256": "88bd8dfdb7a94b6010ba5e505610de7af6f1c0243a48a0fdf1fe146c619a4fa4"
+    },
+    "gc-common-staging-contract-after.txt": {
+      "path": "docs/audit/dashboard-2026-10-30/gc-common-staging-contract-after.txt",
+      "sha256": "c650684da631a53569764f5af8f60c3e0d0a19a4321a45fbbac8d3f55d3a7118"
+    }
+  },
+  "baseline": {
+    "actual_product_failures": 14,
+    "unchanged_controls_passed_initially": 26,
+    "two_removed_fixture_constraint_failures": "Raw16fail26pass preserved. Ordinary removed state requires disabled/revoked fields; fixture-only correction, unchanged application then2passed. Fourteen actual stale-authority commits and28 controls qualified across these retained logs."
+  },
+  "results": {
+    "unique_affected_cases": 43,
+    "current_crlf_compatibility_repeat": 12,
+    "runtime_contract_captures": "one before and one after, equal five metadata/hints/identity/class records plus whole common-document router OpenAPI",
+    "strict_runtime_files": 2,
+    "scoped_lint_files": 5,
+    "source_fence": "Twelve current source/evidence paths; exact runtime qualified hashes and explicit CRLF-only correspondence. No source edits after seal."
+  },
+  "failed_attempts_preserved": [
+    "Initial removed-state fixture violated existing DB CHECK, corrected without application change or assertion weakening.",
+    "First post-fix run4failed39passed because old scope-only fixtures did not stub the new real guard; root-relative Python retarget command was attempted from backend cwd and did not run. Corrected actual boundary instrumentation only, final43passed; all29 original assertion bytes and inverse module AST exact.",
+    "A second cwd-relative line-ending metadata attempt did not execute; corrected using absolute Python. Final old-test CRLF restoration normalized-byte exact,12current tests passed separately.",
+    "Initial lint import sorting in new test corrected; final scoped5 pass. No dependency/environment/provider workarounds."
+  ],
+  "qualified_behavior": "Current account active/deleted/actual role+agency/credential/session-version and effective access-level authority revalidated under actor\u2192state locks after owned external staging and before unchanged group\u2192access locks. Revoked scope403 removes only attempt-owned object and rolls back; healthy/profile/legacy/global/effective controls unchanged.",
+  "unchanged_contracts": "Complete original staging AST inverse after only guard import+one awaited assignment; all private/public signatures/evaluated hints/facade identities/dataclass metadata/OpenAPI equal. Existing revision/idempotency/target/rollback/compensation/provider/storage/PDF policies and shared sources unchanged.",
+  "remaining_limits": [
+    "Temporary real SQLite qualifies local DB state and synthetic storage cleanup, not real PostgreSQL row-lock concurrency/real provider/object-store/browser behavior.",
+    "Current actor credential/session-version fences do not newly establish independent dashboard-session-family revocation during a request; original request authentication remains unchanged.",
+    "No new agency-active/MFA/role restrictions and no broad suite/build/browser/scanner/provider sends.",
+    "Runtime staged orchestration remains a coherent295-line owner below existing306 cap; no arbitrary decomposition or unrelated completion/directory architecture closure claimed."
+  ],
+  "coverage": {
+    "app/presentation/api/v1/routes/gc_app_common_authority.py": {
+      "covered_lines": 18,
+      "num_statements": 18,
+      "percent_covered": 100.0,
+      "percent_covered_display": "100",
+      "missing_lines": 0,
+      "excluded_lines": 0,
+      "percent_statements_covered": 100.0,
+      "percent_statements_covered_display": "100",
+      "num_branches": 2,
+      "num_partial_branches": 0,
+      "covered_branches": 2,
+      "missing_branches": 0,
+      "percent_branches_covered": 100.0,
+      "percent_branches_covered_display": "100"
+    },
+    "app/presentation/api/v1/routes/gc_app_common_staging.py": {
+      "covered_lines": 96,
+      "num_statements": 103,
+      "percent_covered": 91.15044247787611,
+      "percent_covered_display": "91",
+      "missing_lines": 7,
+      "excluded_lines": 0,
+      "percent_statements_covered": 93.20388349514563,
+      "percent_statements_covered_display": "93",
+      "num_branches": 10,
+      "num_partial_branches": 3,
+      "covered_branches": 7,
+      "missing_branches": 3,
+      "percent_branches_covered": 70.0,
+      "percent_branches_covered_display": "70"
+    }
+  }
+}

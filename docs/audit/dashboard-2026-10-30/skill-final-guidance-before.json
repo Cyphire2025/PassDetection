@@ -1,0 +1,10 @@
+[
+  {
+    "skill": "review-and-improve-codebase",
+    "before_sha256": "02c1b4ee15281e59cfcb0effea273ff19d9505a5bf66ac683400a0ebb1d6dbf6"
+  },
+  {
+    "skill": "polish-existing-dashboard",
+    "before_sha256": "823be8e3beb7acdc115d51052c81a9adb723fe0febe385a72f10103e7c6b7ee4"
+  }
+]

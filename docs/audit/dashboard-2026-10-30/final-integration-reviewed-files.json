@@ -1,0 +1,74 @@
+[
+  {
+    "path": "backend/requirements.txt",
+    "status": "verified",
+    "reviewer": "ai_extraction",
+    "review_depth": "focused_diff",
+    "sha256": "bd9f9d2ce8fff99670d5d2f23d4b434c1e9a59c9c8c54f5715bc8bdf37b8820c",
+    "notes": "Reviewed direct dependency diff: remove PassportEye only; keep Tesseract for actual scanned visa/ticket PDFs. No retained version changes."
+  },
+  {
+    "path": "backend/requirements.lock",
+    "status": "verified",
+    "reviewer": "ai_extraction",
+    "review_depth": "focused_diff",
+    "sha256": "fdcc91a5eb87f6f678fe03ef37c83109edb639527eba387d73d031114a4188b6",
+    "notes": "Reviewed regeneration through complete package/version/hash-map comparison against exact0141 baseline:19orphan removals, no additions or retained version/hash changes; exact before/after release binding added."
+  },
+  {
+    "path": "backend/requirements-dev.lock",
+    "status": "verified",
+    "reviewer": "ai_extraction",
+    "review_depth": "focused_diff",
+    "sha256": "7ea4f5b8c8ecbc7831892949564679349d2852fa1f0f0b60f88af994f6c1f4f2",
+    "notes": "Reviewed regeneration through complete package/version/hash-map comparison against exact0141 baseline:18orphan removals, no additions or retained version/hash changes; exact before/after release binding added."
+  },
+  {
+    "path": "backend/app/infrastructure/storage/minio_repository.py",
+    "status": "verified",
+    "reviewer": "ai_extraction",
+    "review_depth": "focused_diff",
+    "sha256": "f31fe249d63c18ea0e400bae0ee3161eb05db6b194527e2bdab39bf88626180c",
+    "notes": "Focused diff review of optional exact-end streaming: end must equal start+expected_bytes-1, invalid triples fail before I/O and exact Range is sent. Full storage review/testing belongs to security lane."
+  },
+  {
+    "path": "backend/backend_quality_budgets.json",
+    "status": "verified",
+    "reviewer": "ai_extraction",
+    "review_depth": "focused_diff",
+    "sha256": "4a15035a3705a5509b8d8dec1b418906e5c30f8b418f21022f873cd6e81fbc18",
+    "notes": "Reviewed document matcher ratchet addition and preservation of existing entries/gates; exact source binding added for both reviewed deployment baselines."
+  },
+  {
+    "path": "frontend/scripts/verify-frontend-module-budgets.mjs",
+    "status": "verified",
+    "reviewer": "ai_extraction",
+    "review_depth": "focused_diff",
+    "sha256": "1aa30620fada5d81f74a379062f09f7a837490376eee7f4c198f763e7af3926c",
+    "notes": "Reviewed final bounded module ratchets for settings/passport/camera/document owners; final exact candidate hash updated without changing source admission wildcards."
+  },
+  {
+    "path": "backend/app/main.py",
+    "status": "verified",
+    "reviewer": "ai_extraction",
+    "review_depth": "focused_diff",
+    "sha256": "e2cc9a341ab8d6506035c3188c738aa67f6dbd05c81cb73f4c79696235f2077d",
+    "notes": "Metadata-only diff review: stale MRZ description replaced with Global Connects Dashboard/AI extraction; app title/version, middleware, endpoints, service identities untouched by this change."
+  },
+  {
+    "path": "backend/contracts/api.openapi.json",
+    "status": "verified",
+    "reviewer": "ai_extraction",
+    "review_depth": "focused_diff",
+    "sha256": "f33eda26f052caf65000dc32fb6a712050a99ecdfa755e240053c4bcd43c2099",
+    "notes": "Generated-contract diff review: final metadata regeneration changed only /info/description relative to the preceding reviewed optional-background/enum/scan-summary snapshot; requests/responses/security unchanged in final update."
+  },
+  {
+    "path": "scripts/release_workspace_branding_policy.py",
+    "status": "verified",
+    "reviewer": "ai_extraction",
+    "review_depth": "focused_diff",
+    "sha256": "6294c2d467deb449e7397c7745a150dead4a99382735396480be95c77d601e25",
+    "notes": "Reviewed explicit source bindings for six selected paths; both exact baseline commits retained and all prior source/cleanliness/ancestry/task-admission guards preserved."
+  }
+]

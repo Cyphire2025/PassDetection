@@ -1,5 +1,9 @@
 import { normalizePhoneNumber } from "@/lib/utils/phone-number";
 
+export function validContactEmail(email: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) && email.trim().length <= 254;
+}
+
 /** Public OTP input requires an explicit country code unless it is a full Indian number. */
 export function normalizeOtpPhone(raw: string): string | null {
   const value = raw.trim();

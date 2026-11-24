@@ -1,0 +1,116 @@
+{
+  "reviewed_at": "2026-11-01",
+  "scope": "Final production browser failure corrections;5testspecs+1specific shared testgesture helper only",
+  "limits": "Full composed review attribution is distinct from new physical reread. Backend/services/mobile/provider/Docker/VPS not qualified by mocked browser fixtures. No current broader runtime/build claim.",
+  "files": [
+    {
+      "path": "frontend/e2e/companies.spec.ts",
+      "sha256": "18675e1536a93ca378be9b157efeb2bf3e6f21c0ea0963e0cb9cfb8c45e8534a",
+      "physical_lines": 219,
+      "status": "reviewed",
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "runtime_edited": false,
+      "prior_full_read": {
+        "ledger": "docs/audit/dashboard-2026-10-30/frontend-shared-other-tests-reviewed-files.json",
+        "sha256": "ab29fcb9a3203db06e5b216574e5877f68a8c5a36fcf49521b86ced86613d5c4",
+        "reviewer": "document_ui_architecture",
+        "physical_lines": 217
+      },
+      "review_basis": "Source-composed full review: exact matching peer physical fullread of original bytes plus complete authored/current changed-region review; no reread credit for unchanged original bodies.",
+      "notes": [
+        "No product/menu/API workflow change. All useful original assertions retained or explicitly migrated from retired UI to actual current owner."
+      ]
+    },
+    {
+      "path": "frontend/e2e/passport-governance.spec.ts",
+      "sha256": "735514f1d23e37366260f56c5d400b55aa5a97d41c55d83c75063bdf5fba7cd6",
+      "physical_lines": 753,
+      "status": "reviewed",
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "runtime_edited": false,
+      "prior_full_read": {
+        "ledger": "docs/audit/dashboard-2026-10-30/frontend-shared-other-tests-reviewed-files.json",
+        "sha256": "f2ea947659127fa47ddc5cbc55af274d0e2e8768ddf71dbbd684632ddfc8af04",
+        "reviewer": "document_ui_architecture",
+        "physical_lines": 750
+      },
+      "review_basis": "Source-composed full review: exact matching peer physical fullread of original bytes plus complete authored/current changed-region review; no reread credit for unchanged original bodies.",
+      "notes": [
+        "No product/menu/API workflow change. All useful original assertions retained or explicitly migrated from retired UI to actual current owner.",
+        "Original750line mixed test-owner architecture follow-up remains independent/open; narrow menu navigation correction does not close it."
+      ]
+    },
+    {
+      "path": "frontend/e2e/whatsapp-delivery-types.spec.ts",
+      "sha256": "9cf5fc770e01e14401dfdced1de88f58860a4121eeb5448591a4d6d845c3f890",
+      "physical_lines": 276,
+      "status": "reviewed",
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "runtime_edited": false,
+      "prior_full_read": {
+        "ledger": "docs/audit/dashboard-2026-10-30/frontend-shared-other-tests-reviewed-files.json",
+        "sha256": "0b70036cbc589813167075ea7b3b96a8d4bad63bd84a635e0f821d40350493fe",
+        "reviewer": "document_ui_architecture",
+        "physical_lines": 271
+      },
+      "review_basis": "Source-composed full review: exact matching peer physical fullread of original bytes plus complete authored/current changed-region review; no reread credit for unchanged original bodies.",
+      "notes": [
+        "No product/menu/API workflow change. All useful original assertions retained or explicitly migrated from retired UI to actual current owner."
+      ]
+    },
+    {
+      "path": "frontend/e2e/whatsapp-workspace.spec.ts",
+      "sha256": "73f56fc85eab98650245fd8899e2bbec67882962356615b9d15c6adb02bd11f4",
+      "physical_lines": 434,
+      "status": "reviewed",
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "runtime_edited": false,
+      "prior_full_read": {
+        "ledger": "docs/audit/dashboard-2026-10-30/frontend-shared-other-tests-reviewed-files.json",
+        "sha256": "cbe3a72143666bf30403de1a0b17b69af014f1a856a5e8a5407a273ec0f1d0c4",
+        "reviewer": "document_ui_architecture",
+        "physical_lines": 431
+      },
+      "review_basis": "Source-composed full review: exact matching peer physical fullread of original bytes plus complete authored/current changed-region review; no reread credit for unchanged original bodies.",
+      "notes": [
+        "No product/menu/API workflow change. All useful original assertions retained or explicitly migrated from retired UI to actual current owner."
+      ]
+    },
+    {
+      "path": "frontend/e2e/whatsapp-document-management.spec.ts",
+      "sha256": "e418d1fce28196893725031f6faa56937e11edd4226d88b2929d3057b32c9efb",
+      "physical_lines": 224,
+      "status": "reviewed",
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "runtime_edited": false,
+      "prior_full_read": {
+        "ledger": "docs/audit/dashboard-2026-10-30/frontend-shared-other-tests-reviewed-files.json",
+        "sha256": "d621c5a7c3a792bffd8a2df2108c9aa7fd11fc8864825a128c885241598c390d",
+        "reviewer": "document_ui_architecture",
+        "physical_lines": 118
+      },
+      "review_basis": "Entire replacement current fixture/test authored/reviewed; prior complete physical source preserved; explicit obsolete-UI\u2192current-UI obligation mapping and actual2width browser qualification.",
+      "notes": [
+        "No product/menu/API workflow change. All useful original assertions retained or explicitly migrated from retired UI to actual current owner."
+      ]
+    },
+    {
+      "path": "frontend/e2e/support/visible-menu-trigger.ts",
+      "sha256": "4468cf454afe14f72b1db838971d48f09136a5266f6e04be309e56f4c7274aa9",
+      "physical_lines": 10,
+      "status": "reviewed",
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "runtime_edited": false,
+      "review_basis": "Entire10line test-only helper authored/reviewed and actual3caller browser execution; no existing matching helper found.",
+      "notes": [
+        "Specific visible-menu-trigger scroll completion protocol; no forcedclick/retries/fixed timeout/assertion suppression or generic framework."
+      ]
+    }
+  ]
+}

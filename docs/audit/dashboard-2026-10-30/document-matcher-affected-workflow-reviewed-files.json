@@ -1,0 +1,37 @@
+{
+  "files": [
+    {
+      "path": "backend/tests/unit/presentation/test_document_distribution_matching.py",
+      "sha256": "5793652d336623a30e860bf9c81b7a5cfbbea1f113f86469c89d0dba57d411a0",
+      "physical_lines": 1223,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "notes": "Complete1223line matching/preview/tenant visibility/source-change/counter/query-control source read. Real linked alias matching uses canonical matcher; fake providers and mocked calls preserve no-send boundary. SQLite shared-phone preview coverage does not prove PostgreSQL locks or actual provider sends."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_document_distribution_ingestion.py",
+      "sha256": "43d6680ced3ac7bb40d3889454fefb1aecc9953cdf0cf8a8f24ded229bf06a51",
+      "physical_lines": 776,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "notes": "Complete776line canonical ingestion test source read: matched/unmatched/staged/combinedPDF/capacity, flush/audit ordering, preclaimed key cleanup and actor reauthorization compensation. Actual storage/network calls are synthetic mocks; capacity1500fixture is existing ordinary workload control, no new payload campaign."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_rename_chunk_workflow.py",
+      "sha256": "ac15ac9243ccde212c0894a6ed27a0c0a2bd50e3b7b054ee11eb63bbaa323c31",
+      "physical_lines": 267,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "notes": "Complete267line actual SQLite ORM two-chunk/replay and independently committed winner tests read. Private objects stay in synthetic memory store, advisory lock mocked explicitly; no PostgreSQL concurrency claim."
+    }
+  ],
+  "current_full_files": 3,
+  "current_full_lines": 2266,
+  "notes": "Actual complete physical test-source reads; execution qualification is separate, no import/pass-only credit. Runtime sources unchanged."
+}

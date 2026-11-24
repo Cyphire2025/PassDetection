@@ -1,0 +1,30 @@
+{
+  "argv": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "--tb=short",
+    "-o",
+    "addopts=",
+    "tests/unit/presentation/test_passport_image_mutation_commit_outcomes.py"
+  ],
+  "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection\\backend",
+  "exit_code": 1,
+  "before": {
+    "backend/app/presentation/api/v1/routes/passport_routes/images.py": "bfaba35d33ac81bcae0273e25ec234a289da66657f21bf5533fb53846d4c9328",
+    "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library.py": "dbd2c873b802e10d653ac41b90d955d125b3e68aa7d8085adc7d0ce59e03a91b",
+    "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_edits.py": "ab2ccb9edbd3028f14223b15159538a77ae2ff4db244228d350f0817eb036cff",
+    "backend/tests/passport_image_mutations.py": "a33a842f6dadfdd201430714658cd993d690d5cb233594d4c6ed8af8024e4c0f",
+    "backend/tests/unit/presentation/test_passport_image_mutation_commit_outcomes.py": "1d74ae64c3e58d7ea7e642b02cc402f163a09f94a6efb1618414732403e9d90e"
+  },
+  "after": {
+    "backend/app/presentation/api/v1/routes/passport_routes/images.py": "bfaba35d33ac81bcae0273e25ec234a289da66657f21bf5533fb53846d4c9328",
+    "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library.py": "dbd2c873b802e10d653ac41b90d955d125b3e68aa7d8085adc7d0ce59e03a91b",
+    "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_edits.py": "ab2ccb9edbd3028f14223b15159538a77ae2ff4db244228d350f0817eb036cff",
+    "backend/tests/passport_image_mutations.py": "a33a842f6dadfdd201430714658cd993d690d5cb233594d4c6ed8af8024e4c0f",
+    "backend/tests/unit/presentation/test_passport_image_mutation_commit_outcomes.py": "1d74ae64c3e58d7ea7e642b02cc402f163a09f94a6efb1618414732403e9d90e"
+  },
+  "source_frozen": true,
+  "output": "passport-image-siblings-before-tests.txt"
+}

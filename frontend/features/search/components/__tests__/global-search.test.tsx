@@ -98,6 +98,32 @@ describe("GlobalSearch", () => {
     expect(input).toHaveAttribute("aria-expanded", "false");
     expect(mocks.push).not.toHaveBeenCalled();
   });
+
+  it("cannot select an invisible stale result after navigation clears the query", async () => {
+    const user = userEvent.setup();
+    render(<GlobalSearch />);
+    const input = screen.getByRole("combobox");
+    await user.type(input, "aarav");
+    await screen.findByRole("option", { name: /Aarav Shah/ });
+    await user.keyboard("{Enter}");
+    expect(mocks.push).toHaveBeenCalledOnce();
+    expect(input).toHaveValue("");
+    await user.keyboard("{ArrowDown}{Enter}");
+    expect(mocks.push).toHaveBeenCalledOnce();
+    expect(input).not.toHaveAttribute("aria-activedescendant");
+  });
+
+  it("only references result descriptions while the result panel is rendered", async () => {
+    const user = userEvent.setup();
+    render(<GlobalSearch />);
+    const input = screen.getByRole("combobox");
+    expect(input).not.toHaveAttribute("aria-describedby");
+    await user.type(input, "aarav");
+    await screen.findByRole("option", { name: /Aarav Shah/ });
+    expect(document.getElementById(input.getAttribute("aria-describedby")!)).toBeInTheDocument();
+    await user.keyboard("{Escape}");
+    expect(input).not.toHaveAttribute("aria-describedby");
+  });
   it("distinguishes a failed search from empty success and retries", async () => {
     mocks.global.mockRejectedValueOnce(new Error("temporarily unavailable"));
     const user = userEvent.setup();

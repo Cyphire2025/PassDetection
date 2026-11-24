@@ -103,6 +103,13 @@ Existing duplicate-filename decisions and delivery behavior remain intact.
 
 ## Deployment and verification boundary
 
+The rollout instructions and validation record below describe the original
+`0106 → 0107` feature release. For a current deployment, follow the exact qualified
+[release manifest](../../backend/app/core/config/release_manifest.json) and
+[deployment selector](../deployment-modes.md). Preserve the existing installation;
+do not replace its current schema target with the historical value below or use
+the older direct-Compose sequence to bypass the selected release's gates.
+
 This change requires migration `0107_passport_ecr_checks`, following
 `0106_ecr_checker`. Update `EXPECTED_DATABASE_SCHEMA_REVISION` to
 `0107_passport_ecr_checks`; other existing ECR environment values can stay as

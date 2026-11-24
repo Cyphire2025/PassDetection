@@ -1,0 +1,15 @@
+{
+  "scope": "Actual two-page Chromium synthetic HTTP probe: shared transport lock alone permits old A logout queued behind in-flight B login to dispatch with B cookies. Optional expected-actor rejection modeled by synthetic server; actual app logout has not implemented it.",
+  "results": [
+    {
+      "guard": false,
+      "status": 200,
+      "cookie": ""
+    },
+    {
+      "guard": true,
+      "status": 409,
+      "cookie": "owner=B"
+    }
+  ]
+}

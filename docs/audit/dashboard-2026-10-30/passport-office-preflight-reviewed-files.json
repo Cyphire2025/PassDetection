@@ -1,0 +1,87 @@
+{
+  "files": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_excel_import_support.py",
+      "sha256": "95217c92807f682599f2c80d863046ebfc338451f7cf6c7313da20e6bb65616f",
+      "physical_lines": 434,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical source read in bounded groups; office authority/private output/current revision/persistence traces recorded in current preflight. No behavior issue adopted; Excel support architecture remains proposed until coordinated source change."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/constants.py",
+      "sha256": "fde4a454674243207fe194ab20cd456ca3b341dfd6e9c99d2f06e1b77d13bffc",
+      "physical_lines": 72,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical source read in bounded groups; office authority/private output/current revision/persistence traces recorded in current preflight. No behavior issue adopted; Excel support architecture remains proposed until coordinated source change."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/covers.py",
+      "sha256": "cb198e068daf86be101b7c30f5047c762431fbfc8588fac3f63e2ce34441489e",
+      "physical_lines": 55,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical source read in bounded groups; office authority/private output/current revision/persistence traces recorded in current preflight. No behavior issue adopted; Excel support architecture remains proposed until coordinated source change."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/dependencies.py",
+      "sha256": "f0ca30e150dad79248eac8ad4317bc61de8ce54deca829e9dc8b0108a6928a82",
+      "physical_lines": 152,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical source read in bounded groups; office authority/private output/current revision/persistence traces recorded in current preflight. No behavior issue adopted; Excel support architecture remains proposed until coordinated source change."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/display_name.py",
+      "sha256": "1d3e7d3339247a7bc3828a9300c1f7f84ea7a234c076bfcc2f3d16a3dd77ea83",
+      "physical_lines": 110,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical source read in bounded groups; office authority/private output/current revision/persistence traces recorded in current preflight. No behavior issue adopted; Excel support architecture remains proposed until coordinated source change."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/document_follow_up.py",
+      "sha256": "c68fe92b5bbf3e7949763f26f9e64689b648b4988c15c0c5ab8e3a0745605572",
+      "physical_lines": 105,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical source read in bounded groups; office authority/private output/current revision/persistence traces recorded in current preflight. No behavior issue adopted; Excel support architecture remains proposed until coordinated source change."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/export_history.py",
+      "sha256": "ad4ed57b819b8f246d91a3d2b04d0cc6ff7cfd34851b39b0d2d356bdc58ed59d",
+      "physical_lines": 306,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical source read in bounded groups; office authority/private output/current revision/persistence traces recorded in current preflight. No behavior issue adopted; Excel support architecture remains proposed until coordinated source change."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/queries.py",
+      "sha256": "800f98cf5ccf8cfb8fc624ba33f8f7befbb995bbd929dbfe86833558df759d4f",
+      "physical_lines": 275,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical source read in bounded groups; office authority/private output/current revision/persistence traces recorded in current preflight. No behavior issue adopted; Excel support architecture remains proposed until coordinated source change."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/processing_support.py",
+      "sha256": "0e29abdbccc1eaabc018811d319d9aff808ded7e8905fe5be27a886684100c74",
+      "physical_lines": 59,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical source read in bounded groups; office authority/private output/current revision/persistence traces recorded in current preflight. No behavior issue adopted; Excel support architecture remains proposed until coordinated source change."
+    }
+  ],
+  "stage": "before any office source mutation; matched-current prior full processing variants excluded from new credit",
+  "affected_baseline": "86 passed44.69s in5 Excel helper/provenance/route-alias/import-only/MCP-workbook affected files; raw .tmp/passport-office-audit/excel-baseline.txt"
+}

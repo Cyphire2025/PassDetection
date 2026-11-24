@@ -1,13 +1,14 @@
 "use client";
 
 import { useId, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Info, RefreshCw, Send } from "lucide-react";
 import { Button } from "@/components/ui";
 import type { ApiError } from "@/lib/api/client";
 import { distributionDocumentLabel } from "@/features/documents/config/document-distribution-lanes";
-import { groupUpdatesApi, type GroupUpdateAudience, type GroupUpdateRequest } from "../api/group-updates.api";
+import { groupUpdatesApi, type GroupUpdateAudience } from "../api/group-updates.api";
 import { useGroupUpdateAudience } from "../hooks/use-group-update-audience";
+import { useGroupUpdateSend } from "../hooks/use-group-update-send";
 import { updateAudienceSummary } from "../utils/group-update-audience";
 import { GroupUpdateAudienceFields } from "./group-update-audience";
 import { GroupUpdateRecipientPicker } from "./group-update-recipient-picker";
@@ -27,24 +28,19 @@ export function GroupUpdateDialog({ groupId, groupName, broadcastGroupId, onClos
   const preview = useQuery({
     queryKey: ["group-update-preview", groupId, audience],
     queryFn: ({ signal }) => groupUpdatesApi.preview(groupId, audience, signal), staleTime: 0,
-    refetchInterval: query => query.state.data?.recipients.some(row => ["queued", "processing"].includes(row.latest_update_status ?? "")) ? 5000 : false,
+    gcTime: 0, retry: false,
+    refetchInterval: query => query.state.status === "success" && query.state.data?.recipients.some(row => ["queued", "processing"].includes(row.latest_update_status ?? "")) ? 5000 : false,
   });
   const [selected, setSelected] = useState<string[] | null>(null);
   const [previewKey, setPreviewKey] = useState("");
   const [content, setContent] = useState("");
-  // Keep one exact request after a lost response, including its idempotency key.
-  const [submittedRequest, setSubmittedRequest] = useState<GroupUpdateRequest | null>(null);
-  const send = useMutation({
-    mutationFn: (request: GroupUpdateRequest) => groupUpdatesApi.send(groupId, request),
-    onSuccess: result => {
+  const { send, submittedRequest, submit: submitRequest } = useGroupUpdateSend(groupId, result => {
       for (const batch of result.batches ?? []) registerActivity({
         id: batch.batch_id, kind: "broadcast", messageType: "document_update", startedAt: Date.now(),
         title: "Update message broadcast", contextLabel: groupName, sourceGroupId: batch.broadcast_group_id,
         documentType: null, total: batch.queued_count, queued: batch.queued_count, sent: 0, failed: 0, deliveryUnknown: 0,
       });
       void queryClient.invalidateQueries({ queryKey: ["group-update-preview", groupId] });
-    },
-    onError: (error: ApiError) => { if ([400, 403, 404, 409, 422].includes(error.status ?? 0)) setSubmittedRequest(null); },
   });
   const rows = (preview.data?.recipients ?? []).filter(row => !broadcastGroupId || row.broadcast_group_id === broadcastGroupId);
   const allRows = (allAudience.data?.recipients ?? []).filter(row => !broadcastGroupId || row.broadcast_group_id === broadcastGroupId);
@@ -60,10 +56,10 @@ export function GroupUpdateDialog({ groupId, groupName, broadcastGroupId, onClos
   const documentLabel = distributionDocumentLabel(audience.document_type);
   const message = `Dear Delegates\n\nGreetings from Global Connect Travels.\n\n${normalizedContent || "[Your update message]"}\n\nRegards,\nTeam Global Connect Travels`;
   function submit() {
-    if (submittedRequest) { send.mutate(submittedRequest); return; }
-    if (!preview.data || preview.isFetching || !normalizedContent || !chosen.length) return;
-    const request: GroupUpdateRequest = { request_id: crypto.randomUUID(), preview_token: preview.data.preview_token, audience, audience_keys: chosen.map(row => row.audience_key), message_content: normalizedContent };
-    setSubmittedRequest(request); send.mutate(request);
+    submitRequest(() => !preview.data || preview.isFetching || !normalizedContent || !chosen.length ? null : ({
+      request_id: crypto.randomUUID(), preview_token: preview.data.preview_token,
+      audience, audience_keys: chosen.map(row => row.audience_key), message_content: normalizedContent,
+    }));
   }
   return <DialogFrame title="Preview Update Message" description={groupName} eyebrow="WhatsApp communications" layout="composer" widthClass="max-w-6xl" isBusy={send.isPending} onClose={onClose}>
     <form className="flex min-h-0 flex-1 flex-col" onSubmit={event => { event.preventDefault(); submit(); }}>

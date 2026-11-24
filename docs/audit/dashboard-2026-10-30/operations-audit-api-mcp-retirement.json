@@ -1,0 +1,38 @@
+{
+  "retired": {
+    "surface": {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:auditLogs",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "auditLogs"
+    },
+    "workflow": "operations.auditLogs",
+    "disposition": "implement",
+    "phase": 7,
+    "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+    "adapter_requirements": [
+      "no_removal_effect_audit",
+      "business_transaction_idempotency",
+      "durable_operation_progress"
+    ],
+    "implementation": {
+      "status": "planned",
+      "adapter": null,
+      "evidence": []
+    },
+    "effect_review": "required_before_enablement"
+  },
+  "previous_facade": {
+    "id": "frontend_api:frontend/features/operations/api/operations.api.ts",
+    "kind": "frontend_api_contract",
+    "source": "frontend/features/operations/api/operations.api.ts",
+    "contract_sha256": "9fd74760854c45b73bbe585f1d99d4e0745543faacc6e1234ac793776b3a1855"
+  },
+  "current_facade": {
+    "id": "frontend_api:frontend/features/operations/api/operations.api.ts",
+    "kind": "frontend_api_contract",
+    "source": "frontend/features/operations/api/operations.api.ts",
+    "contract_sha256": "0fa14f9d9aca90f554cec85df230d72786a71e24725144e5531700aa004d45e9"
+  },
+  "reason": "The unused audit-list API and sole unused hook were removed after complete caller search. Active paged audit listing and export remain unchanged. Review ledger classifications are not runtime permissions."
+}

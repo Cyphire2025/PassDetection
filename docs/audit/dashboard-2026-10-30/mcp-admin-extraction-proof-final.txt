@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\prove-mcp-admin-split.py", line 69, in <module>
+    old_app.include_router(namespace["router"])
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\fastapi\applications.py", line 1551, in include_router
+    self.router.include_router(
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\fastapi\routing.py", line 1456, in include_router
+    raise FastAPIError(
+fastapi.exceptions.FastAPIError: Prefix and path cannot be both empty (path operation: overview)

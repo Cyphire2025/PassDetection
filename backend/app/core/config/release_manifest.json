@@ -1,7 +1,7 @@
 {
   "version": 1,
   "deployment_kind": "workspace_branding_v1",
-  "schema_revision": "0141_workspace_branding",
+  "schema_revision": "0142_group_background",
   "previous_schema_revision": "0140_document_update_context",
   "worker_nodes": {
     "worker": "general",

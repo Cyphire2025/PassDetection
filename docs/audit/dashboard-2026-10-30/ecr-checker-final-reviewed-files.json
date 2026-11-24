@@ -1,0 +1,210 @@
+{
+  "files": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker.py",
+      "sha256": "6a10b853b8ecb15371dd770f80f27abd201a812d0cc48948fb65981d2d998726",
+      "review_scope": "full",
+      "physical_lines": 122,
+      "reviewer": "/root/document_ui_architecture",
+      "status": "reviewed",
+      "notes": "Complete current physical source read, including all new imports/typed phase bodies. Pure ownership/readability improvement; final37synthetic affected cases plus exact expanded original17function/metadata/global/route proofs qualified. Frozen."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_actions.py",
+      "sha256": "58b5fec6fb013d7b89115cb00070059b9b36e8876a025ee6e73f7da5b8e40119",
+      "review_scope": "full",
+      "physical_lines": 112,
+      "reviewer": "/root/document_ui_architecture",
+      "status": "reviewed",
+      "notes": "Complete current physical source read, including all new imports/typed phase bodies. Pure ownership/readability improvement; final37synthetic affected cases plus exact expanded original17function/metadata/global/route proofs qualified. Frozen."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_batches.py",
+      "sha256": "3b785bd4319187d78ba24b51c8295a5f0df1812d3f3f153298036f0e67d70007",
+      "review_scope": "full",
+      "physical_lines": 81,
+      "reviewer": "/root/document_ui_architecture",
+      "status": "reviewed",
+      "notes": "Complete current physical source read, including all new imports/typed phase bodies. Pure ownership/readability improvement; final37synthetic affected cases plus exact expanded original17function/metadata/global/route proofs qualified. Frozen."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_inputs.py",
+      "sha256": "1753457d06b683a4f93a48cd3c5ca932e1366fd3831d1af80e598cb588a64e3e",
+      "review_scope": "full",
+      "physical_lines": 102,
+      "reviewer": "/root/document_ui_architecture",
+      "status": "reviewed",
+      "notes": "Complete current physical source read, including all new imports/typed phase bodies. Pure ownership/readability improvement; final37synthetic affected cases plus exact expanded original17function/metadata/global/route proofs qualified. Frozen."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_staging.py",
+      "sha256": "01f95a3aa223649522389ccfb50108ba8737d47fddfb7f77dbca629e337ff141",
+      "review_scope": "full",
+      "physical_lines": 115,
+      "reviewer": "/root/document_ui_architecture",
+      "status": "reviewed",
+      "notes": "Complete current physical source read, including all new imports/typed phase bodies. Pure ownership/readability improvement; final37synthetic affected cases plus exact expanded original17function/metadata/global/route proofs qualified. Frozen."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_support.py",
+      "sha256": "8dd4485b7d11562ff0a0946182dd22fbb443b96e4bf4b1060b0929889f36036c",
+      "review_scope": "full",
+      "physical_lines": 137,
+      "reviewer": "/root/document_ui_architecture",
+      "status": "reviewed",
+      "notes": "Complete current physical source read, including all new imports/typed phase bodies. Pure ownership/readability improvement; final37synthetic affected cases plus exact expanded original17function/metadata/global/route proofs qualified. Frozen."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_upload.py",
+      "sha256": "4cbb51f86dbaff18129c84c42d484a586d3b851f9800952cc4e4d574ddff3036",
+      "review_scope": "full",
+      "physical_lines": 139,
+      "reviewer": "/root/document_ui_architecture",
+      "status": "reviewed",
+      "notes": "Complete current physical source read, including all new imports/typed phase bodies. Pure ownership/readability improvement; final37synthetic affected cases plus exact expanded original17function/metadata/global/route proofs qualified. Frozen."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_ecr_checker.py",
+      "sha256": "51617506451d54a48a4f68aeb911594749a24ef300800f7e120c88f3e841c6f0",
+      "review_scope": "full",
+      "physical_lines": 609,
+      "reviewer": "/root/document_ui_architecture",
+      "status": "reviewed",
+      "notes": "Original606lines and current609lines fully physically read. Only2real-owner imports +factory/admitted target retargets +same dispatch AsyncMock alias binding changed; all65original assertion AST and literal assertion source unchanged. Original23/mechanical23/final37included."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_ecr_checker_upload_outcomes.py",
+      "sha256": "49bb5edeea5dc2aaab0f4d8dd716006b68f9511705e8bd42dcced18028982c3b",
+      "review_scope": "full",
+      "physical_lines": 207,
+      "reviewer": "/root/document_ui_architecture",
+      "status": "reviewed",
+      "notes": "Complete207-line current source physically read.14ordinary input/infrastructure/lifecycle outcome cases pass archived original code in memory and current runtime. Storage/scanner/broker remain synthetic; no real provider calls."
+    },
+    {
+      "path": "backend/tests/service_integration/test_mcp_ecr_reads_postgresql.py",
+      "sha256": "d69e15419b63c2980c889ae4de20a1a0c326135ae8a8e34ba1115c96f78f2092",
+      "review_scope": "full",
+      "physical_lines": 390,
+      "reviewer": "/root/document_ui_architecture",
+      "status": "reviewed",
+      "notes": "Complete390-line original source read in bounded chunks and exact current import/fixture retarget read.37original assertions remain AST/source byte-identical. Only actual real-owner storage prohibition import/target changes; no PostgreSQL/service execution claimed."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/ecr_schemas.py",
+      "sha256": "32f1b4ad60f9b3d3568e24f2606cc437183cdbd3ebdf1972b509c8b6bf4d3ec0",
+      "review_scope": "full",
+      "physical_lines": 41,
+      "reviewer": "/root/document_ui_architecture",
+      "status": "reviewed",
+      "notes": "Complete41-line schema source read, unchanged. Response excludes object storage locators, batch expected_count bounded1000, native public fields preserved."
+    },
+    {
+      "path": "backend/app/infrastructure/export/ecr_excel_exporter.py",
+      "sha256": "c3d73b377e2b76f52e68fb9b8b907cd22d991e31f727aa3edd9b18241ac897ae",
+      "review_scope": "full",
+      "physical_lines": 41,
+      "reviewer": "/root/document_ui_architecture",
+      "status": "reviewed",
+      "notes": "Complete41-line exporter source read, unchanged. Literal string filenames, illegal-character removal, explicit ERROR/REVIEW/PENDING results, duplicate rows and workbook close preserved; original workbook regression included."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/ecr_read_repository.py",
+      "sha256": "7e18f91591f42ac8787a767abfc533858d10273dbfce6f3d4ca1ef4dc07b6863",
+      "review_scope": "full",
+      "physical_lines": 182,
+      "reviewer": "/root/document_ui_architecture",
+      "status": "reviewed",
+      "notes": "Complete182-line source physically read; existing explicit current-full matching-repository ledger retained, no duplicate unique-read credit. Actual tenant/agency-active/staff-creator policy and SQL aggregate/projection owners unchanged."
+    },
+    {
+      "path": "backend/app/application/security/access_level_actor.py",
+      "sha256": "3a8eec715f67356a378986999a012723bdd21f5510518ee7320ce7d0809013a6",
+      "review_scope": "full",
+      "physical_lines": 59,
+      "reviewer": "/root/document_ui_architecture",
+      "status": "reviewed",
+      "notes": "Complete59-line source read, unchanged. Real identity/agency/role/active credential/session version revalidation and restricted access-level reapplication traced; known authority regression controls retained."
+    },
+    {
+      "path": "frontend/features/documents/api/ecr-checker.api.ts",
+      "sha256": "6b08f38492bd5407b446a096f876d9de373887dddf53ec31433d8a17479f29a3",
+      "review_scope": "full",
+      "physical_lines": 43,
+      "reviewer": "/root/document_ui_architecture",
+      "status": "reviewed",
+      "notes": "Complete43-line immediate API caller read, unchanged; prior current full dashboard ledgers retained. Actual ECR progress uses GET polling, not an SSE route. No frontend/browser change or execution here."
+    },
+    {
+      "path": "backend/app/presentation/mcp/ecr_read_tools.py",
+      "sha256": "5eacafa33d5274c41cb4b4fee4d293cfea51cbe55c5d1fc07fc3184342018de0",
+      "review_scope": "full",
+      "physical_lines": 71,
+      "reviewer": "/root/document_ui_architecture",
+      "status": "reviewed",
+      "notes": "Complete71-line source read, unchanged. Dedicated metadata read tool delegates its existing bounded read service; no mutation/provider/file capability introduced. No full credit for imported service modules."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/response_contracts.py",
+      "sha256": "e824d4e2f811124bead6aca5396880323b37d12c8208ef8d709eeaaef21906be",
+      "review_scope": "full",
+      "physical_lines": 28,
+      "reviewer": "/root/document_ui_architecture",
+      "status": "reviewed",
+      "notes": "Complete28-line source read, unchanged. Native authorized binary workbook response metadata preserved in raw before/current OpenAPI proof."
+    },
+    {
+      "path": "backend/app/infrastructure/ai/gemini_ecr_service.py",
+      "sha256": "ef2406f3f7e69dee5f1b2453f14cde26024f3363082ecc37008ac79611e4b25b",
+      "review_scope": "focused",
+      "physical_lines": 420,
+      "reviewer": "/root/document_ui_architecture",
+      "status": "focused",
+      "notes": "This lane physically read1\u2013145 and331\u2013420 only, tracing native preparation admission/MIME/pixel limits/metadata stripping and fixed error types; complete provider/runtime source review remains in prior AI sealed ledger, no new whole-file credit. Source policy byte unchanged.",
+      "read_ranges": [
+        [
+          1,
+          145
+        ],
+        [
+          331,
+          420
+        ]
+      ]
+    },
+    {
+      "path": "backend/app/presentation/middleware/error_handler.py",
+      "sha256": "90539db647f6bb6bf113535fbe5d73383f573bdccc5213e2a455390fa86c5b98",
+      "review_scope": "focused",
+      "physical_lines": 206,
+      "reviewer": "/root/document_ui_architecture",
+      "status": "focused",
+      "notes": "Focused76\u2013109 actual exception-handler boundary read: ImageProcessingBusy has a real503 response and Retry-After, so missing-handler candidate rejected without a product fix. No whole-file credit or middleware edit.",
+      "read_ranges": [
+        [
+          76,
+          109
+        ]
+      ]
+    },
+    {
+      "path": "backend/tests/integration/test_mcp_ecr_reads.py",
+      "sha256": "b3d420bb4beacf12567b08078e8b7ad82372a14dfdacd9fa7e844ecba95ceb18",
+      "review_scope": "focused",
+      "physical_lines": 517,
+      "reviewer": "/root/document_ui_architecture",
+      "status": "focused",
+      "notes": "Focused1\u2013183 real HTTP/SDK fixture/native ECR read parity and no-effects assertions read. File unchanged and not executed in this narrow route-owner batch; remaining source not credited full.",
+      "read_ranges": [
+        [
+          1,
+          183
+        ]
+      ]
+    }
+  ],
+  "full_files_physically_read": 17,
+  "full_lines_physically_read": 2479,
+  "focused_files": 3,
+  "method": "Physical bounded complete source reads before and after owned changes; source/AST/runtime proofs qualify mechanical movement. Existing current full dependencies are provenance, not automatic new manual-read credit for imports or passing tests."
+}

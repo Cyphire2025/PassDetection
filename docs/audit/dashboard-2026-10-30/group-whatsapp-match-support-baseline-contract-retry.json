@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-X",
+    "utf8",
+    "-m",
+    "pytest",
+    "-q",
+    "-c",
+    "pyproject.toml",
+    "-o",
+    "addopts=",
+    "-p",
+    "tests.conftest",
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\test_group_whatsapp_match_contract_capture.py"
+  ],
+  "exit_code": 0,
+  "seconds": 11.468,
+  "log_sha256": "e595c9dd5a9edc1722d0f72303c939afef026f4ec243dac3267b63461a9fa194",
+  "harness_fix": "Only temporary FastAPI route prefix required by existing empty create route; original invalid proof preserved,56product baseline already passed and not rerun.",
+  "contract_sha256": "f0cfe229fbb6df3566eba2d2a8fc4f1b14e01853a2b52f25df4633f17f1c7be6"
+}

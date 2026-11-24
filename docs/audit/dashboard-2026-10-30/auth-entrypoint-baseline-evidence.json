@@ -1,0 +1,10 @@
+{
+  "baseline_git_commit": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+  "note": "Current fixtures executed against isolated copies of four actual HEAD identity entrypoints; application sources were not reverted. Synthetic users only. Navigation-not-implemented messages are jsdom baseline side effects, assertions fail on overwritten account or exposed MFA codes.",
+  "baseline_sources": {
+    "hooks/use-login.ts": "fff2a3c2e59932f5f10220721ecc627be7f890ccff30f17b2935605f24b19caf",
+    "components/login-form.tsx": "bf1019cf70906d03e8e8a1e285609ace2872b789d05fc5c325225831300aba6b",
+    "components/activation-form.tsx": "864b8d4627370d123dd04bebd4fa52ad29105c21d8e942a3ff7123974d179424",
+    "components/password-recovery-forms.tsx": "87930d39aae947eb87a294906db70c06a43fedb60db0690c448c047b4bc30333"
+  }
+}

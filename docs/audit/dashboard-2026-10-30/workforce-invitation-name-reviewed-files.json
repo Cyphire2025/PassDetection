@@ -1,0 +1,20 @@
+[
+  {
+    "path": "backend/app/presentation/api/v1/schemas/operations_schemas.py",
+    "sha256": "9d7c26f70829c07b0b7d1df72b4fe60c2d5d6a9929c8c1bfd6cfaea45cba929e",
+    "physical_lines": 226,
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Whole current schema/test source read/authored. Six real invalid-name acceptances fixed with one shared after-validator. Existing raw bounds, Unicode, forbidden extras and both complete public JSON schemas protected;32focused cases, single-source strict mypy. No broad qualification claimed."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_workforce_invitation_names.py",
+    "sha256": "b3fbdff67955a4e0892c14300c8af9107dcee45f8d20e12a383cbaa6fe6dcc5f",
+    "physical_lines": 42,
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "verified",
+    "notes": "Whole current schema/test source read/authored. Six real invalid-name acceptances fixed with one shared after-validator. Existing raw bounds, Unicode, forbidden extras and both complete public JSON schemas protected;32focused cases, single-source strict mypy. No broad qualification claimed."
+  }
+]

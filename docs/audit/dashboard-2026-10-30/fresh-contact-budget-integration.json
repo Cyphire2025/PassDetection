@@ -1,0 +1,9 @@
+{
+  "candidates": "docs/audit/dashboard-2026-10-30/fresh-contact-budget-candidates.json",
+  "before_sha256": "99f5344a639e79941b82f1895a71d0e66021cc731df1a6b3287017519031e0ba",
+  "sha256": "9eaed7030aba5a06f4035b3ad93cb9aebab51210b31dc3c3bef0d877f0e52ff6",
+  "lf_normalized_sha256": "262ebfe26f695de728acfcb43f2f87122a2ead6ca1ee9ec0f7a5ac996f766b5a",
+  "added": 2,
+  "lowered_existing": 2,
+  "existing_ceilings_preserved": true
+}

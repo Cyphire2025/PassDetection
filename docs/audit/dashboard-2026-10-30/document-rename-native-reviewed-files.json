@@ -1,0 +1,66 @@
+[
+  {
+    "path": "backend/app/presentation/api/v1/routes/document_rename.py",
+    "sha256": "8c0c585714fff34d0d381d59a396e1d356eda7188c46c01e877105f96141ead0",
+    "lines": 1105,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Complete current physical source review (unchanged original body plus explicit native IO drain fix in route). Agency/owner/item metadata gates and existing storage transfer contracts unchanged; no provider sends/native mobile source."
+  },
+  {
+    "path": "backend/app/application/use_cases/document_rename/read_scope.py",
+    "sha256": "c73c1466c10639987a774f6e0f196237f05e7e025ef3c38b59684022a1c2418e",
+    "lines": 21,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical source review (unchanged original body plus explicit native IO drain fix in route). Agency/owner/item metadata gates and existing storage transfer contracts unchanged; no provider sends/native mobile source."
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/document_rename_queries.py",
+    "sha256": "1b433f587143b01e0b8cd1fecc34864ea3419f78e91416e70171e01bc86c5105",
+    "lines": 26,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical source review (unchanged original body plus explicit native IO drain fix in route). Agency/owner/item metadata gates and existing storage transfer contracts unchanged; no provider sends/native mobile source."
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/document_rename_read_repository.py",
+    "sha256": "e638d0bf775834a3aa1dbadd892cd1837be55786815bbe59b9bf8999eebe19bb",
+    "lines": 93,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical source review (unchanged original body plus explicit native IO drain fix in route). Agency/owner/item metadata gates and existing storage transfer contracts unchanged; no provider sends/native mobile source."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/schemas/document_rename_schemas.py",
+    "sha256": "53b6bf348afd6222d9c9cd54f67f98285e1cb073b754f60acf0855c467cea701",
+    "lines": 55,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical source review (unchanged original body plus explicit native IO drain fix in route). Agency/owner/item metadata gates and existing storage transfer contracts unchanged; no provider sends/native mobile source."
+  },
+  {
+    "path": "backend/app/infrastructure/documents/storage_transfers.py",
+    "sha256": "a15cde9b255188896500d54e4de7faf9dafbbe332f13f3163b1590f38a1c58d1",
+    "lines": 71,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical source review (unchanged original body plus explicit native IO drain fix in route). Agency/owner/item metadata gates and existing storage transfer contracts unchanged; no provider sends/native mobile source."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_document_rename_archive_native_cancellation.py",
+    "sha256": "6143a014370844e3cbaebb6992d5eabeb583ac9803ee193fa1972d48f764d325",
+    "lines": 117,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "kind": "test",
+    "notes": "Complete added source review. Real ZipFile/BytesIO blocked native write/read, single/double cancellation, admission ownership and mandatory finally release/gather; no storage services or live documents."
+  }
+]

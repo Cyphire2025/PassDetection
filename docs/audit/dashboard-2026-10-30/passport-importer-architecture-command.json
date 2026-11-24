@@ -1,0 +1,51 @@
+{
+  "argv": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "--tb=short",
+    "--cov=app.infrastructure.imports.passport_document_importer",
+    "--cov=app.infrastructure.imports.passport_document_workspace",
+    "--cov=app.infrastructure.imports.passport_document_streams",
+    "--cov=app.infrastructure.imports.passport_document_images",
+    "--cov=app.infrastructure.imports.passport_zip_members",
+    "--cov=app.infrastructure.imports.passport_zip_reader",
+    "--cov=app.infrastructure.imports.passport_zip_admission",
+    "--cov-branch",
+    "--cov-report=json:../docs/audit/dashboard-2026-10-30/passport-importer-architecture-coverage.json",
+    "--cov-report=term",
+    "tests/unit/infrastructure/test_passport_document_import_staging.py",
+    "tests/unit/infrastructure/test_passport_document_workspace_cleanup.py",
+    "tests/unit/infrastructure/test_passport_zip_member_admission.py"
+  ],
+  "exit_code": 0,
+  "before": {
+    "backend/app/infrastructure/imports/passport_document_importer.py": "1431aac22fdf7d255516c02f34d1f6ad8102ca083668a5f609bc9b74b7c65d92",
+    "backend/app/infrastructure/imports/passport_document_workspace.py": "78260b471bcc10d9edd1ed44b06dc732e5468802ea723ca8891964c12add98f7",
+    "backend/app/infrastructure/imports/passport_document_streams.py": "6ab71940f43d46edff2ece4e5c80706428ab087702e99f65eff5f2f3ed6a4caf",
+    "backend/app/infrastructure/imports/passport_document_images.py": "8f097d6a4b7a63f7c1fd2fb82615c351e3d7701baaed3c398349eabc2de60f0d",
+    "backend/app/infrastructure/imports/passport_zip_members.py": "88ef17047879d07ae2720d99dee680b4744c49d68baf59e7de33821ce6e3628c",
+    "backend/app/infrastructure/imports/passport_zip_reader.py": "8c5d054b922a9f3878ba1ded3b7971a873286b36a3cf84356fe2cb9c366d88ea",
+    "backend/app/infrastructure/imports/passport_zip_admission.py": "b534f8d9c02733c4a378e11ce74770b906c5dcea37984c5bf138930504e3486d",
+    "backend/tests/unit/infrastructure/test_passport_document_import_staging.py": "c221d9bfba0d176b12c7812ff42c9dd46d2ac40219edf25400761677e91f845f",
+    "backend/tests/unit/infrastructure/test_passport_document_workspace_cleanup.py": "49ffef50613d62a8b202e482a93a80017696e5098205d75d75d282f60944f778",
+    "backend/tests/unit/infrastructure/test_passport_zip_member_admission.py": "a0975f2180c69445f3e167808192a304d8028b8b4d507717ba2af6a4fad1b3e4"
+  },
+  "after": {
+    "backend/app/infrastructure/imports/passport_document_importer.py": "1431aac22fdf7d255516c02f34d1f6ad8102ca083668a5f609bc9b74b7c65d92",
+    "backend/app/infrastructure/imports/passport_document_workspace.py": "78260b471bcc10d9edd1ed44b06dc732e5468802ea723ca8891964c12add98f7",
+    "backend/app/infrastructure/imports/passport_document_streams.py": "6ab71940f43d46edff2ece4e5c80706428ab087702e99f65eff5f2f3ed6a4caf",
+    "backend/app/infrastructure/imports/passport_document_images.py": "8f097d6a4b7a63f7c1fd2fb82615c351e3d7701baaed3c398349eabc2de60f0d",
+    "backend/app/infrastructure/imports/passport_zip_members.py": "88ef17047879d07ae2720d99dee680b4744c49d68baf59e7de33821ce6e3628c",
+    "backend/app/infrastructure/imports/passport_zip_reader.py": "8c5d054b922a9f3878ba1ded3b7971a873286b36a3cf84356fe2cb9c366d88ea",
+    "backend/app/infrastructure/imports/passport_zip_admission.py": "b534f8d9c02733c4a378e11ce74770b906c5dcea37984c5bf138930504e3486d",
+    "backend/tests/unit/infrastructure/test_passport_document_import_staging.py": "c221d9bfba0d176b12c7812ff42c9dd46d2ac40219edf25400761677e91f845f",
+    "backend/tests/unit/infrastructure/test_passport_document_workspace_cleanup.py": "49ffef50613d62a8b202e482a93a80017696e5098205d75d75d282f60944f778",
+    "backend/tests/unit/infrastructure/test_passport_zip_member_admission.py": "a0975f2180c69445f3e167808192a304d8028b8b4d507717ba2af6a4fad1b3e4"
+  },
+  "source_frozen": true,
+  "output": "passport-importer-architecture-tests.txt"
+}

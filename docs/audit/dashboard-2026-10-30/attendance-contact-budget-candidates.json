@@ -1,0 +1,128 @@
+[
+  {
+    "path": "features/tour-operations/services/attendance-scan-queue.ts",
+    "baselineLines": 34,
+    "maximumLines": 40,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/tour-operations/services/attendance-queue-contracts.ts",
+    "baselineLines": 117,
+    "maximumLines": 120,
+    "baselineMaxFunctionComplexity": 1,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/tour-operations/services/attendance-queue-runtime.ts",
+    "baselineLines": 94,
+    "maximumLines": 100,
+    "baselineMaxFunctionComplexity": 5,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/tour-operations/services/attendance-queue-idb.ts",
+    "baselineLines": 35,
+    "maximumLines": 40,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/tour-operations/services/attendance-queue-codec.ts",
+    "baselineLines": 173,
+    "maximumLines": 180,
+    "baselineMaxFunctionComplexity": 13,
+    "maximumFunctionComplexity": 14
+  },
+  {
+    "path": "features/tour-operations/services/attendance-queue-migration.ts",
+    "baselineLines": 174,
+    "maximumLines": 180,
+    "baselineMaxFunctionComplexity": 24,
+    "maximumFunctionComplexity": 25
+  },
+  {
+    "path": "features/tour-operations/services/attendance-queue-storage.ts",
+    "baselineLines": 145,
+    "maximumLines": 150,
+    "baselineMaxFunctionComplexity": 6,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/tour-operations/services/attendance-queue-delivery-state.ts",
+    "baselineLines": 167,
+    "maximumLines": 170,
+    "baselineMaxFunctionComplexity": 9,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/tour-operations/services/attendance-queue-commands.ts",
+    "baselineLines": 253,
+    "maximumLines": 260,
+    "baselineMaxFunctionComplexity": 5,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/tour-operations/services/attendance-queue-discards.ts",
+    "baselineLines": 188,
+    "maximumLines": 190,
+    "baselineMaxFunctionComplexity": 5,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/tour-operations/services/attendance-queue-replay.ts",
+    "baselineLines": 186,
+    "maximumLines": 190,
+    "baselineMaxFunctionComplexity": 10,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/tour-operations/services/attendance-queue-outcomes.ts",
+    "baselineLines": 268,
+    "maximumLines": 270,
+    "baselineMaxFunctionComplexity": 13,
+    "maximumFunctionComplexity": 14
+  },
+  {
+    "path": "features/tour-operations/services/attendance-queue-errors.ts",
+    "baselineLines": 30,
+    "maximumLines": 40,
+    "baselineMaxFunctionComplexity": 5,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/tour-operations/services/attendance-queue-closeout.ts",
+    "baselineLines": 207,
+    "maximumLines": 210,
+    "baselineMaxFunctionComplexity": 4,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/upload/hooks/use-fresh-contact.ts",
+    "baselineLines": 35,
+    "maximumLines": 40,
+    "baselineMaxFunctionComplexity": 10,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/upload/hooks/use-fresh-contact-challenge.ts",
+    "baselineLines": 72,
+    "maximumLines": 80,
+    "baselineMaxFunctionComplexity": 6,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/upload/components/fresh-contact.tsx",
+    "baselineLines": 23,
+    "maximumLines": 30,
+    "baselineMaxFunctionComplexity": 15,
+    "maximumFunctionComplexity": 17
+  },
+  {
+    "path": "features/upload/services/contact-verification.ts",
+    "baselineLines": 15,
+    "maximumLines": 20,
+    "baselineMaxFunctionComplexity": 6,
+    "maximumFunctionComplexity": 7
+  }
+]

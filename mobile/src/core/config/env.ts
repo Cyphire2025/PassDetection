@@ -69,10 +69,6 @@ if (parsed.sentryDsn) {
   }
 }
 
-if (parsed.appEnv === 'production' && !parsed.sentryDsn) {
-  throw new Error('Production builds require privacy-safe crash and ANR reporting.');
-}
-
 if (parsed.appEnv === 'production' && !parsed.realtimeEnabled) {
   throw new Error('Production builds require realtime synchronization hints.');
 }

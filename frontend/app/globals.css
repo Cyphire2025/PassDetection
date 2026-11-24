@@ -23,7 +23,7 @@
   .traveller-portal::before { background-image: url('/images/traveller/traveller-portal-portrait-4k.webp'); }
 }
 
-/* ── Design Tokens ──────────────────────────────────────────────────────── */
+/* Design Tokens. */
 :root {
   /* Brand */
   --color-brand-50:  #EFF6FF;
@@ -59,7 +59,7 @@
   --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
 }
 
-/* ── Base Reset ──────────────────────────────────────────────────────────── */
+/* Base Reset. */
 @layer base {
   *,
   *::before,
@@ -157,7 +157,7 @@
   }
 }
 
-/* ── Focus (Accessibility) ───────────────────────────────────────────────── */
+/* Focus (Accessibility). */
 :focus-visible {
   outline: 2px solid var(--color-brand-600);
   outline-offset: 2px;
@@ -166,7 +166,7 @@
 
 .company-logo:focus-visible { border-radius: 9999px; }
 
-/* ── Scrollbar ───────────────────────────────────────────────────────────── */
+/* Scrollbar. */
 ::-webkit-scrollbar        { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track  { background: var(--color-surface-2); }
 ::-webkit-scrollbar-thumb  { background: var(--color-border-strong); border-radius: 3px; }
@@ -175,30 +175,51 @@
 /* Dashboard presentation preferences only affect the office workspace. */
 [data-dashboard-shell] { background: #fafbfc; }
 [data-dashboard-shell] #main-content { scrollbar-gutter: stable; }
-.group-banner { --color-slate-500: #475569; }
-.group-banner .workspace-page-header {
-  padding: 1rem;
-  border: 1px solid rgb(255 255 255 / 0.8);
-  border-radius: 0.75rem;
-  background: rgb(255 255 255 / 0.78);
-  backdrop-filter: blur(10px);
+/* Uploaded artwork stays unfiltered; only its content surfaces become transparent. */
+.group-banner :is(.workspace-page-header, [data-workspace-summary], [data-workspace-metric]),
+[data-dashboard-shell] .group-banner .workspace-page-header :is(span, button),
+.group-banner [data-workspace-metric] > span {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
 }
-.group-banner [data-workspace-summary] {
-  background: rgb(255 255 255 / 0.8);
-  border-color: rgb(255 255 255 / 0.85);
-  box-shadow: 0 1px 3px rgb(15 23 42 / 0.06);
-  backdrop-filter: blur(12px);
+.group-banner .workspace-page-header { padding: 1rem; border-radius: 0.75rem; }
+.group-workspace[data-group-background] :is([data-workspace-card], [data-workspace-toolbar], [data-workspace-empty], [data-workspace-summary], [data-workspace-metric], .workspace-page-header) {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
 }
-.group-banner [data-workspace-metric] { background-color: transparent; border-color: rgb(148 163 184 / 0.18); }
+.group-workspace[data-group-background] :is(.workspace-page-header, [data-workspace-metric]) > span,
+.group-workspace[data-group-background] .workspace-page-header span,
+.group-workspace[data-group-background] [data-workspace-metric] > span {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+[data-dashboard-shell]:has(.group-workspace[data-group-background]) > div:last-child > header {
+  position: relative;
+  z-index: 20;
+  background: transparent;
+  border-color: transparent;
+}
 @media (width < 640px) {
-  .group-banner [data-workspace-summary] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .group-banner [data-workspace-summary],
+  .group-workspace[data-group-background] [data-workspace-summary] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .group-banner [data-workspace-metric] { flex-direction: column; align-items: flex-start; gap: 0.5rem; padding: 0.875rem 0.75rem; }
-  .group-banner [data-workspace-metric]:nth-child(odd) { border-right-width: 1px; }
-  .group-banner [data-workspace-metric]:nth-last-child(-n + 2) { border-bottom-width: 0; }
+  :is(.group-banner, .group-workspace[data-group-background]) [data-workspace-metric] p.truncate {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+  }
+  :is(.group-banner, .group-workspace[data-group-background]) [data-workspace-metric] div:has(> p.truncate) {
+    flex-wrap: wrap;
+    column-gap: 0.5rem;
+  }
 }
-@media (prefers-reduced-transparency: reduce) {
-  .group-banner :is([data-workspace-summary], .workspace-page-header) { background: rgb(255 255 255 / 0.97); backdrop-filter: none; }
-}
+
+.group-workspace[data-group-background] [data-workspace-skeleton] { background: transparent; }
 
 [data-dashboard-shell] .workspace-page-header [class*="bg-white/10"][class*="text-white"] { color: #334155; }
 [data-dashboard-shell] .workspace-page-header [class*="text-slate-100"] { color: #64748b; }
@@ -221,3 +242,33 @@
 [data-dashboard-shell] .workspace-page-header :is([class*="text-blue-100"], [class*="text-blue-200"], [class*="text-sky-100"], [class*="text-sky-200"]) { color: #1d4ed8; }
 [data-dashboard-shell] .workspace-page-header :is([class*="text-amber-100"], [class*="text-amber-200"]) { color: #92400e; }
 [data-dashboard-shell] .workspace-page-header :is([class*="text-emerald-100"], [class*="text-emerald-200"], [class*="text-green-100"]) { color: #047857; }
+
+[data-dashboard-shell] .group-banner .workspace-page-header button,
+.group-workspace[data-group-background] .workspace-page-header button {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+.group-workspace[data-group-background] .group-banner { border-color: transparent; background: transparent; box-shadow: none; }
+
+[data-dashboard-shell] .group-banner .workspace-page-header a,
+.group-workspace[data-group-background] .workspace-page-header a,
+.group-workspace[data-group-background] [data-workspace-empty] > div,
+.group-workspace[data-group-background] [data-workspace-card] span:has(> svg) {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+[data-dashboard-shell] .group-banner .workspace-page-header :is(a, button):focus-visible,
+.group-workspace[data-group-background] .workspace-page-header :is(a, button):focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+.group-banner :is(p, [data-workspace-summary]),
+.group-workspace[data-group-background] :is(p, [data-workspace-summary]) {
+  color: #0f172a;
+}
+.group-banner :is(p, span)[class*="text-slate-"],
+.group-workspace[data-group-background] :is(p, span)[class*="text-slate-"] { color: #0f172a; }

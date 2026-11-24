@@ -1,0 +1,63 @@
+[
+  {
+    "name": "_normalize_phone",
+    "destination": "backend/app/application/use_cases/passports/client_submission_values.py",
+    "body_ast_sha256": "14e816ef0150812030f87574d5933ff34ec9af43aced8b093fb05ad23844c71e",
+    "signature_ast": "arguments(posonlyargs=[], args=[arg(arg='self'), arg(arg='value', annotation=BinOp(left=Name(id='str', ctx=Load()), op=BitOr(), right=Constant(value=None)))], kwonlyargs=[], kw_defaults=[], defaults=[])",
+    "decorators_ast": []
+  },
+  {
+    "name": "_normalize_departure_city",
+    "destination": "backend/app/application/use_cases/passports/client_submission_values.py",
+    "body_ast_sha256": "35827a2a2785be02b183e84f319d03d86e60a4405235962e86fdb677b6be9a39",
+    "signature_ast": "arguments(posonlyargs=[], args=[arg(arg='value', annotation=BinOp(left=Name(id='str', ctx=Load()), op=BitOr(), right=Constant(value=None))), arg(arg='allowed_cities', annotation=Subscript(value=Name(id='list', ctx=Load()), slice=Name(id='str', ctx=Load()), ctx=Load()))], kwonlyargs=[arg(arg='enabled', annotation=Name(id='bool', ctx=Load())), arg(arg='required', annotation=Name(id='bool', ctx=Load()))], kw_defaults=[None, Constant(value=True)], defaults=[])",
+    "decorators_ast": [
+      "Name(id='staticmethod', ctx=Load())"
+    ]
+  },
+  {
+    "name": "_normalize_configured_text",
+    "destination": "backend/app/application/use_cases/passports/client_submission_values.py",
+    "body_ast_sha256": "f6cdd3d89c304978088b0d7b1e8fd1b47996e2da9f63ef92cf747357c20cf181",
+    "signature_ast": "arguments(posonlyargs=[], args=[arg(arg='value', annotation=BinOp(left=Name(id='str', ctx=Load()), op=BitOr(), right=Constant(value=None)))], kwonlyargs=[arg(arg='enabled', annotation=Name(id='bool', ctx=Load())), arg(arg='field', annotation=Name(id='str', ctx=Load())), arg(arg='label', annotation=Name(id='str', ctx=Load())), arg(arg='max_length', annotation=Name(id='int', ctx=Load())), arg(arg='required', annotation=Name(id='bool', ctx=Load()))], kw_defaults=[None, None, None, None, Constant(value=True)], defaults=[])",
+    "decorators_ast": [
+      "Name(id='staticmethod', ctx=Load())"
+    ]
+  },
+  {
+    "name": "_normalize_meal_preference",
+    "destination": "backend/app/application/use_cases/passports/client_submission_values.py",
+    "body_ast_sha256": "2c441bf332dfdbbe7613ae8f0fa5d53161f7afd4aad26bc54281008b1ff76f69",
+    "signature_ast": "arguments(posonlyargs=[], args=[arg(arg='value', annotation=BinOp(left=Name(id='str', ctx=Load()), op=BitOr(), right=Constant(value=None)))], kwonlyargs=[arg(arg='enabled', annotation=Name(id='bool', ctx=Load())), arg(arg='required', annotation=Name(id='bool', ctx=Load()))], kw_defaults=[None, Constant(value=True)], defaults=[])",
+    "decorators_ast": [
+      "Name(id='staticmethod', ctx=Load())"
+    ]
+  },
+  {
+    "name": "_normalize_agent_employee_code",
+    "destination": "backend/app/application/use_cases/passports/client_submission_values.py",
+    "body_ast_sha256": "19f28d8ecf8f58ddcd321b1cb7911eed370828b36fd15f9258c98c027a6a12b1",
+    "signature_ast": "arguments(posonlyargs=[], args=[arg(arg='person_type', annotation=BinOp(left=Name(id='str', ctx=Load()), op=BitOr(), right=Constant(value=None))), arg(arg='code', annotation=BinOp(left=Name(id='str', ctx=Load()), op=BitOr(), right=Constant(value=None)))], kwonlyargs=[arg(arg='enabled', annotation=Name(id='bool', ctx=Load())), arg(arg='required', annotation=Name(id='bool', ctx=Load())), arg(arg='label', annotation=Name(id='str', ctx=Load()))], kw_defaults=[None, Constant(value=True), Constant(value='Agent/Employee Code')], defaults=[])",
+    "decorators_ast": [
+      "Name(id='staticmethod', ctx=Load())"
+    ]
+  },
+  {
+    "name": "_content_type",
+    "destination": "backend/app/application/use_cases/passports/client_submission_values.py",
+    "body_ast_sha256": "549e01dde9cc673155c167d341b8b7be3be9b49b8e35b8c4ee075e150d61596e",
+    "signature_ast": "arguments(posonlyargs=[], args=[arg(arg='suffix', annotation=Name(id='str', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[])",
+    "decorators_ast": [
+      "Name(id='staticmethod', ctx=Load())"
+    ]
+  },
+  {
+    "name": "_is_exact_replay",
+    "destination": "backend/app/application/use_cases/passports/client_submission_replay.py",
+    "body_ast_sha256": "8c62f317d0f3a783dbed92a20368822e734ea9f520daf666a9f2c23f6abe7319",
+    "signature_ast": "arguments(posonlyargs=[], args=[arg(arg='submission', annotation=Name(id='PassportSubmission', ctx=Load()))], kwonlyargs=[arg(arg='clean_fields', annotation=Subscript(value=Name(id='dict', ctx=Load()), slice=Tuple(elts=[Name(id='str', ctx=Load()), Name(id='str', ctx=Load())], ctx=Load()), ctx=Load())), arg(arg='client_email', annotation=BinOp(left=Name(id='str', ctx=Load()), op=BitOr(), right=Constant(value=None))), arg(arg='client_phone', annotation=BinOp(left=Name(id='str', ctx=Load()), op=BitOr(), right=Constant(value=None))), arg(arg='departure_city', annotation=BinOp(left=Name(id='str', ctx=Load()), op=BitOr(), right=Constant(value=None))), arg(arg='nearest_domestic_airport', annotation=BinOp(left=Name(id='str', ctx=Load()), op=BitOr(), right=Constant(value=None))), arg(arg='submission_mode', annotation=Name(id='str', ctx=Load())), arg(arg='family_group_id', annotation=BinOp(left=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load()), op=BitOr(), right=Constant(value=None))), arg(arg='family_member_index', annotation=BinOp(left=Name(id='int', ctx=Load()), op=BitOr(), right=Constant(value=None))), arg(arg='family_relation', annotation=BinOp(left=Name(id='str', ctx=Load()), op=BitOr(), right=Constant(value=None))), arg(arg='family_gender', annotation=BinOp(left=Name(id='str', ctx=Load()), op=BitOr(), right=Constant(value=None))), arg(arg='family_head_name', annotation=BinOp(left=Name(id='str', ctx=Load()), op=BitOr(), right=Constant(value=None))), arg(arg='family_head_email', annotation=BinOp(left=Name(id='str', ctx=Load()), op=BitOr(), right=Constant(value=None))), arg(arg='family_head_phone', annotation=BinOp(left=Name(id='str', ctx=Load()), op=BitOr(), right=Constant(value=None))), arg(arg='family_broadcast_to_member', annotation=Name(id='bool', ctx=Load())), arg(arg='custom_answers', annotation=Subscript(value=Name(id='list', ctx=Load()), slice=Name(id='CustomAnswerSnapshot', ctx=Load()), ctx=Load())), arg(arg='custom_detail_answers', annotation=Subscript(value=Name(id='list', ctx=Load()), slice=Name(id='CustomDetailAnswerSnapshot', ctx=Load()), ctx=Load()))], kw_defaults=[None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None], defaults=[])",
+    "decorators_ast": [
+      "Name(id='staticmethod', ctx=Load())"
+    ]
+  }
+]

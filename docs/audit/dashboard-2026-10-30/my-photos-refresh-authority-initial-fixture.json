@@ -1,0 +1,6 @@
+{
+  "result": "8failed3passed",
+  "fixture_correction": "Enrolled synthetic fixture lacked reference_version>=1 required by the real ck_my_photo_enrollment_enrolled constraint. Corrected only fixture field; no constraint/runtime change.",
+  "real_empty_path_failures": "expired-False and cancelled-False also failed expected lease_lost assertion before any enrolled-row fixture failure.",
+  "reporting_limit": "Complete first stdout was accidentally overwritten after an incorrect working-directory reporting move. Captured tool output preserves diagnostic CHECK constraint and8failingIDs; this JSON is a truthful summary, not a replacement complete raw log."
+}

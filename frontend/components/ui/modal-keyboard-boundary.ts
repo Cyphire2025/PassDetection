@@ -55,16 +55,18 @@ function isolateTopDialog() {
 }
 
 /** One active keyboard boundary, including nested dialogs and removed triggers. */
-export function useModalKeyboardBoundary<T extends HTMLElement>({ dialogRef, isOpen, canClose, onClose }: {
+export function useModalKeyboardBoundary<T extends HTMLElement>({ dialogRef, isOpen, canClose, onClose, returnFocusTarget }: {
   dialogRef: RefObject<T | null>;
   isOpen: boolean;
   canClose: boolean;
   onClose: () => void;
+  returnFocusTarget?: () => HTMLElement | null;
 }) {
   useEffect(() => {
     const dialog = dialogRef.current;
     if (!isOpen || !dialog) return;
-    const trigger = modalReturnTarget(dialog);
+    const previousTrigger = modalReturnTarget(dialog);
+    const trigger = returnFocusTarget?.() ?? previousTrigger;
     if (dialogs.length === 0) bodyOverflow = document.body.style.overflow;
     // Child effects can run first; an ancestor must never replace its nested dialog.
     const childIndex = dialogs.findIndex((entry) => dialog.contains(entry));
@@ -91,7 +93,7 @@ export function useModalKeyboardBoundary<T extends HTMLElement>({ dialogRef, isO
       else if (top) focusInside(top);
       else focus(document.querySelector<HTMLElement>("[data-dialog-focus-fallback],main") ?? document.body);
     };
-  }, [dialogRef, isOpen]);
+  }, [dialogRef, isOpen, returnFocusTarget]);
 
   return (event: KeyboardEvent<T>) => {
     const dialog = dialogRef.current;

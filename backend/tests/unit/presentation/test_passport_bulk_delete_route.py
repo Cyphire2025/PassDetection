@@ -25,6 +25,8 @@ from app.presentation.api.v1.routes.passports import (
 from app.presentation.api.v1.schemas.passport_schemas import (
     BulkDeletePassportSubmissionsRequest,
 )
+from tests.route_dependencies import patch_route_dependency as patch_bulk_dependency
+from tests.route_dependencies import set_route_dependency
 
 
 @pytest.fixture(autouse=True)
@@ -33,13 +35,13 @@ def _isolate_mobile_passenger_propagation(monkeypatch: pytest.MonkeyPatch) -> No
     # copying/deletion behavior are exercised against a real database in the
     # traveller enrollment integration tests.
     monkeypatch.setattr("app.application.travellers.retention.detach_submission_provenance", AsyncMock())
-    monkeypatch.setattr(
+    set_route_dependency(monkeypatch,
         passport_bulk_actions,
         "propagate_mobile_passenger_change",
         AsyncMock(),
     )
-    monkeypatch.setattr(passport_bulk_actions, "lock_linked_whatsapp_broadcast_groups", AsyncMock())
-    monkeypatch.setattr(passport_bulk_actions, "prepare_private_delivery_identity_mutation", AsyncMock())
+    set_route_dependency(monkeypatch, passport_bulk_actions, "lock_linked_whatsapp_broadcast_groups", AsyncMock())
+    set_route_dependency(monkeypatch, passport_bulk_actions, "prepare_private_delivery_identity_mutation", AsyncMock())
 
 
 class _Result:
@@ -145,7 +147,7 @@ async def test_bulk_delete_removes_all_selected_rows_and_stored_documents() -> N
             "require_group",
             AsyncMock(return_value=_mutation(group)),
         ),
-        patch(
+        patch_bulk_dependency(
             'app.presentation.api.v1.routes.passport_routes.bulk_actions._active_roster_resolution_references',
             AsyncMock(return_value=set()),
         ),
@@ -159,11 +161,11 @@ async def test_bulk_delete_removes_all_selected_rows_and_stored_documents() -> N
             "edit_storage_keys",
             AsyncMock(return_value=edit_keys),
         ),
-        patch(
+        patch_bulk_dependency(
             'app.presentation.api.v1.routes.passport_routes.bulk_actions.stage_storage_cleanup_jobs',
             return_value=(cleanup_job,),
         ) as stage_cleanup,
-        patch(
+        patch_bulk_dependency(
             'app.presentation.api.v1.routes.passport_routes.bulk_actions.process_storage_cleanup_job',
             AsyncMock(side_effect=process_cleanup),
         ),
@@ -234,7 +236,7 @@ async def test_bulk_delete_defers_large_storage_cleanup_after_commit() -> None:
             "require_group",
             AsyncMock(return_value=_mutation(group)),
         ),
-        patch(
+        patch_bulk_dependency(
             'app.presentation.api.v1.routes.passport_routes.bulk_actions._active_roster_resolution_references',
             AsyncMock(return_value=set()),
         ),
@@ -248,11 +250,11 @@ async def test_bulk_delete_defers_large_storage_cleanup_after_commit() -> None:
             "edit_storage_keys",
             AsyncMock(return_value=[]),
         ),
-        patch(
+        patch_bulk_dependency(
             'app.presentation.api.v1.routes.passport_routes.bulk_actions.stage_storage_cleanup_jobs',
             return_value=(cleanup_job,),
         ),
-        patch(
+        patch_bulk_dependency(
             'app.presentation.api.v1.routes.passport_routes.bulk_actions.process_storage_cleanup_job',
             process_cleanup,
         ),
@@ -294,7 +296,7 @@ async def test_bulk_delete_is_all_or_nothing_when_a_selection_is_missing() -> No
             "require_group",
             AsyncMock(return_value=_mutation(group)),
         ),
-        patch(
+        patch_bulk_dependency(
             'app.presentation.api.v1.routes.passport_routes.bulk_actions._active_roster_resolution_references',
             AsyncMock(return_value=set()),
         ),
@@ -342,7 +344,7 @@ async def test_bulk_delete_blocks_uploads_referenced_by_active_roster_decisions(
             "require_group",
             AsyncMock(return_value=_mutation(group)),
         ),
-        patch(
+        patch_bulk_dependency(
             'app.presentation.api.v1.routes.passport_routes.bulk_actions._active_roster_resolution_references',
             AsyncMock(side_effect=protected_references),
         ),
@@ -416,7 +418,7 @@ async def test_bulk_delete_reports_deferred_cleanup_after_storage_failure() -> N
             "require_group",
             AsyncMock(return_value=_mutation(group)),
         ),
-        patch(
+        patch_bulk_dependency(
             'app.presentation.api.v1.routes.passport_routes.bulk_actions._active_roster_resolution_references',
             AsyncMock(return_value=set()),
         ),
@@ -430,11 +432,11 @@ async def test_bulk_delete_reports_deferred_cleanup_after_storage_failure() -> N
             "edit_storage_keys",
             AsyncMock(return_value=[]),
         ),
-        patch(
+        patch_bulk_dependency(
             'app.presentation.api.v1.routes.passport_routes.bulk_actions.stage_storage_cleanup_jobs',
             return_value=(cleanup_job,),
         ),
-        patch(
+        patch_bulk_dependency(
             'app.presentation.api.v1.routes.passport_routes.bulk_actions.process_storage_cleanup_job',
             AsyncMock(side_effect=StorageError("storage unavailable")),
         ),
@@ -482,7 +484,7 @@ async def test_bulk_delete_does_not_touch_storage_when_database_commit_fails() -
             "require_group",
             AsyncMock(return_value=mutation),
         ),
-        patch(
+        patch_bulk_dependency(
             'app.presentation.api.v1.routes.passport_routes.bulk_actions._active_roster_resolution_references',
             AsyncMock(return_value=set()),
         ),
@@ -496,16 +498,16 @@ async def test_bulk_delete_does_not_touch_storage_when_database_commit_fails() -
             "edit_storage_keys",
             AsyncMock(return_value=[]),
         ),
-        patch(
+        patch_bulk_dependency(
             'app.presentation.api.v1.routes.passport_routes.bulk_actions.stage_storage_cleanup_jobs',
             return_value=(cleanup_job,),
         ),
-        patch(
+        patch_bulk_dependency(
             'app.presentation.api.v1.routes.passport_routes.bulk_actions.process_storage_cleanup_job',
             process_cleanup,
         ),
         patch.object(AuditLogRepository, "record", AsyncMock()) as audit,
-        patch(
+        patch_bulk_dependency(
             'app.presentation.api.v1.routes.passport_routes.bulk_actions.record_destructive_failure',
             record_failure,
         ),
@@ -562,11 +564,11 @@ async def test_bulk_delete_exact_retry_returns_committed_idempotent_result() -> 
                 return_value=_mutation(group, request_fingerprint=fingerprint)
             ),
         ),
-        patch(
+        patch_bulk_dependency(
             'app.presentation.api.v1.routes.passport_routes.bulk_actions.stage_storage_cleanup_jobs',
             stage_cleanup,
         ),
-        patch(
+        patch_bulk_dependency(
             'app.presentation.api.v1.routes.passport_routes.bulk_actions.process_storage_cleanup_job',
             process_cleanup,
         ),

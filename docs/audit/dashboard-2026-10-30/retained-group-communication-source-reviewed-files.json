@@ -1,0 +1,104 @@
+{
+  "status": "Retained source-only bounded cohort complete",
+  "files": [
+    {
+      "path": "backend/tests/integration/test_coordinator_assignment_lifecycle.py",
+      "sha256": "6718759d8450ce79240703d936c6bb52a050a76f7ef27d0ab41cfd194f443325",
+      "physical_lines": 248,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-248. Local trip dates distinguish Kolkata/Los Angeles at one instant; undated authorization preserved, alias PostgreSQL SQL correlated to visible group. Bounded/idempotent expiry deactivates both assignment kinds while preserving historic unassigned timestamps, group active state/legal hold, attendance/passport rows and zero storage cleanup. Legacy passenger-only assignment handled; bad batch limits rejected. Existing synthetic SQLite timezone helper; no PostgreSQL/service execution."
+    },
+    {
+      "path": "backend/tests/integration/test_group_update_dispatch_cache.py",
+      "sha256": "acc4ced390c9b719a97db31f17d76bd1af29c1175f7303bf744f89fb16b291e0",
+      "physical_lines": 131,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-131. Same wave locks audience once; next wave reads current receipts while pure matching inputs reused only when unchanged. Changed passenger phone invalidates without rerouting, source/header mutation rejects before provider send. Synthetic provider acceptance persistence failure continues saving other known results and retains unpersisted processing/uncertain state; fixture source not real send qualification."
+    },
+    {
+      "path": "backend/tests/unit/application/test_broadcast_history_schedule.py",
+      "sha256": "682793065db8fa6368773c71131f9010c12ccf929e8fded14f6a23496edd61c2",
+      "physical_lines": 136,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-136. Broadcast mutation coalesces completed roster job for99 new rows in25/25/25/24 pages; active cursor gets trailing DIRTY pass. Disabled/closed/deleted/import-only/unassigned/wrong tenant never enqueue. Changed link scope rolls back admission and hard100-group limit rejects101. Source evidence retains existing qualified roster behavior, no new architecture finding."
+    },
+    {
+      "path": "backend/tests/unit/application/test_group_matching_field_work.py",
+      "sha256": "80ba534875e014f53aebe42ea280eb7606516cf2031048811d9b1544b8bf9085",
+      "physical_lines": 38,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-38. Real helper owner determined from function module, assertions preserve duplicate-heading alternate values versus literal terminal_2 heading. Normalization work counter bounded by4*metadata size; source review credits existing regression assertions, no new performance measurement or helper change."
+    },
+    {
+      "path": "backend/tests/unit/application/test_identity_partial_names.py",
+      "sha256": "76f813c7cbd4c637bce76daa49439de08acf9eb8a8fc32ff773c3418cd002ae1",
+      "physical_lines": 83,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-83. Partial name requires corroborated exact passport index within tenant/company; competing passport owners remain ambiguous, DOB mismatch conflicting, wrong name unmatched.101 candidate overflow stops before signal hydration and asserts one indexed query; exact-name rule remains unchanged with unrelated owner. Association remains separate from disclosure permission."
+    },
+    {
+      "path": "backend/app/application/travellers/identity_index.py",
+      "sha256": "bb5ba91a6a9cf6c13489ae4b8cf24fc57aadf6e568bcb70399f68e688291f3ab",
+      "physical_lines": 130,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-130. Replaces encrypted tenant/company-scoped signals under caller lock/transaction, invalidates export jobs; single name and16-signal budgets fail closed. Candidate101 and signal1601 bounds before decryption, duplicate/contradictory evidence unresolved, partial name cannot choose among multiple exact passport owners. No new disclosure authority or performance changes."
+    },
+    {
+      "path": "backend/app/application/travellers/identity_candidates.py",
+      "sha256": "48c1d09ac5a3c302a0e20c796b91679b540d570f37ccbc9ea70748e13c624ce4",
+      "physical_lines": 40,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-40. Indexed keyed-fingerprint exact-name and optional exact-passport union, active/review-required nondeleted profile scope on both branches; same tenant/company and current crypto key, stable UUID ordering and caller bound. No historical scan or data disclosure. No query execution."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/coordinator_assignment_lifecycle.py",
+      "sha256": "0a7ec89144ce7a41c5e67ab5454e5eae1d17669b5de1b52bb8404b8cda6dfbb9",
+      "physical_lines": 156,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical70-156 only. Actual bounded expiry locks group before assignment with skip-locked and agency/date order, updates only current active assignments and emits audit counts; caller owns transaction. Existing current-full ledgers cover whole owner; this cohort does not claim new whole-source read."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/group_update_dispatch.py",
+      "sha256": "5badea183b0969519ec6d946b263d84f84e483d3e9d5d24457f9842b7f5243a5",
+      "physical_lines": 66,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical17-66 only. Per-wave audience cache reset; context version/key-count/type validation, exact scoped filter key and current loader lock, selected membership/destination gates. Header/runtime persistence consumers traced through selected tests; no whole-file credit here."
+    },
+    {
+      "path": "backend/app/application/travellers/broadcast_history_schedule.py",
+      "sha256": "a05d07b8696d41ae74543d64360afe984c1db962c1279131f607ed4b97f8d9af",
+      "physical_lines": 96,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical48-96 only. Bounded sorted group locks then company/policy eligibility, coalesced job admission before broadcast lock; exact link recheck and flushed post-mutation cutoff. Existing current-full ledger reused as prior evidence, no whole-file credit here."
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/group_match_normalization.py",
+      "sha256": "5b6d8982eb966989959ac6c8995b0b3278f1a20594e5aa375a001f06c1118f34",
+      "physical_lines": 172,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical137-172 only: complete field-value extraction and normalized-value helpers. Conflict headings parsed once then metadata scanned; missing placeholders filtered before normalizers. Earlier qualified helper implementation frozen; no whole-file credit or new performance claim."
+    }
+  ]
+}

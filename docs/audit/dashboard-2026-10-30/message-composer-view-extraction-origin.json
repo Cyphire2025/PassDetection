@@ -1,0 +1,12 @@
+{
+  "basis": "Four original rendered JSX subtrees moved exactly (including literal text/operators/attributes/handlers); local definition aliases refer to the same controller definition. Root original state/form/conditional mounting retained; type-only controller imports avoid runtime cycles.",
+  "rendered_subtree_owners": 4,
+  "source_sha256": {
+    "frontend/features/whatsapp/workspace/message-composer.tsx": "d903ca070cd5329bee7261ca99c92d16bf2d46c1436c0ffc0585bbe781dc1fcc",
+    "frontend/features/whatsapp/workspace/message-composer-editor.tsx": "e431d2e26019adf51c136184b3ef3087e2e72d970eb4619155c2291229305483",
+    "frontend/features/whatsapp/workspace/message-composer-feedback.tsx": "09d38c7c8429b031b1b497fe7387757ed6933c40b9fd85efa45fc7e32e8f38db",
+    "frontend/features/whatsapp/workspace/message-composer-review-dialog.tsx": "8bc62237b639cfff27cddc4c64b7c9ebcf21b1140943dff8b98cb91a7b634c00",
+    "frontend/features/whatsapp/workspace/message-composer-audience.tsx": "06ae6eada9d96176e9d27d93bddfddf5113d2d282f5bce0b1bdf6a17d3d54a01",
+    "frontend/features/whatsapp/workspace/message-composer-audience-filters.tsx": "a55aa66007a374219531c1afba8a2b208de1092ba75d88b002d14bda078baf2f"
+  }
+}

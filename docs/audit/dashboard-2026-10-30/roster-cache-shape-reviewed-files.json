@@ -1,0 +1,34 @@
+[
+  {
+    "path": "backend/app/infrastructure/passports/roster_cache.py",
+    "sha256": "59aa105e42abd884ed539915d798974a2969d249dbdbeb3668a66c8fe3292287",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical source/test read. Two malformed-but-authenticated payload shapes previously escaped optional-cache fallback;8focusedcontrols nowpass. Whole module inverse differs only two declared exception types; codec and all testsource bytes unchanged."
+  },
+  {
+    "path": "backend/app/infrastructure/passports/roster_cache_codec.py",
+    "sha256": "e9d1632d324053b7fef0ee5d0289aa7ab815f5ffe3a4c948e9c5f03955a62d8c",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical source/test read. Two malformed-but-authenticated payload shapes previously escaped optional-cache fallback;8focusedcontrols nowpass. Whole module inverse differs only two declared exception types; codec and all testsource bytes unchanged."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_roster_cache.py",
+    "sha256": "3bf08ec8693fe1841bb2666349f344f6fd2700618033e25aef781f2bb50d7d7b",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical source/test read. Two malformed-but-authenticated payload shapes previously escaped optional-cache fallback;8focusedcontrols nowpass. Whole module inverse differs only two declared exception types; codec and all testsource bytes unchanged."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_roster_cache_shape_recovery.py",
+    "sha256": "96d7ec0c7c456eb9f288eab8e448bedc48491be6a9a2ce27f484a57e634fbdf9",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical source/test read. Two malformed-but-authenticated payload shapes previously escaped optional-cache fallback;8focusedcontrols nowpass. Whole module inverse differs only two declared exception types; codec and all testsource bytes unchanged."
+  }
+]

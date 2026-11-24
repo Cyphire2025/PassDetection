@@ -1,0 +1,16 @@
+{
+  "whole_original_statement_count": 50,
+  "whole_expanded_function_signature_AST_exact": true,
+  "whole_nonimport_module_AST_exact": true,
+  "moves": {
+    "review": 7,
+    "answers": 6,
+    "source": 4
+  },
+  "extra_internal_operations": [
+    "three purpose-specific data-only immutable result tuples",
+    "helper call frames",
+    "main repeats original read-only ReviewContext tuple unpack after review helper"
+  ],
+  "all_original_queries_validation_payloads_clock_and_UUID_evaluation_flush_audit_commit_order_exact": true
+}

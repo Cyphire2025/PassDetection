@@ -1,0 +1,103 @@
+{
+  "modules": [
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_send.py",
+      "source_sha256": "4122db1588df44861cef9a21cde6543ef3c0d4b24e70a5ba70d62585ee212a74",
+      "previous": {
+        "path": "app/presentation/api/v1/routes/whatsapp_send.py",
+        "baseline_lines": 405,
+        "maximum_lines": 440,
+        "baseline_max_function_complexity": 27,
+        "maximum_function_complexity": 27,
+        "minimum_coverage_percent": 86
+      },
+      "baseline_lines": 271,
+      "maximum_lines": 280,
+      "baseline_max_function_complexity": 7,
+      "maximum_function_complexity": 7,
+      "minimum_coverage_percent": 86
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_send_preparation.py",
+      "source_sha256": "a829c85542906d5bbda767aaef47f7937193cde792126b58cefab64b10506aab",
+      "previous": null,
+      "baseline_lines": 172,
+      "maximum_lines": 180,
+      "baseline_max_function_complexity": 8,
+      "maximum_function_complexity": 8,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_send_claims.py",
+      "source_sha256": "403b722c6e738624598643628acf06e2b423ef65f02db3b52ff7562bc2312c39",
+      "previous": null,
+      "baseline_lines": 177,
+      "maximum_lines": 180,
+      "baseline_max_function_complexity": 14,
+      "maximum_function_complexity": 14,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_send_projection.py",
+      "source_sha256": "f9bc55a545ab3adb3d897b12f28b836665005e223e13dda877dc11ebd6f11fc5",
+      "previous": null,
+      "baseline_lines": 61,
+      "maximum_lines": 70,
+      "baseline_max_function_complexity": 1,
+      "maximum_function_complexity": 1,
+      "minimum_coverage_percent": 100
+    }
+  ],
+  "critical_modules": [],
+  "measurements": [
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_send.py",
+      "source_sha256": "4122db1588df44861cef9a21cde6543ef3c0d4b24e70a5ba70d62585ee212a74",
+      "lines": 271,
+      "complexity": 7,
+      "line_percent": 94.25287356321839,
+      "branch_percent": 100.0,
+      "covered_statements": 82,
+      "statements": 87,
+      "covered_branches": 8,
+      "branch_sites": 8
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_send_preparation.py",
+      "source_sha256": "a829c85542906d5bbda767aaef47f7937193cde792126b58cefab64b10506aab",
+      "lines": 172,
+      "complexity": 8,
+      "line_percent": 94.73684210526316,
+      "branch_percent": 62.5,
+      "covered_statements": 54,
+      "statements": 57,
+      "covered_branches": 5,
+      "branch_sites": 8
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_send_claims.py",
+      "source_sha256": "403b722c6e738624598643628acf06e2b423ef65f02db3b52ff7562bc2312c39",
+      "lines": 177,
+      "complexity": 14,
+      "line_percent": 97.95918367346938,
+      "branch_percent": 75.0,
+      "covered_statements": 48,
+      "statements": 49,
+      "covered_branches": 3,
+      "branch_sites": 4
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_send_projection.py",
+      "source_sha256": "f9bc55a545ab3adb3d897b12f28b836665005e223e13dda877dc11ebd6f11fc5",
+      "lines": 61,
+      "complexity": 1,
+      "line_percent": 100.0,
+      "branch_percent": null,
+      "covered_statements": 11,
+      "statements": 11,
+      "covered_branches": 0,
+      "branch_sites": 0
+    }
+  ],
+  "coverage_responsibility": "Original main86line floor preserved and follows every actual moved logic owner via90/95/100 normal floors. Old440/C27 tightened to280/C7; new source-specific180/C8,180/C14,70/C1 ratchets. Original family had no critical gate; no declaration-only critical proposal. Main exception diagnostics and branch tool limits remain explicit measured gaps."
+}

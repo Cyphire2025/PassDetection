@@ -15,15 +15,23 @@ import { getSafeNextPath, useLogin } from "../hooks/use-login";
 import type { ApiError } from "@/types";
 import type { AuthChallenge, MFAEnrollmentSession } from "@/types";
 import { authApi } from "../api/auth.api";
+import { RequestOwnerChangedError } from "@/lib/api/request-owner";
+import { cookieCoordinationFailureMessage } from "../services/cookie-mutation";
 import { useAuthStore } from "@/stores/auth.store";
+import { authenticationContextIsCurrent, captureAuthenticationContext, type AuthenticationContext } from "../services/authentication-context";
 
 export function LoginForm({ notice }: { notice?: string }) {
-  const { mutate: login, isPending, error, data, reset } = useLogin();
+  const currentVersion = useAuthStore((state) => state.sessionVersion);
+  const { mutate: login, isPending, error, data, reset, context } = useLogin();
   const apiError = error as ApiError | null;
   const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: "", password: "" },
   });
+
+  if (context && currentVersion !== context.sessionVersion && !authenticationContextIsCurrent(context)) {
+    return <p role="alert">Your signed-in account changed. Reload before signing in again.</p>;
+  }
 
   if (data?.status !== undefined && data.status !== "authenticated") {
     return <MfaChallengePanel challenge={data} onBack={reset} />;
@@ -97,19 +105,34 @@ export function LoginForm({ notice }: { notice?: string }) {
 }
 
 export function MfaChallengePanel({ challenge, onBack }: { challenge: AuthChallenge; onBack: () => void }) {
+  const [entryAuthentication] = useState(captureAuthenticationContext);
+  const ownerUserId = useAuthStore((state) => state.user?.id ?? null);
+  const sessionVersion = useAuthStore((state) => state.sessionVersion);
   const [code, setCode] = useState("");
   const [completed, setCompleted] = useState<MFAEnrollmentSession | null>(null);
   const setSession = useAuthStore((state) => state.setSession);
   const verify = useMutation({
-    mutationFn: () => authApi.verifyMfa(challenge.challenge_token, code.trim()),
-    onSuccess: (session) => {
+    onMutate: captureAuthenticationContext,
+    mutationFn: () => {
+      if (!authenticationContextIsCurrent(entryAuthentication)) throw new RequestOwnerChangedError();
+      return authApi.verifyMfa(challenge.challenge_token, code.trim());
+    },
+    onSuccess: (session, _variables, authentication) => {
+      if (!authenticationContextIsCurrent(authentication)) return;
       if (session.recovery_codes?.length) {
         setCompleted(session);
         return;
       }
-      finishAuthentication(session, setSession);
+      finishAuthentication(session, setSession, authentication);
     },
   });
+
+  if (ownerUserId !== entryAuthentication.ownerUserId || sessionVersion !== entryAuthentication.sessionVersion) {
+    return <div role="alert" className="space-y-4 text-[#123047]">
+      <p>Your signed-in account changed. Return to sign in before continuing this verification.</p>
+      <Button type="button" variant="secondary" onClick={onBack}>Return to sign in</Button>
+    </div>;
+  }
 
   if (completed?.recovery_codes?.length) {
     return (
@@ -121,7 +144,7 @@ export function MfaChallengePanel({ challenge, onBack }: { challenge: AuthChalle
         <div className="grid grid-cols-2 gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 font-mono text-xs text-[#123047]">
           {completed.recovery_codes.map((recoveryCode) => <span className="break-all" key={recoveryCode}>{recoveryCode}</span>)}
         </div>
-        <Button type="button" className="h-[54px] w-full bg-[#123753] hover:bg-[#17486d] active:bg-[#102e43]" onClick={() => finishAuthentication(completed, setSession)}>I saved these codes</Button>
+        <Button type="button" className="h-[54px] w-full bg-[#123753] hover:bg-[#17486d] active:bg-[#102e43]" onClick={() => finishAuthentication(completed, setSession, entryAuthentication)}>I saved these codes</Button>
       </div>
     );
   }
@@ -155,7 +178,7 @@ export function MfaChallengePanel({ challenge, onBack }: { challenge: AuthChalle
         leftAddon={<KeyRound className="h-4 w-4" aria-hidden="true" />}
         className="h-[54px] border-[#cbd5dc] text-base focus:ring-[#1d6297]"
       />
-      {verify.error && <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">The code was rejected or the challenge expired. Try again.</div>}
+      {verify.error && <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{cookieCoordinationFailureMessage(verify.error) ?? "The code was rejected or the challenge expired. Try again."}</div>}
       <div className="flex gap-3">
         <Button type="button" variant="secondary" className="h-[54px] flex-1" onClick={onBack} disabled={verify.isPending}>Back</Button>
         <Button type="button" className="h-[54px] flex-1 bg-[#123753] hover:bg-[#17486d] active:bg-[#102e43]" isLoading={verify.isPending} disabled={code.trim().length < 6} onClick={() => verify.mutate()}>Verify</Button>
@@ -167,7 +190,9 @@ export function MfaChallengePanel({ challenge, onBack }: { challenge: AuthChalle
 function finishAuthentication(
   session: MFAEnrollmentSession,
   setSession: (user: MFAEnrollmentSession["user"]) => void,
+  authentication: AuthenticationContext | undefined,
 ) {
+  if (!authenticationContextIsCurrent(authentication)) return;
   setSession(session.user);
   const params = new URLSearchParams(window.location.search);
   window.location.assign(getSafeNextPath(params.get("from")));

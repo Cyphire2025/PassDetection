@@ -1,0 +1,175 @@
+{
+  "status": "passed and source-frozen focused mechanical architecture checkpoint",
+  "original_route_lines": 433,
+  "runtime_owners": 5,
+  "responsibilities": [
+    "facade retains original routing/dependency/audit registration",
+    "connection metadata/revocation/narrowing",
+    "authorization decisions/emergency control",
+    "bounded admin read projections",
+    "typed shared settings context"
+  ],
+  "checks": {
+    "baseline_same_five_files": "126passed371.15seconds",
+    "final_main_seven_files": "157passed1009.67seconds",
+    "non_overlapping_control_projection_supplement": "5passed25.97seconds",
+    "non_overlapping_missing_connection_and_existing_capability_reduction": "3passed15.78seconds",
+    "current_unique_passed_cases": 165,
+    "not_a_single_combined_invocation": true,
+    "strict_types": "5owners pass",
+    "Ruff": "5owners/2retargeted tests plus new test pass",
+    "complete_runtime_source_fence": "5runtime owners unchanged throughout157+5+3 invocations;23initial identities unchanged plus one new test file"
+  },
+  "proof": {
+    "status": "mechanical proof passed",
+    "original_whole_definitions_restored": 16,
+    "route_decorators_preserved_in_facade_order": 14,
+    "complete_OpenAPI_equal": true,
+    "actual_route_count": 18,
+    "recursive_dependency_callable_cache_scope_identities_equal": true,
+    "original_signature_evaluated_hints_module_qualname_legacy_new_pickles_and_actual_aliases_equal": 16,
+    "actual_original_import_objects": 47,
+    "test_modules_full_AST_equal_after_two_explicit_owner_retargets": [
+      "backend/tests/integration/test_mcp_phase2_http_boundaries.py",
+      "backend/tests/integration/test_mcp_read_only_sections.py"
+    ],
+    "source_fence": {
+      "backend/app/presentation/api/v1/routes/mcp_admin.py": "1fc02367a0ad64fdf78e6f4404fdd4babbd35cbc477221e7e12de0b1c9c554c4",
+      "backend/app/presentation/api/v1/routes/mcp_admin_authorization.py": "23214b6da5c95e3651105b8e1af831d9d56202dbdcea20af889706c156bcc8df",
+      "backend/app/presentation/api/v1/routes/mcp_admin_connections.py": "df81ec3e74e2145c15db6b35334b1e675c54eec4fb6d4e0d165dc654dd995b28",
+      "backend/app/presentation/api/v1/routes/mcp_admin_context.py": "ce088abb800578e0eae24c9a8ec4db2a5f811e9caa380c93d9a021c295f0b3da",
+      "backend/app/presentation/api/v1/routes/mcp_admin_reads.py": "2a4c7456cf81da14ef12139f13f2260c64be2a5fa19ce7587d4e0c1573122449"
+    },
+    "limits": "Source and runtime contract proof only; no auth-policy change, provider/realPG/VPS/broad application qualification."
+  },
+  "measurements": [
+    {
+      "path": "app/presentation/api/v1/routes/mcp_admin.py",
+      "sha256": "1fc02367a0ad64fdf78e6f4404fdd4babbd35cbc477221e7e12de0b1c9c554c4",
+      "lines": 63,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_percent": null,
+      "branch_sites": 0,
+      "missing_branches": []
+    },
+    {
+      "path": "app/presentation/api/v1/routes/mcp_admin_authorization.py",
+      "sha256": "23214b6da5c95e3651105b8e1af831d9d56202dbdcea20af889706c156bcc8df",
+      "lines": 186,
+      "complexity": 4,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "branch_sites": 6,
+      "missing_branches": []
+    },
+    {
+      "path": "app/presentation/api/v1/routes/mcp_admin_connections.py",
+      "sha256": "df81ec3e74e2145c15db6b35334b1e675c54eec4fb6d4e0d165dc654dd995b28",
+      "lines": 220,
+      "complexity": 7,
+      "statement_percent": 100.0,
+      "branch_percent": 96.42857142857143,
+      "branch_sites": 28,
+      "missing_branches": [
+        [
+          137,
+          146
+        ]
+      ]
+    },
+    {
+      "path": "app/presentation/api/v1/routes/mcp_admin_context.py",
+      "sha256": "ce088abb800578e0eae24c9a8ec4db2a5f811e9caa380c93d9a021c295f0b3da",
+      "lines": 19,
+      "complexity": 1,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "branch_sites": 2,
+      "missing_branches": []
+    },
+    {
+      "path": "app/presentation/api/v1/routes/mcp_admin_reads.py",
+      "sha256": "2a4c7456cf81da14ef12139f13f2260c64be2a5fa19ce7587d4e0c1573122449",
+      "lines": 143,
+      "complexity": 4,
+      "statement_percent": 100.0,
+      "branch_percent": 83.33333333333333,
+      "branch_sites": 6,
+      "missing_branches": [
+        [
+          62,
+          64
+        ]
+      ]
+    }
+  ],
+  "source_fence": {
+    "backend/app/presentation/api/v1/routes/mcp_admin.py": "1fc02367a0ad64fdf78e6f4404fdd4babbd35cbc477221e7e12de0b1c9c554c4",
+    "backend/app/presentation/api/v1/routes/mcp_admin_authorization.py": "23214b6da5c95e3651105b8e1af831d9d56202dbdcea20af889706c156bcc8df",
+    "backend/app/presentation/api/v1/routes/mcp_admin_connections.py": "df81ec3e74e2145c15db6b35334b1e675c54eec4fb6d4e0d165dc654dd995b28",
+    "backend/app/presentation/api/v1/routes/mcp_admin_context.py": "ce088abb800578e0eae24c9a8ec4db2a5f811e9caa380c93d9a021c295f0b3da",
+    "backend/app/presentation/api/v1/routes/mcp_admin_reads.py": "2a4c7456cf81da14ef12139f13f2260c64be2a5fa19ce7587d4e0c1573122449",
+    "backend/tests/integration/test_mcp_phase2_http_boundaries.py": "4f569a8712263d8514285772ca1daf4bc50b1eea0958470d20d0326ef3c2b79c",
+    "backend/tests/integration/test_mcp_read_only_sections.py": "56ef0d2306f4fc67b7b10ee7500918ce93711049f548f7e742abbe5eb13f13a2",
+    "backend/tests/integration/test_mcp_section_permissions.py": "02509f605318056ffb4bf9b599ea794b737412ef3aae0f28f8ba67146b954c19",
+    "backend/tests/integration/test_mcp_connection_requests.py": "6bcea7a3b6b7c954cc7c6efaf4d0ee06a1e5c1c67249e61f68a8a993703873e9",
+    "backend/tests/integration/test_mcp_native_oauth.py": "5ad3acfc02d544a2fd21403eea4ab9fa99cb301efc27d6c91a71b12ce1b31222",
+    "backend/tests/integration/test_mcp_connection_delete.py": "364531abcca607bb41350c61980e7f0316dfe92d38f5db4ae9edde7283e5467f",
+    "backend/tests/integration/test_mcp_device_access.py": "e97325bca9dbe034fdc15e8fbd1f72d671104ab011f14518eda9ce623001e7fd",
+    "backend/app/presentation/dependencies/mcp.py": "e800172ecf554ee8b77a68b439925013fdeb621f8f9b2c57576fab5a2e4b5091",
+    "backend/app/application/mcp/authorization.py": "8e9b9b9d95392262d07dd60184397779e0898bb2b1e543737fff6eb0192ac56f",
+    "backend/app/application/mcp/connection_requests.py": "0ab3e60df97ec6a3c439267a82fd0952fbc8e08f8ee346e2a09b56496ff640a6",
+    "backend/app/application/mcp/permissions.py": "7fca80d23fb04e16388ee14c91d01e739e905e83118e51a5a5a98d15c38c9f4b",
+    "backend/app/presentation/api/v1/routes/mcp_permissions.py": "1cd9e44b179ea660d75dd9891e4c2ecc5e0a6a17035a278e4326499cec01973a",
+    "backend/app/presentation/api/v1/routes/mcp_admin_files.py": "1f0cbe201b2f924e5ea3c0abb498354a6a69f882a5f9369d9aea9e49e776d7f3",
+    "backend/app/presentation/api/v1/routes/mcp_oauth.py": "cca6bef2b867d3de6445654a7ec4731779dd093b5939843fda6ef7dbc2bbe773",
+    "backend/app/presentation/api/v1/schemas/mcp_schemas.py": "eb11f05c996f3323cb9fe12d7a578432588963f5749827ac86b61c7530296055",
+    "backend/app/presentation/api/v1/schemas/mcp_permission_schemas.py": "d1c126fa6e7aba0d1997e9b4cdb9541492e9eafc102093a4d2cf0b7254b5046c",
+    "backend/tests/integration/test_mcp_authorization.py": "1f877fd571a71b623b9dddc434b15431e2993d10a8e476614209e06d1ae5a31c",
+    "backend/tests/dashboard_session_fixtures.py": "c43ce6a77f492ee957fb71a97bf35bae0bb72a0b982438a0e335ffa350b50350",
+    "backend/tests/integration/test_mcp_admin_current_routes.py": "a4cb4bc4fb4657022d7b9a67201e569082eb9a3e621efeef289d8f296a1a3264"
+  },
+  "coverage": {
+    "json": "mcp-admin-architecture-final-coverage.json",
+    "xml": "mcp-admin-architecture-final-coverage.xml",
+    "raw": ".tmp/mcp-admin-architecture/.coverage",
+    "raw_sha256": "5405c1bc367fb55d9a6123251ca2205a214617551840dfd1464d3ab787650b60",
+    "fresh_then_same_source_append": "First157run erases prior coverage by default; five and three cases append only for exact unchanged5runtime hashes. Original157raw binary copy/JSON/XML and five-case report preserved separately. No old433source coverage combined.",
+    "no_fake_branch_qualification": "Facade/context0branch sites; measured line100 only. Connection96.43branch and read83.33branch explicit; no exclusions added."
+  },
+  "manual_review": "Original11retained MCP boundary files1487lines +6fullsupport/2partial traces recorded separately. Current5architecture owners and eight full test physical files are real source reads; invoking tests/hashing unrelated imports confers no full review credit.",
+  "workflow_controls": [
+    "Existing14decorator expressions/route order/global management and CSRF+recentMFA stay in facade",
+    "Same grant/control locking, mutation/audit/commit order, narrowing-only capabilities and retained provenance",
+    "Positive and negative actualASGI pause/resume, no new credentials on pause, literal activity search, pagination and no stored-private-result projection",
+    "Only actual clock/query test instrumentation retargeted, not business assertions"
+  ],
+  "historical_failures": {
+    "signature_probe": "Initial direct inspect.Signature equality rejected two independent Query FieldInfo objects; complete actual asdict/type metadata match plus unchanged args AST and recursive callable dependencies prove semantics instead of pointer equality",
+    "OpenAPI_probe": "Initial isolated router include lacked required actual /api/v1/admin/mcp prefix; original empty overview route rejected. Correct original prefix used for both, no runtime route change."
+  },
+  "remaining": [
+    "No independent contended-row administrator identity/security-revocation defect validated or corrected",
+    "Current complete MCP matrix reconciliation pending; new discoverer supports all14live registrations without retirement and requires owner-metadata review",
+    "No broad app/build/browser/servicePG/provider/VPS qualification; parent final combined verification remains pending"
+  ],
+  "artifacts": {
+    "mcp-admin-extraction-proof.json": "35d0b0b7e1b77d2c2b62206832bdb75a5bf83754ec59ca9766f32c3941f04e6a",
+    "mcp-admin-extraction-proof-qualified.txt": "35e188e080bee1675a7226c8cfba67cf72ca8cbabd363e6009e6b10bc1c4219b",
+    "mcp-admin-original-test-sources.json": "e1aab5b2753218959a9d444df3d744b655caa65a3ca2e9b12847fca38056e194",
+    "mcp-admin-architecture-source-checkpoint.json": "3b9343de91fb5084dbc176e3968d081d8e662326edb589f69fd6e1d49c439829",
+    "mcp-admin-coverage-continuity.json": "620f6b5e6a4f71ab5697b4049269575faaff99acc0d03d7d6921bf6a871981e9",
+    "mcp-admin-architecture-before-tests.txt": "445ed7ce17af98c45436e3e1c983c4f38666a4a6fc230d38fc5f2a4013cf24a4",
+    "mcp-admin-architecture-focused-tests.txt": "0971b5f9636bb8c3597290e051e1e944d5722af7d5d007400856fe8ec1340b7d",
+    "mcp-admin-current-routes-supplement-tests.txt": "d5c427f2bae12a292cbaa59da24ad3a74dcd2a8472d6a8c2f24696e7e6a6d801",
+    "mcp-admin-current-connections-supplement-tests.txt": "c635891c04c051139b9113297fcae16a821461a066b8389f3b64e10161638567",
+    "mcp-admin-architecture-final-coverage.json": "5b6250c28621c2a9d5d83339c6141554ad85e8144d098bc82d165087e96b9577",
+    "mcp-admin-architecture-final-coverage.xml": "4b3d07c03ee8ea7247463aed55a7aa32757e32cc084bb239625e625b92036e82",
+    "mcp-admin-architecture-types.txt": "718df785efbbd4b57e63b5f64aff2c5b5592e433447681f759b307f97a3ec96a",
+    "mcp-admin-architecture-lint.txt": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0",
+    "mcp-admin-current-routes-lint.txt": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0",
+    "mcp-admin-architecture-budget-candidates.json": "666608ebf73fe4e148413963933975e61734d24a94f774595a6e2637dd0cccdf",
+    "mcp-admin-architecture-reviewed-files.json": "bd041136f449c31e77c83cb7d8a6cd2c2505695f93bf744a8aba6fc77e9701d9"
+  }
+}

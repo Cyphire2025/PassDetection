@@ -16,7 +16,7 @@ interface UploadPageProps {
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: "Upload Your Passport | Global Connects Dashboard",
+    title: "Upload Your Passport",
     description: "Securely upload your passport document.",
     robots: { index: false, follow: false },
   };

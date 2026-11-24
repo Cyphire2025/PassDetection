@@ -1,0 +1,184 @@
+{
+  "original_path": "frontend/features/upload/services/passport-rectangular-frame-detector.ts",
+  "original_sha256": "854ca1afe4d2fd15f388853824d23a7dd08541c450e15f1b8ab6c0b4feab1457",
+  "original_physical_lines": 1077,
+  "functions": [
+    {
+      "name": "detectRectangularPassportFrame",
+      "original_normalized_sha256": "5b460d631c3443ee638c27de3cc67e811f0a37302c1a94ef4f935c154addd734",
+      "owner": "frontend/features/upload/services/passport-rectangular-frame-detector.ts",
+      "shared_exact_duplicate": false
+    },
+    {
+      "name": "drawGuideFrame",
+      "original_normalized_sha256": "6ed714ad21a0c98c4c926fd521a9ccf7807c584376cbbb448d2da61ec11be71f",
+      "owner": "frontend/features/upload/services/passport-live-frame-adapter.ts",
+      "shared_exact_duplicate": false
+    },
+    {
+      "name": "getGuideVideoCrop",
+      "original_normalized_sha256": "ba447aa0baee5226420bb23c410f2b024c8174ee34183acd91ff898a0233169d",
+      "owner": "frontend/features/upload/services/passport-live-frame-adapter.ts",
+      "shared_exact_duplicate": false
+    },
+    {
+      "name": "clampVideoCrop",
+      "original_normalized_sha256": "74f1c8fcf160e1d52515d9d63af98ebeadaa214144e19eed0eca0318180fcdf6",
+      "owner": "frontend/features/upload/services/passport-live-frame-adapter.ts",
+      "shared_exact_duplicate": false
+    },
+    {
+      "name": "analyzeRectangularPassportFramePixels",
+      "original_normalized_sha256": "bc61246e327bd776cda61ba7bbfcf8ae3929f58e37a63189eb2ec99e68aa5c9f",
+      "owner": "frontend/features/upload/services/passport-live-analysis.ts",
+      "shared_exact_duplicate": false
+    },
+    {
+      "name": "createMotionSignature",
+      "original_normalized_sha256": "881aaa49900e7fc9a8946db016ca6f25babe965cbbb58672941a074dd2421cf7",
+      "owner": "frontend/features/upload/services/passport-live-pixels.ts",
+      "shared_exact_duplicate": false
+    },
+    {
+      "name": "analyzeExposure",
+      "original_normalized_sha256": "874f7d1cfe2172b0a77b37664eb95305d4281ebcc266afb57fbdb2623195d7ef",
+      "owner": "frontend/features/upload/services/passport-live-pixels.ts",
+      "shared_exact_duplicate": false
+    },
+    {
+      "name": "findVerticalBoundary",
+      "original_normalized_sha256": "d6a55b30102c8a5aa7df3b3cfbd241fbd865a1a039a5224b0d8ba61d96bc76e3",
+      "owner": "frontend/features/upload/services/passport-live-boundary-search.ts",
+      "shared_exact_duplicate": false
+    },
+    {
+      "name": "findHorizontalBoundary",
+      "original_normalized_sha256": "4b392865001086fa48c37f5e983524924f4b1b83643b7de7f7527c987784ac00",
+      "owner": "frontend/features/upload/services/passport-live-boundary-search.ts",
+      "shared_exact_duplicate": false
+    },
+    {
+      "name": "findBoundary",
+      "original_normalized_sha256": "af9714a8d278023ce2a02a4e50babb77495469c2c69dccabfcdce3804ff6e435",
+      "owner": "frontend/features/upload/services/passport-live-boundary-search.ts",
+      "shared_exact_duplicate": false
+    },
+    {
+      "name": "evaluateBoundaryCandidate",
+      "original_normalized_sha256": "2a624ad977a048dc3a94e71e17eb5b41133d2cc82125450cb11bca0159729f0b",
+      "owner": "frontend/features/upload/services/passport-live-boundary-evidence.ts",
+      "shared_exact_duplicate": false
+    },
+    {
+      "name": "boundaryStepContrast",
+      "original_normalized_sha256": "963890e00244af686b62d70bcc67910baea64d76f079e27e31e21bee101a79a3",
+      "owner": "frontend/features/upload/services/passport-live-boundary-evidence.ts",
+      "shared_exact_duplicate": false
+    },
+    {
+      "name": "analyzeInteriorDetail",
+      "original_normalized_sha256": "5131b17fc1766ba93d042fab59bddf0ae594f5c9cee1e7a426aae88b1d2f622f",
+      "owner": "frontend/features/upload/services/passport-live-detail.ts",
+      "shared_exact_duplicate": false
+    },
+    {
+      "name": "sampleInteriorTile",
+      "original_normalized_sha256": "d87fa98dbea32ea596bdc28e4a9ca41cc8130898527c320e9a5cb0ca1f92fd09",
+      "owner": "frontend/features/upload/services/passport-live-detail.ts",
+      "shared_exact_duplicate": false
+    },
+    {
+      "name": "pointInsideQuad",
+      "original_normalized_sha256": "fb0a20c06f844a6940a25819ca69fd749443894fca96405cf686b7028ad1f3f6",
+      "owner": "frontend/features/upload/services/passport-live-detail.ts",
+      "shared_exact_duplicate": false
+    },
+    {
+      "name": "createDocumentQuad",
+      "original_normalized_sha256": "633e7560da2b5a0d34a80f7761ad4e0af6e366306e7b7d7578b275352871fd69",
+      "owner": "frontend/features/upload/services/passport-live-geometry.ts",
+      "shared_exact_duplicate": false
+    },
+    {
+      "name": "intersectBoundaries",
+      "original_normalized_sha256": "27a6d04e12c97e59a9155bd908a424beca69ceec8588148c2d8bec8fb8266466",
+      "owner": "frontend/features/upload/services/passport-live-geometry.ts",
+      "shared_exact_duplicate": false
+    },
+    {
+      "name": "measureDocumentGeometry",
+      "original_normalized_sha256": "e1617a7e65cd8867fcaf22b7efc100b5215cc86b8c7cb6aa1637a664af8e5954",
+      "owner": "frontend/features/upload/services/passport-live-geometry.ts",
+      "shared_exact_duplicate": false
+    },
+    {
+      "name": "isConvexQuad",
+      "original_normalized_sha256": "3fe9b82358effea0b19ffc0224140b9fdb9c3b4b55cdbd51a02bf3a15bdf3aa2",
+      "owner": "frontend/features/upload/services/passport-live-geometry.ts",
+      "shared_exact_duplicate": false
+    },
+    {
+      "name": "polygonArea",
+      "original_normalized_sha256": "ac2bda153fd334defbfea34343f33edb568e31f38762f2aeafdae11be96a0633",
+      "owner": "frontend/features/upload/services/passport-live-geometry.ts",
+      "shared_exact_duplicate": false
+    },
+    {
+      "name": "distance",
+      "original_normalized_sha256": "0e6a7c1c071b96efecd0e0349c2d47803d2fd7836e655f0fb94ae2b3e112de38",
+      "owner": "frontend/features/upload/services/passport-live-geometry.ts",
+      "shared_exact_duplicate": false
+    },
+    {
+      "name": "radiansToDegrees",
+      "original_normalized_sha256": "5128b51e84ea2f2b5ca442c7e9055db900f87e59473c17ccdfb3a8a8b5129621",
+      "owner": "frontend/features/upload/services/passport-live-geometry.ts",
+      "shared_exact_duplicate": false
+    },
+    {
+      "name": "toGrayscale",
+      "original_normalized_sha256": "6e2c7227d7ea1400008d51812a1b38bf7a8917a1282500c67fc818e1ddba6ce7",
+      "owner": "frontend/features/upload/services/camera-pixel-math.ts",
+      "shared_exact_duplicate": true
+    },
+    {
+      "name": "emptyResult",
+      "original_normalized_sha256": "c42f2d878b032f9e7785985e4cf4a5d1c52013fd6fd07e3844cf19d27a9ad3ed",
+      "owner": "frontend/features/upload/services/passport-live-pixels.ts",
+      "shared_exact_duplicate": false
+    },
+    {
+      "name": "roundMetric",
+      "original_normalized_sha256": "77721d6fe3d9393bbc53bb904bac16567c54c309341202c83b82f93c14be6241",
+      "owner": "frontend/features/upload/services/camera-pixel-math.ts",
+      "shared_exact_duplicate": true
+    }
+  ],
+  "constants": [
+    {
+      "name": "PASSPORT_LIVE_THRESHOLDS",
+      "original_normalized_sha256": "5caead44d7088e85a58ab28192641fc4bfcc22290bed6dd1e578b2a24a07ea48"
+    },
+    {
+      "name": "SAMPLE_WIDTH",
+      "original_normalized_sha256": "33cb37a7260005e052289e724a3c5fba40c41530c5ed3f70d038b6d896ba0e2d"
+    },
+    {
+      "name": "SAMPLE_HEIGHT",
+      "original_normalized_sha256": "8a2bf8328223b4c5db94c1db81a6f33b20653d5f4cacebdc29768144c22b75de"
+    },
+    {
+      "name": "GUIDE_CONTEXT_MARGIN_RATIO",
+      "original_normalized_sha256": "4138e2648a46b6b26f1df9aa27a4b8d5f8e60976748587e1ebd44d952073a3a2"
+    },
+    {
+      "name": "GUIDE_EDGE_MIN_RATIO",
+      "original_normalized_sha256": "e53638745e411671394087baacb96ceb747fb6e2cdf712a429a4dd790fd5254b"
+    },
+    {
+      "name": "GUIDE_EDGE_MAX_RATIO",
+      "original_normalized_sha256": "59bfbcaf639631509cbd1f46b746e75a443f9541a7d7d25a030e5f70ca1139d3"
+    }
+  ],
+  "note": "Exact original function/constant movement, unchanged geometry-only readiness/manual gating; only exact grayscale and metric-rounding duplicate bodies shared with final-quality tree. All live thresholds and10% guide context remain distinct."
+}

@@ -1,0 +1,14 @@
+{
+  "candidates": "docs/audit/dashboard-2026-10-30/template-creation-budget-candidates.json",
+  "before_sha256": "7c78f7aaaee5cab57a29d80b03a81cc88bd7a120996b622b88b02063b5562018",
+  "sha256": "0bfbff3860a7946bb9e7be4a745c5c69d40cda365f6c188edbd9b17569ed63e5",
+  "lf_normalized_sha256": "160a03a9cf497320dce495aab2c9e65d8b3031fd5ce079323d63f62cbb075812",
+  "added": 13,
+  "updated_existing": 1,
+  "lowered_existing": 1,
+  "lowered_existing_paths": [
+    "features/settings/components/dashboard-settings-page.tsx"
+  ],
+  "existing_ceilings_preserved": true,
+  "previous_ceilings_sha256": "20793368a79c2e429d3f0db9a7f1578972fec2b24358dd53d61a0e46aaa3845f"
+}

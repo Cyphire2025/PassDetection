@@ -1,0 +1,24 @@
+{
+  "current_runtime_defects_proved": [],
+  "historical_conditional_compatibility_candidates": [
+    {
+      "path": "backend/alembic/versions/0036_whatsapp_recipient_delivery_ledger.py",
+      "sha256": "2d1756ab422b99598c14c823e81c49039521d556c0fabeff33d19a5a53242b70",
+      "evidence": "Downgrade narrows message_type64 to32; persisted longer values would need a supported policy/data boundary.",
+      "qualification": "Source-only compatibility point, no DB execution or actual long stored value/supported rollback established. Published script immutable."
+    }
+  ],
+  "preserved_invariants": [
+    "Deterministic cancellation of duplicate active extraction revisions before partial unique index.",
+    "Interrupted WhatsApp processing becomes delivery_unknown rather than automatic resend.",
+    "Qualifier same-group association, unique single-use selection and consistent snapshot checks.",
+    "Exact-default-only brand update preserves custom platform settings.",
+    "Crop source retained while bounded derivative metadata is additive."
+  ],
+  "open_evidence": [
+    "Actual populated Postgres upgrades/downgrades/enum transactions/locking and service-dependent CI.",
+    "Current runtime consent/scope/capability checks and limits beyond JSONB schema declarations.",
+    "Object-store lifecycle and retention beyond relational cascades."
+  ],
+  "notes": "Historical schema observations are not current active vulnerabilities or completed service tests."
+}

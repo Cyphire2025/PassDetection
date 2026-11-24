@@ -1,0 +1,91 @@
+{
+  "status": "frozen4normal proposals;3actual semantic critical80/60 proposals awaiting parent approval/AI integration",
+  "modules": [
+    {
+      "path": "app/presentation/api/v1/routes/passport_excel_import_support.py",
+      "source_sha256": "be028c1afb810ccb1546088b1ca0814808a4009144f20cb0a1e991ae47c59c0b",
+      "baseline_lines": 58,
+      "maximum_lines": 60,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 80
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_excel_identity.py",
+      "source_sha256": "e19c861675a2992601b599a2ffbb21175c4182bbf1ca20257a2ca9615e88d565",
+      "baseline_lines": 224,
+      "maximum_lines": 230,
+      "baseline_max_function_complexity": 24,
+      "maximum_function_complexity": 24,
+      "minimum_coverage_percent": 80
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_excel_rows.py",
+      "source_sha256": "c53b6110d7d546c23feb21420002d007d52c6496d24e90191d9ccd7370eccfed",
+      "baseline_lines": 136,
+      "maximum_lines": 140,
+      "baseline_max_function_complexity": 23,
+      "maximum_function_complexity": 23,
+      "minimum_coverage_percent": 80
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_excel_merge.py",
+      "source_sha256": "8c1d12c9c215af144b9c64029a20585caa31b2e11d6015e500041aaf2b6c2c59",
+      "baseline_lines": 103,
+      "maximum_lines": 110,
+      "baseline_max_function_complexity": 10,
+      "maximum_function_complexity": 10,
+      "minimum_coverage_percent": 80
+    }
+  ],
+  "critical_modules": [
+    {
+      "path": "app/presentation/api/v1/routes/passport_excel_identity.py",
+      "source_sha256": "e19c861675a2992601b599a2ffbb21175c4182bbf1ca20257a2ca9615e88d565",
+      "minimum_line_percent": 80,
+      "minimum_branch_percent": 60
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_excel_rows.py",
+      "source_sha256": "c53b6110d7d546c23feb21420002d007d52c6496d24e90191d9ccd7370eccfed",
+      "minimum_line_percent": 80,
+      "minimum_branch_percent": 60
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_excel_merge.py",
+      "source_sha256": "8c1d12c9c215af144b9c64029a20585caa31b2e11d6015e500041aaf2b6c2c59",
+      "minimum_line_percent": 80,
+      "minimum_branch_percent": 60
+    }
+  ],
+  "coverage_path": ".tmp/passport-office-audit/excel-coverage.xml",
+  "measurements": [
+    {
+      "path": "app/presentation/api/v1/routes/passport_excel_import_support.py",
+      "source_sha256": "be028c1afb810ccb1546088b1ca0814808a4009144f20cb0a1e991ae47c59c0b",
+      "line_percent": 100.0,
+      "branch_percent": null
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_excel_identity.py",
+      "source_sha256": "e19c861675a2992601b599a2ffbb21175c4182bbf1ca20257a2ca9615e88d565",
+      "line_percent": 85.45454545454545,
+      "branch_percent": 73.80952380952381
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_excel_rows.py",
+      "source_sha256": "c53b6110d7d546c23feb21420002d007d52c6496d24e90191d9ccd7370eccfed",
+      "line_percent": 81.66666666666667,
+      "branch_percent": 61.76470588235294
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_excel_merge.py",
+      "source_sha256": "8c1d12c9c215af144b9c64029a20585caa31b2e11d6015e500041aaf2b6c2c59",
+      "line_percent": 93.33333333333333,
+      "branch_percent": 83.33333333333333
+    }
+  ],
+  "old_helper_normal_membership": null,
+  "old_helper_critical_membership": null,
+  "no_old_caps_or_floors_relaxed": true
+}

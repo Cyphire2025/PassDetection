@@ -1,0 +1,122 @@
+{
+  "files": [
+    {
+      "path": "backend/tests/unit/infrastructure/test_company_export_row_boundaries.py",
+      "sha256": "a17213030fa7862abcadffab77250241bb71b9a1e0f117c626242e16377cc252",
+      "physical_lines": 75,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete75 physical source read. Existing encrypted-page byte receipt/actual stream size and decrypted scalar width/count bounds, rejection before storage read and oversized encode rejection. Synthetic fresh encryption/stream fixture only; no new malformed payloads or executions."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_company_export_native_work.py",
+      "sha256": "cc75723078d96e57fb63526723f127e6db89d1505d065dc033d08d6536502fcd",
+      "physical_lines": 41,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete41 physical source read. Retained dashboard CPU-thread exporter helper preserves uncancelled error and drains late native failure before cancellation returns. Explicit thread synchronization/5s fixture bounds inspected; this is CPU native work, not excluded native app ingress/UI. No test/thread run here."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_passport_image_zip_exporter.py",
+      "sha256": "55b0755a3a9843a3f930db1a9c3508a946e2ccc5c2be2f5e7886e4d4f407e93a",
+      "physical_lines": 428,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete428 physical source read in bounded1-214/215-428 ranges. Safe deterministic paths/global collision reservation, full-group namespace membership/suffix, staff/agent precedence, zone/layout sanitization, bounded concurrent fetch and caller byte cap. Every successful spool has finally close in source; synthetic arbitrary byte copies do not prove image decoder/storage service behavior."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_passport_image_zip_crop_export.py",
+      "sha256": "05e7b501867f4f7bc9cfdd8536352ae5437e967aefcee5365cd5eac198348041",
+      "physical_lines": 165,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete165 physical source read. Generated valid synthetic JPEG/PIL and mock storage assert materialized crop, immutable fallback after derivative cleanup and actual blue AI edit-source crop; ZIP spool cleanup explicit. Existing exporter _load_batch/_load_image consumers traced; no provider or image transformations executed here."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_passport_export_history_repository.py",
+      "sha256": "5f68ed179ac6399707d3fae8d81453629349223193961659dc90bed1a3a24549",
+      "physical_lines": 272,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete272 physical source read. Cumulative snapshot vs payload, deep immutable allowlisted people details, ID/order/count/type validation, prepared vs completed status, actor-scoped completed paging/count and actual ORM integrity metadata assertions. Mocked session/compiled statements are not real PostgreSQL transaction proof; actual current record/validator/list/count owners traced."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_passport_exports_and_replacements_migration.py",
+      "sha256": "67f301a8f106199cf516177a0a19962618b4cb7f13ed06bb9403ee0b68efffe3",
+      "physical_lines": 169,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete169 physical source read. Historical0051 exact predecessor/table/check/index/FK metadata and downgrade dependency order use mocked Alembic operation proxy. Legacy test name says current head but only fixed0051 ancestry is asserted; no actual current142-file topology/service qualification inferred and no migration edited/executed."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_passport_excel_phone_columns.py",
+      "sha256": "4212ef7c59fb2a7473f0d3dfbddd6b5808c0828aaf474ff28276c9571f8690a5",
+      "physical_lines": 48,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete48 physical source read. Number-column aliases/camelCase/custom suffixes recognized without deleting department/contact-name/device/email/status metadata. Whole actual pure helper read; existing tests do not create runtime/API/provider activity."
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/company_export_native_work.py",
+      "sha256": "a1eb881381e063d0ce8ef77a1f79885e38a23b92a8e652244c093bac3a406a4f",
+      "physical_lines": 26,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current purpose-specific CPU-thread ownership helper read: shield, repeated cancellation drain, late error retrieval and original cancellation rethrow; unchanged. Not native app code. Supporting reread gives no duplicate credit if prior exact-full matches."
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/company_export_render.py",
+      "sha256": "4063ab9a2e155876a17184d55a993131b226191d43b376d8160433695322f828",
+      "physical_lines": 116,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current whole1-125 source read (file fits bound): encrypted page validation, streamed image volume/manifest, fixed byte limits and WorkbookAssembly compatibility export. Actual test imports/row bounds align; unchanged, no live I/O or native app work and no duplicate full credit where already matched."
+    },
+    {
+      "path": "backend/app/infrastructure/export/passport_excel_phone_columns.py",
+      "sha256": "e3e14430dc05d96ccf0a583c886fb3eb9ec189246da70debbc368d09beea6eb9",
+      "physical_lines": 98,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current pure helper read: NFKC/camelCase/punctuation/suffix normalization, explicit qualifiers/compact aliases and non-phone metadata exclusion. Existing exporter-owned source stays byte-frozen, no new policy/speed claim or duplicate full credit."
+    },
+    {
+      "path": "backend/app/domain/value_objects/passport_export_history.py",
+      "sha256": "237fb72310b4c5eaed98d05a7ff24192bc2c9e4dbeb4e9969d83bd1d6471dbfa",
+      "physical_lines": 68,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current pure immutable checkpoint validator read: exact IDs/counts/order/allowed string-or-null fields and format/kind/mode contracts, no logs of values. Already reviewed support where exact full prior exists; no new behavior/metadata edits."
+    },
+    {
+      "path": "backend/app/infrastructure/export/passport_image_zip_exporter.py",
+      "sha256": "b827929f2b96502df76554d53f39f7cda63de0c96b3e201231b76980ebe4f01e",
+      "physical_lines": 450,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical read73-114 and289-383 only: actual payload/naming namespace/caller caps, _load_batch cleanup and complete _load_image effective crop/AI source fallback and opaque magic extension, partial naming helpers. Archive orchestration/other helpers not whole read or newly qualified; no native policy edit."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_export_history_repository.py",
+      "sha256": "5a3726ce317c6f588c9cb1f039eccd6ee1a4a2fb74bdbc869bbf138cfcc4bc78",
+      "physical_lines": 225,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical read1-85 and170-end only: actual public validator aliases, complete actor/tenant completed-history list/count and immutable prepared record; other lookup/ack helpers not full read or real SQL-service proof."
+    }
+  ],
+  "scope": "Seven newly current-full test sources1198physical lines, four whole immediate supporting owners and two explicit focused owners. Eight other exact-current full test candidates were skipped without artificial reread credit; no source/test/config mutations or checks."
+}

@@ -1,0 +1,55 @@
+{
+  "status": "One expected API owner fingerprint change only; actual matrix not edited",
+  "surfaces": 2036,
+  "errors": [
+    "Workflow contract changed; review classification: frontend_api:frontend/features/passports/api/public-upload-link.api.ts"
+  ],
+  "seconds": 9.047,
+  "old_row": {
+    "surface": {
+      "id": "frontend_api:frontend/features/passports/api/public-upload-link.api.ts",
+      "kind": "frontend_api_contract",
+      "source": "frontend/features/passports/api/public-upload-link.api.ts",
+      "contract_sha256": "3591bc2fe0ce30ba73048e44838e60f0283580d9c86232f7834baab0d7e93088"
+    },
+    "workflow": "internal.frontend.features.passports.api.public-upload-link.api.ts",
+    "disposition": "internal_dependency",
+    "phase": null,
+    "rationale": "Focused owner of the exact previously classified uploadLinksApi methods. Public traveller proof/session/telemetry bodies retain their own whole-file fingerprint, including unchanged keepalive transport; private methods add only optional initiating-authority metadata outside business payloads. No workflow is retired or enabled.",
+    "adapter_requirements": [],
+    "implementation": {
+      "status": "not_applicable",
+      "adapter": null,
+      "evidence": []
+    }
+  },
+  "candidate_row": {
+    "surface": {
+      "id": "frontend_api:frontend/features/passports/api/public-upload-link.api.ts",
+      "kind": "frontend_api_contract",
+      "source": "frontend/features/passports/api/public-upload-link.api.ts",
+      "contract_sha256": "ea4f1fcaa27fde590b344ff89e2324f882894e10b51d6f3e97c8011bc49f44ca"
+    },
+    "workflow": "internal.frontend.features.passports.api.public-upload-link.api.ts",
+    "disposition": "internal_dependency",
+    "phase": null,
+    "rationale": "Focused owner of the exact previously classified uploadLinksApi methods. Public traveller proof/session/telemetry bodies retain their own whole-file fingerprint, including unchanged keepalive transport; private methods add only optional initiating-authority metadata outside business payloads. No workflow is retired or enabled.",
+    "adapter_requirements": [],
+    "implementation": {
+      "status": "not_applicable",
+      "adapter": null,
+      "evidence": []
+    }
+  },
+  "all_prior_non_surface_fields_and_implementation_preserved": true,
+  "all_other2035surface_rows_exact": true,
+  "source_fence": {
+    "docs/implementation/mcp-workflow-coverage.json": "37097632cd2b3174126ac67a54e8b3f86a9b7732090f17825935ec62807684b1",
+    "scripts/mcp_inventory.py": "2da78b6aa2501f37a45cd4d38408c7a351e07028c459b593127d5244a74003b8",
+    "scripts/mcp_route_handlers.py": "3d813f6cb4a54613af4047450ac643aa33978f7f53c316979d69ecba8e2a8887",
+    "backend/contracts/api.openapi.json": "f33eda26f052caf65000dc32fb6a712050a99ecdfa755e240053c4bcd43c2099",
+    "frontend/features/passports/api/public-upload-link.api.ts": "d720cbf0a79ce838006b30e56b63b69ec992c96881ffa3cb62d3df0f2b3d005b"
+  },
+  "source_fence_unchanged": true,
+  "root_must_review_apply_row": true
+}

@@ -1,0 +1,86 @@
+{
+  "status": "Retained authorization/destructive policy/password recovery source cohort complete",
+  "files": [
+    {
+      "path": "backend/tests/unit/application/test_authorization_policy.py",
+      "sha256": "961f690edbebb973c1bd0c457befe9e0199fe0da5066c0b665a3ddf42d309079",
+      "physical_lines": 345,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-345. Role/object/list/search contracts preserve agency and owned/assigned staff scope; removed group assignment denies. PostgreSQL compiled query assertions retain composite tenant parent and EXISTS without an accidental unjoined group table. Coordinators have passenger view and assigned-group attendance authority, cannot confirm/export; archive and permanent-delete roles differ. Mocks/compiled SQL physically read only; no database or test execution."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_superadmin_access_level.py",
+      "sha256": "ca1b62b1b71f8b2554d81f6065dd06c3fd31fe1efc610c75d361da436f6e5ff6",
+      "physical_lines": 314,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-314. Signed effective-role cookies preserve actual platform identity, original session expiry, tenant selection and actual MFA requirements. Non-platform callers403 and cookie CSRF required; altered subject/version/deadline/type/role/status rejected. Invalid cookie can restore actual platform role, logout clears it, refresh retains selected role and original deadline. Real bulk-delete fixture asserts effective staff denial and owned manager success while stored real identity remains platform. Synthetic fixture source only; no live credentials or tests."
+    },
+    {
+      "path": "backend/tests/unit/application/test_destructive_mutation_policy.py",
+      "sha256": "bad474e4a345459cde9132b28265dcfad3769868043fd131b00164853eecc34d",
+      "physical_lines": 396,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-396. Existing deliberate legacy-hold retirement is asserted without changing schema/policy. Tenant-scoped locked group hides cross-tenant existence; attempted/denied audit has reason codes and caller commit lifetime. Scoped manager/purge role rules, deterministic lock order and stable deduplicated request fingerprint preserved. Failure audit uses fresh session and excludes raw exception/private values. Compiled FOR UPDATE and fake session controls are source-only, not service proof."
+    },
+    {
+      "path": "backend/tests/integration/test_password_recovery_delivery.py",
+      "sha256": "b54337b2debe3daaa18e1a9dbede6acd420759ba4cf7c5b70f3518ca882ca0ce",
+      "physical_lines": 410,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-410 in bounded1-200/201-410 reads after initial truncated output was rejected as read credit. Neutral known/unknown202 and no-store response, production forced development flag cannot expose raw token, exact token/outbox association independent of tied timestamps or UUID order, superseded delivery terminalization, consume-once/session-version bump/refresh revocation/audit, expired no-change and account-rate-limit preservation all reviewed. Outgoing account recovery remains in scope despite Inbox deferral; no provider delivery or tests run."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/auth_identity_recovery.py",
+      "sha256": "422caca899fab26bd330fcf573db97bacbd374c4e9de1ec57dc51099c090c804",
+      "physical_lines": 138,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-138. Actual neutral recovery path sets no-store, validates delivery configuration before minting, bounds network/account issuance, preserves old link under account suppression, scopes eligible active non-client-manager users, stages encrypted outbox and exposes raw link only in explicit development mode. Existing small cohesive owner; no changes, execution or general failure-path qualification."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/auth_identity_actions.py",
+      "sha256": "70e71e7d79682c1e532c350076f7b3ef231a53977d41df43d431e12133844d3f",
+      "physical_lines": 199,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-199. Shared activation/recovery consumption locks eligible user/state, persists blocked invalidation, checks password reuse and consumes conditionally after password verification deadline, updates credential/version and revokes refresh credentials, shared coordinator revocation compatibility retained without native feature work. Existing MFA/session/cookie branches and audit/flush ordering reviewed. No calls/providers/tests run."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/auth_identity.py",
+      "sha256": "daa6e8b3fc67dd9cda2c784d0330fddecb05105e8b0e7b3651b8c6a2936f6e37",
+      "physical_lines": 440,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "focused",
+      "notes": "Physical333-397 only: recovery facade dependency dispatch, completion purpose and commit, shared action facade and following password-route boundary. Not a whole-file read; no all-route qualification."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/identity_security_repository.py",
+      "sha256": "cb748a2dc68051430b6eb60c5983c5551ec7fee2d27fbfe45df9237c50daad6c",
+      "physical_lines": 345,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "focused",
+      "notes": "Physical123-167 only: exact purpose/raw-token/time argument forwarding for issue/get/consume to the actual action-token owner. No whole repository or deeper implementation read claimed."
+    },
+    {
+      "path": "backend/app/application/security/destructive_mutation_policy.py",
+      "sha256": "f079cc649898f399d8c0347e67638aadaff4d9336235d878e7d8ab8f9f97c171",
+      "physical_lines": 422,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "focused",
+      "notes": "Physical73-122 only: tenant-scoped row-lock acquisition, nondisclosing missing group, deduplicated context, attempted/denied audit and denial commit lifetime dispatch to existing canonical authorization. Not a whole-file read."
+    }
+  ]
+}

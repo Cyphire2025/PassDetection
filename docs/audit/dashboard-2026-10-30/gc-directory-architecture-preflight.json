@@ -1,0 +1,53 @@
+{
+  "path": "backend/app/presentation/api/v1/routes/gc_app_group_directory.py",
+  "sha256": "4f72610b1b8afc2f03301dbae3f6f6886143668a640a3ee0cfd4e9f86e9fa8b6",
+  "physical_lines": 351,
+  "search_function_lines": 251,
+  "matching_current_full_ledgers": [
+    {
+      "ledger": "retained-dashboard-gc-admin-unit-source-reviewed-files.json",
+      "status": "reviewed",
+      "reviewer": "/root/document_ui_architecture",
+      "notes": "Whole physical source read. Retained dashboard agency/group admin authority, escaped search, same-tenant joins, availability/count/pagination ordering, single metrics aggregate and canonical projected setup data. Large search orchestration remains an architecture follow-up; physical read is not completed decomposition or performance proof."
+    }
+  ],
+  "inventory_status": "reviewed",
+  "inventory_review_scope": "full",
+  "existing_normal_rows": [
+    {
+      "path": "app/presentation/api/v1/routes/gc_app_group_directory.py",
+      "baseline_lines": 351,
+      "maximum_lines": 369,
+      "baseline_max_function_complexity": 28,
+      "maximum_function_complexity": 28,
+      "minimum_coverage_percent": 75
+    }
+  ],
+  "existing_critical_rows": [],
+  "scope": "Retained dashboard GC admin directory search/read architecture only. No native UI/behavior or Inbox changes. Source wholly physically read by AI after root read; supporting scope file only1..110 partial.",
+  "actual_callers": [
+    "gc_app facade direct reexports both functions and includes same router; MCP dashboard read catalog names original gc_app.search_gc_groups/list_gc_agencies aliases",
+    "Actual availability/closed collection/client organization route tests and legacy router alias contract"
+  ],
+  "query_semantics_to_preserve": [
+    "_tenant_id first, one shared datetime.nowUTC second; q escaping/whitespace and lifecycle422 before any SQL",
+    "eligible precedence over gc_enabled; configured/unconfigured independent AND flags; optional availability before pagination",
+    "Count query before optional metrics/page query; metric inclusion gc_enabledTrue OR group_idpresent OR configured_only, including conflicting flags semantics",
+    "Account distinct count differs from acknowledged device distinct count; same tenant/status/revoked/expiry clauses, same page ordering/offset/limit",
+    "Two availability_fields projections and original optional nested access/organization rules; unchanged DTO constructor/default/public dependencies"
+  ],
+  "proposed_owners": {
+    "gc_app_group_directory.py": "Retain complete agency route and both public group handler/decorator/clock/tenant/return/default/alias seams",
+    "gc_group_directory_filters.py": "Pure existing predicates/access join expressions and lifecycle admission; authorized tenant UUID supplied, no new role decisions",
+    "gc_group_directory_query.py": "Existing count + exact conditional usage/page SQL/row normalization; purpose-specific tuple row alias, no callback/context bag",
+    "gc_group_directory_projection.py": "Original per-row DTO mapping and availability calls; no SQL or policy change"
+  },
+  "baseline_tests": [
+    "test_gc_app_availability.py",
+    "test_gc_app_closed_collection_groups.py::test_candidate_search_paginates_open_and_closed_groups_with_tenant_and_removal_guards",
+    "test_gc_app_client_organizations.py::test_eligible_group_search_filters_before_pagination_and_searches_destination",
+    "test_gc_app_client_organizations.py::test_enabled_group_page_embeds_aggregated_usage_metrics",
+    "test_gc_legacy_router_exports.py::test_legacy_router_exports_the_registered_endpoint_identity[gc_app-expected0]"
+  ],
+  "additional_proof_plan": "Capture original sources/default/decorator/evaluated hints/full two-route OpenAPI and aliases before movement. Ordinary same SQLite responses plus table-driven compiled PG/SQLite statement+parameter parity including both metric paths and conflicting flags; complete expanded module AST proof. Do not turn bounded response limit or DTO lifetime into a production query-capacity claim."
+}

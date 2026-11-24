@@ -1,0 +1,12 @@
+{
+  "candidates": "docs/audit/dashboard-2026-10-30/document-quality-bundle-budget-candidates.json",
+  "before_sha256": "7d6805124d09449651aafc4a7ac02a0cba8b0b23e4a09c3b1a6d27d1f6af5740",
+  "sha256": "4c8a7a869b9150faa776c6901aa9b1075901072aa8905eb2d2ab3109f60a7d8a",
+  "lf_normalized_sha256": "f78abab8441f33141f5cbe215e43451e23498697287d04d6d9ca46fd87c683d0",
+  "added": 12,
+  "updated_existing": 0,
+  "lowered_existing": 0,
+  "lowered_existing_paths": [],
+  "existing_ceilings_preserved": true,
+  "previous_ceilings_sha256": "02f8ea1b1c4825a1e0702e6232137c0882d0068402f92efa7d7ebec49cd3d6c1"
+}

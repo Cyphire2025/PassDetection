@@ -1,0 +1,115 @@
+{
+  "runtime_files": 9,
+  "new_runtime_files": 8,
+  "new_test_support_files": 3,
+  "files": [
+    {
+      "path": "backend/app/infrastructure/database/email_models.py",
+      "sha256": "7b0ee596fea8b7c43d92315038b1e14893d1fd865a32f0adee477fd3bb762e2d",
+      "physical_lines": 86,
+      "bytes": 3559,
+      "line_endings": "LF",
+      "git_head_present": true,
+      "kind": "runtime"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_models/__init__.py",
+      "sha256": "65c72734aaf387cf30b89e1b390fd9c23259d1822449024d900f48ba9cef76f8",
+      "physical_lines": 7,
+      "bytes": 335,
+      "line_endings": "LF",
+      "git_head_present": false,
+      "kind": "runtime"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_models/connections.py",
+      "sha256": "fb08f8be131213b1f3d778e089db69dcc82874cbd848e4d37b8e99cbb4ad65c9",
+      "physical_lines": 262,
+      "bytes": 8406,
+      "line_endings": "LF",
+      "git_head_present": false,
+      "kind": "runtime"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_models/oauth.py",
+      "sha256": "989bc18b71a0d543ae531500d01b92cd6ec41ceb8a132bb24fbd362ae1254ff9",
+      "physical_lines": 147,
+      "bytes": 4749,
+      "line_endings": "LF",
+      "git_head_present": false,
+      "kind": "runtime"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_models/messages.py",
+      "sha256": "d45ce4a5c27666eb3e376c5c7b3fa9f48a6297851374f21ec43cad74e7f01427",
+      "physical_lines": 222,
+      "bytes": 7399,
+      "line_endings": "LF",
+      "git_head_present": false,
+      "kind": "runtime"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_models/artifacts.py",
+      "sha256": "c761fc46dcd022d7afc0ac5dbbbdb7b28a931d9a5444ce581e968a2966a6fa32",
+      "physical_lines": 286,
+      "bytes": 9913,
+      "line_endings": "LF",
+      "git_head_present": false,
+      "kind": "runtime"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_models/documents.py",
+      "sha256": "4466f1e006d175e9ad98acca3518bc288e9b8c494daff026fa33484c8a4f3109",
+      "physical_lines": 105,
+      "bytes": 3485,
+      "line_endings": "LF",
+      "git_head_present": false,
+      "kind": "runtime"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_models/reviews.py",
+      "sha256": "4d8214ce7f96b2dccf09da4cf7dd41dd95b59085c813b2421d75f24518194b84",
+      "physical_lines": 268,
+      "bytes": 9014,
+      "line_endings": "LF",
+      "git_head_present": false,
+      "kind": "runtime"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_models/activity.py",
+      "sha256": "ae00d24f812131dcdeae41d7a32d13b1744325f45e13fd61bff1c5255fb2f588",
+      "physical_lines": 233,
+      "bytes": 8103,
+      "line_endings": "LF",
+      "git_head_present": false,
+      "kind": "runtime"
+    },
+    {
+      "path": "backend/tests/email_model_persistence_fixtures.py",
+      "sha256": "bab1b399c9501f6ea03c6aadaa2b317d1c977ff602eebd87e6721bd391f45ad0",
+      "physical_lines": 71,
+      "bytes": 3715,
+      "line_endings": "LF",
+      "git_head_present": false,
+      "kind": "test"
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_email_model_persistence_contracts.py",
+      "sha256": "a5b5ce9277abc04af2a4357efd9487b395c79f4fe6813964625d5d860d6f9a5f",
+      "physical_lines": 112,
+      "bytes": 5345,
+      "line_endings": "LF",
+      "git_head_present": false,
+      "kind": "test"
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_email_model_owner_compatibility.py",
+      "sha256": "44d46732e7654d5f16e2eeb94693cbc4c8f063a141f5432ef67f62180d899051",
+      "physical_lines": 89,
+      "bytes": 3747,
+      "line_endings": "LF",
+      "git_head_present": false,
+      "kind": "test"
+    }
+  ]
+}

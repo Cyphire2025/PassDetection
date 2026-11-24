@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { DocumentVerificationResult } from "@/types/document-distribution.types";
 import type { DocumentStagingManifest } from "./document-upload-batching";
 import {
@@ -104,4 +104,17 @@ describe("document upload recovery", () => {
     clearDocumentUploadRecovery(GROUP_ID, DOCUMENT_TYPE);
     expect(readDocumentUploadRecovery(GROUP_ID, DOCUMENT_TYPE)).toBeNull();
   });
+});
+
+
+it("falls back to page-local upload state when browser storage access and cleanup are both blocked", () => {
+  const get = vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => { throw new DOMException("Storage denied", "SecurityError"); });
+  const remove = vi.spyOn(Storage.prototype, "removeItem").mockImplementation(() => { throw new DOMException("Storage denied", "SecurityError"); });
+  try {
+    expect(() => readDocumentUploadRecovery(GROUP_ID, DOCUMENT_TYPE)).not.toThrow();
+    expect(readDocumentUploadRecovery(GROUP_ID, DOCUMENT_TYPE)).toBeNull();
+  } finally {
+    get.mockRestore();
+    remove.mockRestore();
+  }
 });

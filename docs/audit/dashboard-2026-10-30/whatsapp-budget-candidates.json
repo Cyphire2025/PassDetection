@@ -1,0 +1,149 @@
+[
+  {
+    "path": "components/shared/workspace-pagination.tsx",
+    "baselineLines": 39,
+    "maximumLines": 45,
+    "baselineMaxFunctionComplexity": 4,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/whatsapp/api/broadcast-groups.api.ts",
+    "baselineLines": 106,
+    "maximumLines": 115,
+    "baselineMaxFunctionComplexity": 5,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/whatsapp/api/broadcast-recipients.api.ts",
+    "baselineLines": 142,
+    "maximumLines": 150,
+    "baselineMaxFunctionComplexity": 5,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/whatsapp/api/broadcast-message-reads.api.ts",
+    "baselineLines": 58,
+    "maximumLines": 65,
+    "baselineMaxFunctionComplexity": 4,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/whatsapp/api/broadcast-resends.api.ts",
+    "baselineLines": 83,
+    "maximumLines": 90,
+    "baselineMaxFunctionComplexity": 7,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/whatsapp/api/broadcast-sends.api.ts",
+    "baselineLines": 95,
+    "maximumLines": 100,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/whatsapp/api/broadcast-media.api.ts",
+    "baselineLines": 17,
+    "maximumLines": 25,
+    "baselineMaxFunctionComplexity": 1,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/whatsapp/api/broadcast-resend-payload.ts",
+    "baselineLines": 20,
+    "maximumLines": 25,
+    "baselineMaxFunctionComplexity": 6,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/whatsapp/api/whatsapp.api.ts",
+    "baselineLines": 20,
+    "maximumLines": 25,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/whatsapp/types/groups.ts",
+    "baselineLines": 37,
+    "maximumLines": 45,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/whatsapp/types/messages.ts",
+    "baselineLines": 120,
+    "maximumLines": 125,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/whatsapp/types/recipients.ts",
+    "baselineLines": 136,
+    "maximumLines": 145,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/whatsapp/types/contacts.ts",
+    "baselineLines": 5,
+    "maximumLines": 10,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/whatsapp/utils/normal-send-intent.ts",
+    "baselineLines": 48,
+    "maximumLines": 55,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/whatsapp/utils/whatsapp-request-owner.ts",
+    "baselineLines": 11,
+    "maximumLines": 20,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/whatsapp/utils/activity-tracking.ts",
+    "baselineLines": 239,
+    "maximumLines": 245,
+    "baselineMaxFunctionComplexity": 19,
+    "maximumFunctionComplexity": 20
+  },
+  {
+    "path": "features/whatsapp/utils/imported-field-label.ts",
+    "baselineLines": 7,
+    "maximumLines": 15,
+    "baselineMaxFunctionComplexity": 1,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/whatsapp/components/contact-editor.tsx",
+    "baselineLines": 145,
+    "maximumLines": 150,
+    "baselineMaxFunctionComplexity": 7,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/whatsapp/components/whatsapp-dialog-ui.tsx",
+    "baselineLines": 110,
+    "maximumLines": 115,
+    "baselineMaxFunctionComplexity": 14,
+    "maximumFunctionComplexity": 15
+  },
+  {
+    "path": "features/whatsapp/workspace/composer.api.ts",
+    "baselineLines": 85,
+    "maximumLines": 90,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/whatsapp/workspace/workspace-ui.tsx",
+    "baselineLines": 115,
+    "maximumLines": 120,
+    "baselineMaxFunctionComplexity": 7,
+    "maximumFunctionComplexity": 8
+  }
+]

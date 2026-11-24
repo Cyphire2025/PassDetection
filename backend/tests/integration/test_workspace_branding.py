@@ -94,7 +94,7 @@ def application(session_factory, user):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("kind", ["company-logo", "group-banner"])
+@pytest.mark.parametrize("kind", ["company-logo", "group-banner", "group-background"])
 async def test_upload_replace_preview_remove_and_tenant_boundaries(db_session, storage, kind):
     user, other = await seed_user(db_session), await seed_user(db_session)
     client_company = await company(db_session, user)
@@ -118,7 +118,7 @@ async def test_upload_replace_preview_remove_and_tenant_boundaries(db_session, s
             assert image.format == "JPEG" and max(image.size) <= (1024 if kind == "company-logo" else 2560)
         async with factory() as session:
             metadata = (await group_branding_metadata(session, [group.id]))[group.id]
-            assert metadata["company_logo_url" if kind == "company-logo" else "banner_url"] == url
+            assert metadata[{"company-logo": "company_logo_url", "group-banner": "banner_url", "group-background": "background_url"}[kind]] == url
             assert not list(await session.scalars(select(StorageCleanupJobModel)))
         app.dependency_overrides[get_current_active_user] = lambda: other
         assert (await http.get(url)).status_code in {403, 404}

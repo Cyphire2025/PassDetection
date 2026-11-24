@@ -354,3 +354,29 @@ it.each(["welcome", "passport_link", "reminder", "unrecognised", null, 42, undef
     );
   },
 );
+
+it.each(["summary", "failures"] as const)("stops private %s retries and interval requests after denial", async (kind) => {
+  vi.useFakeTimers();
+  vi.setSystemTime(activity.startedAt);
+  const tracked = { ...activity, failed: kind === "failures" ? 1 : 0 };
+  const summary = initialWhatsAppActivitySummary(tracked);
+  mocks.summary.mockResolvedValue(summary);
+  const request = kind === "summary" ? mocks.summary : mocks.failures;
+  request.mockResolvedValueOnce(kind === "summary" ? summary : [])
+    .mockRejectedValue({ status: 403, code: "FORBIDDEN" });
+  const view = renderTracker(tracked);
+  try {
+    fireEvent.click(screen.getByRole("button", { name: "Register broadcast" }));
+    await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+    if (kind === "failures") {
+      fireEvent.click(screen.getByRole("button", { name: "Show 1 failed recipients" }));
+      await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+    }
+    expect(request).toHaveBeenCalledTimes(1);
+    await act(async () => { await vi.advanceTimersByTimeAsync(2_100); });
+    await act(async () => { await vi.advanceTimersByTimeAsync(20); });
+    expect(request).toHaveBeenCalledTimes(2);
+    await act(async () => { await vi.advanceTimersByTimeAsync(10_000); });
+    expect(request).toHaveBeenCalledTimes(2);
+  } finally { view.unmount(); }
+});

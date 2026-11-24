@@ -23,6 +23,8 @@ const eslintConfig = defineConfig([
     "public/mediapipe/**",
     // Pinned third-party ZXing distribution used by the cold-offline scanner.
     "public/offline/vendor/**",
+    // Generated first-party artifact; its authored offline-runtime owners are linted.
+    "public/offline-scanner.js",
   ]),
 ]);
 

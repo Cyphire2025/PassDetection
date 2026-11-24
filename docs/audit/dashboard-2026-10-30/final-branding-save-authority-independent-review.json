@@ -1,0 +1,17 @@
+{
+  "status": "Independent manual source review complete; no actionable issue",
+  "reviewer": "root",
+  "source_fence": {
+    "frontend/features/branding/components/group-image-dialog.tsx": "219fe7ee75ae4aef5121e87d43b5ee8a4a8d698b89117e22531cc5f3f82f3b0e",
+    "frontend/features/branding/api/branding-images.api.ts": "e168b6ea253acf3e4b85b54ff71abcfd80bf3c4bf21ab3d06e352ca4e70894c6",
+    "frontend/features/branding/components/group-image-save-authority.test.tsx": "2caeffb4bb3c9da769881f46d91e184f7a04fc86c48db5e8df3a8ab898dcbe97"
+  },
+  "request_owner_chain_read_sha256": "dc504d23f73182988fa2d0093fb7954c57fa9a7118f6ce1859eb00df2fe54ac2",
+  "preserved_invariants": [
+    "backend derives actual authenticated actor; frontend ownership is only a mismatch precondition",
+    "frozen original image version and body part order",
+    "default and six-argument API callers retained",
+    "no stale dispatch or cache/onClose after editor lifetime ends"
+  ],
+  "limitations": "Manual source/negative-control review only; current34case artifact and complete current frontend production verification are separately recorded."
+}

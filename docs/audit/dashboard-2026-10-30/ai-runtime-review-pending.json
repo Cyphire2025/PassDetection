@@ -1,0 +1,20 @@
+{
+  "scope": "Initial AI service/runtime/repository lane is fully read. These supporting callers are only partially read and remain pending full review; the larger company/traveller/persistence lane is separate and is not implied complete. Server-side routes remain relevant even if only a native client currently calls them.",
+  "files": [
+    {
+      "path": "backend/app/infrastructure/repositories/passport_image_crop_repository.py",
+      "review_status": "partial",
+      "sha256": "ab9eb177615d85eb42e9b15f00a94a3cd7a9e10dc9dda15d6db918ebb2e7f9b7"
+    },
+    {
+      "path": "backend/app/infrastructure/documents/orphan_reconciliation.py",
+      "review_status": "partial",
+      "sha256": "49a42bd73aafe20aabda8fee66ef052b40c4c934b9d36cdc5e13d03b1ca7acf9"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/queries.py",
+      "review_status": "partial",
+      "sha256": "800f98cf5ccf8cfb8fc624ba33f8f7befbb995bbd929dbfe86833558df759d4f"
+    }
+  ]
+}

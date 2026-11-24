@@ -1,0 +1,14 @@
+{
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "lib/api/streamed-download.test.ts",
+    "features/passports/api/passport-operation-owner.test.ts",
+    "--maxWorkers=1",
+    "--pool=threads"
+  ],
+  "exit_code": 0,
+  "duration_seconds": 2.08,
+  "output": "docs/audit/dashboard-2026-10-30/camera-gc-checkpoint-stream-owner.txt"
+}

@@ -1,0 +1,40 @@
+{
+  "files": [
+    {
+      "path": "assets/branding/global-connect/journey-film/source/render.cjs",
+      "sha256": "50261e9fca5cd731ac71ebb086b12e253ea6c35f0493b92457e5325eaa76690a",
+      "physical_lines": 65,
+      "review_scope": "full",
+      "status": "reviewed-and-fixed",
+      "reviewer": "branding_visuals",
+      "notes": "Full29line original authored source physically read, every narrow new wait/close/failure change manually authored/reviewed. Original6main setup statements and entire FFmpeg spawn args AST exact.8actual ordinary-main NodeVM controls simulate native canvas/scene/encoder, original renderer/drain errors persist and owned encoder closes; early encoder close/error wakes drain and bounded signal fallback does not mask original. No native FFmpeg/OS child/physical memory/media rendering proof."
+    },
+    {
+      "path": "scripts/test_journey_film_renderer.mjs",
+      "sha256": "113478425d49b4837e5f768a7d02960a89e7deaa46860564751c7e8c83212add",
+      "physical_lines": 141,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete authored actual-source NodeVM protocol fixture reviewed. Baseline healthy1pass/render+drain2fail retained before runtime patch.8current methods preserve healthy encoding/output/windowsHide arguments, exact triggering error identity, early process completion/failure, bounded fallback timers/signal errors/secondary destroy. Real source loaded from maintained file; no native addon/encoder/files generated. Timer expiries in fallback controls are synthetic microtasks with exact5000msargument assertions, not measured5second wallclock/OS teardown proof."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/README.md",
+      "sha256": "ded1a5e1e910b4ae09c1143c268adaa76858bf12017f4871b601cd75ae35b93d",
+      "physical_lines": 70,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "All70 authored lines physically read, retained active output/provenance/library/license/re-render context, plus sole last-paragraph current navigation change fully reviewed. Prefix69lines exact to original. Active masters/producers/shared geography/other QA all retained; only five approved temporary color probes archived with local link and original relative media structure. Claimed historical FFmpeg/color/loop results not rerun or promoted to current render qualification."
+    },
+    {
+      "path": "assets/branding/global-connect/login-background/README.md",
+      "sha256": "ae14e43ad40eb81e32389d1e2d1e8522bade87c097a38e9991fc80cca1185575",
+      "physical_lines": 16,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete16 authored lines physically read. Current wing/paper and prior atlas/source-reference distinction, source geometry/re-render/provenance/license declarations and active transparent logo crop/palette notes assessed. Shared JourneyGeoJSON dependency prevents wholesale journey source retirement. No artwork/public bytes changed or native renderer executed."
+    }
+  ]
+}

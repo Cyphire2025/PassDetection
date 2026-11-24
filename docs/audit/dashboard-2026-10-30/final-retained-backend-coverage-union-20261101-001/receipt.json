@@ -1,0 +1,51 @@
+{
+  "status": "Same-app-source coverage union complete; retained and global floors passed; originalfullverifier result retained",
+  "command": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "scripts/verify_backend_quality_budgets.py",
+    "--coverage-file",
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\final-retained-backend-coverage-union-20261101-001\\coverage.xml"
+  ],
+  "exit_code": 1,
+  "seconds": 3.922,
+  "app_source_paths": 1823,
+  "app_source_all_original_exact_before_after": true,
+  "all3input_data_files_immutable": true,
+  "input_receipt_hashes": {
+    "docs\\audit\\dashboard-2026-10-30\\final-retained-backend-20261101-001\\receipt.json": "98a842e3b4e604015ee6b03e908713ddb6efca0b7f584b1b64957b548791871f",
+    "docs\\audit\\dashboard-2026-10-30\\final-retained-company-fixture-cov-20261101-001\\receipt.json": "368e1824d2cff9f5c00d9e3c2d253ef2440216ad7ac366e229e44c85905c623b",
+    "docs\\audit\\dashboard-2026-10-30\\final-retained-gc-scope-cov-20261101-002\\receipt.json": "0aae58fcd45b64d6c771d8110d8f5caacf182b37fc67c8e4c10297b323777e42"
+  },
+  "retained_per_path_floors_passed": true,
+  "global_floors_passed": true,
+  "original_unfiltered_verifier_passed": false,
+  "scope_violation_counts": {
+    "retained": 0,
+    "native-excluded": 2,
+    "operations-inbox-deferred": 76,
+    "repository": 0,
+    "unclassified": 0
+  },
+  "global_observed": {
+    "line_percent": 84.11999999999999,
+    "branch_percent": 66.94,
+    "lines_valid": 104754,
+    "branches_valid": 23440
+  },
+  "artifacts": {
+    "coverage.data": "77243699fceebe934ff5ec300048bb7a92d4be229acaf4ae4fd623cc5f4bbb6e",
+    "coverage.json": "97c97a3c953b150b256c9596992906016b554f2d7c74069d2bd73376f6171f86",
+    "coverage.xml": "11f58fdbfaf4471e0762e7cacffef459e757c0cbe718f0cc894dace8260d6ac2",
+    "environment-guard-14204.json": "e03f71d2ef18a87bf9ed4e199e047877b6d6a93e7abb898fec9dff276050d00a",
+    "quality-classification.json": "24fe6b1c54d1def1e7fc34cf477ac506a7d97f0e898fd9b98440818afd15f98d",
+    "quality-coverage.stderr.txt": "29fbd452b87e7c15ca3e28bb5e68b3f613826ccf97fb191794d7c5cfc6a2387a",
+    "quality-coverage.stdout.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "quality-measurements.json": "da2ce8567f18d1fe9cf2bed32741923c990c2939d37093140a1cc9c517b36767",
+    "source-proof.json": "77ed489d91536b7606b9a86babccd1e667eef658b03051223254906ea64aea12"
+  },
+  "limits": [
+    "Original four failed outcomes,5platform skips,87deselections, diagnostics and failedgc001 remain separate immutable evidence.",
+    "No new actual full-suite rerun is claimed; current101+7cohorts qualify changed fixtures/newguards against unchanged app.",
+    "Out-of-scope dedicated Inbox/native coverage deficits remain unfiltered; no floors or budgets changed."
+  ]
+}

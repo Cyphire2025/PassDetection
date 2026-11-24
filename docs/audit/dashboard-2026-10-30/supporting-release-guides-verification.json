@@ -1,0 +1,227 @@
+{
+  "status": "sealed-doc-only-clarification",
+  "source_fence": [
+    {
+      "path": "docs/CURRENT_RELEASE_AND_STORAGE.md",
+      "sha256": "52d26b023ca4a5b6225213987bbe516eea37dd29d8e677d6ee0043b4e40bb3a9",
+      "physical_lines": 198,
+      "review_scope": "full",
+      "status": "reviewed-and-documented",
+      "reviewer": "branding_visuals",
+      "notes": "Full original192 authored lines and complete narrowed wording changes read. Current rollout now selects exact packaged manifest/deployment selector; original0112\u21920113 storage recipe, later tracker0128\u21920129 identifiers/preservation policy, every code block and operational guard retained. No current VPS/release claim from old evidence."
+    },
+    {
+      "path": "docs/QUALIFIED_CODE_UPDATES.md",
+      "sha256": "6fd1896afd74e4c0ba033e0ea29357c2d7f66e04a2744849a2475572fe718f09",
+      "physical_lines": 73,
+      "review_scope": "full",
+      "status": "reviewed-and-documented",
+      "reviewer": "branding_visuals",
+      "notes": "Full original68 authored lines and complete8line current-schema clarification read. Original same-schema operator/dispatch/backup/recovery/no-migration/security requirements retained; historical0113 storage baseline distinguished from live schema equality check."
+    },
+    {
+      "path": "docs/PRODUCTION_RELEASE_READINESS.md",
+      "sha256": "1288e0cb90aecba3c2d49a4fe9c666768cfb984a29bfcf5411b76165cbf1133b",
+      "physical_lines": 199,
+      "review_scope": "full",
+      "status": "reviewed-and-documented",
+      "reviewer": "branding_visuals",
+      "notes": "Full original194 authored lines read in bounded0\u201399,100\u2013EOF with explicit100\u2013154 reread after output clipping, plus complete wording correction. Dated September host/grant/backup observations are not asserted current. Required operational gates/credentials privacy/no downgrade/unknown revision/backup/resource/recovery rules and every original command block preserved. Current manifest/selector linked; historicalstorage contract labelled."
+    },
+    {
+      "path": "docs/OPERATIONS_MONITORING.md",
+      "sha256": "704878a4950838928d75f61e220b98f3d37ac93419061d2440f40407fc46d28d",
+      "physical_lines": 108,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete108 authored lines physically read. Off-host alert/backup/PITR/restore/authority evidence limitations and dated provider observations explicit; named responder/private credential/StatsD boundary, synthetic promtool vs actual production receipt, strict35day evidence validator semantics reviewed as documented claims. No monitoring/provider/DR or command executed."
+    },
+    {
+      "path": "docs/deployment-modes.md",
+      "sha256": "5733cea585a0c99ea7796dd80903693bb7dbead30578813e14167b9cb6f3d96b",
+      "physical_lines": 304,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete304 authored lines physically read0\u2013124+125\u2013EOF. Full/Fast distinction and exemptions (document nullable migrations, exact0140/0141\u21920142 workspace branding, companies0135\u21920138), immutable source/schema/image/receipt/forward recovery/memory/owner checks assessed against actual selector source and prior operator review context. Frozen exact commands unchanged; no CI/deployment/service/provider call or new qualification inferred."
+    }
+  ],
+  "ledger": {
+    "path": "docs/audit/dashboard-2026-10-30/supporting-release-guides-reviewed-files.json",
+    "sha256": "464696faad2550b8f67b5f68bfb7b9a7dee26386224d7256e0a6e4c90b53983f"
+  },
+  "changes": [
+    {
+      "path": "docs/CURRENT_RELEASE_AND_STORAGE.md",
+      "before_sha256": "a5f265573ce5f31f387aaa32b4628567ca2945f7812612cc952666fdeea9fcdf",
+      "snapshot": ".tmp/supporting-release-docs/CURRENT_RELEASE_AND_STORAGE.md",
+      "after_sha256": "52d26b023ca4a5b6225213987bbe516eea37dd29d8e677d6ee0043b4e40bb3a9",
+      "command_blocks_exact": 2,
+      "changed_line_regions": [
+        {
+          "kind": "replace",
+          "old_lines": [
+            3,
+            9
+          ],
+          "new_lines": [
+            3,
+            15
+          ]
+        },
+        {
+          "kind": "replace",
+          "old_lines": [
+            17,
+            17
+          ],
+          "new_lines": [
+            23,
+            23
+          ]
+        },
+        {
+          "kind": "replace",
+          "old_lines": [
+            21,
+            22
+          ],
+          "new_lines": [
+            27,
+            28
+          ]
+        }
+      ]
+    },
+    {
+      "path": "docs/QUALIFIED_CODE_UPDATES.md",
+      "before_sha256": "567d3b15c530b534a191ce6a1e063a88240cbb702e566b84a1e4c51be71310dc",
+      "snapshot": ".tmp/supporting-release-docs/QUALIFIED_CODE_UPDATES.md",
+      "after_sha256": "6fd1896afd74e4c0ba033e0ea29357c2d7f66e04a2744849a2475572fe718f09",
+      "command_blocks_exact": 0,
+      "changed_line_regions": [
+        {
+          "kind": "replace",
+          "old_lines": [
+            10,
+            12
+          ],
+          "new_lines": [
+            10,
+            17
+          ]
+        }
+      ]
+    },
+    {
+      "path": "docs/PRODUCTION_RELEASE_READINESS.md",
+      "before_sha256": "914aace2364758b4df2ba961a93d0d3e61fcabeb08a823d710d01b0ce7cb8512",
+      "snapshot": ".tmp/supporting-release-docs/PRODUCTION_RELEASE_READINESS.md",
+      "after_sha256": "1288e0cb90aecba3c2d49a4fe9c666768cfb984a29bfcf5411b76165cbf1133b",
+      "command_blocks_exact": 1,
+      "changed_line_regions": [
+        {
+          "kind": "replace",
+          "old_lines": [
+            3,
+            7
+          ],
+          "new_lines": [
+            3,
+            10
+          ]
+        },
+        {
+          "kind": "replace",
+          "old_lines": [
+            21,
+            21
+          ],
+          "new_lines": [
+            24,
+            24
+          ]
+        },
+        {
+          "kind": "replace",
+          "old_lines": [
+            38,
+            38
+          ],
+          "new_lines": [
+            41,
+            41
+          ]
+        },
+        {
+          "kind": "replace",
+          "old_lines": [
+            40,
+            40
+          ],
+          "new_lines": [
+            43,
+            43
+          ]
+        },
+        {
+          "kind": "replace",
+          "old_lines": [
+            48,
+            48
+          ],
+          "new_lines": [
+            51,
+            51
+          ]
+        },
+        {
+          "kind": "replace",
+          "old_lines": [
+            61,
+            61
+          ],
+          "new_lines": [
+            64,
+            64
+          ]
+        },
+        {
+          "kind": "replace",
+          "old_lines": [
+            153,
+            153
+          ],
+          "new_lines": [
+            156,
+            158
+          ]
+        }
+      ]
+    }
+  ],
+  "source_evidence": [
+    {
+      "path": "backend/app/core/config/release_manifest.json",
+      "sha256": "122e7b38970b18609cf46b20b99d4b2c093c4f8b471bcd484b8c59a7080c6119",
+      "scope": "Complete17-line config read: workspace_branding_v1 /0142_group_background /previous0140, no edit; existing prior source review attribution retained."
+    },
+    {
+      "path": "scripts/release_retained_update.py",
+      "sha256": "f000107c2ce6a03653dbc03e83e04311514bac16c4bba07f17e1301c8a9c8cd4",
+      "scope": "Focused79\u201397 only actual manifest-based selector; no full reread credit."
+    },
+    {
+      "path": "scripts/release_code_update.py",
+      "sha256": "5ae04cf862c283c6e95cb05847d368bca6a8327298b09486add2c621c938aa48",
+      "scope": "Focused110\u2013127 and282\u2013302 source only: constructor derives expected schema from exact checkout; prepare requires live/artifact equality. No full reread credit."
+    }
+  ],
+  "verification": "Documentation-only read/diff/relative-link/unchanged-fenced-command checks; no automated app/tests/build or operator execution required or performed.",
+  "limits": [
+    "No live VPS, new production qualification, current-host observation, credential access or deployment permission implied.",
+    "Historical operator IDs/commands, qualification rules and dated evidence preserved; no runtime/setup/schema/gate changes.",
+    "Original source snapshots and before hashes retained; these new current docs do not overwrite historical evidence JSON or prior audit receipts."
+  ]
+}

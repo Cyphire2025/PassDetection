@@ -1,0 +1,97 @@
+[
+  {
+    "path": "frontend/features/passports/components/use-passport-group-controller.tsx",
+    "sha256": "9eded5c8115c83d0fb1d2b610383427b88a9bda155476da93507a7683f1385a2",
+    "physical_lines": 722
+  },
+  {
+    "path": "frontend/features/passports/components/upload-link-list.tsx",
+    "sha256": "7076f6d875be5a455335f2eefbad1bdbf3f05ba6f41b0087f23835110ca4810c",
+    "physical_lines": 717
+  },
+  {
+    "path": "frontend/features/passports/components/group-whatsapp-broadcast-panel.tsx",
+    "sha256": "924d3ed2f9c2efa429fbd67292154e08b1b042d7f24e065976d0262e71413e7b",
+    "physical_lines": 622
+  },
+  {
+    "path": "frontend/features/passports/components/passport-list.tsx",
+    "sha256": "d80483e20fdc44e33e666cced491bd3fe29cc2d27491e02d00c7306398c912db",
+    "physical_lines": 503
+  },
+  {
+    "path": "frontend/features/passports/components/passport-export-dialog.tsx",
+    "sha256": "c0faeffcd5403b69e85c4708aa2314b26db602f0f41db209cf9ad4170b6c40aa",
+    "physical_lines": 478
+  },
+  {
+    "path": "frontend/features/passports/api/upload-links.api.ts",
+    "sha256": "7cae53e363364d45600a5f3279c1ca0387acb29a0c27a6d14319e15e70b1a233",
+    "physical_lines": 473
+  },
+  {
+    "path": "frontend/features/passports/components/create-upload-link-modal.tsx",
+    "sha256": "9a8ac4e5a176974434ab8a908102fffebd51db174a7dea8c7f1eb4b7cd596514",
+    "physical_lines": 457
+  },
+  {
+    "path": "frontend/features/upload/components/upload-flow-fields.tsx",
+    "sha256": "7def6b3a17f61905a109a410937547bab11edb6f9a01e284ac4c40329c9aee22",
+    "physical_lines": 425
+  },
+  {
+    "path": "frontend/features/passports/components/group-whatsapp-dialogs.tsx",
+    "sha256": "323588909da2d41c4e98e35d9a69acdddb38d07726cd5e4843c2123d832a51e7",
+    "physical_lines": 421
+  },
+  {
+    "path": "frontend/features/passports/components/group-whatsapp-tracking-table.tsx",
+    "sha256": "53ebfb142703b4fc7f8d6ca837c8ecb7aa85524c5b3fd175f6333600165ecfff",
+    "physical_lines": 417
+  },
+  {
+    "path": "frontend/features/passports/utils/passport-review.ts",
+    "sha256": "b77ebb9be8153af5d0839f0539050e77e690c30aea89f41294d30e34bb98c99d",
+    "physical_lines": 389
+  },
+  {
+    "path": "frontend/features/passports/components/passport-group-model.tsx",
+    "sha256": "2accc9cbb27095d413480e1992057816ebe6546fc3c688a2ea3607c1dcefa2f2",
+    "physical_lines": 386
+  },
+  {
+    "path": "frontend/features/passports/components/passport-group-selection-toolbar.tsx",
+    "sha256": "2afdefd3960e5a1848b3447720b1475fd8c4fef8a07ebd900f6de95b2139d1f8",
+    "physical_lines": 364
+  },
+  {
+    "path": "frontend/features/passports/components/passport-group-roster-panel.tsx",
+    "sha256": "0862246bb52bd3f25e1f2ad98c4e657533c9ad41c774affc4182b62b38a6440e",
+    "physical_lines": 349
+  },
+  {
+    "path": "frontend/features/passports/hooks/use-passports.ts",
+    "sha256": "91a52e9a748f4f562059fd3828c4ddac9f4d2e635bf36dba393f8790564c31d8",
+    "physical_lines": 349
+  },
+  {
+    "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+    "sha256": "87ad595aaa0f39735b0393e23b1d3a4db05f3e7f09b36080ff5f1297f05c2258",
+    "physical_lines": 322
+  },
+  {
+    "path": "frontend/features/passports/components/upload-link-settings.tsx",
+    "sha256": "f9d4158c45ed1ed5cc74c075a3ae90be496d217bde3e5f711809ce49705a7ecc",
+    "physical_lines": 310
+  },
+  {
+    "path": "frontend/features/passports/utils/passport-group-navigation.ts",
+    "sha256": "39f888b178c2db67a3b919f8e13886514f499077d7b05346ff585a5726ae2ecd",
+    "physical_lines": 308
+  },
+  {
+    "path": "frontend/features/passports/hooks/use-upload-links.ts",
+    "sha256": "4ba2545c4e4a304177a3462590ec58a08bccaa5660f536ee9e9b67e172326fe1",
+    "physical_lines": 303
+  }
+]

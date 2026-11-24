@@ -1,0 +1,53 @@
+{
+  "status": "passed-frozen-frontend-ui-quality-checkpoint",
+  "source_files_hashed": 1495,
+  "source_unchanged_except_recorded_generated_next_type_entry": true,
+  "unit_files_passed": 261,
+  "unit_cases_passed": 1654,
+  "node_contracts_passed": 674,
+  "required_types": "passed",
+  "lint": "passed",
+  "module_budgets": {
+    "passed": 369,
+    "existing_ceilings_raised": false
+  },
+  "production_build": "passed with isolated synthetic optional API proxy; explicit TS imports accepted by current Next compiler/bundler",
+  "production_browser": {
+    "passed": 9,
+    "failed": 0,
+    "skipped": 0,
+    "scope": "Current standalone build: branded credential login/logout, denied and expired sessions, 320px/1440px fresh drafts, independent family drafts, lost-response recovery, isolated API rewrites and fresh CSP nonces."
+  },
+  "configured_critical_owner_coverage_percent": {
+    "lines": 97.82,
+    "statements": 92.53,
+    "functions": 91.57,
+    "branches": 87.38,
+    "branchesTrue": 100
+  },
+  "coverage_floors_unchanged": {
+    "per_file": true,
+    "statements": 74,
+    "branches": 50,
+    "functions": 75,
+    "lines": 75
+  },
+  "coverage_scope": "Configured critical owners only; not whole repository test coverage. Exact moved-declaration and retired-test mappings remain in feature receipts.",
+  "verification_cadence": "Continue affected regression/type/lint/budget checks for coherent feature batches. No repeated full suite or build for reads/docs/formatting. Next combined verification requires stable shared changes or final completion.",
+  "limits": "Frontend integration only. Whole-codebase manual review and architecture follow-through continue. Actual PostgreSQL, Redis, private object-storage, Linux/Nginx/container/VPS release gates remain unverified locally. No commit/push/deploy/provider send.",
+  "receipts_sha256": {
+    "frontend-ui-quality-integration-source-checkpoint.json": "4a4ccdcd232771b27d251e5c5de855fa9e78cf4fc7f95f0801a3897aa8e559d7",
+    "frontend-ui-quality-integration-source-verification.json": "f2eb0c0f2f0f1a5915bda0a1f3183b3f7981a3943115bea64eef5d0ec42e6d9f",
+    "frontend-ui-quality-unit.txt": "42f7fdebe3d13cb9c97aaf0c595547e9752b7079edc2b8542dea0df71878494b",
+    "frontend-ui-quality-node-contracts.txt": "3ec14ad3bd6f94d26a57f892052b3ed7cabeee46dbeaa3e35287132cbe2c30ea",
+    "frontend-ui-quality-types.txt": "9454c3f1e6dd0b35a44cd34b78d3a60b348f85fde420b2665f190a84b5597031",
+    "frontend-ui-quality-lint.txt": "65d10c2da0781691adc45c185308c222c2a92911360ade0a27a4e555be91c5bb",
+    "frontend-ui-quality-maintainability.txt": "a9737e87f684aaaf5907e03eac43974453fb03a431f253119cc7853d464d63a7",
+    "frontend-ui-quality-build.txt": "63f0ace0b42234860ca74a3893563b11882b5d971d1b5b97c7d7b3437d82147b",
+    "frontend-ui-quality-production-browser.json": "ca38dfd475962aecbdf87883f93be5834a82ce49a33c7fe4f7e35afaeac82c13",
+    "frontend-ui-quality-coverage/coverage-summary.json": "ccfc08f8f9da6ef2007aa6c8bee320afa0348dc3d8b716428b0f4f8d566fa394",
+    "passport-quality-api-budget-integration.json": "41960009d1e8313933cd684783ca913dc7375a5007cd27edfb01dce6294aa624",
+    "mcp-architecture-verification.json": "670d7db847625ea90ecc5bb18e08642081fb0992b18a72c53bbc3fea96b13b89",
+    "passport-quality-api-verification.json": "9f41e4401c26a5aeb53649c530255f765d6c3e70fa62e3802cc6a2ffd0c567b8"
+  }
+}

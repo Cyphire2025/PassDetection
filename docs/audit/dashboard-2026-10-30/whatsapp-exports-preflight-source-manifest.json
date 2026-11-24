@@ -1,0 +1,102 @@
+{
+  "source_baseline": {
+    "path": "docs/audit/dashboard-2026-10-30/whatsapp-exports-preflight-original-source.json",
+    "sha256": "5e22791b6ac17820973f4312132960b88835d07875953826bd356406886dadfc"
+  },
+  "full_source_fence": {
+    "backend/app/presentation/api/v1/routes/whatsapp_exports.py": "4c719c70041d102ee6b96af13394442bd468032f53dd236ae7331095d2885aaa",
+    "backend/app/presentation/api/v1/schemas/whatsapp_export_schemas.py": "84a88965c508aad129d52c37b467f39abf6fa5f28203d471693c46858fabeed5",
+    "backend/app/infrastructure/export/whatsapp_filter_excel_exporter.py": "5c019ac68ca05d9c02ddc889475675a17015984cdd93b09f25ad02a16226f31b",
+    "backend/app/presentation/api/v1/routes/whatsapp_recipient_roster.py": "1fd7b7511c5d6305853399c62b16537213d3bb90c4e0684a36b3a2b613f14218",
+    "backend/app/presentation/api/v1/routes/whatsapp_merged_contacts.py": "ad8aed1c998143dc1169012997d980f7bab2879920685fab190b94376deae40c",
+    "backend/app/presentation/api/v1/routes/passport_export_support.py": "3bf9cd6a6c6854971df328266b2f2610ad0bfa18bb83cdbeab1bed8ea426bd13",
+    "backend/app/presentation/api/v1/routes/passport_export_recipient_values.py": "1e21745b332529dc9f9b9b6979cf1f7f71167a67f386cdaec2e63d67cd1f823a",
+    "backend/app/presentation/api/v1/routes/passport_export_metadata.py": "b6f4e2ee77c4d126d0e8a105e1a7855a383ea2f99ce40d540366c57c15a06c8c",
+    "backend/app/presentation/api/v1/routes/whatsapp_router.py": "4ed2349b9b92acb5af58df36d21e84899c3758e604176420ea67b210e8c1ae74",
+    "backend/app/presentation/api/v1/routes/whatsapp_group_visibility.py": "6a99074f2af2e4aba32d552358102b415bb9d092cc93bc6acc16f8cf8a41c042",
+    "backend/tests/unit/presentation/test_whatsapp_schema_contract.py": "1845fae52742ea474c0035c3354048e95e574a164a97037b3b8f6c1d7511f70d",
+    "backend/tests/integration/test_whatsapp_export_reimport.py": "2e332af0a2a30968990026dbda067c9bb078632a800b7f15a55e01833b237c9a",
+    "frontend/features/whatsapp/api/whatsapp-export.api.ts": "1643c0b40713074244d4d29594958897137dde0cccf2525a7e59b00ee8a95fcb",
+    "frontend/features/whatsapp/hooks/use-whatsapp-export.ts": "9a2dc782358e6aa389a20064f79a5cc937d696d6a11b455b7803940c6c049238",
+    "frontend/features/whatsapp/components/whatsapp-export-button.tsx": "b4eec7b9b68110f92c214778dcab0213c66621e3a13583745732a7be30b4874e",
+    "frontend/features/whatsapp/components/whatsapp-source-contact-table.tsx": "9148d74a30e9d5ff60e38bdec1c82ac70c70c8468fc5436e0bcfef321c4a6dd4"
+  },
+  "focused_source_fence": {
+    "backend/app/application/security/authorization_policy.py": "6a1ee49097b124715ce52fb5810387c6be5a3a5e18f4896676340c6e6dabe663",
+    "backend/app/infrastructure/whatsapp/phone_overrides.py": "669da158e86223949b2543d4b8106005ee4c958f8015894537eca09983b6fc27",
+    "backend/app/infrastructure/repositories/passport_submission_repository.py": "86d3e08deca66ccc621be769e73a2e8df822c0f540be5779467c8e0cab3379c2",
+    "backend/app/infrastructure/repositories/passport_whatsapp_matching_repository.py": "fb4c0c77ef572e171220c867bd79c202c507ac8a19248d884913d512da7f65cc",
+    "backend/app/application/use_cases/whatsapp/group_submission_matching.py": "dc85ecd81a87dd90451b9558d40a5007d338d93c3af30570cbff7d92b6ceb2e3",
+    "backend/app/application/use_cases/whatsapp/group_match_coordinator.py": "d409da422bab1a779bf75a3b4c10e98e0ec5b036735d5161d11af5f35fb7f76f",
+    "backend/app/application/use_cases/whatsapp/group_match_rows.py": "8c712fa4e4529434139a45acba392f9119ac842191154d0bf62caa101a732369",
+    "backend/app/application/use_cases/whatsapp/source_group_contacts.py": "af6ec9c7113479c734be7068e1c27e8a4c96f8637c3e23ed6186788e467817c0",
+    "backend/app/presentation/api/v1/routes/whatsapp_roster_support.py": "91ae572d7825dafff8ccea8254023fb9924fd58266df0ac1b8d7f61a8e99c23f",
+    "backend/app/presentation/api/v1/routes/whatsapp_contact_responses.py": "04cdf2c58e178c1fbe733ec238efbe3d3eec3765fe938607cadf3b85e9c1cb14",
+    "frontend/lib/api/streamed-download.ts": "4829fc5dc12a741cbe146cad78be3eee1d641a14eb09366c36356a96587864e4",
+    "backend/tests/unit/presentation/test_passport_group_pending_export_helpers.py": "1887e6829b5136ccf7e223face8e00f1d3bbe22fcfb6f42bd2aee3e0b4b8cb81"
+  },
+  "runtime_test_config_edits": false,
+  "application_checks_run": [],
+  "read_review_ledger": {
+    "path": "docs/audit/dashboard-2026-10-30/whatsapp-exports-preflight-reviewed-files.json",
+    "sha256": "47a617f2df814e3c9a5c4eed3aa04fb36a2991b4b1b5bc4fad0e09a709e778a8"
+  },
+  "functions": [
+    {
+      "name": "_stale_rows",
+      "start_line": 82,
+      "end_line": 83,
+      "physical_lines": 2,
+      "complexity": 1
+    },
+    {
+      "name": "_roster_identity",
+      "start_line": 86,
+      "end_line": 94,
+      "physical_lines": 9,
+      "complexity": 4
+    },
+    {
+      "name": "_exportable_links",
+      "start_line": 97,
+      "end_line": 120,
+      "physical_lines": 24,
+      "complexity": 3
+    },
+    {
+      "name": "_latest_attempt_values",
+      "start_line": 123,
+      "end_line": 153,
+      "physical_lines": 31,
+      "complexity": 3
+    },
+    {
+      "name": "_delivery_values",
+      "start_line": 156,
+      "end_line": 166,
+      "physical_lines": 11,
+      "complexity": 9
+    },
+    {
+      "name": "_broadcast_import_contact_values",
+      "start_line": 169,
+      "end_line": 181,
+      "physical_lines": 13,
+      "complexity": 7
+    },
+    {
+      "name": "_gather_export_rows",
+      "start_line": 184,
+      "end_line": 491,
+      "physical_lines": 308,
+      "complexity": 100
+    },
+    {
+      "name": "export_broadcast_filter",
+      "start_line": 495,
+      "end_line": 520,
+      "physical_lines": 26,
+      "complexity": 5
+    }
+  ]
+}

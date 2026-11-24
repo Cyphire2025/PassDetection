@@ -1,0 +1,840 @@
+{
+  "originalSource": {
+    "path": "frontend/features/operations/api/operations.api.ts",
+    "sha256": "7a686e1546a5235b19567421afc23c8bce0cccd550f5f619208e807b67da677d",
+    "physicalLines": 1200
+  },
+  "publicTypes": 64,
+  "publicMethods": 61,
+  "totalCompleteDeclarations": 125,
+  "currentRuntimeFiles": 15,
+  "declarations": [
+    {
+      "name": "AdminOverview",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-accounts.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "ManagerAccount",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-accounts.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "ManagerGroupAccess",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-accounts.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "ManagedAccount",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-accounts.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "StaffAccount",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-accounts.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "DeleteManagedAccountResponse",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-accounts.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "CreateManagerRequest",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-accounts.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "CreateStaffRequest",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-accounts.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "DeleteManagerResponse",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-accounts.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "AnalyticsSummary",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-audit.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "AuditLogListItem",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-audit.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "AuditLogResult",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-audit.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "AuditLogPage",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-audit.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "AuditLogFilters",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-audit.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "TourOperationsPhase",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-tour.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "TourOperationsArchitecture",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-tour.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "TourCoordinator",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-tour.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "CreateCoordinatorRequest",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-tour.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "TourGroupCoordinator",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-tour.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "TourGroup",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-tour.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "TourPassenger",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-tour.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "TourPassengerDetail",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-tour.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "RoomType",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-rooming.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "RoomingTag",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-rooming.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "RoomingSpecialRequest",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-rooming.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "RoomingPriorityField",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-rooming.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "RoomingPriorityFieldOptions",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-rooming.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "RoomingRosterFieldValues",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-rooming.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "RoomingPassenger",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-rooming.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "RoomingRoom",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-rooming.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "RoomingHotel",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-rooming.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "RoomingWorkspace",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-rooming.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "RoomingRoomAllocationDelta",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-rooming.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "RoomingHotelAllocationDelta",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-rooming.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "RoomingPassengerAllocationDelta",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-rooming.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "RoomingAllocationMutationResponse",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-rooming.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "HotelCheckinPassenger",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-checkin.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "HotelCheckinDashboard",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-checkin.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "HotelCheckinScanResponse",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-checkin.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "AttendanceSession",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-attendance.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "AttendanceScanResponse",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-attendance.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "AttendancePassengerStatus",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-attendance.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "AttendanceSessionDetails",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-attendance.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "AttendanceCoordinatorSummary",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-attendance.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "AttendanceMissingPassenger",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-attendance.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "AttendanceScanBatchItemResponse",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-attendance.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "AttendanceScanBatchResponse",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-attendance.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "AttendanceCloseoutCheckpoint",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-attendance.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "AttendanceCloseoutCoordinatorStatus",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-attendance.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "AttendanceCloseoutStatus",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-attendance.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "AttendanceSessionSummary",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-attendance.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "GroupAttendanceOverview",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-attendance.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "AttendanceSummaryCloseout",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-attendance.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "AttendanceCoordinatorActivitySummary",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-attendance.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "AttendanceActivitySummary",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-attendance.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "GroupAttendanceSummary",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-attendance.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "AttendanceMissingPassengerItem",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-attendance.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "AttendanceMissingPassengersPage",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-attendance.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "GroupPassengerQrCode",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-qr.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "PassengerQrToken",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-qr.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "GroupPassengerQrCodes",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-qr.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "QrDeliveryPreviewRecipient",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-qr.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "QrDeliveryPreview",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-qr.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "SendQrBroadcastResponse",
+      "kind": "type",
+      "owner": "frontend/features/operations/api/operations-qr.types.ts",
+      "wholeTypedDeclarationExact": true
+    },
+    {
+      "name": "adminOverview",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-accounts.api.ts",
+      "object": "accountsOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "managers",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-accounts.api.ts",
+      "object": "accountsOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "createManager",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-accounts.api.ts",
+      "object": "accountsOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "createStaff",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-accounts.api.ts",
+      "object": "accountsOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "staffAccessAccounts",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-accounts.api.ts",
+      "object": "accountsOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "deleteManager",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-accounts.api.ts",
+      "object": "accountsOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "adminGroups",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-accounts.api.ts",
+      "object": "accountsOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "assignManagerGroups",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-accounts.api.ts",
+      "object": "accountsOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "assignStaffGroups",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-accounts.api.ts",
+      "object": "accountsOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "managedAccounts",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-accounts.api.ts",
+      "object": "accountsOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "staffAccounts",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-accounts.api.ts",
+      "object": "accountsOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "resetManagedAccountPassword",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-accounts.api.ts",
+      "object": "accountsOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "resetManagedAccountMfa",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-accounts.api.ts",
+      "object": "accountsOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "revokeManagedAccountSessions",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-accounts.api.ts",
+      "object": "accountsOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "setManagedAccountStatus",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-accounts.api.ts",
+      "object": "accountsOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "deleteManagedAccount",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-accounts.api.ts",
+      "object": "accountsOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "analyticsSummary",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-audit.api.ts",
+      "object": "auditOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "auditLogPage",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-audit.api.ts",
+      "object": "auditOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "exportAuditLogs",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-audit.api.ts",
+      "object": "auditOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "tourOperationsArchitecture",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-tour.api.ts",
+      "object": "tourOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "tourCoordinators",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-tour.api.ts",
+      "object": "tourOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "createTourCoordinator",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-tour.api.ts",
+      "object": "tourOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "tourGroups",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-tour.api.ts",
+      "object": "tourOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "assignTourGroupCoordinators",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-tour.api.ts",
+      "object": "tourOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "tourGroupPassengers",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-tour.api.ts",
+      "object": "tourOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "assignTourGroupPassengers",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-tour.api.ts",
+      "object": "tourOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "myTourGroups",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-tour.api.ts",
+      "object": "tourOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "myTourGroupPassengers",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-tour.api.ts",
+      "object": "tourOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "myTourGroupPassenger",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-tour.api.ts",
+      "object": "tourOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "roomingWorkspace",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-rooming.api.ts",
+      "object": "roomingOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "roomingPriorityFields",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-rooming.api.ts",
+      "object": "roomingOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "roomingRosterFieldValues",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-rooming.api.ts",
+      "object": "roomingOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "createRoomingHotel",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-rooming.api.ts",
+      "object": "roomingOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "updateRoomingHotel",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-rooming.api.ts",
+      "object": "roomingOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "updateRoomingPassengerSelection",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-rooming.api.ts",
+      "object": "roomingOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "updateRoomingVip",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-rooming.api.ts",
+      "object": "roomingOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "autoAllocateRoomingHotel",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-rooming.api.ts",
+      "object": "roomingOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "exportRoomingHotel",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-rooming.api.ts",
+      "object": "roomingOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "hotelCheckins",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-checkin.api.ts",
+      "object": "checkinOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "scanHotelCheckin",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-checkin.api.ts",
+      "object": "checkinOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "updateHotelCheckin",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-checkin.api.ts",
+      "object": "checkinOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "exportHotelCheckins",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-checkin.api.ts",
+      "object": "checkinOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "myAttendanceSessions",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-attendance.api.ts",
+      "object": "attendanceOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "myAttendanceSessionDetails",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-attendance.api.ts",
+      "object": "attendanceOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "scanMyAttendanceSession",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-attendance.api.ts",
+      "object": "attendanceOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "scanMyAttendanceSessionBatch",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-attendance.api.ts",
+      "object": "attendanceOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "completeManagedAttendanceSession",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-attendance.api.ts",
+      "object": "attendanceOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "publishMyAttendanceCloseoutCheckpoint",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-attendance.api.ts",
+      "object": "attendanceOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "managedAttendanceCloseoutStatus",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-attendance.api.ts",
+      "object": "attendanceOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "createManagedAttendanceSession",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-attendance.api.ts",
+      "object": "attendanceOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "groupAttendanceOverview",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-attendance.api.ts",
+      "object": "attendanceOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "groupAttendanceSummary",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-attendance.api.ts",
+      "object": "attendanceOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "groupAttendanceMissingPassengers",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-attendance.api.ts",
+      "object": "attendanceOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "groupQrCodes",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-qr.api.ts",
+      "object": "qrOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "qrDeliveryPreview",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-qr.api.ts",
+      "object": "qrOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "sendQrBroadcast",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-qr.api.ts",
+      "object": "qrOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "generatePassengerQr",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-qr.api.ts",
+      "object": "qrOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "regeneratePassengerQr",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-qr.api.ts",
+      "object": "qrOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "revokePassengerQr",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-qr.api.ts",
+      "object": "qrOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "setPassengerQrActive",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-qr.api.ts",
+      "object": "qrOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    },
+    {
+      "name": "setPassengerQrExpiration",
+      "kind": "method",
+      "owner": "frontend/features/operations/api/operations-qr.api.ts",
+      "object": "qrOperationsApi",
+      "wholeTypedArrowPropertyExact": true
+    }
+  ],
+  "publicNamedExportsExact": true,
+  "publicTypeExportOrderExact": true,
+  "publicMethodOrderExact": true,
+  "facadeValuesAreExactDomainFunctionReferences": true,
+  "noRuntimeProxyOrNewArrowWrappers": true,
+  "noThisOrSelfReferenceInOriginal": true,
+  "boundIdentifierComparisons": 1621,
+  "unboundIdentifiersCompared": 0,
+  "actualTypeScriptDefinitionBindingsPreserved": true,
+  "criticalCoverage": {
+    "config": "frontend/vitest.config.mts",
+    "sha256": "85ce4e7d5be4ff07748412030ccf1fca3177be52c388dbbada89053bcfc1a400",
+    "originalAPIIncluded": false,
+    "allExistingFloorsAndIncludesUntouched": true
+  },
+  "limits": "Exact AST and compiler symbol/identity proof is not a live service or provider-send test. Original SDK object and allDTO contracts retained; public hook retirement does not remove any SDK method."
+}

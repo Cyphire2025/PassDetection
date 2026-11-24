@@ -1,0 +1,252 @@
+{
+  "basis": "Post-six-negative-fix AWS checkpoint, not the original checkout.",
+  "before_sha256": "f8f4c1d9cd512157f34b06d8921d7a0c6589d75a3e928d35583fa25133b86c3b",
+  "before_lines": 1807,
+  "preserved_declarations": 46,
+  "owners": [
+    {
+      "name": "AwsMyPhotosProviderConfig",
+      "to": "backend/app/infrastructure/my_photos/aws_provider_config.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "aws_provider_config",
+      "to": "backend/app/infrastructure/my_photos/aws_provider_config.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "_THROTTLE_CODES",
+      "to": "backend/app/infrastructure/my_photos/aws_client_runtime.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "_NOT_FOUND_CODES",
+      "to": "backend/app/infrastructure/my_photos/aws_client_runtime.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "_async_client_call",
+      "to": "backend/app/infrastructure/my_photos/aws_client_runtime.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "_client_error_code",
+      "to": "backend/app/infrastructure/my_photos/aws_client_runtime.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "_raise_provider_failure",
+      "to": "backend/app/infrastructure/my_photos/aws_client_runtime.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "_required_text",
+      "to": "backend/app/infrastructure/my_photos/aws_client_runtime.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "_mapping_text",
+      "to": "backend/app/infrastructure/my_photos/aws_client_runtime.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "_mapping_epoch",
+      "to": "backend/app/infrastructure/my_photos/aws_client_runtime.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "_utcnow",
+      "to": "backend/app/infrastructure/my_photos/aws_client_runtime.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "_as_utc",
+      "to": "backend/app/infrastructure/my_photos/aws_client_runtime.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "_OpaqueReferenceCodec",
+      "to": "backend/app/infrastructure/my_photos/aws_references.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "media_object_reference",
+      "to": "backend/app/infrastructure/my_photos/aws_references.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "_require_scoped_media_reference",
+      "to": "backend/app/infrastructure/my_photos/aws_references.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "_encode_versioned_media_reference",
+      "to": "backend/app/infrastructure/my_photos/aws_references.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "_decode_versioned_media_reference",
+      "to": "backend/app/infrastructure/my_photos/aws_references.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "_valid_s3_version_id",
+      "to": "backend/app/infrastructure/my_photos/aws_references.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "_delivery_fingerprint",
+      "to": "backend/app/infrastructure/my_photos/aws_references.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "_canonical_uuid_scope",
+      "to": "backend/app/infrastructure/my_photos/aws_references.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "_aws_idempotency_token",
+      "to": "backend/app/infrastructure/my_photos/aws_references.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "_hmac_hex",
+      "to": "backend/app/infrastructure/my_photos/aws_references.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "_b64url",
+      "to": "backend/app/infrastructure/my_photos/aws_references.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "_b64url_decode",
+      "to": "backend/app/infrastructure/my_photos/aws_references.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "_FACE_ID",
+      "to": "backend/app/infrastructure/my_photos/aws_face_results.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "_PERMANENT_INDEX_FAILURES",
+      "to": "backend/app/infrastructure/my_photos/aws_face_results.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "_indexed_occurrence",
+      "to": "backend/app/infrastructure/my_photos/aws_face_results.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "_unindexed_reason",
+      "to": "backend/app/infrastructure/my_photos/aws_face_results.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "_provider_model_version",
+      "to": "backend/app/infrastructure/my_photos/aws_face_results.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "_s3_image_from_liveness_response",
+      "to": "backend/app/infrastructure/my_photos/aws_face_results.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "_SESSION_ID",
+      "to": "backend/app/infrastructure/my_photos/aws_liveness.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "_CHALLENGE_TYPES",
+      "to": "backend/app/infrastructure/my_photos/aws_liveness.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "AwsRekognitionLivenessProvider",
+      "to": "backend/app/infrastructure/my_photos/aws_liveness.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "AwsRekognitionFaceIndexSearchProvider",
+      "to": "backend/app/infrastructure/my_photos/aws_face_search.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "_CHECKSUM",
+      "to": "backend/app/infrastructure/my_photos/aws_media_metadata.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "_SUPPORTED_MIME",
+      "to": "backend/app/infrastructure/my_photos/aws_media_metadata.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "_MediaObjectNotFound",
+      "to": "backend/app/infrastructure/my_photos/aws_media_metadata.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "_MediaMetadata",
+      "to": "backend/app/infrastructure/my_photos/aws_media_metadata.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "_media_metadata",
+      "to": "backend/app/infrastructure/my_photos/aws_media_metadata.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "_full_object_sha256",
+      "to": "backend/app/infrastructure/my_photos/aws_media_metadata.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "_positive_metadata_int",
+      "to": "backend/app/infrastructure/my_photos/aws_media_metadata.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "_require_media_integrity",
+      "to": "backend/app/infrastructure/my_photos/aws_media_metadata.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "_validated_presigned_media_location",
+      "to": "backend/app/infrastructure/my_photos/aws_media_location.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "_require_presigned_expiry",
+      "to": "backend/app/infrastructure/my_photos/aws_media_location.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "_raise_invalid_delivery_location",
+      "to": "backend/app/infrastructure/my_photos/aws_media_location.py",
+      "normalized_ast_identical": true
+    },
+    {
+      "name": "S3DirectMediaDeliveryProvider",
+      "to": "backend/app/infrastructure/my_photos/aws_media_delivery.py",
+      "normalized_ast_identical": true
+    }
+  ],
+  "final_current_sha256": {
+    "backend/app/infrastructure/my_photos/aws_client_runtime.py": "b976351ba066c19c030d21a33efa231fb48225a8a4de201fa19ef6faefb3b91b",
+    "backend/app/infrastructure/my_photos/aws_face_results.py": "36e1ac2b0bec8f6a9094bc511a5e3711bd04e68fd0244cd2006a9a34217b8496",
+    "backend/app/infrastructure/my_photos/aws_face_search.py": "3d01884c71763ce4b98c421f2e296ab519b5b4f1703e607285e61063729ffc08",
+    "backend/app/infrastructure/my_photos/aws_liveness.py": "4f107cd3ea0ed5de25c1a656f91827fbf33b4f5341d4df37ed26b688cfe47120",
+    "backend/app/infrastructure/my_photos/aws_media_delivery.py": "4f98a3069e96df0d6f9fb75c29b109a4f8f62ddb16fb7fd1cab332d62d517fe0",
+    "backend/app/infrastructure/my_photos/aws_media_location.py": "e83f24ace49c180843d9973106e97ad2fefd8a5432a7b663d93ba3a4370fb3fe",
+    "backend/app/infrastructure/my_photos/aws_media_metadata.py": "461bcfefe682ebf55a71dc2daa909c23704b64628d86b5d65a009d5f6b960298",
+    "backend/app/infrastructure/my_photos/aws_provider_config.py": "0202641ed2a62006ba6f4ec2719d1441dec4aa615d5e6018cd9bff8e115869c0",
+    "backend/app/infrastructure/my_photos/aws_providers.py": "14ef990b443a3e3c1b88911a7d37c2516a03e14b0035c90637c743baccaf09e8",
+    "backend/app/infrastructure/my_photos/aws_references.py": "16bdb1b0d968fd041bb01f9e8ea6af412ab0eb1b0eb950b4d90c44553a46742a"
+  },
+  "post_format_all_46_declarations_identical": true,
+  "test_seam_migration": "New synthetic dispatch regression patches actual aws_media_delivery owner; facade import identities remain equal. No production proxy globals or circular facade dependency."
+}

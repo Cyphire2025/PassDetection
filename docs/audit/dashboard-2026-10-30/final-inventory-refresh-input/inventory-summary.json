@@ -1,0 +1,466 @@
+{
+  "files": 6779,
+  "scope": {
+    "operations-and-tooling": 379,
+    "mobile-excluded": 852,
+    "supporting-material": 460,
+    "backend": 2884,
+    "operations-inbox-deferred": 255,
+    "frontend": 1906,
+    "mcp-connector": 43
+  },
+  "status": {
+    "needs-follow-up": 134,
+    "reviewed": 3629,
+    "verified": 586,
+    "inventoried": 87,
+    "fixed": 522,
+    "excluded": 791,
+    "removed-in-working-tree": 295,
+    "asset-metadata-reviewed": 73,
+    "reviewed-and-fixed": 12,
+    "focused": 9,
+    "refactored": 305,
+    "verified-focused": 89,
+    "verified-local-synthetic-scope": 2,
+    "reviewed-and-documented": 13,
+    "fixed-focused": 1,
+    "added-regression": 4,
+    "reviewed-regression-tests": 6,
+    "added-controls": 1,
+    "reviewed-regression-source": 6,
+    "fixed-verified": 4,
+    "reviewed-focused": 18,
+    "generated-metadata-reviewed": 141,
+    "reviewed-full": 43,
+    "asset-format-fixed-verified": 1,
+    "reviewed-and-executed-synthetic-test": 3,
+    "verified-private-invocation-fix": 1,
+    "generated-artifact-verified": 2,
+    "metadata-verified": 1
+  },
+  "review_scope": {
+    "focused": 388,
+    "full": 5218,
+    "unreviewed": 87,
+    "excluded": 791,
+    "retired": 295
+  },
+  "active_files": 5373,
+  "active_review_scope": {
+    "focused": 384,
+    "full": 4989
+  },
+  "deferred_by_user": {
+    "scope": "Operations Inbox",
+    "files": 255,
+    "review_scope": {
+      "unreviewed": 44,
+      "full": 210,
+      "focused": 1
+    },
+    "historical_review_statuses_preserved": true
+  },
+  "largest_source_modules": [
+    {
+      "path": "backend/alembic/versions/0069_gc_mobile_foundation.py",
+      "lines": 1802,
+      "status": "focused"
+    },
+    {
+      "path": "backend/alembic/versions/0086_my_photos_foundation.py",
+      "lines": 1367,
+      "status": "reviewed"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "lines": 1355,
+      "status": "verified"
+    },
+    {
+      "path": "frontend/public/offline-scanner.js",
+      "lines": 967,
+      "status": "generated-artifact-verified"
+    },
+    {
+      "path": "backend/alembic/versions/0087_enterprise_hardening.py",
+      "lines": 895,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_groups.py",
+      "lines": 859,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/document_delivery_runtime.py",
+      "lines": 812,
+      "status": "reviewed"
+    },
+    {
+      "path": "frontend/scripts/verify-frontend-module-budgets.mjs",
+      "lines": 795,
+      "status": "reviewed"
+    },
+    {
+      "path": "docker-compose.yml",
+      "lines": 783,
+      "status": "needs-follow-up"
+    },
+    {
+      "path": "scripts/release_code_update.py",
+      "lines": 719,
+      "status": "reviewed"
+    },
+    {
+      "path": "frontend/features/tour-operations/components/coordinator-group-scanner.tsx",
+      "lines": 718,
+      "status": "reviewed"
+    },
+    {
+      "path": "frontend/components/ui/liquid-sculpture/engine.ts",
+      "lines": 707,
+      "status": "fixed"
+    },
+    {
+      "path": "frontend/features/tour-operations/services/browser-offline-authorization.ts",
+      "lines": 698,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/application/mcp/artifacts.py",
+      "lines": 692,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/presentation/middleware/rate_limit.py",
+      "lines": 686,
+      "status": "fixed"
+    },
+    {
+      "path": "backend/app/application/mcp/pdf_ingestion.py",
+      "lines": 682,
+      "status": "reviewed"
+    },
+    {
+      "path": "frontend/features/tour-operations/components/coordinator-hotel-checkin.tsx",
+      "lines": 674,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/infrastructure/my_photos/providers.py",
+      "lines": 651,
+      "status": "reviewed"
+    },
+    {
+      "path": "frontend/features/operations/components/tour-group-attendance-page.tsx",
+      "lines": 629,
+      "status": "fixed"
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/process_passport_submission_job_use_case.py",
+      "lines": 590,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/infrastructure/ecr/passport_runtime.py",
+      "lines": 568,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/application/mobile/passenger_identity_reconciliation.py",
+      "lines": 567,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/infrastructure/security/identity_notifications.py",
+      "lines": 558,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/infrastructure/documents/pdf_parser_sandbox.py",
+      "lines": 556,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp.py",
+      "lines": 552,
+      "status": "reviewed"
+    },
+    {
+      "path": "frontend/features/operations/components/rooming-auto-allocation.tsx",
+      "lines": 539,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/infrastructure/ecr/runtime.py",
+      "lines": 528,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/client_submit_passport_use_case.py",
+      "lines": 521,
+      "status": "reviewed"
+    },
+    {
+      "path": "scripts/qa/pdf_upload_followup.py",
+      "lines": 514,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/infrastructure/ai/gemini_visa_image_edit_service.py",
+      "lines": 511,
+      "status": "reviewed"
+    },
+    {
+      "path": "frontend/features/tour-operations/components/coordinator-group-activity-page.tsx",
+      "lines": 510,
+      "status": "reviewed"
+    },
+    {
+      "path": "scripts/dashboard_audit_inventory.py",
+      "lines": 510,
+      "status": "verified"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_delivery.py",
+      "lines": 503,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/alembic/versions/0131_traveller_reuse.py",
+      "lines": 500,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_attendance_scan_support.py",
+      "lines": 488,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/infrastructure/storage/minio_repository.py",
+      "lines": 483,
+      "status": "needs-follow-up"
+    },
+    {
+      "path": "backend/app/application/mcp/travel_tracker.py",
+      "lines": 482,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/infrastructure/documents/distribution_ingestion.py",
+      "lines": 475,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passports.py",
+      "lines": 475,
+      "status": "verified"
+    },
+    {
+      "path": "backend/app/infrastructure/documents/document_matcher.py",
+      "lines": 473,
+      "status": "verified"
+    },
+    {
+      "path": "frontend/lib/api/endpoints.ts",
+      "lines": 463,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/alembic/versions/0051_passport_exports_and_replacements.py",
+      "lines": 461,
+      "status": "reviewed"
+    },
+    {
+      "path": "frontend/features/tour-operations/services/offline-snapshot.ts",
+      "lines": 460,
+      "status": "fixed"
+    },
+    {
+      "path": "backend/app/infrastructure/ai/gemini_post_submission_verification_service.py",
+      "lines": 459,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/application/mcp/native_transfers.py",
+      "lines": 455,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/infrastructure/security/upload_security.py",
+      "lines": 451,
+      "status": "needs-follow-up"
+    },
+    {
+      "path": "backend/app/infrastructure/export/passport_image_zip_exporter.py",
+      "lines": 450,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/application/mobile/push_provider.py",
+      "lines": 449,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/application/mcp/operations.py",
+      "lines": 446,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/private_delivery_policy.py",
+      "lines": 442,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/auth_identity.py",
+      "lines": 440,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/infrastructure/my_photos/liveness_service.py",
+      "lines": 433,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/infrastructure/processing/celery_app.py",
+      "lines": 430,
+      "status": "fixed"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_contact_import.py",
+      "lines": 424,
+      "status": "verified-focused"
+    },
+    {
+      "path": "backend/app/application/mcp/exports.py",
+      "lines": 422,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/application/security/destructive_mutation_policy.py",
+      "lines": 422,
+      "status": "needs-follow-up"
+    },
+    {
+      "path": "backend/app/infrastructure/my_photos/aws_media_delivery.py",
+      "lines": 422,
+      "status": "needs-follow-up"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/my_photos_schemas.py",
+      "lines": 422,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/infrastructure/ai/gemini_ecr_service.py",
+      "lines": 420,
+      "status": "reviewed"
+    },
+    {
+      "path": "scripts/release_document_retained_update.py",
+      "lines": 416,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_attendance_views.py",
+      "lines": 415,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/receipt_runtime.py",
+      "lines": 412,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_attendance_batch_support.py",
+      "lines": 412,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/gc_app_schemas.py",
+      "lines": 412,
+      "status": "reviewed"
+    },
+    {
+      "path": "load-tests/k6/dashboard-load-contract.mjs",
+      "lines": 412,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/scripts/rehearse_companies_traveller_upgrade.py",
+      "lines": 411,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/traveller_welcome_runtime.py",
+      "lines": 410,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/core/config/mobile_settings.py",
+      "lines": 403,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/whatsapp_schemas.py",
+      "lines": 401,
+      "status": "focused"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_roster_support.py",
+      "lines": 400,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/infrastructure/ai_priority/redis_store.py",
+      "lines": 399,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/infrastructure/my_photos/liveness_store.py",
+      "lines": 398,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/scripts/apply_mcp_admin_approval_upgrade.py",
+      "lines": 398,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_group_settings.py",
+      "lines": 396,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/audit_logs.py",
+      "lines": 394,
+      "status": "reviewed"
+    },
+    {
+      "path": "frontend/features/operations/components/managed-accounts-panel.tsx",
+      "lines": 394,
+      "status": "fixed"
+    },
+    {
+      "path": "backend/app/infrastructure/ai/gemini_passport_verification_service.py",
+      "lines": 390,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution.py",
+      "lines": 388,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_read_adapters.py",
+      "lines": 388,
+      "status": "reviewed"
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_submission_repository.py",
+      "lines": 384,
+      "status": "refactored"
+    }
+  ]
+}

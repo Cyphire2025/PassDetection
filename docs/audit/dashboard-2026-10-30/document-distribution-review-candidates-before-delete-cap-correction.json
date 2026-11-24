@@ -1,0 +1,320 @@
+{
+  "source_manifest": {
+    "path": "docs/audit/dashboard-2026-10-30/document-distribution-review-final-source-manifest.json",
+    "sha256": "65d65be64ab64aef5c24a3e2860194e47b91ae6487846bc395c81134eb41b01b"
+  },
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/document-distribution-review-final-reviewed-files.json",
+    "sha256": "553311d5d3ec678dba03cdd2b316d9d8c09d7509d4187560ffb91df34ca61e91"
+  },
+  "normal_module_candidates": [
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_assignments.py",
+      "sha256": "136de40db054a6f757af621486d49296aac5feab7f38684fb65581e76d91d49a",
+      "previous": {
+        "path": "app/presentation/api/v1/routes/document_distribution_assignments.py",
+        "baseline_lines": 413,
+        "maximum_lines": 450,
+        "baseline_max_function_complexity": 16,
+        "maximum_function_complexity": 16,
+        "minimum_coverage_percent": 24
+      },
+      "baseline_lines": 101,
+      "maximum_lines": 110,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_review_support.py",
+      "sha256": "6d70d0a8d7b1e452093ac3935f4ba591413522e2534a2480b455fe0a867bff58",
+      "previous": null,
+      "baseline_lines": 97,
+      "maximum_lines": 100,
+      "baseline_max_function_complexity": 2,
+      "maximum_function_complexity": 3,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_responses.py",
+      "sha256": "6f4dbf8d10308e38f7c19917499d466a99a497d633490a9fe1302e3d376bc0d6",
+      "previous": {
+        "path": "app/presentation/api/v1/routes/document_distribution_responses.py",
+        "baseline_lines": 235,
+        "maximum_lines": 260,
+        "baseline_max_function_complexity": 34,
+        "maximum_function_complexity": 34,
+        "minimum_coverage_percent": 64
+      },
+      "baseline_lines": 235,
+      "maximum_lines": 240,
+      "baseline_max_function_complexity": 28,
+      "maximum_function_complexity": 29,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_assignment_unassign.py",
+      "sha256": "24d74b8f73c6ffbc626c877291544246f77c112c00caac37b4a36ea1fed5b688",
+      "previous": null,
+      "baseline_lines": 187,
+      "maximum_lines": 190,
+      "baseline_max_function_complexity": 10,
+      "maximum_function_complexity": 11,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_assignment_delete.py",
+      "sha256": "574e94e2c4474cb365a2a6d12205466f9368e5bec9da45e110c90898c9b495cc",
+      "previous": null,
+      "baseline_lines": 214,
+      "maximum_lines": 220,
+      "baseline_max_function_complexity": 16,
+      "maximum_function_complexity": 17,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_assignment_review.py",
+      "sha256": "0ab4e9167616f93a73fd118fde6add59279901069d719628bca97f6147137d50",
+      "previous": null,
+      "baseline_lines": 48,
+      "maximum_lines": 50,
+      "baseline_max_function_complexity": 1,
+      "maximum_function_complexity": 2,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_review_snapshots.py",
+      "sha256": "df956aea04733bfab98bb68ec45782684c324b92d62c02e9af9ecbb2687c6683",
+      "previous": null,
+      "baseline_lines": 168,
+      "maximum_lines": 170,
+      "baseline_max_function_complexity": 20,
+      "maximum_function_complexity": 21,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_review_projection.py",
+      "sha256": "370a18facc3860ba3e089e09707603d4f6641de9a6c36de211c0702fdaa6481b",
+      "previous": null,
+      "baseline_lines": 164,
+      "maximum_lines": 170,
+      "baseline_max_function_complexity": 21,
+      "maximum_function_complexity": 22,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_review_export.py",
+      "sha256": "30bda9448f33ee5f779f686943bb8c83e341ccdfc6cfc544afb6edceecfa481f",
+      "previous": null,
+      "baseline_lines": 115,
+      "maximum_lines": 120,
+      "baseline_max_function_complexity": 15,
+      "maximum_function_complexity": 16,
+      "minimum_coverage_percent": 95
+    }
+  ],
+  "critical_module_candidates": [],
+  "original_critical_membership": [],
+  "unchanged_qualified_dependency": "responses.py is byte-identical235lines; it receives only a measured tightening of existing260line/C34/floor64 ratchets. Other eight entries are changed owners. Original assignments450line/C16/floor24 obligation tightens and actual mutation owners are each100%line with proposed95floor.",
+  "measurements": [
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_assignments.py",
+      "sha256": "136de40db054a6f757af621486d49296aac5feab7f38684fb65581e76d91d49a",
+      "physical_lines": 101,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "covered_lines": 41,
+      "executable_lines": 41,
+      "line_percent": 100.0,
+      "covered_branches": 0,
+      "branches": 0,
+      "branch_percent": null,
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_review_support.py",
+      "sha256": "6d70d0a8d7b1e452093ac3935f4ba591413522e2534a2480b455fe0a867bff58",
+      "physical_lines": 97,
+      "max_function_complexity": 2,
+      "most_complex_function": "_owner_scope_for",
+      "covered_lines": 36,
+      "executable_lines": 39,
+      "line_percent": 92.3076923076923,
+      "covered_branches": 0,
+      "branches": 0,
+      "branch_percent": null,
+      "missing_lines": [
+        92,
+        96,
+        97
+      ],
+      "missing_branches": []
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_responses.py",
+      "sha256": "6f4dbf8d10308e38f7c19917499d466a99a497d633490a9fe1302e3d376bc0d6",
+      "physical_lines": 235,
+      "max_function_complexity": 28,
+      "most_complex_function": "_batch_response",
+      "covered_lines": 59,
+      "executable_lines": 62,
+      "line_percent": 95.16129032258064,
+      "covered_branches": 11,
+      "branches": 16,
+      "branch_percent": 68.75,
+      "missing_lines": [
+        62,
+        165,
+        196
+      ],
+      "missing_branches": [
+        [
+          61,
+          62
+        ],
+        [
+          137,
+          158
+        ],
+        [
+          146,
+          145
+        ],
+        [
+          164,
+          165
+        ],
+        [
+          191,
+          196
+        ]
+      ]
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_assignment_unassign.py",
+      "sha256": "24d74b8f73c6ffbc626c877291544246f77c112c00caac37b4a36ea1fed5b688",
+      "physical_lines": 187,
+      "max_function_complexity": 10,
+      "most_complex_function": "unassign_distribution_documents",
+      "covered_lines": 56,
+      "executable_lines": 56,
+      "line_percent": 100.0,
+      "covered_branches": 11,
+      "branches": 12,
+      "branch_percent": 91.66666666666667,
+      "missing_lines": [],
+      "missing_branches": [
+        [
+          150,
+          161
+        ]
+      ]
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_assignment_delete.py",
+      "sha256": "574e94e2c4474cb365a2a6d12205466f9368e5bec9da45e110c90898c9b495cc",
+      "physical_lines": 214,
+      "max_function_complexity": 16,
+      "most_complex_function": "delete_distribution_documents",
+      "covered_lines": 62,
+      "executable_lines": 62,
+      "line_percent": 100.0,
+      "covered_branches": 14,
+      "branches": 14,
+      "branch_percent": 100.0,
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_assignment_review.py",
+      "sha256": "0ab4e9167616f93a73fd118fde6add59279901069d719628bca97f6147137d50",
+      "physical_lines": 48,
+      "max_function_complexity": 1,
+      "most_complex_function": "_current_assignment_batch_response",
+      "covered_lines": 12,
+      "executable_lines": 12,
+      "line_percent": 100.0,
+      "covered_branches": 0,
+      "branches": 0,
+      "branch_percent": null,
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_review_snapshots.py",
+      "sha256": "df956aea04733bfab98bb68ec45782684c324b92d62c02e9af9ecbb2687c6683",
+      "physical_lines": 168,
+      "max_function_complexity": 20,
+      "most_complex_function": "_linked_document_match_source_from_models",
+      "covered_lines": 41,
+      "executable_lines": 42,
+      "line_percent": 97.61904761904762,
+      "covered_branches": 11,
+      "branches": 12,
+      "branch_percent": 91.66666666666667,
+      "missing_lines": [
+        81
+      ],
+      "missing_branches": [
+        [
+          80,
+          81
+        ]
+      ]
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_review_projection.py",
+      "sha256": "370a18facc3860ba3e089e09707603d4f6641de9a6c36de211c0702fdaa6481b",
+      "physical_lines": 164,
+      "max_function_complexity": 21,
+      "most_complex_function": "_passenger_review_rows",
+      "covered_lines": 61,
+      "executable_lines": 64,
+      "line_percent": 95.3125,
+      "covered_branches": 22,
+      "branches": 24,
+      "branch_percent": 91.66666666666667,
+      "missing_lines": [
+        109,
+        140,
+        141
+      ],
+      "missing_branches": [
+        [
+          108,
+          109
+        ],
+        [
+          139,
+          140
+        ]
+      ]
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_review_export.py",
+      "sha256": "30bda9448f33ee5f779f686943bb8c83e341ccdfc6cfc544afb6edceecfa481f",
+      "physical_lines": 115,
+      "max_function_complexity": 15,
+      "most_complex_function": "_assignment_export_matches_filter",
+      "covered_lines": 43,
+      "executable_lines": 43,
+      "line_percent": 100.0,
+      "covered_branches": 20,
+      "branches": 20,
+      "branch_percent": 100.0,
+      "missing_lines": [],
+      "missing_branches": []
+    }
+  ],
+  "proposals_only": true,
+  "shared_budget_writes": false,
+  "coverage_source": {
+    "path": "docs/audit/dashboard-2026-10-30/document-distribution-review-final-qualified-coverage.json",
+    "sha256": "35855eed52d8de0fce52e5377cb2360847f452d836b85dd4f7100bc0f343063f"
+  },
+  "coverage_xml": {
+    "path": "docs/audit/dashboard-2026-10-30/document-distribution-review-final-qualified-coverage.xml",
+    "sha256": "6951e5c6f1038bb5658b851365140ec066af6b7f36e99bd6f13fd0db74012e8a"
+  }
+}

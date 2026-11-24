@@ -1,0 +1,32 @@
+.........................................warning: in the working copy of 'backend/app/core/config/release_manifest.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/core/config/settings.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/domain/entities/__init__.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/domain/entities/entities.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/infrastructure/database/models.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/infrastructure/database/session.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/infrastructure/storage/minio_repository.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/requirements-dev.lock', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/requirements.lock', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'docker-compose.yml', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/scripts/verify-access-level-browser.mjs', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/scripts/verify-frontend-module-budgets.mjs', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'nginx/nginx.conf', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/core/config/release_manifest.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/core/config/settings.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/domain/entities/__init__.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/domain/entities/entities.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/infrastructure/database/models.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/infrastructure/database/session.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/infrastructure/storage/branding_urls.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/infrastructure/storage/minio_repository.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/requirements-dev.lock', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/requirements.lock', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'docker-compose.yml', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/scripts/verify-access-level-browser.mjs', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/scripts/verify-frontend-module-budgets.mjs', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'nginx/nginx.conf', LF will be replaced by CRLF the next time Git touches it
+..
+----------------------------------------------------------------------
+Ran 43 tests in 8.585s
+
+OK

@@ -1,0 +1,1 @@
+{"surfaces": 2036, "kinds": {"frontend_api_contract": 65, "frontend_callable": 453, "frontend_endpoint_registry": 1, "frontend_page": 80, "mcp_tool": 115, "openapi_operation": 540, "route_registration": 220, "source_route": 562}, "classification_check": "passed"}

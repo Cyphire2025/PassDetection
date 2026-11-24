@@ -1,0 +1,44 @@
+{
+  "files": [
+    {
+      "path": "docs/MOBILE_REALTIME.md",
+      "sha256": "7c32159c037c666c9aba4044a14148bebaebc70bc4a6004fe55c8827c09095d9",
+      "physical_lines": 94,
+      "physical_text_read": "complete",
+      "review_scope": "focused",
+      "status": "reviewed-focused",
+      "reviewer": "branding_visuals",
+      "notes": "All94physical authored lines read. Focused retained shared postcommit journal/Redis hub/index/lease/global admission/slowconsumer/resource/NGINX/noPII/failclosed readiness/protected metric and capacity-evidence contract. Native bearer ingress/client foreground specifics are outside active native-app audit; no current device/socket/Redis/load/CDN behavior verified. Actual shared hub was separately source-reviewed/fixed/composed earlier with its own source fences."
+    },
+    {
+      "path": "docs/MOBILE_OFFLINE_AUTHORIZATION.md",
+      "sha256": "28498b8b3075da732ca643fc3c34c6a2fa7b37a2d8dfc206d91e3f00762b5a9d",
+      "physical_lines": 204,
+      "physical_text_read": "complete",
+      "review_scope": "focused",
+      "status": "reviewed-focused",
+      "reviewer": "branding_visuals",
+      "notes": "All204physical authored lines read. Focused shared backend signed-lease identity/keycustody/canonicalization/server-authority/rotation/trustedtime and offline-revocation limits as reference for browser/PWA distinction. Native SQLCipher/SecureStore/Expo verifier/physical clock/rollout assertions are outside current feature audit and not independently validated; no keys or signing/provider requests performed. Do not equate native lease layout with reviewed browser runtime descriptor."
+    },
+    {
+      "path": "docs/MOBILE_SYNC_CONTRACT.md",
+      "sha256": "c3e3e999e5881f57710225b38a6f7685fe56988ad27a1045878e1b923c5b21d0",
+      "physical_lines": 186,
+      "physical_text_read": "complete",
+      "review_scope": "focused",
+      "status": "reviewed-focused",
+      "reviewer": "branding_visuals",
+      "notes": "All186physical authored lines read. Focused retained shared server group/attendance creation capacity, row-lock/idempotency/object compensation, role/private metadata, cursor-before-version and snapshot consistency boundaries. Native mobile resource ingress/client staging/rebase/SQLCipher implementation remains excluded; no native protocol correctness or10kcapacity claim. Existing shared quota/propagation code stays in active scope, not removed through name matching."
+    },
+    {
+      "path": "docs/MOBILE_ATTENDANCE_QR_SECURITY.md",
+      "sha256": "84d015ed00d2a0fbb0590915adca7082f383381030b093ed8e414cdadbdad4d0",
+      "physical_lines": 30,
+      "physical_text_read": "complete",
+      "review_scope": "focused",
+      "status": "reviewed-focused",
+      "reviewer": "branding_visuals",
+      "notes": "All30physical authored lines read. Focused retained shared canonical opaque QR/hash/server token-state/expiry/scoping/physical-presence limitation reference and browser/PWA comparison. Native SQLite version21/24 trigger/queue/deletion/staging behavior not audited or qualified. No QR contents or private database/device/physical-event evidence accessed."
+    }
+  ]
+}

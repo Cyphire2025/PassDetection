@@ -1,0 +1,152 @@
+{
+  "status": "verified exact scope refinement",
+  "new_native_paths": [
+    "backend/tests/unit/application/test_mobile_integrity_service.py",
+    "backend/tests/unit/presentation/test_mobile_activation.py",
+    "backend/tests/unit/presentation/test_mobile_auth_response_contract.py",
+    "backend/tests/unit/presentation/test_mobile_auth_support_boundaries.py",
+    "backend/tests/unit/presentation/test_mobile_fcm_registration.py",
+    "backend/tests/unit/presentation/test_mobile_otp_auth.py",
+    "backend/tests/unit/presentation/test_mobile_realtime_route.py",
+    "backend/tests/unit/presentation/test_mobile_refresh_trip_fallback.py",
+    "backend/tests/unit/presentation/test_mobile_resources.py",
+    "backend/tests/service_integration/test_mobile_refresh_trip_fallback_postgresql.py"
+  ],
+  "new_inbox_paths": [
+    "docs/remediation/email-constraint-evidence.json",
+    "docs/remediation/email-constraints-sqlite.txt"
+  ],
+  "current_native_literals": 61,
+  "current_backend_native_literals": 47,
+  "native_support_literals": 14,
+  "mobile_excluded_inventory": 850,
+  "dedicated_inbox_deferred": 255,
+  "qualification": {
+    "tests_passed": 153,
+    "seconds": 1.1,
+    "explicit_no_fix_ruff": 4,
+    "source_fence_paths": 8
+  },
+  "source_fence": {
+    "docs/audit/dashboard-2026-10-30/audit-scope.json": "c6ec43ad41653d3c49224d93f28ad8853495301657050993b63dc06998072238",
+    "backend/tests/unit/scripts/test_dashboard_audit_scope.py": "9e1672f8b5157085d4a4d24b374926666d69bed9f329a5f5bed795592fc9e237",
+    "scripts/dashboard_audit_inventory.py": "61b1f27bba8e779eb470c6c37640c7e090b980c0e35f90310b40c82d7c8f8d7e",
+    "backend/tests/unit/scripts/test_dashboard_audit_artifact_retirement.py": "bf2f4e0fa2fb7bc1e2e98e2ddb7ede518cbd224a12f791e12900a26830d38aea",
+    "backend/tests/unit/scripts/test_dashboard_audit_review_resolutions.py": "516f40f6a05fc0e6f37f6618f225a819146d344ccf4dcda5a0e9a4fe796c6dd7",
+    "docs/audit/dashboard-2026-10-30/remaining-native-test-scope-proposal.json": "86dcd767fee316a9d5881f04f0105775fb11baa4a9e83179ca58adf1506bd515",
+    "docs/audit/dashboard-2026-10-30/remaining-native-test-scope-wrapper-addition.json": "491337a3676d3026042c28f3fd8feaaa62405bc327ea9e7fd2e66ccfbf806ec8",
+    "docs/audit/dashboard-2026-10-30/dedicated-inbox-supporting-references-scope-proposal.json": "48458fa70104650260b93ab02aa0849c774fbd08ebc6ec6b4faa5f174bc4ec54"
+  },
+  "equivalence": {
+    "policy_inverse_all_old_values_exact": true,
+    "test_AST_inverse_all_original_bodies_assertions_exact": true,
+    "only_changes": [
+      "10 exact native test literals",
+      "2 exact dedicated Inbox reference literals",
+      "51to61 and37to47 counts/exactcohort union",
+      "10additional existing full/finding history preservation controls",
+      "2new actual checked-in Inbox receipt controls with mixed/lookalike/shared false positives"
+    ],
+    "selected12rows_historical_fields_exact": [
+      "sha256",
+      "status",
+      "reviewer",
+      "notes",
+      "review_scope"
+    ],
+    "rows": {
+      "backend/tests/unit/application/test_mobile_integrity_service.py": {
+        "before_scope": "backend",
+        "after_scope": "mobile-excluded",
+        "sha256": "32b29cf1cfee7a08f04dda86ddde4df240de20bcac57574de24bea9ef717d4ec"
+      },
+      "backend/tests/unit/presentation/test_mobile_activation.py": {
+        "before_scope": "backend",
+        "after_scope": "mobile-excluded",
+        "sha256": "d1984c6286dd5b23dad03b8a0ab12475eab79cc063a27ecdcb4188c55a632c0a"
+      },
+      "backend/tests/unit/presentation/test_mobile_auth_response_contract.py": {
+        "before_scope": "backend",
+        "after_scope": "mobile-excluded",
+        "sha256": "c21fde80e3cc1f29563c7c3f5bd969f80fb54ab726f8c0102c2494b6de69cc14"
+      },
+      "backend/tests/unit/presentation/test_mobile_auth_support_boundaries.py": {
+        "before_scope": "backend",
+        "after_scope": "mobile-excluded",
+        "sha256": "64e82c783447c9398de518b57e7863bd654bcf03794cb06e53ea9b438d764a80"
+      },
+      "backend/tests/unit/presentation/test_mobile_fcm_registration.py": {
+        "before_scope": "backend",
+        "after_scope": "mobile-excluded",
+        "sha256": "e33a3a2faaa3236e4e140c63281e11d8aa974db91f8d3bd5085683308878597e"
+      },
+      "backend/tests/unit/presentation/test_mobile_otp_auth.py": {
+        "before_scope": "backend",
+        "after_scope": "mobile-excluded",
+        "sha256": "d7be1ffc375482960c1aa3d501f6fd068c0be47d856d533dafa9ca1a3aee6351"
+      },
+      "backend/tests/unit/presentation/test_mobile_realtime_route.py": {
+        "before_scope": "backend",
+        "after_scope": "mobile-excluded",
+        "sha256": "abaa08127c17fb28fbab23ca55e0f2c26f418f139697d0a08bf80e2e9631156f"
+      },
+      "backend/tests/unit/presentation/test_mobile_refresh_trip_fallback.py": {
+        "before_scope": "backend",
+        "after_scope": "mobile-excluded",
+        "sha256": "936d5aaa41dec10e2ae997dbfcdbf411397d6ffc19eaa52075d71e2c6a616180"
+      },
+      "backend/tests/unit/presentation/test_mobile_resources.py": {
+        "before_scope": "backend",
+        "after_scope": "mobile-excluded",
+        "sha256": "4a5dc379eb2acf238cfda7bf579b16d4216d00158491b5861bdca3874c756a6e"
+      },
+      "backend/tests/service_integration/test_mobile_refresh_trip_fallback_postgresql.py": {
+        "before_scope": "backend",
+        "after_scope": "mobile-excluded",
+        "sha256": "16b2a78341f7e47f33bb6f435fca00dceb36ff6710ae9b502d3ebbf5d288953e"
+      },
+      "docs/remediation/email-constraint-evidence.json": {
+        "before_scope": "supporting-material",
+        "after_scope": "operations-inbox-deferred",
+        "sha256": "2f3fe8759d675f2bbdaa8329c9a8572c8f6d993b503ce4893a0b513c8581f52a"
+      },
+      "docs/remediation/email-constraints-sqlite.txt": {
+        "before_scope": "supporting-material",
+        "after_scope": "operations-inbox-deferred",
+        "sha256": "2cc1ec2409e7762a4b982d719d22e91cb51938835855eb7ef90ac3f30ba8c900"
+      }
+    }
+  },
+  "inventory_snapshot": {
+    "files": 6760,
+    "scope": {
+      "operations-and-tooling": 379,
+      "mobile-excluded": 850,
+      "supporting-material": 460,
+      "backend": 2867,
+      "operations-inbox-deferred": 255,
+      "frontend": 1906,
+      "mcp-connector": 43
+    },
+    "active_files": 5356,
+    "active_review_scope": {
+      "focused": 312,
+      "full": 4906,
+      "unreviewed": 138
+    }
+  },
+  "limits": [
+    "Classification only; no new native feature/Inbox source audit/full-read credit or feature/test execution",
+    "No native/Inbox source/test bytes, CI checks or migration altered/deleted",
+    "Original reviewed/finding/hash/note/reviewer/depth fields exact for all12selected rows",
+    "First lint command used root cwd with backend-relative path and failed only path resolution; corrected explicit backend config4file lint green",
+    "Current static882 checkpoint is independent and unchanged; no budget/release stamp repin"
+  ],
+  "artifacts": {
+    "retained-final-scope-original-policy.json": "acc06ee60a37eb8646a53b239d7ebc3e4d4b0c0d97c3c05c1bf766ea829ed700",
+    "retained-final-scope-original-tests.txt": "ceba3aba834a725c79b3c6f8109d49348dc0b9dd3d4e7cfbad9df664b857d805",
+    "retained-final-scope-tests.txt": "5d8ee490be03bdfa53561aeffa62bf63cf6042f266914bc2ae99bdb69e4f585d",
+    "retained-final-scope-junit.xml": "792451428a31b61396648209106f193af947ad9eec4ca5a83ddbec93c01f3fa2",
+    "retained-final-scope-equivalence.json": "e665fd34d16a8c927d8b227f5da5018661af4e4675b6c3307ab015cab8d51089"
+  }
+}

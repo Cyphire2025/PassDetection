@@ -1,0 +1,130 @@
+{
+  "recorded_at": "2026-10-30T23:48:15.898Z",
+  "records": [
+    {
+      "path": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "sha256": "923f7038548eb4abfd96fdbd9314108491a8275968c09516f3f4beba06abd4dd",
+      "physical_lines": 24,
+      "max_function_complexity": 6,
+      "review_scope": "full",
+      "status": "reviewed-and-restructured",
+      "review_method": "All original physical navigation/review source and all current focused owners read. Imports/exports authored/reviewed. Fifty-two declaration AST comparisons and unchanged public facade export sets are separately recorded."
+    },
+    {
+      "path": "frontend/features/passports/utils/passport-navigation-routes.ts",
+      "sha256": "3a261deb26bf0b1da43b72b92319287930652ad5be265e21ee25935e51b8813b",
+      "physical_lines": 176,
+      "max_function_complexity": 10,
+      "review_scope": "full",
+      "status": "reviewed-and-restructured",
+      "review_method": "All original physical navigation/review source and all current focused owners read. Imports/exports authored/reviewed. Fifty-two declaration AST comparisons and unchanged public facade export sets are separately recorded."
+    },
+    {
+      "path": "frontend/features/passports/utils/passport-navigation-storage.ts",
+      "sha256": "bf61eef3970098a8bfa5fe741bf5c7e759c86ea6909ae41944a1cd99885be2b9",
+      "physical_lines": 125,
+      "max_function_complexity": 22,
+      "review_scope": "full",
+      "status": "reviewed-and-restructured",
+      "review_method": "All original physical navigation/review source and all current focused owners read. Imports/exports authored/reviewed. Fifty-two declaration AST comparisons and unchanged public facade export sets are separately recorded."
+    },
+    {
+      "path": "frontend/features/passports/utils/passport-review.ts",
+      "sha256": "eca11576ad7af8a91b35d45abdb86d95ae2283f635a21f0dc2a783770d0540cb",
+      "physical_lines": 18,
+      "max_function_complexity": 0,
+      "review_scope": "full",
+      "status": "reviewed-and-restructured",
+      "review_method": "All original physical navigation/review source and all current focused owners read. Imports/exports authored/reviewed. Fifty-two declaration AST comparisons and unchanged public facade export sets are separately recorded."
+    },
+    {
+      "path": "frontend/features/passports/utils/passport-review-fields.ts",
+      "sha256": "744112871b383b6a98540fd5306e30d0b142b14a585414124447953d98738e15",
+      "physical_lines": 20,
+      "max_function_complexity": 0,
+      "review_scope": "full",
+      "status": "reviewed-and-restructured",
+      "review_method": "All original physical navigation/review source and all current focused owners read. Imports/exports authored/reviewed. Fifty-two declaration AST comparisons and unchanged public facade export sets are separately recorded."
+    },
+    {
+      "path": "frontend/features/passports/utils/passport-staff-approval.ts",
+      "sha256": "45e004e2fcd057adaf93d63679f1b223cfee58f4ec1ece0049f1ff8a6b5ebb13",
+      "physical_lines": 105,
+      "max_function_complexity": 13,
+      "review_scope": "full",
+      "status": "reviewed-and-restructured",
+      "review_method": "All original physical navigation/review source and all current focused owners read. Imports/exports authored/reviewed. Fifty-two declaration AST comparisons and unchanged public facade export sets are separately recorded."
+    },
+    {
+      "path": "frontend/features/passports/utils/passport-verification-review.ts",
+      "sha256": "65b4c8fcd7894a68fc76d58c5ea89cbb72fb0e799e1e519d65b8d5a7818b88e9",
+      "physical_lines": 138,
+      "max_function_complexity": 27,
+      "review_scope": "full",
+      "status": "reviewed-and-restructured",
+      "review_method": "All original physical navigation/review source and all current focused owners read. Imports/exports authored/reviewed. Fifty-two declaration AST comparisons and unchanged public facade export sets are separately recorded."
+    },
+    {
+      "path": "frontend/features/passports/utils/passport-review-presentation.ts",
+      "sha256": "a0dff75adbfb4e48e1b0bb792d81e21702395cd4a083eb2bbabbef4f9544a49c",
+      "physical_lines": 124,
+      "max_function_complexity": 9,
+      "review_scope": "full",
+      "status": "reviewed-and-restructured",
+      "review_method": "All original physical navigation/review source and all current focused owners read. Imports/exports authored/reviewed. Fifty-two declaration AST comparisons and unchanged public facade export sets are separately recorded."
+    }
+  ],
+  "test_records": [
+    {
+      "path": "frontend/features/passports/utils/passport-group-navigation.test.ts",
+      "sha256": "d268c6cbffac8185c7a67e4ecf75d1192ab30734a02eea44134d9304158f1ff9",
+      "review_scope": "full",
+      "status": "reviewed-and-strengthened"
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-detail.contract.test.mjs",
+      "sha256": "40c99c10a7499375d132c444490e9df93ad732b35d8980078511201d7fa4878b",
+      "review_scope": "focused",
+      "status": "source-loader-retargeted",
+      "review_note": "Supplemental receipt after the immutable export-dialog checkpoint: only the exportDialog source loader now reads the actual six owners. Same-turn/pending guard assertion bodies remain unchanged and passed. No new full physical-file review claim for this shared contract."
+    }
+  ],
+  "proofs": {
+    "unit": {
+      "files": 3,
+      "cases": 12,
+      "passed": 12,
+      "path": ".tmp/passport-utilities-final-unit.json"
+    },
+    "node": {
+      "files": 3,
+      "cases": 46,
+      "passed": 46,
+      "path": ".tmp/passport-utilities-final-node.txt"
+    },
+    "types": "passed after extraction; subsequent import/newline formatting verified against all original declaration ASTs",
+    "scoped_eslint": "passed9files, zero warnings",
+    "movement": {
+      "declarations": 52,
+      "public_facades": 2,
+      "exact_AST": true,
+      "path": "docs/audit/dashboard-2026-10-30/passport-utilities-movement-proof.json"
+    }
+  },
+  "preserved": [
+    "All existing field verdict, stale-edit, provider-retry, unreadable-confidence and staff-approval behavior.",
+    "Original revision payload construction and all17 review facade exports.",
+    "All12 original navigation facade exports, UUID/token rules, scoped session keys,12-hour TTL,10000-ID cap, view validation and server fallback on denied browser storage.",
+    "Current selection/route/query meaning; no shared mutation helper, API or backend changes."
+  ],
+  "improvements": [
+    "389-line review owner separates approved payload/outcome handling, field verification policy, presentation and stable field types.",
+    "308-line navigation owner separates route/view validation from user-bound temporary storage and keyboard/token façade.",
+    "Five new current navigation scenarios test scope, malformed state/order, expiry, snapshot identity and query round trips. They pass before and after extraction, alongside actual detail navigation/controller tests."
+  ],
+  "remaining_original_oversized_owners": 2,
+  "limitations": [
+    "Pure architecture extraction; no new security fix or business policy change is claimed.",
+    "No whole frontend build/suite repeated; scoped lint and affected unit/Node receipts recorded."
+  ]
+}

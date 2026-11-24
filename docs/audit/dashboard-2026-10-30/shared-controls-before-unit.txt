@@ -1,0 +1,62 @@
+
+ RUN  v4.1.12 C:/Users/nipun/Desktop/PassDetection/frontend
+
+ ❯ components/shared/passport-date-input.test.tsx (4 tests | 2 failed) 114ms
+   × keeps the calendar closed and the native picker inert when disabled 79ms
+   × keeps the calendar closed and the native picker inert when readOnly 8ms
+ ❯ components/shared/intent-prefetch-link.test.tsx (2 tests | 1 failed) 78ms
+   × warms a changed destination when the same list link stays mounted 9ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  components/shared/intent-prefetch-link.test.tsx > warms a changed destination when the same list link stays mounted
+AssertionError: expected [ [ '/passports' ] ] to deeply equal [ [ '/passports' ], [ '/documents' ] ]
+
+- Expected
++ Received
+
+  [
+    [
+      "/passports",
+    ],
+-   [
+-     "/documents",
+-   ],
+  ]
+
+ ❯ components/shared/intent-prefetch-link.test.tsx:34:31
+     32|   fireEvent.focus(link);
+     33|   fireEvent.mouseEnter(link);
+     34|   expect(prefetch.mock.calls).toEqual([["/passports"], ["/documents"]]…
+       |                               ^
+     35| });
+     36|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  components/shared/passport-date-input.test.tsx > keeps the calendar closed and the native picker inert when disabled
+ FAIL  components/shared/passport-date-input.test.tsx > keeps the calendar closed and the native picker inert when readOnly
+Error: expect(element).toBeDisabled()
+
+Received element is not disabled:
+  <button
+  aria-label="Choose date from calendar"
+  class="rounded p-0.5 text-slate-500 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+  type="button"
+/>
+ ❯ components/shared/passport-date-input.test.tsx:14:18
+     12|   Object.defineProperty(picker, "showPicker", { value: show });
+     13|   const button = screen.getByRole("button", { name: "Choose date from …
+     14|   expect(button).toBeDisabled();
+       |                  ^
+     15|   expect(picker).toBeDisabled();
+     16|   fireEvent.click(button);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  3 failed | 3 passed (6)
+   Start at  09:58:04
+   Duration  20.01s (transform 156ms, setup 4.72s, import 208ms, tests 192ms, environment 14.31s)
+

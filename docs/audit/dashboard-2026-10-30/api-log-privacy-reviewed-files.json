@@ -1,0 +1,171 @@
+{
+  "recorded_at": "2026-10-31T06:47:14.982111+00:00",
+  "records": [
+    {
+      "path": "backend/app/core/logging/logger.py",
+      "sha256": "d37b2e95594583847064ee7a85fba724b1fd2c1e37d5ac65a3c4566cba00b58b",
+      "physical_lines": 147,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "needs-follow-up",
+      "notes": "All physical source read. API exception\u2192Starlette reraising\u2192Uvicorn handler chain and configured stdout/stderr sinks traced with synthetic local controls. No credentials, providers, listening sockets or database were used."
+    },
+    {
+      "path": "backend/app/core/logging/__init__.py",
+      "sha256": "f7f0ae580a55bd07e427d55d2982e40d12a2cd590386d85e583db5d77f8fdb0b",
+      "physical_lines": 1,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "All physical source read. API exception\u2192Starlette reraising\u2192Uvicorn handler chain and configured stdout/stderr sinks traced with synthetic local controls. No credentials, providers, listening sockets or database were used."
+    },
+    {
+      "path": "backend/app/presentation/middleware/error_handler.py",
+      "sha256": "90539db647f6bb6bf113535fbe5d73383f573bdccc5213e2a455390fa86c5b98",
+      "physical_lines": 206,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "All physical source read. API exception\u2192Starlette reraising\u2192Uvicorn handler chain and configured stdout/stderr sinks traced with synthetic local controls. No credentials, providers, listening sockets or database were used. Current own unhandled event uses error_type/request_id only and generic client500; it does not itself emit the private exception message."
+    },
+    {
+      "path": "backend/app/presentation/middleware/error_response.py",
+      "sha256": "c64c7ed350e6860995cc2e0674d6c2e5aa48d2367101935cd7373f8ff406cb32",
+      "physical_lines": 65,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "All physical source read. API exception\u2192Starlette reraising\u2192Uvicorn handler chain and configured stdout/stderr sinks traced with synthetic local controls. No credentials, providers, listening sockets or database were used."
+    },
+    {
+      "path": "backend/app/presentation/middleware/request_id.py",
+      "sha256": "f9a566887f2cee7063bedaf4362534359915604d62e9be7c242eaebc2d9dd9c1",
+      "physical_lines": 56,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "All physical source read. API exception\u2192Starlette reraising\u2192Uvicorn handler chain and configured stdout/stderr sinks traced with synthetic local controls. No credentials, providers, listening sockets or database were used."
+    },
+    {
+      "path": "backend/app/presentation/middleware/request_path.py",
+      "sha256": "d49ef8512edf8455fef0e9502aa92bb34cbcdc04ffdb73d83eb91288a9415709",
+      "physical_lines": 40,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "All physical source read. API exception\u2192Starlette reraising\u2192Uvicorn handler chain and configured stdout/stderr sinks traced with synthetic local controls. No credentials, providers, listening sockets or database were used."
+    },
+    {
+      "path": "backend/app/infrastructure/database/session.py",
+      "sha256": "ffe7cb50459ed4c30754455477b86b47d67e8de2233aa430fe370e808f63f296",
+      "physical_lines": 165,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "All physical source read. API exception\u2192Starlette reraising\u2192Uvicorn handler chain and configured stdout/stderr sinks traced with synthetic local controls. No credentials, providers, listening sockets or database were used. hide_parameters=True is present; exceptions are reraised after rollback. Synthetic original-driver-message control does not establish real PostgreSQL error text or service behavior."
+    },
+    {
+      "path": "backend/gunicorn.conf.py",
+      "sha256": "5d309d16336290af027ad235a9c6b8b7110661d78e84d6823a62890b797d44c4",
+      "physical_lines": 15,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "All physical source read. API exception\u2192Starlette reraising\u2192Uvicorn handler chain and configured stdout/stderr sinks traced with synthetic local controls. No credentials, providers, listening sockets or database were used."
+    },
+    {
+      "path": "backend/app/infrastructure/bounded_uvicorn_worker.py",
+      "sha256": "a3a173f637015ea239884f539771e3a017f04706e1a8e53b8fa3ad12b0d8b8d3",
+      "physical_lines": 23,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "needs-follow-up",
+      "notes": "All physical source read. API exception\u2192Starlette reraising\u2192Uvicorn handler chain and configured stdout/stderr sinks traced with synthetic local controls. No credentials, providers, listening sockets or database were used."
+    },
+    {
+      "path": "backend/app/core/logging/mcp_log_projection.py",
+      "sha256": "3a606aba2ec1cff09e49af1fc88e2c42fb510938b8988cc5fbd59d82f4e16522",
+      "physical_lines": 81,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "All physical source read. API exception\u2192Starlette reraising\u2192Uvicorn handler chain and configured stdout/stderr sinks traced with synthetic local controls. No credentials, providers, listening sockets or database were used. MCP operator projection is an allowlisted downstream view; it does not erase an already emitted raw server sink record."
+    },
+    {
+      "path": "backend/app/core/logging/task_diagnostics.py",
+      "sha256": "d4d52761bc6b7b18f406fcabf8051ca2cf2a38c40a2aab9502118ab2d5ec2410",
+      "physical_lines": 89,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "All physical source read. API exception\u2192Starlette reraising\u2192Uvicorn handler chain and configured stdout/stderr sinks traced with synthetic local controls. No credentials, providers, listening sockets or database were used. Supporting full physical read only to understand existing safe projection helpers/filter scope. Earlier separately sealed Celery workflow remains authoritative; no new Celery workflow verification claimed."
+    },
+    {
+      "path": "backend/app/core/logging/celery_diagnostics.py",
+      "sha256": "d53a83b8f76cde01bd8ecf14979a1f86d059e5d9d731a50c185c3f61aadb455b",
+      "physical_lines": 120,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "All physical source read. API exception\u2192Starlette reraising\u2192Uvicorn handler chain and configured stdout/stderr sinks traced with synthetic local controls. No credentials, providers, listening sockets or database were used. Supporting full physical read only to understand existing safe projection helpers/filter scope. Earlier separately sealed Celery workflow remains authoritative; no new Celery workflow verification claimed."
+    },
+    {
+      "path": "backend/tests/unit/core/test_logging_configuration.py",
+      "sha256": "02b32e1e91b7f16918c89f9899b2f2577136d9e548255a30f935c5c7ace26610",
+      "physical_lines": 108,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "All physical test source/assertions read to distinguish current app error-envelope/setup/SQLite parameter controls from actual server-side exception formatting. These existing test files were not rerun by this read; new networkless sink proof is separately recorded."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_database_parameter_privacy.py",
+      "sha256": "ab91aa303883b5bccbee9b5c69355ff8f48833bfc752362abcf905b9f114c8b2",
+      "physical_lines": 52,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "All physical test source/assertions read to distinguish current app error-envelope/setup/SQLite parameter controls from actual server-side exception formatting. These existing test files were not rerun by this read; new networkless sink proof is separately recorded."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_api_error_envelope.py",
+      "sha256": "63ae46f8b9cb517c596b125604dc57ff02287bae60576377ed39a8bc094733d9",
+      "physical_lines": 88,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "All physical test source/assertions read to distinguish current app error-envelope/setup/SQLite parameter controls from actual server-side exception formatting. These existing test files were not rerun by this read; new networkless sink proof is separately recorded."
+    }
+  ],
+  "supporting_partial_reads": [
+    {
+      "path": "backend/app/main.py",
+      "sha256": "e2cc9a341ab8d6506035c3188c738aa67f6dbd05c81cb73f4c79696235f2077d",
+      "review_scope": "focused",
+      "physical_ranges_read": [
+        "91-190"
+      ],
+      "notes": "App factory logging configuration, middleware/handler installation and startup excerpt only; no whole-file coverage claim."
+    },
+    {
+      "path": "backend/tests/conftest.py",
+      "sha256": "b60a174b1656f30e36d6c748fc1b967c17804b9ef733911f6ff211e9e4d23abe",
+      "review_scope": "focused",
+      "physical_ranges_read": [
+        "1-130"
+      ],
+      "notes": "Synthetic environment and fixture setup context only; no whole-file coverage claim."
+    }
+  ],
+  "finding": {
+    "status": "validated-synthetic-actual-sink-awaiting-runtime-scope-coordination",
+    "summary": "After safe API500, outer Uvicorn exception logging emits private original exception message through configured JSON or default stderr. hide_parameters does not strip a synthetic original driver message.",
+    "actual_controls": {
+      "h11": "docs\\audit\\dashboard-2026-10-30\\api-unhandled-log-sink-before.json",
+      "httptools_current_auto_selected": "docs\\audit\\dashboard-2026-10-30\\api-unhandled-log-sink-httptools-before.json",
+      "outcomes": "8of8 cases emitted synthetic private sentinel at outer server sink;0of8 client bodies or own unhandled_exception records contained it."
+    },
+    "limits": "No live PostgreSQL/provider/Gunicorn service was exercised. Driver/provider failures are synthetic; default selected HttpTools and H11 ASGI cycle + actual app formatter/default Uvicorn stderr were executed without network. Gunicorn deployment sink wiring is a current-source trace only."
+  },
+  "runtime_changes": false
+}

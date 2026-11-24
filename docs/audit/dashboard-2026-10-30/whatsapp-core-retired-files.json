@@ -1,0 +1,50 @@
+[
+  {
+    "path": "frontend/features/whatsapp/api/broadcast-sends.api.ts",
+    "sha256": "8fa30a033ebb9268564261dca489c921d5b33987f04d0cace6dab1d1c719d33a",
+    "status": "retired_closed_chain",
+    "reason": "Declaration/name/type/computed/facade-escape closure proved; all42reviewed-send safety cases ported to current composer before runtime retirement. Live import/reminder/invite cases relocated; backend/native endpoints unchanged."
+  },
+  {
+    "path": "frontend/features/whatsapp/api/broadcast-resends.api.ts",
+    "sha256": "ebc3d4197af0a8224a7651f82d845a4ea31023a35b5ab049a1bac56b8d5254bc",
+    "status": "retired_closed_chain",
+    "reason": "Declaration/name/type/computed/facade-escape closure proved; all42reviewed-send safety cases ported to current composer before runtime retirement. Live import/reminder/invite cases relocated; backend/native endpoints unchanged."
+  },
+  {
+    "path": "frontend/features/whatsapp/api/broadcast-resend-payload.ts",
+    "sha256": "04d2f43ac0e030c678f54b05fdcfc021bf7107e7a3c18f74a5c5083bc403baf0",
+    "status": "retired_closed_chain",
+    "reason": "Declaration/name/type/computed/facade-escape closure proved; all42reviewed-send safety cases ported to current composer before runtime retirement. Live import/reminder/invite cases relocated; backend/native endpoints unchanged."
+  },
+  {
+    "path": "frontend/features/whatsapp/utils/whatsapp-request-owner.ts",
+    "sha256": "038041f4e7cd01085055fff9e5a9a1f85836b3ae377333adb66d79acbb50be3e",
+    "status": "retired_closed_chain",
+    "reason": "Declaration/name/type/computed/facade-escape closure proved; all42reviewed-send safety cases ported to current composer before runtime retirement. Live import/reminder/invite cases relocated; backend/native endpoints unchanged."
+  },
+  {
+    "path": "frontend/features/whatsapp/utils/send-progress.ts",
+    "sha256": "8b42f9933718767397f42f0478f12c8f4f0f85c3be9f7efe49b36e4efe4ae0fd",
+    "status": "retired_closed_chain",
+    "reason": "Declaration/name/type/computed/facade-escape closure proved; all42reviewed-send safety cases ported to current composer before runtime retirement. Live import/reminder/invite cases relocated; backend/native endpoints unchanged."
+  },
+  {
+    "path": "frontend/features/whatsapp/hooks/use-whatsapp-send-idempotency.test.tsx",
+    "sha256": "61ef866c94b1a7ce10ac9ffd66a4831b9aa44447a21d3654d098b9efaaada1b0",
+    "status": "retired_closed_chain",
+    "reason": "Declaration/name/type/computed/facade-escape closure proved; all42reviewed-send safety cases ported to current composer before runtime retirement. Live import/reminder/invite cases relocated; backend/native endpoints unchanged."
+  },
+  {
+    "path": "frontend/features/whatsapp/utils/send-progress.test.mjs",
+    "sha256": "21d7d3638c8679abfabfad8ee6da97bccfb3788f7c4adf0ec522d8090a6847c7",
+    "status": "retired_closed_chain",
+    "reason": "Declaration/name/type/computed/facade-escape closure proved; all42reviewed-send safety cases ported to current composer before runtime retirement. Live import/reminder/invite cases relocated; backend/native endpoints unchanged."
+  },
+  {
+    "path": "frontend/features/whatsapp/api/whatsapp-bulk-resend.test.ts",
+    "sha256": "a66ea1263a51f94231be2da1beb74b1e2cba9f40009e1cfbd17ff75e44882772",
+    "status": "retired_closed_chain",
+    "reason": "Declaration/name/type/computed/facade-escape closure proved; all42reviewed-send safety cases ported to current composer before runtime retirement. Live import/reminder/invite cases relocated; backend/native endpoints unchanged."
+  }
+]

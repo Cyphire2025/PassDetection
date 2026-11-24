@@ -1,0 +1,8 @@
+{
+  "basis": "Supplement to immutable pure-extraction receipt. Current save captures the initiating authority before its first await, checks it before HTTP dispatch and after each awaited stage, binds the actual request to that authority and suppresses changed-owner UI/cache effects. Removing exactly one capture, three current-owner assertions, one owner-bound request-config spread and one changed-owner catch condition restores all24 original query/state/effect/save/reload statement ASTs. Normal same-authority profile refresh remains admitted. Paused component admission fixtures do not establish a production leak through the existing dashboard remount/adapter controls.",
+  "unchanged_controller_statement_AST_count": 24,
+  "explicit_added_owner_checks": 3,
+  "owner_bound_request_config": true,
+  "source_sha256": "1e0433bbdc4b48aa0232d2da94999aaff6c45c43256ddebf97a956ce5c438754",
+  "path": "frontend/features/settings/hooks/use-whatsapp-template-settings.ts"
+}

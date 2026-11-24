@@ -1,0 +1,115 @@
+{
+  "origin_path": "frontend/features/passports/components/use-passport-group-controller.tsx",
+  "origin_sha256": "0025bfbed511c96b662baceb6ed094b845d434ef6cde6bcac32c884534f39f9f",
+  "source_backup": ".tmp/passport-group-controller-before-decomposition.tsx",
+  "note": "Original physical statements moved via TypeScript getText. Ownership/selection fixes are separate from this movement. Imports/parameters/return projection are authored wiring; selected download has one explicit group-name alias.",
+  "owners": [
+    {
+      "path": "frontend/features/passports/components/use-passport-group-view.ts",
+      "source_statement_count": 24,
+      "original_statement_sha256": [
+        "c1730de70c8026985363732734d1baf54be289a39b4e13af9e8457292b949c1d",
+        "2bc1ec5fd2cf83f8eda10014ad06d1eafb11c2be5914244fb2d180a056b1cf6d",
+        "33a6243f04df79ac618b79b1451c7e7fab5356328390422aabacaad31380c909",
+        "a8495930f458ce95e2ac00808ea4ed5e6d7e53aff867533ad7e7e80dd827a8b4",
+        "5abdd544d15f10904561a35438b398c2e0d24d6488c8b05554e25940189699c1",
+        "02e42274e86ed080ecbd1cd3d6ffc469e5c6dc60a4bd6b83e8d2f85c449e007f",
+        "5086d66b280d71739cf70b54f868f286e62fa939d3a4b0bd710f9ff638a6260c",
+        "efe8e1d6f9747af1f69ee520c8f4cca37c3bc64db0ccf89bea4c8d9fbfa44b21",
+        "7df46378c1c3d5c28d6badca1f206fd309ad220487f64abb8f68d409f3c439c0",
+        "32bf25e2c39ab2382bfec55a881565a43af31ea06cc6b250cd4db94b085669bb",
+        "1a21b597e40f520ac66c520ae275539ffa5d887875ca0517d9018f5b5104dccc",
+        "e44fbe13be69c0a37f4851a30d3574dc4280e08f7e35a2625242687a3112b962",
+        "53a7cdef0c3a597ced33d5a44019683c47c4b326ed7f4174bd41979af8a773b5",
+        "1fd778c33b3428533039feef7e03c14ed626215116980985d47ea700d21c96a4",
+        "b5bd87765e68518be6f280075d51e74986f86babb2cb20f0f827ce17338ae6f1",
+        "8159e21b398748fea2309cca58b6f67882e80285c20fa4ebed7d1014b51cbbcf",
+        "4949f909f51e52f500c1adaac61a6420c0672e764a034726d4cccb9c6d8e93f8",
+        "c9df859ab8e7b41a9fc1a2c104bc2ef87e55d0c9c237f9f134b737fcceeb2838",
+        "7ef53b1c9d1637cfb7b112bf25d172dfc0a48267dcade85dc75c0136129560c4",
+        "5f9d02a5a15a56e97e5d3c505829038be7eee0a6a54f68b7ee9c626ab2b169bb",
+        "b9cc4f153d1be7b62724521cc9fce32c5840f33b603d10409c87b5dcbc58f992",
+        "e709b5bfc34cede607c0fc95344171511f636749aeebf4a213a6b5380db7820d",
+        "31230d9f099d3fa9d4afe3e40df0169522ee2a4ea42a2c48776a4d8cefb1e712",
+        "dc981dd0c0d0d7fb5b3dd642bc4d9d672d0fdce9d0ae3dbc6999ac5166f1e34c"
+      ],
+      "deliberate_alias": null
+    },
+    {
+      "path": "frontend/features/passports/components/use-passport-group-metadata.ts",
+      "source_statement_count": 5,
+      "original_statement_sha256": [
+        "a549946968a5d4b9c584027dc8d2715d6c6bb488023d39de2c213de4e35e845f",
+        "544009daece466902cc4edd995ec2594b188c311234d2e920fd251a2914a8bed",
+        "7906a7615f8ec59cdaa504342fae4689dc49260b109504a9f0eee25b5b5be9c1",
+        "10669cfbd9a8b8e181d95f01490c4e8d9faae728fc3af226f2dc185c36b473e6",
+        "6ab8ee2a58d7ce347c18281005298ca9dff3ea57b61e56b55fd13f6bcb047e3e"
+      ],
+      "deliberate_alias": null
+    },
+    {
+      "path": "frontend/features/passports/components/use-passport-group-menus.ts",
+      "source_statement_count": 11,
+      "original_statement_sha256": [
+        "9daa647c51d8df384bd3bf090213182a2550b62ef0670195562158803c5f6eea",
+        "04c5154240c94e114c54aac031275729d10f2994d5832df3c66eb34021d14e59",
+        "7dcf9aae3b1e08a8cd46167fdb7adafa92537e52b45cb94360d7ff6f530e800b",
+        "65968de24e77106d68fada1089caa1470b748e65403f63d149bf80dd01dfdb3e",
+        "42c72aa0969a23b5bd13baa9b7edd81387cbb5ae9c2f1ef06e173184ab31984a",
+        "22d94c4d9c7f93f2927dce32f9e2a42dd9e1c1b2f970a3a07199f51b804eb93e",
+        "48dfeb668c049eb9f63e26dd6f1c36cc565768111ae56d462efdd1dca585479f",
+        "20ab91f28a5617d3379cee40ecc02b7af47586cbf2819946e4ca226ac3e379ed",
+        "086504972476fa42d52796b0f574fa7a6e5dd07fa55e1e8bef797098b7da3d17",
+        "7d56ff6d18df4a304b73e013397df2f88a7cc35050d8b93dcfb20fd62e6a8cae",
+        "d9e23d539de738ed86b787c85241706109989f96a24f11f76b391b8bfd38ff60"
+      ],
+      "deliberate_alias": null
+    },
+    {
+      "path": "frontend/features/passports/components/use-passport-group-imports.ts",
+      "source_statement_count": 10,
+      "original_statement_sha256": [
+        "a59e2df23a48346de4e61ba487b11a0c2a1e1a6763c7f3697783c8a38f660d00",
+        "b250d35f5f89645dcf4d4d628c94c685487bfd735c14f342c3b3ea411f311533",
+        "2574037be299263a1895b89f079a60cd254c6ec57df56bb99f62b5d5c4a8b692",
+        "6ec467cc50d7bce1f8b233a19444ba26c6d962e6e0a7715f68f2946d3de230cd",
+        "faeb2a5fb07aff9951ab01aefaad6893c203579fda559f341915f60b44dd94ad",
+        "d55e8482493b231f96361299c31e8fbba35aed6d49a9071dc3665bb7e0f6f3a9",
+        "3e0eac6ca1f48ac87775bcb61a2552b52f2c9c84b205699e8ab5a910d298f2f1",
+        "e82f07fdb2038d6b43fdc2122b30c07f7a8ac6ab963c569eaf3edc410b53776c",
+        "890a19f0abb968e79cb44e54579831603b69d10d27951ec576e0e819a864473a",
+        "72913b0924b69cf3614c7a9f277513772d248dd5b0699fd3852afe2cc5d4abee"
+      ],
+      "deliberate_alias": null
+    },
+    {
+      "path": "frontend/features/passports/components/use-passport-group-dialog-state.ts",
+      "source_statement_count": 12,
+      "original_statement_sha256": [
+        "56e035575b66fcbf163b984c854d271522e5a28181c43df11ffe22704017c2b2",
+        "7e1e3254d499e11c3b456c124a512e750be7f346995f9ae30cec234d3603f98b",
+        "90ec7d30225c9df282a6c886d30c52fef991dd982698c4f472cad3570024d597",
+        "44150780e91733f68350203853ab6c1b1c143df8f6b49b0319136be55ec8df78",
+        "f5709c4b5a70ba0ddac09ed470775fd5c9b5d65862286bab386fdd4c10dc8967",
+        "5bc7fbbe91cf4d093a455fe86feaf9210f14c1ea6522233960ea11be299c0973",
+        "5d46c94c4122b0195aa46b178f1ef8276dbb9e8e7eca22b191097758b905a3ec",
+        "8c580fb0985bb4d3a10c34d8b40394d3d93b3df251bb9bac69ea30d0225e78d1",
+        "0079ae1f14255b71f0a1014be53ebc164ce7e70d25ff564ecb8c156744275984",
+        "e096f71704e9ea09cadd84d457a5339cfa3e7b03353ee9dbdad30c2a366309dd",
+        "757a580c28733a0d6bb0540282a2ceab5d6241305b07656614471c32af702cc5",
+        "785e0da9b68493f7ceebbd40ed7fd1c83fa019cf9cb2111969b5770e4d7489f4"
+      ],
+      "deliberate_alias": null
+    },
+    {
+      "path": "frontend/features/passports/components/use-passport-selected-image-download.ts",
+      "source_statement_count": 3,
+      "original_statement_sha256": [
+        "33e577c3c4f1426167d5f5bb8941c629458ec03f132511b06842b7fab1c6e984",
+        "d11a595ff3b11a7d675076ca24b2eb276ccb7d6d1766731995752b87446aaedb",
+        "7ac4a8359ba363a9d94728e0220f8f554fecdcc5c35e69cb4b0cdf8a9f3cd1e2"
+      ],
+      "deliberate_alias": "groupDetails?.group_name becomes groupName parameter"
+    }
+  ]
+}

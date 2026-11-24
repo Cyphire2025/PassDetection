@@ -1,0 +1,22 @@
+[WebServer] (node:24416) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:37316) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ "next start" does not work with "output: standalone" configuration. Use "node .next/standalone/server.js" instead.
+
+Running 8 tests using 1 worker
+
+(node:42408) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [production-flows] › e2e\authentication.spec.ts:93:5 › credential login restores a cookie session and logout clears browser-owned state (2.1s)
+  ok 2 [production-flows] › e2e\authentication.spec.ts:154:5 › a rejected refresh expires the local session and explains the redirect (495ms)
+  ok 3 [production-flows] › e2e\authentication.spec.ts:160:5 › a lower-privilege direct-link journey is denied and returned to its safe workspace (477ms)
+  ok 4 [production-flows] › e2e\fresh-travellers.spec.ts:70:38 › fresh private draft resumes and submits at 320px (4.8s)
+  ok 5 [production-flows] › e2e\fresh-travellers.spec.ts:70:38 › fresh private draft resumes and submits at 1440px (4.9s)
+  ok 6 [production-flows] › e2e\fresh-travellers.spec.ts:89:5 › family members keep independent private drafts and head-first submissions (7.3s)
+  ok 7 [production-flows] › e2e\fresh-travellers.spec.ts:100:5 › an interrupted final response resumes the submitted receipt without a duplicate (5.1s)
+(node:5560) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 8 [production-nonce] › ..\.tmp\frontend-dependency-remediation\production-nonce.spec.mjs:3:1 › production rendering applies a fresh CSP nonce to framework scripts (625ms)
+
+  8 passed (28.4s)

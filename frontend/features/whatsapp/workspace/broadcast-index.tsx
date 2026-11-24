@@ -12,6 +12,7 @@ import {
 import Link from "next/link";
 import { useDeferredValue, useState } from "react";
 import { Button, Skeleton } from "@/components/ui";
+import { clampPageOffset } from "@/lib/utils/pagination";
 import {
   useCreateWhatsAppGroup,
   useRestoreWhatsAppGroup,
@@ -46,10 +47,7 @@ export function BroadcastIndex() {
   const groups = (source.data ?? []).filter((group) =>
     group.name.toLocaleLowerCase().includes(deferredSearch),
   );
-  const pageOffset = Math.min(
-    offset,
-    Math.max(0, Math.ceil(groups.length / 20) - 1) * 20,
-  );
+  const pageOffset = clampPageOffset(offset, groups.length, 20);
   return (
     <div className={`${styles.enter} space-y-7`}>
       <header className="flex flex-wrap items-center justify-between gap-4">

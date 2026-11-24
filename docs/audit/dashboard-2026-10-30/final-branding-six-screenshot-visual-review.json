@@ -1,0 +1,81 @@
+{
+  "status": "Read-only visual inspection of six final browser screenshots complete; no material defect found in the requested crop/dialog/logo areas.",
+  "current_local_build_id_observed": "SpoGDo7wxNT9DCsgfUntN",
+  "images": [
+    {
+      "path": "docs/audit/dashboard-2026-10-30/final-retained-frontend-20261101-002/branding-screenshots/group-banner-first-editor-1440.png",
+      "sha256": "8e844011c3743adff99cfbbcc45b6ae2ffff9bf00b0bf98ec2f87e2231bbe0b7",
+      "bytes": 150082,
+      "width": 1440,
+      "height": 1000,
+      "inspection": "Actual local file rendered with view_image and visually examined. Binary image review only, not physical runtime source credit.",
+      "observations": [
+        "Wide crop frame is centered and stays inside the white editor. Heading, image label, position/zoom controls, replacement/removal controls and Cancel/Save are visible and legible without collision.",
+        "The first-banner synthetic upload is visually white; no photographic subject-placement claim."
+      ]
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/final-retained-frontend-20261101-002/branding-screenshots/group-banner-first-editor-390.png",
+      "sha256": "90106802d23fbf65ac30d976baecf98e5f2701205ba21fed461623ca121e499a",
+      "bytes": 33007,
+      "width": 390,
+      "height": 844,
+      "inspection": "Actual local file rendered with view_image and visually examined. Binary image review only, not physical runtime source credit.",
+      "observations": [
+        "Tall crop frame remains bounded inside the narrow editor with side margins. Heading/description wrap without overlap; close control, horizontal and vertical labels/sliders remain readable.",
+        "Zoom and lower actions continue below this initial captured scroll viewport. This still screenshot does not establish scrolling/action reachability; parent final browser save/cancel cases provide that separate behavior evidence."
+      ]
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/final-retained-frontend-20261101-002/branding-screenshots/company-logo-preview.png",
+      "sha256": "aacfca472f400c3dce734a0a428db45185a542a483432a8e9d9c067284405fcc",
+      "bytes": 109751,
+      "width": 1440,
+      "height": 1000,
+      "inspection": "Actual local file rendered with view_image and visually examined. Binary image review only, not physical runtime source credit.",
+      "observations": [
+        "Synthetic logo appears centered, undistorted and unclipped on its white preview surface. Close button is visible at the upper right; company name and Escape/outside-click guidance are legible.",
+        "Still image cannot establish Escape, focus return or outside-click behavior; those are independently covered by the completed parent browser run."
+      ]
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/final-retained-frontend-20261101-002/branding-screenshots/company-logo-editor.png",
+      "sha256": "6c540b36cdced0301ca38549921ffba4c31469fcbb0879ffa2ae654293d6b764",
+      "bytes": 121478,
+      "width": 1280,
+      "height": 720,
+      "inspection": "Actual local file rendered with view_image and visually examined. Binary image review only, not physical runtime source credit.",
+      "observations": [
+        "Dialog stays within the viewport. Name/reference fields, logo preview, replace/remove and Cancel/Save controls are readable and separated. Current name field has a clearly visible blue focus outline."
+      ]
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/final-retained-frontend-20261101-002/branding-screenshots/all-groups-desktop.png",
+      "sha256": "b0547142883fe73832c2baeb7f45fa7b384dd14e8b7cad70194118cbdb7984d1",
+      "bytes": 127503,
+      "width": 1440,
+      "height": 1000,
+      "inspection": "Actual local file rendered with view_image and visually examined. Binary image review only, not physical runtime source credit.",
+      "observations": [
+        "Logo button has a visible blue focus outline and does not overlap row checkbox/group name or Open Group action. Group table headings, filters and summary cards are aligned and readable."
+      ]
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/final-retained-frontend-20261101-002/branding-screenshots/visa-company-logo.png",
+      "sha256": "f6f9625c2d18d807208db3a1f500ffeab22566bc514f145d32b774389c33185b",
+      "bytes": 104952,
+      "width": 1280,
+      "height": 720,
+      "inspection": "Actual local file rendered with view_image and visually examined. Binary image review only, not physical runtime source credit.",
+      "observations": [
+        "Compact logo and visible focus outline fit the group card beside its title/status. Destination and Open Visa Documents action remain separated and readable. Title truncation stays within its allocated card space."
+      ]
+    }
+  ],
+  "limits": [
+    "No new test/browser/build execution or source/image editing. Parent final198 browser pass is separately owned and sealed; this visual receipt does not replace it.",
+    "Static screenshots show layout, visible focus styling and readability, not keyboard/focus/scroll behavior over time.",
+    "Synthetic white first-banner upload and synthetic SVG company logo qualify frame geometry/workflow appearance; no actual backend-normalized photographic pixels or real passenger/customer data used.",
+    "No claim about every UI screen or every possible image contrast; this receipt covers only the six explicitly rendered local files."
+  ]
+}

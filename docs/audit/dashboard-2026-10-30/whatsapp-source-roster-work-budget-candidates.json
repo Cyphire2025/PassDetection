@@ -1,0 +1,22 @@
+{
+  "modules": [
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_source_groups.py",
+      "source_sha256": "987e6b0ef5e4a3d59331157dc51c5a0675b8f4b10486ee686c712ce7d6784139",
+      "previous": null,
+      "baseline_lines": 283,
+      "maximum_lines": 290,
+      "baseline_max_function_complexity": 19,
+      "maximum_function_complexity": 19,
+      "minimum_coverage_percent": 95
+    }
+  ],
+  "critical_modules": [],
+  "old_normal_and_critical_membership": null,
+  "measurements": {
+    "line_percent": 95.49549549549549,
+    "branch_percent": 83.33333333333333
+  },
+  "no_old_cap_or_floor_relaxed": true,
+  "qualification": "32fresh current-source cases including exact realSQLite authority/workflow controls and deterministic source-row work regression. No original critical to transfer; no new critical proposed."
+}

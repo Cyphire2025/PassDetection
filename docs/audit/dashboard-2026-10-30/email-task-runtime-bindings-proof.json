@@ -1,0 +1,613 @@
+{
+  "original_imported_objects": [
+    {
+      "name": "annotations",
+      "module": "__future__",
+      "object": "annotations"
+    },
+    {
+      "name": "uuid",
+      "module": "uuid"
+    },
+    {
+      "name": "dataclass",
+      "module": "dataclasses",
+      "object": "dataclass"
+    },
+    {
+      "name": "UTC",
+      "module": "datetime",
+      "object": "UTC"
+    },
+    {
+      "name": "datetime",
+      "module": "datetime",
+      "object": "datetime"
+    },
+    {
+      "name": "timedelta",
+      "module": "datetime",
+      "object": "timedelta"
+    },
+    {
+      "name": "get_task_logger",
+      "module": "celery.utils.log",
+      "object": "get_task_logger"
+    },
+    {
+      "name": "Redis",
+      "module": "redis",
+      "object": "Redis"
+    },
+    {
+      "name": "delete",
+      "module": "sqlalchemy",
+      "object": "delete"
+    },
+    {
+      "name": "or_",
+      "module": "sqlalchemy",
+      "object": "or_"
+    },
+    {
+      "name": "select",
+      "module": "sqlalchemy",
+      "object": "select"
+    },
+    {
+      "name": "update",
+      "module": "sqlalchemy",
+      "object": "update"
+    },
+    {
+      "name": "get_settings",
+      "module": "app.core.config.settings",
+      "object": "get_settings"
+    },
+    {
+      "name": "celery_async_runtime",
+      "module": "app.infrastructure.celery_async_runtime",
+      "object": "celery_async_runtime"
+    },
+    {
+      "name": "EmailActionProposalModel",
+      "module": "app.infrastructure.database.email_ai_models",
+      "object": "EmailActionProposalModel"
+    },
+    {
+      "name": "EmailAiAnalysisModel",
+      "module": "app.infrastructure.database.email_ai_models",
+      "object": "EmailAiAnalysisModel"
+    },
+    {
+      "name": "EmailAiFeedbackModel",
+      "module": "app.infrastructure.database.email_ai_models",
+      "object": "EmailAiFeedbackModel"
+    },
+    {
+      "name": "EmailDetectedDeadlineModel",
+      "module": "app.infrastructure.database.email_ai_models",
+      "object": "EmailDetectedDeadlineModel"
+    },
+    {
+      "name": "EmailReplyDraftModel",
+      "module": "app.infrastructure.database.email_ai_models",
+      "object": "EmailReplyDraftModel"
+    },
+    {
+      "name": "EmailArtifactModel",
+      "module": "app.infrastructure.database.email_models",
+      "object": "EmailArtifactModel"
+    },
+    {
+      "name": "EmailConnectionModel",
+      "module": "app.infrastructure.database.email_models",
+      "object": "EmailConnectionModel"
+    },
+    {
+      "name": "EmailMessageModel",
+      "module": "app.infrastructure.database.email_models",
+      "object": "EmailMessageModel"
+    },
+    {
+      "name": "EmailOAuthStateModel",
+      "module": "app.infrastructure.database.email_models",
+      "object": "EmailOAuthStateModel"
+    },
+    {
+      "name": "DistributedDocumentModel",
+      "module": "app.infrastructure.database.models",
+      "object": "DistributedDocumentModel"
+    },
+    {
+      "name": "NotificationModel",
+      "module": "app.infrastructure.database.models",
+      "object": "NotificationModel"
+    },
+    {
+      "name": "AsyncSessionFactory",
+      "module": "app.infrastructure.database.session",
+      "object": "AsyncSessionFactory"
+    },
+    {
+      "name": "EMAIL_SCHEDULER_HEARTBEAT_KEY",
+      "module": "app.infrastructure.email.readiness",
+      "object": "EMAIL_SCHEDULER_HEARTBEAT_KEY"
+    },
+    {
+      "name": "run_connection_sync",
+      "module": "app.infrastructure.email.sync_service",
+      "object": "run_connection_sync"
+    },
+    {
+      "name": "celery_app",
+      "module": "app.infrastructure.processing.celery_app",
+      "object": "celery_app"
+    },
+    {
+      "name": "MinioStorageRepository",
+      "module": "app.infrastructure.storage.minio_repository",
+      "object": "MinioStorageRepository"
+    }
+  ],
+  "original_imported_object_count": 30,
+  "direct_declarations": [
+    {
+      "name": "EmailSyncTaskEnvelope",
+      "actual_owner": "app.infrastructure.email.task_dispatch",
+      "direct_identity": true
+    },
+    {
+      "name": "sync_email_connection",
+      "actual_owner": "app.infrastructure.email.tasks",
+      "direct_identity": true
+    },
+    {
+      "name": "dispatch_due_email_connections",
+      "actual_owner": "app.infrastructure.email.tasks",
+      "direct_identity": true
+    },
+    {
+      "name": "apply_email_retention",
+      "actual_owner": "app.infrastructure.email.tasks",
+      "direct_identity": true
+    },
+    {
+      "name": "record_email_scheduler_heartbeat",
+      "actual_owner": "app.infrastructure.email.tasks",
+      "direct_identity": true
+    },
+    {
+      "name": "_claim_due_dispatches",
+      "actual_owner": "app.infrastructure.email.task_dispatch",
+      "direct_identity": true
+    },
+    {
+      "name": "_apply_email_retention",
+      "actual_owner": "app.infrastructure.email.task_retention",
+      "direct_identity": true
+    },
+    {
+      "name": "_reconcile_orphaned_email_storage",
+      "actual_owner": "app.infrastructure.email.storage_reconciliation",
+      "direct_identity": true
+    },
+    {
+      "name": "_delete_unreferenced_email_storage_keys",
+      "actual_owner": "app.infrastructure.email.storage_reconciliation",
+      "direct_identity": true
+    },
+    {
+      "name": "_storage_object_is_older_than",
+      "actual_owner": "app.infrastructure.email.storage_reconciliation",
+      "direct_identity": true
+    }
+  ],
+  "actual_original_global_bindings": [
+    {
+      "declaration": "EmailSyncTaskEnvelope",
+      "name": "dataclass",
+      "identity": true
+    },
+    {
+      "declaration": "EmailSyncTaskEnvelope",
+      "name": "uuid",
+      "identity": true
+    },
+    {
+      "declaration": "sync_email_connection",
+      "name": "EMAIL_INTEGRATION_QUEUE",
+      "identity": true
+    },
+    {
+      "declaration": "sync_email_connection",
+      "name": "EMAIL_SYNC_TASK",
+      "identity": true
+    },
+    {
+      "declaration": "sync_email_connection",
+      "name": "celery_app",
+      "identity": true
+    },
+    {
+      "declaration": "sync_email_connection",
+      "name": "celery_async_runtime",
+      "identity": true
+    },
+    {
+      "declaration": "sync_email_connection",
+      "name": "logger",
+      "identity": true
+    },
+    {
+      "declaration": "sync_email_connection",
+      "name": "run_connection_sync",
+      "identity": true
+    },
+    {
+      "declaration": "sync_email_connection",
+      "name": "uuid",
+      "identity": true
+    },
+    {
+      "declaration": "dispatch_due_email_connections",
+      "name": "EMAIL_DISPATCH_TASK",
+      "identity": true
+    },
+    {
+      "declaration": "dispatch_due_email_connections",
+      "name": "EMAIL_INTEGRATION_QUEUE",
+      "identity": true
+    },
+    {
+      "declaration": "dispatch_due_email_connections",
+      "name": "_claim_due_dispatches",
+      "identity": true
+    },
+    {
+      "declaration": "dispatch_due_email_connections",
+      "name": "celery_app",
+      "identity": true
+    },
+    {
+      "declaration": "dispatch_due_email_connections",
+      "name": "celery_async_runtime",
+      "identity": true
+    },
+    {
+      "declaration": "dispatch_due_email_connections",
+      "name": "get_settings",
+      "identity": true
+    },
+    {
+      "declaration": "dispatch_due_email_connections",
+      "name": "logger",
+      "identity": true
+    },
+    {
+      "declaration": "dispatch_due_email_connections",
+      "name": "sync_email_connection",
+      "identity": true
+    },
+    {
+      "declaration": "apply_email_retention",
+      "name": "EMAIL_INTEGRATION_QUEUE",
+      "identity": true
+    },
+    {
+      "declaration": "apply_email_retention",
+      "name": "EMAIL_RETENTION_TASK",
+      "identity": true
+    },
+    {
+      "declaration": "apply_email_retention",
+      "name": "_apply_email_retention",
+      "identity": true
+    },
+    {
+      "declaration": "apply_email_retention",
+      "name": "celery_app",
+      "identity": true
+    },
+    {
+      "declaration": "apply_email_retention",
+      "name": "celery_async_runtime",
+      "identity": true
+    },
+    {
+      "declaration": "apply_email_retention",
+      "name": "logger",
+      "identity": true
+    },
+    {
+      "declaration": "record_email_scheduler_heartbeat",
+      "name": "EMAIL_INTEGRATION_QUEUE",
+      "identity": true
+    },
+    {
+      "declaration": "record_email_scheduler_heartbeat",
+      "name": "EMAIL_SCHEDULER_HEARTBEAT_KEY",
+      "identity": true
+    },
+    {
+      "declaration": "record_email_scheduler_heartbeat",
+      "name": "EMAIL_SCHEDULER_HEARTBEAT_TASK",
+      "identity": true
+    },
+    {
+      "declaration": "record_email_scheduler_heartbeat",
+      "name": "Redis",
+      "identity": true
+    },
+    {
+      "declaration": "record_email_scheduler_heartbeat",
+      "name": "UTC",
+      "identity": true
+    },
+    {
+      "declaration": "record_email_scheduler_heartbeat",
+      "name": "celery_app",
+      "identity": true
+    },
+    {
+      "declaration": "record_email_scheduler_heartbeat",
+      "name": "datetime",
+      "identity": true
+    },
+    {
+      "declaration": "record_email_scheduler_heartbeat",
+      "name": "get_settings",
+      "identity": true
+    },
+    {
+      "declaration": "record_email_scheduler_heartbeat",
+      "name": "logger",
+      "identity": true
+    },
+    {
+      "declaration": "_claim_due_dispatches",
+      "name": "AsyncSessionFactory",
+      "identity": true
+    },
+    {
+      "declaration": "_claim_due_dispatches",
+      "name": "EmailConnectionModel",
+      "identity": true
+    },
+    {
+      "declaration": "_claim_due_dispatches",
+      "name": "EmailSyncTaskEnvelope",
+      "identity": true
+    },
+    {
+      "declaration": "_claim_due_dispatches",
+      "name": "UTC",
+      "identity": true
+    },
+    {
+      "declaration": "_claim_due_dispatches",
+      "name": "datetime",
+      "identity": true
+    },
+    {
+      "declaration": "_claim_due_dispatches",
+      "name": "get_settings",
+      "identity": true
+    },
+    {
+      "declaration": "_claim_due_dispatches",
+      "name": "or_",
+      "identity": true
+    },
+    {
+      "declaration": "_claim_due_dispatches",
+      "name": "select",
+      "identity": true
+    },
+    {
+      "declaration": "_claim_due_dispatches",
+      "name": "timedelta",
+      "identity": true
+    },
+    {
+      "declaration": "_claim_due_dispatches",
+      "name": "update",
+      "identity": true
+    },
+    {
+      "declaration": "_apply_email_retention",
+      "name": "AsyncSessionFactory",
+      "identity": true
+    },
+    {
+      "declaration": "_apply_email_retention",
+      "name": "EmailActionProposalModel",
+      "identity": true
+    },
+    {
+      "declaration": "_apply_email_retention",
+      "name": "EmailAiAnalysisModel",
+      "identity": true
+    },
+    {
+      "declaration": "_apply_email_retention",
+      "name": "EmailAiFeedbackModel",
+      "identity": true
+    },
+    {
+      "declaration": "_apply_email_retention",
+      "name": "EmailArtifactModel",
+      "identity": true
+    },
+    {
+      "declaration": "_apply_email_retention",
+      "name": "EmailDetectedDeadlineModel",
+      "identity": true
+    },
+    {
+      "declaration": "_apply_email_retention",
+      "name": "EmailMessageModel",
+      "identity": true
+    },
+    {
+      "declaration": "_apply_email_retention",
+      "name": "EmailOAuthStateModel",
+      "identity": true
+    },
+    {
+      "declaration": "_apply_email_retention",
+      "name": "EmailReplyDraftModel",
+      "identity": true
+    },
+    {
+      "declaration": "_apply_email_retention",
+      "name": "MinioStorageRepository",
+      "identity": true
+    },
+    {
+      "declaration": "_apply_email_retention",
+      "name": "NotificationModel",
+      "identity": true
+    },
+    {
+      "declaration": "_apply_email_retention",
+      "name": "UTC",
+      "identity": true
+    },
+    {
+      "declaration": "_apply_email_retention",
+      "name": "_reconcile_orphaned_email_storage",
+      "identity": true
+    },
+    {
+      "declaration": "_apply_email_retention",
+      "name": "datetime",
+      "identity": true
+    },
+    {
+      "declaration": "_apply_email_retention",
+      "name": "delete",
+      "identity": true
+    },
+    {
+      "declaration": "_apply_email_retention",
+      "name": "get_settings",
+      "identity": true
+    },
+    {
+      "declaration": "_apply_email_retention",
+      "name": "logger",
+      "identity": true
+    },
+    {
+      "declaration": "_apply_email_retention",
+      "name": "or_",
+      "identity": true
+    },
+    {
+      "declaration": "_apply_email_retention",
+      "name": "select",
+      "identity": true
+    },
+    {
+      "declaration": "_apply_email_retention",
+      "name": "timedelta",
+      "identity": true
+    },
+    {
+      "declaration": "_apply_email_retention",
+      "name": "update",
+      "identity": true
+    },
+    {
+      "declaration": "_reconcile_orphaned_email_storage",
+      "name": "MinioStorageRepository",
+      "identity": true
+    },
+    {
+      "declaration": "_reconcile_orphaned_email_storage",
+      "name": "_EMAIL_STORAGE_PREFIXES",
+      "identity": true
+    },
+    {
+      "declaration": "_reconcile_orphaned_email_storage",
+      "name": "_EMAIL_STORAGE_RECONCILE_PAGE_SIZE",
+      "identity": true
+    },
+    {
+      "declaration": "_reconcile_orphaned_email_storage",
+      "name": "_delete_unreferenced_email_storage_keys",
+      "identity": true
+    },
+    {
+      "declaration": "_reconcile_orphaned_email_storage",
+      "name": "_storage_object_is_older_than",
+      "identity": true
+    },
+    {
+      "declaration": "_reconcile_orphaned_email_storage",
+      "name": "datetime",
+      "identity": true
+    },
+    {
+      "declaration": "_reconcile_orphaned_email_storage",
+      "name": "get_settings",
+      "identity": true
+    },
+    {
+      "declaration": "_reconcile_orphaned_email_storage",
+      "name": "timedelta",
+      "identity": true
+    },
+    {
+      "declaration": "_delete_unreferenced_email_storage_keys",
+      "name": "AsyncSessionFactory",
+      "identity": true
+    },
+    {
+      "declaration": "_delete_unreferenced_email_storage_keys",
+      "name": "DistributedDocumentModel",
+      "identity": true
+    },
+    {
+      "declaration": "_delete_unreferenced_email_storage_keys",
+      "name": "EmailArtifactModel",
+      "identity": true
+    },
+    {
+      "declaration": "_delete_unreferenced_email_storage_keys",
+      "name": "MinioStorageRepository",
+      "identity": true
+    },
+    {
+      "declaration": "_delete_unreferenced_email_storage_keys",
+      "name": "select",
+      "identity": true
+    },
+    {
+      "declaration": "_storage_object_is_older_than",
+      "name": "UTC",
+      "identity": true
+    },
+    {
+      "declaration": "_storage_object_is_older_than",
+      "name": "datetime",
+      "identity": true
+    }
+  ],
+  "actual_original_global_binding_count": 78,
+  "same_legacy_logger_object": true,
+  "observed_before_after_contracts_equal": true,
+  "evaluated_function_class_method_hint_contracts": 11,
+  "registered_actual_task_identity_checks": 4,
+  "introspection": {
+    "before_status": "available",
+    "after_status": "OSError",
+    "legacy_module": "app.infrastructure.email.tasks",
+    "legacy_qualname": "EmailSyncTaskEnvelope",
+    "actual_definition": "backend/app/infrastructure/email/task_dispatch.py",
+    "limitation": "inspect.getsource(class) is not preserved; legacy module points at the facade. No inspect monkeypatch.",
+    "before_contract_sha256": "a3bac95a351bae06b923d269f16eab3e41c3b7ac73b10aaa7cfd18486c41046a",
+    "after_contract_sha256": "68ee517f33cf19458635881c252bd5b9f35e9b82335d691142bd3916e4364481"
+  }
+}

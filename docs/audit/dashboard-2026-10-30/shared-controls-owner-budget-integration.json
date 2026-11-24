@@ -1,0 +1,12 @@
+{
+  "candidates": "docs/audit/dashboard-2026-10-30/shared-controls-owner-budget-candidates.json",
+  "before_sha256": "0bfbff3860a7946bb9e7be4a745c5c69d40cda365f6c188edbd9b17569ed63e5",
+  "sha256": "c9f1eefea083bfe02f4dc12f9d2a08946898dfabc4d3bcb67dcefa83e8fe6325",
+  "lf_normalized_sha256": "b552bc8414098a113ba08deb28f7b83061ecea1a78399d60a5d910d85f4815a5",
+  "added": 2,
+  "updated_existing": 1,
+  "lowered_existing": 0,
+  "lowered_existing_paths": [],
+  "existing_ceilings_preserved": true,
+  "previous_ceilings_sha256": "9aae2d239e5b465c242fded83528598cd23cf093f8803e90071c561b624a1f0b"
+}

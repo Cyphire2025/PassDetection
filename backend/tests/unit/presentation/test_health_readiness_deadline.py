@@ -8,7 +8,7 @@ from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
 from app.core.config.settings import Settings
-from app.infrastructure import runtime_readiness
+from app.infrastructure import runtime_readiness, runtime_readiness_capabilities
 from app.infrastructure.readiness_executor import ReadinessProbeExecutor
 from app.infrastructure.runtime_readiness import RuntimeCapabilitySnapshot
 from app.presentation.api.v1.routes import health
@@ -36,8 +36,10 @@ async def test_cold_readiness_admits_every_dependency_before_caching_capabilitie
 
     monkeypatch.setattr(executor, "run", observed_run)
     monkeypatch.setattr(health, "readiness_probe_executor", executor)
-    monkeypatch.setattr(runtime_readiness, "readiness_probe_executor", executor)
-    monkeypatch.setattr(runtime_readiness, "_runtime_probe", runtime_readiness.RuntimeReadinessProbe())
+    monkeypatch.setattr(runtime_readiness_capabilities, "readiness_probe_executor", executor)
+    monkeypatch.setattr(
+        runtime_readiness, "_runtime_probe", runtime_readiness.RuntimeReadinessProbe()
+    )
     monkeypatch.setattr(
         health,
         "get_ai_priority_coordinator",
@@ -56,30 +58,30 @@ async def test_cold_readiness_admits_every_dependency_before_caching_capabilitie
     )
     monkeypatch.setattr(health, "gemini_configuration_readiness", lambda _: ({}, True))
     monkeypatch.setattr(
-        runtime_readiness, "_probe_object_storage", lambda: dependency("storage", True)
+        runtime_readiness_capabilities, "_probe_object_storage", lambda: dependency("storage", True)
     )
     monkeypatch.setattr(
-        runtime_readiness,
+        runtime_readiness_capabilities,
         "_probe_malware_scanner",
         lambda _: dependency("scanner", ("available", True)),
     )
     monkeypatch.setattr(
-        runtime_readiness,
+        runtime_readiness_capabilities,
         "_probe_worker_and_scheduler",
         lambda _: dependency("worker", ("available", True, "heartbeat_recent", True)),
     )
     monkeypatch.setattr(
-        runtime_readiness,
+        runtime_readiness_capabilities,
         "_probe_my_photos",
         lambda _: dependency("photos", ("available", True, True)),
     )
     monkeypatch.setattr(
-        runtime_readiness,
+        runtime_readiness_capabilities,
         "_probe_security_redis",
         lambda _: dependency("security", ("available", True)),
     )
     monkeypatch.setattr(
-        runtime_readiness,
+        runtime_readiness_capabilities,
         "_probe_ecr_worker",
         lambda _: dependency("ecr", ("available", True)),
     )
@@ -94,12 +96,14 @@ async def test_cold_readiness_admits_every_dependency_before_caching_capabilitie
     monkeypatch.setattr(
         runtime_readiness,
         "ecr_backlog",
-        AsyncMock(return_value={
-            "pending_count": 0,
-            "failed_count": 0,
-            "retry_count": 0,
-            "oldest_pending_seconds": 0,
-        }),
+        AsyncMock(
+            return_value={
+                "pending_count": 0,
+                "failed_count": 0,
+                "retry_count": 0,
+                "oldest_pending_seconds": 0,
+            }
+        ),
     )
     settings = Settings(app_secret_key="synthetic-readiness-cold-start", _env_file=None)
     try:
@@ -113,10 +117,22 @@ async def test_cold_readiness_admits_every_dependency_before_caching_capabilitie
             assert body["capabilities"]["ecr_checks"]["available"] is True
             assert body["capabilities"]["ecr_checks"]["worker_available"] is True
             assert all(item["available"] for item in body["capabilities"].values())
-        assert sorted(calls) == sorted([
-            "priority", "gemini", "email", "priority", "gemini", "email",
-            "storage", "scanner", "worker", "photos", "security", "ecr",
-        ])
+        assert sorted(calls) == sorted(
+            [
+                "priority",
+                "gemini",
+                "email",
+                "priority",
+                "gemini",
+                "email",
+                "storage",
+                "scanner",
+                "worker",
+                "photos",
+                "security",
+                "ecr",
+            ]
+        )
     finally:
         release.set()
         executor.close()
@@ -207,7 +223,9 @@ async def test_slow_probes_share_one_deadline_and_keep_other_capability_results(
             timeout == probe_deadline_seconds and configuration is settings
             for _, timeout, configuration in admissions
         )
-        assert all(sum(name == probe for name, _, _ in admissions) == 21 for probe in expected_probes)
+        assert all(
+            sum(name == probe for name, _, _ in admissions) == 21 for probe in expected_probes
+        )
         assert len(mobile_reads) == 21
         assert all(instance is settings for instance in mobile_reads)
         assert sorted(calls) == ["email", "priority", "workers"]

@@ -80,8 +80,10 @@ and GC/mobile document content dependencies.
 The current structured logger writes API and worker application events to stdout.
 Request middleware adds `request_id`; frontend errors enter the bounded
 observability endpoint; providers and jobs write through their application
-modules. Nginx has access/error logs with `request_id` in its configured format.
-These are source locations, not proof of a readable retained log collector.
+modules. Nginx's sanitized access log includes `request_id`. The TLS server
+discards its request-context error stream because those entries can expose
+bearer-token request paths; use the access log and upstream/application metrics
+instead. These are source locations, not proof of a readable retained log collector.
 
 Allowed diagnostic adapters need separately configured bounded sources for API,
 worker, frontend reports, integrations and proxy logs. They must report unavailable

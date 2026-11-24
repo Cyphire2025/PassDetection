@@ -287,7 +287,7 @@ class Contracts(unittest.TestCase):
         release.start = lambda row: events.append('start:' + row['Id'])
         release.proof = lambda *args, **kwargs: events.append('proof')
         release.rows = lambda: list(original.values())
-        with patch('release_retained_update.bound_original', side_effect=lambda row: row): release.recover()
+        with patch('retained_release_lifecycle.bound_original', side_effect=lambda row: row): release.recover()
         last_stop = max(i for i, event in enumerate(events) if event.startswith('stop:'))
         first_start = min(i for i, event in enumerate(events) if event.startswith('start:'))
         self.assertLess(last_stop, first_start)
@@ -303,7 +303,7 @@ class Contracts(unittest.TestCase):
         release.stop = lambda row: (_ for _ in ()).throw(ValueError('still_draining'))
         release.fence_candidate = release.stop
         release.start = lambda row: self.fail('must not create overlapping writers')
-        with patch('release_retained_update.bound_original', side_effect=lambda row: row), self.assertRaises(ValueError):
+        with patch('retained_release_lifecycle.bound_original', side_effect=lambda row: row), self.assertRaises(ValueError):
             release.recover()
 
     def test_timed_out_builder_blocks_recovery_resource_overlap(self):
@@ -344,8 +344,8 @@ class Contracts(unittest.TestCase):
                 if revision == NEXT and (failure == 'app-proof' and not public or failure == 'public-proof' and public):
                     raise ValueError('injected')
             release.proof = proof
-            with self.subTest(failure=failure), patch('release_retained_update.bound_original', side_effect=lambda row: row), \
-                    patch('release_retained_update.wait_for_idle'):
+            with self.subTest(failure=failure), patch('retained_release_lifecycle.bound_original', side_effect=lambda row: row), \
+                    patch('retained_release_host.wait_for_idle'):
                 with self.assertRaisesRegex(ValueError, 'injected'): release.transition(candidates)
                 self.assertEqual(set(running), {row['Id'] for row in live.values()})
                 self.assertEqual(events[-1], 'recovered-originals')
@@ -358,8 +358,8 @@ class Contracts(unittest.TestCase):
             self.assertEqual(set(running), {row['Id'] for name, row in live.items() if name != 'email-beat'})
             events.append('idle')
             return {'verified': 'all-eight-workers'}
-        with patch('release_retained_update.bound_original', side_effect=lambda row: row), \
-                patch('release_retained_update.wait_for_idle', side_effect=idle):
+        with patch('retained_release_lifecycle.bound_original', side_effect=lambda row: row), \
+                patch('retained_release_host.wait_for_idle', side_effect=idle):
             release.transition(candidates)
         self.assertLess(events.index('stop:email-beat'), events.index('idle'))
         for name in WORKERS:
@@ -374,8 +374,8 @@ class Contracts(unittest.TestCase):
     def test_busy_or_uninspectable_worker_keeps_website_up_and_starts_no_candidate(self):
         for reason in ('workers_busy_wait_before_build', 'worker_idle_evidence_unavailable'):
             release, live, candidates, running, events = self.transition_fixture()
-            with self.subTest(reason=reason), patch('release_retained_update.bound_original', side_effect=lambda row: row), \
-                    patch('release_retained_update.wait_for_idle', side_effect=BuildError(reason)):
+            with self.subTest(reason=reason), patch('retained_release_lifecycle.bound_original', side_effect=lambda row: row), \
+                    patch('retained_release_host.wait_for_idle', side_effect=BuildError(reason)):
                 with self.assertRaisesRegex(BuildError, reason):
                     release.transition(candidates)
             self.assertEqual(set(running), {row['Id'] for row in live.values()})
@@ -393,8 +393,8 @@ class Contracts(unittest.TestCase):
                 raise BuildError('container_still_running_after_graceful_stop')
             normal_stop(row)
         release.stop = stop
-        with patch('release_retained_update.bound_original', side_effect=lambda row: row), \
-                patch('release_retained_update.wait_for_idle'):
+        with patch('retained_release_lifecycle.bound_original', side_effect=lambda row: row), \
+                patch('retained_release_host.wait_for_idle'):
             with self.assertRaisesRegex(BuildError, 'still_running_after_graceful_stop'):
                 release.transition(candidates)
         self.assertEqual(set(running), {row['Id'] for row in live.values()})
@@ -438,9 +438,9 @@ class Contracts(unittest.TestCase):
         release.pause_email_and_photos = True
         for name in pdf_profile.PAUSED:
             candidates[name]['State']['Running'] = False
-        with patch('release_retained_update.bound_original', side_effect=lambda row: row), \
-                patch('release_retained_update.wait_for_idle') as idle, \
-                patch('release_retained_update.command', return_value=str(15992 * 1024**2)), \
+        with patch('retained_release_lifecycle.bound_original', side_effect=lambda row: row), \
+                patch('retained_release_host.wait_for_idle') as idle, \
+                patch('retained_release_lifecycle.command', return_value=str(15992 * 1024**2)), \
                 patch.object(pdf_profile, 'planned_budget'):
             release.transition(candidates)
         self.assertEqual(set(running), {row['Id'] for name, row in candidates.items()
@@ -455,7 +455,7 @@ class Contracts(unittest.TestCase):
         release.pause_email_and_photos = True
         for name in pdf_profile.PAUSED:
             live[name]['State']['Running'] = False
-        with patch('release_retained_update.wait_for_idle') as idle:
+        with patch('retained_release_host.wait_for_idle') as idle:
             release.idle_workers(live)
         self.assertEqual(set(idle.call_args.kwargs['workers']), set(WORKERS) - pdf_profile.PAUSED)
 
@@ -465,8 +465,8 @@ class Contracts(unittest.TestCase):
         def proof(rows, revision, *, public):
             if revision == NEXT: raise ValueError('injected')
         release.proof = proof
-        with patch('release_retained_update.bound_original', side_effect=lambda row: row), \
-                patch('release_retained_update.wait_for_idle'):
+        with patch('retained_release_lifecycle.bound_original', side_effect=lambda row: row), \
+                patch('retained_release_host.wait_for_idle'):
             with self.assertRaisesRegex(ValueError, 'injected'):
                 release.transition(candidates)
         self.assertEqual(set(running), {row['Id'] for row in live.values()})
@@ -479,7 +479,7 @@ class Contracts(unittest.TestCase):
             release.record = {}
             release.event = lambda *args, **kw: None
             row = {'Id': 'failed-candidate', 'State': state}
-            with self.subTest(state=state), patch('release_retained_update.bound_original', return_value=row):
+            with self.subTest(state=state), patch('retained_release_runtime.bound_original', return_value=row):
                 # No Docker stop is necessary, and the original error is retained.
                 release.fence_candidate(row)
             self.assertEqual(release.record['recovery_candidate_states']['failed-candidate'], state)

@@ -1,0 +1,283 @@
+{
+  "files": [
+    {
+      "path": "backend/alembic/versions/0045_document_whatsapp_deliveries.py",
+      "sha256": "a0c4ad2280afbbe689fb8e91f44946b0094003ce504de973c0dbedfa8870b968",
+      "physical_lines": 112,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0045_document_whatsapp",
+        "down_revision": "0044_passport_image_crops",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Durable document WhatsApp delivery snapshots retain filenames/passenger/contact/provider metadata with one distributed-document and unique provider-message identity. Agency/group deletion cascades; source document/passenger/recipient references SETNULL preserve delivery history. Current PII retention/authorization and external unknown-outcome semantics require runtime evidence, not schema-only claims."
+    },
+    {
+      "path": "backend/alembic/versions/0046_agent_employee_code.py",
+      "sha256": "7f24ed47b4b8af8ad6b67681fc7e033258d1b5e89a7a82caaba6e6726edc45d9",
+      "physical_lines": 33,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0046_agent_employee_code",
+        "down_revision": "0045_document_whatsapp",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds false-by-default Agent/Employee-code collection option without changing existing group behavior; current field validation independent."
+    },
+    {
+      "path": "backend/alembic/versions/0047_passport_image_edits.py",
+      "sha256": "9365206a060a243584d0b00f93e3e0cc16d64e94bfb2756644c569f9b1838734",
+      "physical_lines": 48,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0047_passport_image_edits",
+        "down_revision": "0046_agent_employee_code",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds optional alternate edit-source key plus sharpness default1 and range1\u20133, preserving original crop/source fields; object cleanup and authority not proven by additive schema."
+    },
+    {
+      "path": "backend/alembic/versions/0048_visa_ai_image_library.py",
+      "sha256": "fcbe31857a2511d86e82d2240532698457c0f23775a63e5dd7f8fd273d5f521d",
+      "physical_lines": 112,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0048_visa_ai_image_library",
+        "down_revision": "0047_passport_image_edits",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds explicit sharpness algorithm version constrained1/2, durable AI image provenance/content/prompt hashes and unique per-submission generated storage key; creator SETNULL/submission cascade. Sensitive prompt/storage provenance retention and current service authority remain independent."
+    },
+    {
+      "path": "backend/alembic/versions/0049_visa_ai_image_jobs.py",
+      "sha256": "e59bfad98293679bb2fc39a03749f2d45d5064b3ef55768db03daf3014c7a24a",
+      "physical_lines": 173,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0049_visa_ai_image_jobs",
+        "down_revision": "0048_visa_ai_image_library",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Creates durable Visa image jobs with one queued/running job per submission, bounded attempts/status, durable task/result/source metadata and result/requester SETNULL. Current worker retry/provider/lease semantics and object lifecycle not qualified here."
+    },
+    {
+      "path": "backend/alembic/versions/0050_whatsapp_recipient_roster_order.py",
+      "sha256": "42c635772283501c0061e214132d97b2538da04dd5f85a9a0598aa404e7d8f27",
+      "physical_lines": 132,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0050_whatsapp_roster_order",
+        "down_revision": "0049_visa_ai_image_jobs",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Backfills shared valid/rejected WhatsApp roster order deterministically from creation time plus stable type/id tie-breakers, explicitly not pretending to recover original spreadsheet interleaving. Both backfills use unchanged source ordering fields and add nonunique group/order indexes; no recipient deletion or provider sends."
+    },
+    {
+      "path": "backend/alembic/versions/0051_passport_exports_and_replacements.py",
+      "sha256": "167436c225927754dee7dbee313a85c6f4e90d93808c5ab434252610259a5b8e",
+      "physical_lines": 461,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0051_exports_replacements",
+        "down_revision": "0050_whatsapp_roster_order",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Export checkpoints constrain kind/mode/counts/completion and group-kind-request idempotency, with snapshots and nullable baseline/actor history. Roster resolutions constrain active/restored/replacement/rejected states, preserve originals, and add partial active recipient/submission uniqueness plus suppression backlink. Active replacement requires recipient presence although FK uses SETNULL; deletion compatibility depends on supported restore-before-delete policy and later schema/runtime, not a source-only active defect."
+    },
+    {
+      "path": "backend/alembic/versions/0052_custom_questions.py",
+      "sha256": "e3175dda3f63e24ecdcda3fd7dfb9f7117e4f51c73ac5afae9cce9ef544b7e78",
+      "physical_lines": 44,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0052_custom_questions",
+        "down_revision": "0051_exports_replacements",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds empty-list group custom question schema and passport answer snapshots; runtime bound/type/schema/redaction checks are independent of JSONB storage declarations."
+    },
+    {
+      "path": "backend/alembic/versions/0053_shared_attendance_activities.py",
+      "sha256": "8040e513239c5c93862961ea8f4f0111b3e3f7e9bc64a0f3a2d51be1e6147029",
+      "physical_lines": 119,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0053_shared_attendance",
+        "down_revision": "0052_custom_questions",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Normalizes activity names, ranks active then oldest stable id to canonicalize duplicate draft/active sessions without changing session status or attendance rows; completed history self-canonical. Adds self-reference and partial active canonical group/name uniqueness. Runtime alias authorization and replay limits remain independent."
+    },
+    {
+      "path": "backend/alembic/versions/0054_custom_details_designation.py",
+      "sha256": "767951f9288798a2bee6500dc2277576c459c939e8ccca71137221dd3138e2b3",
+      "physical_lines": 64,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0054_custom_details",
+        "down_revision": "0053_shared_attendance",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds false-by-default designation/dealership flags and empty-list typed detail definitions/answer snapshots, preserving existing group forms. Runtime validation/security beyond schema not evaluated from these declarations."
+    },
+    {
+      "path": "backend/alembic/versions/0055_passport_image_library.py",
+      "sha256": "fb94c972531d8a343abd2fe7af239ec3cccaf10201e0dbdf01ff48ad4ffad56d",
+      "physical_lines": 246,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0055_image_library",
+        "down_revision": "0054_custom_details",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Creates shared original/manual/AI image library preserving Visa AI row IDs for durable job result identity. Copies still-live legacy edit variants and original fields with deterministic UUIDs and ON CONFLICT storage dedup; excludes Excel placeholder front keys. No original blobs deleted. Current runtime lifecycle is root-owned; metadata source read does not prove storage existence/cleanup."
+    },
+    {
+      "path": "backend/alembic/versions/0056_menu_meal_planner.py",
+      "sha256": "253747eaea98e99ddeb922a79bbff712dbc0dcaf7a2d852901387ee16eafb96d",
+      "physical_lines": 312,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0056_menu_planner",
+        "down_revision": "0055_image_library",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Menu foundation supports platform categories via nullable agency and separate partial uniqueness for global versus agency names; dishes unique within category, plans bound1\u201360days and entries unique plan/day/meal with snapshot names and nullable dish/category SETNULL. Current tenant/category authorization and nonrepetition algorithm require runtime evidence."
+    },
+    {
+      "path": "backend/alembic/versions/0057_meal_plan_category_dishes.py",
+      "sha256": "8c9222c37c44feefd18cddfb20b9279cf4f3c2e804d2e0d5368f35c421d704f8",
+      "physical_lines": 64,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0057_meal_categories",
+        "down_revision": "0056_menu_planner",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Upgrade replaces one-dish-per-meal uniqueness with per-category uniqueness. Downgrade explicitly and deterministically deletes all but first category-name/id entry per meal before restoring old constraint; documented lossy historical rollback boundary, not a new active service bug. Nullable category-ID uniqueness follows PostgreSQL null behavior; runtime consistency independent."
+    },
+    {
+      "path": "backend/alembic/versions/0058_rooming_auto_allocation.py",
+      "sha256": "13a903a98bbdd4ea9a5711497c2e478b2bbb03ae594a2670082fcd2aead98464",
+      "physical_lines": 217,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0058_rooming_auto",
+        "down_revision": "0057_meal_categories",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds persisted allocation revision/fingerprint/options and unique group/passenger hotel membership; backfill deterministically selects newest assignment while retaining old assignment rows and derives VIP from room/preference. Existing check-in hotels receive stale zero fingerprint/revision1 to force explicit allocation verification; actual service lock/workflow semantics require runtime evidence."
+    },
+    {
+      "path": "backend/alembic/versions/0059_managed_account_deletion.py",
+      "sha256": "9d62d5b25384d4aa89af8d52ba133206332c4e23a8130fc3353888136f095311",
+      "physical_lines": 28,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0059_account_deletion",
+        "down_revision": "0058_rooming_auto",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds nullable account-deleted timestamp without purging history, disabling accounts or revoking credentials by schema itself. Current managed-account runtime review owned by parent and separate."
+    },
+    {
+      "path": "backend/alembic/versions/0060_passport_image_fine_rotation.py",
+      "sha256": "c6a54587ecec9a52ee454526184e359da973ecdbdc3f6a84998e456c5ade68d9",
+      "physical_lines": 56,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0060_fine_rotation",
+        "down_revision": "0059_account_deletion",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Widens crop angle range to0\u2013359. Downgrade explicitly normalizes each fine angle to nearest right angle before narrowing check, preserving constraint-valid old representation with intentional precision loss. No image processing or object mutation in migration."
+    }
+  ],
+  "manual_full_migrations": 16,
+  "manual_full_migration_lines": 2221,
+  "current_full_ledgers_checked_before_reads": true,
+  "no_duplicate_credit": true,
+  "all142published_files_unchanged": true,
+  "no_tests_or_migration_execution": true,
+  "notes": "Complete0045\u20130060 physical reads in four bounded outputs; no runtime/migration/service/provider changes. Root image-runtime ownership respected."
+}

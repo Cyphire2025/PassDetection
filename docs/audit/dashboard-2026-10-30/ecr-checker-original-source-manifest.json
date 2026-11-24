@@ -1,0 +1,16 @@
+{
+  "files": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker.py",
+      "sha256": "ecbc1a61b1b8b674f6dedcda752dc204b80189d180b4a9641a4ba5ad52c15468",
+      "physical_lines": 523,
+      "snapshot": ".tmp/ecr-checker-current/ecr_checker.py"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_ecr_checker.py",
+      "sha256": "2f9c0510cdf55a9f39bbf2528afee7a6ea2a8561c35a74026bf49b346b701f8e",
+      "physical_lines": 606,
+      "snapshot": ".tmp/ecr-checker-current/test_ecr_checker.py"
+    }
+  ]
+}

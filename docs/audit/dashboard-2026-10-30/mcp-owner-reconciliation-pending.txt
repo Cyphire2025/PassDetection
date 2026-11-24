@@ -1,0 +1,24 @@
+Stale workflow surface: frontend:frontend/features/whatsapp/api/broadcast-message-reads.api.ts:batchStatus
+Stale workflow surface: frontend:frontend/features/whatsapp/api/broadcast-message-reads.api.ts:batchSummary
+Stale workflow surface: frontend:frontend/features/whatsapp/api/broadcast-message-reads.api.ts:previewRecipientsResend
+Stale workflow surface: frontend:frontend/features/whatsapp/api/broadcast-recipients.api.ts:rejectedContacts
+Stale workflow surface: frontend:frontend/features/whatsapp/api/broadcast-resend-payload.ts:bulkResendOverridesPayload
+Stale workflow surface: frontend:frontend/features/whatsapp/api/broadcast-resend-payload.ts:validateBulkRecipientSelection
+Stale workflow surface: frontend:frontend/features/whatsapp/api/broadcast-resends.api.ts:resendRecipientMessage
+Stale workflow surface: frontend:frontend/features/whatsapp/api/broadcast-resends.api.ts:resendRecipientsMessage
+Stale workflow surface: frontend:frontend/features/whatsapp/api/broadcast-sends.api.ts:sendGroupInvite
+Stale workflow surface: frontend:frontend/features/whatsapp/api/broadcast-sends.api.ts:sendPassportLink
+Stale workflow surface: frontend:frontend/features/whatsapp/api/broadcast-sends.api.ts:sendReminder
+Stale workflow surface: frontend:frontend/features/whatsapp/api/broadcast-sends.api.ts:sendWelcome
+Stale workflow surface: frontend_api:frontend/features/whatsapp/api/broadcast-resends.api.ts
+Stale workflow surface: frontend_api:frontend/features/whatsapp/api/broadcast-sends.api.ts
+Workflow contract changed; review classification: endpoint_registry:frontend/lib/api/endpoints.ts
+Workflow contract changed; review classification: frontend_api:frontend/features/branding/api/branding-images.api.ts
+Workflow contract changed; review classification: frontend_api:frontend/features/gc-app/api/gc-app-admin.api.ts
+Workflow contract changed; review classification: frontend_api:frontend/features/mcp/api/mcp.api.ts
+Workflow contract changed; review classification: frontend_api:frontend/features/passports/api/passports.api.ts
+Workflow contract changed; review classification: frontend_api:frontend/features/whatsapp/api/broadcast-message-reads.api.ts
+Workflow contract changed; review classification: frontend_api:frontend/features/whatsapp/api/broadcast-recipients.api.ts
+Workflow contract changed; review classification: frontend_api:frontend/lib/api/client.ts
+Workflow contract changed; review classification: frontend_api:frontend/lib/api/endpoints.ts
+Workflow contract changed; review classification: frontend_api:frontend/lib/api/streamed-download.ts

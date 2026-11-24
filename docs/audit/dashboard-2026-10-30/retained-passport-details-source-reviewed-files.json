@@ -1,0 +1,50 @@
+{
+  "status": "Retained client-details/AI-fallback source cohort complete",
+  "files": [
+    {
+      "path": "backend/tests/unit/presentation/test_passport_client_details_flow.py",
+      "sha256": "16cbc4f82012165edb8d1d8b2af77c147bff255d8ab596431bb91ad68e4f7c3a",
+      "physical_lines": 231,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-231. Real HTTP client-detail correction persists updated employee code/contact with exact audit changed-field names while approval/extraction unchanged, across unlinked/legacy/selected broadcast policy and dashboard-triggered shared reconciliation enabled/disabled. Optional PostgreSQL fixture only loopback host and unique owned schema/finally cleanup; actual environment URL never read and no service/DDL executed. PostgreSQL-only real QR timezone assertion not claimed by SQLite/source review. Native ingress/device work excluded."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_passport_client_details_routes.py",
+      "sha256": "e0e4bfd5af9d945bd28cb90e9cf0e47d5dca04a779abc6d94fc26305810df7b7",
+      "physical_lines": 273,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-273. Existing current client-detail public boundary mocks assert linked-broadcast/private-delivery guard/submission lock/update/audit/propagate/commit order. Current timestamp conflict, no-op and invalid changes avoid side effects; active/unknown private delivery409, persistence/audit/propagation failures roll back. Role/tenant/assignment/lifecycle/draft/404 and sensitive no-store read/CSRF dependency controls preserved; no product tests run for read credit. Root shared helper/route qualification remains frozen."
+    },
+    {
+      "path": "backend/tests/unit/application/test_passport_ai_verification.py",
+      "sha256": "98f367e2d185a8247da58961b3292c67fd6c4f9204a5ee33acd8b5ac6f22df64",
+      "physical_lines": 53,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-53. Synthetic broken/inconsistent verifier controls preserve original reviewable fields with explicit internal_error or authoritative metadata overriding merged status. These existing tests do not call a provider or reactivate OCR/MRZ; historical test wording is not implementation scope. No check executed."
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/passport_ai_verification.py",
+      "sha256": "b25e566934ccd6c607cc0f52258f61227ab00a7de0bcd469179dbcc7a677b9b7",
+      "physical_lines": 67,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-67. Copies original fields, no-service/expired-deadline explicit metadata, bounded optional timeout, authoritative returned metadata overrides inconsistent merged field status, generic failure logs exception type only. Cancellation BaseException not swallowed; no live provider/extraction/storage/credential operation."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/client_details.py",
+      "sha256": "7f46d49afcc137b131541db751a35fd25dff60d48472abf0caf0f53efc92b91b",
+      "physical_lines": 131,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical48-131 only: actual current typed dependency wiring/read/edit consumers, shared correction helper stages caller-owned commit; no-store sensitive read/response, original HTTP rollback/status mappings. Current root-qualified shared helper/route implementation not reopened or modified; no whole-file credit."
+    }
+  ]
+}

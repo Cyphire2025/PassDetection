@@ -1,0 +1,38 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+_____ test_client_manager_list_rejects_cross_agency_user_profile_binding ______
+
+auth_database = namespace(app=<fastapi.applications.FastAPI object at 0x000001174106DC50>, sessions=async_sessionmaker(class_='AsyncSe...ent object at 0x0000011740EC5410 [set]>, release=<asyncio.locks.Event object at 0x00000117413CF2D0 [set]>, fail=False))
+
+    async def test_client_manager_list_rejects_cross_agency_user_profile_binding(auth_database):
+        env = auth_database
+        env.app.include_router(router, prefix=BASE)
+        _, headers, _ = await prepare_manager_command(env, "reinvite")
+        # This historical inconsistency is allowed by the current user-id FK.
+        # Mutation lookup already rejects it with a user+profile tenant predicate;
+        # the directory must enforce that same boundary when projecting user PII.
+        other_id = uuid.uuid4()
+        async with env.sessions() as session, session.begin():
+            session.add(AgencyModel(id=other_id, name="Other Agency", email="other-agency@example.com"))
+            await session.flush()
+            manager = await session.scalar(select(UserModel).where(UserModel.role == "client_manager"))
+            manager.agency_id = other_id
+            manager.full_name = "Other Agency Person"
+            manager.email = "other-agency-person@example.com"
+        env.gate.release.set()
+        async with AsyncClient(
+            transport=ASGITransport(app=env.app), base_url="http://testserver"
+        ) as client:
+            response = await client.get(f"{BASE}/client-managers", headers=headers)
+        assert response.status_code == 200
+>       assert response.json()["total"] == 0
+E       assert 1 == 0
+
+tests\integration\test_gc_manager_joined_tenant_boundary.py:35: AssertionError
+---------------------------- Captured stdout call -----------------------------
+2026-10-30T21:14:22.691683Z [info     ] refresh_token_created          [app.infrastructure.repositories.refresh_token_repository] user_id=d8cd34ba-9609-4d27-b936-05bd23801e82
+------------------------------ Captured log call ------------------------------
+INFO     app.infrastructure.repositories.refresh_token_repository:refresh_token_repository.py:77 {'user_id': 'd8cd34ba-9609-4d27-b936-05bd23801e82', 'event': 'refresh_token_created', 'logger': 'app.infrastructure.repositories.refresh_token_repository', 'level': 'info', 'timestamp': '2026-10-30T21:14:22.691683Z'}
+=========================== short test summary info ===========================
+FAILED tests/integration/test_gc_manager_joined_tenant_boundary.py::test_client_manager_list_rejects_cross_agency_user_profile_binding
+1 failed in 4.20s

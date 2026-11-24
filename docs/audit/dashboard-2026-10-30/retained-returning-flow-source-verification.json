@@ -1,0 +1,38 @@
+{
+  "status": "Bounded read-only retained returning-flow cohort complete; broader audit active",
+  "new_current_full_tests": 7,
+  "test_physical_lines": 910,
+  "supporting_full_rows": 6,
+  "focused_rows": 3,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-returning-flow-source-reviewed-files.json",
+    "sha256": "73b9289ce0507472b8300016656b80fcc73dc2ccff47c929ec2d2a52584afb67"
+  },
+  "source_fence": {
+    "backend/tests/integration/test_returning_company_inheritance.py": "0061ae463f4489bf21b762db55d63eb254c45e99b1ca13d564797b181aafbc06",
+    "backend/tests/integration/test_returning_completion.py": "899766b271b0e16ff67babf2e4a647fc1667006ab04ecc0d6d956eddae534a24",
+    "backend/tests/integration/test_returning_contact_change.py": "dc72f0508854e33168827ae40e8067625a16b22a86590d8410564b39ad6a0941",
+    "backend/tests/integration/test_returning_contact_scope.py": "ad0641f52e19beb95b9039eabbb01beea8f414b7b55cb7c5c931770ea3d8feeb",
+    "backend/tests/integration/test_returning_document_controls.py": "b9345ef1bd2985d5ecefc19df7e86439da686b7ca153806499d3eca1b4384eb9",
+    "backend/tests/integration/test_returning_draft_collection.py": "76d6a949afd0d7c4fbfa8d1b95dcd5c8eee227bbcae14921624d42afc48b1df5",
+    "backend/tests/integration/test_returning_http_flow.py": "a5c0f640999db7b033b0f1be3aae9296df27eee65102db94868c0b48a701b063",
+    "backend/app/application/travellers/passport_selection.py": "761d11063f9b673c51ef3140e03d15397121fa1861ebb2a155c38f8dec5a2dec",
+    "backend/app/application/travellers/contact_change.py": "f5051d220373df7275ccff9209de293860eed25736b0798e96dd0edcd6f3e12e",
+    "backend/app/application/travellers/draft_contact.py": "a9773eb14f5646ec9e3dd747dbc6167716933556f53eca946b11f19f018ab3b9",
+    "backend/app/presentation/api/v1/routes/returning_history.py": "d8b0ef8add785c3738bf9f27bf38822eacabd1c0d14120a53a3383c0f6311d74",
+    "backend/app/presentation/api/v1/routes/returning_dependencies.py": "66a1dceb02091608a1f37256d23b634e0aaf49cafd2f9d782e7b10447fbab9dd",
+    "backend/app/application/travellers/document_lifecycle.py": "b9adf24edb6d54101033112a7e689f6c7147dfd625359ca4dcef38f384b1fff5",
+    "backend/app/application/travellers/completion.py": "ff83213778a3fef8585d6b8f5cd57670d45136883e29414761b66fb480f73446",
+    "backend/app/application/travellers/draft_completion.py": "e57cbbd30e03b3e009639bd37dc5b7b061f6af51160c217c951fc310ca6e6891",
+    "backend/app/application/travellers/authority.py": "dcd35f002a1e29362ec8fd6857f128f181759ce68b960381ecb4aefbd579bead"
+  },
+  "checks_run": [],
+  "changes": [],
+  "findings": [],
+  "proof_gaps": [
+    "No tests/checks/live provider/credential/storage/network invocation; source assertions are not newly executed runtime proof.",
+    "Whole function slices remain partial files; existing complex completion orchestration remains architecture debt, not closed by source read.",
+    "Mock OTP/memory storage/SQLite source fixtures do not establish real PostgreSQL races or browser/provider delivery.",
+    "No ordinary validated new defect, all existing frozen runtime/test/model/auth policies unchanged."
+  ]
+}

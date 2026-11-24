@@ -1,0 +1,22 @@
+{
+  "whole_original_statements": 50,
+  "expanded_function_and_signature_AST_exact": true,
+  "whole_nonimport_module_AST_exact": true,
+  "moved_normalization_statements": 6,
+  "moved_existing_source_statements": 4,
+  "allowed_substitution": [
+    "source helper local session -> original service.session",
+    "source helper UUID revision_id -> original revision.id"
+  ],
+  "extra_internal_operations": [
+    "one four-value immutable normalized-answer record",
+    "one three-value immutable locked-source result",
+    "purpose-specific helper call frames and existing-context unpack"
+  ],
+  "all_runtime_query_validation_payload_event_flush_audit_commit_expressions_exact": true,
+  "source_hashes": {
+    "backend/app/application/travellers/completion.py": "482e64c87c350ad1989ccf8ba4d4489d158a638733460e4416054e2a25f03e37",
+    "backend/app/application/travellers/completion_answers.py": "b41cda386f09511f35665db73417e3634e080258a64a20718233ce6e1235596e",
+    "backend/app/application/travellers/completion_source.py": "9860abbdfe7144b1f66005a410c86c5738264e72a3ced079be405268e35e6ea8"
+  }
+}

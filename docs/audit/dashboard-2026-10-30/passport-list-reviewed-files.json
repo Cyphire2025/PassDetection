@@ -1,0 +1,138 @@
+{
+  "recorded_at": "2026-10-30T22:11:31.933Z",
+  "records": [
+    {
+      "path": "frontend/features/passports/components/passport-list.tsx",
+      "sha256": "4b578db38737c4949c00c017fb83a4884ff328ccdda083c509fa9289be889359",
+      "physical_lines": 121,
+      "max_function_complexity": 5,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Full physical original source read; authored failure-state correction and current JSX/hook/prop wiring reviewed.22 moved source parts have separate AST/JSX evidence."
+    },
+    {
+      "path": "frontend/features/passports/components/use-passport-list.ts",
+      "sha256": "3dc294045a152f57dc1f43c2e96b602036faf21c09a6f0bf4fab04faddc0687c",
+      "physical_lines": 79,
+      "max_function_complexity": 13,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Full physical original source read; authored failure-state correction and current JSX/hook/prop wiring reviewed.22 moved source parts have separate AST/JSX evidence."
+    },
+    {
+      "path": "frontend/features/passports/components/passport-list-overview.tsx",
+      "sha256": "0ab0d479e485584e0fb517a59ac3e8fae554b5e4b63979505900a9b0694667ad",
+      "physical_lines": 115,
+      "max_function_complexity": 19,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Full physical original source read; authored failure-state correction and current JSX/hook/prop wiring reviewed.22 moved source parts have separate AST/JSX evidence."
+    },
+    {
+      "path": "frontend/features/passports/components/passport-list-filters.tsx",
+      "sha256": "023ce4b2b15f8a8e7227e357c1fb0a8f6da8e1e3f629aa128a9f199efe81f52f",
+      "physical_lines": 67,
+      "max_function_complexity": 2,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Full physical original source read; authored failure-state correction and current JSX/hook/prop wiring reviewed.22 moved source parts have separate AST/JSX evidence."
+    },
+    {
+      "path": "frontend/features/passports/components/passport-list-export-controls.tsx",
+      "sha256": "791e217846bbd62b729875740cb864e277949a3b83be1753bb00839c9fa80b99",
+      "physical_lines": 87,
+      "max_function_complexity": 6,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Full physical original source read; authored failure-state correction and current JSX/hook/prop wiring reviewed.22 moved source parts have separate AST/JSX evidence."
+    },
+    {
+      "path": "frontend/features/passports/components/passport-list-table.tsx",
+      "sha256": "75edce19fc3708217c78d3a7448d7871781be934d487d9cec42310c06988fdea",
+      "physical_lines": 118,
+      "max_function_complexity": 7,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Full physical original source read; authored failure-state correction and current JSX/hook/prop wiring reviewed.22 moved source parts have separate AST/JSX evidence."
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-list-card.tsx",
+      "sha256": "31b464637314375fda7360fe5dfde7a20f63b62e8736e960f248e595038da9af",
+      "physical_lines": 98,
+      "max_function_complexity": 5,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Full physical original source read; authored failure-state correction and current JSX/hook/prop wiring reviewed.22 moved source parts have separate AST/JSX evidence."
+    }
+  ],
+  "test_records": [
+    {
+      "path": "frontend/features/passports/components/passport-list.test.tsx",
+      "sha256": "194dc71874271ba9d5d9fd3898457fafd1043f746617f0625ce7c42ecd6015ae",
+      "review_scope": "full",
+      "status": "reviewed-and-updated"
+    },
+    {
+      "path": "frontend/features/passports/components/passport-list-source.contract-helper.mjs",
+      "sha256": "9bd37cc621b74bba39546743dc57cf58d67daf58b8c04cdf6ee59c1e3814a766",
+      "review_scope": "full",
+      "status": "reviewed-and-updated"
+    },
+    {
+      "path": "frontend/features/passports/api/passport-export-history.contract.test.mjs",
+      "sha256": "93b6ae1b56d3df2317681a77b60886976ac3c2e1513a98569755a6bc5815e952",
+      "review_scope": "full",
+      "status": "reviewed-and-updated"
+    },
+    {
+      "path": "frontend/features/dashboard/components/dashboard-ui-transformation.contract.test.mjs",
+      "sha256": "ccf50fe994f9bdcadbfdb963846a7ed753bb88fbb004d76a88b57bfc4ad75138",
+      "review_scope": "focused",
+      "status": "reviewed-and-updated",
+      "review_note": "Read the current source-loader section and changed one loader to the actual passport-list owners. Assertion bodies retained unchanged and executed; no new full-file physical-review claim for this shared test."
+    }
+  ],
+  "runtime_files": 7,
+  "original_lines": 503,
+  "current_facade_lines": 121,
+  "maximum_owner_lines": 121,
+  "proofs": {
+    "baseline": {
+      "path": ".tmp/passport-list-before.json",
+      "files": 1,
+      "cases": 3,
+      "passed": 1,
+      "failed": 2
+    },
+    "final": {
+      "path": ".tmp/passport-list-final.json",
+      "files": 1,
+      "cases": 5,
+      "passed": 5,
+      "failed": 0
+    },
+    "node_contracts": {
+      "files": 2,
+      "cases": 20,
+      "passed": 20,
+      "path": ".tmp/passport-list-contracts.txt"
+    },
+    "types": "passed",
+    "scoped_eslint": "passed"
+  },
+  "fixes": [
+    "Initial request failure has unavailable metrics/workspaces and explicit retry, never false successful zero/first group.",
+    "Refresh failure labels previously loaded data while retaining rows, filters and selected group IDs.",
+    "Retry is disabled during a replacement fetch."
+  ],
+  "preserved": [
+    "Successful zero portfolio remains a valid empty state.",
+    "Filters, reset, responsive row/checkbox selection and selected-group export workflow remain intact.",
+    "22 moved hook/card/JSX parts match separate normalized TS/React-JSX proof."
+  ],
+  "remaining_original_oversized_owners": 14,
+  "limits": [
+    "No whole app suite or build repeated.",
+    "Unit JSX rendering verifies failure/filter/selection state; this batch does not claim new production browser coverage."
+  ]
+}

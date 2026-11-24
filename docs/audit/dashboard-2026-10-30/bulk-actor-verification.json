@@ -1,0 +1,83 @@
+{
+  "status": "behavior-frozen-architecture-open",
+  "source_fence": {
+    "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions.py": "aad1b4a3b41c0d831f7b2aa06063be18bab9584ba59defd57573cd3c0349e820",
+    "backend/app/application/security/access_level_actor.py": "3a8eec715f67356a378986999a012723bdd21f5510518ee7320ce7d0809013a6",
+    "backend/app/presentation/api/v1/routes/managed_account_sessions.py": "64828e2872daadeaee2362b07c4a353f43c6408e4598e59e7287ebb96b628043",
+    "backend/app/presentation/api/v1/routes/managed_account_credentials.py": "067cfca4e972d2caaff00aa6b2dc81fbe3bcff6f2bb7bb39b0c4a5fee114a778",
+    "backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py": "845f15f3cab392384ca306a3d76cda56375c160c80237ee3825fc6b5dd8e9e7e",
+    "backend/tests/unit/presentation/test_bulk_approval_session_fence.py": "cb4b2e4c5ec0827ad1efe5706e2394e864a60b6fc8a2ee1d02bae620a93cf81e",
+    "backend/tests/unit/presentation/test_passport_bulk_delete_route.py": "458b2b2c710475ed9513d44128f2fd95318998995092da1adf91c7c371bbd1a8",
+    "backend/tests/unit/presentation/test_passport_submission_delete_access.py": "a00bdacedbd40ed4f612ff7f2b4af090bfbee2bb6edfbc6e8dce750439984b7a",
+    "backend/tests/unit/presentation/test_passport_deletion_support.py": "72f1d08b4e3095350904c40f9f625182462a3225564746498e1c1a5080a47939",
+    "backend/tests/unit/presentation/test_superadmin_access_level.py": "6db299d16c4955822c37a1c7852a42d5348bb04eb7afc3c06c57beb9e27d4d04"
+  },
+  "baseline": {
+    "command": "bulk-actor-before-command.json",
+    "result": "3ordinary/profile/legacycontrolsPASS/2completedrevocation/resetstatecasesFAIL"
+  },
+  "after": {
+    "command": "bulk-actor-final-command.json",
+    "result": "83passed/6files",
+    "post_test_source_delta": "One test import layout only; complete module AST equals baseline; runtime and other test bytes remain frozen. No broad tests repeated for formatting."
+  },
+  "proof": "bulk-actor-behavior-proof.json",
+  "proof_sha256": "36262627e30d3c854bafcf45bb6b78817ae9cb4c74a975eab6d9c465e2ad68aa",
+  "coverage": {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions.py",
+    "summary": {
+      "covered_lines": 192,
+      "num_statements": 201,
+      "percent_covered": 94.46640316205534,
+      "percent_covered_display": "94",
+      "missing_lines": 9,
+      "excluded_lines": 3,
+      "percent_statements_covered": 95.5223880597015,
+      "percent_statements_covered_display": "96",
+      "num_branches": 52,
+      "num_partial_branches": 3,
+      "covered_branches": 47,
+      "missing_branches": 5,
+      "percent_branches_covered": 90.38461538461539,
+      "percent_branches_covered_display": "90"
+    },
+    "json": "bulk-actor-coverage.json",
+    "xml": "bulk-actor-coverage.xml"
+  },
+  "checks": [
+    {
+      "name": "types",
+      "argv": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "mypy",
+        "app/presentation/api/v1/routes/passport_routes/bulk_actions.py"
+      ],
+      "exit_code": 0,
+      "output": "bulk-actor-types.txt"
+    },
+    {
+      "name": "lint",
+      "argv": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "ruff",
+        "check",
+        "--no-fix",
+        "app/presentation/api/v1/routes/passport_routes/bulk_actions.py",
+        "tests/unit/presentation/test_bulk_approval_session_fence.py",
+        "tests/unit/presentation/test_passport_bulk_staff_approval_route.py"
+      ],
+      "exit_code": 0,
+      "output": "bulk-actor-lint.txt"
+    }
+  ],
+  "normal_budget": "Existing700lines/C21/floor94 preserved; actual source remains within every existing limit. No budget weakening or new proposal in this behavior checkpoint.",
+  "correction": "Lock authoritative security state after the existing user lock, then apply existing canonical current credential/session validation to ordinary actors. Existing role/profile branch, scope, approval/deletion payloads and all other handler statements stay exact.",
+  "limits": [
+    "This is an in-flight request with a previously authenticated snapshot; fresh revoked requests were already rejected by authentication.",
+    "Session revocation invokes real management helper; reset case persists its exact invited/version transition without invoking a password/provider endpoint.",
+    "Actual SQLite persistence/side-effect absence; no live PostgreSQL concurrency claim.",
+    "Bulk controller architecture and corrupted-roster diagnostic privacy are separate follow-ups."
+  ]
+}

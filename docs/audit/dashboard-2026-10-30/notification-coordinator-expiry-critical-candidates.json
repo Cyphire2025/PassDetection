@@ -1,0 +1,25 @@
+{
+  "status": "original80line/60branch obligations retained on both actual write/read owners",
+  "coverage_path": ".tmp/notification-coordinator-expiry/coverage.xml",
+  "original_row": {
+    "path": "app/application/mobile/notification_authority.py",
+    "minimum_line_percent": 80,
+    "minimum_branch_percent": 60
+  },
+  "modules": [
+    {
+      "path": "app/application/mobile/notification_authority.py",
+      "source_sha256": "256d49c099af6fdcbd890188c2377a33654098c96ae720c8d5f824eecf823c8f",
+      "minimum_line_percent": 80,
+      "minimum_branch_percent": 60
+    },
+    {
+      "path": "app/application/mobile/notification_group_authority.py",
+      "source_sha256": "9ce27a54edbb03114908fcd54816565a90a05e561c51f15d8cd2db50d899f66a",
+      "minimum_line_percent": 80,
+      "minimum_branch_percent": 60
+    }
+  ],
+  "no_old_floor_relaxed": true,
+  "discard_previous_authority_source_coverage_for_this_delta": true
+}

@@ -1,0 +1,82 @@
+FFFFFF..........                                                         [100%]
+================================== FAILURES ===================================
+_ test_invitation_rejects_name_below_minimum_after_trimming[  -CreateManagerRequest] _
+
+request_type = <class 'app.presentation.api.v1.schemas.operations_schemas.CreateManagerRequest'>
+name = '  '
+
+    @pytest.mark.parametrize("request_type", INVITATION_TYPES)
+    @pytest.mark.parametrize("name", ["  ", " \t\n ", " A "])
+    def test_invitation_rejects_name_below_minimum_after_trimming(request_type, name):
+>       with pytest.raises(ValidationError) as invalid:
+E       Failed: DID NOT RAISE <class 'pydantic_core._pydantic_core.ValidationError'>
+
+tests\unit\presentation\test_workforce_invitation_names.py:16: Failed
+_ test_invitation_rejects_name_below_minimum_after_trimming[  -CreateStaffRequest] _
+
+request_type = <class 'app.presentation.api.v1.schemas.operations_schemas.CreateStaffRequest'>
+name = '  '
+
+    @pytest.mark.parametrize("request_type", INVITATION_TYPES)
+    @pytest.mark.parametrize("name", ["  ", " \t\n ", " A "])
+    def test_invitation_rejects_name_below_minimum_after_trimming(request_type, name):
+>       with pytest.raises(ValidationError) as invalid:
+E       Failed: DID NOT RAISE <class 'pydantic_core._pydantic_core.ValidationError'>
+
+tests\unit\presentation\test_workforce_invitation_names.py:16: Failed
+_ test_invitation_rejects_name_below_minimum_after_trimming[ \t\n -CreateManagerRequest] _
+
+request_type = <class 'app.presentation.api.v1.schemas.operations_schemas.CreateManagerRequest'>
+name = ' \t\n '
+
+    @pytest.mark.parametrize("request_type", INVITATION_TYPES)
+    @pytest.mark.parametrize("name", ["  ", " \t\n ", " A "])
+    def test_invitation_rejects_name_below_minimum_after_trimming(request_type, name):
+>       with pytest.raises(ValidationError) as invalid:
+E       Failed: DID NOT RAISE <class 'pydantic_core._pydantic_core.ValidationError'>
+
+tests\unit\presentation\test_workforce_invitation_names.py:16: Failed
+_ test_invitation_rejects_name_below_minimum_after_trimming[ \t\n -CreateStaffRequest] _
+
+request_type = <class 'app.presentation.api.v1.schemas.operations_schemas.CreateStaffRequest'>
+name = ' \t\n '
+
+    @pytest.mark.parametrize("request_type", INVITATION_TYPES)
+    @pytest.mark.parametrize("name", ["  ", " \t\n ", " A "])
+    def test_invitation_rejects_name_below_minimum_after_trimming(request_type, name):
+>       with pytest.raises(ValidationError) as invalid:
+E       Failed: DID NOT RAISE <class 'pydantic_core._pydantic_core.ValidationError'>
+
+tests\unit\presentation\test_workforce_invitation_names.py:16: Failed
+_ test_invitation_rejects_name_below_minimum_after_trimming[ A -CreateManagerRequest] _
+
+request_type = <class 'app.presentation.api.v1.schemas.operations_schemas.CreateManagerRequest'>
+name = ' A '
+
+    @pytest.mark.parametrize("request_type", INVITATION_TYPES)
+    @pytest.mark.parametrize("name", ["  ", " \t\n ", " A "])
+    def test_invitation_rejects_name_below_minimum_after_trimming(request_type, name):
+>       with pytest.raises(ValidationError) as invalid:
+E       Failed: DID NOT RAISE <class 'pydantic_core._pydantic_core.ValidationError'>
+
+tests\unit\presentation\test_workforce_invitation_names.py:16: Failed
+_ test_invitation_rejects_name_below_minimum_after_trimming[ A -CreateStaffRequest] _
+
+request_type = <class 'app.presentation.api.v1.schemas.operations_schemas.CreateStaffRequest'>
+name = ' A '
+
+    @pytest.mark.parametrize("request_type", INVITATION_TYPES)
+    @pytest.mark.parametrize("name", ["  ", " \t\n ", " A "])
+    def test_invitation_rejects_name_below_minimum_after_trimming(request_type, name):
+>       with pytest.raises(ValidationError) as invalid:
+E       Failed: DID NOT RAISE <class 'pydantic_core._pydantic_core.ValidationError'>
+
+tests\unit\presentation\test_workforce_invitation_names.py:16: Failed
+=========================== short test summary info ===========================
+FAILED tests/unit/presentation/test_workforce_invitation_names.py::test_invitation_rejects_name_below_minimum_after_trimming[  -CreateManagerRequest]
+FAILED tests/unit/presentation/test_workforce_invitation_names.py::test_invitation_rejects_name_below_minimum_after_trimming[  -CreateStaffRequest]
+FAILED tests/unit/presentation/test_workforce_invitation_names.py::test_invitation_rejects_name_below_minimum_after_trimming[ \t\n -CreateManagerRequest]
+FAILED tests/unit/presentation/test_workforce_invitation_names.py::test_invitation_rejects_name_below_minimum_after_trimming[ \t\n -CreateStaffRequest]
+FAILED tests/unit/presentation/test_workforce_invitation_names.py::test_invitation_rejects_name_below_minimum_after_trimming[ A -CreateManagerRequest]
+FAILED tests/unit/presentation/test_workforce_invitation_names.py::test_invitation_rejects_name_below_minimum_after_trimming[ A -CreateStaffRequest]
+6 failed, 10 passed in 0.43s

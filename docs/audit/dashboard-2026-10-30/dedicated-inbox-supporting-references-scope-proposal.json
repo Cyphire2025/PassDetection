@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "status": "proposal-only-no-policy-mutation",
+  "reviewer": "branding_visuals",
+  "parent_request": "Root requested exact2dedicated Inbox refs to combine with upcoming separate native test scope qualification.",
+  "files": [
+    {
+      "path": "docs/remediation/email-constraint-evidence.json",
+      "sha256": "2f3fe8759d675f2bbdaa8329c9a8572c8f6d993b503ce4893a0b513c8581f52a",
+      "bytes": 1492,
+      "proposed_scope": "operations-inbox-deferred",
+      "review_scope": "focused",
+      "evidence_origin": "Root generated147 purpose/metadata triage explicitly identified dedicated Inbox constraint receipts; child performs path/hash/size only, no email feature content read.",
+      "purpose_evidence": "Dedicated email SQLite/PostgreSQL constraint evidence; JSON root keys SQLite/PG/cases/boundary/constraints as reported by root, paired SQLite text receipt. Not shared email/tour decomposition.",
+      "historical_inventory": {
+        "scope": "supporting-material",
+        "status": "inventoried",
+        "review_scope": "unreviewed",
+        "sha256": "2f3fe8759d675f2bbdaa8329c9a8572c8f6d993b503ce4893a0b513c8581f52a",
+        "reviewer": "",
+        "notes": ""
+      }
+    },
+    {
+      "path": "docs/remediation/email-constraints-sqlite.txt",
+      "sha256": "2cc1ec2409e7762a4b982d719d22e91cb51938835855eb7ef90ac3f30ba8c900",
+      "bytes": 100,
+      "proposed_scope": "operations-inbox-deferred",
+      "review_scope": "focused",
+      "evidence_origin": "Root generated147 purpose/metadata triage explicitly identified dedicated Inbox constraint receipts; child performs path/hash/size only, no email feature content read.",
+      "purpose_evidence": "Dedicated email SQLite/PostgreSQL constraint evidence; JSON root keys SQLite/PG/cases/boundary/constraints as reported by root, paired SQLite text receipt. Not shared email/tour decomposition.",
+      "historical_inventory": {
+        "scope": "supporting-material",
+        "status": "inventoried",
+        "review_scope": "unreviewed",
+        "sha256": "2cc1ec2409e7762a4b982d719d22e91cb51938835855eb7ef90ac3f30ba8c900",
+        "reviewer": "",
+        "notes": ""
+      }
+    }
+  ],
+  "proposed_change": "Add only these2literal relative paths to existing dedicated Inbox deferral list. No docs/remediation/email* glob and no removal/status reset.",
+  "explicit_retained": [
+    "docs/remediation/email-tour-decomposition-evidence.json",
+    "docs/remediation/email-tour-decomposition.md",
+    "backend/tests/unit/infrastructure/test_email_storage_reconciliation.py"
+  ],
+  "limits": [
+    "No independent email feature/content/security/behavior audit, provider/DB/service/test action or full semantic review credit.",
+    "Preserve exact original bytes, hash/history/status/findings and completed evidence; deferral excludes only remaining work from active estimates.",
+    "Root owns consolidated policy/test/inventory integration; proposal is source-bound purpose metadata only."
+  ]
+}

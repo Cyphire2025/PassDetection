@@ -1,0 +1,64 @@
+{
+  "argv": [
+    "C:\\Users\\nipun\\AppData\\Local\\Programs\\node-v24.21.0-win-x64\\node.exe",
+    "node_modules/@playwright/test/cli.js",
+    "test",
+    "--config",
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\final-frontend-integration\\production.config.ts"
+  ],
+  "exit_code": 0,
+  "seconds": 382.281,
+  "source_drift": {},
+  "log_sha256": "7d6c0b72354589edbf9f0e0c2cddde6148fe6a0e46a84aea75c32c992d0b73b4",
+  "branding_screenshots": {
+    "company-logo-preview.png": {
+      "sha256": "aacfca472f400c3dce734a0a428db45185a542a483432a8e9d9c067284405fcc",
+      "path": "docs/audit/dashboard-2026-10-30/final-retained-frontend-20261101-002/branding-screenshots/company-logo-preview.png"
+    },
+    "all-groups-desktop.png": {
+      "sha256": "b0547142883fe73832c2baeb7f45fa7b384dd14e8b7cad70194118cbdb7984d1",
+      "path": "docs/audit/dashboard-2026-10-30/final-retained-frontend-20261101-002/branding-screenshots/all-groups-desktop.png"
+    },
+    "company-logo-editor.png": {
+      "sha256": "6c540b36cdced0301ca38549921ffba4c31469fcbb0879ffa2ae654293d6b764",
+      "path": "docs/audit/dashboard-2026-10-30/final-retained-frontend-20261101-002/branding-screenshots/company-logo-editor.png"
+    },
+    "group-banner-desktop.png": {
+      "sha256": "7b5dcd8ce115be3d476dea95972b30eef847c45f456e66446779ef9e1cea3b52",
+      "path": "docs/audit/dashboard-2026-10-30/final-retained-frontend-20261101-002/branding-screenshots/group-banner-desktop.png"
+    },
+    "group-banner-mobile.png": {
+      "sha256": "40a077156f5dd1a0a072b26f9d1f93f9007b7eabf490d6a2f394b8f57b5bfbf4",
+      "path": "docs/audit/dashboard-2026-10-30/final-retained-frontend-20261101-002/branding-screenshots/group-banner-mobile.png"
+    },
+    "visa-company-logo.png": {
+      "sha256": "f6f9625c2d18d807208db3a1f500ffeab22566bc514f145d32b774389c33185b",
+      "path": "docs/audit/dashboard-2026-10-30/final-retained-frontend-20261101-002/branding-screenshots/visa-company-logo.png"
+    },
+    "group-background-editor.png": {
+      "sha256": "5b8a49d1c791c6f4c5ab34dd34e2b4cbaa56919fd016af2988f3d5f790d476d4",
+      "path": "docs/audit/dashboard-2026-10-30/final-retained-frontend-20261101-002/branding-screenshots/group-background-editor.png"
+    },
+    "group-background-desktop.png": {
+      "sha256": "6990e6567777a8dc975320f94cddbe1adeab80f3b150ac4e492ebbb23082986d",
+      "path": "docs/audit/dashboard-2026-10-30/final-retained-frontend-20261101-002/branding-screenshots/group-background-desktop.png"
+    },
+    "group-background-mobile.png": {
+      "sha256": "f83a9d3823089496c722f4b6475548f1722fd550310ab9df9a75a11b0b080256",
+      "path": "docs/audit/dashboard-2026-10-30/final-retained-frontend-20261101-002/branding-screenshots/group-background-mobile.png"
+    },
+    "group-background-editor-mobile.png": {
+      "sha256": "6a468e64a2add2ef934b8b6d0a6a7a33d6b4ddd9e9b1e1a89aa9013d4875ac43",
+      "path": "docs/audit/dashboard-2026-10-30/final-retained-frontend-20261101-002/branding-screenshots/group-background-editor-mobile.png"
+    },
+    "group-banner-first-editor-1440.png": {
+      "sha256": "8e844011c3743adff99cfbbcc45b6ae2ffff9bf00b0bf98ec2f87e2231bbe0b7",
+      "path": "docs/audit/dashboard-2026-10-30/final-retained-frontend-20261101-002/branding-screenshots/group-banner-first-editor-1440.png"
+    },
+    "group-banner-first-editor-390.png": {
+      "sha256": "90106802d23fbf65ac30d976baecf98e5f2701205ba21fed461623ca121e499a",
+      "path": "docs/audit/dashboard-2026-10-30/final-retained-frontend-20261101-002/branding-screenshots/group-banner-first-editor-390.png"
+    }
+  },
+  "limits": "Chromium production build with synthetic API/browser fixtures. No actual backend/service/provider/mobile device or VPS qualification."
+}

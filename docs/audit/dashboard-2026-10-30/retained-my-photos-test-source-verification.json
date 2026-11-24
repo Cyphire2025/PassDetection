@@ -1,0 +1,28 @@
+{
+  "status": "complete current physical retained test-source review only",
+  "files": 7,
+  "physical_lines": 3408,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-my-photos-test-source-reviewed-files.json",
+    "sha256": "7c855f7d5abfe85f62117380bb87342b939c358e41868e5846b07b8196714d48"
+  },
+  "source_before_equals_after": true,
+  "source_fence": {
+    "backend/tests/unit/infrastructure/test_my_photos_aws_providers.py": "a0d884072b18a9fbe5ac3d89cc1eb148f41951784cf571aa33944fbafdbc9e89",
+    "backend/tests/unit/infrastructure/test_my_photos_contracts.py": "5eba6233ab282377aa29b358f23efbbc671563aaf77e022f4dda1696ae28f813",
+    "backend/tests/unit/infrastructure/test_my_photos_gallery_ingestion.py": "c809f197b205f7814e5ad97c5771d4892163c4255eb599e8edbd379bd2d0d138",
+    "backend/tests/unit/infrastructure/test_my_photos_manifest_cli.py": "552f8fdbf0efb210c640878b4fd224ac897844399fc362bc6dc08fc26ae6155f",
+    "backend/tests/unit/infrastructure/test_my_photos_migration.py": "7de4abff3f565c5fa1874a4682ef5cc9414b7d3adfe1cab75e666351bab8e485",
+    "backend/tests/unit/infrastructure/test_my_photos_providers.py": "d53cd2289a5c9af5ccf1e2570d523fc3c1d49b2903bdac6401a1f45e76573418",
+    "backend/tests/unit/infrastructure/test_my_photos_scale_fixture.py": "c635f6694cd1246d485e5c73e64d6ae212d452d48f83ed5801b053d73f6fe17c"
+  },
+  "new_execution": false,
+  "runtime_mutation": false,
+  "new_validated_findings": [],
+  "scope": "Retained shared-backend MyPhotos provider, manifest, storage delivery, schema and synthetic gallery contracts; Expo/native UI remains excluded.",
+  "limits": [
+    "Physical test-source read is not execution, cloud-provider accuracy or native client qualification.",
+    "Actual SDK signing, mock provider, SQLite fixture and synthetic batch designs retain their stated per-test limitations.",
+    "All historical behavior/equivalence/coverage receipts and published migration bytes remain unchanged."
+  ]
+}

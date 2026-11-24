@@ -1,0 +1,642 @@
+{
+  "status": "PREPARED_WAITING_FOR_ROOT_GO_NO_SUITES_RUN",
+  "scope_sha256": "079ffe822ee727a55f6c2541820aa4b8b406b5d5c55cec9349fb52561397bc64",
+  "reviewed_python": ".tmp/dashboard-security-patch-venv-2/Scripts/python.exe",
+  "helpers": [
+    {
+      "path": ".tmp/final-operator-connector/probe_isolation.py",
+      "sha256": "d304d69ffaf0c866fdd2f215aa31009f4af8e467445b50e37561832358bceab5"
+    },
+    {
+      "path": ".tmp/final-operator-connector/run_final.py",
+      "sha256": "d3fedf16e79d31d1e31ddfbff9c379b4c573ec9b1353e43250093c78ad9f3275"
+    },
+    {
+      "path": ".tmp/final-operator-connector/sitecustomize.py",
+      "sha256": "699ff903869225a4875e2140d96ae11789a967c2405d19a54809d45482075c5f"
+    }
+  ],
+  "operator_discovery": {
+    "cwd": "backend",
+    "command": "python -m unittest discover -s ../scripts -p test_*.py",
+    "files": [
+      {
+        "path": "scripts/test_bounded_qualification_output.py",
+        "sha256": "20c6f8551ca2511c0d51b24a6fb0151fc1d2433fb6a33e821192e34ecbb541a1",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_branding_migration_qualification.py",
+        "sha256": "a1f13f6f2d96336d7d354079e033e7d5f8c06bbde8a70c111ab655d22c840e86",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_ci_job_inputs.py",
+        "sha256": "0192ad4ea39c6953fa47b5cc7adf78235608269905f20f340075ef3270f9bbc6",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_ci_pipeline.py",
+        "sha256": "fc7885c59d447a7993c9187fbc9cb60703eca81ecca43b408ad9358b9a8fc496",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_ci_success_reuse.py",
+        "sha256": "89851ac7d8f62af0540b9391be3e032db1f6735ec63ea4f0e61beeed7fe6bfab",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_companies_contact_qualification.py",
+        "sha256": "ae6c25e69f10247fd3ca13f00ead8bd16b9d83e5c0c0b9829a20719a2c9899ea",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_companies_fast_migration_qualification.py",
+        "sha256": "d394ec736698c8f0f8d5a6ff8bee15bc1f18fd28265c5222316b16c46e97e785",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_compose_render_fixture.py",
+        "sha256": "0213cc5b0729ff9cb5ecf8c54250b83b784e7b29bde8f29bb5016731e39d8d95",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_compose_runtime_policies.py",
+        "sha256": "7b1c614c2d65cd1eca9f7538dbe6349edf9e26a6368528c43b0ccb1bdad77830",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_dashboard_release_evidence.py",
+        "sha256": "9ab37e08e61e63381741811ad063ea709c233f6b57dedf03dbc0313d077f2453",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_database_identity_environment.py",
+        "sha256": "2bebb00c6deacff4a55d8641065a0db2019a929530d1491aaf5765d0efe277d6",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_document_migration_ownership.py",
+        "sha256": "1dc613c642ffe0240333f4a23b223b021b6c032d0c6fe7af966657fdcec9ab9f",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_document_migration_qualification.py",
+        "sha256": "12deb5eb64655e51d3acea3df1e849e19348b9fd499f6aa774bacc10b8acf6f1",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_document_redis_preflight.py",
+        "sha256": "d5d82749f2568b7d10945cba02435d0a7d24402c4afae9e0f871f97fcc53d4d4",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_document_resource_qualification.py",
+        "sha256": "26fadceac0dbe946c1515fd2721af97ba2f798b3aef0ab8e805b690aa3e1ef97",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_document_resume_baseline.py",
+        "sha256": "cadebf2e0ce006b306f8a500b214403ba64a88ba3c085ce5a67d50fb3808d016",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_expat_runtime_security.py",
+        "sha256": "5af829185adccc54cc61ae2cb5672e7d986c1fee8ba4dd546f334e5d71bc6abc",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_gcc_runtime_policy.py",
+        "sha256": "2e22c0d2a00a9b0ad5782560790899184c92357f2f0b2544714bfb83f767cfb1",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_image_advisory_policy.py",
+        "sha256": "52c515af4377c2b9c458dbb31764fbf6ef8db1675fdcfbdb1a5ca52e45df65e6",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_image_runtime_policy.py",
+        "sha256": "0af2f823eae92b66f10a98afe48862bf1a98af060912928221c72236b2197dd4",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_mcp_activation_io_boundaries.py",
+        "sha256": "f41a92d0d4356b4c67a8314ab02de5740b75af45058ee4713d6c7e19041b1570",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_mcp_activation_owners.py",
+        "sha256": "78b1349a1513b9475f005cc695055e7665641d53bdb1ae297ec8fc76cceb04c8",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_mcp_baseline_output.py",
+        "sha256": "1fd0580b4742d7130505903e5cf05bb30e009d3bfb3d63ffeabaa3b30795f19b",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_mcp_direct_activate.py",
+        "sha256": "65e5a39dd055c1392eca6a9879281b6cd7a15aa08f1a696ccc8bb2ea164683c0",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_mcp_direct_build.py",
+        "sha256": "44b63548dfdf72f81c4768aa472081c52324118a6a173fc65df6cf89836552dc",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_mcp_direct_containers.py",
+        "sha256": "8676fe428463b5f22a4880a35be6e917246ff88e60fb7c6abf24e61c524237c2",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_mcp_direct_health_admission.py",
+        "sha256": "25629e1a7c41e5a796a0abc1005966c341b257363c6bd54ba002bf7686800159",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_mcp_direct_identity.py",
+        "sha256": "de143a30099c68d6ae6bab5a7be89ab3fa291015f399ce0148af6c9d3a8be62d",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_mcp_direct_idle.py",
+        "sha256": "f450b7005edd308f97054fc481b61877d14ae6a0caa22deb84f9632648337e82",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_mcp_direct_memory.py",
+        "sha256": "c97823fb8d71df4537911179449a9a022770b59b64ce7b9e7945fced464ff9cf",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_mcp_direct_output.py",
+        "sha256": "864548e27066750e4dff5e35c97e86df783e71825b82dd485804d1e5e419aff1",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_mcp_direct_repair.py",
+        "sha256": "640fa9a744745480573c3b44f878360a43945ab5eba5e14319ea541b0f67b554",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_mcp_direct_retry.py",
+        "sha256": "a2a2ec5e30750ee04f382ddc21b2d6e1ddd930df0b3ba6d67dc23ed08e1b4f36",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_mcp_inventory.py",
+        "sha256": "c06a8cc4823075cdeb0e86ff9903c2bc6b1d896268362d018483cb921674d6ee",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_mcp_log_collector.py",
+        "sha256": "1779aba9ee59f1cd67c70d3868a02c3edb772784c68ead077fd7de100f5d752e",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_mcp_log_stream.py",
+        "sha256": "5c1c45b61dbf3381463fdb7ce7d30091b9a23bd5e5e09ee497ebb6800487dd2f",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_mcp_production_baseline.py",
+        "sha256": "4eeebc2762934d0c1e58f666104f5e2049ddcac3ce130e15027e13b356663b66",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_mcp_route_registration_discovery.py",
+        "sha256": "0780defcbc3bb562333cb9b07b40a4a5ca4eec4904ad154bd84b4512e911febd",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_mcp_source_file_kinds.py",
+        "sha256": "cb9f74e5cd027d1842e5eaa5993b8bbaf12d68802c937a5a4dca14c5a00cdabc",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_migration_output_deadline.py",
+        "sha256": "eca8412aeec11e83c830236b3fbb21bddeb6de425e9e12499da9656885b6c385",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_native_allocator_policy.py",
+        "sha256": "7f114332f946a0b381294d7e2ffc22e26ffbce38e35088794a4c287b5f07d0dc",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_node_toolchain_inventory.py",
+        "sha256": "f47baa27aa8893fe1d14d12fa91d9800c56e49147833eec16c14795b821cca13",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_operational_evidence.py",
+        "sha256": "ce03c3b07933a8f7938a44710113fd9c04cdb8e89a26bf3d654118f7e1e055ae",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_postgresql_client_qualification.py",
+        "sha256": "434a29c75d19801ec3728654a5356c3f25a4637d6a07f36b0d02041ae901ae3d",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_postgresql_client_security.py",
+        "sha256": "866501f766d5ad0c1dc2bde7b017f90123f1cd22cc74ebeae6c4c0ea2d075048",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_python_runtime_security.py",
+        "sha256": "eca7c15d2ec30e82819ba325b1ff1aca2a68b47f811314315c2f642594442aad",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_qa_bounded_memory_lifetime.py",
+        "sha256": "2a5bc6f8d4e255d4415745c6e463c1122e5a9edbd165e73234118bc02f909d5e",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_qa_native_memory_api.py",
+        "sha256": "65e3237c1e2d04bb63eb396f1c2f983fd0a617e175192daac324abde75e53270",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_qa_owned_probe_container.py",
+        "sha256": "63b9ef9a461f7154f793c4ba7b3c4f530e51d451d30e7129d178b0e2d9ca1637",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_qa_postgres_memory_lifetime.py",
+        "sha256": "9e0be5df2cfc100dcaf6d037d97f6754bc8be1200da5772524abbad3a3e3c3a5",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_qualification_seed_registry.py",
+        "sha256": "aaa80c228efbc2a16efaaccf867438d85f1ad2c7ecc111a0a5170dbc9701f73f",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_qualification_storage_identity.py",
+        "sha256": "11edc6afadd3c4b9b33319ca3d949cd76f93ca056656eaa90191ba9c3baeed9a",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_registry_preflight.py",
+        "sha256": "b4a1664590ec6756e936e2c357a12e891ed0500ced09193bcaa87cf3120057a7",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_release_artifacts.py",
+        "sha256": "770a1a0e115f89ecf96120d672640310de2b0a7c9939733de49fe44f7cac63c2",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_release_authored_notifications.py",
+        "sha256": "a494909f07567c5a3b1afa5d863736822e07f4ae1b8333bb2eb43ed224edc914",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_release_ci_dispatch.py",
+        "sha256": "fd676f0693b24299c2e498c7ba7b4543d28b784235c21c219cb36e3bd5482e76",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_release_code_update.py",
+        "sha256": "04d6f5a150b824960857ad8671e468060182fe4138f83b21b6d50e7d8c4c4147",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_release_companies_credentials.py",
+        "sha256": "f991fa52cb36667ca605fb1260cef3a608c2f4a06bc56daa81fd336edf951dea",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_release_companies_fast.py",
+        "sha256": "35ca1d1aeb2296c7f9d97c6ae301a98f25bb823d4bc924bd41253c484a86ceae",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_release_companies_retained_update.py",
+        "sha256": "8d8563effded7ad15af4c846e9a3766e9b70e9f56ec8874daa6a9b04ff59a575",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_release_companies_runtime.py",
+        "sha256": "65d544624f33a2d923dd337c2c40f884d8e230ad54d6c47be04e87ba6cf46e74",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_release_companies_secrets.py",
+        "sha256": "62efb95286194b02b24ad9ea934287f17e2c7b67fba7d7fee8a2c17b2c9fe591",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_release_companies_traveller_contract.py",
+        "sha256": "1b720c0a0fe3763403c86fd7a5e2fc1cc11ca0072d1382469efd9e6d6b8f2906",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_release_connector.py",
+        "sha256": "6f5af22b55303c26765d4f478ac7ea662dfd3a648f881df3a30cab6950836c94",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_release_current.py",
+        "sha256": "08591b169e3a56a809ee5cbaddd82a4793dd4e0e18ace024174f9bf69cf82262",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_release_document_distribution_contract.py",
+        "sha256": "6fd8c0bedf7df54ee5e05b6c9b5142e12f48ec436d3857191ff6da1fde3470e5",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_release_document_distribution_policy.py",
+        "sha256": "33c6eee108d33aa254dd1de768b32a85df110e02c020339b2b4ffffacc2226d9",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_release_document_fast.py",
+        "sha256": "9a488f31d2eaa5e5871fd68a1d2062e73b2694f21f2a89acf17e3fc07a44194b",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_release_document_retained_update.py",
+        "sha256": "29acec6ca4d165f57e086932387a88eaa07730ba2905cab284999dd088183d5c",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_release_gc_app_group_removal.py",
+        "sha256": "be430b652a8add3eb0adcf87880dfc5b1d3b89a29e0855872c5d3d729d5d7fd6",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_release_gc_group_access.py",
+        "sha256": "cb15ff3e0e008879615fc22364cc461eaabd8bd3a2f35c724f4bc066a7ef1f2d",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_release_health_asset.py",
+        "sha256": "946363b761bfe7e4ca1a2da5612f4fd690a0c41591b40dfab17a57d58f478adb",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_release_import_groups_archive.py",
+        "sha256": "4f72c81fe0f1f5e886615f0b986a69b3fcff918d200507fad72fb0d4394e2bf6",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_release_manifest.py",
+        "sha256": "6ef3347a20dad9287bd7406ccbd9b15be1dd34845f417343f0c1264bcce08ea2",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_release_mcp_admin_approval_contract.py",
+        "sha256": "b2dbd244afd17fdf3c737f91bf3fb2ceb022be714aabd54dfe80d83fb188d36c",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_release_mcp_contract.py",
+        "sha256": "0a8a1482789774073898304095ef642b7946d185ab2106095eb1b417b29c5a73",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_release_mcp_database.py",
+        "sha256": "531c406b5884e2ffd818260a56e2b8bdf1aa97a7d89c75b3743f5ee1a5990240",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_release_mcp_direct_devices_contract.py",
+        "sha256": "0360629dbb2b08a7128167bf0dce431459217f653f3b397a9cf6f3438d1e9d9a",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_release_mcp_read_only_contract.py",
+        "sha256": "28cb5b4278c9b92801bb597af07e50deebb64ad00688b198944779d38a0d4b52",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_release_mobile_fcm.py",
+        "sha256": "143c9d6fa27f2139115b987acb65b73972bba1380f6d54e3463f295ec319b58a",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_release_notification_guard.py",
+        "sha256": "960437170b799105791032b154af0069234ce5844b2ec3414633d89e421b6d93",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_release_notification_workspace.py",
+        "sha256": "666bbc126a78a9bc6b48ac0166ab5492ca7a1b2d02ba70d120f48a82159d5a64",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_release_pdf_checking_profile.py",
+        "sha256": "b0ad6ce121e06baf5fae65ce24a89d6d5a6f901a26fc8f1e5547b43b693aaae2",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_release_persistent_resources.py",
+        "sha256": "9e0b6ee6da536fc11b87797f3acc73c947126821bfe7a1c11e7653749967fce7",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_release_publication.py",
+        "sha256": "9b8f6a5fccb7d3838a14ed6c247ef115034f8d46fc8d41b031f7ea0a0220c982",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_release_realtime_startup.py",
+        "sha256": "f03b213c8eb82b26fef29fb7ea00a0e2cb545b861f5ac34d456891df605f9cde",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_release_redis_dataset_transition.py",
+        "sha256": "6f2d9257adef1d1ecffac1a1fc3b659027564bc3fee4c0d86d19d74ff53a3ea6",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_release_reliability.py",
+        "sha256": "4b59a7ca51e522bb9f3ff3767cf8911e0a29c838f140462f5a0fd7afccf22e9e",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_release_resource_budget.py",
+        "sha256": "5b513ba10d4fd9ff359e6c389448083c615952fe813adc80a7a4e6d873ffb336",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_release_resource_fence.py",
+        "sha256": "e7cb9e74a62b55eea119783e6f831a9a99cea02d1f083db4606715603b5d61ae",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_release_resource_profile.py",
+        "sha256": "b54d5b155558fca5d34faefc4884ce56db05d3ad69502c1e5cd45d1ce89651ec",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_release_retained_update.py",
+        "sha256": "cd6e1959c6a8114718999575a20f9007c18ccc9f3eff55ae91e7e19584484e62",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_release_travel_tracker_contract.py",
+        "sha256": "cebb3eba2fc2ce52cb55ac6e626e4b5dba0314c39f9d22a9389e7ff055d117d9",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_release_traveller_whatsapp.py",
+        "sha256": "31aa67604df33deef58f908ccf500236de203aef519dc412a872ee4f657d1e22",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_release_workspace_branding.py",
+        "sha256": "bc4940e5c52ee6ff9dd253d9b780f4f8d4ddd074fa67ff5cecb2cb4827508690",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_release_workspace_branding_bindings.py",
+        "sha256": "d18cc4028e5082ffe99ca14797c78f4846da0de041f49c3c2d0ef7b662d98bff",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_retained_fast_interface.py",
+        "sha256": "9a5a900eac529ab88b112e171d51d6ed5cb52d2976d13671386a3e52031c774d",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_retained_release_json_boundaries.py",
+        "sha256": "24f4ca73f2b8c0c3d03f413e6daca2eb130b716e9403df007d37352ebf8164d6",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_retained_release_manifest_admission.py",
+        "sha256": "d940a2365bff7f9e907c56d3ec8e3f32da6c052f881ec4f83280c6eeca3e0984",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_retained_release_owners.py",
+        "sha256": "30915e59c5b4e80fc8323f56208757512b4b9fd17055c618de58182967307661",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_runtime_security_packages.py",
+        "sha256": "dc56b6a005058d4eb502d4479b5600350a295c3248c4a20fe41e0e53fdfa4c0d",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_shared_operator_json_boundaries.py",
+        "sha256": "b37895b8d680ebf955c9b3634018d7c7fb9bd50a704db36d160ae9e6e5eab5da",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_storage_copy_body_lifetime.py",
+        "sha256": "fe853e4f9b9b995db9352dc540c997bcebe8db1dac9a4b493782cecc50a5b8bf",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_storage_copy_preflight.py",
+        "sha256": "575a3b364ea4b07b42d1c4097523758b8a03857770161a88ba05752449fc6b0d",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_storage_migration_qualification.py",
+        "sha256": "74150eb42f0e684a6e18ec9af2f6b3507ab30873b46d4d9d51003a80ac443d14",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_storage_release.py",
+        "sha256": "3844c63f293d54187f8110036c6ad1e161effd50e70f48a6ff3e885c6c94b6f0",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_storage_snapshot_integrity.py",
+        "sha256": "7b906ee4d652429d13176b0e84418816a27d2e96d4ae70e1ec80dda0db01059a",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_storage_writer_fence.py",
+        "sha256": "dd8fb35f9bd06943bae57c34587e4707a991a6a2d2947c7df816c06bc59ee566",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_tooling_controls.py",
+        "sha256": "e9452f2284a8aaf34ecc8d6f9c7592630837f3346012733c69273ec93d6c721c",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_traveller_release_json_boundaries.py",
+        "sha256": "a489b9d641c3a10465e372c9218607a63e24475826ae37e0e0e6e68d54f77333",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_traveller_release_owners.py",
+        "sha256": "98b7370c682a5305a2804836e7119a11590feb01a40988834b9f2fc3eeab7776",
+        "scope": "retained"
+      },
+      {
+        "path": "scripts/test_verify_deployment_resource_budget.py",
+        "sha256": "9ec4e8bc40918e1612fcae49ed1d514d14e00bd7d1f45350cbfa9b75738051c9",
+        "scope": "retained"
+      }
+    ],
+    "exact_policy_exclusions": []
+  },
+  "qa": {
+    "cwd": "scripts/qa",
+    "modules": [
+      "test_workload_capacity",
+      "test_mcp_capacity",
+      "test_capacity_container_events",
+      "test_workload_capacity_owners",
+      "test_mcp_capacity_profile",
+      "test_capacity_observer_lifecycle"
+    ]
+  },
+  "connector": {
+    "cwd": "mcp-connector",
+    "test_files": [
+      "mcp-connector/tests/test_artifacts.py",
+      "mcp-connector/tests/test_auth.py",
+      "mcp-connector/tests/test_backend_tcp.py",
+      "mcp-connector/tests/test_callback.py",
+      "mcp-connector/tests/test_cli.py",
+      "mcp-connector/tests/test_contact_errors.py",
+      "mcp-connector/tests/test_contact_uploads.py",
+      "mcp-connector/tests/test_conversation_instructions.py",
+      "mcp-connector/tests/test_document_exports_tcp.py",
+      "mcp-connector/tests/test_exports_tcp.py",
+      "mcp-connector/tests/test_file_tools.py",
+      "mcp-connector/tests/test_files.py",
+      "mcp-connector/tests/test_image_exports_tcp.py",
+      "mcp-connector/tests/test_native_test_cleanup.py",
+      "mcp-connector/tests/test_oauth_lifecycle.py",
+      "mcp-connector/tests/test_pdf_ingestion_tcp.py",
+      "mcp-connector/tests/test_proxy.py",
+      "mcp-connector/tests/test_read_only_proxy.py",
+      "mcp-connector/tests/test_refresh_cancellation.py",
+      "mcp-connector/tests/test_rooming_exports_tcp.py",
+      "mcp-connector/tests/test_tracking_exports_tcp.py",
+      "mcp-connector/tests/test_whatsapp_media_tcp.py",
+      "mcp-connector/tests/test_whatsapp_media_uploads.py",
+      "mcp-connector/tests/test_windows_vault_native.py"
+    ],
+    "commands": [
+      "python -m ruff check --no-fix src tests",
+      "python -m pytest -p pytest_asyncio.plugin -q -o addopts= --basetemp <isolated> --junitxml <isolated>",
+      "python -m pip wheel --no-deps --no-build-isolation --wheel-dir <isolated> ."
+    ],
+    "wheel_source": "Exact bytecopy of pyproject/README/src to isolatedauditdirectory prevents source build/egg-info writes; no package/lock modifications or network index."
+  },
+  "safety": [
+    "No inherited application/provider environment credentials. Synthetic application values; private repository dotenv omitted before BaseSettings construction with independent private-file-open denial; synthetic tempfile/init overrides preserved.",
+    "Loopback fixture networking only; external DNS/connect and existing well-known service ports blocked. No providers/production/VPS/Dockerdaemon.",
+    "Parent expressly permits one exact code-update-revision-test docker compose config invocation with temporary cwd/files; all other actualDocker actions denied.",
+    "Synthetic uniquely named Windows vault tests remain unchanged; no real credentials accessed."
+  ],
+  "pending": [
+    "Root GO after900normal/144binding integration",
+    "Execution/current sourcefence/package versions/actualcollectedcounts/results. No current qualification claim from preparation."
+  ]
+}

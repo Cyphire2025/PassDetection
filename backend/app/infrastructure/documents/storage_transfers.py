@@ -53,7 +53,7 @@ async def run_bounded_storage_operations(
     return [outcome for outcome in outcomes if not isinstance(outcome, BaseException)]
 
 
-async def finish_cleanup_despite_cancellation(cleanup: Awaitable[None]) -> None:
+async def finish_cleanup_despite_cancellation(cleanup: Awaitable[object]) -> None:
     """Let owned-object cleanup finish before propagating request cancellation."""
 
     cleanup_task = asyncio.ensure_future(cleanup)

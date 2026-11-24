@@ -1,0 +1,15 @@
+{
+  "files": [
+    {
+      "path": "frontend/features/upload/components/relation-qualifier-step.contract.test.mjs",
+      "sha256": "7d20ce1a88ae4cf7ce4f9f5671366bdb922698544cd2c4573da0f42bbc38bdd9",
+      "reviewer": "gc_models_finish",
+      "review_scope": "Focused current source-contract owner migration; complete test and actual wrapper/editor/hook wiring read; original six assertions preserved.",
+      "status": "verified",
+      "notes": "Targeted Node1/1 and scoped ESLint pass. Runtime/gates unchanged; full-run four test-only delta proven. Root owns combined qualification.",
+      "evidence": [
+        "docs/audit/dashboard-2026-10-30/final-qualifier-node-contract-owner-repair/verification.json"
+      ]
+    }
+  ]
+}

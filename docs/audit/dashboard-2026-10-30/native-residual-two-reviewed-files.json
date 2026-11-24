@@ -1,0 +1,18 @@
+[
+  {
+    "path": "scripts/dashboard_audit_inventory.py",
+    "sha256": "1eebe3e8f649beba91c958a9ab9bc2e559219288a3f05842b75723e2c1c4b633",
+    "reviewer": "qualification_plan",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Composed current full-source review: original current module had a complete composed review at preserved BEFORE identity; independent AST inverse proves the only change is one exact native Photon fixture literal in NATIVE_APP_SUPPORT_PATHS. Manually inspected whitelist/parser/classification/history/control wiring. No generic JSON admission, no product behavior change. See native-residual-two-verification.json."
+  },
+  {
+    "path": "backend/tests/unit/scripts/test_dashboard_audit_scope.py",
+    "sha256": "db97485a42b00d8bafbb0ea0138aa1b77b8742c096cd3a0ef86b65073c2cbd5f",
+    "reviewer": "qualification_plan",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Current authored control source fully inspected in bounded reads; independent AST inverse restores every original body/assertion after removing the exact two-literal cohort, two existing full/finding-history cases, 61to63/47to49 counts and union addition, and one JSON-lookalike rejection.156 focused audit controls PASS plus backend-config no-fix Ruff4 PASS; current8path fence exact. Dedicated native/Inbox feature code was not reviewed or executed. See native-residual-two-verification.json."
+  }
+]

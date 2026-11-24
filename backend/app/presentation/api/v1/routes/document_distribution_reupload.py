@@ -27,6 +27,9 @@ from app.presentation.api.v1.document_chunk_uploads import (
     acquire_document_upload_scope_advisory_lock,
 )
 from app.presentation.api.v1.document_uploads import read_bounded_document_uploads
+from app.presentation.api.v1.routes.document_distribution_compensation import (
+    compensate_uncommitted_document_upload,
+)
 from app.presentation.api.v1.routes.document_distribution_matching import (
     _read_linked_document_match_source,
 )
@@ -45,7 +48,7 @@ from app.presentation.api.v1.routes.document_distribution_shared import (
     logger,
 )
 from app.presentation.api.v1.routes.document_distribution_storage import (
-    _cleanup_distribution_storage_keys,
+    _cleanup_distribution_storage_keys as _cleanup_distribution_storage_keys,
 )
 from app.presentation.api.v1.schemas.document_distribution_schemas import DocumentBatchResponse
 from app.presentation.dependencies.auth import get_current_active_user
@@ -77,6 +80,7 @@ async def reupload_passenger_document(
         current_user=current_user,
         session=session,
     )
+    initial_agency_id = authorized_group.agency_id
     initial_passengers = await _group_passengers(
         group_id,
         current_user=current_user,
@@ -92,7 +96,7 @@ async def reupload_passenger_document(
             [file],
             security_context=UploadSecurityContext(
                 ingestion_flow="document_distribution_reupload",
-                agency_id=authorized_group.agency_id,
+                agency_id=initial_agency_id,
                 user_id=current_user.id,
             ),
         )
@@ -207,15 +211,14 @@ async def reupload_passenger_document(
             status_code=413,
             detail=str(exc),
         ) from exc
-    except Exception:
-        await session.rollback()
-        if ingestion is not None:
-            await _cleanup_distribution_storage_keys(
-                list(ingestion.created_storage_keys),
-                agency_id=agency_id,
-                group_id=group_id,
-                document_type=document_type,
-            )
+    except BaseException:
+        await compensate_uncommitted_document_upload(
+            session,
+            storage_keys=ingestion.created_storage_keys if ingestion is not None else (),
+            agency_id=agency_id,
+            group_id=group_id,
+            document_type=document_type,
+        )
         raise
     try:
         await session.commit()

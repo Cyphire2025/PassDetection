@@ -1,0 +1,58 @@
+[
+  {
+    "path": "backend/app/infrastructure/my_photos/worker_runtime.py",
+    "sha256": "fbaee6ad22a5e0fb054639eed785e6383affcbdef89ef867b0e63500d73e8931",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Original709-line search worker and every current authored/import owner physically read. Five actual independent-session lease negatives failed before; expiry predicates for both durable rows and after-lock revalidation now reject them. Post-fix extraction preserves all15 declarations after explicit session-factory context normalization, exact public dispatch, four original private signatures/forwarding, legacy dataclass aliases/module/evaluated hints/pickle and every test statement except two precise actual-owner audit instrumentation targets. Fresh44 actual affected cases, seven-source mypy/Ruff/architecture and existing528 budgets pass. No provider, live PostgreSQL or VPS qualification."
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/search_job_claims.py",
+    "sha256": "0f63c60008a03187b1d71626d9b68108c16c7c5b40ddd9114c28df9464bab354",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Original709-line search worker and every current authored/import owner physically read. Five actual independent-session lease negatives failed before; expiry predicates for both durable rows and after-lock revalidation now reject them. Post-fix extraction preserves all15 declarations after explicit session-factory context normalization, exact public dispatch, four original private signatures/forwarding, legacy dataclass aliases/module/evaluated hints/pickle and every test statement except two precise actual-owner audit instrumentation targets. Fresh44 actual affected cases, seven-source mypy/Ruff/architecture and existing528 budgets pass. No provider, live PostgreSQL or VPS qualification."
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/search_job_contracts.py",
+    "sha256": "483e287f85fe760f4d8ac86710d0b87a238e77cc9e1f420346a30a129a47b3a1",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Original709-line search worker and every current authored/import owner physically read. Five actual independent-session lease negatives failed before; expiry predicates for both durable rows and after-lock revalidation now reject them. Post-fix extraction preserves all15 declarations after explicit session-factory context normalization, exact public dispatch, four original private signatures/forwarding, legacy dataclass aliases/module/evaluated hints/pickle and every test statement except two precise actual-owner audit instrumentation targets. Fresh44 actual affected cases, seven-source mypy/Ruff/architecture and existing528 budgets pass. No provider, live PostgreSQL or VPS qualification."
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/search_job_lifecycle.py",
+    "sha256": "f2bb24c594528790694ec8f0c86ed8c9f3c695b1c5436fdc4a19bb3de48dcb3e",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Original709-line search worker and every current authored/import owner physically read. Five actual independent-session lease negatives failed before; expiry predicates for both durable rows and after-lock revalidation now reject them. Post-fix extraction preserves all15 declarations after explicit session-factory context normalization, exact public dispatch, four original private signatures/forwarding, legacy dataclass aliases/module/evaluated hints/pickle and every test statement except two precise actual-owner audit instrumentation targets. Fresh44 actual affected cases, seven-source mypy/Ruff/architecture and existing528 budgets pass. No provider, live PostgreSQL or VPS qualification."
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/search_job_policy.py",
+    "sha256": "1c94ba6a6f7c7202fb1194943e2965e18c904ecee08b0147e0bee3f4747aa755",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Original709-line search worker and every current authored/import owner physically read. Five actual independent-session lease negatives failed before; expiry predicates for both durable rows and after-lock revalidation now reject them. Post-fix extraction preserves all15 declarations after explicit session-factory context normalization, exact public dispatch, four original private signatures/forwarding, legacy dataclass aliases/module/evaluated hints/pickle and every test statement except two precise actual-owner audit instrumentation targets. Fresh44 actual affected cases, seven-source mypy/Ruff/architecture and existing528 budgets pass. No provider, live PostgreSQL or VPS qualification."
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/search_job_publication.py",
+    "sha256": "99099cdc1e26452fc2e71305e48804a37ae2c3780308b13fcc62eea500c53398",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Original709-line search worker and every current authored/import owner physically read. Five actual independent-session lease negatives failed before; expiry predicates for both durable rows and after-lock revalidation now reject them. Post-fix extraction preserves all15 declarations after explicit session-factory context normalization, exact public dispatch, four original private signatures/forwarding, legacy dataclass aliases/module/evaluated hints/pickle and every test statement except two precise actual-owner audit instrumentation targets. Fresh44 actual affected cases, seven-source mypy/Ruff/architecture and existing528 budgets pass. No provider, live PostgreSQL or VPS qualification."
+  },
+  {
+    "path": "backend/app/infrastructure/my_photos/search_job_queries.py",
+    "sha256": "353bee1088cf89f7362a2a65222625392926f62f7ded19e0c4cd776d8ed9c1d5",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Original709-line search worker and every current authored/import owner physically read. Five actual independent-session lease negatives failed before; expiry predicates for both durable rows and after-lock revalidation now reject them. Post-fix extraction preserves all15 declarations after explicit session-factory context normalization, exact public dispatch, four original private signatures/forwarding, legacy dataclass aliases/module/evaluated hints/pickle and every test statement except two precise actual-owner audit instrumentation targets. Fresh44 actual affected cases, seven-source mypy/Ruff/architecture and existing528 budgets pass. No provider, live PostgreSQL or VPS qualification."
+  }
+]

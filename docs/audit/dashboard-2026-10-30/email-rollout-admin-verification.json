@@ -1,0 +1,137 @@
+{
+  "status": "complete; sources frozen; integration candidates only",
+  "source_manifest": {
+    "path": "docs/audit/dashboard-2026-10-30/email-rollout-admin-source-manifest.json",
+    "sha256": "1efdff6cab1a6f567f41084f2653ff9d95a2d664d503e1bb9f5dc250fb56a652"
+  },
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/email-rollout-admin-reviewed-files.json",
+    "sha256": "cd4a3e1df5d91101fe7acffdbd607270c6c16cbbbba2a078fe49a04405650f94"
+  },
+  "candidates": {
+    "path": "docs/audit/dashboard-2026-10-30/email-rollout-admin-budget-candidates.json",
+    "sha256": "2848d60a2a4126250c44d6025158a4b2c191278c87c978da65fb474238804210"
+  },
+  "followups": {
+    "path": "docs/audit/dashboard-2026-10-30/email-rollout-admin-followups.json",
+    "sha256": "dd3bc52068ec478f3ff9662f2d3ee72800f505ad243927e4c3f7224e207c1812"
+  },
+  "artifacts": [
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-rollout-admin-original-source.json",
+      "sha256": "22b889f4712e4f3ef96fd8a7bd4fe19beff82d15fc08668e48894e6903908ff4"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-rollout-admin-extraction-proof.json",
+      "sha256": "88041b41c2cb0264dc4a3cc37f4940b6584588b6e3bde2477ec300dded79924d"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-rollout-admin-runtime-bindings-proof.json",
+      "sha256": "43e964b1d428497f0b72ae0e06307b3706e6d8515a39e88292913ae156e88482"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-rollout-admin-baseline-checks.json",
+      "sha256": "a5cc5cb50689ddae629e052c6383dd39d44460fc8c3050e6be2cd7e753e0a403"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-rollout-admin-baseline-corrected-checks.json",
+      "sha256": "a572b8fbb802f2e5720cf04075b50a9b39b484ef8e25f91fe3c70d3df95d3184"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-rollout-admin-final-checks.json",
+      "sha256": "9c6cddfe35d5e0cff3b13bd49c4c87e3c629077b5811ff6d03e1f8fdc8ff398e"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-rollout-admin-baseline-corrected-runtime-contract.json",
+      "sha256": "03d931662d2c95b241e15b540303a7248889fdfe78c89e7d46e08cffff29d3ee"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-rollout-admin-final-runtime-contract.json",
+      "sha256": "f0d979737b2436f4ae48427a9857a9fe72fea41f73dfde3477d82cec00c9609d"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-rollout-admin-final-coverage.json",
+      "sha256": "e0a9ae377c7426bb811708abba523860ae1beba4705576929f353d371150614f"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-rollout-admin-final-coverage.xml",
+      "sha256": "4ee6af60fef11bb7ffed9f32db4b9cc9136e7925ce2b6f421ae0d3bbf9d1fceb"
+    }
+  ],
+  "source_lines": [
+    246,
+    200,
+    186
+  ],
+  "whole_declarations_ast_exact": 11,
+  "actual_runtime": {
+    "imported_objects": 33,
+    "original_global_bindings": 81,
+    "evaluated_class_function_hints": 11,
+    "generated_dataclass_method_contracts": 8,
+    "http_operations": 2,
+    "openapi_paths": 1,
+    "routes_dependencies_request_response_schema_and_dataclass_contracts_equal": true,
+    "normalization": "Only process memoryaddresses in inspect.signature strings, rawbefore/after retained; exact other contract metadata.",
+    "class_inspect_tradeoff": "Available\u2192OSError; actualqueryowner source explicitly recorded."
+  },
+  "checks": {
+    "corrected_preedit": 16,
+    "postedit": 17,
+    "original_3tests_byte_unchanged": true,
+    "baseline10testfunctions_unchanged": true,
+    "one_new_actual_mcp_reader_case": true,
+    "source_fence_paths_unchanged": 7,
+    "frozen_prior_paths_unchanged": 220,
+    "strict_mypy_files": 3,
+    "scoped_ruff_files": 5,
+    "static_tool_chunk": "8c4ef5",
+    "static_exit_code": 0
+  },
+  "owner_coverage": [
+    {
+      "path": "app/presentation/api/v1/routes/email_ai_rollout_admin.py",
+      "lines": 246,
+      "max_function_complexity": 12,
+      "most_complex_function": "update_email_ai_rollout_policy",
+      "coverage_percent": 100.0,
+      "branch_count": 12,
+      "branch_coverage_percent": 100.0,
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    {
+      "path": "app/presentation/api/v1/routes/email_rollout_targets.py",
+      "lines": 200,
+      "max_function_complexity": 16,
+      "most_complex_function": "_target_rows",
+      "coverage_percent": 98.38709677419355,
+      "branch_count": 30,
+      "branch_coverage_percent": 96.66666666666667,
+      "missing_lines": [
+        121
+      ],
+      "missing_branches": [
+        [
+          120,
+          121
+        ]
+      ]
+    },
+    {
+      "path": "app/presentation/api/v1/routes/email_rollout_policy_mapping.py",
+      "lines": 186,
+      "max_function_complexity": 10,
+      "most_complex_function": "_load_policy_map",
+      "coverage_percent": 100.0,
+      "branch_count": 10,
+      "branch_coverage_percent": 100.0,
+      "missing_lines": [],
+      "missing_branches": []
+    }
+  ],
+  "normal_candidates": 3,
+  "critical_candidates": 0,
+  "no_broad_suites_builds_browser_provider_sends_deployment": true,
+  "notes": "Focused current3owner coverage from one fresh isolated run, never backend/.coverage. No role/filter/query/transaction policy change or invented vulnerability; prior seals untouched."
+}

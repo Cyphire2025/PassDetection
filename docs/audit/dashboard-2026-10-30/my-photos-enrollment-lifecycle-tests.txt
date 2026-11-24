@@ -1,0 +1,40 @@
+F.                                                                       [100%]
+================================== FAILURES ===================================
+____________ test_consent_delete_and_reaccept_preserve_idempotency ____________
+
+photo_database = namespace(sessions=async_sessionmaker(class_='AsyncSession', bind=<sqlalchemy.ext.asyncio.engine.AsyncEngine object at...nections=16), app_secret_key='synthetic-photo-cursor-secret'), gallery_id=UUID('13395bc5-aec1-46c9-8d35-6281c0b2d5b9'))
+
+    async def test_consent_delete_and_reaccept_preserve_idempotency(photo_database):
+        env = photo_database
+        provider = SyntheticProvider()
+        async with env.sessions() as session:
+            service = service_for(session, env, provider)
+            consent = MyPhotosConsentRequest(
+                consent_version=env.settings.my_photos.consent_version,
+                accepted=True,
+                idempotency_key="synthetic-consent",
+            )
+            accepted = await service.accept_consent(
+                claims=env.passenger.claims, trip=env.passenger.trip, request=consent
+            )
+            assert accepted.consent.required is False
+            await session.commit()
+            request = MyPhotosDeleteEnrollmentRequest(
+                scope="enrollment_and_search_data", idempotency_key="synthetic-delete"
+            )
+            deleted = await service.delete_enrollment(
+                claims=env.passenger.claims, trip=env.passenger.trip, request=request
+            )
+            await session.commit()
+            repeated = await service.delete_enrollment(
+                claims=env.passenger.claims, trip=env.passenger.trip, request=request
+            )
+>           assert repeated.deleted_at == deleted.deleted_at
+E           AssertionError: assert datetime.datetime(2026, 10, 30, 22, 22, 39, 191633) == datetime.datetime(2026, 10, 30, 22, 22, 39, 191633, tzinfo=datetime.timezone.utc)
+E            +  where datetime.datetime(2026, 10, 30, 22, 22, 39, 191633) = MyPhotosDeleteEnrollmentResponse(enrollment_status='deleted', removed_search_data=True, local_downloads_affected=False...atus='not_required', provider_deletion_retryable=False, deleted_at=datetime.datetime(2026, 10, 30, 22, 22, 39, 191633)).deleted_at
+E            +  and   datetime.datetime(2026, 10, 30, 22, 22, 39, 191633, tzinfo=datetime.timezone.utc) = MyPhotosDeleteEnrollmentResponse(enrollment_status='deleted', removed_search_data=True, local_downloads_affected=False...deletion_retryable=False, deleted_at=datetime.datetime(2026, 10, 30, 22, 22, 39, 191633, tzinfo=datetime.timezone.utc)).deleted_at
+
+tests\integration\test_my_photos_enrollment_lifecycle.py:93: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/integration/test_my_photos_enrollment_lifecycle.py::test_consent_delete_and_reaccept_preserve_idempotency
+1 failed, 1 passed in 4.52s

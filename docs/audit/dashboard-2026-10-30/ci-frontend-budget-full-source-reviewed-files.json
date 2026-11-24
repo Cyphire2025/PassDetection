@@ -1,0 +1,20 @@
+[
+  {
+    "path": ".github/workflows/ci.yml",
+    "sha256": "129d10b5c5b6da21cd7b8b77364c2685fb5d1d380594c71df091eba5fe7a0b89",
+    "physical_lines": 1355,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete1355 physical lines read in bounded contiguous chunks. Event/main/develop/manual expected-revision and concurrency policy, least job-specific token grants, exact pinned actions/images/toolchains/lock caches+hash installs, planner immutable provenance and affected/reuse gate, all shard-success/full collection proof before unchanged global/critical coverage, no-skips real PG/Redis/privateS3/Celery/roles/capacity and populated restore lanes, frontend static/coverage/Node/browser, connector wheel and installed entrypoint, full-image/native/TLS/cookie/recovery/storage/proxy/isolation qualification, exact signed archive promotion/readback/provenance and manual-main protected noncancellable production SSH activation reviewed. Existing native-named syntax/contract jobs examined solely as shared CI orchestration, no native workload audit. Existing independent readability/duplicate orchestration and actual Linux/service/image/VPS qualification followups are not closed by this source read. One prior offline passport Node command proof remains immutable. No job dispatched, workflow modified or supply-chain verifier/test executed now."
+  },
+  {
+    "path": "frontend/scripts/verify-frontend-module-budgets.mjs",
+    "sha256": "cb39d6c6ee5351e9fa166d560dd62c58a3b1b20021fc38a7c2a52d1017d94ff7",
+    "physical_lines": 795,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete795 physical lines read, including all661 frozen catalog rows and actual imports/comment/code. Immutable per-row physical-line and max-function-complexity baselines/ceilings, line-ending normalization, TypeScript TS/TSX AST counting of branch/loop/catch/case/logical/nullish operators with independent nested-function measurements, file-read evaluation/explicit per-row violations and CLI exit/entrypoint guard reviewed. Existing catalog includes deferred feature paths solely as retained gate data; no dedicated Inbox runtime review or scope extension. This metric is static cyclomatic/line admission, not independent workflow, behavior, service, coverage or architecture qualification. No new ratchet/critical proposal, data mutation or checker execution; existing source-bound integration histories remain unchanged."
+  }
+]

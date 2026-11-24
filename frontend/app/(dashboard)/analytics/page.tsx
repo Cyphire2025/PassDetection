@@ -129,7 +129,6 @@ export default function AnalyticsPage() {
                     label={toLabel(bucket)}
                     value={value}
                     max={maxConfidenceBucket}
-                    tone="violet"
                   />
                 ))}
               </div>
@@ -163,14 +162,14 @@ export default function AnalyticsPage() {
                 <div key={status} className="bg-white p-4">
                   <div className="flex items-center justify-between gap-3">
                     <span className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                      <span className={cn("h-2.5 w-2.5 rounded-full", statusDot(status))} aria-hidden="true" />
+                      <span className={cn("h-2.5 w-2.5 rounded-full", statusColor(status, "bg-blue-500"))} aria-hidden="true" />
                       {toLabel(status)}
                     </span>
                     <span className="font-semibold tabular-nums text-slate-950">{value.toLocaleString()}</span>
                   </div>
                   <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-slate-100" aria-hidden="true">
                     <div
-                      className={cn("h-full rounded-full", statusBar(status))}
+                      className={cn("h-full rounded-full", statusColor(status, "bg-blue-600"))}
                       style={{ width: `${Math.max(value > 0 ? 5 : 0, (value / maxStatusCount) * 100)}%` }}
                     />
                   </div>
@@ -231,12 +230,10 @@ function DistributionBar({
   label,
   value,
   max,
-  tone,
 }: {
   label: string;
   value: number;
   max: number;
-  tone: "violet";
 }) {
   return (
     <div>
@@ -246,7 +243,7 @@ function DistributionBar({
       </div>
       <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-slate-100">
         <div
-          className={cn("h-full rounded-full", tone === "violet" && "bg-violet-500")}
+          className="h-full rounded-full bg-violet-500"
           style={{ width: `${Math.max(value > 0 ? 4 : 0, (value / max) * 100)}%` }}
         />
       </div>
@@ -258,18 +255,11 @@ function formatConfidence(value: number | null | undefined) {
   return value == null ? "N/A" : `${Math.round(value * 100)}%`;
 }
 
-function statusDot(status: string) {
+function statusColor(status: string, fallback: "bg-blue-500" | "bg-blue-600") {
   if (/confirm|complete|success|approved/.test(status)) return "bg-emerald-500";
   if (/fail|reject|error/.test(status)) return "bg-red-500";
   if (/pending|review|processing/.test(status)) return "bg-amber-500";
-  return "bg-blue-500";
-}
-
-function statusBar(status: string) {
-  if (/confirm|complete|success|approved/.test(status)) return "bg-emerald-500";
-  if (/fail|reject|error/.test(status)) return "bg-red-500";
-  if (/pending|review|processing/.test(status)) return "bg-amber-500";
-  return "bg-blue-600";
+  return fallback;
 }
 
 function toLabel(value: string) {

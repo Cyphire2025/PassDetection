@@ -1,0 +1,53 @@
+{
+  "status": "passed",
+  "whole_original_nonimport_module_and_search20statement_inverse_exact": true,
+  "partition": {
+    "main": [
+      0,
+      1,
+      19
+    ],
+    "filters": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "query": [
+      11,
+      12,
+      13,
+      14,
+      15,
+      16
+    ],
+    "projection": [
+      17,
+      18
+    ]
+  },
+  "typed_row_alias_expands_to_original_annotation": true,
+  "original_import_bindings_exact": 33,
+  "public2_signatures_defaults_dependency_code_closures_hints_docs_aliases_pickles_exact": true,
+  "complete_two_route_OpenAPI_and_route_order_exact": true,
+  "new_owner_function_hints_resolve": true,
+  "compiled_query_parity_cohorts": 144,
+  "queries_per_cohort": 2,
+  "dialects": [
+    "PostgreSQL",
+    "SQLite"
+  ],
+  "expressions_and_bound_literals_exact": true,
+  "scope": "Source/metadata and synthetic SQL expression parity; actual SQLite response controls are separately executed. No live PostgreSQL/production capacity/performance claim.",
+  "source_fence": {
+    "backend/app/presentation/api/v1/routes/gc_app_group_directory.py": "afdb38527c34adc9959a46a05a20e3721d0f1acf7e81eb11a96b255d6677f929",
+    "backend/app/presentation/api/v1/routes/gc_group_directory_filters.py": "10eea059002d7af41dbf80a7040fbe0776ed041e2b66804f7422d25df3ea5f2e",
+    "backend/app/presentation/api/v1/routes/gc_group_directory_query.py": "2de6566fb5e1df37eebd32e5740f874c9eb6c36542d3524268f2ada299f036db",
+    "backend/app/presentation/api/v1/routes/gc_group_directory_projection.py": "b98c55e8b2dd580f52194875cbe8914e8e00979780c566a51f8616d13ef3eb0e"
+  }
+}

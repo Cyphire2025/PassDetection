@@ -1,0 +1,49 @@
+{
+  "status": "focused-MCP-feature-checkpoint-passed",
+  "unit_cases": 180,
+  "unit_files": 18,
+  "later_role_guard_assertions": {
+    "selected_passed": 4,
+    "unselected": 6
+  },
+  "current_types": "Scoped project includes unchanged Vitest setup; passes. Initial scoped config omitted matcher augmentations, a test tool setup issue preserved in original failed log.",
+  "lint": "Passed current MCP plus endpoints scope.",
+  "no_full_app_build_or_whole_suite": true,
+  "runtime_AST_proof": {
+    "moved_declarations": 35,
+    "transport_methods": 18,
+    "capabilities_and_query_key_initializers_unchanged": true
+  },
+  "after_unit_edits": "Whitespace-only formatting/import grouping proven AST-preserving; duplicate test assertion replaced by current connection-read denial assertion, all4selected role cases pass. No repeat of the complete feature/app suite for those cosmetic/assertion changes.",
+  "retirement": "Two unreachable old consent/example components plus closed methods/types/aliases; one unused intermediate extraction barrel caught/discarded before qualification. Actual native/approval/callback semantics were verified and augmented before retirement, backend/native endpoints retained.",
+  "before_controls": {
+    "existing_backend": 94,
+    "existing_UI": 40,
+    "expanded_UI": 26,
+    "expanded_native": 15,
+    "API_delete": 7
+  },
+  "quality_ratchets": "10measured candidates queued (8additive/2lowered-existing); no prior ceiling/floor increase.",
+  "remaining": "Dense MCP UI and any evidence-backed lifecycle/readability follow-through; exact source matrix reconciliation and next/final combined verification. No enterprise/wholecodebase or real-service qualification claim.",
+  "source_sha256": {
+    "frontend/features/mcp/api/mcp-capabilities.ts": "262a4d6c91f312c97b654fc1374f388dd67f16ceafb7ee150b65a83489ce5e75",
+    "frontend/features/mcp/api/mcp.types.ts": "e7e1c7cb8b3e670039ef256a46030da9fcfbd334a2c9fb146a4ed4ff0e4ce1a2",
+    "frontend/features/mcp/api/mcp.api.ts": "8951306146e020ca3dd3901fb642acc0e3417b82d5f4289eb174a218e009fe00",
+    "frontend/features/mcp/hooks/mcp-query-keys.ts": "dab49612ec94c974832ad3f7bac1b6c6bfbd78ed8c8d7cdde4d6fbbbb5509edb",
+    "frontend/features/mcp/hooks/use-mcp-queries.ts": "a8a3f8c4b665384ec59fc05a1ae22eb2ac957e1cd3003b927b87d2a062a09c7b",
+    "frontend/features/mcp/hooks/use-mcp-policy-mutations.ts": "4eca3147c30b9b43a355c5e5c59a8e5e3a44f5a1a55a879c4912c879c94756d5",
+    "frontend/features/mcp/hooks/use-mcp-connection-mutations.ts": "f321f7c43936535c21689c3d08c7ffa660be81b94092296c489ba47712d9cbd3",
+    "frontend/features/mcp/hooks/use-mcp.ts": "9bd0ef21c81fb692e56e9a151605751474a2361a78c1f7df13ffe97bbb06754a"
+  },
+  "receipt_sha256": {
+    "mcp-architecture-affected-unit.txt": "97bfb8a518005f994b109e664de03d391d8d8164a91d5a940fc515c7deec6608",
+    "mcp-architecture-final-types.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "mcp-architecture-final-lint.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "mcp-current-role-assertion.txt": "d015112ee6caf25f7cdf40b58bb8d9453e00dcddedd948d32ed954764d8b8cfa",
+    "mcp-current-safety-port-before-retirement.json": "38ce0ad0968c8dc1522faa583e9a61bd5d41fce89d2eab514640e3a5fe4d0cc5",
+    "mcp-delete-transport-before-retirement.txt": "f82e92b9ab1c8ab2b43dc827ccb6502e575a14a8219f0afbe36b79325ee3cfd7",
+    "mcp-frontend-decomposition-origin.json": "0836eeb445697cdce5177b778943314b1140b1f9e3fc721c04d3d6c418763641",
+    "mcp-legacy-retirement-integration.json": "5ab85c8745388611007a89f287593a9fd7ff0e946ac38a72cd9b9527eee6d4db",
+    "mcp-legacy-retired-files.json": "cd3a12db8964c2973fda03be5bea3fbb94beeb88ed498c07f48573f7983e6876"
+  }
+}

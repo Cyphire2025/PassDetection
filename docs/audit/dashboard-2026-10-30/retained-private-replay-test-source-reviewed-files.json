@@ -1,0 +1,38 @@
+[
+  {
+    "path": "backend/tests/unit/infrastructure/test_private_delivery_policy.py",
+    "sha256": "91abb10b34cc33535e07796c7d85ff0ebdb4cbaf47afd9954f0e970f0b0c1b1f",
+    "physical_lines": 631,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole631-line physical source read including parent-first real DB seed and final synthetic provider transaction. Archive/mutation pending/processing/unknown guards, restore/unique approved phone matching instead of generic fields, current phone revalidation, tenant/source lock SQL and queued cancellation are represented. Last provider/source mutation ordering uses an explicit asyncio.Lock plus AsyncMock sessions and demonstrates orchestrated ordering, not a real PG race/lock proof. Retained dashboard document/QR delivery scope only. Source unchanged; no new execution, source fix or validated defect. Existing source-bound runtime receipts remain independent."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_qr_worker_delivery_safety.py",
+    "sha256": "f1fcbb79a71c220ab2d37b803b38140b3f8896c59a1cbed129e60b346f6bdc3d",
+    "physical_lines": 304,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole304-line physical source read. SQLite test-specific partial-index correction, current-expiry token/snapshot, independent-session revoke/rotate during held upload, submitted/processing retry suppression, generic unknown/error privacy, safe rate/media retries with same payload, render/expiry admission, terminal batch failure and media/provider references plus monotonic receipt state reviewed. Fake rendering/providers; no native application/UI or live PostgreSQL/provider qualification. Source unchanged; no new execution, source fix or validated defect. Existing source-bound runtime receipts remain independent."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_whatsapp_receipt_inbox.py",
+    "sha256": "9bd19a62db2f3ea0ce9217d9721cef00625a7876a8be82c6e2b5eebac851b3f9",
+    "physical_lines": 575,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole575-line shared receipt source physically read. Signed webhook early commit/reconcile, invalid signature/nonack DB failure, reducer savepoint retry, old attempt/account binding isolation, monotonic/out-of-order outcomes, known acceptance persistence recovery, unmatched/superseded retention, safe dedupe and scheduled capped retry reviewed. Shared source includes OTP consumer state preservation only as compatibility of same reducer; no dedicated native client feature audit. This receipt inbox is retained WhatsApp delivery ledger, not deferred email Operations Inbox. Actual test design uses SQLite/authored HMAC secret/fake requests, not real provider/PG race execution now. Source unchanged; no new execution, source fix or validated defect. Existing source-bound runtime receipts remain independent."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_whatsapp_source_group_sync.py",
+    "sha256": "d14262a9da8a7acc3a78077092519c69590a09cb9c618850708e3886a2c5c9f0",
+    "physical_lines": 289,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole289-line physical source read. Shared/invalid/missing phones retain source travellers while unique recipient projection idempotent; manual ownership, deterministic representative, multiple source unlink and capacity reconsideration, active private-delivery mutation conflicts versus unchanged sync, queued cancellation and tenant/draft/deleted source isolation. Backfill safe output and actual staff HTTP phone edit/clear tests preserve imported metadata/canonical phone and recipient retirement; shared phone authority import not a native UI audit. No real backfill/provider execution performed. Source unchanged; no new execution, source fix or validated defect. Existing source-bound runtime receipts remain independent."
+  }
+]

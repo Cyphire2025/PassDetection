@@ -1,0 +1,611 @@
+{
+  "method": "Pre-mutation byte snapshots of proposed5 closed runtime files plus exact test/docs. Retained WhatsApp implementation source hashes are a narrow no-change control only; snapshots/import graph are not manual full-read credit.",
+  "files": [
+    {
+      "path": "backend/app/application/dtos/whatsapp_dtos.py",
+      "sha256": "b85c66d809b2ec0a8352cc454af2da8fe5d23b00a8bbea569e5b68b51506b162",
+      "bytes": 1570,
+      "before_snapshot": ".tmp/whatsapp-foundation/before/backend/app/application/dtos/whatsapp_dtos.py"
+    },
+    {
+      "path": "backend/app/application/interfaces/whatsapp_provider.py",
+      "sha256": "5d789d233ce3d222334277ed884ac600593092a03f471235552094032cb6affc",
+      "bytes": 791,
+      "before_snapshot": ".tmp/whatsapp-foundation/before/backend/app/application/interfaces/whatsapp_provider.py"
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/plan_group_broadcast_use_case.py",
+      "sha256": "739f646c16b48cfc9102a9ed2513bfe78607ab77ae555e47b1ef1c213c639533",
+      "bytes": 3182,
+      "before_snapshot": ".tmp/whatsapp-foundation/before/backend/app/application/use_cases/whatsapp/plan_group_broadcast_use_case.py"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/noop_provider.py",
+      "sha256": "dd3ad353ad9977aedec8ab24d4c48405b2ef0a9eac505fa6de5de60ab81eaded",
+      "bytes": 653,
+      "before_snapshot": ".tmp/whatsapp-foundation/before/backend/app/infrastructure/whatsapp/noop_provider.py"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/pricing.py",
+      "sha256": "ab2921e69e394bc4e0240735f7a17e98d1e71cdecef476e9e0a13a84fd3a27ab",
+      "bytes": 1821,
+      "before_snapshot": ".tmp/whatsapp-foundation/before/backend/app/infrastructure/whatsapp/pricing.py"
+    },
+    {
+      "path": "backend/tests/unit/application/test_whatsapp_message_templates.py",
+      "sha256": "6593ae023ede00012c1cf0231d527b428e25d70b7cca634538a5f27d984a148b",
+      "bytes": 9686,
+      "before_snapshot": ".tmp/whatsapp-foundation/before/backend/tests/unit/application/test_whatsapp_message_templates.py"
+    },
+    {
+      "path": "docs/architecture/tour-operations-phase-8-speed-security-whatsapp-foundation.md",
+      "sha256": "6d9c846ac1e87e5d4fbd9731443b9421d7d0eea93d8d5cedd4a344acd0bd3a15",
+      "bytes": 2121,
+      "before_snapshot": ".tmp/whatsapp-foundation/before/docs/architecture/tour-operations-phase-8-speed-security-whatsapp-foundation.md"
+    },
+    {
+      "path": "docs/architecture/whatsapp-template-settings.md",
+      "sha256": "b9a6461a0ee4095e124cf9c66be1b73c2cb137942acadc673a14479871cfa7ae",
+      "bytes": 4296,
+      "before_snapshot": ".tmp/whatsapp-foundation/before/docs/architecture/whatsapp-template-settings.md"
+    }
+  ],
+  "retained_whatsapp_controls": [
+    {
+      "path": "backend/app/application/use_cases/whatsapp/__init__.py",
+      "sha256": "445f2187b6bc304eabce6c2a1551f6013b97d9d7064eb0e91988db84b90a4def"
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/contact_import_limits.py",
+      "sha256": "004c196f9379aec1df84e0696046494b01c156776b05de8b9ae74e5acc1e9990"
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/contact_normalization.py",
+      "sha256": "554c21f551ea4d733d04156812ea90a381c58f6eae7fe42378c46763b46b7a51"
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/document_templates.py",
+      "sha256": "c145570c4362a2d27a5e236490600ca1a5ab535991b8175f99d7d55f9b8add83"
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/document_updates.py",
+      "sha256": "532e0fffaa8840625214d9bd9b4140b76a3d521f9d85826f62de7203e86a8213"
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/group_match_coordinator.py",
+      "sha256": "d409da422bab1a779bf75a3b4c10e98e0ec5b036735d5161d11af5f35fb7f76f"
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/group_match_evidence.py",
+      "sha256": "cf662891cd0d635b070cc93a5a68de3b2e660421e7b37545510d8dfd03aefb8b"
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/group_match_fields.py",
+      "sha256": "43ff801155b533fbf5b3c5a1172dd18c9bc4748d191e24433d8dde6582573a17"
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/group_match_normalization.py",
+      "sha256": "5b6d8982eb966989959ac6c8995b0b3278f1a20594e5aa375a001f06c1118f34"
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/group_match_profiles.py",
+      "sha256": "fc8a2101cf3abc2bc1b2df737e6572b540faa32b5c353c572e90b14f09afd900"
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/group_match_rows.py",
+      "sha256": "8c712fa4e4529434139a45acba392f9119ac842191154d0bf62caa101a732369"
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/group_match_types.py",
+      "sha256": "fc8546d246a221ed0dcf6834aa753e1b51fa877dffd2029e522e5f6ce4dfcf1f"
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/group_submission_matching.py",
+      "sha256": "dc85ecd81a87dd90451b9558d40a5007d338d93c3af30570cbff7d92b6ceb2e3"
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/group_submission_policy.py",
+      "sha256": "db0d11c4c77755003ba6a0f6bc8bc18790dde9199cad4bede579308db41c045a"
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/group_updates.py",
+      "sha256": "21fedeb3de24aea185f6891e8234811acb375e8af120906fe326d9ea401ea9b5"
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/imported_broadcast_phone.py",
+      "sha256": "8a0e9ecc7ebc83168abd106f8e270ee836b775117193c0e0a51ede74bbea198e"
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/message_templates.py",
+      "sha256": "7374c3fdbaa533e9d9f0ee83bb41a0029db4bd5b91b70317223a269d2ee0cc88"
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/private_delivery_identity.py",
+      "sha256": "07d1d03caf28648a0b59a4378bead83e74144a81600db57f0128856e443da3f5"
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/qr_templates.py",
+      "sha256": "bfa78d9e057f84c723c60a7c58aac413cfe686d0ce7702db7ccbdec4c51c99cd"
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/recipient_capacity.py",
+      "sha256": "c78934bed1c992e220fc49c5666c54e07aff26193a9a3d5d526e19528e3b71d9"
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/source_group_contacts.py",
+      "sha256": "af6ec9c7113479c734be7068e1c27e8a4c96f8637c3e23ed6186788e467817c0"
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/spreadsheet_values.py",
+      "sha256": "9b3a824b2f5dd1c40592a417ee51b0b4538fb9155c01cefb4985c6101816326c"
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/template_text.py",
+      "sha256": "949478864a0fd8819a54732d1f2feca7a5dd3446feb5a21679ec104cfb74fa33"
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/welcome_policy.py",
+      "sha256": "41f3d5b89c15ef2177bcdb91e5f8d3b55735e5c6de5f74dbdd0ed69c58d2d389"
+    },
+    {
+      "path": "backend/app/core/config/whatsapp_settings_fields.py",
+      "sha256": "3a0844b5cc46ff1693f4386df51c8f1c53e4cde1e86ef579abe4f4dbc6eb21bf"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/__init__.py",
+      "sha256": "c755e315a6ff25731e547cad0415f0161a51a79d22c3ef69ef0d3e52ead55ac4"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/bounded_delivery.py",
+      "sha256": "47e20b22051fda438c43316b3ae67f5dbf1f72ab07f74ead1a456484018d0dba"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/broadcast_welcome.py",
+      "sha256": "cfb5009bd2cf410bf06a274b0fb5c151e4c0580d14d28410e06a12cd222d6a05"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/broadcast_worker_policy.py",
+      "sha256": "a31eb59c7aa6e36de3c92adb32636969eadecbfba43b8a6bb1ef0fbe21b4c45a"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/broadcast_worker_provider.py",
+      "sha256": "b97ecbe09e1186ae4360deacc6e45bc3754ada62211f992608c203072dbf1a29"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/broadcast_worker_state.py",
+      "sha256": "1ff39963c73a9712e414038d4709716437da9c1104129efae2f0754fb92e498c"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/cloud_api_provider.py",
+      "sha256": "1609a10ee69a14ac9647ebf8b40227f1dba95f908a69d9a8d21b6296e58ae78c"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/document_delivery_runtime.py",
+      "sha256": "995e3c43450e9ab3e6a82789c7df4456f0c02eb3f7280efbb49468c74d4a358a"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/document_update_provider_wave.py",
+      "sha256": "8181e6f410164c5696f01d97a69e4d7f80d675a5e8cb5b7de529465feb721339"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/document_update_runtime.py",
+      "sha256": "1151e4106599f23168c08a8db1a9c8e1243aeb522ad0dd007261505be03bb45e"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/group_invite_policy.py",
+      "sha256": "9e8ffb220a8b8672fe5d421d9c4ae66da3010ca4e9d2fb60df15d83d82741900"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/group_update_audience.py",
+      "sha256": "17341ab7a6b7971d58533bbed1f639de5fc3286fbc8b4b9db05b3acda9915ee4"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/group_update_contacts.py",
+      "sha256": "99db813f0e5a1eafd684016e57590d6f01ee8c5cc757919f3695f04e4a1e1963"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/group_update_dispatch.py",
+      "sha256": "5badea183b0969519ec6d946b263d84f84e483d3e9d5d24457f9842b7f5243a5"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/mcp_dispatch.py",
+      "sha256": "3cef0e52832389c652847023ba151c2d3b97c7026b95819a1cb8a442c8b6ac2d"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/mcp_document_dispatch.py",
+      "sha256": "910e4f1706facf80c1ccfedf128887e5324d2f02e47069eb392abf8fb82ab9c4"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/mcp_document_progress.py",
+      "sha256": "c2d413920f8afdcb8082cf352f0c4dc04600ea7d858d9cedcac52e0fa578dd97"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/mcp_document_publication.py",
+      "sha256": "4913e8378a56b549d76a46abceee8a3f0d363b0de02d18b8e4bc0e4d39c54201"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/mcp_media_dispatch.py",
+      "sha256": "d339a7f02a47b267fd0da1f823dd270d46bc8d26434e3c587ce08bd1aeca9764"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/mcp_progress.py",
+      "sha256": "223c258de5225f05f1f8b0d41c8027522796106635c40629607de9c7b09e0df4"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/mcp_publication.py",
+      "sha256": "1a816588cd8007429cbc158642ced4cf2459a2f014d22093ebc6ef1bccdc0b42"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/otp_provider.py",
+      "sha256": "0ddafa67ddbcddd1b5be9e43e3bd8b9ae4f9d8e8be4d934967f7a39763aff534"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/phone_overrides.py",
+      "sha256": "669da158e86223949b2543d4b8106005ee4c958f8015894537eca09983b6fc27"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/phone_welcome.py",
+      "sha256": "1a2051eddc9fdfcebee335187da3aa46aafcb0b0eba601b5e834b9de99838c21"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/private_delivery_policy.py",
+      "sha256": "bed4893e0328209032e17a7e13292fc6ee2029b562e6b69e4cd0586fba04b34b"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/provider_errors.py",
+      "sha256": "4c02727abd437502c0ba08f6f79f49442ce3439bb43df1614b4e2335a1502b11"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/provider_media.py",
+      "sha256": "b6b8d365bd633d0f595275913480df34d03fd934655440f2fee064e471b5224e"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/provider_messages.py",
+      "sha256": "d99963e638323121343c1e017011f4318a0197b3cd384d2d9e3a5d0876ca29d7"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/provider_payloads.py",
+      "sha256": "fb25ffeca9f1f2611839015d73800dec80325878fe1041a642eeb7e3bdeb0677"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/provider_transport.py",
+      "sha256": "af003278470e812545dbc126818e85b0b3018de1f9c2c6e80d77c41559a6e23b"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/publication.py",
+      "sha256": "b5ceb5197b6c04b908c15de40dc47f285cd162624b167c61d48d677c534e78ef"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/qr_delivery_dispatch.py",
+      "sha256": "ddd52c441cde5215800dad9d7dd5ce6df42275f160e08aa7a1e79fb1e657b9b6"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/qr_delivery_media.py",
+      "sha256": "9dcec1cd2491e26e17af9785b1ddb87ceee6e492aef9634af16ed399a33b20bb"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/qr_delivery_runtime.py",
+      "sha256": "f2784c5dc6e5fb9525e80cc58677de8d3dd1065985efb7169a6c6862cd961714"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/qr_delivery_state.py",
+      "sha256": "79d203828d1af3291ff9bd1906a2771d09f405930e600bf45e8f8cb8cbd4f7fc"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/qr_delivery_types.py",
+      "sha256": "f95d5ec0e58d4bc5f9f2df38eb01c772ad611cd7d13327441dd3bee11a9c1bb1"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/receipt_bindings.py",
+      "sha256": "c2c710fd6719084e80e559273649f9d4c31af1c67c344cec4ac0e4cc26ebcab7"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/receipt_inbox.py",
+      "sha256": "73f91c4f3a326634b0ba64e78fbc9cb479fadb295a1536e6a279612574fb834c"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/receipt_retention.py",
+      "sha256": "1e95f903800a67b965d446b2fe20a0423c947727442226f91c5eafb178ad4581"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/receipt_runtime.py",
+      "sha256": "19b356ab48ee3ea6c34d91e14aa5ede416342fb8dc6143782dc53e5c1c6cad8e"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/source_group_backfill.py",
+      "sha256": "cdef905101e759b72fb8dfa25742a0f0fa6c16505846fafbe8f06359fcc4ff93"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/source_group_sync.py",
+      "sha256": "18532630c79f6b0c65e42750877560930d5b5685936f52d5ee0317569e2a7f24"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/tasks.py",
+      "sha256": "d38d0d3d7303cddd1b36a7933f91244a3f4f9c34ccf90d04d92af0b26d9a7916"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/template_settings.py",
+      "sha256": "9ecc8e05705dbea514b712d0bf8c2517d82fb0423b1a64ee16f5edaebdaa034b"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/traveller_destinations.py",
+      "sha256": "17dfeb7e334094cec983674d0df704b30ad9ef55770ea097c4823cea8f200946"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/traveller_welcome_runtime.py",
+      "sha256": "6509ed2f490d502163c209b91101ceb9b50c3bbb65c074c3ad380f7c94504c07"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/web_publication.py",
+      "sha256": "d5132698ea97f869e6add9b5df5fbc8b78ece0cac4b664e3458d28e0294cf0ee"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/welcome_recovery.py",
+      "sha256": "c58aebf88ddc0b5de940fbd50f3070be954860cb6e6038b39bf4de87bc048c21"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/worker_recovery.py",
+      "sha256": "3f754affa5afc06adcf3ed69c5b212d471e1a930fb6c005402bf9800cf36634f"
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/worker_runtime.py",
+      "sha256": "bd7c038c5ec22a548cd1142c135b529d9c7c6798594f7e4cd7be74c3af95cae1"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp.py",
+      "sha256": "f2f9e3f934ad389ab39e2e46039c40a7584f0443ac285f057e9f4eac538ea948"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_activity.py",
+      "sha256": "f8abd34251e84c59f704cdf2c279cd89dbd4b1813f928fb29667bd968e37b3d1"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_archive_policy.py",
+      "sha256": "d1cda4800cc392ba5949e982eda4a96aad50bed6a2fccf7b9625a4e17d0b755e"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_batch_status.py",
+      "sha256": "2e4f9e560c8b2bfb76409359c206767618fbd1428948742167732e8055ebe5a8"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend.py",
+      "sha256": "df04ecaf6aa190eea5091e6ffd6d153e3ca069e218dcc44a51df61192b37f8f2"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_composer.py",
+      "sha256": "ab61255d40c486c7ffa28aaa3fee83d6cb8c1fba4c35cbb2eccc6d55a922ea3d"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_preview.py",
+      "sha256": "d9067315f2a5848aade12faade1a07420199244c30c3e517fd09253bd28b4a44"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_support.py",
+      "sha256": "d4ecbe74c00180af07966d9018e0b12e922df57cd7660ebc1bc4881248b0e4a6"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_catalog.py",
+      "sha256": "a035f25086984006cb4081645627bf78a637c782cf269ddffaecb5145c2ff550"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_composer.py",
+      "sha256": "29651e2747c95b9fd257458ea54fa89b93e3fba98c3d95b6bf7961eb52f726bf"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_composer_support.py",
+      "sha256": "6cc3a753b6ad7b746a3707ae743f158307a8a3779d9b9f29402da08deaef5018"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_contact_excel.py",
+      "sha256": "dd4fdbdb2ce0a78983ead4bfd5bd9ef311c3a1a366e68e207c72f3cdbfe300dc"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_contact_import.py",
+      "sha256": "d627dcea775c7302cd0680e77cb6a7c8f1d3b8bea479b3865d318af1dd6bf1c8"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_contact_parse_result.py",
+      "sha256": "473226263ce8155b0aa4177327c3338c7aff8442f96c0ba6ab862186fbc70aed"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_contact_rejections.py",
+      "sha256": "afeab1dc52e467c586a57b85b9b5289a7dcb45414035c1652a0bfd46d8f11e9e"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_contact_responses.py",
+      "sha256": "04cdf2c58e178c1fbe733ec238efbe3d3eec3765fe938607cadf3b85e9c1cb14"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_contact_sources.py",
+      "sha256": "0500fab46a72d955359e71e559d85f7b3a05d623ae35ef8abeccc5afb402626a"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_contact_support.py",
+      "sha256": "c6640e915d3a22ceb880189bb4e3a89f0d7cfc3180a6a8b7582b446b709e1fce"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_contact_values.py",
+      "sha256": "3a6c521cbd30e24af2492d3807d398b61c028ec305b5f66368b84e427da713a3"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_creation.py",
+      "sha256": "80d28f482839d06f304973b37242e3c7ba60e0b50ee3db994d67fed5da8522eb"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_delivery_support.py",
+      "sha256": "11584385a6d8d16124e39d5e029c3aa4908b1044b1c7df7861461c93a32b82f0"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_exports.py",
+      "sha256": "4c719c70041d102ee6b96af13394442bd468032f53dd236ae7331095d2885aaa"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_group_list_query.py",
+      "sha256": "47639d7ab284843906f52499056128ec5bfed07d8f8fea0af03e22fb291d3816"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_group_list_response.py",
+      "sha256": "78a5476815d164b65ae7cd62985de8fd19426ab4e0ba8b592a351e7610eecfd9"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_group_visibility.py",
+      "sha256": "6a99074f2af2e4aba32d552358102b415bb9d092cc93bc6acc16f8cf8a41c042"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_groups_archive.py",
+      "sha256": "fd5a33d29929bba93d4944eb5e1166cda0d8423be78a19f6f164096fb2c80698"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_groups_delete.py",
+      "sha256": "3b57c65ed6af310566e44149764e826d8e2d256f648a31c5697a9cc8a883400c"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_groups_manage.py",
+      "sha256": "6c48d2e6838d056e9d83db1266521c09ca50a1eda61430c9922bfd93d8c1e924"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_groups_read.py",
+      "sha256": "21d3a332823747925f2d2707725c7237c9191d103918f8e86dc2dee8d15d81aa"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_history.py",
+      "sha256": "7bc42e0f850d8ab664483e42f5926127ccb2cca4f15b491a7c65df2ffc826dd8"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_history_queries.py",
+      "sha256": "73bfdeb539ebfc046a01fe42ccfedd6828c71dd4281b022b3ea963a0883b996b"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_history_resend.py",
+      "sha256": "b7e6738492ef0ce1ced89877335662de95116be8b690dec954e7052ed6c3ceb2"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_imported_fields.py",
+      "sha256": "fc4ab60c67b8ba4da46dc0b50684264173f2af260696e138b1f40925049ba811"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_merged_contacts.py",
+      "sha256": "ad8aed1c998143dc1169012997d980f7bab2879920685fab190b94376deae40c"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_phone_welcome.py",
+      "sha256": "5bfe0b3e22e078f786633d32556118dc353d0aae1ff7b9d9663c308976f9e05e"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_preview_recipient.py",
+      "sha256": "52e0c49a5e962b754ad6dfb760bdb511c2600cb4f8018b29f5d766392ae5a15e"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_recipient_additions.py",
+      "sha256": "278d992f0ac8343d4754aba07fd93c7412f5ff9003c8333d5aa42784b80800f4"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_recipient_claims.py",
+      "sha256": "74485a30dbbc4e0dae5582ca56bdde9198cc3fb5132e19dc02b26a18d3a23a56"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_recipient_details.py",
+      "sha256": "cbf2a7caef9dec783ffb6252f6e3aa5ca3c6108e7e19df9d2a6308d55f098b0e"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_recipient_inputs.py",
+      "sha256": "b36a54b257d60ba8825ae02f253aa7f7f63998c34bf06a678fd4ef88524ecee8"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_recipient_phone_identity.py",
+      "sha256": "569623532a6da96476575a413e74aa9ce6721d9ec2de648f7c2d97beb174553e"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_recipient_roster.py",
+      "sha256": "1fd7b7511c5d6305853399c62b16537213d3bb90c4e0684a36b3a2b613f14218"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_recipients.py",
+      "sha256": "f2cd931620b7b155a079b10f1cb58b8faa4dd56183282a3f17749af4d49edc05"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_rejected_contacts.py",
+      "sha256": "1e58dacd0f9846c38e9c2d3e47d22b5635c0fb31450a4f4935acbc4a487a622c"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_reminder_audience.py",
+      "sha256": "0e9199e40aff3990a9eff3c033fafd17c2b5aec307894d1529bcb8c653410151"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_resend.py",
+      "sha256": "1af6956e51c098a8b6ffa3e160c875f88b525b217508309cc832d0ab32b25bb2"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_resend_payload.py",
+      "sha256": "d404e35dfb0eec737193e29f24de045324f456fe871f4048dbf851459c1e5789"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_roster_order.py",
+      "sha256": "364fb303eb5ff6eb6f62e68bb9b47674f4596ef555ecbcf941a79efc85dbf997"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_roster_support.py",
+      "sha256": "91ae572d7825dafff8ccea8254023fb9924fd58266df0ac1b8d7f61a8e99c23f"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_router.py",
+      "sha256": "4ed2349b9b92acb5af58df36d21e84899c3758e604176420ea67b210e8c1ae74"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_scope.py",
+      "sha256": "31d4d2d26d1057b267463fe0116a3faee14a6cdecf08773bc9a22dd6acf4868f"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_send.py",
+      "sha256": "787bdb0c731bd73589666d39e39196c57e3bd2eaa3c8af1b28a965d0d7e1f670"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_send_intents.py",
+      "sha256": "462de74cb9c8fa305e26ec299815876c7439a72ba4436d4adf96d590178f5e51"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_send_support.py",
+      "sha256": "b8906f12b93b2e3e5c98d6135da1254014e747aa487e94a7b268ff971ae1b254"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_shared.py",
+      "sha256": "a0350f00c141d9e44eb016e6dcf7090bea09ce47201dcb190228e30425466ccc"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_source_groups.py",
+      "sha256": "0d06734e888a43ddb61343420cb36a6bb560272cee86b1adcdfdaf00ace25234"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_type_history.py",
+      "sha256": "b227e5123e1ce8d1b03ec13770df81287fbfbf2ad0ba0ad9ec6d9f451710a74d"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_type_history_queries.py",
+      "sha256": "f82401f1b3e467ffc49fcf71e9844d58b865229c048c29c2bf9c77a9324ab892"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_update_audience.py",
+      "sha256": "a54a210a82d63d0765053d8efe444f2589e2d91cd2ed7171ba69a696eb1aea9a"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_update_resend.py",
+      "sha256": "6a4030480233fc5b6865a6b49452eb685f21a8a58012601611b552a6eb73a2b6"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_webhook.py",
+      "sha256": "7dc8ba21f533ae2efd55c71a987d0d7e0bbcafb217b7982ffbab707fa936221f"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_welcome_view.py",
+      "sha256": "e12fdb14e5e9da76df4c7f4decfe9ba17d7f13d71b8a836f35cc493a685121f5"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_workspace_passengers.py",
+      "sha256": "b787f21714f8ed58155f6ee89a04902e54dc4a2d98aea9972a0cdfa43888972d"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/whatsapp_schemas.py",
+      "sha256": "cef7cf3eb91069546503f79893dc5e38c140a3ac31ae144c78b1fa6a838f5ea6"
+    }
+  ]
+}

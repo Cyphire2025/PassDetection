@@ -1,0 +1,216 @@
+{
+  "method": "Recursive TypeScript syntax kind/text/children, preserving literals/operators; ignore source positions/comments, optional parentheses and React-equivalent JSX indentation. Compositional comparisons expand ONLY verified child delegations after checking forwarded props/keys/callbacks. Native radio correction precedes the movement origin. One explicit break-words style fix and two live-recipient admission guards have separate negative/final regression evidence; these are declared behavior corrections, not mechanical movement.",
+  "declared_follow_up": {
+    "part": "replacement recipient refresh admission",
+    "changes": [
+      "Disable confirmation when the selected candidate is absent from the current recipient query.",
+      "Also guard the confirmation handler against that absent candidate."
+    ],
+    "baseline": ".tmp/group-whatsapp-recipient-refresh-before.json",
+    "original_movement_history": "group-whatsapp-before-recipient-refresh-movement-proof.json"
+  },
+  "parts": 50,
+  "results": [
+    {
+      "part": "GroupWhatsAppBroadcastPanel body",
+      "matched": true
+    },
+    {
+      "part": "GroupWhatsAppBroadcastTrackingPage body",
+      "matched": true
+    },
+    {
+      "part": "query/state/effect 0",
+      "matched": true
+    },
+    {
+      "part": "query/state/effect 1",
+      "matched": true
+    },
+    {
+      "part": "query/state/effect 2",
+      "matched": true
+    },
+    {
+      "part": "query/state/effect 3",
+      "matched": true
+    },
+    {
+      "part": "query/state/effect 4",
+      "matched": true
+    },
+    {
+      "part": "query/state/effect 5",
+      "matched": true
+    },
+    {
+      "part": "query/state/effect 6",
+      "matched": true
+    },
+    {
+      "part": "query/state/effect 7",
+      "matched": true
+    },
+    {
+      "part": "query/state/effect 8",
+      "matched": true
+    },
+    {
+      "part": "query/state/effect 9",
+      "matched": true
+    },
+    {
+      "part": "query/state/effect 10",
+      "matched": true
+    },
+    {
+      "part": "query/state/effect 11",
+      "matched": true
+    },
+    {
+      "part": "query/state/effect 12",
+      "matched": true
+    },
+    {
+      "part": "query/state/effect 13",
+      "matched": true
+    },
+    {
+      "part": "query/state/effect 14",
+      "matched": true
+    },
+    {
+      "part": "query/state/effect 15",
+      "matched": true
+    },
+    {
+      "part": "query/state/effect 16",
+      "matched": true
+    },
+    {
+      "part": "query/state/effect 17",
+      "matched": true
+    },
+    {
+      "part": "query/state/effect 18",
+      "matched": true
+    },
+    {
+      "part": "query/state/effect 19",
+      "matched": true
+    },
+    {
+      "part": "query/state/effect 20",
+      "matched": true
+    },
+    {
+      "part": "query/state/effect 21",
+      "matched": true
+    },
+    {
+      "part": "tracking statistics JSX",
+      "matched": true
+    },
+    {
+      "part": "tracking filters JSX",
+      "matched": true
+    },
+    {
+      "part": "filter props forward unchanged identities",
+      "matched": true
+    },
+    {
+      "part": "comparison JSX after verified filter delegation",
+      "matched": true
+    },
+    {
+      "part": "resolution dialogs JSX",
+      "matched": true
+    },
+    {
+      "part": "manage dialog body",
+      "matched": true
+    },
+    {
+      "part": "choice candidate identity",
+      "matched": true
+    },
+    {
+      "part": "choice selected condition",
+      "matched": true
+    },
+    {
+      "part": "choice React key",
+      "matched": true
+    },
+    {
+      "part": "choice pending authority",
+      "matched": true
+    },
+    {
+      "part": "choice native radio group identity",
+      "matched": true
+    },
+    {
+      "part": "choice selection/error callback delegation",
+      "matched": true
+    },
+    {
+      "part": "choice JSX with explicit aliases and verified wrapping fix",
+      "matched": true
+    },
+    {
+      "part": "choice imported detail filtering",
+      "matched": true
+    },
+    {
+      "part": "replacement body after verified choice delegation and declared live-recipient admission guards",
+      "matched": true
+    },
+    {
+      "part": "row field derivation 0",
+      "matched": true
+    },
+    {
+      "part": "row field derivation 1",
+      "matched": true
+    },
+    {
+      "part": "row field derivation 2",
+      "matched": true
+    },
+    {
+      "part": "row field derivation 3",
+      "matched": true
+    },
+    {
+      "part": "match row JSX after key ownership move",
+      "matched": true
+    },
+    {
+      "part": "match key expression",
+      "matched": true
+    },
+    {
+      "part": "row props forward unchanged identities",
+      "matched": true
+    },
+    {
+      "part": "match table body after verified row delegation",
+      "matched": true
+    },
+    {
+      "part": "TrackingStat body",
+      "matched": true
+    },
+    {
+      "part": "MatchStatusBadge body",
+      "matched": true
+    },
+    {
+      "part": "SubmissionDetailsList body",
+      "matched": true
+    }
+  ],
+  "passed": true
+}

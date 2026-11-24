@@ -1,0 +1,22 @@
+{
+  "modules": [
+    {
+      "path": "app/infrastructure/travellers/company_export_native_work.py",
+      "baseline_lines": 26,
+      "maximum_lines": 35,
+      "baseline_max_function_complexity": 6,
+      "maximum_function_complexity": 6,
+      "minimum_coverage_percent": 100
+    }
+  ],
+  "critical_helpers": [
+    {
+      "path": "app/infrastructure/travellers/company_export_native_work.py",
+      "minimum_line_percent": 100,
+      "minimum_branch_percent": 70
+    }
+  ],
+  "measured_line_percent": 100.0,
+  "measured_branch_percent": 75.0,
+  "evidence": "company-native-cancellation-verification.json"
+}

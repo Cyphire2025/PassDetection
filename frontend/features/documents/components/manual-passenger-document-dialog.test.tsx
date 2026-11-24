@@ -55,4 +55,17 @@ describe("manual passenger document assignment", () => {
       expect(errors).not.toHaveBeenCalled();
     } finally { errors.mockRestore(); }
   });
+
+  it("shows unavailable document filenames without opening a placeholder link", () => {
+    const props = { rows: [row], pdfCountsByPassengerId: new Map(), activeSelectedAssignedDocumentIdSet: new Set<string>(), documentType: "visa" as const, showRowActions: false, removalPending: false, reuploadPending: false, searchQuery: "", onToggleRowDocuments: vi.fn(), onReupload: vi.fn(), onRemoveAssignment: vi.fn(), onResend: vi.fn() };
+    const saved = { ...document, url: null, match_confidence: 1, match_status: "matched", delivery_status: "not_sent" };
+    const { rerender } = render(<table><DocumentWorkspaceReviewRows {...props} documentsByPassengerId={new Map([[row.passenger_id, [saved]]])} /></table>);
+    expect(screen.getByText("shared.pdf")).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "shared.pdf" })).not.toBeInTheDocument();
+    const url = "/api/v1/document-distribution/documents/saved-1/download";
+    rerender(<table><DocumentWorkspaceReviewRows {...props} documentsByPassengerId={new Map([[row.passenger_id, [{ ...saved, url }]]])} /></table>);
+    const link = screen.getByRole("link", { name: "shared.pdf" });
+    expect(link).toHaveAttribute("href", url);
+    expect(link).toHaveAttribute("rel", "noopener noreferrer");
+  });
 });

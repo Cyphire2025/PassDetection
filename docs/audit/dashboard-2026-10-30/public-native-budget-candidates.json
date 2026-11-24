@@ -1,0 +1,10 @@
+[
+  {
+    "path": "app/application/use_cases/passports/submit_passport_use_case.py",
+    "baseline_lines": 451,
+    "maximum_lines": 460,
+    "baseline_max_function_complexity": 46,
+    "maximum_function_complexity": 46,
+    "minimum_coverage_percent": 85
+  }
+]

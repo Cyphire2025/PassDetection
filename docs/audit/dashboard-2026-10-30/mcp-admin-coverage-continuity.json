@@ -1,0 +1,9 @@
+{
+  "status": "same23source/test/support hashes verified after157pass; five new cases appended only for unchanged5runtime owners",
+  "raw157_sha256": "937931202dae3b2174fc6c8cf905c5acc339f3add7a06231048ce64db5b61130",
+  "raw157_saved_copy": ".tmp/mcp-admin-architecture/.coverage-157",
+  "supplement_source": {
+    "path": "backend/tests/integration/test_mcp_admin_current_routes.py",
+    "sha256": "3445798ff49187928e530a56994f983845395b58978f181b053fcfc970b13584"
+  }
+}

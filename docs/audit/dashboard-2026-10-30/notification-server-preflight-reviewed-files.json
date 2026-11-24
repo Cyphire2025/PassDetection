@@ -1,0 +1,330 @@
+{
+  "stage": "original source preflight before approved mechanical composition",
+  "files": [
+    {
+      "path": "backend/app/application/mobile/notification_service.py",
+      "sha256": "f3d92686c29991834149887ee4dab8250a9fe7187c1c4e26b354809e0cffa603",
+      "physical_lines": 1995,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "needs-follow-up",
+      "notes": "Complete original physical source read; current retained dashboard/MCP/worker callers and actual test assertions traced. Independent architecture follow-through remains open; no new behavioral/security defect adopted merely from patterns."
+    },
+    {
+      "path": "backend/app/application/mobile/authored_notification_service.py",
+      "sha256": "464499ea0deac52ddb95c6bb2deaff885973fe3c78f617922d8e368986ddd9ea",
+      "physical_lines": 425,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "needs-follow-up",
+      "notes": "Complete original physical source read; current retained dashboard/MCP/worker callers and actual test assertions traced. Independent architecture follow-through remains open; no new behavioral/security defect adopted merely from patterns."
+    },
+    {
+      "path": "backend/app/application/mobile/authored_notification_access.py",
+      "sha256": "25a0fc53d6c016a42be5a65612d2370ae4f194326eb4bf8e071963335de03df6",
+      "physical_lines": 414,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "needs-follow-up",
+      "notes": "Complete original physical source read; current retained dashboard/MCP/worker callers and actual test assertions traced. Independent architecture follow-through remains open; no new behavioral/security defect adopted merely from patterns."
+    },
+    {
+      "path": "backend/app/application/mobile/authored_notification_audience.py",
+      "sha256": "4fcfe94e5b790e15acb1af41f3bd5662f68f95211e80a64d60a9044fbfc90ddc",
+      "physical_lines": 286,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete original physical source read; current retained dashboard/MCP/worker callers and actual test assertions traced. Independent architecture follow-through remains open; no new behavioral/security defect adopted merely from patterns."
+    },
+    {
+      "path": "backend/app/application/mobile/authored_notification_preview.py",
+      "sha256": "b63b42fcf4cbe0fb5d0df49afb23531a951ee2c6a0a61701218b7022b63a885c",
+      "physical_lines": 86,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete original physical source read; current retained dashboard/MCP/worker callers and actual test assertions traced. Independent architecture follow-through remains open; no new behavioral/security defect adopted merely from patterns."
+    },
+    {
+      "path": "backend/app/application/mobile/passenger_notification_authority.py",
+      "sha256": "e0f14a41a6154009d09d7c9c1e879d7f06baae8876bbd73f485d0d355bb23391",
+      "physical_lines": 128,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Batched complete submitted-contact and exact device claim generation checks; group/tenant/source phone authority trace."
+    },
+    {
+      "path": "backend/app/application/mobile/passenger_phone_authority.py",
+      "sha256": "cfdae64fffe06c53806bfefb84d0ab8aa38180cf952798086752ab38275e38d0",
+      "physical_lines": 60,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete current submitted-contact provenance/phone/tenant/group identity predicate; no imported roster login authority invented."
+    },
+    {
+      "path": "backend/app/application/mobile/group_app_availability.py",
+      "sha256": "054b0a4e071e42749aab33f1a71abd9099e0e43a1a7de74d57f6a1161848bbbf",
+      "physical_lines": 109,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete projection/SQL precedence and current time/window predicates; supports retained audience selection."
+    },
+    {
+      "path": "backend/app/application/mobile/fcm_dispatch_intents.py",
+      "sha256": "9d2b5b7eefb1b90448e4e07a377f725a25dface5fba660718c1717b297c884a8",
+      "physical_lines": 289,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete durable COMMIT-before-provider and postcommit refresh/claim/source/token/payload/MCP handoff-clock checks. No edits authorized here from mechanical parent decomposition."
+    },
+    {
+      "path": "backend/app/application/mobile/mcp_push_guard.py",
+      "sha256": "f618802168295379d8f20e9d4d03772afd1870e7f9a8197e065cd8fbf0bedb98",
+      "physical_lines": 308,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete original grant/tool/agency/plan/device locks and frozen target/clock barriers read. Plain direct caller analysis only; no new MCP authorization qualification claim."
+    },
+    {
+      "path": "backend/app/application/mobile/native_push_targets.py",
+      "sha256": "1274da5a9e400d1601d343e0fe477e59b468d3852e40f94ae2331b265b8523ec",
+      "physical_lines": 57,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete bounded other-platform unsent sibling seed; no attempt increment or HTTP."
+    },
+    {
+      "path": "backend/app/application/mobile/push_receipt_claims.py",
+      "sha256": "a83e54302a957328f3c15e340729ce121e77987dc9bd222d3be0d66a97f856f2",
+      "physical_lines": 91,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete parent-first claim/missing versus locked parent distinction, due provider/receipt filters and skip-locked order."
+    },
+    {
+      "path": "backend/app/application/mobile/mobile_push_payload.py",
+      "sha256": "9bb6ef5f47a0dda48d5a20a7cd020e72896b58cedbf985490b04d7e529c1e3c3",
+      "physical_lines": 42,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete exact notification-owned allowlist/route/trip/event binding; no raw passenger fields admitted."
+    },
+    {
+      "path": "backend/app/application/mobile/push_provider.py",
+      "sha256": "f6d2b92c822c65035110b5ab3d2f3a76786014568b41cad6851a7d0012cb3311",
+      "physical_lines": 449,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete public DTO/Protocol/disabled/Expo provider/settings factory physical read. Fixed HTTPS/no redirect, bounded count, codes/tickets/receipt handling reviewed; provider-specific behavior unchanged and no real requests."
+    },
+    {
+      "path": "backend/app/application/mobile/announcement_push_guard.py",
+      "sha256": "5ed04426edb69436f5f16f776b35fb7db1a24ba3085da6ecf221a18043758d1c",
+      "physical_lines": 193,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete source scope/visibility/window/shared skip-locked plus orphan distinction, accepted evidence preservation. Announcements deliberately excluded by current worker from phone send."
+    },
+    {
+      "path": "backend/app/application/mobile/passenger_change_propagation.py",
+      "sha256": "b95718038524772f7f5413ba41fa8a2dc3efb4e8ed455eea6d0f75e5b8df7fef",
+      "physical_lines": 500,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete retained canonical dashboard mutation bridge, source broadcast synchronization, targeted journal/reconciliation thresholds, request dedup and document notification call ordering. Not native-only ingress; unchanged."
+    },
+    {
+      "path": "backend/app/application/mobile/notification_errors.py",
+      "sha256": "53b4d04c5f419322cd7a25d1e58bae71fd8fa6dc51aef3638842068c67987b7c",
+      "physical_lines": 12,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete HTTP-independent bounded workflow failure category/code mapping."
+    },
+    {
+      "path": "backend/app/application/mobile/authored_notification_history.py",
+      "sha256": "8b3a87b7324383525d919877c8c96735795bfde7b0468795875da6dbeb6d0300",
+      "physical_lines": 145,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete current cursor and batched tenant-related recipient/delivery projection; no provider content/tokens in DTO. Unchanged."
+    },
+    {
+      "path": "backend/app/application/dtos/gc_notifications.py",
+      "sha256": "5544eb589c148984a6941466241b5171f99d4ddeb5567302a7713b6f776b7111",
+      "physical_lines": 131,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete title/body/group/preview/revision/request schemas and field validators, extra fields forbidden; no schema changes proposed."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_notifications.py",
+      "sha256": "e7d5a2b651995eed575cb15554ad9f713035a530f1270dbd62dbdb7e41ea9fed",
+      "physical_lines": 286,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete actual dashboard route read, agency/operator role/CSRF, soft-deletion/recovery lock, batch commit-before202 and bounded cursor behavior."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_announcement_publication.py",
+      "sha256": "b8e93bd5bc1b4fa56390d352e538d1b6b7a82e60e63707022743cda3db1fa37b",
+      "physical_lines": 250,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete actual dashboard source publication/unpublish/delete transaction and sync/notification feed staging path; no native client audit or ingress edits."
+    },
+    {
+      "path": "backend/app/infrastructure/mobile_push/tasks.py",
+      "sha256": "4f84fac2a49d397bb4adcff69c73a67e2243994d9064a75297edf4c24eeb33f8",
+      "physical_lines": 207,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete Celery feature flag/provider entrypoints, dedicated sessions, commit/rollback and type-only error logging; unchanged."
+    },
+    {
+      "path": "backend/app/application/mcp/gc_push_intents.py",
+      "sha256": "24f3f58d25386db0c54b85eab163559b08eff8c8a5f632d68102759c310c6193",
+      "physical_lines": 221,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete retained prepare/explicit confirm/source snapshot/idempotent outbox binding and original-grant boundary; provider absent inside transaction."
+    },
+    {
+      "path": "backend/tests/authored_notification_fixtures.py",
+      "sha256": "8ee9942fcedf13996c17b3725db520c641e44966f84f3ac5f464b3f25002c8eb",
+      "physical_lines": 108,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete synthetic audience/draft fixture read; no provider data or sends."
+    },
+    {
+      "path": "backend/tests/service_integration/test_authored_notifications_postgresql.py",
+      "sha256": "628f6fd08e27ee5040ac3116de31d382447211a924b45dc3175520a47e183a70",
+      "physical_lines": 244,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical source read of explicit isolated PostgreSQL concurrent/send-rollback/migration controls; NOT executed, no live PostgreSQL result claimed."
+    },
+    {
+      "path": "frontend/features/gc-app/notifications/notifications.api.ts",
+      "sha256": "c36f72c618d994eea64fad1b39e3988f28e8bf2f958f36919213a92db7583eb5",
+      "physical_lines": 48,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete immediate dashboard transport caller read; path/revision/owner metadata/request-recovery links match retained route family. Unchanged frontend, not a new exhaustive frontend authority finding."
+    },
+    {
+      "path": "backend/tests/unit/application/test_mobile_notification_service.py",
+      "sha256": "f129322a198f33cd35954a87bf945acba4ccaadb11b7b0ea0c84bb648117bda2",
+      "physical_lines": 1238,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical test source read. Original assertions for role/tenant/preview/revision/idempotency/authority/delivery/resource boundaries retained;107 affected SQLite/HTTP/fake-provider cases passed as baseline. No live provider or PostgreSQL inference."
+    },
+    {
+      "path": "backend/tests/unit/application/test_authored_notifications.py",
+      "sha256": "653e255b5ccb1448cca53919e668606cc2c9be44aeab3f8743300929a523f7f9",
+      "physical_lines": 444,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical test source read. Original assertions for role/tenant/preview/revision/idempotency/authority/delivery/resource boundaries retained;107 affected SQLite/HTTP/fake-provider cases passed as baseline. No live provider or PostgreSQL inference."
+    },
+    {
+      "path": "backend/tests/unit/application/test_authored_notification_delivery.py",
+      "sha256": "0fbb4006585946ba9335f8f5481ef6417912f805e3e41c8df1ca42bddd85fe35",
+      "physical_lines": 87,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical test source read. Original assertions for role/tenant/preview/revision/idempotency/authority/delivery/resource boundaries retained;107 affected SQLite/HTTP/fake-provider cases passed as baseline. No live provider or PostgreSQL inference."
+    },
+    {
+      "path": "backend/tests/unit/application/test_passenger_notification_authority.py",
+      "sha256": "6495c34f8918a7b314418b46687a1e489560d885947356bfc377810bc3c3a045",
+      "physical_lines": 187,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical test source read. Original assertions for role/tenant/preview/revision/idempotency/authority/delivery/resource boundaries retained;107 affected SQLite/HTTP/fake-provider cases passed as baseline. No live provider or PostgreSQL inference."
+    },
+    {
+      "path": "backend/tests/unit/application/test_native_push_dispatch.py",
+      "sha256": "d7851972ab4f7d9643e60dcc083be8710c2266311fe7fcdd3b0a05f07f925ac7",
+      "physical_lines": 100,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical test source read. Original assertions for role/tenant/preview/revision/idempotency/authority/delivery/resource boundaries retained;107 affected SQLite/HTTP/fake-provider cases passed as baseline. No live provider or PostgreSQL inference."
+    },
+    {
+      "path": "backend/tests/unit/application/test_fcm_dispatch_intents.py",
+      "sha256": "0611ec37b45fe794556a3c739f62e2e4f5a9e43afc1e432a7e8faf26c37bb466",
+      "physical_lines": 416,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical test source read. Original assertions for role/tenant/preview/revision/idempotency/authority/delivery/resource boundaries retained;107 affected SQLite/HTTP/fake-provider cases passed as baseline. No live provider or PostgreSQL inference."
+    },
+    {
+      "path": "backend/tests/unit/application/test_saved_notification_deletion.py",
+      "sha256": "5ca71189849b66dc3973a6f5e48092b9baea513ba40af29bd9111c98cdc7d66a",
+      "physical_lines": 138,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical test source read. Original assertions for role/tenant/preview/revision/idempotency/authority/delivery/resource boundaries retained;107 affected SQLite/HTTP/fake-provider cases passed as baseline. No live provider or PostgreSQL inference."
+    },
+    {
+      "path": "backend/tests/unit/application/test_announcement_push_guard.py",
+      "sha256": "49fc25e3e4c0e0ff9f9bc47cb79f76a2d9a4a3179ba9964e6681d2f9bba0c4b2",
+      "physical_lines": 237,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical test source read. Original assertions for role/tenant/preview/revision/idempotency/authority/delivery/resource boundaries retained;107 affected SQLite/HTTP/fake-provider cases passed as baseline. No live provider or PostgreSQL inference."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_authored_notifications.py",
+      "sha256": "d5ca55bc71e64bce044da888ccc8617580967c5af84f76af21f38942a4050729",
+      "physical_lines": 207,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical test source read. Original assertions for role/tenant/preview/revision/idempotency/authority/delivery/resource boundaries retained;107 affected SQLite/HTTP/fake-provider cases passed as baseline. No live provider or PostgreSQL inference."
+    }
+  ],
+  "partial_only_not_promoted": [
+    {
+      "path": "backend/app/presentation/api/v1/router.py",
+      "notes": "Only current include/import call sites traced; not a complete new physical read."
+    },
+    {
+      "path": "backend/backend_quality_budgets.json",
+      "notes": "Only exact membership fields looked up; no full config read credit."
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "files": [
+    {
+      "path": "docs/implementation/mcp-browser-dependency-review.md",
+      "sha256": "073837c8c6676f9d96094ade99d3fd912a0ea3db08824317418d49ca360534be",
+      "physical_lines": 37,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete authored guide/checkpoint physically read in bounded windows. Static source/API/UI surfaces versus tools/business completion, source fingerprint/classification boundaries, runtime grants vs bookkeeping, authority/replay/local checksum constraints and scope of actual retained component/SDK/PG/vault/provider/resource evidence reviewed. Dated counts/statuses/successful rows not repeated, authenticated or promoted to current implementation/deployment qualification. No commands executed or native credential/vault/private output inspected."
+    },
+    {
+      "path": "docs/implementation/mcp-connector-qualification.md",
+      "sha256": "b02d855494c7018b0b248beb79b9b7686f3b17fde96f5d9f00e7899aa2b163f2",
+      "physical_lines": 63,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete authored guide/checkpoint physically read in bounded windows. Static source/API/UI surfaces versus tools/business completion, source fingerprint/classification boundaries, runtime grants vs bookkeeping, authority/replay/local checksum constraints and scope of actual retained component/SDK/PG/vault/provider/resource evidence reviewed. Dated counts/statuses/successful rows not repeated, authenticated or promoted to current implementation/deployment qualification. No commands executed or native credential/vault/private output inspected. Local unsigned0.2wheel vs published provenance, synthetic uniquely owned Windows vault child/mutex tests and no realCodex sign-in boundary reviewed. This source record is historical; current connector child cleanup was separately fixed/sealed earlier, no native vault tests repeated."
+    },
+    {
+      "path": "docs/implementation/mcp-capacity-qualification.md",
+      "sha256": "0f3bab9659013b71031de992245af5924fec16baf4598d69073a99fb7d7d8028",
+      "physical_lines": 150,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete authored guide/checkpoint physically read in bounded windows. Static source/API/UI surfaces versus tools/business completion, source fingerprint/classification boundaries, runtime grants vs bookkeeping, authority/replay/local checksum constraints and scope of actual retained component/SDK/PG/vault/provider/resource evidence reviewed. Dated counts/statuses/successful rows not repeated, authenticated or promoted to current implementation/deployment qualification. No commands executed or native credential/vault/private output inspected. All150 lines read0\u201399+100\u2013EOF. Explicit fixed synthetic disposable-only topology/noVPS teardown, serialized export queue wait included in latency, full row-multiset/checksum/no-ack-on-integrityfail, whole-project OOM/cgroup identity/counter delta requirements and unrun combined workload/unknown native environment limits reviewed. No Docker/load/PG operation performed."
+    },
+    {
+      "path": "docs/implementation/mcp-coverage-guide.md",
+      "sha256": "4da3e97eaabbc0fc7dcdf04cfaa5c8caf5c3a246b34fe00d94c88ff649648697",
+      "physical_lines": 109,
+      "review_scope": "full",
+      "status": "reviewed-and-documented",
+      "reviewer": "branding_visuals",
+      "notes": "Complete authored guide/checkpoint physically read in bounded windows. Static source/API/UI surfaces versus tools/business completion, source fingerprint/classification boundaries, runtime grants vs bookkeeping, authority/replay/local checksum constraints and scope of actual retained component/SDK/PG/vault/provider/resource evidence reviewed. Dated counts/statuses/successful rows not repeated, authenticated or promoted to current implementation/deployment qualification. No commands executed or native credential/vault/private output inspected. Only inaccurate diagnostic source wording corrected: actual nginx safe_log_path/access format includesrequest_id and TLS error_log /dev/null prevents raw bearer requestline disclosure. Existing strict reader redaction/resource/source/collector boundaries and all runtime permissions remain unchanged."
+    },
+    {
+      "path": "docs/implementation/mcp-coverage-reconciliation-checkpoint.md",
+      "sha256": "0e5c63e5620073891e3997079f90567c2269e5b77a81edd076d846ba79e3791a",
+      "physical_lines": 95,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete authored guide/checkpoint physically read in bounded windows. Static source/API/UI surfaces versus tools/business completion, source fingerprint/classification boundaries, runtime grants vs bookkeeping, authority/replay/local checksum constraints and scope of actual retained component/SDK/PG/vault/provider/resource evidence reviewed. Dated counts/statuses/successful rows not repeated, authenticated or promoted to current implementation/deployment qualification. No commands executed or native credential/vault/private output inspected."
+    }
+  ]
+}

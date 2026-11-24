@@ -1,0 +1,69 @@
+{
+  "before": {
+    "cases_failed": 3,
+    "seconds": 7.93,
+    "log": "identity-action-before-fix.txt"
+  },
+  "pre_extraction_after": {
+    "passed": 50,
+    "seconds": 143.74,
+    "log": "identity-action-after-fix.txt"
+  },
+  "final_owner_after": {
+    "passed": 81,
+    "seconds": 146.78,
+    "log": "identity-action-owner-tests.txt",
+    "coverage": "identity-action-owner-coverage.json",
+    "files": [
+      "tests/integration/test_identity_action_boundaries.py",
+      "tests/unit/infrastructure/test_identity_security_repository.py",
+      "tests/integration/test_password_recovery_delivery.py",
+      "tests/integration/test_mfa_denial_durability.py",
+      "tests/integration/test_dashboard_identity_lifecycle.py",
+      "tests/integration/test_auth_response_durability.py",
+      "tests/unit/presentation/test_admin_accounts.py",
+      "tests/integration/test_mcp_business_admin_tools.py"
+    ]
+  },
+  "changes": [
+    "Observe token owner without a token lock; lock account before freshly locking/revalidating token, matching issuance and identity fencing.",
+    "Recompute expiry after account wait and after password verification before atomic consumption. The two real ASGI boundary cases returned200 after expiry before fix; now401 with no credential/family mutation.",
+    "Move three complete action persistence methods into a cohesive owner with four explicit call-time clock bindings; preserve existing facade method signatures, classes, token purpose/key migration, supersession/outbox and atomic consume semantics."
+  ],
+  "measurements": [
+    {
+      "path": "app/infrastructure/repositories/identity_action_token_repository.py",
+      "lines": 195,
+      "complexity": 7,
+      "line_percent": 93.87755102040816,
+      "branch_percent": 75.0,
+      "sha256": "803107e6757730b9bfdeafe12307566331d5da2b04e77ae08c5f8917b41cd465"
+    },
+    {
+      "path": "app/infrastructure/repositories/identity_security_repository.py",
+      "lines": 341,
+      "complexity": 5,
+      "line_percent": 86.0,
+      "branch_percent": 68.75,
+      "sha256": "63b40c56e1b6a09d07a4c2f655fd9ee9cb37862a3eb5c8ce8990e93eb95ec984"
+    },
+    {
+      "path": "app/presentation/api/v1/routes/auth_identity.py",
+      "lines": 939,
+      "complexity": 17,
+      "line_percent": 72.29916897506925,
+      "branch_percent": 64.47368421052632,
+      "sha256": "2790940054e9e878e838ba9bcc1dff14c7e0049586d143a38518ee56a746a2eb"
+    }
+  ],
+  "read_scope": {
+    "complete_runtime_records": 11,
+    "records": "identity-runtime-reviewed-files.json"
+  },
+  "limits": "Executed SQLAlchemy lock-order contract and actual SQLite/ASGI behavior; no live PostgreSQL deadlock/locking qualification or real notification delivery.",
+  "remaining": [
+    "Large auth_identity route responsibilities",
+    "Notification outbox claim/finalization lock order and lease/preflight timing follow-through",
+    "Remaining identity persistence/supporting models and broader backend runtime"
+  ]
+}

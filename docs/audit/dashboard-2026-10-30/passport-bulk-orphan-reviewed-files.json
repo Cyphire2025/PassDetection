@@ -1,0 +1,56 @@
+[
+  {
+    "path": "backend/app/infrastructure/documents/passport_orphan_reconciliation.py",
+    "sha256": "721f2a79f48dc101c1cb84f79585dea80d71988788cba8c8c15215155828ae9f",
+    "physical_lines": 110,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete110line current source reread. Only fixed owned passport-bulk/ prefix admission + concise documentation changed; entire module AST restores original after removing that one literal and restoring docstring. All20reference columns/49key batches/UNION/current/default arguments unchanged. New actual scheduled-task/realSQLite controls plus old bounds pass;100statement/100branch with alloldnormal110/C8/floor100 andcritical95/95 preserved."
+  },
+  {
+    "path": "backend/app/infrastructure/documents/orphan_reconciliation.py",
+    "sha256": "7458b420372052de441f45b4349c440eb59464b78d7d5a6dc9da89356dae26a2",
+    "physical_lines": 226,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete unchanged226line physical source reread. Existing fixed-prefix bounded engine,24hour grace,2000objects per namespace page,250delete batch, encrypted7day cursor and ownedclient close boundaries retained. Added namespace means one more bounded page per schedule, not an unbounded new traversal. No source changes."
+  },
+  {
+    "path": "backend/app/infrastructure/documents/cleanup_tasks.py",
+    "sha256": "39c6acc102334472316a68f88cc2b57cd9cd9a4115318a7596ed632c1df56517",
+    "physical_lines": 67,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete unchanged67line physical source reread. Actual Celery task registration/name/queue, process-local async runtime delegation, aggregate-only results and safe error_type diagnostics unchanged. New tests call this exact .run(), not only a replacement scanner coroutine; no broker/worker process claim."
+  },
+  {
+    "path": "backend/app/infrastructure/celery_async_runtime.py",
+    "sha256": "931ac18fd9b7eaa8afd76444fd006c45f828cd73cf54d91816daa9b21de062e2",
+    "physical_lines": 118,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete unchanged physical source read. Process-local runner lifecycle, PID replacement, RLock serialization, fresh contextvars and bounded cleanup error projection reviewed; tests use a separate actual instance with synthetic no-external cleanup. Production singleton/prefork behavior unchanged and not live-qualified."
+  },
+  {
+    "path": "backend/tests/integration/test_passport_bulk_orphan_reconciliation.py",
+    "sha256": "c905b128af537800b919569ef4dab05f2cf54e8809719802844f23c3443c1176",
+    "physical_lines": 153,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete authored source read. Seven actual scheduled-entry controls (baseline5fail/2positive controls\u2192pass): cutoff/recent/future/unknown grace,26retained variants through20actual FK-backed columns, lostACK hold, failed-delete retry/no cursor advancement, missingreference failclosed and neighboring/private namespace exclusion. Real SQLite/actual Celery task/runtime, synthetic storage/cursor; no Redis/S3/PG/network calls."
+  },
+  {
+    "path": "backend/tests/integration/passport_orphan_fixtures.py",
+    "sha256": "cd765e1056ce494eccfa91df8c1c555d014775a8810dcdb236dea58d5bfed1d0",
+    "physical_lines": 205,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete unchanged synthetic fixture source read. Actual durable original/submission,crop,manual/common library, legacyunmirrored AI, all4AI job statuses, pending traveller source, adopted returning draft and ECR source fields provide26distinct holds across20columns. FK checks stay enabled; no production data/provider activity."
+  }
+]

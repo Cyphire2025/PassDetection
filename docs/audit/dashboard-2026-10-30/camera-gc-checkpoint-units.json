@@ -1,0 +1,32 @@
+{
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "hooks/use-private-mutation.test.tsx",
+    "features/upload/components/visa-selfie-camera.test.tsx",
+    "features/upload/components/visa-camera-footer.test.tsx",
+    "features/upload/components/smart-camera.test.tsx",
+    "features/upload/hooks/use-visa-photo-capture.test.tsx",
+    "features/passports/api/passport-operation-owner.test.ts",
+    "lib/api/streamed-download.test.ts",
+    "features/passports/components/passport-workspace-dialogs.test.tsx",
+    "features/passports/utils/passport-group-navigation.test.ts",
+    "features/passports/components/use-passport-detail-navigation.test.tsx",
+    "features/passports/components/create-upload-link-modal.test.tsx",
+    "features/branding/api/branding-images.api.test.ts",
+    "features/branding/components/group-image-dialog.test.tsx",
+    "features/gc-app/components/gc-select.test.tsx",
+    "features/gc-app/components/client-manager-details-dialog.test.tsx",
+    "features/gc-app/components/common-documents-panel.test.tsx",
+    "features/gc-app/api/gc-app-admin.api.test.ts",
+    "features/gc-app/hooks/use-gc-app-admin.test.tsx",
+    "features/gc-app/notifications/use-notification-composer.test.tsx",
+    "features/gc-app/notifications/notifications.api.test.ts",
+    "--maxWorkers=1",
+    "--pool=threads"
+  ],
+  "exit_code": 0,
+  "duration_seconds": 23.06,
+  "output": "docs/audit/dashboard-2026-10-30/camera-gc-checkpoint-units.txt"
+}

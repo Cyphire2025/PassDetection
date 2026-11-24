@@ -140,7 +140,7 @@ class FastDocumentTests(unittest.TestCase):
             stages.append(stage)
         release.build_fast_images = lambda: (paused('build') or release.record['image_ids'])
         release.rehearse_fast_migration = lambda: paused('rehearse')
-        with patch('release_retained_update.wait_for_idle'), \
+        with patch('retained_release_host.wait_for_idle'), \
              patch('release_document_retained_update.capture_background_source'), \
              patch('release_document_retained_update.capture_background_resume'), \
              patch('release_document_retained_update.verify_background_stopped'), \
@@ -163,7 +163,7 @@ class FastDocumentTests(unittest.TestCase):
             running['helper'] = {'Id': 'helper'}
             raise ValueError('rehearsal_failed')
         release.rehearse_fast_migration = rehearsal
-        with patch('release_retained_update.wait_for_idle'), \
+        with patch('retained_release_host.wait_for_idle'), \
              patch('release_document_retained_update.capture_background_source'), \
              patch('release_document_retained_update.capture_background_resume'), \
              patch('release_document_retained_update.verify_background_stopped'), \

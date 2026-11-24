@@ -1,0 +1,28 @@
+{
+  "argv": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "--tb=short",
+    "-o",
+    "addopts=",
+    "tests/unit/infrastructure/test_storage_cleanup.py",
+    "-k",
+    "passport_library_artifacts"
+  ],
+  "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection\\backend",
+  "exit_code": 1,
+  "before": {
+    "backend/app/infrastructure/documents/storage_cleanup.py": "51970583984abc165f0d60390032efda7e6c30709bbc519b366fb594694456ce",
+    "backend/tests/unit/infrastructure/test_storage_cleanup.py": "885c13b0be7d168af5015df4df6ffe3d1e03348e1c8d1ea3645d0d0509fee4cc",
+    "backend/app/infrastructure/repositories/passport_image_crop_repository.py": "ab9eb177615d85eb42e9b15f00a94a3cd7a9e10dc9dda15d6db918ebb2e7f9b7"
+  },
+  "after": {
+    "backend/app/infrastructure/documents/storage_cleanup.py": "51970583984abc165f0d60390032efda7e6c30709bbc519b366fb594694456ce",
+    "backend/tests/unit/infrastructure/test_storage_cleanup.py": "885c13b0be7d168af5015df4df6ffe3d1e03348e1c8d1ea3645d0d0509fee4cc",
+    "backend/app/infrastructure/repositories/passport_image_crop_repository.py": "ab9eb177615d85eb42e9b15f00a94a3cd7a9e10dc9dda15d6db918ebb2e7f9b7"
+  },
+  "source_frozen": true,
+  "output": "image-cleanup-before-tests.txt"
+}

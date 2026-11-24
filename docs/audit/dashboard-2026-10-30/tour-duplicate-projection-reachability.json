@@ -1,0 +1,50 @@
+{
+  "path": "backend/app/presentation/api/v1/routes/tour_operations_response_support.py",
+  "before_sha256": "1eb10f1792b5a6f3e162cb75e4ffdb681bf16969f1317c7f61a337c41af83393",
+  "retired_definitions": [
+    "family_group_label",
+    "family_size",
+    "family_sizes",
+    "group_passenger_responses"
+  ],
+  "preserved_exact_AST_definitions": [
+    "coordinator_responses",
+    "group_responses"
+  ],
+  "live_canonical_owner": "backend/app/presentation/api/v1/routes/tour_operations_passenger_views.py",
+  "actual_import_edges": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations.py",
+      "imported_names": [
+        [
+          "coordinator_responses"
+        ],
+        [
+          "group_responses"
+        ]
+      ],
+      "sha256": "c7e461f12d7a650ea8468bafc128f81f5367dd6a941a77bc205701117694fae5"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_accounts.py",
+      "imported_names": [
+        [
+          "coordinator_responses"
+        ]
+      ],
+      "sha256": "ced6d681454ffb4a75338487b06faf9f340660e2d1e228037808f3e81236091c"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_assignments.py",
+      "imported_names": [
+        [
+          "group_responses"
+        ]
+      ],
+      "sha256": "8c695bd1cbd7a032badcb7c6bb8dc5fd51df39956ccaf8b754a7e7ffeae194c9"
+    }
+  ],
+  "reachability_scope": "All Python sources under backend/app, backend/tests and scripts inspected by AST when exact module name appears. Only named imports of coordinator_responses/group_responses exist, with no wildcard, module alias, string-only/computed import or exported module escape in this scope. Live facade/assignments/tests use distinct passenger_views owner. Broader text search across repository Python agreed. No backend endpoint or native contract removed.",
+  "after_sha256": "e4e9e4bbe4e6f733bedfb3859153ba6fa9aea26f606a1e5ac2ef5afaf7dfa299",
+  "after_lines": 174
+}

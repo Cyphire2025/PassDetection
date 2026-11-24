@@ -1,0 +1,310 @@
+{
+  "files": [
+    {
+      "path": "backend/app/infrastructure/email/tasks.py",
+      "sha256": "8f6f1ffaeef887685738600dfedb599683b2c029e526829686557b3c9c30f186",
+      "physical_lines": 217,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "runtime",
+      "notes": "Complete current physical source read after whole-declaration movement. Ten declarations/decorators/SQL/transactions exact,78actual global bindings and30original imported object identities,11evaluated hints/contracts,4actual Celery registry identities. Focused32cases and strict4types/scopedRuff7 pass; actual4owner line/branch100%, normal95floor proposals. No behavior or deletion-policy change."
+    },
+    {
+      "path": "backend/app/infrastructure/email/task_dispatch.py",
+      "sha256": "86b9b4c57d77c9212aeb09da52319a344545600723358ef6987c543df0a7a231",
+      "physical_lines": 93,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "runtime",
+      "notes": "Complete current physical source read after whole-declaration movement. Ten declarations/decorators/SQL/transactions exact,78actual global bindings and30original imported object identities,11evaluated hints/contracts,4actual Celery registry identities. Focused32cases and strict4types/scopedRuff7 pass; actual4owner line/branch100%, normal95floor proposals. No behavior or deletion-policy change."
+    },
+    {
+      "path": "backend/app/infrastructure/email/task_retention.py",
+      "sha256": "8993ffeaf443ba7702d5dfcb8b82bd92ccb3f1a01c6fa56352826f1bd4c6a740",
+      "physical_lines": 206,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "runtime",
+      "notes": "Complete current physical source read after whole-declaration movement. Ten declarations/decorators/SQL/transactions exact,78actual global bindings and30original imported object identities,11evaluated hints/contracts,4actual Celery registry identities. Focused32cases and strict4types/scopedRuff7 pass; actual4owner line/branch100%, normal95floor proposals. No behavior or deletion-policy change."
+    },
+    {
+      "path": "backend/app/infrastructure/email/storage_reconciliation.py",
+      "sha256": "82c537430f63511991de71b143291cf7a4e8a6b8bf9a6ae53880399430b0b88c",
+      "physical_lines": 113,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "runtime",
+      "notes": "Complete current physical source read after whole-declaration movement. Ten declarations/decorators/SQL/transactions exact,78actual global bindings and30original imported object identities,11evaluated hints/contracts,4actual Celery registry identities. Focused32cases and strict4types/scopedRuff7 pass; actual4owner line/branch100%, normal95floor proposals. No behavior or deletion-policy change."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_email_task_routing.py",
+      "sha256": "91bf1fc647193d0fcf39ffcfafcd5bced5fbcc727f8ad17c714bc78043a34ebe",
+      "physical_lines": 358,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "test",
+      "notes": "Complete current physical source read. Existing11and new21ordinary outcomes/realSQLite retention controls all pass; all86assert/mock-assert AST nodes and complete baseline test functions unchanged except17actual-owner monkeypatch retargets. Initial3fixture failures lacked required proposal status; corrected before runtime edits, original failed log retained."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_email_task_outcomes.py",
+      "sha256": "b472ae89876ad44b79889daf0f30f96b3187caaf5a6dbe08b4f3e2b044d43f62",
+      "physical_lines": 196,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "test",
+      "notes": "Complete current physical source read. Existing11and new21ordinary outcomes/realSQLite retention controls all pass; all86assert/mock-assert AST nodes and complete baseline test functions unchanged except17actual-owner monkeypatch retargets. Initial3fixture failures lacked required proposal status; corrected before runtime edits, original failed log retained."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_email_retention_persistence.py",
+      "sha256": "fe7fed7f5c2941b588f7e617818ebe6ad3edfb603f0e0bdd73c293b629634dfb",
+      "physical_lines": 266,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "test",
+      "notes": "Complete current physical source read. Existing11and new21ordinary outcomes/realSQLite retention controls all pass; all86assert/mock-assert AST nodes and complete baseline test functions unchanged except17actual-owner monkeypatch retargets. Initial3fixture failures lacked required proposal status; corrected before runtime edits, original failed log retained."
+    },
+    {
+      "path": "backend/app/infrastructure/database/email_ai_models.py",
+      "sha256": "e9c03b48898c5a05f7e96bafbc96ccec06ec7d2702c47e55f9b4c80a5eff482f",
+      "physical_lines": 630,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "needs-follow-up",
+      "owned": false,
+      "source_kind": "runtime",
+      "notes": "Full630line source read only. Six mapped tables (rollout,analysis,deadline,proposal,draft,feedback) have coherent domain boundaries but remain one630line owner. Architecture follow-through remains OPEN and needs protected DB ownership/actual metadata/DDL/default/alias/pickle/caller proofs before any split; no model edits or service/DDL qualification here."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_rollout_admin.py",
+      "sha256": "767500a1b9f4dd113b41bcefc0ea90fbebe984f34829b1ada8cd4ccbc24a51c3",
+      "physical_lines": 565,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "needs-follow-up",
+      "owned": false,
+      "source_kind": "runtime",
+      "notes": "Full565line source read only. Authenticated SuperAdmin list/update, namespace+row locks, optimistic timestamp checks, target query composition and inherited response mapping traced in this file. Actual caller search finds router and MCP reader; only caller ranges/searches traced. Query/response owners are plausible architecture follow-ups; no demonstrated security defect, full caller/test closure or runtime qualification claimed."
+    },
+    {
+      "path": "backend/app/infrastructure/email/mime.py",
+      "sha256": "c08b88379c1d0d1850a6225db3147342a8399bc57dfcbf3c68303772ce5af4e7",
+      "physical_lines": 389,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "needs-follow-up",
+      "owned": false,
+      "source_kind": "runtime",
+      "notes": "Full389line source read only. Cohesive bounded Gmail MIME normalization retains strict20depth/250parts/text/header limits, attachment descriptors, selected-header/address/filename/base64/charset behavior. Gmail provider calls it; provider test search located nested-MIME coverage but test body not newly read/run here. No forced split, validated defect, resource benchmark or full integration qualification claimed."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_review_decisions.py",
+      "sha256": "591fb3b3b30248d2c2fd1f40ea6eb90cc6232c47833a3cea8f5e3950923ecb77",
+      "physical_lines": 367,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "needs-follow-up",
+      "owned": false,
+      "source_kind": "runtime",
+      "notes": "Full367line source read only. Actual owner filters, connection\u2192message\u2192artifact\u2192review lock order, revision/closed/action checks, group/passenger authorization, mutation/audit/flush/rollback/ambiguous-commit behavior traced. Its313line route remains architecture follow-through OPEN; extraction would require typed locked context/action results and actual focused caller/test proofs. No route edits or validated defect here."
+    },
+    {
+      "path": "backend/app/infrastructure/email/review_decisions.py",
+      "sha256": "4b49c01db5e0a7e439d2a91264e2731c3d5769ce7b3c7380ebd3ccc1157ccd41",
+      "physical_lines": 158,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "runtime",
+      "notes": "Complete physical source read of mark_message_unrelated: caller-owned transaction, owner-scoped derived-work cancellation, artifact/review locks and sibling revision updates. No edits/new tests or independent concurrency qualification."
+    }
+  ],
+  "physical_current_full_files": 12,
+  "physical_current_full_lines": 3558,
+  "physically_full_support_read_reused": {
+    "path": "backend/app/infrastructure/email/review_decisions.py",
+    "sha256": "4b49c01db5e0a7e439d2a91264e2731c3d5769ce7b3c7380ebd3ccc1157ccd41",
+    "prior_full_ledgers": [],
+    "new_unique_credit": true
+  },
+  "partial_context": [
+    {
+      "path": "backend/app/infrastructure/email/sync_attachments.py",
+      "sha256": "f282617e49a1d3fef5f1432241fc37372a35c593f1853742c225ef92d55bdfa2",
+      "physical_lines": 306,
+      "review_scope": "partial",
+      "read_ranges": [
+        [
+          181,
+          280
+        ]
+      ],
+      "notes": "Actual staging-key generation/duplicate route trace, not a full read."
+    },
+    {
+      "path": "backend/app/infrastructure/email/sync_document_ingestion.py",
+      "sha256": "4da7f1efb782dc1e2c6fb4887572f8f46485305317087415d63159a8413d163e",
+      "physical_lines": 378,
+      "review_scope": "partial",
+      "read_ranges": [
+        [
+          221,
+          375
+        ]
+      ],
+      "notes": "Actual canonical-key and document-assignment trace, not a full read."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_access.py",
+      "sha256": "78fc9344b18d976143a137c02d8b073be5516d4738162376218132a0c5074f5e",
+      "physical_lines": 174,
+      "review_scope": "partial",
+      "read_ranges": [
+        [
+          131,
+          175
+        ]
+      ],
+      "notes": "Actual task publication caller only; prior sealed source unchanged."
+    },
+    {
+      "path": "backend/app/infrastructure/processing/celery_app.py",
+      "sha256": "402830e148bc2745e7d05837ec10d81db4ed54bb9f6ab293d9cca60ae0f4a9e3",
+      "physical_lines": 430,
+      "review_scope": "partial",
+      "read_ranges": [
+        [
+          66,
+          110
+        ]
+      ],
+      "notes": "Actual worker task-include/registry setup range only; schedules also controlled by unchanged existing task tests."
+    },
+    {
+      "path": "backend/app/infrastructure/storage/minio_repository.py",
+      "sha256": "f31fe249d63c18ea0e400bae0ee3161eb05db6b194527e2bdab39bf88626180c",
+      "physical_lines": 483,
+      "review_scope": "partial",
+      "read_ranges": [
+        [
+          1,
+          90
+        ],
+        [
+          381,
+          480
+        ]
+      ],
+      "notes": "Actual deletion/listing/pagination contract ranges only; no storage source edit or real service call."
+    },
+    {
+      "path": "backend/tests/conftest.py",
+      "sha256": "b60a174b1656f30e36d6c748fc1b967c17804b9ef733911f6ff211e9e4d23abe",
+      "physical_lines": 161,
+      "review_scope": "partial",
+      "read_ranges": [
+        [
+          1,
+          175
+        ]
+      ],
+      "notes": "Normal native startup, SQLite FK/metadata/session fixture context only; no new unique full read."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_email_account_removal.py",
+      "sha256": "c7ed670c76a462b836494224f0f72118852499d8e1919dc961eb39267f6078ee",
+      "physical_lines": 352,
+      "review_scope": "partial",
+      "read_ranges": [
+        [
+          1,
+          275
+        ]
+      ],
+      "notes": "Existing fixture/key-shape context only, not a new full read or affected test run."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_email_account_removal_paths.py",
+      "sha256": "d47d5e19125941b2b5260fed1c31e9768d7a7c64f63d7243485dcc3be58bdcb5",
+      "physical_lines": 259,
+      "review_scope": "partial",
+      "read_ranges": [
+        [
+          1,
+          90
+        ]
+      ],
+      "notes": "Existing fixture construction prefix only, not a new full read."
+    },
+    {
+      "path": "backend/scripts/verify_backend_quality_budgets.py",
+      "sha256": "2baf94d493a068bd1aed0258f4627aed47fe0845e6764fd0310cbf84f57794a9",
+      "physical_lines": 309,
+      "review_scope": "partial",
+      "read_ranges": [
+        [
+          1,
+          160
+        ]
+      ],
+      "notes": "Existing measured source and coverage helper only; no shared gates or whole-app check."
+    }
+  ],
+  "original_primary_full_reads": [
+    {
+      "path": "backend/app/infrastructure/database/email_ai_models.py",
+      "sha256": "e9c03b48898c5a05f7e96bafbc96ccec06ec7d2702c47e55f9b4c80a5eff482f",
+      "physical_lines": 630,
+      "snapshot": ".tmp/email-residual-original/backend/app/infrastructure/database/email_ai_models.py",
+      "review_scope": "full",
+      "status": "historical original full physical read"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_rollout_admin.py",
+      "sha256": "767500a1b9f4dd113b41bcefc0ea90fbebe984f34829b1ada8cd4ccbc24a51c3",
+      "physical_lines": 565,
+      "snapshot": ".tmp/email-residual-original/backend/app/presentation/api/v1/routes/email_ai_rollout_admin.py",
+      "review_scope": "full",
+      "status": "historical original full physical read"
+    },
+    {
+      "path": "backend/app/infrastructure/email/tasks.py",
+      "sha256": "e6d2906d78fd9c504c2876dd59ffb91bf29114fb7dcbfd0a4fc6c8cfd6ca2846",
+      "physical_lines": 532,
+      "snapshot": ".tmp/email-residual-original/backend/app/infrastructure/email/tasks.py",
+      "review_scope": "full",
+      "status": "historical original full physical read"
+    },
+    {
+      "path": "backend/app/infrastructure/email/mime.py",
+      "sha256": "c08b88379c1d0d1850a6225db3147342a8399bc57dfcbf3c68303772ce5af4e7",
+      "physical_lines": 389,
+      "snapshot": ".tmp/email-residual-original/backend/app/infrastructure/email/mime.py",
+      "review_scope": "full",
+      "status": "historical original full physical read"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_review_decisions.py",
+      "sha256": "591fb3b3b30248d2c2fd1f40ea6eb90cc6232c47833a3cea8f5e3950923ecb77",
+      "physical_lines": 367,
+      "snapshot": ".tmp/email-residual-original/backend/app/presentation/api/v1/routes/email_integration_review_decisions.py",
+      "review_scope": "full",
+      "status": "historical original full physical read"
+    }
+  ],
+  "credit_limit": "Current source reads only; old source snapshots separate. Metadata/searches/current hash matches/partial ranges/passing tests are not full source credit. Full read does not close separate architecture or scale/service obligations. Notes strings normalized; prior ledgers unchanged."
+}

@@ -1,0 +1,40 @@
+{
+  "files": [
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_group_invite.py",
+      "sha256": "68a7110be74c76cdf1136b57457347b42f9ab34f28fac78accd90dc4517557ee",
+      "physical_lines": 354,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded untruncated chunks. Actual caller/provider-mock/normal DB/route-instrumentation closure for composition. Original144 affected baseline passed; no service proof, no new source edits in this row. Existing current full helper history remains independent; do not count rereads as unique new files."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_repeatable_reminders.py",
+      "sha256": "24550354d49f1f6092ec3ce246676f554b3ddde678ee28c9ba34167f08f808d0",
+      "physical_lines": 522,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded untruncated chunks. Actual caller/provider-mock/normal DB/route-instrumentation closure for composition. Original144 affected baseline passed; no service proof, no new source edits in this row. Existing current full helper history remains independent; do not count rereads as unique new files."
+    },
+    {
+      "path": "backend/tests/route_dependencies.py",
+      "sha256": "3a077577b401c5d7819efde9d72104487c4089b12b2e9d9e151e8791f9594535",
+      "physical_lines": 71,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read in bounded untruncated chunks. Actual caller/provider-mock/normal DB/route-instrumentation closure for composition. Original144 affected baseline passed; no service proof, no new source edits in this row. Existing current full helper history remains independent; do not count rereads as unique new files."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_delivery_ledger.py",
+      "sha256": "c0b534ee0e5a15b1aca8587c31ef45d4bbd8a0dd3d7ed1249b83023331732ac5",
+      "physical_lines": 2115,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "needs-follow-up",
+      "notes": "Read1\u201375 and1431\u20131545 only: imports/autouse actual template fixture, exact legacy decoder success/footer-failure controls and frozen worker preference. No whole-file credit; selected existing legacy controls may be used after whole-declaration movement."
+    }
+  ]
+}

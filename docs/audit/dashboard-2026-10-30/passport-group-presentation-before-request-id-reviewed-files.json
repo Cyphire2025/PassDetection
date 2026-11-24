@@ -1,0 +1,156 @@
+{
+  "recorded_at": "2026-10-30T22:19:13.470Z",
+  "records": [
+    {
+      "path": "frontend/features/passports/components/passport-group-model.tsx",
+      "sha256": "b185c940f34d402831df16aae718e209b44c741a07fde763310227f9f5e01394",
+      "physical_lines": 21,
+      "max_function_complexity": 0,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Every original physical model/roster line read before extraction; authored single-control navigation and current module wiring reviewed. Separate16-part movement proof preserves all18 public model exports."
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-duplicates.tsx",
+      "sha256": "0df662888fbf398bc6be956cd3628d0e8f65beb5b4e321f36bce4ba7e267ab75",
+      "physical_lines": 53,
+      "max_function_complexity": 5,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Every original physical model/roster line read before extraction; authored single-control navigation and current module wiring reviewed. Separate16-part movement proof preserves all18 public model exports."
+    },
+    {
+      "path": "frontend/features/passports/components/passport-mobile-card.tsx",
+      "sha256": "c4d7ad7d2de3014565688b3e60c4750052564039f74fb882f76c7fdbb5ca6364",
+      "physical_lines": 116,
+      "max_function_complexity": 11,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Every original physical model/roster line read before extraction; authored single-control navigation and current module wiring reviewed. Separate16-part movement proof preserves all18 public model exports."
+    },
+    {
+      "path": "frontend/features/passports/components/reextract-passport-control.tsx",
+      "sha256": "3aa5cb0f2fedf9c931e626bada0639b99c7db9d09e460db683d38c44ed34c5da",
+      "physical_lines": 111,
+      "max_function_complexity": 26,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Every original physical model/roster line read before extraction; authored single-control navigation and current module wiring reviewed. Separate16-part movement proof preserves all18 public model exports."
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-fields.tsx",
+      "sha256": "044a6bbf3b97c2430dc9a2400a90dcd93a46679e0df46fb1d1fcbcfa7eb703b0",
+      "physical_lines": 68,
+      "max_function_complexity": 3,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Every original physical model/roster line read before extraction; authored single-control navigation and current module wiring reviewed. Separate16-part movement proof preserves all18 public model exports."
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-feedback.ts",
+      "sha256": "a46804d47cdaabf623bea9cc80969a73871ed49af0e0f89450635d20ad0332e8",
+      "physical_lines": 45,
+      "max_function_complexity": 8,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Every original physical model/roster line read before extraction; authored single-control navigation and current module wiring reviewed. Separate16-part movement proof preserves all18 public model exports."
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-roster-panel.tsx",
+      "sha256": "14e4027d030a456ddeee71fe49c1a6802be1fa8b2f52ae4bc9a42ff2a21f3f74",
+      "physical_lines": 164,
+      "max_function_complexity": 17,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Every original physical model/roster line read before extraction; authored single-control navigation and current module wiring reviewed. Separate16-part movement proof preserves all18 public model exports."
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-roster-table.tsx",
+      "sha256": "b19fbcccf3c9faee8bf82378a10792409e30801f74f2050f960722aee13ff501",
+      "physical_lines": 216,
+      "max_function_complexity": 9,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Every original physical model/roster line read before extraction; authored single-control navigation and current module wiring reviewed. Separate16-part movement proof preserves all18 public model exports."
+    }
+  ],
+  "test_records": [
+    {
+      "path": "frontend/features/passports/components/passport-group-model.test.tsx",
+      "sha256": "3ad83432f89a0b9a745eb702579da5a1db29f6bf76ade9017e5a138590a8b8ac",
+      "review_scope": "full",
+      "status": "reviewed-and-updated"
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-detail-source.contract-helper.mjs",
+      "sha256": "0f1a6bfb4b94c6c2291df7d7f6db9ffb4c004582350803cd6b908ebbd4661906",
+      "review_scope": "full",
+      "status": "reviewed-and-updated"
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-detail.contract.test.mjs",
+      "sha256": "fbb7aebb7d0ba44251b3f016e921cf0faa53cda039bea92306b0e04fe8e7abe3",
+      "review_scope": "full",
+      "status": "reviewed-and-updated"
+    }
+  ],
+  "runtime_files": 8,
+  "original_lines": {
+    "model": 386,
+    "roster": 349
+  },
+  "current_lines": {
+    "model": 21,
+    "roster": 164
+  },
+  "maximum_owner_lines": 216,
+  "proofs": {
+    "mobile_baseline": {
+      "path": ".tmp/passport-group-model-before.json",
+      "files": 1,
+      "cases": 3,
+      "passed": 2,
+      "failed": 1
+    },
+    "desktop_baseline": {
+      "path": ".tmp/passport-group-roster-before.json",
+      "files": 1,
+      "cases": 4,
+      "passed": 3,
+      "failed": 1
+    },
+    "final": {
+      "path": ".tmp/passport-group-presentation-final.json",
+      "files": 3,
+      "cases": 10,
+      "passed": 10,
+      "failed": 0
+    },
+    "node_contracts": {
+      "files": 5,
+      "cases": 43,
+      "passed": 43,
+      "path": ".tmp/passport-group-presentation-contracts.txt"
+    },
+    "types": "passed",
+    "scoped_eslint": "passed"
+  },
+  "fixes": [
+    "Mobile and desktop navigation anchors no longer contain interactive buttons; existing buttonVariants styling, route/query context and row click isolation preserved."
+  ],
+  "qualified_candidate": {
+    "id": "PRA-03",
+    "status": "not-confirmed-preserved-workflow",
+    "reason": "needsReextraction admits only needs_review records with verified mismatch evidence. Submitted records are still awaiting verification; preserving the submitted spinner prevents a duplicate operation. Eligible failed starts already allow retry. Both cases are now explicit rendered regressions."
+  },
+  "preserved": [
+    "Exact18 model exports retained.",
+    "All15 moved function bodies/parameters and the responsive roster subtree match separate normalized AST/JSX proof after the intentional link correction.",
+    "Server paging, duplicate clusters, revision-aware selection, docs matrix/private image edit admission, route context, role guards and pending re-extraction protection preserved."
+  ],
+  "remaining_original_oversized_owners": 12,
+  "limits": [
+    "No whole app suite/build repeated.",
+    "No new production-browser receipt claimed for these rendered DOM/source refactors."
+  ]
+}

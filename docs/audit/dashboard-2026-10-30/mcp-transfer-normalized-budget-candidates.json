@@ -1,0 +1,37 @@
+[
+  {
+    "path": "features/mcp/hooks/use-mcp-file-transfer.ts",
+    "baselineLines": 96,
+    "maximumLines": 100,
+    "baselineMaxFunctionComplexity": 10,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/mcp/api/mcp-transfer.api.ts",
+    "baselineLines": 45,
+    "maximumLines": 50,
+    "baselineMaxFunctionComplexity": 6,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/mcp/utils/file-transfer.ts",
+    "baselineLines": 89,
+    "maximumLines": 90,
+    "baselineMaxFunctionComplexity": 38,
+    "maximumFunctionComplexity": 39
+  },
+  {
+    "path": "features/mcp/utils/read-transfer-body.ts",
+    "baselineLines": 32,
+    "maximumLines": 40,
+    "baselineMaxFunctionComplexity": 6,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/mcp/utils/save-transfer-file.ts",
+    "baselineLines": 29,
+    "maximumLines": 30,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 4
+  }
+]

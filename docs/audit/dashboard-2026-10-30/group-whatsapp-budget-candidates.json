@@ -1,0 +1,114 @@
+[
+  {
+    "path": "features/passports/components/group-whatsapp-broadcast-panel.tsx",
+    "baselineLines": 210,
+    "maximumLines": 220,
+    "baselineMaxFunctionComplexity": 10,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/passports/components/use-group-whatsapp-tracking.ts",
+    "baselineLines": 103,
+    "maximumLines": 110,
+    "baselineMaxFunctionComplexity": 12,
+    "maximumFunctionComplexity": 13
+  },
+  {
+    "path": "features/passports/components/group-whatsapp-tracking-stats.tsx",
+    "baselineLines": 80,
+    "maximumLines": 90,
+    "baselineMaxFunctionComplexity": 10,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/passports/components/group-whatsapp-tracking-filters.tsx",
+    "baselineLines": 144,
+    "maximumLines": 150,
+    "baselineMaxFunctionComplexity": 8,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/passports/components/group-whatsapp-comparison-panel.tsx",
+    "baselineLines": 142,
+    "maximumLines": 150,
+    "baselineMaxFunctionComplexity": 11,
+    "maximumFunctionComplexity": 12
+  },
+  {
+    "path": "features/passports/components/group-whatsapp-resolution-dialogs.tsx",
+    "baselineLines": 156,
+    "maximumLines": 170,
+    "baselineMaxFunctionComplexity": 8,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/passports/components/group-whatsapp-dialogs.tsx",
+    "baselineLines": 4,
+    "maximumLines": 10,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/passports/components/group-whatsapp-replacement-dialog.tsx",
+    "baselineLines": 222,
+    "maximumLines": 230,
+    "baselineMaxFunctionComplexity": 14,
+    "maximumFunctionComplexity": 15
+  },
+  {
+    "path": "features/passports/components/group-whatsapp-manage-dialog.tsx",
+    "baselineLines": 144,
+    "maximumLines": 150,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/passports/components/replacement-recipient-choice.tsx",
+    "baselineLines": 98,
+    "maximumLines": 110,
+    "baselineMaxFunctionComplexity": 7,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/passports/components/group-whatsapp-tracking-table.tsx",
+    "baselineLines": 8,
+    "maximumLines": 20,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/passports/components/group-whatsapp-match-table.tsx",
+    "baselineLines": 73,
+    "maximumLines": 80,
+    "baselineMaxFunctionComplexity": 5,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/passports/components/group-whatsapp-match-row.tsx",
+    "baselineLines": 268,
+    "maximumLines": 280,
+    "baselineMaxFunctionComplexity": 33,
+    "maximumFunctionComplexity": 34
+  },
+  {
+    "path": "features/passports/components/group-whatsapp-tracking-presentation.tsx",
+    "baselineLines": 108,
+    "maximumLines": 120,
+    "baselineMaxFunctionComplexity": 7,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/passports/components/group-whatsapp-tracking-model.ts",
+    "baselineLines": 139,
+    "maximumLines": 150,
+    "baselineMaxFunctionComplexity": 8,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/passports/utils/passport-request-id.ts",
+    "baselineLines": 30,
+    "maximumLines": 40,
+    "baselineMaxFunctionComplexity": 8,
+    "maximumFunctionComplexity": 9
+  }
+]

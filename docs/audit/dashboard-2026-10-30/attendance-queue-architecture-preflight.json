@@ -1,0 +1,189 @@
+{
+  "mode": "read-only; selected scope reported before any source edits",
+  "target": {
+    "path": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+    "sha256": "aa160e1bdcd3f651706adfc6b18edfbb2b2d08784f8d32ce7080c23289b29b7e",
+    "physical_lines": 1778
+  },
+  "prior_coverage": "Current SHA already explicit full in operations-reviewed-files.json; earlier owner-correctness fix did not close architecture hotspot. This reread adds no global file-count credit.",
+  "architecture_conclusion": "Justified cohesive ownership split: durable row/crypto/migration/database, guarded state transitions, two independent delivery lanes, and lock-held closeout/logout have different lifetimes. Most individual functions are already bounded (largest110 source lines); a generic rewrite or arbitrary splitting of small functions is not justified. Preserve whole functions and move ownership first.",
+  "constraints": [
+    {
+      "owner": "persisted schema and privacy",
+      "evidence": [
+        "queue:53-171",
+        "queue:1343-1654",
+        "browser-offline-database:1-122"
+      ],
+      "preserve": "DB name passdetection-tour-ops/version5 and all existing store/index/key paths. Stored pending/rejected storageVersion5, AES-GCM identity, exact AAD tuples including legacy-group fallback, SHA-256 reference/id shapes, copy/decrypt/verify-before-replace and invalid/unattributable legacy rows retained. QR and optional recovery labels encrypted; discard payload remains count/continuity-only. Migration promise singleton and failed-run reset stay per module instance; no schema bump or data deletion."
+    },
+    {
+      "owner": "authorization and lock hierarchy",
+      "evidence": [
+        "queue:179-252",
+        "queue:1009-1110",
+        "queue:1704-1730",
+        "queue:1752-1778",
+        "closeout-checkpoint:127-166"
+      ],
+      "preserve": "Same queue owner index, expectedOwnerUserId transport fences and actor checks before/after relevant awaits. Closeout validates userId+sessionVersion and holds owner queue lock through publish. Browser Web Lock names/modes unchanged: migration, per-owner queue, per-owner drain; publisher lock remains outside queue lock. No nested reacquisition/deadlock introduced. Existing fallbackOwnerLanes map serializes one JS process only, not cross-tab; this limitation is not newly solved or claimed solved."
+    },
+    {
+      "owner": "replay and idempotency",
+      "evidence": [
+        "queue:389-413",
+        "queue:551-1002",
+        "operations-api:965-1027",
+        "batch-policy:1-52"
+      ],
+      "preserve": "One activeSync singleton, same-owner promise dedup, other-owner await/recurse, offline behavior; stable queuedAt traversal, exact compatibility filter and max50 same-session grouping, original event IDs/scannedAt/device/runtime/QR, generated batch ID, exact envelope and item identity checks. Claim before send, owner guards after decryption/response, stop after ambiguous/recoverable failure, release/retain on storage failure, success only authoritative counted/duplicate, permanent terminal quarantine. Progress emission suppressed after owner change. Retry attempt/jitter/Retry-After caps and next-attempt scheduler unchanged."
+    },
+    {
+      "owner": "discard audit lifetime",
+      "evidence": [
+        "queue:292-387",
+        "queue:415-549",
+        "queue:1253-1341"
+      ],
+      "preserve": "Atomic pending/rejected deletion plus privacy-safe tombstone creation, exactly five reason strings, event UUID/runtime/capture/reference continuity, first50 due pending audit rows, ownership checks before/after network, accepted/already-recorded synchronized versus rejected dispositions, retry on failures, synchronized-only30-day purge. No QR/passenger labels in audit HTTP payload. Pending/rejected/audit stores remain separate durable responsibilities."
+    },
+    {
+      "owner": "logout and checkpoint lifecycle",
+      "evidence": [
+        "queue:1004-1188",
+        "queue-safety-contract:1-40",
+        "auth-store:126-212",
+        "signout-guard:1-222",
+        "closeout-checkpoint:1-218"
+      ],
+      "preserve": "Voluntary logout default block with explicit staged discard; auth loss/account change deliberately preserve owner-scoped queues. Fail-closed storage inspection, existing generic publish<T>/onAllowed public callback signatures, count-only checkpoint collection, oldest age cap and publisher coalescing lanes. Explicit discard currently allows onAllowed after purge; unscoped legacy rows are skipped, so any correction requires its own control rather than silent architectural behavior change."
+    },
+    {
+      "owner": "public identity and current controls",
+      "evidence": [
+        "queue:53-160",
+        "queue:171-171",
+        "owner-test:1-194",
+        "signout-contract:1-73",
+        "coordinator-pwa-contract:90-153,190-279"
+      ],
+      "preserve": "All current public exports/signatures/return and error semantics, direct re-export of single AttendanceQueueCapacityError constructor and constant5000; no facade wrapper/proxy or second state singleton. Existing mocked/real imports keep calling actual implementation. Lexical contracts currently read one big file; any authorized move must bind real imported owners and retain every assertion body, plus exact function/statement proofs. Do not claim source regex tests establish real browser/crypto/transaction behavior."
+    }
+  ],
+  "proposed_owners_not_implemented": [
+    {
+      "responsibility": "stable public facade and typed contracts",
+      "declarations": "public interfaces/type aliases, stored row types, capacity class, limit constant; direct public re-exports",
+      "justification": "Keep actual consumers and constructor identity stable while making durable row shapes visible without importing replay side effects."
+    },
+    {
+      "responsibility": "owner authority, locks and schedule notifications",
+      "declarations": "getCurrentUserId, requireCurrentUserId, assertCurrentOwner, assertAuthenticationSnapshotCurrent, withOwnerQueueLock, withBrowserLock, fallbackOwnerLanes, subscribeAttendanceQueueScheduleChanges, announceScheduleChanged, exact lock/event/channel constants",
+      "justification": "One explicit owner for synchronization and authentication boundaries; exported internal functions do not recreate module state."
+    },
+    {
+      "responsibility": "IDB request/transaction primitives",
+      "declarations": "requestToPromise, transactionToPromise, readAllUnknown and existing store aliases if needed",
+      "justification": "Small purpose-specific dependency leaf avoids database/migration import cycles. Do not add a generic repository framework."
+    },
+    {
+      "responsibility": "encrypted queue codec",
+      "declarations": "protect/restore pending+rejected, exact associated-data builders, protected-value/recovery validation",
+      "justification": "Keep cryptographic identity and encryption format together; no policy or storage mutation abstraction."
+    },
+    {
+      "responsibility": "legacy queue migration",
+      "declarations": "migrateLegacyQueueRecords, normalizePendingAttendanceScan, normalizeRejectedAttendanceScan, replaceMigratedRows, date/string normalizers",
+      "justification": "Separate one-time copy/verify/replace lifecycle and legacy compatibility from daily delivery. Preserve policy exactly pending a separate reproduced fix."
+    },
+    {
+      "responsibility": "database lifecycle and owner queries",
+      "declarations": "openDb, privacyMigrationPromise, listPendingForOwner, listRejectedForOwner, listDiscardTombstonesForOwner, updateDiscardTombstones, purgeExpiredSynchronizedDiscardTombstones, removePendingForOwner",
+      "justification": "Own database close/finally lifetime and owner-index access, retaining actual transaction ordering. Storage imports codec/migration; neither imports database lifecycle."
+    },
+    {
+      "responsibility": "delivery state transitions",
+      "declarations": "claimPendingAttendanceDelivery, releasePendingAttendanceDelivery, markPendingAttendanceRetry, quarantineRejectedAttendanceScan",
+      "justification": "One cohesive owner for guarded atomic pending/sending/retry/rejected transitions used by both replay modes."
+    },
+    {
+      "responsibility": "queue commands and scoped public queries",
+      "declarations": "enqueueAttendanceScan, count/list pending/rejected, getNextPendingAttendanceAttemptAt, removePendingAttendanceScan, acknowledgeRejectedAttendanceScans, countPendingAttendanceDiscardAudits",
+      "justification": "Keep public enqueue/capacity/dedup plus explicit removal/ack transactions clear; depends on discard lifecycle rather than reimplementing audit state."
+    },
+    {
+      "responsibility": "discard audit lifecycle",
+      "declarations": "createDiscardTombstone, AttendanceDiscardBatchResponse, syncAttendanceDiscardTombstones, retention constant",
+      "justification": "Audit delivery has independent wire privacy/retention/retry semantics and runs independently of scan delivery."
+    },
+    {
+      "responsibility": "replay orchestration and online fallback",
+      "declarations": "activeSync, syncPendingAttendanceScans, performPendingAttendanceScanSync, tryRecordAttendanceScan, emptySyncResult",
+      "justification": "One active replay lane and ordered traversal; online fallback stays owner fenced. Do not optimize repeated filtering as part of mechanical extraction."
+    },
+    {
+      "responsibility": "batch and legacy delivery outcomes",
+      "declarations": "syncPendingAttendanceScanBatch, syncLegacyPendingAttendanceScan, publishAttendanceProgress, compatibility/batch-id/release/chunk helpers and narrow error helpers",
+      "justification": "Shared actual outcome contract; whole functions remain intact. If measured with imports this coherent owner exceeds300, separate batch/legacy senders around typed result data, not callback bags or arbitrary mixins."
+    },
+    {
+      "responsibility": "closeout collection and logout boundary",
+      "declarations": "getBrowserAttendanceQueueSafetySnapshot, collect/publishBrowserAttendanceQueueCloseout, collectQueueCloseoutUnlocked, runAttendanceQueueLogoutBoundary, readQueueSafetySnapshot, purgeQueueForOwner",
+      "justification": "Keep count/snapshot/lock-held publication and explicit logout policy together; do not move existing publisher-lane state into this module."
+    }
+  ],
+  "findings": [
+    {
+      "id": "AQ-PREFLIGHT-01",
+      "status": "source-supported candidate; no runtime reproduction during read-only phase",
+      "kind": "durable restart recovery",
+      "evidence": [
+        "queue:910-940",
+        "queue:270-290",
+        "queue:1529-1591",
+        "queue:442-549",
+        "database:1-122",
+        "global-drain:37-73"
+      ],
+      "observation": "Pending claim persists storageVersion5 deliveryState=sending before network. Protected-v5 normalization returns existing row without applying the two-minute legacy-only stale-claim conversion; claims reject any sending row and wakeup excludes sending. Discard sends similarly persist sending, while selection accepts only pending and no startup reset was found in traced owners. Normal document termination after durable claim may strand work/audit evidence across restart.",
+      "proof_gap": "Existing owner timing tests begin pending and exercise caught errors/owner changes, not a fresh module/document opening a previously committed sending row. Must add a normal restart control through actual public APIs, stale/fresh ownership/lock controls and idempotency evidence before selecting a fix; never claim a reproduced vulnerability from this static read."
+    },
+    {
+      "id": "AQ-PREFLIGHT-02",
+      "status": "source-supported behavioral ambiguity; needs focused control",
+      "kind": "legacy explicit discard semantics",
+      "evidence": [
+        "queue:1088-1110",
+        "queue:1157-1188",
+        "auth-store:126-212",
+        "signout-guard:99-114"
+      ],
+      "observation": "purgeQueueForOwner skips unscoped legacy rows with a comment stating logout stays blocked, but explicit-discard boundary proceeds to onAllowed without rereading safety. Auth store then clears session; owner-scoped queue itself remains preserved by cleanup. The implementation and comment appear inconsistent.",
+      "proof_gap": "No public-boundary test currently seeds an owner-attributed legacy unscoped row and checks explicit discard. Need settle expected workflow with parent after controlled reproduction; do not silently purge unattributable/group-less records or change logout semantics in a mechanical split."
+    },
+    {
+      "id": "AQ-PREFLIGHT-03",
+      "status": "measurable candidate only; no performance claim",
+      "kind": "bounded replay traversal",
+      "evidence": [
+        "queue:551-606",
+        "queue:1127-1155"
+      ],
+      "observation": "Replay re-filters the entire scan list per compatible chunk; safety oldestQueuedAt sorts a derived list. With at most5000 pending rows, same-session bucket selection and a minimum pass may reduce repeated work, but order/claim/stop equivalence is required.",
+      "proof_gap": "No benchmark or workload measurement run in this read-only phase. Do not claim lag reduction or optimal asymptotics from moving code alone."
+    }
+  ],
+  "implementation_preconditions": [
+    "Parent scope coordination before runtime/test/config edits; no caller/workflow/public DTO changes.",
+    "Read frontend/narrow AGENTS and actual applicable local Next guidance before editing; no new dependency/config/schema or shared gate edits.",
+    "Run existing affected controls once before change; capture exact public exports/class identity/runtime import wiring and owner state singleton identity.",
+    "Whole-function AST/expanded statement proof and actual import wiring after movement; preserve all existing assertions, retarget source loader through proven imported owners only.",
+    "Candidate restart/logout behavior fixes require separately reproduced ordinary workflow regression and controls; mechanical extraction must not preempt their policy.",
+    "Focused owner/retry/privacy/batch/signout/affected hook checks, scoped lint/types and measured proposed budgets only; no broad suite/build/browser between partial batches."
+  ],
+  "limitations": [
+    "No source edits beyond audit bookkeeping; no app checks, provider activity, production data, browser or scanner.",
+    "No proof of real browser multi-tab lock fairness, tab-crash durability, physical camera, real crypto corruption, server service-dependent behavior or production timing from this preflight.",
+    "Architecture and reported behavioral/performance follow-ups remain open pending authorized implementation and focused evidence."
+  ]
+}

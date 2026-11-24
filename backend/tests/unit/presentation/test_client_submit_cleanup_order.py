@@ -16,6 +16,8 @@ from app.presentation.api.v1.schemas.passport_schemas import (
     ClientSubmitPassportRequest,
     PassportSubmissionResponse,
 )
+from tests.route_dependencies import patch_route_dependency as patch_review_dependency
+from tests.route_dependencies import set_route_dependency
 
 
 @pytest.fixture(autouse=True)
@@ -108,7 +110,7 @@ async def test_client_submit_commits_cleanup_tombstone_before_object_worker(
             "app.presentation.api.v1.routes.passport_routes.submission_side_effects.stage_storage_cleanup_jobs",
             side_effect=stage,
         ) as stage_cleanup,
-        patch(
+        patch_review_dependency(
             "app.presentation.api.v1.routes.passport_routes.submission_review.process_storage_cleanup_job",
             new=process,
         ),
@@ -178,7 +180,7 @@ async def test_client_submit_commit_failure_never_runs_object_cleanup() -> None:
             "app.presentation.api.v1.routes.passport_routes.submission_side_effects.stage_storage_cleanup_jobs",
             return_value=(SimpleNamespace(id=uuid.uuid4(), object_count=2),),
         ),
-        patch(
+        patch_review_dependency(
             "app.presentation.api.v1.routes.passport_routes.submission_review.process_storage_cleanup_job",
             new=process,
         ),
@@ -224,8 +226,8 @@ async def test_ecr_stages_atomically_and_only_dispatches_after_commit(monkeypatc
 
     session.commit.side_effect = commit
     monkeypatch.setattr(submission_side_effects, "stage_passport_ecr_check", stage)
-    monkeypatch.setattr(submission_review, "dispatch_passport_ecr_checks", dispatch)
-    monkeypatch.setattr(submission_review, "require_verified_submission_contact", AsyncMock())
+    set_route_dependency(monkeypatch, submission_review, "dispatch_passport_ecr_checks", dispatch)
+    set_route_dependency(monkeypatch, submission_review, "require_verified_submission_contact", AsyncMock())
     monkeypatch.setattr(
         submission_side_effects,
         "PostSubmissionVerificationJobRepository",

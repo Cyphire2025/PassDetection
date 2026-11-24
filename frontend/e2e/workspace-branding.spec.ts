@@ -10,17 +10,18 @@ const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR
 const logo = '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300"><rect width="300" height="300" fill="white"/><path d="m150 40 22 72 76 1-61 45 22 72-59-44-60 44 23-72-61-45 76-1z" fill="#075985"/><text x="150" y="270" text-anchor="middle" font-family="Arial" font-weight="bold" font-size="24" fill="#075985">NORTHSTAR</text></svg>';
 const banner = '<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="500"><defs><linearGradient id="sky" x2="0" y2="1"><stop stop-color="#9bc3cf"/><stop offset="1" stop-color="#dce7d8"/></linearGradient></defs><rect width="1600" height="500" fill="url(#sky)"/><circle cx="1240" cy="125" r="72" fill="#f6e9c6"/><path d="m0 420 260-300 180 150 210-210 240 260 190-140 320 240z" fill="#7e9e91"/><path d="m0 450 280-140 160 100 270-140 260 125 270-170 360 270z" fill="#527e77"/><path d="m0 450 440-35 300 25 340-45 520 40v65H0z" fill="#315f65"/></svg>';
 
-async function setup(page: Page, options: { banner?: boolean; logo?: boolean; failFirstLogo?: boolean } = {}) {
+async function setup(page: Page, options: { banner?: boolean; background?: boolean; logo?: boolean; failFirstLogo?: boolean } = {}) {
   const errors: string[] = [];
   const mutations: string[] = [];
   let logoVersion = 1, bannerVersion = 1, companyCreates = 0, groupCreates = 0;
   let logoUrl: string | null = options.logo === false ? null : `/api/v1/branding/company-logo/${companyId}?agency_id=${agencyId}&v=logo-1`;
   let bannerUrl: string | null = options.banner ? `/api/v1/branding/group-banner/${groupId}?agency_id=${agencyId}&v=banner-1` : null;
+  let backgroundUrl: string | null = options.background ? `/api/v1/branding/group-background/${groupId}?agency_id=${agencyId}&v=background-1` : null;
   let companyName = "Northstar Industries";
   let revision = 3;
   let logoFailed = false;
   const company = () => ({ id: companyId, name: companyName, status: "active", external_reference: null, revision, logo_url: logoUrl, created_at: "2026-10-01T00:00:00Z", updated_at: "2026-10-01T00:00:00Z" });
-  const group = () => ({ id: groupId, name: "Bali Leadership Retreat", token: "synthetic-branding-token", agency_id: agencyId, status: "active", created_by_user_id: "branding-admin", created_at: "2026-10-01T00:00:00Z", closed_at: null, import_only: false, destination: "Bali, Indonesia", travel_date: "2026-12-07", return_date: "2026-12-10", timezone: "Asia/Kolkata", package_name: null, departure_cities: [], notes: null, company_id: companyId, company: company(), company_revision: 1, banner_url: bannerUrl });
+  const group = () => ({ id: groupId, name: "Bali Leadership Retreat", token: "synthetic-branding-token", agency_id: agencyId, status: "active", created_by_user_id: "branding-admin", created_at: "2026-10-01T00:00:00Z", closed_at: null, import_only: false, destination: "Bali, Indonesia", travel_date: "2026-12-07", return_date: "2026-12-10", timezone: "Asia/Kolkata", package_name: null, departure_cities: [], notes: null, company_id: companyId, company: company(), company_revision: 1, banner_url: bannerUrl, background_url: backgroundUrl });
   const user = { id: "branding-admin", agency_id: agencyId, email: "branding@example.test", full_name: "Workspace Admin", role: "agency_admin", is_active: true, capabilities: [] };
   const json = (route: Route, body: unknown, status = 200) => route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
   page.on("pageerror", (error) => errors.push(error.message));
@@ -34,10 +35,11 @@ async function setup(page: Page, options: { banner?: boolean; logo?: boolean; fa
     if (path === "/api/v1/companies/lookup") return json(route, { items: [company()], next_cursor: null, has_more: false });
     if (path.startsWith("/api/v1/branding/")) {
       const isLogo = path.includes("company-logo");
+      const isBackground = path.includes("group-background");
       if (req.method() === "GET") return route.fulfill({ contentType: "image/svg+xml", body: isLogo ? logo : banner });
       mutations.push(`${req.method()} ${path}`);
       if (isLogo && options.failFirstLogo && !logoFailed) { logoFailed = true; return json(route, { error: { message: "Synthetic upload unavailable" } }, 503); }
-      const currentUrl = isLogo ? logoUrl : bannerUrl;
+      const currentUrl = isLogo ? logoUrl : isBackground ? backgroundUrl : bannerUrl;
       const expected = req.method() === "DELETE" ? url.searchParams.get("expected_version") ?? ""
         : req.postData()?.match(/name="expected_version"\r\n\r\n([^\r\n]*)\r\n/)?.[1] ?? "";
       if (expected !== (currentUrl ? new URL(currentUrl, "https://fixture.test").searchParams.get("v") : "")) {
@@ -45,8 +47,9 @@ async function setup(page: Page, options: { banner?: boolean; logo?: boolean; fa
       }
       if (req.method() === "PUT") expect(req.postDataBuffer()?.includes(Buffer.from('name="file"'))).toBe(true);
       if (isLogo) { logoUrl = req.method() === "DELETE" ? null : `/api/v1/branding/company-logo/${companyId}?agency_id=${agencyId}&v=logo-${++logoVersion}`; revision++; }
+      else if (isBackground) backgroundUrl = req.method() === "DELETE" ? null : `/api/v1/branding/group-background/${groupId}?agency_id=${agencyId}&v=background-${++bannerVersion}`;
       else bannerUrl = req.method() === "DELETE" ? null : `/api/v1/branding/group-banner/${groupId}?agency_id=${agencyId}&v=banner-${++bannerVersion}`;
-      return json(route, { url: isLogo ? logoUrl : bannerUrl, revision: isLogo ? revision : null });
+      return json(route, { url: isLogo ? logoUrl : isBackground ? backgroundUrl : bannerUrl, revision: isLogo ? revision : null });
     }
     if (path === "/api/v1/companies" && req.method() === "POST") { companyCreates++; companyName = req.postDataJSON().name; logoUrl = null; revision = 1; return json(route, company(), 201); }
     if (path === `/api/v1/companies/${companyId}` && req.method() === "PATCH") { expect(req.postDataJSON().expected_revision).toBe(revision); companyName = req.postDataJSON().name; revision++; return json(route, company()); }
@@ -70,6 +73,30 @@ async function setup(page: Page, options: { banner?: boolean; logo?: boolean; fa
 async function screenshot(page: Page, name: string) {
   await mkdir(outputDir, { recursive: true });
   await page.screenshot({ path: resolve(outputDir, name), fullPage: true, animations: "disabled" });
+}
+
+async function bannerAspect(page: Page) {
+  return page.locator("[data-group-banner-frame]").evaluate((frame) => {
+    const image = frame.querySelector(":scope > img");
+    const bounds = (image ?? frame).getBoundingClientRect();
+    if (image) return bounds.width / bounds.height;
+    const style = getComputedStyle(frame);
+    return (bounds.width - parseFloat(style.borderLeftWidth) - parseFloat(style.borderRightWidth))
+      / (bounds.height - parseFloat(style.borderTopWidth) - parseFloat(style.borderBottomWidth));
+  });
+}
+
+async function expectBannerCrop(page: Page) {
+  const preview = page.getByRole("dialog", { name: "Group banner", exact: true })
+    .getByRole("img", { name: /Image crop preview/ });
+  await expect(preview).toBeVisible();
+  await expect.poll(async () => {
+    const bounds = (await preview.boundingBox())!;
+    return Math.abs(bounds.width / bounds.height - await bannerAspect(page));
+  }).toBeLessThan(0.005);
+  const bounds = (await preview.boundingBox())!;
+  expect(bounds.height).toBeLessThanOrEqual(page.viewportSize()!.height * 0.53);
+  return bounds.width / bounds.height;
 }
 
 test("company logos zoom without changing group selection and return keyboard focus", async ({ page }) => {
@@ -136,13 +163,38 @@ test("group banner contains only the header and status boxes, with responsive ed
   const heroBounds = await hero.boundingBox();
   const overviewBounds = await page.getByRole("region", { name: "Group overview" }).boundingBox();
   expect(heroBounds!.y + heroBounds!.height).toBeLessThan(overviewBounds!.y);
+  expect(await hero.locator(".workspace-page-header").evaluate((element) => getComputedStyle(element).backgroundColor)).toBe("rgba(0, 0, 0, 0)");
+  expect(await hero.locator("[data-workspace-summary]").evaluate((element) => getComputedStyle(element).backdropFilter)).toBe("none");
+  const headerControls = [
+    hero.getByRole("button", { name: "Edit banner", exact: true }),
+    hero.getByRole("button", { name: "Edit background", exact: true }),
+    hero.getByRole("link", { name: "All Groups", exact: true }),
+    hero.getByRole("button", { name: "Open group actions", exact: true }),
+  ];
+  for (const control of headerControls) {
+    await expect(control).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+    await expect(control).toHaveCSS("border-top-color", "rgba(0, 0, 0, 0)");
+    await expect(control).toHaveCSS("box-shadow", "none");
+    await control.hover();
+    await expect(control).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+    await expect(control).toHaveCSS("border-top-color", "rgba(0, 0, 0, 0)");
+  }
+  await headerControls[0].focus();
+  await page.keyboard.press("Tab");
+  await expect(headerControls[1]).toBeFocused();
+  await expect(headerControls[1]).toHaveCSS("outline-style", "solid");
+  await expect(headerControls[1]).toHaveCSS("outline-width", "2px");
   await screenshot(page, "group-banner-desktop.png");
+  await headerControls[0].click();
+  await expectBannerCrop(page);
+  await page.getByRole("dialog", { name: "Group banner", exact: true }).getByRole("button", { name: "Cancel", exact: true }).click();
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(hero.getByRole("heading")).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await screenshot(page, "group-banner-mobile.png");
   await page.getByRole("button", { name: "Edit banner", exact: true }).click();
   const editor = page.getByRole("dialog", { name: "Group banner", exact: true });
+  await expectBannerCrop(page);
   // A background refresh must not silently rebase an open image edit onto a
   // colleague's newer upload. Reopening explicitly accepts the current image.
   api.replaceBanner();
@@ -180,6 +232,33 @@ test("group banner contains only the header and status boxes, with responsive ed
   expect(api.errors).toEqual([]);
 });
 
+for (const width of [1440, 390]) {
+  test(`first banner crop matches the committed header at ${width}px`, async ({ page }) => {
+    const api = await setup(page);
+    await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 });
+    await page.goto(`/passports/groups/${groupId}`);
+    const frame = page.locator("[data-group-banner-frame]");
+    const editor = page.getByRole("dialog", { name: "Group banner", exact: true });
+    await page.getByRole("button", { name: "Add banner", exact: true }).click();
+    await editor.locator('input[type="file"]').setInputFiles({ name: "first-banner.png", mimeType: "image/png", buffer: png });
+    await expectBannerCrop(page);
+    await editor.getByRole("button", { name: "Cancel", exact: true }).click();
+    await expect(frame).not.toHaveClass(/group-banner/);
+    await expect(page.getByRole("button", { name: "Add banner", exact: true })).toBeVisible();
+    expect(api.mutations).toEqual([]);
+    await page.getByRole("button", { name: "Add banner", exact: true }).click();
+    await editor.locator('input[type="file"]').setInputFiles({ name: "first-banner.png", mimeType: "image/png", buffer: png });
+    const ratio = await expectBannerCrop(page);
+    await screenshot(page, `group-banner-first-editor-${width}.png`);
+    await editor.getByRole("button", { name: "Save banner", exact: true }).click();
+    await expect(editor).toHaveCount(0);
+    await expect(frame.locator(":scope > img")).toBeVisible();
+    await expect.poll(() => bannerAspect(page)).toBeCloseTo(ratio, 2);
+    expect(api.mutations).toEqual([`PUT /api/v1/branding/group-banner/${groupId}`]);
+    expect(api.errors).toEqual([]);
+  });
+}
+
 test("both document distribution categories show the company logo", async ({ page }) => {
   const api = await setup(page);
   for (const category of ["visa", "flight-tickets"]) {
@@ -209,5 +288,66 @@ test("a banner can be uploaded while creating an optional import group", async (
   await expect(page.getByRole("heading", { name: "Group Created", exact: true })).toBeVisible();
   expect(api.groupCreates()).toBe(1);
   expect(api.mutations).toContain(`PUT /api/v1/branding/group-banner/${groupId}`);
+  expect(api.errors).toEqual([]);
+});
+
+
+test("group background remains fixed outside the sidebar and supports crop, persistence and removal", async ({ page }) => {
+  const api = await setup(page);
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto(`/passports/groups/${groupId}`);
+  await page.getByRole("button", { name: "Edit background", exact: true }).click();
+  const editor = page.getByRole("dialog", { name: "Group background", exact: true });
+  const data = await page.evaluate(() => {
+    const canvas = document.createElement("canvas");
+    canvas.width = 2400; canvas.height = 1000;
+    const context = canvas.getContext("2d")!;
+    context.fillStyle = "#a5cbd2"; context.fillRect(0, 0, 1200, 1000);
+    context.fillStyle = "#628e71"; context.fillRect(1200, 0, 1200, 1000);
+    return canvas.toDataURL("image/png").split(",")[1];
+  });
+  await editor.locator('input[type="file"]').setInputFiles({ name: "workspace.png", mimeType: "image/png", buffer: Buffer.from(data, "base64") });
+  await expect(editor.getByLabel("Horizontal position", { exact: true })).toBeVisible();
+  await editor.getByLabel("Zoom", { exact: true }).press("End");
+  const crop = editor.getByRole("img", { name: /Image crop preview/ });
+  const bounds = (await crop.boundingBox())!;
+  const viewportBounds = await page.locator("#main-content").evaluate((element) => element.parentElement!.getBoundingClientRect().toJSON());
+  expect(bounds.width / bounds.height).toBeCloseTo(viewportBounds.width / viewportBounds.height, 2);
+  await page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(bounds.x + bounds.width / 2 - 70, bounds.y + bounds.height / 2 - 30, { steps: 5 });
+  await page.mouse.up();
+  expect(Number(await editor.getByLabel("Horizontal position", { exact: true }).inputValue())).toBeGreaterThan(50);
+  await screenshot(page, "group-background-editor.png");
+  await editor.getByRole("button", { name: "Save background", exact: true }).click();
+  await expect(editor).toHaveCount(0);
+  const workspace = page.locator(".group-workspace[data-group-background]");
+  await expect(workspace).toBeVisible();
+  const layer = workspace.locator('> div[aria-hidden="true"]');
+  const imageBounds = (await layer.boundingBox())!;
+  const mainBounds = (await page.locator("#main-content").boundingBox())!;
+  expect(imageBounds.x).toBe(mainBounds.x);
+  expect(imageBounds.y).toBe(0);
+  expect(imageBounds.width).toBe(mainBounds.width);
+  expect(await workspace.locator("[data-workspace-card]").first().evaluate((element) => getComputedStyle(element).backgroundColor)).toBe("rgba(0, 0, 0, 0)");
+  await page.locator("#main-content").evaluate((element) => { element.scrollTop = 150; });
+  expect(await layer.boundingBox()).toEqual(imageBounds);
+  await screenshot(page, "group-background-desktop.png");
+  await page.reload();
+  await expect(workspace).toBeVisible();
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  expect(await workspace.locator("[data-workspace-metric] p.truncate").evaluateAll((elements) => elements.every((element) => element.scrollWidth <= element.clientWidth))).toBe(true);
+  expect(await workspace.locator("[data-workspace-skeleton]").evaluateAll((elements) => elements.every((element) => getComputedStyle(element).backgroundColor === "rgba(0, 0, 0, 0)"))).toBe(true);
+  await screenshot(page, "group-background-mobile.png");
+  await page.getByRole("button", { name: "Edit background", exact: true }).click();
+  const mobileCropBounds = (await editor.getByRole("img", { name: /Image crop preview/ }).boundingBox())!;
+  const mobileImageBounds = (await layer.boundingBox())!;
+  expect(mobileCropBounds.width / mobileCropBounds.height).toBeCloseTo(mobileImageBounds.width / mobileImageBounds.height, 2);
+  expect(mobileCropBounds.height).toBeLessThanOrEqual(844 * 0.53);
+  await screenshot(page, "group-background-editor-mobile.png");
+  await editor.getByRole("button", { name: "Remove group background", exact: true }).click();
+  await editor.getByRole("button", { name: "Save background", exact: true }).click();
+  await expect(workspace).toHaveCount(0);
   expect(api.errors).toEqual([]);
 });

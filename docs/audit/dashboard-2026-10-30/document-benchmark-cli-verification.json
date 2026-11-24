@@ -1,0 +1,18 @@
+{
+  "changed": "Reject nonpositive benchmark repetition counts before fixtures, imports, providers or environment changes. This is CLI input validation only.",
+  "controls": [
+    {
+      "runs": "0",
+      "exit_code": 2,
+      "argument_rejection": true
+    },
+    {
+      "runs": "-1",
+      "exit_code": 2,
+      "argument_rejection": true
+    }
+  ],
+  "help_passed": true,
+  "runtime_claim": "No benchmark, scanner, parser worker or real data run",
+  "validation": "AST parsing plus actual CLI negative/help checks; no new test file for this low-impact guard"
+}

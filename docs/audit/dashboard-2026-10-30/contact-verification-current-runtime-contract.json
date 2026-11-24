@@ -1,0 +1,399 @@
+{
+  "openapi": {
+    "openapi": "3.1.0",
+    "info": {
+      "title": "FastAPI",
+      "version": "0.1.0"
+    },
+    "paths": {
+      "/{submission_id}/contact-otp/request": {
+        "post": {
+          "summary": "Request Public Contact Otp",
+          "operationId": "request_public_contact_otp__submission_id__contact_otp_request_post",
+          "parameters": [
+            {
+              "name": "submission_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Submission Id"
+              }
+            },
+            {
+              "name": "X-Upload-Session-ID",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "minLength": 32,
+                "maxLength": 128,
+                "title": "X-Upload-Session-Id"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicContactOTPRequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PublicContactOTPRequestResponse"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/{submission_id}/contact-otp/verify": {
+        "post": {
+          "summary": "Verify Public Contact Otp",
+          "operationId": "verify_public_contact_otp__submission_id__contact_otp_verify_post",
+          "parameters": [
+            {
+              "name": "submission_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Submission Id"
+              }
+            },
+            {
+              "name": "X-Upload-Session-ID",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "minLength": 32,
+                "maxLength": 128,
+                "title": "X-Upload-Session-Id"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicContactOTPVerifyRequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PublicContactOTPVerifyResponse"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "HTTPValidationError": {
+          "properties": {
+            "detail": {
+              "items": {
+                "$ref": "#/components/schemas/ValidationError"
+              },
+              "type": "array",
+              "title": "Detail"
+            }
+          },
+          "type": "object",
+          "title": "HTTPValidationError"
+        },
+        "PublicContactOTPRequest": {
+          "properties": {
+            "group_token": {
+              "type": "string",
+              "maxLength": 256,
+              "minLength": 10,
+              "title": "Group Token"
+            },
+            "email": {
+              "type": "string",
+              "maxLength": 255,
+              "format": "email",
+              "title": "Email"
+            },
+            "phone_number": {
+              "type": "string",
+              "maxLength": 64,
+              "minLength": 8,
+              "title": "Phone Number"
+            }
+          },
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "group_token",
+            "email",
+            "phone_number"
+          ],
+          "title": "PublicContactOTPRequest"
+        },
+        "PublicContactOTPRequestResponse": {
+          "properties": {
+            "challenge_id": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Challenge Id"
+            },
+            "expires_in_seconds": {
+              "type": "integer",
+              "title": "Expires In Seconds"
+            },
+            "resend_after_seconds": {
+              "type": "integer",
+              "title": "Resend After Seconds"
+            }
+          },
+          "type": "object",
+          "required": [
+            "challenge_id",
+            "expires_in_seconds",
+            "resend_after_seconds"
+          ],
+          "title": "PublicContactOTPRequestResponse"
+        },
+        "PublicContactOTPVerifyRequest": {
+          "properties": {
+            "group_token": {
+              "type": "string",
+              "maxLength": 256,
+              "minLength": 10,
+              "title": "Group Token"
+            },
+            "challenge_id": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Challenge Id"
+            },
+            "code": {
+              "type": "string",
+              "pattern": "^[0-9]{6}$",
+              "title": "Code"
+            }
+          },
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "group_token",
+            "challenge_id",
+            "code"
+          ],
+          "title": "PublicContactOTPVerifyRequest"
+        },
+        "PublicContactOTPVerifyResponse": {
+          "properties": {
+            "phone_verification_id": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Phone Verification Id"
+            },
+            "phone_number": {
+              "type": "string",
+              "title": "Phone Number"
+            },
+            "expires_in_seconds": {
+              "type": "integer",
+              "title": "Expires In Seconds"
+            }
+          },
+          "type": "object",
+          "required": [
+            "phone_verification_id",
+            "phone_number",
+            "expires_in_seconds"
+          ],
+          "title": "PublicContactOTPVerifyResponse"
+        },
+        "ValidationError": {
+          "properties": {
+            "loc": {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ]
+              },
+              "type": "array",
+              "title": "Location"
+            },
+            "msg": {
+              "type": "string",
+              "title": "Message"
+            },
+            "type": {
+              "type": "string",
+              "title": "Error Type"
+            },
+            "input": {
+              "title": "Input"
+            },
+            "ctx": {
+              "type": "object",
+              "title": "Context"
+            }
+          },
+          "type": "object",
+          "required": [
+            "loc",
+            "msg",
+            "type"
+          ],
+          "title": "ValidationError"
+        }
+      }
+    }
+  },
+  "functions": {
+    "_no_store": {
+      "signature": "(response: 'Response') -> 'None'",
+      "evaluated_type_hints": {
+        "response": "<class 'starlette.responses.Response'>",
+        "return": "<class 'NoneType'>"
+      }
+    },
+    "_locked_upload": {
+      "signature": "(session: 'AsyncSession', submission_id: 'uuid.UUID', group_token: 'str', upload_session_id: 'str') -> 'PassportSubmission'",
+      "evaluated_type_hints": {
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "submission_id": "<class 'uuid.UUID'>",
+        "group_token": "<class 'str'>",
+        "upload_session_id": "<class 'str'>",
+        "return": "<class 'app.domain.entities.passport_submission.PassportSubmission'>"
+      }
+    },
+    "_locked_challenge": {
+      "signature": "(session: 'AsyncSession', submission_id: 'uuid.UUID') -> 'PublicUploadContactChallengeModel | None'",
+      "evaluated_type_hints": {
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "submission_id": "<class 'uuid.UUID'>",
+        "return": "app.infrastructure.database.public_upload_contact_model.PublicUploadContactChallengeModel | None"
+      }
+    },
+    "request_public_contact_otp": {
+      "signature": "(submission_id: 'uuid.UUID', body: 'PublicContactOTPRequest', request: 'Request', response: 'Response', upload_session_id: 'str' = Header(PydanticUndefined), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x000001E1556D76A0>, use_cache=True, scope=None)) -> 'PublicContactOTPRequestResponse'",
+      "evaluated_type_hints": {
+        "submission_id": "<class 'uuid.UUID'>",
+        "body": "<class 'app.presentation.api.v1.schemas.public_upload_contact_schemas.PublicContactOTPRequest'>",
+        "request": "<class 'starlette.requests.Request'>",
+        "response": "<class 'starlette.responses.Response'>",
+        "upload_session_id": "<class 'str'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "return": "<class 'app.presentation.api.v1.schemas.public_upload_contact_schemas.PublicContactOTPRequestResponse'>"
+      }
+    },
+    "verify_public_contact_otp": {
+      "signature": "(submission_id: 'uuid.UUID', body: 'PublicContactOTPVerifyRequest', response: 'Response', upload_session_id: 'str' = Header(PydanticUndefined), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x000001E1556D76A0>, use_cache=True, scope=None)) -> 'PublicContactOTPVerifyResponse'",
+      "evaluated_type_hints": {
+        "submission_id": "<class 'uuid.UUID'>",
+        "body": "<class 'app.presentation.api.v1.schemas.public_upload_contact_schemas.PublicContactOTPVerifyRequest'>",
+        "response": "<class 'starlette.responses.Response'>",
+        "upload_session_id": "<class 'str'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "return": "<class 'app.presentation.api.v1.schemas.public_upload_contact_schemas.PublicContactOTPVerifyResponse'>"
+      }
+    },
+    "require_public_contact_proof": {
+      "signature": "(session: 'AsyncSession', *, submission: 'PassportSubmission', phone_verification_id: 'uuid.UUID', upload_session_id: 'str', client_phone: 'str', client_email: 'str') -> 'PublicUploadContactChallengeModel'",
+      "evaluated_type_hints": {
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "submission": "<class 'app.domain.entities.passport_submission.PassportSubmission'>",
+        "phone_verification_id": "<class 'uuid.UUID'>",
+        "upload_session_id": "<class 'str'>",
+        "client_phone": "<class 'str'>",
+        "client_email": "<class 'str'>",
+        "return": "<class 'app.infrastructure.database.public_upload_contact_model.PublicUploadContactChallengeModel'>"
+      }
+    },
+    "require_verified_family_head": {
+      "signature": "(session: 'AsyncSession', *, submission: 'PassportSubmission', own_proof: 'PublicUploadContactChallengeModel', family_group_id: 'uuid.UUID | None', family_member_index: 'int | None', family_head_email: 'str | None', family_head_phone: 'str | None') -> 'None'",
+      "evaluated_type_hints": {
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "submission": "<class 'app.domain.entities.passport_submission.PassportSubmission'>",
+        "own_proof": "<class 'app.infrastructure.database.public_upload_contact_model.PublicUploadContactChallengeModel'>",
+        "family_group_id": "uuid.UUID | None",
+        "family_member_index": "int | None",
+        "family_head_email": "str | None",
+        "family_head_phone": "str | None",
+        "return": "<class 'NoneType'>"
+      }
+    }
+  },
+  "routes": [
+    {
+      "path": "/{submission_id}/contact-otp/request",
+      "name": "request_public_contact_otp",
+      "methods": [
+        "POST"
+      ],
+      "dependencies": [
+        "() -> 'AsyncGenerator[AsyncSession, None]'"
+      ],
+      "headers": [
+        "upload_session_id"
+      ]
+    },
+    {
+      "path": "/{submission_id}/contact-otp/verify",
+      "name": "verify_public_contact_otp",
+      "methods": [
+        "POST"
+      ],
+      "dependencies": [
+        "() -> 'AsyncGenerator[AsyncSession, None]'"
+      ],
+      "headers": [
+        "upload_session_id"
+      ]
+    }
+  ]
+}

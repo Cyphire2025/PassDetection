@@ -40,7 +40,10 @@ async def save_batch(
 
 
 async def save_document_lane(
-    *, batch_id: uuid.UUID, current_user: User, session: AsyncSession,
+    *,
+    batch_id: uuid.UUID,
+    current_user: User,
+    session: AsyncSession,
 ) -> SaveDocumentBatchResponse:
     """Shared flush-only save; its caller owns the atomic business transaction."""
     batch = await _get_visible_document_batch(
@@ -63,6 +66,7 @@ async def save_document_lane(
         )
         .order_by(DocumentDistributionBatchModel.id)
         .with_for_update()
+        .execution_options(populate_existing=True)
     )
     group_batches = list(group_batches_result.scalars().all())
     if any(item.status == "processing" for item in group_batches):

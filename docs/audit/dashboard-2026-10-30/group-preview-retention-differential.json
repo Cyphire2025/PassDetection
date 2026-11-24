@@ -1,0 +1,795 @@
+[
+  {
+    "case": "empty",
+    "history_rows": 0,
+    "current_contact_keys": 8,
+    "original": {
+      "created": 0,
+      "live": 0,
+      "peak": 0
+    },
+    "current": {
+      "created": 0,
+      "live": 0,
+      "peak": 0
+    },
+    "complete_response_token_order_equal": true,
+    "response": {
+      "group_id": "2bf025fc-1a46-4256-a897-7af09db4091f",
+      "audience": {
+        "submission_status": "all",
+        "document_status": "all",
+        "document_type": "visa"
+      },
+      "preview_token": "c3249d5a76a1595fbe3c0b758963a96fddc82cf6b1123769712de778f3efdc0d",
+      "template_name": "pending_v1",
+      "template_language": "en",
+      "can_send": true,
+      "configuration_error": null,
+      "recipients": [
+        {
+          "audience_key": "recipient:fabe5760-9ee9-42ba-a046-32c6de97bb27",
+          "name": "Contact 3",
+          "recipient_id": "fabe5760-9ee9-42ba-a046-32c6de97bb27",
+          "broadcast_group_id": "adbdf9a7-057f-4b4c-b3be-9eceacb3ceaf",
+          "passenger_id": null,
+          "phone_number": "+919876543203",
+          "phone_source": "imported",
+          "submission_status": "not_submitted",
+          "document_count": 0,
+          "confirmed_count": 0,
+          "eligible": true,
+          "reason": null,
+          "latest_update_status": null,
+          "latest_update_at": null,
+          "passport_number": null,
+          "email": null,
+          "imported_details": {
+            "staff_code": "EMP3"
+          },
+          "latest_update": null,
+          "update_attempt_count": 0
+        },
+        {
+          "audience_key": "submission:e557f57f-a23c-4071-9241-51654503cf9e",
+          "name": "Person 0",
+          "recipient_id": "6b2c2f58-1f01-43ea-9010-37214299e232",
+          "broadcast_group_id": "adbdf9a7-057f-4b4c-b3be-9eceacb3ceaf",
+          "passenger_id": "e557f57f-a23c-4071-9241-51654503cf9e",
+          "phone_number": "+919123456700",
+          "phone_source": "submitted",
+          "submission_status": "submitted",
+          "document_count": 0,
+          "confirmed_count": 0,
+          "eligible": true,
+          "reason": null,
+          "latest_update_status": null,
+          "latest_update_at": null,
+          "passport_number": null,
+          "email": null,
+          "imported_details": {
+            "staff_code": "EMP0"
+          },
+          "latest_update": null,
+          "update_attempt_count": 0
+        },
+        {
+          "audience_key": "submission:904945d8-425d-44eb-86c0-6250ef2f1be5",
+          "name": "Person 1",
+          "recipient_id": "b964feeb-cef6-4cfe-9fd9-6abb6cb10305",
+          "broadcast_group_id": "adbdf9a7-057f-4b4c-b3be-9eceacb3ceaf",
+          "passenger_id": "904945d8-425d-44eb-86c0-6250ef2f1be5",
+          "phone_number": "+919123456701",
+          "phone_source": "submitted",
+          "submission_status": "submitted",
+          "document_count": 0,
+          "confirmed_count": 0,
+          "eligible": true,
+          "reason": null,
+          "latest_update_status": null,
+          "latest_update_at": null,
+          "passport_number": null,
+          "email": null,
+          "imported_details": {
+            "staff_code": "EMP1"
+          },
+          "latest_update": null,
+          "update_attempt_count": 0
+        },
+        {
+          "audience_key": "submission:d873f733-35fa-4293-bc21-a76533fa8466",
+          "name": "Person 2",
+          "recipient_id": "96889ac0-5a1c-414a-a5b4-abaa19a064a7",
+          "broadcast_group_id": "adbdf9a7-057f-4b4c-b3be-9eceacb3ceaf",
+          "passenger_id": "d873f733-35fa-4293-bc21-a76533fa8466",
+          "phone_number": "+919123456702",
+          "phone_source": "submitted",
+          "submission_status": "submitted",
+          "document_count": 0,
+          "confirmed_count": 0,
+          "eligible": true,
+          "reason": null,
+          "latest_update_status": null,
+          "latest_update_at": null,
+          "passport_number": null,
+          "email": null,
+          "imported_details": {
+            "staff_code": "EMP2"
+          },
+          "latest_update": null,
+          "update_attempt_count": 0
+        }
+      ]
+    },
+    "original_source_sha256": "bb4b84f9a7f64a327ccedf948a6fb94c793d66ba6435d85b9dbbeaa4b19d8651"
+  },
+  {
+    "case": "one",
+    "history_rows": 1,
+    "current_contact_keys": 8,
+    "original": {
+      "created": 1,
+      "live": 1,
+      "peak": 1
+    },
+    "current": {
+      "created": 1,
+      "live": 1,
+      "peak": 1
+    },
+    "complete_response_token_order_equal": true,
+    "response": {
+      "group_id": "43a0dd51-572a-4424-9d99-203cc5d26b7d",
+      "audience": {
+        "submission_status": "all",
+        "document_status": "all",
+        "document_type": "visa"
+      },
+      "preview_token": "c834d625837f9d3595027b28ffed99f3aa46f2b2a18765448c3a8aed267a400c",
+      "template_name": "pending_v1",
+      "template_language": "en",
+      "can_send": true,
+      "configuration_error": null,
+      "recipients": [
+        {
+          "audience_key": "recipient:6089a202-4a83-45cb-87c6-46e25c968a14",
+          "name": "Contact 3",
+          "recipient_id": "6089a202-4a83-45cb-87c6-46e25c968a14",
+          "broadcast_group_id": "e984cad7-0e26-4ce0-9976-5b1afbd8175c",
+          "passenger_id": null,
+          "phone_number": "+919876543203",
+          "phone_source": "imported",
+          "submission_status": "not_submitted",
+          "document_count": 0,
+          "confirmed_count": 0,
+          "eligible": true,
+          "reason": null,
+          "latest_update_status": "read",
+          "latest_update_at": "2026-09-01T00:00:00",
+          "passport_number": null,
+          "email": null,
+          "imported_details": {
+            "staff_code": "EMP3"
+          },
+          "latest_update": {
+            "id": "3f429932-507b-4d9c-b199-6f6bab3b9c66",
+            "status": "read",
+            "phone_number": "+919333444555",
+            "created_at": "2026-09-01T00:00:00",
+            "status_updated_at": "2026-09-01T00:00:00",
+            "message": "Saved update 0",
+            "error": null,
+            "template_name": "pending_v1",
+            "provider_message_id": null,
+            "document_type": "visa"
+          },
+          "update_attempt_count": 1
+        },
+        {
+          "audience_key": "submission:8aa3f7af-b422-4c15-a7c6-b9f637418221",
+          "name": "Person 0",
+          "recipient_id": "502feb39-441a-4b79-a032-3bbfdac2e206",
+          "broadcast_group_id": "e984cad7-0e26-4ce0-9976-5b1afbd8175c",
+          "passenger_id": "8aa3f7af-b422-4c15-a7c6-b9f637418221",
+          "phone_number": "+919123456700",
+          "phone_source": "submitted",
+          "submission_status": "submitted",
+          "document_count": 0,
+          "confirmed_count": 0,
+          "eligible": true,
+          "reason": null,
+          "latest_update_status": null,
+          "latest_update_at": null,
+          "passport_number": null,
+          "email": null,
+          "imported_details": {
+            "staff_code": "EMP0"
+          },
+          "latest_update": null,
+          "update_attempt_count": 0
+        },
+        {
+          "audience_key": "submission:bc2b6799-1037-47c4-aa44-b2257735aae8",
+          "name": "Person 1",
+          "recipient_id": "ea2cd573-2f44-4c66-9740-c5f7821779b1",
+          "broadcast_group_id": "e984cad7-0e26-4ce0-9976-5b1afbd8175c",
+          "passenger_id": "bc2b6799-1037-47c4-aa44-b2257735aae8",
+          "phone_number": "+919123456701",
+          "phone_source": "submitted",
+          "submission_status": "submitted",
+          "document_count": 0,
+          "confirmed_count": 0,
+          "eligible": true,
+          "reason": null,
+          "latest_update_status": null,
+          "latest_update_at": null,
+          "passport_number": null,
+          "email": null,
+          "imported_details": {
+            "staff_code": "EMP1"
+          },
+          "latest_update": null,
+          "update_attempt_count": 0
+        },
+        {
+          "audience_key": "submission:755fc845-fe52-43d0-b151-1d0f9cea0b5f",
+          "name": "Person 2",
+          "recipient_id": "8cab5d2f-1a70-4b99-9e6c-90543af0b406",
+          "broadcast_group_id": "e984cad7-0e26-4ce0-9976-5b1afbd8175c",
+          "passenger_id": "755fc845-fe52-43d0-b151-1d0f9cea0b5f",
+          "phone_number": "+919123456702",
+          "phone_source": "submitted",
+          "submission_status": "submitted",
+          "document_count": 0,
+          "confirmed_count": 0,
+          "eligible": true,
+          "reason": null,
+          "latest_update_status": null,
+          "latest_update_at": null,
+          "passport_number": null,
+          "email": null,
+          "imported_details": {
+            "staff_code": "EMP2"
+          },
+          "latest_update": null,
+          "update_attempt_count": 0
+        }
+      ]
+    },
+    "original_source_sha256": "bb4b84f9a7f64a327ccedf948a6fb94c793d66ba6435d85b9dbbeaa4b19d8651"
+  },
+  {
+    "case": "history64",
+    "history_rows": 64,
+    "current_contact_keys": 8,
+    "original": {
+      "created": 64,
+      "live": 4,
+      "peak": 64
+    },
+    "current": {
+      "created": 64,
+      "live": 4,
+      "peak": 7
+    },
+    "complete_response_token_order_equal": true,
+    "response": {
+      "group_id": "ea60a798-cc2c-4748-95b6-19c40bbf3737",
+      "audience": {
+        "submission_status": "all",
+        "document_status": "all",
+        "document_type": "visa"
+      },
+      "preview_token": "3cbff5091ff77e6e1066755c83dee5d1eecaffff0c3c5cef4f5a0f6413b5c67d",
+      "template_name": "pending_v1",
+      "template_language": "en",
+      "can_send": true,
+      "configuration_error": null,
+      "recipients": [
+        {
+          "audience_key": "recipient:9e6d225e-5a4e-4163-8d42-83a8d520d93c",
+          "name": "Contact 3",
+          "recipient_id": "9e6d225e-5a4e-4163-8d42-83a8d520d93c",
+          "broadcast_group_id": "eee1eafb-8c15-4b97-b83c-5b1929e02c6e",
+          "passenger_id": null,
+          "phone_number": "+919876543203",
+          "phone_source": "imported",
+          "submission_status": "not_submitted",
+          "document_count": 0,
+          "confirmed_count": 0,
+          "eligible": false,
+          "reason": "An earlier update to this number is queued, in progress or has an unknown outcome.",
+          "latest_update_status": "read",
+          "latest_update_at": "2026-09-01T00:01:00",
+          "passport_number": null,
+          "email": null,
+          "imported_details": {
+            "staff_code": "EMP3"
+          },
+          "latest_update": {
+            "id": "a6f68fd0-fc60-4ee0-a551-8e04c1d9ad0c",
+            "status": "read",
+            "phone_number": "+919333444555",
+            "created_at": "2026-09-01T00:01:00",
+            "status_updated_at": "2026-09-01T00:01:00",
+            "message": "Saved update 60",
+            "error": null,
+            "template_name": "pending_v1",
+            "provider_message_id": null,
+            "document_type": "visa"
+          },
+          "update_attempt_count": 16
+        },
+        {
+          "audience_key": "submission:61f8c710-ce97-4b09-80f1-0ebda1e54a9a",
+          "name": "Person 0",
+          "recipient_id": "489aaaad-b586-4379-8df3-48a99b584fb8",
+          "broadcast_group_id": "eee1eafb-8c15-4b97-b83c-5b1929e02c6e",
+          "passenger_id": "61f8c710-ce97-4b09-80f1-0ebda1e54a9a",
+          "phone_number": "+919123456700",
+          "phone_source": "submitted",
+          "submission_status": "submitted",
+          "document_count": 0,
+          "confirmed_count": 0,
+          "eligible": false,
+          "reason": "An earlier update to this number is queued, in progress or has an unknown outcome.",
+          "latest_update_status": "failed",
+          "latest_update_at": "2026-09-01T00:01:01",
+          "passport_number": null,
+          "email": null,
+          "imported_details": {
+            "staff_code": "EMP0"
+          },
+          "latest_update": {
+            "id": "3ffa9862-3701-415d-96d4-c771e6bcf7ba",
+            "status": "failed",
+            "phone_number": "+919123456700",
+            "created_at": "2026-09-01T00:01:01",
+            "status_updated_at": "2026-09-01T00:01:01",
+            "message": "Saved update 61",
+            "error": null,
+            "template_name": "pending_v1",
+            "provider_message_id": null,
+            "document_type": "visa"
+          },
+          "update_attempt_count": 16
+        },
+        {
+          "audience_key": "submission:9241768b-e036-4c5e-ae98-3b4c13c663be",
+          "name": "Person 1",
+          "recipient_id": "e4e2ac20-31a3-4f7f-b310-5bc6721f62a3",
+          "broadcast_group_id": "eee1eafb-8c15-4b97-b83c-5b1929e02c6e",
+          "passenger_id": "9241768b-e036-4c5e-ae98-3b4c13c663be",
+          "phone_number": "+919123456701",
+          "phone_source": "submitted",
+          "submission_status": "submitted",
+          "document_count": 0,
+          "confirmed_count": 0,
+          "eligible": false,
+          "reason": "An earlier update to this number is queued, in progress or has an unknown outcome.",
+          "latest_update_status": "delivery_unknown",
+          "latest_update_at": "2026-09-01T00:01:02",
+          "passport_number": null,
+          "email": null,
+          "imported_details": {
+            "staff_code": "EMP1"
+          },
+          "latest_update": {
+            "id": "1958c7a3-56a0-400f-8aee-722d3b18fbb1",
+            "status": "delivery_unknown",
+            "phone_number": "+919123456701",
+            "created_at": "2026-09-01T00:01:02",
+            "status_updated_at": "2026-09-01T00:01:02",
+            "message": "Saved update 62",
+            "error": null,
+            "template_name": "pending_v1",
+            "provider_message_id": null,
+            "document_type": "visa"
+          },
+          "update_attempt_count": 16
+        },
+        {
+          "audience_key": "submission:79f4096c-2a85-4cb7-b6f1-f36d3f98e8d1",
+          "name": "Person 2",
+          "recipient_id": "edb3de2b-1ab1-4435-ac28-673bcd7b4ec2",
+          "broadcast_group_id": "eee1eafb-8c15-4b97-b83c-5b1929e02c6e",
+          "passenger_id": "79f4096c-2a85-4cb7-b6f1-f36d3f98e8d1",
+          "phone_number": "+919123456702",
+          "phone_source": "submitted",
+          "submission_status": "submitted",
+          "document_count": 0,
+          "confirmed_count": 0,
+          "eligible": false,
+          "reason": "An earlier update to this number is queued, in progress or has an unknown outcome.",
+          "latest_update_status": "delivered",
+          "latest_update_at": "2026-09-01T00:01:03",
+          "passport_number": null,
+          "email": null,
+          "imported_details": {
+            "staff_code": "EMP2"
+          },
+          "latest_update": {
+            "id": "652eee56-5480-4bfe-9339-7d6153536b85",
+            "status": "delivered",
+            "phone_number": "+919333444555",
+            "created_at": "2026-09-01T00:01:03",
+            "status_updated_at": "2026-09-01T00:01:03",
+            "message": "Saved update 63",
+            "error": null,
+            "template_name": "pending_v1",
+            "provider_message_id": null,
+            "document_type": "visa"
+          },
+          "update_attempt_count": 16
+        }
+      ]
+    },
+    "original_source_sha256": "bb4b84f9a7f64a327ccedf948a6fb94c793d66ba6435d85b9dbbeaa4b19d8651"
+  },
+  {
+    "case": "history512",
+    "history_rows": 512,
+    "current_contact_keys": 8,
+    "original": {
+      "created": 512,
+      "live": 4,
+      "peak": 512
+    },
+    "current": {
+      "created": 512,
+      "live": 4,
+      "peak": 6
+    },
+    "complete_response_token_order_equal": true,
+    "response": {
+      "group_id": "69bda2fd-f58a-45ad-ae15-4764abb799d0",
+      "audience": {
+        "submission_status": "all",
+        "document_status": "all",
+        "document_type": "visa"
+      },
+      "preview_token": "b3cf63fa2888b2cc0e44a22e4e46a6a165033895d1cd4d08025d2f56b25166e7",
+      "template_name": "pending_v1",
+      "template_language": "en",
+      "can_send": true,
+      "configuration_error": null,
+      "recipients": [
+        {
+          "audience_key": "recipient:9ddfa567-3e24-4183-90b9-f78b26c9852d",
+          "name": "Contact 3",
+          "recipient_id": "9ddfa567-3e24-4183-90b9-f78b26c9852d",
+          "broadcast_group_id": "21b7fb21-f91f-42fb-9a16-c5ffabe9f7a2",
+          "passenger_id": null,
+          "phone_number": "+919876543203",
+          "phone_source": "imported",
+          "submission_status": "not_submitted",
+          "document_count": 0,
+          "confirmed_count": 0,
+          "eligible": false,
+          "reason": "An earlier update to this number is queued, in progress or has an unknown outcome.",
+          "latest_update_status": "queued",
+          "latest_update_at": "2026-09-01T00:08:28",
+          "passport_number": null,
+          "email": null,
+          "imported_details": {
+            "staff_code": "EMP3"
+          },
+          "latest_update": {
+            "id": "f47bed43-d309-4d18-babb-47cf0d6629a7",
+            "status": "queued",
+            "phone_number": "+919876543203",
+            "created_at": "2026-09-01T00:08:28",
+            "status_updated_at": "2026-09-01T00:08:28",
+            "message": "Saved update 508",
+            "error": null,
+            "template_name": "pending_v1",
+            "provider_message_id": null,
+            "document_type": "visa"
+          },
+          "update_attempt_count": 128
+        },
+        {
+          "audience_key": "submission:29967b7a-e77c-45e4-9cd1-b8fcf097d10f",
+          "name": "Person 0",
+          "recipient_id": "cabc5cb3-5d46-4b77-8b7c-0c0921ee5530",
+          "broadcast_group_id": "21b7fb21-f91f-42fb-9a16-c5ffabe9f7a2",
+          "passenger_id": "29967b7a-e77c-45e4-9cd1-b8fcf097d10f",
+          "phone_number": "+919123456700",
+          "phone_source": "submitted",
+          "submission_status": "submitted",
+          "document_count": 0,
+          "confirmed_count": 0,
+          "eligible": false,
+          "reason": "An earlier update to this number is queued, in progress or has an unknown outcome.",
+          "latest_update_status": "processing",
+          "latest_update_at": "2026-09-01T00:08:29",
+          "passport_number": null,
+          "email": null,
+          "imported_details": {
+            "staff_code": "EMP0"
+          },
+          "latest_update": {
+            "id": "9d9f38bb-af7a-4e79-955a-dba7003e0ce5",
+            "status": "processing",
+            "phone_number": "+919123456700",
+            "created_at": "2026-09-01T00:08:29",
+            "status_updated_at": "2026-09-01T00:08:29",
+            "message": "Saved update 509",
+            "error": null,
+            "template_name": "pending_v1",
+            "provider_message_id": null,
+            "document_type": "visa"
+          },
+          "update_attempt_count": 128
+        },
+        {
+          "audience_key": "submission:9c9ca98d-7546-4057-a669-d29969f5ea3a",
+          "name": "Person 1",
+          "recipient_id": "8c182efc-0ffb-4e12-8264-4d95b76a2e65",
+          "broadcast_group_id": "21b7fb21-f91f-42fb-9a16-c5ffabe9f7a2",
+          "passenger_id": "9c9ca98d-7546-4057-a669-d29969f5ea3a",
+          "phone_number": "+919123456701",
+          "phone_source": "submitted",
+          "submission_status": "submitted",
+          "document_count": 0,
+          "confirmed_count": 0,
+          "eligible": false,
+          "reason": "An earlier update to this number is queued, in progress or has an unknown outcome.",
+          "latest_update_status": "read",
+          "latest_update_at": "2026-09-01T00:08:30",
+          "passport_number": null,
+          "email": null,
+          "imported_details": {
+            "staff_code": "EMP1"
+          },
+          "latest_update": {
+            "id": "3f61efce-1f5d-4e81-b66b-7aacaaa6ca88",
+            "status": "read",
+            "phone_number": "+919333444555",
+            "created_at": "2026-09-01T00:08:30",
+            "status_updated_at": "2026-09-01T00:08:30",
+            "message": "Saved update 510",
+            "error": null,
+            "template_name": "pending_v1",
+            "provider_message_id": null,
+            "document_type": "visa"
+          },
+          "update_attempt_count": 128
+        },
+        {
+          "audience_key": "submission:25fe6d89-77e5-4174-967b-a7b18d4f1b8f",
+          "name": "Person 2",
+          "recipient_id": "96555b03-804a-44ee-aedc-2ed61ee97687",
+          "broadcast_group_id": "21b7fb21-f91f-42fb-9a16-c5ffabe9f7a2",
+          "passenger_id": "25fe6d89-77e5-4174-967b-a7b18d4f1b8f",
+          "phone_number": "+919123456702",
+          "phone_source": "submitted",
+          "submission_status": "submitted",
+          "document_count": 0,
+          "confirmed_count": 0,
+          "eligible": false,
+          "reason": "An earlier update to this number is queued, in progress or has an unknown outcome.",
+          "latest_update_status": "failed",
+          "latest_update_at": "2026-09-01T00:08:31",
+          "passport_number": null,
+          "email": null,
+          "imported_details": {
+            "staff_code": "EMP2"
+          },
+          "latest_update": {
+            "id": "6592f3a6-35e7-4337-8288-33ba7dba4cdd",
+            "status": "failed",
+            "phone_number": "+919123456702",
+            "created_at": "2026-09-01T00:08:31",
+            "status_updated_at": "2026-09-01T00:08:31",
+            "message": "Saved update 511",
+            "error": null,
+            "template_name": "pending_v1",
+            "provider_message_id": null,
+            "document_type": "visa"
+          },
+          "update_attempt_count": 128
+        }
+      ]
+    },
+    "original_source_sha256": "bb4b84f9a7f64a327ccedf948a6fb94c793d66ba6435d85b9dbbeaa4b19d8651"
+  },
+  {
+    "case": "timestamp-ties",
+    "history_rows": 64,
+    "current_contact_keys": 8,
+    "original": {
+      "created": 64,
+      "live": 4,
+      "peak": 64
+    },
+    "current": {
+      "created": 64,
+      "live": 4,
+      "peak": 6
+    },
+    "complete_response_token_order_equal": true,
+    "response": {
+      "group_id": "e066f1a2-4678-4c05-885c-7465c6c6c3ef",
+      "audience": {
+        "submission_status": "all",
+        "document_status": "all",
+        "document_type": "visa"
+      },
+      "preview_token": "ce41784bb2bb5c35bcef98bee195126b0547877d2d5d897fcf4e1922cf6e006a",
+      "template_name": "pending_v1",
+      "template_language": "en",
+      "can_send": true,
+      "configuration_error": null,
+      "recipients": [
+        {
+          "audience_key": "recipient:87e4ef1d-a4ee-4816-ad8c-d7da92e24f97",
+          "name": "Contact 3",
+          "recipient_id": "87e4ef1d-a4ee-4816-ad8c-d7da92e24f97",
+          "broadcast_group_id": "cb68f271-2fd2-4f26-af8d-e97016e05c75",
+          "passenger_id": null,
+          "phone_number": "+919876543203",
+          "phone_source": "imported",
+          "submission_status": "not_submitted",
+          "document_count": 0,
+          "confirmed_count": 0,
+          "eligible": false,
+          "reason": "An earlier update to this number is queued, in progress or has an unknown outcome.",
+          "latest_update_status": "delivery_unknown",
+          "latest_update_at": "2026-09-01T00:00:44",
+          "passport_number": null,
+          "email": null,
+          "imported_details": {
+            "staff_code": "EMP3"
+          },
+          "latest_update": {
+            "id": "e11ef19c-a3e1-447d-bf23-94f44b4d33d1",
+            "status": "delivery_unknown",
+            "phone_number": "+919876543203",
+            "created_at": "2026-09-01T00:00:00",
+            "status_updated_at": "2026-09-01T00:00:44",
+            "message": "Saved update 44",
+            "error": null,
+            "template_name": "pending_v1",
+            "provider_message_id": null,
+            "document_type": "visa"
+          },
+          "update_attempt_count": 16
+        },
+        {
+          "audience_key": "submission:6562abb7-3048-421f-afd1-cc9f5d5a57cc",
+          "name": "Person 0",
+          "recipient_id": "6c4e1b07-734b-498b-8621-7b861bdcd50a",
+          "broadcast_group_id": "cb68f271-2fd2-4f26-af8d-e97016e05c75",
+          "passenger_id": "6562abb7-3048-421f-afd1-cc9f5d5a57cc",
+          "phone_number": "+919123456700",
+          "phone_source": "submitted",
+          "submission_status": "submitted",
+          "document_count": 0,
+          "confirmed_count": 0,
+          "eligible": false,
+          "reason": "An earlier update to this number is queued, in progress or has an unknown outcome.",
+          "latest_update_status": "processing",
+          "latest_update_at": "2026-09-01T00:00:41",
+          "passport_number": null,
+          "email": null,
+          "imported_details": {
+            "staff_code": "EMP0"
+          },
+          "latest_update": {
+            "id": "e215dbef-104d-49f8-b6e2-bcecb77b25b7",
+            "status": "processing",
+            "phone_number": "+919123456700",
+            "created_at": "2026-09-01T00:00:00",
+            "status_updated_at": "2026-09-01T00:00:41",
+            "message": "Saved update 41",
+            "error": null,
+            "template_name": "pending_v1",
+            "provider_message_id": null,
+            "document_type": "visa"
+          },
+          "update_attempt_count": 16
+        },
+        {
+          "audience_key": "submission:a6a72efb-66d5-4f78-adaf-bb108a472941",
+          "name": "Person 1",
+          "recipient_id": "fda4fe2b-111d-45dd-903a-0190faaac5a4",
+          "broadcast_group_id": "cb68f271-2fd2-4f26-af8d-e97016e05c75",
+          "passenger_id": "a6a72efb-66d5-4f78-adaf-bb108a472941",
+          "phone_number": "+919123456701",
+          "phone_source": "submitted",
+          "submission_status": "submitted",
+          "document_count": 0,
+          "confirmed_count": 0,
+          "eligible": false,
+          "reason": "An earlier update to this number is queued, in progress or has an unknown outcome.",
+          "latest_update_status": "read",
+          "latest_update_at": "2026-09-01T00:00:30",
+          "passport_number": null,
+          "email": null,
+          "imported_details": {
+            "staff_code": "EMP1"
+          },
+          "latest_update": {
+            "id": "f26a9bd5-4bdb-4094-93f3-ada0d875b420",
+            "status": "read",
+            "phone_number": "+919333444555",
+            "created_at": "2026-09-01T00:00:00",
+            "status_updated_at": "2026-09-01T00:00:30",
+            "message": "Saved update 30",
+            "error": null,
+            "template_name": "pending_v1",
+            "provider_message_id": null,
+            "document_type": "visa"
+          },
+          "update_attempt_count": 16
+        },
+        {
+          "audience_key": "submission:fef68161-8769-4b37-a9ed-434032bf67b3",
+          "name": "Person 2",
+          "recipient_id": "22dead15-545d-4e8d-bfd6-cb585010b800",
+          "broadcast_group_id": "cb68f271-2fd2-4f26-af8d-e97016e05c75",
+          "passenger_id": "fef68161-8769-4b37-a9ed-434032bf67b3",
+          "phone_number": "+919123456702",
+          "phone_source": "submitted",
+          "submission_status": "submitted",
+          "document_count": 0,
+          "confirmed_count": 0,
+          "eligible": false,
+          "reason": "An earlier update to this number is queued, in progress or has an unknown outcome.",
+          "latest_update_status": "processing",
+          "latest_update_at": "2026-09-01T00:00:47",
+          "passport_number": null,
+          "email": null,
+          "imported_details": {
+            "staff_code": "EMP2"
+          },
+          "latest_update": {
+            "id": "fc8f8277-e455-42b0-88b8-a440a3c35722",
+            "status": "processing",
+            "phone_number": "+919123456702",
+            "created_at": "2026-09-01T00:00:00",
+            "status_updated_at": "2026-09-01T00:00:47",
+            "message": "Saved update 47",
+            "error": null,
+            "template_name": "pending_v1",
+            "provider_message_id": null,
+            "document_type": "visa"
+          },
+          "update_attempt_count": 16
+        }
+      ]
+    },
+    "original_source_sha256": "bb4b84f9a7f64a327ccedf948a6fb94c793d66ba6435d85b9dbbeaa4b19d8651"
+  },
+  {
+    "case": "invalid-old-current",
+    "validation_errors_exact": true,
+    "errors": [
+      {
+        "type": "string_type",
+        "loc": [
+          "document_type"
+        ],
+        "msg": "Input should be a valid string",
+        "input": 42,
+        "url": "https://errors.pydantic.dev/2.12/v/string_type"
+      }
+    ]
+  },
+  {
+    "case": "invalid-old-unrelated",
+    "validation_errors_exact": true,
+    "errors": [
+      {
+        "type": "string_type",
+        "loc": [
+          "document_type"
+        ],
+        "msg": "Input should be a valid string",
+        "input": 42,
+        "url": "https://errors.pydantic.dev/2.12/v/string_type"
+      }
+    ]
+  }
+]

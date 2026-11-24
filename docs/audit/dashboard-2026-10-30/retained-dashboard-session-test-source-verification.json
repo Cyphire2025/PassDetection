@@ -1,0 +1,33 @@
+{
+  "status": "Read-only bounded dashboard session/auth durability source cohort complete; wider audit active",
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-dashboard-session-test-source-reviewed-files.json",
+    "sha256": "41760a59ebc96737b70dd90fd9d9d2bbf5cb21f87caca15d52b89833c849c731"
+  },
+  "new_current_full_tests": 5,
+  "new_test_full_physical_lines": 921,
+  "full_files": 6,
+  "full_physical_lines": 1165,
+  "focused_files": 2,
+  "physical_read_provenance": "Prior394same-hash prefix lines explicitly recorded; current301tail lines complete those three tests and current226entire service lines total921. Metadata/imports/execution never substitute for physical lines. Existing full244repository reread gets no new-unreviewed credit.",
+  "source_fence": {
+    "backend/tests/integration/test_auth_response_durability.py": "eef70244e944f3719564a7b92d638626b28e042fafa54c1de7d17b0bc88c352b",
+    "backend/tests/integration/test_mfa_denial_durability.py": "df42af309ad18aafb69c343060ace9b22d86c330c6471b395fa7a8ee6436590f",
+    "backend/tests/integration/test_dashboard_weekly_session.py": "6b509185405aba70cdee7625089fba9b9a8e36b9674f77d485153bdbce11acf7",
+    "backend/tests/service_integration/test_auth_concurrency.py": "c71abf349ab67841a25984dfcc3ff57337cf36cd635fcbfb5b0bf5300ecbb5f4",
+    "backend/tests/service_integration/test_dashboard_session_cutover.py": "56f5f017cee4cb3cfb2f4b64a377b9b7dc76871415dc779596803c63c7b44bd3",
+    "backend/app/infrastructure/repositories/refresh_token_repository.py": "219a15a385285e5c2a805b6b6b8e3e9f16e38c788163555af8f063221dc6f316",
+    "backend/app/infrastructure/security/login_attempt_limiter.py": "b23f38b4c692ba60d3cee3671ca62729e91ac4c5ca185fa994c23693ba131d24",
+    "backend/tests/unit/infrastructure/test_dashboard_session_families.py": "f67f844845f5fc196cc3f80f37d46307fd178469b12d6b8cb85f2f7dd6755214"
+  },
+  "checks_run": [],
+  "changes": [],
+  "findings": [],
+  "proof_gaps": [
+    "Actual service-test source defines PostgreSQL/Redis controls and isolated opt-in guards; it was not run and no environment/credential values or services were accessed.",
+    "Controlled ASGI/clock/SQLite tests are not deployed browser transport or production concurrency proof.",
+    "Concurrent service-test contender assumes bounded synchronization and healthy teardown paths; no failing ordinary case reproduced, so no timing/fixture change justified.",
+    "Partial Lua/limiter/session-test contexts remain partial source credit. Shared native-placeholder nonmutation and auth coordinator redirect are compatibility only, not native workflow review."
+  ],
+  "scope": "Retained dashboard identity/session/migration compatibility sources only, no native ingress/UI/Operations Inbox work. Source/test/config/migration/provider data byte-unmodified."
+}

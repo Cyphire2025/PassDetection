@@ -1,0 +1,1200 @@
+{
+  "basis": "Exact source-owner migrations; no source scanner/admission rule changed. Parent/branding frozen source and behavioral review is attributed explicitly, not counted as another physical audit. Own backend boundaries and unchanged declaration ASTs were separately reviewed/tested; final directory tenant guard only tightens an existing invariant.",
+  "moved_existing_classifications": {
+    "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:listAgencies": "frontend:frontend/features/gc-app/api/gc-app-directory.api.ts:listAgencies",
+    "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:searchCompanies": "frontend:frontend/features/gc-app/api/gc-app-directory.api.ts:searchCompanies",
+    "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:createClientOrganization": "frontend:frontend/features/gc-app/api/gc-app-directory.api.ts:createClientOrganization",
+    "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:removeClientOrganization": "frontend:frontend/features/gc-app/api/gc-app-directory.api.ts:removeClientOrganization",
+    "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:listClientManagers": "frontend:frontend/features/gc-app/api/gc-app-managers.api.ts:listClientManagers",
+    "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:createClientManager": "frontend:frontend/features/gc-app/api/gc-app-managers.api.ts:createClientManager",
+    "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:updateClientManager": "frontend:frontend/features/gc-app/api/gc-app-managers.api.ts:updateClientManager",
+    "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:setClientManagerStatus": "frontend:frontend/features/gc-app/api/gc-app-managers.api.ts:setClientManagerStatus",
+    "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:resetClientManagerPassword": "frontend:frontend/features/gc-app/api/gc-app-managers.api.ts:resetClientManagerPassword",
+    "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:revokeClientManagerSessions": "frontend:frontend/features/gc-app/api/gc-app-managers.api.ts:revokeClientManagerSessions",
+    "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:softDeleteClientManager": "frontend:frontend/features/gc-app/api/gc-app-managers.api.ts:softDeleteClientManager",
+    "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:listClientManagerSessions": "frontend:frontend/features/gc-app/api/gc-app-managers.api.ts:listClientManagerSessions",
+    "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:searchGroups": "frontend:frontend/features/gc-app/api/gc-app-groups.api.ts:searchGroups",
+    "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:listGroups": "frontend:frontend/features/gc-app/api/gc-app-groups.api.ts:listGroups",
+    "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:getGroupControl": "frontend:frontend/features/gc-app/api/gc-app-groups.api.ts:getGroupControl",
+    "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:addGroup": "frontend:frontend/features/gc-app/api/gc-app-groups.api.ts:addGroup",
+    "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:removeGroup": "frontend:frontend/features/gc-app/api/gc-app-groups.api.ts:removeGroup",
+    "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:updateGroupControl": "frontend:frontend/features/gc-app/api/gc-app-groups.api.ts:updateGroupControl",
+    "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:setMyPhotosEnabled": "frontend:frontend/features/gc-app/api/gc-app-groups.api.ts:setMyPhotosEnabled",
+    "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:revokeGroupAccess": "frontend:frontend/features/gc-app/api/gc-app-groups.api.ts:revokeGroupAccess",
+    "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:getGroupContent": "frontend:frontend/features/gc-app/api/gc-app-documents.api.ts:getGroupContent",
+    "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:uploadCommonDocument": "frontend:frontend/features/gc-app/api/gc-app-documents.api.ts:uploadCommonDocument",
+    "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:setCommonDocumentPublished": "frontend:frontend/features/gc-app/api/gc-app-documents.api.ts:setCommonDocumentPublished",
+    "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:previewCommonDocument": "frontend:frontend/features/gc-app/api/gc-app-documents.api.ts:previewCommonDocument",
+    "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:reorderCommonDocuments": "frontend:frontend/features/gc-app/api/gc-app-documents.api.ts:reorderCommonDocuments",
+    "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:deleteCommonDocument": "frontend:frontend/features/gc-app/api/gc-app-documents.api.ts:deleteCommonDocument",
+    "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:saveItineraryDraft": "frontend:frontend/features/gc-app/api/gc-app-itineraries.api.ts:saveItineraryDraft",
+    "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:publishItinerary": "frontend:frontend/features/gc-app/api/gc-app-itineraries.api.ts:publishItinerary",
+    "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:unpublishItinerary": "frontend:frontend/features/gc-app/api/gc-app-itineraries.api.ts:unpublishItinerary",
+    "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:listAnnouncements": "frontend:frontend/features/gc-app/api/gc-app-announcements.api.ts:listAnnouncements",
+    "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:createAnnouncement": "frontend:frontend/features/gc-app/api/gc-app-announcements.api.ts:createAnnouncement",
+    "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:updateAnnouncement": "frontend:frontend/features/gc-app/api/gc-app-announcements.api.ts:updateAnnouncement",
+    "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:setAnnouncementPublished": "frontend:frontend/features/gc-app/api/gc-app-announcements.api.ts:setAnnouncementPublished",
+    "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:deleteAnnouncement": "frontend:frontend/features/gc-app/api/gc-app-announcements.api.ts:deleteAnnouncement",
+    "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:listClientManagerAudit": "frontend:frontend/features/gc-app/api/gc-app-audit.api.ts:listClientManagerAudit",
+    "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:listGroupAudit": "frontend:frontend/features/gc-app/api/gc-app-audit.api.ts:listGroupAudit",
+    "frontend:frontend/features/passports/api/passports.api.ts:listGroups": "frontend:frontend/features/passports/api/passport-records.api.ts:listGroups",
+    "frontend:frontend/features/passports/api/passports.api.ts:list": "frontend:frontend/features/passports/api/passport-records.api.ts:list",
+    "frontend:frontend/features/passports/api/passports.api.ts:listByGroup": "frontend:frontend/features/passports/api/passport-records.api.ts:listByGroup",
+    "frontend:frontend/features/passports/api/passports.api.ts:getById": "frontend:frontend/features/passports/api/passport-records.api.ts:getById",
+    "frontend:frontend/features/passports/api/passports.api.ts:confirm": "frontend:frontend/features/passports/api/passport-records.api.ts:confirm",
+    "frontend:frontend/features/passports/api/passports.api.ts:getImageCrop": "frontend:frontend/features/passports/api/passport-images.api.ts:getImageCrop",
+    "frontend:frontend/features/passports/api/passports.api.ts:getOriginalImage": "frontend:frontend/features/passports/api/passport-images.api.ts:getOriginalImage",
+    "frontend:frontend/features/passports/api/passports.api.ts:getEditableImage": "frontend:frontend/features/passports/api/passport-images.api.ts:getEditableImage",
+    "frontend:frontend/features/passports/api/passports.api.ts:listImageLibrary": "frontend:frontend/features/passports/api/passport-images.api.ts:listImageLibrary",
+    "frontend:frontend/features/passports/api/passports.api.ts:uploadImageLibraryImage": "frontend:frontend/features/passports/api/passport-images.api.ts:uploadImageLibraryImage",
+    "frontend:frontend/features/passports/api/passports.api.ts:useImageLibraryImage": "frontend:frontend/features/passports/api/passport-images.api.ts:useImageLibraryImage",
+    "frontend:frontend/features/passports/api/passports.api.ts:generateVisaAiPreview": "frontend:frontend/features/passports/api/passport-visa-ai.api.ts:generateVisaAiPreview",
+    "frontend:frontend/features/passports/api/passports.api.ts:applyVisaAiEdit": "frontend:frontend/features/passports/api/passport-visa-ai.api.ts:applyVisaAiEdit",
+    "frontend:frontend/features/passports/api/passports.api.ts:listVisaAiLibrary": "frontend:frontend/features/passports/api/passport-visa-ai.api.ts:listVisaAiLibrary",
+    "frontend:frontend/features/passports/api/passports.api.ts:generateVisaAiLibraryImage": "frontend:frontend/features/passports/api/passport-visa-ai.api.ts:generateVisaAiLibraryImage",
+    "frontend:frontend/features/passports/api/passports.api.ts:createVisaAiGenerationJob": "frontend:frontend/features/passports/api/passport-visa-ai.api.ts:createVisaAiGenerationJob",
+    "frontend:frontend/features/passports/api/passports.api.ts:getActiveVisaAiGenerationJob": "frontend:frontend/features/passports/api/passport-visa-ai.api.ts:getActiveVisaAiGenerationJob",
+    "frontend:frontend/features/passports/api/passports.api.ts:getVisaAiGenerationJob": "frontend:frontend/features/passports/api/passport-visa-ai.api.ts:getVisaAiGenerationJob",
+    "frontend:frontend/features/passports/api/passports.api.ts:useVisaAiLibraryImage": "frontend:frontend/features/passports/api/passport-visa-ai.api.ts:useVisaAiLibraryImage",
+    "frontend:frontend/features/passports/api/passports.api.ts:saveImageCrop": "frontend:frontend/features/passports/api/passport-images.api.ts:saveImageCrop",
+    "frontend:frontend/features/passports/api/passports.api.ts:resetImageCrop": "frontend:frontend/features/passports/api/passport-images.api.ts:resetImageCrop",
+    "frontend:frontend/features/passports/api/passports.api.ts:getGroupSubmissionsView": "frontend:frontend/features/passports/api/passport-records.api.ts:getGroupSubmissionsView",
+    "frontend:frontend/features/passports/api/passports.api.ts:staffApprove": "frontend:frontend/features/passports/api/passport-records.api.ts:staffApprove",
+    "frontend:frontend/features/passports/api/passports.api.ts:retryAiVerification": "frontend:frontend/features/passports/api/passport-records.api.ts:retryAiVerification",
+    "frontend:frontend/features/passports/api/passports.api.ts:reextract": "frontend:frontend/features/passports/api/passport-records.api.ts:reextract",
+    "frontend:frontend/features/passports/api/passports.api.ts:getGroupExportHistory": "frontend:frontend/features/passports/api/passport-group-exports.api.ts:getGroupExportHistory",
+    "frontend:frontend/features/passports/api/passports.api.ts:getGroupExportHistoryDetail": "frontend:frontend/features/passports/api/passport-group-exports.api.ts:getGroupExportHistoryDetail",
+    "frontend:frontend/features/passports/api/passports.api.ts:completeGroupExportHistory": "frontend:frontend/features/passports/api/passport-group-exports.api.ts:completeGroupExportHistory",
+    "frontend:frontend/features/passports/api/passports.api.ts:exportGroup": "frontend:frontend/features/passports/api/passport-group-exports.api.ts:exportGroup",
+    "frontend:frontend/features/passports/api/passports.api.ts:exportWhatsAppTracking": "frontend:frontend/features/passports/api/passport-group-exports.api.ts:exportWhatsAppTracking",
+    "frontend:frontend/features/passports/api/passports.api.ts:getGroupExportFields": "frontend:frontend/features/passports/api/passport-group-exports.api.ts:getGroupExportFields",
+    "frontend:frontend/features/passports/api/passports.api.ts:exportGroupImages": "frontend:frontend/features/passports/api/passport-group-exports.api.ts:exportGroupImages",
+    "frontend:frontend/features/passports/api/passports.api.ts:importGroup": "frontend:frontend/features/passports/api/passport-imports.api.ts:importGroup",
+    "frontend:frontend/features/passports/api/passports.api.ts:previewPassportDocuments": "frontend:frontend/features/passports/api/passport-imports.api.ts:previewPassportDocuments",
+    "frontend:frontend/features/passports/api/passports.api.ts:savePassportDocuments": "frontend:frontend/features/passports/api/passport-imports.api.ts:savePassportDocuments",
+    "frontend:frontend/features/passports/api/passports.api.ts:savePassportDocumentsInChunks": "frontend:frontend/features/passports/api/passport-imports.api.ts:savePassportDocumentsInChunks",
+    "frontend:frontend/features/passports/api/passports.api.ts:exportSelectedPassports": "frontend:frontend/features/passports/api/passport-selection-exports.api.ts:exportSelectedPassports",
+    "frontend:frontend/features/passports/api/passports.api.ts:exportSelectedGroupImages": "frontend:frontend/features/passports/api/passport-selection-exports.api.ts:exportSelectedGroupImages",
+    "frontend:frontend/features/passports/api/passports.api.ts:bulkDocumentFollowUp": "frontend:frontend/features/passports/api/passport-records.api.ts:bulkDocumentFollowUp",
+    "frontend:frontend/features/passports/api/passports.api.ts:bulkDelete": "frontend:frontend/features/passports/api/passport-records.api.ts:bulkDelete",
+    "frontend:frontend/features/passports/api/passports.api.ts:bulkStaffApprove": "frontend:frontend/features/passports/api/passport-records.api.ts:bulkStaffApprove",
+    "frontend:frontend/features/passports/api/passports.api.ts:getSelectedGroupsExportFields": "frontend:frontend/features/passports/api/passport-selection-exports.api.ts:getSelectedGroupsExportFields",
+    "frontend:frontend/features/passports/api/passports.api.ts:exportSelectedGroups": "frontend:frontend/features/passports/api/passport-selection-exports.api.ts:exportSelectedGroups",
+    "route:backend/app/presentation/api/v1/routes/gc_app.py:list_gc_agencies:GET:/agencies": "route:backend/app/presentation/api/v1/routes/gc_app_group_directory.py:list_gc_agencies:GET:/agencies",
+    "route:backend/app/presentation/api/v1/routes/gc_app.py:search_gc_groups:GET:/groups": "route:backend/app/presentation/api/v1/routes/gc_app_group_directory.py:search_gc_groups:GET:/groups",
+    "route:backend/app/presentation/api/v1/routes/gc_app.py:get_gc_group_access:GET:/groups/{group_id}": "route:backend/app/presentation/api/v1/routes/gc_app_group_settings.py:get_gc_group_access:GET:/groups/{group_id}",
+    "route:backend/app/presentation/api/v1/routes/gc_app.py:configure_gc_group_access:PUT:/groups/{group_id}": "route:backend/app/presentation/api/v1/routes/gc_app_group_settings.py:configure_gc_group_access:PUT:/groups/{group_id}",
+    "route:backend/app/presentation/api/v1/routes/gc_app.py:configure_gc_group_my_photos_feature:PUT:/groups/{group_id}/features/my-photos": "route:backend/app/presentation/api/v1/routes/gc_app_group_settings.py:configure_gc_group_my_photos_feature:PUT:/groups/{group_id}/features/my-photos",
+    "route:backend/app/presentation/api/v1/routes/gc_app.py:refresh_mobile_passenger_identities:POST:/groups/{group_id}/passenger-identities/reconcile": "route:backend/app/presentation/api/v1/routes/gc_app_group_settings.py:refresh_mobile_passenger_identities:POST:/groups/{group_id}/passenger-identities/reconcile",
+    "route:backend/app/presentation/api/v1/routes/gc_app.py:list_client_organizations:GET:/client-organizations": "route:backend/app/presentation/api/v1/routes/gc_app_organizations.py:list_client_organizations:GET:/client-organizations",
+    "route:backend/app/presentation/api/v1/routes/gc_app.py:search_client_organizations:GET:/client-organizations/search": "route:backend/app/presentation/api/v1/routes/gc_app_organizations.py:search_client_organizations:GET:/client-organizations/search",
+    "route:backend/app/presentation/api/v1/routes/gc_app.py:create_client_organization:POST:/client-organizations": "route:backend/app/presentation/api/v1/routes/gc_app_organizations.py:create_client_organization:POST:/client-organizations",
+    "route:backend/app/presentation/api/v1/routes/gc_app.py:delete_client_organization:DELETE:/client-organizations/{organization_id}": "route:backend/app/presentation/api/v1/routes/gc_app_organizations.py:delete_client_organization:DELETE:/client-organizations/{organization_id}",
+    "route:backend/app/presentation/api/v1/routes/gc_app.py:list_client_managers:GET:/client-managers": "route:backend/app/presentation/api/v1/routes/gc_app_manager_directory.py:list_client_managers:GET:/client-managers",
+    "route:backend/app/presentation/api/v1/routes/gc_app.py:list_client_manager_sessions:GET:/client-managers/{profile_id}/sessions": "route:backend/app/presentation/api/v1/routes/gc_app_manager_directory.py:list_client_manager_sessions:GET:/client-managers/{profile_id}/sessions",
+    "route:backend/app/presentation/api/v1/routes/gc_app.py:list_client_manager_audit:GET:/client-managers/{profile_id}/audit": "route:backend/app/presentation/api/v1/routes/gc_app_manager_directory.py:list_client_manager_audit:GET:/client-managers/{profile_id}/audit",
+    "route:backend/app/presentation/api/v1/routes/gc_app.py:create_client_manager:POST:/client-managers": "route:backend/app/presentation/api/v1/routes/gc_app_manager_creation.py:create_client_manager:POST:/client-managers",
+    "route:backend/app/presentation/api/v1/routes/gc_app.py:update_client_manager:PATCH:/client-managers/{profile_id}": "route:backend/app/presentation/api/v1/routes/gc_app_manager_profile.py:update_client_manager:PATCH:/client-managers/{profile_id}",
+    "route:backend/app/presentation/api/v1/routes/gc_app.py:set_client_manager_status:PATCH:/client-managers/{profile_id}/status": "route:backend/app/presentation/api/v1/routes/gc_app_manager_profile.py:set_client_manager_status:PATCH:/client-managers/{profile_id}/status",
+    "route:backend/app/presentation/api/v1/routes/gc_app.py:force_client_manager_password_change:PATCH:/client-managers/{profile_id}/force-password-change": "route:backend/app/presentation/api/v1/routes/gc_app_manager_profile.py:force_client_manager_password_change:PATCH:/client-managers/{profile_id}/force-password-change",
+    "route:backend/app/presentation/api/v1/routes/gc_app.py:delete_client_manager:DELETE:/client-managers/{profile_id}": "route:backend/app/presentation/api/v1/routes/gc_app_manager_profile.py:delete_client_manager:DELETE:/client-managers/{profile_id}",
+    "route:backend/app/presentation/api/v1/routes/gc_app.py:reset_client_manager_password:POST:/client-managers/{profile_id}/reset-password": "route:backend/app/presentation/api/v1/routes/gc_app_manager_access.py:reset_client_manager_password:POST:/client-managers/{profile_id}/reset-password",
+    "route:backend/app/presentation/api/v1/routes/gc_app.py:replace_client_manager_groups:PUT:/client-managers/{profile_id}/groups": "route:backend/app/presentation/api/v1/routes/gc_app_manager_access.py:replace_client_manager_groups:PUT:/client-managers/{profile_id}/groups",
+    "route:backend/app/presentation/api/v1/routes/gc_app.py:revoke_client_manager_sessions:POST:/client-managers/{profile_id}/revoke-sessions": "route:backend/app/presentation/api/v1/routes/gc_app_manager_access.py:revoke_client_manager_sessions:POST:/client-managers/{profile_id}/revoke-sessions",
+    "route:backend/app/presentation/api/v1/routes/gc_app_content.py:preview_itinerary:GET:/groups/{group_id}/itineraries/preview": "route:backend/app/presentation/api/v1/routes/gc_app_itineraries.py:preview_itinerary:GET:/groups/{group_id}/itineraries/preview",
+    "route:backend/app/presentation/api/v1/routes/gc_app_content.py:create_itinerary_draft:POST:/groups/{group_id}/itineraries/drafts": "route:backend/app/presentation/api/v1/routes/gc_app_itineraries.py:create_itinerary_draft:POST:/groups/{group_id}/itineraries/drafts",
+    "route:backend/app/presentation/api/v1/routes/gc_app_content.py:publish_itinerary:POST:/groups/{group_id}/itineraries/{version_id}/publish": "route:backend/app/presentation/api/v1/routes/gc_app_itineraries.py:publish_itinerary:POST:/groups/{group_id}/itineraries/{version_id}/publish",
+    "route:backend/app/presentation/api/v1/routes/gc_app_content.py:unpublish_itinerary:POST:/groups/{group_id}/itineraries/{version_id}/unpublish": "route:backend/app/presentation/api/v1/routes/gc_app_itineraries.py:unpublish_itinerary:POST:/groups/{group_id}/itineraries/{version_id}/unpublish",
+    "route:backend/app/presentation/api/v1/routes/gc_app_content.py:list_common_documents:GET:/groups/{group_id}/common-documents": "route:backend/app/presentation/api/v1/routes/gc_app_common_documents.py:list_common_documents:GET:/groups/{group_id}/common-documents",
+    "route:backend/app/presentation/api/v1/routes/gc_app_content.py:upload_common_document:POST:/groups/{group_id}/common-documents": "route:backend/app/presentation/api/v1/routes/gc_app_common_documents.py:upload_common_document:POST:/groups/{group_id}/common-documents",
+    "route:backend/app/presentation/api/v1/routes/gc_app_content.py:reorder_common_documents:PUT:/groups/{group_id}/common-documents/reorder": "route:backend/app/presentation/api/v1/routes/gc_app_common_documents.py:reorder_common_documents:PUT:/groups/{group_id}/common-documents/reorder",
+    "route:backend/app/presentation/api/v1/routes/gc_app_content.py:replace_common_document:POST:/groups/{group_id}/common-documents/{document_id}/replace": "route:backend/app/presentation/api/v1/routes/gc_app_common_documents.py:replace_common_document:POST:/groups/{group_id}/common-documents/{document_id}/replace",
+    "route:backend/app/presentation/api/v1/routes/gc_app_content.py:publish_common_document:POST:/groups/{group_id}/common-documents/{document_id}/publish": "route:backend/app/presentation/api/v1/routes/gc_app_common_publication.py:publish_common_document:POST:/groups/{group_id}/common-documents/{document_id}/publish",
+    "route:backend/app/presentation/api/v1/routes/gc_app_content.py:unpublish_common_document:POST:/groups/{group_id}/common-documents/{document_id}/unpublish": "route:backend/app/presentation/api/v1/routes/gc_app_common_publication.py:unpublish_common_document:POST:/groups/{group_id}/common-documents/{document_id}/unpublish",
+    "route:backend/app/presentation/api/v1/routes/gc_app_content.py:delete_common_document:DELETE:/groups/{group_id}/common-documents/{document_id}": "route:backend/app/presentation/api/v1/routes/gc_app_common_publication.py:delete_common_document:DELETE:/groups/{group_id}/common-documents/{document_id}",
+    "route:backend/app/presentation/api/v1/routes/gc_app_content.py:preview_common_document_content:GET:/groups/{group_id}/common-documents/{document_id}/content": "route:backend/app/presentation/api/v1/routes/gc_app_common_preview.py:preview_common_document_content:GET:/groups/{group_id}/common-documents/{document_id}/content",
+    "route:backend/app/presentation/api/v1/routes/gc_app_content.py:list_announcements:GET:/groups/{group_id}/announcements": "route:backend/app/presentation/api/v1/routes/gc_app_announcements.py:list_announcements:GET:/groups/{group_id}/announcements",
+    "route:backend/app/presentation/api/v1/routes/gc_app_content.py:page_announcements:GET:/groups/{group_id}/announcements/page": "route:backend/app/presentation/api/v1/routes/gc_app_announcements.py:page_announcements:GET:/groups/{group_id}/announcements/page",
+    "route:backend/app/presentation/api/v1/routes/gc_app_content.py:get_announcement_notification_status:GET:/groups/{group_id}/announcements/{announcement_id}/notification-status": "route:backend/app/presentation/api/v1/routes/gc_app_announcements.py:get_announcement_notification_status:GET:/groups/{group_id}/announcements/{announcement_id}/notification-status",
+    "route:backend/app/presentation/api/v1/routes/gc_app_content.py:create_announcement:POST:/groups/{group_id}/announcements": "route:backend/app/presentation/api/v1/routes/gc_app_announcements.py:create_announcement:POST:/groups/{group_id}/announcements",
+    "route:backend/app/presentation/api/v1/routes/gc_app_content.py:update_announcement:PUT:/groups/{group_id}/announcements/{announcement_id}": "route:backend/app/presentation/api/v1/routes/gc_app_announcements.py:update_announcement:PUT:/groups/{group_id}/announcements/{announcement_id}",
+    "route:backend/app/presentation/api/v1/routes/gc_app_content.py:publish_announcement:POST:/groups/{group_id}/announcements/{announcement_id}/publish": "route:backend/app/presentation/api/v1/routes/gc_app_announcement_publication.py:publish_announcement:POST:/groups/{group_id}/announcements/{announcement_id}/publish",
+    "route:backend/app/presentation/api/v1/routes/gc_app_content.py:unpublish_announcement:POST:/groups/{group_id}/announcements/{announcement_id}/unpublish": "route:backend/app/presentation/api/v1/routes/gc_app_announcement_publication.py:unpublish_announcement:POST:/groups/{group_id}/announcements/{announcement_id}/unpublish",
+    "route:backend/app/presentation/api/v1/routes/gc_app_content.py:delete_announcement:DELETE:/groups/{group_id}/announcements/{announcement_id}": "route:backend/app/presentation/api/v1/routes/gc_app_announcement_publication.py:delete_announcement:DELETE:/groups/{group_id}/announcements/{announcement_id}",
+    "route:backend/app/presentation/api/v1/routes/gc_app_content.py:list_group_gc_audit:GET:/groups/{group_id}/audit": "route:backend/app/presentation/api/v1/routes/gc_app_content_audit.py:list_group_gc_audit:GET:/groups/{group_id}/audit"
+  },
+  "all_moved_and_surviving_permissions_phases_adapter_fields_preserved": true,
+  "retired_unconsumed_frontend_method_rows": [
+    {
+      "surface": {
+        "id": "frontend:frontend/features/mcp/api/mcp.api.ts:authorize",
+        "kind": "frontend_callable",
+        "source": "frontend/features/mcp/api/mcp.api.ts",
+        "handler": "authorize"
+      },
+      "workflow": "mcp.connection-management.authorize",
+      "disposition": "implement",
+      "phase": 2,
+      "rationale": "MCP authorization/connection status or superadmin browser controls. Enforce the distinct transport boundary; tools cannot change their own authority.",
+      "adapter_requirements": [
+        "active_superadmin",
+        "oauth_pkce_resource_binding",
+        "no_self_authority_escalation",
+        "revocation_and_security_version_checks",
+        "bounded_secret_free_audit"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "frontend/features/mcp/api/mcp.api.ts:authorize",
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/mcp/api/mcp.api.ts:revoke",
+        "kind": "frontend_callable",
+        "source": "frontend/features/mcp/api/mcp.api.ts",
+        "handler": "revoke"
+      },
+      "workflow": "mcp.connection-management.revoke",
+      "disposition": "implement",
+      "phase": 2,
+      "rationale": "MCP authorization/connection status or superadmin browser controls. Enforce the distinct transport boundary; tools cannot change their own authority.",
+      "adapter_requirements": [
+        "active_superadmin",
+        "oauth_pkce_resource_binding",
+        "no_self_authority_escalation",
+        "revocation_and_security_version_checks",
+        "bounded_secret_free_audit"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "frontend/features/mcp/api/mcp.api.ts:revoke",
+        "evidence": []
+      }
+    }
+  ],
+  "replaced_composition_only_facade_fingerprints": [
+    {
+      "surface": {
+        "id": "frontend_api:frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "contract_sha256": "0fdf0d1b8bfb649fd257e8057dd217db24c777ab47bb5cf1f0208f98eb4a6bd8"
+      },
+      "workflow": "transport.frontend.features.gc-app.api.gc-app-admin.api.ts",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Routing or frontend transport facade implementing the individually classified business operations; fingerprint forces review of prefix/registration/alias and nonstandard action changes.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend_api:frontend/features/passports/api/passports.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "contract_sha256": "55dcdd062a023c61cb4a3635cd99a60764c19a881de6ac0eacc242067d780364"
+      },
+      "workflow": "transport.frontend.features.passports.api.passports.api.ts",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Routing or frontend transport facade implementing the individually classified business operations; fingerprint forces review of prefix/registration/alias and nonstandard action changes.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    }
+  ],
+  "other_proved_closed_symbols_covered_by_exact_contract_fingerprints": [
+    "mcpRequestApi.update",
+    "API_ENDPOINTS.mcp.authorize",
+    "API_ENDPOINTS.mcp.revoke"
+  ],
+  "retirement_evidence": "mcp-legacy-retirement-integration.json",
+  "unchanged_current_mcp_public_methods": 18,
+  "unchanged_gc_public_methods": 36,
+  "unchanged_passport_public_methods": 43,
+  "changed_existing_fingerprints": [
+    {
+      "before": {
+        "id": "endpoint_registry:frontend/lib/api/endpoints.ts",
+        "kind": "frontend_endpoint_registry",
+        "source": "frontend/lib/api/endpoints.ts",
+        "contract_sha256": "8275d6762f2e00750e2ae20d94c1d7e82bc7991ee3b657277db1e3bea261ec41"
+      },
+      "after": {
+        "id": "endpoint_registry:frontend/lib/api/endpoints.ts",
+        "kind": "frontend_endpoint_registry",
+        "source": "frontend/lib/api/endpoints.ts",
+        "contract_sha256": "8c7f885dd7a58641e76dd856e87dcfdf0a72430f0d55fe897667dd8e7606a366"
+      }
+    },
+    {
+      "before": {
+        "id": "frontend_api:frontend/features/mcp/api/mcp-request.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/mcp/api/mcp-request.api.ts",
+        "contract_sha256": "2a2414baf1e9b7b8e679aaf55795519b00f36cf5e7e269361beae90c545e5c14"
+      },
+      "after": {
+        "id": "frontend_api:frontend/features/mcp/api/mcp-request.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/mcp/api/mcp-request.api.ts",
+        "contract_sha256": "cfbbdc9ff6b90f3595b542efb23ea3f9efcd3da5bbc280a661c4d1a3e0f1edfc"
+      }
+    },
+    {
+      "before": {
+        "id": "frontend_api:frontend/features/mcp/api/mcp.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/mcp/api/mcp.api.ts",
+        "contract_sha256": "5033b9d7f52836b50f46347bc82d6aca568b9de5bd707973435c28a709004732"
+      },
+      "after": {
+        "id": "frontend_api:frontend/features/mcp/api/mcp.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/mcp/api/mcp.api.ts",
+        "contract_sha256": "8e315b1c563a942d4c16bed5c555980bb763738ca7d089dc2b2b1585a4acbcb5"
+      }
+    },
+    {
+      "before": {
+        "id": "frontend_api:frontend/lib/api/endpoints.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/lib/api/endpoints.ts",
+        "contract_sha256": "8275d6762f2e00750e2ae20d94c1d7e82bc7991ee3b657277db1e3bea261ec41"
+      },
+      "after": {
+        "id": "frontend_api:frontend/lib/api/endpoints.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/lib/api/endpoints.ts",
+        "contract_sha256": "8c7f885dd7a58641e76dd856e87dcfdf0a72430f0d55fe897667dd8e7606a366"
+      }
+    },
+    {
+      "before": {
+        "id": "registration:backend/app/presentation/api/v1/routes/gc_app.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/gc_app.py",
+        "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+      },
+      "after": {
+        "id": "registration:backend/app/presentation/api/v1/routes/gc_app.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/gc_app.py",
+        "contract_sha256": "d49b9fbac1e4c375c1f39682a1fe72eddec4e48d15a19a05fe499a01ccb684f0"
+      }
+    },
+    {
+      "before": {
+        "id": "registration:backend/app/presentation/api/v1/routes/gc_app_content.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/gc_app_content.py",
+        "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+      },
+      "after": {
+        "id": "registration:backend/app/presentation/api/v1/routes/gc_app_content.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/gc_app_content.py",
+        "contract_sha256": "8e26d802538131499e5e389a6ef4e62d282a14454805e47db332f75eb6472a6c"
+      }
+    }
+  ],
+  "new_internal_structural_rows": [
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-account-mappers.ts:fullControlBody",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-account-mappers.ts",
+        "handler": "fullControlBody"
+      },
+      "workflow": "internal.frontend.features.gc-app.api.gc-app-account-mappers.ts.fullControlBody",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Reviewed private mapper, bounded fan-out or actor-bound export substep relocated from an existing classified facade. It adds no remotely callable business capability, grants no authority, and must remain behind the existing authorized business adapters. Backend endpoints and their permissions remain authoritative.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-account-mappers.ts:normalizeClientManager",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-account-mappers.ts",
+        "handler": "normalizeClientManager"
+      },
+      "workflow": "internal.frontend.features.gc-app.api.gc-app-account-mappers.ts.normalizeClientManager",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Reviewed private mapper, bounded fan-out or actor-bound export substep relocated from an existing classified facade. It adds no remotely callable business capability, grants no authority, and must remain behind the existing authorized business adapters. Backend endpoints and their permissions remain authoritative.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-account-mappers.ts:normalizeControl",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-account-mappers.ts",
+        "handler": "normalizeControl"
+      },
+      "workflow": "internal.frontend.features.gc-app.api.gc-app-account-mappers.ts.normalizeControl",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Reviewed private mapper, bounded fan-out or actor-bound export substep relocated from an existing classified facade. It adds no remotely callable business capability, grants no authority, and must remain behind the existing authorized business adapters. Backend endpoints and their permissions remain authoritative.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-account-mappers.ts:normalizeGroup",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-account-mappers.ts",
+        "handler": "normalizeGroup"
+      },
+      "workflow": "internal.frontend.features.gc-app.api.gc-app-account-mappers.ts.normalizeGroup",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Reviewed private mapper, bounded fan-out or actor-bound export substep relocated from an existing classified facade. It adds no remotely callable business capability, grants no authority, and must remain behind the existing authorized business adapters. Backend endpoints and their permissions remain authoritative.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-content-mappers.ts:itineraryStartsAt",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-content-mappers.ts",
+        "handler": "itineraryStartsAt"
+      },
+      "workflow": "internal.frontend.features.gc-app.api.gc-app-content-mappers.ts.itineraryStartsAt",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Reviewed private mapper, bounded fan-out or actor-bound export substep relocated from an existing classified facade. It adds no remotely callable business capability, grants no authority, and must remain behind the existing authorized business adapters. Backend endpoints and their permissions remain authoritative.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-content-mappers.ts:normalizeAnnouncement",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-content-mappers.ts",
+        "handler": "normalizeAnnouncement"
+      },
+      "workflow": "internal.frontend.features.gc-app.api.gc-app-content-mappers.ts.normalizeAnnouncement",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Reviewed private mapper, bounded fan-out or actor-bound export substep relocated from an existing classified facade. It adds no remotely callable business capability, grants no authority, and must remain behind the existing authorized business adapters. Backend endpoints and their permissions remain authoritative.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-content-mappers.ts:normalizeDocument",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-content-mappers.ts",
+        "handler": "normalizeDocument"
+      },
+      "workflow": "internal.frontend.features.gc-app.api.gc-app-content-mappers.ts.normalizeDocument",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Reviewed private mapper, bounded fan-out or actor-bound export substep relocated from an existing classified facade. It adds no remotely callable business capability, grants no authority, and must remain behind the existing authorized business adapters. Backend endpoints and their permissions remain authoritative.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-content-mappers.ts:normalizeItinerary",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-content-mappers.ts",
+        "handler": "normalizeItinerary"
+      },
+      "workflow": "internal.frontend.features.gc-app.api.gc-app-content-mappers.ts.normalizeItinerary",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Reviewed private mapper, bounded fan-out or actor-bound export substep relocated from an existing classified facade. It adds no remotely callable business capability, grants no authority, and must remain behind the existing authorized business adapters. Backend endpoints and their permissions remain authoritative.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-transport.ts:agencyParams",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-transport.ts",
+        "handler": "agencyParams"
+      },
+      "workflow": "internal.frontend.features.gc-app.api.gc-app-transport.ts.agencyParams",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Reviewed private mapper, bounded fan-out or actor-bound export substep relocated from an existing classified facade. It adds no remotely callable business capability, grants no authority, and must remain behind the existing authorized business adapters. Backend endpoints and their permissions remain authoritative.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-transport.ts:asPage",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-transport.ts",
+        "handler": "asPage"
+      },
+      "workflow": "internal.frontend.features.gc-app.api.gc-app-transport.ts.asPage",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Reviewed private mapper, bounded fan-out or actor-bound export substep relocated from an existing classified facade. It adds no remotely callable business capability, grants no authority, and must remain behind the existing authorized business adapters. Backend endpoints and their permissions remain authoritative.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-transport.ts:mapBounded",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-transport.ts",
+        "handler": "mapBounded"
+      },
+      "workflow": "internal.frontend.features.gc-app.api.gc-app-transport.ts.mapBounded",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Reviewed private mapper, bounded fan-out or actor-bound export substep relocated from an existing classified facade. It adds no remotely callable business capability, grants no authority, and must remain behind the existing authorized business adapters. Backend endpoints and their permissions remain authoritative.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-transport.ts:toOffsetParams",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-transport.ts",
+        "handler": "toOffsetParams"
+      },
+      "workflow": "internal.frontend.features.gc-app.api.gc-app-transport.ts.toOffsetParams",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Reviewed private mapper, bounded fan-out or actor-bound export substep relocated from an existing classified facade. It adds no remotely callable business capability, grants no authority, and must remain behind the existing authorized business adapters. Backend endpoints and their permissions remain authoritative.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passport-export-download.ts:completePreparedGroupExport",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passport-export-download.ts",
+        "handler": "completePreparedGroupExport"
+      },
+      "workflow": "internal.frontend.features.passports.api.passport-export-download.ts.completePreparedGroupExport",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Reviewed private mapper, bounded fan-out or actor-bound export substep relocated from an existing classified facade. It adds no remotely callable business capability, grants no authority, and must remain behind the existing authorized business adapters. Backend endpoints and their permissions remain authoritative.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passport-export-download.ts:confirmStartedGroupExport",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passport-export-download.ts",
+        "handler": "confirmStartedGroupExport"
+      },
+      "workflow": "internal.frontend.features.passports.api.passport-export-download.ts.confirmStartedGroupExport",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Reviewed private mapper, bounded fan-out or actor-bound export substep relocated from an existing classified facade. It adds no remotely callable business capability, grants no authority, and must remain behind the existing authorized business adapters. Backend endpoints and their permissions remain authoritative.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passport-export-download.ts:passportImageDownloadFilename",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passport-export-download.ts",
+        "handler": "passportImageDownloadFilename"
+      },
+      "workflow": "internal.frontend.features.passports.api.passport-export-download.ts.passportImageDownloadFilename",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Reviewed private mapper, bounded fan-out or actor-bound export substep relocated from an existing classified facade. It adds no remotely callable business capability, grants no authority, and must remain behind the existing authorized business adapters. Backend endpoints and their permissions remain authoritative.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passport-export-download.ts:requireExportHistoryId",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passport-export-download.ts",
+        "handler": "requireExportHistoryId"
+      },
+      "workflow": "internal.frontend.features.passports.api.passport-export-download.ts.requireExportHistoryId",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Reviewed private mapper, bounded fan-out or actor-bound export substep relocated from an existing classified facade. It adds no remotely callable business capability, grants no authority, and must remain behind the existing authorized business adapters. Backend endpoints and their permissions remain authoritative.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend_api:frontend/features/gc-app/api/gc-app-announcements.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/gc-app/api/gc-app-announcements.api.ts",
+        "contract_sha256": "4d0d5ed7e7aed4e6c9bcc309e8cc7040061ad82e896df17828649c4f6105830b"
+      },
+      "workflow": "transport.frontend.features.gc-app.api.gc-app-announcements.api.ts",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Focused transport owner for the same individually classified public facade operations; exact reviewed owner mapping retains permissions, actor/revision and export-completion guards. This fingerprint replaces the old composition-only facade fingerprint and enables no tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend_api:frontend/features/gc-app/api/gc-app-audit.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/gc-app/api/gc-app-audit.api.ts",
+        "contract_sha256": "2ffd9bc269c993b01fe2d258d394be1d7dc5424036bb2549ac887140fb27fea5"
+      },
+      "workflow": "transport.frontend.features.gc-app.api.gc-app-audit.api.ts",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Focused transport owner for the same individually classified public facade operations; exact reviewed owner mapping retains permissions, actor/revision and export-completion guards. This fingerprint replaces the old composition-only facade fingerprint and enables no tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend_api:frontend/features/gc-app/api/gc-app-directory.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/gc-app/api/gc-app-directory.api.ts",
+        "contract_sha256": "4ba9ce7f17bb651183e667c6d0c3dee7c3f7384f40eb9f4661d63fafa9385e51"
+      },
+      "workflow": "transport.frontend.features.gc-app.api.gc-app-directory.api.ts",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Focused transport owner for the same individually classified public facade operations; exact reviewed owner mapping retains permissions, actor/revision and export-completion guards. This fingerprint replaces the old composition-only facade fingerprint and enables no tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend_api:frontend/features/gc-app/api/gc-app-documents.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/gc-app/api/gc-app-documents.api.ts",
+        "contract_sha256": "0d409c68f34db37e0fb0a6083e2d164af5e5f49ffae083c92a790731041ba27e"
+      },
+      "workflow": "transport.frontend.features.gc-app.api.gc-app-documents.api.ts",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Focused transport owner for the same individually classified public facade operations; exact reviewed owner mapping retains permissions, actor/revision and export-completion guards. This fingerprint replaces the old composition-only facade fingerprint and enables no tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend_api:frontend/features/gc-app/api/gc-app-groups.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/gc-app/api/gc-app-groups.api.ts",
+        "contract_sha256": "742e84370a2d4157ee6cbadfc4d37498e150747ab1a52bbf2c521dfedb7a2737"
+      },
+      "workflow": "transport.frontend.features.gc-app.api.gc-app-groups.api.ts",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Focused transport owner for the same individually classified public facade operations; exact reviewed owner mapping retains permissions, actor/revision and export-completion guards. This fingerprint replaces the old composition-only facade fingerprint and enables no tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend_api:frontend/features/gc-app/api/gc-app-itineraries.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/gc-app/api/gc-app-itineraries.api.ts",
+        "contract_sha256": "b1371566daaa921158f706b8a4eae4821bdfa896df79411e2eb70804d10bd54e"
+      },
+      "workflow": "transport.frontend.features.gc-app.api.gc-app-itineraries.api.ts",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Focused transport owner for the same individually classified public facade operations; exact reviewed owner mapping retains permissions, actor/revision and export-completion guards. This fingerprint replaces the old composition-only facade fingerprint and enables no tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend_api:frontend/features/gc-app/api/gc-app-managers.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/gc-app/api/gc-app-managers.api.ts",
+        "contract_sha256": "530eea92e22bab090fe5b3da1904cf54df26a2461a6f5972e9a13b53a59bd91f"
+      },
+      "workflow": "transport.frontend.features.gc-app.api.gc-app-managers.api.ts",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Focused transport owner for the same individually classified public facade operations; exact reviewed owner mapping retains permissions, actor/revision and export-completion guards. This fingerprint replaces the old composition-only facade fingerprint and enables no tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend_api:frontend/features/passports/api/passport-export-download.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/passports/api/passport-export-download.ts",
+        "contract_sha256": "dc8e342a9833ff763747d0db73f70a63b9a608b66d2e3b25609dcd86a10faf02"
+      },
+      "workflow": "transport.frontend.features.passports.api.passport-export-download.ts",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Focused transport owner for the same individually classified public facade operations; exact reviewed owner mapping retains permissions, actor/revision and export-completion guards. This fingerprint replaces the old composition-only facade fingerprint and enables no tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend_api:frontend/features/passports/api/passport-group-exports.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/passports/api/passport-group-exports.api.ts",
+        "contract_sha256": "b76293292523d942c23a505bba7d14db0bd793bd774067a53517428976ad09fe"
+      },
+      "workflow": "transport.frontend.features.passports.api.passport-group-exports.api.ts",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Focused transport owner for the same individually classified public facade operations; exact reviewed owner mapping retains permissions, actor/revision and export-completion guards. This fingerprint replaces the old composition-only facade fingerprint and enables no tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend_api:frontend/features/passports/api/passport-images.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/passports/api/passport-images.api.ts",
+        "contract_sha256": "1a340b447dcbdfb4b2e7b3a25570c6e8beb0173cbd6a97e454608b32646d9c3d"
+      },
+      "workflow": "transport.frontend.features.passports.api.passport-images.api.ts",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Focused transport owner for the same individually classified public facade operations; exact reviewed owner mapping retains permissions, actor/revision and export-completion guards. This fingerprint replaces the old composition-only facade fingerprint and enables no tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend_api:frontend/features/passports/api/passport-imports.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/passports/api/passport-imports.api.ts",
+        "contract_sha256": "829562dd0ad993c745e326c95607b67b54f2b84be8708b8b0ddc04d026b1cfb6"
+      },
+      "workflow": "transport.frontend.features.passports.api.passport-imports.api.ts",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Focused transport owner for the same individually classified public facade operations; exact reviewed owner mapping retains permissions, actor/revision and export-completion guards. This fingerprint replaces the old composition-only facade fingerprint and enables no tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend_api:frontend/features/passports/api/passport-records.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/passports/api/passport-records.api.ts",
+        "contract_sha256": "976bd9d42cd455d2bdb97fe245f481a6f42a46918bddd66b89dfd47dffb03262"
+      },
+      "workflow": "transport.frontend.features.passports.api.passport-records.api.ts",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Focused transport owner for the same individually classified public facade operations; exact reviewed owner mapping retains permissions, actor/revision and export-completion guards. This fingerprint replaces the old composition-only facade fingerprint and enables no tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend_api:frontend/features/passports/api/passport-selection-exports.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/passports/api/passport-selection-exports.api.ts",
+        "contract_sha256": "f5dbfe3c2ca02b1a1e460f40d257fefb5fb8f8b812c0eecfc8176076cfe5f52a"
+      },
+      "workflow": "transport.frontend.features.passports.api.passport-selection-exports.api.ts",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Focused transport owner for the same individually classified public facade operations; exact reviewed owner mapping retains permissions, actor/revision and export-completion guards. This fingerprint replaces the old composition-only facade fingerprint and enables no tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend_api:frontend/features/passports/api/passport-visa-ai.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/passports/api/passport-visa-ai.api.ts",
+        "contract_sha256": "4aabe5f89d6f57310645d2f400631b5964a6e2035fdd6975bdda85020616e9c2"
+      },
+      "workflow": "transport.frontend.features.passports.api.passport-visa-ai.api.ts",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Focused transport owner for the same individually classified public facade operations; exact reviewed owner mapping retains permissions, actor/revision and export-completion guards. This fingerprint replaces the old composition-only facade fingerprint and enables no tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/gc_app_announcement_publication.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/gc_app_announcement_publication.py",
+        "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+      },
+      "workflow": "transport.backend.app.presentation.api.v1.routes.gc_app_announcement_publication.py",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Resource router composed by the existing GC facade. All42 previous HTTP names, paths, methods, signatures, authorization/CSRF declarations and reviewed API snapshots are preserved; source ownership changed and no endpoint or tool authority was added.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/gc_app_announcements.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/gc_app_announcements.py",
+        "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+      },
+      "workflow": "transport.backend.app.presentation.api.v1.routes.gc_app_announcements.py",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Resource router composed by the existing GC facade. All42 previous HTTP names, paths, methods, signatures, authorization/CSRF declarations and reviewed API snapshots are preserved; source ownership changed and no endpoint or tool authority was added.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/gc_app_common_documents.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/gc_app_common_documents.py",
+        "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+      },
+      "workflow": "transport.backend.app.presentation.api.v1.routes.gc_app_common_documents.py",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Resource router composed by the existing GC facade. All42 previous HTTP names, paths, methods, signatures, authorization/CSRF declarations and reviewed API snapshots are preserved; source ownership changed and no endpoint or tool authority was added.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/gc_app_common_preview.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/gc_app_common_preview.py",
+        "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+      },
+      "workflow": "transport.backend.app.presentation.api.v1.routes.gc_app_common_preview.py",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Resource router composed by the existing GC facade. All42 previous HTTP names, paths, methods, signatures, authorization/CSRF declarations and reviewed API snapshots are preserved; source ownership changed and no endpoint or tool authority was added.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/gc_app_common_publication.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/gc_app_common_publication.py",
+        "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+      },
+      "workflow": "transport.backend.app.presentation.api.v1.routes.gc_app_common_publication.py",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Resource router composed by the existing GC facade. All42 previous HTTP names, paths, methods, signatures, authorization/CSRF declarations and reviewed API snapshots are preserved; source ownership changed and no endpoint or tool authority was added.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/gc_app_content_audit.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/gc_app_content_audit.py",
+        "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+      },
+      "workflow": "transport.backend.app.presentation.api.v1.routes.gc_app_content_audit.py",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Resource router composed by the existing GC facade. All42 previous HTTP names, paths, methods, signatures, authorization/CSRF declarations and reviewed API snapshots are preserved; source ownership changed and no endpoint or tool authority was added.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/gc_app_group_directory.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/gc_app_group_directory.py",
+        "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+      },
+      "workflow": "transport.backend.app.presentation.api.v1.routes.gc_app_group_directory.py",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Resource router composed by the existing GC facade. All42 previous HTTP names, paths, methods, signatures, authorization/CSRF declarations and reviewed API snapshots are preserved; source ownership changed and no endpoint or tool authority was added.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/gc_app_group_settings.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/gc_app_group_settings.py",
+        "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+      },
+      "workflow": "transport.backend.app.presentation.api.v1.routes.gc_app_group_settings.py",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Resource router composed by the existing GC facade. All42 previous HTTP names, paths, methods, signatures, authorization/CSRF declarations and reviewed API snapshots are preserved; source ownership changed and no endpoint or tool authority was added.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/gc_app_itineraries.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/gc_app_itineraries.py",
+        "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+      },
+      "workflow": "transport.backend.app.presentation.api.v1.routes.gc_app_itineraries.py",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Resource router composed by the existing GC facade. All42 previous HTTP names, paths, methods, signatures, authorization/CSRF declarations and reviewed API snapshots are preserved; source ownership changed and no endpoint or tool authority was added.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/gc_app_manager_access.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/gc_app_manager_access.py",
+        "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+      },
+      "workflow": "transport.backend.app.presentation.api.v1.routes.gc_app_manager_access.py",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Resource router composed by the existing GC facade. All42 previous HTTP names, paths, methods, signatures, authorization/CSRF declarations and reviewed API snapshots are preserved; source ownership changed and no endpoint or tool authority was added.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/gc_app_manager_creation.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/gc_app_manager_creation.py",
+        "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+      },
+      "workflow": "transport.backend.app.presentation.api.v1.routes.gc_app_manager_creation.py",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Resource router composed by the existing GC facade. All42 previous HTTP names, paths, methods, signatures, authorization/CSRF declarations and reviewed API snapshots are preserved; source ownership changed and no endpoint or tool authority was added.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/gc_app_manager_directory.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/gc_app_manager_directory.py",
+        "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+      },
+      "workflow": "transport.backend.app.presentation.api.v1.routes.gc_app_manager_directory.py",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Resource router composed by the existing GC facade. All42 previous HTTP names, paths, methods, signatures, authorization/CSRF declarations and reviewed API snapshots are preserved; source ownership changed and no endpoint or tool authority was added.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/gc_app_manager_profile.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/gc_app_manager_profile.py",
+        "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+      },
+      "workflow": "transport.backend.app.presentation.api.v1.routes.gc_app_manager_profile.py",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Resource router composed by the existing GC facade. All42 previous HTTP names, paths, methods, signatures, authorization/CSRF declarations and reviewed API snapshots are preserved; source ownership changed and no endpoint or tool authority was added.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/gc_app_organizations.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/gc_app_organizations.py",
+        "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+      },
+      "workflow": "transport.backend.app.presentation.api.v1.routes.gc_app_organizations.py",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Resource router composed by the existing GC facade. All42 previous HTTP names, paths, methods, signatures, authorization/CSRF declarations and reviewed API snapshots are preserved; source ownership changed and no endpoint or tool authority was added.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    }
+  ],
+  "source_review_fences": {
+    "frontend/features/gc-app/api/gc-app-admin.api.ts": "a4d55abbfe19c27d2f5f992525572bb2bb62461c276a6753f28f9ba39b12b69e",
+    "frontend/features/gc-app/api/gc-app-wire.types.ts": "89fed20ed03858ad5840f3a8fdb11b65f43bae67c00dd98bf12ac37c845c874f",
+    "frontend/features/gc-app/api/gc-app-directory.api.ts": "4ba9ce7f17bb651183e667c6d0c3dee7c3f7384f40eb9f4661d63fafa9385e51",
+    "frontend/features/gc-app/api/gc-app-managers.api.ts": "530eea92e22bab090fe5b3da1904cf54df26a2461a6f5972e9a13b53a59bd91f",
+    "frontend/features/gc-app/api/gc-app-groups.api.ts": "742e84370a2d4157ee6cbadfc4d37498e150747ab1a52bbf2c521dfedb7a2737",
+    "frontend/features/gc-app/api/gc-app-documents.api.ts": "0d409c68f34db37e0fb0a6083e2d164af5e5f49ffae083c92a790731041ba27e",
+    "frontend/features/gc-app/api/gc-app-itineraries.api.ts": "b1371566daaa921158f706b8a4eae4821bdfa896df79411e2eb70804d10bd54e",
+    "frontend/features/gc-app/api/gc-app-announcements.api.ts": "4d0d5ed7e7aed4e6c9bcc309e8cc7040061ad82e896df17828649c4f6105830b",
+    "frontend/features/gc-app/api/gc-app-audit.api.ts": "2ffd9bc269c993b01fe2d258d394be1d7dc5424036bb2549ac887140fb27fea5",
+    "frontend/features/gc-app/api/gc-app-transport.ts": "e6ee9a0b8b2d483a6dde636e1883734930f1dd6d345164b65ff1c40522d07681",
+    "frontend/features/gc-app/api/gc-app-account-mappers.ts": "0b5446f5f836b63582f7e24a3181da62efaec9415cc5a44d1b0a9f1c60e6f48b",
+    "frontend/features/gc-app/api/gc-app-content-mappers.ts": "6e00cbcd498b7402d1908a8f67f85fd5f3292cbf3dcd73ec07f4b008110b045f",
+    "frontend/features/gc-app/hooks/use-gc-app-admin.ts": "6b3c0cf720fc93f24a3044b48152a05d8d26696739451c64194955bdb6740cf2",
+    "frontend/features/gc-app/hooks/gc-app-query-config.ts": "8769b0ac107d33a4cac4067dfaaade631fe63902d0983c5f835f62c2f9796ec7",
+    "frontend/features/gc-app/hooks/use-gc-client-directory.ts": "f4a43646fe2f9cb13ef6c8098d0e580005617eadb00c3d0f11fba19b72fdc3c8",
+    "frontend/features/gc-app/hooks/use-gc-client-managers.ts": "076f3bd971bafbf4adf5acdcaa5c39362382b433fd052f7d30a96bbd5a000378",
+    "frontend/features/gc-app/hooks/use-gc-group-queries.ts": "bdcadd50ce40a5484ff7eb254563d91c8baf059432cb126d76806723d408f1c8",
+    "frontend/features/gc-app/hooks/use-gc-group-mutations.ts": "d7d6510746d5cba13b3dab3a51cd7e76428308ca5be862f78b1c57f437d93ffc",
+    "frontend/features/gc-app/components/app-controls-page.tsx": "eb162b026387f023e5e4b3ea20cdfbeeea2b440a793ad4b24bf0e3263a0fe027",
+    "frontend/features/gc-app/components/add-gc-app-group-dialog.tsx": "a41d1d91136683a6bc1219b304df924c0b3cd929588a52f6a311e8e9f3ed6910",
+    "frontend/features/gc-app/hooks/use-gc-group-picker.ts": "f1ac8115c202c323cecef825c68990c0299ecc63c4b545e7c492748a9add6cc2",
+    "frontend/features/gc-app/components/common-documents-panel.tsx": "197d601a609524e90b2ded0201ea96d7ffa895ddcb584caff7864d5f2a33c076",
+    "frontend/features/gc-app/components/common-document-upload-form.tsx": "822f50bb9c633223e09fc1decc3272357b914304e22e145758009faa459ab909",
+    "frontend/features/gc-app/components/common-document-rows.tsx": "f5f5f41a7e062d8b7dfa28773de5ac087e6bd74c9a2e222c25051f32c49ad6cd",
+    "frontend/features/gc-app/components/client-manager-details-dialog.tsx": "5c0aff4e1445c1f8aba6ab32a379d248fcd308ebff94d36f3b4b9c2a2e905ce5",
+    "frontend/features/gc-app/components/client-manager-details.types.ts": "8b7f9aa264a1427a6d04990cf9ef01f72ef65273def16a76e9abe3d326c721f1",
+    "frontend/features/gc-app/hooks/use-client-manager-details.ts": "5206a2147bddc54cce283bd4ae8b677f6e4655006d8a1544745dbda44d80cf17",
+    "frontend/features/passports/api/passport-export-download.ts": "dc8e342a9833ff763747d0db73f70a63b9a608b66d2e3b25609dcd86a10faf02",
+    "frontend/features/passports/api/passport-exports.types.ts": "0883441d66fa411e0b27a1067914dcaa54a04e1dda657f38d5596bb694611f77",
+    "frontend/features/passports/api/passport-group-exports.api.ts": "b76293292523d942c23a505bba7d14db0bd793bd774067a53517428976ad09fe",
+    "frontend/features/passports/api/passport-images.api.ts": "1a340b447dcbdfb4b2e7b3a25570c6e8beb0173cbd6a97e454608b32646d9c3d",
+    "frontend/features/passports/api/passport-images.types.ts": "ea0b9e21602afe2f78040488af5c8d23226f172e45e8ab80d9f09681bac57ad1",
+    "frontend/features/passports/api/passport-imports.api.ts": "829562dd0ad993c745e326c95607b67b54f2b84be8708b8b0ddc04d026b1cfb6",
+    "frontend/features/passports/api/passport-imports.types.ts": "7b972ef280a38fb4adecfdc65af6ee4de3dac6360dded2443893ad618eb9236a",
+    "frontend/features/passports/api/passport-records.api.ts": "976bd9d42cd455d2bdb97fe245f481a6f42a46918bddd66b89dfd47dffb03262",
+    "frontend/features/passports/api/passport-records.types.ts": "dc612b6a00f3489c8579db9a715eee7f75e628617664fab334fc3762f16bd544",
+    "frontend/features/passports/api/passport-selection-exports.api.ts": "f5dbfe3c2ca02b1a1e460f40d257fefb5fb8f8b812c0eecfc8176076cfe5f52a",
+    "frontend/features/passports/api/passport-visa-ai.api.ts": "4aabe5f89d6f57310645d2f400631b5964a6e2035fdd6975bdda85020616e9c2",
+    "frontend/features/passports/api/passports.api.ts": "4823f01ed23ccf13ae7a788e0870a85a93dfba32274de0ead2c68cfec7c82429",
+    "frontend/features/upload/components/visa-selfie-quality.ts": "2e7b1a8dbf1c9eb6d0acb38a98f78be6cee201d6a7223bc38bafc38cbe76e95e",
+    "frontend/features/upload/services/camera-pixel-math.ts": "d9524868cf9153e96ed241a14f57567606c8770b60658645dda6cc5a56314867",
+    "frontend/features/upload/services/passport-correction-content.ts": "8fc02ac828109e85435903cdd511ef00e0f49cf778e07e69b61426bbf9a58862",
+    "frontend/features/upload/services/passport-final-analysis.ts": "c2517940b7af0fb77ad06cfb2c606a4b266a305b770909229105811b0502c5ae",
+    "frontend/features/upload/services/passport-final-boundaries.ts": "7b3f15c38dbb1874d4785311454a4e1624f445b2dc9c0791c85a4bf231913bb9",
+    "frontend/features/upload/services/passport-final-policy.ts": "719202a566546f798fd4a17e2340481c996c96160715ec1ee00574925baef2fd",
+    "frontend/features/upload/services/passport-final-quality.ts": "251f799802d7e28855495fd977f375cc86edaf8286b9dc61f17e4020591a872b",
+    "frontend/features/upload/services/passport-final-region-rules.ts": "7bf37ddea7780c48d1f9e6d82d024af54c876161334441fa0643818821ead6a8",
+    "frontend/features/upload/services/passport-final-regions.ts": "326adf9246009dcaacae26c84a2fc823db15292e48436e8bb6898782d36714e8",
+    "frontend/features/upload/services/passport-final-result.ts": "4771e5c56a8273094d01f8405660fa59075d4e245a6759c488da40be006a1c23",
+    "frontend/features/upload/services/passport-final-screen.ts": "dccc0a6546b7b479e0817f9c0a70909941eb688e41c8f371e733d00c078e4aa3",
+    "frontend/features/upload/services/passport-final.types.ts": "d7a94ceef86df11d4ed02789cf38b60259f3b412525c255702b255427e2ce512",
+    "frontend/features/upload/services/passport-homography.ts": "528691b7c36dcabaf393aa732d50dd6bc1c1a1429b8f60fbe09bfdf62436fb4e",
+    "frontend/features/upload/services/passport-image-encoding.ts": "9011b07687a4c973a2a36ca12d33def5ec05261d104f75a54be188f9d28ff390",
+    "frontend/features/upload/services/passport-line-fitting.ts": "813a7115504d9281bba100db45cb293ef691762f5d8fdf4e964091d75e066bce",
+    "frontend/features/upload/services/passport-live-analysis.ts": "c718da229716327cf1172d50de65cba8d324a8554e53ed103b636873b6d68876",
+    "frontend/features/upload/services/passport-live-boundary-evidence.ts": "71cd7662722fa3cca8e77cb310c875dcfaa01727cc2f428ecd3d216de3ca345b",
+    "frontend/features/upload/services/passport-live-boundary-search.ts": "b9bb85a0fa1e653a5a66ee9deed51fb03f53d134ddf9dc7bcfefc2d0ce9515ed",
+    "frontend/features/upload/services/passport-live-detail.ts": "dfba7f326b30ec8799dab16fbf9e3b915167c3e0eab93d907e8486b56b2e5683",
+    "frontend/features/upload/services/passport-live-frame-adapter.ts": "32edd3443b61919717ef512e6e055e140f6d8133764b73ff8e480bf35a06a5d9",
+    "frontend/features/upload/services/passport-live-geometry.ts": "5e2f7250da2cc77fab8c248ec55ed21ad7d8174c912bb6727327569f96e943e9",
+    "frontend/features/upload/services/passport-live-pixels.ts": "3ca646b79aab989ef98e9c05b095216f946360f879ce1c5d3a78aa99d1acf9b4",
+    "frontend/features/upload/services/passport-live-policy.ts": "2ee0dba3ab10cc39c8aa8127b57b00921ef09f3d7e056e0c0a3cf3494d0971fa",
+    "frontend/features/upload/services/passport-live.types.ts": "9d049fa8b67541a058e7407524d9b9ec0e6fa91eb7d3065a54d24efa8287afc5",
+    "frontend/features/upload/services/passport-normalization.types.ts": "8cf7abf1a299e2c06f83052cec24c94ac69906b955c6e57b297f43416239f156",
+    "frontend/features/upload/services/passport-perspective-correction.ts": "195b43f1e5cfd7242b3b6fd517228585b7b23ea1a6f340bb825d9f8c656e27ad",
+    "frontend/features/upload/services/passport-perspective-warp.ts": "2b4563390a11e41a081ee704597f164bdc2df4d9e5ac8544b55db0b5137377c0",
+    "frontend/features/upload/services/passport-quad-detection.ts": "1c7f39a35f517f124368478fa4b66b4e3ab8874e69e5a7044db8a101a559ad0b",
+    "frontend/features/upload/services/passport-quad-geometry.ts": "866a3e6c4fbbf942fed9e0d8eec0b447e7b577c341ba0ab998141c52b2c365e3",
+    "frontend/features/upload/services/passport-rectangular-frame-detector.ts": "36f3f0e7a560fc18dc3058354befd65b3eca66e92f5318ffcad2bd48875ab66b",
+    "frontend/features/upload/services/visa-quality-background-mask.ts": "0dd0dbbbee9f17d5189e67cbf18af1d52e6f0680d6c63c707eae9e2a24a37a38",
+    "frontend/features/upload/services/visa-quality-background.ts": "16ac470f794c0a8df430a8b5616d1c6196a1f4e8b244173cee69bd57468f4e30",
+    "frontend/features/upload/services/visa-quality-camera.ts": "d810e5677b9eb3a5bf1715e0ae005be27d8c5e50d0ebc823a504c6d17754af3a",
+    "frontend/features/upload/services/visa-quality-clarity.ts": "5e04bbcd71b79e78928df556274ac12c2c03d7fef65316fef7ead9aa78bf0dba",
+    "frontend/features/upload/services/visa-quality-encoding.ts": "5f0a1a02de0d97db95d987c1f6c6903761a1a9b3c2b42f00605e59b5eea500c3",
+    "frontend/features/upload/services/visa-quality-face.ts": "f725aedc1fdabbe8adc45dedfae8f686d1314003fed40d7b53d1070bd9b88c8b",
+    "frontend/features/upload/services/visa-quality-final.ts": "9a0b101ba9e26daf9334a27d991eb5d2e477af516710c4f146eb42f077ad45ea",
+    "frontend/features/upload/services/visa-quality-live-background.ts": "3a9a79d521538a9e2886f7f353b16d75c9699722e1ed1129966e82121a1e4cec",
+    "frontend/features/upload/services/visa-quality-policy.ts": "3fcd7d40d994789f808f203cff3ffe1167a04ba2fa32836c4a3345ca6b9d1920",
+    "frontend/features/upload/services/visa-quality.types.ts": "d2875c9d5387dab445f5c593c7ad3c2c9f3cdfac5b512c54add4fe0919d96b19",
+    "frontend/tsconfig.json": "e1f2b4ec806c55ba0cc71369588733fe427a277990cccfd44ef62c9b6e9fe49d",
+    "frontend/features/mcp/api/mcp-capabilities.ts": "262a4d6c91f312c97b654fc1374f388dd67f16ceafb7ee150b65a83489ce5e75",
+    "frontend/features/mcp/api/mcp.types.ts": "e7e1c7cb8b3e670039ef256a46030da9fcfbd334a2c9fb146a4ed4ff0e4ce1a2",
+    "frontend/features/mcp/api/mcp.api.ts": "8951306146e020ca3dd3901fb642acc0e3417b82d5f4289eb174a218e009fe00",
+    "frontend/features/mcp/hooks/mcp-query-keys.ts": "dab49612ec94c974832ad3f7bac1b6c6bfbd78ed8c8d7cdde4d6fbbbb5509edb",
+    "frontend/features/mcp/hooks/use-mcp-queries.ts": "a8a3f8c4b665384ec59fc05a1ae22eb2ac957e1cd3003b927b87d2a062a09c7b",
+    "frontend/features/mcp/hooks/use-mcp-policy-mutations.ts": "4eca3147c30b9b43a355c5e5c59a8e5e3a44f5a1a55a879c4912c879c94756d5",
+    "frontend/features/mcp/hooks/use-mcp-connection-mutations.ts": "f321f7c43936535c21689c3d08c7ffa660be81b94092296c489ba47712d9cbd3",
+    "frontend/features/mcp/hooks/use-mcp.ts": "9bd0ef21c81fb692e56e9a151605751474a2361a78c1f7df13ffe97bbb06754a"
+  },
+  "backend_native_endpoints_mcp_tools_and_openapi_workflows_retained": true,
+  "rows_before": 1933,
+  "rows_after": 1973,
+  "classification_errors": [],
+  "matrix_sha256": "79e4be15502c4d107f3eb8b6d28e0eb515b6f61a9fe609134ad56420f76e6aea",
+  "limits": "Classification maintenance is not runtime enablement, live PostgreSQL/provider/VPS qualification or a complete codebase review. Review coverage comes only from the separate physical-source ledgers/proofs."
+}

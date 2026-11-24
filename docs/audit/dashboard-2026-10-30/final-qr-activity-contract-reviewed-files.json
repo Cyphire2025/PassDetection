@@ -1,0 +1,11 @@
+[
+  {
+    "path": "frontend/features/whatsapp/components/whatsapp-activity-tracker.contract.test.mjs",
+    "sha256": "76da046d16820ebcb8bab2f76bea17e718cc4ad1832dd9edc8d8b6dff69a75bd",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "physical_lines": 117,
+    "notes": "Complete current physical source read. Actual final Node lane reproduced stale assertions against11line QRfacade rather than relocated view/header. Seven existing cases unchanged in purpose; exact facade-controller-view-header import/invocation wiring assertions added, actual deliveryID/kind remains checked in live view and inline tracker in header. No application TS/TSX/JS/CSS changed. Current whole retained665Nodecases pass, including seven in this file; before663/664pass+oneactualfailedcase preserved. Existing meaningful QRsend/selection/activity behavioral test passed in2048Vitest cohort with byte-identical runtime/test source. Source amendment and initial/current fences retained in final-retained-frontend-20261101-001; no repeated unit/build for read credit."
+  }
+]

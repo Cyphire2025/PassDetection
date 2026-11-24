@@ -1,10 +1,13 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
+import { readOperationsHooksSource } from "../hooks/operations-source.contract-helper.mjs";
+import { readOperationsApiSource } from "../api/operations-api-source.contract-helper.mjs";
+import { readGroupQrSource } from "./group-qr-source.contract-helper.mjs";
 
-const page = readFileSync(new URL("./tour-group-qr-codes-page.tsx", import.meta.url), "utf8");
-const hooks = readFileSync(new URL("../hooks/use-operations.ts", import.meta.url), "utf8");
-const api = readFileSync(new URL("../api/operations.api.ts", import.meta.url), "utf8");
+const page = readGroupQrSource();
+const hooks = readOperationsHooksSource();
+const api = readOperationsApiSource();
 const endpoints = readFileSync(new URL("../../../lib/api/endpoints.ts", import.meta.url), "utf8");
 
 test("QR page exposes an individual WhatsApp preview and selection workflow", () => {

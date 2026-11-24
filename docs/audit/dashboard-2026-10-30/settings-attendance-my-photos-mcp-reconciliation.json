@@ -1,0 +1,36 @@
+{
+  "before_sha256": "48dcc20b4b4861bc845844ab4fe2361e9c3f0d4084ba2ae62a04d5001a71163b",
+  "after_sha256": "0655e79c9e009dc9d01b41cf7507f3609b7b30f2daf979a982e98c1342636523",
+  "surface_count": 1990,
+  "source_transfer": {
+    "before": {
+      "id": "frontend:frontend/features/settings/components/whatsapp-template-settings-panel.tsx:WhatsAppTemplateSettingsPanel",
+      "kind": "frontend_callable",
+      "source": "frontend/features/settings/components/whatsapp-template-settings-panel.tsx",
+      "handler": "WhatsAppTemplateSettingsPanel"
+    },
+    "after": {
+      "id": "frontend:frontend/features/settings/hooks/use-whatsapp-template-settings.ts:useWhatsAppTemplateSettings",
+      "kind": "frontend_callable",
+      "source": "frontend/features/settings/hooks/use-whatsapp-template-settings.ts",
+      "handler": "useWhatsAppTemplateSettings"
+    }
+  },
+  "all_surviving_and_transferred_classifications_permissions_adapters_phase_effect_metadata_unchanged": true,
+  "backend_delta_count": 0,
+  "source_fence": {
+    "frontend/features/settings/components/whatsapp-template-settings-panel.tsx": "9fa5bf0b8bea481657bcd4ef268f1fb3734f258c521d5722ae21978cfe103b92",
+    "frontend/features/settings/components/whatsapp-template-name-field.tsx": "4c14d5d77655dd5b764ec4955dd2d6ec8d27620a42f80b6fc664192aac247045",
+    "frontend/features/settings/components/whatsapp-template-save-feedback.tsx": "c63c8cac47cebb6dc95265a1d082770ff6b1fe498819915397f7b1f8d37608a6",
+    "frontend/features/settings/hooks/use-whatsapp-template-settings.ts": "e0babde62cb4ceeea0b324df6170d4548edeb0123a06d2e29dd0d103fbd7f809",
+    "frontend/features/settings/components/appearance-settings.tsx": "28a6f67aea812bae41e011ecdcec99a29195520f0ac253416431165a903e7bbb",
+    "frontend/features/settings/components/dashboard-settings-page.tsx": "9bd812fbd7b01f407b65dfdd1857e7af996528650d8676d409d9eb4f19b9c916",
+    "frontend/features/settings/dashboard-preferences.ts": "95a5c838507f952408f713933d824b8fafdb92494e98d354905b8460e3d1213b",
+    "frontend/features/settings/platform-settings-policy.ts": "e80c95699eccaa0bca53686e1dacb6a87bb1a252eb527c9cfd0b9d0116e7b9f4",
+    "frontend/features/settings/whatsapp-template-settings.ts": "8d566e371a18783a3f8641f0d7faab241833e7c1281c8fa86376a4c89d4b7b5a",
+    "frontend/features/settings/components/whatsapp-template-settings-panel.test.tsx": "e32a33f0ac725065740f965b4c7eccac5f92da207bd14b3286b5b60fdb569ee4"
+  },
+  "attribution": "root:template-settings-verification.json + template-settings-current-extraction-proof.json; hook/panel source independently read for actual transport ownership",
+  "open_candidate": "Paused-query-cancellation initiating actor race raised to root for actual reproduction; not a confirmed finding or permission change.",
+  "limits": "Source inventory migration only; no new tool, grant or remote workflow enabled. Old UI component remains the runtime entry, its direct transport moved to the hook."
+}

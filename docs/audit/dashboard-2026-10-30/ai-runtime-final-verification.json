@@ -1,0 +1,117 @@
+{
+  "tests_passed": 516,
+  "subtests_passed": 67,
+  "test_files": 39,
+  "seconds": 212.22,
+  "environment": ".tmp/dashboard-security-patch-venv-2",
+  "mypy_sources": 30,
+  "ruff_format_sources": 21,
+  "full_runtime_reads": 75,
+  "explicit_partial_files": 3,
+  "module_budget_candidates": 17,
+  "new_critical_helper_entries": 2,
+  "mcp_surfaces": 1949,
+  "architecture": "passed",
+  "migration_topology": "passed",
+  "complete_api_snapshot": "matches",
+  "mobile_api_snapshot": "matches",
+  "proof": {
+    "vision_extracted_definitions_or_bodies_ast_identical": 26,
+    "client_helper_bodies_ast_identical": 7,
+    "client_execute_ast_identical_after_exact_five_unreachable_removals": true
+  },
+  "candidate_sha256": "fa9e7f0daeed1e35414fdb322d8b1078498c5bd8ec6218fe5a6fa2abf25a4d98",
+  "review_records_sha256": "bfc23be23c3668d3262dad0347dae4d54acd9178330a09dd8b1e4cb0ad031f99",
+  "targeted_measurements": [
+    {
+      "path": "app/infrastructure/ai/gemini_passport_verification_service.py",
+      "line_percent": 94.7,
+      "branch_percent": 78.57
+    },
+    {
+      "path": "app/infrastructure/ai/gemini_post_submission_verification_service.py",
+      "line_percent": 86.42,
+      "branch_percent": 61.54
+    },
+    {
+      "path": "app/infrastructure/ai/bounded_vision_http.py",
+      "line_percent": 96.0,
+      "branch_percent": 91.67
+    },
+    {
+      "path": "app/infrastructure/ai/passport_extraction_codec.py",
+      "line_percent": 85.98,
+      "branch_percent": 69.23
+    },
+    {
+      "path": "app/infrastructure/ai/passport_extraction_fields.py",
+      "line_percent": 91.3,
+      "branch_percent": 83.33
+    },
+    {
+      "path": "app/infrastructure/ai/passport_extraction_transport.py",
+      "line_percent": 87.74,
+      "branch_percent": 83.33
+    },
+    {
+      "path": "app/infrastructure/ai/post_submission_decision_policy.py",
+      "line_percent": 94.59,
+      "branch_percent": 95.0
+    },
+    {
+      "path": "app/infrastructure/ai/post_submission_document_policy.py",
+      "line_percent": 98.08,
+      "branch_percent": 95.0
+    },
+    {
+      "path": "app/infrastructure/ai/post_submission_field_policy.py",
+      "line_percent": 88.79,
+      "branch_percent": 81.03
+    },
+    {
+      "path": "app/infrastructure/ai/post_submission_provider_codec.py",
+      "line_percent": 79.66,
+      "branch_percent": 60.0
+    },
+    {
+      "path": "app/infrastructure/ai/post_submission_result_formatter.py",
+      "line_percent": 100.0,
+      "branch_percent": 100.0
+    },
+    {
+      "path": "app/infrastructure/ai/gemini_ecr_service.py",
+      "line_percent": 93.59,
+      "branch_percent": 86.49
+    },
+    {
+      "path": "app/infrastructure/ai/gemini_visa_image_edit_service.py",
+      "line_percent": 86.44,
+      "branch_percent": 75.0
+    },
+    {
+      "path": "app/application/use_cases/passports/client_submission_values.py",
+      "line_percent": 94.03,
+      "branch_percent": 90.0
+    },
+    {
+      "path": "app/application/use_cases/passports/client_submission_replay.py",
+      "line_percent": 100.0,
+      "branch_percent": 100
+    },
+    {
+      "path": "app/application/use_cases/passports/client_submit_passport_use_case.py",
+      "line_percent": 88.7,
+      "branch_percent": 77.03
+    },
+    {
+      "path": "app/infrastructure/visa_ai_image_jobs/runtime.py",
+      "line_percent": 88.89,
+      "branch_percent": 68.75
+    }
+  ],
+  "limitations": [
+    "Focused changed-source tests only, not a full backend or repository audit",
+    "No live provider, real PostgreSQL/storage, Docker or VPS qualification",
+    "Three supporting callers remain partial; next company/traveller lane pending"
+  ]
+}

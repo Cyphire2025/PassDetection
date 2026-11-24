@@ -1,0 +1,46 @@
+{
+  "architecture_source_sha256": "b08e5358d637c79ac89d84fca765fa476a6669bc460a72766d1af64c880be2e6",
+  "old_main_row": {
+    "owner": "repository maintainers",
+    "review_by": "2026-12-31",
+    "reason": "One live authorized grant/person/group transaction validates the displayed review digest, questions and optional exact owned extraction before idempotent trip snapshot publication. Scoped participation/source/event models and shared platform requirements preserve prior trips; the canonical trip-local-date predicate permits the reviewed phone binding only on the current or future snapshot after real confirmation, without an extra read or document download.",
+    "imports": [
+      "app.infrastructure.database.models",
+      "app.infrastructure.database.models.PassportSubmissionModel",
+      "app.infrastructure.database.traveller_reuse_models",
+      "app.infrastructure.database.traveller_reuse_models.TravellerChangeEventModel",
+      "app.infrastructure.database.traveller_reuse_models.TravellerParticipationModel",
+      "app.infrastructure.repositories.coordinator_assignment_lifecycle",
+      "app.infrastructure.repositories.coordinator_assignment_lifecycle.current_trip_clause",
+      "app.infrastructure.repositories.platform_policy_repository",
+      "app.infrastructure.repositories.platform_policy_repository.PlatformPolicyRepository"
+    ]
+  },
+  "new_transaction_rows": {
+    "app/application/travellers/completion_source.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "One live authorized grant/person/group transaction validates the displayed review digest, questions and optional exact owned extraction before idempotent trip snapshot publication. Scoped participation/source/event models and shared platform requirements preserve prior trips; the canonical trip-local-date predicate permits the reviewed phone binding only on the current or future snapshot after real confirmation, without an extra read or document download.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.PassportSubmissionModel",
+        "app.infrastructure.database.traveller_reuse_models",
+        "app.infrastructure.database.traveller_reuse_models.TravellerParticipationModel",
+        "app.infrastructure.repositories.coordinator_assignment_lifecycle",
+        "app.infrastructure.repositories.coordinator_assignment_lifecycle.current_trip_clause"
+      ]
+    },
+    "app/application/travellers/completion_review.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "One live authorized grant/person/group transaction validates the displayed review digest, questions and optional exact owned extraction before idempotent trip snapshot publication. Scoped participation/source/event models and shared platform requirements preserve prior trips; the canonical trip-local-date predicate permits the reviewed phone binding only on the current or future snapshot after real confirmation, without an extra read or document download.",
+      "imports": [
+        "app.infrastructure.repositories.platform_policy_repository",
+        "app.infrastructure.repositories.platform_policy_repository.PlatformPolicyRepository"
+      ]
+    }
+  },
+  "new_imports_all_literal_strict_original_subsets": true,
+  "old_main_and_all_unrelated_policy_values_must_remain_exact": true,
+  "supersedes_single_owner_proposal": "returning-completion-boundary-transfer-proposal.json"
+}

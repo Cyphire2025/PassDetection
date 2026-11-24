@@ -1,282 +1,78 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import test from "node:test";
-import { whatsappFeatureSource } from "./whatsapp-source.contract-helper.mjs";
+import { readWhatsAppSource as read, readWhatsAppApiSource, readComposerControllerSource, readComposerViewSource, readComposerAudienceSource } from "./whatsapp-source.contract-helper.mjs";
 
-const pageSource = whatsappFeatureSource;
-const previewSource = readFileSync(
-  new URL("./whatsapp-message-preview-dialog.tsx", import.meta.url),
-  "utf8",
-);
-const dialogSource = readFileSync(
-  new URL("./whatsapp-dialog-ui.tsx", import.meta.url),
-  "utf8",
-);
-const apiSource = readFileSync(
-  new URL("../api/whatsapp.api.ts", import.meta.url),
-  "utf8",
-);
-const hooksSource = readFileSync(
-  new URL("../hooks/use-whatsapp.ts", import.meta.url),
-  "utf8",
-);
-const endpointsSource = readFileSync(
-  new URL("../../../lib/api/endpoints.ts", import.meta.url),
-  "utf8",
-);
-const activityTrackerSource = readFileSync(
-  new URL("./whatsapp-activity-tracker.tsx", import.meta.url),
-  "utf8",
-);
+const composer = readComposerControllerSource();
+const editor = readComposerViewSource();
+const audience = readComposerAudienceSource();
+const create = read("./whatsapp-create-broadcast-dialog.tsx");
+const add = read("../workspace/add-recipients-dialog.tsx");
+const importFacade = read("./whatsapp-recipient-import.tsx");
+const imported = read("../hooks/use-recipient-excel-preview.ts");
+const importView = read("./excel-recipient-import.tsx");
+const rejectedRows = read("./rejected-import-rows.tsx");
+const dialog = read("./whatsapp-dialog-ui.tsx");
+const api = readWhatsAppApiSource();
 
-test("create and send actions have synchronous single-flight guards", () => {
-  assert.match(pageSource, /if \(isLoading \|\| submitInFlightRef\.current\) return;/);
-  assert.match(previewSource, /if \(!canSend \|\| isSending \|\| sendInFlightRef\.current\)/);
-  assert.match(pageSource, /submitInFlightRef\.current = false;/);
-  assert.match(pageSource, /sendInFlightRef\.current = false;/);
+test("current create, add, and send actions have synchronous single-flight guards", () => {
+  assert.match(create, /if \(isLoading \|\| submitInFlightRef\.current\) return/);
+  assert.match(add, /if \(lock\.current \|\| !ready\) return/);
+  assert.match(add, /lock\.current = false/);
+  assert.match(composer, /if \(sending\.current \|\| \(!ready && !\(retryPrevious && recovery\)\)\) return/);
+  assert.match(composer, /sending\.current = false/);
 });
 
-test("mobile and desktop broadcast menus use distinct open-state keys", () => {
-  assert.match(pageSource, /surface: "mobile" \| "desktop"/);
-  assert.match(pageSource, /const menuKey = `\$\{surface\}:\$\{group\.id\}`/);
-  assert.match(pageSource, /renderActions=\{renderGroupActionMenu\}/);
-  assert.match(pageSource, /renderActions\(group, "mobile"\)/);
-  assert.match(pageSource, /renderActions\(group, "desktop"\)/);
-  assert.match(
-    pageSource,
-    /setOpenMenuKey\(\(current\) => \(current === menuKey \? null : menuKey\)\)/,
-  );
+test("superseded previews receive query cancellation and cannot authorize the latest draft", () => {
+  assert.match(composer, /queryFn: \(\{ signal \}\) =>\s*whatsappApi\.previewMessage\(group\.id, debouncedDraft, signal\)/);
+  assert.match(composer, /currentKey === debouncedKey/);
+  assert.match(composer, /!preview\.isPlaceholderData[\s\S]*!preview\.isFetching[\s\S]*!preview\.error/);
+  assert.match(composer, /gcTime: 0,[\s\S]*retry: false/);
+  assert.match(api, /previewMessage: async \(\s*groupId: string,\s*draft: WhatsAppMessageDraft,\s*signal\?: AbortSignal/);
 });
 
-test("changing a preview cancels the superseded HTTP request", () => {
-  assert.match(pageSource, /const controller = new AbortController\(\);/);
-  assert.match(pageSource, /signal: controller\.signal/);
-  assert.match(pageSource, /controller\.abort\(\);/);
-  assert.match(
-    apiSource,
-    /previewMessage: async \(\s*groupId: string,\s*draft: WhatsAppMessageDraft,\s*signal\?: AbortSignal,/,
-  );
-  assert.match(apiSource, /\{ signal \}/);
+test("the live send gate requires reviewed content, approval, consent, welcome delivery and an active broadcast", () => {
+  const gate = composer.slice(composer.indexOf("const ready = Boolean("), composer.indexOf("useEffect(", composer.indexOf("const ready = Boolean(")));
+  for (const expression of ["current", "selected.length > 0", "fieldReady", "definition.image_required", "!preview.data?.welcome_required_count", "preview.data?.template_name", "group.recipient_opt_in_confirmed", "!group.is_archived", "!mutation.isPending", "!imageError"]) assert.ok(gate.includes(expression), expression);
+  assert.match(editor, /disabled=\{!model\.ready && !model\.recovery\}/);
+});
+
+test("an unconfirmed transport request retains its exact payload and reviewed snapshot for recovery", () => {
+  assert.match(composer, /retryPrevious && recovery\s*\? recovery/);
+  assert.match(composer, /else setRecovery\(variables\)/);
+  assert.match(composer, /cause instanceof UncertainWhatsAppSendError/);
+  assert.match(composer, /reviewedMessage: recovery\s*\? reviewedSend\?\.message/);
+  assert.match(editor, /Boolean\(model\.uncertain\)/);
 });
 
 test("WhatsApp dialogs expose modal semantics and announce errors", () => {
-  assert.match(dialogSource, /role="dialog"/);
-  assert.match(dialogSource, /aria-modal="true"/);
-  assert.match(dialogSource, /aria-labelledby=\{titleId\}/);
-  assert.match(dialogSource, /role="alert"/);
-  assert.match(dialogSource, /disabled=\{isBusy\}/);
+  assert.match(dialog, /role="dialog"/);
+  assert.match(dialog, /aria-modal="true"/);
+  assert.match(dialog, /aria-labelledby=\{titleId\}/);
+  assert.match(dialog, /role="alert"/);
+  assert.match(dialog, /disabled=\{isBusy\}/);
 });
 
-test("broadcast creation asks for group name without an organisation field", () => {
-  const start = pageSource.indexOf("function CreateBroadcastDialog");
-  const end = pageSource.indexOf("function MessagePreviewDialog", start);
-  const createDialog = pageSource.slice(start, end);
-
-  assert.ok(start >= 0);
-  assert.ok(end > start);
-  assert.match(createDialog, /label="Group name"/);
-  assert.doesNotMatch(
-    createDialog,
-    /organi[sz](?:ing|ation)|company name|organizing_company_name/i,
-  );
+test("mixed Excel previews preserve rejected rows and imported headings in both live mutation flows", () => {
+  assert.match(importFacade, /export \{ useRecipientExcelPreview \} from "\.\.\/hooks\/use-recipient-excel-preview"/);
+  assert.match(importFacade, /export \{ ExcelRecipientImport \} from "\.\/excel-recipient-import"/);
+  assert.match(imported, /mergeRecipientImportPreview\(/);
+  assert.match(imported, /mergeRecipientImportRejectedRows\(/);
+  assert.match(imported, /mergeRecipientImportMatchingFields\(/);
+  assert.match(importView, /<RejectedImportRows rows=\{state\.rejectedRows\}/);
+  assert.match(rejectedRows, /rows\.slice\(pageOffset, pageOffset \+ 50\)/);
+  for (const source of [create, add]) {
+    assert.match(source, /toRejectedContactInputs\(/);
+    assert.match(source, /importedFieldKeys/);
+  }
+  assert.equal(api.match(/JSON\.stringify\(rejectedContacts\)/g)?.length, 2);
+  assert.equal(api.match(/formData\.append\("imported_field_keys_json", JSON\.stringify\(importedFieldKeys \?\? \[\]\)\)/g)?.length, 2);
 });
 
-test("approved-template guidance explains the image and editable message sections", () => {
-  assert.match(
-    pageSource,
-    /Add a header image and edit the message below/,
-  );
-  assert.match(
-    pageSource,
-    /The greeting and\s+remaining text are fixed in the approved template/,
-  );
-  assert.match(
-    pageSource,
-    /Add a header image, introduction, passport upload link, and\s+instructions/,
-  );
-  assert.match(
-    pageSource,
-    /Passport link introduction/,
-  );
-  assert.match(
-    pageSource,
-    /Welcome trip message/,
-  );
-  assert.match(
-    pageSource,
-    /Passport instructions/,
-  );
-  assert.match(pageSource, /\? "Welcome image"\s*: "Passport Link image"/);
-  assert.match(previewSource, /const effectiveHeaderImageId = headerImageId \?\? \(bulkMode \? preview\?\.header_image_id \?\? null : null\)/);
-  assert.match(pageSource, /const hasHeaderImage = Boolean\(headerImage \|\| effectiveHeaderImageId\)/);
-  assert.match(pageSource, /required=\{!hasHeaderImage\}/);
-  assert.match(pageSource, /Previously sent image selected/);
-  assert.match(apiSource, /header_image_id: resolvedHeaderImageId/);
-  assert.match(apiSource, /passport_intro: passportIntro/);
-});
-
-test("recipient lists retain and expose imported spreadsheet details", () => {
-  assert.match(apiSource, /imported_fields: Record<string, string>/);
-  assert.match(pageSource, /recipient\.imported_fields/);
-  assert.match(pageSource, /importedFieldLabel/);
-  assert.match(pageSource, /imported detail/);
-  assert.match(dialogSource, /contact\.imported_fields/);
-});
-
-test("mixed Excel previews keep accepted recipients and expose every rejected source row", () => {
-  assert.match(apiSource, /RecipientImportPreview/);
-  assert.match(pageSource, /mergeRecipientImportPreview\(/);
-  assert.match(pageSource, /state\.rejectedRows\.map/);
-  assert.match(pageSource, /row\.sheet_name/);
-  assert.match(pageSource, /row\.row_number/);
-  assert.match(pageSource, /row\.raw_name/);
-  assert.match(pageSource, /row\.raw_phone_number/);
-  assert.match(pageSource, /row\.reason/);
-  assert.match(pageSource, /Valid recipients were kept/);
-  assert.match(pageSource, /state\.rejectedRowsTruncated/);
-  assert.match(pageSource, /role="status"/);
-  assert.match(pageSource, /aria-label="Rejected spreadsheet rows"/);
-  assert.doesNotMatch(pageSource, /<div aria-live="polite">/);
-});
-
-test("create and add flows persist rejected contacts separately from valid recipients", () => {
-  assert.match(apiSource, /rejected_contacts_json/);
-  assert.equal(apiSource.match(/JSON\.stringify\(rejectedContacts\)/g)?.length, 2);
-  assert.match(pageSource, /toRejectedContactInputs\(rejectedContacts\)/);
-  assert.match(
-    pageSource,
-    /contacts\.length === 0 && rejectedContacts\.length === 0/,
-  );
-  assert.match(pageSource, /mergeRecipientImportRejectedRows\(/);
-  assert.match(pageSource, /source_file_name: contact\.source_file_name/);
-});
-
-test("create and add flows preserve every imported spreadsheet heading", () => {
-  assert.match(apiSource, /available_matching_fields\?: WhatsAppMatchingFieldOption\[\]/);
-  assert.equal(
-    apiSource.match(/formData\.append\("imported_field_keys_json", JSON\.stringify\(importedFieldKeys \?\? \[\]\)\)/g)?.length,
-    2,
-  );
-  assert.match(pageSource, /mergeRecipientImportMatchingFields\(/);
-  assert.match(pageSource, /importedFieldKeys/);
-});
-
-test("saved rejected contacts are loaded in the unified ordered recipient roster", () => {
-  assert.match(endpointsSource, /recipient-roster/);
-  assert.match(
-    apiSource,
-    /type WhatsAppRecipientRosterItem[\s\S]*kind: "recipient"[\s\S]*kind: "rejected"/,
-  );
-  assert.match(apiSource, /display_order: number/);
-  assert.match(apiSource, /rejected_contact: WhatsAppRejectedContact/);
-  assert.match(apiSource, /counts:[\s\S]*all: number[\s\S]*rejected: number/);
-  assert.match(hooksSource, /useWhatsAppRecipientRoster/);
-  assert.match(pageSource, /useWhatsAppRecipientRoster\(group\.id\)/);
-  assert.match(pageSource, /\{ id: "rejected", label: "Rejected imports" \}/);
-  assert.match(pageSource, /filterRecipientRosterItems\(/);
-  assert.match(pageSource, /item\.kind === "rejected"/);
-  assert.match(pageSource, /<RejectedRosterRows/);
-  assert.match(pageSource, /contact\.source_file_name/);
-  assert.match(pageSource, /contact\.sheet_name/);
-  assert.match(pageSource, /contact\.row_number/);
-  assert.match(pageSource, /contact\.raw_name/);
-  assert.match(pageSource, /contact\.raw_phone_number/);
-  assert.match(pageSource, /contact\.reason/);
-});
-
-test("saved rejected contacts can be corrected into unsent recipients", () => {
-  assert.match(endpointsSource, /rejected-contacts\/\$\{rejectedContactId\}\/resolve/);
-  assert.match(apiSource, /resolveRejectedContact: async/);
-  assert.match(apiSource, /recipient_opt_in_confirmed: recipientOptInConfirmed/);
-  assert.match(hooksSource, /useResolveWhatsAppRejectedContact/);
-  assert.match(pageSource, /Save and add/);
-  assert.match(pageSource, /Recipient agreed to WhatsApp updates/);
-  assert.match(pageSource, /added to the valid recipient list as Not sent/);
-});
-
-test("receipt-aware polling refreshes rosters and invalidates caches only on activity revisions", () => {
-  const rosterHookStart = hooksSource.indexOf(
-    "export function useWhatsAppRecipientRoster",
-  );
-  const rosterHookEnd = hooksSource.indexOf(
-    "export function useWhatsAppRejectedContacts",
-    rosterHookStart,
-  );
-  const rosterHook = hooksSource.slice(rosterHookStart, rosterHookEnd);
-
-  assert.doesNotMatch(rosterHook, /status\.status === "queued"/);
-  assert.doesNotMatch(rosterHook, /status\.status === "processing"/);
-  assert.match(rosterHook, /whatsappRecipientPollInterval/);
-  assert.match(pageSource, /sourceGroupId: messageTarget\.group\.id/);
-  assert.match(activityTrackerSource, /refreshedActivityRevisionsRef/);
-  assert.match(activityTrackerSource, /broadcastsToRefresh\.has\(query\.queryKey\[2\]\)/);
-  assert.match(
-    activityTrackerSource,
-    /queryKey: \["whatsapp", "groups"\]/,
-  );
-});
-
-test("rejected rows retain imported fields and expose inline correction controls", () => {
-  assert.match(apiSource, /interface WhatsAppRejectedContactInput[\s\S]*imported_fields\?: Record<string, string>/);
-  assert.match(pageSource, /imported_fields: contact\.imported_fields/);
-  assert.match(pageSource, /visibleImportedFieldEntries\(\s*contact\.imported_fields/);
-  assert.match(pageSource, /ROSTER_SOURCE_FIELD_KEYS/);
-  assert.match(pageSource, /function RejectedRosterRows/);
-  assert.match(pageSource, /aria-expanded=\{isEditing\}/);
-  assert.match(pageSource, />\s*Correct\s*<\/button>/);
-  assert.match(pageSource, /Corrected name/);
-  assert.match(pageSource, /Corrected WhatsApp number/);
-  assert.match(pageSource, /Recipient agreed to WhatsApp updates/);
-  assert.match(pageSource, /Save and add/);
-});
-
-test("passport-link sends custom recipients with one selected support contact", () => {
-  assert.match(pageSource, /PreviewRecipientPicker/);
-  assert.match(pageSource, /Support contacts included/);
-  assert.match(pageSource, /name="passport-link-support-contact"/);
-  assert.match(pageSource, /setSelectedSupportContactIds\(\[contact\.id\]\)/);
-  assert.match(pageSource, /Select one contact to show/);
-  assert.doesNotMatch(pageSource, /Select one or more contacts to show/);
-  assert.match(pageSource, /recipient_ids:/);
-  assert.match(pageSource, /support_contact_ids:/);
-  assert.match(apiSource, /recipient_ids: recipientIds/);
-  assert.match(apiSource, /support_contact_ids: supportContactIds/);
-});
-
-test("message preview remains unsendable while the latest approved rendering loads", () => {
-  assert.match(
-    pageSource,
-    /disabled=\{!canRecoverBulkRequest && \(!canSend \|\| previewPending\)\}/,
-  );
-  assert.match(previewSource, /const previewPending = bulkMode \? bulkPreviewRequest\.isPending : previewRequest\.isPending/);
-  assert.match(previewSource, /const canRecoverBulkRequest = !isArchived && bulkMode && bulkRecovery\?\.draftKey === bulkDraftKey/);
-  assert.match(previewSource, /submitPayload\(bulkRecovery\.payload\)/);
-  assert.match(pageSource, /eligibleRecipientCount > 0/);
-  assert.match(pageSource, /detail\?\.recipient_opt_in_confirmed/);
-  assert.match(
-    pageSource,
-    /messageType !== "passport_link"\s*\|\|\s*\(bulkMode && selectedSupportContactIds === null\) \|\| resolvedSupportContactIds\.length > 0/,
-  );
-});
-
-test("send requires the successful preview to match the current draft before debounce starts", () => {
-  assert.match(previewSource, /previewedRequestKey === previewRequestKey/);
-  assert.match(previewSource, /const canSend = Boolean\(\s*previewIsCurrent &&\s*!previewPending/);
-  assert.match(previewSource, /if \(!canSend \|\| isSending \|\| sendInFlightRef\.current\)/);
-  assert.match(previewSource, /Retry preview/);
-});
-
-test("message editors expose selection-aware WhatsApp bold controls", () => {
-  assert.match(pageSource, /toggleWhatsAppBold/);
-  assert.match(pageSource, /passportIntroRef\.current/);
-  assert.match(pageSource, /messageContentRef\.current/);
-  assert.match(
-    pageSource,
-    /aria-label="Bold selected passport introduction text or start bold typing"/,
-  );
-  assert.match(
-    pageSource,
-    /aria-label="Bold selected message text or start bold typing"/,
-  );
-  assert.match(pageSource, /parseWhatsAppBoldSegments\(preview\.rendered_message\)/);
+test("the live composer uses one support contact and bounded searchable selection", () => {
+  assert.match(composer, /\? \[state\.supportContactId\]/);
+  assert.match(editor, /value=\{model\.state\.supportContactId \?\? ""\}/);
+  assert.match(audience, /new Set\(model\.selectedIds\)/);
+  assert.match(audience, /selected\.has\(recipient\.id\)/);
+  assert.match(audience, /useDeferredValue\(search\)/);
+  assert.match(audience, /WorkspacePagination/);
 });

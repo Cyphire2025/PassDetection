@@ -1,0 +1,51 @@
+{
+  "status": "fixed-and-verified-local",
+  "runtime_path": "backend/app/domain/services/traveller_suitability.py",
+  "runtime_sha256": "eaec54fb85922579d26e450aa8a170fe4cea1e0a2c3e27adbe8c45a31ed0a35c",
+  "baseline": {
+    "new_cases": 8,
+    "actual_failures": 6,
+    "passing_controls": 2,
+    "log": "suitability-calendar-baseline.log",
+    "actual_retained_path": "CreateClientGroupRequest accepts9999-07-01; ClientGroup.create accepts it; persisted FK-enabled SQLite group and accepted passport expiry date.max reach actual assign_operational_traveller\u2192assess_document and raise year10000 ValueError before correction."
+  },
+  "current": {
+    "affected_cases": 43,
+    "test_files": 5,
+    "log": "suitability-calendar-current.log",
+    "strict_owned_sources": 1,
+    "ruff_owned_sources": 3,
+    "source_equivalence": "suitability-calendar-source-equivalence.json",
+    "valid_original_current_parity": "suitability-calendar-parity.json",
+    "assessment_parity_cases": 4236,
+    "public_calendar_function_parity_cases": 630
+  },
+  "implementation": "Compare normalized proleptic year/month/day tuples for assessment deadlines instead of constructing an unrepresentable datetime.date. Preserve inclusive operational and issue-age decisions and strict destination-validity comparison; never clamp an impossible expiry requirement to date.max. Public add_calendar_months continues constructing date and preserves its original range-error behavior.",
+  "preservation": {
+    "whole_module_inverse_outside_explicit_pure_calendar_deltas": true,
+    "existing_two_test_files_byte_exact": true,
+    "reason_codes_rule_validation_lifecycle_acceptance_available_missing_context_order": true,
+    "ordinary_assessment_results_exact": true,
+    "actual_replacement_pending_membership_idempotency_no_accepted_submission": true,
+    "no_schema_route_auth_query_lock_commit_or_migration_edit": true
+  },
+  "sealed_source_identities": {
+    "backend/app/domain/services/traveller_suitability.py": "eaec54fb85922579d26e450aa8a170fe4cea1e0a2c3e27adbe8c45a31ed0a35c",
+    "backend/tests/unit/domain/test_traveller_suitability.py": "4c53102f87bf90c0c591207326b2ad409c6560a0ec50888209c31792d3552e90",
+    "backend/tests/unit/domain/test_traveller_suitability_boundaries.py": "fece97f6ee776bb617a7f1ea275df0ab2c1d92fffb64fa5d3ab2ba44ec5fc8f9",
+    "backend/tests/unit/application/test_traveller_document_selection.py": "2bd0edb448ae8407698434a493574e246c79f111f39db2d3342ee17e07d01ac1",
+    "backend/tests/integration/test_operational_autoassignment.py": "313c9802407763748a4f18ab6d056ca1650ffab28a6bb913ec8632b9aa150c66",
+    "backend/tests/integration/test_suitability_calendar_boundary.py": "850245e0615849a4d38a5617972201f8e02661364bb3953292f7da09bb0e73f4",
+    "backend/app/application/travellers/operational_autoassignment.py": "43c8e015205ba695a139ec20398c8e10b6752875e0a275c9850d457b0fb4522c",
+    "backend/app/application/travellers/history.py": "7d4a38b91c56d0caf999412a9168fc3d0dd93b37b71dd7baa3b866de1909e051",
+    "backend/app/presentation/api/v1/schemas/client_group_request_schemas.py": "05119ad00c36913fca7f40df7c8e466a017661f7bbc14a0512d0a2c357667e82",
+    "backend/app/domain/value_objects/group_trip_settings.py": "e4db9450f179fef74a62e880c2c6286454ba5d927a8ac2e4f959e8c57d7ae78a"
+  },
+  "identity_limit": "The explicit whole-module/probe snapshots and unchanged old test bytes preserve the owned implementation. This is a post-run source seal, not a separately instrumented whole-dependency before/after execution fence.",
+  "limitations": [
+    "This is a supported-input boundary correctness defect, not a demonstrated confidentiality/authentication bypass or production incident.",
+    "The actual retained integration uses SQLite and synthetic encrypted traveller records; no real PostgreSQL/provider/storage or legal travel-rule validation.",
+    "Configured destination rule upper-bound controls exercise the public domain engine; existing retained application callers currently pass no configured destination rules.",
+    "No application responsiveness, memory, throughput or production-latency claim."
+  ]
+}

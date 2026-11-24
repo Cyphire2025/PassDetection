@@ -1,0 +1,119 @@
+{
+  "status": "Contact support tranche source-frozen; whole dashboard audit remains open.",
+  "source_sha256": {
+    "backend/app/presentation/api/v1/routes/whatsapp_contact_support.py": "c6640e915d3a22ceb880189bb4e3a89f0d7cfc3180a6a8b7582b446b709e1fce",
+    "backend/app/presentation/api/v1/routes/whatsapp_contact_values.py": "3a6c521cbd30e24af2492d3807d398b61c028ec305b5f66368b84e427da713a3",
+    "backend/app/presentation/api/v1/routes/whatsapp_imported_fields.py": "fc4ab60c67b8ba4da46dc0b50684264173f2af260696e138b1f40925049ba811",
+    "backend/app/presentation/api/v1/routes/whatsapp_contact_excel.py": "dd4fdbdb2ce0a78983ead4bfd5bd9ef311c3a1a366e68e207c72f3cdbfe300dc",
+    "backend/app/presentation/api/v1/routes/whatsapp_recipient_inputs.py": "b36a54b257d60ba8825ae02f253aa7f7f63998c34bf06a678fd4ef88524ecee8",
+    "backend/app/presentation/api/v1/routes/whatsapp_contact_rejections.py": "afeab1dc52e467c586a57b85b9b5289a7dcb45414035c1652a0bfd46d8f11e9e",
+    "backend/app/presentation/api/v1/routes/whatsapp_roster_order.py": "364fb303eb5ff6eb6f62e68bb9b47674f4596ef555ecbcf941a79efc85dbf997",
+    "backend/app/presentation/api/v1/routes/whatsapp_contact_responses.py": "04cdf2c58e178c1fbe733ec238efbe3d3eec3765fe938607cadf3b85e9c1cb14",
+    "backend/app/presentation/api/v1/routes/whatsapp_contact_parse_result.py": "473226263ce8155b0aa4177327c3338c7aff8442f96c0ba6ab862186fbc70aed",
+    "backend/app/presentation/api/v1/routes/whatsapp_groups_manage.py": "6c48d2e6838d056e9d83db1266521c09ca50a1eda61430c9922bfd93d8c1e924"
+  },
+  "architecture": {
+    "origin_lines": 1198,
+    "facade_lines": 189,
+    "focused_owners": 8,
+    "exact_checks": 58,
+    "proof": "whatsapp-contact-extraction-work-proof.json",
+    "group_route_checks": [
+      "create_broadcast_group original args",
+      "create_broadcast_group original returns",
+      "create_broadcast_group original decorator_list",
+      "create_broadcast_group whole body exact after expanding the intentional canonical-parser call",
+      "update_broadcast_group original args",
+      "update_broadcast_group original returns",
+      "update_broadcast_group original decorator_list",
+      "update_broadcast_group whole body exact after expanding the intentional canonical-parser call"
+    ]
+  },
+  "implemented": [
+    {
+      "change": "Bounded first256 heading accumulator with set membership",
+      "negative_baseline": "1fail/1pass; old retained3000 despite returning256",
+      "work": {
+        "declared_unique_headings": 3000,
+        "returned_keys": 256,
+        "same_output": true,
+        "before": {
+          "peak_normalized_keys": 3000,
+          "string_equality_comparisons": 4498500
+        },
+        "after": {
+          "peak_normalized_keys": 257,
+          "string_equality_comparisons": 0
+        },
+        "additional_output_parity_cohorts": 7
+      },
+      "valid_manual_contacts_work": {
+        "contacts": 20,
+        "distinct_fields_per_contact": 150,
+        "each_contact_passes_current_field_key_byte_and_value_bounds": true,
+        "returned_keys": 256,
+        "same_output": true,
+        "before": {
+          "peak_normalized_keys": 3000,
+          "string_equality_comparisons": 4498500
+        },
+        "after": {
+          "peak_normalized_keys": 258,
+          "string_equality_comparisons": 0
+        }
+      }
+    },
+    {
+      "change": "Create route uses shared canonical manual JSON array parser",
+      "negative_baseline": "2fail/19pass: empty object/string reached actor admission/creation",
+      "after": "25focused cases pass, including valid rejected-only empty-array control and4overlapping transaction guards"
+    }
+  ],
+  "verification": {
+    "base_cases": 129,
+    "supplement_cases": 25,
+    "caller_cases": 36,
+    "unique_cases": 186,
+    "executions": 190,
+    "overlap": 4,
+    "owned_sources_unchanged_during_each_run": true,
+    "static": [
+      "whatsapp-contact-final-ruff.txt",
+      "whatsapp-contact-final-mypy.txt",
+      "whatsapp-contact-final-architecture.txt",
+      "whatsapp-contact-groups-mypy.txt"
+    ],
+    "coverage": "whatsapp-contact-current-coverage.json",
+    "per_file_source_provenance": "whatsapp-contact-coverage-provenance.json",
+    "junit": [
+      "whatsapp-contact-affected.xml",
+      "whatsapp-contact-json-after.xml",
+      "whatsapp-contact-caller-after.xml"
+    ]
+  },
+  "review": {
+    "full_current_runtime": 19,
+    "full_test_files": 3,
+    "ledger": "whatsapp-contact-reviewed-files.json"
+  },
+  "quality_candidates": "whatsapp-contact-budget-candidates.json",
+  "remaining": [
+    "No live PostgreSQL/S3/Redis/provider sends; actual ORM integration fixtures are isolated SQLite.",
+    "Excel column/dimension materialization is still a scaling candidate without a completed negative SDK proof; distinct raw/normalized name policies and complex helpers22/21 are retained, not reported eliminated.",
+    "Canonical helper inputs depend on existing scoped callers; this tranche does not certify every WhatsApp endpoint."
+  ],
+  "intermediate_history": [
+    "Initial generation completeness assertion caught an omitted declaration before extraction writes; an incidental formatter-only change to unrelated whatsapp_rejected_contacts.py was exactly restored (git diff zero).",
+    "whatsapp-contact-json-after.coverage-path-error.xml/.txt:25tests passed but process failed at coverage teardown due repo cwd/backend-relative path; corrected backend-cwd/isolated-data same25rerun passed, no runtime workaround."
+  ],
+  "evidence_sha256": {
+    "whatsapp-contact-reviewed-files.json": "234431ddec84b7e8a2b01082fd5d4615b7abc3bc257fd92eeecb1a623e9b1f58",
+    "whatsapp-contact-budget-candidates.json": "7b20a852a4eba1e5d27228b134e4edd270b25bd61f400c0953b57e33825c81c5",
+    "whatsapp-contact-extraction-work-proof.json": "c225d2e73c126aa6a81a0280929d6e15f5dde63a051a40b69aad6d5fc4a7b256",
+    "whatsapp-contact-json-structural-proof.json": "5156269c5d180f49e49779e19503fea74c15fe38970d47bc52347dc2057e0f07",
+    "whatsapp-contact-test-command.json": "39f7ee77a0c46dd1a656761b573e205035ac3e587b342e82cf3d1f12dbe7251b",
+    "whatsapp-contact-json-test-command.json": "e0adf1af1a333e3eca9e9b2e9d4b15e4a15eab2115aa85cbaa3550dd53b7f823",
+    "whatsapp-contact-caller-test-command.json": "ed6b670882836d3412b6a215231868f9b7eb170fbaabb3a714048458ae4f3144",
+    "whatsapp-contact-coverage-provenance.json": "082e1717f272fda21176642e3b23723c752555ca1370a1c1c4427b7907985d08"
+  }
+}

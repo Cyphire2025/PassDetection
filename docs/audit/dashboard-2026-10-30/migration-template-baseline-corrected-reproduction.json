@@ -1,0 +1,24 @@
+{
+  "confirmed_normal_non_autogenerate_revision_cannot_produce_usable_script": true,
+  "tool_version": "1.13.2",
+  "template_path": "backend/alembic/script.py.mako",
+  "template_before_sha256": "e3ab701a79eb8e2a2c2f212ea11f62368ff629244cdf3714b23c70383f0d4ee6",
+  "template_original_source": "\"\"\"\nGeneric mako template for Alembic migration files.\n\"\"\"\n",
+  "isolated_command": "alembic.command.revision(Config(script_location=temp), head=base, autogenerate=False)",
+  "actual_outcome": {
+    "error_type": "CommandError",
+    "message": "Could not determine revision id from filename 0a1b2c3d4e5f_synthetic_template_baseline.py. Be sure the 'revision' variable is declared inside the script (please see 'Upgrading from Alembic 0.1 to 0.2' in the documentation)."
+  },
+  "generated_sources": [
+    {
+      "filename": "0a1b2c3d4e5f_synthetic_template_baseline.py",
+      "sha256": "e3ab701a79eb8e2a2c2f212ea11f62368ff629244cdf3714b23c70383f0d4ee6",
+      "source": "\"\"\"\nGeneric mako template for Alembic migration files.\n\"\"\"\n"
+    }
+  ],
+  "stdout": "Generating C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\migration-template-baseline-4sog58kv\\versions\\0a1b2c3d4e5f_synthetic_template_baseline.py ...  done\n",
+  "no_database_url_or_env_py": true,
+  "no_actual_env_or_autogenerate_or_services": true,
+  "temporary_directory_cleaned": true,
+  "all142published_source_hashes_unchanged": true
+}

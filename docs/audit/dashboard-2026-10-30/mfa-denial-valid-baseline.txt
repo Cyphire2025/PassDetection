@@ -1,0 +1,141 @@
+FFFFF                                                                    [100%]
+================================== FAILURES ===================================
+_ test_failed_factors_exhaust_durable_attempts_across_fresh_requests[verify_mfa] _
+
+auth_database = namespace(app=<fastapi.applications.FastAPI object at 0x00000245F9AA2DD0>, sessions=async_sessionmaker(class_='AsyncSe...t object at 0x00000245F4447890 [unset]>, release=<asyncio.locks.Event object at 0x00000245F970E490 [set]>, fail=False))
+flow = 'verify_mfa'
+
+    @pytest.mark.parametrize("flow", ["verify_mfa", "verify_enrollment"])
+    async def test_failed_factors_exhaust_durable_attempts_across_fresh_requests(auth_database, flow):
+        env = auth_database
+        path, headers, payload = await prepare_request(env.sessions, flow)
+        body = json.loads(payload)
+        body["code"] = "AAAA-BBBB-CCCC-DDDD"  # Never issued as a recovery code.
+        env.gate.release.set()
+        for attempt in range(1, 6):
+            await post(env.app, path, headers, body)
+            async with env.sessions() as reader:
+                challenge = await reader.scalar(select(DashboardAuthChallengeModel))
+>               assert challenge.attempt_count == attempt
+E               assert 0 == 1
+E                +  where 0 = <app.infrastructure.database.identity_security_models.DashboardAuthChallengeModel object at 0x00000245FB3E9890>.attempt_count
+
+tests\integration\test_mfa_denial_durability.py:59: AssertionError
+_ test_failed_factors_exhaust_durable_attempts_across_fresh_requests[verify_enrollment] _
+
+auth_database = namespace(app=<fastapi.applications.FastAPI object at 0x00000245FB3D4610>, sessions=async_sessionmaker(class_='AsyncSe...t object at 0x00000245F9FE3150 [unset]>, release=<asyncio.locks.Event object at 0x00000245F99AE0D0 [set]>, fail=False))
+flow = 'verify_enrollment'
+
+    @pytest.mark.parametrize("flow", ["verify_mfa", "verify_enrollment"])
+    async def test_failed_factors_exhaust_durable_attempts_across_fresh_requests(auth_database, flow):
+        env = auth_database
+        path, headers, payload = await prepare_request(env.sessions, flow)
+        body = json.loads(payload)
+        body["code"] = "AAAA-BBBB-CCCC-DDDD"  # Never issued as a recovery code.
+        env.gate.release.set()
+        for attempt in range(1, 6):
+            await post(env.app, path, headers, body)
+            async with env.sessions() as reader:
+                challenge = await reader.scalar(select(DashboardAuthChallengeModel))
+>               assert challenge.attempt_count == attempt
+E               assert 0 == 1
+E                +  where 0 = <app.infrastructure.database.identity_security_models.DashboardAuthChallengeModel object at 0x00000245FB62D510>.attempt_count
+
+tests\integration\test_mfa_denial_durability.py:59: AssertionError
+_ test_cancelled_challenge_stays_cancelled_after_http_failure[request_binding] _
+
+auth_database = namespace(app=<fastapi.applications.FastAPI object at 0x00000245FB3EA890>, sessions=async_sessionmaker(class_='AsyncSe...t object at 0x00000245FB5D4910 [unset]>, release=<asyncio.locks.Event object at 0x00000245FB5D4FD0 [set]>, fail=False))
+reason = 'request_binding'
+
+    @pytest.mark.parametrize("reason", ["request_binding", "credential_state", "factor_unavailable"])
+    async def test_cancelled_challenge_stays_cancelled_after_http_failure(auth_database, reason):
+        env = auth_database
+        path, headers, payload = await prepare_request(env.sessions, "verify_mfa")
+        if reason == "request_binding":
+            headers = [*headers, (b"user-agent", b"different-client")]
+        else:
+            async with env.sessions() as session, session.begin():
+                state = await session.scalar(select(UserSecurityStateModel))
+                if reason == "credential_state":
+                    state.credential_state = "invited"
+                else:
+                    state.mfa_secret_ciphertext = None
+                    state.mfa_enabled_at = None
+        env.gate.release.set()
+        await post(env.app, path, headers, json.loads(payload))
+        async with env.sessions() as reader:
+            challenge = await reader.scalar(select(DashboardAuthChallengeModel))
+>           assert challenge.status == "cancelled"
+E           AssertionError: assert 'pending' == 'cancelled'
+E             
+E             - cancelled
+E             + pending
+
+tests\integration\test_mfa_denial_durability.py:86: AssertionError
+_ test_cancelled_challenge_stays_cancelled_after_http_failure[credential_state] _
+
+auth_database = namespace(app=<fastapi.applications.FastAPI object at 0x00000245FB644110>, sessions=async_sessionmaker(class_='AsyncSe...t object at 0x00000245FB685E10 [unset]>, release=<asyncio.locks.Event object at 0x00000245FB5D6910 [set]>, fail=False))
+reason = 'credential_state'
+
+    @pytest.mark.parametrize("reason", ["request_binding", "credential_state", "factor_unavailable"])
+    async def test_cancelled_challenge_stays_cancelled_after_http_failure(auth_database, reason):
+        env = auth_database
+        path, headers, payload = await prepare_request(env.sessions, "verify_mfa")
+        if reason == "request_binding":
+            headers = [*headers, (b"user-agent", b"different-client")]
+        else:
+            async with env.sessions() as session, session.begin():
+                state = await session.scalar(select(UserSecurityStateModel))
+                if reason == "credential_state":
+                    state.credential_state = "invited"
+                else:
+                    state.mfa_secret_ciphertext = None
+                    state.mfa_enabled_at = None
+        env.gate.release.set()
+        await post(env.app, path, headers, json.loads(payload))
+        async with env.sessions() as reader:
+            challenge = await reader.scalar(select(DashboardAuthChallengeModel))
+>           assert challenge.status == "cancelled"
+E           AssertionError: assert 'pending' == 'cancelled'
+E             
+E             - cancelled
+E             + pending
+
+tests\integration\test_mfa_denial_durability.py:86: AssertionError
+_ test_cancelled_challenge_stays_cancelled_after_http_failure[factor_unavailable] _
+
+auth_database = namespace(app=<fastapi.applications.FastAPI object at 0x00000245FB656C50>, sessions=async_sessionmaker(class_='AsyncSe...t object at 0x00000245FB657090 [unset]>, release=<asyncio.locks.Event object at 0x00000245FB6559D0 [set]>, fail=False))
+reason = 'factor_unavailable'
+
+    @pytest.mark.parametrize("reason", ["request_binding", "credential_state", "factor_unavailable"])
+    async def test_cancelled_challenge_stays_cancelled_after_http_failure(auth_database, reason):
+        env = auth_database
+        path, headers, payload = await prepare_request(env.sessions, "verify_mfa")
+        if reason == "request_binding":
+            headers = [*headers, (b"user-agent", b"different-client")]
+        else:
+            async with env.sessions() as session, session.begin():
+                state = await session.scalar(select(UserSecurityStateModel))
+                if reason == "credential_state":
+                    state.credential_state = "invited"
+                else:
+                    state.mfa_secret_ciphertext = None
+                    state.mfa_enabled_at = None
+        env.gate.release.set()
+        await post(env.app, path, headers, json.loads(payload))
+        async with env.sessions() as reader:
+            challenge = await reader.scalar(select(DashboardAuthChallengeModel))
+>           assert challenge.status == "cancelled"
+E           AssertionError: assert 'pending' == 'cancelled'
+E             
+E             - cancelled
+E             + pending
+
+tests\integration\test_mfa_denial_durability.py:86: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/integration/test_mfa_denial_durability.py::test_failed_factors_exhaust_durable_attempts_across_fresh_requests[verify_mfa]
+FAILED tests/integration/test_mfa_denial_durability.py::test_failed_factors_exhaust_durable_attempts_across_fresh_requests[verify_enrollment]
+FAILED tests/integration/test_mfa_denial_durability.py::test_cancelled_challenge_stays_cancelled_after_http_failure[request_binding]
+FAILED tests/integration/test_mfa_denial_durability.py::test_cancelled_challenge_stays_cancelled_after_http_failure[credential_state]
+FAILED tests/integration/test_mfa_denial_durability.py::test_cancelled_challenge_stays_cancelled_after_http_failure[factor_unavailable]
+5 failed in 16.43s

@@ -1,0 +1,40 @@
+{
+  "files": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker.py",
+      "sha256": "6a10b853b8ecb15371dd770f80f27abd201a812d0cc48948fb65981d2d998726",
+      "snapshot": ".tmp/ecr-checker-mechanical/ecr_checker.py"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_actions.py",
+      "sha256": "58b5fec6fb013d7b89115cb00070059b9b36e8876a025ee6e73f7da5b8e40119",
+      "snapshot": ".tmp/ecr-checker-mechanical/ecr_checker_actions.py"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_batches.py",
+      "sha256": "3b785bd4319187d78ba24b51c8295a5f0df1812d3f3f153298036f0e67d70007",
+      "snapshot": ".tmp/ecr-checker-mechanical/ecr_checker_batches.py"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_inputs.py",
+      "sha256": "a48fda493565ffb1d7082ef3d3beb12e7783f61549b9bde76d42596e40e49ffb",
+      "snapshot": ".tmp/ecr-checker-mechanical/ecr_checker_inputs.py"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_support.py",
+      "sha256": "8dd4485b7d11562ff0a0946182dd22fbb443b96e4bf4b1060b0929889f36036c",
+      "snapshot": ".tmp/ecr-checker-mechanical/ecr_checker_support.py"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/ecr_checker_upload.py",
+      "sha256": "2fd62339c2091be4ef54fa39c867ba27dffde80136bfc6a410f1412cbda0228a",
+      "snapshot": ".tmp/ecr-checker-mechanical/ecr_checker_upload.py"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_ecr_checker.py",
+      "sha256": "51617506451d54a48a4f68aeb911594749a24ef300800f7e120c88f3e841c6f0",
+      "snapshot": ".tmp/ecr-checker-mechanical/test_ecr_checker.py"
+    }
+  ],
+  "qualification": "23focused passed;17completefuncASTand65assertASTexact;before andmechanical runtimecontract byte-identical;upload158/MCC34follow-through pending"
+}

@@ -1,0 +1,33 @@
+{
+  "command": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-X",
+    "utf8",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "tests/unit/presentation/test_passport_image_export_ownership.py"
+  ],
+  "exit_code": 1,
+  "source_before": {
+    "backend/app/presentation/api/v1/routes/passport_routes/image_exports.py": "3105f025733e1a4695ea2c525877c8f095481b0da4d4e1001d7b1535052cc972",
+    "backend/app/presentation/api/v1/routes/passport_routes/response_support.py": "3982f9979db2de63d23aee12bda3143c06f580eb0f640a86a016345075f7eef5",
+    "backend/app/application/use_cases/passports/prepare_image_export.py": "453cf038b84859a51bad847562349d6e7e42e066d5c41c99a9ac84e2aa39a9e5",
+    "backend/tests/unit/presentation/test_passport_image_export_ownership.py": "a84ce7603ce20736f6d725382cf9a97aafa974a2bb8086dbd27ab0ff8e98b0ff",
+    "backend/tests/unit/presentation/test_selected_passport_image_export.py": "28a63bea5771e02c68b597348dec77743f6e5cf5d0f4f5c0fd14c0519b3d761e",
+    "backend/tests/integration/test_mcp_image_exports.py": "2bb9a2c527190b5727a2ea41c5f6adaed6afbb8669722c5a4b143dadd8e5036e",
+    ".tmp/run_passport_image_ownership.py": "cf0276d06c0ede74f1d1803a4d348f8c99a8d52fc2ad1378a0a92a386faf891a"
+  },
+  "source_after": {
+    "backend/app/presentation/api/v1/routes/passport_routes/image_exports.py": "3105f025733e1a4695ea2c525877c8f095481b0da4d4e1001d7b1535052cc972",
+    "backend/app/presentation/api/v1/routes/passport_routes/response_support.py": "3982f9979db2de63d23aee12bda3143c06f580eb0f640a86a016345075f7eef5",
+    "backend/app/application/use_cases/passports/prepare_image_export.py": "453cf038b84859a51bad847562349d6e7e42e066d5c41c99a9ac84e2aa39a9e5",
+    "backend/tests/unit/presentation/test_passport_image_export_ownership.py": "a84ce7603ce20736f6d725382cf9a97aafa974a2bb8086dbd27ab0ff8e98b0ff",
+    "backend/tests/unit/presentation/test_selected_passport_image_export.py": "28a63bea5771e02c68b597348dec77743f6e5cf5d0f4f5c0fd14c0519b3d761e",
+    "backend/tests/integration/test_mcp_image_exports.py": "2bb9a2c527190b5727a2ea41c5f6adaed6afbb8669722c5a4b143dadd8e5036e",
+    ".tmp/run_passport_image_ownership.py": "cf0276d06c0ede74f1d1803a4d348f8c99a8d52fc2ad1378a0a92a386faf891a"
+  },
+  "source_unchanged": true
+}

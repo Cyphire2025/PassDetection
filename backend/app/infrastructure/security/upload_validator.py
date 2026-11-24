@@ -56,6 +56,8 @@ _register_mobile_image_decoders()
 
 @dataclass(frozen=True)
 class ValidatedUpload:
+    """Canonical image bytes and the dimensions of that encoded image."""
+
     content: bytes
     content_type: str
     filename: str
@@ -133,13 +135,15 @@ class ClamAVMalwareScanner:
             # of infection. Keep the upload blocked, but allow a later retry.
             raise MalwareScannerUnavailableError("Malware scanner returned an invalid response")
 
-    def _read_scan_response(self, sock: socket.socket, deadline: float) -> str:
-        # TCP may split even a short response across reads. zINSTREAM requests
-        # a NUL-terminated result; never accept an incomplete or oversized frame.
+    def _read_scan_response(
+        self, sock: socket.socket, deadline: float, *, maximum_bytes: int = 4096
+    ) -> str:
+        # TCP may split even a short response across reads. Both zINSTREAM and
+        # zPING request NUL framing; reject incomplete or oversized results.
         response = bytearray()
-        while len(response) < 4096:
+        while len(response) < maximum_bytes:
             self._set_remaining_timeout(sock, deadline)
-            chunk = sock.recv(4096 - len(response))
+            chunk = sock.recv(maximum_bytes - len(response))
             if not chunk:
                 break
             response.extend(chunk)
@@ -152,14 +156,15 @@ class ClamAVMalwareScanner:
     def healthcheck(self) -> None:
         """Require a valid ClamAV PONG before a production process becomes ready."""
 
+        deadline = time.monotonic() + self._timeout_seconds
         try:
             with socket.create_connection(
                 (self._host, self._port), timeout=self._timeout_seconds
             ) as sock:
-                sock.settimeout(self._timeout_seconds)
+                self._set_remaining_timeout(sock, deadline)
                 sock.sendall(b"zPING\0")
-                response = sock.recv(64).decode("ascii", errors="replace").strip("\x00\r\n ")
-        except OSError as exc:
+                response = self._read_scan_response(sock, deadline, maximum_bytes=64).strip("\r\n ")
+        except (OSError, MalwareScannerUnavailableError) as exc:
             raise MalwareScannerConfigurationError(
                 "Configured malware scanner is unavailable"
             ) from exc
@@ -251,7 +256,8 @@ class UploadValidator:
                     if image_format not in (allowed_source_formats or _SUPPORTED_SOURCE_FORMATS):
                         raise ImageValidationError(
                             "Unsupported file format. Please upload a JPEG/JPG, PNG, HEIC/HEIF, AVIF, or single-page PDF."
-                            if allowed_source_formats is not None else _SUPPORTED_FORMAT_MESSAGE
+                            if allowed_source_formats is not None
+                            else _SUPPORTED_FORMAT_MESSAGE
                         )
 
                     width, height = image.size
@@ -278,6 +284,7 @@ class UploadValidator:
                     ImageOps.exif_transpose(image, in_place=True)
                     canonical_image = self._to_rgb(image)
                     try:
+                        width, height = canonical_image.size
                         canonical_content = self._encode_jpeg(canonical_image)
                     finally:
                         canonical_image.close()

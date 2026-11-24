@@ -1,0 +1,6 @@
+{
+  "errors": [
+    "Workflow contract changed; review classification: frontend_api:frontend/features/branding/api/branding-images.api.ts"
+  ],
+  "scope": "Actual discover/validate functions; no app imported"
+}

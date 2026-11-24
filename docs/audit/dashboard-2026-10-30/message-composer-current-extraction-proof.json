@@ -1,0 +1,26 @@
+{
+  "basis": "Direct current source proof versus the immutable explicit post-membership-fix snapshot. Parentheses-only formatting ignored; identifiers, literals, operators, token kinds and JSX attributes/text/handlers retained. Source formatter additionally proved emitted JS/JSX AST preservation. Three field-policy and six draft declarations subsequently moved exactly from preview into two pure owners; origin11owner snapshot remains historical.",
+  "exact_moved_statements": 36,
+  "retained_parent_statements": 3,
+  "public_controller_properties": 32,
+  "public_state_interface_AST_exact": true,
+  "image_cleanup_effect_AST_exact": true,
+  "three_derived_properties_in_send_owner_AST_exact": true,
+  "four_rendered_subtrees_exact": true,
+  "preview_and_send_hook_argument_wiring": "explicit same-group/state/image/mutation/view inputs; public state initializer unchanged; hooks called unconditionally",
+  "source_sha256": {
+    "frontend/features/whatsapp/workspace/use-message-composer.ts": "04173c530af2d515168cc0f06ca026571fbb35cd27930bad0466896506c05186",
+    "frontend/features/whatsapp/workspace/message-composer-state.ts": "8b74256ea305fc8cd6536b3d685e35152f906ff66ed4f4126f1afbfa7838a11e",
+    "frontend/features/whatsapp/workspace/use-composer-header-image.ts": "756838275b4d98c9a76630fc7ebca1d9a4c1f8c939272349c79f6881e45ca94e",
+    "frontend/features/whatsapp/workspace/use-message-composer-preview.ts": "6340e508f09eb38627710dbb813793dc648c151eb163102568e9a390986ce7dd",
+    "frontend/features/whatsapp/workspace/use-message-composer-send.ts": "cd24910c8feeab370aac194f2dcf4f5c37d2b957363860926447515eeba503b8",
+    "frontend/features/whatsapp/workspace/message-composer.tsx": "44c1809c09633cb27af4563e5e39f5baac0747789df196a56b808fe2e870c8b6",
+    "frontend/features/whatsapp/workspace/message-composer-editor.tsx": "0c3c532e105fcec986bf235d018ec1bd584277eb6eec6b74e1ff8d9105262ff7",
+    "frontend/features/whatsapp/workspace/message-composer-feedback.tsx": "bc8f840e55d6a9de70496a0a7f967f2f575b4329921a61d4076afad6c24842bc",
+    "frontend/features/whatsapp/workspace/message-composer-review-dialog.tsx": "e6c9d57c801685a6f47640a7c5d01ff3a76ba7ec46954ef573442553e4d4c330",
+    "frontend/features/whatsapp/workspace/message-composer-audience.tsx": "a50dc588389bda0e3051ae67c5e13e55d7f73c2999a36e746b697455a644b947",
+    "frontend/features/whatsapp/workspace/message-composer-audience-filters.tsx": "72a3bf4e9cec963fc8da1bb2b3d73aca400aa4375b9eb5ec012fee4edd03182a",
+    "frontend/features/whatsapp/workspace/composer-field-state.ts": "b937a7d12deb58c3c170239b4df693c4784a5512e68d63159188193ff497fce8",
+    "frontend/features/whatsapp/workspace/composer-draft.ts": "f10f11d4aec65b1b6f71f744fd8fb701d0b109a8c4c7f993f8b60f2bdf95e059"
+  }
+}

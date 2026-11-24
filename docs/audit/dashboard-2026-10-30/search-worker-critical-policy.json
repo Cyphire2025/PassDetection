@@ -1,0 +1,30 @@
+{
+  "coverage_gates": {
+    "global": {
+      "minimum_line_percent": 75,
+      "minimum_branch_percent": 58
+    },
+    "critical_modules": [
+      {
+        "path": "app/infrastructure/my_photos/search_job_claims.py",
+        "minimum_line_percent": 95,
+        "minimum_branch_percent": 95
+      },
+      {
+        "path": "app/infrastructure/my_photos/search_job_policy.py",
+        "minimum_line_percent": 95,
+        "minimum_branch_percent": 95
+      },
+      {
+        "path": "app/infrastructure/my_photos/search_job_queries.py",
+        "minimum_line_percent": 95,
+        "minimum_branch_percent": 95
+      },
+      {
+        "path": "app/infrastructure/my_photos/search_job_publication.py",
+        "minimum_line_percent": 95,
+        "minimum_branch_percent": 90
+      }
+    ]
+  }
+}

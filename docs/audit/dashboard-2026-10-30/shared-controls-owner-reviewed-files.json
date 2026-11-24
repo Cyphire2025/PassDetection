@@ -1,0 +1,50 @@
+[
+  {
+    "path": "frontend/components/shared/passport-date-input.tsx",
+    "sha256": "b02e9f7b8fd991d611398b647b1043273b54841e3a4adc36e7c43d5c7dec408a",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Full149original/current source read and real public callers traced. Disabled/readOnly text fields left an enabled native-picker button, proved by two direct rendered-component negatives; now both picker controls and editing callbacks honor the same lock. Existing typed/native valid ISO dates/range rejection/invalid-date feedback controls pass. No date parsing or valid-submit contract changed."
+  },
+  {
+    "path": "frontend/components/shared/intent-prefetch-link.tsx",
+    "sha256": "6c4fb062083d4f2bc22b2e18301e6f62ebf9401b3a97fe6ce7479521b83769e5",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Full60original/current source read and installed Next16 Link guide checked. A single boolean permanently suppressed intent prefetch after a retained link changed href; actual two-destination focus test reproduced the omission. Last warmed href now gates deduplication; unchanged destination still warms once across pointer/focus/touch and preserves all caller callbacks and automatic prefetch=false."
+  },
+  {
+    "path": "frontend/features/settings/hooks/use-whatsapp-template-settings.ts",
+    "sha256": "1e0433bbdc4b48aa0232d2da94999aaff6c45c43256ddebf97a956ce5c438754",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Supplemental security admission hardening after immutable pure-extraction receipt. Paused cancelQueries fixture exposed two old-draft dispatches after actor/role changes at this component boundary; capture before first await, three post-await owner assertions and actual expected-actor/request-authority binding now reject them. Same-authority profile refresh control passes. Existing dashboard root remount+abort+adapter protections mean this mock admission proof is not a claim of an exploitable production data leak. Removing precisely declared guard additions restores all24 original controller statement ASTs."
+  },
+  {
+    "path": "frontend/components/shared/passport-date-input.test.tsx",
+    "sha256": "7d3045136cfa04006c2aa6c976586e81be7dc5898978510185cbe31896cfdb0b",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Full actual component tests authored/read. Three shared-control negatives and two paused-owner admission negatives failed before fixes with their valid controls retained; final25cases/6files pass. Component/HTTP mocks are scoped behavior/admission evidence, not real provider/server authorization qualification."
+  },
+  {
+    "path": "frontend/components/shared/intent-prefetch-link.test.tsx",
+    "sha256": "d12307dacb5366ec7483f079f5d3176fd26b21ad813cf884268b5519e953f6bc",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Full actual component tests authored/read. Three shared-control negatives and two paused-owner admission negatives failed before fixes with their valid controls retained; final25cases/6files pass. Component/HTTP mocks are scoped behavior/admission evidence, not real provider/server authorization qualification."
+  },
+  {
+    "path": "frontend/features/settings/components/whatsapp-template-settings-panel.test.tsx",
+    "sha256": "51e4151bf5ca2dcc5bf8afb349b605f76ff3d149d31e8a5cf625b1b74e00355f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Full actual component tests authored/read. Three shared-control negatives and two paused-owner admission negatives failed before fixes with their valid controls retained; final25cases/6files pass. Component/HTTP mocks are scoped behavior/admission evidence, not real provider/server authorization qualification."
+  }
+]

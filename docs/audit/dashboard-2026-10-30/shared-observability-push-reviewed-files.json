@@ -1,0 +1,195 @@
+{
+  "files": [
+    {
+      "path": "backend/app/infrastructure/audit/checkpoint_codec.py",
+      "sha256": "3f9385e3ac28533911676eea026a9330e9cefcfd02cc14dbdf0ae2b062a439fc",
+      "physical_lines": 68,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete68line physical read; signed bounded canonical Ed25519 envelope, strict scope/version/sequence/hash/aware-time/object-key bindings. No event bodies/actor PII in checkpoint; unchanged."
+    },
+    {
+      "path": "backend/app/infrastructure/audit/s3_checkpoint_sink.py",
+      "sha256": "175bc660c4003c095ba2a5c5079de79e8a93be5cf20e16b13f6d13a8747d5dcf",
+      "physical_lines": 229,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "fixed",
+      "notes": "Original130 and current229line complete physical reads. Reproduced public iterator late SDK body acquisition cancellation; narrow owned Future/drain/close correction. All other class methods and post-body signature/retention/version identity tail AST exact."
+    },
+    {
+      "path": "backend/app/infrastructure/observability/statsd.py",
+      "sha256": "45479ed6d238930b48bae9d8b0b565655f6797a7d210fccc248c2754297c64ab",
+      "physical_lines": 123,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete123line physical read. Configured host/fixed low-cardinality names, bounded ASCII datagrams, finite floats, nonblocking socket and lock/close ownership; unavailable logging type-only. No runtime change or live UDP probe."
+    },
+    {
+      "path": "backend/app/infrastructure/observability/operational_events.py",
+      "sha256": "2d0134ac561943dad6109d68061fcd56cb71f990330f39ba837b47c3eca526e4",
+      "physical_lines": 256,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete256line physical read. Fixed enum/reason allowlists; unknown reasons collapse to other, best-effort local/shared counters and error-type-only logs. Declaration catalog is cohesive, no arbitrary split; unchanged."
+    },
+    {
+      "path": "backend/app/infrastructure/observability/sentry.py",
+      "sha256": "9ebf3e34e25fb4a5e545902427e120c4a54afff6cea376bdc805559c118dba93",
+      "physical_lines": 160,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete160line physical read and actual main initializer callback trace. Event/request/exception/breadcrumb allowlist strips bodies/locals/query/token IDs; source-controlled diagnostic fields retained. SDK/provider ingestion not qualified, no runtime change."
+    },
+    {
+      "path": "backend/app/infrastructure/observability/mcp_log_reader.py",
+      "sha256": "ab3b9fa5e13ca46b70058b58c9b2fd611a5d0cde7ca590c1d969d694b90b1651",
+      "physical_lines": 95,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete95line physical read. Fixed named mount sources, no requested paths, regular/no-symlink/inode validation and bounded bytes/records/lines, no fallback to host streams; unavailable behavior retained."
+    },
+    {
+      "path": "backend/app/infrastructure/observability/mcp_log_runs.py",
+      "sha256": "c7913be284b4ad63e2e30439704dfcc51ab8cb8ed6df058409a623aecb48869f",
+      "physical_lines": 223,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete223line physical read. Sealed latest/fresh manifest selection, exact file hashes and finite metadata, fixed sources/filenames, mode/inode/hardlink/size guards and fail-closed malformed input. Read-only worker file context managers own resources; unchanged."
+    },
+    {
+      "path": "backend/app/infrastructure/mobile_push/apns_credentials.py",
+      "sha256": "56a8ae7daf87940216a573a21f27c36a8406505af9fc5f44a20ae1a712824009",
+      "physical_lines": 62,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete62line credential implementation read only; no actual key file read/call. Bounded PEM size/type, ES256/P256, key-cache identity and50minute reuse; safe credential error codes, no logged key material. Shared dashboard-authored transport only."
+    },
+    {
+      "path": "backend/app/infrastructure/mobile_push/apns_provider.py",
+      "sha256": "a4e6c1e6fa5c5f8cf20509db772d3d7ab7ae1c2b155b0667368a71489b08a98a",
+      "physical_lines": 215,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete215line shared adapter read. Fixed environment hosts/topic, whole batch payload/token/TTL validation before token/network, bounded20 concurrency/100batch, owned client cleanup, unknown outcome vs retry/revoke error taxonomy and safe ticket projection. Native client/ingress excluded; no provider request."
+    },
+    {
+      "path": "backend/app/infrastructure/mobile_push/fcm_credentials.py",
+      "sha256": "872169b5afea5bdc31ef6bc969df391fd1a7ce6a34ca61e65ffaf89141960918",
+      "physical_lines": 151,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete151line credential implementation read only; no actual credentials read/refresh. Bounded service-account file, exact project/type/OAuth token URI/scope, fixed HTTP host/no redirects, lock/deadline/cache and safe error projection. No real credential/provider qualification."
+    },
+    {
+      "path": "backend/app/infrastructure/mobile_push/fcm_provider.py",
+      "sha256": "08f85af94d9682c6af6601ff15965c8e7355573ac787daa4df80a6d0cb525bd3",
+      "physical_lines": 273,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete273line shared adapter read. Whole batch validation before OAuth, fixed project host/package, bounded20/100 concurrency, own client cleanup, safe IDs/error enums, conservative unknown-outcome semantics and bounded Retry-After. Shared task factory creates per-operation providers; prepare precedes dispatch claims in separately qualified notification family. No native feature/provider work."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_audit_checkpoint_native_lifetime.py",
+      "sha256": "4314c98652dc19b260d5f21f617b34179db82afd25d9cd5e23209129e519d729",
+      "physical_lines": 195,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete195line authored/current physical read.13 meaningful public-iterator SDK-shaped lifetime/context/shutdown/error controls with synthetic signing keys and real botocore StreamingBody over BytesIO; no external credential/storage calls."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_audit_checkpoints.py",
+      "sha256": "e5d7887d9bbf89d1154daaae3c0b6912c55734c26fe50334056109140e7247f9",
+      "physical_lines": 173,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical read of all17 existing signed WORM/idempotency/pagination/tamper/database anchor controls; unchanged source, all executed before and after with synthetic store/SQLite."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_sentry_privacy.py",
+      "sha256": "84f0a4ac1fefb1a5532db6190faf009dda57b75d1fbdd4d15ba2d5547f8317b7",
+      "physical_lines": 97,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete97line physical read of existing allowlist/event wiring assertions. Not executed in this read-only unchanged-source cohort; source evidence only."
+    },
+    {
+      "path": "backend/scripts/audit_checkpoints.py",
+      "sha256": "2302b58b18998f886c585b354af100b0b40624108f4bbe961cedd43f589f7cae",
+      "physical_lines": 93,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete93line actual caller read. Dedicated operator identity/required explicit credentials, bounded S3 SDK connect/read/retry config, read-only PostgreSQL transaction/engine-client finally, safe fixed error result. No execution/credential/environment access for operator command."
+    },
+    {
+      "path": "backend/app/main.py",
+      "sha256": "e2cc9a341ab8d6506035c3188c738aa67f6dbd05c81cb73f4c79696235f2077d",
+      "physical_lines": 238,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Only108\u2013136 actual production Sentry initializer callback trace; no whole source read in this tranche."
+    },
+    {
+      "path": "backend/app/application/mobile/push_provider.py",
+      "sha256": "f6d2b92c822c65035110b5ab3d2f3a76786014568b41cad6851a7d0012cb3311",
+      "physical_lines": 449,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Only0\u2013120 public message/ticket/provider contract and345\u2013EOF factory/helpers physically read; middle unreceived/not reread. No full credit; underlying shared payload/factory context only."
+    }
+  ],
+  "reused_full_current_records": [
+    {
+      "path": "backend/app/infrastructure/audit/checkpoint_service.py",
+      "sha256": "0c77dfbfbb0977da56da0b688adcc315e2ce675362d02dc5a90ff2fc6ce9bc6c",
+      "existing_reviewer": "branding_visuals",
+      "credit": "matching-current full prior record, not newly unreviewed physical credit"
+    },
+    {
+      "path": "backend/app/infrastructure/mobile_push/__init__.py",
+      "sha256": "84b313a5b6897b9ed99bf9db1107f9579296cee5d643c4ab7208686bdfb7367d",
+      "existing_reviewer": "root",
+      "credit": "matching-current full prior record, not newly unreviewed physical credit"
+    },
+    {
+      "path": "backend/app/infrastructure/mobile_push/tasks.py",
+      "sha256": "4f84fac2a49d397bb4adcff69c73a67e2243994d9064a75297edf4c24eeb33f8",
+      "existing_reviewer": "branding_visuals",
+      "credit": "matching-current full prior record, not newly unreviewed physical credit"
+    },
+    {
+      "path": "backend/app/infrastructure/observability/__init__.py",
+      "sha256": "affb63f448ef91d76960019dfcd587c4404010df2b29a69be92ec5be0de887e6",
+      "existing_reviewer": "root",
+      "credit": "matching-current full prior record, not newly unreviewed physical credit"
+    },
+    {
+      "path": "backend/app/infrastructure/observability/metrics.py",
+      "sha256": "62dbb6b6319c694293c59e0fb8a682c4ca4963c0a55cc79b13b531e11d5fd773",
+      "existing_reviewer": "ai_extraction; security-reviewed-files",
+      "credit": "matching-current full prior record, not newly unreviewed physical credit"
+    }
+  ],
+  "runtime_initial_cohort": {
+    "files": 11,
+    "original_lines": 1756,
+    "all_physically_read": true
+  },
+  "scope": "Retained shared audit/observability and dashboard-authored notification transports; native app/client/ingress and Operations Inbox remain excluded/deferred."
+}

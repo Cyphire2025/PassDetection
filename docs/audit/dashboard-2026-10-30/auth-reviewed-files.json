@@ -1,0 +1,378 @@
+[
+  {
+    "path": "frontend/features/auth/api/auth-cookie-transport.test.ts",
+    "review_scope": "full",
+    "attribution": "manual_security direct physical-file read",
+    "sha256": "c301978b235f1c86beb085626e20e3f559a0da442e6b93838df5468f4b129177",
+    "status": "reviewed",
+    "notes": "Complete current source read and behavior verified within auth cookie tranche; see auth-cookie-frontend-verification.json for exact tests and limits."
+  },
+  {
+    "path": "frontend/features/auth/api/auth-identity-cancellation.test.ts",
+    "status": "reviewed",
+    "review_scope": "full",
+    "sha256": "499ca56b73fdf839a1104bea5ea523523240d17c8b4d5ab65f2902acb2bc9e73",
+    "notes": "Authored/read focused behavioral regressions using synthetic accounts.",
+    "attribution": "manual_security direct physical-file read"
+  },
+  {
+    "path": "frontend/features/auth/api/auth.api.ts",
+    "status": "fixed",
+    "review_scope": "full",
+    "sha256": "6e52799fa4c0a18c887c26836402d3b7bd68273b08f5e0365bbbbc8165719abd",
+    "notes": "Four identity requests use operation-local abort continuity; three proven unconsumed duplicate refresh/logout aliases removed; active workflows retained.",
+    "attribution": "manual_security direct physical-file read"
+  },
+  {
+    "path": "frontend/features/auth/components/access-level-switcher.tsx",
+    "status": "reviewed",
+    "review_scope": "full",
+    "sha256": "77d98e5d89f5cb616c8adfb32a93e132c2210577503a2f8c2d02f640c9a59bfb",
+    "notes": "Complete source read; no additional evidenced defect in inspected file. Manual caller analysis does not qualify deployed services or all cookie-writer ordering.",
+    "attribution": "manual_security direct physical-file read"
+  },
+  {
+    "path": "frontend/features/auth/components/account-security-panel.test.tsx",
+    "status": "reviewed",
+    "review_scope": "full",
+    "sha256": "49672d3ab4452ad5434d357cac9b93436c36cf48bdc9e42533edde628ff95807",
+    "notes": "Full current read; seven behavior cases include retained same-authority draft, suppressed late A completion and actual global-onMutate invocation boundary.",
+    "attribution": "manual_security direct physical-file read"
+  },
+  {
+    "path": "frontend/features/auth/components/account-security-panel.tsx",
+    "status": "fixed",
+    "review_scope": "full",
+    "sha256": "46c4dbdc716ff490bf7b74f43a4241270d56015d81b3dc7f7f9524acd975ecc4",
+    "notes": "Stable effective-authority key preserves same-authority drafts; two current private mutations capture initiating scope before TanStack callbacks. Clipboard rejection remains explicit follow-up.",
+    "attribution": "manual_security direct physical-file read"
+  },
+  {
+    "path": "frontend/features/auth/components/activation-form.tsx",
+    "status": "fixed",
+    "review_scope": "full",
+    "sha256": "f6e68a6117d00370a247eaa7accace1f1c85fe258050e176ee230004446d664e",
+    "notes": "Complete current source read and behavior verified within auth cookie tranche; see auth-cookie-frontend-verification.json for exact tests and limits.",
+    "attribution": "manual_security direct physical-file read"
+  },
+  {
+    "path": "frontend/features/auth/components/auth-experience.module.css",
+    "status": "reviewed",
+    "review_scope": "full",
+    "sha256": "5b53daf83e251f6d4ed794b67f3de8d16ec874377a3fbae03f9cdb1001afb6bb",
+    "notes": "Complete source read; no additional evidenced defect in inspected file. Manual caller analysis does not qualify deployed services or all cookie-writer ordering.",
+    "attribution": "manual_security direct physical-file read"
+  },
+  {
+    "path": "frontend/features/auth/components/auth-hydrator.test.tsx",
+    "status": "reviewed",
+    "review_scope": "full",
+    "sha256": "13940dd7bff405d2feceae296d5474de1f43864d995881ba91c3a39aec83d4c4",
+    "notes": "Authored/read focused behavioral regressions using synthetic accounts.",
+    "attribution": "manual_security direct physical-file read"
+  },
+  {
+    "path": "frontend/features/auth/components/auth-hydrator.tsx",
+    "status": "reviewed",
+    "review_scope": "full",
+    "sha256": "45e0a2643c47c6f5bc8432d1801704e1f71b12e1abdc19e483e180edf8182ce9",
+    "notes": "Complete source read; no additional evidenced defect in inspected file. Manual caller analysis does not qualify deployed services or all cookie-writer ordering.",
+    "attribution": "manual_security direct physical-file read"
+  },
+  {
+    "path": "frontend/features/auth/components/authenticated-content.test.tsx",
+    "status": "reviewed",
+    "review_scope": "full",
+    "sha256": "5d2712dd2314b446e063822b88bd84891be5987e21e590dd8a13521625e25ea3",
+    "notes": "Authored/read focused behavioral regressions using synthetic accounts.",
+    "attribution": "manual_security direct physical-file read"
+  },
+  {
+    "path": "frontend/features/auth/components/authenticated-content.tsx",
+    "status": "fixed",
+    "review_scope": "full",
+    "sha256": "2a6b961e1c3aed8a9fce536a1a08aefe4f68a6699271581ad65c1e1aa1c76d4d",
+    "notes": "Full current read; stable shared [id,role,agency_id] key; existing restoration/capability/error states preserved.",
+    "attribution": "manual_security direct physical-file read"
+  },
+  {
+    "path": "frontend/features/auth/components/authentication-continuity.test.tsx",
+    "status": "reviewed",
+    "review_scope": "full",
+    "sha256": "336e9a66b099beec2efc3ef323efe3174acbb9ebfd7fb667df1e84888617018c",
+    "notes": "Authored/read focused behavioral regressions using synthetic accounts.",
+    "attribution": "manual_security direct physical-file read"
+  },
+  {
+    "path": "frontend/features/auth/components/client-manager-activation-fallback.test.tsx",
+    "status": "reviewed",
+    "review_scope": "full",
+    "sha256": "ee1149b912265e3c03b14e788e3b6f303db3da582580306dd8df33d405011719",
+    "notes": "Authored/read focused behavioral regressions using synthetic accounts.",
+    "attribution": "manual_security direct physical-file read"
+  },
+  {
+    "path": "frontend/features/auth/components/client-manager-activation-fallback.tsx",
+    "status": "fixed",
+    "review_scope": "full",
+    "sha256": "82b4d1c55fbf112b3a0c76b8a1d36e14185e582822a1f8256ca580f6dd2d33b7",
+    "notes": "Uses existing replay-safe token hook, fixes StrictMode scrubbed-URL replay failure.",
+    "attribution": "manual_security direct physical-file read"
+  },
+  {
+    "path": "frontend/features/auth/components/company-journey-film.tsx",
+    "status": "reviewed",
+    "review_scope": "full",
+    "sha256": "cdcba2fa832baedb166aeec8be8bbfe123013f7cab9d3da38ddfad5187159427",
+    "notes": "Complete source read; no additional evidenced defect in inspected file. Manual caller analysis does not qualify deployed services or all cookie-writer ordering.",
+    "attribution": "manual_security direct physical-file read"
+  },
+  {
+    "path": "frontend/features/auth/components/login-form.tsx",
+    "status": "fixed",
+    "review_scope": "full",
+    "sha256": "120f01c6b2e036c0fce6d24fa8eeb4cf60ae0f9810354fe8f8ee60e92ff96040",
+    "notes": "Complete current source read and behavior verified within auth cookie tranche; see auth-cookie-frontend-verification.json for exact tests and limits.",
+    "attribution": "manual_security direct physical-file read"
+  },
+  {
+    "path": "frontend/features/auth/components/login-session-entry.test.tsx",
+    "review_scope": "full",
+    "attribution": "manual_security direct physical-file read",
+    "sha256": "824863f35d4841ad2b95a59fad8418a1062786b54d8c42d10bd6123a394f3f8f",
+    "status": "reviewed",
+    "notes": "Complete current source read and behavior verified within auth cookie tranche; see auth-cookie-frontend-verification.json for exact tests and limits."
+  },
+  {
+    "path": "frontend/features/auth/components/login-session-entry.tsx",
+    "status": "fixed",
+    "review_scope": "full",
+    "sha256": "7f2eff2df24000e730b93f7caf27520c4e0eb21cf693242351a28b6e55d8dc76",
+    "notes": "Complete current source read and behavior verified within auth cookie tranche; see auth-cookie-frontend-verification.json for exact tests and limits.",
+    "attribution": "manual_security direct physical-file read"
+  },
+  {
+    "path": "frontend/features/auth/components/password-recovery-forms.tsx",
+    "status": "fixed",
+    "review_scope": "full",
+    "sha256": "2c962f815e3592b132ac56258d9855ef40ad9770ceb47536e6b4ebbeb98adc3a",
+    "notes": "Complete current source read and behavior verified within auth cookie tranche; see auth-cookie-frontend-verification.json for exact tests and limits.",
+    "attribution": "manual_security direct physical-file read"
+  },
+  {
+    "path": "frontend/features/auth/components/queue-safe-sign-out-guard.test.tsx",
+    "status": "reviewed",
+    "review_scope": "full",
+    "sha256": "6b4a5d0d7557d8312a79fa2b6c336a6baa79fc838512979f6c4c6d802a8ec473",
+    "notes": "Authored/read focused behavioral regressions using synthetic accounts.",
+    "attribution": "manual_security direct physical-file read"
+  },
+  {
+    "path": "frontend/features/auth/components/queue-safe-sign-out-guard.tsx",
+    "status": "fixed",
+    "review_scope": "full",
+    "sha256": "d239fe6bd51722f53355d89d703e6af37f82d61a0bc8397cda7e0232be04cdd9",
+    "notes": "Stale A signout review and deferred queue sync cannot discard/clear B. Queue retention preserved.",
+    "attribution": "manual_security direct physical-file read"
+  },
+  {
+    "path": "frontend/features/auth/components/route-capability-boundary.tsx",
+    "status": "reviewed",
+    "review_scope": "full",
+    "sha256": "b77c71f56be178d903b2c2997fa9a20f43c6baf7482fd0114bd0dc0a87aea5f5",
+    "notes": "Complete source read; no additional evidenced defect in inspected file. Manual caller analysis does not qualify deployed services or all cookie-writer ordering.",
+    "attribution": "manual_security direct physical-file read"
+  },
+  {
+    "path": "frontend/features/auth/components/session-restoration-page.tsx",
+    "status": "reviewed",
+    "review_scope": "full",
+    "sha256": "c9165489610918a581e0e0675c588615e00eedc30b3f8ed88a9af7c765b7d1b1",
+    "notes": "Complete source read; no additional evidenced defect in inspected file. Manual caller analysis does not qualify deployed services or all cookie-writer ordering.",
+    "attribution": "manual_security direct physical-file read"
+  },
+  {
+    "path": "frontend/features/auth/components/step-up-dialog.tsx",
+    "status": "fixed",
+    "review_scope": "full",
+    "sha256": "2f740545563210f4bd39d1a104d12c76c3b89dac2173f03d5600b3f4f0a4c0b8",
+    "notes": "Complete current source read and behavior verified within auth cookie tranche; see auth-cookie-frontend-verification.json for exact tests and limits.",
+    "attribution": "manual_security direct physical-file read"
+  },
+  {
+    "path": "frontend/features/auth/config/route-capabilities.ts",
+    "status": "reviewed",
+    "review_scope": "full",
+    "sha256": "e4aa3f32555e9351c8c7f02fd8b5d9270ff03c9663a2b1b3555268aa40db370c",
+    "notes": "Complete source read; no additional evidenced defect in inspected file. Manual caller analysis does not qualify deployed services or all cookie-writer ordering.",
+    "attribution": "Prior direct manual review reused from security-reviewed-files.json at identical SHA"
+  },
+  {
+    "path": "frontend/features/auth/hooks/use-identity-action-token.ts",
+    "status": "reviewed",
+    "review_scope": "full",
+    "sha256": "971ad0c564f51d1a43002b043819dc834665f60bb6f0df2fdf6f8b3237bc685b",
+    "notes": "Complete source read; no additional evidenced defect in inspected file. Manual caller analysis does not qualify deployed services or all cookie-writer ordering.",
+    "attribution": "manual_security direct physical-file read"
+  },
+  {
+    "path": "frontend/features/auth/hooks/use-login.ts",
+    "status": "fixed",
+    "review_scope": "full",
+    "sha256": "65572508ff77f60b03a3e8a1f7a8794e98704339558fa1f58e5846d4831d905e",
+    "notes": "Complete current source read and behavior verified within auth cookie tranche; see auth-cookie-frontend-verification.json for exact tests and limits.",
+    "attribution": "manual_security direct physical-file read"
+  },
+  {
+    "path": "frontend/features/auth/hooks/use-logout.ts",
+    "status": "reviewed",
+    "review_scope": "full",
+    "sha256": "7e3213b947e82869f1c709dfcad5939e2c02cda9a4fa199b0725fa37b1486d9a",
+    "notes": "Complete source read; no additional evidenced defect in inspected file. Manual caller analysis does not qualify deployed services or all cookie-writer ordering.",
+    "attribution": "Prior direct manual review reused from security-reviewed-files.json at identical SHA"
+  },
+  {
+    "path": "frontend/features/auth/schemas/auth.schemas.ts",
+    "status": "reviewed",
+    "review_scope": "full",
+    "sha256": "3386a0e1f2b15ee4c2f4b75d564873c65e568e420c928c1fade25feb1fce4f50",
+    "notes": "Complete source read; no additional evidenced defect in inspected file. Manual caller analysis does not qualify deployed services or all cookie-writer ordering.",
+    "attribution": "manual_security direct physical-file read"
+  },
+  {
+    "path": "frontend/features/auth/services/access-level-navigation.ts",
+    "status": "reviewed",
+    "review_scope": "full",
+    "sha256": "cce7df63fb7a53a248354577ea3231d956d456edf32eb39bf99f596aef839f99",
+    "notes": "Complete source read; no additional evidenced defect in inspected file. Manual caller analysis does not qualify deployed services or all cookie-writer ordering.",
+    "attribution": "manual_security direct physical-file read"
+  },
+  {
+    "path": "frontend/features/auth/services/access-level.ts",
+    "status": "fixed",
+    "review_scope": "full",
+    "sha256": "607a81a5767457e9faea544f7bd718bb89274f662d8e1af88e653443066dab66",
+    "notes": "Recheck continuity after cancelQueries and cleanup awaits before cache clear, dispatch or getMe.",
+    "attribution": "manual_security direct physical-file read"
+  },
+  {
+    "path": "frontend/features/auth/services/authentication-context.ts",
+    "status": "fixed",
+    "review_scope": "full",
+    "sha256": "6f88a21ae49ef3ef0c16413d7ea8b6a1d368d5049109279621bb01a38aed527d",
+    "notes": "Captured actor/version continuity and operation-local cancellation; no authorization grant or server protocol change.",
+    "attribution": "manual_security direct physical-file read"
+  },
+  {
+    "path": "frontend/features/auth/services/cookie-mutation.ts",
+    "review_scope": "full",
+    "attribution": "manual_security direct physical-file read",
+    "sha256": "fa1385adb965525afba57c42d1eab82d0967b9f3836956b462746be164ece6c7",
+    "status": "fixed",
+    "notes": "Shared secure-browser transport WebLock; exact current staff-auth/selected-access cookie writers, cancellable queued acquisition, nested retry dispatch sharing, failclosed capability UX. No silent lease fallback."
+  },
+  {
+    "path": "frontend/features/auth/services/queue-safe-sign-out-events.ts",
+    "status": "reviewed",
+    "review_scope": "full",
+    "sha256": "dd1e2bf771338dfeb3b494690df0dbd8db3f4657c8b1cde1757e40b95585b8d4",
+    "notes": "Complete source read; no additional evidenced defect in inspected file. Manual caller analysis does not qualify deployed services or all cookie-writer ordering.",
+    "attribution": "manual_security direct physical-file read"
+  },
+  {
+    "path": "frontend/features/auth/services/refresh-attempt.ts",
+    "status": "reviewed",
+    "review_scope": "full",
+    "sha256": "7962f2bc0da715b99b6210819dcc741cc31f21d1d4067837ac54468b0b35f363",
+    "notes": "Complete source read; no additional evidenced defect in inspected file. Manual caller analysis does not qualify deployed services or all cookie-writer ordering.",
+    "attribution": "Prior direct manual review reused from security-reviewed-files.json at identical SHA"
+  },
+  {
+    "path": "frontend/features/auth/services/refresh-coordinator.ts",
+    "status": "reviewed",
+    "review_scope": "full",
+    "sha256": "abe6e1db6123a00dc2d3a1cecd44b410e124ae7a70b29d26629fac6865951628",
+    "notes": "Complete source read; no additional evidenced defect in inspected file. Manual caller analysis does not qualify deployed services or all cookie-writer ordering.",
+    "attribution": "Prior direct manual review reused from security-reviewed-files.json at identical SHA"
+  },
+  {
+    "path": "frontend/features/auth/services/restoration-destination.ts",
+    "status": "reviewed",
+    "review_scope": "full",
+    "sha256": "74b93c0b4c144b618d0b04b88a22a490a3b945ac389c0a25b04bd6fd61334c21",
+    "notes": "Complete source read; no additional evidenced defect in inspected file. Manual caller analysis does not qualify deployed services or all cookie-writer ordering.",
+    "attribution": "Prior direct manual review reused from security-reviewed-files.json at identical SHA"
+  },
+  {
+    "path": "frontend/features/auth/services/session-continuity.ts",
+    "status": "fixed",
+    "review_scope": "full",
+    "sha256": "cdb69ae93f3884102bb475cb090e3f7fb796fe6e7b1cb87eced8106dda00ffcc",
+    "notes": "Effective private scope helper excludes profile timestamps/sessionVersion; existing broader revalidation equality retained.",
+    "attribution": "manual_security direct physical-file read"
+  },
+  {
+    "path": "frontend/features/auth/services/session-state.ts",
+    "status": "fixed",
+    "review_scope": "full",
+    "sha256": "6f8077d093be0f9c9ecdb3340a18870802cb10c6e280b7d48c24d7bcf99330a8",
+    "notes": "In-memory authority transition cannot be suppressed by shared owner marker or denied storage; query reset dispatch moved outside storage try. Store-specific cleanup still excludes unsynced attendance rows.",
+    "attribution": "manual_security direct physical-file read"
+  },
+  {
+    "path": "frontend/features/auth/services/step-up-coordinator.ts",
+    "status": "reviewed",
+    "review_scope": "full",
+    "sha256": "720f1e5da371f8d625052c0b5861c4b15ed994435d49c50b51337042e00f8cd8",
+    "notes": "Complete source read; no additional evidenced defect in inspected file. Manual caller analysis does not qualify deployed services or all cookie-writer ordering.",
+    "attribution": "manual_security direct physical-file read"
+  },
+  {
+    "path": "frontend/lib/api/client.ts",
+    "review_scope": "full",
+    "attribution": "manual_security direct physical-file read",
+    "sha256": "ebcb9e65f5a82b82bd122756c6e8126703ba7d1f7b2da94d6477debaa92a4bf2",
+    "status": "fixed",
+    "notes": "Full current read; raw refresh snapshots authority before lock await and checks before expiry cleanup. Parent bounded Blob/single-parse decoder independently reviewed and preserved."
+  },
+  {
+    "path": "frontend/lib/api/request-owner.ts",
+    "review_scope": "full",
+    "attribution": "manual_security direct physical-file read",
+    "sha256": "dc504d23f73182988fa2d0093fb7954c57fa9a7118f6ce1859eb00df2fe54ac2",
+    "status": "fixed",
+    "notes": "Full current read; internal immutable effective-authority tuple fences dispatch/response/refresh/step-up; subscription only aborts. HTTP expected actor remains user-only restrictive precondition."
+  },
+  {
+    "path": "frontend/stores/auth.store.ts",
+    "review_scope": "full",
+    "attribution": "manual_security direct physical-file read",
+    "sha256": "788cdfd0ed8072ce1191d863759bed359b3a38de35a0aeeb1cc744c3e11f58e9",
+    "status": "fixed",
+    "notes": "Full current read; captures memory authority before preparation, preserves cold restoration and same-authority revalidation. Existing logout queue review and cookie-writer navigation contract preserved."
+  },
+  {
+    "path": "frontend/test-support/browser-locks.ts",
+    "review_scope": "full",
+    "attribution": "manual_security direct physical-file read",
+    "sha256": "79006288b9f71b7c569fdfb20423a5a9663c3f71f172793b3096937e7782c95e",
+    "status": "reviewed",
+    "notes": "Complete current source read and behavior verified within auth cookie tranche; see auth-cookie-frontend-verification.json for exact tests and limits."
+  },
+  {
+    "path": "scripts/qa/auth_cookie_application_review.mjs",
+    "review_scope": "full",
+    "attribution": "manual_security direct physical-file read",
+    "sha256": "cd18e6228263c163070a89f52c40f540778ac822429eb94ded2e56724824d81e",
+    "status": "reviewed",
+    "notes": "Complete current source read and behavior verified within auth cookie tranche; see auth-cookie-frontend-verification.json for exact tests and limits."
+  },
+  {
+    "path": "scripts/qa/auth_cookie_order_review.mjs",
+    "review_scope": "full",
+    "attribution": "manual_security direct physical-file read",
+    "sha256": "8d752f8fc1cb410a268690ee3508bad3855de6720dffb2777338d6f445811848",
+    "status": "reviewed",
+    "notes": "Complete current source read and behavior verified within auth cookie tranche; see auth-cookie-frontend-verification.json for exact tests and limits."
+  }
+]

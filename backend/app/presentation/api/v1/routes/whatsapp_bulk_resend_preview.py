@@ -1,47 +1,77 @@
-"""Read-only per-recipient preview of an explicitly selected resend draft."""
+"""Public read-only scope for explicitly selected saved-message previews."""
 
 from __future__ import annotations
 
-import uuid
+import uuid as uuid
 
-from fastapi import APIRouter, Depends, HTTPException, Response
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter as APIRouter
+from fastapi import Depends as Depends
+from fastapi import HTTPException as HTTPException
+from fastapi import Response as Response
+from sqlalchemy import select as select
+from sqlalchemy.ext.asyncio import AsyncSession as AsyncSession
 
-from app.application.use_cases.whatsapp.welcome_policy import requires_prior_welcome
-from app.domain.entities.entities import User
+from app.application.use_cases.whatsapp.welcome_policy import (
+    requires_prior_welcome as requires_prior_welcome,
+)
+from app.domain.entities.entities import User as User
 from app.infrastructure.database.models import (
-    WhatsAppBroadcastGroupModel,
-    WhatsAppBroadcastRecipientModel,
+    WhatsAppBroadcastGroupModel as WhatsAppBroadcastGroupModel,
 )
-from app.infrastructure.database.session import get_db_session
+from app.infrastructure.database.models import (
+    WhatsAppBroadcastRecipientModel as WhatsAppBroadcastRecipientModel,
+)
+from app.infrastructure.database.session import get_db_session as get_db_session
 from app.infrastructure.repositories.passport_roster_resolution_repository import (
-    active_replacement_phone_numbers_for_broadcast,
+    active_replacement_phone_numbers_for_broadcast as active_replacement_phone_numbers_for_broadcast,
 )
-from app.infrastructure.whatsapp.broadcast_welcome import broadcast_welcome_states
-from app.infrastructure.whatsapp.phone_welcome import WELCOME_REQUIRED, welcome_states_for_phones
-from app.presentation.api.v1.routes.whatsapp_archive_policy import require_active_broadcast
+from app.infrastructure.whatsapp.broadcast_welcome import (
+    broadcast_welcome_states as broadcast_welcome_states,
+)
+from app.infrastructure.whatsapp.phone_welcome import WELCOME_REQUIRED as WELCOME_REQUIRED
+from app.infrastructure.whatsapp.phone_welcome import (
+    welcome_states_for_phones as welcome_states_for_phones,
+)
+from app.presentation.api.v1.routes.whatsapp_archive_policy import (
+    require_active_broadcast as require_active_broadcast,
+)
 from app.presentation.api.v1.routes.whatsapp_bulk_resend_composer import (
-    SavedResendSnapshot,
-    resolve_saved_resend_snapshot,
-    validate_bulk_resend_edits,
+    SavedResendSnapshot as SavedResendSnapshot,
+)
+from app.presentation.api.v1.routes.whatsapp_bulk_resend_composer import (
+    resolve_saved_resend_snapshot as resolve_saved_resend_snapshot,
+)
+from app.presentation.api.v1.routes.whatsapp_bulk_resend_composer import (
+    validate_bulk_resend_edits as validate_bulk_resend_edits,
+)
+from app.presentation.api.v1.routes.whatsapp_bulk_resend_inputs import BulkResendInputs
+from app.presentation.api.v1.routes.whatsapp_bulk_resend_preview_values import (
+    BulkPreviewSelection,
+    collect_bulk_preview_snapshots,
+    project_bulk_resend_preview,
 )
 from app.presentation.api.v1.routes.whatsapp_bulk_resend_support import (
-    recipient_skip_reason,
-    selection_delivery_maps,
+    recipient_skip_reason as recipient_skip_reason,
+)
+from app.presentation.api.v1.routes.whatsapp_bulk_resend_support import (
+    selection_delivery_maps as selection_delivery_maps,
 )
 from app.presentation.api.v1.routes.whatsapp_shared import (
-    WHATSAPP_ACCEPTED_STATUSES,
-    WHATSAPP_ROLES,
-    _agency_filter,
-    _clean_name,
+    WHATSAPP_ACCEPTED_STATUSES as WHATSAPP_ACCEPTED_STATUSES,
 )
-from app.presentation.api.v1.routes.whatsapp_welcome_view import welcome_resend_skip_reason
+from app.presentation.api.v1.routes.whatsapp_shared import WHATSAPP_ROLES as WHATSAPP_ROLES
+from app.presentation.api.v1.routes.whatsapp_shared import _agency_filter as _agency_filter
+from app.presentation.api.v1.routes.whatsapp_shared import _clean_name as _clean_name
+from app.presentation.api.v1.routes.whatsapp_welcome_view import (
+    welcome_resend_skip_reason as welcome_resend_skip_reason,
+)
 from app.presentation.api.v1.schemas.whatsapp_schemas import (
-    WhatsAppBulkResendPreviewRequest,
-    WhatsAppBulkResendPreviewResponse,
+    WhatsAppBulkResendPreviewRequest as WhatsAppBulkResendPreviewRequest,
 )
-from app.presentation.dependencies.auth import require_role
+from app.presentation.api.v1.schemas.whatsapp_schemas import (
+    WhatsAppBulkResendPreviewResponse as WhatsAppBulkResendPreviewResponse,
+)
+from app.presentation.dependencies.auth import require_role as require_role
 
 router = APIRouter()
 
@@ -101,94 +131,7 @@ async def preview_selected_recipient_messages(
     replaced = await active_replacement_phone_numbers_for_broadcast(
         session, broadcast_group_id=group.id, agency_id=group.agency_id
     )
-    snapshots: dict[uuid.UUID, SavedResendSnapshot] = {}
-    reasons: list[str] = []
-    phone_states = (
-        await welcome_states_for_phones(session, agency_id=group.agency_id, broadcast_group_id=group.id,
-            phones=[recipient.normalized_phone_number for recipient in recipients])
-        if body.message_type == "welcome" or requires_prior_welcome(body.message_type) else {}
-    )
-    active_welcomes = await broadcast_welcome_states(
-        session, agency_id=group.agency_id, broadcast_group_id=group.id,
-        phones=[recipient.normalized_phone_number for recipient in recipients], active_only=True,
-    ) if body.message_type == "welcome" else {}
-    for recipient_id in body.recipient_ids:
-        recipient = by_id[recipient_id]
-        reason = recipient_skip_reason(
-            message_type=body.message_type,
-            recipient=recipient,
-            state=states.get(recipient.id),
-            active_statuses=active_statuses.get(recipient.id, set()),
-            replaced_phones=replaced,
-        )
-        explicit_welcome_resend = body.message_type == "welcome" and (
-            states.get(recipient.id) is not None
-            and states[recipient.id].status in WHATSAPP_ACCEPTED_STATUSES
-        )
-        reason = reason or welcome_resend_skip_reason(
-            body.message_type, (active_welcomes if explicit_welcome_resend else phone_states)
-            .get(recipient.normalized_phone_number),
-        )
-        if reason is None:
-            source = sources.get(recipient.id)
-            if source is None:
-                reason = "skipped_no_saved_message"
-            else:
-                try:
-                    snapshots[recipient.id] = resolve_saved_resend_snapshot(source, edits, preview=True)
-                except (ValueError, IndexError):
-                    reason = "skipped_no_saved_message"
-        if reason is not None:
-            reasons.append(reason)
-    if not snapshots:
-        raise HTTPException(
-            status_code=409,
-            detail="No eligible saved messages are available for this selection. Refresh the recipient list before trying again.",
-        )
-    preview_id = body.preview_recipient_id or next(iter(snapshots))
-    if preview_id not in snapshots:
-        raise HTTPException(
-            status_code=409,
-            detail="This recipient is currently unavailable for resend. Choose another selected recipient to preview.",
-        )
-    snapshot = snapshots[preview_id]
-    person = by_id[preview_id]
-    passport = body.message_type == "passport_link"
-    response.headers["Cache-Control"] = "private, no-store"
-    return WhatsAppBulkResendPreviewResponse(
-        message_type=body.message_type,
-        template_name=snapshot.template_name,
-        recipient_id=person.id,
-        recipient_name=_clean_name(person.name) or "Guest",
-        recipient_count=len(recipients),
-        eligible_recipient_count=len(snapshots),
-        already_sent_count=(
-            reasons.count("skipped_already_sent")
-            if body.message_type == "group_invite"
-            else sum(states[recipient_id].status in WHATSAPP_ACCEPTED_STATUSES for recipient_id in snapshots)
-        ),
-        in_progress_count=reasons.count("skipped_in_progress"),
-        uncertain_recipient_count=reasons.count("skipped_delivery_unknown"),
-        welcome_required_count=reasons.count("skipped_welcome_required"),
-        welcome_required_reason=WELCOME_REQUIRED if "skipped_welcome_required" in reasons else None,
-        passport_intro=snapshot.parameters[0] if passport else None,
-        passport_link=snapshot.parameters[1] if passport else None,
-        group_invite_link=snapshot.parameters[1] if body.message_type == "group_invite" else None,
-        message_content=snapshot.parameters[2] if passport else snapshot.parameters[0],
-        header_image_id=snapshot.header_parameters[0] if snapshot.header_parameters else None,
-        content_source="latest_recipient",
-        rendered_message=snapshot.rendered_message,
-        header_parameter_values=snapshot.header_parameters,
-        parameter_values=snapshot.parameters,
-        selected=len(recipients),
-        missing_header_image_count=sum(
-            body.message_type == "group_invite" and not item.header_parameters
-            for item in snapshots.values()
-        ),
-        eligible_recipient_ids=list(snapshots),
-        skipped_no_saved_message=reasons.count("skipped_no_saved_message"),
-        skipped_replaced=reasons.count("skipped_replaced"),
-        skipped_ineligible=reasons.count("skipped_ineligible"),
-        skipped_in_progress=reasons.count("skipped_in_progress"),
-        skipped_delivery_unknown=reasons.count("skipped_delivery_unknown"),
-    )
+    selection = BulkPreviewSelection(group, recipients, by_id)
+    inputs = BulkResendInputs(edits, states, active_statuses, sources, replaced)
+    eligible = await collect_bulk_preview_snapshots(session, body, selection, inputs)
+    return project_bulk_resend_preview(body, response, selection, states, eligible)

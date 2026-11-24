@@ -1,0 +1,10 @@
+
+> frontend@0.1.0 lint
+> eslint
+
+
+C:\Users\nipun\Desktop\PassDetection\frontend\.tmp\legacy-active-coverage.config.mts
+  2:1  warning  Assign object to a variable before exporting as module default  import/no-anonymous-default-export
+
+✖ 1 problem (0 errors, 1 warning)
+

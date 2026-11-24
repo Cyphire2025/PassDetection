@@ -1,0 +1,13 @@
+{
+  "files": [
+    {
+      "path": "frontend/README.md",
+      "sha256": "d289440d2516265dcbdc0f0ea13588c2f9bf016f17e94e7534c1e9914b55eda5",
+      "physical_lines": 69,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-documented",
+      "notes": "Complete starter README read and project-specific replacement authored. Local package scripts/toolchain/isolation and root release guidance traced. Describes existing npm/Next/VPS workflow; no toolchain, deployment setup or application changes; no checks run for documentation."
+    }
+  ]
+}

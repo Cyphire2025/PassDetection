@@ -1,0 +1,16 @@
+{
+  "basis": "One new pure shared standard-retry S3 write-envelope owner. Existing module/critical/global floors unchanged. Actual pinned botocore policy exercised across every supported total attempt count1..10; realSQLite copy lease and timed-out local-thread cleanup regressions pass.",
+  "modules": [
+    {
+      "path": "app/core/storage_write_budget.py",
+      "baseline_lines": 17,
+      "maximum_lines": 20,
+      "baseline_max_function_complexity": 2,
+      "maximum_function_complexity": 2,
+      "minimum_coverage_percent": 100
+    }
+  ],
+  "line_percent": 100,
+  "tests_passed": 12,
+  "coverage": "storage-write-budget-coverage.json"
+}

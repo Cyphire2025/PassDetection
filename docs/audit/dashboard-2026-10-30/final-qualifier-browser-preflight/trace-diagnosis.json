@@ -1,0 +1,368 @@
+{
+  "status": "Read-only trace diagnosis; current-flow fixture candidate prepared, no source or browser test execution. The restoration expectation remains unresolved in current runtime.",
+  "trace_failures": [
+    {
+      "trace": ".tmp/final-frontend-qualification/browser-results/qualifier-relationship-met-00999-t-true-other-false-at-320px-production-dashboard/trace.zip",
+      "trace_sha256": "bd486a1a401898c1e88b21914efb423570db5f3e4bd846954dda06c363679083",
+      "zip_complete_CRC_verified": true,
+      "error_context": ".tmp/final-frontend-qualification/browser-results/qualifier-relationship-met-00999-t-true-other-false-at-320px-production-dashboard/error-context.md",
+      "error_context_sha256": "de4858eacac4318760b94193cb0276acc5754dfc851123c67c0d04912d5cbdf5",
+      "error_source_line": 56,
+      "failure": "Shared helper waits for relationship heading before choosing current traveller entry flow.",
+      "failure_DOM": "- main:\n  - img \"Global Connect Travels\"\n  - heading \"Your travel details\" [level=1]\n  - paragraph: Prepare your documents for a smooth journey.\n  - text: Dubai Client Group\n  - term: Departure Date\n  - definition:\n    - time: 1 Nov 2026\n  - term: Return Date\n  - definition:\n    - time: 8 Nov 2026\n  - region \"Let\u2019s get you ready.\":\n    - heading \"Let\u2019s get you ready.\" [level=2]\n    - button \"Travelled with us before Find and review your saved passport.\"\n    - button \"New traveller Upload your documents for this trip.\"\n  - paragraph: Secure document collection by Global Connect Travels\n- alert",
+      "API_requests": [
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:3100/api/v1/upload-links/token/qualifier-methods-1-0",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:3100/api/v1/returning/capabilities?group_token=qualifier-methods-1-0",
+          "status": 200
+        }
+      ],
+      "click_fill_select_actions_before_failure": 0,
+      "recorded_page_errors": [],
+      "trace_event_count": 30,
+      "network_records": 31,
+      "test_error": {
+        "message": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Relation with Qualifier' })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 10000ms\n  - waiting for getByRole('heading', { name: 'Relation with Qualifier' })\n",
+        "source": {
+          "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e\\qualifier-relationship-methods.spec.ts",
+          "line": 56,
+          "column": 80,
+          "function": "prepareLink"
+        }
+      }
+    },
+    {
+      "trace": ".tmp/final-frontend-qualification/browser-results/qualifier-relationship-met-183d4-t-true-other-false-at-390px-production-dashboard/trace.zip",
+      "trace_sha256": "670789d41a5bd9a659d5338f6eb734578809650fa1f178bb8d07ea733e3d05ea",
+      "zip_complete_CRC_verified": true,
+      "error_context": ".tmp/final-frontend-qualification/browser-results/qualifier-relationship-met-183d4-t-true-other-false-at-390px-production-dashboard/error-context.md",
+      "error_context_sha256": "96ffaffece4d7c376b0b5be626711c2e15c79febfac9c14301a3ba6f950c6ff8",
+      "error_source_line": 56,
+      "failure": "Shared helper waits for relationship heading before choosing current traveller entry flow.",
+      "failure_DOM": "- main:\n  - img \"Global Connect Travels\"\n  - heading \"Your travel details\" [level=1]\n  - paragraph: Prepare your documents for a smooth journey.\n  - text: Dubai Client Group\n  - term: Departure Date\n  - definition:\n    - time: 1 Nov 2026\n  - term: Return Date\n  - definition:\n    - time: 8 Nov 2026\n  - region \"Let\u2019s get you ready.\":\n    - heading \"Let\u2019s get you ready.\" [level=2]\n    - button \"Travelled with us before Find and review your saved passport.\"\n    - button \"New traveller Upload your documents for this trip.\"\n  - paragraph: Secure document collection by Global Connect Travels\n- alert",
+      "API_requests": [
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:3100/api/v1/upload-links/token/qualifier-methods-1-0",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:3100/api/v1/returning/capabilities?group_token=qualifier-methods-1-0",
+          "status": 200
+        }
+      ],
+      "click_fill_select_actions_before_failure": 0,
+      "recorded_page_errors": [],
+      "trace_event_count": 31,
+      "network_records": 31,
+      "test_error": {
+        "message": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Relation with Qualifier' })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 10000ms\n  - waiting for getByRole('heading', { name: 'Relation with Qualifier' })\n",
+        "source": {
+          "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e\\qualifier-relationship-methods.spec.ts",
+          "line": 56,
+          "column": 80,
+          "function": "prepareLink"
+        }
+      }
+    },
+    {
+      "trace": ".tmp/final-frontend-qualification/browser-results/qualifier-relationship-met-24484--false-other-true-at-1440px-production-dashboard/trace.zip",
+      "trace_sha256": "5853e3604b9cb808384a05d078d24dd14b3be41380782cc51cb37ceb6a5415ff",
+      "zip_complete_CRC_verified": true,
+      "error_context": ".tmp/final-frontend-qualification/browser-results/qualifier-relationship-met-24484--false-other-true-at-1440px-production-dashboard/error-context.md",
+      "error_context_sha256": "1a2a58864c9fc5f6f663fb34b070563c5bdee2809a03493f7cccc92ef93ea9e2",
+      "error_source_line": 56,
+      "failure": "Shared helper waits for relationship heading before choosing current traveller entry flow.",
+      "failure_DOM": "- main:\n  - img \"Global Connect Travels\"\n  - heading \"Your travel details\" [level=1]\n  - paragraph: Prepare your documents for a smooth journey.\n  - text: Dubai Client Group\n  - term: Departure Date\n  - definition:\n    - time: 1 Nov 2026\n  - term: Return Date\n  - definition:\n    - time: 8 Nov 2026\n  - region \"Let\u2019s get you ready.\":\n    - heading \"Let\u2019s get you ready.\" [level=2]\n    - button \"Travelled with us before Find and review your saved passport.\"\n    - button \"New traveller Upload your documents for this trip.\"\n  - paragraph: Secure document collection by Global Connect Travels\n- alert",
+      "API_requests": [
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:3100/api/v1/upload-links/token/qualifier-methods-0-1",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:3100/api/v1/returning/capabilities?group_token=qualifier-methods-0-1",
+          "status": 200
+        }
+      ],
+      "click_fill_select_actions_before_failure": 0,
+      "recorded_page_errors": [],
+      "trace_event_count": 36,
+      "network_records": 31,
+      "test_error": {
+        "message": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Relation with Qualifier' })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 10000ms\n  - waiting for getByRole('heading', { name: 'Relation with Qualifier' })\n",
+        "source": {
+          "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e\\qualifier-relationship-methods.spec.ts",
+          "line": 56,
+          "column": 80,
+          "function": "prepareLink"
+        }
+      }
+    },
+    {
+      "trace": ".tmp/final-frontend-qualification/browser-results/qualifier-relationship-met-245a7-t-false-other-true-at-390px-production-dashboard/trace.zip",
+      "trace_sha256": "3717891b11c5688e832902fd188501400d6f00c7daae2f3ab1f7f8b9d29fe776",
+      "zip_complete_CRC_verified": true,
+      "error_context": ".tmp/final-frontend-qualification/browser-results/qualifier-relationship-met-245a7-t-false-other-true-at-390px-production-dashboard/error-context.md",
+      "error_context_sha256": "722962b8db1a650269c3efc3cb8055c3b0e35a69b1e48eff0b69ff8df6fdb84f",
+      "error_source_line": 56,
+      "failure": "Shared helper waits for relationship heading before choosing current traveller entry flow.",
+      "failure_DOM": "- main:\n  - img \"Global Connect Travels\"\n  - heading \"Your travel details\" [level=1]\n  - paragraph: Prepare your documents for a smooth journey.\n  - text: Dubai Client Group\n  - term: Departure Date\n  - definition:\n    - time: 1 Nov 2026\n  - term: Return Date\n  - definition:\n    - time: 8 Nov 2026\n  - region \"Let\u2019s get you ready.\":\n    - heading \"Let\u2019s get you ready.\" [level=2]\n    - button \"Travelled with us before Find and review your saved passport.\"\n    - button \"New traveller Upload your documents for this trip.\"\n  - paragraph: Secure document collection by Global Connect Travels\n- alert",
+      "API_requests": [
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:3100/api/v1/upload-links/token/qualifier-methods-0-1",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:3100/api/v1/returning/capabilities?group_token=qualifier-methods-0-1",
+          "status": 200
+        }
+      ],
+      "click_fill_select_actions_before_failure": 0,
+      "recorded_page_errors": [],
+      "trace_event_count": 33,
+      "network_records": 31,
+      "test_error": {
+        "message": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Relation with Qualifier' })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 10000ms\n  - waiting for getByRole('heading', { name: 'Relation with Qualifier' })\n",
+        "source": {
+          "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e\\qualifier-relationship-methods.spec.ts",
+          "line": 56,
+          "column": 80,
+          "function": "prepareLink"
+        }
+      }
+    },
+    {
+      "trace": ".tmp/final-frontend-qualification/browser-results/qualifier-relationship-met-31dc4-ing-creates-a-new-selection-production-dashboard/trace.zip",
+      "trace_sha256": "bcc7450a74d1338b9188b7e7d87edb86dd111896a0c5d3306610cd73659f7b08",
+      "zip_complete_CRC_verified": true,
+      "error_context": ".tmp/final-frontend-qualification/browser-results/qualifier-relationship-met-31dc4-ing-creates-a-new-selection-production-dashboard/error-context.md",
+      "error_context_sha256": "e247f6f34e86ea96d6252307441ccca33f2289161d6a6d49df4acf52bbffa942",
+      "error_source_line": 56,
+      "failure": "Shared helper waits for relationship heading before choosing current traveller entry flow.",
+      "failure_DOM": "- main:\n  - img \"Global Connect Travels\"\n  - heading \"Your travel details\" [level=1]\n  - paragraph: Prepare your documents for a smooth journey.\n  - text: Dubai Client Group\n  - term: Departure Date\n  - definition:\n    - time: 1 Nov 2026\n  - term: Return Date\n  - definition:\n    - time: 8 Nov 2026\n  - region \"Let\u2019s get you ready.\":\n    - heading \"Let\u2019s get you ready.\" [level=2]\n    - button \"Travelled with us before Find and review your saved passport.\"\n    - button \"New traveller Upload your documents for this trip.\"\n  - paragraph: Secure document collection by Global Connect Travels\n- alert",
+      "API_requests": [
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:3100/api/v1/upload-links/token/qualifier-methods-1-1",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:3100/api/v1/returning/capabilities?group_token=qualifier-methods-1-1",
+          "status": 200
+        }
+      ],
+      "click_fill_select_actions_before_failure": 0,
+      "recorded_page_errors": [],
+      "trace_event_count": 33,
+      "network_records": 31,
+      "test_error": {
+        "message": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Relation with Qualifier' })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 10000ms\n  - waiting for getByRole('heading', { name: 'Relation with Qualifier' })\n",
+        "source": {
+          "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e\\qualifier-relationship-methods.spec.ts",
+          "line": 56,
+          "column": 80,
+          "function": "prepareLink"
+        }
+      }
+    },
+    {
+      "trace": ".tmp/final-frontend-qualification/browser-results/qualifier-relationship-met-6debe-st-true-other-true-at-390px-production-dashboard/trace.zip",
+      "trace_sha256": "73c34e694afd1d040bf43192b9e9c3a352d20493bc31e6e181997632b25b2f99",
+      "zip_complete_CRC_verified": true,
+      "error_context": ".tmp/final-frontend-qualification/browser-results/qualifier-relationship-met-6debe-st-true-other-true-at-390px-production-dashboard/error-context.md",
+      "error_context_sha256": "4812ce788d62df1680e484aac41e924fcbb52317aec19af0986cab91c888b364",
+      "error_source_line": 56,
+      "failure": "Shared helper waits for relationship heading before choosing current traveller entry flow.",
+      "failure_DOM": "- main:\n  - img \"Global Connect Travels\"\n  - heading \"Your travel details\" [level=1]\n  - paragraph: Prepare your documents for a smooth journey.\n  - text: Dubai Client Group\n  - term: Departure Date\n  - definition:\n    - time: 1 Nov 2026\n  - term: Return Date\n  - definition:\n    - time: 8 Nov 2026\n  - region \"Let\u2019s get you ready.\":\n    - heading \"Let\u2019s get you ready.\" [level=2]\n    - button \"Travelled with us before Find and review your saved passport.\"\n    - button \"New traveller Upload your documents for this trip.\"\n  - paragraph: Secure document collection by Global Connect Travels\n- alert",
+      "API_requests": [
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:3100/api/v1/upload-links/token/qualifier-methods-1-1",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:3100/api/v1/returning/capabilities?group_token=qualifier-methods-1-1",
+          "status": 200
+        }
+      ],
+      "click_fill_select_actions_before_failure": 0,
+      "recorded_page_errors": [],
+      "trace_event_count": 30,
+      "network_records": 31,
+      "test_error": {
+        "message": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Relation with Qualifier' })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 10000ms\n  - waiting for getByRole('heading', { name: 'Relation with Qualifier' })\n",
+        "source": {
+          "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e\\qualifier-relationship-methods.spec.ts",
+          "line": 56,
+          "column": 80,
+          "function": "prepareLink"
+        }
+      }
+    },
+    {
+      "trace": ".tmp/final-frontend-qualification/browser-results/qualifier-relationship-met-76856-t-false-other-true-at-320px-production-dashboard/trace.zip",
+      "trace_sha256": "3f8105c98c3df85e3be44dc8ee6637cbd9888aef7cd3c757728e2e5bb3afc3e0",
+      "zip_complete_CRC_verified": true,
+      "error_context": ".tmp/final-frontend-qualification/browser-results/qualifier-relationship-met-76856-t-false-other-true-at-320px-production-dashboard/error-context.md",
+      "error_context_sha256": "4eb948accc1b951df273561a80f17e66f4449673e21beb6681b255a09fbb9fb3",
+      "error_source_line": 56,
+      "failure": "Shared helper waits for relationship heading before choosing current traveller entry flow.",
+      "failure_DOM": "- main:\n  - img \"Global Connect Travels\"\n  - heading \"Your travel details\" [level=1]\n  - paragraph: Prepare your documents for a smooth journey.\n  - text: Dubai Client Group\n  - term: Departure Date\n  - definition:\n    - time: 1 Nov 2026\n  - term: Return Date\n  - definition:\n    - time: 8 Nov 2026\n  - region \"Let\u2019s get you ready.\":\n    - heading \"Let\u2019s get you ready.\" [level=2]\n    - button \"Travelled with us before Find and review your saved passport.\"\n    - button \"New traveller Upload your documents for this trip.\"\n  - paragraph: Secure document collection by Global Connect Travels\n- alert",
+      "API_requests": [
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:3100/api/v1/upload-links/token/qualifier-methods-0-1",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:3100/api/v1/returning/capabilities?group_token=qualifier-methods-0-1",
+          "status": 200
+        }
+      ],
+      "click_fill_select_actions_before_failure": 0,
+      "recorded_page_errors": [],
+      "trace_event_count": 29,
+      "network_records": 31,
+      "test_error": {
+        "message": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Relation with Qualifier' })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 10000ms\n  - waiting for getByRole('heading', { name: 'Relation with Qualifier' })\n",
+        "source": {
+          "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e\\qualifier-relationship-methods.spec.ts",
+          "line": 56,
+          "column": 80,
+          "function": "prepareLink"
+        }
+      }
+    },
+    {
+      "trace": ".tmp/final-frontend-qualification/browser-results/qualifier-relationship-met-9ac26-st-true-other-true-at-320px-production-dashboard/trace.zip",
+      "trace_sha256": "9ff7dfc478ab37c78543e9213bce2593254fd411d8bf02889ed27065e5178e87",
+      "zip_complete_CRC_verified": true,
+      "error_context": ".tmp/final-frontend-qualification/browser-results/qualifier-relationship-met-9ac26-st-true-other-true-at-320px-production-dashboard/error-context.md",
+      "error_context_sha256": "27e64ff8332a23e411e67d86615b148edfb82516754f4adb92f16ce9806efabc",
+      "error_source_line": 56,
+      "failure": "Shared helper waits for relationship heading before choosing current traveller entry flow.",
+      "failure_DOM": "- main:\n  - img \"Global Connect Travels\"\n  - heading \"Your travel details\" [level=1]\n  - paragraph: Prepare your documents for a smooth journey.\n  - text: Dubai Client Group\n  - term: Departure Date\n  - definition:\n    - time: 1 Nov 2026\n  - term: Return Date\n  - definition:\n    - time: 8 Nov 2026\n  - region \"Let\u2019s get you ready.\":\n    - heading \"Let\u2019s get you ready.\" [level=2]\n    - button \"Travelled with us before Find and review your saved passport.\"\n    - button \"New traveller Upload your documents for this trip.\"\n  - paragraph: Secure document collection by Global Connect Travels\n- alert",
+      "API_requests": [
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:3100/api/v1/upload-links/token/qualifier-methods-1-1",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:3100/api/v1/returning/capabilities?group_token=qualifier-methods-1-1",
+          "status": 200
+        }
+      ],
+      "click_fill_select_actions_before_failure": 0,
+      "recorded_page_errors": [],
+      "trace_event_count": 31,
+      "network_records": 31,
+      "test_error": {
+        "message": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Relation with Qualifier' })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 10000ms\n  - waiting for getByRole('heading', { name: 'Relation with Qualifier' })\n",
+        "source": {
+          "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e\\qualifier-relationship-methods.spec.ts",
+          "line": 56,
+          "column": 80,
+          "function": "prepareLink"
+        }
+      }
+    },
+    {
+      "trace": ".tmp/final-frontend-qualification/browser-results/qualifier-relationship-met-abe80-t-true-other-true-at-1440px-production-dashboard/trace.zip",
+      "trace_sha256": "1a70d63d7bd2c6f914bb74ba5904c74888389723100db939222e65ac38a95f4f",
+      "zip_complete_CRC_verified": true,
+      "error_context": ".tmp/final-frontend-qualification/browser-results/qualifier-relationship-met-abe80-t-true-other-true-at-1440px-production-dashboard/error-context.md",
+      "error_context_sha256": "3309ff901f9fa9e4ef8c4fb776cc8df84232946590fc4f280be5fb337cb1d057",
+      "error_source_line": 56,
+      "failure": "Shared helper waits for relationship heading before choosing current traveller entry flow.",
+      "failure_DOM": "- main:\n  - img \"Global Connect Travels\"\n  - heading \"Your travel details\" [level=1]\n  - paragraph: Prepare your documents for a smooth journey.\n  - text: Dubai Client Group\n  - term: Departure Date\n  - definition:\n    - time: 1 Nov 2026\n  - term: Return Date\n  - definition:\n    - time: 8 Nov 2026\n  - region \"Let\u2019s get you ready.\":\n    - heading \"Let\u2019s get you ready.\" [level=2]\n    - button \"Travelled with us before Find and review your saved passport.\"\n    - button \"New traveller Upload your documents for this trip.\"\n  - paragraph: Secure document collection by Global Connect Travels\n- alert",
+      "API_requests": [
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:3100/api/v1/upload-links/token/qualifier-methods-1-1",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:3100/api/v1/returning/capabilities?group_token=qualifier-methods-1-1",
+          "status": 200
+        }
+      ],
+      "click_fill_select_actions_before_failure": 0,
+      "recorded_page_errors": [],
+      "trace_event_count": 30,
+      "network_records": 31,
+      "test_error": {
+        "message": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Relation with Qualifier' })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 10000ms\n  - waiting for getByRole('heading', { name: 'Relation with Qualifier' })\n",
+        "source": {
+          "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e\\qualifier-relationship-methods.spec.ts",
+          "line": 56,
+          "column": 80,
+          "function": "prepareLink"
+        }
+      }
+    },
+    {
+      "trace": ".tmp/final-frontend-qualification/browser-results/qualifier-relationship-met-c599e--true-other-false-at-1440px-production-dashboard/trace.zip",
+      "trace_sha256": "c352c43b3f7a40251778b2447e36c90ce4b184f7c69441367095755ed73ae2c6",
+      "zip_complete_CRC_verified": true,
+      "error_context": ".tmp/final-frontend-qualification/browser-results/qualifier-relationship-met-c599e--true-other-false-at-1440px-production-dashboard/error-context.md",
+      "error_context_sha256": "9f1a16f6af60431da0522da492ea1c1995210f804e79bbf7d75900a5c5140c7f",
+      "error_source_line": 56,
+      "failure": "Shared helper waits for relationship heading before choosing current traveller entry flow.",
+      "failure_DOM": "- main:\n  - img \"Global Connect Travels\"\n  - heading \"Your travel details\" [level=1]\n  - paragraph: Prepare your documents for a smooth journey.\n  - text: Dubai Client Group\n  - term: Departure Date\n  - definition:\n    - time: 1 Nov 2026\n  - term: Return Date\n  - definition:\n    - time: 8 Nov 2026\n  - region \"Let\u2019s get you ready.\":\n    - heading \"Let\u2019s get you ready.\" [level=2]\n    - button \"Travelled with us before Find and review your saved passport.\"\n    - button \"New traveller Upload your documents for this trip.\"\n  - paragraph: Secure document collection by Global Connect Travels\n- alert",
+      "API_requests": [
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:3100/api/v1/upload-links/token/qualifier-methods-1-0",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:3100/api/v1/returning/capabilities?group_token=qualifier-methods-1-0",
+          "status": 200
+        }
+      ],
+      "click_fill_select_actions_before_failure": 0,
+      "recorded_page_errors": [],
+      "trace_event_count": 30,
+      "network_records": 31,
+      "test_error": {
+        "message": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Relation with Qualifier' })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 10000ms\n  - waiting for getByRole('heading', { name: 'Relation with Qualifier' })\n",
+        "source": {
+          "file": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\e2e\\qualifier-relationship-methods.spec.ts",
+          "line": 56,
+          "column": 80,
+          "function": "prepareLink"
+        }
+      }
+    }
+  ],
+  "trace_proven_root_cause": "All10fail in shared prepareLink at line56 before clicking current traveller entry. Both group and returning-capabilities mocks succeed; actual landing DOM has New traveller. This demonstrates stale test entry/navigation, not relationship layout behavior.",
+  "latent_restore_gap": "Current FreshQualifier does not invoke the existing qualifier GET and initializes relationship editor values empty. Private DraftView returns only opaque collection token, so old Other text cannot restore after reload+Change without frontend read. This is source-supported and not yet reproduced in a corrected current-flow browser run.",
+  "fixture_migration": {
+    "path": "frontend/e2e/qualifier-relationship-methods.spec.ts",
+    "original_sha256": "aab9e6e497a0885f6f14a2420df7e9396150bd6d100beacc753b2d7884e16095",
+    "candidate_sha256": "d37bab442b0c382f07f6c3b7e5ccda56c858a60b43c5abc19c60254689dc618c",
+    "candidate": "docs/audit/dashboard-2026-10-30/final-qualifier-browser-preflight/candidates/frontend/e2e/qualifier-relationship-methods.spec.ts.bin",
+    "original": "docs/audit/dashboard-2026-10-30/final-qualifier-browser-preflight/raw-originals/qualifier-relationship-methods.spec.ts.bin",
+    "contracts": "Per-member private draft POST/GET/PUT/revisions, activity/discard, distinct selection tokens and header-authorized qualifier GET; unexpected requests remain failures.",
+    "tests_preserved": "All9layout combinations plus original10thCousin\u2192reload\u2192current resume\u2192Change\u2192Cousin selected\u2192Colleague save; no saved text assertion removed. Added actual opaque proof update and GET capability checks.",
+    "execution_status": "not_run; intended to reproduce current runtime restore gap after fixture/navigation correction."
+  },
+  "actual_source_hash_unchanged": true
+}

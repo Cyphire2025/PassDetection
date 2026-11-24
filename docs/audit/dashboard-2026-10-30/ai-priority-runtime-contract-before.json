@@ -1,0 +1,697 @@
+{
+  "app.infrastructure.ai_priority.metrics": {
+    "_QUEUE_LIFECYCLE_SCRIPT": "3e9009db1cf85d225d2da0775d7f7ead7cb2bab5576c17678834885988626304",
+    "_OBSERVE_SCRIPT": "ba15c8765877cf61344372552a48a64eba66664e69c4f3a6fa87bf8b9562046c",
+    "_START_LIFECYCLE_SCRIPT": "0d40e4c8a719180f47fc9704a1d522b6e8d20d21c7b9783b842800de62f50a38",
+    "_COMPLETE_LIFECYCLE_SCRIPT": "cade247864a352f741a7910891119740dd88268e1f22502877e4d2a1f3ca8903",
+    "SharedAiMetricsStore": {
+      "module": "app.infrastructure.ai_priority.metrics",
+      "qualname": "SharedAiMetricsStore",
+      "methods": {
+        "increment": {
+          "signature": "(self, name: 'str', amount: 'int' = 1) -> 'None'",
+          "hints": {
+            "name": "<class 'str'>",
+            "amount": "<class 'int'>",
+            "return": "<class 'NoneType'>"
+          }
+        },
+        "observe": {
+          "signature": "(self, name: 'str', value: 'float') -> 'None'",
+          "hints": {
+            "name": "<class 'str'>",
+            "value": "<class 'float'>",
+            "return": "<class 'NoneType'>"
+          }
+        },
+        "set_gauge": {
+          "signature": "(self, name: 'str', value: 'float') -> 'None'",
+          "hints": {
+            "name": "<class 'str'>",
+            "value": "<class 'float'>",
+            "return": "<class 'NoneType'>"
+          }
+        },
+        "set_gauges": {
+          "signature": "(self, values: 'Mapping[str, float]') -> 'None'",
+          "hints": {
+            "values": "collections.abc.Mapping[str, float]",
+            "return": "<class 'NoneType'>"
+          }
+        },
+        "mark_queued": {
+          "signature": "(self, *, workload: 'AiWorkload', job_key: 'str', generation: 'int', now_ms: 'int') -> 'None'",
+          "hints": {
+            "workload": "<enum 'AiWorkload'>",
+            "job_key": "<class 'str'>",
+            "generation": "<class 'int'>",
+            "now_ms": "<class 'int'>",
+            "return": "<class 'NoneType'>"
+          }
+        },
+        "mark_started": {
+          "signature": "(self, *, workload: 'AiWorkload', job_key: 'str', generation: 'int', now_ms: 'int') -> 'float | None'",
+          "hints": {
+            "workload": "<enum 'AiWorkload'>",
+            "job_key": "<class 'str'>",
+            "generation": "<class 'int'>",
+            "now_ms": "<class 'int'>",
+            "return": "float | None"
+          }
+        },
+        "mark_completed": {
+          "signature": "(self, *, workload: 'AiWorkload', job_key: 'str', generation: 'int', now_ms: 'int') -> 'float | None'",
+          "hints": {
+            "workload": "<enum 'AiWorkload'>",
+            "job_key": "<class 'str'>",
+            "generation": "<class 'int'>",
+            "now_ms": "<class 'int'>",
+            "return": "float | None"
+          }
+        },
+        "snapshot": {
+          "signature": "(self) -> 'dict[str, Any]'",
+          "hints": {
+            "return": "dict[str, typing.Any]"
+          }
+        }
+      }
+    },
+    "InMemoryAiMetricsStore": {
+      "module": "app.infrastructure.ai_priority.metrics",
+      "qualname": "InMemoryAiMetricsStore",
+      "methods": {
+        "__init__": {
+          "signature": "(self, *, max_samples: 'int' = 2048, max_lifecycles: 'int' = 4096) -> 'None'",
+          "hints": {
+            "max_samples": "<class 'int'>",
+            "max_lifecycles": "<class 'int'>",
+            "return": "<class 'NoneType'>"
+          }
+        },
+        "increment": {
+          "signature": "(self, name: 'str', amount: 'int' = 1) -> 'None'",
+          "hints": {
+            "name": "<class 'str'>",
+            "amount": "<class 'int'>",
+            "return": "<class 'NoneType'>"
+          }
+        },
+        "observe": {
+          "signature": "(self, name: 'str', value: 'float') -> 'None'",
+          "hints": {
+            "name": "<class 'str'>",
+            "value": "<class 'float'>",
+            "return": "<class 'NoneType'>"
+          }
+        },
+        "set_gauge": {
+          "signature": "(self, name: 'str', value: 'float') -> 'None'",
+          "hints": {
+            "name": "<class 'str'>",
+            "value": "<class 'float'>",
+            "return": "<class 'NoneType'>"
+          }
+        },
+        "set_gauges": {
+          "signature": "(self, values: 'Mapping[str, float]') -> 'None'",
+          "hints": {
+            "values": "collections.abc.Mapping[str, float]",
+            "return": "<class 'NoneType'>"
+          }
+        },
+        "mark_queued": {
+          "signature": "(self, *, workload: 'AiWorkload', job_key: 'str', generation: 'int', now_ms: 'int') -> 'None'",
+          "hints": {
+            "workload": "<enum 'AiWorkload'>",
+            "job_key": "<class 'str'>",
+            "generation": "<class 'int'>",
+            "now_ms": "<class 'int'>",
+            "return": "<class 'NoneType'>"
+          }
+        },
+        "mark_started": {
+          "signature": "(self, *, workload: 'AiWorkload', job_key: 'str', generation: 'int', now_ms: 'int') -> 'float | None'",
+          "hints": {
+            "workload": "<enum 'AiWorkload'>",
+            "job_key": "<class 'str'>",
+            "generation": "<class 'int'>",
+            "now_ms": "<class 'int'>",
+            "return": "float | None"
+          }
+        },
+        "mark_completed": {
+          "signature": "(self, *, workload: 'AiWorkload', job_key: 'str', generation: 'int', now_ms: 'int') -> 'float | None'",
+          "hints": {
+            "workload": "<enum 'AiWorkload'>",
+            "job_key": "<class 'str'>",
+            "generation": "<class 'int'>",
+            "now_ms": "<class 'int'>",
+            "return": "float | None"
+          }
+        },
+        "snapshot": {
+          "signature": "(self) -> 'dict[str, Any]'",
+          "hints": {
+            "return": "dict[str, typing.Any]"
+          }
+        },
+        "_observe_locked": {
+          "signature": "(self, name: 'str', value: 'float') -> 'None'",
+          "hints": {
+            "name": "<class 'str'>",
+            "value": "<class 'float'>",
+            "return": "<class 'NoneType'>"
+          }
+        }
+      }
+    },
+    "RedisAiMetricsStore": {
+      "module": "app.infrastructure.ai_priority.metrics",
+      "qualname": "RedisAiMetricsStore",
+      "methods": {
+        "__init__": {
+          "signature": "(self, redis_client: 'Any', *, namespace: 'str' = 'passdetection:{ai-observability}:v1', max_samples: 'int' = 2048, retention_seconds: 'int' = 604800, lifecycle_seconds: 'int' = 21600) -> 'None'",
+          "hints": {
+            "redis_client": "typing.Any",
+            "namespace": "<class 'str'>",
+            "max_samples": "<class 'int'>",
+            "retention_seconds": "<class 'int'>",
+            "lifecycle_seconds": "<class 'int'>",
+            "return": "<class 'NoneType'>"
+          }
+        },
+        "from_url": {
+          "signature": "(redis_url: 'str') -> 'RedisAiMetricsStore'",
+          "hints": {
+            "redis_url": "<class 'str'>",
+            "return": "<class 'app.infrastructure.ai_priority.metrics.RedisAiMetricsStore'>"
+          }
+        },
+        "increment": {
+          "signature": "(self, name: 'str', amount: 'int' = 1) -> 'None'",
+          "hints": {
+            "name": "<class 'str'>",
+            "amount": "<class 'int'>",
+            "return": "<class 'NoneType'>"
+          }
+        },
+        "observe": {
+          "signature": "(self, name: 'str', value: 'float') -> 'None'",
+          "hints": {
+            "name": "<class 'str'>",
+            "value": "<class 'float'>",
+            "return": "<class 'NoneType'>"
+          }
+        },
+        "set_gauge": {
+          "signature": "(self, name: 'str', value: 'float') -> 'None'",
+          "hints": {
+            "name": "<class 'str'>",
+            "value": "<class 'float'>",
+            "return": "<class 'NoneType'>"
+          }
+        },
+        "set_gauges": {
+          "signature": "(self, values: 'Mapping[str, float]') -> 'None'",
+          "hints": {
+            "values": "collections.abc.Mapping[str, float]",
+            "return": "<class 'NoneType'>"
+          }
+        },
+        "mark_queued": {
+          "signature": "(self, *, workload: 'AiWorkload', job_key: 'str', generation: 'int', now_ms: 'int') -> 'None'",
+          "hints": {
+            "workload": "<enum 'AiWorkload'>",
+            "job_key": "<class 'str'>",
+            "generation": "<class 'int'>",
+            "now_ms": "<class 'int'>",
+            "return": "<class 'NoneType'>"
+          }
+        },
+        "mark_started": {
+          "signature": "(self, *, workload: 'AiWorkload', job_key: 'str', generation: 'int', now_ms: 'int') -> 'float | None'",
+          "hints": {
+            "workload": "<enum 'AiWorkload'>",
+            "job_key": "<class 'str'>",
+            "generation": "<class 'int'>",
+            "now_ms": "<class 'int'>",
+            "return": "float | None"
+          }
+        },
+        "mark_completed": {
+          "signature": "(self, *, workload: 'AiWorkload', job_key: 'str', generation: 'int', now_ms: 'int') -> 'float | None'",
+          "hints": {
+            "workload": "<enum 'AiWorkload'>",
+            "job_key": "<class 'str'>",
+            "generation": "<class 'int'>",
+            "now_ms": "<class 'int'>",
+            "return": "float | None"
+          }
+        },
+        "snapshot": {
+          "signature": "(self) -> 'dict[str, Any]'",
+          "hints": {
+            "return": "dict[str, typing.Any]"
+          }
+        },
+        "_histogram_key": {
+          "signature": "(self, metric_name: 'str') -> 'str'",
+          "hints": {
+            "metric_name": "<class 'str'>",
+            "return": "<class 'str'>"
+          }
+        },
+        "_lifecycle_key": {
+          "signature": "(self, workload: 'AiWorkload', job_key: 'str', generation: 'int') -> 'str'",
+          "hints": {
+            "workload": "<enum 'AiWorkload'>",
+            "job_key": "<class 'str'>",
+            "generation": "<class 'int'>",
+            "return": "<class 'str'>"
+          }
+        }
+      }
+    },
+    "ResilientAiMetricsStore": {
+      "module": "app.infrastructure.ai_priority.metrics",
+      "qualname": "ResilientAiMetricsStore",
+      "methods": {
+        "__init__": {
+          "signature": "(self, remote: 'SharedAiMetricsStore | None', *, local: 'InMemoryAiMetricsStore | None' = None, monotonic: 'Callable[[], float]' = <built-in function monotonic>, circuit_seconds: 'float' = 30.0) -> 'None'",
+          "hints": {
+            "remote": "app.infrastructure.ai_priority.metrics.SharedAiMetricsStore | None",
+            "local": "app.infrastructure.ai_priority.metrics.InMemoryAiMetricsStore | None",
+            "monotonic": "collections.abc.Callable[[], float]",
+            "circuit_seconds": "<class 'float'>",
+            "return": "<class 'NoneType'>"
+          }
+        },
+        "increment": {
+          "signature": "(self, name: 'str', amount: 'int' = 1) -> 'None'",
+          "hints": {
+            "name": "<class 'str'>",
+            "amount": "<class 'int'>",
+            "return": "<class 'NoneType'>"
+          }
+        },
+        "observe": {
+          "signature": "(self, name: 'str', value: 'float') -> 'None'",
+          "hints": {
+            "name": "<class 'str'>",
+            "value": "<class 'float'>",
+            "return": "<class 'NoneType'>"
+          }
+        },
+        "set_gauge": {
+          "signature": "(self, name: 'str', value: 'float') -> 'None'",
+          "hints": {
+            "name": "<class 'str'>",
+            "value": "<class 'float'>",
+            "return": "<class 'NoneType'>"
+          }
+        },
+        "set_gauges": {
+          "signature": "(self, values: 'Mapping[str, float]') -> 'None'",
+          "hints": {
+            "values": "collections.abc.Mapping[str, float]",
+            "return": "<class 'NoneType'>"
+          }
+        },
+        "mark_queued": {
+          "signature": "(self, *, workload: 'AiWorkload', job_key: 'str', generation: 'int', now_ms: 'int') -> 'None'",
+          "hints": {
+            "workload": "<enum 'AiWorkload'>",
+            "job_key": "<class 'str'>",
+            "generation": "<class 'int'>",
+            "now_ms": "<class 'int'>",
+            "return": "<class 'NoneType'>"
+          }
+        },
+        "mark_started": {
+          "signature": "(self, *, workload: 'AiWorkload', job_key: 'str', generation: 'int', now_ms: 'int') -> 'float | None'",
+          "hints": {
+            "workload": "<enum 'AiWorkload'>",
+            "job_key": "<class 'str'>",
+            "generation": "<class 'int'>",
+            "now_ms": "<class 'int'>",
+            "return": "float | None"
+          }
+        },
+        "mark_completed": {
+          "signature": "(self, *, workload: 'AiWorkload', job_key: 'str', generation: 'int', now_ms: 'int') -> 'float | None'",
+          "hints": {
+            "workload": "<enum 'AiWorkload'>",
+            "job_key": "<class 'str'>",
+            "generation": "<class 'int'>",
+            "now_ms": "<class 'int'>",
+            "return": "float | None"
+          }
+        },
+        "snapshot": {
+          "signature": "(self) -> 'dict[str, Any]'",
+          "hints": {
+            "return": "dict[str, typing.Any]"
+          }
+        },
+        "_write_remote": {
+          "signature": "(self, operation: 'Callable[[SharedAiMetricsStore], object]') -> 'None'",
+          "hints": {
+            "operation": "collections.abc.Callable[[app.infrastructure.ai_priority.metrics.SharedAiMetricsStore], object]",
+            "return": "<class 'NoneType'>"
+          }
+        },
+        "_circuit_is_open": {
+          "signature": "(self) -> 'bool'",
+          "hints": {
+            "return": "<class 'bool'>"
+          }
+        },
+        "_open_circuit": {
+          "signature": "(self) -> 'None'",
+          "hints": {
+            "return": "<class 'NoneType'>"
+          }
+        },
+        "_close_circuit": {
+          "signature": "(self) -> 'None'",
+          "hints": {
+            "return": "<class 'NoneType'>"
+          }
+        }
+      }
+    },
+    "get_shared_ai_priority_metrics_store": {
+      "module": "app.infrastructure.ai_priority.metrics",
+      "qualname": "get_shared_ai_priority_metrics_store",
+      "signature": "() -> 'ResilientAiMetricsStore'",
+      "hints": {
+        "return": "<class 'app.infrastructure.ai_priority.metrics.ResilientAiMetricsStore'>"
+      }
+    },
+    "AiPriorityMetrics": {
+      "module": "app.infrastructure.ai_priority.metrics",
+      "qualname": "AiPriorityMetrics",
+      "methods": {
+        "__init__": {
+          "signature": "(self, registry: 'MetricsRegistry' = <app.infrastructure.observability.metrics.MetricsRegistry object>, shared_store: 'SharedAiMetricsStore | None' = None) -> 'None'",
+          "hints": {
+            "registry": "<class 'app.infrastructure.observability.metrics.MetricsRegistry'>",
+            "shared_store": "app.infrastructure.ai_priority.metrics.SharedAiMetricsStore | None",
+            "return": "<class 'NoneType'>"
+          }
+        },
+        "record_request": {
+          "signature": "(self, workload: 'AiWorkload') -> 'None'",
+          "hints": {
+            "workload": "<enum 'AiWorkload'>",
+            "return": "<class 'NoneType'>"
+          }
+        },
+        "record_admission": {
+          "signature": "(self, *, workload: 'AiWorkload', status: 'AdmissionStatus', reason: 'str', duration_ms: 'float') -> 'None'",
+          "hints": {
+            "workload": "<enum 'AiWorkload'>",
+            "status": "<enum 'AdmissionStatus'>",
+            "reason": "<class 'str'>",
+            "duration_ms": "<class 'float'>",
+            "return": "<class 'NoneType'>"
+          }
+        },
+        "record_redis_failure": {
+          "signature": "(self, workload: 'AiWorkload') -> 'None'",
+          "hints": {
+            "workload": "<enum 'AiWorkload'>",
+            "return": "<class 'NoneType'>"
+          }
+        },
+        "record_capacity": {
+          "signature": "(self, *, extraction_max: 'int', verification_max: 'int') -> 'None'",
+          "hints": {
+            "extraction_max": "<class 'int'>",
+            "verification_max": "<class 'int'>",
+            "return": "<class 'NoneType'>"
+          }
+        },
+        "record_counts": {
+          "signature": "(self, counts: 'QueueCounts') -> 'None'",
+          "hints": {
+            "counts": "<class 'app.infrastructure.ai_priority.state.QueueCounts'>",
+            "return": "<class 'NoneType'>"
+          }
+        },
+        "record_queued": {
+          "signature": "(self, lease: 'PriorityLease', *, now_ms: 'int') -> 'None'",
+          "hints": {
+            "lease": "<class 'app.infrastructure.ai_priority.state.PriorityLease'>",
+            "now_ms": "<class 'int'>",
+            "return": "<class 'NoneType'>"
+          }
+        },
+        "record_started": {
+          "signature": "(self, lease: 'PriorityLease', *, now_ms: 'int') -> 'None'",
+          "hints": {
+            "lease": "<class 'app.infrastructure.ai_priority.state.PriorityLease'>",
+            "now_ms": "<class 'int'>",
+            "return": "<class 'NoneType'>"
+          }
+        },
+        "record_completed": {
+          "signature": "(self, lease: 'PriorityLease', *, now_ms: 'int') -> 'None'",
+          "hints": {
+            "lease": "<class 'app.infrastructure.ai_priority.state.PriorityLease'>",
+            "now_ms": "<class 'int'>",
+            "return": "<class 'NoneType'>"
+          }
+        },
+        "record_provider_event": {
+          "signature": "(self, *, workload: 'AiWorkload', event: 'str', duration_ms: 'float | None' = None, retry_number: 'int | None' = None) -> 'None'",
+          "hints": {
+            "workload": "<enum 'AiWorkload'>",
+            "event": "<class 'str'>",
+            "duration_ms": "float | None",
+            "retry_number": "int | None",
+            "return": "<class 'NoneType'>"
+          }
+        }
+      }
+    },
+    "_bounded_category": {
+      "module": "app.infrastructure.ai_priority.metrics",
+      "qualname": "_bounded_category",
+      "signature": "(value: 'str', allowed: 'frozenset[str]') -> 'str'",
+      "hints": {
+        "value": "<class 'str'>",
+        "allowed": "frozenset[str]",
+        "return": "<class 'str'>"
+      }
+    },
+    "_bounded_number": {
+      "module": "app.infrastructure.ai_priority.metrics",
+      "qualname": "_bounded_number",
+      "signature": "(value: 'float') -> 'float | None'",
+      "hints": {
+        "value": "<class 'float'>",
+        "return": "float | None"
+      }
+    },
+    "_lifecycle_identity": {
+      "module": "app.infrastructure.ai_priority.metrics",
+      "qualname": "_lifecycle_identity",
+      "signature": "(workload: 'AiWorkload', job_key: 'str', generation: 'int') -> 'str'",
+      "hints": {
+        "workload": "<enum 'AiWorkload'>",
+        "job_key": "<class 'str'>",
+        "generation": "<class 'int'>",
+        "return": "<class 'str'>"
+      }
+    },
+    "_optional_float": {
+      "module": "app.infrastructure.ai_priority.metrics",
+      "qualname": "_optional_float",
+      "signature": "(value: 'object') -> 'float | None'",
+      "hints": {
+        "value": "<class 'object'>",
+        "return": "float | None"
+      }
+    },
+    "_metrics_snapshot": {
+      "module": "app.infrastructure.ai_priority.metrics",
+      "qualname": "_metrics_snapshot",
+      "signature": "(*, counters: 'dict[str, int]', gauges: 'dict[str, float]', samples: 'dict[str, list[float]]', histogram_totals: 'dict[str, int]', max_samples: 'int') -> 'dict[str, Any]'",
+      "hints": {
+        "counters": "dict[str, int]",
+        "gauges": "dict[str, float]",
+        "samples": "dict[str, list[float]]",
+        "histogram_totals": "dict[str, int]",
+        "max_samples": "<class 'int'>",
+        "return": "dict[str, typing.Any]"
+      }
+    },
+    "_histogram_snapshot": {
+      "module": "app.infrastructure.ai_priority.metrics",
+      "qualname": "_histogram_snapshot",
+      "signature": "(values: 'list[float]', *, total: 'int') -> 'dict[str, float | int | None]'",
+      "hints": {
+        "values": "list[float]",
+        "total": "<class 'int'>",
+        "return": "dict[str, float | int | None]"
+      }
+    },
+    "_percentile": {
+      "module": "app.infrastructure.ai_priority.metrics",
+      "qualname": "_percentile",
+      "signature": "(ordered: 'list[float]', percentile: 'float') -> 'float'",
+      "hints": {
+        "ordered": "list[float]",
+        "percentile": "<class 'float'>",
+        "return": "<class 'float'>"
+      }
+    }
+  },
+  "app.infrastructure.ai_priority.coordinator": {
+    "AiPriorityCoordinator": {
+      "module": "app.infrastructure.ai_priority.coordinator",
+      "qualname": "AiPriorityCoordinator",
+      "methods": {
+        "__init__": {
+          "signature": "(self, *, store: 'AtomicPriorityStore', config: 'AiPriorityConfig | None' = None, metrics_sink: 'AiPriorityMetrics | None' = None, clock_ms: 'Callable[[], int] | None' = None) -> 'None'",
+          "hints": {
+            "store": "<class 'app.infrastructure.ai_priority.state.AtomicPriorityStore'>",
+            "config": "app.infrastructure.ai_priority.config.AiPriorityConfig | None",
+            "metrics_sink": "app.infrastructure.ai_priority.metrics.AiPriorityMetrics | None",
+            "clock_ms": "collections.abc.Callable[[], int] | None",
+            "return": "<class 'NoneType'>"
+          }
+        },
+        "queue_extraction": {
+          "signature": "(self, job_reference: 'str') -> 'PriorityLease'",
+          "hints": {
+            "job_reference": "<class 'str'>",
+            "return": "<class 'app.infrastructure.ai_priority.state.PriorityLease'>"
+          }
+        },
+        "reserve_public_extraction": {
+          "signature": "(self, job_reference: 'str') -> 'AdmissionDecision'",
+          "hints": {
+            "job_reference": "<class 'str'>",
+            "return": "<class 'app.infrastructure.ai_priority.state.AdmissionDecision'>"
+          }
+        },
+        "mark_extraction_dispatched": {
+          "signature": "(self, lease: 'PriorityLease') -> 'bool'",
+          "hints": {
+            "lease": "<class 'app.infrastructure.ai_priority.state.PriorityLease'>",
+            "return": "<class 'bool'>"
+          }
+        },
+        "release_public_reservation": {
+          "signature": "(self, lease: 'PriorityLease') -> 'bool'",
+          "hints": {
+            "lease": "<class 'app.infrastructure.ai_priority.state.PriorityLease'>",
+            "return": "<class 'bool'>"
+          }
+        },
+        "try_start_extraction": {
+          "signature": "(self, job_reference: 'str') -> 'AdmissionDecision'",
+          "hints": {
+            "job_reference": "<class 'str'>",
+            "return": "<class 'app.infrastructure.ai_priority.state.AdmissionDecision'>"
+          }
+        },
+        "queue_verification": {
+          "signature": "(self, job_reference: 'str') -> 'PriorityLease'",
+          "hints": {
+            "job_reference": "<class 'str'>",
+            "return": "<class 'app.infrastructure.ai_priority.state.PriorityLease'>"
+          }
+        },
+        "try_start_verification": {
+          "signature": "(self, job_reference: 'str') -> 'AdmissionDecision'",
+          "hints": {
+            "job_reference": "<class 'str'>",
+            "return": "<class 'app.infrastructure.ai_priority.state.AdmissionDecision'>"
+          }
+        },
+        "heartbeat": {
+          "signature": "(self, lease: 'PriorityLease') -> 'bool'",
+          "hints": {
+            "lease": "<class 'app.infrastructure.ai_priority.state.PriorityLease'>",
+            "return": "<class 'bool'>"
+          }
+        },
+        "release": {
+          "signature": "(self, lease: 'PriorityLease') -> 'bool'",
+          "hints": {
+            "lease": "<class 'app.infrastructure.ai_priority.state.PriorityLease'>",
+            "return": "<class 'bool'>"
+          }
+        },
+        "snapshot": {
+          "signature": "(self) -> 'QueueCounts'",
+          "hints": {
+            "return": "<class 'app.infrastructure.ai_priority.state.QueueCounts'>"
+          }
+        },
+        "_mutate": {
+          "signature": "(self, *, operation: 'str', job_key: 'str', generation: 'int', lease_ms: 'int', max_concurrency: 'int') -> 'StoreMutation'",
+          "hints": {
+            "operation": "<class 'str'>",
+            "job_key": "<class 'str'>",
+            "generation": "<class 'int'>",
+            "lease_ms": "<class 'int'>",
+            "max_concurrency": "<class 'int'>",
+            "return": "<class 'app.infrastructure.ai_priority.state.StoreMutation'>"
+          }
+        },
+        "_decision": {
+          "signature": "(self, *, workload: 'AiWorkload', lease: 'PriorityLease', result: 'StoreMutation') -> 'AdmissionDecision'",
+          "hints": {
+            "workload": "<enum 'AiWorkload'>",
+            "lease": "<class 'app.infrastructure.ai_priority.state.PriorityLease'>",
+            "result": "<class 'app.infrastructure.ai_priority.state.StoreMutation'>",
+            "return": "<class 'app.infrastructure.ai_priority.state.AdmissionDecision'>"
+          }
+        },
+        "_record_decision": {
+          "signature": "(self, decision: 'AdmissionDecision', started: 'float') -> 'None'",
+          "hints": {
+            "decision": "<class 'app.infrastructure.ai_priority.state.AdmissionDecision'>",
+            "started": "<class 'float'>",
+            "return": "<class 'NoneType'>"
+          }
+        },
+        "_record_store_failure": {
+          "signature": "(self, workload: 'AiWorkload', exc: 'Exception') -> 'None'",
+          "hints": {
+            "workload": "<enum 'AiWorkload'>",
+            "exc": "<class 'Exception'>",
+            "return": "<class 'NoneType'>"
+          }
+        },
+        "_max_concurrency": {
+          "signature": "(self, workload: 'AiWorkload') -> 'int'",
+          "hints": {
+            "workload": "<enum 'AiWorkload'>",
+            "return": "<class 'int'>"
+          }
+        },
+        "_job_key": {
+          "signature": "(workload: 'AiWorkload', job_reference: 'str') -> 'str'",
+          "hints": {
+            "workload": "<enum 'AiWorkload'>",
+            "job_reference": "<class 'str'>",
+            "return": "<class 'str'>"
+          }
+        },
+        "_elapsed_ms": {
+          "signature": "(started: 'float') -> 'float'",
+          "hints": {
+            "started": "<class 'float'>",
+            "return": "<class 'float'>"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,13 @@
+ImportError while loading conftest 'C:\Users\nipun\Desktop\PassDetection\backend\tests\conftest.py'.
+tests\conftest.py:42: in <module>
+    from app.main import create_application  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\main.py:43: in <module>
+    from app.presentation.api.v1.router import api_v1_router
+app\presentation\api\v1\router.py:79: in <module>
+    from app.presentation.api.v1.routes.menu import router as menu_router
+app\presentation\api\v1\routes\menu.py:122: in <module>
+    router.include_router(_menu_workspace_router)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\fastapi\routing.py:1456: in include_router
+    raise FastAPIError(
+E   fastapi.exceptions.FastAPIError: Prefix and path cannot be both empty (path operation: get_menu_workspace)

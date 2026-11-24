@@ -1,0 +1,19 @@
+{
+  "findings": [
+    {
+      "id": "NS01",
+      "status": "closed-qualified-architecture",
+      "description": "Original1995/425/414 multi-responsibility service owners now focused lifecycle implementations with compatibility facades; same107 controls and expanded source proof qualify relocation."
+    },
+    {
+      "id": "NS02",
+      "status": "open-candidate-unreproduced",
+      "paths": [
+        "backend/app/application/mobile/notification_authority.py",
+        "backend/app/application/mobile/authored_notification_audience.py"
+      ],
+      "description": "Personal/countdown coordinator push recheck lacks the authored audience immediate expired_trip_clause. Need actual normal queued coordinator dispatch with otherwise-valid authority/session and elapsed local return window before adopting an issue. Existing device/group/source rechecks may constrain it; generic notification is not evidence of private payload leak.",
+      "required_next_proof": "Synthetic real SQLite dispatcher with fake provider, current coordinator assignment/device, elapsed versus valid trip local expiry controls, and authoritative lifecycle predicate comparison; no real sends."
+    }
+  ]
+}

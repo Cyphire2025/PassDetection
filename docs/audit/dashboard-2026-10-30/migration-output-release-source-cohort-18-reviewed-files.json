@@ -1,0 +1,50 @@
+[
+  {
+    "path": "scripts/bounded_command_output.py",
+    "sha256": "9f4b0a539e9756a3d47be47017c4bfc83823a85c8ee60957354f4879dcc84bb0",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Complete original/currentphysical source read. Neutraltransport supports optionaldiscardstderr+stdin redirection and fractionaltimeouts; output-limit boolean preservesstaticreason/message while distinguishing quota fromsinkfailure. WholemoduleinverseAST exact outsidetheseexplicitextensions;75affected/8files source14stable,strict4/no-fixRuff4/format4. Existing defaults QAmerge/MCPcount unchanged. See migration-output-deadline-verification.json. DedicatedInbox/native feature work remains deferred/excluded; sharedrelease compatibility retained."
+  },
+  {
+    "path": "scripts/release_companies_runtime.py",
+    "sha256": "3ecd9ffdf0c1e0de2f74ce4145d8c73833a15ad68fb59860558772882f2fb763",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Complete original195/currentphysical prefix175+tail read. Actual0.4sdeadline admittedmachine bytes after1.672s due inheritedstdout; now sharedtransport+BytesIO rejects, retainsrawbytes/stdout32KiB/stderrDEVNULL/stdinDEVNULL/staticerrors. Allnoncapturedeclarations ASTexact, no migration/helper/container/secret/fence changes. Current75cases source14stable/strict4/no-fixRuff4. No liveDocker/DB operation. DedicatedInbox/native feature work remains deferred/excluded; sharedrelease compatibility retained."
+  },
+  {
+    "path": "scripts/test_release_companies_runtime.py",
+    "sha256": "65d544624f33a2d923dd337c2c40f884d8e230ad54d6c47be04e87ba6cf46e74",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Complete original/currentphysical source read. All9originaltestmethods+11assertcalls ASTexact; process-onlyfixture retargeted to actualsharedcapture. Successstderrframing, exactquota, latefailure, invalidUTF8/JSON/status/allowlist andbaseline/noopcontrols executewithin75. No original businessassertion weakened. DedicatedInbox/native feature work remains deferred/excluded; sharedrelease compatibility retained."
+  },
+  {
+    "path": "scripts/test_migration_output_deadline.py",
+    "sha256": "eca8412aeec11e83c830236b3fbb21bddeb6de425e9e12499da9656885b6c385",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Complete new/current authoredphysical source read. Actualexitedparent/inheritedpipe deadline regression plus largestderr/rawbytes, safelauncherror and actualunwritablesink-discriminator controls. First3 before1fail2pass; fourthaddsnewextensioncontrol. Fourcurrentcases passwithin75; no originalnewtestrawsnapshot assertion made. DedicatedInbox/native feature work remains deferred/excluded; sharedrelease compatibility retained."
+  },
+  {
+    "path": "scripts/release_companies_fast.py",
+    "sha256": "96f1f184ca18343a3569e85b81c3e1a7ae11b89efcfeb3beec3676954a3353e1",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete128physical source read. Distinct lower-assurancecodecopy build binds actualsource/API/base/image/builderidentity and exact700person/rollback/concurrency rehearsalreceipt; existing FullCIqualification remains false. No sourceedit or newlivebuild/qualification. DedicatedInbox/native feature work remains deferred/excluded; sharedrelease compatibility retained."
+  },
+  {
+    "path": "scripts/release_companies_retained_update.py",
+    "sha256": "3fa6640c28c5b0ba4f8dd38ea31ba559ccc4ae8e5d9b04f38a641b9814b44df3",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete345physical source read in contiguoushalves. Actualwriter/credential/schema/backup/originalbaseline fences, one-time retainedhelper identity, ambiguousDDL forwardrecovery and existingactivation/retention rules traced. No root sourceedit or newdeployment/containers/realcredential access. DedicatedInbox/native feature work remains deferred/excluded; sharedrelease compatibility retained."
+  }
+]

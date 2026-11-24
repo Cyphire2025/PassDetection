@@ -1,0 +1,127 @@
+[
+  {
+    "name": "environment-isolation",
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\backend-final-qualification\\check_environment_isolation.py"
+    ],
+    "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection\\backend",
+    "exit_code": 0,
+    "seconds": 0.437,
+    "stdout_sha256": "4a2545586e08b60bcb63ddffc122c9bbdafd13ab99f560b5f993b8813a9aa5e8",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "pytest",
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "-m",
+      "pytest",
+      "-q",
+      "-o",
+      "addopts=",
+      "-p",
+      "retained_selection_plugin",
+      "tests/unit",
+      "tests/integration",
+      "--cov=app",
+      "--cov-branch",
+      "--cov-report=xml:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\final-retained-backend-20261101-001\\coverage.xml",
+      "--cov-report=json:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\final-retained-backend-20261101-001\\coverage.json",
+      "--cov-report=term:skip-covered",
+      "--junitxml=C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\final-retained-backend-20261101-001\\junit.xml"
+    ],
+    "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection\\backend",
+    "exit_code": 1,
+    "seconds": 5983.093,
+    "stdout_sha256": "4010a4d1f83799156d012e0c5857c6d7d4707baf69025a27bb2dbde7bf705f23",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "ruff",
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "-m",
+      "ruff",
+      "check",
+      "--no-fix",
+      "--config",
+      "pyproject.toml",
+      "app",
+      "tests"
+    ],
+    "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection\\backend",
+    "exit_code": 0,
+    "seconds": 1.172,
+    "stdout_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "mypy",
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "-m",
+      "mypy",
+      "--config-file",
+      "pyproject.toml",
+      "--cache-dir",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\final-retained-backend-20261101-001\\mypy-cache",
+      "app"
+    ],
+    "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection\\backend",
+    "exit_code": 0,
+    "seconds": 32.375,
+    "stdout_sha256": "07003086a2a6c13cc2d92f5763de0e3a8257d88f476b20c42201c12bd40ee6dc",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "migration",
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "scripts/verify_migration_topology.py"
+    ],
+    "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection\\backend",
+    "exit_code": 0,
+    "seconds": 0.937,
+    "stdout_sha256": "e7cde67b097a1be356d19ed131d1865ce42fe9d5faaba232bb2f20c4dda2c750",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "architecture",
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "scripts/verify_architecture_boundaries.py"
+    ],
+    "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection\\backend",
+    "exit_code": 0,
+    "seconds": 0.922,
+    "stdout_sha256": "895bfbeca4c78591066dcf214c4bfe9de43b5d7ed5d3f518fe398563a7bcc992",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "quality-static",
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "scripts/verify_backend_quality_budgets.py"
+    ],
+    "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection\\backend",
+    "exit_code": 0,
+    "seconds": 1.75,
+    "stdout_sha256": "9e4c765f3d413ad98f3b55fa0ee7655fa09da91077f1156cb9207790d51e6356",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "quality-coverage",
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "scripts/verify_backend_quality_budgets.py",
+      "--coverage-file",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\final-retained-backend-20261101-001\\coverage.xml"
+    ],
+    "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection\\backend",
+    "exit_code": 1,
+    "seconds": 2.063,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "0933084fe760ada01b91558e7e92b12396d0f643a20d21d057492ea2cb721b52"
+  }
+]

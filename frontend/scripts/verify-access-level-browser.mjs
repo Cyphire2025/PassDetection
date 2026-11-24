@@ -11,7 +11,7 @@ assert.ok(["127.0.0.1", "localhost", "[::1]"].includes(origin.hostname), "Only a
 const output = join(frontend, "test-results", "access-level-browser");
 await mkdir(output, { recursive: true });
 const browser = await chromium.launch({ headless: true });
-const report = { evidence: "Production Next build with synthetic API fixtures; no production access", cases: [] };
+const report = { evidence: "Local Next application with synthetic API fixtures; build provenance is recorded separately; no production access", cases: [] };
 const owner = {
   id: "00000000-0000-4000-8000-000000000001", email: "owner@example.test", full_name: "SUPERADMIN",
   role: "super_admin", actual_role: "super_admin", can_switch_access_level: true,

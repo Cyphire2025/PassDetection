@@ -1,0 +1,58 @@
+[
+  {
+    "path": "backend/scripts/copy_storage_snapshot.py",
+    "sha256": "f98d341fd6efa67afc79820bf2dbb9e63550665703fe776141a810aaa500b217",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical source/test read. Reviewed quiesced versioned-copy journal/endpoint/lock/capacity/private ACL/retention policies, unchanged original data/order/hash/tag checks and source preservation. Actual tag-request error/interrupt body lifetime2failures\u219222affected methods plus2negative subcases; owned strict type/no-fix lint and whole-module scope inverse pass. Source-only operator audit/count/chain readers were not executed against data. See storage-copy-body-verification.json; no provider/production/data movement or new public auth/privacy bypass claim."
+  },
+  {
+    "path": "backend/scripts/storage_snapshot_integrity.py",
+    "sha256": "0a2e49acd8cc5ea955d3624d8fb6b6bd4107d49b640e951be1747c9c4fa9fb9c",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source/test read. Reviewed quiesced versioned-copy journal/endpoint/lock/capacity/private ACL/retention policies, unchanged original data/order/hash/tag checks and source preservation. Actual tag-request error/interrupt body lifetime2failures\u219222affected methods plus2negative subcases; owned strict type/no-fix lint and whole-module scope inverse pass. Source-only operator audit/count/chain readers were not executed against data. See storage-copy-body-verification.json; no provider/production/data movement or new public auth/privacy bypass claim."
+  },
+  {
+    "path": "scripts/test_storage_copy_body_lifetime.py",
+    "sha256": "fe853e4f9b9b995db9352dc540c997bcebe8db1dac9a4b493782cecc50a5b8bf",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical source/test read. Reviewed quiesced versioned-copy journal/endpoint/lock/capacity/private ACL/retention policies, unchanged original data/order/hash/tag checks and source preservation. Actual tag-request error/interrupt body lifetime2failures\u219222affected methods plus2negative subcases; owned strict type/no-fix lint and whole-module scope inverse pass. Source-only operator audit/count/chain readers were not executed against data. See storage-copy-body-verification.json; no provider/production/data movement or new public auth/privacy bypass claim."
+  },
+  {
+    "path": "scripts/test_storage_copy_preflight.py",
+    "sha256": "575a3b364ea4b07b42d1c4097523758b8a03857770161a88ba05752449fc6b0d",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source/test read. Reviewed quiesced versioned-copy journal/endpoint/lock/capacity/private ACL/retention policies, unchanged original data/order/hash/tag checks and source preservation. Actual tag-request error/interrupt body lifetime2failures\u219222affected methods plus2negative subcases; owned strict type/no-fix lint and whole-module scope inverse pass. Source-only operator audit/count/chain readers were not executed against data. See storage-copy-body-verification.json; no provider/production/data movement or new public auth/privacy bypass claim."
+  },
+  {
+    "path": "scripts/test_storage_snapshot_integrity.py",
+    "sha256": "7b906ee4d652429d13176b0e84418816a27d2e96d4ae70e1ec80dda0db01059a",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source/test read. Reviewed quiesced versioned-copy journal/endpoint/lock/capacity/private ACL/retention policies, unchanged original data/order/hash/tag checks and source preservation. Actual tag-request error/interrupt body lifetime2failures\u219222affected methods plus2negative subcases; owned strict type/no-fix lint and whole-module scope inverse pass. Source-only operator audit/count/chain readers were not executed against data. See storage-copy-body-verification.json; no provider/production/data movement or new public auth/privacy bypass claim."
+  },
+  {
+    "path": "backend/scripts/audit_company_assignments.py",
+    "sha256": "b32a9a5a7f008f093f95b900a96cee65c4d8b27de747cc2f55d23bcf3199b50f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source/test read. Reviewed quiesced versioned-copy journal/endpoint/lock/capacity/private ACL/retention policies, unchanged original data/order/hash/tag checks and source preservation. Actual tag-request error/interrupt body lifetime2failures\u219222affected methods plus2negative subcases; owned strict type/no-fix lint and whole-module scope inverse pass. Source-only operator audit/count/chain readers were not executed against data. See storage-copy-body-verification.json; no provider/production/data movement or new public auth/privacy bypass claim."
+  },
+  {
+    "path": "backend/scripts/verify_audit_chain.py",
+    "sha256": "c7693d1d3529d88e536553308966597820a33c809152a2d056e9a430fd1d31dd",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source/test read. Reviewed quiesced versioned-copy journal/endpoint/lock/capacity/private ACL/retention policies, unchanged original data/order/hash/tag checks and source preservation. Actual tag-request error/interrupt body lifetime2failures\u219222affected methods plus2negative subcases; owned strict type/no-fix lint and whole-module scope inverse pass. Source-only operator audit/count/chain readers were not executed against data. See storage-copy-body-verification.json; no provider/production/data movement or new public auth/privacy bypass claim."
+  }
+]

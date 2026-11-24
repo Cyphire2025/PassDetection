@@ -1,0 +1,10 @@
+[
+  {
+    "path": "backend/app/presentation/api/v1/routes/document_distribution_delivery_selection.py",
+    "sha256": "dc357ebc3270241b34ac2d0cde457ce8f5bf84d44904847e4d1d000a3ba60d69",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "All64physical lines read. Explicit resend subset and current eligibility guards inspected while tracing broadcast scope. Calling route and preview inspected only in focused portions, so their files are not inferred fully reviewed by this record. No backend changes in this follow-through."
+  }
+]

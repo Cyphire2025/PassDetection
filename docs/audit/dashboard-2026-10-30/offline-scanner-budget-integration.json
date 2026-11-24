@@ -1,0 +1,12 @@
+{
+  "candidates": "docs/audit/dashboard-2026-10-30/offline-scanner-budget-candidates.json",
+  "before_sha256": "064e18bac34233400a997917c871701eb9bfab53288d0c8fba8eedd630ce0a43",
+  "sha256": "99479d234fe8ab9ed8706ce34d2876018f971356b08fec7602d2b660eb61b366",
+  "lf_normalized_sha256": "7adb4747fc248072b49d4bb8da1674bd3949a8e02eb414dfde516385271723a3",
+  "added": 17,
+  "updated_existing": 0,
+  "lowered_existing": 0,
+  "lowered_existing_paths": [],
+  "existing_ceilings_preserved": true,
+  "previous_ceilings_sha256": "2f45327b65a5fb4f305e5b809585e2336f8d5dc41fdf22c4d9ca6b322b7d6c5a"
+}

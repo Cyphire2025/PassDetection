@@ -1,0 +1,23 @@
+{
+  "status": "read-only source review continues",
+  "new_full_migrations": 18,
+  "new_full_lines": 1646,
+  "cumulative_new_full_migrations": 78,
+  "prior_full_migrations": 2,
+  "total_current_full_migrations": 80,
+  "total_migrations": 142,
+  "not_full_migrations": 62,
+  "focused_migrations": 2,
+  "wholly_user_deferred_inbox_migrations": 2,
+  "wholly_mobile_excluded_migrations": 3,
+  "remaining_unread_and_unclassified_migrations": 55,
+  "ledger": {
+    "path": "docs/audit/dashboard-2026-10-30/published-migration-cohort-05-reviewed-files.json",
+    "sha256": "4ea5475d4094f21cd1e8103d5e9e520e6271dacec6758f90b9e348485097d55c"
+  },
+  "scope_and_findings": {
+    "path": "docs/audit/dashboard-2026-10-30/published-migration-cohort-05-scope-and-findings.json",
+    "sha256": "8f1c20bca1ee07fffc1c32faa9e044b4ed2dd2ba935d3aa1174c7eae6b5e9630"
+  },
+  "notes": "142=80full+2focused+2Inboxdeferred+3mobileexcluded+55pending. Mixed0064Inbox block remains separately deferred;0069native body separately excluded."
+}

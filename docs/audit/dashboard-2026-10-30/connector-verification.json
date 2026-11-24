@@ -1,0 +1,35 @@
+{
+  "runtime_files_reviewed_full": 14,
+  "runtime_total_lines": 1979,
+  "largest_runtime_file": "mcp-connector/src/gc_mcp_connector/artifacts.py",
+  "maximum_runtime_lines": 281,
+  "focused_tests": {
+    "passed": 163,
+    "seconds": 9.0
+  },
+  "runtime_dependencies_verified": {
+    "mcp": "2.2.0",
+    "httpx2": "2.13.1",
+    "pywin32": "312"
+  },
+  "changes": [
+    "mcp-connector/src/gc_mcp_connector/cli.py",
+    "mcp-connector/tests/test_cli.py",
+    "mcp-connector/src/gc_mcp_connector/contact_uploads.py"
+  ],
+  "limitations": [
+    "All *_tcp.py backend-network fixtures and test_windows_vault_native.py were excluded. No actual credential-vault reads/writes, browser opens, authentication endpoint traffic, provider calls or production access.",
+    "Callback tests use isolated loopback callback listeners with synthetic codes; lifecycle fixtures explicitly forbid application/token network access. Native mutex test uses a unique test-only kernel object, not credential data.",
+    "No claim of real Codex/native-vault sign-in or production transfer qualification; README qualification boundary retained."
+  ],
+  "formatting_followup": {
+    "formatter": "ruff0.16.0",
+    "ast_equal_without_position_attributes": true,
+    "contact_tests_passed": 35,
+    "contact_test_seconds": 1.88,
+    "runtime_and_new_test_lint": "passed",
+    "runtime_and_new_test_format": "passed15files",
+    "full163suite_repeated": false,
+    "reason": "Formatting AST invariant proves unchanged logic; focused tests rerun without redundant fullsuite."
+  }
+}

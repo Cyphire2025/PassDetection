@@ -1,0 +1,2 @@
+app\infrastructure\export\whatsapp_filter_excel_exporter.py:20: error: Module "app.infrastructure.export.passport_excel_exporter" does not explicitly export attribute "_excel_date_value"  [attr-defined]
+Found 1 error in 1 file (checked 1157 source files)

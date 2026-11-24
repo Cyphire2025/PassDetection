@@ -1,0 +1,109 @@
+{
+  "files": [
+    {
+      "path": "scripts/test_release_artifacts.py",
+      "sha256": "770a1a0e115f89ecf96120d672640310de2b0a7c9939733de49fe44f7cac63c2",
+      "physical_lines": 217,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete217physical source read0-118+118-EOF. Trustcommand exactrepo/commit/main/workflow/issuer/hostedrunner/SBOM, signature-beforeparse/pull, unsignedactivation, immutableimage/config/localstore equivalence, localtar configdigest/layerchecks, strictOCIdefaultnormalization/nonmutation, unknown/type fields andactualfuture-policyclockfailure controls. GH/Docker responses are fake andlocaltar synthetic; notreal signature/build/layers/registry/deployment qualification."
+    },
+    {
+      "path": "scripts/test_release_ci_dispatch.py",
+      "sha256": "fd676f0693b24299c2e498c7ba7b4543d28b784235c21c219cb36e3bd5482e76",
+      "physical_lines": 67,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete67physical source read. Actual workflow YAML jobnames tested, restricted exactlowercaseSHA command rejects newline/shellsuffix/branchname, currentmain refresh refusal, exactrepository/workflow/branch/event/gateconclusion/missingjob controls. RealLinux flock only underPOSIXconditional; no Windowsclaim. GitHub/run/serveractions are supplied pure metadata/mocks, not liveCI/deployment authorization proof."
+    },
+    {
+      "path": "scripts/test_release_code_update.py",
+      "sha256": "04d6f5a150b824960857ad8671e468060182fe4138f83b21b6d50e7d8c4c4147",
+      "physical_lines": 383,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete383physical source read0-125/125-260/260-EOF. Typed Scenario overrides hostmethods while realtransition/recover runs: partialreadiness onlybackgroundpause, memoryreserve/foreign/unboundedcontainer accounting, narrowupstreamrewrite, persistedtask-signature/BOM rules, initial/preflight/late/partialreplacement rollback order, liveinflightgeneration retention andprotectedenv/overlay driftdetection. Optional actualCompose renderer uses synthetictemp env/config and30sdeadline only, no daemon required; not invoked here. FakeDocker host cannotqualify runningVPS/drain/memory/retaineddata safety."
+    },
+    {
+      "path": "scripts/test_release_connector.py",
+      "sha256": "6f5af22b55303c26765d4f478ac7ea662dfd3a648f881df3a30cab6950836c94",
+      "physical_lines": 66,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete66physical source read. Temporary synthetic package sources and output exercise realexact inventory/copy/digest/source-binding refusal; booleanversion, expandedpath, tamperedbytes and premature interactivequalification rejected. Signature failure patchedbeforeinvalidJSONinterpetation; actualattestation notclaimed. No connector login/vault/provider action."
+    },
+    {
+      "path": "scripts/test_release_manifest.py",
+      "sha256": "6ef3347a20dad9287bd7406ccbd9b15be1dd34845f417343f0c1264bcce08ea2",
+      "physical_lines": 57,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete57physical source read earlier as deployment support and reread for testcontract coherence; countedonce. Actual currentmanifest/default contract, per-servicestalerevision rejection, missingworker/wronghostname andeightworkerNode observations meaningful. Sourceverify functions/celerypayloadonly, no worker invocation or deployment. Operational queue/service identities preserved."
+    },
+    {
+      "path": "scripts/test_release_publication.py",
+      "sha256": "9b8f6a5fccb7d3838a14ed6c247ef115034f8d46fc8d41b031f7ea0a0220c982",
+      "physical_lines": 329,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete329physical source read0-115/115-230/230-EOF. Realpublication state machine runs over deterministic GH transport: exactall7assets/readback/tagidentity, matchingexistingtag/reuse, no immutablepublishedmutation, noDELETE/cleanup, missing/extra/duplicates/bytes/size/state IDs, auth/neterrors notabsence, pendingdraft/concurrenttag andambiguouscreate/upload/publish stopwithoutretry. Qualifiedassetverification intentionallystubbed for publicationcases; separate signature-beforeparse control exists. No actualGitHub request/publish/credential."
+    },
+    {
+      "path": "scripts/release_ci_dispatch.py",
+      "sha256": "cdbafa248fc14687cf3bd34046e3594650d3505c2ef5b2506234a5a1f47ea996",
+      "physical_lines": 184,
+      "reviewer": "branding_visuals",
+      "review_scope": "partial",
+      "status": "reviewed",
+      "notes": "Onlyfirst140 requested; outputclipped initialdefinitions laterpartiallyrecovered bytargetedfunctions. Actualqualified_run, dispatchlock, currentmain anddeployregions read, notwholefilecredit. Parentfullsource review independent."
+    },
+    {
+      "path": "scripts/release_artifacts.py",
+      "sha256": "809a4fcad80516020d1a942487574aa4c85d8dfe3907eb7845087b75a2a7c916",
+      "physical_lines": 322,
+      "reviewer": "branding_visuals",
+      "review_scope": "partial",
+      "status": "reviewed",
+      "notes": "Only44-118 actual trust/fingerprint/manifest/verifypaths supportread. Actualclockexpiry sees2026-12-25checked-in Pythonpolicy viareferenceonly; no whole-source/policysemantic credit."
+    },
+    {
+      "path": "scripts/release_connector.py",
+      "sha256": "86fd38f8878d724385fa2a17e3559d04ab6ae72bbdc6a47370baa3df25edc976",
+      "physical_lines": 114,
+      "reviewer": "branding_visuals",
+      "review_scope": "partial",
+      "status": "reviewed",
+      "notes": "Only45-100 source region requested butcombinedoutput clippedtail; package/currentchecksum/signatureordering observed, no whole-sourcecredit."
+    },
+    {
+      "path": "scripts/release_publication.py",
+      "sha256": "136c2814e9fc4ef2bedacc2601a020941577578fa619da4ec3b2599496cc622f",
+      "physical_lines": 222,
+      "reviewer": "branding_visuals",
+      "review_scope": "partial",
+      "status": "reviewed",
+      "notes": "Only185-211 publishentrypoint requested, outputclipped; directtest state-machine assertions clear, no new whole-sourcecredit or externalcall."
+    },
+    {
+      "path": "scripts/release_code_update.py",
+      "sha256": "5ae04cf862c283c6e95cb05847d368bca6a8327298b09486add2c621c938aa48",
+      "physical_lines": 719,
+      "reviewer": "branding_visuals",
+      "review_scope": "partial",
+      "status": "reviewed",
+      "notes": "Only610-701 recovery/run_update region physicallyread here. Scenariooverrides matchactual owner methods and BaseException recoveryflow; earlierrootfullsource review independent, no new whole-sourcecredit."
+    }
+  ],
+  "new_complete_test_files": 6,
+  "complete_test_lines": 1119,
+  "reference_discovery_only_not_review_credit": [
+    "tooling/dependency-exceptions.json expires_on fields only",
+    "Other scriptfunction-name searches"
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "created_at_utc": "2026-10-30T18:24:33.852401+00:00",
+  "scope": "Backend-only optional request-owner rejection before logout/revocation/refresh claim/replay; frontend still frozen and not yet sending precondition from raw refresh/direct logout. No full cookie continuity claim.",
+  "source_sha256": {
+    "backend/app/domain/value_objects/request_actor.py": "ff6f9aebf061d2f9c1cf6bc127e8c291264ebd344d8c86e46983dd7c127facc2",
+    "backend/app/presentation/api/v1/routes/auth.py": "b3a10680eb335e589430dee4eba3fefa95d2fd54877682c15308b7e6e79177f8",
+    "backend/app/application/use_cases/auth/logout_use_case.py": "a79022eb7c5285a123bcb12e2d3d67f53637d3e1122cde6a0cf7e2e4c41b8649",
+    "backend/app/application/use_cases/auth/refresh_token_use_case.py": "8c6b50fced825c17e64740e6db4e9ddfc1cfa6e1c855b0cadd8e3f7c3272ea3b",
+    "backend/app/infrastructure/repositories/refresh_token_repository.py": "219a15a385285e5c2a805b6b6b8e3e9f16e38c788163555af8f063221dc6f316",
+    "backend/tests/unit/infrastructure/test_dashboard_session_families.py": "f67f844845f5fc196cc3f80f37d46307fd178469b12d6b8cb85f2f7dd6755214"
+  },
+  "checks": [
+    {
+      "check": "Focused5modules pytest fresh hash-checked environment",
+      "tests": 32,
+      "failures": 0,
+      "errors": 0,
+      "status": "passed",
+      "artifact": "auth-cookie-backend-after-fix.xml"
+    },
+    {
+      "check": "Ruff changed5source+test",
+      "status": "passed"
+    },
+    {
+      "check": "mypy changed5source",
+      "status": "passed"
+    },
+    {
+      "check": "verify_architecture_boundaries.py",
+      "status": "passed"
+    },
+    {
+      "check": "verify_backend_quality_budgets.py",
+      "status": "passed",
+      "reviewed_modules": 183
+    }
+  ],
+  "regression_baseline": {
+    "artifact": "auth-cookie-backend-before-fix.json",
+    "tests": 9,
+    "expected_failures": 7,
+    "matching_passes": 2
+  },
+  "preserved": [
+    "Header optional, no-header use-case/repository invocation shape unchanged",
+    "Opaque refresh credential identity comes from persisted HMAC-matched row; header never grants identity",
+    "JWT logout actor derived only after signature/expiry decode and UUID/session validation",
+    "Account then family lock order and existing consume/replay semantics preserved for same-owner/no-header",
+    "Mismatch raises existing409 domain conflict before any Set-Cookie, consumption, family revocation or reuse audit",
+    "REFRESH_IN_PROGRESS remains sole route409 with retry headers; owner-change conflict is not that code",
+    "No model/migration/OpenAPI/configuration/native mobile/deployment setup change"
+  ],
+  "remaining": [
+    "Frontend raw refresh/direct logout expected-owner transport metadata and same-origin cross-tab cookie-writer locking still OPEN until integration freeze released",
+    "Broader real PostgreSQL concurrency/service integration not qualified by SQLite focused tests"
+  ]
+}

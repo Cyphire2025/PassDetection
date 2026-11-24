@@ -1,0 +1,21 @@
+{
+  "status": "source_trace_complete_no_new_validated_bug",
+  "frontend_assumptions": [
+    "Limited native handoff uses its own expiring exact-ticket bearer and original MCP grant; it intentionally needs no dashboard session. It must not be described as a dashboard-cookie transfer.",
+    "Normal dashboard authenticated downloads still need captured frontend actor/authority cancellation through picker/body. Backend revalidation at headers or stream completion does not retroactively retract bytes already received.",
+    "Artifact/native stream completion is distinct from saved-copy delivery. Server enforces expected bytes/SHA and current authority before marking download complete; delivery endpoint independently requires full completion and matching saved-copy size/hash, then completes export history.",
+    "Client must preserve exact-byte checksum validation and avoid acknowledgement after cancellation, lost body, scope/lifetime changes or failed local save. Server cannot attest physical local disk persistence solely from a client-supplied acknowledgement."
+  ],
+  "server_evidence": [
+    "mcp_native_transfers.credential accepts only one limited bearer, excludes query tokens and rejects unapproved browser Origin.",
+    "MCPNativeTransferService.limited rechecks original grant and constant-time secret; target matches owned artifact metadata and current allowed export preparation tool.",
+    "MCPArtifactService.stream bounds120s, checks expiry before each yielded chunk and verifies exact size/SHA, then fresh get/lock before marker.",
+    "native_transfer_runtime.download_content rechecks limited ticket at stream end and commits completion; any BaseException rolls back.",
+    "native_transfer_runtime.acknowledge_delivery rechecks limited ticket/marker/exact size/SHA and canonical artifact acknowledgement, no silent history advance from generation or metadata reads."
+  ],
+  "limits": [
+    "Source review only, no new live transfer/service/provider tests during frontend freeze.",
+    "Fresh grant revocation is checked at completion rather than implying a revocation-push signal before every chunk; this trace does not claim instant recall of delivered bytes.",
+    "Focused supporting sources remain labeled focused with current hashes."
+  ]
+}

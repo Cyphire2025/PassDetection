@@ -1,0 +1,27 @@
+{
+  "status": "complete current physical retained operator/contract test-source review only",
+  "files": 5,
+  "physical_lines": 582,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-runtime-policy-test-source-reviewed-files.json",
+    "sha256": "ac3fed4048ab439a8a7d667adb594e2abc077589e34211703b2b7f1869bb4519"
+  },
+  "source_before_equals_after": true,
+  "source_fence": {
+    "scripts/test_image_advisory_policy.py": "52c515af4377c2b9c458dbb31764fbf6ef8db1675fdcfbdb1a5ca52e45df65e6",
+    "scripts/test_image_runtime_policy.py": "0af2f823eae92b66f10a98afe48862bf1a98af060912928221c72236b2197dd4",
+    "scripts/test_native_allocator_policy.py": "7f114332f946a0b381294d7e2ffc22e26ffbce38e35088794a4c287b5f07d0dc",
+    "scripts/test_postgresql_client_qualification.py": "434a29c75d19801ec3728654a5356c3f25a4637d6a07f36b0d02041ae901ae3d",
+    "scripts/test_postgresql_client_security.py": "866501f766d5ad0c1dc2bde7b017f90123f1cd22cc74ebeae6c4c0ea2d075048"
+  },
+  "new_execution": false,
+  "runtime_mutation": false,
+  "new_validated_findings": [],
+  "scope": "Parent-reserved retained operator/QA/shared-main-CI test contracts. Native support contracts are read solely for existing shared CI compatibility; no native workload or dedicated Inbox extension.",
+  "limits": [
+    "Complete source read is not test execution, service/backend qualification or operator action.",
+    "Authored synthetic provider/CLI/SSH/Docker/registry fixtures do not invoke those live systems now.",
+    "Source-pattern assertions do not by themselves qualify actual workload or deployment correctness.",
+    "No protected source, historic qualified-source stamp, budgets, gates or release baselines changed."
+  ]
+}

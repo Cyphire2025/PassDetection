@@ -1,0 +1,11 @@
+{
+  "before_sha256": "29449ee1905ce2a2371e1d84463a9235e1ebcfe82b7d90618531dfb6cf383cca",
+  "after_sha256": "1f5edabf89fa84508e2ff065f3e373ebfb0ae0467643aaa46abf7ea83711c281",
+  "new_helper_sha256": "1d940f703dacd0f18031ab9cbe72f22f7a2841b02f482ee1013f3f635973d5da",
+  "exact_function_ast_after_explicit_query_delta": true,
+  "unchanged_function_signature": true,
+  "delta": "Replace initial job-first locked lookup with read-only immutable scope locator followed by gallery->job locked reload. Reuse that already-locked gallery through the explicit gallery_allows_operations predicate, exactly feature_enabled AND status not failed/removed. Every other eligibility, replay, retry, attempt, lease, cancellation, terminalization, metric, claim field and commit statement remains exact. Admission-query owner also owns this scope eligibility predicate, preserving original claim complexity cap21.",
+  "query_tradeoff": "One bounded read-only scope lookup added for a live claim; original happy-path job plus gallery queries replaced by gallery/job locks. Ineligible live rows also acquire canonical gallery/job locks. No throughput or latency improvement claim.",
+  "reversal_evidence": "Three actual AsyncSession-executed statement sequences failed gallery-first assertions before. Current5 order/deletion controls and35 other actual cases pass; every captured lock compiled with PostgreSQL dialect FOR UPDATE. Source cancellation takes gallery->job, so the original opposing job->gallery/asset order is removed from this admission owner.",
+  "limits": "Source/ORM/SQL-order evidence and SQLite independent-session deletion tests, not a real PostgreSQL deadlock reproduction, stress test or performance qualification."
+}

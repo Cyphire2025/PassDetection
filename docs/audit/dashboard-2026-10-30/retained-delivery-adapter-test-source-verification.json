@@ -1,0 +1,31 @@
+{
+  "status": "complete current physical retained test-source review only",
+  "files": 5,
+  "physical_lines": 1140,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-delivery-adapter-test-source-reviewed-files.json",
+    "sha256": "7ebac427de420a08ea87c98da0be4e6fb77cf9a7ca3f3b351a25fea0e6dc3db5"
+  },
+  "source_before_equals_after": true,
+  "source_fence": {
+    "backend/tests/unit/infrastructure/test_apns_push_provider.py": "a76f5f0d37256e65bf4786ff9af6290dc57c6a07d9d1c1430ed983da826b846c",
+    "backend/tests/unit/infrastructure/test_fcm_push_provider.py": "1acec1e69f0d4bece4569bc4dcb27a89ecbbe6869ca487cdd00297cda7ab6cfa",
+    "backend/tests/unit/infrastructure/test_fcm_credentials.py": "a3365602487d5cffaae5a8d38a8351e7facc18e91c1ed16654762f4187ce067a",
+    "backend/tests/unit/infrastructure/test_whatsapp_otp_provider.py": "a214acdb460248b2cf44e53d0199e70e6de23e4f0a6844727f042ce46109e48a",
+    "backend/tests/unit/infrastructure/test_enterprise_hardening_migration.py": "82b9d03bb1a691ea2064ae9bf38cd29330441e63af0a483deda7972c3c793c31"
+  },
+  "new_execution": false,
+  "runtime_mutation": false,
+  "new_validated_findings": [],
+  "scope": "Shared server notification delivery, outgoing contact OTP and enterprise dashboard schema tests. Native UI and dedicated Inbox remain excluded.",
+  "supporting_scope_trace_only": [
+    "gc_notifications.send_draft -> authored_notification_service.send_notification -> server notification dispatch -> mobile_push.tasks provider factory",
+    "MCP gc_push_intents uses the same authored notification pipeline",
+    "fresh_draft_contact, returning_claims/contact and passport_routes/contact_issuance use get_otp_provider"
+  ],
+  "limits": [
+    "Purpose/caller trace for runtime owners is not new full runtime-source review credit.",
+    "Test-source review does not execute platform push, OAuth, migration DDL or provider delivery.",
+    "All prior receipts and original Inbox/native scope policy values remain unchanged."
+  ]
+}

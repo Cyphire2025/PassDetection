@@ -1,0 +1,11 @@
+[
+  {
+    "path": "backend/app/infrastructure/database/models.py",
+    "sha256": "cca0de0deb12e7cdc7368501e8a3ac0012e513d691ddcf10a3ead67ec4ec2ed0",
+    "physical_lines": 1762,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "needs-follow-up",
+    "notes": "Complete physical read in consecutive 1-210, 211-420, 421-625, 626-830, 831-1040, 1041-1250, 1251-1460, 1461-1670 and 1671-EOF chunks. Stable facade still declares 21 unrelated core tables plus one settings TypedDict. Resource defaults, lifecycle states, tenant/group constraints, native enums, date/JSON defaults, provider/photo metadata, indices and reciprocal relationships reviewed as source. No runtime vulnerability inferred from schema alone. Per-domain ownership refactor remains pending; no source/test/config edits or app/service checks in this read-only preflight."
+  }
+]

@@ -1,0 +1,62 @@
+{
+  "environment": ".tmp/dashboard-security-patch-venv-2",
+  "python": "3.11.15",
+  "runtime_lock_sha256": "1fe14679cfb5a5dce7043966982e4b348c5861d9d952dfc32183eea7ce1e2bd0",
+  "prior_environment_preserved": ".tmp/dashboard-audit-venv",
+  "developer_environments_untouched": true,
+  "bootstrap": "scripts/bootstrap_backend.py withhash-verifieddevlock; firstattemptfailedglobaltempwheelmissing, secondnewtargetbootstrappedwithtask-localTEMP/TMP. Beforeanytests, hashcheckedfinalprovisionappliednewlypublishedDNS2.9.1patch; allotherversionsunchanged.",
+  "versions": {
+    "Pillow": "13.0.0",
+    "pypdf": "6.21.2",
+    "certifi": "2026.10.18",
+    "opentelemetry-api": "1.45.1",
+    "dnspython": "2.9.1"
+  },
+  "primary_metadata_and_lock_artifact_hashes_match": true,
+  "backend_focused_tests": {
+    "passed": 850,
+    "subtests_passed": 21,
+    "seconds": 51.19
+  },
+  "connector_tests": {
+    "passed": 163,
+    "seconds": 6.9,
+    "native_vault_and_backend_tcp_excluded": true
+  },
+  "strict_release_tooling_inventory_tests": {
+    "passed": 39,
+    "subtests_passed": 29
+  },
+  "mypy": {
+    "source_files": 1176,
+    "result": "passed"
+  },
+  "backend_dependency_gate": {
+    "exit_code": 0,
+    "known_vulnerabilities_outside_existing_exceptions": 0,
+    "existing_ignored_matches": 3
+  },
+  "connector_lock_audit": {
+    "exit_code": 0,
+    "known_vulnerabilities": 0,
+    "ignored": 0
+  },
+  "pip_check": "passed",
+  "bootstrap_toolchain_check": "passed",
+  "full_backend_api_snapshot": "unchanged/passed",
+  "mobile_api_snapshot": "unchanged/passed",
+  "runtime_smoke": "TLS CA context with hostname/certificateverification,DNSwireroundtrip,emailvalidationwithoutdeliverability,tracestateparsepassed; noprovider/networkauthcalls",
+  "exact_release_bindings": {
+    "candidate_files": 20,
+    "both_baseline_commits_verified": true
+  },
+  "mcp_source_inventory": {
+    "surfaces": 1950,
+    "classification_check": "passed"
+  },
+  "full_application_suite_checkpoint": "Rootfullapplication suites and870operatorrunwereagainstprecedinglock; keepthoseevidenceseparate. Thisrecorddoesnotclaimfullapplication rerunonpatchedlock.",
+  "release_limitations": [
+    "RealDocker/PostgreSQL/nativeLinuximage/fullimagevulnerabilityqualificationnotrunhere.",
+    "Existingtwoattestationexceptionsremainunpatchedtemporaryacceptancewithsameowner,advisories,expiry,versions,sourcehashesandconservativeimportguard."
+  ]
+}

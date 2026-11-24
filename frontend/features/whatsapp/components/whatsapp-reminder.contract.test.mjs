@@ -1,39 +1,34 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import test from "node:test";
-import { whatsappFeatureSource } from "./whatsapp-source.contract-helper.mjs";
+import { readWhatsAppSource as read, readComposerControllerSource, readComposerAudienceSource } from "./whatsapp-source.contract-helper.mjs";
 
-const page = whatsappFeatureSource;
-const api = readFileSync(new URL("../api/whatsapp.api.ts", import.meta.url), "utf8");
-const audience = readFileSync(
-  new URL("./whatsapp-reminder-audience.tsx", import.meta.url),
-  "utf8",
-);
-const preview = readFileSync(
-  new URL("./whatsapp-message-preview-dialog.tsx", import.meta.url),
-  "utf8",
-);
+const page = read("../workspace/send-message-page.tsx");
+const composer = readComposerControllerSource();
+const audience = readComposerAudienceSource();
+const dispatch = read("../workspace/composer.api.ts");
 
-test("reminder_v1 is a separate broadcast option with one editable paragraph", () => {
-  assert.match(page, /Send Reminder/);
-  assert.match(page, /openMessagePreview\(group, "reminder"\)/);
-  assert.match(page, /Edit the reminder paragraph below/);
-  assert.match(page, /The header, greeting, and\s+sign-off are fixed in the approved template/);
-  assert.match(page, /messageType !== "reminder" &&/);
-  assert.match(api, /message_type: "reminder"/);
-  assert.match(api, /sendReminder/);
+test("the live library obtains approved message definitions and passes the selected definition to its composer", () => {
+  assert.match(page, /composerApi\.catalog\(signal\)/);
+  assert.match(page, /definition=\{selected\}/);
+  assert.match(page, /reminder: BellRing/);
+  assert.match(dispatch, /message-catalog/);
+  assert.match(composer, /definition\.message_type/);
+  assert.match(composer, /definition\.fields\.map/);
 });
 
-test("each reviewed reminder can target everyone or one linked group's not-submitted people", () => {
-  assert.match(audience, /Send to everyone/);
-  assert.match(audience, /Only people who haven&apos;t submitted/);
-  assert.match(audience, /Passport upload group used to check submissions/);
-  assert.match(audience, /ambiguous matches are both excluded/);
-  assert.match(api, /audience\?: WhatsAppReminderAudience/);
-  assert.match(api, /audience_client_group_id\?: string \| null/);
-  assert.match(api, /excluded_needs_review_count\?: number/);
-  assert.match(api, /recipient_ids: recipientIds,[\s\S]*?audience,[\s\S]*?audience_client_group_id/);
-  assert.match(preview, /reminderAudienceConfirmed/);
-  assert.match(preview, /server did not confirm the not-submitted audience/);
-  assert.match(preview, /Send to \$\{eligibleRecipientCount\} not submitted/);
+test("a not-submitted reminder resolves an active linked group before requesting a preview", () => {
+  assert.match(audience, /Only people who haven’t submitted/);
+  assert.match(audience, /value: "all" as const, label: "Everyone"/);
+  assert.match(composer, /item\.status === "active"/);
+  assert.match(composer, /activeLinks\.length === 1 \? activeLinks\[0\]\.id : null/);
+  assert.match(composer, /state\.reminderAudience !== "not_submitted" \|\| Boolean\(reminderGroupId\)/);
+  assert.match(composer, /enabled: !group\.is_archived && audienceReady && eligible\.length > 0/);
+  assert.match(composer, /audience_client_group_id:\s*state\.reminderAudience === "not_submitted" \? reminderGroupId : null/);
+});
+
+test("the audience is the intersection of locally eligible people and server-confirmed preview IDs", () => {
+  assert.match(composer, /new Set\(preview\.data\.audience_recipient_ids\)/);
+  assert.match(composer, /!audienceIds \|\| audienceIds\.has\(recipient\.id\)/);
+  assert.match(composer, /recipientIds: selected\.map\(\(recipient\) => recipient\.id\)/);
+  assert.match(audience, /recipientIds: null,[\s\S]*previewRecipientId: null/);
 });

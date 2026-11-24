@@ -1,0 +1,231 @@
+{
+  "authority": "Explicit root approval for exactly4 prepared backend cosmetic byte replacements after coverage union",
+  "prepared_manifest_sha256": "32119555ad6b945b62420f6b2d6549bf6b9e0c8d8cfac82196c6b5f365b850e2",
+  "exact_edit_manifest_sha256": "2cbd6e2c2a29e88ecc87c667ee8d9748bb46f8c1c2534c3a64cef677d7c1ee32",
+  "files": [
+    {
+      "path": "backend/app/application/use_cases/passports/process_passport_submission_job_use_case.py",
+      "old_sha256": "998192ee86644c66578b549b637aa622264e97179ecba66b7fd2a3227260c4c5",
+      "new_sha256": "655c14af28798166c623a660f68c758e2a8521847c54d4b01cbab60c4586eeae",
+      "exact_byte_inverse": true,
+      "AST_including_all_location_attributes_exact": true,
+      "significant_token_values_and_positions_exact": true,
+      "token_values_except_nonsemantic_NL_and_file_markers_exact": true,
+      "compiled_marshal_code_including_line_and_exception_tables_exact": true,
+      "compiled_sha256": "cfba4aae85a0fec411c4a79fe8d0dcdc70fb43e9b09d3c850354c3b1d332005e",
+      "old_inventory_row_preserved": {
+        "path": "backend/app/application/use_cases/passports/process_passport_submission_job_use_case.py",
+        "scope": "backend",
+        "kind": "source",
+        "lines": "590",
+        "sha256": "998192ee86644c66578b549b637aa622264e97179ecba66b7fd2a3227260c4c5",
+        "status": "reviewed",
+        "reviewer": "/root/document_ui_architecture; ai-runtime-reviewed-files",
+        "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable. | Physical126-255 only. Actual persisted job claim/checkpoint/target/revision/cancellation controls, finite first-pass/AI budgets and reserve, canonical storage download, AI-only verification and current revision classification failure application. Rest of590-line owner not fully reread or implicitly qualified from tests/imports; no architecture change claimed.",
+        "review_scope": "full"
+      },
+      "prior124_followup_intersection": false,
+      "prior_exact_source_records": [
+        {
+          "ledger": "ai-runtime-reviewed-files.json",
+          "ledger_sha256": "bfc23be23c3668d3262dad0347dae4d54acd9178330a09dd8b1e4cb0ad031f99",
+          "record": {
+            "path": "backend/app/application/use_cases/passports/process_passport_submission_job_use_case.py",
+            "sha256": "998192ee86644c66578b549b637aa622264e97179ecba66b7fd2a3227260c4c5",
+            "lines": 590,
+            "review_status": "full",
+            "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+          },
+          "review_scope": "full"
+        },
+        {
+          "ledger": "retained-processing-admin-source-reviewed-files.json",
+          "ledger_sha256": "48c2c3d51fa9e4477cb6955c221f61a269789d771eaa6348fb5e871c60fcf1af",
+          "record": {
+            "path": "backend/app/application/use_cases/passports/process_passport_submission_job_use_case.py",
+            "sha256": "998192ee86644c66578b549b637aa622264e97179ecba66b7fd2a3227260c4c5",
+            "physical_lines": 590,
+            "reviewer": "/root/document_ui_architecture",
+            "review_scope": "focused",
+            "status": "focused",
+            "notes": "Physical126-255 only. Actual persisted job claim/checkpoint/target/revision/cancellation controls, finite first-pass/AI budgets and reserve, canonical storage download, AI-only verification and current revision classification failure application. Rest of590-line owner not fully reread or implicitly qualified from tests/imports; no architecture change claimed."
+          },
+          "review_scope": "focused"
+        }
+      ]
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_passport_bulk_delete_route.py",
+      "old_sha256": "f04b6d8acee374694823a556e1eb8fb0b75cbdb295c87e99ea2a2da628c759b9",
+      "new_sha256": "efdcda6ffa29e19410a013015f0eaef3f8080f4f40dbb89d69fdcd84c09e6c23",
+      "exact_byte_inverse": true,
+      "AST_including_all_location_attributes_exact": true,
+      "significant_token_values_and_positions_exact": true,
+      "token_values_except_nonsemantic_NL_and_file_markers_exact": true,
+      "compiled_marshal_code_including_line_and_exception_tables_exact": true,
+      "compiled_sha256": "3e88ae40f5cf984b734c395b6f8d662e5e63cd3c533decf9d5e004d506090de1",
+      "old_inventory_row_preserved": {
+        "path": "backend/tests/unit/presentation/test_passport_bulk_delete_route.py",
+        "scope": "backend",
+        "kind": "test",
+        "lines": "595",
+        "sha256": "f04b6d8acee374694823a556e1eb8fb0b75cbdb295c87e99ea2a2da628c759b9",
+        "status": "verified",
+        "reviewer": "/root/document_ui_architecture; root",
+        "notes": "Exact mock-target-only module inverse or affected test execution; no complete physical source read credit in this batch. | Whole physical1-595 in bounded1-220/221-420/421-595. Explicit route CSRF/recent MFA, same selected ID/order and every stored object variant, durable commit before bounded inline cleanup, deferred501-object path and unknown storage failures, missing selection all-or-nothing, FOR UPDATE precedes active roster lookup, exact committed audit replay and no cleanup on failed commit. Instrumentation helper resolves actual owner; original business assertions unchanged. Source read only; previously qualified root bulk implementation remains frozen.",
+        "review_scope": "full"
+      },
+      "prior124_followup_intersection": false,
+      "prior_exact_source_records": [
+        {
+          "ledger": "bulk-architecture-reviewed-files.json",
+          "ledger_sha256": "4683692ddfcaf8a706943f36af9617a2bd51b11b407e359fca558afe2e68278f",
+          "record": {
+            "path": "backend/tests/unit/presentation/test_passport_bulk_delete_route.py",
+            "sha256": "f04b6d8acee374694823a556e1eb8fb0b75cbdb295c87e99ea2a2da628c759b9",
+            "reviewer": "root",
+            "review_scope": "focused",
+            "status": "verified",
+            "notes": "Exact mock-target-only module inverse or affected test execution; no complete physical source read credit in this batch."
+          },
+          "review_scope": "focused"
+        },
+        {
+          "ledger": "retained-deletion-storage-source-reviewed-files.json",
+          "ledger_sha256": "c0e25da8d007ab80fff3aef640af97c68d30580bcf2451b14045126a2f2cf1b0",
+          "record": {
+            "path": "backend/tests/unit/presentation/test_passport_bulk_delete_route.py",
+            "sha256": "f04b6d8acee374694823a556e1eb8fb0b75cbdb295c87e99ea2a2da628c759b9",
+            "physical_lines": 595,
+            "reviewer": "/root/document_ui_architecture",
+            "review_scope": "full",
+            "status": "reviewed",
+            "notes": "Whole physical1-595 in bounded1-220/221-420/421-595. Explicit route CSRF/recent MFA, same selected ID/order and every stored object variant, durable commit before bounded inline cleanup, deferred501-object path and unknown storage failures, missing selection all-or-nothing, FOR UPDATE precedes active roster lookup, exact committed audit replay and no cleanup on failed commit. Instrumentation helper resolves actual owner; original business assertions unchanged. Source read only; previously qualified root bulk implementation remains frozen."
+          },
+          "review_scope": "full"
+        }
+      ]
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py",
+      "old_sha256": "9641b67bc05ad710f7f34dedfb801c69e4a8367dce317cf86477c61a75b58706",
+      "new_sha256": "522ce2887c361e780e8a99412d0636a2eb5aa0ec0ec85727463587db3bd5994a",
+      "exact_byte_inverse": true,
+      "AST_including_all_location_attributes_exact": true,
+      "significant_token_values_and_positions_exact": true,
+      "token_values_except_nonsemantic_NL_and_file_markers_exact": true,
+      "compiled_marshal_code_including_line_and_exception_tables_exact": true,
+      "compiled_sha256": "9e95b0fe4945bec161562568bccf15932c11b2d71069fc1e7d5be8bab2a6df46",
+      "old_inventory_row_preserved": {
+        "path": "backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py",
+        "scope": "backend",
+        "kind": "test",
+        "lines": "688",
+        "sha256": "9641b67bc05ad710f7f34dedfb801c69e4a8367dce317cf86477c61a75b58706",
+        "status": "verified",
+        "reviewer": "root",
+        "notes": "Complete physical current source/original moved declarations read; whole AST, evaluated contracts, route/global identity and99 focused test proof. | Complete current/original source and exact four-function/two-module inverse proof;17path unchanged-runtime fence with61focusedcases,864 full-source/actualencryptedpayload parity combinations and measured5000 actual frozen/slotted projections. Original six testfiles and support bytes unchanged. | Complete physical current source/test or complete original/current moved declarations read. Same53affected cases before/after,27whole AST/96actualbinding proof,432 exact prepared/page/cache-payload source replays; encrypted cache/authorization/revision fixtures inspected. No whole-file read credit derives only from test execution.",
+        "review_scope": "full"
+      },
+      "prior124_followup_intersection": false,
+      "prior_exact_source_records": [
+        {
+          "ledger": "bulk-architecture-reviewed-files.json",
+          "ledger_sha256": "4683692ddfcaf8a706943f36af9617a2bd51b11b407e359fca558afe2e68278f",
+          "record": {
+            "path": "backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py",
+            "sha256": "9641b67bc05ad710f7f34dedfb801c69e4a8367dce317cf86477c61a75b58706",
+            "reviewer": "root",
+            "review_scope": "full",
+            "status": "verified",
+            "notes": "Complete physical current source/original moved declarations read; whole AST, evaluated contracts, route/global identity and99 focused test proof."
+          },
+          "review_scope": "full"
+        },
+        {
+          "ledger": "submission-view-performance-reviewed-files.json",
+          "ledger_sha256": "fdea9ee6033e0346dda47d74f65ec670b15deae35e60b89ba0d9ff624616274e",
+          "record": {
+            "path": "backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py",
+            "sha256": "9641b67bc05ad710f7f34dedfb801c69e4a8367dce317cf86477c61a75b58706",
+            "reviewer": "root",
+            "review_scope": "full",
+            "status": "verified",
+            "notes": "Complete current/original source and exact four-function/two-module inverse proof;17path unchanged-runtime fence with61focusedcases,864 full-source/actualencryptedpayload parity combinations and measured5000 actual frozen/slotted projections. Original six testfiles and support bytes unchanged."
+          },
+          "review_scope": "full"
+        },
+        {
+          "ledger": "submission-view-reviewed-files.json",
+          "ledger_sha256": "480036b6b6c96edf53674fd430efec2c9f2c94cd54f4ccbc68b5496a3af98a4a",
+          "record": {
+            "path": "backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py",
+            "sha256": "9641b67bc05ad710f7f34dedfb801c69e4a8367dce317cf86477c61a75b58706",
+            "reviewer": "root",
+            "review_scope": "full",
+            "status": "verified",
+            "notes": "Complete physical current source/test or complete original/current moved declarations read. Same53affected cases before/after,27whole AST/96actualbinding proof,432 exact prepared/page/cache-payload source replays; encrypted cache/authorization/revision fixtures inspected. No whole-file read credit derives only from test execution."
+          },
+          "review_scope": "full"
+        }
+      ]
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_public_passport_capabilities.py",
+      "old_sha256": "81ea01aa4629071043595244cc3f0b5ded7414a3467445f11f068faa17e3316f",
+      "new_sha256": "482bc7b1ece3bb81f6cc4b393e1e57aa2e89828deb482ceb3d0ffe709855a78c",
+      "exact_byte_inverse": true,
+      "AST_including_all_location_attributes_exact": true,
+      "significant_token_values_and_positions_exact": true,
+      "token_values_except_nonsemantic_NL_and_file_markers_exact": true,
+      "compiled_marshal_code_including_line_and_exception_tables_exact": true,
+      "compiled_sha256": "a953b000fd9731dca62e81be97e376ee1943a06a25c3869271006dcb9a2247a3",
+      "old_inventory_row_preserved": {
+        "path": "backend/tests/unit/presentation/test_public_passport_capabilities.py",
+        "scope": "backend",
+        "kind": "test",
+        "lines": "108",
+        "sha256": "81ea01aa4629071043595244cc3f0b5ded7414a3467445f11f068faa17e3316f",
+        "status": "verified",
+        "reviewer": "root",
+        "notes": "Complete physical source or whole original/current moved declaration read; exact scope/route/binding proof and current171-case selection. Independent bulk actor and submit-use-case native lifetime follow-ups remain open in their own ledger.",
+        "review_scope": "full"
+      },
+      "prior124_followup_intersection": false,
+      "prior_exact_source_records": [
+        {
+          "ledger": "public-upload-reviewed-files.json",
+          "ledger_sha256": "bb53887bce1f87d217cc017ff87ebdb54136fcbba0c3076d6e01e50359132391",
+          "record": {
+            "path": "backend/tests/unit/presentation/test_public_passport_capabilities.py",
+            "sha256": "81ea01aa4629071043595244cc3f0b5ded7414a3467445f11f068faa17e3316f",
+            "reviewer": "root",
+            "review_scope": "full",
+            "status": "verified",
+            "notes": "Complete physical source or whole original/current moved declaration read; exact scope/route/binding proof and current171-case selection. Independent bulk actor and submit-use-case native lifetime follow-ups remain open in their own ledger."
+          },
+          "review_scope": "full"
+        }
+      ]
+    }
+  ],
+  "union_artifacts_immutable": {
+    "coverage.data": "77243699fceebe934ff5ec300048bb7a92d4be229acaf4ae4fd623cc5f4bbb6e",
+    "coverage.json": "97c97a3c953b150b256c9596992906016b554f2d7c74069d2bd73376f6171f86",
+    "coverage.xml": "11f58fdbfaf4471e0762e7cacffef459e757c0cbe718f0cc894dace8260d6ac2",
+    "environment-guard-14204.json": "e03f71d2ef18a87bf9ed4e199e047877b6d6a93e7abb898fec9dff276050d00a",
+    "quality-classification.json": "24fe6b1c54d1def1e7fc34cf477ac506a7d97f0e898fd9b98440818afd15f98d",
+    "quality-coverage.stderr.txt": "29fbd452b87e7c15ca3e28bb5e68b3f613826ccf97fb191794d7c5cfc6a2387a",
+    "quality-coverage.stdout.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "quality-measurements.json": "da2ce8567f18d1fe9cf2bed32741923c990c2939d37093140a1cc9c517b36767",
+    "receipt.json": "7a0cbaaae89e9bbdb90f96c0112526ffc6175387f71f382b85ea296259d1ca01",
+    "source-proof.json": "77ed489d91536b7606b9a86babccd1e667eef658b03051223254906ea64aea12"
+  },
+  "all3eligible_coverage_inputs_still_immutable": true,
+  "coverage_remains_explicitly_pre_cosmetic": true,
+  "differing_source_coverage_merged_after_adoption": false,
+  "no_tests_or_coverage_rerun": true,
+  "prior124_intersections": [],
+  "current_source_to_pre_cosmetic_coverage_continuity": "Only one app owner loses a terminal blank CRLF. Complete AST locations, significant token positions and full recursively compiled marshaled code/line/exception tables are identical. All executable line/arc coordinates and values are unchanged. Original data/report artifacts are preserved, not rehashed or renewed.",
+  "no_independent_findings_resolved": true
+}

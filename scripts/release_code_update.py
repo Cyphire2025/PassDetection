@@ -21,14 +21,21 @@ import uuid
 from pathlib import Path
 from typing import Any
 
+from image_runtime_policy import WORKER_COMMANDS, validate_process_isolation
 from release_artifacts import verify_manifest
 from release_manifest import load_release_manifest, verify_rendered_release
 from release_reliability import ReliabilityRelease
-from image_runtime_policy import WORKER_COMMANDS, validate_process_isolation
 from release_resource_profile import validate_local_swap_free_host, validate_profile
 from release_traveller_whatsapp import (
-    CONTROL_PROBE, PROJECT_LABEL, PROBE_MARKER, ROOT, SERVICE_LABEL,
-    ReleaseError, release_lock, updated_environment, validate_worker_probe,
+    CONTROL_PROBE,
+    PROBE_MARKER,
+    PROJECT_LABEL,
+    ROOT,
+    SERVICE_LABEL,
+    ReleaseError,
+    release_lock,
+    updated_environment,
+    validate_worker_probe,
 )
 from verify_deployment_resource_budget import _memory_bytes
 
@@ -56,7 +63,7 @@ def environment(container: dict) -> dict[str, str]:
 
 def task_contract(source: str) -> dict[str, str]:
     contracts = {}
-    for node in ast.walk(ast.parse(source)):
+    for node in ast.walk(ast.parse(source.encode("utf-8"))):
         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
             decorators = [item for item in node.decorator_list if isinstance(item, ast.Call)
                           and ((isinstance(item.func, ast.Attribute) and item.func.attr == "task")
@@ -262,7 +269,7 @@ class CodeUpdate(ReliabilityRelease):
         paused = {item["Id"] for name in self.workers if (item := self.optional_existing(name)) is not None}
         if workers_paused and any(item["Id"] in paused for item in running):
             raise ReleaseError("A paused worker is still running")
-        total = int(re.search(r"^MemTotal:\s+(\d+) kB", Path("/proc/meminfo").read_text(), re.M)[1]) * 1024
+        total = int(re.search(r"^MemTotal:\s+(\d+) kB", Path("/proc/meminfo").read_text(), re.MULTILINE)[1]) * 1024
         web_caps = sum(_memory_bytes(config["services"][name]["mem_limit"]) for name in WEB)
         self.record["capacity"] = validate_capacity(running, paused, web_caps, total)
         env = config["services"]["backend"]["environment"]
@@ -386,7 +393,7 @@ for node,entries in queues.items():
 
     def probe(self, identifier: str, service: str, revision: str, *, full: bool = False) -> None:
         if service == "frontend":
-            script = "Promise.all(['/login','/assets/upload-samples/visa-photo.png'].map(async p=>{const r=await fetch('http://127.0.0.1:3000'+p);if(r.status!==200)throw Error('frontend probe failed')})).catch(()=>process.exit(1))"
+            script = "Promise.all(['/login','/pwa-icon-192.png'].map(async p=>{const r=await fetch('http://127.0.0.1:3000'+p);if(r.status!==200)throw Error('frontend probe failed')})).catch(()=>process.exit(1))"
             self.run("docker", "exec", identifier, "node", "-e", script, timeout=25)
             return
         code = """
@@ -450,7 +457,7 @@ print(json.dumps(json.load(response)))
 
     def nginx_workers(self) -> set[str]:
         output = self.run("docker", "top", self.container("nginx")["Id"], "-eo", "pid,args")
-        return set(re.findall(r"^\s*(\d+)\s+nginx: worker process", output, re.M))
+        return set(re.findall(r"^\s*(\d+)\s+nginx: worker process", output, re.MULTILINE))
 
     def drain_upstreams(self, identifiers: dict[str, str]) -> None:
         """Wait only for generations referencing the pair about to be stopped.
@@ -516,10 +523,10 @@ print(json.dumps(json.load(response)))
                 if attempt == 14:
                     raise
                 time.sleep(2)
-        for route in ("/login", "/assets/upload-samples/visa-photo.png"):
+        for route in ("/login", "/pwa-icon-192.png"):
             status = self.run("curl", "--silent", "--show-error", "--max-time", "20", "--output", "/dev/null", "--write-out", "%{http_code}", "https://tech.gctravels.com" + route)
             if status != "200":
-                raise ReleaseError("Public login or existing sample asset did not return HTTP 200")
+                raise ReleaseError("Public login or existing static asset did not return HTTP 200")
 
     def stop_candidates(self) -> None:
         for identifier in self.record["candidates"].values():

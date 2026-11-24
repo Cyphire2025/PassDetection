@@ -1,0 +1,65 @@
+{
+  "method": "Automated current inventory triage and exact digest join only; zero new manual reads claimed.",
+  "pending_rows": [
+    {
+      "path": "frontend/features/tour-operations/services/attendance-batch-selection.ts",
+      "kind": "source",
+      "status": "inventoried",
+      "current_sha256": "2fe851fb50206c3bd12dcf687db4503bbf85ae62b0d5621ceff877680ac71682",
+      "current_full_receipt": "attendance-queue-performance-reviewed-files.json"
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-closeout.ts",
+      "kind": "source",
+      "status": "changed-needs-recheck",
+      "current_sha256": "dabad7e8478072fe909b2708e2dea18fc68220e85c353ec5be3fd2c2493f1e9e",
+      "current_full_receipt": "attendance-queue-performance-reviewed-files.json"
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-replay.ts",
+      "kind": "source",
+      "status": "changed-needs-recheck",
+      "current_sha256": "28bc21ce06138b80e0aceba0831198dd4527e8962862f7a3413cd6552f1352ad",
+      "current_full_receipt": "attendance-queue-performance-reviewed-files.json"
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-safety-work.test.ts",
+      "kind": "test",
+      "status": "inventoried",
+      "current_sha256": "8f7413c6e6f68278bb39d6405edacf4194fd399d7f32bf9221db529e18bea12e",
+      "current_full_receipt": "attendance-queue-performance-reviewed-files.json"
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-source.contract-helper.mjs",
+      "kind": "test",
+      "status": "changed-needs-recheck",
+      "current_sha256": "d56d5803a6869cfe5a58c93ab106953cc6a206f4d70b8a40c5c6a4c590edf92e",
+      "current_full_receipt": "attendance-queue-performance-reviewed-files.json"
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-storage.ts",
+      "kind": "source",
+      "status": "changed-needs-recheck",
+      "current_sha256": "20edfaa36bb6a0bc041fce0a5c6f0943b0ad3ea4b18de1c744a826bf23ff432f",
+      "current_full_receipt": "attendance-queue-performance-reviewed-files.json"
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-work.test.ts",
+      "kind": "test",
+      "status": "inventoried",
+      "current_sha256": "07fc8c93f87b1b276c22e22d4ba0c11ce004bf3e9de04f0d608ca449bc983fe3",
+      "current_full_receipt": "attendance-queue-performance-reviewed-files.json"
+    },
+    {
+      "path": "frontend/fixture-results/.last-run.json",
+      "kind": "reference-or-asset",
+      "status": "inventoried",
+      "current_sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "current_full_receipt": null
+    }
+  ],
+  "genuinely_unreviewed_functional": [],
+  "generated_metadata_only": [
+    "frontend/fixture-results/.last-run.json"
+  ]
+}

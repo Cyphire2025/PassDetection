@@ -1,0 +1,187 @@
+{
+  "reviewer": "/root/document_ui_architecture",
+  "mode": "read-only architecture preflight",
+  "full_source_files": 16,
+  "full_physical_lines": 3669,
+  "global_new_full_source_coverage_credit": 0,
+  "method": "Physical complete reads in bounded source output; targeted partial context is separate. Current main and selected immediate dependencies were already explicit current/full in earlier ledgers. AST maps, path enumeration, old passing checks and search results do not earn manual full-source credit.",
+  "files": [
+    {
+      "path": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+      "sha256": "aa160e1bdcd3f651706adfc6b18edfbb2b2d08784f8d32ce7080c23289b29b7e",
+      "physical_lines": 1778,
+      "review_scope": "full",
+      "global_new_full_coverage_credit": false,
+      "notes": "Complete 1-1778 physical reread in nine bounded chunks; existing current/full operations ledger retained as prior coverage."
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-closeout-checkpoint.ts",
+      "sha256": "3f79eda74d3f7ce683b15117f62a56c8fd2e48635bf0dc4f6e758b828614f5c3",
+      "physical_lines": 218,
+      "review_scope": "full",
+      "global_new_full_coverage_credit": false,
+      "notes": "Complete immediate publication caller; owner/session snapshot, publisher-lane lifetime and cross-tab/queue-lock nesting."
+    },
+    {
+      "path": "frontend/features/tour-operations/services/browser-offline-database.ts",
+      "sha256": "efac84fbbb1ddcedffdf29f571d9a7af674839ecda93f7bbd38c5fadfa3b7ab5",
+      "physical_lines": 122,
+      "review_scope": "full",
+      "global_new_full_coverage_credit": false,
+      "notes": "Complete version-5 IDB schema/open/upgrade/version-change lifecycle; no persisted sending-state recovery in this module."
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-scan-queue-owner.test.ts",
+      "sha256": "52f36f887760811273262f4120a2b2acdeeae7f5280c76b9da70c874c8acd460",
+      "physical_lines": 194,
+      "review_scope": "full",
+      "global_new_full_coverage_credit": false,
+      "notes": "Complete actual public queue owner timing tests, pending fixture and test transport mocks; no persisted sending restart fixture."
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-safety-contract.ts",
+      "sha256": "b1d57d1512e6958de84280b172bd0ed98ebaa1f881ecd1706be4e7f666f9f46b",
+      "physical_lines": 40,
+      "review_scope": "full",
+      "global_new_full_coverage_credit": false,
+      "notes": "Complete logout disposition, unavailable fail-closed snapshot and unsafe-count predicate."
+    },
+    {
+      "path": "frontend/features/tour-operations/hooks/use-attendance-scan-sync.ts",
+      "sha256": "5d98e622157c9ef5829a3594d2f644995989e648599519e0c100960a752fd7e8",
+      "physical_lines": 182,
+      "review_scope": "full",
+      "global_new_full_coverage_credit": false,
+      "notes": "Complete UI queue caller, pending/rejected/discard counts, separate discard delivery and error handling."
+    },
+    {
+      "path": "frontend/features/tour-operations/components/coordinator-offline-scan-drain.tsx",
+      "sha256": "f3e622ed99b2628628ab1d3ce3690ac4aad08205cd5cc92a7c766e93d61188c7",
+      "physical_lines": 107,
+      "review_scope": "full",
+      "global_new_full_coverage_credit": false,
+      "notes": "Complete global drain, independent allSettled lanes and precise persisted timer wakeup; no blind polling."
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-retry-policy.ts",
+      "sha256": "c52346bbcb643c0236b55ba3cea5ba2a529cbf4f0a36b0af6b1b6c04558cdc42",
+      "physical_lines": 126,
+      "review_scope": "full",
+      "global_new_full_coverage_credit": false,
+      "notes": "Complete bounded jitter/backoff, due-time selection and closeout pending/retry/sending classification."
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-sync-policy.ts",
+      "sha256": "9541575e20aa13891ed7de757ffd1689cefde3c81bb5e18f704e67f051875944",
+      "physical_lines": 78,
+      "review_scope": "full",
+      "global_new_full_coverage_credit": false,
+      "notes": "Complete replay success/permanent/recoverable policy and authoritative/optimistic progress behavior."
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-privacy.ts",
+      "sha256": "f4bc6c4123150b5b9bc5d04085801b474e8796177a895d1ec3b8b449ca113c48",
+      "physical_lines": 152,
+      "review_scope": "full",
+      "global_new_full_coverage_credit": false,
+      "notes": "Complete reference/id/terminal sanitization; rejected shape excludes bearer and reference hashes scoped material."
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-batch-policy.ts",
+      "sha256": "393e5adfa1a6e03c8e12786f7a5ab4c2e2600bf5baa9103bb3f4e76b1edb0710",
+      "physical_lines": 52,
+      "review_scope": "full",
+      "global_new_full_coverage_credit": false,
+      "notes": "Complete exact response envelope and success/terminal/ambiguous per-item dispositions."
+    },
+    {
+      "path": "frontend/features/auth/components/queue-safe-sign-out-guard.tsx",
+      "sha256": "d239fe6bd51722f53355d89d703e6af37f82d61a0bc8397cda7e0232be04cdd9",
+      "physical_lines": 206,
+      "review_scope": "full",
+      "global_new_full_coverage_credit": false,
+      "notes": "Complete three-stage voluntary-discard UI and owner/session guarded sync/signout handlers; read in untruncated first result of aggregate tool call."
+    },
+    {
+      "path": "frontend/features/auth/services/queue-safe-sign-out.contract.test.mjs",
+      "sha256": "eec50dd1fb9b9e06f8c9228eb4036b57bd9f3a77053dfd2646d41a2531faff69",
+      "physical_lines": 63,
+      "review_scope": "full",
+      "global_new_full_coverage_credit": false,
+      "notes": "Complete existing lexical/source contracts; direct old single-file queue loader must follow actual owners after any extraction."
+    },
+    {
+      "path": "frontend/features/tour-operations/test-support/attendance-database.ts",
+      "sha256": "818e0b50f7242e8164dd05a7dbff7add217bf4a5578c3298ecec13e86771a36d",
+      "physical_lines": 62,
+      "review_scope": "full",
+      "global_new_full_coverage_credit": false,
+      "notes": "Complete minimal async IDB timing fixture, explicitly not real browser transaction/cross-tab/crypto emulator."
+    },
+    {
+      "path": "frontend/features/auth/components/queue-safe-sign-out-guard.test.tsx",
+      "sha256": "6b4a5d0d7557d8312a79fa2b6c336a6baa79fc838512979f6c4c6d802a8ec473",
+      "physical_lines": 65,
+      "review_scope": "full",
+      "global_new_full_coverage_credit": false,
+      "notes": "Complete actual rendered keyboard/destructive-intent/owner-switch tests; clearSession and queue calls mocked."
+    },
+    {
+      "path": "frontend/stores/auth.store.ts",
+      "sha256": "788cdfd0ed8072ce1191d863759bed359b3a38de35a0aeeb1cc744c3e11f58e9",
+      "physical_lines": 224,
+      "review_scope": "full",
+      "global_new_full_coverage_credit": false,
+      "notes": "Physical first-245 read covered entire file, tail read confirmed no omitted lines; actual logout imports queue boundary and sessionVersion guard before cookie/state cleanup."
+    }
+  ],
+  "partial_context": [
+    {
+      "path": "frontend/features/tour-operations/components/coordinator-pwa.contract.test.mjs",
+      "review_scope": "partial",
+      "read_ranges": [
+        [
+          90,
+          153
+        ],
+        [
+          190,
+          279
+        ]
+      ],
+      "notes": "Targeted queue-facing source assertions physically reread after aggregate display truncation; whole-file credit deliberately excluded. Other lines only search/possibly truncated context.",
+      "sha256": "1212f837a58f21ef9acb5e12a0ef5f32769fee720697af24164015be1626a969",
+      "physical_lines": 447,
+      "global_new_full_coverage_credit": false
+    },
+    {
+      "path": "frontend/public/offline-scanner.js",
+      "review_scope": "partial",
+      "read_ranges": [
+        [
+          959,
+          1048
+        ]
+      ],
+      "notes": "Only immediate v5 protected pending validation and legacy conversion context; standalone script not edited or credited full.",
+      "sha256": "458389ca4811ee4186ab14f3d00039100a7d8264b68d7a99a8bcbe31232896d9",
+      "physical_lines": 1267,
+      "global_new_full_coverage_credit": false
+    },
+    {
+      "path": "frontend/features/operations/api/operations.api.ts",
+      "review_scope": "partial",
+      "read_ranges": [
+        [
+          956,
+          1074
+        ]
+      ],
+      "notes": "Actual single/batch scan and count-only checkpoint HTTP payloads plus ownerBoundRequestConfig; neighboring method prefix/suffix only partial.",
+      "sha256": "7a686e1546a5235b19567421afc23c8bce0cccd550f5f619208e807b67da677d",
+      "physical_lines": 1200,
+      "global_new_full_coverage_credit": false
+    }
+  ],
+  "display_note": "One aggregate PWA/map output was truncated and a guessed nonexistent test-helper path failed; only subsequently bounded PWA ranges and actual attendance-database full source are credited. Broad search output was truncated and earns no full-source credit. No application tests/checks were run."
+}

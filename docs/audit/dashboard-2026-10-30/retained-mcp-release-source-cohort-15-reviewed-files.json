@@ -1,0 +1,58 @@
+[
+  {
+    "path": "scripts/release_mcp_contract.py",
+    "sha256": "6d50e090d975235c7f8542115ece3b90bb7f4f7cf1003e71aa0a780995ac460e",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full physical source read in contiguous halves: closed deployment-kind dispatch preserves distinct historical/schema executors; exact migration ancestor/source digest and policy-type/shape validation; same-schema artifact refusal. Explicit dispatch kept readable; no genericdynamicimport registry introduced. No new tests or provider/database/release operations run for unchanged source. Dedicated OperationsInbox remains deferred."
+  },
+  {
+    "path": "scripts/release_mcp_admin_approval_contract.py",
+    "sha256": "b07240b1800429b9166d437975ee028760e7ae50f9e6169a4e12b44f7ca5d49e",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full physical source read: exactly0124-to0125 regular migration/ancestry binding, read-only capability ceiling, emptyrequest-beforeactivation and grant/connection/control preservation. Source metadata alone grants no rollout authority. No new tests or provider/database/release operations run for unchanged source. Dedicated OperationsInbox remains deferred."
+  },
+  {
+    "path": "scripts/release_mcp_direct_devices_contract.py",
+    "sha256": "83ee1d95676dbb5cb313642c178fee516eb908e7517290d263204fc164ae9c25",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full physical source read: exactly0123-to0124 source/ancestry, unchangedreadcapability and existingenableddefaults. Closedkey/type/hash validation rejects alteredcontracts. No new tests or provider/database/release operations run for unchanged source. Dedicated OperationsInbox remains deferred."
+  },
+  {
+    "path": "scripts/release_mcp_read_only_contract.py",
+    "sha256": "d53684a5cb27955e2ed73f84934bc27dcd2f44b7fb7a2f2de0c9326b4e2e51bc",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full physical source read: exactly0122-to0123 read-only policy, sourcehash/ancestor validation and originalcontrol/grants retained. Old/same-schema executor not applicable. No new tests or provider/database/release operations run for unchanged source. Dedicated OperationsInbox remains deferred."
+  },
+  {
+    "path": "scripts/release_mcp_dashboard_write_contract.py",
+    "sha256": "c0c0af35820f1c6118e38632cd6bf5a125eb11769145b958ee3e4ffc209441a4",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full physical source read: exact0125-to0128 chain/profilehash, export row/byte/family ceilings and defaultdeniedwrite authority. Signedavailability differs from grants. Returnedstaticpolicy containers traced as trusted metadata; no reachableuntrusted mutation adopted. No new tests or provider/database/release operations run for unchanged source. Dedicated OperationsInbox remains deferred."
+  },
+  {
+    "path": "scripts/release_mcp_database.py",
+    "sha256": "7340c8eb32e2863889c2c2d74f7a542c28f172d89a658a512225871ad4b45eb7",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full physical source read in contiguous halves: exactimage/revision/database/fence binding, privateexclusive retained backups/receipts, streamed dump/decode/fullhash validation and originalreceipt across resume. Callbackexecutor owns actualfencing/commandcapture; no livebackup/restore/deployment proof. Path/receipt inputs are maintained generated backup names; hypothetical arbitrary localnames not adopted as a public exploit. No new tests or provider/database/release operations run for unchanged source. Dedicated OperationsInbox remains deferred."
+  },
+  {
+    "path": "scripts/release_travel_tracker_contract.py",
+    "sha256": "b5a2489fd71329f60cbc0940203f52050ac2186608847109b77530b5fb55b23a",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full physical source read: exact0128-to0129 source/ancestry, originalpermissions/settings/history and runtimegrant obligation. Strict targetschema/closedkeys/types/digests; no migrationexecution. No new tests or provider/database/release operations run for unchanged source. Dedicated OperationsInbox remains deferred."
+  }
+]

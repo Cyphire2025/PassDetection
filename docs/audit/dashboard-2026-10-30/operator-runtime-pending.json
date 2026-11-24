@@ -1,0 +1,294 @@
+{
+  "scope": "Current operator architecture and strict imported-chain typing obligations; historical loose/default checks do not close these.",
+  "large_owners": [
+    {
+      "path": "scripts/release_retained_update.py",
+      "sha256": "f000107c2ce6a03653dbc03e83e04311514bac16c4bba07f17e1301c8a9c8cd4",
+      "lines": 165,
+      "full_source_review_completed": true,
+      "architecture_status": "Focused split, decoded boundary and explicit public annotation follow-through complete; one FastBuild interface item and live qualification open",
+      "historical_original_lines": 597,
+      "historical_original_sha256": "55338ce54f33e43b174e137b4808ba45cf48bee41cd67d0808e28221e2040c70",
+      "post_health_probe_original_sha256": "c3edd7d269f827ec1cca7b9266bebd79c1f32791fa1042cd174855ea32eae632",
+      "current_runtime_owners": 7,
+      "evidence": "retained-interface-verification.json"
+    },
+    {
+      "path": "scripts/release_traveller_whatsapp.py",
+      "sha256": "a79c9bd3ef06bc83b263d0f5bb3484def8fb97c380ba9c37da0bc88af07e8908",
+      "lines": 88,
+      "full_source_review_completed": true,
+      "architecture_status": "Focused responsibility split and owned strict-boundary follow-through complete; live Linux/VPS qualification pending",
+      "historical_original_sha256": "bc9bc3f27c9c65914dd00c582ce6abd03fc1e18564e8e222ca79f7d03ff4ba32",
+      "historical_original_lines": 690,
+      "current_runtime_owners": 6,
+      "evidence": "traveller-release-verification.json"
+    },
+    {
+      "path": "scripts/qa/qualify_workload_capacity.py",
+      "sha256": "ef67abbde653927b30fe191067cde38eedc06244aaa6955a5b29a82c75fdc4bb",
+      "lines": 109,
+      "full_source_review_completed": true,
+      "architecture_status": "focused responsibility split complete; live qualification pending",
+      "current_runtime_owners": 7,
+      "evidence": "workload-architecture-verification.json"
+    },
+    {
+      "path": "scripts/qa/capacity_fixtures.py",
+      "sha256": "55271f5973045538cc88444abb3019986db59e02e07ea4345b69fa19f863c7db",
+      "lines": 47,
+      "full_source_review_completed": true,
+      "architecture_status": "focused responsibility split complete; live qualification pending",
+      "current_runtime_owners": 5,
+      "evidence": "capacity-fixture-architecture-verification.json"
+    }
+  ],
+  "strict_imported_diagnostics": [
+    {
+      "path": "scripts/release_traveller_whatsapp.py",
+      "line": 306,
+      "diagnostic": "Module has no attribute \"O_DIRECTORY\"  [attr-defined]",
+      "status": "open",
+      "runtime_bug_established": false,
+      "qualification_scope": "Windows analysis of existing Linux-only O_DIRECTORY/flock APIs; Linux strict target passes. No platform suppression or live VPS claim.",
+      "current_owner": "scripts/traveller_release_host.py"
+    },
+    {
+      "path": "scripts/release_traveller_whatsapp.py",
+      "line": 656,
+      "diagnostic": "Module has no attribute \"flock\"  [attr-defined]",
+      "status": "open",
+      "runtime_bug_established": false,
+      "qualification_scope": "Windows analysis of existing Linux-only O_DIRECTORY/flock APIs; Linux strict target passes. No platform suppression or live VPS claim.",
+      "current_owner": "scripts/release_traveller_whatsapp.py"
+    },
+    {
+      "path": "scripts/release_traveller_whatsapp.py",
+      "line": 656,
+      "diagnostic": "Module has no attribute \"LOCK_EX\"  [attr-defined]",
+      "status": "open",
+      "runtime_bug_established": false,
+      "qualification_scope": "Windows analysis of existing Linux-only O_DIRECTORY/flock APIs; Linux strict target passes. No platform suppression or live VPS claim.",
+      "current_owner": "scripts/release_traveller_whatsapp.py"
+    },
+    {
+      "path": "scripts/release_traveller_whatsapp.py",
+      "line": 656,
+      "diagnostic": "Module has no attribute \"LOCK_NB\"  [attr-defined]",
+      "status": "open",
+      "runtime_bug_established": false,
+      "qualification_scope": "Windows analysis of existing Linux-only O_DIRECTORY/flock APIs; Linux strict target passes. No platform suppression or live VPS claim.",
+      "current_owner": "scripts/release_traveller_whatsapp.py"
+    },
+    {
+      "path": "scripts/storage_writer_fence.py",
+      "line": 83,
+      "diagnostic": "Returning Any from function declared to return \"dict[str, Any] | None\"  [no-any-return]",
+      "status": "open",
+      "runtime_bug_established": false
+    },
+    {
+      "path": "scripts/storage_writer_fence.py",
+      "line": 98,
+      "diagnostic": "Item \"None\" of \"Any | None\" has no attribute \"assert_stopped\"  [union-attr]",
+      "status": "open",
+      "runtime_bug_established": false
+    },
+    {
+      "path": "scripts/storage_writer_fence.py",
+      "line": 166,
+      "diagnostic": "Returning Any from function declared to return \"dict[str, Any] | None\"  [no-any-return]",
+      "status": "open",
+      "runtime_bug_established": false
+    },
+    {
+      "path": "scripts/storage_release.py",
+      "line": 63,
+      "diagnostic": "Returning Any from function declared to return \"bool\"  [no-any-return]",
+      "status": "open",
+      "runtime_bug_established": false
+    },
+    {
+      "path": "scripts/storage_release.py",
+      "line": 104,
+      "diagnostic": "Module has no attribute \"geteuid\"; maybe \"getpid\"?  [attr-defined]",
+      "status": "open",
+      "runtime_bug_established": false
+    },
+    {
+      "path": "scripts/storage_release.py",
+      "line": 105,
+      "diagnostic": "Module has no attribute \"chown\"  [attr-defined]",
+      "status": "open",
+      "runtime_bug_established": false
+    },
+    {
+      "path": "scripts/storage_release.py",
+      "line": 106,
+      "diagnostic": "Module has no attribute \"geteuid\"; maybe \"getpid\"?  [attr-defined]",
+      "status": "open",
+      "runtime_bug_established": false
+    }
+  ],
+  "typecheck_command": "From scripts/: python -m mypy --config-file ../backend/pyproject.toml verify_compose_runtime.py compose_runtime_capacity.py compose_runtime_clients.py compose_runtime_contract.py compose_runtime_services.py compose_runtime_values.py compose_runtime_workers.py",
+  "history": "Earlier default/silent-import Linux check passed 7 owned modules; stricter explicit repository config walk now reports26 diagnostics in9files. Includes a local json.loads Any return and Windows qualification limitations for existing Linux-only fcntl/os APIs. No blanket suppressions or type-policy changes.",
+  "live_qualification": "PostgreSQL rehearsal, Docker render/service contracts and remote observer lifetime remain unqualified here. Synthetic local cleanup and cancellation do not prove a remote docker-exec exits at the same instant.",
+  "resolved_owned_diagnostics": [
+    {
+      "path": "scripts/verify_compose_runtime.py",
+      "line": 169,
+      "diagnostic": "Returning Any from function declared to return \"dict[str, Any]\"  [no-any-return]",
+      "status": "fixed-current",
+      "runtime_bug_established": false,
+      "receipt": "compose-decoded-boundary-verification.json"
+    },
+    {
+      "path": "scripts/release_traveller_whatsapp.py",
+      "line": 255,
+      "diagnostic": "Returning Any from function declared to return \"dict[str, Any]\"  [no-any-return]",
+      "status": "fixed-current",
+      "runtime_bug_established": true,
+      "receipt": "traveller-release-verification.json",
+      "historical_diagnostic_position": true
+    },
+    {
+      "path": "scripts/release_traveller_whatsapp.py",
+      "line": 330,
+      "diagnostic": "Returning Any from function declared to return \"str\"  [no-any-return]",
+      "status": "fixed-current",
+      "runtime_bug_established": true,
+      "receipt": "traveller-release-verification.json",
+      "historical_diagnostic_position": true
+    },
+    {
+      "path": "scripts/release_traveller_whatsapp.py",
+      "line": 500,
+      "diagnostic": "Returning Any from function declared to return \"str\"  [no-any-return]",
+      "status": "fixed-current",
+      "runtime_bug_established": false,
+      "receipt": "traveller-release-verification.json",
+      "historical_diagnostic_position": true
+    },
+    {
+      "path": "scripts/release_traveller_whatsapp.py",
+      "line": 647,
+      "diagnostic": "Function is missing a return type annotation  [no-untyped-def]",
+      "status": "fixed-current",
+      "runtime_bug_established": false,
+      "receipt": "traveller-release-verification.json",
+      "historical_diagnostic_position": true
+    },
+    {
+      "path": "scripts/image_runtime_policy.py",
+      "line": 38,
+      "diagnostic": "Missing type arguments for generic type \"dict\"  [type-arg]",
+      "status": "fixed-current",
+      "runtime_bug_established": false,
+      "historical_diagnostic_position": true,
+      "receipt": "shared-operator-boundary-verification.json"
+    },
+    {
+      "path": "scripts/image_runtime_policy.py",
+      "line": 46,
+      "diagnostic": "Value of type \"list[str] | None\" is not indexable  [index]",
+      "status": "fixed-current",
+      "runtime_bug_established": false,
+      "historical_diagnostic_position": true,
+      "receipt": "shared-operator-boundary-verification.json"
+    },
+    {
+      "path": "scripts/image_runtime_policy.py",
+      "line": 53,
+      "diagnostic": "Missing type arguments for generic type \"dict\"  [type-arg]",
+      "status": "fixed-current",
+      "runtime_bug_established": false,
+      "historical_diagnostic_position": true,
+      "receipt": "shared-operator-boundary-verification.json"
+    },
+    {
+      "path": "scripts/image_runtime_policy.py",
+      "line": 64,
+      "diagnostic": "Missing type arguments for generic type \"dict\"  [type-arg]",
+      "status": "fixed-current",
+      "runtime_bug_established": false,
+      "historical_diagnostic_position": true,
+      "receipt": "shared-operator-boundary-verification.json"
+    },
+    {
+      "path": "scripts/verify_deployment_resource_budget.py",
+      "line": 54,
+      "diagnostic": "Missing type arguments for generic type \"dict\"  [type-arg]",
+      "status": "fixed-current",
+      "runtime_bug_established": false,
+      "historical_diagnostic_position": true,
+      "receipt": "shared-operator-boundary-verification.json"
+    },
+    {
+      "path": "scripts/release_manifest.py",
+      "line": 31,
+      "diagnostic": "Returning Any from function declared to return \"dict[str, Any]\"  [no-any-return]",
+      "status": "fixed-current",
+      "runtime_bug_established": false,
+      "historical_diagnostic_position": true,
+      "receipt": "shared-operator-boundary-verification.json"
+    },
+    {
+      "path": "scripts/verify_database_deployment_budget.py",
+      "line": 26,
+      "diagnostic": "Missing type arguments for generic type \"dict\"  [type-arg]",
+      "status": "fixed-current",
+      "runtime_bug_established": false,
+      "historical_diagnostic_position": true,
+      "receipt": "shared-operator-boundary-verification.json"
+    },
+    {
+      "path": "scripts/verify_database_deployment_budget.py",
+      "line": 73,
+      "diagnostic": "Incompatible types in assignment (expression has type \"int | None\", variable has type \"int\")  [assignment]",
+      "status": "fixed-current",
+      "runtime_bug_established": false,
+      "historical_diagnostic_position": true,
+      "receipt": "shared-operator-boundary-verification.json"
+    },
+    {
+      "path": "scripts/verify_database_deployment_budget.py",
+      "line": 104,
+      "diagnostic": "Missing type arguments for generic type \"dict\"  [type-arg]",
+      "status": "fixed-current",
+      "runtime_bug_established": false,
+      "historical_diagnostic_position": true,
+      "receipt": "shared-operator-boundary-verification.json"
+    },
+    {
+      "path": "scripts/database_identity_environment.py",
+      "line": 30,
+      "diagnostic": "Item \"None\" of \"Match[str] | None\" has no attribute \"group\"  [union-attr]",
+      "status": "fixed-current",
+      "runtime_bug_established": false,
+      "historical_diagnostic_position": true,
+      "receipt": "shared-operator-boundary-verification.json"
+    }
+  ],
+  "current_owned_typecheck": "All7 owned Compose modules pass explicit repository strict config, silent imported bodies and Linux target. The25 imported/platform diagnostics from the preceding full walk are still open, not suppressed or claimed fixed. Six shared traveller runtime owners now pass explicit repository strict config, silent imported bodies and Linux target after two decoded JSON guards and two annotations. Four historical logical diagnostics are resolved; 21 other imported/platform diagnostics remain, including four Linux-only traveller APIs.",
+  "workload_typing_scope": "Basic Linux body check including untyped bodies passes7 modules with silent imported bodies. Preserved original public generic dict annotations are not claimed to pass repository strict=true; no existing backend gate changed or suppression added.",
+  "capacity_fixture_typing_scope": "Basic Linux body check5 passes with explicit MYPYPATH=backend and imported bodies silent. First failed path invocation and2inference+1actor diagnostics retained; original public generic dict annotations preserved, no strict-mode certification.",
+  "retained_strict_followups": {
+    "status": "one-existing-interface-item-open",
+    "count": 1,
+    "previous_decoded_boundary_count": 26,
+    "historical_mechanical_count": 40,
+    "evidence": "retained-interface-current-types.txt",
+    "six_owned_modules_strict_pass": "retained-interface-six-owner-types.txt",
+    "diagnostics": [
+      {
+        "path": "scripts/retained_release_fast.py",
+        "line": 14,
+        "diagnostic": "FastBuild.backend(base_image) has a distinct one-argument code-only contract; generic RetainedBuild.backend requires previous_lock",
+        "status": "open-deliberate-interface-migration",
+        "runtime_bug_established": false
+      }
+    ],
+    "constraints": "Actual maintained FastBuild production receiver has one one-argument backend caller; generic two-argument caller has separate RetainedBuild receiver. No valid-call failure demonstrated. Do not suppress override or silently accept/ignore a dependency lock."
+  },
+  "shared_operator_current_typing": "All five owned shared helper modules pass explicit repository strict config, Linux target and silent imported bodies. Ten historical imported-chain diagnostics resolved; eleven other imported/platform diagnostics and separately recorded retained26 remain open."
+}

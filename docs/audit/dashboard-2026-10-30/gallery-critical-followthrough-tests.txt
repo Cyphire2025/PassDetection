@@ -1,0 +1,8 @@
+........................................................................ [ 69%]
+...............................                                          [100%]
+
+---------- coverage: platform win32, python 3.11.15-final-0 ----------
+Coverage XML written to file C:\Users\nipun\Desktop\PassDetection\docs\audit\dashboard-2026-10-30\gallery-critical-followthrough-coverage.xml
+Coverage JSON written to file C:\Users\nipun\Desktop\PassDetection\docs\audit\dashboard-2026-10-30\gallery-critical-followthrough-coverage.json
+
+103 passed in 21.95s

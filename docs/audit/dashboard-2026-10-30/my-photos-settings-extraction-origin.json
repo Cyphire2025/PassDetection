@@ -1,0 +1,30 @@
+{
+  "original_sha256": "c0f6f41076103d3a9f9ead4ab957c2014aaa6eacedffb28a72080f4d6fa618f8",
+  "source_sha256": {
+    "backend/app/core/config/my_photos_settings.py": "f0c914e0610b66ca4ca95b5d664265142f860fcb009d8015b46ed1b437e3cc45",
+    "backend/app/core/config/my_photos_aws_policy.py": "5d3650cc598226d311ee4426adfc2a505396823a84a6e2f4b86366b9f4dc45cc"
+  },
+  "production_policy_statement_partitions": {
+    "activation_and_region": [
+      0,
+      5
+    ],
+    "reference_keys": [
+      5,
+      16
+    ],
+    "storage_origins": [
+      16,
+      18
+    ],
+    "liveness_storage": [
+      18,
+      27
+    ],
+    "gallery_storage_and_match_configuration": [
+      27,
+      34
+    ]
+  },
+  "public_policy_order": "unchanged: thresholds, development fixture shape, production provider shape; runtime environment is still explicitly called by root Settings."
+}

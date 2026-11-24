@@ -11,6 +11,9 @@ import { useAuthStore } from "@/stores/auth.store";
 import { authApi } from "../api/auth.api";
 import { useIdentityActionToken } from "../hooks/use-identity-action-token";
 import { MfaChallengePanel } from "./login-form";
+import { authenticationContextIsCurrent, captureAuthenticationContext } from "../services/authentication-context";
+import { RequestOwnerChangedError } from "@/lib/api/request-owner";
+import { cookieCoordinationFailureMessage } from "../services/cookie-mutation";
 
 export function PasswordRecoveryRequestForm() {
   const [email, setEmail] = useState("");
@@ -53,23 +56,33 @@ export function PasswordRecoveryRequestForm() {
 }
 
 export function PasswordRecoveryCompleteForm() {
+  const [entryAuthentication] = useState(captureAuthenticationContext);
+  const currentVersion = useAuthStore((state) => state.sessionVersion);
   const { readToken, tokenState } = useIdentityActionToken();
   const [password, setPassword] = useState("");
   const [confirmation, setConfirmation] = useState("");
   const [validationError, setValidationError] = useState<string | null>(null);
   const setSession = useAuthStore((state) => state.setSession);
   const recovery = useMutation({
+    onMutate: captureAuthenticationContext,
     mutationFn: () => {
+      if (!authenticationContextIsCurrent(entryAuthentication)) throw new RequestOwnerChangedError();
       const token = readToken();
       if (!token) throw new Error("Recovery credential is unavailable");
       return authApi.completePasswordRecovery(token, password);
     },
-    onSuccess: (outcome) => {
+    onSuccess: (outcome, _variables, authentication) => {
+      if (!authenticationContextIsCurrent(authentication)) return;
       if (outcome.status !== "authenticated") return;
       setSession(outcome.user);
       window.location.assign(ROUTES.dashboard.root);
     },
   });
+
+  if (recovery.context && currentVersion !== recovery.context.sessionVersion
+    && !authenticationContextIsCurrent(recovery.context)) {
+    return <p role="alert">Your signed-in account changed. Reload before continuing recovery.</p>;
+  }
 
   if (recovery.data?.status === "action_completed") {
     return (
@@ -117,7 +130,7 @@ export function PasswordRecoveryCompleteForm() {
       </div>
       <PasswordInput label="New password" autoComplete="new-password" value={password} onChange={(event) => setPassword(event.target.value)} leftAddon={<KeyRound className="h-4 w-4" aria-hidden="true" />} className="h-[54px] border-[#cbd5dc] pr-12 text-base focus:ring-[#1d6297]" />
       <PasswordInput label="Confirm password" autoComplete="new-password" value={confirmation} onChange={(event) => setConfirmation(event.target.value)} className="h-[54px] border-[#cbd5dc] pr-12 text-base focus:ring-[#1d6297]" />
-      {(validationError || recovery.error) && <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{validationError ?? "The recovery link is invalid, expired, or already used."}</div>}
+      {(validationError || recovery.error) && <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{validationError ?? cookieCoordinationFailureMessage(recovery.error) ?? "The recovery link is invalid, expired, or already used."}</div>}
       <Button type="button" className="h-[54px] w-full bg-[#123753] hover:bg-[#17486d] active:bg-[#102e43]" isLoading={recovery.isPending} onClick={submit}>Reset password and continue</Button>
     </div>
   );

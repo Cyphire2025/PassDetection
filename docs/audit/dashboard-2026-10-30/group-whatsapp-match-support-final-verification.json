@@ -1,0 +1,106 @@
+{
+  "status": "FROZEN: coherent three-leaf responsibility separation and stable facade qualified; no behavior/performance change",
+  "architecture_plan": {
+    "path": "docs/audit/dashboard-2026-10-30/group-whatsapp-match-support-architecture-plan.json",
+    "sha256": "932e48faefebf0c86994783bd7dab37610d78de388981c6fb056d430278ad576"
+  },
+  "source_manifest": {
+    "path": "docs/audit/dashboard-2026-10-30/group-whatsapp-match-support-final-source-manifest.json",
+    "sha256": "d211cba3fe6a722a18914c0ebabae6494bcb895f6f0a365bcf551fd9d700b39c"
+  },
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/group-whatsapp-match-support-reviewed-files.json",
+    "sha256": "e9482b65c1076d1095541b6be31786faae909c1d309c8620576eca4b267aa148"
+  },
+  "budget_candidates": {
+    "path": "docs/audit/dashboard-2026-10-30/group-whatsapp-match-support-budget-candidates.json",
+    "sha256": "ce5039c95fbe92c62adebb2163f2a8692d150e59eca1a68d7db40f409d4f70e0"
+  },
+  "source_proof": {
+    "path": "docs/audit/dashboard-2026-10-30/group-whatsapp-match-support-source-proof.json",
+    "sha256": "0236076e4041a1bbb83189755e90b8cdbe14a4789b1b2c5e7003d4a4f13f7b0f"
+  },
+  "raw_coverage": {
+    "path": "docs/audit/dashboard-2026-10-30/group-whatsapp-match-support-coverage.json",
+    "sha256": "38ad44289dd6876089bc4af9fde109c9cea2def200ed0f0e94683f0d169c5bcf"
+  },
+  "coverage_xml": {
+    "path": "docs/audit/dashboard-2026-10-30/group-whatsapp-match-support-coverage.xml",
+    "sha256": "60374948c6813a06e78d85b6c66f0f3ebe71ea3ae0aae004572416be418cdd21"
+  },
+  "focused_run": {
+    "path": "docs/audit/dashboard-2026-10-30/group-whatsapp-match-support-focused-command.json",
+    "sha256": "ac7ed9e30926e1b2748a9cc573705f60bdfabb9b108cc4f48cc851f912f2f29a"
+  },
+  "focused_log": {
+    "path": "docs/audit/dashboard-2026-10-30/group-whatsapp-match-support-focused-tests.txt",
+    "sha256": "994f5a151c06bb96857376dadaef2ec2ea89fc1330361000d8222804fa8bef92"
+  },
+  "before_contract": {
+    "path": ".tmp/group-whatsapp-match-contract-before.json",
+    "sha256": "f0cfe229fbb6df3566eba2d2a8fc4f1b14e01853a2b52f25df4633f17f1c7be6"
+  },
+  "after_contract": {
+    "path": ".tmp/group-whatsapp-match-contract-after.json",
+    "sha256": "f0cfe229fbb6df3566eba2d2a8fc4f1b14e01853a2b52f25df4633f17f1c7be6"
+  },
+  "checks": {
+    "before_product_cases_passed": 56,
+    "initial_capture_harness_failure": "Separate temporary FastAPI app omitted required router prefix; original56product cases passed and raw failure preserved.",
+    "corrected_before_contract_capture": "1passed0.31s, only temporary prefix corrected; original56product cases not rerun.",
+    "final": "57passed22.76s=56unchanged product cases+1runtime contract capture, one current18-source fence/independent include-only branch coverage file; not113unique cases.",
+    "strict_mypy": {
+      "exit_code": 0,
+      "runtime_files": 4,
+      "stdout": "Success: no issues found in 4 source files",
+      "command": "python -m mypy --strict --follow-imports=silent [four current runtime owners]",
+      "provenance": "Actual tool result before final source-fenced selection, no runtime writes since."
+    },
+    "ruff": {
+      "exit_code": 0,
+      "runtime_files": 4,
+      "stdout": "All checks passed!",
+      "command": "python -m ruff check --no-fix [four current runtime owners]",
+      "provenance": "Actual scoped tool result; no runtime writes since."
+    }
+  },
+  "contract_results": {
+    "whole_declaration_asts_exact": 12,
+    "whole_functions": 11,
+    "protocol": 1,
+    "type_alias_asts_exact": 5,
+    "actual_imported_objects": 30,
+    "declarations_evaluated_annotations_signatures_modules_qualnames_defaults_pickle_exact": 12,
+    "client_group_openapi_paths_exact": 17,
+    "actual_mutation_response_aliases": 3,
+    "actual_client_groups_aliases": 2,
+    "actual_mcp_import_by_value": true,
+    "used_owner_global_objects_same_as_legacy_aliases": true,
+    "original_callers_and_assertions_byte_unchanged": 12
+  },
+  "source_review": {
+    "new_current_full_tests": 3,
+    "new_test_physical_lines": 1805,
+    "new_test_paths": [
+      "backend/tests/unit/presentation/test_passport_roster_resolution_routes.py",
+      "backend/tests/unit/presentation/test_group_whatsapp_links.py",
+      "backend/tests/integration/test_mcp_phone_difference_reads.py"
+    ],
+    "other_test_full_rows_previously_full": 2,
+    "runtime_full_rows": 6,
+    "focused_rows": 1
+  },
+  "limitations": [
+    "Physical inspect.getsource resolves actual new leaf implementation, not old facade text. Function __globals__ maps belong to real owners; only actual referenced object/caller bindings are proven preserved.",
+    "No faster-runtime, lower-complexity-function, SQL optimization or caching claim: original maximum individual C17 staysC17 in cohesive pure manual-resolution function; responsibility ownership improved and largest implementation file214.",
+    "No live PostgreSQL/Redis/S3/provider or production/browser qualification. SQLite/control source and exact AST/runtime API contracts are the scope.",
+    "Response owner lines50/57 and branches9/16; normal85 reflects actual87.72line coverage. Acquisition100line/50branch and resolutions96.67line/90branch measured. No false95/critical coverage claim.",
+    "Temporary optional radon metric import was unavailable; no dependency changed, canonical repository deterministic source measurer used for all four actual candidates.",
+    "Original first proof harness/log and plan/source snapshots retained; no whole-app suite/build/browser or shared gate writes."
+  ],
+  "remaining": [
+    "AI/root adoption of measured normal4 candidates into the next coherent shared checkpoint.",
+    "Broader retained source audit remains active; resume remaining retained non-infrastructure tests."
+  ],
+  "source_frozen": true
+}

@@ -1,0 +1,82 @@
+{
+  "created_utc": "2026-10-31T09:04:36.907690+00:00",
+  "status": "focused_email_model_architecture_complete_and_source_frozen",
+  "scope": "Existing1417-line email model owner split into seven whole table owners, seven-line bootstrap and86-line public facade. No schema or workflow change.",
+  "original_source_sha256": "1801ba03397d6b0ac28d032683778592184f22f9b559c5b23d3a524f0a57cadd",
+  "source_manifest": "email-models-source-manifest.json",
+  "runtime_paths": 9,
+  "new_runtime_paths": 8,
+  "new_test_support_paths": 3,
+  "checks": {
+    "before": "45passed before movement",
+    "final": "59passed on finalLFsources with scoped9-runtime coverage",
+    "mypy": "9sourcefiles passed",
+    "ruff": "16runtime/test/support paths passed",
+    "whole_class_and_statement_proof": "7wholeclasses +118actual value bindings +exacthelpers/protocol/listener/targetloop and expanded top-level order",
+    "actual_metadata": {
+      "tables": 174,
+      "mappers": 174,
+      "columns": 2727,
+      "constraints": 1447,
+      "indexes": 509,
+      "relationships": 19,
+      "dialects": [
+        "sqlite",
+        "postgresql"
+      ],
+      "compile_errors": 0,
+      "full_before_after_equality": true,
+      "public_first_and_registry_first_original_orders_preserved_separately": true
+    },
+    "cold_imports": "7private owner-first +registry-first originalbaseline parity",
+    "proposed_normal_budgets": "9pass incl coverage; shared gates not edited; no new critical declaration-only gates"
+  },
+  "reviewed": {
+    "full_files": 19,
+    "full_physical_lines": 2671,
+    "partial_or_search_context_files": 6,
+    "credit_basis": "Actual complete physical reads only; original target recorded separately in preflight. Metadata-wide enumeration is not full-file review credit."
+  },
+  "preserved": {
+    "frozen_source_hashes": 159,
+    "published_migrations": 142,
+    "Base_registry_JSONB_and_core15": true,
+    "legacy_class_module_qualname_pickle_and_evaluated_hints": true,
+    "default_callable_identity": true,
+    "deferred_columns": 4,
+    "original_listener_targets": 6,
+    "provider_sends_or_production_data": false,
+    "shared_release_or_budget_edits": false
+  },
+  "accepted_tradeoffs_and_limits": [
+    "Seven moved classes preserve legacy __module__/qualname; inspect.getfile still names the facade and inspect.getsource(class) raises OSError. Actual private owner modules remain inspectable. No inspect monkeypatch/proxy; parent accepted this tradeoff. No runtime getsource/getfile consumer found under backend/app by targeted search.",
+    "Compiled PostgreSQL DDL equivalence is proven; no real PostgreSQL persistence, provider sends, CI integration services, broad backend suite or production build ran in this focused batch.",
+    "Original core ClientGroupModel default get_type_hints unresolved ClientOrganizationModel limitation remains unchanged in full metadata snapshots; all seven email models and their helper Protocol evaluate successfully.",
+    "Public-first and registry-first original table insertion orders differ before the split; each is compared against its own captured original baseline. No table/order normalization hides this difference.",
+    "Facade fallback inspection-is-None branch is not exercised through real mapped targets (one missedline, one branch); normal line coverage98%, all eight private owners100%. No lowered floors or artificial critical declaration gates.",
+    "Shared gate/protected exact path admissions and one final combined verification remain with parent/AI agents. This seal completes only this email architecture batch; it does not certify the entire audit or release."
+  ],
+  "artifacts": {
+    "email-models-original-source.json": "a7e424c793091a0ea72e876eabe6a209a13c9d91ba112b5156a40f3f01127b01",
+    "email-models-owner-map.json": "71728e23dd939b229b26d8ab9c821dd08c8e19e039399bdce6718df1c88b70d4",
+    "email-models-source-manifest.json": "1caa83f3ae576b4a33079d478c2578abf614c24dd6fbc7d080dd05d56a665280",
+    "email-models-before-metadata.json": "a299b907ed79f71fd0408a60654f4e951533e2e196d7b45488a0554bcbb63800",
+    "email-models-before-registry-metadata.json": "f3ed03a244d52e55baac168b1100a1491d124f849849ff5393c37f009d5b9b17",
+    "email-models-after-metadata.json": "a299b907ed79f71fd0408a60654f4e951533e2e196d7b45488a0554bcbb63800",
+    "email-models-extraction-proof.json": "02a2bbbfffdea9ea427e17fef4bb1bfaeb5cfc2bf5941709cdb13cbe59429670",
+    "email-models-owner-first-verification.json": "8e0ee09e0b7df060b665e5507ab003760a9d0697fba2d97496066c7188360446",
+    "email-models-before-focused-tests.json": "b0f8afa268c89cff572a71570f62ccf1c3141ee8a7b099f6ea536edf339bff98",
+    "email-models-final-focused-tests.json": "a6bfc0f1c33d35ef142201af0df616fa32e60f2105e65ad2b714a3450382538a",
+    "email-models-final-scoped-types.json": "f0b2d8daa7fde2a58e32e8be1edda6729d579b541ad827fa9dd9b8789806fd36",
+    "email-models-final-scoped-lint.json": "e9747f22d01e2f653f3d30ba35564e374efc59c86ec8951db5b46c41c70795f2",
+    "email-models-final-focused-check-source-bindings.json": "a6a5ee9f2e2020766e51a7f697dce488dfb88db03f618a80ca43485d5ec3b933",
+    "email-models-focused-coverage.json": "26db64c5226323f31d3cd079818e09249d8dae24d419b66b1a371688af420b98",
+    "email-models-focused-coverage.xml": "4a34d84f6a3f7b4b4bb5b0d4ff4461a653beca0e490d9ca2d0db4055eda02250",
+    "email-models-budget-candidates.json": "929597b13723dcd849e2536212976f13ea79c68f9b9bb5b0f0449aaa8ea957a3",
+    "email-models-proposed-budget-verification.json": "2cf2710a204c0fc0e02bd1ff8755562a6611d9dbee109ff3746871ade946806b",
+    "email-models-reviewed-files.json": "e1b3bb741435057fe37f879110bf5dac7081269f53250e0a792f5c19d5dee438",
+    "email-models-partial-context.json": "e37bd54a1cf9fd43d5c08d5f6d66670f15199a5bc6dca226f9bc1a437c20b2c6",
+    "email-models-proof-programs.json": "2b9b6243aab5a45a3317a7edcc63dcdbaea7e2add37b804b62469f2acc67065d",
+    "email-models-line-ending-normalization.json": "926aadb866f23140488e9167d61bad0ee3497b6999cfdea7739f266251b0be72"
+  }
+}

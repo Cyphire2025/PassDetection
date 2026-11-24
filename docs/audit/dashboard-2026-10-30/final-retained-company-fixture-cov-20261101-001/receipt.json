@@ -1,0 +1,85 @@
+{
+  "results": [
+    {
+      "name": "pytest",
+      "command": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "-q",
+        "--tb=long",
+        "-o",
+        "addopts=",
+        "-p",
+        "subset_plugin",
+        "tests\\unit\\infrastructure\\test_traveller_reconciliation_runtime.py",
+        "tests\\unit\\presentation\\test_rate_limit_middleware.py",
+        "tests\\unit\\presentation\\test_whatsapp_composer_persistence.py",
+        "tests\\integration\\test_broadcast_incremental_matching.py",
+        "tests\\unit\\presentation\\test_access_level_mutation_actors.py",
+        "tests\\integration\\test_company_people.py",
+        "tests\\integration\\test_company_people_http.py",
+        "tests\\integration\\test_company_directory_index.py",
+        "tests\\integration\\test_company_people_integrity_boundaries.py",
+        "--cov=app",
+        "--cov-branch",
+        "--cov-report=xml:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\final-retained-company-fixture-cov-20261101-001\\coverage.xml",
+        "--cov-report=json:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\final-retained-company-fixture-cov-20261101-001\\coverage.json",
+        "--junitxml=C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\final-retained-company-fixture-cov-20261101-001\\junit.xml"
+      ],
+      "exit_code": 0,
+      "seconds": 88.281
+    },
+    {
+      "name": "ruff",
+      "command": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "ruff",
+        "check",
+        "--no-fix",
+        "--config",
+        "pyproject.toml",
+        "tests\\unit\\infrastructure\\test_traveller_reconciliation_runtime.py",
+        "tests\\unit\\presentation\\test_rate_limit_middleware.py",
+        "tests\\unit\\presentation\\test_whatsapp_composer_persistence.py",
+        "tests\\integration\\test_broadcast_incremental_matching.py",
+        "tests\\unit\\presentation\\test_access_level_mutation_actors.py",
+        "tests\\integration\\test_company_people.py",
+        "tests\\integration\\test_company_people_http.py",
+        "tests\\integration\\test_company_directory_index.py",
+        "tests\\integration\\test_company_people_integrity_boundaries.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.391
+    }
+  ],
+  "all_app_source_identities_match_original_full_run": true,
+  "app_source_paths": 1823,
+  "input_fence_stable": true,
+  "actual_call_report_outcomes": {
+    "passed": 119
+  },
+  "failed_phase_reports": [],
+  "artifacts": {
+    "all-outcomes.jsonl": "2fda7c3793cfe7b751550ee7d8ed7e5757001f864b5e16837a74421d61436db4",
+    "command-results.json": "6d0e9e00b1f22aa742395a3bffceea83afd647a380dd7bf8209a9535e27e9da5",
+    "coverage.data": "33a09813dc7a17d222b347764ab26ed038607f19cf0d9e473af0681096a54b9b",
+    "coverage.json": "9bd81c675aafc57ceb5c7381f85a88e500ecf1bedfc1974294b9289558732c43",
+    "coverage.xml": "d7ee99ce4a40f270793c63dcfc59960c9c101a696755c263b1a558075ef34dca",
+    "environment-guard-21508.json": "c4be54514032ca0f4ceaf6dc1e3f63402be70a89ecf6c87121709e784410f714",
+    "environment-guard-31040.json": "1f780d8728127a4565a2a8932f1ee6e42d8bfc83daa6ffcdc3d891ecf455236d",
+    "junit.xml": "d3a8f15fbd723ec5b3e239cd0afb82698c9c315f9fae0e16c1b548c9df27146b",
+    "pytest.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "pytest.stdout.txt": "9b2b34dc91d056a3c108fec8967892fd598193f8b63532ae953799c11845d930",
+    "ruff.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ruff.stdout.txt": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "selection.json": "eef30a22d34d0072c3aa56492bcf24d7a324d3c9c2bfbce0e488dec1fe22e8df",
+    "session-finish.json": "deb08c56a292dc595c68cc0643b48276332e17cc1ab0dde7d3c6af2763b6cec7",
+    "source-fence.json": "3a64d1d692900e13d0421fe7299815558ff00caa316a959d1d1306519e3607a3"
+  },
+  "limits": [
+    "Standalone supplement only; original four failed outcomes remain preserved.",
+    "No app/gate/floor changes; source identities must be checked again before any coverage union."
+  ]
+}

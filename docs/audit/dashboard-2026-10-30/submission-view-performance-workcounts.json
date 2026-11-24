@@ -1,0 +1,78 @@
+{
+  "rows": 5000,
+  "actual_frozen_projection_type": true,
+  "counts": {
+    "before": {
+      "name": {
+        "sort_value_calls": 30000,
+        "ordered_uuid_sha256": "be0f0574d434b100dcaadb15a11c10f7689a9f23f48e6f26bfbbbd52652b9164",
+        "total": 5000,
+        "pages": 100
+      },
+      "verification_confidence": {
+        "sort_value_calls": 25000,
+        "ordered_uuid_sha256": "64db734cf142782d945b32dfb6eb061bb244bff2bb0d458f363ed3b87183f38c",
+        "total": 5000,
+        "pages": 100
+      },
+      "updated_at": {
+        "sort_value_calls": 30000,
+        "ordered_uuid_sha256": "be0f0574d434b100dcaadb15a11c10f7689a9f23f48e6f26bfbbbd52652b9164",
+        "total": 5000,
+        "pages": 100
+      },
+      "missing_search": {
+        "query_normalizations": 5000,
+        "total": 0
+      }
+    },
+    "after": {
+      "name": {
+        "sort_value_calls": 20000,
+        "ordered_uuid_sha256": "be0f0574d434b100dcaadb15a11c10f7689a9f23f48e6f26bfbbbd52652b9164",
+        "total": 5000,
+        "pages": 100
+      },
+      "verification_confidence": {
+        "sort_value_calls": 15000,
+        "ordered_uuid_sha256": "64db734cf142782d945b32dfb6eb061bb244bff2bb0d458f363ed3b87183f38c",
+        "total": 5000,
+        "pages": 100
+      },
+      "updated_at": {
+        "sort_value_calls": 20000,
+        "ordered_uuid_sha256": "be0f0574d434b100dcaadb15a11c10f7689a9f23f48e6f26bfbbbd52652b9164",
+        "total": 5000,
+        "pages": 100
+      },
+      "missing_search": {
+        "query_normalizations": 1,
+        "total": 0
+      }
+    }
+  },
+  "source_fence": {
+    "backend/app/application/use_cases/passports/submission_view.py": "2c3848011dcc8df2077ceece235100b3c3bb4a4153551924c07b394011905619",
+    "backend/app/infrastructure/passports/roster_view_service.py": "54600492420b5bf44825f4719be6ecad8ab476db8861030a487ae215dedb9e09",
+    "backend/app/infrastructure/passports/roster_cache.py": "8eaba82501192453e1fa6dd8ab6aee880524dfe4673e2c6e64f898bbefc8b239",
+    "backend/app/infrastructure/passports/roster_cache_codec.py": "e9d1632d324053b7fef0ee5d0289aa7ab815f5ffe3a4c948e9c5f03955a62d8c",
+    "backend/tests/unit/application/test_submission_view.py": "9c81bc89e0155e89f55fa4479c1ed1c488220885d31124ddf7c2090250126f32",
+    "backend/tests/unit/infrastructure/test_roster_cache.py": "3bf08ec8693fe1841bb2666349f344f6fd2700618033e25aef781f2bb50d7d7b",
+    "backend/tests/unit/presentation/test_passport_view_page_hydration.py": "9e9327224159d6604c918bdb48ffc18fc6e4e087d079a310321b8a354a831cba",
+    "backend/tests/integration/test_passport_view_search_projection.py": "93e9406007405a82c1de337b4fff4a85c7ace0c40da2c10d27c6efbce47755e3",
+    "backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py": "9641b67bc05ad710f7f34dedfb801c69e4a8367dce317cf86477c61a75b58706",
+    "backend/tests/unit/presentation/test_passport_submission_view_schema.py": "fbdfd1f233d7298b2aacaddd6df41ca81aab4f76961b859e88f009c321d80983",
+    "backend/app/application/use_cases/passports/submission_view_clustering.py": "4d19af2f8b2985d6dc5b837e2d56e6ee59b7824b00b699e49d8871bd334e632d",
+    "backend/app/application/use_cases/passports/submission_view_expiry.py": "cb587c37b91dda43b362dfb44f590eab2c169bf1ba82a0e1328f222febe7a775",
+    "backend/app/application/use_cases/passports/submission_view_fields.py": "a54108cb403c4f25fceb23b771512ebe4ecc59d7eecdc512c136f7fc3e75e9b3",
+    "backend/app/application/use_cases/passports/submission_view_ordering.py": "c50fa5ec80a603b1e26379494fc7664228ccdfccf134ceb1551c2b2c239e02ab",
+    "backend/app/application/use_cases/passports/submission_view_pagination.py": "f266be66d12c735d87ade56b48648b72905583564aee4cb73ff71faa8cbb71e8",
+    "backend/app/application/use_cases/passports/submission_view_types.py": "54edcabd910675d4b866641a53f92314bf63ee5dfcc01de65d30be6d77405b37",
+    "backend/tests/unit/application/test_submission_view_work.py": "2982376511889bd2e3b4b3948ec63ec5f0a964f7cafef57a177be27671017e71"
+  },
+  "projection_definition_sha256": "67e3882971d74859de20c09ad9f6f389a4f25e68bfa7e5c18753380f0a13d127",
+  "limits": [
+    "Operation counts on same synthetic actual frozen/slotted projection; no live query/Redis or production latency benchmark.",
+    "Sort remains O(n log n); query/partition remain O(n), with the same O(n) list storage. No dataclass slot/layout change."
+  ]
+}

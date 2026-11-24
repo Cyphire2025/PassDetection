@@ -1,0 +1,183 @@
+{
+  "status": "sealed-exact-nine-scope-integration",
+  "parent_approval": "Root approved all9exact native supporting paths based on actual closed caller graph, including historical compatibility-read2helpers+2tests. Classification only;51literals/37backend.",
+  "proposal": {
+    "path": "docs/audit/dashboard-2026-10-30/native-supporting-references-scope-proposal.json",
+    "sha256": "521b683569af8860aac6db05bfc1565044627cb1b6a3bede325b8bc2dd35399b"
+  },
+  "source_fence": [
+    {
+      "path": "scripts/dashboard_audit_inventory.py",
+      "sha256": "61b1f27bba8e779eb470c6c37640c7e090b980c0e35f90310b40c82d7c8f8d7e",
+      "physical_lines": 509,
+      "review_scope": "full",
+      "status": "verified",
+      "reviewer": "branding_visuals",
+      "notes": "Current source composed review: complete source previously physically reviewed by root at exact BEFORE hash in closed-artifact-history-native-scope-reviewed-files.json, then all authored9literal whitelist additions manually reviewed. Whole-module AST outside that data set exactly identical. Classifier/parser/retirement/review-resolution/history/CLI behavior unchanged; no generic native/doc/helper filename exclusion.",
+      "review_basis": "composed-exact-before-root-full-plus-complete-authored-delta"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/audit-scope.json",
+      "sha256": "acc06ee60a37eb8646a53b239d7ebc3e4d4b0c0d97c3c05c1bf766ea829ed700",
+      "physical_lines": 122,
+      "review_scope": "full",
+      "status": "verified",
+      "reviewer": "branding_visuals",
+      "notes": "Complete current policy data reviewed through original Inbox/retained rules,42existing enumerated native literals and9source-bound approved references plus explicit history reason. Other JSON fields exact, old42path order and reason prefix preserved; total51/backend37. Scope classification only, no full native feature review credit or application authority.",
+      "review_basis": "complete-policy-data-review"
+    },
+    {
+      "path": "backend/tests/unit/scripts/test_dashboard_audit_scope.py",
+      "sha256": "ceba3aba834a725c79b3c6f8109d49348dc0b9dd3d4e7cfbad9df664b857d805",
+      "physical_lines": 483,
+      "review_scope": "full",
+      "status": "verified",
+      "reviewer": "branding_visuals",
+      "notes": "Current test source composed review: root full physical review at exact BEFORE hash in closed-artifact-history-native-scope-reviewed-files.json, all authored data/case additions reviewed. All16old function bodies exact except stricter checked-in51/37count/approved-union assertion; new listed/unlisted docs/helpers, lookalike rejection and historical full/hash/finding preservation cases. Actual focused141pass, no native app/CI feature tests removed or run.",
+      "review_basis": "composed-exact-before-root-full-plus-complete-authored-delta"
+    }
+  ],
+  "current_full_ledger": {
+    "path": "docs/audit/dashboard-2026-10-30/native-supporting-references-reviewed-files.json",
+    "sha256": "9a1b271e429d552e9f399cc15a85e4c8eac03d267c9740b92e9e5a739ebddf49"
+  },
+  "source_inverse": {
+    "path": "docs/audit/dashboard-2026-10-30/native-supporting-references-source-proof.json",
+    "sha256": "3f8ca204fb570cfef737c6388f6fc8dd51bf9c0304727db0b8ac29b5e79567cf"
+  },
+  "verification": {
+    "checks": [
+      {
+        "command": "../.tmp/dashboard-audit-venv/Scripts/python.exe -m pytest -q -o addopts= --no-cov tests/unit/scripts/test_dashboard_audit_scope.py tests/unit/scripts/test_dashboard_audit_review_resolutions.py tests/unit/scripts/test_dashboard_audit_artifact_retirement.py",
+        "cwd": "backend",
+        "exit_code": 0,
+        "result": "141 passed in0.93s",
+        "evidence_origin": "Actual functions.exec test process session55751, initial chunkf6906e and completed chunk99af19. Existing run preserved, not rerun merely for this receipt."
+      },
+      {
+        "command": "../.tmp/dashboard-audit-venv/Scripts/python.exe -m ruff check --no-fix --config pyproject.toml ../scripts/dashboard_audit_inventory.py tests/unit/scripts/test_dashboard_audit_scope.py",
+        "cwd": "backend",
+        "exit_code": 0,
+        "result": "All checks passed",
+        "evidence_origin": "Actual exec chunk725e29 using repository reviewed backend config and expected workdir."
+      }
+    ],
+    "setup_attempts": [
+      "Root invocation inherited external Ruff rules and reported4unchanged TRY004 sites; no code/error contract changed to satisfy them. Explicit project config fromroot then gave first-party grouping difference. Correct backend cwd +explicit reviewed config passed, no ignore/floor/rule edits."
+    ]
+  },
+  "real_inventory_refresh": {
+    "exit_code": 0,
+    "output": ".tmp/native-supporting-references/refresh-output.json",
+    "output_sha256": "c06b0203b0a0f27f6b27576e7d570516849f2ff5ec9fc17eedb97546a32f5a10",
+    "inventory_csv_sha256": "4cca64530fff1a31aba8ef80608568d39a677f780dbf16807540e0a4a503b954",
+    "summary_sha256": "dcf97af1826f6fd98d4d68d18ed384cdc7f32c8bc7b09a588798e307e755f4dd",
+    "scope_counts": {
+      "operations-and-tooling": 378,
+      "mobile-excluded": 840,
+      "supporting-material": 462,
+      "backend": 2877,
+      "operations-inbox-deferred": 253,
+      "frontend": 1906,
+      "mcp-connector": 43
+    },
+    "nine_target_rows_history_preserved": [
+      {
+        "path": "docs/MOBILE_ANDROID_BINARY_SIZE_POLICY.md",
+        "sha256": "2947c4b47002859dcf49a7a86d3745cd50de33b09464620d1aa8491d7612e735",
+        "old_scope": "supporting-material",
+        "new_scope": "mobile-excluded",
+        "historical_status": "inventoried",
+        "historical_review_scope": "unreviewed",
+        "history_fields_exact": true
+      },
+      {
+        "path": "docs/MOBILE_APP_INTEGRITY.md",
+        "sha256": "1a39aab7a31c704ba45d6f86c7ab0cc2012a6e6b63ade8b1b7cf59eda3132972",
+        "old_scope": "supporting-material",
+        "new_scope": "mobile-excluded",
+        "historical_status": "inventoried",
+        "historical_review_scope": "unreviewed",
+        "history_fields_exact": true
+      },
+      {
+        "path": "docs/MOBILE_KEY_ACCESSIBILITY.md",
+        "sha256": "1fda3e4a6f72f6b055e17b30b657dcb78b03a61a02847734d1ca9e56512f7600",
+        "old_scope": "supporting-material",
+        "new_scope": "mobile-excluded",
+        "historical_status": "inventoried",
+        "historical_review_scope": "unreviewed",
+        "history_fields_exact": true
+      },
+      {
+        "path": "docs/MOBILE_LOCAL_DATA_RETENTION.md",
+        "sha256": "6583c81d83e80f10de675f09429b5e970358b8d9988c498bcd8d820bd904c64d",
+        "old_scope": "supporting-material",
+        "new_scope": "mobile-excluded",
+        "historical_status": "inventoried",
+        "historical_review_scope": "unreviewed",
+        "history_fields_exact": true
+      },
+      {
+        "path": "load-tests/k6/MOBILE_LOAD_TESTING.md",
+        "sha256": "a53738b2449a35adbb8eb5e57a269edc19c5e17267001b0735b60ff3e272f833",
+        "old_scope": "operations-and-tooling",
+        "new_scope": "mobile-excluded",
+        "historical_status": "inventoried",
+        "historical_review_scope": "unreviewed",
+        "history_fields_exact": true
+      },
+      {
+        "path": "load-tests/k6/mobile-attendance-load-contract.mjs",
+        "sha256": "093c900e7977d65022883984de608b5fa273097d9515f6400d95140a4ed146f3",
+        "old_scope": "operations-and-tooling",
+        "new_scope": "mobile-excluded",
+        "historical_status": "reviewed",
+        "historical_review_scope": "full",
+        "history_fields_exact": true
+      },
+      {
+        "path": "load-tests/k6/mobile-attendance-load-contract.test.mjs",
+        "sha256": "e30bb88e6035c23567e53a047f591c2fb30fc968e5c7dd8b320f248c2ffe87c9",
+        "old_scope": "operations-and-tooling",
+        "new_scope": "mobile-excluded",
+        "historical_status": "reviewed",
+        "historical_review_scope": "full",
+        "history_fields_exact": true
+      },
+      {
+        "path": "load-tests/k6/mobile-load-contract.mjs",
+        "sha256": "bf16974bbe5ca1cb848f72ef21a53b985fee1de98a7b4de41e17306806e839a4",
+        "old_scope": "operations-and-tooling",
+        "new_scope": "mobile-excluded",
+        "historical_status": "reviewed",
+        "historical_review_scope": "full",
+        "history_fields_exact": true
+      },
+      {
+        "path": "load-tests/k6/mobile-load-contract.test.mjs",
+        "sha256": "47f7ac93289ae97828a04b18db6dfffd50a5ced9282a952e478359f8573069f1",
+        "old_scope": "operations-and-tooling",
+        "new_scope": "mobile-excluded",
+        "historical_status": "reviewed",
+        "historical_review_scope": "full",
+        "history_fields_exact": true
+      }
+    ]
+  },
+  "exact_scope_counts": {
+    "native_literals_before": 42,
+    "native_literals_after": 51,
+    "native_support_literals_before": 5,
+    "native_support_literals_after": 14,
+    "backend_literals_unchanged": 37,
+    "inbox_deferred_unchanged": 253
+  },
+  "limits": [
+    "No native/runtime/app/HTTP/SDK/provider/load/device/media/credential behavior audit or full native source review credit from exclusion.",
+    "All prior hash/status/full/finding/notes/reviewer fields of actual9CSVrows exact; no history erased.",
+    "Current full review for inventory/test tool composed from actual rootfull BEFORE record plus reviewed9data/test delta and exact wholeASTinverse, not blanket reread inference.",
+    "All old classifying/validating/retirement/review-resolution functions and actual CI syntax/test jobs untouched.",
+    "No shared app normal/critical cap/floor/security gate/permission/OpenAPI/MCP/workflow changes, no broad suites/build/browser."
+  ]
+}

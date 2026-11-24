@@ -1,0 +1,60 @@
+FF                                                                       [100%]
+================================== FAILURES ===================================
+_ test_scheduled_scanner_removes_old_orphans_in_every_private_image_namespace _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000001C3EC942450>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001C3EC943E50>
+
+    @pytest.mark.asyncio
+    async def test_scheduled_scanner_removes_old_orphans_in_every_private_image_namespace(
+        db_session, monkeypatch,
+    ):
+        storage = FakeStorage({prefix: [(prefix + "orphan.jpg", OLD)] for prefix in IMAGE_PREFIXES})
+        result = await reconcile(storage, monkeypatch, db_session)
+>       assert {key for batch in storage.deleted for key in batch} == {
+            prefix + "orphan.jpg" for prefix in IMAGE_PREFIXES
+        }
+E       AssertionError: assert set() == {'passport-ai...y/orphan.jpg'}
+E         
+E         Extra items in the right set:
+E         'passport-image-library/orphan.jpg'
+E         'passport-edits/orphan.jpg'
+E         'passport-ai-library/orphan.jpg'
+E         'passport-crops/orphan.jpg'
+E         Use -v to get more diff
+
+tests\integration\test_passport_orphan_reconciliation.py:37: AssertionError
+___ test_all_durable_owners_survive_lost_ack_and_old_object_reconciliation ____
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000001C3EC6CA1D0>
+test_settings = Settings(app_env='development', app_debug=True, app_version='1.0.0', app_revision='unknown', expected_database_schema_...me='qrcode_v1', whatsapp_otp_template_name='', whatsapp_otp_template_language='en_US', whatsapp_delivery_concurrency=4)
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001C3EDDD7750>
+
+    @pytest.mark.asyncio
+    async def test_all_durable_owners_survive_lost_ack_and_old_object_reconciliation(
+        db_session, test_settings, monkeypatch,
+    ):
+        referenced = await retained_image_keys(db_session, test_settings)
+        assert len(referenced) == 25
+        pages = {prefix: sorted((key, OLD) for key in referenced if key.startswith(prefix))
+                 for prefix in IMAGE_PREFIXES}
+        for prefix in IMAGE_PREFIXES:
+            pages[prefix].append((prefix + "crashed-before-publication.jpg", OLD))
+        storage = FakeStorage(pages)
+        result = await reconcile(storage, monkeypatch, db_session)
+        deleted = {key for batch in storage.deleted for key in batch}
+>       assert deleted == {prefix + "crashed-before-publication.jpg" for prefix in IMAGE_PREFIXES}
+E       AssertionError: assert set() == {'passport-ai...lication.jpg'}
+E         
+E         Extra items in the right set:
+E         'passport-image-library/crashed-before-publication.jpg'
+E         'passport-ai-library/crashed-before-publication.jpg'
+E         'passport-crops/crashed-before-publication.jpg'
+E         'passport-edits/crashed-before-publication.jpg'
+E         Use -v to get more diff
+
+tests\integration\test_passport_orphan_reconciliation.py:56: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/integration/test_passport_orphan_reconciliation.py::test_scheduled_scanner_removes_old_orphans_in_every_private_image_namespace
+FAILED tests/integration/test_passport_orphan_reconciliation.py::test_all_durable_owners_survive_lost_ack_and_old_object_reconciliation
+2 failed in 1.15s

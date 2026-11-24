@@ -1,0 +1,75 @@
+"use client";
+
+import { useLayoutEffect, useRef, useState } from "react";
+import { publicUploadLinkApi } from "@/features/passports/api/public-upload-link.api";
+import type { QualifierPath } from "../services/relation-qualifier";
+
+interface EditorState {
+  groupToken: string;
+  selectionToken: string | null;
+  path: QualifierPath;
+  relation: string;
+  other: string;
+  editing: boolean;
+  restoring: boolean;
+  error?: string;
+}
+
+function emptyEditor(groupToken: string, selectionToken: string | null): EditorState {
+  return { groupToken, selectionToken, path: null, relation: "", other: "", editing: false, restoring: false };
+}
+
+/** Saved relationship text stays in memory and belongs to one group and draft proof. */
+export function useQualifierSelectionEditor(groupToken: string, savedToken?: string | null) {
+  const selectionToken = savedToken ?? null;
+  const [stored, setStored] = useState(() => emptyEditor(groupToken, selectionToken));
+  const request = useRef<AbortController | null>(null);
+  const belongsToOwner = (value: EditorState) => value.groupToken === groupToken && value.selectionToken === selectionToken;
+  const current = belongsToOwner(stored) ? stored : emptyEditor(groupToken, selectionToken);
+
+  useLayoutEffect(() => () => {
+    request.current?.abort();
+    request.current = null;
+  }, [groupToken, selectionToken]);
+
+  const update = (patch: Partial<EditorState>) => {
+    setStored(previous => ({ ...(belongsToOwner(previous) ? previous : emptyEditor(groupToken, selectionToken)), ...patch }));
+  };
+  const restore = async () => {
+    if (!selectionToken) return;
+    request.current?.abort();
+    const controller = new AbortController();
+    request.current = controller;
+    const ownsResponse = () => request.current === controller && !controller.signal.aborted;
+    update({ restoring: true, error: undefined });
+    try {
+      const saved = await publicUploadLinkApi.getQualifierSelection(groupToken, selectionToken, controller.signal);
+      if (!ownsResponse()) return;
+      const expires = Date.parse(saved.expires_at);
+      if (saved.status !== "active" || !Number.isFinite(expires) || expires <= Date.now()) {
+        update({ path: null, relation: "", other: "", editing: true, restoring: false,
+          error: "This saved relationship is no longer active. Choose it again." });
+        return;
+      }
+      update({
+        path: saved.is_self ? "self" : saved.relation_code === "other" ? "other" : "relation",
+        relation: saved.is_self || saved.relation_code === "other" ? "" : saved.relation_code ?? "",
+        other: saved.relation_code === "other" && !saved.is_self ? saved.relation_label : "",
+        editing: true, restoring: false, error: undefined,
+      });
+    } catch {
+      if (ownsResponse()) update({ restoring: false, error: "We couldn't restore this relationship. Please try Change again." });
+    } finally {
+      if (request.current === controller) request.current = null;
+    }
+  };
+
+  return {
+    ...current,
+    restore,
+    setPath: (path: Exclude<QualifierPath, null>) => update({ path, error: undefined }),
+    setRelation: (relation: string) => update({ relation, error: undefined }),
+    setOther: (other: string) => update({ other, error: undefined }),
+    close: () => update({ editing: false, error: undefined }),
+  };
+}

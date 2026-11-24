@@ -1,0 +1,14 @@
+{
+  "stage": "test-only native-semantics correction after separately sealed callback clearance",
+  "files": [
+    {
+      "path": "frontend/features/operations/components/dashboard-realtime-attendance-bridge.test.tsx",
+      "sha256": "5aa73d438037fb4309d9b77728e66c21824dcd12f932120d82e5c35d50d173c6",
+      "physical_lines": 250,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "verified",
+      "notes": "Complete original147-line source physically read and four new test cases/helpers authored/reviewed. Fake.receive now follows qualified native OPEN semantics; every original assertion/fixture/class body except the narrow guard, timer reset and explicit healthy OPEN assertion preserved by actual TypeScript AST inverse proof. Actual authstore account and same-id agency changes, unmount/remount and close/reconnect assert no old callbacks and healthy current query invalidations/captured user IDs.6Bridge+5wire service cases pass, strict scoped TSC/ESLint pass. Test-only regression after actual six-case Chromium candidate clearance; no production/security fix or workflow/cap/config change."
+    }
+  ]
+}

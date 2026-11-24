@@ -1,0 +1,9 @@
+{
+  "root_GO": true,
+  "original_raw_hashes": {
+    "frontend/features/upload/components/fresh-qualifier.tsx": "9b4ad522682c3c5891545c62f80e836eb43d20f1d0fb21578bcef53fedcb91b8",
+    "frontend/features/passports/api/public-upload-link.api.ts": "19832df14ca7a10e3a30b0557650cff5c4269f66ea432cb6e82f3a2a68fdc467"
+  },
+  "backend_or_gates_modified": false,
+  "compiled_artifact_built_or_modified": false
+}

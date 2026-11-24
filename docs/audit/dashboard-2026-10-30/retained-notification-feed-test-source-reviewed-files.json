@@ -1,0 +1,11 @@
+[
+  {
+    "path": "backend/tests/unit/infrastructure/test_notification_feed.py",
+    "sha256": "8610a40c1635114e3969abd743bf1dfc1b43d49c64d4249662f8d8c4550d1379",
+    "physical_lines": 256,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole256 physical source lines and all six generic direct NotificationRepository ownership/cursor/unread/dedupe/read/former-agency assertions reviewed. Parent identified real retained refresh-reuse security_session_revoked/categorysecurity producer; independently read complete _record_reuse and shared direct feed query source. Same user+optionalagency predicates have no email-type restriction, so authored email-named fixture topics do not make these assertions dedicated Operations Inbox. Prior fixture-name-only deferral inference remains unchanged as unvalidated discovery; this companion corrects scope. Source unchanged, no test execution/email engine or native UI audit/runtime fix/new finding."
+  }
+]

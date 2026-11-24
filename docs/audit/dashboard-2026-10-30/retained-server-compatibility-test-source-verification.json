@@ -1,0 +1,42 @@
+{
+  "status": "complete current physical retained test-source review only",
+  "files": 13,
+  "physical_lines": 1572,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-server-compatibility-test-source-reviewed-files.json",
+    "sha256": "71f73aa14b9b898dcfac381909d94dabbd660c8343e1ecb14c54e6d352fe2d09"
+  },
+  "source_before_equals_after": true,
+  "source_fence": {
+    "backend/tests/unit/infrastructure/test_gc_mobile_foundation_migration.py": "1fca3646bf0537b6ef403cda37caad56c54e1a78fbaf9e5682ff52bb8b4a95f4",
+    "backend/tests/unit/infrastructure/test_gc_mobile_operational_indexes_migration.py": "ecd59f861833378192249a4e45d61d887b7b6a1a2c66712c031b437dd3d6c98a",
+    "backend/tests/unit/infrastructure/test_gc_mobile_scope_constraints_migration.py": "35dfbdb42bb4d5e63a2e34cc50be72d993014d3424f73fb04157b0f6862996e0",
+    "backend/tests/unit/infrastructure/test_gc_mobile_passenger_session_identities_migration.py": "b170b47fccf909db727ba82c529478c83b466b532353ba5ee24f02f1c52eabf2",
+    "backend/tests/unit/infrastructure/test_mobile_device_sync_ack_migration.py": "208db5f9e9a00405c451edcd35473ccf4e4426d0b66bf705881b86689aa7c67b",
+    "backend/tests/unit/infrastructure/test_mobile_fcm_migration.py": "a15bbd7b4b268ccaf221205759cad5687ed30577acf6151c352f98ec8ae7841c",
+    "backend/tests/unit/infrastructure/test_mobile_push_receipts_migration.py": "f85bbdf735d4ae767aec2f36477e1caf38ba116a76ef544be9c9051745bb050b",
+    "backend/tests/unit/infrastructure/test_mobile_otp_single_pending_migration.py": "f9536ee3e7d648724a2b2211b302230a36fa0c44dd7325f31d9fc0603a36b76a",
+    "backend/tests/unit/infrastructure/test_mobile_group_capacity.py": "24f33c51e906a8ffe5cab13386a08bf5cb5d27403b20f749992f54f2face1fcb",
+    "backend/tests/unit/infrastructure/test_mobile_otp_rate_limiter.py": "6947e65e58c1c1cab98c6e6e73cfaf87ce6306073164f9c246f72185189eb600",
+    "backend/tests/unit/infrastructure/test_mobile_notification_diagnostic.py": "b1baf36d8efadd406112e9e285cfe5a473e3973b3790bd1b040192d4d6dc8e70",
+    "backend/tests/unit/infrastructure/test_mobile_push_task_routing.py": "18964e25dd7c0b4d1b08d057d6b8fe34fd36540029c5379d62b598d9c6c8a163",
+    "backend/tests/unit/infrastructure/test_mobile_fcm_production_mount.py": "6aaf7505392a9aa3f2a425031b00cb11ce06af7cc4b09e44932a5aac9157908a"
+  },
+  "new_execution": false,
+  "runtime_mutation": false,
+  "new_validated_findings": [],
+  "scope": "Retained dashboard/MCP/passport shared server schema, capacity, OTP and outgoing push compatibility. Native-only ingress/integrity/journey and dedicated Inbox test work excluded.",
+  "supporting_scope_trace_only": [
+    "PublicUploadOTPRateLimiter directly subclasses MobileOTPRateLimiter",
+    "Fresh publication/passport dependencies/Excel and MCP group_workbook_import use SqlAlchemyGroupPassengerCapacityGuard",
+    "gc_group_directory_query and gc_app_group_access_support read last_sync_acknowledged_at",
+    "authored_notification_registrations uses exact passenger-session identity membership",
+    "WhatsApp receipt_bindings/runtime retain MobileOTPChallengeModel source compatibility"
+  ],
+  "limits": [
+    "Runtime trace excerpts provide purpose evidence, not new whole-file runtime review credit.",
+    "Immutable registry/migration compatibility is distinct from native application behavior review.",
+    "No migrations, Docker, credential reads, service calls, tests or qualification checks run for read credit.",
+    "Earlier completed proof/coverage/release histories remain unchanged."
+  ]
+}

@@ -163,7 +163,6 @@ function parseHttpsUrl(value, key, errors) {
  */
 function validateSentryDsn(value, errors) {
   if (!value) {
-    errors.push('EXPO_PUBLIC_SENTRY_DSN is required for production crash and ANR reporting.');
     return undefined;
   }
   if (value.length > 2_048 || value !== value.trim()) {
@@ -195,9 +194,13 @@ function validateSentryDsn(value, errors) {
  * public Expo config.
  *
  * @param {Readonly<Record<string, string | undefined>>} source
- * @returns {{ readonly organization: string; readonly project: string }}
+ * @returns {{ readonly organization: string; readonly project: string } | undefined}
  */
 function validateObservabilityBuildEnvironment(source) {
+  if (!source.EXPO_PUBLIC_SENTRY_DSN && !source.SENTRY_ORG
+      && !source.SENTRY_PROJECT && !source.SENTRY_AUTH_TOKEN) {
+    return undefined;
+  }
   /** @type {string[]} */
   const errors = [];
   const organization = source.SENTRY_ORG;
@@ -367,7 +370,7 @@ function validateOtaUpdateEnvironment(source) {
  *   readonly offlineLeaseAudience: string;
  *   readonly offlineLeasePublicKeysJson: string;
  *   readonly realtimeEnabled: true;
- *   readonly sentryDsn: string;
+ *   readonly sentryDsn: string | undefined;
  * }}
  */
 function validateProductionPublicEnvironment(source) {
@@ -467,8 +470,7 @@ function validateProductionPublicEnvironment(source) {
   if (
     errors.length > 0 ||
     !apiUrl ||
-    !offlineLease ||
-    !sentryDsn
+    !offlineLease
   ) {
     throw new Error(`Production public environment validation failed:\n- ${errors.join('\n- ')}`);
   }

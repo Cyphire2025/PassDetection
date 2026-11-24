@@ -1,0 +1,72 @@
+[
+  {
+    "path": "features/menu/components/menu-library.tsx",
+    "baselineLines": 10,
+    "maximumLines": 20,
+    "baselineMaxFunctionComplexity": 1,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/menu/hooks/use-menu-library-controller.ts",
+    "baselineLines": 253,
+    "maximumLines": 260,
+    "baselineMaxFunctionComplexity": 6,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/menu/types/menu-library.ts",
+    "baselineLines": 14,
+    "maximumLines": 20,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/menu/components/menu-library-view.tsx",
+    "baselineLines": 83,
+    "maximumLines": 90,
+    "baselineMaxFunctionComplexity": 10,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/menu/components/menu-category-rail.tsx",
+    "baselineLines": 115,
+    "maximumLines": 120,
+    "baselineMaxFunctionComplexity": 5,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/menu/components/menu-category-workspace.tsx",
+    "baselineLines": 57,
+    "maximumLines": 60,
+    "baselineMaxFunctionComplexity": 4,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/menu/components/menu-category-header.tsx",
+    "baselineLines": 124,
+    "maximumLines": 130,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/menu/components/menu-dish-create-form.tsx",
+    "baselineLines": 59,
+    "maximumLines": 60,
+    "baselineMaxFunctionComplexity": 1,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/menu/components/menu-library-dish-row.tsx",
+    "baselineLines": 160,
+    "maximumLines": 160,
+    "baselineMaxFunctionComplexity": 9,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/menu/hooks/use-menu.ts",
+    "baselineLines": 311,
+    "maximumLines": 320,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 4
+  }
+]

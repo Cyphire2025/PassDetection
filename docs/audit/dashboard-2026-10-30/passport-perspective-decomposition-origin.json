@@ -1,0 +1,152 @@
+{
+  "original_path": "frontend/features/upload/services/passport-perspective-correction.ts",
+  "original_sha256": "8221680ee25badce665e8a4aae611a85897a4b44eb390efb83a08d0bb298022e",
+  "original_physical_lines": 575,
+  "functions": [
+    {
+      "name": "normalizePassportFile",
+      "original_normalized_sha256": "19b1b8839837f0ccb576c8e1dc2639eafb18f1344a268b979562b4f504e0b950",
+      "owner": "frontend/features/upload/services/passport-perspective-correction.ts",
+      "shared_compatible_duplicate": false
+    },
+    {
+      "name": "normalizePassportCanvasCapture",
+      "original_normalized_sha256": "c926eaed1483619a0f544f4c02fb18794abc5a3fd124d16978401f0f9bbed160",
+      "owner": "frontend/features/upload/services/passport-perspective-correction.ts",
+      "shared_compatible_duplicate": false
+    },
+    {
+      "name": "detectDocumentQuad",
+      "original_normalized_sha256": "76194e0583b418e2229d81125582cbc4858123b93046ea5f1214b8b6548b3979",
+      "owner": "frontend/features/upload/services/passport-quad-detection.ts",
+      "shared_compatible_duplicate": false
+    },
+    {
+      "name": "fitVerticalBoundary",
+      "original_normalized_sha256": "1d9c662d4bfeadf614fe61a45b65a277b28d61a5a25368c5e195ffa0d886a78b",
+      "owner": "frontend/features/upload/services/passport-quad-detection.ts",
+      "shared_compatible_duplicate": false
+    },
+    {
+      "name": "fitHorizontalBoundary",
+      "original_normalized_sha256": "3015c642bfc4360ec4a2f834ea80adda0e403636cbfd5dcc01f63cbe8152a360",
+      "owner": "frontend/features/upload/services/passport-quad-detection.ts",
+      "shared_compatible_duplicate": false
+    },
+    {
+      "name": "fitRobustLine",
+      "original_normalized_sha256": "3fb54f5bd9d1148f3b8f3fd7fa2e46f47e050b122e4291cf0cf141f4a1b2fbce",
+      "owner": "frontend/features/upload/services/passport-line-fitting.ts",
+      "shared_compatible_duplicate": false
+    },
+    {
+      "name": "weightedLineFit",
+      "original_normalized_sha256": "82a7af0ee9ba7662d9431aeb952a6373368d19c5ee98ced348587f4c1d7265c9",
+      "owner": "frontend/features/upload/services/passport-line-fitting.ts",
+      "shared_compatible_duplicate": false
+    },
+    {
+      "name": "intersectVerticalAndHorizontal",
+      "original_normalized_sha256": "737a0684fcebdabd7aa13fc632a7890bf8c4864763572730a1549fcac3b3dbdf",
+      "owner": "frontend/features/upload/services/passport-quad-geometry.ts",
+      "shared_compatible_duplicate": false
+    },
+    {
+      "name": "isPlausibleQuad",
+      "original_normalized_sha256": "7c8c244837755dc666500547f3d9bd39b1c8b3885111b7c3a62a0c4f5fc664d5",
+      "owner": "frontend/features/upload/services/passport-quad-geometry.ts",
+      "shared_compatible_duplicate": false
+    },
+    {
+      "name": "rectifyDocument",
+      "original_normalized_sha256": "1cc493e8cf956a6f2db416f22867d3d805e40cb421477660820567d455a6a830",
+      "owner": "frontend/features/upload/services/passport-perspective-warp.ts",
+      "shared_compatible_duplicate": false
+    },
+    {
+      "name": "isSafeCorrectedPage",
+      "original_normalized_sha256": "a6a84bca004e26f91ce1e92e246612fb2608cd276e29d71bbcc908955d6baa0d",
+      "owner": "frontend/features/upload/services/passport-correction-content.ts",
+      "shared_compatible_duplicate": false
+    },
+    {
+      "name": "isGenericCorrectionContentSafe",
+      "original_normalized_sha256": "edc38936fcc0b11978bf30f06001dbccdbb49e7ac50e79fa77bde1bfbc16996f",
+      "owner": "frontend/features/upload/services/passport-correction-content.ts",
+      "shared_compatible_duplicate": false
+    },
+    {
+      "name": "genericRegionQuality",
+      "original_normalized_sha256": "9c759635d78a1e71d9b3478c19b68e2c2e844e4c3aa6f158470557412434724b",
+      "owner": "frontend/features/upload/services/passport-correction-content.ts",
+      "shared_compatible_duplicate": false
+    },
+    {
+      "name": "solveDestinationToSourceHomography",
+      "original_normalized_sha256": "613d4c8b13acff3d395c12689de76fb8534d10426cbe0c32e24ce212e0eac1eb",
+      "owner": "frontend/features/upload/services/passport-homography.ts",
+      "shared_compatible_duplicate": false
+    },
+    {
+      "name": "solveAugmentedMatrix",
+      "original_normalized_sha256": "9ebae8a020028e83b06dedf4aa141e2ae69743f3737dd806e9174e60fa67addd",
+      "owner": "frontend/features/upload/services/passport-homography.ts",
+      "shared_compatible_duplicate": false
+    },
+    {
+      "name": "sampleBilinear",
+      "original_normalized_sha256": "dad9b84b523fe068ddb810fe126a66ba182422f1fcf2d7a1801b3fc23af3c818",
+      "owner": "frontend/features/upload/services/passport-perspective-warp.ts",
+      "shared_compatible_duplicate": false
+    },
+    {
+      "name": "toGrayscale",
+      "original_normalized_sha256": "485f26ba5f30b89d3bfbbaf3f5b4cbb248e1976347f20e135ae3e25ba27dfcb9",
+      "owner": "frontend/features/upload/services/camera-pixel-math.ts",
+      "shared_compatible_duplicate": true
+    },
+    {
+      "name": "distance",
+      "original_normalized_sha256": "c070573f6df9ee00385afbd3fa26460d7d2f2506d58333a23baf81a03d485b7a",
+      "owner": "frontend/features/upload/services/passport-quad-geometry.ts",
+      "shared_compatible_duplicate": false
+    },
+    {
+      "name": "polygonArea",
+      "original_normalized_sha256": "1a7d7e4c1536ce4a335a17d2e666c8e84e144cf2eeb3cc96de54c3639cc50faa",
+      "owner": "frontend/features/upload/services/passport-quad-geometry.ts",
+      "shared_compatible_duplicate": false
+    },
+    {
+      "name": "scalePoint",
+      "original_normalized_sha256": "d8613b4ee4c36a69fe66a6fad75455c4673dd3372ac88d1afdb2698113e5c8d1",
+      "owner": "frontend/features/upload/services/passport-quad-geometry.ts",
+      "shared_compatible_duplicate": false
+    },
+    {
+      "name": "canvasToFile",
+      "original_normalized_sha256": "5c077fe85a2bc2fd9499413ab0bbbe9090eb57927b370c014ce0c2800bd85e2d",
+      "owner": "frontend/features/upload/services/passport-image-encoding.ts",
+      "shared_compatible_duplicate": false
+    },
+    {
+      "name": "nextAnimationFrame",
+      "original_normalized_sha256": "ee42971fcbee2a072bdb9c8d4ecad708ef5467b02da81feede088c5db46b4e34",
+      "owner": "frontend/features/upload/services/passport-image-encoding.ts",
+      "shared_compatible_duplicate": false
+    }
+  ],
+  "constants": [
+    {
+      "name": "ANALYSIS_MAX_WIDTH",
+      "original_normalized_sha256": "08b8bc36bdaf6a35cdae04c3c45977086eb47be2df2bdcb28829dcb0f8b58af9"
+    },
+    {
+      "name": "OUTPUT_MAX_DIMENSION",
+      "original_normalized_sha256": "0f155c73d7bf5dd88e5b2c3a24569ba3c1642a2e81afb8b6aa086b0352a8c481"
+    }
+  ],
+  "grayscale_body_canonical_sha256": "c553b8125b76f271254c72c38634b91cae515a3db863c980435fd08b70e4ef10",
+  "canonical_grayscale_shared_equal": true,
+  "note": "All21 non-grayscale functions moved exactly modulo export modifiers/LF. One duplicate grayscale converter shared after AST-body equality allowing only data→pixels alpha-renaming and redundant-parenthesis removal. No crop/dimension/JPEG/perspective/content-safety threshold changed."
+}

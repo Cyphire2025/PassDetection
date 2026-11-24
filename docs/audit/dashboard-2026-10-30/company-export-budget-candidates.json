@@ -1,0 +1,106 @@
+{
+  "basis": "Four cohesive export source owners; add these new path ratchets only. Existing worker240/renderer150 limits and all existing coverage/global/critical floors preserved. Current configured constants-only five-line owner has no function complexity and is source-inventoried, not given a fictitious nonzero complexity baseline.",
+  "modules": [
+    {
+      "path": "app/infrastructure/travellers/company_export_admission.py",
+      "baseline_lines": 160,
+      "maximum_lines": 180,
+      "baseline_max_function_complexity": 11,
+      "maximum_function_complexity": 11,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/infrastructure/travellers/company_export_page.py",
+      "baseline_lines": 159,
+      "maximum_lines": 180,
+      "baseline_max_function_complexity": 34,
+      "maximum_function_complexity": 34,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/infrastructure/travellers/company_export_workbook.py",
+      "baseline_lines": 69,
+      "maximum_lines": 80,
+      "baseline_max_function_complexity": 8,
+      "maximum_function_complexity": 8,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/infrastructure/travellers/company_export_workbook_render.py",
+      "baseline_lines": 59,
+      "maximum_lines": 70,
+      "baseline_max_function_complexity": 7,
+      "maximum_function_complexity": 7,
+      "minimum_coverage_percent": 85
+    }
+  ],
+  "measurements": [
+    {
+      "path": "app/infrastructure/travellers/company_export_admission.py",
+      "physical_lines": 160,
+      "maximum_function_complexity": 11,
+      "line_percent": 92.1875,
+      "branch_percent": 68.18181818181819,
+      "sha256": "fdce49e0364a9df3498812057a96d81ec4afc49901f3fbb8184797bb2ac34f68"
+    },
+    {
+      "path": "app/infrastructure/travellers/company_export_limits.py",
+      "physical_lines": 5,
+      "maximum_function_complexity": 0,
+      "line_percent": 100.0,
+      "branch_percent": 100,
+      "sha256": "8feb56e7b6b841181272503309a935222ac81075bec229651a7ae538c6c71217"
+    },
+    {
+      "path": "app/infrastructure/travellers/company_export_page.py",
+      "physical_lines": 159,
+      "maximum_function_complexity": 34,
+      "line_percent": 90.78947368421052,
+      "branch_percent": 78.125,
+      "sha256": "eba24418958bcd869004c5409ef8828a74f7bf81d683e2e1e58674f3b4c3199c"
+    },
+    {
+      "path": "app/infrastructure/travellers/company_export_render.py",
+      "physical_lines": 116,
+      "maximum_function_complexity": 12,
+      "line_percent": 90.66666666666667,
+      "branch_percent": 78.125,
+      "sha256": "4063ab9a2e155876a17184d55a993131b226191d43b376d8160433695322f828",
+      "existing_floor_unchanged": 85
+    },
+    {
+      "path": "app/infrastructure/travellers/company_export_workbook.py",
+      "physical_lines": 69,
+      "maximum_function_complexity": 8,
+      "line_percent": 96.96969696969697,
+      "branch_percent": 83.33333333333333,
+      "sha256": "ad0a038621d577a940767dbb2704482b748544b1ec8661fd4bd7935d09593e6e"
+    },
+    {
+      "path": "app/infrastructure/travellers/company_export_workbook_render.py",
+      "physical_lines": 59,
+      "maximum_function_complexity": 7,
+      "line_percent": 93.61702127659575,
+      "branch_percent": 75.0,
+      "sha256": "f86fd9f4b8ae07bfebd6f029dcc41822f2d9952693ebec1a0471b5fbcc246778"
+    },
+    {
+      "path": "app/infrastructure/travellers/company_export_worker.py",
+      "physical_lines": 147,
+      "maximum_function_complexity": 5,
+      "line_percent": 97.72727272727273,
+      "branch_percent": 50.0,
+      "sha256": "0fd62ac61c57539f06202672d2b3dfc2afd3a264ffae2185c2dd35de1856c16a",
+      "existing_floor_unchanged": 90
+    }
+  ],
+  "final_affected_test_passes": 26,
+  "final_affected_test_seconds": 21.68,
+  "final_affected_test_log": "company-export-owners-final-tests.txt",
+  "final_coverage": "company-export-owners-final-coverage.json",
+  "preceding_lifecycle_test_passes": 106,
+  "preceding_lifecycle_seconds": 117.54,
+  "preceding_lifecycle_log": "company-lifecycle-final-tests.txt",
+  "preceding_lifecycle_boundary": "After write-only sheet cleanup fix and page/admission extraction, before the final AST-identical class/constants owner relocation; final26-case run explicitly rechecks all affected export owners after that move, including exact byte/row parser boundary tests. New admission/page/workbook owners retain the original worker90% line floor; workbook rendering inherits renderer85%.",
+  "scope_status": "Export runtime source frozen. Module budget file not edited by this candidate generator."
+}

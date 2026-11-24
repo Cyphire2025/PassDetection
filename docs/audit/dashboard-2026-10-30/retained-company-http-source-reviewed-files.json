@@ -1,0 +1,185 @@
+{
+  "files": [
+    {
+      "path": "backend/tests/integration/test_company_people_http.py",
+      "sha256": "bf51ca6d89337588c80feeb29ad03d4efc1ca9d13d1e43d66d11797ebdea3c16",
+      "physical_lines": 238,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete238-line physical read, omitted31-token validator line explicitly reread109-126. Retained staff HTTP lazy/no-private-key/person-scoped original sources, actor/job-bound streamed export+invalidation, lost storage response idempotent document version, cursor search/person binding and withdrawn-reuse vs independent lawful trip-copy distinction. Synthetic storage/security and overridden active-user/CSRF are not real HTTP auth/provider proof."
+    },
+    {
+      "path": "backend/tests/integration/test_company_submissions.py",
+      "sha256": "d73dda0b7f661df5dd58cac8f9602a202bff2b9827f953e5eb12bc10e20cb6eb",
+      "physical_lines": 225,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete225-line physical read. All ordinary visible lifecycle/status company records remain separate from enrolled identities; tenant/deleted/draft exclusion, literal name search, actor/company/filter/cutoff signed cursors, <=6K status merge preserving ties, query count/projection-only allowlist/no-private-fields and HTTP parameter bounds. Whole actual route/query owner read; assertions are not a live workload benchmark."
+    },
+    {
+      "path": "backend/tests/integration/test_company_summary.py",
+      "sha256": "01033393ea775ef2b0a49af2247cdd5185ada3cb1332ebda987240613ca928c6",
+      "physical_lines": 204,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete204-line physical read. Collected source records/unique accepted people/participations remain distinct, deleted vs permission-withdrawn authority, pending/incomplete matching and700 shared-phone sources, constant four aggregate+auth query count and source-managed dedup. Whole summary/traveller metric owners read; no aggregate query plan or real PG qualification."
+    },
+    {
+      "path": "backend/tests/integration/test_group_company_assignment_http.py",
+      "sha256": "91dc411388580ab9d62a71b22f354a55ba519ab402e6e411d5a782669e1c771e",
+      "physical_lines": 144,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete144-line physical read. Retained import-only active/closed/archived group assignment durable across requests, revision/current company list, all source/WhatsApp rows, lifecycle/token/dates/legal hold/purge settings immutable; stale/foreign-scope denied. Whole shared assignment transaction traced, synthetic session/auth/CSRF fixture only."
+    },
+    {
+      "path": "backend/tests/integration/test_legacy_staff_roster_reuse.py",
+      "sha256": "ecb24d0536770ae8006a808aa9ed3cfa18fcc1c7cfe6fe377a0ff7448c31ff3b",
+      "physical_lines": 195,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete195-line physical read. Reviewed legacy staff acceptance with UNK context/provenance, copy-before-automatic roster assignment, idempotent history/fanout/copies, stable fields and no invented public consent/claim/grant/information confirmation. Existing synthetic storage/caller fixtures reviewed as source, no AI/native/provider run or fixture retarget changes."
+    },
+    {
+      "path": "backend/tests/integration/test_client_group_reopen.py",
+      "sha256": "1ce0e901670a074c05b6658062f4bed3a99910b20a66daf2f03541e4aad7fe28",
+      "physical_lines": 183,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete183-line physical read. Retained dashboard close/reopen same token/group/config/settings/history, exact company revision+retention restoration, public notes withheld and configured upload/selfie validation, manager/tenant/assigned-staff permissions. Actual use cases and selected retained route wrappers read; mock upload is not native/parser/provider proof."
+    },
+    {
+      "path": "backend/tests/integration/test_group_delete_retained_documents.py",
+      "sha256": "715a957bba45db5cbfcde6376455b060b74b0af51add91758324dc4e5cbc2756",
+      "physical_lines": 90,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete90-line physical read. Dashboard permanent group deletion preserves owned retained documents/provenance/person/assets while detaching source FKs; pending copies reject deletion first. Independent WhatsApp synchronizers intentionally mocked. Actual pending copy guard and delete staging slice read; no storage deletions or tests performed."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/company_submissions.py",
+      "sha256": "7361f91c6e76710f84e79220f4cba3dab6be3e5f7d8d0aaaf6887900c2bb6611",
+      "physical_lines": 120,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source read. Current company authority before signed actor/company/search/cutoff cursor, visibility in every bounded disjoint status branch, stable merged IDs and minimal record projection. No database/authorization state cache introduced."
+    },
+    {
+      "path": "backend/app/application/companies/traveller_metrics.py",
+      "sha256": "64e3e068cf298b1f967aaacb3d1156ce2b988561fa784303350e3014f923c2de",
+      "physical_lines": 59,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole59-line source read. Bounded <=100-group aggregate, current same-company/agency/live profile scope and distinct returning/accepted/completed metrics; prior trips correlated by exact date/visibility. No performance claim beyond inspected expression."
+    },
+    {
+      "path": "backend/app/application/companies/summary.py",
+      "sha256": "5d4a593eba2880b245432192ecd9dbfec1c36c6f3bcb62ba07c8b1b4e5921d53",
+      "physical_lines": 124,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source read. Coherent typed metrics catalog/four scoped aggregate statements, unresolved source participation/match semantics and pending completeness distinct from phone counts. Legitimate cohesive owner retained; database work scales visible population and no constant-time claim."
+    },
+    {
+      "path": "backend/app/application/companies/access.py",
+      "sha256": "85eb5114243a39d708f1cf3162051317e5702190e0c1bc5345bff19e1ba8e69c",
+      "physical_lines": 93,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole93-line source read. Exact lookup vs history-admin policy, active agency workspace resolution, explicit super-admin tenant, company permission/current soft-delete filter and shared visible active/closed/archived group predicate. Shared authorization policy unchanged."
+    },
+    {
+      "path": "backend/app/application/companies/assignment.py",
+      "sha256": "cf87ffaf0b731341a3a88ffa9fa2ee4cd40d9872baf071691a4b4d517404ce30",
+      "physical_lines": 121,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source read. Canonical group-before-company/access locks, actual management/revision gates, idempotent same company, active/retained-grant and populated reassignment controls, history scheduling/export invalidation/flush/audit and caller-owned commit. No historical document/retention/messaging mutation added."
+    },
+    {
+      "path": "backend/app/application/use_cases/client_groups/restore_client_group_use_case.py",
+      "sha256": "1eda69ab875d5b5a77d6f608647a714c6559e7ded46b17393fec98e0ad92c6c1",
+      "physical_lines": 46,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source read. Current persisted agency/owner/deleted-retention restoration gates and canonical domain restore/update/DTO. No automatic resurrection of unretained deleted data."
+    },
+    {
+      "path": "backend/app/application/use_cases/client_groups/revoke_client_group_use_case.py",
+      "sha256": "d5e00bdc31d9ce061ebbd8e37cbb3322dcbd9bb522c7c89b1a29f8c7f416b73b",
+      "physical_lines": 62,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source read. Current persisted group agency/creator, platform-derived exact passport retention on close, repository update and DTO; commit belongs to existing caller."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/company_people.py",
+      "sha256": "80aaf08e4c970c6edcfc2ebb622fb558744c98cd852f428482a6377186a79c0b",
+      "physical_lines": 160,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical1-106 selected imports/private dependencies/full people-page and record lookup (truncated metadata line explicitly reread95-106). Actor/company/person authority and no-store/lazy directory dispatch traced; remainder document/update/stream owners not fully read here."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/companies.py",
+      "sha256": "4d4feacb0186a8a62973bdbf345655dcebdc93f016f81c1fb555faf45abdc90a",
+      "physical_lines": 210,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical137-159 current remove tail/whole company_summary and group route prefix; summary auth\u2192same scoped totals\u2192safe response only. Catalog not whole source read."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_configuration.py",
+      "sha256": "925faec9ce0fcaad02be70b0207ce7339fa9e941a6ae28f2131cf30b18a1f993",
+      "physical_lines": 302,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical1-130 and137-184: create field/authority mapping prefix, complete assign-company bridge and update admission prefix. Other creation tail/update body not fully read here; root/shared policy unchanged."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_retention.py",
+      "sha256": "88b5a3cef1b849b79e8eb8b169d65e35d90ed65d95470b75fcf5ae347b677e8a",
+      "physical_lines": 148,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical1-72 and98-end. Whole revoke and restore authority/use-case/response/error consumers; middle delete body73-97 not physically read. No whole-file credit."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_permanent_delete.py",
+      "sha256": "7bca9c679fe968144e0ca24759cd4115c459d9b0a47c10fceee7ba9614b42818",
+      "physical_lines": 300,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical109-220 only retained decision gate, linked delivery coordination, exact scoped locked submission/crop keys, source detach before cleanup staging/deletions. Other destructive authorization/commit/result phases not fully read here."
+    },
+    {
+      "path": "backend/app/application/travellers/retention.py",
+      "sha256": "e149daafe2db93605bdfe8297e71ede879879b176f7f002428cae7543184b7da",
+      "physical_lines": 95,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical50-74 complete detach_submission_provenance only; pending retained copy probe rejects before source FK detachment while immutable provenance/assets retained. Remaining deletion/revocation policy not fully read."
+    }
+  ],
+  "scope": "Seven newly current-full company/group retained test sources1279lines; seven whole support reads and six explicit focused slices. Existing supporting full reads not inflated as new tests; native/Inbox work excluded."
+}

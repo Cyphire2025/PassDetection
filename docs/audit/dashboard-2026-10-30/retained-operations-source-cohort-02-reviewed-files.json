@@ -1,0 +1,298 @@
+[
+  {
+    "path": "scripts/bootstrap_backend.py",
+    "sha256": "28ff3df1b85ed3c854fee881860f275550974e3b191911999653b2fa0227c272",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Reviewed pinned runtime/hash-lock bootstrap, installed npm metadata/PURL inventory, exact temporary historical contract fixtures, canonical seed delegation, separated private storage policy identities, and fixed-role/rechecked process shutdown respectively. Retained unchanged; source review only, no environment install, secret read, provider call, process signal or new execution claim."
+  },
+  {
+    "path": "scripts/check_node_toolchain.py",
+    "sha256": "cec3134efe2a05d70d220a73a816a6a649c10c2cc572b3ce5b495f2323da1cac",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Reviewed pinned runtime/hash-lock bootstrap, installed npm metadata/PURL inventory, exact temporary historical contract fixtures, canonical seed delegation, separated private storage policy identities, and fixed-role/rechecked process shutdown respectively. Retained unchanged; source review only, no environment install, secret read, provider call, process signal or new execution claim."
+  },
+  {
+    "path": "scripts/inventory_npm_toolchain.py",
+    "sha256": "a1d6eb7e54d56eae73762d04f1e25993ce3cd505183611d50d6cbb996f449888",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Reviewed pinned runtime/hash-lock bootstrap, installed npm metadata/PURL inventory, exact temporary historical contract fixtures, canonical seed delegation, separated private storage policy identities, and fixed-role/rechecked process shutdown respectively. Retained unchanged; source review only, no environment install, secret read, provider call, process signal or new execution claim."
+  },
+  {
+    "path": "scripts/legacy_company_contract_fixture.py",
+    "sha256": "634c210313bdcd92d5dd6aad4eb46ebabd2adb4c6cc0630a6b28cf455edcf88e",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Reviewed pinned runtime/hash-lock bootstrap, installed npm metadata/PURL inventory, exact temporary historical contract fixtures, canonical seed delegation, separated private storage policy identities, and fixed-role/rechecked process shutdown respectively. Retained unchanged; source review only, no environment install, secret read, provider call, process signal or new execution claim."
+  },
+  {
+    "path": "scripts/legacy_document_contract_fixture.py",
+    "sha256": "07983b13356160eb31f6162e0b2bf8e49eb879081cdb963941fc97f46c3b0f08",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Reviewed pinned runtime/hash-lock bootstrap, installed npm metadata/PURL inventory, exact temporary historical contract fixtures, canonical seed delegation, separated private storage policy identities, and fixed-role/rechecked process shutdown respectively. Retained unchanged; source review only, no environment install, secret read, provider call, process signal or new execution claim."
+  },
+  {
+    "path": "scripts/seed_admin.py",
+    "sha256": "cdfaceba4c2686671699ef8938a07aa455146dbca580241341264e21b1b5d115",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Reviewed pinned runtime/hash-lock bootstrap, installed npm metadata/PURL inventory, exact temporary historical contract fixtures, canonical seed delegation, separated private storage policy identities, and fixed-role/rechecked process shutdown respectively. Retained unchanged; source review only, no environment install, secret read, provider call, process signal or new execution claim."
+  },
+  {
+    "path": "scripts/storage_identity.py",
+    "sha256": "2050dc9f34947c10117ab79bfdacc9d33e1546f6dafbbe20c0db58751983ef8d",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Reviewed pinned runtime/hash-lock bootstrap, installed npm metadata/PURL inventory, exact temporary historical contract fixtures, canonical seed delegation, separated private storage policy identities, and fixed-role/rechecked process shutdown respectively. Retained unchanged; source review only, no environment install, secret read, provider call, process signal or new execution claim."
+  },
+  {
+    "path": "scripts/worker_shutdown_probe.py",
+    "sha256": "6cacea91e7133e729a2ade7181e563f9deef09bb9921c225fed0edd9ddf373b9",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Reviewed pinned runtime/hash-lock bootstrap, installed npm metadata/PURL inventory, exact temporary historical contract fixtures, canonical seed delegation, separated private storage policy identities, and fixed-role/rechecked process shutdown respectively. Retained unchanged; source review only, no environment install, secret read, provider call, process signal or new execution claim."
+  },
+  {
+    "path": "scripts/qa/expat_runtime_security.py",
+    "sha256": "a521a72786698be0ffe24125a0f77e528290d255c3da4cd2afa2e7212aa560ae",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Reviewed synthetic/local target guards, ephemeral certificates/credentials, fixed native probe inputs, bounded retained data/resource assumptions, deterministic MCP export selection, recovery evidence and cleanup boundaries. Unchanged source, not execution or proof of Docker/Linux/PostgreSQL/private storage/native runtime behavior. No validated runtime defect adopted in these files."
+  },
+  {
+    "path": "scripts/qa/python_runtime_security.py",
+    "sha256": "8e8432c046f1207aeb37da9df65b460235710ee27d82d0b58b6bdfd5204ea421",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Reviewed synthetic/local target guards, ephemeral certificates/credentials, fixed native probe inputs, bounded retained data/resource assumptions, deterministic MCP export selection, recovery evidence and cleanup boundaries. Unchanged source, not execution or proof of Docker/Linux/PostgreSQL/private storage/native runtime behavior. No validated runtime defect adopted in these files."
+  },
+  {
+    "path": "scripts/qa/native_allocator_policy.py",
+    "sha256": "1ebd43caaac818a7efdbe0591ac2f9009e896d2803fcfeb4e721c418bcd190d6",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Reviewed synthetic/local target guards, ephemeral certificates/credentials, fixed native probe inputs, bounded retained data/resource assumptions, deterministic MCP export selection, recovery evidence and cleanup boundaries. Unchanged source, not execution or proof of Docker/Linux/PostgreSQL/private storage/native runtime behavior. No validated runtime defect adopted in these files."
+  },
+  {
+    "path": "scripts/qa/capacity_mcp_fixtures.py",
+    "sha256": "1216fd3b959ca6b7f3f114429abe5a0d9c6130970f2ba6ee2739271bf443ff03",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Reviewed synthetic/local target guards, ephemeral certificates/credentials, fixed native probe inputs, bounded retained data/resource assumptions, deterministic MCP export selection, recovery evidence and cleanup boundaries. Unchanged source, not execution or proof of Docker/Linux/PostgreSQL/private storage/native runtime behavior. No validated runtime defect adopted in these files."
+  },
+  {
+    "path": "scripts/qa/dashboard_readiness_rehearsal.py",
+    "sha256": "05fd8eb17efe8be4425abdcfa60299ee7fa6d8329adf9320bfabe1ad264acbdd",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Reviewed synthetic/local target guards, ephemeral certificates/credentials, fixed native probe inputs, bounded retained data/resource assumptions, deterministic MCP export selection, recovery evidence and cleanup boundaries. Unchanged source, not execution or proof of Docker/Linux/PostgreSQL/private storage/native runtime behavior. No validated runtime defect adopted in these files."
+  },
+  {
+    "path": "scripts/qa/mcp_capacity_profile.py",
+    "sha256": "45e0f833a01eece04805624104cbfd4e1f3e8542630b0e0f4ca3176f849a197f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Reviewed synthetic/local target guards, ephemeral certificates/credentials, fixed native probe inputs, bounded retained data/resource assumptions, deterministic MCP export selection, recovery evidence and cleanup boundaries. Unchanged source, not execution or proof of Docker/Linux/PostgreSQL/private storage/native runtime behavior. No validated runtime defect adopted in these files."
+  },
+  {
+    "path": "scripts/qa/postgres_tls_fixture.py",
+    "sha256": "951ce037b5631c4b54e3e7915ad3d29e43f8de964366b53acf85b99368cd25c2",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Reviewed synthetic/local target guards, ephemeral certificates/credentials, fixed native probe inputs, bounded retained data/resource assumptions, deterministic MCP export selection, recovery evidence and cleanup boundaries. Unchanged source, not execution or proof of Docker/Linux/PostgreSQL/private storage/native runtime behavior. No validated runtime defect adopted in these files."
+  },
+  {
+    "path": "scripts/qa/prepare_qualification_certificate.py",
+    "sha256": "395b466ea93eb00c3b9a334c15b708deaf4f6b01a3658b2a077c75bddbc97fd9",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Reviewed synthetic/local target guards, ephemeral certificates/credentials, fixed native probe inputs, bounded retained data/resource assumptions, deterministic MCP export selection, recovery evidence and cleanup boundaries. Unchanged source, not execution or proof of Docker/Linux/PostgreSQL/private storage/native runtime behavior. No validated runtime defect adopted in these files."
+  },
+  {
+    "path": "scripts/qa/qualification_alert_probe.py",
+    "sha256": "f1db6051427ccd836328d644ce79a373be02ec320100f5f71f0a1b38dea045a0",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Reviewed synthetic/local target guards, ephemeral certificates/credentials, fixed native probe inputs, bounded retained data/resource assumptions, deterministic MCP export selection, recovery evidence and cleanup boundaries. Unchanged source, not execution or proof of Docker/Linux/PostgreSQL/private storage/native runtime behavior. No validated runtime defect adopted in these files."
+  },
+  {
+    "path": "scripts/qa/qualification_object_recovery.py",
+    "sha256": "d2af5ce274fd802683efa77c78b6bf42c7abc0b13515d907dfb17d74040118a0",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Reviewed synthetic/local target guards, ephemeral certificates/credentials, fixed native probe inputs, bounded retained data/resource assumptions, deterministic MCP export selection, recovery evidence and cleanup boundaries. Unchanged source, not execution or proof of Docker/Linux/PostgreSQL/private storage/native runtime behavior. No validated runtime defect adopted in these files."
+  },
+  {
+    "path": "scripts/qa/qualification_restored_objects.py",
+    "sha256": "7a4e404d71195044bbe73b0f8530d91c273c87315f35135b3b703b25445e1755",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Reviewed synthetic/local target guards, ephemeral certificates/credentials, fixed native probe inputs, bounded retained data/resource assumptions, deterministic MCP export selection, recovery evidence and cleanup boundaries. Unchanged source, not execution or proof of Docker/Linux/PostgreSQL/private storage/native runtime behavior. No validated runtime defect adopted in these files."
+  },
+  {
+    "path": "scripts/qa/qualification_storage_bootstrap.py",
+    "sha256": "535861bfd7ad9da9d5b280f1729889f528228ae82741e5a6a205ede501717352",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Reviewed synthetic/local target guards, ephemeral certificates/credentials, fixed native probe inputs, bounded retained data/resource assumptions, deterministic MCP export selection, recovery evidence and cleanup boundaries. Unchanged source, not execution or proof of Docker/Linux/PostgreSQL/private storage/native runtime behavior. No validated runtime defect adopted in these files."
+  },
+  {
+    "path": "scripts/qa/qualification_storage_identity.py",
+    "sha256": "54bfd7df715d7cf5c2778615d750cc4916e6a66340a908042e348b0675fc68dd",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Reviewed synthetic/local target guards, ephemeral certificates/credentials, fixed native probe inputs, bounded retained data/resource assumptions, deterministic MCP export selection, recovery evidence and cleanup boundaries. Unchanged source, not execution or proof of Docker/Linux/PostgreSQL/private storage/native runtime behavior. No validated runtime defect adopted in these files."
+  },
+  {
+    "path": "scripts/qa/qualify_api_replica_recovery.py",
+    "sha256": "19da7b60c708e3aa298b491311b53005f96f73d080d08fb3251fc3bc737b8f88",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Reviewed synthetic/local target guards, ephemeral certificates/credentials, fixed native probe inputs, bounded retained data/resource assumptions, deterministic MCP export selection, recovery evidence and cleanup boundaries. Unchanged source, not execution or proof of Docker/Linux/PostgreSQL/private storage/native runtime behavior. No validated runtime defect adopted in these files."
+  },
+  {
+    "path": "scripts/qa/qualify_database_capacity.py",
+    "sha256": "3a60baeb5f00dc8f3d4c5924be116768ba09be120dabdb0004f91b7c5d2a0524",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Reviewed synthetic/local target guards, ephemeral certificates/credentials, fixed native probe inputs, bounded retained data/resource assumptions, deterministic MCP export selection, recovery evidence and cleanup boundaries. Unchanged source, not execution or proof of Docker/Linux/PostgreSQL/private storage/native runtime behavior. No validated runtime defect adopted in these files."
+  },
+  {
+    "path": "scripts/qa/qualify_dependency_recovery.py",
+    "sha256": "deaa3ac4077589f9c78a64a602bbddbfc6b11bba52ded1f8ef8b39102d0d4ae3",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Reviewed synthetic/local target guards, ephemeral certificates/credentials, fixed native probe inputs, bounded retained data/resource assumptions, deterministic MCP export selection, recovery evidence and cleanup boundaries. Unchanged source, not execution or proof of Docker/Linux/PostgreSQL/private storage/native runtime behavior. No validated runtime defect adopted in these files."
+  },
+  {
+    "path": "scripts/release_companies_traveller_contract.py",
+    "sha256": "2d01358c2756cf2ce34584cf85f1e9dba9a7483bd1ced0a10cb63e232b62af7b",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Reviewed fixed local release-policy imports, exact schema/source contracts, retained Docker payload/network binding, and dated evidence hash/path containment checks. Retained unchanged; historical release adapters remain required by fixtures and release chains. Source review only, no release, Docker or production action."
+  },
+  {
+    "path": "scripts/release_document_distribution_contract.py",
+    "sha256": "44ee4b01d6c6dc8cb8494add532c6a8327ec16996e8723a41e030279c4e7b3c7",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Reviewed fixed local release-policy imports, exact schema/source contracts, retained Docker payload/network binding, and dated evidence hash/path containment checks. Retained unchanged; historical release adapters remain required by fixtures and release chains. Source review only, no release, Docker or production action."
+  },
+  {
+    "path": "scripts/release_workspace_branding_contract.py",
+    "sha256": "d411bc091e6d5c9f4d5c5798b7f7f47c38ffa735bedbd6d001f304d1d5248b1c",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Reviewed fixed local release-policy imports, exact schema/source contracts, retained Docker payload/network binding, and dated evidence hash/path containment checks. Retained unchanged; historical release adapters remain required by fixtures and release chains. Source review only, no release, Docker or production action."
+  },
+  {
+    "path": "scripts/release_document_resource_binding.py",
+    "sha256": "f7c0751b23e7fc4f696390f1742a69a44c3e9b207b9ed770ca1e3c62b4c6e4e9",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Reviewed fixed local release-policy imports, exact schema/source contracts, retained Docker payload/network binding, and dated evidence hash/path containment checks. Retained unchanged; historical release adapters remain required by fixtures and release chains. Source review only, no release, Docker or production action."
+  },
+  {
+    "path": "scripts/release_network_identity.py",
+    "sha256": "39f3b49133e410dc9bd6753565205744c60a581490f52f8990af326330aadd9e",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Reviewed fixed local release-policy imports, exact schema/source contracts, retained Docker payload/network binding, and dated evidence hash/path containment checks. Retained unchanged; historical release adapters remain required by fixtures and release chains. Source review only, no release, Docker or production action."
+  },
+  {
+    "path": "scripts/verify_documentation_claims.py",
+    "sha256": "27ada65a455137a7d2299fdeb5dc035ab758140200dfa50d41652fae9ca72309",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Reviewed fixed local release-policy imports, exact schema/source contracts, retained Docker payload/network binding, and dated evidence hash/path containment checks. Retained unchanged; historical release adapters remain required by fixtures and release chains. Source review only, no release, Docker or production action."
+  },
+  {
+    "path": "scripts/qa/companies_contact_qualification.py",
+    "sha256": "ffc90e3f4b63c52ee4378fd5f9d0b311b50f5c5efca49e90e94e9ba9aa9694f8",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read; affected caller/test modules retained byte-identical under the9-source final fence. Source archives, exact wheel/hash and readonly test mounts, isolated server identity and labeled caller cleanup reviewed. Existing25 qualification controls pass as part of32-case bounded-output selection; Docker and real PostgreSQL were not run."
+  },
+  {
+    "path": "scripts/test_companies_contact_qualification.py",
+    "sha256": "ae6c25e69f10247fd3ca13f00ead8bd16b9d83e5c0c0b9829a20719a2c9899ea",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read; affected caller/test modules retained byte-identical under the9-source final fence. Source archives, exact wheel/hash and readonly test mounts, isolated server identity and labeled caller cleanup reviewed. Existing25 qualification controls pass as part of32-case bounded-output selection; Docker and real PostgreSQL were not run."
+  },
+  {
+    "path": "scripts/test_companies_fast_migration_qualification.py",
+    "sha256": "d394ec736698c8f0f8d5a6ff8bee15bc1f18fd28265c5222316b16c46e97e785",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read; affected caller/test modules retained byte-identical under the9-source final fence. Source archives, exact wheel/hash and readonly test mounts, isolated server identity and labeled caller cleanup reviewed. Existing25 qualification controls pass as part of32-case bounded-output selection; Docker and real PostgreSQL were not run."
+  },
+  {
+    "path": "scripts/qa/bounded_qualification_output.py",
+    "sha256": "ef4a3176df0d90a337f6e7e21950c97ef4a7c0902a74c9f40677e3f7510c05f9",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical source read and implementation review. Actual one-second command with inherited descendant stdout returned success after3.203seconds;2negative failures/4controls precede correction. Public async subprocess transport now covers exit and pipe EOF with one deadline, private output-byte cap, direct-child kill/reap and local pipe close;32current cases/3files pass, owned strict typing/Ruff. No arbitrary descendant/remote container termination or Linux/Docker execution claim. See bounded-qualification-output-verification.json."
+  },
+  {
+    "path": "scripts/test_bounded_qualification_output.py",
+    "sha256": "20c6f8551ca2511c0d51b24a6fb0151fc1d2433fb6a33e821192e34ecbb541a1",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical source read and implementation review. Actual one-second command with inherited descendant stdout returned success after3.203seconds;2negative failures/4controls precede correction. Public async subprocess transport now covers exit and pipe EOF with one deadline, private output-byte cap, direct-child kill/reap and local pipe close;32current cases/3files pass, owned strict typing/Ruff. No arbitrary descendant/remote container termination or Linux/Docker execution claim. See bounded-qualification-output-verification.json."
+  },
+  {
+    "path": "scripts/qa/qualify_companies_fast_migration.py",
+    "sha256": "1d51a0a2e2f02eea28a5d8b15c3794b12f12c0c7c6c86f41c3fbe0d869d0566e",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "reviewed",
+    "notes": "Focused physical read of run_rehearsal and capture call/ownership boundary; actual final9-source fence and25caller controls preserve compatibility. Other code is not claimed newly read."
+  },
+  {
+    "path": "frontend/scripts/verify-frontend-module-budgets.mjs",
+    "sha256": "cb39d6c6ee5351e9fa166d560dd62c58a3b1b20021fc38a7c2a52d1017d94ff7",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "reviewed",
+    "notes": "Focused physical read of imports, first99data rows, final catalog rows and complete physical-line/TypeScript AST complexity/evaluation/CLI owners. Root frozen transfer-budget receipt proves all656unrelated rows and code outside catalog array exact LF-normalized,657old ceilings preserved/tightened,4additive current rows and static661controls. Repeated middle data catalog not claimed newly physically read. See mcp-transfer-budget-final-verification.json."
+  }
+]

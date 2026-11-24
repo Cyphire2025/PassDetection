@@ -1,0 +1,357 @@
+{
+  "status": "proposal only; no policy/source changes and no full semantic review credit",
+  "proposals": [
+    {
+      "path": "backend/tests/unit/infrastructure/test_apple_app_attest_verifier.py",
+      "sha256": "9d2130dbd724542eb149fe3d31e44fc1f166136a03e703238585210281c96707",
+      "physical_lines": 345,
+      "classification": "proposed native-app-only purpose; parent adoption pending",
+      "review_scope": "classification-and-tested-owner-trace-only",
+      "already_excluded_runtime_owner": "backend/app/infrastructure/security/apple_app_attest_verifier.py",
+      "reason": "Direct imported Apple attestation verifier and app_integrity policy are already native-only; cases exclusively parse/verify App Attest receipts, RP/key/counter/replay/material bindings.",
+      "tests": [
+        {
+          "name": "test_official_apple_2026_authenticator_sample_parses_exact_extensions",
+          "line": 181
+        },
+        {
+          "name": "test_official_apple_2026_receipt_verifies_signature_path_and_bindings",
+          "line": 204
+        },
+        {
+          "name": "test_assertion_verifies_signature_rp_id_policy_and_increasing_counter",
+          "line": 223
+        },
+        {
+          "name": "test_assertion_rejects_policy_replay_shape_and_rp_id_mismatches",
+          "line": 251
+        },
+        {
+          "name": "test_assertion_rejects_noncanonical_base64_and_tampered_signature",
+          "line": 272
+        },
+        {
+          "name": "test_assertion_distinguishes_server_material_or_policy_unavailability",
+          "line": 297
+        },
+        {
+          "name": "test_verification_material_is_fixed_bounded_and_key_bound",
+          "line": 325
+        }
+      ],
+      "imports": [
+        "from __future__ import annotations",
+        "import base64",
+        "import hashlib",
+        "import json",
+        "from datetime import UTC, datetime",
+        "import cbor2",
+        "import pytest",
+        "from cryptography import x509",
+        "from cryptography.hazmat.primitives import hashes, serialization",
+        "from cryptography.hazmat.primitives.asymmetric import ec",
+        "from app.application.mobile.app_integrity import (\n    MobileIntegrityRejected,\n    MobileIntegrityUnavailable,\n)",
+        "from app.core.config.settings import MobileSettings",
+        "from app.infrastructure.security.apple_app_attest_verifier import (\n    PyAttestAppleAppAttestVerifier,\n    _decode_verification_material,\n    _encode_verification_material,\n    _parse_attestation_auth_data,\n)"
+      ]
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_mobile_integrity_providers.py",
+      "sha256": "07c6a5b566f141a14e814aca0d90e28f752a63511377cf03610757fb91cad948",
+      "physical_lines": 201,
+      "classification": "proposed native-app-only purpose; parent adoption pending",
+      "review_scope": "classification-and-tested-owner-trace-only",
+      "already_excluded_runtime_owner": "backend/app/infrastructure/security/mobile_integrity_providers.py",
+      "reason": "Direct imported Play/Apple integrity provider registry and app_integrity policy are already native-only; cases exclusively exercise signed platform integrity verdict/provider availability.",
+      "tests": [
+        {
+          "name": "test_play_integrity_uses_official_server_request_shape_and_checks_verdict",
+          "line": 63
+        },
+        {
+          "name": "test_play_integrity_rejects_each_required_verdict_boundary",
+          "line": 111
+        },
+        {
+          "name": "test_play_provider_outage_and_missing_enforcement_config_fail_closed",
+          "line": 138
+        },
+        {
+          "name": "test_default_apple_adapter_never_accepts_a_client_verdict",
+          "line": 172
+        },
+        {
+          "name": "test_default_registry_uses_authoritative_apple_verifier",
+          "line": 194
+        }
+      ],
+      "imports": [
+        "from __future__ import annotations",
+        "import copy",
+        "import json",
+        "import time",
+        "from unittest.mock import AsyncMock",
+        "import httpx",
+        "import pytest",
+        "from app.application.mobile.app_integrity import (\n    MobileIntegrityRejected,\n    MobileIntegrityUnavailable,\n)",
+        "from app.core.config.settings import MobileSettings",
+        "from app.infrastructure.security import mobile_integrity_providers",
+        "from app.infrastructure.security.apple_app_attest_verifier import (\n    PyAttestAppleAppAttestVerifier,\n)",
+        "from app.infrastructure.security.mobile_integrity_providers import (\n    GooglePlayIntegrityVerifier,\n    UnavailableAppleAppAttestVerifier,\n    get_mobile_integrity_provider_registry,\n)"
+      ]
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_mobile_journey_geocoding.py",
+      "sha256": "861189c9191e5416131d9344ad09cfb1e6775b4b1fc5ecb7091f1a6bde811737",
+      "physical_lines": 670,
+      "classification": "proposed native-app-only purpose; parent adoption pending",
+      "review_scope": "classification-and-tested-owner-trace-only",
+      "already_excluded_runtime_owner": "backend/app/infrastructure/mobile_journey_geocoding.py",
+      "reason": "Direct geocoding resolver is already native-only; cases exclusively resolve/normalize native journey place coordinates and provider/cache admission.",
+      "tests": [
+        {
+          "name": "test_bare_london_resolves_prominent_provider_city_independent_of_result_order",
+          "line": 52
+        },
+        {
+          "name": "test_qualified_london_keeps_requested_location_despite_prominent_homonym",
+          "line": 78
+        },
+        {
+          "name": "test_qualified_city_ambiguity_cannot_be_overridden_by_importance",
+          "line": 88
+        },
+        {
+          "name": "test_missing_or_invalid_prominence_metadata_keeps_city_ambiguous",
+          "line": 99
+        },
+        {
+          "name": "test_invalid_winner_or_competitor_importance_keeps_city_ambiguous",
+          "line": 108
+        },
+        {
+          "name": "test_prominence_requires_unique_matching_osm_identity_and_place_context",
+          "line": 118
+        },
+        {
+          "name": "test_city_prominence_requires_both_conservative_minimum_and_clear_lead",
+          "line": 142
+        },
+        {
+          "name": "test_city_prominence_is_not_a_london_name_or_country_override",
+          "line": 153
+        },
+        {
+          "name": "test_city_prominence_cannot_override_competing_geographic_regions",
+          "line": 168
+        },
+        {
+          "name": "test_exact_places_and_country_aliases_preserve_provider_coordinates",
+          "line": 193
+        },
+        {
+          "name": "test_country_or_state_is_not_replaced_with_same_named_village",
+          "line": 202
+        },
+        {
+          "name": "test_exact_country_wins_over_foreign_locality_homonyms",
+          "line": 220
+        },
+        {
+          "name": "test_explicit_foreign_locality_qualifiers_override_country_homonym",
+          "line": 239
+        },
+        {
+          "name": "test_country_preference_preserves_competing_state_even_with_city_homonym",
+          "line": 252
+        },
+        {
+          "name": "test_multiple_exact_country_candidates_do_not_choose_first_provider_result",
+          "line": 266
+        },
+        {
+          "name": "test_city_state_duplicate_and_city_country_duplicate_choose_appropriate_scope",
+          "line": 278
+        },
+        {
+          "name": "test_hongkong_spelling_resolves_exact_provider_place_without_accepting_similar_names",
+          "line": 292
+        },
+        {
+          "name": "test_ambiguous_places_and_multistop_never_get_a_guessed_coordinate",
+          "line": 309
+        },
+        {
+          "name": "test_malformed_feature_properties_are_rejected",
+          "line": 341
+        },
+        {
+          "name": "test_invalid_coordinates_never_escape",
+          "line": 348
+        },
+        {
+          "name": "test_fuzzy_venue_and_incomplete_place_matches_are_rejected",
+          "line": 354
+        },
+        {
+          "name": "test_country_resolution_ignores_old_ambiguous_cache_but_keeps_shared_upstream_lease",
+          "line": 379
+        },
+        {
+          "name": "test_london_ignores_v2_ambiguity_and_caches_current_provider_selection",
+          "line": 412
+        },
+        {
+          "name": "test_cached_places_are_shared_across_calls_and_aliases_without_upstream_repeats",
+          "line": 441
+        },
+        {
+          "name": "test_hongkong_spellings_share_canonical_provider_query_and_cached_coordinates",
+          "line": 467
+        },
+        {
+          "name": "test_destination_edits_use_separate_cache_entries_and_restore_only_matching_place",
+          "line": 487
+        },
+        {
+          "name": "test_no_provider_request_without_shared_cache_and_admission",
+          "line": 533
+        },
+        {
+          "name": "test_failures_are_cached_without_redirects_or_immediate_retries",
+          "line": 564
+        },
+        {
+          "name": "test_request_has_total_deadline_and_releases_admission_to_cooldown",
+          "line": 581
+        },
+        {
+          "name": "test_separate_resolvers_cannot_send_concurrently_and_keep_cooldown",
+          "line": 598
+        },
+        {
+          "name": "test_invalid_destination_never_reaches_external_service",
+          "line": 640
+        },
+        {
+          "name": "test_settings_allow_only_an_explicit_https_endpoint",
+          "line": 660
+        },
+        {
+          "name": "test_provider_can_be_switched_or_disabled_and_aliases_use_hard_country_filter",
+          "line": 665
+        }
+      ],
+      "imports": [
+        "from __future__ import annotations",
+        "import asyncio",
+        "import hashlib",
+        "import json",
+        "from pathlib import Path",
+        "from unittest.mock import AsyncMock",
+        "import httpx",
+        "import pytest",
+        "from pydantic import ValidationError",
+        "from redis.exceptions import ConnectionError as RedisConnectionError",
+        "from app.core.config.settings import MobileSettings",
+        "from app.infrastructure.mobile_journey_geocoding import (\n    MobileJourneyGeocoder,\n    _search_params,\n    select_destination,\n)"
+      ]
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_mobile_association_proxy_contract.py",
+      "sha256": "e119c5a8cedff42ed6472dd9e45433add6558f865480027696b20c561eda8a78",
+      "physical_lines": 46,
+      "classification": "proposed native-app-only purpose; parent adoption pending",
+      "review_scope": "classification-and-tested-owner-trace-only",
+      "already_excluded_runtime_owner": "backend/app/presentation/api/v1/routes/mobile_associations.py",
+      "reason": "Exact proxy assertions target only /.well-known association URLs forwarding to existing native-only /mobile/associations/apple and android ingress. Shared nginx runtime itself stays retained.",
+      "tests": [
+        {
+          "name": "test_verified_link_files_are_direct_bounded_backend_proxies",
+          "line": 22
+        }
+      ],
+      "imports": [
+        "from __future__ import annotations",
+        "from pathlib import Path"
+      ]
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_mobile_openapi_contract.py",
+      "sha256": "b8bb954c709581d06888b8a9aa983124bcbf0610b42b1b04497acc1b99823cb1",
+      "physical_lines": 84,
+      "classification": "proposed native-app-only purpose; parent adoption pending",
+      "review_scope": "classification-and-tested-owner-trace-only",
+      "already_excluded_runtime_owner": "backend/app/presentation/api/v1/routes/mobile_my_photos.py",
+      "reason": "Tests exclusively extract /api/v1/mobile paths and reachable schemas, reject missing native contract schema and check a native MyPhotos content operation ID in mobile/contracts/mobile-api.openapi.json. Shared complete API exporter/snapshot remains retained.",
+      "tests": [
+        {
+          "name": "test_mobile_contract_keeps_only_mobile_paths_and_reachable_schemas",
+          "line": 15
+        },
+        {
+          "name": "test_mobile_contract_fails_closed_on_a_missing_referenced_schema",
+          "line": 55
+        },
+        {
+          "name": "test_checked_in_my_photos_download_operation_id_matches_the_runtime_handler",
+          "line": 73
+        }
+      ],
+      "imports": [
+        "from __future__ import annotations",
+        "import json",
+        "from pathlib import Path",
+        "import pytest",
+        "from scripts.export_mobile_openapi_contract import canonical_json, mobile_contract"
+      ]
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_mobile_app_attest_keys_migration.py",
+      "sha256": "b8f7d363954b80868f52ed7bf2bd723faf58ed1cb9bd2321867f487e51cd9207",
+      "physical_lines": 103,
+      "classification": "proposed native-app-only purpose; parent adoption pending",
+      "review_scope": "classification-and-tested-owner-trace-only",
+      "already_excluded_runtime_owner": "backend/app/infrastructure/security/apple_app_attest_verifier.py",
+      "reason": "Test purpose is only native App Attest verification-material/counter/active device-key table in migration0081 and its ORM model. Actual published migration/global registry remains preserved; no migration execution or schema work proposed.",
+      "tests": [
+        {
+          "name": "test_migration_is_additive_and_builds_hash_only_key_state",
+          "line": 25
+        },
+        {
+          "name": "test_orm_matches_counter_state_and_active_uniqueness_contract",
+          "line": 78
+        }
+      ],
+      "imports": [
+        "from __future__ import annotations",
+        "import importlib.util",
+        "from pathlib import Path",
+        "from sqlalchemy import CheckConstraint, Index",
+        "from app.infrastructure.database.gc_mobile_models import MobileAppAttestKeyModel"
+      ]
+    }
+  ],
+  "proposed_exact_literals": [
+    "backend/tests/unit/infrastructure/test_apple_app_attest_verifier.py",
+    "backend/tests/unit/infrastructure/test_mobile_integrity_providers.py",
+    "backend/tests/unit/infrastructure/test_mobile_journey_geocoding.py",
+    "backend/tests/unit/infrastructure/test_mobile_association_proxy_contract.py",
+    "backend/tests/unit/infrastructure/test_mobile_openapi_contract.py",
+    "backend/tests/unit/infrastructure/test_mobile_app_attest_keys_migration.py"
+  ],
+  "excluded_by_existing_runtime_purpose_not_filename": true,
+  "no_execution": true,
+  "preserve_all_old_scope_and_historical_reviews": true,
+  "shared_counterexamples_retained": [
+    "APNS/FCM outgoing notification provider+credentials and worker mounts/schedule",
+    "Fresh/returning/passport OTP adapter and shared rate limiter",
+    "GC foundations/metrics/passenger identity registry and WhatsApp receipt OTP metadata compatibility"
+  ],
+  "limits": [
+    "AST/name/import inventory and purpose-specific excerpts do not establish complete body review.",
+    "No dedicated native feature, client, provider, geocoder, migration or contract execution requested.",
+    "Parent owns literal scope policy adoption; no wildcard or unrelated exclusion proposed."
+  ]
+}

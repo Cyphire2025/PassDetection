@@ -1,8 +1,8 @@
 # Enterprise real-stack QA lane
 
 This lane exercises the production Next.js bundle through a real FastAPI
-process backed by migrated PostgreSQL and Redis. MinIO and a Celery worker are
-also required for the complete backend service-contract file. Use only an
+process backed by migrated PostgreSQL and Redis. S3-compatible object storage
+and a Celery worker are also required for the complete backend service-contract file. Use only an
 isolated disposable QA database and object-storage bucket; the deterministic
 browser seed updates the UUID namespace reserved for this test lane.
 
@@ -29,9 +29,10 @@ settings, then run:
 .\.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 58000
 ```
 
-The seed prints the fixture identifiers and development-only credentials as
-JSON. Raw recovery tokens, access tokens, QR values, and passenger document
-data are never emitted.
+The seed prints fixture identifiers and synthetic development credentials as
+JSON, including the test MFA secrets and QR payloads needed by the browser
+fixtures. Keep this output with the isolated QA evidence. Recovery tokens, access
+tokens and real passenger documents are not included.
 
 ## Production dashboard and browsers
 

@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="9" skipped="0" tests="21" time="0.510" timestamp="2026-10-31T04:34:53.077430+05:30" hostname="Nipun5070ti"><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_broadcast_lists_reject_invalid_json_without_server_errors_or_side_effects[string-/create]" time="0.008" /><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_broadcast_lists_reject_invalid_json_without_server_errors_or_side_effects[string-/update]" time="0.004" /><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_broadcast_lists_reject_invalid_json_without_server_errors_or_side_effects[string-/links]" time="0.003" /><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_broadcast_lists_reject_invalid_json_without_server_errors_or_side_effects[object-/create]" time="0.003" /><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_broadcast_lists_reject_invalid_json_without_server_errors_or_side_effects[object-/update]" time="0.003" /><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_broadcast_lists_reject_invalid_json_without_server_errors_or_side_effects[object-/links]" time="0.003" /><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_broadcast_lists_reject_invalid_json_without_server_errors_or_side_effects[object-member-/create]" time="0.004"><failure message="AssertionError: {&quot;error&quot;:{&quot;code&quot;:&quot;INTERNAL_SERVER_ERROR&quot;,&quot;message&quot;:&quot;An unexpected error occurred. Please try again.&quot;}}&#10;assert 500 == 422&#10; +  where 500 = &lt;Response [500 Internal Server Error]&gt;.status_code">path = '/create', value = [{'SYNTHETIC_PRIVATE_KEY': 'value'}]
+
+    @pytest.mark.parametrize("path", ["/create", "/update", "/links"])
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "SYNTHETIC_PRIVATE_INPUT",
+            {"SYNTHETIC_PRIVATE_KEY": "value"},
+            [{"SYNTHETIC_PRIVATE_KEY": "value"}],
+            [["SYNTHETIC_PRIVATE_INPUT"]],
+            [None],
+            ["33333333-3333-4333-8333-333333333333"] * 51,
+        ],
+        ids=["string", "object", "object-member", "list-member", "null-member", "raw-over-limit"],
+    )
+    async def test_broadcast_lists_reject_invalid_json_without_server_errors_or_side_effects(
+        path: str, value: object,
+    ) -&gt; None:
+        app, saved = application()
+        body = {} if path == "/links" else payload()
+        body["whatsapp_broadcast_group_ids"] = value
+        transport = ASGITransport(app, raise_app_exceptions=False)
+        async with AsyncClient(transport=transport, base_url="http://test") as client:
+            response = await client.post(path, json=body)
+&gt;       assert response.status_code == 422, response.text
+E       AssertionError: {"error":{"code":"INTERNAL_SERVER_ERROR","message":"An unexpected error occurred. Please try again."}}
+E       assert 500 == 422
+E        +  where 500 = &lt;Response [500 Internal Server Error]&gt;.status_code
+
+tests\unit\presentation\test_group_collection_input_contract.py:155: AssertionError</failure></testcase><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_broadcast_lists_reject_invalid_json_without_server_errors_or_side_effects[object-member-/update]" time="0.004"><failure message="AssertionError: {&quot;error&quot;:{&quot;code&quot;:&quot;INTERNAL_SERVER_ERROR&quot;,&quot;message&quot;:&quot;An unexpected error occurred. Please try again.&quot;}}&#10;assert 500 == 422&#10; +  where 500 = &lt;Response [500 Internal Server Error]&gt;.status_code">path = '/update', value = [{'SYNTHETIC_PRIVATE_KEY': 'value'}]
+
+    @pytest.mark.parametrize("path", ["/create", "/update", "/links"])
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "SYNTHETIC_PRIVATE_INPUT",
+            {"SYNTHETIC_PRIVATE_KEY": "value"},
+            [{"SYNTHETIC_PRIVATE_KEY": "value"}],
+            [["SYNTHETIC_PRIVATE_INPUT"]],
+            [None],
+            ["33333333-3333-4333-8333-333333333333"] * 51,
+        ],
+        ids=["string", "object", "object-member", "list-member", "null-member", "raw-over-limit"],
+    )
+    async def test_broadcast_lists_reject_invalid_json_without_server_errors_or_side_effects(
+        path: str, value: object,
+    ) -&gt; None:
+        app, saved = application()
+        body = {} if path == "/links" else payload()
+        body["whatsapp_broadcast_group_ids"] = value
+        transport = ASGITransport(app, raise_app_exceptions=False)
+        async with AsyncClient(transport=transport, base_url="http://test") as client:
+            response = await client.post(path, json=body)
+&gt;       assert response.status_code == 422, response.text
+E       AssertionError: {"error":{"code":"INTERNAL_SERVER_ERROR","message":"An unexpected error occurred. Please try again."}}
+E       assert 500 == 422
+E        +  where 500 = &lt;Response [500 Internal Server Error]&gt;.status_code
+
+tests\unit\presentation\test_group_collection_input_contract.py:155: AssertionError</failure></testcase><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_broadcast_lists_reject_invalid_json_without_server_errors_or_side_effects[object-member-/links]" time="0.003"><failure message="AssertionError: {&quot;error&quot;:{&quot;code&quot;:&quot;INTERNAL_SERVER_ERROR&quot;,&quot;message&quot;:&quot;An unexpected error occurred. Please try again.&quot;}}&#10;assert 500 == 422&#10; +  where 500 = &lt;Response [500 Internal Server Error]&gt;.status_code">path = '/links', value = [{'SYNTHETIC_PRIVATE_KEY': 'value'}]
+
+    @pytest.mark.parametrize("path", ["/create", "/update", "/links"])
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "SYNTHETIC_PRIVATE_INPUT",
+            {"SYNTHETIC_PRIVATE_KEY": "value"},
+            [{"SYNTHETIC_PRIVATE_KEY": "value"}],
+            [["SYNTHETIC_PRIVATE_INPUT"]],
+            [None],
+            ["33333333-3333-4333-8333-333333333333"] * 51,
+        ],
+        ids=["string", "object", "object-member", "list-member", "null-member", "raw-over-limit"],
+    )
+    async def test_broadcast_lists_reject_invalid_json_without_server_errors_or_side_effects(
+        path: str, value: object,
+    ) -&gt; None:
+        app, saved = application()
+        body = {} if path == "/links" else payload()
+        body["whatsapp_broadcast_group_ids"] = value
+        transport = ASGITransport(app, raise_app_exceptions=False)
+        async with AsyncClient(transport=transport, base_url="http://test") as client:
+            response = await client.post(path, json=body)
+&gt;       assert response.status_code == 422, response.text
+E       AssertionError: {"error":{"code":"INTERNAL_SERVER_ERROR","message":"An unexpected error occurred. Please try again."}}
+E       assert 500 == 422
+E        +  where 500 = &lt;Response [500 Internal Server Error]&gt;.status_code
+
+tests\unit\presentation\test_group_collection_input_contract.py:155: AssertionError</failure></testcase><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_broadcast_lists_reject_invalid_json_without_server_errors_or_side_effects[list-member-/create]" time="0.003"><failure message="AssertionError: {&quot;error&quot;:{&quot;code&quot;:&quot;INTERNAL_SERVER_ERROR&quot;,&quot;message&quot;:&quot;An unexpected error occurred. Please try again.&quot;}}&#10;assert 500 == 422&#10; +  where 500 = &lt;Response [500 Internal Server Error]&gt;.status_code">path = '/create', value = [['SYNTHETIC_PRIVATE_INPUT']]
+
+    @pytest.mark.parametrize("path", ["/create", "/update", "/links"])
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "SYNTHETIC_PRIVATE_INPUT",
+            {"SYNTHETIC_PRIVATE_KEY": "value"},
+            [{"SYNTHETIC_PRIVATE_KEY": "value"}],
+            [["SYNTHETIC_PRIVATE_INPUT"]],
+            [None],
+            ["33333333-3333-4333-8333-333333333333"] * 51,
+        ],
+        ids=["string", "object", "object-member", "list-member", "null-member", "raw-over-limit"],
+    )
+    async def test_broadcast_lists_reject_invalid_json_without_server_errors_or_side_effects(
+        path: str, value: object,
+    ) -&gt; None:
+        app, saved = application()
+        body = {} if path == "/links" else payload()
+        body["whatsapp_broadcast_group_ids"] = value
+        transport = ASGITransport(app, raise_app_exceptions=False)
+        async with AsyncClient(transport=transport, base_url="http://test") as client:
+            response = await client.post(path, json=body)
+&gt;       assert response.status_code == 422, response.text
+E       AssertionError: {"error":{"code":"INTERNAL_SERVER_ERROR","message":"An unexpected error occurred. Please try again."}}
+E       assert 500 == 422
+E        +  where 500 = &lt;Response [500 Internal Server Error]&gt;.status_code
+
+tests\unit\presentation\test_group_collection_input_contract.py:155: AssertionError</failure></testcase><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_broadcast_lists_reject_invalid_json_without_server_errors_or_side_effects[list-member-/update]" time="0.003"><failure message="AssertionError: {&quot;error&quot;:{&quot;code&quot;:&quot;INTERNAL_SERVER_ERROR&quot;,&quot;message&quot;:&quot;An unexpected error occurred. Please try again.&quot;}}&#10;assert 500 == 422&#10; +  where 500 = &lt;Response [500 Internal Server Error]&gt;.status_code">path = '/update', value = [['SYNTHETIC_PRIVATE_INPUT']]
+
+    @pytest.mark.parametrize("path", ["/create", "/update", "/links"])
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "SYNTHETIC_PRIVATE_INPUT",
+            {"SYNTHETIC_PRIVATE_KEY": "value"},
+            [{"SYNTHETIC_PRIVATE_KEY": "value"}],
+            [["SYNTHETIC_PRIVATE_INPUT"]],
+            [None],
+            ["33333333-3333-4333-8333-333333333333"] * 51,
+        ],
+        ids=["string", "object", "object-member", "list-member", "null-member", "raw-over-limit"],
+    )
+    async def test_broadcast_lists_reject_invalid_json_without_server_errors_or_side_effects(
+        path: str, value: object,
+    ) -&gt; None:
+        app, saved = application()
+        body = {} if path == "/links" else payload()
+        body["whatsapp_broadcast_group_ids"] = value
+        transport = ASGITransport(app, raise_app_exceptions=False)
+        async with AsyncClient(transport=transport, base_url="http://test") as client:
+            response = await client.post(path, json=body)
+&gt;       assert response.status_code == 422, response.text
+E       AssertionError: {"error":{"code":"INTERNAL_SERVER_ERROR","message":"An unexpected error occurred. Please try again."}}
+E       assert 500 == 422
+E        +  where 500 = &lt;Response [500 Internal Server Error]&gt;.status_code
+
+tests\unit\presentation\test_group_collection_input_contract.py:155: AssertionError</failure></testcase><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_broadcast_lists_reject_invalid_json_without_server_errors_or_side_effects[list-member-/links]" time="0.003"><failure message="AssertionError: {&quot;error&quot;:{&quot;code&quot;:&quot;INTERNAL_SERVER_ERROR&quot;,&quot;message&quot;:&quot;An unexpected error occurred. Please try again.&quot;}}&#10;assert 500 == 422&#10; +  where 500 = &lt;Response [500 Internal Server Error]&gt;.status_code">path = '/links', value = [['SYNTHETIC_PRIVATE_INPUT']]
+
+    @pytest.mark.parametrize("path", ["/create", "/update", "/links"])
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "SYNTHETIC_PRIVATE_INPUT",
+            {"SYNTHETIC_PRIVATE_KEY": "value"},
+            [{"SYNTHETIC_PRIVATE_KEY": "value"}],
+            [["SYNTHETIC_PRIVATE_INPUT"]],
+            [None],
+            ["33333333-3333-4333-8333-333333333333"] * 51,
+        ],
+        ids=["string", "object", "object-member", "list-member", "null-member", "raw-over-limit"],
+    )
+    async def test_broadcast_lists_reject_invalid_json_without_server_errors_or_side_effects(
+        path: str, value: object,
+    ) -&gt; None:
+        app, saved = application()
+        body = {} if path == "/links" else payload()
+        body["whatsapp_broadcast_group_ids"] = value
+        transport = ASGITransport(app, raise_app_exceptions=False)
+        async with AsyncClient(transport=transport, base_url="http://test") as client:
+            response = await client.post(path, json=body)
+&gt;       assert response.status_code == 422, response.text
+E       AssertionError: {"error":{"code":"INTERNAL_SERVER_ERROR","message":"An unexpected error occurred. Please try again."}}
+E       assert 500 == 422
+E        +  where 500 = &lt;Response [500 Internal Server Error]&gt;.status_code
+
+tests\unit\presentation\test_group_collection_input_contract.py:155: AssertionError</failure></testcase><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_broadcast_lists_reject_invalid_json_without_server_errors_or_side_effects[null-member-/create]" time="0.003" /><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_broadcast_lists_reject_invalid_json_without_server_errors_or_side_effects[null-member-/update]" time="0.003" /><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_broadcast_lists_reject_invalid_json_without_server_errors_or_side_effects[null-member-/links]" time="0.003" /><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_broadcast_lists_reject_invalid_json_without_server_errors_or_side_effects[raw-over-limit-/create]" time="0.003"><failure message="AssertionError: {&quot;cities&quot;:[&quot;Delhi&quot;],&quot;questions&quot;:[]}&#10;assert 201 == 422&#10; +  where 201 = &lt;Response [201 Created]&gt;.status_code">path = '/create'
+value = ['33333333-3333-4333-8333-333333333333', '33333333-3333-4333-8333-333333333333', '33333333-3333-4333-8333-333333333333...3333-3333-4333-8333-333333333333', '33333333-3333-4333-8333-333333333333', '33333333-3333-4333-8333-333333333333', ...]
+
+    @pytest.mark.parametrize("path", ["/create", "/update", "/links"])
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "SYNTHETIC_PRIVATE_INPUT",
+            {"SYNTHETIC_PRIVATE_KEY": "value"},
+            [{"SYNTHETIC_PRIVATE_KEY": "value"}],
+            [["SYNTHETIC_PRIVATE_INPUT"]],
+            [None],
+            ["33333333-3333-4333-8333-333333333333"] * 51,
+        ],
+        ids=["string", "object", "object-member", "list-member", "null-member", "raw-over-limit"],
+    )
+    async def test_broadcast_lists_reject_invalid_json_without_server_errors_or_side_effects(
+        path: str, value: object,
+    ) -&gt; None:
+        app, saved = application()
+        body = {} if path == "/links" else payload()
+        body["whatsapp_broadcast_group_ids"] = value
+        transport = ASGITransport(app, raise_app_exceptions=False)
+        async with AsyncClient(transport=transport, base_url="http://test") as client:
+            response = await client.post(path, json=body)
+&gt;       assert response.status_code == 422, response.text
+E       AssertionError: {"cities":["Delhi"],"questions":[]}
+E       assert 201 == 422
+E        +  where 201 = &lt;Response [201 Created]&gt;.status_code
+
+tests\unit\presentation\test_group_collection_input_contract.py:155: AssertionError</failure></testcase><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_broadcast_lists_reject_invalid_json_without_server_errors_or_side_effects[raw-over-limit-/update]" time="0.003"><failure message="AssertionError: {&quot;cities&quot;:[&quot;Delhi&quot;],&quot;questions&quot;:null}&#10;assert 201 == 422&#10; +  where 201 = &lt;Response [201 Created]&gt;.status_code">path = '/update'
+value = ['33333333-3333-4333-8333-333333333333', '33333333-3333-4333-8333-333333333333', '33333333-3333-4333-8333-333333333333...3333-3333-4333-8333-333333333333', '33333333-3333-4333-8333-333333333333', '33333333-3333-4333-8333-333333333333', ...]
+
+    @pytest.mark.parametrize("path", ["/create", "/update", "/links"])
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "SYNTHETIC_PRIVATE_INPUT",
+            {"SYNTHETIC_PRIVATE_KEY": "value"},
+            [{"SYNTHETIC_PRIVATE_KEY": "value"}],
+            [["SYNTHETIC_PRIVATE_INPUT"]],
+            [None],
+            ["33333333-3333-4333-8333-333333333333"] * 51,
+        ],
+        ids=["string", "object", "object-member", "list-member", "null-member", "raw-over-limit"],
+    )
+    async def test_broadcast_lists_reject_invalid_json_without_server_errors_or_side_effects(
+        path: str, value: object,
+    ) -&gt; None:
+        app, saved = application()
+        body = {} if path == "/links" else payload()
+        body["whatsapp_broadcast_group_ids"] = value
+        transport = ASGITransport(app, raise_app_exceptions=False)
+        async with AsyncClient(transport=transport, base_url="http://test") as client:
+            response = await client.post(path, json=body)
+&gt;       assert response.status_code == 422, response.text
+E       AssertionError: {"cities":["Delhi"],"questions":null}
+E       assert 201 == 422
+E        +  where 201 = &lt;Response [201 Created]&gt;.status_code
+
+tests\unit\presentation\test_group_collection_input_contract.py:155: AssertionError</failure></testcase><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_broadcast_lists_reject_invalid_json_without_server_errors_or_side_effects[raw-over-limit-/links]" time="0.003"><failure message="AssertionError: {&quot;broadcast_ids&quot;:[&quot;33333333-3333-4333-8333-333333333333&quot;]}&#10;assert 201 == 422&#10; +  where 201 = &lt;Response [201 Created]&gt;.status_code">path = '/links'
+value = ['33333333-3333-4333-8333-333333333333', '33333333-3333-4333-8333-333333333333', '33333333-3333-4333-8333-333333333333...3333-3333-4333-8333-333333333333', '33333333-3333-4333-8333-333333333333', '33333333-3333-4333-8333-333333333333', ...]
+
+    @pytest.mark.parametrize("path", ["/create", "/update", "/links"])
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "SYNTHETIC_PRIVATE_INPUT",
+            {"SYNTHETIC_PRIVATE_KEY": "value"},
+            [{"SYNTHETIC_PRIVATE_KEY": "value"}],
+            [["SYNTHETIC_PRIVATE_INPUT"]],
+            [None],
+            ["33333333-3333-4333-8333-333333333333"] * 51,
+        ],
+        ids=["string", "object", "object-member", "list-member", "null-member", "raw-over-limit"],
+    )
+    async def test_broadcast_lists_reject_invalid_json_without_server_errors_or_side_effects(
+        path: str, value: object,
+    ) -&gt; None:
+        app, saved = application()
+        body = {} if path == "/links" else payload()
+        body["whatsapp_broadcast_group_ids"] = value
+        transport = ASGITransport(app, raise_app_exceptions=False)
+        async with AsyncClient(transport=transport, base_url="http://test") as client:
+            response = await client.post(path, json=body)
+&gt;       assert response.status_code == 422, response.text
+E       AssertionError: {"broadcast_ids":["33333333-3333-4333-8333-333333333333"]}
+E       assert 201 == 422
+E        +  where 201 = &lt;Response [201 Created]&gt;.status_code
+
+tests\unit\presentation\test_group_collection_input_contract.py:155: AssertionError</failure></testcase><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_valid_broadcast_ids_keep_first_order_and_deduplicate[/create]" time="0.003" /><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_valid_broadcast_ids_keep_first_order_and_deduplicate[/update]" time="0.003" /><testcase classname="tests.unit.presentation.test_group_collection_input_contract" name="test_valid_broadcast_ids_keep_first_order_and_deduplicate[/links]" time="0.003" /></testsuite></testsuites>

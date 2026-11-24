@@ -1,4 +1,4 @@
-"""Persistence operations for passport OCR processing jobs."""
+"""Persistence operations for AI passport processing jobs."""
 
 from __future__ import annotations
 
@@ -90,7 +90,9 @@ class PassportProcessingJobRepository:
         return self._to_entity(model) if model else None
 
     async def mark_busy_if_unstarted(
-        self, job_id: uuid.UUID, message: str,
+        self,
+        job_id: uuid.UUID,
+        message: str,
     ) -> PassportProcessingJob | None:
         """Offer manual entry without cancelling a concurrently started worker."""
 
@@ -101,10 +103,7 @@ class PassportProcessingJobRepository:
             .execution_options(populate_existing=True)
         )
         model = result.scalar_one_or_none()
-        if (
-            model is None or model.status != ProcessingJobStatus.QUEUED.value
-            or model.attempts != 0
-        ):
+        if model is None or model.status != ProcessingJobStatus.QUEUED.value or model.attempts != 0:
             return None
         model.status = ProcessingJobStatus.DEAD_LETTER.value
         model.current_stage = "extraction_busy"
@@ -120,7 +119,9 @@ class PassportProcessingJobRepository:
         model.updated_at = _utcnow()
         await self._session.flush()
 
-    async def mark_running(self, job_id: uuid.UUID, *, stage: str = "starting") -> PassportProcessingJob:
+    async def mark_running(
+        self, job_id: uuid.UUID, *, stage: str = "starting"
+    ) -> PassportProcessingJob:
         job, _claimed = await self.claim_running(job_id, stage=stage)
         if job is None:
             raise LookupError(f"Passport processing job {job_id} was not found")
@@ -161,6 +162,17 @@ class PassportProcessingJobRepository:
             await self._session.flush()
             return self._to_entity(model), False
 
+        if model.attempts >= model.max_attempts:
+            model.status = ProcessingJobStatus.DEAD_LETTER.value
+            model.current_stage = "dead_letter"
+            model.error_message = (
+                "Processing attempts exhausted after interruption. Retry manually."
+            )
+            model.finished_at = _utcnow()
+            model.updated_at = _utcnow()
+            await self._session.flush()
+            return self._to_entity(model), False
+
         model.status = ProcessingJobStatus.RUNNING.value
         model.attempts += 1
         model.progress = max(model.progress, 0.05)
@@ -175,7 +187,9 @@ class PassportProcessingJobRepository:
 
         await self._session.commit()
 
-    async def update_progress(self, job_id: uuid.UUID, *, progress: float, stage: str) -> PassportProcessingJob:
+    async def update_progress(
+        self, job_id: uuid.UUID, *, progress: float, stage: str
+    ) -> PassportProcessingJob:
         model = await self._require_model(job_id)
         model.progress = min(max(progress, 0.0), 1.0)
         model.current_stage = stage
@@ -183,7 +197,9 @@ class PassportProcessingJobRepository:
         await self._session.flush()
         return self._to_entity(model)
 
-    async def mark_retryable_failure(self, job_id: uuid.UUID, message: str) -> PassportProcessingJob:
+    async def mark_retryable_failure(
+        self, job_id: uuid.UUID, message: str
+    ) -> PassportProcessingJob:
         model = await self._require_model(job_id)
         model.status = ProcessingJobStatus.QUEUED.value
         model.current_stage = "retry_queued"
@@ -236,7 +252,9 @@ class PassportProcessingJobRepository:
         await self._session.flush()
         return self._to_entity(model)
 
-    async def mark_cancelled(self, job_id: uuid.UUID, message: str | None = None) -> PassportProcessingJob:
+    async def mark_cancelled(
+        self, job_id: uuid.UUID, message: str | None = None
+    ) -> PassportProcessingJob:
         model = await self._require_model(job_id)
         model.cancel_requested = True
         model.status = ProcessingJobStatus.CANCELLED.value
@@ -298,9 +316,7 @@ class PassportProcessingJobRepository:
         """
         now = _utcnow()
         queued_cutoff = now - timedelta(seconds=60)
-        running_cutoff = now - timedelta(
-            seconds=get_settings().processing_job_timeout_seconds + 30
-        )
+        running_cutoff = now - timedelta(seconds=get_settings().processing_job_timeout_seconds + 30)
         rows = await self._session.execute(
             select(PassportProcessingJobModel)
             .where(
@@ -327,7 +343,9 @@ class PassportProcessingJobRepository:
                 model.status = ProcessingJobStatus.DEAD_LETTER.value
                 model.current_stage = "dead_letter"
                 model.finished_at = now
-                model.error_message = "Processing attempts exhausted after interruption. Retry manually."
+                model.error_message = (
+                    "Processing attempts exhausted after interruption. Retry manually."
+                )
                 continue
             model.status = ProcessingJobStatus.QUEUED.value
             model.current_stage = "recovery_queued"

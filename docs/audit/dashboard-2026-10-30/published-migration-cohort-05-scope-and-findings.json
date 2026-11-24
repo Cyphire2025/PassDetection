@@ -1,0 +1,142 @@
+{
+  "current_runtime_defects_proved": [],
+  "scope_exceptions": [
+    {
+      "path": "backend/alembic/versions/0061_email_integrations.py",
+      "sha256": "567df96f738c17c89d0d1eb84a9b3f3334d97e06b60b97d094f54ea04c0d5830",
+      "physical_lines": 1042,
+      "classification": "operations-inbox-deferred",
+      "scope": "metadata-only classification, not source review",
+      "notes": "Operations Inbox migration deferred by user; no new physical source read"
+    },
+    {
+      "path": "backend/alembic/versions/0065_ai_travel_inbox.py",
+      "sha256": "05c245e80edd625f3726843fbab08005235490ebeebe101fdb14b9b85fc76158",
+      "physical_lines": 1274,
+      "classification": "operations-inbox-deferred",
+      "scope": "metadata-only classification, not source review",
+      "notes": "Operations Inbox migration deferred by user; no new physical source read"
+    },
+    {
+      "path": "backend/alembic/versions/0073_mobile_otp_single_pending_challenge.py",
+      "sha256": "98d74b02b7facdb600a6503020b45fc19ffa9ae0d7d61cea753929384f4e4381",
+      "physical_lines": 61,
+      "classification": "mobile-only-excluded",
+      "scope": "metadata-only classification, not source review",
+      "notes": "Dedicated native OTP pending-challenge index, mobile-only by table/operation metadata"
+    },
+    {
+      "path": "backend/alembic/versions/0076_mobile_push_receipts.py",
+      "sha256": "faea33d24a4cbf44b7c51cb9161eb8f13f9181f07ca46c3134e5ff3ee34df238",
+      "physical_lines": 162,
+      "classification": "mobile-only-excluded",
+      "scope": "metadata-only classification, not source review",
+      "notes": "Dedicated native push delivery receipts, mobile-only by table/operation metadata"
+    },
+    {
+      "path": "backend/alembic/versions/0081_mobile_app_attest_keys.py",
+      "sha256": "31b1dc9b0cc74225a5b6e6c84f3aababc8f6456efd70e51e12ccd27801071636",
+      "physical_lines": 112,
+      "classification": "mobile-only-excluded",
+      "scope": "metadata-only classification, not source review",
+      "notes": "Dedicated native AppAttest keys, mobile-only by table/operation metadata"
+    }
+  ],
+  "mixed_partial_files": [
+    {
+      "path": "backend/alembic/versions/0064_document_delivery_resends.py",
+      "sha256": "db577e33f59823db833015f0e5de5ea49c7306bb7d13e39218121861d7d9a56d",
+      "reviewed_line_ranges": [
+        [
+          1,
+          22
+        ],
+        [
+          104,
+          128
+        ]
+      ],
+      "notes": "Mixed migration encountered while following retained title. Retained declarations/drop document-delivery uniqueness and deterministic downgrade keep newest attempt; embedded dedicated Inbox SQL lines23\u2013103 is DEFERRED BY USER and not audited/credited. Physical file128 lines was encountered, but full-source review deliberately not claimed."
+    },
+    {
+      "path": "backend/alembic/versions/0069_gc_mobile_foundation.py",
+      "sha256": "875b18a3f61ec35322979c6781305bb21666bc9c3ea82824acda404802c9798e",
+      "reviewed_line_ranges": [
+        [
+          1,
+          968
+        ],
+        [
+          1061,
+          1250
+        ],
+        [
+          1455,
+          1544
+        ],
+        [
+          1795,
+          1802
+        ]
+      ],
+      "notes": "Shared dashboard organizations/client-manager/access/content plus actual dashboard session/revocation/sync schema dependencies read. Defaults keep group access/audiences off, composite org/tenant/group content and assignment FKs, hashed invitation and refresh identities, version/checksum/status constraints retained. Native-only OTP/push/family delegation/idempotency/incident bodies excluded from this dashboard audit; no native feature review or enabled access created."
+    }
+  ],
+  "actual_dashboard_dependency_evidence": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_group_directory.py",
+      "sha256": "4f72610b1b8afc2f03301dbae3f6f6886143668a640a3ee0cfd4e9f86e9fa8b6",
+      "physical_lines": 351,
+      "review_scope": "focused",
+      "status": "focused",
+      "reviewer": "document_ui_architecture",
+      "reviewed_line_ranges": [
+        [
+          190,
+          218
+        ]
+      ],
+      "notes": "Only immediate dashboard shared-schema query/revocation context physically read. No new full-file coverage or runtime/test claim."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_group_access_support.py",
+      "sha256": "238744b3b55e57baeab37e1533a126a4a91def27c845cd75364474a29ef0ab24",
+      "physical_lines": 268,
+      "review_scope": "focused",
+      "status": "focused",
+      "reviewer": "document_ui_architecture",
+      "reviewed_line_ranges": [
+        [
+          182,
+          207
+        ]
+      ],
+      "notes": "Only immediate dashboard shared-schema query/revocation context physically read. No new full-file coverage or runtime/test claim."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_sessions.py",
+      "sha256": "d61e6747da999d75c058c446a74ab11e8d9841185cacc7d92d4399085790570e",
+      "physical_lines": 153,
+      "review_scope": "focused",
+      "status": "focused",
+      "reviewer": "document_ui_architecture",
+      "reviewed_line_ranges": [
+        [
+          27,
+          61
+        ],
+        [
+          70,
+          150
+        ]
+      ],
+      "notes": "Only immediate dashboard shared-schema query/revocation context physically read. No new full-file coverage or runtime/test claim."
+    }
+  ],
+  "open_evidence": [
+    "Source-only nullable CHECK relationships are not a substitute for current request/service validation.",
+    "Published multi-autocommit index/constraint migrations need actual populated Postgres interruption/retry evidence; no failure invented.",
+    "Consent, crypto, current tenant authority, retention and object cleanup require runtime/service proof beyond schema declarations."
+  ],
+  "notes": "No edits to published scripts, native application, deferred Inbox or dashboard runtime. Dedicated source not read is never marked full."
+}

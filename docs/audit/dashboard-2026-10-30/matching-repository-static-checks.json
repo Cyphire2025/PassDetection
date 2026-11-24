@@ -1,0 +1,30 @@
+{
+  "source_sha256": {
+    "backend/app/infrastructure/repositories/passport_whatsapp_matching_repository.py": "fb4c0c77ef572e171220c867bd79c202c507ac8a19248d884913d512da7f65cc",
+    "backend/app/infrastructure/repositories/passport_whatsapp_match_evidence.py": "95a129253bb13ea044c07afa3cafdc6618cee4e8f3f8a09aa354a91a832f2a5f",
+    "backend/app/infrastructure/repositories/passport_whatsapp_match_expansion.py": "0fc4b00ff43da4d81f4d401725903e00bcd9923949636cd32421879b2178fc65",
+    "backend/app/infrastructure/repositories/passport_whatsapp_match_projection.py": "51d13234f9948b37baa82962ff00804d1369b8c5be6a9fe4b843e9fd47da88f2",
+    "backend/app/infrastructure/repositories/passport_whatsapp_match_sources.py": "0b965403ff5c03b39be84fc81c342ef164cdf3b20d3834048ef07a245db9b8f1",
+    "backend/app/infrastructure/repositories/passport_whatsapp_match_targeted.py": "10b853e7a253674046ae8010044defec5fcc7e48282f58b971921302b21c0bda"
+  },
+  "checks": [
+    {
+      "cwd": "backend",
+      "command": "../.tmp/dashboard-audit-venv/Scripts/python.exe -m mypy app/infrastructure/repositories/passport_whatsapp_matching_repository.py app/infrastructure/repositories/passport_whatsapp_match_evidence.py app/infrastructure/repositories/passport_whatsapp_match_expansion.py app/infrastructure/repositories/passport_whatsapp_match_projection.py app/infrastructure/repositories/passport_whatsapp_match_sources.py app/infrastructure/repositories/passport_whatsapp_match_targeted.py",
+      "exit_code": 0,
+      "output": "Success: no issues found in6 source files"
+    },
+    {
+      "cwd": ".",
+      "command": ".tmp/dashboard-audit-venv/Scripts/python.exe -m ruff check --no-fix backend/app/infrastructure/repositories/passport_whatsapp_match*.py backend/tests/unit/infrastructure/test_passport_whatsapp_match_fail_closed.py",
+      "exit_code": 0,
+      "output": "All checks passed!"
+    },
+    {
+      "cwd": ".",
+      "command": ".tmp/dashboard-audit-venv/Scripts/python.exe backend/scripts/verify_architecture_boundaries.py",
+      "exit_code": 0,
+      "output": "Architecture boundaries verified: isolated domain; no application HTTP dependencies; only explicitly reviewed infrastructure edges"
+    }
+  ]
+}

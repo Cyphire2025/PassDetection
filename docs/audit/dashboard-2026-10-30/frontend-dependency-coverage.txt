@@ -1,0 +1,54 @@
+
+> frontend@0.1.0 test:unit:coverage
+> vitest run --coverage --maxWorkers=1 --pool=threads
+
+
+ RUN  v4.1.12 C:/Users/nipun/Desktop/PassDetection/frontend
+      Coverage enabled with v8
+
+
+ Test Files  230 passed (230)
+      Tests  1554 passed (1554)
+   Start at  20:33:49
+   Duration  358.98s (transform 3.74s, setup 41.18s, import 22.87s, tests 120.10s, environment 135.57s)
+
+ % Coverage report from v8
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------|---------|----------|---------|---------|-------------------
+All files          |   93.77 |    87.77 |   94.89 |   97.23 |                   
+ frontend          |     100 |    84.21 |     100 |     100 |                   
+  proxy.ts         |     100 |    84.21 |     100 |     100 | 46-49,93          
+ ...ponents/shared |   94.11 |       80 |     100 |     100 |                   
+  ...-boundary.tsx |   94.11 |       80 |     100 |     100 | 28,36             
+ .../components/ui |   95.62 |    91.07 |     100 |   98.21 |                   
+  ...us-return.tsx |     100 |       70 |     100 |     100 | 12-13,31          
+  ...d-boundary.ts |      94 |    92.22 |     100 |   97.46 | 21,74             
+ ...uth/components |   96.29 |      100 |   85.71 |   95.65 |                   
+  ...d-content.tsx |   96.29 |      100 |   85.71 |   95.65 | 50                
+ ...nts/components |      96 |    97.05 |     100 |     100 |                   
+  ...ew-dialog.tsx |      96 |    97.05 |     100 |     100 | 138               
+ ...rts/components |   91.66 |    80.95 |     100 |   93.75 |                   
+  ...navigation.ts |   91.66 |    80.95 |     100 |   93.75 | 41-42             
+ ...rch/components |   90.09 |    86.76 |   86.95 |   92.63 |                   
+  ...al-search.tsx |   90.09 |    86.76 |   86.95 |   92.63 | ...08-111,237-238 
+ ...oad/components |   92.85 |    85.71 |   94.11 |   93.47 |                   
+  ...ew-panels.tsx |   92.85 |    85.71 |   94.11 |   93.47 | 66,240,301        
+ ...s/upload/hooks |   90.93 |    81.53 |   91.37 |   97.15 |                   
+  ...-documents.ts |   90.55 |    79.21 |    93.1 |   96.75 | ...10,114-115,393 
+  ...-operation.ts |     100 |     87.5 |     100 |     100 | 32,39             
+  ...submission.ts |   87.09 |    84.61 |      80 |   96.87 | 160-161           
+ ...pload/services |   97.69 |    93.19 |     100 |   99.09 |                   
+  ...load-state.ts |   94.73 |    96.42 |     100 |     100 | 34                
+  ...validation.ts |   96.92 |    90.78 |     100 |   98.11 | 40                
+  ...extraction.ts |     100 |    93.33 |     100 |     100 | 58,68             
+ .../observability |   94.73 |    88.88 |   85.71 |     100 |                   
+  render-errors.ts |   94.73 |    88.88 |   85.71 |     100 | 17,25-32          
+-------------------|---------|----------|---------|---------|-------------------
+
+=============================== Coverage summary ===============================
+Statements   : 93.77% ( 1009/1076 )
+Branches     : 87.77% ( 811/924 )
+Functions    : 94.89% ( 223/235 )
+Lines        : 97.23% ( 878/903 )
+================================================================================

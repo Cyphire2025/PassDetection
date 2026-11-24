@@ -1,0 +1,431 @@
+{
+  "recorded_at": "2026-10-30T21:31:01.285487+00:00",
+  "scope": "Read-only architecture follow-through for the 19 remaining oversized passport/upload runtime owners while parent integration checkpoint 2 holds all frontend runtime/tests/config frozen.",
+  "runtime_files_fully_read": 19,
+  "runtime_physical_lines": 8315,
+  "runtime_files_pending": [],
+  "tests_fully_read": 16,
+  "execution_in_this_pass": "None. Parent combined checks are independent evidence. No runtime/test/config edits were made in this pass.",
+  "reviewer": "branding_visuals",
+  "records": [
+    {
+      "path": "frontend/features/passports/components/use-passport-group-controller.tsx",
+      "sha256": "9eded5c8115c83d0fb1d2b610383427b88a9bda155476da93507a7683f1385a2",
+      "physical_lines": 722,
+      "review_scope": "full",
+      "status": "fully-read-architecture-candidate",
+      "review_method": "Every physical source line read in bounded source batches; no execution used as a substitute for source review.",
+      "extraction_seam": "Separate canonical query/navigation, revision-aware selection, menu lifetime, import preview/save, image/download and trip editor state.",
+      "preserve": "Preserve authoritative ordered_selection_snapshot, extraction revisions, 1500 selection cap, 500 image cap, old-data routes, filter URL restoration and role flags.",
+      "candidate_ids": [
+        "PRA-01",
+        "PRA-04",
+        "PRA-05"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/components/upload-link-list.tsx",
+      "sha256": "7076f6d875be5a455335f2eefbad1bdbf3f05ba6f41b0087f23835110ca4810c",
+      "physical_lines": 717,
+      "review_scope": "full",
+      "status": "fully-read-architecture-candidate",
+      "review_method": "Every physical source line read in bounded source batches; no execution used as a substitute for source review.",
+      "extraction_seam": "Separate list/disclosure/action state, responsive table/actions and retention-choice dialog.",
+      "preserve": "Preserve explicit retention choices, typed deletion errors, no automatic retry, pending dismissal protection and nested editing.",
+      "candidate_ids": [
+        "PRA-01",
+        "PRA-06"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/components/group-whatsapp-broadcast-panel.tsx",
+      "sha256": "924d3ed2f9c2efa429fbd67292154e08b1b042d7f24e065976d0262e71413e7b",
+      "physical_lines": 622,
+      "review_scope": "full",
+      "status": "fully-read-architecture-candidate",
+      "review_method": "Every physical source line read in bounded source batches; no execution used as a substitute for source review.",
+      "extraction_seam": "Separate linked-broadcast summary, tracking query/filter/pagination state, tracking controls and reversible roster resolution state.",
+      "preserve": "Preserve backend can_manage plus readOnly guards, unique aggregate counts, current-filter exports, 50-row pagination, request IDs and replacement/reject/restore semantics.",
+      "candidate_ids": [
+        "PRA-01"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/components/passport-list.tsx",
+      "sha256": "d80483e20fdc44e33e666cced491bd3fe29cc2d27491e02d00c7306398c912db",
+      "physical_lines": 503,
+      "review_scope": "full",
+      "status": "fully-read-architecture-candidate",
+      "review_method": "Every physical source line read in bounded source batches; no execution used as a substitute for source review.",
+      "extraction_seam": "Separate deferred filters/group selection, summary/toolbar and shared desktop/mobile row presentation.",
+      "preserve": "Preserve selection through filters, selected-group export options, active/closed route policy and deferred search.",
+      "candidate_ids": [
+        "PRA-06"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/components/passport-export-dialog.tsx",
+      "sha256": "c0faeffcd5403b69e85c4708aa2314b26db602f0f41db209cf9ad4170b6c40aa",
+      "physical_lines": 478,
+      "review_scope": "full",
+      "status": "fully-read-architecture-candidate",
+      "review_method": "Every physical source line read in bounded source batches; no execution used as a substitute for source review.",
+      "extraction_seam": "Separate history query/detail pagination, export-choice state, history list/detail presentation and pending download admission.",
+      "preserve": "Preserve completion-time history, deleted-source snapshots, 25/50 paging, incremental baseline compatibility, fixed grouping fields and streamed completion handshake.",
+      "candidate_ids": []
+    },
+    {
+      "path": "frontend/features/passports/api/upload-links.api.ts",
+      "sha256": "7cae53e363364d45600a5f3279c1ca0387acb29a0c27a6d14319e15e70b1a233",
+      "physical_lines": 473,
+      "review_scope": "full",
+      "status": "fully-read-architecture-candidate",
+      "review_method": "Every physical source line read in bounded source batches; no execution used as a substitute for source review.",
+      "extraction_seam": "Separate typed contracts, private CRUD/assignment, private WhatsApp roster methods and public token/visitor/qualifier transport with a stable facade.",
+      "preserve": "Public token methods, visitor telemetry and qualifier proof must remain public. Preserve company revision, request IDs, session headers, keepalive, credentials and cache settings.",
+      "candidate_ids": [
+        "PRA-01"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/components/create-upload-link-modal.tsx",
+      "sha256": "9a8ac4e5a176974434ab8a908102fffebd51db174a7dea8c7f1eb4b7cd596514",
+      "physical_lines": 457,
+      "review_scope": "full",
+      "status": "fully-read-architecture-candidate",
+      "review_method": "Every physical source line read in bounded source batches; no execution used as a substitute for source review.",
+      "extraction_seam": "Separate form/creation controller, trip and collection form presentation, and success/link-copy/banner-retry presentation.",
+      "preserve": "Preserve synchronous creation gate, session/agency draft reset, no duplicate group on banner failure, import-only normalization and public target URLs.",
+      "candidate_ids": [
+        "PRA-01",
+        "PRA-07"
+      ]
+    },
+    {
+      "path": "frontend/features/upload/components/upload-flow-fields.tsx",
+      "sha256": "7def6b3a17f61905a109a410937547bab11edb6f9a01e284ac4c40329c9aee22",
+      "physical_lines": 425,
+      "review_scope": "full",
+      "status": "fully-read-architecture-candidate",
+      "review_method": "Every physical source line read in bounded source batches; no execution used as a substitute for source review.",
+      "extraction_seam": "Trace each export then separate current configured client/custom/departure controls from any proven retired legacy-only name/contact composition.",
+      "preserve": "Fresh and returning flows still use shared controls; delete only a resolver-proven closed export/dependency set, retaining current acceptance validation.",
+      "candidate_ids": [
+        "PRA-02"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/components/group-whatsapp-dialogs.tsx",
+      "sha256": "323588909da2d41c4e98e35d9a69acdddb38d07726cd5e4843c2123d832a51e7",
+      "physical_lines": 421,
+      "review_scope": "full",
+      "status": "fully-read-architecture-candidate",
+      "review_method": "Every physical source line read in bounded source batches; no execution used as a substitute for source review.",
+      "extraction_seam": "Split replacement selection/resolution dialog from broadcast-link editor; isolate replacement candidate presentation if needed.",
+      "preserve": "Preserve stable replacement request ID, current-recipient evidence, explicit unlink-all confirmation and nested modal focus/escape behavior.",
+      "candidate_ids": [
+        "PRA-01",
+        "PRA-08"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/components/group-whatsapp-tracking-table.tsx",
+      "sha256": "53ebfb142703b4fc7f8d6ca837c8ecb7aa85524c5b3fd175f6333600165ecfff",
+      "physical_lines": 417,
+      "review_scope": "full",
+      "status": "fully-read-architecture-candidate",
+      "review_method": "Every physical source line read in bounded source batches; no execution used as a substitute for source review.",
+      "extraction_seam": "Separate tracking stat/status/detail primitives from table row identity/evidence and reversible action presentation.",
+      "preserve": "Preserve candidate versus accepted submission IDs, duplicate markers, submission-led replacement/removed rows, evidence labels and backend-authorized action visibility.",
+      "candidate_ids": []
+    },
+    {
+      "path": "frontend/features/passports/utils/passport-review.ts",
+      "sha256": "b77ebb9be8153af5d0839f0539050e77e690c30aea89f41294d30e34bb98c99d",
+      "physical_lines": 389,
+      "review_scope": "full",
+      "status": "fully-read-architecture-candidate",
+      "review_method": "Every physical source line read in bounded source batches; no execution used as a substitute for source review.",
+      "extraction_seam": "Separate approval command/feedback, AI field-evidence display and reviewer/confidence formatting.",
+      "preserve": "Preserve nine-field whitelist, explicit empty surname, extraction revision, stale-after-edit verdict invalidation, unreadable confidence suppression and no raw reviewer UUID.",
+      "candidate_ids": []
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-model.tsx",
+      "sha256": "2accc9cbb27095d413480e1992057816ebe6546fc3c688a2ea3607c1dcefa2f2",
+      "physical_lines": 386,
+      "review_scope": "full",
+      "status": "fully-read-architecture-candidate",
+      "review_method": "Every physical source line read in bounded source batches; no execution used as a substitute for source review.",
+      "extraction_seam": "Separate readonly dashboard selectors, duplicate clustering/display, mobile card and re-extraction control.",
+      "preserve": "Preserve pending extraction/workflow semantics, role-controlled actions, dates and private document routes.",
+      "candidate_ids": [
+        "PRA-03",
+        "PRA-05"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-selection-toolbar.tsx",
+      "sha256": "2afdefd3960e5a1848b3447720b1475fd8c4fef8a07ebd900f6de95b2139d1f8",
+      "physical_lines": 364,
+      "review_scope": "full",
+      "status": "fully-read-architecture-candidate",
+      "review_method": "Every physical source line read in bounded source batches; no execution used as a substitute for source review.",
+      "extraction_seam": "Separate search/filter/sort controls, selection preset/custom count and accessible bulk disclosure/actions.",
+      "preserve": "Preserve cross-page selection, all-data server order, independent caps, role guards and keyboard return focus.",
+      "candidate_ids": [
+        "PRA-04",
+        "PRA-05"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-roster-panel.tsx",
+      "sha256": "0862246bb52bd3f25e1f2ad98c4e657533c9ad41c774affc4182b62b38a6440e",
+      "physical_lines": 349,
+      "review_scope": "full",
+      "status": "fully-read-architecture-candidate",
+      "review_method": "Every physical source line read in bounded source batches; no execution used as a substitute for source review.",
+      "extraction_seam": "Separate paged/empty/error shell, desktop row/table and mobile card grouping.",
+      "preserve": "Preserve duplicate-cluster boundaries, server sort/filter/paging, document view behavior and selected-row state.",
+      "candidate_ids": [
+        "PRA-05"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/hooks/use-passports.ts",
+      "sha256": "91a52e9a748f4f562059fd3828c4ddac9f4d2e635bf36dba393f8790564c31d8",
+      "physical_lines": 349,
+      "review_scope": "full",
+      "status": "fully-read-architecture-candidate",
+      "review_method": "Every physical source line read in bounded source batches; no execution used as a substitute for source review.",
+      "extraction_seam": "Split query owners, review/re-extraction mutations, export/download mutations and bulk operations; use the existing private-mutation boundary for private writes after proof.",
+      "preserve": "Preserve invocation actor/authority through global and local onMutate awaits, revision payloads and guarded cache writes; public upload flows are separate.",
+      "candidate_ids": [
+        "PRA-01"
+      ]
+    },
+    {
+      "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "sha256": "87ad595aaa0f39735b0393e23b1d3a4db05f3e7f09b36080ff5f1297f05c2258",
+      "physical_lines": 322,
+      "review_scope": "full",
+      "status": "fully-read-architecture-candidate",
+      "review_method": "Every physical source line read in bounded source batches; no execution used as a substitute for source review.",
+      "extraction_seam": "Trace each named export and type dependency; separate current date/review/error/sleep helpers from a proven retired family/session closure.",
+      "preserve": "Do not remove shared retry/error/date or review gates merely because old legacy screens were retired.",
+      "candidate_ids": [
+        "PRA-02"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/components/upload-link-settings.tsx",
+      "sha256": "f9d4158c45ed1ed5cc74c075a3ae90be496d217bde3e5f711809ce49705a7ecc",
+      "physical_lines": 310,
+      "review_scope": "full",
+      "status": "fully-read-architecture-candidate",
+      "review_method": "Every physical source line read in bounded source batches; no execution used as a substitute for source review.",
+      "extraction_seam": "Separate pure normalization/validation from document, travel/professional and custom-field sections.",
+      "preserve": "Preserve ECR address-page coupling, independent required flags, disabled-method validation, legacy airport inference, ordered additional languages and custom-label uniqueness.",
+      "candidate_ids": []
+    },
+    {
+      "path": "frontend/features/passports/utils/passport-group-navigation.ts",
+      "sha256": "39f888b178c2db67a3b919f8e13886514f499077d7b05346ff585a5726ae2ecd",
+      "physical_lines": 308,
+      "review_scope": "full",
+      "status": "fully-read-architecture-candidate",
+      "review_method": "Every physical source line read in bounded source batches; no execution used as a substitute for source review.",
+      "extraction_seam": "Separate pure URL schema/serialization from owner-bound 12-hour session-storage navigation context.",
+      "preserve": "Preserve UUID and length bounds, 10000 ID cap, TTL/future-time checks, storage-denied safe cleanup and keyboard editable-target exclusion.",
+      "candidate_ids": []
+    },
+    {
+      "path": "frontend/features/passports/hooks/use-upload-links.ts",
+      "sha256": "4ba2545c4e4a304177a3462590ec58a08bccaa5660f536ee9e9b67e172326fe1",
+      "physical_lines": 303,
+      "review_scope": "full",
+      "status": "fully-read-architecture-candidate",
+      "review_method": "Every physical source line read in bounded source batches; no execution used as a substitute for source review.",
+      "extraction_seam": "Separate public token observer, private list/query hooks and private CRUD/roster mutations; preserve the public facade.",
+      "preserve": "Keep primary public retry/remount recovery and terminal status handling unchanged. Private writes require initiation owner continuity and cache fences.",
+      "candidate_ids": [
+        "PRA-01"
+      ]
+    }
+  ],
+  "test_records": [
+    {
+      "path": "frontend/features/passports/hooks/use-upload-links.test.tsx",
+      "sha256": "5ee516b5ba5212395afea31f8326c302b3b18f2f3c94d288f1d80a2120cfab3c",
+      "physical_lines": 43,
+      "review_scope": "full",
+      "status": "physically-read-not-executed-in-freeze"
+    },
+    {
+      "path": "frontend/features/passports/hooks/use-upload-link-retry.test.tsx",
+      "sha256": "b38ad7d95e728efbd299d130e2c5e054cb60de051824ff883e6d6803572df161",
+      "physical_lines": 33,
+      "review_scope": "full",
+      "status": "physically-read-not-executed-in-freeze"
+    },
+    {
+      "path": "frontend/features/passports/api/upload-links-whatsapp.test.ts",
+      "sha256": "44226035f5a8e40ae8bace7eff90c41c4ab8be851de6437d0beb142232e6433c",
+      "physical_lines": 41,
+      "review_scope": "full",
+      "status": "physically-read-not-executed-in-freeze"
+    },
+    {
+      "path": "frontend/features/passports/components/create-upload-link-modal.test.tsx",
+      "sha256": "f09750cf7f4b7193876cc8ac29090d943c55e8805a61a8577356af7c5554c9aa",
+      "physical_lines": 249,
+      "review_scope": "full",
+      "status": "physically-read-not-executed-in-freeze"
+    },
+    {
+      "path": "frontend/features/passports/components/upload-link-settings.test.tsx",
+      "sha256": "03d35974d87eb80a02f53e714cf5f8417fa59cd6fe2ba8df022e0d7100ed746e",
+      "physical_lines": 235,
+      "review_scope": "full",
+      "status": "physically-read-not-executed-in-freeze"
+    },
+    {
+      "path": "frontend/features/passports/components/upload-link-list.test.tsx",
+      "sha256": "d2674b89f80710f666896eff5c6f03f0d259d49283177ad2d89c13521a4415b9",
+      "physical_lines": 172,
+      "review_scope": "full",
+      "status": "physically-read-not-executed-in-freeze"
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-selection-toolbar.test.tsx",
+      "sha256": "57d13c98e3c9b6a3cd6863b2ed3e3d3d58d04d2d5573a57391b133d09c8ba4bd",
+      "physical_lines": 56,
+      "review_scope": "full",
+      "status": "physically-read-not-executed-in-freeze"
+    },
+    {
+      "path": "frontend/features/passports/components/passport-export-cancellation.test.tsx",
+      "sha256": "56160fc019e330099383b78814174776d86e19807a06953e39c7903a7f209fb7",
+      "physical_lines": 69,
+      "review_scope": "full",
+      "status": "physically-read-not-executed-in-freeze"
+    },
+    {
+      "path": "frontend/features/passports/components/group-whatsapp-dialogs.test.tsx",
+      "sha256": "ec41d7e6d701df9c0fa8af4e604a9b5510e046ad16807b88485eabdd10b826a6",
+      "physical_lines": 26,
+      "review_scope": "full",
+      "status": "physically-read-not-executed-in-freeze"
+    },
+    {
+      "path": "frontend/features/passports/utils/passport-group-navigation.test.ts",
+      "sha256": "978a85ec9b2653c373c12358ef40791622b9219eef401e2eae686b754e69452a",
+      "physical_lines": 14,
+      "review_scope": "full",
+      "status": "physically-read-not-executed-in-freeze"
+    },
+    {
+      "path": "frontend/features/passports/utils/passport-review.test.mjs",
+      "sha256": "aadadea27dae43b7cd3883f183a9647a064f05d4e04e95e4d3b877ad31d9993e",
+      "physical_lines": 401,
+      "review_scope": "full",
+      "status": "physically-read-not-executed-in-freeze"
+    },
+    {
+      "path": "frontend/features/passports/components/group-whatsapp-broadcast-panel.contract.test.mjs",
+      "sha256": "d0b4d4177a3079bb94d257bfda79fc4393f9905fb86fc1e1436b6f79349d9c1d",
+      "physical_lines": 249,
+      "review_scope": "full",
+      "status": "physically-read-not-executed-in-freeze"
+    },
+    {
+      "path": "frontend/features/passports/components/create-upload-link-modal.contract.test.mjs",
+      "sha256": "27f221ce3dab9758fa64ae5c1ee69f1289eac416a6732e2266b60f8e4b645b58",
+      "physical_lines": 98,
+      "review_scope": "full",
+      "status": "physically-read-not-executed-in-freeze"
+    },
+    {
+      "path": "frontend/features/passports/api/passport-export-history.contract.test.mjs",
+      "sha256": "55929cf7fa75137ec880f3fdd2560c3f11ca62af23d3ab61c98f69e1d8cbf61e",
+      "physical_lines": 152,
+      "review_scope": "full",
+      "status": "physically-read-not-executed-in-freeze"
+    },
+    {
+      "path": "frontend/features/passports/schemas/upload-link.schema.test.ts",
+      "sha256": "08366926b4e5d023966e9313154e525f3590a4c5b1905fb6544ab0e4b4a5ef7f",
+      "physical_lines": 154,
+      "review_scope": "full",
+      "status": "physically-read-not-executed-in-freeze"
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-detail.contract.test.mjs",
+      "sha256": "2ab55bf6e53ef7f5700c7f5eb2b4221f29ac0186d05ee97ed38a8dce546f2afb",
+      "physical_lines": 367,
+      "review_scope": "full",
+      "status": "physically-read-not-executed-in-freeze"
+    }
+  ],
+  "candidates": [
+    {
+      "id": "PRA-01",
+      "status": "source-backed-not-yet-reproduced-in-these-hooks",
+      "finding": "Private passport/upload-link mutations still enter through ordinary useMutation. A global/local onMutate await can precede initial API owner capture; current cache callbacks are also unbound. Existing GC/MCP regressions prove the general mechanism, not these exact hooks.",
+      "proof_next": "Use actual hooks plus deferred global onMutate; invoke as A, replace actor or authority before release, assert no private write/cache continuation under B. Preserve successful same-authority renewal and public token lookup.",
+      "implementation_seam": "Use existing usePrivateMutation and original requestConfig forwarding in private API methods, retaining public signatures/DTOs and public token methods."
+    },
+    {
+      "id": "PRA-02",
+      "status": "caller-closure-candidate-not-yet-proven",
+      "finding": "Mixed upload helpers/fields appear to retain family/name/contact-only pieces from the retired legacy happy path alongside reachable Fresh/returning helpers.",
+      "proof_next": "Resolve every runtime/type/export edge with TS graph and inspect actual production callers; preserve safety tests by moving them to current owners before closed-set retirement."
+    },
+    {
+      "id": "PRA-03",
+      "status": "not-confirmed-preserved-workflow",
+      "finding": "ReextractPassportControl treats submitted plus any feedback as processing; rejection feedback may keep the retry disabled after inFlight resets.",
+      "proof_next": "Render submitted record, reject re-extraction and assert visible actionable retry and no duplicate in-flight dispatch.",
+      "resolution": "Full needsReextraction/getReextractOutcome/current caller trace plus rendered tests show eligible failed starts can retry, while submitted means verification pending and must remain blocked. No speculative processing-policy change. See passport-group-presentation-reviewed-files.json."
+    },
+    {
+      "id": "PRA-04",
+      "status": "reproduced-and-fixed",
+      "finding": "Controller uses render-captured membership/count before functional selection updates; same-turn repeated toggles may duplicate IDs or cross cap. Custom count parseInt may accept a decimal as its integer prefix.",
+      "proof_next": "Exercise actual controller same-turn selection and cap, then decimal custom-count apply. Preserve server order, revision snapshots and cross-page manual selection.",
+      "resolution": "Actual controller regressions proved duplicate same-turn toggles,1501 cap overflow and decimal-prefix acceptance; atomic IDs/revisions/Set state plus whole-count validation fixes all. Added separate cap-excluded revision-map accumulation proof/fix. See passport-group-controller-reviewed-files.json."
+    },
+    {
+      "id": "PRA-05",
+      "status": "partially-reproduced-and-fixed",
+      "finding": "Roster/mobile navigation nests Button in Link; absolute bulk disclosure may clip at narrow widths.",
+      "proof_next": "Inspect rendered focus/DOM and 390px bounding boxes before changing; preserve routing, keyboard focus return and control surfaces.",
+      "resolution": "Nested button/anchor proven in both mobile and desktop rows; fixed using buttonVariants on the sole anchor and preserved row isolation. Narrow bulk-disclosure bounds remains unproven/pending."
+    },
+    {
+      "id": "PRA-06",
+      "status": "partially-reproduced-and-fixed",
+      "finding": "Passport list and possibly group-link list mix query failure notices with empty/zero success presentation when initial data is unavailable.",
+      "proof_next": "Render initial failure separately from successful empty and stale-data failure. Assert clear failure/retry with no false first-group/zero claim; preserve retained data on refetch failure.",
+      "resolution": "All Groups initial/stale failure presentation reproduced and fixed, preserving true empty and selection. Group-link list failure/empty distinction remains pending its actual rendered proof."
+    },
+    {
+      "id": "PRA-07",
+      "status": "low-impact-lifetime-candidate-proof-pending",
+      "finding": "Clipboard completion in create dialog can schedule a copied-state timeout after unmount cleanup has already run.",
+      "proof_next": "Defer clipboard, unmount, complete promise and inspect timers/state; do not claim a data leak from this alone."
+    },
+    {
+      "id": "PRA-08",
+      "status": "reproduced-and-fixed",
+      "finding": "Replacement choices use role=radio buttons without an explicit roving tabindex/arrow-key selection implementation.",
+      "proof_next": "Render several actual candidates and test radiogroup arrow/Home/End/Space keyboard behavior; retain details disclosure, stable request ID and selected-recipient evidence.",
+      "resolution": "Actual recipient dialog ArrowDown failed to move focus/selection. Replaced role-radio buttons with native grouped radios, retaining callback/request-ID semantics; unit and Chromium1440/390 checks pass. Related browser proof caught clipped long unbroken names, now wrapped. See group-whatsapp-reviewed-files.json."
+    }
+  ],
+  "limitations": [
+    "Candidates above are not newly validated behavioral findings until exact current owners are reproduced after freeze release.",
+    "This closes only the named 19-file source reading scope; it does not establish whole-codebase completion or hardware/provider/browser runtime qualification.",
+    "Future extraction must preserve useful contracts, floors, actor/revision/private-media and pending-safe modal/download behavior."
+  ]
+}

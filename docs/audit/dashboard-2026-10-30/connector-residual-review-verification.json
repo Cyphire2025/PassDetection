@@ -1,0 +1,30 @@
+{
+  "status": "complete read-only residual cohort; one test-only lifetime candidate OPEN",
+  "cohort_paths": 19,
+  "cohort_physical_lines": 2431,
+  "all_cohort_current_hashes_match_initial_inventory": true,
+  "full_supporting_paths": 1,
+  "partial_supporting_paths": 1,
+  "narrow_AGENTS": "rg --files -g AGENTS.md found none under connector; root instructions apply",
+  "source_ledger": "connector-residual-reviewed-files.json",
+  "checks_run": [],
+  "runtime_or_test_edits": [],
+  "services_or_native_vault_calls": [],
+  "findings": [
+    {
+      "id": "CONNECTOR-TEST-CHILD-CLEANUP",
+      "status": "candidate-source-backed-not-yet-reproduced",
+      "path": "mcp-connector/tests/test_windows_vault_native.py",
+      "trigger": "First native vault child communicate deadline/cancellation",
+      "evidence": "wait_for(child.communicate(),10) is protected by finally deleting own syntheticcredential only; first test lacks kill/wait cleanup. Second mutex test explicitly kills/waits lingering child. No productionruntime claim.",
+      "next": "Coordinate parent; reproduce with fake vault and synthetic child/cancellation before narrow test-only fix."
+    }
+  ],
+  "cleared_or_qualified_scope": [
+    "Documentedversions match currentpyproject/runtime summary",
+    "No read-only bypass or unselected-file authority promised by tests; meaningful denialcases distinguishremote/backendenforcement",
+    "Mockerror/transport/typeprefix bytes explicitly not native scanner/workbook/provider proof",
+    "TCP fixture uses tmpcwd/synthetic settings+SQLite/loopbacks/fakevault/storage and current proxy disables environment proxy/redirect; not productionPG/MFA/vault/provider/Codex qualification"
+  ],
+  "limits": "Source review only. These cases were not freshly executed, native credential/process calls were not made, and no whole-application security guarantee follows from reading tests."
+}

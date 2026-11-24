@@ -1,0 +1,10 @@
+{
+  "changed_paths": [
+    "/info/description"
+  ],
+  "title_preserved": true,
+  "version_preserved": true,
+  "request_response_security_contracts_preserved": true,
+  "previous_description": "Passport MRZ Processing Platform with secure upload links, passport MRZ extraction, client review, Excel export, analytics, audit logging, and agency notifications.",
+  "description": "Global Connects Dashboard with upload links, AI passport extraction, client review, Excel export, analytics, audit logging, and agency notifications."
+}

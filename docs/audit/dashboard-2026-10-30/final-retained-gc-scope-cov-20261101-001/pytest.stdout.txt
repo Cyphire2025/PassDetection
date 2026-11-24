@@ -1,0 +1,2016 @@
+......F                                                                  [100%]
+================================== FAILURES ===================================
+_ test_dashboard_unpublish_returns_retired_content_and_records_only_scoped_audit[common_document] _
+
+self = <sqlalchemy.engine.base.Connection object at 0x00000202F5A69C50>
+dialect = <sqlalchemy.dialects.sqlite.aiosqlite.SQLiteDialect_aiosqlite object at 0x00000202F5A6A710>
+context = <sqlalchemy.dialects.sqlite.aiosqlite.SQLiteExecutionContext_aiosqlite object at 0x00000202F5B4F4D0>
+statement = <sqlalchemy.dialects.sqlite.base.SQLiteCompiler object at 0x00000202F5B4F550>
+parameters = [('9652e9a33ec34c908e4d4d389c2dd99f', 'd4c9c24e85b7493fa2266b94eb624e03', '8e4ce5bed6ac412ebe515de3ee0a2ad8', '8280763027c04b8194a7b2328e84da40', '28ee7694ac5548bba6976c3156bf70b4', 1, ...)]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1967: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <sqlalchemy.dialects.sqlite.aiosqlite.SQLiteDialect_aiosqlite object at 0x00000202F5A6A710>
+cursor = <sqlalchemy.dialects.sqlite.aiosqlite.AsyncAdapt_aiosqlite_cursor object at 0x00000202F5B6D300>
+statement = 'INSERT INTO gc_common_documents (id, agency_id, group_id, gc_group_access_id, logical_document_id, version, category,...created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+parameters = ('9652e9a33ec34c908e4d4d389c2dd99f', 'd4c9c24e85b7493fa2266b94eb624e03', '8e4ce5bed6ac412ebe515de3ee0a2ad8', '8280763027c04b8194a7b2328e84da40', '28ee7694ac5548bba6976c3156bf70b4', 1, ...)
+context = <sqlalchemy.dialects.sqlite.aiosqlite.SQLiteExecutionContext_aiosqlite object at 0x00000202F5B4F4D0>
+
+    def do_execute(self, cursor, statement, parameters, context=None):
+>       cursor.execute(statement, parameters)
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\default.py:924: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <sqlalchemy.dialects.sqlite.aiosqlite.AsyncAdapt_aiosqlite_cursor object at 0x00000202F5B6D300>
+operation = 'INSERT INTO gc_common_documents (id, agency_id, group_id, gc_group_access_id, logical_document_id, version, category,...created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+parameters = ('9652e9a33ec34c908e4d4d389c2dd99f', 'd4c9c24e85b7493fa2266b94eb624e03', '8e4ce5bed6ac412ebe515de3ee0a2ad8', '8280763027c04b8194a7b2328e84da40', '28ee7694ac5548bba6976c3156bf70b4', 1, ...)
+
+    def execute(self, operation, parameters=None):
+        try:
+            _cursor = self.await_(self._connection.cursor())
+    
+            if parameters is None:
+                self.await_(_cursor.execute(operation))
+            else:
+                self.await_(_cursor.execute(operation, parameters))
+    
+            if _cursor.description:
+                self.description = _cursor.description
+                self.lastrowid = self.rowcount = -1
+    
+                if not self.server_side:
+                    self._rows = deque(self.await_(_cursor.fetchall()))
+            else:
+                self.description = None
+                self.lastrowid = _cursor.lastrowid
+                self.rowcount = _cursor.rowcount
+    
+            if not self.server_side:
+                self.await_(_cursor.close())
+            else:
+                self._cursor = _cursor
+        except Exception as error:
+>           self._adapt_connection._handle_exception(error)
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:147: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <AdaptedConnection <Connection(Thread-4, started daemon 34244)>>
+error = IntegrityError('CHECK constraint failed: ck_gc_common_doc_audience')
+
+    def _handle_exception(self, error):
+        if (
+            isinstance(error, ValueError)
+            and error.args[0] == "no active connection"
+        ):
+            raise self.dbapi.sqlite.OperationalError(
+                "no active connection"
+            ) from error
+        else:
+>           raise error
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:298: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <sqlalchemy.dialects.sqlite.aiosqlite.AsyncAdapt_aiosqlite_cursor object at 0x00000202F5B6D300>
+operation = 'INSERT INTO gc_common_documents (id, agency_id, group_id, gc_group_access_id, logical_document_id, version, category,...created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+parameters = ('9652e9a33ec34c908e4d4d389c2dd99f', 'd4c9c24e85b7493fa2266b94eb624e03', '8e4ce5bed6ac412ebe515de3ee0a2ad8', '8280763027c04b8194a7b2328e84da40', '28ee7694ac5548bba6976c3156bf70b4', 1, ...)
+
+    def execute(self, operation, parameters=None):
+        try:
+            _cursor = self.await_(self._connection.cursor())
+    
+            if parameters is None:
+                self.await_(_cursor.execute(operation))
+            else:
+>               self.await_(_cursor.execute(operation, parameters))
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:129: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+awaitable = <coroutine object Cursor.execute at 0x00000202F59F2110>
+
+    def await_only(awaitable: Awaitable[_T]) -> _T:
+        """Awaits an async function in a sync method.
+    
+        The sync method must be inside a :func:`greenlet_spawn` context.
+        :func:`await_only` calls cannot be nested.
+    
+        :param awaitable: The coroutine to call.
+    
+        """
+        # this is called in the context greenlet while running fn
+        current = getcurrent()
+        if not getattr(current, "__sqlalchemy_greenlet_provider__", False):
+            _safe_cancel_awaitable(awaitable)
+    
+            raise exc.MissingGreenlet(
+                "greenlet_spawn has not been called; can't call await_only() "
+                "here. Was IO attempted in an unexpected place?"
+            )
+    
+        # returns the control to the driver greenlet passing it
+        # a coroutine to run. Once the awaitable is done, the driver greenlet
+        # switches back to this greenlet with the result of awaitable that is
+        # then returned to the caller (or raised as error)
+>       return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:132: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+fn = <bound method Session.flush of <sqlalchemy.orm.session.Session object at 0x00000202F5B19D50>>
+_require_await = False, args = (), kwargs = {'objects': None}
+context = <_AsyncIoGreenlet object at 0x00000202F5B43280 (otid=0x00000202ABC67F00) dead>
+switch_occurred = True
+result = <coroutine object Connection.rollback at 0x00000202F5B7FED0>
+value = None
+
+    async def greenlet_spawn(
+        fn: Callable[..., _T],
+        *args: Any,
+        _require_await: bool = False,
+        **kwargs: Any,
+    ) -> _T:
+        """Runs a sync function ``fn`` in a new greenlet.
+    
+        The sync function can then use :func:`await_only` to wait for async
+        functions.
+    
+        :param fn: The sync callable to call.
+        :param \\*args: Positional arguments to pass to the ``fn`` callable.
+        :param \\*\\*kwargs: Keyword arguments to pass to the ``fn`` callable.
+        """
+    
+        result: Any
+        context = _AsyncIoGreenlet(fn, getcurrent())
+        # runs the function synchronously in gl greenlet. If the execution
+        # is interrupted by await_only, context is not dead and result is a
+        # coroutine to wait. If the context is dead the function has
+        # returned, and its result can be returned.
+        switch_occurred = False
+        result = context.switch(*args, **kwargs)
+        while not context.dead:
+            switch_occurred = True
+            try:
+                # wait for a coroutine from await_only and then return its
+                # result back to it.
+>               value = await result
+                        ^^^^^^^^^^^^
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:196: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <aiosqlite.cursor.Cursor object at 0x00000202F5B4C850>
+sql = 'INSERT INTO gc_common_documents (id, agency_id, group_id, gc_group_access_id, logical_document_id, version, category,...created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+parameters = ('9652e9a33ec34c908e4d4d389c2dd99f', 'd4c9c24e85b7493fa2266b94eb624e03', '8e4ce5bed6ac412ebe515de3ee0a2ad8', '8280763027c04b8194a7b2328e84da40', '28ee7694ac5548bba6976c3156bf70b4', 1, ...)
+
+    async def execute(
+        self, sql: str, parameters: Optional[Iterable[Any]] = None
+    ) -> "Cursor":
+        """Execute the given query."""
+        if parameters is None:
+            parameters = []
+>       await self._execute(self._cursor.execute, sql, parameters)
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\cursor.py:48: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <aiosqlite.cursor.Cursor object at 0x00000202F5B4C850>
+fn = <built-in method execute of sqlite3.Cursor object at 0x00000202F59AB640>
+args = ('INSERT INTO gc_common_documents (id, agency_id, group_id, gc_group_access_id, logical_document_id, version, category...', '8e4ce5bed6ac412ebe515de3ee0a2ad8', '8280763027c04b8194a7b2328e84da40', '28ee7694ac5548bba6976c3156bf70b4', 1, ...))
+kwargs = {}
+
+    async def _execute(self, fn, *args, **kwargs):
+        """Execute the given function on the shared connection's thread."""
+>       return await self._conn._execute(fn, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\cursor.py:40: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <Connection(Thread-4, started daemon 34244)>
+fn = <built-in method execute of sqlite3.Cursor object at 0x00000202F59AB640>
+args = ('INSERT INTO gc_common_documents (id, agency_id, group_id, gc_group_access_id, logical_document_id, version, category...', '8e4ce5bed6ac412ebe515de3ee0a2ad8', '8280763027c04b8194a7b2328e84da40', '28ee7694ac5548bba6976c3156bf70b4', 1, ...))
+kwargs = {}
+function = functools.partial(<built-in method execute of sqlite3.Cursor object at 0x00000202F59AB640>, 'INSERT INTO gc_common_doc..., 0, '2026-11-01 00:50:52.926895', None, None, None, None, '2026-11-01 00:50:52.928373', '2026-11-01 00:50:52.928373'))
+future = <Future finished exception=IntegrityError('CHECK constraint failed: ck_gc_common_doc_audience')>
+
+    async def _execute(self, fn, *args, **kwargs):
+        """Queue a function with the given arguments for execution."""
+        if not self._running or not self._connection:
+            raise ValueError("Connection closed")
+    
+        function = partial(fn, *args, **kwargs)
+        future = asyncio.get_event_loop().create_future()
+    
+        self._tx.put_nowait((future, function))
+    
+>       return await future
+               ^^^^^^^^^^^^
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\core.py:132: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <Connection(Thread-4, started daemon 34244)>
+
+    def run(self) -> None:
+        """
+        Execute function calls on a separate thread.
+    
+        :meta private:
+        """
+        while True:
+            # Continues running until all queue items are processed,
+            # even after connection is closed (so we can finalize all
+            # futures)
+    
+            tx_item = self._tx.get()
+            if tx_item is _STOP_RUNNING_SENTINEL:
+                break
+    
+            future, function = tx_item
+    
+            try:
+                LOG.debug("executing %s", function)
+>               result = function()
+                         ^^^^^^^^^^
+E               sqlite3.IntegrityError: CHECK constraint failed: ck_gc_common_doc_audience
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\core.py:115: IntegrityError
+
+The above exception was the direct cause of the following exception:
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x00000202F5B07050>
+kind = 'common_document'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("kind", ["itinerary", "common_document"])
+    async def test_dashboard_unpublish_returns_retired_content_and_records_only_scoped_audit(
+        db_session: AsyncSession, kind: str,
+    ) -> None:
+        actor, group, access = await _context(db_session)
+        now = datetime.now(UTC)
+        shared = dict(
+            id=uuid.uuid4(), agency_id=actor.agency_id, group_id=group.id,
+            gc_group_access_id=access.id, version=1, status="published",
+            title="Private administrator handover", published_at=now,
+        )
+        if kind == "itinerary":
+            record = GCItineraryVersionModel(**shared, content_checksum="a" * 64)
+            unpublish = unpublish_itinerary
+            version_field = "itinerary_version"
+        else:
+            record = GCCommonDocumentModel(
+                **shared, logical_document_id=uuid.uuid4(), category="itinerary_pdf",
+                storage_key="synthetic/private-handover.pdf", safe_filename="handover.pdf",
+                media_type="application/pdf", byte_size=20, checksum_sha256="a" * 64,
+            )
+            unpublish = unpublish_common_document
+            version_field = "common_document_version"
+        db_session.add(record)
+>       await db_session.flush()
+
+tests\unit\presentation\test_gc_content_dashboard_scope.py:158: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x00000202F5B07050>
+objects = None
+
+    async def flush(self, objects: Optional[Sequence[Any]] = None) -> None:
+        """Flush all the object changes to the database.
+    
+        .. seealso::
+    
+            :meth:`_orm.Session.flush` - main documentation for flush
+    
+        """
+>       await greenlet_spawn(self.sync_session.flush, objects=objects)
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\ext\asyncio\session.py:800: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+fn = <bound method Session.flush of <sqlalchemy.orm.session.Session object at 0x00000202F5B19D50>>
+_require_await = False, args = (), kwargs = {'objects': None}
+context = <_AsyncIoGreenlet object at 0x00000202F5B43280 (otid=0x00000202ABC67F00) dead>
+switch_occurred = True
+result = <coroutine object Connection.rollback at 0x00000202F5B7FED0>
+value = None
+
+    async def greenlet_spawn(
+        fn: Callable[..., _T],
+        *args: Any,
+        _require_await: bool = False,
+        **kwargs: Any,
+    ) -> _T:
+        """Runs a sync function ``fn`` in a new greenlet.
+    
+        The sync function can then use :func:`await_only` to wait for async
+        functions.
+    
+        :param fn: The sync callable to call.
+        :param \\*args: Positional arguments to pass to the ``fn`` callable.
+        :param \\*\\*kwargs: Keyword arguments to pass to the ``fn`` callable.
+        """
+    
+        result: Any
+        context = _AsyncIoGreenlet(fn, getcurrent())
+        # runs the function synchronously in gl greenlet. If the execution
+        # is interrupted by await_only, context is not dead and result is a
+        # coroutine to wait. If the context is dead the function has
+        # returned, and its result can be returned.
+        switch_occurred = False
+        result = context.switch(*args, **kwargs)
+        while not context.dead:
+            switch_occurred = True
+            try:
+                # wait for a coroutine from await_only and then return its
+                # result back to it.
+                value = await result
+            except BaseException:
+                # this allows an exception to be raised within
+                # the moderated greenlet so that it can continue
+                # its expected flow.
+                result = context.throw(*sys.exc_info())
+            else:
+>               result = context.switch(value)
+                         ^^^^^^^^^^^^^^^^^^^^^
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:203: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <sqlalchemy.orm.session.Session object at 0x00000202F5B19D50>
+objects = None
+
+    def flush(self, objects: Optional[Sequence[Any]] = None) -> None:
+        """Flush all the object changes to the database.
+    
+        Writes out all pending object creations, deletions and modifications
+        to the database as INSERTs, DELETEs, UPDATEs, etc.  Operations are
+        automatically ordered by the Session's unit of work dependency
+        solver.
+    
+        Database operations will be issued in the current transactional
+        context and do not affect the state of the transaction, unless an
+        error occurs, in which case the entire transaction is rolled back.
+        You may flush() as often as you like within a transaction to move
+        changes from Python to the database's transaction buffer.
+    
+        :param objects: Optional; restricts the flush operation to operate
+          only on elements that are in the given collection.
+    
+          This feature is for an extremely narrow set of use cases where
+          particular objects may need to be operated upon before the
+          full flush() occurs.  It is not intended for general use.
+    
+        """
+    
+        if self._flushing:
+            raise sa_exc.InvalidRequestError("Session is already flushing")
+    
+        if self._is_clean():
+            return
+        try:
+            self._flushing = True
+>           self._flush(objects)
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:4341: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <sqlalchemy.orm.session.Session object at 0x00000202F5B19D50>
+objects = None
+
+    def _flush(self, objects: Optional[Sequence[object]] = None) -> None:
+        dirty = self._dirty_states
+        if not dirty and not self._deleted and not self._new:
+            self.identity_map._modified.clear()
+            return
+    
+        flush_context = UOWTransaction(self)
+    
+        if self.dispatch.before_flush:
+            self.dispatch.before_flush(self, flush_context, objects)
+            # re-establish "dirty states" in case the listeners
+            # added
+            dirty = self._dirty_states
+    
+        deleted = set(self._deleted)
+        new = set(self._new)
+    
+        dirty = set(dirty).difference(deleted)
+    
+        # create the set of all objects we want to operate upon
+        if objects:
+            # specific list passed in
+            objset = set()
+            for o in objects:
+                try:
+                    state = attributes.instance_state(o)
+    
+                except exc.NO_STATE as err:
+                    raise exc.UnmappedInstanceError(o) from err
+                objset.add(state)
+        else:
+            objset = None
+    
+        # store objects whose fate has been decided
+        processed = set()
+    
+        # put all saves/updates into the flush context.  detect top-level
+        # orphans and throw them into deleted.
+        if objset:
+            proc = new.union(dirty).intersection(objset).difference(deleted)
+        else:
+            proc = new.union(dirty).difference(deleted)
+    
+        for state in proc:
+            is_orphan = _state_mapper(state)._is_orphan(state)
+    
+            is_persistent_orphan = is_orphan and state.has_identity
+    
+            if (
+                is_orphan
+                and not is_persistent_orphan
+                and state._orphaned_outside_of_session
+            ):
+                self._expunge_states([state])
+            else:
+                _reg = flush_context.register_object(
+                    state, isdelete=is_persistent_orphan
+                )
+                assert _reg, "Failed to add object to the flush context!"
+                processed.add(state)
+    
+        # put all remaining deletes into the flush context.
+        if objset:
+            proc = deleted.intersection(objset).difference(processed)
+        else:
+            proc = deleted.difference(processed)
+        for state in proc:
+            _reg = flush_context.register_object(state, isdelete=True)
+            assert _reg, "Failed to add object to the flush context!"
+    
+        if not flush_context.has_work:
+            return
+    
+        flush_context.transaction = transaction = self._autobegin_t()._begin()
+        try:
+            self._warn_on_events = True
+            try:
+                flush_context.execute()
+            finally:
+                self._warn_on_events = False
+    
+            self.dispatch.after_flush(self, flush_context)
+    
+            flush_context.finalize_flush_changes()
+    
+            if not objects and self.identity_map._modified:
+                len_ = len(self.identity_map._modified)
+    
+                statelib.InstanceState._commit_all_states(
+                    [
+                        (state, state.dict)
+                        for state in self.identity_map._modified
+                    ],
+                    instance_dict=self.identity_map,
+                )
+                util.warn(
+                    "Attribute history events accumulated on %d "
+                    "previously clean instances "
+                    "within inner-flush event handlers have been "
+                    "reset, and will not result in database updates. "
+                    "Consider using set_committed_value() within "
+                    "inner-flush event handlers to avoid this warning." % len_
+                )
+    
+            # useful assertions:
+            # if not objects:
+            #    assert not self.identity_map._modified
+            # else:
+            #    assert self.identity_map._modified == \
+            #            self.identity_map._modified.difference(objects)
+    
+            self.dispatch.after_flush_postexec(self, flush_context)
+    
+            transaction.commit()
+    
+        except:
+>           with util.safe_reraise():
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:4476: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <sqlalchemy.util.langhelpers.safe_reraise object at 0x00000202F3FBFB80>
+type_ = None, value = None, traceback = None
+
+    def __exit__(
+        self,
+        type_: Optional[Type[BaseException]],
+        value: Optional[BaseException],
+        traceback: Optional[types.TracebackType],
+    ) -> NoReturn:
+        assert self._exc_info is not None
+        # see #2703 for notes
+        if type_ is None:
+            exc_type, exc_value, exc_tb = self._exc_info
+            assert exc_value is not None
+            self._exc_info = None  # remove potential circular references
+>           raise exc_value.with_traceback(exc_tb)
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\langhelpers.py:146: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <sqlalchemy.orm.session.Session object at 0x00000202F5B19D50>
+objects = None
+
+    def _flush(self, objects: Optional[Sequence[object]] = None) -> None:
+        dirty = self._dirty_states
+        if not dirty and not self._deleted and not self._new:
+            self.identity_map._modified.clear()
+            return
+    
+        flush_context = UOWTransaction(self)
+    
+        if self.dispatch.before_flush:
+            self.dispatch.before_flush(self, flush_context, objects)
+            # re-establish "dirty states" in case the listeners
+            # added
+            dirty = self._dirty_states
+    
+        deleted = set(self._deleted)
+        new = set(self._new)
+    
+        dirty = set(dirty).difference(deleted)
+    
+        # create the set of all objects we want to operate upon
+        if objects:
+            # specific list passed in
+            objset = set()
+            for o in objects:
+                try:
+                    state = attributes.instance_state(o)
+    
+                except exc.NO_STATE as err:
+                    raise exc.UnmappedInstanceError(o) from err
+                objset.add(state)
+        else:
+            objset = None
+    
+        # store objects whose fate has been decided
+        processed = set()
+    
+        # put all saves/updates into the flush context.  detect top-level
+        # orphans and throw them into deleted.
+        if objset:
+            proc = new.union(dirty).intersection(objset).difference(deleted)
+        else:
+            proc = new.union(dirty).difference(deleted)
+    
+        for state in proc:
+            is_orphan = _state_mapper(state)._is_orphan(state)
+    
+            is_persistent_orphan = is_orphan and state.has_identity
+    
+            if (
+                is_orphan
+                and not is_persistent_orphan
+                and state._orphaned_outside_of_session
+            ):
+                self._expunge_states([state])
+            else:
+                _reg = flush_context.register_object(
+                    state, isdelete=is_persistent_orphan
+                )
+                assert _reg, "Failed to add object to the flush context!"
+                processed.add(state)
+    
+        # put all remaining deletes into the flush context.
+        if objset:
+            proc = deleted.intersection(objset).difference(processed)
+        else:
+            proc = deleted.difference(processed)
+        for state in proc:
+            _reg = flush_context.register_object(state, isdelete=True)
+            assert _reg, "Failed to add object to the flush context!"
+    
+        if not flush_context.has_work:
+            return
+    
+        flush_context.transaction = transaction = self._autobegin_t()._begin()
+        try:
+            self._warn_on_events = True
+            try:
+>               flush_context.execute()
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:4437: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <sqlalchemy.orm.unitofwork.UOWTransaction object at 0x00000202F5B43CD0>
+
+    def execute(self) -> None:
+        postsort_actions = self._generate_actions()
+    
+        postsort_actions = sorted(
+            postsort_actions,
+            key=lambda item: item.sort_key,
+        )
+        # sort = topological.sort(self.dependencies, postsort_actions)
+        # print "--------------"
+        # print "\ndependencies:", self.dependencies
+        # print "\ncycles:", self.cycles
+        # print "\nsort:", list(sort)
+        # print "\nCOUNT OF POSTSORT ACTIONS", len(postsort_actions)
+    
+        # execute
+        if self.cycles:
+            for subset in topological.sort_as_subsets(
+                self.dependencies, postsort_actions
+            ):
+                set_ = set(subset)
+                while set_:
+                    n = set_.pop()
+                    n.execute_aggregate(self, set_)
+        else:
+            for rec in topological.sort(self.dependencies, postsort_actions):
+>               rec.execute(self)
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\unitofwork.py:466: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = SaveUpdateAll(Mapper[GCCommonDocumentModel(gc_common_documents)])
+uow = <sqlalchemy.orm.unitofwork.UOWTransaction object at 0x00000202F5B43CD0>
+
+    @util.preload_module("sqlalchemy.orm.persistence")
+    def execute(self, uow):
+>       util.preloaded.orm_persistence.save_obj(
+            self.mapper,
+            uow.states_for_mapper_hierarchy(self.mapper, False, False),
+            uow,
+        )
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\unitofwork.py:642: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+base_mapper = <Mapper at 0x202b4aa85d0; GCCommonDocumentModel>
+states = <generator object UOWTransaction.states_for_mapper_hierarchy at 0x00000202F4592C40>
+uowtransaction = <sqlalchemy.orm.unitofwork.UOWTransaction object at 0x00000202F5B43CD0>
+single = False
+
+    def save_obj(base_mapper, states, uowtransaction, single=False):
+        """Issue ``INSERT`` and/or ``UPDATE`` statements for a list
+        of objects.
+    
+        This is called within the context of a UOWTransaction during a
+        flush operation, given a list of states to be flushed.  The
+        base mapper in an inheritance hierarchy handles the inserts/
+        updates for all descendant mappers.
+    
+        """
+    
+        # if batch=false, call _save_obj separately for each object
+        if not single and not base_mapper.batch:
+            for state in _sort_states(base_mapper, states):
+                save_obj(base_mapper, [state], uowtransaction, single=True)
+            return
+    
+        states_to_update = []
+        states_to_insert = []
+    
+        for (
+            state,
+            dict_,
+            mapper,
+            connection,
+            has_identity,
+            row_switch,
+            update_version_id,
+        ) in _organize_states_for_save(base_mapper, states, uowtransaction):
+            if has_identity or row_switch:
+                states_to_update.append(
+                    (state, dict_, mapper, connection, update_version_id)
+                )
+            else:
+                states_to_insert.append((state, dict_, mapper, connection))
+    
+        for table, mapper in base_mapper._sorted_tables.items():
+            if table not in mapper._pks_by_table:
+                continue
+            insert = _collect_insert_commands(table, states_to_insert)
+    
+            update = _collect_update_commands(
+                uowtransaction, table, states_to_update
+            )
+    
+            _emit_update_statements(
+                base_mapper,
+                uowtransaction,
+                mapper,
+                table,
+                update,
+            )
+    
+>           _emit_insert_statements(
+                base_mapper,
+                uowtransaction,
+                mapper,
+                table,
+                insert,
+            )
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\persistence.py:93: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+base_mapper = <Mapper at 0x202b4aa85d0; GCCommonDocumentModel>
+uowtransaction = <sqlalchemy.orm.unitofwork.UOWTransaction object at 0x00000202F5B43CD0>
+mapper = <Mapper at 0x202b4aa85d0; GCCommonDocumentModel>
+table = Table('gc_common_documents', MetaData(), Column('id', UUID(), table=<gc_common_documents>, primary_key=True, nullable=...fault=DefaultClause(<sqlalchemy.sql.elements.TextClause object at 0x00000202B4C51C90>, for_update=False)), schema=None)
+insert = <generator object _collect_insert_commands at 0x00000202F5AA2D90>
+
+    def _emit_insert_statements(
+        base_mapper,
+        uowtransaction,
+        mapper,
+        table,
+        insert,
+        *,
+        bookkeeping=True,
+        use_orm_insert_stmt=None,
+        execution_options=None,
+    ):
+        """Emit INSERT statements corresponding to value lists collected
+        by _collect_insert_commands()."""
+    
+        if use_orm_insert_stmt is not None:
+            cached_stmt = use_orm_insert_stmt
+            exec_opt = util.EMPTY_DICT
+    
+            # if a user query with RETURNING was passed, we definitely need
+            # to use RETURNING.
+            returning_is_required_anyway = bool(use_orm_insert_stmt._returning)
+            deterministic_results_reqd = (
+                returning_is_required_anyway
+                and use_orm_insert_stmt._sort_by_parameter_order
+            ) or bookkeeping
+        else:
+            returning_is_required_anyway = False
+            deterministic_results_reqd = bookkeeping
+            cached_stmt = base_mapper._memo(("insert", table), table.insert)
+            exec_opt = {"compiled_cache": base_mapper._compiled_cache}
+    
+        if execution_options:
+            execution_options = util.EMPTY_DICT.merge_with(
+                exec_opt, execution_options
+            )
+        else:
+            execution_options = exec_opt
+    
+        return_result = None
+    
+        for (
+            (connection, _, hasvalue, has_all_pks, has_all_defaults),
+            records,
+        ) in groupby(
+            insert,
+            lambda rec: (
+                rec[4],  # connection
+                set(rec[2]),  # parameter keys
+                bool(rec[5]),  # whether we have "value" parameters
+                rec[6],
+                rec[7],
+            ),
+        ):
+            statement = cached_stmt
+    
+            if use_orm_insert_stmt is not None:
+                statement = statement._annotate(
+                    {
+                        "_emit_insert_table": table,
+                        "_emit_insert_mapper": mapper,
+                    }
+                )
+    
+            if (
+                (
+                    not bookkeeping
+                    or (
+                        has_all_defaults
+                        or not base_mapper._prefer_eager_defaults(
+                            connection.dialect, table
+                        )
+                        or not table.implicit_returning
+                        or not connection.dialect.insert_returning
+                    )
+                )
+                and not returning_is_required_anyway
+                and has_all_pks
+                and not hasvalue
+            ):
+                # the "we don't need newly generated values back" section.
+                # here we have all the PKs, all the defaults or we don't want
+                # to fetch them, or the dialect doesn't support RETURNING at all
+                # so we have to post-fetch / use lastrowid anyway.
+                records = list(records)
+                multiparams = [rec[2] for rec in records]
+    
+                result = connection.execute(
+                    statement, multiparams, execution_options=execution_options
+                )
+                if bookkeeping:
+                    for (
+                        (
+                            state,
+                            state_dict,
+                            params,
+                            mapper_rec,
+                            conn,
+                            value_params,
+                            has_all_pks,
+                            has_all_defaults,
+                        ),
+                        last_inserted_params,
+                    ) in zip(records, result.context.compiled_parameters):
+                        if state:
+                            _postfetch(
+                                mapper_rec,
+                                uowtransaction,
+                                table,
+                                state,
+                                state_dict,
+                                result,
+                                last_inserted_params,
+                                value_params,
+                                False,
+                                (
+                                    result.returned_defaults
+                                    if not result.context.executemany
+                                    else None
+                                ),
+                            )
+                        else:
+                            _postfetch_bulk_save(mapper_rec, state_dict, table)
+    
+            else:
+                # here, we need defaults and/or pk values back or we otherwise
+                # know that we are using RETURNING in any case
+    
+                records = list(records)
+    
+                if returning_is_required_anyway or (
+                    table.implicit_returning and not hasvalue and len(records) > 1
+                ):
+                    if (
+                        deterministic_results_reqd
+                        and connection.dialect.insert_executemany_returning_sort_by_parameter_order  # noqa: E501
+                    ) or (
+                        not deterministic_results_reqd
+                        and connection.dialect.insert_executemany_returning
+                    ):
+                        do_executemany = True
+                    elif returning_is_required_anyway:
+                        if deterministic_results_reqd:
+                            dt = " with RETURNING and sort by parameter order"
+                        else:
+                            dt = " with RETURNING"
+                        raise sa_exc.InvalidRequestError(
+                            f"Can't use explicit RETURNING for bulk INSERT "
+                            f"operation with "
+                            f"{connection.dialect.dialect_description} backend; "
+                            f"executemany{dt} is not enabled for this dialect."
+                        )
+                    else:
+                        do_executemany = False
+                else:
+                    do_executemany = False
+    
+                if use_orm_insert_stmt is None:
+                    if (
+                        not has_all_defaults
+                        and base_mapper._prefer_eager_defaults(
+                            connection.dialect, table
+                        )
+                    ):
+                        statement = statement.return_defaults(
+                            *mapper._server_default_cols[table],
+                            sort_by_parameter_order=bookkeeping,
+                        )
+    
+                if mapper.version_id_col is not None:
+                    statement = statement.return_defaults(
+                        mapper.version_id_col,
+                        sort_by_parameter_order=bookkeeping,
+                    )
+                elif do_executemany:
+                    statement = statement.return_defaults(
+                        *table.primary_key, sort_by_parameter_order=bookkeeping
+                    )
+    
+                if do_executemany:
+                    multiparams = [rec[2] for rec in records]
+    
+                    result = connection.execute(
+                        statement, multiparams, execution_options=execution_options
+                    )
+    
+                    if use_orm_insert_stmt is not None:
+                        if return_result is None:
+                            return_result = result
+                        else:
+                            return_result = return_result.splice_vertically(result)
+    
+                    if bookkeeping:
+                        for (
+                            (
+                                state,
+                                state_dict,
+                                params,
+                                mapper_rec,
+                                conn,
+                                value_params,
+                                has_all_pks,
+                                has_all_defaults,
+                            ),
+                            last_inserted_params,
+                            inserted_primary_key,
+                            returned_defaults,
+                        ) in zip_longest(
+                            records,
+                            result.context.compiled_parameters,
+                            result.inserted_primary_key_rows,
+                            result.returned_defaults_rows or (),
+                        ):
+                            if inserted_primary_key is None:
+                                # this is a real problem and means that we didn't
+                                # get back as many PK rows.  we can't continue
+                                # since this indicates PK rows were missing, which
+                                # means we likely mis-populated records starting
+                                # at that point with incorrectly matched PK
+                                # values.
+                                raise orm_exc.FlushError(
+                                    "Multi-row INSERT statement for %s did not "
+                                    "produce "
+                                    "the correct number of INSERTed rows for "
+                                    "RETURNING.  Ensure there are no triggers or "
+                                    "special driver issues preventing INSERT from "
+                                    "functioning properly." % mapper_rec
+                                )
+    
+                            for pk, col in zip(
+                                inserted_primary_key,
+                                mapper._pks_by_table[table],
+                            ):
+                                prop = mapper_rec._columntoproperty[col]
+                                if state_dict.get(prop.key) is None:
+                                    state_dict[prop.key] = pk
+    
+                            if state:
+                                _postfetch(
+                                    mapper_rec,
+                                    uowtransaction,
+                                    table,
+                                    state,
+                                    state_dict,
+                                    result,
+                                    last_inserted_params,
+                                    value_params,
+                                    False,
+                                    returned_defaults,
+                                )
+                            else:
+                                _postfetch_bulk_save(mapper_rec, state_dict, table)
+                else:
+                    assert not returning_is_required_anyway
+    
+                    for (
+                        state,
+                        state_dict,
+                        params,
+                        mapper_rec,
+                        connection,
+                        value_params,
+                        has_all_pks,
+                        has_all_defaults,
+                    ) in records:
+                        if value_params:
+                            result = connection.execute(
+                                statement.values(value_params),
+                                params,
+                                execution_options=execution_options,
+                            )
+                        else:
+>                           result = connection.execute(
+                                statement,
+                                params,
+                                execution_options=execution_options,
+                            )
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\persistence.py:1233: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <sqlalchemy.engine.base.Connection object at 0x00000202F5A69C50>
+statement = <sqlalchemy.sql.dml.Insert object at 0x00000202F5B4F210>
+parameters = {'agency_id': UUID('d4c9c24e-85b7-493f-a226-6b94eb624e03'), 'availability_expires_at': None, 'availability_starts_at': None, 'byte_size': 20, ...}
+
+    def execute(
+        self,
+        statement: Executable,
+        parameters: Optional[_CoreAnyExecuteParams] = None,
+        *,
+        execution_options: Optional[CoreExecuteOptionsParameter] = None,
+    ) -> CursorResult[Any]:
+        r"""Executes a SQL statement construct and returns a
+        :class:`_engine.CursorResult`.
+    
+        :param statement: The statement to be executed.  This is always
+         an object that is in both the :class:`_expression.ClauseElement` and
+         :class:`_expression.Executable` hierarchies, including:
+    
+         * :class:`_expression.Select`
+         * :class:`_expression.Insert`, :class:`_expression.Update`,
+           :class:`_expression.Delete`
+         * :class:`_expression.TextClause` and
+           :class:`_expression.TextualSelect`
+         * :class:`_schema.DDL` and objects which inherit from
+           :class:`_schema.ExecutableDDLElement`
+    
+        :param parameters: parameters which will be bound into the statement.
+         This may be either a dictionary of parameter names to values,
+         or a mutable sequence (e.g. a list) of dictionaries.  When a
+         list of dictionaries is passed, the underlying statement execution
+         will make use of the DBAPI ``cursor.executemany()`` method.
+         When a single dictionary is passed, the DBAPI ``cursor.execute()``
+         method will be used.
+    
+        :param execution_options: optional dictionary of execution options,
+         which will be associated with the statement execution.  This
+         dictionary can provide a subset of the options that are accepted
+         by :meth:`_engine.Connection.execution_options`.
+    
+        :return: a :class:`_engine.Result` object.
+    
+        """
+        distilled_parameters = _distill_params_20(parameters)
+        try:
+            meth = statement._execute_on_connection
+        except AttributeError as err:
+            raise exc.ObjectNotExecutableError(statement) from err
+        else:
+>           return meth(
+                self,
+                distilled_parameters,
+                execution_options or NO_OPTIONS,
+            )
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1418: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <sqlalchemy.sql.dml.Insert object at 0x00000202F5B4F210>
+connection = <sqlalchemy.engine.base.Connection object at 0x00000202F5A69C50>
+distilled_params = [{'agency_id': UUID('d4c9c24e-85b7-493f-a226-6b94eb624e03'), 'availability_expires_at': None, 'availability_starts_at': None, 'byte_size': 20, ...}]
+execution_options = {'compiled_cache': <sqlalchemy.util._collections.LRUCache object at 0x00000202F41805E0>}
+
+    def _execute_on_connection(
+        self,
+        connection: Connection,
+        distilled_params: _CoreMultiExecuteParams,
+        execution_options: CoreExecuteOptionsParameter,
+    ) -> Result[Any]:
+        if self.supports_execution:
+            if TYPE_CHECKING:
+                assert isinstance(self, Executable)
+>           return connection._execute_clauseelement(
+                self, distilled_params, execution_options
+            )
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\sql\elements.py:515: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <sqlalchemy.engine.base.Connection object at 0x00000202F5A69C50>
+elem = <sqlalchemy.sql.dml.Insert object at 0x00000202F5B4F210>
+distilled_parameters = [{'agency_id': UUID('d4c9c24e-85b7-493f-a226-6b94eb624e03'), 'availability_expires_at': None, 'availability_starts_at': None, 'byte_size': 20, ...}]
+execution_options = immutabledict({'compiled_cache': <sqlalchemy.util._collections.LRUCache object at 0x00000202F41805E0>})
+
+    def _execute_clauseelement(
+        self,
+        elem: Executable,
+        distilled_parameters: _CoreMultiExecuteParams,
+        execution_options: CoreExecuteOptionsParameter,
+    ) -> CursorResult[Any]:
+        """Execute a sql.ClauseElement object."""
+    
+        execution_options = elem._execution_options.merge_with(
+            self._execution_options, execution_options
+        )
+    
+        has_events = self._has_events or self.engine._has_events
+        if has_events:
+            (
+                elem,
+                distilled_parameters,
+                event_multiparams,
+                event_params,
+            ) = self._invoke_before_exec_event(
+                elem, distilled_parameters, execution_options
+            )
+    
+        if distilled_parameters:
+            # ensure we don't retain a link to the view object for keys()
+            # which links to the values, which we don't want to cache
+            keys = sorted(distilled_parameters[0])
+            for_executemany = len(distilled_parameters) > 1
+        else:
+            keys = []
+            for_executemany = False
+    
+        dialect = self.dialect
+    
+        schema_translate_map = execution_options.get(
+            "schema_translate_map", None
+        )
+    
+        compiled_cache: Optional[CompiledCacheType] = execution_options.get(
+            "compiled_cache", self.engine._compiled_cache
+        )
+    
+        compiled_sql, extracted_params, cache_hit = elem._compile_w_cache(
+            dialect=dialect,
+            compiled_cache=compiled_cache,
+            column_keys=keys,
+            for_executemany=for_executemany,
+            schema_translate_map=schema_translate_map,
+            linting=self.dialect.compiler_linting | compiler.WARN_LINTING,
+        )
+>       ret = self._execute_context(
+            dialect,
+            dialect.execution_ctx_cls._init_compiled,
+            compiled_sql,
+            distilled_parameters,
+            execution_options,
+            compiled_sql,
+            distilled_parameters,
+            elem,
+            extracted_params,
+            cache_hit=cache_hit,
+        )
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1640: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <sqlalchemy.engine.base.Connection object at 0x00000202F5A69C50>
+dialect = <sqlalchemy.dialects.sqlite.aiosqlite.SQLiteDialect_aiosqlite object at 0x00000202F5A6A710>
+constructor = <bound method DefaultExecutionContext._init_compiled of <class 'sqlalchemy.dialects.sqlite.aiosqlite.SQLiteExecutionContext_aiosqlite'>>
+statement = <sqlalchemy.dialects.sqlite.base.SQLiteCompiler object at 0x00000202F5B4F550>
+parameters = [{'agency_id': UUID('d4c9c24e-85b7-493f-a226-6b94eb624e03'), 'availability_expires_at': None, 'availability_starts_at': None, 'byte_size': 20, ...}]
+execution_options = immutabledict({'compiled_cache': <sqlalchemy.util._collections.LRUCache object at 0x00000202F41805E0>})
+args = (<sqlalchemy.dialects.sqlite.base.SQLiteCompiler object at 0x00000202F5B4F550>, [{'agency_id': UUID('d4c9c24e-85b7-493..., 'availability_starts_at': None, 'byte_size': 20, ...}], <sqlalchemy.sql.dml.Insert object at 0x00000202F5B4F210>, [])
+kw = {'cache_hit': <CacheStats.CACHE_MISS: 1>}, yp = None
+conn = <sqlalchemy.pool.base._ConnectionFairy object at 0x00000202F4133530>
+context = <sqlalchemy.dialects.sqlite.aiosqlite.SQLiteExecutionContext_aiosqlite object at 0x00000202F5B4F4D0>
+
+    def _execute_context(
+        self,
+        dialect: Dialect,
+        constructor: Callable[..., ExecutionContext],
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+        execution_options: _ExecuteOptions,
+        *args: Any,
+        **kw: Any,
+    ) -> CursorResult[Any]:
+        """Create an :class:`.ExecutionContext` and execute, returning
+        a :class:`_engine.CursorResult`."""
+    
+        if execution_options:
+            yp = execution_options.get("yield_per", None)
+            if yp:
+                execution_options = execution_options.union(
+                    {"stream_results": True, "max_row_buffer": yp}
+                )
+        try:
+            conn = self._dbapi_connection
+            if conn is None:
+                conn = self._revalidate_connection()
+    
+            context = constructor(
+                dialect, self, conn, execution_options, *args, **kw
+            )
+        except (exc.PendingRollbackError, exc.ResourceClosedError):
+            raise
+        except BaseException as e:
+            self._handle_dbapi_exception(
+                e, str(statement), parameters, None, None
+            )
+    
+        if (
+            self._transaction
+            and not self._transaction.is_active
+            or (
+                self._nested_transaction
+                and not self._nested_transaction.is_active
+            )
+        ):
+            self._invalid_transaction()
+    
+        elif self._trans_context_manager:
+            TransactionalContext._trans_ctx_check(self)
+    
+        if self._transaction is None:
+            self._autobegin()
+    
+        context.pre_exec()
+    
+        if context.execute_style is ExecuteStyle.INSERTMANYVALUES:
+            return self._exec_insertmany_context(dialect, context)
+        else:
+>           return self._exec_single_context(
+                dialect, context, statement, parameters
+            )
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1846: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <sqlalchemy.engine.base.Connection object at 0x00000202F5A69C50>
+dialect = <sqlalchemy.dialects.sqlite.aiosqlite.SQLiteDialect_aiosqlite object at 0x00000202F5A6A710>
+context = <sqlalchemy.dialects.sqlite.aiosqlite.SQLiteExecutionContext_aiosqlite object at 0x00000202F5B4F4D0>
+statement = <sqlalchemy.dialects.sqlite.base.SQLiteCompiler object at 0x00000202F5B4F550>
+parameters = [('9652e9a33ec34c908e4d4d389c2dd99f', 'd4c9c24e85b7493fa2266b94eb624e03', '8e4ce5bed6ac412ebe515de3ee0a2ad8', '8280763027c04b8194a7b2328e84da40', '28ee7694ac5548bba6976c3156bf70b4', 1, ...)]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+    
+            if self._has_events or self.engine._has_events:
+                self.dispatch.after_cursor_execute(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+            context.post_exec()
+    
+            result = context._setup_result_proxy()
+    
+        except BaseException as e:
+>           self._handle_dbapi_exception(
+                e, str_statement, effective_parameters, cursor, context
+            )
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1986: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <sqlalchemy.engine.base.Connection object at 0x00000202F5A69C50>
+e = IntegrityError('CHECK constraint failed: ck_gc_common_doc_audience')
+statement = 'INSERT INTO gc_common_documents (id, agency_id, group_id, gc_group_access_id, logical_document_id, version, category,...created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+parameters = ('9652e9a33ec34c908e4d4d389c2dd99f', 'd4c9c24e85b7493fa2266b94eb624e03', '8e4ce5bed6ac412ebe515de3ee0a2ad8', '8280763027c04b8194a7b2328e84da40', '28ee7694ac5548bba6976c3156bf70b4', 1, ...)
+cursor = <sqlalchemy.dialects.sqlite.aiosqlite.AsyncAdapt_aiosqlite_cursor object at 0x00000202F5B6D300>
+context = <sqlalchemy.dialects.sqlite.aiosqlite.SQLiteExecutionContext_aiosqlite object at 0x00000202F5B4F4D0>
+is_sub_exec = False
+
+    def _handle_dbapi_exception(
+        self,
+        e: BaseException,
+        statement: Optional[str],
+        parameters: Optional[_AnyExecuteParams],
+        cursor: Optional[DBAPICursor],
+        context: Optional[ExecutionContext],
+        is_sub_exec: bool = False,
+    ) -> NoReturn:
+        exc_info = sys.exc_info()
+    
+        is_exit_exception = util.is_exit_exception(e)
+    
+        if not self._is_disconnect:
+            self._is_disconnect = (
+                isinstance(e, self.dialect.loaded_dbapi.Error)
+                and not self.closed
+                and self.dialect.is_disconnect(
+                    e,
+                    self._dbapi_connection if not self.invalidated else None,
+                    cursor,
+                )
+            ) or (is_exit_exception and not self.closed)
+    
+        invalidate_pool_on_disconnect = not is_exit_exception
+    
+        ismulti: bool = (
+            not is_sub_exec and context.executemany
+            if context is not None
+            else False
+        )
+        if self._reentrant_error:
+            raise exc.DBAPIError.instance(
+                statement,
+                parameters,
+                e,
+                self.dialect.loaded_dbapi.Error,
+                hide_parameters=self.engine.hide_parameters,
+                dialect=self.dialect,
+                ismulti=ismulti,
+            ).with_traceback(exc_info[2]) from e
+        self._reentrant_error = True
+        try:
+            # non-DBAPI error - if we already got a context,
+            # or there's no string statement, don't wrap it
+            should_wrap = isinstance(e, self.dialect.loaded_dbapi.Error) or (
+                statement is not None
+                and context is None
+                and not is_exit_exception
+            )
+    
+            if should_wrap:
+                sqlalchemy_exception = exc.DBAPIError.instance(
+                    statement,
+                    parameters,
+                    cast(Exception, e),
+                    self.dialect.loaded_dbapi.Error,
+                    hide_parameters=self.engine.hide_parameters,
+                    connection_invalidated=self._is_disconnect,
+                    dialect=self.dialect,
+                    ismulti=ismulti,
+                )
+            else:
+                sqlalchemy_exception = None
+    
+            newraise = None
+    
+            if (self.dialect._has_events) and not self._execution_options.get(
+                "skip_user_error_events", False
+            ):
+                ctx = ExceptionContextImpl(
+                    e,
+                    sqlalchemy_exception,
+                    self.engine,
+                    self.dialect,
+                    self,
+                    cursor,
+                    statement,
+                    parameters,
+                    context,
+                    self._is_disconnect,
+                    invalidate_pool_on_disconnect,
+                    False,
+                )
+    
+                for fn in self.dialect.dispatch.handle_error:
+                    try:
+                        # handler returns an exception;
+                        # call next handler in a chain
+                        per_fn = fn(ctx)
+                        if per_fn is not None:
+                            ctx.chained_exception = newraise = per_fn
+                    except Exception as _raised:
+                        # handler raises an exception - stop processing
+                        newraise = _raised
+                        break
+    
+                if self._is_disconnect != ctx.is_disconnect:
+                    self._is_disconnect = ctx.is_disconnect
+                    if sqlalchemy_exception:
+                        sqlalchemy_exception.connection_invalidated = (
+                            ctx.is_disconnect
+                        )
+    
+                # set up potentially user-defined value for
+                # invalidate pool.
+                invalidate_pool_on_disconnect = (
+                    ctx.invalidate_pool_on_disconnect
+                )
+    
+            if should_wrap and context:
+                context.handle_dbapi_exception(e)
+    
+            if not self._is_disconnect:
+                if cursor:
+                    self._safe_close_cursor(cursor)
+                # "autorollback" was mostly relevant in 1.x series.
+                # It's very unlikely to reach here, as the connection
+                # does autobegin so when we are here, we are usually
+                # in an explicit / semi-explicit transaction.
+                # however we have a test which manufactures this
+                # scenario in any case using an event handler.
+                # test/engine/test_execute.py-> test_actual_autorollback
+                if not self.in_transaction():
+                    self._rollback_impl()
+    
+            if newraise:
+                raise newraise.with_traceback(exc_info[2]) from e
+            elif should_wrap:
+                assert sqlalchemy_exception is not None
+>               raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:2353: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <sqlalchemy.engine.base.Connection object at 0x00000202F5A69C50>
+dialect = <sqlalchemy.dialects.sqlite.aiosqlite.SQLiteDialect_aiosqlite object at 0x00000202F5A6A710>
+context = <sqlalchemy.dialects.sqlite.aiosqlite.SQLiteExecutionContext_aiosqlite object at 0x00000202F5B4F4D0>
+statement = <sqlalchemy.dialects.sqlite.base.SQLiteCompiler object at 0x00000202F5B4F550>
+parameters = [('9652e9a33ec34c908e4d4d389c2dd99f', 'd4c9c24e85b7493fa2266b94eb624e03', '8e4ce5bed6ac412ebe515de3ee0a2ad8', '8280763027c04b8194a7b2328e84da40', '28ee7694ac5548bba6976c3156bf70b4', 1, ...)]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1967: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <sqlalchemy.dialects.sqlite.aiosqlite.SQLiteDialect_aiosqlite object at 0x00000202F5A6A710>
+cursor = <sqlalchemy.dialects.sqlite.aiosqlite.AsyncAdapt_aiosqlite_cursor object at 0x00000202F5B6D300>
+statement = 'INSERT INTO gc_common_documents (id, agency_id, group_id, gc_group_access_id, logical_document_id, version, category,...created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+parameters = ('9652e9a33ec34c908e4d4d389c2dd99f', 'd4c9c24e85b7493fa2266b94eb624e03', '8e4ce5bed6ac412ebe515de3ee0a2ad8', '8280763027c04b8194a7b2328e84da40', '28ee7694ac5548bba6976c3156bf70b4', 1, ...)
+context = <sqlalchemy.dialects.sqlite.aiosqlite.SQLiteExecutionContext_aiosqlite object at 0x00000202F5B4F4D0>
+
+    def do_execute(self, cursor, statement, parameters, context=None):
+>       cursor.execute(statement, parameters)
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\default.py:924: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <sqlalchemy.dialects.sqlite.aiosqlite.AsyncAdapt_aiosqlite_cursor object at 0x00000202F5B6D300>
+operation = 'INSERT INTO gc_common_documents (id, agency_id, group_id, gc_group_access_id, logical_document_id, version, category,...created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+parameters = ('9652e9a33ec34c908e4d4d389c2dd99f', 'd4c9c24e85b7493fa2266b94eb624e03', '8e4ce5bed6ac412ebe515de3ee0a2ad8', '8280763027c04b8194a7b2328e84da40', '28ee7694ac5548bba6976c3156bf70b4', 1, ...)
+
+    def execute(self, operation, parameters=None):
+        try:
+            _cursor = self.await_(self._connection.cursor())
+    
+            if parameters is None:
+                self.await_(_cursor.execute(operation))
+            else:
+                self.await_(_cursor.execute(operation, parameters))
+    
+            if _cursor.description:
+                self.description = _cursor.description
+                self.lastrowid = self.rowcount = -1
+    
+                if not self.server_side:
+                    self._rows = deque(self.await_(_cursor.fetchall()))
+            else:
+                self.description = None
+                self.lastrowid = _cursor.lastrowid
+                self.rowcount = _cursor.rowcount
+    
+            if not self.server_side:
+                self.await_(_cursor.close())
+            else:
+                self._cursor = _cursor
+        except Exception as error:
+>           self._adapt_connection._handle_exception(error)
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:147: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <AdaptedConnection <Connection(Thread-4, started daemon 34244)>>
+error = IntegrityError('CHECK constraint failed: ck_gc_common_doc_audience')
+
+    def _handle_exception(self, error):
+        if (
+            isinstance(error, ValueError)
+            and error.args[0] == "no active connection"
+        ):
+            raise self.dbapi.sqlite.OperationalError(
+                "no active connection"
+            ) from error
+        else:
+>           raise error
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:298: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <sqlalchemy.dialects.sqlite.aiosqlite.AsyncAdapt_aiosqlite_cursor object at 0x00000202F5B6D300>
+operation = 'INSERT INTO gc_common_documents (id, agency_id, group_id, gc_group_access_id, logical_document_id, version, category,...created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+parameters = ('9652e9a33ec34c908e4d4d389c2dd99f', 'd4c9c24e85b7493fa2266b94eb624e03', '8e4ce5bed6ac412ebe515de3ee0a2ad8', '8280763027c04b8194a7b2328e84da40', '28ee7694ac5548bba6976c3156bf70b4', 1, ...)
+
+    def execute(self, operation, parameters=None):
+        try:
+            _cursor = self.await_(self._connection.cursor())
+    
+            if parameters is None:
+                self.await_(_cursor.execute(operation))
+            else:
+>               self.await_(_cursor.execute(operation, parameters))
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:129: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+awaitable = <coroutine object Cursor.execute at 0x00000202F59F2110>
+
+    def await_only(awaitable: Awaitable[_T]) -> _T:
+        """Awaits an async function in a sync method.
+    
+        The sync method must be inside a :func:`greenlet_spawn` context.
+        :func:`await_only` calls cannot be nested.
+    
+        :param awaitable: The coroutine to call.
+    
+        """
+        # this is called in the context greenlet while running fn
+        current = getcurrent()
+        if not getattr(current, "__sqlalchemy_greenlet_provider__", False):
+            _safe_cancel_awaitable(awaitable)
+    
+            raise exc.MissingGreenlet(
+                "greenlet_spawn has not been called; can't call await_only() "
+                "here. Was IO attempted in an unexpected place?"
+            )
+    
+        # returns the control to the driver greenlet passing it
+        # a coroutine to run. Once the awaitable is done, the driver greenlet
+        # switches back to this greenlet with the result of awaitable that is
+        # then returned to the caller (or raised as error)
+>       return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:132: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+fn = <bound method Session.flush of <sqlalchemy.orm.session.Session object at 0x00000202F5B19D50>>
+_require_await = False, args = (), kwargs = {'objects': None}
+context = <_AsyncIoGreenlet object at 0x00000202F5B43280 (otid=0x00000202ABC67F00) dead>
+switch_occurred = True
+result = <coroutine object Connection.rollback at 0x00000202F5B7FED0>
+value = None
+
+    async def greenlet_spawn(
+        fn: Callable[..., _T],
+        *args: Any,
+        _require_await: bool = False,
+        **kwargs: Any,
+    ) -> _T:
+        """Runs a sync function ``fn`` in a new greenlet.
+    
+        The sync function can then use :func:`await_only` to wait for async
+        functions.
+    
+        :param fn: The sync callable to call.
+        :param \\*args: Positional arguments to pass to the ``fn`` callable.
+        :param \\*\\*kwargs: Keyword arguments to pass to the ``fn`` callable.
+        """
+    
+        result: Any
+        context = _AsyncIoGreenlet(fn, getcurrent())
+        # runs the function synchronously in gl greenlet. If the execution
+        # is interrupted by await_only, context is not dead and result is a
+        # coroutine to wait. If the context is dead the function has
+        # returned, and its result can be returned.
+        switch_occurred = False
+        result = context.switch(*args, **kwargs)
+        while not context.dead:
+            switch_occurred = True
+            try:
+                # wait for a coroutine from await_only and then return its
+                # result back to it.
+>               value = await result
+                        ^^^^^^^^^^^^
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:196: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <aiosqlite.cursor.Cursor object at 0x00000202F5B4C850>
+sql = 'INSERT INTO gc_common_documents (id, agency_id, group_id, gc_group_access_id, logical_document_id, version, category,...created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+parameters = ('9652e9a33ec34c908e4d4d389c2dd99f', 'd4c9c24e85b7493fa2266b94eb624e03', '8e4ce5bed6ac412ebe515de3ee0a2ad8', '8280763027c04b8194a7b2328e84da40', '28ee7694ac5548bba6976c3156bf70b4', 1, ...)
+
+    async def execute(
+        self, sql: str, parameters: Optional[Iterable[Any]] = None
+    ) -> "Cursor":
+        """Execute the given query."""
+        if parameters is None:
+            parameters = []
+>       await self._execute(self._cursor.execute, sql, parameters)
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\cursor.py:48: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <aiosqlite.cursor.Cursor object at 0x00000202F5B4C850>
+fn = <built-in method execute of sqlite3.Cursor object at 0x00000202F59AB640>
+args = ('INSERT INTO gc_common_documents (id, agency_id, group_id, gc_group_access_id, logical_document_id, version, category...', '8e4ce5bed6ac412ebe515de3ee0a2ad8', '8280763027c04b8194a7b2328e84da40', '28ee7694ac5548bba6976c3156bf70b4', 1, ...))
+kwargs = {}
+
+    async def _execute(self, fn, *args, **kwargs):
+        """Execute the given function on the shared connection's thread."""
+>       return await self._conn._execute(fn, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\cursor.py:40: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <Connection(Thread-4, started daemon 34244)>
+fn = <built-in method execute of sqlite3.Cursor object at 0x00000202F59AB640>
+args = ('INSERT INTO gc_common_documents (id, agency_id, group_id, gc_group_access_id, logical_document_id, version, category...', '8e4ce5bed6ac412ebe515de3ee0a2ad8', '8280763027c04b8194a7b2328e84da40', '28ee7694ac5548bba6976c3156bf70b4', 1, ...))
+kwargs = {}
+function = functools.partial(<built-in method execute of sqlite3.Cursor object at 0x00000202F59AB640>, 'INSERT INTO gc_common_doc..., 0, '2026-11-01 00:50:52.926895', None, None, None, None, '2026-11-01 00:50:52.928373', '2026-11-01 00:50:52.928373'))
+future = <Future finished exception=IntegrityError('CHECK constraint failed: ck_gc_common_doc_audience')>
+
+    async def _execute(self, fn, *args, **kwargs):
+        """Queue a function with the given arguments for execution."""
+        if not self._running or not self._connection:
+            raise ValueError("Connection closed")
+    
+        function = partial(fn, *args, **kwargs)
+        future = asyncio.get_event_loop().create_future()
+    
+        self._tx.put_nowait((future, function))
+    
+>       return await future
+               ^^^^^^^^^^^^
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\core.py:132: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <Connection(Thread-4, started daemon 34244)>
+
+    def run(self) -> None:
+        """
+        Execute function calls on a separate thread.
+    
+        :meta private:
+        """
+        while True:
+            # Continues running until all queue items are processed,
+            # even after connection is closed (so we can finalize all
+            # futures)
+    
+            tx_item = self._tx.get()
+            if tx_item is _STOP_RUNNING_SENTINEL:
+                break
+    
+            future, function = tx_item
+    
+            try:
+                LOG.debug("executing %s", function)
+>               result = function()
+                         ^^^^^^^^^^
+E               sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) CHECK constraint failed: ck_gc_common_doc_audience
+E               [SQL: INSERT INTO gc_common_documents (id, agency_id, group_id, gc_group_access_id, logical_document_id, version, category, title, description, storage_key, safe_filename, media_type, byte_size, checksum_sha256, status, passenger_visible, client_manager_visible, coordinator_visible, offline_available, availability_starts_at, availability_expires_at, sort_order, published_at, published_by_user_id, retired_at, revoked_at, created_by_user_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]
+E               [parameters: ('9652e9a33ec34c908e4d4d389c2dd99f', 'd4c9c24e85b7493fa2266b94eb624e03', '8e4ce5bed6ac412ebe515de3ee0a2ad8', '8280763027c04b8194a7b2328e84da40', '28ee7694ac5548bba6976c3156bf70b4', 1, 'itinerary_pdf', 'Private administrator handover', None, 'synthetic/private-handover.pdf', 'handover.pdf', 'application/pdf', 20, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'published', 0, 0, 0, 1, None, None, 0, '2026-11-01 00:50:52.926895', None, None, None, None, '2026-11-01 00:50:52.928373', '2026-11-01 00:50:52.928373')]
+E               (Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\core.py:115: IntegrityError
+
+---------- coverage: platform win32, python 3.11.15-final-0 ----------
+Coverage XML written to file C:\Users\nipun\Desktop\PassDetection\docs\audit\dashboard-2026-10-30\final-retained-gc-scope-cov-20261101-001\coverage.xml
+Coverage JSON written to file C:\Users\nipun\Desktop\PassDetection\docs\audit\dashboard-2026-10-30\final-retained-gc-scope-cov-20261101-001\coverage.json
+
+=========================== short test summary info ===========================
+FAILED tests/unit/presentation/test_gc_content_dashboard_scope.py::test_dashboard_unpublish_returns_retired_content_and_records_only_scoped_audit[common_document]
+1 failed, 6 passed in 30.15s

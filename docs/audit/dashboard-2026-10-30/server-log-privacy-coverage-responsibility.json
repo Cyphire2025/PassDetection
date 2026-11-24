@@ -1,0 +1,27 @@
+{
+  "original_owner": "app/core/logging/task_diagnostics.py",
+  "original_floor_and_caps": {
+    "path": "app/core/logging/task_diagnostics.py",
+    "baseline_lines": 89,
+    "maximum_lines": 93,
+    "baseline_max_function_complexity": 9,
+    "maximum_function_complexity": 9,
+    "minimum_coverage_percent": 90
+  },
+  "original_whole_task_projection_body_and_dataclass_preserved": true,
+  "moved_logic": "diagnostic_name and the bounded16-frame walk now execute from exception_diagnostics; _frames wrapper preserves its original task fallback and diagnostic_name stays an explicit public alias.",
+  "new_actual_owner_guards": {
+    "path": "app/core/logging/exception_diagnostics.py",
+    "minimum_line_percent": 95,
+    "minimum_branch_percent": 90
+  },
+  "measured_current_task_line_and_branch": [
+    100.0,
+    100.0
+  ],
+  "measured_current_relocated_helper_line_and_branch": [
+    100.0,
+    100.0
+  ],
+  "tests": "Existing real Celery/private-diagnostic controls plus actual ASGI frame projections execute the real shared helper; no forwarding-only mock coverage."
+}

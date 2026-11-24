@@ -1,0 +1,9 @@
+from pathlib import Path
+import os,sys,time,json,subprocess,hashlib
+root=Path(__file__).resolve().parents[2];work=Path(__file__).resolve().parent;front=root/"frontend";node=Path("C:/Users/nipun/AppData/Local/Programs/node-v24.21.0-win-x64/node.exe")
+paths=["features/branding/components/group-banner.tsx","features/branding/components/group-banner-action.tsx","features/branding/components/group-image-dialog.tsx","features/branding/components/group-banner-frame.ts","features/branding/components/use-group-image-aspect.ts","features/branding/components/group-image-dialog.test.tsx","features/branding/components/group-image-save-authority.test.tsx","features/branding/api/branding-images.api.ts"]
+def fence():return {"frontend/"+p:hashlib.sha256((front/p).read_bytes()).hexdigest() for p in paths}
+kind=sys.argv[1];before=fence();argv=[str(node),"node_modules/eslint/bin/eslint.js",*paths,"--max-warnings=0"] if kind=="lint" else [str(node),"node_modules/typescript/bin/tsc","--project",str(work/"tsconfig.json"),"--noEmit","--incremental","false"]
+keys={"SYSTEMROOT","WINDIR","COMSPEC","TEMP","TMP","LOCALAPPDATA","APPDATA","USERPROFILE","PROGRAMFILES","PROGRAMFILES(X86)","NUMBER_OF_PROCESSORS","PROCESSOR_ARCHITECTURE","PATHEXT","PATH","SYSTEMDRIVE","PROGRAMDATA","HOMEDRIVE","HOMEPATH"};env={k:v for k,v in os.environ.items() if k.upper() in keys};env["PATH"]=str(node.parent)+os.pathsep+env.get("PATH","");started=time.monotonic()
+with (work/(kind+"-final.log")).open("wb") as f:r=subprocess.run(argv,cwd=front,env=env,stdout=f,stderr=subprocess.STDOUT,timeout=120)
+after=fence();(work/(kind+"-final-command.json")).write_text(json.dumps({"argv":argv,"cwd":"frontend","exit_code":r.returncode,"seconds":time.monotonic()-started,"source_fence":before,"source_unchanged":before==after},indent=2)+"\n",encoding="utf-8");print(kind,r.returncode)

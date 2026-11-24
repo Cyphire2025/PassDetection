@@ -1,0 +1,329 @@
+{
+  "stage": "complete repository architecture follow-through, no adopted behavior/security change",
+  "files": [
+    {
+      "path": "backend/app/infrastructure/repositories/passport_submission_repository.py",
+      "sha256": "3aa855541a75e4efddeebb35f639bfa6ba4026152d38f8e255e0634e98a919b0",
+      "physical_lines": 384,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Complete physical read of current compatibility facade. All26 signatures/defaults/runtime hints and40 original imported object aliases retained; no business logic.384lines is a deliberate declaration/delegation compatibility tradeoff approved by root."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_submission_mapping.py",
+      "sha256": "df419cb06bc2915c0642e5541ec49d3c4a633df54ef23291774abccdf0a26552",
+      "physical_lines": 147,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Complete authored/current physical read. Cohesive actual owner of exact old repository statements after explicit session/helper conversion; original SQL/policy/lock/order/transaction/value semantics preserved. See whole-declaration proof and focused controls."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_submission_persistence.py",
+      "sha256": "0c759e6b16f4a6659e1ac9394b39917b4d0fb2ae986faddf5de6b11b497aacfd",
+      "physical_lines": 142,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Complete authored/current physical read. Cohesive actual owner of exact old repository statements after explicit session/helper conversion; original SQL/policy/lock/order/transaction/value semantics preserved. See whole-declaration proof and focused controls."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_submission_processing.py",
+      "sha256": "3391aa1e39f14c06d698b704b92151561cc45754aa0d6bd27ad0881c342dab3a",
+      "physical_lines": 148,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Complete authored/current physical read. Cohesive actual owner of exact old repository statements after explicit session/helper conversion; original SQL/policy/lock/order/transaction/value semantics preserved. See whole-declaration proof and focused controls."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_submission_queries.py",
+      "sha256": "742694def1423be8b4ac175063f8d63cd1bd9c050b04e19e491d5e3751f059b2",
+      "physical_lines": 122,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Complete authored/current physical read. Cohesive actual owner of exact old repository statements after explicit session/helper conversion; original SQL/policy/lock/order/transaction/value semantics preserved. See whole-declaration proof and focused controls."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_submission_reads.py",
+      "sha256": "d7a140c34de53e971655d032cbdc185da126cb13bb8e1daff7e1ac778df7b20c",
+      "physical_lines": 208,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Complete authored/current physical read. Cohesive actual owner of exact old repository statements after explicit session/helper conversion; original SQL/policy/lock/order/transaction/value semantics preserved. See whole-declaration proof and focused controls."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_submission_groups.py",
+      "sha256": "21f669d09021264cffd029f90d3f9ff4d706f5bae44cdf5773e8d1ce3ff30078",
+      "physical_lines": 183,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Complete authored/current physical read. Cohesive actual owner of exact old repository statements after explicit session/helper conversion; original SQL/policy/lock/order/transaction/value semantics preserved. See whole-declaration proof and focused controls."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_submission_contacts.py",
+      "sha256": "c61b10a39d982e25d86ca25e720056960308d90f23b7625de4ff06ef07730346",
+      "physical_lines": 79,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Complete authored/current physical read. Cohesive actual owner of exact old repository statements after explicit session/helper conversion; original SQL/policy/lock/order/transaction/value semantics preserved. See whole-declaration proof and focused controls."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_passport_submission_repository_contract.py",
+      "sha256": "b2d6c9215b1d9080e196a55b1531a476f9057663bbfe2ff10f4b3157a2a7edd8",
+      "physical_lines": 124,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "added-controls",
+      "notes": "Complete authored/current physical read. Five purposeful controls: domain-port signatures/resolved generic aliases, direct static/helper type bindings, successful/failing provenance-before-delete transaction order, real SQLite idempotent collision and usable outer transaction. Initial test-only typing.Sequence identity mismatch recorded separately; no production change."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_passport_staff_approval_repository.py",
+      "sha256": "579f9ea523f92f9c856d2a02c0f6295bc84fc99b0ccad2fee662c4f36cc5c06c",
+      "physical_lines": 48,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical read. Private mapper instrumentation retargeted to actual read owner; all original source/assertions restored by exact inverse; actual PostgreSQL SQL compilation row-lock/populate-existing/id assertions retained."
+    },
+    {
+      "path": "backend/tests/unit/application/test_passport_reextraction_conflicts.py",
+      "sha256": "675c5e559e4ef9a8d6f9f325df6ecae7d13a27242b2c4f15f58083f99c00bd65",
+      "physical_lines": 269,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical read in bounded ranges. Actual mapper/job fixture targets relocated only, exact inverse preserves all original source/assertions including atomic outbox/flush/no-commit control."
+    },
+    {
+      "path": "backend/app/domain/repositories/interfaces.py",
+      "sha256": "996e38b40ad49a1ba1b604a8582f696f0f7fa5f17cf53696998c9ba5fbf465b0",
+      "physical_lines": 23,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete stable domain import facade read; abstract/public identities remain unchanged."
+    },
+    {
+      "path": "backend/app/domain/repositories/passport_submissions.py",
+      "sha256": "8bd1cd7ee3f5f82b034293a2bd05c239f10d10d679b37d02379de1d742109b4c",
+      "physical_lines": 196,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete domain port and group-summary DTO physical read; all signatures/defaults and active fields preserved, no stub removal."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_submission_view_repository.py",
+      "sha256": "67e3882971d74859de20c09ad9f6f389a4f25e68bfa7e5c18753380f0a13d127",
+      "physical_lines": 144,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete144line physical read; actual narrow projection/page_details caller uses preserved class mapping and canonical visibility. Unchanged."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/operational_roster.py",
+      "sha256": "96bc197d330b0ab314334e37e4de726b5224529432b1ff08d89367f4033532eb",
+      "physical_lines": 67,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical read; retained operational resolution/rejection/displacement subqueries remain shared unchanged."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_verification_history.py",
+      "sha256": "66977ee7ff045be532675dff0284dc6ea3732c355f16f2fbdec98f667c9ce64c",
+      "physical_lines": 23,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical read; actual group\u2192company\u2192source lock ordering and populate-existing context are unchanged and called by relocated processing owner."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_passport_contact_policy_repository.py",
+      "sha256": "7f32c020e7e6416f3f05534785eb14d6adbc131fa6422eb109b998ae311b4c25",
+      "physical_lines": 77,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete two synthetic dialect controls read; platform/group scope and sorted advisory-lock expectations retained and executed."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_passport_verification_history.py",
+      "sha256": "a5e3f8f5a6a4ca1700dcc7d7b79e1565567a39700d1de30b4de2b4d56a81e128",
+      "physical_lines": 76,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete actual SQLite verification/history persistence, stale revision/unassigned company, cached-group reassignment controls read and executed."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_upload_configuration_storage.py",
+      "sha256": "f41423f1e54213521597343363a030d7080d22762d7d0416d55c81096532e603",
+      "physical_lines": 172,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical read; active cover-only mapping/export and null/configuration rules preserved and executed with synthetic storage."
+    },
+    {
+      "path": "backend/tests/unit/application/test_traveller_legacy_staff_approval.py",
+      "sha256": "57ab7767080a567db308d8f0d81dc02e42ac1305983619786f1698c65deba336",
+      "physical_lines": 210,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical read; current staff-decision source proof, active saved AI MRZ context and reviewed-domain mapping controls retained and executed."
+    },
+    {
+      "path": "backend/tests/unit/application/test_public_upload_native_lifetime.py",
+      "sha256": "d782a22501e5763b98629a2b0e871e672af1aebe66bbc1d5241692134ed4bbb2",
+      "physical_lines": 150,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete bounded physical read, including restored80\u2013100range. Actual public upload/idempotent insertion and native-worker cancellation cleanup controls retained/executed; no provider/storage service."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_global_search_queries.py",
+      "sha256": "74f5bd239b9c4f7c4377267c244f7b0eaec5195b7f3243fb40b0c810b6a33f5d",
+      "physical_lines": 149,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete149line source read; JSON/name literal wildcard and shared-role scoping query controls retained/executed."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_passport_review_persistence.py",
+      "sha256": "986beaf037f24d4af8049a90a8e78a5db7cf6254fa4d642fdc7de3737f4724fc",
+      "physical_lines": 136,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete source read; actual re-extract/cancel and staff/history scheduling persistence controls retained/executed."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_passport_document_follow_up.py",
+      "sha256": "c9552643a28b58f917743b0ecc754dec72b3234cc750b1edc779c57ca5800d14",
+      "physical_lines": 196,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete196line source read. Critical stale repository update must not overwrite dedicated follow-up mutation remains unchanged/executed; no broad field-copy refactor."
+    },
+    {
+      "path": "backend/tests/integration/test_import_only_group_workflow.py",
+      "sha256": "4c6968d8599316f0395aeba4e1fa6374a83a73090ead2b8d5e9a7fc18d069734",
+      "physical_lines": 89,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical read; synthetic workbook/import-only group summary/replay actual SQL control retained/executed."
+    },
+    {
+      "path": "backend/tests/integration/test_mcp_dashboard_summary.py",
+      "sha256": "aca2efadeeb4bc6cd403f511cf20eb8d920cdcab8034a642ac18041cf67138ab",
+      "physical_lines": 307,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical read in two bounded ranges; current website/SDK/MCP role, retained-deleted exclusion, bounded six-column projection, failure/authority controls retained/executed using synthetic SQLite HTTP fixtures."
+    },
+    {
+      "path": "backend/tests/integration/test_historical_name_roundtrip.py",
+      "sha256": "08a7542128c84dec8411dea9ae75faeeb672d4fd16e7eacfc21e044646038d47",
+      "physical_lines": 119,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical source read only this tranche, not executed. Actual external class mapping/export/import/current identity caller confirms preserved static seam; separate source-only evidence."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/dashboard.py",
+      "sha256": "425c3af29b4e35bb6ba49c5cd3c49ef1bb9e412781f2dfa303ed28817725b0d5",
+      "physical_lines": 79,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete source read of actual DI/caller, including staff-created scope and current user propagation; unchanged."
+    },
+    {
+      "path": "backend/app/infrastructure/processing/worker_runtime.py",
+      "sha256": "1bb7311c0aa442b2d70ad2a896594c3afe41f23d3570e7e69d69910d2aa39892",
+      "physical_lines": 109,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete current physical read; actual runtime constructs repository from same session and owns explicit commit/retry/rollback/close ordering; unchanged, no worker/provider execution."
+    },
+    {
+      "path": "backend/scripts/verify_architecture_boundaries.py",
+      "sha256": "bc1a580902fc60808c0d01c3b0fa6d7cde4820a0eba13c8a70b782186821bcb0",
+      "physical_lines": 86,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete source read; exact application\u2192infrastructure policy verifier does not regulate additional infrastructure-only owners. Existing checker passes; no policy edit/admission needed."
+    },
+    {
+      "path": "backend/app/application/security/authorization_policy.py",
+      "sha256": "6a1ee49097b124715ce52fb5810387c6be5a3a5e18f4896676340c6e6dabe663",
+      "physical_lines": 362,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Only first175physical lines/canonical group/passport visibility builders read for exact query trace; not full in this tranche. Shared auth unchanged."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/mcp_export_history_read_repository.py",
+      "sha256": "1793667c677d150580a74cea37693b25b2dd880b7476e6bffaecc051618539a1",
+      "physical_lines": 136,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "First115lines only; actual private _group_scope caller and bounded SHARE/byte admission flow traced. Not full here; unchanged."
+    },
+    {
+      "path": "backend/app/domain/entities/passport_extraction.py",
+      "sha256": "e745eb8f9d1b0827bf9bdeb2f8076ed898588fb0f3d1a0cb6c5baf5abc0d3cf1",
+      "physical_lines": 246,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Only0\u2013120 and210\u2013EOF transition ranges physically read for actual result/failure/processing guard contract; unreceived middle not full. Unchanged."
+    },
+    {
+      "path": "backend/tests/unit/application/test_traveller_enrollment.py",
+      "sha256": "53cabc722aba47b6d02f1293b77221f3c6725ef2e45b1d99cfdaa04267018628",
+      "physical_lines": 268,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Only actual fixture/source setup first~80lines received; larger read clipped. No full credit; reused solely as synthetic DB fixture."
+    },
+    {
+      "path": "backend/scripts/verify_backend_quality_budgets.py",
+      "sha256": "2baf94d493a068bd1aed0258f4627aed47fe0845e6764fd0310cbf84f57794a9",
+      "physical_lines": 309,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "First140lines including deterministic measurement implementation only; used for candidate measurements, not a whole-file source review."
+    }
+  ],
+  "original_full_review_attribution": {
+    "path": "backend/app/infrastructure/repositories/passport_submission_repository.py",
+    "sha256": "86d3e08deca66ccc621be769e73a2e8df822c0f540be5779467c8e0cab3379c2",
+    "physical_lines": 901,
+    "review_scope": "full",
+    "prior_matching_ledger": "ai-runtime-reviewed-files.json",
+    "notes": "Full901line original physically reread in bounded groups for architecture; already matching-full AI source before this batch. Not counted as newly unreviewed coverage."
+  },
+  "independent_followups_not_closed_by_this_refactor": "No unrelated source/architecture/lifecycle finding is implicitly closed by current full read or facade size reduction."
+}

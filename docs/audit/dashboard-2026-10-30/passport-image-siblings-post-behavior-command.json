@@ -1,0 +1,45 @@
+{
+  "argv": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "--tb=short",
+    "-o",
+    "addopts=",
+    "tests/unit/presentation/test_passport_image_mutation_commit_outcomes.py",
+    "tests/unit/presentation/test_passport_image_mutation_authority.py",
+    "tests/unit/presentation/test_passport_image_mutation_cancellation.py",
+    "tests/unit/presentation/test_passport_image_crop_routes.py"
+  ],
+  "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection\\backend",
+  "exit_code": 0,
+  "before": {
+    "backend/app/presentation/api/v1/routes/passport_routes/images.py": "66f753fbfa5a3d7bf2af6b9909345ead749169812ed833c36227cb8085a2ccda",
+    "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library.py": "28fdbf796c013259a4e4b0d9ca5491f731acf573744fecccc047959cc322cb4b",
+    "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_edits.py": "65ac15505ff0599419c17b164c50750f75ba36c69d402c95e88cf30703c5fef0",
+    "backend/tests/passport_image_mutations.py": "1e6939df03c3f37cf9bd5ee162b9558bb5e0393ef6f8b342492b851f7a1a8f75",
+    "backend/tests/unit/presentation/test_passport_image_mutation_commit_outcomes.py": "1d74ae64c3e58d7ea7e642b02cc402f163a09f94a6efb1618414732403e9d90e",
+    "backend/tests/unit/presentation/test_passport_image_mutation_authority.py": "261434de75fa00a1bbee172c009b145f7bf6ab64c0d812d061b9a00b6a982971",
+    "backend/tests/unit/presentation/test_passport_image_mutation_cancellation.py": "cd5748a3fbf8bc069a63c6f543ad55af045a9426d087fb0f52659275a84e88cc",
+    "backend/app/presentation/api/v1/routes/passport_image_mutation.py": "9b7d044a448d8fd6ef5b19bbd8af9eee1c43a3a290486c0e081f4dd09777e7cd",
+    "backend/app/presentation/api/v1/routes/passport_image_library_authority.py": "1a3f020f32134e9eab62ccd3f24e116648af90e2f34f238b2813fa5129a6e390",
+    "backend/app/presentation/api/v1/routes/passport_image_storage_write.py": "11b12fdbb9b053c2b26f87d21ef97f3ce87490c3751c0a6c1d4922259ee804f7",
+    "backend/tests/unit/presentation/test_passport_image_crop_routes.py": "7907b4858e2862b5c3136195feecddfae11ba4ab0a3f8935fe63aeeea27422c6"
+  },
+  "after": {
+    "backend/app/presentation/api/v1/routes/passport_routes/images.py": "66f753fbfa5a3d7bf2af6b9909345ead749169812ed833c36227cb8085a2ccda",
+    "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library.py": "28fdbf796c013259a4e4b0d9ca5491f731acf573744fecccc047959cc322cb4b",
+    "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_edits.py": "65ac15505ff0599419c17b164c50750f75ba36c69d402c95e88cf30703c5fef0",
+    "backend/tests/passport_image_mutations.py": "1e6939df03c3f37cf9bd5ee162b9558bb5e0393ef6f8b342492b851f7a1a8f75",
+    "backend/tests/unit/presentation/test_passport_image_mutation_commit_outcomes.py": "1d74ae64c3e58d7ea7e642b02cc402f163a09f94a6efb1618414732403e9d90e",
+    "backend/tests/unit/presentation/test_passport_image_mutation_authority.py": "261434de75fa00a1bbee172c009b145f7bf6ab64c0d812d061b9a00b6a982971",
+    "backend/tests/unit/presentation/test_passport_image_mutation_cancellation.py": "cd5748a3fbf8bc069a63c6f543ad55af045a9426d087fb0f52659275a84e88cc",
+    "backend/app/presentation/api/v1/routes/passport_image_mutation.py": "9b7d044a448d8fd6ef5b19bbd8af9eee1c43a3a290486c0e081f4dd09777e7cd",
+    "backend/app/presentation/api/v1/routes/passport_image_library_authority.py": "1a3f020f32134e9eab62ccd3f24e116648af90e2f34f238b2813fa5129a6e390",
+    "backend/app/presentation/api/v1/routes/passport_image_storage_write.py": "11b12fdbb9b053c2b26f87d21ef97f3ce87490c3751c0a6c1d4922259ee804f7",
+    "backend/tests/unit/presentation/test_passport_image_crop_routes.py": "7907b4858e2862b5c3136195feecddfae11ba4ab0a3f8935fe63aeeea27422c6"
+  },
+  "source_frozen": true,
+  "output": "passport-image-siblings-post-behavior-tests.txt"
+}

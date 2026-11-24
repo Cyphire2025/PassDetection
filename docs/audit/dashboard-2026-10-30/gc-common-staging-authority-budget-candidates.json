@@ -1,0 +1,82 @@
+{
+  "source_manifest": {
+    "path": "docs/audit/dashboard-2026-10-30/gc-common-staging-authority-final-source-manifest.json",
+    "sha256": "6aa078f845c33e0e4de5c51d7ebf744eb3c1a63f3cfa4c04adb4fe2775301b2b"
+  },
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/gc-common-staging-authority-reviewed-files.json",
+    "sha256": "8d531f6cd0cbbd5df14c193739f9f03617c8ed0d04cf2dadf884e44f2d4a7754"
+  },
+  "normal_module_candidates": [
+    {
+      "path": "app/presentation/api/v1/routes/gc_app_common_staging.py",
+      "baseline_lines": 295,
+      "maximum_lines": 306,
+      "baseline_max_function_complexity": 6,
+      "maximum_function_complexity": 6,
+      "minimum_coverage_percent": 90,
+      "previous": {
+        "path": "app/presentation/api/v1/routes/gc_app_common_staging.py",
+        "baseline_lines": 291,
+        "maximum_lines": 306,
+        "baseline_max_function_complexity": 6,
+        "maximum_function_complexity": 6,
+        "minimum_coverage_percent": 90
+      },
+      "sha256": "21c0b756307e35642e9819f1509f1065df89b70bdfad74b65537e4379414718d"
+    },
+    {
+      "path": "app/presentation/api/v1/routes/gc_app_common_authority.py",
+      "sha256": "3cad85f026b14fb8627a0f3059e2e5d5027b54c4f411981332c7136bbd93db5c",
+      "previous": null,
+      "baseline_lines": 39,
+      "maximum_lines": 40,
+      "baseline_max_function_complexity": 4,
+      "maximum_function_complexity": 4,
+      "minimum_coverage_percent": 95
+    }
+  ],
+  "critical_module_candidates": [
+    {
+      "path": "app/presentation/api/v1/routes/gc_app_common_authority.py",
+      "sha256": "3cad85f026b14fb8627a0f3059e2e5d5027b54c4f411981332c7136bbd93db5c",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 90
+    }
+  ],
+  "coverage": {
+    "app/presentation/api/v1/routes/gc_app_common_authority.py": {
+      "covered_lines": 18,
+      "num_statements": 18,
+      "percent_covered": 100.0,
+      "percent_covered_display": "100",
+      "missing_lines": 0,
+      "excluded_lines": 0,
+      "percent_statements_covered": 100.0,
+      "percent_statements_covered_display": "100",
+      "num_branches": 2,
+      "num_partial_branches": 0,
+      "covered_branches": 2,
+      "missing_branches": 0,
+      "percent_branches_covered": 100.0,
+      "percent_branches_covered_display": "100"
+    },
+    "app/presentation/api/v1/routes/gc_app_common_staging.py": {
+      "covered_lines": 96,
+      "num_statements": 103,
+      "percent_covered": 91.15044247787611,
+      "percent_covered_display": "91",
+      "missing_lines": 7,
+      "excluded_lines": 0,
+      "percent_statements_covered": 93.20388349514563,
+      "percent_statements_covered_display": "93",
+      "num_branches": 10,
+      "num_partial_branches": 3,
+      "covered_branches": 7,
+      "missing_branches": 3,
+      "percent_branches_covered": 70.0,
+      "percent_branches_covered_display": "70"
+    }
+  },
+  "scope": "Parent adopted one meaningful current-actor behavior guard in principle: actual18/18 lines and2/2 branches. Staging baseline-only291\u2192295; original max306/C6/floor90 and every global/critical obligation unchanged. No shared file written by this lane."
+}

@@ -1,0 +1,26 @@
+[
+  {
+    "path": "scripts/dashboard_audit_inventory.py",
+    "sha256": "5d0d7cf8cfb0f0e5050d98e146ec91ad0589fb24a1ddbbbba41d423e0beb4f7c",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Full original/current source and exact added literals/validators/tests read; current119focused cases under7pathstablefence and explicitno-fixRuff3 pass. Six exact retirement paths remain traceable after fresh inventory without ignored payload access; six native tests follow already-excluded owners only. Whole inventory raw inverse matched pre-edit recordedSHA, all other scope values and old test assertions/counts by inverse preserved. Corrected audit-only original hook12fail retained; current119not rerun/inflated. No product/runtime/scanner qualification."
+  },
+  {
+    "path": "backend/tests/unit/scripts/test_dashboard_audit_scope.py",
+    "sha256": "9c251b8c9f9a15e3d6c918aa5872309c990ea0387c2dbc935c2043851b90893e",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Full original/current source and exact added literals/validators/tests read; current119focused cases under7pathstablefence and explicitno-fixRuff3 pass. Six exact retirement paths remain traceable after fresh inventory without ignored payload access; six native tests follow already-excluded owners only. Whole inventory raw inverse matched pre-edit recordedSHA, all other scope values and old test assertions/counts by inverse preserved. Corrected audit-only original hook12fail retained; current119not rerun/inflated. No product/runtime/scanner qualification."
+  },
+  {
+    "path": "backend/tests/unit/scripts/test_dashboard_audit_artifact_retirement.py",
+    "sha256": "bf2f4e0fa2fb7bc1e2e98e2ddb7ede518cbd224a12f791e12900a26830d38aea",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Full original/current source and exact added literals/validators/tests read; current119focused cases under7pathstablefence and explicitno-fixRuff3 pass. Six exact retirement paths remain traceable after fresh inventory without ignored payload access; six native tests follow already-excluded owners only. Whole inventory raw inverse matched pre-edit recordedSHA, all other scope values and old test assertions/counts by inverse preserved. Corrected audit-only original hook12fail retained; current119not rerun/inflated. No product/runtime/scanner qualification."
+  }
+]

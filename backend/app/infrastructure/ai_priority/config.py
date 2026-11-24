@@ -1,8 +1,7 @@
 """Constructor-driven configuration for global Gemini admission control.
 
-The environment names live here so operational wiring can be added in one
-place after the application-settings work is stable.  Coordination code does
-not read environment variables directly.
+The factory maps reviewed application settings onto this typed policy.
+Coordination code does not read environment variables directly.
 """
 
 from __future__ import annotations

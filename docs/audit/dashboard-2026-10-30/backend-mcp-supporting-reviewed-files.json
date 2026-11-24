@@ -1,0 +1,65 @@
+[
+  {
+    "path": "backend/app/application/mcp/read_context.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "82a803644db66e939797fd407c0420386d3691b08d000a149cf1eedaffc37120",
+    "physical_lines": 74,
+    "notes": "Full physical source: active retained Superadmin actor required, validated page bounds, canonical group AuthorizationPolicy and agency existence, signed cursor/fixed completeness. This closes scope context for generic presentation adapters."
+  },
+  {
+    "path": "backend/app/application/mcp/read_projection.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "ebed0d86e9d33edfe0dc4f764c7ee4f4681bb86dff989da42459eeae2f4b03d3",
+    "physical_lines": 184,
+    "notes": "Full physical source: protected credential/file-key field scrub and protected absolute URL checks, nested business-label distinction, strict bounded data-path/page continuation, signed actor/view/filter/revision-bound cursor/fingerprint, bounded references/withheld metadata. No runtime proof during freeze."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/mcp_native_transfers.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "622df398fa4ed190f5109eb1ce5fa01d6ba615eeec15f04e972bf39c1a2bb0de",
+    "physical_lines": 199,
+    "notes": "Full physical source: limited bearer only (no dashboard-cookie authority), exactly one Authorization header/no query secret, browser Origin allowlist, exact media/length, bounded1KiB acknowledgement, no Range, private response headers, canonical source-bound streaming and explicit delivery acknowledgement. No unreviewed redirect target."
+  },
+  {
+    "path": "backend/app/application/mcp/native_transfer_runtime.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "233e0fc056220b26757f0fe72d0b46f9fefb93bbb8e7d93cee3d1c0670f55225",
+    "physical_lines": 210,
+    "notes": "Full physical source: committed upload claim before parsing, original source size/hash/scope/owner/grant lease recheck, shielded cancellation cleanup only its own ticket. Downloads use artifact verified stream then revalidate limited ticket before completion commit. Acknowledgement requires full-download marker+exact size/SHA and canonical artifact acknowledgement before delivered marker."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/mcp_artifacts.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "focused",
+    "status": "reviewed",
+    "sha256": "46a2bd46bd04b9c17487b1d965951cfefeae9223c24909e5a9524444016c6dad",
+    "physical_lines": 295,
+    "notes": "Focused194-end trace only: transfer slot acquired before headers, stream success commit, shielded rollback on BaseException, fixed size/hash/private headers, bounded JSON delivery request. Not whole route source reviewed in this lane."
+  },
+  {
+    "path": "backend/app/application/mcp/artifacts.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "focused",
+    "status": "reviewed",
+    "sha256": "39b4a7df6452cde2743703537b64215088b5cdc8338e04b9b0a856b321a86abe",
+    "physical_lines": 692,
+    "notes": "Focused535-end plus628-699 stream/ack trace:120s body deadline, expected byte count/hash, per-chunk artifact/principal expiry, fresh get lock at completion, acknowledgement rechecks resource+full-download marker+size/digest and only then completes canonical export history. Earlier authorization/storage/source implementation not fully read here."
+  },
+  {
+    "path": "backend/app/application/mcp/native_transfers.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "focused",
+    "status": "reviewed",
+    "sha256": "c52b2f7a8c1a3c5e8de7b2fd253aeeb7e3c16cfaaf86336bd8ed1ce8787f4f3a",
+    "physical_lines": 455,
+    "notes": "Focused99-245 and250-390 trace: limited bearer digest compared constant-time, original grant/user/security-version/device/section/capability/target current checks, locked recheck, exact artifact association and protected handoff fragment. Creation quotas/idempotency and current expiry observed, but not whole source reviewed."
+  }
+]

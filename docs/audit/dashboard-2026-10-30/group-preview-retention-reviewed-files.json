@@ -1,0 +1,86 @@
+{
+  "files": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/group_update_preview.py",
+      "sha256": "1ed9c5c6feb888a64cccb6cc6ecb513e02660313cabbfa16961e22c8f832e04e",
+      "physical_lines": 111,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current111 physical source read; original103 full read retained in residual ledger. Validates every historical DTO, retains only current-key latest candidates; complete module inverse AST, realDB full response/token/order and invalid-old JSON differential exact. Actual original/current retention peaks recorded; no constructor/time/whole-process-memory reduction claim."
+    },
+    {
+      "path": "backend/tests/integration/test_group_update_preview_retention.py",
+      "sha256": "daf7f2ef48051959a36544fd12929c0bde73f999d410f7d582f1dee765fc3a11",
+      "physical_lines": 127,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical test source read. Four0/1/64/512 history lifetimes/counters plus two old-invalid current/unrelated JSON cases; original2bound failures/4controls, current6pass. Actual real FK SQLite contacts/history, weakref finalizers only observe DTO lifetime; provider/publication not invoked."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/group_updates.py",
+      "sha256": "15685967249058f71a453a91856204709abd07de24ea0972073a8c0656a7e9af",
+      "physical_lines": 150,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current dependency/test source physical reread during residual/retention closure; already matching full ledger in retained-route-residual, whatsapp-backend or retained-http-orm-source-cohort-04, so no new-unreviewed credit. Current actual audience/schema/key/history/filter/caller boundaries unchanged; test execution separately scoped to named source-fenced evidence."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_update_preview.py",
+      "sha256": "80b704ce02854ce15c13a0e6f7151a98739b4295422f8c9d9c99b5c0bdc61973",
+      "physical_lines": 217,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current dependency/test source physical reread during residual/retention closure; already matching full ledger in retained-route-residual, whatsapp-backend or retained-http-orm-source-cohort-04, so no new-unreviewed credit. Current actual audience/schema/key/history/filter/caller boundaries unchanged; test execution separately scoped to named source-fenced evidence."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/group_update_audience.py",
+      "sha256": "17341ab7a6b7971d58533bbed1f639de5fc3286fbc8b4b9db05b3acda9915ee4",
+      "physical_lines": 174,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current dependency/test source physical reread during residual/retention closure; already matching full ledger in retained-route-residual, whatsapp-backend or retained-http-orm-source-cohort-04, so no new-unreviewed credit. Current actual audience/schema/key/history/filter/caller boundaries unchanged; test execution separately scoped to named source-fenced evidence."
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/group_updates.py",
+      "sha256": "21fedeb3de24aea185f6891e8234811acb375e8af120906fe326d9ea401ea9b5",
+      "physical_lines": 56,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current dependency/test source physical reread during residual/retention closure; already matching full ledger in retained-route-residual, whatsapp-backend or retained-http-orm-source-cohort-04, so no new-unreviewed credit. Current actual audience/schema/key/history/filter/caller boundaries unchanged; test execution separately scoped to named source-fenced evidence."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/group_update_schemas.py",
+      "sha256": "cdf642c81fa484b13eb75a2ed0a2dc7c323619624402456deb2af2d642253ec1",
+      "physical_lines": 87,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current dependency/test source physical reread during residual/retention closure; already matching full ledger in retained-route-residual, whatsapp-backend or retained-http-orm-source-cohort-04, so no new-unreviewed credit. Current actual audience/schema/key/history/filter/caller boundaries unchanged; test execution separately scoped to named source-fenced evidence."
+    },
+    {
+      "path": "backend/tests/integration/test_group_updates.py",
+      "sha256": "ed93dd3ec1bfd03d3f1fa08eb35c1489fda1c070dcdac83c4701aadbac09f3aa",
+      "physical_lines": 412,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current dependency/test source physical reread during residual/retention closure; already matching full ledger in retained-route-residual, whatsapp-backend or retained-http-orm-source-cohort-04, so no new-unreviewed credit. Current actual audience/schema/key/history/filter/caller boundaries unchanged; test execution separately scoped to named source-fenced evidence."
+    },
+    {
+      "path": "backend/tests/integration/test_document_updates.py",
+      "sha256": "f5797dccd59654b214520f3c381c9f3a9dc3d9d0a1cd0cb75de28e8d123efee0",
+      "physical_lines": 351,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current dependency/test source physical reread during residual/retention closure; already matching full ledger in retained-route-residual, whatsapp-backend or retained-http-orm-source-cohort-04, so no new-unreviewed credit. Current actual audience/schema/key/history/filter/caller boundaries unchanged; test execution separately scoped to named source-fenced evidence."
+    }
+  ],
+  "scope": "Actual physical reads only; prior current full dependency/test rows reread without new-unreviewed credit. API resend caller remains focused only in retained-route-residual ledger."
+}

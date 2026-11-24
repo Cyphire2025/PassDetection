@@ -1,0 +1,413 @@
+{
+  "method": "Automated triage only, not source-read evidence. These rows lacked explicit matching full reads when inventoried; check latest ledgers/current hashes before claiming or rereading.",
+  "files": [
+    {
+      "path": "frontend/features/documents/components/document-group-search.contract.test.mjs",
+      "sha256": "21272b21a58492047953323f636e3ea31c720e8e85b69d8d268ec3377ee35c29",
+      "physical_lines": 17,
+      "kind": "test",
+      "inventory_scope": "focused",
+      "inventory_status": "loader-updated-assertions-preserved"
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/workspace-pagination.test.tsx",
+      "sha256": "3de921fb86ab096eb12c8f9997e1da3194abb6f041c50e1a809413de9fbe85e7",
+      "physical_lines": 22,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/companies/components/company-person-trips.test.tsx",
+      "sha256": "837e802088d5bcad89c21bc903086d29c7dc15d2b565ba7785bef0a118ac3097",
+      "physical_lines": 23,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/whatsapp/api/whatsapp-archive.test.ts",
+      "sha256": "e4b82771357eaf420e42578a839284d285875f55480760cc16aacd41ee235f6b",
+      "physical_lines": 23,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/whatsapp/components/contact-editor.test.tsx",
+      "sha256": "52cb1fc6a8ce702b7078424b7debff410ef8888d2068b0e3a98fe02689f8eea2",
+      "physical_lines": 23,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/documents/components/document-rename.contract.test.mjs",
+      "sha256": "e0025796047575b723d37ec9356e8ddd11c3a619a8ba147dd920f140cb92fb26",
+      "physical_lines": 24,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/documents/components/document-workspace-source.contract-helper.mjs",
+      "sha256": "6ef7beefca03a9fd68e2a3eedc841c6323eec9ecc28015d0ca4c7abab597bd76",
+      "physical_lines": 26,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/documents/components/document-workspace-responsive.contract.test.mjs",
+      "sha256": "2d0db63946a22a5212a0ec39dbe09fda9d79ac7f202a7bb784f1a7beb9e1c411",
+      "physical_lines": 28,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/whatsapp/utils/activity-tracking.test.ts",
+      "sha256": "76dc3c5bfb00d6b87864c50b5c1f59feda945e911d94cc08691919c9d9e9fbdb",
+      "physical_lines": 28,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/whatsapp/hooks/use-group-update-audience.test.tsx",
+      "sha256": "ac3e13bde152297dbe38c55cca8dbac6ada328c0be23667ef833863584d1632a",
+      "physical_lines": 32,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/companies/components/company-person-page.test.tsx",
+      "sha256": "d1cfbecafc789422fae067b035b3b6c4d7d75402c717dc0b6e31d3e26d07cce2",
+      "physical_lines": 34,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/companies/components/company-person-editor.test.tsx",
+      "sha256": "63aa55aae73ec759ce03f61dff3366651a8a50512198378e5f76779a71e008cf",
+      "physical_lines": 36,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-source-roster.test.tsx",
+      "sha256": "60b7e5ec22738e2529d2083a29d83f00b398db6b28e10ecbd3c7328846158466",
+      "physical_lines": 36,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-workspace-boundaries.contract.test.mjs",
+      "sha256": "8b0e4c81c02af60357ad80d45814d25f0c21c1f47be8ac3f77b38cc5984d1247",
+      "physical_lines": 37,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "changed-needs-recheck"
+    },
+    {
+      "path": "frontend/features/documents/components/document-assignment-export.contract.test.mjs",
+      "sha256": "be68addddb0914d37787dc5390a97d55a9e3b5557cf5320bf2bdcc4e14622c9e",
+      "physical_lines": 40,
+      "kind": "test",
+      "inventory_scope": "focused",
+      "inventory_status": "loader-updated-assertions-preserved"
+    },
+    {
+      "path": "frontend/features/companies/components/company-groups.test.tsx",
+      "sha256": "2478ecbd8583c61a18051fee77d926e1da70fddbf6fb131802a2eb3431da21da",
+      "physical_lines": 41,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/companies/components/company-data-exports.test.tsx",
+      "sha256": "cf680524e194b722b684b9e92aada5c6f95ace4d6c18a36492d8edb537236957",
+      "physical_lines": 43,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/documents/components/ecr-results.test.tsx",
+      "sha256": "99585c6882edc5760092eaa66a3f7a520cf72dfd362a1bb2fa67a31968e02610",
+      "physical_lines": 45,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/documents/hooks/use-document-workspace-delivery.test.tsx",
+      "sha256": "f316cfb41ab78c57c320c2966c61c021fe0f05ba7e84eb82a44dd8af5b50e05d",
+      "physical_lines": 45,
+      "kind": "test",
+      "inventory_scope": "focused",
+      "inventory_status": "verified"
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-large-import-form.test.tsx",
+      "sha256": "2d1e7e86f5d6097c5f1233077a776eeecd7006c254acf7bb4b7bc9809f4d25ac",
+      "physical_lines": 45,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/whatsapp/api/whatsapp-source-groups.test.ts",
+      "sha256": "3e3841741c1aa3c06afabd0a606f9e1648b9660d970ffc583614f9486212f098",
+      "physical_lines": 46,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/whatsapp/utils/whatsapp-formatting.test.mjs",
+      "sha256": "4bddcd3bd6489d42368da32f11c68e77bc7942981c8fec4e35f17e804442c07c",
+      "physical_lines": 46,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/documents/components/document-group-list.test.tsx",
+      "sha256": "f7c310c37f9c43b89c6fa72082576a729672f4103c76cf77518f870606335bf5",
+      "physical_lines": 47,
+      "kind": "test",
+      "inventory_scope": "focused",
+      "inventory_status": "reviewed"
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-role-access.contract.test.mjs",
+      "sha256": "ead347be8301c5ea58330bf0711819fcdf79c0cbc65d0265a033ba50fb0cdc1f",
+      "physical_lines": 53,
+      "kind": "test",
+      "inventory_scope": "focused",
+      "inventory_status": "verified"
+    },
+    {
+      "path": "frontend/features/documents/hooks/use-document-workspace-upload.test.tsx",
+      "sha256": "67f124f72ecbd36b36b4570232a79a8aae58a7ed8a5851cacbd0cb67e04acd1f",
+      "physical_lines": 57,
+      "kind": "test",
+      "inventory_scope": "focused",
+      "inventory_status": "verified"
+    },
+    {
+      "path": "frontend/features/documents/components/document-workspace-review-controls.test.tsx",
+      "sha256": "b96317dc61e1efb86ecaf9644b5d57144ebf0ac95187f789ce9796a39a0bd5fa",
+      "physical_lines": 58,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-broadcast-motion.test.tsx",
+      "sha256": "edcdac62f9c3e1e0e9ac713625ded290249383df77ae2550d937bb97e6c6ff4b",
+      "physical_lines": 66,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/companies/components/company-match-queue.test.tsx",
+      "sha256": "372214e26db1b5ccfd0f623f08958564924438cf6f6cda4989221609df83d27b",
+      "physical_lines": 68,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/documents/components/manual-passenger-document-dialog.test.tsx",
+      "sha256": "e06da24cac889d47465c228e155209a3bb2da20d4c6ce7916fd67f0d90af03a0",
+      "physical_lines": 71,
+      "kind": "test",
+      "inventory_scope": "focused",
+      "inventory_status": "reviewed"
+    },
+    {
+      "path": "frontend/features/companies/components/company-person-documents.test.tsx",
+      "sha256": "86c8f2bd151ec3829dac4468c11b771af3e21ec0160a08e7586692b7b4602281",
+      "physical_lines": 76,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-recipient-import.test.tsx",
+      "sha256": "962974aebf1247184bdcb6d0aeddea25c8c03b53858f66cabd807296f19c3fee",
+      "physical_lines": 80,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/companies/components/company-picker.test.tsx",
+      "sha256": "e1760544e0914dcbd85813366bb0318f3dcba4e795e27bfd1aff59c79b51b1a1",
+      "physical_lines": 82,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/documents/components/document-row-action-menu.test.tsx",
+      "sha256": "93f6e65c4cdb791e1dd6d0628c237e1214c8d50311d5a0357c26f84abb162aca",
+      "physical_lines": 82,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/documents/components/document-manual-review-dialog.test.tsx",
+      "sha256": "830a66fd93c079d6478873f9eb85e5cc6230f81ebf5d3912ca383584422d92c7",
+      "physical_lines": 83,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/documents/services/ecr-upload.test.ts",
+      "sha256": "92089b27c882371a5e6a945a44c034600926e1f2808de8eb8df422c68c43ec67",
+      "physical_lines": 86,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/companies/components/company-all-data.test.tsx",
+      "sha256": "dc0edeb19002c1ac1e12d11d6e5f68e2743949c75a3ba6a2b0830b3f9490dd7e",
+      "physical_lines": 90,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/documents/components/document-distribution-hierarchy.contract.test.mjs",
+      "sha256": "0cd35ede5aef3ecced167de3030402ace02ba5ecc4c07db9fd5c1b0e2f33e8a9",
+      "physical_lines": 94,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/whatsapp/utils/recipient-delivery.test.mjs",
+      "sha256": "d12022e2bc587b3a03b3d08955b4f1013c3e8eb8778d6796f2af0e973454be3e",
+      "physical_lines": 98,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/companies/hooks/use-companies.test.tsx",
+      "sha256": "0c7e0592b99b49c2e1391970ba9703ed5ce54a5bbf7d06e66da9e5ac6f04e1e1",
+      "physical_lines": 100,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/documents/components/document-whatsapp-delivery.contract.test.mjs",
+      "sha256": "2b69b084fef923e4f0ce1a8e109a28524293c11c45edbe09bb499bdb53432794",
+      "physical_lines": 100,
+      "kind": "test",
+      "inventory_scope": "focused",
+      "inventory_status": "loader-updated-assertions-preserved"
+    },
+    {
+      "path": "frontend/features/whatsapp/utils/recipient-welcome-gate.test.ts",
+      "sha256": "4537152102d5d27f2e3a8b62f6d9eb4ef2c2363588531948cac81df6d06667ab",
+      "physical_lines": 103,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/companies/components/company-document-upload.test.tsx",
+      "sha256": "eff4685d7291921d4bfb77202109daeb1598c7790e6e6c3c12a3ebc3fff1e8f6",
+      "physical_lines": 104,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/documents/services/document-upload-recovery.test.ts",
+      "sha256": "5c9ec59fa7fdd9b795fa660b27980d46bf1d0b8df1ad39ed42ea622a8948f4b7",
+      "physical_lines": 120,
+      "kind": "test",
+      "inventory_scope": "focused",
+      "inventory_status": "verified"
+    },
+    {
+      "path": "frontend/features/whatsapp/utils/batch-polling.test.mjs",
+      "sha256": "5ddc30d6f003a7d8cb10691194bc4991595425ca751fbde2981bb812fc40f6d7",
+      "physical_lines": 124,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-role-access.test.tsx",
+      "sha256": "dc7f11c927c7991ccdcfe6fc0c432e87503849aed2250c30581f8d551645bc7f",
+      "physical_lines": 132,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/companies/hooks/use-company-people.test.tsx",
+      "sha256": "19a20c599a8926c5705f616b230fca15b38ce28f2cca2da21c0d97613fbc5c0c",
+      "physical_lines": 136,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/whatsapp/components/group-update-dialog.test.tsx",
+      "sha256": "25243e4bf025d0ca913ba82dbacb4891e9c5913a0c96a1f6e09a4663258419d7",
+      "physical_lines": 178,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/documents/components/document-workspace-model.test.mjs",
+      "sha256": "5599cade37377f67a6f76fec16946250f5d705017354351c4c54e6a492093a2d",
+      "physical_lines": 221,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-activity-motion.test.tsx",
+      "sha256": "dec26753383e8cf03fb488d837dcab2716edb64bfbda485ef9b34d430282cf38",
+      "physical_lines": 382,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/whatsapp/utils/recipient-import.test.mjs",
+      "sha256": "4f4fc98ce524f5c67c0c2f527befa5a02efb91efe6d1d6c8190569c630c62cb8",
+      "physical_lines": 423,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/documents/components/document-bulk-upload.contract.test.mjs",
+      "sha256": "93bada2d280c3b20b83988ed3d74baae44029f65583f423813c7d5aadada3e7d",
+      "physical_lines": 467,
+      "kind": "test",
+      "inventory_scope": "focused",
+      "inventory_status": "loader-updated-assertions-preserved"
+    }
+  ]
+}

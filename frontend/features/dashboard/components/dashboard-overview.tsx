@@ -6,26 +6,27 @@
 
 import { IntentPrefetchLink } from "@/components/shared/intent-prefetch-link";
 import {
-WorkspaceErrorNotice,
-WorkspacePageHeader,
-WorkspaceSummaryItem,
-WorkspaceSummaryStrip,
+  WorkspaceErrorNotice,
+  WorkspacePageHeader,
+  WorkspaceSummaryItem,
+  WorkspaceSummaryStrip,
 } from "@/components/shared/workspace-ui";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PASSPORT_STATUS_COLORS,PASSPORT_STATUS_LABELS } from "@/constants";
+import { PASSPORT_STATUS_COLORS, PASSPORT_STATUS_LABELS } from "@/constants";
 import { ROUTES } from "@/constants/routes";
 import { formatDate } from "@/lib/utils/format";
-import { selectUserRole,useAuthStore } from "@/stores/auth.store";
+import { selectUserRole, useAuthStore } from "@/stores/auth.store";
 import {
-Activity,
-AlertCircle,
-ArrowRight,
-CalendarCheck,
-CheckCircle2,
-Eye,
-FileText,
-Link2,
+  Activity,
+  AlertCircle,
+  ArrowRight,
+  CalendarCheck,
+  CheckCircle2,
+  Eye,
+  FileText,
+  Link2,
 } from "lucide-react";
 import Link from "next/link";
 import { useDashboardStats } from "../hooks/use-dashboard-stats";
@@ -33,7 +34,7 @@ import { useDashboardStats } from "../hooks/use-dashboard-stats";
 export function DashboardOverview() {
   const role = useAuthStore(selectUserRole);
   const isCoordinator = role === "agency_coordinator";
-  const { data, isLoading, error } = useDashboardStats({ enabled: !isCoordinator });
+  const { data, isLoading, isFetching, error, refetch } = useDashboardStats({ enabled: !isCoordinator });
 
   if (isCoordinator) {
     return (
@@ -100,7 +101,12 @@ export function DashboardOverview() {
 
       {error && (
         <WorkspaceErrorNotice>
-          Dashboard statistics could not be refreshed. Please try again.
+          <span>{data
+            ? "Dashboard statistics could not be refreshed. Showing the last available statistics."
+            : "Dashboard statistics are unavailable. Retry to load the current activity."}</span>
+          <Button type="button" size="sm" variant="secondary" disabled={isFetching} onClick={() => void refetch()}>
+            Retry statistics
+          </Button>
         </WorkspaceErrorNotice>
       )}
 
@@ -109,6 +115,13 @@ export function DashboardOverview() {
           Array.from({ length: 4 }).map((_, index) => (
             <Skeleton key={index} className="h-[72px] rounded-none" />
           ))
+        ) : !data ? (
+          <>
+            <WorkspaceSummaryItem label="Passport records" value="Unavailable" icon={FileText} />
+            <WorkspaceSummaryItem label="Needs review" value="Unavailable" icon={AlertCircle} />
+            <WorkspaceSummaryItem label="Confirmed" value="Unavailable" icon={CheckCircle2} />
+            <WorkspaceSummaryItem label="Active links" value="Unavailable" icon={Link2} />
+          </>
         ) : (
           <>
             <WorkspaceSummaryItem
@@ -164,7 +177,13 @@ export function DashboardOverview() {
               <Skeleton key={index} className="h-14 w-full rounded-lg" />
             ))}
           </div>
-        ) : !data?.recent_submissions || data.recent_submissions.length === 0 ? (
+        ) : !data ? (
+          <div className="px-5 py-12 text-center">
+            <AlertCircle className="mx-auto h-6 w-6 text-slate-400" aria-hidden="true" />
+            <h3 className="mt-3 text-sm font-semibold text-slate-900">Recent activity unavailable</h3>
+            <p className="mt-1 text-sm text-slate-500">Load the statistics to view the latest passport activity.</p>
+          </div>
+        ) : data.recent_submissions.length === 0 ? (
           <div className="px-5 py-12 text-center">
             <FileText className="mx-auto h-6 w-6 text-slate-400" aria-hidden="true" />
             <h3 className="mt-3 text-sm font-semibold text-slate-900">No recent passport intake</h3>

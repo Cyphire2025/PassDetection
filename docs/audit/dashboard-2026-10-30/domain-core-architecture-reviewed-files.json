@@ -1,0 +1,154 @@
+[
+  {
+    "path": "backend/app/domain/entities/factories.py",
+    "sha256": "b74b82177ea101abeafdd188d5c197a9f6ea01f49e56ad06b438bbb491220950",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Every original physical entity/port line read before extraction; all current imports, common-state/workflow bases, typed field groups and facade wiring reviewed. Exact34executable method/100field/17retained declaration ASTs, one exact normalizer,22runtime metadata contracts; three listed docstring corrections. Six closed attendance/QR-domain types retired after573explicit imports and full-name/escape proof; active ORM workflows retained.461distinct affected cases plus64subtests pass; published API/mobile snapshots match during the structural batch. Source ownership/module paths change explicitly, stable public facade imports remain. No full-repository or live-service qualification claim."
+  },
+  {
+    "path": "backend/app/domain/entities/enums.py",
+    "sha256": "4ef547c3c578e0c44d40ce03f8deaa0059077af2c59a78df40946b134ad88324",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Every original physical entity/port line read before extraction; all current imports, common-state/workflow bases, typed field groups and facade wiring reviewed. Exact34executable method/100field/17retained declaration ASTs, one exact normalizer,22runtime metadata contracts; three listed docstring corrections. Six closed attendance/QR-domain types retired after573explicit imports and full-name/escape proof; active ORM workflows retained.461distinct affected cases plus64subtests pass; published API/mobile snapshots match during the structural batch. Source ownership/module paths change explicitly, stable public facade imports remain. No full-repository or live-service qualification claim."
+  },
+  {
+    "path": "backend/app/domain/entities/identity.py",
+    "sha256": "4e60b4cc3d4759f1c2b12b34984a4300ae388055694cf46581be33f632b94d9e",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Every original physical entity/port line read before extraction; all current imports, common-state/workflow bases, typed field groups and facade wiring reviewed. Exact34executable method/100field/17retained declaration ASTs, one exact normalizer,22runtime metadata contracts; three listed docstring corrections. Six closed attendance/QR-domain types retired after573explicit imports and full-name/escape proof; active ORM workflows retained.461distinct affected cases plus64subtests pass; published API/mobile snapshots match during the structural batch. Source ownership/module paths change explicitly, stable public facade imports remain. No full-repository or live-service qualification claim."
+  },
+  {
+    "path": "backend/app/domain/entities/qualifier_selection.py",
+    "sha256": "79088b2e146a88ca46b17f4f716be932ca0aa37fcdadb6dd191e811761da67f4",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Every original physical entity/port line read before extraction; all current imports, common-state/workflow bases, typed field groups and facade wiring reviewed. Exact34executable method/100field/17retained declaration ASTs, one exact normalizer,22runtime metadata contracts; three listed docstring corrections. Six closed attendance/QR-domain types retired after573explicit imports and full-name/escape proof; active ORM workflows retained.461distinct affected cases plus64subtests pass; published API/mobile snapshots match during the structural batch. Source ownership/module paths change explicitly, stable public facade imports remain. No full-repository or live-service qualification claim."
+  },
+  {
+    "path": "backend/app/domain/entities/client_group_state.py",
+    "sha256": "00d98b8ee7c09f2604903f2b6be2cbfff8b4a30679c645f9a7ae656d3244592b",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Every original physical entity/port line read before extraction; all current imports, common-state/workflow bases, typed field groups and facade wiring reviewed. Exact34executable method/100field/17retained declaration ASTs, one exact normalizer,22runtime metadata contracts; three listed docstring corrections. Six closed attendance/QR-domain types retired after573explicit imports and full-name/escape proof; active ORM workflows retained.461distinct affected cases plus64subtests pass; published API/mobile snapshots match during the structural batch. Source ownership/module paths change explicitly, stable public facade imports remain. No full-repository or live-service qualification claim."
+  },
+  {
+    "path": "backend/app/domain/entities/client_group_configuration.py",
+    "sha256": "61d5f3e4aa3e06ba451efad48a5d349edfd323189c3bd27206ac2ac9a5b03971",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Every original physical entity/port line read before extraction; all current imports, common-state/workflow bases, typed field groups and facade wiring reviewed. Exact34executable method/100field/17retained declaration ASTs, one exact normalizer,22runtime metadata contracts; three listed docstring corrections. Six closed attendance/QR-domain types retired after573explicit imports and full-name/escape proof; active ORM workflows retained.461distinct affected cases plus64subtests pass; published API/mobile snapshots match during the structural batch. Source ownership/module paths change explicitly, stable public facade imports remain. No full-repository or live-service qualification claim."
+  },
+  {
+    "path": "backend/app/domain/entities/client_group_lifecycle.py",
+    "sha256": "30910eb18732f1174995da1a49b021b6658d3acef96ab9253f9c2ddeeb51f55a",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Every original physical entity/port line read before extraction; all current imports, common-state/workflow bases, typed field groups and facade wiring reviewed. Exact34executable method/100field/17retained declaration ASTs, one exact normalizer,22runtime metadata contracts; three listed docstring corrections. Six closed attendance/QR-domain types retired after573explicit imports and full-name/escape proof; active ORM workflows retained.461distinct affected cases plus64subtests pass; published API/mobile snapshots match during the structural batch. Source ownership/module paths change explicitly, stable public facade imports remain. No full-repository or live-service qualification claim."
+  },
+  {
+    "path": "backend/app/domain/entities/client_group.py",
+    "sha256": "02e2c8c0349f037afc6652706710d916f81c788889224e823a31fc4d76b88497",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Every original physical entity/port line read before extraction; all current imports, common-state/workflow bases, typed field groups and facade wiring reviewed. Exact34executable method/100field/17retained declaration ASTs, one exact normalizer,22runtime metadata contracts; three listed docstring corrections. Six closed attendance/QR-domain types retired after573explicit imports and full-name/escape proof; active ORM workflows retained.461distinct affected cases plus64subtests pass; published API/mobile snapshots match during the structural batch. Source ownership/module paths change explicitly, stable public facade imports remain. No full-repository or live-service qualification claim."
+  },
+  {
+    "path": "backend/app/domain/entities/passport_state.py",
+    "sha256": "acdd388a8baab76b6a2f0436b3e34ab364605532b192d80d37d2bada30d21e4c",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Every original physical entity/port line read before extraction; all current imports, common-state/workflow bases, typed field groups and facade wiring reviewed. Exact34executable method/100field/17retained declaration ASTs, one exact normalizer,22runtime metadata contracts; three listed docstring corrections. Six closed attendance/QR-domain types retired after573explicit imports and full-name/escape proof; active ORM workflows retained.461distinct affected cases plus64subtests pass; published API/mobile snapshots match during the structural batch. Source ownership/module paths change explicitly, stable public facade imports remain. No full-repository or live-service qualification claim."
+  },
+  {
+    "path": "backend/app/domain/entities/passport_extraction.py",
+    "sha256": "e745eb8f9d1b0827bf9bdeb2f8076ed898588fb0f3d1a0cb6c5baf5abc0d3cf1",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Every original physical entity/port line read before extraction; all current imports, common-state/workflow bases, typed field groups and facade wiring reviewed. Exact34executable method/100field/17retained declaration ASTs, one exact normalizer,22runtime metadata contracts; three listed docstring corrections. Six closed attendance/QR-domain types retired after573explicit imports and full-name/escape proof; active ORM workflows retained.461distinct affected cases plus64subtests pass; published API/mobile snapshots match during the structural batch. Source ownership/module paths change explicitly, stable public facade imports remain. No full-repository or live-service qualification claim."
+  },
+  {
+    "path": "backend/app/domain/entities/passport_client_review.py",
+    "sha256": "591e2d935dd68ee27e7cfef3229b8080eb590f9e3fed2600cbe1ecb3b014f7cb",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Every original physical entity/port line read before extraction; all current imports, common-state/workflow bases, typed field groups and facade wiring reviewed. Exact34executable method/100field/17retained declaration ASTs, one exact normalizer,22runtime metadata contracts; three listed docstring corrections. Six closed attendance/QR-domain types retired after573explicit imports and full-name/escape proof; active ORM workflows retained.461distinct affected cases plus64subtests pass; published API/mobile snapshots match during the structural batch. Source ownership/module paths change explicitly, stable public facade imports remain. No full-repository or live-service qualification claim."
+  },
+  {
+    "path": "backend/app/domain/entities/passport_staff_review.py",
+    "sha256": "3e93dfe727f18b35556bcd2522607d169d297cfa194d2ae1e62e90c6f6439e76",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Every original physical entity/port line read before extraction; all current imports, common-state/workflow bases, typed field groups and facade wiring reviewed. Exact34executable method/100field/17retained declaration ASTs, one exact normalizer,22runtime metadata contracts; three listed docstring corrections. Six closed attendance/QR-domain types retired after573explicit imports and full-name/escape proof; active ORM workflows retained.461distinct affected cases plus64subtests pass; published API/mobile snapshots match during the structural batch. Source ownership/module paths change explicitly, stable public facade imports remain. No full-repository or live-service qualification claim."
+  },
+  {
+    "path": "backend/app/domain/entities/passport_submission.py",
+    "sha256": "b46b0a5e20840b903f9b9e4f9e5ba089f66e3f0857937b2eaa1475ccf97b63b2",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Every original physical entity/port line read before extraction; all current imports, common-state/workflow bases, typed field groups and facade wiring reviewed. Exact34executable method/100field/17retained declaration ASTs, one exact normalizer,22runtime metadata contracts; three listed docstring corrections. Six closed attendance/QR-domain types retired after573explicit imports and full-name/escape proof; active ORM workflows retained.461distinct affected cases plus64subtests pass; published API/mobile snapshots match during the structural batch. Source ownership/module paths change explicitly, stable public facade imports remain. No full-repository or live-service qualification claim."
+  },
+  {
+    "path": "backend/app/domain/repositories/identity.py",
+    "sha256": "d3cdbb17519f5b05e9a6c810b0b554e74d602e98668dd6b1f2ce854ac2303b36",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Every original physical entity/port line read before extraction; all current imports, common-state/workflow bases, typed field groups and facade wiring reviewed. Exact34executable method/100field/17retained declaration ASTs, one exact normalizer,22runtime metadata contracts; three listed docstring corrections. Six closed attendance/QR-domain types retired after573explicit imports and full-name/escape proof; active ORM workflows retained.461distinct affected cases plus64subtests pass; published API/mobile snapshots match during the structural batch. Source ownership/module paths change explicitly, stable public facade imports remain. No full-repository or live-service qualification claim."
+  },
+  {
+    "path": "backend/app/domain/repositories/client_groups.py",
+    "sha256": "0ae94781a7f1eb58dd7229aa7e6bd3327d68ed97f093dad91056de01477374da",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Every original physical entity/port line read before extraction; all current imports, common-state/workflow bases, typed field groups and facade wiring reviewed. Exact34executable method/100field/17retained declaration ASTs, one exact normalizer,22runtime metadata contracts; three listed docstring corrections. Six closed attendance/QR-domain types retired after573explicit imports and full-name/escape proof; active ORM workflows retained.461distinct affected cases plus64subtests pass; published API/mobile snapshots match during the structural batch. Source ownership/module paths change explicitly, stable public facade imports remain. No full-repository or live-service qualification claim."
+  },
+  {
+    "path": "backend/app/domain/repositories/passport_submissions.py",
+    "sha256": "8bd1cd7ee3f5f82b034293a2bd05c239f10d10d679b37d02379de1d742109b4c",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Every original physical entity/port line read before extraction; all current imports, common-state/workflow bases, typed field groups and facade wiring reviewed. Exact34executable method/100field/17retained declaration ASTs, one exact normalizer,22runtime metadata contracts; three listed docstring corrections. Six closed attendance/QR-domain types retired after573explicit imports and full-name/escape proof; active ORM workflows retained.461distinct affected cases plus64subtests pass; published API/mobile snapshots match during the structural batch. Source ownership/module paths change explicitly, stable public facade imports remain. No full-repository or live-service qualification claim."
+  },
+  {
+    "path": "backend/app/domain/repositories/object_storage.py",
+    "sha256": "af73f8bd469d7f73406c05d847fd5ccf77c9a6ea20b40005fb74d9901238207e",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Every original physical entity/port line read before extraction; all current imports, common-state/workflow bases, typed field groups and facade wiring reviewed. Exact34executable method/100field/17retained declaration ASTs, one exact normalizer,22runtime metadata contracts; three listed docstring corrections. Six closed attendance/QR-domain types retired after573explicit imports and full-name/escape proof; active ORM workflows retained.461distinct affected cases plus64subtests pass; published API/mobile snapshots match during the structural batch. Source ownership/module paths change explicitly, stable public facade imports remain. No full-repository or live-service qualification claim."
+  },
+  {
+    "path": "backend/app/domain/entities/entities.py",
+    "sha256": "6e632388e2e0074771f336a1459c86d6a0712a3d0a93e14def7b2062270bf6fa",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Every original physical entity/port line read before extraction; all current imports, common-state/workflow bases, typed field groups and facade wiring reviewed. Exact34executable method/100field/17retained declaration ASTs, one exact normalizer,22runtime metadata contracts; three listed docstring corrections. Six closed attendance/QR-domain types retired after573explicit imports and full-name/escape proof; active ORM workflows retained.461distinct affected cases plus64subtests pass; published API/mobile snapshots match during the structural batch. Source ownership/module paths change explicitly, stable public facade imports remain. No full-repository or live-service qualification claim."
+  },
+  {
+    "path": "backend/app/domain/repositories/interfaces.py",
+    "sha256": "996e38b40ad49a1ba1b604a8582f696f0f7fa5f17cf53696998c9ba5fbf465b0",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Every original physical entity/port line read before extraction; all current imports, common-state/workflow bases, typed field groups and facade wiring reviewed. Exact34executable method/100field/17retained declaration ASTs, one exact normalizer,22runtime metadata contracts; three listed docstring corrections. Six closed attendance/QR-domain types retired after573explicit imports and full-name/escape proof; active ORM workflows retained.461distinct affected cases plus64subtests pass; published API/mobile snapshots match during the structural batch. Source ownership/module paths change explicitly, stable public facade imports remain. No full-repository or live-service qualification claim."
+  }
+]

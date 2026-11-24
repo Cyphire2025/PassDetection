@@ -1,0 +1,31 @@
+{
+  "status": "Prepared only after original combined traceback; actual test source unchanged and candidate not executed",
+  "path": "backend/tests/unit/infrastructure/test_traveller_reconciliation_runtime.py",
+  "before_sha256": "842d4f4b41cbb99e637763f7de93ee9c778df67431436916d75262c4e1b3d9c7",
+  "candidate_sha256": "d4394fbc3456aa2355eb40fb99b41851d9dee90b193528edbf6c44454d9fee35",
+  "changed_function": "test_burst_deadline_also_cancels_blocked_admission",
+  "AST_inverse_removes_only_one_module_local_monotonic_patch": true,
+  "all_original_assertions_timeouts_mocks_and_other_functions_exact": true,
+  "real_asyncio_timeout_seconds_unchanged": 0.01,
+  "stdlib_event_loop_clock_unmodified": true,
+  "independent_advancing_clock_test_unchanged": true,
+  "actual_original_failure": {
+    "path": "final-retained-backend-20261101-001/pytest.stdout.txt",
+    "line": 83,
+    "assertion": "cancelled == [0]",
+    "observed": [],
+    "run_result_assertion_passed": true
+  },
+  "rationale": "Original pre-slot bookkeeping can consume a10ms wall-clock budget before blocked admission starts. Hold only imported runtime.monotonic at0 in this exact test; real asyncio.timeout still cancels the entered blocked slot. Separate advancing-clock guard coverage remains unchanged.",
+  "runtime_owner_sha256": "19b9eb2d5dc28c10513f6c1f5dcc79bd70f150dc3ca2776228533d953122ee88",
+  "source_fence_exact_after_preparation": true,
+  "artifacts": {
+    "deadline-clock-candidate.py.txt": "d4394fbc3456aa2355eb40fb99b41851d9dee90b193528edbf6c44454d9fee35",
+    "deadline-clock-original.py.txt": "842d4f4b41cbb99e637763f7de93ee9c778df67431436916d75262c4e1b3d9c7",
+    "deadline-clock.patch": "31829be0ced494f5f21e89a1b06c3a0de8c3212b1a5d566e7822561a8a07cea5"
+  },
+  "limits": [
+    "No app/runtime change, deadline increase, assertion deletion, xfail, retry or coverage merging.",
+    "Root GO required after all original static/coverage fences finish before application and affected whole-file verification."
+  ]
+}

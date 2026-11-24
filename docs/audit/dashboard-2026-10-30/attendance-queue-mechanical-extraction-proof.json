@@ -1,0 +1,561 @@
+{
+  "stage": "intermediate mechanical movement before narrow correctness changes",
+  "original_sha256": "aa160e1bdcd3f651706adfc6b18edfbb2b2d08784f8d32ce7080c23289b29b7e",
+  "complete_declarations": 97,
+  "rows": [
+    {
+      "name": "AttendanceScanInput",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-contracts.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "AttendanceScanRecoveryContext",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-contracts.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "PendingAttendanceScan",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-contracts.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "RejectedAttendanceScan",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-contracts.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "StoredPendingAttendanceScan",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-contracts.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "StoredRejectedAttendanceScan",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-contracts.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "AttendanceQueueCapacityError",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-contracts.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "AttendanceDiscardReason",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-contracts.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "AttendanceDiscardTombstone",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-contracts.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "AttendanceScanSyncResult",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-contracts.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "AttendanceScanSyncUpdate",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-contracts.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "MAX_PENDING_ATTENDANCE_SCANS_PER_OWNER",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-contracts.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "AttendanceSyncChunkResult",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-contracts.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "SCHEDULE_EVENT",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-runtime.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "SCHEDULE_CHANNEL",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-runtime.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "MIGRATION_LOCK",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-runtime.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "OWNER_LOCK_PREFIX",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-runtime.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "DRAIN_LOCK_PREFIX",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-runtime.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "fallbackOwnerLanes",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-runtime.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "subscribeAttendanceQueueScheduleChanges",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-runtime.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "getCurrentUserId",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-runtime.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "requireCurrentUserId",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-runtime.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "assertCurrentOwner",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-runtime.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "assertAuthenticationSnapshotCurrent",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-runtime.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "announceScheduleChanged",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-runtime.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "withOwnerQueueLock",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-runtime.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "withBrowserLock",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-runtime.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "PENDING_STORE_NAME",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-idb.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "REJECTED_STORE_NAME",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-idb.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "OWNER_INDEX",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-idb.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "readAllUnknown",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-idb.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "requestToPromise",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-idb.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "transactionToPromise",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-idb.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "protectPendingAttendanceScan",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-codec.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "restorePendingAttendanceScan",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-codec.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "protectRejectedAttendanceScan",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-codec.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "restoreRejectedAttendanceScan",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-codec.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "pendingScanAssociatedData",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-codec.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "rejectedScanAssociatedData",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-codec.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "isProtectedBrowserValue",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-codec.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "recoveryContext",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-codec.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "normalizeRecoveryContext",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-codec.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "migrateLegacyQueueRecords",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-migration.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "normalizePendingAttendanceScan",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-migration.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "normalizeRejectedAttendanceScan",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-migration.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "replaceMigratedRows",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-migration.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "normalizedIso",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-migration.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "normalizedOptionalIso",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-migration.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "stringValue",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-migration.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "SYNCHRONIZED_DISCARD_RETENTION_MS",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-storage.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "privacyMigrationPromise",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-storage.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "listPendingForOwner",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-storage.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "listRejectedForOwner",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-storage.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "removePendingForOwner",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-storage.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "openDb",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-storage.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "listDiscardTombstonesForOwner",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-storage.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "updateDiscardTombstones",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-storage.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "purgeExpiredSynchronizedDiscardTombstones",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-storage.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "quarantineRejectedAttendanceScan",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-delivery-state.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "markPendingAttendanceRetry",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-delivery-state.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "claimPendingAttendanceDelivery",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-delivery-state.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "releasePendingAttendanceDelivery",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-delivery-state.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "enqueueAttendanceScan",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-commands.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "countPendingAttendanceScans",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-commands.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "listPendingAttendanceScans",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-commands.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "getNextPendingAttendanceAttemptAt",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-commands.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "removePendingAttendanceScan",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-commands.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "countRejectedAttendanceScans",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-commands.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "listRejectedAttendanceScans",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-commands.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "acknowledgeRejectedAttendanceScans",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-commands.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "countPendingAttendanceDiscardAudits",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-discards.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "AttendanceDiscardBatchResponse",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-discards.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "syncAttendanceDiscardTombstones",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-discards.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "createDiscardTombstone",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-discards.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "activeSync",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-replay.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "syncPendingAttendanceScans",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-replay.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "performPendingAttendanceScanSync",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-replay.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "tryRecordAttendanceScan",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-replay.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "emptySyncResult",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-replay.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "syncPendingAttendanceScanBatch",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-outcomes.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "syncLegacyPendingAttendanceScan",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-outcomes.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "publishAttendanceProgress",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-outcomes.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "isBatchCompatiblePendingScan",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-outcomes.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "createAttendanceScanBatchId",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-outcomes.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "releaseAttendanceBatchClaims",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-outcomes.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "emptySyncChunkResult",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-outcomes.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "isLikelyNetworkFailure",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-errors.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "getErrorCode",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-errors.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "getRetryAfterMs",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-errors.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "getErrorMessage",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-errors.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "getBrowserAttendanceQueueSafetySnapshot",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-closeout.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "collectBrowserAttendanceQueueCloseout",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-closeout.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "publishBrowserAttendanceQueueCloseout",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-closeout.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "collectQueueCloseoutUnlocked",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-closeout.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "runAttendanceQueueLogoutBoundary",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-closeout.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "readQueueSafetySnapshot",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-closeout.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    },
+    {
+      "name": "purgeQueueForOwner",
+      "owner": "frontend/features/tour-operations/services/attendance-queue-closeout.ts",
+      "exact_complete_declaration_text_except_export_and_eol": true
+    }
+  ],
+  "public_facade": "export { type AttendanceScanInput, type AttendanceScanRecoveryContext, type PendingAttendanceScan, type RejectedAttendanceScan, AttendanceQueueCapacityError, type AttendanceDiscardReason, type AttendanceDiscardTombstone, type AttendanceScanSyncResult, type AttendanceScanSyncUpdate, MAX_PENDING_ATTENDANCE_SCANS_PER_OWNER } from \"./attendance-queue-contracts\";\nexport { subscribeAttendanceQueueScheduleChanges } from \"./attendance-queue-runtime\";\nexport { enqueueAttendanceScan, countPendingAttendanceScans, listPendingAttendanceScans, getNextPendingAttendanceAttemptAt, removePendingAttendanceScan, countRejectedAttendanceScans, listRejectedAttendanceScans, acknowledgeRejectedAttendanceScans } from \"./attendance-queue-commands\";\nexport { countPendingAttendanceDiscardAudits, syncAttendanceDiscardTombstones } from \"./attendance-queue-discards\";\nexport { syncPendingAttendanceScans, tryRecordAttendanceScan } from \"./attendance-queue-replay\";\nexport { getBrowserAttendanceQueueSafetySnapshot, collectBrowserAttendanceQueueCloseout, publishBrowserAttendanceQueueCloseout, runAttendanceQueueLogoutBoundary } from \"./attendance-queue-closeout\";\n",
+  "all_complete_declarations_exact": true,
+  "sources": [
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-contracts.ts",
+      "sha256": "1334b70770246b7a59ea3b531aa63c0f3fd809ebafa88f21ccc85a0dd649fc15",
+      "source": "import { type AttendanceSyncUpdate } from \"./attendance-sync-policy\";\nimport { type ProtectedBrowserValue } from \"./browser-offline-crypto\";\n\nexport interface AttendanceScanInput {\n  groupId: string;\n  sessionId: string;\n  qrPayload: string;\n  clientEventId: string;\n  scannedAt: string;\n  deviceId: string;\n  /** Registered browser runtime; omitted only for compatibility with legacy rows. */\n  runtimeId?: string;\n}\n\nexport type AttendanceScanRecoveryContext = Readonly<{\n  passengerId: string;\n  passengerLabel: string;\n  sessionLabel: string;\n}>;\n\nexport interface PendingAttendanceScan extends Omit<AttendanceScanInput, \"groupId\"> {\n  // Optional only for records written before group-scoped queue version 3.\n  groupId?: string;\n  id: string;\n  scanReference: string;\n  ownerUserId: string;\n  queuedAt: string;\n  attemptCount: number;\n  nextAttemptAt: string;\n  lastAttemptAt?: string;\n  deliveryState: \"pending\" | \"sending\";\n  deliveryStartedAt?: string;\n  recovery?: AttendanceScanRecoveryContext;\n}\n\nexport interface RejectedAttendanceScan {\n  id: string;\n  scanReference: string;\n  ownerUserId: string;\n  groupId?: string;\n  sessionId: string;\n  clientEventId: string;\n  scannedAt: string;\n  deviceId: string;\n  queuedAt: string;\n  rejectedAt: string;\n  errorCode: string;\n  attemptCount?: number;\n  lastAttemptAt?: string;\n  recovery?: AttendanceScanRecoveryContext;\n}\n\nexport interface StoredPendingAttendanceScan extends Omit<PendingAttendanceScan, \"qrPayload\" | \"recovery\"> {\n  protectedQrPayload?: ProtectedBrowserValue;\n  // Present only while a legacy row is awaiting copy/verify migration.\n  qrPayload?: string;\n  recovery?: AttendanceScanRecoveryContext;\n  storageVersion?: 5;\n}\n\nexport interface StoredRejectedAttendanceScan extends Omit<RejectedAttendanceScan, \"recovery\"> {\n  protectedRecovery?: ProtectedBrowserValue;\n  // Present only until a verified encrypted replacement is written.\n  recovery?: AttendanceScanRecoveryContext;\n  storageVersion?: 5;\n}\n\nexport class AttendanceQueueCapacityError extends Error {\n  readonly code = \"ATTENDANCE_QUEUE_CAPACITY_REACHED\";\n\n  constructor() {\n    super(\"Offline attendance storage reached its safe device limit. Reconnect and synchronize before scanning more passengers.\");\n    this.name = \"AttendanceQueueCapacityError\";\n  }\n}\n\nexport type AttendanceDiscardReason =\n  | \"coordinator_confirmed_rescan\"\n  | \"duplicate_local_evidence\"\n  | \"passenger_not_attending\"\n  | \"privacy_or_data_error\"\n  | \"server_terminal_rejection\";\n\nexport interface AttendanceDiscardTombstone {\n  id: string;\n  discardEventId: string;\n  ownerUserId: string;\n  groupId: string;\n  sessionId: string;\n  installationRuntimeId: string;\n  discardedAt: string;\n  capturedAt: string;\n  reasonCategory: AttendanceDiscardReason;\n  scanReference: string;\n  syncState: \"pending\" | \"sending\" | \"rejected\" | \"synchronized\";\n  attemptCount: number;\n  nextAttemptAt: string;\n  lastAttemptAt?: string;\n  synchronizedAt?: string;\n  serverErrorCode?: string;\n}\n\nexport interface AttendanceScanSyncResult {\n  synced: number;\n  failed: number;\n  discarded: number;\n  updates: AttendanceSyncUpdate[];\n  nextAttemptAt: string | null;\n}\n\nexport type AttendanceScanSyncUpdate = AttendanceSyncUpdate;\n\nexport const MAX_PENDING_ATTENDANCE_SCANS_PER_OWNER = 5_000;\n\nexport type AttendanceSyncChunkResult = Omit<AttendanceScanSyncResult, \"nextAttemptAt\"> & {\n  stop: boolean;\n};\n"
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-runtime.ts",
+      "sha256": "b3791303f7115ceb2d353a91cced27c72ecb30e4733ea783dd3c2d0525ecdaea",
+      "source": "import { useAuthStore } from \"@/stores/auth.store\";\n\nexport const SCHEDULE_EVENT = \"passdetection:attendance-queue-schedule-changed\";\n\nexport const SCHEDULE_CHANNEL = \"passdetection-attendance-queue-schedule\";\n\nexport const MIGRATION_LOCK = \"passdetection-attendance-queue-v4-migration\";\n\nexport const OWNER_LOCK_PREFIX = \"passdetection-attendance-owner\";\n\nexport const DRAIN_LOCK_PREFIX = \"passdetection-attendance-drain\";\n\nexport const fallbackOwnerLanes = new Map<string, Promise<void>>();\n\nexport function subscribeAttendanceQueueScheduleChanges(listener: () => void) {\n  if (typeof window === \"undefined\") return () => undefined;\n  const handle = () => listener();\n  window.addEventListener(SCHEDULE_EVENT, handle);\n  let channel: BroadcastChannel | null = null;\n  if (\"BroadcastChannel\" in window) {\n    channel = new BroadcastChannel(SCHEDULE_CHANNEL);\n    channel.onmessage = handle;\n  }\n  return () => {\n    window.removeEventListener(SCHEDULE_EVENT, handle);\n    channel?.close();\n  };\n}\n\nexport function getCurrentUserId() {\n  return useAuthStore.getState().user?.id ?? null;\n}\n\nexport function requireCurrentUserId() {\n  const userId = getCurrentUserId();\n  if (!userId) throw new Error(\"An authenticated coordinator session is required.\");\n  return userId;\n}\n\nexport function assertCurrentOwner(ownerUserId: string) {\n  if (getCurrentUserId() !== ownerUserId) {\n    throw new Error(\"The authenticated attendance queue owner changed.\");\n  }\n}\n\nexport function assertAuthenticationSnapshotCurrent(\n  authentication: Readonly<{ sessionVersion: number; userId: string }>,\n) {\n  const current = useAuthStore.getState();\n  if (\n    current.user?.id !== authentication.userId\n    || current.sessionVersion !== authentication.sessionVersion\n  ) {\n    throw new Error(\"The coordinator account changed while queue evidence was collected.\");\n  }\n}\n\nexport function announceScheduleChanged() {\n  if (typeof window === \"undefined\") return;\n  window.dispatchEvent(new Event(SCHEDULE_EVENT));\n  if (\"BroadcastChannel\" in window) {\n    const channel = new BroadcastChannel(SCHEDULE_CHANNEL);\n    channel.postMessage({ changed: true });\n    channel.close();\n  }\n}\n\nexport async function withOwnerQueueLock<T>(\n  ownerUserId: string,\n  task: () => Promise<T>,\n): Promise<T> {\n  return withBrowserLock(`${OWNER_LOCK_PREFIX}:${ownerUserId}`, task);\n}\n\nexport async function withBrowserLock<T>(name: string, task: () => Promise<T>): Promise<T> {\n  if (typeof navigator !== \"undefined\" && navigator.locks?.request) {\n    return navigator.locks.request(name, { mode: \"exclusive\" }, task);\n  }\n\n  const previous = fallbackOwnerLanes.get(name) ?? Promise.resolve();\n  let release: () => void = () => undefined;\n  const tail = new Promise<void>((resolve) => {\n    release = resolve;\n  });\n  const queued = previous.catch(() => undefined).then(() => tail);\n  fallbackOwnerLanes.set(name, queued);\n  await previous.catch(() => undefined);\n  try {\n    return await task();\n  } finally {\n    release();\n    if (fallbackOwnerLanes.get(name) === queued) fallbackOwnerLanes.delete(name);\n  }\n}\n"
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-idb.ts",
+      "sha256": "c6f24dc58052778137d9e05a1de751f041f6b794a7d156e3932ba5b54b626bd5",
+      "source": "import { OWNER_USER_ID_INDEX, PENDING_ATTENDANCE_STORE, REJECTED_ATTENDANCE_STORE } from \"./browser-offline-database\";\n\nexport const PENDING_STORE_NAME = PENDING_ATTENDANCE_STORE;\n\nexport const REJECTED_STORE_NAME = REJECTED_ATTENDANCE_STORE;\n\nexport const OWNER_INDEX = OWNER_USER_ID_INDEX;\n\nexport async function readAllUnknown(db: IDBDatabase, storeName: string) {\n  const store = db.transaction(storeName, \"readonly\").objectStore(storeName);\n  return requestToPromise<Record<string, unknown>[]>(store.getAll());\n}\n\nexport function requestToPromise<T>(request: IDBRequest<T>) {\n  return new Promise<T>((resolve, reject) => {\n    request.onsuccess = () => resolve(request.result);\n    request.onerror = () => reject(request.error);\n  });\n}\n\nexport function transactionToPromise(transaction: IDBTransaction) {\n  return new Promise<void>((resolve, reject) => {\n    transaction.oncomplete = () => resolve();\n    transaction.onerror = () => reject(\n      transaction.error ?? new Error(\"Offline scan transaction failed.\"),\n    );\n    transaction.onabort = () => reject(\n      transaction.error ?? new Error(\"Offline scan transaction was aborted.\"),\n    );\n  });\n}\n"
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-codec.ts",
+      "sha256": "0d36fc4c837dcfb3ef6837d907e2a13b85e5ecac7606340a60cf608d1b41660c",
+      "source": "import { type AttendanceScanRecoveryContext, type PendingAttendanceScan, type RejectedAttendanceScan, type StoredPendingAttendanceScan, type StoredRejectedAttendanceScan } from \"./attendance-queue-contracts\";\nimport { attendanceQueueRowId, createAttendanceScanReference } from \"./attendance-queue-privacy\";\nimport { type AuthorizedBrowserOfflineScan } from \"./browser-offline-authorization\";\nimport { protectBrowserJson, type ProtectedBrowserValue, unprotectBrowserJson } from \"./browser-offline-crypto\";\n\nexport async function protectPendingAttendanceScan(\n  scan: PendingAttendanceScan,\n): Promise<StoredPendingAttendanceScan> {\n  const { qrPayload, recovery, ...metadata } = scan;\n  const protectedQrPayload = await protectBrowserJson(\n    { qrPayload, ...(recovery ? { recovery } : {}) },\n    pendingScanAssociatedData(metadata),\n  );\n  return {\n    ...metadata,\n    protectedQrPayload,\n    storageVersion: 5,\n  };\n}\n\nexport async function restorePendingAttendanceScan(\n  stored: StoredPendingAttendanceScan,\n): Promise<PendingAttendanceScan> {\n  let qrPayload = stored.qrPayload;\n  let recovery = normalizeRecoveryContext(stored.recovery);\n  if (!qrPayload && stored.storageVersion === 5 && stored.protectedQrPayload) {\n    const decrypted = await unprotectBrowserJson<{\n      qrPayload?: unknown;\n      recovery?: unknown;\n    }>(\n      stored.protectedQrPayload,\n      pendingScanAssociatedData(stored),\n    );\n    qrPayload = typeof decrypted.qrPayload === \"string\" ? decrypted.qrPayload : undefined;\n    recovery = normalizeRecoveryContext(decrypted.recovery) ?? recovery;\n  }\n  if (!qrPayload || !/^pdatt:[A-Za-z0-9_-]{43}$/.test(qrPayload)) {\n    throw new Error(\"A protected attendance queue row is corrupt.\");\n  }\n  const expectedReference = await createAttendanceScanReference({\n    ownerUserId: stored.ownerUserId,\n    groupId: stored.groupId,\n    sessionId: stored.sessionId,\n    qrPayload,\n  });\n  if (\n    expectedReference !== stored.scanReference\n    || attendanceQueueRowId(expectedReference) !== stored.id\n  ) {\n    throw new Error(\"A protected attendance queue row failed its identity check.\");\n  }\n  const restored = { ...stored, qrPayload };\n  delete restored.protectedQrPayload;\n  delete restored.storageVersion;\n  delete restored.recovery;\n  return { ...restored, ...(recovery ? { recovery } : {}) };\n}\n\nexport async function protectRejectedAttendanceScan(\n  scan: RejectedAttendanceScan,\n): Promise<StoredRejectedAttendanceScan> {\n  const { recovery, ...metadata } = scan;\n  const protectedRecovery = recovery\n    ? await protectBrowserJson(\n        { recovery },\n        rejectedScanAssociatedData(metadata),\n      )\n    : undefined;\n  return {\n    ...metadata,\n    ...(protectedRecovery ? { protectedRecovery } : {}),\n    storageVersion: 5,\n  };\n}\n\nexport async function restoreRejectedAttendanceScan(\n  stored: StoredRejectedAttendanceScan,\n): Promise<RejectedAttendanceScan> {\n  let recovery = normalizeRecoveryContext(stored.recovery);\n  if (stored.storageVersion === 5 && stored.protectedRecovery) {\n    const decrypted = await unprotectBrowserJson<{ recovery?: unknown }>(\n      stored.protectedRecovery,\n      rejectedScanAssociatedData(stored),\n    );\n    recovery = normalizeRecoveryContext(decrypted.recovery) ?? recovery;\n  }\n  const restored = { ...stored };\n  delete restored.protectedRecovery;\n  delete restored.storageVersion;\n  delete restored.recovery;\n  return { ...restored, ...(recovery ? { recovery } : {}) };\n}\n\nexport function pendingScanAssociatedData(scan: Readonly<{\n  groupId?: string;\n  id: string;\n  ownerUserId: string;\n  sessionId: string;\n}>) {\n  return JSON.stringify([\n    \"attendance-pending-v5\",\n    scan.id,\n    scan.ownerUserId,\n    scan.groupId ?? \"legacy-group\",\n    scan.sessionId,\n  ]);\n}\n\nexport function rejectedScanAssociatedData(scan: Readonly<{\n  id: string;\n  ownerUserId: string;\n  scanReference: string;\n}>) {\n  return JSON.stringify([\n    \"attendance-rejected-v5\",\n    scan.id,\n    scan.ownerUserId,\n    scan.scanReference,\n  ]);\n}\n\nexport function isProtectedBrowserValue(value: unknown): value is ProtectedBrowserValue {\n  if (!value || typeof value !== \"object\") return false;\n  const candidate = value as Partial<ProtectedBrowserValue>;\n  return candidate.version === 1\n    && candidate.algorithm === \"AES-GCM\"\n    && candidate.keyId === \"coordinator-offline-aes-gcm-v1\"\n    && candidate.ciphertext instanceof ArrayBuffer\n    && candidate.iv instanceof Uint8Array;\n}\n\nexport function recoveryContext(\n  authorization: AuthorizedBrowserOfflineScan,\n): AttendanceScanRecoveryContext {\n  return {\n    passengerId: authorization.passengerId,\n    passengerLabel: authorization.passengerLabel,\n    sessionLabel: authorization.sessionLabel,\n  };\n}\n\nexport function normalizeRecoveryContext(value: unknown): AttendanceScanRecoveryContext | undefined {\n  if (!value || typeof value !== \"object\" || Array.isArray(value)) return undefined;\n  const candidate = value as Partial<AttendanceScanRecoveryContext>;\n  if (\n    typeof candidate.passengerId !== \"string\"\n    || candidate.passengerId.length === 0\n    || candidate.passengerId.length > 128\n    || typeof candidate.passengerLabel !== \"string\"\n    || candidate.passengerLabel.length === 0\n    || candidate.passengerLabel.length > 255\n    || typeof candidate.sessionLabel !== \"string\"\n    || candidate.sessionLabel.length === 0\n    || candidate.sessionLabel.length > 160\n  ) {\n    return undefined;\n  }\n  return {\n    passengerId: candidate.passengerId,\n    passengerLabel: candidate.passengerLabel,\n    sessionLabel: candidate.sessionLabel,\n  };\n}\n"
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-migration.ts",
+      "sha256": "b889513ef674409de884ba507d5f07891195cd21495fee863ad4cc97ac4362f0",
+      "source": "import { isProtectedBrowserValue, normalizeRecoveryContext, protectPendingAttendanceScan, protectRejectedAttendanceScan, restorePendingAttendanceScan, restoreRejectedAttendanceScan } from \"./attendance-queue-codec\";\nimport { type PendingAttendanceScan, type StoredPendingAttendanceScan, type StoredRejectedAttendanceScan } from \"./attendance-queue-contracts\";\nimport { PENDING_STORE_NAME, readAllUnknown, REJECTED_STORE_NAME, transactionToPromise } from \"./attendance-queue-idb\";\nimport { attendanceQueueRowId, createAttendanceScanReference, isAttendanceScanReference, sanitizeLegacyRejectedAttendanceScan } from \"./attendance-queue-privacy\";\n\nexport async function migrateLegacyQueueRecords(db: IDBDatabase) {\n  const pendingRows = await readAllUnknown(db, PENDING_STORE_NAME);\n  const rejectedRows = await readAllUnknown(db, REJECTED_STORE_NAME);\n  const normalizedPending = await Promise.all(\n    pendingRows.map((row) => normalizePendingAttendanceScan(row).catch(() => null)),\n  );\n  const normalizedRejected = await Promise.all(\n    rejectedRows.map((row) => normalizeRejectedAttendanceScan(row).catch(() => null)),\n  );\n  const transaction = db.transaction(\n    [PENDING_STORE_NAME, REJECTED_STORE_NAME],\n    \"readwrite\",\n  );\n  const completion = transactionToPromise(transaction);\n  replaceMigratedRows(\n    transaction.objectStore(PENDING_STORE_NAME),\n    pendingRows,\n    normalizedPending,\n  );\n  replaceMigratedRows(\n    transaction.objectStore(REJECTED_STORE_NAME),\n    rejectedRows,\n    normalizedRejected,\n  );\n  await completion;\n}\n\nexport async function normalizePendingAttendanceScan(\n  candidate: Record<string, unknown>,\n): Promise<StoredPendingAttendanceScan | null> {\n  if (candidate.storageVersion === 5 && isProtectedBrowserValue(candidate.protectedQrPayload)) {\n    const existing = candidate as unknown as StoredPendingAttendanceScan;\n    const restored = await restorePendingAttendanceScan(existing);\n    return normalizeRecoveryContext(candidate.recovery)\n      ? protectPendingAttendanceScan(restored)\n      : existing;\n  }\n  const ownerUserId = stringValue(candidate.ownerUserId);\n  const sessionId = stringValue(candidate.sessionId);\n  const qrPayload = stringValue(candidate.qrPayload);\n  const clientEventId = stringValue(candidate.clientEventId);\n  const scannedAt = stringValue(candidate.scannedAt);\n  const deviceId = stringValue(candidate.deviceId);\n  const runtimeId = stringValue(candidate.runtimeId);\n  const queuedAt = stringValue(candidate.queuedAt);\n  if (!ownerUserId || !sessionId || !qrPayload || !clientEventId || !scannedAt || !deviceId || !queuedAt) {\n    return null;\n  }\n  const groupId = stringValue(candidate.groupId) ?? undefined;\n  const existingReference = stringValue(candidate.scanReference) ?? undefined;\n  const scanReference = isAttendanceScanReference(existingReference)\n    ? existingReference\n    : await createAttendanceScanReference({ ownerUserId, groupId, sessionId, qrPayload });\n  const attemptCount = typeof candidate.attemptCount === \"number\"\n    ? Math.max(0, Math.trunc(candidate.attemptCount))\n    : 0;\n  const nextAttemptAt = normalizedIso(candidate.nextAttemptAt, queuedAt);\n  const lastAttemptAt = normalizedOptionalIso(candidate.lastAttemptAt);\n  const legacyDeliveryStartedAt = normalizedOptionalIso(candidate.deliveryStartedAt);\n  const deliveryIsFresh = candidate.deliveryState === \"sending\"\n    && legacyDeliveryStartedAt !== undefined\n    && Date.now() - Date.parse(legacyDeliveryStartedAt) <= 2 * 60_000;\n  const recovery = normalizeRecoveryContext(candidate.recovery);\n  const legacy: PendingAttendanceScan = {\n    id: attendanceQueueRowId(scanReference),\n    scanReference,\n    ownerUserId,\n    ...(groupId ? { groupId } : {}),\n    sessionId,\n    qrPayload,\n    clientEventId,\n    scannedAt,\n    deviceId,\n    ...(runtimeId ? { runtimeId } : {}),\n    queuedAt,\n    attemptCount,\n    nextAttemptAt,\n    // Preserve a recent cross-tab delivery lease; recover a stale/crashed one.\n    deliveryState: deliveryIsFresh ? \"sending\" : \"pending\",\n    ...(deliveryIsFresh ? { deliveryStartedAt: legacyDeliveryStartedAt } : {}),\n    ...(lastAttemptAt ? { lastAttemptAt } : {}),\n    ...(recovery ? { recovery } : {}),\n  };\n  const protectedScan = await protectPendingAttendanceScan(legacy);\n  const verified = await restorePendingAttendanceScan(protectedScan);\n  if (verified.qrPayload !== legacy.qrPayload) {\n    throw new Error(\"Attendance queue encryption verification failed.\");\n  }\n  return protectedScan;\n}\n\nexport async function normalizeRejectedAttendanceScan(\n  candidate: Record<string, unknown>,\n): Promise<StoredRejectedAttendanceScan | null> {\n  if (\n    candidate.storageVersion === 5\n    && (\n      candidate.protectedRecovery === undefined\n      || isProtectedBrowserValue(candidate.protectedRecovery)\n    )\n  ) {\n    const existing = candidate as unknown as StoredRejectedAttendanceScan;\n    const restored = await restoreRejectedAttendanceScan(existing);\n    return normalizeRecoveryContext(candidate.recovery)\n      ? protectRejectedAttendanceScan(restored)\n      : existing;\n  }\n  const sanitized = await sanitizeLegacyRejectedAttendanceScan(candidate);\n  if (!sanitized) return null;\n  const recovery = normalizeRecoveryContext(candidate.recovery);\n  const protectedScan = await protectRejectedAttendanceScan({\n    ...sanitized,\n    ...(recovery ? { recovery } : {}),\n  });\n  await restoreRejectedAttendanceScan(protectedScan);\n  return protectedScan;\n}\n\nexport function replaceMigratedRows<T extends { id: string }>(\n  store: IDBObjectStore,\n  originals: Record<string, unknown>[],\n  replacements: Array<T | null>,\n) {\n  originals.forEach((original, index) => {\n    const oldId = stringValue(original.id);\n    const replacement = replacements[index];\n    // Invalid, corrupt, or unattributable legacy rows remain quarantined in\n    // place. Delete an old key only after a verified replacement is available.\n    if (replacement) {\n      store.put(replacement);\n      if (oldId && oldId !== replacement.id) store.delete(oldId);\n    }\n  });\n}\n\nexport function normalizedIso(value: unknown, fallback: string) {\n  const candidate = stringValue(value);\n  return candidate && Number.isFinite(Date.parse(candidate)) ? candidate : fallback;\n}\n\nexport function normalizedOptionalIso(value: unknown) {\n  const candidate = stringValue(value);\n  return candidate && Number.isFinite(Date.parse(candidate)) ? candidate : undefined;\n}\n\nexport function stringValue(value: unknown) {\n  return typeof value === \"string\" && value.length > 0 ? value : null;\n}\n"
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-storage.ts",
+      "sha256": "d8b70f13b825c59d265e046b0daf81fad33d175b511d49f7fe7718108f194458",
+      "source": "import { restorePendingAttendanceScan, restoreRejectedAttendanceScan } from \"./attendance-queue-codec\";\nimport { type AttendanceDiscardTombstone, type StoredPendingAttendanceScan, type StoredRejectedAttendanceScan } from \"./attendance-queue-contracts\";\nimport { OWNER_INDEX, PENDING_STORE_NAME, REJECTED_STORE_NAME, requestToPromise, transactionToPromise } from \"./attendance-queue-idb\";\nimport { migrateLegacyQueueRecords } from \"./attendance-queue-migration\";\nimport { MIGRATION_LOCK, withBrowserLock } from \"./attendance-queue-runtime\";\nimport { DISCARD_TOMBSTONE_STORE, openBrowserOfflineDatabase } from \"./browser-offline-database\";\n\nexport const SYNCHRONIZED_DISCARD_RETENTION_MS = 30 * 24 * 60 * 60 * 1_000;\n\nexport let privacyMigrationPromise: Promise<void> | null = null;\n\nexport async function listPendingForOwner(ownerUserId: string) {\n  const db = await openDb();\n  try {\n    const store = db.transaction(PENDING_STORE_NAME, \"readonly\")\n      .objectStore(PENDING_STORE_NAME);\n    const storedScans = await requestToPromise<StoredPendingAttendanceScan[]>(\n      store.index(OWNER_INDEX).getAll(ownerUserId),\n    );\n    const scans = await Promise.all(storedScans.map(restorePendingAttendanceScan));\n    return scans.sort((left, right) => left.queuedAt.localeCompare(right.queuedAt));\n  } finally {\n    db.close();\n  }\n}\n\nexport async function listRejectedForOwner(ownerUserId: string) {\n  const db = await openDb();\n  try {\n    const store = db.transaction(REJECTED_STORE_NAME, \"readonly\")\n      .objectStore(REJECTED_STORE_NAME);\n    const storedScans = await requestToPromise<StoredRejectedAttendanceScan[]>(\n      store.index(OWNER_INDEX).getAll(ownerUserId),\n    );\n    return Promise.all(storedScans.map(restoreRejectedAttendanceScan));\n  } finally {\n    db.close();\n  }\n}\n\nexport async function removePendingForOwner(id: string, ownerUserId: string) {\n  const db = await openDb();\n  try {\n    const transaction = db.transaction(PENDING_STORE_NAME, \"readwrite\");\n    const completion = transactionToPromise(transaction);\n    const store = transaction.objectStore(PENDING_STORE_NAME);\n    const existing = await requestToPromise<StoredPendingAttendanceScan | undefined>(\n      store.get(id),\n    );\n    if (existing?.ownerUserId === ownerUserId) store.delete(id);\n    await completion;\n  } finally {\n    db.close();\n  }\n}\n\nexport async function openDb() {\n  const database = await openBrowserOfflineDatabase();\n  const migration = privacyMigrationPromise ??= withBrowserLock(\n    MIGRATION_LOCK,\n    () => migrateLegacyQueueRecords(database),\n  ).catch((error: unknown) => {\n    privacyMigrationPromise = null;\n    throw error;\n  });\n  try {\n    await migration;\n    return database;\n  } catch (error) {\n    database.close();\n    throw error;\n  }\n}\n\nexport async function listDiscardTombstonesForOwner(ownerUserId: string) {\n  const db = await openDb();\n  try {\n    const store = db.transaction(DISCARD_TOMBSTONE_STORE, \"readonly\")\n      .objectStore(DISCARD_TOMBSTONE_STORE);\n    return requestToPromise<AttendanceDiscardTombstone[]>(\n      store.index(OWNER_INDEX).getAll(ownerUserId),\n    );\n  } finally {\n    db.close();\n  }\n}\n\nexport async function updateDiscardTombstones(\n  ownerUserId: string,\n  rows: AttendanceDiscardTombstone[],\n) {\n  const db = await openDb();\n  try {\n    const transaction = db.transaction(DISCARD_TOMBSTONE_STORE, \"readwrite\");\n    const completion = transactionToPromise(transaction);\n    const store = transaction.objectStore(DISCARD_TOMBSTONE_STORE);\n    for (const row of rows) {\n      if (row.ownerUserId === ownerUserId) store.put(row);\n    }\n    await completion;\n  } finally {\n    db.close();\n  }\n}\n\nexport async function purgeExpiredSynchronizedDiscardTombstones(ownerUserId: string) {\n  const cutoff = Date.now() - SYNCHRONIZED_DISCARD_RETENTION_MS;\n  const db = await openDb();\n  try {\n    const transaction = db.transaction(DISCARD_TOMBSTONE_STORE, \"readwrite\");\n    const completion = transactionToPromise(transaction);\n    const store = transaction.objectStore(DISCARD_TOMBSTONE_STORE);\n    const rows = await requestToPromise<AttendanceDiscardTombstone[]>(\n      store.index(OWNER_INDEX).getAll(ownerUserId),\n    );\n    for (const row of rows) {\n      const synchronizedAt = row.synchronizedAt\n        ? Date.parse(row.synchronizedAt)\n        : Number.NaN;\n      if (\n        row.syncState === \"synchronized\"\n        && Number.isFinite(synchronizedAt)\n        && synchronizedAt < cutoff\n      ) {\n        store.delete(row.id);\n      }\n    }\n    await completion;\n  } finally {\n    db.close();\n  }\n}\n"
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-delivery-state.ts",
+      "sha256": "ae0339689f560f757aa2a10a921a9aebbe4fe3e25db224ba26d5eb4b3bb84a48",
+      "source": "import { protectRejectedAttendanceScan, restorePendingAttendanceScan } from \"./attendance-queue-codec\";\nimport { type PendingAttendanceScan, type StoredPendingAttendanceScan } from \"./attendance-queue-contracts\";\nimport { getRetryAfterMs } from \"./attendance-queue-errors\";\nimport { PENDING_STORE_NAME, REJECTED_STORE_NAME, requestToPromise, transactionToPromise } from \"./attendance-queue-idb\";\nimport { createRejectedAttendanceScan } from \"./attendance-queue-privacy\";\nimport { openDb } from \"./attendance-queue-storage\";\nimport { attendanceRetryState, isAttendanceAttemptEligible } from \"./attendance-retry-policy\";\n\nexport async function quarantineRejectedAttendanceScan(\n  scan: PendingAttendanceScan,\n  errorCode: string,\n  ownerUserId: string,\n) {\n  if (scan.ownerUserId !== ownerUserId) return;\n  const rejectedScan = await protectRejectedAttendanceScan(\n    createRejectedAttendanceScan(scan, errorCode),\n  );\n  const db = await openDb();\n  try {\n    const transaction = db.transaction(\n      [PENDING_STORE_NAME, REJECTED_STORE_NAME],\n      \"readwrite\",\n    );\n    const completion = transactionToPromise(transaction);\n    const pendingStore = transaction.objectStore(PENDING_STORE_NAME);\n    const current = await requestToPromise<StoredPendingAttendanceScan | undefined>(\n      pendingStore.get(scan.id),\n    );\n    if (current?.ownerUserId === ownerUserId) {\n      transaction.objectStore(REJECTED_STORE_NAME).put(rejectedScan);\n      pendingStore.delete(scan.id);\n    }\n    await completion;\n  } finally {\n    db.close();\n  }\n}\n\nexport async function markPendingAttendanceRetry(\n  scan: PendingAttendanceScan,\n  error: unknown,\n  ownerUserId: string,\n) {\n  const retry = attendanceRetryState({\n    previousAttemptCount: scan.attemptCount,\n    retryAfterMs: getRetryAfterMs(error),\n  });\n  const db = await openDb();\n  try {\n    const transaction = db.transaction(PENDING_STORE_NAME, \"readwrite\");\n    const completion = transactionToPromise(transaction);\n    const store = transaction.objectStore(PENDING_STORE_NAME);\n    const current = await requestToPromise<StoredPendingAttendanceScan | undefined>(\n      store.get(scan.id),\n    );\n    if (current?.ownerUserId === ownerUserId) {\n      store.put({\n        ...current,\n        ...retry,\n        deliveryState: \"pending\",\n        deliveryStartedAt: undefined,\n        lastAttemptAt: new Date().toISOString(),\n      });\n    }\n    await completion;\n  } finally {\n    db.close();\n  }\n}\n\nexport async function claimPendingAttendanceDelivery(\n  id: string,\n  ownerUserId: string,\n): Promise<PendingAttendanceScan | null> {\n  const db = await openDb();\n  try {\n    const transaction = db.transaction(PENDING_STORE_NAME, \"readwrite\");\n    const completion = transactionToPromise(transaction);\n    const store = transaction.objectStore(PENDING_STORE_NAME);\n    const current = await requestToPromise<StoredPendingAttendanceScan | undefined>(store.get(id));\n    if (\n      !current\n      || current.ownerUserId !== ownerUserId\n      || current.deliveryState === \"sending\"\n      || !isAttendanceAttemptEligible(current.nextAttemptAt, current.queuedAt)\n    ) {\n      await completion;\n      return null;\n    }\n    const claimed: StoredPendingAttendanceScan = {\n      ...current,\n      deliveryState: \"sending\",\n      deliveryStartedAt: new Date().toISOString(),\n    };\n    store.put(claimed);\n    await completion;\n    return restorePendingAttendanceScan(claimed);\n  } finally {\n    db.close();\n  }\n}\n\nexport async function releasePendingAttendanceDelivery(id: string, ownerUserId: string) {\n  const db = await openDb();\n  try {\n    const transaction = db.transaction(PENDING_STORE_NAME, \"readwrite\");\n    const completion = transactionToPromise(transaction);\n    const store = transaction.objectStore(PENDING_STORE_NAME);\n    const current = await requestToPromise<StoredPendingAttendanceScan | undefined>(store.get(id));\n    if (current?.ownerUserId === ownerUserId && current.deliveryState === \"sending\") {\n      store.put({\n        ...current,\n        deliveryState: \"pending\",\n        deliveryStartedAt: undefined,\n      });\n    }\n    await completion;\n  } finally {\n    db.close();\n  }\n}\n"
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-commands.ts",
+      "sha256": "029ebe4f9e2d0e4dcff585fe9bfcc4a524152350ddbefa378d358962061ae3cc",
+      "source": "import { protectPendingAttendanceScan, recoveryContext, restorePendingAttendanceScan } from \"./attendance-queue-codec\";\nimport { type AttendanceDiscardReason, AttendanceQueueCapacityError, type AttendanceScanInput, MAX_PENDING_ATTENDANCE_SCANS_PER_OWNER, type PendingAttendanceScan, type StoredPendingAttendanceScan, type StoredRejectedAttendanceScan } from \"./attendance-queue-contracts\";\nimport { createDiscardTombstone, syncAttendanceDiscardTombstones } from \"./attendance-queue-discards\";\nimport { getRetryAfterMs } from \"./attendance-queue-errors\";\nimport { OWNER_INDEX, PENDING_STORE_NAME, REJECTED_STORE_NAME, requestToPromise, transactionToPromise } from \"./attendance-queue-idb\";\nimport { attendanceQueueRowId, createAttendanceScanReference } from \"./attendance-queue-privacy\";\nimport { announceScheduleChanged, assertCurrentOwner, getCurrentUserId, requireCurrentUserId, withOwnerQueueLock } from \"./attendance-queue-runtime\";\nimport { listDiscardTombstonesForOwner, listPendingForOwner, listRejectedForOwner, openDb } from \"./attendance-queue-storage\";\nimport { attendanceRetryState, earliestAttendanceAttemptAt } from \"./attendance-retry-policy\";\nimport { authorizeBrowserOfflineScan } from \"./browser-offline-authorization\";\nimport { DISCARD_TOMBSTONE_STORE } from \"./browser-offline-database\";\n\nexport async function enqueueAttendanceScan(\n  scan: AttendanceScanInput,\n  retryError?: unknown,\n) {\n  const ownerUserId = requireCurrentUserId();\n  const authorization = await authorizeBrowserOfflineScan({\n    groupId: scan.groupId,\n    qrPayload: scan.qrPayload,\n    sessionId: scan.sessionId,\n  });\n  const authorizedScan: AttendanceScanInput = {\n    ...scan,\n    deviceId: authorization.runtimeId,\n    runtimeId: authorization.runtimeId,\n    scannedAt: authorization.scannedAt,\n  };\n  return withOwnerQueueLock(ownerUserId, async () => {\n    assertCurrentOwner(ownerUserId);\n    const scanReference = await createAttendanceScanReference({\n      ownerUserId,\n      groupId: authorizedScan.groupId,\n      sessionId: authorizedScan.sessionId,\n      qrPayload: authorizedScan.qrPayload,\n    });\n    const id = attendanceQueueRowId(scanReference);\n    const queuedAt = new Date().toISOString();\n    const initialRetry = retryError\n      ? attendanceRetryState({\n          previousAttemptCount: 0,\n          retryAfterMs: getRetryAfterMs(retryError),\n        })\n      : { attemptCount: 0, nextAttemptAt: queuedAt };\n    const pendingScan: PendingAttendanceScan = {\n      ...authorizedScan,\n      id,\n      scanReference,\n      ownerUserId,\n      queuedAt,\n      ...initialRetry,\n      deliveryState: \"pending\",\n      recovery: recoveryContext(authorization),\n    };\n    const storedPendingScan = await protectPendingAttendanceScan(pendingScan);\n    const db = await openDb();\n    try {\n      assertCurrentOwner(ownerUserId);\n      const transaction = db.transaction(PENDING_STORE_NAME, \"readwrite\");\n      const completion = transactionToPromise(transaction);\n      const store = transaction.objectStore(PENDING_STORE_NAME);\n      const existing = await requestToPromise<StoredPendingAttendanceScan | undefined>(\n        store.get(id),\n      );\n      if (!existing) {\n        const ownerRowCount = await requestToPromise(\n          store.index(OWNER_INDEX).count(ownerUserId),\n        );\n        if (ownerRowCount >= MAX_PENDING_ATTENDANCE_SCANS_PER_OWNER) {\n          throw new AttendanceQueueCapacityError();\n        }\n        await requestToPromise(store.put(storedPendingScan));\n      }\n      await completion;\n      const pending = existing ? await restorePendingAttendanceScan(existing) : pendingScan;\n      assertCurrentOwner(ownerUserId);\n      announceScheduleChanged();\n      return {\n        pending,\n        duplicate: Boolean(existing),\n      };\n    } finally {\n      db.close();\n    }\n  });\n}\n\nexport async function countPendingAttendanceScans(groupId?: string) {\n  const ownerUserId = getCurrentUserId();\n  if (!ownerUserId) return 0;\n  const scans = await listPendingForOwner(ownerUserId);\n  if (!groupId) return scans.length;\n  return scans.filter((scan) => !scan.groupId || scan.groupId === groupId).length;\n}\n\nexport async function listPendingAttendanceScans() {\n  const ownerUserId = getCurrentUserId();\n  if (!ownerUserId) return [];\n  const scans = await listPendingForOwner(ownerUserId);\n  assertCurrentOwner(ownerUserId);\n  return scans;\n}\n\nexport async function getNextPendingAttendanceAttemptAt() {\n  const ownerUserId = getCurrentUserId();\n  if (!ownerUserId) return null;\n  const [rows, discardRows] = await Promise.all([\n    listPendingForOwner(ownerUserId),\n    listDiscardTombstonesForOwner(ownerUserId),\n  ]);\n  const scanAttemptAt = earliestAttendanceAttemptAt(\n    rows.filter((row) => row.deliveryState !== \"sending\"),\n  );\n  const discardAttemptAt = earliestAttendanceAttemptAt(\n    discardRows\n      .filter((row) => row.syncState === \"pending\")\n      .map((row) => ({ nextAttemptAt: row.nextAttemptAt, queuedAt: row.discardedAt })),\n  );\n  if (!scanAttemptAt) return discardAttemptAt;\n  if (!discardAttemptAt) return scanAttemptAt;\n  return scanAttemptAt.localeCompare(discardAttemptAt) <= 0\n    ? scanAttemptAt\n    : discardAttemptAt;\n}\n\nexport async function removePendingAttendanceScan(\n  id: string,\n  reasonCategory: AttendanceDiscardReason = \"coordinator_confirmed_rescan\",\n) {\n  const ownerUserId = getCurrentUserId();\n  if (!ownerUserId) return;\n  await withOwnerQueueLock(ownerUserId, async () => {\n    const db = await openDb();\n    try {\n      const transaction = db.transaction(\n        [PENDING_STORE_NAME, DISCARD_TOMBSTONE_STORE],\n        \"readwrite\",\n      );\n      const completion = transactionToPromise(transaction);\n      const pendingStore = transaction.objectStore(PENDING_STORE_NAME);\n      const row = await requestToPromise<StoredPendingAttendanceScan | undefined>(\n        pendingStore.get(id),\n      );\n      if (row?.ownerUserId === ownerUserId) {\n        transaction.objectStore(DISCARD_TOMBSTONE_STORE)\n          .add(createDiscardTombstone(row, reasonCategory));\n        pendingStore.delete(id);\n      }\n      await completion;\n    } finally {\n      db.close();\n    }\n    announceScheduleChanged();\n    if (navigator.onLine) void syncAttendanceDiscardTombstones().catch(() => undefined);\n  });\n}\n\nexport async function countRejectedAttendanceScans(\n  groupId: string | null,\n  sessionId: string | null,\n) {\n  const ownerUserId = getCurrentUserId();\n  if (!ownerUserId || !groupId || !sessionId) return 0;\n  const scans = await listRejectedForOwner(ownerUserId);\n  return scans.filter(\n    (scan) => (!scan.groupId || scan.groupId === groupId)\n      && scan.sessionId === sessionId,\n  ).length;\n}\n\nexport async function listRejectedAttendanceScans(\n  groupId: string | null,\n  sessionId: string | null,\n) {\n  const ownerUserId = getCurrentUserId();\n  if (!ownerUserId || !groupId || !sessionId) return [];\n  const rows = await listRejectedForOwner(ownerUserId);\n  assertCurrentOwner(ownerUserId);\n  return rows\n    .filter((scan) => (!scan.groupId || scan.groupId === groupId) && scan.sessionId === sessionId)\n    .sort((left, right) => right.rejectedAt.localeCompare(left.rejectedAt));\n}\n\nexport async function acknowledgeRejectedAttendanceScans(\n  groupId: string | null,\n  sessionId: string | null,\n  reasonCategory: AttendanceDiscardReason = \"server_terminal_rejection\",\n) {\n  const ownerUserId = getCurrentUserId();\n  if (!ownerUserId || !groupId || !sessionId) return 0;\n  return withOwnerQueueLock(ownerUserId, async () => {\n    assertCurrentOwner(ownerUserId);\n    const db = await openDb();\n    try {\n      const transaction = db.transaction(\n        [REJECTED_STORE_NAME, DISCARD_TOMBSTONE_STORE],\n        \"readwrite\",\n      );\n      const completion = transactionToPromise(transaction);\n      const store = transaction.objectStore(REJECTED_STORE_NAME);\n      const scans = await requestToPromise<StoredRejectedAttendanceScan[]>(\n        store.index(OWNER_INDEX).getAll(ownerUserId),\n      );\n      const matchingScans = scans.filter(\n        (scan) => scan.groupId === groupId\n          && scan.sessionId === sessionId,\n      );\n      const tombstoneStore = transaction.objectStore(DISCARD_TOMBSTONE_STORE);\n      for (const scan of matchingScans) {\n        tombstoneStore.add(createDiscardTombstone(scan, reasonCategory));\n        store.delete(scan.id);\n      }\n      await completion;\n      announceScheduleChanged();\n      if (navigator.onLine) void syncAttendanceDiscardTombstones().catch(() => undefined);\n      return matchingScans.length;\n    } finally {\n      db.close();\n    }\n  });\n}\n"
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-discards.ts",
+      "sha256": "415f87b31c3e2606721182dfb36aae75dee8cbc48c5a6be6b890512fb0d4c601",
+      "source": "import { type AttendanceDiscardReason, type AttendanceDiscardTombstone } from \"./attendance-queue-contracts\";\nimport { getRetryAfterMs } from \"./attendance-queue-errors\";\nimport { announceScheduleChanged, assertCurrentOwner, getCurrentUserId, withOwnerQueueLock } from \"./attendance-queue-runtime\";\nimport { listDiscardTombstonesForOwner, purgeExpiredSynchronizedDiscardTombstones, updateDiscardTombstones } from \"./attendance-queue-storage\";\nimport { attendanceRetryState, isAttendanceAttemptEligible } from \"./attendance-retry-policy\";\nimport apiClient from \"@/lib/api/client\";\nimport { ownerBoundRequestConfig } from \"@/lib/api/request-owner\";\n\nexport async function countPendingAttendanceDiscardAudits(\n  groupId?: string,\n  sessionId?: string,\n) {\n  const ownerUserId = getCurrentUserId();\n  if (!ownerUserId) return 0;\n  const rows = await listDiscardTombstonesForOwner(ownerUserId);\n  return rows.filter((row) => (\n    row.syncState !== \"synchronized\"\n    && (!groupId || row.groupId === groupId)\n    && (!sessionId || row.sessionId === sessionId)\n  )).length;\n}\n\nexport interface AttendanceDiscardBatchResponse {\n  items: Array<Readonly<{\n    discard_event_id: string;\n    reason_code: string | null;\n    status: \"accepted\" | \"already_applied\" | \"rejected\";\n  }>>;\n}\n\n/**\n * Synchronizes privacy-safe discard evidence independently from raw scans. The\n * server contract is additive; older backends leave rows retryable instead of\n * causing local deletion.\n */\nexport async function syncAttendanceDiscardTombstones(): Promise<Readonly<{\n  synchronized: number;\n  rejected: number;\n  pending: number;\n}>> {\n  const ownerUserId = getCurrentUserId();\n  if (!ownerUserId || !navigator.onLine) {\n    return { synchronized: 0, rejected: 0, pending: ownerUserId\n      ? await countPendingAttendanceDiscardAudits()\n      : 0 };\n  }\n  return withOwnerQueueLock(ownerUserId, async () => {\n    assertCurrentOwner(ownerUserId);\n    await purgeExpiredSynchronizedDiscardTombstones(ownerUserId);\n    const allRows = await listDiscardTombstonesForOwner(ownerUserId);\n    const candidates = allRows\n      .filter((row) => (\n        row.syncState === \"pending\"\n        && isAttendanceAttemptEligible(row.nextAttemptAt, row.discardedAt)\n      ))\n      .slice(0, 50);\n    if (candidates.length === 0) {\n      return {\n        synchronized: 0,\n        rejected: 0,\n        pending: allRows.filter((row) => row.syncState !== \"synchronized\").length,\n      };\n    }\n    await updateDiscardTombstones(ownerUserId, candidates.map((row) => ({\n      ...row,\n      syncState: \"sending\" as const,\n      lastAttemptAt: new Date().toISOString(),\n    })));\n    let response: AttendanceDiscardBatchResponse;\n    try {\n      assertCurrentOwner(ownerUserId);\n      const result = await apiClient.post<AttendanceDiscardBatchResponse>(\n        \"/api/v1/tour-operations/coordinator/attendance/discards\",\n        {\n          items: candidates.map((row) => ({\n            captured_at: row.capturedAt,\n            discard_event_id: row.discardEventId,\n            discarded_at: row.discardedAt,\n            group_id: row.groupId,\n            // The backend must derive the authoritative runtime from the\n            // httpOnly registration cookie. This is a privacy-safe continuity\n            // hint for rolling compatibility, not an authorization claim.\n            installation_runtime_id: row.installationRuntimeId,\n            reason_category: row.reasonCategory,\n            scan_reference: row.scanReference,\n            session_id: row.sessionId,\n          })),\n        },\n        ownerBoundRequestConfig(ownerUserId),\n      );\n      assertCurrentOwner(ownerUserId);\n      response = result.data;\n    } catch (error) {\n      const retryRows = candidates.map((row) => {\n        const retry = attendanceRetryState({\n          previousAttemptCount: row.attemptCount,\n          retryAfterMs: getRetryAfterMs(error),\n        });\n        return {\n          ...row,\n          ...retry,\n          lastAttemptAt: new Date().toISOString(),\n          syncState: \"pending\" as const,\n        };\n      });\n      await updateDiscardTombstones(ownerUserId, retryRows);\n      announceScheduleChanged();\n      throw error;\n    }\n    assertCurrentOwner(ownerUserId);\n    const byEventId = new Map(response.items.map((item) => [item.discard_event_id, item]));\n    let synchronized = 0;\n    let rejected = 0;\n    const updated = candidates.map((row) => {\n      const item = byEventId.get(row.discardEventId);\n      if (item?.status === \"accepted\" || item?.status === \"already_applied\") {\n        synchronized += 1;\n        return {\n          ...row,\n          syncState: \"synchronized\" as const,\n          synchronizedAt: new Date().toISOString(),\n          lastAttemptAt: new Date().toISOString(),\n          serverErrorCode: undefined,\n        };\n      }\n      rejected += 1;\n      return {\n        ...row,\n        syncState: \"rejected\" as const,\n        lastAttemptAt: new Date().toISOString(),\n        serverErrorCode: item?.reason_code ?? \"DISCARD_RECEIPT_INVALID_RESPONSE\",\n      };\n    });\n    await updateDiscardTombstones(ownerUserId, updated);\n    announceScheduleChanged();\n    return {\n      synchronized,\n      rejected,\n      pending: allRows.filter((row) => row.syncState !== \"synchronized\").length\n        - synchronized,\n    };\n  });\n}\n\nexport function createDiscardTombstone(\n  scan: Readonly<{\n    deviceId: string;\n    groupId?: string;\n    ownerUserId: string;\n    scanReference: string;\n    scannedAt: string;\n    sessionId: string;\n  }>,\n  reasonCategory: AttendanceDiscardReason,\n): AttendanceDiscardTombstone {\n  if (!scan.groupId) throw new Error(\"A group-scoped scan is required for discard evidence.\");\n  const discardEventId = crypto.randomUUID();\n  const discardedAt = new Date().toISOString();\n  return {\n    id: `attendance-discard:${discardEventId}`,\n    discardEventId,\n    ownerUserId: scan.ownerUserId,\n    groupId: scan.groupId,\n    sessionId: scan.sessionId,\n    installationRuntimeId: scan.deviceId,\n    discardedAt,\n    capturedAt: scan.scannedAt,\n    reasonCategory,\n    scanReference: scan.scanReference,\n    syncState: \"pending\",\n    attemptCount: 0,\n    nextAttemptAt: discardedAt,\n  };\n}\n"
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-replay.ts",
+      "sha256": "804dae99281c312061b4b8f60dd7855f1961b04bccb8239e03103ab73dddc979",
+      "source": "import { enqueueAttendanceScan, getNextPendingAttendanceAttemptAt } from \"./attendance-queue-commands\";\nimport { type AttendanceScanInput, type AttendanceScanSyncResult, type AttendanceScanSyncUpdate, type AttendanceSyncChunkResult, type PendingAttendanceScan } from \"./attendance-queue-contracts\";\nimport { isLikelyNetworkFailure } from \"./attendance-queue-errors\";\nimport { isBatchCompatiblePendingScan, syncLegacyPendingAttendanceScan, syncPendingAttendanceScanBatch } from \"./attendance-queue-outcomes\";\nimport { announceScheduleChanged, assertCurrentOwner, DRAIN_LOCK_PREFIX, getCurrentUserId, requireCurrentUserId, withBrowserLock, withOwnerQueueLock } from \"./attendance-queue-runtime\";\nimport { listPendingForOwner } from \"./attendance-queue-storage\";\nimport { earliestAttendanceAttemptAt, isAttendanceAttemptEligible } from \"./attendance-retry-policy\";\nimport { getBrowserAttendanceRuntimeHint } from \"./browser-offline-authorization\";\nimport { type AttendanceScanResponse, operationsApi } from \"@/features/operations/api/operations.api\";\n\nexport let activeSync:\n  | { ownerUserId: string; promise: Promise<AttendanceScanSyncResult> }\n  | null = null;\n\nexport function syncPendingAttendanceScans(): Promise<AttendanceScanSyncResult> {\n  const ownerUserId = getCurrentUserId();\n  if (!ownerUserId) return Promise.resolve(emptySyncResult());\n  if (activeSync?.ownerUserId === ownerUserId) return activeSync.promise;\n  if (activeSync) {\n    return activeSync.promise\n      .catch(() => undefined)\n      .then(() => syncPendingAttendanceScans());\n  }\n  if (!navigator.onLine) {\n    return getNextPendingAttendanceAttemptAt().then((nextAttemptAt) => ({\n      ...emptySyncResult(),\n      nextAttemptAt,\n    }));\n  }\n\n  const request = withBrowserLock(\n    `${DRAIN_LOCK_PREFIX}:${ownerUserId}`,\n    () => performPendingAttendanceScanSync(ownerUserId),\n  ).finally(() => {\n    if (activeSync?.promise === request) activeSync = null;\n  });\n  activeSync = { ownerUserId, promise: request };\n  return request;\n}\n\nexport async function performPendingAttendanceScanSync(\n  ownerUserId: string,\n): Promise<AttendanceScanSyncResult> {\n  if (getCurrentUserId() !== ownerUserId) return emptySyncResult();\n  const scans = await withOwnerQueueLock(\n    ownerUserId,\n    () => listPendingForOwner(ownerUserId),\n  );\n  let synced = 0;\n  let failed = 0;\n  let discarded = 0;\n  const updates: AttendanceScanSyncUpdate[] = [];\n  const handledIds = new Set<string>();\n\n  for (const candidate of scans) {\n    if (handledIds.has(candidate.id)) continue;\n    if (getCurrentUserId() !== ownerUserId || candidate.ownerUserId !== ownerUserId) break;\n    if (!isAttendanceAttemptEligible(candidate.nextAttemptAt, candidate.queuedAt)) continue;\n    let chunkResult: AttendanceSyncChunkResult;\n    if (isBatchCompatiblePendingScan(candidate)) {\n      const batchCandidates = scans\n        .filter((scan) => (\n          !handledIds.has(scan.id)\n          && scan.ownerUserId === ownerUserId\n          && scan.sessionId === candidate.sessionId\n          && isAttendanceAttemptEligible(scan.nextAttemptAt, scan.queuedAt)\n          && isBatchCompatiblePendingScan(scan)\n        ))\n        .slice(0, 50);\n      batchCandidates.forEach((scan) => handledIds.add(scan.id));\n      chunkResult = await syncPendingAttendanceScanBatch(batchCandidates, ownerUserId);\n    } else {\n      handledIds.add(candidate.id);\n      // Rows created against an older contract remain deliverable through the\n      // original single-scan endpoint. New compatible rows always use the\n      // bounded batch contract.\n      chunkResult = await syncLegacyPendingAttendanceScan(candidate, ownerUserId);\n    }\n    synced += chunkResult.synced;\n    failed += chunkResult.failed;\n    discarded += chunkResult.discarded;\n    updates.push(...chunkResult.updates);\n    if (chunkResult.stop) break;\n  }\n\n  const remaining = await withOwnerQueueLock(\n    ownerUserId,\n    () => listPendingForOwner(ownerUserId),\n  );\n  if (getCurrentUserId() !== ownerUserId) return emptySyncResult();\n  const nextAttemptAt = earliestAttendanceAttemptAt(\n    remaining.filter((row) => row.deliveryState !== \"sending\"),\n  );\n  announceScheduleChanged();\n  return { synced, failed, discarded, updates, nextAttemptAt };\n}\n\nexport async function tryRecordAttendanceScan(scan: AttendanceScanInput): Promise<\n  | { mode: \"online\"; response: AttendanceScanResponse }\n  | { mode: \"queued\"; pending: PendingAttendanceScan; duplicate: boolean }\n> {\n  const ownerUserId = requireCurrentUserId();\n  if (!navigator.onLine) {\n    const queued = await enqueueAttendanceScan(scan);\n    assertCurrentOwner(ownerUserId);\n    return { mode: \"queued\", pending: queued.pending, duplicate: queued.duplicate };\n  }\n\n  // The HttpOnly runtime cookie is authoritative. Its paired UUID is sent as\n  // an additive continuity hint; absence keeps older/legacy clients working.\n  const runtimeId = scan.runtimeId\n    ?? await getBrowserAttendanceRuntimeHint().catch(() => null)\n    ?? undefined;\n\n  try {\n    assertCurrentOwner(ownerUserId);\n    const response = await operationsApi.scanMyAttendanceSession({\n      sessionId: scan.sessionId,\n      qrPayload: scan.qrPayload,\n      clientEventId: scan.clientEventId,\n      scannedAt: scan.scannedAt,\n      deviceId: scan.deviceId,\n      runtimeId,\n      syncSource: \"online\",\n      expectedOwnerUserId: ownerUserId,\n    });\n    assertCurrentOwner(ownerUserId);\n    return { mode: \"online\", response };\n  } catch (error) {\n    assertCurrentOwner(ownerUserId);\n    if (isLikelyNetworkFailure(error)) {\n      const queued = await enqueueAttendanceScan(scan, error);\n      assertCurrentOwner(ownerUserId);\n      return { mode: \"queued\", pending: queued.pending, duplicate: queued.duplicate };\n    }\n    throw error;\n  }\n}\n\nexport function emptySyncResult(): AttendanceScanSyncResult {\n  return {\n    synced: 0,\n    failed: 0,\n    discarded: 0,\n    updates: [],\n    nextAttemptAt: null,\n  };\n}\n"
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-outcomes.ts",
+      "sha256": "023d17fa2f90d54f3e7a4809a9d6dd6027a9fb58a7cc4d8821f93bf34465a4a1",
+      "source": "import { attendanceBatchItemDisposition, isMatchingAttendanceBatchEnvelope } from \"./attendance-batch-policy\";\nimport { type AttendanceScanSyncUpdate, type AttendanceSyncChunkResult, type PendingAttendanceScan } from \"./attendance-queue-contracts\";\nimport { claimPendingAttendanceDelivery, markPendingAttendanceRetry, quarantineRejectedAttendanceScan, releasePendingAttendanceDelivery } from \"./attendance-queue-delivery-state\";\nimport { getErrorCode } from \"./attendance-queue-errors\";\nimport { announceScheduleChanged, assertCurrentOwner, getCurrentUserId, withOwnerQueueLock } from \"./attendance-queue-runtime\";\nimport { removePendingForOwner } from \"./attendance-queue-storage\";\nimport { writeAttendanceSessionProgress } from \"./attendance-session-progress\";\nimport { isPermanentAttendanceScanError, isSuccessfulAttendanceReplayStatus } from \"./attendance-sync-policy\";\nimport { type AttendanceScanResponse, operationsApi } from \"@/features/operations/api/operations.api\";\n\nexport async function syncPendingAttendanceScanBatch(\n  candidates: PendingAttendanceScan[],\n  ownerUserId: string,\n): Promise<AttendanceSyncChunkResult> {\n  const claimed: PendingAttendanceScan[] = [];\n  for (const candidate of candidates) {\n    if (getCurrentUserId() !== ownerUserId) break;\n    const scan = await withOwnerQueueLock(\n      ownerUserId,\n      () => claimPendingAttendanceDelivery(candidate.id, ownerUserId),\n    );\n    if (scan) claimed.push(scan);\n  }\n  if (claimed.length === 0) return emptySyncChunkResult();\n  announceScheduleChanged();\n\n  let response: Awaited<ReturnType<typeof operationsApi.scanMyAttendanceSessionBatch>>;\n  const batchId = createAttendanceScanBatchId();\n  try {\n    assertCurrentOwner(ownerUserId);\n    response = await operationsApi.scanMyAttendanceSessionBatch({\n      sessionId: claimed[0].sessionId,\n      batchId,\n      expectedOwnerUserId: ownerUserId,\n      scans: claimed.map((scan) => ({\n        clientEventId: scan.clientEventId,\n        qrPayload: scan.qrPayload,\n        scannedAt: scan.scannedAt,\n      })),\n    });\n    assertCurrentOwner(ownerUserId);\n  } catch (error) {\n    try {\n      for (const scan of claimed) {\n        await withOwnerQueueLock(\n          ownerUserId,\n          () => markPendingAttendanceRetry(scan, error, ownerUserId),\n        );\n      }\n    } catch (storageError) {\n      await releaseAttendanceBatchClaims(claimed, ownerUserId);\n      throw storageError;\n    }\n    announceScheduleChanged();\n    return {\n      synced: 0,\n      failed: claimed.length,\n      discarded: 0,\n      updates: [],\n      stop: true,\n    };\n  }\n\n  const envelopeValid = isMatchingAttendanceBatchEnvelope({\n    response,\n    expectedBatchId: batchId,\n    expectedClientEventIds: claimed.map((scan) => scan.clientEventId),\n  });\n  const byEventId = envelopeValid\n    ? new Map(response.items.map((item) => [item.client_event_id, item]))\n    : new Map();\n  let synced = 0;\n  let failed = 0;\n  let discarded = 0;\n  let stop = false;\n  const updates: AttendanceScanSyncUpdate[] = [];\n\n  try {\n    for (const scan of claimed) {\n      const item = byEventId.get(scan.clientEventId);\n      const disposition = attendanceBatchItemDisposition(item);\n\n      if (disposition === \"success\") {\n        const scanResponse = item.scan as AttendanceScanResponse;\n        await withOwnerQueueLock(\n          ownerUserId,\n          () => removePendingForOwner(scan.id, ownerUserId),\n        );\n        publishAttendanceProgress(ownerUserId, scan, scanResponse, updates);\n        synced += 1;\n      } else if (disposition === \"terminal-rejection\") {\n        await withOwnerQueueLock(\n          ownerUserId,\n          () => quarantineRejectedAttendanceScan(\n            scan,\n            item.error_code as string,\n            ownerUserId,\n          ),\n        );\n        discarded += 1;\n      } else {\n        await withOwnerQueueLock(\n          ownerUserId,\n          () => markPendingAttendanceRetry(\n            scan,\n            { code: item?.error_code ?? \"ATTENDANCE_SCAN_BATCH_INVALID_RESPONSE\" },\n            ownerUserId,\n          ),\n        );\n        failed += 1;\n        stop = true;\n      }\n    }\n  } catch (storageError) {\n    await releaseAttendanceBatchClaims(claimed, ownerUserId);\n    throw storageError;\n  }\n  announceScheduleChanged();\n  return { synced, failed, discarded, updates, stop };\n}\n\nexport async function syncLegacyPendingAttendanceScan(\n  candidate: PendingAttendanceScan,\n  ownerUserId: string,\n): Promise<AttendanceSyncChunkResult> {\n  const scan = await withOwnerQueueLock(\n    ownerUserId,\n    () => claimPendingAttendanceDelivery(candidate.id, ownerUserId),\n  );\n  if (!scan) return emptySyncChunkResult();\n  announceScheduleChanged();\n\n  let response: AttendanceScanResponse;\n  try {\n    assertCurrentOwner(ownerUserId);\n    response = await operationsApi.scanMyAttendanceSession({\n      sessionId: scan.sessionId,\n      qrPayload: scan.qrPayload,\n      clientEventId: scan.clientEventId,\n      scannedAt: scan.scannedAt,\n      deviceId: scan.deviceId,\n      runtimeId: scan.runtimeId,\n      syncSource: \"offline\",\n      expectedOwnerUserId: ownerUserId,\n    });\n    assertCurrentOwner(ownerUserId);\n  } catch (error) {\n    const permanent = isPermanentAttendanceScanError(getErrorCode(error));\n    try {\n      await withOwnerQueueLock(ownerUserId, () => permanent\n        ? quarantineRejectedAttendanceScan(scan, getErrorCode(error), ownerUserId)\n        : markPendingAttendanceRetry(scan, error, ownerUserId));\n    } catch (storageError) {\n      await withOwnerQueueLock(\n        ownerUserId,\n        () => releasePendingAttendanceDelivery(scan.id, ownerUserId),\n      ).catch(() => undefined);\n      throw storageError;\n    }\n    announceScheduleChanged();\n    return {\n      synced: 0,\n      failed: permanent ? 0 : 1,\n      discarded: permanent ? 1 : 0,\n      updates: [],\n      // A recoverable failure will usually affect every following row too.\n      stop: !permanent,\n    };\n  }\n\n  try {\n    await withOwnerQueueLock(ownerUserId, () => isSuccessfulAttendanceReplayStatus(response.status)\n      ? removePendingForOwner(scan.id, ownerUserId)\n      : quarantineRejectedAttendanceScan(\n        scan,\n        `ATTENDANCE_${response.status.toUpperCase().replace(/[^A-Z0-9_]/g, \"_\")}`,\n        ownerUserId,\n      ));\n  } catch (storageError) {\n    await withOwnerQueueLock(\n      ownerUserId,\n      () => releasePendingAttendanceDelivery(scan.id, ownerUserId),\n    ).catch(() => undefined);\n    throw storageError;\n  }\n  const updates: AttendanceScanSyncUpdate[] = [];\n  publishAttendanceProgress(ownerUserId, scan, response, updates);\n  announceScheduleChanged();\n  return {\n    synced: isSuccessfulAttendanceReplayStatus(response.status) ? 1 : 0,\n    failed: 0,\n    discarded: isSuccessfulAttendanceReplayStatus(response.status) ? 0 : 1,\n    updates,\n    stop: false,\n  };\n}\n\nexport function publishAttendanceProgress(\n  ownerUserId: string,\n  scan: PendingAttendanceScan,\n  response: AttendanceScanResponse,\n  updates: AttendanceScanSyncUpdate[],\n) {\n  if (getCurrentUserId() !== ownerUserId) return;\n  if (scan.groupId) {\n    writeAttendanceSessionProgress(scan.groupId, scan.sessionId, {\n      scanned_count: response.scanned_count,\n      assigned_count: response.assigned_count,\n    });\n  }\n  updates.push({\n    sessionId: scan.sessionId,\n    status: response.status,\n    message: response.message,\n    scannedCount: response.scanned_count,\n    assignedCount: response.assigned_count,\n  });\n}\n\nexport function isBatchCompatiblePendingScan(scan: PendingAttendanceScan): boolean {\n  return /^[A-Za-z0-9:_-]{8,128}$/.test(scan.clientEventId)\n    && /^pdatt:[A-Za-z0-9_-]{43}$/.test(scan.qrPayload)\n    && Number.isFinite(Date.parse(scan.scannedAt))\n    && /(?:Z|[+-]\\d{2}:\\d{2})$/.test(scan.scannedAt);\n}\n\nexport function createAttendanceScanBatchId(): string {\n  return crypto.randomUUID();\n}\n\nexport async function releaseAttendanceBatchClaims(\n  scans: PendingAttendanceScan[],\n  ownerUserId: string,\n) {\n  for (const scan of scans) {\n    await withOwnerQueueLock(\n      ownerUserId,\n      () => releasePendingAttendanceDelivery(scan.id, ownerUserId),\n    ).catch(() => undefined);\n  }\n}\n\nexport function emptySyncChunkResult(): AttendanceSyncChunkResult {\n  return { synced: 0, failed: 0, discarded: 0, updates: [], stop: false };\n}\n"
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-errors.ts",
+      "sha256": "2d64d7da2d55c2685655b833041db51791b7ee7d2f67b4a7b171aec2f0841234",
+      "source": "import { isRecoverableAttendanceScanError } from \"./attendance-sync-policy\";\n\nexport function isLikelyNetworkFailure(error: unknown) {\n  if (!navigator.onLine) return true;\n  const code = getErrorCode(error);\n  const message = getErrorMessage(error);\n  return isRecoverableAttendanceScanError(code)\n    || code === \"NETWORK_ERROR\"\n    || code === \"REQUEST_TIMEOUT\"\n    || /network|fetch|timeout|offline|connection/i.test(message);\n}\n\nexport function getErrorCode(error: unknown) {\n  if (typeof error !== \"object\" || error === null || !(\"code\" in error)) return \"\";\n  return String(error.code);\n}\n\nexport function getRetryAfterMs(error: unknown) {\n  if (typeof error !== \"object\" || error === null || !(\"retryAfterMs\" in error)) {\n    return undefined;\n  }\n  const value = Number(error.retryAfterMs);\n  return Number.isFinite(value) ? Math.max(0, value) : undefined;\n}\n\nexport function getErrorMessage(error: unknown) {\n  if (error instanceof Error) return error.message;\n  if (typeof error !== \"object\" || error === null || !(\"message\" in error)) return \"\";\n  return String(error.message);\n}\n"
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-closeout.ts",
+      "sha256": "46ee22ac8f1bcaa731e1ba515d759efb33beb939bea4ca66ef5fff189cbed25f",
+      "source": "import { type StoredPendingAttendanceScan, type StoredRejectedAttendanceScan } from \"./attendance-queue-contracts\";\nimport { createDiscardTombstone } from \"./attendance-queue-discards\";\nimport { OWNER_INDEX, PENDING_STORE_NAME, REJECTED_STORE_NAME, requestToPromise, transactionToPromise } from \"./attendance-queue-idb\";\nimport { announceScheduleChanged, assertAuthenticationSnapshotCurrent, assertCurrentOwner, requireCurrentUserId, withOwnerQueueLock } from \"./attendance-queue-runtime\";\nimport { type AttendanceQueueLogoutDisposition, type BrowserAttendanceQueueSafetySnapshot, hasUnsafeBrowserAttendanceQueue } from \"./attendance-queue-safety-contract\";\nimport { listDiscardTombstonesForOwner, listPendingForOwner, listRejectedForOwner, openDb } from \"./attendance-queue-storage\";\nimport { type AttendanceCloseoutQueueCounts, classifyAttendanceCloseoutQueue, earliestAttendanceAttemptAt } from \"./attendance-retry-policy\";\nimport { DISCARD_TOMBSTONE_STORE } from \"./browser-offline-database\";\n\nexport async function getBrowserAttendanceQueueSafetySnapshot(): Promise<BrowserAttendanceQueueSafetySnapshot> {\n  const ownerUserId = requireCurrentUserId();\n  return readQueueSafetySnapshot(ownerUserId);\n}\n\nexport async function collectBrowserAttendanceQueueCloseout({\n  authentication,\n  groupId,\n  sessionId,\n}: {\n  authentication: Readonly<{ sessionVersion: number; userId: string }>;\n  groupId: string;\n  sessionId: string;\n}): Promise<AttendanceCloseoutQueueCounts & {\n  discardAuditPending: number;\n  unreviewedRejected: number;\n}> {\n  return withOwnerQueueLock(\n    authentication.userId,\n    () => collectQueueCloseoutUnlocked(authentication, groupId, sessionId),\n  );\n}\n\nexport async function publishBrowserAttendanceQueueCloseout<T>({\n  authentication,\n  groupId,\n  publish,\n  sessionId,\n}: {\n  authentication: Readonly<{ sessionVersion: number; userId: string }>;\n  groupId: string;\n  publish: (\n    queue: AttendanceCloseoutQueueCounts & {\n      discardAuditPending: number;\n      unreviewedRejected: number;\n    },\n  ) => Promise<T>;\n  sessionId: string;\n}): Promise<T> {\n  return withOwnerQueueLock(authentication.userId, async () => {\n    const queue = await collectQueueCloseoutUnlocked(\n      authentication,\n      groupId,\n      sessionId,\n    );\n    assertAuthenticationSnapshotCurrent(authentication);\n    const result = await publish(queue);\n    assertAuthenticationSnapshotCurrent(authentication);\n    return result;\n  });\n}\n\nexport async function collectQueueCloseoutUnlocked(\n  authentication: Readonly<{ sessionVersion: number; userId: string }>,\n  groupId: string,\n  sessionId: string,\n) {\n  assertAuthenticationSnapshotCurrent(authentication);\n  const [pendingRows, rejectedRows, discardRows] = await Promise.all([\n    listPendingForOwner(authentication.userId),\n    listRejectedForOwner(authentication.userId),\n    listDiscardTombstonesForOwner(authentication.userId),\n  ]);\n  assertAuthenticationSnapshotCurrent(authentication);\n  if (\n    pendingRows.some((row) => row.ownerUserId !== authentication.userId)\n    || rejectedRows.some((row) => row.ownerUserId !== authentication.userId)\n  ) {\n    throw new Error(\"Closeout evidence crossed an attendance queue owner boundary.\");\n  }\n  const counts = classifyAttendanceCloseoutQueue(pendingRows, groupId, sessionId);\n  const unreviewedRejected = rejectedRows.filter(\n    (row) => (!row.groupId || row.groupId === groupId)\n      && row.sessionId === sessionId,\n  ).length;\n  assertAuthenticationSnapshotCurrent(authentication);\n  const discardAuditPending = discardRows.filter((row) => (\n    row.groupId === groupId\n    && row.sessionId === sessionId\n    && row.syncState !== \"synchronized\"\n  )).length;\n  return { ...counts, discardAuditPending, unreviewedRejected };\n}\n\nexport async function runAttendanceQueueLogoutBoundary<T>(\n  ownerUserId: string,\n  disposition: AttendanceQueueLogoutDisposition,\n  onAllowed: () => Promise<T>,\n): Promise<\n  | { allowed: false; snapshot: BrowserAttendanceQueueSafetySnapshot }\n  | { allowed: true; snapshot: BrowserAttendanceQueueSafetySnapshot; value: T }\n> {\n  return withOwnerQueueLock(ownerUserId, async () => {\n    assertCurrentOwner(ownerUserId);\n    const snapshot = await readQueueSafetySnapshot(ownerUserId);\n    if (disposition === \"block\" && hasUnsafeBrowserAttendanceQueue(snapshot)) {\n      return { allowed: false, snapshot };\n    }\n    if (disposition === \"discard\") {\n      await purgeQueueForOwner(ownerUserId);\n      announceScheduleChanged();\n    }\n    assertCurrentOwner(ownerUserId);\n    const value = await onAllowed();\n    return { allowed: true, snapshot, value };\n  });\n}\n\nexport async function readQueueSafetySnapshot(\n  ownerUserId: string,\n): Promise<BrowserAttendanceQueueSafetySnapshot> {\n  const [pendingRows, reviewRows, discardRows] = await Promise.all([\n    listPendingForOwner(ownerUserId),\n    listRejectedForOwner(ownerUserId),\n    listDiscardTombstonesForOwner(ownerUserId),\n  ]);\n  const sending = pendingRows.filter((row) => row.deliveryState === \"sending\").length;\n  const retryable = pendingRows.filter(\n    (row) => row.deliveryState !== \"sending\" && row.attemptCount > 0,\n  ).length;\n  const pending = pendingRows.length - retryable - sending;\n  const oldestQueuedAt = pendingRows\n    .map((row) => row.queuedAt)\n    .sort((left, right) => left.localeCompare(right))[0] ?? null;\n  return {\n    ownerUserId,\n    pending,\n    sending,\n    retryable,\n    review: reviewRows.length,\n    discardAuditPending: discardRows.filter((row) => row.syncState !== \"synchronized\").length,\n    oldestQueuedAt,\n    nextAttemptAt: earliestAttendanceAttemptAt(\n      pendingRows.filter((row) => row.deliveryState !== \"sending\"),\n    ),\n  };\n}\n\nexport async function purgeQueueForOwner(ownerUserId: string) {\n  const db = await openDb();\n  try {\n    const transaction = db.transaction(\n      [PENDING_STORE_NAME, REJECTED_STORE_NAME, DISCARD_TOMBSTONE_STORE],\n      \"readwrite\",\n    );\n    const completion = transactionToPromise(transaction);\n    const pendingStore = transaction.objectStore(PENDING_STORE_NAME);\n    const rejectedStore = transaction.objectStore(REJECTED_STORE_NAME);\n    const tombstoneStore = transaction.objectStore(DISCARD_TOMBSTONE_STORE);\n    const pendingRows = await requestToPromise<StoredPendingAttendanceScan[]>(\n      pendingStore.index(OWNER_INDEX).getAll(ownerUserId),\n    );\n    const rejectedRows = await requestToPromise<StoredRejectedAttendanceScan[]>(\n      rejectedStore.index(OWNER_INDEX).getAll(ownerUserId),\n    );\n    for (const row of [...pendingRows, ...rejectedRows]) {\n      if (!row.groupId) {\n        // An old unscoped row cannot be attributed safely. Preserve it and\n        // keep logout blocked instead of manufacturing incorrect audit data.\n        continue;\n      }\n      tombstoneStore.add(createDiscardTombstone(row, \"privacy_or_data_error\"));\n      if (\"deliveryState\" in row) pendingStore.delete(row.id);\n      else rejectedStore.delete(row.id);\n    }\n    await completion;\n  } finally {\n    db.close();\n  }\n}\n"
+    }
+  ]
+}

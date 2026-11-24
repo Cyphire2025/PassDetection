@@ -1,0 +1,31 @@
+{
+  "source_checkpoint": "narrow Visa camera lifecycle fixes; remaining review phase read-only during parent integration",
+  "runtime_changes": [
+    "frontend/features/upload/components/visa-selfie-camera.tsx"
+  ],
+  "test_changes": [
+    "frontend/features/upload/components/visa-selfie-camera.test.tsx",
+    "frontend/features/upload/components/visa-selfie-camera.contract.test.mjs"
+  ],
+  "original_camera_sha256": "1989736c3f6cc3315401807879485f3bc023091bcf1b150bb9eacff94168a07e",
+  "current_camera_sha256": "4f5ad0fe0c65024b06d55d1b734828548536c1c208e7b67c37638ecbd88f5f5b",
+  "negative_proof": {
+    "command": "node node_modules/vitest/vitest.mjs run features/upload/components/visa-selfie-camera.test.tsx --maxWorkers=1 --pool=threads",
+    "original_result": "2 failed; bitmap close expected1 got0 after null canvas context; old stream stop expected called got0 after delayed drain/replacement",
+    "fixed_result": "2 passed",
+    "environment": "jsdom synthetic media/model failure and deferred drain; no real provider/camera/network"
+  },
+  "existing_contracts": {
+    "command": "node --test features/upload/components/visa-selfie-camera.contract.test.mjs features/upload/components/camera-accessibility.contract.test.mjs features/upload/services/visa-selfie-runtime.test.mjs",
+    "passed": 26
+  },
+  "typecheck": "node node_modules/typescript/bin/tsc --noEmit passed",
+  "scoped_lint": "camera runtime and new React test passed",
+  "full_review_records": 113,
+  "pending_original_scope": 0,
+  "limits": [
+    "Physical source review does not establish image model accuracy on real devices.",
+    "Operation-level actor continuity and additional camera late results remain open findings for next coherent edit phase.",
+    "No VPS, provider sends, production data, package or budget changes."
+  ]
+}

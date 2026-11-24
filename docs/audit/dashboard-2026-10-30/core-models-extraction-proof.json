@@ -1,0 +1,1628 @@
+{
+  "original_source_sha256": "cca0de0deb12e7cdc7368501e8a3ac0012e513d691ddcf10a3ead67ec4ec2ed0",
+  "whole_class_movements": [
+    {
+      "class": "AgencyModel",
+      "owner": "backend/app/infrastructure/database/_core_models/identity.py",
+      "whole_class_ast_equal_after_only_explicit_legacy_module_assignment": true,
+      "actual_alias_table_registry_base_identity": true
+    },
+    {
+      "class": "UserModel",
+      "owner": "backend/app/infrastructure/database/_core_models/identity.py",
+      "whole_class_ast_equal_after_only_explicit_legacy_module_assignment": true,
+      "actual_alias_table_registry_base_identity": true
+    },
+    {
+      "class": "RefreshTokenModel",
+      "owner": "backend/app/infrastructure/database/_core_models/identity.py",
+      "whole_class_ast_equal_after_only_explicit_legacy_module_assignment": true,
+      "actual_alias_table_registry_base_identity": true
+    },
+    {
+      "class": "ClientGroupModel",
+      "owner": "backend/app/infrastructure/database/_core_models/groups.py",
+      "whole_class_ast_equal_after_only_explicit_legacy_module_assignment": true,
+      "actual_alias_table_registry_base_identity": true
+    },
+    {
+      "class": "ManagerGroupAccessModel",
+      "owner": "backend/app/infrastructure/database/_core_models/access.py",
+      "whole_class_ast_equal_after_only_explicit_legacy_module_assignment": true,
+      "actual_alias_table_registry_base_identity": true
+    },
+    {
+      "class": "CoordinatorAssignmentModel",
+      "owner": "backend/app/infrastructure/database/_core_models/access.py",
+      "whole_class_ast_equal_after_only_explicit_legacy_module_assignment": true,
+      "actual_alias_table_registry_base_identity": true
+    },
+    {
+      "class": "CoordinatorGroupAssignmentModel",
+      "owner": "backend/app/infrastructure/database/_core_models/access.py",
+      "whole_class_ast_equal_after_only_explicit_legacy_module_assignment": true,
+      "actual_alias_table_registry_base_identity": true
+    },
+    {
+      "class": "PassportSubmissionModel",
+      "owner": "backend/app/infrastructure/database/_core_models/passport.py",
+      "whole_class_ast_equal_after_only_explicit_legacy_module_assignment": true,
+      "actual_alias_table_registry_base_identity": true
+    },
+    {
+      "class": "PassportExportHistoryModel",
+      "owner": "backend/app/infrastructure/database/_core_models/exports.py",
+      "whole_class_ast_equal_after_only_explicit_legacy_module_assignment": true,
+      "actual_alias_table_registry_base_identity": true
+    },
+    {
+      "class": "PassportRosterResolutionModel",
+      "owner": "backend/app/infrastructure/database/_core_models/roster.py",
+      "whole_class_ast_equal_after_only_explicit_legacy_module_assignment": true,
+      "actual_alias_table_registry_base_identity": true
+    },
+    {
+      "class": "PassportImageCropModel",
+      "owner": "backend/app/infrastructure/database/_core_models/images.py",
+      "whole_class_ast_equal_after_only_explicit_legacy_module_assignment": true,
+      "actual_alias_table_registry_base_identity": true
+    },
+    {
+      "class": "PassportVisaAiImageModel",
+      "owner": "backend/app/infrastructure/database/_core_models/images.py",
+      "whole_class_ast_equal_after_only_explicit_legacy_module_assignment": true,
+      "actual_alias_table_registry_base_identity": true
+    },
+    {
+      "class": "PassportVisaAiImageJobModel",
+      "owner": "backend/app/infrastructure/database/_core_models/images.py",
+      "whole_class_ast_equal_after_only_explicit_legacy_module_assignment": true,
+      "actual_alias_table_registry_base_identity": true
+    },
+    {
+      "class": "QualifierSelectionModel",
+      "owner": "backend/app/infrastructure/database/_core_models/upload_workflow.py",
+      "whole_class_ast_equal_after_only_explicit_legacy_module_assignment": true,
+      "actual_alias_table_registry_base_identity": true
+    },
+    {
+      "class": "PassportProcessingJobModel",
+      "owner": "backend/app/infrastructure/database/_core_models/upload_workflow.py",
+      "whole_class_ast_equal_after_only_explicit_legacy_module_assignment": true,
+      "actual_alias_table_registry_base_identity": true
+    },
+    {
+      "class": "ClientGroupWhatsAppBroadcastLinkModel",
+      "owner": "backend/app/infrastructure/database/_core_models/broadcast_links.py",
+      "whole_class_ast_equal_after_only_explicit_legacy_module_assignment": true,
+      "actual_alias_table_registry_base_identity": true
+    },
+    {
+      "class": "PassportPostSubmissionVerificationJobModel",
+      "owner": "backend/app/infrastructure/database/_core_models/verification_jobs.py",
+      "whole_class_ast_equal_after_only_explicit_legacy_module_assignment": true,
+      "actual_alias_table_registry_base_identity": true
+    },
+    {
+      "class": "AuditChainHeadModel",
+      "owner": "backend/app/infrastructure/database/_core_models/audit.py",
+      "whole_class_ast_equal_after_only_explicit_legacy_module_assignment": true,
+      "actual_alias_table_registry_base_identity": true
+    },
+    {
+      "class": "AuditLogModel",
+      "owner": "backend/app/infrastructure/database/_core_models/audit.py",
+      "whole_class_ast_equal_after_only_explicit_legacy_module_assignment": true,
+      "actual_alias_table_registry_base_identity": true
+    },
+    {
+      "class": "NotificationModel",
+      "owner": "backend/app/infrastructure/database/_core_models/notifications.py",
+      "whole_class_ast_equal_after_only_explicit_legacy_module_assignment": true,
+      "actual_alias_table_registry_base_identity": true
+    },
+    {
+      "class": "PlatformSettingModel",
+      "owner": "backend/app/infrastructure/database/_core_models/platform.py",
+      "whole_class_ast_equal_after_only_explicit_legacy_module_assignment": true,
+      "actual_alias_table_registry_base_identity": true
+    }
+  ],
+  "mapped_classes_moved": 21,
+  "public_typed_contract_ast_exact": true,
+  "original_declaration_registration_order_preserved": true,
+  "all_original_import_bindings_preserved": true,
+  "all_original_external_model_alias_statements_ast_exact": 41,
+  "actual_runtime_value_bindings": [
+    {
+      "class": "AgencyModel",
+      "dependency": "Base",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "AgencyModel",
+      "dependency": "Boolean",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "AgencyModel",
+      "dependency": "DateTime",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "AgencyModel",
+      "dependency": "Index",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "AgencyModel",
+      "dependency": "String",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "AgencyModel",
+      "dependency": "UUID",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "AgencyModel",
+      "dependency": "UniqueConstraint",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "AgencyModel",
+      "dependency": "_utcnow",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "AgencyModel",
+      "dependency": "mapped_column",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "AgencyModel",
+      "dependency": "relationship",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "AgencyModel",
+      "dependency": "uuid",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "UserModel",
+      "dependency": "Base",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "UserModel",
+      "dependency": "Boolean",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "UserModel",
+      "dependency": "DateTime",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "UserModel",
+      "dependency": "Enum",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "UserModel",
+      "dependency": "ForeignKey",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "UserModel",
+      "dependency": "Index",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "UserModel",
+      "dependency": "String",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "UserModel",
+      "dependency": "UUID",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "UserModel",
+      "dependency": "UniqueConstraint",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "UserModel",
+      "dependency": "_utcnow",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "UserModel",
+      "dependency": "mapped_column",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "UserModel",
+      "dependency": "relationship",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "UserModel",
+      "dependency": "uuid",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "RefreshTokenModel",
+      "dependency": "Base",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "RefreshTokenModel",
+      "dependency": "Boolean",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "RefreshTokenModel",
+      "dependency": "DateTime",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "RefreshTokenModel",
+      "dependency": "ForeignKey",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "RefreshTokenModel",
+      "dependency": "ForeignKeyConstraint",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "RefreshTokenModel",
+      "dependency": "Index",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "RefreshTokenModel",
+      "dependency": "Integer",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "RefreshTokenModel",
+      "dependency": "String",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "RefreshTokenModel",
+      "dependency": "UUID",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "RefreshTokenModel",
+      "dependency": "UniqueConstraint",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "RefreshTokenModel",
+      "dependency": "_utcnow",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "RefreshTokenModel",
+      "dependency": "mapped_column",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "RefreshTokenModel",
+      "dependency": "relationship",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "RefreshTokenModel",
+      "dependency": "uuid",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ClientGroupModel",
+      "dependency": "Base",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ClientGroupModel",
+      "dependency": "BigInteger",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ClientGroupModel",
+      "dependency": "Boolean",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ClientGroupModel",
+      "dependency": "CheckConstraint",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ClientGroupModel",
+      "dependency": "DEFAULT_TRIP_TIMEZONE",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ClientGroupModel",
+      "dependency": "Date",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ClientGroupModel",
+      "dependency": "DateTime",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ClientGroupModel",
+      "dependency": "Enum",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ClientGroupModel",
+      "dependency": "ForeignKey",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ClientGroupModel",
+      "dependency": "ForeignKeyConstraint",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ClientGroupModel",
+      "dependency": "GROUP_SEARCH_SQL",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ClientGroupModel",
+      "dependency": "Index",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ClientGroupModel",
+      "dependency": "Integer",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ClientGroupModel",
+      "dependency": "JSONB",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ClientGroupModel",
+      "dependency": "String",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ClientGroupModel",
+      "dependency": "Text",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ClientGroupModel",
+      "dependency": "UUID",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ClientGroupModel",
+      "dependency": "UniqueConstraint",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ClientGroupModel",
+      "dependency": "_utcnow",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ClientGroupModel",
+      "dependency": "literal_column",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ClientGroupModel",
+      "dependency": "mapped_column",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ClientGroupModel",
+      "dependency": "relationship",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ClientGroupModel",
+      "dependency": "uuid",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ManagerGroupAccessModel",
+      "dependency": "Base",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ManagerGroupAccessModel",
+      "dependency": "DateTime",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ManagerGroupAccessModel",
+      "dependency": "ForeignKey",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ManagerGroupAccessModel",
+      "dependency": "UUID",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ManagerGroupAccessModel",
+      "dependency": "UniqueConstraint",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ManagerGroupAccessModel",
+      "dependency": "_utcnow",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ManagerGroupAccessModel",
+      "dependency": "mapped_column",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ManagerGroupAccessModel",
+      "dependency": "uuid",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "CoordinatorAssignmentModel",
+      "dependency": "Base",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "CoordinatorAssignmentModel",
+      "dependency": "Boolean",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "CoordinatorAssignmentModel",
+      "dependency": "DateTime",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "CoordinatorAssignmentModel",
+      "dependency": "ForeignKey",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "CoordinatorAssignmentModel",
+      "dependency": "Index",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "CoordinatorAssignmentModel",
+      "dependency": "UUID",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "CoordinatorAssignmentModel",
+      "dependency": "_utcnow",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "CoordinatorAssignmentModel",
+      "dependency": "mapped_column",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "CoordinatorAssignmentModel",
+      "dependency": "uuid",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "CoordinatorGroupAssignmentModel",
+      "dependency": "Base",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "CoordinatorGroupAssignmentModel",
+      "dependency": "Boolean",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "CoordinatorGroupAssignmentModel",
+      "dependency": "DateTime",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "CoordinatorGroupAssignmentModel",
+      "dependency": "ForeignKey",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "CoordinatorGroupAssignmentModel",
+      "dependency": "Index",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "CoordinatorGroupAssignmentModel",
+      "dependency": "UUID",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "CoordinatorGroupAssignmentModel",
+      "dependency": "_utcnow",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "CoordinatorGroupAssignmentModel",
+      "dependency": "mapped_column",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "CoordinatorGroupAssignmentModel",
+      "dependency": "text",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "CoordinatorGroupAssignmentModel",
+      "dependency": "uuid",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportSubmissionModel",
+      "dependency": "Base",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportSubmissionModel",
+      "dependency": "Boolean",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportSubmissionModel",
+      "dependency": "CheckConstraint",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportSubmissionModel",
+      "dependency": "DateTime",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportSubmissionModel",
+      "dependency": "Enum",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportSubmissionModel",
+      "dependency": "Float",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportSubmissionModel",
+      "dependency": "ForeignKey",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportSubmissionModel",
+      "dependency": "ForeignKeyConstraint",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportSubmissionModel",
+      "dependency": "Index",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportSubmissionModel",
+      "dependency": "Integer",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportSubmissionModel",
+      "dependency": "JSONB",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportSubmissionModel",
+      "dependency": "PASSPORT_SEARCH_SQL",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportSubmissionModel",
+      "dependency": "String",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportSubmissionModel",
+      "dependency": "Text",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportSubmissionModel",
+      "dependency": "UUID",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportSubmissionModel",
+      "dependency": "UniqueConstraint",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportSubmissionModel",
+      "dependency": "_utcnow",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportSubmissionModel",
+      "dependency": "literal_column",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportSubmissionModel",
+      "dependency": "mapped_column",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportSubmissionModel",
+      "dependency": "relationship",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportSubmissionModel",
+      "dependency": "text",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportSubmissionModel",
+      "dependency": "uuid",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportExportHistoryModel",
+      "dependency": "Base",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportExportHistoryModel",
+      "dependency": "CheckConstraint",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportExportHistoryModel",
+      "dependency": "DateTime",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportExportHistoryModel",
+      "dependency": "ForeignKey",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportExportHistoryModel",
+      "dependency": "Index",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportExportHistoryModel",
+      "dependency": "Integer",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportExportHistoryModel",
+      "dependency": "JSONB",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportExportHistoryModel",
+      "dependency": "String",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportExportHistoryModel",
+      "dependency": "UUID",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportExportHistoryModel",
+      "dependency": "UniqueConstraint",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportExportHistoryModel",
+      "dependency": "_utcnow",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportExportHistoryModel",
+      "dependency": "mapped_column",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportExportHistoryModel",
+      "dependency": "uuid",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportRosterResolutionModel",
+      "dependency": "Base",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportRosterResolutionModel",
+      "dependency": "CheckConstraint",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportRosterResolutionModel",
+      "dependency": "DateTime",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportRosterResolutionModel",
+      "dependency": "ForeignKey",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportRosterResolutionModel",
+      "dependency": "Index",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportRosterResolutionModel",
+      "dependency": "JSONB",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportRosterResolutionModel",
+      "dependency": "String",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportRosterResolutionModel",
+      "dependency": "UUID",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportRosterResolutionModel",
+      "dependency": "UniqueConstraint",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportRosterResolutionModel",
+      "dependency": "_utcnow",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportRosterResolutionModel",
+      "dependency": "mapped_column",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportRosterResolutionModel",
+      "dependency": "text",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportRosterResolutionModel",
+      "dependency": "uuid",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportImageCropModel",
+      "dependency": "Base",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportImageCropModel",
+      "dependency": "Boolean",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportImageCropModel",
+      "dependency": "CheckConstraint",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportImageCropModel",
+      "dependency": "DateTime",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportImageCropModel",
+      "dependency": "Float",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportImageCropModel",
+      "dependency": "ForeignKey",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportImageCropModel",
+      "dependency": "Integer",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportImageCropModel",
+      "dependency": "String",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportImageCropModel",
+      "dependency": "UUID",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportImageCropModel",
+      "dependency": "UniqueConstraint",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportImageCropModel",
+      "dependency": "_utcnow",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportImageCropModel",
+      "dependency": "mapped_column",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportImageCropModel",
+      "dependency": "uuid",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportVisaAiImageModel",
+      "dependency": "Base",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportVisaAiImageModel",
+      "dependency": "DateTime",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportVisaAiImageModel",
+      "dependency": "ForeignKey",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportVisaAiImageModel",
+      "dependency": "Index",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportVisaAiImageModel",
+      "dependency": "String",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportVisaAiImageModel",
+      "dependency": "UUID",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportVisaAiImageModel",
+      "dependency": "UniqueConstraint",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportVisaAiImageModel",
+      "dependency": "_utcnow",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportVisaAiImageModel",
+      "dependency": "mapped_column",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportVisaAiImageModel",
+      "dependency": "uuid",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportVisaAiImageJobModel",
+      "dependency": "Base",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportVisaAiImageJobModel",
+      "dependency": "CheckConstraint",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportVisaAiImageJobModel",
+      "dependency": "DateTime",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportVisaAiImageJobModel",
+      "dependency": "ForeignKey",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportVisaAiImageJobModel",
+      "dependency": "Index",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportVisaAiImageJobModel",
+      "dependency": "Integer",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportVisaAiImageJobModel",
+      "dependency": "String",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportVisaAiImageJobModel",
+      "dependency": "UUID",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportVisaAiImageJobModel",
+      "dependency": "_utcnow",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportVisaAiImageJobModel",
+      "dependency": "mapped_column",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportVisaAiImageJobModel",
+      "dependency": "text",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportVisaAiImageJobModel",
+      "dependency": "uuid",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "QualifierSelectionModel",
+      "dependency": "Base",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "QualifierSelectionModel",
+      "dependency": "Boolean",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "QualifierSelectionModel",
+      "dependency": "CheckConstraint",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "QualifierSelectionModel",
+      "dependency": "DateTime",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "QualifierSelectionModel",
+      "dependency": "ForeignKey",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "QualifierSelectionModel",
+      "dependency": "Index",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "QualifierSelectionModel",
+      "dependency": "String",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "QualifierSelectionModel",
+      "dependency": "UUID",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "QualifierSelectionModel",
+      "dependency": "UniqueConstraint",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "QualifierSelectionModel",
+      "dependency": "_utcnow",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "QualifierSelectionModel",
+      "dependency": "mapped_column",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "QualifierSelectionModel",
+      "dependency": "uuid",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportProcessingJobModel",
+      "dependency": "Base",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportProcessingJobModel",
+      "dependency": "Boolean",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportProcessingJobModel",
+      "dependency": "CheckConstraint",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportProcessingJobModel",
+      "dependency": "DateTime",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportProcessingJobModel",
+      "dependency": "Float",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportProcessingJobModel",
+      "dependency": "ForeignKey",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportProcessingJobModel",
+      "dependency": "Index",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportProcessingJobModel",
+      "dependency": "Integer",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportProcessingJobModel",
+      "dependency": "String",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportProcessingJobModel",
+      "dependency": "Text",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportProcessingJobModel",
+      "dependency": "UUID",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportProcessingJobModel",
+      "dependency": "_utcnow",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportProcessingJobModel",
+      "dependency": "mapped_column",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportProcessingJobModel",
+      "dependency": "text",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportProcessingJobModel",
+      "dependency": "uuid",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ClientGroupWhatsAppBroadcastLinkModel",
+      "dependency": "Base",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ClientGroupWhatsAppBroadcastLinkModel",
+      "dependency": "Boolean",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ClientGroupWhatsAppBroadcastLinkModel",
+      "dependency": "DateTime",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ClientGroupWhatsAppBroadcastLinkModel",
+      "dependency": "ForeignKey",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ClientGroupWhatsAppBroadcastLinkModel",
+      "dependency": "Index",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ClientGroupWhatsAppBroadcastLinkModel",
+      "dependency": "JSONB",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ClientGroupWhatsAppBroadcastLinkModel",
+      "dependency": "UUID",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ClientGroupWhatsAppBroadcastLinkModel",
+      "dependency": "UniqueConstraint",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ClientGroupWhatsAppBroadcastLinkModel",
+      "dependency": "_utcnow",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ClientGroupWhatsAppBroadcastLinkModel",
+      "dependency": "mapped_column",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ClientGroupWhatsAppBroadcastLinkModel",
+      "dependency": "relationship",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ClientGroupWhatsAppBroadcastLinkModel",
+      "dependency": "text",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "ClientGroupWhatsAppBroadcastLinkModel",
+      "dependency": "uuid",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportPostSubmissionVerificationJobModel",
+      "dependency": "Base",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportPostSubmissionVerificationJobModel",
+      "dependency": "CheckConstraint",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportPostSubmissionVerificationJobModel",
+      "dependency": "DateTime",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportPostSubmissionVerificationJobModel",
+      "dependency": "ForeignKey",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportPostSubmissionVerificationJobModel",
+      "dependency": "Integer",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportPostSubmissionVerificationJobModel",
+      "dependency": "String",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportPostSubmissionVerificationJobModel",
+      "dependency": "UUID",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportPostSubmissionVerificationJobModel",
+      "dependency": "UniqueConstraint",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportPostSubmissionVerificationJobModel",
+      "dependency": "_utcnow",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportPostSubmissionVerificationJobModel",
+      "dependency": "mapped_column",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PassportPostSubmissionVerificationJobModel",
+      "dependency": "uuid",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "AuditChainHeadModel",
+      "dependency": "Base",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "AuditChainHeadModel",
+      "dependency": "BigInteger",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "AuditChainHeadModel",
+      "dependency": "CheckConstraint",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "AuditChainHeadModel",
+      "dependency": "DateTime",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "AuditChainHeadModel",
+      "dependency": "Integer",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "AuditChainHeadModel",
+      "dependency": "String",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "AuditChainHeadModel",
+      "dependency": "UUID",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "AuditChainHeadModel",
+      "dependency": "_utcnow",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "AuditChainHeadModel",
+      "dependency": "mapped_column",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "AuditLogModel",
+      "dependency": "Base",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "AuditLogModel",
+      "dependency": "BigInteger",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "AuditLogModel",
+      "dependency": "CheckConstraint",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "AuditLogModel",
+      "dependency": "DateTime",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "AuditLogModel",
+      "dependency": "Index",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "AuditLogModel",
+      "dependency": "Integer",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "AuditLogModel",
+      "dependency": "JSONB",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "AuditLogModel",
+      "dependency": "String",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "AuditLogModel",
+      "dependency": "UUID",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "AuditLogModel",
+      "dependency": "_utcnow",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "AuditLogModel",
+      "dependency": "mapped_column",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "AuditLogModel",
+      "dependency": "text",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "AuditLogModel",
+      "dependency": "uuid",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "NotificationModel",
+      "dependency": "Base",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "NotificationModel",
+      "dependency": "Boolean",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "NotificationModel",
+      "dependency": "DateTime",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "NotificationModel",
+      "dependency": "ForeignKey",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "NotificationModel",
+      "dependency": "Index",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "NotificationModel",
+      "dependency": "JSONB",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "NotificationModel",
+      "dependency": "String",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "NotificationModel",
+      "dependency": "Text",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "NotificationModel",
+      "dependency": "UUID",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "NotificationModel",
+      "dependency": "UniqueConstraint",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "NotificationModel",
+      "dependency": "_utcnow",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "NotificationModel",
+      "dependency": "mapped_column",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "NotificationModel",
+      "dependency": "text",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "NotificationModel",
+      "dependency": "uuid",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PlatformSettingModel",
+      "dependency": "Base",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PlatformSettingModel",
+      "dependency": "DateTime",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PlatformSettingModel",
+      "dependency": "JSONB",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PlatformSettingModel",
+      "dependency": "String",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PlatformSettingModel",
+      "dependency": "_utcnow",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    },
+    {
+      "class": "PlatformSettingModel",
+      "dependency": "mapped_column",
+      "actual_owner_and_legacy_namespace_object_identical": true
+    }
+  ],
+  "shared_base_and_registry_source_hashes_unchanged": true,
+  "published_migrations_unchanged": 142,
+  "actual_full_metadata_comparison": {
+    "tables": 174,
+    "mappers": 174,
+    "columns": 2727,
+    "constraints": 1447,
+    "indexes": 509,
+    "relationships": 19,
+    "dialects": [
+      "sqlite",
+      "postgresql"
+    ],
+    "compile_errors": 0,
+    "actual_ddl_defaults_conditions_module_pickle_hints_and_relationship_snapshots_equal": true
+  },
+  "fresh_owner_first_entries": 13,
+  "preexisting_annotation_limitations": {
+    "ClientGroupModel": {
+      "ok": false,
+      "error_type": "builtins.NameError",
+      "message": "name 'ClientOrganizationModel' is not defined"
+    }
+  },
+  "bound_sources": [
+    {
+      "path": "backend/app/infrastructure/database/models.py",
+      "sha256": "685526fd00128c49052195d84ac17d7e1ad66ace8e43dbcd70e260435be24c16",
+      "physical_lines": 198,
+      "bytes": 9750,
+      "line_endings": "LF",
+      "git_head_present": true,
+      "kind": "runtime"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/__init__.py",
+      "sha256": "faa1f24f577a07ccfdb3220f3525a0e2e01f529df5debff3909fb64dcc88c83f",
+      "physical_lines": 8,
+      "bytes": 383,
+      "line_endings": "LF",
+      "git_head_present": false,
+      "kind": "runtime"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/identity.py",
+      "sha256": "c8b6871bc2ebc4a75b0f4bd8ed3b1927d3f67a517fb8ed92212429d8bb935abf",
+      "physical_lines": 150,
+      "bytes": 5851,
+      "line_endings": "LF",
+      "git_head_present": false,
+      "kind": "runtime"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/groups.py",
+      "sha256": "f21b171c859d22ce92d578dce8498c05ad060f8a2fa9719323bad024d25147f5",
+      "physical_lines": 225,
+      "bytes": 9780,
+      "line_endings": "LF",
+      "git_head_present": false,
+      "kind": "runtime"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/access.py",
+      "sha256": "b18d92055a87b33ab6284b5ed8934d701a9a20cdf76b4a02182f8f180e5b1c23",
+      "physical_lines": 125,
+      "bytes": 4943,
+      "line_endings": "LF",
+      "git_head_present": false,
+      "kind": "runtime"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/passport.py",
+      "sha256": "6c5db24c2bb231c3f9e191879cedb21dbf25d5502985b538db90f30c8cfaf44d",
+      "physical_lines": 326,
+      "bytes": 13323,
+      "line_endings": "LF",
+      "git_head_present": false,
+      "kind": "runtime"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/exports.py",
+      "sha256": "8251fdad16fafec07e963cb941ac96c832f6e3dbab5032a733e916186cfd3551",
+      "physical_lines": 135,
+      "bytes": 4900,
+      "line_endings": "LF",
+      "git_head_present": false,
+      "kind": "runtime"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/roster.py",
+      "sha256": "6fbdd6446f17e92e4cbeee06e757a95bfba49d42192c7ff3860c8c0773214793",
+      "physical_lines": 141,
+      "bytes": 5557,
+      "line_endings": "LF",
+      "git_head_present": false,
+      "kind": "runtime"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/images.py",
+      "sha256": "d5ec6767f3b9c5beb8ba306a341361c3a0d650296fc3f6a4674f2b382ab9e641",
+      "physical_lines": 261,
+      "bytes": 9222,
+      "line_endings": "LF",
+      "git_head_present": false,
+      "kind": "runtime"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/upload_workflow.py",
+      "sha256": "cf1a6a558e8ebdb6d212aca2f0540dd9961793481fe4fdb7d4c463c950b0a7e5",
+      "physical_lines": 154,
+      "bytes": 5557,
+      "line_endings": "LF",
+      "git_head_present": false,
+      "kind": "runtime"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/broadcast_links.py",
+      "sha256": "3d86bf2528c510c2641e8f2b9bdf385831af7e35560e87ace323be68f729d559",
+      "physical_lines": 81,
+      "bytes": 2924,
+      "line_endings": "LF",
+      "git_head_present": false,
+      "kind": "runtime"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/verification_jobs.py",
+      "sha256": "9b78f3c3c1f993a2414be562c660de8c51352c046b7c0efb8cb5b44ae66a46c6",
+      "physical_lines": 80,
+      "bytes": 2836,
+      "line_endings": "LF",
+      "git_head_present": false,
+      "kind": "runtime"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/audit.py",
+      "sha256": "f52c5e0fa7fe5c43b9f4ca56426babcf647cff463c06594b7251d08a7e86644d",
+      "physical_lines": 142,
+      "bytes": 4879,
+      "line_endings": "LF",
+      "git_head_present": false,
+      "kind": "runtime"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/notifications.py",
+      "sha256": "e11bc29fd02fc0df264f9476b64073f6beacf4c9c2dd319ac5b3081a30703096",
+      "physical_lines": 73,
+      "bytes": 2596,
+      "line_endings": "LF",
+      "git_head_present": false,
+      "kind": "runtime"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_core_models/platform.py",
+      "sha256": "4e33f21bcf30ea0630696b08e0add2c66e357d1b0eca375a1ffbc091f19dae6a",
+      "physical_lines": 25,
+      "bytes": 847,
+      "line_endings": "LF",
+      "git_head_present": false,
+      "kind": "runtime"
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_core_model_owner_compatibility.py",
+      "sha256": "8978fd4e1ed4f07879fe365c4551445449d840fcbc8ff77ffae0bd5e916a660b",
+      "physical_lines": 87,
+      "bytes": 3505,
+      "line_endings": "LF",
+      "git_head_present": false,
+      "kind": "test"
+    }
+  ]
+}

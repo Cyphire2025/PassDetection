@@ -1,0 +1,53 @@
+{
+  "status": "passed",
+  "runtime_owners": 12,
+  "runtime_source_sha256": {
+    "backend/app/presentation/api/v1/routes/admin.py": "d6cef1f7db8cc08202866b7d93e0a1b3feb91b69ddb49a25687850b9f5cc36c4",
+    "backend/app/presentation/api/v1/routes/admin_account_scope.py": "0caf40547a4a4b0b4694454532d71d9f728260872ece9a6a93e842faaaca3b12",
+    "backend/app/presentation/api/v1/routes/admin_account_views.py": "64b25aba211ee143b2bd1501bcde536d83af502c22efaa15f3d92f32e7c9df9c",
+    "backend/app/presentation/api/v1/routes/admin_workforce.py": "c2a127cfff5e662562379a44cb1018e7c9069c1dbc8c929766f6b87f45459644",
+    "backend/app/presentation/api/v1/routes/admin_group_access.py": "16536e1644470b62c7130224d9f4650a7c44dfe101c34a29c6f4623d6792657e",
+    "backend/app/presentation/api/v1/routes/admin_platform_settings.py": "634e968871f22640240a86050f2fa778fd23f1520190e29c70dcd4570492760e",
+    "backend/app/presentation/api/v1/routes/admin_retention.py": "a0af2341a6ba20246358af1fd376a0f18f0450d497d984bb734e840d21988e4a",
+    "backend/app/presentation/api/v1/routes/admin_manager_delete_replay.py": "961b3fa5fb070f3bd2e6f69bfaac2d61605d2de3510d580a3fae210fa1752481",
+    "backend/app/presentation/api/v1/routes/admin_deletion_queries.py": "cb724cc20cd7900148eb8ad4b8da27e94dbb4c91aee5f6a022ef2e7d1fb8e88a",
+    "backend/app/presentation/api/v1/routes/admin_manager_deletion.py": "3af4881d8f0090dd4f12868f533fa20f81fc81e08edebaca28691018f3dca10f",
+    "backend/app/presentation/api/v1/routes/admin_passport_purge.py": "2286fd0144a7a6fbd6a74e00e8ce21415f55d7b2a91f5ca524ec51d048225916",
+    "backend/app/presentation/api/v1/routes/admin_group_projection.py": "6bec9d7d3a94f52d2586534d55247851dc1d94f0993ea66db8dcf19a0ec34ace"
+  },
+  "test_executions": 203,
+  "unique_cases": 203,
+  "test_files": 14,
+  "primary": {
+    "cases": 195,
+    "files": 13,
+    "seconds": 422.9,
+    "evidence": "admin-current-test-command.json"
+  },
+  "supplement": {
+    "cases": 8,
+    "seconds": 4.57,
+    "evidence": "admin-deletion-query-tests.txt",
+    "runtime_fence_basis": "Same admin_deletion_queries runtime hash measured before/after primary and after supplement; no intervening runtime write. Supplement source authored and unchanged until the subsequent AST-exact formatter."
+  },
+  "after_test_formatting": [
+    {
+      "path": "backend/tests/integration/test_admin_deletion_query_boundaries.py",
+      "before_sha256": "0ebe9467edcaf9eb3025e95f3735b0015e0d88814ffe2eb9e30c2f0b4421d025",
+      "after_sha256": "404f161987f45f4a99ab9d34c2532705b19e4d15ac044fbbf27a0e7de6452a15",
+      "whole_module_ast_exact": true
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_admin_account_projection.py",
+      "before_sha256": "730914ddc9462275ec2bbd1aa8f0cf7133252f7bf3129155d20929e6e1819ed7",
+      "after_sha256": "4dbde2c32cf483356d15f876bf115a0e877f07a4983e865308c123dd73f9b1bf",
+      "whole_module_ast_exact": true
+    }
+  ],
+  "coverage_union": "Only12 exact current owners admitted; all other ambient paths removed before merge. No evidence from the separately modified managed-account owner used.",
+  "scope_limits": [
+    "SQLite tests do not establish PostgreSQL lock/concurrency behavior or live object-store cleanup.",
+    "No broad backend suite was rerun for this scoped change.",
+    "Initial supplemental formatter used a root-relative executable while cwd was backend and did not run; pytest itself used the correct runtime/cwd. Later formatting is whole-module AST exact."
+  ]
+}

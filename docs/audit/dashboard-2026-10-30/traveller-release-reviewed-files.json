@@ -1,0 +1,95 @@
+{
+  "files": [
+    {
+      "path": "scripts/release_traveller_whatsapp.py",
+      "sha256": "a79c9bd3ef06bc83b263d0f5bb3484def8fb97c380ba9c37da0bc88af07e8908",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "verified-focused",
+      "lines": 88,
+      "notes": "Full original operator and every current focused owner/import/glue read. The immutable mechanical 25-method proof is followed by two bounded JSON guards, one local annotation and the lock return annotation. Final whole-module inverse and all 25 method evaluated hints/signatures/aliases are proven; 163 selected synthetic shared-operator cases pass. Private inheritance/class-source introspection tradeoff is explicit; no live Docker/VPS qualification.",
+      "review_status": "full"
+    },
+    {
+      "path": "scripts/traveller_release_contract.py",
+      "sha256": "73d9424ff0eb8e43f8f016134c1c25b8c93fb3b37e6cc44737d638d695275c70",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "verified-focused",
+      "lines": 112,
+      "notes": "Full original operator and every current focused owner/import/glue read. The immutable mechanical 25-method proof is followed by two bounded JSON guards, one local annotation and the lock return annotation. Final whole-module inverse and all 25 method evaluated hints/signatures/aliases are proven; 163 selected synthetic shared-operator cases pass. Private inheritance/class-source introspection tradeoff is explicit; no live Docker/VPS qualification.",
+      "review_status": "full"
+    },
+    {
+      "path": "scripts/traveller_release_host.py",
+      "sha256": "2e2cdd3893973ce06bd0f3705934cb0160b43e4dd1f0ca8438478610048c50d2",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "verified-focused",
+      "lines": 225,
+      "notes": "Full original operator and every current focused owner/import/glue read. The immutable mechanical 25-method proof is followed by two bounded JSON guards, one local annotation and the lock return annotation. Final whole-module inverse and all 25 method evaluated hints/signatures/aliases are proven; 163 selected synthetic shared-operator cases pass. Private inheritance/class-source introspection tradeoff is explicit; no live Docker/VPS qualification.",
+      "review_status": "full"
+    },
+    {
+      "path": "scripts/traveller_release_readiness.py",
+      "sha256": "d48fca223b8557c7d847d0b1413d3102a2ccad17c784bcff931b8b3095e94d1a",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "verified-focused",
+      "lines": 118,
+      "notes": "Full original operator and every current focused owner/import/glue read. The immutable mechanical 25-method proof is followed by two bounded JSON guards, one local annotation and the lock return annotation. Final whole-module inverse and all 25 method evaluated hints/signatures/aliases are proven; 163 selected synthetic shared-operator cases pass. Private inheritance/class-source introspection tradeoff is explicit; no live Docker/VPS qualification.",
+      "review_status": "full"
+    },
+    {
+      "path": "scripts/traveller_release_preparation.py",
+      "sha256": "a4ff288d0c9154dda7207f2dc71c7d2edc7cfe5c719aca25dba4458129dacfca",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "verified-focused",
+      "lines": 81,
+      "notes": "Full original operator and every current focused owner/import/glue read. The immutable mechanical 25-method proof is followed by two bounded JSON guards, one local annotation and the lock return annotation. Final whole-module inverse and all 25 method evaluated hints/signatures/aliases are proven; 163 selected synthetic shared-operator cases pass. Private inheritance/class-source introspection tradeoff is explicit; no live Docker/VPS qualification.",
+      "review_status": "full"
+    },
+    {
+      "path": "scripts/traveller_release_lifecycle.py",
+      "sha256": "2c16a67c382037afab7c98ac28832493982514c0901938b6260c42f8a87d128d",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "verified-focused",
+      "lines": 248,
+      "notes": "Full original operator and every current focused owner/import/glue read. The immutable mechanical 25-method proof is followed by two bounded JSON guards, one local annotation and the lock return annotation. Final whole-module inverse and all 25 method evaluated hints/signatures/aliases are proven; 163 selected synthetic shared-operator cases pass. Private inheritance/class-source introspection tradeoff is explicit; no live Docker/VPS qualification.",
+      "review_status": "full"
+    },
+    {
+      "path": "scripts/release_document_resources.py",
+      "sha256": "6be3fcab032898193fb9ac4715755f26edaa27d3f63032d3bb5ac6eb257a326a",
+      "reviewer": "ai_extraction",
+      "review_scope": "partial",
+      "status": "verified-focused",
+      "lines": 321,
+      "notes": "Only qualification source-hash function/list and related caller controls reviewed; whole resource-transition owner not independently fully read.",
+      "review_status": "partial"
+    },
+    {
+      "path": "scripts/test_traveller_release_owners.py",
+      "sha256": "98b7370c682a5305a2804836e7119a11590feb01a40988834b9f2fc3eeab7776",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "verified-focused",
+      "lines": 216,
+      "notes": "Full original operator and every current focused owner/import/glue read. The immutable mechanical 25-method proof is followed by two bounded JSON guards, one local annotation and the lock return annotation. Final whole-module inverse and all 25 method evaluated hints/signatures/aliases are proven; 163 selected synthetic shared-operator cases pass. Private inheritance/class-source introspection tradeoff is explicit; no live Docker/VPS qualification.",
+      "review_status": "full"
+    },
+    {
+      "path": "scripts/test_traveller_release_json_boundaries.py",
+      "sha256": "a489b9d641c3a10465e372c9218607a63e24475826ae37e0e0e6e68d54f77333",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 64,
+      "notes": "Complete new synthetic actual-method JSON boundary tests read. Two normal-method controls and seven malformed JSON scenarios; corrected baseline has seven errors, then controlled ReleaseError after the fix. No real Docker or production environment."
+    }
+  ],
+  "scope": "Shared release operator, outside the deferred dedicated Inbox scope. Eight full current source/test records and one partial resource source qualification owner."
+}

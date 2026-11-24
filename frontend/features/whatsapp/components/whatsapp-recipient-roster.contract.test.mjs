@@ -1,142 +1,63 @@
 import assert from "node:assert/strict";
-import fs from "node:fs";
-import path from "node:path";
 import test from "node:test";
-import { fileURLToPath } from "node:url";
-import { whatsappFeatureSource } from "./whatsapp-source.contract-helper.mjs";
+import { readWhatsAppSource as read, readWhatsAppApiSource, readRecipientWorkspaceSource, readRecipientDetailSource } from "./whatsapp-source.contract-helper.mjs";
 
-const currentDirectory = path.dirname(fileURLToPath(import.meta.url));
-const featureDirectory = path.resolve(currentDirectory, "..");
-const frontendDirectory = path.resolve(featureDirectory, "../..");
+const recipients = readRecipientWorkspaceSource();
+const exceptions = read("../workspace/recipient-exceptions.tsx");
+const details = readRecipientDetailSource();
+const index = read("../workspace/broadcast-index.tsx");
+const hooks = read("../hooks/use-broadcast-recipient-mutations.ts");
+const facade = read("../hooks/use-whatsapp.ts");
+const api = readWhatsAppApiSource();
 
-const pageSource = whatsappFeatureSource;
-const apiSource = fs.readFileSync(
-  path.join(featureDirectory, "api/whatsapp.api.ts"),
-  "utf8",
-);
-const hooksSource = fs.readFileSync(
-  path.join(featureDirectory, "hooks/use-whatsapp.ts"),
-  "utf8",
-);
-const rosterSource = fs.readFileSync(
-  path.join(featureDirectory, "utils/recipient-roster.ts"),
-  "utf8",
-);
-const endpointsSource = fs.readFileSync(
-  path.join(frontendDirectory, "lib/api/endpoints.ts"),
-  "utf8",
-);
-
-test("recipient dialog loads the unified valid and rejected roster endpoint", () => {
-  assert.match(endpointsSource, /recipientRoster:[\s\S]*recipient-roster/);
-  assert.match(apiSource, /recipientRoster: async[\s\S]*API_ENDPOINTS\.whatsapp\.recipientRoster/);
-  assert.match(hooksSource, /export function useWhatsAppRecipientRoster/);
-  assert.match(pageSource, /useWhatsAppRecipientRoster\(group\.id\)/);
-  assert.match(pageSource, /recipientRoster\?\.items/);
+test("current recipients and exception records have distinct live owners", () => {
+  assert.match(recipients, /recipientPeople\(group\.recipients, sources\.data\?\.contacts\)/);
+  assert.match(recipients, /<RecipientExceptions/);
+  assert.match(exceptions, /useWhatsAppRecipientRoster\(group\.id\)/);
+  assert.match(exceptions, /\.filter\(\(item\) => item\.kind !== "recipient"\)/);
+  assert.match(api, /recipientRoster: async[\s\S]*API_ENDPOINTS\.whatsapp\.recipientRoster/);
 });
 
-test("recipient dialog exposes message-specific delivery filters and contact attention records with counts", () => {
-  assert.match(pageSource, /\{ id: "all", label: "All" \}/);
-  assert.match(pageSource, /\{ id: "sent", label: "Sent" \}/);
-  assert.match(pageSource, /\{ id: "failed", label: "Failed" \}/);
-  assert.match(pageSource, /\{ id: "rejected", label: "Rejected imports" \}/);
-  assert.match(pageSource, /id: "unidentified"[\s\S]*label: "Unidentified uploads"/);
-  assert.match(pageSource, /\{ id: "replaced", label: "Replaced contacts" \}/);
-  assert.match(pageSource, /aria-label="Recipient delivery filters"/);
-  assert.match(pageSource, /aria-pressed=\{filter === id\}/);
-  assert.match(pageSource, /counts\[id\]\.toLocaleString\(\)/);
-  assert.match(pageSource, /countRecipientRosterItems\(/);
-  assert.match(pageSource, /filterRecipientRosterItems\(/);
+test("source passengers and merged imported details retain individual rows without discarding headings", () => {
+  assert.match(details, /new Map</);
+  assert.match(details, /sourcePeople\.map\(\(contact\)/);
+  assert.match(details, /fields: contact\.imported_fields/);
+  assert.match(details, /recipient\.merged_contacts \?\? \[\]/);
+  assert.match(recipients, /Object\.values\(person\.fields\)/);
 });
 
-test("broadcast list shows the complete roster while delivery keeps the valid count", () => {
-  assert.match(apiSource, /total_contact_count: number/);
-  assert.match(pageSource, /\{group\.total_contact_count\.toLocaleString\(\)\}/);
-  assert.match(pageSource, /group\.recipient_count === 0/);
+test("search and sorting use memoized derivations and a bounded current-recipient page", () => {
+  assert.match(recipients, /useDeferredValue\(search\)/);
+  assert.match(recipients, /const displayed = useMemo/);
+  assert.match(recipients, /sort === "import"/);
+  assert.match(recipients, /\.slice\(pageOffset, pageOffset \+ 50\)/);
+  assert.match(recipients, /label="Search recipients"/);
+  assert.match(recipients, /disabled=\{group\.is_archived\}/);
 });
 
-test("roster filtering preserves overlapping sent and failed outcomes", () => {
-  assert.match(
-    rosterSource,
-    /recipient\.message_statuses\.some\(\(status\) => status\.already_sent\)/,
-  );
-  assert.match(rosterSource, /status\.status === "failed"/);
-  assert.match(rosterSource, /status\.latest_resend_status === "failed"/);
-  assert.match(
-    rosterSource,
-    /tab === "sent"[\s\S]*recipientHasSentMessage[\s\S]*recipientHasFailedMessage/,
-  );
+test("broadcast summaries distinguish all contact records from valid WhatsApp recipients", () => {
+  assert.match(index, /group\.total_contact_count > group\.recipient_count/);
+  assert.match(index, /group\.total_contact_count\.toLocaleString\(\)/);
+  assert.match(index, /group\.recipient_count\.toLocaleString\(\)/);
 });
 
-test("all roster rows keep durable import order and receive visible serial numbers", () => {
-  assert.match(rosterSource, /left\.item\.display_order - right\.item\.display_order/);
-  assert.match(pageSource, /visibleRosterItems\.map\(\(item, index\) =>/);
-  assert.match(pageSource, /const serialNumber = index \+ 1/);
-  assert.match(pageSource, />#<\/th>/);
-  assert.match(pageSource, /serialNumber=\{serialNumber\}/);
-  assert.match(pageSource, /\{serialNumber\}/);
+test("rejected corrections retain group and rejected-row identity plus explicit consent", () => {
+  assert.match(exceptions, /useResolveWhatsAppRejectedContact\(\)/);
+  assert.match(exceptions, /rejectedContactId: contact\.id/);
+  assert.match(exceptions, /recipientOptInConfirmed: confirmed/);
+  assert.match(exceptions, /disabled=\{!confirmed\}/);
+  assert.match(exceptions, /disabled=\{group\.is_archived\}/);
+  assert.match(exceptions, /contact\.raw_name/);
+  assert.match(exceptions, /contact\.raw_phone_number/);
 });
 
-test("rejected rows remain correctable inside the same filtered roster", () => {
-  assert.match(pageSource, /item\.kind === "rejected"/);
-  assert.match(pageSource, /<RejectedRosterRows/);
-  assert.match(pageSource, /Save and add/);
-  assert.match(pageSource, /resolveRejectedContact\.mutateAsync/);
-});
-
-test("replaced rows stay outside All and can restore the durable group decision", () => {
-  assert.match(
-    rosterSource,
-    /tab === "all"[\s\S]*item\.kind === "recipient"[\s\S]*item\.kind === "rejected"/,
-  );
-  assert.match(rosterSource, /tab === "replaced"\) return item\.kind === "replaced"/);
-  assert.match(apiSource, /interface WhatsAppReplacedRecipient/);
-  assert.match(apiSource, /replacement_submission_id: string/);
-  assert.match(apiSource, /client_group_name: string/);
-  assert.match(
-    apiSource,
-    /restoreReplacedRecipient:[\s\S]*restoreRosterResolution/,
-  );
-  assert.match(hooksSource, /useRestoreWhatsAppReplacedRecipient/);
-  assert.match(pageSource, /<ReplacedRosterRow/);
-  assert.match(pageSource, /Restore \/ add back/);
-  assert.match(
-    pageSource,
-    /future WhatsApp messages again/,
-  );
-});
-
-test("unidentified tab explains unmatched uploads and deep-links to resolution workflow", () => {
-  assert.match(apiSource, /interface WhatsAppUnidentifiedUpload/);
-  assert.match(apiSource, /kind: "unidentified"/);
-  assert.match(apiSource, /unidentified: number/);
-  assert.match(
-    rosterSource,
-    /tab === "unidentified"\) return item\.kind === "unidentified"/,
-  );
-  assert.match(
-    pageSource,
-    /Unidentified uploads/,
-  );
-  assert.match(pageSource, /<UnidentifiedRosterRow/);
-  assert.match(pageSource, /Review \/ mark replacement/);
-  assert.match(
-    pageSource,
-    /\/passports\/groups\/\$\{upload\.client_group_id\}\/whatsapp/,
-  );
-});
-
-test("restoring reconciles WhatsApp, passport tracking, and export history caches", () => {
-  assert.match(
-    hooksSource,
-    /useRestoreWhatsAppReplacedRecipient[\s\S]*queryKey: \["whatsapp"\]/,
-  );
-  assert.match(
-    hooksSource,
-    /useRestoreWhatsAppReplacedRecipient[\s\S]*"whatsapp-matches"/,
-  );
-  assert.match(
-    hooksSource,
-    /useRestoreWhatsAppReplacedRecipient[\s\S]*"passport-export-history"/,
-  );
+test("replaced contacts use the durable resolution and unidentified uploads retain the matching deep link", () => {
+  assert.match(facade, /from "\.\/use-broadcast-recipient-mutations"/);
+  assert.match(exceptions, /broadcastGroupId: group\.id,[\s\S]*clientGroupId: person\.client_group_id,[\s\S]*resolutionId: person\.resolution_id/);
+  assert.match(exceptions, /encodeURIComponent\(item\.unidentified_upload\.client_group_id\)/);
+  assert.match(exceptions, /Open matching/);
+  const restore = hooks.slice(hooks.indexOf("export function useRestoreWhatsAppReplacedRecipient"));
+  assert.match(restore, /queryKey: \["whatsapp"\]/);
+  assert.match(restore, /"whatsapp-matches"/);
+  assert.match(restore, /"passport-export-history"/);
 });

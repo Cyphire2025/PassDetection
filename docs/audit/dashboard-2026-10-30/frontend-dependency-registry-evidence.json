@@ -1,0 +1,214 @@
+{
+  "checked_at": "2026-10-30T14:53:30.540Z",
+  "node": "v24.21.0",
+  "npm": "11.20.0",
+  "packages": [
+    {
+      "source": "https://registry.npmjs.org/next/16.4.3",
+      "name": "next",
+      "version": "16.4.3",
+      "engines": {
+        "node": ">=20.9.0"
+      },
+      "peerDependencies": {
+        "sass": "^1.3.0",
+        "react": "^18.2.0 || 19.0.0-rc-de68d2f4-20241204 || ^19.0.0",
+        "react-dom": "^18.2.0 || 19.0.0-rc-de68d2f4-20241204 || ^19.0.0",
+        "@playwright/test": "^1.51.1",
+        "@opentelemetry/api": "^1.1.0",
+        "babel-plugin-react-compiler": "*"
+      },
+      "dependencies": {
+        "postcss": "8.5.23",
+        "@next/env": "16.4.3",
+        "styled-jsx": "5.1.6",
+        "@swc/helpers": "0.5.23",
+        "caniuse-lite": "^1.0.30001579",
+        "baseline-browser-mapping": "^2.9.19"
+      },
+      "deprecated": null,
+      "dist": {
+        "integrity": "sha512-OqxKTGi9u80FydydsMNYNjnuje9Au+kvHlt2GZ//ftdpDHm1dxKqAaENoOOTX5wKzn+9vaKUNIfZeyZUuLhCnA==",
+        "shasum": "72f79702e8537608f3227a01adac1213754821d2",
+        "tarball": "https://registry.npmjs.org/next/-/next-16.4.3.tgz"
+      }
+    },
+    {
+      "source": "https://registry.npmjs.org/eslint-config-next/16.4.3",
+      "name": "eslint-config-next",
+      "version": "16.4.3",
+      "peerDependencies": {
+        "eslint": ">=9.0.0",
+        "typescript": ">=3.3.1"
+      },
+      "dependencies": {
+        "globals": "16.4.0",
+        "typescript-eslint": "^8.56.0",
+        "eslint-plugin-react": "^7.37.0",
+        "eslint-plugin-import": "^2.32.0",
+        "eslint-plugin-jsx-a11y": "^6.10.0",
+        "@next/eslint-plugin-next": "16.4.3",
+        "eslint-plugin-react-hooks": "^7.1.0",
+        "eslint-import-resolver-node": "^0.3.6",
+        "eslint-import-resolver-typescript": "^3.5.2"
+      },
+      "deprecated": null,
+      "dist": {
+        "integrity": "sha512-j9IqBma6abp800frdUURaizYMgXOK+jNGyq6CsYcM9AxpSJs5D/TgMNGeAmRUilZvA7g9V1Tr71gNg9/SVTuMQ==",
+        "shasum": "93c991ec7c79160a9ab6a35b04058285f217ee7d",
+        "tarball": "https://registry.npmjs.org/eslint-config-next/-/eslint-config-next-16.4.3.tgz"
+      }
+    },
+    {
+      "source": "https://registry.npmjs.org/zod/4.6.6",
+      "name": "zod",
+      "version": "4.6.6",
+      "deprecated": null,
+      "dist": {
+        "integrity": "sha512-4UmzQUF5fxvfcYHlbjBmejU+w+hbDnWFx4aS8kBx7nPBHcO2SqPbpAG8snbdg+Xse4pRefR98hgjFgIMCI/UhA==",
+        "shasum": "0bb0cf57b87011a71ec28ed2e1b51f6455563f9a",
+        "tarball": "https://registry.npmjs.org/zod/-/zod-4.6.6.tgz"
+      }
+    },
+    {
+      "source": "https://registry.npmjs.org/follow-redirects/1.16.1",
+      "name": "follow-redirects",
+      "version": "1.16.1",
+      "engines": {
+        "node": ">=4.0"
+      },
+      "deprecated": null,
+      "dist": {
+        "integrity": "sha512-FNvFGzoMLWmE6Yj9spb/zjd7yiNCHiAW9/Tg9CXrQ8wuu32HtlJOwWO11OJafl5FfY3DxTdQ0vj42zU1kvv5jg==",
+        "shasum": "6e0efa40a727fb369b98dab15883ec34787d675e",
+        "tarball": "https://registry.npmjs.org/follow-redirects/-/follow-redirects-1.16.1.tgz"
+      }
+    },
+    {
+      "source": "https://registry.npmjs.org/vitest/4.1.12",
+      "name": "vitest",
+      "version": "4.1.12",
+      "engines": {
+        "node": "^20.0.0 || ^22.0.0 || >=24.0.0"
+      },
+      "peerDependencies": {
+        "vite": "^6.0.0 || ^7.0.0 || ^8.0.0",
+        "jsdom": "*",
+        "happy-dom": "*",
+        "@vitest/ui": "4.1.12",
+        "@types/node": "^20.0.0 || ^22.0.0 || >=24.0.0",
+        "@edge-runtime/vm": "*",
+        "@opentelemetry/api": "^1.9.0",
+        "@vitest/coverage-v8": "4.1.12",
+        "@vitest/browser-preview": "4.1.12",
+        "@vitest/coverage-istanbul": "4.1.12",
+        "@vitest/browser-playwright": "4.1.12",
+        "@vitest/browser-webdriverio": "^4.1.11"
+      },
+      "dependencies": {
+        "obug": "^2.1.1",
+        "vite": "^6.0.0 || ^7.0.0 || ^8.0.0",
+        "pathe": "^2.0.3",
+        "std-env": "^4.0.0-rc.1",
+        "tinyexec": "^1.0.2",
+        "picomatch": "^4.0.3",
+        "tinybench": "^2.9.0",
+        "tinyglobby": "^0.2.15",
+        "@vitest/spy": "4.1.12",
+        "expect-type": "^1.3.0",
+        "tinyrainbow": "^3.1.0",
+        "magic-string": "^0.30.21",
+        "@vitest/utils": "4.1.12",
+        "@vitest/expect": "4.1.12",
+        "@vitest/mocker": "4.1.12",
+        "@vitest/runner": "4.1.12",
+        "es-module-lexer": "^2.0.0",
+        "@vitest/snapshot": "4.1.12",
+        "why-is-node-running": "^2.3.0",
+        "@vitest/pretty-format": "4.1.12"
+      },
+      "deprecated": null,
+      "dist": {
+        "integrity": "sha512-5eWdz2yb3ajxWF3C8C4TjkXl7FGm3n2E/VlazALrQHzK7nYMSGFnCZto0bbPNl77AwkOZVLk0YnBAejUu0NiWA==",
+        "shasum": "b372587e9c000f165f1757793178ea6b5631f82e",
+        "tarball": "https://registry.npmjs.org/vitest/-/vitest-4.1.12.tgz"
+      }
+    },
+    {
+      "source": "https://registry.npmjs.org/%40vitest%2Fcoverage-v8/4.1.12",
+      "name": "@vitest/coverage-v8",
+      "version": "4.1.12",
+      "peerDependencies": {
+        "vitest": "4.1.12",
+        "@vitest/browser": "4.1.12"
+      },
+      "dependencies": {
+        "obug": "^2.1.1",
+        "std-env": "^4.0.0-rc.1",
+        "magicast": "^0.5.2",
+        "tinyrainbow": "^3.1.0",
+        "@vitest/utils": "4.1.12",
+        "istanbul-reports": "^3.2.0",
+        "@bcoe/v8-coverage": "^1.0.2",
+        "ast-v8-to-istanbul": "^1.0.0",
+        "istanbul-lib-report": "^3.0.1",
+        "istanbul-lib-coverage": "^3.2.2"
+      },
+      "deprecated": null,
+      "dist": {
+        "integrity": "sha512-6S7/iVknKglLAxMFxQGNppBI0iqJS2NgM6FBxavitj7KaDq/vywOWGf6dGu7F2L1Qy0G6S3uTp7aGshHrzK8JA==",
+        "shasum": "d4633b3cb3fddad0f671689883cd5f8dcdc83e91",
+        "tarball": "https://registry.npmjs.org/@vitest/coverage-v8/-/coverage-v8-4.1.12.tgz"
+      }
+    },
+    {
+      "source": "https://registry.npmjs.org/vite/8.2.4",
+      "name": "vite",
+      "version": "8.2.4",
+      "engines": {
+        "node": "^20.19.0 || >=22.12.0"
+      },
+      "peerDependencies": {
+        "tsx": "^4.8.1",
+        "jiti": ">=1.21.0",
+        "less": "^4.0.0",
+        "sass": "^1.70.0",
+        "yaml": "^2.4.2",
+        "stylus": ">=0.54.8",
+        "terser": "^5.16.0",
+        "esbuild": "^0.27.0 || ^0.28.0",
+        "sugarss": "^5.0.0",
+        "@types/node": "^20.19.0 || >=22.12.0",
+        "sass-embedded": "^1.70.0",
+        "@vitejs/devtools": "^0.4.0 || ^0.5.0"
+      },
+      "dependencies": {
+        "postcss": "^8.5.26",
+        "rolldown": "~1.2.4",
+        "picomatch": "^4.0.5",
+        "tinyglobby": "^0.2.17",
+        "lightningcss": "^1.33.0"
+      },
+      "deprecated": null,
+      "dist": {
+        "integrity": "sha512-lfauXnrf2x0p+UoA+wXh0dgFWnUjCyG6Js95KBkgaCwUU9k0DAHI4W6Q0WCx+h+5g+Alce1y4Zi2QjjK0UvGBw==",
+        "shasum": "228041a755db4667c5a5d93735c8f61da993ccc5",
+        "tarball": "https://registry.npmjs.org/vite/-/vite-8.2.4.tgz"
+      }
+    },
+    {
+      "source": "https://registry.npmjs.org/undici/8.12.2",
+      "name": "undici",
+      "version": "8.12.2",
+      "engines": {
+        "node": ">=22.19.0"
+      },
+      "deprecated": null,
+      "dist": {
+        "integrity": "sha512-XtuDWVdqTLr3NAxm2ly9/hU6kUsJOgGh1RASzMBbsw6aWCOaQzHdW+QQDfdERjfJ2V5vL5pRPa4RetO9UfivDg==",
+        "shasum": "e869237430adcc5de6bca798c94edd7db9dac5ac",
+        "tarball": "https://registry.npmjs.org/undici/-/undici-8.12.2.tgz"
+      }
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "original_path": "frontend/features/upload/services/passport-final-quality.ts",
+  "original_sha256": "641686f9d382884957f8deaae07755cb7a7ec8a69fa8594c5127741ec8fc20b5",
+  "original_physical_lines": 865,
+  "functions": [
+    {
+      "name": "validatePassportFinalFile",
+      "original_normalized_sha256": "9ab74faf23a74d98453c2990d834e9c1a3c79c8757e7892cbf84b9d19811d0be",
+      "owner": "frontend/features/upload/services/passport-final-quality.ts"
+    },
+    {
+      "name": "analyzePassportFinalPixels",
+      "original_normalized_sha256": "31f70eb4c47c5842cee95e22a4ceceac20a4c0f6a7c8bdd74a533374cb290ab0",
+      "owner": "frontend/features/upload/services/passport-final-analysis.ts"
+    },
+    {
+      "name": "analyzeRegion",
+      "original_normalized_sha256": "78196867c2629edd03112594653adc3739b02e2a1f7c2f00cd769d0fa6ef703c",
+      "owner": "frontend/features/upload/services/passport-final-regions.ts"
+    },
+    {
+      "name": "estimateDocumentCoverage",
+      "original_normalized_sha256": "b10bfbdeee42a407f22b0e190033e8ec6a81d572bf7b8c4df9df6f0cbba3b739",
+      "owner": "frontend/features/upload/services/passport-final-boundaries.ts"
+    },
+    {
+      "name": "strongestVerticalBoundary",
+      "original_normalized_sha256": "774788efaf5daf7a434aaf96c9670e4dc9bae7cbb7374aac5b26115b03921683",
+      "owner": "frontend/features/upload/services/passport-final-boundaries.ts"
+    },
+    {
+      "name": "strongestHorizontalBoundary",
+      "original_normalized_sha256": "00ff2794600a09a7ba91fc9af9302a2c6454b9bfd7615f0b34c669d95f2eed55",
+      "owner": "frontend/features/upload/services/passport-final-boundaries.ts"
+    },
+    {
+      "name": "detectScreenEvidence",
+      "original_normalized_sha256": "9bea3e9fb66d593d8e45f5f08dc3f8cb73585325bd5cc81b7116479723915b52",
+      "owner": "frontend/features/upload/services/passport-final-screen.ts"
+    },
+    {
+      "name": "bandMetrics",
+      "original_normalized_sha256": "aa3c9e02443b27d26d8cf2f5684dbcf4904d538012f05493e680c93e6d6eadcb",
+      "owner": "frontend/features/upload/services/passport-final-screen.ts"
+    },
+    {
+      "name": "isExtremeExposure",
+      "original_normalized_sha256": "2552e41cc70b877b9d7b3f8eec4d9a4a5c6be28f3113f6cd0a77a855ca1b88df",
+      "owner": "frontend/features/upload/services/passport-final-region-rules.ts"
+    },
+    {
+      "name": "isSeverelyUnreadable",
+      "original_normalized_sha256": "3f5bf50b6b70b34b38c958ea2ce684b2caa7de416c0a8d019da2059f99043a23",
+      "owner": "frontend/features/upload/services/passport-final-region-rules.ts"
+    },
+    {
+      "name": "isSoft",
+      "original_normalized_sha256": "90d20fa87ca8b35c9727072a611ddde106111332ca79307968baabf1faaadae6",
+      "owner": "frontend/features/upload/services/passport-final-region-rules.ts"
+    },
+    {
+      "name": "isRegionEffectivelyBlank",
+      "original_normalized_sha256": "faadd598e821dfb4d013749203320b84f2669d6f572b5679e8b13ca82173cd5d",
+      "owner": "frontend/features/upload/services/passport-final-region-rules.ts"
+    },
+    {
+      "name": "result",
+      "original_normalized_sha256": "05e55277f73e9b3a3371e31bffe0dd0d27a39846033bed585b3b920ae5e40c5d",
+      "owner": "frontend/features/upload/services/passport-final-result.ts"
+    },
+    {
+      "name": "borderlineMessage",
+      "original_normalized_sha256": "2a028ebaca10f5cab630ed56527e2d663db4d8867c52b22f18f2da8f89b9460c",
+      "owner": "frontend/features/upload/services/passport-final-result.ts"
+    },
+    {
+      "name": "invalidResult",
+      "original_normalized_sha256": "a88199d59132242e7d866472a0fdd0d66271a35414d7ab78fe95a2d820e3daaa",
+      "owner": "frontend/features/upload/services/passport-final-result.ts"
+    },
+    {
+      "name": "pixelBounds",
+      "original_normalized_sha256": "3b96c5c3bcced56ee70f5642b1992c45237a0ab0261b8b994ef98cbaf0dc02ba",
+      "owner": "frontend/features/upload/services/passport-final-regions.ts"
+    },
+    {
+      "name": "toGrayscale",
+      "original_normalized_sha256": "6e2c7227d7ea1400008d51812a1b38bf7a8917a1282500c67fc818e1ddba6ce7",
+      "owner": "frontend/features/upload/services/passport-final-regions.ts"
+    },
+    {
+      "name": "decodeImageFile",
+      "original_normalized_sha256": "e2bb0cb8b540ec88f6ce0c6db6d41e895cd72376da41f2699e433e71378619bb",
+      "owner": "frontend/features/upload/services/passport-final-quality.ts"
+    },
+    {
+      "name": "clamp01",
+      "original_normalized_sha256": "d290d0fbd1e9b1c068a2b8442c0c7321420701889490d60f465c1ef225a7f695",
+      "owner": "frontend/features/upload/services/passport-final-boundaries.ts"
+    },
+    {
+      "name": "roundMetric",
+      "original_normalized_sha256": "77721d6fe3d9393bbc53bb904bac16567c54c309341202c83b82f93c14be6241",
+      "owner": "frontend/features/upload/services/passport-final-regions.ts"
+    }
+  ],
+  "constants": [
+    {
+      "name": "PASSPORT_FINAL_THRESHOLDS",
+      "original_normalized_sha256": "afa3a4cec514f176dcc3e42e3bda925744f8ac8fb16f086acb4e45291b7ae52c"
+    },
+    {
+      "name": "FRONT_REGIONS",
+      "original_normalized_sha256": "0ff10a2dc59087146dde482f2fdc26768e033f48e6b3ce182c6ce3f480036cc0"
+    },
+    {
+      "name": "BACK_REGIONS",
+      "original_normalized_sha256": "b3bc55712197d95dd2995dce212e4eeacb6943169ae1a4e7760fcc7efeeb07f4"
+    }
+  ],
+  "note": "Exact function/constant movement; only module imports and export modifiers differ. No quality threshold, raw-vs-rounded metric comparison, loop stride, region boundary or outcome order changed."
+}

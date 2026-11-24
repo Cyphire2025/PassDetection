@@ -1,0 +1,326 @@
+
+ RUN  v4.1.12 C:/Users/nipun/Desktop/PassDetection/frontend
+
+ ❯ features/mcp/hooks/use-mcp-owner.test.tsx (5 tests | 5 failed) 76ms
+   × rejects an old permissions intent after a global mutation pause crosses accounts 17ms
+   × rejects an old read intent after a global mutation pause crosses accounts 12ms
+   × rejects an old delete intent after a global mutation pause crosses accounts 16ms
+   × does not dispatch permissions after its query cancellation crosses accounts 15ms
+   × does not dispatch read after its query cancellation crosses accounts 15ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  features/mcp/hooks/use-mcp-owner.test.tsx > rejects an old permissions intent after a global mutation pause crosses accounts
+AssertionError: expected { read_enabled: true, …(8) } to match object { code: 'AUTH_REQUEST_OWNER_CHANGED' }
+(9 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "code": "AUTH_REQUEST_OWNER_CHANGED",
++   "allowed_read_sections": [
++     "all_groups",
++     "menu",
++   ],
++   "allowed_write_sections": [
++     "all_groups",
++     "exports",
++   ],
++   "allowed_write_tools": [
++     "create_group",
++     "prepare_excel_export",
++     "create_native_upload",
++   ],
++   "permission_revision": 7,
++   "read_enabled": true,
++   "section_catalog": [
++     {
++       "id": "all_groups",
++       "label": "All groups",
++       "read_description": "Look up All groups.",
++       "read_supported": true,
++       "read_tool_names": [],
++       "write_description": "Reviewed actions for All groups.",
++       "write_supported": true,
++       "write_tool_names": [],
++     },
++     {
++       "id": "group_links",
++       "label": "Group links",
++       "read_description": "Look up Group links.",
++       "read_supported": true,
++       "read_tool_names": [],
++       "write_description": "Reviewed actions for Group links.",
++       "write_supported": true,
++       "write_tool_names": [],
++     },
++     {
++       "id": "exports",
++       "label": "Exports",
++       "read_description": "No available read actions.",
++       "read_supported": false,
++       "read_tool_names": [],
++       "write_description": "Reviewed actions for Exports.",
++       "write_supported": true,
++       "write_tool_names": [],
++     },
++     {
++       "id": "menu",
++       "label": "Menu",
++       "read_description": "Look up Menu.",
++       "read_supported": true,
++       "read_tool_names": [],
++       "write_description": "Reviewed actions for Menu.",
++       "write_supported": true,
++       "write_tool_names": [],
++     },
++     {
++       "id": "profile",
++       "label": "Profile",
++       "read_description": "No available read actions.",
++       "read_supported": false,
++       "read_tool_names": [],
++       "write_description": "No available write actions.",
++       "write_supported": false,
++       "write_tool_names": [],
++     },
++   ],
++   "write_available": true,
++   "write_enabled": false,
++   "write_tool_requirements": [
++     {
++       "name": "create_group",
++       "required_sections": [
++         "all_groups",
++       ],
++     },
++     {
++       "name": "configure_group_link",
++       "required_sections": [
++         "all_groups",
++         "group_links",
++       ],
++     },
++     {
++       "name": "prepare_excel_export",
++       "required_sections": [
++         "exports",
++       ],
++     },
++     {
++       "name": "create_menu_dish",
++       "required_sections": [
++         "menu",
++       ],
++     },
++     {
++       "name": "create_native_upload",
++       "required_sections": [],
++     },
++   ],
+  }
+
+ ❯ features/mcp/hooks/use-mcp-owner.test.tsx:52:60
+     50|   await waitFor(() => expect(release).toBeTypeOf("function"));
+     51|   useAuthStore.setState({ user: { ...owner, id: "staff-b" } });
+     52|   await act(async () => { release(); expect(await outcome).toMatchObje…
+       |                                                            ^
+     53|   expect(request(flow)).not.toHaveBeenCalled();
+     54| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  features/mcp/hooks/use-mcp-owner.test.tsx > rejects an old read intent after a global mutation pause crosses accounts
+AssertionError: expected { revision: 2 } to match object { code: 'AUTH_REQUEST_OWNER_CHANGED' }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "code": "AUTH_REQUEST_OWNER_CHANGED",
++   "revision": 2,
+  }
+
+ ❯ features/mcp/hooks/use-mcp-owner.test.tsx:52:60
+     50|   await waitFor(() => expect(release).toBeTypeOf("function"));
+     51|   useAuthStore.setState({ user: { ...owner, id: "staff-b" } });
+     52|   await act(async () => { release(); expect(await outcome).toMatchObje…
+       |                                                            ^
+     53|   expect(request(flow)).not.toHaveBeenCalled();
+     54| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  features/mcp/hooks/use-mcp-owner.test.tsx > rejects an old delete intent after a global mutation pause crosses accounts
+AssertionError: expected { deleted: true } to match object { code: 'AUTH_REQUEST_OWNER_CHANGED' }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "code": "AUTH_REQUEST_OWNER_CHANGED",
++   "deleted": true,
+  }
+
+ ❯ features/mcp/hooks/use-mcp-owner.test.tsx:52:60
+     50|   await waitFor(() => expect(release).toBeTypeOf("function"));
+     51|   useAuthStore.setState({ user: { ...owner, id: "staff-b" } });
+     52|   await act(async () => { release(); expect(await outcome).toMatchObje…
+       |                                                            ^
+     53|   expect(request(flow)).not.toHaveBeenCalled();
+     54| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  features/mcp/hooks/use-mcp-owner.test.tsx > does not dispatch permissions after its query cancellation crosses accounts
+AssertionError: expected { read_enabled: true, …(8) } to match object { code: 'AUTH_REQUEST_OWNER_CHANGED' }
+(9 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "code": "AUTH_REQUEST_OWNER_CHANGED",
++   "allowed_read_sections": [
++     "all_groups",
++     "menu",
++   ],
++   "allowed_write_sections": [
++     "all_groups",
++     "exports",
++   ],
++   "allowed_write_tools": [
++     "create_group",
++     "prepare_excel_export",
++     "create_native_upload",
++   ],
++   "permission_revision": 7,
++   "read_enabled": true,
++   "section_catalog": [
++     {
++       "id": "all_groups",
++       "label": "All groups",
++       "read_description": "Look up All groups.",
++       "read_supported": true,
++       "read_tool_names": [],
++       "write_description": "Reviewed actions for All groups.",
++       "write_supported": true,
++       "write_tool_names": [],
++     },
++     {
++       "id": "group_links",
++       "label": "Group links",
++       "read_description": "Look up Group links.",
++       "read_supported": true,
++       "read_tool_names": [],
++       "write_description": "Reviewed actions for Group links.",
++       "write_supported": true,
++       "write_tool_names": [],
++     },
++     {
++       "id": "exports",
++       "label": "Exports",
++       "read_description": "No available read actions.",
++       "read_supported": false,
++       "read_tool_names": [],
++       "write_description": "Reviewed actions for Exports.",
++       "write_supported": true,
++       "write_tool_names": [],
++     },
++     {
++       "id": "menu",
++       "label": "Menu",
++       "read_description": "Look up Menu.",
++       "read_supported": true,
++       "read_tool_names": [],
++       "write_description": "Reviewed actions for Menu.",
++       "write_supported": true,
++       "write_tool_names": [],
++     },
++     {
++       "id": "profile",
++       "label": "Profile",
++       "read_description": "No available read actions.",
++       "read_supported": false,
++       "read_tool_names": [],
++       "write_description": "No available write actions.",
++       "write_supported": false,
++       "write_tool_names": [],
++     },
++   ],
++   "write_available": true,
++   "write_enabled": false,
++   "write_tool_requirements": [
++     {
++       "name": "create_group",
++       "required_sections": [
++         "all_groups",
++       ],
++     },
++     {
++       "name": "configure_group_link",
++       "required_sections": [
++         "all_groups",
++         "group_links",
++       ],
++     },
++     {
++       "name": "prepare_excel_export",
++       "required_sections": [
++         "exports",
++       ],
++     },
++     {
++       "name": "create_menu_dish",
++       "required_sections": [
++         "menu",
++       ],
++     },
++     {
++       "name": "create_native_upload",
++       "required_sections": [],
++     },
++   ],
+  }
+
+ ❯ features/mcp/hooks/use-mcp-owner.test.tsx:64:60
+     62|   await waitFor(() => expect(release).toBeTypeOf("function"));
+     63|   useAuthStore.setState({ user: { ...owner, id: "staff-b" } });
+     64|   await act(async () => { release(); expect(await outcome).toMatchObje…
+       |                                                            ^
+     65|   expect(request(flow)).not.toHaveBeenCalled();
+     66| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  features/mcp/hooks/use-mcp-owner.test.tsx > does not dispatch read after its query cancellation crosses accounts
+AssertionError: expected { revision: 2 } to match object { code: 'AUTH_REQUEST_OWNER_CHANGED' }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "code": "AUTH_REQUEST_OWNER_CHANGED",
++   "revision": 2,
+  }
+
+ ❯ features/mcp/hooks/use-mcp-owner.test.tsx:64:60
+     62|   await waitFor(() => expect(release).toBeTypeOf("function"));
+     63|   useAuthStore.setState({ user: { ...owner, id: "staff-b" } });
+     64|   await act(async () => { release(); expect(await outcome).toMatchObje…
+       |                                                            ^
+     65|   expect(request(flow)).not.toHaveBeenCalled();
+     66| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 failed (5)
+   Start at  00:51:36
+   Duration  930ms (transform 59ms, setup 140ms, import 134ms, tests 76ms, environment 491ms)
+

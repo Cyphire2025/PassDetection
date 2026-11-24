@@ -134,11 +134,13 @@ broadcast heading catalogs from retained row data. Existing matching policies ar
 not rewritten. Entirely blank headings from historical imports cannot be
 reconstructed if they were never retained; re-import the workbook to capture them.
 
-The current readiness and Compose schema expectation is `0093_phone_welcome`,
-which adds the phone-scoped welcome prerequisite after the matching migration.
-Update any explicit deployment override accordingly. Deploy backend and frontend
-from the same revision, and recreate workers against the upgraded schema. This
-implementation does not itself perform a production migration or send messages.
+Revision `0093_phone_welcome` adds the phone-scoped welcome prerequisite after
+the matching migration. Current readiness uses `schema_revision` from the
+[packaged release manifest](../backend/app/core/config/release_manifest.json);
+any explicit `EXPECTED_DATABASE_SCHEMA_REVISION` deployment override must match
+the qualified release. Follow the [current release procedure](CURRENT_RELEASE_AND_STORAGE.md)
+to activate matching backend, frontend and worker revisions. This implementation
+does not itself perform a production migration or send messages.
 
 The database-backed regression in
 `backend/tests/unit/presentation/test_whatsapp_matching_reminder_flow.py` exercises

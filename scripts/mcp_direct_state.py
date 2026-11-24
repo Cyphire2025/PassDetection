@@ -65,12 +65,13 @@ def source_inventory(source: Path) -> dict[str, str]:
     for path in sorted(source.rglob("*")):
         if path.is_symlink():
             raise BuildError("source_alias_forbidden")
-        if path.is_file():
-            if not stat.S_ISREG(path.stat().st_mode):
-                raise BuildError("source_special_file_forbidden")
-            result[path.relative_to(source).as_posix()] = hashlib.sha256(
-                path.read_bytes()
-            ).hexdigest()
+        if path.is_dir():
+            continue
+        if not stat.S_ISREG(path.stat().st_mode):
+            raise BuildError("source_special_file_forbidden")
+        result[path.relative_to(source).as_posix()] = hashlib.sha256(
+            path.read_bytes()
+        ).hexdigest()
     return result
 
 

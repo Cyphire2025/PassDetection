@@ -1,0 +1,30 @@
+[
+  {
+    "path": "features/upload/hooks/use-fresh-contact.ts",
+    "baselineLines": 35,
+    "maximumLines": 40,
+    "baselineMaxFunctionComplexity": 10,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/upload/hooks/use-fresh-contact-challenge.ts",
+    "baselineLines": 72,
+    "maximumLines": 80,
+    "baselineMaxFunctionComplexity": 6,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/upload/components/fresh-contact.tsx",
+    "baselineLines": 23,
+    "maximumLines": 30,
+    "baselineMaxFunctionComplexity": 15,
+    "maximumFunctionComplexity": 17
+  },
+  {
+    "path": "features/upload/services/contact-verification.ts",
+    "baselineLines": 15,
+    "maximumLines": 20,
+    "baselineMaxFunctionComplexity": 6,
+    "maximumFunctionComplexity": 7
+  }
+]

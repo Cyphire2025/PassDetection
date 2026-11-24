@@ -1,0 +1,114 @@
+test_non_object_compose_json_fails_as_bounded_release_error (test_traveller_release_json_boundaries.ReleaseJsonBoundaries.test_non_object_compose_json_fails_as_bounded_release_error) ... 
+  test_non_object_compose_json_fails_as_bounded_release_error (test_traveller_release_json_boundaries.ReleaseJsonBoundaries.test_non_object_compose_json_fails_as_bounded_release_error) (document=None) ... ERROR
+  test_non_object_compose_json_fails_as_bounded_release_error (test_traveller_release_json_boundaries.ReleaseJsonBoundaries.test_non_object_compose_json_fails_as_bounded_release_error) (document=[]) ... ERROR
+  test_non_object_compose_json_fails_as_bounded_release_error (test_traveller_release_json_boundaries.ReleaseJsonBoundaries.test_non_object_compose_json_fails_as_bounded_release_error) (document='synthetic-invalid') ... ERROR
+  test_non_object_compose_json_fails_as_bounded_release_error (test_traveller_release_json_boundaries.ReleaseJsonBoundaries.test_non_object_compose_json_fails_as_bounded_release_error) (document=42) ... ERROR
+test_non_string_image_identifiers_fail_as_bounded_release_error (test_traveller_release_json_boundaries.ReleaseJsonBoundaries.test_non_string_image_identifiers_fail_as_bounded_release_error) ... 
+  test_non_string_image_identifiers_fail_as_bounded_release_error (test_traveller_release_json_boundaries.ReleaseJsonBoundaries.test_non_string_image_identifiers_fail_as_bounded_release_error) (image_id=None) ... ERROR
+  test_non_string_image_identifiers_fail_as_bounded_release_error (test_traveller_release_json_boundaries.ReleaseJsonBoundaries.test_non_string_image_identifiers_fail_as_bounded_release_error) (image_id=42) ... ERROR
+  test_non_string_image_identifiers_fail_as_bounded_release_error (test_traveller_release_json_boundaries.ReleaseJsonBoundaries.test_non_string_image_identifiers_fail_as_bounded_release_error) (image_id={'private': 'synthetic-invalid'}) ... ERROR
+test_normal_compose_object_preserves_every_existing_field (test_traveller_release_json_boundaries.ReleaseJsonBoundaries.test_normal_compose_object_preserves_every_existing_field) ... ok
+test_normal_image_id_is_returned_without_coercing_other_metadata (test_traveller_release_json_boundaries.ReleaseJsonBoundaries.test_normal_image_id_is_returned_without_coercing_other_metadata) ... ok
+
+======================================================================
+ERROR: test_non_object_compose_json_fails_as_bounded_release_error (test_traveller_release_json_boundaries.ReleaseJsonBoundaries.test_non_object_compose_json_fails_as_bounded_release_error) (document=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_traveller_release_json_boundaries.py", line 42, in test_non_object_compose_json_fails_as_bounded_release_error
+    self.preflight(document)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_traveller_release_json_boundaries.py", line 24, in preflight
+    result = release.preflight()
+             ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\traveller_release_host.py", line 129, in preflight
+    if config.get("name") != self.compose[3] or not {*self.activated_services, "nginx"} <= set(
+       ^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'get'
+
+======================================================================
+ERROR: test_non_object_compose_json_fails_as_bounded_release_error (test_traveller_release_json_boundaries.ReleaseJsonBoundaries.test_non_object_compose_json_fails_as_bounded_release_error) (document=[])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_traveller_release_json_boundaries.py", line 42, in test_non_object_compose_json_fails_as_bounded_release_error
+    self.preflight(document)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_traveller_release_json_boundaries.py", line 24, in preflight
+    result = release.preflight()
+             ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\traveller_release_host.py", line 129, in preflight
+    if config.get("name") != self.compose[3] or not {*self.activated_services, "nginx"} <= set(
+       ^^^^^^^^^^
+AttributeError: 'list' object has no attribute 'get'
+
+======================================================================
+ERROR: test_non_object_compose_json_fails_as_bounded_release_error (test_traveller_release_json_boundaries.ReleaseJsonBoundaries.test_non_object_compose_json_fails_as_bounded_release_error) (document='synthetic-invalid')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_traveller_release_json_boundaries.py", line 42, in test_non_object_compose_json_fails_as_bounded_release_error
+    self.preflight(document)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_traveller_release_json_boundaries.py", line 24, in preflight
+    result = release.preflight()
+             ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\traveller_release_host.py", line 129, in preflight
+    if config.get("name") != self.compose[3] or not {*self.activated_services, "nginx"} <= set(
+       ^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+======================================================================
+ERROR: test_non_object_compose_json_fails_as_bounded_release_error (test_traveller_release_json_boundaries.ReleaseJsonBoundaries.test_non_object_compose_json_fails_as_bounded_release_error) (document=42)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_traveller_release_json_boundaries.py", line 42, in test_non_object_compose_json_fails_as_bounded_release_error
+    self.preflight(document)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_traveller_release_json_boundaries.py", line 24, in preflight
+    result = release.preflight()
+             ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\traveller_release_host.py", line 129, in preflight
+    if config.get("name") != self.compose[3] or not {*self.activated_services, "nginx"} <= set(
+       ^^^^^^^^^^
+AttributeError: 'int' object has no attribute 'get'
+
+======================================================================
+ERROR: test_non_string_image_identifiers_fail_as_bounded_release_error (test_traveller_release_json_boundaries.ReleaseJsonBoundaries.test_non_string_image_identifiers_fail_as_bounded_release_error) (image_id=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_traveller_release_json_boundaries.py", line 59, in test_non_string_image_identifiers_fail_as_bounded_release_error
+    release.verify_image("synthetic-image", backend=False)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\traveller_release_host.py", line 189, in verify_image
+    if not re.fullmatch(r"sha256:[0-9a-f]{64}", image_id):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\re\__init__.py", line 171, in fullmatch
+    return _compile(pattern, flags).fullmatch(string)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: expected string or bytes-like object, got 'NoneType'
+
+======================================================================
+ERROR: test_non_string_image_identifiers_fail_as_bounded_release_error (test_traveller_release_json_boundaries.ReleaseJsonBoundaries.test_non_string_image_identifiers_fail_as_bounded_release_error) (image_id=42)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_traveller_release_json_boundaries.py", line 59, in test_non_string_image_identifiers_fail_as_bounded_release_error
+    release.verify_image("synthetic-image", backend=False)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\traveller_release_host.py", line 189, in verify_image
+    if not re.fullmatch(r"sha256:[0-9a-f]{64}", image_id):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\re\__init__.py", line 171, in fullmatch
+    return _compile(pattern, flags).fullmatch(string)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: expected string or bytes-like object, got 'int'
+
+======================================================================
+ERROR: test_non_string_image_identifiers_fail_as_bounded_release_error (test_traveller_release_json_boundaries.ReleaseJsonBoundaries.test_non_string_image_identifiers_fail_as_bounded_release_error) (image_id={'private': 'synthetic-invalid'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_traveller_release_json_boundaries.py", line 59, in test_non_string_image_identifiers_fail_as_bounded_release_error
+    release.verify_image("synthetic-image", backend=False)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\traveller_release_host.py", line 189, in verify_image
+    if not re.fullmatch(r"sha256:[0-9a-f]{64}", image_id):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\re\__init__.py", line 171, in fullmatch
+    return _compile(pattern, flags).fullmatch(string)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: expected string or bytes-like object, got 'dict'
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.018s
+
+FAILED (errors=7)

@@ -1,0 +1,45 @@
+{
+  "status": "verified exact126th admission; actual126AFTER/bothGit BEFOREs and14focusedloader pass",
+  "row": {
+    "path": "docker-compose.audit.yml",
+    "before_0140": "eb2a6bb2f7aa0fc02a787c0d868002b80be9084bbcb2fc92becc5a902eda4057",
+    "before_0141": "eb2a6bb2f7aa0fc02a787c0d868002b80be9084bbcb2fc92becc5a902eda4057",
+    "after": "b356f5c9044d77cab626d4cba704c9f6b8d17ae290b8d7d563e402b8e105c38c"
+  },
+  "raw_current_sha256": "1213ea13750c871a1f1e298c598dc3d7437c61f8bbeba4a53d5f22c403ce8d31",
+  "all125previous_rows_exact": true,
+  "actual_both_Git_BEFOREs_verified": true,
+  "whole_actual_baseline_LF_inverse_one_line_exact": true,
+  "only_policy_count_and_pin_literals_changed": true,
+  "bindings_sha256": "dfc9d35a8946cf8016d7231d916f2bf420cdd00142c0232591bb5daea03acd8f",
+  "previous": {
+    "path": "audit-compose-admission-previous-values.json",
+    "sha256": "6a046ab7be6b5bf546436dbcf6555fd9f8101b4a4292299007d201f5882db93f"
+  },
+  "peer_qualification": {
+    "path": "deployment-config-verification.json",
+    "sha256": "55b10067fc61ab86d90375bc718c6f6b2713d54295e08564c2ee4db0b2473e4f",
+    "actual_tests": "5actualSettings/SQLite/schema-readiness cases; noDocker/livewhole-stack"
+  },
+  "preflight": {
+    "path": "audit-compose-exact-admission-preflight.json",
+    "sha256": "2c8896453f39031bb495a4c12da8700f1169a3442f33aa20348cf3fbc9bcb215"
+  },
+  "failed_initial_loader": {
+    "path": "zip-document-residual-loader-before-compose-admission.txt",
+    "sha256": "1981114e5a4667300606a6f6463c08f368b4b0e2abfdc09b93b073d8bad09bc7"
+  },
+  "limits": [
+    "Existing tracked source with actual non-null hashes at both baselines, no fabricatedabsence",
+    "RawcurrentCRLF1213hash and normalizedLFb356admission distinguished; allotheroverlaycontent/services/IDs/commands/resource setup preserved",
+    "No blanketCompose exception/deployment/service invocation; historicalqualified_sources unchanged"
+  ],
+  "exact_bindings": {
+    "path": "zip-document-residual-exact-bindings.json",
+    "sha256": "6c66bf563bf6ff42e7748a607596a99878a8842c95e9b4164384b1f7daf04abf"
+  },
+  "loader": {
+    "path": "zip-document-residual-loader-tests.txt",
+    "sha256": "0ec457af22dcda67a09282a0de858b6206cea2662f84edaac9ea59aba782bc7c"
+  }
+}

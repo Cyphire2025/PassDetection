@@ -1,0 +1,116 @@
+FFF                                                                      [100%]
+================================== FAILURES ===================================
+____ test_download_rechecks_current_grant_after_provider_await[cancelled] _____
+
+photo_database = namespace(sessions=async_sessionmaker(class_='AsyncSession', bind=<sqlalchemy.ext.asyncio.engine.AsyncEngine object at...re.database.gc_mobile_models.MobilePassengerIdentityModel object at 0x0000020F0838FAD0>, client_manager_profile=None)))
+change = 'cancelled'
+
+    @pytest.mark.parametrize("change", ["cancelled", "replaced"])
+    async def test_download_rechecks_current_grant_after_provider_await(photo_database, change):
+        env = photo_database
+        seeded = await _seed_delivery(env)
+    
+        class Provider:
+            async def resolve(self, request):
+                async with env.sessions() as session, session.begin():
+                    row = await session.get(MyPhotoDeliveryAuthorizationModel, seeded.grant_id)
+                    if change == "cancelled":
+                        row.status = "cancelled"
+                        row.provider_authorization_reference = None
+                        row.transport = "unavailable"
+                        row.expected_size_bytes = None
+                        row.checksum_sha256 = None
+                        row.content_type = None
+                        row.supports_ranges = False
+                        row.expires_at = None
+                    else:
+                        row.provider_authorization_reference = "synthetic-replacement-grant"
+                return DeliveryResolution(
+                    "https://storage.example.test/private", request.expires_at, True
+                )
+    
+        providers = SimpleNamespace(provider_name="aws", media=Provider())
+        async with env.sessions() as session:
+            service = MyPhotosService(session, settings=env.settings, providers=providers)
+>           with pytest.raises((MyPhotosUnavailable, EntityNotFoundError)):
+E           Failed: DID NOT RAISE any of (<class 'app.application.my_photos.errors.MyPhotosUnavailable'>, <class 'app.domain.exceptions.exceptions.EntityNotFoundError'>)
+
+tests\integration\test_my_photos_delivery_freshness.py:272: Failed
+_____ test_download_rechecks_current_grant_after_provider_await[replaced] _____
+
+photo_database = namespace(sessions=async_sessionmaker(class_='AsyncSession', bind=<sqlalchemy.ext.asyncio.engine.AsyncEngine object at...re.database.gc_mobile_models.MobilePassengerIdentityModel object at 0x0000020F0845C250>, client_manager_profile=None)))
+change = 'replaced'
+
+    @pytest.mark.parametrize("change", ["cancelled", "replaced"])
+    async def test_download_rechecks_current_grant_after_provider_await(photo_database, change):
+        env = photo_database
+        seeded = await _seed_delivery(env)
+    
+        class Provider:
+            async def resolve(self, request):
+                async with env.sessions() as session, session.begin():
+                    row = await session.get(MyPhotoDeliveryAuthorizationModel, seeded.grant_id)
+                    if change == "cancelled":
+                        row.status = "cancelled"
+                        row.provider_authorization_reference = None
+                        row.transport = "unavailable"
+                        row.expected_size_bytes = None
+                        row.checksum_sha256 = None
+                        row.content_type = None
+                        row.supports_ranges = False
+                        row.expires_at = None
+                    else:
+                        row.provider_authorization_reference = "synthetic-replacement-grant"
+                return DeliveryResolution(
+                    "https://storage.example.test/private", request.expires_at, True
+                )
+    
+        providers = SimpleNamespace(provider_name="aws", media=Provider())
+        async with env.sessions() as session:
+            service = MyPhotosService(session, settings=env.settings, providers=providers)
+>           with pytest.raises((MyPhotosUnavailable, EntityNotFoundError)):
+E           Failed: DID NOT RAISE any of (<class 'app.application.my_photos.errors.MyPhotosUnavailable'>, <class 'app.domain.exceptions.exceptions.EntityNotFoundError'>)
+
+tests\integration\test_my_photos_delivery_freshness.py:272: Failed
+______ test_preview_deadline_is_bounded_by_the_current_derivative_expiry ______
+
+photo_database = namespace(sessions=async_sessionmaker(class_='AsyncSession', bind=<sqlalchemy.ext.asyncio.engine.AsyncEngine object at...re.database.gc_mobile_models.MobilePassengerIdentityModel object at 0x0000020F0871BB90>, client_manager_profile=None)))
+
+    async def test_preview_deadline_is_bounded_by_the_current_derivative_expiry(photo_database):
+        env = photo_database
+        seeded = await _seed_delivery(env)
+        expiry = datetime.now(UTC) + timedelta(seconds=5)
+        async with env.sessions() as session, session.begin():
+            await session.execute(
+                update(MyPhotoAssetVariantModel)
+                .where(
+                    MyPhotoAssetVariantModel.media_asset_id == seeded.asset_id,
+                )
+                .values(expires_at=expiry)
+            )
+        requests = []
+    
+        class Provider:
+            async def authorize(self, request):
+                return _authorization(request)
+    
+            async def resolve(self, request):
+                requests.append(request)
+                return DeliveryResolution(
+                    "https://storage.example.test/private", request.expires_at, True
+                )
+    
+        providers = SimpleNamespace(provider_name="aws", media=Provider())
+        async with env.sessions() as session:
+            service = MyPhotosService(session, settings=env.settings, providers=providers)
+            await _resolve(service, env, seeded, "preview")
+>       assert requests[0].expires_at <= expiry
+E       AssertionError: assert datetime.datetime(2026, 10, 30, 23, 45, 2, 523866, tzinfo=datetime.timezone.utc) <= datetime.datetime(2026, 10, 30, 23, 44, 37, 537162, tzinfo=datetime.timezone.utc)
+E        +  where datetime.datetime(2026, 10, 30, 23, 45, 2, 523866, tzinfo=datetime.timezone.utc) = DeliveryResolutionRequest(tenant_scope='e569c9eb-87ba-403e-8123-1e317ab88e94', group_scope='c92902f4-52b2-4e19-9d6a-08...content_type='image/jpeg', expires_at=datetime.datetime(2026, 10, 30, 23, 45, 2, 523866, tzinfo=datetime.timezone.utc)).expires_at
+
+tests\integration\test_my_photos_delivery_freshness.py:304: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/integration/test_my_photos_delivery_freshness.py::test_download_rechecks_current_grant_after_provider_await[cancelled]
+FAILED tests/integration/test_my_photos_delivery_freshness.py::test_download_rechecks_current_grant_after_provider_await[replaced]
+FAILED tests/integration/test_my_photos_delivery_freshness.py::test_preview_deadline_is_bounded_by_the_current_derivative_expiry
+3 failed, 10 deselected in 6.08s

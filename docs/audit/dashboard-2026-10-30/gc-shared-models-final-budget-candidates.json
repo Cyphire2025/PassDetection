@@ -1,0 +1,338 @@
+{
+  "status": "Final current candidates;99.81floor transfer preserved; parent policy integration required",
+  "original_budget_sha256": "0e292b4f0ecf53d0a1942fa3c2da521f19ebc58c8450627be85fd309eaf44305",
+  "original_row": {
+    "path": "app/infrastructure/database/gc_mobile_models.py",
+    "baseline_lines": 2484,
+    "maximum_lines": 2540,
+    "baseline_max_function_complexity": 1,
+    "maximum_function_complexity": 1,
+    "minimum_coverage_percent": 99.81
+  },
+  "proposed_rows": [
+    {
+      "path": "app/infrastructure/database/gc_mobile_models.py",
+      "baseline_lines": 110,
+      "maximum_lines": 120,
+      "baseline_max_function_complexity": 1,
+      "maximum_function_complexity": 1,
+      "minimum_coverage_percent": 99.81
+    },
+    {
+      "path": "app/infrastructure/database/_gc_models/__init__.py",
+      "baseline_lines": 7,
+      "maximum_lines": 10,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 99.81
+    },
+    {
+      "path": "app/infrastructure/database/_gc_models/announcements.py",
+      "baseline_lines": 160,
+      "maximum_lines": 170,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 99.81
+    },
+    {
+      "path": "app/infrastructure/database/_gc_models/attestation.py",
+      "baseline_lines": 131,
+      "maximum_lines": 140,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 99.81
+    },
+    {
+      "path": "app/infrastructure/database/_gc_models/common_documents.py",
+      "baseline_lines": 164,
+      "maximum_lines": 170,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 99.81
+    },
+    {
+      "path": "app/infrastructure/database/_gc_models/document_cache.py",
+      "baseline_lines": 126,
+      "maximum_lines": 130,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 99.81
+    },
+    {
+      "path": "app/infrastructure/database/_gc_models/family_delegations.py",
+      "baseline_lines": 133,
+      "maximum_lines": 140,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 99.81
+    },
+    {
+      "path": "app/infrastructure/database/_gc_models/group_access.py",
+      "baseline_lines": 260,
+      "maximum_lines": 270,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 99.81
+    },
+    {
+      "path": "app/infrastructure/database/_gc_models/idempotency_receipts.py",
+      "baseline_lines": 99,
+      "maximum_lines": 100,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 99.81
+    },
+    {
+      "path": "app/infrastructure/database/_gc_models/incidents.py",
+      "baseline_lines": 125,
+      "maximum_lines": 130,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 99.81
+    },
+    {
+      "path": "app/infrastructure/database/_gc_models/itineraries.py",
+      "baseline_lines": 304,
+      "maximum_lines": 310,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 99.81
+    },
+    {
+      "path": "app/infrastructure/database/_gc_models/notifications.py",
+      "baseline_lines": 186,
+      "maximum_lines": 190,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 99.81
+    },
+    {
+      "path": "app/infrastructure/database/_gc_models/organizations.py",
+      "baseline_lines": 235,
+      "maximum_lines": 240,
+      "baseline_max_function_complexity": 1,
+      "maximum_function_complexity": 1,
+      "minimum_coverage_percent": 99.81
+    },
+    {
+      "path": "app/infrastructure/database/_gc_models/otp_challenges.py",
+      "baseline_lines": 133,
+      "maximum_lines": 140,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 99.81
+    },
+    {
+      "path": "app/infrastructure/database/_gc_models/passenger_identities.py",
+      "baseline_lines": 170,
+      "maximum_lines": 180,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 99.81
+    },
+    {
+      "path": "app/infrastructure/database/_gc_models/push_transport.py",
+      "baseline_lines": 227,
+      "maximum_lines": 230,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 99.81
+    },
+    {
+      "path": "app/infrastructure/database/_gc_models/refresh_tokens.py",
+      "baseline_lines": 112,
+      "maximum_lines": 120,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 99.81
+    },
+    {
+      "path": "app/infrastructure/database/_gc_models/sessions.py",
+      "baseline_lines": 256,
+      "maximum_lines": 260,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 99.81
+    },
+    {
+      "path": "app/infrastructure/database/_gc_models/sync_changes.py",
+      "baseline_lines": 120,
+      "maximum_lines": 130,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 99.81
+    }
+  ],
+  "old_rows_updated": 1,
+  "new_normal_rows": 18,
+  "expected_normal_count_after": 900,
+  "critical_additions": [],
+  "floor_transfer": "Original99.81line minimum preserved on every19actualowner including facade/primer; all measure100statement/line, branchless declarations/default/getter controls. No declaration-only critical gates.",
+  "measurements": [
+    {
+      "path": "app/infrastructure/database/gc_mobile_models.py",
+      "sha256": "18fcb75da61780da07a5e806635d4e34c281caeefe3b7f47ebbe78d3b3402ce4",
+      "lines": 110,
+      "complexity": 1,
+      "line_coverage": 100.0,
+      "branch_sites": 0
+    },
+    {
+      "path": "app/infrastructure/database/_gc_models/__init__.py",
+      "sha256": "3d6b47ac4f231cd452fbac0be5b0b91ebd1051e43e14d2bfac8b037461b6be29",
+      "lines": 7,
+      "complexity": 0,
+      "line_coverage": 100.0,
+      "branch_sites": 0
+    },
+    {
+      "path": "app/infrastructure/database/_gc_models/announcements.py",
+      "sha256": "ddfd167e3ec6f694a5b9b4fd5e78f74dbc73ffbda1e2b1f6fa68b7121db9f9b5",
+      "lines": 160,
+      "complexity": 0,
+      "line_coverage": 100.0,
+      "branch_sites": 0
+    },
+    {
+      "path": "app/infrastructure/database/_gc_models/attestation.py",
+      "sha256": "d121fb0cbca7591a3d3c907c0cb399d5d1adc94f36e8be421ec8fdb0366f9261",
+      "lines": 131,
+      "complexity": 0,
+      "line_coverage": 100.0,
+      "branch_sites": 0
+    },
+    {
+      "path": "app/infrastructure/database/_gc_models/common_documents.py",
+      "sha256": "079550653b8479c535f14252ea1d83b9d037cb0112d6947b4a57dacb9a71971b",
+      "lines": 164,
+      "complexity": 0,
+      "line_coverage": 100.0,
+      "branch_sites": 0
+    },
+    {
+      "path": "app/infrastructure/database/_gc_models/document_cache.py",
+      "sha256": "d9cc4bad0435253e7b0aa73e00e1ccf12153a5cd77e3ce725a4dee80f4290bbf",
+      "lines": 126,
+      "complexity": 0,
+      "line_coverage": 100.0,
+      "branch_sites": 0
+    },
+    {
+      "path": "app/infrastructure/database/_gc_models/family_delegations.py",
+      "sha256": "00881bb3e306e7985cb687163d41ce4045575c2be8e41a33c79f32187df759d4",
+      "lines": 133,
+      "complexity": 0,
+      "line_coverage": 100.0,
+      "branch_sites": 0
+    },
+    {
+      "path": "app/infrastructure/database/_gc_models/group_access.py",
+      "sha256": "be19a91b9200629cb94c9761ac69cee226725cfd45d5317a17184ee25e4cf755",
+      "lines": 260,
+      "complexity": 0,
+      "line_coverage": 100.0,
+      "branch_sites": 0
+    },
+    {
+      "path": "app/infrastructure/database/_gc_models/idempotency_receipts.py",
+      "sha256": "2e4ee76a54a7876508fe47a29c9ff4471ef5886baf03cda90111d22652012db5",
+      "lines": 99,
+      "complexity": 0,
+      "line_coverage": 100.0,
+      "branch_sites": 0
+    },
+    {
+      "path": "app/infrastructure/database/_gc_models/incidents.py",
+      "sha256": "d74c0acaac5610a28d57802b6a45272baa51154c97a42bf56e78208cb32f8bac",
+      "lines": 125,
+      "complexity": 0,
+      "line_coverage": 100.0,
+      "branch_sites": 0
+    },
+    {
+      "path": "app/infrastructure/database/_gc_models/itineraries.py",
+      "sha256": "8456f3888a78300afc37d316ffd98bab4efe5fa7aa5b192b23ad689b436030de",
+      "lines": 304,
+      "complexity": 0,
+      "line_coverage": 100.0,
+      "branch_sites": 0
+    },
+    {
+      "path": "app/infrastructure/database/_gc_models/notifications.py",
+      "sha256": "eb171fe049d06297dafa51d5c38b690e41096506040079aa240bcdd037de7254",
+      "lines": 186,
+      "complexity": 0,
+      "line_coverage": 100.0,
+      "branch_sites": 0
+    },
+    {
+      "path": "app/infrastructure/database/_gc_models/organizations.py",
+      "sha256": "948281b090747a2ecfaa7a7d203086858d0ac0c042b35e151c5f81ad46b4dd1f",
+      "lines": 235,
+      "complexity": 1,
+      "line_coverage": 100.0,
+      "branch_sites": 0
+    },
+    {
+      "path": "app/infrastructure/database/_gc_models/otp_challenges.py",
+      "sha256": "ea43f9a6ef67d7ac0292974239d9375a8031d2f556bf449a16fef41fb7e847f2",
+      "lines": 133,
+      "complexity": 0,
+      "line_coverage": 100.0,
+      "branch_sites": 0
+    },
+    {
+      "path": "app/infrastructure/database/_gc_models/passenger_identities.py",
+      "sha256": "a9f5ab3b247a55a5bbf3ffd59fa22ce4e8fcc2afb7db960bfadc581f2d337f7f",
+      "lines": 170,
+      "complexity": 0,
+      "line_coverage": 100.0,
+      "branch_sites": 0
+    },
+    {
+      "path": "app/infrastructure/database/_gc_models/push_transport.py",
+      "sha256": "981efda676d8049bd35729b17c3bd4536d2fc050321540963cb1b3e1098fcafd",
+      "lines": 227,
+      "complexity": 0,
+      "line_coverage": 100.0,
+      "branch_sites": 0
+    },
+    {
+      "path": "app/infrastructure/database/_gc_models/refresh_tokens.py",
+      "sha256": "82fa0d47cfc766268d1509f4079da96d16584c6b03c724c6210fc61577979996",
+      "lines": 112,
+      "complexity": 0,
+      "line_coverage": 100.0,
+      "branch_sites": 0
+    },
+    {
+      "path": "app/infrastructure/database/_gc_models/sessions.py",
+      "sha256": "2a976b5fb1e8f8966810793b1dee2652070b19871d97b07706b11f99d7002b75",
+      "lines": 256,
+      "complexity": 0,
+      "line_coverage": 100.0,
+      "branch_sites": 0
+    },
+    {
+      "path": "app/infrastructure/database/_gc_models/sync_changes.py",
+      "sha256": "30c997125dcf6fd4a0a8a2edf753543811c5770f7952913f82df45eb649985ab",
+      "lines": 120,
+      "complexity": 0,
+      "line_coverage": 100.0,
+      "branch_sites": 0
+    }
+  ],
+  "coverage_artifact": {
+    "path": "gc-shared-models-current-coverage.json",
+    "sha256": "901ecd2f36c9590fc8721a7768994246b0a1ca312084f90b76d60f587fd9e67e"
+  },
+  "prepolish_candidates": {
+    "path": "gc-shared-models-budget-candidates.json",
+    "sha256": "dbe10fec6910bd731ddeeda254e8e8921030415bb6cacc57ccca2eb50475f6c4"
+  },
+  "qualification_scope": "65tests and21metadata startup modes qualified exact prepolish source. Current17module-docstring-only AST restoration, identical line positions/class/helper/import AST and currentRuff20/strict19/format20 preserve those semantic results. No current65rerun/coverage rewrite.",
+  "module_docstring_continuity": {
+    "path": "gc-shared-models-module-docstring-continuity.json",
+    "sha256": "ab95a473a1aa70f40a28f818662e56060d7389002167dc6099cbcd46ce10da87"
+  }
+}

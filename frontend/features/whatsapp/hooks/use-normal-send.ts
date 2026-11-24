@@ -1,5 +1,6 @@
-import { useRef } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { usePrivateMutation } from "@/hooks/use-private-mutation";
 import { useAuthStore } from "@/stores/auth.store";
 import type { WhatsAppSendResponse } from "../api/whatsapp.api";
 import type { WhatsAppSendIntent } from "../utils/normal-send-intent";
@@ -10,18 +11,13 @@ export function useNormalWhatsAppSend<Variables extends { groupId: string; image
   mode: string,
   send: (variables: Variables, intent: WhatsAppSendIntent) => Promise<WhatsAppSendResponse>,
 ) {
-  const controller = useRef(new NormalWhatsAppSendController<WhatsAppSendResponse>());
+  const [controller] = useState(() => new NormalWhatsAppSendController<WhatsAppSendResponse>());
   const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (variables: Variables) => {
+  return usePrivateMutation({
+    mutationFn: (variables: Variables, _context, owner) => {
       const user = useAuthStore.getState().user;
       const scope = JSON.stringify([user?.id ?? null, user?.agency_id ?? null]);
-      return controller.current.run(scope, mode, variables, send, () => {
-        const current = useAuthStore.getState().user;
-        if (!current || JSON.stringify([current.id, current.agency_id]) !== scope) {
-          throw new Error("Your account changed. Reopen the broadcast before sending.");
-        }
-      });
+      return controller.run(scope, mode, variables, send, owner.assertCurrent);
     },
     retry: false,
     onSuccess: async () => {

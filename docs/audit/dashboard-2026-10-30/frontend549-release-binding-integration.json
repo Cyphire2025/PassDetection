@@ -1,0 +1,11 @@
+{
+  "source_provenance": "root:frontend-feature-integration4-budget-integration.json,549module gate/types/lint/668Node pass; full frontend source/build qualification remains parent-owned and in progress.",
+  "old_frontend_after": "844d21db27900ba60f801834d8f360fd77bb36f68b2e683ad8815baa2fe39d73",
+  "new_frontend_after": "97aa7f5656de989e88c2e0b8b447aa12eafa5d25c5bf32fe983bba8d512fa57d",
+  "raw_frontend_sha256": "5cd6595896ab77c9bea1ff4ccf2e79af6979e4996438a8fa5bd7a2703f75d2be",
+  "before_exact_manifest_sha256": "41fb05bff2dd04576c92ba3bae2b33eca7d09908cc99f2442ff393c691f8a2fb",
+  "after_exact_manifest_sha256": "cb894800a92a4e3203e62c6481e720c6fae8c39ab99a5039f9aee5869efd5794",
+  "all_79_before_values_unchanged": true,
+  "only_known_frontend_budget_after_changed": true,
+  "limits": "Pure reviewed data binding. No full current frontend/VPS qualification claim."
+}

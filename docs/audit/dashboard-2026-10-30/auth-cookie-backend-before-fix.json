@@ -1,0 +1,50 @@
+{
+  "suite": {
+    "name": "pytest",
+    "errors": "0",
+    "failures": "7",
+    "skipped": "0",
+    "tests": "9",
+    "time": "34.322",
+    "timestamp": "2026-10-30T23:51:11.993927+05:30",
+    "hostname": "Nipun5070ti"
+  },
+  "cases": [
+    {
+      "name": "test_expected_actor_mismatch_keeps_newer_session_and_cookies[logout-body]",
+      "failure": "assert 204 == 409\n +  where 204 = <Response [204 No Content]>.status_code"
+    },
+    {
+      "name": "test_expected_actor_mismatch_keeps_newer_session_and_cookies[logout-cookie]",
+      "failure": "assert 204 == 409\n +  where 204 = <Response [204 No Content]>.status_code"
+    },
+    {
+      "name": "test_expected_actor_mismatch_keeps_newer_session_and_cookies[logout-access]",
+      "failure": "assert 204 == 409\n +  where 204 = <Response [204 No Content]>.status_code"
+    },
+    {
+      "name": "test_expected_actor_mismatch_keeps_newer_session_and_cookies[refresh-body]",
+      "failure": "assert 200 == 409\n +  where 200 = <Response [200 OK]>.status_code"
+    },
+    {
+      "name": "test_expected_actor_mismatch_keeps_newer_session_and_cookies[refresh-cookie]",
+      "failure": "assert 200 == 409\n +  where 200 = <Response [200 OK]>.status_code"
+    },
+    {
+      "name": "test_matching_actor_precondition_preserves_normal_session_command[logout]",
+      "failure": null
+    },
+    {
+      "name": "test_matching_actor_precondition_preserves_normal_session_command[refresh]",
+      "failure": null
+    },
+    {
+      "name": "test_stale_actor_cannot_revoke_newer_family_through_consumed_refresh_replay",
+      "failure": "assert 401 == 409\n +  where 401 = <Response [401 Unauthorized]>.status_code"
+    },
+    {
+      "name": "test_mixed_logout_credentials_are_checked_before_either_family_is_revoked",
+      "failure": "assert 204 == 409\n +  where 204 = <Response [204 No Content]>.status_code"
+    }
+  ]
+}

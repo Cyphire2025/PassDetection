@@ -6,6 +6,8 @@ import { notificationsApi } from "./notifications.api";
 import { useNotificationComposer } from "./use-notification-composer";
 import { agencyId, actorId, batch, draft, groupId, preview } from "./notification-test-fixtures";
 import { pendingSendKey, persistPendingSend } from "./pending-send";
+import { useAuthStore } from "@/stores/auth.store";
+import type { User } from "@/types";
 
 vi.mock("./notifications.api", () => ({ notificationsApi: {
   createDraft: vi.fn(), updateDraft: vi.fn(), preview: vi.fn(), send: vi.fn(),
@@ -13,6 +15,7 @@ vi.mock("./notifications.api", () => ({ notificationsApi: {
 } }));
 const clients: QueryClient[] = [];
 beforeEach(() => {
+  useAuthStore.setState({ user: { id: actorId, role: "agency_admin", agency_id: agencyId } as User });
   vi.clearAllMocks();
   sessionStorage.clear();
   vi.mocked(notificationsApi.createDraft).mockResolvedValue(draft);
@@ -32,6 +35,53 @@ function setup() {
 const fill = (result: ReturnType<typeof setup>["result"]) => act(() => result.current.change({ title: draft.title, body: draft.body, audience: "selected_groups", group_ids: [groupId] }));
 
 describe("Explicit notification composition and send recovery", () => {
+  it("does not continue save into audience preview or expose the draft after an account change", async () => {
+    const { result } = setup(); fill(result);
+    vi.mocked(notificationsApi.createDraft).mockImplementation(async () => {
+      useAuthStore.setState({ user: { id: "replacement-actor" } as User });
+      return draft;
+    });
+    await act(() => result.current.prepareReview());
+    expect(notificationsApi.preview).not.toHaveBeenCalled();
+    expect(result.current.draft).toBeNull();
+    expect(result.current.review).toBeNull();
+  });
+  it("retains the original recovery marker if a send lookup finishes after changing accounts", async () => {
+    const marker = { request_id: batch.request_id, draft_id: draft.id };
+    const key = pendingSendKey(agencyId, actorId);
+    persistPendingSend(key, marker);
+    vi.mocked(notificationsApi.byRequest).mockImplementation(async () => {
+      useAuthStore.setState({ user: { id: "replacement-actor" } as User });
+      return batch;
+    });
+    const { result } = setup();
+    await act(() => result.current.checkPending());
+    expect(JSON.parse(sessionStorage.getItem(key)!)).toEqual(marker);
+    expect(result.current.lastBatch).toBeNull();
+    expect(notificationsApi.send).not.toHaveBeenCalled();
+  });
+  it("does not continue an unmounted draft operation into preview", async () => {
+    let finish!: (value: typeof draft) => void;
+    vi.mocked(notificationsApi.createDraft).mockImplementation(() => new Promise((resolve) => { finish = resolve; }));
+    const hook = setup(); fill(hook.result);
+    let operation!: Promise<void>;
+    act(() => { operation = hook.result.current.prepareReview(); });
+    hook.unmount();
+    await act(async () => { finish(draft); await operation; });
+    expect(notificationsApi.preview).not.toHaveBeenCalled();
+  });
+  it("keeps send recovery when a rejection arrives only after the initiating account changes", async () => {
+    const { result } = setup(); fill(result);
+    await act(() => result.current.prepareReview());
+    vi.mocked(notificationsApi.send).mockImplementation(async () => {
+      useAuthStore.setState({ user: { id: "replacement-actor" } as User });
+      throw { status: 409, message: "audience_changed" };
+    });
+    await act(() => result.current.send());
+    expect(sessionStorage.getItem(pendingSendKey(agencyId, actorId))).not.toBeNull();
+    expect(result.current.pending?.request_id).toBeTruthy();
+    expect(result.current.lastBatch).toBeNull();
+  });
   it("resends the saved message with a fresh review and request without duplicating Saved", async () => {
     const { result } = setup();
     const saved = { ...draft, status: "sent" as const, last_sent_at: batch.created_at };
@@ -42,9 +92,9 @@ describe("Explicit notification composition and send recovery", () => {
     await act(() => result.current.prepareReview());
     expect(notificationsApi.createDraft).not.toHaveBeenCalled();
     expect(notificationsApi.updateDraft).not.toHaveBeenCalled();
-    expect(notificationsApi.preview).toHaveBeenCalledExactlyOnceWith(agencyId, saved);
+    expect(notificationsApi.preview).toHaveBeenCalledExactlyOnceWith(agencyId, saved, actorId);
     await act(() => result.current.send());
-    expect(notificationsApi.send).toHaveBeenCalledWith(agencyId, saved.id, expect.objectContaining({ expected_revision: saved.revision }));
+    expect(notificationsApi.send).toHaveBeenCalledWith(agencyId, saved.id, expect.objectContaining({ expected_revision: saved.revision }), actorId);
     expect(vi.mocked(notificationsApi.send).mock.calls[0]?.[2].request_id).not.toBe(batch.request_id);
     expect(result.current.editorOpen).toBe(false);
   });
@@ -54,7 +104,7 @@ describe("Explicit notification composition and send recovery", () => {
     await act(() => result.current.prepareReview());
     expect(notificationsApi.createDraft).toHaveBeenCalledTimes(1);
     expect(notificationsApi.updateDraft).not.toHaveBeenCalled();
-    expect(notificationsApi.preview).toHaveBeenCalledExactlyOnceWith(agencyId, draft);
+    expect(notificationsApi.preview).toHaveBeenCalledExactlyOnceWith(agencyId, draft, actorId);
     expect(notificationsApi.send).not.toHaveBeenCalled();
     expect(sessionStorage.length).toBe(0);
     expect(result.current.review?.preview.recipient_count).toBe(12);
@@ -88,7 +138,7 @@ describe("Explicit notification composition and send recovery", () => {
     await act(() => result.current.prepareReview());
     expect(result.current.form.body).toBe("Changed text");
     expect(result.current.error).toContain("changed");
-    expect(notificationsApi.updateDraft).toHaveBeenCalledWith(agencyId, draft, expect.objectContaining({ body: "Changed text" }));
+    expect(notificationsApi.updateDraft).toHaveBeenCalledWith(agencyId, draft, expect.objectContaining({ body: "Changed text" }), actorId);
     expect(notificationsApi.preview).not.toHaveBeenCalled();
   });
 
@@ -125,7 +175,7 @@ describe("Explicit notification composition and send recovery", () => {
     expect(notificationsApi.send).toHaveBeenCalledTimes(1);
     vi.mocked(notificationsApi.byRequest).mockResolvedValue({ ...batch, request_id: marker.request_id });
     await act(() => second.result.current.checkPending());
-    expect(notificationsApi.byRequest).toHaveBeenCalledWith(agencyId, marker.request_id, marker.draft_id);
+    expect(notificationsApi.byRequest).toHaveBeenCalledWith(agencyId, marker.request_id, marker.draft_id, actorId);
     expect(notificationsApi.send).toHaveBeenCalledTimes(1);
     expect(second.result.current.pending).toBeNull();
   });
@@ -139,7 +189,7 @@ describe("Explicit notification composition and send recovery", () => {
     await act(() => result.current.retryPending());
     expect(notificationsApi.send).toHaveBeenCalledExactlyOnceWith(agencyId, draft.id, {
       request_id: batch.request_id, expected_revision: 1, preview_token: "synthetic-preview-token",
-    });
+    }, actorId);
   });
 
   it("unlocks the saved message after a selected trip is paused between review and send", async () => {
@@ -185,7 +235,7 @@ describe("Explicit notification composition and send recovery", () => {
     expect(result.current.pending).toBeNull();
     expect(result.current.form.body).toBe(draft.body);
     expect(result.current.notice).toContain("before recording a send");
-    expect(notificationsApi.send).toHaveBeenCalledExactlyOnceWith(agencyId, draft.id, expect.objectContaining({ request_id: batch.request_id }));
+    expect(notificationsApi.send).toHaveBeenCalledExactlyOnceWith(agencyId, draft.id, expect.objectContaining({ request_id: batch.request_id }), actorId);
   });
 
   it("preparing a deliberate resend sends nothing until reviewed and uses a fresh UUID", async () => {
@@ -196,7 +246,7 @@ describe("Explicit notification composition and send recovery", () => {
     expect(notificationsApi.send).not.toHaveBeenCalled();
     vi.mocked(notificationsApi.createDraft).mockResolvedValue({ ...draft, audience: "all_active_trips", group_ids: [] });
     await act(() => result.current.prepareReview());
-    expect(notificationsApi.createDraft).toHaveBeenCalledWith(agencyId, expect.objectContaining({ audience: "all_active_trips", group_ids: [] }));
+    expect(notificationsApi.createDraft).toHaveBeenCalledWith(agencyId, expect.objectContaining({ audience: "all_active_trips", group_ids: [] }), actorId);
     await act(() => result.current.send());
     expect(vi.mocked(notificationsApi.send).mock.calls[0]?.[2].request_id).not.toBe(batch.request_id);
   });

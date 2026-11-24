@@ -1,0 +1,45 @@
+{
+  "method": "TypeScript compiler module resolver with actual tsconfig and all current rg-visible TS/TSX/JS/MJS source. All static imports/reexports and literal dynamic/require references traced; runtime dead-name identifier and string references checked. Automated closure proof, not new manual full-source review.",
+  "source": {
+    "path": "frontend/features/upload/components/upload-contact-verification.tsx",
+    "sha256": "b4d925237294c1e316d40c9282b00518e63405a743752a856b66b450a2f6d557",
+    "physicalLines": 185
+  },
+  "sourceFilesTraversed": 1650,
+  "references": [
+    {
+      "path": "frontend/features/upload/hooks/use-fresh-contact-challenge.ts",
+      "sha256": "2ea4ba1f2b5fd3f77247a665229dfac9ad7554fecac935fa68414d80c11a1160",
+      "kind": "import",
+      "testOnly": false,
+      "importedNames": [
+        "validContactEmail"
+      ],
+      "source": "import { validContactEmail } from \"../components/upload-contact-verification\";"
+    },
+    {
+      "path": "frontend/features/upload/components/fresh-contact.tsx",
+      "sha256": "e51d67f18d5abd825ab83a8bd451d3a05e6dd68357484a4bbda6c4bc09993bcf",
+      "kind": "import",
+      "testOnly": false,
+      "importedNames": [
+        "validContactEmail"
+      ],
+      "source": "import { validContactEmail } from \"./upload-contact-verification\";"
+    },
+    {
+      "path": "frontend/features/upload/components/upload-contact-verification.test.tsx",
+      "sha256": "82822d13a636e55b1e0584ad1b1bc783a1417e3a3510b7499c1463da7d14c2ae",
+      "kind": "import",
+      "testOnly": true,
+      "importedNames": [
+        "UploadContactVerification",
+        "ContactVerification"
+      ],
+      "source": "import { UploadContactVerification, type ContactVerification } from \"./upload-contact-verification\";"
+    }
+  ],
+  "runtimeDeadNameIdentifiers": [],
+  "runtimeDeadNameStrings": [],
+  "conclusion": "Only two current production named imports use validContactEmail; no production import/reexport/namespace/dynamic or identifier/string edge reaches the retired UI/type declarations. Retain and relocate validator; only then retire old module and legacy-only test after equivalent current Fresh obligations pass."
+}

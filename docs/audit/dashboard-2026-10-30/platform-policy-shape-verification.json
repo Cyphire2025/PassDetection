@@ -1,0 +1,25 @@
+{
+  "status": "qualified malformed persisted-policy error boundary",
+  "source_fence": {
+    "backend/app/application/platform_policies.py": "514ecdb31d8f22614489b51ebaec0687b0c6d27244f66fb907addd430f170968",
+    "backend/tests/unit/application/test_platform_policies.py": "276b92897f44680a9ef57b45bd68182ae47c9648682043b59c605ee3db662b8e"
+  },
+  "before": "platform-policy-shape-before-command.json:5 failed/12 controls passed",
+  "after": "platform-policy-shape-final-command.json:17 passed/1 file/0.07s",
+  "checks": {
+    "types": "1 file PASS",
+    "lint": "2 files PASS"
+  },
+  "proof": {
+    "whole_policy_module_inverse": "Only two validated string guards, two type-only Literal casts and float OverflowError projection removed to restore exact original module AST.",
+    "whole_test_module_inverse": "Only one added nine-case regression function and its json import removed to restore every original test/helper/decorator/parameter/assertion AST.",
+    "valid_policy_matrix": 3888,
+    "defaults_equal": true
+  },
+  "limits": [
+    "Synthetic actual JSON encode/decode values exercise policy parsing; no corrupted production DB, attacker write path, auth bypass or data leak is asserted.",
+    "Malformed values remain rejected. Four unhashable enum-shaped values and an overflowing integer now use the established configuration error class; hashable invalid controls already did so.",
+    "Initial strict type check rejected newly narrowed str values at Literal fields; explicit casts occur only after validation. That failed type log remains preserved, no ignore/suppression or policy relaxation.",
+    "Source-only repository trace does not establish live database/service qualification. No shared budgets, release pins, auth policy or stored settings were modified."
+  ]
+}

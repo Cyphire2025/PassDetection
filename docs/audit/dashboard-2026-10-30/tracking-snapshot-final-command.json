@@ -1,0 +1,33 @@
+{
+  "argv": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "--tb=short",
+    "tests/integration/test_tracking_snapshot_admission.py",
+    "tests/integration/test_mcp_tracking_exports.py",
+    "tests/integration/test_mcp_export_capacity.py"
+  ],
+  "exit_code": 0,
+  "before": {
+    "backend/app/application/use_cases/passports/prepare_tracking_excel.py": "6b864d3cb293037a29fe95e4f68daa0d75fb0e58b5516545dfb7c86cfd12ea62",
+    "backend/app/application/use_cases/passports/excel_snapshot.py": "0930c4bb75499c084bb45197c7e514b2879f3f559a86b0d02cdd23e845764613",
+    "backend/app/application/use_cases/passports/prepare_group_excel.py": "50cf87b65201eb33673f3658f6bbe1d3da6e665fe357bb80302a01feb01a20c7",
+    "backend/tests/integration/test_mcp_tracking_exports.py": "9e6cb179fdda7e4b47b29c5c692af562e22ad6a68393ba7619eb2953f7bbfb7a",
+    "backend/tests/integration/test_mcp_export_capacity.py": "623a12395f35c39a1b86287151582aa720d2c5634f77bbdf5c089a194de95191",
+    "backend/tests/integration/test_tracking_snapshot_admission.py": "4e531548dc4a95e4c52e2bb2ea60f3b744066854530f791b2a3b45eb052e0436"
+  },
+  "after": {
+    "backend/app/application/use_cases/passports/prepare_tracking_excel.py": "6b864d3cb293037a29fe95e4f68daa0d75fb0e58b5516545dfb7c86cfd12ea62",
+    "backend/app/application/use_cases/passports/excel_snapshot.py": "0930c4bb75499c084bb45197c7e514b2879f3f559a86b0d02cdd23e845764613",
+    "backend/app/application/use_cases/passports/prepare_group_excel.py": "50cf87b65201eb33673f3658f6bbe1d3da6e665fe357bb80302a01feb01a20c7",
+    "backend/tests/integration/test_mcp_tracking_exports.py": "9e6cb179fdda7e4b47b29c5c692af562e22ad6a68393ba7619eb2953f7bbfb7a",
+    "backend/tests/integration/test_mcp_export_capacity.py": "623a12395f35c39a1b86287151582aa720d2c5634f77bbdf5c089a194de95191",
+    "backend/tests/integration/test_tracking_snapshot_admission.py": "4e531548dc4a95e4c52e2bb2ea60f3b744066854530f791b2a3b45eb052e0436"
+  },
+  "source_frozen": true,
+  "output": "tracking-snapshot-final-tests.txt"
+}

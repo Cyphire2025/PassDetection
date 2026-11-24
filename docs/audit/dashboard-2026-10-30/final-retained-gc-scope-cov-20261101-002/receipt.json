@@ -1,0 +1,69 @@
+{
+  "results": [
+    {
+      "name": "pytest",
+      "command": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "-q",
+        "--tb=long",
+        "-o",
+        "addopts=",
+        "-p",
+        "subset_plugin",
+        "tests\\unit\\presentation\\test_gc_content_dashboard_scope.py",
+        "--cov=app",
+        "--cov-branch",
+        "--cov-report=xml:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\final-retained-gc-scope-cov-20261101-002\\coverage.xml",
+        "--cov-report=json:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\final-retained-gc-scope-cov-20261101-002\\coverage.json",
+        "--junitxml=C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\final-retained-gc-scope-cov-20261101-002\\junit.xml"
+      ],
+      "exit_code": 0,
+      "seconds": 50.157
+    },
+    {
+      "name": "ruff",
+      "command": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "ruff",
+        "check",
+        "--no-fix",
+        "--config",
+        "pyproject.toml",
+        "tests\\unit\\presentation\\test_gc_content_dashboard_scope.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.375
+    }
+  ],
+  "all_app_source_identities_match_original_full_run": true,
+  "app_source_paths": 1823,
+  "input_fence_stable": true,
+  "actual_call_report_outcomes": {
+    "passed": 7
+  },
+  "failed_phase_reports": [],
+  "artifacts": {
+    "all-outcomes.jsonl": "c13e3220c2800ade987a84cb346f72abe977c3f5029458b812fdefcf83813f80",
+    "command-results.json": "c6edb0d412045d41d73229a7d54484b7baea0130f9971569d3d135ed41c904c2",
+    "coverage.data": "366066c29a98eff85b4269e0ce8e75954d4b6777a9bc7691d825de9a46e92a66",
+    "coverage.json": "3be2fe72302f54aa23606ea30a4d4166d59202fd77fefad1c94b69162b5c20ee",
+    "coverage.xml": "e38428fbefdda9adce5f81fa80fe3f1be1a120b939613d162981ec7bd134bf6d",
+    "environment-guard-1296.json": "55ef8407c181798e2384b418464975a7809eb0c38ef4de20c939706a6feba6ce",
+    "environment-guard-17680.json": "e4b75cdb7d227e0499fd49de3f2ed79901e79bf2fa17687365d32dfa9967f7b7",
+    "junit.xml": "28b647193fed7ea94cb57c7f268989b766db18b62027bdf3eb4b4e7f8a540485",
+    "pytest.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "pytest.stdout.txt": "295b812582f1a42ebdecb1028c6a727c7993acdcf2091445183cec1d7f26bcdd",
+    "ruff.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ruff.stdout.txt": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "selection.json": "57ee12e93312b4f7464baf2684e0db34f77de58e42a81c90dcf475ee08495e8c",
+    "session-finish.json": "62695145c67ba9ef50c8b646f17958d80a80d95c00cb11b718a99effb2f840db",
+    "source-fence.json": "224da6f7e33ecc89ec9494a0dfee7b6954ddbad161ea598411d078961ce1dd53"
+  },
+  "limits": [
+    "Standalone supplement only; original four failed outcomes remain preserved.",
+    "No app/gate/floor changes; source identities must be checked again before any coverage union."
+  ]
+}

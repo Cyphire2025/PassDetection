@@ -1,0 +1,36 @@
+{
+  "records": [
+    {
+      "path": "frontend/features/passports/components/passport-group-selection-toolbar.tsx",
+      "before_sha256": "782d763d8dc105704633f4952908d7e8229d9f73573d70d69c64e4ca748a747e",
+      "current_sha256": "b0b0a885cb2b634a350fc5a563620c3b1e997b97c323fe2e1780cf0c36fc66f0",
+      "emitted_AST_unchanged": true
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-filter-controls.tsx",
+      "before_sha256": "2c9f468c2dbcd2b1ba45ebf45a27301287769b4f45d1059c5578d1ec6f8bc4bb",
+      "current_sha256": "d5b7aae2fd372c91f7568d230eb788afa6a7fe2fa0b8e0fcea9399a561a2aabd",
+      "emitted_AST_unchanged": true
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-selected-actions.tsx",
+      "before_sha256": "b70c61f6ae6cc7632133f6b624161e5989afb6f29689460b0d5d71bb1a6aa67a",
+      "current_sha256": "908d3e7c47cac0329c172571f221545f647d2bafeaed2db31147d350f9eb7da9",
+      "emitted_AST_unchanged": true,
+      "intentional_change": "Do not expose unused role field inferred from a JSX attribute name; actual role-based permission guards unchanged."
+    },
+    {
+      "path": "frontend/features/passports/components/use-passport-bulk-menu-position.ts",
+      "before_sha256": "e715c098885204f6b6c14cdd736e01293f99394d83716e71f1ee60cb808aa423",
+      "current_sha256": "e715c098885204f6b6c14cdd736e01293f99394d83716e71f1ee60cb808aa423",
+      "emitted_AST_unchanged": true
+    },
+    {
+      "path": "frontend/features/passports/components/use-passport-group-menus.ts",
+      "before_sha256": "c1f129a50b2d8b8f9b67a3888a4a4512b7b61bd6dde8ec0ce2bbf5ba37787b28",
+      "current_sha256": "1efc2323f8748c292acf977f02647e58e23d1c39afd140a7d85648250c74ed76",
+      "emitted_AST_unchanged": true,
+      "intentional_change": "Do not expose unused role field inferred from a JSX attribute name; actual role-based permission guards unchanged."
+    }
+  ]
+}

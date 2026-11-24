@@ -1,0 +1,6 @@
+workload_capacity_measurements.py:75: error: Value of type "dict[Any, Any] | None" is not indexable  [index]
+workload_capacity_measurements.py:76: error: Value of type "dict[Any, Any] | None" is not indexable  [index]
+workload_capacity_measurements.py:79: error: Value of type "dict[Any, Any] | None" is not indexable  [index]
+workload_capacity_run.py:52: error: Need type annotation for "samples"  [var-annotated]
+workload_capacity_run.py:53: error: Need type annotation for "windows" (hint: "windows: dict[<type>, <type>] = ...")  [var-annotated]
+Found 5 errors in 2 files (checked 7 source files)

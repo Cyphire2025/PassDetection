@@ -1,0 +1,221 @@
+{
+  "purpose": "Automated inventory/ledger current-hash triage only; not manual read coverage",
+  "already_full_current_hash": 27,
+  "pending_physical_reads": 26,
+  "excluded_vendor_assets": [
+    "frontend/public/mediapipe/face_detection/face_detection.js",
+    "frontend/public/mediapipe/face_detection/face_detection_solution_simd_wasm_bin.js",
+    "frontend/public/mediapipe/face_detection/face_detection_solution_wasm_bin.js",
+    "frontend/public/offline/vendor/zxing-browser.min.js"
+  ],
+  "paths": [
+    {
+      "path": "frontend/config/api-routing.ts",
+      "sha256": "fec412f0df3c1de6e71a640853587d1d823f2221c4bf7a99002cfbdc5d1b0b6f",
+      "physical_lines": 53,
+      "review_scope": "unreviewed",
+      "status": "pending_physical_read",
+      "prior_record_count": 0
+    },
+    {
+      "path": "frontend/config/e2e-isolation.ts",
+      "sha256": "1bc1311256650ab153334dac3c1c7b6b408087d1f1eccb8ccb2b1864a05b2ea9",
+      "physical_lines": 25,
+      "review_scope": "unreviewed",
+      "status": "pending_physical_read",
+      "prior_record_count": 0
+    },
+    {
+      "path": "frontend/config/visa-face-detection-assets.ts",
+      "sha256": "3385f68886abeca3d99f260bb7c651a20a39a04e3217712354fa8892369638bb",
+      "physical_lines": 7,
+      "review_scope": "unreviewed",
+      "status": "pending_physical_read",
+      "prior_record_count": 0
+    },
+    {
+      "path": "frontend/constants/index.ts",
+      "sha256": "353eea44f0b48b0c55239c96ac0cd9d7d169ce9894ec508c381d7c176b8e6197",
+      "physical_lines": 90,
+      "review_scope": "unreviewed",
+      "status": "pending_physical_read",
+      "prior_record_count": 0
+    },
+    {
+      "path": "frontend/constants/routes.ts",
+      "sha256": "cf0553f85256c4b7a14cb15f34814b4b17b4f8b9d1a51a7589bb2ece17516a2d",
+      "physical_lines": 95,
+      "review_scope": "unreviewed",
+      "status": "pending_physical_read",
+      "prior_record_count": 0
+    },
+    {
+      "path": "frontend/eslint.config.mjs",
+      "sha256": "dc9f3a95948d4277e102d267fff8d75c4541200b81d02512d8e7141a08c2e77e",
+      "physical_lines": 29,
+      "review_scope": "unreviewed",
+      "status": "pending_physical_read",
+      "prior_record_count": 0
+    },
+    {
+      "path": "frontend/hooks/use-debounce.ts",
+      "sha256": "d3ac5719369837daabf0ee753a5eebdd65c28a375ce528a6d5cafa26dde7c59a",
+      "physical_lines": 25,
+      "review_scope": "unreviewed",
+      "status": "pending_physical_read",
+      "prior_record_count": 0
+    },
+    {
+      "path": "frontend/lib/api/endpoints.ts",
+      "sha256": "ba21978b83b0808062782562726df9d14eb3080f858f7b5078fd4e4febd51f34",
+      "physical_lines": 465,
+      "review_scope": "unreviewed",
+      "status": "pending_physical_read",
+      "prior_record_count": 2
+    },
+    {
+      "path": "frontend/lib/navigation/typed-routes.typecheck.ts",
+      "sha256": "bcac76f3160295176376527530c5ea4b495e0d69e63175099cf7fbd17c920227",
+      "physical_lines": 14,
+      "review_scope": "unreviewed",
+      "status": "pending_physical_read",
+      "prior_record_count": 0
+    },
+    {
+      "path": "frontend/lib/observability/route-templates.json",
+      "sha256": "5bf3e6d978e740935e10bb1a452e62fe0274e2c33b86487316c3c1e04e1552d4",
+      "physical_lines": 83,
+      "review_scope": "unreviewed",
+      "status": "pending_physical_read",
+      "prior_record_count": 0
+    },
+    {
+      "path": "frontend/lib/utils/pagination.ts",
+      "sha256": "6e32956db89c2cb8d0fd57d090a51c70bc33b9fc27ea4fcd335ee30877d34d16",
+      "physical_lines": 4,
+      "review_scope": "unreviewed",
+      "status": "pending_physical_read",
+      "prior_record_count": 0
+    },
+    {
+      "path": "frontend/next-env.d.ts",
+      "sha256": "0f70629890b72a0a82e91972cc032c04b658b26c265373cb711cf576bfbf8fcc",
+      "physical_lines": 7,
+      "review_scope": "unreviewed",
+      "status": "pending_physical_read",
+      "prior_record_count": 0
+    },
+    {
+      "path": "frontend/next.config.ts",
+      "sha256": "806d75de101be36e1a52c30956f40fe200cfb5165c9726f9402f4454a3f5e5e0",
+      "physical_lines": 122,
+      "review_scope": "unreviewed",
+      "status": "pending_physical_read",
+      "prior_record_count": 0
+    },
+    {
+      "path": "frontend/package.json",
+      "sha256": "8c8e2c46658b76bb4b0c7578330ba610d4741be63f30943d5fb262ed73030463",
+      "physical_lines": 68,
+      "review_scope": "unreviewed",
+      "status": "pending_physical_read",
+      "prior_record_count": 0
+    },
+    {
+      "path": "frontend/playwright.ai.config.ts",
+      "sha256": "38e044e208d2b8e794cc618f8d57457bd06116a864bfec647e6f99d2eacda50a",
+      "physical_lines": 34,
+      "review_scope": "unreviewed",
+      "status": "pending_physical_read",
+      "prior_record_count": 0
+    },
+    {
+      "path": "frontend/playwright.config.ts",
+      "sha256": "a6b07a340d745641ee593806d5a4eec135d7602f1b2ad4f8166b3f8fb468240c",
+      "physical_lines": 54,
+      "review_scope": "unreviewed",
+      "status": "pending_physical_read",
+      "prior_record_count": 0
+    },
+    {
+      "path": "frontend/playwright.fixtures.config.ts",
+      "sha256": "405c7147f9ca3c04d6cab516be4f879b83f9b52636edf4138399896121f325e3",
+      "physical_lines": 13,
+      "review_scope": "unreviewed",
+      "status": "pending_physical_read",
+      "prior_record_count": 0
+    },
+    {
+      "path": "frontend/playwright.mcp-read-only.config.ts",
+      "sha256": "e6761f7c31fb3f4e85459a625da1458b47c37125c1f712fbcb28d28099d52635",
+      "physical_lines": 15,
+      "review_scope": "unreviewed",
+      "status": "pending_physical_read",
+      "prior_record_count": 0
+    },
+    {
+      "path": "frontend/playwright.real-stack.config.ts",
+      "sha256": "174dba648ddf9852d90ea6a8e1b7b4316180e7698cc20ac802452a104c383e9e",
+      "physical_lines": 27,
+      "review_scope": "unreviewed",
+      "status": "pending_physical_read",
+      "prior_record_count": 0
+    },
+    {
+      "path": "frontend/postcss.config.mjs",
+      "sha256": "dfac7ac2d86d326a0e5adb024e7943c181393ed17a5fcb8f0315b24c7da6ddde",
+      "physical_lines": 7,
+      "review_scope": "unreviewed",
+      "status": "pending_physical_read",
+      "prior_record_count": 0
+    },
+    {
+      "path": "frontend/public/email-automation.webmanifest",
+      "sha256": "5e270da9d5e9fa2cc7668e44f97b7a99ffd006bb804a44958cbdcf5e7709fd90",
+      "physical_lines": 10,
+      "review_scope": "unreviewed",
+      "status": "pending_physical_read",
+      "prior_record_count": 0
+    },
+    {
+      "path": "frontend/public/offline-scanner.js",
+      "sha256": "8a85fd57922122905d90a067cb27cbbe12ea08e1c179ee0523e7cde15845a7cc",
+      "physical_lines": 1266,
+      "review_scope": "unreviewed",
+      "status": "pending_physical_read",
+      "prior_record_count": 0
+    },
+    {
+      "path": "frontend/public/offline.html",
+      "sha256": "91cac99ee96e5e78f4bc287e67116ce1751a51c7e7e4daf053664689ea0dd3cc",
+      "physical_lines": 472,
+      "review_scope": "unreviewed",
+      "status": "pending_physical_read",
+      "prior_record_count": 0
+    },
+    {
+      "path": "frontend/public/sw.js",
+      "sha256": "d24373c980dd1c12100304ba8a97475ecbe550dece40c9723bc006bc97e661f3",
+      "physical_lines": 118,
+      "review_scope": "unreviewed",
+      "status": "pending_physical_read",
+      "prior_record_count": 0
+    },
+    {
+      "path": "frontend/tsconfig.json",
+      "sha256": "be18523b23b78b6e1a876ddd107d330f0168bddf09d751b57e0b5edce69c66f3",
+      "physical_lines": 34,
+      "review_scope": "unreviewed",
+      "status": "pending_physical_read",
+      "prior_record_count": 0
+    },
+    {
+      "path": "frontend/vitest.setup.ts",
+      "sha256": "6d70eee6429bb924349cfb586b927a8fe26f7b87cf3dc7cdf95fc872dc88c3df",
+      "physical_lines": 5,
+      "review_scope": "unreviewed",
+      "status": "pending_physical_read",
+      "prior_record_count": 0
+    }
+  ]
+}

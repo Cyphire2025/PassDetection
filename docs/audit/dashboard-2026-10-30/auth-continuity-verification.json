@@ -1,0 +1,55 @@
+{
+  "created_at_utc": "2026-10-30T18:03:30.909158+00:00",
+  "scope": "Dashboard auth checkpoint; native mobile excluded. Full physical auth-file coverage is separate from OPEN cookie-writer coordination.",
+  "source_sha256": {
+    "frontend/features/auth/api/auth.api.ts": "97c020b9cfc582f3ef0ca5bdc001181f2c8438c2cdebc7c149b0a9180a8a5b97",
+    "frontend/features/auth/components/account-security-panel.tsx": "df4c08555804086f71601f6f1c5432c961c1979a3ec635af3bcac29de38fba66",
+    "frontend/features/auth/components/activation-form.tsx": "c2cdbe6b69bd534c7f957e41d170b6871a205a4d050e7816b80d12fe8dc9f35d",
+    "frontend/features/auth/components/password-recovery-forms.tsx": "5971f94b11b63f66b74d10a0998394bf6e0ca617e107832fd4f6ca3038eece75",
+    "frontend/features/auth/components/login-form.tsx": "37039b5de2c4064f1e50b594ba576e360d8333c0936d2e05bbc577cc7e0ed290",
+    "frontend/features/auth/hooks/use-login.ts": "c776a79f6fa3ad39223585b03dfaad01a45da3f73f4216a0396f188c506ae972",
+    "frontend/features/auth/components/authenticated-content.tsx": "e10b6f90323a4cbe128a3e4c7b708af6e478dfb9a28f3b41ed8d0d88f2634217",
+    "frontend/features/auth/components/client-manager-activation-fallback.tsx": "82b4d1c55fbf112b3a0c76b8a1d36e14185e582822a1f8256ca580f6dd2d33b7",
+    "frontend/features/auth/components/queue-safe-sign-out-guard.tsx": "d239fe6bd51722f53355d89d703e6af37f82d61a0bc8397cda7e0232be04cdd9",
+    "frontend/features/auth/services/access-level.ts": "607a81a5767457e9faea544f7bd718bb89274f662d8e1af88e653443066dab66",
+    "frontend/features/auth/services/authentication-context.ts": "6f88a21ae49ef3ef0c16413d7ea8b6a1d368d5049109279621bb01a38aed527d",
+    "frontend/lib/api/client.ts": "f56f3316d463ada39999e704a0ed1ce7ed70b64cfc752118538c90ae7e871bdc",
+    "frontend/lib/api/request-owner.ts": "d45a46efb4742d3421ab36c20e33aa8e51442b387c933bc3628b28a38c53c08e"
+  },
+  "checks": [
+    {
+      "check": "Focused all-auth plus request-owner/client unit run",
+      "status": "passed",
+      "files": 21,
+      "tests": 167,
+      "artifact": "auth-continuity-after-fix.json"
+    },
+    {
+      "check": "tsc --noEmit --pretty false",
+      "status": "passed"
+    },
+    {
+      "check": "ESLint features/auth lib/api/client.ts lib/api/request-owner.ts",
+      "status": "passed"
+    },
+    {
+      "check": "actual Chromium synthetic loopback HttpOnly delayed-header ordering",
+      "status": "passed",
+      "artifact": "auth-cookie-browser-evidence.json"
+    }
+  ],
+  "open_work": [
+    "All-cookie-writer and cross-tab serialization/cancellation investigation: logout/refresh/access-level/challenge Set-Cookie may precede JS callbacks; no full cookie continuity claim.",
+    "Meaningful clipboard rejection recovery in AccountSecurityPanel; source inspected but current copy rejection remains unhandled.",
+    "Source storage-denied reset path needs behavior reproduction before any finding claim.",
+    "Broader mixed UI module decomposition remains incomplete as listed in operations-progress.md."
+  ],
+  "new_module_candidates": [
+    {
+      "path": "frontend/features/auth/services/authentication-context.ts",
+      "lines": 36,
+      "purpose": "Small shared continuity and identity-request cancellation owner; no budget script edits."
+    }
+  ],
+  "retired": "frontend/features/auth/hooks/use-me.ts and own test; no consumers, assertion moved to AuthHydrator."
+}

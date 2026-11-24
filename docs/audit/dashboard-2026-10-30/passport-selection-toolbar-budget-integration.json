@@ -1,0 +1,14 @@
+{
+  "candidates": "docs/audit/dashboard-2026-10-30/passport-selection-toolbar-budget-candidates.json",
+  "before_sha256": "c9f1eefea083bfe02f4dc12f9d2a08946898dfabc4d3bcb67dcefa83e8fe6325",
+  "sha256": "c3ed06873fbb0916dfb2c3094c1521dbec3279d5d5df3350110fe608ac53fb8d",
+  "lf_normalized_sha256": "844d21db27900ba60f801834d8f360fd77bb36f68b2e683ad8815baa2fe39d73",
+  "added": 3,
+  "updated_existing": 2,
+  "lowered_existing": 1,
+  "lowered_existing_paths": [
+    "features/passports/components/passport-group-selection-toolbar.tsx"
+  ],
+  "existing_ceilings_preserved": true,
+  "previous_ceilings_sha256": "10da7cefe89b5d2be0572070bbb80e21fd941631bb0a8b4f13b58b95d89a3c13"
+}

@@ -82,6 +82,9 @@ async def test_closed_group_reopens_same_link_and_resumes_configured_uploads(
     policy_provider.load.return_value = PlatformPolicies(passport_data_retention_days=30)
     lookup = GetClientGroupByTokenUseCase(group_repo)
     original = await lookup.execute(group.token)
+    assert original.notes is None
+    private_group = await group_repo.get_by_id(group.id)
+    assert private_group is not None and private_group.notes == group.notes
     passport_repo = AsyncMock()
     passport_repo.save_idempotent.side_effect = lambda submission: (submission, True)
     storage_repo = AsyncMock()

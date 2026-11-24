@@ -1,0 +1,32 @@
+[
+  {
+    "path": "backend/app/presentation/api/v1/routes/passports.py",
+    "scope": "Only import search result and registration block around lines 446-470 physically read; confirms original facade module remains included. Entire facade not rereviewed or credited.",
+    "sha256": "977089c9df210b7a7a92c39b5faaa2ae6cf872ed49df4b04fabe5ff483c03617",
+    "review_scope": "partial"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/public_security.py",
+    "scope": "Lines 1-115 physically read, including complete _require_public_upload_credential; static indistinguishable 404 capability guard retained. Entire file not credited.",
+    "sha256": "4347718f49a11282e0cc5d83fb726cc10e89a12db9d194c434ad09a732b9e629",
+    "review_scope": "partial"
+  },
+  {
+    "path": "backend/app/core/logging/logger.py",
+    "scope": "Only get_logger definition at lines 138-149 and preceding wrapper tail physically read to establish identical logger factory/channel. Branding owns logging; no edits or full-file credit.",
+    "sha256": "845d441fc533f5d747e6253059c5e159d90fe321e2f48c5fcce7feac2036b628",
+    "review_scope": "partial"
+  },
+  {
+    "path": "backend/tests/conftest.py",
+    "scope": "Lines 1-160 physically read for isolated SQLite fixtures, no-provider context and deterministic synthetic settings. Entire shared fixture file not credited.",
+    "sha256": "b60a174b1656f30e36d6c748fc1b967c17804b9ef733911f6ff211e9e4d23abe",
+    "review_scope": "partial"
+  },
+  {
+    "path": "backend/scripts/verify_backend_quality_budgets.py",
+    "scope": "Lines 1-105 and 126-147 physically read for reviewed complexity visitor/measurement API. Imported actual measurement implementation to produce candidates; entire gate script not credited and never edited.",
+    "sha256": "2baf94d493a068bd1aed0258f4627aed47fe0845e6764fd0310cbf84f57794a9",
+    "review_scope": "partial"
+  }
+]

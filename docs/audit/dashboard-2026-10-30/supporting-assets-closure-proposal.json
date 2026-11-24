@@ -1,0 +1,1163 @@
+{
+  "status": "proposal only; no asset moved or deleted",
+  "method": "Actual maintained tracked/unignored text reference closure across code/docs/build/config/tooling including native sources, excluding audit/history caches/archives and private .env. Text searches are dependency triage, not full manual reads. Actual SHA256/size and runtime-copy parity for binary resources; no arbitrary binary line/full-source credit.",
+  "maintained_text_files_searched": 6128,
+  "archive_cohort": "assets/branding/global-connect/social-motion-collection-2026-09-19",
+  "external_social_consumers": [],
+  "all_assets": [
+    {
+      "path": "assets/branding/global-connect/broadcast-motion/preview.html",
+      "sha256": "1f019037c1010fc3f47e67fdfa25f8faa15666f84791c4b45080f7e4c537a5fa",
+      "bytes": 45309,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/broadcast-motion/README.md",
+      "sha256": "3f1c056bd94d5318b47e3beacfd12d2e8a0e631cdc5cfa5eb301bfc302c2a898",
+      "bytes": 3151,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/global-connect-logo-original.jpeg",
+      "sha256": "b9833d5f9fa942bbc7445e7da7d7065c264f5e2d84a4a8b514cf2e2a8d1361bb",
+      "bytes": 373204,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [
+        "frontend/public/assets/branding/global-connect/global-connect-logo-original.jpeg"
+      ],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/global-connect-logo-reveal-4k.mp4",
+      "sha256": "590488246b94d8fe31722d23a84eae0d55d0ec690bfb764754de666af2e8aa42",
+      "bytes": 1798384,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [
+        "frontend/public/assets/branding/global-connect/global-connect-logo-reveal-4k.mp4"
+      ],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/global-connect-logo-reveal-poster.png",
+      "sha256": "399e3c970d65746f04dcc6138f3f760a102b71b6fbab7cc1b0a0ac30d4666796",
+      "bytes": 196831,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [
+        "frontend/public/assets/branding/global-connect/global-connect-logo-reveal-poster.png"
+      ],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/globalconnect-logo-removebg-preview.png",
+      "sha256": "e9d45430d5be76c134d3f8a2ed11f72e6005f19d5c07b99a93d1762c823232d3",
+      "bytes": 87808,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [
+        "frontend/public/globalconnect-logo-transparent.png",
+        "frontend/public/assets/branding/global-connect/globalconnect-logo-removebg-preview.png",
+        "mobile/assets/images/global-connect-logo.png"
+      ],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/globalconnect-logo.png",
+      "sha256": "06729cfb6f3c47c26f5f882fcbcff60dbbdbdc6c252897dc30c5eba857070024",
+      "bytes": 72287,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [
+        "frontend/public/globalconnect-logo.png"
+      ],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/globalconnectteam.png",
+      "sha256": "e9a21b1124c99ada1edccb037f45c0078f9fe69d219c11439f7188669e0ccd15",
+      "bytes": 1316128,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/journey-film-4k.mp4",
+      "sha256": "a68e15cd396dbbd66583093c56a9d6690e706d25f9d11e9a259545f93578dd33",
+      "bytes": 8894517,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/journey-film-master.mp4",
+      "sha256": "7893649f9e2e829af23fe6a69da88ffe32c7ec3181280fa26c9b0d2557c956e2",
+      "bytes": 10403574,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/journey-film-poster.jpg",
+      "sha256": "eb8d3cee87c283445e29cc8115936bee1eba578809e92e659bb8e92e0d9b6cd5",
+      "bytes": 114609,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [
+        "frontend/public/assets/branding/global-connect/journey-film/journey-film-poster.jpg"
+      ],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/journey-film-web.mp4",
+      "sha256": "a1af2d0afde7b5fecfc1d09af4656d1a6e8a781e2f1fe829bd324fed5f36f4eb",
+      "bytes": 2078001,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [
+        "frontend/public/assets/branding/global-connect/journey-film/journey-film-web.mp4"
+      ],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/4k-media-verification.json",
+      "sha256": "72697482dbc4062af51265acd7ba55cc7ecb5e85996855bf396c0d2218f2a20f",
+      "bytes": 601,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/asset-manifest.json",
+      "sha256": "8257e5b07b151c7e640defb94ff61c6e927ec966ac20c930f6dea4f0a5bc877d",
+      "bytes": 1444,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/browser-color-probes/full-srgb.mp4",
+      "sha256": "a8fd820f0a5fc763cbc69e45c4b6e9485e26d2e19bf9ab8e3909a333a3b5a9e4",
+      "bytes": 57477,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/browser-color-probes/index.html",
+      "sha256": "af6e1431d71391c18afe684fc65e01180344a60db1ca8a75e46d2d3016dcbf26",
+      "bytes": 1249,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/browser-color-probes/limited-709.mp4",
+      "sha256": "1a934b02cc187ee01ffd5f1ec88f531239b2d0fedd375912b24357cbac998c2d",
+      "bytes": 56614,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/browser-color-probes/limited-srgb.mp4",
+      "sha256": "166812ecff18495b10f331e1253aa10f9eafb9db017d056f10fe71554ccd968a",
+      "bytes": 56614,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/browser-color-probes/limited-unspecified.mp4",
+      "sha256": "7430093f8c56471e0d3afa70a04bc0c8acf1757cb422669cb8a4c63e68abc965",
+      "bytes": 56593,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/color-and-copy-verification.json",
+      "sha256": "a540094b4faed953ec23d3bfa5c602981759a1cd1467ccf359465872d4814352",
+      "bytes": 744,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/contact-sheet.jpg",
+      "sha256": "815c7a1c41369b6e3f1decff4bbdfa1f8fb31645753f8e5b8a82955b62d28090",
+      "bytes": 323829,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/encoded-4k-frame-zero.png",
+      "sha256": "5a48ef906e73f25ffa60017f94e04a0b26ffee9847e8853689f694fcf2da9140",
+      "bytes": 845233,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/encoded-frame-zero.png",
+      "sha256": "54dff91278aa5b6b87578570e3c46300255ea69d5a710ee97384bd2d6055480c",
+      "bytes": 302636,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/frame-0.jpg",
+      "sha256": "e40e1bbcae6e4e4e631598aee0588aa9bc5237118efcede30383d2495db17101",
+      "bytes": 47946,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/frame-1.jpg",
+      "sha256": "1228b09fb868c780efaaa318f414d589f63f252c12469818b66710e841fca0c0",
+      "bytes": 48536,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/frame-2.jpg",
+      "sha256": "5d92cea962ddbf9edb5eae868bc2336360af7b4b910b87cdd6ef433e2aa2df2b",
+      "bytes": 53781,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/frame-3.jpg",
+      "sha256": "362f3d08cce59464215f238850562ec965db691122e6357a171bd28784317be5",
+      "bytes": 53055,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/frame-4.jpg",
+      "sha256": "ee0ca659616be40ac9ad019dfdf8ff3ed54dce42588ebf67a41e343acf5e38fd",
+      "bytes": 51315,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/frame-5.jpg",
+      "sha256": "cd2e6fb9bdf277b3b2e56c42107f226a22c6c15dc8418e3eafc0c9299c8b8773",
+      "bytes": 49648,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/loop-verification.json",
+      "sha256": "a38b463b6cf915ac6931b85049173652cf1272097a4ca37ad0209a1b6e506712",
+      "bytes": 596,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/master-media-verification.json",
+      "sha256": "e1361cd0a824ad9d0f5680f2679a0fb0b6f016518353b62ee7afaa307d7c8ea2",
+      "bytes": 603,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/source-frame-zero.png",
+      "sha256": "d7a039c252262da69fbd61eb3d256c8ea2861ccb828414485df88ac53486791c",
+      "bytes": 260274,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/web-media-verification.json",
+      "sha256": "38c53aa8e559d89169b605fc671a539875a1f95854f10b8cf8ada78407bda28b",
+      "bytes": 601,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/README.md",
+      "sha256": "eba8efef09dbe0dc39474c37af41216d99e943d2dca7b0324e5b580edad002c0",
+      "bytes": 7765,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/source/ne_110m_land.geojson",
+      "sha256": "9e0729ee253ca7d7a5c4ae9395fb1902264c5377c52e224d13dd85010e2835d9",
+      "bytes": 138160,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/source/package.json",
+      "sha256": "de832d338888bfc642bb9ebc1d817db8783ad613b6620ccddd8246bb253a6580",
+      "bytes": 316,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/source/render.cjs",
+      "sha256": "92b8272f89ba74c74cf3f4ccd801dd28950409f4da1d6231a604e96c22c3fb62",
+      "bytes": 3210,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/source/scene.cjs",
+      "sha256": "7df72050148d122d476a694407147598f41d3835bdd56f0acf3272bb20749c60",
+      "bytes": 17390,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/login-background/paper-routes.svg",
+      "sha256": "20c44ca2502f3db21dda0ebd50d7e0f1e4c98d4e812a5e5585c4a327416bef3a",
+      "bytes": 1728,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [
+        "frontend/public/assets/branding/global-connect/login-background/paper-routes.svg"
+      ],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/login-background/README.md",
+      "sha256": "ae14e43ad40eb81e32389d1e2d1e8522bade87c097a38e9991fc80cca1185575",
+      "bytes": 2194,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/login-background/source/generate-backgrounds.cjs",
+      "sha256": "0f61b2bb0582e93bfe0231667b818e670b56d4ed6a8fabf621e6274ace95872a",
+      "bytes": 3199,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/login-background/travel-atlas.svg",
+      "sha256": "0689859aca3bb8e5b8b0f81fd73623168c0d6f4c5b9ae058ee3e38b713f19b09",
+      "bytes": 53576,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [
+        "frontend/public/assets/branding/global-connect/login-background/travel-atlas.svg"
+      ],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/login-background/wing-architecture.svg",
+      "sha256": "6bd680e3a17b0f5d671a9e617aa3c1162a595ac916769e37497e9b2b3064b11d",
+      "bytes": 2377,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [
+        "frontend/public/assets/branding/global-connect/login-background/wing-architecture.svg"
+      ],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/processing-motion/preview.html",
+      "sha256": "e781726b1fb194bdcb0fc5c24a1fe2031f57f02b34a498df25930edf25b1ac59",
+      "bytes": 22857,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/processing-motion/README.md",
+      "sha256": "4782da7a88ca91e1ed8a0234ecc25bbc059acb54428b1cc3514916d36e8f3e66",
+      "bytes": 2866,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/assets/company-logo-original.jpeg",
+      "sha256": "b9833d5f9fa942bbc7445e7da7d7065c264f5e2d84a4a8b514cf2e2a8d1361bb",
+      "bytes": 373204,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [
+        "frontend/public/assets/branding/global-connect/global-connect-logo-original.jpeg"
+      ],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/audio/01-passport-to-applause.wav",
+      "sha256": "c481971c29a8e41af98523a1f80f275e898b40692072c615525d458e4a1aaad0",
+      "bytes": 4992044,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/audio/02-journey-behind-the-journey.wav",
+      "sha256": "892fc90acbc5cbe00fbded3f36c67d5e5affa3c261dff58dc63367c43b944254",
+      "bytes": 4992044,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/audio/03-incentive-journeys.wav",
+      "sha256": "6c61f8d96c31de66998b9edffdb59e2792cce654730e776d9c81150ca06a87e6",
+      "bytes": 4992044,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/audio/04-many-cities.wav",
+      "sha256": "d16077f9679d086c0b880bfd25f545a54ea7b91f4d1fc8d77725123e5ce68bfb",
+      "bytes": 4992044,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/audio/05-trip-in-your-pocket.wav",
+      "sha256": "0efb51324da6f0f93f19094a40e4ea2c1c4ff1fd1aa16e4a8261a3d1e11dd174",
+      "bytes": 4992044,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/audio/06-venue-to-big-moment.wav",
+      "sha256": "6f0ae6c494fed34a6e949ae89a8f6f701d92f5452a816571f1c050711ebab4c0",
+      "bytes": 4992044,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/audio/07-next-destination.wav",
+      "sha256": "b11b4afa49199add2d19b156d13286e64d09af959efae30b930ac01803aa8e00",
+      "bytes": 4992044,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/audio/08-so-many-moments.wav",
+      "sha256": "970970cb04ec6bca7d428c26e854136a6f57b3e96bfa1815f0971d6f2f7c16df",
+      "bytes": 4992044,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/posters/01-passport-to-applause.jpg",
+      "sha256": "34b5b8ece55efc97249d40b1a52430c95d3f540d18c93b2ff0e619ad9f68656d",
+      "bytes": 169556,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/posters/02-journey-behind-the-journey.jpg",
+      "sha256": "50dde4a8ebc6d2c03f78254b8e16270fb6fce2f6bbae0ffbc89f85e134039727",
+      "bytes": 186273,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/posters/03-incentive-journeys.jpg",
+      "sha256": "2cd9b49bbea6130051a00473e9bf6eb9adf83a77df51dcd4d70eb402a3252445",
+      "bytes": 169252,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/posters/04-many-cities.jpg",
+      "sha256": "bed11d0427affef6c402b40e7be443ce5d1811249c53725b71d1e44057e0dd73",
+      "bytes": 163554,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/posters/05-trip-in-your-pocket.jpg",
+      "sha256": "6e04bef8901167bc73fdeb5e3c387c1327d24057b6ebea48f2cebd7fd3674b62",
+      "bytes": 192433,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/posters/06-venue-to-big-moment.jpg",
+      "sha256": "a391aff114a93081d22bc35db7d8869eea9c8673049163f3b18394f7ed9c542a",
+      "bytes": 143979,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/posters/07-next-destination.jpg",
+      "sha256": "f7d6b6c5081551c85547eeff33d1eb33461426cf7e05651ce4074fb386a5cecb",
+      "bytes": 177742,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/posters/08-so-many-moments.jpg",
+      "sha256": "c3faf98cb94c2300c7a93e683e923e05c7ba77aeafcf528f64fb7956fda10d72",
+      "bytes": 182327,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/qa/01-decoded-contact.jpg",
+      "sha256": "8b67612e8e35694496441de8c4b928f210228b27ec81f86437144381b995cd8b",
+      "bytes": 68599,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/qa/01-passport-to-applause-contact-sheet.jpg",
+      "sha256": "2f655e9aaef6ee6ed0a58b1bc63d0a0df839d00cd00d9d96ca3108d687a6cd81",
+      "bytes": 304933,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/qa/01-passport-to-applause-storyboard.json",
+      "sha256": "827ffd7bb9ddd68c3889c2cca6654f25fc100f9a31e95f3b69ab2d726c8c742f",
+      "bytes": 972,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/qa/01-passport-to-applause-verification.json",
+      "sha256": "aa632c92d32d95205be1ce1158a66afb65e8de23a7c042e72355883c3e4b558a",
+      "bytes": 805,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/qa/02-journey-behind-the-journey-contact-sheet.jpg",
+      "sha256": "d3716e50fa4599d0b2099cd10126a5ff67d2d619b4f34f39ffbd91a03411f059",
+      "bytes": 285156,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/qa/02-journey-behind-the-journey-storyboard.json",
+      "sha256": "6e89b59e381a0793ac051473f155f5c97a65f46d12766e186029efbe75ed91cb",
+      "bytes": 974,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/qa/02-journey-behind-the-journey-verification.json",
+      "sha256": "44206cbc8375dbe9a7471b81062db01acda1325b61b6aa843f687ca485a5160b",
+      "bytes": 813,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/qa/03-incentive-journeys-contact-sheet.jpg",
+      "sha256": "6e0064efa7c27bce7252903bc29a5cacbb3125b08ddb30518f7c69bea5d9990f",
+      "bytes": 317760,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/qa/03-incentive-journeys-storyboard.json",
+      "sha256": "f105f0d8f0aa45150e0756fbdbe454662667bd1bc459fdad2fc2fa2506b8c891",
+      "bytes": 851,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/qa/03-incentive-journeys-verification.json",
+      "sha256": "f6c6be5a72c48b387381a4515fc01b049c4982bf76fb8dce6001f99c42468bc3",
+      "bytes": 803,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/qa/03-validation.json",
+      "sha256": "ceeae95fdb27517ce25e79e39d4f3af505d75c7a8db6a752d9e7e7d9c6c21562",
+      "bytes": 4718,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/qa/04-many-cities-contact-sheet.jpg",
+      "sha256": "2c84145a8450d4f79ab470e477809023ee823efe56a74340ab60cb7fd8521762",
+      "bytes": 312741,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/qa/04-many-cities-storyboard.json",
+      "sha256": "a1c05ce846b05eeeb566b7113e0230e32411c4a8fc49d17a74a0fa44fbb2cbfa",
+      "bytes": 1117,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/qa/04-many-cities-verification.json",
+      "sha256": "4d2a6c49e3c9f237a57165c06d7ca1d7dd7f6bd531f52197b64a2c33777875c4",
+      "bytes": 797,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/qa/04-validation.json",
+      "sha256": "0f60513fddfcc328c8a52176dcd2f70133a2f6fe995436e08fd72f7f0277bf00",
+      "bytes": 4789,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/qa/05-trip-in-your-pocket-contact-sheet.jpg",
+      "sha256": "439737941fa182cc0df805deacd32c67e9858de95d7eb7a8605cf8019e967424",
+      "bytes": 345891,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/qa/05-trip-in-your-pocket-storyboard.json",
+      "sha256": "008fdf48996cb33090fc4d7d0663490758ef111061c4c1e46a1d4dbd0ccfd2d2",
+      "bytes": 1072,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/qa/05-trip-in-your-pocket-verification.json",
+      "sha256": "0ed8376f41f629b449c4a469ed87f17e32a94bfbc87c91a6e0c8b3cf696fa136",
+      "bytes": 807,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/qa/05-validation.json",
+      "sha256": "766b6dca7d610ec521c3a03cf6c72fcea4f501db8c7892cc201228fa3bd195b9",
+      "bytes": 4763,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/qa/06-validation.json",
+      "sha256": "3572dbbab70d10f3443ea53e0c87c1235605f6105a45bfa06ba8901d34e0bd4f",
+      "bytes": 4715,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/qa/06-venue-to-big-moment-contact-sheet.jpg",
+      "sha256": "8b9c72f1c1299b4c8f67b640ac1ffc328778c3d99a3dbc604c04e3e21490cba9",
+      "bytes": 280863,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/qa/06-venue-to-big-moment-storyboard.json",
+      "sha256": "c01151af3a3dee382d6a4c3a6dd0673b4c6a946b93321a393a7c0b06fcd21621",
+      "bytes": 813,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/qa/06-venue-to-big-moment-verification.json",
+      "sha256": "7b5fe08c92ecbc8c770e9a45597e0413d1460ad6d09feaa99bad25e8f87536b7",
+      "bytes": 806,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/qa/07-next-destination-contact-sheet.jpg",
+      "sha256": "9fa976699d51ef7790446d3432cea5c04a842fdc41b7733bff71390509ac749e",
+      "bytes": 328264,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/qa/07-next-destination-storyboard.json",
+      "sha256": "27210776f051974c0f16866442ef49f7ada867a228f9bf2925174be830e11402",
+      "bytes": 1105,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/qa/07-next-destination-verification.json",
+      "sha256": "bcd270d4907855a610276c6ef3f856846c2b337e5c90f0e0b1660be0221ac931",
+      "bytes": 802,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/qa/07-validation.json",
+      "sha256": "7c23319ad94ef6db2e27aba30fdc6d4d608fd036d62c2b6747e1c4456c99a0b8",
+      "bytes": 4803,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/qa/08-so-many-moments-contact-sheet.jpg",
+      "sha256": "6683104af551b83f50f50ea88840166dceb96e1eefa9965bb4a0ba7eac6669a9",
+      "bytes": 344733,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/qa/08-so-many-moments-storyboard.json",
+      "sha256": "2ca5cef35cb70de6fd938325c6e81918d8d5c25ec413bdd41401a22d7c16ba06",
+      "bytes": 1255,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/qa/08-so-many-moments-verification.json",
+      "sha256": "efed70fe6aa32c25f9de3e468eaafab0793b26ae54026eba3201f2eeddb1c737",
+      "bytes": 802,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/qa/08-validation.json",
+      "sha256": "71d86487d01453118426278870199d0c894314367488c35062ef1c1e834e05e2",
+      "bytes": 4756,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/qa/delivery-verification.json",
+      "sha256": "0f3771416597d54cd4403433923152397980d441e0f86080dbe2d939cc7a1e90",
+      "bytes": 6958,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/qa/soundtrack-provenance.json",
+      "sha256": "58f0ed7a0bea552f02f2ba26976300a3e49fdb0a7b1205384ea7bcfeb468a221",
+      "bytes": 1227,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/source/common.cjs",
+      "sha256": "c5ed1ddb11affdba6389efedf85e161ce9f0e06512dd445ec9a545012ad338e1",
+      "bytes": 3428,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/source/compose_audio.py",
+      "sha256": "b00bbe88cb08e09789ec75366bd53ed84c51a06b053499714bb0d93bfee75aa8",
+      "bytes": 4835,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/source/films/01-passport-to-applause.cjs",
+      "sha256": "6252908fe21af9af109b680dc16d1cc23be9fdf8d8012c7f8eea4c73aef66bed",
+      "bytes": 4030,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/source/films/02-journey-behind-the-journey.cjs",
+      "sha256": "7dd83d6c070272ebd11efae1190b90c0576ba6fd56976dc5a0071d084cb6ed51",
+      "bytes": 5306,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/source/films/03-incentive-journeys.cjs",
+      "sha256": "a5c2b2ae714c29df9d02f1934c218c11d769e88e1756cb01b4068481f52c8569",
+      "bytes": 12835,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/source/films/04-many-cities.cjs",
+      "sha256": "2d8245bf62da7d2415c9b8b6577dc4711dfe467af9373d5ed27ac8938535b196",
+      "bytes": 11230,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/source/films/05-trip-in-your-pocket.cjs",
+      "sha256": "9b7f7c88ebe8cb762dc66ecec642724364605d6b31a63edcad4002975621a77d",
+      "bytes": 11595,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/source/films/06-venue-to-big-moment.cjs",
+      "sha256": "aa32104eca2e5fed8ff0af69807e015caf21356a6c6b4c3c5a4ef003b49eec25",
+      "bytes": 11534,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/source/films/07-next-destination.cjs",
+      "sha256": "14e5eae13c3261e1e07715e4a233d02a20f72ee3c2087f0336cb5369d839f7f3",
+      "bytes": 15164,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/source/films/08-so-many-moments.cjs",
+      "sha256": "818228c6fc51337b1b6a0befe973020fc9474649a000d1474a35ba1ac6941dee",
+      "bytes": 11469,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/source/props.cjs",
+      "sha256": "f82eb250bc6499be967fc5877d163554e0a081479983e4b45118febc1cc7b2f3",
+      "bytes": 4406,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/source/render.cjs",
+      "sha256": "493666c839e374bacdc99b6981274e123c69d19cbc7fc8542e0e366edb0601d2",
+      "bytes": 6046,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/source/verify.py",
+      "sha256": "5145dd9b02009ce173750d28dba50826f647b46cfa6c796765e1df74d3ef0967",
+      "bytes": 2978,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/videos/01-passport-to-applause.mp4",
+      "sha256": "c327640d8c877280ff28201fb0cba6c2bd71f19fd7584e02a9228eb593920dd3",
+      "bytes": 4385234,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/videos/02-journey-behind-the-journey.mp4",
+      "sha256": "936f16010b7b11d336c111cc50f8f2d9f844bc2856682febd59bf8d4eca76b7d",
+      "bytes": 3511249,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/videos/03-incentive-journeys.mp4",
+      "sha256": "063778d1d7d6390a0e95867320677fa8998009e7c37793134748796bcf2753a1",
+      "bytes": 3486501,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/videos/04-many-cities.mp4",
+      "sha256": "040909a71c7962fe9c2946da3648cb490453ed8478309db4002df33a44c63c92",
+      "bytes": 3666463,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/videos/05-trip-in-your-pocket.mp4",
+      "sha256": "f62b60273bb3ec19357ecceef97f5e83380c6c77a955eada26a17cc229035688",
+      "bytes": 4313063,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/videos/06-venue-to-big-moment.mp4",
+      "sha256": "36132f7ca1625e3ba3591a22eaa44d74b1d29f72031c2b0f1108ad3d69650db2",
+      "bytes": 2655552,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/videos/07-next-destination.mp4",
+      "sha256": "678040acbfa61ae25161cdc1b4f66afa06fd6f5c357748d56584e018b531d300",
+      "bytes": 4138411,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/social-motion-collection-2026-09-19/videos/08-so-many-moments.mp4",
+      "sha256": "d3ee64f0f40e45f44299aa93df59ec6ea1b61b1782504111cdaf1be60fb4cb34",
+      "bytes": 4709491,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-whole-standalone-social-marketing-cohort",
+      "reason": "No maintained app/docs/build/tooling/native source reference to unique package or film identifiers outside cohort. Standalone renderer internally enumerates films/audio/videos/assets; supplied logo copy is inside cohort. No active journey/login or broadcast/processing generator imports this source."
+    },
+    {
+      "path": "assets/branding/global-connect/wallpaper.png",
+      "sha256": "6d4854058634a02f0a9ad796c34c1f2441ee18c2016f768a2a2c985bf6cfc389",
+      "bytes": 1569384,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [
+        "mobile/assets/images/wallpaper.png"
+      ],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/design-concepts/dashboard/dashboard-direction-2026-09-06-prompt.md",
+      "sha256": "9acefe28b82cb2647332cf12f74eec09743f6db08f620bad48cfa72caecab46a",
+      "bytes": 5799,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "retain-project-design-reference",
+      "reason": "Dashboard direction image and authored prompt are a project-specific source/reference pair, not runtime delivery. Preserve intentional design provenance."
+    },
+    {
+      "path": "assets/design-concepts/dashboard/dashboard-direction-2026-09-06.png",
+      "sha256": "c326bb5478b6c7ab2ff934a1c33c7ec035683cf38fb065f44804e89be7ea5ca6",
+      "bytes": 1264579,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "retain-project-design-reference",
+      "reason": "Dashboard direction image and authored prompt are a project-specific source/reference pair, not runtime delivery. Preserve intentional design provenance."
+    },
+    {
+      "path": "assets/Emulator Screenshot.lnk",
+      "sha256": "bc9d17a576ecb141f680b1dff5160135279c9864fd98a1501b22c28ecc3505dd",
+      "bytes": 2613,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "archive-standalone-shortcut",
+      "reason": "Screenshot shortcut is not code/artwork source or app build input; no maintained literal consumer. Target not opened or executed."
+    },
+    {
+      "path": "assets/GCT staff  Mobile Number detail.xlsx",
+      "sha256": "7dc9eb9dcead4af965e28896b4b3b8d2721c91986f73a25cd4d64f0d12a5ac4f",
+      "bytes": 10572,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "retain-uncertain-operational-reference",
+      "reason": "Potential staff contact workbook; no content opened/copied/attached. Lack of automatic code reference cannot rule out deliberate manual import use."
+    },
+    {
+      "path": "assets/Global-Connect-Logo-Animation-Complete.zip",
+      "sha256": "414d7d749ec210be154c4374c58c3b0e58d1532dda516094597a5d42faf59a85",
+      "bytes": 7847353,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    },
+    {
+      "path": "assets/README.md",
+      "sha256": "881ef4f0de84e6b661d09f8faf5644505c6609a0783fb9787633ced27914b2b9",
+      "bytes": 3138,
+      "review_scope": "metadata-and-reference-closure",
+      "runtime_duplicate_copies": [],
+      "proposed_action": "retain-branding-source-or-reproduction-support",
+      "reason": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location."
+    }
+  ],
+  "logo_package_metadata": {
+    "path": "assets/Global-Connect-Logo-Animation-Complete.zip",
+    "sha256": "414d7d749ec210be154c4374c58c3b0e58d1532dda516094597a5d42faf59a85",
+    "members": 14,
+    "uncompressed_bytes": 8945330,
+    "encrypted_entries": 0,
+    "unsafe_member_paths": 0,
+    "reason_retained": "Asset-library README explicitly identifies original finished logo-animation package as provenance for preserved active branding masters and runtime-derived copies. Central-directory metadata inspected only; not unpacked/executed or semantically audited."
+  },
+  "dynamic_prefix_controls": [
+    "frontend next.config whitelist concerns frontend/public/assets delivery, not root assets social collection.",
+    "Auth CompanyJourneyFilm points to frontend/public journey-film web/poster, and CSS names exact login background SVGs. Corresponding root masters/source/QA are retained.",
+    "generate-broadcast-motion-preview points exactly to root broadcast-motion, not all branding descendants; processing gallery helper targets its own processing directory.",
+    "Social renderer fs.readdirSync(source/films) and output directories are internal to exact social root; no maintained outside module consumes them."
+  ],
+  "limits": [
+    "No image/audio/video content editing, rendering, metadata stripping, provider calls or source modification.",
+    "No license/rights/original-person-identity certification from metadata.",
+    "No classification of private contact workbook as unused from absent source reference.",
+    "Root review required before exact archive moves. Directory hierarchy and original bytes will be preserved if approved."
+  ]
+}

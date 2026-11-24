@@ -1,0 +1,6 @@
+scripts\qa\bounded_qualification_output.py: error: Source file found twice under different module names: "bounded_qualification_output" and "qa.bounded_qualification_output"
+scripts\qa\bounded_qualification_output.py: note: See https://mypy.readthedocs.io/en/stable/running_mypy.html#mapping-file-paths-to-modules for more info
+scripts\qa\bounded_qualification_output.py: note: Common resolutions include:
+scripts\qa\bounded_qualification_output.py: note:     a) adding `__init__.py` somewhere,
+scripts\qa\bounded_qualification_output.py: note:     b) using `--explicit-package-bases` or adjusting `MYPYPATH`
+Found 1 error in 1 file (errors prevented further checking)

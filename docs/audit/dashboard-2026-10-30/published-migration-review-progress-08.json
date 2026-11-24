@@ -1,0 +1,22 @@
+{
+  "status": "retained published migration source cohort complete within user scope; service qualification remains separate",
+  "new_full_migrations": 27,
+  "new_full_lines": 2100,
+  "cumulative_new_full_migrations": 132,
+  "prior_current_full_migrations": 2,
+  "total_current_full_migrations": 134,
+  "total_migrations": 142,
+  "focused_migrations": 2,
+  "wholly_inbox_deferred_by_user": 2,
+  "wholly_native_excluded": 4,
+  "remaining_unclassified_migrations": 0,
+  "ledger": {
+    "path": "docs/audit/dashboard-2026-10-30/published-migration-cohort-08-reviewed-files.json",
+    "sha256": "e7a484bdc90f1e3b05a34791532f36532c2c1803d99814c9c0f3f53e70337fae"
+  },
+  "findings": {
+    "path": "docs/audit/dashboard-2026-10-30/published-migration-cohort-08-findings.json",
+    "sha256": "b6142a91af87873d1338d13696c3b84d29c21759a6b082fea3bd3af18c826213"
+  },
+  "notes": "142=134full+2focused(0064/0069)+2Inboxdeferred(0061/0065)+4nativeexcluded(0073/0076/0081/0095). Mixed focused Inbox/native portions explicitly remain deferred/excluded; do not call whole142fullyaudited."
+}

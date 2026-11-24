@@ -1,0 +1,17 @@
+[
+  {
+    "path": "frontend/features/gc-app/components/common-documents-panel.tsx",
+    "original_sha256": "8fbab277e023317c076c28172781cb4a8f066e3fb02b5bd9651cb1de1b35d702",
+    "original_physical_lines": 473
+  },
+  {
+    "path": "frontend/features/gc-app/components/client-manager-details-dialog.tsx",
+    "original_sha256": "ce948e7caf66f13863cc42e0b7fa5ccb8ba203f125bf94eb6737f3c6befb0543",
+    "original_physical_lines": 369
+  },
+  {
+    "path": "frontend/features/gc-app/components/app-controls-page.tsx",
+    "original_sha256": "827032f18e34d776474c67a9da006469042fe43337c083c35e5d5e89d2e5a765",
+    "original_physical_lines": 407
+  }
+]

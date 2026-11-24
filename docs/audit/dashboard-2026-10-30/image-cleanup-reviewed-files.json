@@ -1,0 +1,26 @@
+[
+  {
+    "path": "backend/app/infrastructure/documents/storage_cleanup.py",
+    "sha256": "4914f332a341e81695197b989aed8730c74de38f1c7337fd28e986c8eef0c223",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "needs-follow-up",
+    "notes": "Full storage cleanup source read; actual namespace regression1fail/AIcontrol1pass, one additive owned-object prefix corrects it;60affectedcases5filesPASS. WholemoduleAST exact after removing tupleelement. Existing encryptedtombstone/commit-before-storage/boundedretry/scopednegative controls remain. Mixedowner architecture and independent privateimage crash reconciliation are open."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_storage_cleanup.py",
+    "sha256": "885c13b0be7d168af5015df4df6ffe3d1e03348e1c8d1ea3645d0d0509fee4cc",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete534line infrastructure test source read, one existing artifact-scope control parameterized across AI/manual namespaces, alloriginalassertions plus equivalent neighboring-prefix/cross-source rejects retained; affected60casesPASS."
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/passport_image_crop_repository.py",
+    "sha256": "ab9eb177615d85eb42e9b15f00a94a3cd7a9e10dc9dda15d6db918ebb2e7f9b7",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "needs-follow-up",
+    "notes": "Only edit_storage_keys source inspected: both crop edit references and all stored library rows are included by selected submission IDs. No complete repository-read credit."
+  }
+]

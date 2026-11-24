@@ -1,0 +1,24 @@
+{
+  "status": "complete current physical retained test-source review only",
+  "files": 3,
+  "physical_lines": 2575,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-gemini-test-source-reviewed-files.json",
+    "sha256": "84879b0aed0a0408178602a0a4ce363945fa7899b48a129b5e869cb2715fc2b4"
+  },
+  "source_before_equals_after": true,
+  "source_fence": {
+    "backend/tests/unit/infrastructure/test_gemini_passport_verification_service.py": "b65ec2f5d0dd3d940285c39529665e31cb64fb4c8a90425f2622953a3c4796a8",
+    "backend/tests/unit/infrastructure/test_gemini_post_submission_verification_service.py": "067d9aeee1252dd2accb27f7059ec6f2f0c2fe8c68339548b4de72c897f099cd",
+    "backend/tests/unit/infrastructure/test_gemini_visa_image_edit_service.py": "920d20ab5047407e8f94349313896ff93d9d3a5e3977c842c46a847c2a80c278"
+  },
+  "new_execution": false,
+  "runtime_mutation": false,
+  "new_validated_findings": [],
+  "scope": "Retained dashboard/passport extraction, post-submit verification and image editing tests; dedicated email AI/review/ingestion remains deferred.",
+  "limits": [
+    "Physical source review is distinct from execution, live AI behavior or model classification accuracy.",
+    "Prompt/schema assertions only prove the authored request contract in the test design.",
+    "Existing behavior/coverage/equivalence receipts remain unchanged."
+  ]
+}

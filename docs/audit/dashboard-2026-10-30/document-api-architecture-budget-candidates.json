@@ -1,0 +1,51 @@
+[
+  {
+    "path": "features/documents/api/document-distribution.api.ts",
+    "baselineLines": 14,
+    "maximumLines": 20,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/documents/api/document-review.api.ts",
+    "baselineLines": 51,
+    "maximumLines": 60,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/documents/api/document-verification.api.ts",
+    "baselineLines": 150,
+    "maximumLines": 160,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/documents/api/document-batches.api.ts",
+    "baselineLines": 146,
+    "maximumLines": 150,
+    "baselineMaxFunctionComplexity": 4,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/documents/api/document-delivery.api.ts",
+    "baselineLines": 54,
+    "maximumLines": 60,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/documents/api/document-distribution.types.ts",
+    "baselineLines": 18,
+    "maximumLines": 20,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/documents/services/document-filename-replacements.ts",
+    "baselineLines": 46,
+    "maximumLines": 50,
+    "baselineMaxFunctionComplexity": 8,
+    "maximumFunctionComplexity": 9
+  }
+]

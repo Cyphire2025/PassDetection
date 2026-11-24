@@ -1,0 +1,7 @@
+# GC admin architecture checkpoint
+
+The1,064-line API is now a stable facade over endpoint families, wire types, transport/pagination and mappers. The459-line hook module reexports focused domain hooks and shared cache configuration. The remaining473/407/369-line document, App Controls and account-detail owners now delegate to document form/rows, group-picker state/dialog, and account security state. Every GC runtime TS/TSX file is now at most300 physical lines; none were shortened by minifying JSX.
+
+All36 facade methods remain. Mechanical proof records34 endpoint bodies and14 hook functions unchanged after normalizing line endings; the two audit-history methods deliberately share their unchanged allowlisted projection. New API tests cover history scope/pagination/private metadata omission, oversized directory rejection,4-request concurrency/order and PDF preview MIME rejection. Two reproduced UI bugs are fixed: same-turn duplicate document upload and missing account-tab keyboard/ARIA behavior. Existing confirmation, revision, credential, selection, private-URL, cache and lost-response tests remain.
+
+Receipts clearly distinguish the151-test/8-browser API checkpoint from the final25-test/2-browser affected component supplement. Current source ledger and exact budget candidates accompany them. No full build or whole frontend rerun per fix. Remaining image-analysis service decomposition stays open for the next coherent tranche.

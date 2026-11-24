@@ -1,0 +1,55 @@
+{
+  "original_sha256": "ed47e94d322a97ed45f78901131f83af8172d1b382153da0102f5efee04850ad",
+  "owners": [
+    {
+      "path": "backend/app/infrastructure/export/passport_excel_columns.py",
+      "sha256": "7ed23ae74ecd67599c8358b2314b38be0fcc6f7d1e129f6cf9e036e77c7b6f0a",
+      "physical_lines": 202
+    },
+    {
+      "path": "backend/app/infrastructure/export/passport_excel_values.py",
+      "sha256": "8082a1524e9af014bc22ab174d00d0a0971d970dd9b8a955540d605b11a1721c",
+      "physical_lines": 104
+    },
+    {
+      "path": "backend/app/infrastructure/export/passport_excel_rows.py",
+      "sha256": "97ee8fc225887ccd0ac196fa086921e1631946787ee41fa6068851ed230558d6",
+      "physical_lines": 248
+    },
+    {
+      "path": "backend/app/infrastructure/export/passport_excel_workbook.py",
+      "sha256": "6929667ee3bf7eeaa8838ee71dde49c0ad1df96ec408f9dafb8eb2a9e54c8cac",
+      "physical_lines": 65
+    },
+    {
+      "path": "backend/app/infrastructure/export/passport_excel_exporter.py",
+      "sha256": "25a3e2f8d3235f0d47ba30332df97d593a208c537dbab778d3b147c15e6f00f6",
+      "physical_lines": 258
+    }
+  ],
+  "formatter_functions": [
+    "_whatsapp_phone_value",
+    "_uppercase",
+    "_export_cell_value",
+    "_gender_display_value",
+    "_country_display_name",
+    "_nationality_display_value",
+    "_date_value",
+    "passport_age_group"
+  ],
+  "row_hooks": [
+    "_append_pending_rows",
+    "_group_value",
+    "_pending_row_sort_key",
+    "_zone_name",
+    "_submission_sort_key",
+    "_submission_values",
+    "_ecr_value"
+  ],
+  "column_policy_hooks": [
+    "_enabled_traveller_columns",
+    "_custom_fields"
+  ],
+  "finalizer_original_statement_count": 7,
+  "finalizer_original_first_line": 401
+}

@@ -1,0 +1,202 @@
+[
+  {
+    "path": "backend/app/application/__init__.py",
+    "sha256": "f7f0ae580a55bd07e427d55d2982e40d12a2cd590386d85e583db5d77f8fdb0b",
+    "source": "\ufeff\"\"\"Package.\"\"\"\n"
+  },
+  {
+    "path": "backend/app/application/mobile/__init__.py",
+    "sha256": "95371f7f863a04b875a66a8695d7ad983e677e3ea076dd083c1401359b717d39",
+    "source": "\"\"\"GC mobile application services.\"\"\"\n"
+  },
+  {
+    "path": "backend/app/application/mobile/group_capacity.py",
+    "sha256": "ef821a520ecccbe03a4339f47cfbf03fc0a44474adaee5a69e8c1b36ec7049c4",
+    "source": "\"\"\"Creation-time passenger capacity contract for mobile-enabled group data.\"\"\"\n\nfrom __future__ import annotations\n\nimport uuid\nfrom typing import Protocol\n\n\nclass GroupPassengerCapacityGuard(Protocol):\n    \"\"\"Serialize group creation and reject additions beyond the published quota.\"\"\"\n\n    async def lock_group(\n        self,\n        *,\n        agency_id: uuid.UUID,\n        group_id: uuid.UUID,\n    ) -> None: ...\n\n    async def assert_available(\n        self,\n        *,\n        agency_id: uuid.UUID,\n        group_id: uuid.UUID,\n        additional_passengers: int,\n    ) -> None: ...\n\n\n__all__ = [\"GroupPassengerCapacityGuard\"]\n"
+  },
+  {
+    "path": "backend/app/application/mobile/notification_errors.py",
+    "sha256": "53b4d04c5f419322cd7a25d1e58bae71fd8fa6dc51aef3638842068c67987b7c",
+    "source": "\"\"\"Notification workflow failures without a dependency on the HTTP adapter.\"\"\"\n\nfrom typing import Literal\n\nfrom app.domain.exceptions.exceptions import PassDetectionError\n\n\nclass NotificationWorkflowError(PassDetectionError):\n    def __init__(self, category: Literal[\"missing\", \"invalid\", \"conflict\"], message: str) -> None:\n        self.category = category\n        super().__init__(message, code={\"missing\": \"NOT_FOUND\", \"invalid\": \"REQUEST_VALIDATION_ERROR\",\n                                       \"conflict\": \"CONFLICT\"}[category])\n"
+  },
+  {
+    "path": "backend/app/application/use_cases/__init__.py",
+    "sha256": "f7f0ae580a55bd07e427d55d2982e40d12a2cd590386d85e583db5d77f8fdb0b",
+    "source": "\ufeff\"\"\"Package.\"\"\"\n"
+  },
+  {
+    "path": "backend/app/application/use_cases/admin_overview.py",
+    "sha256": "f5ad586942498f175637eb386d2cf4934a7d4894ea63fd1d7a7c3b9dc6624dc0",
+    "source": "\"\"\"Neutral result shape shared by website and MCP administrative observations.\"\"\"\n\nfrom typing import TypedDict\n\nADMIN_OVERVIEW_FIELDS = (\n    \"agencies\", \"users\", \"client_groups\", \"passport_submissions\",\n    \"pending_review\", \"client_submitted\", \"failed\",\n)\n\n\nclass AdminOverviewCounts(TypedDict):\n    agencies: int\n    users: int\n    client_groups: int\n    passport_submissions: int\n    pending_review: int\n    client_submitted: int\n    failed: int\n"
+  },
+  {
+    "path": "backend/app/application/use_cases/auth/__init__.py",
+    "sha256": "f7f0ae580a55bd07e427d55d2982e40d12a2cd590386d85e583db5d77f8fdb0b",
+    "source": "\ufeff\"\"\"Package.\"\"\"\n"
+  },
+  {
+    "path": "backend/app/application/use_cases/auth/get_me_use_case.py",
+    "sha256": "8b3b5d163993da58988019fe49ef70041807e702ddff4a19f6ace68910a50a4f",
+    "source": "\"\"\"Read the active account profile for /auth/me.\"\"\"\n\nfrom __future__ import annotations\n\nimport uuid\n\nfrom app.application.dtos.auth_dtos import UserOutputDTO, user_output_from_entity\nfrom app.domain.exceptions.exceptions import AuthenticationError\nfrom app.domain.repositories.interfaces import IUserRepository\n\n\nclass GetMeUseCase:\n    \"\"\"Returns the profile of the currently authenticated user.\"\"\"\n\n    def __init__(self, user_repository: IUserRepository) -> None:\n        self._user_repo = user_repository\n\n    async def execute(self, user_id: uuid.UUID) -> UserOutputDTO:\n        user = await self._user_repo.get_by_id(user_id)\n        if not user or not user.is_active:\n            raise AuthenticationError(\"User not found or deactivated\")\n\n        return user_output_from_entity(user)\n"
+  },
+  {
+    "path": "backend/app/application/use_cases/auth/logout_all_use_case.py",
+    "sha256": "8bde10b7b2aca510e85b6e66e6497816c3bc005b3290bad1171219e1510866dc",
+    "source": "\"\"\"Force logout for all sessions belonging to one user.\"\"\"\n\nfrom __future__ import annotations\n\nimport uuid\n\nfrom app.infrastructure.repositories.identity_security_repository import IdentitySecurityRepository\nfrom app.infrastructure.repositories.refresh_token_repository import RefreshTokenRepository\n\n\nclass LogoutAllUseCase:\n    def __init__(\n        self,\n        refresh_token_repository: RefreshTokenRepository,\n        identity_security_repository: IdentitySecurityRepository,\n    ) -> None:\n        self._token_repo = refresh_token_repository\n        self._identity_repo = identity_security_repository\n\n    async def execute(self, user_id: uuid.UUID) -> None:\n        # Both repositories share the request transaction. Generation fencing\n        # invalidates access JWTs immediately, including a concurrent refresh.\n        await self._identity_repo.fence_sessions(user_id)\n        await self._token_repo.revoke_all_for_user(user_id)\n"
+  },
+  {
+    "path": "backend/app/application/use_cases/dashboard/__init__.py",
+    "sha256": "bdb4bfc2ea6e1ce9ae3ecefb97b4a2d61f1de936496879980f82abfe42631fd4",
+    "source": "\"\"\"Dashboard use cases package.\"\"\"\n"
+  },
+  {
+    "path": "backend/app/domain/repositories/__init__.py",
+    "sha256": "5cc58c46b7ce501cf98e236127603629092da502b29a510a5f19e368b537b0bd",
+    "source": "\"\"\"Package.\"\"\"\n"
+  },
+  {
+    "path": "backend/app/infrastructure/ai/__init__.py",
+    "sha256": "e1dee6e3fd823ee88ebee1699306d0bdc611851f3c59011ab8bff9f17c230452",
+    "source": "\"\"\"Server-side AI integrations.\"\"\"\n\nfrom .gemini_passport_verification_service import GeminiPassportVerificationService\n\n__all__ = [\"GeminiPassportVerificationService\"]\n"
+  },
+  {
+    "path": "backend/app/infrastructure/database/__init__.py",
+    "sha256": "f7f0ae580a55bd07e427d55d2982e40d12a2cd590386d85e583db5d77f8fdb0b",
+    "source": "\ufeff\"\"\"Package.\"\"\"\n"
+  },
+  {
+    "path": "backend/app/infrastructure/database/search_index_sql.py",
+    "sha256": "d8f2708a55ce574635db76a011fcf7711836798ce6de17eb5254195214b84d0b",
+    "source": "\"\"\"Canonical PostgreSQL16 expressions from the migrated indexes.\n\nPostgreSQL expands implicit casts and concat associativity. Keeping its exact\nrepresentation allows Alembic to compare expressions without suppressing index\ndrift. Runtime expression/migration parity and real planner use are tested.\n\"\"\"\n\nPASSPORT_SEARCH_SQL = \"lower((((((((((((((((((COALESCE(client_name, ''::character varying)::text || '\\x1f'::text) || COALESCE(client_email, ''::character varying)::text) || '\\x1f'::text) || COALESCE(client_phone, ''::character varying)::text) || '\\x1f'::text) || COALESCE(departure_city, ''::character varying)::text) || '\\x1f'::text) || COALESCE((extracted_fields ->> 'passport_number'::text)::character varying, ''::character varying)::text) || '\\x1f'::text) || COALESCE((confirmed_fields ->> 'passport_number'::text)::character varying, ''::character varying)::text) || '\\x1f'::text) || COALESCE((extracted_fields ->> 'surname'::text)::character varying, ''::character varying)::text) || '\\x1f'::text) || COALESCE((confirmed_fields ->> 'surname'::text)::character varying, ''::character varying)::text) || '\\x1f'::text) || COALESCE((extracted_fields ->> 'given_names'::text)::character varying, ''::character varying)::text) || '\\x1f'::text) || COALESCE((confirmed_fields ->> 'given_names'::text)::character varying, ''::character varying)::text)\"\nGROUP_SEARCH_SQL = \"lower((COALESCE(name, ''::character varying)::text || '\\x1f'::text) || COALESCE(destination, ''::character varying)::text)\"\n"
+  },
+  {
+    "path": "backend/app/infrastructure/export/__init__.py",
+    "sha256": "836829cb08c7a0353a2b19b0da8d5805b210c13b82d926fa0089dedf74b0b863",
+    "source": "\"\"\"Export infrastructure services.\"\"\"\n"
+  },
+  {
+    "path": "backend/app/infrastructure/image_processing/__init__.py",
+    "sha256": "d25b9be8a4f81c6652d75bd9f3df49de61991e00e87e9f6471b07415e7c2fada",
+    "source": "\"\"\"Image processing infrastructure services.\"\"\"\n"
+  },
+  {
+    "path": "backend/app/infrastructure/imaging/__init__.py",
+    "sha256": "a11ae03dd4b2d11443f97c378722cfbd50f929adaf4ea3e9a807b873bc260bc8",
+    "source": "\"\"\"Image rendering infrastructure.\"\"\"\n"
+  },
+  {
+    "path": "backend/app/infrastructure/imports/__init__.py",
+    "sha256": "d484fc1ad075e900d77ee4c651dbb95350e0d75602fca47f5c0fff2ef70fc155",
+    "source": "\"\"\"Spreadsheet import helpers.\"\"\"\n"
+  },
+  {
+    "path": "backend/app/infrastructure/mobile_push/__init__.py",
+    "sha256": "84b313a5b6897b9ed99bf9db1107f9579296cee5d643c4ab7208686bdfb7367d",
+    "source": "\"\"\"Durable mobile push worker integration.\"\"\"\n\nMOBILE_PUSH_DISPATCH_TASK = \"mobile.dispatch_push_notifications\"\nMOBILE_PUSH_RECEIPT_TASK = \"mobile.reconcile_push_receipts\"\nMOBILE_PUSH_COUNTDOWN_TASK = \"mobile.schedule_trip_countdowns\"\n\n__all__ = [\n    \"MOBILE_PUSH_COUNTDOWN_TASK\",\n    \"MOBILE_PUSH_DISPATCH_TASK\",\n    \"MOBILE_PUSH_RECEIPT_TASK\",\n]\n"
+  },
+  {
+    "path": "backend/app/infrastructure/observability/__init__.py",
+    "sha256": "affb63f448ef91d76960019dfcd587c4404010df2b29a69be92ec5be0de887e6",
+    "source": "\"\"\"Privacy-preserving operational observability helpers.\"\"\"\n\nfrom app.infrastructure.observability.metrics import metrics\n\n__all__ = [\"metrics\"]\n"
+  },
+  {
+    "path": "backend/app/infrastructure/ocr/__init__.py",
+    "sha256": "74fefbb92846da43cb0d846a7c9e8a0c02b55dc3b23a1a91fde15bcfe4ade088",
+    "source": "\ufeff\"\"\"Package.\"\"\"\n"
+  },
+  {
+    "path": "backend/app/infrastructure/qr/__init__.py",
+    "sha256": "efdc0b1fa485975d0710e54eb19322635396d692314cc2b50c65e269cae8bc89",
+    "source": "\"\"\"Passenger QR infrastructure services.\"\"\"\n"
+  },
+  {
+    "path": "backend/app/infrastructure/qr/qr_image_renderer.py",
+    "sha256": "1743e90f9536047ba9dd8aeac0a7e65aae7e1642761eecc8cb9aa158905670b7",
+    "source": "\"\"\"Render stored attendance QR payloads as WhatsApp-ready PNG images.\"\"\"\n\nfrom __future__ import annotations\n\nimport io\n\nimport qrcode\nfrom qrcode.constants import ERROR_CORRECT_M\n\n\ndef render_attendance_qr_png(payload: str) -> bytes:\n    normalized = payload.strip()\n    if not normalized.startswith(\"pdatt:\") or len(normalized) > 64:\n        raise ValueError(\"Attendance QR payload is invalid\")\n\n    code = qrcode.QRCode(\n        version=None,\n        error_correction=ERROR_CORRECT_M,\n        box_size=12,\n        border=4,\n    )\n    code.add_data(normalized)\n    code.make(fit=True)\n    image = code.make_image(fill_color=\"#020617\", back_color=\"#ffffff\")\n    output = io.BytesIO()\n    image.save(output, format=\"PNG\")\n    return output.getvalue()\n"
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/__init__.py",
+    "sha256": "74fefbb92846da43cb0d846a7c9e8a0c02b55dc3b23a1a91fde15bcfe4ade088",
+    "source": "\ufeff\"\"\"Package.\"\"\"\n"
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/mcp_read_page.py",
+    "sha256": "3d467af7ac9228154e6199f839b66a53fa221d8e695ba48ad2dd57c90fc0a0ec",
+    "source": "\"\"\"Stable bounded SQL keysets for server-chosen read projections.\"\"\"\n\nfrom __future__ import annotations\n\nimport uuid\nfrom datetime import datetime\nfrom typing import Any\n\nfrom sqlalchemy import and_, or_\nfrom sqlalchemy.ext.asyncio import AsyncSession\n\n\ndef page_query(statement: Any, model: Any, *, cutoff: datetime,\n               after: tuple[datetime, uuid.UUID] | None, size: int, timestamp: Any = None) -> Any:\n    if not 1 <= size <= 100:\n        raise ValueError(\"Page size must be between 1 and 100\")\n    stamp = model.created_at if timestamp is None else timestamp\n    statement = statement.where(stamp <= cutoff)\n    if after:\n        statement = statement.where(or_(stamp < after[0], and_(stamp == after[0], model.id < after[1])))\n    return statement.order_by(stamp.desc(), model.id.desc()).limit(size + 1)\n\n\nasync def read_page(session: AsyncSession, statement: Any, model: Any, **page: Any) -> list[dict[str, Any]]:\n    result = await session.execute(page_query(statement, model, **page))\n    return [dict(row) for row in result.mappings()]\n"
+  },
+  {
+    "path": "backend/app/infrastructure/storage/__init__.py",
+    "sha256": "74fefbb92846da43cb0d846a7c9e8a0c02b55dc3b23a1a91fde15bcfe4ade088",
+    "source": "\ufeff\"\"\"Package.\"\"\"\n"
+  },
+  {
+    "path": "backend/app/infrastructure/storage/passport_object_keys.py",
+    "sha256": "4b48560ab98d04153ecfdf1ee41b011d050c2295fc3f0badc72629ba84710c61",
+    "source": "\"\"\"Canonical object-key collection for permanent passport-data removal.\"\"\"\n\nfrom __future__ import annotations\n\nfrom collections.abc import Iterable\nfrom typing import Any\n\nPASSPORT_OBJECT_KEY_ATTRIBUTES = (\n    \"image_s3_key\",\n    \"thumbnail_s3_key\",\n    \"passport_back_s3_key\",\n    \"passport_cover_s3_key\",\n    \"passport_back_cover_s3_key\",\n    \"passport_photo_s3_key\",\n)\n\n\ndef passport_storage_keys(submissions: Iterable[Any]) -> list[str]:\n    \"\"\"Collect every referenced passport image object without duplicates.\"\"\"\n\n    keys: list[str] = []\n    seen: set[str] = set()\n    for submission in submissions:\n        for attribute in PASSPORT_OBJECT_KEY_ATTRIBUTES:\n            key = getattr(submission, attribute, None)\n            if isinstance(key, str) and key and key not in seen:\n                keys.append(key)\n                seen.add(key)\n    return keys\n"
+  },
+  {
+    "path": "backend/app/infrastructure/travel_tracker/__init__.py",
+    "sha256": "824420c4815f1c14e6d3189722aeca19ee89bedad4a7510799384509c159a7f9",
+    "source": "\"\"\"Group travel readiness and spreadsheet matching.\"\"\"\n"
+  },
+  {
+    "path": "backend/app/infrastructure/travel_tracker/spreadsheets.py",
+    "sha256": "3631d37fc6edf5812e69c783b7aebdc973c96a10356564541dd35f509afa9dcf",
+    "source": "\"\"\"Stable tracker spreadsheet import surface; implementations have focused owners.\"\"\"\n\nfrom app.infrastructure.travel_tracker.spreadsheet_export import _safe as _safe\nfrom app.infrastructure.travel_tracker.spreadsheet_export import build_export as build_export\nfrom app.infrastructure.travel_tracker.spreadsheet_matching import match_rows as match_rows\nfrom app.infrastructure.travel_tracker.spreadsheet_reader import _HEADERS as _HEADERS\nfrom app.infrastructure.travel_tracker.spreadsheet_reader import _bounded_rows as _bounded_rows\nfrom app.infrastructure.travel_tracker.spreadsheet_reader import _header as _header\nfrom app.infrastructure.travel_tracker.spreadsheet_reader import read_rows as read_rows\nfrom app.infrastructure.travel_tracker.spreadsheet_values import MAX_COLUMNS as MAX_COLUMNS\nfrom app.infrastructure.travel_tracker.spreadsheet_values import MAX_EXPORT_ROWS as MAX_EXPORT_ROWS\nfrom app.infrastructure.travel_tracker.spreadsheet_values import MAX_IMPORT_ROWS as MAX_IMPORT_ROWS\nfrom app.infrastructure.travel_tracker.spreadsheet_values import (\n    MAX_UPLOAD_BYTES as MAX_UPLOAD_BYTES,\n)\nfrom app.infrastructure.travel_tracker.spreadsheet_values import (\n    TrackerSpreadsheetError as TrackerSpreadsheetError,\n)\nfrom app.infrastructure.travel_tracker.spreadsheet_values import field_values as field_values\nfrom app.infrastructure.travel_tracker.spreadsheet_values import full_name as full_name\nfrom app.infrastructure.travel_tracker.spreadsheet_values import normalized_name as normalized_name\nfrom app.infrastructure.travel_tracker.spreadsheet_values import (\n    normalized_passport as normalized_passport,\n)\nfrom app.infrastructure.travel_tracker.spreadsheet_values import text_value as text_value\n"
+  },
+  {
+    "path": "backend/app/infrastructure/validation/__init__.py",
+    "sha256": "d96d1b1bc73298a1e353e1d6daa6f7ce2ab40d80c579f9fcf86ceed1051bbbaa",
+    "source": "\"\"\"Validation infrastructure services.\"\"\"\n"
+  },
+  {
+    "path": "backend/app/presentation/__init__.py",
+    "sha256": "74fefbb92846da43cb0d846a7c9e8a0c02b55dc3b23a1a91fde15bcfe4ade088",
+    "source": "\ufeff\"\"\"Package.\"\"\"\n"
+  },
+  {
+    "path": "backend/app/presentation/api/__init__.py",
+    "sha256": "74fefbb92846da43cb0d846a7c9e8a0c02b55dc3b23a1a91fde15bcfe4ade088",
+    "source": "\ufeff\"\"\"Package.\"\"\"\n"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/__init__.py",
+    "sha256": "74fefbb92846da43cb0d846a7c9e8a0c02b55dc3b23a1a91fde15bcfe4ade088",
+    "source": "\ufeff\"\"\"Package.\"\"\"\n"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/pagination.py",
+    "sha256": "ca21c963e77431db67e061efdbc4a4866f1b5c6b8068c2ac78a49f631cbb1a02",
+    "source": "\"\"\"Compatible legacy array endpoints share explicit work limits.\"\"\"\n\nfrom typing import Annotated\n\nfrom fastapi import Query\n\nMAX_PAGE_SIZE = 200\nMAX_PAGE_OFFSET = 100_000\nPageSize = Annotated[\n    int,\n    Query(\n        ge=1, le=MAX_PAGE_SIZE, description=\"Maximum records returned. Continue with skip + limit.\"\n    ),\n]\nPageOffset = Annotated[\n    int,\n    Query(\n        ge=0,\n        le=MAX_PAGE_OFFSET,\n        description=\"Zero-based offset; bulk export uses its own endpoint.\",\n    ),\n]\n"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/__init__.py",
+    "sha256": "74fefbb92846da43cb0d846a7c9e8a0c02b55dc3b23a1a91fde15bcfe4ade088",
+    "source": "\ufeff\"\"\"Package.\"\"\"\n"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/document_distribution_verification_feedback.py",
+    "sha256": "7930d91208ebeec851cf5c9bbaced7346836c5ff835df9a3888cd376f425e6b7",
+    "source": "\"\"\"Describe classified-document rejection without changing match authority.\"\"\"\n\nfrom __future__ import annotations\n\nfrom app.infrastructure.documents.document_matcher import ClassifiedDocument, MatchResult\n\n\ndef verification_rejection_reason(\n    classification: ClassifiedDocument, *, is_uploadable: bool, feedback_match: MatchResult | None,\n) -> str:\n    rejection_reason = (\n        feedback_match.reason\n        if classification.accepted and not is_uploadable and feedback_match\n        else \"No passenger match found\"\n        if classification.accepted and not is_uploadable\n        else classification.reason\n    )\n    return rejection_reason\n"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/__init__.py",
+    "sha256": "4b2c5e0da72af869dc00b8d3fa788ff241f93c0620c96388faf1c647ede21457",
+    "source": "\"\"\"Focused passport HTTP handlers and presentation support.\"\"\"\n"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_archive_policy.py",
+    "sha256": "d1cda4800cc392ba5949e982eda4a96aad50bed6a2fccf7b9625a4e17d0b755e",
+    "source": "\"\"\"Keep archived broadcast lists readable while preventing further mutations.\"\"\"\n\nfrom fastapi import HTTPException, status\n\nfrom app.infrastructure.database.models import WhatsAppBroadcastGroupModel\n\n\ndef require_active_broadcast(group: WhatsAppBroadcastGroupModel) -> None:\n    if getattr(group, \"archived_at\", None) is not None:\n        raise HTTPException(\n            status_code=status.HTTP_409_CONFLICT,\n            detail=\"This WhatsApp broadcast is archived. Restore it before making changes or sending messages.\",\n        )\n"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_group_list_response.py",
+    "sha256": "78a5476815d164b65ae7cd62985de8fd19426ab4e0ba8b592a351e7610eecfd9",
+    "source": "\"\"\"Response assembly for broadcast list rows.\"\"\"\n\nfrom __future__ import annotations\n\nfrom app.infrastructure.database.models import WhatsAppBroadcastGroupModel\nfrom app.presentation.api.v1.routes.whatsapp_shared import _matching_field_options\nfrom app.presentation.api.v1.schemas.whatsapp_schemas import WhatsAppBroadcastGroupResponse\n\n\ndef broadcast_group_list_response(\n    group: WhatsAppBroadcastGroupModel, recipient_count: int | None,\n    rejected_count: int | None, has_import_only_source: bool, source_count: int | None,\n) -> WhatsAppBroadcastGroupResponse:\n    return WhatsAppBroadcastGroupResponse(\n        id=group.id,\n        name=group.name,\n        organizing_company_name=group.organizing_company_name,\n        archived_at=group.archived_at,\n        is_archived=group.archived_at is not None,\n        has_import_only_source=bool(has_import_only_source),\n        source_contact_count=int(source_count or 0),\n        recipient_count=int(recipient_count or 0),\n        total_contact_count=(int(recipient_count or 0) + int(rejected_count or 0)),\n        recipient_opt_in_confirmed=group.recipient_opt_in_confirmed_at is not None,\n        available_matching_fields=_matching_field_options(\n            getattr(group, \"imported_field_keys\", [])\n        ),\n        created_at=group.created_at,\n        updated_at=group.updated_at,\n    )\n"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_preview_recipient.py",
+    "sha256": "52e0c49a5e962b754ad6dfb760bdb511c2600cb4f8018b29f5d766392ae5a15e",
+    "source": "\"\"\"Recipient selection within an already authorized preview audience.\"\"\"\n\nfrom __future__ import annotations\n\nimport uuid\n\nfrom fastapi import HTTPException, status\n\nfrom app.infrastructure.database.models import WhatsAppBroadcastRecipientModel\n\n\ndef select_preview_recipient(\n    recipients: list[WhatsAppBroadcastRecipientModel], selected_recipient_id: uuid.UUID | None,\n) -> WhatsAppBroadcastRecipientModel:\n    recipient = recipients[0]\n    if selected_recipient_id:\n        selected = next(\n            (item for item in recipients if item.id == selected_recipient_id),\n            None,\n        )\n        if not selected:\n            raise HTTPException(\n                status_code=status.HTTP_404_NOT_FOUND,\n                detail=\"Preview recipient not found in this WhatsApp list\",\n            )\n        recipient = selected\n\n    return recipient\n"
+  }
+]

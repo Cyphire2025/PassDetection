@@ -1,0 +1,59 @@
+{
+  "date": "2026-10-30",
+  "basis": "Commands executed against the shared Windows working tree after removal of the 31-module retired UI subtree. Summaries preserve observed tool exit codes and results; they do not establish production qualification.",
+  "runtime_review": {
+    "current_documents_runtime_files": 46,
+    "covered": 46,
+    "pending": 0,
+    "current_digest_records_including_regressions_and_fixture": 53,
+    "retired_document_runtime_files_previously_read_completely": 10
+  },
+  "checks": [
+    {
+      "command": "node node_modules/vitest/vitest.mjs run features/documents features/whatsapp/utils/recipient-welcome-gate.test.ts features/whatsapp/components/whatsapp-source-roster.test.tsx --maxWorkers=1 --pool=threads",
+      "exit_code": 0,
+      "files_passed": 15,
+      "tests_passed": 80
+    },
+    {
+      "command": "node --test --test-reporter=dot <all recursively discovered features/documents/*.test.mjs>",
+      "exit_code": 0,
+      "tests_passed": 54
+    },
+    {
+      "command": "npm run type-check",
+      "exit_code": 0,
+      "notes": "Reran after the viewport-crop alignment change."
+    },
+    {
+      "command": "node node_modules/eslint/bin/eslint.js features/documents features/whatsapp/utils/recipient-welcome-gate.test.ts features/whatsapp/components/whatsapp-source-roster.test.tsx",
+      "exit_code": 0
+    },
+    {
+      "command": "node node_modules/@playwright/test/cli.js test e2e/whatsapp-workspace.spec.ts --workers=1",
+      "exit_code": 0,
+      "tests_passed": 9
+    },
+    {
+      "command": "node node_modules/vitest/vitest.mjs run features/branding/components/group-image-dialog.test.tsx features/branding/image-crop.test.ts --maxWorkers=1 --pool=threads",
+      "exit_code": 0,
+      "files_passed": 2,
+      "tests_passed": 7
+    },
+    {
+      "command": "node node_modules/eslint/bin/eslint.js features/branding/components/group-image-dialog.tsx features/branding/components/group-image-dialog.test.tsx features/branding/components/image-position-editor.tsx",
+      "exit_code": 0
+    },
+    {
+      "command": "node node_modules/@playwright/test/cli.js test e2e/workspace-branding.spec.ts --workers=1",
+      "exit_code": 0,
+      "tests_passed": 6
+    }
+  ],
+  "services": "All browser test servers stopped when Playwright completed.",
+  "limitations": [
+    "Synthetic browser fixtures intercept API calls; no real provider sends.",
+    "This lane did not qualify real PostgreSQL, Redis, private object storage or the deployed VPS.",
+    "Existing reviewed oversized document rename, dialog and review-renderer modules remain recorded architecture follow-up."
+  ]
+}

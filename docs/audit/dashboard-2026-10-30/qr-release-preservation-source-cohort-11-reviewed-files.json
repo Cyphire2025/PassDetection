@@ -1,0 +1,122 @@
+[
+  {
+    "path": "backend/app/infrastructure/qr/approved_passenger_qr_issuer.py",
+    "sha256": "d9744ccfea83504818f80a7b082f5799f62c46fabad1e0f3bc7fae0d7683b008",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Complete physical shared QR owner read. Validated and fixed actual dashboard accepted-date overflow,2fail/5healthy controls before,14affected cases after;726 representable-return-date/1TTL parities and wholemodule inverseAST exact. Native function source compatibility preserved without native feature audit. Receipt approved-qr-calendar-verification.json. Existing unrelated formatter debt remains explicit."
+  },
+  {
+    "path": "backend/tests/integration/test_approved_qr_calendar_boundary.py",
+    "sha256": "3af945f355c62492c1b26173a88eceb14636c8d522c1ad275130241361895f34",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "added-regression",
+    "notes": "Complete new source written/read,7actual database/request/domain controls,all pass in14affected cohort; no provider/native or production fixtures."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_approved_passenger_qr_issuer.py",
+    "sha256": "e0a106a59cbdcde22246f2461b8236d917698de90cbe925a38bd64f515b0a3ba",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical source read and6existing cases executed unchanged as shared QR compatibility controls. Native ingress feature audit excluded."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_group_passenger_qr_identity.py",
+    "sha256": "b0beee8238a887bc186d4287836dcdc42c77b449d851a9e34511f07fa1944e9e",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical source read; actual per-passenger payload identity control executed unchanged."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/tour_operations_qr_helpers.py",
+    "sha256": "055accca5d35ca8b94a0efa8e4d0a5576e806837b68d552284cf1e588e43f0af",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical dashboard helper source read, omitted initial output middle explicitly reread. Reviewed actor-scoped passenger lookup, source-row/token locking and regeneration, per-passenger payload projection and audit attribution. Unchanged; no broad permission or query refactor."
+  },
+  {
+    "path": "backend/tests/unit/application/test_traveller_reconciliation.py",
+    "sha256": "3183e3f319fd23c68379928dfc678b903b8cd00f5ffecb22e00d5ad6370a6568",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "reviewed",
+    "notes": "Actual _seed_scope lines37-49 and adjacent fixture construction inspected/reused by realSQLite regressions. Rest of large test owner not claimed as full source review."
+  },
+  {
+    "path": "backend/scripts/companies_client_data_fixture.py",
+    "sha256": "13e568d8d879acbc75da96f6b45aa173114f08c47faa79de6e86711ea3e6b7e4",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full physical source read: synthetic retained encrypted identity/history, queued copies, actor grants and detached-manager actual constraint probes; no fixture execution/private values. Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/scripts/companies_rehearsal_fixture.py",
+    "sha256": "c3c0f65db7eacc639ee4bc2029e5c360ea8a7dda6165248782aab7e72545f4bb",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full physical source read: unique temporary migration-owner identity, exact disposable database guard delegated to maintained helper, synthetic700person shared-phone roster and ACL controls; no role/database changes run. Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/scripts/companies_restore_comparison.py",
+    "sha256": "965beb4fbacdc508278a2b9959e5ad2c765e2451d308f205ac106282defb12b4",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full physical source read: bounded64KiB definitions/4MiB catalog, narrow tokenized literal-array and pureAND rewrites, preserved restored rows/ACLs/catalog equality; no generic SQL equivalence or live restore claim. Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/scripts/companies_traveller_release_schema.py",
+    "sha256": "bc41ffa9d59585212c38e38894dd93392ee68a6b3a98d6b60cd9d013b60c4623",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full physical source read: additive tables/actor-label/lookup-only normalization, bounded streaming row-hash ownership and exact schema/ACL preservation; version-specific maintenance contract retained rather than merging distinct release policies. Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/scripts/companies_traveller_reuse_release.py",
+    "sha256": "341c866cf92f44d88dcee0e769ddd137565b3e051c98c8543dd54a51368d23fa",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full physical source read: typed exact policy/shape, regular migration source digest/ancestry verification and explicit resume chain. No migration or release run. Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/scripts/document_distribution_release_schema.py",
+    "sha256": "c03dc9d64ec7d4d0ed7f317eae1cf6d8c3eb28577d02f9d6bed665e72d5b8887",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full physical source read: exact two nullable column additions, null-before-activation, unchanged catalog/columnACL and bounded streaming original-row hashing. No live database result. Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/scripts/document_distribution_release.py",
+    "sha256": "0c0e21b92441bacab721f7c2a8b09f45dcf4e9cb53cdc8c12b4675c4e07f20ec",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full physical source read: exact bodyAST and rawdigest migration bindings, strict policy shape/types and additive forward-only checkpoints. Historical-specific release contract preserved. Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/scripts/apply_mcp_additive_upgrade.py",
+    "sha256": "21d7d34b620fc8b11fa3ee24a2afea39d775c0d5e70c3cbf64cf9688ad4c0c82",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full physical source read: exact migration source/ancestry contract, maintenance proof gate, existing DB/schema-owner checks, boundedPG options, initiallydisabled control and safe CLI errors. No release execution. Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/scripts/apply_mcp_read_only_upgrade.py",
+    "sha256": "0ee4b074e3332aa7381d1a0aeba07d82cfeeef3ccf47f01359564bdf505d110a",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full physical source read: exact source/schema/control preservation and read-only effective-capability requirement before migration, boundedPG options and no raw error output. No database operation. Operations Inbox remains deferred."
+  }
+]

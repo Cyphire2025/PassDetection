@@ -1,0 +1,46 @@
+{
+  "basis": "Installed TypeScript formatter; printer-normalized syntax verified unchanged for every changed file. Skipped any change affecting printed JSX text.",
+  "files": [
+    {
+      "path": "frontend/features/documents/hooks/use-document-workspace-delivery.ts",
+      "before": "8e1cf3dd0c827a634d809424dea5d8cb0f147889f4a68426e73c0a541d6a8989",
+      "sha256": "b359ae1b6663ab579f2b02b937d6cdf719e8b5dbfb342c3cfe0c3dcabde29690"
+    },
+    {
+      "path": "frontend/features/documents/hooks/use-document-workspace-selection.ts",
+      "before": "0616d03639aa79ce2204620ffe1fdb1a2fd20187d68c195187f52fc5dd0d57c5",
+      "sha256": "6f3ac21b3b4f1b78d47b6a09d5c1a59abea578b5763e833f0247a73424fc29d2"
+    },
+    {
+      "path": "frontend/features/documents/hooks/use-document-workspace.ts",
+      "before": "c257dafa6feefc557bd2b91afb611f26d2b6a722581ea3fd2ef96935cf2d22fc",
+      "sha256": "913e530ef36bb20b4b130a8e83824a15370775c30b05dcfe9fa25f198aa3fb2f"
+    },
+    {
+      "path": "frontend/features/passports/components/passport-detail-images.tsx",
+      "before": "af8479ae7b08bfced76ac41e0790e90c04c768388c9976f6cabd404b2c6c871e",
+      "sha256": "d6ef075bb02b615f6fd6e2962d06b3d57a216b8239a671cc7d74f8f11a36546b"
+    },
+    {
+      "path": "frontend/features/passports/components/passport-review-conflicts.tsx",
+      "before": "b1614ffdb926c7b8b38b268612926b308251fe16fbd1111b17e4dbb1df98e0ff",
+      "sha256": "b3b294dfe9e61e1a37c45d8d0d47daaf933198488154f0631ddfb4dffd844bcf"
+    }
+  ],
+  "skipped": [
+    "frontend/features/branding/components/image-position-editor.tsx",
+    "frontend/features/documents/components/document-workspace-actions.tsx",
+    "frontend/features/documents/components/document-workspace-header.tsx",
+    "frontend/features/documents/components/document-workspace-roster.tsx",
+    "frontend/features/documents/components/document-workspace-upload.tsx",
+    "frontend/features/documents/hooks/use-document-workspace-delivery.test.tsx",
+    "frontend/features/documents/hooks/use-document-workspace-upload.test.tsx",
+    "frontend/features/passports/components/passport-attendance-qr-card.tsx",
+    "frontend/features/passports/components/passport-detail-header.tsx",
+    "frontend/features/passports/components/passport-detail-images.test.tsx",
+    "frontend/features/passports/components/passport-review-actions.tsx",
+    "frontend/features/passports/components/passport-review-card.test.tsx",
+    "frontend/features/passports/components/passport-review-fields.tsx",
+    "frontend/features/passports/components/passport-review-status.tsx"
+  ]
+}

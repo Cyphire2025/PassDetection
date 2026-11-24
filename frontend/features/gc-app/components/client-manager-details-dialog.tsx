@@ -1,116 +1,28 @@
 "use client";
 
 import { Check, Copy, KeyRound, LogOut, Pencil, Power, ShieldAlert, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useId } from "react";
+import { copyTextToClipboard } from "@/lib/utils/clipboard";
 import { Badge, Button, Card, CardContent, Input, Skeleton } from "@/components/ui";
-import {
-  useClientManagerAudit,
-  useClientManagerMutations,
-  useClientManagerSessions,
-} from "../hooks/use-gc-app-admin";
 import type { ClientManagerAccount } from "../types";
-import { formatGcDateTime, gcAppErrorMessage } from "../utils";
+import { formatGcDateTime, gcSessionState } from "../utils";
+import { useClientManagerDetails } from "../hooks/use-client-manager-details";
+import type { ClientManagerDetailsProps, Confirmation } from "./client-manager-details.types";
 import { GcAlert, GcPagination } from "./gc-app-feedback";
 import { GcDialog } from "./gc-dialog";
 
-type DetailTab = "overview" | "sessions" | "audit";
-type Confirmation = "suspend" | "reactivate" | "revoke" | "delete" | null;
+const DETAIL_TABS = ["overview", "sessions", "audit"] as const;
 
-export function ClientManagerDetailsDialog({
-  open,
-  agencyId,
-  manager,
-  onClose,
-  onEdit,
-}: {
-  open: boolean;
-  agencyId: string | null;
-  manager: ClientManagerAccount | null;
-  onClose: () => void;
-  onEdit: () => void;
-}) {
-  const [tab, setTab] = useState<DetailTab>("overview");
-  const [confirmation, setConfirmation] = useState<Confirmation>(null);
-  const [passwordOpen, setPasswordOpen] = useState(false);
-  const [activationToken, setActivationToken] = useState<string | null>(null);
-  const [activationCopied, setActivationCopied] = useState(false);
-  const [deleteConfirmation, setDeleteConfirmation] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [sessionsPage, setSessionsPage] = useState(1);
-  const [auditPage, setAuditPage] = useState(1);
-  const managerId = manager?.id ?? null;
-  const sessions = useClientManagerSessions(
-    agencyId,
-    tab === "sessions" ? managerId : null,
-    sessionsPage,
-  );
-  const audit = useClientManagerAudit(
-    agencyId,
-    tab === "audit" ? managerId : null,
-    auditPage,
-  );
-  const actions = useClientManagerMutations(agencyId);
-  const isPending = actions.setStatus.isPending
-    || actions.resetPassword.isPending
-    || actions.revokeSessions.isPending
-    || actions.softDelete.isPending;
-
-  const resetViewState = () => {
-    setTab("overview");
-    setConfirmation(null);
-    setPasswordOpen(false);
-    setActivationToken(null);
-    setActivationCopied(false);
-    setDeleteConfirmation("");
-    setError(null);
-    setSessionsPage(1);
-    setAuditPage(1);
-  };
-
-  const closeDetails = () => {
-    resetViewState();
-    onClose();
-  };
-
-  if (!manager) return null;
-
-  const runConfirmation = async () => {
-    if (!confirmation) return;
-    setError(null);
-    try {
-      if (confirmation === "suspend") {
-        await actions.setStatus.mutateAsync({ managerId: manager.id, status: "suspended", revision: manager.revision });
-      } else if (confirmation === "reactivate") {
-        await actions.setStatus.mutateAsync({ managerId: manager.id, status: "active", revision: manager.revision });
-      } else if (confirmation === "revoke") {
-        await actions.revokeSessions.mutateAsync(manager.id);
-        setSessionsPage(1);
-      } else if (confirmation === "delete") {
-        if (deleteConfirmation !== "DELETE") {
-          setError("Type DELETE to confirm safe account removal.");
-          return;
-        }
-        await actions.softDelete.mutateAsync(manager.id);
-        closeDetails();
-      }
-      setConfirmation(null);
-      setDeleteConfirmation("");
-    } catch (actionError) {
-      setError(gcAppErrorMessage(actionError, "The account security action could not be completed."));
-    }
-  };
-
-  const resetPassword = async () => {
-    setError(null);
-    try {
-      const updated = await actions.resetPassword.mutateAsync(manager.id);
-      if (!updated.activation_token) throw new Error("Activation link was not returned");
-      setActivationToken(updated.activation_token);
-      setActivationCopied(false);
-    } catch (actionError) {
-      setError(gcAppErrorMessage(actionError, "The credential reset link could not be issued."));
-    }
-  };
+export function ClientManagerDetailsDialog(props: ClientManagerDetailsProps) {
+  const tabId = useId();
+  const details = useClientManagerDetails(props);
+  if (!details) return null;
+  const { open, onEdit } = props;
+  const { manager, tab, setTab, confirmation, setConfirmation, passwordOpen, setPasswordOpen,
+    activationToken, setActivationToken, activationCopied, setActivationCopied,
+    deleteConfirmation, setDeleteConfirmation, error, setError, sessions, audit,
+    setSessionsPage, setAuditPage, now, actions, isPending, resetViewState,
+    closeDetails, runConfirmation, resetPassword } = details;
 
   return (
     <GcDialog
@@ -124,12 +36,26 @@ export function ClientManagerDetailsDialog({
       <div className="space-y-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex gap-2" role="tablist" aria-label="Client Manager details">
-            {(["overview", "sessions", "audit"] as const).map((value) => (
+            {DETAIL_TABS.map((value, index) => (
               <button
                 key={value}
                 type="button"
                 role="tab"
+                id={`${tabId}-${value}`}
                 aria-selected={tab === value}
+                aria-controls={`${tabId}-${value}-panel`}
+                tabIndex={tab === value ? 0 : -1}
+                onKeyDown={(event) => {
+                  const nextIndex = event.key === "ArrowRight" ? (index + 1) % DETAIL_TABS.length
+                    : event.key === "ArrowLeft" ? (index + DETAIL_TABS.length - 1) % DETAIL_TABS.length
+                    : event.key === "Home" ? 0
+                    : event.key === "End" ? DETAIL_TABS.length - 1 : null;
+                  if (nextIndex === null) return;
+                  event.preventDefault();
+                  const next = DETAIL_TABS[nextIndex];
+                  setTab(next);
+                  document.getElementById(`${tabId}-${next}`)?.focus();
+                }}
                 onClick={() => setTab(value)}
                 className={`min-h-10 rounded-lg px-4 text-sm font-medium capitalize focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 ${
                   tab === value ? "bg-blue-50 text-blue-700" : "text-slate-600 hover:bg-slate-100"
@@ -154,7 +80,7 @@ export function ClientManagerDetailsDialog({
         </div>
 
         {tab === "overview" && (
-          <div role="tabpanel" className="space-y-5">
+          <div role="tabpanel" id={`${tabId}-overview-panel`} aria-labelledby={`${tabId}-overview`} className="space-y-5">
             <div className="grid gap-3 sm:grid-cols-3">
               <Detail label="Status"><AccountStatusBadge status={manager.status} /></Detail>
               <Detail label="Mobile number">{manager.phone_number}</Detail>
@@ -218,7 +144,9 @@ export function ClientManagerDetailsDialog({
                           size="sm"
                           leftIcon={activationCopied ? <Check className="h-4 w-4" aria-hidden="true" /> : <Copy className="h-4 w-4" aria-hidden="true" />}
                           onClick={() => {
-                            void navigator.clipboard.writeText(clientManagerActivationLink(activationToken)).then(() => setActivationCopied(true));
+                            void copyTextToClipboard(clientManagerActivationLink(activationToken))
+                              .then(() => setActivationCopied(true))
+                              .catch(() => setError("The activation link could not be copied. Select the link above and copy it manually."));
                           }}
                         >
                           {activationCopied ? "Copied" : "Copy link"}
@@ -261,7 +189,7 @@ export function ClientManagerDetailsDialog({
         )}
 
         {tab === "sessions" && (
-          <div role="tabpanel" className="space-y-3">
+          <div role="tabpanel" id={`${tabId}-sessions-panel`} aria-labelledby={`${tabId}-sessions`} className="space-y-3">
             {sessions.isLoading ? <Skeleton className="h-40 w-full" /> : sessions.isError ? (
               <GcAlert message="Device and session history could not be loaded." />
             ) : sessions.data?.items.length === 0 ? (
@@ -272,7 +200,7 @@ export function ClientManagerDetailsDialog({
                   <Detail label="Device">{session.device_name ?? "Unknown device"}</Detail>
                   <Detail label="Platform">{[session.platform, session.app_version].filter(Boolean).join(" · ") || "Unknown"}</Detail>
                   <Detail label="Last active">{formatGcDateTime(session.last_seen_at)}</Detail>
-                  <Detail label="State">{session.revoked_at ? "Revoked" : session.current ? "Current" : "Active"}</Detail>
+                  <Detail label="State">{gcSessionState(session, now)}</Detail>
                 </CardContent>
               </Card>
             ))}
@@ -290,7 +218,7 @@ export function ClientManagerDetailsDialog({
         )}
 
         {tab === "audit" && (
-          <div role="tabpanel" className="space-y-3">
+          <div role="tabpanel" id={`${tabId}-audit-panel`} aria-labelledby={`${tabId}-audit`} className="space-y-3">
             {audit.isLoading ? <Skeleton className="h-40 w-full" /> : audit.isError ? (
               <GcAlert message="Account audit history could not be loaded." />
             ) : audit.data?.items.length === 0 ? (

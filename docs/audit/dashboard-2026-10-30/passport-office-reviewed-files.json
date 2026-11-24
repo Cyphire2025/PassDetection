@@ -1,0 +1,183 @@
+{
+  "files": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_excel_import_support.py",
+      "sha256": "be028c1afb810ccb1546088b1ca0814808a4009144f20cb0a1e991ae47c59c0b",
+      "physical_lines": 58,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete original434/current58 physical reads. Explicit stable aliases for21canonical helpers/classes and15imported objects, plus direct typed _FieldValue reexport. No business algorithm, proxy, generic forwarding or reexport-star. Private metadata tradeoff explicit in movement proof."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_excel_identity.py",
+      "sha256": "e19c861675a2992601b599a2ffbb21175c4182bbf1ca20257a2ca9615e88d565",
+      "physical_lines": 224,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete224line current authored/physical read. Exact original identity normalization, reviewed-over-extracted precedence, existing index ambiguity detection and strong/legacy matching; original distinct helper semantics and defensive narrowing retained."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_excel_rows.py",
+      "sha256": "c53b6110d7d546c23feb21420002d007d52c6496d24e90191d9ccd7370eccfed",
+      "physical_lines": 136,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete136line current authored/physical read. Exact original fingerprint/metadata exclusion/first-match ordering and linear indexed workbook dedup/conflict algorithm. No optimization/performance defect adopted; existing10k same-name workload preserved."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_excel_merge.py",
+      "sha256": "8c1d12c9c215af144b9c64029a20585caa31b2e11d6015e500041aaf2b6c2c59",
+      "physical_lines": 103,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete103line current authored/physical read. Exact original optional-field merge/surname clearing/extraction reconciliation and trusted pre-import contact provenance; TypeVar definition exact and canonical facade alias resolves actual runtime hints."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/constants.py",
+      "sha256": "fde4a454674243207fe194ab20cd456ca3b341dfd6e9c99d2f06e1b77d13bffc",
+      "physical_lines": 72,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete72line source read. Explicit compatibility/limit catalog remains coherent and unchanged; no arbitrary split. Canonical helper aliases continue through original facade."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/covers.py",
+      "sha256": "cb198e068daf86be101b7c30f5047c762431fbfc8588fac3f63e2ce34441489e",
+      "physical_lines": 55,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete55line source read. Active-user lookup and canonical per-passport authorization precede private key/range streaming; literal cover enum, audit and private content handling retained. Source review only this tranche."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/dependencies.py",
+      "sha256": "f0ca30e150dad79248eac8ad4317bc61de8ce54deca829e9dc8b0108a6928a82",
+      "physical_lines": 152,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete152line source read. Small explicit same-session DI factories for current passport/review/retry/capacity/policy use cases; no mutable bag/cache/role change, unchanged."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/display_name.py",
+      "sha256": "1d3e7d3339247a7bc3828a9300c1f7f84ea7a234c076bfcc2f3d16a3dd77ea83",
+      "physical_lines": 110,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete110line source read. Current actor\u2192group\u2192passenger locking, office roles, same-group/tenant/visibility and expected-update fence, presentation-only name override/audit/no-store retained. No change to WhatsApp/passport identity."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/document_follow_up.py",
+      "sha256": "c68fe92b5bbf3e7949763f26f9e64689b648b4988c15c0c5ab8e3a0745605572",
+      "physical_lines": 105,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete105line source read. Current role/actor/group recheck, sorted passenger lock and all-or-nothing group membership, dedicated follow-up field/audit transaction/no-store retained; source unchanged."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/export_history.py",
+      "sha256": "ad4ed57b819b8f246d91a3d2b04d0cc6ff7cfd34851b39b0d2d356bdc58ed59d",
+      "physical_lines": 306,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete306line source read. Three cohesive related endpoints; group-export scope/creator history and completion ownership, bounded pages, snapshot integrity/projections, explicit browser delivery completion remain unchanged. No arbitrary split or new authority claim."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/queries.py",
+      "sha256": "800f98cf5ccf8cfb8fc624ba33f8f7befbb995bbd929dbfe86833558df759d4f",
+      "physical_lines": 275,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete275line source read in two ranges. Bounded list/search/role/archive scope, sensitive read audit/private image references, prepared roster page hydration plus before/after revision conflict guard retained; unchanged."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/processing_support.py",
+      "sha256": "0e29abdbccc1eaabc018811d319d9aff808ded7e8905fe5be27a886684100c74",
+      "physical_lines": 59,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete59line source read. Commit queued submission/job before separate-worker dispatch, type-only best-effort errors and optional task metadata cleanup; unchanged. Actual public upload/lost-commit families separately qualified, not implicitly reclosed."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_passport_excel_owner_contract.py",
+      "sha256": "7e9ed43ecd70c8288d64edd0e512ad53ad0b56e42e421195501734e0603a28c1",
+      "physical_lines": 60,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete current authored/physical read. Two meaningful actual canonical facade/constants/MCP captures and runtime class/TypeVar hint controls; no original test assertion changed."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_passport_excel_import_route.py",
+      "sha256": "b06af56b1c9378bfc1ebb3e4d167747c791bd25d4a69c04f180c36b4a9551989",
+      "physical_lines": 608,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete608line physical read in bounded0\u2013205,205\u2013400,400\u2013560,560\u2013EOF ranges; existing conflict/reviewed precedence/optional field/dedup10k/locked user reauthorization/offload/transaction controls preserved and executed."
+    },
+    {
+      "path": "backend/tests/unit/application/test_client_collection_provenance.py",
+      "sha256": "e29d62f56d22080c6aa3216868b89fec8b818ec2792911cdddcedffe11bce49d",
+      "physical_lines": 94,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical read. Existing public/staff/import metadata anti-forgery and legacy authoritative contact-preservation/change controls preserved and executed."
+    },
+    {
+      "path": "backend/app/presentation/mcp/group_workbook_tools.py",
+      "sha256": "2b3d254311948594925e6a884edbcc1cdf75d74f25363f8c453b56b7e36ac9b4",
+      "physical_lines": 137,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete current physical read. Actual five canonical helper/exception captures shared by original staged preview/apply workflow; read/change capabilities, literal-cell treatment and idempotency/receipt contracts untouched. No MCP provider/API execution beyond existing synthetic affected fixture."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/excel_import.py",
+      "sha256": "0d27ed0e4702e5a8c14cd23c4c12e917d584ecea0e3bdaead6aa182da710af70",
+      "physical_lines": 363,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Only155\u2013330 direct parse/lock/merge caller region physically reread; earlier output partially clipped. Prior matching-current full document-agent record reused, not new whole-file credit. Unchanged."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_passport_route_decomposition.py",
+      "sha256": "7b1ee92647844d22d84a29cc90180c58c1888c51c1cfbb1b0a0751d6efafec49",
+      "physical_lines": 214,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Only135\u2013EOF alias/route assertion region physically reread. Prior matching-current full root/document-agent source record reused; no new whole-file credit. All assertions executed unchanged."
+    },
+    {
+      "path": "backend/app/application/mcp/group_workbook_plan.py",
+      "sha256": "ce9d781b12d76d3cbc39fdd1717bec023b3d7c4ef2dea3b69ee61bd9258b57e6",
+      "physical_lines": 333,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Only48\u201381 actual GroupWorkbookSupport typed capture data definition; not full in this tranche. No callback/context bag added or changed."
+    }
+  ],
+  "preflight_historical_reference": "passport-office-preflight-reviewed-files.json",
+  "historical_original_helper": {
+    "path": "backend/app/presentation/api/v1/routes/passport_excel_import_support.py",
+    "sha256": "95217c92807f682599f2c80d863046ebfc338451f7cf6c7313da20e6bb65616f",
+    "physical_lines": 434,
+    "review_scope": "full"
+  },
+  "scope": "Retained office/dashboard +shared MCP Excel helpers, no native client/Inbox feature work; source reads do not imply all tests/services executed or unrelated follow-ups closed."
+}

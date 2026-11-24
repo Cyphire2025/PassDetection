@@ -1,0 +1,120 @@
+{
+  "created_at_utc": "2026-10-30T18:05:51.407370+00:00",
+  "status": "Targeted current auth cookie writers implemented and verified; full Next/deployment/concurrency qualification remains separate",
+  "source_trace": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/auth.py",
+      "scope": "Complete source read plus optional expected-actor refresh/logout patch; before/after source is bound separately in backend checkpoint.",
+      "sha256": "b3a10680eb335e589430dee4eba3fefa95d2fd54877682c15308b7e6e79177f8"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/auth_identity.py",
+      "scope": "partial source-to-sink: shared session issuer, MFA request boundary, identity action completion, password change and recovery-code prefix; do not count as complete new read",
+      "sha256": "c8730d5a99852cf1a8348494192083b27c5e72d22400a1296f2f3997b20af4f9"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/auth_access_level.py",
+      "scope": "complete physical-file read, authenticated true-superadmin authority and role cookie writer traced",
+      "sha256": "f212d1d8d55ae5b7be9fe50e1cfdceb31d1a1d6647e579e1304e7706c805f6e5"
+    },
+    {
+      "path": "backend/app/presentation/security/auth_cookies.py",
+      "scope": "complete supporting physical-file reread; prior full security ledger preserved",
+      "sha256": "3d6fed44c2d311709523e9d18e4e2240fcaa5e0ab6bb4b726c95a96d21ef35e9"
+    },
+    {
+      "path": "frontend/lib/api/client.ts",
+      "scope": "prior full review plus complete refresh/error/decoder boundary reread; raw refresh Axios is separate from apiClient adapter",
+      "sha256": "f56f3316d463ada39999e704a0ed1ce7ed70b64cfc752118538c90ae7e871bdc"
+    },
+    {
+      "path": "frontend/features/auth/services/session-state.ts",
+      "scope": "complete supporting physical-file reread; direct logout fetch and account-owner cleanup examined",
+      "sha256": "a1604cc78a17024bc51cbe6632464c1082f04b85f10dedfcb338fbfbfaac56d1"
+    },
+    {
+      "path": "frontend/features/auth/services/refresh-coordinator.ts",
+      "scope": "complete supporting physical-file reread; outer browser lock, epoch, bounded storage lease inspected",
+      "sha256": "abe6e1db6123a00dc2d3a1cecd44b410e124ae7a70b29d26629fac6865951628"
+    },
+    {
+      "path": "frontend/providers/session-lifecycle.tsx",
+      "scope": "complete physical-file read; reset event cancels and clears QueryClient, recovery generation prevents stale UI status",
+      "sha256": "0b7250386cdbfd7875aa5ece83ba023490fabfb3465b23cd0005d69d7066005d"
+    },
+    {
+      "path": "frontend/providers/query-provider.tsx",
+      "scope": "complete physical-file read; query-client lifetime, retries, resumed mutations and lifecycle composition traced",
+      "sha256": "b0aa9b4ce63f48646c4620483ac892e6564906f3e256ad671e93752af92a9040"
+    }
+  ],
+  "confirmed_browser_semantics": {
+    "artifact": "auth-cookie-writer-coordination-probe.json",
+    "real_loopback_Chromium_two_pages": true,
+    "synthetic_operations": [
+      "refresh",
+      "logout",
+      "challenge-clear",
+      "access-level",
+      "step-up"
+    ],
+    "uncoordinated": "All five late-A variants overwrote/deleted newer B owner or role cookie",
+    "per_transport_WebLock_probe": "B owner and role preserved in all five paired cases; synthetic candidate, application not implemented"
+  },
+  "candidate_design": {
+    "lock": "Separate shared cookie-writer lock around final HTTP adapter/fetch only",
+    "writers": "apiClient exact auth cookie-writer paths, raw refresh Axios transport, direct logout fetch",
+    "release_boundary": "Before Axios response interceptors, error decoding, refresh/step-up waits",
+    "deadlock_constraint": "Do not acquire the existing refresh outer lock recursively at its Axios adapter. Separate lock order refresh-generation then cookie-writer has no identity-response-interceptor dependency while held.",
+    "compatibility_remaining": [
+      "Canceled queued operations must not dispatch after actor change",
+      "WebLocks unavailable/storage-lease fallback must be assessed explicitly",
+      "Normal refresh epoch/single conflict retry and cookie paths unchanged",
+      "404/401/403/step-up paths release transport lock before auth recovery",
+      "Same-origin trusted identity/API path classification must exclude unrelated/public flows",
+      "No real backend/provider/deployed-cookie certification inferred"
+    ]
+  },
+  "supported_browser_evidence": {
+    "installed_next_docs": "frontend/node_modules/next/dist/docs/03-architecture/supported-browsers.md",
+    "baseline": [
+      "Chrome111+",
+      "Edge111+",
+      "Firefox111+",
+      "Safari16.4+"
+    ],
+    "primary_sources": [
+      {
+        "url": "https://www.firefox.com/en-US/firefox/96.0/releasenotes/",
+        "fact": "Firefox96 shipped Web Locks before installed Next Firefox111 baseline"
+      },
+      {
+        "url": "https://webkit.org/blog/12445/new-webkit-features-in-safari-15-4/",
+        "fact": "Safari15.4 shipped Web Locks before installed Next Safari16.4 baseline"
+      },
+      {
+        "url": "https://www.w3.org/TR/web-locks/",
+        "fact": "Shared origin lock semantics; secure-context availability"
+      }
+    ],
+    "limit": "Installed baseline and primary feature availability do not qualify disabled/nonsecure API fallback; must verify fallback separately."
+  },
+  "queued_intent_evidence": {
+    "artifact": "auth-cookie-queued-logout-probe.json",
+    "finding": "Transport lock alone permits stale A logout queued behind B login to delete B; synthetic server optional expected-owner409 prevents it. Actual backend fix pending.",
+    "current_status": "Backend optional precondition now implemented and actual ASGI regressions pass; raw frontend refresh/direct logout not yet sending it, pending frontend unlock."
+  },
+  "backend_precondition_checkpoint": {
+    "receipt": "auth-cookie-backend-verification.json",
+    "sha256": "8e03076574183233bc7642108e0b9b5c6009ba9cbde5e81241083f89021caa25",
+    "tests": 32,
+    "expected_before_failures": 7,
+    "frontend_not_wired_yet": true
+  },
+  "frontend_checkpoint": {
+    "receipt": "auth-cookie-frontend-verification.json",
+    "sha256": "79c85d84cff42fc09899831628c37b0589be6ec403fc867f0ac43cd54d7ced09",
+    "actual_module_browser_scenarios": 11,
+    "unit_tests": 221
+  }
+}

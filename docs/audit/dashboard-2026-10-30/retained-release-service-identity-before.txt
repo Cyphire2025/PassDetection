@@ -1,0 +1,16 @@
+E
+======================================================================
+ERROR: test_non_string_service_identity_uses_existing_bounded_rejection (test_retained_release_json_boundaries.RetainedJsonBoundaries.test_non_string_service_identity_uses_existing_bounded_rejection) (name=['synthetic-private'])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_retained_release_json_boundaries.py", line 36, in test_non_string_service_identity_uses_existing_bounded_rejection
+    facade.select_live(rows)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\retained_release_contract.py", line 94, in select_live
+    require(name in SERVICES and name not in selected, "ambiguous_running_service_inventory")
+            ^^^^^^^^^^^^^^^^
+TypeError: unhashable type: 'list'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (errors=1)

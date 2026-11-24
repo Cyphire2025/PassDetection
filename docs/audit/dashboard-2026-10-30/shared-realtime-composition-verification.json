@@ -1,0 +1,177 @@
+{
+  "status": "frozen and passed focused qualification; final broad integration deferred by user",
+  "runtime_sources": [
+    {
+      "path": "backend/app/infrastructure/mobile_realtime.py",
+      "sha256": "522f09695a6505fde44a5b490e78b39606df4c55308bad9798e0874eb666c21a"
+    },
+    {
+      "path": "backend/app/infrastructure/mobile_realtime_capacity.py",
+      "sha256": "1e29d7a946046066c677e7a58ce07a7fdc21be0a284aed1abd91103abe304d17"
+    },
+    {
+      "path": "backend/app/infrastructure/mobile_realtime_connection.py",
+      "sha256": "aa4623acff1649feac6f50d40b0663ddcbddce6d3100dec5e4571b81ffee5ed3"
+    },
+    {
+      "path": "backend/app/infrastructure/mobile_realtime_contracts.py",
+      "sha256": "1bcc4988950fc38baff8163e8e3e5032e4dddcf48bef52de23c5e54b5ae1047e"
+    },
+    {
+      "path": "backend/app/infrastructure/mobile_realtime_lease_store.py",
+      "sha256": "e6d08e13b82b3fdfbd41f768727d225638c2021ce90a1c1d7a24dfe2d51c3290"
+    },
+    {
+      "path": "backend/app/infrastructure/mobile_realtime_registry.py",
+      "sha256": "7153cb96d9235713c117adc805891a4db896c34ed9f05538cb4bd2067e2f4832"
+    },
+    {
+      "path": "backend/app/infrastructure/mobile_realtime_resources.py",
+      "sha256": "023947d7269c41a1b8528a9d50aa4c620abf59b2cc0b3b5c1b5f1b8aecafb3ae"
+    },
+    {
+      "path": "backend/app/infrastructure/mobile_realtime_transport.py",
+      "sha256": "6526b37299ace415283ef01f53aa023c738c0cff7de796ae421ab3db10a6300c"
+    },
+    {
+      "path": "backend/app/infrastructure/mobile_realtime_wire.py",
+      "sha256": "88abe50692fbbb35a494d3788d152b43aa7f2aaea81d51b5eadd12698c936f2d"
+    }
+  ],
+  "affected": {
+    "original_race_controls_passed": 6,
+    "current_affected_cases_passed": 53,
+    "actual_health_readiness_acceptance_projection_states": 125,
+    "actual_public_signature_and_type_hint_methods": 12,
+    "scoped_strict_mypy_source_files": 9,
+    "ruff": "affected runtime/tests lint and format passed"
+  },
+  "measurements": [
+    {
+      "path": "app/infrastructure/mobile_realtime.py",
+      "lines": 223,
+      "max_complexity": 6,
+      "line_percent": 93.7984496124031,
+      "branch_percent": 86.36363636363636
+    },
+    {
+      "path": "app/infrastructure/mobile_realtime_capacity.py",
+      "lines": 174,
+      "max_complexity": 6,
+      "line_percent": 91.2280701754386,
+      "branch_percent": 70.83333333333333
+    },
+    {
+      "path": "app/infrastructure/mobile_realtime_connection.py",
+      "lines": 73,
+      "max_complexity": 5,
+      "line_percent": 100.0,
+      "branch_percent": 91.66666666666667
+    },
+    {
+      "path": "app/infrastructure/mobile_realtime_contracts.py",
+      "lines": 101,
+      "max_complexity": 1,
+      "line_percent": 94.44444444444444,
+      "branch_percent": 100.0
+    },
+    {
+      "path": "app/infrastructure/mobile_realtime_lease_store.py",
+      "lines": 100,
+      "max_complexity": 9,
+      "line_percent": 95.55555555555556,
+      "branch_percent": 87.5
+    },
+    {
+      "path": "app/infrastructure/mobile_realtime_registry.py",
+      "lines": 229,
+      "max_complexity": 7,
+      "line_percent": 95.54140127388536,
+      "branch_percent": 80.55555555555556
+    },
+    {
+      "path": "app/infrastructure/mobile_realtime_resources.py",
+      "lines": 37,
+      "max_complexity": 4,
+      "line_percent": 100.0,
+      "branch_percent": 100.0
+    },
+    {
+      "path": "app/infrastructure/mobile_realtime_transport.py",
+      "lines": 269,
+      "max_complexity": 10,
+      "line_percent": 90.22988505747126,
+      "branch_percent": 65.38461538461539
+    },
+    {
+      "path": "app/infrastructure/mobile_realtime_wire.py",
+      "lines": 122,
+      "max_complexity": 14,
+      "line_percent": 83.87096774193549,
+      "branch_percent": 83.33333333333333
+    }
+  ],
+  "source_proof": {
+    "path": "docs/audit/dashboard-2026-10-30/shared-realtime-composition-source-proof.json",
+    "sha256": "6cc9b4437cd6f59f4b2fe61c9641f8460e975c87936c9234d0a34d4e5a387f6c"
+  },
+  "ledger": {
+    "path": "docs/audit/dashboard-2026-10-30/shared-realtime-composition-reviewed-files.json",
+    "sha256": "c0a804683c2ae1639805c81738774869627bbc06a333a88ece0cea23680c7f15"
+  },
+  "candidate_files": [
+    {
+      "path": "docs/audit/dashboard-2026-10-30/shared-realtime-budget-candidates.json",
+      "sha256": "b99120a7bf10d098e70fe79574c15288c67c648f97051f0c2c8d29b739824e0b"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/shared-realtime-critical-candidates.json",
+      "sha256": "38f816b1320a132305bc92855489cf39aa5d3db8b941ffe35fa9fa7e663d746a"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": ".tmp/realtime-audit/original-admission-controls.txt",
+      "sha256": "9ec7b6f8c86693753d10a224827b72200d8cc33ad8410f93e6bfb83a87bd9ac5"
+    },
+    {
+      "path": ".tmp/realtime-audit/composition-projections.txt",
+      "sha256": "445730788dff0f0853221cdd5fd63eacc9ffab2433f9ca5adfa931facec4fb76"
+    },
+    {
+      "path": ".tmp/realtime-audit/composition-tests.txt",
+      "sha256": "a1c29395eb088c702c9c3f788a419bdb03722e7da3fe2c15c26ddad09d3ce2e3"
+    },
+    {
+      "path": ".tmp/realtime-audit/final-tests.txt",
+      "sha256": "45a94699955ed70522082247e8ce04ddf5b3cc2c3fceb1bd353e6a05de93549b"
+    },
+    {
+      "path": ".tmp/realtime-audit/final-coverage.json",
+      "sha256": "b628a6199877d6b8a08f7b1d8eb4d1a9ce6a7dfcc0c412ebe0a930f9dbe7090e"
+    },
+    {
+      "path": ".tmp/realtime-audit/final-coverage.xml",
+      "sha256": "c100b6c7b35f2abb26077112d324ec0f6fbc5bd740ee5a2c816fb842009c45da"
+    },
+    {
+      "path": ".tmp/realtime-audit/composition-lint.txt",
+      "sha256": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0"
+    },
+    {
+      "path": ".tmp/realtime-audit/composition-format.txt",
+      "sha256": "689ce80a1676de4e0ad2502483bf02ffa7a507b60a05443f2d580753716ea2e1"
+    },
+    {
+      "path": ".tmp/realtime-audit/composition-types.txt",
+      "sha256": "f645b10e21546f038559fbaaffb91f957d61ada15bed410cfd1fd85e15524598"
+    }
+  ],
+  "limits": [
+    "Synthetic Redis protocol/session resources only; no live Redis/PostgreSQL, provider send, production data, VPS deployment or FD-leak proof.",
+    "No user-visible event or authorization workflow change. Earlier deliberate cancellation/parser fixes retain their immutable behavior receipt.",
+    "Composition private layout/module names/counter ownership/immutable snapshot metadata intentionally change; whole class AST identity is not claimed.",
+    "No current whole-application suite/build/browser was run; one final combined qualification remains parent-owned.",
+    "Frontend late old-socket callback is still a candidate pending normal event regression; native ingress classification remains independently queued."
+  ]
+}

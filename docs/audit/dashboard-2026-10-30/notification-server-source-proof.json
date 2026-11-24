@@ -1,0 +1,474 @@
+{
+  "status": "mechanical partition plus separately declared typed dispatch phase composition; no behavior fixes",
+  "original_mechanical_declaration_count": 56,
+  "original_mechanical_all_bodies_exact": true,
+  "final_exact_original_declaration_count": 55,
+  "final_exact_original_declarations": [
+    "AnnouncementNotificationCounts",
+    "DocumentChangeNotificationCounts",
+    "CountdownNotificationCounts",
+    "_RECIPIENT_PAGE_SIZE",
+    "_COUNTDOWN_CLEANUP_PAGE_SIZE",
+    "_NOTIFICATION_TYPE",
+    "_COUNTDOWN_NOTIFICATION_TYPE",
+    "_LOCK_SCREEN_TITLE",
+    "_COUNTDOWN_DAYS",
+    "_COUNTDOWN_TEMPLATES",
+    "enqueue_announcement_notifications",
+    "cancel_announcement_notifications",
+    "_enqueue_recipient_pages",
+    "_announcement_notification",
+    "_announcement_dedupe_key",
+    "enqueue_personal_document_change_notifications",
+    "_enqueue_document_change_user_pages",
+    "_enqueue_document_change_ids",
+    "_personal_document_change_notification",
+    "_document_change_dedupe_key",
+    "schedule_trip_countdown_notifications",
+    "_cancel_stale_countdowns",
+    "_enqueue_countdown_recipients",
+    "_enqueue_countdown_pages",
+    "_insert_notifications_ignore_duplicates",
+    "_countdown_notification_values",
+    "_retain_currently_authorized_notifications",
+    "_load_recipient_registrations",
+    "_notification_recipient_key",
+    "_retry_delivery",
+    "_fail_delivery",
+    "_revoke_registration",
+    "_refresh_notification_delivery_states",
+    "_bounded_backoff_seconds",
+    "_aware_utc",
+    "reconcile_mobile_push_receipts",
+    "require_draft",
+    "_selected_labels",
+    "draft_response",
+    "save_notification_draft",
+    "delete_notification_draft",
+    "_audience",
+    "preview_notification",
+    "batch_by_request",
+    "send_notification",
+    "_enqueue_batch",
+    "AuthoredRecipientKey",
+    "current_authored_grants",
+    "retain_authorized_authored_notifications",
+    "registrations_for_grants",
+    "_session_bindings",
+    "_device_grants",
+    "authored_notification_recipient_key",
+    "load_authored_recipient_registrations",
+    "_exclude_rotated_installation_attempts"
+  ],
+  "dispatch_expanded_whole_function_ast_exact": true,
+  "dispatch_original_statement_count": 37,
+  "dispatch_actual_signature_and_all_original_statements_restored": true,
+  "dispatch_handoff": "Original session/provider/current/count limits forwarded directly; original provider.name reads retained across awaits. Result is five typed DATA fields holding original lists/maps/records, no session/provider/callback bag. Target phase cannot send or commit.",
+  "all56_original_public_private_aliases_explicit_and_wired": true,
+  "original9_public_exports_exact": [
+    "AnnouncementNotificationCounts",
+    "CountdownNotificationCounts",
+    "DocumentChangeNotificationCounts",
+    "cancel_announcement_notifications",
+    "dispatch_mobile_push_batch",
+    "enqueue_announcement_notifications",
+    "enqueue_personal_document_change_notifications",
+    "reconcile_mobile_push_receipts",
+    "schedule_trip_countdown_notifications"
+  ],
+  "test_preservation": [
+    {
+      "path": "backend/tests/unit/application/test_mobile_notification_service.py",
+      "sha256": "1341ef18d4d1e90b2ca1a39ca167bda2314787ea848d6c45178995a174639749",
+      "proof": "one exact private instrumentation path retarget; every original assertion and all remaining source text unchanged modulo EOL"
+    },
+    {
+      "path": "backend/tests/unit/application/test_authored_notifications.py",
+      "sha256": "653e255b5ccb1448cca53919e668606cc2c9be44aeab3f8743300929a523f7f9",
+      "proof": "original bytes unchanged"
+    },
+    {
+      "path": "backend/tests/unit/application/test_authored_notification_delivery.py",
+      "sha256": "0fbb4006585946ba9335f8f5481ef6417912f805e3e41c8df1ca42bddd85fe35",
+      "proof": "original bytes unchanged"
+    },
+    {
+      "path": "backend/tests/unit/application/test_passenger_notification_authority.py",
+      "sha256": "3109a6029a255404ae4095b8c621f002b0b0f696581793f81e0dfc1718cb1dd1",
+      "proof": "one exact private instrumentation path retarget; every original assertion and all remaining source text unchanged modulo EOL"
+    },
+    {
+      "path": "backend/tests/unit/application/test_native_push_dispatch.py",
+      "sha256": "d7851972ab4f7d9643e60dcc083be8710c2266311fe7fcdd3b0a05f07f925ac7",
+      "proof": "original bytes unchanged"
+    },
+    {
+      "path": "backend/tests/unit/application/test_fcm_dispatch_intents.py",
+      "sha256": "0611ec37b45fe794556a3c739f62e2e4f5a9e43afc1e432a7e8faf26c37bb466",
+      "proof": "original bytes unchanged"
+    },
+    {
+      "path": "backend/tests/unit/application/test_saved_notification_deletion.py",
+      "sha256": "5ca71189849b66dc3973a6f5e48092b9baea513ba40af29bd9111c98cdc7d66a",
+      "proof": "original bytes unchanged"
+    },
+    {
+      "path": "backend/tests/unit/application/test_announcement_push_guard.py",
+      "sha256": "49fc25e3e4c0e0ff9f9bc47cb79f76a2d9a4a3179ba9964e6681d2f9bba0c4b2",
+      "proof": "original bytes unchanged"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_authored_notifications.py",
+      "sha256": "d5ca55bc71e64bce044da888ccc8617580967c5af84f76af21f38942a4050729",
+      "proof": "original bytes unchanged"
+    }
+  ],
+  "runtime_sources": [
+    {
+      "path": "backend/app/application/mobile/authored_notification_access.py",
+      "sha256": "e852a959c1901c6e80d885556e42a2bdfc2d1bed908ad127abbc125f2326da3d",
+      "physical_lines": 29
+    },
+    {
+      "path": "backend/app/application/mobile/authored_notification_drafts.py",
+      "sha256": "a9a941c466adbf1ef31ceb90369bccabc479deeb9627928fa75039e2a1aa2dd1",
+      "physical_lines": 162
+    },
+    {
+      "path": "backend/app/application/mobile/authored_notification_grants.py",
+      "sha256": "9aa48574f95e52e68a851865a7e1174212e70ee428360bb3e94af9b2a9eb42d2",
+      "physical_lines": 134
+    },
+    {
+      "path": "backend/app/application/mobile/authored_notification_registrations.py",
+      "sha256": "57e7d9816df1ed537a3666be01c2ebf78f818bd046dd930c704aa545141b14ae",
+      "physical_lines": 158
+    },
+    {
+      "path": "backend/app/application/mobile/authored_notification_reviews.py",
+      "sha256": "5b48c4983345a310628638bc345b30962247aac63d75ea162bdabace3f4cd9c9",
+      "physical_lines": 89
+    },
+    {
+      "path": "backend/app/application/mobile/authored_notification_send.py",
+      "sha256": "3dd0fb03a063cb6857f417f7fd9c95022aea7215bba36a65db874a6e48a8f23b",
+      "physical_lines": 205
+    },
+    {
+      "path": "backend/app/application/mobile/authored_notification_service.py",
+      "sha256": "6b9ee4d199af95130c4e92555fb92f84e5c2c3a18a2ae5c81c2276e881eed72e",
+      "physical_lines": 18
+    },
+    {
+      "path": "backend/app/application/mobile/authored_notification_targets.py",
+      "sha256": "b626caaf4f5930a625761e29482940d5a29290173ea4bafa95623ac94774d57e",
+      "physical_lines": 158
+    },
+    {
+      "path": "backend/app/application/mobile/notification_announcements.py",
+      "sha256": "563585af06e23c380bbc6d20e00a52522492089bd0c047f0f6f7279897d0f2ec",
+      "physical_lines": 279
+    },
+    {
+      "path": "backend/app/application/mobile/notification_authority.py",
+      "sha256": "4bf9341bed08f6e0b80a2e0287bce79fe49d9eec1854a7e6cfed0f2345247f6f",
+      "physical_lines": 230
+    },
+    {
+      "path": "backend/app/application/mobile/notification_contracts.py",
+      "sha256": "76b02078cb47578f24ddf55995866d09eb383216665f79c43714077a9e96119e",
+      "physical_lines": 75
+    },
+    {
+      "path": "backend/app/application/mobile/notification_countdown_recipients.py",
+      "sha256": "93cea0065f9efba55f96ccd02679b431de265006c4cdbe4d77aea13361e07ee4",
+      "physical_lines": 195
+    },
+    {
+      "path": "backend/app/application/mobile/notification_countdown_schedule.py",
+      "sha256": "68547ff85ea97f4c8f15696793214c4d9604f9dc3bd2e77be3d49bf3b43c9ef0",
+      "physical_lines": 223
+    },
+    {
+      "path": "backend/app/application/mobile/notification_countdown_values.py",
+      "sha256": "3049121d16a2a51c2d6ca7eb6850caac0aa87caad94a0aae9d6e9136e2383e68",
+      "physical_lines": 60
+    },
+    {
+      "path": "backend/app/application/mobile/notification_delivery_states.py",
+      "sha256": "e8ca0f35b325a32b467ab522b583916dbd1de4bbd7800be2a4a5e33cdc3ad0b1",
+      "physical_lines": 144
+    },
+    {
+      "path": "backend/app/application/mobile/notification_dispatch.py",
+      "sha256": "e87fd826b35e792af14639b0b40aa71f620f04872e495ff30ccc8a61fd6332ab",
+      "physical_lines": 141
+    },
+    {
+      "path": "backend/app/application/mobile/notification_dispatch_claims.py",
+      "sha256": "ec801e44f48bb9f8fdb2ffbe22c98af2599bb1d6710b3de507951e97643cdbfe",
+      "physical_lines": 83
+    },
+    {
+      "path": "backend/app/application/mobile/notification_dispatch_results.py",
+      "sha256": "44949a26ed3c9b52b147515524a0c50b0d255335b7e23ac5fe742987a8381c6c",
+      "physical_lines": 107
+    },
+    {
+      "path": "backend/app/application/mobile/notification_dispatch_targets.py",
+      "sha256": "5f1eb1796997dd3e2798b89eb0bc909e0c9f56dd9783088d95e5699c46b589af",
+      "physical_lines": 212
+    },
+    {
+      "path": "backend/app/application/mobile/notification_document_changes.py",
+      "sha256": "a7b19ccbc3fddf277d34618bebf517bc1082b779d5f756444069abdb697bbf0a",
+      "physical_lines": 272
+    },
+    {
+      "path": "backend/app/application/mobile/notification_receipts.py",
+      "sha256": "b296c55c6998f25a7669b2d7b6776ad493ec67779cb2dd4c57f2ae9f52632135",
+      "physical_lines": 169
+    },
+    {
+      "path": "backend/app/application/mobile/notification_registrations.py",
+      "sha256": "1f183b687f587d4d07cecce8e6e89eb51872fff2ead7985b09b1984e3c1c0d0d",
+      "physical_lines": 135
+    },
+    {
+      "path": "backend/app/application/mobile/notification_service.py",
+      "sha256": "8d94a4b2d4cf544dd6177b4b6e65c30b0d4f73cfe9f1f6545a9be95c3f373f4c",
+      "physical_lines": 113
+    }
+  ],
+  "source_mapping": {
+    "AnnouncementNotificationCounts": {
+      "before": "backend/app/application/mobile/notification_service.py",
+      "after": "backend/app/application/mobile/notification_contracts.py"
+    },
+    "DocumentChangeNotificationCounts": {
+      "before": "backend/app/application/mobile/notification_service.py",
+      "after": "backend/app/application/mobile/notification_contracts.py"
+    },
+    "CountdownNotificationCounts": {
+      "before": "backend/app/application/mobile/notification_service.py",
+      "after": "backend/app/application/mobile/notification_contracts.py"
+    },
+    "_RECIPIENT_PAGE_SIZE": {
+      "before": "backend/app/application/mobile/notification_service.py",
+      "after": "backend/app/application/mobile/notification_contracts.py"
+    },
+    "_COUNTDOWN_CLEANUP_PAGE_SIZE": {
+      "before": "backend/app/application/mobile/notification_service.py",
+      "after": "backend/app/application/mobile/notification_contracts.py"
+    },
+    "_NOTIFICATION_TYPE": {
+      "before": "backend/app/application/mobile/notification_service.py",
+      "after": "backend/app/application/mobile/notification_contracts.py"
+    },
+    "_COUNTDOWN_NOTIFICATION_TYPE": {
+      "before": "backend/app/application/mobile/notification_service.py",
+      "after": "backend/app/application/mobile/notification_contracts.py"
+    },
+    "_LOCK_SCREEN_TITLE": {
+      "before": "backend/app/application/mobile/notification_service.py",
+      "after": "backend/app/application/mobile/notification_contracts.py"
+    },
+    "_COUNTDOWN_DAYS": {
+      "before": "backend/app/application/mobile/notification_service.py",
+      "after": "backend/app/application/mobile/notification_contracts.py"
+    },
+    "_COUNTDOWN_TEMPLATES": {
+      "before": "backend/app/application/mobile/notification_service.py",
+      "after": "backend/app/application/mobile/notification_contracts.py"
+    },
+    "enqueue_announcement_notifications": {
+      "before": "backend/app/application/mobile/notification_service.py",
+      "after": "backend/app/application/mobile/notification_announcements.py"
+    },
+    "cancel_announcement_notifications": {
+      "before": "backend/app/application/mobile/notification_service.py",
+      "after": "backend/app/application/mobile/notification_announcements.py"
+    },
+    "_enqueue_recipient_pages": {
+      "before": "backend/app/application/mobile/notification_service.py",
+      "after": "backend/app/application/mobile/notification_announcements.py"
+    },
+    "_announcement_notification": {
+      "before": "backend/app/application/mobile/notification_service.py",
+      "after": "backend/app/application/mobile/notification_announcements.py"
+    },
+    "_announcement_dedupe_key": {
+      "before": "backend/app/application/mobile/notification_service.py",
+      "after": "backend/app/application/mobile/notification_announcements.py"
+    },
+    "enqueue_personal_document_change_notifications": {
+      "before": "backend/app/application/mobile/notification_service.py",
+      "after": "backend/app/application/mobile/notification_document_changes.py"
+    },
+    "_enqueue_document_change_user_pages": {
+      "before": "backend/app/application/mobile/notification_service.py",
+      "after": "backend/app/application/mobile/notification_document_changes.py"
+    },
+    "_enqueue_document_change_ids": {
+      "before": "backend/app/application/mobile/notification_service.py",
+      "after": "backend/app/application/mobile/notification_document_changes.py"
+    },
+    "_personal_document_change_notification": {
+      "before": "backend/app/application/mobile/notification_service.py",
+      "after": "backend/app/application/mobile/notification_document_changes.py"
+    },
+    "_document_change_dedupe_key": {
+      "before": "backend/app/application/mobile/notification_service.py",
+      "after": "backend/app/application/mobile/notification_document_changes.py"
+    },
+    "schedule_trip_countdown_notifications": {
+      "before": "backend/app/application/mobile/notification_service.py",
+      "after": "backend/app/application/mobile/notification_countdown_schedule.py"
+    },
+    "_cancel_stale_countdowns": {
+      "before": "backend/app/application/mobile/notification_service.py",
+      "after": "backend/app/application/mobile/notification_countdown_schedule.py"
+    },
+    "_enqueue_countdown_recipients": {
+      "before": "backend/app/application/mobile/notification_service.py",
+      "after": "backend/app/application/mobile/notification_countdown_recipients.py"
+    },
+    "_enqueue_countdown_pages": {
+      "before": "backend/app/application/mobile/notification_service.py",
+      "after": "backend/app/application/mobile/notification_countdown_recipients.py"
+    },
+    "_insert_notifications_ignore_duplicates": {
+      "before": "backend/app/application/mobile/notification_service.py",
+      "after": "backend/app/application/mobile/notification_countdown_recipients.py"
+    },
+    "_countdown_notification_values": {
+      "before": "backend/app/application/mobile/notification_service.py",
+      "after": "backend/app/application/mobile/notification_countdown_values.py"
+    },
+    "_retain_currently_authorized_notifications": {
+      "before": "backend/app/application/mobile/notification_service.py",
+      "after": "backend/app/application/mobile/notification_authority.py"
+    },
+    "_load_recipient_registrations": {
+      "before": "backend/app/application/mobile/notification_service.py",
+      "after": "backend/app/application/mobile/notification_registrations.py"
+    },
+    "_notification_recipient_key": {
+      "before": "backend/app/application/mobile/notification_service.py",
+      "after": "backend/app/application/mobile/notification_registrations.py"
+    },
+    "_retry_delivery": {
+      "before": "backend/app/application/mobile/notification_service.py",
+      "after": "backend/app/application/mobile/notification_delivery_states.py"
+    },
+    "_fail_delivery": {
+      "before": "backend/app/application/mobile/notification_service.py",
+      "after": "backend/app/application/mobile/notification_delivery_states.py"
+    },
+    "_revoke_registration": {
+      "before": "backend/app/application/mobile/notification_service.py",
+      "after": "backend/app/application/mobile/notification_delivery_states.py"
+    },
+    "_refresh_notification_delivery_states": {
+      "before": "backend/app/application/mobile/notification_service.py",
+      "after": "backend/app/application/mobile/notification_delivery_states.py"
+    },
+    "_bounded_backoff_seconds": {
+      "before": "backend/app/application/mobile/notification_service.py",
+      "after": "backend/app/application/mobile/notification_delivery_states.py"
+    },
+    "_aware_utc": {
+      "before": "backend/app/application/mobile/notification_service.py",
+      "after": "backend/app/application/mobile/notification_delivery_states.py"
+    },
+    "reconcile_mobile_push_receipts": {
+      "before": "backend/app/application/mobile/notification_service.py",
+      "after": "backend/app/application/mobile/notification_receipts.py"
+    },
+    "dispatch_mobile_push_batch": {
+      "before": "backend/app/application/mobile/notification_service.py",
+      "after": "backend/app/application/mobile/notification_dispatch.py"
+    },
+    "require_draft": {
+      "before": "backend/app/application/mobile/authored_notification_service.py",
+      "after": "backend/app/application/mobile/authored_notification_drafts.py"
+    },
+    "_selected_labels": {
+      "before": "backend/app/application/mobile/authored_notification_service.py",
+      "after": "backend/app/application/mobile/authored_notification_drafts.py"
+    },
+    "draft_response": {
+      "before": "backend/app/application/mobile/authored_notification_service.py",
+      "after": "backend/app/application/mobile/authored_notification_drafts.py"
+    },
+    "save_notification_draft": {
+      "before": "backend/app/application/mobile/authored_notification_service.py",
+      "after": "backend/app/application/mobile/authored_notification_drafts.py"
+    },
+    "delete_notification_draft": {
+      "before": "backend/app/application/mobile/authored_notification_service.py",
+      "after": "backend/app/application/mobile/authored_notification_drafts.py"
+    },
+    "_audience": {
+      "before": "backend/app/application/mobile/authored_notification_service.py",
+      "after": "backend/app/application/mobile/authored_notification_reviews.py"
+    },
+    "preview_notification": {
+      "before": "backend/app/application/mobile/authored_notification_service.py",
+      "after": "backend/app/application/mobile/authored_notification_reviews.py"
+    },
+    "batch_by_request": {
+      "before": "backend/app/application/mobile/authored_notification_service.py",
+      "after": "backend/app/application/mobile/authored_notification_send.py"
+    },
+    "send_notification": {
+      "before": "backend/app/application/mobile/authored_notification_service.py",
+      "after": "backend/app/application/mobile/authored_notification_send.py"
+    },
+    "_enqueue_batch": {
+      "before": "backend/app/application/mobile/authored_notification_service.py",
+      "after": "backend/app/application/mobile/authored_notification_send.py"
+    },
+    "AuthoredRecipientKey": {
+      "before": "backend/app/application/mobile/authored_notification_access.py",
+      "after": "backend/app/application/mobile/authored_notification_grants.py"
+    },
+    "current_authored_grants": {
+      "before": "backend/app/application/mobile/authored_notification_access.py",
+      "after": "backend/app/application/mobile/authored_notification_grants.py"
+    },
+    "retain_authorized_authored_notifications": {
+      "before": "backend/app/application/mobile/authored_notification_access.py",
+      "after": "backend/app/application/mobile/authored_notification_grants.py"
+    },
+    "registrations_for_grants": {
+      "before": "backend/app/application/mobile/authored_notification_access.py",
+      "after": "backend/app/application/mobile/authored_notification_registrations.py"
+    },
+    "_session_bindings": {
+      "before": "backend/app/application/mobile/authored_notification_access.py",
+      "after": "backend/app/application/mobile/authored_notification_registrations.py"
+    },
+    "_device_grants": {
+      "before": "backend/app/application/mobile/authored_notification_access.py",
+      "after": "backend/app/application/mobile/authored_notification_registrations.py"
+    },
+    "authored_notification_recipient_key": {
+      "before": "backend/app/application/mobile/authored_notification_access.py",
+      "after": "backend/app/application/mobile/authored_notification_targets.py"
+    },
+    "load_authored_recipient_registrations": {
+      "before": "backend/app/application/mobile/authored_notification_access.py",
+      "after": "backend/app/application/mobile/authored_notification_targets.py"
+    },
+    "_exclude_rotated_installation_attempts": {
+      "before": "backend/app/application/mobile/authored_notification_access.py",
+      "after": "backend/app/application/mobile/authored_notification_targets.py"
+    }
+  },
+  "limits": [
+    "Function and dataclass __module__ metadata deliberately reflect actual owners; old import aliases remain available.",
+    "New data object and phase calls deliberately change private local layout; final dispatch is qualified by full expanded-body/wiring proof, not mislabeled as untouched whole-method bytes.",
+    "No live PostgreSQL lock/provider/deployment proof from AST/SQLite controls."
+  ]
+}

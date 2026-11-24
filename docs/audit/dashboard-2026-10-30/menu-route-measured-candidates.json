@@ -1,0 +1,114 @@
+[
+  {
+    "path": "app/presentation/api/v1/routes/menu.py",
+    "lines": 134,
+    "max_function_complexity": 0,
+    "most_complex_function": null,
+    "coverage_percent": null,
+    "sha256": "a59bf39c2d021567aeb098fbaa74307e38a3820440ce121b5495793395221fb8"
+  },
+  {
+    "path": "app/presentation/api/v1/routes/menu_categories.py",
+    "lines": 158,
+    "max_function_complexity": 1,
+    "most_complex_function": "create_menu_category",
+    "coverage_percent": null,
+    "sha256": "c52e3fbf50d3445c0326664cf2041cb7957213e86e5704763c4530789c70ca41"
+  },
+  {
+    "path": "app/presentation/api/v1/routes/menu_common.py",
+    "lines": 149,
+    "max_function_complexity": 6,
+    "most_complex_function": "_require_current_category_revisions",
+    "coverage_percent": null,
+    "sha256": "a8c83fc43b472447611b522254b6a453522658a1775300ed07523ad61738aeac"
+  },
+  {
+    "path": "app/presentation/api/v1/routes/menu_creation_support.py",
+    "lines": 36,
+    "max_function_complexity": 1,
+    "most_complex_function": "menu_creation_support",
+    "coverage_percent": null,
+    "sha256": "74d94491b839c7ae7b9b8043eb7d261fd7217f27d79e12b90f67d63fd74430ad"
+  },
+  {
+    "path": "app/presentation/api/v1/routes/menu_dishes.py",
+    "lines": 168,
+    "max_function_complexity": 1,
+    "most_complex_function": "create_menu_dish",
+    "coverage_percent": null,
+    "sha256": "dfc98627e1173d24e0dea223f34d0ab77e5f4f8d56c8db499c646ac0cb9b6460"
+  },
+  {
+    "path": "app/presentation/api/v1/routes/menu_exports.py",
+    "lines": 41,
+    "max_function_complexity": 1,
+    "most_complex_function": "export_meal_plan",
+    "coverage_percent": null,
+    "sha256": "631b77aea299db2168b3c6652147fe892b7cce3e28d2f70755bfcc0f262722c0"
+  },
+  {
+    "path": "app/presentation/api/v1/routes/menu_export_support.py",
+    "lines": 56,
+    "max_function_complexity": 3,
+    "most_complex_function": "render_meal_plan_workbook",
+    "coverage_percent": null,
+    "sha256": "64b5983b4d5028e0153f8b486cf3db9cbf90251bf99dad105444406c79bb8e60"
+  },
+  {
+    "path": "app/presentation/api/v1/routes/menu_planner.py",
+    "lines": 141,
+    "max_function_complexity": 16,
+    "most_complex_function": "_planner_categories",
+    "coverage_percent": null,
+    "sha256": "c4998f5f7f952075f2cc8eb396e44386785f3e10d3e0f39aa1e8954d3d6d1d0e"
+  },
+  {
+    "path": "app/presentation/api/v1/routes/menu_plans.py",
+    "lines": 213,
+    "max_function_complexity": 5,
+    "most_complex_function": "regenerate_meal_plan",
+    "coverage_percent": null,
+    "sha256": "2614750d467f2971a0ca8867d97722b129dd0a55885c8453ba2f3ae51e9d7872"
+  },
+  {
+    "path": "app/presentation/api/v1/routes/menu_plan_entries.py",
+    "lines": 130,
+    "max_function_complexity": 11,
+    "most_complex_function": "update_meal_plan_entry",
+    "coverage_percent": null,
+    "sha256": "6fcbdcd00279115393e30a8a44e69826a4238c747866a58e99a2ce3c71836bb6"
+  },
+  {
+    "path": "app/presentation/api/v1/routes/menu_presenters.py",
+    "lines": 120,
+    "max_function_complexity": 10,
+    "most_complex_function": "_plan_response",
+    "coverage_percent": null,
+    "sha256": "a431ef3db23dc5631d2184862a9d8448c5b83403de9c727b0b3df6229115ba9b"
+  },
+  {
+    "path": "app/presentation/api/v1/routes/menu_queries.py",
+    "lines": 133,
+    "max_function_complexity": 4,
+    "most_complex_function": "_get_category",
+    "coverage_percent": null,
+    "sha256": "7732012a3261e46ad44bce3e5ff491fbb06689e1701c13363fe665b33f98aea4"
+  },
+  {
+    "path": "app/presentation/api/v1/routes/menu_workspace.py",
+    "lines": 63,
+    "max_function_complexity": 13,
+    "most_complex_function": "get_menu_workspace",
+    "coverage_percent": null,
+    "sha256": "b53765981a1855d48717f3bf77f449065a4e55e243c70cecad472e09eab94459"
+  },
+  {
+    "path": "app/presentation/api/v1/routes/rooming_exports.py",
+    "lines": 196,
+    "max_function_complexity": 3,
+    "most_complex_function": "export_hotel_rooming_list",
+    "coverage_percent": null,
+    "sha256": "77abd1be6ecaaa91de1377c61dd769e7811fc66b1ce57b90bfd2294b03a0990e"
+  }
+]

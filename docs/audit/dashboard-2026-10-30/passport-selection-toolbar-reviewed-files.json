@@ -1,0 +1,173 @@
+{
+  "recorded_at": "2026-10-31T04:36:12.402Z",
+  "records": [
+    {
+      "path": "frontend/features/passports/components/passport-group-selection-toolbar.tsx",
+      "sha256": "b0b0a885cb2b634a350fc5a563620c3b1e997b97c323fe2e1780cf0c36fc66f0",
+      "physical_lines": 96,
+      "max_function_complexity": 6,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Complete original364-line toolbar, existing menu hook and every current focused runtime owner physically read. Portal geometry, pointer ownership, keyboard focus, observer/event cleanup and unchanged action/role conditions manually traced. AST movement proof is separate."
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-filter-controls.tsx",
+      "sha256": "91b5a55f5fdd944b60c2770d2e4127fb79a82f30dd8712f09df0f6ea4d4dc8a3",
+      "physical_lines": 158,
+      "max_function_complexity": 8,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Complete original364-line toolbar, existing menu hook and every current focused runtime owner physically read. Portal geometry, pointer ownership, keyboard focus, observer/event cleanup and unchanged action/role conditions manually traced. AST movement proof is separate."
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-selected-actions.tsx",
+      "sha256": "80070db51a3ca808aa6ee1a824485fcca91991a63d1b93e6d310aa1135f94950",
+      "physical_lines": 168,
+      "max_function_complexity": 10,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Complete original364-line toolbar, existing menu hook and every current focused runtime owner physically read. Portal geometry, pointer ownership, keyboard focus, observer/event cleanup and unchanged action/role conditions manually traced. AST movement proof is separate."
+    },
+    {
+      "path": "frontend/features/passports/components/use-passport-bulk-menu-position.ts",
+      "sha256": "e102ded0528ddc0111b28974ecb7ad0c935106e028e5f6cad222c7607fda4e2b",
+      "physical_lines": 56,
+      "max_function_complexity": 5,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Complete original364-line toolbar, existing menu hook and every current focused runtime owner physically read. Portal geometry, pointer ownership, keyboard focus, observer/event cleanup and unchanged action/role conditions manually traced. AST movement proof is separate."
+    },
+    {
+      "path": "frontend/features/passports/components/use-passport-group-menus.ts",
+      "sha256": "1efc2323f8748c292acf977f02647e58e23d1c39afd140a7d85648250c74ed76",
+      "physical_lines": 95,
+      "max_function_complexity": 3,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Complete original364-line toolbar, existing menu hook and every current focused runtime owner physically read. Portal geometry, pointer ownership, keyboard focus, observer/event cleanup and unchanged action/role conditions manually traced. AST movement proof is separate."
+    }
+  ],
+  "test_records": [
+    {
+      "path": "frontend/features/passports/components/passport-group-selection-toolbar.test.tsx",
+      "sha256": "a72c54347a7f3e4814085552522bee4d0c1d8a32fff1b38b538c1025f3147287",
+      "review_scope": "full",
+      "status": "reviewed-and-verified"
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-bulk-menu.test.tsx",
+      "sha256": "82f1dee32614fefcd54248e0cd394c182c8c56c75b259670a1498c8f2025e424",
+      "review_scope": "full",
+      "status": "reviewed-and-verified"
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-detail.contract.test.mjs",
+      "sha256": "60401d9aea3b834af71e7a98931674784b11ded3fff5cfbdc13339998fc6f939",
+      "review_scope": "focused",
+      "status": "reviewed-and-verified",
+      "review_note": "Supplemental current hash after earlier immutable receipts. Helper adds actual toolbar owners; one inline-only assertion now checks the real gated child import and all original action labels, with a rendered zero-selection denial case. No assertion meaning or useful negative guard dropped; no new whole-file physical-read claim."
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-detail-source.contract-helper.mjs",
+      "sha256": "c540c85b3538cc4f50a27065de6fba7fa7ca92dce67ff1d4fffbfb5d7c607ac6",
+      "review_scope": "focused",
+      "status": "reviewed-and-verified",
+      "review_note": "Supplemental current hash after earlier immutable receipts. Helper adds actual toolbar owners; one inline-only assertion now checks the real gated child import and all original action labels, with a rendered zero-selection denial case. No assertion meaning or useful negative guard dropped; no new whole-file physical-read claim."
+    },
+    {
+      "path": "frontend/e2e-fixtures/passport-selection-toolbar.spec.ts",
+      "sha256": "b371ccdd159118263dd2d94237a7f7e6faa8b7a81e97f486ade8c3ed68608b2f",
+      "review_scope": "full",
+      "status": "reviewed-and-verified"
+    },
+    {
+      "path": "frontend/e2e-fixtures/support/passport-selection-toolbar-fixture.tsx",
+      "sha256": "6f99d3a8e101e19b847ed27f9fef6f6d7ff9864e92236472a8ae3dc49ad85044",
+      "review_scope": "full",
+      "status": "reviewed-and-verified"
+    }
+  ],
+  "original_lines": 364,
+  "max_owner_lines": 168,
+  "proofs": {
+    "browser_bounds_baseline": {
+      "path": "docs/audit/dashboard-2026-10-30/selection-toolbar-browser-before.json",
+      "expected": 0,
+      "unexpected": 1,
+      "skipped": 0,
+      "flaky": 0
+    },
+    "browser_focus_baseline": {
+      "path": "docs/audit/dashboard-2026-10-30/selection-toolbar-browser-before-focus.json",
+      "expected": 0,
+      "unexpected": 2,
+      "skipped": 0,
+      "flaky": 0
+    },
+    "browser_final": {
+      "path": "docs/audit/dashboard-2026-10-30/selection-toolbar-browser-after.json",
+      "expected": 3,
+      "unexpected": 0,
+      "skipped": 0,
+      "flaky": 0
+    },
+    "unit": {
+      "files": 3,
+      "cases": 10,
+      "passed": 10,
+      "path": ".tmp/passport-selection-toolbar-final-unit.json"
+    },
+    "node": {
+      "files": 3,
+      "cases": 40,
+      "passed": 40,
+      "path": ".tmp/passport-selection-toolbar-final-node.txt"
+    },
+    "types": "passed",
+    "scoped_eslint": "passed10paths, zero warnings",
+    "existing_passport_ratchets": {
+      "modules": 141,
+      "passed": true
+    },
+    "movement": {
+      "parts": 16,
+      "passed": true,
+      "path": "docs/audit/dashboard-2026-10-30/passport-selection-toolbar-movement-proof.json"
+    }
+  },
+  "fixes": [
+    "At320px the original popup began atx=-191; the portal now stays within an8px viewport margin, has bounded width/height and scrolls internally.",
+    "Keyboard opening moves focus to the first enabled action; Escape returns focus to the trigger. Pointer actions inside the portal and trigger toggle remain live.",
+    "Outside pointer, underlying page scroll and resize close the popup; internal menu scrolling is retained. Observer and global listeners disconnect on close/unmount."
+  ],
+  "preserved": [
+    "All original public Pick keys, search/filter/sort/view JSX, nine filter children, all action callback ASTs and21 action inputs.",
+    "Selection admission, pending disable rules, actor-backed mutation objects, bulk approval/delete role and old-data guards.",
+    "1500 selection and500 image limits, current exact selected-ID export payloads and confirmation workflow.",
+    "The initial pure three-owner partition is preserved separately; final portal/focus changes are explicitly declared, not claimed as pure mechanical equivalence."
+  ],
+  "screenshots": [
+    "C:/Users/nipun/Desktop/PassDetection/.tmp/ui-pwa-batch/selection-toolbar-before-320.png",
+    "C:/Users/nipun/Desktop/PassDetection/.tmp/ui-pwa-batch/selection-toolbar-before-390.png",
+    "C:/Users/nipun/Desktop/PassDetection/.tmp/ui-pwa-batch/selection-toolbar-after-320.png",
+    "C:/Users/nipun/Desktop/PassDetection/.tmp/ui-pwa-batch/selection-toolbar-after-390.png",
+    "C:/Users/nipun/Desktop/PassDetection/.tmp/ui-pwa-batch/selection-toolbar-after-1440.png"
+  ],
+  "historical_nonproduct_failures": [
+    {
+      "path": "docs/audit/dashboard-2026-10-30/selection-toolbar-browser-setup-timeout.json",
+      "reason": "Initial fixture bundle exceeded its30-second setup allowance; no product assertion executed. Setup allowance increased only for fixture compilation."
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/selection-toolbar-browser-fixture-overlap.json",
+      "reason": "Bounds/focus/Escape/export assertions passed, but the fixture's outside button was physically under the popup at mobile widths. The synthetic outside control was moved below the popup; assertions retained and all three cases rerun."
+    }
+  ],
+  "remaining_original_oversized_owners": 0,
+  "limitations": [
+    "Browser bundle uses actual toolbar/menu hook and actual compiled project CSS. A virtual dependency reads the exact two original limit declarations while avoiding unrelated lazy feature initialization; there are no real API/provider calls and all network traffic is blocked.",
+    "This qualifies the isolated menu at1440/390/320, not the entire production route or real provider workflow.",
+    "Initial formatting receipt is historical before final manually reviewed positioning cleanup; current hashes bind the final movement, source reads and affected tests.",
+    "No whole application build/suite repeated; parent performs the deliberate combined checkpoint."
+  ]
+}

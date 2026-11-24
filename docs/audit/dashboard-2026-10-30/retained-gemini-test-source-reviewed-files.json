@@ -1,0 +1,29 @@
+[
+  {
+    "path": "backend/tests/unit/infrastructure/test_gemini_passport_verification_service.py",
+    "sha256": "b65ec2f5d0dd3d940285c39529665e31cb64fb4c8a90425f2622953a3c4796a8",
+    "physical_lines": 982,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole982lines. Compact image+strict field payload and secret header, model-specific thinking/output floors, same-object fallback payload and bounded retry/status behavior, incomplete/truncated/safe diagnostics, empty extraction, conservative fill/replace/confidence, explicit absent surname versus unreadable and duplicate given-name prevention, exact place-of-issue/field completeness, document class/page/quality refusals, rate-limit metrics and disabled/missing-key/permission/timeout controls reviewed. MockTransport and authored provider JSON/images only; prompt string checks and synthetic classifications do not qualify live model accuracy. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_gemini_post_submission_verification_service.py",
+    "sha256": "067d9aeee1252dd2accb27f7059ec6f2f0c2fe8c68339548b4de72c897f099cd",
+    "physical_lines": 1079,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole1079lines. Strict document+nine-field schemas, incomplete finish refusal, visible place-of-issue not legacy issuing-country substitution, absent/unreadable/missing/low-confidence surname handling, wrong page/document and uncertain/low-quality review, canonical versus ambiguous dates, bounded opaque thought metadata, normalized equal versus low visual confidence, malformed schema, same bounded payload retry and metrics, primary/fallback model-specific settings reviewed. Existing test design uses synthetic JSON/HTTP clients; no current provider calls or AI decision accuracy certification. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_gemini_visa_image_edit_service.py",
+    "sha256": "920d20ab5047407e8f94349313896ff93d9d3a5e3977c842c46a847c2a80c278",
+    "physical_lines": 514,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole514lines. Validated ordered primary/fallback settings, synthetic JPEG normalization/EXIF stripping, identity-change prompt rejection and allowed presentation edits, identical fallback payloads, safe diagnostics omit prompt/key/base64, transient/no-result/unreadable/incomplete-result fallback, permanent-auth refusal, unavailable response projection and bounded semaphore waiting without permit leak reviewed. Real Pillow synthetic bytes and MockTransport/source patched settings only, no generation/provider/native workload executed and no visual identity preservation claim inferred. Complete current physical test-source read; no new execution/source fix/validated defect."
+  }
+]

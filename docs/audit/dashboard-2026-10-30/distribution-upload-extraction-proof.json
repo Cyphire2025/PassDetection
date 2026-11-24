@@ -1,0 +1,20 @@
+{
+  "complete_original_controller_ast_restored": true,
+  "original_top_level_statements": 46,
+  "expanded_statements": 46,
+  "cohesive_phase_bodies_exact": [
+    "authorization",
+    "content",
+    "chunk replay",
+    "commit/cleanup"
+  ],
+  "three_transaction_hook_methods_exact_after_self_field_normalization": true,
+  "public_route_signature_hints_openapi_and_actual_identity_equal": true,
+  "request_actor_and_cleanup_captures_preserved_at_original_preawait_position": true,
+  "data_records": [
+    "authorized matching scope",
+    "prepared content",
+    "chunk replay state"
+  ],
+  "mutable_transaction_scope": "Only declared captured fields; no callbacks/proxies/dynamic dispatch added."
+}

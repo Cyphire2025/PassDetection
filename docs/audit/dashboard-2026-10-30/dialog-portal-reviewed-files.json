@@ -1,0 +1,13 @@
+[
+  {
+    "path": "frontend/features/whatsapp/components/whatsapp-dialog-ui.tsx",
+    "sha256": "839402186eb82b93b694e4adda93bf65d1ff3d1e96681bd4cfca7a9b0993ce1a",
+    "reviewer": [
+      "root",
+      "branding_visuals"
+    ],
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Full112line current shared source physically read, exact backdrop/inner/public parameter preservation and ErrorBanner/readErrorMessage declaration proof checked. SSR-safe mounted body portal releases transformed ancestor fixed containing block; unchanged busy/escape/focus callbacks. Five shared tests,55affectedUI/36Node cases, scoped types/lint, all526existingbudgets pass. FreshproductionbuildZVLp8MXKE6IoTayf51zGq+9criticaljourneys and390/1440actualgeometry pass. Separate mobile text pane overflow531/308 remains new explicit follow-through; this receipt does not claim that subsequent wrapping fix."
+  }
+]

@@ -24,6 +24,8 @@ from app.infrastructure.security.upload_validator import (
 from app.presentation.api.v1 import document_uploads
 from app.presentation.api.v1.routes import (
     document_distribution_upload,
+    document_distribution_upload_match_scope,
+    document_distribution_upload_workflow,
     document_distribution_verification,
     document_rename,
 )
@@ -83,7 +85,7 @@ async def test_routes_distinguish_security_availability_and_document_rejections(
         custom_answers=[],
         custom_detail_answers=[],
     )
-    for module in (document_distribution_upload, document_distribution_verification):
+    for module in (document_distribution_upload_match_scope, document_distribution_verification):
         monkeypatch.setattr(module, "_get_authorized_group", AsyncMock(return_value=group))
         monkeypatch.setattr(module, "_group_passengers", AsyncMock(return_value=[passenger]))
         monkeypatch.setattr(
@@ -97,7 +99,7 @@ async def test_routes_distinguish_security_availability_and_document_rejections(
 
     pipeline = MagicMock(side_effect=AssertionError("Unaccepted PDF reached document ingestion"))
     monkeypatch.setattr(document_rename, "classify_documents_bounded", pipeline)
-    monkeypatch.setattr(document_distribution_upload, "TravelDocumentIngestionService", pipeline)
+    monkeypatch.setattr(document_distribution_upload_workflow, "TravelDocumentIngestionService", pipeline)
     monkeypatch.setattr(document_distribution_verification, "classify_documents_bounded", pipeline)
     parser = MagicMock(wraps=upload_security._validate_pdf_structure)
     monkeypatch.setattr(upload_security, "_validate_pdf_structure", parser)

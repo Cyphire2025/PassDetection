@@ -1,0 +1,905 @@
+{
+  "original_sha256": "b8b8d867d9ded6cac14c5c3dfd67311031038305bb9a46add70059299dc036be",
+  "field_moves": [
+    {
+      "field": "app_env",
+      "owner": "runtime_settings_fields.py"
+    },
+    {
+      "field": "app_secret_key",
+      "owner": "runtime_settings_fields.py"
+    },
+    {
+      "field": "app_debug",
+      "owner": "runtime_settings_fields.py"
+    },
+    {
+      "field": "app_version",
+      "owner": "runtime_settings_fields.py"
+    },
+    {
+      "field": "app_revision",
+      "owner": "runtime_settings_fields.py"
+    },
+    {
+      "field": "expected_database_schema_revision",
+      "owner": "runtime_settings_fields.py"
+    },
+    {
+      "field": "app_name",
+      "owner": "runtime_settings_fields.py"
+    },
+    {
+      "field": "api_v1_prefix",
+      "owner": "runtime_settings_fields.py"
+    },
+    {
+      "field": "mcp",
+      "owner": "runtime_settings_fields.py"
+    },
+    {
+      "field": "backend_port",
+      "owner": "runtime_settings_fields.py"
+    },
+    {
+      "field": "web_concurrency",
+      "owner": "runtime_settings_fields.py"
+    },
+    {
+      "field": "worker_concurrency",
+      "owner": "runtime_settings_fields.py"
+    },
+    {
+      "field": "email_worker_concurrency",
+      "owner": "runtime_settings_fields.py"
+    },
+    {
+      "field": "email_ai_worker_concurrency",
+      "owner": "runtime_settings_fields.py"
+    },
+    {
+      "field": "my_photos_worker_concurrency",
+      "owner": "runtime_settings_fields.py"
+    },
+    {
+      "field": "allowed_origins",
+      "owner": "runtime_settings_fields.py"
+    },
+    {
+      "field": "trusted_proxy_networks",
+      "owner": "runtime_settings_fields.py"
+    },
+    {
+      "field": "rate_limit_per_minute",
+      "owner": "request_settings_fields.py"
+    },
+    {
+      "field": "dashboard_rate_limit_per_minute",
+      "owner": "request_settings_fields.py"
+    },
+    {
+      "field": "dashboard_rate_limit_per_second",
+      "owner": "request_settings_fields.py"
+    },
+    {
+      "field": "dashboard_rate_limit_burst",
+      "owner": "request_settings_fields.py"
+    },
+    {
+      "field": "dashboard_media_rate_limit_per_minute",
+      "owner": "request_settings_fields.py"
+    },
+    {
+      "field": "dashboard_media_rate_limit_per_second",
+      "owner": "request_settings_fields.py"
+    },
+    {
+      "field": "dashboard_media_rate_limit_burst",
+      "owner": "request_settings_fields.py"
+    },
+    {
+      "field": "dashboard_thumbnail_max_dimension",
+      "owner": "request_settings_fields.py"
+    },
+    {
+      "field": "dashboard_thumbnail_cache_max_bytes",
+      "owner": "request_settings_fields.py"
+    },
+    {
+      "field": "login_lockout_require_redis",
+      "owner": "request_settings_fields.py"
+    },
+    {
+      "field": "dashboard_rate_limit_require_redis",
+      "owner": "request_settings_fields.py"
+    },
+    {
+      "field": "public_upload_bootstrap_session_rate_limit_per_minute",
+      "owner": "request_settings_fields.py"
+    },
+    {
+      "field": "public_upload_bootstrap_aggregate_rate_limit_per_minute",
+      "owner": "request_settings_fields.py"
+    },
+    {
+      "field": "public_upload_session_rate_limit_per_minute",
+      "owner": "request_settings_fields.py"
+    },
+    {
+      "field": "public_upload_prepare_session_rate_limit_per_minute",
+      "owner": "request_settings_fields.py"
+    },
+    {
+      "field": "public_upload_prepare_aggregate_rate_limit_per_minute",
+      "owner": "request_settings_fields.py"
+    },
+    {
+      "field": "public_upload_aggregate_rate_limit_per_minute",
+      "owner": "request_settings_fields.py"
+    },
+    {
+      "field": "public_upload_followup_session_rate_limit_per_minute",
+      "owner": "request_settings_fields.py"
+    },
+    {
+      "field": "public_upload_followup_aggregate_rate_limit_per_minute",
+      "owner": "request_settings_fields.py"
+    },
+    {
+      "field": "public_upload_rate_limit_require_redis",
+      "owner": "request_settings_fields.py"
+    },
+    {
+      "field": "public_upload_otp_phone_limit_per_hour",
+      "owner": "request_settings_fields.py"
+    },
+    {
+      "field": "public_upload_otp_ip_limit_per_hour",
+      "owner": "request_settings_fields.py"
+    },
+    {
+      "field": "sentry_dsn",
+      "owner": "ingestion_settings_fields.py"
+    },
+    {
+      "field": "metrics_exporter",
+      "owner": "ingestion_settings_fields.py"
+    },
+    {
+      "field": "metrics_export_required",
+      "owner": "ingestion_settings_fields.py"
+    },
+    {
+      "field": "metrics_statsd_host",
+      "owner": "ingestion_settings_fields.py"
+    },
+    {
+      "field": "metrics_statsd_port",
+      "owner": "ingestion_settings_fields.py"
+    },
+    {
+      "field": "metrics_namespace",
+      "owner": "ingestion_settings_fields.py"
+    },
+    {
+      "field": "processing_backend",
+      "owner": "ingestion_settings_fields.py"
+    },
+    {
+      "field": "processing_job_max_attempts",
+      "owner": "ingestion_settings_fields.py"
+    },
+    {
+      "field": "processing_job_timeout_seconds",
+      "owner": "ingestion_settings_fields.py"
+    },
+    {
+      "field": "processing_watchdog_delay_seconds",
+      "owner": "ingestion_settings_fields.py"
+    },
+    {
+      "field": "processing_worker_ping_timeout_seconds",
+      "owner": "ingestion_settings_fields.py"
+    },
+    {
+      "field": "processing_worker_readiness_cache_seconds",
+      "owner": "ingestion_settings_fields.py"
+    },
+    {
+      "field": "upload_max_file_size_bytes",
+      "owner": "ingestion_settings_fields.py"
+    },
+    {
+      "field": "upload_max_pixels",
+      "owner": "ingestion_settings_fields.py"
+    },
+    {
+      "field": "untrusted_document_ingestion_enabled",
+      "owner": "ingestion_settings_fields.py"
+    },
+    {
+      "field": "malware_scanner_enabled",
+      "owner": "ingestion_settings_fields.py"
+    },
+    {
+      "field": "malware_scanner_host",
+      "owner": "ingestion_settings_fields.py"
+    },
+    {
+      "field": "malware_scanner_port",
+      "owner": "ingestion_settings_fields.py"
+    },
+    {
+      "field": "malware_scanner_timeout_seconds",
+      "owner": "ingestion_settings_fields.py"
+    },
+    {
+      "field": "malware_quarantine_enabled",
+      "owner": "ingestion_settings_fields.py"
+    },
+    {
+      "field": "malware_quarantine_prefix",
+      "owner": "ingestion_settings_fields.py"
+    },
+    {
+      "field": "malware_quarantine_retention_days",
+      "owner": "ingestion_settings_fields.py"
+    },
+    {
+      "field": "ocr_cache_ttl_seconds",
+      "owner": "ingestion_settings_fields.py"
+    },
+    {
+      "field": "google_api_key",
+      "owner": "ai_settings_fields.py"
+    },
+    {
+      "field": "gemini_verification_enabled",
+      "owner": "ai_settings_fields.py"
+    },
+    {
+      "field": "gemini_model",
+      "owner": "ai_settings_fields.py"
+    },
+    {
+      "field": "ecr_gemini_model",
+      "owner": "ai_settings_fields.py"
+    },
+    {
+      "field": "ecr_gemini_timeout_seconds",
+      "owner": "ai_settings_fields.py"
+    },
+    {
+      "field": "ecr_gemini_max_attempts",
+      "owner": "ai_settings_fields.py"
+    },
+    {
+      "field": "ecr_image_max_bytes",
+      "owner": "ai_settings_fields.py"
+    },
+    {
+      "field": "ecr_image_max_pixels",
+      "owner": "ai_settings_fields.py"
+    },
+    {
+      "field": "ecr_image_max_dimension",
+      "owner": "ai_settings_fields.py"
+    },
+    {
+      "field": "ecr_max_concurrency",
+      "owner": "ai_settings_fields.py"
+    },
+    {
+      "field": "ecr_requests_per_minute",
+      "owner": "ai_settings_fields.py"
+    },
+    {
+      "field": "ecr_retention_days",
+      "owner": "ai_settings_fields.py"
+    },
+    {
+      "field": "gemini_fallback_model",
+      "owner": "ai_settings_fields.py"
+    },
+    {
+      "field": "gemini_image_edit_model",
+      "owner": "ai_settings_fields.py"
+    },
+    {
+      "field": "gemini_image_edit_fallback_model",
+      "owner": "ai_settings_fields.py"
+    },
+    {
+      "field": "gemini_image_edit_attempt_timeout_seconds",
+      "owner": "ai_settings_fields.py"
+    },
+    {
+      "field": "gemini_image_edit_timeout_seconds",
+      "owner": "ai_settings_fields.py"
+    },
+    {
+      "field": "gemini_image_edit_job_max_attempts",
+      "owner": "ai_settings_fields.py"
+    },
+    {
+      "field": "gemini_image_edit_max_concurrency",
+      "owner": "ai_settings_fields.py"
+    },
+    {
+      "field": "gemini_api_base_url",
+      "owner": "ai_settings_fields.py"
+    },
+    {
+      "field": "gemini_project_alias",
+      "owner": "ai_settings_fields.py"
+    },
+    {
+      "field": "gemini_config_version",
+      "owner": "ai_settings_fields.py"
+    },
+    {
+      "field": "gemini_timeout_seconds",
+      "owner": "ai_settings_fields.py"
+    },
+    {
+      "field": "gemini_max_retries",
+      "owner": "ai_settings_fields.py"
+    },
+    {
+      "field": "gemini_max_output_tokens",
+      "owner": "ai_settings_fields.py"
+    },
+    {
+      "field": "gemini_extraction_max_concurrency",
+      "owner": "ai_settings_fields.py"
+    },
+    {
+      "field": "gemini_verification_max_concurrency",
+      "owner": "ai_settings_fields.py"
+    },
+    {
+      "field": "gemini_extraction_timeout_ms",
+      "owner": "ai_settings_fields.py"
+    },
+    {
+      "field": "gemini_extraction_quiet_period_ms",
+      "owner": "ai_settings_fields.py"
+    },
+    {
+      "field": "gemini_retry_max_attempts",
+      "owner": "ai_settings_fields.py"
+    },
+    {
+      "field": "gemini_priority_capacity_calibrated",
+      "owner": "ai_settings_fields.py"
+    },
+    {
+      "field": "email_integrations_enabled",
+      "owner": "email_settings_fields.py"
+    },
+    {
+      "field": "email_sync_enabled",
+      "owner": "email_settings_fields.py"
+    },
+    {
+      "field": "email_attachment_processing_enabled",
+      "owner": "email_settings_fields.py"
+    },
+    {
+      "field": "email_link_retrieval_enabled",
+      "owner": "email_settings_fields.py"
+    },
+    {
+      "field": "email_auto_actions_enabled",
+      "owner": "email_settings_fields.py"
+    },
+    {
+      "field": "email_ai_enabled",
+      "owner": "email_settings_fields.py"
+    },
+    {
+      "field": "email_ai_notifications_enabled",
+      "owner": "email_settings_fields.py"
+    },
+    {
+      "field": "email_ai_analysis_timeout_seconds",
+      "owner": "email_settings_fields.py"
+    },
+    {
+      "field": "email_ai_max_input_chars",
+      "owner": "email_settings_fields.py"
+    },
+    {
+      "field": "email_ai_max_output_tokens",
+      "owner": "email_settings_fields.py"
+    },
+    {
+      "field": "email_ai_max_candidates",
+      "owner": "email_settings_fields.py"
+    },
+    {
+      "field": "email_ai_lease_seconds",
+      "owner": "email_settings_fields.py"
+    },
+    {
+      "field": "email_ai_max_attempts",
+      "owner": "email_settings_fields.py"
+    },
+    {
+      "field": "email_ai_max_manual_retries",
+      "owner": "email_settings_fields.py"
+    },
+    {
+      "field": "email_ai_max_inflight",
+      "owner": "email_settings_fields.py"
+    },
+    {
+      "field": "email_ai_auto_confidence_threshold",
+      "owner": "email_settings_fields.py"
+    },
+    {
+      "field": "email_ai_deadline_confidence_threshold",
+      "owner": "email_settings_fields.py"
+    },
+    {
+      "field": "email_ai_deadline_notification_window_days",
+      "owner": "email_settings_fields.py"
+    },
+    {
+      "field": "email_ai_default_timezone",
+      "owner": "email_settings_fields.py"
+    },
+    {
+      "field": "email_token_encryption_key",
+      "owner": "email_settings_fields.py"
+    },
+    {
+      "field": "email_token_encryption_key_version",
+      "owner": "email_settings_fields.py"
+    },
+    {
+      "field": "email_token_decryption_keys",
+      "owner": "email_settings_fields.py"
+    },
+    {
+      "field": "email_oauth_frontend_return_url",
+      "owner": "email_settings_fields.py"
+    },
+    {
+      "field": "gmail_oauth_client_id",
+      "owner": "email_settings_fields.py"
+    },
+    {
+      "field": "gmail_oauth_client_secret",
+      "owner": "email_settings_fields.py"
+    },
+    {
+      "field": "gmail_oauth_redirect_uri",
+      "owner": "email_settings_fields.py"
+    },
+    {
+      "field": "outlook_oauth_client_id",
+      "owner": "email_settings_fields.py"
+    },
+    {
+      "field": "outlook_oauth_client_secret",
+      "owner": "email_settings_fields.py"
+    },
+    {
+      "field": "outlook_oauth_redirect_uri",
+      "owner": "email_settings_fields.py"
+    },
+    {
+      "field": "outlook_oauth_tenant",
+      "owner": "email_settings_fields.py"
+    },
+    {
+      "field": "email_oauth_state_ttl_seconds",
+      "owner": "email_settings_fields.py"
+    },
+    {
+      "field": "email_sync_interval_seconds",
+      "owner": "email_settings_fields.py"
+    },
+    {
+      "field": "email_sync_lease_seconds",
+      "owner": "email_settings_fields.py"
+    },
+    {
+      "field": "email_sync_full_lookback_days",
+      "owner": "email_settings_fields.py"
+    },
+    {
+      "field": "email_sync_max_messages",
+      "owner": "email_settings_fields.py"
+    },
+    {
+      "field": "email_attachment_max_bytes",
+      "owner": "email_settings_fields.py"
+    },
+    {
+      "field": "email_pdf_max_pages",
+      "owner": "email_settings_fields.py"
+    },
+    {
+      "field": "email_max_artifacts_per_message",
+      "owner": "email_settings_fields.py"
+    },
+    {
+      "field": "email_content_retention_days",
+      "owner": "email_settings_fields.py"
+    },
+    {
+      "field": "email_storage_orphan_grace_hours",
+      "owner": "email_settings_fields.py"
+    },
+    {
+      "field": "storage_cleanup_encryption_key",
+      "owner": "identity_settings_fields.py"
+    },
+    {
+      "field": "storage_cleanup_encryption_key_version",
+      "owner": "identity_settings_fields.py"
+    },
+    {
+      "field": "storage_cleanup_decryption_keys",
+      "owner": "identity_settings_fields.py"
+    },
+    {
+      "field": "identity_action_hmac_key_id",
+      "owner": "identity_settings_fields.py"
+    },
+    {
+      "field": "identity_action_hmac_key",
+      "owner": "identity_settings_fields.py"
+    },
+    {
+      "field": "identity_action_hmac_previous_keys",
+      "owner": "identity_settings_fields.py"
+    },
+    {
+      "field": "identity_mfa_encryption_key_id",
+      "owner": "identity_settings_fields.py"
+    },
+    {
+      "field": "identity_mfa_encryption_key",
+      "owner": "identity_settings_fields.py"
+    },
+    {
+      "field": "identity_mfa_decryption_keys",
+      "owner": "identity_settings_fields.py"
+    },
+    {
+      "field": "identity_notification_encryption_key_id",
+      "owner": "identity_settings_fields.py"
+    },
+    {
+      "field": "identity_notification_encryption_key",
+      "owner": "identity_settings_fields.py"
+    },
+    {
+      "field": "identity_notification_decryption_keys",
+      "owner": "identity_settings_fields.py"
+    },
+    {
+      "field": "identity_previous_key_limit",
+      "owner": "identity_settings_fields.py"
+    },
+    {
+      "field": "password_recovery_token_ttl_minutes",
+      "owner": "identity_settings_fields.py"
+    },
+    {
+      "field": "password_recovery_delivery_provider",
+      "owner": "identity_settings_fields.py"
+    },
+    {
+      "field": "password_recovery_development_expose_token",
+      "owner": "identity_settings_fields.py"
+    },
+    {
+      "field": "password_recovery_frontend_url",
+      "owner": "identity_settings_fields.py"
+    },
+    {
+      "field": "password_recovery_smtp_host",
+      "owner": "identity_settings_fields.py"
+    },
+    {
+      "field": "password_recovery_smtp_port",
+      "owner": "identity_settings_fields.py"
+    },
+    {
+      "field": "password_recovery_smtp_username",
+      "owner": "identity_settings_fields.py"
+    },
+    {
+      "field": "password_recovery_smtp_password",
+      "owner": "identity_settings_fields.py"
+    },
+    {
+      "field": "password_recovery_smtp_sender",
+      "owner": "identity_settings_fields.py"
+    },
+    {
+      "field": "password_recovery_smtp_starttls",
+      "owner": "identity_settings_fields.py"
+    },
+    {
+      "field": "password_recovery_delivery_timeout_seconds",
+      "owner": "identity_settings_fields.py"
+    },
+    {
+      "field": "password_recovery_delivery_max_attempts",
+      "owner": "identity_settings_fields.py"
+    },
+    {
+      "field": "password_recovery_delivery_batch_size",
+      "owner": "identity_settings_fields.py"
+    },
+    {
+      "field": "password_recovery_account_limit_per_hour",
+      "owner": "identity_settings_fields.py"
+    },
+    {
+      "field": "password_recovery_tenant_limit_per_hour",
+      "owner": "identity_settings_fields.py"
+    },
+    {
+      "field": "password_recovery_ip_limit_per_hour",
+      "owner": "identity_settings_fields.py"
+    },
+    {
+      "field": "password_recovery_rate_limit_require_redis",
+      "owner": "identity_settings_fields.py"
+    },
+    {
+      "field": "identity_token_retention_days",
+      "owner": "identity_settings_fields.py"
+    },
+    {
+      "field": "identity_consumed_token_retention_days",
+      "owner": "identity_settings_fields.py"
+    },
+    {
+      "field": "identity_challenge_retention_days",
+      "owner": "identity_settings_fields.py"
+    },
+    {
+      "field": "identity_retention_batch_size",
+      "owner": "identity_settings_fields.py"
+    },
+    {
+      "field": "mfa_step_up_max_attempts",
+      "owner": "identity_settings_fields.py"
+    },
+    {
+      "field": "mfa_step_up_window_seconds",
+      "owner": "identity_settings_fields.py"
+    },
+    {
+      "field": "mfa_step_up_lock_seconds",
+      "owner": "identity_settings_fields.py"
+    },
+    {
+      "field": "attendance_runtime_retention_days",
+      "owner": "identity_settings_fields.py"
+    },
+    {
+      "field": "attendance_runtime_registration_days",
+      "owner": "identity_settings_fields.py"
+    },
+    {
+      "field": "attendance_discard_retention_days",
+      "owner": "identity_settings_fields.py"
+    },
+    {
+      "field": "attendance_discard_batch_size",
+      "owner": "identity_settings_fields.py"
+    },
+    {
+      "field": "browser_offline_authorization_ttl_minutes",
+      "owner": "identity_settings_fields.py"
+    },
+    {
+      "field": "browser_offline_max_suspension_seconds",
+      "owner": "identity_settings_fields.py"
+    },
+    {
+      "field": "whatsapp_access_token",
+      "owner": "whatsapp_settings_fields.py"
+    },
+    {
+      "field": "whatsapp_phone_number_id",
+      "owner": "whatsapp_settings_fields.py"
+    },
+    {
+      "field": "whatsapp_api_version",
+      "owner": "whatsapp_settings_fields.py"
+    },
+    {
+      "field": "whatsapp_template_language",
+      "owner": "whatsapp_settings_fields.py"
+    },
+    {
+      "field": "whatsapp_welcome_template_name",
+      "owner": "whatsapp_settings_fields.py"
+    },
+    {
+      "field": "whatsapp_passport_link_template_name",
+      "owner": "whatsapp_settings_fields.py"
+    },
+    {
+      "field": "whatsapp_reminder_template_name",
+      "owner": "whatsapp_settings_fields.py"
+    },
+    {
+      "field": "whatsapp_update_template_name",
+      "owner": "whatsapp_settings_fields.py"
+    },
+    {
+      "field": "whatsapp_group_invite_template_name",
+      "owner": "whatsapp_settings_fields.py"
+    },
+    {
+      "field": "whatsapp_group_invite_template_language",
+      "owner": "whatsapp_settings_fields.py"
+    },
+    {
+      "field": "whatsapp_document_template_name",
+      "owner": "whatsapp_settings_fields.py"
+    },
+    {
+      "field": "whatsapp_document_update_template_name",
+      "owner": "whatsapp_settings_fields.py"
+    },
+    {
+      "field": "whatsapp_document_update_template_language",
+      "owner": "whatsapp_settings_fields.py"
+    },
+    {
+      "field": "whatsapp_qr_template_name",
+      "owner": "whatsapp_settings_fields.py"
+    },
+    {
+      "field": "whatsapp_otp_template_name",
+      "owner": "whatsapp_settings_fields.py"
+    },
+    {
+      "field": "whatsapp_otp_template_language",
+      "owner": "whatsapp_settings_fields.py"
+    },
+    {
+      "field": "whatsapp_delivery_concurrency",
+      "owner": "whatsapp_settings_fields.py"
+    },
+    {
+      "field": "whatsapp_webhook_verify_token",
+      "owner": "whatsapp_settings_fields.py"
+    },
+    {
+      "field": "whatsapp_app_secret",
+      "owner": "whatsapp_settings_fields.py"
+    }
+  ],
+  "method_moves": [
+    {
+      "method": "parse_cors_origins",
+      "owner": "runtime_settings_fields.py",
+      "AST_exact": true
+    },
+    {
+      "method": "validate_trusted_proxy_networks",
+      "owner": "runtime_settings_fields.py",
+      "AST_exact": true
+    },
+    {
+      "method": "validate_gemini_image_model",
+      "owner": "ai_settings_fields.py",
+      "AST_exact": true
+    },
+    {
+      "method": "validate_gemini_model",
+      "owner": "ai_settings_fields.py",
+      "AST_exact": true
+    },
+    {
+      "method": "validate_email_ai_default_timezone",
+      "owner": "email_settings_fields.py",
+      "AST_exact": true
+    },
+    {
+      "method": "validate_email_provider_oauth_redirect_uri",
+      "owner": "email_settings_fields.py",
+      "AST_exact": true
+    },
+    {
+      "method": "validate_whatsapp_api_version",
+      "owner": "whatsapp_settings_fields.py",
+      "AST_exact": true
+    },
+    {
+      "method": "validate_whatsapp_phone_number_id",
+      "owner": "whatsapp_settings_fields.py",
+      "AST_exact": true
+    },
+    {
+      "method": "validate_whatsapp_otp_template_name",
+      "owner": "whatsapp_settings_fields.py",
+      "AST_exact": true
+    },
+    {
+      "method": "validate_whatsapp_otp_template_language",
+      "owner": "whatsapp_settings_fields.py",
+      "AST_exact": true
+    },
+    {
+      "method": "validate_database_connection_budget",
+      "owner": "settings_deployment_policy.py",
+      "body_AST_exact_after_self_parameter_rename": true
+    },
+    {
+      "method": "validate_metrics_export_configuration",
+      "owner": "settings_deployment_policy.py",
+      "body_AST_exact_after_self_parameter_rename": true
+    },
+    {
+      "method": "validate_email_ai_lease_duration",
+      "owner": "settings_deployment_policy.py",
+      "body_AST_exact_after_self_parameter_rename": true
+    },
+    {
+      "method": "validate_mcp_deployment",
+      "owner": "settings_deployment_policy.py",
+      "body_AST_exact_after_self_parameter_rename": true
+    },
+    {
+      "method": "validate_identity_security_configuration",
+      "owner": "settings_identity_policy.py",
+      "body_AST_exact_after_self_parameter_rename": true
+    },
+    {
+      "method": "validate_dashboard_signing_secret",
+      "owner": "settings_identity_policy.py",
+      "body_AST_exact_after_self_parameter_rename": true
+    },
+    {
+      "method": "validate_mobile_otp_configuration",
+      "owner": "settings_mobile_policy.py",
+      "body_AST_exact_after_self_parameter_rename": true
+    },
+    {
+      "method": "validate_mobile_production_signing_secret",
+      "owner": "settings_mobile_policy.py",
+      "body_AST_exact_after_self_parameter_rename": true
+    },
+    {
+      "method": "validate_mobile_offline_lease_signing_keys",
+      "owner": "settings_mobile_policy.py",
+      "body_AST_exact_after_self_parameter_rename": true
+    },
+    {
+      "method": "validate_mobile_verified_link_configuration",
+      "owner": "settings_mobile_policy.py",
+      "body_AST_exact_after_self_parameter_rename": true
+    },
+    {
+      "method": "validate_mobile_app_integrity_configuration",
+      "owner": "settings_mobile_policy.py",
+      "body_AST_exact_after_self_parameter_rename": true
+    }
+  ],
+  "source_sha256": {
+    "backend/app/core/config/runtime_settings_fields.py": "28a4ab90543214836f55b808e50f28d4b301d91dcacb7de97e9c6276ec8aaffb",
+    "backend/app/core/config/request_settings_fields.py": "598d2e660dc6a89496e665985b6bb5ec77eb7d76070c7d8ed36fab5a0b0cbd4d",
+    "backend/app/core/config/ingestion_settings_fields.py": "792a9c89c1a8cb272edb91d30531ddfab965149b51be5ffde3a278bb8330ec3a",
+    "backend/app/core/config/ai_settings_fields.py": "96621e79fcecc411936d3eec3601e0409005635f140bd3059140e61522ce47da",
+    "backend/app/core/config/email_settings_fields.py": "b72a13c6fc7e3cdc19793094cd949abc947f0c9e05cbd0a3c75e5a7835d06799",
+    "backend/app/core/config/identity_settings_fields.py": "e18b47cfef5d4774dae8b016dea3a2ebd07aa43b316ff8f105af0591cb43f71f",
+    "backend/app/core/config/whatsapp_settings_fields.py": "6d964eba0eab33da4d83af8da6e7eb0ac948b81130d37f99ddeb6ab81bbba556",
+    "backend/app/core/config/settings_deployment_policy.py": "900a3348cf9e3ae568a91747d573392f921b2a4cf028e5b84b9758c727f93ea8",
+    "backend/app/core/config/settings_identity_policy.py": "67b76ee4b9c3320be83f32e2280cbb223ec545697718ab8e44053f61f94e9e16",
+    "backend/app/core/config/settings_mobile_policy.py": "392544786795016fbaf801e5ab65340e5e66fc8e775707097988911eb81d2e9b",
+    "backend/app/core/config/settings.py": "746585b556b87c60a2159a7678f56dfddee9ba5d7cbed7ce810425f7afb40e7f"
+  }
+}

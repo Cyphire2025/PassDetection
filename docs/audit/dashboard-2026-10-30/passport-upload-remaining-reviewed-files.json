@@ -1,0 +1,1198 @@
+[
+  {
+    "path": "frontend/features/passports/api/client-details.api.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "7e58b9c4c7e30049092acd32e0f3495ce23673ce5a410e8c23ce1a1658b99edd",
+    "notes": "Complete47-line facade/contracts read. Whitelisted contact/trip keys and expected_updated_at patch contract, same-origin API client and bound endpoint usage inspected. No caller/backend tenant authorization assurance inferred from facade alone."
+  },
+  {
+    "path": "frontend/features/passports/api/display-name.api.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "cdb2eec38a5e7e418e1e6885df2680c2550baa86a879389c7cb36fec5cdbbd12",
+    "notes": "Complete19-line display-name facade read. Group/submission endpoint binding and expected_updated_at transport preserved; response contains only naming/update metadata."
+  },
+  {
+    "path": "frontend/features/passports/api/staff-approval-contract.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "7e11093c76bb38e09691d7302b82ee4751f5bb83ce27eccf7b8f9e4ed80b87ee",
+    "notes": "Complete38-line serializer/parser read. Exact expected extraction revision and optional confirmed fields/reason serialization, approval outcome allowlist and safe-integer response fallback inspected. Server remains approval authority."
+  },
+  {
+    "path": "frontend/features/passports/utils/passport-image-crop-permissions.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "66b182cfc792f2bca9cb9b4b58ca7b748074bef9b0899518a4c63d1ea0dcee05",
+    "notes": "Complete13-line editor-role predicate read. Explicit staff/admin set; coordinators and missing/unrecognized roles fail closed. Reused by existing detail image controls; server authorization still required."
+  },
+  {
+    "path": "frontend/features/passports/utils/passport-image-revisions.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "be6a7da2ec154d7158e870fb0ab2ae4be0d9b1b919be4c7b05fc27857e60c4d6",
+    "notes": "Complete5-line immutable per-submission/per-image revision type read. No runtime code or private URL storage."
+  },
+  {
+    "path": "frontend/features/passports/utils/passport-workflow.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "aba10e9ae36e1c957862cbf278a39f8495a9fbf3658f498a9f2149274f484378",
+    "notes": "Complete19-line transient status predicate read. Processing/extraction/submitted states remain pending through final asynchronous verdict; missing/unknown terminal values do not spuriously poll."
+  },
+  {
+    "path": "frontend/features/passports/utils/passport-image-library.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "5d5c3dcf7feb7bbab88421574aecf3c52dbd0fcca9d9abbd55e373a0bbe6f82d",
+    "notes": "Complete51-line library validation/formatting read. Empty/10MB limits and accepted MIME/extension handling, safe static source labels inspected. Server must decode actual content; client extension check is not a security authority."
+  },
+  {
+    "path": "frontend/features/passports/utils/passport-image-editor-viewport.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "8ba45a5de73415bad8f358e772d1c5984a11ff079653219f42181cb69d6198ce",
+    "notes": "Complete57-line geometry read. Positive finite dimension guard, native-size cap, normalized rotation, bounded zoom and effective zoom label keep displayed sizing separate from full-resolution crop coordinates."
+  },
+  {
+    "path": "frontend/features/passports/utils/passport-image-crop-geometry.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "441d7b62c9f915e59c172865c9192bb2159bb34fed818adb5a0f30ac8132f2a4",
+    "notes": "Complete108-line crop math read. Bounded move/resize, minimum crop area, clockwise coordinate mapping, integer angle normalization, quarter-turn offset and quantization inspected; no loops or growing input allocations."
+  },
+  {
+    "path": "frontend/features/passports/utils/passport-reextract.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "f57a1fc65a052c25ca48623a652f97d9329dbf84f7305c30b28ac206aeb236a7",
+    "notes": "Complete62-line retry/outcome/feedback helper read. Only eligible needs-review original images with verified non-stale verdict and more than3canonical incorrect fields are selected; failed/cancelled/dead-letter outcomes and queued final-verdict polling inspected."
+  },
+  {
+    "path": "frontend/features/passports/components/compact-passport-image.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "775ea9455b4ed763d08cbf2feba250143be8867b9d660778a19a43626391e719",
+    "physical_lines": 18,
+    "notes": "Full component read; dimensions adapt from decoded natural orientation and object-contain preserves page. Caller provides private memory/same-origin src; component does not persist or sign sources."
+  },
+  {
+    "path": "frontend/features/passports/components/document-thumbnail-cache-provider.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "c9429c32b68fa3d2a2aef6dbd1fb910d1a3a2942ea2d01d2356bf98014aba10f",
+    "physical_lines": 20,
+    "notes": "Full provider/context read; one visit-owned cache, effect cleanup clears abort controllers/object URLs. Cache implementation and scheduler/loader fully traced below."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-display-name-action.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "8c67ed03b652acccf963fac453b630c5f374db5da4944c47b560fbbae4ab0f97",
+    "physical_lines": 13,
+    "notes": "Full single-selection action read; explicit canEdit and exactly one selected ID; no action for multiselect or missing permission."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-group-readiness.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "1b9120f33df899b5139acde49fcef9fbf926cc2c49b58f6296fa5fc56f902e3c",
+    "physical_lines": 15,
+    "notes": "Full presentation read; server counts with nullish fallbacks and skeleton only before first metadata. No array traversal beyond fixed four cards."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-group-update-action.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "f0bf4d83f7569e9bc76fc49a8eae4d36595cc6fa9f99db74e4673ff5fbf7db5e",
+    "physical_lines": 22,
+    "notes": "Full lazy update-dialog entry and menu read; current group binding, archived/deleted and includeDeleted disabled, root WhatsApp owner reviews actual send dialog."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-document-follow-up.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "da8d1c33f50b9664ba8ff52f95f8d7c94e5784e3868fe2c97c0130cab4547fe9",
+    "physical_lines": 42,
+    "notes": "Full badge/actions read; role-derived management gate, pending disabled states and flag/clear callbacks. Actual mutation hook remains separately pending."
+  },
+  {
+    "path": "frontend/features/passports/components/group-option-toggle.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "4e79fd28d459e39736cd34c18b8b8b20912bfc2a496586d5214d755a5d010409",
+    "physical_lines": 68,
+    "notes": "Full switch/required checkbox read; keyboard-native buttons, named switch aria-checked, disabled propagation; optional-required control disabled when feature off."
+  },
+  {
+    "path": "frontend/features/passports/components/client-provided-fields-card.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "0c243b7a704bbde74688b5d423a28b46c35f950e9f26c96cc0a23186929c338f",
+    "physical_lines": 57,
+    "notes": "Full card read; explicit editable status and role capability, confirmed/extracted/staff precedence, safe text-only display and lazy detail editor. No raw HTML or URL rendering."
+  },
+  {
+    "path": "frontend/features/passports/hooks/use-client-details.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "dfac333cc47041838fd4d83302ff29ebfaf7dd03d4a155a7c3a1b1380d2532ef",
+    "physical_lines": 36,
+    "notes": "Full descriptor/mutation hooks read; gc0 and focus/reconnect disabled preserve optimistic version; mutation invalidates group/upload/export/WhatsApp families. Form freezes original version and uses synchronous submit ref."
+  },
+  {
+    "path": "frontend/features/passports/hooks/use-display-name.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "dcff9754d198a98f0fb074c43005a720705c2d19c7757e636a141fc4f1b84e5e",
+    "physical_lines": 30,
+    "notes": "Full versioned descriptor/mutation hook read; ID+group key, retry false, draft frozen by dialog, current caches invalidated on successful update. Server ownership remains authoritative."
+  },
+  {
+    "path": "frontend/features/passports/services/document-thumbnail-cache.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "9fbb4de5e4d15f906c021494582f4a210bb8952344eb1f252b620663493f1866",
+    "physical_lines": 51,
+    "notes": "Full cache read; URL-keyed promise deduplication, abort plus entry-identity rejects late completion, object URL revocation on invalidate/clear, failed entries evicted for retry."
+  },
+  {
+    "path": "frontend/features/passports/services/document-thumbnail-loader.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "f07d33059c5f232765e2bd9f20a8764b0a6247e62320ba4465373544493ba6c6",
+    "physical_lines": 46,
+    "notes": "Full fetch loop read; only managed relative private thumbnail paths, same-origin credentials/no-store/redirect error, bounded 6 attempts, 429/503 cancels body and shared pacing, release finally. No raw provider or signed URLs accepted."
+  },
+  {
+    "path": "frontend/features/passports/services/document-thumbnail-scheduler.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "aeeb084eee3187fe1949aa8c5358dd7123ba03e5d1f45e1f074e64c2ce908b9c",
+    "physical_lines": 129,
+    "notes": "Full global scheduler read; 6 slots, paced starts, abortable pending queue/removal, idempotent release, relative UUID image allowlist and server rate headers traced. No requests made by scheduler itself."
+  },
+  {
+    "path": "frontend/features/passports/types/instruction-language.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "4cda1d2c062af768f415a3064a012291b48bac28d922a7e74cfb9f480bd456a2",
+    "physical_lines": 16,
+    "notes": "Full finite language codes/native labels read; pure static supported language options, no executable external resource."
+  },
+  {
+    "path": "frontend/features/passports/types/upload-configuration.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "ccbc3c2f267f3e8a8e4fb6c695b56f8516ea4c2e32f4dc80a25777a043b7ef0c",
+    "physical_lines": 52,
+    "notes": "Full configuration contracts/defaults read; passport pages, visa capture and optional form gates retained; default required flag true and 2MB passport limit remain unchanged."
+  },
+  {
+    "path": "frontend/features/passports/utils/client-details-editor.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "f176154251fb5e290e865ec0131bac3524a973f409ea400389ac2d7f583c797a",
+    "physical_lines": 65,
+    "notes": "Full draft/patch/validation/error helpers read; changed-values-only whitelist descriptors, expected_updated_at frozen token, required/type/length checks, unknown saved options preserved until edited, conflicts block further save until reload."
+  },
+  {
+    "path": "frontend/features/passports/utils/passport-document-import.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "d4a80c973ef593c4405a92c60690b06079b0944e3470c4d90939827ca578330c",
+    "physical_lines": 30,
+    "notes": "Full source read/current change authored: FIFO repeated-filename preview matching retained, byte formatter reports sub-KB byte counts accurately."
+  },
+  {
+    "path": "frontend/features/passports/utils/passport-group-trip.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "82da2b5b5b359846e25284c4164f7d1bfbd9eadc814ab60fbb44dc2f594a6a29",
+    "physical_lines": 17,
+    "notes": "Full city normalizers read; whitespace/120char bound, case-insensitive dedup via Set preserving first spelling/order."
+  },
+  {
+    "path": "frontend/features/passports/utils/trip-timezone.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "d6deb03c163b4c0a48bea438b854f97f7ece97b0342ea059aa2fff6fde93e178",
+    "physical_lines": 40,
+    "notes": "Full IANA runtime validation/list read; bounded trim-exact identifier and Intl authority, older browser fallback keeps manually entered identifier and defaults."
+  },
+  {
+    "path": "frontend/features/upload/components/document-processing-frame.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "34d0768d0babd7839ea1e9c467441dfdf761d9d56d2ab239ab6cf6e428dcdfa0",
+    "physical_lines": 12,
+    "notes": "Full processing overlay read; announced busy status and pointer blocking preserved; preview remains local child, no credential handling."
+  },
+  {
+    "path": "frontend/features/upload/components/fresh-qualifier.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "9b4ad522682c3c5891545c62f80e836eb43d20f1d0fb21578bcef53fedcb91b8",
+    "physical_lines": 24,
+    "notes": "Full current qualifier adapter read; methods derived from config, validated request builder, serialized abort-aware private draft action, saved selection token only; error delegated to serialized owner."
+  },
+  {
+    "path": "frontend/features/upload/components/passport-detail-samples-original.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "070e05e4667f669d5f29dc98a95457776fbe4f11cf2e2fc26da1877a2f8dbe9b",
+    "physical_lines": 12,
+    "notes": "Full retained SVG illustration read; explicitly marked retained artwork, no live document data or OCR execution. Retention comment alone not treated as user instruction; no deletion absent dependency proof."
+  },
+  {
+    "path": "frontend/features/upload/components/selected-document-preview.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "1b690f4028086aa8d3b3d77381218a4b4dc683b4b358c9e69c0f764e954afb65",
+    "physical_lines": 20,
+    "notes": "Full local file image/PDF preview read; effect creates/releases object URL and removes old src on file change/unmount; file stays memory-only. Native PDF viewer behavior is browser-dependent."
+  },
+  {
+    "path": "frontend/features/upload/components/traveller-entry-choice.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "2d6aef62c41a4cbc88dd56f88189f5aa62df3defd8676c85b1003a3777539630",
+    "physical_lines": 11,
+    "notes": "Full native button presentation read; accessible text/keyboard, shrink/min-width responsiveness and no redundant nested click target."
+  },
+  {
+    "path": "frontend/features/upload/components/traveller-shell.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "55e4f7876e159f9a92b74dc716500a405e9b7e207f787f4f8ef8b0d1bc10d47d",
+    "physical_lines": 13,
+    "notes": "Full public shell read; static background CSS and separate child private documents, responsive container and secure-label presentation only."
+  },
+  {
+    "path": "frontend/features/upload/components/upload-flow.constants.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "eebfb2fbf6f4bb4864d898c5970f7f005cfb6439b82f00b99696e54769c7b4fe",
+    "physical_lines": 41,
+    "notes": "Full fixed field/relation/progress constants read; legacy step names still type/shared references, not proof of reachable old orchestration; current call sites require graph before deletion."
+  },
+  {
+    "path": "frontend/features/upload/components/upload-flow.types.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "749ff8370e128e44a2098346cd51295e49b6f054ed861c81daba513460bee764",
+    "physical_lines": 68,
+    "notes": "Full family/document/extraction contracts read; source binding and idempotency/extraction revision fields preserved, no runtime side effects."
+  },
+  {
+    "path": "frontend/features/upload/services/camera-quality-policy.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "062413935879653abf8dfeaf9302f6b4d6bb6b8afa4a070529c37f7621fa7790",
+    "physical_lines": 84,
+    "notes": "Full rolling readiness/motion policy read; bounded latest3 samples/two-pass promotion and two-failure release, mean delta over small signature, Visa output size policy centralized without changing validators."
+  },
+  {
+    "path": "frontend/features/upload/services/contact-verification.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "409fd3b7c4a3e8a60b270da52f483cc3c6b8d0cb6f042e25df8cea0086e50c84",
+    "physical_lines": 11,
+    "notes": "Full OTP phone normalization read; explicit international code or full Indian10-digit input, normalized Indian length checked; server remains OTP authority."
+  },
+  {
+    "path": "frontend/features/upload/services/document-preview-order.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "84ccf064e6d9e05b9e3945f6fc5259cf55dce212598e4075d9643ad825220df9",
+    "physical_lines": 15,
+    "notes": "Full stable order/side classifier read; back_cover checked before cover/back, photo mapping and front fallback preserve outgoing document role convention."
+  },
+  {
+    "path": "frontend/features/upload/services/draft-input-contract.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "13cd8a8db8ceefb89c3d4bb8e846de83effcb73ddfad0d0276a31ec8db11e200",
+    "physical_lines": 12,
+    "notes": "Full shared current draft action types read; upload returns documents only, qualifier depends on private serialized owner, no final publication endpoint in controls contract."
+  },
+  {
+    "path": "frontend/features/upload/services/passport-document-verification.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "da99bc779ff893b2dcfcc26b366351367f153a01ee1d15b30862890b4bab7ec5",
+    "physical_lines": 79,
+    "notes": "Full AI document gate read; only available verified/enhanced accepted, wrong/uncertain/unreadable require replacement, unavailable retries saved image; server-provided rejection text displayed as text."
+  },
+  {
+    "path": "frontend/features/upload/services/public-upload-file.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "3d178d68b75a87f459655a4a7d16cae22c54db485cf1c6f04e79b130293c6075",
+    "physical_lines": 66,
+    "notes": "Full picker/preparation service read; client empty/size/format checks, explicit token+session precondition, abort/60s request, exact nonempty JPEG response, output naming. Actual byte/PDF authority is backend, not MIME/extension gate."
+  },
+  {
+    "path": "frontend/features/upload/services/relation-qualifier.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "dae62cf8a502d725b0ed52da453ae56fd7c19961f00200e7585324caf3a45617",
+    "physical_lines": 66,
+    "notes": "Full qualifier request builder read; allowlisted relation codes, NFC+codepoint100 cap, hidden/control-character denial and self reserved, configuration gates apply to other/list."
+  },
+  {
+    "path": "frontend/features/upload/services/upload-recovery.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "286805b05dd5a7000fa060e44629e1bf4e1b349161deeda8785a423600207cde",
+    "physical_lines": 82,
+    "notes": "Full versioned recovery parser/target/reconcile read; bounded opaque IDs, strict idempotency pattern, malformed JSON rejected, only submission/idempotency values serialized (no image/contact fields)."
+  },
+  {
+    "path": "frontend/features/upload/services/visa-face-detection-loader.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "0dd93722b6823605a965c860cb27d1b2b2b413bc8782042b9f0ff7a8c1fc1f24",
+    "physical_lines": 50,
+    "notes": "Full same-origin pinned runtime loader and serialized initialization read; shared load promise reset on failure, failed script removal, constructor presence guard; no external CDN execution."
+  },
+  {
+    "path": "frontend/features/upload/hooks/use-stable-telemetry-reason.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "61cf1e841f2ba6966f3900064e52d29c0eb54f26eb2841c06741440f0fe671fc",
+    "physical_lines": 56,
+    "notes": "Full hook read; callback ref latest, stable reason debounce monotonic performance clock, effect timer cancellation and per-mount duplicate suppression; emitted payload is bounded reason enum owned by telemetry module."
+  },
+  {
+    "path": "frontend/features/upload/services/camera-capture.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "ca807e9ce63901133608be6be254f1931d01bf42892d7d64688c73d2c1455381",
+    "physical_lines": 177,
+    "notes": "Full177-line source acquisition/remap service read; high-resolution ImageCapture first with video fallback, bitmap closed on invalid dimensions and returned close ownership, photo settings optional, bounded aspect remap. Caller-close gap fixed in camera checkpoint."
+  },
+  {
+    "path": "frontend/features/upload/services/visa-selfie-runtime.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "38898f95c820df28b734718cd9e4319403cde19b4535818675dba07f50448ff7",
+    "physical_lines": 123,
+    "notes": "Full123-line queue/drain/readiness/error service read; rejected operations do not poison serialization, bounded drain clears timeout, low-level WASM error replaced with stable recovery message. Existing6runtime unit checks pass."
+  },
+  {
+    "path": "frontend/features/upload/components/visa-selfie-camera.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "cb97c919822bf9eb1dbf6f497597a7bcabf29a2a8f5388baead8c35eafad8601",
+    "physical_lines": 10,
+    "notes": "Full public wrapper read/authored; unchanged named component/props routes into focused controller/view. Original1439-line owner decomposed; manual shutters/fallback/exact-JPEG gates preserved."
+  },
+  {
+    "path": "frontend/features/upload/components/visa-selfie-camera.test.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "f8d8de5c9ffd84783ce030d22efb89b3706a8bd728756fb7b99a9bd30e02ec2b",
+    "physical_lines": 99,
+    "notes": "Full authored2controlled React regressions read/executed. Synthetic model failure and actual fallback acknowledgment/capture path prove close on null context; deferred inference drain plus visibility hide/show proves old tracks stopped and new tracks remain attached. Both failed on original source and pass after fix."
+  },
+  {
+    "path": "frontend/features/upload/components/visa-selfie-camera.contract.test.mjs",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "b10da1f5da3dd5da436329a31cc297181acce714215dcc1480b70af592411594",
+    "physical_lines": 186,
+    "notes": "Full14contracts read and executed; retained strict/fallback/exactJPEG/serialization/readiness/confirmation semantics; bounded-drain assertion updated to identity-bound stopStream(stream) and supplemented by executable replacement-stream regression."
+  },
+  {
+    "path": "frontend/features/passports/components/client-details-edit-dialog.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "fb57ee95cad9708a1fec2faf9df19d002d2c75267afcf551f87ef75a0a066bbc",
+    "physical_lines": 138,
+    "notes": "Full138-line form/dialog read; frozen descriptors+version, explicit reload remount after conflict, synchronous inFlight submit gate, changed-only validation, keyboard boundary/loading-close rules, scoped saved option rendering. Full helper/hook reads trace optimistic locking."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-display-name-dialog.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "c0de3b8f430dc103b9facb6293a8830efc525e74d5f078cf601159a98ad7f30e",
+    "physical_lines": 101,
+    "notes": "Full101-line form/dialog read; group response match, frozen name+updated_at, normalized nonempty changed value, synchronous duplicate guard,409 blocks until explicit successful reload, keyboard boundary and return via shared modal hook."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-trip-details-dialog.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "dd4f1d655f0c95097339399b26811b250a35b887dcfb93da6e5ae32ae0bc4022",
+    "physical_lines": 97,
+    "notes": "Full dialog source read and narrow changes authored: named shared modal keyboard boundary, saving blocks Escape, retryable save error visible; existing settings/timezone/date gates preserved. Form types moved into feature types."
+  },
+  {
+    "path": "frontend/features/passports/components/trip-timezone-field.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "2a8fa0d11dc284d63488e4a7ba4f49bca2c2f8937589f80cefe9b48b16aed364",
+    "physical_lines": 87,
+    "notes": "Full timezone field source read/current change authored: caller descriptions retained together with only the actual rendered hint/error ID; deterministic hydration/IANA validation unchanged."
+  },
+  {
+    "path": "frontend/features/passports/components/edit-group-dialog.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "46f6592a9f84f8ef3e74d15892084bad48663b480eeedb1473e4a33cf3505c39",
+    "physical_lines": 130,
+    "notes": "Full130-line current company-aware edit read including latest parent changes. Captured session version checked before chained assignment/settings/banner work and response group+agency validated; partial assignment success disclosed, synchronous inFlight prevents duplicates, reassign confirmation boundary retained."
+  },
+  {
+    "path": "frontend/features/passports/components/group-whatsapp-summary.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "95c5bfd2fb746df163d0682e47c9813a0ee7b544ba531ee26edcdc5b9ba5b34d",
+    "physical_lines": 69,
+    "notes": "Full69-line summary read; counts/error/empty states, matching summary and group-scoped route links, management capability gates. Private fields rendered as text only."
+  },
+  {
+    "path": "frontend/features/passports/components/group-whatsapp-tracking-gate.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "7bb590d4ba4ead63601163c0ab5297d7263b64aca3ba6aa4fb64e7c0ad8140b6",
+    "physical_lines": 34,
+    "notes": "Full34-line gate read; hydrated group list must contain group, import-only redirects before tracking children, load/error/missing blocked with explicit retry and group route."
+  },
+  {
+    "path": "frontend/features/passports/components/group-whatsapp-tracking-model.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "9832c865556f737a2fe839b8439a5bfb8bb80a5fc669bcdea6da3ed18ada4055",
+    "physical_lines": 163,
+    "notes": "Full163-line display/search/request ID helpers read; imported detail dedup, type-safe textual values, no executable HTML; bounded server rows assumed by pagination. Request UUID has cryptographic primary and compatibility fallback, is idempotency rather than authority."
+  },
+  {
+    "path": "frontend/features/passports/components/whatsapp-match-description.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "990bd5d38acbfcd9cb70b7f61ca1353698ced1322c9ddbb3e473e592e527e9c8",
+    "physical_lines": 25,
+    "notes": "Full25-line status wording read; ambiguous candidate evidence retained for staff review, shared qualifier does not falsely imply duplicate, removed/replacement descriptions match non-delete actions."
+  },
+  {
+    "path": "frontend/features/passports/components/whatsapp-match-evidence.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "52c1a7dd75efc5506f2d626c7d0f9bc0afa033ed104ab571e778b54d25e01b69",
+    "physical_lines": 49,
+    "notes": "Full49-line label resolution read; submitted label precedence then built-in/fallback title, normalized text comparison only; no raw HTML."
+  },
+  {
+    "path": "frontend/features/passports/components/use-passport-document-follow-up.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "2fe2e9367c78952e78399dc3f186fb7d04dec6ca90688fbefa9cc14fef847236",
+    "physical_lines": 69,
+    "notes": "Full69-line action hook read; role/group/lifecycle gate, selection snapshot and synchronous started flag, zero-count filter reset only after non-placeholder successful view; mutation settled always unlocks."
+  },
+  {
+    "path": "frontend/features/passports/components/group-document-delivery-panel.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "6cf7c37043f26a257afd14e62a8b77ea3ab49c3b5006308d8b00d941d363c094",
+    "physical_lines": 121,
+    "notes": "Full121-line tracking panel read; errors not falsezero success, delivered+read counts, six recent textual updates, current distribution route, accessible native details disclosure. Sending owner remains distribution hooks/server."
+  },
+  {
+    "path": "frontend/features/passports/components/group-whatsapp-dialogs.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "323588909da2d41c4e98e35d9a69acdddb38d07726cd5e4843c2123d832a51e7",
+    "physical_lines": 421,
+    "notes": "Full421-line replacement/manage dialogs read. Stable per-dialog request ID and selected original recipient, server error retained, read/write invalidation delegated to hooks; unlink-all explicitly confirmed. Modal keyboard boundary present. Pending React state alone leaves same-turn duplicate HTTP admission possible; server idempotency request retained. No edit during integration freeze."
+  },
+  {
+    "path": "frontend/features/passports/components/whatsapp-broadcast-selector.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "893ea76099b56227494811b98b66058e0c095f3cffd90ac9eff58f9a382332a2",
+    "physical_lines": 206,
+    "notes": "Full206-line selection read; Set membership/map lookup, search with memo,50-list bound, archived lists removable but not newly selectable, matching-field state removed with unlinked ID and defaults chosen only from available fields."
+  },
+  {
+    "path": "frontend/features/passports/components/group-whatsapp-tracking-table.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "53ebfb142703b4fc7f8d6ca837c8ecb7aa85524c5b3fd175f6333600165ecfff",
+    "physical_lines": 417,
+    "notes": "Full417-line table/status/details read; paginated rows, candidate IDs for needs_review, explicit replacement/reject/restore capability gates, server status values kept distinct; table horizontally scrolls instead of causing viewport width. Detail labels/values safe text."
+  },
+  {
+    "path": "frontend/features/passports/components/whatsapp-match-field-selector.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "7f1905a9fea3961602287295e0aa71f03cfaee4286d40fc0dc892c5c9f378197",
+    "physical_lines": 289,
+    "notes": "Full289-line matching settings/readback read;32field cap, final selected field cannot be unchecked, missing historical keys retained, deferred heading search, own-property distinguishes legacy mode from controlled state. No fuzzy client assignment or permission authority."
+  },
+  {
+    "path": "frontend/features/passports/components/group-whatsapp-broadcast-panel.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "924d3ed2f9c2efa429fbd67292154e08b1b042d7f24e065976d0262e71413e7b",
+    "physical_lines": 622,
+    "notes": "Full622-line summary/tracking orchestration read in two321/301-line chunks. Role hydration gate and server can_manage/readOnly, paginated50 views, filter/page clamping, explicit reject/restore confirmations, durable request IDs. Export stream helper reused. Large controller/presentation boundary remains maintainability candidate; no freeze edits."
+  },
+  {
+    "path": "frontend/features/passports/components/custom-detail-builder.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "d2feba4fad88b59cf229bb80475c30dc02fff79d1265c38232f3a4730e552c05",
+    "physical_lines": 113,
+    "notes": "Full113-line descriptor editor read; stable random IDs,20detail UI bound, enabled/required flags and100char label; schema separately enforces duplicates/labels, safe text inputs."
+  },
+  {
+    "path": "frontend/features/passports/components/custom-question-builder.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "60fc053988d854e893ed1a42279ca5a6f159b334df39cb40ee274667da340d8d",
+    "physical_lines": 162,
+    "notes": "Full162-line question editor read;20questions,2..50options,100/120char limits, immutable updates and disabled propagation. Full schema validates unique labels/options; no dynamic executable form code."
+  },
+  {
+    "path": "frontend/features/passports/api/passports.api.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "f584da1814d38340a1da5b13935b8ad25201a5795718fd5774efbd71e29f37f7",
+    "physical_lines": 1085,
+    "notes": "Full original1049-line source previously read plus current initial-actor changes reviewed: one owner spans re-extraction polling, multipart chunks/progress and export completion; preconditions forwarded to HTTP/download. Public method identities/arguments preserved. Cohesive API decomposition remains OPEN."
+  },
+  {
+    "path": "frontend/features/passports/api/upload-links.api.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "7cae53e363364d45600a5f3279c1ca0387acb29a0c27a6d14319e15e70b1a233",
+    "physical_lines": 473,
+    "notes": "Complete473-line facade/contracts read in two bounded chunks. Explicit group+expected company revision, roster request IDs, public session headers/proof tokens, fetch keepalive no-store telemetry and group-scoped private endpoints. Single HTTP calls depend on shared client/backend owner guards; no token logged or local document persisted."
+  },
+  {
+    "path": "frontend/features/passports/hooks/use-passports.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "91a52e9a748f4f562059fd3828c4ddac9f4d2e635bf36dba393f8790564c31d8",
+    "physical_lines": 349,
+    "notes": "Full349-line hooks read; keys include group/search/deleted/view parameters; workflow-aware polling2s, otherwise30s or disabled; optimistic caches and WhatsApp sources invalidated after approval/import/delete. Chunk writes invalidate source onSettled because partial save possible. Long reextract action shares facade continuation concern; no silent retry policy added."
+  },
+  {
+    "path": "frontend/features/passports/schemas/upload-link.schema.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "5cf5fa7e7be00aee2cbdf6d3ac377c9032f621b9534664d8cf0945575b7a7825",
+    "physical_lines": 215,
+    "notes": "Full215-line schemas read; unique bounded descriptors/options/languages, linked-broadcast matching config membership, IANA timezone, method/page/ECR/relation dependencies, import-only transform removes hidden collection fields, return-date ordering. Actual server validation remains required."
+  },
+  {
+    "path": "frontend/features/upload/api/upload.api.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "0ca9f7f88e5749d126eac16b9c3777dd312d125737e558e920e59843d19eaeac",
+    "physical_lines": 213,
+    "notes": "Full213-line retained public facade read; every private status/document/OTP/review route transports session proof, uploads/reconciliation same idempotency, status timeouts bounded, actual file fields and source labels explicit. These backend/API contracts intentionally retained despite old UI retirement; no mutation authority inferred client-side."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-selected-groups-export-dialog.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "37689fddd33e04bbd0ce0b78862ed8c7a7d6a231aa45cc9a2300789a38ab1a22",
+    "physical_lines": 165,
+    "notes": "Full165-line multi-group field export dialog read; combined options query, stable initial defaults, synchronous downloadStarted guard and loading-close protection, caught failure unlocks retry, cancel/backdrop/keyboard boundary consistent. Selection must be stable while modal open (parent condition inspected separately)."
+  },
+  {
+    "path": "frontend/features/upload/services/visa-photo-upload-detector.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "ba25e2c0042dacfd988333b956f8f461470c7252ca5f322bb2ecd90abb73895d",
+    "physical_lines": 167,
+    "notes": "Full167-line upload detector read. Per-instance serialized inference and generation retirement retain underlying sends through timeout; next generation waits boundedly for close/drain, late result callbacks resolve only their own operation, one idle60s instance. Shared same-origin initializer serialized. No live-camera profile changes."
+  },
+  {
+    "path": "frontend/features/upload/services/visa-photo-upload-validation.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "7cb1490a343b2da1b7108bf4a4525d7806a220e286a8709f5cbcf38e7c1ad192",
+    "physical_lines": 297,
+    "notes": "Full297-line picker validator read. Serial validation,10MB/24MP/source orientation/resolution guards, centered800x1200 one crop/JPEG encoding, exact outgoingJPEG freshly decoded and checked for face+light-neutral wall, both source/exact image URLs released finally. Uploaded-studio policy intentionally differs from strict live geometry/clarity policy, preserved."
+  },
+  {
+    "path": "frontend/features/upload/components/visa-selfie-compatibility.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "de3eca89cf3ea3501f558d6f1f6ef338f37259438b8e618168310557fd6f60e4",
+    "physical_lines": 160,
+    "notes": "Full160-line dormant compatibility geometry/background checks read; still directly wired behind active camera profile switch, not proven unused. Pixel sampling bounded by caller96x144, lighting/chroma/wall-strip metrics and no-face/multiple/offcenter checks retained."
+  },
+  {
+    "path": "frontend/features/upload/hooks/use-passport-frame-detection.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "ee3a50411b50361bb9334988dc38db4d68abeff3c14b4666245a1cac5ddf0703",
+    "physical_lines": 132,
+    "notes": "Full132-line detector state/readiness hook read. Enabled/resetKey gates acceptance, interval cleanup, motion-signature and latest3/two-pass promotion, two-frame status hysteresis; stale confidence metadata while reset does not enable shutter (isDetected and detectionSequence use current reset). Active rectangular detector separately pending."
+  },
+  {
+    "path": "frontend/features/upload/services/public-flow-telemetry.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "97c2adad6f01e83d68f60068a0a0b12f8d4a410700a74fd5a903ec92ce11c08a",
+    "physical_lines": 282,
+    "notes": "Full282-line enums/stable reason/queue validator read. Payload exactly2keys and event-specific allowlisted reason; queue raw8192char/32event bounds and no contact/image/passport payload. Stable reason emits once after monotonic window; rejection priority preserves face/exposure/background distinction. Historical missing_mrz enum is telemetry compatibility, no OCR execution."
+  },
+  {
+    "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "87ad595aaa0f39735b0393e23b1d3a4db05f3e7f09b36080ff5f1297f05c2258",
+    "physical_lines": 322,
+    "notes": "Full322-line shared helpers read. Known review field extraction, valid civil ISO dates/order, family draft/source/idempotency shape, extraction terminal/manual-notice distinctions, abortable sleep and sanitized textual API errors. Some legacy-only exports remain module-level candidates; no deletion without TS export/caller proof. No client validator bypass introduced."
+  },
+  {
+    "path": "frontend/features/upload/components/visa-selfie-quality.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "a0a205e41f6ea4506d2d941dda4830a89f2bde38729307adc13732cfc652ebe8",
+    "physical_lines": 1115,
+    "notes": "Complete1115-line policy/metrics source read in four bounded301/290/280/244-line chunks. O(width*height) sampled typed arrays and fixed16regional statistics, conservative detected-person/perimeter masks, live forgiving vs exactJPEG hard/borderline gates, face/exposure/blur counts and fallback always borderline, exclusive actualJPEG byte limit and bounded camera retry reviewed. No threshold changes justified without image qualification; full read does not certify real-device model accuracy. Separate geometry,wall sampling,clarity/final policy responsibilities are future decomposition candidates."
+  },
+  {
+    "path": "frontend/features/upload/components/smart-camera.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "6d846171445cc3ef16b53d6c2d9b1e674c8fb2a19735d3a555318a50fb5257e8",
+    "physical_lines": 701,
+    "notes": "Full original694-line source previously read plus current lifecycle changes reviewed: generation lease prevents old normalized/validated capture from stopping replacement or allocating preview after restart/unmount. Larger coherent decomposition remains OPEN."
+  },
+  {
+    "path": "frontend/features/upload/services/passport-final-quality.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "641686f9d382884957f8deaae07755cb7a7ec8a69fa8594c5127741ec8fc20b5",
+    "physical_lines": 865,
+    "notes": "Complete865-line exactJPEG quality module read in291/290/284-line chunks. Bitmap/URL decode finally closed; bounded600-width analysis of normalized input, regional Laplacian/detail/exposure/boundary/screen cues, hard vs confirmation-only borderline ordering and front/back regions inspected. No OCR extraction; bottom text-band readability remains quality validator. Thresholds unchanged; actual document/device qualification not inferred from source."
+  },
+  {
+    "path": "frontend/features/upload/services/passport-rectangular-frame-detector.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "854ca1afe4d2fd15f388853824d23a7dd08541c450e15f1b8ab6c0b4feab1457",
+    "physical_lines": 1077,
+    "notes": "Complete1077-line active detector read in281/280/275/241-line chunks. DOM object-cover crop with10percent context to fixed320x200 frame, finite aligned convex quad,3strong+1plausible boundaries and distributed12tile detail; motion signature and extreme exposure. Candidate line search bounded slopes/positions, no OCR/MRZ recognition or removed legacy detector dependency. Responsibilities can be decomposed later without changing math/gates."
+  },
+  {
+    "path": "frontend/features/upload/services/passport-perspective-correction.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "8221680ee25badce665e8a4aae611a85897a4b44eb390efb83a08d0bb298022e",
+    "physical_lines": 575,
+    "notes": "Complete575-line normalizer read in281/294-line chunks. Conservative boundary fit, weighted/refined line inference, bounded1800 output homography/bilinear correction with safety check, original fallback on file errors, bitmap finally closed. Captures normalized to JPEG95, both page-side safety maps preserved. Tight sampleBilinear creates4offset array per destination pixel (millions); pure equivalent scalar-offset optimization merits measured regression after freeze, not threshold changes."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-group-model.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "2accc9cbb27095d413480e1992057816ebe6546fc3c688a2ea3607c1dcefa2f2",
+    "physical_lines": 386,
+    "notes": "Full386-line row/display/model read. Confirmed field precedence, duplicate clusters, safe nationality/date labels, synchronous reextract admission, actual API polling feedback. Mobile Open Submission currently nests Button inside Link (interactive nesting/accessibility candidate); per-operation actor continuation concern in facade already notified. Random IDs are request idempotency, not security proof."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-group-bindings.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "8b55821cc566f6a4fa44db4e22fa259da48eb01eb643558ebfb2850a804fd903",
+    "physical_lines": 93,
+    "notes": "Full93-line lazy-boundary/constants read; dynamic literal import mappings preserve export names/loading roles, bulk1500 and selected-image500 limits. No runtime business action in module."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-group-header-panel.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "f1c587d43cc93a4d4bb2fd232ee1fb96532d795f3467188cac424f2ed2bd2ba2",
+    "physical_lines": 300,
+    "notes": "Full300-line header/file action/menu read. Currentgroup banner action, file inputs reset for reselection, import result feedback, bounded portalled menu placement with refs and caller lifecycle closes. Source controls do not replace server roles; dynamic update dialog kept. Header controller responsibilities remain broad but full physical source inspected."
+  },
+  {
+    "path": "frontend/features/passports/components/use-passport-group-controller.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "9eded5c8115c83d0fb1d2b610383427b88a9bda155476da93507a7683f1385a2",
+    "physical_lines": 722,
+    "notes": "Complete722-line controller read in361/361-line chunks. Query params and old_data, group/deleted metadata, navigation context bound to user+group, debounced URL/view state, menu listener cleanup,50row snapshots and revisioned1500selection, stable image download admission, import progress and follow-up hook traced. State must remain scoped if group props reused; parent keyed mounting to be verified before claimed bug. Large decomposition candidate; no freeze edits."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-group-dialogs.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "acbc4ce5f8b9f8a1044b6154639b9a41119dadac6e5529b28afff527869f2b0c",
+    "physical_lines": 294,
+    "notes": "Full314-line source previously read plus narrowed294-line owner reviewed: trip update payload extracted to typed builder, server save error shown and reset when closing/success; all approval/delete/export/revision workflows preserved."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-group-import-panel.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "694c902f99a52f38293e7e57e96747e62474068d35dda0302e224a13aab95309",
+    "physical_lines": 173,
+    "notes": "Full173-line import/expiry binding read; progress and server preview, chunk saves with perphase progress, failure retains selected draft forretry, success clears files. Expiry list uses safe group navigation persistence and bounded disclosure scroll; front/end validation remains backend."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-group-overview-panel.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "f5418759de9658f1e5c3d6d248f2eb686d20d41bf2ede034c6e10c868e2c88c6",
+    "physical_lines": 285,
+    "notes": "Full285-line trip/readback overview read; default/legacy airport configuration, exact form snapshot and import-only overrides, group WhatsApp suppressed forimport groups, errors/delivery states distinct, responsive auto-fit cards, safe plain text. Trip edit owner/server remains authoritative."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-group-selection-toolbar.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "2afdefd3960e5a1848b3447720b1475fd8c4fef8a07ebd900f6de95b2139d1f8",
+    "physical_lines": 364,
+    "notes": "Full364-line controls read; named native filters,1500selection/500image limits, capabilities gate approve/delete, bulk disclosure accessible native buttons, selected snapshot supplied by controller, pending disabled writes. Custom count uses number input but controller parseInt would round1.5 to1; minor validation candidate if reproduces current UI."
+  },
+  {
+    "path": "frontend/features/upload/components/relation-qualifier-step.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "c366541184c5bc8c329f4d377e3ca1e686f574415748678050c6f4aa0be19e8a",
+    "physical_lines": 243,
+    "notes": "Full243-line current shared qualifier UI read; roving radio tabindex with arrow/Home/End, configured list/other gates, exact request builder validation and codepoint100 hidden-char constraints preserved. Native child select/input choose path on focus. Parent serialized action supplies sync admission."
+  },
+  {
+    "path": "frontend/features/upload/components/upload-contact-verification.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "b4d925237294c1e316d40c9282b00518e63405a743752a856b66b450a2f6d557",
+    "physical_lines": 185,
+    "notes": "Full185-line legacy contact screen/helper module read. request/verify controller+operation/inFlight guards, proof binding to normalized contact/session and expiry, unmount abort, accessible OTP field focus. Runtime textual caller trace finds only validContactEmail reused; UploadContactVerification/VerifiedContactSummary appear unused exports, need TSsymbol proof before removal. Existing tests target old component, not evidence of current route reachability."
+  },
+  {
+    "path": "frontend/features/upload/components/upload-flow-review.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "a44601e4c856bdf31e802faeb990c941eee4e6ec8ff708fbeda7661dd03668e7",
+    "physical_lines": 226,
+    "notes": "Full226-line shared review module read; current Fresh/returning import ReviewFields; optional surname/issue date, civil-date constraints and labels retained. Textual trace finds ReviewLayout/ReviewWarning/ExtractionNotice/DocumentVerificationBlock/PassportRoiOverlays without runtime callers; classify as export-level cleanup candidates only until TSresolver proof. ROI bbox checked normalized finite comparisons (NaN rejected)."
+  },
+  {
+    "path": "frontend/features/upload/components/upload-flow-fields.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "7def6b3a17f61905a109a410937547bab11edb6f9a01e284ac4c40329c9aee22",
+    "physical_lines": 425,
+    "notes": "Full425-line shared input primitives read; stable labels/phone hints/custom validity, configured required flags and passport metadata limits, enabled custom descriptors supplied by callers, departure select options. Several old Name/Select/ContactSection exports may be unused; active ContactInput/ConfiguredClientFields/CustomQuestion/Detail/Departure controls retained pending symbol tracing. No source change during freeze."
+  },
+  {
+    "path": "frontend/features/passports/utils/passport-group-navigation.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "39f888b178c2db67a3b919f8e13886514f499077d7b05346ff585a5726ae2ecd",
+    "physical_lines": 308,
+    "notes": "Full original navigation source previously read and current cleanup fix reviewed: invalid/blocked session storage returns null, cleanup denial cannot throw from catch; owner/token/group/TTL checks preserved."
+  },
+  {
+    "path": "frontend/features/passports/utils/passport-review.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "b77ebb9be8153af5d0839f0539050e77e690c30aea89f41294d30e34bb98c99d",
+    "physical_lines": 389,
+    "notes": "Full389-line staff review policy/readback helpers read; fixed review field whitelist/surname empty semantics, expected revision request, stale/unavailable server errors, provider failure labels never correctness, unreadable/no-observed confidence suppressed. Review action states and reviewer attribution safe text; server remains approval authority."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-document-cell.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "2f08cfae1b0c5a989be60a4633b33de986d0fe621f3c89bbe97231bdd3c88196",
+    "physical_lines": 241,
+    "notes": "Full241-line image cell/thumbnail lifecycle read; managed same-origin cache path, IntersectionObserver defer+noAPI fallback, abort/disposed protection, cache invalidation/retry, concurrency release and owned objectURL cleanup. File previews revoke URLs on replacement/unmount; edit callback passes actual trigger for focus return. Server-controlled external legacy URL fallback does not add auth headers."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-document-matrix.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "2324e7e490a300891825e5952f0cb65e45d0fb1629d4be5a8e00e9f5131c213e",
+    "physical_lines": 206,
+    "notes": "Full206-line document-role table read; memoized ordered preview filename queues and perpassenger document map, exact visa/front/back/cover imageType plus revisions and trigger references. Personnel-code display has explicit normalized staff prefix and metadata fallback. Table scroll contains width, no image byte fetching here."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-image-preview.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "12ced98eef4628598c423048d9adc6008d22d129225565aa3b68bc588a9c95a6",
+    "physical_lines": 126,
+    "notes": "Full126-line detail image presentation read; revision-busted canonical URL, explicit role-based crop/change props, file accept whitelist and reset, actual trigger passed for focus return, private image remain unoptimized and server-controlled. No image URL persisted."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-group-roster-panel.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "0862246bb52bd3f25e1f2ad98c4e657533c9ad41c774affc4182b62b38a6440e",
+    "physical_lines": 349,
+    "notes": "Full349-line paginated table/mobile/docs presentation read; errors suppress misleading row success, empty filtered reset, duplicate clusters retained, ID/revision image editor binding, selected Set membership and query pagination. Desktop Open Link nests Button like mobile model; narrow semantic fix after freeze. Native checkboxes support keyboard selection despite row click shortcut."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-excel-field-chooser.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "48115578aa327f1bd00ab625f32b042630cd91839cfa8e216bd8e8cb41f76b70",
+    "physical_lines": 211,
+    "notes": "Full211-line export selector read; selected order preserved, agency-match column excluded and grouping cleared on removal, fixed groups survive clear, only selected/fixed grouping options offered, labels textual. Server field allowlist/matching algorithm remain authority; UI does not compute fuzzy identity matches."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-document-import-dialog.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "7bff57ee0349bc30e653442d8d64b8c7b3c14c55f7033632874c230e5ef8fde3",
+    "physical_lines": 209,
+    "notes": "Full205-line original source and narrow changes read/authored: named progress/distribution dialogs share focus boundary, saving blocks dismissal; byte counts no longer falsely labelled files below1MB; actual progressbar ARIA."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-export-dialog.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "c0faeffcd5403b69e85c4708aa2314b26db602f0f41db209cf9ad4170b6c40aa",
+    "physical_lines": 478,
+    "notes": "Complete478-line export/history/dialog read in246/232-line chunks. Baseline compatibility/change count, paginated history25/details50, initialized options once, incremental ID and output fields explicit, synchronous download ref/loading protects duplicate start and keyboard/backdrop close. Cancelled stream delegated to caller; download-all remains possible if history read fails, no permission bypass because export endpoint reauthorizes."
+  },
+  {
+    "path": "frontend/features/passports/components/upload-link-settings.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "f9d4158c45ed1ed5cc74c075a3ae90be496d217bde3e5f711809ce49705a7ecc",
+    "physical_lines": 310,
+    "notes": "Full310-line setting normalizer/validator/presentation read; defaults cloned for mutable arrays/required map, legacy airport behavior, method/page/ECR constraints, label/options uniqueness and list/other/language configuration. ECR auto-adds required back page and disables removing it. Large presentation but bounded configuration, no validator removal."
+  },
+  {
+    "path": "frontend/features/passports/components/create-upload-link-modal.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "9a8ac4e5a176974434ab8a908102fffebd51db174a7dea8c7f1eb4b7cd596514",
+    "physical_lines": 457,
+    "notes": "Full original source previously read plus current chain reviewed: initial actor fenced across creation/banner/cache effects before link display; banner retry synchronous admission; shared canonical city normalizer replaces exact duplicate. Existing form, failed-banner retry and session-key remount retained."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-list.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "d80483e20fdc44e33e666cced491bd3fe29cc2d27491e02d00c7306398c912db",
+    "physical_lines": 503,
+    "notes": "Complete503-line group list/export/readiness presentation read in251/252-line chunks; deferred destination filter/memo summaries and selected Set, lazy combined export options, synthetic error rendering, responsive table/mobile cards with bounded containment. Modal open blocks user selection so initialized group fields stable during dialog. Selected group IDs passed to backend scope enforcement."
+  },
+  {
+    "path": "frontend/features/passports/components/upload-link-list.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "7076f6d875be5a455335f2eefbad1bdbf3f05ba6f41b0087f23835110ca4810c",
+    "physical_lines": 717,
+    "notes": "Complete717-line lifecycle list/table/delete dialog read in246/240/231-line chunks. Role guards archive/delete, explicit close/archive confirmation and delete retain-vs-purge choice, no provider sends, company label and import-only routes, deferred search and hidden archived section. Mutation errors for close/archive/restore not visibly surfaced; clipboard timers neither coalesce nor cleanup, reproducible feedback/lifetime candidates after freeze. No production mutations performed."
+  },
+  {
+    "path": "frontend/features/upload/services/upload-flow-session.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "48ff5be0570150968e0044acab7db5bfee0515712dc7ef198498ba88457e398f",
+    "physical_lines": 115,
+    "notes": "Additional complete112-line supporting caller read after111scope closure. Legacy recovery/session/qualifier storage helpers catch restricted browser storage, crypto-only idempotency generation, permanent error status sets. TSresolver graph shows only production inbound is createIdempotencyKey from now-unused family helper exports; potential whole closed orphan after mixed-module cleanup, not deleted during parent freeze."
+  },
+  {
+    "path": "frontend/features/upload/hooks/use-camera-capture-lifecycle.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "09cef5ff0d966e04a5a89ac2a0b4db2ba366967ee1f410540aec61d02a835fdd",
+    "physical_lines": 28,
+    "notes": "Full authored/read capture lifetime lease: stable mounted/generation state, close/unmount/restart invalidation, source/result publication guarded. No camera thresholds altered."
+  },
+  {
+    "path": "frontend/features/upload/hooks/use-visa-camera-state.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "986978664cb7a26aa41c6b0ba7627e9007083cb59a466cb9a7016da60bc4919e",
+    "physical_lines": 177,
+    "notes": "Full177-line state owner read/authored from reviewed original: stable React refs/setters, readiness reset, separate camera/detector generations and serialized native queue."
+  },
+  {
+    "path": "frontend/features/upload/hooks/use-visa-camera-shutdown.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "a6ac2eafca3d65a7129734a0cf8fab71f616e6eb12ef9f6a09d626bceb026631",
+    "physical_lines": 98,
+    "notes": "Full98-line resource owner read/authored: stream-identity detach/stop, bounded live inference drain, faulted detector generation reset. Late drainage cannot stop replacement stream."
+  },
+  {
+    "path": "frontend/features/upload/hooks/use-visa-final-face-detection.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "b17010aa9cc5d1dd942c2e6de5be77657700bdfa4a98f179b97dc5e1c727bfc3",
+    "physical_lines": 75,
+    "notes": "Full75-line final detector adapter read/authored: waits live drain, shared serial queue, generation-specific result/timeout/rejection, native send completion/drain before returning detections."
+  },
+  {
+    "path": "frontend/features/upload/hooks/use-visa-photo-capture.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "ac8c7289ea2c4ff043d11f60e55295b86e4fa072d74c81ca65c18fb8bbf79c0e",
+    "physical_lines": 214,
+    "notes": "Full214-line capture owner read/authored: synchronous admission, capture generation lease after every async stage, source close finally, one high-quality crop/JPEG, exact-JPEG validation before preview. Stale failures ignored."
+  },
+  {
+    "path": "frontend/features/upload/hooks/use-visa-detector.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "951a896b3e1832dfbcde65489f40efa7c764db61305f35dcd520ad19adbb38f1",
+    "physical_lines": 215,
+    "notes": "Full215-line model owner read/authored: initialization and cleanup serialized behind native queue, generation-scoped live/final callbacks, strict quality/readiness gates preserved; all extracted refs/setters in dependencies."
+  },
+  {
+    "path": "frontend/features/upload/hooks/use-visa-camera-stream.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "0070c50a9d1b5ddc749d0a9d09ac668d65d494505eb592e6b35974b9464bdc8b",
+    "physical_lines": 123,
+    "notes": "Full123-line browser camera lifetime read/authored: late stream disposal, secure context/permission handling, hidden-page release and visible retry, capture generation invalidation."
+  },
+  {
+    "path": "frontend/features/upload/hooks/use-visa-live-analysis.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "5e5116bee0832e0e9982c94c817970be3bb85476a6208928079dcc47ecc1558f",
+    "physical_lines": 137,
+    "notes": "Full137-line live-analysis scheduler read/authored: one RAF, throttled serialized inference, timeout fault cleanup/generation guard, no overlapping native calls."
+  },
+  {
+    "path": "frontend/features/upload/hooks/use-visa-camera-controls.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "07825ef752e15a2270415575b032e1f05491245b88626cbf1f1243de0fb13541",
+    "physical_lines": 76,
+    "notes": "Full76-line preview/retry/close owner read/authored: lease invalidation, preview URL cleanup and original readiness/fallback resets. Retry/retake preserve explicit user actions."
+  },
+  {
+    "path": "frontend/features/upload/hooks/use-visa-camera.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "383e3b91ea143a22be2e3aecacab7757986816ea71c416ee2f9e859ff575a7db",
+    "physical_lines": 94,
+    "notes": "Full94-line controller read/authored: hook orchestration with preserved effect ordering, telemetry and derived strict/fallback/preview guidance, no inference/quality policy bypass."
+  },
+  {
+    "path": "frontend/features/upload/components/visa-camera.types.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "70d4070f07b0466a9a169706abbe1801dcff4e2b5d23ac36ec0e07d2646373d0",
+    "physical_lines": 43,
+    "notes": "Full43-line contracts read/authored: same public camera callbacks, status unions and generation-owned pending native-result types."
+  },
+  {
+    "path": "frontend/features/upload/components/visa-camera.constants.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "f1b601c7ed88e38e8756b7375bd398cfb33198252456e52623a56e4b68b4183b",
+    "physical_lines": 16,
+    "notes": "Full16-line policy wiring read/authored: original timing/dimensions/confidence/2percentmargin constants, strict profile active, explicit relaxed compatibility branch preserved."
+  },
+  {
+    "path": "frontend/features/upload/components/visa-camera-view.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "d192eb9c5bf1d55e10b247d36dbf707becdbc683cb658a48914b0e9a1e24c43a",
+    "physical_lines": 140,
+    "notes": "Full140-line modal/view read/authored: named keyboard boundary, original visible guide and mirrored live-only preview, hidden capture/analysis canvases, recoverable camera state."
+  },
+  {
+    "path": "frontend/features/upload/components/visa-camera-footer.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "f0bf912779aabb37e4db2ba1b8d8ea0a5d8829d1899d46b2f6b6c59939345e12",
+    "physical_lines": 157,
+    "notes": "Full157-line action view read/authored: fallback acknowledgement, manual shutter, borderline explicit confirmation, hard failures never expose acceptance. Three real controller/view tests cover all outcomes."
+  },
+  {
+    "path": "frontend/features/upload/services/visa-camera-geometry.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "fa966d31f1a8fd0914411ec7389e0b5a2d868b16ca487d380dadedf019de229e",
+    "physical_lines": 166,
+    "notes": "Full166-line extracted geometry read/authored: original object-cover video/guide mapping, eye coordinates, fixed output aspect and bounded two-percent crop margin; no resampling policy changes."
+  },
+  {
+    "path": "frontend/features/upload/services/visa-camera-frame-analysis.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "8582c39c6f12bd0f091f53302e1d1414f4c4efdcd292bb77edb07c09d48aab78",
+    "physical_lines": 102,
+    "notes": "Full102-line classifier read/authored: strict placement/clarity/background gates and dormant compatibility switch preserved, small live-canvas measurement and instruction labels."
+  },
+  {
+    "path": "frontend/features/upload/services/visa-camera-final-validation.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "cf5bfad43c99f4746cf4797556ea0a67c00ed6f888e8788651d5c5efa5f5f2a8",
+    "physical_lines": 73,
+    "notes": "Full73-line exact-JPEG service read/authored: decode/analysis pixels, explicit fallback versus final face validation, generation checks after decode/inference, decoded image always closed."
+  },
+  {
+    "path": "frontend/features/upload/services/visa-camera-image-encoding.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "10605377c514885ae6b73af1383c18973440f5a0ae0b3ad0c6de35f48580d824",
+    "physical_lines": 39,
+    "notes": "Full39-line browser image adapter read/authored: JPEG toBlob rejection, async image decoding with private object URL revoked on failure and close."
+  },
+  {
+    "path": "frontend/features/passports/types/passport-trip-details.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "9ad3a4d7c10069b842baa3a13f5b5017a3a3906168a980519f565e7adad9a1bd",
+    "physical_lines": 27,
+    "notes": "Full authored/read form type contract extracted from UI to feature types; all existing fields and public type re-export preserved, update utility no longer imports UI types."
+  },
+  {
+    "path": "frontend/features/passports/utils/passport-group-update.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "8c3883be4e01d20b1dc946e1b12d81dc1c10babbb0ee54865b9915a5d6af6cee",
+    "physical_lines": 36,
+    "notes": "Full36-line pure request builder authored/read from prior inline save payload: every flag/config/custom field preserved, canonical timezone/city/name/null normalization unchanged."
+  }
+]

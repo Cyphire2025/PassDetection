@@ -1,0 +1,113 @@
+{
+  "status": "Retained source-only document import tests/helpers complete",
+  "files": [
+    {
+      "path": "backend/tests/unit/presentation/test_document_import_authority.py",
+      "sha256": "493c5fbfcc08763d55331779663405820715762a6aa60fe3a02b82f9429e81ae",
+      "physical_lines": 131,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-131. Held real validator/PUT transition fixture checks fresh persisted session/credential/active/role/agency/group/grant authority and same-policy healthy/profile/legacy/manager/archived/effective-role controls. Conflict source/staff/group changes409; revoked403. Fresh post-outcome DB checks preserve original references, QR, no false AI intent/audits and cleanup only newly owned keys. No test rerun; existing frozen security qualification remains historical."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_import_authority_locks.py",
+      "sha256": "573456a0ac137148433cf353f2e48b7e6ab5a342988e997963cc4a20ae701838",
+      "physical_lines": 59,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-59. Actual ORM statements compiled for PostgreSQL capture requested lock targets/order user->state->group->optional grant->passenger after external PUT; target group/tenant/order predicates checked. Source/compiled assertion review does not establish real PostgreSQL lock contention behavior."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_import_initial_scope.py",
+      "sha256": "af9ab3819c562ab5e7ac937040bf8560cc970d7e61fc85da5d7ffb6ac99b6e56",
+      "physical_lines": 89,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-89. Initial authorization denies malformed scope/coordinator/missing/deleted group/removed assignment before validator; zero-match save rechecks current actor rather than publishing successful private response to revoked session. Healthy zero-save preserves rejection count/no objects. Source-only review, frozen guard unchanged."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_import_processing.py",
+      "sha256": "77ed0f686e0aa4620506a1b621a1e344154042b432e491435616deab250a7ce9",
+      "physical_lines": 156,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-156. Existing complete three-image bundle and missing-field selector, compatibility commit-before-publication assertion, real persisted durable queued AI intent before best-effort synthetic publisher including broker failure. Queue name passport_ocr and legacy helper names are compatibility contracts for existing AI processing, no MRZ/OCR implementation introduced."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_passport_document_import_cancellation.py",
+      "sha256": "4766f7295ae9f9a275c86267f42ed364b7f47dae43830b764290d4a2e876b963",
+      "physical_lines": 99,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-99. Actual importer spool operations held in to_thread across single/double cancellation for preview/save/measure/collect/read; caller must await ownership release before canonical workspace closes. Ordinary canonical bytes/media/storage/commit parity, cancellation during locked lookup closes workspace. CPU/native library lifetime belongs retained dashboard upload; not native app work."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_passport_document_import_storage_outcomes.py",
+      "sha256": "a147c6f194b72893bb39a6872796ce4e0cadca924082b7d177be30355787ba73",
+      "physical_lines": 241,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-241. SQLite durable references plus actual Minio/to_thread adapter with synthetic client; held PUT drains before compensation on cancellation/failure. Before-commit versus lost-ack outcomes inspect fresh committed references and never delete committed key. Second cancellation cannot abandon cleanup, rollback error still performs reference inspection; no real S3/network/credentials or test execution."
+    },
+    {
+      "path": "backend/tests/unit/presentation/document_import_authority_fixture.py",
+      "sha256": "3c31b2caedae1b086f3206768d3848e433b5a4215fc4793ee5d92c59f8435b1e",
+      "physical_lines": 287,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-287. Actual persisted actor/grant/group/target/QR fixture and isolated independent committed transitions; held real import validation or synthetic S3 adapter boundary, access-level superadmin snapshot explicitly retained. Events release in finally and upload closes after held thread completes. Synthetic images/cleanup cipher only, no provider sends or production data."
+    },
+    {
+      "path": "backend/tests/unit/presentation/passport_document_import_fixture.py",
+      "sha256": "68b63cb91d9c0dda1a7464f2224774faa13943d29f865976fb53b1a12334628a",
+      "physical_lines": 152,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-152. NativeBarrier captures actual thread lifetime and releases on every fixture exit; validator supplies deterministic canonical bytes. Older lifetime tests intentionally stub authority/policy, with actual DB authority suite separate. Actual workspace owned and closed, single/double cancellation propagation explicit. No app/service work run for review."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/document_import.py",
+      "sha256": "ec34e2f4c252e18cc192eb3ba6eff60f177243dfb33214e71dc5c793d10ef52d",
+      "physical_lines": 207,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical90-207 only. Save lifetime from initial authorization through isolated staging, fresh actor/scope then target revalidation, journal/audit/durable AI intent, commit, ambiguous outcome compensation and post-commit best-effort publication. Whole current facade already fully reviewed in document-import-authority-reviewed-files.json; this is focused caller correspondence only."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/document_import_authority.py",
+      "sha256": "73a0a685a17eb592a944db685de700c9fa120828451d7e0a832ef6114654bd82",
+      "physical_lines": 108,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical24-84 only. Fresh active user/security-state row locks then canonical refresh, group and optional staff grant locks, unchanged canonical export authorization. Existing current full source ledger preserved; no new policy or whole-file credit here."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/document_import_failure.py",
+      "sha256": "50b0f10c49e96cd70b175131f1a120c3da71673251acfcf8f2f114bb747ebee5",
+      "physical_lines": 55,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical18-55 only. Rollback finally triggers fresh-reference reconciliation, shielded cleanup drains under cancellation; preserves BaseException and existing HTTP status or503 refresh guidance. Current owner already full; no whole-file credit from partial reread."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/document_import_processing.py",
+      "sha256": "85e5d17e7ace085980f79203fe869c55b03e0178e432648595431dbf3544dc63",
+      "physical_lines": 77,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical20-68 only. All three images and any missing confirmed/extracted required field select existing re-extraction use case; compatibility helper commits before dispatching durable job IDs. No changes to frozen processing/AI policy, no whole-file read credit."
+    }
+  ]
+}

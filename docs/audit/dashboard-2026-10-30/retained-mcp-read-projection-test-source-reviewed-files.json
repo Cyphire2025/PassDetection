@@ -1,0 +1,104 @@
+[
+  {
+    "path": "backend/tests/integration/test_mcp_operations_read_http.py",
+    "sha256": "8aa818f7de44b1623c1e31f4f92aa3ba8d17caef5aef6e5e865e85ef722b3519",
+    "physical_lines": 54,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all54 physical lines: real authenticated SDK office/rooming/menu/directory envelopes omit synthetic source credentials/tokens, strict selectors/page limits and missing-parent/static-scope failures, unavailable versus empty results kept distinct. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_roster_reads.py",
+    "sha256": "bf4f1879791484168b9f6822b3e96fb30aef530c53a22c7f72efd1069fa88ec9",
+    "physical_lines": 110,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all110 physical lines: canonical prepared website roster/filter/page parity and opt-in contacts, operational versus uploaded scope, missing/empty/foreign/archived distinctions, actor/filter/page-bound signed cursor and live revision conflict. No raw private image key in default response. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_document_reads.py",
+    "sha256": "82d673d725ba438d6116c05a8cab9cb2219431729c45e50ad4e920f03ebb2fdc",
+    "physical_lines": 165,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all165 physical lines: tenant/retained opt-in, document/job source evidence distinct from operational passenger scope, default hidden extracted identities with explicit sensitive-read audit, current extraction revisions, scalar status projection, exact filename/UUID keysets and no cross-tenant inconsistent row inclusion. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_read_only_retained_dispatch.py",
+    "sha256": "d430903315f2cd4bc2d604456c3b670c041b7d5ed2449728bc7586dc42ffb96a",
+    "physical_lines": 79,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all79 physical lines: previously queued MCP reminder/media rows remain unchanged when release becomes read-only, both publication and provider dispatch are blocked, while unrelated ordinary website batch retains its own existing policy. Synthetic broker/provider mocks remain untouched. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_group_reads.py",
+    "sha256": "88a3fe9814476f5b95202e8e0e5a7546d2f6537fc15919b19cc0047cf4f8241f",
+    "physical_lines": 207,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all207 physical lines: live tenant/agency disambiguation, independent passport/operational/recipient-entry/link counts, literal wildcard names, bounded stable keyset/creation cutoff and actor/filter/expiry cursor binding, exact two scalar-query expectation and role/deactivation recheck. No snapshot guarantee misrepresented. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_rename_reads.py",
+    "sha256": "0f8073b3348414e2dc1a7bab20490fe3ec4d8fbfbf8e73e632f8681d131a8109",
+    "physical_lines": 195,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all195 physical lines: exact website metadata parity, source explicitly allows historical inactive-agency reads without adding a new activity rule, no file authority/key/full-ORM hydration, opt-in extracted identifiers and bounded paged envelope, tenant/current-role/cursor/replay scope and live revoked principal denial. This is concrete non-universal agency-policy evidence, not a new realtime finding. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_rename_http.py",
+    "sha256": "667c98bc31e96b21cf3a3a9d3a8ccce3192a3e77980f46a8f2e8b10150f268d4",
+    "physical_lines": 141,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all141 physical lines: OAuth SDK list/detail and extracted-identifier opt-in/audit without downloads, foreign/missing/no-agency indistinguishable safe failures, all-or-nothing field budget and signed current-agency cursor, eight-way authority denial before projection and postprojection batch revalidation hides moved metadata. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_operations_reads.py",
+    "sha256": "5a13fe59f210d95f55a94c8b961e82cd7f1c5c04904b48a684d31fbbc29408bb",
+    "physical_lines": 261,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all261 physical lines: historical tour activity/scan/assignment evidence preserved without credentials, room selection/allocation/checkin versus current operational membership, platform/agency menu separation and immutable saved entry labels, minimal directory/contact audit, bounded keysets/cutoff and current actor/deleted opt-in, inconsistent cross-tenant links excluded. Native attendance tables are retained shared server projection contracts only. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_content_reads.py",
+    "sha256": "508b0cb8eb2d1999cbe288688dcab1e617cb1db47e7168fbfc533d0dcf8e9241",
+    "physical_lines": 195,
+    "reviewer": "ai_extraction",
+    "review_scope": "focused",
+    "status": "needs-follow-up",
+    "notes": "Physically reviewed retained imports/fixture and complete GC/notification test regions only: unconfigured/current tenant scope, draft/published/retired versions, content opt-in/truncation, no storage/provider material, recipient/device progress projection without dispatch or status changes. Mailbox test definitions identified via scoped search only; dedicated mailbox assertions not reviewed/run. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data.",
+    "retained_ranges": [
+      "1-14",
+      "21-59",
+      "63-131"
+    ],
+    "deferred_scope": "Dedicated mailbox import block15-20, mixed empty-mailbox loop60-62, mailbox helper and owned email/cursor/role tests132-195 remain user-deferred. No complete mixed-file source credit."
+  },
+  {
+    "path": "backend/tests/service_integration/test_mcp_read_parity_postgresql.py",
+    "sha256": "2cfb7d6ba0c769decb9dcfa8f5d0f335cb0a5087ec4d723b3a4764ddc4701279",
+    "physical_lines": 121,
+    "reviewer": "ai_extraction",
+    "review_scope": "focused",
+    "status": "needs-follow-up",
+    "notes": "Read retained case catalog entries and entire shared isolated PostgreSQL runner: generated DB allowlist, migration subprocess boundary, dynamic fixture/test resolution, per-case savepoint/outer rollback and owned DB teardown. Dedicated email cases in the shared parameter catalog were identified for scope only; their bodies and execution remain deferred. No whole mixed-source review credit. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data.",
+    "retained_ranges": [
+      "1-47",
+      "54-75",
+      "77-121"
+    ],
+    "deferred_scope": "Dedicated mailbox case catalog48-53 and owner_email_review catalog entry76 deferred; shared runner read is retained compatibility only, no test execution."
+  }
+]

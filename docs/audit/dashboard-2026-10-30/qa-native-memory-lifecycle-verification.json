@@ -1,0 +1,294 @@
+{
+  "status": "sealed-focused-current-source-checkpoint",
+  "reviewer": "branding_visuals",
+  "plan": {
+    "path": "docs/audit/dashboard-2026-10-30/qa-native-memory-lifecycle-plan.json",
+    "sha256": "81b07ab2273d97f3ea377770c934a1399e448135de99409fcdaa22b8b3107442"
+  },
+  "source_fence": [
+    {
+      "path": "scripts/qa/qualify_api_native_memory.py",
+      "sha256": "81689349e21f1d1b91309ef31e8af38797096deb72ff596abbbd4bb436ba474f",
+      "physical_lines": 259,
+      "max_function_complexity": 25,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Full original99-line physical source plus all authored acquisition/diagnostic/teardown/provenance changes manually reviewed. Formatting changes preserve AST outside recorded intentional changes. Actual main tested with strict synthetic Docker and real temp source/evidence files: original diagnostic/body identity, stopped ownID, no-overlay image hash, positive/negative overlay and lost-run reply. No real Gunicorn/HTTP/native image executed."
+    },
+    {
+      "path": "scripts/qa/qualify_bounded_memory.py",
+      "sha256": "1bd57ba7bd1f86965188bb234c3fcf9bbc97e20b07073b4f6e6149c7a982726a",
+      "physical_lines": 254,
+      "max_function_complexity": 25,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Full original88-line physical source plus all authored owner, bounded command, timeout/cancel, partial receipt/error precedence changes manually reviewed. Common isolation/resource flags and all CLI defaults exact AST. Actual main synthetic timeout/KeyboardInterrupt and healthy exited workloads exercise retained own ID. Fixture generator is unchanged; this receipt qualifies workload-container teardown, not every generator/native path."
+    },
+    {
+      "path": "scripts/qa/qualify_postgres_memory.py",
+      "sha256": "f3dcee80ea05a0964001134d2eace4c1b7c8e55ab8fbe53218defc1d436a9d3e",
+      "physical_lines": 230,
+      "max_function_complexity": 24,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Full original115-line physical source plus all authored immutable image resolution/ownID lifecycle, independent per-client/observer drain and retained future acquisition changes manually reviewed. Original7 SQL calls and all other workload statements exact AST; healthy connection input order retained. Actual main synthetic close/cancel/body/lost-run/partial parallel acquisition regressions pass; inline executor/driver shape only, not native PG, sockets, thread scheduling or throughput."
+    },
+    {
+      "path": "scripts/qa/probe_bounded_memory.py",
+      "sha256": "d8763acccf6761303e13b8d50dd494efaa789870ff0dc5dee20e4723151d29db",
+      "physical_lines": 351,
+      "max_function_complexity": 15,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Full original208-line physical source plus all authored bounded sibling/pipe teardown reviewed. Complete measure/generate/FixtureDigestScanner/execute/child declarations exact AST; removed only unused asyncio import. Actual main synthetic process protocol exercises all sibling closure, join timeout/cancel, failed terminate/kill and partial start; every join bounded. Windows resource/fork are substituted; no OS/native fork/RSS claim. Existing mixed email branch is unchanged, dedicated Operations Inbox callees excluded."
+    },
+    {
+      "path": "scripts/qa/owned_probe_container.py",
+      "sha256": "c66c213841f1fd6bf8833bd59f13fad12f0fa65befabc3aace51128e03105339",
+      "physical_lines": 112,
+      "max_function_complexity": 13,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete112 authored lines manually reviewed. Typed command port and explicit ownership data: exact returned64-hex ID, otherwise exact unique label+name+image/fullID adoption; bounded inspect/stop/readback; no rm/prune/force/broad name cleanup. Preserves cleanup error objects for body-first callers, type-only receipt errors. Nine focused protocol methods include foreign collision, absent adoption, malformed state, repeated cancel, knownID diagnostic failure and healthy exited retention. Strict mypy passed."
+    },
+    {
+      "path": "scripts/test_qa_bounded_memory_lifetime.py",
+      "sha256": "2a5bc6f8d4e255d4415745c6e463c1122e5a9edbd165e73234118bc02f909d5e",
+      "physical_lines": 291,
+      "max_function_complexity": 6,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete authored synthetic entry-point/protocol test source manually reviewed, including final formatter-equivalent form. Initial11 methods/meaningful assertion obligations retained; fixture-only Docker name/label metadata and Future protocol updated to match current real transport. New positive/negative controls do not invoke Docker/providers/PG/native processes. Baseline raw logs/hashes preserved separately; original test bytes were not snapshotted, so no claim of exact original-test raw reconstruction."
+    },
+    {
+      "path": "scripts/test_qa_native_memory_api.py",
+      "sha256": "65e3237c1e2d04bb63eb396f1c2f983fd0a617e175192daac324abde75e53270",
+      "physical_lines": 207,
+      "max_function_complexity": 19,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete authored synthetic entry-point/protocol test source manually reviewed, including final formatter-equivalent form. Initial11 methods/meaningful assertion obligations retained; fixture-only Docker name/label metadata and Future protocol updated to match current real transport. New positive/negative controls do not invoke Docker/providers/PG/native processes. Baseline raw logs/hashes preserved separately; original test bytes were not snapshotted, so no claim of exact original-test raw reconstruction."
+    },
+    {
+      "path": "scripts/test_qa_owned_probe_container.py",
+      "sha256": "63b9ef9a461f7154f793c4ba7b3c4f530e51d451d30e7129d178b0e2d9ca1637",
+      "physical_lines": 153,
+      "max_function_complexity": 6,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete authored synthetic entry-point/protocol test source manually reviewed, including final formatter-equivalent form. Initial11 methods/meaningful assertion obligations retained; fixture-only Docker name/label metadata and Future protocol updated to match current real transport. New positive/negative controls do not invoke Docker/providers/PG/native processes. Baseline raw logs/hashes preserved separately; original test bytes were not snapshotted, so no claim of exact original-test raw reconstruction."
+    },
+    {
+      "path": "scripts/test_qa_postgres_memory_lifetime.py",
+      "sha256": "9e0be5df2cfc100dcaf6d037d97f6754bc8be1200da5772524abbad3a3e3c3a5",
+      "physical_lines": 248,
+      "max_function_complexity": 8,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete authored synthetic entry-point/protocol test source manually reviewed, including final formatter-equivalent form. Initial11 methods/meaningful assertion obligations retained; fixture-only Docker name/label metadata and Future protocol updated to match current real transport. New positive/negative controls do not invoke Docker/providers/PG/native processes. Baseline raw logs/hashes preserved separately; original test bytes were not snapshotted, so no claim of exact original-test raw reconstruction."
+    }
+  ],
+  "source_proof": {
+    "path": "docs/audit/dashboard-2026-10-30/qa-native-memory-lifecycle-source-proof.json",
+    "sha256": "5a85c4ae8201d940d41271369afda2203fbe98784e30ad3d2458e01a3b3b05b0"
+  },
+  "current_full_ledger": {
+    "path": "docs/audit/dashboard-2026-10-30/qa-native-memory-lifecycle-reviewed-files.json",
+    "sha256": "82156d2480db8da0910b228a2062bbfa87610625a380678289e18f7f674ccfdc"
+  },
+  "findings": [
+    {
+      "id": "QNM01",
+      "status": "fixed-and-focused-qualified",
+      "change": "API diagnostic failures no longer skip own container/evidence; PG individual close failures no longer skip other handles/observer/own container. Related actual-main partial acquisition regression additionally proved lost prior handles; explicit retained ordered futures now drain every successful acquisition result before ordinary teardown."
+    },
+    {
+      "id": "QNM02",
+      "status": "fixed-and-focused-qualified",
+      "change": "Existing admission_sha256 now hashes effective source bytes read inside measured image; host_admission_sha256 separate additive metadata. Explicit overlay requires equality; normal no-overlay permits older immutable image distinct from checkout."
+    },
+    {
+      "id": "QNM03",
+      "status": "fixed-and-focused-qualified",
+      "change": "Bounded workload timeout/cancel retains original error and partial receipt and drains only its exact labelled invocation. Known immutable returned IDs remain cleanup authority despite diagnostic failure; ambiguous run reply requires exact unique label/name/image agreement."
+    },
+    {
+      "id": "QNM04",
+      "status": "fixed-and-focused-qualified",
+      "change": "First timed out/cancelled/failed-start child no longer skips siblings/pipes; terminate/join/kill follow-through is bounded; successful original exit codes/results captured before closing handles."
+    }
+  ],
+  "baseline": {
+    "original_entrypoint_methods": 11,
+    "original_negative_assertion_outcomes": 9,
+    "original_healthy_outcomes": 4,
+    "additional_partial_acquisition_negative": 1,
+    "raw_before": [
+      {
+        "path": ".tmp/qa-native-memory-lifecycle/api-before.txt",
+        "sha256": "11b5232b90cd510d4b62d5b96ea56b9f5a4b88f1bbb64afaaa43061004e62f56"
+      },
+      {
+        "path": ".tmp/qa-native-memory-lifecycle/bounded-before.txt",
+        "sha256": "e10aa122515a025e1ab28d8e9f14dd045e9db21b9a299b9f0a4e26b964039f94"
+      },
+      {
+        "path": ".tmp/qa-native-memory-lifecycle/postgres-before.txt",
+        "sha256": "94cf5dbc44a3c4d06a153765ff9f879e70822702e724e5bad38e0c4a0acf5135"
+      },
+      {
+        "path": ".tmp/qa-native-memory-lifecycle/postgres-partial-acquisition-before.txt",
+        "sha256": "ab398e0aab59fcb6052cd285a0ecc142a9c1a497f0b8286e0fccd991c7326ad9"
+      },
+      {
+        "path": ".tmp/qa-native-memory-lifecycle/bounded-baseline.txt",
+        "sha256": "5160ab5117511b3d6886ea402baabab9fa8e37816b62523b27f22f05b6295435"
+      }
+    ],
+    "fixture_error": "Initial bounded-before had missing synthetic source fixture error, corrected before baseline. It is not a product failure.",
+    "test_source_provenance": "Initial hashes/physical source reads retained in plan; original test bytes were not separately snapshotted. Final original-method assertions retained by manual comparison, not claimed byte-for-byte reconstructed."
+  },
+  "verification": {
+    "focused_methods": 29,
+    "checks": [
+      {
+        "name": "entrypoints-and-protocol-final",
+        "command": [
+          "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-audit-venv\\Scripts\\python.exe",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "scripts",
+          "-p",
+          "test_qa_*.py"
+        ],
+        "exit_code": 0,
+        "raw": ".tmp/qa-native-memory-lifecycle/entrypoints-and-protocol-final.txt",
+        "sha256": "ebffa5ecae107858e120791d6512966e69ab0082ccedf25b736147edd7a52347"
+      },
+      {
+        "name": "ruff-final",
+        "command": [
+          "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-audit-venv\\Scripts\\python.exe",
+          "-m",
+          "ruff",
+          "check",
+          "--no-fix",
+          "scripts/qa/owned_probe_container.py",
+          "scripts/qa/qualify_api_native_memory.py",
+          "scripts/qa/qualify_bounded_memory.py",
+          "scripts/qa/qualify_postgres_memory.py",
+          "scripts/qa/probe_bounded_memory.py",
+          "scripts/test_qa_native_memory_api.py",
+          "scripts/test_qa_bounded_memory_lifetime.py",
+          "scripts/test_qa_postgres_memory_lifetime.py",
+          "scripts/test_qa_owned_probe_container.py"
+        ],
+        "exit_code": 0,
+        "raw": ".tmp/qa-native-memory-lifecycle/ruff-final.txt",
+        "sha256": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0"
+      },
+      {
+        "name": "format-final",
+        "command": [
+          "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-audit-venv\\Scripts\\python.exe",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "scripts/qa/owned_probe_container.py",
+          "scripts/qa/qualify_api_native_memory.py",
+          "scripts/qa/qualify_bounded_memory.py",
+          "scripts/qa/qualify_postgres_memory.py",
+          "scripts/qa/probe_bounded_memory.py",
+          "scripts/test_qa_native_memory_api.py",
+          "scripts/test_qa_bounded_memory_lifetime.py",
+          "scripts/test_qa_postgres_memory_lifetime.py",
+          "scripts/test_qa_owned_probe_container.py"
+        ],
+        "exit_code": 0,
+        "raw": ".tmp/qa-native-memory-lifecycle/format-final.txt",
+        "sha256": "38e84e0948ed804ef5b17840dd465124bf6e79a3716b4cdf09673cd6837f2df5"
+      },
+      {
+        "name": "owner-mypy-final",
+        "command": [
+          "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-audit-venv\\Scripts\\python.exe",
+          "-m",
+          "mypy",
+          "--strict",
+          "scripts/qa/owned_probe_container.py"
+        ],
+        "exit_code": 0,
+        "raw": ".tmp/qa-native-memory-lifecycle/owner-mypy-final.txt",
+        "sha256": "8e63ae22e8213e327a5e9cbd584067681681bd8ef7f25c869877887ccdcfc4ff"
+      }
+    ],
+    "strict_type_scope": "New112-line owned_probe_container only; no claim whole script/app mypy run.",
+    "source_preservation": [
+      {
+        "source": "qualify_api_native_memory",
+        "parser_argument_calls_exact": 2,
+        "unchanged_complete_declarations": [],
+        "entire_isolation_and_resource_common_list_exact": true,
+        "fixture_generation_exact": true,
+        "readiness_top_payload_worker_stability_result_update_exact": true,
+        "client_invocation_exact": true
+      },
+      {
+        "source": "qualify_bounded_memory",
+        "parser_argument_calls_exact": 6,
+        "unchanged_complete_declarations": [],
+        "entire_isolation_and_resource_common_list_exact": true
+      },
+      {
+        "source": "qualify_postgres_memory",
+        "parser_argument_calls_exact": 1,
+        "unchanged_complete_declarations": [],
+        "ordered_SQL_calls_exact": 7,
+        "all_other_workload_statements_preserved": true,
+        "healthy_parallel_acquisition_order": "64 retained futures consumed in original submission order; successful body/SQL unchanged"
+      },
+      {
+        "source": "probe_bounded_memory",
+        "parser_argument_calls_exact": 4,
+        "unchanged_complete_declarations": [
+          "measure",
+          "generate",
+          "FixtureDigestScanner",
+          "execute",
+          "child"
+        ]
+      }
+    ]
+  },
+  "intentional_contract_changes": [
+    "New unpredictable QA ownership labels and exact full ID cleanup, bounded command timeouts/readback; stopped artifacts/volumes retained.",
+    "Failed diagnostics/cleanup produce failed receipt and first original body error wins; no false pass from secondary failures.",
+    "Effective image admission SHA replaces misleading host SHA in existing field; additive host hash records checkout separately.",
+    "Healthy API/PG success output printed after verified cleanup rather than before cleanup could fail; existing CLI flags/defaults and success fields retained.",
+    "Ruff formatting expanded physical lines substantially; no arbitrary one-line compression. New helper unifies actual shared container lifetime policy."
+  ],
+  "quality_gates": {
+    "shared_files_edited": false,
+    "old_caps_or_floors_relaxed": false,
+    "note": "Root scripts/qa are outside backend/app and frontend normal module sets; source metrics are reported, no shared-budget edits/additions inferred."
+  },
+  "limits": [
+    "All ordinary-main and protocol fixtures synthetic, using real temporary source/evidence bytes. Docker daemon unavailable and never started; no Docker commands actually executed.",
+    "No PostgreSQL/network sockets/native C/fork/Gunicorn/physical memory/load/provider/scanner/advisory renewal/live release proof. Healthy SQL/settings/body preservation is source plus synthetic-driver control.",
+    "No broad cleanup, removals, provider sends, real credentials, private data or mobile/native ingress changes. Dedicated Operations Inbox audit remains deferred.",
+    "Original preflight/plan/before logs historical and unchanged; current qualification binds only exact listed source bytes.",
+    "Fixture generation is unchanged; this batch qualifies acquired workload/server containers and child orchestrator, not every external or generator lifetime. A stop whose bounded retries cannot verify shutdown remains an explicit failure, never a passing receipt."
+  ]
+}

@@ -1,0 +1,338 @@
+{
+  "files": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_updates.py",
+      "sha256": "1e6156c634204d30746bafce7c71240234b0266303d8ab3e68f3e86840186521",
+      "physical_lines": 202,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete202 route source read: lane allowlist, active locked tenant scope, content validation, request fingerprint/replay, fresh preview comparison, explicit eligible selection/shared-phone dedup, durable per-broadcast outbox/audit, commit before publication. No change or validated defect."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_update_preview.py",
+      "sha256": "80b704ce02854ce15c13a0e6f7151a98739b4295422f8c9d9c99b5c0bdc61973",
+      "physical_lines": 217,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete217 read: exact source destinations/display label isolation, current nonsuperseded docs/confirmed delivery state, lane/tenant-scoped streamed latest/active update history, eligibility and fingerprint. Existing1500 request bound traced in schema. No validated defect; no caching/retention changes."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/draft_lifecycle.py",
+      "sha256": "f36eaa67f3bb2d57ad01078a0ee77fe2277c9d95efa5dab31dff3f969f93fafc",
+      "physical_lines": 66,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete66 read: private no-store/origin/rate boundary, exact fresh/returning capability dependencies, current revision cutoff disposal, lock ownership and commit after result. Shared application owners/tests read; no validated defect or workflow change."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/fresh_draft_completion.py",
+      "sha256": "3d53089e2f88d394b9915afbc016e2377b319dd5378ab75714a242cf81645443",
+      "physical_lines": 82,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete82 read: actual browser/member capability, exclusive group/draft locks, submitted idempotency digest, expected revision/upload-session fencing, normal contact proof/use-case/side-effects, adopted assets and atomic commit. Cohesive workflow not split for line-count appearance; no validated defect."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/fresh_draft_contact.py",
+      "sha256": "168b9d16a63198a623d521dd2dec86d2e145b17086eceec1187a8115b4fd1821",
+      "physical_lines": 49,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete49 read: group-token agreement, capability-scoped synthetic-compatible existing OTP/rate/error delegates, trusted client IP and proof response. No provider sends performed and no new investigation of native/Inbox ingress."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/fresh_draft_dependencies.py",
+      "sha256": "da7cdb422c5a300c5931a5662a6845151f3e101e457baca9ba4815bb8c5c4700",
+      "physical_lines": 31,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete31 read: HttpOnly cookie read, bounded member header, domain-separated group/browser/member capability and existing fresh store crypto. No history authority introduced; no validated defect."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/group_update_preview.py",
+      "sha256": "bb4b84f9a7f64a327ccedf948a6fb94c793d66ba6435d85b9dbbeaa4b19d8651",
+      "physical_lines": 103,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete103 read and full412-line real-DB integration source read. History latest/attempt/active/delivery_unknown keys and token semantics traced through normal send/resend callers. Allocation candidate retains GroupUpdateAttempt for all streamed history though only latest referenced by rows; source candidate only, measured validation/fix remains separate follow-up."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_deletion_support.py",
+      "sha256": "de51080076a4c25c8e1686500401b0b9272f48b84dad9272ed4884f686955dd1",
+      "physical_lines": 55,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete55 read plus immediate already-authorized bulk-delete caller1-100. Scoped committed audit request fingerprint, typed durable counts and conservative deferred-cleanup replay; helper doesn't independently authorize, real caller does. No validated defect or policy change."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/traveller_admin.py",
+      "sha256": "3a6353323b215664affa8912f827c71337786c327b603e0797db74da333d7809",
+      "physical_lines": 241,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete241 read: role/company/group visibility, narrow keyset projection+page cap, provisional candidate tenant/group/profile revision guard and encrypted name; enrollment/reconciliation/withdraw delegates, privacy no-store/CSRF and audit metadata. No newly proven lifecycle/authorization defect; no artificial split of cohesive schemas/routes."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/traveller_welcome.py",
+      "sha256": "03515b6d8b53b3e8d4f79fcdda1de3c9b9c01ecc03204cd62c80786b0815f7e4",
+      "physical_lines": 135,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete135 read: locked current active scope, fresh preview/token, normalized explicit phones, agency phone claim, durable attempt/audit, commit before task publication and queue-failure cleanup. No provider activity or policy change."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/traveller_welcome_preview.py",
+      "sha256": "6e5d91f6ba44d18d7eeed780f2a982a9de8e9b64675853b94c400f99bc76e529",
+      "physical_lines": 209,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete209 read: opted-in same-tenant linked source selection/current legacy template snapshot, current destinations/welcome state and content/contact token. Destination.reason eligibility suspicion dismissed by complete actual resolver: excluded contacts have phone=None, so no invented behavior fix."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/ecr_export_support.py",
+      "sha256": "5ccbeda4eb9d4a46bb49b68bde7f48b753a66832b3602569277d393a6fc81132",
+      "physical_lines": 33,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete33 read: supplied authorized roster only, group opt-in filter, agency/current source-key qualified runtime lookup; current existing111-line focused export tests reread, no ECR/native policy change."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/image_exports.py",
+      "sha256": "583c82d4547b2500c98b0f01a4ccab88d0bb7ae9f0cd5613fd24da4a1fab59bc",
+      "physical_lines": 247,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete original244/current247 physical read. Three actual public declarations/evaluated hints/imports/two-route OpenAPI exact; whole module AST equals archived original after inverse of only two exception cleanup changes. Real rolled spool reproduction3failed/3controls; final11 pass. Resource failure handling fixed; no authority/storage/native policy or workflow change."
+    },
+    {
+      "path": "backend/app/application/travellers/fresh_drafts.py",
+      "sha256": "2064d6af770645c8dbaca4075ecabcfd477222b6bc761a6476ddca50e7985725",
+      "physical_lines": 74,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete74 physical read: domain-separated browser/member secret, active public capability, group/draft lock/current mode/tenant/fixed expiry/company revision checks; start/resume disposal and commit. Prior matching ledger lacked explicit full scope; full credit here comes from actual complete read."
+    },
+    {
+      "path": "backend/app/application/travellers/fresh_publication.py",
+      "sha256": "a62a1a47af63aadcb9ea4f58b77100996d1be36677fe0e4593674cb8aff663b9",
+      "physical_lines": 91,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete91 physical read: current contact proof, locked current draft assets/pending fence, document/photo/classification checks, upload idempotency/capacity, normal source persistence, truthful proof transfer and adoption. No runtime edit/native ingress expansion; no service proof inferred."
+    },
+    {
+      "path": "backend/app/application/travellers/draft_activity.py",
+      "sha256": "adfba80e348211d4c94c86c54cd168085111cc4958edde6dc2cdd53d1294b82e",
+      "physical_lines": 46,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete46 physical read: exact active returning draft capability and fixed expiry, bounded current assets, Redis presence only/no disclosure, infrastructure failure metric. No runtime edit."
+    },
+    {
+      "path": "backend/app/application/travellers/draft_retention.py",
+      "sha256": "13d8a84f2d9c315f2a52c60e0d2a49cf453bf02a0e1445883103b22bc3765293",
+      "physical_lines": 91,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete91 physical read: adopted-key exclusion, exact agency/draft/asset key allowlist, delayed cleanup beyond write envelope,31 sentinel/30 bound and revision cutoff semantics. No runtime edit and no real cleanup service proof."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/returning_dependencies.py",
+      "sha256": "66a1dceb02091608a1f37256d23b634e0aaf49cafd2f9d782e7b10447fbab9dd",
+      "physical_lines": 59,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete59 immediate shared boundary reread; already matching security full ledger, no new-unreviewed credit. HttpOnly/secure/strict cookies, trusted origin/private no-store/referrer headers and cookie+network quotas; unchanged."
+    },
+    {
+      "path": "backend/tests/integration/test_document_updates.py",
+      "sha256": "f5797dccd59654b214520f3c381c9f3a9dc3d9d0a1cd0cb75de28e8d123efee0",
+      "physical_lines": 351,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete351 physical test read. Synthetic HTTP/FK SQL lane/tenant eligibility, phone dedup, durable idempotent outbox, stale preview, superseded docs, lane history and broadcast injection controls inspected; not executed for read-only review."
+    },
+    {
+      "path": "backend/tests/integration/test_group_updates.py",
+      "sha256": "ed93dd3ec1bfd03d3f1fa08eb35c1489fda1c070dcdac83c4701aadbac09f3aa",
+      "physical_lines": 412,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete412 physical test read (prior activity ledger focused). Real roster/filter/source/current phone/replay/history/attempt/current worker semantics and synthetic send controls inspected; not executed yet for allocation follow-up."
+    },
+    {
+      "path": "backend/tests/integration/test_fresh_drafts.py",
+      "sha256": "557b147b31ebc798308964c195cf1a70f043ef40fcdf4596639ca9eecca53e8d",
+      "physical_lines": 172,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete172 physical test read: same browser/member ownership, text-only resume, normal OTP/final atomicity/replay/changed-phone/family rollback/extraction distinctions inspected; no execution/service claim from read-only review."
+    },
+    {
+      "path": "backend/tests/integration/test_draft_lifecycle_http.py",
+      "sha256": "bfe81988e4ab96a3cf0c6f48512e5f3af3945056e835a00f48b8f327e0893b6a",
+      "physical_lines": 92,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete92 physical test read: actual HTTP capability/displayed owner/member discard, text retention/no-store, activity presence and unchanged revision controls inspected; no execution/service claim."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/traveller_destinations.py",
+      "sha256": "17dfeb7e334094cec983674d0df704b30ad9ef55770ea097c4823cea8f200946",
+      "physical_lines": 300,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete300 dependency reread; already matching WhatsApp full ledger, no new-unreviewed credit. Blocked destination reasons imply absent phone, explicit own/completed/imported/override/private-match precedence/current opt-in and scoped locking unchanged. No resolver policy edit."
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/prepare_image_export.py",
+      "sha256": "453cf038b84859a51bad847562349d6e7e42e066d5c41c99a9ac84e2aa39a9e5",
+      "physical_lines": 172,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete172 shared preparation reread; already matching security full ledger, no new-unreviewed credit. DB-only authorized current selection, retained-source pre/post-render fence and rendered spool cleanup; unchanged. New route fix begins only after this render returns."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/document_update_schemas.py",
+      "sha256": "5ced883a66bb13227c39e05d0771e1f8698a415a9ed2e9c5f753bbfbb358de2a",
+      "physical_lines": 49,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete49 schema reread, already current/full; preview token64 hex,1-1500 selection and bounded600 content. No schema change/new unique credit."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/traveller_welcome_schemas.py",
+      "sha256": "24356af367ad4360ddd38929faf6f524c7d86bf81c0b2b24c6cfe4d37c183fc0",
+      "physical_lines": 62,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete62 schema reread, already current/full; explicit1-1500 selected numbers and bounded token/header. No schema change/new unique credit."
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/document_updates.py",
+      "sha256": "532e0fffaa8840625214d9bd9b4140b76a3d521f9d85826f62de7203e86a8213",
+      "physical_lines": 22,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete22 existing pure helper reread, already current/full: accepted/active sets and normalized fixed outgoing text; unchanged. No outgoing provider sends."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_passport_deletion_support.py",
+      "sha256": "72f1d08b4e3095350904c40f9f625182462a3225564746498e1c1a5080a47939",
+      "physical_lines": 53,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete53 source read (prior current rows focused). Durable complete-count metadata/replay and invalid-string rejection controls inspected; no test rerun required for unchanged read-only source."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_traveller_enrollment_sources.py",
+      "sha256": "da503dfacc99cfff29eb8e9874512a766330fda9fa5b04c48b80709b68c38df7",
+      "physical_lines": 36,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete36 test source reread, already current/full. Tenant/status/search/keyset selective source projection controls inspected; no new execution/full credit inferred."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_selected_passport_image_export.py",
+      "sha256": "28a63bea5771e02c68b597348dec77743f6e5cf5d0f4f5c0fd14c0519b3d761e",
+      "physical_lines": 185,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete185 physical test read (prior only focused). Route contract,500 cap, full-group naming namespace and group-restricted selection; existing4 cases pass in affected image selection, assertions byte-unchanged."
+    },
+    {
+      "path": "backend/tests/integration/test_mcp_image_exports.py",
+      "sha256": "2bb9a2c527190b5727a2ea41c5f6adaed6afbb8669722c5a4b143dadd8e5036e",
+      "physical_lines": 400,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete400 physical test read. Real synthetic current crops/ZIP byte parity, baseline/history/artifact/grant/expiry/change/cancellation/selected-source controls inspected; only one actual current-crop web/MCP parity test executed here. Do not infer whole suite or live services passed."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_passport_ecr_export.py",
+      "sha256": "8b7e9b2f5b05a9574c89f2b1030371f60df875f92785e373d57e2330f8afe45f",
+      "physical_lines": 111,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete111 current test reread, already full in exporter ledger. Disabled/trusted current scoped ECR workbook projection controls; no rerun or policy edit."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/group_updates.py",
+      "sha256": "15685967249058f71a453a91856204709abd07de24ea0972073a8c0656a7e9af",
+      "physical_lines": 150,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete150 full physical source read: send caller scoped actor/group lock, fresh preview/token, selected audience, durable deduped task payload/audit and commit before publish. No changes; allocation optimization must preserve complete token/count/attempt eligibility response."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_passport_image_export_ownership.py",
+      "sha256": "a84ce7603ce20736f6d725382cf9a97aafa974a2bb8086dbd27ab0ff8e98b0ff",
+      "physical_lines": 111,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete113 physical test source read. Real rolled tempfile, synthetic actual public route preparation/history/commit faults; original3failure/3controls, final6pass; exception identity/cause/status, no commit on history failure and stream handover/headers/bytes/close asserted. No real provider/native/production data."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/response_support.py",
+      "sha256": "3982f9979db2de63d23aee12bda3143c06f580eb0f640a86a016345075f7eef5",
+      "physical_lines": 298,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical read1-145 only: complete _owner_scope_for/_stream_binary_file closes after stream consumption. Other response/auth/native helpers not full reviewed here."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_update_resend.py",
+      "sha256": "6a4030480233fc5b6865a6b49452eb685f21a8a58012601611b552a6eb73a2b6",
+      "physical_lines": 218,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical read1-150 only: source status/tenant/recipient/current group lock, filter/current preview and immutable saved-destination eligibility checks; actual preview caller closure only, no whole source credit."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions_delete.py",
+      "sha256": "3ebfce47110e3e562639e5d520a3b95fcb945a25468c082d0dfbe131cd53dece",
+      "physical_lines": 289,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical read1-100 only: recent MFA/CSRF/destructive policy/tenant group before helper replay use; parent frozen whole owner not modified or newly credited full."
+    }
+  ],
+  "scope": "Actual individual physical full/focused reads only; prior current explicit-full ledgers are retained and no duplicate unreviewed credit claimed. Thirteen selected runtime sources lacked current matching full records at discovery. Read-only files were not rerun merely to obtain credit."
+}

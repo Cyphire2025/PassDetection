@@ -1,0 +1,26 @@
+
+ RUN  v4.1.12 C:/Users/nipun/Desktop/PassDetection/frontend
+
+ ❯ features/whatsapp/workspace/recipients-page.test.tsx (5 tests | 1 failed) 566ms
+   × does not rescan unchanged welcome histories while typing in a 512-recipient roster 93ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  features/whatsapp/workspace/recipients-page.test.tsx > does not rescan unchanged welcome histories while typing in a 512-recipient roster
+AssertionError: expected 2099 to be less than or equal to 100
+ ❯ features/whatsapp/workspace/recipients-page.test.tsx:107:24
+    105|   expect(screen.getByRole("button", { name: "Welcome failed (256)" }))…
+    106|   expect(screen.getByRole("button", { name: "Welcome not sent (256)" }…
+    107|   expect(historyReads).toBeLessThanOrEqual(100);
+       |                        ^
+    108| });
+    109|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 passed (5)
+   Start at  09:46:31
+   Duration  1.78s (transform 280ms, setup 151ms, import 453ms, tests 566ms, environment 519ms)
+

@@ -1,0 +1,179 @@
+{
+  "basis": "Post13-real-delivery-negative fix checkpoint, before owner partition. Not original checkout.",
+  "historical_mechanical_proof_sha256": "64798e032b0b0f4767e48d78d2a8f1b7bf119612f402552d232573be8621d5af",
+  "literal_or_ownership_normalized_bodies_preserved": 24,
+  "explicit_later_changes": 2,
+  "constructor_and_method_signatures_preserved": 17,
+  "final_current_sha256": {
+    "backend/app/infrastructure/my_photos/delivery_assets.py": "ac7552308e2ec93abb0ecbbb436f8ed3837eda85e7cd3f9399c3456963d7d0e9",
+    "backend/app/infrastructure/my_photos/delivery_authorizations.py": "9046604ceccb397a12da11113a483b9aa5ad044f2d25c9f7a8704fddfb90a168",
+    "backend/app/infrastructure/my_photos/delivery_context.py": "af629e7efa13952428cc21fe1a8bb7bd355c05ba1c5d25fbf29c5ef8600e39f3",
+    "backend/app/infrastructure/my_photos/delivery_downloads.py": "15c0de8a6b74c9e94d5e4b67fd14f64be018bfcbdcb994db3eb6d4e7011e6248",
+    "backend/app/infrastructure/my_photos/delivery_plan.py": "25eb7ce1a2faa35ab33a8e74cfe90dd1c104752ec23d85db66f7a3e372eaf850",
+    "backend/app/infrastructure/my_photos/delivery_policy.py": "673613f7140aec65ca3f6d46bbc1a442eb8dc215911996bf4a3130c383b0f704",
+    "backend/app/infrastructure/my_photos/delivery_preparation.py": "1f00c8952de5d462b37b287ffb6fc091d281dac645b51fc41a9d6cd24c9e69de",
+    "backend/app/infrastructure/my_photos/delivery_previews.py": "b043c34700d0a2fbf62f1b6b2fadb49491f742dbc35831b0685585488336fa5c",
+    "backend/app/infrastructure/my_photos/delivery_projection.py": "131282f9f76eb5fff5ccdb2f0a43fe2d9ddd6ccb09f9588ec78a2049802dcfbc",
+    "backend/app/infrastructure/my_photos/delivery_provider.py": "07ca9ff10ba44d177ab63baacae52954d47970e040bb164dfd702dce0d21181b",
+    "backend/app/infrastructure/my_photos/delivery_service.py": "97d6c44090c83acc01278a95b09f1f11a46a13839c2017698ce34bd1f481d5a9"
+  },
+  "declarations": [
+    {
+      "name": "_delivery_deadline",
+      "owner": "delivery_policy",
+      "body_preserved_after_explicit_dependency_relocation": true,
+      "later_change": null
+    },
+    {
+      "name": "_as_utc",
+      "owner": "delivery_policy",
+      "body_preserved_after_explicit_dependency_relocation": true,
+      "later_change": null
+    },
+    {
+      "name": "_optimized_variant_is_downloadable",
+      "owner": "delivery_policy",
+      "body_preserved_after_explicit_dependency_relocation": true,
+      "later_change": null
+    },
+    {
+      "name": "_preview_variant_is_downloadable",
+      "owner": "delivery_policy",
+      "body_preserved_after_explicit_dependency_relocation": true,
+      "later_change": null
+    },
+    {
+      "name": "_content_version",
+      "owner": "delivery_policy",
+      "body_preserved_after_explicit_dependency_relocation": true,
+      "later_change": null
+    },
+    {
+      "name": "_delivery_request_fingerprint",
+      "owner": "delivery_policy",
+      "body_preserved_after_explicit_dependency_relocation": true,
+      "later_change": null
+    },
+    {
+      "name": "_authorization_identity",
+      "owner": "delivery_policy",
+      "body_preserved_after_explicit_dependency_relocation": true,
+      "later_change": null
+    },
+    {
+      "name": "_authorize_provider_batch",
+      "owner": "delivery_provider",
+      "body_preserved_after_explicit_dependency_relocation": true,
+      "later_change": null
+    },
+    {
+      "name": "_safe_provider_authorize",
+      "owner": "delivery_provider",
+      "body_preserved_after_explicit_dependency_relocation": true,
+      "later_change": null
+    },
+    {
+      "name": "_validated_delivery_authorization",
+      "owner": "delivery_provider",
+      "body_preserved_after_explicit_dependency_relocation": true,
+      "later_change": null
+    },
+    {
+      "name": "_stable_error_code",
+      "owner": "delivery_provider",
+      "body_preserved_after_explicit_dependency_relocation": true,
+      "later_change": null
+    },
+    {
+      "name": "photo_response",
+      "owner": "delivery_projection",
+      "body_preserved_after_explicit_dependency_relocation": true,
+      "later_change": null
+    },
+    {
+      "name": "_delivery_response_item",
+      "owner": "delivery_projection",
+      "body_preserved_after_explicit_dependency_relocation": true,
+      "later_change": null
+    },
+    {
+      "name": "_clear_delivery_metadata",
+      "owner": "delivery_projection",
+      "body_preserved_after_explicit_dependency_relocation": true,
+      "later_change": null
+    },
+    {
+      "name": "_authorized_assets",
+      "owner": "delivery_assets",
+      "body_preserved_after_explicit_dependency_relocation": true,
+      "later_change": null
+    },
+    {
+      "name": "latest_optimized_variants",
+      "owner": "delivery_assets",
+      "body_preserved_after_explicit_dependency_relocation": true,
+      "later_change": null
+    },
+    {
+      "name": "latest_variants",
+      "owner": "delivery_assets",
+      "body_preserved_after_explicit_dependency_relocation": true,
+      "later_change": null
+    },
+    {
+      "name": "_current_delivery_asset",
+      "owner": "delivery_assets",
+      "body_preserved_after_explicit_dependency_relocation": true,
+      "later_change": null
+    },
+    {
+      "name": "prepare_media",
+      "owner": "delivery_preparation",
+      "body_preserved_after_explicit_dependency_relocation": false,
+      "later_change": "Canonical passenger identity FOR UPDATE before first-write idempotency lookup; actual ORM/PG-compiled ordering baseline failed, valid workflow controls pass. Not a live PostgreSQL concurrent-writer reproduction."
+    },
+    {
+      "name": "authorize_downloads",
+      "owner": "delivery_authorizations",
+      "body_preserved_after_explicit_dependency_relocation": true,
+      "later_change": null
+    },
+    {
+      "name": "_finalize_delivery_claims",
+      "owner": "delivery_authorizations",
+      "body_preserved_after_explicit_dependency_relocation": false,
+      "later_change": "Removed one redundant stable_error_code assignment immediately overwritten by the pure clear-metadata helper; final persisted error and provider-failure regression unchanged."
+    },
+    {
+      "name": "download_plan",
+      "owner": "delivery_plan",
+      "body_preserved_after_explicit_dependency_relocation": true,
+      "later_change": null
+    },
+    {
+      "name": "development_download_content",
+      "owner": "delivery_downloads",
+      "body_preserved_after_explicit_dependency_relocation": true,
+      "later_change": null
+    },
+    {
+      "name": "production_download_location",
+      "owner": "delivery_downloads",
+      "body_preserved_after_explicit_dependency_relocation": true,
+      "later_change": null
+    },
+    {
+      "name": "development_preview_content",
+      "owner": "delivery_previews",
+      "body_preserved_after_explicit_dependency_relocation": true,
+      "later_change": null
+    },
+    {
+      "name": "production_preview_location",
+      "owner": "delivery_previews",
+      "body_preserved_after_explicit_dependency_relocation": true,
+      "later_change": null
+    }
+  ],
+  "limits": "11pure declarations literal normalized AST equal;15method bodies equal after explicit context/asset/helper ownership normalization. Public facade delegation/new composition intentionally differ. Proof basis is post13fix checkpoint, not original checkout. No algorithm/authority equivalence is inferred from line counts. Final two later edits are explicitly proved separately; historical26-unchanged checkpoint remains immutable."
+}

@@ -1,0 +1,38 @@
+[
+  {
+    "path": "backend/app/infrastructure/rooming/priority_field_catalog.py",
+    "sha256": "6ddf90261c444e4e6427d993bcc8fa0dbd51c9b6e6b60f7a49a71fd01dc59f04",
+    "lines": 137,
+    "status": "refactored",
+    "review_scope": "full",
+    "reviewer": "manual_security",
+    "notes": "Complete original 679-line source read and complete physical current owner read. Privacy/field-key rules retained exact; only recipient projection loop changes work complexity. Tenant queries, link scoping, matcher seam and resolve_values/lock behavior unchanged. AST scope and focused affected tests bound in verification receipt; no deployed-service certification."
+  },
+  {
+    "path": "backend/app/infrastructure/rooming/priority_field_policy.py",
+    "sha256": "64598228c747cc778f034c60488f55faad7c10b3d0d40fcd377d16df9715861a",
+    "lines": 263,
+    "status": "refactored",
+    "review_scope": "full",
+    "reviewer": "manual_security",
+    "notes": "Complete original 679-line source read and complete physical current owner read. Privacy/field-key rules retained exact; only recipient projection loop changes work complexity. Tenant queries, link scoping, matcher seam and resolve_values/lock behavior unchanged. AST scope and focused affected tests bound in verification receipt; no deployed-service certification."
+  },
+  {
+    "path": "backend/app/infrastructure/rooming/priority_field_values.py",
+    "sha256": "62715fc8274962cca138efe57cdfcba4ba05e173f5f36262d86231be2cddc868",
+    "lines": 103,
+    "status": "refactored",
+    "review_scope": "full",
+    "reviewer": "manual_security",
+    "notes": "Complete original 679-line source read and complete physical current owner read. Privacy/field-key rules retained exact; only recipient projection loop changes work complexity. Tenant queries, link scoping, matcher seam and resolve_values/lock behavior unchanged. AST scope and focused affected tests bound in verification receipt; no deployed-service certification."
+  },
+  {
+    "path": "backend/app/infrastructure/rooming/priority_fields.py",
+    "sha256": "29d0ee199c2f9966e06dd96ede4cd9e3bc24ac21b0079aed4dbaf3fd656f5a0a",
+    "lines": 231,
+    "status": "refactored",
+    "review_scope": "full",
+    "reviewer": "manual_security",
+    "notes": "Complete original 679-line source read and complete physical current owner read. Privacy/field-key rules retained exact; only recipient projection loop changes work complexity. Tenant queries, link scoping, matcher seam and resolve_values/lock behavior unchanged. AST scope and focused affected tests bound in verification receipt; no deployed-service certification."
+  }
+]

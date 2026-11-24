@@ -1,0 +1,62 @@
+[
+  {
+    "path": "app/presentation/api/v1/schemas/tour_activity_schemas.py",
+    "baseline_lines": 97,
+    "maximum_lines": 101,
+    "baseline_max_function_complexity": 16,
+    "maximum_function_complexity": 16,
+    "minimum_coverage_percent": 65,
+    "observed_statement_coverage": 69.6969696969697,
+    "observed_branch_coverage": 22.22222222222222,
+    "sha256": "d7264fa118d2ac9966be93fd1b17912fcbf7a1cd9888a228371832c594eecc29",
+    "previously_budgeted": false
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/tour_attendance_projection_schemas.py",
+    "baseline_lines": 143,
+    "maximum_lines": 149,
+    "baseline_max_function_complexity": 0,
+    "maximum_function_complexity": 0,
+    "minimum_coverage_percent": 95,
+    "observed_statement_coverage": 100.0,
+    "observed_branch_coverage": 100.0,
+    "sha256": "ad6a3c2fbe1183fd23a6e5b6c984c5ce921e6b40a6ab38d46af046555a602554",
+    "previously_budgeted": false
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/tour_coordinator_schemas.py",
+    "baseline_lines": 119,
+    "maximum_lines": 124,
+    "baseline_max_function_complexity": 1,
+    "maximum_function_complexity": 1,
+    "minimum_coverage_percent": 95,
+    "observed_statement_coverage": 96.7741935483871,
+    "observed_branch_coverage": 100.0,
+    "sha256": "1ce8e157f43fa0ab827a960f10341a376f00a2ed100795203a6423ee203c315e",
+    "previously_budgeted": false
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/tour_operations_schemas.py",
+    "baseline_lines": 187,
+    "maximum_lines": 195,
+    "baseline_max_function_complexity": 5,
+    "maximum_function_complexity": 5,
+    "minimum_coverage_percent": 95,
+    "observed_statement_coverage": 100.0,
+    "observed_branch_coverage": 100.0,
+    "sha256": "fd7ecf986739deee381054c462fee4afb9b83efd483473b8025bc58ac682bee0",
+    "previously_budgeted": false
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/tour_qr_schemas.py",
+    "baseline_lines": 102,
+    "maximum_lines": 107,
+    "baseline_max_function_complexity": 0,
+    "maximum_function_complexity": 0,
+    "minimum_coverage_percent": 95,
+    "observed_statement_coverage": 100.0,
+    "observed_branch_coverage": 100.0,
+    "sha256": "62399206edc4abbb006acb56fd1bfcb33ec9ba14250b99e198003bed51680c5b",
+    "previously_budgeted": false
+  }
+]

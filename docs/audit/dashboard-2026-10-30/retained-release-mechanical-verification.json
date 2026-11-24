@@ -1,0 +1,89 @@
+{
+  "status": "mechanical checkpoint complete; separately labeled decoded-boundary follow-through next",
+  "source_sha256": {
+    "scripts/release_retained_update.py": "7aa6681ae94a5d25b38eb3ed56c597c097d642546a234c1f4e9d4088fe1c97ec",
+    "scripts/retained_release_contract.py": "dabba1e42c75955681b8edd7a3975f64e606eaf4978e3765c093afdf169a4081",
+    "scripts/retained_release_fast.py": "a55df2753e7442c71c759678ca78f9a274519248e38159b9a30de43c08626f5c",
+    "scripts/retained_release_host.py": "8f4757acd817ac921d1c6a5bcb37e2f8fd802b75cbda0dd421ddedf06cc4afdf",
+    "scripts/retained_release_runtime.py": "5c376443862321a620bc56ae780a48eef0511dca4d261abc2cf2443da61aea37",
+    "scripts/retained_release_build.py": "a368b6037e19be1a792e4a975145c4104edfd61ed3d5923388efa69a2cf2dca1",
+    "scripts/retained_release_lifecycle.py": "aff3f49aed8e3475f2d511db7a6fa83304be7da8559cac27b3c13587ca652aea",
+    "scripts/release_document_resources.py": "d0106c684c8bf2073c0992409051903592b371d050c666554d74d4c8ad045a6a",
+    "scripts/test_retained_release_owners.py": "30915e59c5b4e80fc8323f56208757512b4b9fd17055c618de58182967307661",
+    "scripts/test_release_retained_update.py": "cd6e1959c6a8114718999575a20f9007c18ccc9f3eff55ae91e7e19584484e62",
+    "scripts/test_release_companies_fast.py": "35ca1d1aeb2296c7f9d97c6ae301a98f25bb823d4bc924bd41253c484a86ceae",
+    "scripts/test_release_document_fast.py": "9a488f31d2eaa5e5871fd68a1d2062e73b2694f21f2a89acf17e3fc07a44194b",
+    "scripts/test_document_resume_baseline.py": "cadebf2e0ce006b306f8a500b214403ba64a88ba3c085ce5a67d50fb3808d016",
+    "scripts/test_release_health_asset.py": "946363b761bfe7e4ca1a2da5612f4fd690a0c41591b40dfab17a57d58f478adb"
+  },
+  "original_lines": 597,
+  "runtime_owners": 7,
+  "runtime_lines": {
+    "scripts/release_retained_update.py": 164,
+    "scripts/retained_release_contract.py": 223,
+    "scripts/retained_release_fast.py": 69,
+    "scripts/retained_release_host.py": 226,
+    "scripts/retained_release_runtime.py": 224,
+    "scripts/retained_release_build.py": 57,
+    "scripts/retained_release_lifecycle.py": 228
+  },
+  "proof": {
+    "whole_original_methods": 28,
+    "whole_top_level_helpers_and_CLI": 9,
+    "whole_FastBuild_class": true,
+    "constant_AST_and_values": 9,
+    "actual_original_global_bindings": 130,
+    "all_method_arguments_decorators_signatures_evaluated_hints_aliases_pickles_exact": true,
+    "factory_return_hint": "Corresponding canonical public RetainedUpdate class, not an unrelated new type",
+    "new_private_MRO_bases": [
+      "_RetainedBuild",
+      "_RetainedRuntime",
+      "_RetainedHost"
+    ],
+    "class_dict_layout_and_internal_code_owner_names_changed": true,
+    "class_runtime_hints_equal": true,
+    "class_source_tradeoff": {
+      "RetainedUpdate": "OSError: public legacy alias is in facade; class declaration is in focused owner",
+      "FastBuild": "OSError: public legacy alias is in facade; class declaration is in focused owner"
+    },
+    "no_runtime_proxies_callbacks_constructors_or_fake_base_fields": true,
+    "original_startup_bytecode_order_preserved": true,
+    "line_level_E402_only": "Specific facade project imports retain original suppression ordering; no per-file/config ignore",
+    "all5_adapted_test_modules_whole_AST_restore": true,
+    "old_assertions_preserved": 180
+  },
+  "checks": {
+    "corrected_baseline_and_extracted": "Same121cases/9files before and after",
+    "extra_selected_owner_and_resource_cases": 26,
+    "new_owner_controls": 5,
+    "unique_selected_cases_across_two_invocations": 147,
+    "Ruff_and_format": "8owned source/test files pass repositoryconfig",
+    "configured_Linux_strict_typing": "FAIL40diagnostics; no strict-pass claim or policy suppression",
+    "first_baseline": "121cases:120pass/1known pre-existing frontendAFTERhash drift failure, fixed by separately sealed685 shared checkpoint before corrected baseline",
+    "first_extra_selection": "16actualcases pass plus one nonexistent test module selection error; corrected26case selection passes",
+    "CLI": "Actual unrelatedcwd help/invalidarguments with only PATH/SYSTEMROOT, emptyPYTHONPATH, no operationalcredentials",
+    "effects": "Synthetic Docker/container records and existing generated JS fake-fetch controls; no deploy/provider/liveDocker actions"
+  },
+  "qualification": "Six individual new shared source paths added; original32-entry list preserved. Existing real source-hash implementation rejects missing owner and notices changed source. Resource qualifier file restores byte-for-byte LF after removing exactly3added tuple lines.",
+  "remaining": [
+    "Separate decoded Docker inventory/public-asset JSON shape checks and local inference refinement",
+    "Configured strict interface/generic/variance migration remains open; original FastBuild override intentionally has one-argument public shape",
+    "Live Linux/Docker/PostgreSQL/VPS qualification not run",
+    "No dedicated Inbox audit extension, no new deployment setup or schema change",
+    "Source-only developer tradeoff: legacy class aliases make inspect.getsource(class) fail; methods/source paths and pickle aliases remain available"
+  ],
+  "artifacts": {
+    "retained-release-extraction-proof.json": "cb5a259dbba58a940b227ac9bb6aa0fee1852c9c5cc9febe0b8291c2e806d963",
+    "retained-release-original-sources.json": "679f315bd4574aaf62d8701e7f900e80e2b7cd01f26e54dafd2d9b34de3fe1f0",
+    "retained-release-mechanical-reviewed-files.json": "0b80f150da1ec4d27eee40261b3b5ba7793775a4e7136d135ac35778376d8609",
+    "retained-release-before-tests.txt": "95d4760ad83f2cf49477113716733c8fc093e76fbc0cf16fb3887466ada6339a",
+    "retained-release-corrected-before-tests.txt": "90b5e87a23185c8c3a89aeef4c1bfd77689fc7820f1bdc629d5f46561de42855",
+    "retained-release-extracted-tests.txt": "5a0f5ef765ca77858f2e822fdafd2d52890f847156f822c7753e4bbc81173ab4",
+    "retained-release-owner-tests.txt": "d1c0a86cbcb3a6150eb3457c4008575056adfb9bcc34146c34a64bcef6688aaa",
+    "retained-release-owner-tests-corrected.txt": "186a7cc01eacdda80aed9ca1e713fb1cc9cd36ed4e34d11a2d62be718527b9e4",
+    "retained-release-mechanical-ruff.txt": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0",
+    "retained-release-mechanical-format.txt": "3fa62c94b1301255f0c64c429c668a4fabc4cb9d3848edb2790b607266d16092",
+    "retained-release-basic-mypy.txt": "3a09c6785bbcacfd8759cd8258c0e76baae5c7304ccc3fc67c8baa8fc2b0f1d5",
+    "retained-release-strict-followups.txt": "b2570a6ffaee8a6bafa82a4820042700237d6527ee31e178dc134d75a90a8af7"
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "recorded_at": "2026-10-31T08:15:47.144Z",
+  "status": "coherent-source-frozen-focused-controls-pass-final-combined-pending",
+  "source_paths": [
+    {
+      "path": "frontend/features/documents/hooks/use-document-distribution.ts",
+      "sha256": "212ab308ba02e8fbe7ebea934d1b4681f84417aec5ef3eb9ebf0e84436a0c5bf"
+    },
+    {
+      "path": "frontend/features/documents/hooks/document-operation-authority.test.tsx",
+      "sha256": "7eea49a1ea6f71e41a38b0b10f0230f879118a1ac04de7fd8f93679e4e2e67de"
+    },
+    {
+      "path": "frontend/features/documents/test-support/operation-authority.test-fixture.tsx",
+      "sha256": "92e22c4fe75392da923df9575a3e78d9186e1a7ebcbe1829cbef2875bc9e2146"
+    },
+    {
+      "path": "frontend/features/documents/test-support/operation-transport.test-fixture.ts",
+      "sha256": "13fe0234d9492172c6a77f2a1b4ae1521901679c770320efa201de547c9f70e2"
+    }
+  ],
+  "normal_original_before": {
+    "files": 1,
+    "tests": 6,
+    "passed": 4,
+    "failed": 2,
+    "filtered_or_pending": 0
+  },
+  "original_before_with_existing_abort_controls": {
+    "files": 1,
+    "tests": 8,
+    "passed": 6,
+    "failed": 2,
+    "filtered_or_pending": 0
+  },
+  "fixed_corresponding_controls": {
+    "files": 1,
+    "tests": 8,
+    "passed": 8,
+    "failed": 0,
+    "filtered_or_pending": 0
+  },
+  "final_affected": {
+    "files": 20,
+    "tests": 105,
+    "passed": 105,
+    "failed": 0,
+    "filtered_or_pending": 0
+  },
+  "finding": {
+    "trigger": "A confirms normal discard or chooses a manual PDF and selects Upload and save. While framework onMutate is awaiting, real setSession(B) resets QueryClient/private state and remounts AuthenticatedContent; after queued work resumes, the original hooks used the new actor.",
+    "observed_before": "Two discard POST configurations and the old synthetic manual PDF reached the real client owner-bound adapter final delegate with B X-Expected-Actor-Id and B authority tuple, after A workspace unmounted and dialogs disappeared.",
+    "correction": "Initial owner is captured at mutate invocation by existing shared private mutation envelope, before framework awaits. Bulk abort also checks the original owner before/after every API await. Existing signal/reset/unmount guards remain intact.",
+    "scope": "Unintended replacement-actor-bound client dispatch, not a demonstrated server authorization bypass, production data exfiltration or live provider send."
+  },
+  "controls": {
+    "real_boundaries": [
+      "AuthenticatedContent authority-key remount",
+      "SessionLifecycle query clearing",
+      "Auth store setSession and sensitive-state reset",
+      "useDocumentWorkspace and DocumentWorkspaceActions",
+      "Actual discard/manual passenger dialogs",
+      "Synchronous apiClient request owner capture, owner-bound adapter, response/error normalization"
+    ],
+    "positive": "Same-owner and same-owner profile changes preserve ordinary discard/manual save, exact actor/authority headers and actual per-call success dialog closure.",
+    "compatibility": "Actual manual upload exposes original variables by identity, undefined context, original structured409error and an enabled retry dialog. Eight existing shared private-mutation cases also protect custom callback/context/variable semantics.",
+    "cancellation": "Queued verification reset/unmount protection passed on the original hook and after the fix. In-flight manual type verification aborts across replacement; no old receipt finalization or late capability persistence occurs. Same-owner profile renewal preserves manual proof and receipt-only finalization.",
+    "authority": "Same-user role and agency changes remount and fence queued manual intent; ordinary profile changes do not remount.",
+    "ablation": "Removing only the two per-await abort assertions, with invocation capture still installed, makes the selected real acknowledged-bulk continuation case fail (two dispatches instead of one). Ten other cases are explicitly filtered in that experiment. Exact fixed source bytes are restored in finally and verified by SHA; this is separate from the original source baseline and final105case run."
+  },
+  "checks": {
+    "typescript": "passed",
+    "eslint": "Four changed runtime/test/fixture paths pass, zero warnings",
+    "node_contracts": {
+      "files": 4,
+      "tests": 32,
+      "passed": 32
+    },
+    "existing_module_budgets": "556pass; script unchanged",
+    "source_proof": "All15public hook names/order,14whole hook bodies after wrapper normalization, query keys, bulk dedup/API/order and original bulk onSettled preserved."
+  },
+  "coverage_obligations": {
+    "original_hook_configured_critical": false,
+    "config_sha256": "43f8ef71f59df34257e296abc4e2d6181105066af32a39c66bf2dcca6268d37d",
+    "notes": "No critical include/floor or cap moved/relaxed. No per-file coverage percentage claimed from the105affected case run. One measured module candidate is supplied separately."
+  },
+  "supersedes_candidate": "The private queued invocation candidate left open in document-api-architecture-verification.json is resolved for the reviewed normal caller flows by these reproductions and the invocation-bound fix. Earlier receipts remain historical and unchanged.",
+  "raw_receipts": [
+    {
+      "path": "docs/audit/dashboard-2026-10-30/document-operation-authority-normal-paths-before.json",
+      "sha256": "7ef90fbfb0f7a07a0f97904ca55ffee2cbe0914d31939f72ac8bcd80ee72859e"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/document-operation-authority-normal-and-abort-controls-before.json",
+      "sha256": "cb7c1630ceb60a68d310cea9ddace13140b843f2ada84ef139b868678c82041c"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/document-operation-authority-normal-and-abort-controls-after.json",
+      "sha256": "9c31f8b86b1cb6010fc123540ec5093dc60bec02037916a5929800df1a2c3553"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/document-operation-authority-manual-continuations-after.json",
+      "sha256": "827c2ee5b45cbeee006e8009573f2928e1ed53ffba928b8e1ccd3fc1e12accc0"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/document-operation-authority-per-await-ablation.json",
+      "sha256": "c4bbdec125cd53730ffa79d4c2df202e2a0414e62926a3e073c3858730ce2f7e"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/document-operation-authority-per-await-ablation-source.json",
+      "sha256": "a6be4f2e41f2e8298d5b31d2dd33245f78c5fc6fe4857dc8856bd2720b6c7805"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/document-operation-authority-final-affected-unit.json",
+      "sha256": "09766de7951a54b8f28a5a9ce044ae470a072446aea599ec2e4c4b6cbe314ae5"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/document-operation-authority-final-types.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/document-operation-authority-final-lint.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/document-operation-authority-final-node-contracts.txt",
+      "sha256": "e0e13b00128e30ceed27cc6cd0b24e020665e68ded1b32b3081d0a35ef7615d7"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/document-operation-authority-final-existing-budgets.txt",
+      "sha256": "5a480e96b1c373ac198a6f8d782e78da1605fbbfaf67ad0c0c0c0f003fc2d852"
+    }
+  ],
+  "limits": "Synthetic in-memory staff sessions/data and final network delegate; no HTTP listening service, live backend authorization, provider, real cookies/JWTs, production documents, broad browser/build or whole application suite. Normal actor failures use actual action/dialog controllers; manual type continuation uses the actual controller methods via a test host rather than rendering its heavyweight PDF preview dialog.",
+  "final_verification": "Per latest user cadence, finish remaining source/implementation batches first, then one final combined round. No intermediate production artifact qualification requested. API7, previous returning20 and backend server-log5 remain frozen."
+}

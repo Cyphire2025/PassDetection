@@ -1,0 +1,70 @@
+{
+  "status": "focused architecture/correctness checkpoint complete; public-interface typing remains open",
+  "source_sha256": {
+    "scripts/release_retained_update.py": "7aa6681ae94a5d25b38eb3ed56c597c097d642546a234c1f4e9d4088fe1c97ec",
+    "scripts/retained_release_contract.py": "c5dd3b221a201cb3269cb312614a238d3f5b5f670e2ab82bd4686a34dc5f950e",
+    "scripts/retained_release_fast.py": "a55df2753e7442c71c759678ca78f9a274519248e38159b9a30de43c08626f5c",
+    "scripts/retained_release_host.py": "268149106dc04bc235b85e47f1523dfbd5b987f289d692bc12b55ae7217463d2",
+    "scripts/retained_release_runtime.py": "d5e65521ce9ab73ce2fe7e11773a7a453276ead001b4f97498bb6d7e6e85109a",
+    "scripts/retained_release_build.py": "a368b6037e19be1a792e4a975145c4104edfd61ed3d5923388efa69a2cf2dca1",
+    "scripts/retained_release_lifecycle.py": "aff3f49aed8e3475f2d511db7a6fa83304be7da8559cac27b3c13587ca652aea",
+    "scripts/release_document_resources.py": "d0106c684c8bf2073c0992409051903592b371d050c666554d74d4c8ad045a6a",
+    "scripts/test_retained_release_owners.py": "30915e59c5b4e80fc8323f56208757512b4b9fd17055c618de58182967307661",
+    "scripts/test_release_retained_update.py": "cd6e1959c6a8114718999575a20f9007c18ccc9f3eff55ae91e7e19584484e62",
+    "scripts/test_release_companies_fast.py": "35ca1d1aeb2296c7f9d97c6ae301a98f25bb823d4bc924bd41253c484a86ceae",
+    "scripts/test_release_document_fast.py": "9a488f31d2eaa5e5871fd68a1d2062e73b2694f21f2a89acf17e3fc07a44194b",
+    "scripts/test_document_resume_baseline.py": "cadebf2e0ce006b306f8a500b214403ba64a88ba3c085ce5a67d50fb3808d016",
+    "scripts/test_release_health_asset.py": "946363b761bfe7e4ca1a2da5612f4fd690a0c41591b40dfab17a57d58f478adb",
+    "scripts/test_retained_release_json_boundaries.py": "24f4ca73f2b8c0c3d03f413e6daca2eb130b716e9403df007d37352ebf8164d6"
+  },
+  "runtime_owners": 7,
+  "runtime_lines": {
+    "scripts/release_retained_update.py": 164,
+    "scripts/retained_release_contract.py": 225,
+    "scripts/retained_release_fast.py": 69,
+    "scripts/retained_release_host.py": 231,
+    "scripts/retained_release_runtime.py": 227,
+    "scripts/retained_release_build.py": 57,
+    "scripts/retained_release_lifecycle.py": 228
+  },
+  "mechanical_then_behavior_proof": {
+    "mechanical28whole_methods": "retained-release-mechanical-verification.json",
+    "final25whole_methods_and8whole_functions_unchanged": "retained-release-final-proof.json",
+    "whole_changed_modules_restore_after_only_documented_guards_and_local_typing": true,
+    "all_public_arguments_evaluated_hints_aliases_pickles_and_lifecycle_bodies_preserved": true,
+    "private_MRO_classsource_tradeoffs": "Same explicit privatebases/classdictionary/source-introspection changes as mechanical receipt; no additional dispatch or runtime base fields",
+    "all_old5test_modules_whole_AST_restore_after_only_patch_owner_retargets": true
+  },
+  "behavior": "Normal Docker inventory, asset proofs and release selection values remain unchanged. Decoded inventory must contain mapping objects; public asset metadata must be an object; service names must be strings before set lookup. Invalid values now fail with bounded local reasons before later operations, without echoing payloads. Existing resource, revision, schema, fence, backup, recovery and provider policies remain intact.",
+  "checks": {
+    "final_affected": "153cases/13files PASS13.983seconds on final runtime sources",
+    "final_Ruff_format": "9owned files pass explicit repository configuration",
+    "mechanical": "Same121 baseline/extracted +26extra controls; historical and not additive to153",
+    "before": "Nine malformedJSON subcases failed as5missing-rejection failures+4AttributeErrors;3ordinary/empty testmethods passed. Additional service-label baseline has1nullcontrol pass+1unhashable-list TypeError.",
+    "intermediate_implementation_failure": "Initial new list guard called builtin all shadowed by the preserved public all parameter; actual positive and malformed-row tests caught2errors. Corrected to any(not isinstance(...)); failed invocation retained.",
+    "strict_types": "FAIL26diagnostics, reduced from40 without suppression; no full strictpass claim",
+    "standalone_CLI": "Actual help/argument failures from unrelatedcwd with no operationalcredentials; subclass super/override and source-hash controls included",
+    "qualification": "Current32individual source pins:26original+6new, changed/missing source fail closed",
+    "no_live_services_or_broad_checks": true
+  },
+  "open": [
+    "Public-interface generic annotations and FastBuild inherited backend signature variance require deliberate compatibility migration",
+    "Downstream untyped LocalDocker/DocumentRetainedUpdate constructors and artifact-invariant flow typing remain",
+    "Live Linux/Docker/PostgreSQL/VPS release qualification is unexecuted",
+    "MCP1990 remains historical; whole audit is ongoing",
+    "DedicatedInbox work stays deferred"
+  ],
+  "artifacts": {
+    "retained-release-mechanical-verification.json": "08a1d991382da493fdfaca906b6dcfb23872035a94f56c19dc2d0e314e3296d7",
+    "retained-release-final-proof.json": "f6a1a1421d69681e9fd2f6ca2dbf613647ea256631b38701ee299ead5c12a12c",
+    "retained-release-reviewed-files.json": "e15a2abb7d06d2bcdeccb77660acc88e84abab704ba04734a22740f364512326",
+    "retained-release-metadata-correction.json": "e5822698d71a9b2707b151e25b01401aace5b11e7bcbdd74be3ee65357af3579",
+    "retained-release-json-before.txt": "3d466bf88cdc21c6d41c4bd86876c8e4275e374162522fd8e94590699e35b850",
+    "retained-release-json-first-after.txt": "6ffd9a5b8d0f93805c48a6cec3e626ad4b22861e5c2d04701620a0c91d2325a6",
+    "retained-release-service-identity-before.txt": "28221101a523f53012f106ce5eec692aa56405973de2523264be24eb3648a7b9",
+    "retained-release-final153-affected-tests.txt": "7a976848e43f86f85a11937db311a39049f3bc7f77ccf7f6995099b2b136e26b",
+    "retained-release-final-strict-followups.txt": "85d7125788600164572a7999936b75d30f60463a3a3b7019b80aa504239c378e",
+    "retained-release-current-ruff.txt": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0",
+    "retained-release-current-format.txt": "38e84e0948ed804ef5b17840dd465124bf6e79a3716b4cdf09673cd6837f2df5"
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "status": "Retained WhatsApp welcome/invite/rejected/workspace source cohort complete",
+  "files": [
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_phone_welcome_views.py",
+      "sha256": "0757087270b93054ef1c70ee6f14ba7e1e8c6c833eddd80f0d347c9aa3af51e0",
+      "physical_lines": 306,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-306. Current-list welcome projections never borrow other-list/tenant success; actual traveller welcome overlays only matching broadcast+phone and accepted state rank, changed destination cannot reuse old recipient delivery. Global phone history still prevents duplicate welcome claims. Invite exemption never mutates/unlocks welcome/passport/reminder/private-item policy; future unknown message types remain gated. Imported infrastructure fixture not physically read/credited; no test/provider execution."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_group_invite.py",
+      "sha256": "ce00ef4f09ded946eec7c6d220724fb9984740bbd916a4547b25d84c30ed3794",
+      "physical_lines": 363,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-363. Existing approved invitation image/two-body variable order, exact copy and strict official URL/shape controls; snapshots preserve source and only explicit edits, idempotency includes edited link. Mocked actual preview/send/single/bulk resend owners freeze template language/content/media and existing opt-in/archive/successful-invite blocks. Old text-only invite requires selected photo before send; mixed malformed batches never publish. Existing negative literals only physically read; no new probes/network/provider calls."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_rejected_contacts.py",
+      "sha256": "60cad5da1e2cab2c67fc9e413da0d091bebeabd69afd47e915c63304a84ace65",
+      "physical_lines": 383,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-383. Rejected sources stay separate nonsendable cascade-scoped/deduplicated schema; rejected-only import needs no delivery opt-in and trusts canonical reason/basename, mixed import retains both record kinds. Paginated tenant list and explicit corrected+opted-in recipient become unsent with source-order/row/email/code provenance. Schema assertions are source controls, not newly executed migration/DB proof; reconciliation/history guards deliberately mocked."
+    },
+    {
+      "path": "backend/tests/integration/test_whatsapp_workspace.py",
+      "sha256": "068236274c7a2f1193f4241b6626d47b049b583d34954b381548224342fee16f",
+      "physical_lines": 434,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-434. Real relational fixture source covers distinct sends/immutable old destination vs current phone, whole-batch counts under literal wildcard search, unknown/processing shown failed but cannot resend, tenant/source IDs404. Historical receipt identity stable and forbids overrides, new form defaults cannot alter old key hashes; deliberate prior-recipient sends still block unknown attempts. Proven broadcast/passenger links bound document filters and every assigned PDF must be accepted before completion. No SQL/service/provider/test execution."
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/welcome_policy.py",
+      "sha256": "41f3d5b89c15ef2177bcdb91e5f8d3b55735e5c6de5f74dbdd0ed69c58d2d389",
+      "physical_lines": 8,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-8. Single established pure exemption: welcome and group_invite only; private/unknown future messages require prior welcome. No changed policy or provider invocation."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_history_resend.py",
+      "sha256": "b7e6738492ef0ce1ced89877335662de95116be8b690dec954e7052ed6c3ceb2",
+      "physical_lines": 180,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-180. Stable historical send identity includes actor/group/recipient/source/request/type and forbids overrides; scoped saved log replay classifies active/success/unknown distinctly. Safe immutable reconstruction, exact saved template/header/body/language source consumers and legacy latest fallback preserved. TYPE_CHECKING-only snapshot annotation is preexisting source detail, no general runtime get_type_hints assurance newly claimed; no runtime edit or generic architecture finding."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_welcome_view.py",
+      "sha256": "e12fdb14e5e9da76df4c7f4decfe9ba17d7f13d71b8a836f35cc493a685121f5",
+      "physical_lines": 145,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-145. Scoped agency/broadcast/destination ranked latest traveller overlay with accepted-state priority; current per-broadcast phone states, selected/explicit welcome preview, accepted/pending/unknown counts and conservative nonwelcome prerequisites. Original helpers/current qualified behavior preserved, no unmeasured grouping/cache optimization or security policy change."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_rejected_contacts.py",
+      "sha256": "1e58dacd0f9846c38e9c2d3e47d22b5635c0fb31450a4f4935acbc4a487a622c",
+      "physical_lines": 291,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical121-174 only: actual correction route begins scoped active group/history admission then locked group/current link recheck and selected rejected contact, name/phone validation prefix. Remainder not physically read here; earlier exact-current full recipient/import ledgers carry prior complete source qualification, no whole-file credit."
+    }
+  ]
+}

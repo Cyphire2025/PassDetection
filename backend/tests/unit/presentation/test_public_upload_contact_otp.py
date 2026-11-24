@@ -31,12 +31,14 @@ from app.infrastructure.security.mobile_otp_rate_limiter import (
     OTPRateLimitExceeded,
     OTPRateLimitUnavailable,
 )
-from app.presentation.api.v1.routes.passport_routes import contact_verification as routes
 from app.presentation.api.v1.routes.passport_routes import (
+    contact_challenges,
+    contact_issuance,
     submission_contact,
     submission_review,
     submission_side_effects,
 )
+from app.presentation.api.v1.routes.passport_routes import contact_verification as routes
 from app.presentation.api.v1.schemas.passport_schemas import ClientSubmitPassportRequest
 from app.presentation.api.v1.schemas.public_upload_contact_schemas import (
     PublicContactOTPRequest,
@@ -59,8 +61,8 @@ async def rig(db_session, monkeypatch):
     await db_session.commit()
     groups = SimpleNamespace(get_by_token=AsyncMock(return_value=group))
     passports = SimpleNamespace(get_by_id_for_update=AsyncMock(return_value=submission))
-    monkeypatch.setattr(routes, "ClientGroupRepository", lambda _: groups)
-    monkeypatch.setattr(routes, "PassportSubmissionRepository", lambda _: passports)
+    monkeypatch.setattr(contact_challenges, "ClientGroupRepository", lambda _: groups)
+    monkeypatch.setattr(contact_challenges, "PassportSubmissionRepository", lambda _: passports)
     settings = SimpleNamespace(
         app_secret_key="synthetic-contact-otp-secret",
         mobile=SimpleNamespace(
@@ -69,12 +71,12 @@ async def rig(db_session, monkeypatch):
             otp_delivery_timeout_seconds=10,
         ),
     )
-    monkeypatch.setattr(routes, "get_settings", lambda: settings)
+    monkeypatch.setattr(contact_issuance, "get_settings", lambda: settings)
     monkeypatch.setattr(public_contact_proof, "get_settings", lambda: settings)
     provider = SimpleNamespace(send_code=AsyncMock(return_value="fake-message-id"))
-    monkeypatch.setattr(routes, "get_otp_provider", lambda: provider)
+    monkeypatch.setattr(contact_issuance, "get_otp_provider", lambda: provider)
     limiter = SimpleNamespace(consume=AsyncMock())
-    monkeypatch.setattr(routes, "PublicUploadOTPRateLimiter", lambda: limiter)
+    monkeypatch.setattr(contact_issuance, "PublicUploadOTPRateLimiter", lambda: limiter)
     request = Request({"type": "http", "headers": [], "client": ("192.0.2.10", 1234)})
     return SimpleNamespace(
         session=db_session, credential=credential, submission=submission, group=group,
@@ -219,6 +221,29 @@ async def test_provider_failure_is_durable_and_fails_closed(rig, error):
     assert row.code_hash is None
     with pytest.raises(HTTPException):
         await verify(rig, row.id)
+
+
+@pytest.mark.parametrize("change,status", [("capability", 404), ("challenge", 409)])
+async def test_provider_success_cannot_authorize_a_changed_upload_or_challenge(rig, change, status):
+    async def deliver(**_kwargs):
+        if change == "capability":
+            rig.groups.get_by_token.return_value = None
+        else:
+            row = await saved(rig)
+            row.id = uuid.uuid4()
+            await rig.session.commit()
+        return "fake-message-id"
+
+    rig.provider.send_code.side_effect = deliver
+    with pytest.raises(HTTPException) as failure:
+        await send(rig)
+    assert failure.value.status_code == status
+    row = await saved(rig)
+    assert row.status == "sending"
+    with pytest.raises(HTTPException) as rejected_proof:
+        await proof(rig, row.id)
+    assert rejected_proof.value.detail["code"] == "CONTACT_VERIFICATION_REQUIRED"
+    rig.provider.send_code.assert_awaited_once()
 
 
 @pytest.mark.parametrize("error,status", [(OTPRateLimitExceeded(), 429), (OTPRateLimitUnavailable(), 503)])

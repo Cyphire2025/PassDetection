@@ -1,0 +1,40 @@
+{
+  "status": "passed focused CI policy/security/architecture checks",
+  "actual_negative_before_conditions": 5,
+  "final_unique_affected_unittest_cases": 86,
+  "final_existing_baseline_controls": 10,
+  "case_overlap": "The10 final baseline controls are included in86; no additive unique-case claim.",
+  "official_contract_source": "https://docs.github.com/en/rest/actions/workflow-runs#list-workflow-runs-for-a-workflow",
+  "source_sha256": {
+    "scripts/ci_pipeline.py": "c95111a963915bd59f2172278b829857120c6a7f10ffe36887cbe6bbf8ebf91c",
+    "scripts/ci_gate_policy.py": "711b275d6bd1490ef492a1038814ba921e0872eebcff5c62b03187b25c5ba294",
+    "scripts/ci_shards.py": "12f22eff7f4e5a7cf785c3939f7b5fae00be47d1aaf95c6a55f90b5f702fc219",
+    "scripts/ci_push_baseline.py": "f8fec4e5843a8eac4d7b7e4ed650c18d375197f3dd6d7c1f0c73a8e0d956bdeb",
+    "scripts/release_artifacts.py": "809a4fcad80516020d1a942487574aa4c85d8dfe3907eb7845087b75a2a7c916",
+    "scripts/test_ci_pipeline.py": "fc7885c59d447a7993c9187fbc9cb60703eca81ecca43b408ad9358b9a8fc496"
+  },
+  "evidence_sha256": {
+    "ci-baseline-pagination-before.txt": "1b709428429fd27fd0fa03b213ca850000a9221559b0cc1c3ff5f88f15d369d5",
+    "ci-baseline-pagination-before-corrected.txt": "d1d2993ce2c8636e8fd4d417d3a99509d95ed0e63b8dea92d5feb9907d02ff35",
+    "ci-baseline-pagination-after.txt": "a7efb7de0fe0b1b79afddda8d5c643bd4ef897151b5aaf9df5095752cad868df",
+    "ci-baseline-pagination-ruff.txt": "f024fb303c162281d15295b7f4e6c1b49e2847d5370b32b0f7c7bc07bb9d126c",
+    "ci-baseline-pagination-final-ruff.txt": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0",
+    "ci-baseline-pagination-final-controls.txt": "d8db373e71bfe114edac42894eaffaaf9ee304720a91afcd7d9465805d095ced",
+    "ci-pipeline-architecture-ruff.txt": "a0c0a9b9ed4934b154517b3e314254b722623dfb24e12b5ad33060928a6a2898",
+    "ci-pipeline-architecture-final-ruff.txt": "2492ecbc2d6dfc455cea30d149f108789fe7919ab8287a4ac07e34e978d620db",
+    "ci-pipeline-architecture-current-ruff.txt": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0",
+    "ci-pipeline-architecture-after.txt": "60e25db63f53b0dd250774a07cdff7ef51baa33486c34738e51415e49b8adb38",
+    "ci-pipeline-current-extraction-proof.json": "ae386ec34d1f12c6b406a11594239a1afc432a35813b1e6fd7bcf98221a332ad",
+    "ci-policy-reviewed-files.json": "f697346b144cf0da0d354b5f683743fac4223f26761e79a28d02fbd6fd5d64d0"
+  },
+  "history": [
+    "The first new-test insertion accidentally displaced two old date-test lines into a new method, producing a fixture NameError alongside expected negatives; those two lines were restored before the corrected five-condition expected-red run. Original assertions retained.",
+    "The narrow pagination fix passed86cases; Ruff caught the immediate-use test callback lacking an explicit loop-variable binding. Explicit default binding passed10baseline controls and Ruff.",
+    "First extraction static check caught a missing classify_paths dependency import and an unnecessary re-export alias. Dependencies/imports corrected before the passing86-case architecture run. __all__ sorted afterward, public memberships/signatures and all13 function ASTs reverified; no extra broad test run for export-list formatting."
+  ],
+  "limits": [
+    "Complete bounded run history now qualifies; missing/inconsistent/paginated history falls back to fresh jobs rather than claiming an unobserved outcome.",
+    "No GitHub workflow dispatch, CI reuse or cryptographic artifact verification was performed against a real repository.",
+    "No release/deployment permissions, workflow DAG, cache policy floors or VPS configuration changed. Published migration and release baselines remain intact."
+  ]
+}

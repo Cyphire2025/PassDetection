@@ -49,6 +49,8 @@ async def build_group_update_preview(
     latest: dict[str, tuple[int, str, str, datetime]] = {}
     active = set()
     details: dict[str, GroupUpdateAttempt] = {}
+    unresolved_detail_keys = {contact.audience_key for contact in contacts}
+    unresolved_detail_keys.update(f"phone:{contact.phone_number}" for contact in contacts if contact.phone_number)
     attempts: Counter[str] = Counter()
     rank = 0
     async for log_id, phone, status, at, context, created_at, message, error, template, provider_id in logs:
@@ -60,12 +62,18 @@ async def build_group_update_preview(
         for key in keys:
             latest.setdefault(key, (rank, str(log_id), status, at))
             attempts[key] += 1
-        details[str(log_id)] = GroupUpdateAttempt(
+        detail = GroupUpdateAttempt(
             id=log_id, status=status, phone_number=phone, created_at=created_at,
             status_updated_at=at, message=message, error=error,
             template_name=template, provider_message_id=provider_id,
             document_type=(context or {}).get("document_type"),
         )
+        # Validate every historical row, retaining only details the current
+        # audience can reference as its latest attempt (logs are newest first).
+        if keys & unresolved_detail_keys:
+            details[str(log_id)] = detail
+            unresolved_detail_keys.difference_update(keys)
+        del detail
         if status in ACTIVE:
             active.update(keys)
         rank += 1

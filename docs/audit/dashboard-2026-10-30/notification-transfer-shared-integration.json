@@ -1,0 +1,434 @@
+{
+  "status": "verified at this scoped source checkpoint",
+  "before_modules": 782,
+  "after_modules": 807,
+  "all782oldnormal_rows_unchanged": true,
+  "critical_before": 136,
+  "critical_after": 157,
+  "all136oldcritical_rows_unchanged": true,
+  "critical_additions": [
+    {
+      "path": "app/application/mobile/authored_notification_drafts.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 90
+    },
+    {
+      "path": "app/application/mobile/authored_notification_grants.py",
+      "minimum_line_percent": 90,
+      "minimum_branch_percent": 85
+    },
+    {
+      "path": "app/application/mobile/authored_notification_registrations.py",
+      "minimum_line_percent": 90,
+      "minimum_branch_percent": 80
+    },
+    {
+      "path": "app/application/mobile/authored_notification_reviews.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 85
+    },
+    {
+      "path": "app/application/mobile/authored_notification_send.py",
+      "minimum_line_percent": 90,
+      "minimum_branch_percent": 75
+    },
+    {
+      "path": "app/application/mobile/authored_notification_targets.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 90
+    },
+    {
+      "path": "app/application/mobile/notification_announcements.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 85
+    },
+    {
+      "path": "app/application/mobile/notification_authority.py",
+      "minimum_line_percent": 80,
+      "minimum_branch_percent": 60
+    },
+    {
+      "path": "app/application/mobile/notification_countdown_recipients.py",
+      "minimum_line_percent": 90,
+      "minimum_branch_percent": 70
+    },
+    {
+      "path": "app/application/mobile/notification_countdown_schedule.py",
+      "minimum_line_percent": 90,
+      "minimum_branch_percent": 75
+    },
+    {
+      "path": "app/application/mobile/notification_countdown_values.py",
+      "minimum_line_percent": 100,
+      "minimum_branch_percent": 100
+    },
+    {
+      "path": "app/application/mobile/notification_delivery_states.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 80
+    },
+    {
+      "path": "app/application/mobile/notification_dispatch.py",
+      "minimum_line_percent": 90,
+      "minimum_branch_percent": 80
+    },
+    {
+      "path": "app/application/mobile/notification_dispatch_claims.py",
+      "minimum_line_percent": 100,
+      "minimum_branch_percent": 100
+    },
+    {
+      "path": "app/application/mobile/notification_dispatch_results.py",
+      "minimum_line_percent": 75,
+      "minimum_branch_percent": 65
+    },
+    {
+      "path": "app/application/mobile/notification_dispatch_targets.py",
+      "minimum_line_percent": 80,
+      "minimum_branch_percent": 85
+    },
+    {
+      "path": "app/application/mobile/notification_document_changes.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 65
+    },
+    {
+      "path": "app/application/mobile/notification_receipts.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 85
+    },
+    {
+      "path": "app/application/mobile/notification_registrations.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 85
+    },
+    {
+      "path": "app/application/mobile/authored_notification_audience.py",
+      "minimum_line_percent": 90,
+      "minimum_branch_percent": 80
+    },
+    {
+      "path": "app/application/mobile/authored_notification_preview.py",
+      "minimum_line_percent": 90,
+      "minimum_branch_percent": 50
+    }
+  ],
+  "all_global_caps_floors_other_policy_unchanged": true,
+  "measurements": [
+    {
+      "path": "app/application/mobile/authored_notification_access.py",
+      "sha256": "e852a959c1901c6e80d885556e42a2bdfc2d1bed908ad127abbc125f2326da3d",
+      "lines": 29,
+      "complexity": 0,
+      "line_percent": 100.0,
+      "branch_percent": null,
+      "branch_sites": 0
+    },
+    {
+      "path": "app/application/mobile/authored_notification_drafts.py",
+      "sha256": "a9a941c466adbf1ef31ceb90369bccabc479deeb9627928fa75039e2a1aa2dd1",
+      "lines": 162,
+      "complexity": 6,
+      "line_percent": 98.27586206896552,
+      "branch_percent": 94.44444444444444,
+      "branch_sites": 18
+    },
+    {
+      "path": "app/application/mobile/authored_notification_grants.py",
+      "sha256": "9aa48574f95e52e68a851865a7e1174212e70ee428360bb3e94af9b2a9eb42d2",
+      "lines": 134,
+      "complexity": 16,
+      "line_percent": 93.47826086956522,
+      "branch_percent": 87.5,
+      "branch_sites": 16
+    },
+    {
+      "path": "app/application/mobile/authored_notification_registrations.py",
+      "sha256": "57e7d9816df1ed537a3666be01c2ebf78f818bd046dd930c704aa545141b14ae",
+      "lines": 158,
+      "complexity": 17,
+      "line_percent": 91.83673469387755,
+      "branch_percent": 83.33333333333333,
+      "branch_sites": 24
+    },
+    {
+      "path": "app/application/mobile/authored_notification_reviews.py",
+      "sha256": "5b48c4983345a310628638bc345b30962247aac63d75ea162bdabace3f4cd9c9",
+      "lines": 89,
+      "complexity": 8,
+      "line_percent": 96.66666666666667,
+      "branch_percent": 87.5,
+      "branch_sites": 8
+    },
+    {
+      "path": "app/application/mobile/authored_notification_send.py",
+      "sha256": "3dd0fb03a063cb6857f417f7fd9c95022aea7215bba36a65db874a6e48a8f23b",
+      "lines": 205,
+      "complexity": 16,
+      "line_percent": 90.14084507042253,
+      "branch_percent": 75.0,
+      "branch_sites": 24
+    },
+    {
+      "path": "app/application/mobile/authored_notification_service.py",
+      "sha256": "6b9ee4d199af95130c4e92555fb92f84e5c2c3a18a2ae5c81c2276e881eed72e",
+      "lines": 18,
+      "complexity": 0,
+      "line_percent": 100.0,
+      "branch_percent": null,
+      "branch_sites": 0
+    },
+    {
+      "path": "app/application/mobile/authored_notification_targets.py",
+      "sha256": "b626caaf4f5930a625761e29482940d5a29290173ea4bafa95623ac94774d57e",
+      "lines": 158,
+      "complexity": 14,
+      "line_percent": 97.61904761904762,
+      "branch_percent": 93.75,
+      "branch_sites": 16
+    },
+    {
+      "path": "app/application/mobile/notification_announcements.py",
+      "sha256": "563585af06e23c380bbc6d20e00a52522492089bd0c047f0f6f7279897d0f2ec",
+      "lines": 279,
+      "complexity": 17,
+      "line_percent": 98.24561403508773,
+      "branch_percent": 88.88888888888889,
+      "branch_sites": 18
+    },
+    {
+      "path": "app/application/mobile/notification_authority.py",
+      "sha256": "4bf9341bed08f6e0b80a2e0287bce79fe49d9eec1854a7e6cfed0f2345247f6f",
+      "lines": 230,
+      "complexity": 26,
+      "line_percent": 81.03448275862068,
+      "branch_percent": 61.53846153846154,
+      "branch_sites": 26
+    },
+    {
+      "path": "app/application/mobile/notification_contracts.py",
+      "sha256": "76b02078cb47578f24ddf55995866d09eb383216665f79c43714077a9e96119e",
+      "lines": 75,
+      "complexity": 1,
+      "line_percent": 100.0,
+      "branch_percent": null,
+      "branch_sites": 0
+    },
+    {
+      "path": "app/application/mobile/notification_countdown_recipients.py",
+      "sha256": "93cea0065f9efba55f96ccd02679b431de265006c4cdbe4d77aea13361e07ee4",
+      "lines": 195,
+      "complexity": 6,
+      "line_percent": 94.0,
+      "branch_percent": 72.22222222222223,
+      "branch_sites": 18
+    },
+    {
+      "path": "app/application/mobile/notification_countdown_schedule.py",
+      "sha256": "68547ff85ea97f4c8f15696793214c4d9604f9dc3bd2e77be3d49bf3b43c9ef0",
+      "lines": 223,
+      "complexity": 21,
+      "line_percent": 92.22222222222223,
+      "branch_percent": 76.47058823529412,
+      "branch_sites": 34
+    },
+    {
+      "path": "app/application/mobile/notification_countdown_values.py",
+      "sha256": "3049121d16a2a51c2d6ca7eb6850caac0aa87caad94a0aae9d6e9136e2383e68",
+      "lines": 60,
+      "complexity": 3,
+      "line_percent": 100.0,
+      "branch_percent": null,
+      "branch_sites": 0
+    },
+    {
+      "path": "app/application/mobile/notification_delivery_states.py",
+      "sha256": "e8ca0f35b325a32b467ab522b583916dbd1de4bbd7800be2a4a5e33cdc3ad0b1",
+      "lines": 144,
+      "complexity": 22,
+      "line_percent": 96.1038961038961,
+      "branch_percent": 84.61538461538461,
+      "branch_sites": 26
+    },
+    {
+      "path": "app/application/mobile/notification_dispatch.py",
+      "sha256": "e87fd826b35e792af14639b0b40aa71f620f04872e495ff30ccc8a61fd6332ab",
+      "lines": 141,
+      "complexity": 21,
+      "line_percent": 91.2280701754386,
+      "branch_percent": 80.76923076923077,
+      "branch_sites": 26
+    },
+    {
+      "path": "app/application/mobile/notification_dispatch_claims.py",
+      "sha256": "ec801e44f48bb9f8fdb2ffbe22c98af2599bb1d6710b3de507951e97643cdbfe",
+      "lines": 83,
+      "complexity": 1,
+      "line_percent": 100.0,
+      "branch_percent": null,
+      "branch_sites": 0
+    },
+    {
+      "path": "app/application/mobile/notification_dispatch_results.py",
+      "sha256": "44949a26ed3c9b52b147515524a0c50b0d255335b7e23ac5fe742987a8381c6c",
+      "lines": 107,
+      "complexity": 18,
+      "line_percent": 78.94736842105263,
+      "branch_percent": 65.0,
+      "branch_sites": 20
+    },
+    {
+      "path": "app/application/mobile/notification_dispatch_targets.py",
+      "sha256": "5f1eb1796997dd3e2798b89eb0bc909e0c9f56dd9783088d95e5699c46b589af",
+      "lines": 212,
+      "complexity": 35,
+      "line_percent": 80.68181818181819,
+      "branch_percent": 85.71428571428571,
+      "branch_sites": 28
+    },
+    {
+      "path": "app/application/mobile/notification_document_changes.py",
+      "sha256": "a7b19ccbc3fddf277d34618bebf517bc1082b779d5f756444069abdb697bbf0a",
+      "lines": 272,
+      "complexity": 12,
+      "line_percent": 95.23809523809524,
+      "branch_percent": 65.0,
+      "branch_sites": 20
+    },
+    {
+      "path": "app/application/mobile/notification_receipts.py",
+      "sha256": "b296c55c6998f25a7669b2d7b6776ad493ec67779cb2dd4c57f2ae9f52632135",
+      "lines": 169,
+      "complexity": 33,
+      "line_percent": 95.34883720930233,
+      "branch_percent": 88.46153846153847,
+      "branch_sites": 26
+    },
+    {
+      "path": "app/application/mobile/notification_registrations.py",
+      "sha256": "1f183b687f587d4d07cecce8e6e89eb51872fff2ead7985b09b1984e3c1c0d0d",
+      "lines": 135,
+      "complexity": 17,
+      "line_percent": 95.1219512195122,
+      "branch_percent": 85.71428571428571,
+      "branch_sites": 14
+    },
+    {
+      "path": "app/application/mobile/notification_service.py",
+      "sha256": "8d94a4b2d4cf544dd6177b4b6e65c30b0d4f73cfe9f1f6545a9be95c3f373f4c",
+      "lines": 113,
+      "complexity": 0,
+      "line_percent": 100.0,
+      "branch_percent": null,
+      "branch_sites": 0
+    },
+    {
+      "path": "app/application/mobile/authored_notification_audience.py",
+      "sha256": "4fcfe94e5b790e15acb1af41f3bd5662f68f95211e80a64d60a9044fbfc90ddc",
+      "lines": 286,
+      "complexity": 11,
+      "line_percent": 94.5945945945946,
+      "branch_percent": 81.25,
+      "branch_sites": 32
+    },
+    {
+      "path": "app/application/mobile/authored_notification_preview.py",
+      "sha256": "b63b42fcf4cbe0fb5d0df49afb23531a951ee2c6a0a61701218b7022b63a885c",
+      "lines": 86,
+      "complexity": 7,
+      "line_percent": 91.66666666666667,
+      "branch_percent": 50.0,
+      "branch_sites": 6
+    }
+  ],
+  "source_fence": {
+    "backend/app/application/mobile/authored_notification_access.py": "e852a959c1901c6e80d885556e42a2bdfc2d1bed908ad127abbc125f2326da3d",
+    "backend/app/application/mobile/authored_notification_drafts.py": "a9a941c466adbf1ef31ceb90369bccabc479deeb9627928fa75039e2a1aa2dd1",
+    "backend/app/application/mobile/authored_notification_grants.py": "9aa48574f95e52e68a851865a7e1174212e70ee428360bb3e94af9b2a9eb42d2",
+    "backend/app/application/mobile/authored_notification_registrations.py": "57e7d9816df1ed537a3666be01c2ebf78f818bd046dd930c704aa545141b14ae",
+    "backend/app/application/mobile/authored_notification_reviews.py": "5b48c4983345a310628638bc345b30962247aac63d75ea162bdabace3f4cd9c9",
+    "backend/app/application/mobile/authored_notification_send.py": "3dd0fb03a063cb6857f417f7fd9c95022aea7215bba36a65db874a6e48a8f23b",
+    "backend/app/application/mobile/authored_notification_service.py": "6b9ee4d199af95130c4e92555fb92f84e5c2c3a18a2ae5c81c2276e881eed72e",
+    "backend/app/application/mobile/authored_notification_targets.py": "b626caaf4f5930a625761e29482940d5a29290173ea4bafa95623ac94774d57e",
+    "backend/app/application/mobile/notification_announcements.py": "563585af06e23c380bbc6d20e00a52522492089bd0c047f0f6f7279897d0f2ec",
+    "backend/app/application/mobile/notification_authority.py": "4bf9341bed08f6e0b80a2e0287bce79fe49d9eec1854a7e6cfed0f2345247f6f",
+    "backend/app/application/mobile/notification_contracts.py": "76b02078cb47578f24ddf55995866d09eb383216665f79c43714077a9e96119e",
+    "backend/app/application/mobile/notification_countdown_recipients.py": "93cea0065f9efba55f96ccd02679b431de265006c4cdbe4d77aea13361e07ee4",
+    "backend/app/application/mobile/notification_countdown_schedule.py": "68547ff85ea97f4c8f15696793214c4d9604f9dc3bd2e77be3d49bf3b43c9ef0",
+    "backend/app/application/mobile/notification_countdown_values.py": "3049121d16a2a51c2d6ca7eb6850caac0aa87caad94a0aae9d6e9136e2383e68",
+    "backend/app/application/mobile/notification_delivery_states.py": "e8ca0f35b325a32b467ab522b583916dbd1de4bbd7800be2a4a5e33cdc3ad0b1",
+    "backend/app/application/mobile/notification_dispatch.py": "e87fd826b35e792af14639b0b40aa71f620f04872e495ff30ccc8a61fd6332ab",
+    "backend/app/application/mobile/notification_dispatch_claims.py": "ec801e44f48bb9f8fdb2ffbe22c98af2599bb1d6710b3de507951e97643cdbfe",
+    "backend/app/application/mobile/notification_dispatch_results.py": "44949a26ed3c9b52b147515524a0c50b0d255335b7e23ac5fe742987a8381c6c",
+    "backend/app/application/mobile/notification_dispatch_targets.py": "5f1eb1796997dd3e2798b89eb0bc909e0c9f56dd9783088d95e5699c46b589af",
+    "backend/app/application/mobile/notification_document_changes.py": "a7b19ccbc3fddf277d34618bebf517bc1082b779d5f756444069abdb697bbf0a",
+    "backend/app/application/mobile/notification_receipts.py": "b296c55c6998f25a7669b2d7b6776ad493ec67779cb2dd4c57f2ae9f52632135",
+    "backend/app/application/mobile/notification_registrations.py": "1f183b687f587d4d07cecce8e6e89eb51872fff2ead7985b09b1984e3c1c0d0d",
+    "backend/app/application/mobile/notification_service.py": "8d94a4b2d4cf544dd6177b4b6e65c30b0d4f73cfe9f1f6545a9be95c3f373f4c",
+    "backend/app/application/mobile/authored_notification_audience.py": "4fcfe94e5b790e15acb1af41f3bd5662f68f95211e80a64d60a9044fbfc90ddc",
+    "backend/app/application/mobile/authored_notification_preview.py": "b63b42fcf4cbe0fb5d0df49afb23531a951ee2c6a0a61701218b7022b63a885c",
+    "backend/tests/unit/application/test_mobile_notification_service.py": "1341ef18d4d1e90b2ca1a39ca167bda2314787ea848d6c45178995a174639749",
+    "backend/tests/unit/application/test_passenger_notification_authority.py": "3109a6029a255404ae4095b8c621f002b0b0f696581793f81e0dfc1718cb1dd1",
+    "backend/tests/unit/application/test_notification_service_compatibility.py": "0f92a56534ce79c17c41bb49738c0afbfc123f53314e230bfdb98c64d925535b",
+    "backend/architecture-dependencies.json": "159998c7f6e330507feaffdbc6dabcb2130249c36a933854ba33d16c1ad774ad",
+    "frontend/features/mcp/hooks/use-mcp-file-transfer.ts": "8d85a56f49754664bc389f8db71554b2f75f8ba90f494f7b1c465f11ca7ff862",
+    "frontend/features/mcp/api/mcp-transfer.api.ts": "cf7a4a0a95df4e944d3d60bc144130b513f49ce7d7b69745769790f130dc2aab",
+    "frontend/features/mcp/utils/file-transfer.ts": "79e3413c12bfab33c3369d0bd345c4154d0f90083aa24116bb99ae29af82dee0",
+    "frontend/features/mcp/utils/read-transfer-body.ts": "53fc62863d8575b1d5a1213c90e2973a6b844a0f1ee5949b12fc29de1386dc16",
+    "frontend/features/mcp/utils/save-transfer-file.ts": "d240c76cc5295ffc3be65626be1e2d15d1e9748ba0c3c95d11d91fa08b7449e3"
+  },
+  "review_basis": "Peer attributed full notification source/equivalence/focused current coverage and root frontend budget merge proofs; integration verifies hashes/raw metrics/floors, no independent full notification25reread claim",
+  "branchless_critical_owners": [
+    "app/application/mobile/notification_countdown_values.py",
+    "app/application/mobile/notification_dispatch_claims.py"
+  ],
+  "branchless_limit": "Actual-work countdown value projection and dispatch claims have0Coverage branch sites. Their line floors are exercised; numerical branch fields are not claimed as measured branch percentages. Other declaration/facade owners remain normal-only.",
+  "release": {
+    "before_and_after_paths": 125,
+    "all125oldBEFORE_pairs_and123otherAFTER_values_unchanged": true,
+    "only_known_BE807_and_FE661_budget_AFTERs_updated": true,
+    "backend_budget_sha256": "f8a46aa8aa1b1e477e84e70d07dade06e5b1fd38899dec318b8ade1bf944a79b",
+    "frontend_budget_raw_sha256": "cb39d6c6ee5351e9fa166d560dd62c58a3b1b20021fc38a7c2a52d1017d94ff7",
+    "frontend_budget_lf_sha256": "48ef93111680676d06cf152b7467f1b435f750f9fd14e5167b1c9e999a57cb1d",
+    "bindings_sha256": "fb6cae98abb4124c198606ab95c728d9be1537892c848e5673fb8dfeb765a23d"
+  },
+  "artifacts": {
+    "notification-server-composition-verification.json": "1c476227b29a48a5acc6157f62f84d62666bf9a38e422bb36481f4cc54df7439",
+    "notification-server-budget-candidates.json": "63666ec633fb79608e9a825f2c4760dad2bdf2e0d77dd9cbbd4cb5b84d1ce85d",
+    "notification-server-critical-candidates.json": "43ab6205efede77b14c01c1cb02e9471a7245e8e48d5dc86899ee986727f7ac5",
+    "notification-server-qualified-coverage.json": "7a856105b9eb545a44fba854eccb786f37482a2d703b1c9e230a490ac9119b8d",
+    "notification-server-qualified-coverage.xml": "2fb8d85057934e270b9da82e50be52eb5b6e502b907f4c48b41656d0bbe27379",
+    "notification-server-architecture-transfer-proof.json": "81b3bf73973e975b3c8ef33908b82a05efed6d181f7ea3c79260f0a24b00875b",
+    "notification-server-architecture-inverse-supplement.json": "4e27352d9a3bb748fdcd1e04fc4fea99ba2240c14efe20548fe41365730b5103",
+    "mcp-transfer-budget-final-verification.json": "68222e399cbf707b8a86b2c41b4c128ddbe3fa6886993773d03a184d66ccdbfe",
+    "mcp-transfer-lifecycle-verification.json": "73d76d961c17ef02b2e2c7e942c6d769661f9b041cc38925af7bab98bc04bc7b",
+    "notification-transfer-previous-values.json": "4e0bf6845d9a889e07c3c68e237ffabdb993eb0c89e5766ccc88dd237cba46a3",
+    "notification-transfer-budgets.txt": "994cff0bc7e6c0a5b23f95d9c16112303f1329cda20a18fc0a974596a6d3c4c0",
+    "notification-transfer-architecture.txt": "895bfbeca4c78591066dcf214c4bfe9de43b5d7ed5d3f518fe398563a7bcc992",
+    "notification-transfer-bindings.txt": "0b3a28123d392018d244d078942a9d6d98ae49544fafd0e052f4237b0e263f39",
+    "notification-transfer-loader-tests.txt": "2b5bdf9d867c397891cd856529ba8ed1a573d69a310dde37c9cc6846982a39a2",
+    "notification-transfer-exact-bindings.json": "b3c81743903bb1d0a1f3f4eef6b330287ad3af2b9c173b3a39473d3ab312cf1d"
+  },
+  "limits": [
+    "Notification source/architecture transfer is mechanical; all94original uncovered statements/400branches obligations retained, no behavior coverage-improvement claim",
+    "NS02 candidate remains open; no nativePG/provider/VPS proof",
+    "No broad application/build/browser tests performed",
+    "MCP1990 remains historical; current actual-owner reconciliation pending",
+    "Standalone transfer already-dispatched requests/completed local closes are not claimed rolled back",
+    "Generic operator stdout capture concern remains unproven/open"
+  ],
+  "checks": {
+    "backend_static_budgets": "807normal/157critical limits pass",
+    "exact_bindings": "125current AFTERs and both actual immutable Git BEFOREs pass",
+    "loader_tests": "14focused tests pass",
+    "architecture": "whole static boundary checker pass after exact notification edge transfer",
+    "source_fence": "All attributed notification/FE helper runtime/test/policy hashes checked at integration and after focused gates",
+    "frontend": "661normal budget source qualified by parent static+4Node checker controls; no repeat app qualification"
+  },
+  "controls": {
+    "backend/backend_quality_budgets.json": "f8a46aa8aa1b1e477e84e70d07dade06e5b1fd38899dec318b8ade1bf944a79b",
+    "scripts/release_workspace_branding_bindings.json": "fb6cae98abb4124c198606ab95c728d9be1537892c848e5673fb8dfeb765a23d",
+    "scripts/release_workspace_branding_policy.py": "3ec97340560e921e9ee544b18000f6b97d54ef63a2ebb4d1148a1a5ef0bbb588",
+    "backend/architecture-dependencies.json": "159998c7f6e330507feaffdbc6dabcb2130249c36a933854ba33d16c1ad774ad"
+  }
+}

@@ -1,0 +1,843 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Users\\nipun\\AppData\\Local\\Programs\\node-v24.21.0-win-x64\\node.exe",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "../.tmp/frontend-dependency-remediation/playwright.feature-integration4-production.config.ts"
+    ],
+    "configFile": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\frontend-dependency-remediation\\playwright.feature-integration4-production.config.ts",
+    "rootDir": "C:/Users/nipun/Desktop/PassDetection/.tmp/frontend-dependency-remediation",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/nipun/Desktop/PassDetection/.tmp/frontend-dependency-remediation/browser-results-feature-integration4",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "production-flows",
+        "name": "production-flows",
+        "testDir": "C:/Users/nipun/Desktop/PassDetection/frontend/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "authentication.spec.ts",
+          "fresh-travellers.spec.ts",
+          "returning-travellers.spec.ts"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/nipun/Desktop/PassDetection/.tmp/frontend-dependency-remediation/browser-results-feature-integration4",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "production-nonce",
+        "name": "production-nonce",
+        "testDir": "C:/Users/nipun/Desktop/PassDetection/.tmp/frontend-dependency-remediation",
+        "testIgnore": [],
+        "testMatch": [
+          "production-nonce.spec.mjs"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\frontend-feature-integration4-production-browser.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.62.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "..\\..\\frontend\\e2e\\authentication.spec.ts",
+      "file": "../../frontend/e2e/authentication.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "credential login restores a cookie session and logout clears browser-owned state",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "production-flows",
+              "projectName": "production-flows",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2262,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T06:55:32.983Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "70f6afe7e350c931056e-0582eb902c8d690b3a4b",
+          "file": "../../frontend/e2e/authentication.spec.ts",
+          "line": 93,
+          "column": 5
+        },
+        {
+          "title": "a rejected refresh expires the local session and explains the redirect",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "production-flows",
+              "projectName": "production-flows",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 408,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T06:55:35.595Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "70f6afe7e350c931056e-5503a09cd7f9dbecbc0d",
+          "file": "../../frontend/e2e/authentication.spec.ts",
+          "line": 155,
+          "column": 5
+        },
+        {
+          "title": "a lower-privilege direct-link journey is denied and returned to its safe workspace",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "production-flows",
+              "projectName": "production-flows",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 451,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T06:55:36.010Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "70f6afe7e350c931056e-da4e012827aff6bb5466",
+          "file": "../../frontend/e2e/authentication.spec.ts",
+          "line": 161,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "..\\..\\frontend\\e2e\\fresh-travellers.spec.ts",
+      "file": "../../frontend/e2e/fresh-travellers.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "fresh private draft resumes and submits at 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "production-flows",
+              "projectName": "production-flows",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5213,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T06:55:36.482Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a9aaa940b692789b9677-abc82b8342a151761c58",
+          "file": "../../frontend/e2e/fresh-travellers.spec.ts",
+          "line": 70,
+          "column": 38
+        },
+        {
+          "title": "fresh private draft resumes and submits at 1440px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "production-flows",
+              "projectName": "production-flows",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5355,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T06:55:41.701Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a9aaa940b692789b9677-96922a61a6052d81e81e",
+          "file": "../../frontend/e2e/fresh-travellers.spec.ts",
+          "line": 70,
+          "column": 38
+        },
+        {
+          "title": "family members keep independent private drafts and head-first submissions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "production-flows",
+              "projectName": "production-flows",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7676,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T06:55:47.067Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a9aaa940b692789b9677-e953704f54f066f676a0",
+          "file": "../../frontend/e2e/fresh-travellers.spec.ts",
+          "line": 89,
+          "column": 5
+        },
+        {
+          "title": "an interrupted final response resumes the submitted receipt without a duplicate",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "production-flows",
+              "projectName": "production-flows",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5055,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T06:55:54.749Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a9aaa940b692789b9677-f74ff500edd83911b403",
+          "file": "../../frontend/e2e/fresh-travellers.spec.ts",
+          "line": 100,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "..\\..\\frontend\\e2e\\returning-travellers.spec.ts",
+      "file": "../../frontend/e2e/returning-travellers.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "phone verification and inline draft review at 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "production-flows",
+              "projectName": "production-flows",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3504,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T06:55:59.818Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1b0e3dc78027aab2aa3a-e0d88bc70a4e17056f21",
+          "file": "../../frontend/e2e/returning-travellers.spec.ts",
+          "line": 118,
+          "column": 7
+        },
+        {
+          "title": "passport verification and inline draft review at 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "production-flows",
+              "projectName": "production-flows",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3357,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T06:56:03.328Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1b0e3dc78027aab2aa3a-db0038f9db33c374cbe0",
+          "file": "../../frontend/e2e/returning-travellers.spec.ts",
+          "line": 118,
+          "column": 7
+        },
+        {
+          "title": "code verification and inline draft review at 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "production-flows",
+              "projectName": "production-flows",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3310,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T06:56:06.691Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1b0e3dc78027aab2aa3a-63c50385d20134ad5727",
+          "file": "../../frontend/e2e/returning-travellers.spec.ts",
+          "line": 118,
+          "column": 7
+        },
+        {
+          "title": "phone verification and inline draft review at 1440px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "production-flows",
+              "projectName": "production-flows",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1414,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T06:56:10.007Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1b0e3dc78027aab2aa3a-7106919de0df5da899a7",
+          "file": "../../frontend/e2e/returning-travellers.spec.ts",
+          "line": 118,
+          "column": 7
+        },
+        {
+          "title": "passport verification and inline draft review at 1440px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "production-flows",
+              "projectName": "production-flows",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1775,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T06:56:11.427Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1b0e3dc78027aab2aa3a-bf528c5402a4a08025d5",
+          "file": "../../frontend/e2e/returning-travellers.spec.ts",
+          "line": 118,
+          "column": 7
+        },
+        {
+          "title": "code verification and inline draft review at 1440px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "production-flows",
+              "projectName": "production-flows",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1278,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T06:56:13.208Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1b0e3dc78027aab2aa3a-775e99602b642c72da2c",
+          "file": "../../frontend/e2e/returning-travellers.spec.ts",
+          "line": 118,
+          "column": 7
+        },
+        {
+          "title": "first page has only two choices and a saved draft resumes for one day",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "production-flows",
+              "projectName": "production-flows",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3545,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T06:56:14.491Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1b0e3dc78027aab2aa3a-207d6bbe9c736d555cde",
+          "file": "../../frontend/e2e/returning-travellers.spec.ts",
+          "line": 142,
+          "column": 5
+        },
+        {
+          "title": "failed passport plus date proof highlights the new-traveller action without disclosing history",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "production-flows",
+              "projectName": "production-flows",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1386,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T06:56:18.041Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1b0e3dc78027aab2aa3a-9c139f87b62924b9a3bc",
+          "file": "../../frontend/e2e/returning-travellers.spec.ts",
+          "line": 156,
+          "column": 5
+        },
+        {
+          "title": "independent back/front replacement remains a draft and updates visible fields before submit",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "production-flows",
+              "projectName": "production-flows",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3354,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T06:56:19.433Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1b0e3dc78027aab2aa3a-ca45f465375d77ce4f2f",
+          "file": "../../frontend/e2e/returning-travellers.spec.ts",
+          "line": 163,
+          "column": 5
+        },
+        {
+          "title": "inline protected PDF uses scoped HttpOnly cookies without CSP violations",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "production-flows",
+              "projectName": "production-flows",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1480,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T06:56:22.792Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1b0e3dc78027aab2aa3a-972814269191307b299e",
+          "file": "../../frontend/e2e/returning-travellers.spec.ts",
+          "line": 180,
+          "column": 5
+        },
+        {
+          "title": "camera-only replacement opens the scanner and never offers a file bypass",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "production-flows",
+              "projectName": "production-flows",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1777,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T06:56:24.277Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1b0e3dc78027aab2aa3a-6117092e022588ccb197",
+          "file": "../../frontend/e2e/returning-travellers.spec.ts",
+          "line": 191,
+          "column": 5
+        },
+        {
+          "title": "relationship and details resume while the temporary photo must be selected again",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "production-flows",
+              "projectName": "production-flows",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5516,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T06:56:26.059Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1b0e3dc78027aab2aa3a-7098bb664ba76420cf25",
+          "file": "../../frontend/e2e/returning-travellers.spec.ts",
+          "line": 204,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "production-nonce.spec.mjs",
+      "file": "production-nonce.spec.mjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "production rewrites preserve the isolated backend response",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "production-nonce",
+              "projectName": "production-nonce",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 33,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T06:56:32.041Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ab74f2ef83d1117f06f-53d807d5c49b9a843db8",
+          "file": "production-nonce.spec.mjs",
+          "line": 3,
+          "column": 1
+        },
+        {
+          "title": "production rendering applies a fresh CSP nonce to framework scripts",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "production-nonce",
+              "projectName": "production-nonce",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 567,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T06:56:32.091Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ab74f2ef83d1117f06f-f873fe3f4dcf78b48f40",
+          "file": "production-nonce.spec.mjs",
+          "line": 18,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-31T06:55:24.645Z",
+    "duration": 68400.966,
+    "expected": 21,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

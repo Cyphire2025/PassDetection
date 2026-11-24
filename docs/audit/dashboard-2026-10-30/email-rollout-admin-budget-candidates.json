@@ -1,0 +1,80 @@
+{
+  "proposed_only": true,
+  "shared_gate_edited": false,
+  "normal_candidates": [
+    {
+      "path": "app/presentation/api/v1/routes/email_ai_rollout_admin.py",
+      "baseline_lines": 246,
+      "maximum_lines": 250,
+      "baseline_max_function_complexity": 12,
+      "maximum_function_complexity": 13,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/email_rollout_targets.py",
+      "baseline_lines": 200,
+      "maximum_lines": 200,
+      "baseline_max_function_complexity": 16,
+      "maximum_function_complexity": 17,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/email_rollout_policy_mapping.py",
+      "baseline_lines": 186,
+      "maximum_lines": 190,
+      "baseline_max_function_complexity": 10,
+      "maximum_function_complexity": 11,
+      "minimum_coverage_percent": 95
+    }
+  ],
+  "critical_candidates": [],
+  "measurements": [
+    {
+      "path": "app/presentation/api/v1/routes/email_ai_rollout_admin.py",
+      "lines": 246,
+      "max_function_complexity": 12,
+      "most_complex_function": "update_email_ai_rollout_policy",
+      "coverage_percent": 100.0,
+      "branch_count": 12,
+      "branch_coverage_percent": 100.0,
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    {
+      "path": "app/presentation/api/v1/routes/email_rollout_targets.py",
+      "lines": 200,
+      "max_function_complexity": 16,
+      "most_complex_function": "_target_rows",
+      "coverage_percent": 98.38709677419355,
+      "branch_count": 30,
+      "branch_coverage_percent": 96.66666666666667,
+      "missing_lines": [
+        121
+      ],
+      "missing_branches": [
+        [
+          120,
+          121
+        ]
+      ]
+    },
+    {
+      "path": "app/presentation/api/v1/routes/email_rollout_policy_mapping.py",
+      "lines": 186,
+      "max_function_complexity": 10,
+      "most_complex_function": "_load_policy_map",
+      "coverage_percent": 100.0,
+      "branch_count": 10,
+      "branch_coverage_percent": 100.0,
+      "missing_lines": [],
+      "missing_branches": []
+    }
+  ],
+  "original_family_normal_membership": [],
+  "original_family_critical_membership": [],
+  "preserved_global_floors": {
+    "minimum_line_percent": 75,
+    "minimum_branch_percent": 58
+  },
+  "notes": "Only3actual owners qualified. Defensive null-rowcontinue remains unhit because SQL already excludes it; no exclusion/mock added to game coverage. No existing floors/caps or critical membership weakened."
+}

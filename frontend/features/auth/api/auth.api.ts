@@ -9,6 +9,7 @@ import apiClient from "@/lib/api/client";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import type { AuthOutcome, AuthSession, IdentityActionOutcome, MFAEnrollmentSession, SwitchableAccessLevel, User } from "@/types";
 import type { LoginFormData } from "../schemas/auth.schemas";
+import { runIdentityOperation } from "../services/authentication-context";
 
 export const authApi = {
   changeAccessLevel: async (role: SwitchableAccessLevel, agencyId?: string): Promise<User> => {
@@ -26,27 +27,27 @@ export const authApi = {
       username: data.email,
       password: data.password,
     });
-    const response = await apiClient.post<AuthOutcome>(
+    const response = await runIdentityOperation((signal) => apiClient.post<AuthOutcome>(
       API_ENDPOINTS.auth.login,
       formData,
-      { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
-    );
+      { signal, headers: { "Content-Type": "application/x-www-form-urlencoded" } }
+    ));
     return response.data;
   },
 
   verifyMfa: async (challengeToken: string, code: string): Promise<MFAEnrollmentSession> => {
-    const response = await apiClient.post<MFAEnrollmentSession>(API_ENDPOINTS.auth.mfaVerify, {
+    const response = await runIdentityOperation((signal) => apiClient.post<MFAEnrollmentSession>(API_ENDPOINTS.auth.mfaVerify, {
       challenge_token: challengeToken,
       code,
-    });
+    }, { signal }));
     return response.data;
   },
 
   activate: async (token: string, newPassword: string): Promise<IdentityActionOutcome> => {
-    const response = await apiClient.post<IdentityActionOutcome>(API_ENDPOINTS.auth.activate, {
+    const response = await runIdentityOperation((signal) => apiClient.post<IdentityActionOutcome>(API_ENDPOINTS.auth.activate, {
       token,
       new_password: newPassword,
-    });
+    }, { signal }));
     return response.data;
   },
 
@@ -59,10 +60,10 @@ export const authApi = {
   },
 
   completePasswordRecovery: async (token: string, newPassword: string): Promise<IdentityActionOutcome> => {
-    const response = await apiClient.post<IdentityActionOutcome>(API_ENDPOINTS.auth.passwordRecoveryComplete, {
+    const response = await runIdentityOperation((signal) => apiClient.post<IdentityActionOutcome>(API_ENDPOINTS.auth.passwordRecoveryComplete, {
       token,
       new_password: newPassword,
-    });
+    }, { signal }));
     return response.data;
   },
 
@@ -90,22 +91,6 @@ export const authApi = {
   getMe: async (signal?: AbortSignal): Promise<User> => {
     const response = await apiClient.get<User>(API_ENDPOINTS.auth.me, { signal });
     return response.data;
-  },
-
-  /**
-   * Refresh the access token using the refresh token.
-   */
-  refreshToken: async (): Promise<AuthSession> => {
-    const response = await apiClient.post<AuthSession>(API_ENDPOINTS.auth.refresh);
-    return response.data;
-  },
-
-  logout: async (): Promise<void> => {
-    await apiClient.post(API_ENDPOINTS.auth.logout);
-  },
-
-  logoutAll: async (): Promise<void> => {
-    await apiClient.post(API_ENDPOINTS.auth.logoutAll);
   },
 
 };

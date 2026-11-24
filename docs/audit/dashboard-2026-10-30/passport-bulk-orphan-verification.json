@@ -1,0 +1,94 @@
+{
+  "status": "verified and source frozen",
+  "source_fence": {
+    "backend/app/infrastructure/documents/passport_orphan_reconciliation.py": "721f2a79f48dc101c1cb84f79585dea80d71988788cba8c8c15215155828ae9f",
+    "backend/app/infrastructure/documents/orphan_reconciliation.py": "7458b420372052de441f45b4349c440eb59464b78d7d5a6dc9da89356dae26a2",
+    "backend/app/infrastructure/documents/cleanup_tasks.py": "39c6acc102334472316a68f88cc2b57cd9cd9a4115318a7596ed632c1df56517",
+    "backend/app/infrastructure/celery_async_runtime.py": "931ac18fd9b7eaa8afd76444fd006c45f828cd73cf54d91816daa9b21de062e2",
+    "backend/app/infrastructure/processing/celery_app.py": "402830e148bc2745e7d05837ec10d81db4ed54bb9f6ab293d9cca60ae0f4a9e3",
+    "backend/app/presentation/api/v1/routes/passport_routes/document_import.py": "7b61af41d2d04bef87fff08c24211b35cf26d6684ca5b85581e526feec18b3c8",
+    "backend/tests/integration/test_passport_bulk_orphan_reconciliation.py": "c905b128af537800b919569ef4dab05f2cf54e8809719802844f23c3443c1176",
+    "backend/tests/integration/test_passport_draft_orphan_reconciliation.py": "a074f7b914dbfb80ca1efa75a4d146bd9999d6ecf1bb6fe5126c910bddd13dc5",
+    "backend/tests/integration/test_passport_orphan_reconciliation.py": "f830e3dd04d0b20e72afa084a91a09fe135b99a5669be37367387add874649ba",
+    "backend/tests/integration/passport_orphan_fixtures.py": "cd765e1056ce494eccfa91df8c1c555d014775a8810dcdb236dea58d5bfed1d0",
+    "backend/tests/unit/infrastructure/test_passport_orphan_bounds.py": "aa84ebf9999e431ec17d3f2969e136537e19ae12d690db339729607127560b23",
+    "backend/tests/unit/infrastructure/test_document_orphan_reconciliation.py": "4dfd54838bfdf8b0c9b8ea2305896ea5e1dac3455d6b90808db277833f1ac7ed"
+  },
+  "change": "Add only passport-bulk/ to existing fixed passport namespaces; concise scan docstring retains110line cap. Existing scheduled task needs no new deployment/config/service setup.",
+  "original_source": {
+    "sha256": "9c64d48c060800206ed9a0455b9f1570b284e5fd87a68811bb4b0afd43a362b1",
+    "archive": "docs/audit/dashboard-2026-10-30/passport-bulk-orphan-original.py.txt"
+  },
+  "whole_module_inverse_after_one_prefix_and_docstring": true,
+  "workflow_and_policies_preserved": [
+    "All20 durable reference columns and26owner fixture holds unchanged",
+    "49candidate/980parameter UNION and returned-key bound unchanged",
+    "24hour age grace/unknown/future retention unchanged",
+    "2000objects per namespace page/250delete request/7day encrypted cursor unchanged",
+    "Existing Celery task name/queue/hourly schedule/config untouched",
+    "No canonical/returning-drafts/travellers/neighbor namespace admission",
+    "No direct DB-global fallback or deletion merely from empty/unavailable reference query"
+  ],
+  "regression": {
+    "before_cases": 7,
+    "before_failed": 5,
+    "before_controls_passed": 2,
+    "after_affected_cases": 34,
+    "after_files": 5,
+    "seconds": 13.77
+  },
+  "execution_scope": "Actual registered task.run through a separate actual CeleryAsyncRuntime instance; FK SQLite reference queries. Object store and encrypted cursor backend are synthetic. No live broker, worker process, PostgreSQL, Redis, Minio/S3 or VPS service call.",
+  "coverage": {
+    "statement": "34/34=100%",
+    "branch": "8/8=100%",
+    "json": "passport-bulk-orphan-qualified-coverage.json"
+  },
+  "checks": [
+    "34affected tests passed",
+    "Configured strict mypy1source passed",
+    "Ruff2paths/no-fix+format passed",
+    "741-module static budget gate passed"
+  ],
+  "gates": {
+    "old_normal_row_retained_exact": {
+      "path": "app/infrastructure/documents/passport_orphan_reconciliation.py",
+      "baseline_lines": 110,
+      "maximum_lines": 110,
+      "baseline_max_function_complexity": 8,
+      "maximum_function_complexity": 8,
+      "minimum_coverage_percent": 100
+    },
+    "old_critical_row_retained_exact": {
+      "path": "app/infrastructure/documents/passport_orphan_reconciliation.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    },
+    "no_budget_binding_or_source_admission_edit_needed": true,
+    "reason": "Physical110/C8/coverage floors unchanged; this documents namespace policy rather than adding an owner. Helper is not in protected exact-release path set. Existing budget/pins remain unchanged."
+  },
+  "resolves_only_owned_subtask": {
+    "older_receipt": "document-import-verification.json",
+    "older_receipt_sha256": "0bcdd12759355fe02cbf4441313bcaefaaa2cd8dad5f5b345fb81bafdb0992ac",
+    "task": "Process-crash eventual orphan closure for passport-bulk/ remains unqualified; this batch covers request compensation only",
+    "resolution": "The existing scheduled scanner now recovers aged unheld bulk keys and retains all20durable field references, including lostACK and unavailable DB outcomes, at this synthetic task/SQLite scope. Original receipt stays immutable."
+  },
+  "still_open": [
+    "Fresh actor/group authorization after provider/native awaits is separate and unchanged",
+    "Document import route431 mixed architecture remains a separate task",
+    "Actual broker/prefork/storage/PG/VPS integration and measured production capacity remain unqualified",
+    "Per-run namespace page count increases7\u21928 with this one bounded new page; no production throughput claim"
+  ],
+  "artifacts": {
+    "passport-bulk-orphan-before-tests.txt": "1feffee02860c05abf88909f2b687cf95bea7b7e9bc08f97b49f7b61a26b0560",
+    "passport-bulk-orphan-affected-tests.txt": "2d4dc66729014a2c1d34efdf445be0448696cdd60e5e7086696e45060ecc76ab",
+    "passport-bulk-orphan-qualified-coverage.json": "24daf4c2b86278e10414aa3184f2acd3c2583bcb86516ac8b2590e1bab43bd20",
+    "passport-bulk-orphan-qualified-coverage.xml": "afb717552073862f5cffec61dd008404bc9b9219ce207133acadb924d9b89dd5",
+    "passport-bulk-orphan-types.txt": "8e63ae22e8213e327a5e9cbd584067681681bd8ef7f25c869877887ccdcfc4ff",
+    "passport-bulk-orphan-lint.txt": "932a01eaf979188345478f51e62e5ef6733f24a98963e986a91be516851f15ba",
+    "passport-bulk-orphan-budgets.txt": "4ff6c052c185b962cd35900c7d53bfab1a03909ddf397200f7493494e60d09e1",
+    "passport-bulk-orphan-reviewed-files.json": "54361332fd6b8dd01c2bd88b7335a012dcab50666b8de68be32c5e398dc99623",
+    "passport-bulk-orphan-original.py.txt": "9c64d48c060800206ed9a0455b9f1570b284e5fd87a68811bb4b0afd43a362b1",
+    "document-import-verification.json": "0bcdd12759355fe02cbf4441313bcaefaaa2cd8dad5f5b345fb81bafdb0992ac",
+    "passport-draft-orphan-verification.json": "9e3c855afbc52c5961c953b8ca1c21699a7f6e01e340efa1550818768c0ed6d3"
+  }
+}

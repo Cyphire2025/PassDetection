@@ -1,0 +1,176 @@
+FFF....FFF                                                               [100%]
+================================== FAILURES ===================================
+_ test_extracted_dates_are_consistent_after_every_removed_conflict[fields0-expected0] _
+
+fields = {'date_of_birth': '2000-01-01', 'date_of_expiry': '1998-01-01', 'date_of_issue': '1999-01-01'}
+expected = {'date_of_birth': '2000-01-01'}
+
+    @pytest.mark.parametrize(
+        ("fields", "expected"),
+        [
+            ({"date_of_birth": "2000-01-01", "date_of_issue": "1999-01-01", "date_of_expiry": "1998-01-01"},
+             {"date_of_birth": "2000-01-01"}),
+            ({"date_of_birth": "2000-01-01", "date_of_issue": "2001-01-01", "date_of_expiry": "1999-01-01"},
+             {"date_of_birth": "2000-01-01"}),
+            ({"date_of_birth": "2000-01-01", "date_of_issue": "2000-01-01", "date_of_expiry": "2000-01-01"},
+             {"date_of_birth": "2000-01-01"}),
+            ({"date_of_birth": "2000-01-01", "date_of_issue": "2020-01-01", "date_of_expiry": "2030-01-01"},
+             {"date_of_birth": "2000-01-01", "date_of_issue": "2020-01-01", "date_of_expiry": "2030-01-01"}),
+            ({"date_of_birth": "2000-01-01", "date_of_issue": "1999-01-01", "date_of_expiry": "2030-01-01"},
+             {"date_of_birth": "2000-01-01", "date_of_expiry": "2030-01-01"}),
+            ({"date_of_birth": "2000-01-01", "date_of_expiry": "1999-01-01"},
+             {"date_of_birth": "2000-01-01"}),
+            ({"date_of_birth": "not-a-date", "date_of_issue": "2020-01-01", "date_of_expiry": "2030-01-01"},
+             {"date_of_issue": "2020-01-01", "date_of_expiry": "2030-01-01"}),
+        ],
+    )
+    def test_extracted_dates_are_consistent_after_every_removed_conflict(
+        fields: dict[str, str], expected: dict[str, str],
+    ) -> None:
+        source = {**fields, "passport_number": "SYNTHETIC123"}
+        original = source.copy()
+    
+>       assert normalize_extracted_passport_dates(source) == {**expected, "passport_number": "SYNTHETIC123"}
+E       AssertionError: assert {'date_of_bir...SYNTHETIC123'} == {'date_of_bir...SYNTHETIC123'}
+E         
+E         Omitting 2 identical items, use -vv to show
+E         Left contains 1 more item:
+E         {'date_of_expiry': '1998-01-01'}
+E         Use -v to get more diff
+
+tests\unit\domain\test_passport_date_normalization.py:33: AssertionError
+_ test_extracted_dates_are_consistent_after_every_removed_conflict[fields1-expected1] _
+
+fields = {'date_of_birth': '2000-01-01', 'date_of_expiry': '1999-01-01', 'date_of_issue': '2001-01-01'}
+expected = {'date_of_birth': '2000-01-01'}
+
+    @pytest.mark.parametrize(
+        ("fields", "expected"),
+        [
+            ({"date_of_birth": "2000-01-01", "date_of_issue": "1999-01-01", "date_of_expiry": "1998-01-01"},
+             {"date_of_birth": "2000-01-01"}),
+            ({"date_of_birth": "2000-01-01", "date_of_issue": "2001-01-01", "date_of_expiry": "1999-01-01"},
+             {"date_of_birth": "2000-01-01"}),
+            ({"date_of_birth": "2000-01-01", "date_of_issue": "2000-01-01", "date_of_expiry": "2000-01-01"},
+             {"date_of_birth": "2000-01-01"}),
+            ({"date_of_birth": "2000-01-01", "date_of_issue": "2020-01-01", "date_of_expiry": "2030-01-01"},
+             {"date_of_birth": "2000-01-01", "date_of_issue": "2020-01-01", "date_of_expiry": "2030-01-01"}),
+            ({"date_of_birth": "2000-01-01", "date_of_issue": "1999-01-01", "date_of_expiry": "2030-01-01"},
+             {"date_of_birth": "2000-01-01", "date_of_expiry": "2030-01-01"}),
+            ({"date_of_birth": "2000-01-01", "date_of_expiry": "1999-01-01"},
+             {"date_of_birth": "2000-01-01"}),
+            ({"date_of_birth": "not-a-date", "date_of_issue": "2020-01-01", "date_of_expiry": "2030-01-01"},
+             {"date_of_issue": "2020-01-01", "date_of_expiry": "2030-01-01"}),
+        ],
+    )
+    def test_extracted_dates_are_consistent_after_every_removed_conflict(
+        fields: dict[str, str], expected: dict[str, str],
+    ) -> None:
+        source = {**fields, "passport_number": "SYNTHETIC123"}
+        original = source.copy()
+    
+>       assert normalize_extracted_passport_dates(source) == {**expected, "passport_number": "SYNTHETIC123"}
+E       AssertionError: assert {'date_of_bir...SYNTHETIC123'} == {'date_of_bir...SYNTHETIC123'}
+E         
+E         Omitting 2 identical items, use -vv to show
+E         Left contains 1 more item:
+E         {'date_of_expiry': '1999-01-01'}
+E         Use -v to get more diff
+
+tests\unit\domain\test_passport_date_normalization.py:33: AssertionError
+_ test_extracted_dates_are_consistent_after_every_removed_conflict[fields2-expected2] _
+
+fields = {'date_of_birth': '2000-01-01', 'date_of_expiry': '2000-01-01', 'date_of_issue': '2000-01-01'}
+expected = {'date_of_birth': '2000-01-01'}
+
+    @pytest.mark.parametrize(
+        ("fields", "expected"),
+        [
+            ({"date_of_birth": "2000-01-01", "date_of_issue": "1999-01-01", "date_of_expiry": "1998-01-01"},
+             {"date_of_birth": "2000-01-01"}),
+            ({"date_of_birth": "2000-01-01", "date_of_issue": "2001-01-01", "date_of_expiry": "1999-01-01"},
+             {"date_of_birth": "2000-01-01"}),
+            ({"date_of_birth": "2000-01-01", "date_of_issue": "2000-01-01", "date_of_expiry": "2000-01-01"},
+             {"date_of_birth": "2000-01-01"}),
+            ({"date_of_birth": "2000-01-01", "date_of_issue": "2020-01-01", "date_of_expiry": "2030-01-01"},
+             {"date_of_birth": "2000-01-01", "date_of_issue": "2020-01-01", "date_of_expiry": "2030-01-01"}),
+            ({"date_of_birth": "2000-01-01", "date_of_issue": "1999-01-01", "date_of_expiry": "2030-01-01"},
+             {"date_of_birth": "2000-01-01", "date_of_expiry": "2030-01-01"}),
+            ({"date_of_birth": "2000-01-01", "date_of_expiry": "1999-01-01"},
+             {"date_of_birth": "2000-01-01"}),
+            ({"date_of_birth": "not-a-date", "date_of_issue": "2020-01-01", "date_of_expiry": "2030-01-01"},
+             {"date_of_issue": "2020-01-01", "date_of_expiry": "2030-01-01"}),
+        ],
+    )
+    def test_extracted_dates_are_consistent_after_every_removed_conflict(
+        fields: dict[str, str], expected: dict[str, str],
+    ) -> None:
+        source = {**fields, "passport_number": "SYNTHETIC123"}
+        original = source.copy()
+    
+>       assert normalize_extracted_passport_dates(source) == {**expected, "passport_number": "SYNTHETIC123"}
+E       AssertionError: assert {'date_of_bir...SYNTHETIC123'} == {'date_of_bir...SYNTHETIC123'}
+E         
+E         Omitting 2 identical items, use -vv to show
+E         Left contains 1 more item:
+E         {'date_of_expiry': '2000-01-01'}
+E         Use -v to get more diff
+
+tests\unit\domain\test_passport_date_normalization.py:33: AssertionError
+_ test_token_repr_omits_credentials_without_changing_expiry_or_transport[AccessToken] _
+
+token_type = <class 'app.domain.value_objects.tokens.AccessToken'>
+
+    @pytest.mark.parametrize("token_type", [AccessToken, RefreshTokenValue])
+    def test_token_repr_omits_credentials_without_changing_expiry_or_transport(token_type: type) -> None:
+        expires = datetime(2030, 1, 1, tzinfo=UTC)
+        token = token_type(token="synthetic-sensitive-token", expires_at=expires)
+    
+>       assert "synthetic-sensitive-token" not in repr(token)
+E       AssertionError: assert 'synthetic-sensitive-token' not in 'AccessToken...mezone.utc))'
+E         
+E         'synthetic-sensitive-token' is contained here:
+E           AccessToken(token='synthetic-sensitive-token', expires_at=datetime.datetime(2030, 1, 1, 0, 0, tzinfo=datetime.timezone.utc))
+E         ?                    +++++++++++++++++++++++++
+
+tests\unit\domain\test_token_redaction.py:16: AssertionError
+_ test_token_repr_omits_credentials_without_changing_expiry_or_transport[RefreshTokenValue] _
+
+token_type = <class 'app.domain.value_objects.tokens.RefreshTokenValue'>
+
+    @pytest.mark.parametrize("token_type", [AccessToken, RefreshTokenValue])
+    def test_token_repr_omits_credentials_without_changing_expiry_or_transport(token_type: type) -> None:
+        expires = datetime(2030, 1, 1, tzinfo=UTC)
+        token = token_type(token="synthetic-sensitive-token", expires_at=expires)
+    
+>       assert "synthetic-sensitive-token" not in repr(token)
+E       AssertionError: assert 'synthetic-sensitive-token' not in 'RefreshToke...mezone.utc))'
+E         
+E         'synthetic-sensitive-token' is contained here:
+E           RefreshTokenValue(token='synthetic-sensitive-token', expires_at=datetime.datetime(2030, 1, 1, 0, 0, tzinfo=datetime.timezone.utc))
+E         ?                          +++++++++++++++++++++++++
+
+tests\unit\domain\test_token_redaction.py:16: AssertionError
+_____________ test_nested_token_pair_repr_omits_both_credentials ______________
+
+    def test_nested_token_pair_repr_omits_both_credentials() -> None:
+        expires = datetime(2030, 1, 1, tzinfo=UTC)
+        pair = TokenPair(AccessToken("synthetic-access-token", expires), RefreshTokenValue("synthetic-refresh-token", expires))
+    
+>       assert "synthetic-access-token" not in repr(pair)
+E       AssertionError: assert 'synthetic-access-token' not in 'TokenPair(a...ezone.utc)))'
+E         
+E         'synthetic-access-token' is contained here:
+E         ?                                     ^^
+E           TokenPair(access=AccessToken(token='synthetic-access-token', expires_at=datetime.datetime(2030, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)), refresh=RefreshTokenValue(token='synthetic-refresh-token', expires_at=datetime.datetime(2030, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)))
+E         ?                                     ^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\unit\domain\test_token_redaction.py:26: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/unit/domain/test_passport_date_normalization.py::test_extracted_dates_are_consistent_after_every_removed_conflict[fields0-expected0]
+FAILED tests/unit/domain/test_passport_date_normalization.py::test_extracted_dates_are_consistent_after_every_removed_conflict[fields1-expected1]
+FAILED tests/unit/domain/test_passport_date_normalization.py::test_extracted_dates_are_consistent_after_every_removed_conflict[fields2-expected2]
+FAILED tests/unit/domain/test_token_redaction.py::test_token_repr_omits_credentials_without_changing_expiry_or_transport[AccessToken]
+FAILED tests/unit/domain/test_token_redaction.py::test_token_repr_omits_credentials_without_changing_expiry_or_transport[RefreshTokenValue]
+FAILED tests/unit/domain/test_token_redaction.py::test_nested_token_pair_repr_omits_both_credentials
+6 failed, 4 passed in 0.67s

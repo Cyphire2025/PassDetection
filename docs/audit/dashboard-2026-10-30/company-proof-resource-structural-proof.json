@@ -1,0 +1,10 @@
+{
+  "quota_implementation_body_ast_identical": true,
+  "quota_body_ast_sha256": "af017b5cecf281d9ed98344046347a1ac7626bd2ded5f509df69577c097cf5a6",
+  "masked_label_count_equivalence": {
+    "exhaustive_inputs": 3280,
+    "alphabet_size": 3,
+    "lengths": "0..7",
+    "limits": "Equivalence sanity check, not a production performance benchmark. Existing returning behavior tests also pass39."
+  }
+}

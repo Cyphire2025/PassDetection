@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="3" time="4.495" timestamp="2026-10-31T04:56:15.549223+05:30" hostname="Nipun5070ti"><testcase classname="tests.integration.test_browser_attendance_discard_atomicity" name="test_rejected_discard_group_cannot_commit_new_evidence[False]" time="1.558"><failure message="AssertionError: assert {UUID('4ab224...eea50da63cb')} == {UUID('e363d8...eea50da63cb')}&#10;  &#10;  Extra items in the left set:&#10;  UUID('4ab224ae-a8ce-4adf-b756-58dd7b369809')&#10;  Use -v to get more diff">client = &lt;httpx.AsyncClient object at 0x0000027421497B50&gt;
+db_session = &lt;sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000002741DEB3C90&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002741DB14D50&gt;
+independent_group = False
+
+    @pytest.mark.parametrize("independent_group", [False, True])
+    async def test_rejected_discard_group_cannot_commit_new_evidence(
+        client,
+        db_session,
+        monkeypatch,
+        independent_group,
+    ):
+        f = await _cohort(db_session)
+        conflict, fresh = uuid.uuid4(), uuid.uuid4()
+        rejected_index = int(independent_group)
+        await _existing_receipt(db_session, f, conflict, index=rejected_index)
+        _commit_requests(client, db_session, monkeypatch)
+        replies = await _post(client, f, [_item(f, fresh), _item(f, conflict, index=rejected_index)])
+        assert [item["status"] for item in replies] == (
+            ["accepted", "rejected"] if independent_group else ["rejected", "rejected"]
+        )
+        sessions = async_sessionmaker(db_session.bind, expire_on_commit=False)
+        async with sessions() as independent_reader:
+            receipts = list(
+                (await independent_reader.scalars(select(AttendanceDiscardTombstoneModel))).all()
+            )
+            expected_events = {conflict, fresh} if independent_group else {conflict}
+&gt;           assert {row.discard_event_id for row in receipts} == expected_events
+E           AssertionError: assert {UUID('4ab224...eea50da63cb')} == {UUID('e363d8...eea50da63cb')}
+E             
+E             Extra items in the left set:
+E             UUID('4ab224ae-a8ce-4adf-b756-58dd7b369809')
+E             Use -v to get more diff
+
+tests\integration\test_browser_attendance_discard_atomicity.py:216: AssertionError</failure></testcase><testcase classname="tests.integration.test_browser_attendance_discard_atomicity" name="test_rejected_discard_group_cannot_commit_new_evidence[True]" time="1.477" /><testcase classname="tests.integration.test_browser_attendance_discard_atomicity" name="test_successful_discard_and_exact_replay_preserve_durable_receipt" time="1.015" /></testsuite></testsuites>

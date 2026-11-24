@@ -1,0 +1,18 @@
+[
+  {
+    "path": "scripts/release_current.py",
+    "sha256": "3cf6947564401e8937800677d56d11d5ed533bf35489dc3de78cdaef4e942f2c",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read, including re-reading previously truncated release-current lines260-357. Reviewed current signed artifact/manifest, retained Compose project/database identity, secret backup and private checkpoint, migration/storage/writer fence, resource headroom, exact Redis process/volume identity and interruption/retry paths. Unchanged source; source review only, no Docker/Linux/VPS execution or qualification claim."
+  },
+  {
+    "path": "scripts/release_persistent_resources.py",
+    "sha256": "2353ea1d82efff2c3ad4315a6894451c0c2af3354045c4bfe6cfe488fe742d27",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read, including re-reading previously truncated release-current lines260-357. Reviewed current signed artifact/manifest, retained Compose project/database identity, secret backup and private checkpoint, migration/storage/writer fence, resource headroom, exact Redis process/volume identity and interruption/retry paths. Unchanged source; source review only, no Docker/Linux/VPS execution or qualification claim."
+  }
+]

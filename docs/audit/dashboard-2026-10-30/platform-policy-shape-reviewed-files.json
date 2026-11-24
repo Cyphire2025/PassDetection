@@ -1,0 +1,26 @@
+[
+  {
+    "path": "backend/app/application/platform_policies.py",
+    "sha256": "514ecdb31d8f22614489b51ebaec0687b0c6d27244f66fb907addd430f170968",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete policy/test source read. Five actual malformed JSON shape/overflow regressions failed before;17 affected cases now pass. Whole module inverse only two string guards, two validated Literal casts and one numeric OverflowError projection; every original test/helper AST remains exact. Valid policy matrix/defaults unchanged; no security exploit/DB corruption incident claim."
+  },
+  {
+    "path": "backend/tests/unit/application/test_platform_policies.py",
+    "sha256": "276b92897f44680a9ef57b45bd68182ae47c9648682043b59c605ee3db662b8e",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete policy/test source read. Five actual malformed JSON shape/overflow regressions failed before;17 affected cases now pass. Whole module inverse only two string guards, two validated Literal casts and one numeric OverflowError projection; every original test/helper AST remains exact. Valid policy matrix/defaults unchanged; no security exploit/DB corruption incident claim."
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/platform_policy_repository.py",
+    "sha256": "b600947081be24cb4cb8fe97e3d9e9d3f9945bcbef355dd287e58579b0db7b11",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete unchanged persistence adapter read: server-chosen global key, parameterized select and direct validated policy mapping. Source-only trace; no new real PostgreSQL or corrupted-database exercise."
+  }
+]

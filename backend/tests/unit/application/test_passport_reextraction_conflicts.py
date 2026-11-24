@@ -219,9 +219,9 @@ async def test_reextraction_result_persists_new_verification_outbox_atomically()
     repository = PassportSubmissionRepository(session)
 
     with (
-        patch.object(repository, "_to_entity", return_value=submission),
+        patch("app.infrastructure.repositories.passport_submission_processing._to_entity", return_value=submission),
         patch(
-            "app.infrastructure.repositories.passport_submission_repository.PostSubmissionVerificationJobRepository",
+            "app.infrastructure.repositories.passport_submission_processing.PostSubmissionVerificationJobRepository",
             return_value=SimpleNamespace(enqueue=enqueue),
         ),
     ):

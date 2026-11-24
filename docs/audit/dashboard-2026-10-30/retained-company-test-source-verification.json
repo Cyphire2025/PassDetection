@@ -1,0 +1,53 @@
+{
+  "status": "Read-only bounded retained company test-source review complete; broader audit remains active",
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-company-test-source-reviewed-files.json",
+    "sha256": "8064421bbb8c924696aeff27333d8bcb9f26e3b726861804d1966a8e7ed4404d"
+  },
+  "new_current_full_tests": 9,
+  "new_test_physical_lines": 861,
+  "full_files": 10,
+  "full_physical_lines": 930,
+  "focused_files": 8,
+  "source_fence": {
+    "backend/tests/integration/test_company_export_admission_compatibility.py": "1eaa2f4e5a5215c646ecae46eb2bbfbbe35c2d7e06f5c066cd2c76ef1c4e5d2f",
+    "backend/tests/integration/test_company_history_chronology.py": "8b5cc974f909e4007d056960cec93db82d65b1650f57537bf8b015a607bd1c58",
+    "backend/tests/integration/test_company_match_review.py": "84da779fce572b132575b9320046c2a8a9f0b0fecb6311f2fc34fa2c08ff0de1",
+    "backend/tests/integration/test_company_removal.py": "620d931c25eb6f6870d00afe291c0109c2f341de48cf6d7155e78a47f6c4b6cf",
+    "backend/tests/integration/test_company_reuse_setup.py": "efd83ebbbd6ff06dfa347b2761eb48f582207c58d044c6fc1031df60290696e6",
+    "backend/tests/integration/test_company_source_export_integrity.py": "b4fa99c6437550e7ffe691af750e39bd589db1d983e82bfb7ae212e1273aab7a",
+    "backend/tests/integration/test_company_trip_phase.py": "999889a941bf386e167ed3e373dd2645d18ff56f41f0f8094d01ffe56a732a68",
+    "backend/tests/integration/test_company_workbook_cancellation.py": "c3e1766d2e5b2428ffe5079aaba6456d3746c2347b56ab63729fa784cb5de81d",
+    "backend/tests/integration/test_company_workspace.py": "398fb9a7218d37235017795ff0d84944a67e958f5e96e608105f0f681b586ce3",
+    "backend/app/infrastructure/travellers/company_export_workbook.py": "3986705f77da29340f337b7efac87b97819e775b179217e74d10cc519178b1f1",
+    "backend/app/infrastructure/travellers/company_export_worker.py": "0fd62ac61c57539f06202672d2b3dfc2afd3a264ffae2185c2dd35de1856c16a",
+    "backend/app/infrastructure/travellers/company_export_admission.py": "fdce49e0364a9df3498812057a96d81ec4afc49901f3fbb8184797bb2ac34f68",
+    "backend/tests/integration/test_company_data_exports.py": "ce4905600872a11b66086b791c21c9c25131b40bee742c3662fb8580ee3e010a",
+    "backend/tests/integration/test_company_people.py": "e76274f1b0544d4b3d813887bd44db994c942a2b0cb31ab35d335fe88e2c0537",
+    "backend/tests/integration/test_company_directory.py": "027f4bd3a96847532ad621162c9ae4c17eb8e93c98c1344a3392f020c47aa3fd",
+    "backend/app/presentation/api/v1/routes/company_source_documents.py": "ba3e81e30ba3c25746b9963c6af57da7b7301d2a48c1075cb865b440c1f06cf9",
+    "backend/app/presentation/api/v1/routes/company_traveller_history.py": "9bf37dd67d9ccb5ca65221ceb8620cd4911ea6b227e98e130bf3938c7c3fa54f",
+    "backend/app/presentation/api/v1/routes/company_match_review.py": "8e5dc3e84be0c42e088ce3dfe4136e795ad98340b269ff8105ff205da5b861f3"
+  },
+  "snapshots": {
+    ".tmp/company-test-source-cohort/test_company_export_admission_compatibility.py": "1eaa2f4e5a5215c646ecae46eb2bbfbbe35c2d7e06f5c066cd2c76ef1c4e5d2f",
+    ".tmp/company-test-source-cohort/test_company_history_chronology.py": "8b5cc974f909e4007d056960cec93db82d65b1650f57537bf8b015a607bd1c58",
+    ".tmp/company-test-source-cohort/test_company_match_review.py": "84da779fce572b132575b9320046c2a8a9f0b0fecb6311f2fc34fa2c08ff0de1",
+    ".tmp/company-test-source-cohort/test_company_removal.py": "620d931c25eb6f6870d00afe291c0109c2f341de48cf6d7155e78a47f6c4b6cf",
+    ".tmp/company-test-source-cohort/test_company_reuse_setup.py": "efd83ebbbd6ff06dfa347b2761eb48f582207c58d044c6fc1031df60290696e6",
+    ".tmp/company-test-source-cohort/test_company_source_export_integrity.py": "b4fa99c6437550e7ffe691af750e39bd589db1d983e82bfb7ae212e1273aab7a",
+    ".tmp/company-test-source-cohort/test_company_trip_phase.py": "999889a941bf386e167ed3e373dd2645d18ff56f41f0f8094d01ffe56a732a68",
+    ".tmp/company-test-source-cohort/test_company_workbook_cancellation.py": "c3e1766d2e5b2428ffe5079aaba6456d3746c2347b56ab63729fa784cb5de81d",
+    ".tmp/company-test-source-cohort/test_company_workspace.py": "398fb9a7218d37235017795ff0d84944a67e958f5e96e608105f0f681b586ce3"
+  },
+  "checks_run": [],
+  "changes": [],
+  "findings": [],
+  "proof_gaps": [
+    "Test assertions and actual current hook/query binding were inspected; no passing test/service result inferred.",
+    "SQLite sessions and synthetic callbacks/threads are not live PostgreSQL/Redis/object-storage concurrency or runtime-profile proof.",
+    "Thread/cancellation synchronization has fixed fixture time bounds; no ordinary failure was reproduced, so no test/runtime timing changes justified.",
+    "Focused source contexts remain partial and do not close whole-module architecture/security review. Shared workbook whole reread does not count newly unreviewed if an exact-full prior record exists."
+  ],
+  "scope": "Retained dashboard company/privacy/history/export workflows only; all sources byte-unmodified by this cohort. Shared GC tables are compatibility/retention context only, native ingress/UI and Operations Inbox stay excluded/deferred."
+}

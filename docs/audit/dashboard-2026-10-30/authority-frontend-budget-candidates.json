@@ -1,0 +1,254 @@
+[
+  {
+    "path": "hooks/use-private-mutation.ts",
+    "baselineLines": 113,
+    "maximumLines": 120,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/gc-app/notifications/notification-operation.ts",
+    "baselineLines": 33,
+    "maximumLines": 40,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/passports/types/passport-trip-details.ts",
+    "baselineLines": 27,
+    "maximumLines": 35,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/whatsapp/hooks/use-whatsapp.ts",
+    "baselineLines": 11,
+    "maximumLines": 30,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/whatsapp/hooks/use-broadcast-queries.ts",
+    "baselineLines": 40,
+    "maximumLines": 50,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/whatsapp/hooks/use-broadcast-group-mutations.ts",
+    "baselineLines": 75,
+    "maximumLines": 90,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/whatsapp/hooks/use-broadcast-recipient-mutations.ts",
+    "baselineLines": 126,
+    "maximumLines": 140,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/whatsapp/hooks/whatsapp-query-keys.ts",
+    "baselineLines": 6,
+    "maximumLines": 20,
+    "baselineMaxFunctionComplexity": 1,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/whatsapp/hooks/use-normal-send.ts",
+    "baselineLines": 29,
+    "maximumLines": 40,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/whatsapp/api/whatsapp.api.ts",
+    "baselineLines": 16,
+    "maximumLines": 30,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/whatsapp/api/broadcast-message-reads.api.ts",
+    "baselineLines": 18,
+    "maximumLines": 30,
+    "baselineMaxFunctionComplexity": 1,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/whatsapp/api/broadcast-recipients.api.ts",
+    "baselineLines": 125,
+    "maximumLines": 140,
+    "baselineMaxFunctionComplexity": 5,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/whatsapp/types/messages.ts",
+    "baselineLines": 82,
+    "maximumLines": 100,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/whatsapp/types/recipients.ts",
+    "baselineLines": 129,
+    "maximumLines": 140,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/whatsapp/utils/normal-send-intent.ts",
+    "baselineLines": 52,
+    "maximumLines": 70,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/auth/services/session-state.ts",
+    "baselineLines": 218,
+    "maximumLines": 230,
+    "baselineMaxFunctionComplexity": 9,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/auth/services/session-continuity.ts",
+    "baselineLines": 20,
+    "maximumLines": 30,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "lib/api/request-owner.ts",
+    "baselineLines": 99,
+    "maximumLines": 110,
+    "baselineMaxFunctionComplexity": 11,
+    "maximumFunctionComplexity": 12
+  },
+  {
+    "path": "stores/auth.store.ts",
+    "baselineLines": 224,
+    "maximumLines": 240,
+    "baselineMaxFunctionComplexity": 16,
+    "maximumFunctionComplexity": 17
+  },
+  {
+    "path": "features/auth/components/account-security-panel.tsx",
+    "baselineLines": 166,
+    "maximumLines": 180,
+    "baselineMaxFunctionComplexity": 14,
+    "maximumFunctionComplexity": 15
+  },
+  {
+    "path": "features/whatsapp/components/activity-tracker/context.ts",
+    "baselineLines": 23,
+    "maximumLines": 40,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/whatsapp/components/activity-tracker/failure-recipients.tsx",
+    "baselineLines": 77,
+    "maximumLines": 90,
+    "baselineMaxFunctionComplexity": 7,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/whatsapp/components/activity-tracker/floating-overlay.tsx",
+    "baselineLines": 238,
+    "maximumLines": 250,
+    "baselineMaxFunctionComplexity": 7,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/whatsapp/components/activity-tracker/inline.tsx",
+    "baselineLines": 45,
+    "maximumLines": 60,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/whatsapp/components/activity-tracker/progress.ts",
+    "baselineLines": 50,
+    "maximumLines": 60,
+    "baselineMaxFunctionComplexity": 13,
+    "maximumFunctionComplexity": 14
+  },
+  {
+    "path": "features/whatsapp/components/activity-tracker/row.tsx",
+    "baselineLines": 264,
+    "maximumLines": 280,
+    "baselineMaxFunctionComplexity": 43,
+    "maximumFunctionComplexity": 44
+  },
+  {
+    "path": "features/whatsapp/components/activity-tracker/storage.ts",
+    "baselineLines": 25,
+    "maximumLines": 40,
+    "baselineMaxFunctionComplexity": 5,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/whatsapp/components/activity-tracker/use-activity-completion.ts",
+    "baselineLines": 62,
+    "maximumLines": 80,
+    "baselineMaxFunctionComplexity": 10,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/whatsapp/components/activity-tracker/use-activity-refresh.ts",
+    "baselineLines": 51,
+    "maximumLines": 70,
+    "baselineMaxFunctionComplexity": 10,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/whatsapp/components/activity-tracker/use-tracked-activities.ts",
+    "baselineLines": 185,
+    "maximumLines": 200,
+    "baselineMaxFunctionComplexity": 8,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/whatsapp/components/whatsapp-activity-tracker.tsx",
+    "baselineLines": 36,
+    "maximumLines": 50,
+    "baselineMaxFunctionComplexity": 4,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/mcp/api/mcp.api.ts",
+    "baselineLines": 162,
+    "maximumLines": 180,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/mcp/hooks/use-mcp.ts",
+    "baselineLines": 113,
+    "maximumLines": 130,
+    "baselineMaxFunctionComplexity": 6,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/mcp/components/mcp-request-waiting-page.tsx",
+    "baselineLines": 76,
+    "maximumLines": 90,
+    "baselineMaxFunctionComplexity": 33,
+    "maximumFunctionComplexity": 34
+  },
+  {
+    "path": "features/mcp/utils/file-transfer.ts",
+    "baselineLines": 99,
+    "maximumLines": 110,
+    "baselineMaxFunctionComplexity": 38,
+    "maximumFunctionComplexity": 39
+  },
+  {
+    "path": "features/mcp/utils/permissions.ts",
+    "baselineLines": 68,
+    "maximumLines": 80,
+    "baselineMaxFunctionComplexity": 17,
+    "maximumFunctionComplexity": 18
+  }
+]

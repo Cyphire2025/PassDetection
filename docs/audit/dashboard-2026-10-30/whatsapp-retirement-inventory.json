@@ -1,0 +1,128 @@
+{
+  "retired_runtime_paths": [
+    "frontend/features/documents/api/traveller-welcome.api.ts",
+    "frontend/features/documents/components/document-recipient-panel.tsx",
+    "frontend/features/documents/components/document-recipient-send-dialog.tsx",
+    "frontend/features/documents/components/document-update-dialog.tsx",
+    "frontend/features/documents/components/document-update-status.tsx",
+    "frontend/features/documents/components/traveller-welcome-dialog.tsx",
+    "frontend/features/documents/components/traveller-welcome-model.ts",
+    "frontend/features/documents/components/traveller-welcome-panel.tsx",
+    "frontend/features/documents/hooks/use-traveller-welcome-image.ts",
+    "frontend/features/documents/hooks/use-traveller-welcome.ts",
+    "frontend/features/whatsapp/components/group-update-delivery-panel.tsx",
+    "frontend/features/whatsapp/components/whatsapp-active-recipient-row.tsx",
+    "frontend/features/whatsapp/components/whatsapp-broadcast-list.tsx",
+    "frontend/features/whatsapp/components/whatsapp-broadcast-update-dialog.tsx",
+    "frontend/features/whatsapp/components/whatsapp-bulk-composer-audience.tsx",
+    "frontend/features/whatsapp/components/whatsapp-delivery-toolbar.tsx",
+    "frontend/features/whatsapp/components/whatsapp-group-invite-dialog.tsx",
+    "frontend/features/whatsapp/components/whatsapp-group-invite-image.tsx",
+    "frontend/features/whatsapp/components/whatsapp-message-preview-dialog.tsx",
+    "frontend/features/whatsapp/components/whatsapp-preview-recipient-picker.tsx",
+    "frontend/features/whatsapp/components/whatsapp-recipient-bulk-outcome.tsx",
+    "frontend/features/whatsapp/components/whatsapp-recipient-dialog.tsx",
+    "frontend/features/whatsapp/components/whatsapp-recipient-imported-details.tsx",
+    "frontend/features/whatsapp/components/whatsapp-recipient-selection.tsx",
+    "frontend/features/whatsapp/components/whatsapp-reminder-audience.tsx",
+    "frontend/features/whatsapp/components/whatsapp-send-recovery.tsx",
+    "frontend/features/whatsapp/components/whatsapp-source-roster-panel.tsx",
+    "frontend/features/whatsapp/components/whatsapp-workspace.tsx",
+    "frontend/features/whatsapp/components/whatsapp-workspace.types.ts",
+    "frontend/features/whatsapp/utils/recipient-bulk-selection.ts",
+    "frontend/features/whatsapp/utils/recipient-roster.ts"
+  ],
+  "retired_surfaces": [
+    {
+      "surface": {
+        "id": "frontend:frontend/features/documents/api/traveller-welcome.api.ts:preview",
+        "kind": "frontend_callable",
+        "source": "frontend/features/documents/api/traveller-welcome.api.ts",
+        "handler": "preview"
+      },
+      "workflow": "documents.preview",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/documents/api/traveller-welcome.api.ts:send",
+        "kind": "frontend_callable",
+        "source": "frontend/features/documents/api/traveller-welcome.api.ts",
+        "handler": "send"
+      },
+      "workflow": "documents.send",
+      "disposition": "implement",
+      "phase": 6,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "immutable_preparation_and_explicit_user_send_intent",
+        "dispatch_authority_recheck",
+        "business_dispatch_idempotency",
+        "provider_receipt_reconciliation",
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend_api:frontend/features/documents/api/traveller-welcome.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/documents/api/traveller-welcome.api.ts",
+        "contract_sha256": "fc18758b10ca026ebec5cfa05393ec4e2ee83ea9b1dc2ecbe20b843a9c6a7baa"
+      },
+      "workflow": "transport.frontend.features.documents.api.traveller-welcome.api.ts",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Routing or frontend transport facade implementing the individually classified business operations; fingerprint forces review of prefix/registration/alias and nonstandard action changes.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    }
+  ],
+  "removed_budget_entries": [],
+  "remaining_classifications_unchanged": true,
+  "discovered_count": 1950,
+  "notes": [
+    "No retired runtime path had an entry in the current frontend budget. Existing 124 live module limits retained unchanged.",
+    "Retired only three identities owned by the uncalled traveller-welcome frontend facade. All live backend routes, runtime MCP tools, workflow classifications and permissions are unchanged."
+  ],
+  "additional_reviewed_identity_refresh": {
+    "before": {
+      "id": "frontend_api:frontend/lib/api/streamed-download.ts",
+      "kind": "frontend_api_contract",
+      "source": "frontend/lib/api/streamed-download.ts",
+      "contract_sha256": "a4c41d567fb5b04c25b070dd4fdb0153c8d953964509338ce5402171a408c998"
+    },
+    "after": {
+      "id": "frontend_api:frontend/lib/api/streamed-download.ts",
+      "kind": "frontend_api_contract",
+      "source": "frontend/lib/api/streamed-download.ts",
+      "contract_sha256": "69612a10ceb95d5762c7f0626672b1dd3290a06c93e76bccb7925091740358a0"
+    },
+    "classification_unchanged": true,
+    "finding": "Attachment parser should percent-decode RFC5987 filename* only; ordinary quoted/unquoted filename preserves literal percent characters. Existing filesystem-safe name sanitization remains authoritative. Reviewed one-line diff and UTF8/malformed/literal percent regression cases."
+  }
+}

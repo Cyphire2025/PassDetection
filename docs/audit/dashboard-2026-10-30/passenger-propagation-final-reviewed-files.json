@@ -1,0 +1,176 @@
+{
+  "files": [
+    {
+      "path": "backend/app/application/mobile/passenger_change_propagation.py",
+      "sha256": "a87d9aef03194a21969670437f2a2905045a66b2e536c52eda2281975ffc0bd7",
+      "physical_lines": 299,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current299 physical read. Three public async APIs remain in original module, including public planner/ID/broadcast-to-group invocation seams and session memo; complete expanded original statement AST matches. Existing500 full source record retained as history, not new-unreviewed credit."
+    },
+    {
+      "path": "backend/tests/unit/application/test_mobile_passenger_change_propagation.py",
+      "sha256": "b1dd2b006c1482d68e55bb847b9e4315049e1d73958ededec9005a4ae8044e05",
+      "physical_lines": 368,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current368 physical read. Actual consumer-module instrumentation targets only; all38 original assertions and original CRLF exact. Existing14 cases pass with selected actual source-contact lifecycle test."
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/client_details_transaction.py",
+      "sha256": "374a334d619c7485b82bc2d8d5ff39889c10664965f39c6b84a8ffe662e5eff3",
+      "physical_lines": 197,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source reread for architecture follow-through. This bridge already has an exact-current full record in notification-server-preflight-reviewed-files.json; do not count it as newly unreviewed source coverage. Retained dashboard profile/document/reconciliation callbacks are in scope; native ingress/UI and Operations Inbox-specific work remain excluded/deferred. No runtime/test edits yet."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_group_whatsapp_links.py",
+      "sha256": "e49ec1bee518a55f6861f03def2650aa851936e5c8a4dda86ba8fec3038e238b",
+      "physical_lines": 897,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Focused physical read only: 1\u2013145 and271\u2013440; selected complete shared source-contact add/edit/delete test, seed graph and _domain_user helper. No full-read credit from snapshots/imports/metadata or truncated output."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/document_delivery_runtime.py",
+      "sha256": "995e3c43450e9ab3e6a82789c7df4456f0c02eb3f7280efbb49468c74d4a358a",
+      "physical_lines": 812,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Focused physical read only: 1\u2013150 only, including complete _propagate_first_released_document_batch; attempted whole read was truncated and gets no whole-file credit. No full-read credit from snapshots/imports/metadata or truncated output."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/receipt_runtime.py",
+      "sha256": "19b356ab48ee3ea6c34d91e14aa5ede416342fb8dc6143782dc53e5c1c6cad8e",
+      "physical_lines": 412,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Focused physical read only: 181\u2013250 only, shared document receipt release callback branch; other native/MCP receipt branches are outside this review. No full-read credit from snapshots/imports/metadata or truncated output."
+    },
+    {
+      "path": "backend/app/application/mobile/passenger_identity_reconciliation.py",
+      "sha256": "542d8dcdb03dd5d32ab5c9051f0a62cb508ef8546a95bf7355271167da760217",
+      "physical_lines": 567,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Focused physical read only: 1\u201390 and156\u2013233; public result DATA/signatures and targeted/full dispatch only, no identity engine policy/source edit. No full-read credit from snapshots/imports/metadata or truncated output. Additional focused physical read446-503 traced existing manifest/revision contract; no whole identity-engine read credit."
+    },
+    {
+      "path": "backend/app/application/mobile/sync_journal.py",
+      "sha256": "c8a5e7918ebde6d58d79ffb17862c99dc2a016e98f654b49b8e5606db986e34e",
+      "physical_lines": 183,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Focused physical read only: 129\u2013end only; complete append_mobile_sync_change and published flush semantics; preserve existing per-event flush and staged realtime callback timing. No full-read credit from snapshots/imports/metadata or truncated output."
+    },
+    {
+      "path": "backend/app/application/mobile/notification_service.py",
+      "sha256": "8d94a4b2d4cf544dd6177b4b6e65c30b0d4f73cfe9f1f6545a9be95c3f373f4c",
+      "physical_lines": 113,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Focused physical read only: 1\u2013120 compatibility export context only; legitimate catalog stays frozen. No full-read credit from snapshots/imports/metadata or truncated output."
+    },
+    {
+      "path": "backend/app/application/mobile/notification_document_changes.py",
+      "sha256": "a7b19ccbc3fddf277d34618bebf517bc1082b779d5f756444069abdb697bbf0a",
+      "physical_lines": 272,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Focused physical read only: 29\u2013139 only; complete enqueue_personal_document_change_notifications callback, availability/deadline/role queues and return contract; no dispatch/provider work. No full-read credit from snapshots/imports/metadata or truncated output."
+    },
+    {
+      "path": "backend/app/application/mobile/notification_contracts.py",
+      "sha256": "76b02078cb47578f24ddf55995866d09eb383216665f79c43714077a9e96119e",
+      "physical_lines": 75,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Focused physical read only: 1\u201380 only; document count DATA callback return interface; other native notification policy is not under review. No full-read credit from snapshots/imports/metadata or truncated output."
+    },
+    {
+      "path": "backend/app/application/mobile/coordinator_roster_revision.py",
+      "sha256": "18d2ef655f9a3bf7b900e1c0e180e879583b619a7ca49918bd0c3554eb7cd467",
+      "physical_lines": 147,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Focused physical read only: 1\u201342 only; actual revision callback signature/documented bound, no separate native feature review. No full-read credit from snapshots/imports/metadata or truncated output."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/document_import.py",
+      "sha256": "ec34e2f4c252e18cc192eb3ba6eff60f177243dfb33214e71dc5c793d10ef52d",
+      "physical_lines": 207,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Focused physical read only: 150\u2013181 callback/audit/flush/commit context only, no importer or native ingestion edits. No full-read credit from snapshots/imports/metadata or truncated output."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/excel_import.py",
+      "sha256": "0d27ed0e4702e5a8c14cd23c4c12e917d584ecea0e3bdaead6aa182da710af70",
+      "physical_lines": 363,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Focused physical read only: 333\u2013363 callback/audit/commit/no-op rollback context only, no parser/policy edits. No full-read credit from snapshots/imports/metadata or truncated output."
+    },
+    {
+      "path": "backend/app/application/mobile/passenger_change_contracts.py",
+      "sha256": "d2380bfee9bdb59fe5dee50b2f0d12cdb7980033f419a11457d7cf0b7dacb130",
+      "physical_lines": 54,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete54 physical read. Original two frozen slots DATA classes/constants/alias preserved with canonical class/generated method modules and actual instance/callable pickle; implementation-source inspection moves to focused owner, no inspect monkeypatch."
+    },
+    {
+      "path": "backend/app/application/mobile/passenger_change_events.py",
+      "sha256": "e7e3fe920b64f0e7f83b45525bf00889d34e12c0ca05a9aca86f3b29210118d1",
+      "physical_lines": 130,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete130 physical read. Whole original planner/stable UUID declaration ASTs exact, original role ordering/dedup/100 threshold/PII-free fields; public main retains invocation globals."
+    },
+    {
+      "path": "backend/app/application/mobile/passenger_change_identities.py",
+      "sha256": "0e663f42d3f78ab195b2cda8b51b7021a8a231f9dcdd3098a3f989e3921bbd7d",
+      "physical_lines": 85,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete85 physical read. Typed two-field DATA result and exact original bounded reconciliation/selected identity SQL statements; no callbacks/proxy/policy changes."
+    },
+    {
+      "path": "backend/app/application/mobile/passenger_change_journal.py",
+      "sha256": "dee981f849e150af11a70bf3d7d3db990d4eb6b885ce293372e2f4b0ab37ce16",
+      "physical_lines": 115,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete115 physical read. Exact original tenant/access durable-ID filter, revision fencing, per-event flush/journal/notification order; caller retains commit and memo ownership."
+    },
+    {
+      "path": "backend/tests/unit/application/test_passenger_propagation_boundaries.py",
+      "sha256": "926baf2a5d6ba4f7658a26501993e7d1ee38c7d18fcfb0e0824c136e24107e75",
+      "physical_lines": 133,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete133 physical read. Five synthetic real-FK SQLite controls pass against original source first and final source: deduped0/1/8/9 reconciliation dispatch and already-advanced identity version fencing; all11 baseline assertions exact after hook retarget. No provider/native ingress activity."
+    }
+  ],
+  "scope": "Full versus focused scopes reflect actual physical reads. Current full rows include unchanged exact-hash caller reread; no new-unreviewed credit from existing full source, metadata, imports, snapshots or executed tests."
+}

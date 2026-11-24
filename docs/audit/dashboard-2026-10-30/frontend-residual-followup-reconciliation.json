@@ -1,0 +1,106 @@
+{
+  "recorded_at": "2026-10-31T10:10:12.758269+00:00",
+  "method": "Read-only status reconciliation against sealed current source/hash/check receipts; no app tests/build/browser. Original attendance follow-up bytes retained because their SHA is sealed in the immutable source verification.",
+  "frontend_residual": {
+    "ledger": "frontend-residual-followups.json",
+    "qualified_resolutions": [
+      {
+        "path": "frontend/features/documents/hooks/use-ecr-workspace.ts",
+        "status": "fixed-focused-verification-frozen",
+        "source_state": "current-source-matches-qualified-receipt",
+        "receipt": "ecr-workspace-authority-verification.json"
+      },
+      {
+        "path": "frontend/features/documents/services/document-upload-batching.ts",
+        "status": "restructured-focused-verification-frozen",
+        "source_state": "current-source-matches-qualified-receipt",
+        "receipt": "document-batching-architecture-verification.json"
+      },
+      {
+        "path": "frontend/features/documents/components/document-workspace-review.tsx",
+        "status": "restructured-focused-verification-frozen",
+        "source_state": "current-source-matches-qualified-receipt",
+        "receipt": "document-review-architecture-verification.json"
+      },
+      {
+        "path": "frontend/features/upload/components/upload-contact-verification.tsx",
+        "status": "retired-after-typed-closure-and-current-obligation-migration",
+        "source_state": "original-fully-reviewed-and-retired-with-closed-caller-proof",
+        "receipt": "fresh-contact-verification.json"
+      },
+      {
+        "path": "frontend/features/documents/components/saved-rename-batches.tsx",
+        "status": "fixed-measured-focused-verification-frozen",
+        "source_state": "current-source-matches-qualified-receipt",
+        "receipt": "rename-controls-verification.json"
+      },
+      {
+        "path": "frontend/features/documents/components/rename-results.tsx",
+        "status": "fixed-native-keyboard-focused-verification-frozen",
+        "source_state": "current-source-matches-qualified-receipt",
+        "receipt": "rename-controls-verification.json"
+      },
+      {
+        "path": "frontend/README.md",
+        "status": "documentation-updated",
+        "source_state": "current-source-matches-qualified-receipt",
+        "receipt": "frontend-readme-reviewed-files.json"
+      }
+    ],
+    "independent_open_findings_in_this_ledger": [],
+    "limits": "Qualified source/affected checks only; no whole audit/production completion claim."
+  },
+  "attendance_queue": {
+    "historical_ledger": "attendance-queue-findings-and-follow-ups.json",
+    "historical_sha256": "5d9129fc8a71ecf7202c2954b2f0b0804669a5f695c12aee31a49a6adf2bf3ed",
+    "sealed_receipt": "attendance-queue-verification.json",
+    "current_runtime_sources_matching_original_ledger": [
+      "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+      "frontend/features/tour-operations/services/attendance-queue-contracts.ts",
+      "frontend/features/tour-operations/services/attendance-queue-runtime.ts",
+      "frontend/features/tour-operations/services/attendance-queue-idb.ts",
+      "frontend/features/tour-operations/services/attendance-queue-codec.ts",
+      "frontend/features/tour-operations/services/attendance-queue-migration.ts",
+      "frontend/features/tour-operations/services/attendance-queue-storage.ts",
+      "frontend/features/tour-operations/services/attendance-queue-delivery-state.ts",
+      "frontend/features/tour-operations/services/attendance-queue-commands.ts",
+      "frontend/features/tour-operations/services/attendance-queue-discards.ts",
+      "frontend/features/tour-operations/services/attendance-queue-replay.ts",
+      "frontend/features/tour-operations/services/attendance-queue-outcomes.ts",
+      "frontend/features/tour-operations/services/attendance-queue-errors.ts",
+      "frontend/features/tour-operations/services/attendance-queue-closeout.ts",
+      "frontend/features/tour-operations/services/attendance-queue-source.contract-helper.mjs"
+    ],
+    "finding_statuses": {
+      "AQ-PREFLIGHT-01": {
+        "status": "resolved-by-sealed-narrow-restart-fix",
+        "evidence": "attendance-queue-verification.json:2original negatives,11meaningful current controls,33affected unit/50Node cases; current14runtime source hashes match. Synthetic IDB/lock/crypto/HTTP limits preserved."
+      },
+      "AQ-PREFLIGHT-02": {
+        "status": "workflow-preserved-and-comment-corrected; no newproductbehavior",
+        "evidence": "Actual public-boundary explicit discard control retained unscoped terminal row without fabricated group/audit attribution. Separate optional product workflow remains outside correction."
+      },
+      "AQ-PREFLIGHT-03": {
+        "status": "resolved-by-measured-bounded-selection-and-existing-order-reuse",
+        "evidence": "attendance-queue-performance-verification.json: actual5000row work counters505000 to257500, first5001 to51; actualverifiedstorage/safetysnapshotcomparisons9998 to4999; original/currentsemantic controls33Vitest/34Node/types/lint qualified.",
+        "scope": "No latency/linearworstcase/realIDB/nativecrypto claim; fresh alias/time reevaluation remains. Original historicalfindingledger and allother independent followups retained."
+      }
+    },
+    "normal_budget_admissions": {
+      "status": "complete-at-parent-sealed-integration",
+      "receipt": "attendance-contact-quality-integration.json",
+      "sha256": "25f849830589a72bb764d551632043202a7b77f21864f7c9410409004f45371c",
+      "note": "Attendance14normal owners admitted; Fresh actual request/timer owner addscritical31with all oldfloors. No claim that queue itself was a critical include."
+    },
+    "final_combined_verification": "OPEN-parent-final-round-not-run-from-these-read-only-status-updates"
+  },
+  "additional_shared_test_followups": {
+    "ledger": "frontend-shared-other-tests-findings-and-follow-ups.json",
+    "not_silently_closed": [
+      "FST-02 reduced-motion voice rendered assertion gap",
+      "FST-03 governance denied-request test is not stale-cache/backend tenant proof",
+      "FST-04 fixed screenshot output collision candidate",
+      "FST-05 coherent test scenario/fixture architecture follow-through"
+    ]
+  }
+}

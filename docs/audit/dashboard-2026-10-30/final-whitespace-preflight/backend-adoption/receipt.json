@@ -1,0 +1,100 @@
+{
+  "status": "Exactly4 backend cosmetics adopted and current staticchecks passed; inherited review/finding status preserved",
+  "proof_sha256": "a38f68c356bef8d8be011fa3d3155f4c72a667bef908b8036bff6e146dd5de4e",
+  "adopted_files": [
+    {
+      "path": "backend/app/application/use_cases/passports/process_passport_submission_job_use_case.py",
+      "old_sha256": "998192ee86644c66578b549b637aa622264e97179ecba66b7fd2a3227260c4c5",
+      "new_sha256": "655c14af28798166c623a660f68c758e2a8521847c54d4b01cbab60c4586eeae",
+      "status_preserved": "reviewed"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_passport_bulk_delete_route.py",
+      "old_sha256": "f04b6d8acee374694823a556e1eb8fb0b75cbdb295c87e99ea2a2da628c759b9",
+      "new_sha256": "efdcda6ffa29e19410a013015f0eaef3f8080f4f40dbb89d69fdcd84c09e6c23",
+      "status_preserved": "verified"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py",
+      "old_sha256": "9641b67bc05ad710f7f34dedfb801c69e4a8367dce317cf86477c61a75b58706",
+      "new_sha256": "522ce2887c361e780e8a99412d0636a2eb5aa0ec0ec85727463587db3bd5994a",
+      "status_preserved": "verified"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_public_passport_capabilities.py",
+      "old_sha256": "81ea01aa4629071043595244cc3f0b5ded7414a3467445f11f068faa17e3316f",
+      "new_sha256": "482bc7b1ece3bb81f6cc4b393e1e57aa2e89828deb482ceb3d0ffe709855a78c",
+      "status_preserved": "verified"
+    }
+  ],
+  "review_ledger": "ROOT-backend-cosmetic-adoption-reviewed-files.json",
+  "review_ledger_sha256": "94d61714c9bc0ffe2ab16c4b5adc462f613334573512561a1ed8fe8e27d7633b",
+  "source_fence_paths": 2855,
+  "source_fence_stable": true,
+  "checks": [
+    {
+      "name": "ruff",
+      "command": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "ruff",
+        "check",
+        "--no-fix",
+        "--config",
+        "pyproject.toml",
+        "app",
+        "tests"
+      ],
+      "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection\\backend",
+      "exit_code": 0,
+      "seconds": 0.391,
+      "stdout_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "architecture",
+      "command": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "scripts/verify_architecture_boundaries.py"
+      ],
+      "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection\\backend",
+      "exit_code": 0,
+      "seconds": 0.969,
+      "stdout_sha256": "2bc6b413cc376d61cdf11eb82fc334d03809fc208261bbea8319fea818a2aeba",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "quality-static",
+      "command": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "scripts/verify_backend_quality_budgets.py"
+      ],
+      "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection\\backend",
+      "exit_code": 0,
+      "seconds": 1.813,
+      "stdout_sha256": "c90cba2f706d811b7700348ad6f5ee0026857e07ad8af63abe49561e180969c3",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "coverage_union_immutable": true,
+  "coverage_union_receipt_sha256": "7a0cbaaae89e9bbdb90f96c0112526ffc6175387f71f382b85ea296259d1ca01",
+  "coverage_basis": "Pre-cosmetic measurement plus exact full executable AST/code/line/arc coordinates. Never represented as a fresh current-hash coverage run.",
+  "no_test_execution_or_new_coverage": true,
+  "no_independent_followup_resolved": true,
+  "prior124_intersections": [],
+  "historical_notes_and_receipts_unchanged": true,
+  "no_release_policy_frontend_gate_or_budget_edits": true,
+  "artifacts": {
+    "current-static-source-fence.json": "9e40a26a9a138a32eda15e406a29bcdd6cac100a097ed5a3520c841e6f4e4b46",
+    "proof.json": "a38f68c356bef8d8be011fa3d3155f4c72a667bef908b8036bff6e146dd5de4e",
+    "checks/architecture.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "checks/architecture.stdout.txt": "2bc6b413cc376d61cdf11eb82fc334d03809fc208261bbea8319fea818a2aeba",
+    "checks/environment-guard-14396.json": "d513e0d49ac61430f79f91c74a9010493f6d8a15a83153e92b87073413e9c4cf",
+    "checks/environment-guard-22236.json": "9493e737a55f385b473e1811e75370f047fc0159ea1a2ed81625cdb11c64064f",
+    "checks/environment-guard-33440.json": "a38b0e08b39792fd6ee98c625e668bc2ab71c14dddda8f746e614d70e4e95816",
+    "checks/quality-static.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "checks/quality-static.stdout.txt": "c90cba2f706d811b7700348ad6f5ee0026857e07ad8af63abe49561e180969c3",
+    "checks/ruff.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "checks/ruff.stdout.txt": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+  }
+}

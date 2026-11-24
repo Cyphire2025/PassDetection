@@ -1,0 +1,74 @@
+{
+  "status": "coherent-gc-admin-runtime-frozen-and-scoped-checks-pass",
+  "full_physical_source_files": 37,
+  "partial_files": 3,
+  "architecture": {
+    "original_entrypoints_physical_lines": [
+      1995,
+      1715
+    ],
+    "compatibility_facades": [
+      227,
+      206
+    ],
+    "resource_support_owners": 21,
+    "largest_resource_owner_lines": 396,
+    "http_handlers": 42,
+    "public_endpoint_objects_and_function_names_retained": true
+  },
+  "structural_proof_basis": "The76-declaration proof compares resource extraction with the GC source AFTER the earlier eight invitation-durability/native-storage/rollback regressions were fixed, not with the original checkout.73complete declarations unchanged;3later explicit fixes (joined tenant predicate, retained company grants, detached assignment reactivation). All original handler args/return annotations/decorators/order unchanged.",
+  "genuine_negative_baselines": {
+    "invitation_commit": "4failed real ASGI send/durable SQLite read cases, after fixing invalid fixture email",
+    "native_upload_cancellation": "2failed real Event-blocked native PUT cases",
+    "rollback_interruption_cleanup": "2failed interruption cases",
+    "joined_tenant_directory": "1failed actual HTTP privacy case",
+    "retained_assignment_scope": "2failed FK-enabled actual HTTP cases"
+  },
+  "verification": {
+    "historical_affected_checkpoint": "183passed/4test-owner-retarget failures/1skipped; not relabeled pass",
+    "source_corrected_supplement": "25passed",
+    "retained_manager_document_workflow_supplement": "23passed in25.99s",
+    "historical_revoker_assertion_supplement": "2passed in4.67s; no runtime changes",
+    "coverage_owner_integrity": "Purged the changed directory owner before first supplement, then two changed manager owners before second. Only exact SHA unchanged owner coverage retained.",
+    "ruff": "pass",
+    "mypy": "4entry sources plus transitive imports pass",
+    "static_budgets": "260modules pass",
+    "architecture": "pass",
+    "complete_api_snapshot": "unchanged/pass",
+    "mobile_api_snapshot": "unchanged/pass",
+    "focused_release_migration_inventory_unit_tests": "27pass"
+  },
+  "runtime_sha256": {
+    "backend/app/presentation/api/v1/routes/gc_app.py": "86c7be766e61cc9b384a17cfee1f1eb1025d474fd4727a74eebd91bb9ec9b6cd",
+    "backend/app/presentation/api/v1/routes/gc_app_account_support.py": "866cc314da3b10e34271674c3d970493c16c41fed61cfd6f7a3d08861c634615",
+    "backend/app/presentation/api/v1/routes/gc_app_announcement_publication.py": "b8e93bd5bc1b4fa56390d352e538d1b6b7a82e60e63707022743cda3db1fa37b",
+    "backend/app/presentation/api/v1/routes/gc_app_announcements.py": "fa477ecd36f4bc9cc6991314d5c9a173fff479273d6687fb620c3eebefc92530",
+    "backend/app/presentation/api/v1/routes/gc_app_common_documents.py": "8b98cbcbeaee8dd2782ba2e282bec6c3ac988326b087724ec275045ff6fde469",
+    "backend/app/presentation/api/v1/routes/gc_app_common_preview.py": "b9cfdd1419913a4d31f3119c8fb042f966e939832b5940afb68b63e014757b6d",
+    "backend/app/presentation/api/v1/routes/gc_app_common_publication.py": "0679798544767676fb0c37eddfe714517b83d8b57b188eeb7bdd65532585d7a2",
+    "backend/app/presentation/api/v1/routes/gc_app_common_staging.py": "4224ea4c750950899c393c72f84c7dbb1db321dc0740b5d07376d88c49d75c81",
+    "backend/app/presentation/api/v1/routes/gc_app_content.py": "bde93b5bf77fbcd2fc6bca3abc379f7c926e8b94da6679a521bec487a120c075",
+    "backend/app/presentation/api/v1/routes/gc_app_content_audit.py": "f95869a25b8d8f917615f92ecf62dece2716484e1e506ef62eb821c511aa6e7b",
+    "backend/app/presentation/api/v1/routes/gc_app_content_lookup.py": "442b46958be2ecb20122533e5a6dd9bd6c01f14b222f5e0f89f942eb23d5fdb7",
+    "backend/app/presentation/api/v1/routes/gc_app_content_projection.py": "0a7cfd214733b178265af9eb809982cf67f51c9ab31f2aed95a5b12315235e89",
+    "backend/app/presentation/api/v1/routes/gc_app_content_scope.py": "ee1b01c9543593b6600aedde21acd5e6b7c6082a8b58320729f6799b4acab2d8",
+    "backend/app/presentation/api/v1/routes/gc_app_group_access_support.py": "238744b3b55e57baeab37e1533a126a4a91def27c845cd75364474a29ef0ab24",
+    "backend/app/presentation/api/v1/routes/gc_app_group_directory.py": "4f72610b1b8afc2f03301dbae3f6f6886143668a640a3ee0cfd4e9f86e9fa8b6",
+    "backend/app/presentation/api/v1/routes/gc_app_group_removal.py": "926647677f5809a754a49d8281092eb417cdf37c33b35d9287db188715bbbd74",
+    "backend/app/presentation/api/v1/routes/gc_app_group_settings.py": "2404362318d37b76efd70e081a56e25d2d9a3fc1e0d50a2e552a60e98c97f9fc",
+    "backend/app/presentation/api/v1/routes/gc_app_history_support.py": "bdf2286f4ca7ee627106c8f2fb200a3fdefefa7ec2e94c4de43ad2190c291e7c",
+    "backend/app/presentation/api/v1/routes/gc_app_itineraries.py": "c07eee3e4cbd5fbc3a2e34ef5cc6ff8a16892fe49d082131789875dc00706294",
+    "backend/app/presentation/api/v1/routes/gc_app_manager_access.py": "c6fc614f7acca55e4d81f2519d8cdd6578f21dd04c640745cea96d487fd75cee",
+    "backend/app/presentation/api/v1/routes/gc_app_manager_creation.py": "d11ae641ad5e32496956609465046db83ffba3ebe8288c54d334734040bf6465",
+    "backend/app/presentation/api/v1/routes/gc_app_manager_directory.py": "b039d0aaab7b43bd0b36290bb9addbb7828ef0d4ce3e384b00a737d01dbbad1b",
+    "backend/app/presentation/api/v1/routes/gc_app_manager_profile.py": "e7f22a5da952fe5084ce284746e3b55c3e04116f5e50053a885bcb68935c9271",
+    "backend/app/presentation/api/v1/routes/gc_app_manager_support.py": "d41ea141a9dbcb6531ee1dab0cb68d246a0fef2acf18b644fe9c49ce6268dca5",
+    "backend/app/presentation/api/v1/routes/gc_app_organizations.py": "54f7e9ad83c2509529631e689019af4d854c530d0ea06331ea6be680e9ca85b4",
+    "backend/app/presentation/api/v1/routes/gc_app_scope.py": "19c66d3d873131f1a931974532b48c77b0867e581aa0207c68b43fb7af0dbf59",
+    "backend/app/presentation/api/v1/routes/gc_app_sessions.py": "d61e6747da999d75c058c446a74ab11e8d9841185cacc7d92d4399085790570e",
+    "backend/app/infrastructure/documents/storage_transfers.py": "a15cde9b255188896500d54e4de7faf9dafbbe332f13f3163b1590f38a1c58d1"
+  },
+  "budget_integration": "gc-admin-budget-integration.json",
+  "review_ledger": "gc-admin-backend-reviewed-files.json",
+  "pending_and_limits": "No real PostgreSQL concurrency, object-storage service, push provider or VPS was contacted. SQLite FK regressions do not qualify PostgreSQL behavior. Whole repository remains open; downstream sources beyond this explicit lane are not silently marked reviewed. Remaining notification_service.py/matcher-repository/storage support physical reads remain explicit; identity reconciliation performance and removed-access content-read semantics are candidates only, not validated bugs or performance claims."
+}

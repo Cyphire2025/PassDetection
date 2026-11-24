@@ -1,0 +1,46 @@
+{
+  "status": "original fixture-topic inference rejected; shared retained test review qualified",
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-notification-feed-test-source-reviewed-files.json",
+    "sha256": "913926006c300edad2ab5cc1efa5607d82d462c638cd5a9d854feae03ff2542d"
+  },
+  "test_source_sha256_unchanged": "8610a40c1635114e3969abd743bf1dfc1b43d49c64d4249662f8d8c4550d1379",
+  "tests": [
+    "test_direct_feed_is_user_scoped_and_legacy_broadcasts_are_excluded",
+    "test_direct_feed_uses_stable_cursor_and_server_unread_count",
+    "test_dedupe_and_mark_all_apply_only_to_direct_owner_rows",
+    "test_invalid_feed_cursor_fails_closed",
+    "test_direct_notification_can_be_read_without_an_agency_bypass",
+    "test_direct_feed_and_read_actions_reject_a_users_former_agency"
+  ],
+  "classes": [],
+  "assertion_nodes": 20,
+  "assertions_have_no_email_specific_expected_type": true,
+  "scope_evidence": [
+    {
+      "path": "backend/app/infrastructure/repositories/refresh_token_repository.py",
+      "sha256": "219a15a385285e5c2a805b6b6b8e3e9f16e38c788163555af8f063221dc6f316",
+      "read_scope": "Partial supporting source read includes complete named _record_reuse implementation creating direct same-user agency security_session_revoked/categorysecurity notification; no new whole-source read credit."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/notification_feed_queries.py",
+      "sha256": "57a7df490f09b112d05824b86b2ba359080f9d931ce8ca0bd03e9a72119009d1",
+      "read_scope": "Complete shared query owner text encountered for scope proof; direct_predicates/feed/unread use user+agency, optionalpriority/unread/cursor, no email type/category predicate. Existing runtime review retained; no extra original-gap credit."
+    }
+  ],
+  "prior_unvalidated_discovery_preserved": {
+    "path": "notification-feed-test-scope-deferral.json",
+    "sha256": "08d11896d568618a4348ae2625054af52dde9b12e7078439d5f8693771db9100",
+    "correction": "Email-named synthetic fixture payloads alone did not establish dedicated Inbox purpose. Actual retained account-security producer and generic shared query semantics establish retained scope. No new literal Inbox deferral should be added for this file."
+  },
+  "historical_lifecycle7_receipt_preserved": true,
+  "existing253_Inbox_deferrals_unchanged": true,
+  "new_execution": false,
+  "runtime_mutation": false,
+  "new_validated_findings": [],
+  "limits": [
+    "Only generic test source and actual shared caller/query scope; no dedicated email engine/provider/OAuth/ingestion work.",
+    "No passing test/service/coverage claim from physical read."
+  ],
+  "location_note_correction": "Supporting method begins134, not initial135 shorthand; complete method was already physically read. Original receipt preserved as before-location-note-correction; source/scope/test credit unchanged."
+}

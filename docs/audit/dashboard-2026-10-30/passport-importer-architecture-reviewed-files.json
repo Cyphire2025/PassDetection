@@ -1,0 +1,90 @@
+[
+  {
+    "path": "backend/app/infrastructure/imports/passport_document_importer.py",
+    "sha256": "1431aac22fdf7d255516c02f34d1f6ad8102ca083668a5f609bc9b74b7c65d92",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical current source/test read and reviewed original source comparison.49 affected infrastructure cases;21 new real ZIP/policy controls also pass saved original source. Whole-class/function/member AST expansion,13 actual import identities,17 evaluated hints and10 legacy globals+6 instance pickles qualify the cohesive extraction. One existing instrumentation import follows actual workspace; all original assertions remain. No route/service/browser qualification inferred."
+  },
+  {
+    "path": "backend/app/infrastructure/imports/passport_document_workspace.py",
+    "sha256": "78260b471bcc10d9edd1ed44b06dc732e5468802ea723ca8891964c12add98f7",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical current source/test read and reviewed original source comparison.49 affected infrastructure cases;21 new real ZIP/policy controls also pass saved original source. Whole-class/function/member AST expansion,13 actual import identities,17 evaluated hints and10 legacy globals+6 instance pickles qualify the cohesive extraction. One existing instrumentation import follows actual workspace; all original assertions remain. No route/service/browser qualification inferred."
+  },
+  {
+    "path": "backend/app/infrastructure/imports/passport_document_streams.py",
+    "sha256": "6ab71940f43d46edff2ece4e5c80706428ab087702e99f65eff5f2f3ed6a4caf",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical current source/test read and reviewed original source comparison.49 affected infrastructure cases;21 new real ZIP/policy controls also pass saved original source. Whole-class/function/member AST expansion,13 actual import identities,17 evaluated hints and10 legacy globals+6 instance pickles qualify the cohesive extraction. One existing instrumentation import follows actual workspace; all original assertions remain. No route/service/browser qualification inferred."
+  },
+  {
+    "path": "backend/app/infrastructure/imports/passport_document_images.py",
+    "sha256": "8f097d6a4b7a63f7c1fd2fb82615c351e3d7701baaed3c398349eabc2de60f0d",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical current source/test read and reviewed original source comparison.49 affected infrastructure cases;21 new real ZIP/policy controls also pass saved original source. Whole-class/function/member AST expansion,13 actual import identities,17 evaluated hints and10 legacy globals+6 instance pickles qualify the cohesive extraction. One existing instrumentation import follows actual workspace; all original assertions remain. No route/service/browser qualification inferred."
+  },
+  {
+    "path": "backend/app/infrastructure/imports/passport_zip_members.py",
+    "sha256": "88ef17047879d07ae2720d99dee680b4744c49d68baf59e7de33821ce6e3628c",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical current source/test read and reviewed original source comparison.49 affected infrastructure cases;21 new real ZIP/policy controls also pass saved original source. Whole-class/function/member AST expansion,13 actual import identities,17 evaluated hints and10 legacy globals+6 instance pickles qualify the cohesive extraction. One existing instrumentation import follows actual workspace; all original assertions remain. No route/service/browser qualification inferred."
+  },
+  {
+    "path": "backend/app/infrastructure/imports/passport_zip_reader.py",
+    "sha256": "8c5d054b922a9f3878ba1ded3b7971a873286b36a3cf84356fe2cb9c366d88ea",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical current source/test read and reviewed original source comparison.49 affected infrastructure cases;21 new real ZIP/policy controls also pass saved original source. Whole-class/function/member AST expansion,13 actual import identities,17 evaluated hints and10 legacy globals+6 instance pickles qualify the cohesive extraction. One existing instrumentation import follows actual workspace; all original assertions remain. No route/service/browser qualification inferred."
+  },
+  {
+    "path": "backend/app/infrastructure/imports/passport_zip_admission.py",
+    "sha256": "b534f8d9c02733c4a378e11ce74770b906c5dcea37984c5bf138930504e3486d",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical current source/test read and reviewed original source comparison.49 affected infrastructure cases;21 new real ZIP/policy controls also pass saved original source. Whole-class/function/member AST expansion,13 actual import identities,17 evaluated hints and10 legacy globals+6 instance pickles qualify the cohesive extraction. One existing instrumentation import follows actual workspace; all original assertions remain. No route/service/browser qualification inferred."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_passport_document_import_staging.py",
+    "sha256": "c221d9bfba0d176b12c7812ff42c9dd46d2ac40219edf25400761677e91f845f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical current source/test read and reviewed original source comparison.49 affected infrastructure cases;21 new real ZIP/policy controls also pass saved original source. Whole-class/function/member AST expansion,13 actual import identities,17 evaluated hints and10 legacy globals+6 instance pickles qualify the cohesive extraction. One existing instrumentation import follows actual workspace; all original assertions remain. No route/service/browser qualification inferred."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_passport_document_workspace_cleanup.py",
+    "sha256": "49ffef50613d62a8b202e482a93a80017696e5098205d75d75d282f60944f778",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical current source/test read and reviewed original source comparison.49 affected infrastructure cases;21 new real ZIP/policy controls also pass saved original source. Whole-class/function/member AST expansion,13 actual import identities,17 evaluated hints and10 legacy globals+6 instance pickles qualify the cohesive extraction. One existing instrumentation import follows actual workspace; all original assertions remain. No route/service/browser qualification inferred."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_passport_zip_member_admission.py",
+    "sha256": "a0975f2180c69445f3e167808192a304d8028b8b4d507717ba2af6a4fad1b3e4",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical current source/test read and reviewed original source comparison.49 affected infrastructure cases;21 new real ZIP/policy controls also pass saved original source. Whole-class/function/member AST expansion,13 actual import identities,17 evaluated hints and10 legacy globals+6 instance pickles qualify the cohesive extraction. One existing instrumentation import follows actual workspace; all original assertions remain. No route/service/browser qualification inferred."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_passport_document_import_policies.py",
+    "sha256": "8da8e50b0ba9a1879d6be35c0e40329ca4825caa7796de2387f45e5c07ea8247",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical current source/test read and reviewed original source comparison.49 affected infrastructure cases;21 new real ZIP/policy controls also pass saved original source. Whole-class/function/member AST expansion,13 actual import identities,17 evaluated hints and10 legacy globals+6 instance pickles qualify the cohesive extraction. One existing instrumentation import follows actual workspace; all original assertions remain. No route/service/browser qualification inferred."
+  }
+]

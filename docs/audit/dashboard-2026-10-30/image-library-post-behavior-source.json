@@ -1,0 +1,755 @@
+{
+  "source": "\"\"\"Shared image-library routes for Visa photos and passport pages.\"\"\"\n\nfrom __future__ import annotations\n\nimport asyncio\nimport hashlib\nimport io\nimport mimetypes\nimport uuid\n\nfrom fastapi import (\n    APIRouter,\n    BackgroundTasks,\n    Depends,\n    File,\n    Form,\n    HTTPException,\n    UploadFile,\n    status,\n)\nfrom fastapi.responses import Response, StreamingResponse\nfrom sqlalchemy.ext.asyncio import AsyncSession\n\nfrom app.application.mobile.passenger_change_propagation import (\n    propagate_mobile_passenger_change,\n)\nfrom app.application.use_cases.passports.reextract_passport_submission_use_case import (\n    ReextractPassportSubmissionUseCase,\n)\nfrom app.core.config.settings import get_settings\nfrom app.domain.entities.entities import User\nfrom app.domain.exceptions.exceptions import StorageError\nfrom app.domain.value_objects.passport_image_crop import (\n    PassportImageType,\n    passport_image_storage_key,\n)\nfrom app.domain.value_objects.passport_image_library import PassportImageLibraryItem\nfrom app.infrastructure.database.session import get_db_session\nfrom app.infrastructure.imaging.passport_image_cropper import (\n    PassportImageCropError,\n    render_passport_image_crop,\n)\nfrom app.infrastructure.processing.job_repository import PassportProcessingJobRepository\nfrom app.infrastructure.repositories.audit_log_repository import AuditLogRepository\nfrom app.infrastructure.repositories.passport_image_crop_repository import (\n    PassportImageCropRepository,\n    PassportImageCropRevisionConflict,\n)\nfrom app.infrastructure.repositories.passport_image_library_repository import (\n    PassportImageLibraryRepository,\n)\nfrom app.infrastructure.repositories.passport_submission_repository import (\n    PassportSubmissionRepository,\n)\nfrom app.infrastructure.storage.minio_repository import MinioStorageRepository\nfrom app.presentation.api.v1.response_contracts import binary_responses\nfrom app.presentation.api.v1.routes.passport_image_library_authority import (\n    lock_passport_image_mutation,\n)\nfrom app.presentation.api.v1.routes.passport_image_storage_write import (\n    compensate_passport_image_failure,\n    write_passport_image_objects,\n)\nfrom app.presentation.api.v1.routes.passport_routes.image_support import (\n    _resolve_authorized_staff_passport_image,\n)\nfrom app.presentation.api.v1.routes.passports import (\n    _authorized_staff_passport_image,\n    _crop_response,\n    _delete_crop_derivative_best_effort,\n    _delete_ephemeral_edit_source_best_effort,\n    _dispatch_processing_job,\n    _effective_crop,\n    _validated_upload_file,\n)\nfrom app.presentation.api.v1.schemas.passport_image_library_schemas import (\n    PassportImageLibraryItemResponse,\n    PassportImageLibraryListResponse,\n)\nfrom app.presentation.api.v1.schemas.passport_schemas import (\n    PassportImageCropResponse,\n    PassportVisaAiImageUseRequest,\n)\nfrom app.presentation.dependencies.auth import get_current_active_user\nfrom app.presentation.dependencies.csrf import require_cookie_csrf\n\nrouter = APIRouter()\n\n\ndef _library_image_url(\n    *,\n    submission_id: uuid.UUID,\n    image_type: PassportImageType,\n    item_id: uuid.UUID,\n) -> str:\n    return (\n        f\"{get_settings().api_v1_prefix}/passports/{submission_id}/images/{image_type.value}/\"\n        f\"library/{item_id}/image\"\n    )\n\n\ndef _library_item_response(\n    *,\n    item: PassportImageLibraryItem,\n    authoritative_source_key: str,\n    current_edit_source_key: str | None,\n) -> PassportImageLibraryItemResponse:\n    is_current = item.storage_key == current_edit_source_key or (\n        current_edit_source_key is None and item.storage_key == authoritative_source_key\n    )\n    return PassportImageLibraryItemResponse(\n        id=item.id,\n        image_type=item.image_type.value,\n        image_url=_library_image_url(\n            submission_id=item.submission_id,\n            image_type=item.image_type,\n            item_id=item.id,\n        ),\n        source=item.source.value,\n        created_at=item.created_at,\n        is_current=is_current,\n        prompt=item.prompt,\n        model=item.model,\n    )\n\n\nasync def _ensure_original_item(\n    *,\n    repository: PassportImageLibraryRepository,\n    submission: object,\n    image_type: PassportImageType,\n    source_key: str,\n    session: AsyncSession,\n) -> None:\n    _, created = await repository.ensure_original(\n        submission_id=getattr(submission, \"id\"),\n        image_type=image_type,\n        storage_key=source_key,\n        created_at=getattr(submission, \"created_at\", None),\n    )\n    if created:\n        await session.commit()\n\n\n@router.get(\n    \"/{submission_id}/images/{image_type}/library\",\n    response_model=PassportImageLibraryListResponse,\n    status_code=status.HTTP_200_OK,\n    summary=\"List original, manual, and AI variants for one passport image\",\n)\nasync def list_passport_image_library(\n    submission_id: uuid.UUID,\n    image_type: PassportImageType,\n    current_user: User = Depends(get_current_active_user),\n    session: AsyncSession = Depends(get_db_session),\n) -> PassportImageLibraryListResponse:\n    submission, source_key = await _authorized_staff_passport_image(\n        submission_id=submission_id,\n        image_type=image_type,\n        current_user=current_user,\n        session=session,\n        require_editor=True,\n    )\n    repository = PassportImageLibraryRepository(session)\n    await _ensure_original_item(\n        repository=repository,\n        submission=submission,\n        image_type=image_type,\n        source_key=source_key,\n        session=session,\n    )\n    crop_row = await PassportImageCropRepository(session).get(submission.id, image_type)\n    effective = _effective_crop(crop_row, source_storage_key=source_key)\n    current_edit_source_key = effective.edit_source_storage_key if effective else None\n    items = await repository.list_for_image(submission.id, image_type)\n    return PassportImageLibraryListResponse(\n        items=[\n            _library_item_response(\n                item=item,\n                authoritative_source_key=source_key,\n                current_edit_source_key=current_edit_source_key,\n            )\n            for item in items\n        ]\n    )\n\n\n@router.get(\n    \"/{submission_id}/images/{image_type}/library/{item_id}/image\",\n    status_code=status.HTTP_200_OK,\n    summary=\"Stream one authorized passport image-library item\",\nresponse_class=Response, responses=binary_responses(\"image/*\"))\nasync def get_passport_image_library_item(\n    submission_id: uuid.UUID,\n    image_type: PassportImageType,\n    item_id: uuid.UUID,\n    current_user: User = Depends(get_current_active_user),\n    session: AsyncSession = Depends(get_db_session),\n) -> StreamingResponse:\n    await _authorized_staff_passport_image(\n        submission_id=submission_id,\n        image_type=image_type,\n        current_user=current_user,\n        session=session,\n        require_editor=True,\n    )\n    item = await PassportImageLibraryRepository(session).get_for_image(\n        submission_id=submission_id,\n        image_type=image_type,\n        item_id=item_id,\n    )\n    if item is None:\n        raise HTTPException(\n            status_code=status.HTTP_404_NOT_FOUND,\n            detail=\"The image-library item was not found.\",\n        )\n    try:\n        content = await MinioStorageRepository().get_file(item.storage_key)\n    except StorageError as exc:\n        raise HTTPException(\n            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,\n            detail=exc.message,\n        ) from exc\n    content_type = mimetypes.guess_type(item.storage_key)[0] or \"image/jpeg\"\n    extension = mimetypes.guess_extension(content_type) or \".jpg\"\n    return StreamingResponse(\n        io.BytesIO(content),\n        media_type=content_type,\n        headers={\n            \"Cache-Control\": \"private, no-store\",\n            \"Content-Disposition\": (\n                f'inline; filename=\"{image_type.value}-library-{item.id}{extension}\"'\n            ),\n            \"X-Content-Type-Options\": \"nosniff\",\n        },\n    )\n\n\n@router.post(\n    \"/{submission_id}/images/{image_type}/library\",\n    response_model=PassportImageLibraryItemResponse,\n    status_code=status.HTTP_201_CREATED,\n    summary=\"Upload a manual image and make it the current passport image\",\n)\nasync def upload_passport_image_library_item(\n    submission_id: uuid.UUID,\n    image_type: PassportImageType,\n    background_tasks: BackgroundTasks,\n    image: UploadFile = File(...),\n    expected_revision: int = Form(..., ge=0),\n    _csrf: None = Depends(require_cookie_csrf),\n    current_user: User = Depends(get_current_active_user),\n    session: AsyncSession = Depends(get_db_session),\n) -> PassportImageLibraryItemResponse:\n    submission, source_key = await _resolve_authorized_staff_passport_image(submission_id=submission_id, image_type=image_type, current_user=current_user, session=session, require_editor=True)\n    await session.rollback()\n    validated = await _validated_upload_file(image, label=f\"manual {image_type.value}\")\n    try:\n        rendered = await asyncio.to_thread(\n            render_passport_image_crop,\n            validated.content,\n            x=0.0,\n            y=0.0,\n            width=1.0,\n            height=1.0,\n            rotation_degrees=0,\n            sharpness=1.0,\n            sharpness_algorithm_version=2,\n        )\n    except PassportImageCropError as exc:\n        raise HTTPException(\n            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,\n            detail=str(exc),\n        ) from exc\n\n    item_key = (\n        f\"passport-image-library/{submission.agency_id}/{submission.id}/\"\n        f\"{image_type.value}/manual/{uuid.uuid4().hex}.jpg\"\n    )\n    derived_key = (\n        f\"passport-crops/{submission.agency_id}/{submission.id}/\"\n        f\"{image_type.value}/{uuid.uuid4().hex}{rendered.extension}\"\n    )\n    storage = MinioStorageRepository()\n    await write_passport_image_objects(\n        storage,\n        [\n            (validated.content, item_key, validated.content_type),\n            (rendered.content, derived_key, rendered.content_type),\n        ],\n        submission_id=submission.id,\n    )\n\n    previous_derived_key: str | None = None\n    previous_edit_source_key: str | None = None\n    reextract_result = None\n    authoritative_source_key = source_key\n    edit_source_key: str | None = item_key\n    commit_attempted = False\n    try:\n        submission_repository = PassportSubmissionRepository(session)\n        current_user, locked = await lock_passport_image_mutation(\n            session, current_user=current_user, submission=submission,\n            image_type=image_type, source_key=source_key,\n        )\n        library_repository = PassportImageLibraryRepository(session)\n        await library_repository.ensure_original(\n            submission_id=submission.id,\n            image_type=image_type,\n            storage_key=source_key,\n            created_at=getattr(submission, \"created_at\", None),\n        )\n        item = await library_repository.create_manual(\n            submission_id=submission.id,\n            image_type=image_type,\n            storage_key=item_key,\n            original_source_storage_key=source_key,\n            content_sha256=hashlib.sha256(validated.content).hexdigest(),\n            created_by_user_id=current_user.id,\n        )\n        if image_type is PassportImageType.PASSPORT_FRONT:\n            authoritative_source_key = item_key\n            edit_source_key = None\n            locked.promote_image(item_key)\n            locked.thumbnail_s3_key = None\n            locked.update_reviewed_fields({})\n            await submission_repository.update(locked)\n        (\n            crop_row,\n            previous_derived_key,\n            previous_edit_source_key,\n        ) = await PassportImageCropRepository(session).upsert(\n            submission_id=submission.id,\n            image_type=image_type,\n            source_storage_key=authoritative_source_key,\n            edit_source_storage_key=edit_source_key,\n            derived_storage_key=derived_key,\n            x=0.0,\n            y=0.0,\n            width=1.0,\n            height=1.0,\n            rotation_degrees=0,\n            sharpness=1.0,\n            source_width=rendered.source_width,\n            source_height=rendered.source_height,\n            updated_by_user_id=current_user.id,\n            expected_revision=expected_revision,\n            sharpness_algorithm_version=2,\n        )\n        if image_type is PassportImageType.PASSPORT_FRONT:\n            reextract_result = await ReextractPassportSubmissionUseCase(\n                passport_repo=submission_repository,\n                processing_job_repo=PassportProcessingJobRepository(session),\n            ).execute(submission.id, source_image_replaced=True)\n        await AuditLogRepository(session).record(\n            action=\"passport_image_manually_replaced\",\n            entity_type=\"passport_submission\",\n            entity_id=str(submission.id),\n            agency_id=submission.agency_id,\n            user_id=current_user.id,\n            actor_email=current_user.email,\n            metadata={\n                \"image_type\": image_type.value,\n                \"library_item_id\": str(item.id),\n                \"crop_revision\": crop_row.revision,\n                \"content_sha256\": item.content_sha256,\n                \"reextraction_queued\": bool(\n                    reextract_result and reextract_result.processing_job_id\n                ),\n            },\n        )\n        if image_type is PassportImageType.PASSPORT_FRONT:\n            await propagate_mobile_passenger_change(\n                session,\n                agency_id=submission.agency_id,\n                group_id=submission.group_id,\n                passenger_submission_ids=[submission.id],\n                actor_user_id=current_user.id,\n                change_kind=\"documents\",\n                reconcile_identities=False,\n            )\n        commit_attempted = True\n        if reextract_result is not None:\n            await _dispatch_processing_job(\n                reextract_result,\n                session=session,\n                background_tasks=background_tasks,\n            )\n        else:\n            await session.commit()\n    except PassportImageCropRevisionConflict as exc:\n        await compensate_passport_image_failure(\n            session, storage, [item_key, derived_key],\n            submission_id=submission.id, commit_attempted=commit_attempted,\n        )\n        raise HTTPException(\n            status_code=status.HTTP_409_CONFLICT,\n            detail=(\n                \"The image changed \"\n                f\"(current revision {exc.current_revision}). Refresh it and try again.\"\n            ),\n            headers={\"X-Current-Crop-Revision\": str(exc.current_revision)},\n        ) from exc\n    except BaseException:\n        await compensate_passport_image_failure(\n            session, storage, [item_key, derived_key],\n            submission_id=submission.id, commit_attempted=commit_attempted,\n        )\n        raise\n\n    if previous_derived_key and previous_derived_key != derived_key:\n        await _delete_crop_derivative_best_effort(\n            storage,\n            previous_derived_key,\n            submission_id=submission.id,\n        )\n    if previous_edit_source_key and previous_edit_source_key != item_key:\n        await _delete_ephemeral_edit_source_best_effort(\n            session=session,\n            storage=storage,\n            key=previous_edit_source_key,\n            submission_id=submission.id,\n        )\n    return _library_item_response(\n        item=item,\n        authoritative_source_key=authoritative_source_key,\n        current_edit_source_key=edit_source_key,\n    )\n\n\n@router.post(\n    \"/{submission_id}/images/{image_type}/library/{item_id}/use\",\n    response_model=PassportImageCropResponse,\n    status_code=status.HTTP_200_OK,\n    summary=\"Make one original, manual, or AI library item current\",\n)\nasync def use_passport_image_library_item(\n    submission_id: uuid.UUID,\n    image_type: PassportImageType,\n    item_id: uuid.UUID,\n    body: PassportVisaAiImageUseRequest,\n    background_tasks: BackgroundTasks,\n    _csrf: None = Depends(require_cookie_csrf),\n    current_user: User = Depends(get_current_active_user),\n    session: AsyncSession = Depends(get_db_session),\n) -> PassportImageCropResponse:\n    submission, source_key = await _resolve_authorized_staff_passport_image(submission_id=submission_id, image_type=image_type, current_user=current_user, session=session, require_editor=True)\n    item = await PassportImageLibraryRepository(session).get_for_image(\n        submission_id=submission.id,\n        image_type=image_type,\n        item_id=item_id,\n    )\n    if item is None:\n        raise HTTPException(\n            status_code=status.HTTP_404_NOT_FOUND,\n            detail=\"The image-library item was not found.\",\n        )\n    await session.rollback()\n    storage = MinioStorageRepository()\n    try:\n        content = await storage.get_file(item.storage_key)\n        rendered = await asyncio.to_thread(\n            render_passport_image_crop,\n            content,\n            x=body.x,\n            y=body.y,\n            width=body.width,\n            height=body.height,\n            rotation_degrees=body.rotation_degrees,\n            sharpness=body.sharpness,\n            sharpness_algorithm_version=2,\n        )\n    except StorageError as exc:\n        raise HTTPException(\n            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,\n            detail=exc.message,\n        ) from exc\n    except PassportImageCropError as exc:\n        raise HTTPException(\n            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,\n            detail=str(exc),\n        ) from exc\n\n    derived_key = (\n        f\"passport-crops/{submission.agency_id}/{submission.id}/\"\n        f\"{image_type.value}/{uuid.uuid4().hex}{rendered.extension}\"\n    )\n    await write_passport_image_objects(\n        storage,\n        [\n            (rendered.content, derived_key, rendered.content_type),\n        ],\n        submission_id=submission.id,\n    )\n\n    previous_derived_key: str | None = None\n    previous_edit_source_key: str | None = None\n    edit_source_key = None if item.storage_key == source_key else item.storage_key\n    authoritative_source_key = source_key\n    reextract_result = None\n    commit_attempted = False\n    try:\n        submission_repository = PassportSubmissionRepository(session)\n        current_user, locked = await lock_passport_image_mutation(\n            session, current_user=current_user, submission=submission,\n            image_type=image_type, source_key=source_key,\n        )\n        if image_type is PassportImageType.PASSPORT_FRONT:\n            authoritative_source_key = item.storage_key\n            edit_source_key = None\n            locked.promote_image(item.storage_key)\n            locked.thumbnail_s3_key = None\n            locked.update_reviewed_fields({})\n            await submission_repository.update(locked)\n        (\n            crop_row,\n            previous_derived_key,\n            previous_edit_source_key,\n        ) = await PassportImageCropRepository(session).upsert(\n            submission_id=submission.id,\n            image_type=image_type,\n            source_storage_key=authoritative_source_key,\n            edit_source_storage_key=edit_source_key,\n            derived_storage_key=derived_key,\n            x=body.x,\n            y=body.y,\n            width=body.width,\n            height=body.height,\n            rotation_degrees=body.rotation_degrees,\n            sharpness=body.sharpness,\n            source_width=rendered.source_width,\n            source_height=rendered.source_height,\n            updated_by_user_id=current_user.id,\n            expected_revision=body.expected_revision,\n            sharpness_algorithm_version=2,\n        )\n        if image_type is PassportImageType.PASSPORT_FRONT:\n            reextract_result = await ReextractPassportSubmissionUseCase(\n                passport_repo=submission_repository,\n                processing_job_repo=PassportProcessingJobRepository(session),\n            ).execute(submission.id, source_image_replaced=True)\n        await AuditLogRepository(session).record(\n            action=\"passport_image_library_item_selected\",\n            entity_type=\"passport_submission\",\n            entity_id=str(submission.id),\n            agency_id=submission.agency_id,\n            user_id=current_user.id,\n            actor_email=current_user.email,\n            metadata={\n                \"image_type\": image_type.value,\n                \"library_item_id\": str(item.id),\n                \"source\": item.source.value,\n                \"crop_revision\": crop_row.revision,\n                \"reextraction_queued\": bool(\n                    reextract_result and reextract_result.processing_job_id\n                ),\n            },\n        )\n        if image_type is PassportImageType.PASSPORT_FRONT:\n            await propagate_mobile_passenger_change(\n                session,\n                agency_id=submission.agency_id,\n                group_id=submission.group_id,\n                passenger_submission_ids=[submission.id],\n                actor_user_id=current_user.id,\n                change_kind=\"documents\",\n                reconcile_identities=False,\n            )\n        commit_attempted = True\n        if reextract_result is not None:\n            await _dispatch_processing_job(\n                reextract_result,\n                session=session,\n                background_tasks=background_tasks,\n            )\n        else:\n            await session.commit()\n    except PassportImageCropRevisionConflict as exc:\n        await compensate_passport_image_failure(\n            session, storage, [derived_key],\n            submission_id=submission.id, commit_attempted=commit_attempted,\n        )\n        raise HTTPException(\n            status_code=status.HTTP_409_CONFLICT,\n            detail=(\n                \"The image changed \"\n                f\"(current revision {exc.current_revision}). Refresh it and try again.\"\n            ),\n            headers={\"X-Current-Crop-Revision\": str(exc.current_revision)},\n        ) from exc\n    except BaseException:\n        await compensate_passport_image_failure(\n            session, storage, [derived_key],\n            submission_id=submission.id, commit_attempted=commit_attempted,\n        )\n        raise\n\n    if previous_derived_key and previous_derived_key != derived_key:\n        await _delete_crop_derivative_best_effort(\n            storage,\n            previous_derived_key,\n            submission_id=submission.id,\n        )\n    if previous_edit_source_key and previous_edit_source_key != edit_source_key:\n        await _delete_ephemeral_edit_source_best_effort(\n            session=session,\n            storage=storage,\n            key=previous_edit_source_key,\n            submission_id=submission.id,\n        )\n    return _crop_response(\n        submission_id=submission.id,\n        image_type=image_type,\n        crop_row=crop_row,\n        source_storage_key=authoritative_source_key,\n    )\n",
+  "sha256": "a62852ba4195685d8191b77826d3b46106b1459669ab6a411fb545a4faab122c",
+  "openapi": {
+    "openapi": "3.1.0",
+    "info": {
+      "title": "FastAPI",
+      "version": "0.1.0"
+    },
+    "paths": {
+      "/passports/{submission_id}/images/{image_type}/library": {
+        "get": {
+          "summary": "List original, manual, and AI variants for one passport image",
+          "operationId": "list_passport_image_library_passports__submission_id__images__image_type__library_get",
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "submission_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Submission Id"
+              }
+            },
+            {
+              "name": "image_type",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "$ref": "#/components/schemas/PassportImageType"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PassportImageLibraryListResponse"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "summary": "Upload a manual image and make it the current passport image",
+          "operationId": "upload_passport_image_library_item_passports__submission_id__images__image_type__library_post",
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "submission_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Submission Id"
+              }
+            },
+            {
+              "name": "image_type",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "$ref": "#/components/schemas/PassportImageType"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "$ref": "#/components/schemas/Body_upload_passport_image_library_item_passports__submission_id__images__image_type__library_post"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PassportImageLibraryItemResponse"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/passports/{submission_id}/images/{image_type}/library/{item_id}/image": {
+        "get": {
+          "summary": "Stream one authorized passport image-library item",
+          "operationId": "get_passport_image_library_item_passports__submission_id__images__image_type__library__item_id__image_get",
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "submission_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Submission Id"
+              }
+            },
+            {
+              "name": "image_type",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "$ref": "#/components/schemas/PassportImageType"
+              }
+            },
+            {
+              "name": "item_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Item Id"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Authorized file content",
+              "content": {
+                "image/*": {
+                  "schema": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              },
+              "headers": {
+                "Content-Disposition": {
+                  "schema": {
+                    "type": "string"
+                  }
+                },
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/passports/{submission_id}/images/{image_type}/library/{item_id}/use": {
+        "post": {
+          "summary": "Make one original, manual, or AI library item current",
+          "operationId": "use_passport_image_library_item_passports__submission_id__images__image_type__library__item_id__use_post",
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "submission_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Submission Id"
+              }
+            },
+            {
+              "name": "image_type",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "$ref": "#/components/schemas/PassportImageType"
+              }
+            },
+            {
+              "name": "item_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Item Id"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportVisaAiImageUseRequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PassportImageCropResponse"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "Body_upload_passport_image_library_item_passports__submission_id__images__image_type__library_post": {
+          "properties": {
+            "image": {
+              "type": "string",
+              "contentMediaType": "application/octet-stream",
+              "title": "Image"
+            },
+            "expected_revision": {
+              "type": "integer",
+              "minimum": 0.0,
+              "title": "Expected Revision"
+            }
+          },
+          "type": "object",
+          "required": [
+            "image",
+            "expected_revision"
+          ],
+          "title": "Body_upload_passport_image_library_item_passports__submission_id__images__image_type__library_post"
+        },
+        "HTTPValidationError": {
+          "properties": {
+            "detail": {
+              "items": {
+                "$ref": "#/components/schemas/ValidationError"
+              },
+              "type": "array",
+              "title": "Detail"
+            }
+          },
+          "type": "object",
+          "title": "HTTPValidationError"
+        },
+        "PassportImageCropCoordinates": {
+          "properties": {
+            "x": {
+              "type": "number",
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "X"
+            },
+            "y": {
+              "type": "number",
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "Y"
+            },
+            "width": {
+              "type": "number",
+              "maximum": 1.0,
+              "minimum": 0.08,
+              "title": "Width"
+            },
+            "height": {
+              "type": "number",
+              "maximum": 1.0,
+              "minimum": 0.08,
+              "title": "Height"
+            },
+            "rotation_degrees": {
+              "type": "integer",
+              "maximum": 359.0,
+              "minimum": 0.0,
+              "title": "Rotation Degrees",
+              "default": 0
+            },
+            "sharpness": {
+              "type": "number",
+              "maximum": 3.0,
+              "minimum": 1.0,
+              "title": "Sharpness",
+              "default": 1.0
+            }
+          },
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "x",
+            "y",
+            "width",
+            "height"
+          ],
+          "title": "PassportImageCropCoordinates"
+        },
+        "PassportImageCropResponse": {
+          "properties": {
+            "image_type": {
+              "type": "string",
+              "enum": [
+                "visa_photo",
+                "passport_front",
+                "passport_back",
+                "passport_cover",
+                "passport_back_cover"
+              ],
+              "title": "Image Type"
+            },
+            "original_url": {
+              "type": "string",
+              "title": "Original Url"
+            },
+            "editable_source_url": {
+              "type": "string",
+              "title": "Editable Source Url"
+            },
+            "cropped_url": {
+              "type": "string",
+              "title": "Cropped Url"
+            },
+            "crop": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/PassportImageCropCoordinates"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "source_width": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1.0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Source Width"
+            },
+            "source_height": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1.0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Source Height"
+            },
+            "sharpness": {
+              "type": "number",
+              "maximum": 3.0,
+              "minimum": 1.0,
+              "title": "Sharpness",
+              "default": 1.0
+            },
+            "sharpness_algorithm_version": {
+              "type": "integer",
+              "enum": [
+                1,
+                2
+              ],
+              "title": "Sharpness Algorithm Version",
+              "default": 1
+            },
+            "ai_edited": {
+              "type": "boolean",
+              "title": "Ai Edited",
+              "default": false
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 0.0,
+              "title": "Revision",
+              "default": 0
+            }
+          },
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "image_type",
+            "original_url",
+            "editable_source_url",
+            "cropped_url"
+          ],
+          "title": "PassportImageCropResponse"
+        },
+        "PassportImageLibraryItemResponse": {
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id"
+            },
+            "image_type": {
+              "type": "string",
+              "enum": [
+                "visa_photo",
+                "passport_front",
+                "passport_back",
+                "passport_cover",
+                "passport_back_cover"
+              ],
+              "title": "Image Type"
+            },
+            "image_url": {
+              "type": "string",
+              "title": "Image Url"
+            },
+            "source": {
+              "type": "string",
+              "enum": [
+                "original",
+                "manual",
+                "ai_generated"
+              ],
+              "title": "Source"
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time",
+              "title": "Created At"
+            },
+            "is_current": {
+              "type": "boolean",
+              "title": "Is Current",
+              "default": false
+            },
+            "prompt": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Prompt"
+            },
+            "model": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Model"
+            }
+          },
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "id",
+            "image_type",
+            "image_url",
+            "source",
+            "created_at"
+          ],
+          "title": "PassportImageLibraryItemResponse"
+        },
+        "PassportImageLibraryListResponse": {
+          "properties": {
+            "items": {
+              "items": {
+                "$ref": "#/components/schemas/PassportImageLibraryItemResponse"
+              },
+              "type": "array",
+              "title": "Items"
+            }
+          },
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "items"
+          ],
+          "title": "PassportImageLibraryListResponse"
+        },
+        "PassportImageType": {
+          "type": "string",
+          "enum": [
+            "visa_photo",
+            "passport_front",
+            "passport_back",
+            "passport_cover",
+            "passport_back_cover"
+          ],
+          "title": "PassportImageType",
+          "description": "Staff-facing names for all supported submission images."
+        },
+        "PassportVisaAiImageUseRequest": {
+          "properties": {
+            "x": {
+              "type": "number",
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "X"
+            },
+            "y": {
+              "type": "number",
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "Y"
+            },
+            "width": {
+              "type": "number",
+              "maximum": 1.0,
+              "minimum": 0.08,
+              "title": "Width"
+            },
+            "height": {
+              "type": "number",
+              "maximum": 1.0,
+              "minimum": 0.08,
+              "title": "Height"
+            },
+            "rotation_degrees": {
+              "type": "integer",
+              "maximum": 359.0,
+              "minimum": 0.0,
+              "title": "Rotation Degrees",
+              "default": 0
+            },
+            "sharpness": {
+              "type": "number",
+              "maximum": 3.0,
+              "minimum": 1.0,
+              "title": "Sharpness",
+              "default": 1.0
+            },
+            "expected_revision": {
+              "type": "integer",
+              "minimum": 0.0,
+              "title": "Expected Revision"
+            }
+          },
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "x",
+            "y",
+            "width",
+            "height",
+            "expected_revision"
+          ],
+          "title": "PassportVisaAiImageUseRequest"
+        },
+        "ValidationError": {
+          "properties": {
+            "loc": {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ]
+              },
+              "type": "array",
+              "title": "Location"
+            },
+            "msg": {
+              "type": "string",
+              "title": "Message"
+            },
+            "type": {
+              "type": "string",
+              "title": "Error Type"
+            },
+            "input": {
+              "title": "Input"
+            },
+            "ctx": {
+              "type": "object",
+              "title": "Context"
+            }
+          },
+          "type": "object",
+          "required": [
+            "loc",
+            "msg",
+            "type"
+          ],
+          "title": "ValidationError"
+        }
+      },
+      "securitySchemes": {
+        "HTTPBearer": {
+          "type": "http",
+          "scheme": "bearer"
+        }
+      }
+    }
+  },
+  "declarations": {
+    "_library_image_url": {
+      "ast": "FunctionDef(name='_library_image_url', args=arguments(posonlyargs=[], args=[], kwonlyargs=[arg(arg='submission_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='image_type', annotation=Name(id='PassportImageType', ctx=Load())), arg(arg='item_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load()))], kw_defaults=[None, None, None], defaults=[]), body=[Return(value=JoinedStr(values=[FormattedValue(value=Attribute(value=Call(func=Name(id='get_settings', ctx=Load()), args=[], keywords=[]), attr='api_v1_prefix', ctx=Load()), conversion=-1), Constant(value='/passports/'), FormattedValue(value=Name(id='submission_id', ctx=Load()), conversion=-1), Constant(value='/images/'), FormattedValue(value=Attribute(value=Name(id='image_type', ctx=Load()), attr='value', ctx=Load()), conversion=-1), Constant(value='/library/'), FormattedValue(value=Name(id='item_id', ctx=Load()), conversion=-1), Constant(value='/image')]))], decorator_list=[], returns=Name(id='str', ctx=Load()))",
+      "signature": "(*, submission_id: 'uuid.UUID', image_type: 'PassportImageType', item_id: 'uuid.UUID') -> 'str'",
+      "hints": {
+        "submission_id": "<class 'uuid.UUID'>",
+        "image_type": "<enum 'PassportImageType'>",
+        "item_id": "<class 'uuid.UUID'>",
+        "return": "<class 'str'>"
+      }
+    },
+    "_library_item_response": {
+      "ast": "FunctionDef(name='_library_item_response', args=arguments(posonlyargs=[], args=[], kwonlyargs=[arg(arg='item', annotation=Name(id='PassportImageLibraryItem', ctx=Load())), arg(arg='authoritative_source_key', annotation=Name(id='str', ctx=Load())), arg(arg='current_edit_source_key', annotation=BinOp(left=Name(id='str', ctx=Load()), op=BitOr(), right=Constant(value=None)))], kw_defaults=[None, None, None], defaults=[]), body=[Assign(targets=[Name(id='is_current', ctx=Store())], value=BoolOp(op=Or(), values=[Compare(left=Attribute(value=Name(id='item', ctx=Load()), attr='storage_key', ctx=Load()), ops=[Eq()], comparators=[Name(id='current_edit_source_key', ctx=Load())]), BoolOp(op=And(), values=[Compare(left=Name(id='current_edit_source_key', ctx=Load()), ops=[Is()], comparators=[Constant(value=None)]), Compare(left=Attribute(value=Name(id='item', ctx=Load()), attr='storage_key', ctx=Load()), ops=[Eq()], comparators=[Name(id='authoritative_source_key', ctx=Load())])])])), Return(value=Call(func=Name(id='PassportImageLibraryItemResponse', ctx=Load()), args=[], keywords=[keyword(arg='id', value=Attribute(value=Name(id='item', ctx=Load()), attr='id', ctx=Load())), keyword(arg='image_type', value=Attribute(value=Attribute(value=Name(id='item', ctx=Load()), attr='image_type', ctx=Load()), attr='value', ctx=Load())), keyword(arg='image_url', value=Call(func=Name(id='_library_image_url', ctx=Load()), args=[], keywords=[keyword(arg='submission_id', value=Attribute(value=Name(id='item', ctx=Load()), attr='submission_id', ctx=Load())), keyword(arg='image_type', value=Attribute(value=Name(id='item', ctx=Load()), attr='image_type', ctx=Load())), keyword(arg='item_id', value=Attribute(value=Name(id='item', ctx=Load()), attr='id', ctx=Load()))])), keyword(arg='source', value=Attribute(value=Attribute(value=Name(id='item', ctx=Load()), attr='source', ctx=Load()), attr='value', ctx=Load())), keyword(arg='created_at', value=Attribute(value=Name(id='item', ctx=Load()), attr='created_at', ctx=Load())), keyword(arg='is_current', value=Name(id='is_current', ctx=Load())), keyword(arg='prompt', value=Attribute(value=Name(id='item', ctx=Load()), attr='prompt', ctx=Load())), keyword(arg='model', value=Attribute(value=Name(id='item', ctx=Load()), attr='model', ctx=Load()))]))], decorator_list=[], returns=Name(id='PassportImageLibraryItemResponse', ctx=Load()))",
+      "signature": "(*, item: 'PassportImageLibraryItem', authoritative_source_key: 'str', current_edit_source_key: 'str | None') -> 'PassportImageLibraryItemResponse'",
+      "hints": {
+        "item": "<class 'app.domain.value_objects.passport_image_library.PassportImageLibraryItem'>",
+        "authoritative_source_key": "<class 'str'>",
+        "current_edit_source_key": "str | None",
+        "return": "<class 'app.presentation.api.v1.schemas.passport_image_library_schemas.PassportImageLibraryItemResponse'>"
+      }
+    },
+    "_ensure_original_item": {
+      "ast": "AsyncFunctionDef(name='_ensure_original_item', args=arguments(posonlyargs=[], args=[], kwonlyargs=[arg(arg='repository', annotation=Name(id='PassportImageLibraryRepository', ctx=Load())), arg(arg='submission', annotation=Name(id='object', ctx=Load())), arg(arg='image_type', annotation=Name(id='PassportImageType', ctx=Load())), arg(arg='source_key', annotation=Name(id='str', ctx=Load())), arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load()))], kw_defaults=[None, None, None, None, None], defaults=[]), body=[Assign(targets=[Tuple(elts=[Name(id='_', ctx=Store()), Name(id='created', ctx=Store())], ctx=Store())], value=Await(value=Call(func=Attribute(value=Name(id='repository', ctx=Load()), attr='ensure_original', ctx=Load()), args=[], keywords=[keyword(arg='submission_id', value=Call(func=Name(id='getattr', ctx=Load()), args=[Name(id='submission', ctx=Load()), Constant(value='id')], keywords=[])), keyword(arg='image_type', value=Name(id='image_type', ctx=Load())), keyword(arg='storage_key', value=Name(id='source_key', ctx=Load())), keyword(arg='created_at', value=Call(func=Name(id='getattr', ctx=Load()), args=[Name(id='submission', ctx=Load()), Constant(value='created_at'), Constant(value=None)], keywords=[]))]))), If(test=Name(id='created', ctx=Load()), body=[Expr(value=Await(value=Call(func=Attribute(value=Name(id='session', ctx=Load()), attr='commit', ctx=Load()), args=[], keywords=[])))], orelse=[])], decorator_list=[], returns=Constant(value=None))",
+      "signature": "(*, repository: 'PassportImageLibraryRepository', submission: 'object', image_type: 'PassportImageType', source_key: 'str', session: 'AsyncSession') -> 'None'",
+      "hints": {
+        "repository": "<class 'app.infrastructure.repositories.passport_image_library_repository.PassportImageLibraryRepository'>",
+        "submission": "<class 'object'>",
+        "image_type": "<enum 'PassportImageType'>",
+        "source_key": "<class 'str'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "return": "<class 'NoneType'>"
+      }
+    },
+    "list_passport_image_library": {
+      "ast": "AsyncFunctionDef(name='list_passport_image_library', args=arguments(posonlyargs=[], args=[arg(arg='submission_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='image_type', annotation=Name(id='PassportImageType', ctx=Load())), arg(arg='current_user', annotation=Name(id='User', ctx=Load())), arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_current_active_user', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_db_session', ctx=Load())], keywords=[])]), body=[Assign(targets=[Tuple(elts=[Name(id='submission', ctx=Store()), Name(id='source_key', ctx=Store())], ctx=Store())], value=Await(value=Call(func=Name(id='_authorized_staff_passport_image', ctx=Load()), args=[], keywords=[keyword(arg='submission_id', value=Name(id='submission_id', ctx=Load())), keyword(arg='image_type', value=Name(id='image_type', ctx=Load())), keyword(arg='current_user', value=Name(id='current_user', ctx=Load())), keyword(arg='session', value=Name(id='session', ctx=Load())), keyword(arg='require_editor', value=Constant(value=True))]))), Assign(targets=[Name(id='repository', ctx=Store())], value=Call(func=Name(id='PassportImageLibraryRepository', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[])), Expr(value=Await(value=Call(func=Name(id='_ensure_original_item', ctx=Load()), args=[], keywords=[keyword(arg='repository', value=Name(id='repository', ctx=Load())), keyword(arg='submission', value=Name(id='submission', ctx=Load())), keyword(arg='image_type', value=Name(id='image_type', ctx=Load())), keyword(arg='source_key', value=Name(id='source_key', ctx=Load())), keyword(arg='session', value=Name(id='session', ctx=Load()))]))), Assign(targets=[Name(id='crop_row', ctx=Store())], value=Await(value=Call(func=Attribute(value=Call(func=Name(id='PassportImageCropRepository', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[]), attr='get', ctx=Load()), args=[Attribute(value=Name(id='submission', ctx=Load()), attr='id', ctx=Load()), Name(id='image_type', ctx=Load())], keywords=[]))), Assign(targets=[Name(id='effective', ctx=Store())], value=Call(func=Name(id='_effective_crop', ctx=Load()), args=[Name(id='crop_row', ctx=Load())], keywords=[keyword(arg='source_storage_key', value=Name(id='source_key', ctx=Load()))])), Assign(targets=[Name(id='current_edit_source_key', ctx=Store())], value=IfExp(test=Name(id='effective', ctx=Load()), body=Attribute(value=Name(id='effective', ctx=Load()), attr='edit_source_storage_key', ctx=Load()), orelse=Constant(value=None))), Assign(targets=[Name(id='items', ctx=Store())], value=Await(value=Call(func=Attribute(value=Name(id='repository', ctx=Load()), attr='list_for_image', ctx=Load()), args=[Attribute(value=Name(id='submission', ctx=Load()), attr='id', ctx=Load()), Name(id='image_type', ctx=Load())], keywords=[]))), Return(value=Call(func=Name(id='PassportImageLibraryListResponse', ctx=Load()), args=[], keywords=[keyword(arg='items', value=ListComp(elt=Call(func=Name(id='_library_item_response', ctx=Load()), args=[], keywords=[keyword(arg='item', value=Name(id='item', ctx=Load())), keyword(arg='authoritative_source_key', value=Name(id='source_key', ctx=Load())), keyword(arg='current_edit_source_key', value=Name(id='current_edit_source_key', ctx=Load()))]), generators=[comprehension(target=Name(id='item', ctx=Store()), iter=Name(id='items', ctx=Load()), ifs=[], is_async=0)]))]))], decorator_list=[Call(func=Attribute(value=Name(id='router', ctx=Load()), attr='get', ctx=Load()), args=[Constant(value='/{submission_id}/images/{image_type}/library')], keywords=[keyword(arg='response_model', value=Name(id='PassportImageLibraryListResponse', ctx=Load())), keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_200_OK', ctx=Load())), keyword(arg='summary', value=Constant(value='List original, manual, and AI variants for one passport image'))])], returns=Name(id='PassportImageLibraryListResponse', ctx=Load()))",
+      "signature": "(submission_id: 'uuid.UUID', image_type: 'PassportImageType', current_user: 'User' = Depends(dependency=<function get_current_active_user at 0x000002012EAD72E0>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x000002017E92B9C0>, use_cache=True, scope=None)) -> 'PassportImageLibraryListResponse'",
+      "hints": {
+        "submission_id": "<class 'uuid.UUID'>",
+        "image_type": "<enum 'PassportImageType'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "return": "<class 'app.presentation.api.v1.schemas.passport_image_library_schemas.PassportImageLibraryListResponse'>"
+      }
+    },
+    "get_passport_image_library_item": {
+      "ast": "AsyncFunctionDef(name='get_passport_image_library_item', args=arguments(posonlyargs=[], args=[arg(arg='submission_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='image_type', annotation=Name(id='PassportImageType', ctx=Load())), arg(arg='item_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='current_user', annotation=Name(id='User', ctx=Load())), arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_current_active_user', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_db_session', ctx=Load())], keywords=[])]), body=[Expr(value=Await(value=Call(func=Name(id='_authorized_staff_passport_image', ctx=Load()), args=[], keywords=[keyword(arg='submission_id', value=Name(id='submission_id', ctx=Load())), keyword(arg='image_type', value=Name(id='image_type', ctx=Load())), keyword(arg='current_user', value=Name(id='current_user', ctx=Load())), keyword(arg='session', value=Name(id='session', ctx=Load())), keyword(arg='require_editor', value=Constant(value=True))]))), Assign(targets=[Name(id='item', ctx=Store())], value=Await(value=Call(func=Attribute(value=Call(func=Name(id='PassportImageLibraryRepository', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[]), attr='get_for_image', ctx=Load()), args=[], keywords=[keyword(arg='submission_id', value=Name(id='submission_id', ctx=Load())), keyword(arg='image_type', value=Name(id='image_type', ctx=Load())), keyword(arg='item_id', value=Name(id='item_id', ctx=Load()))]))), If(test=Compare(left=Name(id='item', ctx=Load()), ops=[Is()], comparators=[Constant(value=None)]), body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_404_NOT_FOUND', ctx=Load())), keyword(arg='detail', value=Constant(value='The image-library item was not found.'))]))], orelse=[]), Try(body=[Assign(targets=[Name(id='content', ctx=Store())], value=Await(value=Call(func=Attribute(value=Call(func=Name(id='MinioStorageRepository', ctx=Load()), args=[], keywords=[]), attr='get_file', ctx=Load()), args=[Attribute(value=Name(id='item', ctx=Load()), attr='storage_key', ctx=Load())], keywords=[])))], handlers=[ExceptHandler(type=Name(id='StorageError', ctx=Load()), name='exc', body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_503_SERVICE_UNAVAILABLE', ctx=Load())), keyword(arg='detail', value=Attribute(value=Name(id='exc', ctx=Load()), attr='message', ctx=Load()))]), cause=Name(id='exc', ctx=Load()))])], orelse=[], finalbody=[]), Assign(targets=[Name(id='content_type', ctx=Store())], value=BoolOp(op=Or(), values=[Subscript(value=Call(func=Attribute(value=Name(id='mimetypes', ctx=Load()), attr='guess_type', ctx=Load()), args=[Attribute(value=Name(id='item', ctx=Load()), attr='storage_key', ctx=Load())], keywords=[]), slice=Constant(value=0), ctx=Load()), Constant(value='image/jpeg')])), Assign(targets=[Name(id='extension', ctx=Store())], value=BoolOp(op=Or(), values=[Call(func=Attribute(value=Name(id='mimetypes', ctx=Load()), attr='guess_extension', ctx=Load()), args=[Name(id='content_type', ctx=Load())], keywords=[]), Constant(value='.jpg')])), Return(value=Call(func=Name(id='StreamingResponse', ctx=Load()), args=[Call(func=Attribute(value=Name(id='io', ctx=Load()), attr='BytesIO', ctx=Load()), args=[Name(id='content', ctx=Load())], keywords=[])], keywords=[keyword(arg='media_type', value=Name(id='content_type', ctx=Load())), keyword(arg='headers', value=Dict(keys=[Constant(value='Cache-Control'), Constant(value='Content-Disposition'), Constant(value='X-Content-Type-Options')], values=[Constant(value='private, no-store'), JoinedStr(values=[Constant(value='inline; filename=\"'), FormattedValue(value=Attribute(value=Name(id='image_type', ctx=Load()), attr='value', ctx=Load()), conversion=-1), Constant(value='-library-'), FormattedValue(value=Attribute(value=Name(id='item', ctx=Load()), attr='id', ctx=Load()), conversion=-1), FormattedValue(value=Name(id='extension', ctx=Load()), conversion=-1), Constant(value='\"')]), Constant(value='nosniff')]))]))], decorator_list=[Call(func=Attribute(value=Name(id='router', ctx=Load()), attr='get', ctx=Load()), args=[Constant(value='/{submission_id}/images/{image_type}/library/{item_id}/image')], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_200_OK', ctx=Load())), keyword(arg='summary', value=Constant(value='Stream one authorized passport image-library item')), keyword(arg='response_class', value=Name(id='Response', ctx=Load())), keyword(arg='responses', value=Call(func=Name(id='binary_responses', ctx=Load()), args=[Constant(value='image/*')], keywords=[]))])], returns=Name(id='StreamingResponse', ctx=Load()))",
+      "signature": "(submission_id: 'uuid.UUID', image_type: 'PassportImageType', item_id: 'uuid.UUID', current_user: 'User' = Depends(dependency=<function get_current_active_user at 0x000002012EAD72E0>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x000002017E92B9C0>, use_cache=True, scope=None)) -> 'StreamingResponse'",
+      "hints": {
+        "submission_id": "<class 'uuid.UUID'>",
+        "image_type": "<enum 'PassportImageType'>",
+        "item_id": "<class 'uuid.UUID'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "return": "<class 'starlette.responses.StreamingResponse'>"
+      }
+    },
+    "upload_passport_image_library_item": {
+      "ast": "AsyncFunctionDef(name='upload_passport_image_library_item', args=arguments(posonlyargs=[], args=[arg(arg='submission_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='image_type', annotation=Name(id='PassportImageType', ctx=Load())), arg(arg='background_tasks', annotation=Name(id='BackgroundTasks', ctx=Load())), arg(arg='image', annotation=Name(id='UploadFile', ctx=Load())), arg(arg='expected_revision', annotation=Name(id='int', ctx=Load())), arg(arg='_csrf', annotation=Constant(value=None)), arg(arg='current_user', annotation=Name(id='User', ctx=Load())), arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[Call(func=Name(id='File', ctx=Load()), args=[Constant(value=Ellipsis)], keywords=[]), Call(func=Name(id='Form', ctx=Load()), args=[Constant(value=Ellipsis)], keywords=[keyword(arg='ge', value=Constant(value=0))]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='require_cookie_csrf', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_current_active_user', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_db_session', ctx=Load())], keywords=[])]), body=[Assign(targets=[Tuple(elts=[Name(id='submission', ctx=Store()), Name(id='source_key', ctx=Store())], ctx=Store())], value=Await(value=Call(func=Name(id='_resolve_authorized_staff_passport_image', ctx=Load()), args=[], keywords=[keyword(arg='submission_id', value=Name(id='submission_id', ctx=Load())), keyword(arg='image_type', value=Name(id='image_type', ctx=Load())), keyword(arg='current_user', value=Name(id='current_user', ctx=Load())), keyword(arg='session', value=Name(id='session', ctx=Load())), keyword(arg='require_editor', value=Constant(value=True))]))), Expr(value=Await(value=Call(func=Attribute(value=Name(id='session', ctx=Load()), attr='rollback', ctx=Load()), args=[], keywords=[]))), Assign(targets=[Name(id='validated', ctx=Store())], value=Await(value=Call(func=Name(id='_validated_upload_file', ctx=Load()), args=[Name(id='image', ctx=Load())], keywords=[keyword(arg='label', value=JoinedStr(values=[Constant(value='manual '), FormattedValue(value=Attribute(value=Name(id='image_type', ctx=Load()), attr='value', ctx=Load()), conversion=-1)]))]))), Try(body=[Assign(targets=[Name(id='rendered', ctx=Store())], value=Await(value=Call(func=Attribute(value=Name(id='asyncio', ctx=Load()), attr='to_thread', ctx=Load()), args=[Name(id='render_passport_image_crop', ctx=Load()), Attribute(value=Name(id='validated', ctx=Load()), attr='content', ctx=Load())], keywords=[keyword(arg='x', value=Constant(value=0.0)), keyword(arg='y', value=Constant(value=0.0)), keyword(arg='width', value=Constant(value=1.0)), keyword(arg='height', value=Constant(value=1.0)), keyword(arg='rotation_degrees', value=Constant(value=0)), keyword(arg='sharpness', value=Constant(value=1.0)), keyword(arg='sharpness_algorithm_version', value=Constant(value=2))])))], handlers=[ExceptHandler(type=Name(id='PassportImageCropError', ctx=Load()), name='exc', body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_422_UNPROCESSABLE_CONTENT', ctx=Load())), keyword(arg='detail', value=Call(func=Name(id='str', ctx=Load()), args=[Name(id='exc', ctx=Load())], keywords=[]))]), cause=Name(id='exc', ctx=Load()))])], orelse=[], finalbody=[]), Assign(targets=[Name(id='item_key', ctx=Store())], value=JoinedStr(values=[Constant(value='passport-image-library/'), FormattedValue(value=Attribute(value=Name(id='submission', ctx=Load()), attr='agency_id', ctx=Load()), conversion=-1), Constant(value='/'), FormattedValue(value=Attribute(value=Name(id='submission', ctx=Load()), attr='id', ctx=Load()), conversion=-1), Constant(value='/'), FormattedValue(value=Attribute(value=Name(id='image_type', ctx=Load()), attr='value', ctx=Load()), conversion=-1), Constant(value='/manual/'), FormattedValue(value=Attribute(value=Call(func=Attribute(value=Name(id='uuid', ctx=Load()), attr='uuid4', ctx=Load()), args=[], keywords=[]), attr='hex', ctx=Load()), conversion=-1), Constant(value='.jpg')])), Assign(targets=[Name(id='derived_key', ctx=Store())], value=JoinedStr(values=[Constant(value='passport-crops/'), FormattedValue(value=Attribute(value=Name(id='submission', ctx=Load()), attr='agency_id', ctx=Load()), conversion=-1), Constant(value='/'), FormattedValue(value=Attribute(value=Name(id='submission', ctx=Load()), attr='id', ctx=Load()), conversion=-1), Constant(value='/'), FormattedValue(value=Attribute(value=Name(id='image_type', ctx=Load()), attr='value', ctx=Load()), conversion=-1), Constant(value='/'), FormattedValue(value=Attribute(value=Call(func=Attribute(value=Name(id='uuid', ctx=Load()), attr='uuid4', ctx=Load()), args=[], keywords=[]), attr='hex', ctx=Load()), conversion=-1), FormattedValue(value=Attribute(value=Name(id='rendered', ctx=Load()), attr='extension', ctx=Load()), conversion=-1)])), Assign(targets=[Name(id='storage', ctx=Store())], value=Call(func=Name(id='MinioStorageRepository', ctx=Load()), args=[], keywords=[])), Expr(value=Await(value=Call(func=Name(id='write_passport_image_objects', ctx=Load()), args=[Name(id='storage', ctx=Load()), List(elts=[Tuple(elts=[Attribute(value=Name(id='validated', ctx=Load()), attr='content', ctx=Load()), Name(id='item_key', ctx=Load()), Attribute(value=Name(id='validated', ctx=Load()), attr='content_type', ctx=Load())], ctx=Load()), Tuple(elts=[Attribute(value=Name(id='rendered', ctx=Load()), attr='content', ctx=Load()), Name(id='derived_key', ctx=Load()), Attribute(value=Name(id='rendered', ctx=Load()), attr='content_type', ctx=Load())], ctx=Load())], ctx=Load())], keywords=[keyword(arg='submission_id', value=Attribute(value=Name(id='submission', ctx=Load()), attr='id', ctx=Load()))]))), AnnAssign(target=Name(id='previous_derived_key', ctx=Store()), annotation=BinOp(left=Name(id='str', ctx=Load()), op=BitOr(), right=Constant(value=None)), value=Constant(value=None), simple=1), AnnAssign(target=Name(id='previous_edit_source_key', ctx=Store()), annotation=BinOp(left=Name(id='str', ctx=Load()), op=BitOr(), right=Constant(value=None)), value=Constant(value=None), simple=1), Assign(targets=[Name(id='reextract_result', ctx=Store())], value=Constant(value=None)), Assign(targets=[Name(id='authoritative_source_key', ctx=Store())], value=Name(id='source_key', ctx=Load())), AnnAssign(target=Name(id='edit_source_key', ctx=Store()), annotation=BinOp(left=Name(id='str', ctx=Load()), op=BitOr(), right=Constant(value=None)), value=Name(id='item_key', ctx=Load()), simple=1), Assign(targets=[Name(id='commit_attempted', ctx=Store())], value=Constant(value=False)), Try(body=[Assign(targets=[Name(id='submission_repository', ctx=Store())], value=Call(func=Name(id='PassportSubmissionRepository', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[])), Assign(targets=[Tuple(elts=[Name(id='current_user', ctx=Store()), Name(id='locked', ctx=Store())], ctx=Store())], value=Await(value=Call(func=Name(id='lock_passport_image_mutation', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[keyword(arg='current_user', value=Name(id='current_user', ctx=Load())), keyword(arg='submission', value=Name(id='submission', ctx=Load())), keyword(arg='image_type', value=Name(id='image_type', ctx=Load())), keyword(arg='source_key', value=Name(id='source_key', ctx=Load()))]))), Assign(targets=[Name(id='library_repository', ctx=Store())], value=Call(func=Name(id='PassportImageLibraryRepository', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[])), Expr(value=Await(value=Call(func=Attribute(value=Name(id='library_repository', ctx=Load()), attr='ensure_original', ctx=Load()), args=[], keywords=[keyword(arg='submission_id', value=Attribute(value=Name(id='submission', ctx=Load()), attr='id', ctx=Load())), keyword(arg='image_type', value=Name(id='image_type', ctx=Load())), keyword(arg='storage_key', value=Name(id='source_key', ctx=Load())), keyword(arg='created_at', value=Call(func=Name(id='getattr', ctx=Load()), args=[Name(id='submission', ctx=Load()), Constant(value='created_at'), Constant(value=None)], keywords=[]))]))), Assign(targets=[Name(id='item', ctx=Store())], value=Await(value=Call(func=Attribute(value=Name(id='library_repository', ctx=Load()), attr='create_manual', ctx=Load()), args=[], keywords=[keyword(arg='submission_id', value=Attribute(value=Name(id='submission', ctx=Load()), attr='id', ctx=Load())), keyword(arg='image_type', value=Name(id='image_type', ctx=Load())), keyword(arg='storage_key', value=Name(id='item_key', ctx=Load())), keyword(arg='original_source_storage_key', value=Name(id='source_key', ctx=Load())), keyword(arg='content_sha256', value=Call(func=Attribute(value=Call(func=Attribute(value=Name(id='hashlib', ctx=Load()), attr='sha256', ctx=Load()), args=[Attribute(value=Name(id='validated', ctx=Load()), attr='content', ctx=Load())], keywords=[]), attr='hexdigest', ctx=Load()), args=[], keywords=[])), keyword(arg='created_by_user_id', value=Attribute(value=Name(id='current_user', ctx=Load()), attr='id', ctx=Load()))]))), If(test=Compare(left=Name(id='image_type', ctx=Load()), ops=[Is()], comparators=[Attribute(value=Name(id='PassportImageType', ctx=Load()), attr='PASSPORT_FRONT', ctx=Load())]), body=[Assign(targets=[Name(id='authoritative_source_key', ctx=Store())], value=Name(id='item_key', ctx=Load())), Assign(targets=[Name(id='edit_source_key', ctx=Store())], value=Constant(value=None)), Expr(value=Call(func=Attribute(value=Name(id='locked', ctx=Load()), attr='promote_image', ctx=Load()), args=[Name(id='item_key', ctx=Load())], keywords=[])), Assign(targets=[Attribute(value=Name(id='locked', ctx=Load()), attr='thumbnail_s3_key', ctx=Store())], value=Constant(value=None)), Expr(value=Call(func=Attribute(value=Name(id='locked', ctx=Load()), attr='update_reviewed_fields', ctx=Load()), args=[Dict(keys=[], values=[])], keywords=[])), Expr(value=Await(value=Call(func=Attribute(value=Name(id='submission_repository', ctx=Load()), attr='update', ctx=Load()), args=[Name(id='locked', ctx=Load())], keywords=[])))], orelse=[]), Assign(targets=[Tuple(elts=[Name(id='crop_row', ctx=Store()), Name(id='previous_derived_key', ctx=Store()), Name(id='previous_edit_source_key', ctx=Store())], ctx=Store())], value=Await(value=Call(func=Attribute(value=Call(func=Name(id='PassportImageCropRepository', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[]), attr='upsert', ctx=Load()), args=[], keywords=[keyword(arg='submission_id', value=Attribute(value=Name(id='submission', ctx=Load()), attr='id', ctx=Load())), keyword(arg='image_type', value=Name(id='image_type', ctx=Load())), keyword(arg='source_storage_key', value=Name(id='authoritative_source_key', ctx=Load())), keyword(arg='edit_source_storage_key', value=Name(id='edit_source_key', ctx=Load())), keyword(arg='derived_storage_key', value=Name(id='derived_key', ctx=Load())), keyword(arg='x', value=Constant(value=0.0)), keyword(arg='y', value=Constant(value=0.0)), keyword(arg='width', value=Constant(value=1.0)), keyword(arg='height', value=Constant(value=1.0)), keyword(arg='rotation_degrees', value=Constant(value=0)), keyword(arg='sharpness', value=Constant(value=1.0)), keyword(arg='source_width', value=Attribute(value=Name(id='rendered', ctx=Load()), attr='source_width', ctx=Load())), keyword(arg='source_height', value=Attribute(value=Name(id='rendered', ctx=Load()), attr='source_height', ctx=Load())), keyword(arg='updated_by_user_id', value=Attribute(value=Name(id='current_user', ctx=Load()), attr='id', ctx=Load())), keyword(arg='expected_revision', value=Name(id='expected_revision', ctx=Load())), keyword(arg='sharpness_algorithm_version', value=Constant(value=2))]))), If(test=Compare(left=Name(id='image_type', ctx=Load()), ops=[Is()], comparators=[Attribute(value=Name(id='PassportImageType', ctx=Load()), attr='PASSPORT_FRONT', ctx=Load())]), body=[Assign(targets=[Name(id='reextract_result', ctx=Store())], value=Await(value=Call(func=Attribute(value=Call(func=Name(id='ReextractPassportSubmissionUseCase', ctx=Load()), args=[], keywords=[keyword(arg='passport_repo', value=Name(id='submission_repository', ctx=Load())), keyword(arg='processing_job_repo', value=Call(func=Name(id='PassportProcessingJobRepository', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[]))]), attr='execute', ctx=Load()), args=[Attribute(value=Name(id='submission', ctx=Load()), attr='id', ctx=Load())], keywords=[keyword(arg='source_image_replaced', value=Constant(value=True))])))], orelse=[]), Expr(value=Await(value=Call(func=Attribute(value=Call(func=Name(id='AuditLogRepository', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[]), attr='record', ctx=Load()), args=[], keywords=[keyword(arg='action', value=Constant(value='passport_image_manually_replaced')), keyword(arg='entity_type', value=Constant(value='passport_submission')), keyword(arg='entity_id', value=Call(func=Name(id='str', ctx=Load()), args=[Attribute(value=Name(id='submission', ctx=Load()), attr='id', ctx=Load())], keywords=[])), keyword(arg='agency_id', value=Attribute(value=Name(id='submission', ctx=Load()), attr='agency_id', ctx=Load())), keyword(arg='user_id', value=Attribute(value=Name(id='current_user', ctx=Load()), attr='id', ctx=Load())), keyword(arg='actor_email', value=Attribute(value=Name(id='current_user', ctx=Load()), attr='email', ctx=Load())), keyword(arg='metadata', value=Dict(keys=[Constant(value='image_type'), Constant(value='library_item_id'), Constant(value='crop_revision'), Constant(value='content_sha256'), Constant(value='reextraction_queued')], values=[Attribute(value=Name(id='image_type', ctx=Load()), attr='value', ctx=Load()), Call(func=Name(id='str', ctx=Load()), args=[Attribute(value=Name(id='item', ctx=Load()), attr='id', ctx=Load())], keywords=[]), Attribute(value=Name(id='crop_row', ctx=Load()), attr='revision', ctx=Load()), Attribute(value=Name(id='item', ctx=Load()), attr='content_sha256', ctx=Load()), Call(func=Name(id='bool', ctx=Load()), args=[BoolOp(op=And(), values=[Name(id='reextract_result', ctx=Load()), Attribute(value=Name(id='reextract_result', ctx=Load()), attr='processing_job_id', ctx=Load())])], keywords=[])]))]))), If(test=Compare(left=Name(id='image_type', ctx=Load()), ops=[Is()], comparators=[Attribute(value=Name(id='PassportImageType', ctx=Load()), attr='PASSPORT_FRONT', ctx=Load())]), body=[Expr(value=Await(value=Call(func=Name(id='propagate_mobile_passenger_change', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[keyword(arg='agency_id', value=Attribute(value=Name(id='submission', ctx=Load()), attr='agency_id', ctx=Load())), keyword(arg='group_id', value=Attribute(value=Name(id='submission', ctx=Load()), attr='group_id', ctx=Load())), keyword(arg='passenger_submission_ids', value=List(elts=[Attribute(value=Name(id='submission', ctx=Load()), attr='id', ctx=Load())], ctx=Load())), keyword(arg='actor_user_id', value=Attribute(value=Name(id='current_user', ctx=Load()), attr='id', ctx=Load())), keyword(arg='change_kind', value=Constant(value='documents')), keyword(arg='reconcile_identities', value=Constant(value=False))])))], orelse=[]), Assign(targets=[Name(id='commit_attempted', ctx=Store())], value=Constant(value=True)), If(test=Compare(left=Name(id='reextract_result', ctx=Load()), ops=[IsNot()], comparators=[Constant(value=None)]), body=[Expr(value=Await(value=Call(func=Name(id='_dispatch_processing_job', ctx=Load()), args=[Name(id='reextract_result', ctx=Load())], keywords=[keyword(arg='session', value=Name(id='session', ctx=Load())), keyword(arg='background_tasks', value=Name(id='background_tasks', ctx=Load()))])))], orelse=[Expr(value=Await(value=Call(func=Attribute(value=Name(id='session', ctx=Load()), attr='commit', ctx=Load()), args=[], keywords=[])))])], handlers=[ExceptHandler(type=Name(id='PassportImageCropRevisionConflict', ctx=Load()), name='exc', body=[Expr(value=Await(value=Call(func=Name(id='compensate_passport_image_failure', ctx=Load()), args=[Name(id='session', ctx=Load()), Name(id='storage', ctx=Load()), List(elts=[Name(id='item_key', ctx=Load()), Name(id='derived_key', ctx=Load())], ctx=Load())], keywords=[keyword(arg='submission_id', value=Attribute(value=Name(id='submission', ctx=Load()), attr='id', ctx=Load())), keyword(arg='commit_attempted', value=Name(id='commit_attempted', ctx=Load()))]))), Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_409_CONFLICT', ctx=Load())), keyword(arg='detail', value=JoinedStr(values=[Constant(value='The image changed (current revision '), FormattedValue(value=Attribute(value=Name(id='exc', ctx=Load()), attr='current_revision', ctx=Load()), conversion=-1), Constant(value='). Refresh it and try again.')])), keyword(arg='headers', value=Dict(keys=[Constant(value='X-Current-Crop-Revision')], values=[Call(func=Name(id='str', ctx=Load()), args=[Attribute(value=Name(id='exc', ctx=Load()), attr='current_revision', ctx=Load())], keywords=[])]))]), cause=Name(id='exc', ctx=Load()))]), ExceptHandler(type=Name(id='BaseException', ctx=Load()), body=[Expr(value=Await(value=Call(func=Name(id='compensate_passport_image_failure', ctx=Load()), args=[Name(id='session', ctx=Load()), Name(id='storage', ctx=Load()), List(elts=[Name(id='item_key', ctx=Load()), Name(id='derived_key', ctx=Load())], ctx=Load())], keywords=[keyword(arg='submission_id', value=Attribute(value=Name(id='submission', ctx=Load()), attr='id', ctx=Load())), keyword(arg='commit_attempted', value=Name(id='commit_attempted', ctx=Load()))]))), Raise()])], orelse=[], finalbody=[]), If(test=BoolOp(op=And(), values=[Name(id='previous_derived_key', ctx=Load()), Compare(left=Name(id='previous_derived_key', ctx=Load()), ops=[NotEq()], comparators=[Name(id='derived_key', ctx=Load())])]), body=[Expr(value=Await(value=Call(func=Name(id='_delete_crop_derivative_best_effort', ctx=Load()), args=[Name(id='storage', ctx=Load()), Name(id='previous_derived_key', ctx=Load())], keywords=[keyword(arg='submission_id', value=Attribute(value=Name(id='submission', ctx=Load()), attr='id', ctx=Load()))])))], orelse=[]), If(test=BoolOp(op=And(), values=[Name(id='previous_edit_source_key', ctx=Load()), Compare(left=Name(id='previous_edit_source_key', ctx=Load()), ops=[NotEq()], comparators=[Name(id='item_key', ctx=Load())])]), body=[Expr(value=Await(value=Call(func=Name(id='_delete_ephemeral_edit_source_best_effort', ctx=Load()), args=[], keywords=[keyword(arg='session', value=Name(id='session', ctx=Load())), keyword(arg='storage', value=Name(id='storage', ctx=Load())), keyword(arg='key', value=Name(id='previous_edit_source_key', ctx=Load())), keyword(arg='submission_id', value=Attribute(value=Name(id='submission', ctx=Load()), attr='id', ctx=Load()))])))], orelse=[]), Return(value=Call(func=Name(id='_library_item_response', ctx=Load()), args=[], keywords=[keyword(arg='item', value=Name(id='item', ctx=Load())), keyword(arg='authoritative_source_key', value=Name(id='authoritative_source_key', ctx=Load())), keyword(arg='current_edit_source_key', value=Name(id='edit_source_key', ctx=Load()))]))], decorator_list=[Call(func=Attribute(value=Name(id='router', ctx=Load()), attr='post', ctx=Load()), args=[Constant(value='/{submission_id}/images/{image_type}/library')], keywords=[keyword(arg='response_model', value=Name(id='PassportImageLibraryItemResponse', ctx=Load())), keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_201_CREATED', ctx=Load())), keyword(arg='summary', value=Constant(value='Upload a manual image and make it the current passport image'))])], returns=Name(id='PassportImageLibraryItemResponse', ctx=Load()))",
+      "signature": "(submission_id: 'uuid.UUID', image_type: 'PassportImageType', background_tasks: 'BackgroundTasks', image: 'UploadFile' = File(PydanticUndefined), expected_revision: 'int' = Form(PydanticUndefined), _csrf: 'None' = Depends(dependency=<function require_cookie_csrf at 0x000002012EAD6B60>, use_cache=True, scope=None), current_user: 'User' = Depends(dependency=<function get_current_active_user at 0x000002012EAD72E0>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x000002017E92B9C0>, use_cache=True, scope=None)) -> 'PassportImageLibraryItemResponse'",
+      "hints": {
+        "submission_id": "<class 'uuid.UUID'>",
+        "image_type": "<enum 'PassportImageType'>",
+        "background_tasks": "<class 'fastapi.background.BackgroundTasks'>",
+        "image": "<class 'fastapi.datastructures.UploadFile'>",
+        "expected_revision": "<class 'int'>",
+        "_csrf": "<class 'NoneType'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "return": "<class 'app.presentation.api.v1.schemas.passport_image_library_schemas.PassportImageLibraryItemResponse'>"
+      }
+    },
+    "use_passport_image_library_item": {
+      "ast": "AsyncFunctionDef(name='use_passport_image_library_item', args=arguments(posonlyargs=[], args=[arg(arg='submission_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='image_type', annotation=Name(id='PassportImageType', ctx=Load())), arg(arg='item_id', annotation=Attribute(value=Name(id='uuid', ctx=Load()), attr='UUID', ctx=Load())), arg(arg='body', annotation=Name(id='PassportVisaAiImageUseRequest', ctx=Load())), arg(arg='background_tasks', annotation=Name(id='BackgroundTasks', ctx=Load())), arg(arg='_csrf', annotation=Constant(value=None)), arg(arg='current_user', annotation=Name(id='User', ctx=Load())), arg(arg='session', annotation=Name(id='AsyncSession', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='require_cookie_csrf', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_current_active_user', ctx=Load())], keywords=[]), Call(func=Name(id='Depends', ctx=Load()), args=[Name(id='get_db_session', ctx=Load())], keywords=[])]), body=[Assign(targets=[Tuple(elts=[Name(id='submission', ctx=Store()), Name(id='source_key', ctx=Store())], ctx=Store())], value=Await(value=Call(func=Name(id='_resolve_authorized_staff_passport_image', ctx=Load()), args=[], keywords=[keyword(arg='submission_id', value=Name(id='submission_id', ctx=Load())), keyword(arg='image_type', value=Name(id='image_type', ctx=Load())), keyword(arg='current_user', value=Name(id='current_user', ctx=Load())), keyword(arg='session', value=Name(id='session', ctx=Load())), keyword(arg='require_editor', value=Constant(value=True))]))), Assign(targets=[Name(id='item', ctx=Store())], value=Await(value=Call(func=Attribute(value=Call(func=Name(id='PassportImageLibraryRepository', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[]), attr='get_for_image', ctx=Load()), args=[], keywords=[keyword(arg='submission_id', value=Attribute(value=Name(id='submission', ctx=Load()), attr='id', ctx=Load())), keyword(arg='image_type', value=Name(id='image_type', ctx=Load())), keyword(arg='item_id', value=Name(id='item_id', ctx=Load()))]))), If(test=Compare(left=Name(id='item', ctx=Load()), ops=[Is()], comparators=[Constant(value=None)]), body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_404_NOT_FOUND', ctx=Load())), keyword(arg='detail', value=Constant(value='The image-library item was not found.'))]))], orelse=[]), Expr(value=Await(value=Call(func=Attribute(value=Name(id='session', ctx=Load()), attr='rollback', ctx=Load()), args=[], keywords=[]))), Assign(targets=[Name(id='storage', ctx=Store())], value=Call(func=Name(id='MinioStorageRepository', ctx=Load()), args=[], keywords=[])), Try(body=[Assign(targets=[Name(id='content', ctx=Store())], value=Await(value=Call(func=Attribute(value=Name(id='storage', ctx=Load()), attr='get_file', ctx=Load()), args=[Attribute(value=Name(id='item', ctx=Load()), attr='storage_key', ctx=Load())], keywords=[]))), Assign(targets=[Name(id='rendered', ctx=Store())], value=Await(value=Call(func=Attribute(value=Name(id='asyncio', ctx=Load()), attr='to_thread', ctx=Load()), args=[Name(id='render_passport_image_crop', ctx=Load()), Name(id='content', ctx=Load())], keywords=[keyword(arg='x', value=Attribute(value=Name(id='body', ctx=Load()), attr='x', ctx=Load())), keyword(arg='y', value=Attribute(value=Name(id='body', ctx=Load()), attr='y', ctx=Load())), keyword(arg='width', value=Attribute(value=Name(id='body', ctx=Load()), attr='width', ctx=Load())), keyword(arg='height', value=Attribute(value=Name(id='body', ctx=Load()), attr='height', ctx=Load())), keyword(arg='rotation_degrees', value=Attribute(value=Name(id='body', ctx=Load()), attr='rotation_degrees', ctx=Load())), keyword(arg='sharpness', value=Attribute(value=Name(id='body', ctx=Load()), attr='sharpness', ctx=Load())), keyword(arg='sharpness_algorithm_version', value=Constant(value=2))])))], handlers=[ExceptHandler(type=Name(id='StorageError', ctx=Load()), name='exc', body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_503_SERVICE_UNAVAILABLE', ctx=Load())), keyword(arg='detail', value=Attribute(value=Name(id='exc', ctx=Load()), attr='message', ctx=Load()))]), cause=Name(id='exc', ctx=Load()))]), ExceptHandler(type=Name(id='PassportImageCropError', ctx=Load()), name='exc', body=[Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_422_UNPROCESSABLE_CONTENT', ctx=Load())), keyword(arg='detail', value=Call(func=Name(id='str', ctx=Load()), args=[Name(id='exc', ctx=Load())], keywords=[]))]), cause=Name(id='exc', ctx=Load()))])], orelse=[], finalbody=[]), Assign(targets=[Name(id='derived_key', ctx=Store())], value=JoinedStr(values=[Constant(value='passport-crops/'), FormattedValue(value=Attribute(value=Name(id='submission', ctx=Load()), attr='agency_id', ctx=Load()), conversion=-1), Constant(value='/'), FormattedValue(value=Attribute(value=Name(id='submission', ctx=Load()), attr='id', ctx=Load()), conversion=-1), Constant(value='/'), FormattedValue(value=Attribute(value=Name(id='image_type', ctx=Load()), attr='value', ctx=Load()), conversion=-1), Constant(value='/'), FormattedValue(value=Attribute(value=Call(func=Attribute(value=Name(id='uuid', ctx=Load()), attr='uuid4', ctx=Load()), args=[], keywords=[]), attr='hex', ctx=Load()), conversion=-1), FormattedValue(value=Attribute(value=Name(id='rendered', ctx=Load()), attr='extension', ctx=Load()), conversion=-1)])), Expr(value=Await(value=Call(func=Name(id='write_passport_image_objects', ctx=Load()), args=[Name(id='storage', ctx=Load()), List(elts=[Tuple(elts=[Attribute(value=Name(id='rendered', ctx=Load()), attr='content', ctx=Load()), Name(id='derived_key', ctx=Load()), Attribute(value=Name(id='rendered', ctx=Load()), attr='content_type', ctx=Load())], ctx=Load())], ctx=Load())], keywords=[keyword(arg='submission_id', value=Attribute(value=Name(id='submission', ctx=Load()), attr='id', ctx=Load()))]))), AnnAssign(target=Name(id='previous_derived_key', ctx=Store()), annotation=BinOp(left=Name(id='str', ctx=Load()), op=BitOr(), right=Constant(value=None)), value=Constant(value=None), simple=1), AnnAssign(target=Name(id='previous_edit_source_key', ctx=Store()), annotation=BinOp(left=Name(id='str', ctx=Load()), op=BitOr(), right=Constant(value=None)), value=Constant(value=None), simple=1), Assign(targets=[Name(id='edit_source_key', ctx=Store())], value=IfExp(test=Compare(left=Attribute(value=Name(id='item', ctx=Load()), attr='storage_key', ctx=Load()), ops=[Eq()], comparators=[Name(id='source_key', ctx=Load())]), body=Constant(value=None), orelse=Attribute(value=Name(id='item', ctx=Load()), attr='storage_key', ctx=Load()))), Assign(targets=[Name(id='authoritative_source_key', ctx=Store())], value=Name(id='source_key', ctx=Load())), Assign(targets=[Name(id='reextract_result', ctx=Store())], value=Constant(value=None)), Assign(targets=[Name(id='commit_attempted', ctx=Store())], value=Constant(value=False)), Try(body=[Assign(targets=[Name(id='submission_repository', ctx=Store())], value=Call(func=Name(id='PassportSubmissionRepository', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[])), Assign(targets=[Tuple(elts=[Name(id='current_user', ctx=Store()), Name(id='locked', ctx=Store())], ctx=Store())], value=Await(value=Call(func=Name(id='lock_passport_image_mutation', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[keyword(arg='current_user', value=Name(id='current_user', ctx=Load())), keyword(arg='submission', value=Name(id='submission', ctx=Load())), keyword(arg='image_type', value=Name(id='image_type', ctx=Load())), keyword(arg='source_key', value=Name(id='source_key', ctx=Load()))]))), If(test=Compare(left=Name(id='image_type', ctx=Load()), ops=[Is()], comparators=[Attribute(value=Name(id='PassportImageType', ctx=Load()), attr='PASSPORT_FRONT', ctx=Load())]), body=[Assign(targets=[Name(id='authoritative_source_key', ctx=Store())], value=Attribute(value=Name(id='item', ctx=Load()), attr='storage_key', ctx=Load())), Assign(targets=[Name(id='edit_source_key', ctx=Store())], value=Constant(value=None)), Expr(value=Call(func=Attribute(value=Name(id='locked', ctx=Load()), attr='promote_image', ctx=Load()), args=[Attribute(value=Name(id='item', ctx=Load()), attr='storage_key', ctx=Load())], keywords=[])), Assign(targets=[Attribute(value=Name(id='locked', ctx=Load()), attr='thumbnail_s3_key', ctx=Store())], value=Constant(value=None)), Expr(value=Call(func=Attribute(value=Name(id='locked', ctx=Load()), attr='update_reviewed_fields', ctx=Load()), args=[Dict(keys=[], values=[])], keywords=[])), Expr(value=Await(value=Call(func=Attribute(value=Name(id='submission_repository', ctx=Load()), attr='update', ctx=Load()), args=[Name(id='locked', ctx=Load())], keywords=[])))], orelse=[]), Assign(targets=[Tuple(elts=[Name(id='crop_row', ctx=Store()), Name(id='previous_derived_key', ctx=Store()), Name(id='previous_edit_source_key', ctx=Store())], ctx=Store())], value=Await(value=Call(func=Attribute(value=Call(func=Name(id='PassportImageCropRepository', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[]), attr='upsert', ctx=Load()), args=[], keywords=[keyword(arg='submission_id', value=Attribute(value=Name(id='submission', ctx=Load()), attr='id', ctx=Load())), keyword(arg='image_type', value=Name(id='image_type', ctx=Load())), keyword(arg='source_storage_key', value=Name(id='authoritative_source_key', ctx=Load())), keyword(arg='edit_source_storage_key', value=Name(id='edit_source_key', ctx=Load())), keyword(arg='derived_storage_key', value=Name(id='derived_key', ctx=Load())), keyword(arg='x', value=Attribute(value=Name(id='body', ctx=Load()), attr='x', ctx=Load())), keyword(arg='y', value=Attribute(value=Name(id='body', ctx=Load()), attr='y', ctx=Load())), keyword(arg='width', value=Attribute(value=Name(id='body', ctx=Load()), attr='width', ctx=Load())), keyword(arg='height', value=Attribute(value=Name(id='body', ctx=Load()), attr='height', ctx=Load())), keyword(arg='rotation_degrees', value=Attribute(value=Name(id='body', ctx=Load()), attr='rotation_degrees', ctx=Load())), keyword(arg='sharpness', value=Attribute(value=Name(id='body', ctx=Load()), attr='sharpness', ctx=Load())), keyword(arg='source_width', value=Attribute(value=Name(id='rendered', ctx=Load()), attr='source_width', ctx=Load())), keyword(arg='source_height', value=Attribute(value=Name(id='rendered', ctx=Load()), attr='source_height', ctx=Load())), keyword(arg='updated_by_user_id', value=Attribute(value=Name(id='current_user', ctx=Load()), attr='id', ctx=Load())), keyword(arg='expected_revision', value=Attribute(value=Name(id='body', ctx=Load()), attr='expected_revision', ctx=Load())), keyword(arg='sharpness_algorithm_version', value=Constant(value=2))]))), If(test=Compare(left=Name(id='image_type', ctx=Load()), ops=[Is()], comparators=[Attribute(value=Name(id='PassportImageType', ctx=Load()), attr='PASSPORT_FRONT', ctx=Load())]), body=[Assign(targets=[Name(id='reextract_result', ctx=Store())], value=Await(value=Call(func=Attribute(value=Call(func=Name(id='ReextractPassportSubmissionUseCase', ctx=Load()), args=[], keywords=[keyword(arg='passport_repo', value=Name(id='submission_repository', ctx=Load())), keyword(arg='processing_job_repo', value=Call(func=Name(id='PassportProcessingJobRepository', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[]))]), attr='execute', ctx=Load()), args=[Attribute(value=Name(id='submission', ctx=Load()), attr='id', ctx=Load())], keywords=[keyword(arg='source_image_replaced', value=Constant(value=True))])))], orelse=[]), Expr(value=Await(value=Call(func=Attribute(value=Call(func=Name(id='AuditLogRepository', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[]), attr='record', ctx=Load()), args=[], keywords=[keyword(arg='action', value=Constant(value='passport_image_library_item_selected')), keyword(arg='entity_type', value=Constant(value='passport_submission')), keyword(arg='entity_id', value=Call(func=Name(id='str', ctx=Load()), args=[Attribute(value=Name(id='submission', ctx=Load()), attr='id', ctx=Load())], keywords=[])), keyword(arg='agency_id', value=Attribute(value=Name(id='submission', ctx=Load()), attr='agency_id', ctx=Load())), keyword(arg='user_id', value=Attribute(value=Name(id='current_user', ctx=Load()), attr='id', ctx=Load())), keyword(arg='actor_email', value=Attribute(value=Name(id='current_user', ctx=Load()), attr='email', ctx=Load())), keyword(arg='metadata', value=Dict(keys=[Constant(value='image_type'), Constant(value='library_item_id'), Constant(value='source'), Constant(value='crop_revision'), Constant(value='reextraction_queued')], values=[Attribute(value=Name(id='image_type', ctx=Load()), attr='value', ctx=Load()), Call(func=Name(id='str', ctx=Load()), args=[Attribute(value=Name(id='item', ctx=Load()), attr='id', ctx=Load())], keywords=[]), Attribute(value=Attribute(value=Name(id='item', ctx=Load()), attr='source', ctx=Load()), attr='value', ctx=Load()), Attribute(value=Name(id='crop_row', ctx=Load()), attr='revision', ctx=Load()), Call(func=Name(id='bool', ctx=Load()), args=[BoolOp(op=And(), values=[Name(id='reextract_result', ctx=Load()), Attribute(value=Name(id='reextract_result', ctx=Load()), attr='processing_job_id', ctx=Load())])], keywords=[])]))]))), If(test=Compare(left=Name(id='image_type', ctx=Load()), ops=[Is()], comparators=[Attribute(value=Name(id='PassportImageType', ctx=Load()), attr='PASSPORT_FRONT', ctx=Load())]), body=[Expr(value=Await(value=Call(func=Name(id='propagate_mobile_passenger_change', ctx=Load()), args=[Name(id='session', ctx=Load())], keywords=[keyword(arg='agency_id', value=Attribute(value=Name(id='submission', ctx=Load()), attr='agency_id', ctx=Load())), keyword(arg='group_id', value=Attribute(value=Name(id='submission', ctx=Load()), attr='group_id', ctx=Load())), keyword(arg='passenger_submission_ids', value=List(elts=[Attribute(value=Name(id='submission', ctx=Load()), attr='id', ctx=Load())], ctx=Load())), keyword(arg='actor_user_id', value=Attribute(value=Name(id='current_user', ctx=Load()), attr='id', ctx=Load())), keyword(arg='change_kind', value=Constant(value='documents')), keyword(arg='reconcile_identities', value=Constant(value=False))])))], orelse=[]), Assign(targets=[Name(id='commit_attempted', ctx=Store())], value=Constant(value=True)), If(test=Compare(left=Name(id='reextract_result', ctx=Load()), ops=[IsNot()], comparators=[Constant(value=None)]), body=[Expr(value=Await(value=Call(func=Name(id='_dispatch_processing_job', ctx=Load()), args=[Name(id='reextract_result', ctx=Load())], keywords=[keyword(arg='session', value=Name(id='session', ctx=Load())), keyword(arg='background_tasks', value=Name(id='background_tasks', ctx=Load()))])))], orelse=[Expr(value=Await(value=Call(func=Attribute(value=Name(id='session', ctx=Load()), attr='commit', ctx=Load()), args=[], keywords=[])))])], handlers=[ExceptHandler(type=Name(id='PassportImageCropRevisionConflict', ctx=Load()), name='exc', body=[Expr(value=Await(value=Call(func=Name(id='compensate_passport_image_failure', ctx=Load()), args=[Name(id='session', ctx=Load()), Name(id='storage', ctx=Load()), List(elts=[Name(id='derived_key', ctx=Load())], ctx=Load())], keywords=[keyword(arg='submission_id', value=Attribute(value=Name(id='submission', ctx=Load()), attr='id', ctx=Load())), keyword(arg='commit_attempted', value=Name(id='commit_attempted', ctx=Load()))]))), Raise(exc=Call(func=Name(id='HTTPException', ctx=Load()), args=[], keywords=[keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_409_CONFLICT', ctx=Load())), keyword(arg='detail', value=JoinedStr(values=[Constant(value='The image changed (current revision '), FormattedValue(value=Attribute(value=Name(id='exc', ctx=Load()), attr='current_revision', ctx=Load()), conversion=-1), Constant(value='). Refresh it and try again.')])), keyword(arg='headers', value=Dict(keys=[Constant(value='X-Current-Crop-Revision')], values=[Call(func=Name(id='str', ctx=Load()), args=[Attribute(value=Name(id='exc', ctx=Load()), attr='current_revision', ctx=Load())], keywords=[])]))]), cause=Name(id='exc', ctx=Load()))]), ExceptHandler(type=Name(id='BaseException', ctx=Load()), body=[Expr(value=Await(value=Call(func=Name(id='compensate_passport_image_failure', ctx=Load()), args=[Name(id='session', ctx=Load()), Name(id='storage', ctx=Load()), List(elts=[Name(id='derived_key', ctx=Load())], ctx=Load())], keywords=[keyword(arg='submission_id', value=Attribute(value=Name(id='submission', ctx=Load()), attr='id', ctx=Load())), keyword(arg='commit_attempted', value=Name(id='commit_attempted', ctx=Load()))]))), Raise()])], orelse=[], finalbody=[]), If(test=BoolOp(op=And(), values=[Name(id='previous_derived_key', ctx=Load()), Compare(left=Name(id='previous_derived_key', ctx=Load()), ops=[NotEq()], comparators=[Name(id='derived_key', ctx=Load())])]), body=[Expr(value=Await(value=Call(func=Name(id='_delete_crop_derivative_best_effort', ctx=Load()), args=[Name(id='storage', ctx=Load()), Name(id='previous_derived_key', ctx=Load())], keywords=[keyword(arg='submission_id', value=Attribute(value=Name(id='submission', ctx=Load()), attr='id', ctx=Load()))])))], orelse=[]), If(test=BoolOp(op=And(), values=[Name(id='previous_edit_source_key', ctx=Load()), Compare(left=Name(id='previous_edit_source_key', ctx=Load()), ops=[NotEq()], comparators=[Name(id='edit_source_key', ctx=Load())])]), body=[Expr(value=Await(value=Call(func=Name(id='_delete_ephemeral_edit_source_best_effort', ctx=Load()), args=[], keywords=[keyword(arg='session', value=Name(id='session', ctx=Load())), keyword(arg='storage', value=Name(id='storage', ctx=Load())), keyword(arg='key', value=Name(id='previous_edit_source_key', ctx=Load())), keyword(arg='submission_id', value=Attribute(value=Name(id='submission', ctx=Load()), attr='id', ctx=Load()))])))], orelse=[]), Return(value=Call(func=Name(id='_crop_response', ctx=Load()), args=[], keywords=[keyword(arg='submission_id', value=Attribute(value=Name(id='submission', ctx=Load()), attr='id', ctx=Load())), keyword(arg='image_type', value=Name(id='image_type', ctx=Load())), keyword(arg='crop_row', value=Name(id='crop_row', ctx=Load())), keyword(arg='source_storage_key', value=Name(id='authoritative_source_key', ctx=Load()))]))], decorator_list=[Call(func=Attribute(value=Name(id='router', ctx=Load()), attr='post', ctx=Load()), args=[Constant(value='/{submission_id}/images/{image_type}/library/{item_id}/use')], keywords=[keyword(arg='response_model', value=Name(id='PassportImageCropResponse', ctx=Load())), keyword(arg='status_code', value=Attribute(value=Name(id='status', ctx=Load()), attr='HTTP_200_OK', ctx=Load())), keyword(arg='summary', value=Constant(value='Make one original, manual, or AI library item current'))])], returns=Name(id='PassportImageCropResponse', ctx=Load()))",
+      "signature": "(submission_id: 'uuid.UUID', image_type: 'PassportImageType', item_id: 'uuid.UUID', body: 'PassportVisaAiImageUseRequest', background_tasks: 'BackgroundTasks', _csrf: 'None' = Depends(dependency=<function require_cookie_csrf at 0x000002012EAD6B60>, use_cache=True, scope=None), current_user: 'User' = Depends(dependency=<function get_current_active_user at 0x000002012EAD72E0>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session at 0x000002017E92B9C0>, use_cache=True, scope=None)) -> 'PassportImageCropResponse'",
+      "hints": {
+        "submission_id": "<class 'uuid.UUID'>",
+        "image_type": "<enum 'PassportImageType'>",
+        "item_id": "<class 'uuid.UUID'>",
+        "body": "<class 'app.presentation.api.v1.schemas.passport_schemas.PassportVisaAiImageUseRequest'>",
+        "background_tasks": "<class 'fastapi.background.BackgroundTasks'>",
+        "_csrf": "<class 'NoneType'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "return": "<class 'app.presentation.api.v1.schemas.passport_schemas.PassportImageCropResponse'>"
+      }
+    }
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "status": "Retained dashboard-triggered identity reconciliation/durable journal/post-commit hint source cohort; physical reads complete",
+  "files": [
+    {
+      "path": "backend/tests/unit/application/test_mobile_passenger_identity_reconciliation.py",
+      "sha256": "f691b42f9eef3cf8f809f001d6c6311347ac3e5d2cb75026bc48f640e3290c73",
+      "physical_lines": 592,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-592 in bounded1-200/201-405/406-592. Shared dashboard-triggered passenger identity engine: submitted canonical phone authoritative over roster display match, tenant isolation and secondary-factor ambiguity fail closed; exact eligibility planning and migration of claimed stale contact preserves current session-generation semantics. Targeted old/new phone cluster closes peers, deletes revoke only affected identity, unprovable bounded cluster falls back to full; per-identity journal version/cursor ownership preserved. Native login/OTP endpoints and providers not investigated/executed; factors read only as unchanged shared-state compatibility contract."
+    },
+    {
+      "path": "backend/tests/unit/application/test_mobile_sync_journal.py",
+      "sha256": "f00292b58f757b4623d5ffdcefdd71dd9c63916f118cbcfb34a15cc845ebb6b9",
+      "physical_lines": 60,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-60. Durable caller transaction journal default flush remains immediate; explicit bounded-batch false flush preserves supplied ID and requires caller ownership. Dashboard attendance/passenger bridge shares this source; no native ingress/API/device feature work or test execution."
+    },
+    {
+      "path": "backend/tests/unit/application/test_mobile_realtime_hints.py",
+      "sha256": "af4a023c3892aa4b383e9277cafe041614d2cdaef876e9072d368b2559724797",
+      "physical_lines": 209,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-209. Shared dashboard publication journal hints publish only after outer commit, never rollback, coalesce per trip/highest cursor and combine invalidation without passenger payload/secret or tenant field in client payload. Savepoint commit cannot publish early and rolled-back child does not erase committed parent hint. Synthetic SQL fixture source only, not live Redis/realtime/native/provider qualification."
+    },
+    {
+      "path": "backend/app/application/mobile/sync_journal.py",
+      "sha256": "c8a5e7918ebde6d58d79ffb17862c99dc2a016e98f654b49b8e5606db986e34e",
+      "physical_lines": 183,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical1-183. Shared dashboard attendance anchor is deliberately disabled and grants no mobile audience; existing PostgreSQL conflict-safe group anchor, tenant/group select and canonical occurrence version preserved. Caller-bound append creates exact scoped row/access generation, stages only post-commit hint and honors explicit flush; no native endpoints/policy changes or DB execution."
+    },
+    {
+      "path": "backend/app/application/mobile/passenger_identity_reconciliation.py",
+      "sha256": "542d8dcdb03dd5d32ab5c9051f0a62cb508ef8546a95bf7355271167da760217",
+      "physical_lines": 567,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "focused",
+      "notes": "Physical204-262 only. Actual deterministic dedup seed cap and purpose-specific targeted reconciliation, fail-closed full fallback, tenant/group/access identity cluster query and +1 bound traced. Remaining567-line owner not newly read or architecture-qualified from tests."
+    },
+    {
+      "path": "backend/app/application/mobile/realtime_hints.py",
+      "sha256": "9c32a58f000b2837f4c541cc89ce20416f04b6c8a4ebaa1412e45c1d48e4011d",
+      "physical_lines": 214,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "focused",
+      "notes": "Physical117-148 only. Existing process-local post-commit sink registration/unregistration identity and pending journal persistence/cursor filtering. Current full shared-realtime behavior ledger reused; no global agency-suspension or workflow-specific policy changes."
+    }
+  ]
+}

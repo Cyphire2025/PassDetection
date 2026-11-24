@@ -1,0 +1,17 @@
+{
+  "status": "read-only source baseline; behavioral baseline not run",
+  "files": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_exports.py",
+      "sha256": "4c719c70041d102ee6b96af13394442bd468032f53dd236ae7331095d2885aaa",
+      "physical_lines": 520,
+      "snapshot": ".tmp/whatsapp-exports-current/whatsapp_exports.py"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/whatsapp_export_schemas.py",
+      "sha256": "84a88965c508aad129d52c37b467f39abf6fa5f28203d471693c46858fabeed5",
+      "physical_lines": 40,
+      "snapshot": ".tmp/whatsapp-exports-current/whatsapp_export_schemas.py"
+    }
+  ]
+}

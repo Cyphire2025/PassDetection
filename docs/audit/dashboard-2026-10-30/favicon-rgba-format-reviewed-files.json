@@ -1,0 +1,23 @@
+{
+  "files": [
+    {
+      "path": "frontend/app/favicon.ico",
+      "sha256": "f39b336c2e0ff18a1122aa2b262452f8805172f5f765dceb61491d42892e1c3e",
+      "bytes": 1875,
+      "review_scope": "focused",
+      "status": "asset-format-fixed-verified",
+      "reviewer": "branding_visuals",
+      "notes": "Singleframe32bitICO/RGBA8PNG encoding compatibility correction for actualNext16.4.3TurbopackRGBdecodefailure. OriginalPWA/oldICO/currentICO decodedRGBA bytes identical192x192/allalpha255; no newcreative pixels,dimensions,route orsourcePNGedit. Corrected productionbuild belongs to rootafterfreeze."
+    },
+    {
+      "path": "frontend/components/brand/favicon-asset.test.mjs",
+      "sha256": "8bb94cd0a2eb18e03f0a404edadf04c7b74effd0f1e2c3c9e164ce6c92ccdebe",
+      "physical_lines": 44,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "reviewer": "branding_visuals",
+      "notes": "Full44line currentauthored source read. Originalheader/count/dimensions/bounds/truecolor/offset constraints preserved; intentional24\u219232 depth and encodedRGBbyteidentity\u2192decodedRGBApixelparity change matches necessaryformat-onlycorrection. NewactualSharp/libpng decoder channels/alpha/depth/fullpixel guards failoriginal2/2 and passcandidate/final2/2. No frameworkdecoder/fullbuildclaim fromSharpalone."
+    }
+  ]
+}

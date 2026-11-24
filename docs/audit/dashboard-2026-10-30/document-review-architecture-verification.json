@@ -1,0 +1,101 @@
+{
+  "recorded_at": "2026-10-31T09:40:17.626426+00:00",
+  "status": "frozen",
+  "source_fence": [
+    {
+      "path": "frontend/features/documents/components/document-workspace-review.tsx",
+      "sha256": "6f8ae8c3da389fa524286a90cd24b9c2b8e9288780fa84c6fd254386c0eec0e4"
+    },
+    {
+      "path": "frontend/features/documents/components/document-verification-panel.tsx",
+      "sha256": "4914653324b40c5b6e23afa78fe5d269d72e5af2d52ce1e09d130ff2b5328763"
+    },
+    {
+      "path": "frontend/features/documents/components/document-row-action-menu.tsx",
+      "sha256": "690ff487361e546bbf757955bd98f050b174ea50f09451de08e7870a978ec3df"
+    },
+    {
+      "path": "frontend/features/documents/components/document-review-badges.tsx",
+      "sha256": "32274d4b151eead5c606edd56a1dfb9428d3f78aea2eff34dcb340ff2f3a17b4"
+    },
+    {
+      "path": "frontend/features/documents/components/document-verification-panel.test.tsx",
+      "sha256": "80b0655fe03165037fdc6d6d63fccac70947ce44586eda6ff911d47c6a88171d"
+    },
+    {
+      "path": "frontend/features/documents/components/document-review-source.contract-helper.mjs",
+      "sha256": "f5702957216843d11c189d261f073c9c18efb1b32a2ec9f804643ce60735d788"
+    },
+    {
+      "path": "frontend/features/documents/components/document-workspace-responsive.contract.test.mjs",
+      "sha256": "5d131e4dce4ea4e0c3378c269b13a46ccf185872d49606526caf7b5ed9f77a5b"
+    },
+    {
+      "path": "frontend/features/documents/components/document-whatsapp-delivery.contract.test.mjs",
+      "sha256": "6d9e96b3cb484fc9eb373c941f627a36f2a87c9945e86f3f8a8d25ab7c695cda"
+    }
+  ],
+  "original": {
+    "path": "frontend/features/documents/components/document-workspace-review.tsx",
+    "physical_lines": 476,
+    "sha256": "bfa8a3e1a28bc73f1b191ccbf087d44fe8cd3c1e540288b187dd783a7f765610",
+    "snapshot": ".tmp/document-review/document-workspace-review.tsx"
+  },
+  "architecture": "Three cohesive verification/menu/status owners221/172/80lines plus3line named compatibility facade; no runtime behavior change.",
+  "proof": "document-review-architecture-provenance.json",
+  "preserved": {
+    "whole_typed_declarations_and_jsx": 9,
+    "original_public_components": 4,
+    "original_contract_test_bodies_exact": true,
+    "original_prop_defaults_callback_events_focus_portals_effect_cleanup_exact": true,
+    "original_critical_membership_and_floors": {
+      "config": "frontend/vitest.config.mts",
+      "sha256": "43f8ef71f59df34257e296abc4e2d6181105066af32a39c66bf2dcca6268d37d",
+      "originalReviewIncluded": false,
+      "originalFloors": {
+        "statements": 74,
+        "branches": 50,
+        "functions": 75,
+        "lines": 75
+      },
+      "configUnmodified": true,
+      "note": "Original review module was not a critical V8 include. The existing critical manual-review dialog owner and30include/floors remain untouched; actual review controls and menu tests execute relocated owners through unchanged public imports."
+    }
+  },
+  "checks": {
+    "baseline_rendered": {
+      "passed": 18,
+      "failed": 0,
+      "files": 3,
+      "raw_json": ".tmp/frontend-residual-coverage/document-review-before.json"
+    },
+    "final_rendered": {
+      "passed": 24,
+      "failed": 0,
+      "files": 4,
+      "raw_json": ".tmp/frontend-residual-coverage/document-review-after.json"
+    },
+    "source_node": {
+      "passed": 11,
+      "failed": 0,
+      "raw_log": ".tmp/frontend-residual-coverage/document-review-node.txt"
+    },
+    "scoped_eslint": {
+      "exit_code": 0,
+      "warnings": 0,
+      "raw_log": ".tmp/frontend-residual-coverage/document-review-lint.txt"
+    },
+    "types": {
+      "exit_code": 0,
+      "raw_log": ".tmp/frontend-residual-coverage/document-review-types-final.txt",
+      "prior_disjoint_diagnostics": ".tmp/frontend-residual-coverage/document-review-types.txt",
+      "prior_note": "First final type run showed only two in-progress attendance test readonly-delete diagnostics. Owning agent corrected them; final standard typecheck passes. No document runtime alteration made for that external fixture."
+    }
+  },
+  "budget_candidates": "document-review-architecture-budget-candidates.json",
+  "limits": [
+    "No whole frontend unit/coverage/build/browser round.",
+    "Synthetic rendered/source evidence is not current production/browser geometry qualification.",
+    "No API7, document-operation ownership, critical coverage config, package, mobile or backend source changes."
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "source_files_full": 25,
+  "full_test_files": 2,
+  "focused_tests_passed": 146,
+  "subtests_passed": 27,
+  "before": {
+    "failed": 6,
+    "passed": 4
+  },
+  "scope": "Domain values, existing passport capture/export behavior and tokenrotation. No whole-backend or real service claim.",
+  "sha256_receipts": {
+    "domain-normalization-redaction-before.txt": "46995d624220ff9f3ed6ba0acf5241deaed8b2b7356f5aa7ec5a6fea224d5c4d",
+    "domain-normalization-redaction-after.txt": "38a4cc8599415735688e0f30895ab30d693c77e6d2613d057c3394d12bca04fc",
+    "domain-current-mypy.txt": "14f7b3e492c65485e65612ef5dcf9681b8c12755889c4514a2474a4510f74a10",
+    "domain-current-ruff.txt": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0"
+  },
+  "runtime_source_sha256": {
+    "backend/app/domain/value_objects/passport_export_history.py": "237fb72310b4c5eaed98d05a7ff24192bc2c9e4dbeb4e9969d83bd1d6471dbfa",
+    "backend/app/domain/value_objects/passport_fields.py": "97561465267bdb954226682a1d5c0c8c7bc842b42e4f0bc766ad2bda2bcbb998",
+    "backend/app/domain/value_objects/tokens.py": "0dac582fc208d898c6a3c6deeec89be4e3bc36afda3b6a8b23c6889b5ca7fc69"
+  }
+}

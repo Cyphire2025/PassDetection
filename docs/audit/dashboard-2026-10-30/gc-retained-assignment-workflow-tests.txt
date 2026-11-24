@@ -1,0 +1,112 @@
+...F                                                                     [100%]
+================================== FAILURES ===================================
+____ test_document_upload_order_and_replacement_are_scoped_and_revisioned _____
+
+auth_database = namespace(app=<fastapi.applications.FastAPI object at 0x000001BEB7EB1C90>, sessions=async_sessionmaker(class_='AsyncSe...ent object at 0x000001BEB7E60190 [set]>, release=<asyncio.locks.Event object at 0x000001BEB7F84050 [set]>, fail=False))
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001BEB7FC7190>
+
+    async def test_document_upload_order_and_replacement_are_scoped_and_revisioned(
+        auth_database, monkeypatch
+    ):
+        env = auth_database
+        await enable_fk(env)
+        env.app.include_router(router, prefix=BASE)
+        _, original_headers, _ = await prepare_manager_command(env, "reinvite")
+        headers = {
+            key.decode(): value.decode() for key, value in original_headers if key != b"content-type"
+        }
+        async with env.sessions() as session, session.begin():
+            profile = await session.scalar(select(Profile))
+            group, access = await group_access(session, profile)
+            group_id, access_id = group.id, access.id
+        env.gate.release.set()
+        objects = {}
+    
+        class StorageClient:
+            def put_object(self, *, Key, Body, **_kwargs):
+                objects[Key] = Body
+                return {}
+    
+        storage = StorageClient()
+        monkeypatch.setattr(minio_repository, "_shared_s3_clients", lambda: (storage, storage))
+        with io.BytesIO() as stream, PdfWriter() as writer:
+            writer.add_blank_page(width=144, height=144)
+            writer.write(stream)
+            pdf = stream.getvalue()
+        path = f"{BASE}/groups/{group_id}/common-documents"
+        async with AsyncClient(
+            transport=ASGITransport(app=env.app), base_url="http://testserver", headers=headers
+        ) as client:
+    
+            async def upload(revision, name, *, suffix="", payload=pdf):
+                return await client.post(
+                    path + suffix,
+                    data={
+                        "category": "travel_tips",
+                        "display_name": name,
+                        "expected_access_revision": revision,
+                    },
+                    files={"file": ("synthetic.pdf", payload, "application/pdf")},
+                )
+    
+            first = await upload(1, "  First   guide ")
+            assert first.status_code == 201, first.text
+            assert first.json()["display_name"] == "First guide"
+            second = await upload(2, "Second guide")
+            assert second.status_code == 201, second.text
+            first_id, second_id = first.json()["id"], second.json()["id"]
+            listed = await client.get(path)
+            assert listed.status_code == 200
+            assert {item["id"] for item in listed.json()} == {first_id, second_id}
+            assert "storage_key" not in listed.text and "gc-app/" not in listed.text
+            ordered = await client.put(
+                path + "/reorder",
+                json={
+                    "ordered_document_ids": [second_id, first_id, second_id],
+                    "expected_access_revision": 3,
+                },
+            )
+            assert ordered.status_code == 200, ordered.text
+            assert [(item["id"], item["sort_order"]) for item in ordered.json()] == [
+                (second_id, 0),
+                (first_id, 1),
+            ]
+            stale = await client.put(
+                path + "/reorder",
+                json={"ordered_document_ids": [first_id], "expected_access_revision": 3},
+            )
+            assert stale.status_code == 409
+            unavailable = await client.put(
+                path + "/reorder",
+                json={"ordered_document_ids": [str(uuid.uuid4())], "expected_access_revision": 4},
+            )
+            assert unavailable.status_code == 422
+            replacement = await upload(4, "Updated first guide", suffix=f"/{first_id}/replace")
+            assert replacement.status_code == 201, replacement.text
+            assert replacement.json()["version"] == 2 and replacement.json()["sort_order"] == 1
+            invalid = await upload(5, "Invalid", payload=b"not a PDF")
+            assert invalid.status_code == 422
+            cross_tenant = await client.get(path, params={"agency_id": str(uuid.uuid4())})
+            assert cross_tenant.status_code == 403
+        async with env.sessions() as session:
+            saved = list(await session.scalars(select(Document)))
+            original = next(item for item in saved if str(item.id) == first_id)
+            replaced = next(item for item in saved if str(item.id) == replacement.json()["id"])
+            assert len(saved) == len(objects) == 3
+            assert original.logical_document_id == replaced.logical_document_id
+            assert len({item.storage_key for item in saved}) == 3
+            assert all(objects[item.storage_key] == pdf for item in saved)
+            current = await session.get(Access, access_id)
+>           assert current.revision == 5 and current.common_document_version == 2
+E           assert (5 == 5 and 1 == 2)
+E            +  where 5 = <app.infrastructure.database.gc_mobile_models.GCGroupAccessModel object at 0x000001BEB607E550>.revision
+E            +  and   1 = <app.infrastructure.database.gc_mobile_models.GCGroupAccessModel object at 0x000001BEB607E550>.common_document_version
+
+tests\integration\test_gc_common_document_admin_workflow.py:121: AssertionError
+---------------------------- Captured stdout call -----------------------------
+2026-10-30T21:52:01.376089Z [info     ] refresh_token_created          [app.infrastructure.repositories.refresh_token_repository] user_id=4632ecb5-8e93-4724-aaa8-07741457753c
+------------------------------ Captured log call ------------------------------
+INFO     app.infrastructure.repositories.refresh_token_repository:refresh_token_repository.py:77 {'user_id': '4632ecb5-8e93-4724-aaa8-07741457753c', 'event': 'refresh_token_created', 'logger': 'app.infrastructure.repositories.refresh_token_repository', 'level': 'info', 'timestamp': '2026-10-30T21:52:01.376089Z'}
+=========================== short test summary info ===========================
+FAILED tests/integration/test_gc_common_document_admin_workflow.py::test_document_upload_order_and_replacement_are_scoped_and_revisioned
+1 failed, 3 passed in 10.62s

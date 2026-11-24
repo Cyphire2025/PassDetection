@@ -1,0 +1,50 @@
+[
+  {
+    "path": "backend/app/application/use_cases/passports/prepare_tracking_excel.py",
+    "sha256": "6b864d3cb293037a29fe95e4f68daa0d75fb0e58b5516545dfb7c86cfd12ea62",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical source/test read. Tracking hashes reuse existing canonical streaming digest: actual two-passenger FK-enabled SQLite preparation and one-byte rejection both drop209 original deep-copy calls to0;56 affected cases pass.8 current real-source status/broadcast cases retain original canonical JSON hash and exact byte-limit semantics. All non-hash workflow AST, signatures/hints and immutable helper/oldtest bytes preserved; no source-query/asymptotic/production-latency claim."
+  },
+  {
+    "path": "backend/app/application/use_cases/passports/excel_snapshot.py",
+    "sha256": "0930c4bb75499c084bb45197c7e514b2879f3f559a86b0d02cdd23e845764613",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical source/test read. Tracking hashes reuse existing canonical streaming digest: actual two-passenger FK-enabled SQLite preparation and one-byte rejection both drop209 original deep-copy calls to0;56 affected cases pass.8 current real-source status/broadcast cases retain original canonical JSON hash and exact byte-limit semantics. All non-hash workflow AST, signatures/hints and immutable helper/oldtest bytes preserved; no source-query/asymptotic/production-latency claim."
+  },
+  {
+    "path": "backend/app/application/use_cases/passports/prepare_group_excel.py",
+    "sha256": "50cf87b65201eb33673f3658f6bbe1d3da6e665fe357bb80302a01feb01a20c7",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical source/test read. Tracking hashes reuse existing canonical streaming digest: actual two-passenger FK-enabled SQLite preparation and one-byte rejection both drop209 original deep-copy calls to0;56 affected cases pass.8 current real-source status/broadcast cases retain original canonical JSON hash and exact byte-limit semantics. All non-hash workflow AST, signatures/hints and immutable helper/oldtest bytes preserved; no source-query/asymptotic/production-latency claim."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_tracking_exports.py",
+    "sha256": "9e6cb179fdda7e4b47b29c5c692af562e22ad6a68393ba7619eb2953f7bbfb7a",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical source/test read. Tracking hashes reuse existing canonical streaming digest: actual two-passenger FK-enabled SQLite preparation and one-byte rejection both drop209 original deep-copy calls to0;56 affected cases pass.8 current real-source status/broadcast cases retain original canonical JSON hash and exact byte-limit semantics. All non-hash workflow AST, signatures/hints and immutable helper/oldtest bytes preserved; no source-query/asymptotic/production-latency claim."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_export_capacity.py",
+    "sha256": "623a12395f35c39a1b86287151582aa720d2c5634f77bbdf5c089a194de95191",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified-focused",
+    "notes": "Executed affected capacity selection and read first175/final55 source lines; no new full physical source-read claim. Tracking hashes reuse existing canonical streaming digest: actual two-passenger FK-enabled SQLite preparation and one-byte rejection both drop209 original deep-copy calls to0;56 affected cases pass.8 current real-source status/broadcast cases retain original canonical JSON hash and exact byte-limit semantics. All non-hash workflow AST, signatures/hints and immutable helper/oldtest bytes preserved; no source-query/asymptotic/production-latency claim."
+  },
+  {
+    "path": "backend/tests/integration/test_tracking_snapshot_admission.py",
+    "sha256": "4e531548dc4a95e4c52e2bb2ea60f3b744066854530f791b2a3b45eb052e0436",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical source/test read. Tracking hashes reuse existing canonical streaming digest: actual two-passenger FK-enabled SQLite preparation and one-byte rejection both drop209 original deep-copy calls to0;56 affected cases pass.8 current real-source status/broadcast cases retain original canonical JSON hash and exact byte-limit semantics. All non-hash workflow AST, signatures/hints and immutable helper/oldtest bytes preserved; no source-query/asymptotic/production-latency claim."
+  }
+]

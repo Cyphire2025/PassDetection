@@ -1,13 +1,15 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
+import { useAuthStore } from "@/stores/auth.store";
+import { mcpAdminFixture } from "../utils/permissions.test-fixture";
 import { mcpApi, type McpConnection, type McpOverview } from "../api/mcp.api";
 import { accessStatus, hasPermission } from "./mcp-access-model";
 import { McpDevices } from "./mcp-devices";
 
 vi.mock("../api/mcp.api", async (original) => {
   const actual = await original<typeof import("../api/mcp.api")>();
-  return { ...actual, mcpApi: { ...actual.mcpApi, connections: vi.fn(), setConnectionAccess: vi.fn(), revoke: vi.fn() } };
+  return { ...actual, mcpApi: { ...actual.mcpApi, connections: vi.fn(), setConnectionAccess: vi.fn(), deleteConnection: vi.fn() } };
 });
 const overview: McpOverview = { read_only_mode: true, enabled: true, deployment_enabled: true, emergency_disabled: false,
   resource: "https://app.example.test/mcp", capabilities: ["mcp:read"], approved_clients: {},
@@ -24,6 +26,7 @@ function renderDevices(unavailable = false) {
 }
 beforeEach(() => {
   vi.clearAllMocks();
+  useAuthStore.setState({ user: mcpAdminFixture(), isAuthenticated: true });
   vi.mocked(mcpApi.connections).mockResolvedValue({ items: [first, second], next_offset: null });
 });
 afterEach(() => { cleanup(); clients.splice(0).forEach((client) => client.clear()); });
@@ -57,7 +60,7 @@ it("disables just the chosen connection, shows confirmed state, and enables it a
   await waitFor(() => expect(within(screen.getByRole("article", { name: first.name })).getByRole("button", { name: "Disable" })).toBeEnabled());
   expect(mcpApi.setConnectionAccess).toHaveBeenLastCalledWith({ id: first.id, enabled: true }, expect.anything());
   expect(mcpApi.setConnectionAccess).toHaveBeenCalledTimes(2);
-  expect(mcpApi.revoke).not.toHaveBeenCalled();
+  expect(mcpApi.deleteConnection).not.toHaveBeenCalled();
 });
 
 it("keeps authorization visible while a disable is pending and does not repeat the request", async () => {

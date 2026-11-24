@@ -1,0 +1,44 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+_ test_unknown_message_before_request_construction_does_not_dump_private_body _
+
+caplog = <_pytest.logging.LogCaptureFixture object at 0x0000020CB7207550>
+
+    def test_unknown_message_before_request_construction_does_not_dump_private_body(caplog):
+        body = {"unexpected_format": PAYLOAD}
+        message = Message(
+            body=json.dumps(body), headers={}, content_type="application/json", content_encoding="utf-8",
+        )
+        message.reject_log_error = Mock()
+        consumer = SimpleNamespace(connection_errors=())
+        consumer._message_report = lambda payload, msg: Consumer._message_report(consumer, payload, msg)
+        with caplog.at_level(logging.WARNING, logger="celery.worker.consumer.consumer"):
+            Consumer.on_unknown_message(consumer, body, message)
+    
+        message.reject_log_error.assert_called_once()
+>       assert PAYLOAD not in caplog.text
+E       AssertionError: assert 'synthetic-p...t-link-token' not in 'WARNING  ce...rs={}}\n\n\n'
+E         
+E         'synthetic-private-passport-link-token' is contained here:
+E           format': 'synthetic-private-passport-link-token'} (62b)
+E           {content_type:'application/json' content_encoding:'utf-8'
+E             delivery_info:{} headers={}}
+
+tests\unit\infrastructure\test_private_celery_diagnostics.py:316: AssertionError
+---------------------------- Captured stdout call -----------------------------
+2026-10-30T21:17:18.608271Z [warning  ] Received and deleted unknown message.  Wrong destination?!?
+
+The full contents of the message body was: body: {'unexpected_format': 'synthetic-private-passport-link-token'} (62b)
+{content_type:'application/json' content_encoding:'utf-8'
+  delivery_info:{} headers={}}
+
+ [celery.worker.consumer.consumer]
+------------------------------ Captured log call ------------------------------
+WARNING  celery.worker.consumer.consumer:consumer.py:583 Received and deleted unknown message.  Wrong destination?!?
+
+The full contents of the message body was: body: {'unexpected_format': 'synthetic-private-passport-link-token'} (62b)
+{content_type:'application/json' content_encoding:'utf-8'
+  delivery_info:{} headers={}}
+=========================== short test summary info ===========================
+FAILED tests/unit/infrastructure/test_private_celery_diagnostics.py::test_unknown_message_before_request_construction_does_not_dump_private_body
+1 failed, 10 deselected in 0.74s

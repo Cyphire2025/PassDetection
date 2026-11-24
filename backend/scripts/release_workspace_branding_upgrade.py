@@ -1,6 +1,6 @@
-"""Apply the exact 0135â†’0138 chain inside a retained, writer-fenced helper.
+"""Apply the exact 0140/0141 to 0142 chain inside a retained, writer-fenced helper.
 
-Each revision owns its transaction. Resume requires the original 0140 backup
+Each revision owns its transaction. Resume requires the original source-schema backup
 and preservation baseline. No automatic downgrade, enrollment or activation.
 """
 
@@ -21,7 +21,6 @@ from scripts.workspace_branding_release import (  # noqa: E402
     POLICY as POLICY,
 )
 from scripts.workspace_branding_release import (  # noqa: E402
-    SOURCE,
     TARGET,
     remaining_revisions,
     verify_sources,
@@ -59,6 +58,7 @@ def check_baseline(snapshot: dict[str, Any], expected: str) -> None:
 
 def apply_upgrade(contract: dict[str, Any], *, capture_baseline: bool = False) -> dict[str, Any]:
     verify_sources(ROOT, contract)
+    source_schema = contract["source_schema"]
     proof = os.environ.get("MCP_RELEASE_PROOF_SHA256", "")
     if re.fullmatch(r"[a-f0-9]{64}", proof) is None:
         raise ValueError("release_proof_required")
@@ -82,7 +82,7 @@ def apply_upgrade(contract: dict[str, Any], *, capture_baseline: bool = False) -
         def read_schema() -> str:
             with engine.connect() as connection:
                 schema = connection.execute(text("SELECT version_num FROM public.alembic_version")).scalar_one()
-                verify_schema(connection, ROOT, schema)
+                verify_schema(connection, ROOT, schema, source_schema)
                 return str(schema)
 
         with engine.connect() as connection:
@@ -97,12 +97,12 @@ def apply_upgrade(contract: dict[str, Any], *, capture_baseline: bool = False) -
             if owner is not True:
                 raise ValueError("existing_migration_identity_required")
             schema = connection.execute(text("SELECT version_num FROM public.alembic_version")).scalar_one()
-            before = preservation_snapshot(connection, ROOT, schema)
+            before = preservation_snapshot(connection, ROOT, schema, source_schema)
         if capture_baseline:
-            if schema != SOURCE:
+            if schema != source_schema:
                 raise ValueError("original_source_required_for_baseline")
             return {
-                "status": "baseline_captured", "source_schema": SOURCE, "target_schema": TARGET,
+                "status": "baseline_captured", "source_schema": source_schema, "target_schema": TARGET,
                 "preservation_sha256": preservation_digest(before), "release_proof_sha256": proof,
                 "automatic_downgrade": False,
             }
@@ -111,13 +111,13 @@ def apply_upgrade(contract: dict[str, Any], *, capture_baseline: bool = False) -
         run_revisions(config, schema, command.upgrade, read_schema)
         with engine.connect() as connection:
             actual = connection.execute(text("SELECT version_num FROM public.alembic_version")).scalar_one()
-            after = preservation_snapshot(connection, ROOT, actual)
+            after = preservation_snapshot(connection, ROOT, actual, source_schema)
             if actual != TARGET:
                 raise ValueError("historical_rows_authority_catalog_or_acl_changed")
             check_baseline(after, expected)
         return {
             "status": "already_at_target" if schema == TARGET else "upgraded",
-            "started_schema": schema, "source_schema": SOURCE, "target_schema": TARGET,
+            "started_schema": schema, "source_schema": source_schema, "target_schema": TARGET,
             "executed_revisions": list(remaining_revisions(schema)),
             "preservation_sha256": expected, "release_proof_sha256": proof,
             "new_tables_empty": True, "new_columns_null": True, "runtime_grants_verified": True,

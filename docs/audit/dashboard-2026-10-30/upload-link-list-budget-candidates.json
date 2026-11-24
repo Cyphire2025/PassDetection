@@ -1,0 +1,79 @@
+[
+  {
+    "path": "features/passports/components/upload-link-list.tsx",
+    "baselineLines": 26,
+    "maximumLines": 40,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/passports/components/use-upload-link-list.ts",
+    "baselineLines": 127,
+    "maximumLines": 140,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/passports/components/use-upload-link-copy.ts",
+    "baselineLines": 37,
+    "maximumLines": 50,
+    "baselineMaxFunctionComplexity": 4,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/passports/components/upload-link-list-header.tsx",
+    "baselineLines": 41,
+    "maximumLines": 50,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/passports/components/upload-link-list-summary.tsx",
+    "baselineLines": 58,
+    "maximumLines": 70,
+    "baselineMaxFunctionComplexity": 8,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/passports/components/upload-link-list-sections.tsx",
+    "baselineLines": 235,
+    "maximumLines": 240,
+    "baselineMaxFunctionComplexity": 24,
+    "maximumFunctionComplexity": 25
+  },
+  {
+    "path": "features/passports/components/upload-link-list-dialogs.tsx",
+    "baselineLines": 73,
+    "maximumLines": 80,
+    "baselineMaxFunctionComplexity": 10,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/passports/components/upload-link-table.tsx",
+    "baselineLines": 143,
+    "maximumLines": 150,
+    "baselineMaxFunctionComplexity": 4,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/passports/components/upload-link-actions.tsx",
+    "baselineLines": 92,
+    "maximumLines": 100,
+    "baselineMaxFunctionComplexity": 20,
+    "maximumFunctionComplexity": 21
+  },
+  {
+    "path": "features/passports/components/group-delete-retention-dialog.tsx",
+    "baselineLines": 118,
+    "maximumLines": 130,
+    "baselineMaxFunctionComplexity": 4,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/passports/components/upload-link-filter.ts",
+    "baselineLines": 17,
+    "maximumLines": 30,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 4
+  }
+]

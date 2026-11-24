@@ -1,10 +1,7 @@
-import type { Metadata } from "next";
 import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
 import { CompanyJourneyFilm } from "@/features/auth/components/company-journey-film";
 import styles from "@/features/auth/components/auth-experience.module.css";
-
-export const metadata: Metadata = { title: "Sign In" };
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (

@@ -1,0 +1,74 @@
+[
+  {
+    "path": "backend/app/infrastructure/database/model_base.py",
+    "sha256": "bbd9bc11ad8e482b9ebefe26d74123f9bb4ad79b3e73b9dbe846cdfd925f0da9",
+    "review_scope": "full-context-already-reviewed",
+    "notes": "Complete 19-line shared registry/JSONB/_utcnow source read to trace object identity. Inventory already has an exact full record; no new coverage credit claimed."
+  },
+  {
+    "path": "backend/app/infrastructure/database/model_registry.py",
+    "sha256": "226b2b4c321e3b231222355d9f6752d945dd2e160324b7a3685c4b37865b9ec5",
+    "review_scope": "full",
+    "notes": "All 27 lines physically read. Complete application model registration imports models together with current ECR/email/mobile/MCP/MyPhotos owners and reexports the same model_base.Base. Do not disturb the active MCP reconciliation or model import coverage."
+  },
+  {
+    "path": "backend/app/infrastructure/database/dashboard_session_models.py",
+    "sha256": "ae9aaa3dfdfad08ed9fd6d8d30758767ed9cd239e799b8e789b1cea024a52471",
+    "review_scope": "full-context",
+    "notes": "Complete current session family declaration physically read. RefreshTokenModel's composite session/user foreign key targets its existing unique id/user pair. No edits or auth-workflow change proposed."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_database_model_decomposition.py",
+    "sha256": "4f8b6b02767650ea28af0347763f36d30a2b108413e57cffd3b9774bd0d16889",
+    "review_scope": "full",
+    "notes": "All 100 lines physically read. Existing controls assert shared Base/JSONB, configure_mappers, mapper/table counts, stable existing operation/communication/document aliases and metadata membership. Not executed."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_database_metadata_migration_alignment.py",
+    "sha256": "5545c50f030631a222752c045dc37a1ff60ccdd63c49f5a348c0ed0ab7db4b77",
+    "review_scope": "full",
+    "notes": "Complete file physically read. Existing controls assert initial identity unique/index names, historical operational lookup indices and exact runtime-participant foreign keys. Not executed."
+  },
+  {
+    "path": "backend/alembic/env.py",
+    "sha256": "8a0a7c76835a944fe8eff9137ca406b6a8ab8cc8bd2fab37ec72edca6cd4d7d9",
+    "review_scope": "full-context",
+    "notes": "Complete environment source physically read; migrations import model_registry.Base and target its metadata with compare_type. No migration/environment evaluation, engine construction, database connection, schema creation or autogeneration executed."
+  },
+  {
+    "path": "backend/app/infrastructure/database/__init__.py",
+    "sha256": "f7f0ae580a55bd07e427d55d2982e40d12a2cd590386d85e583db5d77f8fdb0b",
+    "review_scope": "full-context",
+    "notes": "Complete single docstring initializer physically read; no runtime registration hidden here. No substantive model coverage inflation from initializer."
+  },
+  {
+    "path": "backend/app/infrastructure/database/session.py",
+    "sha256": "ffe7cb50459ed4c30754455477b86b47d67e8de2233aa430fe370e808f63f296",
+    "review_scope": "partial",
+    "notes": "Only lines 1-135 physically read. Settings/async engine/role/pool listeners are declared here; model_base contains no engine. Session source not fully rereviewed or changed; no connection opened."
+  },
+  {
+    "path": "backend/app/infrastructure/database/communications_models.py",
+    "sha256": "4a4224948d99b7ba12382ba679973f318734ff3c71b27f47e7757f2b07bcf7b3",
+    "review_scope": "partial",
+    "notes": "Only first 85 lines physically read: common registry, TYPE_CHECKING reverse link and reciprocal WhatsApp group relationship. Entire 545-line module not credited."
+  },
+  {
+    "path": "backend/app/infrastructure/database/identity_security_models.py",
+    "sha256": "f17b97ce701e520b12dafd65c0b9b0d18ec1a7d6f20b34e771828ece3c0531f0",
+    "review_scope": "partial",
+    "notes": "Only first 36 lines physically read for registry/base and independent clock import structure. Entire owner not rereviewed or changed."
+  },
+  {
+    "path": "backend/app/infrastructure/database/operations_models.py",
+    "sha256": "c1b7d9231eca989eb9abd5a7d6bba605650b66bd7d9aba73abe2208519fe59f8",
+    "review_scope": "partial",
+    "notes": "First 40 lines and export search results physically read; stable aliases point to already cohesive operation owners and shared Base/JSONB. Remaining __all__ not fully reread or credited."
+  },
+  {
+    "path": "backend/app/infrastructure/database/gc_mobile_models.py",
+    "sha256": "994c6db9ecbb0d5a23bec8ffd3318a2e64b87dbe6582ef277edb098431ac0e33",
+    "review_scope": "partial",
+    "notes": "Only first 45 lines physically read for shared base and registration imports. Native feature model owner is already full/current in inventory and excluded from changes."
+  }
+]

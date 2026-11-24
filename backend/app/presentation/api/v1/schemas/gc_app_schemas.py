@@ -191,8 +191,8 @@ class GCGroupSearchAccess(GCAppAvailabilityFields):
     removed_at: datetime | None = None
     group_id: uuid.UUID
     agency_id: uuid.UUID
-    client_organization_id: uuid.UUID
-    client_organization_name: str
+    client_organization_id: uuid.UUID | None
+    client_organization_name: str | None
     enabled: bool
     passenger_access_enabled: bool
     client_manager_access_enabled: bool

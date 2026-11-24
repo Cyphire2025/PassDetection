@@ -1,0 +1,167 @@
+{
+  "source_sha256": {
+    "app/infrastructure/my_photos/worker_runtime.py": "fbaee6ad22a5e0fb054639eed785e6383affcbdef89ef867b0e63500d73e8931",
+    "app/infrastructure/my_photos/search_job_claims.py": "0f63c60008a03187b1d71626d9b68108c16c7c5b40ddd9114c28df9464bab354",
+    "app/infrastructure/my_photos/search_job_contracts.py": "483e287f85fe760f4d8ac86710d0b87a238e77cc9e1f420346a30a129a47b3a1",
+    "app/infrastructure/my_photos/search_job_lifecycle.py": "f2bb24c594528790694ec8f0c86ed8c9f3c695b1c5436fdc4a19bb3de48dcb3e",
+    "app/infrastructure/my_photos/search_job_policy.py": "1c94ba6a6f7c7202fb1194943e2965e18c904ecee08b0147e0bee3f4747aa755",
+    "app/infrastructure/my_photos/search_job_publication.py": "99099cdc1e26452fc2e71305e48804a37ae2c3780308b13fcc62eea500c53398",
+    "app/infrastructure/my_photos/search_job_queries.py": "353bee1088cf89f7362a2a65222625392926f62f7ded19e0c4cd776d8ed9c1d5"
+  },
+  "candidates": [
+    {
+      "path": "app/infrastructure/my_photos/worker_runtime.py",
+      "baseline_lines": 163,
+      "maximum_lines": 170,
+      "baseline_max_function_complexity": 13,
+      "maximum_function_complexity": 13,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/infrastructure/my_photos/search_job_claims.py",
+      "baseline_lines": 195,
+      "maximum_lines": 203,
+      "baseline_max_function_complexity": 23,
+      "maximum_function_complexity": 23,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/my_photos/search_job_contracts.py",
+      "baseline_lines": 52,
+      "maximum_lines": 55,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 100
+    },
+    {
+      "path": "app/infrastructure/my_photos/search_job_lifecycle.py",
+      "baseline_lines": 109,
+      "maximum_lines": 114,
+      "baseline_max_function_complexity": 4,
+      "maximum_function_complexity": 4,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/infrastructure/my_photos/search_job_policy.py",
+      "baseline_lines": 87,
+      "maximum_lines": 91,
+      "baseline_max_function_complexity": 19,
+      "maximum_function_complexity": 19,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/my_photos/search_job_publication.py",
+      "baseline_lines": 217,
+      "maximum_lines": 226,
+      "baseline_max_function_complexity": 15,
+      "maximum_function_complexity": 15,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/my_photos/search_job_queries.py",
+      "baseline_lines": 55,
+      "maximum_lines": 58,
+      "baseline_max_function_complexity": 7,
+      "maximum_function_complexity": 7,
+      "minimum_coverage_percent": 95
+    }
+  ],
+  "critical_candidates": [
+    {
+      "path": "app/infrastructure/my_photos/search_job_claims.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    },
+    {
+      "path": "app/infrastructure/my_photos/search_job_policy.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    },
+    {
+      "path": "app/infrastructure/my_photos/search_job_queries.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    },
+    {
+      "path": "app/infrastructure/my_photos/search_job_publication.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 90
+    }
+  ],
+  "measurements": [
+    {
+      "path": "app/infrastructure/my_photos/worker_runtime.py",
+      "sha256": "fbaee6ad22a5e0fb054639eed785e6383affcbdef89ef867b0e63500d73e8931",
+      "lines": 163,
+      "complexity": 13,
+      "statement_percent": 92.64705882352942,
+      "branch_percent": 100.0,
+      "branches": 2
+    },
+    {
+      "path": "app/infrastructure/my_photos/search_job_claims.py",
+      "sha256": "0f63c60008a03187b1d71626d9b68108c16c7c5b40ddd9114c28df9464bab354",
+      "lines": 195,
+      "complexity": 23,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "branches": 18
+    },
+    {
+      "path": "app/infrastructure/my_photos/search_job_contracts.py",
+      "sha256": "483e287f85fe760f4d8ac86710d0b87a238e77cc9e1f420346a30a129a47b3a1",
+      "lines": 52,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_percent": null,
+      "branches": 0
+    },
+    {
+      "path": "app/infrastructure/my_photos/search_job_lifecycle.py",
+      "sha256": "f2bb24c594528790694ec8f0c86ed8c9f3c695b1c5436fdc4a19bb3de48dcb3e",
+      "lines": 109,
+      "complexity": 4,
+      "statement_percent": 92.1875,
+      "branch_percent": 83.33333333333334,
+      "branches": 6
+    },
+    {
+      "path": "app/infrastructure/my_photos/search_job_policy.py",
+      "sha256": "1c94ba6a6f7c7202fb1194943e2965e18c904ecee08b0147e0bee3f4747aa755",
+      "lines": 87,
+      "complexity": 19,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "branches": 8
+    },
+    {
+      "path": "app/infrastructure/my_photos/search_job_publication.py",
+      "sha256": "99099cdc1e26452fc2e71305e48804a37ae2c3780308b13fcc62eea500c53398",
+      "lines": 217,
+      "complexity": 15,
+      "statement_percent": 97.46835443037975,
+      "branch_percent": 92.85714285714286,
+      "branches": 14
+    },
+    {
+      "path": "app/infrastructure/my_photos/search_job_queries.py",
+      "sha256": "353bee1088cf89f7362a2a65222625392926f62f7ded19e0c4cd776d8ed9c1d5",
+      "lines": 55,
+      "complexity": 7,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "branches": 2
+    }
+  ],
+  "previous_budget_rows": {
+    "app/infrastructure/my_photos/worker_runtime.py": null,
+    "app/infrastructure/my_photos/search_job_claims.py": null,
+    "app/infrastructure/my_photos/search_job_contracts.py": null,
+    "app/infrastructure/my_photos/search_job_lifecycle.py": null,
+    "app/infrastructure/my_photos/search_job_policy.py": null,
+    "app/infrastructure/my_photos/search_job_publication.py": null,
+    "app/infrastructure/my_photos/search_job_queries.py": null
+  },
+  "coverage_sha256": "84d0682a79ee6fc1565e5dad6885f6abffcf3b05ba9cfd4d8c9023d11b147c9a",
+  "critical_evaluator": "Pass against actual scoped Cobertura XML with unchanged global numerical thresholds; no whole-backend coverage claim."
+}

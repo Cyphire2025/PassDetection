@@ -114,6 +114,7 @@ async def test_data_removal_deletes_submissions_before_qualifier_rows(
     )
     session = SimpleNamespace(
         execute=AsyncMock(return_value=execute_result),
+        scalar=AsyncMock(return_value=None),
         scalars=AsyncMock(return_value=SimpleNamespace(all=lambda: [])),
         commit=AsyncMock(),
     )
@@ -230,6 +231,7 @@ async def test_group_delete_commit_failure_records_failure_and_keeps_cleanup_def
     )
     session = SimpleNamespace(
         execute=AsyncMock(return_value=execute_result),
+        scalar=AsyncMock(return_value=None),
         scalars=AsyncMock(return_value=SimpleNamespace(all=lambda: [])),
         commit=AsyncMock(side_effect=RuntimeError("commit unavailable")),
     )

@@ -14,7 +14,7 @@ describe("shouldRetryQuery", () => {
     expect(shouldRetryQuery(0, { code: "REQUEST_RATE_LIMITED" })).toBe(false);
   });
 
-  it("allows at most two attempts for transient network and server failures", () => {
+  it("allows at most two retries for transient network and server failures", () => {
     expect(shouldRetryQuery(0, { code: "NETWORK_ERROR" })).toBe(true);
     expect(shouldRetryQuery(1, { code: "HTTP_503", status: 503 })).toBe(true);
     expect(shouldRetryQuery(2, { code: "HTTP_503", status: 503 })).toBe(false);

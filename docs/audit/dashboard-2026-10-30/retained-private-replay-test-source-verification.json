@@ -1,0 +1,25 @@
+{
+  "status": "complete current physical retained test-source review only",
+  "files": 4,
+  "physical_lines": 1799,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-private-replay-test-source-reviewed-files.json",
+    "sha256": "cc0be75cf6699cc58d15db492a11a36b158aa1be00d5e94f25f7611c1f0bbca4"
+  },
+  "source_before_equals_after": true,
+  "source_fence": {
+    "backend/tests/unit/infrastructure/test_private_delivery_policy.py": "91abb10b34cc33535e07796c7d85ff0ebdb4cbaf47afd9954f0e970f0b0c1b1f",
+    "backend/tests/unit/infrastructure/test_qr_worker_delivery_safety.py": "f1fcbb79a71c220ab2d37b803b38140b3f8896c59a1cbed129e60b346f6bdc3d",
+    "backend/tests/unit/infrastructure/test_whatsapp_receipt_inbox.py": "9bd19a62db2f3ea0ce9217d9721cef00625a7876a8be82c6e2b5eebac851b3f9",
+    "backend/tests/unit/infrastructure/test_whatsapp_source_group_sync.py": "d14262a9da8a7acc3a78077092519c69590a09cb9c618850708e3886a2c5c9f0"
+  },
+  "new_execution": false,
+  "runtime_mutation": false,
+  "new_validated_findings": [],
+  "scope": "Dashboard private document/QR delivery, shared signed WhatsApp receipts and source roster propagation. No dedicated email Inbox or native application/UI sources.",
+  "limits": [
+    "Reading existing tests is not their execution or live provider/PG race qualification.",
+    "Shared receipt OTP compatibility text is not a dedicated native feature audit.",
+    "Lock/query source contracts and synthetic orchestration have precise limits recorded per file; unrelated findings remain open."
+  ]
+}

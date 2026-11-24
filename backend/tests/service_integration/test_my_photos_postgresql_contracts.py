@@ -43,6 +43,7 @@ from app.infrastructure.my_photos.worker_runtime import execute_search_job
 from app.presentation.api.v1.routes import mobile_my_photos
 from app.presentation.dependencies.mobile_auth import require_unrestricted_mobile_claims
 from app.presentation.middleware.error_handler import register_exception_handlers
+from tests.postgresql_connection import service_test_url as _postgres_url
 
 pytestmark = [
     pytest.mark.service_integration,
@@ -53,14 +54,6 @@ pytestmark = [
 ]
 
 
-def _postgres_url() -> str:
-    return (
-        "postgresql+asyncpg://"
-        f"{os.environ['POSTGRES_USER']}:{os.environ['POSTGRES_PASSWORD']}@"
-        f"{os.environ.get('POSTGRES_HOST', 'localhost')}:"
-        f"{os.environ.get('POSTGRES_PORT', '5432')}/"
-        f"{os.environ['POSTGRES_DB']}"
-    )
 
 
 @dataclass(frozen=True, slots=True)

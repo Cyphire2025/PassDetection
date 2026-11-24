@@ -1,0 +1,33 @@
+{
+  "status": "Bounded read-only dashboard auth source cohort complete; broader runtime/security review remains independent",
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-dashboard-auth-test-source-reviewed-files.json",
+    "sha256": "1a4ead691a55e836cb548b78ea1d0da110ec0db1376647f3c27b4657d04b8303"
+  },
+  "new_current_full_tests": 3,
+  "test_physical_lines": 486,
+  "full_rows": 4,
+  "full_physical_lines": 660,
+  "focused_rows": 6,
+  "source_fence": {
+    "backend/tests/integration/test_auth_factor_mutation_boundaries.py": "e2151c4785819151551e8c6bfb5a8f03b5c8fbce6cfe902e0c06d05e720d7bb7",
+    "backend/tests/integration/test_dashboard_identity_lifecycle.py": "3dd8db89a2046c69b7ff6225c00ebec067225ae8a2b0eef4562adf8b3f2a390d",
+    "backend/tests/integration/test_dashboard_step_up_refresh.py": "d89a8711f4ba735bb6aff509df26af6bded7f9223d4107306c5fe0295afd34fd",
+    "backend/app/presentation/api/v1/routes/auth_identity_account.py": "c47ddd2d9969dcd1ce03e293ba35d31cbc902fc5954decd867fc0bd7a09f569d",
+    "backend/app/presentation/api/v1/routes/auth_identity.py": "daa6e8b3fc67dd9cda2c784d0330fddecb05105e8b0e7b3651b8c6a2936f6e37",
+    "backend/app/presentation/api/v1/routes/auth_identity_step_up.py": "e748311e50ee9c47ce1df2596ec2b5d4ea0f9c96c2240aaf80a4ee91c30c7639",
+    "backend/app/infrastructure/repositories/dashboard_step_up_repository.py": "707751b5f3eb4beb2b175ca8091d1efe04f73e492138870a083dc235a0e41051",
+    "backend/tests/integration/test_auth_response_durability.py": "eef70244e944f3719564a7b92d638626b28e042fafa54c1de7d17b0bc88c352b",
+    "backend/tests/integration/test_mfa_denial_durability.py": "df42af309ad18aafb69c343060ace9b22d86c330c6471b395fa7a8ee6436590f",
+    "backend/tests/integration/test_dashboard_weekly_session.py": "6b509185405aba70cdee7625089fba9b9a8e36b9674f77d485153bdbce11acf7"
+  },
+  "checks_run": [],
+  "findings": [],
+  "changes": [],
+  "proof_gaps": [
+    "Test sources assert actual ASGI send/commit/factor/session boundaries and hooks dispatch current owners, but no execution/pass claim is made here.",
+    "Independent SQLite connections/controlled clocks/fake limiters do not prove live PostgreSQL locks, real Redis quotas, production browser transport or all cancellation/resource behavior.",
+    "Partial owners/helpers are credited only for exact ranges; successful imported/tested callers cannot imply full source/security/architecture closure."
+  ],
+  "scope": "Retained dashboard authentication/recovery/session workflows only; native ingress/UI and Operations Inbox excluded/deferred, all existing sources byte-unmodified by this cohort."
+}

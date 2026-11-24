@@ -24,6 +24,7 @@ import {
   WorkspaceToolbar,
 } from "@/components/shared/workspace-ui";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ROUTES } from "@/constants/routes";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -56,7 +57,8 @@ export function DocumentGroupList({
   category: DocumentDistributionCategory;
 }) {
   const copy = GROUP_LIST_COPY[category];
-  const { data: groups = [], isLoading, error } = useDocumentGroups();
+  const groupsQuery = useDocumentGroups();
+  const { data: groups = [], isLoading, error } = groupsQuery;
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebounce(query, 300);
   const normalizedQuery = debouncedQuery.trim();
@@ -82,7 +84,8 @@ export function DocumentGroupList({
     return groupSearch.data ?? [];
   }, [groupSearch.data, groups, normalizedQuery]);
   const listLoading = isLoading || (Boolean(normalizedQuery) && groupSearch.isLoading);
-  const listError = error ?? groupSearch.error;
+  const listError = normalizedQuery ? groupSearch.error : error;
+  const portfolioUnavailable = Boolean(error) && groups.length === 0;
 
   return (
     <div className="flex flex-col gap-5">
@@ -94,10 +97,10 @@ export function DocumentGroupList({
         context={(
           <>
             <WorkspaceHeaderContext icon={FolderKanban}>
-              {groups.length.toLocaleString()} {groups.length === 1 ? "group" : "groups"}
+              {portfolioUnavailable ? "Groups unavailable" : `${groups.length.toLocaleString()} ${groups.length === 1 ? "group" : "groups"}`}
             </WorkspaceHeaderContext>
             <WorkspaceHeaderContext icon={UsersRound}>
-              {summary.passengers.toLocaleString()} {summary.passengers === 1 ? "passenger" : "passengers"}
+              {portfolioUnavailable ? "Passenger totals unavailable" : `${summary.passengers.toLocaleString()} ${summary.passengers === 1 ? "passenger" : "passengers"}`}
             </WorkspaceHeaderContext>
           </>
         )}
@@ -112,13 +115,18 @@ export function DocumentGroupList({
         )}
       />
 
-      {listError && (
+      {error && (
         <WorkspaceErrorNotice>
-          Distribution groups could not be refreshed. Return to the Document Hub or try this view again.
+          <p>Distribution groups could not be refreshed. {groups.length > 0 ? "The groups below are from the last successful update." : "Group totals are unavailable."}</p>
+          <Button type="button" variant="secondary" className="mt-2" disabled={groupsQuery.isFetching} onClick={() => void groupsQuery.refetch()}>Retry distribution groups</Button>
         </WorkspaceErrorNotice>
       )}
+      {normalizedQuery && groupSearch.error && <WorkspaceErrorNotice>
+        <p>Group search could not be refreshed. {filteredGroups.length > 0 ? "The results below are from the last successful search." : "Search results are unavailable."}</p>
+        <Button type="button" variant="secondary" className="mt-2" disabled={groupSearch.isFetching} onClick={() => void groupSearch.refetch()}>Retry group search</Button>
+      </WorkspaceErrorNotice>}
 
-      <WorkspaceSummaryStrip label="Document distribution portfolio">
+      {!portfolioUnavailable && <WorkspaceSummaryStrip label="Document distribution portfolio">
         {isLoading ? (
           Array.from({ length: 4 }).map((_, index) => (
             <Skeleton key={index} className="h-[72px] rounded-none" />
@@ -153,7 +161,7 @@ export function DocumentGroupList({
             />
           </>
         )}
-      </WorkspaceSummaryStrip>
+      </WorkspaceSummaryStrip>}
 
       <section
         className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
@@ -174,7 +182,9 @@ export function DocumentGroupList({
           resultLabel={
             normalizedQuery && groupSearch.isFetching
               ? "Searching groups and passengers..."
-              : `${filteredGroups.length.toLocaleString()} ${filteredGroups.length === 1 ? "group" : "groups"}`
+              : listError && filteredGroups.length === 0
+                ? "Results unavailable"
+                : `${filteredGroups.length.toLocaleString()} ${filteredGroups.length === 1 ? "group" : "groups"}`
           }
         />
 
@@ -184,7 +194,7 @@ export function DocumentGroupList({
               <Skeleton key={index} className="h-44 rounded-xl" />
             ))}
           </div>
-        ) : groups.length === 0 ? (
+        ) : listError && filteredGroups.length === 0 ? null : !normalizedQuery && groups.length === 0 ? (
           <WorkspaceEmptyState
             title="No groups are ready for distribution"
             description="Create an active group and add passengers first. Its document workspace will then appear here."

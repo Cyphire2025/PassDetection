@@ -1,0 +1,194 @@
+{
+  "files": [
+    {
+      "path": "docs/implementation/mcp-dashboard-write-live-2026-10-03.md",
+      "sha256": "17031c8cae3ef8caf0fef4812df6ede9f42aa4134050de44882117d4741be535",
+      "physical_lines": 66,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "DatedOct3 exact release/verification/migration/authority/retention lineage; finalhumanapproval remains tool/client contract rather than cryptographic gesture; historical1425outcomeoverlay explicitly not uninterruptedrun, backupdecode not restore, unknownprovider no automaticresend. No current live claim."
+    },
+    {
+      "path": "docs/implementation/mcp-dashboard-write.md",
+      "sha256": "88aba657bf1be2781331eb30d7ebe68eca5cec7cf7ea55775d58a106db19b9dd",
+      "physical_lines": 52,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "Typed canonicalbusiness adapters, intersection of deployed/OAuth/global/device/currentidentity tenant authority; exact filehandoff identity/hash/fragment header isolation, originalreceipt and source revision order, finalsendapproval and boundedexport/source rules. Scope is authoredreference, not new tool/providerqualification."
+    },
+    {
+      "path": "docs/implementation/mcp-direct-devices-inventory-checkpoint.md",
+      "sha256": "bcf3b3e9e94b025e18c9f5999f7a89b9b94ec2c3cdc986758185397d73ed447e",
+      "physical_lines": 49,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "Precise three servercontrol additions versus unrelated baseline20errors; completefilefingerprint update does not approve all existingmethoddiscovery gaps or make self-authority controls business tools. Historical failedglobalgate retained accurately."
+    },
+    {
+      "path": "docs/implementation/mcp-direct-devices-release-checkpoint.md",
+      "sha256": "7d31ab2d347fba18f82f68f4b26c2a886a262eac18819251e4c44c23c4a18e1a",
+      "physical_lines": 117,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "Dated source/image/schema/backup/retainedauthority and stopped-parser recovery proof, one exact resourcegapexception, callbackprotocol and platformlabel-not-hardware distinction. No nativeappfeature scope or currentclient/vault/provider use."
+    },
+    {
+      "path": "docs/implementation/mcp-direct-devices.md",
+      "sha256": "fbeca196414daf730d9586d2d6ec891a9a71e77294f371a8ad7ea6c10ee65937",
+      "physical_lines": 107,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "Native remote MCP here means directMCPprotocol not Expoapplication. Exactfixedmetadata hosts/redirects/PKCE/state, independent enabledflag vs revocation/scopes, retainedstate and expiredgrant behavior; historical0124/defaults/testcounts left unchanged."
+    },
+    {
+      "path": "docs/implementation/mcp-direct-release-checkpoint.md",
+      "sha256": "a5e409344b843fba41fcef9fdb44ab90e6c0151a34c4d4ee5c595b137c85a251",
+      "physical_lines": 173,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "Initial0113\u21920122 retainedrelease source/worker/runtime mappings vs laterbackendcorrections, backupdecode vs restore, boundedDockercommit uncertainty and inactiveoldschema clients; startup/runtimeobservations explicitly not combinedload/currentrelease assurance."
+    },
+    {
+      "path": "docs/implementation/mcp-minimum-read-only-guide.md",
+      "sha256": "bf0fe9decb45c7bcb6a2cc691cb811edb7eb73be394cf1df832e139a871f8fa7",
+      "physical_lines": 64,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "Earlier finite31tool observationalcandidate/canonicalscope union, dynamicserverauthority vs oldtokencapabilities, nativeconnector read-only failclosed and deferred writes. Candidate0123/retentionanomalies historical; no authority switch or live probe performed."
+    },
+    {
+      "path": "docs/implementation/mcp-management-release-checkpoint.md",
+      "sha256": "cb2798191430cfb716dea046fab171b5f5e8d827e19f573da72841e8f8835d4d",
+      "physical_lines": 202,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "Separatedenialaudit transaction excluding rejectedbusinesspending edits and rawquery/body/PII, truthful workflow/unknownprovider states; retained failedruns, exactbeaconexception/recovery/restart/image lineage, actualsavedoperation readback and narrow asynchronousrecipient controls all historical."
+    },
+    {
+      "path": "docs/implementation/mcp-document-rename-reads-checkpoint.md",
+      "sha256": "e38c2707342b65eb4add3ed9200ddb532d885bcdde883ee70cd0ffa0b41943cd",
+      "physical_lines": 128,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "Ownagency/staffsourcevisibility, signedboundedkeyset vs currentitem observations, scalar/SQLsentinels and completeenvelope bounds; optionalidentifier audit, keypresence not downloadpermission and zeroeffect metadata. Emptylive sample not populateddetail qualification."
+    },
+    {
+      "path": "docs/implementation/mcp-ecr-read-checkpoint.md",
+      "sha256": "b134a50916cce48bb24fb9d4829c2115aaa45ad8152cf222a49611d4ada6920f",
+      "physical_lines": 105,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "Canonicalownagency/staffvisibility/livecounts, ascendingduplicateitem/tieUUID order, signedactorquerycutoff binding, scalarprivatecolumn omission, fixedresponsebounds/deadline and safeerrors; no AI/MRZ/OCR/providerwork from metadataread."
+    },
+    {
+      "path": "docs/implementation/mcp-excel-options-checkpoint.md",
+      "sha256": "d5ad829424b848ca03793d9433871aeea6b60752715548674123f64199c240a7",
+      "physical_lines": 110,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "Exactagency/groupselection, fullfieldcatalog/airportextra/order/label rules and no samplevalues, prehydration source limits, sourcehistory versus generationrevision and retaineddeletedgroup asymmetry. Overlappinghistoricalcasecounts not added."
+    },
+    {
+      "path": "docs/implementation/mcp-export-history-checkpoint.md",
+      "sha256": "206fa4d4fb0df54068aa344ec78cde5d4d64cd6da3eccbf4e3419e5ce89525f6",
+      "physical_lines": 131,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "Currentauthority with explicitretaineddeleted/personaldetail optin, completioncutoff and cumulativecheckpointcount vs incrementalfile semantics, recordavailabilitynotfileavailability, preJSONbyte admission/wholepayload validation/lock order and onlyaudit effects."
+    },
+    {
+      "path": "docs/implementation/mcp-export-memory-and-scope-review.md",
+      "sha256": "4f35f9da664dc4ee25a528b2222a39549103a87bd42a81adf1b64530a37e2010",
+      "physical_lines": 216,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "Historical aggregatekernellease/native-drain and canonicalcell/byte/render envelope rationale; pre-materializationORM memorygap and measuredload limit preserved. Laterdocumentassignment and non-groupmeal/broadcast owner proposals are historical design, not activechangeauthorization."
+    },
+    {
+      "path": "docs/implementation/mcp-live-codex-checkpoint.md",
+      "sha256": "3955910f36ed0c1e32a3c6a1a97675fad68afda169faa71d92c00576eee906db",
+      "physical_lines": 199,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "Historical sameoperation savedExcel retry/deliverybyteverification vs sourceparity, preciseconditionalPUTSDK/nativeMFAcorrection and failedtest-order receipts. Idlecgroup snapshot not achievedcapacity; oldSSH expiry/overnightinstructions are content, not presentauthorization."
+    },
+    {
+      "path": "docs/implementation/mcp-options-dashboard-release-checkpoint.md",
+      "sha256": "6d53dd39e99deb01ba352864bd35c0e080379feecb716b197ce1fef00433c71c",
+      "physical_lines": 102,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "Explicit historicalbackendonlyrelease, preservedfrontend/workers/sourceprofile, exactscript/beacon/backup/denialaudit evidence, separateadjacentusercount vs atomicsnapshot claims and syntheticvalidator boundaries. No currentbackend or sourcecount inference."
+    },
+    {
+      "path": "docs/implementation/mcp-passport-analytics-read-checkpoint.md",
+      "sha256": "acdf9217f7978571a124d4b33c2cc16834a8879982a6ab17d54d9038796a1440",
+      "physical_lines": 122,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "CanonicalglobalSuperadmin vs ownagencyanalytics, no upperdatebound, confidence0.899\u20130.9gap and DBsessiontimezone retained intentionally; boundedscalar366date rows/finitecompleteenvelope errors, SQLitecastshim not PG proof."
+    },
+    {
+      "path": "docs/implementation/mcp-passport-retention-read-checkpoint.md",
+      "sha256": "92a905562f815f04b2553633a7ac09fe0836ffdddb819eec4464d011c9e37dd6",
+      "physical_lines": 89,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "Explicitgroupretentionschedule privacyminimal scalarprojection, canonicalglobal/NULLagencyrole policies, currentauthority/sharelock/deadline, savedpurgedatenotexecution or authorization. No retentiondeletion/storage/job action performed."
+    },
+    {
+      "path": "docs/implementation/mcp-personal-notifications-checkpoint.md",
+      "sha256": "c1388ae8e4f6707f2a20d3a99cc25c0bfb47d31772455256f202b53f5fecc892",
+      "physical_lines": 121,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "Personaluserpredicate/privateprojection and wholeunreadcount vs page/filter, signedcursor/responsebound; exactmonotonicfirstread plus atomicreceipt/audit/replay/currentauthority and unknownmetadata omitted. DatedMCPchange disabled state not currentfeature assertion."
+    },
+    {
+      "path": "docs/implementation/mcp-phase-register.md",
+      "sha256": "94539437ceac154c9626c96ccf578cb217a77f1fade7689e1797c909d57a1570",
+      "physical_lines": 552,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "All552physical lines read across1\u2013180,181\u2013365,366\u2013552. Historicalphase/order/remote/credentialinstructions distinguished from current userrequest; each past source/API/UI/SQLite/PG/SDK/Linux/vault/browser/runtimeclaim retains actualscope and omissions. Sourcehazards are historical requirements, not new currentfindings. Screenshotbraceconsumer at288 confirms retainedassetprovenance; no broadcurrentphasecompletion inferred."
+    }
+  ]
+}

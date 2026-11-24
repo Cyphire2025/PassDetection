@@ -1,0 +1,66 @@
+[
+  {
+    "path": "backend/tests/unit/infrastructure/test_document_verification_staging.py",
+    "sha256": "18f0b9f5730641c6030b7727791bc90c9ec0c5fc883a164a752a6410e52d3549",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "All physical source read. Receipt/staging ownership separated;20 whole declarations, actual evaluated hints/signatures/module/qualname/aliases exact after the narrow tested version-conversion exception fix.38 focused cases pass; original unit declarations/assertions retained with only3 instrumentation-owner retargets. No service/provider/deployment qualification."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_document_distribution_staging_routes.py",
+    "sha256": "9ed52130c26879815757d7f224476e3fcf72a19d3e3ad7f1157f78489724d04a",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "All physical source read. Receipt/staging ownership separated;20 whole declarations, actual evaluated hints/signatures/module/qualname/aliases exact after the narrow tested version-conversion exception fix.38 focused cases pass; original unit declarations/assertions retained with only3 instrumentation-owner retargets. No service/provider/deployment qualification."
+  },
+  {
+    "path": "backend/app/infrastructure/documents/verification_receipt_cipher.py",
+    "sha256": "30913eac94b50e9741489d7c9404aa11660aa85b063bc9827c26dcd81f7b7ff3",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All physical source read. Receipt/staging ownership separated;20 whole declarations, actual evaluated hints/signatures/module/qualname/aliases exact after the narrow tested version-conversion exception fix.38 focused cases pass; original unit declarations/assertions retained with only3 instrumentation-owner retargets. No service/provider/deployment qualification."
+  },
+  {
+    "path": "backend/app/infrastructure/documents/verification_receipt_models.py",
+    "sha256": "07da7bde5fd0596290e94f84d291b6cb0eb6217daa2a9f1b010079355e30edac",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All physical source read. Receipt/staging ownership separated;20 whole declarations, actual evaluated hints/signatures/module/qualname/aliases exact after the narrow tested version-conversion exception fix.38 focused cases pass; original unit declarations/assertions retained with only3 instrumentation-owner retargets. No service/provider/deployment qualification."
+  },
+  {
+    "path": "backend/app/infrastructure/documents/verification_receipt_payload.py",
+    "sha256": "0e88fe849a24ab6bd9b8e9e6068ac09c47f2a3d0811ea5a9207e6fb2e93f23b3",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All physical source read. Receipt/staging ownership separated;20 whole declarations, actual evaluated hints/signatures/module/qualname/aliases exact after the narrow tested version-conversion exception fix.38 focused cases pass; original unit declarations/assertions retained with only3 instrumentation-owner retargets. No service/provider/deployment qualification."
+  },
+  {
+    "path": "backend/app/infrastructure/documents/verification_receipt_scope.py",
+    "sha256": "e2d24df8b74457cdbafaf61321c91c6397049138e2ce22478868434014949a0b",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All physical source read. Receipt/staging ownership separated;20 whole declarations, actual evaluated hints/signatures/module/qualname/aliases exact after the narrow tested version-conversion exception fix.38 focused cases pass; original unit declarations/assertions retained with only3 instrumentation-owner retargets. No service/provider/deployment qualification."
+  },
+  {
+    "path": "backend/app/infrastructure/documents/verification_staging.py",
+    "sha256": "80559887908423587b23589041e9eb5d3aca7ffe856f5267426eafa997a8ba74",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All physical source read. Receipt/staging ownership separated;20 whole declarations, actual evaluated hints/signatures/module/qualname/aliases exact after the narrow tested version-conversion exception fix.38 focused cases pass; original unit declarations/assertions retained with only3 instrumentation-owner retargets. No service/provider/deployment qualification."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/document_distribution_upload.py",
+    "sha256": "a76545ac1fdbf5d9ce08a85373fff357eca4e6e8c724264de0d95e16dfd6a0c0",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "needs-follow-up",
+    "notes": "All720 physical lines read. Actual receipt-version regression traced through normal upload handler and wrapper; error now mapped to409, ingestion/commit/cleanup not reached. Route itself unchanged and its mixed long upload/chunk replay/reauthorization/persistence architecture remains a separate follow-up."
+  }
+]

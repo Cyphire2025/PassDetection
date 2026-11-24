@@ -1,0 +1,54 @@
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\typing.py", line 251, in eval_name_only
+    base_globals: Dict[str, Any] = sys.modules[module_name].__dict__
+                                   ~~~~~~~~~~~^^^^^^^^^^^^^
+KeyError: 'app.infrastructure.database.communications_models'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\util.py", line 2247, in _cleanup_mapped_str_annotation
+    obj = eval_name_only(mm.group(1), originating_module)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\typing.py", line 253, in eval_name_only
+    raise NameError(
+NameError: Module app.infrastructure.database.communications_models isn't present in sys.modules; can't resolve name Mapped
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\util.py", line 2342, in _extract_mapped_subtype
+    annotated = de_stringify_annotation(
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\typing.py", line 154, in de_stringify_annotation
+    annotation = str_cleanup_fn(annotation, originating_module)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\util.py", line 2249, in _cleanup_mapped_str_annotation
+    raise _CleanupError(
+sqlalchemy.orm.util._CleanupError: For annotation "Mapped[uuid.UUID]", could not resolve container type "Mapped".  Please ensure this type is imported at the module level outside of TYPE_CHECKING blocks
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "C:\Users\nipun\Desktop\PassDetection\backend\app\infrastructure\database\whatsapp_broadcast_catalog.py", line 30, in <module>
+    class WhatsAppBroadcastGroupModel(Base):
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\decl_api.py", line 836, in __init_subclass__
+    _as_declarative(cls._sa_registry, cls, cls.__dict__)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\decl_base.py", line 244, in _as_declarative
+    return _MapperConfig.setup_mapping(registry, cls, dict_, None, {})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\decl_base.py", line 325, in setup_mapping
+    return _ClassScanMapperConfig(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\decl_base.py", line 561, in __init__
+    self._scan_attributes()
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\decl_base.py", line 1021, in _scan_attributes
+    collected_annotation = self._collect_annotation(
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\decl_base.py", line 1293, in _collect_annotation
+    extracted = _extract_mapped_subtype(
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\util.py", line 2349, in _extract_mapped_subtype
+    raise sa_exc.ArgumentError(
+sqlalchemy.exc.ArgumentError: Could not interpret annotation Mapped[uuid.UUID].  Check that it uses names that are correctly imported at the module level. See chained stack trace for more hints.

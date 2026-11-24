@@ -1,0 +1,250 @@
+[
+  {
+    "path": "docs/architecture/group-companion-changed-files.txt",
+    "sha256": "37e3792248f286e3207b308b67a89f3a3f3d018f7c76f6823a47b1f518c49743",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "generated-metadata-reviewed",
+    "notes": "Focused generated changed-path inventory provenance only: exact293-line path-list identity/structure inspected; shared native/dashboard/server context remains a reference, no native implementation audit or full feature source credit from a path catalogue."
+  },
+  {
+    "path": "docs/implementation/companies-returning-travellers-handoff.txt",
+    "sha256": "b54221d4b5193112620170ff818ffceb36280162a836c29d87c2a569ee183402",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "generated-metadata-reviewed",
+    "notes": "Focused historical Oct14handoff: opening1-95 retained feature/release/capacity caveats and full-file structural/date/summary metadata only; not a complete1099-line semantic read. Original live statuses, commands and old approvals remain historical data and authorize no current production action. No private person/recovery manifest opened or copied, and no evidence renewed."
+  },
+  {
+    "path": "docs/implementation/companies-reuse-evidence/ci-security-patch-followup.txt",
+    "sha256": "1a407dccee504ed2211a96536570f3d7fcfafc707f957db54f2bb4064f8fae13",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole dated authored release/verification note physically read. Historical Oct13-14versions, selected tests, synthetic/live boundaries, resource/provenance constraints and explicit capacity/production limits preserved. Documented commands and old authorizations are historical data, not instructions for this audit; nothing executed, redeployed, repinned or recertified. Active runtime/source receipts are separate."
+  },
+  {
+    "path": "docs/implementation/companies-reuse-evidence/frontend-contract-audit.txt",
+    "sha256": "5cfba9c87af4293da70879aecc4027137308591880b47cd10f84aabf61e82339",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole dated authored release/verification note physically read. Historical Oct13-14versions, selected tests, synthetic/live boundaries, resource/provenance constraints and explicit capacity/production limits preserved. Documented commands and old authorizations are historical data, not instructions for this audit; nothing executed, redeployed, repinned or recertified. Active runtime/source receipts are separate."
+  },
+  {
+    "path": "docs/implementation/companies-reuse-evidence/frontend-release-verification.txt",
+    "sha256": "f204bbe29ea27c0342c9765fab9eb26fa72e76b62debe0a73b61827d30a218cb",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole dated authored release/verification note physically read. Historical Oct13-14versions, selected tests, synthetic/live boundaries, resource/provenance constraints and explicit capacity/production limits preserved. Documented commands and old authorizations are historical data, not instructions for this audit; nothing executed, redeployed, repinned or recertified. Active runtime/source receipts are separate."
+  },
+  {
+    "path": "docs/implementation/traveller-portal-2026-10-14.txt",
+    "sha256": "822d8b78b882ffb437f17f75d3f4c2d5e2f80a3a3027545a43a9ca91024598cb",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole dated authored release/verification note physically read. Historical Oct13-14versions, selected tests, synthetic/live boundaries, resource/provenance constraints and explicit capacity/production limits preserved. Documented commands and old authorizations are historical data, not instructions for this audit; nothing executed, redeployed, repinned or recertified. Active runtime/source receipts are separate."
+  },
+  {
+    "path": "docs/remediation/backend-integration-fixtures-final.txt",
+    "sha256": "af858518e7a8cb39985df01d67fda565c97add0561c15f4fd15d967ef12991d5",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "generated-metadata-reviewed",
+    "notes": "Focused historical reference/log provenance: exact path/hash/size/physical-line structure and recorded pass/fail/empty summary boundaries inspected. Indexed summary-card extraction is not full authored-source or current-suite evidence; original artifact remains unchanged. Historical numerical results are not repeated or added to current unique counts. No commands, live providers, DB, outputs/private archives or production accessed."
+  },
+  {
+    "path": "docs/remediation/backend-quality-mypy.txt",
+    "sha256": "ea5503b62d143406d8b0d1b8f9a31eb6323f01e5f69d9f37d4317ee412788a17",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "generated-metadata-reviewed",
+    "notes": "Focused historical reference/log provenance: exact path/hash/size/physical-line structure and recorded pass/fail/empty summary boundaries inspected. Indexed summary-card extraction is not full authored-source or current-suite evidence; original artifact remains unchanged. Historical numerical results are not repeated or added to current unique counts. No commands, live providers, DB, outputs/private archives or production accessed."
+  },
+  {
+    "path": "docs/remediation/backend-sec01-final.txt",
+    "sha256": "7b7a7cba4cc7904b9c2cf324069f7147311093a76ba95b15db292b1cfc1cf1a0",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "generated-metadata-reviewed",
+    "notes": "Focused historical reference/log provenance: exact path/hash/size/physical-line structure and recorded pass/fail/empty summary boundaries inspected. Indexed summary-card extraction is not full authored-source or current-suite evidence; original artifact remains unchanged. Historical numerical results are not repeated or added to current unique counts. No commands, live providers, DB, outputs/private archives or production accessed."
+  },
+  {
+    "path": "docs/remediation/backend-whatsapp-fixtures-final.txt",
+    "sha256": "f4c0b4a39ef1e9eec3cb7363d2f8a68dc43150bbec39f6ee705d79ae1948f7c1",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "generated-metadata-reviewed",
+    "notes": "Focused historical reference/log provenance: exact path/hash/size/physical-line structure and recorded pass/fail/empty summary boundaries inspected. Indexed summary-card extraction is not full authored-source or current-suite evidence; original artifact remains unchanged. Historical numerical results are not repeated or added to current unique counts. No commands, live providers, DB, outputs/private archives or production accessed."
+  },
+  {
+    "path": "docs/remediation/database-role-final.txt",
+    "sha256": "676cdbd4408044ce3288dc8ca1a83c41b4f2429294338df35957b2361733639b",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "generated-metadata-reviewed",
+    "notes": "Focused historical reference/log provenance: exact path/hash/size/physical-line structure and recorded pass/fail/empty summary boundaries inspected. Indexed summary-card extraction is not full authored-source or current-suite evidence; original artifact remains unchanged. Historical numerical results are not repeated or added to current unique counts. No commands, live providers, DB, outputs/private archives or production accessed."
+  },
+  {
+    "path": "docs/remediation/ecr-readiness-final.txt",
+    "sha256": "7adea388018a09cfc300eb94b11da7ce0738004a7a657b8d8ad1417ef396ec29",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "generated-metadata-reviewed",
+    "notes": "Focused historical reference/log provenance: exact path/hash/size/physical-line structure and recorded pass/fail/empty summary boundaries inspected. Indexed summary-card extraction is not full authored-source or current-suite evidence; original artifact remains unchanged. Historical numerical results are not repeated or added to current unique counts. No commands, live providers, DB, outputs/private archives or production accessed."
+  },
+  {
+    "path": "docs/remediation/frontend-budgets-final.txt",
+    "sha256": "9b0a69b1a53a12afc7aee7af475a3b325aaa6d9cf6ac6b64acb52400c80ad2b4",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "generated-metadata-reviewed",
+    "notes": "Focused historical reference/log provenance: exact path/hash/size/physical-line structure and recorded pass/fail/empty summary boundaries inspected. Indexed summary-card extraction is not full authored-source or current-suite evidence; original artifact remains unchanged. Historical numerical results are not repeated or added to current unique counts. No commands, live providers, DB, outputs/private archives or production accessed. Mixed historical generic frontend verifier output includes email module rows; only overall artifact/result provenance is retained, dedicated Inbox rows receive no feature review credit."
+  },
+  {
+    "path": "docs/remediation/frontend-expanded-coverage-final.txt",
+    "sha256": "8642324d4e8357b11003c604ef850f7d5f1e8baf73604abc1091181593f3bf11",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "generated-metadata-reviewed",
+    "notes": "Focused historical reference/log provenance: exact path/hash/size/physical-line structure and recorded pass/fail/empty summary boundaries inspected. Indexed summary-card extraction is not full authored-source or current-suite evidence; original artifact remains unchanged. Historical numerical results are not repeated or added to current unique counts. No commands, live providers, DB, outputs/private archives or production accessed."
+  },
+  {
+    "path": "docs/remediation/frontend-lint-final.txt",
+    "sha256": "72160178f908993547e66d1ebb88f031175b45dc29044a377efdeb7eebfd408b",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "generated-metadata-reviewed",
+    "notes": "Focused historical reference/log provenance: exact path/hash/size/physical-line structure and recorded pass/fail/empty summary boundaries inspected. Indexed summary-card extraction is not full authored-source or current-suite evidence; original artifact remains unchanged. Historical numerical results are not repeated or added to current unique counts. No commands, live providers, DB, outputs/private archives or production accessed."
+  },
+  {
+    "path": "docs/remediation/frontend-typecheck-final.txt",
+    "sha256": "9454c3f1e6dd0b35a44cd34b78d3a60b348f85fde420b2665f190a84b5597031",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "generated-metadata-reviewed",
+    "notes": "Focused historical reference/log provenance: exact path/hash/size/physical-line structure and recorded pass/fail/empty summary boundaries inspected. Indexed summary-card extraction is not full authored-source or current-suite evidence; original artifact remains unchanged. Historical numerical results are not repeated or added to current unique counts. No commands, live providers, DB, outputs/private archives or production accessed."
+  },
+  {
+    "path": "docs/remediation/manual-review-postgresql-final.txt",
+    "sha256": "63184953b803b9b17495309a062fbb655e77da655bf66067eb58fbdd66caf6bd",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "generated-metadata-reviewed",
+    "notes": "Focused historical reference/log provenance: exact path/hash/size/physical-line structure and recorded pass/fail/empty summary boundaries inspected. Indexed summary-card extraction is not full authored-source or current-suite evidence; original artifact remains unchanged. Historical numerical results are not repeated or added to current unique counts. No commands, live providers, DB, outputs/private archives or production accessed."
+  },
+  {
+    "path": "docs/remediation/monitoring-rules-final.txt",
+    "sha256": "2c823ec531199d3e51746611a3ce73c1d0b4bafd49d30542a664e083a7d0a0b5",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "generated-metadata-reviewed",
+    "notes": "Focused historical reference/log provenance: exact path/hash/size/physical-line structure and recorded pass/fail/empty summary boundaries inspected. Indexed summary-card extraction is not full authored-source or current-suite evidence; original artifact remains unchanged. Historical numerical results are not repeated or added to current unique counts. No commands, live providers, DB, outputs/private archives or production accessed."
+  },
+  {
+    "path": "docs/remediation/operational-evidence-open.txt",
+    "sha256": "ca47adcc23ee6ec353071107a8c3cbfa7f60e4de993a69c2d0892563455b2138",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "generated-metadata-reviewed",
+    "notes": "Focused historical reference/log provenance: exact path/hash/size/physical-line structure and recorded pass/fail/empty summary boundaries inspected. Indexed summary-card extraction is not full authored-source or current-suite evidence; original artifact remains unchanged. Historical numerical results are not repeated or added to current unique counts. No commands, live providers, DB, outputs/private archives or production accessed."
+  },
+  {
+    "path": "docs/remediation/operator-safety-unit-tests.txt",
+    "sha256": "4164b2c2aaf40a726fe7743f9291af800b34b6f9b6c7320a65265bdae6fdbcdb",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "generated-metadata-reviewed",
+    "notes": "Focused historical reference/log provenance: exact path/hash/size/physical-line structure and recorded pass/fail/empty summary boundaries inspected. Indexed summary-card extraction is not full authored-source or current-suite evidence; original artifact remains unchanged. Historical numerical results are not repeated or added to current unique counts. No commands, live providers, DB, outputs/private archives or production accessed."
+  },
+  {
+    "path": "docs/remediation/qualification-browser-all.txt",
+    "sha256": "debcea08d56b9fbd3bd14cb845c547bc8914533fbd5819a3470b5ebb3aa87571",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "generated-metadata-reviewed",
+    "notes": "Focused historical reference/log provenance: exact path/hash/size/physical-line structure and recorded pass/fail/empty summary boundaries inspected. Indexed summary-card extraction is not full authored-source or current-suite evidence; original artifact remains unchanged. Historical numerical results are not repeated or added to current unique counts. No commands, live providers, DB, outputs/private archives or production accessed."
+  },
+  {
+    "path": "docs/remediation/qualification-browser-final.txt",
+    "sha256": "90592b1a75923e5960912b240055546716232af163d65a29cda1a41323aed1af",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "generated-metadata-reviewed",
+    "notes": "Focused historical reference/log provenance: exact path/hash/size/physical-line structure and recorded pass/fail/empty summary boundaries inspected. Indexed summary-card extraction is not full authored-source or current-suite evidence; original artifact remains unchanged. Historical numerical results are not repeated or added to current unique counts. No commands, live providers, DB, outputs/private archives or production accessed."
+  },
+  {
+    "path": "docs/remediation/qualification-joined-final.txt",
+    "sha256": "bea7ce3ebb9994a2089fc3233beffd7f237fa301fca57695ee4fe1ab3f225352",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "generated-metadata-reviewed",
+    "notes": "Focused historical reference/log provenance: exact path/hash/size/physical-line structure and recorded pass/fail/empty summary boundaries inspected. Indexed summary-card extraction is not full authored-source or current-suite evidence; original artifact remains unchanged. Historical numerical results are not repeated or added to current unique counts. No commands, live providers, DB, outputs/private archives or production accessed."
+  },
+  {
+    "path": "docs/remediation/qualification-recovery-final.txt",
+    "sha256": "dedb5c6b97d6cd01ec65446ea2b64e4b3efc95bd4765597d32e5efbb1de49166",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "generated-metadata-reviewed",
+    "notes": "Focused historical reference/log provenance: exact path/hash/size/physical-line structure and recorded pass/fail/empty summary boundaries inspected. Indexed summary-card extraction is not full authored-source or current-suite evidence; original artifact remains unchanged. Historical numerical results are not repeated or added to current unique counts. No commands, live providers, DB, outputs/private archives or production accessed."
+  },
+  {
+    "path": "docs/remediation/qualification-restored-object-reads.txt",
+    "sha256": "4a1fe4c0e08dd672e377039f9b2e59fd91ebb0cd90c1762f30085382c44a9f45",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "generated-metadata-reviewed",
+    "notes": "Focused historical reference/log provenance: exact path/hash/size/physical-line structure and recorded pass/fail/empty summary boundaries inspected. Indexed summary-card extraction is not full authored-source or current-suite evidence; original artifact remains unchanged. Historical numerical results are not repeated or added to current unique counts. No commands, live providers, DB, outputs/private archives or production accessed."
+  },
+  {
+    "path": "docs/remediation/release-db-boundary-tests.txt",
+    "sha256": "7ce9a604b4b4d5473eba5747229c00d62473db5a8e36b6c1dd15e8b4ae655c21",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "generated-metadata-reviewed",
+    "notes": "Focused historical reference/log provenance: exact path/hash/size/physical-line structure and recorded pass/fail/empty summary boundaries inspected. Indexed summary-card extraction is not full authored-source or current-suite evidence; original artifact remains unchanged. Historical numerical results are not repeated or added to current unique counts. No commands, live providers, DB, outputs/private archives or production accessed."
+  },
+  {
+    "path": "docs/remediation/storage-combined-tests.txt",
+    "sha256": "b988fb68a718c0d775dd7f8643e008015cf7c670ea0829dca733a21470d09da1",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "generated-metadata-reviewed",
+    "notes": "Focused historical reference/log provenance: exact path/hash/size/physical-line structure and recorded pass/fail/empty summary boundaries inspected. Indexed summary-card extraction is not full authored-source or current-suite evidence; original artifact remains unchanged. Historical numerical results are not repeated or added to current unique counts. No commands, live providers, DB, outputs/private archives or production accessed."
+  },
+  {
+    "path": "docs/remediation/storage-integrity-guard-tests.txt",
+    "sha256": "d03c31b4154c36ce4144e5210835792728d3b2b9a861b612336a41acebeb5fdd",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "generated-metadata-reviewed",
+    "notes": "Focused historical reference/log provenance: exact path/hash/size/physical-line structure and recorded pass/fail/empty summary boundaries inspected. Indexed summary-card extraction is not full authored-source or current-suite evidence; original artifact remains unchanged. Historical numerical results are not repeated or added to current unique counts. No commands, live providers, DB, outputs/private archives or production accessed."
+  },
+  {
+    "path": "docs/remediation/storage-release-tests.txt",
+    "sha256": "e240d73f302297ce28db0ef5693056c8c47b1433ee42fc662ad77a6ec85b4a87",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "generated-metadata-reviewed",
+    "notes": "Focused historical reference/log provenance: exact path/hash/size/physical-line structure and recorded pass/fail/empty summary boundaries inspected. Indexed summary-card extraction is not full authored-source or current-suite evidence; original artifact remains unchanged. Historical numerical results are not repeated or added to current unique counts. No commands, live providers, DB, outputs/private archives or production accessed."
+  },
+  {
+    "path": "docs/remediation/storage-writer-fence-tests.txt",
+    "sha256": "65577b236d9b521a724912660d6d0ee91dedbe00aaafe652be810a75f011584c",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "generated-metadata-reviewed",
+    "notes": "Focused historical reference/log provenance: exact path/hash/size/physical-line structure and recorded pass/fail/empty summary boundaries inspected. Indexed summary-card extraction is not full authored-source or current-suite evidence; original artifact remains unchanged. Historical numerical results are not repeated or added to current unique counts. No commands, live providers, DB, outputs/private archives or production accessed."
+  },
+  {
+    "path": "docs/remediation/traveller-document-postgresql-final.txt",
+    "sha256": "43bab91c6d9755dfb7a00388f9a8e98a55c4b5ad4104a770c4760eb9324f354a",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "generated-metadata-reviewed",
+    "notes": "Focused historical reference/log provenance: exact path/hash/size/physical-line structure and recorded pass/fail/empty summary boundaries inspected. Indexed summary-card extraction is not full authored-source or current-suite evidence; original artifact remains unchanged. Historical numerical results are not repeated or added to current unique counts. No commands, live providers, DB, outputs/private archives or production accessed."
+  }
+]

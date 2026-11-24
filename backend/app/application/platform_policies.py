@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Any, Literal, Protocol
+from typing import Any, Literal, Protocol, cast
 
 DuplicateContactPolicy = Literal["block_same_group", "allow", "block_all"]
 DefaultGroupStatus = Literal["active", "closed"]
@@ -48,10 +48,14 @@ class PlatformPolicies:
             "duplicate_contact_policy",
             defaults.duplicate_contact_policy,
         )
-        if duplicate_policy not in {"block_same_group", "allow", "block_all"}:
+        if not isinstance(duplicate_policy, str) or duplicate_policy not in {
+            "block_same_group",
+            "allow",
+            "block_all",
+        }:
             raise PlatformPolicyConfigurationError("duplicate_contact_policy is invalid")
         group_status = value.get("default_group_status", defaults.default_group_status)
-        if group_status not in {"active", "closed"}:
+        if not isinstance(group_status, str) or group_status not in {"active", "closed"}:
             raise PlatformPolicyConfigurationError("default_group_status is invalid")
 
         return cls(
@@ -66,8 +70,8 @@ class PlatformPolicies:
                 "require_client_phone",
                 defaults.require_client_phone,
             ),
-            duplicate_contact_policy=duplicate_policy,
-            default_group_status=group_status,
+            duplicate_contact_policy=cast(DuplicateContactPolicy, duplicate_policy),
+            default_group_status=cast(DefaultGroupStatus, group_status),
             auto_archive_closed_groups_days=_bounded_int(
                 value,
                 "auto_archive_closed_groups_days",
@@ -152,7 +156,10 @@ def _bounded_float(
     candidate = value.get(key, default)
     if isinstance(candidate, bool) or not isinstance(candidate, (int, float)):
         raise PlatformPolicyConfigurationError(f"{key} is invalid")
-    result = float(candidate)
+    try:
+        result = float(candidate)
+    except OverflowError as exc:
+        raise PlatformPolicyConfigurationError(f"{key} is outside the supported range") from exc
     if not minimum <= result <= maximum:
         raise PlatformPolicyConfigurationError(f"{key} is outside the supported range")
     return result

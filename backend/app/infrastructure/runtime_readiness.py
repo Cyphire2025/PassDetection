@@ -13,66 +13,92 @@ import asyncio
 import threading
 import time
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass as dataclass
 
-from redis import Redis
-from sqlalchemy import text
+from redis import Redis as Redis
+from sqlalchemy import text as text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config.settings import Settings
-from app.infrastructure.ai_priority.worker_readiness import celery_queue_readiness
-from app.infrastructure.ecr import ECR_QUEUE
+from app.infrastructure.ai_priority.worker_readiness import (
+    celery_queue_readiness as celery_queue_readiness,
+)
+from app.infrastructure.ecr import ECR_QUEUE as ECR_QUEUE
 from app.infrastructure.ecr.readiness import ecr_backlog, ecr_capability
-from app.infrastructure.my_photos import (
-    MY_PHOTOS_CONTROL_QUEUE,
-    MY_PHOTOS_INDEX_QUEUE,
-    MY_PHOTOS_MEDIA_QUEUE,
-    MY_PHOTOS_SEARCH_QUEUE,
+from app.infrastructure.my_photos import MY_PHOTOS_CONTROL_QUEUE as MY_PHOTOS_CONTROL_QUEUE
+from app.infrastructure.my_photos import MY_PHOTOS_INDEX_QUEUE as MY_PHOTOS_INDEX_QUEUE
+from app.infrastructure.my_photos import MY_PHOTOS_MEDIA_QUEUE as MY_PHOTOS_MEDIA_QUEUE
+from app.infrastructure.my_photos import MY_PHOTOS_SEARCH_QUEUE as MY_PHOTOS_SEARCH_QUEUE
+from app.infrastructure.my_photos.providers import build_provider_bundle as build_provider_bundle
+from app.infrastructure.readiness_executor import (
+    readiness_probe_executor as readiness_probe_executor,
 )
-from app.infrastructure.my_photos.providers import build_provider_bundle
-from app.infrastructure.readiness_executor import readiness_probe_executor
+from app.infrastructure.runtime_readiness_capabilities import _capability as _capability
+from app.infrastructure.runtime_readiness_capabilities import _probe_result as _probe_result
+from app.infrastructure.runtime_readiness_capabilities import (
+    _refresh_blocking_capabilities as _refresh_blocking_capabilities,
+)
+from app.infrastructure.runtime_readiness_capabilities import (
+    _timed_out_snapshot as _timed_out_snapshot,
+)
+from app.infrastructure.runtime_readiness_contracts import (
+    BLOCKING_PROBE_TIMEOUT_SECONDS as BLOCKING_PROBE_TIMEOUT_SECONDS,
+)
+from app.infrastructure.runtime_readiness_contracts import (
+    GENERAL_PROCESSING_QUEUE as GENERAL_PROCESSING_QUEUE,
+)
+from app.infrastructure.runtime_readiness_contracts import (
+    PLATFORM_SCHEDULER_HEARTBEAT_KEY as PLATFORM_SCHEDULER_HEARTBEAT_KEY,
+)
+from app.infrastructure.runtime_readiness_contracts import (
+    READINESS_CACHE_SECONDS as READINESS_CACHE_SECONDS,
+)
+from app.infrastructure.runtime_readiness_contracts import (
+    READINESS_REFRESH_TIMEOUT_SECONDS as READINESS_REFRESH_TIMEOUT_SECONDS,
+)
+from app.infrastructure.runtime_readiness_contracts import (
+    STORAGE_CLEANUP_CRITICAL_AGE_SECONDS as STORAGE_CLEANUP_CRITICAL_AGE_SECONDS,
+)
+from app.infrastructure.runtime_readiness_contracts import (
+    STORAGE_CLEANUP_WARNING_COUNT as STORAGE_CLEANUP_WARNING_COUNT,
+)
+from app.infrastructure.runtime_readiness_contracts import (
+    RuntimeCapabilitySnapshot as RuntimeCapabilitySnapshot,
+)
+from app.infrastructure.runtime_readiness_contracts import _BlockingSnapshot as _BlockingSnapshot
+from app.infrastructure.runtime_readiness_contracts import _CleanupBacklog as _CleanupBacklog
+from app.infrastructure.runtime_readiness_database import _cleanup_backlog as _cleanup_backlog
+from app.infrastructure.runtime_readiness_database import _schema_readiness as _schema_readiness
+from app.infrastructure.runtime_readiness_probes import _my_photos_selected as _my_photos_selected
+from app.infrastructure.runtime_readiness_probes import (
+    _platform_scheduler_heartbeat_exists as _platform_scheduler_heartbeat_exists,
+)
+from app.infrastructure.runtime_readiness_probes import _probe_ecr_worker as _probe_ecr_worker
+from app.infrastructure.runtime_readiness_probes import (
+    _probe_malware_scanner as _probe_malware_scanner,
+)
+from app.infrastructure.runtime_readiness_probes import _probe_my_photos as _probe_my_photos
+from app.infrastructure.runtime_readiness_probes import (
+    _probe_object_storage as _probe_object_storage,
+)
+from app.infrastructure.runtime_readiness_probes import (
+    _probe_security_redis as _probe_security_redis,
+)
+from app.infrastructure.runtime_readiness_probes import (
+    _probe_worker_and_scheduler as _probe_worker_and_scheduler,
+)
+from app.infrastructure.runtime_readiness_probes import (
+    _security_redis_required as _security_redis_required,
+)
 from app.infrastructure.security.upload_validator import (
-    ClamAVMalwareScanner,
-    malware_scanner_from_settings,
+    ClamAVMalwareScanner as ClamAVMalwareScanner,
 )
-from app.infrastructure.storage.minio_repository import MinioStorageRepository
-
-GENERAL_PROCESSING_QUEUE = "passport_ocr"
-PLATFORM_SCHEDULER_HEARTBEAT_KEY = (
-    "passdetection:platform:scheduler-heartbeat:v1"
+from app.infrastructure.security.upload_validator import (
+    malware_scanner_from_settings as malware_scanner_from_settings,
 )
-READINESS_CACHE_SECONDS = 15.0
-READINESS_REFRESH_TIMEOUT_SECONDS = 3.5
-BLOCKING_PROBE_TIMEOUT_SECONDS = 3.0
-STORAGE_CLEANUP_WARNING_COUNT = 1_000
-STORAGE_CLEANUP_CRITICAL_AGE_SECONDS = 24 * 60 * 60
-
-
-@dataclass(frozen=True, slots=True)
-class RuntimeCapabilitySnapshot:
-    checks: dict[str, str]
-    core_ready: bool
-    capabilities: dict[str, dict[str, object]]
-
-
-@dataclass(frozen=True, slots=True)
-class _BlockingSnapshot:
-    checks: dict[str, str]
-    security_ready: bool
-    object_storage_ready: bool
-    malware_ready: bool
-    general_worker_ready: bool
-    scheduler_ready: bool
-    my_photos_ready: bool
-    my_photos_required: bool
-    ecr_worker: tuple[str, bool] = ("probe_failed", False)
-
-
-@dataclass(frozen=True, slots=True)
-class _CleanupBacklog:
-    due_count: int
-    blocked_count: int
-    oldest_due_seconds: int
+from app.infrastructure.storage.minio_repository import (
+    MinioStorageRepository as MinioStorageRepository,
+)
 
 
 class RuntimeReadinessProbe:
@@ -193,11 +219,7 @@ class RuntimeReadinessProbe:
         key = _settings_cache_key(settings)
         now = self._clock()
         with self._cache_lock:
-            if (
-                self._cached is not None
-                and self._cache_key == key
-                and now < self._cache_expires_at
-            ):
+            if self._cached is not None and self._cache_key == key and now < self._cache_expires_at:
                 return self._cached
 
         try:
@@ -213,249 +235,6 @@ class RuntimeReadinessProbe:
             self._cache_key = key
             self._cache_expires_at = self._clock() + self._cache_seconds
         return refreshed
-
-
-async def _schema_readiness(
-    db: AsyncSession,
-    settings: Settings,
-) -> tuple[str, bool]:
-    try:
-        result = await db.execute(
-            text("SELECT version_num FROM alembic_version ORDER BY version_num")
-        )
-        versions = tuple(str(value) for value in result.scalars().all())
-    except Exception:
-        return "unavailable", False
-    expected = settings.expected_database_schema_revision
-    if versions == (expected,):
-        return "compatible", True
-    if not versions:
-        return "missing", False
-    if len(versions) > 1:
-        return "multiple_heads", False
-    return "revision_mismatch", False
-
-
-async def _cleanup_backlog(db: AsyncSession) -> _CleanupBacklog:
-    try:
-        result = await db.execute(
-            text(
-                """
-                SELECT
-                    COUNT(*) FILTER (
-                        WHERE status IN ('pending', 'running')
-                          AND next_attempt_at <= CURRENT_TIMESTAMP
-                    ) AS due_count,
-                    COUNT(*) FILTER (WHERE status = 'blocked') AS blocked_count,
-                    COALESCE(
-                        EXTRACT(EPOCH FROM (
-                            CURRENT_TIMESTAMP - MIN(created_at) FILTER (
-                                WHERE status IN ('pending', 'running')
-                                  AND next_attempt_at <= CURRENT_TIMESTAMP
-                            )
-                        )),
-                        0
-                    ) AS oldest_due_seconds
-                FROM storage_cleanup_jobs
-                """
-            )
-        )
-        row = result.mappings().one()
-        return _CleanupBacklog(
-            due_count=max(0, int(row["due_count"] or 0)),
-            blocked_count=max(0, int(row["blocked_count"] or 0)),
-            oldest_due_seconds=max(0, int(row["oldest_due_seconds"] or 0)),
-        )
-    except Exception:
-        # A missing/unreadable cleanup table is itself visible degradation. It
-        # is not a second traffic gate because schema readiness already fails
-        # closed for incompatible deployments.
-        return _CleanupBacklog(
-            due_count=0,
-            blocked_count=1,
-            oldest_due_seconds=0,
-        )
-
-
-async def _refresh_blocking_capabilities(settings: Settings) -> _BlockingSnapshot:
-    storage_result, scanner_result, runtime_result, provider_result, security_result, ecr_result = await asyncio.gather(
-        readiness_probe_executor.run("object_storage", _probe_object_storage, timeout_seconds=BLOCKING_PROBE_TIMEOUT_SECONDS, configuration=settings),
-        readiness_probe_executor.run("malware_scanner", lambda: _probe_malware_scanner(settings), timeout_seconds=BLOCKING_PROBE_TIMEOUT_SECONDS, configuration=settings),
-        readiness_probe_executor.run("worker_scheduler", lambda: _probe_worker_and_scheduler(settings), timeout_seconds=BLOCKING_PROBE_TIMEOUT_SECONDS, configuration=settings),
-        readiness_probe_executor.run("my_photos", lambda: _probe_my_photos(settings), timeout_seconds=BLOCKING_PROBE_TIMEOUT_SECONDS, configuration=settings),
-        readiness_probe_executor.run("security_redis", lambda: _probe_security_redis(settings), timeout_seconds=BLOCKING_PROBE_TIMEOUT_SECONDS, configuration=settings),
-        readiness_probe_executor.run("ecr_worker", lambda: _probe_ecr_worker(settings), timeout_seconds=BLOCKING_PROBE_TIMEOUT_SECONDS, configuration=settings),
-        return_exceptions=True,
-    )
-
-    storage_ready = storage_result is True
-    security_status, security_ready = _probe_result(security_result, failure_status="unreachable")
-    malware_status, malware_ready = _probe_result(
-        scanner_result,
-        failure_status="unreachable",
-    )
-    if not isinstance(runtime_result, tuple):
-        worker_status, worker_ready = "probe_failed", False
-        scheduler_status, scheduler_ready = "probe_failed", False
-    else:
-        worker_status, worker_ready, scheduler_status, scheduler_ready = runtime_result
-
-    if not isinstance(provider_result, tuple):
-        my_photos_status, my_photos_ready, my_photos_required = (
-            "probe_failed",
-            False,
-            _my_photos_selected(settings),
-        )
-    else:
-        my_photos_status, my_photos_ready, my_photos_required = provider_result
-
-    return _BlockingSnapshot(
-        checks={
-            "security_redis": security_status,
-            "object_storage": "available" if storage_ready else "unreachable",
-            "malware_scanner": malware_status,
-            "general_processing_worker": worker_status,
-            "platform_scheduler": scheduler_status,
-            "my_photos": my_photos_status,
-            "ecr_worker": _probe_result(ecr_result, failure_status="probe_failed")[0],
-        },
-        object_storage_ready=storage_ready,
-        security_ready=security_ready,
-        malware_ready=malware_ready,
-        general_worker_ready=worker_ready,
-        scheduler_ready=scheduler_ready,
-        my_photos_ready=my_photos_ready,
-        my_photos_required=my_photos_required,
-        ecr_worker=_probe_result(ecr_result, failure_status="probe_failed"),
-    )
-
-
-def _probe_ecr_worker(settings: Settings) -> tuple[str, bool]:
-    if settings.processing_backend != "celery":
-        return "worker_backend_not_celery", False
-    return celery_queue_readiness(ECR_QUEUE, settings)
-
-
-def _security_redis_required(settings: Settings) -> bool:
-    return any((
-        settings.dashboard_rate_limit_require_redis,
-        settings.login_lockout_require_redis,
-        settings.public_upload_rate_limit_require_redis,
-    ))
-
-
-def _probe_security_redis(settings: Settings) -> tuple[str, bool]:
-    if not _security_redis_required(settings):
-        return "not_required", True
-    client = Redis.from_url(
-        settings.redis.security_url,
-        socket_connect_timeout=1.0,
-        socket_timeout=1.0,
-    )
-    try:
-        return ("available", True) if client.ping() else ("unreachable", False)
-    finally:
-        client.close()  # type: ignore[no-untyped-call]
-
-
-def _probe_object_storage() -> bool:
-    MinioStorageRepository().check_bucket_access()
-    return True
-
-
-def _probe_malware_scanner(settings: Settings) -> tuple[str, bool]:
-    if not settings.untrusted_document_ingestion_enabled:
-        return "not_required_ingestion_disabled", True
-    scanner = malware_scanner_from_settings(settings)
-    if not isinstance(scanner, ClamAVMalwareScanner):
-        if settings.is_development:
-            return "development_bypass", True
-        return "not_configured", False
-    scanner.healthcheck()
-    return "available", True
-
-
-def _probe_worker_and_scheduler(
-    settings: Settings,
-) -> tuple[str, bool, str, bool]:
-    if settings.processing_backend != "celery":
-        status = "not_required_background_backend"
-        return status, True, status, True
-    worker_status, worker_ready = celery_queue_readiness(
-        GENERAL_PROCESSING_QUEUE,
-        settings,
-    )
-    scheduler_ready = _platform_scheduler_heartbeat_exists(settings)
-    scheduler_status = "heartbeat_recent" if scheduler_ready else "heartbeat_missing"
-    return worker_status, worker_ready, scheduler_status, scheduler_ready
-
-
-def _probe_my_photos(settings: Settings) -> tuple[str, bool, bool]:
-    if not _my_photos_selected(settings):
-        return "not_required_feature_disabled", True, False
-
-    providers = build_provider_bundle(settings)
-    providers_ready = (
-        providers.liveness.ready
-        and providers.face_search.ready
-        and providers.media.ready
-    )
-    if not providers_ready:
-        return "providers_not_ready", False, True
-    if settings.processing_backend != "celery":
-        return "worker_backend_not_celery", False, True
-
-    statuses = [
-        celery_queue_readiness(queue, settings)
-        for queue in (
-            MY_PHOTOS_CONTROL_QUEUE,
-            MY_PHOTOS_INDEX_QUEUE,
-            MY_PHOTOS_MEDIA_QUEUE,
-            MY_PHOTOS_SEARCH_QUEUE,
-        )
-    ]
-    if all(ready for _status, ready in statuses):
-        return "available", True, True
-    missing = sum(not ready for _status, ready in statuses)
-    return f"queues_unavailable:{missing}", False, True
-
-
-def _platform_scheduler_heartbeat_exists(settings: Settings) -> bool:
-    timeout = min(settings.processing_worker_ping_timeout_seconds, 1.0)
-    client = Redis.from_url(
-        settings.redis.broker_url,
-        socket_connect_timeout=timeout,
-        socket_timeout=timeout,
-        decode_responses=True,
-    )
-    try:
-        return bool(client.get(PLATFORM_SCHEDULER_HEARTBEAT_KEY))
-    finally:
-        client.close()  # type: ignore[no-untyped-call]  # redis 5.0.7 omits this annotation
-
-
-def _my_photos_selected(settings: Settings) -> bool:
-    config = settings.my_photos
-    return any(
-        provider != "disabled"
-        for provider in (
-            config.liveness_provider,
-            config.face_search_provider,
-            config.media_provider,
-        )
-    )
-
-
-def _probe_result(
-    result: object,
-    *,
-    failure_status: str,
-) -> tuple[str, bool]:
-    if isinstance(result, tuple) and len(result) == 2:
-        status, ready = result
-        if isinstance(status, str) and isinstance(ready, bool):
-            return status, ready
-    return failure_status, False
 
 
 def _settings_cache_key(settings: Settings) -> tuple[object, ...]:
@@ -477,46 +256,6 @@ def _settings_cache_key(settings: Settings) -> tuple[object, ...]:
         my_photos.face_search_provider,
         my_photos.media_provider,
     )
-
-
-def _timed_out_snapshot(settings: Settings) -> _BlockingSnapshot:
-    my_photos_required = _my_photos_selected(settings)
-    return _BlockingSnapshot(
-        checks={
-            "security_redis": "probe_timeout",
-            "object_storage": "probe_timeout",
-            "malware_scanner": "probe_timeout",
-            "general_processing_worker": "probe_timeout",
-            "platform_scheduler": "probe_timeout",
-            "my_photos": (
-                "probe_timeout"
-                if my_photos_required
-                else "not_required_feature_disabled"
-            ),
-        },
-        object_storage_ready=False,
-        security_ready=False,
-        malware_ready=False,
-        general_worker_ready=False,
-        scheduler_ready=False,
-        my_photos_ready=not my_photos_required,
-        my_photos_required=my_photos_required,
-    )
-
-
-def _capability(
-    *,
-    required: bool,
-    available: bool,
-    traffic_gate: bool,
-    status: str,
-) -> dict[str, object]:
-    return {
-        "required": required,
-        "available": available,
-        "traffic_gate": traffic_gate,
-        "status": status,
-    }
 
 
 _runtime_probe = RuntimeReadinessProbe()

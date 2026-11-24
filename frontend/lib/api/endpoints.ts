@@ -55,13 +55,11 @@ export const API_ENDPOINTS = {
     rejectRequest: (id: string) => `/api/v1/admin/mcp/connection-requests/${encodeURIComponent(id)}/reject`,
     publicRequest: (id: string) => `/oauth/mcp/requests/${encodeURIComponent(id)}`,
     finalizeRequest: (id: string) => `/oauth/mcp/requests/${encodeURIComponent(id)}/finalize`,
-    revoke: (id: string) => `/api/v1/admin/mcp/connections/${encodeURIComponent(id)}/revoke`,
     activity: "/api/v1/admin/mcp/activity",
     inventory: "/api/v1/admin/mcp/inventory",
     operations: "/api/v1/admin/mcp/operations",
     artifacts: "/api/v1/admin/mcp/artifacts",
     control: "/api/v1/admin/mcp/control",
-    authorize: "/api/v1/admin/mcp/authorize",
   },
   health: {
     live: "/api/v1/health/live",
@@ -149,8 +147,6 @@ export const API_ENDPOINTS = {
     contactsPreview: "/api/v1/whatsapp/contacts/preview",
     group: (groupId: string) => `/api/v1/whatsapp/groups/${groupId}`,
     recipients: (groupId: string) => `/api/v1/whatsapp/groups/${groupId}/recipients`,
-    rejectedContacts: (groupId: string) =>
-      `/api/v1/whatsapp/groups/${groupId}/rejected-contacts`,
     recipientRoster: (groupId: string) =>
       `/api/v1/whatsapp/groups/${groupId}/recipient-roster`,
     groupExport: (groupId: string) => `/api/v1/whatsapp/groups/${groupId}/export`,
@@ -162,17 +158,10 @@ export const API_ENDPOINTS = {
       `/api/v1/whatsapp/groups/${groupId}/recipients/${recipientId}/details`,
     resendRecipientMessage: (groupId: string, recipientId: string) =>
       `/api/v1/whatsapp/groups/${groupId}/recipients/${recipientId}/resend`,
-    resendRecipientsMessage: (groupId: string) =>
-      `/api/v1/whatsapp/groups/${groupId}/recipients/resend`,
-    previewRecipientsResend: (groupId: string) =>
-      `/api/v1/whatsapp/groups/${groupId}/recipients/resend/preview`,
     preview: (groupId: string) => `/api/v1/whatsapp/groups/${groupId}/preview`,
     welcomeMedia: (groupId: string) =>
       `/api/v1/whatsapp/groups/${groupId}/welcome-media`,
     send: (groupId: string) => `/api/v1/whatsapp/groups/${groupId}/send`,
-    batch: (batchId: string) => `/api/v1/whatsapp/batches/${batchId}`,
-    batchSummary: (batchId: string) =>
-      `/api/v1/whatsapp/batches/${batchId}/summary`,
     activity: (kind: string, batchId: string) =>
       `/api/v1/whatsapp/activities/${kind}/${batchId}`,
     activityFailures: (kind: string, batchId: string) =>

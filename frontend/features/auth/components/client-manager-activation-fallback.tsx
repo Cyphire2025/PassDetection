@@ -1,36 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import { ExternalLink, ShieldCheck, Smartphone } from "lucide-react";
 import { Button, Card, CardContent } from "@/components/ui";
-
-const TOKEN_PATTERN = /^[A-Za-z0-9_-]{32,512}$/;
+import { useIdentityActionToken } from "../hooks/use-identity-action-token";
 
 export function ClientManagerActivationFallback() {
-  const tokenRef = useRef<string | null>(null);
-  const [linkState, setLinkState] = useState<"checking" | "ready" | "invalid">("checking");
-
-  useEffect(() => {
-    const current = new URL(window.location.href);
-    const tokens = current.searchParams.getAll("token");
-    const onlyExpectedParameter = [...current.searchParams.keys()].every((key) => key === "token");
-    const token = tokens.length === 1 && onlyExpectedParameter && !current.hash
-      ? tokens[0]
-      : null;
-
-    tokenRef.current = token && TOKEN_PATTERN.test(token) ? token : null;
-    setLinkState(tokenRef.current ? "ready" : "invalid");
-
-    // Activation credentials must not remain in history, screenshots, copied
-    // addresses, or referrers after the fallback page has loaded.
-    window.history.replaceState(null, "", current.pathname);
-    return () => {
-      tokenRef.current = null;
-    };
-  }, []);
+  const { readToken, tokenState: linkState } = useIdentityActionToken();
 
   const retryVerifiedLink = () => {
-    const token = tokenRef.current;
+    const token = readToken();
     if (!token) return;
     const verifiedLink = new URL("/gc/activate", window.location.origin);
     verifiedLink.searchParams.set("token", token);

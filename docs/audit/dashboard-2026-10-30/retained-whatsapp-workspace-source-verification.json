@@ -1,0 +1,29 @@
+{
+  "status": "Read-only current source cohort complete; broader audit active",
+  "new_current_full_tests": 4,
+  "test_physical_lines": 1486,
+  "supporting_full_rows": 3,
+  "focused_rows": 1,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-whatsapp-workspace-source-reviewed-files.json",
+    "sha256": "06743e7f3d90d4cced86429745cc71036d6275cf7ac169f2fe70cfb087e2fff5"
+  },
+  "source_fence": {
+    "backend/tests/unit/presentation/test_whatsapp_phone_welcome_views.py": "0757087270b93054ef1c70ee6f14ba7e1e8c6c833eddd80f0d347c9aa3af51e0",
+    "backend/tests/unit/presentation/test_whatsapp_group_invite.py": "ce00ef4f09ded946eec7c6d220724fb9984740bbd916a4547b25d84c30ed3794",
+    "backend/tests/unit/presentation/test_whatsapp_rejected_contacts.py": "60cad5da1e2cab2c67fc9e413da0d091bebeabd69afd47e915c63304a84ace65",
+    "backend/tests/integration/test_whatsapp_workspace.py": "068236274c7a2f1193f4241b6626d47b049b583d34954b381548224342fee16f",
+    "backend/app/application/use_cases/whatsapp/welcome_policy.py": "41f3d5b89c15ef2177bcdb91e5f8d3b55735e5c6de5f74dbdd0ed69c58d2d389",
+    "backend/app/presentation/api/v1/routes/whatsapp_history_resend.py": "b7e6738492ef0ce1ced89877335662de95116be8b690dec954e7052ed6c3ceb2",
+    "backend/app/presentation/api/v1/routes/whatsapp_welcome_view.py": "e12fdb14e5e9da76df4c7f4decfe9ba17d7f13d71b8a836f35cc493a685121f5",
+    "backend/app/presentation/api/v1/routes/whatsapp_rejected_contacts.py": "1e58dacd0f9846c38e9c2d3e47d22b5635c0fb31450a4f4935acbc4a487a622c"
+  },
+  "checks_run": [],
+  "changes": [],
+  "findings": [],
+  "limitations": [
+    "No test/SQL/native-library/workbook/provider/network/credential or scanner execution for source-read credit.",
+    "Actual current-list welcome projection, shared duplicate-send protection and distinct invitation exemption documented without widening private delivery policy.",
+    "Imported test fixtures and previously full frozen implementation owners are not automatically new source-read credit; no generic architecture/performance finding based on name or length."
+  ]
+}

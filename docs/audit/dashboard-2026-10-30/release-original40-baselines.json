@@ -1,0 +1,242 @@
+[
+  {
+    "path": "frontend/package-lock.json",
+    "before_0140": "8fad36f5d051e3d3b57c4db03d042d152c4dc8ddfaccf43e1df385d06681b0a8",
+    "before_0141": "8fad36f5d051e3d3b57c4db03d042d152c4dc8ddfaccf43e1df385d06681b0a8",
+    "after": "aa4adc3d5ff8e8fba20dc8454d60c953011da383a74fba26dda48c36f96ff029"
+  },
+  {
+    "path": "frontend/package.json",
+    "before_0140": "2af0aef08b986e7ea44ad5ab6039716c695f63d1a8d2564b216d9310131ec754",
+    "before_0141": "2af0aef08b986e7ea44ad5ab6039716c695f63d1a8d2564b216d9310131ec754",
+    "after": "5de0ee57a35e13692336a9f2821504061aae67cc2df94e428fdc411b73c5fca8"
+  },
+  {
+    "path": ".env.example",
+    "before_0140": "9b090e053539e9fe136fae5ccf5759ace3c374b20e0ce5f7bf81a7715e736407",
+    "before_0141": "45e3ba39b4be7b776fabf0f49fa172c6dc9ac87b4ce0cbe086d28ebdcaa333a9",
+    "after": "425c44a00321aa71a2295986b0d562ece8d03a7aeab7603f8be8bc97a331979c"
+  },
+  {
+    "path": "nginx/conf.d/default.conf",
+    "before_0140": "b023517acaf89fdc07bcef11d72be7cf43f20b48507bab55e96ab18c4e06cd42",
+    "before_0141": "b023517acaf89fdc07bcef11d72be7cf43f20b48507bab55e96ab18c4e06cd42",
+    "after": "d4785794a3bf927c59dab74d4c1c99ed6b5919c26ffa0df06842821b3470f183"
+  },
+  {
+    "path": "backend/alembic/versions/0141_workspace_branding.py",
+    "before_0140": null,
+    "before_0141": "f511c957f633c5bf3c2065b80270f61f89b4d4d75e5c4c3ca1e3c71f3b2d4567",
+    "after": "f511c957f633c5bf3c2065b80270f61f89b4d4d75e5c4c3ca1e3c71f3b2d4567"
+  },
+  {
+    "path": "backend/app/core/config/release_manifest.json",
+    "before_0140": "c299ce7831e45c560772460e88adb90425601d9a8eefa2e705300f6b5494c37f",
+    "before_0141": "cc268e4b24d58b50ec72f95c3ccd03350c96033833db061fd3ba5fe63b0fdf80",
+    "after": "122e7b38970b18609cf46b20b99d4b2c093c4f8b471bcd484b8c59a7080c6119"
+  },
+  {
+    "path": "backend/app/core/config/settings.py",
+    "before_0140": "f03d2164785e577d5cdceb05d821b793fc7602a8e01d2992a3c7561d0d42d41e",
+    "before_0141": "ca8a8ebd3333f588766d85071e5c963ef10dbb01e9d5ee2891d94fbe64cd9017",
+    "after": "6c5485def68a3d76a27260fbce57bfb2321b241787b769ce0738d63fccc8fef3"
+  },
+  {
+    "path": "backend/app/domain/entities/entities.py",
+    "before_0140": "0d6ca59ea43f42daddbb686fb79f21e04c27157c589bf4227f1bc169ffdd96d2",
+    "before_0141": "ff83a9b8c350d7d3bfd0b75922d67ee32bec62a7164cf1ca2d13e77e6e19e225",
+    "after": "6e632388e2e0074771f336a1459c86d6a0712a3d0a93e14def7b2062270bf6fa"
+  },
+  {
+    "path": "backend/app/infrastructure/database/communications_models.py",
+    "before_0140": "f28acf7b3c2e90f758202a18e4dcbc56bbec2d93d4db9c38e4bde3bfb58240a0",
+    "before_0141": "1945ccceb8ee2c8e7b937eacd5370dc26cbc6bfacd80376c4cdfa42446a48297",
+    "after": "1945ccceb8ee2c8e7b937eacd5370dc26cbc6bfacd80376c4cdfa42446a48297"
+  },
+  {
+    "path": "backend/app/infrastructure/database/gc_mobile_models.py",
+    "before_0140": "d9bed4d91e3c30690de5fe575373b48a6b8a51edb7feb77527aa20b7a85fba61",
+    "before_0141": "401154b6e85d45ebbbfd2151d84e30cf50a74721c50a472ef95f5fae25536b34",
+    "after": "401154b6e85d45ebbbfd2151d84e30cf50a74721c50a472ef95f5fae25536b34"
+  },
+  {
+    "path": "backend/app/infrastructure/database/models.py",
+    "before_0140": "4c4b5d0d51d39a359fe5467a5aa26c3e7fb9eef41a5ef609036dbfcab6eb7da7",
+    "before_0141": "6d5fd4469e2b5321800a713c0bf3ecce48d0d6d3a78cd6ecbcab36f76ac90abb",
+    "after": "cca0de0deb12e7cdc7368501e8a3ac0012e513d691ddcf10a3ead67ec4ec2ed0"
+  },
+  {
+    "path": "backend/app/infrastructure/storage/branding_urls.py",
+    "before_0140": null,
+    "before_0141": "d6372bdb551e4def9cc5edeed8904e9edff162d39259458b5083c909a6466b22",
+    "after": "9b75c427c919f2a0ed48bb99979ccd69bc7a3ba94d9514e7b45ba5a52d838b29"
+  },
+  {
+    "path": "docker-compose.yml",
+    "before_0140": "e7e44f8ad4aa6fd39c6fbbdd1befec7750470d4c64c4eac623cf308cfc861e45",
+    "before_0141": "37a1d21f0e313c9e0e0c3d9fde4a662743317751aae059965d01ab6eb53ea8a8",
+    "after": "918eb4fc3eccecb7c68ad56ab66b36a976754b3f0b1f0ce7a04081c8e309a357"
+  },
+  {
+    "path": "frontend/scripts/verify-whatsapp-recipient-bulk-browser.mjs",
+    "before_0140": "bfd36aa9eed6d26eca5ae998a0f73b8fd278d045008ecccba3465da7e9c8b143",
+    "before_0141": "99c936a2da8696e77d8f986700f91058070479b7f2bbe9a67b0bb6b0e04f7ab5",
+    "after": "99c936a2da8696e77d8f986700f91058070479b7f2bbe9a67b0bb6b0e04f7ab5"
+  },
+  {
+    "path": "backend/alembic/versions/0142_group_background.py",
+    "before_0140": null,
+    "before_0141": null,
+    "after": "171477cb03f92d19b65b26c1c1580a23dc95e3a3c462732aa7c58914f0fb0af0"
+  },
+  {
+    "path": "nginx/nginx.conf",
+    "before_0140": "c6b821810504df2ad51866a7929210ed913e9f0debcc6a59d62eaf38d2520024",
+    "before_0141": "c6b821810504df2ad51866a7929210ed913e9f0debcc6a59d62eaf38d2520024",
+    "after": "383ad2de629ba95d564b8ae302ef485ac4f9d22bcbe599abd691dc0b5583edb1"
+  },
+  {
+    "path": "frontend/scripts/verify-frontend-module-budgets.mjs",
+    "before_0140": "dd6bad57c8eae5afe4e0ca49d7d28568c0637a716b434da8a7c07f869723fabe",
+    "before_0141": "dd6bad57c8eae5afe4e0ca49d7d28568c0637a716b434da8a7c07f869723fabe",
+    "after": "844d21db27900ba60f801834d8f360fd77bb36f68b2e683ad8815baa2fe39d73"
+  },
+  {
+    "path": "backend/requirements.txt",
+    "before_0140": "85806e4acd976cfb1d86437cb6af229505ec9c86ef714e015c91e19883344282",
+    "before_0141": "85806e4acd976cfb1d86437cb6af229505ec9c86ef714e015c91e19883344282",
+    "after": "ba9cbd3b577b316b1262c2f5ce6cd14f8d2cf5c9347df152f75bc252a42ad31c"
+  },
+  {
+    "path": "backend/requirements.lock",
+    "before_0140": "1504909b310b33fcfbdd6a45d90f41dc6df8b743ec97f77e3ed918013fa43c75",
+    "before_0141": "1504909b310b33fcfbdd6a45d90f41dc6df8b743ec97f77e3ed918013fa43c75",
+    "after": "1fe14679cfb5a5dce7043966982e4b348c5861d9d952dfc32183eea7ce1e2bd0"
+  },
+  {
+    "path": "backend/requirements-dev.lock",
+    "before_0140": "558e52f32ca3b6225d39b7ee86a036f79c13225baf4a78f051925bef511e146c",
+    "before_0141": "558e52f32ca3b6225d39b7ee86a036f79c13225baf4a78f051925bef511e146c",
+    "after": "fa496ac3b66cb786678e2d68d5dd105b06e1f111c909334848a93f29c17c7e1f"
+  },
+  {
+    "path": "backend/app/infrastructure/storage/minio_repository.py",
+    "before_0140": "dde40a198aff9f1ecbd7e36aa6e4069ebfd58808329744ccf6cac54a669294e1",
+    "before_0141": "dde40a198aff9f1ecbd7e36aa6e4069ebfd58808329744ccf6cac54a669294e1",
+    "after": "f31fe249d63c18ea0e400bae0ee3161eb05db6b194527e2bdab39bf88626180c"
+  },
+  {
+    "path": "backend/backend_quality_budgets.json",
+    "before_0140": "1a0a15cddd6a58eecdf40e7f401c1a8475b559525def093289d51fdb1ee790b0",
+    "before_0141": "1a0a15cddd6a58eecdf40e7f401c1a8475b559525def093289d51fdb1ee790b0",
+    "after": "cea34272ee47d9ef74d97ff1db5f05dd062eab76ab4111297afcd984c3169562"
+  },
+  {
+    "path": "backend/app/core/config/database_settings.py",
+    "before_0140": null,
+    "before_0141": null,
+    "after": "7b9726cf21327e74ef9ae4ff58208ac6c1ce3a1d9703e5c8c8c09674cc841d91"
+  },
+  {
+    "path": "backend/app/core/config/redis_settings.py",
+    "before_0140": null,
+    "before_0141": null,
+    "after": "c957557cc89327b0dd872741b42f7e012cd3a477b7587df1376bd3494e69e8ca"
+  },
+  {
+    "path": "backend/app/core/config/jwt_settings.py",
+    "before_0140": null,
+    "before_0141": null,
+    "after": "35558f00bcfc550b776f36ce71e3dc5a1d338faa13aa968c7f8782d13413e44c"
+  },
+  {
+    "path": "backend/app/core/config/s3_settings.py",
+    "before_0140": null,
+    "before_0141": null,
+    "after": "94ec7f8105a32d2a16e2a23aa030425bec1711d93f30abbc7e5db23f7fb3ab47"
+  },
+  {
+    "path": "backend/app/core/config/my_photos_settings.py",
+    "before_0140": null,
+    "before_0141": null,
+    "after": "e30629c3d3803355ba4484d55f97c08e1857cc75ea7e1a52e83849b601cd7f17"
+  },
+  {
+    "path": "frontend/tsconfig.json",
+    "before_0140": "be18523b23b78b6e1a876ddd107d330f0168bddf09d751b57e0b5edce69c66f3",
+    "before_0141": "be18523b23b78b6e1a876ddd107d330f0168bddf09d751b57e0b5edce69c66f3",
+    "after": "e1f2b4ec806c55ba0cc71369588733fe427a277990cccfd44ef62c9b6e9fe49d"
+  },
+  {
+    "path": "backend/app/infrastructure/processing/celery_app.py",
+    "before_0140": "e947425a414a451ad5d00f4938793c2927269ea3f46ec77b877cff7bfb6fe7d5",
+    "before_0141": "e947425a414a451ad5d00f4938793c2927269ea3f46ec77b877cff7bfb6fe7d5",
+    "after": "7698059525fa0e66ea9fdc29c42fb6623b5829b6ca7ec3c7539e395b093b5681"
+  },
+  {
+    "path": "backend/app/core/config/runtime_settings_fields.py",
+    "before_0140": null,
+    "before_0141": null,
+    "after": "dd324d05455e837d57ca26aa4dba1f8a0e712214c544fbdc50aab21cd7495a86"
+  },
+  {
+    "path": "backend/app/core/config/request_settings_fields.py",
+    "before_0140": null,
+    "before_0141": null,
+    "after": "f7dbe65f066e304ee089241e7709f14246801039aeee25ba6f91f474fa38468b"
+  },
+  {
+    "path": "backend/app/core/config/ingestion_settings_fields.py",
+    "before_0140": null,
+    "before_0141": null,
+    "after": "b4b3f161aa7dd3350d077dd20e4880dcca69439f853cccb63bec8d82338e2788"
+  },
+  {
+    "path": "backend/app/core/config/ai_settings_fields.py",
+    "before_0140": null,
+    "before_0141": null,
+    "after": "2d7c876502cf60b435b12bd8b33823e91877e8082057f7d16a976b4b51705ad3"
+  },
+  {
+    "path": "backend/app/core/config/email_settings_fields.py",
+    "before_0140": null,
+    "before_0141": null,
+    "after": "ae471aa0f319c27390953546c57f385ea6bb9cb88f6d6bf6e4bc6aae52f45e95"
+  },
+  {
+    "path": "backend/app/core/config/identity_settings_fields.py",
+    "before_0140": null,
+    "before_0141": null,
+    "after": "1aaa228536583a4e8f023f4a350d2652139b2f0aa1dfd34316656d55f972afae"
+  },
+  {
+    "path": "backend/app/core/config/whatsapp_settings_fields.py",
+    "before_0140": null,
+    "before_0141": null,
+    "after": "3a0844b5cc46ff1693f4386df51c8f1c53e4cde1e86ef579abe4f4dbc6eb21bf"
+  },
+  {
+    "path": "backend/app/core/config/settings_deployment_policy.py",
+    "before_0140": null,
+    "before_0141": null,
+    "after": "966075f95b4c23faf2f6da0260587e9f40a2cca9fcdeaaaa9dd30aad06522123"
+  },
+  {
+    "path": "backend/app/core/config/settings_identity_policy.py",
+    "before_0140": null,
+    "before_0141": null,
+    "after": "a3d1c6c91dec985a044fd5140cea479b3703f023e8fb84d960711e387538814c"
+  },
+  {
+    "path": "backend/app/core/config/settings_mobile_policy.py",
+    "before_0140": null,
+    "before_0141": null,
+    "after": "01faa1d917fb7f47fa18e4b0acc7c3e8d7e538f5a10175ff14f625fec447c546"
+  },
+  {
+    "path": "backend/app/core/config/my_photos_aws_policy.py",
+    "before_0140": null,
+    "before_0141": null,
+    "after": "bf72bbe93b00bc98c589cde717c4e80676114d869095d4787b6276696aa65492"
+  }
+]

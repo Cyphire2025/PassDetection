@@ -31,10 +31,10 @@ export function IntentPrefetchLink<T extends string>({
   ...props
 }: IntentPrefetchLinkProps<T>) {
   const router = useRouter();
-  const hasPrefetched = useRef(false);
+  const prefetchedHref = useRef<Route<T> | null>(null);
   const prefetch = () => {
-    if (hasPrefetched.current) return;
-    hasPrefetched.current = true;
+    if (prefetchedHref.current === href) return;
+    prefetchedHref.current = href;
     router.prefetch(href);
   };
 

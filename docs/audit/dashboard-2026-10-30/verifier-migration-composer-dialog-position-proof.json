@@ -1,0 +1,204 @@
+{
+  "viewport": [
+    390,
+    844
+  ],
+  "scroll": [
+    0,
+    0
+  ],
+  "ancestors": [
+    {
+      "tag": "DIV",
+      "class": "rounded-xl border border-slate-200 bg-white w-full shadow-2xl outline-none max-h-[92dvh] overflow-auto max-w-3xl",
+      "rect": {
+        "x": 32,
+        "y": 1064.53125,
+        "width": 321,
+        "height": 607
+      },
+      "position": "static",
+      "transform": "none",
+      "filter": "none",
+      "contain": "none",
+      "perspective": "none",
+      "willChange": "auto"
+    },
+    {
+      "tag": "DIV",
+      "class": "fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-sm",
+      "rect": {
+        "x": 16,
+        "y": 444,
+        "width": 353,
+        "height": 1848.0625
+      },
+      "position": "fixed",
+      "transform": "none",
+      "filter": "none",
+      "contain": "none",
+      "perspective": "none",
+      "willChange": "auto"
+    },
+    {
+      "tag": "DIV",
+      "class": "space-y-5",
+      "rect": {
+        "x": 16,
+        "y": 496,
+        "width": 353,
+        "height": 1796.0625
+      },
+      "position": "static",
+      "transform": "none",
+      "filter": "none",
+      "contain": "none",
+      "perspective": "none",
+      "willChange": "auto"
+    },
+    {
+      "tag": "DIV",
+      "class": "space-y-5",
+      "rect": {
+        "x": 16,
+        "y": 444,
+        "width": 353,
+        "height": 1848.0625
+      },
+      "position": "static",
+      "transform": "none",
+      "filter": "none",
+      "contain": "none",
+      "perspective": "none",
+      "willChange": "auto"
+    },
+    {
+      "tag": "DIV",
+      "class": "Nr84yq_enter",
+      "rect": {
+        "x": 16,
+        "y": 444,
+        "width": 353,
+        "height": 1848.0625
+      },
+      "position": "static",
+      "transform": "matrix(1, 0, 0, 1, 0, 0)",
+      "filter": "none",
+      "contain": "none",
+      "perspective": "none",
+      "willChange": "auto"
+    },
+    {
+      "tag": "DIV",
+      "class": "min-w-0 space-y-6",
+      "rect": {
+        "x": 16,
+        "y": 81,
+        "width": 353,
+        "height": 2211.0625
+      },
+      "position": "static",
+      "transform": "none",
+      "filter": "none",
+      "contain": "none",
+      "perspective": "none",
+      "willChange": "auto"
+    },
+    {
+      "tag": "DIV",
+      "class": "dashboard-content mx-auto w-full px-4 py-6 sm:px-7 sm:py-8 xl:px-10 max-w-[1600px]",
+      "rect": {
+        "x": 0,
+        "y": 57,
+        "width": 385,
+        "height": 2279.0625
+      },
+      "position": "static",
+      "transform": "none",
+      "filter": "none",
+      "contain": "none",
+      "perspective": "none",
+      "willChange": "auto"
+    },
+    {
+      "tag": "MAIN",
+      "class": "min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-y-contain",
+      "rect": {
+        "x": 0,
+        "y": 68,
+        "width": 390,
+        "height": 776
+      },
+      "position": "static",
+      "transform": "none",
+      "filter": "none",
+      "contain": "none",
+      "perspective": "none",
+      "willChange": "auto"
+    },
+    {
+      "tag": "DIV",
+      "class": "flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 844
+      },
+      "position": "static",
+      "transform": "none",
+      "filter": "none",
+      "contain": "none",
+      "perspective": "none",
+      "willChange": "auto"
+    },
+    {
+      "tag": "DIV",
+      "class": "fixed inset-0 flex min-h-0 w-full overflow-hidden overscroll-none bg-slate-50",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 844
+      },
+      "position": "fixed",
+      "transform": "none",
+      "filter": "none",
+      "contain": "none",
+      "perspective": "none",
+      "willChange": "auto"
+    },
+    {
+      "tag": "BODY",
+      "class": "min-h-screen bg-slate-50 font-sans antialiased",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 844
+      },
+      "position": "static",
+      "transform": "none",
+      "filter": "none",
+      "contain": "none",
+      "perspective": "none",
+      "willChange": "auto"
+    },
+    {
+      "tag": "HTML",
+      "class": "-T-KAq_variable",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 844
+      },
+      "position": "static",
+      "transform": "none",
+      "filter": "none",
+      "contain": "none",
+      "perspective": "none",
+      "willChange": "auto"
+    }
+  ]
+}

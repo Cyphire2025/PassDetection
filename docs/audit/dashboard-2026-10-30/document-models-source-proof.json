@@ -1,0 +1,2330 @@
+{
+  "whole_class_asts": [
+    "DocumentDistributionBatchModel",
+    "DistributedDocumentModel",
+    "DocumentWhatsAppDeliveryModel",
+    "UntrustedUploadScanModel",
+    "DocumentRenameBatchModel",
+    "DocumentRenameItemModel",
+    "DocumentUploadChunkModel",
+    "StorageCleanupJobModel"
+  ],
+  "explicit_compatibility_delta": "Only one legacy __module__ literal per class; remove it and every complete original declaration AST is exact. Original class/table declaration order preserved.",
+  "original_import_identities": [
+    "uuid",
+    "datetime",
+    "BigInteger",
+    "CheckConstraint",
+    "DateTime",
+    "Float",
+    "ForeignKey",
+    "Index",
+    "Integer",
+    "LargeBinary",
+    "String",
+    "Text",
+    "UniqueConstraint",
+    "UUID",
+    "Mapped",
+    "mapped_column",
+    "JSONB",
+    "Base",
+    "_utcnow"
+  ],
+  "actual_class_global_bindings": [
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "Base"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "Integer"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "Integer"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "Integer"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "datetime"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "datetime"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "Index"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "uuid"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "UUID"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "uuid"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "UUID"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "ForeignKey"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "uuid"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "UUID"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "ForeignKey"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "String"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "String"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "datetime"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "DateTime"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "UUID"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "ForeignKey"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "DateTime"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "_utcnow"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "DateTime"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "_utcnow"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "_utcnow"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "uuid"
+    },
+    {
+      "class": "DocumentDistributionBatchModel",
+      "name": "uuid"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "Base"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "Float"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "datetime"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "datetime"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "Index"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "Index"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "Index"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "uuid"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "UUID"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "uuid"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "UUID"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "ForeignKey"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "uuid"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "UUID"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "ForeignKey"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "uuid"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "UUID"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "ForeignKey"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "UUID"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "ForeignKey"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "String"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "String"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "String"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "String"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "String"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "String"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "String"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "String"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "String"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "String"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "DateTime"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "_utcnow"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "DateTime"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "_utcnow"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "_utcnow"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "uuid"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "name": "uuid"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "Base"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "JSONB"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "Integer"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "Text"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "datetime"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "datetime"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "datetime"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "Index"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "Index"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "uuid"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "UUID"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "uuid"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "UUID"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "ForeignKey"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "uuid"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "UUID"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "ForeignKey"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "UUID"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "ForeignKey"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "UUID"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "ForeignKey"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "UUID"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "ForeignKey"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "UUID"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "ForeignKey"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "UUID"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "ForeignKey"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "uuid"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "UUID"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "String"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "String"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "String"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "String"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "String"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "String"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "String"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "String"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "String"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "String"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "DateTime"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "_utcnow"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "datetime"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "DateTime"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "UUID"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "ForeignKey"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "DateTime"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "_utcnow"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "DateTime"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "_utcnow"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "_utcnow"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "uuid"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "uuid"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "uuid"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "uuid"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "uuid"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "uuid"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "name": "uuid"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "Base"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "BigInteger"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "LargeBinary"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "Integer"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "datetime"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "datetime"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "CheckConstraint"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "CheckConstraint"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "CheckConstraint"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "CheckConstraint"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "CheckConstraint"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "Index"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "Index"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "uuid"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "UUID"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "UUID"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "ForeignKey"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "UUID"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "ForeignKey"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "String"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "String"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "String"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "String"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "String"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "String"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "String"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "String"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "String"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "DateTime"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "DateTime"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "_utcnow"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "uuid"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "uuid"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "name": "uuid"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "Base"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "Integer"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "Integer"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "Integer"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "Integer"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "datetime"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "datetime"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "uuid"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "UUID"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "uuid"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "UUID"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "ForeignKey"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "String"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "String"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "UUID"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "ForeignKey"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "DateTime"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "_utcnow"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "DateTime"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "_utcnow"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "_utcnow"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "uuid"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "name": "uuid"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "Base"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "datetime"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "datetime"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "Index"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "uuid"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "UUID"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "uuid"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "UUID"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "ForeignKey"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "uuid"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "UUID"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "ForeignKey"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "String"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "String"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "String"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "String"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "String"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "String"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "String"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "String"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "String"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "String"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "DateTime"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "_utcnow"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "DateTime"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "_utcnow"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "_utcnow"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "name": "uuid"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "Base"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "Integer"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "Integer"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "Integer"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "Integer"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "BigInteger"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "Integer"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "Integer"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "JSONB"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "datetime"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "UniqueConstraint"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "CheckConstraint"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "CheckConstraint"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "CheckConstraint"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "CheckConstraint"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "CheckConstraint"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "CheckConstraint"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "CheckConstraint"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "CheckConstraint"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "CheckConstraint"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "CheckConstraint"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "Index"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "uuid"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "UUID"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "uuid"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "UUID"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "uuid"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "UUID"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "ForeignKey"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "String"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "UUID"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "ForeignKey"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "String"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "String"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "DateTime"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "_utcnow"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "name": "uuid"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "Base"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "LargeBinary"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "Integer"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "Integer"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "Integer"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "datetime"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "datetime"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "Mapped"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "datetime"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "mapped_column"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "CheckConstraint"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "CheckConstraint"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "CheckConstraint"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "CheckConstraint"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "Index"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "Index"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "uuid"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "UUID"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "UUID"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "ForeignKey"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "String"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "String"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "String"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "DateTime"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "_utcnow"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "datetime"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "DateTime"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "String"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "DateTime"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "_utcnow"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "DateTime"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "_utcnow"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "_utcnow"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "uuid"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "name": "uuid"
+    }
+  ],
+  "entry_receipts": [
+    {
+      "entry": "model_registry",
+      "before": "model_registry",
+      "tables": 174,
+      "mappers": 174,
+      "all_metadata_equal": true,
+      "table_order_compared_without_sorting": true,
+      "evaluated_class_hints": 8
+    },
+    {
+      "entry": "models",
+      "before": "models",
+      "tables": 174,
+      "mappers": 174,
+      "all_metadata_equal": true,
+      "table_order_compared_without_sorting": true,
+      "evaluated_class_hints": 8
+    },
+    {
+      "entry": "document_models",
+      "before": "document_models",
+      "tables": 174,
+      "mappers": 174,
+      "all_metadata_equal": true,
+      "table_order_compared_without_sorting": true,
+      "evaluated_class_hints": 8
+    },
+    {
+      "entry": "distribution",
+      "before": "document_models",
+      "tables": 174,
+      "mappers": 174,
+      "all_metadata_equal": true,
+      "table_order_compared_without_sorting": true,
+      "evaluated_class_hints": 8
+    },
+    {
+      "entry": "delivery",
+      "before": "document_models",
+      "tables": 174,
+      "mappers": 174,
+      "all_metadata_equal": true,
+      "table_order_compared_without_sorting": true,
+      "evaluated_class_hints": 8
+    },
+    {
+      "entry": "upload_scan",
+      "before": "document_models",
+      "tables": 174,
+      "mappers": 174,
+      "all_metadata_equal": true,
+      "table_order_compared_without_sorting": true,
+      "evaluated_class_hints": 8
+    },
+    {
+      "entry": "rename",
+      "before": "document_models",
+      "tables": 174,
+      "mappers": 174,
+      "all_metadata_equal": true,
+      "table_order_compared_without_sorting": true,
+      "evaluated_class_hints": 8
+    },
+    {
+      "entry": "upload_chunk",
+      "before": "document_models",
+      "tables": 174,
+      "mappers": 174,
+      "all_metadata_equal": true,
+      "table_order_compared_without_sorting": true,
+      "evaluated_class_hints": 8
+    },
+    {
+      "entry": "cleanup",
+      "before": "document_models",
+      "tables": 174,
+      "mappers": 174,
+      "all_metadata_equal": true,
+      "table_order_compared_without_sorting": true,
+      "evaluated_class_hints": 8
+    }
+  ],
+  "source_inspection_limits": [
+    {
+      "class": "DocumentDistributionBatchModel",
+      "error_type": "OSError",
+      "message": "could not find class definition",
+      "actual_source": "backend/app/infrastructure/database/_document_models/distribution.py"
+    },
+    {
+      "class": "DistributedDocumentModel",
+      "error_type": "OSError",
+      "message": "could not find class definition",
+      "actual_source": "backend/app/infrastructure/database/_document_models/distribution.py"
+    },
+    {
+      "class": "DocumentWhatsAppDeliveryModel",
+      "error_type": "OSError",
+      "message": "could not find class definition",
+      "actual_source": "backend/app/infrastructure/database/_document_models/delivery.py"
+    },
+    {
+      "class": "UntrustedUploadScanModel",
+      "error_type": "OSError",
+      "message": "could not find class definition",
+      "actual_source": "backend/app/infrastructure/database/_document_models/upload_scan.py"
+    },
+    {
+      "class": "DocumentRenameBatchModel",
+      "error_type": "OSError",
+      "message": "could not find class definition",
+      "actual_source": "backend/app/infrastructure/database/_document_models/rename.py"
+    },
+    {
+      "class": "DocumentRenameItemModel",
+      "error_type": "OSError",
+      "message": "could not find class definition",
+      "actual_source": "backend/app/infrastructure/database/_document_models/rename.py"
+    },
+    {
+      "class": "DocumentUploadChunkModel",
+      "error_type": "OSError",
+      "message": "could not find class definition",
+      "actual_source": "backend/app/infrastructure/database/_document_models/upload_chunk.py"
+    },
+    {
+      "class": "StorageCleanupJobModel",
+      "error_type": "OSError",
+      "message": "could not find class definition",
+      "actual_source": "backend/app/infrastructure/database/_document_models/cleanup.py"
+    }
+  ],
+  "unchanged_original_dependencies_and_tests": [
+    "backend/app/infrastructure/database/models.py",
+    "backend/app/infrastructure/database/model_base.py",
+    "backend/app/infrastructure/database/model_registry.py",
+    "backend/tests/unit/infrastructure/test_database_model_decomposition.py",
+    "backend/tests/unit/infrastructure/test_document_whatsapp_delivery.py",
+    "backend/tests/unit/infrastructure/test_document_upload_chunk_limits_migration.py",
+    "backend/tests/unit/infrastructure/test_storage_cleanup.py",
+    "backend/tests/unit/infrastructure/test_storage_cleanup_persistence.py",
+    "backend/tests/unit/infrastructure/test_upload_security.py",
+    "backend/tests/integration/test_document_manual_upload.py"
+  ],
+  "migration_source_files_unchanged": 142
+}

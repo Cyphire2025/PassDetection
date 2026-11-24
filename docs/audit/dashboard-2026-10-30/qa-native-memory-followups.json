@@ -1,0 +1,44 @@
+{
+  "candidate_basis": "Manualphysicalsource/controlflow only; no newbehaviorfindingadoptedwithoutreproduction. Runtime/code/gates remainunchanged.",
+  "candidates": [
+    {
+      "id": "QNM01",
+      "status": "open-source-candidate-awaiting-normal-path-reproduction",
+      "paths": [
+        "scripts/qa/qualify_api_native_memory.py:49",
+        "scripts/qa/qualify_api_native_memory.py:86",
+        "scripts/qa/qualify_postgres_memory.py:105"
+      ],
+      "observation": "API detachedacquisition/receiptconstruction precedetry; diagnostics inspect/exec/log+write precedestop in finally. PostgreSQLconnectionclose/observerclose precedeownstop. A precedingfailure/cancel can bypassstop bysourceflow; actualcontainer/driver behavior notexercised.",
+      "next_proof": "Run actualmain withsyntheticcommand/connectionfaults aftersuccessfulownedacquisition; healthycontrol, diagnosticfailure/cancellation/originalexception+boundedstop/evidenceretention. No realDocker/credentials needed."
+    },
+    {
+      "id": "QNM02",
+      "status": "open-source-provenance-candidate-awaiting-normal-path-reproduction",
+      "paths": [
+        "scripts/qa/qualify_api_native_memory.py:56"
+      ],
+      "observation": "When source-admission overlay isfalse, receipt stillrecordsHOSTadmissionbytes; no comparisonorimage-bytehashread exists. CurrentCI normallybuildsfromsamecheckout butstandaloneexactimageCLIallowsanoldimage. Actualresultscamefromimagewhenexecuted, hostprovenanceinterpretationmustbecalibrated.",
+      "next_proof": "Actualmain syntheticold-image/new-host controls; assert image-boundhash comparisonorclearlyseparatedhostmetadata, retainoverlayflag andnoFinalimageclaimfromoverlay."
+    },
+    {
+      "id": "QNM03",
+      "status": "open-source-candidate-awaiting-normal-path-reproduction",
+      "paths": [
+        "scripts/qa/qualify_bounded_memory.py:62"
+      ],
+      "observation": "TimeoutExpired bypassesstate/evidence andthereisno ownedcontainer finally path in attachedrun loop. DockerCLI-vs-container lifetime nottestedhere; do notclaimliveorphan.",
+      "next_proof": "Actualmain faultinjectdriverTimeoutExpired/KeyboardInterrupt afterownedcaseacquisition withhealthy exitedretention controls; proveappropriateownedidentity/lifetime/evidence beforefix."
+    },
+    {
+      "id": "QNM04",
+      "status": "open-source-candidate-awaiting-normal-path-reproduction",
+      "paths": [
+        "scripts/qa/probe_bounded_memory.py:193"
+      ],
+      "observation": "Firstoverrun terminates+joins onlythatprocess thenraisesbeforeclosingreaders/drainingremainingcreatedsiblings; processjoinafterterminate hasno deadline. Normalworkloadhangandnativeforkcleanupnotexercised.",
+      "next_proof": "Actualorchestrator syntheticprocessprotocol/realforkifavailablelater, firstchildtimeout+healthy/stuck sibling/all-exitedcontrols; preservemeasurement/exitcodes andoriginalfailure, no arbitraryworkerinput."
+    }
+  ],
+  "reserved": "Root image_advisory_policy.py/dispositions/pins/officialresearch andreportedexpiredwindows untouched."
+}

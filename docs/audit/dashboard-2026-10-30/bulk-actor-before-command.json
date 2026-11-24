@@ -1,0 +1,31 @@
+{
+  "argv": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "--tb=short",
+    "tests/unit/presentation/test_bulk_approval_session_fence.py"
+  ],
+  "before": {
+    "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions.py": "034a76209c61e05c1c5919329946f6d869a930a93bb5a5c45513e74904dea716",
+    "backend/app/application/security/access_level_actor.py": "3a8eec715f67356a378986999a012723bdd21f5510518ee7320ce7d0809013a6",
+    "backend/app/presentation/api/v1/routes/managed_account_sessions.py": "64828e2872daadeaee2362b07c4a353f43c6408e4598e59e7287ebb96b628043",
+    "backend/app/presentation/api/v1/routes/managed_account_credentials.py": "067cfca4e972d2caaff00aa6b2dc81fbe3bcff6f2bb7bb39b0c4a5fee114a778",
+    "backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py": "ced75764ed545c89e2f74667b3fd2cb29b9578476b4069adc1c4428f1b395fa4",
+    "backend/tests/unit/presentation/test_bulk_approval_session_fence.py": "2563a81c6a4edb1551550792ba8c106f4adfd6f76bf5b34e18f152c952c12cc0"
+  },
+  "after": {
+    "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions.py": "034a76209c61e05c1c5919329946f6d869a930a93bb5a5c45513e74904dea716",
+    "backend/app/application/security/access_level_actor.py": "3a8eec715f67356a378986999a012723bdd21f5510518ee7320ce7d0809013a6",
+    "backend/app/presentation/api/v1/routes/managed_account_sessions.py": "64828e2872daadeaee2362b07c4a353f43c6408e4598e59e7287ebb96b628043",
+    "backend/app/presentation/api/v1/routes/managed_account_credentials.py": "067cfca4e972d2caaff00aa6b2dc81fbe3bcff6f2bb7bb39b0c4a5fee114a778",
+    "backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py": "ced75764ed545c89e2f74667b3fd2cb29b9578476b4069adc1c4428f1b395fa4",
+    "backend/tests/unit/presentation/test_bulk_approval_session_fence.py": "2563a81c6a4edb1551550792ba8c106f4adfd6f76bf5b34e18f152c952c12cc0"
+  },
+  "source_frozen": true,
+  "exit_code": 1,
+  "output": "bulk-actor-before-tests.txt"
+}

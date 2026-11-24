@@ -1,0 +1,20 @@
+{
+  "test_files": [
+    "tests/integration/test_identity_action_boundaries.py",
+    "tests/unit/infrastructure/test_identity_security_repository.py",
+    "tests/integration/test_password_recovery_delivery.py",
+    "tests/integration/test_dashboard_identity_lifecycle.py"
+  ],
+  "owner_sha256": {
+    "app.presentation.api.v1.routes.auth_identity": "daa6e8b3fc67dd9cda2c784d0330fddecb05105e8b0e7b3651b8c6a2936f6e37",
+    "app.presentation.api.v1.routes.auth_identity_account": "c47ddd2d9969dcd1ce03e293ba35d31cbc902fc5954decd867fc0bd7a09f569d",
+    "app.presentation.api.v1.routes.auth_identity_actions": "70e71e7d79682c1e532c350076f7b3ef231a53977d41df43d431e12133844d3f",
+    "app.presentation.api.v1.routes.auth_identity_recovery": "422caca899fab26bd330fcf573db97bacbd374c4e9de1ec57dc51099c090c804",
+    "app.presentation.api.v1.routes.auth_identity_step_up": "e748311e50ee9c47ce1df2596ec2b5d4ea0f9c96c2240aaf80a4ee91c30c7639",
+    "app.presentation.api.v1.routes.auth_identity_verification": "d81331a9d79ab28335c74a9e87917fb74641b12dca95beec3f4bc34a6c8b1d54",
+    "app.presentation.api.v1.routes.auth_identity_dependencies": "a34df50acc82598958ebbbbf0d375bec0637ec0cc7a6e33f7d3b86c14bf7389f",
+    "app.infrastructure.repositories.identity_security_repository": "cb748a2dc68051430b6eb60c5983c5551ec7fee2d27fbfe45df9237c50daad6c",
+    "app.infrastructure.repositories.identity_action_token_repository": "0cfc0cb594e048ad9c81f77430f2cc676db35bc72841c863f2421eb8f8a7c90a",
+    "app.infrastructure.repositories.dashboard_step_up_repository": "707751b5f3eb4beb2b175ca8091d1efe04f73e492138870a083dc235a0e41051"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "source_sha256": "6c48d2e6838d056e9d83db1266521c09ca50a1eda61430c9922bfd93d8c1e924",
+  "checks": [
+    "create_broadcast_group original args",
+    "create_broadcast_group original returns",
+    "create_broadcast_group original decorator_list",
+    "create_broadcast_group whole body exact after expanding the intentional canonical-parser call",
+    "update_broadcast_group original args",
+    "update_broadcast_group original returns",
+    "update_broadcast_group original decorator_list",
+    "update_broadcast_group whole body exact after expanding the intentional canonical-parser call"
+  ],
+  "count": 8,
+  "intentional_change": "Manual contact JSON now uses the existing canonical array parser; observed empty dict/string bypasses reject before admission. Valid array behavior remains covered."
+}

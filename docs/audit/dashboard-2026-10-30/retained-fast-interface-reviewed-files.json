@@ -1,0 +1,20 @@
+[
+  {
+    "path": "scripts/retained_release_fast.py",
+    "sha256": "fcff1b7fd28d148ff7c7d49e00c4472a822a854a1ed06427252e4dd374cb8459",
+    "physical_lines": 80,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete current authored owner/test read. Base-call arity correction keeps original one-argument fast path and exact generated code/resource/copy/execute/commit sequence; optional lock argument fails closed on changed or unreadable evidence. Whole module AST restores after removing only Path/BuildError imports, optional parameter and one validation prefix.53affected tests, seven owned source strict typing and Ruff pass. No live Docker/VPS/deploy."
+  },
+  {
+    "path": "scripts/test_retained_fast_interface.py",
+    "sha256": "9a5a900eac529ab88b112e171d51d6ed5cb52d2976d13671386a3e52031c774d",
+    "physical_lines": 103,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete current authored owner/test read. Base-call arity correction keeps original one-argument fast path and exact generated code/resource/copy/execute/commit sequence; optional lock argument fails closed on changed or unreadable evidence. Whole module AST restores after removing only Path/BuildError imports, optional parameter and one validation prefix.53affected tests, seven owned source strict typing and Ruff pass. No live Docker/VPS/deploy."
+  }
+]

@@ -1,0 +1,11 @@
+features/mcp/hooks/use-mcp-file-transfer.test.tsx(1,52): error TS2307: Cannot find module 'node:buffer' or its corresponding type declarations.
+features/mcp/hooks/use-mcp-file-transfer.test.tsx(2,39): error TS2307: Cannot find module 'node:crypto' or its corresponding type declarations.
+features/mcp/hooks/use-mcp-file-transfer.test.tsx(11,15): error TS2580: Cannot find name 'Buffer'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+features/mcp/utils/file-transfer.test.ts(1,52): error TS2307: Cannot find module 'node:buffer' or its corresponding type declarations.
+features/mcp/utils/file-transfer.test.ts(2,39): error TS2307: Cannot find module 'node:crypto' or its corresponding type declarations.
+features/mcp/utils/file-transfer.test.ts(8,15): error TS2580: Cannot find name 'Buffer'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+features/mcp/utils/file-transfer.test.ts(45,49): error TS2580: Cannot find name 'Buffer'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+features/mcp/utils/file-transfer.test.ts(46,49): error TS2580: Cannot find name 'Buffer'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+features/mcp/utils/file-transfer.test.ts(53,48): error TS2580: Cannot find name 'Buffer'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+features/mcp/utils/file-transfer.test.ts(66,34): error TS2580: Cannot find name 'Buffer'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+features/mcp/utils/file-transfer.test.ts(69,32): error TS2580: Cannot find name 'Buffer'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.

@@ -1,0 +1,56 @@
+[
+  {
+    "path": "backend/app/presentation/api/v1/routes/document_rename.py",
+    "sha256": "fbfa43c21176a029b08ede4f12ed2829b852d96479aa29e6d4c3430f8bd0cb11",
+    "lines": 1093,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read before coherent document rename cancellation/architecture tranche; no native mobile source, provider sends or production fixtures."
+  },
+  {
+    "path": "backend/app/application/use_cases/document_rename/read_scope.py",
+    "sha256": "c73c1466c10639987a774f6e0f196237f05e7e025ef3c38b59684022a1c2418e",
+    "lines": 21,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read before coherent document rename cancellation/architecture tranche; no native mobile source, provider sends or production fixtures."
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/document_rename_queries.py",
+    "sha256": "1b433f587143b01e0b8cd1fecc34864ea3419f78e91416e70171e01bc86c5105",
+    "lines": 26,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read before coherent document rename cancellation/architecture tranche; no native mobile source, provider sends or production fixtures."
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/document_rename_read_repository.py",
+    "sha256": "e638d0bf775834a3aa1dbadd892cd1837be55786815bbe59b9bf8999eebe19bb",
+    "lines": 93,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read before coherent document rename cancellation/architecture tranche; no native mobile source, provider sends or production fixtures."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/schemas/document_rename_schemas.py",
+    "sha256": "53b6bf348afd6222d9c9cd54f67f98285e1cb073b754f60acf0855c467cea701",
+    "lines": 55,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read before coherent document rename cancellation/architecture tranche; no native mobile source, provider sends or production fixtures."
+  },
+  {
+    "path": "backend/app/infrastructure/documents/storage_transfers.py",
+    "sha256": "a15cde9b255188896500d54e4de7faf9dafbbe332f13f3163b1590f38a1c58d1",
+    "lines": 71,
+    "reviewer": "manual_security",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read before coherent document rename cancellation/architecture tranche; no native mobile source, provider sends or production fixtures."
+  }
+]

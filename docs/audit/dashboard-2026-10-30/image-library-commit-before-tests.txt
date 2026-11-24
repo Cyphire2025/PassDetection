@@ -1,0 +1,453 @@
+Warning: truncated output (original token count: 7886)
+Total output lines: 456
+
+FFFF                                                                 [100%]
+================================== FAILURES ===================================
+_ test_committed_library_and_crop_objects_survive_lost_acknowledgement[lost-ack-passport_front-manual] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x00000160D4E5E910>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000160D2F99010>
+operation = 'manual'
+image_type = <PassportImageType.PASSPORT_FRONT: 'passport_front'>
+lost_ack = True
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("operation", ["manual", "select"])
+    @pytest.mark.parametrize("image_type", [PassportImageType.PASSPORT_FRONT, PassportImageType.PASSPORT_BACK_COVER])
+    @pytest.mark.parametrize("lost_ack", [False, True], ids=["ordinary", "lost-ack"])
+    async def test_committed_library_and_crop_objects_survive_lost_acknowledgement(
+        db_session, monkeypatch, operation, image_type, lost_ack,
+    ):
+        agency = AgencyModel(id=uuid.uuid4(), name="Image fixture", email="image-agency@example.test")
+        db_session.add(agency)
+        await db_session.flush()
+        user = UserModel(
+            id=uuid.uuid4(), agency_id=agency.id, email="image-admin@example.test",
+            full_name="Image Admin", hashed_password="synthetic-hash", role="agency_admin", is_active=True,
+        )
+        db_session.add(user)
+        await db_session.flush()
+        group = ClientGroupModel(
+            id=uuid.uuid4(), agency_id=agency.id, created_by_user_id=user.id, name="Image Group",
+            token=uuid.uuid4().hex, travel_date=datetime.now(UTC).date() + timedelta(days=20),
+        )
+        db_session.add(group)
+        await db_session.flush()
+        submission = PassportSubmissionModel(
+            id=uuid.uuid4(), agency_id=agency.id, group_id=group.id, client_name="Synthetic Passenger",
+            image_s3_key="front/synthetic-front.jpg", passport_back_cover_s3_key="back/synthetic-cover.jpg",
+            status="staff_approved",
+        )
+        db_session.add(submission)
+        await db_session.commit()
+        actor = await UserRepository(db_session).get_by_id(user.id)
+        value = await PassportSubmissionRepository(db_session).get_by_id(submission.id)
+        source = passport_image_storage_key(value, image_type)
+        storage = ImageStorage({source: b"canonical-source"})
+        item = None
+        if operation == "select":
+            key = f"passport-image-library/{agency.id}/{submission.id}/{image_type.value}/manual/existing.jpg"
+            item = await PassportImageLibraryRepository(db_session).create_manual(
+                submission_id=submission.id, image_type=image_type, storage_key=key,
+                original_source_storage_key=source, content_sha256="a" * 64, created_by_user_id=user.id,
+            )
+            storage.objects[key] = b"canonical-existing"
+        await db_session.commit()
+        monkeypatch.setattr(route, "_authorized_staff_passport_image", AsyncMock(return_value=(value, source)))
+        monkeypatch.setattr(route, "MinioStorageRepository", lambda: storage)
+        monkeypatch.setattr(route, "_validated_upload_file", AsyncMock(return_value=SimpleNamespace(content=b"canonical-upload", content_type="image/jpeg")))
+        monkeypatch.setattr(route, "render_passport_image_crop", lambda *_args, **_kwargs: SimpleNamespace(
+            content=b"canonical-derivative", content_type="image/jpeg", extension=".jpg",
+            source_width=900, source_height=600,
+        ))
+        monkeypatch.setattr(route, "propagate_mobile_passenger_change", AsyncMock())
+        real_commit = db_session.commit
+    
+        async def dispatch(result, *, session, background_tasks):
+            await session.commit()
+    
+        monkeypatch.setattr(route, "_dispatch_processing_job", dispatch)
+    
+        async def commit():
+            await real_commit()
+            if lost_ack:
+                raise ConnectionError("Synthetic commit acknowledgement lost after persistence")
+    
+        monkeypatch.setattr(db_session, "commit", commit)
+    
+        async def execute():
+            if operation == "manual":
+                return await route.upload_passport_image_library_item(
+                    submission_id=submission.id, image_type=image_type, background_tasks=BackgroundTasks(),
+                    image=SimpleNamespace(), expected_revision=0, _csrf=None,
+                    current_user=actor, session=db_session,
+                )
+            return await route.use_passport_image_library_item(
+                submission_id=submission.id, image_type=image_type, item_id=item.id,
+                body=PassportVisaAiImageUseRequest(x=0, y=0, width=1, height=1, expected_revision=0),
+                background_tasks=BackgroundTasks(), _csrf=None, current_user=actor, session=db_session,
+            )
+    
+        if lost_ack:
+            with pytest.raises(ConnectionError):
+                await execute()
+        else:
+            await execute()
+        factory = async_sessionmaker(db_session.bind, expire_on_commit=False)
+        async with factory() as observer:
+            crop = (await observer.scalars(select(PassportImageCropModel).where(
+                PassportImageCropModel.submission_id == submission.id,
+                PassportImageCropModel.image_type == image_type.value,
+            ))).one()
+            library = list((await observer.scalars(select(PassportImageLibraryItemModel).where(
+                PassportImageLibraryItemModel.submission_id == submission.id,
+            ))).all())
+            references = {crop.source_storage_key, crop.derived_storage_key, *[entry.storage_key for entry in library]}
+            if crop.edit_source_storage_key:
+                references.add(crop.edit_source_storage_key)
+>           assert references <= storage.objects.keys(), "Committed passport image references lost their stored bytes"
+E           AssertionError: Committed passport image references lost their stored bytes
+E           assert {'front/synthetic-front.jpg', 'passport-crops/03470c57-72f7-4da6-909e-31fe0a4914b1/54f92a29-9590-409a-84fa-50520c0986b...da6-909e-31fe0a4914b1/54f92a29-9590-409a-84fa-50520c0986b5/passport_front/manual/b116dd2d1f894228a9d143ab88253b71.jpg'} <= dict_keys(['front/synthetic-front.jpg'])
+E            +  where dict_keys(['front/synthetic-front.jpg']) = <built-in method keys of dict object at 0x00000160D4F24100>()
+E            +    where <built-in method keys of dict object at 0x00000160D4F24100> = {'front/synthetic-front.jpg': b'canonical-source'}.keys
+E            +      where {'front/synthetic-front.jpg': b'canonical-source'} = <test_passport_image_library_commit_outcomes.ImageStorage object at 0x00000160D4F24D10>.objects
+
+tests\unit\presentation\test_passport_image_library_commit_outcomes.py:151: AssertionError
+---------------------------- Captured stdout call -----------------------------
+2026-10-31T08:41:33.218092Z [info     ] passport_reextraction_queued   [app.application.use_cases.passports.reextract_passport_submission_use_case] agency_id=03470c57-72f7-4da6-909e-31fe0a4914b1 group_id=d556ea9d-559d-43bf-9fe1-0ae607c5a9e2 job_id=bf5f902d-e928-4946-a483-f91f6f634fd8 submission_id=54f92a29-9590-409a-84fa-50520c0986b5
+------------------------------ Captured log call ------------------------------
+INFO     app.application.use_cases.passports.reextract_passport_submission_use_case:reextract_passport_submission_use_case.py:65 {'submission_id': '54f92a29-9590-409a-84fa-50520c0986b5', 'job_id': 'bf5f902d-e928-4946-a483-f91f6f634fd8', 'group_id': 'd556ea9d-559d-43bf-9fe1-0ae607c5a9e2', 'agency_id': '03470c57-72f7-4da6-909e-31fe0a4914b1', 'event': 'passport_reextraction_queued', 'logger': 'app.application.use_cases.passports.reextract_passport_submission_use_case', 'level': 'info', 'timestamp': '2026-10-31T08:41:33.218092Z'}
+_ test_committed_library_and_crop_objects_survive_lost_acknowledgement[lost-ack-passport_front-select] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x00000160D31E7210>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000160D2FD4C10>
+operation = 'select'
+image_type = <PassportImageType.PASSPORT_FRONT: 'passport_front'>
+lost_ack = True
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("operation", ["manual", "select"])
+    @pytest.mark.parametrize("image_type", [PassportImageType.PASSPORT_FRONT, PassportImageType.PASSPORT_BACK_COVER])
+    @pytest.mark.parametrize("lost_ack", [False, True], ids=["ordinary", "lost-ack"])
+    async def test_committed_library_and_crop_objects_survive_lost_acknowledgement(
+        db_session, monkeypatch, operation, image_type, lost_ack,
+    ):
+        agency = AgencyModel(id=uuid.uuid4(), name="Image fixture", email="image-agency@example.test")
+        db_session.add(agency)
+        await db_session.flush()
+        user = UserModel(
+            id=uuid.uuid4(), agency_id=agency.id, email="image-admin@example.test",
+            full_name="Image Admin", hashed_password="synthetic-hash", role="agency_admin", is_active=True,
+        )
+        db_session.add(user)
+        await db_session.flush()
+        group = ClientGroupModel(
+            id=uuid.uuid4(), agency_id=agency.id, created_by_user_id=user.id, name="Image Group",
+            token=uuid.uuid4().hex, travel_date=datetime.now(UTC).date() + timedelta(days=20),
+        )
+        db_session.add(group)
+        await db_session.flush()
+        submission = PassportSubmissionModel(
+            id=uuid.uuid4(), agency_id=agency.id, group_id=group.id, client_name="Synthetic Passenger",
+            image_s3_key="front/synthetic-front.jpg", passport_back_cover_s3_key="back/synthetic-cover.jpg",
+            status="staff_approved",
+        )
+        db_session.add(submission)
+        await db_session.commit()
+        actor = await UserRepository(db_session).get_by_id(user.id)
+        value = await PassportSubmissionRepository(db_session).get_by_id(submission.id)
+        source = passport_image_storage_key(value, image_type)
+        storage = ImageStorage({source: b"canonical-source"})
+        item = None
+        if operation == "select":
+            key = f"passport-image-library/{agency.id}/{submission.id}/{image_type.value}/manual/existing.jpg"
+            item = await PassportImageLibraryRepository(db_session).create_manual(
+                submission_id=submission.id, image_type=image_type, storage_key=key,
+                original_source_storage_key=source, content_sha256="a" * 64, created_by_user_id=user.id,
+            )
+            storage.objects[key] = b"canonical-existing"
+        await db_session.commit()
+        monkeypatch.setattr(route, "_authorized_staff_passport_image", AsyncMock(return_value=(value, source)))
+        monkeypatch.setattr(route, "MinioStorageRepository", lambda: storage)
+        monkeypatch.setattr(route, "_validated_upload_file", AsyncMock(return_value=SimpleNamespace(content=b"canonical-upload", content_type="image/jpeg")))
+        monkeypatch.setattr(route, "render_passport_image_crop", lambda *_args, **_kwargs: SimpleNamespace(
+            content=b"canonical-derivative", content_type="image/jpeg", extension=".jpg",
+            source_width=900, source_height=600,
+        ))
+        monkeypatch.setattr(route, "propagate_mobile_passenger_change", AsyncMock())
+        real_commit = db_session.commit
+    
+        async def dispatch(result, *, session, background_tasks):
+            await session.commit()
+    
+        monkeypatch.setattr(route, "_dispatch_processing_job", dispatch)
+    
+        async def commit():
+            await real_commit()
+            if lost_ack:
+                raise ConnectionError("Synthetic commit acknowledgement lost after persistence")
+    
+        monkeypatch.setattr(db_session, "commit", commit)
+    
+        async def execute():
+            if operation == "manual":
+                return await route.upload_passport_image_library_item(
+                    submission_id=submission.id, image_type=image_type, background_tasks=BackgroundTasks(),
+                    image=SimpleNamespace(), expected_revision=0, _csrf=None,
+                    current_user=actor, session=db_session,
+                )
+            return await route.use_passport_image_library_item(
+                submission_id=submission.id, image_type=image_type, item_id=item.id,
+                body=PassportVisaAiImageUseRequest(x=0, y=0, width=1, height=1, expected_revision=0),
+                background_tasks=BackgroundTasks(), _csrf=None, current_user=actor, session=db_session,
+            )
+    
+        if lost_ack:
+            with pytest.raises(ConnectionError):
+                await execute()
+        else:
+            await execute()
+        factory = async_sessionmaker(db_session.bind, expire_on_commit=False)
+        async with factory() as observer:
+            crop = (await observer.scalars(select(PassportImageCropModel).where(
+                PassportImageCropModel.submission_id == submission.id,
+                PassportImageCropModel.image_type == image_type.value,
+            ))).one()
+            library = list((await observer.scalars(select(PassportImageLibraryItemModel).where(
+                PassportImageLibraryItemModel.submission_id == submission.id,
+            ))).all())
+            references = {crop.source_storage_key, crop.derived_storage_key, *[entry.storage_key for entry in library]}
+            if crop.edit_source_storage_key:
+                references.add(crop.edit_source_storage_key)
+>           assert references <= storage.objects.keys(), "Committed passport image references lost their stored bytes"
+E           AssertionError: Committed passport image references lost their stored bytes
+E           assert {'passport-crops/757e5bca-2776-4163-bc78-1ab35748907f/ddb10994-3247-4279-b3eb-120289e7cfb1/passport_front/514f6084eda5...-library/757e5bca-2776-4163-bc78-1ab35748907f/ddb10994-3247-4279-b3eb-120289e7cfb1/passport_front/manual/existing.jpg'} <= dict_keys(['front/synthetic-front.jpg', 'passport-image-library/757e5bca-2776-4163-bc78-1ab35748907f/ddb10994-3247-4279-b3eb-120289e7cfb1/passport_front/manual/existing.jpg'])
+E            +  where dict_keys(['front/synthetic-front.jpg', 'passport-image-library/757e5bca-2776-4163-bc78-1ab35748907f/ddb10994-3247-4279-b3eb-120289e7cfb1/passport_front/manual/existing.jpg']) = <built-in method keys of dict object at 0x00000160D522B4C0>()
+E            +    where <built-in method keys of dict object at 0x00000160D522B4C0> = {'front/synthetic-front.jpg': b'canonical-source', 'passport-image-library/757e5bca-2776-4163-bc78-1ab35748907f/ddb10994-3247-4279-b3eb-120289e7cfb1/passport_front/manual/existing.jpg': b'canonical-existing'}.keys
+E            +      …386 tokens truncated…al] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x00000160D4FB21D0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000160D52662D0>
+operation = 'manual'
+image_type = <PassportImageType.PASSPORT_BACK_COVER: 'passport_back_cover'>
+lost_ack = True
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("operation", ["manual", "select"])
+    @pytest.mark.parametrize("image_type", [PassportImageType.PASSPORT_FRONT, PassportImageType.PASSPORT_BACK_COVER])
+    @pytest.mark.parametrize("lost_ack", [False, True], ids=["ordinary", "lost-ack"])
+    async def test_committed_library_and_crop_objects_survive_lost_acknowledgement(
+        db_session, monkeypatch, operation, image_type, lost_ack,
+    ):
+        agency = AgencyModel(id=uuid.uuid4(), name="Image fixture", email="image-agency@example.test")
+        db_session.add(agency)
+        await db_session.flush()
+        user = UserModel(
+            id=uuid.uuid4(), agency_id=agency.id, email="image-admin@example.test",
+            full_name="Image Admin", hashed_password="synthetic-hash", role="agency_admin", is_active=True,
+        )
+        db_session.add(user)
+        await db_session.flush()
+        group = ClientGroupModel(
+            id=uuid.uuid4(), agency_id=agency.id, created_by_user_id=user.id, name="Image Group",
+            token=uuid.uuid4().hex, travel_date=datetime.now(UTC).date() + timedelta(days=20),
+        )
+        db_session.add(group)
+        await db_session.flush()
+        submission = PassportSubmissionModel(
+            id=uuid.uuid4(), agency_id=agency.id, group_id=group.id, client_name="Synthetic Passenger",
+            image_s3_key="front/synthetic-front.jpg", passport_back_cover_s3_key="back/synthetic-cover.jpg",
+            status="staff_approved",
+        )
+        db_session.add(submission)
+        await db_session.commit()
+        actor = await UserRepository(db_session).get_by_id(user.id)
+        value = await PassportSubmissionRepository(db_session).get_by_id(submission.id)
+        source = passport_image_storage_key(value, image_type)
+        storage = ImageStorage({source: b"canonical-source"})
+        item = None
+        if operation == "select":
+            key = f"passport-image-library/{agency.id}/{submission.id}/{image_type.value}/manual/existing.jpg"
+            item = await PassportImageLibraryRepository(db_session).create_manual(
+                submission_id=submission.id, image_type=image_type, storage_key=key,
+                original_source_storage_key=source, content_sha256="a" * 64, created_by_user_id=user.id,
+            )
+            storage.objects[key] = b"canonical-existing"
+        await db_session.commit()
+        monkeypatch.setattr(route, "_authorized_staff_passport_image", AsyncMock(return_value=(value, source)))
+        monkeypatch.setattr(route, "MinioStorageRepository", lambda: storage)
+        monkeypatch.setattr(route, "_validated_upload_file", AsyncMock(return_value=SimpleNamespace(content=b"canonical-upload", content_type="image/jpeg")))
+        monkeypatch.setattr(route, "render_passport_image_crop", lambda *_args, **_kwargs: SimpleNamespace(
+            content=b"canonical-derivative", content_type="image/jpeg", extension=".jpg",
+            source_width=900, source_height=600,
+        ))
+        monkeypatch.setattr(route, "propagate_mobile_passenger_change", AsyncMock())
+        real_commit = db_session.commit
+    
+        async def dispatch(result, *, session, background_tasks):
+            await session.commit()
+    
+        monkeypatch.setattr(route, "_dispatch_processing_job", dispatch)
+    
+        async def commit():
+            await real_commit()
+            if lost_ack:
+                raise ConnectionError("Synthetic commit acknowledgement lost after persistence")
+    
+        monkeypatch.setattr(db_session, "commit", commit)
+    
+        async def execute():
+            if operation == "manual":
+                return await route.upload_passport_image_library_item(
+                    submission_id=submission.id, image_type=image_type, background_tasks=BackgroundTasks(),
+                    image=SimpleNamespace(), expected_revision=0, _csrf=None,
+                    current_user=actor, session=db_session,
+                )
+            return await route.use_passport_image_library_item(
+                submission_id=submission.id, image_type=image_type, item_id=item.id,
+                body=PassportVisaAiImageUseRequest(x=0, y=0, width=1, height=1, expected_revision=0),
+                background_tasks=BackgroundTasks(), _csrf=None, current_user=actor, session=db_session,
+            )
+    
+        if lost_ack:
+            with pytest.raises(ConnectionError):
+                await execute()
+        else:
+            await execute()
+        factory = async_sessionmaker(db_session.bind, expire_on_commit=False)
+        async with factory() as observer:
+            crop = (await observer.scalars(select(PassportImageCropModel).where(
+                PassportImageCropModel.submission_id == submission.id,
+                PassportImageCropModel.image_type == image_type.value,
+            ))).one()
+            library = list((await observer.scalars(select(PassportImageLibraryItemModel).where(
+                PassportImageLibraryItemModel.submission_id == submission.id,
+            ))).all())
+            references = {crop.source_storage_key, crop.derived_storage_key, *[entry.storage_key for entry in library]}
+            if crop.edit_source_storage_key:
+                references.add(crop.edit_source_storage_key)
+>           assert references <= storage.objects.keys(), "Committed passport image references lost their stored bytes"
+E           AssertionError: Committed passport image references lost their stored bytes
+E           assert {'back/synthetic-cover.jpg', 'passport-crops/552a992a-37a2-4af5-94a7-35f80327124c/662b49ab-52ef-45e8-9d6f-7e7cc982c0ce...4a7-35f80327124c/662b49ab-52ef-45e8-9d6f-7e7cc982c0ce/passport_back_cover/manual/e8e8fee30cb8418ea8a7deb1e7f7d5f2.jpg'} <= dict_keys(['back/synthetic-cover.jpg'])
+E            +  where dict_keys(['back/synthetic-cover.jpg']) = <built-in method keys of dict object at 0x00000160D52FBF00>()
+E            +    where <built-in method keys of dict object at 0x00000160D52FBF00> = {'back/synthetic-cover.jpg': b'canonical-source'}.keys
+E            +      where {'back/synthetic-cover.jpg': b'canonical-source'} = <test_passport_image_library_commit_outcomes.ImageStorage object at 0x00000160D52FBD50>.objects
+
+tests\unit\presentation\test_passport_image_library_commit_outcomes.py:151: AssertionError
+_ test_committed_library_and_crop_objects_survive_lost_acknowledgement[lost-ack-passport_back_cover-select] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x00000160D527BED0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000160D52C02D0>
+operation = 'select'
+image_type = <PassportImageType.PASSPORT_BACK_COVER: 'passport_back_cover'>
+lost_ack = True
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("operation", ["manual", "select"])
+    @pytest.mark.parametrize("image_type", [PassportImageType.PASSPORT_FRONT, PassportImageType.PASSPORT_BACK_COVER])
+    @pytest.mark.parametrize("lost_ack", [False, True], ids=["ordinary", "lost-ack"])
+    async def test_committed_library_and_crop_objects_survive_lost_acknowledgement(
+        db_session, monkeypatch, operation, image_type, lost_ack,
+    ):
+        agency = AgencyModel(id=uuid.uuid4(), name="Image fixture", email="image-agency@example.test")
+        db_session.add(agency)
+        await db_session.flush()
+        user = UserModel(
+            id=uuid.uuid4(), agency_id=agency.id, email="image-admin@example.test",
+            full_name="Image Admin", hashed_password="synthetic-hash", role="agency_admin", is_active=True,
+        )
+        db_session.add(user)
+        await db_session.flush()
+        group = ClientGroupModel(
+            id=uuid.uuid4(), agency_id=agency.id, created_by_user_id=user.id, name="Image Group",
+            token=uuid.uuid4().hex, travel_date=datetime.now(UTC).date() + timedelta(days=20),
+        )
+        db_session.add(group)
+        await db_session.flush()
+        submission = PassportSubmissionModel(
+            id=uuid.uuid4(), agency_id=agency.id, group_id=group.id, client_name="Synthetic Passenger",
+            image_s3_key="front/synthetic-front.jpg", passport_back_cover_s3_key="back/synthetic-cover.jpg",
+            status="staff_approved",
+        )
+        db_session.add(submission)
+        await db_session.commit()
+        actor = await UserRepository(db_session).get_by_id(user.id)
+        value = await PassportSubmissionRepository(db_session).get_by_id(submission.id)
+        source = passport_image_storage_key(value, image_type)
+        storage = ImageStorage({source: b"canonical-source"})
+        item = None
+        if operation == "select":
+            key = f"passport-image-library/{agency.id}/{submission.id}/{image_type.value}/manual/existing.jpg"
+            item = await PassportImageLibraryRepository(db_session).create_manual(
+                submission_id=submission.id, image_type=image_type, storage_key=key,
+                original_source_storage_key=source, content_sha256="a" * 64, created_by_user_id=user.id,
+            )
+            storage.objects[key] = b"canonical-existing"
+        await db_session.commit()
+        monkeypatch.setattr(route, "_authorized_staff_passport_image", AsyncMock(return_value=(value, source)))
+        monkeypatch.setattr(route, "MinioStorageRepository", lambda: storage)
+        monkeypatch.setattr(route, "_validated_upload_file", AsyncMock(return_value=SimpleNamespace(content=b"canonical-upload", content_type="image/jpeg")))
+        monkeypatch.setattr(route, "render_passport_image_crop", lambda *_args, **_kwargs: SimpleNamespace(
+            content=b"canonical-derivative", content_type="image/jpeg", extension=".jpg",
+            source_width=900, source_height=600,
+        ))
+        monkeypatch.setattr(route, "propagate_mobile_passenger_change", AsyncMock())
+        real_commit = db_session.commit
+    
+        async def dispatch(result, *, session, background_tasks):
+            await session.commit()
+    
+        monkeypatch.setattr(route, "_dispatch_processing_job", dispatch)
+    
+        async def commit():
+            await real_commit()
+            if lost_ack:
+                raise ConnectionError("Synthetic commit acknowledgement lost after persistence")
+    
+        monkeypatch.setattr(db_session, "commit", commit)
+    
+        async def execute():
+            if operation == "manual":
+                return await route.upload_passport_image_library_item(
+                    submission_id=submission.id, image_type=image_type, background_tasks=BackgroundTasks(),
+                    image=SimpleNamespace(), expected_revision=0, _csrf=None,
+                    current_user=actor, session=db_session,
+                )
+            return await route.use_passport_image_library_item(
+                submission_id=submission.id, image_type=image_type, item_id=item.id,
+                body=PassportVisaAiImageUseRequest(x=0, y=0, width=1, height=1, expected_revision=0),
+                background_tasks=BackgroundTasks(), _csrf=None, current_user=actor, session=db_session,
+            )
+    
+        if lost_ack:
+            with pytest.raises(ConnectionError):
+                await execute()
+        else:
+            await execute()
+        factory = async_sessionmaker(db_session.bind, expire_on_commit=False)
+        async with factory() as observer:
+            crop = (await observer.scalars(select(PassportImageCropModel).where(
+                PassportImageCropModel.submission_id == submission.id,
+                PassportImageCropModel.image_type == image_type.value,
+            ))).one()
+            library = list((await observer.scalars(select(PassportImageLibraryItemModel).where(
+                PassportImageLibraryItemModel.submission_id == submission.id,
+            ))).all())
+            references = {crop.source_storage_key, crop.derived_storage_key, *[entry.storage_key for entry in library]}
+            if crop.edit_source_storage_key:
+                references.add(crop.edit_source_storage_key)
+>           assert references <= storage.objects.keys(), "Committed passport image references lost their stored bytes"
+E           AssertionError: Committed passport image references lost their stored bytes
+E           assert {'back/synthetic-cover.jpg', 'passport-crops/a4a77a07-e72b-45e3-9c0b-6c9763bb1f44/70f493b2-b744-45ca-9f24-a3396c295d0a...ary/a4a77a07-e72b-45e3-9c0b-6c9763bb1f44/70f493b2-b744-45ca-9f24-a3396c295d0a/passport_back_cover/manual/existing.jpg'} <= dict_keys(['back/synthetic-cover.jpg', 'passport-image-library/a4a77a07-e72b-45e3-9c0b-6c9763bb1f44/70f493b2-b744-45ca-9f24-a3396c295d0a/passport_back_cover/manual/existing.jpg'])
+E            +  where dict_keys(['back/synthetic-cover.jpg', 'passport-image-library/a4a77a07-e72b-45e3-9c0b-6c9763bb1f44/70f493b2-b744-45ca-9f24-a3396c295d0a/passport_back_cover/manual/existing.jpg']) = <built-in method keys of dict object at 0x00000160D536F580>()
+E            +    where <built-in method keys of dict object at 0x00000160D536F580> = {'back/synthetic-cover.jpg': b'canonical-source', 'passport-image-library/a4a77a07-e72b-45e3-9c0b-6c9763bb1f44/70f493b2-b744-45ca-9f24-a3396c295d0a/passport_back_cover/manual/existing.jpg': b'canonical-existing'}.keys
+E            +      where {'back/synthetic-cover.jpg': b'canonical-source', 'passport-image-library/a4a77a07-e72b-45e3-9c0b-6c9763bb1f44/70f493b2-b744-45ca-9f24-a3396c295d0a/passport_back_cover/manual/existing.jpg': b'canonical-existing'} = <test_passport_image_library_commit_outcomes.ImageStorage object at 0x00000160D536DB10>.objects
+
+tests\unit\presentation\test_passport_image_library_commit_outcomes.py:151: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/unit/presentation/test_passport_image_library_commit_outcomes.py::test_committed_library_and_crop_objects_survive_lost_acknowledgement[lost-ack-passport_front-manual]
+FAILED tests/unit/presentation/test_passport_image_library_commit_outcomes.py::test_committed_library_and_crop_objects_survive_lost_acknowledgement[lost-ack-passport_front-select]
+FAILED tests/unit/presentation/test_passport_image_library_commit_outcomes.py::test_committed_library_and_crop_objects_survive_lost_acknowledgement[lost-ack-passport_back_cover-manual]
+FAILED tests/unit/presentation/test_passport_image_library_commit_outcomes.py::test_committed_library_and_crop_objects_survive_lost_acknowledgement[lost-ack-passport_back_cover-select]
+4 failed, 4 passed in 3.65s
+

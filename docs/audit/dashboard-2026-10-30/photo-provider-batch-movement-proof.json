@@ -1,0 +1,21 @@
+{
+  "basis": "Exact preceding full-read per-source hashes, not a reconstructed acceptable baseline. Reversing only the stated imports and call/tail deltas recovers both complete previous byte identities, including their original CRLF encoding.",
+  "owners": [
+    {
+      "path": "backend/app/infrastructure/my_photos/aws_face_search.py",
+      "previous_reviewed_sha256": "3d01884c71763ce4b98c421f2e296ab519b5b4f1703e607285e61063729ffc08",
+      "current_sha256": "f5c1d90678c307d99d8ee1966975c7012a30bb9b32b15c69583957c945672ff5",
+      "whole_previous_source_bytes_restored": true,
+      "restoration": "Only new import plus the existing bounded index gather call delegates to owned cancel-and-drain batching; first error and ordered results preserved."
+    },
+    {
+      "path": "backend/app/infrastructure/my_photos/gallery_manifest_providers.py",
+      "previous_reviewed_sha256": "924f7e0141c0eccb2702fb103ec5ec52d901f51d3300f182f902376643fc0a47",
+      "current_sha256": "302457c64fceeb254c0d1fed006f86e9a6da37e01b1764a3f3d8c11015a52e19",
+      "whole_previous_source_bytes_restored": true,
+      "restoration": "Existing already-tested concrete cancel-and-drain tail moves to one shared owner. All provider calls, validations, timeouts and exception projections stay exact."
+    }
+  ],
+  "critical_coverage_responsibility": "Original gallery provider75 line/53 branch critical gate retained on its actual validation body; new shared cancellation owner receives an additive95 line/90 branch guard (measured100/100), stronger than the inherited75/53. Existing module85floor retained on gallery provider, current85/62.5 measured. AWS module70floor/caps retained, current71.35/48.28 measured; other AWS error branches remain explicit test-coverage debt.",
+  "limits": "Mechanical reuse proof plus separate synthetic real-thread sibling tests. Draining local SDK calls does not promise cancellation of cloud-side effects after a network timeout or hard process termination."
+}

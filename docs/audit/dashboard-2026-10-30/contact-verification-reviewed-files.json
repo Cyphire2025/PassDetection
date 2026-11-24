@@ -1,0 +1,110 @@
+[
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/contact_challenges.py",
+    "sha256": "9ebe7f4cbbcf7948398da5833da3488c1e0a85a4c45decd2220266587dfebaf5",
+    "physical_lines": 57,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "reviewed",
+    "notes": "Full current 57-line owner physically read. Original no-store headers, active-link/capability and office-visible checks, repository row locks and populated FOR UPDATE challenge query remain whole-function exact. Imports resolve to actual runtime dependencies, without injected callback bags."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/contact_completion.py",
+    "sha256": "4566bc44f3a6bcf4b98335d2d7d34111779c36c6b04384bb4899912a0f64cc6e",
+    "physical_lines": 73,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "reviewed",
+    "notes": "Full current 73-line owner physically read. Entire decorated verification function is source/AST exact: bearer binding, unchanged expiry replay, pending status and bounded attempts, durable wrong-attempt commit, successful proof commit. Runtime annotations and dependency/header/OpenAPI contracts evaluated and matched."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/contact_family.py",
+    "sha256": "3cf631e7958f7215e4d0f23c07a89a728558fe163b24f8975942195b59a5ef77",
+    "physical_lines": 80,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "reviewed",
+    "notes": "Full current 80-line owner physically read. Whole family-head gate is source/AST exact: member-zero verified identity, later members' tenant/group/family-scoped consumed head proof query, office-visible status, limit-two uniqueness and all stored email/phone matches. No proof-expiry extension or authorization policy change."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/contact_issuance.py",
+    "sha256": "501fa24ed5656c4ca760ef8549049211f274218ed5dffbbfc8c41355f8689121",
+    "physical_lines": 152,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "reviewed",
+    "notes": "Full current 152-line owner physically read. Entire decorated issuance function is original source/AST exact: rate limiting, bound resend replay, cryptographic rotation, sending-state commit before provider, sanitized error metadata, capability/challenge revalidation and final commit. Original logger channel retained. Shared provider imports do not change mobile feature code."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/contact_submission_proof.py",
+    "sha256": "fbee78b20904d554540e50eefe03a886c329f96cec15d33e0e20735e7a1c370f",
+    "physical_lines": 67,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "reviewed",
+    "notes": "Full current 67-line owner physically read. Whole proof authorization gate is source/AST exact: group, challenge, phone, email and session scope; live verified receipt or exact already-submitted consumed replay; unchanged structured error and no-store header. Actual submission_contact imported gate identity checked."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/contact_verification.py",
+    "sha256": "e0c3c985d3994ce9f36a65262081514e328b9469c87db1b77e3d4e5ab06265a0",
+    "physical_lines": 17,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "reviewed",
+    "notes": "Full current 17-line facade physically read; original 364-line module fully read and raw source/SHA archived before edits. Seven public/private callable aliases retain identity with their actual purpose-specific owners. Actual request/verify endpoints remain ordered through the router and no leaf owner imports this facade."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/submission_contact.py",
+    "sha256": "0c34d4f19d82c1763d5cc1b4ebb5d7c8d7e3c46c63acfa747c81b786ffe8fc65",
+    "physical_lines": 63,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "reviewed",
+    "notes": "Complete current caller physically read. Group row is locked before the draft, then upload capability, own proof and conditional family-head proof are checked before submission use-case effects. Runtime imported proof/family functions resolve to the exact facade aliases and actual leaf owners. No edits."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/schemas/public_upload_contact_schemas.py",
+    "sha256": "65b7de303e0b24b94356f45b7350a2d8500d258a19f06cda7e34da009b2b8820",
+    "physical_lines": 52,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "reviewed",
+    "notes": "Complete current contracts physically reread. Strict extra fields/whitespace, group/header limits, email/phone normalization, six-digit code, UUID and receipt response shapes remain unchanged. Actual endpoint OpenAPI and evaluated annotation contracts compared with original capture. No edits."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_client_submit_cleanup_order.py",
+    "sha256": "61548b5879cef73c189567b015f4bc20a2e20d9a368c30c4a4dbf5b06af4fd8c",
+    "physical_lines": 252,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "reviewed",
+    "notes": "Complete current file physically read in 1-215 and 216-EOF chunks. Existing controls preserve contact gate import patch seam, cleanup tombstone before commit before worker, no object cleanup after failed commit, and ECR staging/dispatch ordering. No edits; executed before and after refactor."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_configured_public_upload.py",
+    "sha256": "41b85fcf951228f78b91b1acdae947f86d6f276d8e6984d2f3f2164b4f6e7d8a",
+    "physical_lines": 132,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "reviewed",
+    "notes": "Complete current file physically read. Existing submission_contact proof seam and details-only final commit retained; unrelated bounded multipart/disabled-scan controls also pass. No edits; executed before and after refactor."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_route_decomposition.py",
+    "sha256": "7b1ee92647844d22d84a29cc90180c58c1888c51c1cfbb1b0a0751d6efafec49",
+    "physical_lines": 214,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "reviewed",
+    "notes": "Complete current file physically read in 1-180 and 181-EOF chunks. Actual entire passport router order/path/name and existing facade export contracts executed before and after; contact request/verify route names and ordering remain exact. No edits."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_public_upload_contact_otp.py",
+    "sha256": "a3a13a19ac9a8a7665e7ce2a68d53af3b7c0a448adad271b6b7bc106c6d981ee",
+    "physical_lines": 493,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "reviewed",
+    "notes": "Full current file physically reread after edits in consecutive 1-175, 176-350 and 351-EOF chunks. All 25 original test/helper functions retain exact source/AST, except five dependency patch-owner names in the rig fixture; all 40 original assertions unchanged. Added two before-refactor-passing provider-completion controls; control bodies unchanged after extraction. All providers and limiter calls are mocked and database fixtures use isolated in-memory SQLite."
+  }
+]

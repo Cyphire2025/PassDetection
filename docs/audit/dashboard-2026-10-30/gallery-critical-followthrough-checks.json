@@ -1,0 +1,109 @@
+[
+  {
+    "check": "tests",
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "-m",
+      "pytest",
+      "-q",
+      "-o",
+      "addopts=",
+      "tests/unit/infrastructure/test_my_photos_manifest_critical_boundaries.py",
+      "tests/unit/infrastructure/test_my_photos_manifest_type_contracts.py",
+      "tests/unit/infrastructure/test_my_photos_manifest_provider_ownership.py",
+      "tests/unit/infrastructure/test_my_photos_gallery_ingestion.py",
+      "tests/unit/infrastructure/test_my_photos_manifest_cli.py",
+      "tests/unit/infrastructure/test_my_photos_native_dispatch.py",
+      "tests/unit/infrastructure/test_my_photos_aws_providers.py",
+      "tests/integration/test_my_photos_index_publication.py",
+      "tests/integration/test_my_photos_media_publication.py",
+      "--cov=app.infrastructure.my_photos.gallery_ingestion",
+      "--cov=app.infrastructure.my_photos.gallery_manifest_cancellation",
+      "--cov=app.infrastructure.my_photos.gallery_manifest_cleanup",
+      "--cov=app.infrastructure.my_photos.gallery_manifest_context",
+      "--cov=app.infrastructure.my_photos.gallery_manifest_contracts",
+      "--cov=app.infrastructure.my_photos.gallery_manifest_finalization",
+      "--cov=app.infrastructure.my_photos.gallery_manifest_fingerprints",
+      "--cov=app.infrastructure.my_photos.gallery_manifest_persistence",
+      "--cov=app.infrastructure.my_photos.gallery_manifest_policy",
+      "--cov=app.infrastructure.my_photos.gallery_manifest_providers",
+      "--cov=app.infrastructure.my_photos.gallery_manifest_queries",
+      "--cov=app.infrastructure.my_photos.gallery_manifest_registration",
+      "--cov=app.infrastructure.my_photos.gallery_manifest_results",
+      "--cov=app.infrastructure.my_photos.gallery_manifest_service",
+      "--cov=app.infrastructure.my_photos.gallery_manifest_status",
+      "--cov-branch",
+      "--cov-report=json:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\gallery-critical-followthrough-coverage.json",
+      "--cov-report=xml:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\gallery-critical-followthrough-coverage.xml"
+    ],
+    "exit_code": 0
+  },
+  {
+    "check": "ruff",
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "-m",
+      "ruff",
+      "check",
+      "--no-fix",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\infrastructure\\my_photos\\gallery_ingestion.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\infrastructure\\my_photos\\gallery_manifest_cancellation.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\infrastructure\\my_photos\\gallery_manifest_cleanup.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\infrastructure\\my_photos\\gallery_manifest_context.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\infrastructure\\my_photos\\gallery_manifest_contracts.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\infrastructure\\my_photos\\gallery_manifest_finalization.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\infrastructure\\my_photos\\gallery_manifest_fingerprints.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\infrastructure\\my_photos\\gallery_manifest_persistence.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\infrastructure\\my_photos\\gallery_manifest_policy.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\infrastructure\\my_photos\\gallery_manifest_providers.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\infrastructure\\my_photos\\gallery_manifest_queries.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\infrastructure\\my_photos\\gallery_manifest_registration.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\infrastructure\\my_photos\\gallery_manifest_results.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\infrastructure\\my_photos\\gallery_manifest_service.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\app\\infrastructure\\my_photos\\gallery_manifest_status.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\tests\\unit\\infrastructure\\test_my_photos_manifest_critical_boundaries.py",
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\tests\\unit\\infrastructure\\test_my_photos_manifest_type_contracts.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "check": "mypy",
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "-m",
+      "mypy",
+      "app/infrastructure/my_photos/gallery_ingestion.py",
+      "app/infrastructure/my_photos/gallery_manifest_cancellation.py",
+      "app/infrastructure/my_photos/gallery_manifest_cleanup.py",
+      "app/infrastructure/my_photos/gallery_manifest_context.py",
+      "app/infrastructure/my_photos/gallery_manifest_contracts.py",
+      "app/infrastructure/my_photos/gallery_manifest_finalization.py",
+      "app/infrastructure/my_photos/gallery_manifest_fingerprints.py",
+      "app/infrastructure/my_photos/gallery_manifest_persistence.py",
+      "app/infrastructure/my_photos/gallery_manifest_policy.py",
+      "app/infrastructure/my_photos/gallery_manifest_providers.py",
+      "app/infrastructure/my_photos/gallery_manifest_queries.py",
+      "app/infrastructure/my_photos/gallery_manifest_registration.py",
+      "app/infrastructure/my_photos/gallery_manifest_results.py",
+      "app/infrastructure/my_photos/gallery_manifest_service.py",
+      "app/infrastructure/my_photos/gallery_manifest_status.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "check": "existing-budgets",
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "scripts/verify_backend_quality_budgets.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "check": "architecture",
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "scripts/verify_architecture_boundaries.py"
+    ],
+    "exit_code": 0
+  }
+]

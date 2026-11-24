@@ -1,0 +1,344 @@
+[
+  {
+    "path": "frontend/components/layout/mobile-navigation.test.tsx",
+    "sha256": "b5ba61b518b7d1bf48026716cbd081f572dc4b9144128718b3235cb5baaa017f",
+    "physical_lines": 62,
+    "reviewer": "document_ui_architecture",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole62lines physically read. Actual MobileNavigation with a small Sidebar stub verifies safe initial focus, external-focus containment, Tab wrapping, route-close focus return, top-dialog Escape and scroll lock. A nested confirmation is opened by programmatic fireEvent on an inert sibling; this exercises stack behavior, not native browser pointer/inert enforcement. Runtime navigation/sidebar current full records reused without new read credit."
+  },
+  {
+    "path": "frontend/components/layout/__tests__/mobile-navigation.test.tsx",
+    "sha256": "42ad6f64d3bb3578dc054dbc6934fcf887bae00ffb946942babce84142b89e20",
+    "physical_lines": 143,
+    "reviewer": "document_ui_architecture",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole143lines physically read. Real Sidebar role filtering, grouping, collapsed accessible names, logo keyboard toggles and drawer focus return are asserted; Next Link/router and brand logo alone are mocked. Preferences/auth state reset before each case. No new browser/a11y certification inferred from these unit assertions."
+  },
+  {
+    "path": "frontend/features/upload/components/passport-normalization-source.contract-helper.mjs",
+    "sha256": "20b9e61f46fc80bf715a771de591f8ee0d35520b6449b2e5117810582206c063",
+    "physical_lines": 8,
+    "reviewer": "document_ui_architecture",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole8lines physically read. Fixed list concatenates ten normalization service/type sources for static contracts. This review credits only this helper, not physical reads or active import wiring of all listed targets. No execution/security coverage inferred from concatenation."
+  },
+  {
+    "path": "frontend/features/auth/services/restoration-destination.test.ts",
+    "sha256": "1cf33dbfffeebb31204c5025039a31c47e8884c7dae6733dbd66f5fbab80b2f7",
+    "physical_lines": 11,
+    "reviewer": "document_ui_architecture",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Every current source line physically read. Assertions/fixture inputs, literal import or API target, mock boundary and cleanup behavior inspected. Immediate runtime targets with current matching full records were skipped rather than re-credited. No new test execution or production/browser/security qualification claimed."
+  },
+  {
+    "path": "frontend/features/upload/services/contact-verification.test.ts",
+    "sha256": "7c229b49a149ace1167ab166a2ff74f0e04299c105c8147879680b0cfad5d0ec",
+    "physical_lines": 11,
+    "reviewer": "document_ui_architecture",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Every current source line physically read. Assertions/fixture inputs, literal import or API target, mock boundary and cleanup behavior inspected. Immediate runtime targets with current matching full records were skipped rather than re-credited. No new test execution or production/browser/security qualification claimed."
+  },
+  {
+    "path": "frontend/providers/query-provider.contract.test.mjs",
+    "sha256": "c75fc8e0bfa7eea662b654034933b59035eb440a2adff2dbedc44bb1ef416897",
+    "physical_lines": 11,
+    "reviewer": "document_ui_architecture",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole11lines physically read. Static source contract checks fail-fast client/rate-limit rules and actual retry callback wiring. Companion query-provider.test.ts separately read for actual helper behavior; source-text assertions alone are not network retry execution."
+  },
+  {
+    "path": "frontend/app/root-route.contract.test.mjs",
+    "sha256": "afd7d1347c8039a36519591b86d343934f13b140176196700374346d0121f814",
+    "physical_lines": 12,
+    "reviewer": "document_ui_architecture",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Every current source line physically read. Assertions/fixture inputs, literal import or API target, mock boundary and cleanup behavior inspected. Immediate runtime targets with current matching full records were skipped rather than re-credited. No new test execution or production/browser/security qualification claimed."
+  },
+  {
+    "path": "frontend/lib/utils/phone-number.test.ts",
+    "sha256": "f29cfac674b73ec648d5273cc3c7582b560e33ac4d82e4e135303e9ae3311353",
+    "physical_lines": 12,
+    "reviewer": "document_ui_architecture",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Every current source line physically read. Assertions/fixture inputs, literal import or API target, mock boundary and cleanup behavior inspected. Immediate runtime targets with current matching full records were skipped rather than re-credited. No new test execution or production/browser/security qualification claimed."
+  },
+  {
+    "path": "frontend/app/manual-camera-copy.contract.test.mjs",
+    "sha256": "4a40bc66d373f7ab5568310b1912c36c3e92fb51b86e259fd6ca2a9c8a11d6c1",
+    "physical_lines": 13,
+    "reviewer": "document_ui_architecture",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Every current source line physically read. Assertions/fixture inputs, literal import or API target, mock boundary and cleanup behavior inspected. Immediate runtime targets with current matching full records were skipped rather than re-credited. No new test execution or production/browser/security qualification claimed."
+  },
+  {
+    "path": "frontend/features/companies/utils/company-navigation.test.ts",
+    "sha256": "2445d84e23394f7d47a6463b0b6a794869ce03decf0e76f5145990adfa128401",
+    "physical_lines": 13,
+    "reviewer": "document_ui_architecture",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Every current source line physically read. Assertions/fixture inputs, literal import or API target, mock boundary and cleanup behavior inspected. Immediate runtime targets with current matching full records were skipped rather than re-credited. No new test execution or production/browser/security qualification claimed."
+  },
+  {
+    "path": "frontend/features/upload/components/passport-camera-source.contract-helper.mjs",
+    "sha256": "212a047989e3c98aa94de5f67e7c003b65efb5f78a7d20407116009421446627",
+    "physical_lines": 13,
+    "reviewer": "document_ui_architecture",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole13lines physically read. Fixed list supplies camera entry/controller/view/crop/guidance source to static contracts. File list is not an independently executed camera journey or proof every listed owner remains reachable; prior runtime coverage remains separately attributed."
+  },
+  {
+    "path": "frontend/features/companies/components/company-original-record.test.tsx",
+    "sha256": "7cc23a2edf2195fbb6e31e0dd8b93f0c5051039c534cef2d76454ed0cde81a15",
+    "physical_lines": 14,
+    "reviewer": "document_ui_architecture",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Every current source line physically read. Assertions/fixture inputs, literal import or API target, mock boundary and cleanup behavior inspected. Immediate runtime targets with current matching full records were skipped rather than re-credited. No new test execution or production/browser/security qualification claimed."
+  },
+  {
+    "path": "frontend/features/companies/utils/company-search.test.ts",
+    "sha256": "65a37c2522d4314d0b763ec554f800c9fa9659da7ac3718152ec1e7a25932e22",
+    "physical_lines": 15,
+    "reviewer": "document_ui_architecture",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Every current source line physically read. Assertions/fixture inputs, literal import or API target, mock boundary and cleanup behavior inspected. Immediate runtime targets with current matching full records were skipped rather than re-credited. No new test execution or production/browser/security qualification claimed."
+  },
+  {
+    "path": "frontend/features/whatsapp/utils/group-invite.test.ts",
+    "sha256": "d4b8a419f38b4d5a6c9f9a20396733366ff9bbe7587573acad6d1396f326c041",
+    "physical_lines": 15,
+    "reviewer": "document_ui_architecture",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Every current source line physically read. Assertions/fixture inputs, literal import or API target, mock boundary and cleanup behavior inspected. Immediate runtime targets with current matching full records were skipped rather than re-credited. No new test execution or production/browser/security qualification claimed."
+  },
+  {
+    "path": "frontend/features/documents/components/document-group-search.contract.test.mjs",
+    "sha256": "b9529cc6589029babaa0e39b89cf8fb0d4551c00d1ef52d4d2e78011a3bf1e1a",
+    "physical_lines": 16,
+    "reviewer": "document_ui_architecture",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole16lines physically read. Source checks connect visible search UI, hook key/query call and trimmed API params. The three referenced owners were then fully read here; contract itself does not prove server tenant isolation or browser request timing."
+  },
+  {
+    "path": "frontend/features/passports/api/passports-search.test.ts",
+    "sha256": "6b517ac41619aee27cafc87b42b1ef8b29f6ce66b1af78db6eadeb38925fdbe0",
+    "physical_lines": 16,
+    "reviewer": "document_ui_architecture",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Every current source line physically read. Assertions/fixture inputs, literal import or API target, mock boundary and cleanup behavior inspected. Immediate runtime targets with current matching full records were skipped rather than re-credited. No new test execution or production/browser/security qualification claimed."
+  },
+  {
+    "path": "frontend/features/passports/utils/passport-image-crop-permissions.test.mjs",
+    "sha256": "7cbf3ad016d1a09140e6beaa38f7c8df0eeeb414a9ec9812dd626ddd02722517",
+    "physical_lines": 16,
+    "reviewer": "document_ui_architecture",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Every current source line physically read. Assertions/fixture inputs, literal import or API target, mock boundary and cleanup behavior inspected. Immediate runtime targets with current matching full records were skipped rather than re-credited. No new test execution or production/browser/security qualification claimed."
+  },
+  {
+    "path": "frontend/components/ui/liquid-sculpture/engine.test.ts",
+    "sha256": "7f24f1a601f208d11c3a79b4ce7aac0f1ea6ba3cc48cdab623982013f22ddfe6",
+    "physical_lines": 17,
+    "reviewer": "document_ui_architecture",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole17lines physically read. A deterministic incomplete GL context triggers the actual constructor failure path and checks one loseContext cleanup call; mocks/global stubs restored. This does not measure real GPU/frame performance."
+  },
+  {
+    "path": "frontend/features/auth/services/access-level-navigation.test.ts",
+    "sha256": "39221e39b1d55aa4793340102c4850a32c5bb415a39b4c2e21f111a555809cac",
+    "physical_lines": 17,
+    "reviewer": "document_ui_architecture",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Every current source line physically read. Assertions/fixture inputs, literal import or API target, mock boundary and cleanup behavior inspected. Immediate runtime targets with current matching full records were skipped rather than re-credited. No new test execution or production/browser/security qualification claimed."
+  },
+  {
+    "path": "frontend/features/passports/api/client-details.api.test.ts",
+    "sha256": "b94c4b64d104646d4545ac5eaf354d05b493009b1794f899a95a10eb8e9caded",
+    "physical_lines": 17,
+    "reviewer": "document_ui_architecture",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Every current source line physically read. Assertions/fixture inputs, literal import or API target, mock boundary and cleanup behavior inspected. Immediate runtime targets with current matching full records were skipped rather than re-credited. No new test execution or production/browser/security qualification claimed."
+  },
+  {
+    "path": "frontend/components/ui/input.test.tsx",
+    "sha256": "15291e8551e677faf25e19d23dd1204dda7f43080179bf375ff582ac2f58eadf",
+    "physical_lines": 19,
+    "reviewer": "document_ui_architecture",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Every current source line physically read. Assertions/fixture inputs, literal import or API target, mock boundary and cleanup behavior inspected. Immediate runtime targets with current matching full records were skipped rather than re-credited. No new test execution or production/browser/security qualification claimed."
+  },
+  {
+    "path": "frontend/features/mcp/utils/save-transfer-file.test.ts",
+    "sha256": "922de135cce055bbcf9c6661bf0287985f183ab3b997dca1a09a4c752e888f27",
+    "physical_lines": 19,
+    "reviewer": "document_ui_architecture",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole19lines physically read. Deferred native writer close proves success waits for completion; picker AbortError stays rejected. Native writer is mocked; this is not an actual filesystem/browser fallback or provider-transfer qualification."
+  },
+  {
+    "path": "frontend/features/whatsapp/api/whatsapp-duplicate-sources.test.ts",
+    "sha256": "f269294d84d664e1a4f9087de9765e9c665a86066acbd502ab41a96fa8d7f7a6",
+    "physical_lines": 19,
+    "reviewer": "document_ui_architecture",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Every current source line physically read. Assertions/fixture inputs, literal import or API target, mock boundary and cleanup behavior inspected. Immediate runtime targets with current matching full records were skipped rather than re-credited. No new test execution or production/browser/security qualification claimed."
+  },
+  {
+    "path": "frontend/lib/utils/role-access.test.ts",
+    "sha256": "e28edc7b1ca9a62348955183cec08655aa8a353cdf6c87bd7920c14299f50b41",
+    "physical_lines": 19,
+    "reviewer": "document_ui_architecture",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Every current source line physically read. Assertions/fixture inputs, literal import or API target, mock boundary and cleanup behavior inspected. Immediate runtime targets with current matching full records were skipped rather than re-credited. No new test execution or production/browser/security qualification claimed."
+  },
+  {
+    "path": "frontend/features/email-integrations/services/email-refresh-policy.test.ts",
+    "sha256": "b04d4939713a5cdf13c5f62da358f40161620ad4122be7afdaffdde5a8376d28",
+    "physical_lines": 20,
+    "reviewer": "document_ui_architecture",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Every current source line physically read. Assertions/fixture inputs, literal import or API target, mock boundary and cleanup behavior inspected. Immediate runtime targets with current matching full records were skipped rather than re-credited. No new test execution or production/browser/security qualification claimed."
+  },
+  {
+    "path": "frontend/config/e2e-isolation.test.ts",
+    "sha256": "96054fc4211f1816a03df5d4f0deae65a910a9417adec37a2f4173737d1248c2",
+    "physical_lines": 21,
+    "reviewer": "document_ui_architecture",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole21lines physically read. Synthetic inherited server/public API origins are both replaced while PATH is retained. Immediate configuration owner already has a current full record; no server/browser process started here."
+  },
+  {
+    "path": "frontend/features/passports/components/whatsapp-match-description.test.ts",
+    "sha256": "23b886eab8862c547c2b0f0b9f8ef818389368a0b59a51e368b16dcdbd58e6d6",
+    "physical_lines": 21,
+    "reviewer": "document_ui_architecture",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Every current source line physically read. Assertions/fixture inputs, literal import or API target, mock boundary and cleanup behavior inspected. Immediate runtime targets with current matching full records were skipped rather than re-credited. No new test execution or production/browser/security qualification claimed."
+  },
+  {
+    "path": "frontend/features/tour-operations/services/public-offline-runtime-cache.test.mjs",
+    "sha256": "30af490f8d14444d596b8adcebd3864e3843b20828effac1d15326ea22a97928",
+    "physical_lines": 21,
+    "reviewer": "document_ui_architecture",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole21lines physically read. Executes actual service-worker install handler in an isolated VM and checks only three public cache assets with cache:reload. Cache/network APIs are synthetic; this test does not itself establish every fetch-time private-route exclusion."
+  },
+  {
+    "path": "frontend/lib/api/api-error-detail.test.ts",
+    "sha256": "c77831fa9096e0c10457520a314a95070184ba3d9b1ce48f48ca05465db1ffe6",
+    "physical_lines": 21,
+    "reviewer": "document_ui_architecture",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Every current source line physically read. Assertions/fixture inputs, literal import or API target, mock boundary and cleanup behavior inspected. Immediate runtime targets with current matching full records were skipped rather than re-credited. No new test execution or production/browser/security qualification claimed."
+  },
+  {
+    "path": "frontend/lib/utils/passport-fields.test.mjs",
+    "sha256": "3c8948897025fcf76816afacd616f1976e026520bdc1e58e6492742e4cc6098f",
+    "physical_lines": 21,
+    "reviewer": "document_ui_architecture",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Every current source line physically read. Assertions/fixture inputs, literal import or API target, mock boundary and cleanup behavior inspected. Immediate runtime targets with current matching full records were skipped rather than re-credited. No new test execution or production/browser/security qualification claimed."
+  },
+  {
+    "path": "frontend/features/gc-app/availability.test.ts",
+    "sha256": "3e67ef097dbd5b06dd79daa10d42080b01ef56f570bee5f3f539a53a960f1547",
+    "physical_lines": 22,
+    "reviewer": "document_ui_architecture",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Every current source line physically read. Assertions/fixture inputs, literal import or API target, mock boundary and cleanup behavior inspected. Immediate runtime targets with current matching full records were skipped rather than re-credited. No new test execution or production/browser/security qualification claimed."
+  },
+  {
+    "path": "frontend/features/operations/api/operations-tour-groups.api.test.ts",
+    "sha256": "17a9ab5d14df001d1e664ca6b96d4ade2e3b6ee17289e161e2cc072fff209a16",
+    "physical_lines": 22,
+    "reviewer": "document_ui_architecture",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Every current source line physically read. Assertions/fixture inputs, literal import or API target, mock boundary and cleanup behavior inspected. Immediate runtime targets with current matching full records were skipped rather than re-credited. No new test execution or production/browser/security qualification claimed."
+  },
+  {
+    "path": "frontend/features/documents/components/document-group-list.tsx",
+    "sha256": "d801b5cc68f93bc63c78c6e4e3f30658275ca4e971c7976afa509a41c8fca40f",
+    "physical_lines": 252,
+    "reviewer": "document_ui_architecture",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole252lines physically read in complete0-149/150-end ranges. Debounced scoped search is distinct from the full portfolio query; summary/filtered arrays memoized, stable group keys, narrow flex constraints and content-visibility retained. Search contract source trace complete. No responsive/latency defect demonstrated and no new UI checks run."
+  },
+  {
+    "path": "frontend/features/documents/hooks/use-document-distribution.ts",
+    "sha256": "b7629f97348d5a4f6edbe2124a650f1af62b2b46f3c84d186c1f2feb097a504b",
+    "physical_lines": 284,
+    "reviewer": "document_ui_architecture",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole284lines physically read in complete0-159/160-end ranges. Query keys, search signal forwarding, receipt mutations, partial abort settlement, manual upload invalidations, preview receipt polling and webhook-grace tracking traced. Bare query keys/plain mutations alone do not establish a cross-account leak: existing auth/client boundaries and actual workspace abort callers apply. Standalone queued-admission hypotheses remain unexecuted scope, not validated findings."
+  },
+  {
+    "path": "frontend/features/documents/api/document-distribution.api.ts",
+    "sha256": "390291cc880dd42d5d68c8f223cd67bfc7ce245d116f3f42aa2e76c344b1453b",
+    "physical_lines": 388,
+    "reviewer": "document_ui_architecture",
+    "review_scope": "full",
+    "status": "needs-follow-up",
+    "notes": "Whole388lines physically read in complete0-204/205-end ranges. Count-checked verification, bounded chunk progress, manual-type tokens, receipt-only finalization, explicit410no-raw fallback, CRUD/delivery/export transport and safe export filename traced. Mixed orchestration/transport is an architecture follow-up; verifyDocuments also repeatedly scans filenameReplacements, a workload candidate requiring measurement/parity before a performance claim. No correctness/security failure demonstrated in this read-only pass."
+  },
+  {
+    "path": "frontend/providers/query-provider.test.ts",
+    "sha256": "0582542a5dbf0cbd8f87b46f1e1d15fa4d8d541ba3c3000e807f331fdca0691e",
+    "physical_lines": 22,
+    "reviewer": "document_ui_architecture",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole22lines physically read before and after the parent's title-only correction. All seven client failures and auth/rate-limit codes stop retry; transient failureCount0/1 return true and2false. Installed query-core retryer proves two retries/three total attempts. Parent corrected attempts\u2192retries with original source/both hashes and unchanged assertions in frontend-feature-integration4-test-corrections.json. Current reread binds only0582542a...; no runtime policy defect or child edit."
+  },
+  {
+    "path": "frontend/features/documents/hooks/use-document-workspace-upload.ts",
+    "sha256": "89b5f2c07c553c31cf3956f0ce1b876f56ed22bf7c8e9de13042bcc05ec8cad6",
+    "physical_lines": 250,
+    "reviewer": "document_ui_architecture",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole current source physically read in complete0-149/150-end ranges. Session resets and unmount abort request controllers; async preparation/progress/receipt callbacks test aborted state, and release only their own controller. Recovery microtask has mounted guard; manual review replacement clears its controller. This clears a blanket leak inference from the lower-level hook pattern; alternative queued mutation admission was not executed here."
+  },
+  {
+    "path": "frontend/features/documents/hooks/use-document-manual-review.ts",
+    "sha256": "2351811eae0d508e61b88f6f0549f59e0eb124d117b64dc80050de08b49200e7",
+    "physical_lines": 222,
+    "reviewer": "document_ui_architecture",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole current source physically read in complete0-154/155-end ranges. Approval and receipt finalization pass AbortSignal and recheck it after awaits; sensitive reset/unmount release raw candidate references. Confirmed passenger matching remains required after manual type approval. Discard checks cancellation after cleanup response. No data leak established; no architecture/format edits made."
+  }
+]

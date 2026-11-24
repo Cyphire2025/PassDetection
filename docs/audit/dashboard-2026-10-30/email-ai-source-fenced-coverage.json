@@ -1,0 +1,578 @@
+{
+  "rule": "Only lifecycle uses same-source union of137+14 runs; other21 owners use main137-case evidence without importing unrelated coverage from the supplement",
+  "files": [
+    {
+      "path": "backend/app/infrastructure/ai/gemini_email_analysis_service.py",
+      "sha256": "58574318563ce7065633ec923be2fc176fd51c8e2b58641bb803beb02a24426b",
+      "coverage_artifact": "email-ai-coverage.json",
+      "source_fences": [
+        "email-ai-test-command.json"
+      ],
+      "summary": {
+        "covered_lines": 115,
+        "num_statements": 123,
+        "percent_covered": 89.93288590604027,
+        "percent_covered_display": "90",
+        "missing_lines": 8,
+        "excluded_lines": 0,
+        "percent_statements_covered": 93.4959349593496,
+        "percent_statements_covered_display": "93",
+        "num_branches": 26,
+        "num_partial_branches": 7,
+        "covered_branches": 19,
+        "missing_branches": 7,
+        "percent_branches_covered": 73.07692307692308,
+        "percent_branches_covered_display": "73"
+      },
+      "observed_statement_coverage": 93.4959349593496,
+      "observed_branch_coverage": 73.07692307692308
+    },
+    {
+      "path": "backend/app/infrastructure/ai/gemini_email_codec.py",
+      "sha256": "249442f2cb40c5d0720f7a3fed05399162c6dfd57e41802d0883e36b4c52199d",
+      "coverage_artifact": "email-ai-coverage.json",
+      "source_fences": [
+        "email-ai-test-command.json"
+      ],
+      "summary": {
+        "covered_lines": 34,
+        "num_statements": 43,
+        "percent_covered": 73.13432835820896,
+        "percent_covered_display": "73",
+        "missing_lines": 9,
+        "excluded_lines": 0,
+        "percent_statements_covered": 79.06976744186046,
+        "percent_statements_covered_display": "79",
+        "num_branches": 24,
+        "num_partial_branches": 9,
+        "covered_branches": 15,
+        "missing_branches": 9,
+        "percent_branches_covered": 62.5,
+        "percent_branches_covered_display": "62"
+      },
+      "observed_statement_coverage": 79.06976744186046,
+      "observed_branch_coverage": 62.5
+    },
+    {
+      "path": "backend/app/infrastructure/ai/gemini_email_facts.py",
+      "sha256": "faf737b98bd98e1486efc60d1f8e558e9f9f27ffe0bbf883a874e5d565cd92c6",
+      "coverage_artifact": "email-ai-coverage.json",
+      "source_fences": [
+        "email-ai-test-command.json"
+      ],
+      "summary": {
+        "covered_lines": 43,
+        "num_statements": 46,
+        "percent_covered": 91.42857142857143,
+        "percent_covered_display": "91",
+        "missing_lines": 3,
+        "excluded_lines": 0,
+        "percent_statements_covered": 93.47826086956522,
+        "percent_statements_covered_display": "93",
+        "num_branches": 24,
+        "num_partial_branches": 3,
+        "covered_branches": 21,
+        "missing_branches": 3,
+        "percent_branches_covered": 87.5,
+        "percent_branches_covered_display": "88"
+      },
+      "observed_statement_coverage": 93.47826086956522,
+      "observed_branch_coverage": 87.5
+    },
+    {
+      "path": "backend/app/infrastructure/ai/gemini_email_grounding.py",
+      "sha256": "8ad9de9762940c20b96e245a84efe54b26d2566200e5149594a359c599b1ad66",
+      "coverage_artifact": "email-ai-coverage.json",
+      "source_fences": [
+        "email-ai-test-command.json"
+      ],
+      "summary": {
+        "covered_lines": 42,
+        "num_statements": 42,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 16,
+        "num_partial_branches": 0,
+        "covered_branches": 16,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      },
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 100.0
+    },
+    {
+      "path": "backend/app/infrastructure/ai/gemini_email_patterns.py",
+      "sha256": "bfa6964e79bfe85d65aaec3745eeb5c52f812c666825888201c335e2908686fe",
+      "coverage_artifact": "email-ai-coverage.json",
+      "source_fences": [
+        "email-ai-test-command.json"
+      ],
+      "summary": {
+        "covered_lines": 21,
+        "num_statements": 21,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 0,
+        "num_partial_branches": 0,
+        "covered_branches": 0,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      },
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 100
+    },
+    {
+      "path": "backend/app/infrastructure/ai/gemini_email_payload.py",
+      "sha256": "53394f442a64643234b904a3b7ae1314030de20d07bb43c8bd89cd8c918a8e9b",
+      "coverage_artifact": "email-ai-coverage.json",
+      "source_fences": [
+        "email-ai-test-command.json"
+      ],
+      "summary": {
+        "covered_lines": 14,
+        "num_statements": 14,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 2,
+        "num_partial_branches": 0,
+        "covered_branches": 2,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      },
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 100.0
+    },
+    {
+      "path": "backend/app/infrastructure/ai/gemini_email_result.py",
+      "sha256": "253256f772b1d3545b056179236c2c0ca3e65860dd6e1d7e7e3877860a3a8201",
+      "coverage_artifact": "email-ai-coverage.json",
+      "source_fences": [
+        "email-ai-test-command.json"
+      ],
+      "summary": {
+        "covered_lines": 33,
+        "num_statements": 33,
+        "percent_covered": 97.67441860465117,
+        "percent_covered_display": "98",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 10,
+        "num_partial_branches": 1,
+        "covered_branches": 9,
+        "missing_branches": 1,
+        "percent_branches_covered": 90.0,
+        "percent_branches_covered_display": "90"
+      },
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 90.0
+    },
+    {
+      "path": "backend/app/infrastructure/ai/gemini_email_schema.py",
+      "sha256": "28fd1c5f5cc4f7e8ef5c02342c133ef829a44743098d02edf75e460364486a36",
+      "coverage_artifact": "email-ai-coverage.json",
+      "source_fences": [
+        "email-ai-test-command.json"
+      ],
+      "summary": {
+        "covered_lines": 9,
+        "num_statements": 9,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 2,
+        "num_partial_branches": 0,
+        "covered_branches": 2,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      },
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 100.0
+    },
+    {
+      "path": "backend/app/infrastructure/ai/gemini_email_text.py",
+      "sha256": "8cfef1131369174c97efa4c0fb34b46ef6e6a2976bbe24b5c9ed50dcd66f6096",
+      "coverage_artifact": "email-ai-coverage.json",
+      "source_fences": [
+        "email-ai-test-command.json"
+      ],
+      "summary": {
+        "covered_lines": 37,
+        "num_statements": 37,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 8,
+        "num_partial_branches": 0,
+        "covered_branches": 8,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      },
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 100.0
+    },
+    {
+      "path": "backend/app/infrastructure/email/ai_claim.py",
+      "sha256": "d34dc634b705fa16701aa941184b971794fd88fab77437862fc0cbffdc6d878e",
+      "coverage_artifact": "email-ai-coverage.json",
+      "source_fences": [
+        "email-ai-test-command.json"
+      ],
+      "summary": {
+        "covered_lines": 16,
+        "num_statements": 16,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 0,
+        "num_partial_branches": 0,
+        "covered_branches": 0,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      },
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 100
+    },
+    {
+      "path": "backend/app/infrastructure/email/ai_claim_lifecycle.py",
+      "sha256": "407c5565a92cd1975138a7fea4248ae236c9afab1b8435507e289c3abf8ace6d",
+      "coverage_artifact": "email-ai-combined-coverage.json",
+      "source_fences": [
+        "email-ai-test-command.json",
+        "email-ai-lifecycle-supplement-command.json"
+      ],
+      "summary": {
+        "covered_lines": 96,
+        "num_statements": 96,
+        "percent_covered": 99.12280701754386,
+        "percent_covered_display": "99",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 18,
+        "num_partial_branches": 1,
+        "covered_branches": 17,
+        "missing_branches": 1,
+        "percent_branches_covered": 94.44444444444444,
+        "percent_branches_covered_display": "94"
+      },
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 94.44444444444444
+    },
+    {
+      "path": "backend/app/infrastructure/email/ai_claim_query.py",
+      "sha256": "7ae95c8332d9ce8b7e7e602cc24a3e3fdb142a9c288401404c575efdae168587",
+      "coverage_artifact": "email-ai-coverage.json",
+      "source_fences": [
+        "email-ai-test-command.json"
+      ],
+      "summary": {
+        "covered_lines": 12,
+        "num_statements": 12,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 0,
+        "num_partial_branches": 0,
+        "covered_branches": 0,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      },
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 100
+    },
+    {
+      "path": "backend/app/infrastructure/email/ai_claim_repository.py",
+      "sha256": "74e60842f62fd1e66febf42b02599cdc3fcc38394499dd1546eece247ae969a6",
+      "coverage_artifact": "email-ai-coverage.json",
+      "source_fences": [
+        "email-ai-test-command.json"
+      ],
+      "summary": {
+        "covered_lines": 14,
+        "num_statements": 14,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 2,
+        "num_partial_branches": 0,
+        "covered_branches": 2,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      },
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 100.0
+    },
+    {
+      "path": "backend/app/infrastructure/email/ai_dispatch.py",
+      "sha256": "db7a56277838c6af29f4df227cfea27c408aa62c6fca9e4528e14b3f15e14bd8",
+      "coverage_artifact": "email-ai-coverage.json",
+      "source_fences": [
+        "email-ai-test-command.json"
+      ],
+      "summary": {
+        "covered_lines": 38,
+        "num_statements": 40,
+        "percent_covered": 93.75,
+        "percent_covered_display": "94",
+        "missing_lines": 2,
+        "excluded_lines": 0,
+        "percent_statements_covered": 95.0,
+        "percent_statements_covered_display": "95",
+        "num_branches": 8,
+        "num_partial_branches": 1,
+        "covered_branches": 7,
+        "missing_branches": 1,
+        "percent_branches_covered": 87.5,
+        "percent_branches_covered_display": "88"
+      },
+      "observed_statement_coverage": 95.0,
+      "observed_branch_coverage": 87.5
+    },
+    {
+      "path": "backend/app/infrastructure/email/ai_link_policy.py",
+      "sha256": "6314c42cf08ff054e9a6e5b0ec4f698254fd1302c6101130da9f58c80c4cc0e0",
+      "coverage_artifact": "email-ai-coverage.json",
+      "source_fences": [
+        "email-ai-test-command.json"
+      ],
+      "summary": {
+        "covered_lines": 89,
+        "num_statements": 98,
+        "percent_covered": 83.33333333333333,
+        "percent_covered_display": "83",
+        "missing_lines": 9,
+        "excluded_lines": 0,
+        "percent_statements_covered": 90.81632653061224,
+        "percent_statements_covered_display": "91",
+        "num_branches": 58,
+        "num_partial_branches": 17,
+        "covered_branches": 41,
+        "missing_branches": 17,
+        "percent_branches_covered": 70.6896551724138,
+        "percent_branches_covered_display": "71"
+      },
+      "observed_statement_coverage": 90.81632653061224,
+      "observed_branch_coverage": 70.6896551724138
+    },
+    {
+      "path": "backend/app/infrastructure/email/ai_notifications.py",
+      "sha256": "111fe6fb53a6cbad20ff30516bdbd6d69f6abec908fda3dcc24478bd532061c4",
+      "coverage_artifact": "email-ai-coverage.json",
+      "source_fences": [
+        "email-ai-test-command.json"
+      ],
+      "summary": {
+        "covered_lines": 28,
+        "num_statements": 32,
+        "percent_covered": 80.95238095238095,
+        "percent_covered_display": "81",
+        "missing_lines": 4,
+        "excluded_lines": 0,
+        "percent_statements_covered": 87.5,
+        "percent_statements_covered_display": "88",
+        "num_branches": 10,
+        "num_partial_branches": 2,
+        "covered_branches": 6,
+        "missing_branches": 4,
+        "percent_branches_covered": 60.0,
+        "percent_branches_covered_display": "60"
+      },
+      "observed_statement_coverage": 87.5,
+      "observed_branch_coverage": 60.0
+    },
+    {
+      "path": "backend/app/infrastructure/email/ai_persistence.py",
+      "sha256": "50c4b86a5f8cc774a1efc0a3ece857ee535c6bcc1e80cb83a288f9dd23ceaca7",
+      "coverage_artifact": "email-ai-coverage.json",
+      "source_fences": [
+        "email-ai-test-command.json"
+      ],
+      "summary": {
+        "covered_lines": 59,
+        "num_statements": 66,
+        "percent_covered": 82.5,
+        "percent_covered_display": "82",
+        "missing_lines": 7,
+        "excluded_lines": 0,
+        "percent_statements_covered": 89.39393939393939,
+        "percent_statements_covered_display": "89",
+        "num_branches": 14,
+        "num_partial_branches": 5,
+        "covered_branches": 7,
+        "missing_branches": 7,
+        "percent_branches_covered": 50.0,
+        "percent_branches_covered_display": "50"
+      },
+      "observed_statement_coverage": 89.39393939393939,
+      "observed_branch_coverage": 50.0
+    },
+    {
+      "path": "backend/app/infrastructure/email/ai_result_records.py",
+      "sha256": "7220d9ecc56f7be2cbe04cb24fc32d261b0830215e7bca9468813bf030b0998b",
+      "coverage_artifact": "email-ai-coverage.json",
+      "source_fences": [
+        "email-ai-test-command.json"
+      ],
+      "summary": {
+        "covered_lines": 44,
+        "num_statements": 46,
+        "percent_covered": 93.10344827586206,
+        "percent_covered_display": "93",
+        "missing_lines": 2,
+        "excluded_lines": 0,
+        "percent_statements_covered": 95.65217391304348,
+        "percent_statements_covered_display": "96",
+        "num_branches": 12,
+        "num_partial_branches": 2,
+        "covered_branches": 10,
+        "missing_branches": 2,
+        "percent_branches_covered": 83.33333333333333,
+        "percent_branches_covered_display": "83"
+      },
+      "observed_statement_coverage": 95.65217391304348,
+      "observed_branch_coverage": 83.33333333333333
+    },
+    {
+      "path": "backend/app/infrastructure/email/ai_runtime.py",
+      "sha256": "c0df0f57423cc18dd2fa25749489d8dc0d5302e22ed4fba47a5d5ac5ba1f5e4e",
+      "coverage_artifact": "email-ai-coverage.json",
+      "source_fences": [
+        "email-ai-test-command.json"
+      ],
+      "summary": {
+        "covered_lines": 90,
+        "num_statements": 98,
+        "percent_covered": 88.39285714285714,
+        "percent_covered_display": "88",
+        "missing_lines": 8,
+        "excluded_lines": 0,
+        "percent_statements_covered": 91.83673469387755,
+        "percent_statements_covered_display": "92",
+        "num_branches": 14,
+        "num_partial_branches": 5,
+        "covered_branches": 9,
+        "missing_branches": 5,
+        "percent_branches_covered": 64.28571428571429,
+        "percent_branches_covered_display": "64"
+      },
+      "observed_statement_coverage": 91.83673469387755,
+      "observed_branch_coverage": 64.28571428571429
+    },
+    {
+      "path": "backend/app/infrastructure/email/ai_runtime_dependencies.py",
+      "sha256": "f691a230887b959419b5c8b2730f2996b40f4fcde79e3883a8f9ef992f404130",
+      "coverage_artifact": "email-ai-coverage.json",
+      "source_fences": [
+        "email-ai-test-command.json"
+      ],
+      "summary": {
+        "covered_lines": 27,
+        "num_statements": 27,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 32,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 0,
+        "num_partial_branches": 0,
+        "covered_branches": 0,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      },
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 100
+    },
+    {
+      "path": "backend/app/infrastructure/email/ai_seed_query.py",
+      "sha256": "808abbd8b0509e8c582e2518d399c2f57e41475281301e894e29e3ec144b5f52",
+      "coverage_artifact": "email-ai-coverage.json",
+      "source_fences": [
+        "email-ai-test-command.json"
+      ],
+      "summary": {
+        "covered_lines": 12,
+        "num_statements": 12,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 0,
+        "num_partial_branches": 0,
+        "covered_branches": 0,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      },
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 100
+    },
+    {
+      "path": "backend/app/infrastructure/email/ai_values.py",
+      "sha256": "c5a10b922d8b3fe4c503ed7949c808e643f873d41b7d245fb5dac44724a3bc34",
+      "coverage_artifact": "email-ai-coverage.json",
+      "source_fences": [
+        "email-ai-test-command.json"
+      ],
+      "summary": {
+        "covered_lines": 32,
+        "num_statements": 37,
+        "percent_covered": 78.72340425531915,
+        "percent_covered_display": "79",
+        "missing_lines": 5,
+        "excluded_lines": 0,
+        "percent_statements_covered": 86.48648648648648,
+        "percent_statements_covered_display": "86",
+        "num_branches": 10,
+        "num_partial_branches": 5,
+        "covered_branches": 5,
+        "missing_branches": 5,
+        "percent_branches_covered": 50.0,
+        "percent_branches_covered_display": "50"
+      },
+      "observed_statement_coverage": 86.48648648648648,
+      "observed_branch_coverage": 50.0
+    }
+  ]
+}

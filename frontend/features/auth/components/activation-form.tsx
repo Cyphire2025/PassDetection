@@ -11,25 +11,38 @@ import { useAuthStore } from "@/stores/auth.store";
 import { authApi } from "../api/auth.api";
 import { useIdentityActionToken } from "../hooks/use-identity-action-token";
 import { MfaChallengePanel } from "./login-form";
+import { authenticationContextIsCurrent, captureAuthenticationContext } from "../services/authentication-context";
+import { RequestOwnerChangedError } from "@/lib/api/request-owner";
+import { cookieCoordinationFailureMessage } from "../services/cookie-mutation";
 
 export function ActivationForm() {
+  const [entryAuthentication] = useState(captureAuthenticationContext);
+  const currentVersion = useAuthStore((state) => state.sessionVersion);
   const { readToken, tokenState } = useIdentityActionToken();
   const [password, setPassword] = useState("");
   const [confirmation, setConfirmation] = useState("");
   const [validationError, setValidationError] = useState<string | null>(null);
   const setSession = useAuthStore((state) => state.setSession);
   const activation = useMutation({
+    onMutate: captureAuthenticationContext,
     mutationFn: () => {
+      if (!authenticationContextIsCurrent(entryAuthentication)) throw new RequestOwnerChangedError();
       const token = readToken();
       if (!token) throw new Error("Activation credential is unavailable");
       return authApi.activate(token, password);
     },
-    onSuccess: (outcome) => {
+    onSuccess: (outcome, _variables, authentication) => {
+      if (!authenticationContextIsCurrent(authentication)) return;
       if (outcome.status !== "authenticated") return;
       setSession(outcome.user);
       window.location.assign(ROUTES.dashboard.root);
     },
   });
+
+  if (activation.context && currentVersion !== activation.context.sessionVersion
+    && !authenticationContextIsCurrent(activation.context)) {
+    return <p role="alert">Your signed-in account changed. Reload before continuing activation.</p>;
+  }
 
   if (activation.data?.status === "action_completed") {
     return (
@@ -101,7 +114,7 @@ export function ActivationForm() {
       <p className="text-xs leading-relaxed text-slate-600">Use uppercase, lowercase, a number, and at least 10 characters.</p>
       {(validationError || activation.error) && (
         <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-          {validationError ?? "The activation link is invalid, expired, or already used."}
+          {validationError ?? cookieCoordinationFailureMessage(activation.error) ?? "The activation link is invalid, expired, or already used."}
         </div>
       )}
       <Button type="button" className="h-[54px] w-full bg-[#123753] hover:bg-[#17486d] active:bg-[#102e43]" isLoading={activation.isPending} onClick={submit}>Set password and continue</Button>

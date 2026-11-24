@@ -1,0 +1,153 @@
+{
+  "retired_frontend_aliases_only": [
+    {
+      "surface": {
+        "id": "frontend:frontend/features/auth/api/auth.api.ts:logout",
+        "kind": "frontend_callable",
+        "source": "frontend/features/auth/api/auth.api.ts",
+        "handler": "logout"
+      },
+      "workflow": "auth.logout",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Browser login/MFA or public token upload protocol; MCP preserves these authenticated boundaries through its dedicated OAuth and staged-upload services.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/auth/api/auth.api.ts:logoutAll",
+        "kind": "frontend_callable",
+        "source": "frontend/features/auth/api/auth.api.ts",
+        "handler": "logoutAll"
+      },
+      "workflow": "auth.logoutAll",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Browser login/MFA or public token upload protocol; MCP preserves these authenticated boundaries through its dedicated OAuth and staged-upload services.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/auth/api/auth.api.ts:refreshToken",
+        "kind": "frontend_callable",
+        "source": "frontend/features/auth/api/auth.api.ts",
+        "handler": "refreshToken"
+      },
+      "workflow": "auth.refreshToken",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Browser login/MFA or public token upload protocol; MCP preserves these authenticated boundaries through its dedicated OAuth and staged-upload services.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    }
+  ],
+  "updated_source_fingerprints": [
+    {
+      "before": {
+        "id": "frontend_api:frontend/features/auth/api/auth.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/auth/api/auth.api.ts",
+        "contract_sha256": "785e4b67f03dcc6966fbc8723b305f681cebab079fc2a77f1d6ff287dbaf30be"
+      },
+      "after": {
+        "id": "frontend_api:frontend/features/auth/api/auth.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/auth/api/auth.api.ts",
+        "contract_sha256": "0cf8cfae8f997078ca6c82f066270cc49ac61a45b037799d1cb27b4dac7d3eb4"
+      }
+    },
+    {
+      "before": {
+        "id": "frontend_api:frontend/lib/api/client.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/lib/api/client.ts",
+        "contract_sha256": "9934a08ebdd9c2ad6f28e4299f6cf8e7872a3d7a4713362e909aa17ffcbcf3fc"
+      },
+      "after": {
+        "id": "frontend_api:frontend/lib/api/client.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/lib/api/client.ts",
+        "contract_sha256": "ba4e64dfc7cddfc14fbfc7ef60cd8c8cb696ab129e29488e58ed47afc196751e"
+      }
+    }
+  ],
+  "new_internal_primitive": {
+    "surface": {
+      "id": "frontend:frontend/lib/api/request-owner.ts:capturePrivateOperationOwner",
+      "kind": "frontend_callable",
+      "source": "frontend/lib/api/request-owner.ts",
+      "handler": "capturePrivateOperationOwner"
+    },
+    "workflow": "auth.request-owner-precondition.capturePrivateOperationOwner",
+    "disposition": "internal_dependency",
+    "phase": null,
+    "rationale": "Reviewed initiating-actor capture across private async steps. It returns existing owner-bound request metadata and a mismatch assertion, grants no identity/tenant/role/server authority and leaves business authorization to existing routes. It does not claim role/agency continuity.",
+    "adapter_requirements": [],
+    "implementation": {
+      "status": "not_applicable",
+      "adapter": null,
+      "evidence": []
+    },
+    "effect_review": "required_before_enablement"
+  },
+  "all_other_classifications_phases_adapter_states_preserved": true,
+  "backend_auth_endpoints_and_existing_live_client_store_workflows_retained": true,
+  "new_cookie_coordination_module_discovered_identities": [],
+  "before_surface_count": 1949,
+  "current_discovered_surface_count": 1933,
+  "remaining_unadmitted_owner_source_deltas": [
+    "Stale workflow surface: frontend:frontend/features/whatsapp/api/broadcast-message-reads.api.ts:batchStatus",
+    "Stale workflow surface: frontend:frontend/features/whatsapp/api/broadcast-message-reads.api.ts:batchSummary",
+    "Stale workflow surface: frontend:frontend/features/whatsapp/api/broadcast-message-reads.api.ts:previewRecipientsResend",
+    "Stale workflow surface: frontend:frontend/features/whatsapp/api/broadcast-recipients.api.ts:rejectedContacts",
+    "Stale workflow surface: frontend:frontend/features/whatsapp/api/broadcast-resend-payload.ts:bulkResendOverridesPayload",
+    "Stale workflow surface: frontend:frontend/features/whatsapp/api/broadcast-resend-payload.ts:validateBulkRecipientSelection",
+    "Stale workflow surface: frontend:frontend/features/whatsapp/api/broadcast-resends.api.ts:resendRecipientMessage",
+    "Stale workflow surface: frontend:frontend/features/whatsapp/api/broadcast-resends.api.ts:resendRecipientsMessage",
+    "Stale workflow surface: frontend:frontend/features/whatsapp/api/broadcast-sends.api.ts:sendGroupInvite",
+    "Stale workflow surface: frontend:frontend/features/whatsapp/api/broadcast-sends.api.ts:sendPassportLink",
+    "Stale workflow surface: frontend:frontend/features/whatsapp/api/broadcast-sends.api.ts:sendReminder",
+    "Stale workflow surface: frontend:frontend/features/whatsapp/api/broadcast-sends.api.ts:sendWelcome",
+    "Stale workflow surface: frontend_api:frontend/features/whatsapp/api/broadcast-resends.api.ts",
+    "Stale workflow surface: frontend_api:frontend/features/whatsapp/api/broadcast-sends.api.ts",
+    "Workflow contract changed; review classification: endpoint_registry:frontend/lib/api/endpoints.ts",
+    "Workflow contract changed; review classification: frontend_api:frontend/features/branding/api/branding-images.api.ts",
+    "Workflow contract changed; review classification: frontend_api:frontend/features/gc-app/api/gc-app-admin.api.ts",
+    "Workflow contract changed; review classification: frontend_api:frontend/features/passports/api/passports.api.ts",
+    "Workflow contract changed; review classification: frontend_api:frontend/features/whatsapp/api/broadcast-message-reads.api.ts",
+    "Workflow contract changed; review classification: frontend_api:frontend/features/whatsapp/api/broadcast-recipients.api.ts",
+    "Workflow contract changed; review classification: frontend_api:frontend/lib/api/endpoints.ts",
+    "Workflow contract changed; review classification: frontend_api:frontend/lib/api/streamed-download.ts"
+  ],
+  "partial_reconciliation_only": true,
+  "review_basis": "Current auth API facade, client transport, owner helper and cookie-mutation source independently read; remaining frontend cookie tranche behavior/tests attributed to exact14-source-digest manual_security receipt. Only actual observed MCP source deltas reconciled; no broad admission."
+}

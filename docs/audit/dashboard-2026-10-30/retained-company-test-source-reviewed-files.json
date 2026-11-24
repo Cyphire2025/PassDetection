@@ -1,0 +1,167 @@
+{
+  "files": [
+    {
+      "path": "backend/tests/integration/test_company_export_admission_compatibility.py",
+      "sha256": "1eaa2f4e5a5215c646ecae46eb2bbfbbe35c2d7e06f5c066cd2c76ef1c4e5d2f",
+      "physical_lines": 108,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete108 physical test read. Source asserts live facade max-attempt/lease/page timeout/settings and current authority before part ownership/workbook rows. Actual worker1-117 plus admission88-133 shows these injected hooks still dispatch through current exports; no app check or live service proof."
+    },
+    {
+      "path": "backend/tests/integration/test_company_history_chronology.py",
+      "sha256": "8b5cc974f909e4007d056960cec93db82d65b1650f57537bf8b015a607bd1c58",
+      "physical_lines": 80,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete80 physical test read. Source asserts bounded keyset source dates precede registration time with unknown dates retained, and trip dates order before undated groups. Actual source/history query bodies traced at recorded ranges; no SQL-service execution."
+    },
+    {
+      "path": "backend/tests/integration/test_company_match_review.py",
+      "sha256": "84da779fce572b132575b9320046c2a8a9f0b0fecb6311f2fc34fa2c08ff0de1",
+      "physical_lines": 163,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete163 physical test read. Scoped keyset/cursor-status binding and independent status counts, pending-only recognition vs consent/accepted membership, revision/rule/source freshness and actual-trip-date metrics. No new proof of concurrent locks from source assertions alone."
+    },
+    {
+      "path": "backend/tests/integration/test_company_removal.py",
+      "sha256": "620d931c25eb6f6870d00afe291c0109c2f341de48cf6d7155e78a47f6c4b6cf",
+      "physical_lines": 73,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete73 physical test read. Company removal must preserve entire source table row/history and unrelated shared GC access, detach manager grants and preserve prior revocation timestamp; bounded removal rejects before mutation. Shared model imports are retained compatibility context, no native ingress/UI review."
+    },
+    {
+      "path": "backend/tests/integration/test_company_reuse_setup.py",
+      "sha256": "efd83ebbbd6ff06dfa347b2761eb48f582207c58d044c6fc1031df60290696e6",
+      "physical_lines": 104,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete104 physical test read. Purpose/notice/version evidence, tenant/admin/inactive restrictions and monotonically increasing group generations across disable/reenable; no implicit old consent or identifier authority. No policy edits or execution."
+    },
+    {
+      "path": "backend/tests/integration/test_company_source_export_integrity.py",
+      "sha256": "b4fa99c6437550e7ffe691af750e39bd589db1d983e82bfb7ae212e1273aab7a",
+      "physical_lines": 57,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete57 physical test read. Existing malformed historical source references must advance bounded page cursor without object disclosure and recover next valid source; no new payload construction/probing or runtime change."
+    },
+    {
+      "path": "backend/tests/integration/test_company_trip_phase.py",
+      "sha256": "999889a941bf386e167ed3e373dd2645d18ff56f41f0f8094d01ffe56a732a68",
+      "physical_lines": 52,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete52 physical test read. Return-day/timezone reporting independent of intake/archive state, missing end date remains active; SQLite query fixture coverage is not PostgreSQL timezone service proof."
+    },
+    {
+      "path": "backend/tests/integration/test_company_workbook_cancellation.py",
+      "sha256": "c3e1766d2e5b2428ffe5079aaba6456d3746c2347b56ab63729fa784cb5de81d",
+      "physical_lines": 84,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete84 physical test read. Synthetic real thread blocks append/finish, single/double cancellation drains before closing plaintext workbook. Actual current WorkbookAssembly global and run_export_native_work/finally wiring read;2/3/5second fixture bounds are assumptions, not production timing measurements."
+    },
+    {
+      "path": "backend/tests/integration/test_company_workspace.py",
+      "sha256": "398fb9a7218d37235017795ff0d84944a67e958f5e96e608105f0f681b586ce3",
+      "physical_lines": 140,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete140 physical test read. Active assigned tenant precedence, no fallback/inference for unbound agency roles, minimal bounded ID-only lookup, disallowed role denied before DB and private HTTP workspace route. No newly validated defect; unchanged source only."
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/company_export_workbook.py",
+      "sha256": "3986705f77da29340f337b7efac87b97819e775b179217e74d10cc519178b1f1",
+      "physical_lines": 69,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete69 physical read by combined1-48 and49-end ranges: same live WorkbookAssembly construction, repeated current authority and lease fence, bounded25-part pages, awaited native append/finish and finally cleanup. Existing frozen runtime unchanged; no new-unreviewed credit if prior matching full ledger. Source inspection is not cancellation/service execution."
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/company_export_worker.py",
+      "sha256": "0fd62ac61c57539f06202672d2b3dfc2afd3a264ffae2185c2dd35de1856c16a",
+      "physical_lines": 147,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical read1-117 only: actual live facade constants/settings and authority hooks forwarded to admission/workbook/part owners. Rest of tick not fully read; no whole-worker credit or mutation."
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/company_export_admission.py",
+      "sha256": "fdce49e0364a9df3498812057a96d81ec4afc49901f3fbb8184797bb2ac34f68",
+      "physical_lines": 160,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical read88-133 only: complete reserve_part signature and lease/token/cursor/number/current-authority checks before owning deterministic key; later receipt fields/write expiry not fully read here."
+    },
+    {
+      "path": "backend/tests/integration/test_company_data_exports.py",
+      "sha256": "ce4905600872a11b66086b791c21c9c25131b40bee742c3662fb8580ee3e010a",
+      "physical_lines": 247,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical read1-79 only: synthetic memory storage/failure/stat/stream fixture, durable export fixture and bounded drain helper; remaining export tests not full credited or executed."
+    },
+    {
+      "path": "backend/tests/integration/test_company_people.py",
+      "sha256": "e76274f1b0544d4b3d813887bd44db994c942a2b0cb31ab35d335fe88e2c0537",
+      "physical_lines": 288,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical read1-59 only: imports and complete synthetic people_fixture sets copies available for isolated tests; remaining edit/history tests not fully read here."
+    },
+    {
+      "path": "backend/tests/integration/test_company_directory.py",
+      "sha256": "027f4bd3a96847532ad621162c9ae4c17eb8e93c98c1344a3392f020c47aa3fd",
+      "physical_lines": 299,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical read1-75 only: actual same-tenant synthetic actor/company/group helpers used by selected tests; remaining lifecycle tests not fully read here."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/company_source_documents.py",
+      "sha256": "ba3e81e30ba3c25746b9963c6af57da7b7301d2a48c1075cb865b440c1f06cf9",
+      "physical_lines": 117,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical read44-93 only: complete person_sources scoped active company/person/groups, snapshot cursor, source-date/null keyset, bounded projection and malformed-reference skip. Other source/image routes not full reviewed here."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/company_traveller_history.py",
+      "sha256": "9bf37dd67d9ccb5ca65221ceb8620cd4911ea6b227e98e130bf3938c7c3fa54f",
+      "physical_lines": 164,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical read118-164 only: complete company_traveller_history company/tenant visibility, accepted chronology/null handling/snapshot cursor/response projection. Other module routes not full reviewed here."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/company_match_review.py",
+      "sha256": "8e5dc3e84be0c42e088ce3dfe4136e795ad98340b269ff8105ff205da5b861f3",
+      "physical_lines": 123,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical read70-106 only: complete matching_preview same actor/company/group/status-bound keyset, scoped counts and latest job. Other matching mutation endpoints not full reviewed here."
+    }
+  ],
+  "scope": "Nine current-full-unmatched retained dashboard integration tests physically read, plus whole shared workbook69 and eight explicit focused callers/fixtures. No source/config/test changes or app checks; no native ingress/UI or Operations Inbox work."
+}

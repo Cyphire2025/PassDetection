@@ -1,0 +1,182 @@
+{
+  "status": "Successful7case retained dashboardadmin supplement qualified; application source unchanged. Parent owns binarydata combination and final unchanged90floor verifier.",
+  "sealed_at_utc": "2026-11-01T00:56:15.539952+00:00",
+  "test": {
+    "path": "backend/tests/unit/presentation/test_gc_content_dashboard_scope.py",
+    "sha256": "6657ffa8c57e0a7a80d9ab16038c76cbd4683ad65f7cdfcba9d41bb08ccfc421",
+    "physical_lines": 179,
+    "reviewer": "gc_models_finish",
+    "review_scope": "full",
+    "status": "reviewed-and-authored",
+    "source_kind": "test",
+    "notes": "Complete new179line retained dashboardadmin test source authored/read. Sevenactualselected cases pass under original earlydotenvguard+minimal syntheticenv andstrict subsetpolicy; no-fixRuff passes. Threeprequery tenantcontext rejects, realSQLiteforeignagency404, own draftpreview andtwoadminunpublish transactions verifyretired DTOs/hiddenactivecontent/revision/auditprivacy. Sharedjournal is localDB bridge only, no nativeingress/provider/storage calls. Onlytestsource changed; all1823app source bytes remainoriginal. Failed001publishedaudiencefixture dataset is preserved/excluded, successful002eligible forparent-ownedbinarycoveragecombination only."
+  },
+  "eligible_dataset": {
+    "run": "docs/audit/dashboard-2026-10-30/final-retained-gc-scope-cov-20261101-002",
+    "coverage_data_sha256": "366066c29a98eff85b4269e0ce8e75954d4b6777a9bc7691d825de9a46e92a66",
+    "coverage_JSON_sha256": "3be2fe72302f54aa23606ea30a4d4166d59202fd77fefad1c94b69162b5c20ee",
+    "coverage_XML_sha256": "e38428fbefdda9adce5f81fa80fe3f1be1a120b939613d162981ec7bd134bf6d",
+    "receipt_sha256": "0aae58fcd45b64d6c771d8110d8f5caacf182b37fc67c8e4c10297b323777e42",
+    "source_fence_sha256": "224da6f7e33ecc89ec9494a0dfee7b6954ddbad161ea598411d078961ce1dd53"
+  },
+  "checks": [
+    {
+      "name": "pytest",
+      "command": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "-q",
+        "--tb=long",
+        "-o",
+        "addopts=",
+        "-p",
+        "subset_plugin",
+        "tests\\unit\\presentation\\test_gc_content_dashboard_scope.py",
+        "--cov=app",
+        "--cov-branch",
+        "--cov-report=xml:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\final-retained-gc-scope-cov-20261101-002\\coverage.xml",
+        "--cov-report=json:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\final-retained-gc-scope-cov-20261101-002\\coverage.json",
+        "--junitxml=C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\final-retained-gc-scope-cov-20261101-002\\junit.xml"
+      ],
+      "exit_code": 0,
+      "seconds": 50.157
+    },
+    {
+      "name": "ruff",
+      "command": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "ruff",
+        "check",
+        "--no-fix",
+        "--config",
+        "pyproject.toml",
+        "tests\\unit\\presentation\\test_gc_content_dashboard_scope.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.375
+    }
+  ],
+  "selected_exact_unique_cases": [
+    {
+      "nodeid": "tests/unit/presentation/test_gc_content_dashboard_scope.py::test_dashboard_content_rejects_ambiguous_or_foreign_agency_before_queries[super_admin-False-False-422-agency_id is required]",
+      "path": "backend/tests/unit/presentation/test_gc_content_dashboard_scope.py",
+      "originalname": "test_dashboard_content_rejects_ambiguous_or_foreign_agency_before_queries"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_gc_content_dashboard_scope.py::test_dashboard_content_rejects_ambiguous_or_foreign_agency_before_queries[agency_admin-False-False-403-Account has no agency]",
+      "path": "backend/tests/unit/presentation/test_gc_content_dashboard_scope.py",
+      "originalname": "test_dashboard_content_rejects_ambiguous_or_foreign_agency_before_queries"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_gc_content_dashboard_scope.py::test_dashboard_content_rejects_ambiguous_or_foreign_agency_before_queries[agency_manager-True-True-403-Agency scope mismatch]",
+      "path": "backend/tests/unit/presentation/test_gc_content_dashboard_scope.py",
+      "originalname": "test_dashboard_content_rejects_ambiguous_or_foreign_agency_before_queries"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_gc_content_dashboard_scope.py::test_dashboard_content_does_not_disclose_a_real_group_from_another_agency",
+      "path": "backend/tests/unit/presentation/test_gc_content_dashboard_scope.py",
+      "originalname": "test_dashboard_content_does_not_disclose_a_real_group_from_another_agency"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_gc_content_dashboard_scope.py::test_dashboard_preview_returns_its_own_unsent_itinerary_draft",
+      "path": "backend/tests/unit/presentation/test_gc_content_dashboard_scope.py",
+      "originalname": "test_dashboard_preview_returns_its_own_unsent_itinerary_draft"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_gc_content_dashboard_scope.py::test_dashboard_unpublish_returns_retired_content_and_records_only_scoped_audit[itinerary]",
+      "path": "backend/tests/unit/presentation/test_gc_content_dashboard_scope.py",
+      "originalname": "test_dashboard_unpublish_returns_retired_content_and_records_only_scoped_audit"
+    },
+    {
+      "nodeid": "tests/unit/presentation/test_gc_content_dashboard_scope.py::test_dashboard_unpublish_returns_retired_content_and_records_only_scoped_audit[common_document]",
+      "path": "backend/tests/unit/presentation/test_gc_content_dashboard_scope.py",
+      "originalname": "test_dashboard_unpublish_returns_retired_content_and_records_only_scoped_audit"
+    }
+  ],
+  "environment_guard_counters": [
+    {
+      "pid": 1296,
+      "checkout_dotenv_reads_skipped": 0,
+      "other_private_open_attempts_blocked": 0
+    },
+    {
+      "pid": 17680,
+      "checkout_dotenv_reads_skipped": 0,
+      "other_private_open_attempts_blocked": 0
+    }
+  ],
+  "scope_contract": [
+    "SUPER_ADMIN requires explicitagency beforeanydatabasequery.",
+    "Orphanedagencyadmin andcrossagency manageroverride are rejected beforeanydatabasequery.",
+    "AnexistingrealSQLitegroup inanotheragency remains undisclosedbyactual scopedORMread.",
+    "Dashboardpreview returns own unsent draft without publishing or bumping contentversion.",
+    "Admin itinerary/common-document unpublish returnsretired DTO, removesactivepreview/list visibility, incrementsversion/revision andwrites agency/user/group-bound audit without title/storagekey metadata."
+  ],
+  "coverage": {
+    "original_statement_percent": 83.09859154929578,
+    "standalone_supplement_statement_percent": 76.05633802816901,
+    "newly_executed_original_missing_lines": [
+      44,
+      51,
+      103,
+      160,
+      163,
+      164,
+      175,
+      176
+    ],
+    "read_only_JSON_projection_with_original": {
+      "covered_statements": 67,
+      "total_statements": 71,
+      "percent": 94.36619718309859,
+      "retained_normal_floor": 90,
+      "would_satisfy_floor": true,
+      "missing_lines": [
+        165,
+        177,
+        178,
+        179
+      ]
+    },
+    "actual_binary_merge_or_quality_verifier_executed_by_this_agent": false,
+    "remaining_invalid_status_paths_not_forced_for_coverage": "165,177,178,179 are outside thesevalid retained adminworkflow cases; no direct enum/helper line-walk loops added."
+  },
+  "all1823app_original_hashes_exact_before_after_and_now": true,
+  "current_normal_budget_row_unchanged": {
+    "path": "app/presentation/api/v1/routes/gc_app_content_scope.py",
+    "baseline_lines": 179,
+    "maximum_lines": 188,
+    "baseline_max_function_complexity": 11,
+    "maximum_function_complexity": 11,
+    "minimum_coverage_percent": 90
+  },
+  "backend_gate_hashes": {
+    "backend/backend_quality_budgets.json": "5b4249b233c075481e258760b8721462f2190e4754312e361b05349aaf2cde46",
+    "backend/architecture-dependencies.json": "d74dad8369bc1e9cdb2ebb2fa7a550ca87de9a9e267b1c6c94de749569b50d36"
+  },
+  "application_or_gate_or_floor_or_config_edits": false,
+  "original_full_run_or_failed001_artifacts_renewed": false,
+  "failed_dataset_excluded": {
+    "run": "docs/audit/dashboard-2026-10-30/final-retained-gc-scope-cov-20261101-001",
+    "coverage_data_sha256": "7eacc24b9fe9fc22b047bd6d64f7285d5d3586dd86972e83732875d75cfe73d5",
+    "reason": "One syntheticpublishedcommon-document fixture failed existing audienceconstraint beforetargetroute; fixedfixtureonly in002."
+  },
+  "history": {
+    "path": "docs/audit/dashboard-2026-10-30/final-gc-content-dashboard-scope-evidence/preparation-history.json",
+    "sha256": "7b35ca6af0119153e92aa3009f67b36fe106a22c4850cf723c1c9acfd05b7a3d",
+    "BOMpreparation_failure_preserved": true,
+    "root_accepted_actual001_then_fresh002_chronology": true
+  },
+  "review_ledger": {
+    "path": "docs/audit/dashboard-2026-10-30/gc-content-dashboard-scope-reviewed-files.json",
+    "sha256": "4ab2b8d312a7600fa511691ee5f60e393af59afe1a5c85491e1e3aa55eda6232"
+  },
+  "limitations": [
+    "Synthetic SQLite anddirect retainedroute calls; no PostgreSQL/Redis/storage/provider/nativeAPI orproduction qualification.",
+    "No global900row qualitygate pass claimed beforeparent combines legitimate successfuldatasets.",
+    "The failed001dataset mustnot participate incoveragecombination.",
+    "Original4backendcosmetic candidates remainheld to preserveapp source identities."
+  ]
+}

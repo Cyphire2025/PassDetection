@@ -1,0 +1,842 @@
+[
+  {
+    "path": "frontend/features/whatsapp/api/group-updates.api.ts",
+    "sha256": "3b75c0d888598e4cfe9d5825221dd4de18705501340ec9e1cd649495831837ac",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/api/whatsapp-activity.api.ts",
+    "sha256": "6bb296ea8288230781b50c66b1f5a78e002807109fae65ce0ec87641d1bdf963",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/api/whatsapp-export.api.ts",
+    "sha256": "1643c0b40713074244d4d29594958897137dde0cccf2525a7e59b00ee8a95fcb",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/api/whatsapp-source-groups.api.ts",
+    "sha256": "f6ee8f69497dd361e9be17bbfe4fcdab03d5d07bfc427cba63944ec81a3f212a",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/api/whatsapp.api.ts",
+    "sha256": "e55ba6e1a6c599e21b5f4078daad3b58aabe58c476c054ce704dcb6ef5a142ce",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/group-update-audience.tsx",
+    "sha256": "2b092eca7eddf2f4cbe80cb03f10171e46347fa5bf1049b0f0d37c23b1bbeafe",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/group-update-dialog.tsx",
+    "sha256": "420387e0166eb86280ec4b94e7e253e1d4ca2a22b96d529b8a476ba72fa97842",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/group-update-recipient-details.tsx",
+    "sha256": "20a203079f0f649431340828b59c535c193bcc7760d83c83a8ec7c72770cd6c9",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/group-update-recipient-picker.tsx",
+    "sha256": "e7b3013cae711e39242fd6f835fa9387519e6070da2341cf7de987d156c7fba4",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/whatsapp-activity-tracker.tsx",
+    "sha256": "6e0d45060f8ede7bdfb15f06a5e32a87d38ae5e2140b1709c145c211db17f359",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/whatsapp-broadcast-motion.module.css",
+    "sha256": "61fd0b3ce9e39f8b0977c0793cb69b4d9bb1d3138d3f0b5b65ebdc7023e3aa63",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/whatsapp-broadcast-motion.tsx",
+    "sha256": "a508c334b4fea50e541e48007d0bf0d06b9a4e46a9b0d5edec5814d1fe10c1a6",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/whatsapp-create-broadcast-dialog.tsx",
+    "sha256": "7712acb407674c58529a87884ae5c7814818c7f8f40b0c74fad701a7201fe9af",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/whatsapp-dialog-ui.tsx",
+    "sha256": "d943b3f6f7989031b8bc3d2994197ffbb73f3c73b315e138d720b6d5a76c5b23",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/whatsapp-export-button.tsx",
+    "sha256": "b4eec7b9b68110f92c214778dcab0213c66621e3a13583745732a7be30b4874e",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/whatsapp-message-composer-ui.tsx",
+    "sha256": "1d9b474eae4edbd06fc7b219b08d1cf543db13eec83da9937f9d4a12a7405064",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/whatsapp-page.tsx",
+    "sha256": "4588c4c5d8577bec39bee8e37a6305fda2ec439f986dc9db1492977ac8a9c167",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/whatsapp-recipient-import.tsx",
+    "sha256": "c98cfa76566a4b56a6e7848b6e6cb72df3d90a0553a572203d8b5cd76163962b",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/whatsapp-recipient-roster-rows.tsx",
+    "sha256": "9bb374ff76d7385c9ab413d0becac60243f35a6399166e4e032344dd565d4ce2",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/whatsapp-source-contact-table.tsx",
+    "sha256": "9148d74a30e9d5ff60e38bdec1c82ac70c70c8468fc5436e0bcfef321c4a6dd4",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/whatsapp-source-group-form.tsx",
+    "sha256": "45d7fd8120d61f7af2a502bdd8b97ba7e2d61b7d2b34fb079c11f1df55e56379",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/whatsapp-source-group-preview.tsx",
+    "sha256": "0165c1893f0c8d4214a3bd861fb57e6307de3ed4238f70d8d2ae4ab45ff7948c",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/whatsapp-source.contract-helper.mjs",
+    "sha256": "a68ffbba1e7a4ea85937dcb82c974409c359e32377bdc29e81e91a75ff836f92",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/hooks/use-group-update-audience.ts",
+    "sha256": "703b5ef34371d70616fb03cfe7f35134e603e78c2229712a6c22e7abee519aed",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/hooks/use-normal-send.ts",
+    "sha256": "5b70241091602b07c7a177619fecabe69faca274850e16105ff4970a40f838b0",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/hooks/use-whatsapp-export.ts",
+    "sha256": "9a2dc782358e6aa389a20064f79a5cc937d696d6a11b455b7803940c6c049238",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/hooks/use-whatsapp-source-groups.ts",
+    "sha256": "5427b640b72a43717dba092f2c3802efc4451824a11565a17354be1bf90ae640",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/hooks/use-whatsapp.ts",
+    "sha256": "5ae330d0d4ac44b1a678e65e4bfc91e56f89a7c388ceb4fa6f0fc7f600c2a87c",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/utils/activity-tracking.ts",
+    "sha256": "da2899064e5399e364351092e76e2245caa1f933a2881bb77cb8a2577d9a7a5a",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/utils/batch-polling.ts",
+    "sha256": "07d6496ba977592a515da6bf52a5b01326736c7a9593c745c764f328e10e3c14",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/utils/group-invite.ts",
+    "sha256": "b4f438f4562590c2cf22b66845eac3f4305f26ca2b94ce125c77ee7cfa79983f",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/utils/group-update-audience.ts",
+    "sha256": "7f742771da8931edcd5955553687390c2832442ca03176ede2977bfc6b60dd11",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/utils/message-types.ts",
+    "sha256": "45a667ca9ca752ab01e1689f82764930357e5055e5f6e979ceee924b93afde20",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/utils/normal-send-controller.ts",
+    "sha256": "de56ab80238925570dfd3634027b290b7e7c27ec65eea747a9c3b548d5fa5535",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/utils/normal-send-intent.ts",
+    "sha256": "ea9aad4a52d7bbc902ea91f50c0841734ff2c3e2570f15196dad8007e9cbb8a9",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/utils/normal-send-storage.ts",
+    "sha256": "288a223b74f4ae45242c7eabb534eeae2c241f2b04d8a3d6ad6067d46176dbee",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/utils/recipient-delivery.ts",
+    "sha256": "0fbe7d5cf1e846de4d802098596bb884107b36b8a54eb13acfee6ccd97079568",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/utils/recipient-import.ts",
+    "sha256": "31a0dc9b2ba1a745cd00d63891fb41395b41d1936d90c42fdf9fd2d661a56065",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/utils/send-progress.ts",
+    "sha256": "8b42f9933718767397f42f0478f12c8f4f0f85c3be9f7efe49b36e4efe4ae0fd",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/utils/source-group-cache.ts",
+    "sha256": "17106304960f3ec230cf40aa619191f332094d69161034b77af14d3609709db3",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/utils/whatsapp-formatting.ts",
+    "sha256": "09d8a064faec4ca381878d61d5b01d3aa5de0eb7778df84056b66be6a839dae3",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/add-recipients-dialog.tsx",
+    "sha256": "5cf48d475df079500b1985d2209e2a09b635f58bcdd19341003e8bc6fe9cc49e",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/broadcast-details-page.tsx",
+    "sha256": "a37e48cd7ff5a2769af8215976543071a02588b9127b28d58358f6e4bcc26caf",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/broadcast-documents-page.tsx",
+    "sha256": "8fac8f076665cd3e57fa58f0eaddcd7a2052935fedb44dd246a135fea48c7c0a",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/broadcast-index.tsx",
+    "sha256": "39d370dea430a57e62a6508b2378b048515b76fb84a597cb0bb661b658954289",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/broadcast-workspace-shell.tsx",
+    "sha256": "86fb71cccfaddd7843b031223c114f3a9e6bb3b43e13224e4fd4d63fc67ae1db",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/broadcast-workspace.module.css",
+    "sha256": "c1614eec9269f8c2c44eefb9c41573888cb91fa664697381a6859c7680ff4f49",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/composer-primitives.tsx",
+    "sha256": "582710895b60f79a99aa44d176cc30f5e9f51b37a3f88bb95313b69d614fbd87",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/composer.api.ts",
+    "sha256": "a798e82dbef696894bf8e3af5bef093e0a4a500fd7fc039cd1a13070edb1d887",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/delivery-history-page.tsx",
+    "sha256": "e92b50db5e93a698f07de19173d5aada32adc3b89301bcbef28fba3cd6460b1e",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/document-composer.tsx",
+    "sha256": "d0a5bf1a4d946599c8ca816bd70509ed755c7c38f5621154714e726e6015ab7d",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/historical-resend-dialog.tsx",
+    "sha256": "2cbea919ebd763543e5656bf0aa17249a22eb10a430876f86f59c2ebcb0fab83",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/history.api.ts",
+    "sha256": "a8d8187da049d90c2ebb3198354ca10e92c7c6796524109caa6ffeb27b587e34",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/message-composer-audience.tsx",
+    "sha256": "53fd7fb660e90c335d65bf4d3d8454fbd3ae08ef41aeada0a99f56ab67f2058e",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/message-composer.tsx",
+    "sha256": "f49b27f1081b429ce4f9a15708dca41db00de2dd080a035186b7127a10307acb",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/message-delivery-report.tsx",
+    "sha256": "1add2d17f71c6c778170b4de1d01b05ad10dfcb4aacbe79ac9d809afb74a85e5",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/message-history-list.tsx",
+    "sha256": "ca720e82baded3b669aba4f6abba855ec8ea34f1ec0b84e04740e7431ee31147",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/message-type-overview.tsx",
+    "sha256": "ae50c3f3f72c4ce330c7e043076cc89ba4ca8411ffa59a3024936fe329eb84ed",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/message-type-recipients.tsx",
+    "sha256": "b6034903c3db1d2f2cfe8324ff0c4676b724410756a10752753a273791dc84bf",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/message-type-versions.tsx",
+    "sha256": "d6aab08c4b8a154016115513220e226e5bc0cf74163c0a45166617fb87abf40c",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/recipient-controls.tsx",
+    "sha256": "337bdaa12fb4e9ffb15db67e3bc138cd3727ad7226c83ade83327139250b41b7",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/recipient-details-rail.tsx",
+    "sha256": "7c01eec4ab18787b242d337eddbfb13466bdb9fb2f62dab687bc0849eee52815",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/recipient-exceptions.tsx",
+    "sha256": "64403b9167acaf386a3f95b6fe3d30e679e45de3fc046f4de674bbdc1b95c3cd",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/recipients-page.tsx",
+    "sha256": "e794bff139bc49e50efe9759ce00483f2851aaf5fbdce5ad39bd89514a0bd013",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/send-message-page.tsx",
+    "sha256": "61dfbb257e8b876cc9cbcaa29489cd7f8ece436f0547a62d50feac9346315923",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/update-message-composer.tsx",
+    "sha256": "ac0c15c56bbc54450b2cbb2d47184b53eeb473ec01cf2895fd4f031a6428ed55",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/use-message-composer.ts",
+    "sha256": "38b763f4063a29b8daba066cbdbe6f2a23f4376e9c6dee507e4e5808b163e0fa",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "Every physical line read in frozen WhatsApp source batches0\u201334. Consent/audience selection, private transport, idempotency/retry, cancellation/polling and rendering inspected. Large tracker/other dense views require explicit architecture follow-through. Intentional current API/import/update extractions and guards reread; exact AST preservation and meaningful regression receipts are separate from remaining follow-through."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/workspace-ui.tsx",
+    "sha256": "83ccc0d2f3fa551e16b40b5ec84d200aee9ee8f40375c45dbd8553fa397263a0",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/utils/whatsapp-request-owner.ts",
+    "sha256": "038041f4e7cd01085055fff9e5a9a1f85836b3ae377333adb66d79acbb50be3e",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/contact-editor.tsx",
+    "sha256": "1f83b365056b5b179a1bc4b8aa1edfa9f5e46b95f8220cf51b147a9485d2c3b3",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/types/contacts.ts",
+    "sha256": "825fc98ad36e80a7fa35892ce783437daa9ddcf0d5f10ece943c9240079d567c",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/utils/imported-field-label.ts",
+    "sha256": "a3d5e3b9212961130b27e87bad9668930f7150559eb1cdca767a8744a5d41c18",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/hooks/use-group-update-send.ts",
+    "sha256": "060aef46c8ff8a9ba75b4b4b70d3e9173bf8ca42e4029f265486fd6e49ced7aa",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/hooks/use-recipient-excel-preview.ts",
+    "sha256": "95ff271a0ac863f9dbb4a8569c26a998168a94d57027ca8e61a5946209964e7f",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/excel-recipient-import.tsx",
+    "sha256": "ef171fa693c5567900fe78cd2a322f9844e5e2f2075a8a314790faf1754ec7fd",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/rejected-import-rows.tsx",
+    "sha256": "fc4d6a96e86c7038f53766625ea5ef32bcaecd1f3bde623279a788d1a177100b",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/utils/recipient-import-state.ts",
+    "sha256": "cd649cd97a8d3abed6f68c5442b1702e4bba8bc4dfe59f391cb8624ea30ac497",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/use-trip-update-composer.ts",
+    "sha256": "d59f63e26acb3e7f7f98a751847b6dffc6cc537a33b502f1533fa5e0ead54f46",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/trip-update-composer.tsx",
+    "sha256": "1f7e345cb948830afb8c7be9c3c2de226a16cb497fc55008768c4f473537d53c",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/update-message-composer.test.tsx",
+    "sha256": "66302063672daf53370b98106c89f2294dd0619bfd758fff389a15ca3a7016f4",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/rejected-import-rows.test.tsx",
+    "sha256": "4855830974875f58809964e23273129be8c187b7fddb09e2f296b5e51df62415",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/use-document-composer.ts",
+    "sha256": "5c006a13237044df8e67333321e4903c3f37726acc12b22fa5096858300bb0ff",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/document-composer.test.tsx",
+    "sha256": "64d6e70798562f4f54115c0294e583f0562d7f542684d7c00cf5cce60b41d8fc",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/message-composer-audience.test.tsx",
+    "sha256": "074038ee8ac6d4ceae7eeaa91cabc81304181e70781c27cee49c9c14b22a6e7b",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/api/broadcast-groups.api.ts",
+    "sha256": "ef9768d69bcb5123a677d0c9fa023e18b1fa5cd16dcc2a567356c73216943033",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/api/broadcast-media.api.ts",
+    "sha256": "9a6c38817ca9e0ec4214eb84260e866852565546a7ed4b6ff773091bb6ab5165",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/api/broadcast-message-reads.api.ts",
+    "sha256": "441c2ef50b1611fdd92fe59335f403d0c340c9c0faf7140ab9e57e1bdefb45d5",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/api/broadcast-recipients.api.ts",
+    "sha256": "0cfcf317d71deb3afda2089d6adde5d4115c5e2f6400b96c16408405a5756181",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/api/broadcast-resend-payload.ts",
+    "sha256": "04d2f43ac0e030c678f54b05fdcfc021bf7107e7a3c18f74a5c5083bc403baf0",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/api/broadcast-resends.api.ts",
+    "sha256": "ebc3d4197af0a8224a7651f82d845a4ea31023a35b5ab049a1bac56b8d5254bc",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/api/broadcast-sends.api.ts",
+    "sha256": "8fa30a033ebb9268564261dca489c921d5b33987f04d0cace6dab1d1c719d33a",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/types/recipients.ts",
+    "sha256": "6a98263b0861f7d077e3aa1fb6cd952fbe7c513e500e32999b1c189868439782",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/types/groups.ts",
+    "sha256": "6705ab8e024b35a2ece8a1a85a4b8f199ef47be802940b1bbbea241707187082",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/types/messages.ts",
+    "sha256": "6e0cab5fc0a196e635e186eac8584bebf1ce4789a07588ae882f26fd9297c204",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/activity-tracker/context.ts",
+    "sha256": "e4776fc1477a87f46637c84d232cd1a5587670a28d2742f88927ca33c63fd221",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/activity-tracker/failure-recipients.tsx",
+    "sha256": "1fabc6e3601b6d08b8ba3db26d2eb820d0a882f308b53cd56414ac25f625a49e",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/activity-tracker/floating-overlay.tsx",
+    "sha256": "028f43d64961445a4495a4f8fc07b2e18f2d5c871549580ca60bd839cfe02348",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/activity-tracker/inline.tsx",
+    "sha256": "5402d48b59ae0c590f0045d306ad16f2ab85dc896a2ed593c99edd95ad309a11",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/activity-tracker/progress.ts",
+    "sha256": "bc6a5223da0c0f6c1a570637e8f72b5e23a63286028ab5b001f475457348a685",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/activity-tracker/row.tsx",
+    "sha256": "e027d5478b923099b0d7052caa0dce5fcc79fa1300f5c3b7f108ac34acab8965",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/activity-tracker/storage.ts",
+    "sha256": "2401a7e540dd33625c581ac418138483e49ddf6f83d628218627fedc95927783",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/activity-tracker/use-activity-completion.ts",
+    "sha256": "4cef39dd6d7b286b38afdc3abcac291626fc7f6d37cff74e57112dca44d46dae",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/activity-tracker/use-activity-refresh.ts",
+    "sha256": "0b3aa0aa88c6b8d00f3b6faff607f3dd69e30983a6bfa3d0ce57d46186c040bc",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/activity-tracker/use-tracked-activities.ts",
+    "sha256": "e67a4200e8709b2c0f9bd2688baeb383769745143dda5550ea1358462db19a18",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Full physical source read separately, including assembled extracted transport/DTO owners. All26 method property ASTs preserved at source-owner extraction; media/payload helper bodies retained. Explicit initial-actor dispatch binding, current idempotency/consent/payload contracts and malformed local timestamp recovery verified where changed. No provider messages sent."
+  },
+  {
+    "path": "frontend/components/shared/workspace-pagination.tsx",
+    "sha256": "7bf8367816d732c6e530ee8bc1567a9fbbb2ce82f920c415c146e6f2f785e611",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Existing WhatsApp pager extracted for reuse. Explicit non-submit button types close a reproduced enclosing-form submission bug; busy/boundary behavior retained."
+  }
+]

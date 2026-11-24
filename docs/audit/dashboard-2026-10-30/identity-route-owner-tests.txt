@@ -1,0 +1,8 @@
+........................................................................ [ 67%]
+...................................                                      [100%]
+
+---------- coverage: platform win32, python 3.11.15-final-0 ----------
+Coverage XML written to file ../docs/audit/dashboard-2026-10-30/identity-route-owner-coverage.xml
+Coverage JSON written to file ../docs/audit/dashboard-2026-10-30/identity-route-owner-coverage.json
+
+107 passed in 334.98s (0:05:34)

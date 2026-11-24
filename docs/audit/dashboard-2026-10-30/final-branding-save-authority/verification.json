@@ -1,0 +1,125 @@
+{
+  "status": "Frozen current source; focused 34-case, scoped types and lint qualification passed. Parent owns final fresh production build and all 198 browser cases.",
+  "source_fence": {
+    "frontend/features/branding/components/group-banner.tsx": "d54d0b135c0fdd993c453e6703bd2ddda29cc51e099012c946848943c41fb459",
+    "frontend/features/branding/components/group-banner-action.tsx": "8fa3dfd6610baadf728db116ccc2490c4e2a7770f9ba216dd3b96ff6f9c1e4cd",
+    "frontend/features/branding/components/group-image-dialog.tsx": "219fe7ee75ae4aef5121e87d43b5ee8a4a8d698b89117e22531cc5f3f82f3b0e",
+    "frontend/features/branding/components/group-banner-frame.ts": "754ca8518df4e57f6b832e8e739238287f31afc98ceab52f6f3c47f85afbb6c2",
+    "frontend/features/branding/components/use-group-image-aspect.ts": "8774bd9add3379488f59da76e254114ff3349d5faebadccbc24d6923ecae16bd",
+    "frontend/features/branding/components/group-image-dialog.test.tsx": "a0f431b50f8be41ef41fd9699403a43a8de00d3bf639f96075defe4bef1316e9",
+    "frontend/features/branding/components/group-image-save-authority.test.tsx": "2caeffb4bb3c9da769881f46d91e184f7a04fc86c48db5e8df3a8ab898dcbe97",
+    "frontend/features/branding/image-crop.ts": "8bf84ef478d7fdef520f3a7e2abfd0a2308bec590274209601ea966a096d32d2",
+    "frontend/features/branding/image-crop.test.ts": "3054e2bfd017cfd42bec017961dcbc5a37c1a5813cfd6d34b2708a695d0817aa",
+    "frontend/features/branding/api/branding-images.api.ts": "e168b6ea253acf3e4b85b54ff71abcfd80bf3c4bf21ab3d06e352ca4e70894c6",
+    "frontend/features/branding/api/branding-images.api.test.ts": "e84a5a8502988fa55057cfda920db31b59a3b6521e136e80a7d8d880227bb13c"
+  },
+  "source_fence_current_at_seal": true,
+  "source_ledger": {
+    "path": "docs/audit/dashboard-2026-10-30/final-branding-save-authority-reviewed-files.json",
+    "sha256": "eefdb5884aef4f3633d26434466bdd407236a111d2fb185349310d6371859baf"
+  },
+  "candidate": {
+    "path": "docs/audit/dashboard-2026-10-30/final-branding-save-authority/quality-budget-candidates.json",
+    "sha256": "c6d09aa434f1674c0360e2ffb77d6bb1f3308db85169a9a2b1ec509de65a6723",
+    "normal_additions": 6,
+    "critical_additions": 0,
+    "old_caps_or_floors_relaxed": false
+  },
+  "reproduced_before": [
+    {
+      "phase": "Original normal protected workspace, deferred crop",
+      "cases": 5,
+      "failed": 3,
+      "passed_controls": 2,
+      "evidence": "before-normal-authority.log",
+      "result": "After actual authority-key workspace unmount, old crop continuation dispatched with replacement account/role/agency metadata. Healthy same-owner and same-authority profile-refresh bodies/version/cache callbacks passed.",
+      "original_source_snapshots": "before-source/"
+    },
+    {
+      "phase": "Intermediate dialog fix with legacy explicit six-argument API entry still unfenced",
+      "cases": 15,
+      "failed": 1,
+      "passed": 14,
+      "evidence": "before-api-entry-authority.log",
+      "result": "Legacy explicit userid-only config acquired a later role tuple through a deferred real interceptor; Promise resolved rather than rejecting. Exact intermediate source hashes recorded by command, not a claim of a saved full intermediate raw snapshot."
+    }
+  ],
+  "after_current_source": {
+    "files": 4,
+    "cases": 34,
+    "passed": 34,
+    "case_breakdown": {
+      "authority_real_client": 15,
+      "geometry": 12,
+      "existing_api": 3,
+      "crop_math": 4
+    },
+    "components_command": "final-frozen-save-authority-command.json",
+    "eslint_sources": 8,
+    "eslint_exit_code": 0,
+    "typescript_exit_code": 0,
+    "typed_scope": "Eight owned runtime/test roots plus immediate imports through audit-only tsconfig, not the full app.",
+    "checks_source_unchanged": true
+  },
+  "implementation": [
+    "Capture the initiating private operation at synchronous Save entry, before any crop await. Preserve a single owned controller as duplicate-submit lock.",
+    "Assert original authority and dialog lifetime after crop, save and cache invalidation; abort/null controller on layout cleanup, including account round trips and same-owner route unmount.",
+    "Pass original userid, full authority tuple and AbortSignal to the actual API adapter, including queued interceptor boundaries. Optional seventh API parameter is Axios metadata only.",
+    "Legacy explicit-id API calls now capture full authority at API entry; default API calls retain original capture behavior. Multipart fields and order, original image version, agency params, timeout and backend authorization contracts unchanged.",
+    "Late settled work cannot clear a newer operation or update unmounted error/busy/close state. Already-started writes may have committed; aborted callers do not claim server rollback."
+  ],
+  "preservation": {
+    "bounded_ast_proof": "preservation-proof.json",
+    "geometry_history": {
+      "path": "docs/audit/dashboard-2026-10-30/final-banner-target-frame/verification.json",
+      "sha256": "bc4e506f509f2b755e70a8695be246c9131a793fca41b4d0596e1897ff0e2f50"
+    },
+    "unchanged_geometry_owner_credit": "Four unchanged geometry runtime owners retain the exact current hashes and full attribution in final-banner-target-frame-reviewed-files.json; this batch does not invent duplicate physical reads.",
+    "old_geometry_candidate": "Historical five-owner candidate never merged and is stale for the deliberately changed dialog. The current six-owner proposals are additive to the original 661 normal rows; no installed ceiling or floor raised."
+  },
+  "harness_history": [
+    "Initial new test cleanup list caused a circular inferred ReturnType and three TypeScript diagnostics. Replaced only the cleanup collection with QueryClient[]; initial types.log retained and final scoped types passed. No product regression claimed.",
+    "Vitest ran with explicit audit-only envDir:false and minimal Windows OS plus synthetic loopback env; no private dotenv file was read. Preserved audit helper/config copies document the original invocation and are not portable rerun commands from their copied location."
+  ],
+  "limits": [
+    "Synthetic in-memory final HTTP delegate and deferred crop; actual client/owner/remount/lifecycle code exercised. No backend authorization bypass, live send or private-data exfiltration demonstrated.",
+    "No new backend/schema/provider/service/VPS qualification; server authorization remains canonical and unchanged.",
+    "No app build or browser rerun by this lane. Parent final production geometry, transparency, keyboard and complete browser qualification are pending at seal and must bind the fresh artifact.",
+    "All frontend sources/tests/config are frozen. This seal only copies audit evidence; no shared gates, packages, lockfiles, root CSS, E2E sources or other product sources edited."
+  ],
+  "evidence": {
+    "after-save-authority-command.json": "77626bf4361a62ead8e447183182ba5f9533f4de09136ca520f808ac338b1e94",
+    "after-save-authority.log": "7e7d54948b32baf4ed1c4e812ee523f12480c806b85fd7be97ec7e221f85bf35",
+    "before-api-entry-authority-command.json": "485774d6fc51fcff250f1d8328b740146046692fcbe8475473b290177ba37496",
+    "before-api-entry-authority.log": "2715061319c2c0a14b078fc5c535b7e05eabce3321a58512fd09356f9d35bacc",
+    "before-normal-authority-command.json": "02b90a1b8f1467eae7d0cc07a34e13e4c7c27284c77626ce7844fd43445f0594",
+    "before-normal-authority.log": "b2ad06acd4248af58ebbd202352a2af6a414a95ea792dfac26a2cb6d8d408e17",
+    "before-source/frontend/features/branding/api/branding-images.api.ts": "2c6b39282474e505aa23f380693e910d59479cb2e5fbfb4578be862e24d20316",
+    "before-source/frontend/features/branding/components/group-image-dialog.tsx": "da64396862a67e55104ecc8cc602d25f22c12975f58bcbb56c4ddaba0a320230",
+    "before-source/frontend/features/branding/components/group-image-save-authority.test.tsx": "b50182c14c1b52d90fb11c8187f5995b148043e6d9bf6e1367b5d0f51c616485",
+    "before-source-fence.json": "4132f9c58e9251b00d7945ee00f98d9d18b6fe2c848faf0df1ded403bc2525f6",
+    "current-source-snapshots/frontend/features/branding/api/branding-images.api.ts": "e168b6ea253acf3e4b85b54ff71abcfd80bf3c4bf21ab3d06e352ca4e70894c6",
+    "current-source-snapshots/frontend/features/branding/components/group-image-dialog.test.tsx": "a0f431b50f8be41ef41fd9699403a43a8de00d3bf639f96075defe4bef1316e9",
+    "current-source-snapshots/frontend/features/branding/components/group-image-dialog.tsx": "219fe7ee75ae4aef5121e87d43b5ee8a4a8d698b89117e22531cc5f3f82f3b0e",
+    "current-source-snapshots/frontend/features/branding/components/group-image-save-authority.test.tsx": "2caeffb4bb3c9da769881f46d91e184f7a04fc86c48db5e8df3a8ab898dcbe97",
+    "final-frozen-save-authority-command.json": "bcca2f58742fc55fb7444e09f7abe64f9c17e227120553b39ba9a3351cfc5a79",
+    "final-frozen-save-authority.log": "ba85348e2d9eec603d7ddc3b4607ab1baa67940b2e72211dfaf9e05eaf3138e1",
+    "lint-command.json": "6581282d4a5807c7553a28c2a865cc5466b29e079a75998446950fae4410b553",
+    "lint-final-command.json": "3fa35af2c2c9bbaeba693496799241ccb1459f03673516a5cdefa7654bdac2b0",
+    "lint-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "measure.mjs": "18b296b05871ec1a102072407f21ca7e2783c4bfbbb990e5f28066c19b4441b3",
+    "original-audit-vitest-config.mts": "3b5d7c3aa60abeed2c79266d7cc8d8972474e501681bc90bd7747ae7c31d372b",
+    "preservation-proof.cjs": "28891af64b7ec8d21b5736490c28d80a7124281c3441ab2037007b0288cf7261",
+    "preservation-proof.json": "0c582dd99ad6420f780fbb41abc0b7d42eaf1f3b1f1217306929112950b87953",
+    "quality-budget-candidates.json": "c6d09aa434f1674c0360e2ffb77d6bb1f3308db85169a9a2b1ec509de65a6723",
+    "reviewed-files.json": "eefdb5884aef4f3633d26434466bdd407236a111d2fb185349310d6371859baf",
+    "run_components.py": "3e34ebfc808ba60057f2fd92159a44104d3bc6c854770f98cacad37748fd717a",
+    "run_static.py": "a3a26a063bbd85493747702e10f1aca00d18f8b60e0c7628755c2170b729eed9",
+    "tsconfig.json": "805a55ffb8c90427519f2df9d0e60e6c855f6e6b7c58ec219e06baf1c6d91848",
+    "types-command.json": "d7bf38e208adabb19c820a84ed024dea8764bf94b08ea587868f723ea51bd09e",
+    "types-final-command.json": "3af54716fceec98cf0902c338d9f2b746c3930218b1eb7a133a173dbdab73977",
+    "types-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "types.log": "1b8ecc690ab791e8e85ef549d210f1d8c1de48349ea8c326c4a9c7c4c30a340e"
+  }
+}

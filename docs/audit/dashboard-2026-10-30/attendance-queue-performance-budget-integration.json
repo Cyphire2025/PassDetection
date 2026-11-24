@@ -1,0 +1,12 @@
+{
+  "candidates": "docs/audit/dashboard-2026-10-30/attendance-queue-performance-budget-candidates.json",
+  "before_sha256": "99479d234fe8ab9ed8706ce34d2876018f971356b08fec7602d2b660eb61b366",
+  "sha256": "f710cb513924bde02490b3cea751059cedcdc3b3af0f1cce1c5111fdd502df1e",
+  "lf_normalized_sha256": "8cffd8571141b689ca51f909f5ba58258ea9c2551dce62ef27b2a6a7c52541d5",
+  "added": 1,
+  "updated_existing": 3,
+  "lowered_existing": 0,
+  "lowered_existing_paths": [],
+  "existing_ceilings_preserved": true,
+  "previous_ceilings_sha256": "bf1e2eada6b11f49e3e9651e94e9e4f1d8843ab509adea61a55e9860a8826aa0"
+}

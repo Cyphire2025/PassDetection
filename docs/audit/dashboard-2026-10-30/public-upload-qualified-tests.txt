@@ -1,0 +1,22 @@
+........................................................................ [ 42%]
+........................................................................ [ 84%]
+.........................F.                                              [100%]
+================================== FAILURES ===================================
+_ test_details_only_upload_commit_and_recovery_use_the_same_durable_attempt[rejected] _
+tests\unit\presentation\test_public_upload_commit_outcomes.py:97: in test_details_only_upload_commit_and_recovery_use_the_same_durable_attempt
+    assert recovered_id is None and persisted is None
+E   AssertionError: assert (UUID('28d42407-430b-43bb-8e7c-5ad7d855c712') is None)
+---------------------------- Captured stdout call -----------------------------
+2026-10-31T13:11:51.389613Z [info     ] passport_submission_created    [app.infrastructure.repositories.passport_submission_repository] agency_id=8cd45e4e-eac9-4c69-bfce-ff5a7d60fbbe group_id=8c5cdd91-b064-4c2f-ba08-5737464a657e submission_id=28d42407-430b-43bb-8e7c-5ad7d855c712
+2026-10-31T13:11:51.392502Z [error    ] passport_upload_database_commit_failed [app.presentation.api.v1.routes.passport_routes.public_upload] error_type=ConnectionError group_id=8c5cdd91-b064-4c2f-ba08-5737464a657e
+------------------------------ Captured log call ------------------------------
+INFO     app.infrastructure.repositories.passport_submission_repository:passport_submission_repository.py:262 {'submission_id': '28d42407-430b-43bb-8e7c-5ad7d855c712', 'group_id': '8c5cdd91-b064-4c2f-ba08-5737464a657e', 'agency_id': '8cd45e4e-eac9-4c69-bfce-ff5a7d60fbbe', 'event': 'passport_submission_created', 'logger': 'app.infrastructure.repositories.passport_submission_repository', 'level': 'info', 'timestamp': '2026-10-31T13:11:51.389613Z'}
+ERROR    app.presentation.api.v1.routes.passport_routes.public_upload:public_upload_submission.py:148 {'group_id': '8c5cdd91-b064-4c2f-ba08-5737464a657e', 'error_type': 'ConnectionError', 'event': 'passport_upload_database_commit_failed', 'logger': 'app.presentation.api.v1.routes.passport_routes.public_upload', 'level': 'error', 'timestamp': '2026-10-31T13:11:51.392502Z'}
+
+---------- coverage: platform win32, python 3.11.15-final-0 ----------
+Coverage XML written to file C:\Users\nipun\Desktop\PassDetection\docs\audit\dashboard-2026-10-30\public-upload-qualified-coverage.xml
+Coverage JSON written to file C:\Users\nipun\Desktop\PassDetection\docs\audit\dashboard-2026-10-30\public-upload-qualified-coverage.json
+
+=========================== short test summary info ===========================
+FAILED tests/unit/presentation/test_public_upload_commit_outcomes.py::test_details_only_upload_commit_and_recovery_use_the_same_durable_attempt[rejected]
+1 failed, 170 passed in 46.84s

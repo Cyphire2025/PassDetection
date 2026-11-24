@@ -1,0 +1,188 @@
+{
+  "recorded_at": "2026-10-31T07:02:55.865469+00:00",
+  "status": "frozen-verified-networkless-synthetic-sink-scope",
+  "source_paths": [
+    {
+      "path": "backend/app/core/logging/logger.py",
+      "sha256": "845d441fc533f5d747e6253059c5e159d90fe321e2f48c5fcce7feac2036b628"
+    },
+    {
+      "path": "backend/app/core/logging/task_diagnostics.py",
+      "sha256": "e7c847a4d1ac4239b9e98324b61288c2a725a977beecd54fa16f47f8c80f14c2"
+    },
+    {
+      "path": "backend/app/core/logging/exception_diagnostics.py",
+      "sha256": "4867f249c99be4869e91903214dde1d21cb0b31190fdb3d9a62eb6cd28d36ab9"
+    },
+    {
+      "path": "backend/app/core/logging/server_diagnostics.py",
+      "sha256": "faa66e11902d47306a818b87bed151d9e72a51fd43a916ed200ba03825a366b6"
+    },
+    {
+      "path": "backend/app/infrastructure/bounded_uvicorn_worker.py",
+      "sha256": "be8ff28b8921088b7b49bb6659c27de292d86224ab87c693edc2aa9a8555cc58"
+    },
+    {
+      "path": "backend/tests/unit/core/asgi_log_sink_control.py",
+      "sha256": "585d19bc01a73c81cc0606f8b8fbaaa231f3e04b6c68403b9f5344e486168c6a"
+    },
+    {
+      "path": "backend/tests/unit/core/test_server_log_privacy.py",
+      "sha256": "58e62c504e8ad5298df8eba9916b92ca292b3c730f4b0e0c54c0855e8ee7e080"
+    }
+  ],
+  "baseline_regression": {
+    "tests": 8,
+    "failures": 8,
+    "errors": 0,
+    "skipped": 0
+  },
+  "final_affected_cases": {
+    "tests": 60,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "checks": {
+    "ruff": "All7 changed runtime/test paths pass with no fixes; no untracked broad lint claim.",
+    "mypy": "All5 runtime owners pass.",
+    "existing_budgets": "493 pass; shared budget file not edited.",
+    "architecture_boundaries": "pass",
+    "actual_sink_controls": "8 before disclosure controls;8 after controls preserve outer diagnostics/client500 and remove private exception values.",
+    "current_owner_coverage": {
+      "app/core/logging/logger.py": {
+        "covered_lines": 56,
+        "num_statements": 60,
+        "percent_covered": 94.44444444444444,
+        "percent_covered_display": "94",
+        "missing_lines": 4,
+        "excluded_lines": 2,
+        "percent_statements_covered": 93.33333333333333,
+        "percent_statements_covered_display": "93",
+        "num_branches": 12,
+        "num_partial_branches": 0,
+        "covered_branches": 12,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      },
+      "app/core/logging/task_diagnostics.py": {
+        "covered_lines": 28,
+        "num_statements": 28,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 4,
+        "num_partial_branches": 0,
+        "covered_branches": 4,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      },
+      "app/core/logging/exception_diagnostics.py": {
+        "covered_lines": 16,
+        "num_statements": 16,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 2,
+        "num_partial_branches": 0,
+        "covered_branches": 2,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      },
+      "app/core/logging/server_diagnostics.py": {
+        "covered_lines": 36,
+        "num_statements": 37,
+        "percent_covered": 95.34883720930233,
+        "percent_covered_display": "95",
+        "missing_lines": 1,
+        "excluded_lines": 0,
+        "percent_statements_covered": 97.29729729729729,
+        "percent_statements_covered_display": "97",
+        "num_branches": 6,
+        "num_partial_branches": 1,
+        "covered_branches": 5,
+        "missing_branches": 1,
+        "percent_branches_covered": 83.33333333333333,
+        "percent_branches_covered_display": "83"
+      },
+      "app/infrastructure/bounded_uvicorn_worker.py": {
+        "covered_lines": 10,
+        "num_statements": 10,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 0,
+        "num_partial_branches": 0,
+        "covered_branches": 0,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      }
+    }
+  },
+  "runtime_versions": {
+    "uvicorn": "0.38.0",
+    "starlette": "1.3.1",
+    "fastapi": "0.133.1",
+    "sqlalchemy": "2.0.31",
+    "structlog": "24.2.0"
+  },
+  "raw_receipts": [
+    {
+      "path": "docs/audit/dashboard-2026-10-30/server-log-privacy-before.txt",
+      "sha256": "43c7abfcc89ed0df18ace487b7747858fc59de2988f2d60f037785522728c0f5"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/server-log-privacy-before.xml",
+      "sha256": "11a4473b418a5f5b753c5b5101c3f55fb74177bcbd6edb7420a44df76a1173b6"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/server-log-privacy-final-source-coverage.txt",
+      "sha256": "01e1dd47087dcbd690f6b00ffabb022c3f4138536c6eab5b7a6f8e58acd962e3"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/server-log-privacy-final-source-coverage.xml",
+      "sha256": "77cec4562aa97b88318004827e1c82e1e7d821e8f83c1347cbd51a3259d59de9"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/server-log-final-source-coverage.json",
+      "sha256": "57f03f61469359cb1ff017b5dcdb6ff9f2aded3b53aa279164e976e671ac3691"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/server-log-privacy-types.txt",
+      "sha256": "718df785efbbd4b57e63b5f64aff2c5b5592e433447681f759b307f97a3ec96a"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/server-log-privacy-budgets.txt",
+      "sha256": "272b83ca2a10519d9fe4fb65f148f8ad61cee0b065ddb39025599c7f0c76c0c7"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/server-log-privacy-boundaries.txt",
+      "sha256": "895bfbeca4c78591066dcf214c4bfe9de43b5d7ed5d3f518fe398563a7bcc992"
+    }
+  ],
+  "movement_proof": "docs/audit/dashboard-2026-10-30/server-log-privacy-movement-proof.json",
+  "floor_responsibility": "docs/audit/dashboard-2026-10-30/server-log-privacy-coverage-responsibility.json",
+  "limits": "Networkless actual app/Starlette/Uvicorn H11 and current-auto-selected HttpTools execution with synthetic in-memory transport. Driver/provider-shaped exceptions are synthetic; no live PostgreSQL, provider, Gunicorn worker process, Linux/VPS or deployment qualification. Production worker wiring unit uses a synthetic base that models the separately inspected real constructor handler replacement; it does not claim a running Gunicorn service.",
+  "access_log_read_only_trace": {
+    "gunicorn": "Current accesslog=None; app raises uvicorn.access logger to WARNING. No access-log runtime changes.",
+    "nginx": "Focused source reads only: nginx.conf token maps/log format omit query and referrer; default.conf first49lines disables request-context HTTPS error stream,401-431 native/artifact/contact/media paths disable access logs. No Nginx process/log-sink qualification from this trace."
+  },
+  "historical_receipts_preserved": [
+    "api-unhandled-log-sink-before.json",
+    "api-unhandled-log-sink-httptools-before.json",
+    "api-log-privacy-reviewed-files.json"
+  ]
+}

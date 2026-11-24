@@ -1,0 +1,432 @@
+{
+  "original_path": "frontend/features/upload/components/visa-selfie-quality.ts",
+  "original_sha256": "a0a205e41f6ea4506d2d941dda4830a89f2bde38729307adc13732cfc652ebe8",
+  "original_physical_lines": 1115,
+  "public_functions": [
+    "evaluateWhiteBackground",
+    "evaluateLiveVisaPhotoBackground",
+    "isVisaSelfieFaceLargeEnough",
+    "evaluateVisaPhotoFaceCount",
+    "evaluateVisaPhotoFacePlacement",
+    "isVisaPhotoFaceStable",
+    "evaluateVisaPhotoClarity",
+    "evaluateFinalVisaPhoto",
+    "evaluateFallbackFinalVisaPhoto",
+    "encodeVisaJpegUnderLimit",
+    "isVisaPhotoFrameCaptureReady",
+    "isVisaPhotoFallbackCaptureAllowed",
+    "buildVisaPhotoCameraConstraints",
+    "requestVisaPhotoCamera",
+    "isInsidePersonGuide"
+  ],
+  "public_types": [
+    "WhiteBackgroundMetrics",
+    "VisaPhotoLiveBackgroundStatus",
+    "VisaPhotoLiveBackgroundEvaluation",
+    "NormalizedPoint",
+    "VisaPhotoFaceGeometry",
+    "VisaPhotoFacePlacementStatus",
+    "VisaPhotoClarityStatus",
+    "VisaPhotoClarityMetrics",
+    "VisaPhotoFallbackCaptureState",
+    "VisaPhotoFaceCountStatus",
+    "VisaPhotoFinalValidation",
+    "VisaJpegEncoding"
+  ],
+  "functions": [
+    {
+      "name": "evaluateWhiteBackground",
+      "original_normalized_sha256": "4f3352e3c440f25555d82f423016e5baeda85f83922cecd68b107f6346ed367d",
+      "owner": "frontend/features/upload/services/visa-quality-background.ts"
+    },
+    {
+      "name": "evaluateLiveVisaPhotoBackground",
+      "original_normalized_sha256": "9a4dd7ebcde638d0b0857b3de473e3436bc9813756e43159c36f5e45c4893ba8",
+      "owner": "frontend/features/upload/services/visa-quality-live-background.ts"
+    },
+    {
+      "name": "isVisaSelfieFaceLargeEnough",
+      "original_normalized_sha256": "b9a10215bc5dd7accb797add5fe058695fee533f46837dd64daa35d73764ba8d",
+      "owner": "frontend/features/upload/services/visa-quality-face.ts"
+    },
+    {
+      "name": "evaluateVisaPhotoFaceCount",
+      "original_normalized_sha256": "7dcd9b55428f508f6c80265818da0db34a9ad83a87420c45faa60d59892981e7",
+      "owner": "frontend/features/upload/services/visa-quality-face.ts"
+    },
+    {
+      "name": "evaluateVisaPhotoFacePlacement",
+      "original_normalized_sha256": "0cad41a7aa0050683410476a574aadf7903bafb026298f1f2de46eadbd88b638",
+      "owner": "frontend/features/upload/services/visa-quality-face.ts"
+    },
+    {
+      "name": "isVisaPhotoFaceStable",
+      "original_normalized_sha256": "ab4146611f63767582b7c68ca28c7479eeb06182dd89dcc572912658fd161ef7",
+      "owner": "frontend/features/upload/services/visa-quality-face.ts"
+    },
+    {
+      "name": "evaluateVisaPhotoClarity",
+      "original_normalized_sha256": "d7faa7b0669fb9d06908f0729d704ec0d78e022f39c756a67d8b9a120e236846",
+      "owner": "frontend/features/upload/services/visa-quality-clarity.ts"
+    },
+    {
+      "name": "evaluateFinalVisaPhoto",
+      "original_normalized_sha256": "2b7cad21e707e34b40bdb984b4eb9c7bcdac192b7550a743fad1315f6b791387",
+      "owner": "frontend/features/upload/services/visa-quality-final.ts"
+    },
+    {
+      "name": "evaluateFallbackFinalVisaPhoto",
+      "original_normalized_sha256": "3ba464a72ffa07d5f197c0f5d9f46e192f2d9b449b2d8424a0eb1d7813b260cc",
+      "owner": "frontend/features/upload/services/visa-quality-final.ts"
+    },
+    {
+      "name": "definiteFinalFacePlacementFailure",
+      "original_normalized_sha256": "636cd2d4707525991020d2d6c5edbdba9555c5ab2798ad5b5f33a192cd34af9a",
+      "owner": "frontend/features/upload/services/visa-quality-face.ts"
+    },
+    {
+      "name": "encodeVisaJpegUnderLimit",
+      "original_normalized_sha256": "ce28c7b8ad83b8d0a501d6c32f93faeed4ec019ed16ac1e0e19a6f1624625844",
+      "owner": "frontend/features/upload/services/visa-quality-encoding.ts"
+    },
+    {
+      "name": "isDefinitelyInvalidBackground",
+      "original_normalized_sha256": "94d87c9cd43b6ed2031684f0b942bfbb50b8ef104bd0fe2c60ca6d3c1597475b",
+      "owner": "frontend/features/upload/services/visa-quality-final.ts"
+    },
+    {
+      "name": "finalValidation",
+      "original_normalized_sha256": "e8035bd8e5f87c1c2313dc2505c172a7a15d94a863f334dd040389717fb80e15",
+      "owner": "frontend/features/upload/services/visa-quality-final.ts"
+    },
+    {
+      "name": "isVisaPhotoFrameCaptureReady",
+      "original_normalized_sha256": "2321a6e00648b6eda27c7be605edc3c7d59899f2a18c51cc07d493849b8a13d2",
+      "owner": "frontend/features/upload/services/visa-quality-camera.ts"
+    },
+    {
+      "name": "isVisaPhotoFallbackCaptureAllowed",
+      "original_normalized_sha256": "53964a70c5a89702e136dc4d5d557133871d4c2c8c23236cd8561546f03cc3df",
+      "owner": "frontend/features/upload/services/visa-quality-camera.ts"
+    },
+    {
+      "name": "buildVisaPhotoCameraConstraints",
+      "original_normalized_sha256": "1e7f4e3974f785ee0c56877af8e65682d58a5fa8fa93b9299aaa308d17a4c37c",
+      "owner": "frontend/features/upload/services/visa-quality-camera.ts"
+    },
+    {
+      "name": "requestVisaPhotoCamera",
+      "original_normalized_sha256": "1b6f811362f11688b28f2168d9f4738c14389091fdd1a78d5102e9d6589c01b9",
+      "owner": "frontend/features/upload/services/visa-quality-camera.ts"
+    },
+    {
+      "name": "isInsidePersonGuide",
+      "original_normalized_sha256": "01abbd2e790f991649f9f5aeee9893f0921792769becdf28794fb26c0b1610f5",
+      "owner": "frontend/features/upload/services/visa-quality-background-mask.ts"
+    },
+    {
+      "name": "isSafeWallSample",
+      "original_normalized_sha256": "db5b0f739fb2ad3ab8bfdd02d571134df0e95a6480d11c3c603ba9a6a2ae1ad0",
+      "owner": "frontend/features/upload/services/visa-quality-background-mask.ts"
+    },
+    {
+      "name": "isInsideDetectedPersonMask",
+      "original_normalized_sha256": "05e1f6472bf19365b6e3e26a81d87778808a7001b7de6379e383df38cdaeee42",
+      "owner": "frontend/features/upload/services/visa-quality-background-mask.ts"
+    },
+    {
+      "name": "regionalIndex",
+      "original_normalized_sha256": "01185f7aba2a5b9c8fe95b2dd703c20ae111a5d69feeb046a400b9d2e7d4f3ce",
+      "owner": "frontend/features/upload/services/visa-quality-background-mask.ts"
+    },
+    {
+      "name": "maximumSupportedRatio",
+      "original_normalized_sha256": "07d1a73955c7f73e8aaf63c42fa0096118f572df4ccf53a6f2edea83359faf37",
+      "owner": "frontend/features/upload/services/visa-quality-background-mask.ts"
+    },
+    {
+      "name": "facePixelBounds",
+      "original_normalized_sha256": "ddd9443e003862237fd569d95994f288ef01cb95e0a177a129ad38915c830d03",
+      "owner": "frontend/features/upload/services/visa-quality-clarity.ts"
+    },
+    {
+      "name": "clampPixel",
+      "original_normalized_sha256": "8a14d1ac8a8f50af878f7827947d3230e138bce3a3aca23cd8631dcea126125b",
+      "owner": "frontend/features/upload/services/visa-quality-clarity.ts"
+    },
+    {
+      "name": "pixelLuminance",
+      "original_normalized_sha256": "9078ad8684cf271442bde1cd5cc90bff2003339c23346a6f0c77ab56955407aa",
+      "owner": "frontend/features/upload/services/visa-quality-clarity.ts"
+    },
+    {
+      "name": "cameraErrorName",
+      "original_normalized_sha256": "ff9a29a459f6b702085e3f64486b1746a4ef0f0b694ca341c02dd6cda612ed1c",
+      "owner": "frontend/features/upload/services/visa-quality-camera.ts"
+    },
+    {
+      "name": "failedMetrics",
+      "original_normalized_sha256": "b3a4a805b419fecfc3d3710f3c1d5c3f85309b474a9f34e65b77647bbe1c9b0a",
+      "owner": "frontend/features/upload/services/visa-quality-background-mask.ts"
+    }
+  ],
+  "constants": [
+    {
+      "name": "SAMPLE_STEP",
+      "original_normalized_sha256": "321301de0fa946c33662f122936db5c75a668b209f3fee241dddd83c782cd953"
+    },
+    {
+      "name": "MIN_LIGHT_LUMINANCE",
+      "original_normalized_sha256": "94534e71d28fa689ea53707aa161666cb7498a1f5fa350ad9ac50d8b9eba3af8"
+    },
+    {
+      "name": "MAX_NEUTRAL_CHROMA",
+      "original_normalized_sha256": "f59b7581b43d7e1e8b99acb00081483ba07a3060e7cf229965aa421f43f89f4b"
+    },
+    {
+      "name": "MIN_LIGHT_NEUTRAL_RATIO",
+      "original_normalized_sha256": "52c4e8efa7037f45272a96bca89ac0a619ce95678537a98120b5122a636837e5"
+    },
+    {
+      "name": "MIN_AVERAGE_LUMINANCE",
+      "original_normalized_sha256": "386d99af6cb920697a4ced8f4bef1e592092b01f5576435201393d00eba6532e"
+    },
+    {
+      "name": "MIN_ZONE_LIGHT_NEUTRAL_RATIO",
+      "original_normalized_sha256": "0de49d1852700adb9e859a7f9051eb3bfdba6c375f104b16f503d8ebda722d7a"
+    },
+    {
+      "name": "MIN_ZONE_LUMINANCE",
+      "original_normalized_sha256": "9537dc6ae05dec09a82c862f3db30bd51140a199e69c2674b9e2b8693e1c1810"
+    },
+    {
+      "name": "MAX_ZONE_MEAN_SPREAD",
+      "original_normalized_sha256": "9dffb4124613678293b1e6cf837299f538fbc01cd7d6ab41a2e768e4b89f8825"
+    },
+    {
+      "name": "MAX_LUMINANCE_DEVIATION",
+      "original_normalized_sha256": "d0916fe8c0a5ad91291f99a8086f4200eac4d534aa1060eb515b0e692aaf6a4a"
+    },
+    {
+      "name": "MAX_WITHIN_ZONE_DEVIATION",
+      "original_normalized_sha256": "99aef5a41a38659bc580e832ae77eb1aaa24e134739a4225477f392d36294260"
+    },
+    {
+      "name": "MAX_STRONG_EDGE_RATIO",
+      "original_normalized_sha256": "bddc2c56f90034a5217afd153bd732ea010465cc3ca257727896da73bb574fbc"
+    },
+    {
+      "name": "MAX_ROUGH_TEXTURE_RATIO",
+      "original_normalized_sha256": "17f5569652c53add61290eef22d57faf1dc0e4b4949d5777e211ca3559700848"
+    },
+    {
+      "name": "MAX_DIRECTIONAL_ROUGH_TEXTURE_RATIO",
+      "original_normalized_sha256": "85cdff4f69baeb9ec1535c8065d6b249ee490c324d3f487b60012728db1421f5"
+    },
+    {
+      "name": "MAX_DARK_PIXEL_RATIO",
+      "original_normalized_sha256": "ec3ff0d527ae32af47c20619151bc9065440eb6db353e175152b9b97208b3be8"
+    },
+    {
+      "name": "MAX_LINE_COVERAGE",
+      "original_normalized_sha256": "1a73279897342a53086541c2b35cd48544eda550f72a97e7ac6651e6ef541180"
+    },
+    {
+      "name": "MAX_REGIONAL_EDGE_RATIO",
+      "original_normalized_sha256": "dd09729daeab7a3f4b0511240d8094d4254991b7ee78abe65f6d326fe845df1f"
+    },
+    {
+      "name": "MAX_REGIONAL_DARK_RATIO",
+      "original_normalized_sha256": "86cf015f5b657a542e64d5fdad78d300cc8bc8724c6f4d4dc33069444d4f9cb5"
+    },
+    {
+      "name": "EXTREME_REGIONAL_EDGE_RATIO",
+      "original_normalized_sha256": "6ca9c82cc3f06f2229c22263976a52923a6e33eb9beed8288375ad426a19833c"
+    },
+    {
+      "name": "EXTREME_REGIONAL_DARK_RATIO",
+      "original_normalized_sha256": "9794ea493a606cd05a984e4101b763c2a387234a92a8947790466349765f5fa4"
+    },
+    {
+      "name": "MIN_FACE_WIDTH_RATIO",
+      "original_normalized_sha256": "b60a8d6c4ec27acb555f5f05bbac02920b2b87b0fafaccd5e35d1a34e9135ca1"
+    },
+    {
+      "name": "MIN_FACE_HEIGHT_RATIO",
+      "original_normalized_sha256": "9e43fd09d3a4c1771c146de9b7a0456967a99cfb6c6be104ec187a65795e4ef2"
+    },
+    {
+      "name": "MAX_FACE_WIDTH_RATIO",
+      "original_normalized_sha256": "7d566846628aecfa4a4b0a4bb42a55b5de6ca37549c489f806b3661ef1d419ec"
+    },
+    {
+      "name": "MAX_FACE_HEIGHT_RATIO",
+      "original_normalized_sha256": "1cafa1322c2aa231ededf3ab8db0826d7b33da4ca04e4301d5cf9c4d676a5811"
+    },
+    {
+      "name": "MAX_FACE_CENTER_X_OFFSET",
+      "original_normalized_sha256": "dcd1260c1509ad06b83c55a44240fc65d12e8ed8d8985acca9f917e7f8478b11"
+    },
+    {
+      "name": "MIN_FACE_CENTER_Y",
+      "original_normalized_sha256": "37c9be6ac321ab61fd0273ab45a6f4a4f71a0ade6b4369c14ee870f047e69144"
+    },
+    {
+      "name": "MAX_FACE_CENTER_Y",
+      "original_normalized_sha256": "4762f24bc54ddf4483639b234a79de2a39093f7ce1f828a11e0e72a3ad5ea1ac"
+    },
+    {
+      "name": "MAX_EYE_LINE_TILT_DEGREES",
+      "original_normalized_sha256": "83f8a94a4f9c00ca76367a3dc95a4e03b4e66f9f4594ab7b7d4454dc40a71c66"
+    },
+    {
+      "name": "MAX_STABLE_FACE_CENTER_DELTA",
+      "original_normalized_sha256": "1ca8c764116ac48bf0580e07d7e04861e3e6264561dac6864d3274c1e7caec6c"
+    },
+    {
+      "name": "MAX_STABLE_FACE_SIZE_DELTA",
+      "original_normalized_sha256": "d373cbda29de09202e85f7a9168ce21e960739b18db3a108422bde615d509089"
+    },
+    {
+      "name": "FINAL_HARD_MIN_FACE_WIDTH_RATIO",
+      "original_normalized_sha256": "93452a757eab83a2af6ff2b4b11817dc12c6f41f05fa3ce22865dfbec861165e"
+    },
+    {
+      "name": "FINAL_HARD_MIN_FACE_HEIGHT_RATIO",
+      "original_normalized_sha256": "c42c1077b4d55945f1393ebbb702e3dfb96209ad58bac1e9e7ab28631df699a2"
+    },
+    {
+      "name": "FINAL_HARD_MAX_FACE_WIDTH_RATIO",
+      "original_normalized_sha256": "c0c440eb04c7253a7f65fa5f70f6e4dd804567ac80af9382f6ad256991ac0523"
+    },
+    {
+      "name": "FINAL_HARD_MAX_FACE_HEIGHT_RATIO",
+      "original_normalized_sha256": "1ef3143bc825402e5e5f89fb05e6ca60591a8c185d77e1e80b9f2d8ed6fcd3d8"
+    },
+    {
+      "name": "FINAL_HARD_MAX_FACE_CENTER_X_OFFSET",
+      "original_normalized_sha256": "32741b9d3add880e28429d22f26f4f38080483c70eed3156238ce8c0ad36c7df"
+    },
+    {
+      "name": "FINAL_HARD_MIN_FACE_CENTER_Y",
+      "original_normalized_sha256": "423765f0d9d585fbfc39e29690178aa8e5fe3c31ebfc85d8a7714c9bb52ec24f"
+    },
+    {
+      "name": "FINAL_HARD_MAX_FACE_CENTER_Y",
+      "original_normalized_sha256": "a820c80dfb90c98f8b07b7836b0354fa42d5937954b2af2d5757df645b37980e"
+    },
+    {
+      "name": "FINAL_HARD_HEAD_EDGE_MARGIN",
+      "original_normalized_sha256": "bebecc053362624ddc53c1ff267b7d85568fa47bb5d5f06961ac0b663f37b0bc"
+    },
+    {
+      "name": "FINAL_BORDERLINE_MIN_FACE_GRADIENT",
+      "original_normalized_sha256": "c4596db4b2dea7fa9ef50bf318cceb68e40d304972a2545fdbff51129cd83804"
+    },
+    {
+      "name": "FINAL_BORDERLINE_MIN_FACE_EDGE_RATIO",
+      "original_normalized_sha256": "9e40ddb2dfc4f74a6c220804705fd1d1675745d7185425a7665b3c033a496675"
+    },
+    {
+      "name": "FINAL_BORDERLINE_MIN_FACE_LUMINANCE",
+      "original_normalized_sha256": "6d6a4b0424b097aec907f50e877115d45138702c941e41c683a6e7fdd7f0666b"
+    },
+    {
+      "name": "FINAL_BORDERLINE_MAX_FACE_LUMINANCE",
+      "original_normalized_sha256": "3d91a2c61ad0f6b66d73e3bd701da244d549f1a8a9cd9406ad0dc5e9ff1c4dce"
+    },
+    {
+      "name": "FINAL_HARD_MIN_BACKGROUND_LUMINANCE",
+      "original_normalized_sha256": "1e4ed5e5b47f2adfe8b8311ab052372853a94e3de25a8986e36c1f5d464e3575"
+    },
+    {
+      "name": "FINAL_HARD_MIN_LIGHT_NEUTRAL_RATIO",
+      "original_normalized_sha256": "112611f1f965157579c339d65a3ac86ef0ca4dd47ce9814e643823c1d10a5898"
+    },
+    {
+      "name": "FINAL_HARD_MAX_STRONG_EDGE_RATIO",
+      "original_normalized_sha256": "b69fdfb3231c379dbc94e6e568398891c2e1f63f3e1cebea2ab13e01c4e05b5d"
+    },
+    {
+      "name": "FINAL_HARD_MAX_ROUGH_TEXTURE_RATIO",
+      "original_normalized_sha256": "f457ce3868045c41c3041d8bb6c3e6897a9799f25267b8ab8b6bbc98a2442f58"
+    },
+    {
+      "name": "FINAL_HARD_MAX_LINE_COVERAGE",
+      "original_normalized_sha256": "45998cd4a78405fdc7976e04de5e356e8b6bedbdd7f70cf801aea6dd41ab78fc"
+    },
+    {
+      "name": "FINAL_HARD_MAX_REGIONAL_EDGE_RATIO",
+      "original_normalized_sha256": "002ab96b53ecedfafc9c587b817fef066b34ea61415e95965da3e8709db90da6"
+    },
+    {
+      "name": "FINAL_HARD_MAX_REGIONAL_DARK_RATIO",
+      "original_normalized_sha256": "4af4fa359efdfd9a9553f9803fce0cdd802f000eca2d67244e212fd3c3b1b44a"
+    },
+    {
+      "name": "FINAL_HARD_MIN_FAILING_LIGHT_NEUTRAL_ZONES",
+      "original_normalized_sha256": "0af8cae7a51f7f815c2cb026722d8ade773fc3c61037d7bd70dd91284f86b92c"
+    },
+    {
+      "name": "FINAL_HARD_MIN_STRUCTURED_ZONES",
+      "original_normalized_sha256": "f1de8b85961dd873d11baa7f583bf788dba95207e934a1bac3206e3e7e7b90e1"
+    },
+    {
+      "name": "FINAL_HARD_MIN_EXTREME_ZONES",
+      "original_normalized_sha256": "9d7c484f61867838b3ce20ccc577ecfb7723d7740065becaddb17b6289621483"
+    },
+    {
+      "name": "LIVE_MIN_BACKGROUND_LUMINANCE",
+      "original_normalized_sha256": "f46acb103673870b94b3c7bf5df43fbbea044af4bc631c67f8f8589d641f9f96"
+    },
+    {
+      "name": "LIVE_MIN_LIGHT_NEUTRAL_RATIO",
+      "original_normalized_sha256": "f151c0ab7885c8e299276652697519adbf5be80bcd8874ba4ce66bf6bbf880d8"
+    },
+    {
+      "name": "LIVE_MAX_FAILING_LIGHT_NEUTRAL_ZONES",
+      "original_normalized_sha256": "b889dbbd1337e8d757383b27670a42d5ea100b82e319c1e9976f8ddd085a72d5"
+    },
+    {
+      "name": "LIVE_MAX_LUMINANCE_DEVIATION",
+      "original_normalized_sha256": "790672d44e40b00303d618bc1cb797e181cec1be204fdc0d713ec2d8a01cc019"
+    },
+    {
+      "name": "LIVE_MAX_ZONE_MEAN_SPREAD",
+      "original_normalized_sha256": "c7c7e3c614dff4b77ae8de5e3156359f9b71d552b4dcda9b5b70071fe5ce47b5"
+    },
+    {
+      "name": "LIVE_MAX_STRONG_EDGE_RATIO",
+      "original_normalized_sha256": "08a4bfa4e5193f73a9f732772be81247ddee811f93343f7902014f4b424522cf"
+    },
+    {
+      "name": "LIVE_MAX_ROUGH_TEXTURE_RATIO",
+      "original_normalized_sha256": "6df335004e77fe888ec03ef58b678a8946b24ca4858351d332a14754b8a91036"
+    },
+    {
+      "name": "LIVE_MAX_LINE_COVERAGE",
+      "original_normalized_sha256": "ee8c30c9d6c6fb88a0a94d82cbed5240410c7668435cfc3e44cfc441d2c9b07a"
+    },
+    {
+      "name": "LIVE_MAX_STRUCTURED_ZONES",
+      "original_normalized_sha256": "1d2d9ddfe779f2fd7dad231e97f5a45d371bb33a23b1d1dfeb98b1cdeebe814b"
+    },
+    {
+      "name": "LIVE_MAX_EXTREME_ZONES",
+      "original_normalized_sha256": "a8af592f1d2be7635349f943b2863b9e20ca88bae4313fbf057e535881b4e0da"
+    },
+    {
+      "name": "LIVE_MAX_REGIONAL_EDGE_RATIO",
+      "original_normalized_sha256": "596f1a63cd8e9454488bdb42d69593ef2d74aa88531ac3fc6ce90aff11156b1d"
+    },
+    {
+      "name": "LIVE_MAX_REGIONAL_DARK_RATIO",
+      "original_normalized_sha256": "b22803de6f23d0c7d68eaa0374ec7de1807a67b35fa705309ef816c15e3cceb1"
+    },
+    {
+      "name": "VISA_JPEG_QUALITY_STEPS",
+      "original_normalized_sha256": "b6d78b66e400042082375548bbd6ae6328bfa3fd75fdc6b832226b6c9228ac97"
+    }
+  ],
+  "note": "All27 top-level function bodies and every numeric policy constant moved exactly modulo export modifiers/LF; nested background accumulator remains unchanged. Distinct luminance coefficients/live/final limits, fallback acknowledgement, no-permission-retry and exclusive actual-Blob byte cap preserved."
+}

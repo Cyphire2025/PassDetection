@@ -1,0 +1,85 @@
+{
+  "original_source_sha256": "767500a1b9f4dd113b41bcefc0ea90fbebe984f34829b1ada8cd4ccbc24a51c3",
+  "sources": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_rollout_admin.py",
+      "sha256": "85f6f022a1ca334c38a953b89b3b9690f11d264916059901a6b3aa6230285781",
+      "physical_lines": 246
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_rollout_targets.py",
+      "sha256": "fed2b11d70a9312e5160bc7f08644aa87ff18577697ea26df0a9f435ea44ccbd",
+      "physical_lines": 200
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_rollout_policy_mapping.py",
+      "sha256": "d3562d38a9da320c0ef07e7cd3fb9e0c85857201b9038370b5f249c4076f7eb7",
+      "physical_lines": 186
+    }
+  ],
+  "whole_declarations": [
+    {
+      "name": "list_email_ai_rollout_targets",
+      "owner": "backend/app/presentation/api/v1/routes/email_ai_rollout_admin.py",
+      "whole_declaration_ast_exact": true
+    },
+    {
+      "name": "update_email_ai_rollout_policy",
+      "owner": "backend/app/presentation/api/v1/routes/email_ai_rollout_admin.py",
+      "whole_declaration_ast_exact": true
+    },
+    {
+      "name": "_same_instant",
+      "owner": "backend/app/presentation/api/v1/routes/email_ai_rollout_admin.py",
+      "whole_declaration_ast_exact": true
+    },
+    {
+      "name": "_aware_utc",
+      "owner": "backend/app/presentation/api/v1/routes/email_ai_rollout_admin.py",
+      "whole_declaration_ast_exact": true
+    },
+    {
+      "name": "_RolloutTargetRow",
+      "owner": "backend/app/presentation/api/v1/routes/email_rollout_targets.py",
+      "whole_declaration_ast_exact": true
+    },
+    {
+      "name": "_target_rows",
+      "owner": "backend/app/presentation/api/v1/routes/email_rollout_targets.py",
+      "whole_declaration_ast_exact": true
+    },
+    {
+      "name": "_load_policy_map",
+      "owner": "backend/app/presentation/api/v1/routes/email_rollout_policy_mapping.py",
+      "whole_declaration_ast_exact": true
+    },
+    {
+      "name": "_target_response",
+      "owner": "backend/app/presentation/api/v1/routes/email_rollout_policy_mapping.py",
+      "whole_declaration_ast_exact": true
+    },
+    {
+      "name": "_target_key",
+      "owner": "backend/app/presentation/api/v1/routes/email_rollout_policy_mapping.py",
+      "whole_declaration_ast_exact": true
+    },
+    {
+      "name": "_policy_key",
+      "owner": "backend/app/presentation/api/v1/routes/email_rollout_policy_mapping.py",
+      "whole_declaration_ast_exact": true
+    },
+    {
+      "name": "_policy_predicates",
+      "owner": "backend/app/presentation/api/v1/routes/email_rollout_policy_mapping.py",
+      "whole_declaration_ast_exact": true
+    }
+  ],
+  "declaration_count": 11,
+  "existing429line_test_byte_unchanged": true,
+  "all_corrected_baseline_test_function_asts_unchanged": true,
+  "baseline_new_test_function_count": 10,
+  "one_added_actual_mcp_caller_case": true,
+  "tests_edited_after_runtime_move": "Only added actualMCP caller case; no original baseline assertion or function changed.",
+  "no_behavior_sql_default_lock_role_search_pagination_or_audit_order_changes": true,
+  "notes": "No proxy/callback bag/framework. Purpose-specific target query and policy/response owners preserve direct facade aliases; generated dataclass method __module__ compatibility is metadata only and never retags shared stdlib methods."
+}

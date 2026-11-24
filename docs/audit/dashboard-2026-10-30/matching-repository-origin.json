@@ -1,0 +1,6 @@
+{
+  "path": "backend/app/infrastructure/repositories/passport_whatsapp_matching_repository.py",
+  "sha256": "5866611505e7ac05bdb424708b119af426038b4a554374df3ec550cd169e88cf",
+  "lines": 615,
+  "archive": ".tmp\\matching-repository-before.py"
+}

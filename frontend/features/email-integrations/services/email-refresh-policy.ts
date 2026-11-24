@@ -33,4 +33,3 @@ function isDocumentVisible(): boolean {
   return typeof document === "undefined" || document.visibilityState === "visible";
 }
 
-export const EMAIL_REPAIR_PAGE_BUDGET = 5;

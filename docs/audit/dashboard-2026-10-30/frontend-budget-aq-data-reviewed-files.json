@@ -1,0 +1,15 @@
+{
+  "method": "Explicit prior790line full read plus exact4row data follow-through and original-SHA/outside-row source parity. No blind catalog-to-module review credit and no duplicate whole-read count.",
+  "files": [
+    {
+      "path": "frontend/scripts/verify-frontend-module-budgets.mjs",
+      "sha256": "f710cb513924bde02490b3cea751059cedcdc3b3af0f1cce1c5111fdd502df1e",
+      "physical_lines": 791,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Current791line catalog covered by prior99479d...790line full physical read plus physically read4 AQ03 rows. Historical fieldview reconstructs equivalent row grammar, NOT original raw whitespace/hash; all RAW controls and other literal row values match outside4rows, corroborated by reconstructed/current compiler AST. Existing3caps unchanged,1new selector cap measured in AQ03 receipt. Targeted composed data follow-through, not791new manual reads or referenced-module qualification.",
+      "resolves_partial_reviews": []
+    }
+  ]
+}

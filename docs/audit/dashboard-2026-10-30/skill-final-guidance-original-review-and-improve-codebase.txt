@@ -1,0 +1,50 @@
+---
+name: review-and-improve-codebase
+description: Review and improve an existing codebase with a persistent file coverage tracker and verified fixes for security, duplication, maintainability, and performance. Use for broad codebase audits with implementation; keep a requested read-only review read-only.
+---
+
+# Review and improve a codebase
+
+Turn a broad quality request into traceable source review and small, verified improvements. Follow the user's scope, repository instructions, current contracts and established verification tooling.
+
+## Establish coverage
+
+- Inspect the working tree before editing and preserve existing work. Inventory tracked files and relevant untracked sources without reading private credentials or operational datasets.
+- Create or update the requested audit tracker. Each in-scope path should have a state such as pending, inspected, finding recorded, fixed awaiting verification, or verified. Record exclusions and why they are excluded; generated files, dependency locks and historical migrations need different treatment from executable sources.
+- Record the review basis: manual source inspection, caller/dependency analysis, automated check, or browser exercise. A filename inventory or search hit does not establish line-by-line review.
+- Keep machine-readable review records explicit: `path`, current `sha256`, `reviewer`, `review_scope`, `status` and `notes`. Prefer a records list or a `files` wrapper understood by the tracker. Distinguish runtime and test records, retain their provenance, and fail before replacing the inventory if a new ledger schema is unsupported. Never turn an automated reference-search count into full manual-review coverage.
+- Prioritize reachable trust boundaries and user journeys, then continue systematic coverage. When agents are available and permitted, give them disjoint ownership and merge their evidence into the same tracker.
+
+## Inspect and improve
+
+For each meaningful issue, identify its trigger, affected path, evidence and smallest useful correction:
+
+- Trace authorization from the caller through tenant/role checks to the database, filesystem, object storage or provider operation. Check replay, stale state, private data in responses/logs and indirect access paths. Manual review does not depend on any security scanner.
+- Before deleting code, find runtime, dynamic-registration, build, test, migration, deployment and operational callers. Distinguish obsolete implementation from compatibility data or actively used historical validation. Preserve independently retained assets and published schema history.
+- Split files by responsibility and ownership, preserving existing public imports and transaction/error boundaries where callers need them. Size is a signal to inspect responsibilities, not sufficient reason to scatter related logic.
+- For Python extractions, check runtime annotation resolution with `typing.get_type_hints` where consumers use it, alongside actual imports and public aliases. A passing import or type check alone does not establish that relocated annotations resolve or compatibility exports remain intact.
+- Keep normal, readable formatting. Inspect JSX/AST size and responsibility boundaries alongside physical line counts; compressed multi-statement lines do not make a large component well structured. Prefer cohesive extractions when an old line ceiling was based on compressed source, and keep coverage and security floors intact.
+- Consolidate duplicated rules into their real owner. Avoid abstractions justified only by similar syntax, and avoid moving complexity into generic wrappers.
+- For performance claims, name a representative workload and measure before/after using the same conditions. Check query/payload bounds, concurrency, cancellation and repeated work; do not infer production capacity from unit tests.
+- Keep fixes reviewable. Finish relevant verification before stacking unrelated refactors in the same area. Do not turn a local cleanup into a framework, dependency or deployment migration without a demonstrated need within scope.
+- Track findings and follow-ups separately from file-read coverage. A narrow fix and a current-hash review record do not close an outstanding architecture, cancellation or resource-lifetime obligation in the same file; retain that obligation until its own evidence supports closure.
+
+## Verify and retain evidence
+
+Use the repository's supported runtimes and existing check lanes. Choose regression checks for observable behavior and affected boundaries. Record exact commands, outcomes, skipped prerequisites and evidence paths. Service-dependent and browser behavior need their own checks; a passing substitute suite cannot establish them.
+
+Work in coherent feature or shared-contract batches. Use affected tests and meaningful negative regressions while implementing; correct a failing check and its relevant dependencies first. Reading files, updating evidence, or a pure formatting change does not trigger another full suite or production build. Group broad lint, types, coverage, contracts, budgets, build and current-build browser work at deliberate stable integration checkpoints, then perform final combined verification when implementation is complete. Preserve required gates and floors throughout.
+
+Bind verification to the source it exercised. Freeze the relevant owners for a checkpoint and retain exact hashes. If a covered owner changes, discard that owner's stale coverage before supplementing it; do not combine branch coverage from different source versions. A mechanical extraction or formatting pass can preserve an earlier behavior result when its equivalence and wiring are explicitly proved, but record the tested and final source identities and the proof's limits. A production browser result must use a build containing the runtime changes it claims to verify.
+
+When critical logic moves, transfer its line/branch coverage obligations and meaningful behavioral tests to the actual new owners. Preserve the original numerical floors and budget caps; tests covering only a forwarding facade, mocked replacement or source pattern do not protect the relocated logic. Record the old-to-new responsibility mapping and verify collection includes the current implementation.
+
+Keep historical runs, static comparisons, synthetic fixture controls and current source/build/browser results identifiable. A fixture failure may reveal a product defect, but does not establish one without tracing the active code; a corrected fixture does not retrospectively turn its failed run into passing runtime evidence.
+
+When quality gates or release manifests bind source hashes, preserve immutable original baselines and permissions/classifications. Refresh only reviewed current bindings after the feature freezes; never repair a failing binding by blindly hashing every current file. Measured additive module budgets may retain or lower existing ceilings, with a receipt recording both old and new values; do not relax existing floors or caps to accommodate a refactor.
+
+If a long test process accumulates memory, use the repository's maintained partition mechanism sequentially and verify that its collection manifests cover the complete selection exactly once. Keep aborted or superseded runs separate from passing evidence. For security-driven dependency updates, validate the new locked environment rather than attributing older test results to new package versions.
+
+Update the tracker while work progresses. End with the implemented changes, reviewed/remaining coverage, checks actually run and material unresolved risks. Keep the task active when required work remains; do not label the whole repository audited because an initial batch passed.
+
+Example request: Review this dashboard and supporting API, fix evidenced problems while preserving workflows, and keep a per-file tracker. Exclude the native application.

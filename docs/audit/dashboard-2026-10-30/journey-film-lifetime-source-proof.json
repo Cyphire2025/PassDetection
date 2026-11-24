@@ -1,0 +1,31 @@
+{
+  "status": "passed-focused-source-proof",
+  "before_sha256": "92b8272f89ba74c74cf3f4ccd801dd28950409f4da1d6231a604e96c22c3fb62",
+  "after_sha256": "50261e9fca5cd731ac71ebb086b12e253ea6c35f0493b92457e5325eaa76690a",
+  "exact_original_main_prefix_statements": 6,
+  "entire_spawn_command_argument_AST_exact": true,
+  "readme_before_last_navigation_paragraph_exact": true,
+  "active_original_public_asset_hashes": [
+    {
+      "original": "assets/branding/global-connect/journey-film/journey-film-web.mp4",
+      "publicCopy": "frontend/public/assets/branding/global-connect/journey-film/journey-film-web.mp4",
+      "sha256": "a1af2d0afde7b5fecfc1d09af4656d1a6e8a781e2f1fe829bd324fed5f36f4eb",
+      "decoded": false
+    },
+    {
+      "original": "assets/branding/global-connect/journey-film/journey-film-poster.jpg",
+      "publicCopy": "frontend/public/assets/branding/global-connect/journey-film/journey-film-poster.jpg",
+      "sha256": "eb8d3cee87c283445e29cc8115936bee1eba578809e92e659bb8e92e0d9b6cd5",
+      "decoded": false
+    }
+  ],
+  "deliberate_changes": [
+    "New bounded wait helper and exact child close observation.",
+    "Producer drain races encoder termination to avoid stranded waits.",
+    "Failure destroys only owned input, attempts SIGTERM then SIGKILL with 5-second close waits, and rethrows original error; cleanup failure remains explicit warning."
+  ],
+  "limitations": [
+    "Synthetic ordinary-main VM substitutes canvas/scene/FFmpeg process; no native encoder, video rendering/decoding or physical process/FD proof.",
+    "Public media bytes unchanged; no application/runtime workflow or release/gate changes."
+  ]
+}

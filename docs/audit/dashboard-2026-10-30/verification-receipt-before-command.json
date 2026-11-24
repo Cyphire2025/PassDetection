@@ -1,0 +1,34 @@
+{
+  "argv": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "tests/unit/infrastructure/test_document_verification_staging.py",
+    "tests/unit/presentation/test_document_distribution_staging_routes.py",
+    "--cov=app.infrastructure.documents.verification_staging",
+    "--cov=app.infrastructure.documents.verification_receipt_models",
+    "--cov=app.infrastructure.documents.verification_receipt_payload",
+    "--cov=app.infrastructure.documents.verification_receipt_cipher",
+    "--cov=app.infrastructure.documents.verification_receipt_scope",
+    "--cov-branch",
+    "--cov-report=json:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\verification-receipt-before-coverage.json",
+    "--cov-report="
+  ],
+  "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection\\backend",
+  "exit_code": 3,
+  "before": {
+    "backend/tests/unit/infrastructure/test_document_verification_staging.py": "517dd7840165bc5dae0063095074b821ee3cd7e013b2d6bf35834d2cdf30e6de",
+    "backend/tests/unit/presentation/test_document_distribution_staging_routes.py": "c3d09d31d343d364c8d45bf9a824c20be86b55c5827420e914a9d0bbfb9f63f3",
+    "backend/app/infrastructure/documents/verification_staging.py": "6c911863ebeee0ca7181196eb74bc0b2cd2cb520b4dfda31d9113c77539daa60"
+  },
+  "after": {
+    "backend/tests/unit/infrastructure/test_document_verification_staging.py": "517dd7840165bc5dae0063095074b821ee3cd7e013b2d6bf35834d2cdf30e6de",
+    "backend/tests/unit/presentation/test_document_distribution_staging_routes.py": "c3d09d31d343d364c8d45bf9a824c20be86b55c5827420e914a9d0bbfb9f63f3",
+    "backend/app/infrastructure/documents/verification_staging.py": "6c911863ebeee0ca7181196eb74bc0b2cd2cb520b4dfda31d9113c77539daa60"
+  },
+  "source_frozen": true,
+  "output": "verification-receipt-before-tests.txt"
+}

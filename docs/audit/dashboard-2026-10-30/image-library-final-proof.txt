@@ -1,0 +1,1 @@
+{"whole_declarations": 7, "actual_bindings": 109, "shared_read_body_exact": true, "sources": 8}

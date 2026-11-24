@@ -1,0 +1,65 @@
+{
+  "status": "passed; architecture follow-through remains open",
+  "before": {
+    "initial": "6failed/1validcontrol",
+    "expanded": "8failed/1validcontrol"
+  },
+  "after": {
+    "affected_tests": 35,
+    "scope": "new11 regression cases +unchanged hub/dashboard route/shared health controls",
+    "types": "strict mypy follow-imports=silent one actual runtime source passed",
+    "lint": "backend cwd Ruff --no-fix and format --check both passed"
+  },
+  "runtime": {
+    "path": "backend/app/infrastructure/mobile_realtime.py",
+    "sha256": "e17a12bafc8856fc3751cbd93b59f9454166b2e3ab0fcafbed0f564e6d0fa32e"
+  },
+  "test": {
+    "path": "backend/tests/unit/infrastructure/test_realtime_subscriber_lifetime.py",
+    "sha256": "08d3b74fc4d8c7b3055994eab557535c1102c67ab612b86c30030dd182217500"
+  },
+  "artifacts": [
+    {
+      "path": ".tmp/realtime-audit/baseline.txt",
+      "sha256": "83b8920a2e845c9149ead2fb3f748c34aa2c4f8d8e21771c7df871f216dc41ca"
+    },
+    {
+      "path": ".tmp/realtime-audit/baseline-expanded.txt",
+      "sha256": "19f64e0ee1efe3838f495bf94ca42e79f441fc7f3a9d8a3c20884a9b01214aed"
+    },
+    {
+      "path": ".tmp/realtime-audit/behavior-tests.txt",
+      "sha256": "022c096768380ae3c0a5324d76c5fea84ad7eee4ccb66e4272b498938118721b"
+    },
+    {
+      "path": ".tmp/realtime-audit/behavior-coverage.json",
+      "sha256": "1fd18fcfd8bc9613f8ba15097016d72b871a58c35aa8e1cc6a9a442bf62ecf24"
+    },
+    {
+      "path": ".tmp/realtime-audit/behavior-types.txt",
+      "sha256": "8e63ae22e8213e327a5e9cbd584067681681bd8ef7f25c869877887ccdcfc4ff"
+    },
+    {
+      "path": ".tmp/realtime-audit/behavior-lint.txt",
+      "sha256": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0"
+    },
+    {
+      "path": ".tmp/realtime-audit/behavior-format.txt",
+      "sha256": "97d85b4b6c185a05396e2d09a3c304ff0f7cc77f8b7b7bb7989ec6cd875b3898"
+    }
+  ],
+  "source_proof": {
+    "path": "docs/audit/dashboard-2026-10-30/shared-realtime-behavior-delta-proof.json",
+    "sha256": "5b8a8fce60287060e5a2b7577fb306c801ee482977049fef087f5218555b5f43"
+  },
+  "ledger": {
+    "path": "docs/audit/dashboard-2026-10-30/shared-realtime-behavior-reviewed-files.json",
+    "sha256": "a17f912162ff86c77e32c3eda6a3d4424e828f8db4d3a097a38d73647c65ec0a"
+  },
+  "limits": [
+    "Synthetic Redis protocol resources; no live Redis/PostgreSQL/provider/VPS or real FD proof.",
+    "Lossy PII-free hints only; no authentication bypass or durable journal/data correctness failure claimed.",
+    "No whole application suite/build/browser.",
+    "Old-socket frontend callback and native ingress scope refinement remain independent candidates."
+  ]
+}

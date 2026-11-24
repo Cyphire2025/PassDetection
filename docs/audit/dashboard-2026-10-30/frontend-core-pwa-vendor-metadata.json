@@ -1,0 +1,49 @@
+{
+  "assets": [
+    {
+      "path": "frontend/public/mediapipe/face_detection/face_detection.js",
+      "sha256": "aee96c38df848965ba042ef0454b28eaf811b10cdb629be0ebf641b1ac57f366",
+      "bytes": 66289,
+      "review_scope": "vendor_metadata_only",
+      "status": "compiled_asset_not_manually_source_reviewed"
+    },
+    {
+      "path": "frontend/public/mediapipe/face_detection/face_detection_solution_simd_wasm_bin.js",
+      "sha256": "03b287ace310742bf69e10ad003ed20949fd0bc904b00cfdf18dff68885209a6",
+      "bytes": 265857,
+      "review_scope": "vendor_metadata_only",
+      "status": "compiled_asset_not_manually_source_reviewed"
+    },
+    {
+      "path": "frontend/public/mediapipe/face_detection/face_detection_solution_wasm_bin.js",
+      "sha256": "53588f1468966555a2d9c99cf9fa18e80016cccae673ecb53f9b50a1a8eb4f91",
+      "bytes": 265852,
+      "review_scope": "vendor_metadata_only",
+      "status": "compiled_asset_not_manually_source_reviewed"
+    },
+    {
+      "path": "frontend/public/offline/vendor/zxing-browser.min.js",
+      "sha256": "066bc34edfcdd4a33f0964aeec967752a0dea1ccaf36e58e319ac9fcb5070f6a",
+      "bytes": 441121,
+      "review_scope": "vendor_metadata_only",
+      "status": "compiled_asset_not_manually_source_reviewed"
+    }
+  ],
+  "zxing": {
+    "package": "@zxing/browser",
+    "version": "0.2.0",
+    "license": "MIT",
+    "license_path": "frontend/public/offline/vendor/zxing-browser.LICENSE.txt",
+    "vendored_sha256": "066bc34edfcdd4a33f0964aeec967752a0dea1ccaf36e58e319ac9fcb5070f6a",
+    "installed_umd_byte_equal": true
+  },
+  "mediapipe": {
+    "package": "@mediapipe/face_detection",
+    "version": "0.4.1646425229",
+    "license": "Apache-2.0",
+    "read_only_pin_check": "node scripts/patch-mediapipe-csp.mjs --check",
+    "exit_code": 0,
+    "result": "MediaPipe CSP bindings verified; detection graph, model, and WASM are unchanged."
+  },
+  "limits": "Compiled vendor JavaScript not represented as manually fully reviewed source; metadata and byte identity/pinned generated transformations only. No recognition accuracy, real camera latency or dependency freshness claim."
+}

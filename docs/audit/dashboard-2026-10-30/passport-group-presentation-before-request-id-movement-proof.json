@@ -1,0 +1,72 @@
+{
+  "method": "Recursive TypeScript syntax kind/text/children and React-equivalent JSX whitespace; source positions/comments/optional parentheses ignored. Deliberate navigation accessibility changes precede the movement origin.",
+  "results": [
+    {
+      "part": "isDuplicatePassport",
+      "matched": true
+    },
+    {
+      "part": "isDuplicateClusterStart",
+      "matched": true
+    },
+    {
+      "part": "DuplicateClusterHeader",
+      "matched": true
+    },
+    {
+      "part": "PassportMobileCard",
+      "matched": true
+    },
+    {
+      "part": "ReextractPassportControl",
+      "matched": true
+    },
+    {
+      "part": "hasRealPassportFront",
+      "matched": true
+    },
+    {
+      "part": "getDashboardFields",
+      "matched": true
+    },
+    {
+      "part": "getDashboardCountry",
+      "matched": true
+    },
+    {
+      "part": "getDashboardPassportDate",
+      "matched": true
+    },
+    {
+      "part": "getExtractionConflictCount",
+      "matched": true
+    },
+    {
+      "part": "getStringField",
+      "matched": true
+    },
+    {
+      "part": "InfoPair",
+      "matched": true
+    },
+    {
+      "part": "StatusBadge",
+      "matched": true
+    },
+    {
+      "part": "createExportRequestId",
+      "matched": true
+    },
+    {
+      "part": "mutationErrorMessage",
+      "matched": true
+    },
+    {
+      "part": "responsive roster subtree",
+      "matched": true
+    }
+  ],
+  "public_export_count": 18,
+  "public_exports_equal": true,
+  "passed": true
+}

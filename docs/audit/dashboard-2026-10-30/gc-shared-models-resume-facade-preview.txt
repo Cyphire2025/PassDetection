@@ -1,0 +1,105 @@
+"""Persistence models for the native Group Companion application.
+
+The mobile API is intentionally backed by explicit, tenant-scoped records
+instead of reusing broad dashboard roles or serializing administrative ORM
+objects.  Secrets stored here are hashes or application-encrypted bytes; raw
+OTP codes, refresh tokens, push tokens, document URLs, and QR secrets do not
+belong in these tables.
+"""
+
+from __future__ import annotations
+
+import uuid as uuid
+from datetime import UTC, date as date, datetime
+
+from sqlalchemy import (
+    BigInteger as BigInteger,
+    Boolean as Boolean,
+    CheckConstraint as CheckConstraint,
+    Date as Date,
+    DateTime as DateTime,
+    Float as Float,
+    ForeignKey as ForeignKey,
+    ForeignKeyConstraint as ForeignKeyConstraint,
+    Identity as Identity,
+    Index as Index,
+    Integer as Integer,
+    LargeBinary as LargeBinary,
+    String as String,
+    Text as Text,
+    UniqueConstraint as UniqueConstraint,
+    text as text,
+)
+from sqlalchemy.dialects.postgresql import (
+    UUID as UUID,
+)
+from sqlalchemy.orm import (
+    Mapped as Mapped,
+    mapped_column as mapped_column,
+)
+
+from app.infrastructure.database import (
+    gc_notification_models as _gc_notification_models,  # noqa: F401
+)
+from app.infrastructure.database.model_base import (
+    JSONB as JSONB,
+    Base as Base,
+)
+
+
+def _utcnow() -> datetime:
+    return datetime.now(tz=UTC)
+
+
+# Preserve original declaration order and construction-time ORM module identity.
+# isort: off
+from ._gc_models.organizations import ClientOrganizationModel as ClientOrganizationModel  # noqa: E402
+from ._gc_models.organizations import ClientManagerProfileModel as ClientManagerProfileModel  # noqa: E402
+from ._gc_models.group_access import GCGroupAccessModel as GCGroupAccessModel  # noqa: E402
+from ._gc_models.group_access import ClientManagerGroupAssignmentModel as ClientManagerGroupAssignmentModel  # noqa: E402
+from ._gc_models.common_documents import GCCommonDocumentModel as GCCommonDocumentModel  # noqa: E402
+from ._gc_models.itineraries import GCItineraryVersionModel as GCItineraryVersionModel  # noqa: E402
+from ._gc_models.itineraries import GCItineraryDayModel as GCItineraryDayModel  # noqa: E402
+from ._gc_models.itineraries import GCItineraryItemModel as GCItineraryItemModel  # noqa: E402
+from ._gc_models.announcements import GCAnnouncementModel as GCAnnouncementModel  # noqa: E402
+from ._gc_models.passenger_identities import MobilePassengerIdentityModel as MobilePassengerIdentityModel  # noqa: E402
+from ._gc_models.document_cache import MobileDocumentMetadataCacheModel as MobileDocumentMetadataCacheModel  # noqa: E402
+from ._gc_models.otp_challenges import MobileOTPChallengeModel as MobileOTPChallengeModel  # noqa: E402
+from ._gc_models.sessions import MobileDeviceSessionModel as MobileDeviceSessionModel  # noqa: E402
+from ._gc_models.sessions import MobilePassengerSessionIdentityModel as MobilePassengerSessionIdentityModel  # noqa: E402
+from ._gc_models.attestation import MobileAppAttestKeyModel as MobileAppAttestKeyModel  # noqa: E402
+from ._gc_models.refresh_tokens import MobileRefreshTokenModel as MobileRefreshTokenModel  # noqa: E402
+from ._gc_models.push_transport import MobilePushRegistrationModel as MobilePushRegistrationModel  # noqa: E402
+from ._gc_models.push_transport import MobilePushDeliveryModel as MobilePushDeliveryModel  # noqa: E402
+from ._gc_models.notifications import MobileNotificationModel as MobileNotificationModel  # noqa: E402
+from ._gc_models.sync_changes import MobileSyncChangeModel as MobileSyncChangeModel  # noqa: E402
+from ._gc_models.family_delegations import PassengerFamilyDelegationModel as PassengerFamilyDelegationModel  # noqa: E402
+from ._gc_models.idempotency_receipts import MobileIdempotencyReceiptModel as MobileIdempotencyReceiptModel  # noqa: E402
+from ._gc_models.incidents import MobileIncidentModel as MobileIncidentModel  # noqa: E402
+# isort: on
+
+
+__all__ = [
+    "ClientManagerGroupAssignmentModel",
+    "ClientManagerProfileModel",
+    "ClientOrganizationModel",
+    "GCAnnouncementModel",
+    "GCCommonDocumentModel",
+    "GCGroupAccessModel",
+    "GCItineraryDayModel",
+    "GCItineraryItemModel",
+    "GCItineraryVersionModel",
+    "MobileDeviceSessionModel",
+    "MobileDocumentMetadataCacheModel",
+    "MobileIdempotencyReceiptModel",
+    "MobileIncidentModel",
+    "MobileNotificationModel",
+    "MobileOTPChallengeModel",
+    "MobilePassengerIdentityModel",
+    "MobilePassengerSessionIdentityModel",
+    "MobilePushDeliveryModel",
+    "MobilePushRegistrationModel",
+    "MobileRefreshTokenModel",
+    "MobileSyncChangeModel",
+    "PassengerFamilyDelegationModel",
+]

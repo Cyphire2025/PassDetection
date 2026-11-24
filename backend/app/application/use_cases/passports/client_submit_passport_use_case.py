@@ -6,7 +6,6 @@ Finalizes a public client review for an uploaded passport.
 
 from __future__ import annotations
 
-import re
 import uuid
 from collections.abc import Iterable, Mapping
 from dataclasses import replace
@@ -18,8 +17,14 @@ from app.application.dtos.passport_dtos import (
 )
 from app.application.platform_policies import PlatformPolicies, PlatformPolicyProvider
 from app.application.security.public_upload_capability import require_active_public_upload
+from app.application.use_cases.passports import (
+    client_submission_replay as _client_submission_replay,
+)
+from app.application.use_cases.passports import (
+    client_submission_values as _client_submission_values,
+)
 from app.core.logging.logger import get_logger
-from app.domain.entities.entities import OFFICE_VISIBLE_PASSPORT_STATUS_VALUES, PassportSubmission
+from app.domain.entities.entities import OFFICE_VISIBLE_PASSPORT_STATUS_VALUES
 from app.domain.exceptions.exceptions import EntityNotFoundError, ValidationError
 from app.domain.repositories.interfaces import (
     IClientGroupRepository,
@@ -28,8 +33,6 @@ from app.domain.repositories.interfaces import (
 )
 from app.domain.value_objects.client_collection_provenance import mark_client_collection_submitted
 from app.domain.value_objects.custom_questions import (
-    CustomAnswerSnapshot,
-    CustomDetailAnswerSnapshot,
     normalize_custom_answers,
     normalize_custom_detail_answers,
 )
@@ -41,7 +44,6 @@ from app.domain.value_objects.passport_fields import (
     normalize_reviewed_passport_fields,
     validate_reviewed_passport_payload,
 )
-from app.domain.value_objects.phone_number import normalize_phone_number, phone_numbers_equal
 from app.domain.value_objects.upload_configuration import configuration_for, validate_documents
 from app.infrastructure.processing.job_repository import PassportProcessingJobRepository
 
@@ -135,7 +137,11 @@ class ClientSubmitPassportUseCase:
             mode=submission.acquisition_mode,
             photo=submission.passport_photo_s3_key,
         )
-        if group.relation_with_qualifier_enabled and config.required("relation_with_qualifier") and not submission.qualifier_enabled_snapshot:
+        if (
+            group.relation_with_qualifier_enabled
+            and config.required("relation_with_qualifier")
+            and not submission.qualifier_enabled_snapshot
+        ):
             raise ValidationError(
                 "Select the traveller's relationship with the qualifier before submitting.",
                 field="qualifier_selection_token",
@@ -154,8 +160,7 @@ class ClientSubmitPassportUseCase:
         allow_manual_submission = submission.manual_review_submission_allowed
         if (
             has_passport_front
-            and
-            submission.status.value not in OFFICE_VISIBLE_PASSPORT_STATUS_VALUES
+            and submission.status.value not in OFFICE_VISIBLE_PASSPORT_STATUS_VALUES
             and not is_accepted_passport_information_page(
                 passport_document_classification(submission.extracted_fields)
             )
@@ -175,10 +180,22 @@ class ClientSubmitPassportUseCase:
                 "Relation with Qualifier uploads support one passenger only.",
                 field="submission_mode",
             )
-        normalized_email = client_email.lower().strip() if client_email and client_email.strip() else None
-        normalized_phone = self._normalize_phone(client_phone) if client_phone and client_phone.strip() else None
-        normalized_head_email = family_head_email.lower().strip() if family_head_email and family_head_email.strip() else None
-        normalized_head_phone = self._normalize_phone(family_head_phone) if family_head_phone and family_head_phone.strip() else None
+        normalized_email = (
+            client_email.lower().strip() if client_email and client_email.strip() else None
+        )
+        normalized_phone = (
+            self._normalize_phone(client_phone) if client_phone and client_phone.strip() else None
+        )
+        normalized_head_email = (
+            family_head_email.lower().strip()
+            if family_head_email and family_head_email.strip()
+            else None
+        )
+        normalized_head_phone = (
+            self._normalize_phone(family_head_phone)
+            if family_head_phone and family_head_phone.strip()
+            else None
+        )
 
         # Public traveller contact collection is mandatory for single and family
         # submissions, independently of historical optional-contact settings.
@@ -188,14 +205,6 @@ class ClientSubmitPassportUseCase:
             raise ValidationError("Enter a valid WhatsApp number.", field="client_phone")
 
         if normalized_mode == "single":
-            if policies.require_client_email and not normalized_email:
-                raise ValidationError("Enter a valid email address.", field="client_email")
-            if client_email and not normalized_email:
-                raise ValidationError("Enter a valid email address.", field="client_email")
-            if policies.require_client_phone and not normalized_phone:
-                raise ValidationError("Enter a valid phone number.", field="client_phone")
-            if client_phone and not normalized_phone:
-                raise ValidationError("Enter a valid phone number.", field="client_phone")
             normalized_head_name = None
             normalized_head_email = None
             normalized_head_phone = None
@@ -210,15 +219,21 @@ class ClientSubmitPassportUseCase:
             if len(normalized_head_name) < 2:
                 raise ValidationError("Head of family name is required.", field="family_head_name")
             if policies.require_client_email and not normalized_head_email:
-                raise ValidationError("Head of family email is required.", field="family_head_email")
+                raise ValidationError(
+                    "Head of family email is required.", field="family_head_email"
+                )
             if family_head_email and not normalized_head_email:
-                raise ValidationError("Enter a valid head of family email.", field="family_head_email")
+                raise ValidationError(
+                    "Enter a valid head of family email.", field="family_head_email"
+                )
             if policies.require_client_phone and not normalized_head_phone:
-                raise ValidationError("Head of family phone number is required.", field="family_head_phone")
+                raise ValidationError(
+                    "Head of family phone number is required.", field="family_head_phone"
+                )
             if family_head_phone and not normalized_head_phone:
-                raise ValidationError("Enter a valid head of family phone number.", field="family_head_phone")
-            if client_phone and not normalized_phone:
-                raise ValidationError("Enter a valid family member phone number.", field="client_phone")
+                raise ValidationError(
+                    "Enter a valid head of family phone number.", field="family_head_phone"
+                )
             normalized_relation = " ".join((family_relation or "").strip().split())[:80] or None
             normalized_gender = " ".join((family_gender or "").strip().split())[:40] or None
 
@@ -310,19 +325,13 @@ class ClientSubmitPassportUseCase:
                 exclude_submission_id=submission.id,
                 scope="platform" if duplicate_policy == "block_all" else "group",
                 additional_emails=(
-                    (normalized_email,)
-                    if normalized_mode == "family" and normalized_email
-                    else ()
+                    (normalized_email,) if normalized_mode == "family" and normalized_email else ()
                 ),
                 additional_phones=(
-                    (normalized_phone,)
-                    if normalized_mode == "family" and normalized_phone
-                    else ()
+                    (normalized_phone,) if normalized_mode == "family" and normalized_phone else ()
                 ),
             ):
-                detail_scope = (
-                    "the platform" if duplicate_policy == "block_all" else "this group"
-                )
+                detail_scope = "the platform" if duplicate_policy == "block_all" else "this group"
                 raise ValidationError(
                     f"This email or phone number has already been used in {detail_scope}.",
                     field="client_contact",
@@ -352,7 +361,9 @@ class ClientSubmitPassportUseCase:
         if not has_passport_front and not clean_fields.get("given_names"):
             raise ValidationError("Enter the traveller's full name.", field="given_names")
         if not any(clean_fields.values()):
-            raise ValidationError("At least one reviewed field is required.", field="confirmed_fields")
+            raise ValidationError(
+                "At least one reviewed field is required.", field="confirmed_fields"
+            )
         if normalized_base_city:
             clean_fields["base_city"] = normalized_base_city
         if normalized_staff_code:
@@ -364,36 +375,29 @@ class ClientSubmitPassportUseCase:
         if normalized_designation:
             clean_fields["designation"] = normalized_designation
         if normalized_agency_dealership_name:
-            clean_fields["agency_dealership_name"] = (
-                normalized_agency_dealership_name
-            )
+            clean_fields["agency_dealership_name"] = normalized_agency_dealership_name
         if normalized_meal_preference:
             clean_fields["meal_preference"] = normalized_meal_preference
 
         if submission.status.value in OFFICE_VISIBLE_PASSPORT_STATUS_VALUES:
-            if (
-                submission.post_submission_verification_revision >= 1
-                and self._is_exact_replay(
-                    submission,
-                    clean_fields=clean_fields,
-                    client_email=normalized_email,
-                    client_phone=normalized_phone,
-                    departure_city=normalized_departure_city,
-                    nearest_domestic_airport=normalized_domestic_airport,
-                    submission_mode=normalized_mode,
-                    family_group_id=family_group_id,
-                    family_member_index=family_member_index,
-                    family_relation=normalized_relation,
-                    family_gender=normalized_gender,
-                    family_head_name=normalized_head_name,
-                    family_head_email=normalized_head_email,
-                    family_head_phone=normalized_head_phone,
-                    family_broadcast_to_member=bool(
-                        normalized_email or normalized_phone
-                    ),
-                    custom_answers=normalized_custom_answers,
-                    custom_detail_answers=normalized_custom_detail_answers,
-                )
+            if submission.post_submission_verification_revision >= 1 and self._is_exact_replay(
+                submission,
+                clean_fields=clean_fields,
+                client_email=normalized_email,
+                client_phone=normalized_phone,
+                departure_city=normalized_departure_city,
+                nearest_domestic_airport=normalized_domestic_airport,
+                submission_mode=normalized_mode,
+                family_group_id=family_group_id,
+                family_member_index=family_member_index,
+                family_relation=normalized_relation,
+                family_gender=normalized_gender,
+                family_head_name=normalized_head_name,
+                family_head_email=normalized_head_email,
+                family_head_phone=normalized_head_phone,
+                family_broadcast_to_member=bool(normalized_email or normalized_phone),
+                custom_answers=normalized_custom_answers,
+                custom_detail_answers=normalized_custom_detail_answers,
             ):
                 return replace(
                     passport_submission_output_from_entity(submission),
@@ -410,7 +414,9 @@ class ClientSubmitPassportUseCase:
             draft_key = submission.image_s3_key
             if draft_key.startswith("drafts/"):
                 suffix = PurePosixPath(draft_key).suffix or ".jpg"
-                permanent_key = f"{submission.agency_id}/{submission.group_id}/{submission.id}{suffix}"
+                permanent_key = (
+                    f"{submission.agency_id}/{submission.group_id}/{submission.id}{suffix}"
+                )
                 image = await self._storage_repo.get_file(draft_key)
                 await self._storage_repo.upload_file(
                     image,
@@ -425,7 +431,11 @@ class ClientSubmitPassportUseCase:
                 ("photo", submission.passport_photo_s3_key, submission.promote_passport_photo),
                 ("back", submission.passport_back_s3_key, submission.promote_passport_back),
                 ("cover", submission.passport_cover_s3_key, submission.promote_passport_cover),
-                ("back_cover", submission.passport_back_cover_s3_key, submission.promote_passport_back_cover),
+                (
+                    "back_cover",
+                    submission.passport_back_cover_s3_key,
+                    submission.promote_passport_back_cover,
+                ),
             ):
                 if not current_key or not current_key.startswith("drafts/"):
                     continue
@@ -466,8 +476,12 @@ class ClientSubmitPassportUseCase:
             if not has_passport_front:
                 submission.mark_no_passport_verification_required()
             submission.snapshot_collection_labels(
-                agent_employee_code_label=config.agent_employee_code_label if group.agent_employee_code_enabled else None,
-                agency_dealership_name_label=config.agency_dealership_name_label if group.agency_dealership_name_enabled else None,
+                agent_employee_code_label=config.agent_employee_code_label
+                if group.agent_employee_code_enabled
+                else None,
+                agency_dealership_name_label=config.agency_dealership_name_label
+                if group.agency_dealership_name_enabled
+                else None,
             )
             submission.staff_metadata = mark_client_collection_submitted(submission.staff_metadata)
             await self._passport_repo.update(submission)
@@ -489,155 +503,19 @@ class ClientSubmitPassportUseCase:
             promoted_storage_keys=tuple(promoted_keys),
         )
 
-    @staticmethod
-    def _is_exact_replay(
-        submission: PassportSubmission,
-        *,
-        clean_fields: dict[str, str],
-        client_email: str | None,
-        client_phone: str | None,
-        departure_city: str | None,
-        nearest_domestic_airport: str | None,
-        submission_mode: str,
-        family_group_id: uuid.UUID | None,
-        family_member_index: int | None,
-        family_relation: str | None,
-        family_gender: str | None,
-        family_head_name: str | None,
-        family_head_email: str | None,
-        family_head_phone: str | None,
-        family_broadcast_to_member: bool,
-        custom_answers: list[CustomAnswerSnapshot],
-        custom_detail_answers: list[CustomDetailAnswerSnapshot],
-    ) -> bool:
-        return (
-            dict(submission.confirmed_fields or {}) == clean_fields
-            and submission.client_email == client_email
-            and phone_numbers_equal(submission.client_phone, client_phone)
-            and submission.departure_city == departure_city
-            and submission.nearest_domestic_airport
-            == nearest_domestic_airport
-            and submission.submission_mode == submission_mode
-            and submission.family_group_id == family_group_id
-            and submission.family_member_index == family_member_index
-            and submission.family_relation == family_relation
-            and submission.family_gender == family_gender
-            and submission.family_head_name == family_head_name
-            and submission.family_head_email == family_head_email
-            and phone_numbers_equal(submission.family_head_phone, family_head_phone)
-            and submission.family_broadcast_to_member
-            == family_broadcast_to_member
-            and list(submission.custom_answers or []) == custom_answers
-            and list(submission.custom_detail_answers or [])
-            == custom_detail_answers
-        )
+    _is_exact_replay = staticmethod(_client_submission_replay._is_exact_replay)
 
     def _normalize_phone(self, value: str | None) -> str:
-        return normalize_phone_number(value) or ""
+        return _client_submission_values._normalize_phone(value)
 
-    @staticmethod
-    def _normalize_departure_city(
-        value: str | None,
-        allowed_cities: list[str],
-        *,
-        enabled: bool,
-        required: bool = True,
-    ) -> str | None:
-        if not enabled:
-            return None
-        selected = " ".join(value.strip().split()) if value else ""
-        if not selected and not required:
-            return None
-        cities = [" ".join(city.strip().split()) for city in allowed_cities if city and city.strip()]
-        if not cities:
-            raise ValidationError(
-                "No nearest international airports are configured for this group.",
-                field="departure_city",
-            )
-        if not selected:
-            raise ValidationError("Select your nearest international airport.", field="departure_city")
-        city_by_key = {city.casefold(): city for city in cities}
-        matched = city_by_key.get(selected.casefold())
-        if not matched:
-            raise ValidationError("Select a valid nearest international airport for this group.", field="departure_city")
-        return matched
+    _normalize_departure_city = staticmethod(_client_submission_values._normalize_departure_city)
 
-    @staticmethod
-    def _normalize_configured_text(
-        value: str | None,
-        *,
-        enabled: bool,
-        field: str,
-        label: str,
-        max_length: int,
-        required: bool = True,
-    ) -> str | None:
-        if not enabled:
-            return None
-        normalized = " ".join(value.strip().split())[:max_length] if value and value.strip() else ""
-        if not normalized and not required:
-            return None
-        if not normalized:
-            raise ValidationError(f"Enter your {label}.", field=field)
-        return normalized
+    _normalize_configured_text = staticmethod(_client_submission_values._normalize_configured_text)
 
-    @staticmethod
-    def _normalize_meal_preference(value: str | None, *, enabled: bool, required: bool = True) -> str | None:
-        if not enabled:
-            return None
-        normalized = " ".join(value.strip().split()).casefold() if value else ""
-        if not normalized and not required:
-            return None
-        meals = {"veg": "Veg", "non veg": "Non Veg", "jain": "Jain"}
-        matched = meals.get(normalized)
-        if not matched:
-            raise ValidationError("Select Veg, Non Veg, or Jain.", field="meal_preference")
-        return matched
+    _normalize_meal_preference = staticmethod(_client_submission_values._normalize_meal_preference)
 
-    @staticmethod
-    def _normalize_agent_employee_code(
-        person_type: str | None,
-        code: str | None,
-        *,
-        enabled: bool,
-        required: bool = True,
-        label: str = "Agent/Employee Code",
-    ) -> tuple[str | None, str | None]:
-        if not enabled:
-            return None, None
-        normalized_code = " ".join(code.strip().split()) if code else ""
-        if not normalized_code:
-            if not required:
-                return None, None
-            raise ValidationError(f"Enter your {label}.", field="agent_employee_code")
-        if len(normalized_code) > 80:
-            raise ValidationError(f"{label} must be 80 characters or fewer.", field="agent_employee_code")
-        # New forms collect one configurable code without a role dropdown.
-        # Explicit legacy role payloads retain their original validation.
-        if not person_type:
-            return None, normalized_code
-        normalized_type = (
-            " ".join(person_type.strip().split()).casefold()
-            if person_type
-            else ""
-        )
-        if normalized_type not in {"agent", "employee"}:
-            raise ValidationError(
-                "Select Agent or Employee.",
-                field="agent_employee_type",
-            )
-        if not re.fullmatch(r"\d{1,10}", normalized_code):
-            raise ValidationError(
-                "Enter an Agent/Employee code using up to 10 numbers.",
-                field="agent_employee_code",
-            )
-        return normalized_type, normalized_code
+    _normalize_agent_employee_code = staticmethod(
+        _client_submission_values._normalize_agent_employee_code
+    )
 
-    @staticmethod
-    def _content_type(suffix: str) -> str:
-        suffix = suffix.lower()
-        if suffix == ".png":
-            return "image/png"
-        if suffix == ".webp":
-            return "image/webp"
-        return "image/jpeg"
+    _content_type = staticmethod(_client_submission_values._content_type)

@@ -161,11 +161,24 @@ async def test_locked_scope_capacity_counts_existing_rows_and_rejects_overflow()
 
 
 def test_bulk_and_reupload_capacity_errors_are_mapped_to_413_after_scope_lock() -> None:
+    from app.presentation.api.v1.routes.document_distribution_upload_persistence_scope import (
+        DistributionUploadPersistence,
+    )
+    from app.presentation.api.v1.routes.document_distribution_upload_workflow import (
+        run_distribution_upload,
+    )
+
     for handler in (
         document_distribution.upload_documents,
         document_distribution.reupload_passenger_document,
     ):
         source = py_inspect.getsource(handler)
+        if handler is document_distribution.upload_documents:
+            source = (
+                py_inspect.getsource(DistributionUploadPersistence.reauthorize_before_persistence)
+                + py_inspect.getsource(DistributionUploadPersistence.enforce_capacity_before_persistence)
+                + py_inspect.getsource(run_distribution_upload)
+            )
         assert source.index("acquire_document_upload_scope_advisory_lock") < source.index(
             "enforce_capacity_before_persistence"
         )

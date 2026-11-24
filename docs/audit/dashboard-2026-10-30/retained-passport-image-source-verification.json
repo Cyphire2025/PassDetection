@@ -1,0 +1,39 @@
+{
+  "status": "Bounded read-only retained image/date/recovery source cohort complete; broader audit active",
+  "new_current_full_tests": 7,
+  "test_physical_lines": 877,
+  "supporting_full_rows": 5,
+  "focused_rows": 5,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-passport-image-source-reviewed-files.json",
+    "sha256": "e9de849e7a4d3b45b14d8e3413ade61d97d65d10dcbe50476d605311db9043da"
+  },
+  "source_fence": {
+    "backend/tests/unit/infrastructure/test_passport_image_cropper.py": "92f6a975c42fe936abd7c7e0c69cc3ae43469e72f43b85f05b8a3f599b8e5c0c",
+    "backend/tests/unit/infrastructure/test_passport_image_crop_repository.py": "00bb11e5f1b5523fef166f1fd3e00f71e05d6a6bfbdb0a42e2344a1169ec535c",
+    "backend/tests/unit/infrastructure/test_passport_image_library.py": "8b7578ab8a73db168ade518e9895f29ab1d25c8e787f652187df3c0dbbcf6217",
+    "backend/tests/unit/infrastructure/test_passport_thumbnail_cache.py": "3c33c981af7daed0065111d7e03e57bc9a96c530263c50a2d5ad14c0e3e87035",
+    "backend/tests/unit/infrastructure/test_passport_import_compensation.py": "8833679959268b118603244d1de977d5908d5486aeefa003f4ca6f08b66c401d",
+    "backend/tests/unit/infrastructure/test_passport_date_evidence.py": "75d4b0a556eeaa9ca603c9b93654a0ff4e14bbbad737e29cffceb370ad84380c",
+    "backend/tests/unit/infrastructure/test_passport_extraction_recovery.py": "ecabcd88bf21caebcb65daa7862f4025922430b4a8a0d75132a9ff290696f7e4",
+    "backend/app/infrastructure/imaging/passport_thumbnail_cache.py": "bf1376afc710bcca274d1e1ce1e7fb32975991b277df9cf91392ae9a0b58fbc0",
+    "backend/app/infrastructure/documents/passport_import_compensation.py": "b0eb8569e9937629ebe007e87bdb0c1fcd1979cb188de8f8eff52ca1c8014f76",
+    "backend/app/infrastructure/processing/recovery.py": "aa7be8147764f287294e2c64d4e824a08fc311269f759371f443df1d2b6a0b17",
+    "backend/app/infrastructure/imaging/passport_image_cropper.py": "a180838f516f7c317f18850c3e6f79f6ad923135adc25d090b8f871fbb403fda",
+    "backend/app/infrastructure/ai/passport_date_evidence.py": "23de6ddb96714f752111ec6aeaeaf1be717b8045608ca48d1b9723b082cff62b",
+    "backend/app/infrastructure/repositories/passport_image_crop_repository.py": "ab9eb177615d85eb42e9b15f00a94a3cd7a9e10dc9dda15d6db918ebb2e7f9b7",
+    "backend/app/infrastructure/repositories/passport_image_library_repository.py": "2d9d16bff5479c03d3ac8b6e8967d4a3da58edf32b7cf911221af5f0f3686bad",
+    "backend/app/infrastructure/repositories/passport_visa_ai_image_repository.py": "cf038459fd67bb67111d876bb050b019bbf4c8b9db631dd6128579217b17e5a7",
+    "backend/app/infrastructure/processing/job_repository.py": "cb6a2c126b1e4da14e07d6e872671456cac286f6c1ea8745715e5f691d4c2176",
+    "backend/app/infrastructure/processing/dispatcher.py": "6e31aa4b8be8d82edd2a79a85f5d0833d39a83c8555d50ef595cdd3d6d3517ae"
+  },
+  "checks_run": [],
+  "changes": [],
+  "findings": [],
+  "proof_gaps": [
+    "No test/parser/image/broker/database/storage/provider execution for source-review credit.",
+    "Pillow/memory sessions/mock recovery and isolated SQLite source fixtures are not current real-service/PG concurrency/CPU or browser workload qualification.",
+    "Historical migration fixture assertions not all142current topology proof; published bytes untouched.",
+    "No ordinary new validated defect or speculative performance/policy/source change; prior whole supporting rereads not extra new test count."
+  ]
+}

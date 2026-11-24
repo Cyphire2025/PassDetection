@@ -1,0 +1,42 @@
+{
+  "originals": [
+    {
+      "path": "frontend/features/documents/components/saved-rename-batches.tsx",
+      "beforeSha256": "55527b26d468dacdba270cb2c3b759272d969ce7f007e2589f929b8010baf322",
+      "afterSha256": "a523e8b9a5fded4881f280e1e9c3c29b5d6e5636da69f629e336a99254206e38",
+      "publicParameterTypesExact": true
+    },
+    {
+      "path": "frontend/features/documents/components/rename-results.tsx",
+      "beforeSha256": "ffc0760accb98d4823a2bed25f0424bb120af239c5c027565a7ae1e0afe6309e",
+      "afterSha256": "819555f3908739b21bbd4de58ab98d55b91db1c29a1c3c0fa7d6f0ca82027acc",
+      "publicParameterTypesExact": true
+    }
+  ],
+  "unchangedWholeTypedResultHelpers": [
+    "RenameFilter",
+    "detectedLabel",
+    "detectedBadge",
+    "FilterButton"
+  ],
+  "membership": {
+    "before": {
+      "rows": 512,
+      "indexedMembershipArrayReads": 262656
+    },
+    "after": {
+      "rows": 512,
+      "indexedMembershipArrayReads": 1024
+    },
+    "unit": "Indexed reads inside actual native intermediate ID membership arrays. This is not wall-clock or total React/DOM work.",
+    "semantics": "Selected output array retains original order/duplicates; only lookups indexed. Same512checked rows plus all checkbox, pending actions and filtered stale IDs tested."
+  },
+  "keyboard": {
+    "before": "3nested BUTTON Tab stops at390and1440",
+    "after": "0nested BUTTON Tab stops at390and1440",
+    "browser": "151.0.7922.34",
+    "originalButtonClassesExact": true,
+    "downloadDestinationsPreserved": true,
+    "limitation": "Actual React renderToStaticMarkup output; native Chromium Tab/Enter and loopback route fulfillment only. No application hydration/CSS/production artifact qualification."
+  }
+}

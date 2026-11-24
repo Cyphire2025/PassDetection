@@ -14,6 +14,7 @@ from app.application.use_cases.whatsapp.group_submission_matching import (
 )
 from app.presentation.api.v1.routes import client_groups
 from app.presentation.api.v1.schemas.client_group_schemas import (
+    RejectUnidentifiedUploadRequest,
     ResolveUnidentifiedReplacementRequest,
 )
 
@@ -172,6 +173,106 @@ async def test_replacement_request_id_replay_requires_identical_target() -> None
 
     assert exc_info.value.status_code == 409
     assert "request ID was already used" in str(exc_info.value.detail)
+
+
+@pytest.mark.asyncio
+async def test_rejection_preserves_unmatched_guard_replay_and_post_write_hooks() -> None:
+    group = SimpleNamespace(id=uuid.uuid4(), agency_id=uuid.uuid4())
+    submission = SimpleNamespace(id=uuid.uuid4())
+    user = SimpleNamespace(id=uuid.uuid4(), email="synthetic@example.invalid")
+    body = RejectUnidentifiedUploadRequest(request_id=uuid.uuid4())
+    session = MagicMock()
+    session.execute = AsyncMock(side_effect=[_scalar_result(None), _scalar_result(submission)])
+    session.flush = AsyncMock()
+    audit = SimpleNamespace(record=AsyncMock())
+    sync = AsyncMock()
+    reconcile = AsyncMock()
+    context = AsyncMock(
+        return_value=(
+            {},
+            [],
+            [],
+            [
+                SimpleNamespace(
+                    status="unmatched_submission",
+                    submission_ids=(submission.id,),
+                )
+            ],
+        )
+    )
+    with (
+        patch.object(client_groups, "_require_whatsapp_broadcast_access"),
+        patch.object(
+            client_groups, "_require_managed_group", AsyncMock(return_value=group)
+        ) as managed,
+        patch.object(client_groups, "_current_unresolved_match_context", context),
+        patch.object(client_groups, "AuditLogRepository", return_value=audit),
+        patch.object(client_groups, "sync_group_broadcast_contacts", sync),
+        patch.object(client_groups, "reconcile_mobile_passenger_access_for_group", reconcile),
+    ):
+        result = await client_groups.reject_unidentified_upload(
+            group.id,
+            submission.id,
+            body,
+            current_user=user,
+            session=session,
+            _csrf=None,
+        )
+        resolution = session.add.call_args.args[0]
+        assert result.id == resolution.id
+        assert result.resolution_type == "rejected" and result.status == "active"
+        assert resolution.agency_id == group.agency_id
+        assert resolution.resolved_by_user_id == user.id
+        managed.assert_awaited_once_with(session, user, group.id, lock=True)
+        assert "FOR UPDATE" in str(session.execute.await_args_list[1].args[0])
+        for hook in (sync, reconcile):
+            hook.assert_awaited_once_with(
+                session,
+                agency_id=group.agency_id,
+                group_id=group.id,
+                actor_user_id=user.id,
+            )
+        audit.record.assert_awaited_once()
+
+        session.execute = AsyncMock(return_value=_scalar_result(resolution))
+        replay = await client_groups.reject_unidentified_upload(
+            group.id,
+            submission.id,
+            body,
+            current_user=user,
+            session=session,
+            _csrf=None,
+        )
+        assert replay.id == result.id
+        assert session.add.call_count == 1
+        assert context.await_count == sync.await_count == reconcile.await_count == 1
+        assert audit.record.await_count == 1
+
+        session.execute = AsyncMock(side_effect=[_scalar_result(None), _scalar_result(submission)])
+        context.return_value = (
+            {},
+            [],
+            [],
+            [
+                SimpleNamespace(
+                    status="submitted",
+                    submission_ids=(submission.id,),
+                )
+            ],
+        )
+        with pytest.raises(HTTPException) as stale:
+            await client_groups.reject_unidentified_upload(
+                group.id,
+                submission.id,
+                RejectUnidentifiedUploadRequest(request_id=uuid.uuid4()),
+                current_user=user,
+                session=session,
+                _csrf=None,
+            )
+        assert stale.value.status_code == 409
+        assert session.add.call_count == 1
+        assert sync.await_count == reconcile.await_count == 1
+        assert audit.record.await_count == 1
 
 
 @pytest.mark.asyncio
@@ -488,11 +589,15 @@ async def test_linked_broadcast_cannot_be_removed_while_replacement_is_active() 
     group_id = uuid.uuid4()
     agency_id = uuid.uuid4()
     broadcast_id = uuid.uuid4()
-    existing_links_result = _scalars_result([SimpleNamespace(
-        broadcast_group_id=broadcast_id,
-        matching_field_keys=None,
-        sync_contacts_from_group=False,
-    )])
+    existing_links_result = _scalars_result(
+        [
+            SimpleNamespace(
+                broadcast_group_id=broadcast_id,
+                matching_field_keys=None,
+                sync_contacts_from_group=False,
+            )
+        ]
+    )
     active_replacement_result = MagicMock()
     active_replacement_result.scalar_one_or_none.return_value = uuid.uuid4()
     session = MagicMock()

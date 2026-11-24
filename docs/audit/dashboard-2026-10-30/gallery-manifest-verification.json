@@ -1,0 +1,40 @@
+{
+  "status": "gallery manifest architecture and resource ownership checkpoint frozen",
+  "original_physical_lines": 1743,
+  "current_facade_physical_lines": 109,
+  "runtime_owner_count": 14,
+  "maximum_owner_physical_lines": 290,
+  "proof": "47 context/docstring-normalized declarations unchanged plus1 explicit sibling ownership fix, exact five retained constructor/public signatures and argument forwarding;23original class definitions,18unused private facade wrappers retired.",
+  "compatibility": "Four JSON schemas, three ordered dataclass contracts, original public model exports/module identities and __all__ unchanged. Actual CLI still calls same constructor/public methods.",
+  "negative_evidence": "Two blocked native sibling tests failed before; final four cases include repeated external cancellation and late native success/failure. SDK admission two failures have separate native-dispatch receipt.",
+  "tests": "66passing unique affected cases/six files, fresh isolated branch coverage; runtime+test fence unchanged.",
+  "static": "14source configured mypy, scoped Ruff, architecture and all443 existing budgets pass.",
+  "coverage": {
+    "minimum_new_statement_floor": 65,
+    "maximum_new_statement_floor": 100,
+    "limits": "Cancellation/cleanup65newstatement floors and50observedbranch remain incomplete focused evidence. No old/global/critical gate changed; no exhaustive branch/live service certification."
+  },
+  "runtime_sha256": {
+    "backend/app/infrastructure/my_photos/gallery_ingestion.py": "8b2b5e33a322d7c702969ac685effb569cfe1adb5c6ac7d7d4b93f57ea2d8d22",
+    "backend/app/infrastructure/my_photos/gallery_manifest_cancellation.py": "5b7985cc2b14a39088f2d9e15a8f92b19dc396481a7afe4a8e89109b341803aa",
+    "backend/app/infrastructure/my_photos/gallery_manifest_cleanup.py": "69a007bc2f7edf6fba14dbf01a626ac4354f03dbea2eb31a2c324f0188425f1b",
+    "backend/app/infrastructure/my_photos/gallery_manifest_context.py": "13962075ff5d9f37d59f204a2bd541f4e82d60b162a0a1bade6abb7f4a1bd43e",
+    "backend/app/infrastructure/my_photos/gallery_manifest_contracts.py": "32741f69e2257347172fe3e6d30f67156ed3f8aae7f0fc84120ce2dd9bf8069f",
+    "backend/app/infrastructure/my_photos/gallery_manifest_finalization.py": "d559954084fbc13f884bee9b734f51f415b7a23d363439199a8e2b8283d7be36",
+    "backend/app/infrastructure/my_photos/gallery_manifest_fingerprints.py": "ebd0dafd7459736a204e311ff4476bf5350e976b11555638671a6d5b48d52d4d",
+    "backend/app/infrastructure/my_photos/gallery_manifest_persistence.py": "bc6e4c8f4ee9a610bb173075fc35d60166220df26373fb3a72821a6d1b903c56",
+    "backend/app/infrastructure/my_photos/gallery_manifest_policy.py": "d7ad70a7bb06e670a3f0548cad0a1d2082277cc13d19cb126efef4e09947149a",
+    "backend/app/infrastructure/my_photos/gallery_manifest_providers.py": "924f7e0141c0eccb2702fb103ec5ec52d901f51d3300f182f902376643fc0a47",
+    "backend/app/infrastructure/my_photos/gallery_manifest_queries.py": "361c4521a8df1c8b55a8e7a68ba6886558f8b46958b288f6cebfebcf7d5069a8",
+    "backend/app/infrastructure/my_photos/gallery_manifest_registration.py": "fe7a14da11c196eb6be3f18b58c2e1704fde8bc30f5b92cf3f1fb97ea2d3319f",
+    "backend/app/infrastructure/my_photos/gallery_manifest_results.py": "701d3ee1ff1bc2e6374ca796536e0d3a8a9fa73e4e89edcf8fdb6a8a8bb1f0ff",
+    "backend/app/infrastructure/my_photos/gallery_manifest_status.py": "798a0e52b0a3793ea5facdf33ca24a48d09ef1713d2456e0c81f3d9f7c30376c"
+  },
+  "whole_audit_complete": false,
+  "remaining": [
+    "Operational worker~1077, search worker709, recovery521 and summary452 still require coherent readability follow-through after full physical review.",
+    "Gallery and individual AWS native dispatch ownership fixed at tested seams. Index/media preparation/recovery gather sibling ownership and late rejected liveness reference cleanup remain separate caller-proof investigations.",
+    "Post-provider derivative/version mutation edges beyond tested13guards remain explicit future investigation.",
+    "Gallery cancellation/cleanup focused coverage65\u201369statement and50branch reflects current tests; new65floors are additive, not relaxation of any old gate or claim of exhaustive coverage."
+  ]
+}

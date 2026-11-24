@@ -1,0 +1,60 @@
+{
+  "buildId": "ZVLp8MXKE6IoTayf51zGq",
+  "passed": true,
+  "results": [
+    {
+      "buildId": "ZVLp8MXKE6IoTayf51zGq",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "geometry": {
+        "dialog": {
+          "x": 16,
+          "y": 138.5,
+          "width": 358,
+          "height": 567
+        },
+        "overlay": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        },
+        "bodyPortal": true,
+        "viewport": [
+          390,
+          844
+        ]
+      },
+      "screenshot": "../.tmp/verifier-migration/dialog-portal-after-390.png"
+    },
+    {
+      "buildId": "ZVLp8MXKE6IoTayf51zGq",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "geometry": {
+        "dialog": {
+          "x": 336,
+          "y": 282.5,
+          "width": 768,
+          "height": 435
+        },
+        "overlay": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 1000
+        },
+        "bodyPortal": true,
+        "viewport": [
+          1440,
+          1000
+        ]
+      },
+      "screenshot": "../.tmp/verifier-migration/dialog-portal-after-1440.png"
+    }
+  ]
+}

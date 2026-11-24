@@ -1,0 +1,21 @@
+{
+  "candidate": "frontend old-socket message callback after cleanup",
+  "status": "cleared in qualified normal native event/lifecycle path",
+  "original_references": [
+    "shared-realtime-behavior-reviewed-files.json",
+    "shared-realtime-composition-reviewed-files.json",
+    "shared-realtime-progress.md"
+  ],
+  "closure_receipts": [
+    {
+      "path": "docs/audit/dashboard-2026-10-30/dashboard-realtime-callback-clearance-verification.json",
+      "sha256": "a56206c652be8b2057557374f58cfb6e200cfa932d27901668c3d80371e833b6"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/dashboard-realtime-lifetime-tests-verification.json",
+      "sha256": "b8663f5cf705d67d882bcea357f64901d3bab82ff87dc9fa0ded5c1f7eaf430d"
+    }
+  ],
+  "reason": "Current cleanup synchronously closes the old native socket; actual Chromium suppresses frames while CLOSING and normal authority-key remount closes scoped subscribers. Forced dispatch on an already-CLOSED EventTarget fake is not normal WebSocket evidence. Six actual controls and four test-only regression cases preserve valid new-socket behavior.",
+  "scope": "Only this previously unproven candidate is reconciled. No same-hash architecture, API/authorization or unrelated lifecycle finding is closed by this read/test work."
+}

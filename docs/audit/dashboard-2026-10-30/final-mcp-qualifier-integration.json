@@ -1,0 +1,15 @@
+{
+  "status": "one-reviewed-fingerprint-integrated-current-CLI-passed",
+  "created_at_utc": "2026-11-01T00:00:39.231503+00:00",
+  "before_sha256": "37097632cd2b3174126ac67a54e8b3f86a9b7732090f17825935ec62807684b1",
+  "after_sha256": "1e86f32ba59659a487dac7bd7b1a44f03e2d58715933ebd77a2388617987a1d0",
+  "surface_id": "frontend_api:frontend/features/passports/api/public-upload-link.api.ts",
+  "all2035_other_rows_exact": true,
+  "all2036_non_surface_policies_exact": true,
+  "all_historical_implementation_and_review_dates_unchanged": true,
+  "new_or_removed_operations": 0,
+  "actual_cli_code": 0,
+  "actual_cli_stdout": "{\"surfaces\": 2036, \"kinds\": {\"frontend_api_contract\": 65, \"frontend_callable\": 453, \"frontend_endpoint_registry\": 1, \"frontend_page\": 80, \"mcp_tool\": 115, \"openapi_operation\": 540, \"route_registration\": 220, \"source_route\": 562}, \"classification_check\": \"passed\"}",
+  "actual_cli_stderr": "",
+  "scope": "Focused generated matrix/provenance only; current getter source proof and35case receipt remain separate. No runtime or implementation verification stamp renewed."
+}

@@ -1,0 +1,50 @@
+[
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/bulk_actions.py",
+    "baseline_lines": 134,
+    "maximum_lines": 150,
+    "baseline_max_function_complexity": 0,
+    "maximum_function_complexity": 0,
+    "minimum_coverage_percent": 94
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/bulk_actions_actor.py",
+    "baseline_lines": 78,
+    "maximum_lines": 85,
+    "baseline_max_function_complexity": 5,
+    "maximum_function_complexity": 5,
+    "minimum_coverage_percent": 94
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/bulk_actions_approval.py",
+    "baseline_lines": 230,
+    "maximum_lines": 240,
+    "baseline_max_function_complexity": 16,
+    "maximum_function_complexity": 16,
+    "minimum_coverage_percent": 94
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/bulk_actions_delete.py",
+    "baseline_lines": 289,
+    "maximum_lines": 300,
+    "baseline_max_function_complexity": 21,
+    "maximum_function_complexity": 21,
+    "minimum_coverage_percent": 94
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/bulk_actions_roster.py",
+    "baseline_lines": 58,
+    "maximum_lines": 65,
+    "baseline_max_function_complexity": 5,
+    "maximum_function_complexity": 5,
+    "minimum_coverage_percent": 94
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/bulk_actions_transitions.py",
+    "baseline_lines": 122,
+    "maximum_lines": 130,
+    "baseline_max_function_complexity": 6,
+    "maximum_function_complexity": 6,
+    "minimum_coverage_percent": 94
+  }
+]

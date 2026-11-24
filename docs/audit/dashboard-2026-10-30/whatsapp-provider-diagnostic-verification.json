@@ -1,0 +1,32 @@
+{
+  "created_at_utc": "2026-10-30T20:15:23.117336+00:00",
+  "classification": "Provider diagnostic redaction/type-boundary bug; no claim an unauthenticated caller can control Meta service responses",
+  "source_to_sink": [
+    "CloudAPI external error.code/error_subcode fields",
+    "_meta_error_reference accepted arbitrary string",
+    "provider logger extras and safe exception.persistence_message",
+    "worker_runtime stores exception.persistence_message[:2000] into message log error_message; document/QR/welcome lanes have same error sink"
+  ],
+  "fix": "Only bounded ASCII decimal codes admitted to diagnostic strings/log extras; ordinary numeric Meta codes preserved. Provider transient/delivery_unknown classification unchanged.",
+  "source_sha256": {
+    "backend/app/infrastructure/whatsapp/cloud_api_provider.py": "e30af34236ff0b12140733639f9225140e874fe46bf0e48b55b822d63498db8e",
+    "backend/tests/unit/infrastructure/test_whatsapp_provider_diagnostic_privacy.py": "128d4af6a159d1cfeef7a2854625d61b740d2ef7ce95f975b491e8af218397a5"
+  },
+  "before": {
+    "artifact": "whatsapp-provider-diagnostic-before-fix.xml",
+    "failures": 12
+  },
+  "after": {
+    "artifact": "whatsapp-provider-diagnostic-after-fix.xml",
+    "passed": 31
+  },
+  "checks": [
+    "Changed-source/test Ruff passed",
+    "Provider mypy passed"
+  ],
+  "limits": [
+    "Synthetic MockTransport only, no real provider send",
+    "Whole58file lane still incomplete; ledger records39full including3exact prior-SHA reuses",
+    "No schema/config/native app/public endpoint changes"
+  ]
+}

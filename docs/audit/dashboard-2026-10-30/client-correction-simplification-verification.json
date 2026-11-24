@@ -1,0 +1,18 @@
+{
+  "status": "simplified-and-verified",
+  "runtime_path": "backend/app/application/use_cases/passports/correct_client_details.py",
+  "runtime_sha256": "9d65e96f9e34da637b610dce21c8d91c87cb135abc404973aa2a1bf1bd1d89d6",
+  "change": "Remove an always-true second membership test after the same local dict has already rejected and continued for absent keys. Flatten the existing authoritative alias update body; clarify stale OCR comment to extraction.",
+  "source_proof": "client-correction-simplification-source-equivalence.json",
+  "whole_module_ast_exact_after_only_dominated_guard_removal": true,
+  "affected_existing_unit_cases": 41,
+  "new_tests_added": 0,
+  "test_log": "client-correction-simplification-current.log",
+  "owned_type_and_lint_sources": 1,
+  "workflow_fields_validation_aliases_authority_revision_audit_transactions_preserved": true,
+  "limits": [
+    "Readability/redundant-work correction only; no asymptotic or production-latency claim.",
+    "Existing null collection input is already rejected by the nonnullable request schema and current unit controls; no new null-input vulnerability inferred.",
+    "Transport/session/repository owners were read but unchanged; no real PostgreSQL/provider/browser execution in this batch."
+  ]
+}

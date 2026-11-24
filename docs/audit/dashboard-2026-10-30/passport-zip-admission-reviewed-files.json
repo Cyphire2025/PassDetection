@@ -1,0 +1,26 @@
+[
+  {
+    "path": "backend/app/infrastructure/imports/passport_document_importer.py",
+    "sha256": "2ae9f4a2425372326259810f40c6f718e2b596f3163ef3876d51686b3e7d35e6",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "needs-follow-up",
+    "notes": "Complete source read. ZIP actual-directory admission now precedes ZipInfo allocation;33 focused cases pass, 7 measured work-count regressions failed on original source. Whole original importer AST restored after exactly one import, admission call and quota handler. Importer still combines workspace, filenames, stream bounds and ZIP orchestration; cohesive architecture review remains open. Route authority/cancellation is independently owned and not closed by this result."
+  },
+  {
+    "path": "backend/app/infrastructure/imports/passport_zip_admission.py",
+    "sha256": "b534f8d9c02733c4a378e11ce74770b906c5dcea37984c5bf138930504e3486d",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete source read. ZIP actual-directory admission now precedes ZipInfo allocation;33 focused cases pass, 7 measured work-count regressions failed on original source. Whole original importer AST restored after exactly one import, admission call and quota handler. ZIP64, comments, prepended bytes, forged counts, malformed bounds, empty archive and caller cursor controls qualified. Interpreter-private end-record seam intentionally tied to the pinned CPython runtime."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_passport_zip_member_admission.py",
+    "sha256": "a0975f2180c69445f3e167808192a304d8028b8b4d507717ba2af6a4fad1b3e4",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete source read. ZIP actual-directory admission now precedes ZipInfo allocation;33 focused cases pass, 7 measured work-count regressions failed on original source. Whole original importer AST restored after exactly one import, admission call and quota handler. ZIP64, comments, prepended bytes, forged counts, malformed bounds, empty archive and caller cursor controls qualified. Interpreter-private end-record seam intentionally tied to the pinned CPython runtime."
+  }
+]

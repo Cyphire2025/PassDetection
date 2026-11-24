@@ -1,6 +1,5 @@
-export interface FreshMemberResume { sessionId: string; submissionKey: string; completed: boolean }
-export interface FreshResume { mode: "single" | "family"; familyGroupId: string; active: number; members: FreshMemberResume[] }
-export interface DraftResume { version: 1; expiresAt: number; mode: "returning" | "new"; submissionKey: string; fresh?: FreshResume }
+import { parseDraftResume, type DraftResume, type FreshResume } from "./draft-resume-parser";
+export { parseDraftResume, type DraftResume, type FreshMemberResume, type FreshResume } from "./draft-resume-parser";
 const key = (token: string) => `gc.traveller.draft.v1:${token}`;
 export function draftResumeText(token: string): string | null {
   try { return localStorage.getItem(key(token)); } catch { return null; }
@@ -9,15 +8,6 @@ export function subscribeDraftResume(callback: () => void) {
   window.addEventListener("storage", callback); window.addEventListener("traveller-draft-change", callback);
   return () => { window.removeEventListener("storage", callback); window.removeEventListener("traveller-draft-change", callback); };
 }
-export function parseDraftResume(text: string | null): DraftResume | null {
-  try {
-    const value = JSON.parse(text ?? "null") as DraftResume | null;
-    if (value?.version !== 1 || value.expiresAt <= Date.now() || !["returning", "new"].includes(value.mode) || typeof value.submissionKey !== "string") return null;
-    if (value.fresh && !validFreshResume(value.fresh)) return null;
-    return value;
-  } catch { return null; }
-}
-
 /** Only expiry/navigation/idempotency metadata. Never store passport data here. */
 export function readDraftResume(token: string): DraftResume | null {
   try {
@@ -35,12 +25,6 @@ export function saveDraftResume(token: string, expiresAt: string, mode: DraftRes
 }
 export function clearDraftResume(token: string) { try { localStorage.removeItem(key(token)); window.dispatchEvent(new Event("traveller-draft-change")); } catch { /* No retained personal data. */ } }
 
-function validFreshResume(value: FreshResume): boolean {
-  return ["single", "family"].includes(value.mode) && typeof value.familyGroupId === "string"
-    && Number.isInteger(value.active) && value.active >= 0 && Array.isArray(value.members)
-    && value.members.length >= 1 && value.members.length <= 20 && value.active < value.members.length
-    && value.members.every((member) => typeof member.sessionId === "string" && typeof member.submissionKey === "string" && typeof member.completed === "boolean");
-}
 /** Family navigation only; names, contact details and documents stay server-side. */
 export function saveFreshResume(token: string, fresh: FreshResume, expiresAt?: string) {
   const existing = readDraftResume(token);

@@ -1,0 +1,20 @@
+[
+  {
+    "path": "backend/tests/integration/test_mcp_export_history_reads.py",
+    "sha256": "0ae74105d2edd6a1aeb47a35baca502069c2472719f4449a21468f43be1bab45",
+    "physical_lines": 384,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete metadata-only canonical website history parity, compatible completed checkpoints, frozen personal snapshots with explicit opt-in/safe audits, roster change counts, cursor actor/filter/cutoff binding, current authority and retained/deleted group rules reviewed. SQL byte admission before hydration, row/response ceilings and forbidden render/storage effects examined. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/service_integration/test_mcp_export_history_postgresql.py",
+    "sha256": "29fc14e92d925c3b631a6a0e9eebc87c7d6e48f95dda1732340b8b0533247120",
+    "physical_lines": 456,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete PostgreSQL isolated-schema fixture, metadata scalar/SQL observation and no source ORM hydration protocols, canonical website parity, tied keysets/late completion exclusion, UTF8 aggregate pre-hydration admission, independent 5000-row limits, NOWAIT conflict, authority-wait cancellation/retry and retained group history assertions reviewed. Schema retention and no live execution limits explicit. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  }
+]

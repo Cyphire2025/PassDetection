@@ -1,0 +1,573 @@
+FFFFFFFF                                                                 [100%]
+================================== FAILURES ===================================
+_ test_actual_asgi_cycle_does_not_emit_private_exception_messages[database-driver-shaped-application-root-json-h11] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001E2A4694A50>
+protocol = 'h11', mode = 'application-root-json'
+kind = 'database-driver-shaped'
+
+    @pytest.mark.parametrize("protocol", ["h11", "httptools"])
+    @pytest.mark.parametrize("mode", ["application-root-json", "uvicorn-default-stderr"])
+    @pytest.mark.parametrize("kind", ["database-driver-shaped", "provider-shaped"])
+    async def test_actual_asgi_cycle_does_not_emit_private_exception_messages(
+        monkeypatch, protocol: str, mode: str, kind: str,
+    ) -> None:
+        private = f"synthetic-{kind}-private-passport-P1234567"
+        failure: Exception = (
+            IntegrityError("INSERT INTO synthetic_passports VALUES (:passport)", {"passport": private},
+                           RuntimeError(f"duplicate key passport=({private}) already exists"), hide_parameters=True)
+            if kind == "database-driver-shaped" else RuntimeError(f"Synthetic provider rejected {private}")
+        )
+        original_args = failure.args
+        if isinstance(failure, IntegrityError):
+            assert failure.hide_parameters
+            assert "SQL parameters hidden" in str(failure)
+            assert private in str(failure)  # Original driver text remains private too.
+        application, server = configure_sink(monkeypatch, mode)
+        wire = (await exercise_cycle(protocol, failure)).decode()
+        logs = application.getvalue() + server.getvalue()
+        own = [json.loads(line) for line in application.getvalue().splitlines()
+               if line.startswith("{") and json.loads(line).get("event") == "unhandled_exception"]
+        assert len(own) == 1
+        assert private not in json.dumps(own)
+        assert "500 Internal Server Error" in wire and "INTERNAL_SERVER_ERROR" in wire
+        assert private not in wire
+>       assert private not in logs
+E       assert 'synthetic-d...ort-P1234567' not in '{"error_typ....999781Z"}\n'
+E         
+E         'synthetic-database...e-passport-P1234567' is contained here:
+E           passport=(synthetic-database-driver-shaped-private-passport-P1234567) already exists')", "<traceback object at 0x000001E2A4EA9F00>"], "path": "/synthetic-failure", "method": "GET", "request_id": "9347eb70-3acc-4861-91a9-aa07e9548d22", "logger": "uvicorn.error", "level": "error", "timestamp": "2026-10-31T06:50:48.999781Z"}
+E         ?           ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+tests\unit\core\test_server_log_privacy.py:69: AssertionError
+------------------------------ Captured log call ------------------------------
+ERROR    app.presentation.middleware.error_handler:error_handler.py:200 {'error_type': 'IntegrityError', 'request_id': '9347eb70-3acc-4861-91a9-aa07e9548d22', 'event': 'unhandled_exception', 'path': '/synthetic-failure', 'method': 'GET', 'logger': 'app.presentation.middleware.error_handler', 'level': 'error', 'timestamp': '2026-10-31T06:50:48.996783Z'}
+ERROR    uvicorn.error:h11_impl.py:408 Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 403, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\fastapi\applications.py", line 1160, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\middleware\request_id.py", line 54, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\fastapi\routing.py", line 119, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\fastapi\routing.py", line 105, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\fastapi\routing.py", line 431, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\fastapi\routing.py", line 313, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\tests\unit\core\asgi_log_sink_control.py", line 68, in fail
+    raise failure
+sqlalchemy.exc.IntegrityError: (builtins.RuntimeError) duplicate key passport=(synthetic-database-driver-shaped-private-passport-P1234567) already exists
+[SQL: INSERT INTO synthetic_passports VALUES (:passport)]
+[SQL parameters hidden due to hide_parameters=True]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+_ test_actual_asgi_cycle_does_not_emit_private_exception_messages[database-driver-shaped-application-root-json-httptools] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001E2A25CE510>
+protocol = 'httptools', mode = 'application-root-json'
+kind = 'database-driver-shaped'
+
+    @pytest.mark.parametrize("protocol", ["h11", "httptools"])
+    @pytest.mark.parametrize("mode", ["application-root-json", "uvicorn-default-stderr"])
+    @pytest.mark.parametrize("kind", ["database-driver-shaped", "provider-shaped"])
+    async def test_actual_asgi_cycle_does_not_emit_private_exception_messages(
+        monkeypatch, protocol: str, mode: str, kind: str,
+    ) -> None:
+        private = f"synthetic-{kind}-private-passport-P1234567"
+        failure: Exception = (
+            IntegrityError("INSERT INTO synthetic_passports VALUES (:passport)", {"passport": private},
+                           RuntimeError(f"duplicate key passport=({private}) already exists"), hide_parameters=True)
+            if kind == "database-driver-shaped" else RuntimeError(f"Synthetic provider rejected {private}")
+        )
+        original_args = failure.args
+        if isinstance(failure, IntegrityError):
+            assert failure.hide_parameters
+            assert "SQL parameters hidden" in str(failure)
+            assert private in str(failure)  # Original driver text remains private too.
+        application, server = configure_sink(monkeypatch, mode)
+        wire = (await exercise_cycle(protocol, failure)).decode()
+        logs = application.getvalue() + server.getvalue()
+        own = [json.loads(line) for line in application.getvalue().splitlines()
+               if line.startswith("{") and json.loads(line).get("event") == "unhandled_exception"]
+        assert len(own) == 1
+        assert private not in json.dumps(own)
+        assert "500 Internal Server Error" in wire and "INTERNAL_SERVER_ERROR" in wire
+        assert private not in wire
+>       assert private not in logs
+E       assert 'synthetic-d...ort-P1234567' not in '{"error_typ....365343Z"}\n'
+E         
+E         'synthetic-database...e-passport-P1234567' is contained here:
+E           passport=(synthetic-database-driver-shaped-private-passport-P1234567) already exists')", "<traceback object at 0x000001E2A4CD3380>"], "path": "/synthetic-failure", "method": "GET", "request_id": "6a874c2f-92ed-4438-a855-82375d7277b7", "logger": "uvicorn.error", "level": "error", "timestamp": "2026-10-31T06:50:49.365343Z"}
+E         ?           ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+tests\unit\core\test_server_log_privacy.py:69: AssertionError
+------------------------------ Captured log call ------------------------------
+ERROR    app.presentation.middleware.error_handler:error_handler.py:200 {'error_type': 'IntegrityError', 'request_id': '6a874c2f-92ed-4438-a855-82375d7277b7', 'event': 'unhandled_exception', 'path': '/synthetic-failure', 'method': 'GET', 'logger': 'app.presentation.middleware.error_handler', 'level': 'error', 'timestamp': '2026-10-31T06:50:49.364343Z'}
+ERROR    uvicorn.error:httptools_impl.py:414 Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\uvicorn\protocols\http\httptools_impl.py", line 409, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\fastapi\applications.py", line 1160, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\middleware\request_id.py", line 54, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\fastapi\routing.py", line 119, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\fastapi\routing.py", line 105, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\fastapi\routing.py", line 431, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\fastapi\routing.py", line 313, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\tests\unit\core\asgi_log_sink_control.py", line 68, in fail
+    raise failure
+sqlalchemy.exc.IntegrityError: (builtins.RuntimeError) duplicate key passport=(synthetic-database-driver-shaped-private-passport-P1234567) already exists
+[SQL: INSERT INTO synthetic_passports VALUES (:passport)]
+[SQL parameters hidden due to hide_parameters=True]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+_ test_actual_asgi_cycle_does_not_emit_private_exception_messages[database-driver-shaped-uvicorn-default-stderr-h11] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001E2A4E56050>
+protocol = 'h11', mode = 'uvicorn-default-stderr'
+kind = 'database-driver-shaped'
+
+    @pytest.mark.parametrize("protocol", ["h11", "httptools"])
+    @pytest.mark.parametrize("mode", ["application-root-json", "uvicorn-default-stderr"])
+    @pytest.mark.parametrize("kind", ["database-driver-shaped", "provider-shaped"])
+    async def test_actual_asgi_cycle_does_not_emit_private_exception_messages(
+        monkeypatch, protocol: str, mode: str, kind: str,
+    ) -> None:
+        private = f"synthetic-{kind}-private-passport-P1234567"
+        failure: Exception = (
+            IntegrityError("INSERT INTO synthetic_passports VALUES (:passport)", {"passport": private},
+                           RuntimeError(f"duplicate key passport=({private}) already exists"), hide_parameters=True)
+            if kind == "database-driver-shaped" else RuntimeError(f"Synthetic provider rejected {private}")
+        )
+        original_args = failure.args
+        if isinstance(failure, IntegrityError):
+            assert failure.hide_parameters
+            assert "SQL parameters hidden" in str(failure)
+            assert private in str(failure)  # Original driver text remains private too.
+        application, server = configure_sink(monkeypatch, mode)
+        wire = (await exercise_cycle(protocol, failure)).decode()
+        logs = application.getvalue() + server.getvalue()
+        own = [json.loads(line) for line in application.getvalue().splitlines()
+               if line.startswith("{") and json.loads(line).get("event") == "unhandled_exception"]
+        assert len(own) == 1
+        assert private not in json.dumps(own)
+        assert "500 Internal Server Error" in wire and "INTERNAL_SERVER_ERROR" in wire
+        assert private not in wire
+>       assert private not in logs
+E       assert 'synthetic-d...ort-P1234567' not in '{"error_typ...e/20/gkpj)\n'
+E         
+E         'synthetic-database...e-passport-P1234567' is contained here:
+E           passport=(synthetic-database-driver-shaped-private-passport-P1234567) already exists
+E           [SQL: INSERT INTO synthetic_passports VALUES (:passport)]
+E           [SQL parameters hidden due to hide_parameters=True]
+E           (Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+tests\unit\core\test_server_log_privacy.py:69: AssertionError
+------------------------------ Captured log call ------------------------------
+ERROR    app.presentation.middleware.error_handler:error_handler.py:200 {'error_type': 'IntegrityError', 'request_id': '1efe2a52-9429-4d99-a03c-eb2255cb54fe', 'event': 'unhandled_exception', 'path': '/synthetic-failure', 'method': 'GET', 'logger': 'app.presentation.middleware.error_handler', 'level': 'error', 'timestamp': '2026-10-31T06:50:49.373343Z'}
+_ test_actual_asgi_cycle_does_not_emit_private_exception_messages[database-driver-shaped-uvicorn-default-stderr-httptools] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001E2A4E55410>
+protocol = 'httptools', mode = 'uvicorn-default-stderr'
+kind = 'database-driver-shaped'
+
+    @pytest.mark.parametrize("protocol", ["h11", "httptools"])
+    @pytest.mark.parametrize("mode", ["application-root-json", "uvicorn-default-stderr"])
+    @pytest.mark.parametrize("kind", ["database-driver-shaped", "provider-shaped"])
+    async def test_actual_asgi_cycle_does_not_emit_private_exception_messages(
+        monkeypatch, protocol: str, mode: str, kind: str,
+    ) -> None:
+        private = f"synthetic-{kind}-private-passport-P1234567"
+        failure: Exception = (
+            IntegrityError("INSERT INTO synthetic_passports VALUES (:passport)", {"passport": private},
+                           RuntimeError(f"duplicate key passport=({private}) already exists"), hide_parameters=True)
+            if kind == "database-driver-shaped" else RuntimeError(f"Synthetic provider rejected {private}")
+        )
+        original_args = failure.args
+        if isinstance(failure, IntegrityError):
+            assert failure.hide_parameters
+            assert "SQL parameters hidden" in str(failure)
+            assert private in str(failure)  # Original driver text remains private too.
+        application, server = configure_sink(monkeypatch, mode)
+        wire = (await exercise_cycle(protocol, failure)).decode()
+        logs = application.getvalue() + server.getvalue()
+        own = [json.loads(line) for line in application.getvalue().splitlines()
+               if line.startswith("{") and json.loads(line).get("event") == "unhandled_exception"]
+        assert len(own) == 1
+        assert private not in json.dumps(own)
+        assert "500 Internal Server Error" in wire and "INTERNAL_SERVER_ERROR" in wire
+        assert private not in wire
+>       assert private not in logs
+E       assert 'synthetic-d...ort-P1234567' not in '{"error_typ...e/20/gkpj)\n'
+E         
+E         'synthetic-database...e-passport-P1234567' is contained here:
+E           passport=(synthetic-database-driver-shaped-private-passport-P1234567) already exists
+E           [SQL: INSERT INTO synthetic_passports VALUES (:passport)]
+E           [SQL parameters hidden due to hide_parameters=True]
+E           (Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+tests\unit\core\test_server_log_privacy.py:69: AssertionError
+------------------------------ Captured log call ------------------------------
+ERROR    app.presentation.middleware.error_handler:error_handler.py:200 {'error_type': 'IntegrityError', 'request_id': 'a6d473e0-e2f5-4908-964f-80b302f3d6c0', 'event': 'unhandled_exception', 'path': '/synthetic-failure', 'method': 'GET', 'logger': 'app.presentation.middleware.error_handler', 'level': 'error', 'timestamp': '2026-10-31T06:50:49.381342Z'}
+_ test_actual_asgi_cycle_does_not_emit_private_exception_messages[provider-shaped-application-root-json-h11] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001E2A48D0A10>
+protocol = 'h11', mode = 'application-root-json', kind = 'provider-shaped'
+
+    @pytest.mark.parametrize("protocol", ["h11", "httptools"])
+    @pytest.mark.parametrize("mode", ["application-root-json", "uvicorn-default-stderr"])
+    @pytest.mark.parametrize("kind", ["database-driver-shaped", "provider-shaped"])
+    async def test_actual_asgi_cycle_does_not_emit_private_exception_messages(
+        monkeypatch, protocol: str, mode: str, kind: str,
+    ) -> None:
+        private = f"synthetic-{kind}-private-passport-P1234567"
+        failure: Exception = (
+            IntegrityError("INSERT INTO synthetic_passports VALUES (:passport)", {"passport": private},
+                           RuntimeError(f"duplicate key passport=({private}) already exists"), hide_parameters=True)
+            if kind == "database-driver-shaped" else RuntimeError(f"Synthetic provider rejected {private}")
+        )
+        original_args = failure.args
+        if isinstance(failure, IntegrityError):
+            assert failure.hide_parameters
+            assert "SQL parameters hidden" in str(failure)
+            assert private in str(failure)  # Original driver text remains private too.
+        application, server = configure_sink(monkeypatch, mode)
+        wire = (await exercise_cycle(protocol, failure)).decode()
+        logs = application.getvalue() + server.getvalue()
+        own = [json.loads(line) for line in application.getvalue().splitlines()
+               if line.startswith("{") and json.loads(line).get("event") == "unhandled_exception"]
+        assert len(own) == 1
+        assert private not in json.dumps(own)
+        assert "500 Internal Server Error" in wire and "INTERNAL_SERVER_ERROR" in wire
+        assert private not in wire
+>       assert private not in logs
+E       assert 'synthetic-p...ort-P1234567' not in '{"error_typ....390480Z"}\n'
+E         
+E         'synthetic-provider...e-passport-P1234567' is contained here:
+E            rejected synthetic-provider-shaped-private-passport-P1234567')", "<traceback object at 0x000001E2A50B65C0>"], "path": "/synthetic-failure", "method": "GET", "request_id": "09d27232-476c-4a33-bd3f-fcf4f3d2ff72", "logger": "uvicorn.error", "level": "error", "timestamp": "2026-10-31T06:50:49.390480Z"}
+E         ?           +++++++++++++++++++++++++++++++++++++++++++++++++++
+
+tests\unit\core\test_server_log_privacy.py:69: AssertionError
+------------------------------ Captured log call ------------------------------
+ERROR    app.presentation.middleware.error_handler:error_handler.py:200 {'error_type': 'RuntimeError', 'request_id': '09d27232-476c-4a33-bd3f-fcf4f3d2ff72', 'event': 'unhandled_exception', 'path': '/synthetic-failure', 'method': 'GET', 'logger': 'app.presentation.middleware.error_handler', 'level': 'error', 'timestamp': '2026-10-31T06:50:49.389484Z'}
+ERROR    uvicorn.error:h11_impl.py:408 Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 403, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\fastapi\applications.py", line 1160, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\middleware\request_id.py", line 54, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\fastapi\routing.py", line 119, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\fastapi\routing.py", line 105, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\fastapi\routing.py", line 431, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\fastapi\routing.py", line 313, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\tests\unit\core\asgi_log_sink_control.py", line 68, in fail
+    raise failure
+RuntimeError: Synthetic provider rejected synthetic-provider-shaped-private-passport-P1234567
+_ test_actual_asgi_cycle_does_not_emit_private_exception_messages[provider-shaped-application-root-json-httptools] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001E2A49C3CD0>
+protocol = 'httptools', mode = 'application-root-json', kind = 'provider-shaped'
+
+    @pytest.mark.parametrize("protocol", ["h11", "httptools"])
+    @pytest.mark.parametrize("mode", ["application-root-json", "uvicorn-default-stderr"])
+    @pytest.mark.parametrize("kind", ["database-driver-shaped", "provider-shaped"])
+    async def test_actual_asgi_cycle_does_not_emit_private_exception_messages(
+        monkeypatch, protocol: str, mode: str, kind: str,
+    ) -> None:
+        private = f"synthetic-{kind}-private-passport-P1234567"
+        failure: Exception = (
+            IntegrityError("INSERT INTO synthetic_passports VALUES (:passport)", {"passport": private},
+                           RuntimeError(f"duplicate key passport=({private}) already exists"), hide_parameters=True)
+            if kind == "database-driver-shaped" else RuntimeError(f"Synthetic provider rejected {private}")
+        )
+        original_args = failure.args
+        if isinstance(failure, IntegrityError):
+            assert failure.hide_parameters
+            assert "SQL parameters hidden" in str(failure)
+            assert private in str(failure)  # Original driver text remains private too.
+        application, server = configure_sink(monkeypatch, mode)
+        wire = (await exercise_cycle(protocol, failure)).decode()
+        logs = application.getvalue() + server.getvalue()
+        own = [json.loads(line) for line in application.getvalue().splitlines()
+               if line.startswith("{") and json.loads(line).get("event") == "unhandled_exception"]
+        assert len(own) == 1
+        assert private not in json.dumps(own)
+        assert "500 Internal Server Error" in wire and "INTERNAL_SERVER_ERROR" in wire
+        assert private not in wire
+>       assert private not in logs
+E       assert 'synthetic-p...ort-P1234567' not in '{"error_typ....397906Z"}\n'
+E         
+E         'synthetic-provider...e-passport-P1234567' is contained here:
+E            rejected synthetic-provider-shaped-private-passport-P1234567')", "<traceback object at 0x000001E2A50D72C0>"], "path": "/synthetic-failure", "method": "GET", "request_id": "f4068fb4-b972-4e95-9b26-7c6ef16885c5", "logger": "uvicorn.error", "level": "error", "timestamp": "2026-10-31T06:50:49.397906Z"}
+E         ?           +++++++++++++++++++++++++++++++++++++++++++++++++++
+
+tests\unit\core\test_server_log_privacy.py:69: AssertionError
+------------------------------ Captured log call ------------------------------
+ERROR    app.presentation.middleware.error_handler:error_handler.py:200 {'error_type': 'RuntimeError', 'request_id': 'f4068fb4-b972-4e95-9b26-7c6ef16885c5', 'event': 'unhandled_exception', 'path': '/synthetic-failure', 'method': 'GET', 'logger': 'app.presentation.middleware.error_handler', 'level': 'error', 'timestamp': '2026-10-31T06:50:49.396910Z'}
+ERROR    uvicorn.error:httptools_impl.py:414 Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\uvicorn\protocols\http\httptools_impl.py", line 409, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\fastapi\applications.py", line 1160, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\middleware\request_id.py", line 54, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\fastapi\routing.py", line 119, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\fastapi\routing.py", line 105, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\fastapi\routing.py", line 431, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\.venv\Lib\site-packages\fastapi\routing.py", line 313, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\tests\unit\core\asgi_log_sink_control.py", line 68, in fail
+    raise failure
+RuntimeError: Synthetic provider rejected synthetic-provider-shaped-private-passport-P1234567
+_ test_actual_asgi_cycle_does_not_emit_private_exception_messages[provider-shaped-uvicorn-default-stderr-h11] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001E2E261BA50>
+protocol = 'h11', mode = 'uvicorn-default-stderr', kind = 'provider-shaped'
+
+    @pytest.mark.parametrize("protocol", ["h11", "httptools"])
+    @pytest.mark.parametrize("mode", ["application-root-json", "uvicorn-default-stderr"])
+    @pytest.mark.parametrize("kind", ["database-driver-shaped", "provider-shaped"])
+    async def test_actual_asgi_cycle_does_not_emit_private_exception_messages(
+        monkeypatch, protocol: str, mode: str, kind: str,
+    ) -> None:
+        private = f"synthetic-{kind}-private-passport-P1234567"
+        failure: Exception = (
+            IntegrityError("INSERT INTO synthetic_passports VALUES (:passport)", {"passport": private},
+                           RuntimeError(f"duplicate key passport=({private}) already exists"), hide_parameters=True)
+            if kind == "database-driver-shaped" else RuntimeError(f"Synthetic provider rejected {private}")
+        )
+        original_args = failure.args
+        if isinstance(failure, IntegrityError):
+            assert failure.hide_parameters
+            assert "SQL parameters hidden" in str(failure)
+            assert private in str(failure)  # Original driver text remains private too.
+        application, server = configure_sink(monkeypatch, mode)
+        wire = (await exercise_cycle(protocol, failure)).decode()
+        logs = application.getvalue() + server.getvalue()
+        own = [json.loads(line) for line in application.getvalue().splitlines()
+               if line.startswith("{") and json.loads(line).get("event") == "unhandled_exception"]
+        assert len(own) == 1
+        assert private not in json.dumps(own)
+        assert "500 Internal Server Error" in wire and "INTERNAL_SERVER_ERROR" in wire
+        assert private not in wire
+>       assert private not in logs
+E       assert 'synthetic-p...ort-P1234567' not in '{"error_typ...t-P1234567\n'
+E         
+E         'synthetic-provider...e-passport-P1234567' is contained here:
+E            rejected synthetic-provider-shaped-private-passport-P1234567
+
+tests\unit\core\test_server_log_privacy.py:69: AssertionError
+------------------------------ Captured log call ------------------------------
+ERROR    app.presentation.middleware.error_handler:error_handler.py:200 {'error_type': 'RuntimeError', 'request_id': 'e6fc28db-a68b-412d-b0e9-41801088d79c', 'event': 'unhandled_exception', 'path': '/synthetic-failure', 'method': 'GET', 'logger': 'app.presentation.middleware.error_handler', 'level': 'error', 'timestamp': '2026-10-31T06:50:49.404914Z'}
+_ test_actual_asgi_cycle_does_not_emit_private_exception_messages[provider-shaped-uvicorn-default-stderr-httptools] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001E2A4EB8950>
+protocol = 'httptools', mode = 'uvicorn-default-stderr'
+kind = 'provider-shaped'
+
+    @pytest.mark.parametrize("protocol", ["h11", "httptools"])
+    @pytest.mark.parametrize("mode", ["application-root-json", "uvicorn-default-stderr"])
+    @pytest.mark.parametrize("kind", ["database-driver-shaped", "provider-shaped"])
+    async def test_actual_asgi_cycle_does_not_emit_private_exception_messages(
+        monkeypatch, protocol: str, mode: str, kind: str,
+    ) -> None:
+        private = f"synthetic-{kind}-private-passport-P1234567"
+        failure: Exception = (
+            IntegrityError("INSERT INTO synthetic_passports VALUES (:passport)", {"passport": private},
+                           RuntimeError(f"duplicate key passport=({private}) already exists"), hide_parameters=True)
+            if kind == "database-driver-shaped" else RuntimeError(f"Synthetic provider rejected {private}")
+        )
+        original_args = failure.args
+        if isinstance(failure, IntegrityError):
+            assert failure.hide_parameters
+            assert "SQL parameters hidden" in str(failure)
+            assert private in str(failure)  # Original driver text remains private too.
+        application, server = configure_sink(monkeypatch, mode)
+        wire = (await exercise_cycle(protocol, failure)).decode()
+        logs = application.getvalue() + server.getvalue()
+        own = [json.loads(line) for line in application.getvalue().splitlines()
+               if line.startswith("{") and json.loads(line).get("event") == "unhandled_exception"]
+        assert len(own) == 1
+        assert private not in json.dumps(own)
+        assert "500 Internal Server Error" in wire and "INTERNAL_SERVER_ERROR" in wire
+        assert private not in wire
+>       assert private not in logs
+E       assert 'synthetic-p...ort-P1234567' not in '{"error_typ...t-P1234567\n'
+E         
+E         'synthetic-provider...e-passport-P1234567' is contained here:
+E            rejected synthetic-provider-shaped-private-passport-P1234567
+
+tests\unit\core\test_server_log_privacy.py:69: AssertionError
+------------------------------ Captured log call ------------------------------
+ERROR    app.presentation.middleware.error_handler:error_handler.py:200 {'error_type': 'RuntimeError', 'request_id': '058106e0-8e6d-4971-9b16-b1aad72ad14f', 'event': 'unhandled_exception', 'path': '/synthetic-failure', 'method': 'GET', 'logger': 'app.presentation.middleware.error_handler', 'level': 'error', 'timestamp': '2026-10-31T06:50:49.412771Z'}
+=========================== short test summary info ===========================
+FAILED tests/unit/core/test_server_log_privacy.py::test_actual_asgi_cycle_does_not_emit_private_exception_messages[database-driver-shaped-application-root-json-h11]
+FAILED tests/unit/core/test_server_log_privacy.py::test_actual_asgi_cycle_does_not_emit_private_exception_messages[database-driver-shaped-application-root-json-httptools]
+FAILED tests/unit/core/test_server_log_privacy.py::test_actual_asgi_cycle_does_not_emit_private_exception_messages[database-driver-shaped-uvicorn-default-stderr-h11]
+FAILED tests/unit/core/test_server_log_privacy.py::test_actual_asgi_cycle_does_not_emit_private_exception_messages[database-driver-shaped-uvicorn-default-stderr-httptools]
+FAILED tests/unit/core/test_server_log_privacy.py::test_actual_asgi_cycle_does_not_emit_private_exception_messages[provider-shaped-application-root-json-h11]
+FAILED tests/unit/core/test_server_log_privacy.py::test_actual_asgi_cycle_does_not_emit_private_exception_messages[provider-shaped-application-root-json-httptools]
+FAILED tests/unit/core/test_server_log_privacy.py::test_actual_asgi_cycle_does_not_emit_private_exception_messages[provider-shaped-uvicorn-default-stderr-h11]
+FAILED tests/unit/core/test_server_log_privacy.py::test_actual_asgi_cycle_does_not_emit_private_exception_messages[provider-shaped-uvicorn-default-stderr-httptools]
+8 failed in 0.48s

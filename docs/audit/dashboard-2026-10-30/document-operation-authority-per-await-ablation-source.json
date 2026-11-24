@@ -1,0 +1,8 @@
+{
+  "kind": "isolated-negative-ablation-only",
+  "fixed_sha256": "212ab308ba02e8fbe7ebea934d1b4681f84417aec5ef3eb9ebf0e84436a0c5bf",
+  "variant_sha256": "dca1eaa75a067c18454ad9a89a4636cdf132ad5c788ce5a592f4e77d60af4db6",
+  "removed_only": "Two per-await bulk-abort assertCurrent statements; original invocation capture and real client/reset/remount controls remain active.",
+  "exit_code": 1,
+  "restored_sha256": "212ab308ba02e8fbe7ebea934d1b4681f84417aec5ef3eb9ebf0e84436a0c5bf"
+}

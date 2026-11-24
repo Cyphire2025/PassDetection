@@ -1,0 +1,58 @@
+[
+  {
+    "path": "backend/scripts/benchmark_company_people.py",
+    "sha256": "db1bcf6319315e308e9cd9616c47337230f5e087a7ba5d03f640977cfe90bb56",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read in two contiguous ranges: synthetic500row encryption/projection fixtures, actualboundedpeople/cursor/search helper, cappedsamples, sourcequery counts and private-disk export retry/ACK-loss measurement. Instrumentation changes an isolated benchmark process only; no actualcapacity run or enterpriseSLO claim. OperationsInbox remains deferred."
+  },
+  {
+    "path": "backend/scripts/benchmark_document_verification.py",
+    "sha256": "13fb31bbe556427df3097bb88c14815fa6a8f53015555792957f7fbec84de0c0",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Complete physical source read: syntheticPDF generation, boundedscanner concurrency, freshchild/memory/timeout probes and isolatedidle-parent comparison. Added direct CLI positive-runs validation so zero/negative repetitions reject before parser/scanner/env work. Actual two negativeCLI controls and help pass; no benchmark/nativeparser/provider execution. See document-benchmark-cli-verification.json. OperationsInbox remains deferred."
+  },
+  {
+    "path": "backend/scripts/benchmark_passport_dashboard.py",
+    "sha256": "697fabbfadfb32015df2f00b570be8c1140552c33750fd59bb993654e7393d98",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "fixed",
+    "notes": "Complete physical source read: explicitlocalGit baseline, syntheticSQLite projection/export allocation comparison and outputcontract limitations. Added positive-repeats guard before baselineGit/benchmark work; actual two isolatedcwd CLI negatives reject2 and create nooutput. See passport-benchmark-cli-verification.json. No performancebenchmark result. OperationsInbox remains deferred."
+  },
+  {
+    "path": "backend/scripts/rehearse_companies_traveller_upgrade.py",
+    "sha256": "957d82f0abd58e192a3ed5aa60dc6ec5e665d3d4f7f7c4b5fdb78f2e856c0b3e",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read in three contiguous ranges: five explicit synthetic injection programs/exitguards, exactloopback/database/destructive opt-in scope, originalbaseline and owner-bound migration/restore/resume, clientmajor match, originalrows/ACL/catalog preservation and ownedcleanup. Large physical length includes embedded historical test-program data; no productionhelper or publishedmigration changed. No rehearsal/database action executed. OperationsInbox remains deferred."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_companies_migration_rehearsal.py",
+    "sha256": "400c30b3df3aada828268ae55f5635abf040c14d7a5c55164146500b1097bc5b",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read, including all tail cases: actualmodelcolumn seed assertions, explicitCI scope refusals, exactplannedexit vs unrelatederror, originalcheckpoint and baseline assertion preservation, executedDDL-trigger injection identity and actorconstraint checks. No new test execution. OperationsInbox remains deferred."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_companies_rehearsal_roles.py",
+    "sha256": "06f7c69163cbe1ac845b56fe26bd7a3923328af5af1ea6e2501153bcc4728b81",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read: distinctrestrictedowner lifecycle, failedrolecreation, explicitbootstrapvsowner custody and originalcleanup order, realancestor-tree generation assertions and current0142 ORM mapping checkpoint controls. No new test or liveDB execution. OperationsInbox remains deferred."
+  },
+  {
+    "path": "scripts/qa/qualify_companies_fast_migration.py",
+    "sha256": "1d51a0a2e2f02eea28a5d8b15c3794b12f12c0c7c6c86f41c3fbe0d869d0566e",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "reviewed",
+    "notes": "First95lines physicallyread: actual REHEARSAL_FILES hashselection/innercandidatecontract, localDockerdaemon/memory admission and sourceownership imports. Remaininghelperlifecycle remains focused, not full review from this read. No source edit. OperationsInbox remains deferred."
+  }
+]

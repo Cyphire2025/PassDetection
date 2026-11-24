@@ -1,0 +1,34 @@
+[WebServer] (node:27428) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:30372) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 21 tests using 1 worker
+
+(node:21156) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 [production-flows] › e2e\authentication.spec.ts:93:5 › credential login restores a cookie session and logout clears browser-owned state (2.3s)
+  ok  2 [production-flows] › e2e\authentication.spec.ts:155:5 › a rejected refresh expires the local session and explains the redirect (408ms)
+  ok  3 [production-flows] › e2e\authentication.spec.ts:161:5 › a lower-privilege direct-link journey is denied and returned to its safe workspace (451ms)
+  ok  4 [production-flows] › e2e\fresh-travellers.spec.ts:70:38 › fresh private draft resumes and submits at 320px (5.2s)
+  ok  5 [production-flows] › e2e\fresh-travellers.spec.ts:70:38 › fresh private draft resumes and submits at 1440px (5.4s)
+  ok  6 [production-flows] › e2e\fresh-travellers.spec.ts:89:5 › family members keep independent private drafts and head-first submissions (7.7s)
+  ok  7 [production-flows] › e2e\fresh-travellers.spec.ts:100:5 › an interrupted final response resumes the submitted receipt without a duplicate (5.1s)
+  ok  8 [production-flows] › e2e\returning-travellers.spec.ts:118:7 › phone verification and inline draft review at 320px (3.5s)
+  ok  9 [production-flows] › e2e\returning-travellers.spec.ts:118:7 › passport verification and inline draft review at 320px (3.4s)
+  ok 10 [production-flows] › e2e\returning-travellers.spec.ts:118:7 › code verification and inline draft review at 320px (3.3s)
+  ok 11 [production-flows] › e2e\returning-travellers.spec.ts:118:7 › phone verification and inline draft review at 1440px (1.4s)
+  ok 12 [production-flows] › e2e\returning-travellers.spec.ts:118:7 › passport verification and inline draft review at 1440px (1.8s)
+  ok 13 [production-flows] › e2e\returning-travellers.spec.ts:118:7 › code verification and inline draft review at 1440px (1.3s)
+  ok 14 [production-flows] › e2e\returning-travellers.spec.ts:142:5 › first page has only two choices and a saved draft resumes for one day (3.5s)
+  ok 15 [production-flows] › e2e\returning-travellers.spec.ts:156:5 › failed passport plus date proof highlights the new-traveller action without disclosing history (1.4s)
+  ok 16 [production-flows] › e2e\returning-travellers.spec.ts:163:5 › independent back/front replacement remains a draft and updates visible fields before submit (3.4s)
+  ok 17 [production-flows] › e2e\returning-travellers.spec.ts:180:5 › inline protected PDF uses scoped HttpOnly cookies without CSP violations (1.5s)
+  ok 18 [production-flows] › e2e\returning-travellers.spec.ts:191:5 › camera-only replacement opens the scanner and never offers a file bypass (1.8s)
+  ok 19 [production-flows] › e2e\returning-travellers.spec.ts:204:5 › relationship and details resume while the temporary photo must be selected again (5.5s)
+(node:16892) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 20 [production-nonce] › ..\.tmp\frontend-dependency-remediation\production-nonce.spec.mjs:3:1 › production rewrites preserve the isolated backend response (33ms)
+  ok 21 [production-nonce] › ..\.tmp\frontend-dependency-remediation\production-nonce.spec.mjs:18:1 › production rendering applies a fresh CSP nonce to framework scripts (567ms)
+
+  21 passed (1.1m)

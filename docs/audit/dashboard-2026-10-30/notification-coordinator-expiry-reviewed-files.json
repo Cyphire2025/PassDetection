@@ -1,0 +1,78 @@
+{
+  "stage": "separate NS02 behavior correction after immutable mechanical checkpoint",
+  "files": [
+    {
+      "path": "backend/app/application/mobile/notification_authority.py",
+      "sha256": "256d49c099af6fdcbd890188c2377a33654098c96ae720c8d5f824eecf823c8f",
+      "physical_lines": 85,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "fixed",
+      "notes": "Complete current85line physical read; unchanged original authored gate/cancellation state/writes after read-only eligibility separation. Source-only expanded original AST exact; only helper predicate deliberately changes policy."
+    },
+    {
+      "path": "backend/app/application/mobile/notification_group_authority.py",
+      "sha256": "9ce27a54edbb03114908fcd54816565a90a05e561c51f15d8cd2db50d899f66a",
+      "physical_lines": 174,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "fixed",
+      "notes": "Complete current174line physical read; exact old read-only three-role eligibility block plus sole canonical coordinator expiry WHERE. Role/tenant/group/current grant/session-dependent source predicates and await order unchanged; no commit/provider action."
+    },
+    {
+      "path": "backend/tests/unit/application/test_notification_coordinator_expiry.py",
+      "sha256": "fb931893fdb94fb5aa7f339a67d8658e34f48790c40a585bd1dbff184d43df76",
+      "physical_lines": 221,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "added-regression",
+      "notes": "Complete221line authored/current physical read. Canonical producer and actual dispatch with synthetic SQLite/FakeFcm; two local-midnight negatives and actual post-intent-commit fresh-clock negative reproduce before fix, six healthy/revoked/manager controls. No native client/real send fixture."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/coordinator_assignment_lifecycle.py",
+      "sha256": "0a7ec89144ce7a41c5e67ab5454e5eae1d17669b5de1b52bb8404b8cda6dfbb9",
+      "physical_lines": 156,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete156line physical read. Canonical trip-local strict end-date/fallback expiry and current-assignment rules, bounded historical-preserving scheduler and explicit request-time-immediacy contract; unchanged source."
+    },
+    {
+      "path": "backend/tests/unit/application/test_coordinator_trip_expiry_authorization.py",
+      "sha256": "cdfa3d06da1b5095c64bcb905cdf67d570b8a07602dc3a64ded58c1fb1808be4",
+      "physical_lines": 210,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete210line physical source read of canonical website/mobile/realtime immediate expiry controls, including timezone boundary, fallback and undated existing assignments. Not executed this tranche; no native feature audit/implementation."
+    },
+    {
+      "path": "backend/architecture-dependencies.json",
+      "sha256": "3681bf6ca3b2bab52dcde5d0adbb4921cc8dd54771411193c2553ddaceb08b6e",
+      "physical_lines": 3177,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "fixed",
+      "notes": "Only current exact authority/read owner entries plus already-reviewed canonical authored-audience expiry edge checked. Exact original byte inverse/all other restrictions preserved; unrelated policy not physically full-read."
+    }
+  ],
+  "supporting_prior_full_current_hash_read": {
+    "path": "backend/app/application/mobile/fcm_dispatch_intents.py",
+    "sha256": "9d2b5b7eefb1b90448e4e07a377f725a25dface5fba660718c1717b297c884a8",
+    "attribution": "notification-server-preflight-reviewed-files.json; fully read there, same current hash, not counted as another new physical read"
+  },
+  "additional_supporting_partial_reads": [
+    {
+      "path": "backend/tests/integration/test_coordinator_assignment_lifecycle.py",
+      "scope": "first120lines only; not full"
+    },
+    {
+      "path": "backend/tests/service_integration/test_announcement_push_guard_postgresql.py",
+      "scope": "first110lines fixture support only; not full"
+    },
+    {
+      "path": "backend/app/infrastructure/database/gc_mobile_models.py",
+      "scope": "introductory70lines/source locations only; not full"
+    }
+  ]
+}

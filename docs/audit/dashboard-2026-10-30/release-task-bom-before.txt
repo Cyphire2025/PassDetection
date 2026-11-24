@@ -1,0 +1,41 @@
+E.E
+======================================================================
+ERROR: test_task_contract_accepts_one_utf8_bom_without_ignoring_signature_changes (test_release_code_update.SafetyContracts.test_task_contract_accepts_one_utf8_bom_without_ignoring_signature_changes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_release_code_update.py", line 212, in test_task_contract_accepts_one_utf8_bom_without_ignoring_signature_changes
+    self.assertEqual(task_contract("\ufeff" + source), task_contract(source))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_code_update.py", line 59, in task_contract
+    for node in ast.walk(ast.parse(source)):
+                         ^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\ast.py", line 50, in parse
+    return compile(source, filename, mode, flags,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<unknown>", line 1
+    ﻿@celery_app.task(name='job', queue='jobs')
+    ^
+SyntaxError: invalid non-printable character U+FEFF
+
+======================================================================
+ERROR: test_actual_bom_package_sources_keep_both_original_task_contracts (test_release_workspace_branding_bindings.CurrentBindingTests.test_actual_bom_package_sources_keep_both_original_task_contracts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_release_workspace_branding_bindings.py", line 122, in test_actual_bom_package_sources_keep_both_original_task_contracts
+    self.assertEqual(task_contract(original), current)
+                     ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_code_update.py", line 59, in task_contract
+    for node in ast.walk(ast.parse(source)):
+                         ^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\ast.py", line 50, in parse
+    return compile(source, filename, mode, flags,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<unknown>", line 1
+    ﻿"""Package."""
+    ^
+SyntaxError: invalid non-printable character U+FEFF
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.048s
+
+FAILED (errors=2)

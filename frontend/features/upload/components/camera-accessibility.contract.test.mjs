@@ -1,15 +1,7 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import test from "node:test";
-
-const passportCameraSource = readFileSync(
-  new URL("./smart-camera.tsx", import.meta.url),
-  "utf8",
-);
-const visaPhotoCameraSource = readFileSync(
-  new URL("./visa-selfie-camera.tsx", import.meta.url),
-  "utf8",
-);
+import { visaCameraSource as visaPhotoCameraSource } from "./visa-camera-source.contract-helper.mjs";
+import { passportCameraSource } from "./passport-camera-source.contract-helper.mjs";
 
 test("camera surfaces expose modal names and a single announced instruction", () => {
   for (const source of [passportCameraSource, visaPhotoCameraSource]) {
@@ -32,7 +24,7 @@ test("hidden tabs release camera streams and restart only after becoming visible
     assert.match(source, /visibilityPausedRef\.current = false/);
   }
   assert.match(passportCameraSource, /stopCamera\(\)/);
-  assert.match(visaPhotoCameraSource, /stopStream\(\)/);
+  assert.match(visaPhotoCameraSource, /stopStream\(stream\)/);
 });
 
 test("passport capture is manual after all scanner checks pass", () => {
@@ -64,7 +56,7 @@ test("Visa Photo preview releases the live camera before acceptance or retake", 
     captureStart,
   );
   const stopStream = visaPhotoCameraSource.indexOf(
-    "stopStream();",
+    "stopStream(captureStream);",
     sourceDraw,
   );
   const previewStart = visaPhotoCameraSource.indexOf(

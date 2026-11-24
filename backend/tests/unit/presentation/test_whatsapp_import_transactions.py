@@ -8,7 +8,8 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 from fastapi import HTTPException
 
-from app.domain.entities.entities import UserRole
+from app.domain.entities.entities import User, UserRole
+from app.infrastructure.database.models import UserModel, UserSecurityStateModel
 from app.presentation.api.v1.routes import whatsapp as whatsapp_routes
 from app.presentation.api.v1.routes import whatsapp_recipient_additions
 from app.presentation.api.v1.routes.whatsapp import (
@@ -48,18 +49,23 @@ def _scalars_result(values: list[object]) -> MagicMock:
 @pytest.mark.asyncio
 async def test_actor_reauthorization_locks_active_user_and_agency_scope() -> None:
     agency_id = uuid.uuid4()
-    current_user = SimpleNamespace(
-        id=uuid.uuid4(),
-        agency_id=agency_id,
-        role=UserRole.AGENCY_ADMIN,
+    current_user = User(
+        id=uuid.uuid4(), email="admin@example.test", hashed_password="unused",
+        full_name="Admin", agency_id=agency_id, role=UserRole.AGENCY_ADMIN,
     )
-    actor = SimpleNamespace(
-        id=current_user.id,
-        agency_id=agency_id,
-        role=UserRole.AGENCY_ADMIN.value,
+    actor = UserModel(
+        id=current_user.id, agency_id=agency_id, role=UserRole.AGENCY_ADMIN.value,
+        email=current_user.email, full_name=current_user.full_name,
+        hashed_password="unused", is_active=True, deleted_at=None,
+        created_at=current_user.created_at, updated_at=current_user.updated_at,
     )
+    security = UserSecurityStateModel(
+        user_id=current_user.id, session_version=1, credential_state="active", mfa_required=False,
+    )
+    refreshed = MagicMock()
+    refreshed.first.return_value = (actor, security)
     session = MagicMock()
-    session.execute = AsyncMock(return_value=_scalar_result(actor))
+    session.execute = AsyncMock(side_effect=[_scalar_result(actor), _scalar_result(security), refreshed])
 
     assert (
         await _lock_active_whatsapp_actor(
@@ -70,7 +76,7 @@ async def test_actor_reauthorization_locks_active_user_and_agency_scope() -> Non
         is actor
     )
 
-    statement = session.execute.await_args.args[0]
+    statement = session.execute.await_args_list[0].args[0]
     sql = str(statement).lower()
     params = statement.compile().params.values()
     assert "join agencies" in sql
@@ -81,6 +87,10 @@ async def test_actor_reauthorization_locks_active_user_and_agency_scope() -> Non
     assert current_user.id in params
     assert agency_id in params
     assert UserRole.AGENCY_ADMIN.value in params
+    security_statement = session.execute.await_args_list[1].args[0]
+    assert "for update" in str(security_statement).lower()
+    assert "user_security_states" in str(security_statement).lower()
+    assert security_statement.get_execution_options()["populate_existing"] is True
 
 
 @pytest.mark.asyncio

@@ -1,0 +1,66 @@
+
+ RUN  v4.1.12 C:/Users/nipun/Desktop/PassDetection/frontend
+
+ ❯ features/mcp/utils/file-transfer.test.ts (20 tests | 3 failed) 25ms
+   × verifies exact streamed download bytes and RFC5987 filename before creating a saveable file 6ms
+   × cancels an oversized stream and refuses equal-size checksum corruption 1ms
+   × cancels an unread response as soon as its attachment metadata is rejected 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  features/mcp/utils/file-transfer.test.ts > verifies exact streamed download bytes and RFC5987 filename before creating a saveable file
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ features/mcp/utils/file-transfer.test.ts:54:33
+     52|   const file = await verifiedDownload(response, value);
+     53|   expect(file.size).toBe(bytes.length); expect(Buffer.from(await file.…
+     54|   expect(response.body?.locked).toBe(false);
+       |                                 ^
+     55| });
+     56| it.each([
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  features/mcp/utils/file-transfer.test.ts > cancels an oversized stream and refuses equal-size checksum corruption
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ features/mcp/utils/file-transfer.test.ts:68:34
+     66|   const oversized = new Response(Buffer.concat([bytes, bytes]), { head…
+     67|   await expect(verifiedDownload(oversized, ticket())).rejects.toThrow(…
+     68|   expect(oversized.body?.locked).toBe(false);
+       |                                  ^
+     69|   const corrupt = new Response(Buffer.alloc(bytes.length, 1), { header…
+     70|   await expect(verifiedDownload(corrupt, ticket())).rejects.toThrow("d…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  features/mcp/utils/file-transfer.test.ts > cancels an unread response as soon as its attachment metadata is rejected
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ features/mcp/utils/file-transfer.test.ts:78:18
+     76|   const response = new Response(new ReadableStream({ cancel }), { head…
+     77|   await expect(verifiedDownload(response, ticket())).rejects.toThrow("…
+     78|   expect(cancel).toHaveBeenCalledOnce();
+       |                  ^
+     79|   expect(response.body?.locked).toBe(false);
+     80| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 17 passed (20)
+   Start at  00:49:27
+   Duration  809ms (transform 34ms, setup 153ms, import 25ms, tests 25ms, environment 515ms)
+

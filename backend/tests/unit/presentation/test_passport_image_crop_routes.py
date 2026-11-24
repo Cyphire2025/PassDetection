@@ -4,7 +4,7 @@ import io
 import uuid
 from datetime import UTC, datetime
 from types import SimpleNamespace
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from fastapi import HTTPException, UploadFile
@@ -48,6 +48,7 @@ from app.presentation.api.v1.schemas.passport_schemas import (
     PassportImageCropUpdateRequest,
     PassportVisaAiPreviewRequest,
 )
+from tests.route_dependencies import patch_route_dependency as patch
 
 
 def _submission(*, front_key: str = "original/front.jpg") -> SimpleNamespace:
@@ -317,8 +318,6 @@ async def test_generated_visa_ai_image_is_uploaded_and_committed_to_library() ->
     storage.delete_files = AsyncMock(return_value=1)
     crop_repository = MagicMock()
     crop_repository.get = AsyncMock(return_value=None)
-    submission_repository = MagicMock()
-    submission_repository.get_by_id_for_update = AsyncMock(return_value=submission)
     library_repository = MagicMock()
     library_repository.create = AsyncMock(
         return_value=PassportVisaAiImage(
@@ -352,7 +351,11 @@ async def test_generated_visa_ai_image_is_uploaded_and_committed_to_library() ->
 
     with (
         patch(
-            'app.presentation.api.v1.routes.passport_routes.visa_ai_library._authorized_staff_passport_image',
+            'app.presentation.api.v1.routes.passport_routes.visa_ai_library.lock_current_image_editor',
+            new=AsyncMock(return_value=(current_user, submission)),
+        ),
+        patch(
+            'app.presentation.api.v1.routes.passport_routes.visa_ai_library._resolve_authorized_staff_passport_image',
             new=AsyncMock(return_value=(submission, submission.passport_photo_s3_key)),
         ),
         patch(
@@ -362,10 +365,6 @@ async def test_generated_visa_ai_image_is_uploaded_and_committed_to_library() ->
         patch(
             'app.presentation.api.v1.routes.passport_routes.visa_ai_library.PassportImageCropRepository',
             return_value=crop_repository,
-        ),
-        patch(
-            'app.presentation.api.v1.routes.passport_routes.visa_ai_library.PassportSubmissionRepository',
-            return_value=submission_repository,
         ),
         patch(
             'app.presentation.api.v1.routes.passport_routes.visa_ai_library.PassportVisaAiImageRepository',
@@ -398,7 +397,7 @@ async def test_generated_visa_ai_image_is_uploaded_and_committed_to_library() ->
         "Make the background plain white"
     )
     session.commit.assert_awaited_once()
-    session.rollback.assert_not_awaited()
+    session.rollback.assert_awaited_once()
     assert response.id == generated_id
     assert response.model == "gemini-3-pro-image"
     assert str(generated_id) in response.image_url
@@ -425,10 +424,15 @@ async def test_legacy_preview_signs_the_model_that_generated_the_image() -> None
     audit_repository.record = AsyncMock()
     session = MagicMock()
     session.commit = AsyncMock()
+    session.rollback = AsyncMock()
 
     with (
         patch(
-            'app.presentation.api.v1.routes.passport_routes.visa_ai_edits._authorized_staff_passport_image',
+            'app.presentation.api.v1.routes.passport_routes.visa_ai_edits.lock_current_image_editor',
+            new=AsyncMock(return_value=(current_user, submission)),
+        ),
+        patch(
+            'app.presentation.api.v1.routes.passport_routes.visa_ai_edits._resolve_authorized_staff_passport_image',
             new=AsyncMock(return_value=(submission, submission.passport_photo_s3_key)),
         ),
         patch(
@@ -480,8 +484,6 @@ async def test_legacy_apply_persists_only_the_model_from_the_signed_token() -> N
     storage = MagicMock()
     storage.upload_file = AsyncMock(return_value="saved")
     storage.delete_files = AsyncMock(return_value=1)
-    submission_repository = MagicMock()
-    submission_repository.get_by_id_for_update = AsyncMock(return_value=submission)
     library_repository = MagicMock()
     library_repository.create_ai = AsyncMock(
         return_value=SimpleNamespace(id=uuid.uuid4())
@@ -533,7 +535,11 @@ async def test_legacy_apply_persists_only_the_model_from_the_signed_token() -> N
 
     with (
         patch(
-            'app.presentation.api.v1.routes.passport_routes.visa_ai_edits._authorized_staff_passport_image',
+            'app.presentation.api.v1.routes.passport_routes.visa_ai_edits.lock_current_image_editor',
+            new=AsyncMock(return_value=(current_user, submission)),
+        ),
+        patch(
+            'app.presentation.api.v1.routes.passport_routes.visa_ai_edits._resolve_authorized_staff_passport_image',
             new=AsyncMock(return_value=(submission, submission.passport_photo_s3_key)),
         ),
         patch(
@@ -547,10 +553,6 @@ async def test_legacy_apply_persists_only_the_model_from_the_signed_token() -> N
         patch(
             'app.presentation.api.v1.routes.passport_routes.visa_ai_edits.MinioStorageRepository',
             return_value=storage,
-        ),
-        patch(
-            'app.presentation.api.v1.routes.passport_routes.visa_ai_edits.PassportSubmissionRepository',
-            return_value=submission_repository,
         ),
         patch(
             'app.presentation.api.v1.routes.passport_routes.visa_ai_edits.PassportImageLibraryRepository',
@@ -608,8 +610,6 @@ async def test_stale_crop_save_returns_409_and_cleans_uncommitted_derivative() -
     storage.get_file = AsyncMock(return_value=b"source")
     storage.upload_file = AsyncMock(return_value="derived")
     storage.delete_files = AsyncMock(return_value=1)
-    submission_repository = MagicMock()
-    submission_repository.get_by_id_for_update = AsyncMock(return_value=submission)
     crop_repository = MagicMock()
     crop_repository.get = AsyncMock(return_value=None)
     crop_repository.upsert = AsyncMock(side_effect=PassportImageCropRevisionConflict(4))
@@ -626,15 +626,15 @@ async def test_stale_crop_save_returns_409_and_cleans_uncommitted_derivative() -
 
     with (
         patch(
-            'app.presentation.api.v1.routes.passport_routes.images._authorized_staff_passport_image',
+            'app.presentation.api.v1.routes.passport_routes.images.lock_current_image_editor',
+            new=AsyncMock(return_value=(current_user, submission)),
+        ),
+        patch(
+            'app.presentation.api.v1.routes.passport_routes.images._resolve_authorized_staff_passport_image',
             new=AsyncMock(return_value=(submission, submission.image_s3_key)),
         ),
         patch(
             'app.presentation.api.v1.routes.passport_routes.images.MinioStorageRepository', return_value=storage
-        ),
-        patch(
-            'app.presentation.api.v1.routes.passport_routes.images.PassportSubmissionRepository',
-            return_value=submission_repository,
         ),
         patch(
             'app.presentation.api.v1.routes.passport_routes.images.PassportImageCropRepository',
@@ -664,5 +664,5 @@ async def test_stale_crop_save_returns_409_and_cleans_uncommitted_derivative() -
     assert conflict.value.status_code == 409
     assert "current revision 4" in str(conflict.value.detail)
     assert conflict.value.headers == {"X-Current-Crop-Revision": "4"}
-    session.rollback.assert_awaited_once()
+    assert session.rollback.await_count == 2
     storage.delete_files.assert_awaited_once()

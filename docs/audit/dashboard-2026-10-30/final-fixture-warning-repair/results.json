@@ -1,0 +1,62 @@
+{
+  "commands": {
+    "affected-vitest": {
+      "argv": [
+        "C:\\Users\\nipun\\AppData\\Local\\Programs\\node-v24.21.0-win-x64\\node.exe",
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "features/documents/components/document-row-action-menu.test.tsx",
+        "features/mcp/components/mcp-read-access.test.tsx",
+        "features/mcp/components/mcp-simple-access.test.tsx",
+        "--config",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\banner-crop-target\\vitest.config.mts",
+        "--maxWorkers=1",
+        "--pool=threads"
+      ],
+      "cwd": "frontend",
+      "exit_code": 0,
+      "seconds": 5.125,
+      "stdout": "affected-vitest.stdout.log",
+      "stderr": "affected-vitest.stderr.log",
+      "stderr_bytes": 0
+    },
+    "scoped-eslint": {
+      "argv": [
+        "C:\\Users\\nipun\\AppData\\Local\\Programs\\node-v24.21.0-win-x64\\node.exe",
+        "node_modules/eslint/bin/eslint.js",
+        "features/documents/components/document-row-action-menu.test.tsx",
+        "features/mcp/components/mcp-read-access.test.tsx",
+        "features/mcp/components/mcp-simple-access.test.tsx",
+        "--max-warnings=0"
+      ],
+      "cwd": "frontend",
+      "exit_code": 0,
+      "seconds": 1.2189999999991414,
+      "stdout": "scoped-eslint.stdout.log",
+      "stderr": "scoped-eslint.stderr.log",
+      "stderr_bytes": 0
+    },
+    "scoped-types": {
+      "argv": [
+        "C:\\Users\\nipun\\AppData\\Local\\Programs\\node-v24.21.0-win-x64\\node.exe",
+        "node_modules/typescript/bin/tsc",
+        "--project",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\final-fixture-warning-repair\\tsconfig.json",
+        "--noEmit",
+        "--incremental",
+        "false"
+      ],
+      "cwd": "frontend",
+      "exit_code": 0,
+      "seconds": 2.061999999999898,
+      "stdout": "scoped-types.stdout.log",
+      "stderr": "scoped-types.stderr.log",
+      "stderr_bytes": 0
+    }
+  },
+  "own_test_hashes_match_candidates": true,
+  "runtime_drift": {},
+  "unrelated_source_deltas": {},
+  "no_console_filtering": true,
+  "envDir": false
+}

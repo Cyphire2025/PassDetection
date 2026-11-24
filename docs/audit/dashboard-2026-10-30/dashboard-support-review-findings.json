@@ -1,0 +1,93 @@
+[
+  {
+    "id": "DS-SEARCH-01",
+    "status": "source_confirmed_needs_behavior_regression",
+    "priority": "P2",
+    "path": "frontend/features/search/components/global-search.tsx",
+    "lines": [
+      83,
+      89,
+      100,
+      101,
+      135
+    ],
+    "finding": "Selecting a result clears query/open/index but retains results; ArrowDown has no query-length guard. On the persistent header, empty input can open hidden stale selection, and Enter can navigate it without a rendered listbox. Closed/short-input aria-describedby also references absent status content.",
+    "callers": [
+      "frontend/components/layout/header.tsx",
+      "frontend/components/layout/dashboard-shell.tsx",
+      "frontend/app/(dashboard)/layout.tsx"
+    ],
+    "proposed_fix": "Clear retained results at selection; enforce minimum query length before keyboard navigation/selection; reference only rendered status IDs.",
+    "regression_plan": "Real GlobalSearch: query and choose result, refocus empty input after router navigation, press ArrowDown/Enter and assert no additional push/active descendant; verify normal selection/retry/abort retained.",
+    "limits": "No test executed in frozen read-only window."
+  },
+  {
+    "id": "DS-NOTIFICATION-01",
+    "status": "source_confirmed_needs_behavior_regression",
+    "priority": "P2",
+    "path": "frontend/features/notifications/components/notification-bell.tsx",
+    "lines": [
+      77,
+      87,
+      112,
+      160
+    ],
+    "finding": "Bell declares aria-modal but implements only document Tab/Escape wrapping; no focusin containment or inert background. GlobalSearch header CtrlK handler can focus its background input while bell remains open.",
+    "supporting_path": "frontend/features/search/components/global-search.tsx:33",
+    "proposed_fix": "Reuse existing shared modal keyboard/isolation boundary, preserving click-outside closure, trigger focus return and scroll/popover geometry; split501-line owner into cohesive controller/presentation modules.",
+    "regression_plan": "Actual Header bell+search: open bell, CtrlK/background focus attempt stays contained or deliberately closes bell; Tab/ShiftTab/Escape and nested dialog behavior remain; mobile bounded scrolling.",
+    "limits": "Source/control-flow proof; no browser/unit execution in read-only window."
+  },
+  {
+    "id": "DS-QUEUED-01",
+    "status": "candidate_requires_actual_hook_reproduction",
+    "priority": "P2",
+    "paths": [
+      "frontend/features/notifications/hooks/use-notifications.ts:63",
+      "frontend/features/notifications/hooks/use-notifications.ts:71",
+      "frontend/features/travel-tracker/hooks.ts:39",
+      "frontend/features/travel-tracker/components/tracker-workspace.tsx:34"
+    ],
+    "finding": "Remaining vanilla useMutation calls do not capture the initiating actor at actual mutate invocation; new GC/MCP proof demonstrates why later private HTTP capture alone cannot cover queued setup. Here markAllRead could affect a replacement actor, tracker mark/export may target stale intent.",
+    "proposed_fix": "First reproduce these actual hooks with deferred global/local setup; adopt reviewed invocation envelope and explicit expected-owner transport config where proven. Preserve tracker idempotent mark/undo/selection count semantics.",
+    "limits": "Do not report as executed/validated in this subtree; no new tests run."
+  },
+  {
+    "id": "DS-DASHBOARD-01",
+    "status": "source_confirmed_needs_behavior_regression",
+    "priority": "P2",
+    "path": "frontend/features/dashboard/components/dashboard-overview.tsx",
+    "lines": [
+      101,
+      116,
+      167,
+      170
+    ],
+    "finding": "Initial stats error displays an error banner together with zero summary values and No recent passport intake, conflating unavailable data with an empty successful response.",
+    "proposed_fix": "Represent unavailable initial aggregates/activity explicitly while keeping last-known data on refetch errors.",
+    "regression_plan": "Initial failure shows unavailable states and recoverable retry; successful empty0 remains valid; background failure retains last confirmed numbers."
+  },
+  {
+    "id": "DS-TRACKER-02",
+    "status": "candidate_requires_reproduction",
+    "priority": "P3",
+    "paths": [
+      "frontend/features/travel-tracker/hooks.ts:41",
+      "frontend/features/travel-tracker/components/tracker-import-dialog.tsx:28",
+      "frontend/features/travel-tracker/components/tracker-import-dialog.tsx:41"
+    ],
+    "finding": "Busy/pending state has no synchronous admission guard, allowing same-turn repeated mark/preview/apply calls. These writes appear idempotent, so do not claim duplicate destructive side effects. Late preview/group-navigation context needs actual route identity proof before changing state lifetime.",
+    "regression_plan": "Double invocation before rerender and delayed preview disposal; prove backend/request counts and actual route reuse before narrow guard/remount fix."
+  },
+  {
+    "id": "DS-PRESENTATION-01",
+    "status": "candidate_minor_ui",
+    "priority": "P3",
+    "paths": [
+      "frontend/features/dashboard/components/dashboard-overview.tsx",
+      "frontend/features/ai/components/voice-preview.module.css"
+    ],
+    "finding": "Long unbroken mobile passenger names have no explicit wrapping; tiny soft footer/eyebrow colors deserve measured contrast review.",
+    "limits": "No browser overflow or contrast qualification performed."
+  }
+]

@@ -1,0 +1,116 @@
+{
+  "modules": [
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_reupload.py",
+      "sha256": "63ff9508a4bee8dd0b0f50ae850595a3cccd0fa7aaabb699a6207f0849b67523",
+      "action": "update-measured-baseline-preserve-all-caps-and-floors",
+      "previous_row": {
+        "path": "app/presentation/api/v1/routes/document_distribution_reupload.py",
+        "baseline_lines": 245,
+        "maximum_lines": 270,
+        "baseline_max_function_complexity": 12,
+        "maximum_function_complexity": 12,
+        "minimum_coverage_percent": 32
+      },
+      "proposed_row": {
+        "path": "app/presentation/api/v1/routes/document_distribution_reupload.py",
+        "baseline_lines": 248,
+        "maximum_lines": 270,
+        "baseline_max_function_complexity": 12,
+        "maximum_function_complexity": 12,
+        "minimum_coverage_percent": 32
+      },
+      "actual_coverage": {
+        "line_percent": 89.74358974358974,
+        "branch_percent": 50.0,
+        "covered_lines": 70,
+        "statements": 78,
+        "covered_branches": 4,
+        "branches": 8
+      }
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_save.py",
+      "sha256": "50a56cd284fbf83e0df2dd08f09054f3a5e21af877d8a66a6fea95b5295259c8",
+      "action": "update-measured-baseline-preserve-all-caps-and-floors",
+      "previous_row": {
+        "path": "app/presentation/api/v1/routes/document_distribution_save.py",
+        "baseline_lines": 83,
+        "maximum_lines": 100,
+        "baseline_max_function_complexity": 7,
+        "maximum_function_complexity": 7,
+        "minimum_coverage_percent": 56
+      },
+      "proposed_row": {
+        "path": "app/presentation/api/v1/routes/document_distribution_save.py",
+        "baseline_lines": 96,
+        "maximum_lines": 100,
+        "baseline_max_function_complexity": 7,
+        "maximum_function_complexity": 7,
+        "minimum_coverage_percent": 56
+      },
+      "actual_coverage": {
+        "line_percent": 100.0,
+        "branch_percent": 100.0,
+        "covered_lines": 38,
+        "statements": 38,
+        "covered_branches": 6,
+        "branches": 6
+      }
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_manual_upload.py",
+      "sha256": "c8fe9462b8f9cd872c4326940f502444c2323e13ee058d4a11dcaf0ed31a31aa",
+      "action": "additive-proposal",
+      "previous_row": null,
+      "proposed_row": {
+        "path": "app/presentation/api/v1/routes/document_distribution_manual_upload.py",
+        "baseline_lines": 271,
+        "maximum_lines": 280,
+        "baseline_max_function_complexity": 14,
+        "maximum_function_complexity": 14,
+        "minimum_coverage_percent": 80
+      },
+      "actual_coverage": {
+        "line_percent": 89.01098901098901,
+        "branch_percent": 50.0,
+        "covered_lines": 81,
+        "statements": 91,
+        "covered_branches": 8,
+        "branches": 16
+      }
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_compensation.py",
+      "sha256": "d98fca40ceeff7d2072101550c267520eda03e1865658706fa0fb7dea6aa89c3",
+      "action": "additive-proposal",
+      "previous_row": null,
+      "proposed_row": {
+        "path": "app/presentation/api/v1/routes/document_distribution_compensation.py",
+        "baseline_lines": 48,
+        "maximum_lines": 50,
+        "baseline_max_function_complexity": 3,
+        "maximum_function_complexity": 3,
+        "minimum_coverage_percent": 90
+      },
+      "actual_coverage": {
+        "line_percent": 100.0,
+        "branch_percent": 100.0,
+        "covered_lines": 20,
+        "statements": 20,
+        "covered_branches": 2,
+        "branches": 2
+      }
+    }
+  ],
+  "critical_proposals": [
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_compensation.py",
+      "minimum_line_coverage_percent": 95,
+      "minimum_branch_coverage_percent": 80,
+      "rationale": "New actual cancellation/rollback/storage lifetime owner; actual100L/100B. Proposal awaiting parent approval, not a gate edit."
+    }
+  ],
+  "all_existing_caps_and_floors_preserved": true,
+  "no_shared_gate_edits": true
+}

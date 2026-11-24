@@ -1,0 +1,565 @@
+{
+  "method": "Automated triage only, not source-read evidence. These rows lacked explicit matching full reads when inventoried; check latest ledgers/current hashes before claiming or rereading.",
+  "files": [
+    {
+      "path": "frontend/features/upload/components/visa-camera-source.contract-helper.mjs",
+      "sha256": "116007c1cd55c28a59ca1370ce5b2242b1bbae9321a43716bc8c541d31e65a9c",
+      "physical_lines": 22,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/upload/services/passport-camera-crop.test.ts",
+      "sha256": "29951a5e4ae44f1b51a4cc495f83773d23c336b843278462b7c7e1176c81bd76",
+      "physical_lines": 22,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/passports/utils/passport-workflow.test.mjs",
+      "sha256": "0c1ca3191f0f2e0aac2282f871a8221b3f24dd7a01b2df8de1abdde6bb1cc736",
+      "physical_lines": 25,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/upload/components/fresh-documents.test.tsx",
+      "sha256": "e2d79fbf4799e04fe0cab2c35edf9b02c696db105ad2ba22876e954943701bf8",
+      "physical_lines": 26,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/branding/api/branding-images.api.test.ts",
+      "sha256": "e84a5a8502988fa55057cfda920db31b59a3b6521e136e80a7d8d880227bb13c",
+      "physical_lines": 27,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/passports/components/whatsapp-match-evidence.test.ts",
+      "sha256": "55a89676dd0933f7101e95e95487e3bd50e370fede208af446f1f1efa2b56f51",
+      "physical_lines": 28,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/travellers/services/draft-readiness.test.ts",
+      "sha256": "e04321e4059526f74ad084aa0180ad6d1feb5700191c7aee3ad26958807f0dfe",
+      "physical_lines": 29,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/passports/api/staff-approval-contract.test.mjs",
+      "sha256": "b00000ae32cfa933a246c39fb1e7d443a2fb38becb381a21dec954addf70c569",
+      "physical_lines": 39,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/travellers/services/draft-reconcile.test.ts",
+      "sha256": "e7f33090c30e1e7d48db14874047670918c13a346080d8fc22238b31884accd1",
+      "physical_lines": 40,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/upload/services/fresh-validation.test.ts",
+      "sha256": "51a4e0bcf80c7203822b66dee4c8d5d2101260599a78900ff4dbccf8967fa6cd",
+      "physical_lines": 40,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/travellers/api/draft-requests.test.ts",
+      "sha256": "6865b4b773a3916c4d93b45cfba73fdc15c6577c96350526c8c05805941312c1",
+      "physical_lines": 42,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/travellers/services/draft-module-budgets.test.ts",
+      "sha256": "cf3ee80851c066e02aa904bf2207ec5f0ace1343a5e6d064cedcce17d2f66b5e",
+      "physical_lines": 42,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/passports/utils/passport-reextract.test.mjs",
+      "sha256": "f322c9507fbb64f163d1ef94f0e1a81211b988a77609b2d13f7de22b87351b56",
+      "physical_lines": 44,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/upload/services/passport-live-frame-adapter.test.ts",
+      "sha256": "c27f09e2122ccc86b1cfdb12c11e35d87336fcf3988d4e4e320a333e5800a2cf",
+      "physical_lines": 44,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/passports/utils/passport-image-library.test.mjs",
+      "sha256": "70dba3f217faf0210bfcb542e4baf7ce3d27e68994fa092a66093ab962b51293",
+      "physical_lines": 45,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/upload/api/configured-upload.api.test.ts",
+      "sha256": "b617e0a5f6a06a2643173943ecb895b4fb1d7c748b3356b683340b72029d9d5b",
+      "physical_lines": 47,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/upload/components/visa-camera-footer.test.tsx",
+      "sha256": "8a9b1e873155bf61bfcae3c99b3c8c4023e2f1181225626b06e02405d39f4ce5",
+      "physical_lines": 47,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-detail-boundaries.contract.test.mjs",
+      "sha256": "babd6ba3e55b2369a507d713190d3c28d641970b96eccdc8714ff0371d618747",
+      "physical_lines": 51,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/upload/services/camera-capture.test.mjs",
+      "sha256": "c84535eeda230de40ea05b247f1bb083c15c2324c9f8c96f44c171ab959d2410",
+      "physical_lines": 52,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/upload/services/camera-quality-policy.test.mjs",
+      "sha256": "44b87c85f8cc660d3833215897cf91c1f7667e3ba2fc6c760dac49ba88833985",
+      "physical_lines": 52,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/passports/components/group-document-delivery-panel.test.tsx",
+      "sha256": "2f2a9b2ace925c1315cf0094e191f1cf3c8958288410616f8e6ede0e95cc2333",
+      "physical_lines": 57,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/upload/services/passport-final-quality.browser.test.ts",
+      "sha256": "99218cb3a588d5246d3482117aa7ee8818fb6f2972141a9bc33dfe358c525673",
+      "physical_lines": 57,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/upload/services/visa-photo-upload-validation.test.mjs",
+      "sha256": "92780f0d279a5283fb19f4e07bd2db8070e72e10c95bfec622a24085caa3a924",
+      "physical_lines": 62,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/passports/api/public-upload-session.test.mjs",
+      "sha256": "6eb571a9404c7c950edaac92f973c8078b1a73c516f01eb7f42425a9914299b0",
+      "physical_lines": 64,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/upload/services/visa-face-detection-loader.test.ts",
+      "sha256": "037a9d8a8bae97fd5022c2a2ccf59bd6db840d516faece42399684d73b279159",
+      "physical_lines": 65,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/upload/components/passport-camera-final-validation.contract.test.mjs",
+      "sha256": "d98f0ba08186ef449918a3cdab18457a07da61263ec1bb883802100933ad9299",
+      "physical_lines": 67,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "changed-needs-recheck"
+    },
+    {
+      "path": "frontend/features/passports/components/passport-cover-images.test.tsx",
+      "sha256": "2e0d54a6c5770e45736fb8259bac3202c03ec4c085854ed7084a0ca5c4b06c94",
+      "physical_lines": 69,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/upload/services/public-upload-file.test.ts",
+      "sha256": "b2fd9c39b2e983cbec234d235ddb3e299793234c71675604f8a9feb685f3f8e6",
+      "physical_lines": 70,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/passports/components/passport-workspace-dialogs.test.tsx",
+      "sha256": "1a57fba24b3c14780e61c6a6a84db66d59807da66b93246bc00f0d8e69e7f754",
+      "physical_lines": 72,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/upload/services/passport-document-verification.test.mjs",
+      "sha256": "99bcccfd35fe0e2988b945956edc0ddb82c6c1427d8caee2b7379253bd4863bb",
+      "physical_lines": 74,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/passports/api/passport-operation-owner.test.ts",
+      "sha256": "2c9dd6c23690157b79a0524cb092e4785d03df9a19698c91e40cb9d696f0a7b8",
+      "physical_lines": 75,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-detail-source.contract-helper.mjs",
+      "sha256": "c540c85b3538cc4f50a27065de6fba7fa7ca92dce67ff1d4fffbfb5d7c607ac6",
+      "physical_lines": 75,
+      "kind": "test",
+      "inventory_scope": "focused",
+      "inventory_status": "verified"
+    },
+    {
+      "path": "frontend/features/travellers/hooks/use-returning-draft.test.ts",
+      "sha256": "ebc18f8aa3cf929c2efecd6ad2eefed03c58398b126862dc407963618996068b",
+      "physical_lines": 75,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-fresh-draft.test.tsx",
+      "sha256": "eccd346037b49c7d944a7013f3324a3c982af8695d2fa056a169642a80b9f7a8",
+      "physical_lines": 78,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/passports/components/passport-display-name-dialog.test.tsx",
+      "sha256": "2d286b5f8c00b4e7ab87c291bcdec776e2c640033c0c9967ddfce0ae9fb799c5",
+      "physical_lines": 84,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-selection.test.tsx",
+      "sha256": "84976a57b83594a805f0cd36fdcd407e83241fa19c0f32bce93bbf8bf97100af",
+      "physical_lines": 84,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-flow.test.tsx",
+      "sha256": "03b9750327164f6ca9e3c2ed0a5d1327f9133e27be03914bce3387f534ce8dfb",
+      "physical_lines": 85,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/upload/components/camera-accessibility.contract.test.mjs",
+      "sha256": "736111e62244727fe28eb1d4fb59a44736f711c6c464cdef211fdc5b73aa33a9",
+      "physical_lines": 87,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/passports/components/passport-bulk-delete.contract.test.mjs",
+      "sha256": "222f26eee91758f2d487853a06cb8473002e3bcd00597e165429b2dfebdd7d3f",
+      "physical_lines": 89,
+      "kind": "test",
+      "inventory_scope": "focused",
+      "inventory_status": "verified"
+    },
+    {
+      "path": "frontend/features/passports/utils/passport-image-crop-geometry.test.mjs",
+      "sha256": "c76566f82950d6cdab5327318ff1b5c88b43543b3e688861d918d40280d06d78",
+      "physical_lines": 92,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/passports/components/create-upload-link-modal.contract.test.mjs",
+      "sha256": "4fa83fbbf1ec3331480cf1d51235293b61375e1cd1da7d37c02bf2211e4303e4",
+      "physical_lines": 95,
+      "kind": "test",
+      "inventory_scope": "focused",
+      "inventory_status": "refactored"
+    },
+    {
+      "path": "frontend/features/passports/components/passport-document-revisions.test.tsx",
+      "sha256": "f797a919f248f6fed376442f615895742d0d33fb8fce8f1d04a40e8bd685941c",
+      "physical_lines": 98,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-offer.test.tsx",
+      "sha256": "4283dafa159a149fabe25a7a901eca68506778743b301f9a08c4a1672532be18",
+      "physical_lines": 103,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/travellers/hooks/use-draft-lifecycle.test.tsx",
+      "sha256": "a5ba2e6721d6193dee4800deb7c76c88ab188996c81a7985c43d9143388354e1",
+      "physical_lines": 106,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/upload/components/relation-qualifier-step.test.tsx",
+      "sha256": "d08467b1317f4ee8c4ca4b2ca01f207ce378cf8b73710b1a18680c7ea3adf332",
+      "physical_lines": 108,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-role-access.test.tsx",
+      "sha256": "7a83e70f056129b4a260f65e3dc3e9afa356d5a8b89df629cf13d4d43747fba0",
+      "physical_lines": 112,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/passports/utils/passport-image-editor-viewport.test.mjs",
+      "sha256": "685e7cc5c6f47e610908b88a63aceb03164e84907d392d4a9fb7eed3d7ef2060",
+      "physical_lines": 112,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/upload/services/relation-qualifier.test.mjs",
+      "sha256": "1107d39357866443e03ea6e0e4c24d9914f8747626cbdaa1fde0a0a7047b48dd",
+      "physical_lines": 113,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/upload/components/document-processing.test.tsx",
+      "sha256": "8e2b6338e3bf842ef4d43a4fbb98ab62c7f3e1b344c57e7ae3ab218cdfd6f233",
+      "physical_lines": 117,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/upload/components/traveller-portal.test.tsx",
+      "sha256": "a8477ccff50398a90c25bdd9708ffbc1df19076d0359a824acce9874866a0690",
+      "physical_lines": 118,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/upload/components/upload-contact-verification.test.tsx",
+      "sha256": "82822d13a636e55b1e0584ad1b1bc783a1417e3a3510b7499c1463da7d14c2ae",
+      "physical_lines": 123,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-visa-photo-capture.test.tsx",
+      "sha256": "a76eb4eff4588d416a1be5332b90da293f1e885293a9f1e3cf0911fb2ca1840d",
+      "physical_lines": 127,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/upload/services/visa-selfie-runtime.test.mjs",
+      "sha256": "884685cd98db1753341afd2227933f772eb9fb0048a4ce2686c34aa579694cb3",
+      "physical_lines": 127,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/passports/services/document-thumbnail-loader.test.ts",
+      "sha256": "2ae1373fd89e2f40734a4f766ca5b40a176d4f523733253423e35cd02ef3444d",
+      "physical_lines": 129,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/passports/components/passport-document-cell.test.tsx",
+      "sha256": "ae2cfb2409070133f8809c99ced57e7a3fcb799c5f4e2296aae67b1e780fea02",
+      "physical_lines": 137,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/upload/components/smart-camera.test.tsx",
+      "sha256": "3698d1bd660d52511573bb6cba04fa648ddd95c63fcebcccbfafe1a0607a614e",
+      "physical_lines": 140,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/upload/components/visa-selfie-compatibility.test.mjs",
+      "sha256": "23f9146f4255c72a151342ff7c41774b3998f6bd6ed3001c206e2b9a90a996f3",
+      "physical_lines": 140,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/upload/services/visa-photo-upload-detector.test.ts",
+      "sha256": "c6e96cdc24703400fa3737cd13579172257b1701aeb224073cc9339bde630043",
+      "physical_lines": 140,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/upload/components/visa-selfie-camera.test.tsx",
+      "sha256": "c65da2f61f4d28de2507e2e063d57f861ea6a7414f156a145eb4818690cbbcab",
+      "physical_lines": 144,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/upload/services/public-flow-telemetry.test.mjs",
+      "sha256": "b00eef011c62227730f2f52e6c06a9e617d00bda5c525f59f68478d13efc7668",
+      "physical_lines": 151,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/travellers/hooks/draft-response-races.test.tsx",
+      "sha256": "ce9a91d0f6a509297d43f738cd6bea4e9948ab4bc8434f5f93edf1490826214f",
+      "physical_lines": 169,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/upload/components/visa-selfie-camera.contract.test.mjs",
+      "sha256": "a0b9a463984023f5ad67975ceeb130114f8d307f4d33f86de0235f86b09d58e0",
+      "physical_lines": 182,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-overview-panel.test.tsx",
+      "sha256": "6aeac9e706c0e2dcdb87fcb3df415c676460a0b00384a38931205c3738e66b15",
+      "physical_lines": 189,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/passports/components/whatsapp-broadcast-selector.test.tsx",
+      "sha256": "55955de7afcc99f7cb71d0f1a42fd5a9b4816be0b2228a33e508c01d3365b033",
+      "physical_lines": 194,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/passports/components/passport-image-crop-editor.contract.test.mjs",
+      "sha256": "e9aeb74e47825a5cd2f7566b7266ffaeeccf0f44d383c17c7e82c8e210141d05",
+      "physical_lines": 200,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "changed-needs-recheck"
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-review.test.tsx",
+      "sha256": "43390a27467e951d693a080ed8e47536fe43e622c47648708a5aaa92247e1f76",
+      "physical_lines": 268,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/upload/services/passport-rectangular-frame-detector.test.mjs",
+      "sha256": "41187c81f80f80f994671896afc0799f06ff3ea9e90e45fc2997ca19eb008a24",
+      "physical_lines": 348,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/upload/services/passport-final-quality.test.mjs",
+      "sha256": "5f17ff811d48c81028e3c60ee9ece8c844532c0900595ceb09bbac321792fff3",
+      "physical_lines": 366,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-detail.contract.test.mjs",
+      "sha256": "60401d9aea3b834af71e7a98931674784b11ded3fff5cfbdc13339998fc6f939",
+      "physical_lines": 371,
+      "kind": "test",
+      "inventory_scope": "focused",
+      "inventory_status": "verified"
+    },
+    {
+      "path": "frontend/features/upload/components/visa-selfie-quality.test.mjs",
+      "sha256": "7385a96c8fc42f4b5ab47068d7e98ade34615f4f2b2ffd5383e4d3a9d67751b2",
+      "physical_lines": 850,
+      "kind": "test",
+      "inventory_scope": "unreviewed",
+      "inventory_status": "inventoried"
+    }
+  ]
+}

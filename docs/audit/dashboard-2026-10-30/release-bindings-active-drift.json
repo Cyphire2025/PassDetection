@@ -1,0 +1,16 @@
+{
+  "status": "known active source drift; exact qualification pending",
+  "expected_paths": 102,
+  "current_matches": 101,
+  "current_drift": [
+    {
+      "path": "frontend/package.json",
+      "expected": "5de0ee57a35e13692336a9f2821504061aae67cc2df94e428fdc411b73c5fca8",
+      "actual": "408dad065be30f21a2344af398a32238ac72250a778e363977fab10ba247ff81",
+      "matches": false
+    }
+  ],
+  "additional_unadmitted_active_source": "frontend/scripts/build-offline-scanner.mjs",
+  "classification": "Parent confirms authorized scanner/package batch still active. No source admission refreshed without its frozen proof.",
+  "last_successful_exact_checkpoint": "oauth-submission-storage-menu-shared-integration.json backend656/FE639; historical until a new all-source check passes."
+}

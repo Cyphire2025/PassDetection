@@ -1,0 +1,241 @@
+{
+  "checkpoint": "GC admin endpoint/hooks and remaining oversized UI responsibilities after sealed frontend authority integration",
+  "recorded_at": "2026-10-30T20:47:45.501868+00:00",
+  "source_records": [
+    {
+      "path": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+      "sha256": "a4d55abbfe19c27d2f5f992525572bb2bb62461c276a6753f28f9ba39b12b69e",
+      "physical_lines": 20
+    },
+    {
+      "path": "frontend/features/gc-app/api/gc-app-wire.types.ts",
+      "sha256": "89fed20ed03858ad5840f3a8fdb11b65f43bae67c00dd98bf12ac37c845c874f",
+      "physical_lines": 145
+    },
+    {
+      "path": "frontend/features/gc-app/api/gc-app-directory.api.ts",
+      "sha256": "4ba9ce7f17bb651183e667c6d0c3dee7c3f7384f40eb9f4661d63fafa9385e51",
+      "physical_lines": 93
+    },
+    {
+      "path": "frontend/features/gc-app/api/gc-app-managers.api.ts",
+      "sha256": "530eea92e22bab090fe5b3da1904cf54df26a2461a6f5972e9a13b53a59bd91f",
+      "physical_lines": 155
+    },
+    {
+      "path": "frontend/features/gc-app/api/gc-app-groups.api.ts",
+      "sha256": "742e84370a2d4157ee6cbadfc4d37498e150747ab1a52bbf2c521dfedb7a2737",
+      "physical_lines": 170
+    },
+    {
+      "path": "frontend/features/gc-app/api/gc-app-documents.api.ts",
+      "sha256": "0d409c68f34db37e0fb0a6083e2d164af5e5f49ffae083c92a790731041ba27e",
+      "physical_lines": 122
+    },
+    {
+      "path": "frontend/features/gc-app/api/gc-app-itineraries.api.ts",
+      "sha256": "b1371566daaa921158f706b8a4eae4821bdfa896df79411e2eb70804d10bd54e",
+      "physical_lines": 65
+    },
+    {
+      "path": "frontend/features/gc-app/api/gc-app-announcements.api.ts",
+      "sha256": "4d0d5ed7e7aed4e6c9bcc309e8cc7040061ad82e896df17828649c4f6105830b",
+      "physical_lines": 90
+    },
+    {
+      "path": "frontend/features/gc-app/api/gc-app-audit.api.ts",
+      "sha256": "2ffd9bc269c993b01fe2d258d394be1d7dc5424036bb2549ac887140fb27fea5",
+      "physical_lines": 44
+    },
+    {
+      "path": "frontend/features/gc-app/api/gc-app-transport.ts",
+      "sha256": "e6ee9a0b8b2d483a6dde636e1883734930f1dd6d345164b65ff1c40522d07681",
+      "physical_lines": 53
+    },
+    {
+      "path": "frontend/features/gc-app/api/gc-app-account-mappers.ts",
+      "sha256": "0b5446f5f836b63582f7e24a3181da62efaec9415cc5a44d1b0a9f1c60e6f48b",
+      "physical_lines": 108
+    },
+    {
+      "path": "frontend/features/gc-app/api/gc-app-content-mappers.ts",
+      "sha256": "6e00cbcd498b7402d1908a8f67f85fd5f3292cbf3dcd73ec07f4b008110b045f",
+      "physical_lines": 81
+    },
+    {
+      "path": "frontend/features/gc-app/hooks/use-gc-app-admin.ts",
+      "sha256": "6b3c0cf720fc93f24a3044b48152a05d8d26696739451c64194955bdb6740cf2",
+      "physical_lines": 18
+    },
+    {
+      "path": "frontend/features/gc-app/hooks/gc-app-query-config.ts",
+      "sha256": "8769b0ac107d33a4cac4067dfaaade631fe63902d0983c5f835f62c2f9796ec7",
+      "physical_lines": 47
+    },
+    {
+      "path": "frontend/features/gc-app/hooks/use-gc-client-directory.ts",
+      "sha256": "f4a43646fe2f9cb13ef6c8098d0e580005617eadb00c3d0f11fba19b72fdc3c8",
+      "physical_lines": 57
+    },
+    {
+      "path": "frontend/features/gc-app/hooks/use-gc-client-managers.ts",
+      "sha256": "076f3bd971bafbf4adf5acdcaa5c39362382b433fd052f7d30a96bbd5a000378",
+      "physical_lines": 104
+    },
+    {
+      "path": "frontend/features/gc-app/hooks/use-gc-group-queries.ts",
+      "sha256": "bdcadd50ce40a5484ff7eb254563d91c8baf059432cb126d76806723d408f1c8",
+      "physical_lines": 68
+    },
+    {
+      "path": "frontend/features/gc-app/hooks/use-gc-group-mutations.ts",
+      "sha256": "d7d6510746d5cba13b3dab3a51cd7e76428308ca5be862f78b1c57f437d93ffc",
+      "physical_lines": 206
+    },
+    {
+      "path": "frontend/features/gc-app/components/app-controls-page.tsx",
+      "sha256": "eb162b026387f023e5e4b3ea20cdfbeeea2b440a793ad4b24bf0e3263a0fe027",
+      "physical_lines": 132
+    },
+    {
+      "path": "frontend/features/gc-app/components/add-gc-app-group-dialog.tsx",
+      "sha256": "a41d1d91136683a6bc1219b304df924c0b3cd929588a52f6a311e8e9f3ed6910",
+      "physical_lines": 238
+    },
+    {
+      "path": "frontend/features/gc-app/hooks/use-gc-group-picker.ts",
+      "sha256": "f1ac8115c202c323cecef825c68990c0299ecc63c4b545e7c492748a9add6cc2",
+      "physical_lines": 86
+    },
+    {
+      "path": "frontend/features/gc-app/components/common-documents-panel.tsx",
+      "sha256": "197d601a609524e90b2ded0201ea96d7ffa895ddcb584caff7864d5f2a33c076",
+      "physical_lines": 275
+    },
+    {
+      "path": "frontend/features/gc-app/components/common-document-upload-form.tsx",
+      "sha256": "822f50bb9c633223e09fc1decc3272357b914304e22e145758009faa459ab909",
+      "physical_lines": 155
+    },
+    {
+      "path": "frontend/features/gc-app/components/common-document-rows.tsx",
+      "sha256": "f5f5f41a7e062d8b7dfa28773de5ac087e6bd74c9a2e222c25051f32c49ad6cd",
+      "physical_lines": 63
+    },
+    {
+      "path": "frontend/features/gc-app/components/client-manager-details-dialog.tsx",
+      "sha256": "5c0aff4e1445c1f8aba6ab32a379d248fcd308ebff94d36f3b4b9c2a2e905ce5",
+      "physical_lines": 277
+    },
+    {
+      "path": "frontend/features/gc-app/components/client-manager-details.types.ts",
+      "sha256": "8b7f9aa264a1427a6d04990cf9ef01f72ef65273def16a76e9abe3d326c721f1",
+      "physical_lines": 14
+    },
+    {
+      "path": "frontend/features/gc-app/hooks/use-client-manager-details.ts",
+      "sha256": "5206a2147bddc54cce283bd4ae8b677f6e4655006d8a1544745dbda44d80cf17",
+      "physical_lines": 122
+    },
+    {
+      "path": "frontend/features/gc-app/api/gc-app-admin.api.test.ts",
+      "sha256": "85938d7c2d7a50f60ca66ff1cc1b2fa939bdc0ea316d5082f72dba40b6cc2b6d",
+      "physical_lines": 180
+    },
+    {
+      "path": "frontend/features/gc-app/components/common-documents-panel.test.tsx",
+      "sha256": "97f961b9b405fae2b60f89bf781c0c39136e22e1397d7c90b286c8c782656746",
+      "physical_lines": 80
+    },
+    {
+      "path": "frontend/features/gc-app/components/client-manager-details-dialog.test.tsx",
+      "sha256": "aaa6a1fa0054bb61679f656032aced210509896aac8aa10b8c22f3777d505a2e",
+      "physical_lines": 88
+    },
+    {
+      "path": "frontend/features/gc-app/gc-app-dashboard.contract.test.mjs",
+      "sha256": "6c5255cb4de1757800c3455bd3b80f5daae3768e96decd7a879dcc31d5408c43",
+      "physical_lines": 267
+    },
+    {
+      "path": "frontend/features/gc-app/gc-app-source.contract-helper.mjs",
+      "sha256": "e3ddab850e9199b8041a72a6e2966f4f03bdf2cd23347d6ab8fdcfc2a05d8861",
+      "physical_lines": 33
+    }
+  ],
+  "architecture": {
+    "originals": [
+      {
+        "path": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "sha256": "d357bbf64e040b122a389e47d03cc05579766abb862f6692739b3ddb18f49a09",
+        "physical_lines": 1064
+      },
+      {
+        "path": "frontend/features/gc-app/hooks/use-gc-app-admin.ts",
+        "sha256": "102dce961bdc2185ff929a3b650bfb884e922ee425a85cf03bd714aedf53efae",
+        "physical_lines": 459
+      }
+    ],
+    "endpoint_methods": 36,
+    "normalized_unchanged_method_bodies": 34,
+    "deliberate_shared_audit_projection_methods": 2,
+    "unchanged_normalized_hook_functions": 14,
+    "all_gc_runtime_files_under_300_physical_lines": true,
+    "maximum_changed_runtime_lines": 277
+  },
+  "negative_before_fix": [
+    "Common-document same-turn duplicate click called onUpload twice before parent pending rerender. New regression failed before synchronous guard.",
+    "Client Manager details role=tab strip had no roving tabindex, key navigation or panel relationships. New regression failed before ARIA/keyboard correction."
+  ],
+  "verification": [
+    {
+      "check": "API/hooks mechanical movement baseline and after",
+      "result": "23 existing tests passed before and after; after5 new API cases28 passed"
+    },
+    {
+      "check": "Affected entire GC feature after API/hook split",
+      "result": "20 files151 tests passed; this is the preceding source checkpoint before3 UI component decompositions",
+      "receipt": "gc-admin-architecture-unit.json"
+    },
+    {
+      "check": "Current changed UI component behaviors",
+      "result": "4 files25 tests passed, including2 new negatives now green",
+      "receipt": "gc-components-architecture-unit.json"
+    },
+    {
+      "check": "GC existing desktop/phone browser journeys after API/hook split",
+      "result": "8 passed",
+      "receipt": "gc-admin-architecture-browser.json"
+    },
+    {
+      "check": "Current affected closed/paused group publishing browser journeys after component split",
+      "result": "2 passed",
+      "receipt": "gc-components-architecture-browser.json"
+    },
+    {
+      "check": "Current GC source contracts",
+      "result": "16 passed; actual runtime aggregation with all original denial/revision/cache/credential checks retained"
+    },
+    {
+      "check": "TypeScript and scoped ESLint",
+      "result": "passed after final source/import formatting"
+    },
+    {
+      "check": "Existing frontend module ratchets",
+      "result": "passed; new measured candidate entries supplied to parent, no existing ceilings raised"
+    }
+  ],
+  "preserved": [
+    "36 original facade methods and all existing hook entry points; no endpoint/request body/signature/HTTP permission changes.",
+    "Private-operation initiating actor+authority envelope through queued mutation dispatch and post-await cache continuation.",
+    "Role/access revisions, cache newer-revision preservation, multipart boundary/progress/PDF MIME, API paging and bounded4 directory fanout.",
+    "Trip collection lifecycle and safe app-setup removal remain distinct; lost successful response recovers without repeat DELETE.",
+    "One-time activation credential is transient, copy failure retains it, dismiss clears it; account removal exact DELETE confirmation."
+  ],
+  "limitations": [
+    "Browser fixtures are isolated synthetic clients and API responses, no production/provider actions.",
+    "8-flow GC browser receipt precedes component split; current2-flow browser plus4 changed-component unit files supplement it. Parent combined qualification remains pending.",
+    "Mechanical equivalence normalizes line endings only;34 method and14 hook bodies retain all remaining bytes. Two deliberate audit projections are explicitly excluded from equality claim.",
+    "Remaining passport image-analysis service sizes are open, no whole-codebase-complete claim."
+  ]
+}

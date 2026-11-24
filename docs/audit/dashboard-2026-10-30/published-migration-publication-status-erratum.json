@@ -1,0 +1,12 @@
+{
+  "status": "metadata-only publication wording correction",
+  "supersedes_wording_only": {
+    "path": "docs/audit/dashboard-2026-10-30/published-migration-final-source-verification.json",
+    "sha256": "014cf90e41adc424611eef2f6184ac1e828d878a3e6c4bf983321fdc4d539acf"
+  },
+  "correct_statement": "141 migration files committed in Git HEAD plus the reviewed additive0142 migration, totaling142 current migration files. Publication/application of additive0142 is not established.",
+  "incorrect_historical_wording": "All142 current migration files are published.",
+  "basis": "Root relayed AI agent actual Git HEAD comparison on2026-10-31; this erratum does not rerun repository/app checks.",
+  "preserved_evidence": "All142 current file source fences, exact hashes, individual full/focused/native-only/Inbox-deferred read partitions and topology source observations remain unchanged. Historical receipt names and content remain retained.",
+  "scope": "No migration, application, schema, configuration, test, inventory-coverage credit or production-state change. No rechecks performed."
+}

@@ -24,8 +24,10 @@ from .vault import WindowsCredentialLock, WindowsVault
 async def run(args: argparse.Namespace) -> None:
     config = Config(args.origin)
     vault = WindowsVault(config.credential_key)
-    # Resolve vault access before initiating any browser sign-in.
-    vault.read()
+    # Resolve vault access before initiating any browser sign-in. Explicit
+    # removal must also recover an invalid stored record that cannot be parsed.
+    if args.command != "forget":
+        vault.read()
     async with httpx2.AsyncClient(
         timeout=httpx2.Timeout(130, connect=10), follow_redirects=False, trust_env=False
     ) as http:

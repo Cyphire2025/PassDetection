@@ -1,0 +1,102 @@
+[
+  {
+    "path": "app/infrastructure/documents/document_matcher.py",
+    "baseline_lines": 668,
+    "maximum_lines": 700,
+    "baseline_max_function_complexity": 53,
+    "maximum_function_complexity": 53,
+    "minimum_coverage_percent": 80,
+    "measured_focused_line_coverage_percent": 85.47,
+    "measured_focused_branch_coverage_percent": 65.85365853658537
+  },
+  {
+    "path": "app/infrastructure/documents/document_matcher_models.py",
+    "baseline_lines": 82,
+    "maximum_lines": 125,
+    "baseline_max_function_complexity": 1,
+    "maximum_function_complexity": 1,
+    "minimum_coverage_percent": 95,
+    "measured_focused_line_coverage_percent": 100.0,
+    "measured_focused_branch_coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/documents/document_identity_limits.py",
+    "baseline_lines": 13,
+    "maximum_lines": 50,
+    "baseline_max_function_complexity": 1,
+    "maximum_function_complexity": 1,
+    "minimum_coverage_percent": 95,
+    "measured_focused_line_coverage_percent": 100.0,
+    "measured_focused_branch_coverage_percent": 100.0
+  },
+  {
+    "path": "app/infrastructure/documents/document_identity_aliases.py",
+    "baseline_lines": 210,
+    "maximum_lines": 250,
+    "baseline_max_function_complexity": 16,
+    "maximum_function_complexity": 16,
+    "minimum_coverage_percent": 90,
+    "measured_focused_line_coverage_percent": 96.4,
+    "measured_focused_branch_coverage_percent": 85.41666666666667
+  },
+  {
+    "path": "app/infrastructure/documents/document_passenger_index.py",
+    "baseline_lines": 167,
+    "maximum_lines": 200,
+    "baseline_max_function_complexity": 47,
+    "maximum_function_complexity": 47,
+    "minimum_coverage_percent": 85,
+    "measured_focused_line_coverage_percent": 94.19,
+    "measured_focused_branch_coverage_percent": 82.0
+  },
+  {
+    "path": "app/infrastructure/documents/document_match_resolution.py",
+    "baseline_lines": 354,
+    "maximum_lines": 400,
+    "baseline_max_function_complexity": 25,
+    "maximum_function_complexity": 25,
+    "minimum_coverage_percent": 85,
+    "measured_focused_line_coverage_percent": 92.82,
+    "measured_focused_branch_coverage_percent": 82.8125
+  },
+  {
+    "path": "app/infrastructure/documents/document_type_detection.py",
+    "baseline_lines": 241,
+    "maximum_lines": 275,
+    "baseline_max_function_complexity": 25,
+    "maximum_function_complexity": 25,
+    "minimum_coverage_percent": 85,
+    "measured_focused_line_coverage_percent": 91.95,
+    "measured_focused_branch_coverage_percent": 76.66666666666667
+  },
+  {
+    "path": "app/infrastructure/documents/document_text_fields.py",
+    "baseline_lines": 261,
+    "maximum_lines": 300,
+    "baseline_max_function_complexity": 13,
+    "maximum_function_complexity": 13,
+    "minimum_coverage_percent": 85,
+    "measured_focused_line_coverage_percent": 90.07,
+    "measured_focused_branch_coverage_percent": 83.33333333333333
+  },
+  {
+    "path": "app/infrastructure/documents/document_text_normalization.py",
+    "baseline_lines": 49,
+    "maximum_lines": 75,
+    "baseline_max_function_complexity": 8,
+    "maximum_function_complexity": 8,
+    "minimum_coverage_percent": 80,
+    "measured_focused_line_coverage_percent": 85.29,
+    "measured_focused_branch_coverage_percent": 50.0
+  },
+  {
+    "path": "app/infrastructure/documents/document_batch_classification.py",
+    "baseline_lines": 215,
+    "maximum_lines": 250,
+    "baseline_max_function_complexity": 27,
+    "maximum_function_complexity": 27,
+    "minimum_coverage_percent": 80,
+    "measured_focused_line_coverage_percent": 89.61,
+    "measured_focused_branch_coverage_percent": 76.47058823529412
+  }
+]

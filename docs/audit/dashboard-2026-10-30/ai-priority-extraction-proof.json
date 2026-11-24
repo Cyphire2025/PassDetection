@@ -1,0 +1,257 @@
+{
+  "basis": "AI-priority manual preflight source snapshot before narrow async timing fixes; admission/metrics source unchanged before extraction",
+  "checks": [
+    {
+      "declaration": "SharedAiMetricsStore",
+      "owner": "metrics_contract.py",
+      "comparison": "whole AST exact"
+    },
+    {
+      "declaration": "InMemoryAiMetricsStore",
+      "owner": "metrics_memory.py",
+      "comparison": "whole AST exact"
+    },
+    {
+      "declaration": "RedisAiMetricsStore",
+      "owner": "metrics_redis.py",
+      "comparison": "whole AST exact"
+    },
+    {
+      "declaration": "ResilientAiMetricsStore",
+      "owner": "metrics_resilient.py",
+      "comparison": "whole AST exact"
+    },
+    {
+      "declaration": "get_shared_ai_priority_metrics_store",
+      "owner": "metrics.py",
+      "comparison": "whole AST exact"
+    },
+    {
+      "declaration": "AiPriorityMetrics",
+      "owner": "metrics.py",
+      "comparison": "whole AST exact"
+    },
+    {
+      "declaration": "_bounded_category",
+      "owner": "metrics_policy.py",
+      "comparison": "whole AST exact"
+    },
+    {
+      "declaration": "_bounded_number",
+      "owner": "metrics_policy.py",
+      "comparison": "whole AST exact"
+    },
+    {
+      "declaration": "_lifecycle_identity",
+      "owner": "metrics_policy.py",
+      "comparison": "whole AST exact"
+    },
+    {
+      "declaration": "_optional_float",
+      "owner": "metrics_policy.py",
+      "comparison": "whole AST exact"
+    },
+    {
+      "declaration": "_metrics_snapshot",
+      "owner": "metrics_policy.py",
+      "comparison": "whole AST exact"
+    },
+    {
+      "declaration": "_histogram_snapshot",
+      "owner": "metrics_policy.py",
+      "comparison": "whole AST exact"
+    },
+    {
+      "declaration": "_percentile",
+      "owner": "metrics_policy.py",
+      "comparison": "whole AST exact"
+    },
+    {
+      "declaration": "_DEFAULT_MAX_SAMPLES",
+      "owner": "metrics_policy.py",
+      "comparison": "whole constant AST exact"
+    },
+    {
+      "declaration": "_DEFAULT_RETENTION_SECONDS",
+      "owner": "metrics_policy.py",
+      "comparison": "whole constant AST exact"
+    },
+    {
+      "declaration": "_DEFAULT_LIFECYCLE_SECONDS",
+      "owner": "metrics_policy.py",
+      "comparison": "whole constant AST exact"
+    },
+    {
+      "declaration": "_DEFAULT_CIRCUIT_SECONDS",
+      "owner": "metrics_policy.py",
+      "comparison": "whole constant AST exact"
+    },
+    {
+      "declaration": "_MAX_LOCAL_LIFECYCLES",
+      "owner": "metrics_policy.py",
+      "comparison": "whole constant AST exact"
+    },
+    {
+      "declaration": "_ADMISSION_REASONS",
+      "owner": "metrics_policy.py",
+      "comparison": "whole constant AST exact"
+    },
+    {
+      "declaration": "_PROVIDER_EVENTS",
+      "owner": "metrics_policy.py",
+      "comparison": "whole constant AST exact"
+    },
+    {
+      "declaration": "_HISTOGRAM_NAMES",
+      "owner": "metrics_policy.py",
+      "comparison": "whole constant AST exact"
+    },
+    {
+      "declaration": "_QUEUE_LIFECYCLE_SCRIPT",
+      "owner": "metrics_scripts.py",
+      "comparison": "whole constant AST exact"
+    },
+    {
+      "declaration": "_OBSERVE_SCRIPT",
+      "owner": "metrics_scripts.py",
+      "comparison": "whole constant AST exact"
+    },
+    {
+      "declaration": "_START_LIFECYCLE_SCRIPT",
+      "owner": "metrics_scripts.py",
+      "comparison": "whole constant AST exact"
+    },
+    {
+      "declaration": "_COMPLETE_LIFECYCLE_SCRIPT",
+      "owner": "metrics_scripts.py",
+      "comparison": "whole constant AST exact"
+    },
+    {
+      "declaration": "AiPriorityCoordinator.__init__",
+      "owner": "coordinator.py",
+      "comparison": "whole AST exact"
+    },
+    {
+      "declaration": "AiPriorityCoordinator.queue_extraction",
+      "owner": "extraction_admission.py",
+      "comparison": "whole AST exact after typed self annotation removal"
+    },
+    {
+      "declaration": "AiPriorityCoordinator.reserve_public_extraction",
+      "owner": "extraction_admission.py",
+      "comparison": "whole AST exact after typed self annotation removal"
+    },
+    {
+      "declaration": "AiPriorityCoordinator.mark_extraction_dispatched",
+      "owner": "extraction_admission.py",
+      "comparison": "whole AST exact after typed self annotation removal"
+    },
+    {
+      "declaration": "AiPriorityCoordinator.release_public_reservation",
+      "owner": "extraction_admission.py",
+      "comparison": "whole AST exact after typed self annotation removal"
+    },
+    {
+      "declaration": "AiPriorityCoordinator.try_start_extraction",
+      "owner": "extraction_admission.py",
+      "comparison": "whole AST exact after typed self annotation removal"
+    },
+    {
+      "declaration": "AiPriorityCoordinator.queue_verification",
+      "owner": "verification_admission.py",
+      "comparison": "whole AST exact after typed self annotation removal"
+    },
+    {
+      "declaration": "AiPriorityCoordinator.try_start_verification",
+      "owner": "verification_admission.py",
+      "comparison": "whole AST exact after typed self annotation removal"
+    },
+    {
+      "declaration": "AiPriorityCoordinator.heartbeat",
+      "owner": "coordinator.py",
+      "comparison": "whole AST exact"
+    },
+    {
+      "declaration": "AiPriorityCoordinator.release",
+      "owner": "coordinator.py",
+      "comparison": "whole AST exact"
+    },
+    {
+      "declaration": "AiPriorityCoordinator.snapshot",
+      "owner": "coordinator.py",
+      "comparison": "whole AST exact"
+    },
+    {
+      "declaration": "AiPriorityCoordinator._mutate",
+      "owner": "coordinator.py",
+      "comparison": "whole AST exact"
+    },
+    {
+      "declaration": "AiPriorityCoordinator._decision",
+      "owner": "coordinator.py",
+      "comparison": "whole AST exact"
+    },
+    {
+      "declaration": "AiPriorityCoordinator._record_decision",
+      "owner": "coordinator.py",
+      "comparison": "whole AST exact"
+    },
+    {
+      "declaration": "AiPriorityCoordinator._record_store_failure",
+      "owner": "coordinator.py",
+      "comparison": "whole AST exact"
+    },
+    {
+      "declaration": "AiPriorityCoordinator._max_concurrency",
+      "owner": "coordinator.py",
+      "comparison": "whole AST exact"
+    },
+    {
+      "declaration": "AiPriorityCoordinator._job_key",
+      "owner": "coordinator.py",
+      "comparison": "whole AST exact"
+    },
+    {
+      "declaration": "AiPriorityCoordinator._elapsed_ms",
+      "owner": "coordinator.py",
+      "comparison": "whole AST exact"
+    },
+    {
+      "source": "backend/app/infrastructure/ai/passport_extraction_transport.py",
+      "comparison": "entire original AST restores after exact awaited synchronous telemetry rewrite and helper import removal"
+    },
+    {
+      "source": "backend/app/infrastructure/ai/gemini_post_submission_verification_service.py",
+      "comparison": "entire original AST restores after exact awaited synchronous telemetry rewrite and helper import removal"
+    },
+    {
+      "source": "backend/app/infrastructure/ai_priority/config.py",
+      "comparison": "whole module AST exact excluding corrected stale module docstring"
+    },
+    {
+      "source": "backend/app/infrastructure/ai_priority/factory.py",
+      "comparison": "whole module AST exact excluding corrected stale module docstring"
+    }
+  ],
+  "check_count": 47,
+  "runtime_contract_equal": true,
+  "sources": {
+    "backend/app/infrastructure/ai_priority/metrics.py": "58a549a1d768f5074537da9997ebcec08ab0d073d149a7705376d5e5f90dead3",
+    "backend/app/infrastructure/ai_priority/metrics_contract.py": "9e71389b39bf58e5de0ad2920533ca7f5f4042d078d4ff33b596ebe43f920c55",
+    "backend/app/infrastructure/ai_priority/metrics_memory.py": "29cb27cb8e5206b8d47cff511c3dc12698386722a214795dd352ea65c8f03b29",
+    "backend/app/infrastructure/ai_priority/metrics_policy.py": "27402108289975bcaf115601e7d260402a3bb8c54f31f39ef81a849031f7ed28",
+    "backend/app/infrastructure/ai_priority/metrics_redis.py": "858aab8f8a57603206d77b42535d3e3d2fac9390088ef3edb2c04151eaa2c8e0",
+    "backend/app/infrastructure/ai_priority/metrics_resilient.py": "aa3ae27d6efa650a780f5613013d0cb1786414024ae5c3960d6896bae5c849ff",
+    "backend/app/infrastructure/ai_priority/metrics_scripts.py": "cc25dcc0066df52ee96014736890a0604444eb73c85e65645d8adfe3978c887f",
+    "backend/app/infrastructure/ai_priority/coordinator.py": "bcbfdc68e32740b914686690413ea1c19f3d77e5b1dc67e2fec39b2d1ac28441",
+    "backend/app/infrastructure/ai_priority/admission_context.py": "eca2ec309f6b415879351a293692a578940e0666172e5f95939515b78702468e",
+    "backend/app/infrastructure/ai_priority/extraction_admission.py": "5d61b7ab55d97cb7f0eef33e283a76a4e2c26c11bb327e40480eaf997f185f89",
+    "backend/app/infrastructure/ai_priority/verification_admission.py": "682c540ce4b86a2f7024213d63533e5aa12cf5409967838c5b31ccd8e06eeb48",
+    "backend/app/infrastructure/ai_priority/runtime.py": "7de45950107ea9569db2ae365c0cc8c90983c5b0985d8c0b2b94278ead8ab19d",
+    "backend/app/infrastructure/ai_priority/provider_metrics.py": "f6a5b456136d2c42a1e649335d1e12842884a810301ba360c123ce0d5cbb4071",
+    "backend/app/infrastructure/ai_priority/config.py": "e0ad89c9f09a694e0e10e00b3fd0fe1cf6f256a90101eeacf1ddbcfd21d062d3",
+    "backend/app/infrastructure/ai_priority/factory.py": "7e70f7bb24bb5fd2bf336b11f98a527f2cba5d5aff74a922bb6bba49bc5d599b"
+  },
+  "lua_limits": "four metric Lua strings exact; RedisPriorityStore Lua/source unchanged",
+  "limits": "No live Redis or fairness/backlog benchmark; source equivalence is not service qualification."
+}

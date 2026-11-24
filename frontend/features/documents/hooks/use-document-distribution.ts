@@ -1,4 +1,5 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { usePrivateMutation } from "@/hooks/use-private-mutation";
 import type {
   AbortDocumentUploadResult,
   DistributionDocumentType,
@@ -55,7 +56,7 @@ export function useExportDocumentAssignments(
   documentType: DistributionDocumentType,
   groupName?: string,
 ) {
-  return useMutation({
+  return usePrivateMutation({
     mutationFn: ({ filter, search }: {
       filter: DocumentAssignmentExportFilter;
       search: string;
@@ -72,7 +73,7 @@ export function useExportDocumentAssignments(
 export function useUploadDistributionDocuments(groupId: string, documentType: DistributionDocumentType) {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return usePrivateMutation({
     mutationFn: ({ manifest, onProgress, onManifestChange, signal }: {
       manifest: DocumentStagingManifest;
       onProgress?: (progress: DocumentUploadProgress) => void;
@@ -103,14 +104,15 @@ export function useAbortDistributionUploads(
 ) {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async (batchIds: string[]) => {
+  return usePrivateMutation({
+    mutationFn: async (batchIds: string[], _context, owner) => {
       const uniqueBatchIds = Array.from(new Set(batchIds));
       const results: AbortDocumentUploadResult[] = [];
       for (const batchId of uniqueBatchIds) {
-        results.push(
-          await documentDistributionApi.abortUpload(groupId, documentType, batchId),
-        );
+        owner.assertCurrent();
+        const result = await documentDistributionApi.abortUpload(groupId, documentType, batchId);
+        owner.assertCurrent();
+        results.push(result);
       }
       return results;
     },
@@ -125,7 +127,7 @@ export function useAbortDistributionUploads(
 }
 
 export function useVerifyDistributionDocuments(groupId: string, documentType: DistributionDocumentType) {
-  return useMutation({
+  return usePrivateMutation({
     gcTime: 0,
     mutationFn: ({ files, onProgress, signal, filenameReplacements }: {
       files: File[];
@@ -146,7 +148,7 @@ export function useVerifyDistributionDocuments(groupId: string, documentType: Di
 export function useReuploadPassengerDocument(groupId: string, documentType: DistributionDocumentType) {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return usePrivateMutation({
     mutationFn: ({ passengerId, file }: { passengerId: string; file: File }) =>
       documentDistributionApi.reuploadPassengerDocument(groupId, documentType, passengerId, file),
     onSuccess: (data) => {
@@ -160,7 +162,7 @@ export function useReuploadPassengerDocument(groupId: string, documentType: Dist
 export function useDeleteDistributionDocuments(groupId: string, documentType: DistributionDocumentType) {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return usePrivateMutation({
     mutationFn: (documentIds: string[]) => documentDistributionApi.deleteDocuments(groupId, documentType, documentIds),
     onSuccess: (data) => {
       queryClient.setQueryData(documentKeys.review(groupId, documentType), data);
@@ -172,7 +174,7 @@ export function useDeleteDistributionDocuments(groupId: string, documentType: Di
 
 export function useManualPassengerDocumentUpload(groupId: string, documentType: DistributionDocumentType) {
   const queryClient = useQueryClient();
-  return useMutation({
+  return usePrivateMutation({
     mutationFn: ({ passengerId, file, mode, replacements }: { passengerId: string; file: File; mode: "add" | "replace"; replacements: ManualDocumentReplacement[] }) =>
       documentDistributionApi.manualUploadPassengerDocument(groupId, documentType, passengerId, file, mode, replacements),
     onSuccess: data => queryClient.setQueryData(documentKeys.review(groupId, documentType), data),
@@ -188,7 +190,7 @@ export function useManualPassengerDocumentUpload(groupId: string, documentType: 
 export function useUnassignDistributionDocuments(groupId: string, documentType: DistributionDocumentType) {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return usePrivateMutation({
     mutationFn: (documentIds: string[]) =>
       documentDistributionApi.unassignDocuments(groupId, documentType, documentIds),
     onSuccess: (data) => {
@@ -202,7 +204,7 @@ export function useUnassignDistributionDocuments(groupId: string, documentType: 
 export function useSaveDocumentBatch(groupId: string, documentType: DistributionDocumentType) {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return usePrivateMutation({
     mutationFn: (batchId: string) => documentDistributionApi.saveBatch(batchId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: documentKeys.review(groupId, documentType) });
@@ -236,7 +238,7 @@ export function useSendDocumentWhatsAppBroadcast(
   broadcastGroupId?: string,
 ) {
   const queryClient = useQueryClient();
-  return useMutation({
+  return usePrivateMutation({
     mutationFn: ({
       batchId,
       documentIds,

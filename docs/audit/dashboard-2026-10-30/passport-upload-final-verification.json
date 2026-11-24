@@ -1,0 +1,64 @@
+{
+  "review_date": "2026-10-30",
+  "source_state": "frozen focused checkpoint; no later runtime edits planned",
+  "vitest": {
+    "files": 10,
+    "tests": 44,
+    "passed": true,
+    "command": "node node_modules/vitest/vitest.mjs run --maxWorkers=1 --pool=threads [10 focused files]",
+    "duration_seconds": 27.79
+  },
+  "node_contracts": {
+    "tests": 68,
+    "passed": true,
+    "scope": "passport-image-crop-editor.contract.test.mjs and all upload/components/*.contract.test.mjs"
+  },
+  "frontend_type_check": {
+    "passed": true,
+    "command": "npm run type-check"
+  },
+  "scoped_eslint": {
+    "passed": true,
+    "scope": "48 full reviewed source/test/helper paths"
+  },
+  "focused_budgets": {
+    "modules": 22,
+    "passed": true,
+    "maximum_module_lines": 285,
+    "maximum_function_complexity": 23,
+    "manifest": "passport-upload-budget-candidates.json"
+  },
+  "browser": {
+    "existing_crop_editor": {
+      "passed": 12,
+      "failed": 0
+    },
+    "current_fresh_flow": {
+      "passed": 4,
+      "failed": 0
+    },
+    "actual_route_fallback": {
+      "passed": 4,
+      "failed": 0
+    },
+    "legacy_entry_specs": {
+      "planned": 11,
+      "observed_failed_before_legacy_mount": 3,
+      "run_stopped": true,
+      "passing_evidence": false,
+      "mapping": "public-upload-browser-coverage-mapping.json"
+    }
+  },
+  "limits": [
+    "No full frontend test/build rerun in this lane; parent runs combined checks after integration.",
+    "Private draft negative-path current browser gaps remain explicit in coverage mapping.",
+    "No real provider calls, production data, external storage or VPS qualification.",
+    "157 passport/upload runtime files remain without matching current full-source review evidence."
+  ],
+  "fingerprints": {
+    "passport-upload-reviewed-files.json": "7d9dded74009706647c92de52a6ddcd8e483d51520c3a1dd15a5e459e348bb8c",
+    "passport-upload-budget-candidates.json": "41663f6318a483cf8692e846814b5d720899af25b77574bf4a88e15a94c73f71",
+    "public-upload-browser-coverage-mapping.json": "68715ab28396d45eb0f464cdb0ef05bb91fb9a1f63517796898bd1bd7f591e5a"
+  },
+  "follow_up": "fresh-public-upload-final-verification.json closes the historical stale-browser coverage gap recorded here."
+}

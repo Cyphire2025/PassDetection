@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "--tb=short",
+    "tests/unit/infrastructure/test_roster_cache.py",
+    "tests/unit/infrastructure/test_roster_cache_shape_recovery.py"
+  ],
+  "exit_code": 1,
+  "source_frozen": true,
+  "output": "roster-cache-shape-before-tests.txt",
+  "source_snapshot": "roster-cache-shape-original-source.json"
+}

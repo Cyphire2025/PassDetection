@@ -61,6 +61,9 @@ export function whatsappRecipientPollInterval(
 export function whatsappBatchHttpStatus(error: unknown): number | undefined {
   if (typeof error !== "object" || error === null) return undefined;
 
+  const normalizedStatus = (error as { status?: unknown }).status;
+  if (typeof normalizedStatus === "number" && Number.isInteger(normalizedStatus)) return normalizedStatus;
+
   const response = (error as { response?: unknown }).response;
   if (typeof response === "object" && response !== null) {
     const status = (response as { status?: unknown }).status;
@@ -79,15 +82,18 @@ export function isMissingWhatsAppBatchStatus(
   return status === 404;
 }
 
-/**
- * A missing batch is terminal because the server no longer has progress to
- * report. Network failures and server errors remain retryable.
- */
+/** Permanent client denials need an explicit retry or a changed session. */
+export function isTerminalWhatsAppBatchStatus(status: number | undefined): boolean {
+  return status !== undefined && status >= 400 && status < 500
+    && status !== 408 && status !== 429;
+}
+
+/** Network, server and transient client failures retain bounded retries. */
 export function shouldRetryWhatsAppBatchStatus(
   failureCount: number,
   status: number | undefined,
 ): boolean {
-  if (isMissingWhatsAppBatchStatus(status)) return false;
+  if (isTerminalWhatsAppBatchStatus(status)) return false;
   return failureCount < WHATSAPP_BATCH_TRANSIENT_RETRY_LIMIT;
 }
 

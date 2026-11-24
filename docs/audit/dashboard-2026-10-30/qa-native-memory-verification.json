@@ -1,0 +1,116 @@
+{
+  "status": "complete-read-only-source-checkpoint",
+  "source_fence": [
+    {
+      "path": "scripts/qa/probe_image_advisory_conditions.py",
+      "sha256": "61785cd5808cbb0ae3015c378ea4b5f366d1264a161aae19b90734f5e7e78ba3",
+      "physical_lines": 116,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete116physicalsource read. Offline installednativebyte/ELF64littleendian imported-symbol inventory, absentCLI/Perlmodules, UID1001/capabilities/NoNewPrivs andPythonFFI references with exactallocator exception traced. MalformedunsupportedELF fails ratherthanpasses. Literalzlibhash/condition inventories are readsource only, not currentbinary/sourceaffectedrange/advisoryfreshness proof. No scanner/library probe executed; rootowns13expiredreviewwindows/officialresearch."
+    },
+    {
+      "path": "scripts/qa/gcc_runtime_policy.py",
+      "sha256": "53571c263d2f8cb4817f09bab146ede35a0d7d5e4700aba61c7b7e8099fda79b",
+      "physical_lines": 149,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete149physicalsource read. Exact4Debianpackage version/status/list/required existingfile/symlink/hash+library/amd64ABI anddevelopmentcomponent rejection; normal+18alignednew boundaries/nothrow/nullhandler/free behavior traced. NativeC++calls requireexactknownlibrary butnotinvoked. Scopeexplicitlylimited4runtimepackages/PBDSabsence, notalltemplates. Manifestidentityliterals notindependentofficialarchiveauthentication."
+    },
+    {
+      "path": "scripts/qa/gcc_runtime_manifest.json",
+      "sha256": "b090a6b080be7fe7b8107eda4447a7b54f291b346b1450d817a72be3814391a3",
+      "physical_lines": 218,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete218line textcatalog physicallyread0-110+110-EOF: fourpackageversions/archiveURLs/hashes/sizes plusall directory/file/symlink metadata. verify_package_contents consumesexpectednames/version/path/hash/library; optionaldoc/GDBmetadata policy explicit. Catalogsource/data fullread only; no .deb/network/currentinstalledpackage/binaryprovenance qualification orwaiverrenewal."
+    },
+    {
+      "path": "scripts/qa/api_native_memory_app.py",
+      "sha256": "617d81899c3d991d01665db618f2817394fcfeedc4a17715fdfe6f31d56dc96c",
+      "physical_lines": 102,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete102physicalsource read. QA-onlysyntheticdevelopmentDB assertions, actualproductiondependencygraphimport butdummyFastAPIwithoutlifespan/provider/authIO, boundedknown10MiBimagehash/crop45deg/sharpness2, loopbackthreadedclient/cgroup measurements/503explicitretry/workerresultdigest/oom checks. EntryonlythroughisolatedQAqualifier, no productionrouter imports found. No actualHTTP/nativecrop/physicalmemory exercised."
+    },
+    {
+      "path": "scripts/qa/qualify_api_native_memory.py",
+      "sha256": "87f3edbad942d423fd22808cc393f23ea9362b10680e3a26d77548ef5a7f7255",
+      "physical_lines": 99,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete99physicalsource read. ExactlocalimageIDquery, generatedsynthetic24MPpadded10MiB fixture, none-network/UID1001/ALLcapsdrop/noNewPrivileges/PIDs/2.5GiBnoSwap/4CPU/4Gunicornworkers/read-onlyapp/fixture mounts andoptionalexplicitsource-admission overlay. Receiptdistinguishesoverlay andfullAPIqualificationlimits. Source-backeddiagnostics-beforestop andhost-vs-image admissionhash candidates retainedseparately pendingordinarysyntheticregression; no edit/livecontainerclaim."
+    },
+    {
+      "path": "scripts/qa/probe_bounded_memory.py",
+      "sha256": "39c0a74e860f5de5c591a58ce3e2bc553913e01427d274b06f71a9e564fda9a5",
+      "physical_lines": 208,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete208physicalsource read0-115+115-EOF. GeneratesRGB/RGBA24/40MP/100pagesyntheticPDFs; boundedmodes useactualvalidators/transforms withfixtureDigestScanner/provider-freeHTTPRequest serialization. Celeryfullyimported/fork1-4children/repetitions1-20/cgroup/RSS/exitcodes traced. Nativefork/allocator/parser notexecuted. Mixedemailbranch readonlyascommonhelperdispatch, dedicatedInboxcallees deliberatelynotreviewed. Childtimeout cleanupcandidate separate, notconfirmedruntimefailure."
+    },
+    {
+      "path": "scripts/qa/qualify_bounded_memory.py",
+      "sha256": "dab547e32821ea1c30f750786610d7dfd6f6db85d189e5542fd7021d59a359d0",
+      "physical_lines": 88,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete88physicalsource read. Explicitfixedmodes/child/repetition allowlists, exact-lookingimageID/isolatedno-networkUID/caps/noSwap/PIDs/syntheticenv/read-onlyfixtures, optionalsourcecheckoutclearlyflagged/hashmetadata andexitedcontainerretention. CallsCI3fixedworkerprofilesandAPIqualifier. Timeoutbranch skipsordinaryreceipt/owned-containerfollowthrough candidate open; source/no-parent-timeout collection limits noted, no runtimeclaims."
+    },
+    {
+      "path": "scripts/qa/qualify_postgres_memory.py",
+      "sha256": "50b12a4c912378be0ebd1e4250d1466cb3c41af4e1b8bbb1a58828c996ec06eb",
+      "physical_lines": 115,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete115physicalsource read. Pinnedimage andunique microsecondnamespace/volume, loopbackrandomportverifiedbeforeconnect, fixedsyntheticDB/password, 100connectionbound+64syntheticlocal sortqueries/statementtimeouts/cgroupOOM/metadata assertions. Standaloneoperatorentrypoint no maintainedCIcallerfound. Ownstop/retainedvolume cleanupfinally exists butprecedingconnectionclosefailure/cancel candidate notadopted; no actualPG/Docker/volume/prod credentials used."
+    },
+    {
+      "path": "scripts/qa/native_allocator_policy.py",
+      "sha256": "1ebd43caaac818a7efdbe0591ac2f9009e896d2803fcfeb4e721c418bcd190d6",
+      "physical_lines": 42,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete42physicalsource supportread. ExceptionpinsentiresourceSHA pluscomplete_heap_reclaimerfunctionAST/singlecanonicalpath, notmodulename allowlist. Staticcurrentraw/LF sourceSHA andfunctionAST matchbothpins; metadataonly, no actualGNUallocator call/nativeimage proof. Parentofficialadvisorypolicy/waivers remainreserved."
+    },
+    {
+      "path": "scripts/test_gcc_runtime_policy.py",
+      "sha256": "2e22c0d2a00a9b0ad5782560790899184c92357f2f0b2544714bfb83f767cfb1",
+      "physical_lines": 141,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete141physicalsource supportread0-115+115-EOF. Synthetictempfilecontent +mockcpp/ctypes symbol validateexactpackage/hash/missing/duplicate/metadata/developmentheaders/controlalignment/newhandler/18arguments+deallocation refusals. MakesactualpurePythonpolicyguards meaningful withoutnativeC++/installedlibrary proof; no execution here."
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "ab1f1961f774769a8efbebd80c4f0c5b66c52b77e6a3ddc79906e49259b63109",
+      "physical_lines": 1354,
+      "reviewer": "branding_visuals",
+      "review_scope": "partial",
+      "status": "reviewed",
+      "notes": "Only1060-1086 memoryqualification/probe call region plusreference searches physicallyread. Existing wholeimagepolicy stepnotexecuted; requiredgates/CIunchanged. No whole-filecredit."
+    }
+  ],
+  "all_eight_selected_initial_hashes_unchanged": true,
+  "checks_run": [],
+  "source_runtime_test_changes": [],
+  "followups_file": "qa-native-memory-followups.json",
+  "findings": "Fourcalibratedsourcecandidates, no confirmedservice/lifetime/advisory findingadopted. GCC/ELF/native/PG measuredqualification andsourceaffectedranges notrerun.",
+  "limits": [
+    "NoDocker/services/nativeallocation/fork/crop/PG/provider/AV/vulnerabilityscanner/CodexSecurity/networkinvocation.",
+    "No exceptionrenewals/pins/advisorypolicy/MCPinventory/gates changed.",
+    "Manifestalltextentries physicallyread butofficialarchive/currentinstalledbinary matching notindependentlyqualified.",
+    "Mixedemaildispatch readascommonhelper only, dedicatedOperationsInboxdeferred.",
+    "Staticallocatorpinsmatchcurrenthostsource/AST; notcompiledimage/nativeprobeproof."
+  ]
+}

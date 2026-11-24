@@ -1,0 +1,395 @@
+{
+  "status": "Frontend-only qualifier restoration implemented and source-frozen;35focused cases/lint/type/coverage qualified. Root owns subsequent combined production build/browser and policy integration.",
+  "sealed_at_utc": "2026-10-31T23:55:14.179116+00:00",
+  "scope": {
+    "runtime_files": 4,
+    "test_files": 2,
+    "backend_or_gate_or_lock_or_matrix_writes_by_this_agent": false,
+    "build_or_broad_browser_run_by_this_agent": false,
+    "single_case_pre_fix_browser_only": true,
+    "provider_production_or_native_actions": false
+  },
+  "problem_proof": {
+    "original10_browser_failures": "All stopped at stale shared entry helper before any New traveller click, with successful group/capabilities GETs. Full complete traces retained.",
+    "actual_component_negative": "SavedOther=Cousin assertion failed with empty input afterChange before implementation.",
+    "actual_current_flow_browser_negative": "Corrected private-draft fixture and navigation reached save/reload/resume/Change; Other aria-checked=false rather thantrue. Oldcompiled build and old runtime hashes remained unchanged across this run.",
+    "failed_results_preserved_not_renewed": true
+  },
+  "resulting_behavior": [
+    "Lazy Change restores Self/list/Other using existing safe group+opaque proof GET; all existing two-argument getter callers remain compatible.",
+    "Group/proof-keyed editor prevents private text flash; abort and operation identity reject late requests even on leave/return-to-same-owner.",
+    "Read failure preserves draft proof and shows fixed retry text; expired/consumed choices do not hydrate old text or autosave.",
+    "Explicit edited save updates the existing private draft proof; aborted dispatched save cannot replace it.",
+    "All9layout variants remain and10thstill asserts Cousin selected before Colleague save plus updated persisted draft proof."
+  ],
+  "checks": {
+    "final-focused-coverage": {
+      "argv": [
+        "node",
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "features/upload/components/fresh-qualifier.test.tsx",
+        "features/upload/components/relation-qualifier-step.test.tsx",
+        "features/upload/components/fresh-member-form.test.tsx",
+        "features/upload/hooks/use-fresh-draft.test.tsx",
+        "--maxWorkers=1",
+        "--pool=threads",
+        "--config",
+        "../.tmp/final-qualifier-browser/coverage.config.ts",
+        "--coverage"
+      ],
+      "exit_code": 0,
+      "seconds": 27.328,
+      "source_fence": {
+        "frontend/features/upload/components/fresh-qualifier.tsx": "742ecf4bfaaec141e7a0e422419f57889eb44090679e70e47783cbbf0c6bf72c",
+        "frontend/features/upload/components/fresh-qualifier-editor.tsx": "a03066f52ef1f758e8136f9c5b451d91ab4255ab3dea5a053f1f57341cae0b92",
+        "frontend/features/upload/hooks/use-qualifier-selection-editor.ts": "f6bb7ce7ad849fc2a289ee436a04cc9bd968fc7a2465dbe4e3a4b2cc6ed0ce63",
+        "frontend/features/upload/components/fresh-qualifier.test.tsx": "cd8f37800ef843d4c4a5396957ca7185bde96903a68160b343b8acb3b72a9433",
+        "frontend/features/passports/api/public-upload-link.api.ts": "d720cbf0a79ce838006b30e56b63b69ec992c96881ffa3cb62d3df0f2b3d005b",
+        "frontend/e2e/qualifier-relationship-methods.spec.ts": "d37bab442b0c382f07f6c3b7e5ccda56c858a60b43c5abc19c60254689dc618c"
+      },
+      "source_unchanged": true
+    },
+    "final-focused-eslint": {
+      "argv": [
+        "node",
+        "node_modules/eslint/bin/eslint.js",
+        "features/upload/components/fresh-qualifier.tsx",
+        "features/upload/components/fresh-qualifier-editor.tsx",
+        "features/upload/hooks/use-qualifier-selection-editor.ts",
+        "features/upload/components/fresh-qualifier.test.tsx",
+        "features/passports/api/public-upload-link.api.ts",
+        "e2e/qualifier-relationship-methods.spec.ts"
+      ],
+      "exit_code": 0,
+      "seconds": 3.781,
+      "source_fence": {
+        "frontend/features/upload/components/fresh-qualifier.tsx": "742ecf4bfaaec141e7a0e422419f57889eb44090679e70e47783cbbf0c6bf72c",
+        "frontend/features/upload/components/fresh-qualifier-editor.tsx": "a03066f52ef1f758e8136f9c5b451d91ab4255ab3dea5a053f1f57341cae0b92",
+        "frontend/features/upload/hooks/use-qualifier-selection-editor.ts": "f6bb7ce7ad849fc2a289ee436a04cc9bd968fc7a2465dbe4e3a4b2cc6ed0ce63",
+        "frontend/features/upload/components/fresh-qualifier.test.tsx": "cd8f37800ef843d4c4a5396957ca7185bde96903a68160b343b8acb3b72a9433",
+        "frontend/features/passports/api/public-upload-link.api.ts": "d720cbf0a79ce838006b30e56b63b69ec992c96881ffa3cb62d3df0f2b3d005b",
+        "frontend/e2e/qualifier-relationship-methods.spec.ts": "d37bab442b0c382f07f6c3b7e5ccda56c858a60b43c5abc19c60254689dc618c"
+      },
+      "source_unchanged": true
+    },
+    "final-typecheck": {
+      "argv": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "--noEmit",
+        "--incremental",
+        "false"
+      ],
+      "exit_code": 0,
+      "seconds": 19.0,
+      "source_fence": {
+        "frontend/features/upload/components/fresh-qualifier.tsx": "742ecf4bfaaec141e7a0e422419f57889eb44090679e70e47783cbbf0c6bf72c",
+        "frontend/features/upload/components/fresh-qualifier-editor.tsx": "a03066f52ef1f758e8136f9c5b451d91ab4255ab3dea5a053f1f57341cae0b92",
+        "frontend/features/upload/hooks/use-qualifier-selection-editor.ts": "f6bb7ce7ad849fc2a289ee436a04cc9bd968fc7a2465dbe4e3a4b2cc6ed0ce63",
+        "frontend/features/upload/components/fresh-qualifier.test.tsx": "cd8f37800ef843d4c4a5396957ca7185bde96903a68160b343b8acb3b72a9433",
+        "frontend/features/passports/api/public-upload-link.api.ts": "d720cbf0a79ce838006b30e56b63b69ec992c96881ffa3cb62d3df0f2b3d005b",
+        "frontend/e2e/qualifier-relationship-methods.spec.ts": "d37bab442b0c382f07f6c3b7e5ccda56c858a60b43c5abc19c60254689dc618c"
+      },
+      "source_unchanged": true
+    }
+  },
+  "focused_cases": 35,
+  "new_actual_component_cases": 13,
+  "existing_affected_cases": 22,
+  "per_file_coverage_floors_inherited_without_relaxation": {
+    "statements": 74,
+    "branches": 50,
+    "functions": 75,
+    "lines": 75
+  },
+  "current_three_owner_coverage": {
+    "frontend/features/upload/components/fresh-qualifier-editor.tsx": {
+      "lines": {
+        "total": 18,
+        "covered": 18,
+        "skipped": 0,
+        "pct": 100
+      },
+      "functions": {
+        "total": 5,
+        "covered": 5,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 19,
+        "covered": 18,
+        "skipped": 0,
+        "pct": 94.73
+      },
+      "branches": {
+        "total": 12,
+        "covered": 11,
+        "skipped": 0,
+        "pct": 91.66
+      }
+    },
+    "frontend/features/upload/components/fresh-qualifier.tsx": {
+      "lines": {
+        "total": 3,
+        "covered": 3,
+        "skipped": 0,
+        "pct": 100
+      },
+      "functions": {
+        "total": 1,
+        "covered": 1,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 3,
+        "covered": 3,
+        "skipped": 0,
+        "pct": 100
+      },
+      "branches": {
+        "total": 2,
+        "covered": 2,
+        "skipped": 0,
+        "pct": 100
+      }
+    },
+    "frontend/features/upload/hooks/use-qualifier-selection-editor.ts": {
+      "lines": {
+        "total": 38,
+        "covered": 38,
+        "skipped": 0,
+        "pct": 100
+      },
+      "functions": {
+        "total": 12,
+        "covered": 12,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 44,
+        "covered": 43,
+        "skipped": 0,
+        "pct": 97.72
+      },
+      "branches": {
+        "total": 23,
+        "covered": 20,
+        "skipped": 0,
+        "pct": 86.95
+      }
+    }
+  },
+  "source_fence": {
+    "frontend/features/upload/components/fresh-qualifier.tsx": "742ecf4bfaaec141e7a0e422419f57889eb44090679e70e47783cbbf0c6bf72c",
+    "frontend/features/upload/components/fresh-qualifier-editor.tsx": "a03066f52ef1f758e8136f9c5b451d91ab4255ab3dea5a053f1f57341cae0b92",
+    "frontend/features/upload/hooks/use-qualifier-selection-editor.ts": "f6bb7ce7ad849fc2a289ee436a04cc9bd968fc7a2465dbe4e3a4b2cc6ed0ce63",
+    "frontend/features/upload/components/fresh-qualifier.test.tsx": "cd8f37800ef843d4c4a5396957ca7185bde96903a68160b343b8acb3b72a9433",
+    "frontend/features/passports/api/public-upload-link.api.ts": "d720cbf0a79ce838006b30e56b63b69ec992c96881ffa3cb62d3df0f2b3d005b",
+    "frontend/e2e/qualifier-relationship-methods.spec.ts": "d37bab442b0c382f07f6c3b7e5ccda56c858a60b43c5abc19c60254689dc618c"
+  },
+  "all_six_current_hashes_equal_each_final_command": true,
+  "quality_budget_root_candidates": {
+    "status": "Root integration candidate only; actual policy not edited",
+    "existingNormalRows": 661,
+    "proposedNormalRows": 663,
+    "measurements": [
+      {
+        "path": "features/upload/components/fresh-qualifier.tsx",
+        "physicalLines": 10,
+        "maximumFunctionComplexity": 2,
+        "existingBudget": {
+          "path": "features/upload/components/fresh-qualifier.tsx",
+          "baselineLines": 24,
+          "maximumLines": 25,
+          "baselineMaxFunctionComplexity": 3,
+          "maximumFunctionComplexity": 3
+        }
+      },
+      {
+        "path": "features/upload/components/fresh-qualifier-editor.tsx",
+        "physicalLines": 73,
+        "maximumFunctionComplexity": 6,
+        "existingBudget": null
+      },
+      {
+        "path": "features/upload/hooks/use-qualifier-selection-editor.ts",
+        "physicalLines": 90,
+        "maximumFunctionComplexity": 9,
+        "existingBudget": null
+      },
+      {
+        "path": "features/passports/api/public-upload-link.api.ts",
+        "physicalLines": 81,
+        "maximumFunctionComplexity": 1,
+        "existingBudget": {
+          "path": "features/passports/api/public-upload-link.api.ts",
+          "baselineLines": 79,
+          "maximumLines": 90,
+          "baselineMaxFunctionComplexity": 1,
+          "maximumFunctionComplexity": 2
+        }
+      }
+    ],
+    "newNormalRows": [
+      {
+        "path": "features/upload/components/fresh-qualifier-editor.tsx",
+        "baselineLines": 73,
+        "maximumLines": 80,
+        "baselineMaxFunctionComplexity": 6,
+        "maximumFunctionComplexity": 7
+      },
+      {
+        "path": "features/upload/hooks/use-qualifier-selection-editor.ts",
+        "baselineLines": 90,
+        "maximumLines": 90,
+        "baselineMaxFunctionComplexity": 9,
+        "maximumFunctionComplexity": 10
+      }
+    ],
+    "newCriticalIncludes": [
+      "features/upload/components/fresh-qualifier-editor.tsx",
+      "features/upload/hooks/use-qualifier-selection-editor.ts"
+    ],
+    "perFileCoverageFloors": {
+      "statements": 74,
+      "branches": 50,
+      "functions": 75,
+      "lines": 75
+    },
+    "existing31CriticalOwners": "unchanged; root reserved original config",
+    "releaseBindingIntersection": "check in final receipt",
+    "policyMutation": false
+  },
+  "release_binding_intersection": {
+    "manifest": "scripts/release_workspace_branding_bindings.json",
+    "manifest_sha256_at_check": "cdac254b1fba4d15d92728870aea8da984648ad1100ba9a671d1ad227bd17631",
+    "rows_at_check": 144,
+    "intersections": [],
+    "no_metadata_change_required_for_these_six_paths": true
+  },
+  "MCP_fingerprint_root_candidate": {
+    "artifact": "mcp-single-row-reconciliation-candidate.json",
+    "surfaces": 2036,
+    "changed_surface_id": "frontend_api:frontend/features/passports/api/public-upload-link.api.ts",
+    "all_other2035_exact": true,
+    "existing_status_phase_requirements_adapter_evidence_preserved": true,
+    "actual_matrix_not_edited_by_this_agent": true
+  },
+  "peer_review": {
+    "agent": "/root/branding_visuals",
+    "mode": "independent read-only",
+    "reported_outcome": "No concrete new finding; four runtime hashes match frozen source, full component164line test and supporting fresh draft/lifecycle read. No source/tests/checks/build performed by peer.",
+    "authority": "Direct coordination message, preserved in parent chat; root decides receipt adoption."
+  },
+  "review_ledger": {
+    "path": "docs/audit/dashboard-2026-10-30/qualifier-restoration-reviewed-files.json",
+    "sha256": "e949c8e5282bcdfbe0d08084d0b452fa66769efa995d8fe2caa74f5dc8bf1e87",
+    "method": "Full six current authored/read source records; backend privacy references stay focused and confer no full backend review credit."
+  },
+  "artifacts": {
+    "trace-diagnosis.json": {
+      "sha256": "27bdb1f3e4cf1e3d1ec927ae68222d54be70d6f87e8e31bf79e164afb92156fd",
+      "bytes": 27412
+    },
+    "component-before-command.json": {
+      "sha256": "ab9e513bf0a1c475503f1f7a1bb474908a5dcc4b3f25cd2e9290e0eb8a1ca43a",
+      "bytes": 615
+    },
+    "component-before-stdout.txt": {
+      "sha256": "25912eea2caeae5e42e141e987cb177af4f09a33df325690c66a658cfe88de24",
+      "bytes": 437
+    },
+    "component-before-stderr.txt": {
+      "sha256": "6bc95d52a81967e0df9098b5e0761cb6e442689ae1ebffef6a4ce470cc3f5f6d",
+      "bytes": 16361
+    },
+    "browser-before-command.json": {
+      "sha256": "6574d9497a793a09f00d3c0b8d0e0c7d2b8a0db4110f361988eae0b9957bbdb4",
+      "bytes": 1629
+    },
+    "browser-before.log": {
+      "sha256": "11f9d92bbf8039b60e7e4fe1e328c843f896721aead09e62494e5416a69f7940",
+      "bytes": 4824
+    },
+    "browser-before-results.json": {
+      "sha256": "ba1149c980843ba4b1b1aa10d66cf156ffc77de9133ab721101b142319f1edea",
+      "bytes": 10343
+    },
+    "runtime-implementation-before.json": {
+      "sha256": "a6bbfcc13c64a55d0e9a3b74c70b62518fedbf4492af5e2be91bfc30df922f77",
+      "bytes": 412
+    },
+    "public-getter-source-proof.json": {
+      "sha256": "992fd39f346646dd2bfd544c0c8caa65dd5fb162e6b6bf420c146ddf72b3599a",
+      "bytes": 720
+    },
+    "owner-privacy-proof.json": {
+      "sha256": "be5a1498ccf1643d61cd39694a5d19b5ad3460386a25dbfffc40ba82af8d4b3b",
+      "bytes": 9080
+    },
+    "final-focused-coverage-command.json": {
+      "sha256": "beacd2fb3051b14198d205d527d320ae80b562178c7331d792eb4649a9e2a69b",
+      "bytes": 1380
+    },
+    "final-focused-coverage-stdout.txt": {
+      "sha256": "9639c38dd6fa2a81a505495893023bc635c9aee3cd6df134703764cf97353770",
+      "bytes": 1312
+    },
+    "final-focused-coverage-stderr.txt": {
+      "sha256": "4b423caec77d6fc44fceafa26a4f376ffdee32d311e991592839fd50deef65b5",
+      "bytes": 409
+    },
+    "final-focused-eslint-command.json": {
+      "sha256": "a3aa4d8dfd285a7387e12370960a228029bf2fb837384da9678336e25779bc10",
+      "bytes": 1333
+    },
+    "final-focused-eslint-stdout.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "final-focused-eslint-stderr.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "final-typecheck-command.json": {
+      "sha256": "198c382ebc6e04d2efc38ea843d50e05ac31688ac3d61fef2d96085c8e90dede",
+      "bytes": 1034
+    },
+    "final-typecheck-stdout.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "final-typecheck-stderr.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "coverage/coverage-summary.json": {
+      "sha256": "ed461fc2ae8e3d57f259268ddfb2ebe79ce4d88aa3e2d557f22f1af4b67d81de",
+      "bytes": 1361
+    },
+    "quality-budget-candidates.json": {
+      "sha256": "aa4394dc956126bfa8a61af8f435989fc7634cf674e0ddc94e75863f4f4772ad",
+      "bytes": 2171
+    },
+    "mcp-single-row-reconciliation-candidate.json": {
+      "sha256": "4f3e8c4fcb0903b23cbb3705993240d9d44d03ba0d16fc779869d8a4b9eb3aba",
+      "bytes": 3064
+    },
+    "mcp-current-discovery.json": {
+      "sha256": "480ef4e9b5b4875e1a5fe1064745dcd3a266b3498bd81011df5664fe9d249afe",
+      "bytes": 810441
+    }
+  },
+  "limitations": [
+    "Post-fix production browser success is not claimed here; root will run the combined new build and retained browser suite.",
+    "Synthetic component/browser fixtures do not establish actual backend/PostgreSQL/cookie/provider or VPS behavior.",
+    "Audit-only coverage override includes three affected owners with exact inherited floors; actual critical owner/policy additions are root-owned.",
+    "One expected frontend API fingerprint drift was captured at child source freeze. Root owns actual MCP matrix reconciliation and final CLI check.",
+    "Nine cosmetic candidates remain untouched by this agent pending root split adoption.",
+    "Audit-only Vite config emits an existing tool forward-compatibility warning about native config loading; command exits0 and assertions/coverage gates pass."
+  ]
+}

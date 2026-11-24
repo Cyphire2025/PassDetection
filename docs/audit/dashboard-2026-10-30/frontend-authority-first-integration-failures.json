@@ -1,0 +1,23 @@
+{
+  "first_whole_unit": {
+    "passed": 1636,
+    "failed": 16,
+    "files_passed": 253,
+    "files_failed": 3,
+    "receipt": "frontend-authority-unit.txt"
+  },
+  "first_node_contracts": {
+    "passed": 668,
+    "failed": 2,
+    "receipt": "frontend-authority-node-contracts.txt"
+  },
+  "test_only_corrections": [
+    "frontend/features/gc-app/components/app-controls-page.test.tsx",
+    "frontend/features/gc-app/components/app-controls-removal.test.tsx",
+    "frontend/features/gc-app/gc-app-dashboard.contract.test.mjs",
+    "frontend/features/gc-app/notifications/notifications-page.test.tsx"
+  ],
+  "generated_entry": "frontend/next-env.d.ts",
+  "runtime_source_unchanged_through_both_production_builds": true,
+  "first_whole_unit_limited_by_test_edits": "Four named test-only corrections occurred after their failed suites had executed. This failed run is retained, not treated as a complete current-source pass. A new frozen full-coverage run follows."
+}

@@ -1,0 +1,132 @@
+{
+  "basis": "Automated current-hash/full-ledger triage only; does not establish physical source read.",
+  "pending": [
+    {
+      "path": "backend/tests/unit/presentation/test_document_distribution_delivery_policy.py",
+      "sha256": "d5512707bca33e2ee4e878b878fed37328930fa386cadb4df3f9b03fa60d67c1",
+      "lines": 57,
+      "matching_full": [],
+      "matching_other": []
+    }
+  ],
+  "skipped_current_full": [
+    {
+      "path": "backend/tests/unit/presentation/test_document_distribution_assignments.py",
+      "sha256": "277feab0aeb95a6a00ed64101471827b79d77dcc40456a8697d7e4a79cc5f762",
+      "lines": 239,
+      "matching_full": [
+        "document-distribution-review-final-reviewed-files.json"
+      ],
+      "matching_other": []
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_distribution_compensation.py",
+      "sha256": "66567d2b532bb63ff03c8f19729a8bc4f1b50ba99a4f38c767bbffa96e3f2036",
+      "lines": 63,
+      "matching_full": [
+        "document-residual-reviewed-files.json"
+      ],
+      "matching_other": []
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_distribution_match_source.py",
+      "sha256": "574591893d593cef9422f107071d97c48126d96b078af6c213058d5254685ea5",
+      "lines": 38,
+      "matching_full": [
+        "document-distribution-review-final-reviewed-files.json"
+      ],
+      "matching_other": []
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_distribution_matching.py",
+      "sha256": "5793652d336623a30e860bf9c81b7a5cfbbea1f113f86469c89d0dba57d411a0",
+      "lines": 1223,
+      "matching_full": [
+        "document-matcher-affected-workflow-reviewed-files.json",
+        "document-matcher-final-reviewed-files.json"
+      ],
+      "matching_other": [
+        {
+          "ledger": "document-distribution-review-final-reviewed-files.json",
+          "scope": "focused"
+        },
+        {
+          "ledger": "document-distribution-review-preflight-reviewed-files.json",
+          "scope": "focused"
+        },
+        {
+          "ledger": "document-residual-reviewed-files.json",
+          "scope": "partial"
+        }
+      ]
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_distribution_residual_lifecycle.py",
+      "sha256": "dd7a76a31545d81fb2f6fe87deca7482bac35d20bc56cf90b5f2d4b129294956",
+      "lines": 185,
+      "matching_full": [
+        "document-residual-reviewed-files.json"
+      ],
+      "matching_other": []
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_distribution_reupload_lifetime.py",
+      "sha256": "3aa39116ccbb8f6cdc62e7a7643ae1380ce3b0f97d4a27f494e5375e8d4f2331",
+      "lines": 237,
+      "matching_full": [
+        "document-residual-reviewed-files.json"
+      ],
+      "matching_other": []
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_distribution_review_rows.py",
+      "sha256": "d62e2289db4672db2dd940ecb4906dff5df1a04670b73cbe0f84a05765b31723",
+      "lines": 258,
+      "matching_full": [
+        "document-distribution-review-final-reviewed-files.json",
+        "document-distribution-review-preflight-reviewed-files.json"
+      ],
+      "matching_other": []
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_distribution_route_decomposition.py",
+      "sha256": "7f18a4f9055bde011fe0fd2cf456e2585057a05a378d05140676d0a54de71188",
+      "lines": 168,
+      "matching_full": [
+        "distribution-upload-reviewed-files.json",
+        "document-distribution-review-final-reviewed-files.json",
+        "document-distribution-review-preflight-reviewed-files.json"
+      ],
+      "matching_other": []
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_distribution_staging_routes.py",
+      "sha256": "9ed52130c26879815757d7f224476e3fcf72a19d3e3ad7f1157f78489724d04a",
+      "lines": 851,
+      "matching_full": [
+        "distribution-upload-reviewed-files.json",
+        "verification-receipt-reviewed-files.json"
+      ],
+      "matching_other": [
+        {
+          "ledger": "document-residual-reviewed-files.json",
+          "scope": "partial"
+        }
+      ]
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_document_distribution_upload_abort.py",
+      "sha256": "1d5138d363656a87ca9733fc7957980920f4173a568c8ce41ab854ab910e704c",
+      "lines": 397,
+      "matching_full": [
+        "distribution-upload-reviewed-files.json"
+      ],
+      "matching_other": [
+        {
+          "ledger": "document-residual-reviewed-files.json",
+          "scope": "partial"
+        }
+      ]
+    }
+  ]
+}

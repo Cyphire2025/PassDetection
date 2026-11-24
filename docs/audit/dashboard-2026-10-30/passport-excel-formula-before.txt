@@ -1,0 +1,16 @@
+..FF                                                                     [100%]
+================================== FAILURES ===================================
+_ test_valid_namespaced_formula_crossing_read_boundary_never_becomes_identity[256-65386] _
+backend\tests\unit\infrastructure\test_passport_excel_formula_boundaries.py:82: in test_valid_namespaced_formula_crossing_read_boundary_never_becomes_identity
+    assert "passport_number" not in rows[0].confirmed_fields
+E   AssertionError: assert 'passport_number' not in {'passport_number': 'P7654321'}
+E    +  where {'passport_number': 'P7654321'} = ImportedPassportRow(row_number=2, worksheet_name='Sheet', client_name='Synthetic Traveller', client_email=None, client...tadata={'name': 'Synthetic Traveller', 'passport_number': 'P7654321', 'source_sheet': 'Sheet', 'source_zone': 'Sheet'}).confirmed_fields
+_ test_valid_namespaced_formula_crossing_read_boundary_never_becomes_identity[2048-65386] _
+backend\tests\unit\infrastructure\test_passport_excel_formula_boundaries.py:82: in test_valid_namespaced_formula_crossing_read_boundary_never_becomes_identity
+    assert "passport_number" not in rows[0].confirmed_fields
+E   AssertionError: assert 'passport_number' not in {'passport_number': 'P7654321'}
+E    +  where {'passport_number': 'P7654321'} = ImportedPassportRow(row_number=2, worksheet_name='Sheet', client_name='Synthetic Traveller', client_email=None, client...tadata={'name': 'Synthetic Traveller', 'passport_number': 'P7654321', 'source_sheet': 'Sheet', 'source_zone': 'Sheet'}).confirmed_fields
+=========================== short test summary info ===========================
+FAILED backend\tests\unit\infrastructure\test_passport_excel_formula_boundaries.py::test_valid_namespaced_formula_crossing_read_boundary_never_becomes_identity[256-65386]
+FAILED backend\tests\unit\infrastructure\test_passport_excel_formula_boundaries.py::test_valid_namespaced_formula_crossing_read_boundary_never_becomes_identity[2048-65386]
+2 failed, 2 passed in 0.49s

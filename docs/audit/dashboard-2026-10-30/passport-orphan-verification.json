@@ -1,0 +1,83 @@
+{
+  "status": "frozen-focused-current-source; shared gate integration pending",
+  "current_focused_tests": {
+    "passed": 26,
+    "files": 4,
+    "fixture_files": 1,
+    "seconds": 5.74,
+    "command": "passport-orphan-command.json",
+    "output": "passport-orphan-final-tests.txt",
+    "isolated_fresh_coverage": true
+  },
+  "failure_evidence": [
+    {
+      "path": "passport-orphan-before.txt",
+      "failed": 2,
+      "basis": "Actual existing scheduled async alias scanned only document namespaces, leaving all four image orphan namespaces untouched."
+    },
+    {
+      "path": "passport-orphan-ecr-before.txt",
+      "failed": 1,
+      "basis": "Additional ECR durable holder negative against intermediate19-column implementation; actual held ECR source was deleted. Final20-column closure protects it."
+    }
+  ],
+  "implemented": [
+    "Existing task name/queue/args and aggregate return preserved; same bounded scanner now adds four fixed derived/private image namespaces.",
+    "Reference lookup includes20 durable image-key columns across submission/crop/common-library/legacy-AI/AIjob/traveller-asset/draft-asset/ECR, with no current/status filters.",
+    "Same24h grace,2000objects/namespace,250delete batch, encrypted7day Redis cursor; six fixed namespaces max12000listed objects/invocation.",
+    "Distinct-candidate batches49 x20columns=980binds; SQL UNION returns only candidate keys, no unbounded reference-table materialization.",
+    "Missing reference database/table or failed lookup aborts before image deletion; failed listing/deletion does not advance that namespace cursor.",
+    "Original public document scanner still only two namespaces, existing three tests unchanged."
+  ],
+  "proof": {
+    "whole_existing_declarations_unchanged": 6,
+    "whole_engine_statement_AST_equivalence_with_one_prefix_parameter_normalization": true,
+    "two_whole_task_ASTs_identical_except_docstring": true,
+    "current_evaluated_hints_resolve": 10,
+    "real_FK_SQLite_held_keys": 26,
+    "durable_reference_columns": 20,
+    "query_workload": {
+      "distinct_keys": 102,
+      "repeated_input_keys": 408,
+      "queries": 3,
+      "max_binds": 980
+    },
+    "native_or_real_provider_calls": 0
+  },
+  "checks": {
+    "pytest": 0,
+    "ruff_seven_owned_paths": 0,
+    "mypy_three_runtime_owners": 0,
+    "architecture_boundaries": 0
+  },
+  "source_sha256": {
+    "backend/app/infrastructure/documents/orphan_reconciliation.py": "7458b420372052de441f45b4349c440eb59464b78d7d5a6dc9da89356dae26a2",
+    "backend/app/infrastructure/documents/passport_orphan_reconciliation.py": "386437eba16ef0ce7ad40ddf6bfa9542ba55c23ce2797c42413d090201d854ca",
+    "backend/app/infrastructure/documents/cleanup_tasks.py": "39c6acc102334472316a68f88cc2b57cd9cd9a4115318a7596ed632c1df56517",
+    "backend/tests/integration/test_passport_orphan_reconciliation.py": "f830e3dd04d0b20e72afa084a91a09fe135b99a5669be37367387add874649ba",
+    "backend/tests/unit/infrastructure/test_passport_orphan_bounds.py": "aa84ebf9999e431ec17d3f2969e136537e19ae12d690db339729607127560b23",
+    "backend/tests/unit/infrastructure/test_document_orphan_reconciliation.py": "4dfd54838bfdf8b0c9b8ea2305896ea5e1dac3455d6b90808db277833f1ac7ed",
+    "backend/tests/unit/infrastructure/test_document_cleanup_task_diagnostics.py": "2eb37f217f744e51622c663abab2b46128bb493cb310b613dd5a432a1517f231",
+    "backend/tests/integration/passport_orphan_fixtures.py": "e9d489fb2050cf07ef04f6886686e994da3f46c0901f4d40cdc033816f7712e3"
+  },
+  "artifacts": {
+    "passport-orphan-before.txt": "6a9a7a886394fe1435b90eb96926c2475c07a17387b484cd9c48355131b921b7",
+    "passport-orphan-initial-after.txt": "6796b6bbd3d65475ab0ce32bff4c6e274f22709341c4262ff31efe4f4d09565c",
+    "passport-orphan-supplement.txt": "acb771b7c7965ff0ec57feea71b0148eba780b197a530c1cb04ffddd79f4efc9",
+    "passport-orphan-ecr-before.txt": "5b13ba750c7546144bf45fc3aa8fe0ea0d4da05c0f62250434fd13b1117eeb3c",
+    "passport-orphan-final-tests.txt": "255970128c9c6784664393da7141d9cbf9527ae63ee93cc595d94500b2ef1c46",
+    "passport-orphan-command.json": "1f0e4523010d5bea7d081aec644bad7f4a316edf062d26af080a476f8adb7734",
+    "passport-orphan-coverage.json": "e26b629362444fa54e8022a506ba79d2c74e97563ead04ee53f25333130933cd",
+    "passport-orphan-coverage.xml": "14ba2e133e2758850faeaf43a7a46eb128135657da15275668d1aea95f827312",
+    "passport-orphan-extraction-proof.json": "aff293a9b7e9d363917006aaeb1f6d1a2e31b9dccd98e2277024ba42e39f17f7",
+    "passport-orphan-budget-candidates.json": "0c0d66a016e7721774565a16b1c648850392134930f08666375bc0875c7fe721",
+    "passport-orphan-reviewed-files.json": "b75640eeb4319a310b5222e066bece572c8652970ddffaf8da403bbd00d88951"
+  },
+  "limits": [
+    "No real PostgreSQL/Redis/MinIO/Celery service execution or VPS qualification; SQLite and synthetic storage/cursor controls only.",
+    "Fixed image-derived namespaces only. Canonical upload, returning-drafts and travellers namespace orphan scans retain independent lifecycle scope; not newly blanket-scanned.",
+    "Existing grace protects bounded in-flight/lost-ACK scenarios; no arbitrary-duration concurrent adoption or object-store transaction proof.",
+    "All stored holder rows conservatively retain objects regardless of status; obsolete holder deletion remains existing lifecycle responsibility.",
+    "Whole repository audit and deferred MCP source relocation reconciliation remain open."
+  ]
+}

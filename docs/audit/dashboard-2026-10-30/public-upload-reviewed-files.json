@@ -1,0 +1,186 @@
+[
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/public_upload.py",
+    "sha256": "a669ea87ed3488fe4d7a680478d15efb2b4c55dd72177c24ad80e0a031c7cde8",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical source or whole original/current moved declaration read; exact scope/route/binding proof and current171-case selection. Independent bulk actor and submit-use-case native lifetime follow-ups remain open in their own ledger."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/public_security.py",
+    "sha256": "4347718f49a11282e0cc5d83fb726cc10e89a12db9d194c434ad09a732b9e629",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical source or whole original/current moved declaration read; exact scope/route/binding proof and current171-case selection. Independent bulk actor and submit-use-case native lifetime follow-ups remain open in their own ledger."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/public_processing_support.py",
+    "sha256": "f6a089dd5d7e56a3062e072e82438f4f62f14169620402936f23c5851ae6d044",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical source or whole original/current moved declaration read; exact scope/route/binding proof and current171-case selection. Independent bulk actor and submit-use-case native lifetime follow-ups remain open in their own ledger."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/public_upload_documents.py",
+    "sha256": "0905e4e91702e778fafa766dde0f518f4b8b28e187f706a66e186bce747f5a51",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical source or whole original/current moved declaration read; exact scope/route/binding proof and current171-case selection. Independent bulk actor and submit-use-case native lifetime follow-ups remain open in their own ledger."
+  },
+  {
+    "path": "backend/tests/route_dependencies.py",
+    "sha256": "fbf83ec37d4eee5ce63f74573b47cb553695688242b96b6d98acdb5960b0eef1",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical source or whole original/current moved declaration read; exact scope/route/binding proof and current171-case selection. Independent bulk actor and submit-use-case native lifetime follow-ups remain open in their own ledger."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_configured_public_upload.py",
+    "sha256": "97a85ac1a94f6f96dbce910d153de3179ab4808fcc9630d943016d48a785ea12",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical source or whole original/current moved declaration read; exact scope/route/binding proof and current171-case selection. Independent bulk actor and submit-use-case native lifetime follow-ups remain open in their own ledger."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_public_upload_preparation.py",
+    "sha256": "2caf630d123b311b9e210c9a93867480d4791a643c6974eb759f6b16ddedc41e",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical source or whole original/current moved declaration read; exact scope/route/binding proof and current171-case selection. Independent bulk actor and submit-use-case native lifetime follow-ups remain open in their own ledger."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_public_passport_capabilities.py",
+    "sha256": "81ea01aa4629071043595244cc3f0b5ded7414a3467445f11f068faa17e3316f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical source or whole original/current moved declaration read; exact scope/route/binding proof and current171-case selection. Independent bulk actor and submit-use-case native lifetime follow-ups remain open in their own ledger."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_public_extraction_admission.py",
+    "sha256": "2f0a6fd31006f7ac5a3c7f1ce0255f332ba99f6e8cb8327295287147ad5f5ef6",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Focused affected execution and exact original test-module-body retention; no complete source read credited by this batch."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_upload_status_route.py",
+    "sha256": "fa6607bf1ac29c33cb4ce1b8b5431e8051460156a998ba41cbeb4bd9406e1562",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical source or whole original/current moved declaration read; exact scope/route/binding proof and current171-case selection. Independent bulk actor and submit-use-case native lifetime follow-ups remain open in their own ledger."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_upload_reconciliation_route.py",
+    "sha256": "d898d2c6cbe2641375f102e0d7d6936693c354a87ba899d1d6bd27a2649f0790",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical source or whole original/current moved declaration read; exact scope/route/binding proof and current171-case selection. Independent bulk actor and submit-use-case native lifetime follow-ups remain open in their own ledger."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_public_flow_telemetry.py",
+    "sha256": "e48e6da89568343bc796253cf6d727597b8ec03d33e788f3747f9eb2621232ba",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical source or whole original/current moved declaration read; exact scope/route/binding proof and current171-case selection. Independent bulk actor and submit-use-case native lifetime follow-ups remain open in their own ledger."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_route_decomposition.py",
+    "sha256": "7b1ee92647844d22d84a29cc90180c58c1888c51c1cfbb1b0a0751d6efafec49",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Focused affected execution and exact original test-module-body retention; no complete source read credited by this batch."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_public_upload_contact_otp.py",
+    "sha256": "a3a13a19ac9a8a7665e7ce2a68d53af3b7c0a448adad271b6b7bc106c6d981ee",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Focused affected execution and exact original test-module-body retention; no complete source read credited by this batch."
+  },
+  {
+    "path": "backend/tests/unit/application/test_reconcile_passport_upload_use_case.py",
+    "sha256": "ca422a1067ca158218bd95115298ae113f09b8c9552d5a349f1d22bdea814b8d",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Focused affected execution and exact original test-module-body retention; no complete source read credited by this batch."
+  },
+  {
+    "path": "backend/tests/integration/test_public_draft_http.py",
+    "sha256": "40ea1774483f53ab7172ca6424bed85864e8134b2c79c436f6978369b9487d47",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Focused affected execution and exact original test-module-body retention; no complete source read credited by this batch."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_public_upload_commit_outcomes.py",
+    "sha256": "cb64c7e9e410a7c3a6c66d0a4ae8fca9ae91e231d59aebdd53afd2b6fba86f9c",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical source or whole original/current moved declaration read; exact scope/route/binding proof and current171-case selection. Independent bulk actor and submit-use-case native lifetime follow-ups remain open in their own ledger."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/public_upload_discard.py",
+    "sha256": "d6f95d5da7bb2da0d7351d90ee4114cf6368276edacaf5c9f9f474a0cda76287",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical source or whole original/current moved declaration read; exact scope/route/binding proof and current171-case selection. Independent bulk actor and submit-use-case native lifetime follow-ups remain open in their own ledger."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/public_upload_images.py",
+    "sha256": "3dcb9a9643672db808e242c5378083b8b37c2124b9c3fb550362b6b92d359b59",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical source or whole original/current moved declaration read; exact scope/route/binding proof and current171-case selection. Independent bulk actor and submit-use-case native lifetime follow-ups remain open in their own ledger."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/public_upload_preparation.py",
+    "sha256": "12d04c2039d5beefdd512bcd8d795e898aa7c984ffd5f21a8f5066f81bcee930",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical source or whole original/current moved declaration read; exact scope/route/binding proof and current171-case selection. Independent bulk actor and submit-use-case native lifetime follow-ups remain open in their own ledger."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/public_upload_scope.py",
+    "sha256": "f624101b4f81e5a049b338a4c587877a2d2a96ca454b5e5304274a18ae3410c2",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical source or whole original/current moved declaration read; exact scope/route/binding proof and current171-case selection. Independent bulk actor and submit-use-case native lifetime follow-ups remain open in their own ledger."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/public_upload_status.py",
+    "sha256": "402392e3f03b55060b0d39e991193ab136f46ca8560bd53646bb26c7dc94b674",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical source or whole original/current moved declaration read; exact scope/route/binding proof and current171-case selection. Independent bulk actor and submit-use-case native lifetime follow-ups remain open in their own ledger."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/public_upload_submission.py",
+    "sha256": "6639f322a898f1689186c8300eaedcbe330b04d6e58403ae4c0dfab5b5243dbf",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical source or whole original/current moved declaration read; exact scope/route/binding proof and current171-case selection. Independent bulk actor and submit-use-case native lifetime follow-ups remain open in their own ledger."
+  }
+]

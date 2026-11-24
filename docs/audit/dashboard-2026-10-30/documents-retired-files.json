@@ -1,0 +1,539 @@
+{
+  "basis": "Reviewed static graph plus manual app-root/literal-import reference tracing, 2026-10-30. Hashes record original content before removal. Endpoint strings containing recipient-roster are not module imports and were retained. No backend/MCP runtime endpoint or current workspace route removed.",
+  "active_route_chains": [
+    "app/(dashboard)/whatsapp/page.tsx -> components/whatsapp-page.tsx -> workspace/broadcast-index.tsx",
+    "app/(dashboard)/whatsapp/[broadcastId]/page.tsx -> workspace/send-message-page.tsx",
+    "app/(dashboard)/documents/distribution/visa/[groupId]/page.tsx -> documents/components/document-workspace.tsx"
+  ],
+  "roots": [
+    "frontend/features/whatsapp/components/whatsapp-workspace.tsx",
+    "frontend/features/documents/components/traveller-welcome-panel.tsx",
+    "frontend/features/documents/components/document-update-dialog.tsx"
+  ],
+  "outside_runtime_inbound_edges": [],
+  "internal_edges": [
+    {
+      "path": "frontend/features/documents/api/traveller-welcome.api.ts",
+      "imports": []
+    },
+    {
+      "path": "frontend/features/documents/components/document-recipient-panel.tsx",
+      "imports": [
+        "frontend/features/documents/components/document-recipient-send-dialog.tsx",
+        "frontend/features/documents/components/document-update-status.tsx"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/components/document-recipient-send-dialog.tsx",
+      "imports": []
+    },
+    {
+      "path": "frontend/features/documents/components/document-update-dialog.tsx",
+      "imports": [
+        "frontend/features/documents/components/document-update-status.tsx"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/components/document-update-status.tsx",
+      "imports": []
+    },
+    {
+      "path": "frontend/features/documents/components/traveller-welcome-dialog.tsx",
+      "imports": [
+        "frontend/features/documents/components/traveller-welcome-model.ts"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/components/traveller-welcome-model.ts",
+      "imports": []
+    },
+    {
+      "path": "frontend/features/documents/components/traveller-welcome-panel.tsx",
+      "imports": [
+        "frontend/features/documents/hooks/use-traveller-welcome.ts",
+        "frontend/features/documents/hooks/use-traveller-welcome-image.ts",
+        "frontend/features/documents/components/traveller-welcome-dialog.tsx"
+      ]
+    },
+    {
+      "path": "frontend/features/documents/hooks/use-traveller-welcome-image.ts",
+      "imports": []
+    },
+    {
+      "path": "frontend/features/documents/hooks/use-traveller-welcome.ts",
+      "imports": [
+        "frontend/features/documents/api/traveller-welcome.api.ts"
+      ]
+    },
+    {
+      "path": "frontend/features/whatsapp/components/group-update-delivery-panel.tsx",
+      "imports": [
+        "frontend/features/whatsapp/utils/recipient-roster.ts",
+        "frontend/features/whatsapp/components/whatsapp-delivery-toolbar.tsx",
+        "frontend/features/whatsapp/components/whatsapp-broadcast-update-dialog.tsx"
+      ]
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-active-recipient-row.tsx",
+      "imports": [
+        "frontend/features/whatsapp/components/whatsapp-workspace.types.ts",
+        "frontend/features/whatsapp/components/whatsapp-recipient-imported-details.tsx",
+        "frontend/features/whatsapp/components/whatsapp-recipient-selection.tsx"
+      ]
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-broadcast-list.tsx",
+      "imports": []
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-broadcast-update-dialog.tsx",
+      "imports": []
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-bulk-composer-audience.tsx",
+      "imports": [
+        "frontend/features/whatsapp/utils/recipient-bulk-selection.ts"
+      ]
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-delivery-toolbar.tsx",
+      "imports": [
+        "frontend/features/whatsapp/utils/recipient-roster.ts"
+      ]
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-group-invite-dialog.tsx",
+      "imports": [
+        "frontend/features/whatsapp/components/whatsapp-bulk-composer-audience.tsx",
+        "frontend/features/whatsapp/components/whatsapp-group-invite-image.tsx",
+        "frontend/features/whatsapp/components/whatsapp-preview-recipient-picker.tsx",
+        "frontend/features/whatsapp/components/whatsapp-send-recovery.tsx",
+        "frontend/features/whatsapp/components/whatsapp-message-preview-dialog.tsx"
+      ]
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-group-invite-image.tsx",
+      "imports": []
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-message-preview-dialog.tsx",
+      "imports": [
+        "frontend/features/whatsapp/components/whatsapp-workspace.types.ts",
+        "frontend/features/whatsapp/components/whatsapp-bulk-composer-audience.tsx",
+        "frontend/features/whatsapp/components/whatsapp-reminder-audience.tsx",
+        "frontend/features/whatsapp/components/whatsapp-group-invite-dialog.tsx",
+        "frontend/features/whatsapp/components/whatsapp-preview-recipient-picker.tsx",
+        "frontend/features/whatsapp/components/whatsapp-send-recovery.tsx"
+      ]
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-preview-recipient-picker.tsx",
+      "imports": [
+        "frontend/features/whatsapp/components/whatsapp-recipient-selection.tsx"
+      ]
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-recipient-bulk-outcome.tsx",
+      "imports": []
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-recipient-dialog.tsx",
+      "imports": [
+        "frontend/features/whatsapp/utils/recipient-roster.ts",
+        "frontend/features/whatsapp/components/whatsapp-active-recipient-row.tsx",
+        "frontend/features/whatsapp/components/whatsapp-recipient-bulk-outcome.tsx",
+        "frontend/features/whatsapp/components/whatsapp-recipient-selection.tsx",
+        "frontend/features/whatsapp/components/whatsapp-delivery-toolbar.tsx",
+        "frontend/features/whatsapp/components/whatsapp-workspace.types.ts",
+        "frontend/features/whatsapp/components/whatsapp-message-preview-dialog.tsx",
+        "frontend/features/whatsapp/components/whatsapp-source-roster-panel.tsx",
+        "frontend/features/whatsapp/components/group-update-delivery-panel.tsx",
+        "frontend/features/documents/components/document-recipient-panel.tsx"
+      ]
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-recipient-imported-details.tsx",
+      "imports": []
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-recipient-selection.tsx",
+      "imports": []
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-reminder-audience.tsx",
+      "imports": []
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-send-recovery.tsx",
+      "imports": []
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-source-roster-panel.tsx",
+      "imports": []
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-workspace.tsx",
+      "imports": [
+        "frontend/features/whatsapp/components/whatsapp-broadcast-list.tsx",
+        "frontend/features/whatsapp/components/whatsapp-message-preview-dialog.tsx",
+        "frontend/features/whatsapp/components/whatsapp-recipient-dialog.tsx",
+        "frontend/features/whatsapp/components/whatsapp-broadcast-update-dialog.tsx"
+      ]
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-workspace.types.ts",
+      "imports": []
+    },
+    {
+      "path": "frontend/features/whatsapp/utils/recipient-bulk-selection.ts",
+      "imports": []
+    },
+    {
+      "path": "frontend/features/whatsapp/utils/recipient-roster.ts",
+      "imports": []
+    }
+  ],
+  "files": [
+    {
+      "path": "frontend/features/documents/api/traveller-welcome.api.ts",
+      "sha256": "fc18758b10ca026ebec5cfa05393ec4e2ee83ea9b1dc2ecbe20b843a9c6a7baa",
+      "lines": 32,
+      "classification": "runtime-unreachable",
+      "notes": "Reviewed complete preview/send adapter. Current distribution workspace has no welcome panel; runtime reachability remains a separate cleanup decision.",
+      "manual_review": "complete before removal"
+    },
+    {
+      "path": "frontend/features/documents/components/document-recipient-panel.tsx",
+      "sha256": "2cd79f0cae8339bed7a9d8076c81f0d4eb9a2d578918e2fb2a18566dbc044a87",
+      "lines": 91,
+      "classification": "runtime-unreachable",
+      "notes": "Read complete91lines and traced oldwhatsapp-recipient-dialog caller; removed closed unreachable UI after confirming current app/newworkspace routes have no consumer.",
+      "manual_review": "complete before removal"
+    },
+    {
+      "path": "frontend/features/documents/components/document-recipient-send-dialog.tsx",
+      "sha256": "7818ac5bd942c33902fd980d05c4729b19d7528f31573f9798e530fb3061c134",
+      "lines": 35,
+      "classification": "runtime-unreachable",
+      "notes": "Read complete35lines; reviewed preview scope/token/resend logic; removed with its only caller in unreachable legacy recipient UI. Current delivery hook remains tested.",
+      "manual_review": "complete before removal"
+    },
+    {
+      "path": "frontend/features/documents/components/document-update-dialog.tsx",
+      "sha256": "4c215be5a3ac2c6a95773d8ff2c1a559e41e42ba70fd4c54638f3d7d6d606a54",
+      "lines": 84,
+      "classification": "runtime-unreachable",
+      "notes": "Reviewed complete baseline component; no external runtime caller found yet. State-only request identity and repeated array membership were noted, but a speculative fix was reverted while dormant workflow cleanup is unresolved.",
+      "manual_review": "complete before removal"
+    },
+    {
+      "path": "frontend/features/documents/components/document-update-status.tsx",
+      "sha256": "94b7b98fe49a4add1f0a0ecebe72426199f4495a9164afed18ab42976dce2262",
+      "lines": 23,
+      "classification": "runtime-unreachable",
+      "notes": "Read complete status labels/poll predicate/error/time renderer; removed only after manual route tracing proved all UI consumers unreachable. Active document-updates API stays.",
+      "manual_review": "complete before removal"
+    },
+    {
+      "path": "frontend/features/documents/components/traveller-welcome-dialog.tsx",
+      "sha256": "0f7418f07d0b11e83d388882df3bc9ef63b1ad85774ecd12dcf1e9231119a664",
+      "lines": 91,
+      "classification": "runtime-unreachable",
+      "notes": "Read complete91lines: phone eligibility/dedup/selection cap, explicit preview/source/message and upload states reviewed; removed after confirming welcome panel has no runtime app caller.",
+      "manual_review": "complete before removal"
+    },
+    {
+      "path": "frontend/features/documents/components/traveller-welcome-model.ts",
+      "sha256": "8883f203397566ec725e9da67c3746a6c88d3bbbfd3877f93cdb6bfc2af00a41",
+      "lines": 32,
+      "classification": "runtime-unreachable",
+      "notes": "Reviewed complete phone eligibility/deduplication/1500-selection bounds; retained existing semantics.",
+      "manual_review": "complete before removal"
+    },
+    {
+      "path": "frontend/features/documents/components/traveller-welcome-panel.tsx",
+      "sha256": "5d1198a8c114e3a70a1c73886b9b8ca29ac9e175b370fc7215d813d787bcda6a",
+      "lines": 86,
+      "classification": "runtime-unreachable",
+      "notes": "Reviewed complete optional panel; no external runtime caller found. Preserved pending final caller classification.",
+      "manual_review": "complete before removal"
+    },
+    {
+      "path": "frontend/features/documents/hooks/use-traveller-welcome-image.ts",
+      "sha256": "ccac5a4995fcae99435f80b36f0695845af1f710a722c2da4e787f19f7d45071",
+      "lines": 39,
+      "classification": "runtime-unreachable",
+      "notes": "Reviewed complete39-line upload hook: in-flight guard and object URL cleanup; potentially retired component reachability under review, left unchanged.",
+      "manual_review": "complete before removal"
+    },
+    {
+      "path": "frontend/features/documents/hooks/use-traveller-welcome.ts",
+      "sha256": "261fcff588677836bf7e95611a80f5f6a7a83135a0fd574b355fb4140785e5dd",
+      "lines": 30,
+      "classification": "runtime-unreachable",
+      "notes": "Reviewed complete preview/send hooks; optional welcome behavior is separate from required document delivery.",
+      "manual_review": "complete before removal"
+    },
+    {
+      "path": "frontend/features/whatsapp/components/group-update-delivery-panel.tsx",
+      "sha256": "1fa7b94348197351aafd1c425c85ddbe710262f2655b19143b72c65b32061f87",
+      "lines": 69,
+      "classification": "runtime-unreachable",
+      "notes": "No application/framework-root reachability; closed old WhatsApp workspace/welcome/recipient/update subtree."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-active-recipient-row.tsx",
+      "sha256": "8226d3e609a2abbf4c98e36425f533031d65e19a1b446e676926eb4d7ce98ebc",
+      "lines": 160,
+      "classification": "runtime-unreachable",
+      "notes": "No application/framework-root reachability; closed old WhatsApp workspace/welcome/recipient/update subtree."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-broadcast-list.tsx",
+      "sha256": "0bd9092b7cff3b4989a2e645b3230a51a48dba955995e6df5cd02ae250d8f1bd",
+      "lines": 147,
+      "classification": "runtime-unreachable",
+      "notes": "No application/framework-root reachability; closed old WhatsApp workspace/welcome/recipient/update subtree."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-broadcast-update-dialog.tsx",
+      "sha256": "b6a0636325c2e2826cd8a8d64b1ae91cf8d9fd738d6f9a273f30aa6ead85fe30",
+      "lines": 39,
+      "classification": "runtime-unreachable",
+      "notes": "No application/framework-root reachability; closed old WhatsApp workspace/welcome/recipient/update subtree."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-bulk-composer-audience.tsx",
+      "sha256": "fcaecd61262656ead092a3288964ad34dc40b98bb5b0488df7193379c316247b",
+      "lines": 54,
+      "classification": "runtime-unreachable",
+      "notes": "No application/framework-root reachability; closed old WhatsApp workspace/welcome/recipient/update subtree."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-delivery-toolbar.tsx",
+      "sha256": "411b58b52790a797fb91bd5514a8f90f6be6d32faca8ed2b105442c229c574af",
+      "lines": 98,
+      "classification": "runtime-unreachable",
+      "notes": "No application/framework-root reachability; closed old WhatsApp workspace/welcome/recipient/update subtree."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-group-invite-dialog.tsx",
+      "sha256": "2f72a6241ccd6953011126c11ea704952db57be49929e301d05c90646defda97",
+      "lines": 195,
+      "classification": "runtime-unreachable",
+      "notes": "No application/framework-root reachability; closed old WhatsApp workspace/welcome/recipient/update subtree."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-group-invite-image.tsx",
+      "sha256": "b9953debf20cce317502ba7140564c17ba50a62888cce2f6ec793f0ae0d8d4ff",
+      "lines": 72,
+      "classification": "runtime-unreachable",
+      "notes": "No application/framework-root reachability; closed old WhatsApp workspace/welcome/recipient/update subtree."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-message-preview-dialog.tsx",
+      "sha256": "f1267dd5beae2e3ccfd59483053bbc46de52f86facc707e4b3cdfcebb2b8ba86",
+      "lines": 1232,
+      "classification": "runtime-unreachable",
+      "notes": "No application/framework-root reachability; closed old WhatsApp workspace/welcome/recipient/update subtree."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-preview-recipient-picker.tsx",
+      "sha256": "3102d2cd4a5ea9d50406631110bcc121dd4d8e5c098e2f2d0e8ae777f5e3538f",
+      "lines": 45,
+      "classification": "runtime-unreachable",
+      "notes": "No application/framework-root reachability; closed old WhatsApp workspace/welcome/recipient/update subtree."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-recipient-bulk-outcome.tsx",
+      "sha256": "bb356d9f99bda8904e4930d891324cc8fd0291c903989c61fd3b66000ec9c220",
+      "lines": 42,
+      "classification": "runtime-unreachable",
+      "notes": "No application/framework-root reachability; closed old WhatsApp workspace/welcome/recipient/update subtree."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-recipient-dialog.tsx",
+      "sha256": "0e393b2955948e85e1f44065a30a579fd6bad041dba2fe8d53d4b4f13f54d8c7",
+      "lines": 1239,
+      "classification": "runtime-unreachable",
+      "notes": "No application/framework-root reachability; closed old WhatsApp workspace/welcome/recipient/update subtree."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-recipient-imported-details.tsx",
+      "sha256": "4e080f8410ce2f6e6f7d2a45f0eb29c13e750b5a7ecfbee79b842e1c9b53647f",
+      "lines": 72,
+      "classification": "runtime-unreachable",
+      "notes": "No application/framework-root reachability; closed old WhatsApp workspace/welcome/recipient/update subtree."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-recipient-selection.tsx",
+      "sha256": "e0bbeedc36880129ce631e025fbdfc3d67b4552a2a865544946d39a523708782",
+      "lines": 54,
+      "classification": "runtime-unreachable",
+      "notes": "No application/framework-root reachability; closed old WhatsApp workspace/welcome/recipient/update subtree."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-reminder-audience.tsx",
+      "sha256": "4c68c51147caaec8336635d508fcee6ca2afdbfbfe3e31712dc40cf68b66dc38",
+      "lines": 173,
+      "classification": "runtime-unreachable",
+      "notes": "No application/framework-root reachability; closed old WhatsApp workspace/welcome/recipient/update subtree."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-send-recovery.tsx",
+      "sha256": "a96ffef55aede50f4e1ce4a08059f624e51659e07474be740f67413587ff74d2",
+      "lines": 30,
+      "classification": "runtime-unreachable",
+      "notes": "No application/framework-root reachability; closed old WhatsApp workspace/welcome/recipient/update subtree."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-source-roster-panel.tsx",
+      "sha256": "86b0f1759d9c3c68045e5068e2011aae88b40d55084c22e72b4d53a79a0921ac",
+      "lines": 37,
+      "classification": "runtime-unreachable",
+      "notes": "No application/framework-root reachability; closed old WhatsApp workspace/welcome/recipient/update subtree."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-workspace.tsx",
+      "sha256": "e1599391b48c4999cc5ae90b1b1e2b1fb4f5aedc63e750a4e7691651b76816e3",
+      "lines": 642,
+      "classification": "runtime-unreachable",
+      "notes": "No application/framework-root reachability; closed old WhatsApp workspace/welcome/recipient/update subtree."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-workspace.types.ts",
+      "sha256": "26f0e480306938987b4e67aa5d2b40086314801e45d3d692d8bca4f31b8673a3",
+      "lines": 11,
+      "classification": "runtime-unreachable",
+      "notes": "No application/framework-root reachability; closed old WhatsApp workspace/welcome/recipient/update subtree."
+    },
+    {
+      "path": "frontend/features/whatsapp/utils/recipient-bulk-selection.ts",
+      "sha256": "9be3aefede0d36aa034cda15cc743f0709225b9bba1e73ae1d99b7c475f8ec17",
+      "lines": 53,
+      "classification": "runtime-unreachable",
+      "notes": "No application/framework-root reachability; closed old WhatsApp workspace/welcome/recipient/update subtree."
+    },
+    {
+      "path": "frontend/features/whatsapp/utils/recipient-roster.ts",
+      "sha256": "c9c1a437e4f18a42293bb2ef63c964d2879ef20092f5286a096249da614f84bf",
+      "lines": 192,
+      "classification": "runtime-unreachable",
+      "notes": "No application/framework-root reachability; closed old WhatsApp workspace/welcome/recipient/update subtree."
+    },
+    {
+      "path": "frontend/features/documents/api/traveller-welcome.api.test.ts",
+      "sha256": "64311e582a4b7ed65761d76c3eec5b7ca1a94442304d0bdb461184521172bca9",
+      "lines": 21,
+      "classification": "retired-implementation-test",
+      "notes": "Tests only retired implementation; active shared utility/SourceContactTable/document tests retained."
+    },
+    {
+      "path": "frontend/features/documents/hooks/use-traveller-welcome-image.test.ts",
+      "sha256": "a4f6fd444523ab84e54d7974cf51d26908a9816f38cac69bc7c804b0221ea38f",
+      "lines": 44,
+      "classification": "retired-implementation-test",
+      "notes": "Tests only retired implementation; active shared utility/SourceContactTable/document tests retained."
+    },
+    {
+      "path": "frontend/features/documents/components/traveller-welcome-dialog.test.tsx",
+      "sha256": "d95aab63a6243d9705f183b1abc470ed96cd8d1454c18896880be9d9564fe54c",
+      "lines": 74,
+      "classification": "retired-implementation-test",
+      "notes": "Tests only retired implementation; active shared utility/SourceContactTable/document tests retained."
+    },
+    {
+      "path": "frontend/features/documents/components/document-update-dialog.test.tsx",
+      "sha256": "1da49038d274ee8f4ad22ca040303550acadaa311c1d70de2922fa9f7509b1e6",
+      "lines": 80,
+      "classification": "retired-implementation-test",
+      "notes": "Tests only retired implementation; active shared utility/SourceContactTable/document tests retained."
+    },
+    {
+      "path": "frontend/features/documents/components/document-recipient-panel.test.tsx",
+      "sha256": "785e84d0fe927a7e1254df5d729473b923fb788bd3717e4b14c539ea4bf023d1",
+      "lines": 80,
+      "classification": "retired-implementation-test",
+      "notes": "Tests only retired implementation; active shared utility/SourceContactTable/document tests retained."
+    },
+    {
+      "path": "frontend/features/whatsapp/utils/recipient-roster.test.mjs",
+      "sha256": "38546e05bdaed1d34f1fb8c4fa3b3c23c4233bdaf88c738666a75c450472acee",
+      "lines": 416,
+      "classification": "retired-implementation-test",
+      "notes": "Tests only retired implementation; active shared utility/SourceContactTable/document tests retained."
+    },
+    {
+      "path": "frontend/features/whatsapp/utils/recipient-bulk-selection.test.mjs",
+      "sha256": "51ed5a745d49c65b9f2c0ba6033e4af76892331a9fdbf5db9e43f42b28a45ccc",
+      "lines": 58,
+      "classification": "retired-implementation-test",
+      "notes": "Tests only retired implementation; active shared utility/SourceContactTable/document tests retained."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/group-update-delivery-panel.test.tsx",
+      "sha256": "9cb2a22ef721793ab90e8acfc611f137d6f73d75ad9a8d25a0e7da694af27eb6",
+      "lines": 161,
+      "classification": "retired-implementation-test",
+      "notes": "Tests only retired implementation; active shared utility/SourceContactTable/document tests retained."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-group-invite-dialog.test.tsx",
+      "sha256": "1e86e9aa4d2ec6f00465dc59b61c752ab81b90118c4c9dd5c71306e5cbd2d49c",
+      "lines": 313,
+      "classification": "retired-implementation-test",
+      "notes": "Tests only retired implementation; active shared utility/SourceContactTable/document tests retained."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-archive.test.tsx",
+      "sha256": "c17d21264e03e91e50db9b537f04b645a9b6bb13d216fa95f96a6dc4cedb35ce",
+      "lines": 207,
+      "classification": "retired-implementation-test",
+      "notes": "Tests only retired implementation; active shared utility/SourceContactTable/document tests retained."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-broadcast-update.test.tsx",
+      "sha256": "00be99a08954d4e99cf6bbd20092e48ad533dddae62133247f178ac7968b4f92",
+      "lines": 77,
+      "classification": "retired-implementation-test",
+      "notes": "Tests only retired implementation; active shared utility/SourceContactTable/document tests retained."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-reminder-repeat.test.tsx",
+      "sha256": "504c19a20a02201b07f608a00ec94781b4b8458b8df61cebd9b7f33fa8bfb650",
+      "lines": 434,
+      "classification": "retired-implementation-test",
+      "notes": "Tests only retired implementation; active shared utility/SourceContactTable/document tests retained."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-recipient-imported-details.test.tsx",
+      "sha256": "3b8c567ea2a30fb09f3e64ad3272248fb8579159a60a97c7f8b2c72e86faf786",
+      "lines": 72,
+      "classification": "retired-implementation-test",
+      "notes": "Tests only retired implementation; active shared utility/SourceContactTable/document tests retained."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-message-preview-dialog.test.tsx",
+      "sha256": "fe1d46e33c73bc9b63c7bd9bac6c74806cec311f0e411e111d1785225eabba1a",
+      "lines": 815,
+      "classification": "retired-implementation-test",
+      "notes": "Tests only retired implementation; active shared utility/SourceContactTable/document tests retained."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-recipient-welcome-actions.test.tsx",
+      "sha256": "abe83f14249c29204b576b472424ea0743e9eb4335924d4b0e750990d31fdac0",
+      "lines": 63,
+      "classification": "retired-implementation-test",
+      "notes": "Tests only retired implementation; active shared utility/SourceContactTable/document tests retained."
+    }
+  ],
+  "retained_shared_modules": [
+    "frontend/features/documents/api/document-updates.api.ts",
+    "frontend/features/documents/hooks/use-document-distribution.ts",
+    "frontend/features/whatsapp/hooks/use-whatsapp.ts",
+    "frontend/features/whatsapp/utils/recipient-delivery.ts",
+    "frontend/features/whatsapp/components/whatsapp-source-contact-table.tsx",
+    "frontend/features/whatsapp/components/whatsapp-recipient-import.tsx",
+    "frontend/features/whatsapp/components/whatsapp-create-broadcast-dialog.tsx"
+  ]
+}

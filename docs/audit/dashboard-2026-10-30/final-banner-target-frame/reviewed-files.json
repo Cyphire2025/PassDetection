@@ -1,0 +1,71 @@
+{
+  "files": [
+    {
+      "path": "frontend/features/branding/components/group-banner.tsx",
+      "sha256": "d54d0b135c0fdd993c453e6703bd2ddda29cc51e099012c946848943c41fb459",
+      "physical_lines": 41,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "reviewer": "branding_visuals",
+      "notes": [
+        "Fullownedsource read/authored and currentfenced focusedchecks. No genericfullrepositoryclaim. Preserveschildren/editoridentity and actualsrc-only image/region; onlytemporaryReactownedpadding/frameclass duringbanneredit."
+      ]
+    },
+    {
+      "path": "frontend/features/branding/components/group-banner-action.tsx",
+      "sha256": "8fa3dfd6610baadf728db116ccc2490c4e2a7770f9ba216dd3b96ff6f9c1e4cd",
+      "physical_lines": 25,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "reviewer": "branding_visuals",
+      "notes": [
+        "Fullownedsource read/authored and currentfenced focusedchecks. No genericfullrepositoryclaim. Samebutton/refs/modalversion; previewlabelEditduringfirstAdd matchespostsavewrap, CancelreturnsAdd."
+      ]
+    },
+    {
+      "path": "frontend/features/branding/components/group-image-dialog.tsx",
+      "sha256": "da64396862a67e55104ecc8cc602d25f22c12975f58bcbb56c4ddaba0a320230",
+      "physical_lines": 74,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "reviewer": "branding_visuals",
+      "notes": [
+        "Fullownedsource read/authored and currentfenced focusedchecks. No genericfullrepositoryclaim. WholemoduleAST exactafteronlyreviewedaspectacquisition inverse; save/busy/version/cache/keyboard/error/close behavior unchanged."
+      ]
+    },
+    {
+      "path": "frontend/features/branding/components/group-banner-frame.ts",
+      "sha256": "754ca8518df4e57f6b832e8e739238287f31afc98ceab52f6f3c47f85afbb6c2",
+      "physical_lines": 12,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "reviewer": "branding_visuals",
+      "notes": [
+        "Fullownedsource read/authored and currentfenced focusedchecks. No genericfullrepositoryclaim."
+      ]
+    },
+    {
+      "path": "frontend/features/branding/components/use-group-image-aspect.ts",
+      "sha256": "8774bd9add3379488f59da76e254114ff3349d5faebadccbc24d6923ecae16bd",
+      "physical_lines": 59,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "reviewer": "branding_visuals",
+      "notes": [
+        "Fullownedsource read/authored and currentfenced focusedchecks. No genericfullrepositoryclaim. Contextscoped frame; aftercommitpaddingbox measurement; ResizeObserverpluslegacyfallback cleanup; backgroundfixedpane matchesexistinglayerbounds."
+      ]
+    },
+    {
+      "path": "frontend/features/branding/components/group-image-dialog.test.tsx",
+      "sha256": "a5ee8778b606941e12f0b38563a63f5a321f336f38f5208262663b46286dffbf",
+      "physical_lines": 156,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "reviewer": "branding_visuals",
+      "notes": [
+        "Fullownedsource read/authored and currentfenced focusedchecks. No genericfullrepositoryclaim."
+      ]
+    }
+  ],
+  "runtime_scope": "5brandingowners +1componenttest; immutableprivateAPI/schema/backend gates notchanged"
+}

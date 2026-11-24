@@ -1,0 +1,118 @@
+[
+  {
+    "path": "backend/app/presentation/api/v1/routes/admin_accounts.py",
+    "sha256": "75ff6a0e79de56d0397c4ed7f980e2ffa1135a41dcf2f9e07d137edeb522a2ac",
+    "physical_lines": 94,
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "refactored",
+    "notes": "All original/current body and owner composition read/authored. Whole15function extraction/hints/facade/8API contracts preserved; two policy/query deduplications restore exact baseline. Real25case policy matrix before/after,72unique affected cases, all original assertions retained; six proven dead test setup nodes retired. Public invitation/session/MFA/status/removal workflows intact."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/managed_account_creation.py",
+    "sha256": "6b377cce932b283ec9cd83b4ec8d7020eda70165330c57fad96ab6b344ced05f",
+    "physical_lines": 101,
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "refactored",
+    "notes": "All original/current body and owner composition read/authored. Whole15function extraction/hints/facade/8API contracts preserved; two policy/query deduplications restore exact baseline. Real25case policy matrix before/after,72unique affected cases, all original assertions retained; six proven dead test setup nodes retired. Public invitation/session/MFA/status/removal workflows intact."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/managed_account_credentials.py",
+    "sha256": "067cfca4e972d2caaff00aa6b2dc81fbe3bcff6f2bb7bb39b0c4a5fee114a778",
+    "physical_lines": 153,
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "refactored",
+    "notes": "All original/current body and owner composition read/authored. Whole15function extraction/hints/facade/8API contracts preserved; two policy/query deduplications restore exact baseline. Real25case policy matrix before/after,72unique affected cases, all original assertions retained; six proven dead test setup nodes retired. Public invitation/session/MFA/status/removal workflows intact."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/managed_account_mutations.py",
+    "sha256": "b5a6857bf9589e9e8ea07f5b73b1b9173234544d1d9d04bcb1ad4469a5ceb68b",
+    "physical_lines": 178,
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "refactored",
+    "notes": "All original/current body and owner composition read/authored. Whole15function extraction/hints/facade/8API contracts preserved; two policy/query deduplications restore exact baseline. Real25case policy matrix before/after,72unique affected cases, all original assertions retained; six proven dead test setup nodes retired. Public invitation/session/MFA/status/removal workflows intact."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/managed_account_queries.py",
+    "sha256": "7a6551812cf5935088b20d795e42660f7e787b4459bef731da77c8fb7a1a8e4c",
+    "physical_lines": 87,
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "refactored",
+    "notes": "All original/current body and owner composition read/authored. Whole15function extraction/hints/facade/8API contracts preserved; two policy/query deduplications restore exact baseline. Real25case policy matrix before/after,72unique affected cases, all original assertions retained; six proven dead test setup nodes retired. Public invitation/session/MFA/status/removal workflows intact."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/managed_account_scope.py",
+    "sha256": "c1b80c32d6b6f88f3bdfdcd28f7b57dbf1c82eb8df58b40a7da9fc6c6f33ee11",
+    "physical_lines": 65,
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "refactored",
+    "notes": "All original/current body and owner composition read/authored. Whole15function extraction/hints/facade/8API contracts preserved; two policy/query deduplications restore exact baseline. Real25case policy matrix before/after,72unique affected cases, all original assertions retained; six proven dead test setup nodes retired. Public invitation/session/MFA/status/removal workflows intact."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/managed_account_sessions.py",
+    "sha256": "64828e2872daadeaee2362b07c4a353f43c6408e4598e59e7287ebb96b628043",
+    "physical_lines": 102,
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "refactored",
+    "notes": "All original/current body and owner composition read/authored. Whole15function extraction/hints/facade/8API contracts preserved; two policy/query deduplications restore exact baseline. Real25case policy matrix before/after,72unique affected cases, all original assertions retained; six proven dead test setup nodes retired. Public invitation/session/MFA/status/removal workflows intact."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/managed_account_values.py",
+    "sha256": "1b89f19ee3ede770ebf6f7751c91bf8669ed08c7778e6cae51793eeece3a5f83",
+    "physical_lines": 73,
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "refactored",
+    "notes": "All original/current body and owner composition read/authored. Whole15function extraction/hints/facade/8API contracts preserved; two policy/query deduplications restore exact baseline. Real25case policy matrix before/after,72unique affected cases, all original assertions retained; six proven dead test setup nodes retired. Public invitation/session/MFA/status/removal workflows intact."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_admin_accounts.py",
+    "sha256": "f6029356bb308a58a21f9cda8b6af692fc04a291b2e3c6649bf0f416e19f753a",
+    "physical_lines": 532,
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "verified",
+    "notes": "All original/current body and owner composition read/authored. Whole15function extraction/hints/facade/8API contracts preserved; two policy/query deduplications restore exact baseline. Real25case policy matrix before/after,72unique affected cases, all original assertions retained; six proven dead test setup nodes retired. Public invitation/session/MFA/status/removal workflows intact."
+  },
+  {
+    "path": "backend/tests/integration/test_managed_account_status_projection.py",
+    "sha256": "d2fd69a13b86b0cb372b03bad86fe7e9cdf5741c0074bc9bf4c706d093698ed4",
+    "physical_lines": 59,
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "verified",
+    "notes": "All original/current body and owner composition read/authored. Whole15function extraction/hints/facade/8API contracts preserved; two policy/query deduplications restore exact baseline. Real25case policy matrix before/after,72unique affected cases, all original assertions retained; six proven dead test setup nodes retired. Public invitation/session/MFA/status/removal workflows intact."
+  },
+  {
+    "path": "backend/tests/integration/test_managed_account_scope_contracts.py",
+    "sha256": "6f3ee562ceb9c73fbc0573b330c651d9c6a2afaddb2fc8651b95fd96a1051343",
+    "physical_lines": 166,
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "verified",
+    "notes": "All original/current body and owner composition read/authored. Whole15function extraction/hints/facade/8API contracts preserved; two policy/query deduplications restore exact baseline. Real25case policy matrix before/after,72unique affected cases, all original assertions retained; six proven dead test setup nodes retired. Public invitation/session/MFA/status/removal workflows intact."
+  },
+  {
+    "path": "backend/tests/integration/test_managed_account_invitation_lifecycle.py",
+    "sha256": "ee4d9fc208839d2b717c349b7f6e72bfeb1faf8275716ff8489c428e77c3f6b8",
+    "physical_lines": 153,
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "verified",
+    "notes": "All original/current body and owner composition read/authored. Whole15function extraction/hints/facade/8API contracts preserved; two policy/query deduplications restore exact baseline. Real25case policy matrix before/after,72unique affected cases, all original assertions retained; six proven dead test setup nodes retired. Public invitation/session/MFA/status/removal workflows intact."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_business_admin_tools.py",
+    "sha256": "552430a7a821d9558d8fd907f333da4d9596d2aa690f85ef57c5e5e9287ca1ef",
+    "review_scope": "focused",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "Actual19cases executed in current64source-fenced batch and actual facade/request-schema callers traced. Entire manual source read not yet completed here; no full-file credit."
+  }
+]

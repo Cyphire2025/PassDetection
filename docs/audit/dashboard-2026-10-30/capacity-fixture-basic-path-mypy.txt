@@ -1,0 +1,3 @@
+capacity_fixture_seed.py:37: error: Need type annotation for "actors" (hint: "actors: list[<type>] = ...")  [var-annotated]
+capacity_fixture_seed.py:37: error: Need type annotation for "coordinators" (hint: "coordinators: list[<type>] = ...")  [var-annotated]
+Found 2 errors in 1 file (checked 5 source files)

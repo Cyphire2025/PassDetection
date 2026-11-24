@@ -1,0 +1,32 @@
+{
+  "argv": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "--tb=short",
+    "tests/unit/infrastructure/test_passport_document_import_staging.py",
+    "tests/unit/infrastructure/test_passport_document_workspace_cleanup.py",
+    "tests/unit/presentation/test_passport_document_import_staging_route.py",
+    "tests/unit/presentation/test_passport_crop_lifecycle_contract.py"
+  ],
+  "exit_code": 0,
+  "before": {
+    "backend/app/infrastructure/imports/passport_document_importer.py": "950e1c3b07c4efbc1b370e4c3ad64cd72d3816301fd041584c875ab039d4b69f",
+    "backend/tests/unit/infrastructure/test_passport_document_import_staging.py": "c2e218d272359f43aeed99d60b3abddfdd9f6ab876f0f72d4dff6d0e2f507f49",
+    "backend/tests/unit/infrastructure/test_passport_document_workspace_cleanup.py": "49ffef50613d62a8b202e482a93a80017696e5098205d75d75d282f60944f778",
+    "backend/tests/unit/presentation/test_passport_document_import_staging_route.py": "ad5ab7c3f362624f15332afe51832d5b65ab690d00b8d4d113076fa4a0506e63",
+    "backend/tests/unit/presentation/test_passport_crop_lifecycle_contract.py": "9338f00152857e7baa22cdd3f235201153a67fa14f62cb132050585cd2363cd5"
+  },
+  "after": {
+    "backend/app/infrastructure/imports/passport_document_importer.py": "950e1c3b07c4efbc1b370e4c3ad64cd72d3816301fd041584c875ab039d4b69f",
+    "backend/tests/unit/infrastructure/test_passport_document_import_staging.py": "c2e218d272359f43aeed99d60b3abddfdd9f6ab876f0f72d4dff6d0e2f507f49",
+    "backend/tests/unit/infrastructure/test_passport_document_workspace_cleanup.py": "49ffef50613d62a8b202e482a93a80017696e5098205d75d75d282f60944f778",
+    "backend/tests/unit/presentation/test_passport_document_import_staging_route.py": "ad5ab7c3f362624f15332afe51832d5b65ab690d00b8d4d113076fa4a0506e63",
+    "backend/tests/unit/presentation/test_passport_crop_lifecycle_contract.py": "9338f00152857e7baa22cdd3f235201153a67fa14f62cb132050585cd2363cd5"
+  },
+  "source_frozen": true,
+  "output": "passport-workspace-final-tests.txt"
+}

@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "features/upload/components/fresh-qualifier.test.tsx",
+    "features/upload/components/relation-qualifier-step.test.tsx",
+    "features/upload/components/fresh-member-form.test.tsx",
+    "features/upload/hooks/use-fresh-draft.test.tsx",
+    "--maxWorkers=1",
+    "--pool=threads",
+    "--config",
+    "../.tmp/final-qualifier-browser/reselection-coverage.config.mts",
+    "--coverage"
+  ],
+  "exit_code": 0,
+  "seconds": 12.625,
+  "source_fence": {
+    "frontend/features/upload/components/fresh-qualifier.tsx": "742ecf4bfaaec141e7a0e422419f57889eb44090679e70e47783cbbf0c6bf72c",
+    "frontend/features/upload/components/fresh-qualifier-editor.tsx": "0317940a84f37795a6646a378e6de1e99deae7e16594c34cdc7cb2369df824dc",
+    "frontend/features/upload/hooks/use-qualifier-selection-editor.ts": "9d5d9a03885b6ae4dd92c7ed91ad740c678297e4ff41f595b17f34d79ca91331",
+    "frontend/features/upload/components/fresh-qualifier.test.tsx": "dd2a588bf33fef994c5dfc97b092d43cda40eecee9dff77b4b15f8d7c2d35031",
+    "frontend/features/passports/api/public-upload-link.api.ts": "d720cbf0a79ce838006b30e56b63b69ec992c96881ffa3cb62d3df0f2b3d005b",
+    "frontend/e2e/qualifier-relationship-methods.spec.ts": "d37bab442b0c382f07f6c3b7e5ccda56c858a60b43c5abc19c60254689dc618c"
+  },
+  "source_unchanged": true
+}

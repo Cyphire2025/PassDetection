@@ -1,0 +1,65 @@
+{
+  "status": "frozen-focused-batch",
+  "tests": {
+    "passed": 88,
+    "files": 6,
+    "source_fence": "passport-image-siblings-qualified-command.json",
+    "coverage": "passport-image-siblings-qualified-coverage.json"
+  },
+  "before": {
+    "source_fence": "passport-image-siblings-boundaries-before-command.json",
+    "passed": 17,
+    "failed": 14,
+    "failures": {
+      "lost_committed_objects": 4,
+      "native_write_lifetime": 4,
+      "disabled_actor_after_external_work": 5,
+      "changed_preview_source": 1
+    }
+  },
+  "checkpoints": [
+    "passport-image-siblings-before-command.json",
+    "passport-image-siblings-boundaries-fixed-command.json",
+    "passport-image-siblings-post-behavior-command.json",
+    "passport-image-siblings-architecture-final-command.json"
+  ],
+  "public_facades": 3,
+  "private_owners": 8,
+  "shared_typed_boundary": 1,
+  "original_module_lines": {
+    "images": 480,
+    "visa_ai_library": 411,
+    "visa_ai_edits": 360
+  },
+  "current_facade_lines": {
+    "app/presentation/api/v1/routes/passport_routes/images.py": 99,
+    "app/presentation/api/v1/routes/passport_routes/visa_ai_library.py": 105,
+    "app/presentation/api/v1/routes/passport_routes/visa_ai_edits.py": 100
+  },
+  "largest_current_owned_runtime": 271,
+  "proof": "passport-image-siblings-extraction-proof.json",
+  "whole_declarations": 13,
+  "actual_import_bindings": 288,
+  "all_route_order_openapi_defaults_signatures_hints_and_aliases_exact": true,
+  "all_old_test_functions_ast_restored_after_declared_adjustments": true,
+  "checks": {
+    "mypy": {
+      "sources": 15,
+      "exit_code": 0,
+      "output": "passport-image-siblings-types.txt"
+    },
+    "ruff": {
+      "paths": 23,
+      "exit_code": 0,
+      "output": "passport-image-siblings-lint.txt"
+    }
+  },
+  "normal_candidates": 12,
+  "critical_behavior_candidates": 7,
+  "limitations": [
+    "Synthetic adapters and actual local SQLite persistence; no live PostgreSQL/object storage/provider/VPS qualification.",
+    "Read controls assert actual handler selection, scope arguments, errors, range passthrough and direct private view headers. Shared range-stream transport itself is isolated here.",
+    "Retained asset purge/hard-delete after external work remains a separate reproduced source-authority follow-through; see passport-retained-images-before-command.json.",
+    "The initial root image-library91 receipt remains historical; two shared test files deliberately changed with this batch and are not a current16-path fence."
+  ]
+}

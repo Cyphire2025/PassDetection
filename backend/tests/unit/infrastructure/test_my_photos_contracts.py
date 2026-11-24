@@ -457,7 +457,8 @@ def test_authenticated_preview_bytes_are_no_store_and_use_content_derived_extens
     ],
 )
 def test_delivery_provider_results_fail_closed_when_malformed(
-    field: str, value: object,
+    field: str,
+    value: object,
 ) -> None:
     # Construct clock-sensitive authorizations when the test executes, not at
     # collection: after five minutes a collection-time +600s expiry becomes
@@ -638,7 +639,7 @@ async def test_gallery_revision_publication_is_atomic_and_queues_bounded_refresh
         face_index_version=2,
         published_revision=1,
         total_asset_count=5_000,
-        indexed_asset_count=5_002,
+        indexed_asset_count=4_999,
         failed_asset_count=1,
     )
     index_job = MyPhotoJobModel(
@@ -657,7 +658,7 @@ async def test_gallery_revision_publication_is_atomic_and_queues_bounded_refresh
         correlation_id="revision-correlation",
     )
     coverage = SimpleNamespace(one=lambda: (3, 2, 1))
-    total = SimpleNamespace(scalar_one=lambda: 5_003)
+    total = SimpleNamespace(one=lambda: (5_003, 5_001, 2))
     eligible = SimpleNamespace(scalar_one=lambda: 2)
     refresh_id = uuid.uuid4()
 
@@ -686,6 +687,8 @@ async def test_gallery_revision_publication_is_atomic_and_queues_bounded_refresh
     assert gallery.face_index_version == 2
     assert gallery.status == "ready"
     assert gallery.total_asset_count == 5_003
+    assert gallery.indexed_asset_count == 5_001
+    assert gallery.failed_asset_count == 2
     assert gallery.published_at == published_at
     refresh = session.add.call_args.args[0]
     assert refresh.id == published_refresh_id
@@ -819,19 +822,16 @@ def test_optimized_download_is_advertised_only_for_persisted_usable_variant() ->
 
 @pytest.mark.asyncio
 async def test_download_plan_projects_mixed_online_preparing_failed_counts() -> None:
-    delivery = object.__new__(MyPhotosDeliveryService)
-    delivery._require_passenger = lambda claims, trip: SimpleNamespace(  # type: ignore[attr-defined]
-        id=uuid.uuid4()
-    )
     gallery = SimpleNamespace(id=uuid.uuid4(), published_revision=7)
-    delivery._ready_gallery = AsyncMock(return_value=gallery)  # type: ignore[attr-defined]
     revision_result = SimpleNamespace(scalar_one=lambda: 7)
     aggregate_result = SimpleNamespace(one=lambda: (3, 300, 180, 2, 140, 80, 1, 2, 1))
-    delivery._session = SimpleNamespace(  # type: ignore[attr-defined]
-        execute=AsyncMock(side_effect=(revision_result, aggregate_result))
-    )
-    delivery._providers = SimpleNamespace(  # type: ignore[attr-defined]
-        media=SimpleNamespace(ready=True)
+    delivery = MyPhotosDeliveryService(
+        SimpleNamespace(execute=AsyncMock(side_effect=(revision_result, aggregate_result))),  # type: ignore[arg-type]
+        settings=SimpleNamespace(),  # type: ignore[arg-type]
+        providers=SimpleNamespace(media=SimpleNamespace(ready=True)),  # type: ignore[arg-type]
+        require_passenger=lambda claims, trip: SimpleNamespace(id=uuid.uuid4()),  # type: ignore[arg-type]
+        ready_gallery=AsyncMock(return_value=gallery),
+        lock_passenger_identity=AsyncMock(),
     )
     claims = SimpleNamespace(agency_id=uuid.uuid4())
     trip = SimpleNamespace(group=SimpleNamespace(id=uuid.uuid4()))

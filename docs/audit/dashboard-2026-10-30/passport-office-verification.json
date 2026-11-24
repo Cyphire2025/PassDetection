@@ -1,0 +1,228 @@
+{
+  "status": "frozen mechanical pure Excel architecture +complete9office-owner source review",
+  "runtime_fence": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_excel_import_support.py",
+      "sha256": "be028c1afb810ccb1546088b1ca0814808a4009144f20cb0a1e991ae47c59c0b",
+      "lines": 58
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_excel_identity.py",
+      "sha256": "e19c861675a2992601b599a2ffbb21175c4182bbf1ca20257a2ca9615e88d565",
+      "lines": 224
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_excel_rows.py",
+      "sha256": "c53b6110d7d546c23feb21420002d007d52c6496d24e90191d9ccd7370eccfed",
+      "lines": 136
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_excel_merge.py",
+      "sha256": "8c1d12c9c215af144b9c64029a20585caa31b2e11d6015e500041aaf2b6c2c59",
+      "lines": 103
+    }
+  ],
+  "unchanged_office_runtime_fence": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/constants.py",
+      "sha256": "fde4a454674243207fe194ab20cd456ca3b341dfd6e9c99d2f06e1b77d13bffc",
+      "physical_lines": 72,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical source read in bounded groups; office authority/private output/current revision/persistence traces recorded in current preflight. No behavior issue adopted; Excel support architecture remains proposed until coordinated source change."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/covers.py",
+      "sha256": "cb198e068daf86be101b7c30f5047c762431fbfc8588fac3f63e2ce34441489e",
+      "physical_lines": 55,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical source read in bounded groups; office authority/private output/current revision/persistence traces recorded in current preflight. No behavior issue adopted; Excel support architecture remains proposed until coordinated source change."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/dependencies.py",
+      "sha256": "f0ca30e150dad79248eac8ad4317bc61de8ce54deca829e9dc8b0108a6928a82",
+      "physical_lines": 152,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical source read in bounded groups; office authority/private output/current revision/persistence traces recorded in current preflight. No behavior issue adopted; Excel support architecture remains proposed until coordinated source change."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/display_name.py",
+      "sha256": "1d3e7d3339247a7bc3828a9300c1f7f84ea7a234c076bfcc2f3d16a3dd77ea83",
+      "physical_lines": 110,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical source read in bounded groups; office authority/private output/current revision/persistence traces recorded in current preflight. No behavior issue adopted; Excel support architecture remains proposed until coordinated source change."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/document_follow_up.py",
+      "sha256": "c68fe92b5bbf3e7949763f26f9e64689b648b4988c15c0c5ab8e3a0745605572",
+      "physical_lines": 105,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical source read in bounded groups; office authority/private output/current revision/persistence traces recorded in current preflight. No behavior issue adopted; Excel support architecture remains proposed until coordinated source change."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/export_history.py",
+      "sha256": "ad4ed57b819b8f246d91a3d2b04d0cc6ff7cfd34851b39b0d2d356bdc58ed59d",
+      "physical_lines": 306,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical source read in bounded groups; office authority/private output/current revision/persistence traces recorded in current preflight. No behavior issue adopted; Excel support architecture remains proposed until coordinated source change."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/queries.py",
+      "sha256": "800f98cf5ccf8cfb8fc624ba33f8f7befbb995bbd929dbfe86833558df759d4f",
+      "physical_lines": 275,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical source read in bounded groups; office authority/private output/current revision/persistence traces recorded in current preflight. No behavior issue adopted; Excel support architecture remains proposed until coordinated source change."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/processing_support.py",
+      "sha256": "0e29abdbccc1eaabc018811d319d9aff808ded7e8905fe5be27a886684100c74",
+      "physical_lines": 59,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete physical source read in bounded groups; office authority/private output/current revision/persistence traces recorded in current preflight. No behavior issue adopted; Excel support architecture remains proposed until coordinated source change."
+    }
+  ],
+  "affected_test_source_fence": [
+    {
+      "path": "backend/tests/unit/presentation/test_passport_excel_owner_contract.py",
+      "sha256": "7e9ed43ecd70c8288d64edd0e512ad53ad0b56e42e421195501734e0603a28c1",
+      "physical_lines": 60,
+      "review_scope": "execution-only",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Current affected execution source fence; only separately full-read paths receive physical read credit"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_passport_excel_import_route.py",
+      "sha256": "b06af56b1c9378bfc1ebb3e4d167747c791bd25d4a69c04f180c36b4a9551989",
+      "physical_lines": 608,
+      "review_scope": "execution-only",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Current affected execution source fence; only separately full-read paths receive physical read credit"
+    },
+    {
+      "path": "backend/tests/unit/application/test_client_collection_provenance.py",
+      "sha256": "e29d62f56d22080c6aa3216868b89fec8b818ec2792911cdddcedffe11bce49d",
+      "physical_lines": 94,
+      "review_scope": "execution-only",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Current affected execution source fence; only separately full-read paths receive physical read credit"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_passport_route_decomposition.py",
+      "sha256": "7b1ee92647844d22d84a29cc90180c58c1888c51c1cfbb1b0a0751d6efafec49",
+      "physical_lines": 214,
+      "review_scope": "execution-only",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Current affected execution source fence; only separately full-read paths receive physical read credit"
+    },
+    {
+      "path": "backend/tests/integration/test_import_only_group_workflow.py",
+      "sha256": "4c6968d8599316f0395aeba4e1fa6374a83a73090ead2b8d5e9a7fc18d069734",
+      "physical_lines": 89,
+      "review_scope": "execution-only",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Current affected execution source fence; only separately full-read paths receive physical read credit"
+    },
+    {
+      "path": "backend/tests/integration/test_mcp_group_workbook_import.py",
+      "sha256": "eebedbfd0e4ecd2665b06531d8e9819f920c0ced4679f922c71ac569b2f72eb3",
+      "physical_lines": 535,
+      "review_scope": "execution-only",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Current affected execution source fence; only separately full-read paths receive physical read credit"
+    }
+  ],
+  "before": {
+    "passed": 86,
+    "files": 5,
+    "seconds": 44.69
+  },
+  "after": {
+    "passed": 88,
+    "files": 6,
+    "seconds": 30.82,
+    "same_original_cases": 86,
+    "new_contract_cases": 2
+  },
+  "checks": {
+    "whole_declarations_ast_exact": 21,
+    "function_signatures_defaults_exact": 19,
+    "actual_runtime_hints": "all19 checked with only explicit relocated private index/TypeVar aliases normalized; actual alias contracts separately executed",
+    "original_imported_objects_identical": 15,
+    "actual_MCP_helper_exception_captures": 5,
+    "all_referenced_function_global_bindings_canonical": true,
+    "strict_mypy_runtime4": "passed; direct typed TypeVar reexport corrected initial assignment-alias rejection without ignore",
+    "ruff_no_fix5": "passed",
+    "format5": "passed",
+    "original_test_assertions_changed": 0,
+    "algorithm_or_workflow_changed": false
+  },
+  "read_ledger": {
+    "path": "docs/audit/dashboard-2026-10-30/passport-office-reviewed-files.json",
+    "sha256": "5d55ff35273ff54b4b4b1005c4ae3e118328abd61e06936ac95dd66bc81ff5bc"
+  },
+  "candidates": {
+    "path": "docs/audit/dashboard-2026-10-30/passport-excel-owner-budget-candidates.json",
+    "sha256": "484dde2e0be382b177857ecd7a501bdd692e20ff1597885fa28c9ba32d38fb5c"
+  },
+  "source_equivalence": {
+    "path": "docs/audit/dashboard-2026-10-30/passport-excel-owner-source-equivalence.json",
+    "sha256": "6639599551c76b25501159c23b4922151b4e15b47ba2baab3ace64821ad61acc"
+  },
+  "raw_receipts": [
+    {
+      "path": ".tmp/passport-office-audit/excel-baseline.txt",
+      "sha256": "97e0da1a5ef2a23bd20a1c24fe82167b78d9bf53664064e136ce23286f1178e7"
+    },
+    {
+      "path": ".tmp/passport-office-audit/excel-final.txt",
+      "sha256": "777eeef105701b60e93734fb1118fc6395055a8ecb02da18b2c49e9afe0fe80c"
+    },
+    {
+      "path": ".tmp/passport-office-audit/excel-types.txt",
+      "sha256": "d9a5631f7d87a741fbecc3236286d1792d22d349ff13846d71cdc9217307bb76"
+    },
+    {
+      "path": ".tmp/passport-office-audit/excel-coverage.json",
+      "sha256": "d40929b1151254f22cf582d3a93e34461c087df54ec77d99541049e65a7af554"
+    },
+    {
+      "path": ".tmp/passport-office-audit/excel-coverage.xml",
+      "sha256": "a9b07d9faab7b05f29fe0a19a4cfb5985b65004e8365b34f52dcd9e9648a9ef8"
+    },
+    {
+      "path": ".tmp/passport-office-audit/compose.py",
+      "sha256": "5b215e3cba385437e32b0c006d430fdc4e54a94281d466c4b242c4721e534598"
+    },
+    {
+      "path": ".tmp/passport-office-audit/prove.py",
+      "sha256": "2933b75d84c15d1c4bad63ee9bd44e9c9ddc86fef88671864a9b3b6229b7879d"
+    }
+  ],
+  "limitations": [
+    "Private helper/exception/index dataclass/TypeVar module metadata moves to actual owners. Facade/constant/MCP object aliases remain canonical; no maintained serialization consumer found; literal old/new private class/TypeVar identity is not claimed.",
+    "No source-backed security/performance defect adopted; existing linear algorithm, first conflict, row order, encoding/blank semantics, phone/provenance and capture ordering preserved.",
+    "Unchanged small route/catalog owners are source-review results, not new end-to-end UI/browser/service proof. Executed test source does not imply full physical read credit.",
+    "Synthetic SQLite/MCP/workbook fixtures only; no real providers, PostgreSQL service, credential reads, production/VPS/deployment or broad suite/build/browser runs."
+  ]
+}

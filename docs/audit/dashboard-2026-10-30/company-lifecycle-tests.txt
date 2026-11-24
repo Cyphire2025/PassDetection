@@ -1,0 +1,16 @@
+........................................................................ [ 72%]
+...........................                                              [100%]
+
+---------- coverage: platform win32, python 3.11.15-final-0 ----------
+Name                                                              Stmts   Miss Branch BrPart  Cover
+---------------------------------------------------------------------------------------------------
+app\application\travellers\draft_retention.py                        47      2     16      2    94%
+app\core\storage_write_budget.py                                      5      0      0      0   100%
+app\infrastructure\travellers\asset_copy.py                         123     12     44     11    85%
+app\infrastructure\travellers\company_export_worker.py              168     16     62     13    86%
+app\presentation\api\v1\routes\client_group_permanent_delete.py      77      5     12      3    91%
+---------------------------------------------------------------------------------------------------
+TOTAL                                                               420     35    134     29    87%
+Coverage JSON written to file ../docs/audit/dashboard-2026-10-30/company-lifecycle-coverage.json
+
+99 passed in 116.85s (0:01:56)

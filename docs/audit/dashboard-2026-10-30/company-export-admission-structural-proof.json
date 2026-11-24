@@ -1,0 +1,71 @@
+{
+  "worker_public_function_signatures_unchanged": [
+    "assemble_workbook",
+    "export_authority",
+    "process_export_page",
+    "reserve_export",
+    "reserve_part",
+    "run_company_export_tick"
+  ],
+  "worker_complete_function_asts_unchanged": [],
+  "admission_function_bodies_ast_equal_after_explicit_dependency_rebinding": [
+    "reserve_export",
+    "export_authority",
+    "reserve_part",
+    "record_export_failure"
+  ],
+  "workbook_assembly_body_ast_identical": true,
+  "worker_tick_ast_identical_after_exact_failure_block_delegation": true,
+  "dependency_rebinding": {
+    "reserve_export": "Facade MAX_ATTEMPTS/LEASE_SECONDS/PAGE_TIMEOUT_SECONDS resolved per call; write-envelope callback resolves facade settings only when needed.",
+    "reserve_part": "Facade export_authority callback passed per call; facade write-envelope callback resolved only after authority checks and row ownership."
+  },
+  "formatted": [
+    {
+      "path": "backend/app/infrastructure/travellers/company_export_worker.py",
+      "physical_lines": 147,
+      "before_sha256": "d91e2e504f2b520ca14831e972006aa4351b81dd022de2ea8861985cf0041ef9",
+      "sha256": "0fd62ac61c57539f06202672d2b3dfc2afd3a264ffae2185c2dd35de1856c16a",
+      "format_only_ast_identical": false,
+      "pre_page_extraction_sha256": "42e19577657f90725be2c5787d7657a1ec81ba34151a5798b4692dd2bb1d8bc8"
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/company_export_admission.py",
+      "physical_lines": 160,
+      "before_sha256": null,
+      "sha256": "fdce49e0364a9df3498812057a96d81ec4afc49901f3fbb8184797bb2ac34f68",
+      "format_only_ast_identical": false
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/company_export_workbook.py",
+      "physical_lines": 69,
+      "before_sha256": null,
+      "sha256": "ad0a038621d577a940767dbb2704482b748544b1ec8661fd4bd7935d09593e6e",
+      "format_only_ast_identical": false
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/asset_copy.py",
+      "physical_lines": 285,
+      "before_sha256": "33fd64a8bcd80d7e8ab00dc8019ff40812d3a612ea93f18b4c4f2448d0ad5ede",
+      "sha256": "8459bb8fc0850257586438d6b32cf463b59943c86e0687db605fafb4267a7a18",
+      "format_only_ast_identical": true
+    },
+    {
+      "path": "backend/app/application/travellers/draft_retention.py",
+      "physical_lines": 91,
+      "before_sha256": "787df42e006ffcfda6eeff2e5ec26606c917798ac753c47fcb93495176a91f05",
+      "sha256": "13d8a84f2d9c315f2a52c60e0d2a49cf453bf02a0e1445883103b22bc3765293",
+      "format_only_ast_identical": true
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/company_export_page.py",
+      "before_sha256": null,
+      "format_only_ast_identical": false,
+      "physical_lines": 159,
+      "sha256": "eba24418958bcd869004c5409ef8828a74f7bf81d683e2e1e58674f3b4c3199c"
+    }
+  ],
+  "page_processor_body_ast_identical": true,
+  "page_processor_callbacks": "Original export_authority/assemble_workbook/reserve_part names bound to current facade functions per call. Every page statement and transaction/authorization/provider ordering is unchanged.",
+  "actual_existing_worker_ceiling_preserved": 240
+}

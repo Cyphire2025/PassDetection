@@ -29,15 +29,14 @@ from app.presentation.api.v1.document_chunk_uploads import (
 from app.presentation.api.v1.routes.document_distribution import (
     router as distribution_router,
 )
-from app.presentation.api.v1.routes.document_distribution import (
-    upload_documents,
-)
 from app.presentation.api.v1.routes.document_rename import (
     analyze_and_rename_documents,
 )
 from app.presentation.api.v1.routes.document_rename import (
     router as rename_router,
 )
+from app.presentation.api.v1.routes.document_rename_chunk_staging import stage_rename_chunk
+from app.presentation.api.v1.routes.document_rename_finalization import finalize_rename_upload
 
 
 def _metadata(
@@ -152,7 +151,15 @@ async def test_advisory_lock_is_stable_transaction_scoped_and_precedes_final_rer
         upload_id=upload_id,
     )
     assert "pg_advisory_xact_lock" in str(session.execute.await_args.args[0])
-    for handler in (analyze_and_rename_documents, upload_documents):
+    assert "finalize_rename_upload(" in py_inspect.getsource(analyze_and_rename_documents)
+    assert "stage_rename_chunk(" in py_inspect.getsource(finalize_rename_upload)
+    from app.presentation.api.v1.routes.document_distribution_upload_persistence_scope import (
+        DistributionUploadPersistence,
+    )
+
+    for handler in (
+        stage_rename_chunk, DistributionUploadPersistence.reauthorize_before_persistence,
+    ):
         source = py_inspect.getsource(handler)
         assert (
             source.index("acquire_document_upload_advisory_lock")
@@ -202,13 +209,21 @@ async def test_distribution_scope_lock_is_stable_and_precedes_upload_lock() -> N
     )
     assert "pg_advisory_xact_lock" in str(session.execute.await_args.args[0])
 
-    source = py_inspect.getsource(upload_documents)
+    from app.presentation.api.v1.routes.document_distribution_upload_match_scope import (
+        authorize_distribution_upload,
+    )
+    from app.presentation.api.v1.routes.document_distribution_upload_persistence_scope import (
+        DistributionUploadPersistence,
+    )
+
+    source = py_inspect.getsource(DistributionUploadPersistence.reauthorize_before_persistence)
     assert (
         source.index("acquire_document_upload_scope_advisory_lock")
         < source.index("acquire_document_upload_advisory_lock")
         < source.index("serialized_batch_result")
     )
-    assert source.count("_first_blocking_processing_upload_id") == 2
+    initial_source = py_inspect.getsource(authorize_distribution_upload)
+    assert (initial_source + source).count("_first_blocking_processing_upload_id") == 2
 
 
 def test_chunk_manifest_is_all_or_nothing_and_caps_logical_selection() -> None:

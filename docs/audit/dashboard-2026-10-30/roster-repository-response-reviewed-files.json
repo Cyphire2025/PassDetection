@@ -1,0 +1,18 @@
+[
+  {
+    "path": "backend/app/infrastructure/repositories/passport_submission_view_repository.py",
+    "sha256": "67e3882971d74859de20c09ad9f6f389a4f25e68bfa7e5c18753380f0a13d127",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Authoritative staff/tenant/group/status predicates remain at both projection and page hydration; frozen/slotted projection loads staff metadata only for explicit search. Response bounds selection by existing constant, preserves revisions and serializes only visible cluster membership. No changes or new test execution for this source-only closure; prior affected61-case fixture evidence is separate."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/submission_view_response.py",
+    "sha256": "139610a2edf708cd8c6ff9140ccc1995100bfc9fffeaaca47326c63f9dccd899",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Authoritative staff/tenant/group/status predicates remain at both projection and page hydration; frozen/slotted projection loads staff metadata only for explicit search. Response bounds selection by existing constant, preserves revisions and serializes only visible cluster membership. No changes or new test execution for this source-only closure; prior affected61-case fixture evidence is separate."
+  }
+]

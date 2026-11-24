@@ -1,0 +1,402 @@
+{
+  "status": "focused annotation/manifest-admission follow-through complete; one inherited interface item open",
+  "source_sha256": {
+    "scripts/release_retained_update.py": "f000107c2ce6a03653dbc03e83e04311514bac16c4bba07f17e1301c8a9c8cd4",
+    "scripts/retained_release_contract.py": "fca45150ed25f983a99fd993059a515e7766bb0e01715e6e387d1e3c11022b41",
+    "scripts/retained_release_fast.py": "3e95c32ac14972eadfc54edbe93912396b98904de6f55af09b8990ec8ca7df22",
+    "scripts/retained_release_host.py": "b190ca7f5906fc2e6a2a41b0b1e2c9a61aeaacbab9e7006bc7968544f6b6c48d",
+    "scripts/retained_release_runtime.py": "a3e3e820a2458eb216addc096885109f5cedd8076d2dd110d40592b8c14f2685",
+    "scripts/retained_release_build.py": "4716c93c90f5cacd0e7fb30dbb1f1158869d5307a88f1856571eaf3531609a12",
+    "scripts/retained_release_lifecycle.py": "6e671ab05a4e31cec39ac001894ed1357b1fcc62064e9f1a366f10497b787f30",
+    "scripts/mcp_direct_containers.py": "6004d6b434a01467cd8c62625829e6791bc7ab02e17ac03f76c37a936d65a4e7",
+    "scripts/release_document_retained_update.py": "602c697e721cc9dddd26779997bd54c3b6cfbda5fcb447ed61da19526be1fb48",
+    "scripts/test_retained_release_manifest_admission.py": "d940a2365bff7f9e907c56d3ec8e3f32da6c052f881ec4f83280c6eeca3e0984"
+  },
+  "proof": {
+    "basis": "Explicit public annotation metadata extension after mechanical and JSON follow-through receipts; not byte-identical hint metadata",
+    "all9modules_restore_after_only_annotations_required_type_imports_and_one_manifest_invariant_guard": true,
+    "all_callable_argument_names_order_defaults_and_variadic_shapes_preserved": true,
+    "annotation_extensions": [
+      {
+        "path": "scripts/release_retained_update.py",
+        "function": "main.interrupted",
+        "before": {},
+        "after": {
+          "signum": "int",
+          "frame": "FrameType | None",
+          "return": "None"
+        }
+      },
+      {
+        "path": "scripts/retained_release_contract.py",
+        "function": "wait_full_readiness",
+        "before": {
+          "probe": "Callable[[], dict]",
+          "revision": "str",
+          "return": "None"
+        },
+        "after": {
+          "probe": "Callable[[], dict[str, Any]]",
+          "revision": "str",
+          "return": "None"
+        }
+      },
+      {
+        "path": "scripts/retained_release_contract.py",
+        "function": "select_live",
+        "before": {
+          "rows": "list[dict]",
+          "root": "Path",
+          "schema": "str",
+          "paused_services": "frozenset[str]",
+          "return": "dict[str, dict]"
+        },
+        "after": {
+          "rows": "list[dict[str, Any]]",
+          "root": "Path",
+          "schema": "str",
+          "paused_services": "frozenset[str]",
+          "return": "dict[str, dict[str, Any]]"
+        }
+      },
+      {
+        "path": "scripts/retained_release_contract.py",
+        "function": "runtime_environment",
+        "before": {
+          "original": "dict",
+          "revision": "str",
+          "schema": "str",
+          "return": "dict[str, str]"
+        },
+        "after": {
+          "original": "dict[str, Any]",
+          "revision": "str",
+          "schema": "str",
+          "return": "dict[str, str]"
+        }
+      },
+      {
+        "path": "scripts/retained_release_contract.py",
+        "function": "proxy_configuration",
+        "before": {
+          "config": "str",
+          "active": "dict",
+          "project": "str",
+          "return": "str"
+        },
+        "after": {
+          "config": "str",
+          "active": "dict[str, Any]",
+          "project": "str",
+          "return": "str"
+        }
+      },
+      {
+        "path": "scripts/retained_release_fast.py",
+        "function": "FastBuild.backend",
+        "before": {
+          "base_image": "str",
+          "return": "dict"
+        },
+        "after": {
+          "base_image": "str",
+          "return": "dict[str, Any]"
+        }
+      },
+      {
+        "path": "scripts/retained_release_host.py",
+        "function": "_RetainedHost.event",
+        "before": {
+          "phase": "str",
+          "return": "None"
+        },
+        "after": {
+          "phase": "str",
+          "values": "Any",
+          "return": "None"
+        }
+      },
+      {
+        "path": "scripts/retained_release_host.py",
+        "function": "_RetainedHost.rows",
+        "before": {
+          "all": "bool",
+          "return": "list[dict]"
+        },
+        "after": {
+          "all": "bool",
+          "return": "list[dict[str, Any]]"
+        }
+      },
+      {
+        "path": "scripts/retained_release_host.py",
+        "function": "_RetainedHost.idle_workers",
+        "before": {
+          "live": "dict",
+          "return": "dict"
+        },
+        "after": {
+          "live": "dict[str, Any]",
+          "return": "dict[str, Any]"
+        }
+      },
+      {
+        "path": "scripts/retained_release_runtime.py",
+        "function": "_RetainedRuntime.stop",
+        "before": {
+          "row": "dict",
+          "return": "None"
+        },
+        "after": {
+          "row": "dict[str, Any]",
+          "return": "None"
+        }
+      },
+      {
+        "path": "scripts/retained_release_runtime.py",
+        "function": "_RetainedRuntime.fence_candidate",
+        "before": {
+          "row": "dict",
+          "return": "None"
+        },
+        "after": {
+          "row": "dict[str, Any]",
+          "return": "None"
+        }
+      },
+      {
+        "path": "scripts/retained_release_runtime.py",
+        "function": "_RetainedRuntime.start",
+        "before": {
+          "row": "dict",
+          "return": "None"
+        },
+        "after": {
+          "row": "dict[str, Any]",
+          "return": "None"
+        }
+      },
+      {
+        "path": "scripts/retained_release_runtime.py",
+        "function": "_RetainedRuntime.wait_health",
+        "before": {
+          "rows": "dict",
+          "return": "None"
+        },
+        "after": {
+          "rows": "dict[str, Any]",
+          "return": "None"
+        }
+      },
+      {
+        "path": "scripts/retained_release_runtime.py",
+        "function": "_RetainedRuntime.proof",
+        "before": {
+          "rows": "dict",
+          "revision": "str",
+          "public": "bool",
+          "return": "None"
+        },
+        "after": {
+          "rows": "dict[str, Any]",
+          "revision": "str",
+          "public": "bool",
+          "return": "None"
+        }
+      },
+      {
+        "path": "scripts/retained_release_runtime.py",
+        "function": "_RetainedRuntime.candidate_environment",
+        "before": {
+          "original": "dict",
+          "return": "dict[str, str]"
+        },
+        "after": {
+          "original": "dict[str, Any]",
+          "return": "dict[str, str]"
+        }
+      },
+      {
+        "path": "scripts/retained_release_runtime.py",
+        "function": "_RetainedRuntime.create_candidate",
+        "before": {
+          "original": "dict",
+          "options": "dict",
+          "return": "str"
+        },
+        "after": {
+          "original": "dict[str, Any]",
+          "options": "dict[str, Any]",
+          "return": "str"
+        }
+      },
+      {
+        "path": "scripts/retained_release_runtime.py",
+        "function": "_RetainedRuntime.stage",
+        "before": {
+          "images": "dict",
+          "return": "dict"
+        },
+        "after": {
+          "images": "dict[str, Any]",
+          "return": "dict[str, Any]"
+        }
+      },
+      {
+        "path": "scripts/retained_release_build.py",
+        "function": "_RetainedBuild.build_fast_images",
+        "before": {
+          "return": "dict"
+        },
+        "after": {
+          "return": "dict[str, Any]"
+        }
+      },
+      {
+        "path": "scripts/retained_release_build.py",
+        "function": "_RetainedBuild.fast_images",
+        "before": {
+          "return": "dict"
+        },
+        "after": {
+          "return": "dict[str, Any]"
+        }
+      },
+      {
+        "path": "scripts/retained_release_lifecycle.py",
+        "function": "RetainedUpdate.__init__",
+        "before": {
+          "source": "Path",
+          "revision": "str",
+          "mode": "str",
+          "artifact": "Path | None"
+        },
+        "after": {
+          "source": "Path",
+          "revision": "str",
+          "mode": "str",
+          "artifact": "Path | None",
+          "return": "None"
+        }
+      },
+      {
+        "path": "scripts/retained_release_lifecycle.py",
+        "function": "RetainedUpdate.transition",
+        "before": {
+          "candidates": "dict",
+          "return": "None"
+        },
+        "after": {
+          "candidates": "dict[str, Any]",
+          "return": "None"
+        }
+      },
+      {
+        "path": "scripts/mcp_direct_containers.py",
+        "function": "LocalDocker.__init__",
+        "before": {},
+        "after": {
+          "return": "None"
+        }
+      },
+      {
+        "path": "scripts/release_document_retained_update.py",
+        "function": "DocumentRetainedUpdate.__init__",
+        "before": {},
+        "after": {
+          "source": "Path",
+          "revision": "str",
+          "mode": "str",
+          "artifact": "Path | None",
+          "return": "None"
+        }
+      }
+    ],
+    "evaluated_hint_controls": [
+      "release_retained_update:release_for_source",
+      "release_retained_update:main",
+      "retained_release_build:_RetainedBuild.background_quiescence",
+      "retained_release_build:_RetainedBuild.build_fast_images",
+      "retained_release_build:_RetainedBuild.fast_images",
+      "retained_release_host:_RetainedHost.event",
+      "retained_release_host:_RetainedHost.rows",
+      "retained_release_host:_RetainedHost.paused_services",
+      "retained_release_host:_RetainedHost.idle_workers",
+      "retained_release_host:_RetainedHost.schema",
+      "retained_release_host:_RetainedHost.current_main",
+      "retained_release_host:_RetainedHost.compatibility",
+      "retained_release_host:_RetainedHost.retention",
+      "retained_release_host:_RetainedHost.backup",
+      "retained_release_lifecycle:RetainedUpdate.initial_schema",
+      "retained_release_lifecycle:RetainedUpdate.prepare_images",
+      "retained_release_lifecycle:RetainedUpdate.before_candidate_start",
+      "retained_release_lifecycle:RetainedUpdate.retention_schema",
+      "retained_release_lifecycle:RetainedUpdate.__init__",
+      "retained_release_lifecycle:RetainedUpdate.recover",
+      "retained_release_lifecycle:RetainedUpdate.run",
+      "retained_release_lifecycle:RetainedUpdate.transition",
+      "retained_release_runtime:_RetainedRuntime.stop",
+      "retained_release_runtime:_RetainedRuntime.fence_candidate",
+      "retained_release_runtime:_RetainedRuntime.start",
+      "retained_release_runtime:_RetainedRuntime.wait_health",
+      "retained_release_runtime:_RetainedRuntime.proof",
+      "retained_release_runtime:_RetainedRuntime.candidate_environment",
+      "retained_release_runtime:_RetainedRuntime.create_candidate",
+      "retained_release_runtime:_RetainedRuntime.stage",
+      "retained_release_contract:require",
+      "retained_release_contract:wait_full_readiness",
+      "retained_release_contract:select_live",
+      "retained_release_contract:forbidden_changes",
+      "retained_release_contract:validate_route_allowlist",
+      "retained_release_contract:runtime_environment",
+      "retained_release_contract:proxy_configuration",
+      "retained_release_fast:FastBuild.backend"
+    ],
+    "constructor_bodies": "LocalDocker and DocumentRetainedUpdate entire executable bodies exact; RetainedUpdate constructor body exact",
+    "one_executable_guard": "Full-mode signed manifest path must still be present before verifier; same constructor invariant/reason, valid Full/Fast operations unchanged",
+    "remaining_FastBuild_interface": "One original backend override arity mismatch retained: public one-argument code-only method versus generic base dependency-update two-argument method. Current production closure has only one FastBuild backend call with one argument; generic base call is a distinct receiver in mcp_direct_release.",
+    "no_typing_suppressions_or_public_call_argument_changes": true,
+    "source_sha256": {
+      "scripts/release_retained_update.py": "f000107c2ce6a03653dbc03e83e04311514bac16c4bba07f17e1301c8a9c8cd4",
+      "scripts/retained_release_contract.py": "fca45150ed25f983a99fd993059a515e7766bb0e01715e6e387d1e3c11022b41",
+      "scripts/retained_release_fast.py": "3e95c32ac14972eadfc54edbe93912396b98904de6f55af09b8990ec8ca7df22",
+      "scripts/retained_release_host.py": "b190ca7f5906fc2e6a2a41b0b1e2c9a61aeaacbab9e7006bc7968544f6b6c48d",
+      "scripts/retained_release_runtime.py": "a3e3e820a2458eb216addc096885109f5cedd8076d2dd110d40592b8c14f2685",
+      "scripts/retained_release_build.py": "4716c93c90f5cacd0e7fb30dbb1f1158869d5307a88f1856571eaf3531609a12",
+      "scripts/retained_release_lifecycle.py": "6e671ab05a4e31cec39ac001894ed1357b1fcc62064e9f1a366f10497b787f30",
+      "scripts/mcp_direct_containers.py": "6004d6b434a01467cd8c62625829e6791bc7ab02e17ac03f76c37a936d65a4e7",
+      "scripts/release_document_retained_update.py": "602c697e721cc9dddd26779997bd54c3b6cfbda5fcb447ed61da19526be1fb48"
+    }
+  },
+  "checks": {
+    "before_admission": "3mode-path controls:2valid controls pass/1missing artifact TypeError",
+    "after_affected": "66cases/6files PASS0.700seconds on final source and final no-verifier-effect assertion",
+    "earlier_subset": "56affected +10container separate executions, not additive to final66",
+    "configured_Linux_types": "Six owned modules PASS. All seven retain only1original FastBuild override mismatch; no all-source strictpass claim",
+    "Ruff_format": "8owned source/test files pass explicit repositoryconfig; downstream2constructor files are annotation-only exact module inverse, not globally lint-certified here",
+    "hint_evaluations": 38,
+    "public_annotation_metadata_extensions": 23,
+    "no_live_or_broad_checks": true
+  },
+  "preserved": [
+    "All callable argument names, order, defaults and variadic shapes",
+    "Constructor/lifecycle executable bodies, except explicit duplicate full-mode manifest invariant at admission",
+    "Existing resource/revision/schema/fence/backup/recovery/provider policies",
+    "Actual public aliases/pickles and already documented private MRO/source introspection tradeoffs"
+  ],
+  "remaining": "FastBuild inherited backend interface mismatch only in owned seven-source strict traversal; no current valid workflow defect or deployment qualification asserted. Eleven separate imported/platform diagnostics remain tracked. DedicatedInbox stays deferred.",
+  "artifacts": {
+    "retained-interface-original-sources.json": "1b0a2f04b85deeaae9ac94b66c8289818f8b5a6153adc501d495e0f4e5448c93",
+    "retained-interface-proof.json": "5d8a70708a7aa3a2eb94c36fb2f6fa0217ecc33c896f2c78717472e722721e34",
+    "retained-interface-reviewed-files.json": "20d94d2144cd3881995b97340c47f66ef0e2016acb8fd983007ea9695922556f",
+    "retained-interface-admission-before.txt": "61e88d398f69ac559a22decab27b3f19c6929cb4feeab6ffdd63c83a65f4a4bb",
+    "retained-interface-first-types.txt": "ec87a2969872bbba2fccb3cff8838468c10483658599c7a42208f2c5adb5d379",
+    "retained-interface-current-types.txt": "9fbf8dfbc2bf452b77007ca97aa563b05b090701e3ac373dfdce3c8fcb67a329",
+    "retained-interface-six-owner-types.txt": "90377c8fd97127580c93ac5740d596c9ebc9db94dafa6560ee11fe16b4460c62",
+    "retained-interface-affected-tests.txt": "ad4c8c99908cb5de96583c239cb41a35a731556e94e7a2884a0863245a65c859",
+    "retained-interface-container-tests.txt": "8678fe23f94aadb665241a34b9c6165e1c8662e0c7fb05fe139014f03d555bff",
+    "retained-interface-final66-tests.txt": "8a1102bf29342e70761eb434d53d5fba0e9af467cd67775602aa2daf5071c8dd",
+    "retained-interface-final-ruff.txt": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0",
+    "retained-interface-final-format.txt": "3fa62c94b1301255f0c64c429c668a4fabc4cb9d3848edb2790b607266d16092"
+  }
+}

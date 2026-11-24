@@ -14,7 +14,7 @@ import re
 import shlex
 from decimal import Decimal
 from pathlib import Path
-
+from typing import Any
 
 _BYTE_UNITS = {
     "": 1,
@@ -51,7 +51,7 @@ def _nonnegative_integer(value: object) -> int:
     return int(value)
 
 
-def _replicas(service: dict) -> int:
+def _replicas(service: dict[str, Any]) -> int:
     deploy = service.get("deploy", {})
     if not isinstance(deploy, dict) or deploy.get("mode", "replicated") != "replicated":
         raise ValueError("requires a finite replicated service count")
@@ -70,9 +70,7 @@ def _worker_children(command: object) -> int | None:
         tokens = command
     else:
         raise ValueError("command must be a string or an array of strings")
-    if "worker" not in tokens or not any(
-        token.rsplit("/", 1)[-1] == "celery" for token in tokens
-    ):
+    if "worker" not in tokens or not any(token.rsplit("/", 1)[-1] == "celery" for token in tokens):
         return None
     limits = []
     for index, token in enumerate(tokens):
@@ -83,9 +81,7 @@ def _worker_children(command: object) -> int | None:
             if option == "--autoscale":
                 parts = value.split(",")
                 if len(parts) != 2:
-                    raise ValueError(
-                        "Celery autoscale must declare maximum and minimum children"
-                    )
+                    raise ValueError("Celery autoscale must declare maximum and minimum children")
                 maximum, minimum = map(_nonnegative_integer, parts)
                 if minimum > maximum:
                     raise ValueError("Celery autoscale minimum exceeds its maximum")
@@ -101,9 +97,7 @@ def _worker_children(command: object) -> int | None:
     return max(limits)
 
 
-def validate_budget(
-    config: object, host_gib: float, reserve_gib: float
-) -> tuple[list[str], float]:
+def validate_budget(config: object, host_gib: float, reserve_gib: float) -> tuple[list[str], float]:
     failures: list[str] = []
     if (
         not math.isfinite(host_gib)
@@ -178,16 +172,12 @@ def main() -> int:
         or args.host_memory_gib <= 0
         or args.reserve_gib < 0
     ):
-        parser.error(
-            "Host memory must be finite and positive; reserve finite and nonnegative"
-        )
+        parser.error("Host memory must be finite and positive; reserve finite and nonnegative")
     try:
         config = json.loads(args.rendered_compose.read_text(encoding="utf-8-sig"))
     except (OSError, UnicodeError, ValueError):
         # JSON and file errors may include private input. Fail without dumping it.
-        parser.error(
-            "Cannot read rendered Compose JSON; check the local file and encoding"
-        )
+        parser.error("Cannot read rendered Compose JSON; check the local file and encoding")
     failures, total = validate_budget(config, args.host_memory_gib, args.reserve_gib)
     for failure in failures:
         print(failure)

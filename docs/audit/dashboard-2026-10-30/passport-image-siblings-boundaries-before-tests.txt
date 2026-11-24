@@ -1,0 +1,98 @@
+....FFFF.....FFFFF....F....FFFF                                          [100%]
+================================== FAILURES ===================================
+________ test_committed_image_objects_survive_lost_ack[lost-ack-crop] _________
+tests\unit\presentation\test_passport_image_mutation_commit_outcomes.py:53: in test_committed_image_objects_survive_lost_ack
+    assert references <= context.storage.objects.keys(), "Committed private images lost stored bytes"
+E   AssertionError: Committed private images lost stored bytes
+E   assert {'passport-ai-library/774adf58-ca50-4831-a05c-6701e59c9054/ed13bd52-fe9c-4615-967c-471e9dd6df7a/visa_photo/existing.jp...5-967c-471e9dd6df7a/visa_photo/b3c4d89aadae45d1a4b8bd7bb40cc86d.jpg', 'photo/ed13bd52-fe9c-4615-967c-471e9dd6df7a.jpg'} <= dict_keys(['photo/ed13bd52-fe9c-4615-967c-471e9dd6df7a.jpg', 'passport-ai-library/774adf58-ca50-4831-a05c-6701e59c9054/ed13bd52-fe9c-4615-967c-471e9dd6df7a/visa_photo/existing.jpg', 'front/ed13bd52-fe9c-4615-967c-471e9dd6df7a.jpg'])
+E    +  where dict_keys(['photo/ed13bd52-fe9c-4615-967c-471e9dd6df7a.jpg', 'passport-ai-library/774adf58-ca50-4831-a05c-6701e59c9054/ed13bd52-fe9c-4615-967c-471e9dd6df7a/visa_photo/existing.jpg', 'front/ed13bd52-fe9c-4615-967c-471e9dd6df7a.jpg']) = <built-in method keys of dict object at 0x00000258C0921340>()
+E    +    where <built-in method keys of dict object at 0x00000258C0921340> = {'front/ed13bd52-fe9c-4615-967c-471e9dd6df7a.jpg': b'front', 'passport-ai-library/774adf58-ca50-4831-a05c-6701e59c9054...5-967c-471e9dd6df7a/visa_photo/existing.jpg': b'existing', 'photo/ed13bd52-fe9c-4615-967c-471e9dd6df7a.jpg': b'source'}.keys
+E    +      where {'front/ed13bd52-fe9c-4615-967c-471e9dd6df7a.jpg': b'front', 'passport-ai-library/774adf58-ca50-4831-a05c-6701e59c9054...5-967c-471e9dd6df7a/visa_photo/existing.jpg': b'existing', 'photo/ed13bd52-fe9c-4615-967c-471e9dd6df7a.jpg': b'source'} = <tests.unit.presentation.test_passport_image_library_commit_outcomes.ImageStorage object at 0x00000258C0760C50>.objects
+E    +        where <tests.unit.presentation.test_passport_image_library_commit_outcomes.ImageStorage object at 0x00000258C0760C50> = ImageMutationContext(actor=User(id=UUID('944f0d06-a69a-44c9-8d51-b0f292a89d85'), email='image-editor@example.test', ha...torage=<tests.unit.presentation.test_passport_image_library_commit_outcomes.ImageStorage object at 0x00000258C0760C50>).storage
+______ test_committed_image_objects_survive_lost_ack[lost-ack-generate] _______
+tests\unit\presentation\test_passport_image_mutation_commit_outcomes.py:53: in test_committed_image_objects_survive_lost_ack
+    assert references <= context.storage.objects.keys(), "Committed private images lost stored bytes"
+E   AssertionError: Committed private images lost stored bytes
+E   assert {'passport-ai-library/1da66c0f-8b70-43eb-8ca9-225e23218849/033bf1ee-c718-4f8e-bb41-593d303fedf9/visa_photo/7345ab4fe79...218849/033bf1ee-c718-4f8e-bb41-593d303fedf9/visa_photo/existing.jpg', 'photo/033bf1ee-c718-4f8e-bb41-593d303fedf9.jpg'} <= dict_keys(['photo/033bf1ee-c718-4f8e-bb41-593d303fedf9.jpg', 'passport-ai-library/1da66c0f-8b70-43eb-8ca9-225e23218849/033bf1ee-c718-4f8e-bb41-593d303fedf9/visa_photo/existing.jpg', 'front/033bf1ee-c718-4f8e-bb41-593d303fedf9.jpg'])
+E    +  where dict_keys(['photo/033bf1ee-c718-4f8e-bb41-593d303fedf9.jpg', 'passport-ai-library/1da66c0f-8b70-43eb-8ca9-225e23218849/033bf1ee-c718-4f8e-bb41-593d303fedf9/visa_photo/existing.jpg', 'front/033bf1ee-c718-4f8e-bb41-593d303fedf9.jpg']) = <built-in method keys of dict object at 0x00000258C08DA540>()
+E    +    where <built-in method keys of dict object at 0x00000258C08DA540> = {'front/033bf1ee-c718-4f8e-bb41-593d303fedf9.jpg': b'front', 'passport-ai-library/1da66c0f-8b70-43eb-8ca9-225e23218849...e-bb41-593d303fedf9/visa_photo/existing.jpg': b'existing', 'photo/033bf1ee-c718-4f8e-bb41-593d303fedf9.jpg': b'source'}.keys
+E    +      where {'front/033bf1ee-c718-4f8e-bb41-593d303fedf9.jpg': b'front', 'passport-ai-library/1da66c0f-8b70-43eb-8ca9-225e23218849...e-bb41-593d303fedf9/visa_photo/existing.jpg': b'existing', 'photo/033bf1ee-c718-4f8e-bb41-593d303fedf9.jpg': b'source'} = <tests.unit.presentation.test_passport_image_library_commit_outcomes.ImageStorage object at 0x00000258C0910190>.objects
+E    +        where <tests.unit.presentation.test_passport_image_library_commit_outcomes.ImageStorage object at 0x00000258C0910190> = ImageMutationContext(actor=User(id=UUID('dbb82ff3-df86-48c5-83f5-2e4f12fc7701'), email='image-editor@example.test', ha...torage=<tests.unit.presentation.test_passport_image_library_commit_outcomes.ImageStorage object at 0x00000258C0910190>).storage
+______ test_committed_image_objects_survive_lost_ack[lost-ack-select-ai] ______
+tests\unit\presentation\test_passport_image_mutation_commit_outcomes.py:53: in test_committed_image_objects_survive_lost_ack
+    assert references <= context.storage.objects.keys(), "Committed private images lost stored bytes"
+E   AssertionError: Committed private images lost stored bytes
+E   assert {'passport-ai-library/a1562607-a2ee-4baa-9ed1-3f1d03a0200b/c72fc8be-15a7-4145-9f3d-8c573e40f3ad/visa_photo/existing.jp...5-9f3d-8c573e40f3ad/visa_photo/8857d9ce9e1943398a13496457edf757.jpg', 'photo/c72fc8be-15a7-4145-9f3d-8c573e40f3ad.jpg'} <= dict_keys(['photo/c72fc8be-15a7-4145-9f3d-8c573e40f3ad.jpg', 'passport-ai-library/a1562607-a2ee-4baa-9ed1-3f1d03a0200b/c72fc8be-15a7-4145-9f3d-8c573e40f3ad/visa_photo/existing.jpg', 'front/c72fc8be-15a7-4145-9f3d-8c573e40f3ad.jpg'])
+E    +  where dict_keys(['photo/c72fc8be-15a7-4145-9f3d-8c573e40f3ad.jpg', 'passport-ai-library/a1562607-a2ee-4baa-9ed1-3f1d03a0200b/c72fc8be-15a7-4145-9f3d-8c573e40f3ad/visa_photo/existing.jpg', 'front/c72fc8be-15a7-4145-9f3d-8c573e40f3ad.jpg']) = <built-in method keys of dict object at 0x00000258C0C6D700>()
+E    +    where <built-in method keys of dict object at 0x00000258C0C6D700> = {'front/c72fc8be-15a7-4145-9f3d-8c573e40f3ad.jpg': b'front', 'passport-ai-library/a1562607-a2ee-4baa-9ed1-3f1d03a0200b...5-9f3d-8c573e40f3ad/visa_photo/existing.jpg': b'existing', 'photo/c72fc8be-15a7-4145-9f3d-8c573e40f3ad.jpg': b'source'}.keys
+E    +      where {'front/c72fc8be-15a7-4145-9f3d-8c573e40f3ad.jpg': b'front', 'passport-ai-library/a1562607-a2ee-4baa-9ed1-3f1d03a0200b...5-9f3d-8c573e40f3ad/visa_photo/existing.jpg': b'existing', 'photo/c72fc8be-15a7-4145-9f3d-8c573e40f3ad.jpg': b'source'} = <tests.unit.presentation.test_passport_image_library_commit_outcomes.ImageStorage object at 0x00000258C08A1590>.objects
+E    +        where <tests.unit.presentation.test_passport_image_library_commit_outcomes.ImageStorage object at 0x00000258C08A1590> = ImageMutationContext(actor=User(id=UUID('43e9e182-539f-4ec0-8129-571019c63ca3'), email='image-editor@example.test', ha...torage=<tests.unit.presentation.test_passport_image_library_commit_outcomes.ImageStorage object at 0x00000258C08A1590>).storage
+______ test_committed_image_objects_survive_lost_ack[lost-ack-apply-ai] _______
+tests\unit\presentation\test_passport_image_mutation_commit_outcomes.py:53: in test_committed_image_objects_survive_lost_ack
+    assert references <= context.storage.objects.keys(), "Committed private images lost stored bytes"
+E   AssertionError: Committed private images lost stored bytes
+E   assert {'passport-ai-library/869c35e5-69e2-4b46-bbdf-fb2677c2599a/6a189508-23e8-4009-aadf-0a768cdf5a07/visa_photo/existing.jp...9-aadf-0a768cdf5a07/visa_photo/51d822f5751543b8abaeac63434d45f4.jpg', 'photo/6a189508-23e8-4009-aadf-0a768cdf5a07.jpg'} <= dict_keys(['photo/6a189508-23e8-4009-aadf-0a768cdf5a07.jpg', 'passport-ai-library/869c35e5-69e2-4b46-bbdf-fb2677c2599a/6a189508-23e8-4009-aadf-0a768cdf5a07/visa_photo/existing.jpg', 'front/6a189508-23e8-4009-aadf-0a768cdf5a07.jpg'])
+E    +  where dict_keys(['photo/6a189508-23e8-4009-aadf-0a768cdf5a07.jpg', 'passport-ai-library/869c35e5-69e2-4b46-bbdf-fb2677c2599a/6a189508-23e8-4009-aadf-0a768cdf5a07/visa_photo/existing.jpg', 'front/6a189508-23e8-4009-aadf-0a768cdf5a07.jpg']) = <built-in method keys of dict object at 0x00000258C0CEE900>()
+E    +    where <built-in method keys of dict object at 0x00000258C0CEE900> = {'front/6a189508-23e8-4009-aadf-0a768cdf5a07.jpg': b'front', 'passport-ai-library/869c35e5-69e2-4b46-bbdf-fb2677c2599a...9-aadf-0a768cdf5a07/visa_photo/existing.jpg': b'existing', 'photo/6a189508-23e8-4009-aadf-0a768cdf5a07.jpg': b'source'}.keys
+E    +      where {'front/6a189508-23e8-4009-aadf-0a768cdf5a07.jpg': b'front', 'passport-ai-library/869c35e5-69e2-4b46-bbdf-fb2677c2599a...9-aadf-0a768cdf5a07/visa_photo/existing.jpg': b'existing', 'photo/6a189508-23e8-4009-aadf-0a768cdf5a07.jpg': b'source'} = <tests.unit.presentation.test_passport_image_library_commit_outcomes.ImageStorage object at 0x00000258C0C87E50>.objects
+E    +        where <tests.unit.presentation.test_passport_image_library_commit_outcomes.ImageStorage object at 0x00000258C0C87E50> = ImageMutationContext(actor=User(id=UUID('52d91d00-ac9b-4602-abb0-87f32be6f3da'), email='image-editor@example.test', ha...torage=<tests.unit.presentation.test_passport_image_library_commit_outcomes.ImageStorage object at 0x00000258C0C87E50>).storage
+_____ test_persisted_image_authority_after_external_work[deactivate-crop] _____
+tests\unit\presentation\test_passport_image_mutation_authority.py:69: in test_persisted_image_authority_after_external_work
+    with pytest.raises(HTTPException) as caught:
+E   Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+___ test_persisted_image_authority_after_external_work[deactivate-generate] ___
+tests\unit\presentation\test_passport_image_mutation_authority.py:69: in test_persisted_image_authority_after_external_work
+    with pytest.raises(HTTPException) as caught:
+E   Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+__ test_persisted_image_authority_after_external_work[deactivate-select-ai] ___
+tests\unit\presentation\test_passport_image_mutation_authority.py:69: in test_persisted_image_authority_after_external_work
+    with pytest.raises(HTTPException) as caught:
+E   Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+___ test_persisted_image_authority_after_external_work[deactivate-apply-ai] ___
+tests\unit\presentation\test_passport_image_mutation_authority.py:69: in test_persisted_image_authority_after_external_work
+    with pytest.raises(HTTPException) as caught:
+E   Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+___ test_persisted_image_authority_after_external_work[deactivate-preview] ____
+tests\unit\presentation\test_passport_image_mutation_authority.py:69: in test_persisted_image_authority_after_external_work
+    with pytest.raises(HTTPException) as caught:
+E   Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+_ test_persisted_image_authority_after_external_work[source-changed-preview] __
+tests\unit\presentation\test_passport_image_mutation_authority.py:69: in test_persisted_image_authority_after_external_work
+    with pytest.raises(HTTPException) as caught:
+E   Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+___________ test_native_image_mutation_write_lifetime[cancel-crop] ____________
+tests\unit\presentation\test_passport_image_mutation_cancellation.py:54: in test_native_image_mutation_write_lifetime
+    assert not abandoned, "The image request released a native write before it finished"
+E   AssertionError: The image request released a native write before it finished
+E   assert not True
+_________ test_native_image_mutation_write_lifetime[cancel-generate] __________
+tests\unit\presentation\test_passport_image_mutation_cancellation.py:54: in test_native_image_mutation_write_lifetime
+    assert not abandoned, "The image request released a native write before it finished"
+E   AssertionError: The image request released a native write before it finished
+E   assert not True
+_________ test_native_image_mutation_write_lifetime[cancel-select-ai] _________
+tests\unit\presentation\test_passport_image_mutation_cancellation.py:54: in test_native_image_mutation_write_lifetime
+    assert not abandoned, "The image request released a native write before it finished"
+E   AssertionError: The image request released a native write before it finished
+E   assert not True
+_________ test_native_image_mutation_write_lifetime[cancel-apply-ai] __________
+tests\unit\presentation\test_passport_image_mutation_cancellation.py:54: in test_native_image_mutation_write_lifetime
+    assert not abandoned, "The image request released a native write before it finished"
+E   AssertionError: The image request released a native write before it finished
+E   assert not True
+=========================== short test summary info ===========================
+FAILED tests/unit/presentation/test_passport_image_mutation_commit_outcomes.py::test_committed_image_objects_survive_lost_ack[lost-ack-crop]
+FAILED tests/unit/presentation/test_passport_image_mutation_commit_outcomes.py::test_committed_image_objects_survive_lost_ack[lost-ack-generate]
+FAILED tests/unit/presentation/test_passport_image_mutation_commit_outcomes.py::test_committed_image_objects_survive_lost_ack[lost-ack-select-ai]
+FAILED tests/unit/presentation/test_passport_image_mutation_commit_outcomes.py::test_committed_image_objects_survive_lost_ack[lost-ack-apply-ai]
+FAILED tests/unit/presentation/test_passport_image_mutation_authority.py::test_persisted_image_authority_after_external_work[deactivate-crop]
+FAILED tests/unit/presentation/test_passport_image_mutation_authority.py::test_persisted_image_authority_after_external_work[deactivate-generate]
+FAILED tests/unit/presentation/test_passport_image_mutation_authority.py::test_persisted_image_authority_after_external_work[deactivate-select-ai]
+FAILED tests/unit/presentation/test_passport_image_mutation_authority.py::test_persisted_image_authority_after_external_work[deactivate-apply-ai]
+FAILED tests/unit/presentation/test_passport_image_mutation_authority.py::test_persisted_image_authority_after_external_work[deactivate-preview]
+FAILED tests/unit/presentation/test_passport_image_mutation_authority.py::test_persisted_image_authority_after_external_work[source-changed-preview]
+FAILED tests/unit/presentation/test_passport_image_mutation_cancellation.py::test_native_image_mutation_write_lifetime[cancel-crop]
+FAILED tests/unit/presentation/test_passport_image_mutation_cancellation.py::test_native_image_mutation_write_lifetime[cancel-generate]
+FAILED tests/unit/presentation/test_passport_image_mutation_cancellation.py::test_native_image_mutation_write_lifetime[cancel-select-ai]
+FAILED tests/unit/presentation/test_passport_image_mutation_cancellation.py::test_native_image_mutation_write_lifetime[cancel-apply-ai]
+14 failed, 17 passed in 11.07s

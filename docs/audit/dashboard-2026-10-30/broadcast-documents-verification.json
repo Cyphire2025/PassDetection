@@ -1,0 +1,50 @@
+{
+  "status": "coherent-document-workspace-batch-frozen-and-affected-checks-pass",
+  "runtime_owners": 5,
+  "source_sizes": {
+    "before": 410,
+    "public_page": 107,
+    "query_controller": 93,
+    "pure_projection_and_types": 87,
+    "controls": 76,
+    "table": 125
+  },
+  "defects_proved": {
+    "baseline": "Eight actual component cases fail, one transient recovery control passes. Six query/401403404 combinations each continue5requests instead of stopping2afterdenial; cached-document send remains enabled; unavailable initial review is described aszero.",
+    "fixed": "Both20second interval predicates stop permanent denial polling using existing status classification. Explicit refresh and transient polling remain; global application retry/focus policy is unchanged. Loading/error blocks opening delivery from unconfirmed data; count UI reports unavailable instead of zero; refresh indicator includes passenger-link query."
+  },
+  "performance": {
+    "actual_render": "512passenger search renders, same seven counts/order/50visible table rows asserted.15460delivery-status getter reads before; final passed upperbound2148. Extra work is a single classification per scoped entry plus existing bounded table rendering.",
+    "parity": "1920deterministic original/current projections equal across source/empty/legacy-single/multiple/shared-URL/accepted-and-failed-status/assigned-count/search/unknown-filter/partial passenger-scope inputs. Full values/order and all seven counts compared.",
+    "limits": "Both old/new algorithms have linear asymptotic work for the fixed seven filters. Improvement is removal of repeated scans and status reads, not a change in asymptotic class or measured production latency."
+  },
+  "architecture_and_contracts": "16post-fix controller statements exact after substituting two equivalent shared interval callback identities. Entire root rendered tree exact under explicit controls/table expansion, original composing branch exact. Existing API query keys/arguments/cancellation, linked group and shared-PDF identity semantics,50row paging, resend/manage navigation retained.",
+  "checks": {
+    "affected_cases": 12,
+    "scope": "Ten component/query/performance cases plus two existing document-send scope/account-replacement controls.",
+    "types": "WhatsApp scoped TypeScript pass",
+    "lint": "Fiveowners and two new test/fixture paths pass",
+    "proofs": "Current direct extraction and1920projection comparisons pass after formatting; original snapshots retained.",
+    "ratchets": "24coherent additions (root5+frozen passport views19), current491frontend modules pass; no existing ceiling weakened.",
+    "source_fence": "Allfivecurrent hashes equal extraction receipt. Last root layout change is only blank lines/destructure formatting, checked by direct complete AST/JSX proof. No broad suite/build for these feature changes."
+  },
+  "instrumentation_history": "The first newline-sensitive count rewrite stopped before writing the page; its test invocation consequently retained the expected performance failure. The corrected rewrite passed all10cases. The first CJS extraction script declared a reserved exports binding and failed before execution; renamed before extraction. Neither is counted as a successful check.",
+  "open_scope": "Remaining recipient roster/views, private send continuity and final combined browser/release qualification remain open. No actual provider calls, native feature changes, push/deploy or VPS setup changes.",
+  "receipts_sha256": {
+    "broadcast-documents-query-before.json": "8a54d7f4a803933a0ec67e8ee702bba2cdb12bf1aee753dd54c3a3bbfb1924a5",
+    "broadcast-documents-query-after.json": "f935b00da68938a2d1f268b1d8b8a5cef70187447a426fbf77ce33c0d4ee8c9e",
+    "broadcast-documents-scaling-before.json": "e779af14439068edb25c7209c37d07de2026d0869aa36fd25584edf1e84558a5",
+    "broadcast-documents-projection-current.json": "688b716dbb0ac069ce8c23a624febb3607ad7cb22ee8a2687893efb76674841f",
+    "broadcast-documents-projection-parity.json": "13ed24396e512594ababde71f1dd6d14b1a356e642a29572f9f96c77bab9963c",
+    "broadcast-documents-extraction-origin.json": "33a9f76ce0418b65ab41a6d2737d70aac1a88932e97938c8bfccc96351178e3f",
+    "broadcast-documents-format-equivalence.json": "abfc58b3b4c2ce04c053c0641ad0800e2a23a27474856c0ff9334e2c7b196b8a",
+    "broadcast-documents-current-extraction-proof.json": "c9c52ae02c3c45b5faaca40400f6c069ebc2e6e37cb1375d93a05912efa30a62",
+    "broadcast-documents-architecture-unit.json": "c34e0536b653ee02e7fdb082628950196a650e340df3b27e0136570564ceeeb0",
+    "broadcast-documents-types.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "broadcast-documents-lint.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "broadcast-documents-budget-candidates.json": "fefc7401211da125bc623ca1af2e75f3e889f1f673d831cffdcd604cf93a9c84",
+    "documents-passport-views-budget-integration.json": "e88cb93562fad67b289aeae49e51afeb6849c7396a0fffd29918144e2cd30774",
+    "documents-passport-views-current-budgets.txt": "5b7d40e0bac917a2cae1137001935ec94b722a81cb8f452f56a12908e49d188a",
+    "broadcast-documents-reviewed-files.json": "fda0386131a88ad059b90d974859e25ab6d035a33d2cd06002c4b3a531f9559f"
+  }
+}

@@ -1,17 +1,12 @@
+import { passportHooksSource as hooks } from "../hooks/passport-hooks-source.contract-helper.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import { passportGroupDetailSource, passportGroupHandlerBody } from "./passport-group-detail-source.contract-helper.mjs";
+import { passportApiSource as api } from "../api/passport-api-source.contract-helper.mjs";
 
 const source = passportGroupDetailSource;
-const api = readFileSync(
-  new URL("../api/passports.api.ts", import.meta.url),
-  "utf8",
-);
-const hooks = readFileSync(
-  new URL("../hooks/use-passports.ts", import.meta.url),
-  "utf8",
-);
+
 const endpoints = readFileSync(
   new URL("../../../lib/api/endpoints.ts", import.meta.url),
   "utf8",
@@ -24,10 +19,7 @@ const thumbnailScheduler = readFileSync(
   new URL("../services/document-thumbnail-scheduler.ts", import.meta.url),
   "utf8",
 );
-const exportDialog = readFileSync(
-  new URL("./passport-export-dialog.tsx", import.meta.url),
-  "utf8",
-);
+import { passportExportDialogSource as exportDialog } from "./passport-export-dialog-source.contract-helper.mjs";
 const streamedDownload = readFileSync(
   new URL("../../../lib/api/streamed-download.ts", import.meta.url),
   "utf8",
@@ -176,9 +168,16 @@ test("group rows show imported birth, issue, and expiry dates", () => {
 });
 
 test("selection actions stay hidden until a passport is selected", () => {
+  const toolbar = readFileSync(new URL("./passport-group-selection-toolbar.tsx", import.meta.url), "utf8");
+  const selectedActions = readFileSync(new URL("./passport-group-selected-actions.tsx", import.meta.url), "utf8");
+  assert.match(toolbar, /import \{ PassportGroupSelectedActions \} from "\.\/passport-group-selected-actions"/);
   assert.match(
-    source,
-    /\{selectedPassports\.length > 0 && \([\s\S]*?Bulk submission actions[\s\S]*?Staff approve all selected[\s\S]*?Export Excel[\s\S]*?Download Passport Images[\s\S]*?Delete selected[\s\S]*?Clear selection[\s\S]*?\)\}/,
+    toolbar,
+    /\{selectedPassports\.length > 0 && <PassportGroupSelectedActions \{\.\.\.props\} \/>\}/,
+  );
+  assert.match(
+    selectedActions,
+    /Bulk submission actions[\s\S]*?Staff approve all selected[\s\S]*?Export Excel[\s\S]*?Download Passport Images[\s\S]*?Delete selected[\s\S]*?Clear selection/,
   );
   assert.doesNotMatch(
     source,
@@ -193,12 +192,13 @@ test("selected passport downloads use the scoped ZIP endpoint without duplicate 
   );
   assert.match(
     api,
-    /exportSelectedGroupImages:[\s\S]*?downloadStreamedResponse[\s\S]*?groupSelectedImageExport\(groupId\)[\s\S]*?method: "POST"[\s\S]*?submission_ids: submissionIds[\s\S]*?passportImageDownloadFilename/,
+    /exportSelectedGroupImages:[\s\S]*?downloadPassportExport[\s\S]*?groupSelectedImageExport\(groupId\)[\s\S]*?method: "POST"[\s\S]*?submission_ids: submissionIds[\s\S]*?passportImageDownloadFilename/,
   );
+  assert.match(api, /downloadPassportExport[\s\S]*?capturePassportOperationOwner\(requestConfig\)[\s\S]*?downloadStreamedResponse\([\s\S]*?expectedOwnerUserId: owner\.requestConfig\.expectedOwnerUserId[\s\S]*?owner\.assertCurrent\(\)/);
   assert.doesNotMatch(api, /exportSelectedGroupImages:[\s\S]*?responseType: "blob"/);
   assert.match(
     hooks,
-    /useExportSelectedPassportImages[\s\S]*?exportSelectedGroupImages\(request\)/,
+    /useExportSelectedPassportImages[\s\S]*?usePrivateMutation[\s\S]*?exportSelectedGroupImages\(request, owner\.requestConfig\)/,
   );
   assert.match(
     source,
@@ -263,7 +263,8 @@ test("selection presets use the complete filtered and sorted server order", () =
   assert.match(source, /MAX_BULK_SELECTION = 1500/);
   assert.match(source, /MAX_SELECTED_IMAGE_DOWNLOAD = 500/);
   assert.match(source, /orderedIds\.slice\(0, boundedCount\)/);
-  assert.match(source, /const selectedPassportIdSet = useMemo\([\s\S]*?new Set\(selectedPassports\)/);
+  assert.match(source, /const selectedPassportIdSet = new Set\(selectedPassports\)/);
+  assert.match(source, /current\.selectedPassportIdSet\.has\(passportId\)/);
   assert.doesNotMatch(source, /selectedPassports\.includes\(/);
   assert.match(source, /id="group-submission-custom-selection"[\s\S]*?type="number"[\s\S]*?min=\{1\}/);
 });

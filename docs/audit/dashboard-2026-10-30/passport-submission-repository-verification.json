@@ -1,0 +1,271 @@
+{
+  "status": "frozen coherent architecture batch; no broad suite/build/provider run",
+  "runtime": [
+    {
+      "path": "backend/app/infrastructure/repositories/passport_submission_repository.py",
+      "sha256": "3aa855541a75e4efddeebb35f639bfa6ba4026152d38f8e255e0634e98a919b0",
+      "lines": 384
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_submission_mapping.py",
+      "sha256": "df419cb06bc2915c0642e5541ec49d3c4a633df54ef23291774abccdf0a26552",
+      "lines": 147
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_submission_persistence.py",
+      "sha256": "0c759e6b16f4a6659e1ac9394b39917b4d0fb2ae986faddf5de6b11b497aacfd",
+      "lines": 142
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_submission_processing.py",
+      "sha256": "3391aa1e39f14c06d698b704b92151561cc45754aa0d6bd27ad0881c342dab3a",
+      "lines": 148
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_submission_queries.py",
+      "sha256": "742694def1423be8b4ac175063f8d63cd1bd9c050b04e19e491d5e3751f059b2",
+      "lines": 122
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_submission_reads.py",
+      "sha256": "d7a140c34de53e971655d032cbdc185da126cb13bb8e1daff7e1ac778df7b20c",
+      "lines": 208
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_submission_groups.py",
+      "sha256": "21f669d09021264cffd029f90d3f9ff4d706f5bae44cdf5773e8d1ce3ff30078",
+      "lines": 183
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_submission_contacts.py",
+      "sha256": "c61b10a39d982e25d86ca25e720056960308d90f23b7625de4ff06ef07730346",
+      "lines": 79
+    }
+  ],
+  "test_sources": [
+    {
+      "path": "backend/tests/unit/infrastructure/test_passport_submission_repository_contract.py",
+      "sha256": "b2d6c9215b1d9080e196a55b1531a476f9057663bbfe2ff10f4b3157a2a7edd8",
+      "physical_lines": 124,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Source fence; full review record is in linked ledger"
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_passport_staff_approval_repository.py",
+      "sha256": "579f9ea523f92f9c856d2a02c0f6295bc84fc99b0ccad2fee662c4f36cc5c06c",
+      "physical_lines": 48,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Source fence; full review record is in linked ledger"
+    },
+    {
+      "path": "backend/tests/unit/application/test_passport_reextraction_conflicts.py",
+      "sha256": "675c5e559e4ef9a8d6f9f325df6ecae7d13a27242b2c4f15f58083f99c00bd65",
+      "physical_lines": 269,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Source fence; full review record is in linked ledger"
+    }
+  ],
+  "baseline": {
+    "affected_files": 12,
+    "passed": 123,
+    "seconds": 245.37
+  },
+  "after": {
+    "affected_files": 13,
+    "passed": 128,
+    "seconds": 185.91,
+    "same_original_cases": 123,
+    "additional_purposeful_cases": 5
+  },
+  "checks": {
+    "strict_mypy_runtime_files": 8,
+    "ruff_no_fix_runtime_plus_tests": 11,
+    "format_checked_current_runtime_plus_new_test": 9,
+    "architecture_boundaries": "passed unchanged policy; no new application-layer edge",
+    "runtime_type_hints_and_signatures": 26,
+    "exact_import_object_bindings": 40,
+    "complete_ast_moved_declarations": 25,
+    "exact_fixture_inverses": 2
+  },
+  "sql_evidence": {
+    "actual_repository_cases": 394,
+    "dialect_compilations": 800,
+    "old_preserved_source_vs_current_same_process": "exact SQL/bound parameters/execution options/result parity",
+    "clock": "Controlled fixed aware timestamp passed to actual canonical expiry clause, no policy bypass",
+    "cross_process_baseline_difference": "Only four contact-IN parameter arrays vary due existing Python set iteration/hash seed; each original/current pair is exactly equal within the same process. Raw baseline SHA is not claimed equal to later process output.",
+    "limits": "Empty synthetic results and compilation; actual SQLite controls separately executed. No PostgreSQL advisory/row-lock/concurrency/service qualification claim."
+  },
+  "coverage": {
+    "measurement": "isolated fresh current-hash line coverage only",
+    "modules": [
+      {
+        "path": "app/infrastructure/repositories/passport_submission_repository.py",
+        "line_percent": 94.79166666666667,
+        "branch_percent": null,
+        "branch_measurement_limit": "This focused run collected statement/line coverage, not branches; no branch-floor qualification is claimed.",
+        "missing_lines": [
+          144,
+          184,
+          255,
+          288,
+          324
+        ],
+        "complexity": 1
+      },
+      {
+        "path": "app/infrastructure/repositories/passport_submission_mapping.py",
+        "line_percent": 100.0,
+        "branch_percent": null,
+        "branch_measurement_limit": "This focused run collected statement/line coverage, not branches; no branch-floor qualification is claimed.",
+        "missing_lines": [],
+        "complexity": 4
+      },
+      {
+        "path": "app/infrastructure/repositories/passport_submission_persistence.py",
+        "line_percent": 91.83673469387755,
+        "branch_percent": null,
+        "branch_measurement_limit": "This focused run collected statement/line coverage, not branches; no branch-floor qualification is claimed.",
+        "missing_lines": [
+          22,
+          23,
+          24,
+          25,
+          31,
+          38,
+          52,
+          74
+        ],
+        "complexity": 4
+      },
+      {
+        "path": "app/infrastructure/repositories/passport_submission_processing.py",
+        "line_percent": 76.36363636363636,
+        "branch_percent": null,
+        "branch_measurement_limit": "This focused run collected statement/line coverage, not branches; no branch-floor qualification is claimed.",
+        "missing_lines": [
+          40,
+          51,
+          77,
+          85,
+          86,
+          87,
+          88,
+          89,
+          94,
+          95,
+          96,
+          97,
+          131
+        ],
+        "complexity": 4
+      },
+      {
+        "path": "app/infrastructure/repositories/passport_submission_queries.py",
+        "line_percent": 91.83673469387755,
+        "branch_percent": null,
+        "branch_measurement_limit": "This focused run collected statement/line coverage, not branches; no branch-floor qualification is claimed.",
+        "missing_lines": [
+          41,
+          103,
+          105,
+          107
+        ],
+        "complexity": 8
+      },
+      {
+        "path": "app/infrastructure/repositories/passport_submission_reads.py",
+        "line_percent": 98.0,
+        "branch_percent": null,
+        "branch_measurement_limit": "This focused run collected statement/line coverage, not branches; no branch-floor qualification is claimed.",
+        "missing_lines": [
+          167
+        ],
+        "complexity": 6
+      },
+      {
+        "path": "app/infrastructure/repositories/passport_submission_groups.py",
+        "line_percent": 90.0,
+        "branch_percent": null,
+        "branch_measurement_limit": "This focused run collected statement/line coverage, not branches; no branch-floor qualification is claimed.",
+        "missing_lines": [
+          107,
+          109
+        ],
+        "complexity": 11
+      },
+      {
+        "path": "app/infrastructure/repositories/passport_submission_contacts.py",
+        "line_percent": 94.44444444444444,
+        "branch_percent": null,
+        "branch_measurement_limit": "This focused run collected statement/line coverage, not branches; no branch-floor qualification is claimed.",
+        "missing_lines": [
+          37,
+          39
+        ],
+        "complexity": 18
+      }
+    ],
+    "branches_collected": false,
+    "original_normal_or_critical_membership": "none",
+    "no_old_caps_or_floors_changed": true
+  },
+  "initial_new_test_expectation_correction": "One newly written compatibility assertion initially compared typing.Sequence[str] and collections.abc.Sequence[str] by alias identity; original implementation already used the latter. Semantic generic normalization corrects only that test assumption; exact before/current runtime hints separately pass. Raw1fail4pass result retained, no production regression/fix claimed.",
+  "source_equivalence": {
+    "path": "docs/audit/dashboard-2026-10-30/passport-submission-repository-source-equivalence.json",
+    "sha256": "33669db9a4cf4d5b0df24db8087764645f91700616c526d031cc0c61852fc4cd"
+  },
+  "review_ledger": {
+    "path": "docs/audit/dashboard-2026-10-30/passport-submission-repository-reviewed-files.json",
+    "sha256": "3464c909897d8632273b9167681dddff367c91bbbdd775b79e7f22c0b1f4474c"
+  },
+  "normal_candidates": {
+    "path": "docs/audit/dashboard-2026-10-30/passport-submission-repository-budget-candidates.json",
+    "sha256": "d3d8b7127c798e732b857189763751014e9c7f85157bca8018368ad9369c1fac"
+  },
+  "raw_receipts": [
+    {
+      "path": ".tmp/passport-submission-repository-audit/baseline-tests.txt",
+      "sha256": "c4361d6d57d72c2ce134993575939dcaee766476fd13db3f4ad562e70cab426e"
+    },
+    {
+      "path": ".tmp/passport-submission-repository-audit/final-tests.txt",
+      "sha256": "2be8eefe2c756ce81d610a5a3d3b015c80f8b2828bed457777d1462b0da377b6"
+    },
+    {
+      "path": ".tmp/passport-submission-repository-audit/coverage.json",
+      "sha256": "9676cd8ef5fd20284ea8b1abf091544f522a42fe925b9c7e76b75824f439c3fd"
+    },
+    {
+      "path": ".tmp/passport-submission-repository-audit/coverage.xml",
+      "sha256": "c5c50c7840046de1e860895c44b5fcc3cfb5291ebc90199ae9230dba1e7890d5"
+    },
+    {
+      "path": ".tmp/passport-submission-repository-audit/types.txt",
+      "sha256": "7aefcacc6d445354a115cf76fcdea696165be7ad8cf9b86a60ea98727c6e96f6"
+    },
+    {
+      "path": ".tmp/passport-submission-repository-audit/sql-baseline-control.txt",
+      "sha256": "82fe1a04c76129363c82717fd0080e1a5337002e14c898add9f62bf43a6bb5fe"
+    },
+    {
+      "path": ".tmp/passport-submission-repository-audit/sql-final-control.txt",
+      "sha256": "b1810dae32cd9c294d76dd13c7a7642a03da5beb3487bfb334cb89134250650a"
+    },
+    {
+      "path": ".tmp/passport-submission-repository-audit/contracts-first.txt",
+      "sha256": "44c44a5cc8b4c3756dffec28bf48ff903eb51e664415c5289a00316b848d44c3"
+    }
+  ],
+  "limitations": [
+    "No real PostgreSQL/Redis/object storage/provider services or live release qualification.",
+    "No broad backend/API suite or frontend checks/build/browser run; final combined verification remains parent-owned.",
+    "Physical full read and source-equivalence evidence are distinguished from executed affected behavior tests; supporting partials stay partial.",
+    "Facade384lines is explicit compatibility declarations/aliases/delegation; actual owner maximum208. Static helper function module/qualname identifies real moved owner."
+  ]
+}

@@ -1,0 +1,32 @@
+Final reachable architecture: the primary portal now uses the lean error view directly. The conditionally unreachable legacy UploadFlow and its earlier extracted happy-path modules are retired. See legacy-upload-retirement-progress.md for the final architecture, current coverage and original-source manifests. Earlier checkpoint details below are historical.
+
+Follow-up: the browser gaps recorded at this historical checkpoint are now migrated and verified in fresh-public-upload-progress.md; current coverage mapping and pending list have been updated.
+
+# Passport image editor and public upload checkpoint
+
+Status: implemented and verified for the focused crop/editor and legacy upload orchestration boundaries. This is not a claim of complete passport/upload subtree coverage.
+
+The complete former1,241-line passport image editor now composes focused responsibilities in198 lines. Twelve runtime modules separate private source lifecycle, adjustment draft and canvas preview, pointer/keyboard controls, revision-checked actions, library presentation, Visa-only AI presentation and durable AI job polling. The largest new crop module is198 lines. Original adjustment controls, image roles, common library, expected revisions, undo/fine rotation and full-resolution authenticated sources are preserved.
+
+The refactor also closes evidenced lifecycle gaps: editor sessions are keyed by submission/image scope; abort checks reject late private source results; object URLs and preview animation frames are released; synchronous admission guards reject same-turn duplicate save/reset/upload/use/generate actions; closed editors ignore late callbacks. Closing AI progress cancels the client wait while the persisted job remains resumable. The original two-second polling and four-consecutive-failure cap are retained.
+
+The complete former762-line UploadFlow is now a13-line keyed entry plus focused screen/capture/review/selection stages, acquisition actions and state/bootstrap/qualifier hooks. The largest module is285 lines. The orchestrator remains279 lines and reuses existing processing, submission, family, telemetry and validator services. Existing lazy camera imports, exact outgoing-JPEG validation, manual-crop flags, family ordering, OTP and recovery flows remain unchanged. A token change clears the prior private file/form session; same-token rerenders retain it. Qualifier selection now has synchronous duplicate-action protection and ignores late completion after unmount.
+
+A current route trace exposed a real fallback retry loop. The route mounts TravellerPortal, which selects FreshFlow for a valid New traveller and mounts legacy UploadFlow only when metadata fails or is missing. That secondary observer previously restarted a failed query on mount, causing the parent to unmount/remount it repeatedly. useUploadLinkByToken now accepts an optional retryOnMount setting with default true. Only the secondary fallback observer passes false. Terminal errors stop retrying, transient lookup retries remain bounded, and explicit retry can reopen the portal. A real QueryClient test proves the primary portal still retries a cached error on a later remount.
+
+Validation at the frozen source checkpoint:
+
+- 10 Vitest files,44 tests passed: private editor source/actions/draft/AI lifecycle; upload configuration/document choices/bootstrap/qualifier; query cache and primary observer remount recovery.
+- 68 existing Node source contracts passed (11 crop editor and57 upload component contracts). Aggregation follows the extracted responsibilities; canonical JPEG validation, camera lazy boundaries, recovery ordering, image API roles/revisions and modal behavior assertions remain.
+- TypeScript type check and scoped ESLint passed. All22 runtime candidate budgets pass against actual current source, with285 maximum lines and23 maximum measured function complexity. Parent owns global budget/release-hash integration.
+- Existing passport-image-editor browser suite 12/12 passed, covering desktop/mobile, portrait/landscape, pointer/keyboard crop, undo, library, AI and revision-checked save/reset.
+- Existing current fresh-traveller browser suite 4/4 passed, covering 320/1440 single flow, independent family private drafts/head-first completion and interrupted final-submit response reconciliation.
+- New actual-route fallback browser suite 4/4 passed:404,410,transient503 and missing successful metadata. It verifies stable error UI, bounded/no duplicate lookups, explicit retry/reopen, preserved synthetic recovery state, no writes and320 px layout.
+
+Eleven older browser scenarios in public-upload-contact-otp.spec.ts and public-upload-recovery.spec.ts assume a direct legacy entry. The selected run stopped after its first three OTP cases failed before UploadFlow mounted, at the unchanged current entry chooser. These are retained as a visible CI migration risk; none were skipped or deleted. public-upload-browser-coverage-mapping.json maps all 11 scenarios to current evidence and explicit gaps. Current four FreshFlow checks do not prove document-upload response loss, draft GET500, contact-proof expiration or OTP delivery-failure paths. These require current-route fixtures before retiring the old scenarios.
+
+Actual complete physical reads/authored paths and current SHA256 s are recorded in passport-upload-reviewed-files.json:34 runtime sources plus14 test/helper sources are full scope; three API/processing interfaces remain explicitly partial. Older branding/passport-detail records were upgraded to full only for the earlier completely read/authored content with matching hashes; large model/schema/group-controller areas stay partial.
+
+passport-upload-review-pending.json conservatively records157 of207 passport/upload runtime files without current matching full-scope evidence. It includes the1,439-line Visa selfie camera,1,115-line selfie quality module,1,077-line rectangular detector,1,049-line passport API and865-line final-quality module. Their existing passing contracts do not establish complete manual review. The parent requested this coherent checkpoint before further camera/quality decomposition; those active validators were preserved.
+
+No native mobile source, package dependency, live provider send, production account, VPS setting or published migration was changed by this lane. Browser fixtures use synthetic credentials and local isolated services. Backend provider/storage/VPS qualification is outside this checkpoint.

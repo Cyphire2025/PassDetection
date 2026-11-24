@@ -1,0 +1,29 @@
+{
+  "files": [
+    {
+      "path": ".tmp/final-operator-connector/sitecustomize.py",
+      "sha256": "fb128e2676063fb0785998ce7d59bd52549230bafd1040a0e453749dfef6280b",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "Authored/read audit-only runner or synthetic guard control; actual current guardcontrol/execution receipts referenced. Not production runtime or general OSsandbox qualification."
+    },
+    {
+      "path": ".tmp/final-operator-connector/run_final.py",
+      "sha256": "e6576eec82c893ee4edf3185c34792e33172637c6527fce6553d61a1e64e46a1",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "Authored/read audit-only runner or synthetic guard control; actual current guardcontrol/execution receipts referenced. Not production runtime or general OSsandbox qualification."
+    },
+    {
+      "path": ".tmp/final-operator-connector/probe_isolation.py",
+      "sha256": "a8c44fa7180af1908b71561533dcdb43ac038d3c24d8d017a7b33830d460879c",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "Authored/read audit-only runner or synthetic guard control; actual current guardcontrol/execution receipts referenced. Not production runtime or general OSsandbox qualification."
+    }
+  ],
+  "limits": "Only .tmpaudithelper source credit. Passing operator/connector tests do not add blanket manual fullread credit to their imported runtime."
+}

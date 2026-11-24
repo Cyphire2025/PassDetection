@@ -33,10 +33,8 @@ export function GcDialog({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm">
+    <div ref={panelRef} data-gc-dialog-layer onKeyDown={handleDialogKeyDown} className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm">
       <div
-        ref={panelRef}
-        onKeyDown={handleDialogKeyDown}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}

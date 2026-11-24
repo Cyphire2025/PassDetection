@@ -175,7 +175,7 @@ class FastAdditiveProofTests(unittest.TestCase):
             self.assertNotIn(live['email-beat']['Id'], running)
             self.assertTrue(all(live[name]['Id'] in running for name in WORKERS))
             checked.append('drain')
-        with patch('release_retained_update.wait_for_idle', side_effect=drain), patch('release_companies_fast.verify_images',
+        with patch('retained_release_host.wait_for_idle', side_effect=drain), patch('release_companies_fast.verify_images',
                                                                return_value=release.record['image_ids']):
             release.candidate_images()
         self.assertEqual(checked, ['drain', 'build', 'rehearsal'])
@@ -197,7 +197,7 @@ class FastAdditiveProofTests(unittest.TestCase):
                 raise ValueError('rehearsal_failed')
             release.rehearse_fast_migration = rehearsal
             error = 'builder_still_running_workers_not_resumed' if helper_running else 'rehearsal_failed'
-            with self.subTest(helper_running=helper_running), patch('release_retained_update.wait_for_idle'), \
+            with self.subTest(helper_running=helper_running), patch('retained_release_host.wait_for_idle'), \
                     patch('release_companies_fast.verify_images', return_value=release.record['image_ids']), \
                     self.assertRaisesRegex(ValueError, error):
                 release.candidate_images()
@@ -209,7 +209,7 @@ class FastAdditiveProofTests(unittest.TestCase):
         release.record['inventory'] = {row['Id']: row for row in release.record['live'].values()}
         release.rows = Mock(return_value=list(release.record['live'].values()))
         release.build_fast_images = Mock(return_value=release.record['image_ids'])
-        with patch('release_retained_update.wait_for_idle'):
+        with patch('retained_release_host.wait_for_idle'):
             self.assertEqual(RetainedUpdate.fast_images(release), release.record['image_ids'])
         self.assertEqual(release.stop.call_count, len(WORKERS) + 1)
         self.assertEqual(release.start.call_count, len(WORKERS) + 1)

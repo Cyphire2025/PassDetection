@@ -1,0 +1,84 @@
+{
+  "source_fence_paths_unchanged": 29,
+  "actual_owner_rows_only_qualified": [
+    "backend/app/presentation/api/v1/routes/email_connection_monitoring.py",
+    "backend/app/presentation/api/v1/routes/email_connection_disconnect.py",
+    "backend/app/presentation/api/v1/routes/email_connection_removal.py",
+    "backend/app/presentation/api/v1/routes/email_connection_ai_settings.py",
+    "backend/app/presentation/api/v1/routes/email_integration_connections.py"
+  ],
+  "no_coverage_append_or_merge": true,
+  "commands": [
+    {
+      "label": "lint",
+      "command": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "ruff",
+        "check",
+        "--no-fix",
+        "app/presentation/api/v1/routes/email_connection_monitoring.py",
+        "app/presentation/api/v1/routes/email_connection_disconnect.py",
+        "app/presentation/api/v1/routes/email_connection_removal.py",
+        "app/presentation/api/v1/routes/email_connection_ai_settings.py",
+        "app/presentation/api/v1/routes/email_integration_connections.py",
+        "tests/unit/presentation/test_email_connection_lifecycle.py",
+        "tests/unit/presentation/test_email_connection_revocation_races.py",
+        "tests/unit/presentation/test_email_connection_controls.py",
+        "tests/unit/presentation/test_email_connection_removal_outcomes.py",
+        "tests/unit/presentation/test_email_integration_route_decomposition.py",
+        "tests/unit/presentation/test_email_ai_inbox_isolation.py"
+      ],
+      "exit_code": 0,
+      "log": "docs/audit/dashboard-2026-10-30/email-connections-final-lint.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "label": "types",
+      "command": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "mypy",
+        "app/presentation/api/v1/routes/email_connection_monitoring.py",
+        "app/presentation/api/v1/routes/email_connection_disconnect.py",
+        "app/presentation/api/v1/routes/email_connection_removal.py",
+        "app/presentation/api/v1/routes/email_connection_ai_settings.py",
+        "app/presentation/api/v1/routes/email_integration_connections.py"
+      ],
+      "exit_code": 0,
+      "log": "docs/audit/dashboard-2026-10-30/email-connections-final-types.log",
+      "sha256": "e317872697c2cbfdefa321527a6efe73290dff3a390b0fa8723b87092eccba6a"
+    },
+    {
+      "label": "tests",
+      "command": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/unit/presentation/test_email_connection_lifecycle.py",
+        "tests/unit/presentation/test_email_connection_revocation_races.py",
+        "tests/unit/presentation/test_email_connection_controls.py",
+        "tests/unit/presentation/test_email_connection_removal_outcomes.py",
+        "tests/unit/presentation/test_email_integration_route_decomposition.py",
+        "tests/unit/presentation/test_email_ai_inbox_isolation.py::test_connection_opt_in_reports_rollout_policy_as_inactive",
+        "tests/unit/presentation/test_email_ai_inbox_isolation.py::test_disabling_then_reenabling_mailbox_starts_a_new_consent_epoch",
+        "tests/unit/presentation/test_email_integration_contract.py",
+        "tests/unit/presentation/test_email_oauth_persistence.py",
+        "tests/unit/presentation/test_email_oauth_generation_race.py",
+        "tests/unit/infrastructure/test_email_account_removal.py",
+        "tests/integration/test_mcp_email_overview_reads.py::test_status_uses_exact_runtime_readiness_without_secrets",
+        "--cov=app/presentation/api/v1/routes",
+        "--cov-branch",
+        "--cov-report=",
+        "--cov-report=json:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\email-connections-final-coverage.json",
+        "--cov-report=xml:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\email-connections-final-coverage.xml"
+      ],
+      "exit_code": 0,
+      "log": "docs/audit/dashboard-2026-10-30/email-connections-final-tests.log",
+      "sha256": "bd4da5c91c072c1d8599270f9ef5caa76084d400409eb4a78c71c72c2259a3d4"
+    }
+  ]
+}

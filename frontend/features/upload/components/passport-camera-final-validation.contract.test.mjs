@@ -1,25 +1,11 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-
-const cameraSource = readFileSync(
-  new URL("./smart-camera.tsx", import.meta.url),
-  "utf8",
-);
-const uploadFlowSource = readFileSync(
-  new URL("./upload-flow.tsx", import.meta.url),
-  "utf8",
-);
-const uploadDocumentSource = readFileSync(
-  new URL("../hooks/use-upload-documents.ts", import.meta.url),
-  "utf8",
-);
+import { currentUploadSources } from "./current-upload-source.contract-helper.mjs";
+import { passportCameraSource as cameraSource } from "./passport-camera-source.contract-helper.mjs";
+import { passportNormalizationSource as correctionSource } from "./passport-normalization-source.contract-helper.mjs";
 const liveHookSource = readFileSync(
   new URL("../hooks/use-passport-frame-detection.ts", import.meta.url),
-  "utf8",
-);
-const correctionSource = readFileSync(
-  new URL("../services/passport-perspective-correction.ts", import.meta.url),
   "utf8",
 );
 
@@ -57,13 +43,10 @@ test("passport preview separates pass, confirmed borderline, and hard failure", 
   assert.match(cameraSource, /finalQuality\.outcome === "hard_failure"/);
 });
 
-test("camera and manually cropped front pages are not perspective-corrected again", () => {
-  assert.match(
-    uploadDocumentSource,
-    /frontSource === "camera" \|\| frontManuallyCropped\s*\?\s*file\s*:\s*\(await normalizePassportFile\(file\)\)\.file/,
-  );
-  assert.match(uploadFlowSource, /documentBundle\.frontSource \?\? "file"/);
-  assert.match(uploadFlowSource, /documentBundle\.frontManuallyCropped/);
+test("already validated camera captures enter the current private draft unchanged", () => {
+  assert.match(currentUploadSources.selection, /source === "file" \? await preparePublicUploadFile[\s\S]*?: file;/);
+  assert.match(currentUploadSources.selection, /state\.upload\(side, ready\)/);
+  assert.match(currentUploadSources.documents, /onCapture=\{\(file\) => startUpload\(camera, file, "camera"\)\}/);
 });
 
 test("only the lightweight rectangular live detector is active", () => {

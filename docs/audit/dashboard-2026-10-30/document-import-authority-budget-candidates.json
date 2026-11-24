@@ -1,0 +1,88 @@
+{
+  "modules": [
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/document_import.py",
+      "baseline_lines": 207,
+      "maximum_lines": 215,
+      "baseline_max_function_complexity": 11,
+      "maximum_function_complexity": 12,
+      "minimum_coverage_percent": 95,
+      "source_sha256": "ec34e2f4c252e18cc192eb3ba6eff60f177243dfb33214e71dc5c793d10ef52d",
+      "previous": {
+        "path": "app/presentation/api/v1/routes/passport_routes/document_import.py",
+        "baseline_lines": 431,
+        "maximum_lines": 450,
+        "baseline_max_function_complexity": 21,
+        "maximum_function_complexity": 21,
+        "minimum_coverage_percent": 70
+      }
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/document_import_authority.py",
+      "baseline_lines": 108,
+      "maximum_lines": 115,
+      "baseline_max_function_complexity": 7,
+      "maximum_function_complexity": 8,
+      "minimum_coverage_percent": 95,
+      "source_sha256": "73a0a685a17eb592a944db685de700c9fa120828451d7e0a832ef6114654bd82",
+      "previous": null
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/document_import_failure.py",
+      "baseline_lines": 55,
+      "maximum_lines": 55,
+      "baseline_max_function_complexity": 2,
+      "maximum_function_complexity": 2,
+      "minimum_coverage_percent": 95,
+      "source_sha256": "50b0f10c49e96cd70b175131f1a120c3da71673251acfcf8f2f114bb747ebee5",
+      "previous": {
+        "path": "app/presentation/api/v1/routes/passport_routes/document_import_failure.py",
+        "baseline_lines": 49,
+        "maximum_lines": 55,
+        "baseline_max_function_complexity": 2,
+        "maximum_function_complexity": 2,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/document_import_persistence.py",
+      "baseline_lines": 101,
+      "maximum_lines": 110,
+      "baseline_max_function_complexity": 15,
+      "maximum_function_complexity": 16,
+      "minimum_coverage_percent": 95,
+      "source_sha256": "8683b7909356c0036d32493f4739e30d3466fc7a5c4130f662e03918788a9a97",
+      "previous": null
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/document_import_preview.py",
+      "baseline_lines": 142,
+      "maximum_lines": 150,
+      "baseline_max_function_complexity": 7,
+      "maximum_function_complexity": 8,
+      "minimum_coverage_percent": 95,
+      "source_sha256": "4fe70fde54aa40be11051b8824388129936b4250131b2a97c7e196b154655695",
+      "previous": null
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/document_import_processing.py",
+      "baseline_lines": 77,
+      "maximum_lines": 85,
+      "baseline_max_function_complexity": 11,
+      "maximum_function_complexity": 12,
+      "minimum_coverage_percent": 95,
+      "source_sha256": "85e5d17e7ace085980f79203fe869c55b03e0178e432648595431dbf3544dc63",
+      "previous": null
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/document_import_staging.py",
+      "baseline_lines": 80,
+      "maximum_lines": 85,
+      "baseline_max_function_complexity": 3,
+      "maximum_function_complexity": 4,
+      "minimum_coverage_percent": 95,
+      "source_sha256": "e2af270a396ab3c58ea785d08b68ae2d5d3219e874f3ce5ce8432d83d78e1974",
+      "previous": null
+    }
+  ]
+}

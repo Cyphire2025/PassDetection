@@ -12,7 +12,13 @@ const header = read("../../components/layout/header.tsx");
 const api = read("./api/notifications.api.ts");
 const hooks = read("./hooks/use-notifications.ts");
 const liveHistory = read("../../lib/hooks/use-live-history-feed.ts");
-const bell = read("./components/notification-bell.tsx");
+const bell = [
+  "./components/notification-bell.tsx",
+  "./components/notification-panel.tsx",
+  "./components/notification-row.tsx",
+  "./hooks/use-notification-center.ts",
+  "../../components/ui/modal-keyboard-boundary.ts",
+].map(read).join("\n");
 const navigation = read("./utils/notification-navigation.ts");
 const types = read("./types.ts");
 

@@ -1,0 +1,212 @@
+{
+  "basis": "Post established media authority fix and earlier index-publication fixes, before mechanical owner extraction; not original checkout.",
+  "basis_sha256": "4ee848212fc0093dc207670fa27aa726bd796135d3462caf47ff20b8a8f72225",
+  "old_declarations_proven": 27,
+  "public_entry_unchanged_except_explicit_context_dispatch": true,
+  "public_signature_exact": true,
+  "original_dataclass_namespace_annotations_and_pickle": true,
+  "context": "One typed immutable session factory resolved by the legacy facade at job invocation; no proxy globals/callback bag or circular lookup. All provider/query/retry/transaction statements unchanged after explicit factory/context argument normalization.",
+  "declarations": [
+    {
+      "name": "OperationalState",
+      "path": "backend/app/infrastructure/my_photos/operational_job_contracts.py",
+      "context_parameter": false,
+      "new_contract": false,
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "OperationalJobType",
+      "path": "backend/app/infrastructure/my_photos/operational_job_contracts.py",
+      "context_parameter": false,
+      "new_contract": false,
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "MediaVariant",
+      "path": "backend/app/infrastructure/my_photos/operational_job_contracts.py",
+      "context_parameter": false,
+      "new_contract": false,
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "OperationalJobResult",
+      "path": "backend/app/infrastructure/my_photos/operational_job_contracts.py",
+      "context_parameter": false,
+      "new_contract": false,
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_OperationalClaim",
+      "path": "backend/app/infrastructure/my_photos/operational_job_contracts.py",
+      "context_parameter": false,
+      "new_contract": false,
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_validated_media_result",
+      "path": "backend/app/infrastructure/my_photos/operational_job_policy.py",
+      "context_parameter": false,
+      "new_contract": false,
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_validated_index_result",
+      "path": "backend/app/infrastructure/my_photos/operational_job_policy.py",
+      "context_parameter": false,
+      "new_contract": false,
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_validate_occurrence",
+      "path": "backend/app/infrastructure/my_photos/operational_job_policy.py",
+      "context_parameter": false,
+      "new_contract": false,
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_retry_delay",
+      "path": "backend/app/infrastructure/my_photos/operational_job_policy.py",
+      "context_parameter": false,
+      "new_contract": false,
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_valid_opaque",
+      "path": "backend/app/infrastructure/my_photos/operational_job_policy.py",
+      "context_parameter": false,
+      "new_contract": false,
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_valid_error",
+      "path": "backend/app/infrastructure/my_photos/operational_job_policy.py",
+      "context_parameter": false,
+      "new_contract": false,
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_index_publication_allowed",
+      "path": "backend/app/infrastructure/my_photos/operational_job_policy.py",
+      "context_parameter": false,
+      "new_contract": false,
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_utc",
+      "path": "backend/app/infrastructure/my_photos/operational_job_policy.py",
+      "context_parameter": false,
+      "new_contract": false,
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_locked_current_job_scope",
+      "path": "backend/app/infrastructure/my_photos/operational_job_queries.py",
+      "context_parameter": false,
+      "new_contract": false,
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_locked_job_and_asset",
+      "path": "backend/app/infrastructure/my_photos/operational_job_queries.py",
+      "context_parameter": false,
+      "new_contract": false,
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_latest_ready_analysis_variants",
+      "path": "backend/app/infrastructure/my_photos/operational_job_queries.py",
+      "context_parameter": false,
+      "new_contract": false,
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_retry_or_fail",
+      "path": "backend/app/infrastructure/my_photos/operational_job_lifecycle.py",
+      "context_parameter": true,
+      "new_contract": false,
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_retry_locked_job",
+      "path": "backend/app/infrastructure/my_photos/operational_job_lifecycle.py",
+      "context_parameter": false,
+      "new_contract": false,
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_terminal_claim",
+      "path": "backend/app/infrastructure/my_photos/operational_job_lifecycle.py",
+      "context_parameter": true,
+      "new_contract": false,
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_terminal_job",
+      "path": "backend/app/infrastructure/my_photos/operational_job_lifecycle.py",
+      "context_parameter": false,
+      "new_contract": false,
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_terminalize_job",
+      "path": "backend/app/infrastructure/my_photos/operational_job_lifecycle.py",
+      "context_parameter": false,
+      "new_contract": false,
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_claim_job",
+      "path": "backend/app/infrastructure/my_photos/operational_job_claims.py",
+      "context_parameter": true,
+      "new_contract": false,
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_execute_media_job",
+      "path": "backend/app/infrastructure/my_photos/operational_media_jobs.py",
+      "context_parameter": true,
+      "new_contract": false,
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_finalize_media",
+      "path": "backend/app/infrastructure/my_photos/operational_media_jobs.py",
+      "context_parameter": true,
+      "new_contract": false,
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_execute_index_batch",
+      "path": "backend/app/infrastructure/my_photos/operational_index_jobs.py",
+      "context_parameter": true,
+      "new_contract": false,
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_finalize_index_batch",
+      "path": "backend/app/infrastructure/my_photos/operational_index_publication.py",
+      "context_parameter": true,
+      "new_contract": false,
+      "normalized_ast_equal": true
+    },
+    {
+      "name": "_publish_index_if_complete",
+      "path": "backend/app/infrastructure/my_photos/operational_index_publication.py",
+      "context_parameter": true,
+      "new_contract": false,
+      "normalized_ast_equal": true
+    }
+  ],
+  "runtime_sha256": {
+    "backend/app/infrastructure/my_photos/operational_index_jobs.py": "ec6f22a6219d32364903fa3b91def695095bbb32996e08e5e43109ed24eafeb3",
+    "backend/app/infrastructure/my_photos/operational_index_publication.py": "f16ac652055a36e19611d212304907f2287633ee4e99c0fe2a9f498786b5a54f",
+    "backend/app/infrastructure/my_photos/operational_job_claims.py": "29449ee1905ce2a2371e1d84463a9235e1ebcfe82b7d90618531dfb6cf383cca",
+    "backend/app/infrastructure/my_photos/operational_job_contracts.py": "3785947c91564a0b8cc4c77c62ba0ba46542af19b067370ebc9d4e740727bb7f",
+    "backend/app/infrastructure/my_photos/operational_job_lifecycle.py": "fb8edebec13df618be7ae0d78b20f5bc09b047639fef8df65356a03947d90cfc",
+    "backend/app/infrastructure/my_photos/operational_job_policy.py": "2e3df8a42a1c086b87909be0446704a9385f84ebf4e504fb0a5561cea0456636",
+    "backend/app/infrastructure/my_photos/operational_job_queries.py": "034088fd9e54677e46568e60115914d138ee58564ddc0f365e6f0090d71696e2",
+    "backend/app/infrastructure/my_photos/operational_media_jobs.py": "e8c6cd00dc32caae9e7a446fc23925e386b352ab1e133dd1cdb499711977d0f2",
+    "backend/app/infrastructure/my_photos/operational_runtime.py": "c178e781b9f62a0e415bdbecf8c9c9b02a263f8d6726080090cc92845e5af2cb"
+  },
+  "limits": "Mechanical extraction and metadata proof; affected behavior/coverage evidence is recorded separately. No real provider/PostgreSQL qualification."
+}

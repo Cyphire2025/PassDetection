@@ -1,0 +1,127 @@
+FFFFFFFF                                                                 [100%]
+================================== FAILURES ===================================
+_ test_oversize_provider_stream_is_rejected_before_unbounded_consumption[declared] _
+backend\tests\unit\infrastructure\test_gemini_email_analysis_transport.py:66: in test_oversize_provider_stream_is_rejected_before_unbounded_consumption
+    assert body.bytes_yielded <= (LIMIT + 16_384 if kind == "chunked" else 0)
+E   assert 1572864 <= 0
+E    +  where 1572864 = <test_gemini_email_analysis_transport.ProviderBody object at 0x00000128989ED150>.bytes_yielded
+---------------------------- Captured stdout setup ----------------------------
+2026-10-31T04:30:46.468503Z [debug    ] Using proactor: IocpProactor   [asyncio]
+----------------------------- Captured log setup ------------------------------
+DEBUG    asyncio:proactor_events.py:633 Using proactor: IocpProactor
+---------------------------- Captured stdout call -----------------------------
+2026-10-31T04:30:46.471502Z [info     ] email_ai_analysis_response_metadata [app.infrastructure.ai.gemini_email_analysis_service] duration_ms=0.0 http_status=200 model=gemini-test repair_attempt=False response_bytes=1572864
+------------------------------ Captured log call ------------------------------
+INFO     app.infrastructure.ai.gemini_email_analysis_service:gemini_email_analysis_service.py:256 {'model': 'gemini-test', 'http_status': 200, 'response_bytes': 1572864, 'duration_ms': 0.0, 'repair_attempt': False, 'event': 'email_ai_analysis_response_metadata', 'logger': 'app.infrastructure.ai.gemini_email_analysis_service', 'level': 'info', 'timestamp': '2026-10-31T04:30:46.471502Z'}
+_ test_oversize_provider_stream_is_rejected_before_unbounded_consumption[chunked] _
+backend\tests\unit\infrastructure\test_gemini_email_analysis_transport.py:66: in test_oversize_provider_stream_is_rejected_before_unbounded_consumption
+    assert body.bytes_yielded <= (LIMIT + 16_384 if kind == "chunked" else 0)
+E   assert 1572864 <= 212992
+E    +  where 1572864 = <test_gemini_email_analysis_transport.ProviderBody object at 0x0000012898EBA8D0>.bytes_yielded
+---------------------------- Captured stdout setup ----------------------------
+2026-10-31T04:30:46.816791Z [debug    ] Using proactor: IocpProactor   [asyncio]
+----------------------------- Captured log setup ------------------------------
+DEBUG    asyncio:proactor_events.py:633 Using proactor: IocpProactor
+---------------------------- Captured stdout call -----------------------------
+2026-10-31T04:30:46.818298Z [info     ] email_ai_analysis_response_metadata [app.infrastructure.ai.gemini_email_analysis_service] duration_ms=0.0 http_status=200 model=gemini-test repair_attempt=False response_bytes=1572864
+------------------------------ Captured log call ------------------------------
+INFO     app.infrastructure.ai.gemini_email_analysis_service:gemini_email_analysis_service.py:256 {'model': 'gemini-test', 'http_status': 200, 'response_bytes': 1572864, 'duration_ms': 0.0, 'repair_attempt': False, 'event': 'email_ai_analysis_response_metadata', 'logger': 'app.infrastructure.ai.gemini_email_analysis_service', 'level': 'info', 'timestamp': '2026-10-31T04:30:46.818298Z'}
+_ test_oversize_provider_stream_is_rejected_before_unbounded_consumption[compressed] _
+backend\tests\unit\infrastructure\test_gemini_email_analysis_transport.py:66: in test_oversize_provider_stream_is_rejected_before_unbounded_consumption
+    assert body.bytes_yielded <= (LIMIT + 16_384 if kind == "chunked" else 0)
+E   assert 1560 <= 0
+E    +  where 1560 = <test_gemini_email_analysis_transport.ProviderBody object at 0x0000012898E15B10>.bytes_yielded
+---------------------------- Captured stdout setup ----------------------------
+2026-10-31T04:30:46.822889Z [debug    ] Using proactor: IocpProactor   [asyncio]
+----------------------------- Captured log setup ------------------------------
+DEBUG    asyncio:proactor_events.py:633 Using proactor: IocpProactor
+---------------------------- Captured stdout call -----------------------------
+2026-10-31T04:30:46.833911Z [info     ] email_ai_analysis_response_metadata [app.infrastructure.ai.gemini_email_analysis_service] duration_ms=0.0 http_status=200 model=gemini-test repair_attempt=False response_bytes=1572864
+------------------------------ Captured log call ------------------------------
+INFO     app.infrastructure.ai.gemini_email_analysis_service:gemini_email_analysis_service.py:256 {'model': 'gemini-test', 'http_status': 200, 'response_bytes': 1572864, 'duration_ms': 0.0, 'repair_attempt': False, 'event': 'email_ai_analysis_response_metadata', 'logger': 'app.infrastructure.ai.gemini_email_analysis_service', 'level': 'info', 'timestamp': '2026-10-31T04:30:46.833911Z'}
+_ test_error_status_preserves_classification_without_reading_echoed_private_body[429-provider_unavailable] _
+backend\tests\unit\infrastructure\test_gemini_email_analysis_transport.py:89: in test_error_status_preserves_classification_without_reading_echoed_private_body
+    assert body.closed and body.bytes_yielded == 0
+E   assert (True and 37000 == 0)
+E    +  where True = <test_gemini_email_analysis_transport.ProviderBody object at 0x0000012898CA9990>.closed
+E    +  and   37000 = <test_gemini_email_analysis_transport.ProviderBody object at 0x0000012898CA9990>.bytes_yielded
+---------------------------- Captured stdout setup ----------------------------
+2026-10-31T04:30:46.839912Z [debug    ] Using proactor: IocpProactor   [asyncio]
+----------------------------- Captured log setup ------------------------------
+DEBUG    asyncio:proactor_events.py:633 Using proactor: IocpProactor
+---------------------------- Captured stdout call -----------------------------
+2026-10-31T04:30:46.840911Z [info     ] email_ai_analysis_response_metadata [app.infrastructure.ai.gemini_email_analysis_service] duration_ms=0.0 http_status=429 model=gemini-test repair_attempt=False response_bytes=37000
+------------------------------ Captured log call ------------------------------
+INFO     app.infrastructure.ai.gemini_email_analysis_service:gemini_email_analysis_service.py:256 {'model': 'gemini-test', 'http_status': 429, 'response_bytes': 37000, 'duration_ms': 0.0, 'repair_attempt': False, 'event': 'email_ai_analysis_response_metadata', 'logger': 'app.infrastructure.ai.gemini_email_analysis_service', 'level': 'info', 'timestamp': '2026-10-31T04:30:46.840911Z'}
+_ test_error_status_preserves_classification_without_reading_echoed_private_body[503-provider_unavailable] _
+backend\tests\unit\infrastructure\test_gemini_email_analysis_transport.py:89: in test_error_status_preserves_classification_without_reading_echoed_private_body
+    assert body.closed and body.bytes_yielded == 0
+E   assert (True and 37000 == 0)
+E    +  where True = <test_gemini_email_analysis_transport.ProviderBody object at 0x0000012898C9B8D0>.closed
+E    +  and   37000 = <test_gemini_email_analysis_transport.ProviderBody object at 0x0000012898C9B8D0>.bytes_yielded
+---------------------------- Captured stdout setup ----------------------------
+2026-10-31T04:30:46.844911Z [debug    ] Using proactor: IocpProactor   [asyncio]
+----------------------------- Captured log setup ------------------------------
+DEBUG    asyncio:proactor_events.py:633 Using proactor: IocpProactor
+---------------------------- Captured stdout call -----------------------------
+2026-10-31T04:30:46.845911Z [info     ] email_ai_analysis_response_metadata [app.infrastructure.ai.gemini_email_analysis_service] duration_ms=0.0 http_status=503 model=gemini-test repair_attempt=False response_bytes=37000
+------------------------------ Captured log call ------------------------------
+INFO     app.infrastructure.ai.gemini_email_analysis_service:gemini_email_analysis_service.py:256 {'model': 'gemini-test', 'http_status': 503, 'response_bytes': 37000, 'duration_ms': 0.0, 'repair_attempt': False, 'event': 'email_ai_analysis_response_metadata', 'logger': 'app.infrastructure.ai.gemini_email_analysis_service', 'level': 'info', 'timestamp': '2026-10-31T04:30:46.845911Z'}
+_ test_error_status_preserves_classification_without_reading_echoed_private_body[400-provider_rejected] _
+backend\tests\unit\infrastructure\test_gemini_email_analysis_transport.py:89: in test_error_status_preserves_classification_without_reading_echoed_private_body
+    assert body.closed and body.bytes_yielded == 0
+E   assert (True and 37000 == 0)
+E    +  where True = <test_gemini_email_analysis_transport.ProviderBody object at 0x0000012898C95F10>.closed
+E    +  and   37000 = <test_gemini_email_analysis_transport.ProviderBody object at 0x0000012898C95F10>.bytes_yielded
+---------------------------- Captured stdout setup ----------------------------
+2026-10-31T04:30:46.849911Z [debug    ] Using proactor: IocpProactor   [asyncio]
+----------------------------- Captured log setup ------------------------------
+DEBUG    asyncio:proactor_events.py:633 Using proactor: IocpProactor
+---------------------------- Captured stdout call -----------------------------
+2026-10-31T04:30:46.850912Z [info     ] email_ai_analysis_response_metadata [app.infrastructure.ai.gemini_email_analysis_service] duration_ms=0.0 http_status=400 model=gemini-test repair_attempt=False response_bytes=37000
+------------------------------ Captured log call ------------------------------
+INFO     app.infrastructure.ai.gemini_email_analysis_service:gemini_email_analysis_service.py:256 {'model': 'gemini-test', 'http_status': 400, 'response_bytes': 37000, 'duration_ms': 0.0, 'repair_attempt': False, 'event': 'email_ai_analysis_response_metadata', 'logger': 'app.infrastructure.ai.gemini_email_analysis_service', 'level': 'info', 'timestamp': '2026-10-31T04:30:46.850912Z'}
+_______ test_redirect_is_not_followed_even_with_injected_client_default _______
+backend\tests\unit\infrastructure\test_gemini_email_analysis_transport.py:108: in test_redirect_is_not_followed_even_with_injected_client_default
+    assert hosts == ["generativelanguage.googleapis.com"]
+E   AssertionError: assert ['generativel...example.test'] == ['generativel...ogleapis.com']
+E     
+E     Left contains one more item: 'other.example.test'
+E     Use -v to get more diff
+---------------------------- Captured stdout setup ----------------------------
+2026-10-31T04:30:46.855181Z [debug    ] Using proactor: IocpProactor   [asyncio]
+----------------------------- Captured log setup ------------------------------
+DEBUG    asyncio:proactor_events.py:633 Using proactor: IocpProactor
+---------------------------- Captured stdout call -----------------------------
+2026-10-31T04:30:46.856190Z [info     ] email_ai_analysis_response_metadata [app.infrastructure.ai.gemini_email_analysis_service] duration_ms=0.0 http_status=200 model=gemini-test repair_attempt=False response_bytes=2
+------------------------------ Captured log call ------------------------------
+INFO     app.infrastructure.ai.gemini_email_analysis_service:gemini_email_analysis_service.py:256 {'model': 'gemini-test', 'http_status': 200, 'response_bytes': 2, 'duration_ms': 0.0, 'repair_attempt': False, 'event': 'email_ai_analysis_response_metadata', 'logger': 'app.infrastructure.ai.gemini_email_analysis_service', 'level': 'info', 'timestamp': '2026-10-31T04:30:46.856190Z'}
+___ test_rejected_stream_gets_exactly_one_repair_then_valid_original_result ___
+backend\tests\unit\infrastructure\test_gemini_email_analysis_transport.py:135: in test_rejected_stream_gets_exactly_one_repair_then_valid_original_result
+    assert streams[0].bytes_yielded <= LIMIT + 16_384
+E   assert 1572864 <= (196608 + 16384)
+E    +  where 1572864 = <test_gemini_email_analysis_transport.ProviderBody object at 0x0000012898CB5FD0>.bytes_yielded
+---------------------------- Captured stdout setup ----------------------------
+2026-10-31T04:30:46.859189Z [debug    ] Using proactor: IocpProactor   [asyncio]
+----------------------------- Captured log setup ------------------------------
+DEBUG    asyncio:proactor_events.py:633 Using proactor: IocpProactor
+---------------------------- Captured stdout call -----------------------------
+2026-10-31T04:30:46.861189Z [info     ] email_ai_analysis_response_metadata [app.infrastructure.ai.gemini_email_analysis_service] duration_ms=0.0 http_status=200 model=gemini-test repair_attempt=False response_bytes=1572864
+2026-10-31T04:30:46.861189Z [info     ] email_ai_analysis_schema_repair [app.infrastructure.ai.gemini_email_analysis_service] model=gemini-test
+2026-10-31T04:30:46.862189Z [info     ] email_ai_analysis_response_metadata [app.infrastructure.ai.gemini_email_analysis_service] duration_ms=0.0 http_status=200 model=gemini-test repair_attempt=True response_bytes=600
+2026-10-31T04:30:46.862189Z [info     ] email_ai_analysis_completed    [app.infrastructure.ai.gemini_email_analysis_service] blocked_proposal_count=0 candidate_count=1 deadline_count=0 intent=document_submission model=gemini-test needs_review=False priority=high proposal_count=1 relevance=relevant repair_attempt=True
+------------------------------ Captured log call ------------------------------
+INFO     app.infrastructure.ai.gemini_email_analysis_service:gemini_email_analysis_service.py:256 {'model': 'gemini-test', 'http_status': 200, 'response_bytes': 1572864, 'duration_ms': 0.0, 'repair_attempt': False, 'event': 'email_ai_analysis_response_metadata', 'logger': 'app.infrastructure.ai.gemini_email_analysis_service', 'level': 'info', 'timestamp': '2026-10-31T04:30:46.861189Z'}
+INFO     app.infrastructure.ai.gemini_email_analysis_service:gemini_email_analysis_service.py:278 {'model': 'gemini-test', 'event': 'email_ai_analysis_schema_repair', 'logger': 'app.infrastructure.ai.gemini_email_analysis_service', 'level': 'info', 'timestamp': '2026-10-31T04:30:46.861189Z'}
+INFO     app.infrastructure.ai.gemini_email_analysis_service:gemini_email_analysis_service.py:256 {'model': 'gemini-test', 'http_status': 200, 'response_bytes': 600, 'duration_ms': 0.0, 'repair_attempt': True, 'event': 'email_ai_analysis_response_metadata', 'logger': 'app.infrastructure.ai.gemini_email_analysis_service', 'level': 'info', 'timestamp': '2026-10-31T04:30:46.862189Z'}
+INFO     app.infrastructure.ai.gemini_email_analysis_service:gemini_email_analysis_service.py:291 {'model': 'gemini-test', 'relevance': 'relevant', 'intent': 'document_submission', 'priority': 'high', 'candidate_count': 1, 'deadline_count': 0, 'proposal_count': 1, 'blocked_proposal_count': 0, 'needs_review': False, 'repair_attempt': True, 'event': 'email_ai_analysis_completed', 'logger': 'app.infrastructure.ai.gemini_email_analysis_service', 'level': 'info', 'timestamp': '2026-10-31T04:30:46.862189Z'}
+=========================== short test summary info ===========================
+FAILED backend\tests\unit\infrastructure\test_gemini_email_analysis_transport.py::test_oversize_provider_stream_is_rejected_before_unbounded_consumption[declared]
+FAILED backend\tests\unit\infrastructure\test_gemini_email_analysis_transport.py::test_oversize_provider_stream_is_rejected_before_unbounded_consumption[chunked]
+FAILED backend\tests\unit\infrastructure\test_gemini_email_analysis_transport.py::test_oversize_provider_stream_is_rejected_before_unbounded_consumption[compressed]
+FAILED backend\tests\unit\infrastructure\test_gemini_email_analysis_transport.py::test_error_status_preserves_classification_without_reading_echoed_private_body[429-provider_unavailable]
+FAILED backend\tests\unit\infrastructure\test_gemini_email_analysis_transport.py::test_error_status_preserves_classification_without_reading_echoed_private_body[503-provider_unavailable]
+FAILED backend\tests\unit\infrastructure\test_gemini_email_analysis_transport.py::test_error_status_preserves_classification_without_reading_echoed_private_body[400-provider_rejected]
+FAILED backend\tests\unit\infrastructure\test_gemini_email_analysis_transport.py::test_redirect_is_not_followed_even_with_injected_client_default
+FAILED backend\tests\unit\infrastructure\test_gemini_email_analysis_transport.py::test_rejected_stream_gets_exactly_one_repair_then_valid_original_result
+8 failed in 0.51s

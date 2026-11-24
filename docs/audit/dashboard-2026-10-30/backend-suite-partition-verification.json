@@ -1,0 +1,41 @@
+{
+  "basis": "Existing CI stable-hash partitions, sequential one-process execution in the hash-checked patched environment. Addopts coverage disabled; this verifies execution/collection, not coverage or service-dependent CI.",
+  "source_checkpoint": "Patched dependencies and preceding source checkpoint; subsequent client-group/email route changes have separately recorded affected-path regression checks.",
+  "collection_count": 8065,
+  "collection_sha256": "cb6be14f40ba7789e8a05eadfc6519eeb2035095eb03db8c853aa5694fe1d992",
+  "every_collected_test_assigned_exactly_once": true,
+  "shards": [
+    {
+      "index": 1,
+      "passed": 2027,
+      "skipped": 1,
+      "subtests": 50,
+      "seconds": 620.54
+    },
+    {
+      "index": 2,
+      "passed": 2006,
+      "skipped": 1,
+      "subtests": 36,
+      "seconds": 645.06
+    },
+    {
+      "index": 3,
+      "passed": 1999,
+      "skipped": 2,
+      "subtests": 21,
+      "seconds": 544.56
+    },
+    {
+      "index": 4,
+      "passed": 2028,
+      "skipped": 1,
+      "subtests": 58,
+      "seconds": 529.72
+    }
+  ],
+  "passed": 8060,
+  "skipped": 5,
+  "subtests": 165,
+  "seconds": 2339.88
+}

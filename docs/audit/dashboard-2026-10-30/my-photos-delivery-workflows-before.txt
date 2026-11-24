@@ -1,0 +1,47 @@
+.....F......                                                             [100%]
+================================== FAILURES ===================================
+_________ test_media_preparation_serializes_before_idempotency_lookup _________
+
+photo_database = namespace(sessions=async_sessionmaker(class_='AsyncSession', bind=<sqlalchemy.ext.asyncio.engine.AsyncEngine object at...re.database.gc_mobile_models.MobilePassengerIdentityModel object at 0x000001F9D3D41DD0>, client_manager_profile=None)))
+
+    async def test_media_preparation_serializes_before_idempotency_lookup(photo_database):
+        env = photo_database
+        seeded = await _seed_delivery(env)
+        statements = []
+        engine = env.sessions.kw["bind"].sync_engine
+    
+        def capture(_connection, clause, _multiparams, _params, _options):
+            statements.append(str(clause.compile(dialect=postgresql.dialect())))
+    
+        event.listen(engine, "before_execute", capture)
+        try:
+            async with env.sessions() as session:
+                service = MyPhotosService(
+                    session, settings=env.settings, providers=SimpleNamespace(provider_name="aws")
+                )
+                await service.prepare_media(
+                    claims=env.passenger.claims,
+                    trip=env.passenger.trip,
+                    asset_id=seeded.asset_id,
+                    request=MyPhotosPrepareRequest(
+                        idempotency_key="synthetic-lock", quality="original"
+                    ),
+                )
+        finally:
+            event.remove(engine, "before_execute", capture)
+        identity_locks = [
+            index
+            for index, text in enumerate(statements)
+            if "mobile_passenger_identities" in text and "FOR UPDATE" in text
+        ]
+        job_reads = [index for index, text in enumerate(statements) if "FROM my_photo_jobs" in text]
+>       assert identity_locks, (
+            "Actual ORM execution must lock the identity before first-write replay lookup"
+        )
+E       AssertionError: Actual ORM execution must lock the identity before first-write replay lookup
+E       assert []
+
+tests\integration\test_my_photos_media_preparation.py:114: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/integration/test_my_photos_media_preparation.py::test_media_preparation_serializes_before_idempotency_lookup
+1 failed, 11 passed in 24.12s

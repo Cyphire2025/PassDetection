@@ -1,0 +1,26 @@
+[
+  {
+    "path": "scripts/release_document_resume_baseline.py",
+    "sha256": "a29b0258cc2770f9e659fe31ff36b42b0224eaa690645160d31ae0f66d5ae5fc",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete128physical source read: exactrecorded background stop/start identity, typedPID/restart/OOM validation, strictlylater awaretimestamp, immutableoriginalbinding and per-service digest consistency. Only clean-stop comparison baseline adapts to recordedcontrolledrestart; originalresources/receipts remain. No sourceedit or actualcontainers inspected. Dedicated OperationsInbox deferred; sharedscheduler/release compatibility only. No new checks for unchanged source."
+  },
+  {
+    "path": "scripts/release_document_fast.py",
+    "sha256": "aba9546635fc24127bca4a062b829147f5d527e9a90d16eea585196b58a3b1d2",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete122physical source read: explicitly lower-assurance operatorFast image/API/base/builder/rehearsal binding, exactsource/image/state and strictboolean proof fields, noFullCIclaim. Privateboundedregular receipt and allrequiredchecks retained; no imagebuild/deploy/fixture execution. Dedicated OperationsInbox deferred; sharedscheduler/release compatibility only. No new checks for unchanged source."
+  },
+  {
+    "path": "scripts/release_document_distribution_policy.py",
+    "sha256": "8bf2544ebb641fc75b0ae47e04ff6a7df51b8aa15e8486c18167eabfe0dd6bcb",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete255physical source read in contiguoushalves: exactversioned additive schema/templatefields, queuedtask IDs/contracts and resource redistribution, strictJSONtype equality, regularownedcandidate files and completeoldAST after reviewed additions. No persistentpath/role/default or legacyfrozenpolicy relaxed; no liveenvironment/filecredential access. Dedicated OperationsInbox deferred; sharedscheduler/release compatibility only. No new checks for unchanged source."
+  }
+]

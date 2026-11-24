@@ -1,0 +1,270 @@
+.FFFFFF                                                                  [100%]
+================================== FAILURES ===================================
+_____ test_truncated_database_alias_fails_before_any_connection[validate] _____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000223C11A2910>
+operation = 'validate'
+
+    @pytest.mark.parametrize("operation", ["validate", "environment", "drop", "create"])
+    def test_truncated_database_alias_fails_before_any_connection(monkeypatch, operation):
+        rehearsal = _load_script()
+        connect = Mock(side_effect=AssertionError("must not connect for a truncated database alias"))
+        monkeypatch.setattr(rehearsal, "_connect", connect)
+        name = MAXIMUM_NAME + "a"
+        assert name != ENVIRONMENT["POSTGRES_DB"]
+        assert name[:63] == ENVIRONMENT["POSTGRES_DB"]
+        functions = {
+            "validate": lambda: rehearsal.validate_database_name(name),
+            "environment": lambda: rehearsal.database_environment(ENVIRONMENT, name),
+            "drop": lambda: rehearsal._drop_database(ENVIRONMENT, name),
+            "create": lambda: rehearsal._create_database(ENVIRONMENT, name),
+        }
+>       with pytest.raises(ValueError, match="63"):
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\unit\infrastructure\test_postgresql_upgrade_rehearsal_safety.py:42: Failed
+___ test_truncated_database_alias_fails_before_any_connection[environment] ____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000223C1189DD0>
+operation = 'environment'
+
+    @pytest.mark.parametrize("operation", ["validate", "environment", "drop", "create"])
+    def test_truncated_database_alias_fails_before_any_connection(monkeypatch, operation):
+        rehearsal = _load_script()
+        connect = Mock(side_effect=AssertionError("must not connect for a truncated database alias"))
+        monkeypatch.setattr(rehearsal, "_connect", connect)
+        name = MAXIMUM_NAME + "a"
+        assert name != ENVIRONMENT["POSTGRES_DB"]
+        assert name[:63] == ENVIRONMENT["POSTGRES_DB"]
+        functions = {
+            "validate": lambda: rehearsal.validate_database_name(name),
+            "environment": lambda: rehearsal.database_environment(ENVIRONMENT, name),
+            "drop": lambda: rehearsal._drop_database(ENVIRONMENT, name),
+            "create": lambda: rehearsal._create_database(ENVIRONMENT, name),
+        }
+>       with pytest.raises(ValueError, match="63"):
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\unit\infrastructure\test_postgresql_upgrade_rehearsal_safety.py:42: Failed
+_______ test_truncated_database_alias_fails_before_any_connection[drop] _______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000223C1207950>
+operation = 'drop'
+
+    @pytest.mark.parametrize("operation", ["validate", "environment", "drop", "create"])
+    def test_truncated_database_alias_fails_before_any_connection(monkeypatch, operation):
+        rehearsal = _load_script()
+        connect = Mock(side_effect=AssertionError("must not connect for a truncated database alias"))
+        monkeypatch.setattr(rehearsal, "_connect", connect)
+        name = MAXIMUM_NAME + "a"
+        assert name != ENVIRONMENT["POSTGRES_DB"]
+        assert name[:63] == ENVIRONMENT["POSTGRES_DB"]
+        functions = {
+            "validate": lambda: rehearsal.validate_database_name(name),
+            "environment": lambda: rehearsal.database_environment(ENVIRONMENT, name),
+            "drop": lambda: rehearsal._drop_database(ENVIRONMENT, name),
+            "create": lambda: rehearsal._create_database(ENVIRONMENT, name),
+        }
+        with pytest.raises(ValueError, match="63"):
+>           functions[operation]()
+
+tests\unit\infrastructure\test_postgresql_upgrade_rehearsal_safety.py:43: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\unit\infrastructure\test_postgresql_upgrade_rehearsal_safety.py:39: in <lambda>
+    "drop": lambda: rehearsal._drop_database(ENVIRONMENT, name),
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts\rehearse_postgresql_upgrade.py:140: in _drop_database
+    connection = _connect(environment, "postgres")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\unittest\mock.py:1124: in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\unittest\mock.py:1128: in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <Mock id='2352587242512'>
+args = ({'POSTGRES_DB': 'passdetection_ci_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'POSTGRES_HOST': '127.0.0.1', 'POSTGRES_PASSWORD': 'synthetic-only-rehearsal-password', 'POSTGRES_PORT': '5432', ...}, 'postgres')
+kwargs = {}
+effect = AssertionError('must not connect for a truncated database alias')
+
+    def _execute_mock_call(self, /, *args, **kwargs):
+        # separate from _increment_mock_call so that awaited functions are
+        # executed separately from their call, also AsyncMock overrides this method
+    
+        effect = self.side_effect
+        if effect is not None:
+            if _is_exception(effect):
+>               raise effect
+E               AssertionError: must not connect for a truncated database alias
+
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\unittest\mock.py:1183: AssertionError
+______ test_truncated_database_alias_fails_before_any_connection[create] ______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000223C0E3DAD0>
+operation = 'create'
+
+    @pytest.mark.parametrize("operation", ["validate", "environment", "drop", "create"])
+    def test_truncated_database_alias_fails_before_any_connection(monkeypatch, operation):
+        rehearsal = _load_script()
+        connect = Mock(side_effect=AssertionError("must not connect for a truncated database alias"))
+        monkeypatch.setattr(rehearsal, "_connect", connect)
+        name = MAXIMUM_NAME + "a"
+        assert name != ENVIRONMENT["POSTGRES_DB"]
+        assert name[:63] == ENVIRONMENT["POSTGRES_DB"]
+        functions = {
+            "validate": lambda: rehearsal.validate_database_name(name),
+            "environment": lambda: rehearsal.database_environment(ENVIRONMENT, name),
+            "drop": lambda: rehearsal._drop_database(ENVIRONMENT, name),
+            "create": lambda: rehearsal._create_database(ENVIRONMENT, name),
+        }
+        with pytest.raises(ValueError, match="63"):
+>           functions[operation]()
+
+tests\unit\infrastructure\test_postgresql_upgrade_rehearsal_safety.py:43: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\unit\infrastructure\test_postgresql_upgrade_rehearsal_safety.py:40: in <lambda>
+    "create": lambda: rehearsal._create_database(ENVIRONMENT, name),
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts\rehearse_postgresql_upgrade.py:158: in _create_database
+    connection = _connect(environment, "postgres")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\unittest\mock.py:1124: in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\unittest\mock.py:1128: in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <Mock id='2352586817808'>
+args = ({'POSTGRES_DB': 'passdetection_ci_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'POSTGRES_HOST': '127.0.0.1', 'POSTGRES_PASSWORD': 'synthetic-only-rehearsal-password', 'POSTGRES_PORT': '5432', ...}, 'postgres')
+kwargs = {}
+effect = AssertionError('must not connect for a truncated database alias')
+
+    def _execute_mock_call(self, /, *args, **kwargs):
+        # separate from _increment_mock_call so that awaited functions are
+        # executed separately from their call, also AsyncMock overrides this method
+    
+        effect = self.side_effect
+        if effect is not None:
+            if _is_exception(effect):
+>               raise effect
+E               AssertionError: must not connect for a truncated database alias
+
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\unittest\mock.py:1183: AssertionError
+_ test_truncated_alias_of_configured_database_fails_before_cli_or_database_work[source] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000223C1206D50>
+tmp_path = WindowsPath('C:/Users/nipun/AppData/Local/Temp/pytest-of-nipun/pytest-118/test_truncated_alias_of_config0')
+side = 'source'
+
+    @pytest.mark.parametrize("side", ["source", "restored"])
+    def test_truncated_alias_of_configured_database_fails_before_cli_or_database_work(
+        monkeypatch, tmp_path: Path, side,
+    ):
+        rehearsal = _load_script()
+        for key, value in ENVIRONMENT.items():
+            monkeypatch.setenv(key, value)
+        monkeypatch.setenv(rehearsal.DESTRUCTIVE_ACKNOWLEDGEMENT, "1")
+        run = Mock(side_effect=AssertionError("must not invoke PostgreSQL CLI before admission"))
+        replace = Mock(side_effect=AssertionError("must not replace a truncated database alias"))
+        monkeypatch.setattr(rehearsal, "_run", run)
+        monkeypatch.setattr(rehearsal, "_replace_database", replace)
+        source = MAXIMUM_NAME + "s" if side == "source" else "passdetection_ci_source"
+        restored = MAXIMUM_NAME + "r" if side == "restored" else "passdetection_ci_restored"
+        with pytest.raises(ValueError, match="63"):
+>           rehearsal.rehearse(
+                backend_root=tmp_path, evidence_output=tmp_path / "never-written.json",
+                source_database=source, restored_database=restored,
+            )
+
+tests\unit\infrastructure\test_postgresql_upgrade_rehearsal_safety.py:62: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+scripts\rehearse_postgresql_upgrade.py:675: in rehearse
+    pg_dump_version = _run(
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\unittest\mock.py:1124: in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\unittest\mock.py:1128: in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <Mock id='2352587234000'>, args = (['pg_dump', '--version'],)
+kwargs = {'capture_output': True, 'cwd': WindowsPath('C:/Users/nipun/AppData/Local/Temp/pytest-of-nipun/pytest-118/test_truncat...amData', 'APPDATA': 'C:\\Users\\nipun\\AppData\\Roaming', 'APP_SECRET_KEY': 'test-secret-key-not-for-production', ...}}
+effect = AssertionError('must not invoke PostgreSQL CLI before admission')
+
+    def _execute_mock_call(self, /, *args, **kwargs):
+        # separate from _increment_mock_call so that awaited functions are
+        # executed separately from their call, also AsyncMock overrides this method
+    
+        effect = self.side_effect
+        if effect is not None:
+            if _is_exception(effect):
+>               raise effect
+E               AssertionError: must not invoke PostgreSQL CLI before admission
+
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\unittest\mock.py:1183: AssertionError
+_ test_truncated_alias_of_configured_database_fails_before_cli_or_database_work[restored] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000223C12066D0>
+tmp_path = WindowsPath('C:/Users/nipun/AppData/Local/Temp/pytest-of-nipun/pytest-118/test_truncated_alias_of_config1')
+side = 'restored'
+
+    @pytest.mark.parametrize("side", ["source", "restored"])
+    def test_truncated_alias_of_configured_database_fails_before_cli_or_database_work(
+        monkeypatch, tmp_path: Path, side,
+    ):
+        rehearsal = _load_script()
+        for key, value in ENVIRONMENT.items():
+            monkeypatch.setenv(key, value)
+        monkeypatch.setenv(rehearsal.DESTRUCTIVE_ACKNOWLEDGEMENT, "1")
+        run = Mock(side_effect=AssertionError("must not invoke PostgreSQL CLI before admission"))
+        replace = Mock(side_effect=AssertionError("must not replace a truncated database alias"))
+        monkeypatch.setattr(rehearsal, "_run", run)
+        monkeypatch.setattr(rehearsal, "_replace_database", replace)
+        source = MAXIMUM_NAME + "s" if side == "source" else "passdetection_ci_source"
+        restored = MAXIMUM_NAME + "r" if side == "restored" else "passdetection_ci_restored"
+        with pytest.raises(ValueError, match="63"):
+>           rehearsal.rehearse(
+                backend_root=tmp_path, evidence_output=tmp_path / "never-written.json",
+                source_database=source, restored_database=restored,
+            )
+
+tests\unit\infrastructure\test_postgresql_upgrade_rehearsal_safety.py:62: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+scripts\rehearse_postgresql_upgrade.py:675: in rehearse
+    pg_dump_version = _run(
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\unittest\mock.py:1124: in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\unittest\mock.py:1128: in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <Mock id='2352606032016'>, args = (['pg_dump', '--version'],)
+kwargs = {'capture_output': True, 'cwd': WindowsPath('C:/Users/nipun/AppData/Local/Temp/pytest-of-nipun/pytest-118/test_truncat...amData', 'APPDATA': 'C:\\Users\\nipun\\AppData\\Roaming', 'APP_SECRET_KEY': 'test-secret-key-not-for-production', ...}}
+effect = AssertionError('must not invoke PostgreSQL CLI before admission')
+
+    def _execute_mock_call(self, /, *args, **kwargs):
+        # separate from _increment_mock_call so that awaited functions are
+        # executed separately from their call, also AsyncMock overrides this method
+    
+        effect = self.side_effect
+        if effect is not None:
+            if _is_exception(effect):
+>               raise effect
+E               AssertionError: must not invoke PostgreSQL CLI before admission
+
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\unittest\mock.py:1183: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/unit/infrastructure/test_postgresql_upgrade_rehearsal_safety.py::test_truncated_database_alias_fails_before_any_connection[validate]
+FAILED tests/unit/infrastructure/test_postgresql_upgrade_rehearsal_safety.py::test_truncated_database_alias_fails_before_any_connection[environment]
+FAILED tests/unit/infrastructure/test_postgresql_upgrade_rehearsal_safety.py::test_truncated_database_alias_fails_before_any_connection[drop]
+FAILED tests/unit/infrastructure/test_postgresql_upgrade_rehearsal_safety.py::test_truncated_database_alias_fails_before_any_connection[create]
+FAILED tests/unit/infrastructure/test_postgresql_upgrade_rehearsal_safety.py::test_truncated_alias_of_configured_database_fails_before_cli_or_database_work[source]
+FAILED tests/unit/infrastructure/test_postgresql_upgrade_rehearsal_safety.py::test_truncated_alias_of_configured_database_fails_before_cli_or_database_work[restored]
+6 failed, 1 passed in 1.28s

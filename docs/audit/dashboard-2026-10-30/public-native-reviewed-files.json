@@ -1,0 +1,122 @@
+[
+  {
+    "path": "backend/app/application/use_cases/passports/submit_passport_use_case.py",
+    "sha256": "802dbc630bb46811b2e960f81647215566124927bb8d199146b6715bd161f831",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "needs-follow-up",
+    "notes": "Complete source read and inverse-qualified cancellation correction. Native lifetime defect is fixed at tested scope; mixed long use-case architecture remains independently OPEN."
+  },
+  {
+    "path": "backend/app/infrastructure/storage/minio_repository.py",
+    "sha256": "f31fe249d63c18ea0e400bae0ee3161eb05db6b194527e2bdab39bf88626180c",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Focused actual caller execution; native S3 constructor/upload/delete method bodies traced where relevant. No full source read credited in this batch."
+  },
+  {
+    "path": "backend/app/infrastructure/documents/storage_transfers.py",
+    "sha256": "a15cde9b255188896500d54e4de7faf9dafbbe332f13f3163b1590f38a1c58d1",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete current source read; native adapter test uses actual asyncio.to_thread with synthetic S3 client and no network."
+  },
+  {
+    "path": "backend/tests/integration/test_client_group_reopen.py",
+    "sha256": "1ce0e901670a074c05b6658062f4bed3a99910b20a66daf2f03541e4aad7fe28",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Focused actual caller execution; native S3 constructor/upload/delete method bodies traced where relevant. No full source read credited in this batch."
+  },
+  {
+    "path": "backend/tests/unit/application/test_client_group_field_options.py",
+    "sha256": "a1f67b09fa2e64022476bc43063b9398e1c98af4c3140e7993b7d2f9a5f6cc7d",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Focused actual caller execution; native S3 constructor/upload/delete method bodies traced where relevant. No full source read credited in this batch."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_configured_public_upload.py",
+    "sha256": "97a85ac1a94f6f96dbce910d153de3179ab4808fcc9630d943016d48a785ea12",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Focused actual caller execution; native S3 constructor/upload/delete method bodies traced where relevant. No full source read credited in this batch."
+  },
+  {
+    "path": "backend/tests/unit/application/test_configured_public_collection.py",
+    "sha256": "5ffa14363cbf65b01dc395a1c472ba126fdf2b0fc9af257b1c798015bbd189b2",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Focused actual caller execution; native S3 constructor/upload/delete method bodies traced where relevant. No full source read credited in this batch."
+  },
+  {
+    "path": "backend/tests/unit/application/test_manual_passport_staff_review.py",
+    "sha256": "b122ba5713acad9ae0c4cfce8c2586f7f87bb4f33c3913cfac55bb827132732e",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Focused actual caller execution; native S3 constructor/upload/delete method bodies traced where relevant. No full source read credited in this batch."
+  },
+  {
+    "path": "backend/tests/unit/application/test_passport_processing_reliability.py",
+    "sha256": "069bd11d0258367b5737071bddaed7d92aaf8cca81f1a8552fa2a3c1809d1507",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Focused actual caller execution; native S3 constructor/upload/delete method bodies traced where relevant. No full source read credited in this batch."
+  },
+  {
+    "path": "backend/tests/unit/application/test_qualifier_selection_flow.py",
+    "sha256": "73cc6a65858cc04cefb2d18c7084d8dbb62b0d74eb1c1b0e81dd79c2c9467b5a",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Focused actual caller execution; native S3 constructor/upload/delete method bodies traced where relevant. No full source read credited in this batch."
+  },
+  {
+    "path": "backend/tests/unit/application/test_public_upload_native_lifetime.py",
+    "sha256": "d782a22501e5763b98629a2b0e871e672af1aebe66bbc1d5241692134ed4bbb2",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete current source read; native adapter test uses actual asyncio.to_thread with synthetic S3 client and no network."
+  },
+  {
+    "path": "backend/tests/unit/application/test_submit_passport_use_case.py",
+    "sha256": "e27a4be1beeeb7dc3253175ae3a46fad4818c973f5c76687d67b420602850827",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete current source read; native adapter test uses actual asyncio.to_thread with synthetic S3 client and no network."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_public_upload_commit_outcomes.py",
+    "sha256": "cb64c7e9e410a7c3a6c66d0a4ae8fca9ae91e231d59aebdd53afd2b6fba86f9c",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Focused actual caller execution; native S3 constructor/upload/delete method bodies traced where relevant. No full source read credited in this batch."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_storage_cleanup_passport_covers.py",
+    "sha256": "49fd8500a5c919f6e1e5a2ce27e5e1128046d16c9e8ab4e71ab2e6c087315676",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Focused actual caller execution; native S3 constructor/upload/delete method bodies traced where relevant. No full source read credited in this batch."
+  },
+  {
+    "path": "backend/tests/passport_image_mutations.py",
+    "sha256": "fceefc1ce5c57969627ddadc7d481470cd8aba31041704a0cf226bc598ce4679",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Focused actual caller execution; native S3 constructor/upload/delete method bodies traced where relevant. No full source read credited in this batch."
+  }
+]

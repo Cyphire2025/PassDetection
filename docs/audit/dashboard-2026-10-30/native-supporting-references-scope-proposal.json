@@ -1,0 +1,440 @@
+{
+  "schema_version": 1,
+  "status": "scope-proposal-awaiting-parent-classification",
+  "reviewer": "branding_visuals",
+  "existing_policy": {
+    "path": "docs/audit/dashboard-2026-10-30/audit-scope.json",
+    "sha256": "9c427138be39ebb2fcbf37d4804e331d2f2e2a30b2157814ec4ef7874784a5f0",
+    "native_literal_count": 42
+  },
+  "proposed_exact_path_count": 9,
+  "files": [
+    {
+      "path": "docs/MOBILE_ANDROID_BINARY_SIZE_POLICY.md",
+      "sha256": "2947c4b47002859dcf49a7a86d3745cd50de33b09464620d1aa8491d7612e735",
+      "bytes": 3375,
+      "physical_lines_metadata": 63,
+      "proposed_scope": "mobile-excluded",
+      "review_scope": "focused",
+      "scope_credit": "Purpose/header/import/reference-only classification proof; NO full manual file or native feature/security/behavior review credit.",
+      "rationale": "Pure Android APK/AAB/ABI/EAS native release policy; purpose29line window +all headings/owned verifier references.",
+      "related_already_excluded_native_owners_or_entrypoints": "mobile/scripts/verify-android-binary-size.mjs; mobile/.eas/workflows/production-release.yml; excluded .github/workflows/mobile-ci.yml",
+      "historical_inventory": {
+        "scope": "supporting-material",
+        "status": "inventoried",
+        "review_scope": "unreviewed",
+        "sha256": "2947c4b47002859dcf49a7a86d3745cd50de33b09464620d1aa8491d7612e735",
+        "reviewer": ""
+      },
+      "owner_paths": [
+        {
+          "path": "mobile/scripts/verify-android-binary-size.mjs",
+          "sha256": "82a431c8b0ee6ba2c00896b92ebc7d0c9f1821a9e57679de1039facc64905a08",
+          "evidence_scope": "Path/hash/purpose or static incoming reference only; no full native feature review."
+        },
+        {
+          "path": "mobile/.eas/workflows/production-release.yml",
+          "sha256": "8a15a1affaab88c859952e2dabb07035dd0902f94a54a48db921a1149351164f",
+          "evidence_scope": "Path/hash/purpose or static incoming reference only; no full native feature review."
+        },
+        {
+          "path": ".github/workflows/mobile-ci.yml",
+          "sha256": "ad4e60bd07d1dc2ddae324656162fb9544f8bf0510dc2aafd54272a2a4c7c98a",
+          "evidence_scope": "Path/hash/purpose or static incoming reference only; no full native feature review."
+        }
+      ]
+    },
+    {
+      "path": "docs/MOBILE_APP_INTEGRITY.md",
+      "sha256": "1a39aab7a31c704ba45d6f86c7ab0cc2012a6e6b63ade8b1b7cf59eda3132972",
+      "bytes": 21071,
+      "physical_lines_metadata": 341,
+      "proposed_scope": "mobile-excluded",
+      "review_scope": "focused",
+      "scope_credit": "Purpose/header/import/reference-only classification proof; NO full manual file or native feature/security/behavior review credit.",
+      "rationale": "Pure native document-download attestation flow for Play Integrity/AppAttest; purpose35line window +all headings/provider/configuration references. Generic shared Redis/DB/ADC source is retained.",
+      "related_already_excluded_native_owners_or_entrypoints": "excluded backend/app/application/mobile/app_integrity.py and integrity_service.py; excluded mobile_integrity route/AppAttest challenge/provider/verifier; mobile/src/core/security/app-integrity.ts",
+      "historical_inventory": {
+        "scope": "supporting-material",
+        "status": "inventoried",
+        "review_scope": "unreviewed",
+        "sha256": "1a39aab7a31c704ba45d6f86c7ab0cc2012a6e6b63ade8b1b7cf59eda3132972",
+        "reviewer": ""
+      },
+      "owner_paths": [
+        {
+          "path": "backend/app/application/mobile/app_integrity.py",
+          "sha256": "2f926ed17fa4f26da0d74c847ce02733212738ac6070738b1e0e0c796aa29407",
+          "evidence_scope": "Path/hash/purpose or static incoming reference only; no full native feature review."
+        },
+        {
+          "path": "backend/app/application/mobile/integrity_service.py",
+          "sha256": "d5f2bf7f28c114eb72d858be3c30be38434e625aa2ef2c6613e92d1925b0e6b1",
+          "evidence_scope": "Path/hash/purpose or static incoming reference only; no full native feature review."
+        },
+        {
+          "path": "backend/app/presentation/api/v1/routes/mobile_integrity.py",
+          "sha256": "e257991c804ad81087fc064e29dd4f3c78836bc51eabbb6ef7452a84886f7573",
+          "evidence_scope": "Path/hash/purpose or static incoming reference only; no full native feature review."
+        },
+        {
+          "path": "backend/app/infrastructure/security/apple_app_attest_verifier.py",
+          "sha256": "35f518a3b6c2d2a9748ebbe5523e616ba328f09fd8c03f084ce8eb312dbdb358",
+          "evidence_scope": "Path/hash/purpose or static incoming reference only; no full native feature review."
+        },
+        {
+          "path": "mobile/src/core/security/app-integrity.ts",
+          "sha256": "8be51f658220fc44607788794906256172eadd087da3444d7dfd20cae5d6b882",
+          "evidence_scope": "Path/hash/purpose or static incoming reference only; no full native feature review."
+        }
+      ]
+    },
+    {
+      "path": "docs/MOBILE_KEY_ACCESSIBILITY.md",
+      "sha256": "1fda3e4a6f72f6b055e17b30b657dcb78b03a61a02847734d1ca9e56512f7600",
+      "bytes": 10831,
+      "physical_lines_metadata": 145,
+      "proposed_scope": "mobile-excluded",
+      "review_scope": "focused",
+      "scope_credit": "Purpose/header/import/reference-only classification proof; NO full manual file or native feature/security/behavior review credit.",
+      "rationale": "Pure native SecureStore/Keychain/Android Keystore protection tiers/native bridge; purpose36line window +all headings/path references. No browser Keychain/SQLCipher client.",
+      "related_already_excluded_native_owners_or_entrypoints": "mobile/src/core/storage/secure-store-policy.ts; mobile generated GCUnlockedDeviceStore; incoming native mobile/README.md only",
+      "historical_inventory": {
+        "scope": "supporting-material",
+        "status": "inventoried",
+        "review_scope": "unreviewed",
+        "sha256": "1fda3e4a6f72f6b055e17b30b657dcb78b03a61a02847734d1ca9e56512f7600",
+        "reviewer": ""
+      },
+      "owner_paths": [
+        {
+          "path": "mobile/src/core/storage/secure-store-policy.ts",
+          "sha256": "2be582b96d48f94a37a335b3b2e5d0d176e96f865717a46c14479c17099114fc",
+          "evidence_scope": "Path/hash/purpose or static incoming reference only; no full native feature review."
+        },
+        {
+          "path": "mobile/README.md",
+          "sha256": "8204da6990393466dd4cee8dc1453372d64ef4402f1608027efba02455a5003b",
+          "evidence_scope": "Path/hash/purpose or static incoming reference only; no full native feature review."
+        }
+      ]
+    },
+    {
+      "path": "docs/MOBILE_LOCAL_DATA_RETENTION.md",
+      "sha256": "6583c81d83e80f10de675f09429b5e970358b8d9988c498bcd8d820bd904c64d",
+      "bytes": 5565,
+      "physical_lines_metadata": 86,
+      "proposed_scope": "mobile-excluded",
+      "review_scope": "focused",
+      "scope_credit": "Purpose/header/import/reference-only classification proof; NO full manual file or native feature/security/behavior review credit.",
+      "rationale": "Pure GroupCompanion native SQLCipher/encrypted-vault namespace/signout contract; purpose32line window +all headings/reference closure. Not browser IndexedDB policy.",
+      "related_already_excluded_native_owners_or_entrypoints": "mobile/src/core/auth/session-store.ts; mobile/src/core/storage/database-retention.ts; mobile/package.json expo-sqlite/secure-store; incoming mobile/README.md only",
+      "historical_inventory": {
+        "scope": "supporting-material",
+        "status": "inventoried",
+        "review_scope": "unreviewed",
+        "sha256": "6583c81d83e80f10de675f09429b5e970358b8d9988c498bcd8d820bd904c64d",
+        "reviewer": ""
+      },
+      "owner_paths": [
+        {
+          "path": "mobile/src/core/auth/session-store.ts",
+          "sha256": "8153a2889024b268817c7a08e79624da8e97b7bdbca5236d1d3243615ff435fc",
+          "evidence_scope": "Path/hash/purpose or static incoming reference only; no full native feature review."
+        },
+        {
+          "path": "mobile/src/core/storage/database-retention.ts",
+          "sha256": "00ce82bce014372b74270f18adcf1b2427a1d99f91a53d65ff44d6e827871e29",
+          "evidence_scope": "Path/hash/purpose or static incoming reference only; no full native feature review."
+        },
+        {
+          "path": "mobile/package.json",
+          "sha256": "db2697c116a05b7273ddcb1db6854dbe63dbf9aa8bc64aad46c1e70de9cfb9c8",
+          "evidence_scope": "Path/hash/purpose or static incoming reference only; no full native feature review."
+        },
+        {
+          "path": "mobile/README.md",
+          "sha256": "8204da6990393466dd4cee8dc1453372d64ef4402f1608027efba02455a5003b",
+          "evidence_scope": "Path/hash/purpose or static incoming reference only; no full native feature review."
+        }
+      ]
+    },
+    {
+      "path": "load-tests/k6/MOBILE_LOAD_TESTING.md",
+      "sha256": "a53738b2449a35adbb8eb5e57a269edc19c5e17267001b0735b60ff3e272f833",
+      "bytes": 10547,
+      "physical_lines_metadata": 171,
+      "proposed_scope": "mobile-excluded",
+      "review_scope": "focused",
+      "scope_credit": "Purpose/header/import/reference-only classification proof; NO full manual file or native feature/security/behavior review credit.",
+      "rationale": "Runbook only for existing excluded three native mobile k6 entrypoints, mobile bearer/authorized-trip fixtures and their native API/realtime/attendance scenarios; purpose0\u201354 +headings +102\u2013159 command/reference discovery.",
+      "related_already_excluded_native_owners_or_entrypoints": "excluded load-tests/k6/mobile-api.js, mobile-realtime.js, mobile-attendance.js; no dashboard-load/passport extraction command in this guide",
+      "historical_inventory": {
+        "scope": "operations-and-tooling",
+        "status": "inventoried",
+        "review_scope": "unreviewed",
+        "sha256": "a53738b2449a35adbb8eb5e57a269edc19c5e17267001b0735b60ff3e272f833",
+        "reviewer": ""
+      },
+      "owner_paths": [
+        {
+          "path": "load-tests/k6/mobile-api.js",
+          "sha256": "ea6c542e32909565ae2498f15b908f6696748e48259c5430386ced123ee5d666",
+          "evidence_scope": "Path/hash/purpose or static incoming reference only; no full native feature review."
+        },
+        {
+          "path": "load-tests/k6/mobile-realtime.js",
+          "sha256": "9caa4d5bd5ee5caaaa0374e4236677bb2985d7e7332e5817698fdcfa5041ff52",
+          "evidence_scope": "Path/hash/purpose or static incoming reference only; no full native feature review."
+        },
+        {
+          "path": "load-tests/k6/mobile-attendance.js",
+          "sha256": "e86add60bc66e5cf9660876d46f1b07798a11f33ed83e3272b23e7ada093455e",
+          "evidence_scope": "Path/hash/purpose or static incoming reference only; no full native feature review."
+        }
+      ]
+    },
+    {
+      "path": "load-tests/k6/mobile-load-contract.mjs",
+      "sha256": "bf16974bbe5ca1cb848f72ef21a53b985fee1de98a7b4de41e17306806e839a4",
+      "bytes": 8181,
+      "physical_lines_metadata": 217,
+      "proposed_scope": "mobile-excluded",
+      "review_scope": "focused",
+      "scope_credit": "Purpose/header/import/reference-only classification proof; NO full manual file or native feature/security/behavior review credit.",
+      "rationale": "Native load environment/profile/token/trip contract imported only by three excluded native k6 entrypoints and its dedicated test; no retained dashboard/passport runtime consumer. Header35lines and complete import/reference closure only.",
+      "related_already_excluded_native_owners_or_entrypoints": "excluded native k6 entries; mobile-load-contract.test.mjs; generic CI syntax/test invocation remains retained",
+      "historical_inventory": {
+        "scope": "operations-and-tooling",
+        "status": "reviewed",
+        "review_scope": "full",
+        "sha256": "bf16974bbe5ca1cb848f72ef21a53b985fee1de98a7b4de41e17306806e839a4",
+        "reviewer": "root"
+      },
+      "owner_paths": [
+        {
+          "path": "load-tests/k6/mobile-api.js",
+          "sha256": "ea6c542e32909565ae2498f15b908f6696748e48259c5430386ced123ee5d666",
+          "evidence_scope": "Path/hash/purpose or static incoming reference only; no full native feature review."
+        },
+        {
+          "path": "load-tests/k6/mobile-realtime.js",
+          "sha256": "9caa4d5bd5ee5caaaa0374e4236677bb2985d7e7332e5817698fdcfa5041ff52",
+          "evidence_scope": "Path/hash/purpose or static incoming reference only; no full native feature review."
+        },
+        {
+          "path": "load-tests/k6/mobile-attendance.js",
+          "sha256": "e86add60bc66e5cf9660876d46f1b07798a11f33ed83e3272b23e7ada093455e",
+          "evidence_scope": "Path/hash/purpose or static incoming reference only; no full native feature review."
+        },
+        {
+          "path": "load-tests/k6/mobile-load-contract.test.mjs",
+          "sha256": "47f7ac93289ae97828a04b18db6dfffd50a5ced9282a952e478359f8573069f1",
+          "evidence_scope": "Path/hash/purpose or static incoming reference only; no full native feature review."
+        }
+      ]
+    },
+    {
+      "path": "load-tests/k6/mobile-load-contract.test.mjs",
+      "sha256": "47f7ac93289ae97828a04b18db6dfffd50a5ced9282a952e478359f8573069f1",
+      "bytes": 4663,
+      "physical_lines_metadata": 122,
+      "proposed_scope": "mobile-excluded",
+      "review_scope": "focused",
+      "scope_credit": "Purpose/header/import/reference-only classification proof; NO full manual file or native feature/security/behavior review credit.",
+      "rationale": "Dedicated Node fixture tests import only native mobile-load-contract exports; names/signature/import/direct literal closure only, no native quality test run.",
+      "related_already_excluded_native_owners_or_entrypoints": "mobile-load-contract.mjs; generic CI explicit Node test stays unchanged",
+      "historical_inventory": {
+        "scope": "operations-and-tooling",
+        "status": "reviewed",
+        "review_scope": "full",
+        "sha256": "47f7ac93289ae97828a04b18db6dfffd50a5ced9282a952e478359f8573069f1",
+        "reviewer": "ai_extraction"
+      },
+      "owner_paths": [
+        {
+          "path": "load-tests/k6/mobile-load-contract.mjs",
+          "sha256": "bf16974bbe5ca1cb848f72ef21a53b985fee1de98a7b4de41e17306806e839a4",
+          "evidence_scope": "Path/hash/purpose or static incoming reference only; no full native feature review."
+        }
+      ]
+    },
+    {
+      "path": "load-tests/k6/mobile-attendance-load-contract.mjs",
+      "sha256": "093c900e7977d65022883984de608b5fa273097d9515f6400d95140a4ed146f3",
+      "bytes": 7244,
+      "physical_lines_metadata": 206,
+      "proposed_scope": "mobile-excluded",
+      "review_scope": "focused",
+      "scope_credit": "Purpose/header/import/reference-only classification proof; NO full manual file or native feature/security/behavior review credit.",
+      "rationale": "Dedicated native 25coordinator/800action event-fixture/count contract, imported only excluded mobile-attendance entrypoint and dedicated test. Header25lines +complete import/reference closure only.",
+      "related_already_excluded_native_owners_or_entrypoints": "excluded native mobile-attendance.js; mobile-attendance-load-contract.test.mjs; generic CI syntax/test invocation retained",
+      "historical_inventory": {
+        "scope": "operations-and-tooling",
+        "status": "reviewed",
+        "review_scope": "full",
+        "sha256": "093c900e7977d65022883984de608b5fa273097d9515f6400d95140a4ed146f3",
+        "reviewer": "root"
+      },
+      "owner_paths": [
+        {
+          "path": "load-tests/k6/mobile-attendance.js",
+          "sha256": "e86add60bc66e5cf9660876d46f1b07798a11f33ed83e3272b23e7ada093455e",
+          "evidence_scope": "Path/hash/purpose or static incoming reference only; no full native feature review."
+        },
+        {
+          "path": "load-tests/k6/mobile-attendance-load-contract.test.mjs",
+          "sha256": "e30bb88e6035c23567e53a047f591c2fb30fc968e5c7dd8b320f248c2ffe87c9",
+          "evidence_scope": "Path/hash/purpose or static incoming reference only; no full native feature review."
+        }
+      ]
+    },
+    {
+      "path": "load-tests/k6/mobile-attendance-load-contract.test.mjs",
+      "sha256": "e30bb88e6035c23567e53a047f591c2fb30fc968e5c7dd8b320f248c2ffe87c9",
+      "bytes": 5320,
+      "physical_lines_metadata": 165,
+      "proposed_scope": "mobile-excluded",
+      "review_scope": "focused",
+      "scope_credit": "Purpose/header/import/reference-only classification proof; NO full manual file or native feature/security/behavior review credit.",
+      "rationale": "Dedicated Node fixture tests import only native mobile-attendance-load-contract exports; purpose/import/direct literal closure, no native feature quality qualification.",
+      "related_already_excluded_native_owners_or_entrypoints": "mobile-attendance-load-contract.mjs; native event runbook references the test; generic CI remains retained",
+      "historical_inventory": {
+        "scope": "operations-and-tooling",
+        "status": "reviewed",
+        "review_scope": "full",
+        "sha256": "e30bb88e6035c23567e53a047f591c2fb30fc968e5c7dd8b320f248c2ffe87c9",
+        "reviewer": "ai_extraction"
+      },
+      "owner_paths": [
+        {
+          "path": "load-tests/k6/mobile-attendance-load-contract.mjs",
+          "sha256": "093c900e7977d65022883984de608b5fa273097d9515f6400d95140a4ed146f3",
+          "evidence_scope": "Path/hash/purpose or static incoming reference only; no full native feature review."
+        }
+      ]
+    }
+  ],
+  "caller_closure": {
+    "search_roots": [
+      "backend",
+      "frontend",
+      "scripts",
+      "load-tests",
+      ".github",
+      "mobile",
+      "docs",
+      "README.md"
+    ],
+    "search_kinds": [
+      "direct/literal module filename imports",
+      "dynamic import filename references",
+      "Markdown/backtick code paths and guide links",
+      "generic CI syntax/test command invocations",
+      "existing scope-policy false-positive fixtures"
+    ],
+    "excluded_artifacts": [
+      "ignored private archive",
+      "outputs/customer documents",
+      "dependency/generated/vendor trees",
+      "audit outputs (except actual scope fixture as supporting policy evidence)"
+    ],
+    "observations": [
+      "mobile-load-contract incoming: mobile-api/mobile-realtime/mobile-attendance +its own test +generic CI; no retained dashboard-load or passport harness import.",
+      "mobile-attendance-load-contract incoming: mobile-attendance +its own test +generic CI; native event runbook calls its test.",
+      "Existing test_dashboard_audit_scope.py currently retains these helpers when not explicitly listed (lines339\u2013350). Any approved refinement must preserve unlisted/other tooling false-positive controls and existing CI checks; no source behavior/test deletion proposed.",
+      "Four pure native docs have only native app/readme/source-owner purpose; native-only AppAttest backend owners were already excluded, shared ADC/Redis/settings/notification engines stay retained.",
+      "MOBILE_LOAD_TESTING references only already excluded native three k6 entrypoints. Shared backend event/observability runbooks linking it remain retained."
+    ]
+  },
+  "explicit_retained_paths": [
+    {
+      "path": "docs/MOBILE_REALTIME.md",
+      "sha256": "7c32159c037c666c9aba4044a14148bebaebc70bc4a6004fe55c8827c09095d9",
+      "reason": "Shared backend/PWA/dashboard/GC/admin/MCP or mixed source/deployment contract; or ambiguous standalone synthetic MyPhotos shared obligation, kept until further actual purpose proof. No name-only exclusion."
+    },
+    {
+      "path": "docs/MOBILE_SYNC_CONTRACT.md",
+      "sha256": "c3e3e999e5881f57710225b38a6f7685fe56988ad27a1045878e1b923c5b21d0",
+      "reason": "Shared backend/PWA/dashboard/GC/admin/MCP or mixed source/deployment contract; or ambiguous standalone synthetic MyPhotos shared obligation, kept until further actual purpose proof. No name-only exclusion."
+    },
+    {
+      "path": "docs/MOBILE_OFFLINE_AUTHORIZATION.md",
+      "sha256": "28498b8b3075da732ca643fc3c34c6a2fa7b37a2d8dfc206d91e3f00762b5a9d",
+      "reason": "Shared backend/PWA/dashboard/GC/admin/MCP or mixed source/deployment contract; or ambiguous standalone synthetic MyPhotos shared obligation, kept until further actual purpose proof. No name-only exclusion."
+    },
+    {
+      "path": "docs/MOBILE_ATTENDANCE_EVENT_RUNBOOK.md",
+      "sha256": "c5b91f071bbeaa56efaff18945e5d40c2f1a3fdfc776a45eb7745111679d87a1",
+      "reason": "Shared backend/PWA/dashboard/GC/admin/MCP or mixed source/deployment contract; or ambiguous standalone synthetic MyPhotos shared obligation, kept until further actual purpose proof. No name-only exclusion."
+    },
+    {
+      "path": "docs/MOBILE_ATTENDANCE_QR_SECURITY.md",
+      "sha256": "84d015ed00d2a0fbb0590915adca7082f383381030b093ed8e414cdadbdad4d0",
+      "reason": "Shared backend/PWA/dashboard/GC/admin/MCP or mixed source/deployment contract; or ambiguous standalone synthetic MyPhotos shared obligation, kept until further actual purpose proof. No name-only exclusion."
+    },
+    {
+      "path": "docs/MOBILE_OBSERVABILITY.md",
+      "sha256": "555a8ece58c17b3cdc0fe6ee93eab7af18949a82c7f4dcd7185754bc4449bf7d",
+      "reason": "Shared backend/PWA/dashboard/GC/admin/MCP or mixed source/deployment contract; or ambiguous standalone synthetic MyPhotos shared obligation, kept until further actual purpose proof. No name-only exclusion."
+    },
+    {
+      "path": "docs/MOBILE_ENTERPRISE_IMPLEMENTATION_PLAN.md",
+      "sha256": "ea6cbf77b612a09f2c8d02c20e32f5019cf92b996388d2b7d65f175d87d2e37b",
+      "reason": "Shared backend/PWA/dashboard/GC/admin/MCP or mixed source/deployment contract; or ambiguous standalone synthetic MyPhotos shared obligation, kept until further actual purpose proof. No name-only exclusion."
+    },
+    {
+      "path": "docs/MY_PHOTOS_IMPLEMENTATION.md",
+      "sha256": "e33080300e5f27a558cb7308b13043db82bd3943a3a618a593e659905bfecc8b",
+      "reason": "Shared backend/PWA/dashboard/GC/admin/MCP or mixed source/deployment contract; or ambiguous standalone synthetic MyPhotos shared obligation, kept until further actual purpose proof. No name-only exclusion."
+    },
+    {
+      "path": "docs/architecture/group-companion-mobile.md",
+      "sha256": "298dbc4d7b2cc31b0cc4ecade8ebf0645f579748526bfd85e1ca85427547df10",
+      "reason": "Shared backend/PWA/dashboard/GC/admin/MCP or mixed source/deployment contract; or ambiguous standalone synthetic MyPhotos shared obligation, kept until further actual purpose proof. No name-only exclusion."
+    },
+    {
+      "path": "docs/mobile-fcm-release-0095.md",
+      "sha256": "faf90edd165826301e38a0c9beb7e6041f0afc945468c4efd4d8d7ed0a963919",
+      "reason": "Shared backend/PWA/dashboard/GC/admin/MCP or mixed source/deployment contract; or ambiguous standalone synthetic MyPhotos shared obligation, kept until further actual purpose proof. No name-only exclusion."
+    },
+    {
+      "path": "docs/mobile-push-activation-0094.md",
+      "sha256": "b6fc5f9358747c4c99a47700dee8cf7b8942b2a77093745fadf935a88c777c7e",
+      "reason": "Shared backend/PWA/dashboard/GC/admin/MCP or mixed source/deployment contract; or ambiguous standalone synthetic MyPhotos shared obligation, kept until further actual purpose proof. No name-only exclusion."
+    },
+    {
+      "path": "docs/native-notification-release-0097.md",
+      "sha256": "9ee9b1ec348e8608c080938e681133e8e7df7809666b9a0728107793dd5c49d5",
+      "reason": "Shared backend/PWA/dashboard/GC/admin/MCP or mixed source/deployment contract; or ambiguous standalone synthetic MyPhotos shared obligation, kept until further actual purpose proof. No name-only exclusion."
+    },
+    {
+      "path": "load-tests/k6/dashboard-load-contract.mjs",
+      "sha256": "61826fb0ae51163a5c270d1a44d99766e485468e16a381b1510eb19d487c5d7d",
+      "reason": "Shared backend/PWA/dashboard/GC/admin/MCP or mixed source/deployment contract; or ambiguous standalone synthetic MyPhotos shared obligation, kept until further actual purpose proof. No name-only exclusion."
+    },
+    {
+      "path": "load-tests/k6/my-photos-load-contract.mjs",
+      "sha256": "9a1e1fdf6c5f7ff1f75c0cb69f44181d1cafc9b084fb765919159b75fe167a70",
+      "reason": "Shared backend/PWA/dashboard/GC/admin/MCP or mixed source/deployment contract; or ambiguous standalone synthetic MyPhotos shared obligation, kept until further actual purpose proof. No name-only exclusion."
+    },
+    {
+      "path": "load-tests/k6/my-photos-load-contract.test.mjs",
+      "sha256": "4b87465569ac4e14985b7975d2d88a8d7467800139858ecd1d0cad1174bfe4a3",
+      "reason": "Shared backend/PWA/dashboard/GC/admin/MCP or mixed source/deployment contract; or ambiguous standalone synthetic MyPhotos shared obligation, kept until further actual purpose proof. No name-only exclusion."
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "129d10b5c5b6da21cd7b8b77364c2685fb5d1d380594c71df091eba5fe7a0b89",
+      "reason": "Shared backend/PWA/dashboard/GC/admin/MCP or mixed source/deployment contract; or ambiguous standalone synthetic MyPhotos shared obligation, kept until further actual purpose proof. No name-only exclusion."
+    }
+  ],
+  "retained_evidence_note": "All19 pending PNGs are dashboard/MCP/browser viewport evidence (including consent-mobile filenames), not native-app-only solely from name/width; retain metadata scope, no image decode. Native-memory/native C/advisory evidence remains retained.",
+  "unchanged_guards": [
+    "No mobile/runtime/source/test/CI/OpenAPI/MCP permission/contract deletion or behavior change.",
+    "No native feature audit/test, provider setup/call, load/HTTP, vault/credential or media/workbook/customer decoding.",
+    "Root owns exact literal scope policy/schema changes; preserve all prior review hashes/statuses/findings and historical full credits, no full credit from classification.",
+    "No broad mobile*,native*,Android*,exports substring or directory-wide new exclusion. All candidate names literal and source-bound."
+  ],
+  "calibration": "Five docs are clear native-only references; four supporting native harness owners are proposed coherent caller-closed refinements despite prior conservative retention. Parent may retain the latter as generic safety tooling; no policy mutation by this proposal."
+}

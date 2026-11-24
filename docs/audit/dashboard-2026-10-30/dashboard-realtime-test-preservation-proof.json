@@ -1,0 +1,22 @@
+{
+  "status": "passed",
+  "beforeSha256": "ddcabae5206a8cc2cb0b6241a706c30fac6cacd36d711bf1cba0517d6fcd0193",
+  "afterSha256": "5aa73d438037fb4309d9b77728e66c21824dcd12f932120d82e5c35d50d173c6",
+  "priorExpectCalls": 10,
+  "priorDescribeStatementsPreserved": [
+    "beforeEach",
+    "afterEach",
+    "uses the cookie-only route, acknowledges heartbeats, and deduplicates attendance hints",
+    "does not open a dashboard socket for unsupported super-admin authority"
+  ],
+  "exactPriorClassAfterOnlyOpenGuardInverse": true,
+  "priorRenderUserHelpersExact": true,
+  "allowedAdditions": [
+    "Fake.receive native OPEN guard",
+    "prior healthy scenario explicit OPEN assertion",
+    "timer cleanup",
+    "four cleanup/owner/remount/reconnect regression cases with healthy current-socket controls",
+    "two small frame helpers"
+  ],
+  "limits": "Test-only fixture semantics correction following actual Chromium clearance; no production defect/fix or security finding claimed."
+}

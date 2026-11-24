@@ -1,0 +1,55 @@
+{
+  "source_fence": {
+    "backend/app/infrastructure/passports/roster_cache.py": "59aa105e42abd884ed539915d798974a2969d249dbdbeb3668a66c8fe3292287",
+    "backend/app/infrastructure/passports/roster_cache_codec.py": "e9d1632d324053b7fef0ee5d0289aa7ab815f5ffe3a4c948e9c5f03955a62d8c",
+    "backend/tests/unit/infrastructure/test_roster_cache.py": "3bf08ec8693fe1841bb2666349f344f6fd2700618033e25aef781f2bb50d7d7b",
+    "backend/tests/unit/infrastructure/test_roster_cache_shape_recovery.py": "96d7ec0c7c456eb9f288eab8e448bedc48491be6a9a2ce27f484a57e634fbdf9"
+  },
+  "checks": [
+    {
+      "name": "tests",
+      "argv": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "--tb=short",
+        "tests/unit/infrastructure/test_roster_cache.py",
+        "tests/unit/infrastructure/test_roster_cache_shape_recovery.py"
+      ],
+      "exit_code": 0,
+      "output": "roster-cache-shape-final-tests.txt"
+    },
+    {
+      "name": "types",
+      "argv": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "mypy",
+        "app/infrastructure/passports/roster_cache.py",
+        "app/infrastructure/passports/roster_cache_codec.py"
+      ],
+      "exit_code": 0,
+      "output": "roster-cache-shape-final-types.txt"
+    },
+    {
+      "name": "lint",
+      "argv": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "ruff",
+        "check",
+        "--no-fix",
+        "app/infrastructure/passports/roster_cache.py",
+        "app/infrastructure/passports/roster_cache_codec.py",
+        "tests/unit/infrastructure/test_roster_cache.py",
+        "tests/unit/infrastructure/test_roster_cache_shape_recovery.py"
+      ],
+      "exit_code": 0,
+      "output": "roster-cache-shape-final-lint.txt"
+    }
+  ],
+  "source_frozen": true
+}

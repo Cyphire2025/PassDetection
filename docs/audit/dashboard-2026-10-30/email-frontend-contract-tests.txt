@@ -1,0 +1,42 @@
+✔ rollout API mirrors the revision-safe SuperAdmin contract (0.7816ms)
+✔ rollout reads are user scoped and mutations always recover fresh state (0.128ms)
+✔ the Connections page and card both fail closed for non-SuperAdmins (0.1144ms)
+✔ nontechnical controls explain direct, inherited, and effective state (0.1959ms)
+✔ global and truncated states remain visible and actionable (0.1006ms)
+✔ rollout mutations are confirmed, pending-safe, and render only text (0.1705ms)
+✔ a stale rollout decision closes and recovers from fresh server state (0.1627ms)
+✔ email integration routes and API endpoints are centralized (0.992ms)
+✔ email integration routes use both optimistic and direct role gates (0.2081ms)
+✔ sidebar and section navigation expose accessible normal links (0.1651ms)
+✔ OAuth handoff never stores credentials in browser-managed storage (0.3445ms)
+✔ review decisions are revision-safe and email content renders as text (0.1403ms)
+✔ operations inbox and intelligence remain explicitly read-only (0.3159ms)
+✔ operations inbox and intelligence mirror the owner-only backend DTOs (0.2713ms)
+✔ AI lifecycle mutations invalidate owner-scoped inbox and detail caches (0.1857ms)
+✔ mailbox AI assistance requires an explicit owner opt-in (0.2189ms)
+✔ account removal is explicit, confirmed, and invalidates email views (0.2264ms)
+✔ review queue exposes full history and confirms whole-email unrelated scope (0.1829ms)
+✔ message detail route follows the Next 16 asynchronous params contract (0.1063ms)
+✔ connection response type contains only the public contract fields (0.3806ms)
+✔ email connection, review, and activity views refresh near real time (0.3333ms)
+✔ dialog decisions submit the immutable state captured when opened (0.2266ms)
+✔ deadline corrections identify the exact detected deadline (0.1597ms)
+✔ correction choices are message scoped without changing review queue options (0.1565ms)
+✔ nested email pages avoid duplicate main landmarks and dialog traps reverse tab (0.2242ms)
+(node:13876) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/nipun/Desktop/PassDetection/frontend/features/email-integrations/utils/email-integrations.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\C:\Users\nipun\Desktop\PassDetection\frontend\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ normalizes both direct arrays and collection envelopes (0.7682ms)
+✔ OAuth redirect accepts HTTPS URLs and rejects unsafe or malformed URLs (0.2195ms)
+✔ OAuth callback notices come only from fixed status values (0.4927ms)
+✔ OAuth callback cleanup removes sensitive and feature-owned parameters (0.2268ms)
+✔ human-readable labels and active processing states remain deterministic (0.1613ms)
+ℹ tests 30
+ℹ suites 0
+ℹ pass 30
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 119.9935

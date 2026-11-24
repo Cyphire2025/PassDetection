@@ -1,0 +1,129 @@
+{
+  "recorded_at": "2026-10-31T04:23:11.114Z",
+  "records": [
+    {
+      "path": "frontend/features/passports/components/create-upload-link-modal.tsx",
+      "sha256": "08b545a8fcba98e3ba4f628f0050eb18e6d1ee868c397c6fb82da17d04331f5a",
+      "physical_lines": 73,
+      "max_function_complexity": 6,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "All original physical creation source and five current focused owners read. Async owner/agency continuations, banner retry, single-flight and clipboard lifetime traced; exact movement proof is separate from manual review."
+    },
+    {
+      "path": "frontend/features/passports/components/use-create-upload-link-form.ts",
+      "sha256": "6e3bea262eb9c7f0edecfcb0e15e081b5c1fc5e4965d3e1a16062273e0f96a75",
+      "physical_lines": 219,
+      "max_function_complexity": 15,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "All original physical creation source and five current focused owners read. Async owner/agency continuations, banner retry, single-flight and clipboard lifetime traced; exact movement proof is separate from manual review."
+    },
+    {
+      "path": "frontend/features/passports/components/create-upload-link-defaults.ts",
+      "sha256": "dce7d039f75154cc2c37466635b11d3e65e58d324a4487e4a96952cca0cd3ae9",
+      "physical_lines": 31,
+      "max_function_complexity": 1,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "All original physical creation source and five current focused owners read. Async owner/agency continuations, banner retry, single-flight and clipboard lifetime traced; exact movement proof is separate from manual review."
+    },
+    {
+      "path": "frontend/features/passports/components/create-upload-link-details.tsx",
+      "sha256": "26da29f4b4ebd1cf5f2750a13a20499da5809502c9dc4abd4b8d2e743c8ff802",
+      "physical_lines": 170,
+      "max_function_complexity": 20,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "All original physical creation source and five current focused owners read. Async owner/agency continuations, banner retry, single-flight and clipboard lifetime traced; exact movement proof is separate from manual review."
+    },
+    {
+      "path": "frontend/features/passports/components/create-upload-link-result.tsx",
+      "sha256": "ddd936d38925e35989c96be296c7e0550fd39c17e91587e212e799137c2ae1ac",
+      "physical_lines": 97,
+      "max_function_complexity": 5,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "All original physical creation source and five current focused owners read. Async owner/agency continuations, banner retry, single-flight and clipboard lifetime traced; exact movement proof is separate from manual review."
+    }
+  ],
+  "test_records": [
+    {
+      "path": "frontend/features/passports/components/create-upload-link-modal.test.tsx",
+      "sha256": "ffd0e489ded24e91a3690edeaa74841014d57e77d8411a844c1060621edfcefa",
+      "review_scope": "full",
+      "status": "reviewed-and-strengthened"
+    },
+    {
+      "path": "frontend/features/passports/components/create-upload-link-source.contract-helper.mjs",
+      "sha256": "f33adebbe2511b6115dffb127e6b482124a10dc3f3ec652c34aa41600cfe7b2b",
+      "review_scope": "full",
+      "status": "reviewed-and-strengthened"
+    },
+    {
+      "path": "frontend/features/passports/components/create-upload-link-modal.contract.test.mjs",
+      "sha256": "4fa83fbbf1ec3331480cf1d51235293b61375e1cd1da7d37c02bf2211e4303e4",
+      "review_scope": "focused",
+      "status": "source-loader-retargeted",
+      "review_note": "Only the source loader changed to the actual five owners; all original eight assertions remain and passed. Supplemental current-hash record preserves the earlier settings checkpoint receipt."
+    }
+  ],
+  "original_lines": 457,
+  "max_owner_lines": 219,
+  "proofs": {
+    "before_fix": {
+      "path": ".tmp/create-upload-link-copy-before.json",
+      "files": 1,
+      "cases": 13,
+      "passed": 11,
+      "failed": 2
+    },
+    "after_fix_before_movement": {
+      "path": ".tmp/create-upload-link-copy-after.json",
+      "files": 1,
+      "cases": 13,
+      "passed": 13,
+      "failed": 0
+    },
+    "final": {
+      "path": ".tmp/create-upload-link-final-unit.json",
+      "files": 1,
+      "cases": 13,
+      "passed": 13,
+      "failed": 0
+    },
+    "node": {
+      "cases": 8,
+      "passed": 8,
+      "path": ".tmp/create-upload-link-final-node.txt"
+    },
+    "types": "passed",
+    "scoped_eslint": "passed8paths, zero warnings",
+    "movement": {
+      "parts": 40,
+      "passed": true,
+      "path": "docs/audit/dashboard-2026-10-30/create-upload-link-movement-proof.json"
+    },
+    "formatting": {
+      "emitted_AST_unchanged": true,
+      "path": "docs/audit/dashboard-2026-10-30/create-upload-link-format-proof.json"
+    }
+  },
+  "fixes": [
+    "A copy operation is invalidated by reset/close or unmount; its late failure cannot become an alert in a new group draft and its success cannot schedule another feedback timer.",
+    "An older copy cannot overwrite the feedback for a newer copy."
+  ],
+  "preserved": [
+    "Original isOpen/onClose props and exact workspace/session/agency-keyed form wrapper.",
+    "All32 original post-fix state/controller statements, single-flight gate, mutable fresh default object, form controls and generated links/import destination.",
+    "Original actor continuity checks, role-bound broadcasts, company/agency handling and pending-safe close rules.",
+    "Group creation and banner retry remain separate: a failed banner does not recreate a saved group. Extracted retry only adds the missing-group guard formerly provided by the JSX narrowing context.",
+    "Original eight source assertions retained via the actual five-owner aggregate."
+  ],
+  "test_fixture_note": "Deferred-copy timer regression compares timer count immediately after unmount with count after settlement. This isolates newly scheduled component timers from unrelated React/query cache scheduling. Expected old runtime fails both regressions; corrected runtime passes both. No existing negative case or coverage floor was dropped.",
+  "remaining_original_oversized_owners": 1,
+  "limitations": [
+    "No provider sends, real group creation or browser credentials used; tests use synthetic mocked boundaries.",
+    "No whole application build/suite repeated; this receipt covers affected unit/contracts/types/lint and exact source movement."
+  ]
+}

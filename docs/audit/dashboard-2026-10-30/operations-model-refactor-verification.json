@@ -1,0 +1,164 @@
+{
+  "scope": "Mechanical backend operations model architecture tranche; no authorization or persistent schema change.",
+  "source": [
+    {
+      "path": "backend/app/infrastructure/database/attendance_activity_models.py",
+      "sha256": "032b369aa88cd7dce0d19d6d19c2905f3e3cab16fa4a9bd8de25ef57d073b9b5",
+      "lines": 205,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete original 1182-line model source read and complete physical current owner read. All16 original class ASTs unchanged through extraction; registered mapper/table metadata, column defaults/onupdate, constraints/indexes and PostgreSQL/SQLite DDL match in fresh processes. Original operations_models and database/models facade aliases retain identical class objects. No schema/migration/VPS setup/data operation."
+    },
+    {
+      "path": "backend/app/infrastructure/database/attendance_batch_models.py",
+      "sha256": "06eb473f6507d08e49d25acb2e4c68e62c4550bb70486a2c886203bff8f08ae7",
+      "lines": 171,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete original 1182-line model source read and complete physical current owner read. All16 original class ASTs unchanged through extraction; registered mapper/table metadata, column defaults/onupdate, constraints/indexes and PostgreSQL/SQLite DDL match in fresh processes. Original operations_models and database/models facade aliases retain identical class objects. No schema/migration/VPS setup/data operation."
+    },
+    {
+      "path": "backend/app/infrastructure/database/attendance_closeout_models.py",
+      "sha256": "affc03c86907ae04fefb57be8920593393a6e2818837d6a9b816be63ff615878",
+      "lines": 243,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete original 1182-line model source read and complete physical current owner read. All16 original class ASTs unchanged through extraction; registered mapper/table metadata, column defaults/onupdate, constraints/indexes and PostgreSQL/SQLite DDL match in fresh processes. Original operations_models and database/models facade aliases retain identical class objects. No schema/migration/VPS setup/data operation."
+    },
+    {
+      "path": "backend/app/infrastructure/database/attendance_runtime_models.py",
+      "sha256": "1798faed32a3c2528659180f3e8910b1ad0e9615299393caa1aa7556cf8739f5",
+      "lines": 211,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete original 1182-line model source read and complete physical current owner read. All16 original class ASTs unchanged through extraction; registered mapper/table metadata, column defaults/onupdate, constraints/indexes and PostgreSQL/SQLite DDL match in fresh processes. Original operations_models and database/models facade aliases retain identical class objects. No schema/migration/VPS setup/data operation."
+    },
+    {
+      "path": "backend/app/infrastructure/database/operations_models.py",
+      "sha256": "c1b7d9231eca989eb9abd5a7d6bba605650b66bd7d9aba73abe2208519fe59f8",
+      "lines": 54,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete original 1182-line model source read and complete physical current owner read. All16 original class ASTs unchanged through extraction; registered mapper/table metadata, column defaults/onupdate, constraints/indexes and PostgreSQL/SQLite DDL match in fresh processes. Original operations_models and database/models facade aliases retain identical class objects. No schema/migration/VPS setup/data operation."
+    },
+    {
+      "path": "backend/app/infrastructure/database/passenger_qr_models.py",
+      "sha256": "e815d9390a4a5c9544e43b2384f3791b4cb4d429a4b18bb7da7e37b897421d24",
+      "lines": 184,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete original 1182-line model source read and complete physical current owner read. All16 original class ASTs unchanged through extraction; registered mapper/table metadata, column defaults/onupdate, constraints/indexes and PostgreSQL/SQLite DDL match in fresh processes. Original operations_models and database/models facade aliases retain identical class objects. No schema/migration/VPS setup/data operation."
+    },
+    {
+      "path": "backend/app/infrastructure/database/rooming_allocation_models.py",
+      "sha256": "a61c374e76078f8aa6f58f740b2c1415a3b20dcdd9d863b7a07465d6c376315f",
+      "lines": 139,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete original 1182-line model source read and complete physical current owner read. All16 original class ASTs unchanged through extraction; registered mapper/table metadata, column defaults/onupdate, constraints/indexes and PostgreSQL/SQLite DDL match in fresh processes. Original operations_models and database/models facade aliases retain identical class objects. No schema/migration/VPS setup/data operation."
+    },
+    {
+      "path": "backend/app/infrastructure/database/rooming_property_models.py",
+      "sha256": "600b2c10646a400307fb2935a2785424b4a4e85aee77032581cb7435891ae839",
+      "lines": 154,
+      "review_scope": "full",
+      "reviewer": "manual_security",
+      "status": "refactored",
+      "notes": "Complete original 1182-line model source read and complete physical current owner read. All16 original class ASTs unchanged through extraction; registered mapper/table metadata, column defaults/onupdate, constraints/indexes and PostgreSQL/SQLite DDL match in fresh processes. Original operations_models and database/models facade aliases retain identical class objects. No schema/migration/VPS setup/data operation."
+    }
+  ],
+  "structure": "1182-line mixed model owner becomes54-line stable facade and seven cohesive owners of139,154,171,184,205,211,243lines. All16class bodies unchanged; exact per-path observed sizes are in source records.",
+  "structural_proof": {
+    "original_path": "backend/app/infrastructure/database/operations_models.py",
+    "before_sha256": "47139f6c1d36c33b9b8c6e14d3eb09156e532bfe5b2e0284a266194651ca8fc2",
+    "before_lines": 1182,
+    "exact_class_AST_count": 16,
+    "class_owners": {
+      "RoomingHotelModel": "backend/app/infrastructure/database/rooming_property_models.py",
+      "RoomingHotelPassengerModel": "backend/app/infrastructure/database/rooming_property_models.py",
+      "RoomingRoomModel": "backend/app/infrastructure/database/rooming_property_models.py",
+      "RoomingPassengerPreferenceModel": "backend/app/infrastructure/database/rooming_allocation_models.py",
+      "RoomingAssignmentModel": "backend/app/infrastructure/database/rooming_allocation_models.py",
+      "RoomingCheckinModel": "backend/app/infrastructure/database/rooming_allocation_models.py",
+      "PassengerQRTokenModel": "backend/app/infrastructure/database/passenger_qr_models.py",
+      "PassengerQrWhatsAppDeliveryModel": "backend/app/infrastructure/database/passenger_qr_models.py",
+      "AttendanceSessionModel": "backend/app/infrastructure/database/attendance_activity_models.py",
+      "AttendanceRecordModel": "backend/app/infrastructure/database/attendance_activity_models.py",
+      "AttendanceRuntimeRegistrationModel": "backend/app/infrastructure/database/attendance_runtime_models.py",
+      "AttendanceSessionRuntimeParticipantModel": "backend/app/infrastructure/database/attendance_runtime_models.py",
+      "AttendanceDiscardTombstoneModel": "backend/app/infrastructure/database/attendance_closeout_models.py",
+      "AttendanceCloseoutCheckpointModel": "backend/app/infrastructure/database/attendance_closeout_models.py",
+      "AttendanceScanBatchModel": "backend/app/infrastructure/database/attendance_batch_models.py",
+      "AttendanceScanBatchResultModel": "backend/app/infrastructure/database/attendance_batch_models.py"
+    },
+    "scope": "All16 class declarations, table/column/constraint/index/default/onupdate expressions copied exact AST. Original operations_models aliases and database/models.py aliases preserved. Natural Python class __module__ now canonical owner; legacy module attributes still resolve existing names. No shared models.py/gc_mobile_models.py/model_registry.py change, model/schema migration or production data operation.",
+    "final_exact_class_AST_count": 16,
+    "class_AST_sha256": {
+      "RoomingHotelModel": "82341eb0e141eff67db29a096aeb603a0fb6b35e2876669787ea4a29c691126d",
+      "AttendanceDiscardTombstoneModel": "c202c442f7e4abea8ad031a03981c8818787f497df08f255a4ee346dfa05527e",
+      "RoomingHotelPassengerModel": "ff39f6edcdd472087a5dc1cb4506212c31124d5b93384cd3c294bacc59c5e2f3",
+      "RoomingRoomModel": "56ccd69b70847e4fa13eec83bde08feb17fcdbecd437e56d5fadb05f83262081",
+      "RoomingPassengerPreferenceModel": "b54010a6bfffe5e89b25d354d5ac9ce74ed9c92d36b9f27f08f6e7e370e06562",
+      "RoomingAssignmentModel": "30a0d246d5a987e7b4a69dd7255a24c40600590244cdce16a25c97b1655fb933",
+      "RoomingCheckinModel": "58ba23dcd2404b8c3273f12aebd2240d22766b036f7754d6c7aa96519be6d62e",
+      "PassengerQRTokenModel": "77e224c828dc0fb8bbe153655e5b97dfa82a26c5c199e8cb149169213b43fb88",
+      "PassengerQrWhatsAppDeliveryModel": "6ec0cb67bd5b70383ec8d4f8f36d6ace391bf99320ec83a3524d1063bbb0a256",
+      "AttendanceSessionModel": "3cf18c203d236f67c6cfc1a99ae7111c71d613af976556ea63851ddcae5bcd69",
+      "AttendanceRuntimeRegistrationModel": "dfc770f5eca57fdaa2eb52f083b40899c87bdad5983908e1c31ba9e2bdc7fa9d",
+      "AttendanceSessionRuntimeParticipantModel": "0f2bf5202edbe9c0a79d4a065c3b696db56e6818865f4c807ed1707c4b017809",
+      "AttendanceCloseoutCheckpointModel": "d1b92316d80ce446862b02f26ab1d4bcc02103b23a911e27b2deedd60f0316df",
+      "AttendanceRecordModel": "7f787fb52018745b7cccd7946fbd3e6071fd9eb3a0b13b2fe4e5c694e8e9c2ef",
+      "AttendanceScanBatchModel": "55fc5e4aecb7fd0bab4796de5a803322a5584a7e3366ba3e8161ae335af629ca",
+      "AttendanceScanBatchResultModel": "842ea3bad57f1ed126913b121509d8eff5a1fd68e85b17fe84cf0b5c79a3b32e"
+    },
+    "final_source_sha256": {
+      "backend/app/infrastructure/database/attendance_activity_models.py": "032b369aa88cd7dce0d19d6d19c2905f3e3cab16fa4a9bd8de25ef57d073b9b5",
+      "backend/app/infrastructure/database/attendance_batch_models.py": "06eb473f6507d08e49d25acb2e4c68e62c4550bb70486a2c886203bff8f08ae7",
+      "backend/app/infrastructure/database/attendance_closeout_models.py": "affc03c86907ae04fefb57be8920593393a6e2818837d6a9b816be63ff615878",
+      "backend/app/infrastructure/database/attendance_runtime_models.py": "1798faed32a3c2528659180f3e8910b1ad0e9615299393caa1aa7556cf8739f5",
+      "backend/app/infrastructure/database/operations_models.py": "c1b7d9231eca989eb9abd5a7d6bba605650b66bd7d9aba73abe2208519fe59f8",
+      "backend/app/infrastructure/database/passenger_qr_models.py": "e815d9390a4a5c9544e43b2384f3791b4cb4d429a4b18bb7da7e37b897421d24",
+      "backend/app/infrastructure/database/rooming_allocation_models.py": "a61c374e76078f8aa6f58f740b2c1415a3b20dcdd9d863b7a07465d6c376315f",
+      "backend/app/infrastructure/database/rooming_property_models.py": "600b2c10646a400307fb2935a2785424b4a4e85aee77032581cb7435891ae839"
+    },
+    "fresh_process_metadata_equivalence": {
+      "before_sha256": "8291d7196a16e0b90f7115565ec107f28b35598692806ee53bfb7f2d1f4115ec",
+      "after_sha256": "8291d7196a16e0b90f7115565ec107f28b35598692806ee53bfb7f2d1f4115ec",
+      "registered_table_count": 174,
+      "mapper_identity_count": 174,
+      "operation_table_count": 16,
+      "compared": [
+        "All registered table names",
+        "All mapper class/table identities",
+        "All16 operation class mapper attributes/columns/defaults/onupdate/relationships",
+        "All16 operation PostgreSQL and SQLite CREATE TABLE/INDEX DDL",
+        "Both legacy facade alias identities"
+      ]
+    }
+  },
+  "verification": {
+    "passing_cases": 51,
+    "affected_workflows": "Real isolated SQLite attendance events/closeout/discards; authenticated two-tenant office projections; MCP rooming workbook/authority/revision/storage-cancellation cases; QR provider-fence/claim/receipt safety cases; allocation revision contracts. External effects use synthetic adapters.",
+    "fresh_python_import": "Both before/after fresh processes configure all174mappers and identical174table registry; all16changed class mappings/DDL and both facade aliases exact.",
+    "static": "Eight model owners pass Ruff --no-fix, mypy and architecture boundary checker.",
+    "limits": "Compiled PostgreSQL DDL equivalence is not live PostgreSQL migration/lock qualification. No service setup/migration, real provider sends, deployment, model transaction change or mobile source edits. Existing SQLite-only partial-index/named-conflict fixture translations remain explicit."
+  },
+  "artifacts": {
+    "operations-model-reviewed-files.json": "cd7eeef6dee62b16cbf9ed3ddfbd5c38f82ba0dbbe5f81508df386ca4a2702d4",
+    "operations-model-budget-candidates.json": "b56a8e3ad1aa5dff5ab9199ca6a07b3b05863076363a7bd8a7e301507ef280d8",
+    "operations-model-extraction-proof.json": "21792b4ddfb4db6fcdce9ee0a7c1a9610930ca8dcfe2a99eb2b41c9f6059ca4d",
+    "operations-model-equivalent-metadata.json": "8291d7196a16e0b90f7115565ec107f28b35598692806ee53bfb7f2d1f4115ec",
+    "operations-model-coverage.json": "862462cc25671eedff972675e74b2c62ee5b1a07e2c633d93edee25f6e45b418",
+    "operations-model-coverage.xml": "e42b7e657701e34e8a3a6c3ba3928de086577ed589f5324afbfb3dab69eb6fe3",
+    "operations-model-affected-tests.xml": "0d88cf8da7a15094d723f6e660b2ea73aa9ef6f5b2258485e2f13f06f7efbb33"
+  },
+  "prior_attendance_receipt_sha256": "83e5bcf3052f1bab42db2cd5985b9e73352909e97548cd145817cabf2b96212b",
+  "central_gates": "Eight additive measured candidates queued, all existing caps/floors retained; no central budget/MCP writes by this lane."
+}

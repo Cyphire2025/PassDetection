@@ -1,0 +1,234 @@
+{
+  "status": "qualified cohesive importer architecture",
+  "original_source_sha256": "2ae9f4a2425372326259810f40c6f718e2b596f3163ef3876d51686b3e7d35e6",
+  "source_fence": {
+    "backend/app/infrastructure/imports/passport_document_importer.py": "1431aac22fdf7d255516c02f34d1f6ad8102ca083668a5f609bc9b74b7c65d92",
+    "backend/app/infrastructure/imports/passport_document_workspace.py": "78260b471bcc10d9edd1ed44b06dc732e5468802ea723ca8891964c12add98f7",
+    "backend/app/infrastructure/imports/passport_document_streams.py": "6ab71940f43d46edff2ece4e5c80706428ab087702e99f65eff5f2f3ed6a4caf",
+    "backend/app/infrastructure/imports/passport_document_images.py": "8f097d6a4b7a63f7c1fd2fb82615c351e3d7701baaed3c398349eabc2de60f0d",
+    "backend/app/infrastructure/imports/passport_zip_members.py": "88ef17047879d07ae2720d99dee680b4744c49d68baf59e7de33821ce6e3628c",
+    "backend/app/infrastructure/imports/passport_zip_reader.py": "8c5d054b922a9f3878ba1ded3b7971a873286b36a3cf84356fe2cb9c366d88ea",
+    "backend/app/infrastructure/imports/passport_zip_admission.py": "b534f8d9c02733c4a378e11ce74770b906c5dcea37984c5bf138930504e3486d",
+    "backend/tests/unit/infrastructure/test_passport_document_import_staging.py": "c221d9bfba0d176b12c7812ff42c9dd46d2ac40219edf25400761677e91f845f",
+    "backend/tests/unit/infrastructure/test_passport_document_workspace_cleanup.py": "49ffef50613d62a8b202e482a93a80017696e5098205d75d75d282f60944f778",
+    "backend/tests/unit/infrastructure/test_passport_zip_member_admission.py": "a0975f2180c69445f3e167808192a304d8028b8b4d507717ba2af6a4fad1b3e4",
+    "backend/tests/unit/infrastructure/test_passport_document_import_policies.py": "8da8e50b0ba9a1879d6be35c0e40329ca4825caa7796de2387f45e5c07ea8247"
+  },
+  "responsibilities": "522-line post-resource-fix importer becomes six cohesive owners: request coordination/public compatibility facade246, request spools/DTOs131, exact stream bounds46, filename/image staging66, ZIP member admission66, ZIP reader101. The separately qualified directory guard75 remains unchanged.",
+  "tests": {
+    "pre_extraction": "passport-zip-admission-final-command.json:33 cases/5 files; historical route/crop controls separately owned",
+    "mechanical": "passport-importer-architecture-command.json:28 infrastructure cases/3 files",
+    "new_policy_original": "passport-importer-policies-original-command.json:21 passed on saved original source",
+    "final": "passport-importer-architecture-final-command.json:49 passed/4 infrastructure test files/0.92s"
+  },
+  "checks": {
+    "types": "7 source files PASS",
+    "lint": "11 source/test files PASS",
+    "proof": "passport-importer-architecture-source-proof.json"
+  },
+  "proof_summary": {
+    "whole_moved_declarations": 9,
+    "constants": 12,
+    "actual_import_identities": 13,
+    "evaluated_hint_checks": 17,
+    "legacy_globals": 10,
+    "legacy_instances": 6
+  },
+  "measurements": [
+    {
+      "path": "app/infrastructure/imports/passport_document_importer.py",
+      "lines": 246,
+      "max_function_complexity": 14,
+      "most_complex_function": "collect",
+      "coverage_percent": null,
+      "coverage": {
+        "covered_lines": 98,
+        "num_statements": 103,
+        "percent_covered": 95.9349593495935,
+        "percent_covered_display": "96",
+        "missing_lines": 5,
+        "excluded_lines": 0,
+        "percent_statements_covered": 95.14563106796116,
+        "percent_statements_covered_display": "95",
+        "num_branches": 20,
+        "num_partial_branches": 0,
+        "covered_branches": 20,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      },
+      "sha256": "1431aac22fdf7d255516c02f34d1f6ad8102ca083668a5f609bc9b74b7c65d92"
+    },
+    {
+      "path": "app/infrastructure/imports/passport_document_workspace.py",
+      "lines": 131,
+      "max_function_complexity": 6,
+      "most_complex_function": "close",
+      "coverage_percent": null,
+      "coverage": {
+        "covered_lines": 75,
+        "num_statements": 80,
+        "percent_covered": 92.55319148936171,
+        "percent_covered_display": "93",
+        "missing_lines": 5,
+        "excluded_lines": 0,
+        "percent_statements_covered": 93.75,
+        "percent_statements_covered_display": "94",
+        "num_branches": 14,
+        "num_partial_branches": 2,
+        "covered_branches": 12,
+        "missing_branches": 2,
+        "percent_branches_covered": 85.71428571428571,
+        "percent_branches_covered_display": "86"
+      },
+      "sha256": "78260b471bcc10d9edd1ed44b06dc732e5468802ea723ca8891964c12add98f7"
+    },
+    {
+      "path": "app/infrastructure/imports/passport_document_streams.py",
+      "lines": 46,
+      "max_function_complexity": 7,
+      "most_complex_function": "_read_forward_stream_exact",
+      "coverage_percent": null,
+      "coverage": {
+        "covered_lines": 26,
+        "num_statements": 27,
+        "percent_covered": 91.89189189189189,
+        "percent_covered_display": "92",
+        "missing_lines": 1,
+        "excluded_lines": 0,
+        "percent_statements_covered": 96.29629629629629,
+        "percent_statements_covered_display": "96",
+        "num_branches": 10,
+        "num_partial_branches": 2,
+        "covered_branches": 8,
+        "missing_branches": 2,
+        "percent_branches_covered": 80.0,
+        "percent_branches_covered_display": "80"
+      },
+      "sha256": "6ab71940f43d46edff2ece4e5c80706428ab087702e99f65eff5f2f3ed6a4caf"
+    },
+    {
+      "path": "app/infrastructure/imports/passport_document_images.py",
+      "lines": 66,
+      "max_function_complexity": 6,
+      "most_complex_function": "validate_passport_document_image",
+      "coverage_percent": null,
+      "coverage": {
+        "covered_lines": 31,
+        "num_statements": 31,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 6,
+        "num_partial_branches": 0,
+        "covered_branches": 6,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      },
+      "sha256": "8f097d6a4b7a63f7c1fd2fb82615c351e3d7701baaed3c398349eabc2de60f0d"
+    },
+    {
+      "path": "app/infrastructure/imports/passport_zip_members.py",
+      "lines": 66,
+      "max_function_complexity": 16,
+      "most_complex_function": "admit_passport_zip_member",
+      "coverage_percent": null,
+      "coverage": {
+        "covered_lines": 37,
+        "num_statements": 37,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 18,
+        "num_partial_branches": 0,
+        "covered_branches": 18,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      },
+      "sha256": "88ef17047879d07ae2720d99dee680b4744c49d68baf59e7de33821ce6e3628c"
+    },
+    {
+      "path": "app/infrastructure/imports/passport_zip_reader.py",
+      "lines": 101,
+      "max_function_complexity": 10,
+      "most_complex_function": "collect_passport_zip",
+      "coverage_percent": null,
+      "coverage": {
+        "covered_lines": 40,
+        "num_statements": 41,
+        "percent_covered": 96.07843137254902,
+        "percent_covered_display": "96",
+        "missing_lines": 1,
+        "excluded_lines": 0,
+        "percent_statements_covered": 97.5609756097561,
+        "percent_statements_covered_display": "98",
+        "num_branches": 10,
+        "num_partial_branches": 1,
+        "covered_branches": 9,
+        "missing_branches": 1,
+        "percent_branches_covered": 90.0,
+        "percent_branches_covered_display": "90"
+      },
+      "sha256": "8c5d054b922a9f3878ba1ded3b7971a873286b36a3cf84356fe2cb9c366d88ea"
+    },
+    {
+      "path": "app/infrastructure/imports/passport_zip_admission.py",
+      "lines": 75,
+      "max_function_complexity": 13,
+      "most_complex_function": "_check_directory",
+      "coverage_percent": null,
+      "coverage": {
+        "covered_lines": 48,
+        "num_statements": 51,
+        "percent_covered": 91.30434782608695,
+        "percent_covered_display": "91",
+        "missing_lines": 3,
+        "excluded_lines": 0,
+        "percent_statements_covered": 94.11764705882354,
+        "percent_statements_covered_display": "94",
+        "num_branches": 18,
+        "num_partial_branches": 3,
+        "covered_branches": 15,
+        "missing_branches": 3,
+        "percent_branches_covered": 83.33333333333333,
+        "percent_branches_covered_display": "83"
+      },
+      "sha256": "b534f8d9c02733c4a378e11ce74770b906c5dcea37984c5bf138930504e3486d"
+    }
+  ],
+  "independent_changed_companions": [
+    {
+      "path": "backend/tests/unit/presentation/test_passport_crop_lifecycle_contract.py",
+      "original_sha256": "b935560711758ef7dc8e8561f72c45d9a7c43fded3a3d128613cf39771a8eb96",
+      "current_sha256": "3d2495d0eedf4e4f68a3796b4d5304fff4ec3af6ac698d64639c481b5373a30e",
+      "owner": "ai_extraction route-authority/mechanical follow-through",
+      "qualification": "Not part of this infrastructure49 selection; retain separate route-owner verification. No unchanged-byte or passing-current claim."
+    }
+  ],
+  "fixture_and_proof_calibration": [
+    "Initial original-policy run20 passed/1 fixture failure: Windows ZipInfo normalizes separators when writing; the unchanged security assertion now uses the actual encoded entry filename. Failed log and exact correction preserved.",
+    "Proof harness initially mutated its own copied rule baseline before inverse comparison; deep-copy fixed the harness only. Builtin RuntimeError-subclass signature is unavailable both before/after; explicit paired ValueErrors preserved instead of suppressing a new annotation failure.",
+    "Original/current policy test/helper non-import ASTs equal (21 cases) after exactly3 imports redirect to original saved module. Existing staging test whole module inverse changes only1 instrumentation import. Other original infrastructure source/test bytes unchanged; the independently changed presentation crop contract is explicitly fenced below and receives no current passing claim here."
+  ],
+  "limits": [
+    "Moved class/function module provenance naturally identifies actual owners; old saved globals decode through explicit facade aliases, and new pickles round-trip. Literal new pickle bytes are not promised identical.",
+    "No repository subclass overrides private importer methods; new composed ZIP/image owners use canonical policy directly. Public constructor/collect/MRO, route monkeypatch seam and staged read seam remain stable.",
+    "This proof is structural/compatibility evidence, not a substitute for focused behavior checks or final current-tree service/browser qualification.",
+    "Cumulative archive quota uses existing staging-error unwinding instead of an inline return, with identical previously accepted/rejected rows and cursor/archive cleanup verified against original code.",
+    "No public route/API/auth/storage/AI implementation changed in this architecture batch. Current-authority route corrections are independently qualified by the route owner.",
+    "No asymptotic or wall-clock performance improvement is claimed by this responsibility extraction. Original upload/body/image/scanner quotas remain intact.",
+    "Importer responsibility follow-up is closed for this current source; original ZIP pre-allocation and workspace close-all receipts remain separate historical behavior evidence."
+  ],
+  "pre_handoff_wording_correction": {
+    "draft_sha256": "db1c9d2b5a920ad9d6ec6cdf9b228ed5721762e27df565eb47dd966a22312313",
+    "reason": "Narrow unchanged-byte wording to infrastructure; the already listed presentation crop companion changed independently under the route owner."
+  }
+}

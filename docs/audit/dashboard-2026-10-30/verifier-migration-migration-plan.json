@@ -1,0 +1,126 @@
+{
+  "stage": "prepared-only; frontend freeze retained",
+  "prepared_at": "2026-10-31T04:57:54.670629+00:00",
+  "runtime_build_id": "u3zGikOfkpKz028gaYBSI",
+  "files": [
+    {
+      "future_path": "frontend/scripts/browser-verification-local-fixture.mjs",
+      "staged_path": ".tmp/verifier-migration/browser-verification-local-fixture.mjs",
+      "sha256": "9577f6eb9ab08b28de8ca7152ccdd88ad85cabd7a027781ed54947cb56e923ae"
+    },
+    {
+      "future_path": "frontend/scripts/browser-verification-portrait.mjs",
+      "staged_path": ".tmp/verifier-migration/browser-verification-portrait.mjs",
+      "sha256": "eb2eb3ab49a95c68d549ca33d32a724d5d19630eac77792c647d28dcb3bed6ed"
+    },
+    {
+      "future_path": "frontend/scripts/browser-verification-whatsapp-fixture.mjs",
+      "staged_path": ".tmp/verifier-migration/browser-verification-whatsapp-fixture.mjs",
+      "sha256": "02e6165810eb06b93b90129eb1ee316a1800388acba19bdfe3b0bc3add45bbae"
+    },
+    {
+      "future_path": "frontend/scripts/verify-upload-options-browser.mjs",
+      "staged_path": ".tmp/verifier-migration/verify-upload-options-browser.mjs",
+      "sha256": "2848188bf6ed1be052048dfd53a0463a2b1f7add60547fd147b2acbe24623a83"
+    },
+    {
+      "future_path": "frontend/scripts/verify-visa-photo-browser.mjs",
+      "staged_path": ".tmp/verifier-migration/verify-visa-photo-browser.mjs",
+      "sha256": "16c0af889b5615cd8b0d9edaf626edd189d9ae274c9ef58cda9da53ec57a1799"
+    },
+    {
+      "future_path": "frontend/scripts/verify-whatsapp-composer-browser.mjs",
+      "staged_path": ".tmp/verifier-migration/verify-whatsapp-composer-browser.mjs",
+      "sha256": "3844eb065e9afa63cbf6ca0e165862df24cd82050ee112992822f1c5d58e8d08"
+    },
+    {
+      "future_path": "frontend/scripts/verify-whatsapp-recipient-bulk-browser.mjs",
+      "staged_path": ".tmp/verifier-migration/verify-whatsapp-recipient-bulk-browser.mjs",
+      "sha256": "2ec21201e44505fa92e70cf9c676fd405960eac45d91a2615a557d770e3a16e1"
+    }
+  ],
+  "mapping": [
+    {
+      "old": "Legacy Single / visa-photo-choice / passport-document-choice",
+      "current": "TravellerPortal \u2192 New traveller \u2192 Only me \u2192 FreshFlow document cards; six desktop/mobile method configurations",
+      "preserved": [
+        "camera/file availability",
+        "controls within card",
+        "touch targets",
+        "no horizontal overflow",
+        "response nonce matches strict CSP",
+        "versioned/unversioned model cache policy"
+      ]
+    },
+    {
+      "old": "Uploaded-photo browser face/background acceptance wrapper",
+      "current": "Current validateCapturedVisaPhoto strict final-JPEG owner for real-face/blank/colored negatives; actual Fresh file transport validates current server-preparation response contract",
+      "preserved": [
+        "real model with no detector shims",
+        "strict production CSP",
+        "scalar/SIMD modes",
+        "exact encoded JPEG dimensions/size",
+        "blank/colored hard rejection",
+        "transient model failure bounded rejection/retry",
+        "current unsupported/oversize file gates",
+        "malformed canonical response denial",
+        "private upload session and idempotency"
+      ]
+    },
+    {
+      "old": "Old Welcome/Passport/Reminder composer dialogs",
+      "current": "BroadcastIndex \u2192 current five-section workspace \u2192 message library \u2192 inline editor/audience \u2192 Review and send dialog",
+      "preserved": [
+        "required image gate",
+        "stale preview gate",
+        "clear and selected audience",
+        "search preserves selection",
+        "long name/link wrapping",
+        "responsive bounds",
+        "modal Tab/Shift+Tab/Escape/close boundary",
+        "review does not dispatch"
+      ]
+    },
+    {
+      "old": "Recipient modal six legacy filters",
+      "current": "Current recipient roster welcome/contact-issue filters + per-message delivery report five intentional current filters",
+      "preserved": [
+        "query-state counts",
+        "per-message source scope",
+        "failed/queued/unconfirmed distinctions",
+        "unconfirmed resends disabled",
+        "rejected contacts not selectable",
+        "filters do not send"
+      ]
+    },
+    {
+      "old": "Editable bulk saved-resend dialog",
+      "current": "Current multi-recipient composer selection/review + historical exact-source recipient resends",
+      "preserved": [
+        "explicit selected recipient IDs",
+        "pending Enter/close duplicate lock",
+        "request UUID",
+        "saved content/personal link isolation",
+        "no common override in historical payload",
+        "source_message_log_id",
+        "same request/payload/media on uncertain retry",
+        "activity tracker scope",
+        "another broadcast cannot inherit selected IDs"
+      ]
+    }
+  ],
+  "limits": [
+    "API responses are synthetic; browser checks do not prove backend/provider behavior or broad biometric accuracy.",
+    "Current UI intentionally has no old editable saved-bulk-resend dialog; historical controls remain immutable exact-source resends.",
+    "No runtime production source changes are proposed in this batch."
+  ],
+  "read_only_returning_next": [
+    "frontend/features/travellers/hooks/use-returning-claim.ts",
+    "frontend/features/travellers/components/returning-contact-dialog.tsx",
+    "frontend/features/travellers/components/returning-flow.tsx",
+    "frontend/features/travellers/components/returning-offer.tsx",
+    "frontend/features/travellers/components/returning-resume.tsx",
+    "frontend/features/travellers/components/returning-review.tsx",
+    "frontend/features/travellers/components/traveller-document.tsx"
+  ]
+}

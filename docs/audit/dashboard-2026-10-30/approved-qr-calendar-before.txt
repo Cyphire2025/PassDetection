@@ -1,0 +1,152 @@
+.FF....                                                                  [100%]
+================================== FAILURES ===================================
+_ test_persisted_approved_passenger_receives_one_bounded_qr[returned1-expiry1] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000001E28A2ED910>
+returned = datetime.date(9999, 12, 30), expiry = datetime.date(9999, 12, 31)
+
+    @pytest.mark.parametrize(
+        ("returned", "expiry"),
+        [
+            (date(9999, 12, 29), date.max),
+            (date(9999, 12, 30), date.max),
+            (date.max, date.max),
+            (date(2028, 2, 28), date(2028, 3, 1)),
+            (date(2030, 12, 31), date(2031, 1, 2)),
+        ],
+    )
+    @pytest.mark.asyncio
+    async def test_persisted_approved_passenger_receives_one_bounded_qr(db_session, returned, expiry):
+        agency, company, group = await _seed_scope(db_session)
+        request = CreateClientGroupRequest(
+            company_id=company.id,
+            name="Synthetic QR trip",
+            destination="Synthetic",
+            travel_date=date(returned.year, 1, 1),
+            return_date=returned,
+        )
+        accepted = ClientGroup.create(
+            name=request.name,
+            token="synthetic-qr-calendar",
+            agency_id=agency.id,
+            created_by_user_id=uuid.uuid4(),
+            travel_date=request.travel_date,
+            return_date=request.return_date,
+        )
+        group.travel_date, group.return_date = accepted.travel_date, accepted.return_date
+        passenger = PassportSubmissionModel(
+            agency_id=agency.id,
+            group_id=group.id,
+            client_name="Synthetic calendar passenger",
+            image_s3_key="synthetic/qr-calendar.jpg",
+            status="staff_approved",
+        )
+        db_session.add(passenger)
+        await db_session.commit()
+    
+>       token = await ensure_approved_passenger_qr(db_session, passenger.id)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\integration\test_approved_qr_calendar_boundary.py:58: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+app\infrastructure\qr\approved_passenger_qr_issuer.py:143: in ensure_approved_passenger_qr
+    token, _payload = build_passenger_qr_token(
+app\infrastructure\qr\approved_passenger_qr_issuer.py:87: in build_passenger_qr_token
+    expires_at=qr_expires_at_for_group(group, issued_at),
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+group = <app.infrastructure.database.models.ClientGroupModel object at 0x000001E28C201AD0>
+now = datetime.datetime(2026, 10, 31, 19, 42, 49, 709229, tzinfo=datetime.timezone.utc)
+
+    def qr_expires_at_for_group(
+        group: ClientGroup | ClientGroupModel,
+        now: datetime | None = None,
+    ) -> datetime:
+        if group.return_date:
+            return datetime.combine(
+>               group.return_date + timedelta(days=QR_RETURN_GRACE_DAYS),
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                time.max,
+                tzinfo=UTC,
+            )
+E           OverflowError: date value out of range
+
+app\infrastructure\qr\approved_passenger_qr_issuer.py:58: OverflowError
+_ test_persisted_approved_passenger_receives_one_bounded_qr[returned2-expiry2] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000001E28A678510>
+returned = datetime.date(9999, 12, 31), expiry = datetime.date(9999, 12, 31)
+
+    @pytest.mark.parametrize(
+        ("returned", "expiry"),
+        [
+            (date(9999, 12, 29), date.max),
+            (date(9999, 12, 30), date.max),
+            (date.max, date.max),
+            (date(2028, 2, 28), date(2028, 3, 1)),
+            (date(2030, 12, 31), date(2031, 1, 2)),
+        ],
+    )
+    @pytest.mark.asyncio
+    async def test_persisted_approved_passenger_receives_one_bounded_qr(db_session, returned, expiry):
+        agency, company, group = await _seed_scope(db_session)
+        request = CreateClientGroupRequest(
+            company_id=company.id,
+            name="Synthetic QR trip",
+            destination="Synthetic",
+            travel_date=date(returned.year, 1, 1),
+            return_date=returned,
+        )
+        accepted = ClientGroup.create(
+            name=request.name,
+            token="synthetic-qr-calendar",
+            agency_id=agency.id,
+            created_by_user_id=uuid.uuid4(),
+            travel_date=request.travel_date,
+            return_date=request.return_date,
+        )
+        group.travel_date, group.return_date = accepted.travel_date, accepted.return_date
+        passenger = PassportSubmissionModel(
+            agency_id=agency.id,
+            group_id=group.id,
+            client_name="Synthetic calendar passenger",
+            image_s3_key="synthetic/qr-calendar.jpg",
+            status="staff_approved",
+        )
+        db_session.add(passenger)
+        await db_session.commit()
+    
+>       token = await ensure_approved_passenger_qr(db_session, passenger.id)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\integration\test_approved_qr_calendar_boundary.py:58: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+app\infrastructure\qr\approved_passenger_qr_issuer.py:143: in ensure_approved_passenger_qr
+    token, _payload = build_passenger_qr_token(
+app\infrastructure\qr\approved_passenger_qr_issuer.py:87: in build_passenger_qr_token
+    expires_at=qr_expires_at_for_group(group, issued_at),
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+group = <app.infrastructure.database.models.ClientGroupModel object at 0x000001E28C4ADB90>
+now = datetime.datetime(2026, 10, 31, 19, 42, 51, 81322, tzinfo=datetime.timezone.utc)
+
+    def qr_expires_at_for_group(
+        group: ClientGroup | ClientGroupModel,
+        now: datetime | None = None,
+    ) -> datetime:
+        if group.return_date:
+            return datetime.combine(
+>               group.return_date + timedelta(days=QR_RETURN_GRACE_DAYS),
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                time.max,
+                tzinfo=UTC,
+            )
+E           OverflowError: date value out of range
+
+app\infrastructure\qr\approved_passenger_qr_issuer.py:58: OverflowError
+=========================== short test summary info ===========================
+FAILED tests/integration/test_approved_qr_calendar_boundary.py::test_persisted_approved_passenger_receives_one_bounded_qr[returned1-expiry1]
+FAILED tests/integration/test_approved_qr_calendar_boundary.py::test_persisted_approved_passenger_receives_one_bounded_qr[returned2-expiry2]
+2 failed, 5 passed in 4.52s

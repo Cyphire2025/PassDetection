@@ -1,0 +1,820 @@
+{
+  "class": {
+    "kind": "class",
+    "module": "app.infrastructure.documents.document_matcher",
+    "qualname": "DocumentMatcher"
+  },
+  "constructor": "()",
+  "bases": [
+    {
+      "kind": "class",
+      "module": "app.infrastructure.documents.document_type_detection",
+      "qualname": "DocumentTextClassifier"
+    },
+    {
+      "kind": "class",
+      "module": "app.infrastructure.documents.document_passenger_index",
+      "qualname": "DocumentPassengerIndex"
+    },
+    {
+      "kind": "class",
+      "module": "app.infrastructure.documents.document_match_resolution",
+      "qualname": "DocumentMatchResolution"
+    }
+  ],
+  "mro": [
+    {
+      "kind": "class",
+      "module": "app.infrastructure.documents.document_matcher",
+      "qualname": "DocumentMatcher"
+    },
+    {
+      "kind": "class",
+      "module": "app.infrastructure.documents.document_type_detection",
+      "qualname": "DocumentTextClassifier"
+    },
+    {
+      "kind": "class",
+      "module": "app.infrastructure.documents.document_text_fields",
+      "qualname": "DocumentTextFields"
+    },
+    {
+      "kind": "class",
+      "module": "app.infrastructure.documents.document_passenger_index",
+      "qualname": "DocumentPassengerIndex"
+    },
+    {
+      "kind": "class",
+      "module": "app.infrastructure.documents.document_match_resolution",
+      "qualname": "DocumentMatchResolution"
+    },
+    {
+      "kind": "class",
+      "module": "app.infrastructure.documents.document_identity_aliases",
+      "qualname": "DocumentIdentityAliases"
+    },
+    {
+      "kind": "class",
+      "module": "app.infrastructure.documents.document_text_normalization",
+      "qualname": "DocumentTextNormalization"
+    },
+    {
+      "kind": "class",
+      "module": "builtins",
+      "qualname": "object"
+    }
+  ],
+  "methods": {
+    "_identity_limits": {
+      "module": "app.infrastructure.documents.document_matcher",
+      "qualname": "DocumentMatcher._identity_limits",
+      "signature": "(self) -> 'DocumentIdentityLimits'",
+      "doc": "Resolve the compatibility facade's reviewed bounds at call time.",
+      "hints": {
+        "return": "<class 'app.infrastructure.documents.document_identity_limits.DocumentIdentityLimits'>"
+      }
+    },
+    "classify": {
+      "module": "app.infrastructure.documents.document_matcher",
+      "qualname": "DocumentMatcher.classify",
+      "signature": "(self, *, filename: 'str', content: 'bytes', expected_type: 'str') -> 'ClassifiedDocument'",
+      "doc": null,
+      "hints": {
+        "filename": "<class 'str'>",
+        "content": "<class 'bytes'>",
+        "expected_type": "<class 'str'>",
+        "return": "<class 'app.infrastructure.documents.document_matcher_models.ClassifiedDocument'>"
+      }
+    },
+    "match": {
+      "module": "app.infrastructure.documents.document_matcher",
+      "qualname": "DocumentMatcher.match",
+      "signature": "(self, document: 'ClassifiedDocument', passengers: 'list[PassportSubmission]', *, index: 'DocumentMatchIndex | None' = None) -> 'MatchResult'",
+      "doc": null,
+      "hints": {
+        "document": "<class 'app.infrastructure.documents.document_matcher_models.ClassifiedDocument'>",
+        "passengers": "list[app.domain.entities.passport_submission.PassportSubmission]",
+        "index": "app.infrastructure.documents.document_matcher_models.DocumentMatchIndex | None",
+        "return": "<class 'app.infrastructure.documents.document_matcher_models.MatchResult'>"
+      }
+    },
+    "match_all": {
+      "module": "app.infrastructure.documents.document_matcher",
+      "qualname": "DocumentMatcher.match_all",
+      "signature": "(self, document: 'ClassifiedDocument', passengers: 'list[PassportSubmission]', *, index: 'DocumentMatchIndex | None' = None) -> 'list[MatchResult]'",
+      "doc": "Return every strongly evidenced passenger in a combined document.",
+      "hints": {
+        "document": "<class 'app.infrastructure.documents.document_matcher_models.ClassifiedDocument'>",
+        "passengers": "list[app.domain.entities.passport_submission.PassportSubmission]",
+        "index": "app.infrastructure.documents.document_matcher_models.DocumentMatchIndex | None",
+        "return": "list[app.infrastructure.documents.document_matcher_models.MatchResult]"
+      }
+    },
+    "mark_duplicates": {
+      "module": "app.infrastructure.documents.document_matcher",
+      "qualname": "DocumentMatcher.mark_duplicates",
+      "signature": "(self, matches: 'list[MatchResult]') -> 'list[MatchResult]'",
+      "doc": null,
+      "hints": {
+        "matches": "list[app.infrastructure.documents.document_matcher_models.MatchResult]",
+        "return": "list[app.infrastructure.documents.document_matcher_models.MatchResult]"
+      }
+    },
+    "_pdf_text": {
+      "module": "app.infrastructure.documents.document_matcher",
+      "qualname": "DocumentMatcher._pdf_text",
+      "signature": "(self, content: 'bytes') -> 'str'",
+      "doc": null,
+      "hints": {
+        "content": "<class 'bytes'>",
+        "return": "<class 'str'>"
+      }
+    },
+    "_extract_image_only_pdf_text": {
+      "module": "app.infrastructure.documents.document_matcher",
+      "qualname": "DocumentMatcher._extract_image_only_pdf_text",
+      "signature": "(self, content: 'bytes') -> 'str'",
+      "doc": "OCR a bounded image-only PDF after repeating all active-content checks.",
+      "hints": {
+        "content": "<class 'bytes'>",
+        "return": "<class 'str'>"
+      }
+    },
+    "_ocr_validated_image_only_pdf": {
+      "module": "app.infrastructure.documents.document_matcher",
+      "qualname": "DocumentMatcher._ocr_validated_image_only_pdf",
+      "signature": "(self, content: 'bytes') -> 'str'",
+      "doc": null,
+      "hints": {
+        "content": "<class 'bytes'>",
+        "return": "<class 'str'>"
+      }
+    },
+    "_extract_pdf_text_with_pypdf": {
+      "module": "app.infrastructure.documents.document_matcher",
+      "qualname": "DocumentMatcher._extract_pdf_text_with_pypdf",
+      "signature": "(self, content: 'bytes') -> 'str'",
+      "doc": null,
+      "hints": {
+        "content": "<class 'bytes'>",
+        "return": "<class 'str'>"
+      }
+    },
+    "_read_pdf_text_with_pypdf": {
+      "module": "app.infrastructure.documents.document_matcher",
+      "qualname": "DocumentMatcher._read_pdf_text_with_pypdf",
+      "signature": "(self, content: 'bytes') -> '_PdfTextRead'",
+      "doc": null,
+      "hints": {
+        "content": "<class 'bytes'>",
+        "return": "<class 'app.infrastructure.documents.document_pdf_support._PdfTextRead'>"
+      }
+    },
+    "_extract_pdf_text_with_pdfium": {
+      "module": "app.infrastructure.documents.document_matcher",
+      "qualname": "DocumentMatcher._extract_pdf_text_with_pdfium",
+      "signature": "(self, content: 'bytes', *, deadline: 'float') -> 'str | None'",
+      "doc": null,
+      "hints": {
+        "content": "<class 'bytes'>",
+        "deadline": "<class 'float'>",
+        "return": "str | None"
+      }
+    },
+    "_has_active_pdf_features": {
+      "module": "app.infrastructure.documents.document_matcher",
+      "qualname": "DocumentMatcher._has_active_pdf_features",
+      "signature": "(self, reader: 'Any', *, deadline: 'float | None' = None) -> 'bool'",
+      "doc": null,
+      "hints": {
+        "reader": "typing.Any",
+        "deadline": "float | None",
+        "return": "<class 'bool'>"
+      }
+    },
+    "_pdf_fields_have_actions": {
+      "module": "app.infrastructure.documents.document_matcher",
+      "qualname": "DocumentMatcher._pdf_fields_have_actions",
+      "signature": "(self, fields_reference: 'Any', *, deadline: 'float | None') -> 'bool'",
+      "doc": null,
+      "hints": {
+        "fields_reference": "typing.Any",
+        "deadline": "float | None",
+        "return": "<class 'bool'>"
+      }
+    },
+    "_pdf_action_is_active": {
+      "module": "app.infrastructure.documents.document_matcher",
+      "qualname": "DocumentMatcher._pdf_action_is_active",
+      "signature": "(self, action_reference: 'Any', *, deadline: 'float | None') -> 'bool'",
+      "doc": null,
+      "hints": {
+        "action_reference": "typing.Any",
+        "deadline": "float | None",
+        "return": "<class 'bool'>"
+      }
+    },
+    "_resolved_pdf_object": {
+      "module": "app.infrastructure.documents.document_matcher",
+      "qualname": "DocumentMatcher._resolved_pdf_object",
+      "signature": "(self, value: 'Any') -> 'Any'",
+      "doc": null,
+      "hints": {
+        "value": "typing.Any",
+        "return": "typing.Any"
+      }
+    }
+  },
+  "free_functions": {
+    "_pdf_processing_limits": {
+      "module": "app.infrastructure.documents.document_matcher",
+      "qualname": "_pdf_processing_limits",
+      "signature": "() -> '_pdf_support.PdfProcessingLimits'",
+      "hints": {
+        "return": "<class 'app.infrastructure.documents.document_pdf_support.PdfProcessingLimits'>"
+      }
+    },
+    "classify_documents_bounded": {
+      "module": "app.infrastructure.documents.document_matcher",
+      "qualname": "classify_documents_bounded",
+      "signature": "(matcher: 'DocumentMatcher', jobs: 'list[tuple[str, bytes, str]]', *, isolate_pdf_parsing: 'bool', batch_timeout_seconds: 'float | None' = None, parser_processes: 'int | None' = None, reject_common_unsupported_format: 'bool' = False) -> 'list[ClassifiedDocument]'",
+      "hints": {
+        "matcher": "<class 'app.infrastructure.documents.document_matcher.DocumentMatcher'>",
+        "jobs": "list[tuple[str, bytes, str]]",
+        "isolate_pdf_parsing": "<class 'bool'>",
+        "batch_timeout_seconds": "float | None",
+        "parser_processes": "int | None",
+        "reject_common_unsupported_format": "<class 'bool'>",
+        "return": "list[app.infrastructure.documents.document_matcher_models.ClassifiedDocument]"
+      }
+    },
+    "_classify_unique_documents": {
+      "module": "app.infrastructure.documents.document_matcher",
+      "qualname": "_classify_unique_documents",
+      "signature": "(matcher: 'DocumentMatcher', jobs: 'list[tuple[str, bytes, str]]', *, isolate_pdf_parsing: 'bool', batch_timeout_seconds: 'float | None' = None, parser_processes: 'int | None' = None, reject_common_unsupported_format: 'bool' = False) -> 'list[ClassifiedDocument]'",
+      "hints": {
+        "matcher": "<class 'app.infrastructure.documents.document_matcher.DocumentMatcher'>",
+        "jobs": "list[tuple[str, bytes, str]]",
+        "isolate_pdf_parsing": "<class 'bool'>",
+        "batch_timeout_seconds": "float | None",
+        "parser_processes": "int | None",
+        "reject_common_unsupported_format": "<class 'bool'>",
+        "return": "list[app.infrastructure.documents.document_matcher_models.ClassifiedDocument]"
+      }
+    }
+  },
+  "original_imports": {
+    "annotations": {
+      "kind": "str",
+      "value": "_Feature((3, 7, 0, 'beta', 1), None, 16777216)"
+    },
+    "importlib": {
+      "kind": "module",
+      "module": "importlib"
+    },
+    "uuid": {
+      "kind": "module",
+      "module": "uuid"
+    },
+    "Path": {
+      "kind": "class",
+      "module": "pathlib",
+      "qualname": "Path"
+    },
+    "Any": {
+      "kind": "class",
+      "module": "typing",
+      "qualname": "Any"
+    },
+    "PassportSubmission": {
+      "kind": "class",
+      "module": "app.domain.entities.passport_submission",
+      "qualname": "PassportSubmission"
+    },
+    "DOCUMENT_TYPES": {
+      "kind": "list",
+      "value": [
+        "flight_ticket",
+        "flight_ticket_arrival",
+        "flight_ticket_domestic",
+        "flight_ticket_domestic_arrival",
+        "other",
+        "visa"
+      ]
+    },
+    "classification_document_type": {
+      "kind": "function",
+      "module": "app.domain.value_objects.travel_document_taxonomy",
+      "qualname": "classification_document_type"
+    },
+    "SUPPORTED_TRAVEL_DOCUMENT_TYPES": {
+      "kind": "list",
+      "value": [
+        "flight_ticket",
+        "visa"
+      ]
+    },
+    "_batch_classification": {
+      "kind": "module",
+      "module": "app.infrastructure.documents.document_batch_classification"
+    },
+    "_pdf_support": {
+      "kind": "module",
+      "module": "app.infrastructure.documents.document_pdf_support"
+    },
+    "MANUAL_DOCUMENT_TYPE_APPROVAL_PREFIX": {
+      "kind": "str",
+      "value": "Document type manually approved; "
+    },
+    "has_manual_document_type_approval": {
+      "kind": "function",
+      "module": "app.infrastructure.documents.document_approval_provenance",
+      "qualname": "has_manual_document_type_approval"
+    },
+    "_raise_for_common_unsupported_format": {
+      "kind": "function",
+      "module": "app.infrastructure.documents.document_batch_classification",
+      "qualname": "_raise_for_common_unsupported_format"
+    },
+    "DocumentIdentityLimits": {
+      "kind": "class",
+      "module": "app.infrastructure.documents.document_identity_limits",
+      "qualname": "DocumentIdentityLimits"
+    },
+    "DocumentMatchResolution": {
+      "kind": "class",
+      "module": "app.infrastructure.documents.document_match_resolution",
+      "qualname": "DocumentMatchResolution"
+    },
+    "ClassifiedDocument": {
+      "kind": "class",
+      "module": "app.infrastructure.documents.document_matcher_models",
+      "qualname": "ClassifiedDocument"
+    },
+    "DocumentMatchIndex": {
+      "kind": "class",
+      "module": "app.infrastructure.documents.document_matcher_models",
+      "qualname": "DocumentMatchIndex"
+    },
+    "DocumentParserUnavailableError": {
+      "kind": "class",
+      "module": "app.infrastructure.documents.document_matcher_models",
+      "qualname": "DocumentParserUnavailableError"
+    },
+    "MatchResult": {
+      "kind": "class",
+      "module": "app.infrastructure.documents.document_matcher_models",
+      "qualname": "MatchResult"
+    },
+    "PassengerIdentifier": {
+      "kind": "class",
+      "module": "app.infrastructure.documents.document_matcher_models",
+      "qualname": "PassengerIdentifier"
+    },
+    "UnsupportedDocumentBatchFormatError": {
+      "kind": "class",
+      "module": "app.infrastructure.documents.document_matcher_models",
+      "qualname": "UnsupportedDocumentBatchFormatError"
+    },
+    "_IdentifierOwner": {
+      "kind": "class",
+      "module": "app.infrastructure.documents.document_matcher_models",
+      "qualname": "_IdentifierOwner"
+    },
+    "_PassengerProfile": {
+      "kind": "class",
+      "module": "app.infrastructure.documents.document_matcher_models",
+      "qualname": "_PassengerProfile"
+    },
+    "_VisaDocumentFacts": {
+      "kind": "class",
+      "module": "app.infrastructure.documents.document_matcher_models",
+      "qualname": "_VisaDocumentFacts"
+    },
+    "DocumentPassengerIndex": {
+      "kind": "class",
+      "module": "app.infrastructure.documents.document_passenger_index",
+      "qualname": "DocumentPassengerIndex"
+    },
+    "DocumentOcrUnavailableError": {
+      "kind": "class",
+      "module": "app.infrastructure.documents.document_pdf_support",
+      "qualname": "DocumentOcrUnavailableError"
+    },
+    "_PdfTextRead": {
+      "kind": "class",
+      "module": "app.infrastructure.documents.document_pdf_support",
+      "qualname": "_PdfTextRead"
+    },
+    "DocumentTextClassifier": {
+      "kind": "class",
+      "module": "app.infrastructure.documents.document_type_detection",
+      "qualname": "DocumentTextClassifier"
+    },
+    "_AGENT_CODE_KEYS": {
+      "kind": "list",
+      "value": [
+        "agent_code",
+        "agent_employee_code",
+        "agent_id",
+        "employee_code"
+      ]
+    },
+    "_DATE_VALUE_PATTERN": {
+      "kind": "str",
+      "value": "(?:\\d{1,4}[./-]\\d{1,2}[./-]\\d{1,4}|\\d{1,2}\\s+[^\\W\\d_]{3,15}\\s+\\d{2,4}|[^\\W\\d_]{3,15}\\s+\\d{1,2},?\\s+\\d{2,4})"
+    },
+    "_DOCUMENT_FILENAME_WORDS": {
+      "kind": "list",
+      "value": [
+        "document",
+        "evisa",
+        "flight",
+        "itinerary",
+        "pdf",
+        "ticket",
+        "visa"
+      ]
+    },
+    "_FULL_NAME_KEYS": {
+      "kind": "list",
+      "value": [
+        "client_name",
+        "employee_name",
+        "full_name",
+        "name",
+        "passenger_name",
+        "recipient_name",
+        "staff_name",
+        "staffname",
+        "traveler_name",
+        "traveller_name"
+      ]
+    },
+    "_GIVEN_NAME_KEYS": {
+      "kind": "list",
+      "value": [
+        "first_name",
+        "forename",
+        "given_name",
+        "given_names"
+      ]
+    },
+    "_IDENTIFIER_KEY_EXCLUSIONS": {
+      "kind": "list",
+      "value": [
+        "agency_id",
+        "batch_id",
+        "booking_no",
+        "booking_number",
+        "booking_reference",
+        "broadcast_group_id",
+        "contact_no",
+        "contact_number",
+        "date_of_birth",
+        "date_of_expiry",
+        "date_of_issue",
+        "detail_id",
+        "dob",
+        "document_id",
+        "doe",
+        "doi",
+        "family_group_id",
+        "group_id",
+        "mobile_no",
+        "mobile_number",
+        "passenger_id",
+        "passport_no",
+        "passport_num",
+        "passport_number",
+        "phone_number",
+        "pnr",
+        "qualifier_selection_id",
+        "question_id",
+        "recipient_id",
+        "row_number",
+        "source_order",
+        "source_row",
+        "submission_id",
+        "ticket_no",
+        "ticket_number",
+        "transaction_id"
+      ]
+    },
+    "_IDENTIFIER_KEY_TOKENS": {
+      "kind": "list",
+      "value": [
+        "code",
+        "id",
+        "identifier",
+        "no",
+        "number",
+        "ref",
+        "reference",
+        "serial"
+      ]
+    },
+    "_NAME_NOISE_TOKENS": {
+      "kind": "list",
+      "value": [
+        "adult",
+        "arrival",
+        "booking",
+        "child",
+        "date",
+        "departure",
+        "document",
+        "female",
+        "flight",
+        "gender",
+        "infant",
+        "male",
+        "miss",
+        "mr",
+        "mrs",
+        "ms",
+        "passenger",
+        "passport",
+        "ticket",
+        "visa"
+      ]
+    },
+    "_NON_TRAVEL_DOCUMENT_PATTERNS": {
+      "kind": "list",
+      "value": [
+        "\\b(?:thailand\\s+)?digital\\s+arrival\\s+card\\b",
+        "\\bnot\\s+(?:a|an)\\s+(?:e-?visa|visa)\\b",
+        "\\b(?:visa\\s+)?application\\s+form\\b",
+        "\\bapplication\\s+received\\b",
+        "\\bapplication\\s+submitted\\b",
+        "\\bappointment\\s+confirmation\\b",
+        "\\b(?:travel\\s+|insurance\\s+|travel\\s+insurance\\s+)?claim\\s+form\\b",
+        "\\btravel\\s+insurance\\s+claim\\b",
+        "\\b(?:price\\s+)?quotation\\b",
+        "\\bprice\\s+quote\\b",
+        "\\bpro\\s+forma\\s+invoice\\b",
+        "\\b(?:blank|sample)\\s+(?:application|claim|form|template)\\b"
+      ]
+    },
+    "_PASSPORT_KEYS": {
+      "kind": "list",
+      "value": [
+        "passport",
+        "passport_no",
+        "passport_num",
+        "passport_number",
+        "passportnumber"
+      ]
+    },
+    "_STAFF_CODE_KEYS": {
+      "kind": "list",
+      "value": [
+        "employee_code",
+        "employee_id",
+        "staff_code",
+        "staff_id",
+        "staffcode"
+      ]
+    },
+    "_SURNAME_KEYS": {
+      "kind": "list",
+      "value": [
+        "family_name",
+        "last_name",
+        "surname"
+      ]
+    },
+    "MAX_FUZZY_CANDIDATES": {
+      "kind": "int",
+      "value": 32
+    },
+    "MAX_NAME_TOKENS": {
+      "kind": "int",
+      "value": 8
+    },
+    "MAX_PASSENGER_IDENTIFIERS": {
+      "kind": "int",
+      "value": 96
+    },
+    "MAX_PASSENGER_NAMES": {
+      "kind": "int",
+      "value": 12
+    },
+    "MAX_PDF_OCR_PAGES": {
+      "kind": "int",
+      "value": 2
+    },
+    "MAX_PDF_OCR_PIXELS": {
+      "kind": "int",
+      "value": 4000000
+    },
+    "MAX_PDF_OCR_SECONDS": {
+      "kind": "float",
+      "value": 7.0
+    },
+    "MAX_PDF_PAGE_TEXT_CHARS": {
+      "kind": "int",
+      "value": 40000
+    },
+    "MAX_PDF_PAGES_TO_INSPECT": {
+      "kind": "int",
+      "value": 200
+    },
+    "MAX_PDF_PARSE_SECONDS": {
+      "kind": "float",
+      "value": 3.0
+    },
+    "MAX_PDF_SOURCE_BYTES": {
+      "kind": "int",
+      "value": 16777216
+    },
+    "MAX_PDF_TEXT_CHARS": {
+      "kind": "int",
+      "value": 120000
+    },
+    "MAX_PDF_TEXT_LAYER_PAGES": {
+      "kind": "int",
+      "value": 200
+    },
+    "MAX_PDF_TOTAL_PAGES": {
+      "kind": "int",
+      "value": 200
+    },
+    "MAX_SUPPLEMENTAL_IDENTIFIER_INPUTS": {
+      "kind": "int",
+      "value": 72000
+    },
+    "MAX_SUPPLEMENTAL_IDENTIFIERS_PER_PASSENGER": {
+      "kind": "int",
+      "value": 24
+    },
+    "MAX_SUPPLEMENTAL_IDENTIFIERS_PER_REQUEST": {
+      "kind": "int",
+      "value": 36000
+    },
+    "PASSPORT_TERMS": {
+      "kind": "list",
+      "value": [
+        "passport",
+        "nationality",
+        "place of birth",
+        "date of expiry"
+      ]
+    },
+    "PAYMENT_TERMS": {
+      "kind": "list",
+      "value": [
+        "payment confirmation",
+        "payment receipt",
+        "fee charge payment",
+        "application fee",
+        "service fee",
+        "transaction id",
+        "payment details",
+        "payment method",
+        "total amount",
+        "amount paid",
+        "tax payment",
+        "invoice",
+        "receipt"
+      ]
+    },
+    "PDF_OCR_RENDER_SCALE": {
+      "kind": "float",
+      "value": 1.5
+    },
+    "PDF_OCR_RETRY_REASON": {
+      "kind": "str",
+      "value": "PDF OCR exceeded the temporary processing budget"
+    },
+    "TICKET_BOOKING_TERMS": {
+      "kind": "list",
+      "value": [
+        "pnr",
+        "booking no",
+        "booking number",
+        "booking reference",
+        "reservation code",
+        "record locator"
+      ]
+    },
+    "TICKET_CORE_TERMS": {
+      "kind": "list",
+      "value": [
+        "e-ticket",
+        "electronic ticket",
+        "flight ticket",
+        "flight tickets",
+        "itinerary",
+        "travel summary",
+        "ticket itinerary",
+        "itinerary receipt",
+        "passenger itinerary",
+        "passenger receipt",
+        "flight summary",
+        "boarding pass",
+        "booking confirmation",
+        "ticket number",
+        "ticket no"
+      ]
+    },
+    "TICKET_FLIGHT_TERMS": {
+      "kind": "list",
+      "value": [
+        "flight number",
+        "flight no",
+        "flight summary",
+        "operated by",
+        "airline",
+        "carrier",
+        "sector"
+      ]
+    },
+    "TICKET_ROUTE_TERMS": {
+      "kind": "list",
+      "value": [
+        "departure",
+        "arrival",
+        "departing",
+        "origin",
+        "destination"
+      ]
+    },
+    "TICKET_TRAVEL_TERMS": {
+      "kind": "list",
+      "value": [
+        "boarding",
+        "check in",
+        "check-in",
+        "gate",
+        "seat",
+        "checked baggage",
+        "carry-on baggage"
+      ]
+    },
+    "VISA_APPLICATION_TERMS": {
+      "kind": "list",
+      "value": [
+        "application received",
+        "application status",
+        "application form",
+        "application submitted",
+        "appointment confirmation"
+      ]
+    },
+    "VISA_AUTHORITY_TERMS": {
+      "kind": "list",
+      "value": [
+        "immigration",
+        "ministry of interior",
+        "ministry of public security",
+        "department of immigration",
+        "immigration department",
+        "immigration authority",
+        "vietnam immigration department"
+      ]
+    },
+    "VISA_CORE_TERMS": {
+      "kind": "list",
+      "value": [
+        "visa",
+        "evisa",
+        "e-visa",
+        "electronic visa",
+        "entry permit",
+        "visa grant",
+        "grant notice"
+      ]
+    },
+    "VISA_IDENTITY_TERMS": {
+      "kind": "list",
+      "value": [
+        "visa number",
+        "visa no",
+        "visa type",
+        "visa category",
+        "grant number",
+        "entry permit number",
+        "travel document number"
+      ]
+    },
+    "VISA_VALIDITY_TERMS": {
+      "kind": "list",
+      "value": [
+        "number of entries",
+        "multiple entries",
+        "single entry",
+        "valid from",
+        "valid until",
+        "date of issue",
+        "date of expiry",
+        "duration of stay",
+        "permitted to stay"
+      ]
+    },
+    "pypdfium2": {
+      "kind": "module",
+      "module": "pypdfium2"
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "status": "complete current physical test-source review only",
+  "reviewed_files": {
+    "path": "C:/Users/nipun/Desktop/PassDetection/docs/audit/dashboard-2026-10-30/retained-ai-priority-test-source-reviewed-files.json",
+    "sha256": "96a88e7070abed49191f985c300a7b5921c3eb41ce9685a0ca4c1c9bf9914dd0"
+  },
+  "files": 7,
+  "physical_lines": 1949,
+  "source_before_equals_after": true,
+  "source_fence": {
+    "backend/tests/unit/infrastructure/test_ai_priority_coordinator.py": "16b532d668084e1399cf0652464580f56bb192ea4775b618802c5e7bbe29cf3f",
+    "backend/tests/unit/infrastructure/test_ai_priority_identity.py": "4a13ec648f0c3d80da984406a11229d4351781bb07b9ddf2558d549b18e51784",
+    "backend/tests/unit/infrastructure/test_ai_priority_metrics.py": "0cd830a331c6ac8d73b01e46a8dd8f73d6c29c8e6ba1644deec305e3daeb8658",
+    "backend/tests/unit/infrastructure/test_ai_priority_queue_routing.py": "4b28f3bc52aba403407b786aedb591fdd926ed5eee0fe0f2d675f013ce8b9d2a",
+    "backend/tests/unit/infrastructure/test_ai_priority_retry.py": "3d8b2035f872514a230056876e56ca7bd0338f94341af06f789f92486ac604db",
+    "backend/tests/unit/infrastructure/test_ai_priority_runtime.py": "a90c3c917072343f236e321c78fbfb985c8377da87dea70dc3c8a0405651f6e2",
+    "backend/tests/unit/infrastructure/test_ai_priority_worker_readiness.py": "ff368add7f448dc5c66b43260832aa6ba6ad63b7fedb0c023c3b6c155795c52d"
+  },
+  "matching_full_ledger_checked_before": true,
+  "new_execution": false,
+  "runtime_mutation": false,
+  "new_validated_findings": [],
+  "scope": "Shared retained extraction/verification resource scheduling, privacy and readiness tests. Dedicated Inbox/native-only sources omitted. Deterministic memory/Redis/task doubles in source are not production/service qualification.",
+  "limits": [
+    "This closes only physical-read gaps on these seven current test hashes.",
+    "No earlier runtime follow-up/branch/service qualification is blanket-closed by reading tests."
+  ]
+}

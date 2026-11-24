@@ -1,0 +1,791 @@
+{
+  "original_import_identities": [
+    "asyncio",
+    "re",
+    "uuid",
+    "defaultdict",
+    "Any",
+    "quote",
+    "APIRouter",
+    "Depends",
+    "HTTPException",
+    "Response",
+    "func",
+    "or_",
+    "select",
+    "tuple_",
+    "AsyncSession",
+    "AuthorizationPolicy",
+    "SubmissionMatchRow",
+    "_raw_source_phone",
+    "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES",
+    "User",
+    "AuthorizationError",
+    "ClientGroupModel",
+    "ClientGroupWhatsAppBroadcastLinkModel",
+    "PassportRosterResolutionModel",
+    "PassportSubmissionModel",
+    "WhatsAppBroadcastGroupModel",
+    "WhatsAppBroadcastRecipientModel",
+    "WhatsAppBroadcastSourceContactModel",
+    "WhatsAppMessageLogModel",
+    "WhatsAppTravellerPhoneOverrideModel",
+    "get_db_session",
+    "MAX_EXPORT_ROWS",
+    "WhatsAppExportRow",
+    "WhatsAppExportTooLarge",
+    "build_whatsapp_filter_workbook",
+    "operational_roster_member",
+    "PassportSubmissionRepository",
+    "load_unresolved_passport_whatsapp_match_context",
+    "load_valid_traveller_phone_overrides",
+    "XLSX",
+    "binary_responses",
+    "_WHATSAPP_EMAIL_IMPORTED_KEYS",
+    "_export_whatsapp_contacts",
+    "_export_zone_names_from_match_rows",
+    "_group_export_details",
+    "_imported_zone_name",
+    "_normalized_imported_field_key",
+    "merged_contacts_by_recipient",
+    "get_broadcast_recipient_roster",
+    "WHATSAPP_ROLES",
+    "_agency_filter",
+    "_recipient_delivery_state_maps",
+    "_recipient_response",
+    "WhatsAppFilterExportRequest",
+    "WhatsAppRecipientResponse",
+    "WhatsAppRecipientRosterItemResponse",
+    "require_role",
+    "require_cookie_csrf"
+  ],
+  "actual_global_identities": [
+    {
+      "function": "_gather_export_rows",
+      "name": "AsyncSession"
+    },
+    {
+      "function": "_gather_export_rows",
+      "name": "User"
+    },
+    {
+      "function": "_gather_export_rows",
+      "name": "WhatsAppBroadcastGroupModel"
+    },
+    {
+      "function": "_gather_export_rows",
+      "name": "WhatsAppExportRow"
+    },
+    {
+      "function": "_gather_export_rows",
+      "name": "WhatsAppFilterExportRequest"
+    },
+    {
+      "function": "_gather_export_rows",
+      "name": "add_displaced_sources"
+    },
+    {
+      "function": "_gather_export_rows",
+      "name": "add_manual_match_sources"
+    },
+    {
+      "function": "_gather_export_rows",
+      "name": "add_phone_override_sources"
+    },
+    {
+      "function": "_gather_export_rows",
+      "name": "add_unidentified_sources"
+    },
+    {
+      "function": "_gather_export_rows",
+      "name": "hydrate_export_sources"
+    },
+    {
+      "function": "_gather_export_rows",
+      "name": "load_durable_sources"
+    },
+    {
+      "function": "_gather_export_rows",
+      "name": "load_export_delivery"
+    },
+    {
+      "function": "_gather_export_rows",
+      "name": "project_export_rows"
+    },
+    {
+      "function": "_gather_export_rows",
+      "name": "select_export_rows"
+    },
+    {
+      "function": "export_broadcast_filter",
+      "name": "AsyncSession"
+    },
+    {
+      "function": "export_broadcast_filter",
+      "name": "Depends"
+    },
+    {
+      "function": "export_broadcast_filter",
+      "name": "HTTPException"
+    },
+    {
+      "function": "export_broadcast_filter",
+      "name": "Response"
+    },
+    {
+      "function": "export_broadcast_filter",
+      "name": "User"
+    },
+    {
+      "function": "export_broadcast_filter",
+      "name": "WHATSAPP_ROLES"
+    },
+    {
+      "function": "export_broadcast_filter",
+      "name": "WhatsAppBroadcastGroupModel"
+    },
+    {
+      "function": "export_broadcast_filter",
+      "name": "WhatsAppExportTooLarge"
+    },
+    {
+      "function": "export_broadcast_filter",
+      "name": "WhatsAppFilterExportRequest"
+    },
+    {
+      "function": "export_broadcast_filter",
+      "name": "XLSX"
+    },
+    {
+      "function": "export_broadcast_filter",
+      "name": "_MIME"
+    },
+    {
+      "function": "export_broadcast_filter",
+      "name": "_agency_filter"
+    },
+    {
+      "function": "export_broadcast_filter",
+      "name": "_gather_export_rows"
+    },
+    {
+      "function": "export_broadcast_filter",
+      "name": "asyncio"
+    },
+    {
+      "function": "export_broadcast_filter",
+      "name": "binary_responses"
+    },
+    {
+      "function": "export_broadcast_filter",
+      "name": "build_whatsapp_filter_workbook"
+    },
+    {
+      "function": "export_broadcast_filter",
+      "name": "get_db_session"
+    },
+    {
+      "function": "export_broadcast_filter",
+      "name": "quote"
+    },
+    {
+      "function": "export_broadcast_filter",
+      "name": "re"
+    },
+    {
+      "function": "export_broadcast_filter",
+      "name": "require_cookie_csrf"
+    },
+    {
+      "function": "export_broadcast_filter",
+      "name": "require_role"
+    },
+    {
+      "function": "export_broadcast_filter",
+      "name": "router"
+    },
+    {
+      "function": "export_broadcast_filter",
+      "name": "select"
+    },
+    {
+      "function": "export_broadcast_filter",
+      "name": "uuid"
+    },
+    {
+      "function": "hydrate_export_sources",
+      "name": "AsyncSession"
+    },
+    {
+      "function": "hydrate_export_sources",
+      "name": "MAX_EXPORT_ROWS"
+    },
+    {
+      "function": "hydrate_export_sources",
+      "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES"
+    },
+    {
+      "function": "hydrate_export_sources",
+      "name": "PassportSubmissionModel"
+    },
+    {
+      "function": "hydrate_export_sources",
+      "name": "PassportSubmissionRepository"
+    },
+    {
+      "function": "hydrate_export_sources",
+      "name": "WhatsAppBroadcastGroupModel"
+    },
+    {
+      "function": "hydrate_export_sources",
+      "name": "WhatsAppExportTooLarge"
+    },
+    {
+      "function": "hydrate_export_sources",
+      "name": "_SOURCE_QUERY_BATCH"
+    },
+    {
+      "function": "hydrate_export_sources",
+      "name": "_export_whatsapp_contacts"
+    },
+    {
+      "function": "hydrate_export_sources",
+      "name": "_export_zone_names_from_match_rows"
+    },
+    {
+      "function": "hydrate_export_sources",
+      "name": "_stale_rows"
+    },
+    {
+      "function": "hydrate_export_sources",
+      "name": "operational_roster_member"
+    },
+    {
+      "function": "hydrate_export_sources",
+      "name": "or_"
+    },
+    {
+      "function": "hydrate_export_sources",
+      "name": "select"
+    },
+    {
+      "function": "hydrate_export_sources",
+      "name": "tuple_"
+    },
+    {
+      "function": "load_export_delivery",
+      "name": "AsyncSession"
+    },
+    {
+      "function": "load_export_delivery",
+      "name": "WhatsAppBroadcastGroupModel"
+    },
+    {
+      "function": "load_export_delivery",
+      "name": "WhatsAppBroadcastRecipientModel"
+    },
+    {
+      "function": "load_export_delivery",
+      "name": "WhatsAppFilterExportRequest"
+    },
+    {
+      "function": "load_export_delivery",
+      "name": "_latest_attempt_values"
+    },
+    {
+      "function": "load_export_delivery",
+      "name": "_recipient_delivery_state_maps"
+    },
+    {
+      "function": "load_export_delivery",
+      "name": "_recipient_response"
+    },
+    {
+      "function": "load_export_delivery",
+      "name": "_stale_rows"
+    },
+    {
+      "function": "load_export_delivery",
+      "name": "merged_contacts_by_recipient"
+    },
+    {
+      "function": "load_export_delivery",
+      "name": "select"
+    },
+    {
+      "function": "load_export_delivery",
+      "name": "uuid"
+    },
+    {
+      "function": "add_phone_override_sources",
+      "name": "AsyncSession"
+    },
+    {
+      "function": "add_phone_override_sources",
+      "name": "ClientGroupModel"
+    },
+    {
+      "function": "add_phone_override_sources",
+      "name": "WhatsAppBroadcastGroupModel"
+    },
+    {
+      "function": "add_phone_override_sources",
+      "name": "WhatsAppBroadcastRecipientModel"
+    },
+    {
+      "function": "add_phone_override_sources",
+      "name": "WhatsAppTravellerPhoneOverrideModel"
+    },
+    {
+      "function": "add_phone_override_sources",
+      "name": "load_valid_traveller_phone_overrides"
+    },
+    {
+      "function": "add_phone_override_sources",
+      "name": "select"
+    },
+    {
+      "function": "add_phone_override_sources",
+      "name": "uuid"
+    },
+    {
+      "function": "add_manual_match_sources",
+      "name": "AsyncSession"
+    },
+    {
+      "function": "add_manual_match_sources",
+      "name": "ClientGroupModel"
+    },
+    {
+      "function": "add_manual_match_sources",
+      "name": "ClientGroupWhatsAppBroadcastLinkModel"
+    },
+    {
+      "function": "add_manual_match_sources",
+      "name": "MAX_EXPORT_ROWS"
+    },
+    {
+      "function": "add_manual_match_sources",
+      "name": "OFFICE_VISIBLE_PASSPORT_STATUS_VALUES"
+    },
+    {
+      "function": "add_manual_match_sources",
+      "name": "PassportSubmissionModel"
+    },
+    {
+      "function": "add_manual_match_sources",
+      "name": "WhatsAppBroadcastGroupModel"
+    },
+    {
+      "function": "add_manual_match_sources",
+      "name": "WhatsAppBroadcastRecipientModel"
+    },
+    {
+      "function": "add_manual_match_sources",
+      "name": "WhatsAppExportTooLarge"
+    },
+    {
+      "function": "add_manual_match_sources",
+      "name": "func"
+    },
+    {
+      "function": "add_manual_match_sources",
+      "name": "load_unresolved_passport_whatsapp_match_context"
+    },
+    {
+      "function": "add_manual_match_sources",
+      "name": "select"
+    },
+    {
+      "function": "add_manual_match_sources",
+      "name": "uuid"
+    },
+    {
+      "function": "select_export_values",
+      "name": "Any"
+    },
+    {
+      "function": "select_export_values",
+      "name": "WhatsAppBroadcastGroupModel"
+    },
+    {
+      "function": "select_export_values",
+      "name": "WhatsAppFilterExportRequest"
+    },
+    {
+      "function": "select_export_values",
+      "name": "WhatsAppRecipientRosterItemResponse"
+    },
+    {
+      "function": "select_export_values",
+      "name": "_MESSAGE_LABELS"
+    },
+    {
+      "function": "select_export_values",
+      "name": "_SourceKey"
+    },
+    {
+      "function": "select_export_values",
+      "name": "_broadcast_import_contact_values"
+    },
+    {
+      "function": "select_export_values",
+      "name": "_delivery_values"
+    },
+    {
+      "function": "select_export_values",
+      "name": "uuid"
+    },
+    {
+      "function": "append_merged_contact_rows",
+      "name": "WhatsAppExportRow"
+    },
+    {
+      "function": "append_merged_contact_rows",
+      "name": "_broadcast_import_contact_values"
+    },
+    {
+      "function": "append_merged_contact_rows",
+      "name": "uuid"
+    },
+    {
+      "function": "append_source_rows",
+      "name": "Any"
+    },
+    {
+      "function": "append_source_rows",
+      "name": "ClientGroupModel"
+    },
+    {
+      "function": "append_source_rows",
+      "name": "WhatsAppExportRow"
+    },
+    {
+      "function": "append_source_rows",
+      "name": "_raw_source_phone"
+    },
+    {
+      "function": "append_source_rows",
+      "name": "uuid"
+    },
+    {
+      "function": "project_export_rows",
+      "name": "ClientGroupModel"
+    },
+    {
+      "function": "project_export_rows",
+      "name": "MAX_EXPORT_ROWS"
+    },
+    {
+      "function": "project_export_rows",
+      "name": "WhatsAppBroadcastGroupModel"
+    },
+    {
+      "function": "project_export_rows",
+      "name": "WhatsAppExportRow"
+    },
+    {
+      "function": "project_export_rows",
+      "name": "WhatsAppExportTooLarge"
+    },
+    {
+      "function": "project_export_rows",
+      "name": "WhatsAppFilterExportRequest"
+    },
+    {
+      "function": "project_export_rows",
+      "name": "WhatsAppRecipientRosterItemResponse"
+    },
+    {
+      "function": "project_export_rows",
+      "name": "_group_export_details"
+    },
+    {
+      "function": "project_export_rows",
+      "name": "uuid"
+    },
+    {
+      "function": "select_export_rows",
+      "name": "AsyncSession"
+    },
+    {
+      "function": "select_export_rows",
+      "name": "User"
+    },
+    {
+      "function": "select_export_rows",
+      "name": "WhatsAppBroadcastGroupModel"
+    },
+    {
+      "function": "select_export_rows",
+      "name": "WhatsAppFilterExportRequest"
+    },
+    {
+      "function": "select_export_rows",
+      "name": "WhatsAppRecipientRosterItemResponse"
+    },
+    {
+      "function": "select_export_rows",
+      "name": "_exportable_links"
+    },
+    {
+      "function": "select_export_rows",
+      "name": "_roster_identity"
+    },
+    {
+      "function": "select_export_rows",
+      "name": "_stale_rows"
+    },
+    {
+      "function": "select_export_rows",
+      "name": "get_broadcast_recipient_roster"
+    },
+    {
+      "function": "select_export_rows",
+      "name": "uuid"
+    },
+    {
+      "function": "load_durable_sources",
+      "name": "AsyncSession"
+    },
+    {
+      "function": "load_durable_sources",
+      "name": "MAX_EXPORT_ROWS"
+    },
+    {
+      "function": "load_durable_sources",
+      "name": "SubmissionMatchRow"
+    },
+    {
+      "function": "load_durable_sources",
+      "name": "WhatsAppBroadcastGroupModel"
+    },
+    {
+      "function": "load_durable_sources",
+      "name": "WhatsAppBroadcastSourceContactModel"
+    },
+    {
+      "function": "load_durable_sources",
+      "name": "WhatsAppExportTooLarge"
+    },
+    {
+      "function": "load_durable_sources",
+      "name": "WhatsAppFilterExportRequest"
+    },
+    {
+      "function": "load_durable_sources",
+      "name": "_SOURCE_QUERY_BATCH"
+    },
+    {
+      "function": "load_durable_sources",
+      "name": "_SourceKey"
+    },
+    {
+      "function": "load_durable_sources",
+      "name": "_stale_rows"
+    },
+    {
+      "function": "load_durable_sources",
+      "name": "defaultdict"
+    },
+    {
+      "function": "load_durable_sources",
+      "name": "select"
+    },
+    {
+      "function": "load_durable_sources",
+      "name": "tuple_"
+    },
+    {
+      "function": "load_durable_sources",
+      "name": "uuid"
+    },
+    {
+      "function": "add_displaced_sources",
+      "name": "AsyncSession"
+    },
+    {
+      "function": "add_displaced_sources",
+      "name": "ClientGroupModel"
+    },
+    {
+      "function": "add_displaced_sources",
+      "name": "PassportRosterResolutionModel"
+    },
+    {
+      "function": "add_displaced_sources",
+      "name": "WhatsAppBroadcastGroupModel"
+    },
+    {
+      "function": "add_displaced_sources",
+      "name": "WhatsAppBroadcastRecipientModel"
+    },
+    {
+      "function": "add_displaced_sources",
+      "name": "WhatsAppFilterExportRequest"
+    },
+    {
+      "function": "add_displaced_sources",
+      "name": "select"
+    },
+    {
+      "function": "add_displaced_sources",
+      "name": "uuid"
+    },
+    {
+      "function": "add_unidentified_sources",
+      "name": "ClientGroupModel"
+    },
+    {
+      "function": "add_unidentified_sources",
+      "name": "WhatsAppFilterExportRequest"
+    },
+    {
+      "function": "add_unidentified_sources",
+      "name": "WhatsAppRecipientRosterItemResponse"
+    },
+    {
+      "function": "add_unidentified_sources",
+      "name": "_stale_rows"
+    },
+    {
+      "function": "add_unidentified_sources",
+      "name": "uuid"
+    },
+    {
+      "function": "_stale_rows",
+      "name": "HTTPException"
+    },
+    {
+      "function": "_roster_identity",
+      "name": "WhatsAppRecipientRosterItemResponse"
+    },
+    {
+      "function": "_roster_identity",
+      "name": "uuid"
+    },
+    {
+      "function": "_exportable_links",
+      "name": "AsyncSession"
+    },
+    {
+      "function": "_exportable_links",
+      "name": "AuthorizationError"
+    },
+    {
+      "function": "_exportable_links",
+      "name": "AuthorizationPolicy"
+    },
+    {
+      "function": "_exportable_links",
+      "name": "ClientGroupModel"
+    },
+    {
+      "function": "_exportable_links",
+      "name": "ClientGroupWhatsAppBroadcastLinkModel"
+    },
+    {
+      "function": "_exportable_links",
+      "name": "User"
+    },
+    {
+      "function": "_exportable_links",
+      "name": "WhatsAppBroadcastGroupModel"
+    },
+    {
+      "function": "_exportable_links",
+      "name": "select"
+    },
+    {
+      "function": "_latest_attempt_values",
+      "name": "Any"
+    },
+    {
+      "function": "_latest_attempt_values",
+      "name": "AsyncSession"
+    },
+    {
+      "function": "_latest_attempt_values",
+      "name": "WhatsAppBroadcastGroupModel"
+    },
+    {
+      "function": "_latest_attempt_values",
+      "name": "WhatsAppMessageLogModel"
+    },
+    {
+      "function": "_latest_attempt_values",
+      "name": "_MESSAGE_LABELS"
+    },
+    {
+      "function": "_latest_attempt_values",
+      "name": "defaultdict"
+    },
+    {
+      "function": "_latest_attempt_values",
+      "name": "func"
+    },
+    {
+      "function": "_latest_attempt_values",
+      "name": "select"
+    },
+    {
+      "function": "_latest_attempt_values",
+      "name": "uuid"
+    },
+    {
+      "function": "_delivery_values",
+      "name": "Any"
+    },
+    {
+      "function": "_delivery_values",
+      "name": "WhatsAppRecipientResponse"
+    },
+    {
+      "function": "_delivery_values",
+      "name": "_MESSAGE_LABELS"
+    },
+    {
+      "function": "_broadcast_import_contact_values",
+      "name": "Any"
+    },
+    {
+      "function": "_broadcast_import_contact_values",
+      "name": "_WHATSAPP_EMAIL_IMPORTED_KEYS"
+    },
+    {
+      "function": "_broadcast_import_contact_values",
+      "name": "_imported_zone_name"
+    },
+    {
+      "function": "_broadcast_import_contact_values",
+      "name": "_normalized_imported_field_key"
+    }
+  ],
+  "evaluated_function_and_data_hints": [
+    "app.presentation.api.v1.routes.whatsapp_exports._gather_export_rows",
+    "app.presentation.api.v1.routes.whatsapp_exports.export_broadcast_filter",
+    "app.presentation.api.v1.routes.whatsapp_export_hydration.HydratedExportSources",
+    "app.presentation.api.v1.routes.whatsapp_export_hydration.ExportDelivery",
+    "app.presentation.api.v1.routes.whatsapp_export_hydration.hydrate_export_sources",
+    "app.presentation.api.v1.routes.whatsapp_export_hydration.load_export_delivery",
+    "app.presentation.api.v1.routes.whatsapp_export_matching.add_phone_override_sources",
+    "app.presentation.api.v1.routes.whatsapp_export_matching.add_manual_match_sources",
+    "app.presentation.api.v1.routes.whatsapp_export_projection.SelectedExportValues",
+    "app.presentation.api.v1.routes.whatsapp_export_projection.select_export_values",
+    "app.presentation.api.v1.routes.whatsapp_export_projection.append_merged_contact_rows",
+    "app.presentation.api.v1.routes.whatsapp_export_projection.append_source_rows",
+    "app.presentation.api.v1.routes.whatsapp_export_projection.project_export_rows",
+    "app.presentation.api.v1.routes.whatsapp_export_selection.ExportSelection",
+    "app.presentation.api.v1.routes.whatsapp_export_selection.select_export_rows",
+    "app.presentation.api.v1.routes.whatsapp_export_sources.ExportSources",
+    "app.presentation.api.v1.routes.whatsapp_export_sources.load_durable_sources",
+    "app.presentation.api.v1.routes.whatsapp_export_sources.add_displaced_sources",
+    "app.presentation.api.v1.routes.whatsapp_export_sources.add_unidentified_sources",
+    "app.presentation.api.v1.routes.whatsapp_export_support._stale_rows",
+    "app.presentation.api.v1.routes.whatsapp_export_support._roster_identity",
+    "app.presentation.api.v1.routes.whatsapp_export_support._exportable_links",
+    "app.presentation.api.v1.routes.whatsapp_export_support._latest_attempt_values",
+    "app.presentation.api.v1.routes.whatsapp_export_support._delivery_values",
+    "app.presentation.api.v1.routes.whatsapp_export_support._broadcast_import_contact_values"
+  ]
+}

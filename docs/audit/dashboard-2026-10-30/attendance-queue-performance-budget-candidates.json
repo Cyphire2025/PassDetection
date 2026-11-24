@@ -1,0 +1,30 @@
+[
+  {
+    "path": "features/tour-operations/services/attendance-batch-selection.ts",
+    "baselineLines": 31,
+    "maximumLines": 40,
+    "baselineMaxFunctionComplexity": 9,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/tour-operations/services/attendance-queue-replay.ts",
+    "baselineLines": 181,
+    "maximumLines": 190,
+    "baselineMaxFunctionComplexity": 10,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/tour-operations/services/attendance-queue-storage.ts",
+    "baselineLines": 146,
+    "maximumLines": 150,
+    "baselineMaxFunctionComplexity": 6,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/tour-operations/services/attendance-queue-closeout.ts",
+    "baselineLines": 206,
+    "maximumLines": 210,
+    "baselineMaxFunctionComplexity": 4,
+    "maximumFunctionComplexity": 5
+  }
+]

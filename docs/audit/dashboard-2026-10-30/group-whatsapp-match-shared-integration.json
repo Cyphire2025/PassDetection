@@ -1,0 +1,160 @@
+{
+  "status": "verified at this focused source checkpoint",
+  "before_modules": 878,
+  "after_modules": 882,
+  "normal_additions": 4,
+  "normal_changes": [
+    {
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/client_group_whatsapp_match_acquisition.py",
+        "baseline_lines": 132,
+        "maximum_lines": 140,
+        "baseline_max_function_complexity": 14,
+        "maximum_function_complexity": 14,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/client_group_whatsapp_match_resolutions.py",
+        "baseline_lines": 121,
+        "maximum_lines": 130,
+        "baseline_max_function_complexity": 17,
+        "maximum_function_complexity": 17,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/client_group_whatsapp_match_responses.py",
+        "baseline_lines": 214,
+        "maximum_lines": 225,
+        "baseline_max_function_complexity": 7,
+        "maximum_function_complexity": 7,
+        "minimum_coverage_percent": 85
+      }
+    },
+    {
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/client_group_whatsapp_match_support.py",
+        "baseline_lines": 121,
+        "maximum_lines": 125,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      }
+    }
+  ],
+  "critical_before": 165,
+  "critical_after": 165,
+  "all878priorrows_and165critical_global_values_exact": true,
+  "measurements": [
+    {
+      "path": "app/presentation/api/v1/routes/client_group_whatsapp_match_acquisition.py",
+      "sha256": "a9d58063df235d4fbae07a61879e93786e5b5431e63081a5fe82d2fc16d8479c",
+      "lines": 132,
+      "complexity": 14,
+      "line_percent": 100.0,
+      "branch_percent": 50.0,
+      "branch_sites": 2
+    },
+    {
+      "path": "app/presentation/api/v1/routes/client_group_whatsapp_match_resolutions.py",
+      "sha256": "09a239a46cd3dbab284ada75e031ef3ed7b1b3160910bbff0d0f844537b95e9f",
+      "lines": 121,
+      "complexity": 17,
+      "line_percent": 96.66666666666667,
+      "branch_percent": 90.0,
+      "branch_sites": 10
+    },
+    {
+      "path": "app/presentation/api/v1/routes/client_group_whatsapp_match_responses.py",
+      "sha256": "65f319400adc6c1981f5eab8168b307464d0c82a582e6943736c3b4cf49a078e",
+      "lines": 214,
+      "complexity": 7,
+      "line_percent": 87.71929824561404,
+      "branch_percent": 56.25,
+      "branch_sites": 16
+    },
+    {
+      "path": "app/presentation/api/v1/routes/client_group_whatsapp_match_support.py",
+      "sha256": "11a91339306548aec5268918d482475271f828e52be9d8442cd20daf9edc6586",
+      "lines": 121,
+      "complexity": 0,
+      "line_percent": 100.0,
+      "branch_percent": null,
+      "branch_sites": 0
+    }
+  ],
+  "source_fence": {
+    "backend/app/presentation/api/v1/routes/client_group_whatsapp_match_support.py": "11a91339306548aec5268918d482475271f828e52be9d8442cd20daf9edc6586",
+    "backend/app/presentation/api/v1/routes/client_group_link_operations.py": "07fcf9c399905f1ead0b851acb0d37f99149642fea2add2041210edfed6a1351",
+    "backend/app/presentation/api/v1/routes/client_groups.py": "b48a7e4843e9f1b8d48d7a3483e5ad4d52eac984e65c05a9b78b716559b13179",
+    "backend/app/presentation/api/v1/routes/client_group_resolution_restore.py": "f2bd17b57b1cc3e7f81e1e92e3e41338991d84aaa88117aa990541aa77de794a",
+    "backend/app/presentation/api/v1/routes/client_group_replacement_resolution.py": "38f01e5f29be51833743f7c73b591d71fcc6e9b0d541bf3dea893924b15470f1",
+    "backend/app/presentation/api/v1/routes/client_group_rejection_resolution.py": "cce152527474d69a78ded89500cf5a82dcc59db1127b10c6002cdb963397fed8",
+    "backend/app/presentation/mcp/phone_difference_read_tools.py": "28f5a475f5a75f5274ec44a3221e766a83402f2ae72fe09270f6d056968d7086",
+    "backend/tests/unit/presentation/test_client_group_whatsapp_match_support.py": "9c1438b3893baf354a8e36e5d4385d4a9f4734ffa6013fc41aefae55360f5e48",
+    "backend/tests/unit/presentation/test_passport_roster_resolution_routes.py": "01c8ea5144a596a5aea700715a80e6de7eee03860b8abe0caeb75b2f65859b06",
+    "backend/tests/unit/presentation/test_group_whatsapp_links.py": "e49ec1bee518a55f6861f03def2650aa851936e5c8a4dda86ba8fec3038e238b",
+    "backend/tests/unit/presentation/test_whatsapp_staff_group_visibility.py": "eabfb6c66c89d257f0f5599e841011546115eea5d931cd3434bcfafb712575d6",
+    "backend/tests/integration/test_mcp_phone_difference_reads.py": "9e86ceeebdf40bb8d260d4497b6b4b511e094c8c7c75a7bd08923692fc6e6f73",
+    "backend/tests/integration/test_mcp_dashboard_detail_reads.py": "2a25b62c68717bdf79064621aeb1cb5f23abace009d89f392cefd24c43a0335c",
+    "backend/app/presentation/api/v1/routes/client_group_whatsapp_match_acquisition.py": "a9d58063df235d4fbae07a61879e93786e5b5431e63081a5fe82d2fc16d8479c",
+    "backend/app/presentation/api/v1/routes/client_group_whatsapp_match_resolutions.py": "09a239a46cd3dbab284ada75e031ef3ed7b1b3160910bbff0d0f844537b95e9f",
+    "backend/app/presentation/api/v1/routes/client_group_whatsapp_match_responses.py": "65f319400adc6c1981f5eab8168b307464d0c82a582e6943736c3b4cf49a078e",
+    ".tmp/test_group_whatsapp_match_contract_capture.py": "5865d17c18a0cddf27908e3f05d09aecea1d414a56dd0cb38f1458f94b0fa4b5",
+    ".tmp/run_group_whatsapp_match_final.py": "611397988a7471085def5696a1b26186b5c0e88b247ec53ad7f240b78f05a927"
+  },
+  "source_fence_count": 18,
+  "unchanged_controls": {
+    "backend/architecture-dependencies.json": "d74dad8369bc1e9cdb2ebb2fa7a550ca87de9a9e267b1c6c94de749569b50d36",
+    "frontend/scripts/verify-frontend-module-budgets.mjs": "cb39d6c6ee5351e9fa166d560dd62c58a3b1b20021fc38a7c2a52d1017d94ff7",
+    ".github/workflows/ci.yml": "129d10b5c5b6da21cd7b8b77364c2685fb5d1d380594c71df091eba5fe7a0b89"
+  },
+  "release": {
+    "paths": 126,
+    "only_backend_budget_AFTER_updated": true,
+    "all126originalBEFORE_pairs_and125otherAFTER_values_exact": true,
+    "budget_sha256": "0e292b4f0ecf53d0a1942fa3c2da521f19ebc58c8450627be85fd309eaf44305",
+    "bindings_sha256": "6c5298ac2283a687d54fd1a90c6e1f094942617bc10d073856b0441c886aacc5"
+  },
+  "review_basis": "Parent-adopted peer full-source/equivalence/current57case receipt independently verified for exact current artifacts/source fence/raw coverage/canonical measurements. This integrator does not claim independent whole peer runtime reread.",
+  "behavior_scope": "Prior current57 cases =56unchanged products+1contract; no feature rerun for gate data",
+  "limits": [
+    "Response normal85 follows87.72statement coverage;56.25branch is explicit and no critical gate added.",
+    "Acquisition100statement/50branch, resolutions96.67/90, facade branchless. None is a new branch certification.",
+    "No workflow/SQL/performance/caching or native feature changes.",
+    "No broad app/build/browser/provider/VPS/deploy qualification.",
+    "MCP1990 and all historical QUALIFIED_SOURCES remain historical/unmodified."
+  ],
+  "artifacts": {
+    "group-whatsapp-match-support-final-verification.json": "1f97fa03af54539a81b374f008eecebaf6df468e51967d156f6a085fdf1db962",
+    "group-whatsapp-match-support-budget-candidates.json": "ce5039c95fbe92c62adebb2163f2a8692d150e59eca1a68d7db40f409d4f70e0",
+    "group-whatsapp-match-shared-previous-values.json": "5f514a9ef6a59818b9a0fa1fdc4676af47108c6efafd2e6cdc652be421c3fa71",
+    "group-whatsapp-match-shared-budgets.txt": "ee6e9dbaf2cfd275d69523b74520d0fea9a30cc0c10daf927340faba12f34ab9",
+    "group-whatsapp-match-shared-architecture.txt": "895bfbeca4c78591066dcf214c4bfe9de43b5d7ed5d3f518fe398563a7bcc992",
+    "group-whatsapp-match-shared-bindings.txt": "35a6029ac6f0381cd7027d13b864222808ad5e21ca643cf7506454c1b3bb3dbf",
+    "group-whatsapp-match-shared-loader-tests.txt": "17af409c1d7d5ad168120af48cb743f647c884783dc832830f343fb04b26e918",
+    "group-whatsapp-match-shared-exact-bindings.json": "42fdf8181d0b82c55a46e53a111205bf6fd7a3cf32749638673e6279eb2a0890"
+  },
+  "checks": {
+    "backend_normal_static": "882 modules pass",
+    "critical_obligations": "All165 prior entries/global floors exact; no critical additions",
+    "architecture": "Whole static checker pass; policy byte-unchanged",
+    "release_bindings": "126 current AFTER + both actual original Git BEFOREs pass; only backend-budget AFTER updated",
+    "loader": "14 focused tests pass",
+    "source_fence": "18 current runtime/test/support hashes rechecked",
+    "frontend_and_CI": "661 budget and current CI source unchanged after complete source-only review; no broad execution"
+  },
+  "controls": {
+    "backend/backend_quality_budgets.json": "0e292b4f0ecf53d0a1942fa3c2da521f19ebc58c8450627be85fd309eaf44305",
+    "backend/architecture-dependencies.json": "d74dad8369bc1e9cdb2ebb2fa7a550ca87de9a9e267b1c6c94de749569b50d36",
+    "scripts/release_workspace_branding_bindings.json": "6c5298ac2283a687d54fd1a90c6e1f094942617bc10d073856b0441c886aacc5",
+    "scripts/release_workspace_branding_policy.py": "cae2eacc0398319dd8319f227ad7e9bf92b1edfc91b6abe9bf38121f6a8a406b"
+  }
+}

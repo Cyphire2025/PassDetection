@@ -16,6 +16,7 @@ import {
 } from "@/features/auth/services/refresh-coordinator";
 import { requestAuthenticationStepUp } from "@/features/auth/services/step-up-coordinator";
 import { refreshWithSingleConflictRetry } from "@/features/auth/services/refresh-attempt";
+import { CookieCoordinationUnavailableError, cookieMutationAdapter, coordinatedCookieAdapter } from "@/features/auth/services/cookie-mutation";
 import { useAuthStore } from "@/stores/auth.store";
 import type { AuthSession } from "@/types";
 import {
@@ -24,6 +25,14 @@ import {
 } from "./retry-after";
 import { resolveServerApiBaseUrl } from "@/config/api-routing";
 import { normalizeStructuredApiErrorDetail } from "./api-error-detail";
+import {
+  assertRequestOwner,
+  capturePrivateRequestOwner,
+  ownerBoundAdapter,
+  RequestOwnerChangedError,
+  type OwnerBoundRequestConfig,
+  ownerBoundRequestConfig,
+} from "./request-owner";
 
 export interface ApiError {
   code: string;
@@ -52,6 +61,7 @@ const SESSION_EXPIRED_ERROR: ApiError = {
   code: "AUTH_SESSION_EXPIRED",
   message: "Your session expired. Please sign in again.",
 };
+const MAX_ERROR_BLOB_BYTES = 64 * 1024;
 
 let refreshPromise: Promise<AuthSession | null> | null = null;
 let expirationPromise: Promise<void> | null = null;
@@ -72,15 +82,26 @@ const apiClient: AxiosInstance = axios.create({
 });
 
 apiClient.interceptors.request.use((config) => {
+  capturePrivateRequestOwner(config);
+  assertRequestOwner(config);
+  config.adapter = cookieMutationAdapter(axios.getAdapter(config.adapter ?? apiClient.defaults.adapter));
+  if ((config as OwnerBoundRequestConfig).expectedOwnerUserId !== undefined) {
+    config.adapter = ownerBoundAdapter(axios.getAdapter(config.adapter ?? apiClient.defaults.adapter));
+  }
   (config as RetriableRequestConfig)._authEpoch = readRefreshEpoch();
   return config;
-});
+}, undefined, { synchronous: true });
 
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    assertRequestOwner(response.config);
+    return response;
+  },
   async (error: AxiosError<ApiErrorResponse>) => {
+    if (error instanceof RequestOwnerChangedError || error instanceof CookieCoordinationUnavailableError) return Promise.reject(error);
     const originalRequest = error.config as RetriableRequestConfig | undefined;
     const responseData = await decodeApiErrorResponse(error.response?.data);
+    if (originalRequest) assertRequestOwner(originalRequest);
     const shouldStepUp =
       error.response?.status === 403 &&
       responseData?.error?.code === "STEP_UP_REQUIRED" &&
@@ -91,6 +112,7 @@ apiClient.interceptors.response.use(
     if (shouldStepUp) {
       originalRequest._stepUpRetry = true;
       await requestAuthenticationStepUp();
+      assertRequestOwner(originalRequest);
       return apiClient(originalRequest);
     }
     const shouldRefresh =
@@ -105,15 +127,19 @@ apiClient.interceptors.response.use(
       originalRequest._authRetry = true;
 
       await getRefreshPromise(originalRequest._authEpoch ?? readRefreshEpoch());
+      assertRequestOwner(originalRequest);
       return apiClient(originalRequest);
     }
 
-    return Promise.reject(await buildApiError(error));
+    const apiError = buildApiError(error, responseData);
+    if (originalRequest) assertRequestOwner(originalRequest);
+    return Promise.reject(apiError);
   },
 );
 
-async function buildApiError(error: AxiosError<ApiErrorResponse>): Promise<ApiError> {
-  const responseData = await decodeApiErrorResponse(error.response?.data);
+function buildApiError(
+  error: AxiosError<ApiErrorResponse>, responseData: ApiErrorResponse | undefined,
+): ApiError {
   const structuredError = responseData?.error;
   const responseStatus = error.response?.status;
   const retryAfterMs = responseStatus === 429 || responseStatus === 503
@@ -167,6 +193,9 @@ async function decodeApiErrorResponse(
   responseData: ApiErrorResponse | Blob | undefined,
 ): Promise<ApiErrorResponse | undefined> {
   if (typeof Blob !== "undefined" && responseData instanceof Blob) {
+    // A failed download may contain the entire document or a gateway page.
+    // Bound the extra text/JSON allocations before reading an error envelope.
+    if (responseData.size > MAX_ERROR_BLOB_BYTES) return undefined;
     try {
       const parsed: unknown = JSON.parse(await responseData.text());
       if (typeof parsed !== "object" || parsed === null) return undefined;
@@ -182,6 +211,10 @@ function getRefreshPromise(observedEpoch: string) {
   if (refreshPromise) return refreshPromise;
 
   let refreshedSession: AuthSession | null = null;
+  const refreshAuthentication = useAuthStore.getState();
+  const refreshOwnerUserId = refreshAuthentication.user?.id;
+  const refreshSessionVersion = refreshAuthentication.sessionVersion;
+  const refreshRequestOwner = ownerBoundRequestConfig(refreshOwnerUserId);
   refreshPromise = runCoordinatedRefresh(
     observedEpoch,
     async () => {
@@ -191,7 +224,12 @@ function getRefreshPromise(observedEpoch: string) {
         {
           withCredentials: true,
           timeout: 10_000,
-          headers: { "Content-Type": "application/json" },
+          ...refreshRequestOwner,
+          headers: {
+            "Content-Type": "application/json",
+            ...(refreshOwnerUserId ? { "X-Expected-Actor-Id": refreshOwnerUserId } : {}),
+          },
+          adapter: ownerBoundAdapter(coordinatedCookieAdapter()),
         },
       ));
       refreshedSession = response.data;
@@ -203,11 +241,16 @@ function getRefreshPromise(observedEpoch: string) {
         axios.isAxiosError(error) &&
         (error.response?.status === 401 || error.response?.status === 403)
       ) {
+        assertRequestOwner(refreshRequestOwner);
+        const current = useAuthStore.getState();
+        if (current.user?.id !== refreshOwnerUserId || current.sessionVersion !== refreshSessionVersion) {
+          throw new RequestOwnerChangedError();
+        }
         await expireSession();
         throw SESSION_EXPIRED_ERROR;
       }
       if (axios.isAxiosError<ApiErrorResponse>(error)) {
-        throw await buildApiError(error);
+        throw buildApiError(error, await decodeApiErrorResponse(error.response?.data));
       }
       throw error;
     })
@@ -247,7 +290,7 @@ function isRefreshEligibleRequest(url: string | undefined) {
   // Authentication commands and public traveller flows have their own 401
   // semantics. A revoked public link must never redirect a traveller to the
   // staff login page or attempt to use an unrelated staff refresh cookie.
-  if (/\/api\/v1\/auth\/(?:login|refresh|logout|logout-all)(?:[/?]|$)/.test(url)) {
+  if (/\/api\/v1\/auth\/(?:login|refresh|logout|logout-all|activate|mfa\/verify|password\/recovery\/(?:request|complete))(?:[/?]|$)/.test(url)) {
     return false;
   }
   if (url.includes("/api/v1/passports/upload/")) return false;

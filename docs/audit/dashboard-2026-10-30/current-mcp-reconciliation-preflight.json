@@ -1,0 +1,2252 @@
+{
+  "before_count": 1990,
+  "discovered_count": 2012,
+  "new": [
+    {
+      "id": "frontend:frontend/features/documents/api/document-batches.api.ts:deleteDocuments",
+      "kind": "frontend_callable",
+      "source": "frontend/features/documents/api/document-batches.api.ts",
+      "handler": "deleteDocuments"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/admin_manager_deletion.py:delete_manager:DELETE:/managers/{manager_id}",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/admin_manager_deletion.py",
+      "handler": "delete_manager",
+      "method": "DELETE",
+      "local_path": "/managers/{manager_id}",
+      "contract_sha256": "dcabec8b784fb32a8d30b1e8a9b804926ad66e9e964a279c91779d17f5d6c03f",
+      "summary": "Delete a manager account",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-accounts.api.ts:adminOverview",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-accounts.api.ts",
+      "handler": "adminOverview"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-tour.api.ts:myTourGroupPassengers",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-tour.api.ts",
+      "handler": "myTourGroupPassengers"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-qr.api.ts:regeneratePassengerQr",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-qr.api.ts",
+      "handler": "regeneratePassengerQr"
+    },
+    {
+      "id": "registration:backend/app/presentation/api/v1/routes/passport_routes/images_reset.py",
+      "kind": "route_registration",
+      "source": "backend/app/presentation/api/v1/routes/passport_routes/images_reset.py",
+      "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-attendance.api.ts:groupAttendanceMissingPassengers",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-attendance.api.ts",
+      "handler": "groupAttendanceMissingPassengers"
+    },
+    {
+      "id": "frontend:frontend/features/documents/api/document-delivery.api.ts:previewWhatsAppDelivery",
+      "kind": "frontend_callable",
+      "source": "frontend/features/documents/api/document-delivery.api.ts",
+      "handler": "previewWhatsAppDelivery"
+    },
+    {
+      "id": "frontend_api:frontend/features/operations/api/operations-accounts.api.ts",
+      "kind": "frontend_api_contract",
+      "source": "frontend/features/operations/api/operations-accounts.api.ts",
+      "contract_sha256": "e4ff117a70fb1b663e5f1cea17d7679470ee53b8bc1e233ffca481bdbf0f50be"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-attendance.api.ts:publishMyAttendanceCloseoutCheckpoint",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-attendance.api.ts",
+      "handler": "publishMyAttendanceCloseoutCheckpoint"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/passport_image_library_reads.py:get_passport_image_library_item:GET:/{submission_id}/images/{image_type}/library/{item_id}/image",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/passport_image_library_reads.py",
+      "handler": "get_passport_image_library_item",
+      "method": "GET",
+      "local_path": "/{submission_id}/images/{image_type}/library/{item_id}/image",
+      "contract_sha256": "b979c845052e882a75b456f6afdcaba114efa03a549c4da1b886be2692843b5e",
+      "summary": "Stream one authorized passport image-library item",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-accounts.api.ts:revokeManagedAccountSessions",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-accounts.api.ts",
+      "handler": "revokeManagedAccountSessions"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library_generation.py:create_visa_ai_library_image:POST:/{submission_id}/images/visa_photo/ai-library",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library_generation.py",
+      "handler": "create_visa_ai_library_image",
+      "method": "POST",
+      "local_path": "/{submission_id}/images/visa_photo/ai-library",
+      "contract_sha256": "84cfd6a21faaec3a2ef0d36414acc8e0cea946b9b7bbd30f243798d71b680a4f",
+      "summary": "Generate and automatically save a Visa AI image",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-attendance.api.ts:createManagedAttendanceSession",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-attendance.api.ts",
+      "handler": "createManagedAttendanceSession"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-attendance.api.ts:myAttendanceSessions",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-attendance.api.ts",
+      "handler": "myAttendanceSessions"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-rooming.api.ts:updateRoomingPassengerSelection",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-rooming.api.ts",
+      "handler": "updateRoomingPassengerSelection"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-audit.api.ts:analyticsSummary",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-audit.api.ts",
+      "handler": "analyticsSummary"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-qr.api.ts:groupQrCodes",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-qr.api.ts",
+      "handler": "groupQrCodes"
+    },
+    {
+      "id": "registration:backend/app/presentation/api/v1/routes/passport_routes/images_reads.py",
+      "kind": "route_registration",
+      "source": "backend/app/presentation/api/v1/routes/passport_routes/images_reads.py",
+      "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+    },
+    {
+      "id": "frontend:frontend/features/operations/test-support/operations-authority.test-fixture.tsx:createOperationsAuthorityContext",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/test-support/operations-authority.test-fixture.tsx",
+      "handler": "createOperationsAuthorityContext"
+    },
+    {
+      "id": "registration:backend/app/presentation/api/v1/routes/managed_account_queries.py",
+      "kind": "route_registration",
+      "source": "backend/app/presentation/api/v1/routes/managed_account_queries.py",
+      "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-rooming.api.ts:roomingPriorityFields",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-rooming.api.ts",
+      "handler": "roomingPriorityFields"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/admin_group_access.py:list_staff_for_access:GET:/staff",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/admin_group_access.py",
+      "handler": "list_staff_for_access",
+      "method": "GET",
+      "local_path": "/staff",
+      "contract_sha256": "a71c57381981ce8ee1140c13544570d89255e52e0f475cdfecf08a7ce6341f05",
+      "summary": "List staff accounts with group access",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-accounts.api.ts:resetManagedAccountPassword",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-accounts.api.ts",
+      "handler": "resetManagedAccountPassword"
+    },
+    {
+      "id": "frontend:frontend/features/documents/api/document-review.api.ts:listGroups",
+      "kind": "frontend_callable",
+      "source": "frontend/features/documents/api/document-review.api.ts",
+      "handler": "listGroups"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/passport_routes/contact_completion.py:verify_public_contact_otp:POST:/{submission_id}/contact-otp/verify",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/passport_routes/contact_completion.py",
+      "handler": "verify_public_contact_otp",
+      "method": "POST",
+      "local_path": "/{submission_id}/contact-otp/verify",
+      "contract_sha256": "a03dcb109f429dc617c99c117e9c8d8b091e10460766244cbdf8f77b6fb04065",
+      "summary": "verify public contact otp",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-tour.api.ts:tourOperationsArchitecture",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-tour.api.ts",
+      "handler": "tourOperationsArchitecture"
+    },
+    {
+      "id": "frontend_api:frontend/features/operations/api/operations-rooming.api.ts",
+      "kind": "frontend_api_contract",
+      "source": "frontend/features/operations/api/operations-rooming.api.ts",
+      "contract_sha256": "e258e706c96013192e640f42f0fd4476f50d6fa9b0cbe25f2d4d474489fc943d"
+    },
+    {
+      "id": "frontend:frontend/features/documents/api/document-batches.api.ts:manualUploadPassengerDocument",
+      "kind": "frontend_callable",
+      "source": "frontend/features/documents/api/document-batches.api.ts",
+      "handler": "manualUploadPassengerDocument"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-qr.api.ts:setPassengerQrActive",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-qr.api.ts",
+      "handler": "setPassengerQrActive"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/passport_routes/visa_ai_edits_apply.py:apply_visa_ai_image_edit:POST:/{submission_id}/images/visa_photo/ai-apply",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_edits_apply.py",
+      "handler": "apply_visa_ai_image_edit",
+      "method": "POST",
+      "local_path": "/{submission_id}/images/visa_photo/ai-apply",
+      "contract_sha256": "7b7b2bedc1b632b84d2491f4ca793adaa27dc21d2f9fa210e14f90568274a5b9",
+      "summary": "Save a Visa AI edit with crop and sharpness metadata",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-accounts.api.ts:managedAccounts",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-accounts.api.ts",
+      "handler": "managedAccounts"
+    },
+    {
+      "id": "registration:backend/app/presentation/api/v1/routes/passport_routes/images_crop.py",
+      "kind": "route_registration",
+      "source": "backend/app/presentation/api/v1/routes/passport_routes/images_crop.py",
+      "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+    },
+    {
+      "id": "frontend:frontend/features/documents/api/document-review.api.ts:getReview",
+      "kind": "frontend_callable",
+      "source": "frontend/features/documents/api/document-review.api.ts",
+      "handler": "getReview"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-qr.api.ts:sendQrBroadcast",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-qr.api.ts",
+      "handler": "sendQrBroadcast"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-attendance.api.ts:groupAttendanceSummary",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-attendance.api.ts",
+      "handler": "groupAttendanceSummary"
+    },
+    {
+      "id": "registration:backend/app/presentation/api/v1/routes/passport_image_library_selection.py",
+      "kind": "route_registration",
+      "source": "backend/app/presentation/api/v1/routes/passport_image_library_selection.py",
+      "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-rooming.api.ts:roomingWorkspace",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-rooming.api.ts",
+      "handler": "roomingWorkspace"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-qr.api.ts:qrDeliveryPreview",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-qr.api.ts",
+      "handler": "qrDeliveryPreview"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/managed_account_credentials.py:reset_managed_account_password:POST:/{account_id}/reset-password",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/managed_account_credentials.py",
+      "handler": "reset_managed_account_password",
+      "method": "POST",
+      "local_path": "/{account_id}/reset-password",
+      "contract_sha256": "72fae8d91c4cae298b8b7c9a6e95e9211ae39b1a207ad661f2a1ab4b24c3c882",
+      "summary": "Issue a one-time credential reset link and revoke every existing session",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/admin_retention.py:get_group_passport_retention:GET:/groups/{group_id}/passport-retention",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/admin_retention.py",
+      "handler": "get_group_passport_retention",
+      "method": "GET",
+      "local_path": "/groups/{group_id}/passport-retention",
+      "contract_sha256": "1c207ec0d93f655e23f3542714bb2f3bf03cf4d2e934be0659198170b6964307",
+      "summary": "Inspect an explicit group passport-retention schedule",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/documents/api/document-review.api.ts:exportReview",
+      "kind": "frontend_callable",
+      "source": "frontend/features/documents/api/document-review.api.ts",
+      "handler": "exportReview"
+    },
+    {
+      "id": "registration:backend/app/presentation/api/v1/routes/admin_manager_deletion.py",
+      "kind": "route_registration",
+      "source": "backend/app/presentation/api/v1/routes/admin_manager_deletion.py",
+      "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/admin_platform_settings.py:get_platform_settings:GET:/settings",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/admin_platform_settings.py",
+      "handler": "get_platform_settings",
+      "method": "GET",
+      "local_path": "/settings",
+      "contract_sha256": "67a1cd0fd513fadf6aa17dd8e7017de1382d27a2dd222edb37b097958437facf",
+      "summary": "Get editable platform settings",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-accounts.api.ts:managers",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-accounts.api.ts",
+      "handler": "managers"
+    },
+    {
+      "id": "registration:backend/app/presentation/api/v1/routes/passport_routes/visa_ai_edits_apply.py",
+      "kind": "route_registration",
+      "source": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_edits_apply.py",
+      "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+    },
+    {
+      "id": "frontend:frontend/features/documents/api/document-batches.api.ts:abortUpload",
+      "kind": "frontend_callable",
+      "source": "frontend/features/documents/api/document-batches.api.ts",
+      "handler": "abortUpload"
+    },
+    {
+      "id": "registration:backend/app/presentation/api/v1/routes/passport_routes/contact_completion.py",
+      "kind": "route_registration",
+      "source": "backend/app/presentation/api/v1/routes/passport_routes/contact_completion.py",
+      "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-attendance.api.ts:scanMyAttendanceSession",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-attendance.api.ts",
+      "handler": "scanMyAttendanceSession"
+    },
+    {
+      "id": "registration:backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library_generation.py",
+      "kind": "route_registration",
+      "source": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library_generation.py",
+      "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+    },
+    {
+      "id": "registration:backend/app/presentation/api/v1/routes/admin_group_access.py",
+      "kind": "route_registration",
+      "source": "backend/app/presentation/api/v1/routes/admin_group_access.py",
+      "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-checkin.api.ts:hotelCheckins",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-checkin.api.ts",
+      "handler": "hotelCheckins"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/managed_account_creation.py:create_staff_account:POST:/staff",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/managed_account_creation.py",
+      "handler": "create_staff_account",
+      "method": "POST",
+      "local_path": "/staff",
+      "contract_sha256": "d0d9d9d394c293206b3d252f216465025acd3adf9876311b055c24672a003fbd",
+      "summary": "Create a staff account",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/documents/api/document-batches.api.ts:unassignDocuments",
+      "kind": "frontend_callable",
+      "source": "frontend/features/documents/api/document-batches.api.ts",
+      "handler": "unassignDocuments"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-audit.api.ts:auditLogPage",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-audit.api.ts",
+      "handler": "auditLogPage"
+    },
+    {
+      "id": "registration:backend/app/presentation/api/v1/routes/passport_routes/contact_issuance.py",
+      "kind": "route_registration",
+      "source": "backend/app/presentation/api/v1/routes/passport_routes/contact_issuance.py",
+      "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-tour.api.ts:myTourGroupPassenger",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-tour.api.ts",
+      "handler": "myTourGroupPassenger"
+    },
+    {
+      "id": "registration:backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library_selection.py",
+      "kind": "route_registration",
+      "source": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library_selection.py",
+      "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+    },
+    {
+      "id": "registration:backend/app/presentation/api/v1/routes/admin_platform_settings.py",
+      "kind": "route_registration",
+      "source": "backend/app/presentation/api/v1/routes/admin_platform_settings.py",
+      "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-accounts.api.ts:setManagedAccountStatus",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-accounts.api.ts",
+      "handler": "setManagedAccountStatus"
+    },
+    {
+      "id": "registration:backend/app/presentation/api/v1/routes/passport_routes/visa_ai_edits_preview.py",
+      "kind": "route_registration",
+      "source": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_edits_preview.py",
+      "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+    },
+    {
+      "id": "registration:backend/app/presentation/api/v1/routes/managed_account_mutations.py",
+      "kind": "route_registration",
+      "source": "backend/app/presentation/api/v1/routes/managed_account_mutations.py",
+      "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/managed_account_mutations.py:set_managed_account_status:PATCH:/{account_id}/status",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/managed_account_mutations.py",
+      "handler": "set_managed_account_status",
+      "method": "PATCH",
+      "local_path": "/{account_id}/status",
+      "contract_sha256": "92cea548834d0b180f4ab2d449e39fe3a3dca22153624cbe2c232f50aaf5288e",
+      "summary": "Activate or deactivate a managed account",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend_api:frontend/features/documents/api/document-verification.api.ts",
+      "kind": "frontend_api_contract",
+      "source": "frontend/features/documents/api/document-verification.api.ts",
+      "contract_sha256": "f07dcb1a9e9131ed9f4b5e58c9ff6bf93074c27a888395c3b7317c8e6c2304d6"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/admin_passport_purge.py:purge_passport_data:DELETE:/passport-data",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/admin_passport_purge.py",
+      "handler": "purge_passport_data",
+      "method": "DELETE",
+      "local_path": "/passport-data",
+      "contract_sha256": "4910cfb6a3282125bd4f52a89af530d002b4b481c2c0050b8d8c79ae4b5505e3",
+      "summary": "Permanently delete passport and WhatsApp broadcast data",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-rooming.api.ts:autoAllocateRoomingHotel",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-rooming.api.ts",
+      "handler": "autoAllocateRoomingHotel"
+    },
+    {
+      "id": "registration:backend/app/presentation/api/v1/routes/admin_workforce.py",
+      "kind": "route_registration",
+      "source": "backend/app/presentation/api/v1/routes/admin_workforce.py",
+      "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/passport_image_library_selection.py:use_passport_image_library_item:POST:/{submission_id}/images/{image_type}/library/{item_id}/use",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/passport_image_library_selection.py",
+      "handler": "use_passport_image_library_item",
+      "method": "POST",
+      "local_path": "/{submission_id}/images/{image_type}/library/{item_id}/use",
+      "contract_sha256": "ef9b7881a4ea346e1a661ff16b6d170eacfffba54e78b471a7ccdce9ac2031a6",
+      "summary": "Make one original, manual, or AI library item current",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/tour-operations/services/attendance-queue-discards.ts:syncAttendanceDiscardTombstones",
+      "kind": "frontend_callable",
+      "source": "frontend/features/tour-operations/services/attendance-queue-discards.ts",
+      "handler": "syncAttendanceDiscardTombstones"
+    },
+    {
+      "id": "registration:backend/app/presentation/api/v1/routes/managed_account_credentials.py",
+      "kind": "route_registration",
+      "source": "backend/app/presentation/api/v1/routes/managed_account_credentials.py",
+      "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-tour.api.ts:assignTourGroupCoordinators",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-tour.api.ts",
+      "handler": "assignTourGroupCoordinators"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/passport_routes/images_reads.py:get_passport_image_original:GET:/{submission_id}/images/{image_type}/original",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/passport_routes/images_reads.py",
+      "handler": "get_passport_image_original",
+      "method": "GET",
+      "local_path": "/{submission_id}/images/{image_type}/original",
+      "contract_sha256": "93a5a81a5d3b1b3c9f02b7b2f812fcef18ef8443e13a3e9ad939aa3a961439ef",
+      "summary": "Stream an immutable original image to an authorized crop editor",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-rooming.api.ts:updateRoomingVip",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-rooming.api.ts",
+      "handler": "updateRoomingVip"
+    },
+    {
+      "id": "registration:backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library_reads.py",
+      "kind": "route_registration",
+      "source": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library_reads.py",
+      "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-audit.api.ts:exportAuditLogs",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-audit.api.ts",
+      "handler": "exportAuditLogs"
+    },
+    {
+      "id": "frontend:frontend/features/documents/test-support/operation-authority.test-fixture.tsx:createDocumentAuthorityContext",
+      "kind": "frontend_callable",
+      "source": "frontend/features/documents/test-support/operation-authority.test-fixture.tsx",
+      "handler": "createDocumentAuthorityContext"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-accounts.api.ts:staffAccessAccounts",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-accounts.api.ts",
+      "handler": "staffAccessAccounts"
+    },
+    {
+      "id": "frontend:frontend/features/tour-operations/services/attendance-queue-discards.ts:createDiscardTombstone",
+      "kind": "frontend_callable",
+      "source": "frontend/features/tour-operations/services/attendance-queue-discards.ts",
+      "handler": "createDiscardTombstone"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-accounts.api.ts:resetManagedAccountMfa",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-accounts.api.ts",
+      "handler": "resetManagedAccountMfa"
+    },
+    {
+      "id": "registration:backend/app/presentation/api/v1/routes/passport_image_library_manual.py",
+      "kind": "route_registration",
+      "source": "backend/app/presentation/api/v1/routes/passport_image_library_manual.py",
+      "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/managed_account_mutations.py:delete_managed_account:DELETE:/{account_id}",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/managed_account_mutations.py",
+      "handler": "delete_managed_account",
+      "method": "DELETE",
+      "local_path": "/{account_id}",
+      "contract_sha256": "09684e40440249409d0ebf4efe12b96c1cf1172944060a21b7d0c3f0bf8fb7d3",
+      "summary": "Remove a staff or coordinator account while preserving required history",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library_reads.py:get_visa_ai_library_image:GET:/{submission_id}/images/visa_photo/ai-library/{generation_id}/image",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library_reads.py",
+      "handler": "get_visa_ai_library_image",
+      "method": "GET",
+      "local_path": "/{submission_id}/images/visa_photo/ai-library/{generation_id}/image",
+      "contract_sha256": "15de5edc3459284719b445fbe1d1a957262bb503a4294875ba9cf85bdf94fd1f",
+      "summary": "Stream one saved Visa AI image generation",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/admin_group_access.py:assign_staff_groups:PUT:/staff/{staff_id}/groups",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/admin_group_access.py",
+      "handler": "assign_staff_groups",
+      "method": "PUT",
+      "local_path": "/staff/{staff_id}/groups",
+      "contract_sha256": "22fbc3675cc5100dbad4a8132d81d30b58dca43ca78054bcaf0af49aa55709fc",
+      "summary": "Replace a staff member's assigned group access",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-checkin.api.ts:scanHotelCheckin",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-checkin.api.ts",
+      "handler": "scanHotelCheckin"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-accounts.api.ts:deleteManagedAccount",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-accounts.api.ts",
+      "handler": "deleteManagedAccount"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library_selection.py:use_visa_ai_library_image:POST:/{submission_id}/images/visa_photo/ai-library/{generation_id}/use",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library_selection.py",
+      "handler": "use_visa_ai_library_image",
+      "method": "POST",
+      "local_path": "/{submission_id}/images/visa_photo/ai-library/{generation_id}/use",
+      "contract_sha256": "3dade8767baddc03d8371450770a88c358fd4ac1d057fc2878e0a62fb3435bed",
+      "summary": "Use one saved Visa AI image as the active Visa photo",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/managed_account_credentials.py:revoke_managed_account_sessions:POST:/{account_id}/revoke-sessions",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/managed_account_credentials.py",
+      "handler": "revoke_managed_account_sessions",
+      "method": "POST",
+      "local_path": "/{account_id}/revoke-sessions",
+      "contract_sha256": "f5d6a905f1d7bcd7dff5236daba346ea6c3f960c37bfd2e692e557e8259da950",
+      "summary": "Force an account to sign out on every device",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/passport_routes/images_crop.py:update_passport_image_crop:PUT:/{submission_id}/images/{image_type}/crop",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/passport_routes/images_crop.py",
+      "handler": "update_passport_image_crop",
+      "method": "PUT",
+      "local_path": "/{submission_id}/images/{image_type}/crop",
+      "contract_sha256": "2ca203ada4d021381f58acf8d54c3da67a489bbc53bfe0b69c24aad3fea6c7aa",
+      "summary": "Save a non-destructive crop for one passport image",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend_api:frontend/features/operations/api/operations-audit.api.ts",
+      "kind": "frontend_api_contract",
+      "source": "frontend/features/operations/api/operations-audit.api.ts",
+      "contract_sha256": "9ee1dae4b804fb66baf66c90c1f6fa26fa51f5490194cf2b935e675631d582f5"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/admin_workforce.py:create_manager:POST:/managers",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/admin_workforce.py",
+      "handler": "create_manager",
+      "method": "POST",
+      "local_path": "/managers",
+      "contract_sha256": "1333196078921093d3373fd1486555f3783cb78aebf614461735f238fcce7d32",
+      "summary": "Create a limited manager account",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-accounts.api.ts:assignStaffGroups",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-accounts.api.ts",
+      "handler": "assignStaffGroups"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-accounts.api.ts:createStaff",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-accounts.api.ts",
+      "handler": "createStaff"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-tour.api.ts:assignTourGroupPassengers",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-tour.api.ts",
+      "handler": "assignTourGroupPassengers"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-qr.api.ts:setPassengerQrExpiration",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-qr.api.ts",
+      "handler": "setPassengerQrExpiration"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-tour.api.ts:tourCoordinators",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-tour.api.ts",
+      "handler": "tourCoordinators"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-attendance.api.ts:myAttendanceSessionDetails",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-attendance.api.ts",
+      "handler": "myAttendanceSessionDetails"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-rooming.api.ts:createRoomingHotel",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-rooming.api.ts",
+      "handler": "createRoomingHotel"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-rooming.api.ts:updateRoomingHotel",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-rooming.api.ts",
+      "handler": "updateRoomingHotel"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/passport_routes/images_reads.py:get_passport_image_view:GET:/{submission_id}/images/{image_type}",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/passport_routes/images_reads.py",
+      "handler": "get_passport_image_view",
+      "method": "GET",
+      "local_path": "/{submission_id}/images/{image_type}",
+      "contract_sha256": "9ec84f5367a270a11053deec4a7f528ad9587900b3742b209385ee3099b6a30a",
+      "summary": "Stream the effective staff view of a passport image",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/admin_retention.py:get_admin_overview:GET:/overview",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/admin_retention.py",
+      "handler": "get_admin_overview",
+      "method": "GET",
+      "local_path": "/overview",
+      "contract_sha256": "e6756e2db1e11490f559d1ac345e97bbaf6d74d8ad0d3f6f3813495e0b850d19",
+      "summary": "Get administrative platform overview",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/documents/api/document-batches.api.ts:uploadDocuments",
+      "kind": "frontend_callable",
+      "source": "frontend/features/documents/api/document-batches.api.ts",
+      "handler": "uploadDocuments"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-rooming.api.ts:roomingRosterFieldValues",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-rooming.api.ts",
+      "handler": "roomingRosterFieldValues"
+    },
+    {
+      "id": "frontend:frontend/features/documents/api/document-batches.api.ts:reuploadPassengerDocument",
+      "kind": "frontend_callable",
+      "source": "frontend/features/documents/api/document-batches.api.ts",
+      "handler": "reuploadPassengerDocument"
+    },
+    {
+      "id": "registration:backend/app/presentation/api/v1/routes/admin_retention.py",
+      "kind": "route_registration",
+      "source": "backend/app/presentation/api/v1/routes/admin_retention.py",
+      "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/passport_routes/images_reset.py:reset_passport_image_crop:DELETE:/{submission_id}/images/{image_type}/crop",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/passport_routes/images_reset.py",
+      "handler": "reset_passport_image_crop",
+      "method": "DELETE",
+      "local_path": "/{submission_id}/images/{image_type}/crop",
+      "contract_sha256": "746c6b9f4eb270dd000417f0e459315c6bcce4c4516e41835efec7508eb188d0",
+      "summary": "Reset a passport image to its immutable original",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-tour.api.ts:createTourCoordinator",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-tour.api.ts",
+      "handler": "createTourCoordinator"
+    },
+    {
+      "id": "frontend:frontend/features/documents/api/document-batches.api.ts:saveBatch",
+      "kind": "frontend_callable",
+      "source": "frontend/features/documents/api/document-batches.api.ts",
+      "handler": "saveBatch"
+    },
+    {
+      "id": "frontend_api:frontend/features/operations/api/operations-qr.api.ts",
+      "kind": "frontend_api_contract",
+      "source": "frontend/features/operations/api/operations-qr.api.ts",
+      "contract_sha256": "6688f61e230a62009bbd15bc4b8c67a812e023c7d9e0bcba84704788c7d97b8f"
+    },
+    {
+      "id": "frontend_api:frontend/features/operations/api/operations-tour.api.ts",
+      "kind": "frontend_api_contract",
+      "source": "frontend/features/operations/api/operations-tour.api.ts",
+      "contract_sha256": "3a193394c34e855ede8b17efb8e03f3f35f26365a7d6db82a07bb70b74766b05"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-attendance.api.ts:scanMyAttendanceSessionBatch",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-attendance.api.ts",
+      "handler": "scanMyAttendanceSessionBatch"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/managed_account_credentials.py:reset_managed_account_mfa:POST:/{account_id}/reset-mfa",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/managed_account_credentials.py",
+      "handler": "reset_managed_account_mfa",
+      "method": "POST",
+      "local_path": "/{account_id}/reset-mfa",
+      "contract_sha256": "610ea59d751e33b303d06080aa20c922a021f5be91f45ade2eb9eef2e5fd6e87",
+      "summary": "Reset a managed account's MFA and revoke every existing session",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/documents/test-support/rename-authority.test-fixture.tsx:createRenameAuthorityContext",
+      "kind": "frontend_callable",
+      "source": "frontend/features/documents/test-support/rename-authority.test-fixture.tsx",
+      "handler": "createRenameAuthorityContext"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-accounts.api.ts:adminGroups",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-accounts.api.ts",
+      "handler": "adminGroups"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-qr.api.ts:generatePassengerQr",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-qr.api.ts",
+      "handler": "generatePassengerQr"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-accounts.api.ts:deleteManager",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-accounts.api.ts",
+      "handler": "deleteManager"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/admin_platform_settings.py:update_platform_settings:PUT:/settings",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/admin_platform_settings.py",
+      "handler": "update_platform_settings",
+      "method": "PUT",
+      "local_path": "/settings",
+      "contract_sha256": "e2951424a35ab7011ffa73b393c80ecd891971d27a6d3026605977de6cc0eccb",
+      "summary": "Update editable platform settings",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/documents/test-support/ecr-authority.test-fixture.tsx:createEcrAuthorityContext",
+      "kind": "frontend_callable",
+      "source": "frontend/features/documents/test-support/ecr-authority.test-fixture.tsx",
+      "handler": "createEcrAuthorityContext"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-rooming.api.ts:exportRoomingHotel",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-rooming.api.ts",
+      "handler": "exportRoomingHotel"
+    },
+    {
+      "id": "registration:backend/app/presentation/api/v1/routes/admin_passport_purge.py",
+      "kind": "route_registration",
+      "source": "backend/app/presentation/api/v1/routes/admin_passport_purge.py",
+      "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+    },
+    {
+      "id": "frontend:frontend/features/documents/api/document-verification.api.ts:verifyDocuments",
+      "kind": "frontend_callable",
+      "source": "frontend/features/documents/api/document-verification.api.ts",
+      "handler": "verifyDocuments"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/passport_routes/visa_ai_edits_preview.py:preview_visa_ai_image_edit:POST:/{submission_id}/images/visa_photo/ai-preview",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_edits_preview.py",
+      "handler": "preview_visa_ai_image_edit",
+      "method": "POST",
+      "local_path": "/{submission_id}/images/visa_photo/ai-preview",
+      "contract_sha256": "e2461a62df7812adf509207bf7c53e204f679209feeb5062903e58f4883ef050",
+      "summary": "Generate an identity-preserving Visa photo edit preview",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/passport_routes/images_reads.py:get_passport_image_edit_source:GET:/{submission_id}/images/{image_type}/edit-source",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/passport_routes/images_reads.py",
+      "handler": "get_passport_image_edit_source",
+      "method": "GET",
+      "local_path": "/{submission_id}/images/{image_type}/edit-source",
+      "contract_sha256": "cd8b35743f5a626af61a36b04955a408cf555b9c1a4811e1115db5c4861fae35",
+      "summary": "Stream the current full-resolution source to an authorized image editor",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-accounts.api.ts:createManager",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-accounts.api.ts",
+      "handler": "createManager"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-accounts.api.ts:staffAccounts",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-accounts.api.ts",
+      "handler": "staffAccounts"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/managed_account_queries.py:list_managed_accounts:GET:",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/managed_account_queries.py",
+      "handler": "list_managed_accounts",
+      "method": "GET",
+      "local_path": "",
+      "contract_sha256": "6729cc2b1407f87a16b122144b8ddb5a74dce0e097280548daf39f0356c6cb0e",
+      "summary": "List accounts within the caller's management scope",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/passport_routes/images_reads.py:get_passport_image_crop:GET:/{submission_id}/images/{image_type}/crop",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/passport_routes/images_reads.py",
+      "handler": "get_passport_image_crop",
+      "method": "GET",
+      "local_path": "/{submission_id}/images/{image_type}/crop",
+      "contract_sha256": "a43d816854e1791f19b58235510e4d5285f466ae133f3a3b8878eba3d9c03e25",
+      "summary": "Get crop-editor metadata for one passport image",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-tour.api.ts:myTourGroups",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-tour.api.ts",
+      "handler": "myTourGroups"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/passport_image_library_reads.py:list_passport_image_library:GET:/{submission_id}/images/{image_type}/library",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/passport_image_library_reads.py",
+      "handler": "list_passport_image_library",
+      "method": "GET",
+      "local_path": "/{submission_id}/images/{image_type}/library",
+      "contract_sha256": "3aa091132dcec054084a847eba082d68210d9a8bf3f45adec3123a44530d05cb",
+      "summary": "List original, manual, and AI variants for one passport image",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend_api:frontend/features/operations/api/operations-attendance.api.ts",
+      "kind": "frontend_api_contract",
+      "source": "frontend/features/operations/api/operations-attendance.api.ts",
+      "contract_sha256": "9f225e3652d388485c68d5bf9149dd285c3f4108ec4384705eab0a73a0f77a25"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-tour.api.ts:tourGroups",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-tour.api.ts",
+      "handler": "tourGroups"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-tour.api.ts:tourGroupPassengers",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-tour.api.ts",
+      "handler": "tourGroupPassengers"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/passport_routes/images_reads.py:get_passport_image_thumbnail:GET:/{submission_id}/images/{image_type}/thumbnail",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/passport_routes/images_reads.py",
+      "handler": "get_passport_image_thumbnail",
+      "method": "GET",
+      "local_path": "/{submission_id}/images/{image_type}/thumbnail",
+      "contract_sha256": "a0031156f8dbc0dfda62a1dd1e6562ea9209606c771c0440633d88b9263c8305",
+      "summary": "Return a bounded authenticated dashboard thumbnail",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-checkin.api.ts:exportHotelCheckins",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-checkin.api.ts",
+      "handler": "exportHotelCheckins"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/admin_group_access.py:list_admin_groups:GET:/groups",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/admin_group_access.py",
+      "handler": "list_admin_groups",
+      "method": "GET",
+      "local_path": "/groups",
+      "contract_sha256": "1b531e3d64d7e7de5809714e341659b2f58a069fa82be0930e34f18de5c52b17",
+      "summary": "List groups available for account access assignment",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend_api:frontend/features/documents/api/document-delivery.api.ts",
+      "kind": "frontend_api_contract",
+      "source": "frontend/features/documents/api/document-delivery.api.ts",
+      "contract_sha256": "4bd918f76bb2847b975adc2eea2ab49649993b0d1d38d06760949ed602f791f9"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-accounts.api.ts:assignManagerGroups",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-accounts.api.ts",
+      "handler": "assignManagerGroups"
+    },
+    {
+      "id": "frontend:frontend/features/documents/api/document-delivery.api.ts:getDeliveryTracking",
+      "kind": "frontend_callable",
+      "source": "frontend/features/documents/api/document-delivery.api.ts",
+      "handler": "getDeliveryTracking"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-qr.api.ts:revokePassengerQr",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-qr.api.ts",
+      "handler": "revokePassengerQr"
+    },
+    {
+      "id": "frontend_api:frontend/features/documents/api/document-review.api.ts",
+      "kind": "frontend_api_contract",
+      "source": "frontend/features/documents/api/document-review.api.ts",
+      "contract_sha256": "0e65fec9713722a3a2fb684f751a3c0054176a08802434df069d5b6ec45a3325"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-checkin.api.ts:updateHotelCheckin",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-checkin.api.ts",
+      "handler": "updateHotelCheckin"
+    },
+    {
+      "id": "frontend:frontend/features/tour-operations/services/attendance-queue-discards.ts:countPendingAttendanceDiscardAudits",
+      "kind": "frontend_callable",
+      "source": "frontend/features/tour-operations/services/attendance-queue-discards.ts",
+      "handler": "countPendingAttendanceDiscardAudits"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/passport_image_library_manual.py:upload_passport_image_library_item:POST:/{submission_id}/images/{image_type}/library",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/passport_image_library_manual.py",
+      "handler": "upload_passport_image_library_item",
+      "method": "POST",
+      "local_path": "/{submission_id}/images/{image_type}/library",
+      "contract_sha256": "3e9990626537a043782e580f4122a327c8304ac25f2272f9b77c7e02a4dddedd",
+      "summary": "Upload a manual image and make it the current passport image",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-attendance.api.ts:completeManagedAttendanceSession",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-attendance.api.ts",
+      "handler": "completeManagedAttendanceSession"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/admin_group_access.py:assign_manager_groups:PUT:/managers/{manager_id}/groups",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/admin_group_access.py",
+      "handler": "assign_manager_groups",
+      "method": "PUT",
+      "local_path": "/managers/{manager_id}/groups",
+      "contract_sha256": "2bcc624ae97a1cf1cebc87ec7784c0156c9d397e0cee77a15b049bc5a2a088cf",
+      "summary": "Replace a manager's extra assigned group access",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/documents/api/document-delivery.api.ts:sendWhatsAppDelivery",
+      "kind": "frontend_callable",
+      "source": "frontend/features/documents/api/document-delivery.api.ts",
+      "handler": "sendWhatsAppDelivery"
+    },
+    {
+      "id": "frontend:frontend/features/documents/api/document-verification.api.ts:manuallyVerifyDocument",
+      "kind": "frontend_callable",
+      "source": "frontend/features/documents/api/document-verification.api.ts",
+      "handler": "manuallyVerifyDocument"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-attendance.api.ts:managedAttendanceCloseoutStatus",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-attendance.api.ts",
+      "handler": "managedAttendanceCloseoutStatus"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations-attendance.api.ts:groupAttendanceOverview",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations-attendance.api.ts",
+      "handler": "groupAttendanceOverview"
+    },
+    {
+      "id": "frontend_api:frontend/features/operations/api/operations-checkin.api.ts",
+      "kind": "frontend_api_contract",
+      "source": "frontend/features/operations/api/operations-checkin.api.ts",
+      "contract_sha256": "8875bb25cd1088eb853a388f2f3096f3a25a21211653a8d83345022b2006bb92"
+    },
+    {
+      "id": "frontend_api:frontend/features/documents/api/document-batches.api.ts",
+      "kind": "frontend_api_contract",
+      "source": "frontend/features/documents/api/document-batches.api.ts",
+      "contract_sha256": "0d811cd76a73c62b47a299762cb14a4792a9bffc769f0e33e110c898d8108a1b"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/managed_account_queries.py:list_staff_accounts:GET:/staff",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/managed_account_queries.py",
+      "handler": "list_staff_accounts",
+      "method": "GET",
+      "local_path": "/staff",
+      "contract_sha256": "33d162190f42946fbefaabb9b1cbccbf68f1710550232b02e7dff6f9ecd9ceb5",
+      "summary": "List staff accounts",
+      "schema_visible": true
+    },
+    {
+      "id": "registration:backend/app/presentation/api/v1/routes/managed_account_creation.py",
+      "kind": "route_registration",
+      "source": "backend/app/presentation/api/v1/routes/managed_account_creation.py",
+      "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/admin_workforce.py:list_managers:GET:/managers",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/admin_workforce.py",
+      "handler": "list_managers",
+      "method": "GET",
+      "local_path": "/managers",
+      "contract_sha256": "c6b022d6daca38d12a046a2bac4e847b414e18b86a2e89daa7bc6d97a3cf855e",
+      "summary": "List manager accounts",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/passport_routes/contact_issuance.py:request_public_contact_otp:POST:/{submission_id}/contact-otp/request",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/passport_routes/contact_issuance.py",
+      "handler": "request_public_contact_otp",
+      "method": "POST",
+      "local_path": "/{submission_id}/contact-otp/request",
+      "contract_sha256": "9bb825a4b668b86adce1eed4458860e1a45eaaa1d826b0c4c61a1751b5c1a31f",
+      "summary": "request public contact otp",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library_reads.py:list_visa_ai_image_library:GET:/{submission_id}/images/visa_photo/ai-library",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library_reads.py",
+      "handler": "list_visa_ai_image_library",
+      "method": "GET",
+      "local_path": "/{submission_id}/images/visa_photo/ai-library",
+      "contract_sha256": "d62e91b19bf481ab2fafb2dddf686c763632194f70d7303982887c17fa92ea26",
+      "summary": "List saved Visa AI image generations",
+      "schema_visible": true
+    },
+    {
+      "id": "registration:backend/app/presentation/api/v1/routes/passport_image_library_reads.py",
+      "kind": "route_registration",
+      "source": "backend/app/presentation/api/v1/routes/passport_image_library_reads.py",
+      "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+    }
+  ],
+  "removed": [
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/passport_routes/images.py:get_passport_image_thumbnail:GET:/{submission_id}/images/{image_type}/thumbnail",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/passport_routes/images.py",
+      "handler": "get_passport_image_thumbnail",
+      "method": "GET",
+      "local_path": "/{submission_id}/images/{image_type}/thumbnail",
+      "contract_sha256": "a0031156f8dbc0dfda62a1dd1e6562ea9209606c771c0440633d88b9263c8305",
+      "summary": "Return a bounded authenticated dashboard thumbnail",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/passport_routes/images.py:get_passport_image_edit_source:GET:/{submission_id}/images/{image_type}/edit-source",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/passport_routes/images.py",
+      "handler": "get_passport_image_edit_source",
+      "method": "GET",
+      "local_path": "/{submission_id}/images/{image_type}/edit-source",
+      "contract_sha256": "cd8b35743f5a626af61a36b04955a408cf555b9c1a4811e1115db5c4861fae35",
+      "summary": "Stream the current full-resolution source to an authorized image editor",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/documents/api/document-distribution.api.ts:getReview",
+      "kind": "frontend_callable",
+      "source": "frontend/features/documents/api/document-distribution.api.ts",
+      "handler": "getReview"
+    },
+    {
+      "id": "frontend_api:frontend/features/operations/api/operations.api.ts",
+      "kind": "frontend_api_contract",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "contract_sha256": "d1a2cb128065e70bd6d016b91683d5a8d5c06bd9ea449e3805fcbc119c92afc0"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:createRoomingHotel",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "createRoomingHotel"
+    },
+    {
+      "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:tryRecordAttendanceScan",
+      "kind": "frontend_callable",
+      "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+      "handler": "tryRecordAttendanceScan"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/admin.py:list_admin_groups:GET:/groups",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/admin.py",
+      "handler": "list_admin_groups",
+      "method": "GET",
+      "local_path": "/groups",
+      "contract_sha256": "1b531e3d64d7e7de5809714e341659b2f58a069fa82be0930e34f18de5c52b17",
+      "summary": "List groups available for account access assignment",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:createTourCoordinator",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "createTourCoordinator"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:setManagedAccountStatus",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "setManagedAccountStatus"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:assignTourGroupCoordinators",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "assignTourGroupCoordinators"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:tourOperationsArchitecture",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "tourOperationsArchitecture"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/passport_routes/visa_ai_edits.py:preview_visa_ai_image_edit:POST:/{submission_id}/images/visa_photo/ai-preview",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_edits.py",
+      "handler": "preview_visa_ai_image_edit",
+      "method": "POST",
+      "local_path": "/{submission_id}/images/visa_photo/ai-preview",
+      "contract_sha256": "e2461a62df7812adf509207bf7c53e204f679209feeb5062903e58f4883ef050",
+      "summary": "Generate an identity-preserving Visa photo edit preview",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:hotelCheckins",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "hotelCheckins"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:scanMyAttendanceSession",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "scanMyAttendanceSession"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:deleteManager",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "deleteManager"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library.py:use_visa_ai_library_image:POST:/{submission_id}/images/visa_photo/ai-library/{generation_id}/use",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library.py",
+      "handler": "use_visa_ai_library_image",
+      "method": "POST",
+      "local_path": "/{submission_id}/images/visa_photo/ai-library/{generation_id}/use",
+      "contract_sha256": "3dade8767baddc03d8371450770a88c358fd4ac1d057fc2878e0a62fb3435bed",
+      "summary": "Use one saved Visa AI image as the active Visa photo",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/admin.py:assign_staff_groups:PUT:/staff/{staff_id}/groups",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/admin.py",
+      "handler": "assign_staff_groups",
+      "method": "PUT",
+      "local_path": "/staff/{staff_id}/groups",
+      "contract_sha256": "22fbc3675cc5100dbad4a8132d81d30b58dca43ca78054bcaf0af49aa55709fc",
+      "summary": "Replace a staff member's assigned group access",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/documents/api/document-distribution.api.ts:reuploadPassengerDocument",
+      "kind": "frontend_callable",
+      "source": "frontend/features/documents/api/document-distribution.api.ts",
+      "handler": "reuploadPassengerDocument"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:analyticsSummary",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "analyticsSummary"
+    },
+    {
+      "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:syncAttendanceDiscardTombstones",
+      "kind": "frontend_callable",
+      "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+      "handler": "syncAttendanceDiscardTombstones"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/admin.py:get_admin_overview:GET:/overview",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/admin.py",
+      "handler": "get_admin_overview",
+      "method": "GET",
+      "local_path": "/overview",
+      "contract_sha256": "e6756e2db1e11490f559d1ac345e97bbaf6d74d8ad0d3f6f3813495e0b850d19",
+      "summary": "Get administrative platform overview",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:assignTourGroupPassengers",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "assignTourGroupPassengers"
+    },
+    {
+      "id": "frontend:frontend/features/documents/api/document-distribution.api.ts:unassignDocuments",
+      "kind": "frontend_callable",
+      "source": "frontend/features/documents/api/document-distribution.api.ts",
+      "handler": "unassignDocuments"
+    },
+    {
+      "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:acknowledgeRejectedAttendanceScans",
+      "kind": "frontend_callable",
+      "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+      "handler": "acknowledgeRejectedAttendanceScans"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:updateRoomingHotel",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "updateRoomingHotel"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:scanHotelCheckin",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "scanHotelCheckin"
+    },
+    {
+      "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:subscribeAttendanceQueueScheduleChanges",
+      "kind": "frontend_callable",
+      "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+      "handler": "subscribeAttendanceQueueScheduleChanges"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/passport_routes/images.py:reset_passport_image_crop:DELETE:/{submission_id}/images/{image_type}/crop",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/passport_routes/images.py",
+      "handler": "reset_passport_image_crop",
+      "method": "DELETE",
+      "local_path": "/{submission_id}/images/{image_type}/crop",
+      "contract_sha256": "746c6b9f4eb270dd000417f0e459315c6bcce4c4516e41835efec7508eb188d0",
+      "summary": "Reset a passport image to its immutable original",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/passport_image_library.py:list_passport_image_library:GET:/{submission_id}/images/{image_type}/library",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/passport_image_library.py",
+      "handler": "list_passport_image_library",
+      "method": "GET",
+      "local_path": "/{submission_id}/images/{image_type}/library",
+      "contract_sha256": "3aa091132dcec054084a847eba082d68210d9a8bf3f45adec3123a44530d05cb",
+      "summary": "List original, manual, and AI variants for one passport image",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/admin.py:update_platform_settings:PUT:/settings",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/admin.py",
+      "handler": "update_platform_settings",
+      "method": "PUT",
+      "local_path": "/settings",
+      "contract_sha256": "e2951424a35ab7011ffa73b393c80ecd891971d27a6d3026605977de6cc0eccb",
+      "summary": "Update editable platform settings",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/documents/api/document-distribution.api.ts:manuallyVerifyDocument",
+      "kind": "frontend_callable",
+      "source": "frontend/features/documents/api/document-distribution.api.ts",
+      "handler": "manuallyVerifyDocument"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:revokeManagedAccountSessions",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "revokeManagedAccountSessions"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library.py:get_visa_ai_library_image:GET:/{submission_id}/images/visa_photo/ai-library/{generation_id}/image",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library.py",
+      "handler": "get_visa_ai_library_image",
+      "method": "GET",
+      "local_path": "/{submission_id}/images/visa_photo/ai-library/{generation_id}/image",
+      "contract_sha256": "15de5edc3459284719b445fbe1d1a957262bb503a4294875ba9cf85bdf94fd1f",
+      "summary": "Stream one saved Visa AI image generation",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/documents/api/document-distribution.api.ts:exportReview",
+      "kind": "frontend_callable",
+      "source": "frontend/features/documents/api/document-distribution.api.ts",
+      "handler": "exportReview"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:staffAccessAccounts",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "staffAccessAccounts"
+    },
+    {
+      "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:countPendingAttendanceDiscardAudits",
+      "kind": "frontend_callable",
+      "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+      "handler": "countPendingAttendanceDiscardAudits"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/passport_routes/contact_verification.py:verify_public_contact_otp:POST:/{submission_id}/contact-otp/verify",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/passport_routes/contact_verification.py",
+      "handler": "verify_public_contact_otp",
+      "method": "POST",
+      "local_path": "/{submission_id}/contact-otp/verify",
+      "contract_sha256": "a03dcb109f429dc617c99c117e9c8d8b091e10460766244cbdf8f77b6fb04065",
+      "summary": "verify public contact otp",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/admin_accounts.py:reset_managed_account_password:POST:/{account_id}/reset-password",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/admin_accounts.py",
+      "handler": "reset_managed_account_password",
+      "method": "POST",
+      "local_path": "/{account_id}/reset-password",
+      "contract_sha256": "72fae8d91c4cae298b8b7c9a6e95e9211ae39b1a207ad661f2a1ab4b24c3c882",
+      "summary": "Issue a one-time credential reset link and revoke every existing session",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/passport_routes/visa_ai_edits.py:apply_visa_ai_image_edit:POST:/{submission_id}/images/visa_photo/ai-apply",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_edits.py",
+      "handler": "apply_visa_ai_image_edit",
+      "method": "POST",
+      "local_path": "/{submission_id}/images/visa_photo/ai-apply",
+      "contract_sha256": "7b7b2bedc1b632b84d2491f4ca793adaa27dc21d2f9fa210e14f90568274a5b9",
+      "summary": "Save a Visa AI edit with crop and sharpness metadata",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:myAttendanceSessionDetails",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "myAttendanceSessionDetails"
+    },
+    {
+      "id": "frontend:frontend/features/documents/api/document-distribution.api.ts:uploadDocuments",
+      "kind": "frontend_callable",
+      "source": "frontend/features/documents/api/document-distribution.api.ts",
+      "handler": "uploadDocuments"
+    },
+    {
+      "id": "frontend:frontend/features/documents/api/document-distribution.api.ts:previewWhatsAppDelivery",
+      "kind": "frontend_callable",
+      "source": "frontend/features/documents/api/document-distribution.api.ts",
+      "handler": "previewWhatsAppDelivery"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:tourGroups",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "tourGroups"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:groupAttendanceSummary",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "groupAttendanceSummary"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:resetManagedAccountMfa",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "resetManagedAccountMfa"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:revokePassengerQr",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "revokePassengerQr"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:roomingPriorityFields",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "roomingPriorityFields"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:groupAttendanceOverview",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "groupAttendanceOverview"
+    },
+    {
+      "id": "frontend:frontend/features/documents/api/document-distribution.api.ts:manualUploadPassengerDocument",
+      "kind": "frontend_callable",
+      "source": "frontend/features/documents/api/document-distribution.api.ts",
+      "handler": "manualUploadPassengerDocument"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/admin.py:list_staff_for_access:GET:/staff",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/admin.py",
+      "handler": "list_staff_for_access",
+      "method": "GET",
+      "local_path": "/staff",
+      "contract_sha256": "a71c57381981ce8ee1140c13544570d89255e52e0f475cdfecf08a7ce6341f05",
+      "summary": "List staff accounts with group access",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/admin.py:assign_manager_groups:PUT:/managers/{manager_id}/groups",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/admin.py",
+      "handler": "assign_manager_groups",
+      "method": "PUT",
+      "local_path": "/managers/{manager_id}/groups",
+      "contract_sha256": "2bcc624ae97a1cf1cebc87ec7784c0156c9d397e0cee77a15b049bc5a2a088cf",
+      "summary": "Replace a manager's extra assigned group access",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/passport_image_library.py:get_passport_image_library_item:GET:/{submission_id}/images/{image_type}/library/{item_id}/image",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/passport_image_library.py",
+      "handler": "get_passport_image_library_item",
+      "method": "GET",
+      "local_path": "/{submission_id}/images/{image_type}/library/{item_id}/image",
+      "contract_sha256": "b979c845052e882a75b456f6afdcaba114efa03a549c4da1b886be2692843b5e",
+      "summary": "Stream one authorized passport image-library item",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library.py:list_visa_ai_image_library:GET:/{submission_id}/images/visa_photo/ai-library",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library.py",
+      "handler": "list_visa_ai_image_library",
+      "method": "GET",
+      "local_path": "/{submission_id}/images/visa_photo/ai-library",
+      "contract_sha256": "d62e91b19bf481ab2fafb2dddf686c763632194f70d7303982887c17fa92ea26",
+      "summary": "List saved Visa AI image generations",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:exportRoomingHotel",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "exportRoomingHotel"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:adminOverview",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "adminOverview"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/admin_accounts.py:create_staff_account:POST:/staff",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/admin_accounts.py",
+      "handler": "create_staff_account",
+      "method": "POST",
+      "local_path": "/staff",
+      "contract_sha256": "d0d9d9d394c293206b3d252f216465025acd3adf9876311b055c24672a003fbd",
+      "summary": "Create a staff account",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:countRejectedAttendanceScans",
+      "kind": "frontend_callable",
+      "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+      "handler": "countRejectedAttendanceScans"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:deleteManagedAccount",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "deleteManagedAccount"
+    },
+    {
+      "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:getBrowserAttendanceQueueSafetySnapshot",
+      "kind": "frontend_callable",
+      "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+      "handler": "getBrowserAttendanceQueueSafetySnapshot"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/passport_image_library.py:use_passport_image_library_item:POST:/{submission_id}/images/{image_type}/library/{item_id}/use",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/passport_image_library.py",
+      "handler": "use_passport_image_library_item",
+      "method": "POST",
+      "local_path": "/{submission_id}/images/{image_type}/library/{item_id}/use",
+      "contract_sha256": "ef9b7881a4ea346e1a661ff16b6d170eacfffba54e78b471a7ccdce9ac2031a6",
+      "summary": "Make one original, manual, or AI library item current",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:generatePassengerQr",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "generatePassengerQr"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/admin.py:get_platform_settings:GET:/settings",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/admin.py",
+      "handler": "get_platform_settings",
+      "method": "GET",
+      "local_path": "/settings",
+      "contract_sha256": "67a1cd0fd513fadf6aa17dd8e7017de1382d27a2dd222edb37b097958437facf",
+      "summary": "Get editable platform settings",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:tourCoordinators",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "tourCoordinators"
+    },
+    {
+      "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:listPendingAttendanceScans",
+      "kind": "frontend_callable",
+      "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+      "handler": "listPendingAttendanceScans"
+    },
+    {
+      "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:getNextPendingAttendanceAttemptAt",
+      "kind": "frontend_callable",
+      "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+      "handler": "getNextPendingAttendanceAttemptAt"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/admin.py:create_manager:POST:/managers",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/admin.py",
+      "handler": "create_manager",
+      "method": "POST",
+      "local_path": "/managers",
+      "contract_sha256": "1333196078921093d3373fd1486555f3783cb78aebf614461735f238fcce7d32",
+      "summary": "Create a limited manager account",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:myAttendanceSessions",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "myAttendanceSessions"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:exportAuditLogs",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "exportAuditLogs"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:createManagedAttendanceSession",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "createManagedAttendanceSession"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:updateRoomingPassengerSelection",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "updateRoomingPassengerSelection"
+    },
+    {
+      "id": "frontend:frontend/features/documents/api/document-distribution.api.ts:sendWhatsAppDelivery",
+      "kind": "frontend_callable",
+      "source": "frontend/features/documents/api/document-distribution.api.ts",
+      "handler": "sendWhatsAppDelivery"
+    },
+    {
+      "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:syncPendingAttendanceScans",
+      "kind": "frontend_callable",
+      "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+      "handler": "syncPendingAttendanceScans"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:scanMyAttendanceSessionBatch",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "scanMyAttendanceSessionBatch"
+    },
+    {
+      "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:countPendingAttendanceScans",
+      "kind": "frontend_callable",
+      "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+      "handler": "countPendingAttendanceScans"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:staffAccounts",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "staffAccounts"
+    },
+    {
+      "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:enqueueAttendanceScan",
+      "kind": "frontend_callable",
+      "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+      "handler": "enqueueAttendanceScan"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:myTourGroupPassenger",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "myTourGroupPassenger"
+    },
+    {
+      "id": "frontend:frontend/features/documents/api/document-distribution.api.ts:listGroups",
+      "kind": "frontend_callable",
+      "source": "frontend/features/documents/api/document-distribution.api.ts",
+      "handler": "listGroups"
+    },
+    {
+      "id": "frontend:frontend/features/documents/api/document-distribution.api.ts:abortUpload",
+      "kind": "frontend_callable",
+      "source": "frontend/features/documents/api/document-distribution.api.ts",
+      "handler": "abortUpload"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:roomingRosterFieldValues",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "roomingRosterFieldValues"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:resetManagedAccountPassword",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "resetManagedAccountPassword"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:publishMyAttendanceCloseoutCheckpoint",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "publishMyAttendanceCloseoutCheckpoint"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:setPassengerQrActive",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "setPassengerQrActive"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/passport_image_library.py:upload_passport_image_library_item:POST:/{submission_id}/images/{image_type}/library",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/passport_image_library.py",
+      "handler": "upload_passport_image_library_item",
+      "method": "POST",
+      "local_path": "/{submission_id}/images/{image_type}/library",
+      "contract_sha256": "3e9990626537a043782e580f4122a327c8304ac25f2272f9b77c7e02a4dddedd",
+      "summary": "Upload a manual image and make it the current passport image",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:publishBrowserAttendanceQueueCloseout",
+      "kind": "frontend_callable",
+      "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+      "handler": "publishBrowserAttendanceQueueCloseout"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:regeneratePassengerQr",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "regeneratePassengerQr"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:managedAttendanceCloseoutStatus",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "managedAttendanceCloseoutStatus"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:sendQrBroadcast",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "sendQrBroadcast"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/admin.py:delete_manager:DELETE:/managers/{manager_id}",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/admin.py",
+      "handler": "delete_manager",
+      "method": "DELETE",
+      "local_path": "/managers/{manager_id}",
+      "contract_sha256": "dcabec8b784fb32a8d30b1e8a9b804926ad66e9e964a279c91779d17f5d6c03f",
+      "summary": "Delete a manager account",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:completeManagedAttendanceSession",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "completeManagedAttendanceSession"
+    },
+    {
+      "id": "frontend_api:frontend/features/documents/api/document-distribution.api.ts",
+      "kind": "frontend_api_contract",
+      "source": "frontend/features/documents/api/document-distribution.api.ts",
+      "contract_sha256": "d546bc3428a26d8c2dbe360456cb79cd702c83785c2c32e4b2efd76e79b0c2f4"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:createStaff",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "createStaff"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/admin_accounts.py:set_managed_account_status:PATCH:/{account_id}/status",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/admin_accounts.py",
+      "handler": "set_managed_account_status",
+      "method": "PATCH",
+      "local_path": "/{account_id}/status",
+      "contract_sha256": "92cea548834d0b180f4ab2d449e39fe3a3dca22153624cbe2c232f50aaf5288e",
+      "summary": "Activate or deactivate a managed account",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:autoAllocateRoomingHotel",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "autoAllocateRoomingHotel"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/admin.py:list_managers:GET:/managers",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/admin.py",
+      "handler": "list_managers",
+      "method": "GET",
+      "local_path": "/managers",
+      "contract_sha256": "c6b022d6daca38d12a046a2bac4e847b414e18b86a2e89daa7bc6d97a3cf855e",
+      "summary": "List manager accounts",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/documents/api/document-distribution.api.ts:verifyDocuments",
+      "kind": "frontend_callable",
+      "source": "frontend/features/documents/api/document-distribution.api.ts",
+      "handler": "verifyDocuments"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:managedAccounts",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "managedAccounts"
+    },
+    {
+      "id": "frontend:frontend/features/documents/api/document-distribution.api.ts:saveBatch",
+      "kind": "frontend_callable",
+      "source": "frontend/features/documents/api/document-distribution.api.ts",
+      "handler": "saveBatch"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:groupAttendanceMissingPassengers",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "groupAttendanceMissingPassengers"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:groupQrCodes",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "groupQrCodes"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:assignManagerGroups",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "assignManagerGroups"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/passport_routes/images.py:get_passport_image_view:GET:/{submission_id}/images/{image_type}",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/passport_routes/images.py",
+      "handler": "get_passport_image_view",
+      "method": "GET",
+      "local_path": "/{submission_id}/images/{image_type}",
+      "contract_sha256": "9ec84f5367a270a11053deec4a7f528ad9587900b3742b209385ee3099b6a30a",
+      "summary": "Stream the effective staff view of a passport image",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:updateHotelCheckin",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "updateHotelCheckin"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:adminGroups",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "adminGroups"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:exportHotelCheckins",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "exportHotelCheckins"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/admin_accounts.py:list_staff_accounts:GET:/staff",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/admin_accounts.py",
+      "handler": "list_staff_accounts",
+      "method": "GET",
+      "local_path": "/staff",
+      "contract_sha256": "33d162190f42946fbefaabb9b1cbccbf68f1710550232b02e7dff6f9ecd9ceb5",
+      "summary": "List staff accounts",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/passport_routes/images.py:update_passport_image_crop:PUT:/{submission_id}/images/{image_type}/crop",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/passport_routes/images.py",
+      "handler": "update_passport_image_crop",
+      "method": "PUT",
+      "local_path": "/{submission_id}/images/{image_type}/crop",
+      "contract_sha256": "2ca203ada4d021381f58acf8d54c3da67a489bbc53bfe0b69c24aad3fea6c7aa",
+      "summary": "Save a non-destructive crop for one passport image",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/documents/api/document-distribution.api.ts:getDeliveryTracking",
+      "kind": "frontend_callable",
+      "source": "frontend/features/documents/api/document-distribution.api.ts",
+      "handler": "getDeliveryTracking"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/admin_accounts.py:revoke_managed_account_sessions:POST:/{account_id}/revoke-sessions",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/admin_accounts.py",
+      "handler": "revoke_managed_account_sessions",
+      "method": "POST",
+      "local_path": "/{account_id}/revoke-sessions",
+      "contract_sha256": "f5d6a905f1d7bcd7dff5236daba346ea6c3f960c37bfd2e692e557e8259da950",
+      "summary": "Force an account to sign out on every device",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/documents/api/document-distribution.api.ts:deleteDocuments",
+      "kind": "frontend_callable",
+      "source": "frontend/features/documents/api/document-distribution.api.ts",
+      "handler": "deleteDocuments"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/passport_routes/images.py:get_passport_image_crop:GET:/{submission_id}/images/{image_type}/crop",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/passport_routes/images.py",
+      "handler": "get_passport_image_crop",
+      "method": "GET",
+      "local_path": "/{submission_id}/images/{image_type}/crop",
+      "contract_sha256": "a43d816854e1791f19b58235510e4d5285f466ae133f3a3b8878eba3d9c03e25",
+      "summary": "Get crop-editor metadata for one passport image",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:auditLogPage",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "auditLogPage"
+    },
+    {
+      "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:listRejectedAttendanceScans",
+      "kind": "frontend_callable",
+      "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+      "handler": "listRejectedAttendanceScans"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:myTourGroupPassengers",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "myTourGroupPassengers"
+    },
+    {
+      "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:runAttendanceQueueLogoutBoundary",
+      "kind": "frontend_callable",
+      "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+      "handler": "runAttendanceQueueLogoutBoundary"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:assignStaffGroups",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "assignStaffGroups"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/admin_accounts.py:list_managed_accounts:GET:",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/admin_accounts.py",
+      "handler": "list_managed_accounts",
+      "method": "GET",
+      "local_path": "",
+      "contract_sha256": "6729cc2b1407f87a16b122144b8ddb5a74dce0e097280548daf39f0356c6cb0e",
+      "summary": "List accounts within the caller's management scope",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/passport_routes/images.py:get_passport_image_original:GET:/{submission_id}/images/{image_type}/original",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/passport_routes/images.py",
+      "handler": "get_passport_image_original",
+      "method": "GET",
+      "local_path": "/{submission_id}/images/{image_type}/original",
+      "contract_sha256": "93a5a81a5d3b1b3c9f02b7b2f812fcef18ef8443e13a3e9ad939aa3a961439ef",
+      "summary": "Stream an immutable original image to an authorized crop editor",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:collectBrowserAttendanceQueueCloseout",
+      "kind": "frontend_callable",
+      "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+      "handler": "collectBrowserAttendanceQueueCloseout"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:roomingWorkspace",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "roomingWorkspace"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/passport_routes/contact_verification.py:request_public_contact_otp:POST:/{submission_id}/contact-otp/request",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/passport_routes/contact_verification.py",
+      "handler": "request_public_contact_otp",
+      "method": "POST",
+      "local_path": "/{submission_id}/contact-otp/request",
+      "contract_sha256": "9bb825a4b668b86adce1eed4458860e1a45eaaa1d826b0c4c61a1751b5c1a31f",
+      "summary": "request public contact otp",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library.py:create_visa_ai_library_image:POST:/{submission_id}/images/visa_photo/ai-library",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library.py",
+      "handler": "create_visa_ai_library_image",
+      "method": "POST",
+      "local_path": "/{submission_id}/images/visa_photo/ai-library",
+      "contract_sha256": "84cfd6a21faaec3a2ef0d36414acc8e0cea946b9b7bbd30f243798d71b680a4f",
+      "summary": "Generate and automatically save a Visa AI image",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/admin.py:get_group_passport_retention:GET:/groups/{group_id}/passport-retention",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/admin.py",
+      "handler": "get_group_passport_retention",
+      "method": "GET",
+      "local_path": "/groups/{group_id}/passport-retention",
+      "contract_sha256": "1c207ec0d93f655e23f3542714bb2f3bf03cf4d2e934be0659198170b6964307",
+      "summary": "Inspect an explicit group passport-retention schedule",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/admin_accounts.py:delete_managed_account:DELETE:/{account_id}",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/admin_accounts.py",
+      "handler": "delete_managed_account",
+      "method": "DELETE",
+      "local_path": "/{account_id}",
+      "contract_sha256": "09684e40440249409d0ebf4efe12b96c1cf1172944060a21b7d0c3f0bf8fb7d3",
+      "summary": "Remove a staff or coordinator account while preserving required history",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:myTourGroups",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "myTourGroups"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:updateRoomingVip",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "updateRoomingVip"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/admin.py:purge_passport_data:DELETE:/passport-data",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/admin.py",
+      "handler": "purge_passport_data",
+      "method": "DELETE",
+      "local_path": "/passport-data",
+      "contract_sha256": "4910cfb6a3282125bd4f52a89af530d002b4b481c2c0050b8d8c79ae4b5505e3",
+      "summary": "Permanently delete passport and WhatsApp broadcast data",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:createManager",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "createManager"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:setPassengerQrExpiration",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "setPassengerQrExpiration"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/admin_accounts.py:reset_managed_account_mfa:POST:/{account_id}/reset-mfa",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/admin_accounts.py",
+      "handler": "reset_managed_account_mfa",
+      "method": "POST",
+      "local_path": "/{account_id}/reset-mfa",
+      "contract_sha256": "610ea59d751e33b303d06080aa20c922a021f5be91f45ade2eb9eef2e5fd6e87",
+      "summary": "Reset a managed account's MFA and revoke every existing session",
+      "schema_visible": true
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:qrDeliveryPreview",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "qrDeliveryPreview"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:tourGroupPassengers",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "tourGroupPassengers"
+    },
+    {
+      "id": "frontend:frontend/features/tour-operations/services/attendance-scan-queue.ts:removePendingAttendanceScan",
+      "kind": "frontend_callable",
+      "source": "frontend/features/tour-operations/services/attendance-scan-queue.ts",
+      "handler": "removePendingAttendanceScan"
+    },
+    {
+      "id": "frontend:frontend/features/operations/api/operations.api.ts:managers",
+      "kind": "frontend_callable",
+      "source": "frontend/features/operations/api/operations.api.ts",
+      "handler": "managers"
+    }
+  ],
+  "changed": [
+    {
+      "before": {
+        "id": "registration:backend/app/presentation/api/v1/routes/passport_image_library.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/passport_image_library.py",
+        "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+      },
+      "after": {
+        "id": "registration:backend/app/presentation/api/v1/routes/passport_image_library.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/passport_image_library.py",
+        "contract_sha256": "28017d97911ca3b25975449d1f73d7010039540341f3fb83fb4e50d19d42243d"
+      }
+    },
+    {
+      "before": {
+        "id": "registration:backend/app/presentation/api/v1/routes/passport_routes/visa_ai_edits.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_edits.py",
+        "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+      },
+      "after": {
+        "id": "registration:backend/app/presentation/api/v1/routes/passport_routes/visa_ai_edits.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_edits.py",
+        "contract_sha256": "44520f761c8e6bd3cba15835154a7f9c2813eb73a7a53a681951e1f9991f22da"
+      }
+    },
+    {
+      "before": {
+        "id": "registration:backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library.py",
+        "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+      },
+      "after": {
+        "id": "registration:backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/passport_routes/visa_ai_library.py",
+        "contract_sha256": "09963c7c78d6c18dc5a181c9dbf847ece0cd6d880c70c70c432e08927a457c04"
+      }
+    },
+    {
+      "before": {
+        "id": "registration:backend/app/presentation/api/v1/routes/passport_routes/contact_verification.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/passport_routes/contact_verification.py",
+        "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+      },
+      "after": {
+        "id": "registration:backend/app/presentation/api/v1/routes/passport_routes/contact_verification.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/passport_routes/contact_verification.py",
+        "contract_sha256": "119a5e4befa807c98bb16ae702ccf5860ed44227fe06a4e494cc6cd4ede36c05"
+      }
+    },
+    {
+      "before": {
+        "id": "frontend_api:frontend/features/documents/api/document-rename.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/documents/api/document-rename.api.ts",
+        "contract_sha256": "2150cefe7f1a3564eebf0cf02884d840de24c0ceef45c7c5cb4a9c8da8232788"
+      },
+      "after": {
+        "id": "frontend_api:frontend/features/documents/api/document-rename.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/documents/api/document-rename.api.ts",
+        "contract_sha256": "b061e3339b305aea068165e9993d3998725ad01c51cc7135c42cdbd4485c69bc"
+      }
+    },
+    {
+      "before": {
+        "id": "registration:backend/app/presentation/api/v1/routes/admin_accounts.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/admin_accounts.py",
+        "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+      },
+      "after": {
+        "id": "registration:backend/app/presentation/api/v1/routes/admin_accounts.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/admin_accounts.py",
+        "contract_sha256": "b4559266912191e3e4b2244666c50f1995b8e796ec366a2071196fd2fe6d230f"
+      }
+    },
+    {
+      "before": {
+        "id": "registration:backend/app/presentation/api/v1/routes/passport_routes/images.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/passport_routes/images.py",
+        "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+      },
+      "after": {
+        "id": "registration:backend/app/presentation/api/v1/routes/passport_routes/images.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/passport_routes/images.py",
+        "contract_sha256": "77f9ff2f859577b8bbb7d226faa57137a843e8c043f726977b18ffd4c943b056"
+      }
+    },
+    {
+      "before": {
+        "id": "registration:backend/app/presentation/api/v1/routes/admin.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/admin.py",
+        "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+      },
+      "after": {
+        "id": "registration:backend/app/presentation/api/v1/routes/admin.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/admin.py",
+        "contract_sha256": "5f8e290ab375816854c05c1d4ff3f64de8c5f70dda31fef4a64d0693407a8fae"
+      }
+    }
+  ]
+}

@@ -1,0 +1,185 @@
+{
+  "status": "verified at this scoped source checkpoint",
+  "before_modules": 732,
+  "after_modules": 741,
+  "all732old_normal_rows_unchanged": true,
+  "critical_before": 109,
+  "critical_after": 117,
+  "all109oldcritical_rows_unchanged": true,
+  "critical_additions": [
+    {
+      "path": "app/infrastructure/mobile_realtime.py",
+      "minimum_line_percent": 90,
+      "minimum_branch_percent": 80
+    },
+    {
+      "path": "app/infrastructure/mobile_realtime_capacity.py",
+      "minimum_line_percent": 90,
+      "minimum_branch_percent": 70
+    },
+    {
+      "path": "app/infrastructure/mobile_realtime_connection.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 90
+    },
+    {
+      "path": "app/infrastructure/mobile_realtime_lease_store.py",
+      "minimum_line_percent": 90,
+      "minimum_branch_percent": 85
+    },
+    {
+      "path": "app/infrastructure/mobile_realtime_registry.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 80
+    },
+    {
+      "path": "app/infrastructure/mobile_realtime_resources.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 90
+    },
+    {
+      "path": "app/infrastructure/mobile_realtime_transport.py",
+      "minimum_line_percent": 90,
+      "minimum_branch_percent": 60
+    },
+    {
+      "path": "app/infrastructure/mobile_realtime_wire.py",
+      "minimum_line_percent": 80,
+      "minimum_branch_percent": 80
+    }
+  ],
+  "not_adopted_critical": [
+    {
+      "candidate": {
+        "path": "app/infrastructure/mobile_realtime_contracts.py",
+        "minimum_line_percent": 90,
+        "minimum_branch_percent": 100,
+        "source_sha256": "1bcc4988950fc38baff8163e8e3e5032e4dddcf48bef52de23c5e54b5ae1047e"
+      },
+      "reason": "Root independently reviewed101-line declaration/configuration/protocol owner. Normal90line floor retained; no inherited critical obligation or actual-work behavioral critical gate warranted. Candidate artifact retained unchanged."
+    }
+  ],
+  "allglobal_floors_caps_unchanged": true,
+  "source_fence": {
+    "backend/app/infrastructure/mobile_realtime.py": "522f09695a6505fde44a5b490e78b39606df4c55308bad9798e0874eb666c21a",
+    "backend/app/infrastructure/mobile_realtime_capacity.py": "1e29d7a946046066c677e7a58ce07a7fdc21be0a284aed1abd91103abe304d17",
+    "backend/app/infrastructure/mobile_realtime_connection.py": "aa4623acff1649feac6f50d40b0663ddcbddce6d3100dec5e4571b81ffee5ed3",
+    "backend/app/infrastructure/mobile_realtime_contracts.py": "1bcc4988950fc38baff8163e8e3e5032e4dddcf48bef52de23c5e54b5ae1047e",
+    "backend/app/infrastructure/mobile_realtime_lease_store.py": "e6d08e13b82b3fdfbd41f768727d225638c2021ce90a1c1d7a24dfe2d51c3290",
+    "backend/app/infrastructure/mobile_realtime_registry.py": "7153cb96d9235713c117adc805891a4db896c34ed9f05538cb4bd2067e2f4832",
+    "backend/app/infrastructure/mobile_realtime_resources.py": "023947d7269c41a1b8528a9d50aa4c620abf59b2cc0b3b5c1b5f1b8aecafb3ae",
+    "backend/app/infrastructure/mobile_realtime_transport.py": "6526b37299ace415283ef01f53aa023c738c0cff7de796ae421ab3db10a6300c",
+    "backend/app/infrastructure/mobile_realtime_wire.py": "88abe50692fbbb35a494d3788d152b43aa7f2aaea81d51b5eadd12698c936f2d"
+  },
+  "measurements": [
+    {
+      "path": "app/infrastructure/mobile_realtime.py",
+      "sha256": "522f09695a6505fde44a5b490e78b39606df4c55308bad9798e0874eb666c21a",
+      "lines": 223,
+      "complexity": 6,
+      "statement_percent": 93.7984496124031,
+      "branch_percent": 86.36363636363636
+    },
+    {
+      "path": "app/infrastructure/mobile_realtime_capacity.py",
+      "sha256": "1e29d7a946046066c677e7a58ce07a7fdc21be0a284aed1abd91103abe304d17",
+      "lines": 174,
+      "complexity": 6,
+      "statement_percent": 91.2280701754386,
+      "branch_percent": 70.83333333333333
+    },
+    {
+      "path": "app/infrastructure/mobile_realtime_connection.py",
+      "sha256": "aa4623acff1649feac6f50d40b0663ddcbddce6d3100dec5e4571b81ffee5ed3",
+      "lines": 73,
+      "complexity": 5,
+      "statement_percent": 100.0,
+      "branch_percent": 91.66666666666667
+    },
+    {
+      "path": "app/infrastructure/mobile_realtime_contracts.py",
+      "sha256": "1bcc4988950fc38baff8163e8e3e5032e4dddcf48bef52de23c5e54b5ae1047e",
+      "lines": 101,
+      "complexity": 1,
+      "statement_percent": 94.44444444444444,
+      "branch_percent": null
+    },
+    {
+      "path": "app/infrastructure/mobile_realtime_lease_store.py",
+      "sha256": "e6d08e13b82b3fdfbd41f768727d225638c2021ce90a1c1d7a24dfe2d51c3290",
+      "lines": 100,
+      "complexity": 9,
+      "statement_percent": 95.55555555555556,
+      "branch_percent": 87.5
+    },
+    {
+      "path": "app/infrastructure/mobile_realtime_registry.py",
+      "sha256": "7153cb96d9235713c117adc805891a4db896c34ed9f05538cb4bd2067e2f4832",
+      "lines": 229,
+      "complexity": 7,
+      "statement_percent": 95.54140127388536,
+      "branch_percent": 80.55555555555556
+    },
+    {
+      "path": "app/infrastructure/mobile_realtime_resources.py",
+      "sha256": "023947d7269c41a1b8528a9d50aa4c620abf59b2cc0b3b5c1b5f1b8aecafb3ae",
+      "lines": 37,
+      "complexity": 4,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0
+    },
+    {
+      "path": "app/infrastructure/mobile_realtime_transport.py",
+      "sha256": "6526b37299ace415283ef01f53aa023c738c0cff7de796ae421ab3db10a6300c",
+      "lines": 269,
+      "complexity": 10,
+      "statement_percent": 90.22988505747126,
+      "branch_percent": 65.38461538461539
+    },
+    {
+      "path": "app/infrastructure/mobile_realtime_wire.py",
+      "sha256": "88abe50692fbbb35a494d3788d152b43aa7f2aaea81d51b5eadd12698c936f2d",
+      "lines": 122,
+      "complexity": 14,
+      "statement_percent": 83.87096774193549,
+      "branch_percent": 83.33333333333333
+    }
+  ],
+  "release": {
+    "before_paths": 117,
+    "after_paths": 117,
+    "all117oldBEFORE_pairs_and116otherAFTER_values_unchanged": true,
+    "only_known_backend_budget_AFTER_updated": true,
+    "backend_budget_sha256": "54b2a9e1da4e3ed455cf5c6eea8cf8b72752339635030cf512ff26446d7eaf30",
+    "bindings_sha256": "8061f76d68f7d783f34225e518ed19d4fbf062d36a982bd3d9b92999a64ada16"
+  },
+  "evidence_review_basis": "Peer attributed complete physical source/equivalence/focused behavioral coverage receipts; root independently read declaration owner. Integrator verifies exact hashes/raw coverage/metrics only, no second full review claim for9owners.",
+  "artifacts": {
+    "shared-realtime-composition-verification.json": "9e2d608db998ec3b7ff326b187f15a3b8d1a81e93d7dd032950312e4a8faee52",
+    "shared-realtime-previous-values.json": "1767a7a425f7c7515cd0263852be343a248c09eeda105bc8b86da5431cc1e356",
+    "shared-realtime-budget-candidates.json": "b99120a7bf10d098e70fe79574c15288c67c648f97051f0c2c8d29b739824e0b",
+    "shared-realtime-critical-candidates.json": "38f816b1320a132305bc92855489cf39aa5d3db8b941ffe35fa9fa7e663d746a",
+    "shared-realtime-qualified-coverage.json": "b628a6199877d6b8a08f7b1d8eb4d1a9ce6a7dfcc0c412ebe0a930f9dbe7090e",
+    "shared-realtime-qualified-coverage.xml": "c100b6c7b35f2abb26077112d324ec0f6fbc5bd740ee5a2c816fb842009c45da",
+    "shared-realtime-budgets.txt": "4ff6c052c185b962cd35900c7d53bfab1a03909ddf397200f7493494e60d09e1",
+    "shared-realtime-bindings.txt": "e5fc95174277489c47ea2fb2e6d94559e16b1c8749b3ad853741978343f018e6",
+    "shared-realtime-loader-tests.txt": "74b3de07ed52d36732e0665bd862c8260648ea042b2eee948afa6078d51d660e",
+    "shared-realtime-exact-bindings.json": "149cc89bd5f4a141edc8fec959a087ea1fc72e8276b5b8ec5767c155006ab462"
+  },
+  "limits": [
+    "No broad app/build/browser/live-service/VPS qualification",
+    "MCP1990 remains historical",
+    "Retained FastBuild inherited arity remains explicitly open"
+  ],
+  "checks": {
+    "backend_static_budgets": "741normal/117critical limits passed",
+    "exact_bindings": "117current AFTERs plus both actual immutable Git BEFOREs passed",
+    "loader_tests": "14focused tests passed7.659seconds",
+    "frontend": "657budget source unchanged; no application qualification rerun"
+  },
+  "controls": {
+    "backend/backend_quality_budgets.json": "54b2a9e1da4e3ed455cf5c6eea8cf8b72752339635030cf512ff26446d7eaf30",
+    "scripts/release_workspace_branding_bindings.json": "8061f76d68f7d783f34225e518ed19d4fbf062d36a982bd3d9b92999a64ada16",
+    "scripts/release_workspace_branding_policy.py": "615f5ef7654ff09127ddec0eceb364e9a78ba3456c909afd63e3615b18571e15"
+  }
+}

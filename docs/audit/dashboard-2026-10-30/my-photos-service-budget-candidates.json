@@ -1,0 +1,101 @@
+[
+  {
+    "path": "app/infrastructure/my_photos/catalog_service.py",
+    "baseline_lines": 319,
+    "maximum_lines": 332,
+    "baseline_max_function_complexity": 20,
+    "maximum_function_complexity": 20,
+    "minimum_coverage_percent": 95,
+    "sha256": "d01b169cd6c52ab08342588dc91fea5adb1564643e990825361a148ae47f3e77",
+    "observed_statement_coverage": 97.5,
+    "observed_branch_coverage": 90.0
+  },
+  {
+    "path": "app/infrastructure/my_photos/context.py",
+    "baseline_lines": 177,
+    "maximum_lines": 185,
+    "baseline_max_function_complexity": 6,
+    "maximum_function_complexity": 6,
+    "minimum_coverage_percent": 80,
+    "sha256": "5882eafd5f6279d7069588ef3f151a7e3aad3f811330b4c0293bbdefcf71f178",
+    "observed_statement_coverage": 81.94444444444444,
+    "observed_branch_coverage": 57.69230769230769
+  },
+  {
+    "path": "app/infrastructure/my_photos/enrollment_service.py",
+    "baseline_lines": 364,
+    "maximum_lines": 379,
+    "baseline_max_function_complexity": 23,
+    "maximum_function_complexity": 23,
+    "minimum_coverage_percent": 80,
+    "sha256": "58d3f2cd10df3657ee83a3c00a132098268fb79eb08285ba83d9c21bb92bea62",
+    "observed_statement_coverage": 84.81012658227849,
+    "observed_branch_coverage": 64.0
+  },
+  {
+    "path": "app/infrastructure/my_photos/liveness_service.py",
+    "baseline_lines": 433,
+    "maximum_lines": 451,
+    "baseline_max_function_complexity": 24,
+    "maximum_function_complexity": 24,
+    "minimum_coverage_percent": 75,
+    "sha256": "e89205578fabce3fe0e9399e62725dac8c5c5b34366e68c40d4b4b346080ce20",
+    "observed_statement_coverage": 79.05759162303664,
+    "observed_branch_coverage": 60.60606060606061
+  },
+  {
+    "path": "app/infrastructure/my_photos/liveness_store.py",
+    "baseline_lines": 398,
+    "maximum_lines": 414,
+    "baseline_max_function_complexity": 19,
+    "maximum_function_complexity": 19,
+    "minimum_coverage_percent": 85,
+    "sha256": "c8b40f0851212897368909288ff614abc57d43012b59d3a72371000d74f95fb5",
+    "observed_statement_coverage": 89.47368421052632,
+    "observed_branch_coverage": 67.6470588235294
+  },
+  {
+    "path": "app/infrastructure/my_photos/liveness_validation.py",
+    "baseline_lines": 127,
+    "maximum_lines": 133,
+    "baseline_max_function_complexity": 10,
+    "maximum_function_complexity": 10,
+    "minimum_coverage_percent": 80,
+    "sha256": "8e016d8ad12f6a6c76b55d86ceaff9e188d92873b01625045a7a1d0b8bf93cf4",
+    "observed_statement_coverage": 83.33333333333333,
+    "observed_branch_coverage": 76.92307692307692
+  },
+  {
+    "path": "app/infrastructure/my_photos/reference_lifecycle.py",
+    "baseline_lines": 254,
+    "maximum_lines": 265,
+    "baseline_max_function_complexity": 10,
+    "maximum_function_complexity": 10,
+    "minimum_coverage_percent": 80,
+    "sha256": "92eefe82dd72e6ea6cfb334a61d8397166f11da607a3c68487bcd4b9460e6f54",
+    "observed_statement_coverage": 82.65306122448979,
+    "observed_branch_coverage": 75.0
+  },
+  {
+    "path": "app/infrastructure/my_photos/responses.py",
+    "baseline_lines": 55,
+    "maximum_lines": 58,
+    "baseline_max_function_complexity": 4,
+    "maximum_function_complexity": 4,
+    "minimum_coverage_percent": 80,
+    "sha256": "91fcb27b1bfd60b05d2d37da07ad16bce187a00ad508a4a0daa8a39bcc218331",
+    "observed_statement_coverage": 80.0,
+    "observed_branch_coverage": 50.0
+  },
+  {
+    "path": "app/infrastructure/my_photos/service.py",
+    "baseline_lines": 326,
+    "maximum_lines": 340,
+    "baseline_max_function_complexity": 3,
+    "maximum_function_complexity": 3,
+    "minimum_coverage_percent": 75,
+    "sha256": "5b4bc5722156a745c37ab20205506baa319961cf94e35c40d9ab47704c99775e",
+    "observed_statement_coverage": 76.82926829268293,
+    "observed_branch_coverage": 0.0
+  }
+]

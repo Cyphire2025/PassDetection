@@ -1,0 +1,38 @@
+[
+  {
+    "name": "operator-tests",
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "scripts",
+      "-p",
+      "test_release_workspace_branding*.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "all79-source-and-baselines",
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      ".tmp/verify-current-release-bindings.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "ruff",
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "-m",
+      "ruff",
+      "check",
+      "--no-fix",
+      "scripts/release_workspace_branding_policy.py",
+      "scripts/release_workspace_branding_bindings.py",
+      "scripts/test_release_workspace_branding_bindings.py"
+    ],
+    "exit_code": 0
+  }
+]

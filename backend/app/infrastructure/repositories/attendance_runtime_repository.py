@@ -15,8 +15,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.security.mobile_jwt import hash_mobile_lookup
 from app.infrastructure.database.models import (
     AttendanceRuntimeRegistrationModel,
-    AttendanceSessionRuntimeParticipantModel,
 )
+from app.infrastructure.repositories.attendance_participation import record_runtime_participation
 
 RuntimeKind = Literal["native_mobile", "pwa", "webview", "legacy_account"]
 RuntimeTerminalStatus = Literal["revoked", "expired", "lost", "replaced"]
@@ -186,25 +186,14 @@ class AttendanceRuntimeRepository:
         occurred_at: datetime | None = None,
     ) -> None:
         observed = _utc(occurred_at or datetime.now(tz=UTC))
-        await self._session.execute(
-            pg_insert(AttendanceSessionRuntimeParticipantModel)
-            .values(
-                id=uuid.uuid4(),
-                agency_id=agency_id,
-                session_id=session_id,
-                coordinator_user_id=coordinator_user_id,
-                runtime_registration_id=runtime_registration_id,
-                participation_source=source,
-                first_participated_at=observed,
-                last_participated_at=observed,
-            )
-            .on_conflict_do_update(
-                constraint="uq_attendance_session_runtime_participant",
-                set_={
-                    "last_participated_at": observed,
-                    "participation_source": source,
-                },
-            )
+        await record_runtime_participation(
+            self._session,
+            agency_id=agency_id,
+            session_id=session_id,
+            coordinator_user_id=coordinator_user_id,
+            runtime_registration_id=runtime_registration_id,
+            source=source,
+            occurred_at=observed,
         )
         await self._session.flush()
 

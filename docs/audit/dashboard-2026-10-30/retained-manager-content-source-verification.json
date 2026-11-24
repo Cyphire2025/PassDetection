@@ -1,0 +1,46 @@
+{
+  "status": "Bounded read-only manager/content cohort complete; candidate pending proof and broader audit active",
+  "new_current_full_tests": 6,
+  "test_physical_lines": 865,
+  "supporting_full_rows": 5,
+  "focused_rows": 4,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-manager-content-source-reviewed-files.json",
+    "sha256": "1a47d9325627ceaf5ed80b44c859d886430b0afec57468e148a78a2684aa3be6"
+  },
+  "source_fence": {
+    "backend/tests/integration/test_gc_manager_admin_lifecycle.py": "15fe423aec8c0109c51cf044e950d9778209a5e39afd0367ced31f69f1862366",
+    "backend/tests/integration/test_gc_manager_joined_tenant_boundary.py": "8f3d6fcbf22fcbaa53fa541fb30611a201a4f649554cbb97fa1669e81c7917f4",
+    "backend/tests/integration/test_gc_manager_response_durability.py": "d1981282d23d35942b3172ed63d99871cef155b38be4a45ad72dc015a2897945",
+    "backend/tests/integration/test_gc_manager_retained_assignments.py": "34a2ae4b01cad644092e935aef50484b4e570f9d61c0bdefddd677acd747b12a",
+    "backend/tests/integration/test_gc_common_document_admin_workflow.py": "6f2a6ea90e5fb62a7b6ae5d36bc84b1521fadbcbb88f07dcb099f544ec415a93",
+    "backend/tests/unit/presentation/test_gc_app_history_pagination.py": "9a8f33ea502338b8c7e4be917a1a776db29a0b402d0c551226359202e84f38e4",
+    "backend/app/presentation/api/v1/routes/gc_app_content_audit.py": "f95869a25b8d8f917615f92ecf62dece2716484e1e506ef62eb821c511aa6e7b",
+    "backend/app/presentation/api/v1/routes/gc_app_manager_directory.py": "b039d0aaab7b43bd0b36290bb9addbb7828ef0d4ce3e384b00a737d01dbbad1b",
+    "backend/app/presentation/api/v1/routes/gc_app_common_documents.py": "8b98cbcbeaee8dd2782ba2e282bec6c3ac988326b087724ec275045ff6fde469",
+    "backend/app/presentation/api/v1/routes/gc_app_common_staging.py": "4224ea4c750950899c393c72f84c7dbb1db321dc0740b5d07376d88c49d75c81",
+    "backend/app/presentation/api/v1/routes/gc_app_history_support.py": "bdf2286f4ca7ee627106c8f2fb200a3fdefefa7ec2e94c4de43ad2190c291e7c",
+    "backend/app/presentation/api/v1/routes/gc_app_manager_access.py": "c6fc614f7acca55e4d81f2519d8cdd6578f21dd04c640745cea96d487fd75cee",
+    "backend/app/presentation/api/v1/routes/gc_app_manager_creation.py": "d11ae641ad5e32496956609465046db83ffba3ebe8288c54d334734040bf6465",
+    "backend/app/presentation/api/v1/routes/gc_app_manager_profile.py": "e7f22a5da952fe5084ce284746e3b55c3e04116f5e50053a885bcb68935c9271",
+    "backend/app/presentation/api/v1/routes/gc_app_scope.py": "19c66d3d873131f1a931974532b48c77b0867e581aa0207c68b43fb7af0dbf59"
+  },
+  "checks_run": [],
+  "changes": [],
+  "validated_findings": [],
+  "candidate_findings": [
+    {
+      "status": "unvalidated-pending-ordinary-real-DB-regression",
+      "path": "backend/app/presentation/api/v1/routes/gc_app_common_staging.py",
+      "claim": "After rollback and awaited validation/storage, reacquisition refreshes group/access but consumes current_user role/agency snapshot without current actor/session revalidation. Account/role/agency/session change during held staging may still publish.",
+      "evidence": "Whole current staging and _admin_access_context source physically read; existing compensation tests use mocked scope helper (source search only).",
+      "next_step": "Synthetic held-stage real database controls for revoked actor and unchanged healthy/profile/legacy scope; no new policy/provider/native services."
+    }
+  ],
+  "proof_gaps": [
+    "No tests/checks/app/native/provider/storage services were invoked for read credit.",
+    "Unvalidated current-actor source candidate reported before proposed fix; no behavior change inferred from comment alone.",
+    "Mock queries and SQLite-FK source fixture controls do not establish live PG locking/response/provider behavior.",
+    "Prior whole supporting rereads are separate from six new unmatched full test sources; bounded slices stay partial."
+  ]
+}

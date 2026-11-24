@@ -1,0 +1,28 @@
+I001 [*] Import block is un-sorted or un-formatted
+  --> tests\unit\application\test_public_upload_replay_binding.py:3:1
+   |
+ 1 |   """Recovery credentials remain bound to one qualifier across concurrent replay gates."""
+ 2 |
+ 3 | / from __future__ import annotations
+ 4 | |
+ 5 | | import uuid
+ 6 | | from datetime import UTC, datetime, timedelta
+ 7 | | from unittest.mock import AsyncMock
+ 8 | |
+ 9 | | import pytest
+10 | | from app.application.mobile.group_capacity import GroupPassengerCapacityGuard
+11 | | from app.application.use_cases.passports.submit_passport_use_case import SubmitPassportUseCase
+12 | | from app.domain.entities.entities import ClientGroup, PassportSubmission, QualifierSelection
+13 | | from app.domain.exceptions.exceptions import ValidationError
+14 | | from app.domain.value_objects.qualifier_relations import hash_qualifier_selection_token
+   | |_______________________________________________________________________________________^
+   |
+help: Organize imports
+   |
+9  | import pytest
+10 +
+11 | from app.application.mobile.group_capacity import GroupPassengerCapacityGuard
+   |
+
+Found 1 error.
+[*] 1 fixable with the `--fix` option.

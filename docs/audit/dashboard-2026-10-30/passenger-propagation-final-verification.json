@@ -1,0 +1,104 @@
+{
+  "status": "Frozen scoped shared dashboard bridge architecture qualified; broader dashboard audit remains active",
+  "source_manifest": {
+    "path": "docs/audit/dashboard-2026-10-30/passenger-propagation-final-source-manifest.json",
+    "sha256": "e07956d5aac6f100cf003ca7a944dbe8a9c528c4067cdb82aef2e303eca9db48"
+  },
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/passenger-propagation-final-reviewed-files.json",
+    "sha256": "67dbc7eeaedfb8bfb8ddf4f007217e27afc1417adfbe9b04bd720ae69ff095e5"
+  },
+  "budget_candidates": {
+    "path": "docs/audit/dashboard-2026-10-30/passenger-propagation-final-budget-candidates.json",
+    "sha256": "dadcd1c3ab4a0c22c56f356e02a87eed2f0d21e639759eb2a77e35bc1fa9d70a"
+  },
+  "approved_preflight": {
+    "path": "docs/audit/dashboard-2026-10-30/passenger-propagation-preflight-design.json",
+    "sha256": "9cc876af3ff1b69a462c9b02d96a920eef9759f8ae587d2bdcac2edac36a9e2b"
+  },
+  "design_refinement": "Approved two-field preparation DATA contains reconciliation result+selected identity pairs, rather than prepared events; original public planner/UUID invocation globals stay physically in main. No callback bag, mixin, self-proxy or generic context.",
+  "changes": [
+    "Original500-line mixed bridge now five cohesive owners: public lifecycle/memo orchestration299, stable contracts54, pure event/UUID planning130, identity preparation85, durable filtering/journal115. Maximum function complexity34 becomes14; main propagation34 becomes10. This is ownership/readability work, no speedup or behavior change claim.",
+    "Original seven declarations were mechanically whole-AST exact at intermediate checkpoint; final six remain whole and the complete original propagation body expands exactly through typed phases, including original SQL/await/flush/revision/memo/notification statement order.",
+    "Source-contact sync remains before memo, initial version capture before reconciliation, durable replay check before version writes, each journal append retains default flush, notification enqueue remains last, caller owns commit. No threshold, role, identity, memo lifetime or provider policy change.",
+    "All seven original signature/module/qualname/doc/evaluated-hint records, four constants,22 original imported object identities, seven actual caller binding identities and actual DATA instance/callable pickle equal original baseline. Current purpose owners evaluate actual hints; phase/planner/ID/broadcast/group wiring is checked.",
+    "Original38 assertions/CRLF and new original-source11 boundary assertions/LF are raw-text+AST exact after actual module-hook retargets; no mutable facade monkeypatch proxy."
+  ],
+  "validation": {
+    "original15": {
+      "path": "docs/audit/dashboard-2026-10-30/passenger-propagation-before-focused-command.json",
+      "sha256": "966cad3d04319923aa621391c1082519aa7e4ff694a36a2afc1d55e269f28838"
+    },
+    "new5_against_original": {
+      "path": "docs/audit/dashboard-2026-10-30/passenger-propagation-boundaries-before-focused-command.json",
+      "sha256": "11dc032e7fb8b3a012b0df0bed62f0fedda0631b6e9040a9bf640443e65207ea"
+    },
+    "mechanical_metadata_collection": {
+      "path": "docs/audit/dashboard-2026-10-30/passenger-propagation-mechanical-focused-command.json",
+      "sha256": "aee52d1ced53f969acf2ffb6043af9ca2bad6face0e5f47fe91f7ba7e2d15f94"
+    },
+    "mechanical_probe_scope": "One existing test collected for metadata probe only; no interim broad behavior suite.",
+    "final20": {
+      "path": "docs/audit/dashboard-2026-10-30/passenger-propagation-final-focused-command.json",
+      "sha256": "d112b5b94fd1b5dc60a9ce2985d1b7fdac5a7764ec6c7e71a0bb3cc9f344842e"
+    },
+    "final20_log": {
+      "path": "docs/audit/dashboard-2026-10-30/passenger-propagation-final-focused-tests.txt",
+      "sha256": "2768ccafccdd26a7843afc17cda6eec37ef753eb558cac8d2b11ba4611836727"
+    },
+    "source_fence_count": 25,
+    "source_unchanged": true,
+    "runtime_contract": {
+      "path": "docs/audit/dashboard-2026-10-30/passenger-propagation-final-runtime-contract.json",
+      "sha256": "b5ef7e2ccc644a1e1c7c78213bda6c11c3c615448d4252109feaeaee81209bc4"
+    },
+    "evaluated_owner_declarations": 10,
+    "static_checks": {
+      "path": "docs/audit/dashboard-2026-10-30/passenger-propagation-final-static-checks.json",
+      "sha256": "402f571f9978c73659841961b50035fc3e5235bcc1c2ea320b89bb2cb9b42b21"
+    },
+    "static_result": "Strict5 runtime and scoped Ruff5runtime+2test files passed; no broad suite/build/browser.",
+    "coverage_json": {
+      "path": "docs/audit/dashboard-2026-10-30/passenger-propagation-final-coverage.json",
+      "sha256": "bded72b95da4a6a8483ee01cc7140727bec15bacbbc043c01fd542dba9f3736b"
+    },
+    "coverage_xml": {
+      "path": "docs/audit/dashboard-2026-10-30/passenger-propagation-final-coverage.xml",
+      "sha256": "182f239a41b8e7e0eb3c5cee0ec23d8e5533253883b3f93de0fef4d7154a8865"
+    },
+    "weighted5_coverage": {
+      "covered_lines": 201,
+      "executable_lines": 214,
+      "line_percent": 93.92523364485982,
+      "covered_branches": 50,
+      "branches": 56,
+      "branch_percent": 89.28571428571429
+    },
+    "service_scope": "Synthetic FK-backed SQLite controls, existing contact sync lifecycle and synthetic mocks; no real PostgreSQL row-lock/provider/native ingress/production service proof."
+  },
+  "source_proofs": [
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passenger-propagation-mechanical-source-proof.json",
+      "sha256": "d88cf7689320b4d089ee9171d89a912b8918929a08a509db44e93f018f9ceb55"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passenger-propagation-phases-source-proof.json",
+      "sha256": "27d846b828dc24b709a67a14de14185e627513d99b19b64e3faa70fe11a01623"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/passenger-propagation-test-instrumentation-proof.json",
+      "sha256": "d2876303e282de50f98874bb38304bbd3fc9a1647242287562d6649bab363ab9"
+    }
+  ],
+  "full_read_count": 8,
+  "full_read_physical_lines": 1381,
+  "read_provenance": "Original main/test already had exact-current full records; this is architecture reassessment, not new-unreviewed closure. Unchanged197-line client-details caller is also full. Other dependency rows remain explicitly focused at actual bounded ranges. No imported/executed/snapshotted source inferred full.",
+  "introspection_tradeoff": "Legacy class/function module/qualname/pickle/evaluated hints and generated/nested repr/std-library state-method metadata preserved. inspect.getsource implementation location for moved declarations changes to focused owner; no monkeypatch or assertion that physical implementation remains at old path.",
+  "remaining_follow_through": [
+    "Unchanged group/broadcast public reconciliation success/memo paths are not exercised by this focused selection; actual main coverage gaps retained in candidate evidence, no95 claim.",
+    "Planner unrelated identity filtering and non-null actor journal attribution branches have measured uncovered paths; source AST exact, no assertion of full branch behavior coverage.",
+    "Per-event flush batching and session.info memo lifetime optimizations remain unvalidated hypotheses and were deliberately not changed.",
+    "Shared identity/revision/notification/native policy implementations are frozen and only traced at listed retained callback boundaries; broader architecture/security review remains independently open where not already closed by matching full ledgers."
+  ],
+  "source_freeze": "All five runtime and two affected test files frozen at manifest hashes; no shared budget/config/model/policy/migration/provider edits. Parent owns final combined qualification."
+}

@@ -1,0 +1,28 @@
+{
+  "status": "one additive normal; actual behavior critical90/70 proposal awaits parent approval/AI integration",
+  "modules": [
+    {
+      "path": "app/infrastructure/audit/s3_checkpoint_sink.py",
+      "source_sha256": "175bc660c4003c095ba2a5c5079de79e8a93be5cf20e16b13f6d13a8747d5dcf",
+      "baseline_lines": 229,
+      "maximum_lines": 230,
+      "baseline_max_function_complexity": 13,
+      "maximum_function_complexity": 13,
+      "minimum_coverage_percent": 90
+    }
+  ],
+  "critical_modules": [
+    {
+      "path": "app/infrastructure/audit/s3_checkpoint_sink.py",
+      "source_sha256": "175bc660c4003c095ba2a5c5079de79e8a93be5cf20e16b13f6d13a8747d5dcf",
+      "minimum_line_percent": 90,
+      "minimum_branch_percent": 70
+    }
+  ],
+  "coverage_path": ".tmp/shared-observability-audit/coverage.xml",
+  "current_line_percent": 92.91338582677166,
+  "current_branch_percent": 73.52941176470588,
+  "old_normal_membership": null,
+  "old_critical_membership": null,
+  "no_caps_or_floors_relaxed": true
+}

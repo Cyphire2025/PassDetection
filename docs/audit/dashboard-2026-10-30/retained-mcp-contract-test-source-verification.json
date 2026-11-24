@@ -1,0 +1,26 @@
+{
+  "status": "Complete physical source-only review of listed retained files; mixed scope explicitly focused",
+  "ledger": "retained-mcp-contract-test-source-reviewed-files.json",
+  "ledger_sha256": "e06647b8b5cc5100cfaea2713a71cbb52abebbb335ec8279a119d4a1ec7a3208",
+  "full_files": 9,
+  "full_physical_lines": 631,
+  "focused_files": 1,
+  "current_source_hashes": {
+    "backend/tests/unit/core/test_mcp_release_envelope.py": "5b53d0c4bce640e2d5c8f375a9615b2014ced7c20c95dc92e1ecc8dd9f1944d8",
+    "backend/tests/integration/test_mcp_source_admission.py": "f6db705fcaafe15c96530bad42551070387898e3ccbd3ae6aaa8bcba218ccfb5",
+    "backend/tests/integration/test_mcp_conversation_contract.py": "812957f99cbdb6d511d4e019eadf02da4554da5f0a7723cc9fe2176e5cd11898",
+    "backend/tests/integration/test_mcp_diagnostic_mount.py": "fdd2584da0a84f699c21e8b686f4e1138d69141ce13f673335d96f61bcea19fe",
+    "backend/tests/integration/test_mcp_dashboard_workflow_metadata.py": "f280a3117696abbadefbf01b87ef0463a326e4a0c0fdcf3dbbe18ff503e05e2e",
+    "backend/tests/integration/test_mcp_audit_fixture_isolation.py": "0df0c2bddc6a5ed2e20117d0e87208089515fc265ce4f651b14020fa65761b08",
+    "backend/tests/integration/test_mcp_permission_listing.py": "ffda1238c8e12b03005017cb721ca5bfb5ff759d9d66eeb4c45200e0cd5625d0",
+    "backend/tests/integration/test_mcp_admin_files.py": "d5aa6997e3c56b7cea3583d5b7ab45d2ad85fcdb5d2425657e4ace2f62acb50b",
+    "backend/tests/integration/test_mcp_content_read_http.py": "31c1bb61f19c50ae3110b764ff252d1a28453d58c3977940ffa05bf114ef37b0",
+    "backend/tests/integration/test_mcp_document_http.py": "6d25bdba39a2d118fb30e9ea4416d3f3e8664b406e9c988b2af77c4e2d1f06ed"
+  },
+  "source_unchanged_since_discovery": true,
+  "new_tests_executed": 0,
+  "runtime_or_test_edits": 0,
+  "new_validated_runtime_findings": 0,
+  "existing_full_findings_automatically_closed": false,
+  "limits": "Text review verifies source assertions and fixture boundaries only; does not establish those tests pass, actual PostgreSQL/Redis/storage concurrency, provider output, browser/native transport or deployed behavior. Inbox assertions in mixed files remain deferred. No gate/binding/stamp/MCP1990 refresh."
+}

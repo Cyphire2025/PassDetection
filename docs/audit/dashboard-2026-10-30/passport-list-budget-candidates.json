@@ -1,0 +1,51 @@
+[
+  {
+    "path": "features/passports/components/passport-list.tsx",
+    "baselineLines": 121,
+    "maximumLines": 130,
+    "baselineMaxFunctionComplexity": 5,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/passports/components/use-passport-list.ts",
+    "baselineLines": 79,
+    "maximumLines": 90,
+    "baselineMaxFunctionComplexity": 13,
+    "maximumFunctionComplexity": 14
+  },
+  {
+    "path": "features/passports/components/passport-list-overview.tsx",
+    "baselineLines": 115,
+    "maximumLines": 120,
+    "baselineMaxFunctionComplexity": 19,
+    "maximumFunctionComplexity": 20
+  },
+  {
+    "path": "features/passports/components/passport-list-filters.tsx",
+    "baselineLines": 67,
+    "maximumLines": 80,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/passports/components/passport-list-export-controls.tsx",
+    "baselineLines": 87,
+    "maximumLines": 100,
+    "baselineMaxFunctionComplexity": 6,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/passports/components/passport-list-table.tsx",
+    "baselineLines": 118,
+    "maximumLines": 130,
+    "baselineMaxFunctionComplexity": 7,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/passports/components/passport-group-list-card.tsx",
+    "baselineLines": 98,
+    "maximumLines": 110,
+    "baselineMaxFunctionComplexity": 5,
+    "maximumFunctionComplexity": 6
+  }
+]

@@ -174,9 +174,7 @@ async def test_service_allows_arbitrary_presentation_prompt_wording() -> None:
     assert result.content_type == "image/jpeg"
     assert len(requests) == 1
     generation_payload = json.loads(requests[0].content)
-    assert generation_payload["contents"][0]["parts"][0]["text"].startswith(
-        "Remove the glasses"
-    )
+    assert generation_payload["contents"][0]["parts"][0]["text"].startswith("Remove the glasses")
 
 
 @pytest.mark.asyncio
@@ -205,9 +203,7 @@ async def test_generation_503_uses_the_fallback_model_in_order() -> None:
                     upload_max_pixels=24_000_000,
                 ),
             ),
-            patch(
-                "app.infrastructure.ai.gemini_visa_image_edit_service.logger"
-            ) as mock_logger,
+            patch("app.infrastructure.ai.gemini_visa_image_edit_service.logger") as mock_logger,
         ):
             result = await service.edit(
                 source,
@@ -493,5 +489,26 @@ async def test_unreadable_primary_generated_image_uses_fallback() -> None:
                 prompt="Make the background plain white",
             )
 
+    assert result.model == _FALLBACK_MODEL
+    assert len(requests) == 2
+
+
+@pytest.mark.parametrize("finish_reason", ["SAFETY", "MAX_TOKENS", "RECITATION"])
+async def test_incomplete_primary_image_cannot_be_published(finish_reason: str) -> None:
+    source = _jpeg()
+    requests: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        response = _image_response(source)
+        if _PRIMARY_MODEL in request.url.path:
+            payload = response.json()
+            payload["candidates"][0]["finishReason"] = finish_reason
+            return httpx.Response(200, json=payload)
+        return response
+
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+        service = GeminiVisaImageEditService(settings=_settings(), http_client=client)  # type: ignore[arg-type]
+        result = await service.edit(source, prompt="Make the background plain white")
     assert result.model == _FALLBACK_MODEL
     assert len(requests) == 2

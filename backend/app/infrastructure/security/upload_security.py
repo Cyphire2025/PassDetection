@@ -429,12 +429,12 @@ def _validate_pdf_structure(content: bytes) -> None:
     if not content.startswith(b"%PDF-"):
         raise ImageValidationError("Uploaded document is not a readable PDF")
     try:
-        reader = PdfReader(io.BytesIO(content), strict=True)
-        if reader.is_encrypted:
-            raise ImageValidationError("Encrypted documents require manual review")
-        if len(reader.pages) < 1:
-            raise ImageValidationError("Uploaded document contains no readable pages")
-        _ = reader.pages[0].mediabox
+        with io.BytesIO(content) as stream, PdfReader(stream, strict=True) as reader:
+            if reader.is_encrypted:
+                raise ImageValidationError("Encrypted documents require manual review")
+            if len(reader.pages) < 1:
+                raise ImageValidationError("Uploaded document contains no readable pages")
+            _ = reader.pages[0].mediabox
     except ImageValidationError:
         raise
     except (PdfReadError, OSError, TypeError, ValueError, IndexError, KeyError):

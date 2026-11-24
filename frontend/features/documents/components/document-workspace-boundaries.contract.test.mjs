@@ -1,3 +1,4 @@
+import { readDocumentWorkspaceSource } from "./document-workspace-source.contract-helper.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -5,7 +6,7 @@ import test from "node:test";
 const read = (relativePath) =>
   readFileSync(new URL(relativePath, import.meta.url), "utf8");
 
-const workspace = read("./document-workspace.tsx");
+const workspace = readDocumentWorkspaceSource();
 const model = read("./document-workspace-model.ts");
 const rows = read("./document-workspace-review-rows.tsx");
 
@@ -25,7 +26,7 @@ test("optional document-workspace surfaces use explicit lazy boundaries", () => 
 });
 
 test("the primary upload workflow remains eager and route-owned", () => {
-  assert.match(workspace, /import \{\s*DocumentUploadPanel,/);
+  assert.match(workspace, /import \{\s*DocumentUploadPanel(?:,|\s*\})/);
   assert.doesNotMatch(workspace, /dynamic\([\s\S]*import\("\.\/document-upload-panel"\)/);
   assert.match(workspace, /const documentType = lane\.documentType/);
   assert.match(workspace, /<DocumentUploadPanel/);

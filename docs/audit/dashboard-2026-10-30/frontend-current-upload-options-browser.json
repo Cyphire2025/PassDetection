@@ -1,0 +1,231 @@
+{
+  "origin": "http://127.0.0.1:3186",
+  "fixtureHash": "a6f11efaa834706db23f275b6115058fa87fc7f14362681e6abe14e82749de3e",
+  "layouts": [
+    {
+      "viewport": "desktop",
+      "config": "live-only",
+      "cards": {
+        "front": {
+          "x": 144,
+          "y": 603.59375,
+          "width": 520.71875,
+          "height": 142
+        },
+        "back": {
+          "x": 144,
+          "y": 761.59375,
+          "width": 520.71875,
+          "height": 142
+        },
+        "photo": {
+          "x": 144,
+          "y": 445.59375,
+          "width": 520.71875,
+          "height": 142
+        }
+      },
+      "dimensions": {
+        "width": 1440,
+        "pageWidth": 1440,
+        "clientWidth": 521,
+        "scrollWidth": 521
+      },
+      "screenshot": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\test-results\\upload-options-browser\\desktop-live-only.png",
+      "nonce": "NmVkOGZmMzgtYTcyZi00ZGJjLWFkZGEtMGJjZWYyMzlkY2Mw",
+      "csp": "default-src 'self'; script-src 'self' 'nonce-NmVkOGZmMzgtYTcyZi00ZGJjLWFkZGEtMGJjZWYyMzlkY2Mw' 'strict-dynamic' 'wasm-unsafe-eval'; script-src-attr 'none'; style-src 'self' 'nonce-NmVkOGZmMzgtYTcyZi00ZGJjLWFkZGEtMGJjZWYyMzlkY2Mw'; style-src-attr 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; font-src 'self'; connect-src 'self'; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; frame-src 'self' blob:; base-uri 'self'; frame-ancestors 'none'; form-action 'self'"
+    },
+    {
+      "viewport": "desktop",
+      "config": "upload-only",
+      "cards": {
+        "front": {
+          "x": 144,
+          "y": 611.59375,
+          "width": 520.71875,
+          "height": 150
+        },
+        "back": {
+          "x": 144,
+          "y": 777.59375,
+          "width": 520.71875,
+          "height": 150
+        },
+        "photo": {
+          "x": 144,
+          "y": 445.59375,
+          "width": 520.71875,
+          "height": 150
+        }
+      },
+      "dimensions": {
+        "width": 1440,
+        "pageWidth": 1440,
+        "clientWidth": 521,
+        "scrollWidth": 521
+      },
+      "screenshot": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\test-results\\upload-options-browser\\desktop-upload-only.png",
+      "nonce": "MjcxZjM1ZGYtNWU3Zi00MTk2LTg5YjEtOTg0YjQ2YzVlZjdh",
+      "csp": "default-src 'self'; script-src 'self' 'nonce-MjcxZjM1ZGYtNWU3Zi00MTk2LTg5YjEtOTg0YjQ2YzVlZjdh' 'strict-dynamic' 'wasm-unsafe-eval'; script-src-attr 'none'; style-src 'self' 'nonce-MjcxZjM1ZGYtNWU3Zi00MTk2LTg5YjEtOTg0YjQ2YzVlZjdh'; style-src-attr 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; font-src 'self'; connect-src 'self'; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; frame-src 'self' blob:; base-uri 'self'; frame-ancestors 'none'; form-action 'self'"
+    },
+    {
+      "viewport": "desktop",
+      "config": "both",
+      "cards": {
+        "front": {
+          "x": 144,
+          "y": 611.59375,
+          "width": 520.71875,
+          "height": 150
+        },
+        "back": {
+          "x": 144,
+          "y": 777.59375,
+          "width": 520.71875,
+          "height": 150
+        },
+        "photo": {
+          "x": 144,
+          "y": 445.59375,
+          "width": 520.71875,
+          "height": 150
+        }
+      },
+      "dimensions": {
+        "width": 1440,
+        "pageWidth": 1440,
+        "clientWidth": 521,
+        "scrollWidth": 521
+      },
+      "screenshot": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\test-results\\upload-options-browser\\desktop-both.png",
+      "nonce": "OThmNmQxODUtYWMxMC00ZjE1LTg0NjAtMTZiYTAwMjhiZTZl",
+      "csp": "default-src 'self'; script-src 'self' 'nonce-OThmNmQxODUtYWMxMC00ZjE1LTg0NjAtMTZiYTAwMjhiZTZl' 'strict-dynamic' 'wasm-unsafe-eval'; script-src-attr 'none'; style-src 'self' 'nonce-OThmNmQxODUtYWMxMC00ZjE1LTg0NjAtMTZiYTAwMjhiZTZl'; style-src-attr 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; font-src 'self'; connect-src 'self'; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; frame-src 'self' blob:; base-uri 'self'; frame-ancestors 'none'; form-action 'self'"
+    },
+    {
+      "viewport": "mobile",
+      "config": "live-only",
+      "cards": {
+        "front": {
+          "x": 16,
+          "y": 556.34375,
+          "width": 358,
+          "height": 154
+        },
+        "back": {
+          "x": 16,
+          "y": 726.34375,
+          "width": 358,
+          "height": 154
+        },
+        "photo": {
+          "x": 16,
+          "y": 406.34375,
+          "width": 358,
+          "height": 134
+        }
+      },
+      "dimensions": {
+        "width": 390,
+        "pageWidth": 390,
+        "clientWidth": 358,
+        "scrollWidth": 358
+      },
+      "screenshot": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\test-results\\upload-options-browser\\mobile-live-only.png",
+      "nonce": "MWJmOTlkN2EtZjM5MS00YjdmLTlkYTEtZWJhM2QzY2M0YmJl",
+      "csp": "default-src 'self'; script-src 'self' 'nonce-MWJmOTlkN2EtZjM5MS00YjdmLTlkYTEtZWJhM2QzY2M0YmJl' 'strict-dynamic' 'wasm-unsafe-eval'; script-src-attr 'none'; style-src 'self' 'nonce-MWJmOTlkN2EtZjM5MS00YjdmLTlkYTEtZWJhM2QzY2M0YmJl'; style-src-attr 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; font-src 'self'; connect-src 'self'; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; frame-src 'self' blob:; base-uri 'self'; frame-ancestors 'none'; form-action 'self'"
+    },
+    {
+      "viewport": "mobile",
+      "config": "upload-only",
+      "cards": {
+        "front": {
+          "x": 16,
+          "y": 564.34375,
+          "width": 358,
+          "height": 162
+        },
+        "back": {
+          "x": 16,
+          "y": 742.34375,
+          "width": 358,
+          "height": 162
+        },
+        "photo": {
+          "x": 16,
+          "y": 406.34375,
+          "width": 358,
+          "height": 142
+        }
+      },
+      "dimensions": {
+        "width": 390,
+        "pageWidth": 390,
+        "clientWidth": 358,
+        "scrollWidth": 358
+      },
+      "screenshot": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\test-results\\upload-options-browser\\mobile-upload-only.png",
+      "nonce": "ZDlhYmM5NDUtOWIwYy00ZDVkLWFkMmUtYjk2NDY2M2Y1NmMy",
+      "csp": "default-src 'self'; script-src 'self' 'nonce-ZDlhYmM5NDUtOWIwYy00ZDVkLWFkMmUtYjk2NDY2M2Y1NmMy' 'strict-dynamic' 'wasm-unsafe-eval'; script-src-attr 'none'; style-src 'self' 'nonce-ZDlhYmM5NDUtOWIwYy00ZDVkLWFkMmUtYjk2NDY2M2Y1NmMy'; style-src-attr 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; font-src 'self'; connect-src 'self'; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; frame-src 'self' blob:; base-uri 'self'; frame-ancestors 'none'; form-action 'self'"
+    },
+    {
+      "viewport": "mobile",
+      "config": "both",
+      "cards": {
+        "front": {
+          "x": 16,
+          "y": 564.34375,
+          "width": 358,
+          "height": 162
+        },
+        "back": {
+          "x": 16,
+          "y": 742.34375,
+          "width": 358,
+          "height": 162
+        },
+        "photo": {
+          "x": 16,
+          "y": 406.34375,
+          "width": 358,
+          "height": 142
+        }
+      },
+      "dimensions": {
+        "width": 390,
+        "pageWidth": 390,
+        "clientWidth": 358,
+        "scrollWidth": 358
+      },
+      "screenshot": "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\test-results\\upload-options-browser\\mobile-both.png",
+      "nonce": "Mjc2ZGE5YzYtZjM2Ny00NmFhLTk4YWYtMTQ2OTI0ZWFlZmEy",
+      "csp": "default-src 'self'; script-src 'self' 'nonce-Mjc2ZGE5YzYtZjM2Ny00NmFhLTk4YWYtMTQ2OTI0ZWFlZmEy' 'strict-dynamic' 'wasm-unsafe-eval'; script-src-attr 'none'; style-src 'self' 'nonce-Mjc2ZGE5YzYtZjM2Ny00NmFhLTk4YWYtMTQ2OTI0ZWFlZmEy'; style-src-attr 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; font-src 'self'; connect-src 'self'; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; frame-src 'self' blob:; base-uri 'self'; frame-ancestors 'none'; form-action 'self'"
+    }
+  ],
+  "validation": [
+    "unsupported type rejected before prepare",
+    "oversize rejected before prepare",
+    "noncanonical response rejected before private write",
+    "canonical JPEG forwarded once with member authority"
+  ],
+  "assetCache": [
+    {
+      "path": "/mediapipe/face_detection/face_detection_solution_wasm_bin.js?v=0.4.1646425229-csp1",
+      "cacheControl": "public, max-age=86400, immutable"
+    },
+    {
+      "path": "/mediapipe/face_detection/face_detection_solution_wasm_bin.js",
+      "cacheControl": "public, max-age=0, must-revalidate"
+    }
+  ],
+  "browser": "151.0.7922.34",
+  "outgoingPhoto": {
+    "type": "image/jpeg",
+    "size": 88517,
+    "dimensions": [
+      800,
+      1200
+    ],
+    "sha256": "64c3b8b53556e34432f803ed46ef34470a7431dfbf31e7770199a948601515d2"
+  },
+  "passed": true
+}

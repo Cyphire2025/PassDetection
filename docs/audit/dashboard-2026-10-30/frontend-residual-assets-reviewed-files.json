@@ -1,0 +1,28 @@
+{
+  "recorded_at": "2026-10-31T08:51:59.931647+00:00",
+  "records": [
+    {
+      "path": "frontend/public/assets/branding/global-connect/login-background/travel-atlas.svg",
+      "sha256": "0689859aca3bb8e5b8b0f81fd73623168c0d6f4c5b9ae058ee3e38b713f19b09",
+      "review_scope": "focused",
+      "status": "asset-metadata-reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Declarative static SVG resource metadata/security surface read; all37 XML nodes and all non-geometry attributes inspected. Only svg/g/path/circle tags; no scripts/events/external links.53KB path geometry numbers not physically read and no full physical-source review claim. Asset shape metadata is not dependency implementation or rendered browser proof.",
+      "element_counts": {
+        "svg": 1,
+        "g": 3,
+        "path": 21,
+        "circle": 12
+      },
+      "geometry_character_count": 52144
+    },
+    {
+      "path": "frontend/tooling/npm-security/package-lock.json",
+      "sha256": "0602528d63f3c929c03fafad09d75b5d03c95012559b744a739aa1ab983ace45",
+      "review_scope": "focused",
+      "status": "generated-metadata-reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Entire63-line generated lock metadata physically read; matches private build-only security-patch package, pinned versions, HTTPS official registry URLs, integrity/license/engine entries. Dependency package implementation not physically read or newly scanned; no latest-vulnerability or package-install claim. Generated provenance, not application implementation review."
+    }
+  ]
+}

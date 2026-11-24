@@ -1,0 +1,92 @@
+[
+  {
+    "path": "backend/app/core/zip_directory_admission.py",
+    "sha256": "b15f7007473b7f2f895a1f9fcf4a883c51252d54d0ba41be8e45cc9d268cef21",
+    "physical_lines": 65,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified-focused",
+    "notes": "Complete physical source read (parser retained full body plus explicit current two-line dimension diff proved by whole module inverse); not execution-derived full credit. Actual dashboard <=5MiB ZIP10k allocations before2000gate and64row dimension expansion reproduced before fix; ordinary malformed dimensions also lost actual XML cells. Neutral stdlib core moves exact existing algorithm, retains passport class/type/whole cursor-finally body and canonical constants/aliases/pickles. Independent quotas5000/2000 and downstream total/per-member/ratio/encrypted/local-header/nested-name/staff/canonical-image rules retain complete current source and actual regression controls. Core90L80B responsibility follows actual moved behavior; old wrapper numerical obligation retained with zero branch sites honest. ContactSpreadsheetSecurity already resets dimensions and all its source remains unchanged. Current99affected/15normal projection+JSON parity/fixedwork counters; no provider/PG/VPS/broad application qualification. Untouched staging/helper implementations are traced at named caller boundaries, not swept into full read credit."
+  },
+  {
+    "path": "backend/app/infrastructure/imports/passport_zip_admission.py",
+    "sha256": "bd6d3a73be7fc1a82ca612b7b2403ef370982a41a260a9feba053e243541d3bd",
+    "physical_lines": 53,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified-focused",
+    "notes": "Complete physical source read (parser retained full body plus explicit current two-line dimension diff proved by whole module inverse); not execution-derived full credit. Actual dashboard <=5MiB ZIP10k allocations before2000gate and64row dimension expansion reproduced before fix; ordinary malformed dimensions also lost actual XML cells. Neutral stdlib core moves exact existing algorithm, retains passport class/type/whole cursor-finally body and canonical constants/aliases/pickles. Independent quotas5000/2000 and downstream total/per-member/ratio/encrypted/local-header/nested-name/staff/canonical-image rules retain complete current source and actual regression controls. Core90L80B responsibility follows actual moved behavior; old wrapper numerical obligation retained with zero branch sites honest. ContactSpreadsheetSecurity already resets dimensions and all its source remains unchanged. Current99affected/15normal projection+JSON parity/fixedwork counters; no provider/PG/VPS/broad application qualification. Untouched staging/helper implementations are traced at named caller boundaries, not swept into full read credit."
+  },
+  {
+    "path": "backend/app/application/use_cases/whatsapp/spreadsheet_values.py",
+    "sha256": "2a2680e0e53d7388f6bd0fff4ef263936ae71c9c97b91d83c18841a6d681f275",
+    "physical_lines": 61,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified-focused",
+    "notes": "Complete physical source read (parser retained full body plus explicit current two-line dimension diff proved by whole module inverse); not execution-derived full credit. Actual dashboard <=5MiB ZIP10k allocations before2000gate and64row dimension expansion reproduced before fix; ordinary malformed dimensions also lost actual XML cells. Neutral stdlib core moves exact existing algorithm, retains passport class/type/whole cursor-finally body and canonical constants/aliases/pickles. Independent quotas5000/2000 and downstream total/per-member/ratio/encrypted/local-header/nested-name/staff/canonical-image rules retain complete current source and actual regression controls. Core90L80B responsibility follows actual moved behavior; old wrapper numerical obligation retained with zero branch sites honest. ContactSpreadsheetSecurity already resets dimensions and all its source remains unchanged. Current99affected/15normal projection+JSON parity/fixedwork counters; no provider/PG/VPS/broad application qualification. Untouched staging/helper implementations are traced at named caller boundaries, not swept into full read credit."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_contact_import.py",
+    "sha256": "b0ba7bf421b699533d4557eb94e3b994c151655bf519bb3d2f73f55002be0cd5",
+    "physical_lines": 424,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified-focused",
+    "notes": "Complete physical source read (parser retained full body plus explicit current two-line dimension diff proved by whole module inverse); not execution-derived full credit. Actual dashboard <=5MiB ZIP10k allocations before2000gate and64row dimension expansion reproduced before fix; ordinary malformed dimensions also lost actual XML cells. Neutral stdlib core moves exact existing algorithm, retains passport class/type/whole cursor-finally body and canonical constants/aliases/pickles. Independent quotas5000/2000 and downstream total/per-member/ratio/encrypted/local-header/nested-name/staff/canonical-image rules retain complete current source and actual regression controls. Core90L80B responsibility follows actual moved behavior; old wrapper numerical obligation retained with zero branch sites honest. ContactSpreadsheetSecurity already resets dimensions and all its source remains unchanged. Current99affected/15normal projection+JSON parity/fixedwork counters; no provider/PG/VPS/broad application qualification. Untouched staging/helper implementations are traced at named caller boundaries, not swept into full read credit."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_whatsapp_workbook_resource_admission.py",
+    "sha256": "809a94a0f35934ed0cb116d2607a730c4748db8587165425faf95a99edcffa56",
+    "physical_lines": 179,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read (parser retained full body plus explicit current two-line dimension diff proved by whole module inverse); not execution-derived full credit. Actual dashboard <=5MiB ZIP10k allocations before2000gate and64row dimension expansion reproduced before fix; ordinary malformed dimensions also lost actual XML cells. Neutral stdlib core moves exact existing algorithm, retains passport class/type/whole cursor-finally body and canonical constants/aliases/pickles. Independent quotas5000/2000 and downstream total/per-member/ratio/encrypted/local-header/nested-name/staff/canonical-image rules retain complete current source and actual regression controls. Core90L80B responsibility follows actual moved behavior; old wrapper numerical obligation retained with zero branch sites honest. ContactSpreadsheetSecurity already resets dimensions and all its source remains unchanged. Current99affected/15normal projection+JSON parity/fixedwork counters; no provider/PG/VPS/broad application qualification. Untouched staging/helper implementations are traced at named caller boundaries, not swept into full read credit."
+  },
+  {
+    "path": "backend/app/infrastructure/imports/passport_zip_reader.py",
+    "sha256": "8c5d054b922a9f3878ba1ded3b7971a873286b36a3cf84356fe2cb9c366d88ea",
+    "physical_lines": 101,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read (parser retained full body plus explicit current two-line dimension diff proved by whole module inverse); not execution-derived full credit. Actual dashboard <=5MiB ZIP10k allocations before2000gate and64row dimension expansion reproduced before fix; ordinary malformed dimensions also lost actual XML cells. Neutral stdlib core moves exact existing algorithm, retains passport class/type/whole cursor-finally body and canonical constants/aliases/pickles. Independent quotas5000/2000 and downstream total/per-member/ratio/encrypted/local-header/nested-name/staff/canonical-image rules retain complete current source and actual regression controls. Core90L80B responsibility follows actual moved behavior; old wrapper numerical obligation retained with zero branch sites honest. ContactSpreadsheetSecurity already resets dimensions and all its source remains unchanged. Current99affected/15normal projection+JSON parity/fixedwork counters; no provider/PG/VPS/broad application qualification. Untouched staging/helper implementations are traced at named caller boundaries, not swept into full read credit."
+  },
+  {
+    "path": "backend/app/infrastructure/imports/passport_zip_members.py",
+    "sha256": "88ef17047879d07ae2720d99dee680b4744c49d68baf59e7de33821ce6e3628c",
+    "physical_lines": 66,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read (parser retained full body plus explicit current two-line dimension diff proved by whole module inverse); not execution-derived full credit. Actual dashboard <=5MiB ZIP10k allocations before2000gate and64row dimension expansion reproduced before fix; ordinary malformed dimensions also lost actual XML cells. Neutral stdlib core moves exact existing algorithm, retains passport class/type/whole cursor-finally body and canonical constants/aliases/pickles. Independent quotas5000/2000 and downstream total/per-member/ratio/encrypted/local-header/nested-name/staff/canonical-image rules retain complete current source and actual regression controls. Core90L80B responsibility follows actual moved behavior; old wrapper numerical obligation retained with zero branch sites honest. ContactSpreadsheetSecurity already resets dimensions and all its source remains unchanged. Current99affected/15normal projection+JSON parity/fixedwork counters; no provider/PG/VPS/broad application qualification. Untouched staging/helper implementations are traced at named caller boundaries, not swept into full read credit."
+  },
+  {
+    "path": "backend/app/infrastructure/security/contact_spreadsheet_security.py",
+    "sha256": "731d5489216a25e4688f042e8c9c0695d50bc36e297a795ea546c742af23b167",
+    "physical_lines": 146,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read (parser retained full body plus explicit current two-line dimension diff proved by whole module inverse); not execution-derived full credit. Actual dashboard <=5MiB ZIP10k allocations before2000gate and64row dimension expansion reproduced before fix; ordinary malformed dimensions also lost actual XML cells. Neutral stdlib core moves exact existing algorithm, retains passport class/type/whole cursor-finally body and canonical constants/aliases/pickles. Independent quotas5000/2000 and downstream total/per-member/ratio/encrypted/local-header/nested-name/staff/canonical-image rules retain complete current source and actual regression controls. Core90L80B responsibility follows actual moved behavior; old wrapper numerical obligation retained with zero branch sites honest. ContactSpreadsheetSecurity already resets dimensions and all its source remains unchanged. Current99affected/15normal projection+JSON parity/fixedwork counters; no provider/PG/VPS/broad application qualification. Untouched staging/helper implementations are traced at named caller boundaries, not swept into full read credit."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_passport_zip_member_admission.py",
+    "sha256": "a0975f2180c69445f3e167808192a304d8028b8b4d507717ba2af6a4fad1b3e4",
+    "physical_lines": 168,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read (parser retained full body plus explicit current two-line dimension diff proved by whole module inverse); not execution-derived full credit. Actual dashboard <=5MiB ZIP10k allocations before2000gate and64row dimension expansion reproduced before fix; ordinary malformed dimensions also lost actual XML cells. Neutral stdlib core moves exact existing algorithm, retains passport class/type/whole cursor-finally body and canonical constants/aliases/pickles. Independent quotas5000/2000 and downstream total/per-member/ratio/encrypted/local-header/nested-name/staff/canonical-image rules retain complete current source and actual regression controls. Core90L80B responsibility follows actual moved behavior; old wrapper numerical obligation retained with zero branch sites honest. ContactSpreadsheetSecurity already resets dimensions and all its source remains unchanged. Current99affected/15normal projection+JSON parity/fixedwork counters; no provider/PG/VPS/broad application qualification. Untouched staging/helper implementations are traced at named caller boundaries, not swept into full read credit."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_passport_document_import_policies.py",
+    "sha256": "8da8e50b0ba9a1879d6be35c0e40329ca4825caa7796de2387f45e5c07ea8247",
+    "physical_lines": 210,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read (parser retained full body plus explicit current two-line dimension diff proved by whole module inverse); not execution-derived full credit. Actual dashboard <=5MiB ZIP10k allocations before2000gate and64row dimension expansion reproduced before fix; ordinary malformed dimensions also lost actual XML cells. Neutral stdlib core moves exact existing algorithm, retains passport class/type/whole cursor-finally body and canonical constants/aliases/pickles. Independent quotas5000/2000 and downstream total/per-member/ratio/encrypted/local-header/nested-name/staff/canonical-image rules retain complete current source and actual regression controls. Core90L80B responsibility follows actual moved behavior; old wrapper numerical obligation retained with zero branch sites honest. ContactSpreadsheetSecurity already resets dimensions and all its source remains unchanged. Current99affected/15normal projection+JSON parity/fixedwork counters; no provider/PG/VPS/broad application qualification. Untouched staging/helper implementations are traced at named caller boundaries, not swept into full read credit."
+  }
+]

@@ -1,0 +1,22 @@
+{
+  "status": "Source-accurate historical framing only",
+  "files": [
+    {
+      "path": "docs/architecture/phase-2-enterprise-hardening.md",
+      "before_sha256": "cb3458de2102d88fa2c8d3ce6b4fc802b06d3f57a4ab0912ec45721cb8b0127a",
+      "after_sha256": "145facf2893d12f1520f54faf7c5aa39b4a74f657d6395756f5f330308223b80",
+      "only_historical_framing_added": true,
+      "all_original_normalized_body_and_commands_exact": true
+    },
+    {
+      "path": "docs/architecture/phase-2.1-ocr-refactoring.md",
+      "before_sha256": "f494c14a6de33b5e70230a0e4e6535ac31e57a93f67c65f855e42d1f7a8c6cb3",
+      "after_sha256": "a8b71998eaf4671416179d98c7245f687c57498b13e6e8b0b2134c21fb227cce",
+      "only_historical_framing_added": true,
+      "all_original_normalized_body_and_commands_exact": true
+    }
+  ],
+  "basis": "Already-qualified dormant passport OCR retirement; active AI flow unchanged",
+  "commands_executed": [],
+  "runtime_or_schema_changes": []
+}

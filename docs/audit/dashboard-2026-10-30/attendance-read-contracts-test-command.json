@@ -1,0 +1,56 @@
+{
+  "tests": [
+    "tests/unit/application/test_attendance_read_contract_aliases.py",
+    "tests/unit/application/test_attendance_dashboard.py",
+    "tests/unit/infrastructure/test_attendance_dashboard_repository.py",
+    "tests/unit/infrastructure/test_attendance_closeout_repository.py",
+    "tests/unit/infrastructure/test_attendance_closeout_projection_work.py",
+    "tests/integration/test_mcp_attendance_reads.py::test_actual_http_summary_missing_pages_and_canonical_alias_parity",
+    "tests/integration/test_browser_attendance_runtime_routes.py::test_manager_without_recent_mfa_cannot_dispose_runtime"
+  ],
+  "command": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-audit-venv\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "--tb=short",
+    "tests/unit/application/test_attendance_read_contract_aliases.py",
+    "tests/unit/application/test_attendance_dashboard.py",
+    "tests/unit/infrastructure/test_attendance_dashboard_repository.py",
+    "tests/unit/infrastructure/test_attendance_closeout_repository.py",
+    "tests/unit/infrastructure/test_attendance_closeout_projection_work.py",
+    "tests/integration/test_mcp_attendance_reads.py::test_actual_http_summary_missing_pages_and_canonical_alias_parity",
+    "tests/integration/test_browser_attendance_runtime_routes.py::test_manager_without_recent_mfa_cannot_dispose_runtime",
+    "--cov-branch",
+    "--junitxml=C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\attendance-read-contracts-affected-tests.xml",
+    "--cov-report=json:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\attendance-read-contracts-coverage.json",
+    "--cov-report=xml:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\attendance-read-contracts-coverage.xml",
+    "--cov=app.application.attendance_read_contracts",
+    "--cov=app.application.attendance_closeout_read_contracts",
+    "--cov=app.infrastructure.repositories.attendance_dashboard_repository",
+    "--cov=app.infrastructure.repositories.attendance_closeout_types",
+    "--cov=app.application.use_cases.attendance_dashboard_types",
+    "--cov=app.application.use_cases.attendance_dashboard_revision",
+    "--cov=app.application.use_cases.attendance_dashboard_projection"
+  ],
+  "source_sha256": {
+    "backend/app/application/attendance_read_contracts.py": "24079d9b86046e0729b6514579ef38ea4df8cde3a32a184208edeb6072786b06",
+    "backend/app/application/attendance_closeout_read_contracts.py": "eceee8ea40cdce476d227da492a4157f4f0ab17a577d2b4f241f774a0cd381ee",
+    "backend/app/infrastructure/repositories/attendance_dashboard_repository.py": "19ccb290e3f0b9faa454d0c2fe3686b8db8d8dce6137018a07430ed1a191d279",
+    "backend/app/infrastructure/repositories/attendance_closeout_types.py": "dfc7430bd708f2584a70c1bb010aa20cffb987101acd261aaf99de7c9be60cb6",
+    "backend/app/application/use_cases/attendance_dashboard_types.py": "ec6d377105b63c72db95e506b422db4222f7519b6d270468856a3da7648410d3",
+    "backend/app/application/use_cases/attendance_dashboard_revision.py": "151500666ad5119bb04f875a74d34dcfd0894ca3ac2f65420a306206f2bcb9b0",
+    "backend/app/application/use_cases/attendance_dashboard_projection.py": "b251c379590c46963d7d327dedff37bc53115272115f8118be2f1a56868c2fe8"
+  },
+  "test_sha256": {
+    "backend/tests/unit/application/test_attendance_read_contract_aliases.py": "b3c2c3be7597dd7011c88e2722bd90bd6573a67f55bd670c8f7cb4a61dec6960",
+    "backend/tests/unit/application/test_attendance_dashboard.py": "35f69663712e7d78552f2c7dea6a7b938fb9a4df845c77de4d92027e963773f9",
+    "backend/tests/unit/infrastructure/test_attendance_dashboard_repository.py": "b2b4031311598d4d9399b78a3cdb24ae4794ae31d1517c1c22f9f33696be24e5",
+    "backend/tests/unit/infrastructure/test_attendance_closeout_repository.py": "195c37bb1e428b2e55de3dc170aeb63733f6c43a34870516fa872cc65bdda2a6",
+    "backend/tests/unit/infrastructure/test_attendance_closeout_projection_work.py": "12ab9cd7847a6293b557c3281066798608f5a0a9d8358c05a2201bcd8374096f",
+    "backend/tests/integration/test_mcp_attendance_reads.py": "d60f68a54b39bdb40120e2bddde6f344f5dcd9c97881312bfe44d718a65842c5",
+    "backend/tests/integration/test_browser_attendance_runtime_routes.py": "128afffbbcb22b4007f74a793ac80b8e03dfc9fabb7fb4defd0a8f958995b594"
+  }
+}

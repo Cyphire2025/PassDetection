@@ -1,0 +1,65 @@
+{
+  "status": "qualified-user-scope-update",
+  "user_instruction": "skip anything related to operation inbox, we not working on that for now",
+  "source_fence": {
+    "scripts/dashboard_audit_inventory.py": "fa6836a9f74e8a0913ac087bdf20b09e809a608a1e66168e5b6661725b2b6d80",
+    "backend/tests/unit/scripts/test_dashboard_audit_scope.py": "cdad2b21740ef0e20f557494b0f7f06f16252567fb85b26a7c3308718841df9a",
+    "backend/tests/unit/scripts/test_dashboard_audit_review_resolutions.py": "516f40f6a05fc0e6f37f6618f225a819146d344ccf4dcda5a0e9a4fe796c6dd7",
+    "docs/audit/dashboard-2026-10-30/audit-scope.json": "58a87e04b06a7c82b818189d06f9ff64e022dd732661b2c3acb8111a22015f67"
+  },
+  "checks": [
+    {
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/unit/scripts/test_dashboard_audit_review_resolutions.py",
+        "tests/unit/scripts/test_dashboard_audit_scope.py"
+      ],
+      "result": "48passed/0.62s",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "python",
+        "-m",
+        "ruff",
+        "check",
+        "--config",
+        "backend/pyproject.toml",
+        "--no-fix",
+        "scripts/dashboard_audit_inventory.py",
+        "backend/tests/unit/scripts/test_dashboard_audit_scope.py"
+      ],
+      "result": "All checks passed",
+      "exit_code": 0
+    }
+  ],
+  "test_import_followthrough": "After passing48cases, one blank line between two imports was normalized; Python module AST is unchanged. No test rerun for formatting.",
+  "initial_lint_scope": "First root-default Ruff run reported4pre-existing TRY004 diagnostics. Effective reviewed backend config was then selected explicitly; its one new test import layout diagnostic was corrected. Existing ValueError metadata contract and all32prior controls retained.",
+  "scope_behavior": "Dedicated Inbox rows gain a deferred scope label, retain source hashes/read statuses/independent findings, and do not count toward active remaining work or largest active modules. Shared Minio email-named test, auth/OTP/notifications/WhatsApp receipt inbox stay retained.",
+  "retirement_behavior": "Only exact4qualified public sample asset/doc paths gain retirement-manifest ingestion; no broad public-path exception and no ignored archive file reads.",
+  "snapshot": {
+    "files": 6489,
+    "active_files": 5237,
+    "active_review_scope": {
+      "focused": 158,
+      "full": 3135,
+      "unreviewed": 1944
+    },
+    "deferred_by_user": {
+      "scope": "Operations Inbox",
+      "files": 253,
+      "review_scope": {
+        "unreviewed": 42,
+        "full": 210,
+        "focused": 1
+      },
+      "historical_review_statuses_preserved": true
+    }
+  },
+  "limitations": "Snapshot predates later migration/operator/bulk architecture ledgers; not whole-audit completion. Inbox historical evidence and all existing feature/CI behavior are preserved."
+}

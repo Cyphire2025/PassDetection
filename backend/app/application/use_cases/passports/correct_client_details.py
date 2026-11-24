@@ -110,27 +110,26 @@ def correct_client_details(
             continue
         if key in DIRECT_FIELDS:
             setattr(updated, key, cleaned)
-        if key in scalar_fields:
-            # Store corrections in the same authoritative layer used by the existing UI.
-            # Correct aliases too, so a former value cannot remain matchable through an
-            # imported metadata key. Original OCR is retained, not rewritten.
-            canonical = {"client_phone": "phone_number", "client_email": "email"}.get(
-                key
-            ) or normalize_matching_field_key(key)
-            canonical_keys = {canonical}
-            if key == "departure_city":
-                canonical_keys.add("nearest_international_airport")
-            aliases = {key} if key not in DIRECT_FIELDS else set()
-            for source in (confirmed, metadata, submission.extracted_fields or {}):
-                aliases.update(
-                    raw for raw in source
-                    if normalize_matching_field_key(raw) in canonical_keys
-                    or (key == "client_phone" and imported_phone_column_priority(raw) is not None)
-                )
-            for alias in aliases:
-                confirmed[alias] = cleaned or ""
-                if alias in metadata:
-                    metadata[alias] = cleaned or ""
+        # Store corrections in the same authoritative layer used by the existing UI.
+        # Correct aliases too, so a former value cannot remain matchable through an
+        # imported metadata key. Original extraction is retained, not rewritten.
+        canonical = {"client_phone": "phone_number", "client_email": "email"}.get(
+            key
+        ) or normalize_matching_field_key(key)
+        canonical_keys = {canonical}
+        if key == "departure_city":
+            canonical_keys.add("nearest_international_airport")
+        aliases = {key} if key not in DIRECT_FIELDS else set()
+        for source in (confirmed, metadata, submission.extracted_fields or {}):
+            aliases.update(
+                raw for raw in source
+                if normalize_matching_field_key(raw) in canonical_keys
+                or (key == "client_phone" and imported_phone_column_priority(raw) is not None)
+            )
+        for alias in aliases:
+            confirmed[alias] = cleaned or ""
+            if alias in metadata:
+                metadata[alias] = cleaned or ""
         changed.append(key)
     payload = client_details_payload(submission, group)
     for collection, id_key in (

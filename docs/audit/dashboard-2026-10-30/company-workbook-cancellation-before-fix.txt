@@ -1,0 +1,427 @@
+FFFF                                                                     [100%]
+================================== FAILURES ===================================
+___ test_cancelled_assembly_drains_native_work_before_cleanup[False-append] ___
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000020A5C302C50>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000020A5C2DCD50>
+operation = 'append', cancel_twice = False
+
+    @pytest.mark.parametrize("operation", ["append", "finish"])
+    @pytest.mark.parametrize("cancel_twice", [False, True])
+    async def test_cancelled_assembly_drains_native_work_before_cleanup(
+        db_session,
+        monkeypatch,
+        operation,
+        cancel_twice,
+    ):
+        context, _, _, _, storage, factory = await export_fixture(db_session)
+        assert (
+            await worker.run_company_export_tick(
+                session_factory=factory,
+                storage=storage,
+                crypto=context.crypto,
+            )
+            == 1
+        )
+        identifier, token = await worker.reserve_export(factory)
+        started, release, finished, close_started = (
+            threading.Event(),
+            threading.Event(),
+            threading.Event(),
+            threading.Event(),
+        )
+        errors = []
+        original_assembly = assembly_owner.WorkbookAssembly
+    
+        def watched_assembly():
+            assembly = original_assembly()
+            native = getattr(assembly, operation)
+            close = assembly.close
+    
+            def blocked(*args):
+                started.set()
+                try:
+                    if not release.wait(timeout=5):
+                        raise AssertionError("Synthetic native worker was never released")
+                    return native(*args)
+                except Exception as exc:
+                    errors.append(type(exc).__name__)
+                    raise
+                finally:
+                    finished.set()
+    
+            def watched_close():
+                close_started.set()
+                return close()
+    
+            setattr(assembly, operation, blocked)
+            assembly.close = watched_close
+            return assembly
+    
+        monkeypatch.setattr(assembly_owner, "WorkbookAssembly", watched_assembly)
+        task = asyncio.create_task(
+            worker.assemble_workbook(factory, identifier, storage, context.crypto, token)
+        )
+        try:
+            assert await asyncio.to_thread(started.wait, 2)
+            task.cancel()
+            if cancel_twice:
+                await asyncio.sleep(0)
+                task.cancel()
+            # The native worker is deliberately still holding its XML/output.
+>           assert not await asyncio.to_thread(close_started.wait, 0.25)
+E           assert not True
+
+tests\integration\test_company_workbook_cancellation.py:76: AssertionError
+___ test_cancelled_assembly_drains_native_work_before_cleanup[False-finish] ___
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000020A5C669310>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000020A5E282990>
+operation = 'finish', cancel_twice = False
+
+    @pytest.mark.parametrize("operation", ["append", "finish"])
+    @pytest.mark.parametrize("cancel_twice", [False, True])
+    async def test_cancelled_assembly_drains_native_work_before_cleanup(
+        db_session,
+        monkeypatch,
+        operation,
+        cancel_twice,
+    ):
+        context, _, _, _, storage, factory = await export_fixture(db_session)
+        assert (
+            await worker.run_company_export_tick(
+                session_factory=factory,
+                storage=storage,
+                crypto=context.crypto,
+            )
+            == 1
+        )
+        identifier, token = await worker.reserve_export(factory)
+        started, release, finished, close_started = (
+            threading.Event(),
+            threading.Event(),
+            threading.Event(),
+            threading.Event(),
+        )
+        errors = []
+        original_assembly = assembly_owner.WorkbookAssembly
+    
+        def watched_assembly():
+            assembly = original_assembly()
+            native = getattr(assembly, operation)
+            close = assembly.close
+    
+            def blocked(*args):
+                started.set()
+                try:
+                    if not release.wait(timeout=5):
+                        raise AssertionError("Synthetic native worker was never released")
+                    return native(*args)
+                except Exception as exc:
+                    errors.append(type(exc).__name__)
+                    raise
+                finally:
+                    finished.set()
+    
+            def watched_close():
+                close_started.set()
+                return close()
+    
+            setattr(assembly, operation, blocked)
+            assembly.close = watched_close
+            return assembly
+    
+        monkeypatch.setattr(assembly_owner, "WorkbookAssembly", watched_assembly)
+        task = asyncio.create_task(
+            worker.assemble_workbook(factory, identifier, storage, context.crypto, token)
+        )
+        try:
+            assert await asyncio.to_thread(started.wait, 2)
+            task.cancel()
+            if cancel_twice:
+                await asyncio.sleep(0)
+                task.cancel()
+            # The native worker is deliberately still holding its XML/output.
+>           assert not await asyncio.to_thread(close_started.wait, 0.25)
+E           assert not True
+
+tests\integration\test_company_workbook_cancellation.py:76: AssertionError
+
+During handling of the above exception, another exception occurred:
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000020A5C669310>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000020A5E282990>
+operation = 'finish', cancel_twice = False
+
+    @pytest.mark.parametrize("operation", ["append", "finish"])
+    @pytest.mark.parametrize("cancel_twice", [False, True])
+    async def test_cancelled_assembly_drains_native_work_before_cleanup(
+        db_session,
+        monkeypatch,
+        operation,
+        cancel_twice,
+    ):
+        context, _, _, _, storage, factory = await export_fixture(db_session)
+        assert (
+            await worker.run_company_export_tick(
+                session_factory=factory,
+                storage=storage,
+                crypto=context.crypto,
+            )
+            == 1
+        )
+        identifier, token = await worker.reserve_export(factory)
+        started, release, finished, close_started = (
+            threading.Event(),
+            threading.Event(),
+            threading.Event(),
+            threading.Event(),
+        )
+        errors = []
+        original_assembly = assembly_owner.WorkbookAssembly
+    
+        def watched_assembly():
+            assembly = original_assembly()
+            native = getattr(assembly, operation)
+            close = assembly.close
+    
+            def blocked(*args):
+                started.set()
+                try:
+                    if not release.wait(timeout=5):
+                        raise AssertionError("Synthetic native worker was never released")
+                    return native(*args)
+                except Exception as exc:
+                    errors.append(type(exc).__name__)
+                    raise
+                finally:
+                    finished.set()
+    
+            def watched_close():
+                close_started.set()
+                return close()
+    
+            setattr(assembly, operation, blocked)
+            assembly.close = watched_close
+            return assembly
+    
+        monkeypatch.setattr(assembly_owner, "WorkbookAssembly", watched_assembly)
+        task = asyncio.create_task(
+            worker.assemble_workbook(factory, identifier, storage, context.crypto, token)
+        )
+        try:
+            assert await asyncio.to_thread(started.wait, 2)
+            task.cancel()
+            if cancel_twice:
+                await asyncio.sleep(0)
+                task.cancel()
+            # The native worker is deliberately still holding its XML/output.
+            assert not await asyncio.to_thread(close_started.wait, 0.25)
+            assert not task.done()
+        finally:
+            release.set()
+            assert await asyncio.to_thread(finished.wait, 2)
+            with pytest.raises(asyncio.CancelledError):
+>               await asyncio.wait_for(task, 3)
+
+tests\integration\test_company_workbook_cancellation.py:82: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\asyncio\tasks.py:489: in wait_for
+    return fut.result()
+           ^^^^^^^^^^^^
+app\infrastructure\travellers\company_export_worker.py:61: in assemble_workbook
+    return await _workbook.assemble_workbook(
+app\infrastructure\travellers\company_export_workbook.py:69: in assemble_workbook
+    await asyncio.to_thread(workbook.close)
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\concurrent\futures\thread.py:58: in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\integration\test_company_workbook_cancellation.py:59: in watched_close
+    return close()
+           ^^^^^^^
+app\infrastructure\travellers\company_export_workbook_render.py:59: in close
+    self.directory.cleanup()
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\tempfile.py:947: in cleanup
+    self._rmtree(self.name, ignore_errors=self._ignore_cleanup_errors)
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\tempfile.py:929: in _rmtree
+    _shutil.rmtree(name, onerror=onerror)
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\shutil.py:787: in rmtree
+    return _rmtree_unsafe(path, onerror)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\shutil.py:634: in _rmtree_unsafe
+    onerror(os.unlink, fullname, sys.exc_info())
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+func = <built-in function unlink>
+path = 'C:\\Users\\nipun\\AppData\\Local\\Temp\\company-export-gbhmj30q\\people.xlsx'
+exc_info = (<class 'PermissionError'>, PermissionError(13, 'The process cannot access the file because it is being used by another process'), <traceback object at 0x0000020A5C355100>)
+
+    def onerror(func, path, exc_info):
+        if issubclass(exc_info[0], PermissionError):
+            if repeated and path == name:
+                if ignore_errors:
+                    return
+                raise
+    
+            try:
+                if path != name:
+                    _resetperms(_os.path.dirname(path))
+                _resetperms(path)
+    
+                try:
+>                   _os.unlink(path)
+E                   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\nipun\\AppData\\Local\\Temp\\company-export-gbhmj30q\\people.xlsx'
+
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\tempfile.py:893: PermissionError
+___ test_cancelled_assembly_drains_native_work_before_cleanup[True-append] ____
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000020A5E2E63D0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000020A5C314B50>
+operation = 'append', cancel_twice = True
+
+    @pytest.mark.parametrize("operation", ["append", "finish"])
+    @pytest.mark.parametrize("cancel_twice", [False, True])
+    async def test_cancelled_assembly_drains_native_work_before_cleanup(
+        db_session,
+        monkeypatch,
+        operation,
+        cancel_twice,
+    ):
+        context, _, _, _, storage, factory = await export_fixture(db_session)
+        assert (
+            await worker.run_company_export_tick(
+                session_factory=factory,
+                storage=storage,
+                crypto=context.crypto,
+            )
+            == 1
+        )
+        identifier, token = await worker.reserve_export(factory)
+        started, release, finished, close_started = (
+            threading.Event(),
+            threading.Event(),
+            threading.Event(),
+            threading.Event(),
+        )
+        errors = []
+        original_assembly = assembly_owner.WorkbookAssembly
+    
+        def watched_assembly():
+            assembly = original_assembly()
+            native = getattr(assembly, operation)
+            close = assembly.close
+    
+            def blocked(*args):
+                started.set()
+                try:
+                    if not release.wait(timeout=5):
+                        raise AssertionError("Synthetic native worker was never released")
+                    return native(*args)
+                except Exception as exc:
+                    errors.append(type(exc).__name__)
+                    raise
+                finally:
+                    finished.set()
+    
+            def watched_close():
+                close_started.set()
+                return close()
+    
+            setattr(assembly, operation, blocked)
+            assembly.close = watched_close
+            return assembly
+    
+        monkeypatch.setattr(assembly_owner, "WorkbookAssembly", watched_assembly)
+        task = asyncio.create_task(
+            worker.assemble_workbook(factory, identifier, storage, context.crypto, token)
+        )
+        try:
+            assert await asyncio.to_thread(started.wait, 2)
+            task.cancel()
+            if cancel_twice:
+                await asyncio.sleep(0)
+                task.cancel()
+            # The native worker is deliberately still holding its XML/output.
+>           assert not await asyncio.to_thread(close_started.wait, 0.25)
+E           assert not True
+
+tests\integration\test_company_workbook_cancellation.py:76: AssertionError
+___ test_cancelled_assembly_drains_native_work_before_cleanup[True-finish] ____
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x0000020A5E860BD0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000020A5E2AFF90>
+operation = 'finish', cancel_twice = True
+
+    @pytest.mark.parametrize("operation", ["append", "finish"])
+    @pytest.mark.parametrize("cancel_twice", [False, True])
+    async def test_cancelled_assembly_drains_native_work_before_cleanup(
+        db_session,
+        monkeypatch,
+        operation,
+        cancel_twice,
+    ):
+        context, _, _, _, storage, factory = await export_fixture(db_session)
+        assert (
+            await worker.run_company_export_tick(
+                session_factory=factory,
+                storage=storage,
+                crypto=context.crypto,
+            )
+            == 1
+        )
+        identifier, token = await worker.reserve_export(factory)
+        started, release, finished, close_started = (
+            threading.Event(),
+            threading.Event(),
+            threading.Event(),
+            threading.Event(),
+        )
+        errors = []
+        original_assembly = assembly_owner.WorkbookAssembly
+    
+        def watched_assembly():
+            assembly = original_assembly()
+            native = getattr(assembly, operation)
+            close = assembly.close
+    
+            def blocked(*args):
+                started.set()
+                try:
+                    if not release.wait(timeout=5):
+                        raise AssertionError("Synthetic native worker was never released")
+                    return native(*args)
+                except Exception as exc:
+                    errors.append(type(exc).__name__)
+                    raise
+                finally:
+                    finished.set()
+    
+            def watched_close():
+                close_started.set()
+                return close()
+    
+            setattr(assembly, operation, blocked)
+            assembly.close = watched_close
+            return assembly
+    
+        monkeypatch.setattr(assembly_owner, "WorkbookAssembly", watched_assembly)
+        task = asyncio.create_task(
+            worker.assemble_workbook(factory, identifier, storage, context.crypto, token)
+        )
+        try:
+            assert await asyncio.to_thread(started.wait, 2)
+            task.cancel()
+            if cancel_twice:
+                await asyncio.sleep(0)
+                task.cancel()
+            # The native worker is deliberately still holding its XML/output.
+>           assert not await asyncio.to_thread(close_started.wait, 0.25)
+E           assert not True
+
+tests\integration\test_company_workbook_cancellation.py:76: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/integration/test_company_workbook_cancellation.py::test_cancelled_assembly_drains_native_work_before_cleanup[False-append]
+FAILED tests/integration/test_company_workbook_cancellation.py::test_cancelled_assembly_drains_native_work_before_cleanup[False-finish]
+FAILED tests/integration/test_company_workbook_cancellation.py::test_cancelled_assembly_drains_native_work_before_cleanup[True-append]
+FAILED tests/integration/test_company_workbook_cancellation.py::test_cancelled_assembly_drains_native_work_before_cleanup[True-finish]
+4 failed in 4.98s

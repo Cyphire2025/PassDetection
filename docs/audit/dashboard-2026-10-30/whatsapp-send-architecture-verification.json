@@ -1,0 +1,188 @@
+{
+  "status": "source frozen; cohesive retained send architecture focused-qualified",
+  "runtime_changed": {
+    "backend/app/presentation/api/v1/routes/whatsapp_send.py": "4122db1588df44861cef9a21cde6543ef3c0d4b24e70a5ba70d62585ee212a74",
+    "backend/app/presentation/api/v1/routes/whatsapp_send_preparation.py": "a829c85542906d5bbda767aaef47f7937193cde792126b58cefab64b10506aab",
+    "backend/app/presentation/api/v1/routes/whatsapp_send_claims.py": "403b722c6e738624598643628acf06e2b423ef65f02db3b52ff7562bc2312c39",
+    "backend/app/presentation/api/v1/routes/whatsapp_send_projection.py": "f9bc55a545ab3adb3d897b12f28b836665005e223e13dda877dc11ebd6f11fc5"
+  },
+  "source_fence": {
+    "backend/app/presentation/api/v1/routes/whatsapp_send.py": "4122db1588df44861cef9a21cde6543ef3c0d4b24e70a5ba70d62585ee212a74",
+    "backend/app/presentation/api/v1/routes/whatsapp_send_support.py": "b8906f12b93b2e3e5c98d6135da1254014e747aa487e94a7b268ff971ae1b254",
+    "backend/app/presentation/api/v1/routes/whatsapp_send_intents.py": "462de74cb9c8fa305e26ec299815876c7439a72ba4436d4adf96d590178f5e51",
+    "backend/app/presentation/api/v1/routes/whatsapp_recipient_claims.py": "74485a30dbbc4e0dae5582ca56bdde9198cc3fb5132e19dc02b26a18d3a23a56",
+    "backend/app/presentation/api/v1/routes/whatsapp_phone_welcome.py": "5bfe0b3e22e078f786633d32556118dc353d0aae1ff7b9d9663c308976f9e05e",
+    "backend/app/presentation/api/v1/routes/whatsapp_reminder_audience.py": "0e9199e40aff3990a9eff3c033fafd17c2b5aec307894d1529bcb8c653410151",
+    "backend/app/presentation/api/v1/routes/whatsapp_composer_content.py": "920f7c816e41d3726049ff7dbb973d741a21d20602ca6ca87ecb8f3273449bf8",
+    "backend/app/presentation/mcp/whatsapp_snapshots.py": "07687af1f1f17540f12757428083aa13243e9085a4112e26969ed709b2fa1784",
+    "backend/app/infrastructure/whatsapp/web_publication.py": "d5132698ea97f869e6add9b5df5fbc8b78ece0cac4b664e3458d28e0294cf0ee",
+    "backend/tests/integration/test_whatsapp_send_intents.py": "401f0e4fbebaac88abd95120df6e93c5e75702d4f6f7f4d0175207e73d6af61a",
+    "backend/tests/unit/presentation/test_whatsapp_repeatable_reminders.py": "24550354d49f1f6092ec3ce246676f554b3ddde678ee28c9ba34167f08f808d0",
+    "backend/tests/unit/presentation/test_whatsapp_route_decomposition.py": "a4fa48821a7c9ec5e483f797939e96aa23b68e17a1b74c9eaaf2ee29ea18e7c6",
+    "backend/tests/unit/presentation/test_whatsapp_group_invite.py": "ce00ef4f09ded946eec7c6d220724fb9984740bbd916a4547b25d84c30ed3794",
+    "backend/tests/unit/presentation/test_whatsapp_recipient_capacity.py": "d219e684df5548dcfe9b8e8819ba6b76226b41f46869bef60ad30e3149d53507",
+    "backend/tests/integration/test_mcp_whatsapp_configuration_errors.py": "3d7a04bdb3235ecfdf7630e58dd3b99d4c2803260ab80269b36cf7f2d4c18c6f",
+    "backend/tests/integration/test_mcp_whatsapp_intents.py": "6c4612a5c8bd503d1f3b198681cbd3552ae02ea2a63926ec694ab1125ef21f51",
+    "backend/app/presentation/api/v1/routes/whatsapp_send_preparation.py": "a829c85542906d5bbda767aaef47f7937193cde792126b58cefab64b10506aab",
+    "backend/app/presentation/api/v1/routes/whatsapp_send_claims.py": "403b722c6e738624598643628acf06e2b423ef65f02db3b52ff7562bc2312c39",
+    "backend/app/presentation/api/v1/routes/whatsapp_send_projection.py": "f9bc55a545ab3adb3d897b12f28b836665005e223e13dda877dc11ebd6f11fc5"
+  },
+  "source_fence_count": 19,
+  "full_current_files": 7,
+  "partial_test_records": 1,
+  "read_basis": "One genuinely missing original send427 physical review followed by four current architecture owners. Supporting exact-current ledgers reused and physically traced; other test execution/imports are not full source reads.",
+  "before": {
+    "cases": 62,
+    "files": 7,
+    "seconds": 38.437999999994645
+  },
+  "after": {
+    "unique_affected_cases": 96,
+    "files": 7,
+    "seconds": 69.76599999998871,
+    "source_cov": "Fresh all4current owners after erasing failed-run coverage; no append/old-source maps",
+    "original_group_invite_assertions_preserved": 62,
+    "strict_sources": 4,
+    "Ruff_paths": 5,
+    "measurements": [
+      {
+        "path": "app/presentation/api/v1/routes/whatsapp_send.py",
+        "source_sha256": "4122db1588df44861cef9a21cde6543ef3c0d4b24e70a5ba70d62585ee212a74",
+        "lines": 271,
+        "complexity": 7,
+        "line_percent": 94.25287356321839,
+        "branch_percent": 100.0,
+        "covered_statements": 82,
+        "statements": 87,
+        "covered_branches": 8,
+        "branch_sites": 8
+      },
+      {
+        "path": "app/presentation/api/v1/routes/whatsapp_send_preparation.py",
+        "source_sha256": "a829c85542906d5bbda767aaef47f7937193cde792126b58cefab64b10506aab",
+        "lines": 172,
+        "complexity": 8,
+        "line_percent": 94.73684210526316,
+        "branch_percent": 62.5,
+        "covered_statements": 54,
+        "statements": 57,
+        "covered_branches": 5,
+        "branch_sites": 8
+      },
+      {
+        "path": "app/presentation/api/v1/routes/whatsapp_send_claims.py",
+        "source_sha256": "403b722c6e738624598643628acf06e2b423ef65f02db3b52ff7562bc2312c39",
+        "lines": 177,
+        "complexity": 14,
+        "line_percent": 97.95918367346938,
+        "branch_percent": 75.0,
+        "covered_statements": 48,
+        "statements": 49,
+        "covered_branches": 3,
+        "branch_sites": 4
+      },
+      {
+        "path": "app/presentation/api/v1/routes/whatsapp_send_projection.py",
+        "source_sha256": "f9bc55a545ab3adb3d897b12f28b836665005e223e13dda877dc11ebd6f11fc5",
+        "lines": 61,
+        "complexity": 1,
+        "line_percent": 100.0,
+        "branch_percent": null,
+        "covered_statements": 11,
+        "statements": 11,
+        "covered_branches": 0,
+        "branch_sites": 0
+      }
+    ]
+  },
+  "source_proof": {
+    "path": "whatsapp-send-architecture-source-proof.json",
+    "sha256": "3f075ae36531b0f2c53f16cc430114313fd4f7b47f60e70c38b200b3b733e690"
+  },
+  "normal_candidates": [
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_send.py",
+      "source_sha256": "4122db1588df44861cef9a21cde6543ef3c0d4b24e70a5ba70d62585ee212a74",
+      "previous": {
+        "path": "app/presentation/api/v1/routes/whatsapp_send.py",
+        "baseline_lines": 405,
+        "maximum_lines": 440,
+        "baseline_max_function_complexity": 27,
+        "maximum_function_complexity": 27,
+        "minimum_coverage_percent": 86
+      },
+      "baseline_lines": 271,
+      "maximum_lines": 280,
+      "baseline_max_function_complexity": 7,
+      "maximum_function_complexity": 7,
+      "minimum_coverage_percent": 86
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_send_preparation.py",
+      "source_sha256": "a829c85542906d5bbda767aaef47f7937193cde792126b58cefab64b10506aab",
+      "previous": null,
+      "baseline_lines": 172,
+      "maximum_lines": 180,
+      "baseline_max_function_complexity": 8,
+      "maximum_function_complexity": 8,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_send_claims.py",
+      "source_sha256": "403b722c6e738624598643628acf06e2b423ef65f02db3b52ff7562bc2312c39",
+      "previous": null,
+      "baseline_lines": 177,
+      "maximum_lines": 180,
+      "baseline_max_function_complexity": 14,
+      "maximum_function_complexity": 14,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_send_projection.py",
+      "source_sha256": "f9bc55a545ab3adb3d897b12f28b836665005e223e13dda877dc11ebd6f11fc5",
+      "previous": null,
+      "baseline_lines": 61,
+      "maximum_lines": 70,
+      "baseline_max_function_complexity": 1,
+      "maximum_function_complexity": 1,
+      "minimum_coverage_percent": 100
+    }
+  ],
+  "critical_candidates": [],
+  "scope_of_change": "Architecture only; no new policy, quotas, credentials, provider sends, permissions or public method retirement. Preparation/claims+exact response projection reduce oldMCC27 to familymax14; no throughput/memory claim.",
+  "fixture_history": "First62current had61behavioral passes/one healthy invitation fixture failure: oldmain patched roster helper no longer owned read. Four concrete owner module-list substitutions retarget five mocked helper names, preserving all assertions and settings/pg_insert/publication main seams. Initial reports/rawcoverage retained; failed-run data erased before final96. Entire group fixture file selected instead of five-node subset because its common fixture changed; no duplicate count inflation.",
+  "proof_history": "Audit-only first metadata hook used a fixed nonimport-body index and replaced legacy function instead of queue in its comparison, so assertion failed before any proof artifact. Corrected to named function selection; full original queue AST had already matched. Final one-test collection hook qualifies evaluated contracts/aliases/pickles/OpenAPI only, not an additional executed behavioral test.",
+  "remaining_limits": [
+    "Actual SQLite/fake provider/real SDK control shapes, no livePG conflict concurrency/provider/VPS/whole-app qualification",
+    "Main measured five exception-diagnostic lines unhit despite branch tool100percent; preparation and claims62.5/75branchcoverage recorded, not full branch certification",
+    "Projection has zero measured branches; normal100line only, no artificialcritical",
+    "Original whole queue expansion proves timing/queries/payload expressions, new immutable output records/projection call frames are internal implementation metadata",
+    "No currentMCPclassification closure or snapshot refresh; old1990historical, frontend661unchanged",
+    "Original main normal86floor follows actual moved logic owners; all old unrelated caps/critical/global floors remain untouched pending shared integration"
+  ],
+  "artifacts": {
+    "whatsapp-delivery-cohort-preflight.json": "c5b6305699bf56edb1892a7109400973836b56c3d614b57f1c09e150400d2827",
+    "whatsapp-send-architecture-phase-plan.json": "1e8b442f03a1f06d010a4e057b6ede4d339b8bb0ec0e739734dd57a8e6b3010f",
+    "whatsapp-send-architecture-original-sources.json": "ac677496f2cbf374e9838a2eccc555765c53e01deb455cb73f707eb369cee2c5",
+    "whatsapp-send-architecture-before-command.json": "79491522681f2f2ec17685a90cd3110b6e9902db7e4b4ae89c3d7eb0dca6c234",
+    "whatsapp-send-architecture-before-tests.txt": "e31b7a5e2f54c5f8665dbc34cf1db975263b368411f5a4c6b9c16c3212aa3987",
+    "whatsapp-send-architecture-before-junit.xml": "7559b09e84334b515e863c1af8bb0232686b15fe0673dad632a66ecaa7e81df3",
+    "whatsapp-send-architecture-first62-after-command.json": "b6085bb7009d73fb6bb1d6ce90796cc13f643494d3c73f6d4540a366e0ad9f94",
+    "whatsapp-send-architecture-first62-after-tests.txt": "a4b63edc03258b77ef97923302afbda229aa9e6457fea2b7e1844c48dfc9e2a7",
+    "whatsapp-send-architecture-first62-coverage.json": "ea1147eb6e19114583972829cb61cb5e71f1f9f62761a9f308ac29e7105ae160",
+    "whatsapp-send-architecture-first62-coverage.xml": "b94a72b95b86e028be7e1341a8b09b15d48fd4f7b9252ec5d642c4bdb6483cf5",
+    "whatsapp-send-architecture-first62-after-junit.xml": "d731b8eeca0703165c52a288c755babf4518aadf12f5e0f0711be5af8290bdcd",
+    "whatsapp-send-architecture-after-command.json": "40a0d66d836d20899de78f9bd3e80c70b03a9eaae2ccc31f66d918bb6df42a03",
+    "whatsapp-send-architecture-after-tests.txt": "c6e05450e1468dc32866b78ba8d5bb2d33089fcbe676015742f1ec5cc416e34e",
+    "whatsapp-send-architecture-after-junit.xml": "b11fe00ec36f25100d1847021df3199d8bb47915699425a5daa4b5b19f1df2c9",
+    "whatsapp-send-architecture-coverage.json": "095f5a1ab88e95ac4f984c87fa44783cced553084c9a4acfeb1266519733d3aa",
+    "whatsapp-send-architecture-coverage.xml": "0b4b077616b70b281682097aab29f40fd2198afcade89fee14b9ca00ee9501a5",
+    "whatsapp-send-architecture-source-proof.json": "3f075ae36531b0f2c53f16cc430114313fd4f7b47f60e70c38b200b3b733e690",
+    "whatsapp-send-architecture-contract-proof.txt": "c0c686620340414f79f908d87522d6e06c4a641e54b81290e5f2514f361ad275",
+    "whatsapp-send-architecture-types.txt": "d9a5631f7d87a741fbecc3236286d1792d22d349ff13846d71cdc9217307bb76",
+    "whatsapp-send-architecture-lint.txt": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0",
+    "whatsapp-send-architecture-boundaries.txt": "895bfbeca4c78591066dcf214c4bfe9de43b5d7ed5d3f518fe398563a7bcc992",
+    "whatsapp-send-architecture-budget-candidates.json": "79a111adced0615c8f1e305deaf8332380f93f42bb037986884b5f1b76877253",
+    "whatsapp-send-architecture-reviewed-files.json": "645e7a39e1ce0bbf52b0c079d3f86646fc3456e4e2b50efd2b2e20fc8b40e5d8"
+  }
+}

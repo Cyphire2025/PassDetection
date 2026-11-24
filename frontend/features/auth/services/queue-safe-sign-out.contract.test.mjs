@@ -1,3 +1,4 @@
+import { readAttendanceQueueSource } from "../../tour-operations/services/attendance-queue-source.contract-helper.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -7,7 +8,7 @@ const read = (relativePath) => readFileSync(new URL(relativePath, import.meta.ur
 const authStore = read("../../../stores/auth.store.ts");
 const sessionState = read("./session-state.ts");
 const guard = read("../components/queue-safe-sign-out-guard.tsx");
-const queue = read("../../tour-operations/services/attendance-scan-queue.ts");
+const queue = readAttendanceQueueSource();
 const privacy = read("../../tour-operations/services/attendance-queue-privacy.ts");
 const activity = read("../../tour-operations/components/coordinator-group-activity-page.tsx");
 const apiClient = read("../../../lib/api/client.ts");

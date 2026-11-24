@@ -1,0 +1,66 @@
+[
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/submission_review.py",
+    "baseline_lines": 161,
+    "maximum_lines": 170,
+    "baseline_max_function_complexity": 0,
+    "maximum_function_complexity": 0,
+    "minimum_coverage_percent": 95
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/submission_execution.py",
+    "baseline_lines": 44,
+    "maximum_lines": 50,
+    "baseline_max_function_complexity": 5,
+    "maximum_function_complexity": 5,
+    "minimum_coverage_percent": 95
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/submission_review_approval.py",
+    "baseline_lines": 181,
+    "maximum_lines": 190,
+    "baseline_max_function_complexity": 9,
+    "maximum_function_complexity": 9,
+    "minimum_coverage_percent": 90
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/submission_review_client.py",
+    "baseline_lines": 131,
+    "maximum_lines": 140,
+    "baseline_max_function_complexity": 13,
+    "maximum_function_complexity": 13,
+    "minimum_coverage_percent": 80
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/submission_review_confirmation.py",
+    "baseline_lines": 116,
+    "maximum_lines": 120,
+    "baseline_max_function_complexity": 5,
+    "maximum_function_complexity": 5,
+    "minimum_coverage_percent": 59
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/submission_review_processing.py",
+    "baseline_lines": 238,
+    "maximum_lines": 240,
+    "baseline_max_function_complexity": 8,
+    "maximum_function_complexity": 8,
+    "minimum_coverage_percent": 75
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/submission_review_read.py",
+    "baseline_lines": 82,
+    "maximum_lines": 90,
+    "baseline_max_function_complexity": 5,
+    "maximum_function_complexity": 5,
+    "minimum_coverage_percent": 90
+  },
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/submission_review_support.py",
+    "baseline_lines": 135,
+    "maximum_lines": 140,
+    "baseline_max_function_complexity": 5,
+    "maximum_function_complexity": 5,
+    "minimum_coverage_percent": 59
+  }
+]

@@ -15,18 +15,18 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  applicationName: "Global Connects Coordinator",
+  applicationName: "Global Connects Dashboard",
   title: {
-    default: "Global Connects Dashboard - Passport MRZ Platform",
+    default: "Global Connects Dashboard",
     template: "%s | Global Connects Dashboard",
   },
   description:
-    "Secure passport MRZ processing platform for travel agencies.",
+    "Secure travel operations and AI passport processing for travel agencies.",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Tour Ops",
+    title: "Group Companion",
   },
   icons: {
     icon: [

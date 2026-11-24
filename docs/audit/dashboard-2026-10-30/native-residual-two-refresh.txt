@@ -1,0 +1,43 @@
+{
+  "files": 6779,
+  "scope": {
+    "operations-and-tooling": 379,
+    "mobile-excluded": 852,
+    "supporting-material": 460,
+    "backend": 2884,
+    "operations-inbox-deferred": 255,
+    "frontend": 1906,
+    "mcp-connector": 43
+  },
+  "status": {
+    "needs-follow-up": 134,
+    "reviewed": 3630,
+    "verified": 584,
+    "inventoried": 87,
+    "fixed": 521,
+    "excluded": 791,
+    "removed-in-working-tree": 295,
+    "asset-metadata-reviewed": 74,
+    "reviewed-and-fixed": 12,
+    "focused": 9,
+    "refactored": 306,
+    "verified-focused": 89,
+    "verified-local-synthetic-scope": 2,
+    "reviewed-and-documented": 13,
+    "fixed-focused": 1,
+    "added-regression": 4,
+    "reviewed-regression-tests": 6,
+    "added-controls": 1,
+    "reviewed-regression-source": 6,
+    "fixed-verified": 4,
+    "reviewed-focused": 18,
+    "generated-metadata-reviewed": 140,
+    "reviewed-full": 43,
+    "changed-needs-recheck": 1,
+    "reviewed-and-executed-synthetic-test": 3,
+    "verified-private-invocation-fix": 1,
+    "generated-artifact-verified": 2,
+    "metadata-verified": 1,
+    "generated-data-verified": 1
+  }
+}

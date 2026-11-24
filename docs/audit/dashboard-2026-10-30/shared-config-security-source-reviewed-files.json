@@ -1,0 +1,122 @@
+[
+  {
+    "path": "backend/app/core/logging/mcp_log_normalization.py",
+    "sha256": "6073f49bb9e6a832cec5a0dfdc34609f37b2cb81422b77781600a6ebeae00db6",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source/config/test read. Manual boundary review only: fixed-field log projections omit arbitrary text, bounded normalization drops malformed/unknown input, domain-separated push cipher derives from configured secret, group-grant helpers flush without committing and exclude owned/archived/deleted groups through their caller predicates. Existing tests were read, not newly run in this unchanged-source tranche; live infrastructure and independent feature findings remain separate. Historical event-name allowlists retain diagnostic compatibility and do not execute retired passport OCR."
+  },
+  {
+    "path": "backend/app/core/logging/mcp_log_projection.py",
+    "sha256": "3a606aba2ec1cff09e49af1fc88e2c42fb510938b8988cc5fbd59d82f4e16522",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source/config/test read. Manual boundary review only: fixed-field log projections omit arbitrary text, bounded normalization drops malformed/unknown input, domain-separated push cipher derives from configured secret, group-grant helpers flush without committing and exclude owned/archived/deleted groups through their caller predicates. Existing tests were read, not newly run in this unchanged-source tranche; live infrastructure and independent feature findings remain separate. Historical event-name allowlists retain diagnostic compatibility and do not execute retired passport OCR."
+  },
+  {
+    "path": "backend/app/core/config/mcp_diagnostic_allowlists.json",
+    "sha256": "15ae4c5059f39065ef39390e7732c532191df08c1ae90f0618f902ca39b6baf2",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source/config/test read. Manual boundary review only: fixed-field log projections omit arbitrary text, bounded normalization drops malformed/unknown input, domain-separated push cipher derives from configured secret, group-grant helpers flush without committing and exclude owned/archived/deleted groups through their caller predicates. Existing tests were read, not newly run in this unchanged-source tranche; live infrastructure and independent feature findings remain separate. Historical event-name allowlists retain diagnostic compatibility and do not execute retired passport OCR."
+  },
+  {
+    "path": "backend/app/core/config/frontend_route_templates.json",
+    "sha256": "5bf3e6d978e740935e10bb1a452e62fe0274e2c33b86487316c3c1e04e1552d4",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source/config/test read. Manual boundary review only: fixed-field log projections omit arbitrary text, bounded normalization drops malformed/unknown input, domain-separated push cipher derives from configured secret, group-grant helpers flush without committing and exclude owned/archived/deleted groups through their caller predicates. Existing tests were read, not newly run in this unchanged-source tranche; live infrastructure and independent feature findings remain separate. Historical event-name allowlists retain diagnostic compatibility and do not execute retired passport OCR."
+  },
+  {
+    "path": "backend/app/core/config/release_manifest.json",
+    "sha256": "122e7b38970b18609cf46b20b99d4b2c093c4f8b471bcd484b8c59a7080c6119",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source/config/test read. Manual boundary review only: fixed-field log projections omit arbitrary text, bounded normalization drops malformed/unknown input, domain-separated push cipher derives from configured secret, group-grant helpers flush without committing and exclude owned/archived/deleted groups through their caller predicates. Existing tests were read, not newly run in this unchanged-source tranche; live infrastructure and independent feature findings remain separate. Historical event-name allowlists retain diagnostic compatibility and do not execute retired passport OCR."
+  },
+  {
+    "path": "backend/app/core/security/mobile_push_crypto.py",
+    "sha256": "46a6d90daf4a391474e78c403e680c48798f563f638934cbd3d45390cc5eb15f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source/config/test read. Manual boundary review only: fixed-field log projections omit arbitrary text, bounded normalization drops malformed/unknown input, domain-separated push cipher derives from configured secret, group-grant helpers flush without committing and exclude owned/archived/deleted groups through their caller predicates. Existing tests were read, not newly run in this unchanged-source tranche; live infrastructure and independent feature findings remain separate. Historical event-name allowlists retain diagnostic compatibility and do not execute retired passport OCR."
+  },
+  {
+    "path": "backend/tests/unit/core/test_mcp_log_normalization.py",
+    "sha256": "9c8c99399b1e8cb8c93d133867a5e741fb6044311d9b84bd460601def902c074",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source/config/test read. Manual boundary review only: fixed-field log projections omit arbitrary text, bounded normalization drops malformed/unknown input, domain-separated push cipher derives from configured secret, group-grant helpers flush without committing and exclude owned/archived/deleted groups through their caller predicates. Existing tests were read, not newly run in this unchanged-source tranche; live infrastructure and independent feature findings remain separate. Historical event-name allowlists retain diagnostic compatibility and do not execute retired passport OCR."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_clamav_scanner_protocol.py",
+    "sha256": "a4aa9a2edbfe782b99a79a76a1dc3f62db4a5d11b92cdaec430f18db2a7f7093",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source/config/test read. Manual boundary review only: fixed-field log projections omit arbitrary text, bounded normalization drops malformed/unknown input, domain-separated push cipher derives from configured secret, group-grant helpers flush without committing and exclude owned/archived/deleted groups through their caller predicates. Existing tests were read, not newly run in this unchanged-source tranche; live infrastructure and independent feature findings remain separate. Historical event-name allowlists retain diagnostic compatibility and do not execute retired passport OCR."
+  },
+  {
+    "path": "backend/app/application/use_cases/client_groups/group_access.py",
+    "sha256": "7035a4b0d957b86055b0370be2b399112369d312317e6b55030109cb272a2c85",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source/config/test read. Manual boundary review only: fixed-field log projections omit arbitrary text, bounded normalization drops malformed/unknown input, domain-separated push cipher derives from configured secret, group-grant helpers flush without committing and exclude owned/archived/deleted groups through their caller predicates. Existing tests were read, not newly run in this unchanged-source tranche; live infrastructure and independent feature findings remain separate. Historical event-name allowlists retain diagnostic compatibility and do not execute retired passport OCR."
+  },
+  {
+    "path": "backend/app/domain/entities/identity.py",
+    "sha256": "4e60b4cc3d4759f1c2b12b34984a4300ae388055694cf46581be33f632b94d9e",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source/config/test read. Manual boundary review only: fixed-field log projections omit arbitrary text, bounded normalization drops malformed/unknown input, domain-separated push cipher derives from configured secret, group-grant helpers flush without committing and exclude owned/archived/deleted groups through their caller predicates. Existing tests were read, not newly run in this unchanged-source tranche; live infrastructure and independent feature findings remain separate. Historical event-name allowlists retain diagnostic compatibility and do not execute retired passport OCR."
+  },
+  {
+    "path": "backend/app/core/security/mobile_jwt.py",
+    "sha256": "8cf1e6adc619ce14bc84d6c6e96465482cf6875a118f66f001ee5118e81e3bf1",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "reviewed",
+    "notes": "Retained dashboard lookup-HMAC seam and domain-separated secret derivation reviewed with actual gc_app/attendance/MCP callers. Other native access/document-token/refresh/OTP feature behavior remains excluded; full physical context read does not become a native feature audit."
+  },
+  {
+    "path": "backend/app/core/security/mobile_offline_lease.py",
+    "sha256": "5d9a5a03692589233190aabe9546a4b51151388122ed2e3996c9ab1ff59b6e4e",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "reviewed",
+    "notes": "Retained browser manifest signing and its shared key-validation/canonical-encoding helpers reviewed; bounded payload/key counts, active public/private match and signature/key-id binding retained. Native offline authorization lease feature behavior remains excluded."
+  },
+  {
+    "path": "backend/app/infrastructure/security/upload_security.py",
+    "sha256": "293afb52d404d9dc96dd0d303620891274d8654d1e21c2d81ccc844c2d5e4102",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "reviewed",
+    "notes": "Read first220 lines and traced original-scan/digest-bound-image/public-PDF boundary only; remainder not claimed full. Unchanged source, no new runtime check."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_reminder_audience.py",
+    "sha256": "0e9199e40aff3990a9eff3c033fafd17c2b5aec307894d1529bcb8c653410151",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "reviewed",
+    "notes": "Focused call chain: not-submitted empty result explicitly rejects before preview recipient indexing. Remaining module not claimed full."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_update_audience.py",
+    "sha256": "a54a210a82d63d0765053d8efe444f2589e2d91cd2ed7171ba69a696eb1aea9a",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "reviewed",
+    "notes": "Focused final selection loop returns possibly empty tuple; separate composer empty-update-filter preview candidate queued for actual regression. No runtime fix or full module qualification here."
+  }
+]

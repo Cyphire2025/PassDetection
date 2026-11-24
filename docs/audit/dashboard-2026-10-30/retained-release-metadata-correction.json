@@ -1,0 +1,8 @@
+{
+  "historical_receipt": "retained-release-mechanical-verification.json",
+  "historical_receipt_sha256": "08a1d991382da493fdfaca906b6dcfb23872035a94f56c19dc2d0e314e3296d7",
+  "corrected_metadata_only": {
+    "qualification_source_list": "Original26 entries retained plus6 new exact source owners gives32 total; original mechanical prose incorrectly called the retained original list32 entries."
+  },
+  "no_source_check_budget_or_policy_change": true
+}

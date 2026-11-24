@@ -1,0 +1,88 @@
+{
+  "status": "FROZEN coherent measured queue selection/oldest followthrough; final parent combined verification pending",
+  "reviewer": "branding_visuals",
+  "source_ledger": "attendance-queue-performance-reviewed-files.json",
+  "source_fence": "attendance-queue-performance-source-fence.json",
+  "current_full_records": 23,
+  "original_queue_owners_physically_read": 14,
+  "current_queue_runtime_owners": 15,
+  "budget_candidates": "attendance-queue-performance-budget-candidates.json",
+  "candidate_count": 4,
+  "new_cap_rows": 1,
+  "existing_rows": 3,
+  "existing_maximum_caps_raised": false,
+  "critical_floor_or_include_change": false,
+  "source_proof": "attendance-queue-performance-provenance.json",
+  "preservation_proof": "All14complete original/currentmodule ASTs exact after solely replay selector import/initializer and oldest initializer inversions. Original5operand selector condition and shortcircuitorder exact; storage commentonly; publicfacade/HTTP/DTO/crypto/DB/schema/locks/claim/error/discard logic unchanged. Actual collector includes/validates newconnectedmodule; exact2line source-loader inverse to historicalfullSHA d99eb8... matches.",
+  "measurement": {
+    "representative_rows": 5000,
+    "bounded_batch_size": 50,
+    "batches": 100,
+    "before": {
+      "first_dispatch_numeric_snapshot_reads": 5001,
+      "total_numeric_snapshot_reads": 505000,
+      "storage_locale_comparisons": 4999,
+      "safety_snapshot_locale_comparisons": 9998
+    },
+    "after": {
+      "first_dispatch_numeric_snapshot_reads": 51,
+      "total_numeric_snapshot_reads": 257500,
+      "storage_locale_comparisons": 4999,
+      "safety_snapshot_locale_comparisons": 4999
+    },
+    "selection_fixture": "Actual public syncPendingAttendanceScans/currentorchestration/ownerlocks/predicates with bounded storage/outcome doubles; Proxy counts numeric snapshot visits only. Does not measure database/crypto/backend/network work.",
+    "oldest_fixture": "Actual migration/codec/listPendingForOwner/getBrowserAttendanceQueueSafetySnapshot over async IDB and crypto API doubles, reversed5000rows/mixedstates. Storagealready establishes ascending queuedAt.localeCompare order; snapshot no longer resorts identical strings.",
+    "complexity": "Selection remains worstcase O(n * batches), because each call rechecks current snapshot aliases and due times. No staticeligiblebucket/cursor. Selectedbuffer is atmost50 instead of fullmatchingarray then slice. Duplicate oldestmap/sort removed through existing verifiedordering contract.",
+    "no_latency_throughput_or_zero_lag_claim": true
+  },
+  "baseline_cases": {
+    "selection": "5semantic controls passed1bounded-work failed",
+    ".tmp/attendance-perf/baseline-work.txt": "original505000numericreads",
+    "oldest": "2semantic controls passed1work counter failed",
+    ".tmp/attendance-perf/oldest-baseline.txt": "original9998comparisons vs4999existing storage"
+  },
+  "qualified_semantics": [
+    "Original exact batch order/50bound, legacy single dispatch and mixedsession sequencing",
+    "Retry deadline newly due during asyncbatch is revisited; no eligibility caching",
+    "Aliased snapshot ID/session mutation reobserved before next batch",
+    "Duplicate snapshot references retain original pre-handled-set membership behavior",
+    "First recoverable outcome stops later dispatch; remaining evidence retained",
+    "Replacement actor stops continuation/resultpublication",
+    "Existing actual-IDBAPI interrupteddrain/usableWebLock/no-lock/crossdocument exclusion/foreignowner/corruptidentity/retry and explicitdiscard controls",
+    "Existing owner change during runtimehint/decrypt/discardclaim/response/cookieactor/checkpoint boundaries",
+    "Current empty/locale-ordered nonISOstoredtime outcomes and mixedpending/sending/retry counts"
+  ],
+  "checks": [
+    {
+      "command": "vitest run [4affected queue work/restart/ownerfiles] --disableConsoleIntercept --maxWorkers=1 --pool=threads",
+      "passed": 33,
+      "failed": 0,
+      "raw": ".tmp/attendance-perf/affected-unit.txt"
+    },
+    {
+      "command": "node --test attendance-retry-policy.test.mjs attendance-queue-privacy.test.mjs coordinator-pwa.contract.test.mjs",
+      "passed": 34,
+      "failed": 0,
+      "raw": ".tmp/attendance-perf/affected-node.txt"
+    },
+    {
+      "command": "tsc --noEmit --incremental false",
+      "outcome": "passed exit0",
+      "raw": ".tmp/attendance-perf/types.txt"
+    },
+    {
+      "command": "affected ESLint --max-warnings=0",
+      "outcome": "passed zero warnings",
+      "raw": ".tmp/attendance-perf/lint.txt"
+    }
+  ],
+  "original_finding_ledger_unchanged_sha256": "5d9129fc8a71ecf7202c2954b2f0b0804669a5f695c12aee31a49a6adf2bf3ed",
+  "scanner38sourcebytes_unchanged": true,
+  "limits": [
+    "No wallclock benchmark/productionlatency/browserdurability/nativecrypto/backend/providerclaim from deterministic work counters.",
+    "Realqueue orchestration and codec/storagepaths are exercised at explicitly doubled boundaries; existing locked/privacy/cookiecontrols are supporting regression evidence, not native browser crashproof.",
+    "Arbitrary getter sideeffects/clock advance caused solely by removed unselected predicate evaluations are not promised; ordinary aliased object mutation and explicit async time changes are covered.",
+    "No cross-call eligible cache, schema/index migration, validation/acceptance simplification, wholeapp build/suite/broadbrowser run.",
+    "Prior frozen receipts remain historical; source-read closure does not close independently open sharedtest/other workflow followups."
+  ]
+}

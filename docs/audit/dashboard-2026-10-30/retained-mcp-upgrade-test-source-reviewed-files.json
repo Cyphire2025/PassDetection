@@ -1,0 +1,65 @@
+[
+  {
+    "path": "backend/tests/unit/scripts/test_release_mcp_dashboard_write.py",
+    "sha256": "e122f319c919bb1b92123a91a2303cdb498c15f758f947d0ce88743fbed78fc6",
+    "physical_lines": 116,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all116 physical lines: historical pinned release fixture instead of current source reset, exact contract/profile/hash/ancestry gates and immutable authority/resource policy, retained catalog excludes only reviewed added fields while SQL predicate grouping/literal contents remain significant. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/unit/scripts/test_apply_mcp_direct_devices_upgrade.py",
+    "sha256": "e55ca50c49b0c8da9c59f800b50d76bff3e02eb3ee28fc9e502e3943fcdde10b",
+    "physical_lines": 174,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all174 physical lines: strict source policy/path/hash/single migration identity, proof and read-only rejection before DB factory, safe forward-only CLI failures and exact same-name platform constraint semantics. Dynamic module loaders are fixture-local; no helper executed in this source review. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/unit/scripts/test_apply_mcp_admin_approval_upgrade.py",
+    "sha256": "dc5ebb150f79b1abb495eba3914f62a5ea6e1197d4b778d66be0e52c17d4a8c7",
+    "physical_lines": 316,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all316 physical lines in contiguous halves: immutable historical0124-to0125 contract, pre-DB source/proof/config rejection, request relation/columns/defaults/generated/nullability/constraints/index/trigger exactness, activation-empty gate distinct from schema qualification and authority projection retains enabled/platform fields. Fake catalog iterators model only queried protocol. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/service_integration/test_mcp_migration_roles_postgresql.py",
+    "sha256": "c44f5066b48f3cb83e03288aa709bc7519c8986f46a03bbeb1011542159be5d6",
+    "physical_lines": 127,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all127 physical lines: explicit local/CI opt-in cluster, unique database/runtime/migrator roles and synthetic generated credentials, old default privileges survive migration without regrant, runtime CRUD/noTRUNCATE/table owner and protected audit checks. Source intentionally retains synthetic run DB/roles for review; all engines dispose. Actual subprocess/PG flow not run here. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/service_integration/test_mcp_admin_approval_helper_postgresql.py",
+    "sha256": "5c854d3f673cf1460594d4a2c90b52c6d25b280238cbb201da12eee4745f8cd0",
+    "physical_lines": 277,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all277 physical lines: isolated generated DB/non-superuser owner/reader roles, historical source pinning before/after helper, unsafe hash/proof/writes/runtime identity rejection, held-writer timeout and exact retained authority snapshots, target retry preserves activation decisions, wrong checks/indexes/pending/foreign schema reject without downgrade. Finally disposes engine and removes owned DB/roles; no SQL/process execution here. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/service_integration/test_mcp_direct_devices_helper_postgresql.py",
+    "sha256": "8601513fd323d31a624d84297ac011cf687d1da488a181edea4f2ebcc224dd5c",
+    "physical_lines": 242,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all242 physical lines: independently frozen0124 historical helper fixture, unique isolated DB/roles, before-target authority snapshots omit only additive fields, source lock/hash/proof/config/role rejection, disabled/platform decisions survive target retry and exact check validation. Explicit generated identifiers bound creation/drop; no provider or DB calls performed. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/service_integration/test_mcp_dashboard_write_upgrade_postgresql.py",
+    "sha256": "1480ef9635528c0d1d8ce1ba122002ed1782c83cebed9d4501ef43786e0f1f72",
+    "physical_lines": 261,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all261 physical lines: loopback-owned synthetic database and pinned additive historical write helper, all old authority rows including pending requests survive, held writer rejects before schema mutation, retries preserve snapshots, altered lane/default/control policy fail closed. Test cleanup terminates only its generated database sessions and drops that DB; not executed. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  }
+]

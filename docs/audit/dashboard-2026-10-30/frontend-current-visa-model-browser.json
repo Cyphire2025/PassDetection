@@ -1,0 +1,647 @@
+{
+  "baseline": false,
+  "fixture": {
+    "url": "https://storage.googleapis.com/mediapipe-assets/portrait.jpg",
+    "sha256": "a6f11efaa834706db23f275b6115058fa87fc7f14362681e6abe14e82749de3e"
+  },
+  "csp": "default-src 'self'; script-src 'self' 'nonce-UeQ05RxaKbT7UxTUBsq/Oh69EbKLv+wZ' 'strict-dynamic' 'wasm-unsafe-eval'; script-src-attr 'none'; style-src 'self' 'nonce-UeQ05RxaKbT7UxTUBsq/Oh69EbKLv+wZ'; style-src-attr 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; font-src 'self'; connect-src 'self'; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; frame-src 'self'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'",
+  "results": [
+    {
+      "kind": "raw-detector",
+      "mode": "simd",
+      "coldMs": 454.90000000037253,
+      "faceCount": 1,
+      "blankFaceCount": 0,
+      "warmMs": [
+        35.40000000037253,
+        27.299999998882413,
+        25.800000000745058,
+        26.09999999962747,
+        25.800000000745058
+      ],
+      "violations": [],
+      "errors": [],
+      "assets": [
+        {
+          "requested": "/mediapipe/face_detection/face_detection.js",
+          "served": "face_detection.js"
+        },
+        {
+          "requested": "/mediapipe/face_detection/face_detection_short.binarypb",
+          "served": "face_detection_short.binarypb"
+        },
+        {
+          "requested": "/mediapipe/face_detection/face_detection_short_range.tflite",
+          "served": "face_detection_short_range.tflite"
+        },
+        {
+          "requested": "/mediapipe/face_detection/face_detection_solution_simd_wasm_bin.js",
+          "served": "face_detection_solution_simd_wasm_bin.js"
+        },
+        {
+          "requested": "/mediapipe/face_detection/face_detection_solution_simd_wasm_bin.wasm",
+          "served": "face_detection_solution_simd_wasm_bin.wasm"
+        }
+      ]
+    },
+    {
+      "kind": "current-strict-final-jpeg-validation",
+      "mode": "simd",
+      "uploadResults": [
+        {
+          "kind": "white",
+          "elapsedMs": 527.5999999996275,
+          "validation": {
+            "outcome": "borderline",
+            "message": "The background is close to the limit for colour or texture. Confirm it is a plain light wall, or retake the photo.",
+            "faceCount": "one_face",
+            "facePlacement": "ready",
+            "clarity": {
+              "status": "good",
+              "averageLuminance": 141.04024280155645,
+              "darkPixelRatio": 0.00324254215304799,
+              "brightPixelRatio": 0,
+              "averageGradient": 19.392134580052474,
+              "highGradientRatio": 0.28346456692913385
+            },
+            "background": {
+              "isWhite": false,
+              "isLightNeutral": true,
+              "isPlain": false,
+              "failureReason": "not_plain",
+              "averageLuminance": 224.2664276953513,
+              "lightNeutralRatio": 0.8516320474777448,
+              "strongEdgeRatio": 0.09757383966244726,
+              "roughTextureRatio": 0.169831223628692,
+              "luminanceDeviation": 54.91264802773809,
+              "zoneMeanSpread": 36.31535513626835,
+              "maxLineCoverage": 0.5625,
+              "maxRegionalEdgeRatio": 0.16265060240963855,
+              "maxRegionalDarkRatio": 0.26011560693641617,
+              "evaluatedZoneCount": 8,
+              "failingLightNeutralZoneCount": 0,
+              "structuredZoneCount": 0,
+              "extremeZoneCount": 0
+            }
+          },
+          "dimensions": [
+            800,
+            1200
+          ],
+          "bytes": 123508,
+          "type": "image/jpeg"
+        },
+        {
+          "kind": "white",
+          "elapsedMs": 426.30000000074506,
+          "validation": {
+            "outcome": "borderline",
+            "message": "The background is close to the limit for colour or texture. Confirm it is a plain light wall, or retake the photo.",
+            "faceCount": "one_face",
+            "facePlacement": "ready",
+            "clarity": {
+              "status": "good",
+              "averageLuminance": 141.04024280155645,
+              "darkPixelRatio": 0.00324254215304799,
+              "brightPixelRatio": 0,
+              "averageGradient": 19.392134580052474,
+              "highGradientRatio": 0.28346456692913385
+            },
+            "background": {
+              "isWhite": false,
+              "isLightNeutral": true,
+              "isPlain": false,
+              "failureReason": "not_plain",
+              "averageLuminance": 224.2664276953513,
+              "lightNeutralRatio": 0.8516320474777448,
+              "strongEdgeRatio": 0.09757383966244726,
+              "roughTextureRatio": 0.169831223628692,
+              "luminanceDeviation": 54.91264802773809,
+              "zoneMeanSpread": 36.31535513626835,
+              "maxLineCoverage": 0.5625,
+              "maxRegionalEdgeRatio": 0.16265060240963855,
+              "maxRegionalDarkRatio": 0.26011560693641617,
+              "evaluatedZoneCount": 8,
+              "failingLightNeutralZoneCount": 0,
+              "structuredZoneCount": 0,
+              "extremeZoneCount": 0
+            }
+          },
+          "dimensions": [
+            800,
+            1200
+          ],
+          "bytes": 123508,
+          "type": "image/jpeg"
+        },
+        {
+          "kind": "blank",
+          "elapsedMs": 438.80000000074506,
+          "validation": {
+            "outcome": "hard_failure",
+            "message": "No face was found in the captured photo. Retake with your full head inside the guide.",
+            "faceCount": "no_face",
+            "facePlacement": null,
+            "clarity": null,
+            "background": null
+          },
+          "dimensions": [
+            800,
+            1200
+          ],
+          "bytes": 6383,
+          "type": "image/jpeg"
+        },
+        {
+          "kind": "colored",
+          "elapsedMs": 441.2000000011176,
+          "validation": {
+            "outcome": "hard_failure",
+            "message": "The captured background is too dark or strongly coloured. Use a white, off-white, or light-neutral wall and retake the photo.",
+            "faceCount": "one_face",
+            "facePlacement": "ready",
+            "clarity": {
+              "status": "good",
+              "averageLuminance": 140.88063211009174,
+              "darkPixelRatio": 0.00327653997378768,
+              "brightPixelRatio": 0,
+              "averageGradient": 19.467973280423262,
+              "highGradientRatio": 0.28505291005291006
+            },
+            "background": {
+              "isWhite": false,
+              "isLightNeutral": false,
+              "isPlain": false,
+              "failureReason": "not_plain",
+              "averageLuminance": 107.6844043307097,
+              "lightNeutralRatio": 0.13484251968503938,
+              "strongEdgeRatio": 0.09286463798530954,
+              "roughTextureRatio": 0.17681007345225602,
+              "luminanceDeviation": 38.305798074613854,
+              "zoneMeanSpread": 23.15825105485156,
+              "maxLineCoverage": 0.5625,
+              "maxRegionalEdgeRatio": 0.16265060240963855,
+              "maxRegionalDarkRatio": 1,
+              "evaluatedZoneCount": 8,
+              "failingLightNeutralZoneCount": 8,
+              "structuredZoneCount": 8,
+              "extremeZoneCount": 7
+            }
+          },
+          "dimensions": [
+            800,
+            1200
+          ],
+          "bytes": 124030,
+          "type": "image/jpeg"
+        },
+        {
+          "kind": "white",
+          "elapsedMs": 430.3999999985099,
+          "validation": {
+            "outcome": "borderline",
+            "message": "The background is close to the limit for colour or texture. Confirm it is a plain light wall, or retake the photo.",
+            "faceCount": "one_face",
+            "facePlacement": "ready",
+            "clarity": {
+              "status": "good",
+              "averageLuminance": 141.04024280155645,
+              "darkPixelRatio": 0.00324254215304799,
+              "brightPixelRatio": 0,
+              "averageGradient": 19.392134580052474,
+              "highGradientRatio": 0.28346456692913385
+            },
+            "background": {
+              "isWhite": false,
+              "isLightNeutral": true,
+              "isPlain": false,
+              "failureReason": "not_plain",
+              "averageLuminance": 224.2664276953513,
+              "lightNeutralRatio": 0.8516320474777448,
+              "strongEdgeRatio": 0.09757383966244726,
+              "roughTextureRatio": 0.169831223628692,
+              "luminanceDeviation": 54.91264802773809,
+              "zoneMeanSpread": 36.31535513626835,
+              "maxLineCoverage": 0.5625,
+              "maxRegionalEdgeRatio": 0.16265060240963855,
+              "maxRegionalDarkRatio": 0.26011560693641617,
+              "evaluatedZoneCount": 8,
+              "failingLightNeutralZoneCount": 0,
+              "structuredZoneCount": 0,
+              "extremeZoneCount": 0
+            }
+          },
+          "dimensions": [
+            800,
+            1200
+          ],
+          "bytes": 123508,
+          "type": "image/jpeg"
+        }
+      ],
+      "violations": []
+    },
+    {
+      "kind": "raw-detector",
+      "mode": "scalar",
+      "coldMs": 479.69999999925494,
+      "faceCount": 1,
+      "blankFaceCount": 0,
+      "warmMs": [
+        35.09999999962747,
+        29.40000000037253,
+        29.90000000037253,
+        27.299999998882413,
+        24.800000000745058
+      ],
+      "violations": [],
+      "errors": [],
+      "assets": [
+        {
+          "requested": "/mediapipe/face_detection/face_detection.js",
+          "served": "face_detection.js"
+        },
+        {
+          "requested": "/mediapipe/face_detection/face_detection_short.binarypb",
+          "served": "face_detection_short.binarypb"
+        },
+        {
+          "requested": "/mediapipe/face_detection/face_detection_short_range.tflite",
+          "served": "face_detection_short_range.tflite"
+        },
+        {
+          "requested": "/mediapipe/face_detection/face_detection_solution_simd_wasm_bin.js",
+          "served": "face_detection_solution_wasm_bin.js"
+        },
+        {
+          "requested": "/mediapipe/face_detection/face_detection_solution_wasm_bin.wasm",
+          "served": "face_detection_solution_wasm_bin.wasm"
+        }
+      ]
+    },
+    {
+      "kind": "current-strict-final-jpeg-validation",
+      "mode": "scalar",
+      "uploadResults": [
+        {
+          "kind": "white",
+          "elapsedMs": 499.30000000074506,
+          "validation": {
+            "outcome": "borderline",
+            "message": "The background is close to the limit for colour or texture. Confirm it is a plain light wall, or retake the photo.",
+            "faceCount": "one_face",
+            "facePlacement": "ready",
+            "clarity": {
+              "status": "good",
+              "averageLuminance": 141.04024280155645,
+              "darkPixelRatio": 0.00324254215304799,
+              "brightPixelRatio": 0,
+              "averageGradient": 19.392134580052474,
+              "highGradientRatio": 0.28346456692913385
+            },
+            "background": {
+              "isWhite": false,
+              "isLightNeutral": true,
+              "isPlain": false,
+              "failureReason": "not_plain",
+              "averageLuminance": 224.2664276953513,
+              "lightNeutralRatio": 0.8516320474777448,
+              "strongEdgeRatio": 0.09757383966244726,
+              "roughTextureRatio": 0.169831223628692,
+              "luminanceDeviation": 54.91264802773809,
+              "zoneMeanSpread": 36.31535513626835,
+              "maxLineCoverage": 0.5625,
+              "maxRegionalEdgeRatio": 0.16265060240963855,
+              "maxRegionalDarkRatio": 0.26011560693641617,
+              "evaluatedZoneCount": 8,
+              "failingLightNeutralZoneCount": 0,
+              "structuredZoneCount": 0,
+              "extremeZoneCount": 0
+            }
+          },
+          "dimensions": [
+            800,
+            1200
+          ],
+          "bytes": 123508,
+          "type": "image/jpeg"
+        },
+        {
+          "kind": "white",
+          "elapsedMs": 460.5,
+          "validation": {
+            "outcome": "borderline",
+            "message": "The background is close to the limit for colour or texture. Confirm it is a plain light wall, or retake the photo.",
+            "faceCount": "one_face",
+            "facePlacement": "ready",
+            "clarity": {
+              "status": "good",
+              "averageLuminance": 141.04024280155645,
+              "darkPixelRatio": 0.00324254215304799,
+              "brightPixelRatio": 0,
+              "averageGradient": 19.392134580052474,
+              "highGradientRatio": 0.28346456692913385
+            },
+            "background": {
+              "isWhite": false,
+              "isLightNeutral": true,
+              "isPlain": false,
+              "failureReason": "not_plain",
+              "averageLuminance": 224.2664276953513,
+              "lightNeutralRatio": 0.8516320474777448,
+              "strongEdgeRatio": 0.09757383966244726,
+              "roughTextureRatio": 0.169831223628692,
+              "luminanceDeviation": 54.91264802773809,
+              "zoneMeanSpread": 36.31535513626835,
+              "maxLineCoverage": 0.5625,
+              "maxRegionalEdgeRatio": 0.16265060240963855,
+              "maxRegionalDarkRatio": 0.26011560693641617,
+              "evaluatedZoneCount": 8,
+              "failingLightNeutralZoneCount": 0,
+              "structuredZoneCount": 0,
+              "extremeZoneCount": 0
+            }
+          },
+          "dimensions": [
+            800,
+            1200
+          ],
+          "bytes": 123508,
+          "type": "image/jpeg"
+        },
+        {
+          "kind": "blank",
+          "elapsedMs": 423.2000000011176,
+          "validation": {
+            "outcome": "hard_failure",
+            "message": "No face was found in the captured photo. Retake with your full head inside the guide.",
+            "faceCount": "no_face",
+            "facePlacement": null,
+            "clarity": null,
+            "background": null
+          },
+          "dimensions": [
+            800,
+            1200
+          ],
+          "bytes": 6383,
+          "type": "image/jpeg"
+        },
+        {
+          "kind": "colored",
+          "elapsedMs": 444.69999999925494,
+          "validation": {
+            "outcome": "hard_failure",
+            "message": "The captured background is too dark or strongly coloured. Use a white, off-white, or light-neutral wall and retake the photo.",
+            "faceCount": "one_face",
+            "facePlacement": "ready",
+            "clarity": {
+              "status": "good",
+              "averageLuminance": 140.88063211009174,
+              "darkPixelRatio": 0.00327653997378768,
+              "brightPixelRatio": 0,
+              "averageGradient": 19.467973280423262,
+              "highGradientRatio": 0.28505291005291006
+            },
+            "background": {
+              "isWhite": false,
+              "isLightNeutral": false,
+              "isPlain": false,
+              "failureReason": "not_plain",
+              "averageLuminance": 107.6844043307097,
+              "lightNeutralRatio": 0.13484251968503938,
+              "strongEdgeRatio": 0.09286463798530954,
+              "roughTextureRatio": 0.17681007345225602,
+              "luminanceDeviation": 38.305798074613854,
+              "zoneMeanSpread": 23.15825105485156,
+              "maxLineCoverage": 0.5625,
+              "maxRegionalEdgeRatio": 0.16265060240963855,
+              "maxRegionalDarkRatio": 1,
+              "evaluatedZoneCount": 8,
+              "failingLightNeutralZoneCount": 8,
+              "structuredZoneCount": 8,
+              "extremeZoneCount": 7
+            }
+          },
+          "dimensions": [
+            800,
+            1200
+          ],
+          "bytes": 124030,
+          "type": "image/jpeg"
+        },
+        {
+          "kind": "white",
+          "elapsedMs": 455.80000000074506,
+          "validation": {
+            "outcome": "borderline",
+            "message": "The background is close to the limit for colour or texture. Confirm it is a plain light wall, or retake the photo.",
+            "faceCount": "one_face",
+            "facePlacement": "ready",
+            "clarity": {
+              "status": "good",
+              "averageLuminance": 141.04024280155645,
+              "darkPixelRatio": 0.00324254215304799,
+              "brightPixelRatio": 0,
+              "averageGradient": 19.392134580052474,
+              "highGradientRatio": 0.28346456692913385
+            },
+            "background": {
+              "isWhite": false,
+              "isLightNeutral": true,
+              "isPlain": false,
+              "failureReason": "not_plain",
+              "averageLuminance": 224.2664276953513,
+              "lightNeutralRatio": 0.8516320474777448,
+              "strongEdgeRatio": 0.09757383966244726,
+              "roughTextureRatio": 0.169831223628692,
+              "luminanceDeviation": 54.91264802773809,
+              "zoneMeanSpread": 36.31535513626835,
+              "maxLineCoverage": 0.5625,
+              "maxRegionalEdgeRatio": 0.16265060240963855,
+              "maxRegionalDarkRatio": 0.26011560693641617,
+              "evaluatedZoneCount": 8,
+              "failingLightNeutralZoneCount": 0,
+              "structuredZoneCount": 0,
+              "extremeZoneCount": 0
+            }
+          },
+          "dimensions": [
+            800,
+            1200
+          ],
+          "bytes": 123508,
+          "type": "image/jpeg"
+        }
+      ],
+      "violations": []
+    },
+    {
+      "kind": "transient-model-failure-recovery",
+      "scenario": "graph-http503",
+      "failedAttempt": {
+        "error": "Error: Unable to load face detection asset (HTTP 503): /mediapipe/face_detection/face_detection_short.binarypb",
+        "elapsedMs": 60.80000000074506
+      },
+      "retry": {
+        "elapsedMs": 477.2000000011176,
+        "validation": {
+          "outcome": "borderline",
+          "message": "The background is close to the limit for colour or texture. Confirm it is a plain light wall, or retake the photo.",
+          "faceCount": "one_face",
+          "facePlacement": "ready",
+          "clarity": {
+            "status": "good",
+            "averageLuminance": 141.04024280155645,
+            "darkPixelRatio": 0.00324254215304799,
+            "brightPixelRatio": 0,
+            "averageGradient": 19.392134580052474,
+            "highGradientRatio": 0.28346456692913385
+          },
+          "background": {
+            "isWhite": false,
+            "isLightNeutral": true,
+            "isPlain": false,
+            "failureReason": "not_plain",
+            "averageLuminance": 224.2664276953513,
+            "lightNeutralRatio": 0.8516320474777448,
+            "strongEdgeRatio": 0.09757383966244726,
+            "roughTextureRatio": 0.169831223628692,
+            "luminanceDeviation": 54.91264802773809,
+            "zoneMeanSpread": 36.31535513626835,
+            "maxLineCoverage": 0.5625,
+            "maxRegionalEdgeRatio": 0.16265060240963855,
+            "maxRegionalDarkRatio": 0.26011560693641617,
+            "evaluatedZoneCount": 8,
+            "failingLightNeutralZoneCount": 0,
+            "structuredZoneCount": 0,
+            "extremeZoneCount": 0
+          }
+        },
+        "dimensions": [
+          800,
+          1200
+        ],
+        "bytes": 123508,
+        "type": "image/jpeg"
+      },
+      "violations": [],
+      "errors": [],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+      ]
+    },
+    {
+      "kind": "transient-model-failure-recovery",
+      "scenario": "graph-network-failure-delayed-loader",
+      "failedAttempt": {
+        "error": "TypeError: Failed to fetch",
+        "elapsedMs": 573.6999999992549
+      },
+      "retry": {
+        "elapsedMs": 488.7999999988824,
+        "validation": {
+          "outcome": "borderline",
+          "message": "The background is close to the limit for colour or texture. Confirm it is a plain light wall, or retake the photo.",
+          "faceCount": "one_face",
+          "facePlacement": "ready",
+          "clarity": {
+            "status": "good",
+            "averageLuminance": 141.04024280155645,
+            "darkPixelRatio": 0.00324254215304799,
+            "brightPixelRatio": 0,
+            "averageGradient": 19.392134580052474,
+            "highGradientRatio": 0.28346456692913385
+          },
+          "background": {
+            "isWhite": false,
+            "isLightNeutral": true,
+            "isPlain": false,
+            "failureReason": "not_plain",
+            "averageLuminance": 224.2664276953513,
+            "lightNeutralRatio": 0.8516320474777448,
+            "strongEdgeRatio": 0.09757383966244726,
+            "roughTextureRatio": 0.169831223628692,
+            "luminanceDeviation": 54.91264802773809,
+            "zoneMeanSpread": 36.31535513626835,
+            "maxLineCoverage": 0.5625,
+            "maxRegionalEdgeRatio": 0.16265060240963855,
+            "maxRegionalDarkRatio": 0.26011560693641617,
+            "evaluatedZoneCount": 8,
+            "failingLightNeutralZoneCount": 0,
+            "structuredZoneCount": 0,
+            "extremeZoneCount": 0
+          }
+        },
+        "dimensions": [
+          800,
+          1200
+        ],
+        "bytes": 123508,
+        "type": "image/jpeg"
+      },
+      "violations": [],
+      "errors": [],
+      "consoleErrors": [
+        "Failed to load resource: net::ERR_FAILED"
+      ]
+    },
+    {
+      "kind": "transient-model-failure-recovery",
+      "scenario": "loader-http522",
+      "failedAttempt": {
+        "error": "Error: Unable to load face detection script: /mediapipe/face_detection/face_detection_solution_simd_wasm_bin.js",
+        "elapsedMs": 28.199999999254942
+      },
+      "retry": {
+        "elapsedMs": 482.69999999925494,
+        "validation": {
+          "outcome": "borderline",
+          "message": "The background is close to the limit for colour or texture. Confirm it is a plain light wall, or retake the photo.",
+          "faceCount": "one_face",
+          "facePlacement": "ready",
+          "clarity": {
+            "status": "good",
+            "averageLuminance": 141.04024280155645,
+            "darkPixelRatio": 0.00324254215304799,
+            "brightPixelRatio": 0,
+            "averageGradient": 19.392134580052474,
+            "highGradientRatio": 0.28346456692913385
+          },
+          "background": {
+            "isWhite": false,
+            "isLightNeutral": true,
+            "isPlain": false,
+            "failureReason": "not_plain",
+            "averageLuminance": 224.2664276953513,
+            "lightNeutralRatio": 0.8516320474777448,
+            "strongEdgeRatio": 0.09757383966244726,
+            "roughTextureRatio": 0.169831223628692,
+            "luminanceDeviation": 54.91264802773809,
+            "zoneMeanSpread": 36.31535513626835,
+            "maxLineCoverage": 0.5625,
+            "maxRegionalEdgeRatio": 0.16265060240963855,
+            "maxRegionalDarkRatio": 0.26011560693641617,
+            "evaluatedZoneCount": 8,
+            "failingLightNeutralZoneCount": 0,
+            "structuredZoneCount": 0,
+            "extremeZoneCount": 0
+          }
+        },
+        "dimensions": [
+          800,
+          1200
+        ],
+        "bytes": 123508,
+        "type": "image/jpeg"
+      },
+      "violations": [],
+      "errors": [],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 522 (unknown)"
+      ]
+    }
+  ],
+  "browser": "151.0.7922.34",
+  "passed": true
+}

@@ -1,0 +1,73 @@
+FF                                                                       [100%]
+================================== FAILURES ===================================
+_ AiPriorityAsyncBoundaryTests.test_verification_metric_write_does_not_block_unrelated_coroutine _
+
+self = <test_ai_priority_async_boundaries.AiPriorityAsyncBoundaryTests testMethod=test_verification_metric_write_does_not_block_unrelated_coroutine>
+
+    async def test_verification_metric_write_does_not_block_unrelated_coroutine(self) -> None:
+>       await self._assert_provider_metric_progress(AiWorkload.VERIFICATION)
+
+backend\tests\unit\infrastructure\test_ai_priority_async_boundaries.py:95: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\unit\infrastructure\test_ai_priority_async_boundaries.py:146: in _assert_provider_metric_progress
+    self.assertEqual(progressed, [True])
+E   AssertionError: Lists differ: [False] != [True]
+E   
+E   First differing element 0:
+E   False
+E   True
+E   
+E   - [False]
+E   + [True]
+---------------------------- Captured stdout call -----------------------------
+2026-10-31T09:02:20.121611Z [debug    ] Using proactor: IocpProactor   [asyncio]
+2026-10-31T09:02:20.253354Z [info     ] post_submission_verification_request_attempt [app.infrastructure.ai.gemini_post_submission_verification_service] attempt=1 max_attempts=1 model=gemini-3.5-flash
+2026-10-31T09:02:20.255354Z [info     ] post_submission_verification_response_metadata [app.infrastructure.ai.gemini_post_submission_verification_service] attempt=1 duration_ms=0.0 http_status=200 model=gemini-3.5-flash response_bytes=2 retry_after_ms=None transport_status=response
+2026-10-31T09:02:20.659017Z [warning  ] post_submission_verification_fallback [app.infrastructure.ai.gemini_post_submission_verification_service] provider_status=invalid_response reason_code=invalid_provider_response
+2026-10-31T09:02:20.662015Z [warning  ] Executing <Task pending name='Task-2' coro=<AiPriorityAsyncBoundaryTests.test_verification_metric_write_does_not_block_unrelated_coroutine() running at C:\Users\nipun\Desktop\PassDetection\backend\tests\unit\infrastructure\test_ai_priority_async_boundaries.py:95> wait_for=<Task pending name='Task-3' coro=<AiPriorityAsyncBoundaryTests._assert_provider_metric_progress.<locals>.unrelated() running at C:\Users\nipun\Desktop\PassDetection\backend\tests\unit\infrastructure\test_ai_priority_async_boundaries.py:110> cb=[Task.task_wakeup()] created at C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\asyncio\tasks.py:384> cb=[_run_until_complete_cb() at C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\asyncio\base_events.py:181] created at C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\asyncio\runners.py:100> took 0.532 seconds [asyncio]
+2026-10-31T09:02:20.679404Z [debug    ] Close <ProactorEventLoop running=False closed=False debug=True> [asyncio]
+------------------------------ Captured log call ------------------------------
+DEBUG    asyncio:proactor_events.py:633 Using proactor: IocpProactor
+INFO     app.infrastructure.ai.gemini_post_submission_verification_service:ai-priority-post-submission-before.py:191 {'attempt': 1, 'max_attempts': 1, 'model': 'gemini-3.5-flash', 'event': 'post_submission_verification_request_attempt', 'logger': 'app.infrastructure.ai.gemini_post_submission_verification_service', 'level': 'info', 'timestamp': '2026-10-31T09:02:20.253354Z'}
+INFO     app.infrastructure.ai.gemini_post_submission_verification_service:ai-priority-post-submission-before.py:245 {'attempt': 1, 'model': 'gemini-3.5-flash', 'http_status': 200, 'response_bytes': 2, 'duration_ms': 0.0, 'transport_status': 'response', 'retry_after_ms': None, 'event': 'post_submission_verification_response_metadata', 'logger': 'app.infrastructure.ai.gemini_post_submission_verification_service', 'level': 'info', 'timestamp': '2026-10-31T09:02:20.255354Z'}
+WARNING  app.infrastructure.ai.gemini_post_submission_verification_service:ai-priority-post-submission-before.py:427 {'provider_status': 'invalid_response', 'reason_code': 'invalid_provider_response', 'event': 'post_submission_verification_fallback', 'logger': 'app.infrastructure.ai.gemini_post_submission_verification_service', 'level': 'warning', 'timestamp': '2026-10-31T09:02:20.659017Z'}
+WARNING  asyncio:base_events.py:1931 Executing <Task pending name='Task-2' coro=<AiPriorityAsyncBoundaryTests.test_verification_metric_write_does_not_block_unrelated_coroutine() running at C:\Users\nipun\Desktop\PassDetection\backend\tests\unit\infrastructure\test_ai_priority_async_boundaries.py:95> wait_for=<Task pending name='Task-3' coro=<AiPriorityAsyncBoundaryTests._assert_provider_metric_progress.<locals>.unrelated() running at C:\Users\nipun\Desktop\PassDetection\backend\tests\unit\infrastructure\test_ai_priority_async_boundaries.py:110> cb=[Task.task_wakeup()] created at C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\asyncio\tasks.py:384> cb=[_run_until_complete_cb() at C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\asyncio\base_events.py:181] created at C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\asyncio\runners.py:100> took 0.532 seconds
+DEBUG    asyncio:base_events.py:677 Close <ProactorEventLoop running=False closed=False debug=True>
+_ AiPriorityAsyncBoundaryTests.test_unexpected_heartbeat_failure_still_releases_and_propagates _
+
+self = <test_ai_priority_async_boundaries.AiPriorityAsyncBoundaryTests testMethod=test_unexpected_heartbeat_failure_still_releases_and_propagates>
+
+    async def test_unexpected_heartbeat_failure_still_releases_and_propagates(self) -> None:
+        coordinator = _BlockingCoordinator()
+        coordinator.release_finish.set()
+    
+        def failed_heartbeat(lease: PriorityLease) -> bool:
+            coordinator.heartbeat_entered.set()
+            raise ValueError("synthetic heartbeat failure")
+    
+        coordinator.heartbeat = failed_heartbeat  # type: ignore[method-assign]
+        with self.assertRaisesRegex(ValueError, "synthetic heartbeat failure"):
+            async with MaintainPriorityLease(coordinator, _lease()):  # type: ignore[arg-type]
+                self.assertTrue(await asyncio.to_thread(coordinator.heartbeat_entered.wait, 3))
+                await asyncio.sleep(0.02)
+>       self.assertEqual(coordinator.operations, ["release_finished"])
+E       AssertionError: Lists differ: [] != ['release_finished']
+E       
+E       Second list contains 1 additional elements.
+E       First extra element 0:
+E       'release_finished'
+E       
+E       - []
+E       + ['release_finished']
+
+backend\tests\unit\infrastructure\test_ai_priority_async_boundaries.py:236: AssertionError
+---------------------------- Captured stdout call -----------------------------
+2026-10-31T09:02:21.075113Z [debug    ] Using proactor: IocpProactor   [asyncio]
+2026-10-31T09:02:21.187637Z [debug    ] Close <ProactorEventLoop running=False closed=False debug=True> [asyncio]
+------------------------------ Captured log call ------------------------------
+DEBUG    asyncio:proactor_events.py:633 Using proactor: IocpProactor
+DEBUG    asyncio:base_events.py:677 Close <ProactorEventLoop running=False closed=False debug=True>
+=========================== short test summary info ===========================
+FAILED backend\tests\unit\infrastructure\test_ai_priority_async_boundaries.py::AiPriorityAsyncBoundaryTests::test_verification_metric_write_does_not_block_unrelated_coroutine
+FAILED backend\tests\unit\infrastructure\test_ai_priority_async_boundaries.py::AiPriorityAsyncBoundaryTests::test_unexpected_heartbeat_failure_still_releases_and_propagates
+2 failed in 1.17s

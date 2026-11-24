@@ -1,0 +1,164 @@
+{
+  "source": {
+    "backend/app/application/mobile/passenger_change_propagation.py": {
+      "sha256": "b95718038524772f7f5413ba41fa8a2dc3efb4e8ed455eea6d0f75e5b8df7fef",
+      "physical_lines": 500,
+      "snapshot": ".tmp/passenger-propagation-current/passenger_change_propagation.py",
+      "read_scope": "full"
+    },
+    "backend/tests/unit/application/test_mobile_passenger_change_propagation.py": {
+      "sha256": "c554faf704d0cb06bf389335cdf1e97c02c4441ebb730a03e87d2250d767d10a",
+      "physical_lines": 366,
+      "snapshot": ".tmp/passenger-propagation-current/test_mobile_passenger_change_propagation.py",
+      "read_scope": "full"
+    },
+    "backend/app/application/use_cases/passports/client_details_transaction.py": {
+      "sha256": "374a334d619c7485b82bc2d8d5ff39889c10664965f39c6b84a8ffe662e5eff3",
+      "physical_lines": 197,
+      "snapshot": ".tmp/passenger-propagation-current/client_details_transaction.py",
+      "read_scope": "full"
+    },
+    "backend/tests/unit/presentation/test_group_whatsapp_links.py": {
+      "sha256": "e49ec1bee518a55f6861f03def2650aa851936e5c8a4dda86ba8fec3038e238b",
+      "physical_lines": 897,
+      "snapshot": ".tmp/passenger-propagation-current/test_group_whatsapp_links.py",
+      "read_scope": "focused"
+    },
+    "backend/app/infrastructure/whatsapp/document_delivery_runtime.py": {
+      "sha256": "995e3c43450e9ab3e6a82789c7df4456f0c02eb3f7280efbb49468c74d4a358a",
+      "physical_lines": 812,
+      "snapshot": ".tmp/passenger-propagation-current/document_delivery_runtime.py",
+      "read_scope": "focused"
+    },
+    "backend/app/infrastructure/whatsapp/receipt_runtime.py": {
+      "sha256": "19b356ab48ee3ea6c34d91e14aa5ede416342fb8dc6143782dc53e5c1c6cad8e",
+      "physical_lines": 412,
+      "snapshot": ".tmp/passenger-propagation-current/receipt_runtime.py",
+      "read_scope": "focused"
+    },
+    "backend/app/application/mobile/passenger_identity_reconciliation.py": {
+      "sha256": "542d8dcdb03dd5d32ab5c9051f0a62cb508ef8546a95bf7355271167da760217",
+      "physical_lines": 567,
+      "snapshot": ".tmp/passenger-propagation-current/passenger_identity_reconciliation.py",
+      "read_scope": "focused"
+    },
+    "backend/app/application/mobile/sync_journal.py": {
+      "sha256": "c8a5e7918ebde6d58d79ffb17862c99dc2a016e98f654b49b8e5606db986e34e",
+      "physical_lines": 183,
+      "snapshot": ".tmp/passenger-propagation-current/sync_journal.py",
+      "read_scope": "focused"
+    },
+    "backend/app/application/mobile/notification_service.py": {
+      "sha256": "8d94a4b2d4cf544dd6177b4b6e65c30b0d4f73cfe9f1f6545a9be95c3f373f4c",
+      "physical_lines": 113,
+      "snapshot": ".tmp/passenger-propagation-current/notification_service.py",
+      "read_scope": "focused"
+    },
+    "backend/app/application/mobile/notification_document_changes.py": {
+      "sha256": "a7b19ccbc3fddf277d34618bebf517bc1082b779d5f756444069abdb697bbf0a",
+      "physical_lines": 272,
+      "snapshot": ".tmp/passenger-propagation-current/notification_document_changes.py",
+      "read_scope": "focused"
+    },
+    "backend/app/application/mobile/notification_contracts.py": {
+      "sha256": "76b02078cb47578f24ddf55995866d09eb383216665f79c43714077a9e96119e",
+      "physical_lines": 75,
+      "snapshot": ".tmp/passenger-propagation-current/notification_contracts.py",
+      "read_scope": "focused"
+    },
+    "backend/app/application/mobile/coordinator_roster_revision.py": {
+      "sha256": "18d2ef655f9a3bf7b900e1c0e180e879583b619a7ca49918bd0c3554eb7cd467",
+      "physical_lines": 147,
+      "snapshot": ".tmp/passenger-propagation-current/coordinator_roster_revision.py",
+      "read_scope": "focused"
+    },
+    "backend/app/presentation/api/v1/routes/passport_routes/document_import.py": {
+      "sha256": "ec34e2f4c252e18cc192eb3ba6eff60f177243dfb33214e71dc5c793d10ef52d",
+      "physical_lines": 207,
+      "snapshot": ".tmp/passenger-propagation-current/document_import.py",
+      "read_scope": "focused"
+    },
+    "backend/app/presentation/api/v1/routes/passport_routes/excel_import.py": {
+      "sha256": "0d27ed0e4702e5a8c14cd23c4c12e917d584ecea0e3bdaead6aa182da710af70",
+      "physical_lines": 363,
+      "snapshot": ".tmp/passenger-propagation-current/excel_import.py",
+      "read_scope": "focused"
+    }
+  },
+  "read_ledger": {
+    "path": "docs/audit/dashboard-2026-10-30/passenger-propagation-preflight-reviewed-files.json",
+    "sha256": "13e6db459e82d7df499e711462b48a2e010a65080a4d3c0b03aae9cb126f7496"
+  },
+  "existing_full_current_source_record": "notification-server-preflight-reviewed-files.json; current500/b95718038524772f7f5413ba41fa8a2dc3efb4e8ed455eea6d0f75e5b8df7fef; no new-unreviewed credit",
+  "original_declarations": [
+    {
+      "name": "MobilePassengerChangeEvent",
+      "line": 48,
+      "end": 54,
+      "kind": "ClassDef"
+    },
+    {
+      "name": "MobilePassengerPropagationResult",
+      "line": 58,
+      "end": 62,
+      "kind": "ClassDef"
+    },
+    {
+      "name": "plan_mobile_passenger_change_events",
+      "line": 65,
+      "end": 158,
+      "kind": "FunctionDef"
+    },
+    {
+      "name": "propagate_mobile_passenger_change",
+      "line": 161,
+      "end": 398,
+      "kind": "AsyncFunctionDef"
+    },
+    {
+      "name": "_passenger_change_event_id",
+      "line": 401,
+      "end": 421,
+      "kind": "FunctionDef"
+    },
+    {
+      "name": "reconcile_mobile_passenger_access_for_group",
+      "line": 424,
+      "end": 460,
+      "kind": "AsyncFunctionDef"
+    },
+    {
+      "name": "reconcile_mobile_passenger_access_for_broadcast",
+      "line": 463,
+      "end": 500,
+      "kind": "AsyncFunctionDef"
+    }
+  ],
+  "architecture": [
+    "Keep three public async lifecycle APIs in original main owner, including group\u2192broadcast actual global callback seam. Public orchestration retains initial normalization, memo tuple/set, flush, source-contact sync BEFORE memo check, all memo additions/early returns and caller-owned transaction semantics.",
+    "Contracts owner contains exact two existing frozen slot DATA classes, kind alias,100/8 thresholds and namespace constant; preserve canonical legacy module/generated method metadata/pickle/actual hints. No inspect monkeypatch or source-location compatibility claim.",
+    "Pure event owner contains the entire existing planner and stable SHA256/UUID5 event-ID algorithm. Preserve PII-free payload fields, sorted/dedup role order,100/101 coordinator threshold and source-event hashing byte-for-byte in function ASTs.",
+    "Identity/event preparation owner contains named existing reconciliation/read/plan statements and returns only two typed DATA facts: identity_reconciliation and events. Capture previous manifest version in public caller BEFORE reconciliation, exactly as originally.",
+    "Journal owner contains exact durable-ID filter and separate version/revision/append/notification statements. Public caller retains None-key initial list and keyed replay branch/early return, preserving allocation/query/evaluation and dedup order. No flush batching, memo lifetime changes, cache, callback bag, proxy or mixin."
+  ],
+  "invariants": [
+    "Initial source-contact synchronization occurs even when mobile access is absent and before repeated-call memo hit",
+    "Session memo tuple/set identity, persistence and add points unchanged",
+    "Enabled/nonrevoked GC access row locking and tenant/group/identity status/ownership predicates unchanged",
+    "Targeted identity dispatch threshold8 and coordinator delta threshold100 unchanged",
+    "Whole planner/public reconcile function signatures/defaults/metadata/import aliases and actual injected callback identities unchanged",
+    "Durable event UUID namespace/hash/group/audience/identity/type/entity/op inputs and SQL replay scope unchanged",
+    "Manifest/revision increment only if identity reconciliation did not already increment; same actor/update/flush ordering",
+    "Coordinator authoritative revision lookup once when targeted events exist, same roster_revision fallback0",
+    "Append order, default per-event flush and realtime staging unchanged; document notifications only after append loop before memo add/result",
+    "Bridge never commits; client-detail/document/import/worker callers retain their existing commit/rollback/cleanup policy"
+  ],
+  "baseline_plan": "Existing14 bridge cases plus one complete shared contact add/edit/delete case, after its seed helper is completely read. Actual pinned normal conftest startup, source-fenced focused coverage/contracts only; no live services.",
+  "remaining_hypotheses_not_fixes": [
+    "Per-event flush may merit independent measured performance work, but preserve it in this architecture tranche.",
+    "Memo lifetime across transactions and access re-enablement requires actual ordinary caller evidence before behavior changes; do not infer a bug from session.info alone."
+  ],
+  "prior_normal_and_critical_membership": "None in current quality budget; proposal remains future measured candidates, no shared gate edits.",
+  "root_dependency_note": "Root advised client-details source may include sealed guard-only clarification6d3f156a...; API/transactions unchanged. Exact current caller hash archived above, not overwritten by this lane.",
+  "status": "Five-owner design approved by root; original baseline required before implementation. No runtime/test changes yet."
+}

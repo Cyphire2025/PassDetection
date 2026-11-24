@@ -16,6 +16,8 @@ import re
 from pathlib import Path
 from typing import Any
 
+from mcp_route_handlers import resolve_route_handler
+
 ROOT = Path(__file__).resolve().parents[1]
 MATRIX = Path("docs/implementation/mcp-workflow-coverage.json")
 HTTP_METHODS = {"get", "post", "put", "patch", "delete", "head", "options"}
@@ -53,6 +55,38 @@ def discover_source_routes(root: Path) -> list[dict[str, Any]]:
         tree = ast.parse(source, filename=str(path))
         relative = path.relative_to(root).as_posix()
         registrations = []
+        for position, statement in enumerate(tree.body):
+            if not isinstance(statement, (ast.Assign, ast.AnnAssign, ast.Expr)):
+                continue
+            application = statement.value
+            if not (isinstance(application, ast.Call) and isinstance(application.func, ast.Call)
+                    and isinstance(application.func.func, ast.Attribute)
+                    and application.func.func.attr in HTTP_METHODS | {"websocket", "api_route"}):
+                continue
+            if not (isinstance(statement, ast.Assign) and len(statement.targets) == 1
+                    and isinstance(statement.targets[0], ast.Name) and len(application.args) == 1
+                    and isinstance(application.args[0], ast.Name) and not application.keywords
+                    and application.args[0].id == statement.targets[0].id):
+                raise TypeError(f"Unresolved literal route registration: {relative}")
+            owner, handler = resolve_route_handler(root, path, application.args[0].id, position)
+            route_decorator = application.func
+            assert isinstance(route_decorator.func, ast.Attribute)
+            method = route_decorator.func.attr
+            local_path = literal(route_decorator.args[0]) if route_decorator.args else keyword(route_decorator, "path")
+            if not isinstance(local_path, str):
+                raise TypeError(f"Unresolved route path: {relative}:{handler.name}")
+            methods = keyword(route_decorator, "methods", ["GET"]) if method == "api_route" else [method.upper()]
+            signature = ast.dump(handler.args, include_attributes=False) + ast.dump(route_decorator, include_attributes=False)
+            for verb in methods:
+                rows.append({
+                    "id": f"route:{relative}:{handler.name}:{verb}:{local_path}",
+                    "kind": "source_route", "source": relative, "handler": handler.name,
+                    "method": verb, "local_path": local_path, "contract_sha256": fingerprint(signature),
+                    "summary": keyword(route_decorator, "summary", handler.name.replace("_", " ")),
+                    "schema_visible": keyword(route_decorator, "include_in_schema", True),
+                    "implementation_source": owner.relative_to(root.resolve()).as_posix(),
+                })
+            registrations.append(ast.dump(application, include_attributes=False))
         for node in ast.walk(tree):
             if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == "APIRouter":
                 registrations.append(ast.dump(node, include_attributes=False))

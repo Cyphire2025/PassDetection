@@ -1,0 +1,170 @@
+[
+  {
+    "path": "backend/scripts/seed_admin.py",
+    "sha256": "45b6d5b1317f35b53c7b6e53612937168b4f6772948ac9c0dd2abb6fce7022ff",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full physical source read: validates credentials before settings/database creation, reuses password policy, secret omitted from dataclass repr, transactional create-if-missing and engine disposal; existing user is preserved. Source review only; no new execution or live service result. Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/scripts/export_api_contract.py",
+    "sha256": "b0d5244cf41712ca0f4bdec0296aeaaa488c734d29a5d5df7ddbf0da1616fc8d",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full physical source read: Python3.11 deterministic application contract with explicit no-.env settings and disabled rate-limit Redis setup; reviewed snapshot writes require --write; cwd restored. No contract regeneration performed. Source review only; no new execution or live service result. Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/scripts/export_mobile_openapi_contract.py",
+    "sha256": "c9d9822577f7adeb22b0e3d4128472cde4841859da509e9d18ad41cc7f3cb158",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full physical shared-contract helper read for compatibility only: extracts transitive referenced schema closure from the same canonical backend application; explicit snapshot mode. Native feature audit excluded. Source review only; no new execution or live service result. Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/scripts/historical_migration_rehearsal.py",
+    "sha256": "e77c6a4aa0334f8fb69b7ee183a2c2cd653d58fe0d61cd12f1ba283d6d2fa389",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full physical source read: owned regular revision source checks, disposable temporary ancestor tree, exact selected head and deterministic context cleanup. No migrations executed. Source review only; no new execution or live service result. Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/scripts/provision_database_roles.py",
+    "sha256": "bfde6b32924fb75ca586858347b79ecfba6b9d0c73c3b18bc3139d0941650646",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full physical source read: protected environment credentials, parameterized identifiers/values, exact relation ownership set, transactional role/ACL changes and protected-table write restrictions; driver errors suppressed at CLI boundary. Production provisioning not run; real PostgreSQL behavior not established here. Source review only; no new execution or live service result. Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/scripts/qualify_database_roles.py",
+    "sha256": "13d7c75e49316430ddb9dd905e3436ff462cdb8f6acbe19c197e5f7808db27ea",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full physical source read: isolated CI-name prerequisite, synthetic row/idempotence and forbidden-grant probes, rollback of temporary schema/grants, driver URL and role-membership controls. No PostgreSQL execution. Source review only; no new execution or live service result. Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/mcp_diagnostic_repository.py",
+    "sha256": "27695cb91ac9855a5e8c544de1c98fe9d5c60f45abacf147c996548e7d409a0c",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read: bounded diagnostic repositories and actor/global projection boundaries, evaluated with the actual diagnostics service authorization. Source review only; no new execution or live service result. Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/mcp_document_read_repository.py",
+    "sha256": "2dd4429d8a2c6d59d369374283ac7d6e11f1b9a74f11b7e54d191c84ed6061e9",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read: group/document read scopes, bounded query/projection and private-storage metadata boundaries. Source review only; no new execution or live service result. Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/mcp_group_read_repository.py",
+    "sha256": "490749a0e19c13c0cae16660de319fa159621d69593b5de4a2d22d3de699898d",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read, including an explicit reread of the initially omitted middle: actor agency filtering and group read projections. Source review only; no new execution or live service result. Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/mcp_whatsapp_read_repository.py",
+    "sha256": "fcbcef592cead3785c475a88b9d281ebc064d2a5f5cc182b2a1687fb6482f7bf",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read: scoped WhatsApp batch/recipient history projections and counts, no provider send or credential exposure. Source review only; no new execution or live service result. Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/app/infrastructure/storage/mcp_image_export_storage.py",
+    "sha256": "0958090ae9cc1abdf70a83737ef073474c4b1a712899d4e9d43e60542d64db99",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read: private image-export storage lifecycle and metadata; implementation location verified before ledger publication. Source review only; no new execution or live service result. Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/openapi_contract.py",
+    "sha256": "6b8de7606be206c41b476fb0a241a47f977dce8924316246cc0927403739054d",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read: canonical application response/security contract declarations; no schema or permission changes. Source review only; no new execution or live service result. Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/app/application/mcp/diagnostics.py",
+    "sha256": "90a05b205a05ca55c4bc0d167d80e38b9507ca225dfb106f19f3fdd49533f1d1",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read: apparent global diagnostic access is restricted by actual reloaded active SUPER_ADMIN role before bounded UUID/time/limit processing; no tenant authorization defect adopted. Source review only; no new execution or live service result. Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/app/infrastructure/documents/distribution_capacity.py",
+    "sha256": "5d23dcf8287b750663961f58719a591ec95ac21d5e41bf134d05485f77ebd0c7",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read: distribution capacity arithmetic and admission result shape; hypothetical invalid internal inputs not adopted without a maintained caller. Source review only; no new execution or live service result. Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/app/infrastructure/documents/pdf_parser_memory.py",
+    "sha256": "115814c6352365d937dbaef841c49b90a01ad37c2f5d54f1a859a507a40a42cd",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read: parser-memory bounds and calibrated estimators; hypothetical negative internal parameters not adopted without a reachable caller. Source review only; no new execution or live service result. Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/app/infrastructure/coordinator_assignment_tasks.py",
+    "sha256": "a409fc68c8c2082cf898804694ff21210162914d80e1b620a5abeba61facd654",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical shared task source read: assignment scheduling and task dispatch error/transaction boundary; no native feature audit. Source review only; no new execution or live service result. Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/app/application/mobile/otp_provider.py",
+    "sha256": "9424fe421625e24619adb6c6aacbe0b8119ffe572e95db4480c625f535a9108f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical shared OTP provider compatibility source read: external send/timeout/error shaping and deterministic test adapter. No real send, native ingress edit or feature qualification. Source review only; no new execution or live service result. Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/app/application/mobile/passenger_session_authority.py",
+    "sha256": "b89f8d768290b78f5874a8b992dd18739271e0a79c5bf700ba4b978d2259c889",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical shared session-authority compatibility source read: expiry, epoch/contact revocation and bounded claim checks; native ingress remains excluded. Source review only; no new execution or live service result. Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/mobile_session_security.py",
+    "sha256": "7481d91450b47fe0e6b5b1cfb0bdc81e84a821b95e2c5cbf1eb317e67b4b3b6d",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical shared revocation repository compatibility source read; preserves actor/group/session authority. No native endpoint audit. Source review only; no new execution or live service result. Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/mcp_content_read_repository.py",
+    "sha256": "9e93a94921330987ccdf4a36d68385e014bcdcbf4cc84a388013c0419803334c",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "reviewed",
+    "notes": "Retained GC content/notification/projection slice lines1-117 reviewed. Dedicated email read implementation intentionally deferred; printing the mixed module does not constitute full review. Source review only; no new execution or live service result. Operations Inbox remains deferred."
+  },
+  {
+    "path": "backend/app/application/mcp/content_reads.py",
+    "sha256": "238181db9c2fb2ccfe73662ccbe99508d00c3fc3261d988ab1fc4222bb273f3d",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "reviewed",
+    "notes": "Retained first82 lines reviewed for content kind/version validation and actor/group-scoped reads. Dedicated email method intentionally deferred. Source review only; no new execution or live service result. Operations Inbox remains deferred."
+  }
+]

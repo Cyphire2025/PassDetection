@@ -1,0 +1,30 @@
+{
+  "status": "Read-only current source cohort complete; broader audit active",
+  "new_current_full_tests": 4,
+  "test_physical_lines": 680,
+  "supporting_full_rows": 0,
+  "focused_rows": 5,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-whatsapp-history-source-reviewed-files.json",
+    "sha256": "3d832318b1afcd07382afd81812b397af3ff09d31ab0d92e3b474523235185d3"
+  },
+  "source_fence": {
+    "backend/tests/integration/test_whatsapp_update_history.py": "f3f14d7f1073297870e6f3a031a3b075ecf704d5f258dde958030a2951097362",
+    "backend/tests/integration/test_whatsapp_shared_phone_import.py": "db13687ae6b4babcdf787701edc1918e3a002c2933f3983ccd2c99a0f4323f0f",
+    "backend/tests/integration/test_whatsapp_type_history.py": "b2dd6e0dbc33cf3b7166404fcaee55f69d8532a7b8f48c2ea65feeff5c7923a3",
+    "backend/tests/integration/test_whatsapp_send_intents.py": "401f0e4fbebaac88abd95120df6e93c5e75702d4f6f7f4d0175207e73d6af61a",
+    "backend/app/presentation/api/v1/routes/whatsapp_update_resend.py": "6a4030480233fc5b6865a6b49452eb685f21a8a58012601611b552a6eb73a2b6",
+    "backend/app/presentation/api/v1/routes/whatsapp_send_intents.py": "462de74cb9c8fa305e26ec299815876c7439a72ba4436d4adf96d590178f5e51",
+    "backend/app/presentation/api/v1/routes/whatsapp_contact_sources.py": "0500fab46a72d955359e71e559d85f7b3a05d623ae35ef8abeccc5afb402626a",
+    "backend/app/presentation/api/v1/routes/whatsapp_type_history.py": "b227e5123e1ce8d1b03ec13770df81287fbfbf2ad0ba0ad9ec6d9f451710a74d",
+    "backend/app/presentation/api/v1/routes/whatsapp_history.py": "7bc42e0f850d8ab664483e42f5926127ccb2cca4f15b491a7c65df2ffc826dd8"
+  },
+  "checks_run": [],
+  "changes": [],
+  "findings": [],
+  "limitations": [
+    "No app/test/parser/workbook/DB/broker/provider execution for read-only credit.",
+    "Scoped entry authorization and durable-send fresh actor revalidation documented precisely; no new generalized concurrency/privacy guarantee inferred.",
+    "Existing full supporting-source ledgers preserve frozen implementation qualification; only focused current correspondence physically read here."
+  ]
+}

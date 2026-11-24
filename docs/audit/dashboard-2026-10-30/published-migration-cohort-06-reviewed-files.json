@@ -1,0 +1,166 @@
+{
+  "files": [
+    {
+      "path": "backend/alembic/versions/0086_my_photos_foundation.py",
+      "sha256": "bc72d583e353f25c262b9205296d7bff8679cb32a3d7e3be22c5acb63f149bc0",
+      "physical_lines": 1367,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0086_my_photos_foundation",
+        "down_revision": "0085_platform_retention_controls",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Complete1367line My Photos foundation read across three bounded outputs: ordered gallery/manifest/batch/assets/variants/faces/enrollment/liveness/search/matches/jobs/delivery tables and reverse dependency downgrade. Disabled feature/all-photos defaults, tenant/group/passenger composite FKs, scoped idempotency and unique active references, bounded counts/dimensions/types, consent/provenance, deletion retries and delivery claim/availability shape preserved. No biometric/provider/worker behavior, actual encryption, storage availability or current runtime ownership proof inferred from declarations; AI runtime sources untouched."
+    },
+    {
+      "path": "backend/alembic/versions/0087_enterprise_hardening.py",
+      "sha256": "8a2d9f9b538dc9fcb62e6ecfa93988b6c99364196eaa9301e56fac87cf29644f",
+      "physical_lines": 895,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0087_enterprise_hardening",
+        "down_revision": "0085_platform_retention_controls",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Complete895line shared enterprise sibling read in two bounded outputs: tenant keys, attendance runtime/checkpoint/scan/discard scopes and idempotency, encrypted identity notification outbox, quarantined upload tombstones, append-only chained audit metadata/trigger. Legacy audit rows remain explicitly unchained version0; old identity FKs removed so source deletions cannot mutate retained audit snapshots. Trigger is application mutation guard, not external immutable WORM proof. Downgrade explicitly warns FK restoration can fail for removed principals; multiple runtime checkpoint rows also require supported rollback compatibility evidence. No source rewriting or live DB/trigger exercise."
+    },
+    {
+      "path": "backend/alembic/versions/0088_merge_my_photos_and_enterprise_hardening.py",
+      "sha256": "3843110561f3030809fa7504edf7bff644137cbbd187f8553763381c8ad33de7",
+      "physical_lines": 26,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0088_merge_my_photos_hardening",
+        "down_revision": [
+          "0086_my_photos_foundation",
+          "0087_enterprise_hardening"
+        ],
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Explicit no-op two-parent merge keeps0086and0087 immutable histories and restores one ancestry path. Upgrade/downgrade are docstring-only intentional no-ops, distinct from the broken generation template; no runtime/schema effects."
+    },
+    {
+      "path": "backend/alembic/versions/0089_revoke_legacy_refresh.py",
+      "sha256": "46cf5a19135fc0b00f7db632decea04a935a3bd1a0151b4d7dfaff9b295887ce",
+      "physical_lines": 27,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0089_revoke_legacy_refresh",
+        "down_revision": "0088_merge_my_photos_hardening",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Revokes active refresh rows whose stored value is not exactly64lowercase hex characters and records revocation time; downgrade deliberately never revives credentials. Format matching alone does not prove keyed hashing of every historical64hex row; current runtime validation/no-legacy-fallback evidence remains independent."
+    },
+    {
+      "path": "backend/alembic/versions/0090_upload_configuration.py",
+      "sha256": "8e2b7d3f97d1d66f20f17dbb431598a9286d7161fdaedcf31b2197ab04e494fa",
+      "physical_lines": 26,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0090_upload_configuration",
+        "down_revision": "0089_revoke_legacy_refresh",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds nullable upload configuration JSON and two passport cover keys, preserving old rows and application defaults. New storage references are not proof of object-store validation/cleanup."
+    },
+    {
+      "path": "backend/alembic/versions/0091_qualifier_other_relation.py",
+      "sha256": "bf525cc869407cac465d3f111d5e96c9913088107660bb9affafaf9719f442d1",
+      "physical_lines": 64,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0091_qualifier_other_relation",
+        "down_revision": "0090_upload_configuration",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Widens qualifier labels80\u2192100 and permits explicitly configured other relation, adding trimmed/non-self other-text checks without rewriting existing group config. Downgrade first scans both tables and raises before any DDL on other/long labels, preserving newer passenger answers rather than truncating/reclassifying."
+    },
+    {
+      "path": "backend/alembic/versions/0092_whatsapp_matching_fields.py",
+      "sha256": "c23628979a4eaad46a0950c4bec63291f87b0c3206ce505eb619e992ed992bb2",
+      "physical_lines": 102,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0092_whatsapp_matching_fields",
+        "down_revision": "0091_qualifier_other_relation",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Backfills canonical imported-field keys across valid/rejected contacts with object-shape guards, sorted dedup and provenance/conflicting duplicate suffix exclusion; nullable per-link matching fields preserves legacy default behavior. Actual Postgres query performance/populated execution not measured."
+    },
+    {
+      "path": "backend/alembic/versions/0093_phone_welcome.py",
+      "sha256": "814fdca216186873bc7ee6c5363025d70d51d1448f1e720296d06b0b671b921c",
+      "physical_lines": 136,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0093_phone_welcome",
+        "down_revision": "0092_whatsapp_matching_fields",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds phone-scoped unique welcome state/independent attempts and immutable normalized legacy destination only when current state batch, agency, recipient and message type all match. Backfill favors strongest known outcome including delivery_unknown and never joins arbitrary old logs to present phone. Current send/receipt concurrency and retention remain runtime evidence."
+    },
+    {
+      "path": "backend/alembic/versions/0094_whatsapp_receipt_inbox.py",
+      "sha256": "c2abcc0b341baf92d2f27c9ce824b85b5ea6ecaf01d83b4f9d04144aad4bb5a1",
+      "physical_lines": 107,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0094_whatsapp_receipt_inbox",
+        "down_revision": "0093_phone_welcome",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Retained WhatsApp receipt domain, distinct from deferred Operations Inbox. Adds immutable phone-provider/message and source-attempt binding uniqueness plus dedup receipts/state/attempt/due/retention indexes; no misleading phone-based legacy backfill. Receipt also adds shared nativeOTP provider-reference lookup index only as minimal cross-domain receipt dependency; no new nativeOTP feature audit/provider sends."
+    }
+  ],
+  "manual_full_migrations": 9,
+  "manual_full_migration_lines": 2750,
+  "all142published_files_unchanged": true,
+  "no_tests_or_DB_service_execution_for_read_only_cohort": true,
+  "no_duplicate_prior_full_credit": true,
+  "notes": "All0086\u20130094 source lines physically read, no generated metadata credited full. No AI-owned runtime edits, dependency or schema changes."
+}

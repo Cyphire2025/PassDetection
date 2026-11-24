@@ -1,36 +1,15 @@
 "use client";
 
+import { useId, useRef } from "react";
 import { Button, Input } from "@/components/ui";
+import { useModalKeyboardBoundary } from "@/components/ui/modal";
 import { isSupportedIanaTimeZone } from "../utils/trip-timezone";
 import { getUploadLinkSettings, getUploadLinkSettingsError, UploadLinkSettings } from "./upload-link-settings";
-import type { UploadConfiguration } from "../types/upload-configuration";
-import type { CustomUploadDetail, CustomUploadQuestion } from "../api/upload-links.api";
 import { TripTimeZoneField } from "./trip-timezone-field";
+import type { TripDetailsForm } from "../types/passport-trip-details";
+export type { TripDetailsForm } from "../types/passport-trip-details";
 
-export interface TripDetailsForm {
-  import_only?: boolean;
-  name: string;
-  destination: string;
-  travel_date: string;
-  return_date: string;
-  timezone: string;
-  departure_cities: string[];
-  base_city_enabled: boolean;
-  nearest_international_airport_enabled: boolean;
-  staff_code_enabled: boolean;
-  agent_employee_code_enabled: boolean;
-  meal_preference_enabled: boolean;
-  require_selfie: boolean;
-  allow_files_from_device: boolean;
-  ask_nearest_domestic_airport: boolean;
-  relation_with_qualifier_enabled: boolean;
-  designation_enabled: boolean;
-  agency_dealership_name_enabled: boolean;
-  notes: string;
-  upload_configuration?: UploadConfiguration;
-  custom_questions?: CustomUploadQuestion[];
-  custom_details?: CustomUploadDetail[];
-}
+
 
 export function TripDetailsDialog({
   form,
@@ -38,13 +17,18 @@ export function TripDetailsDialog({
   onChange,
   onClose,
   onSave,
+  saveError,
 }: {
   form: TripDetailsForm;
   isLoading: boolean;
   onChange: (form: TripDetailsForm) => void;
   onClose: () => void;
   onSave: () => void;
+  saveError?: string;
 }) {
+  const titleId = useId();
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const handleKeyDown = useModalKeyboardBoundary({ dialogRef, isOpen: true, canClose: !isLoading, onClose });
   const settings = getUploadLinkSettings(form);
   const settingsError = form.import_only ? undefined : getUploadLinkSettingsError(settings);
   const timezoneError = isSupportedIanaTimeZone(form.timezone)
@@ -55,10 +39,10 @@ export function TripDetailsDialog({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 px-4">
+    <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby={titleId} onKeyDown={handleKeyDown} className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 px-4">
       <div className="w-full max-w-2xl overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
         <div className="border-b border-slate-100 px-6 py-5">
-          <h2 className="text-lg font-semibold text-slate-900">Edit Trip Details</h2>
+          <h2 id={titleId} className="text-lg font-semibold text-slate-900">Edit Trip Details</h2>
           <p className="mt-1 text-sm text-slate-500">These details appear in group views, search, filters, and exports.</p>
         </div>
         <div className="grid max-h-[70vh] gap-4 overflow-y-auto p-6 sm:grid-cols-2">
@@ -88,6 +72,7 @@ export function TripDetailsDialog({
             <UploadLinkSettings value={settings} onChange={(patch) => onChange({ ...form, ...patch })} disabled={isLoading} error={settingsError} />
           </div>}
         </div>
+        {saveError && <p role="alert" className="px-6 pb-4 text-sm text-red-700">{saveError}</p>}
         <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4">
           <Button type="button" variant="ghost" onClick={onClose} disabled={isLoading}>
             Cancel

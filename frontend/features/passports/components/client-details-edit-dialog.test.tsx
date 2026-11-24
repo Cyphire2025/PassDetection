@@ -6,6 +6,10 @@ import { clientDetailsApi, type ClientDetailsEditorResponse } from "../api/clien
 import type { PassportSubmission } from "@/types/passport.types";
 import { ClientDetailsEditDialog } from "./client-details-edit-dialog";
 import { ClientProvidedFieldsCard } from "./client-provided-fields-card";
+import { useAuthStore } from "@/stores/auth.store";
+import type { User } from "@/types";
+
+const ownerConfig = { expectedOwnerUserId: "staff", expectedAuthorityKey: '["staff","agency_admin","agency"]' };
 
 vi.mock("../api/client-details.api", () => ({ clientDetailsApi: { get: vi.fn(), update: vi.fn() } }));
 
@@ -21,6 +25,7 @@ const descriptor = (): ClientDetailsEditorResponse => ({
 });
 
 beforeEach(() => {
+  useAuthStore.setState({ user: { id: "staff", role: "agency_admin", agency_id: "agency" } as User });
   vi.clearAllMocks();
   vi.mocked(clientDetailsApi.get).mockResolvedValue(descriptor());
   vi.mocked(clientDetailsApi.update).mockResolvedValue({ id: "submission-1", group_id: "group-1", status: "staff_approved" } as PassportSubmission);
@@ -46,7 +51,7 @@ describe("staff client-details correction", () => {
     await userEvent.type(code, "12345");
     await userEvent.click(screen.getByRole("button", { name: "Save corrections" }));
     await waitFor(() => expect(onClose).toHaveBeenCalledOnce());
-    expect(clientDetailsApi.update).toHaveBeenCalledExactlyOnceWith("submission-1", { expected_updated_at: descriptor().updated_at, agent_employee_code: "12345" });
+    expect(clientDetailsApi.update).toHaveBeenCalledExactlyOnceWith("submission-1", { expected_updated_at: descriptor().updated_at, agent_employee_code: "12345" }, ownerConfig);
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ["whatsapp"] });
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ["upload-links", "group-1"] });
   });
@@ -62,7 +67,7 @@ describe("staff client-details correction", () => {
       expected_updated_at: descriptor().updated_at,
       custom_answers: [{ question_id: "question-1", value: "Bus" }],
       custom_detail_answers: [{ detail_id: "detail-1", value: "" }],
-    });
+    }, ownerConfig);
   });
 
   it("allows correcting retained retired answers without changing their labels or identifiers", async () => {
@@ -79,7 +84,7 @@ describe("staff client-details correction", () => {
     expect(clientDetailsApi.update).toHaveBeenCalledWith("submission-1", {
       expected_updated_at: data.updated_at,
       custom_answers: [{ question_id: "question-1", value: "Corrected old route" }],
-    });
+    }, ownerConfig);
   });
 
   it("cancels without saving and does not automatically remove code prefixes", async () => {
@@ -113,7 +118,7 @@ describe("staff client-details correction", () => {
     await userEvent.type(screen.getByRole("textbox", { name: "Producer Code" }), "54321");
     await userEvent.click(screen.getByRole("button", { name: "Save corrections" }));
     await waitFor(() => expect(clientDetailsApi.update).toHaveBeenCalledTimes(2));
-    expect(clientDetailsApi.update).toHaveBeenLastCalledWith("submission-1", { expected_updated_at: latest.updated_at, agent_employee_code: "54321" });
+    expect(clientDetailsApi.update).toHaveBeenLastCalledWith("submission-1", { expected_updated_at: latest.updated_at, agent_employee_code: "54321" }, ownerConfig);
   });
 
   it("blocks blank required corrections even when submission bypasses native validation", async () => {
@@ -133,7 +138,7 @@ describe("staff client-details correction", () => {
     await userEvent.type(screen.getByRole("textbox", { name: "Producer Code" }), "12345");
     await userEvent.click(screen.getByRole("button", { name: "Save corrections" }));
     await waitFor(() => expect(clientDetailsApi.update).toHaveBeenCalledOnce());
-    expect(clientDetailsApi.update).toHaveBeenCalledWith("submission-1", { expected_updated_at: data.updated_at, agent_employee_code: "12345" });
+    expect(clientDetailsApi.update).toHaveBeenCalledWith("submission-1", { expected_updated_at: data.updated_at, agent_employee_code: "12345" }, ownerConfig);
   });
 
   it("does not duplicate a pending save or permit closing during it", async () => {
@@ -171,7 +176,7 @@ describe("staff client-details correction", () => {
     await waitFor(() => expect(clientDetailsApi.update).toHaveBeenCalledOnce());
     expect(clientDetailsApi.update).toHaveBeenCalledWith("submission-1", {
       expected_updated_at: descriptor().updated_at, agent_employee_code: "12345",
-    });
+    }, ownerConfig);
   });
 
   it("retains the draft after a failed request without retrying the mutation automatically", async () => {

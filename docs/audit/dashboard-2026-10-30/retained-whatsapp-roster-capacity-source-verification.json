@@ -1,0 +1,66 @@
+{
+  "status": "Read-only current source cohort complete; broader audit active",
+  "new_current_full_tests": 3,
+  "test_physical_lines": 1488,
+  "supporting_full_rows": 2,
+  "focused_rows": 2,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-whatsapp-roster-capacity-source-reviewed-files.json",
+    "sha256": "59ffb88d6ea447b8896fd6e522c9a88ee2b737620d0b3664ee98c09c668c34de"
+  },
+  "source_fence": {
+    "backend/tests/integration/test_group_update_parallel_dispatch.py": "fbd786446d7f801ee098f1989a0b71c32c44e97ab15802359d271f999807854a",
+    "backend/tests/unit/presentation/test_whatsapp_recipient_roster.py": "bf161456df9a1c62739b6e12ce8719f5d15b1fa532f8a5fe4c78440fd35ac9c6",
+    "backend/tests/unit/presentation/test_whatsapp_recipient_capacity.py": "d219e684df5548dcfe9b8e8819ba6b76226b41f46869bef60ad30e3149d53507",
+    "backend/app/infrastructure/whatsapp/document_update_runtime.py": "1151e4106599f23168c08a8db1a9c8e1243aeb522ad0dd007261505be03bb45e",
+    "backend/app/infrastructure/whatsapp/document_update_provider_wave.py": "8181e6f410164c5696f01d97a69e4d7f80d675a5e8cb5b7de529465feb721339",
+    "backend/app/infrastructure/repositories/whatsapp_recipient_capacity_repository.py": "3e9aee556add29992934ee661066b78943ac007f693fadfdb2601a2f219e2bb8",
+    "backend/app/presentation/api/v1/routes/whatsapp_recipient_roster.py": "1fd7b7511c5d6305853399c62b16537213d3bb90c4e0684a36b3a2b613f14218"
+  },
+  "previous_current_full_support": [
+    {
+      "path": "backend/app/application/use_cases/whatsapp/recipient_capacity.py",
+      "sha256": "c78934bed1c992e220fc49c5666c54e07aff26193a9a3d5d526e19528e3b71d9",
+      "ledgers": [
+        "whatsapp-activity-followthrough-reviewed-files.json",
+        "whatsapp-backend-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/whatsapp_recipient_capacity_repository.py",
+      "sha256": "3e9aee556add29992934ee661066b78943ac007f693fadfdb2601a2f219e2bb8",
+      "ledgers": [
+        "matching-repository-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_recipient_roster.py",
+      "sha256": "1fd7b7511c5d6305853399c62b16537213d3bb90c4e0684a36b3a2b613f14218",
+      "ledgers": [
+        "whatsapp-exports-preflight-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/document_update_runtime.py",
+      "sha256": "1151e4106599f23168c08a8db1a9c8e1243aeb522ad0dd007261505be03bb45e",
+      "ledgers": [
+        "whatsapp-backend-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/document_update_provider_wave.py",
+      "sha256": "8181e6f410164c5696f01d97a69e4d7f80d675a5e8cb5b7de529465feb721339",
+      "ledgers": [
+        "whatsapp-backend-reviewed-files.json"
+      ]
+    }
+  ],
+  "checks_run": [],
+  "changes": [],
+  "findings": [],
+  "limitations": [
+    "No app/test/database/provider/network/credential/scanner execution for source-read credit.",
+    "Previously full implementation owners and imported fixtures are not automatically new physical-read credit; focused slices remain focused.",
+    "No new architecture/security/performance claim based on source length or existing test names."
+  ]
+}

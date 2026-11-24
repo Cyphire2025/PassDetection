@@ -1,0 +1,129 @@
+{
+  "status": "passed",
+  "exact_whole_runtime_declarations": [
+    {
+      "name": "AbortIncompleteUploadDialog",
+      "path": "frontend/features/documents/components/abort-incomplete-upload-dialog.tsx",
+      "emitted_AST_exact": true
+    },
+    {
+      "name": "RemoveAssignmentsDialog",
+      "path": "frontend/features/documents/components/remove-document-assignments-dialog.tsx",
+      "emitted_AST_exact": true
+    },
+    {
+      "name": "documentPhoneSourceLabel",
+      "path": "frontend/features/documents/components/document-delivery-recipient-table.tsx",
+      "emitted_AST_exact": true
+    },
+    {
+      "name": "DeliveryPreviewStatus",
+      "path": "frontend/features/documents/components/document-delivery-recipient-table.tsx",
+      "emitted_AST_exact": true
+    },
+    {
+      "name": "DeliverySummary",
+      "path": "frontend/features/documents/components/document-delivery-preview-summary.tsx",
+      "emitted_AST_exact": true
+    }
+  ],
+  "whole_delivery_controller_after_four_actual_JSX_expansions_exact": true,
+  "moved_regions": [
+    {
+      "name": "DocumentDeliveryPreviewSummary",
+      "path": "frontend/features/documents/components/document-delivery-preview-summary.tsx",
+      "entire_region_emitted_AST_exact": true,
+      "actual_prop_identity_bindings": [
+        "preview",
+        "assignedDocumentCount",
+        "refreshing",
+        "deliveryIssues"
+      ]
+    },
+    {
+      "name": "DocumentDeliveryMessageFields",
+      "path": "frontend/features/documents/components/document-delivery-message-fields.tsx",
+      "entire_region_emitted_AST_exact": true,
+      "actual_prop_identity_bindings": [
+        "preview",
+        "sending",
+        "messageContent1",
+        "messageContent2",
+        "onMessageContent1Change",
+        "onMessageContent2Change",
+        "sampleMessage"
+      ]
+    },
+    {
+      "name": "DocumentDeliveryRecipientTable",
+      "path": "frontend/features/documents/components/document-delivery-recipient-table.tsx",
+      "entire_region_emitted_AST_exact": true,
+      "actual_prop_identity_bindings": [
+        "assignedRecipients",
+        "selectedDocumentIdSet",
+        "resendDocumentIdSet",
+        "recipientSelectionBusy",
+        "onToggleDocument",
+        "onToggleResend"
+      ]
+    },
+    {
+      "name": "DocumentDeliveryPreviewFooter",
+      "path": "frontend/features/documents/components/document-delivery-preview-footer.tsx",
+      "entire_region_emitted_AST_exact": true,
+      "actual_prop_identity_bindings": [
+        "preview",
+        "sending",
+        "sendError",
+        "loadError",
+        "selectedDocumentIds",
+        "loading",
+        "refreshing",
+        "onClose",
+        "onSend",
+        "onRefresh",
+        "messageContentValid"
+      ]
+    }
+  ],
+  "original_delivery_props_members_exact": true,
+  "supporting_type_aliases_exact": [
+    "AbortIncompleteUploadDialogProps",
+    "RemoveAssignmentsDialogProps",
+    "DeliverySummaryProps"
+  ],
+  "actual_child_import_wiring_exact": true,
+  "actual_facade_exports": {
+    "AbortIncompleteUploadDialog": "./abort-incomplete-upload-dialog",
+    "RemoveAssignmentsDialog": "./remove-document-assignments-dialog",
+    "DocumentDeliveryPreviewDialog": "./document-delivery-preview-dialog"
+  },
+  "loader_retargets": [
+    {
+      "path": "frontend/features/documents/components/document-whatsapp-delivery.contract.test.mjs",
+      "all_original_assertions_and_test_bodies_exact": true
+    },
+    {
+      "path": "frontend/features/documents/components/document-bulk-upload.contract.test.mjs",
+      "all_original_assertions_and_test_bodies_exact": true
+    }
+  ],
+  "files": {
+    "frontend/features/documents/components/abort-incomplete-upload-dialog.tsx": "05d9e99b834388f42422e0f6c05cc6627e7d665e597321393d7b0150a47b7cb0",
+    "frontend/features/documents/components/remove-document-assignments-dialog.tsx": "bed392931d4a3d01e9fa1bd64c7dd31ce780fa94bf6b76e5ce53f83762ede27d",
+    "frontend/features/documents/components/document-delivery-recipient-table.tsx": "48bacd0b72b6041cd68cabdebb5c01d00e4bee62bec18735aedb5dbd15629138",
+    "frontend/features/documents/components/document-delivery-preview-summary.tsx": "18f00876992e48330a37f2e736ef7dc0ffaf35246664b7959c24f1b67e1fbc88",
+    "frontend/features/documents/components/document-delivery-preview-dialog.tsx": "11f4c6496787d3a327a0dd78c0d11d03548b1be4e308fc4edb1fe1bd1c62d23e",
+    "frontend/features/documents/components/document-delivery-message-fields.tsx": "5a2866341935451dbcc00e90d8eb866c6d7b5b96def492f09746122ad9e5e51d",
+    "frontend/features/documents/components/document-delivery-preview-footer.tsx": "b8d2710538182ec0786f6440769ee253bac99dfc9a47e4ec3b9e98a88f6ced81",
+    "frontend/features/documents/components/document-delivery-preview-props.ts": "c16ea10f707b9809afff7f37ee5861ddfdfea0c6647d202539d4074edf67e96a",
+    "frontend/features/documents/components/document-workspace-dialogs.tsx": "95b3fd3e4d3f61e281a074a3bb8bb890baeef42e5fe08180e4d117965a808c05",
+    "frontend/features/documents/components/document-whatsapp-delivery.contract.test.mjs": "3e43a91edbd549f86b16a9859219dff55fb74f21d7c62d8153b68efdc9a8497e",
+    "frontend/features/documents/components/document-bulk-upload.contract.test.mjs": "c4d995a84ea5edf8dc1ba2d9c4bfbad40578f3041cdafd6a204c4db3f8cfd234"
+  },
+  "limits": [
+    "Only architecture/composition moved. No new UI behavior or performance improvement claimed.",
+    "JSX movement compares actual emitted JavaScript AST, normalizing only parentheses. Every forwarded value is the same-named original variable.",
+    "The original outer DOM, hook order, focus boundary, status/receipt/message guards, pending actions and overflow-wrap utility remain exact after expansion."
+  ]
+}

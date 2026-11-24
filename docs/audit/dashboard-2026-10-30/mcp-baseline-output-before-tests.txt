@@ -1,0 +1,21 @@
+F...F.
+======================================================================
+FAIL: test_discarded_stderr_still_counts_toward_the_total_byte_bound (test_mcp_baseline_output.BaselineOutputTests.test_discarded_stderr_still_counts_toward_the_total_byte_bound)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_mcp_baseline_output.py", line 31, in test_discarded_stderr_still_counts_toward_the_total_byte_bound
+    with self.assertRaisesRegex(BaselineError, "exceeded its output bound"):
+AssertionError: BaselineError not raised
+
+======================================================================
+FAIL: test_stdout_limit_interrupts_before_the_whole_producer_finishes (test_mcp_baseline_output.BaselineOutputTests.test_stdout_limit_interrupts_before_the_whole_producer_finishes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_mcp_baseline_output.py", line 26, in test_stdout_limit_interrupts_before_the_whole_producer_finishes
+    self.assertFalse(marker.exists())
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.600s
+
+FAILED (failures=2)

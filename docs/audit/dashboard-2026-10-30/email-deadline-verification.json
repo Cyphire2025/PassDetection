@@ -1,0 +1,192 @@
+{
+  "sealed_at": "2026-10-31T11:51:50.900372+00:00",
+  "status": "six runtime owners and three focused test files frozen; focused qualification complete",
+  "original_sha256": "65100ec395e5b9db8d2492c1045a390ff2a398075268c24ba1a1ace5e6d0a935",
+  "original_lines": 674,
+  "runtime_owner_lines": {
+    "backend/app/infrastructure/email/deadline_notification_policy.py": 163,
+    "backend/app/infrastructure/email/deadline_notification_coverage.py": 89,
+    "backend/app/infrastructure/email/deadline_notification_emit.py": 216,
+    "backend/app/infrastructure/email/deadline_notification_initial.py": 144,
+    "backend/app/infrastructure/email/deadline_notification_visibility.py": 55,
+    "backend/app/infrastructure/email/deadline_notifications.py": 201
+  },
+  "focused_cases_passed": 43,
+  "original_tests_unchanged_cases": 7,
+  "new_focused_cases": 33,
+  "existing_routing_and_actual_persistence_cases": 3,
+  "mypy_runtime_files": 6,
+  "ruff_owned_runtime_and_test_files": 9,
+  "all6current_actual_owners_line_branch_percent": 100,
+  "fresh_run_no_coverage_merge": true,
+  "exact_original_declarations": 24,
+  "only_narrow_index_changes_functions": 2,
+  "direct_legacy_aliases": 26,
+  "actual_original_global_identity_bindings": 81,
+  "callable_pickle_contracts": 10,
+  "scanner_sql_and_transaction_order_equal": true,
+  "source_fence_before_after_paths": 18,
+  "work_reduction": {
+    "emit200": {
+      "before": {
+        "rule_row_visits": 160000,
+        "index_row_visits": 0,
+        "index_builds": 0
+      },
+      "after": {
+        "rule_row_visits": 200,
+        "index_row_visits": 800,
+        "index_builds": 1
+      },
+      "same_notifications_events_order_operations": true,
+      "rows": 200,
+      "existing_markers": 800,
+      "created": 25
+    },
+    "initial8": {
+      "before": {
+        "rule_row_visits": 512,
+        "index_row_visits": 0,
+        "index_builds": 0
+      },
+      "after": {
+        "rule_row_visits": 16,
+        "index_row_visits": 32,
+        "index_builds": 1
+      },
+      "same_notifications_events_order_operations": true,
+      "rows": 8,
+      "existing_markers": 32,
+      "created": 16
+    }
+  },
+  "proposed_normal_budget_rows": 6,
+  "proposed_line_floor_each": 95,
+  "new_critical_rows": 0,
+  "manual_review": {
+    "current_full_files": 17,
+    "current_full_physical_lines": 3001,
+    "partial_context_separate": true
+  },
+  "historical_limits": "First two dotted-module coverage attempts failed before collection at native bcrypt reinitialization; failure logs retained. Dotted coverage source probes import email package before normal conftest fixture settings. Directory-source instrumentation succeeded with normal startup and no product/native/error suppression. Exact6owner reports re-reported same untouched fresh43case data with app-relative XML paths; original raw reports retained, six owner JSON structures exactly equal. Initial standalone snapshot omitted model_registry then corrected fixture setup before baseline; no runtime behavior changed to pass tooling.",
+  "scope_limits": [
+    "No whole frontend/backend suite, production build/browser/scanner, new adversarial campaign or real-service/provider/data/credential activity.",
+    "No shared gate/config/release manifest/dependency/migration/strict Git baseline change, deployment or push.",
+    "Private stage dataclass inspect.getsource limitation explicitly recorded; original module/qualname/type hints/pickle and source owner manifests preserved. No inspection monkeypatch.",
+    "Remaining broader audit, separate email task/readiness architecture and final combined qualification not claimed complete."
+  ],
+  "artifacts": [
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-deadline-reviewed-files.json",
+      "sha256": "568ad77ef98024857128178c2b3356108e1aafc1c86212722bb82106917392ec"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-deadline-source-manifest.json",
+      "sha256": "49c01e423dad67470482876ff2d7ec5a89ec07ec748d4702106184c3cff80758"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-deadline-findings-and-follow-ups.json",
+      "sha256": "07d3eb13c7843026dfd7b48472590a520830871f7230488e20d6ae60632ec3aa"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-deadline-original-sources.json",
+      "sha256": "e739495952b12b05494f4eeabcfc7ce2ebdcf088166f5e005f27afc6941e9109"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-deadline-before-runtime-and-work.json",
+      "sha256": "4aa911a218e0b3e0d07f0f302fa2a7155f402638427c278df54fa183434e067c"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-deadline-mechanical-owner-map.json",
+      "sha256": "7fde6ab5c50e33d5edc327ae24e46e7c297a39e60d446d4774c6c3a9973a12ad"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-deadline-mechanical-extraction-proof.json",
+      "sha256": "138788791dfa0ddaa96b5b0a428c2d926b79c3449511b28ffb9b0daf199038b0"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-deadline-after-mechanical-runtime-and-work.json",
+      "sha256": "4aa911a218e0b3e0d07f0f302fa2a7155f402638427c278df54fa183434e067c"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-deadline-after-index-runtime-and-work.json",
+      "sha256": "a75b76281cfdc1a709627910f145334e0343167a2cafd7873070910fa132b73d"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-deadline-after-final-runtime-and-work.json",
+      "sha256": "a75b76281cfdc1a709627910f145334e0343167a2cafd7873070910fa132b73d"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-deadline-extraction-proof.json",
+      "sha256": "d3fd1bf80ab19b7b821667a72735acad336c8c2594c7cd82775f9e73bfa88c67"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-deadline-final-checks.json",
+      "sha256": "6bb3bfda8b2877509177d2079ec9614ab6c3ec59f2e704fab559e62ef1a839a8"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-deadline-final-source-fence.json",
+      "sha256": "7c2b869c14dc85d871ed9fec6c6e9663403cc0912db68cb9a2ed8bccf860b2b8"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-deadline-final-lint.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-deadline-final-types.log",
+      "sha256": "ab35ee42183d4d6d3ba483825ab037d18a5a15622d03be01d82220b1564851ff"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-deadline-final-tests.log",
+      "sha256": "e4d05bcbbfeb51b50196fc9c4a0969003fb7544b5c9e30dc85c637ffb199c213"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-deadline-final-coverage.json",
+      "sha256": "89f2f6763127f81aad6076b508cb35f99ec2a721d1131a21dc00895f7191690c"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-deadline-final-coverage.xml",
+      "sha256": "053237487ec35d1729867a2d1beae791c1102356d8a096614f8e16e99a5e09dd"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-deadline-owner-coverage.json",
+      "sha256": "1a7732252bc7418c6b48b7e8e89985391b7ddd53606499d0ec0de730d3d9768e"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-deadline-owner-coverage.xml",
+      "sha256": "3d441323bf67f96eafd3a78d7e2e17bf8b3da0b40c30d996ceade5470017ea87"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-deadline-budget-candidates.json",
+      "sha256": "dcd970a06d4810e26ef39b4d10a34140c261a71e11422c409a8190c5752a6b7d"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-deadline-baseline-tests.log",
+      "sha256": "2c3d3765df68934714fbdd66236a59f1c43f2134863b48f975b0338c72edc01a"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-deadline-added-tests.log",
+      "sha256": "a34518a5c9357b161b9c698b6f54ce339837b1d77d7277307c612f6cb6f3dc24"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-deadline-initial-types.log",
+      "sha256": "90377c8fd97127580c93ac5740d596c9ebc9db94dafa6560ee11fe16b4460c62"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-deadline-initial-tests.log",
+      "sha256": "9763a931ed70ff80a1eb2a042a3401e95ee5d529e26e7e314130445217d7b667"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-deadline-diagnostic-tests.log",
+      "sha256": "9763a931ed70ff80a1eb2a042a3401e95ee5d529e26e7e314130445217d7b667"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-deadline-path-diagnostic-tests.log",
+      "sha256": "ce303d73d72791eed16ee0580d1bad3dd0ed13099a7cf044b954fa0154610da5"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-deadline-path-diagnostic-coverage.json",
+      "sha256": "810ede16072eba6baf8aa1b89c75af74a16a3555d25ca612fcafe6820ddce48a"
+    }
+  ]
+}

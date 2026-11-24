@@ -1,0 +1,44 @@
+{
+  "source_checkpoint": "Camera/passport/GC fix tranche frozen; shared stream owner supplement complete",
+  "source_manifest": "camera-gc-current-source-checkpoint.json",
+  "physical_review": "Original111 pending runtime source files fully read, plus supporting/new modules;134 full records in remaining-passport ledger. Improvement work remains open.",
+  "verification": {
+    "focused_units": {
+      "files": 20,
+      "passed": 137,
+      "checkpoint": "Before direct streamed-body follow-up; other sources unchanged"
+    },
+    "stream_body_supplement": {
+      "files": 2,
+      "passed": 25,
+      "new_tests": 3
+    },
+    "node_contracts_passed": 70,
+    "browser_passed": 8,
+    "scoped_lint": "64 runtime/test paths passed; follow-up utility lint passed",
+    "typecheck": "passed",
+    "ratchets": "245 passed before parent additive candidate merge",
+    "limitations": [
+      "Isolated synthetic HTTP responses and browser fixtures; no live provider send or production data.",
+      "Physical source review does not establish real-device model accuracy.",
+      "Further large-source decomposition, mixed dead exports and remaining named UI findings remain open."
+    ]
+  },
+  "negative_proofs": [
+    "Original2 Visa source-close/drain cases failed before fix; now pass.",
+    "Four delayed source/normalization camera close/restart cases failed before lease fix; later encoding/decode/inference and approval gates also tested.",
+    "Multipart/poll/export operation owner tests failed before initial-actor binding; now pass.",
+    "GC popup real-modal search focus2failed before scoped portal; now pass.",
+    "GC private PDF preview URL allocated after unmount before lifetime guard; now rejected.",
+    "GC profile/fanout3actor tests failed before initial-actor binding.",
+    "Actual GC mutation paused in global onMutate dispatched old intent underB before envelope; now blocked before API.",
+    "Actual setSession(B) with storage-denied owner lookup resolved2privatebytes before direct body subscription; now aborts before commit."
+  ],
+  "historical_receipt": "passport-upload-narrow-camera-historical-verification.json",
+  "remaining_open": [
+    "SmartCamera and validation/geometry/API/GC large-owner decomposition",
+    "Proven mixed legacy exports cleanup with current safety tests retained",
+    "Nested navigation button/link semantics and lifecycle error/clipboard timer cleanup",
+    "Private mutation adoption for other feature families requires their own caller/revision review. No whole-codebase completion claim."
+  ]
+}

@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "review_date": "2026-11-01",
+  "method": "Manual source and official primary advisory review; exact existing date-only validator invoked locally. No vulnerability scanner.",
+  "policy_path": "tooling/image-advisory-dispositions.json",
+  "policy_sha256": "3313bce5637faa28f6c688c58b4465890cbea20c634056e36f6f1bffbdeb71b8",
+  "source_validator_sha256": "f8258d01f5319b59284d887d780fcbd01a4c8d5fb07a1fe87cf345aa6abf676b",
+  "entries": 15,
+  "expired_count": 13,
+  "expired": [
+    "CVE-2025-69720",
+    "CVE-2026-19499",
+    "CVE-2026-52490",
+    "CVE-2026-5435",
+    "CVE-2026-54369",
+    "CVE-2026-54370",
+    "CVE-2026-76642",
+    "CVE-2026-78408",
+    "CVE-2026-78409",
+    "CVE-2026-78410",
+    "CVE-2026-82560",
+    "CVE-2026-85091",
+    "CVE-2026-9538"
+  ],
+  "validator_result": {
+    "accepted": false,
+    "error_type": "ValueError",
+    "error": "Image advisory review expired or is future dated"
+  },
+  "advisories": [
+    {
+      "advisory": "CVE-2025-69720",
+      "reviewed_on": "2026-09-26",
+      "expires_on": "2026-10-26",
+      "disposition": "affected_component_absent",
+      "primary_source": "https://security-tracker.debian.org/tracker/CVE-2025-69720"
+    },
+    {
+      "advisory": "CVE-2026-19499",
+      "reviewed_on": "2026-09-26",
+      "expires_on": "2026-10-26",
+      "disposition": "affected_code_not_used",
+      "primary_source": "https://security-tracker.debian.org/tracker/CVE-2026-19499"
+    },
+    {
+      "advisory": "CVE-2026-52490",
+      "reviewed_on": "2026-09-26",
+      "expires_on": "2026-10-26",
+      "disposition": "affected_component_absent",
+      "primary_source": "https://security-tracker.debian.org/tracker/CVE-2026-52490"
+    },
+    {
+      "advisory": "CVE-2026-5435",
+      "reviewed_on": "2026-09-26",
+      "expires_on": "2026-10-26",
+      "disposition": "affected_code_not_used",
+      "primary_source": "https://security-tracker.debian.org/tracker/CVE-2026-5435"
+    },
+    {
+      "advisory": "CVE-2026-54369",
+      "reviewed_on": "2026-09-26",
+      "expires_on": "2026-10-26",
+      "disposition": "mitigated_not_patched",
+      "primary_source": "https://security-tracker.debian.org/tracker/CVE-2026-54369"
+    },
+    {
+      "advisory": "CVE-2026-54370",
+      "reviewed_on": "2026-09-26",
+      "expires_on": "2026-10-26",
+      "disposition": "affected_component_absent",
+      "primary_source": "https://security-tracker.debian.org/tracker/CVE-2026-54370"
+    },
+    {
+      "advisory": "CVE-2026-76642",
+      "reviewed_on": "2026-09-26",
+      "expires_on": "2026-10-26",
+      "disposition": "mitigated_not_patched",
+      "primary_source": "https://security-tracker.debian.org/tracker/CVE-2026-76642"
+    },
+    {
+      "advisory": "CVE-2026-78408",
+      "reviewed_on": "2026-09-26",
+      "expires_on": "2026-10-26",
+      "disposition": "mitigated_not_patched",
+      "primary_source": "https://security-tracker.debian.org/tracker/CVE-2026-78408"
+    },
+    {
+      "advisory": "CVE-2026-78409",
+      "reviewed_on": "2026-09-26",
+      "expires_on": "2026-10-26",
+      "disposition": "mitigated_not_patched",
+      "primary_source": "https://security-tracker.debian.org/tracker/CVE-2026-78409"
+    },
+    {
+      "advisory": "CVE-2026-78410",
+      "reviewed_on": "2026-09-26",
+      "expires_on": "2026-10-26",
+      "disposition": "mitigated_not_patched",
+      "primary_source": "https://security-tracker.debian.org/tracker/CVE-2026-78410"
+    },
+    {
+      "advisory": "CVE-2026-82560",
+      "reviewed_on": "2026-09-26",
+      "expires_on": "2026-10-26",
+      "disposition": "affected_component_absent",
+      "primary_source": "https://security-tracker.debian.org/tracker/CVE-2026-82560"
+    },
+    {
+      "advisory": "CVE-2026-85091",
+      "reviewed_on": "2026-09-26",
+      "expires_on": "2026-10-26",
+      "disposition": "incorrect_affected_range",
+      "primary_source": "https://security-tracker.debian.org/tracker/CVE-2026-85091"
+    },
+    {
+      "advisory": "CVE-2026-9538",
+      "reviewed_on": "2026-09-26",
+      "expires_on": "2026-10-26",
+      "disposition": "affected_component_absent",
+      "primary_source": "https://security-tracker.debian.org/tracker/CVE-2026-9538"
+    },
+    {
+      "advisory": "CVE-2026-95619",
+      "reviewed_on": "2026-10-06",
+      "expires_on": "2026-11-05",
+      "disposition": "incorrect_affected_range",
+      "primary_source": "https://security-tracker.debian.org/tracker/CVE-2026-95619"
+    },
+    {
+      "advisory": "CVE-2026-102010",
+      "reviewed_on": "2026-10-06",
+      "expires_on": "2026-11-05",
+      "disposition": "affected_component_absent",
+      "primary_source": "https://security-tracker.debian.org/tracker/CVE-2026-102010"
+    }
+  ],
+  "runtime_qualification": {
+    "docker_executable_present": true,
+    "local_daemon_available": false,
+    "daemon_started": false,
+    "image_inspected": false,
+    "native_probes_executed": false,
+    "deployment_preconditions_executed": false,
+    "dates_renewed": false
+  },
+  "conclusion": "Release advisory acceptance currently fails closed. Official distro advisory records remain affected for multiple installed-version families; source conditions describe component absence, non-use or specific mitigations and do not establish patching. Renewal requires the existing exact-image native/runtime/deployment evidence. No current image-wide safety claim or new live exploit finding.",
+  "manual_source_limits": [
+    "GCC/PBDS header absence does not prove absence of all inlined templates in third-party binaries.",
+    "zlib exact vulnerable-code absence and libstdc++ configured allocation branch require immutable-image/source probes, not a version string alone.",
+    "Current official pages do not substitute for installed image inspection."
+  ]
+}

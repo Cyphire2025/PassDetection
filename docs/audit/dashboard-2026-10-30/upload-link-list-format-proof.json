@@ -1,0 +1,70 @@
+{
+  "records": [
+    {
+      "path": "frontend/features/passports/components/upload-link-list.tsx",
+      "before_sha256": "71fb506d74d2816e5b52c06ff4a7b78230edb5589257d811dd57778bb144261d",
+      "current_sha256": "71fb506d74d2816e5b52c06ff4a7b78230edb5589257d811dd57778bb144261d",
+      "emitted_AST_unchanged": true
+    },
+    {
+      "path": "frontend/features/passports/components/use-upload-link-list.ts",
+      "before_sha256": "67470701329adda09e6035841aef516e0ad90a5928336e55276baad52b24f08b",
+      "current_sha256": "67470701329adda09e6035841aef516e0ad90a5928336e55276baad52b24f08b",
+      "emitted_AST_unchanged": true
+    },
+    {
+      "path": "frontend/features/passports/components/use-upload-link-copy.ts",
+      "before_sha256": "c57d0baf1ef73e9a0221a8f30a962eae803ed6559f668f12b3a6966bfd98737c",
+      "current_sha256": "c57d0baf1ef73e9a0221a8f30a962eae803ed6559f668f12b3a6966bfd98737c",
+      "emitted_AST_unchanged": true
+    },
+    {
+      "path": "frontend/features/passports/components/upload-link-list-header.tsx",
+      "before_sha256": "b08a259f34d009de94b7b92f13c4ecd79520b11a6db554052f73b55594c0686e",
+      "current_sha256": "b08a259f34d009de94b7b92f13c4ecd79520b11a6db554052f73b55594c0686e",
+      "emitted_AST_unchanged": true
+    },
+    {
+      "path": "frontend/features/passports/components/upload-link-list-summary.tsx",
+      "before_sha256": "3ad583c9e59b1c6105c2f97c20359236f874d37a615a5445bb6782fbd59064fe",
+      "current_sha256": "3ad583c9e59b1c6105c2f97c20359236f874d37a615a5445bb6782fbd59064fe",
+      "emitted_AST_unchanged": true
+    },
+    {
+      "path": "frontend/features/passports/components/upload-link-list-sections.tsx",
+      "before_sha256": "84e875cdc6855987ec7cf01fba484ad1f9b372646a1662afc424dfc71967998d",
+      "current_sha256": "84e875cdc6855987ec7cf01fba484ad1f9b372646a1662afc424dfc71967998d",
+      "emitted_AST_unchanged": true
+    },
+    {
+      "path": "frontend/features/passports/components/upload-link-list-dialogs.tsx",
+      "before_sha256": "a0307aad0b987457264a27d61046b9a05b7296fbade49840e5e9b470239a54fe",
+      "current_sha256": "a0307aad0b987457264a27d61046b9a05b7296fbade49840e5e9b470239a54fe",
+      "emitted_AST_unchanged": true
+    },
+    {
+      "path": "frontend/features/passports/components/upload-link-table.tsx",
+      "before_sha256": "5d8091dfcc6b66ab1ed232ad61a888c258a6e038d679504ece09dfe7b9e6ddfa",
+      "current_sha256": "5d8091dfcc6b66ab1ed232ad61a888c258a6e038d679504ece09dfe7b9e6ddfa",
+      "emitted_AST_unchanged": true
+    },
+    {
+      "path": "frontend/features/passports/components/upload-link-actions.tsx",
+      "before_sha256": "e3324c21932dfaa4ce95030921967889b73c6cca9bbd34addb64548e2352b01f",
+      "current_sha256": "e3324c21932dfaa4ce95030921967889b73c6cca9bbd34addb64548e2352b01f",
+      "emitted_AST_unchanged": true
+    },
+    {
+      "path": "frontend/features/passports/components/group-delete-retention-dialog.tsx",
+      "before_sha256": "073e771fdad43933a7c3af50a3dd47df2b5430fd7f44d186326df9e5d3b7a288",
+      "current_sha256": "073e771fdad43933a7c3af50a3dd47df2b5430fd7f44d186326df9e5d3b7a288",
+      "emitted_AST_unchanged": true
+    },
+    {
+      "path": "frontend/features/passports/components/upload-link-filter.ts",
+      "before_sha256": "88ac34d3ca172c2c169af4f18926819ef61dd65e76246ca54f9b3985f72b7648",
+      "current_sha256": "88ac34d3ca172c2c169af4f18926819ef61dd65e76246ca54f9b3985f72b7648",
+      "emitted_AST_unchanged": true
+    }
+  ]
+}

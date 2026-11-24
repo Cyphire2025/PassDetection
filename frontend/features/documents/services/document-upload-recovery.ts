@@ -89,7 +89,7 @@ export function readDocumentUploadRecovery(
       verification: verificationWithoutStagingReceipts(parsed.verification),
     };
   } catch {
-    window.sessionStorage.removeItem(key);
+    clearDocumentUploadRecovery(groupId, documentType, purpose);
     return null;
   }
 }

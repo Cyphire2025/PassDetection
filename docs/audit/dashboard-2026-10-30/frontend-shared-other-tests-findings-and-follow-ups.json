@@ -1,0 +1,91 @@
+[
+  {
+    "id": "FST-01",
+    "classification": "concrete_source_contract_integration_candidate",
+    "status": "corrected_by_branding_owner_with_focused13case_receipt",
+    "path": "frontend/features/dashboard/components/dashboard-ui-transformation.contract.test.mjs",
+    "sha256": "948e47dec344c198ee85ac5aae7e58257d0f1447bc885167b7bd0ace834a9692",
+    "lines": [
+      31,
+      33,
+      193,
+      205
+    ],
+    "evidence": "documentRename reads only document-rename-page.tsx, but the caption/scoped-th assertion loop includes that string. The current89-line page was displayed completely as immediate caller context: WorkspacePageHeader remains, while tables are delegated to SavedRenameBatches and RenameResults. Page contains neither <caption className=\"sr-only\"> nor <th scope=\"col\".",
+    "impact": "The unchanged lexical table assertions are expected to fail after the authorized rename decomposition even though rendered table owners retain their semantics.",
+    "proposed_follow_up": "Branding owner may retarget the single source loader to its existing import/JSX/controller-wiring-checked rename source aggregator, retaining every assertion. Parent coordinates frozen source amendment and focused affected Node contract check.",
+    "limits": "No application check or source edit by this read-only lane. Branding independently reproduced actual unchanged caption assertion failure, corrected only source loader, preserved every test-body byte, physically read full new source and recorded13/13affected passing cases in rename-table-contract-verification.json. Current source-bound full provenance is linked in source-rebinding artifact."
+  },
+  {
+    "id": "FST-02",
+    "classification": "verification_gap",
+    "status": "open_follow_up_not_reproduced_runtime_defect",
+    "path": "frontend/e2e/ai-voice-preview.spec.ts",
+    "sha256": "93b6b99a812e7dde7792c8f71cb9ca7bfb3fa8512cf764cecafa01403b517a2f",
+    "lines": [
+      113,
+      122
+    ],
+    "evidence": "Reduced-motion case is named without voice deformation but asserts only heading presence and microphone start/Escape-stop. It does not assert deformation state or stable reduced-motion rendering.",
+    "proposed_follow_up": "During the relevant UI behavior batch, bind a focused reduced-motion control to actual renderer/motion state. Do not treat this single case as evidence that voice deformation is disabled."
+  },
+  {
+    "id": "FST-03",
+    "classification": "verification_gap",
+    "status": "open_follow_up_not_reproduced_runtime_defect",
+    "path": "frontend/e2e/passport-governance.spec.ts",
+    "sha256": "f2ea947659127fa47ddc5cbc55af274d0e2e8768ddf71dbbd684632ddfc8af04",
+    "lines": [
+      720,
+      750
+    ],
+    "evidence": "Cross-tenant UI case returns403, then asserts Foreign Passenger absent without ever supplying that record or populating a prior stale-cache control. It establishes the error presentation and one denied request, not independent stale foreign-data cleanup or backend tenant authorization.",
+    "proposed_follow_up": "Keep actual API tenant authorization and prior-owner/stale-cache controls separately required; this test's proof scope must remain the rendered denied-response path."
+  },
+  {
+    "id": "FST-04",
+    "classification": "test_artifact_collision_candidate",
+    "status": "open_maintenance_follow_up",
+    "path": "frontend/e2e/whatsapp-workspace.spec.ts",
+    "sha256": "cbe3a72143666bf30403de1a0b17b69af014f1a856a5e8a5407a273ec0f1d0c4",
+    "lines": [
+      20,
+      103,
+      32,
+      115,
+      57,
+      140
+    ],
+    "evidence": "The first two distinct composer tests each write the same01-broadcasts.png,02-message-library.png and03-compose-update.png paths under a fixed shared output directory. A later test can overwrite an earlier screenshot even in serial execution. Type-report/tracker cases also use fixed output paths.",
+    "proposed_follow_up": "Use testInfo.outputPath and meaningful distinct step filenames during a focused test-artifact cleanup; preserve assertions and distinct text-update/document-status cases. No change made here."
+  },
+  {
+    "id": "FST-05",
+    "classification": "test_architecture_follow_up",
+    "status": "open_not_closed_by_source_read",
+    "paths": [
+      {
+        "path": "frontend/e2e/whatsapp-workspace.spec.ts",
+        "sha256": "cbe3a72143666bf30403de1a0b17b69af014f1a856a5e8a5407a273ec0f1d0c4",
+        "physical_lines": 431
+      },
+      {
+        "path": "frontend/e2e/mcp-administration.spec.ts",
+        "sha256": "14abebd05ce80c7223dee886e7a082e919ecd61950212c90dc06aa47a15cc0fb",
+        "physical_lines": 529
+      },
+      {
+        "path": "frontend/e2e/support/whatsapp-workspace-fixture.ts",
+        "sha256": "7a5545c290b4eab35482b88ace812283bbca1493b02cb1b47a9ad4dba8bc08dd",
+        "physical_lines": 596
+      },
+      {
+        "path": "frontend/e2e/passport-governance.spec.ts",
+        "sha256": "f2ea947659127fa47ddc5cbc55af274d0e2e8768ddf71dbbd684632ddfc8af04",
+        "physical_lines": 750
+      }
+    ],
+    "evidence": "Workspace431 and administration529 combine several journeys with setup; shared WhatsApp fixture596 combines catalog/group/history/document/preview/mutation owners; governance750 combines roles/export/archive/deletion/review/duplicates/retention/tenant presentation. Full reading does not complete their architecture work.",
+    "proposed_follow_up": "Assess coherent scenario/fixture owners after runtime integration batches, preserve all cases/assertions/intercepted-send guarantees, and avoid arbitrary size-only wrappers. Other long cohesive tests are not declared defective solely by line count."
+  }
+]

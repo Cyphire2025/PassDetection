@@ -1,0 +1,58 @@
+{
+  "original_sha256": "7e2798de81ff286f7b63f29daef17d1bd1416fd7b696db3c5b01ccd54f09f4ad",
+  "owners": [
+    "backend/app/infrastructure/email/account_removal_plan.py",
+    "backend/app/infrastructure/email/account_removal_records.py",
+    "backend/app/infrastructure/email/account_removal_storage.py",
+    "backend/app/infrastructure/email/account_removal.py"
+  ],
+  "source_statement_ranges": {
+    "collection": [
+      70,
+      174
+    ],
+    "ordered_deletion": [
+      176,
+      303
+    ],
+    "unreferenced_keys": [
+      305,
+      327
+    ]
+  },
+  "plan_fields": {
+    "connection_id": "uuid.UUID",
+    "agency_id": "uuid.UUID",
+    "owner_user_id": "uuid.UUID",
+    "message_ids": "tuple[uuid.UUID, ...]",
+    "artifact_ids": "tuple[uuid.UUID, ...]",
+    "artifact_storage_keys": "tuple[str, ...]",
+    "review_ids": "tuple[uuid.UUID, ...]",
+    "analysis_ids": "tuple[uuid.UUID, ...]",
+    "removable_document_ids": "tuple[uuid.UUID, ...]",
+    "document_storage_keys": "tuple[str, ...]",
+    "batch_ids": "tuple[uuid.UUID, ...]"
+  },
+  "count_fields": [
+    "notification_count",
+    "activity_count",
+    "audit_log_count"
+  ],
+  "deletion_plan_locals": [
+    "connection_id",
+    "agency_id",
+    "owner_user_id",
+    "message_ids",
+    "artifact_ids",
+    "review_ids",
+    "analysis_ids",
+    "removable_document_ids",
+    "batch_ids"
+  ],
+  "public_result_class_stays_in_original_module": true,
+  "original_body_statement_counts": {
+    "collection": 14,
+    "deletion": 15,
+    "storage": 3
+  }
+}

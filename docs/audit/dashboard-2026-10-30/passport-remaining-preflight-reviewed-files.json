@@ -1,0 +1,18 @@
+[
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions.py",
+    "sha256": "034a76209c61e05c1c5919329946f6d869a930a93bb5a5c45513e74904dea716",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "needs-follow-up",
+    "notes": "Complete638-line source read. Two long destructive/approval controllers remain a structural follow-up. Active approval actor locks User role/agency/active state but not UserSecurityState; possible completed credential-state crossover is a candidate only, pending ordinary persisted reproduction. No bug or exploit claimed."
+  },
+  {
+    "path": "backend/app/application/use_cases/passports/submit_passport_use_case.py",
+    "sha256": "d3087a2787013d1b3793aa4a702cc1811e4dd67e83397f68bffeea933328b8f3",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "needs-follow-up",
+    "notes": "Complete451-line source read. Validation/qualifier, concurrent object writes, persistence and replay remain mixed. Cancellation during gather/to_thread may bypass cleanup and leave a late unreferenced draft; actual native lifetime/provider ownership trace and negative control pending. No bug or leak claimed from source pattern alone."
+  }
+]

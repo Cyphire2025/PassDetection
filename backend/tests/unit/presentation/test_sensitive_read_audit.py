@@ -16,6 +16,7 @@ from app.infrastructure.repositories.passport_submission_repository import (
 )
 from app.presentation.api.v1.routes import search
 from app.presentation.api.v1.routes.passport_routes import covers, image_support, submission_review
+from tests.route_dependencies import set_route_dependency
 from tests.unit.application.test_retained_data_authorization import (
     retained_records as retained_records,
 )
@@ -24,7 +25,7 @@ from tests.unit.application.test_retained_data_authorization import (
 async def test_actual_authorized_handlers_record_private_minimal_access(db_session, retained_records, monkeypatch):
     user, records = retained_records
     _, _, _, passport = next(row for row in records if row[:2] == ("owned", "active"))
-    monkeypatch.setattr(submission_review, "_response_from_dto", AsyncMock(return_value="detail"))
+    set_route_dependency(monkeypatch, submission_review, "_response_from_dto", AsyncMock(return_value="detail"))
     monkeypatch.setattr(covers, "MinioStorageRepository", Mock())
     monkeypatch.setattr(covers, "private_object_streaming_response", AsyncMock(return_value="stream"))
     assert await submission_review.get_passport(passport.id, BackgroundTasks(), current_user=user,

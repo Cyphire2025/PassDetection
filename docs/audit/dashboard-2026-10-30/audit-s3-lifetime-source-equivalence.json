@@ -1,0 +1,28 @@
+{
+  "original": {
+    "sha256": "9fc6b424dd4e2c8acb94faeac678549493839e9c8aa112e8e85062ea260e5f65",
+    "lines": 130
+  },
+  "current": {
+    "path": "backend/app/infrastructure/audit/s3_checkpoint_sink.py",
+    "sha256": "175bc660c4003c095ba2a5c5079de79e8a93be5cf20e16b13f6d13a8747d5dcf"
+  },
+  "whole_unchanged_methods_ast_exact": [
+    "__init__",
+    "_conditional_create",
+    "validate_destination",
+    "publish",
+    "checkpoints"
+  ],
+  "all_method_signature_defaults_runtime_hints_exact": [
+    "__init__",
+    "_conditional_create",
+    "validate_destination",
+    "publish",
+    "_read",
+    "checkpoints"
+  ],
+  "read_post_body_signature_retention_identity_tail_ast_exact": true,
+  "intentional_behavior_change": "Only native response/body acquisition-read-close ownership: retain and drain under cancellation; close late acquired body once; original cancellation wins over late worker/cleanup errors. No mechanical-equivalence claim for this lifetime block.",
+  "same_executor_context_semantics": "Local run_in_executor Future with copy_context and default executor replaces to_thread only for owned body acquisition/read/close; SDK operation arguments, read4097 bound, default transport timeouts and all other operations unchanged."
+}

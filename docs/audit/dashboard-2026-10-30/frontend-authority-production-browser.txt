@@ -1,0 +1,53 @@
+[WebServer] (node:32504) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18984) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 9 tests using 1 worker
+
+(node:5140) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [production-flows] › e2e\authentication.spec.ts:93:5 › credential login restores a cookie session and logout clears browser-owned state (3.5s)
+  ok 2 [production-flows] › e2e\authentication.spec.ts:155:5 › a rejected refresh expires the local session and explains the redirect (685ms)
+  ok 3 [production-flows] › e2e\authentication.spec.ts:161:5 › a lower-privilege direct-link journey is denied and returned to its safe workspace (755ms)
+  ok 4 [production-flows] › e2e\fresh-travellers.spec.ts:70:38 › fresh private draft resumes and submits at 320px (5.4s)
+  ok 5 [production-flows] › e2e\fresh-travellers.spec.ts:70:38 › fresh private draft resumes and submits at 1440px (3.8s)
+  ok 6 [production-flows] › e2e\fresh-travellers.spec.ts:89:5 › family members keep independent private drafts and head-first submissions (5.2s)
+  ok 7 [production-flows] › e2e\fresh-travellers.spec.ts:100:5 › an interrupted final response resumes the submitted receipt without a duplicate (5.0s)
+(node:13220) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  8 [production-nonce] › ..\.tmp\frontend-dependency-remediation\production-nonce.spec.mjs:3:1 › production rewrites preserve the isolated backend response (78ms)
+(node:32896) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 9 [production-nonce] › ..\.tmp\frontend-dependency-remediation\production-nonce.spec.mjs:18:1 › production rendering applies a fresh CSP nonce to framework scripts (1.1s)
+
+
+  1) [production-nonce] › ..\.tmp\frontend-dependency-remediation\production-nonce.spec.mjs:3:1 › production rewrites preserve the isolated backend response 
+
+    Error: expect(received).toContain(expected) // indexOf
+
+    Expected substring: "application/json"
+    Received string:    "text/html; charset=utf-8"
+
+       9 |     const response = await request.get(path);
+      10 |     expect(response.status()).toBe(404);
+    > 11 |     expect(response.headers()["content-type"]).toContain("application/json");
+         |                                                ^
+      12 |     expect(await response.json()).toEqual({ error: "not_found" });
+      13 |     expect(response.headers()["x-synthetic-upstream"]).toBe("dependency-remediation");
+      14 |     expect(response.headers()["cache-control"]).toContain("no-store");
+        at C:\Users\nipun\Desktop\PassDetection\.tmp\frontend-dependency-remediation\production-nonce.spec.mjs:11:48
+
+    Error Context: ..\.tmp\frontend-dependency-remediation\browser-results-authority\production-nonce-productio-9dcf8-e-isolated-backend-response-production-nonce\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\.tmp\frontend-dependency-remediation\browser-results-authority\production-nonce-productio-9dcf8-e-isolated-backend-response-production-nonce\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\.tmp\frontend-dependency-remediation\browser-results-authority\production-nonce-productio-9dcf8-e-isolated-backend-response-production-nonce\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [production-nonce] › ..\.tmp\frontend-dependency-remediation\production-nonce.spec.mjs:3:1 › production rewrites preserve the isolated backend response 
+  8 passed (43.3s)

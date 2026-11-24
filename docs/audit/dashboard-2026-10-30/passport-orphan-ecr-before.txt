@@ -1,0 +1,36 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+_____ test_all_committed_durable_owners_survive_old_object_reconciliation _____
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x00000205A084A110>
+test_settings = Settings(app_env='development', app_debug=True, app_version='1.0.0', app_revision='unknown', expected_database_schema_...me='qrcode_v1', whatsapp_otp_template_name='', whatsapp_otp_template_language='en_US', whatsapp_delivery_concurrency=4)
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000205A0F5FFD0>
+
+    @pytest.mark.asyncio
+    async def test_all_committed_durable_owners_survive_old_object_reconciliation(
+        db_session,
+        test_settings,
+        monkeypatch,
+    ):
+        referenced = await retained_image_keys(db_session, test_settings)
+        assert len(referenced) == 26
+        pages = {
+            prefix: sorted((key, OLD) for key in referenced if key.startswith(prefix))
+            for prefix in IMAGE_PREFIXES
+        }
+        for prefix in IMAGE_PREFIXES:
+            pages[prefix].append((prefix + "crashed-before-publication.jpg", OLD))
+        storage = FakeStorage(pages)
+        result = await reconcile(storage, monkeypatch, db_session)
+        deleted = {key for batch in storage.deleted for key in batch}
+>       assert deleted == {prefix + "crashed-before-publication.jpg" for prefix in IMAGE_PREFIXES}
+E       AssertionError: assert {'passport-ai...lication.jpg'} == {'passport-ai...lication.jpg'}
+E         
+E         Extra items in the left set:
+E         'passport-crops/retained-ecr-source.jpg'
+E         Use -v to get more diff
+
+tests\integration\test_passport_orphan_reconciliation.py:66: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/integration/test_passport_orphan_reconciliation.py::test_all_committed_durable_owners_survive_old_object_reconciliation
+1 failed in 0.98s

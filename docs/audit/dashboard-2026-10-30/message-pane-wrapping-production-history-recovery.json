@@ -1,0 +1,45 @@
+{
+  "origin": "http://127.0.0.1:3186",
+  "evidence": "Current route-owned workspace; every API response synthetic; no provider calls",
+  "cases": [
+    {
+      "name": "desktop-current-selection-history",
+      "viewport": "desktop",
+      "passed": true,
+      "dimensions": {
+        "width": 1440,
+        "pageWidth": 1440,
+        "clientWidth": 1187,
+        "scrollWidth": 1187
+      },
+      "savedRecipientIsolation": true,
+      "currentSelectionIsolation": true,
+      "pendingLock": true,
+      "exactSourceResends": 6
+    },
+    {
+      "name": "mobile-current-selection-history",
+      "viewport": "mobile",
+      "passed": true,
+      "dimensions": {
+        "width": 390,
+        "pageWidth": 390,
+        "clientWidth": 385,
+        "scrollWidth": 385
+      },
+      "savedRecipientIsolation": true,
+      "currentSelectionIsolation": true,
+      "pendingLock": true,
+      "exactSourceResends": 6
+    },
+    {
+      "name": "uncertain-current-send-recovery",
+      "passed": true,
+      "exactPayloadRetry": true,
+      "retainedMedia": true,
+      "freshPreviewUnavailable": true
+    }
+  ],
+  "browser": "151.0.7922.34",
+  "passed": true
+}

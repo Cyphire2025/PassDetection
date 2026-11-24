@@ -1,0 +1,532 @@
+[
+  {
+    "path": "frontend/features/passports/api/passport-export-download.ts",
+    "sha256": "dc8e342a9833ff763747d0db73f70a63b9a608b66d2e3b25609dcd86a10faf02",
+    "physical_lines": 63,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Owns completePreparedGroupExport, confirmStartedGroupExport, requireExportHistoryId, passportImageDownloadFilename. Existing public facade/signatures preserved. All43 methods and7 helper bodies unchanged; initiating actor fences, optimistic revisions, streamed completion acknowledgement and ordered chunk progress remain. Existing operation/search9 tests and58 affected contracts passed."
+  },
+  {
+    "path": "frontend/features/passports/api/passport-exports.types.ts",
+    "sha256": "0883441d66fa411e0b27a1067914dcaa54a04e1dda657f38d5596bb694611f77",
+    "physical_lines": 130,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Existing public facade/signatures preserved. All43 methods and7 helper bodies unchanged; initiating actor fences, optimistic revisions, streamed completion acknowledgement and ordered chunk progress remain. Existing operation/search9 tests and58 affected contracts passed. All field declarations originate in fully read original source; only ownership/type imports changed, TypeScript check passed."
+  },
+  {
+    "path": "frontend/features/passports/api/passport-group-exports.api.ts",
+    "sha256": "b76293292523d942c23a505bba7d14db0bd793bd774067a53517428976ad09fe",
+    "physical_lines": 142,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Owns getGroupExportHistory, getGroupExportHistoryDetail, completeGroupExportHistory, exportGroup, exportWhatsAppTracking, getGroupExportFields, exportGroupImages. Existing public facade/signatures preserved. All43 methods and7 helper bodies unchanged; initiating actor fences, optimistic revisions, streamed completion acknowledgement and ordered chunk progress remain. Existing operation/search9 tests and58 affected contracts passed."
+  },
+  {
+    "path": "frontend/features/passports/api/passport-images.api.ts",
+    "sha256": "1a340b447dcbdfb4b2e7b3a25570c6e8beb0173cbd6a97e454608b32646d9c3d",
+    "physical_lines": 117,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Owns getImageCrop, getOriginalImage, getEditableImage, listImageLibrary, uploadImageLibraryImage, useImageLibraryImage, saveImageCrop, resetImageCrop. Existing public facade/signatures preserved. All43 methods and7 helper bodies unchanged; initiating actor fences, optimistic revisions, streamed completion acknowledgement and ordered chunk progress remain. Existing operation/search9 tests and58 affected contracts passed."
+  },
+  {
+    "path": "frontend/features/passports/api/passport-images.types.ts",
+    "sha256": "ea0b9e21602afe2f78040488af5c8d23226f172e45e8ab80d9f09681bac57ad1",
+    "physical_lines": 90,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Existing public facade/signatures preserved. All43 methods and7 helper bodies unchanged; initiating actor fences, optimistic revisions, streamed completion acknowledgement and ordered chunk progress remain. Existing operation/search9 tests and58 affected contracts passed. All field declarations originate in fully read original source; only ownership/type imports changed, TypeScript check passed."
+  },
+  {
+    "path": "frontend/features/passports/api/passport-imports.api.ts",
+    "sha256": "829562dd0ad993c745e326c95607b67b54f2b84be8708b8b0ddc04d026b1cfb6",
+    "physical_lines": 127,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Owns importGroup, previewPassportDocuments, savePassportDocuments, savePassportDocumentsInChunks, chunkFilesForUpload, savePassportDocumentChunk. Existing public facade/signatures preserved. All43 methods and7 helper bodies unchanged; initiating actor fences, optimistic revisions, streamed completion acknowledgement and ordered chunk progress remain. Existing operation/search9 tests and58 affected contracts passed."
+  },
+  {
+    "path": "frontend/features/passports/api/passport-imports.types.ts",
+    "sha256": "7b972ef280a38fb4adecfdc65af6ee4de3dac6360dded2443893ad618eb9236a",
+    "physical_lines": 42,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Existing public facade/signatures preserved. All43 methods and7 helper bodies unchanged; initiating actor fences, optimistic revisions, streamed completion acknowledgement and ordered chunk progress remain. Existing operation/search9 tests and58 affected contracts passed. All field declarations originate in fully read original source; only ownership/type imports changed, TypeScript check passed."
+  },
+  {
+    "path": "frontend/features/passports/api/passport-records.api.ts",
+    "sha256": "976bd9d42cd455d2bdb97fe245f481a6f42a46918bddd66b89dfd47dffb03262",
+    "physical_lines": 161,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Owns listGroups, list, listByGroup, getById, confirm, getGroupSubmissionsView, staffApprove, retryAiVerification, reextract, bulkDocumentFollowUp, bulkDelete, bulkStaffApprove, wait. Existing public facade/signatures preserved. All43 methods and7 helper bodies unchanged; initiating actor fences, optimistic revisions, streamed completion acknowledgement and ordered chunk progress remain. Existing operation/search9 tests and58 affected contracts passed."
+  },
+  {
+    "path": "frontend/features/passports/api/passport-records.types.ts",
+    "sha256": "dc612b6a00f3489c8579db9a715eee7f75e628617664fab334fc3762f16bd544",
+    "physical_lines": 106,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Existing public facade/signatures preserved. All43 methods and7 helper bodies unchanged; initiating actor fences, optimistic revisions, streamed completion acknowledgement and ordered chunk progress remain. Existing operation/search9 tests and58 affected contracts passed. All field declarations originate in fully read original source; only ownership/type imports changed, TypeScript check passed."
+  },
+  {
+    "path": "frontend/features/passports/api/passport-selection-exports.api.ts",
+    "sha256": "f5dbfe3c2ca02b1a1e460f40d257fefb5fb8f8b812c0eecfc8176076cfe5f52a",
+    "physical_lines": 61,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Owns exportSelectedPassports, exportSelectedGroupImages, getSelectedGroupsExportFields, exportSelectedGroups. Existing public facade/signatures preserved. All43 methods and7 helper bodies unchanged; initiating actor fences, optimistic revisions, streamed completion acknowledgement and ordered chunk progress remain. Existing operation/search9 tests and58 affected contracts passed."
+  },
+  {
+    "path": "frontend/features/passports/api/passport-visa-ai.api.ts",
+    "sha256": "4aabe5f89d6f57310645d2f400631b5964a6e2035fdd6975bdda85020616e9c2",
+    "physical_lines": 126,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Owns generateVisaAiPreview, applyVisaAiEdit, listVisaAiLibrary, generateVisaAiLibraryImage, createVisaAiGenerationJob, getActiveVisaAiGenerationJob, getVisaAiGenerationJob, useVisaAiLibraryImage. Existing public facade/signatures preserved. All43 methods and7 helper bodies unchanged; initiating actor fences, optimistic revisions, streamed completion acknowledgement and ordered chunk progress remain. Existing operation/search9 tests and58 affected contracts passed."
+  },
+  {
+    "path": "frontend/features/passports/api/passports.api.ts",
+    "sha256": "4823f01ed23ccf13ae7a788e0870a85a93dfba32274de0ead2c68cfec7c82429",
+    "physical_lines": 74,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Existing public facade/signatures preserved. All43 methods and7 helper bodies unchanged; initiating actor fences, optimistic revisions, streamed completion acknowledgement and ordered chunk progress remain. Existing operation/search9 tests and58 affected contracts passed."
+  },
+  {
+    "path": "frontend/features/upload/components/visa-selfie-quality.ts",
+    "sha256": "2e7b1a8dbf1c9eb6d0acb38a98f78be6cee201d6a7223bc38bafc38cbe76e95e",
+    "physical_lines": 22,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Existing strict/live/final pixel limits, face count/placement, model-unavailable acknowledged fallback and exact Blob-size cap preserved;46 original algorithm cases plus camera resource/gating tests passed."
+  },
+  {
+    "path": "frontend/features/upload/services/camera-pixel-math.ts",
+    "sha256": "d9524868cf9153e96ed241a14f57567606c8770b60658645dda6cc5a56314867",
+    "physical_lines": 23,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Owns toGrayscale, roundMetric. Passport image processing remains local with distinct live/final/perspective margins and thresholds. Public normalizer browser tests cover aligned/skewed synthetic page correction and conservative fallback. No OCR/external-provider invocation."
+  },
+  {
+    "path": "frontend/features/upload/services/passport-correction-content.ts",
+    "sha256": "8fc02ac828109e85435903cdd511ef00e0f49cf778e07e69b61426bbf9a58862",
+    "physical_lines": 120,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Owns isSafeCorrectedPage, isGenericCorrectionContentSafe, genericRegionQuality. Passport image processing remains local with distinct live/final/perspective margins and thresholds. Public normalizer browser tests cover aligned/skewed synthetic page correction and conservative fallback. No OCR/external-provider invocation."
+  },
+  {
+    "path": "frontend/features/upload/services/passport-final-analysis.ts",
+    "sha256": "c2517940b7af0fb77ad06cfb2c606a4b266a305b770909229105811b0502c5ae",
+    "physical_lines": 225,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Owns analyzePassportFinalPixels. Passport image processing remains local with distinct live/final/perspective margins and thresholds. Public normalizer browser tests cover aligned/skewed synthetic page correction and conservative fallback. No OCR/external-provider invocation."
+  },
+  {
+    "path": "frontend/features/upload/services/passport-final-boundaries.ts",
+    "sha256": "7b3f15c38dbb1874d4785311454a4e1624f445b2dc9c0791c85a4bf231913bb9",
+    "physical_lines": 126,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Owns estimateDocumentCoverage, strongestVerticalBoundary, strongestHorizontalBoundary, clamp01. Passport image processing remains local with distinct live/final/perspective margins and thresholds. Public normalizer browser tests cover aligned/skewed synthetic page correction and conservative fallback. No OCR/external-provider invocation."
+  },
+  {
+    "path": "frontend/features/upload/services/passport-final-policy.ts",
+    "sha256": "719202a566546f798fd4a17e2340481c996c96160715ec1ee00574925baef2fd",
+    "physical_lines": 41,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Passport image processing remains local with distinct live/final/perspective margins and thresholds. Public normalizer browser tests cover aligned/skewed synthetic page correction and conservative fallback. No OCR/external-provider invocation. All associated constant declarations verified byte-identical after line-ending normalization; distinct luminance coefficients are intentionally preserved."
+  },
+  {
+    "path": "frontend/features/upload/services/passport-final-quality.ts",
+    "sha256": "251f799802d7e28855495fd977f375cc86edaf8286b9dc61f17e4020591a872b",
+    "physical_lines": 81,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Owns validatePassportFinalFile, decodeImageFile. Passport image processing remains local with distinct live/final/perspective margins and thresholds. Public normalizer browser tests cover aligned/skewed synthetic page correction and conservative fallback. No OCR/external-provider invocation."
+  },
+  {
+    "path": "frontend/features/upload/services/passport-final-region-rules.ts",
+    "sha256": "7bf37ddea7780c48d1f9e6d82d024af54c876161334441fa0643818821ead6a8",
+    "physical_lines": 38,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Owns isExtremeExposure, isSeverelyUnreadable, isSoft, isRegionEffectivelyBlank. Passport image processing remains local with distinct live/final/perspective margins and thresholds. Public normalizer browser tests cover aligned/skewed synthetic page correction and conservative fallback. No OCR/external-provider invocation."
+  },
+  {
+    "path": "frontend/features/upload/services/passport-final-regions.ts",
+    "sha256": "326adf9246009dcaacae26c84a2fc823db15292e48436e8bb6898782d36714e8",
+    "physical_lines": 109,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Owns analyzeRegion, pixelBounds. Passport image processing remains local with distinct live/final/perspective margins and thresholds. Public normalizer browser tests cover aligned/skewed synthetic page correction and conservative fallback. No OCR/external-provider invocation."
+  },
+  {
+    "path": "frontend/features/upload/services/passport-final-result.ts",
+    "sha256": "4771e5c56a8273094d01f8405660fa59075d4e245a6759c488da40be006a1c23",
+    "physical_lines": 73,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Owns result, borderlineMessage, invalidResult. Passport image processing remains local with distinct live/final/perspective margins and thresholds. Public normalizer browser tests cover aligned/skewed synthetic page correction and conservative fallback. No OCR/external-provider invocation."
+  },
+  {
+    "path": "frontend/features/upload/services/passport-final-screen.ts",
+    "sha256": "dccc0a6546b7b479e0817f9c0a70909941eb688e41c8f371e733d00c078e4aa3",
+    "physical_lines": 108,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Owns detectScreenEvidence, bandMetrics. Passport image processing remains local with distinct live/final/perspective margins and thresholds. Public normalizer browser tests cover aligned/skewed synthetic page correction and conservative fallback. No OCR/external-provider invocation."
+  },
+  {
+    "path": "frontend/features/upload/services/passport-final.types.ts",
+    "sha256": "d7a94ceef86df11d4ed02789cf38b60259f3b412525c255702b255427e2ce512",
+    "physical_lines": 64,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Passport image processing remains local with distinct live/final/perspective margins and thresholds. Public normalizer browser tests cover aligned/skewed synthetic page correction and conservative fallback. No OCR/external-provider invocation. All field declarations originate in fully read original source; only ownership/type imports changed, TypeScript check passed."
+  },
+  {
+    "path": "frontend/features/upload/services/passport-homography.ts",
+    "sha256": "528691b7c36dcabaf393aa732d50dd6bc1c1a1429b8f60fbe09bfdf62436fb4e",
+    "physical_lines": 44,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Owns solveDestinationToSourceHomography, solveAugmentedMatrix. Passport image processing remains local with distinct live/final/perspective margins and thresholds. Public normalizer browser tests cover aligned/skewed synthetic page correction and conservative fallback. No OCR/external-provider invocation."
+  },
+  {
+    "path": "frontend/features/upload/services/passport-image-encoding.ts",
+    "sha256": "9011b07687a4c973a2a36ca12d33def5ec05261d104f75a54be188f9d28ff390",
+    "physical_lines": 22,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Owns canvasToFile, nextAnimationFrame. Passport image processing remains local with distinct live/final/perspective margins and thresholds. Public normalizer browser tests cover aligned/skewed synthetic page correction and conservative fallback. No OCR/external-provider invocation."
+  },
+  {
+    "path": "frontend/features/upload/services/passport-line-fitting.ts",
+    "sha256": "813a7115504d9281bba100db45cb293ef691762f5d8fdf4e964091d75e066bce",
+    "physical_lines": 48,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Owns fitRobustLine, weightedLineFit. Passport image processing remains local with distinct live/final/perspective margins and thresholds. Public normalizer browser tests cover aligned/skewed synthetic page correction and conservative fallback. No OCR/external-provider invocation."
+  },
+  {
+    "path": "frontend/features/upload/services/passport-live-analysis.ts",
+    "sha256": "c718da229716327cf1172d50de65cba8d324a8554e53ed103b636873b6d68876",
+    "physical_lines": 121,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Owns analyzeRectangularPassportFramePixels. Passport image processing remains local with distinct live/final/perspective margins and thresholds. Public normalizer browser tests cover aligned/skewed synthetic page correction and conservative fallback. No OCR/external-provider invocation."
+  },
+  {
+    "path": "frontend/features/upload/services/passport-live-boundary-evidence.ts",
+    "sha256": "71cd7662722fa3cca8e77cb310c875dcfaa01727cc2f428ecd3d216de3ca345b",
+    "physical_lines": 162,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Owns evaluateBoundaryCandidate, boundaryStepContrast. Passport image processing remains local with distinct live/final/perspective margins and thresholds. Public normalizer browser tests cover aligned/skewed synthetic page correction and conservative fallback. No OCR/external-provider invocation."
+  },
+  {
+    "path": "frontend/features/upload/services/passport-live-boundary-search.ts",
+    "sha256": "b9bb85a0fa1e653a5a66ee9deed51fb03f53d134ddf9dc7bcfefc2d0ce9515ed",
+    "physical_lines": 127,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Owns findVerticalBoundary, findHorizontalBoundary, findBoundary. Passport image processing remains local with distinct live/final/perspective margins and thresholds. Public normalizer browser tests cover aligned/skewed synthetic page correction and conservative fallback. No OCR/external-provider invocation."
+  },
+  {
+    "path": "frontend/features/upload/services/passport-live-detail.ts",
+    "sha256": "dfba7f326b30ec8799dab16fbf9e3b915167c3e0eab93d907e8486b56b2e5683",
+    "physical_lines": 127,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Owns analyzeInteriorDetail, sampleInteriorTile, pointInsideQuad. Passport image processing remains local with distinct live/final/perspective margins and thresholds. Public normalizer browser tests cover aligned/skewed synthetic page correction and conservative fallback. No OCR/external-provider invocation."
+  },
+  {
+    "path": "frontend/features/upload/services/passport-live-frame-adapter.ts",
+    "sha256": "32edd3443b61919717ef512e6e055e140f6d8133764b73ff8e480bf35a06a5d9",
+    "physical_lines": 119,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Owns drawGuideFrame, getGuideVideoCrop, clampVideoCrop. Passport image processing remains local with distinct live/final/perspective margins and thresholds. Public normalizer browser tests cover aligned/skewed synthetic page correction and conservative fallback. No OCR/external-provider invocation."
+  },
+  {
+    "path": "frontend/features/upload/services/passport-live-geometry.ts",
+    "sha256": "5e2f7250da2cc77fab8c248ec55ed21ad7d8174c912bb6727327569f96e943e9",
+    "physical_lines": 177,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Owns createDocumentQuad, intersectBoundaries, measureDocumentGeometry, isConvexQuad, polygonArea, distance, radiansToDegrees. Passport image processing remains local with distinct live/final/perspective margins and thresholds. Public normalizer browser tests cover aligned/skewed synthetic page correction and conservative fallback. No OCR/external-provider invocation."
+  },
+  {
+    "path": "frontend/features/upload/services/passport-live-pixels.ts",
+    "sha256": "3ca646b79aab989ef98e9c05b095216f946360f879ce1c5d3a78aa99d1acf9b4",
+    "physical_lines": 101,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Owns createMotionSignature, analyzeExposure, emptyResult. Passport image processing remains local with distinct live/final/perspective margins and thresholds. Public normalizer browser tests cover aligned/skewed synthetic page correction and conservative fallback. No OCR/external-provider invocation."
+  },
+  {
+    "path": "frontend/features/upload/services/passport-live-policy.ts",
+    "sha256": "2ee0dba3ab10cc39c8aa8127b57b00921ef09f3d7e056e0c0a3cf3494d0971fa",
+    "physical_lines": 52,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Passport image processing remains local with distinct live/final/perspective margins and thresholds. Public normalizer browser tests cover aligned/skewed synthetic page correction and conservative fallback. No OCR/external-provider invocation. All associated constant declarations verified byte-identical after line-ending normalization; distinct luminance coefficients are intentionally preserved."
+  },
+  {
+    "path": "frontend/features/upload/services/passport-live.types.ts",
+    "sha256": "9d049fa8b67541a058e7407524d9b9ec0e6fa91eb7d3065a54d24efa8287afc5",
+    "physical_lines": 54,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Passport image processing remains local with distinct live/final/perspective margins and thresholds. Public normalizer browser tests cover aligned/skewed synthetic page correction and conservative fallback. No OCR/external-provider invocation. All field declarations originate in fully read original source; only ownership/type imports changed, TypeScript check passed."
+  },
+  {
+    "path": "frontend/features/upload/services/passport-normalization.types.ts",
+    "sha256": "8cf7abf1a299e2c06f83052cec24c94ac69906b955c6e57b297f43416239f156",
+    "physical_lines": 24,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Passport image processing remains local with distinct live/final/perspective margins and thresholds. Public normalizer browser tests cover aligned/skewed synthetic page correction and conservative fallback. No OCR/external-provider invocation. All field declarations originate in fully read original source; only ownership/type imports changed, TypeScript check passed."
+  },
+  {
+    "path": "frontend/features/upload/services/passport-perspective-correction.ts",
+    "sha256": "195b43f1e5cfd7242b3b6fd517228585b7b23ea1a6f340bb825d9f8c656e27ad",
+    "physical_lines": 78,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Owns normalizePassportFile, normalizePassportCanvasCapture. Passport image processing remains local with distinct live/final/perspective margins and thresholds. Public normalizer browser tests cover aligned/skewed synthetic page correction and conservative fallback. No OCR/external-provider invocation."
+  },
+  {
+    "path": "frontend/features/upload/services/passport-perspective-warp.ts",
+    "sha256": "2b4563390a11e41a081ee704597f164bdc2df4d9e5ac8544b55db0b5137377c0",
+    "physical_lines": 90,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Owns rectifyDocument, sampleBilinear. Passport image processing remains local with distinct live/final/perspective margins and thresholds. Public normalizer browser tests cover aligned/skewed synthetic page correction and conservative fallback. No OCR/external-provider invocation."
+  },
+  {
+    "path": "frontend/features/upload/services/passport-quad-detection.ts",
+    "sha256": "1c7f39a35f517f124368478fa4b66b4e3ab8874e69e5a7044db8a101a559ad0b",
+    "physical_lines": 99,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Owns detectDocumentQuad, fitVerticalBoundary, fitHorizontalBoundary. Passport image processing remains local with distinct live/final/perspective margins and thresholds. Public normalizer browser tests cover aligned/skewed synthetic page correction and conservative fallback. No OCR/external-provider invocation."
+  },
+  {
+    "path": "frontend/features/upload/services/passport-quad-geometry.ts",
+    "sha256": "866a3e6c4fbbf942fed9e0d8eec0b447e7b577c341ba0ab998141c52b2c365e3",
+    "physical_lines": 54,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Owns intersectVerticalAndHorizontal, isPlausibleQuad, distance, polygonArea, scalePoint. Passport image processing remains local with distinct live/final/perspective margins and thresholds. Public normalizer browser tests cover aligned/skewed synthetic page correction and conservative fallback. No OCR/external-provider invocation."
+  },
+  {
+    "path": "frontend/features/upload/services/passport-rectangular-frame-detector.ts",
+    "sha256": "36f3f0e7a560fc18dc3058354befd65b3eca66e92f5318ffcad2bd48875ab66b",
+    "physical_lines": 47,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Owns detectRectangularPassportFrame. Passport image processing remains local with distinct live/final/perspective margins and thresholds. Public normalizer browser tests cover aligned/skewed synthetic page correction and conservative fallback. No OCR/external-provider invocation."
+  },
+  {
+    "path": "frontend/features/upload/services/visa-quality-background-mask.ts",
+    "sha256": "0dd0dbbbee9f17d5189e67cbf18af1d52e6f0680d6c63c707eae9e2a24a37a38",
+    "physical_lines": 95,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Owns isInsidePersonGuide, isSafeWallSample, isInsideDetectedPersonMask, regionalIndex, maximumSupportedRatio, failedMetrics. Existing strict/live/final pixel limits, face count/placement, model-unavailable acknowledged fallback and exact Blob-size cap preserved;46 original algorithm cases plus camera resource/gating tests passed."
+  },
+  {
+    "path": "frontend/features/upload/services/visa-quality-background.ts",
+    "sha256": "16ac470f794c0a8df430a8b5616d1c6196a1f4e8b244173cee69bd57468f4e30",
+    "physical_lines": 285,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Owns evaluateWhiteBackground. Existing strict/live/final pixel limits, face count/placement, model-unavailable acknowledged fallback and exact Blob-size cap preserved;46 original algorithm cases plus camera resource/gating tests passed."
+  },
+  {
+    "path": "frontend/features/upload/services/visa-quality-camera.ts",
+    "sha256": "d810e5677b9eb3a5bf1715e0ae005be27d8c5e50d0ebc823a504c6d17754af3a",
+    "physical_lines": 55,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Owns isVisaPhotoFrameCaptureReady, isVisaPhotoFallbackCaptureAllowed, buildVisaPhotoCameraConstraints, requestVisaPhotoCamera, cameraErrorName. Existing strict/live/final pixel limits, face count/placement, model-unavailable acknowledged fallback and exact Blob-size cap preserved;46 original algorithm cases plus camera resource/gating tests passed."
+  },
+  {
+    "path": "frontend/features/upload/services/visa-quality-clarity.ts",
+    "sha256": "5e04bbcd71b79e78928df556274ac12c2c03d7fef65316fef7ead9aa78bf0dba",
+    "physical_lines": 129,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Owns evaluateVisaPhotoClarity, facePixelBounds, clampPixel, pixelLuminance. Existing strict/live/final pixel limits, face count/placement, model-unavailable acknowledged fallback and exact Blob-size cap preserved;46 original algorithm cases plus camera resource/gating tests passed."
+  },
+  {
+    "path": "frontend/features/upload/services/visa-quality-encoding.ts",
+    "sha256": "5f0a1a02de0d97db95d987c1f6c6903761a1a9b3c2b42f00605e59b5eea500c3",
+    "physical_lines": 20,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Owns encodeVisaJpegUnderLimit. Existing strict/live/final pixel limits, face count/placement, model-unavailable acknowledged fallback and exact Blob-size cap preserved;46 original algorithm cases plus camera resource/gating tests passed."
+  },
+  {
+    "path": "frontend/features/upload/services/visa-quality-face.ts",
+    "sha256": "f725aedc1fdabbe8adc45dedfae8f686d1314003fed40d7b53d1070bd9b88c8b",
+    "physical_lines": 91,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Owns isVisaSelfieFaceLargeEnough, evaluateVisaPhotoFaceCount, evaluateVisaPhotoFacePlacement, isVisaPhotoFaceStable, definiteFinalFacePlacementFailure. Existing strict/live/final pixel limits, face count/placement, model-unavailable acknowledged fallback and exact Blob-size cap preserved;46 original algorithm cases plus camera resource/gating tests passed."
+  },
+  {
+    "path": "frontend/features/upload/services/visa-quality-final.ts",
+    "sha256": "9a0b101ba9e26daf9334a27d991eb5d2e477af516710c4f146eb42f077ad45ea",
+    "physical_lines": 265,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Owns evaluateFinalVisaPhoto, evaluateFallbackFinalVisaPhoto, isDefinitelyInvalidBackground, finalValidation. Existing strict/live/final pixel limits, face count/placement, model-unavailable acknowledged fallback and exact Blob-size cap preserved;46 original algorithm cases plus camera resource/gating tests passed."
+  },
+  {
+    "path": "frontend/features/upload/services/visa-quality-live-background.ts",
+    "sha256": "3a9a79d521538a9e2886f7f353b16d75c9699722e1ed1129966e82121a1e4cec",
+    "physical_lines": 54,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Owns evaluateLiveVisaPhotoBackground. Existing strict/live/final pixel limits, face count/placement, model-unavailable acknowledged fallback and exact Blob-size cap preserved;46 original algorithm cases plus camera resource/gating tests passed."
+  },
+  {
+    "path": "frontend/features/upload/services/visa-quality-policy.ts",
+    "sha256": "3fcd7d40d994789f808f203cff3ffe1167a04ba2fa32836c4a3345ca6b9d1920",
+    "physical_lines": 133,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Existing strict/live/final pixel limits, face count/placement, model-unavailable acknowledged fallback and exact Blob-size cap preserved;46 original algorithm cases plus camera resource/gating tests passed. All associated constant declarations verified byte-identical after line-ending normalization; distinct luminance coefficients are intentionally preserved."
+  },
+  {
+    "path": "frontend/features/upload/services/visa-quality.types.ts",
+    "sha256": "d2875c9d5387dab445f5c593c7ad3c2c9f3cdfac5b512c54add4fe0919d96b19",
+    "physical_lines": 92,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full original physical source read before extraction; all moved function bodies reviewed, fresh module/import/export wiring authored and inspected. Exact source equivalence is recorded separately, not counted as a substitute for manual review. Existing strict/live/final pixel limits, face count/placement, model-unavailable acknowledged fallback and exact Blob-size cap preserved;46 original algorithm cases plus camera resource/gating tests passed. All field declarations originate in fully read original source; only ownership/type imports changed, TypeScript check passed."
+  },
+  {
+    "path": "frontend/tsconfig.json",
+    "sha256": "e1f2b4ec806c55ba0cc71369588733fe427a277990cccfd44ef62c9b6e9fe49d",
+    "physical_lines": 35,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "review_basis": "Full physical original source read plus reviewed authored extraction; exact original-to-current provenance attached.",
+    "notes": "Full config physical read. Only approved allowImportingTsExtensions:true added to existing noEmit/bundler options for direct Node24 TS algorithm imports; no check/floor suppression or package changes. Bundled Next TypeScript guide read; original Node tests and full TSC passed."
+  }
+]

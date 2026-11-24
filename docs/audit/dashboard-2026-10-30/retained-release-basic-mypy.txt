@@ -1,0 +1,21 @@
+retained_release_fast.py:13: error: Signature of "backend" incompatible with supertype "mcp_direct_build.RetainedBuild"  [override]
+retained_release_fast.py:13: note:      Superclass:
+retained_release_fast.py:13: note:          def backend(self, base_image: str, previous_lock: Path) -> dict[Any, Any]
+retained_release_fast.py:13: note:      Subclass:
+retained_release_fast.py:13: note:          def backend(self, base_image: str) -> dict[Any, Any]
+retained_release_contract.py:104: error: Incompatible types in assignment (expression has type "PurePosixPath", variable has type "Path")  [assignment]
+retained_release_contract.py:121: error: Non-overlapping equality check (left operand type: "PurePosixPath", right operand type: "Path")  [comparison-overlap]
+retained_release_host.py:45: error: Function is missing a type annotation for one or more parameters  [no-untyped-def]
+retained_release_host.py:94: error: Call to untyped function "git" in typed context  [no-untyped-call]
+retained_release_host.py:96: error: Call to untyped function "git" in typed context  [no-untyped-call]
+retained_release_host.py:98: error: Call to untyped function "git" in typed context  [no-untyped-call]
+retained_release_host.py:99: error: Call to untyped function "git" in typed context  [no-untyped-call]
+retained_release_host.py:126: error: Call to untyped function "git" in typed context  [no-untyped-call]
+retained_release_host.py:131: error: Call to untyped function "git" in typed context  [no-untyped-call]
+retained_release_host.py:132: error: Call to untyped function "git" in typed context  [no-untyped-call]
+retained_release_host.py:136: error: Call to untyped function "git" in typed context  [no-untyped-call]
+retained_release_host.py:137: error: Call to untyped function "git" in typed context  [no-untyped-call]
+retained_release_runtime.py:114: error: Argument 1 to "require" has incompatible type "Match[str] | bool"; expected "bool"  [arg-type]
+retained_release_lifecycle.py:53: error: Call to untyped function "LocalDocker" in typed context  [no-untyped-call]
+release_retained_update.py:85: error: Call to untyped function "DocumentRetainedUpdate" in typed context  [no-untyped-call]
+Found 16 errors in 6 files (checked 7 source files)

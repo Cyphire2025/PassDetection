@@ -1,0 +1,83 @@
+{
+  "mechanicalCheckpoint": {
+    "proof": "Original entire controller statement sequence, five whole helper/component bodies/signatures, and complete expanded returned JSX are byte-text exact at mechanical partition checkpoint, before deliberate error UI changes.",
+    "controllerStatements": 16,
+    "wholeFunctions": [
+      {
+        "name": "SavedRenameBatches",
+        "path": "frontend/features/documents/components/saved-rename-batches.tsx",
+        "exactBodyAndSignature": true
+      },
+      {
+        "name": "RenameResults",
+        "path": "frontend/features/documents/components/rename-results.tsx",
+        "exactBodyAndSignature": true
+      },
+      {
+        "name": "FilterButton",
+        "path": "frontend/features/documents/components/rename-results.tsx",
+        "exactBodyAndSignature": true
+      },
+      {
+        "name": "detectedLabel",
+        "path": "frontend/features/documents/components/rename-results.tsx",
+        "exactBodyAndSignature": true
+      },
+      {
+        "name": "detectedBadge",
+        "path": "frontend/features/documents/components/rename-results.tsx",
+        "exactBodyAndSignature": true
+      }
+    ],
+    "expandedEntireReturnedJsxExact": true,
+    "originalSourceSha": "761af2e956de9020ba90c38145f9d5c45631fe8afb4cbbd0d2a06501ac9b7b2e"
+  },
+  "currentControllerStatementsExact": 16,
+  "currentWholeResultsHelpersExact": 4,
+  "currentHooksExactAfterOnlyIntentionalWrapperAndOwnerMetadataNormalization": [
+    "useRenameBatches",
+    "useAnalyzeRenameDocuments",
+    "useOpenRenameBatch",
+    "useDeleteRenameBatches"
+  ],
+  "publicFacadeMethodOrderAndOriginalParameters": [
+    {
+      "name": "listBatches",
+      "originalParametersExact": true,
+      "optionalOwnerConfigAdded": false
+    },
+    {
+      "name": "getBatch",
+      "originalParametersExact": true,
+      "optionalOwnerConfigAdded": true
+    },
+    {
+      "name": "deleteBatches",
+      "originalParametersExact": true,
+      "optionalOwnerConfigAdded": true
+    },
+    {
+      "name": "analyze",
+      "originalParametersExact": true,
+      "optionalOwnerConfigAdded": true
+    }
+  ],
+  "allOriginalFormDataAppendsExact": [
+    "formData.append(\"title\", title)",
+    "formData.append(\"upload_id\", session.uploadId)",
+    "formData.append(\"chunk_id\", session.chunkIds[chunkIndex])",
+    "formData.append(\"chunk_index\", String(chunkIndex))",
+    "formData.append(\"expected_chunk_count\", String(session.chunks.length))",
+    "formData.append(\"expected_file_count\", String(session.totalFiles))",
+    "formData.append(\"files\", file)"
+  ],
+  "deliberateFinalDifferences": [
+    "Private invocation-bound mutation wrappers and optional original-authority request metadata.",
+    "API pre-chunk/post-response/progress/return authority assertions.",
+    "Saved-list failure alert/retry and suppression of false successful-empty view.",
+    "Open/delete recoverable alerts and reset of the other stale action error.",
+    "Correct import of useState in moved results component; no behavior override.",
+    "JSX indentation only in copied upload panel."
+  ],
+  "limits": "Mechanical partition byte proof is historical before deliberate error UI; final page/Saved component is not claimed byte-identical. No thresholds/public HTTP DTOs/cookie protocols or production backend sends changed."
+}

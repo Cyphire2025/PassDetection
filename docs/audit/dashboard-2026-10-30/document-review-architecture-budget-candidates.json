@@ -1,0 +1,30 @@
+[
+  {
+    "path": "features/documents/components/document-workspace-review.tsx",
+    "baselineLines": 3,
+    "maximumLines": 10,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/documents/components/document-verification-panel.tsx",
+    "baselineLines": 221,
+    "maximumLines": 230,
+    "baselineMaxFunctionComplexity": 22,
+    "maximumFunctionComplexity": 23
+  },
+  {
+    "path": "features/documents/components/document-row-action-menu.tsx",
+    "baselineLines": 172,
+    "maximumLines": 180,
+    "baselineMaxFunctionComplexity": 9,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/documents/components/document-review-badges.tsx",
+    "baselineLines": 80,
+    "maximumLines": 90,
+    "baselineMaxFunctionComplexity": 9,
+    "maximumFunctionComplexity": 10
+  }
+]

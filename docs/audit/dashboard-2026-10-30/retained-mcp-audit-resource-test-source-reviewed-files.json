@@ -1,0 +1,56 @@
+[
+  {
+    "path": "backend/tests/integration/test_mcp_management_audit.py",
+    "sha256": "bc950da30d554fae33ff1caef20738bf6775a80dcd849a2d0e00146fbab2f7c0",
+    "physical_lines": 321,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all321 physical lines in contiguous halves: independent durable denial audit preserves original response/status/headers/exception, business rollback precedes audit opening, source/token/query/private value-free fixed reasons, audit failure keeps denial without raw diagnostics, only registered rejected routes gain audit, real management role/MFA/CSRF/source/state errors each retain one safe record, successful actions keep canonical success audit only. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_diagnostics.py",
+    "sha256": "56ffee35c17da5cd71b01791cfaf0e79bcaecd912dfcbb22f52eec77fdc8509b",
+    "physical_lines": 237,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all237 physical lines in contiguous halves: synthetic retained DB and temporary authored logs only, correlation IDs exact, no collector/no match/partial window distinct from health, allowlisted value-free failure/event projection, unknown log shapes/huge numeric/malformed time redacted, scan byte/line/record budgets and truncated final write, fixed source names deny arbitrary paths, unavailable source preserves independent source and live role checks. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/service_integration/test_mcp_source_admission_postgresql.py",
+    "sha256": "d3eb27ebdd056638adc28b524925735a61956f1a2acfdb63400023994a8f6dfe",
+    "physical_lines": 242,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all242 physical lines: minimum reviewed100row/1MiB profile on retained synthetic5000/100cohorts, actual row identity/duplicate preservation and canonical whole/selected workbook parity, rejected101/whole5000 and aggregate Unicode bytes stop before passport ORM hydration. Explicitly not runtime-role/migration/storage/Linux RSS/capacity qualification; schema translation and private owned evidence retention traced, workbook closes in finally. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/service_integration/test_mcp_admin_overview_postgresql.py",
+    "sha256": "9106ec82593ddf1759fb067e61763fb07bde481b93e3f2350a2225fa3a251066",
+    "physical_lines": 420,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all420 physical lines in contiguous halves: isolated retained PG schema with no provider/storage access, exact canonical global/null/agency seven counts and legacy parent predicates, scalar-only bounded metadata/no business mutation snapshot, escaped envelope bound and nine current authority denials before count, actual held source/grant/identity deadline/cancellation rollback and retry. Source asserts real PG behavior; no execution here. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/service_integration/test_mcp_rename_reads_postgresql.py",
+    "sha256": "c681251a579521c7a76932cf2b442479cf662fe83a1d73e162a057f22ff15876",
+    "physical_lines": 395,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all395 physical lines in contiguous halves: bounded scalar paged1500item source and1501preprojection rejection, exact website metadata and opt-in sensitive audit/no storage, stable keyset/cursor/Unicode/tenant/identity/grant/deadline/cancellation semantics. Canonical inactive-agency read explicitly retained at267-277; no universal agency-active rule inferred. Row snapshots/owned schema and no private whole-ORM materialization checked by source assertions only. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/service_integration/test_mcp_dashboard_summary_postgresql.py",
+    "sha256": "8652bc25c2a8cb28ebc0254a905c1dfa0e3598e65667ec6676661bca84a6a580",
+    "physical_lines": 212,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all212 physical lines: retained loopback UUID schema and large synthetic private JSON, exact website/dashboard counts beyond export ceiling with fixed scalar preview, current no-agency early return, full Unicode fields, nonfinite all-or-nothing rejection and source lock deadline rollback/retry. Historical status/parent rules and no-effect business snapshot preserved. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  }
+]

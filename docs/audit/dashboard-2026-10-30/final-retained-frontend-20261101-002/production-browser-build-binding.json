@@ -1,0 +1,8 @@
+{
+  "build_id": "SpoGDo7wxNT9DCsgfUntN",
+  "qualification_receipt_sha256": "e9a66d3d140dbae4df6dd244a1182ec45f024a59db97c9a1be32520de447e312",
+  "source_fence_sha256": "3fa14a064e6506a475d7031e5ebd53327b72ef8bb464303fe65c63418eb9952a",
+  "actual_harness_sha256": "66630116ed8f235ab4f6fb23c7320e3a4ae8db5ff607a84052114ee39373c362",
+  "harness_snapshot": "production-browser-harness-source.py",
+  "basis": "Running production browser harness preflights this exact completed current build and frontend source snapshot before starting isolated servers; post-run command exit/drift and complete198reporter outcomes must also pass. This binding alone is not a passing browser receipt."
+}

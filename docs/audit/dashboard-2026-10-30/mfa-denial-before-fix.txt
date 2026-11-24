@@ -1,0 +1,415 @@
+FFFFF                                                                    [100%]
+================================== FAILURES ===================================
+_ test_failed_factors_exhaust_durable_attempts_across_fresh_requests[verify_mfa] _
+
+auth_database = namespace(app=<fastapi.applications.FastAPI object at 0x000002A07A678710>, sessions=async_sessionmaker(class_='AsyncSe...t object at 0x000002A07C700F50 [unset]>, release=<asyncio.locks.Event object at 0x000002A07CA9C450 [set]>, fail=False))
+flow = 'verify_mfa'
+
+    @pytest.mark.parametrize("flow", ["verify_mfa", "verify_enrollment"])
+    async def test_failed_factors_exhaust_durable_attempts_across_fresh_requests(auth_database, flow):
+        env = auth_database
+        path, headers, payload = await prepare_request(env.sessions, flow)
+        body = json.loads(payload)
+        body["code"] = "AAAA-BBBB-CCCC-DDDD"  # Never issued as a recovery code.
+        env.gate.release.set()
+        for attempt in range(1, 6):
+            await post(env.app, path, headers, body)
+            async with env.sessions() as reader:
+                challenge = await reader.scalar(select(DashboardAuthChallengeModel))
+>               assert challenge.attempt_count == attempt
+E               assert 0 == 1
+E                +  where 0 = <app.infrastructure.database.identity_security_models.DashboardAuthChallengeModel object at 0x000002A07E4DD590>.attempt_count
+
+tests\integration\test_mfa_denial_durability.py:59: AssertionError
+_ test_failed_factors_exhaust_durable_attempts_across_fresh_requests[verify_enrollment] _
+
+auth_database = namespace(app=<fastapi.applications.FastAPI object at 0x000002A07E4DE1D0>, sessions=async_sessionmaker(class_='AsyncSe...t object at 0x000002A07D4E27D0 [unset]>, release=<asyncio.locks.Event object at 0x000002A07E4CE210 [set]>, fail=False))
+flow = 'verify_enrollment'
+
+    @pytest.mark.parametrize("flow", ["verify_mfa", "verify_enrollment"])
+    async def test_failed_factors_exhaust_durable_attempts_across_fresh_requests(auth_database, flow):
+        env = auth_database
+        path, headers, payload = await prepare_request(env.sessions, flow)
+        body = json.loads(payload)
+        body["code"] = "AAAA-BBBB-CCCC-DDDD"  # Never issued as a recovery code.
+        env.gate.release.set()
+        for attempt in range(1, 6):
+            await post(env.app, path, headers, body)
+            async with env.sessions() as reader:
+                challenge = await reader.scalar(select(DashboardAuthChallengeModel))
+>               assert challenge.attempt_count == attempt
+E               assert 0 == 1
+E                +  where 0 = <app.infrastructure.database.identity_security_models.DashboardAuthChallengeModel object at 0x000002A07E721190>.attempt_count
+
+tests\integration\test_mfa_denial_durability.py:59: AssertionError
+_ test_cancelled_challenge_stays_cancelled_after_http_failure[request_binding] _
+
+auth_database = namespace(app=<fastapi.applications.FastAPI object at 0x000002A07E71F9D0>, sessions=async_sessionmaker(class_='AsyncSe...t object at 0x000002A07E71DE90 [unset]>, release=<asyncio.locks.Event object at 0x000002A07E71EB50 [set]>, fail=False))
+reason = 'request_binding'
+
+    @pytest.mark.parametrize("reason", ["request_binding", "credential_state", "factor_unavailable"])
+    async def test_cancelled_challenge_stays_cancelled_after_http_failure(auth_database, reason):
+        env = auth_database
+        path, headers, payload = await prepare_request(env.sessions, "verify_mfa")
+        if reason == "request_binding":
+            headers = [*headers, (b"user-agent", b"different-client")]
+        else:
+            async with env.sessions() as session, session.begin():
+                state = await session.scalar(select(UserSecurityStateModel))
+                if reason == "credential_state":
+                    state.credential_state = "invited"
+                else:
+                    state.mfa_secret_ciphertext = None
+        env.gate.release.set()
+        await post(env.app, path, headers, json.loads(payload))
+        async with env.sessions() as reader:
+            challenge = await reader.scalar(select(DashboardAuthChallengeModel))
+>           assert challenge.status == "cancelled"
+E           AssertionError: assert 'pending' == 'cancelled'
+E             
+E             - cancelled
+E             + pending
+
+tests\integration\test_mfa_denial_durability.py:85: AssertionError
+_ test_cancelled_challenge_stays_cancelled_after_http_failure[credential_state] _
+
+auth_database = namespace(app=<fastapi.applications.FastAPI object at 0x000002A07E7A0A90>, sessions=async_sessionmaker(class_='AsyncSe...t object at 0x000002A07E7869D0 [unset]>, release=<asyncio.locks.Event object at 0x000002A07E787450 [set]>, fail=False))
+reason = 'credential_state'
+
+    @pytest.mark.parametrize("reason", ["request_binding", "credential_state", "factor_unavailable"])
+    async def test_cancelled_challenge_stays_cancelled_after_http_failure(auth_database, reason):
+        env = auth_database
+        path, headers, payload = await prepare_request(env.sessions, "verify_mfa")
+        if reason == "request_binding":
+            headers = [*headers, (b"user-agent", b"different-client")]
+        else:
+            async with env.sessions() as session, session.begin():
+                state = await session.scalar(select(UserSecurityStateModel))
+                if reason == "credential_state":
+                    state.credential_state = "invited"
+                else:
+                    state.mfa_secret_ciphertext = None
+        env.gate.release.set()
+        await post(env.app, path, headers, json.loads(payload))
+        async with env.sessions() as reader:
+            challenge = await reader.scalar(select(DashboardAuthChallengeModel))
+>           assert challenge.status == "cancelled"
+E           AssertionError: assert 'pending' == 'cancelled'
+E             
+E             - cancelled
+E             + pending
+
+tests\integration\test_mfa_denial_durability.py:85: AssertionError
+_ test_cancelled_challenge_stays_cancelled_after_http_failure[factor_unavailable] _
+
+self = <sqlalchemy.engine.base.Connection object at 0x000002A07E86B350>
+dialect = <sqlalchemy.dialects.sqlite.aiosqlite.SQLiteDialect_aiosqlite object at 0x000002A07E6BDCD0>
+context = <sqlalchemy.dialects.sqlite.aiosqlite.SQLiteExecutionContext_aiosqlite object at 0x000002A07E877D10>
+statement = <sqlalchemy.dialects.sqlite.base.SQLiteCompiler object at 0x000002A07E877D50>
+parameters = [(None, '2026-10-30 18:56:57.761015', 'd121f916b78147c19fade8c25ed712d7')]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1967: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:147: in execute
+    self._adapt_connection._handle_exception(error)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:298: in _handle_exception
+    raise error
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:129: in execute
+    self.await_(_cursor.execute(operation, parameters))
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+            ^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\cursor.py:48: in execute
+    await self._execute(self._cursor.execute, sql, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\cursor.py:40: in _execute
+    return await self._conn._execute(fn, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\core.py:132: in _execute
+    return await future
+           ^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <Connection(Thread-20, stopped daemon 35940)>
+
+    def run(self) -> None:
+        """
+        Execute function calls on a separate thread.
+    
+        :meta private:
+        """
+        while True:
+            # Continues running until all queue items are processed,
+            # even after connection is closed (so we can finalize all
+            # futures)
+    
+            tx_item = self._tx.get()
+            if tx_item is _STOP_RUNNING_SENTINEL:
+                break
+    
+            future, function = tx_item
+    
+            try:
+                LOG.debug("executing %s", function)
+>               result = function()
+                         ^^^^^^^^^^
+E               sqlite3.IntegrityError: CHECK constraint failed: ck_user_security_mfa_shape
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\core.py:115: IntegrityError
+
+The above exception was the direct cause of the following exception:
+
+auth_database = namespace(app=<fastapi.applications.FastAPI object at 0x000002A07E807F50>, sessions=async_sessionmaker(class_='AsyncSe...object at 0x000002A07E74A710 [unset]>, release=<asyncio.locks.Event object at 0x000002A07E74A150 [unset]>, fail=False))
+reason = 'factor_unavailable'
+
+    @pytest.mark.parametrize("reason", ["request_binding", "credential_state", "factor_unavailable"])
+    async def test_cancelled_challenge_stays_cancelled_after_http_failure(auth_database, reason):
+        env = auth_database
+        path, headers, payload = await prepare_request(env.sessions, "verify_mfa")
+        if reason == "request_binding":
+            headers = [*headers, (b"user-agent", b"different-client")]
+        else:
+>           async with env.sessions() as session, session.begin():
+
+tests\integration\test_mfa_denial_durability.py:75: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\ext\asyncio\session.py:1876: in __aexit__
+    await greenlet_spawn(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:203: in greenlet_spawn
+    result = context.switch(value)
+             ^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\util.py:147: in __exit__
+    with util.safe_reraise():
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\langhelpers.py:146: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\util.py:145: in __exit__
+    self.commit()
+<string>:2: in commit
+    ???
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\state_changes.py:139: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:1302: in commit
+    self._prepare_impl()
+<string>:2: in _prepare_impl
+    ???
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\state_changes.py:139: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:1277: in _prepare_impl
+    self.session.flush()
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:4341: in flush
+    self._flush(objects)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:4476: in _flush
+    with util.safe_reraise():
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\langhelpers.py:146: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\session.py:4437: in _flush
+    flush_context.execute()
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\unitofwork.py:466: in execute
+    rec.execute(self)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\persistence.py:85: in save_obj
+    _emit_update_statements(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\orm\persistence.py:912: in _emit_update_statements
+    c = connection.execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1418: in execute
+    return meth(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\sql\elements.py:515: in _execute_on_connection
+    return connection._execute_clauseelement(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1640: in _execute_clauseelement
+    ret = self._execute_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:2353: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\engine\default.py:924: in do_execute
+    cursor.execute(statement, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:147: in execute
+    self._adapt_connection._handle_exception(error)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:298: in _handle_exception
+    raise error
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py:129: in execute
+    self.await_(_cursor.execute(operation, parameters))
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+            ^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\cursor.py:48: in execute
+    await self._execute(self._cursor.execute, sql, parameters)
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\cursor.py:40: in _execute
+    return await self._conn._execute(fn, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\core.py:132: in _execute
+    return await future
+           ^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <Connection(Thread-20, stopped daemon 35940)>
+
+    def run(self) -> None:
+        """
+        Execute function calls on a separate thread.
+    
+        :meta private:
+        """
+        while True:
+            # Continues running until all queue items are processed,
+            # even after connection is closed (so we can finalize all
+            # futures)
+    
+            tx_item = self._tx.get()
+            if tx_item is _STOP_RUNNING_SENTINEL:
+                break
+    
+            future, function = tx_item
+    
+            try:
+                LOG.debug("executing %s", function)
+>               result = function()
+                         ^^^^^^^^^^
+E               sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) CHECK constraint failed: ck_user_security_mfa_shape
+E               [SQL: UPDATE user_security_states SET mfa_secret_ciphertext=?, updated_at=? WHERE user_security_states.user_id = ?]
+E               [parameters: (None, '2026-10-30 18:56:57.761015', 'd121f916b78147c19fade8c25ed712d7')]
+E               (Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+..\.tmp\dashboard-security-patch-venv-2\Lib\site-packages\aiosqlite\core.py:115: IntegrityError
+=========================== short test summary info ===========================
+FAILED tests/integration/test_mfa_denial_durability.py::test_failed_factors_exhaust_durable_attempts_across_fresh_requests[verify_mfa]
+FAILED tests/integration/test_mfa_denial_durability.py::test_failed_factors_exhaust_durable_attempts_across_fresh_requests[verify_enrollment]
+FAILED tests/integration/test_mfa_denial_durability.py::test_cancelled_challenge_stays_cancelled_after_http_failure[request_binding]
+FAILED tests/integration/test_mfa_denial_durability.py::test_cancelled_challenge_stays_cancelled_after_http_failure[credential_state]
+FAILED tests/integration/test_mfa_denial_durability.py::test_cancelled_challenge_stays_cancelled_after_http_failure[factor_unavailable]
+5 failed in 17.47s

@@ -1,0 +1,66 @@
+{
+  "browser": "151.0.7922.34",
+  "scope": "Synthetic actual loopback HTTP cookies in two Chromium pages. Generic per-transport Web Lock demonstrates ordering; application has NOT yet implemented this lock. Does not qualify fallback, real backend, providers or deployed behavior.",
+  "results": [
+    {
+      "operation": "refresh",
+      "locked": false,
+      "cookie": "owner=A; role=A",
+      "protectedB": false
+    },
+    {
+      "operation": "refresh",
+      "locked": true,
+      "cookie": "owner=B; role=B",
+      "protectedB": true
+    },
+    {
+      "operation": "logout",
+      "locked": false,
+      "cookie": "",
+      "protectedB": false
+    },
+    {
+      "operation": "logout",
+      "locked": true,
+      "cookie": "owner=B; role=B",
+      "protectedB": true
+    },
+    {
+      "operation": "challenge",
+      "locked": false,
+      "cookie": "",
+      "protectedB": false
+    },
+    {
+      "operation": "challenge",
+      "locked": true,
+      "cookie": "owner=B; role=B",
+      "protectedB": true
+    },
+    {
+      "operation": "access-level",
+      "locked": false,
+      "cookie": "owner=B; role=A",
+      "protectedB": false
+    },
+    {
+      "operation": "access-level",
+      "locked": true,
+      "cookie": "owner=B; role=B",
+      "protectedB": true
+    },
+    {
+      "operation": "step-up",
+      "locked": false,
+      "cookie": "owner=A; role=A",
+      "protectedB": false
+    },
+    {
+      "operation": "step-up",
+      "locked": true,
+      "cookie": "owner=B; role=B",
+      "protectedB": true
+    }
+  ]
+}

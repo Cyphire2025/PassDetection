@@ -1,0 +1,22 @@
+FF...................                                                    [100%]
+================================== FAILURES ===================================
+_______ test_create_rejects_non_array_manual_json_before_admission[{}] ________
+backend\tests\unit\presentation\test_whatsapp_contact_json_boundaries.py:41: in test_create_rejects_non_array_manual_json_before_admission
+    with pytest.raises(HTTPException) as denied:
+E   Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+---------------------------- Captured stdout setup ----------------------------
+2026-10-31T05:36:41.529925Z [debug    ] Using proactor: IocpProactor   [asyncio]
+----------------------------- Captured log setup ------------------------------
+DEBUG    asyncio:proactor_events.py:633 Using proactor: IocpProactor
+_______ test_create_rejects_non_array_manual_json_before_admission[""] ________
+backend\tests\unit\presentation\test_whatsapp_contact_json_boundaries.py:41: in test_create_rejects_non_array_manual_json_before_admission
+    with pytest.raises(HTTPException) as denied:
+E   Failed: DID NOT RAISE <class 'fastapi.exceptions.HTTPException'>
+---------------------------- Captured stdout setup ----------------------------
+2026-10-31T05:36:41.906031Z [debug    ] Using proactor: IocpProactor   [asyncio]
+----------------------------- Captured log setup ------------------------------
+DEBUG    asyncio:proactor_events.py:633 Using proactor: IocpProactor
+=========================== short test summary info ===========================
+FAILED backend\tests\unit\presentation\test_whatsapp_contact_json_boundaries.py::test_create_rejects_non_array_manual_json_before_admission[{}]
+FAILED backend\tests\unit\presentation\test_whatsapp_contact_json_boundaries.py::test_create_rejects_non_array_manual_json_before_admission[""]
+2 failed, 19 passed in 0.48s

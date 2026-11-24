@@ -1,0 +1,53 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+_____________ test_recovery_cancellation_locks_search_before_job ______________
+
+photo_database = namespace(sessions=async_sessionmaker(class_='AsyncSession', bind=<sqlalchemy.ext.asyncio.engine.AsyncEngine object at...re.database.gc_mobile_models.MobilePassengerIdentityModel object at 0x000002539CDFF110>, client_manager_profile=None)))
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002539B3C4850>
+
+    async def test_recovery_cancellation_locks_search_before_job(photo_database, monkeypatch):
+        env = photo_database
+        search_id, job_id = await _queued_search(env)
+        now = datetime.now(UTC)
+        async with env.sessions() as session, session.begin():
+            search = await session.get(MyPhotoSearchRunModel, search_id)
+            search.status = "searching"
+            search.lease_owner = "synthetic-worker"
+            search.lease_expires_at = now + timedelta(seconds=30)
+            job = await session.get(MyPhotoJobModel, job_id)
+            job.status = "running"
+            job.lease_owner = "synthetic-worker"
+            job.lease_expires_at = now + timedelta(seconds=30)
+            job.cancellation_requested_at = now
+        locks = []
+    
+        class RecordingSession(AsyncSession):
+            async def execute(self, statement, *args, **kwargs):
+                if getattr(statement, "_for_update_arg", None) is not None:
+                    locks.append(
+                        (
+                            statement.column_descriptions[0]["entity"].__tablename__,
+                            str(statement.compile(dialect=postgresql.dialect())),
+                        )
+                    )
+                return await super().execute(statement, *args, **kwargs)
+    
+        monkeypatch.setattr(
+            recovery_runtime,
+            "AsyncSessionFactory",
+            async_sessionmaker(env.sessions.kw["bind"], class_=RecordingSession, expire_on_commit=False),
+        )
+        assert await recovery_runtime._terminalize_requested_cancellations(env.settings, now) == 1
+        async with env.sessions() as session:
+            assert (await session.get(MyPhotoSearchRunModel, search_id)).status == "cancelled"
+            assert (await session.get(MyPhotoJobModel, job_id)).status == "cancelled"
+>       assert [table for table, _sql in locks[:2]] == ["my_photo_search_runs", "my_photo_jobs"]
+E       AssertionError: assert ['my_photo_jo..._search_runs'] == ['my_photo_se...y_photo_jobs']
+E         
+E         At index 0 diff: 'my_photo_jobs' != 'my_photo_search_runs'
+E         Use -v to get more diff
+
+tests\integration\test_my_photos_recovery_lock_order.py:52: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/integration/test_my_photos_recovery_lock_order.py::test_recovery_cancellation_locks_search_before_job
+1 failed in 2.48s

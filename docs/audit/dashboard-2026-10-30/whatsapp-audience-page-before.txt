@@ -1,0 +1,326 @@
+
+ RUN  v4.1.12 C:/Users/nipun/Desktop/PassDetection/frontend
+
+ ❯ features/whatsapp/workspace/message-composer-audience.test.tsx (1 test | 1 failed) 210ms
+   × keeps refreshed recipients visible when the last reviewed page no longer exists 209ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  features/whatsapp/workspace/message-composer-audience.test.tsx > keeps refreshed recipients visible when the last reviewed page no longer exists
+TestingLibraryElementError: Unable to find an accessible element with the role "checkbox"
+
+Here are the accessible roles:
+
+  region:
+
+  Name "Message audience":
+  <section
+    aria-label="Message audience"
+    class="_surface_f9e12c"
+  />
+
+  --------------------------------------------------
+  heading:
+
+  Name "Recipients for this send":
+  <h3
+    class="text-sm font-semibold text-slate-900"
+  />
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  <p
+    class="mt-1 text-xs text-slate-500"
+  />
+
+  Name "":
+  <p
+    aria-live="polite"
+    class="text-xs tabular-nums text-slate-500"
+  />
+
+  --------------------------------------------------
+  searchbox:
+
+  Name "Search send recipients":
+  <input
+    class="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-50 disabled:text-slate-400 pl-10"
+    placeholder="Search recipients by name or number…"
+    type="search"
+    value=""
+  />
+
+  --------------------------------------------------
+  button:
+
+  Name "Deselect matching":
+  <button
+    class="text-xs font-medium text-blue-700 disabled:opacity-40"
+    type="button"
+  />
+
+  Name "Previous":
+  <button
+    aria-busy="false"
+    class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap text-slate-600 hover:bg-slate-100 hover:text-slate-900 active:bg-slate-200 h-9 px-4 py-2"
+    type="button"
+  />
+
+  Name "Next":
+  <button
+    aria-busy="false"
+    class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap text-slate-600 hover:bg-slate-100 hover:text-slate-900 active:bg-slate-200 h-9 px-4 py-2"
+    disabled=""
+    type="button"
+  />
+
+  --------------------------------------------------
+  table:
+
+  Name "":
+  <table
+    class="w-full text-left text-sm [&_thead]:bg-slate-50/80 [&_th]:px-5 [&_th]:py-3 [&_th]:text-xs [&_th]:font-medium [&_th]:text-slate-500 [&_td]:px-5 [&_td]:py-4 [&_tbody_tr]:border-t [&_tbody_tr]:border-slate-100 [&_tbody_tr]:transition-colors [&_tbody_tr:hover]:bg-slate-50/60"
+  />
+
+  --------------------------------------------------
+  rowgroup:
+
+  Name "":
+  <thead />
+
+  Name "":
+  <tbody />
+
+  --------------------------------------------------
+  row:
+
+  Name "Selection Recipient WhatsApp number":
+  <tr />
+
+  --------------------------------------------------
+  columnheader:
+
+  Name "Selection":
+  <th
+    class="w-12"
+  />
+
+  Name "Recipient":
+  <th />
+
+  Name "WhatsApp number":
+  <th />
+
+  --------------------------------------------------
+  navigation:
+
+  Name "Send recipients pagination":
+  <nav
+    aria-label="Send recipients pagination"
+    class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 px-5 py-3"
+  />
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <section
+      aria-label="Message audience"
+      class="_surface_f9e12c"
+    >
+      <div
+        class="space-y-5 p-5 sm:p-6"
+      >
+        <div
+          class="flex flex-wrap items-center justify-between gap-3"
+        >
+          <div>
+            <h3
+              class="text-sm font-semibold text-slate-900"
+            >
+              Recipients for this send
+            </h3>
+            <p
+              class="mt-1 text-xs text-slate-500"
+            >
+              Choose the audience, then select the people who should receive this message.
+            </p>
+          </div>
+          <span
+            aria-live="polite"
+            class="text-xs tabular-nums text-slate-500"
+          >
+            20 selected of 20 matching
+          </span>
+        </div>
+        <div
+          class="flex flex-wrap items-center gap-3"
+        >
+          <label
+            class="relative min-w-48 flex-1 sm:max-w-md"
+          >
+            <span
+              class="sr-only"
+            >
+              Search send recipients
+            </span>
+            <svg
+              aria-hidden="true"
+              class="lucide lucide-search pointer-events-none absolute left-3 top-3 h-4 w-4 text-slate-400"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="m21 21-4.34-4.34"
+              />
+              <circle
+                cx="11"
+                cy="11"
+                r="8"
+              />
+            </svg>
+            <input
+              class="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-50 disabled:text-slate-400 pl-10"
+              placeholder="Search recipients by name or number…"
+              type="search"
+              value=""
+            />
+          </label>
+          <button
+            class="text-xs font-medium text-blue-700 disabled:opacity-40"
+            type="button"
+          >
+            Deselect matching
+          </button>
+        </div>
+      </div>
+      <div
+        class="overflow-x-auto"
+      >
+        <table
+          class="w-full text-left text-sm [&_thead]:bg-slate-50/80 [&_th]:px-5 [&_th]:py-3 [&_th]:text-xs [&_th]:font-medium [&_th]:text-slate-500 [&_td]:px-5 [&_td]:py-4 [&_tbody_tr]:border-t [&_tbody_tr]:border-slate-100 [&_tbody_tr]:transition-colors [&_tbody_tr:hover]:bg-slate-50/60"
+        >
+          <thead>
+            <tr>
+              <th
+                class="w-12"
+              >
+                <span
+                  class="sr-only"
+                >
+                  Selection
+                </span>
+              </th>
+              <th>
+                Recipient
+              </th>
+              <th>
+                WhatsApp number
+              </th>
+            </tr>
+          </thead>
+          <tbody />
+        </table>
+      </div>
+      <nav
+        aria-label="Send recipients pagination"
+        class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 px-5 py-3"
+      >
+        <p
+          aria-live="polite"
+          class="text-xs tabular-nums text-slate-500"
+        >
+          51–20 of 20
+        </p>
+        <div
+          class="flex gap-2"
+        >
+          <button
+            aria-busy="false"
+            class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap text-slate-600 hover:bg-slate-100 hover:text-slate-900 active:bg-slate-200 h-9 px-4 py-2"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              class="lucide lucide-arrow-left h-3.5 w-3.5"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="m12 19-7-7 7-7"
+              />
+              <path
+                d="M19 12H5"
+              />
+            </svg>
+            Previous
+          </button>
+          <button
+            aria-busy="false"
+            class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap text-slate-600 hover:bg-slate-100 hover:text-slate-900 active:bg-slate-200 h-9 px-4 py-2"
+            disabled=""
+            type="button"
+          >
+            Next
+            <svg
+              aria-hidden="true"
+              class="lucide lucide-arrow-right h-3.5 w-3.5"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M5 12h14"
+              />
+              <path
+                d="m12 5 7 7-7 7"
+              />
+            </svg>
+          </button>
+        </div>
+      </nav>
+    </section>
+  </div>
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:109:15
+ ❯ features/whatsapp/workspace/message-composer-audience.test.tsx:25:17
+     23|   expect(screen.getByText("Synthetic person 51")).toBeInTheDocument();
+     24|   view.rerender(<ComposerAudience model={model(20)} />);
+     25|   expect(screen.getAllByRole("checkbox")).toHaveLength(20);
+       |                 ^
+     26|   expect(screen.getByText("Synthetic person 1")).toBeInTheDocument();
+     27|   expect(within(pagination).getByText("1–20 of 20")).toBeInTheDocument…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  00:18:57
+   Duration  1.60s (transform 105ms, setup 223ms, import 175ms, tests 210ms, environment 817ms)
+

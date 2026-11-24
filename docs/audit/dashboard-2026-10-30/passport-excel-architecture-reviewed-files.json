@@ -1,0 +1,128 @@
+[
+  {
+    "path": "backend/app/application/mcp/group_workbook_source.py",
+    "sha256": "c6bdf83a234e085e00acc603bc5b81ed3396fba4152c3387513ef67fe1f736b9",
+    "physical_lines": 89,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "reviewed",
+    "notes": "Complete immediate parser caller physically read. Uses the same public importer class outside retained database locks, then deduplicates/checkpoints canonical rows. Runtime importer alias identity verified; no provider/storage operations invoked by this review."
+  },
+  {
+    "path": "backend/app/infrastructure/imports/passport_excel_catalog.py",
+    "sha256": "3a27556ec32bec2c7a524951981ed4906421f52b7c4a0fd8c313fbda56eb45f3",
+    "physical_lines": 228,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "reviewed",
+    "notes": "Complete current catalog physically read. All20 original policy assignments,4 pure functions and frozen header-alias dataclass retain exact original AST. Resource/date/header/error/null policies unchanged; canonical policy owner used by all implementation files. Public module aliases retain object identity with canonical default values. Diagnostic class module metadata retains original public path."
+  },
+  {
+    "path": "backend/app/infrastructure/imports/passport_excel_formula.py",
+    "sha256": "d932d4ce4b788fc5ea6f7e239395e859c6d471f8f948545bfbedccd6b02e4d40",
+    "physical_lines": 46,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "reviewed",
+    "notes": "All46 current lines physically read at preflight and raw SHA archived; source remains strict byte-for-byte unchanged. Existing formula namespace/chunk regressions are reused; no new adversarial input or formula-policy change in this source-ownership tranche."
+  },
+  {
+    "path": "backend/app/infrastructure/imports/passport_excel_importer.py",
+    "sha256": "44406c80359ec3c37197a566cd150e0b439838885b3016416316870e008fde03",
+    "physical_lines": 115,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "reviewed",
+    "notes": "Complete original 941-line implementation physically read, archived before editing, then complete current public facade/controller physically reread. Public class remains defined at its original module. All20 Final annotated aliases, pure helper aliases and public records resolve. Original308-line body matches exactly after expanding sheet/passenger/quota helper calls and explicit data projections; workbook acquisition, exceptions and finally close order retained."
+  },
+  {
+    "path": "backend/app/infrastructure/imports/passport_excel_limits.py",
+    "sha256": "a12469a59bc650b82151139c66e90c1c3b3e38d6b0813b0b926e371c4e78d7ca",
+    "physical_lines": 158,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "reviewed",
+    "notes": "Complete current limit/formula-view owner physically read, including final quota helper. Seven original methods retain AST after only policy qualification. Three identical unmapped-row quota sequences now share a typed helper; fully expanded statements and legacy hook-call order match original. Archive/formula/helper behavior unchanged."
+  },
+  {
+    "path": "backend/app/infrastructure/imports/passport_excel_records.py",
+    "sha256": "f6f895e4cd3e8efe09c1242438811b475671e2cb2ce7ae56e61ac3b4880d5b15",
+    "physical_lines": 52,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "reviewed",
+    "notes": "Complete current records physically read. Original error and frozen9-field row dataclass definitions retain exact AST, constructor, evaluated type hints, defaults and metadata. Explicit original public module identity retained. Added five-field per-import results/quota DATA and seven-field worksheet iterator/header DATA, without injected callable services or ORM/DDL metadata; new annotations evaluate normally."
+  },
+  {
+    "path": "backend/app/infrastructure/imports/passport_excel_rows.py",
+    "sha256": "93d00e74b9003e981f0fc65987efacb1a8a3f0be945e42fa3a0e15b473c4f44e",
+    "physical_lines": 264,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "reviewed",
+    "notes": "Complete current row/header/value owner physically read. Twelve original template methods retain AST after only qualifying original policy names through catalog. Exact header priority, duplicate metadata names, explicit blank surname, date/identity normalization, source limits and source-contact metadata semantics retained. self dispatch preserves class/instance overrides; no new framework or proxy."
+  },
+  {
+    "path": "backend/app/infrastructure/imports/passport_excel_worksheets.py",
+    "sha256": "1ac46c34eec98de7b4ea6fee9188580d44af16a43c2cbd1aaae0a612ca1913a3",
+    "physical_lines": 256,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "reviewed",
+    "notes": "Complete current file physically reread in consecutive1-150 and151-EOF chunks after final edits. Worksheet preparation and passenger-row collection use typed input/result state;2 original outer-loop continues become helper returns and all nested continues remain exact. Full expansion proves row increments, materialization charges, metadata/source fields, iterator consumption, formula checks and hook order unchanged."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/excel_import.py",
+    "sha256": "0d27ed0e4702e5a8c14cd23c4c12e917d584ecea0e3bdaead6aa182da710af70",
+    "physical_lines": 363,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "reviewed",
+    "notes": "Complete immediate route caller physically read. Actual public row/error/importer imports and asyncio.to_thread dispatch retained, parsing remains before group reauthorization/persistence. Existing duplicate/resolution, contact provenance, audit/commit and no-op rollback behavior unchanged. No source edits or provider calls."
+  },
+  {
+    "path": "backend/app/presentation/mcp/group_workbook_tools.py",
+    "sha256": "2b3d254311948594925e6a884edbcc1cdf75d74f25363f8c453b56b7e36ac9b4",
+    "physical_lines": 137,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "reviewed",
+    "notes": "Complete current tool-registration module physically read, including an EOF check after line140. Existing imported error contract and canonical support wiring resolve to actual public objects. Module import was used for alias proof; no MCP registration or tool invocation performed."
+  },
+  {
+    "path": "backend/tests/unit/application/test_client_collection_provenance.py",
+    "sha256": "e29d62f56d22080c6aa3216868b89fec8b818ec2792911cdddcedffe11bce49d",
+    "physical_lines": 94,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "reviewed",
+    "notes": "Complete current file physically read. Existing reserved metadata-key, public completion provenance and import merge/contact authority controls retained unchanged and executed. No native mobile feature implementation changes."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_passport_excel_formula_boundaries.py",
+    "sha256": "5eb58c2f9f0585f248b00cc4549ae8f37e1f18abda8c74cdb273d757294b05c6",
+    "physical_lines": 84,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "reviewed",
+    "notes": "Complete current file physically read. Existing installed-SDK synthetic fixture cases retained strict unchanged and run as part of the83-case affected cohort. No additional payloads or vulnerability probes constructed."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_passport_excel_importer.py",
+    "sha256": "71823038ba16c82b2718e93977789c516d22190cbec05a140c76300b2208c0bd",
+    "physical_lines": 571,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "reviewed",
+    "notes": "Complete original file physically read, then complete current file reread in1-300 and301-EOF chunks. Sole edit retargets importer_module instrumentation import to the canonical catalog for Final limit patches; all other normalized source, test/helper bodies and57 assertions remain exact. No new fixture construction or assertions introduced."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_excel_import_route.py",
+    "sha256": "b06af56b1c9378bfc1ebb3e4d167747c791bd25d4a69c04f180c36b4a9551989",
+    "physical_lines": 608,
+    "review_scope": "full",
+    "reviewer": "document_ui_architecture",
+    "status": "reviewed",
+    "notes": "Complete current file physically read in consecutive bounded chunks. Existing actual parser offload, public row constructor, bounded upload, duplicate/key resolution, reimport merge and transaction/reauthorization controls retained unchanged and executed before and after. Existing10k indexed deduplication case is correctness evidence, not a new performance benchmark."
+  }
+]

@@ -6,6 +6,10 @@ import ast
 import inspect
 
 from app.presentation.api.v1.routes import (
+    email_connection_ai_settings,
+    email_connection_disconnect,
+    email_connection_monitoring,
+    email_connection_removal,
     email_integration_access,
     email_integration_activity,
     email_integration_connections,
@@ -108,7 +112,14 @@ def test_email_integration_route_order_and_names_remain_stable() -> None:
         email_integration_review_decisions,
         email_integration_activity,
     )
-    decorated = [name for module in owners for name in _decorated_route_names(module)]
+    declaration_owners = (
+        *owners,
+        email_connection_ai_settings,
+        email_connection_disconnect,
+        email_connection_monitoring,
+        email_connection_removal,
+    )
+    decorated = [name for module in declaration_owners for name in _decorated_route_names(module)]
     assert sorted(decorated) == sorted(name for _, _, name in actual)
     for route in email_integrations.router.routes:
         assert route.endpoint is getattr(email_integrations, route.name)

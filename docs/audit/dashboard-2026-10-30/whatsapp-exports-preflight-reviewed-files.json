@@ -1,0 +1,332 @@
+{
+  "files": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_exports.py",
+      "sha256": "4c719c70041d102ee6b96af13394442bd468032f53dd236ae7331095d2885aaa",
+      "physical_lines": 520,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "needs-follow-up",
+      "notes": "Complete520-line current physical read in bounded chunks. Read coverage complete; implementation/behavioral baseline and architecture follow-through remain open.308-line/MCC100gather mixes scope/provenance/query/hydration/projection. No source changes or app checks."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/whatsapp_export_schemas.py",
+      "sha256": "84a88965c508aad129d52c37b467f39abf6fa5f28203d471693c46858fabeed5",
+      "physical_lines": 40,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete40-line source read. Explicit selected identities,1\u201320000items, unique identity triples, delivery/traveller kind/source-group validation and80-character metadata label reviewed; unchanged."
+    },
+    {
+      "path": "backend/app/infrastructure/export/whatsapp_filter_excel_exporter.py",
+      "sha256": "5c019ac68ca05d9c02ddc889475675a17015984cdd93b09f25ad02a16226f31b",
+      "physical_lines": 278,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete278-line source read. Existing current-full root/passport-exporter ledgers retained as history; no unique imported-source credit. Frozen shared workbook policy: literals, date handling, custom fields, bounded rows/columns/cells/text and workbook lifetime."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_recipient_roster.py",
+      "sha256": "1fd7b7511c5d6305853399c62b16537213d3bb90c4e0684a36b3a2b613f14218",
+      "physical_lines": 372,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete372-line source read. Actual roster identity, rejected/replaced/unidentified rows, group/agency/staff scope, ordering/counts and read-helper closure traced. No implementation or architecture-complete claim for this independent owner."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_merged_contacts.py",
+      "sha256": "ad8aed1c998143dc1169012997d980f7bab2879920685fab190b94376deae40c",
+      "physical_lines": 30,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete30-line source read. Active unmerged target records scoped to agency+broadcast; separate manual contact snapshots preserve names/imported fields and deterministic source ordering; unchanged."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_export_support.py",
+      "sha256": "3bf9cd6a6c6854971df328266b2f2610ad0bfa18bb83cdbeab1bed8ea426bd13",
+      "physical_lines": 133,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete133-line compatibility surface read. Existing current full record retained. Export consumer resolves actual recipient-value/group metadata owners; no forced split or credit for every imported owner."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_export_recipient_values.py",
+      "sha256": "1e21745b332529dc9f9b9b6979cf1f7f71167a67f386cdaec2e63d67cd1f823a",
+      "physical_lines": 211,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete211-line source read. Existing current full record retained. Casefolded exact unambiguous email/phone/zone projection, missing sentinels and conflicting identity handling preserved."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_export_metadata.py",
+      "sha256": "b6f4e2ee77c4d126d0e8a105e1a7855a383ea2f99ce40d540366c57c15a06c8c",
+      "physical_lines": 82,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete82-line source read. Existing current full record retained. Group metadata is detached scalars/lists, including option-independent dynamic definitions; history snapshot helper is not invoked by this route."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_router.py",
+      "sha256": "4ed2349b9b92acb5af58df36d21e84899c3758e604176420ea67b210e8c1ae74",
+      "physical_lines": 62,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete62-line router composition source read. Actual export endpoint included once at its existing position between recipient roster and rejected-contact routers; other imported route owners not implicitly reviewed."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_group_visibility.py",
+      "sha256": "6a99074f2af2e4aba32d552358102b415bb9d092cc93bc6acc16f8cf8a41c042",
+      "physical_lines": 21,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete21-line source read. Shared passport group staff ownership/assignment/lifecycle predicates apply to roster enrichment; broadcast access alone does not authorize unrelated passport groups."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_schema_contract.py",
+      "sha256": "1845fae52742ea474c0035c3354048e95e574a164a97037b3b8f6c1d7511f70d",
+      "physical_lines": 189,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete189-line existing source read. Covers29legacy WhatsApp response/request schema compatibility and explicit additions; does not directly exercise the new40-line WhatsAppFilterExportRequest or filter export handler/workbook."
+    },
+    {
+      "path": "backend/tests/integration/test_whatsapp_export_reimport.py",
+      "sha256": "2e332af0a2a30968990026dbda067c9bb078632a800b7f15a55e01833b237c9a",
+      "physical_lines": 172,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete172-line source read; existing current full exporter ledger retained. Tests selected-passport workbook/contact import roundtrip, not this broadcast filter handler. No test execution credited here."
+    },
+    {
+      "path": "frontend/features/whatsapp/api/whatsapp-export.api.ts",
+      "sha256": "1643c0b40713074244d4d29594958897137dde0cccf2525a7e59b00ee8a95fcb",
+      "physical_lines": 43,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete43-line source read. Typed row-ID body, abort signal, POST native endpoint, header MIME validation and streamed destination. Public delivery and traveller types preserved; no frontend changes."
+    },
+    {
+      "path": "frontend/features/whatsapp/hooks/use-whatsapp-export.ts",
+      "sha256": "9a2dc782358e6aa389a20064f79a5cc937d696d6a11b455b7803940c6c049238",
+      "physical_lines": 45,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete45-line source read; prior current full WhatsApp ledger retained. Request selected IDs captured before native picker/network, operation/group cleanup and errors traced to shared owner-bound download. No test/browser run."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-export-button.tsx",
+      "sha256": "b4eec7b9b68110f92c214778dcab0213c66621e3a13583745732a7be30b4874e",
+      "physical_lines": 59,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete59-line source read. Exports requested full filtered set across every page, count/disabled/search readiness and bounded label metadata preserved. No source/UI change."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-source-contact-table.tsx",
+      "sha256": "9148d74a30e9d5ff60e38bdec1c82ac70c70c8468fc5436e0bcfef321c4a6dd4",
+      "physical_lines": 160,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete160-line source read; prior current full WhatsApp ledger retained.25-row visual pages preserve shared phone groups; exported IDs come from full filteredSets, not visibleSets, and deferred-search readiness gates capture."
+    },
+    {
+      "path": "backend/app/application/security/authorization_policy.py",
+      "sha256": "6a1ee49097b124715ce52fb5810387c6be5a3a5e18f4896676340c6e6dabe663",
+      "physical_lines": 362,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "focused",
+      "notes": "Focused239\u2013310 export/view and require-export boundary physically read; existing explicit current-full source ledgers retained. Office roles require group visibility, separate from mere broadcast access; no whole-source reread claim here.",
+      "read_ranges": [
+        [
+          239,
+          310
+        ]
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/phone_overrides.py",
+      "sha256": "669da158e86223949b2543d4b8106005ee4c958f8015894537eca09983b6fc27",
+      "physical_lines": 328,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "focused",
+      "notes": "Focused1\u2013210 physically read, including complete valid-override loader117\u2013163 and fingerprint helpers. Agency/group/broadcast/link/recipient, active/operational source and current-phone fingerprint checks traced; rest not credited full.",
+      "read_ranges": [
+        [
+          1,
+          210
+        ]
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_submission_repository.py",
+      "sha256": "86d3e08deca66ccc621be769e73a2e8df822c0f540be5779467c8e0cab3379c2",
+      "physical_lines": 901,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "focused",
+      "notes": "Focused61\u2013158 physical read, containing complete _to_entity64\u2013124. Domain values are materialized before read rollback/workbook thread; remaining repository not reread/credited.",
+      "read_ranges": [
+        [
+          61,
+          158
+        ]
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_whatsapp_matching_repository.py",
+      "sha256": "fb4c0c77ef572e171220c867bd79c202c507ac8a19248d884913d512da7f65cc",
+      "physical_lines": 222,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "focused",
+      "notes": "Focused91\u2013222 actual unresolved context loader/caller boundary read; existing explicit current-full matching repository ledger retained. Fresh query of agency/group/links, suppressed/replacement exclusions and off-loop comparison/cache dispatch traced.",
+      "read_ranges": [
+        [
+          91,
+          222
+        ]
+      ]
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/group_submission_matching.py",
+      "sha256": "dc85ecd81a87dd90451b9558d40a5007d338d93c3af30570cbff7d92b6ceb2e3",
+      "physical_lines": 201,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "focused",
+      "notes": "Focused1\u201380 compatibility imports/docs read; existing complete-source WhatsApp ledger retained. No whole-file read credit in this lane or matching policy edit.",
+      "read_ranges": [
+        [
+          1,
+          80
+        ]
+      ]
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/group_match_coordinator.py",
+      "sha256": "d409da422bab1a779bf75a3b4c10e98e0ec5b036735d5161d11af5f35fb7f76f",
+      "physical_lines": 188,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "focused",
+      "notes": "Focused123\u2013169 classification boundary read. Contradictory assignments become needs_review; assigned duplicate identity rows become multiple_submissions. That label alone is not evidence of unauthorized ambiguous matching.",
+      "read_ranges": [
+        [
+          123,
+          169
+        ]
+      ]
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/group_match_rows.py",
+      "sha256": "8c712fa4e4529434139a45acba392f9119ac842191154d0bf62caa101a732369",
+      "physical_lines": 231,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "focused",
+      "notes": "Focused76\u2013114 row projection read. Submission IDs emitted for assigned submitted/multiple_submissions rows; needs_review remains distinct. No whole-module credit.",
+      "read_ranges": [
+        [
+          76,
+          114
+        ]
+      ]
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/source_group_contacts.py",
+      "sha256": "af6ec9c7113479c734be7068e1c27e8a4c96f8637c3e23ed6186788e467817c0",
+      "physical_lines": 110,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "focused",
+      "notes": "Focused1\u201333 read of actual _raw_source_phone24\u201330 and imports. Public submitted contact vs explicit imported phone provenance preserved; no unrelated native-app feature audit.",
+      "read_ranges": [
+        [
+          1,
+          33
+        ]
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_roster_support.py",
+      "sha256": "91ae572d7825dafff8ccea8254023fb9924fd58266df0ac1b8d7f61a8e99c23f",
+      "physical_lines": 400,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "focused",
+      "notes": "Focused36\u2013164 actual delivery-state-map function69\u2013163 read. Read/scalar status projection, explicit resend ranking and in-memory blocking overlay traced; remaining400-line owner not credited full.",
+      "read_ranges": [
+        [
+          36,
+          164
+        ]
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_contact_responses.py",
+      "sha256": "04cdf2c58e178c1fbe733ec238efbe3d3eec3765fe938607cadf3b85e9c1cb14",
+      "physical_lines": 193,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "focused",
+      "notes": "Focused96\u2013195 read including complete _recipient_response100\u2013165 and adjacent response projections. Typed status/welcome metadata copied without send/history APIs; no whole-file credit.",
+      "read_ranges": [
+        [
+          96,
+          195
+        ]
+      ]
+    },
+    {
+      "path": "frontend/lib/api/streamed-download.ts",
+      "sha256": "4829fc5dc12a741cbe146cad78be3eee1d641a14eb09366c36356a96587864e4",
+      "physical_lines": 301,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "focused",
+      "notes": "Focused51\u2013200 main download authority/lifetime boundary read; existing current full shared frontend ledger retained. Owner config/store subscription/session reset/caller abort guard before and after picker and through response body; no SDK edits or account-switch defect claim.",
+      "read_ranges": [
+        [
+          51,
+          200
+        ]
+      ]
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_passport_group_pending_export_helpers.py",
+      "sha256": "1887e6829b5136ccf7e223face8e00f1d3bbe22fcfb6f42bd2aee3e0b4b8cb81",
+      "physical_lines": 922,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "focused",
+      "notes": "Focused1\u2013150 existing helper tests read. Demonstrates imported-field ambiguity handling and related passport export helpers, not direct coverage of broadcast filter export route. No full test-file credit or check execution.",
+      "read_ranges": [
+        [
+          1,
+          150
+        ]
+      ]
+    }
+  ],
+  "physical_full_files": 16,
+  "physical_full_lines": 2417,
+  "focused_files": 12,
+  "method": "Read-only individual physical source review. Current prior full rows retain provenance; imports/search/tests do not grant full manual coverage. Main source read completion does not close architecture or behavior/performance proof gaps."
+}

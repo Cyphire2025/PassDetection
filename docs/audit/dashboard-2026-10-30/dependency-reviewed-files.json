@@ -1,0 +1,28 @@
+{
+  "files": [
+    {
+      "path": "tooling/dependency-exceptions.json",
+      "sha256": "a25aa4f49a22c9688dbd5c33644ca171a3100df0007e6b1ec92c8934f25aabfa",
+      "review_status": "full",
+      "notes": "Revalidated both existing scoped exceptions against exact current dependency versions and all installed verifier source bytes. Only two runtime_lock_sha256 values changed; every other field structurally identical. No exception added/extended."
+    },
+    {
+      "path": "scripts/audit_backend_dependencies.py",
+      "sha256": "80519598090ab6a115a481708abe756eea8a72ad2792779ce8dd054d5c460600",
+      "review_status": "full",
+      "notes": "Read complete existing lock/owner/date/sourcehash/import-graph/advisory gate. Executed check-only and actual lock-audit/SBOM paths. No source change."
+    },
+    {
+      "path": "scripts/test_tooling_controls.py",
+      "sha256": "e9452f2284a8aaf34ecc8d6f9c7592630837f3346012733c69273ec93d6c721c",
+      "review_status": "partial",
+      "notes": "Reviewed negative controls for unknown advisories, owner/expiry/lock/version/hash changes and direct/indirect/dynamic forbidden imports;14tests passed. No source change."
+    },
+    {
+      "path": "backend/requirements.lock",
+      "sha256": "fdcc91a5eb87f6f678fe03ef37c83109edb639527eba387d73d031114a4188b6",
+      "review_status": "partial",
+      "notes": "Hash-normalized input bound to removal-only dependency change; actual full lock pip-audit executed. No pin/lock changes in this follow-up; audit fails on additional existing pinned dependencies."
+    }
+  ]
+}

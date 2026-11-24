@@ -1,0 +1,106 @@
+[
+  {
+    "path": "app/core/config/runtime_settings_fields.py",
+    "baseline_lines": 88,
+    "maximum_lines": 90,
+    "baseline_max_function_complexity": 9,
+    "maximum_function_complexity": 10,
+    "minimum_coverage_percent": 80
+  },
+  {
+    "path": "app/core/config/request_settings_fields.py",
+    "baseline_lines": 93,
+    "maximum_lines": 100,
+    "baseline_max_function_complexity": 0,
+    "maximum_function_complexity": 1,
+    "minimum_coverage_percent": 95
+  },
+  {
+    "path": "app/core/config/ingestion_settings_fields.py",
+    "baseline_lines": 59,
+    "maximum_lines": 60,
+    "baseline_max_function_complexity": 0,
+    "maximum_function_complexity": 1,
+    "minimum_coverage_percent": 95
+  },
+  {
+    "path": "app/core/config/ai_settings_fields.py",
+    "baseline_lines": 97,
+    "maximum_lines": 100,
+    "baseline_max_function_complexity": 4,
+    "maximum_function_complexity": 5,
+    "minimum_coverage_percent": 95
+  },
+  {
+    "path": "app/core/config/email_settings_fields.py",
+    "baseline_lines": 119,
+    "maximum_lines": 120,
+    "baseline_max_function_complexity": 9,
+    "maximum_function_complexity": 10,
+    "minimum_coverage_percent": 90
+  },
+  {
+    "path": "app/core/config/identity_settings_fields.py",
+    "baseline_lines": 100,
+    "maximum_lines": 110,
+    "baseline_max_function_complexity": 0,
+    "maximum_function_complexity": 1,
+    "minimum_coverage_percent": 95
+  },
+  {
+    "path": "app/core/config/whatsapp_settings_fields.py",
+    "baseline_lines": 79,
+    "maximum_lines": 80,
+    "baseline_max_function_complexity": 7,
+    "maximum_function_complexity": 8,
+    "minimum_coverage_percent": 90
+  },
+  {
+    "path": "app/core/config/settings_deployment_policy.py",
+    "baseline_lines": 83,
+    "maximum_lines": 90,
+    "baseline_max_function_complexity": 7,
+    "maximum_function_complexity": 8,
+    "minimum_coverage_percent": 80
+  },
+  {
+    "path": "app/core/config/settings_identity_policy.py",
+    "baseline_lines": 76,
+    "maximum_lines": 80,
+    "baseline_max_function_complexity": 12,
+    "maximum_function_complexity": 13,
+    "minimum_coverage_percent": 95
+  },
+  {
+    "path": "app/core/config/settings_mobile_policy.py",
+    "baseline_lines": 139,
+    "maximum_lines": 140,
+    "baseline_max_function_complexity": 15,
+    "maximum_function_complexity": 16,
+    "minimum_coverage_percent": 95
+  },
+  {
+    "path": "app/core/config/settings.py",
+    "baseline_lines": 212,
+    "maximum_lines": 220,
+    "baseline_max_function_complexity": 6,
+    "maximum_function_complexity": 7,
+    "minimum_coverage_percent": 95
+  },
+  {
+    "path": "app/core/config/my_photos_settings.py",
+    "baseline_lines": 242,
+    "maximum_lines": 250,
+    "baseline_max_function_complexity": 10,
+    "maximum_function_complexity": 11,
+    "minimum_coverage_percent": 75
+  },
+  {
+    "path": "app/core/config/my_photos_aws_policy.py",
+    "baseline_lines": 209,
+    "maximum_lines": 210,
+    "baseline_max_function_complexity": 18,
+    "maximum_function_complexity": 19,
+    "minimum_coverage_percent": 75
+  }
+]

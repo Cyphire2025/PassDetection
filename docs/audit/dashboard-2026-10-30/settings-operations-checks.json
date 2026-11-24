@@ -1,0 +1,67 @@
+[
+  {
+    "check": "release-bindings",
+    "exit_code": 0,
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      ".tmp/verify-current-release-bindings.py"
+    ],
+    "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection"
+  },
+  {
+    "check": "static-budgets",
+    "exit_code": 0,
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "scripts/verify_backend_quality_budgets.py"
+    ],
+    "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection\\backend"
+  },
+  {
+    "check": "operator-checks",
+    "exit_code": 0,
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "scripts",
+      "-p",
+      "test_release_workspace_branding.py"
+    ],
+    "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection"
+  },
+  {
+    "check": "inventory-check",
+    "exit_code": 0,
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "scripts/mcp_inventory.py",
+      "--check"
+    ],
+    "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection"
+  },
+  {
+    "check": "api-check",
+    "exit_code": 0,
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "scripts/export_api_contract.py"
+    ],
+    "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection\\backend",
+    "initial_invocation_exit_code": 2,
+    "initial_issue": "Unsupported --check flag; default mode performs snapshot verification."
+  },
+  {
+    "check": "mobile-api-check",
+    "exit_code": 0,
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "scripts/export_mobile_openapi_contract.py"
+    ],
+    "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection\\backend",
+    "initial_invocation_exit_code": 2,
+    "initial_issue": "Unsupported --check flag; default mode performs snapshot verification."
+  }
+]

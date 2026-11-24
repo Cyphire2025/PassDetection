@@ -1,0 +1,26 @@
+[
+  {
+    "path": "scripts/release_code_update.py",
+    "sha256": "21f79c420f5f8964cb429224cb323487468efde6f7231b72d00e98137968edd6",
+    "reviewer": "ai_extraction",
+    "review_scope": "partial",
+    "status": "fixed",
+    "notes": "Only task-contract parser/affected import+flag sites, related regression methods or the exact backend-static-checks checkout key reviewed. Real before/after controls and whole module/workflow equivalence recorded. Broader physical source review is not inferred from this narrow integration."
+  },
+  {
+    "path": "scripts/test_release_code_update.py",
+    "sha256": "04d6f5a150b824960857ad8671e468060182fe4138f83b21b6d50e7d8c4c4147",
+    "reviewer": "ai_extraction",
+    "review_scope": "partial",
+    "status": "fixed",
+    "notes": "Only task-contract parser/affected import+flag sites, related regression methods or the exact backend-static-checks checkout key reviewed. Real before/after controls and whole module/workflow equivalence recorded. Broader physical source review is not inferred from this narrow integration."
+  },
+  {
+    "path": ".github/workflows/ci.yml",
+    "sha256": "ab1f1961f774769a8efbebd80c4f0c5b66c52b77e6a3ddc79906e49259b63109",
+    "reviewer": "ai_extraction",
+    "review_scope": "partial",
+    "status": "fixed",
+    "notes": "Only task-contract parser/affected import+flag sites, related regression methods or the exact backend-static-checks checkout key reviewed. Real before/after controls and whole module/workflow equivalence recorded. Broader physical source review is not inferred from this narrow integration."
+  }
+]

@@ -1,0 +1,82 @@
+[
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions.py",
+    "sha256": "aad1b4a3b41c0d831f7b2aa06063be18bab9584ba59defd57573cd3c0349e820",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "needs-follow-up",
+    "notes": "Complete current source read; in-flight credential/session defect corrected with5actual persisted scenarios and83affected tests. Long bulk controllers remain an independent architecture follow-up."
+  },
+  {
+    "path": "backend/app/application/security/access_level_actor.py",
+    "sha256": "3a8eec715f67356a378986999a012723bdd21f5510518ee7320ce7d0809013a6",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete current source/test read with exact baseline assertion and policy proof."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/managed_account_sessions.py",
+    "sha256": "64828e2872daadeaee2362b07c4a353f43c6408e4598e59e7287ebb96b628043",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Affected test execution or management reset/session-state transition trace; no full physical source credit in this batch."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/managed_account_credentials.py",
+    "sha256": "067cfca4e972d2caaff00aa6b2dc81fbe3bcff6f2bb7bb39b0c4a5fee114a778",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Affected test execution or management reset/session-state transition trace; no full physical source credit in this batch."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py",
+    "sha256": "845f15f3cab392384ca306a3d76cda56375c160c80237ee3825fc6b5dd8e9e7e",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete current source/test read with exact baseline assertion and policy proof."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_bulk_approval_session_fence.py",
+    "sha256": "cb4b2e4c5ec0827ad1efe5706e2394e864a60b6fc8a2ee1d02bae620a93cf81e",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete current source/test read with exact baseline assertion and policy proof."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_bulk_delete_route.py",
+    "sha256": "458b2b2c710475ed9513d44128f2fd95318998995092da1adf91c7c371bbd1a8",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Affected test execution or management reset/session-state transition trace; no full physical source credit in this batch."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_submission_delete_access.py",
+    "sha256": "a00bdacedbd40ed4f612ff7f2b4af090bfbee2bb6edfbc6e8dce750439984b7a",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Affected test execution or management reset/session-state transition trace; no full physical source credit in this batch."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_deletion_support.py",
+    "sha256": "72f1d08b4e3095350904c40f9f625182462a3225564746498e1c1a5080a47939",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Affected test execution or management reset/session-state transition trace; no full physical source credit in this batch."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_superadmin_access_level.py",
+    "sha256": "6db299d16c4955822c37a1c7852a42d5348bb04eb7afc3c06c57beb9e27d4d04",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Affected test execution or management reset/session-state transition trace; no full physical source credit in this batch."
+  }
+]

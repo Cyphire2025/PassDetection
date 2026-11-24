@@ -1,0 +1,30 @@
+{
+  "command": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-vv",
+    "--tb=long",
+    "-o",
+    "addopts=",
+    "--no-cov",
+    "tests/unit/presentation/test_whatsapp_composer_persistence.py::test_fresh_passport_send_rejects_missing_image_header",
+    "--junitxml=C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\final-retained-backend-composer-header-diagnostic-20261101-001\\junit.xml"
+  ],
+  "exit_code": 1,
+  "seconds": 14.297,
+  "same_guard_minimal_environment": true,
+  "coverage_disabled": true,
+  "source_fence_exact_before_after": true,
+  "artifacts": {
+    "environment-guard-27172.json": "ba75c18c8c883a33afcd0c51a5c1efa42fa00890d13d6ac5c52fa2a4c30a3a1f",
+    "junit.xml": "1b8df33ff93414b312be8893eac693081cfadfb6d9a3c5bc741269e89cc95f4a",
+    "source-fence.json": "eb286986c046a4f1fa769bb0504d25b3222cff36943c3234e14a0a465b47e08c",
+    "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout.txt": "ab29916775553ab378785f51c2c33c5a7aca2973207cbec73f4f1e7f1822c5d6"
+  },
+  "limits": [
+    "Standalone diagnostic cannot replace original combined-run evidence.",
+    "No source changes or coverage merging."
+  ]
+}

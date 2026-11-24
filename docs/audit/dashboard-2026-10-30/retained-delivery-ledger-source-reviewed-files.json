@@ -1,0 +1,57 @@
+{
+  "status": "Retained mixed delivery-ledger source slices complete; native OTP subsection excluded",
+  "files": [
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_delivery_ledger.py",
+      "sha256": "c0b534ee0e5a15b1aca8587c31ef45d4bbd8a0dd3d7ed1249b83023331732ac5",
+      "physical_lines": 2115,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "focused",
+      "reviewed_ranges": [
+        [
+          1,
+          1977
+        ],
+        [
+          2012,
+          2115
+        ]
+      ],
+      "excluded_ranges": [
+        [
+          1978,
+          2011
+        ]
+      ],
+      "notes": "All physical2115 lines were displayed in bounded1-220/221-440/441-660/661-880/881-1100/1101-1320/1321-1540/1541-1760/1761-1950/1951-2115 reads, but native-only OTP webhook subsection1978-2011 is excluded from audit qualification and this file is NOT credited full. Retained dashboard source1-1977/2012-2115 covers generic recipient/type unique ledger, safe provider error, batch-fenced monotonic delivered/read (current definitive failed can release submitted), removed/replaced recipient guards and current processing claim; baseline distinct from explicit resend, saved legacy template byte-exact snapshots, frozen edit/header fields, unknown blocking, broker failure cannot clear delivered baseline, batch failure conservative unknown and deletion active-request/replacement gates. Workbook contact preview/direct paths retain bounded fields/bytes/rows, source provenance/duplicates, safe parser error and rejected payload limits. Native OTP subsection only identified for scope; imported native/infrastructure fixture and MCP hook implementations not audited or executed. Existing tests/mocks were read, not run."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/worker_runtime.py",
+      "sha256": "bd7c038c5ec22a548cd1142c135b529d9c7c6798594f7e4cd7be74c3af95cae1",
+      "physical_lines": 329,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "focused",
+      "notes": "Physical51-94 only. Stable actual state/policy forwarding and existing request-scoped dependency seams traced; no whole-worker/native/MCP permission credit or edits."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_delivery_support.py",
+      "sha256": "11584385a6d8d16124e39d5e029c3aa4908b1044b1c7df7861461c93a32b82f0",
+      "physical_lines": 245,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "focused",
+      "notes": "Physical92-187 only. Actual receipt logic preserves delivered/read ranks and event timestamps, permits current definitive failure before delivery, fences repeatable/private receipt batches and frozen welcome destination including fail-closed unbound legacy. Comments do not create a broader qualification; no webhook/probe execution."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_resend.py",
+      "sha256": "e695316fe49e51e51f8d1c3cc45f6db84c5bed82287bf3344f93259a4b1b64ff",
+      "physical_lines": 233,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "focused",
+      "notes": "Physical146-233 only. Actual locked tenant broadcast/active opt-in/current recipient, immutable historical replay, replacement and exact selected recipient guard then named claim/preparation/publication phases. Previously frozen composition family preserved; no new behavior or provider calls."
+    }
+  ]
+}

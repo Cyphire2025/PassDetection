@@ -1,0 +1,10 @@
+{
+  "command": [
+    "node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit"
+  ],
+  "exit_code": 0,
+  "duration_seconds": 4.05,
+  "output": "docs/audit/dashboard-2026-10-30/camera-gc-checkpoint-typecheck.txt"
+}

@@ -1,0 +1,482 @@
+{
+  "basis": "Whole post-health-checkpoint controller, not the original pre-health checkout",
+  "original_post_health_sha256": "d9f6f235c1d15eed4c7a28519ab6489c771bb306b49a8c00755395ac68c318e0",
+  "methods": [
+    {
+      "name": "aliases",
+      "owner": "scripts/mcp_activation_identity.py",
+      "whole_body_arguments_decorators_defaults_evaluated_hints_pickle_alias_exact": true
+    },
+    {
+      "name": "memory_checkpoint",
+      "owner": "scripts/mcp_activation_identity.py",
+      "whole_body_arguments_decorators_defaults_evaluated_hints_pickle_alias_exact": true
+    },
+    {
+      "name": "candidates",
+      "owner": "scripts/mcp_activation_identity.py",
+      "whole_body_arguments_decorators_defaults_evaluated_hints_pickle_alias_exact": true
+    },
+    {
+      "name": "stage",
+      "owner": "scripts/mcp_activation_staging.py",
+      "whole_body_arguments_decorators_defaults_evaluated_hints_pickle_alias_exact": true
+    },
+    {
+      "name": "fence",
+      "owner": "scripts/mcp_activation_database.py",
+      "whole_body_arguments_decorators_defaults_evaluated_hints_pickle_alias_exact": true
+    },
+    {
+      "name": "database_command",
+      "owner": "scripts/mcp_activation_database.py",
+      "whole_body_arguments_decorators_defaults_evaluated_hints_pickle_alias_exact": true
+    },
+    {
+      "name": "schema",
+      "owner": "scripts/mcp_activation_database.py",
+      "whole_body_arguments_decorators_defaults_evaluated_hints_pickle_alias_exact": true
+    },
+    {
+      "name": "migrate",
+      "owner": "scripts/mcp_activation_database.py",
+      "whole_body_arguments_decorators_defaults_evaluated_hints_pickle_alias_exact": true
+    },
+    {
+      "name": "start",
+      "owner": "scripts/mcp_activation_readiness.py",
+      "whole_body_arguments_decorators_defaults_evaluated_hints_pickle_alias_exact": true
+    },
+    {
+      "name": "await_health",
+      "owner": "scripts/mcp_activation_readiness.py",
+      "whole_body_arguments_decorators_defaults_evaluated_hints_pickle_alias_exact": true
+    },
+    {
+      "name": "verify",
+      "owner": "scripts/mcp_activation_readiness.py",
+      "whole_body_arguments_decorators_defaults_evaluated_hints_pickle_alias_exact": true
+    },
+    {
+      "name": "__init__",
+      "owner": "scripts/mcp_activation_lifecycle.py",
+      "whole_body_arguments_decorators_defaults_evaluated_hints_pickle_alias_exact": true
+    },
+    {
+      "name": "activate",
+      "owner": "scripts/mcp_activation_lifecycle.py",
+      "whole_body_arguments_decorators_defaults_evaluated_hints_pickle_alias_exact": true
+    },
+    {
+      "name": "recover_original",
+      "owner": "scripts/mcp_activation_lifecycle.py",
+      "whole_body_arguments_decorators_defaults_evaluated_hints_pickle_alias_exact": true
+    }
+  ],
+  "whole_original_method_count": 14,
+  "whole_original_pure_functions": 4,
+  "constant_AST_and_values": 3,
+  "actual_original_global_bindings": [
+    {
+      "function": "memory_checkpoint",
+      "global": "compare_memory"
+    },
+    {
+      "function": "memory_checkpoint",
+      "global": "bound_original"
+    },
+    {
+      "function": "memory_checkpoint",
+      "global": "uuid"
+    },
+    {
+      "function": "memory_checkpoint",
+      "global": "WORKERS"
+    },
+    {
+      "function": "memory_checkpoint",
+      "global": "private_json"
+    },
+    {
+      "function": "memory_checkpoint",
+      "global": "json"
+    },
+    {
+      "function": "memory_checkpoint",
+      "global": "capture_memory"
+    },
+    {
+      "function": "candidates",
+      "global": "WRITERS"
+    },
+    {
+      "function": "candidates",
+      "global": "BuildError"
+    },
+    {
+      "function": "candidates",
+      "global": "bound_original"
+    },
+    {
+      "function": "candidates",
+      "global": "json"
+    },
+    {
+      "function": "stage",
+      "global": "render_proxy"
+    },
+    {
+      "function": "stage",
+      "global": "WRITERS"
+    },
+    {
+      "function": "stage",
+      "global": "runtime_environment"
+    },
+    {
+      "function": "stage",
+      "global": "BuildError"
+    },
+    {
+      "function": "stage",
+      "global": "json"
+    },
+    {
+      "function": "stage",
+      "global": "inspect"
+    },
+    {
+      "function": "stage",
+      "global": "command"
+    },
+    {
+      "function": "stage",
+      "global": "bound_original"
+    },
+    {
+      "function": "stage",
+      "global": "environment"
+    },
+    {
+      "function": "stage",
+      "global": "private_json"
+    },
+    {
+      "function": "stage",
+      "global": "re"
+    },
+    {
+      "function": "stage",
+      "global": "ROOT"
+    },
+    {
+      "function": "fence",
+      "global": "command"
+    },
+    {
+      "function": "fence",
+      "global": "WRITERS"
+    },
+    {
+      "function": "fence",
+      "global": "BuildError"
+    },
+    {
+      "function": "fence",
+      "global": "INFRASTRUCTURE"
+    },
+    {
+      "function": "fence",
+      "global": "bound_original"
+    },
+    {
+      "function": "fence",
+      "global": "clean_stop"
+    },
+    {
+      "function": "database_command",
+      "global": "BuildError"
+    },
+    {
+      "function": "database_command",
+      "global": "subprocess"
+    },
+    {
+      "function": "database_command",
+      "global": "bound_original"
+    },
+    {
+      "function": "migrate",
+      "global": "ReleaseBindings"
+    },
+    {
+      "function": "migrate",
+      "global": "runtime_environment"
+    },
+    {
+      "function": "migrate",
+      "global": "WRITERS"
+    },
+    {
+      "function": "migrate",
+      "global": "command"
+    },
+    {
+      "function": "migrate",
+      "global": "BuildError"
+    },
+    {
+      "function": "migrate",
+      "global": "TARGET"
+    },
+    {
+      "function": "migrate",
+      "global": "fingerprint"
+    },
+    {
+      "function": "migrate",
+      "global": "uuid"
+    },
+    {
+      "function": "migrate",
+      "global": "GIB"
+    },
+    {
+      "function": "migrate",
+      "global": "clone_payload"
+    },
+    {
+      "function": "migrate",
+      "global": "json"
+    },
+    {
+      "function": "migrate",
+      "global": "inspect"
+    },
+    {
+      "function": "migrate",
+      "global": "clean_stop"
+    },
+    {
+      "function": "migrate",
+      "global": "MCPDatabaseRelease"
+    },
+    {
+      "function": "start",
+      "global": "command"
+    },
+    {
+      "function": "start",
+      "global": "require_zero"
+    },
+    {
+      "function": "start",
+      "global": "bound_original"
+    },
+    {
+      "function": "start",
+      "global": "uuid"
+    },
+    {
+      "function": "start",
+      "global": "private_json"
+    },
+    {
+      "function": "start",
+      "global": "admit_builder"
+    },
+    {
+      "function": "start",
+      "global": "json"
+    },
+    {
+      "function": "start",
+      "global": "capture_memory"
+    },
+    {
+      "function": "await_health",
+      "global": "time"
+    },
+    {
+      "function": "await_health",
+      "global": "BuildError"
+    },
+    {
+      "function": "await_health",
+      "global": "bound_original"
+    },
+    {
+      "function": "verify",
+      "global": "compare_memory"
+    },
+    {
+      "function": "verify",
+      "global": "TARGET"
+    },
+    {
+      "function": "verify",
+      "global": "WRITERS"
+    },
+    {
+      "function": "verify",
+      "global": "BuildError"
+    },
+    {
+      "function": "verify",
+      "global": "INFRASTRUCTURE"
+    },
+    {
+      "function": "verify",
+      "global": "bound_original"
+    },
+    {
+      "function": "verify",
+      "global": "uuid"
+    },
+    {
+      "function": "verify",
+      "global": "private_json"
+    },
+    {
+      "function": "verify",
+      "global": "json"
+    },
+    {
+      "function": "verify",
+      "global": "ORIGIN"
+    },
+    {
+      "function": "verify",
+      "global": "clean_stop"
+    },
+    {
+      "function": "verify",
+      "global": "capture_memory"
+    },
+    {
+      "function": "verify",
+      "global": "urllib"
+    },
+    {
+      "function": "__init__",
+      "global": "command"
+    },
+    {
+      "function": "__init__",
+      "global": "BuildError"
+    },
+    {
+      "function": "__init__",
+      "global": "json"
+    },
+    {
+      "function": "__init__",
+      "global": "LocalDocker"
+    },
+    {
+      "function": "__init__",
+      "global": "re"
+    },
+    {
+      "function": "activate",
+      "global": "BuildError"
+    },
+    {
+      "function": "activate",
+      "global": "require_idle"
+    },
+    {
+      "function": "activate",
+      "global": "bound_original"
+    },
+    {
+      "function": "activate",
+      "global": "WORKERS"
+    },
+    {
+      "function": "activate",
+      "global": "clean_stop"
+    },
+    {
+      "function": "recover_original",
+      "global": "command"
+    },
+    {
+      "function": "recover_original",
+      "global": "WRITERS"
+    },
+    {
+      "function": "recover_original",
+      "global": "BuildError"
+    },
+    {
+      "function": "recover_original",
+      "global": "INFRASTRUCTURE"
+    },
+    {
+      "function": "recover_original",
+      "global": "bound_original"
+    },
+    {
+      "function": "recover_original",
+      "global": "WORKERS"
+    },
+    {
+      "function": "recover_original",
+      "global": "clean_stop"
+    },
+    {
+      "function": "runtime_environment",
+      "global": "TARGET"
+    },
+    {
+      "function": "runtime_environment",
+      "global": "environment"
+    },
+    {
+      "function": "runtime_environment",
+      "global": "ORIGIN"
+    },
+    {
+      "function": "render_proxy",
+      "global": "BuildError"
+    },
+    {
+      "function": "clean_stop",
+      "global": "BuildError"
+    }
+  ],
+  "all_original36public_symbols_wildcard_export_semantics_preserved": 36,
+  "public_constructor_body_stays_on_public_class": true,
+  "all_signatures_defaults_evaluated_hints_and_alias_pickles_exact": true,
+  "new_private_MRO_bases": [
+    "_ActivationReadiness",
+    "_ActivationDatabase",
+    "_ActivationStaging",
+    "_ActivationIdentity"
+  ],
+  "new_runtime_base_constructors_slots_state_fields_getattr": false,
+  "class_dict_layout_and_internal_code_owner_names_changed": true,
+  "class_source_introspection_tradeoff": "OSError: legacy public module alias is the facade; actual class declaration is in lifecycle owner",
+  "no_inspect_patch": true,
+  "exact_overlay_source_additions": 6,
+  "exact_resource_source_additions": 7,
+  "original_lists_preserved_and_support_files_inverse_byte_exact_LF": true,
+  "whole_old_activation_test_AST_restores_after_explicit_real_owner_patch_retargets": true,
+  "all_original_activation_assertions_preserved": 52,
+  "whole_old_health_test_AST_restores_after_only_bound_original_owner_import_retarget": true,
+  "source_sha256": {
+    "scripts/mcp_direct_activate.py": "a81319bf3c2b00df04153d6fadce82d3cda1f4285abe25445e2bf090e5ce50c2",
+    "scripts/mcp_activation_contract.py": "116535bdc7abe15588093d4d4fdfd777873344ca7acf3b75d2c7293d2ae2ac10",
+    "scripts/mcp_activation_identity.py": "3e7bab53aab51e3902ede67a01c718ec75b23d925c516fb031132dbb55622026",
+    "scripts/mcp_activation_staging.py": "74857f9b1ead60a609b3bebe5448658a16f37f7259acd2caea2e85c00bfeb80f",
+    "scripts/mcp_activation_database.py": "655b9397c85bd601fbb1fb6c8b214732cb98df44be8c53c921fdd52032941726",
+    "scripts/mcp_activation_readiness.py": "3998261b91aa9fb594813cab654bdfac1d2d024eb15a71c20cd6208648d0cb14",
+    "scripts/mcp_activation_lifecycle.py": "56f406d562aa685435388ed0e8ef9be4fda845ed1e0177048937724c4be74411",
+    "scripts/mcp_direct_retry.py": "a42814682db1b5e7686e3dac239b519b65241731a13a783718ac714770e21754",
+    "scripts/release_document_resources.py": "46eec295cf594bd7fb9c683a7b4378e0e15a1edb8f24b4cbd71889121f7c971f",
+    "scripts/test_mcp_direct_activate.py": "65e5a39dd055c1392eca6a9879281b6cd7a15aa08f1a696ccc8bb2ea164683c0",
+    "scripts/test_mcp_direct_health_admission.py": "25629e1a7c41e5a796a0abc1005966c341b257363c6bd54ba002bf7686800159",
+    "scripts/test_mcp_activation_owners.py": "78b1349a1513b9475f005cc695055e7665641d53bdb1ae297ec8fc76cceb04c8"
+  }
+}

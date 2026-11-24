@@ -11,7 +11,7 @@ from fastapi import HTTPException
 from pydantic import ValidationError
 
 from app.domain.entities.entities import User, UserRole
-from app.presentation.api.v1.routes import admin
+from app.presentation.api.v1.routes import admin, admin_platform_settings
 from app.presentation.api.v1.schemas.operations_schemas import UpdatePlatformSettingsRequest
 
 
@@ -113,7 +113,7 @@ async def test_matching_platform_settings_revision_is_not_persisted_or_audited(
         async def record(self, **kwargs: Any) -> None:
             audit.update(kwargs)
 
-    monkeypatch.setattr(admin, "AuditLogRepository", _AuditRepository)
+    monkeypatch.setattr(admin_platform_settings, "AuditLogRepository", _AuditRepository)
     response = await admin.update_platform_settings(
         body=_request(expected_updated_at=current),
         current_user=_admin(),
@@ -139,7 +139,7 @@ async def test_first_platform_settings_creation_requires_null_revision(
         async def record(self, **_kwargs: Any) -> None:
             return None
 
-    monkeypatch.setattr(admin, "AuditLogRepository", _AuditRepository)
+    monkeypatch.setattr(admin_platform_settings, "AuditLogRepository", _AuditRepository)
     await admin.update_platform_settings(
         body=_request(expected_updated_at=None),
         current_user=_admin(),
@@ -166,7 +166,7 @@ async def test_non_platform_admin_cannot_modify_or_create_global_policy(role, ex
     user.role = role
     user.agency_id = uuid.uuid4()
     audit = Mock()
-    monkeypatch.setattr(admin, "AuditLogRepository", audit)
+    monkeypatch.setattr(admin_platform_settings, "AuditLogRepository", audit)
 
     with pytest.raises(HTTPException) as denied:
         await admin.update_platform_settings(

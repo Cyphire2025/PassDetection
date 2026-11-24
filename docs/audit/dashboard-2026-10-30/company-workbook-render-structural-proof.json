@@ -1,0 +1,40 @@
+{
+  "workbook_class_ast_identical_after_owner_move": true,
+  "all_remaining_renderer_definition_asts_identical": true,
+  "shared_fixed_bounds_asts_identical": true,
+  "original_WorkbookAssembly_and_constant_exports_retained": true,
+  "actual_existing_renderer_ceiling_preserved": 150,
+  "sources": [
+    {
+      "path": "backend/app/infrastructure/travellers/company_export_render.py",
+      "before_sha256": "58b25787d102af7559aec0fcb707720dd3d34e5b5e909108b89d7efecce893d6",
+      "sha256": "4063ab9a2e155876a17184d55a993131b226191d43b376d8160433695322f828",
+      "lines": 116
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/company_export_workbook_render.py",
+      "before_sha256": null,
+      "sha256": "f86fd9f4b8ae07bfebd6f029dcc41822f2d9952693ebec1a0471b5fbcc246778",
+      "lines": 59
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/company_export_limits.py",
+      "before_sha256": null,
+      "sha256": "8feb56e7b6b841181272503309a935222ac81075bec229651a7ae538c6c71217",
+      "lines": 5
+    }
+  ],
+  "resource_patch_vs_original_HEAD": {
+    "all_other_class_asts_identical": true,
+    "exact_changes": [
+      "Close unsaved write-only worksheet before workbook/writer cleanup.",
+      "Always run directory cleanup through finally."
+    ],
+    "original_class_sha256": "efadb01ac8590074745f32f38e12c9ee1bb9f25b6236f4b2c61fecbe5e27b32f",
+    "regression_before": "Unsaved case failed assert sheet.closed; finished case passed. company-workbook-before-fix.txt"
+  },
+  "subsequent_behavior_checkpoint": {
+    "note": "The original workbook assembly-body equivalence is historical at extraction. Subsequent three native dispatch changes intentionally drain cancellation and are independently regression-tested; original render class/constants relocation proof remains applicable. Current assembly/helper hashes and checks are recorded separately rather than silently rebinding the old equivalence claim.",
+    "evidence": "company-native-cancellation-verification.json"
+  }
+}

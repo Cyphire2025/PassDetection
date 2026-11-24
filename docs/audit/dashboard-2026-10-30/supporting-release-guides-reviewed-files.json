@@ -1,0 +1,49 @@
+{
+  "files": [
+    {
+      "path": "docs/CURRENT_RELEASE_AND_STORAGE.md",
+      "sha256": "52d26b023ca4a5b6225213987bbe516eea37dd29d8e677d6ee0043b4e40bb3a9",
+      "physical_lines": 198,
+      "review_scope": "full",
+      "status": "reviewed-and-documented",
+      "reviewer": "branding_visuals",
+      "notes": "Full original192 authored lines and complete narrowed wording changes read. Current rollout now selects exact packaged manifest/deployment selector; original0112\u21920113 storage recipe, later tracker0128\u21920129 identifiers/preservation policy, every code block and operational guard retained. No current VPS/release claim from old evidence."
+    },
+    {
+      "path": "docs/QUALIFIED_CODE_UPDATES.md",
+      "sha256": "6fd1896afd74e4c0ba033e0ea29357c2d7f66e04a2744849a2475572fe718f09",
+      "physical_lines": 73,
+      "review_scope": "full",
+      "status": "reviewed-and-documented",
+      "reviewer": "branding_visuals",
+      "notes": "Full original68 authored lines and complete8line current-schema clarification read. Original same-schema operator/dispatch/backup/recovery/no-migration/security requirements retained; historical0113 storage baseline distinguished from live schema equality check."
+    },
+    {
+      "path": "docs/PRODUCTION_RELEASE_READINESS.md",
+      "sha256": "1288e0cb90aecba3c2d49a4fe9c666768cfb984a29bfcf5411b76165cbf1133b",
+      "physical_lines": 199,
+      "review_scope": "full",
+      "status": "reviewed-and-documented",
+      "reviewer": "branding_visuals",
+      "notes": "Full original194 authored lines read in bounded0\u201399,100\u2013EOF with explicit100\u2013154 reread after output clipping, plus complete wording correction. Dated September host/grant/backup observations are not asserted current. Required operational gates/credentials privacy/no downgrade/unknown revision/backup/resource/recovery rules and every original command block preserved. Current manifest/selector linked; historicalstorage contract labelled."
+    },
+    {
+      "path": "docs/OPERATIONS_MONITORING.md",
+      "sha256": "704878a4950838928d75f61e220b98f3d37ac93419061d2440f40407fc46d28d",
+      "physical_lines": 108,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete108 authored lines physically read. Off-host alert/backup/PITR/restore/authority evidence limitations and dated provider observations explicit; named responder/private credential/StatsD boundary, synthetic promtool vs actual production receipt, strict35day evidence validator semantics reviewed as documented claims. No monitoring/provider/DR or command executed."
+    },
+    {
+      "path": "docs/deployment-modes.md",
+      "sha256": "5733cea585a0c99ea7796dd80903693bb7dbead30578813e14167b9cb6f3d96b",
+      "physical_lines": 304,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete304 authored lines physically read0\u2013124+125\u2013EOF. Full/Fast distinction and exemptions (document nullable migrations, exact0140/0141\u21920142 workspace branding, companies0135\u21920138), immutable source/schema/image/receipt/forward recovery/memory/owner checks assessed against actual selector source and prior operator review context. Frozen exact commands unchanged; no CI/deployment/service/provider call or new qualification inferred."
+    }
+  ]
+}

@@ -1,0 +1,439 @@
+{
+  "status": "completed bounded read-only physical-source cohort; no checks executed",
+  "selected_test_and_helper_files": 32,
+  "additional_companion_test_files": 1,
+  "additional_immediate_runtime_files": 5,
+  "full_physical_read_records": 38,
+  "physical_lines_read": 2115,
+  "strict_unchanged_source_paths": 37,
+  "known_parent_correction_reread_paths": 1,
+  "current_reviewed_source_sha256_match": true,
+  "runtime_test_config_mutations": 0,
+  "app_test_build_browser_executions": 0,
+  "current_full_target_records_reused_without_new_credit": [
+    {
+      "path": "frontend/components/ui/modal.tsx",
+      "sha256": "76b2728d3ca9a69365b9ad33111fe4f9273b52a2aba92089cfe25f6bf64559df",
+      "physical_lines": 178,
+      "from": [
+        "frontend/components/layout/mobile-navigation.test.tsx"
+      ],
+      "current_full_records": [
+        "shared-frontend-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/components/layout/mobile-navigation.tsx",
+      "sha256": "bc7a32a808a2a21c93f00c202d0d8a8f0f5f6458bccb4ca96facc7705226bfae",
+      "physical_lines": 53,
+      "from": [
+        "frontend/components/layout/mobile-navigation.test.tsx",
+        "frontend/components/layout/__tests__/mobile-navigation.test.tsx"
+      ],
+      "current_full_records": [
+        "shared-frontend-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/components/layout/sidebar.tsx",
+      "sha256": "08d6b5f3810246c557686a5ce4f529d61b008bb089178816860a3f933399434d",
+      "physical_lines": 196,
+      "from": [
+        "frontend/components/layout/__tests__/mobile-navigation.test.tsx"
+      ],
+      "current_full_records": [
+        "shared-frontend-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/settings/dashboard-preferences.ts",
+      "sha256": "95a5c838507f952408f713933d824b8fafdb92494e98d354905b8460e3d1213b",
+      "physical_lines": 66,
+      "from": [
+        "frontend/components/layout/__tests__/mobile-navigation.test.tsx"
+      ],
+      "current_full_records": [
+        "template-settings-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/auth/services/restoration-destination.ts",
+      "sha256": "74b93c0b4c144b618d0b04b88a22a490a3b945ac389c0a25b04bd6fd61334c21",
+      "physical_lines": 25,
+      "from": [
+        "frontend/features/auth/services/restoration-destination.test.ts"
+      ],
+      "current_full_records": [
+        "auth-reviewed-files.json",
+        "security-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/upload/services/contact-verification.ts",
+      "sha256": "409fd3b7c4a3e8a60b270da52f483cc3c6b8d0cb6f042e25df8cea0086e50c84",
+      "physical_lines": 11,
+      "from": [
+        "frontend/features/upload/services/contact-verification.test.ts"
+      ],
+      "current_full_records": [
+        "passport-upload-remaining-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/providers/query-provider.tsx",
+      "sha256": "b0aa9b4ce63f48646c4620483ac892e6564906f3e256ad671e93752af92a9040",
+      "physical_lines": 70,
+      "from": [
+        "frontend/providers/query-provider.contract.test.mjs"
+      ],
+      "current_full_records": [
+        "shared-frontend-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/app/page.tsx",
+      "sha256": "14390e9f3c37c4429bb4eaa3f31d250f61960725638131fc25fa9534f81be9fb",
+      "physical_lines": 5,
+      "from": [
+        "frontend/app/root-route.contract.test.mjs",
+        "frontend/app/manual-camera-copy.contract.test.mjs"
+      ],
+      "current_full_records": [
+        "app-routes-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/lib/utils/phone-number.ts",
+      "sha256": "a5987abd3d267d63f70e55b05297451257f7f97b20658115739908d29985d6f5",
+      "physical_lines": 14,
+      "from": [
+        "frontend/lib/utils/phone-number.test.ts"
+      ],
+      "current_full_records": [
+        "shared-frontend-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/companies/utils/company-navigation.ts",
+      "sha256": "0945ca6ac9fbc2f253deca2ab5899dc22eef9a1b5fc28529d0d884f70da25db5",
+      "physical_lines": 25,
+      "from": [
+        "frontend/features/companies/utils/company-navigation.test.ts"
+      ],
+      "current_full_records": [
+        "companies-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/companies/components/company-original-record.tsx",
+      "sha256": "817dd73286cff282c059f9033f78654abd1db971d0b81fbd5f1dfac7ee0d6474",
+      "physical_lines": 14,
+      "from": [
+        "frontend/features/companies/components/company-original-record.test.tsx"
+      ],
+      "current_full_records": [
+        "companies-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/companies/utils/company-search.ts",
+      "sha256": "5cf1824bc9836ef97d62984cac306b3d42bcc9494566c68650efb1424204af21",
+      "physical_lines": 8,
+      "from": [
+        "frontend/features/companies/utils/company-search.test.ts"
+      ],
+      "current_full_records": [
+        "companies-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/whatsapp/utils/group-invite.ts",
+      "sha256": "b4f438f4562590c2cf22b66845eac3f4305f26ca2b94ce125c77ee7cfa79983f",
+      "physical_lines": 14,
+      "from": [
+        "frontend/features/whatsapp/utils/group-invite.test.ts"
+      ],
+      "current_full_records": [
+        "whatsapp-current-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/whatsapp/utils/message-types.ts",
+      "sha256": "45a667ca9ca752ab01e1689f82764930357e5055e5f6e979ceee924b93afde20",
+      "physical_lines": 27,
+      "from": [
+        "frontend/features/whatsapp/utils/group-invite.test.ts"
+      ],
+      "current_full_records": [
+        "whatsapp-current-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/whatsapp/utils/activity-tracking.ts",
+      "sha256": "da2899064e5399e364351092e76e2245caa1f933a2881bb77cb8a2577d9a7a5a",
+      "physical_lines": 239,
+      "from": [
+        "frontend/features/whatsapp/utils/group-invite.test.ts"
+      ],
+      "current_full_records": [
+        "whatsapp-current-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/lib/api/client.ts",
+      "sha256": "ebcb9e65f5a82b82bd122756c6e8126703ba7d1f7b2da94d6477debaa92a4bf2",
+      "physical_lines": 313,
+      "from": [
+        "frontend/features/passports/api/passports-search.test.ts",
+        "frontend/features/passports/api/client-details.api.test.ts",
+        "frontend/features/whatsapp/api/whatsapp-duplicate-sources.test.ts",
+        "frontend/features/operations/api/operations-tour-groups.api.test.ts"
+      ],
+      "current_full_records": [
+        "auth-reviewed-files.json",
+        "security-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/utils/passport-image-crop-permissions.ts",
+      "sha256": "66b182cfc792f2bca9cb9b4b58ca7b748074bef9b0899518a4c63d1ea0dcee05",
+      "physical_lines": 13,
+      "from": [
+        "frontend/features/passports/utils/passport-image-crop-permissions.test.mjs"
+      ],
+      "current_full_records": [
+        "passport-upload-remaining-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/components/ui/liquid-sculpture/engine.ts",
+      "sha256": "8121b00c1f7c7bb5b001a0ffe1a19c4458bb255f67b9feaf1803183f61ca9ebf",
+      "physical_lines": 707,
+      "from": [
+        "frontend/components/ui/liquid-sculpture/engine.test.ts"
+      ],
+      "current_full_records": [
+        "shared-frontend-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/components/ui/liquid-sculpture/types.ts",
+      "sha256": "e1861d466b971ad0267d91e93c7faa128e5da259497d239d25b036e555cc6b8b",
+      "physical_lines": 28,
+      "from": [
+        "frontend/components/ui/liquid-sculpture/engine.test.ts"
+      ],
+      "current_full_records": [
+        "shared-frontend-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/types/index.ts",
+      "sha256": "29b1df7161dce0a835bf1c0c076c2cc1fe0e91f4dd0b88f7e8d1865319ddabc0",
+      "physical_lines": 10,
+      "from": [
+        "frontend/features/auth/services/access-level-navigation.test.ts"
+      ],
+      "current_full_records": [
+        "shared-residual-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/auth/services/access-level-navigation.ts",
+      "sha256": "cce7df63fb7a53a248354577ea3231d956d456edf32eb39bf99f596aef839f99",
+      "physical_lines": 8,
+      "from": [
+        "frontend/features/auth/services/access-level-navigation.test.ts"
+      ],
+      "current_full_records": [
+        "auth-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/components/ui/input.tsx",
+      "sha256": "9a1dabb59a62de6e62c605f5f4901812504b40dec525afd033f9650651e90e49",
+      "physical_lines": 79,
+      "from": [
+        "frontend/components/ui/input.test.tsx"
+      ],
+      "current_full_records": [
+        "shared-frontend-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/mcp/utils/save-transfer-file.ts",
+      "sha256": "2b22a15628fab2dde53cb6fa0be7fec6fb70ba09e14d3ecad6c508c737ea4706",
+      "physical_lines": 21,
+      "from": [
+        "frontend/features/mcp/utils/save-transfer-file.test.ts"
+      ],
+      "current_full_records": [
+        "mcp-frontend-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/lib/utils/role-access.ts",
+      "sha256": "90af3b11187f38a2a4d14c10cca295e02412b3a20e2f5e5fd69e20a2720358f9",
+      "physical_lines": 69,
+      "from": [
+        "frontend/lib/utils/role-access.test.ts"
+      ],
+      "current_full_records": [
+        "shared-frontend-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/email-integrations/services/email-refresh-policy.ts",
+      "sha256": "c3d74e569f6927713f76578196636890319ced68fa0ab6661a10a2fd4f1304e2",
+      "physical_lines": 35,
+      "from": [
+        "frontend/features/email-integrations/services/email-refresh-policy.test.ts"
+      ],
+      "current_full_records": [
+        "email-frontend-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/config/e2e-isolation.ts",
+      "sha256": "1bc1311256650ab153334dac3c1c7b6b408087d1f1eccb8ccb2b1864a05b2ea9",
+      "physical_lines": 25,
+      "from": [
+        "frontend/config/e2e-isolation.test.ts"
+      ],
+      "current_full_records": [
+        "frontend-core-pwa-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/passports/components/whatsapp-match-description.ts",
+      "sha256": "990bd5d38acbfcd9cb70b7f61ca1353698ced1322c9ddbb3e473e592e527e9c8",
+      "physical_lines": 25,
+      "from": [
+        "frontend/features/passports/components/whatsapp-match-description.test.ts"
+      ],
+      "current_full_records": [
+        "passport-upload-remaining-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/public/sw.js",
+      "sha256": "6f4b65d8a241cbda5191f3eb07999f47709993361f1d244222bc0f5d417c9ea0",
+      "physical_lines": 121,
+      "from": [
+        "frontend/features/tour-operations/services/public-offline-runtime-cache.test.mjs"
+      ],
+      "current_full_records": [
+        "ui-pwa-camera-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/lib/api/api-error-detail.ts",
+      "sha256": "26fc47c586fdbbebeaafe7a7471a508d13c3bd1df1301f3ae2f25ef7eb6537c3",
+      "physical_lines": 23,
+      "from": [
+        "frontend/lib/api/api-error-detail.test.ts"
+      ],
+      "current_full_records": [
+        "shared-frontend-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/lib/utils/passport-fields.ts",
+      "sha256": "88ac1c5696d456b0e91f2b568bc559010b68eaff02d1451bec21e954fbccf9f5",
+      "physical_lines": 13,
+      "from": [
+        "frontend/lib/utils/passport-fields.test.mjs"
+      ],
+      "current_full_records": [
+        "shared-frontend-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/gc-app/types.ts",
+      "sha256": "8d85bf503bcff594589d60366284a7b53f146f475e7d543b8831e4dc000c7bd0",
+      "physical_lines": 225,
+      "from": [
+        "frontend/features/gc-app/availability.test.ts"
+      ],
+      "current_full_records": [
+        "gc-app-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/gc-app/availability.ts",
+      "sha256": "54e1de2df2daa08632a4da3ab964b19f738e7bc8c385cf852ad93d2decba27ed",
+      "physical_lines": 35,
+      "from": [
+        "frontend/features/gc-app/availability.test.ts"
+      ],
+      "current_full_records": [
+        "gc-app-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/features/gc-app/utils.ts",
+      "sha256": "cc6848b1c171f40a681f7e42612d55fe5e17f2b09ff00a797ea29ae56388216b",
+      "physical_lines": 58,
+      "from": [
+        "frontend/features/gc-app/availability.test.ts"
+      ],
+      "current_full_records": [
+        "gc-app-reviewed-files.json"
+      ]
+    },
+    {
+      "path": "frontend/lib/api/endpoints.ts",
+      "sha256": "259dbe7b67f391ea7268abab003c4d91439bcf99dd13ca0b70a40508cd6a6385",
+      "physical_lines": 463,
+      "from": [
+        "frontend/features/operations/api/operations-tour-groups.api.test.ts"
+      ],
+      "current_full_records": [
+        "frontend-residual-contracts-reviewed-files.json"
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "path": "frontend/providers/query-provider.test.ts",
+      "kind": "test wording",
+      "severity": "low",
+      "status": "resolved by parent",
+      "issue": "Original label said two attempts; assertions and installed retryer establish two retries/three attempts.",
+      "resolution": "Parent corrected only attempts\u2192retries; current complete source reread and rebound. See frontend-feature-integration4-test-corrections.json."
+    },
+    {
+      "path": "frontend/features/documents/api/document-distribution.api.ts",
+      "kind": "architecture follow-through",
+      "issue": "388line owner mixes upload verification/receipt orchestration with simple API transports.",
+      "remediation": "In a later coherent source-fenced batch, extract upload orchestration/contracts while preserving actual public methods, endpoint data, actor/cancellation boundaries and private token semantics."
+    }
+  ],
+  "unvalidated_candidates": [
+    "Repeated filename replacement scans in verifyDocuments require representative work-counter evidence and exact output/order parity before optimization.",
+    "Standalone queued private-mutation admission should not be called a leak from bare keys alone; normal bulk/manual paths have explicit reset/unmount cancellation and global auth/request boundaries are separately reviewed."
+  ],
+  "partial_dependency_reference": {
+    "path": "frontend/node_modules/@tanstack/query-core/src/retryer.ts",
+    "sha256": "1bef7c7d3c702efd325d64fd7898c579411822ddba03703239bb19670460fa0c",
+    "review_scope": "partial",
+    "credit_in_project_full_records": 0,
+    "read_basis": "Counter declaration80 and actual run/retry loop145-211; used only to resolve the retry-title wording."
+  },
+  "parent_source_transition": {
+    "path": "frontend/providers/query-provider.test.ts",
+    "before_sha256": "bd6c849cb9ddd89b1f66ed8958fc3151d484b092da67fbb8dca89d28c0b49c1b",
+    "after_sha256": "0582542a5dbf0cbd8f87b46f1e1d15fa4d8d541ba3c3000e807f331fdca0691e",
+    "current_version_fully_reread": true,
+    "proof": "frontend-feature-integration4-test-corrections.json",
+    "proof_sha256": "7d447a5727663859f96569bed9ae0e57b9c68e2325970b07c85120a795538ca8",
+    "scope": "Only the parent's declared title correction is rebound. Other37initially captured path hashes must still match exactly."
+  },
+  "history": "An initial metadata-only helper draft had a syntax typo before any write/read credit; corrected selection uses exact current hashes and all full ledgers. No application check was run to repair it.",
+  "receipts_sha256": {
+    "frontend-small-support-reviewed-files.json": "22559787373f32a04caa81aa2a18b4cc3c07535567a4e091a990cb2a90ad4c3d",
+    "frontend-small-support-selection.json": "82df66af9c13fe7381a2573d7dfb51af8ead5f2c7a1033b9a1832666584be447",
+    "frontend-small-support-target-triage.json": "5cad7389132af37281403fc3ebdea8a4c75767a44bc9fbd4ecd131c81dfa27ac"
+  },
+  "limits": "This cohort proves manual source inspection only. It neither re-executes the tests nor certifies the whole frontend/repository, service authorization, native browser behavior, real GPU performance or deployment."
+}

@@ -1,0 +1,116 @@
+{
+  "status": "source-frozen candidates; AI exclusively integrates",
+  "original_rows_present": [],
+  "budget_before_sha256": "54b2a9e1da4e3ed455cf5c6eea8cf8b72752339635030cf512ff26446d7eaf30",
+  "no_old_cap_or_floor_relaxations": true,
+  "modules": [
+    {
+      "path": "app/infrastructure/travel_tracker/service.py",
+      "source_sha256": "46dc6766ba6b41de4825b7a08a13a4040bf071a8a75a97fa57cce39891540546",
+      "baseline_lines": 183,
+      "maximum_lines": 190,
+      "baseline_max_function_complexity": 2,
+      "maximum_function_complexity": 2,
+      "minimum_coverage_percent": 85
+    },
+    {
+      "path": "app/infrastructure/travel_tracker/spreadsheets.py",
+      "source_sha256": "3631d37fc6edf5812e69c783b7aebdc973c96a10356564541dd35f509afa9dcf",
+      "baseline_lines": 25,
+      "maximum_lines": 30,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 100
+    },
+    {
+      "path": "app/infrastructure/travel_tracker/queries.py",
+      "source_sha256": "9767612e03fbca78969628332778f7e5860acb71a5ad0b5c1b6627117b8c7cb4",
+      "baseline_lines": 176,
+      "maximum_lines": 180,
+      "baseline_max_function_complexity": 7,
+      "maximum_function_complexity": 7,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/travel_tracker/reads.py",
+      "source_sha256": "dab608a9db981140e8c31a4a064e143e2e50016ed0498e453d44b5595aca457b",
+      "baseline_lines": 109,
+      "maximum_lines": 110,
+      "baseline_max_function_complexity": 5,
+      "maximum_function_complexity": 5,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/travel_tracker/projections.py",
+      "source_sha256": "71955d39ebe70864ef807d361fcdfa897ca6b392bfe5bc073e164e3c87656299",
+      "baseline_lines": 43,
+      "maximum_lines": 50,
+      "baseline_max_function_complexity": 5,
+      "maximum_function_complexity": 5,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/travel_tracker/changes.py",
+      "source_sha256": "b56fb8e896136401da4f85e9a17180a19732b5fb116c2f1ed5950f9ae8744f44",
+      "baseline_lines": 113,
+      "maximum_lines": 120,
+      "baseline_max_function_complexity": 18,
+      "maximum_function_complexity": 18,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/infrastructure/travel_tracker/files.py",
+      "source_sha256": "aab1888109e1965e8f93434d782c326319a12b95d7529b9edb888f6fcd192cff",
+      "baseline_lines": 114,
+      "maximum_lines": 120,
+      "baseline_max_function_complexity": 5,
+      "maximum_function_complexity": 5,
+      "minimum_coverage_percent": 85
+    },
+    {
+      "path": "app/infrastructure/travel_tracker/spreadsheet_values.py",
+      "source_sha256": "c68d237ca6324c0bdc34e2927d3b3bc4d09baf7a93e570e51743f3e889eb3423",
+      "baseline_lines": 56,
+      "maximum_lines": 60,
+      "baseline_max_function_complexity": 6,
+      "maximum_function_complexity": 6,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/travel_tracker/spreadsheet_reader.py",
+      "source_sha256": "eac524464c0f8368e31d42eb5ee4b7bd865813df280e67c3d55f3e84c5a3c9d8",
+      "baseline_lines": 151,
+      "maximum_lines": 160,
+      "baseline_max_function_complexity": 25,
+      "maximum_function_complexity": 25,
+      "minimum_coverage_percent": 85
+    },
+    {
+      "path": "app/infrastructure/travel_tracker/spreadsheet_matching.py",
+      "source_sha256": "a195bad2cab0a412ec19f61674c78ad752c1cea1bae59b9a4e484e4deab1b81c",
+      "baseline_lines": 119,
+      "maximum_lines": 120,
+      "baseline_max_function_complexity": 27,
+      "maximum_function_complexity": 27,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/travel_tracker/spreadsheet_export.py",
+      "source_sha256": "62b6ce61f5b9a4868238949a7947888f1d91051cf879c781991403d837b5a9b7",
+      "baseline_lines": 158,
+      "maximum_lines": 160,
+      "baseline_max_function_complexity": 51,
+      "maximum_function_complexity": 51,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/travel_tracker/threading.py",
+      "source_sha256": "0e4ed2a5fdcfd0061a9661938a34e3936f1b482d3a460ec74cd9788c908ca85f",
+      "baseline_lines": 36,
+      "maximum_lines": 40,
+      "baseline_max_function_complexity": 6,
+      "maximum_function_complexity": 6,
+      "minimum_coverage_percent": 95
+    }
+  ]
+}

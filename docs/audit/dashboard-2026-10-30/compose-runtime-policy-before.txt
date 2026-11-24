@@ -1,0 +1,21 @@
+.....FF...
+======================================================================
+FAIL: test_lookalike_queue_cannot_satisfy_the_required_queue_contract (test_compose_runtime_policies.WorkerQueuePolicyTests.test_lookalike_queue_cannot_satisfy_the_required_queue_contract)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_compose_runtime_policies.py", line 76, in test_lookalike_queue_cannot_satisfy_the_required_queue_contract
+    with self.assertRaises(AssertionError):
+AssertionError: AssertionError not raised
+
+======================================================================
+FAIL: test_required_queue_in_an_unrelated_argument_does_not_prove_consumption (test_compose_runtime_policies.WorkerQueuePolicyTests.test_required_queue_in_an_unrelated_argument_does_not_prove_consumption)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_compose_runtime_policies.py", line 84, in test_required_queue_in_an_unrelated_argument_does_not_prove_consumption
+    with self.assertRaises(AssertionError):
+AssertionError: AssertionError not raised
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.045s
+
+FAILED (failures=2)

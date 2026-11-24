@@ -1,0 +1,1 @@
+Mobile OpenAPI contract matches the reviewed snapshot.

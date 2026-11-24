@@ -1,0 +1,3 @@
+scripts\mcp_inventory.py:72: error: "expr" has no attribute "attr"  [attr-defined]
+scripts\mcp_inventory.py:104: error: Incompatible types in assignment (expression has type "expr", variable has type "Call")  [assignment]
+Found 2 errors in 1 file (checked 2 source files)

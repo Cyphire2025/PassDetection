@@ -1,7 +1,9 @@
 import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { MutationCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { ReactNode } from "react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { useAuthStore } from "@/stores/auth.store";
+import type { User } from "@/types";
 
 import type { GcAppGroupControl } from "../types";
 import { gcAppQueryKeys, useGcAppGroupMutations } from "./use-gc-app-admin";
@@ -47,12 +49,66 @@ const CONTROL: GcAppGroupControl = {
   },
 };
 
+const actor = (id: string) => useAuthStore.setState({ user: { id, role: "agency_admin", agency_id: AGENCY_ID } as User });
+beforeEach(() => actor("initial-actor"));
 afterEach(() => {
   cleanup();
   Object.values(api).forEach((mock) => mock.mockReset());
 });
 
 describe("GC App operator save consistency", () => {
+  it("never dispatches an old group mutation under a replacement actor after global onMutate pauses", async () => {
+    let release!: () => void;
+    const entered = vi.fn();
+    const pause = new Promise<void>((resolve) => { release = resolve; });
+    const queryClient = new QueryClient({ mutationCache: new MutationCache({ onMutate: async () => { entered(); await pause; } }) });
+    api.updateGroupControl.mockResolvedValue({ ...CONTROL, revision: 8 });
+    const { result } = renderHook(() => useGcAppGroupMutations(AGENCY_ID, CONTROL.id, 7), { wrapper: wrapper(queryClient) });
+    let pending!: Promise<unknown>;
+    act(() => { pending = result.current.updateControl.mutateAsync({ control: CONTROL, patch: { passenger_access_enabled: false } }); });
+    const rejected = expect(pending).rejects.toMatchObject({ code: "AUTH_REQUEST_OWNER_CHANGED" });
+    await waitFor(() => expect(entered).toHaveBeenCalledOnce());
+    actor("replacement-actor");
+    await act(async () => { release(); await rejected; });
+    expect(api.updateGroupControl).not.toHaveBeenCalled();
+    queryClient.clear();
+  });
+  it.each(["response", "cancel"])("does not repopulate private control cache when the actor changes during %s", async (phase) => {
+    const queryClient = client();
+    const key = gcAppQueryKeys.groupControl(AGENCY_ID, CONTROL.id);
+    const changeActor = () => { actor("replacement-actor"); queryClient.clear(); };
+    queryClient.setQueryData(key, CONTROL);
+    api.updateGroupControl.mockImplementation(async () => {
+      if (phase === "response") changeActor();
+      return { ...CONTROL, revision: 8 };
+    });
+    vi.spyOn(queryClient, "cancelQueries").mockImplementation(async () => { if (phase === "cancel") changeActor(); });
+    const { result } = renderHook(() => useGcAppGroupMutations(AGENCY_ID, CONTROL.id, 7), { wrapper: wrapper(queryClient) });
+    await act(async () => {
+      await expect(result.current.updateControl.mutateAsync({ control: CONTROL, patch: { passenger_access_enabled: false } }))
+        .rejects.toMatchObject({ code: "AUTH_REQUEST_OWNER_CHANGED" });
+    });
+    expect(queryClient.getQueryData(key)).toBeUndefined();
+  });
+  it.each(["announcement", "upload"])("does not write an old %s into a replacement account's content cache", async (kind) => {
+    const queryClient = client();
+    const key = gcAppQueryKeys.groupContent(AGENCY_ID, CONTROL.id);
+    const replacementContent = { common_documents: [], announcements: [] };
+    queryClient.setQueryData(key, { common_documents: [], announcements: [] });
+    api.createAnnouncement.mockResolvedValue({ id: "old-private-announcement", is_published: true });
+    api.uploadCommonDocument.mockResolvedValue({ id: "old-private-document", is_published: false });
+    vi.spyOn(queryClient, "cancelQueries").mockImplementation(async () => {
+      actor("replacement-actor"); queryClient.clear(); queryClient.setQueryData(key, replacementContent);
+    });
+    const { result } = renderHook(() => useGcAppGroupMutations(AGENCY_ID, CONTROL.id, 7), { wrapper: wrapper(queryClient) });
+    await act(async () => {
+      const pending = kind === "announcement"
+        ? result.current.createAnnouncement.mutateAsync({ title: "Private", body: "Private", priority: "normal", available_from: null, available_until: null, publish: true })
+        : result.current.uploadDocument.mutateAsync({ file: new File(["synthetic"], "synthetic.pdf"), title: "Private", category: "itinerary_pdf" });
+      await expect(pending).rejects.toMatchObject({ code: "AUTH_REQUEST_OWNER_CHANGED" });
+    });
+    expect(queryClient.getQueryData(key)).toEqual(replacementContent);
+  });
   it("updates access immediately from the response even if background refresh fails", async () => {
     const queryClient = client();
     const key = gcAppQueryKeys.groupControl(AGENCY_ID, CONTROL.id);
@@ -124,7 +180,10 @@ describe("useGcAppGroupMutations My Photos control", () => {
     });
 
     expect(api.setMyPhotosEnabled).toHaveBeenCalledTimes(1);
-    expect(api.setMyPhotosEnabled).toHaveBeenCalledWith(AGENCY_ID, CONTROL, true);
+    expect(api.setMyPhotosEnabled).toHaveBeenCalledWith(AGENCY_ID, CONTROL, true, {
+      expectedOwnerUserId: "initial-actor",
+      expectedAuthorityKey: JSON.stringify(["initial-actor", "agency_admin", AGENCY_ID]),
+    });
     expect(queryClient.getQueryData(controlKey)).toEqual(updated);
   });
 

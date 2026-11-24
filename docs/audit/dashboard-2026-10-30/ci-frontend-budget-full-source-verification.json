@@ -1,0 +1,31 @@
+{
+  "status": "complete current physical source review only",
+  "files": 2,
+  "physical_lines": 2150,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/ci-frontend-budget-full-source-reviewed-files.json",
+    "sha256": "204d28ace2e42a799584f1eabd962d4852289a90f8a0347e0747f5f7d732f099"
+  },
+  "source_before_equals_after": true,
+  "source_fence": {
+    ".github/workflows/ci.yml": "129d10b5c5b6da21cd7b8b77364c2685fb5d1d380594c71df091eba5fe7a0b89",
+    "frontend/scripts/verify-frontend-module-budgets.mjs": "cb39d6c6ee5351e9fa166d560dd62c58a3b1b20021fc38a7c2a52d1017d94ff7"
+  },
+  "historical_focused_companion_retained": {
+    "path": "docs/audit/dashboard-2026-10-30/passport-load-harness-ci-proof.json",
+    "sha256": "4a1375cc4c0d58d36045a36d17a320b901ef8d026ade30d34a338c8e891c3ffd"
+  },
+  "new_execution": false,
+  "runtime_or_gate_mutation": false,
+  "new_validated_findings": [],
+  "independent_existing_followups_remain_open": [
+    "CI setup/service/image qualification orchestration readability and duplication decisions",
+    "Actual current Linux/native-service/full-image/production deployment qualification when requested at final checkpoint",
+    "All already tracked unrelated owner/function/metric findings; this read supplies coverage rather than blanket resolution"
+  ],
+  "limits": [
+    "No workflow, provider, deployment, package installation or application/test/check execution.",
+    "All exact action pins, permissions, job DAG, caches, gates,126 release bindings, both Git BEFORE maps and qualified-source histories remain unchanged.",
+    "One initial oversized catalog output was truncated; affected100..250 overlap was reread in smaller complete chunks before full-credit seal."
+  ]
+}

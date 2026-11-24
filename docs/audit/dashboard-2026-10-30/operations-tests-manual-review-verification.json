@@ -1,0 +1,29 @@
+{
+  "scope": "35 explicitly selected backend operations/menu/rooming/attendance/QR tests, complete current physical reads; native application source excluded. No claim that imported fixture/test helpers were fully reviewed unless separately recorded.",
+  "reviewer": "manual_security",
+  "ledger_sha256": "02b33081c4314b05a6bd983e4954e770540d735ceac0825c0c2531e92db7b2bf",
+  "reviewed_files": 35,
+  "reviewed_lines": 8874,
+  "test_quality_result": "Meaningful assertions generally bind negative authorization/privacy/revision/idempotency/work/cancellation behavior or explicit published structural contracts. No real provider sends or production fixtures identified in this physical scope.",
+  "change": {
+    "path": "backend/tests/integration/test_mcp_rooming_exports.py",
+    "before_normalized_utf8_sha256": "b4c12fcdfbf14edd05d253213b962c3d3e20fbfb1de476915dd5c562671a4f92",
+    "after_raw_sha256": "65010887e22b4a92f0c0ab195eca340f4ab8da22297f5158be30dcf0a285f11c",
+    "problem": "Blocked native render and async task were not released/drained if an intermediate assertion failed before release.set; fixture teardown could race live task/native cleanup.",
+    "fix": "try/finally always releases and gathers the task, cancels only if still active and not already cancelling; original task cancellation, capacity-busy and subsequent recovery assertions remain.",
+    "application_runtime_changes": false
+  },
+  "verification": {
+    "affected_selection": "tests/integration/test_mcp_rooming_exports.py::test_cancellation_drains_native_worker_before_capacity_release",
+    "result": "1 passed in0.70s",
+    "junit": "operations-test-cleanup.xml",
+    "log": "operations-test-cleanup.txt",
+    "cadence": "No application checks, broad suite/build/API reruns for this test-only/read-only tranche."
+  },
+  "limits": [
+    "Two PostgreSQL service test files were source-reviewed but not run in this tranche; SQLite/compiled-query checks do not establish live PG locks/constraints.",
+    "Mocked route/repository policy units intentionally do not independently establish all caller authorization. Real HTTP/DB complements are recorded separately.",
+    "Historical migration source assertions do not replace actual populated migrations.",
+    "The1369-line shared-attendance unit file remains a cohesive test-module-split follow-up; no test cases/coverage thresholds weakened."
+  ]
+}

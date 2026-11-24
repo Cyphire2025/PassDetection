@@ -1,0 +1,184 @@
+[
+  {
+    "path": "features/passports/hooks/use-passports.ts",
+    "baselineLines": 36,
+    "maximumLines": 50,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/passports/hooks/use-upload-links.ts",
+    "baselineLines": 23,
+    "maximumLines": 30,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/passports/hooks/use-client-details.ts",
+    "baselineLines": 37,
+    "maximumLines": 50,
+    "baselineMaxFunctionComplexity": 1,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/passports/hooks/use-display-name.ts",
+    "baselineLines": 31,
+    "maximumLines": 40,
+    "baselineMaxFunctionComplexity": 1,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/passports/hooks/use-passport-queries.ts",
+    "baselineLines": 135,
+    "maximumLines": 140,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/passports/hooks/use-passport-export-mutations.ts",
+    "baselineLines": 62,
+    "maximumLines": 70,
+    "baselineMaxFunctionComplexity": 1,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/passports/hooks/use-passport-import-mutations.ts",
+    "baselineLines": 37,
+    "maximumLines": 50,
+    "baselineMaxFunctionComplexity": 1,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/passports/hooks/use-passport-bulk-mutations.ts",
+    "baselineLines": 45,
+    "maximumLines": 50,
+    "baselineMaxFunctionComplexity": 1,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/passports/hooks/use-passport-review-mutations.ts",
+    "baselineLines": 87,
+    "maximumLines": 100,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/passports/hooks/upload-link-query-keys.ts",
+    "baselineLines": 17,
+    "maximumLines": 30,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/passports/hooks/use-upload-link-queries.ts",
+    "baselineLines": 68,
+    "maximumLines": 80,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/passports/hooks/use-upload-link-mutations.ts",
+    "baselineLines": 103,
+    "maximumLines": 110,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/passports/hooks/use-upload-link-roster-mutations.ts",
+    "baselineLines": 124,
+    "maximumLines": 130,
+    "baselineMaxFunctionComplexity": 1,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/passports/api/passport-records.api.ts",
+    "baselineLines": 161,
+    "maximumLines": 170,
+    "baselineMaxFunctionComplexity": 7,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/passports/api/passport-imports.api.ts",
+    "baselineLines": 131,
+    "maximumLines": 140,
+    "baselineMaxFunctionComplexity": 6,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/passports/api/passport-group-exports.api.ts",
+    "baselineLines": 143,
+    "maximumLines": 150,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/passports/api/passport-selection-exports.api.ts",
+    "baselineLines": 62,
+    "maximumLines": 70,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/passports/api/upload-links.api.ts",
+    "baselineLines": 34,
+    "maximumLines": 40,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/passports/api/client-details.api.ts",
+    "baselineLines": 49,
+    "maximumLines": 60,
+    "baselineMaxFunctionComplexity": 1,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/passports/api/display-name.api.ts",
+    "baselineLines": 21,
+    "maximumLines": 30,
+    "baselineMaxFunctionComplexity": 1,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/passports/api/upload-link.types.ts",
+    "baselineLines": 254,
+    "maximumLines": 260,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  },
+  {
+    "path": "features/passports/api/upload-link-management.api.ts",
+    "baselineLines": 56,
+    "maximumLines": 70,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/passports/api/upload-link-roster.api.ts",
+    "baselineLines": 104,
+    "maximumLines": 110,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/passports/api/public-upload-link.api.ts",
+    "baselineLines": 79,
+    "maximumLines": 90,
+    "baselineMaxFunctionComplexity": 1,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/passports/api/passport-request-config.ts",
+    "baselineLines": 22,
+    "maximumLines": 30,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/passports/api/passport-export-transfer.ts",
+    "baselineLines": 16,
+    "maximumLines": 30,
+    "baselineMaxFunctionComplexity": 1,
+    "maximumFunctionComplexity": 2
+  }
+]

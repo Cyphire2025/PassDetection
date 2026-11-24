@@ -1,0 +1,205 @@
+[
+  {
+    "path": "app/domain/entities/factories.py",
+    "lines": 14,
+    "complexity": 1,
+    "line_coverage": 100.0,
+    "proposed_floor": 100
+  },
+  {
+    "path": "app/domain/entities/enums.py",
+    "lines": 109,
+    "complexity": 0,
+    "line_coverage": 100.0,
+    "proposed_floor": 100
+  },
+  {
+    "path": "app/domain/entities/identity.py",
+    "lines": 112,
+    "complexity": 3,
+    "line_coverage": 92.5926,
+    "proposed_floor": 90
+  },
+  {
+    "path": "app/domain/entities/qualifier_selection.py",
+    "lines": 63,
+    "complexity": 2,
+    "line_coverage": 96.1538,
+    "proposed_floor": 95
+  },
+  {
+    "path": "app/domain/entities/client_group_state.py",
+    "lines": 75,
+    "complexity": 0,
+    "line_coverage": 100.0,
+    "proposed_floor": 100
+  },
+  {
+    "path": "app/domain/entities/client_group_configuration.py",
+    "lines": 119,
+    "complexity": 11,
+    "line_coverage": 96.1538,
+    "proposed_floor": 85
+  },
+  {
+    "path": "app/domain/entities/client_group_lifecycle.py",
+    "lines": 75,
+    "complexity": 5,
+    "line_coverage": 95.4545,
+    "proposed_floor": 90
+  },
+  {
+    "path": "app/domain/entities/client_group.py",
+    "lines": 121,
+    "complexity": 11,
+    "line_coverage": 100.0,
+    "proposed_floor": 85
+  },
+  {
+    "path": "app/domain/entities/passport_state.py",
+    "lines": 102,
+    "complexity": 1,
+    "line_coverage": 100.0,
+    "proposed_floor": 100
+  },
+  {
+    "path": "app/domain/entities/passport_extraction.py",
+    "lines": 246,
+    "complexity": 15,
+    "line_coverage": 96.6292,
+    "proposed_floor": 95
+  },
+  {
+    "path": "app/domain/entities/passport_client_review.py",
+    "lines": 125,
+    "complexity": 31,
+    "line_coverage": 94.9153,
+    "proposed_floor": 90
+  },
+  {
+    "path": "app/domain/entities/passport_staff_review.py",
+    "lines": 217,
+    "complexity": 11,
+    "line_coverage": 94.5652,
+    "proposed_floor": 90
+  },
+  {
+    "path": "app/domain/entities/passport_submission.py",
+    "lines": 144,
+    "complexity": 6,
+    "line_coverage": 94.2308,
+    "proposed_floor": 90
+  },
+  {
+    "path": "app/domain/repositories/identity.py",
+    "lines": 51,
+    "complexity": 1,
+    "line_coverage": 100.0,
+    "proposed_floor": 100
+  },
+  {
+    "path": "app/domain/repositories/client_groups.py",
+    "lines": 73,
+    "complexity": 1,
+    "line_coverage": 87.5,
+    "proposed_floor": 85
+  },
+  {
+    "path": "app/domain/repositories/passport_submissions.py",
+    "lines": 196,
+    "complexity": 1,
+    "line_coverage": 100.0,
+    "proposed_floor": 100
+  },
+  {
+    "path": "app/domain/repositories/object_storage.py",
+    "lines": 29,
+    "complexity": 1,
+    "line_coverage": 100.0,
+    "proposed_floor": 100
+  },
+  {
+    "path": "app/domain/entities/entities.py",
+    "lines": 37,
+    "complexity": 0,
+    "line_coverage": 100.0,
+    "proposed_floor": 100
+  },
+  {
+    "path": "app/domain/repositories/interfaces.py",
+    "lines": 23,
+    "complexity": 0,
+    "line_coverage": 100.0,
+    "proposed_floor": 100
+  },
+  {
+    "path": "app/domain/value_objects/group_trip_settings.py",
+    "lines": 63,
+    "complexity": 12,
+    "line_coverage": 90.3226,
+    "proposed_floor": 90
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/client_group_broadcast_schemas.py",
+    "lines": 71,
+    "complexity": 3,
+    "line_coverage": 95.0,
+    "proposed_floor": 95
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/client_group_collection_schemas.py",
+    "lines": 54,
+    "complexity": 5,
+    "line_coverage": 97.3684,
+    "proposed_floor": 95
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/client_group_match_schemas.py",
+    "lines": 148,
+    "complexity": 0,
+    "line_coverage": 100.0,
+    "proposed_floor": 95
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/client_group_qualifier_schemas.py",
+    "lines": 71,
+    "complexity": 11,
+    "line_coverage": 100.0,
+    "proposed_floor": 95
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/client_group_request_schemas.py",
+    "lines": 221,
+    "complexity": 16,
+    "line_coverage": 93.662,
+    "proposed_floor": 90
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/client_group_request_validation.py",
+    "lines": 80,
+    "complexity": 14,
+    "line_coverage": 98.2456,
+    "proposed_floor": 95
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/client_group_response_schemas.py",
+    "lines": 63,
+    "complexity": 0,
+    "line_coverage": 100.0,
+    "proposed_floor": 95
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/public_flow_telemetry_schema.py",
+    "lines": 25,
+    "complexity": 0,
+    "line_coverage": 100.0,
+    "proposed_floor": 95
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/client_group_schemas.py",
+    "lines": 89,
+    "complexity": 0,
+    "line_coverage": 100.0,
+    "proposed_floor": 95
+  }
+]

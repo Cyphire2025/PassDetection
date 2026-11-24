@@ -1,0 +1,61 @@
+{
+  "status": "exact original eligibility-read versus cancellation-write ownership transfer plus explicitly approved canonical expiry dependency",
+  "before_sha256": "159998c7f6e330507feaffdbc6dabcb2130249c36a933854ba33d16c1ad774ad",
+  "after_sha256": "3681bf6ca3b2bab52dcde5d0adbb4921cc8dd54771411193c2553ddaceb08b6e",
+  "original_entry": {
+    "owner": "repository maintainers",
+    "review_by": "2026-12-31",
+    "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit. Exact original notification transaction declarations now live in this focused implementation owner; no new infrastructure authority or provider effect is admitted.",
+    "imports": [
+      "app.infrastructure.database.gc_mobile_models",
+      "app.infrastructure.database.gc_mobile_models.ClientManagerGroupAssignmentModel",
+      "app.infrastructure.database.gc_mobile_models.ClientManagerProfileModel",
+      "app.infrastructure.database.gc_mobile_models.GCGroupAccessModel",
+      "app.infrastructure.database.gc_mobile_models.MobileNotificationModel",
+      "app.infrastructure.database.gc_mobile_models.MobilePassengerIdentityModel",
+      "app.infrastructure.database.gc_mobile_models.MobilePushDeliveryModel",
+      "app.infrastructure.database.models",
+      "app.infrastructure.database.models.ClientGroupModel",
+      "app.infrastructure.database.models.CoordinatorGroupAssignmentModel",
+      "app.infrastructure.database.models.UserModel"
+    ]
+  },
+  "current_entries": {
+    "app/application/mobile/notification_authority.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Current notification authority reads and unchanged cancellation writes retain the original caller-owned transaction. The shared canonical coordinator trip-local expiry predicate now applies both before and after durable native intent COMMIT; all other role/group/tenant/grant predicates and accepted delivery records retain their existing handling. No provider action or native ingress authority is added.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.MobileNotificationModel",
+        "app.infrastructure.database.gc_mobile_models.MobilePushDeliveryModel"
+      ]
+    },
+    "app/application/mobile/notification_group_authority.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Current notification authority reads and unchanged cancellation writes retain the original caller-owned transaction. The shared canonical coordinator trip-local expiry predicate now applies both before and after durable native intent COMMIT; all other role/group/tenant/grant predicates and accepted delivery records retain their existing handling. No provider action or native ingress authority is added.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.ClientManagerGroupAssignmentModel",
+        "app.infrastructure.database.gc_mobile_models.ClientManagerProfileModel",
+        "app.infrastructure.database.gc_mobile_models.GCGroupAccessModel",
+        "app.infrastructure.database.gc_mobile_models.MobileNotificationModel",
+        "app.infrastructure.database.gc_mobile_models.MobilePassengerIdentityModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.models.CoordinatorGroupAssignmentModel",
+        "app.infrastructure.database.models.UserModel",
+        "app.infrastructure.repositories.coordinator_assignment_lifecycle",
+        "app.infrastructure.repositories.coordinator_assignment_lifecycle.expired_trip_clause"
+      ]
+    }
+  },
+  "only_new_infrastructure_edges": [
+    "app.infrastructure.repositories.coordinator_assignment_lifecycle",
+    "app.infrastructure.repositories.coordinator_assignment_lifecycle.expired_trip_clause"
+  ],
+  "canonical_edges_already_used_by_current_authored_audience": true,
+  "all_other_policy_entries_restrictions_exact": true,
+  "exact_original_byte_inverse": true
+}

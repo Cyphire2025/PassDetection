@@ -1,0 +1,47 @@
+"use client";
+
+import { useState } from "react";
+import { useBroadcast } from "./broadcast-workspace-shell";
+import { TripUpdateComposer } from "./trip-update-composer";
+import { fieldClass } from "./workspace-ui";
+import styles from "./broadcast-workspace.module.css";
+
+export function UpdateMessageComposer() {
+  const broadcast = useBroadcast();
+  const groups = (broadcast.linked_client_groups ?? []).filter(
+    (group) => !["archived", "deleted"].includes(group.status),
+  );
+  const [groupId, setGroupId] = useState(
+    groups.length === 1 ? groups[0].id : "",
+  );
+  if (!groupId)
+    return (
+      <div className={`${styles.surface} space-y-4 p-6`}>
+        <h2 className="text-lg font-semibold">Trip update</h2>
+        {groups.length ? (
+          <label className="block text-sm font-medium">
+            Submission group for audience filters
+            <select
+              className={`mt-2 ${fieldClass}`}
+              value={groupId}
+              onChange={(event) => setGroupId(event.target.value)}
+            >
+              <option value="">Choose the linked group</option>
+              {groups.map((group) => (
+                <option key={group.id} value={group.id}>
+                  {group.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : (
+          <p className="text-sm text-slate-500">
+            Link this broadcast to a client group in All Groups to use
+            submission and document filters.
+          </p>
+        )}
+      </div>
+    );
+  return <TripUpdateComposer key={groupId} groupId={groupId} />;
+}
+

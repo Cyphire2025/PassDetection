@@ -1,0 +1,13 @@
+{
+  "immutable_git_source_matches_actual_prechange_hash": true,
+  "prechange_sha256": "517dd7840165bc5dae0063095074b821ee3cd7e013b2d6bf35834d2cdf30e6de",
+  "whole_original_declarations_retained": 20,
+  "only_existing_changes": [
+    "settings fixture patches actual cipher owner",
+    "encoded batch-limit instrumentation patches actual scope owner",
+    "decoded batch-limit instrumentation patches actual scope owner"
+  ],
+  "all_original_assertions_retained": true,
+  "new_unit_cases": 2,
+  "new_route_cases": 3
+}

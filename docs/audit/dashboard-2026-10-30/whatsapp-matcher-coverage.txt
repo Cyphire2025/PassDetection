@@ -1,0 +1,36 @@
+........................................................................ [ 56%]
+.......................................................                  [100%]
+
+---------- coverage: platform win32, python 3.11.15-final-0 ----------
+Name                                                                  Stmts   Miss Branch BrPart  Cover   Missing
+-----------------------------------------------------------------------------------------------------------------
+app\application\use_cases\whatsapp\__init__.py                            0      0      0      0   100%
+app\application\use_cases\whatsapp\contact_import_limits.py               4      0      0      0   100%
+app\application\use_cases\whatsapp\contact_normalization.py              11      1      2      1    85%   21
+app\application\use_cases\whatsapp\document_templates.py                 23     13      6      0    34%   21, 34-39, 50-57, 61-66, 74
+app\application\use_cases\whatsapp\document_updates.py                    9      2      0      0    78%   15, 19
+app\application\use_cases\whatsapp\group_match_coordinator.py            80      0     28      1    99%   76->63
+app\application\use_cases\whatsapp\group_match_evidence.py               86      2     44      2    97%   149, 284
+app\application\use_cases\whatsapp\group_match_fields.py                 16      0      0      0   100%
+app\application\use_cases\whatsapp\group_match_normalization.py         104      9     42      7    89%   48, 59, 62, 73, 75, 78, 87-89
+app\application\use_cases\whatsapp\group_match_profiles.py              121      0     52      2    99%   50->49, 164->158
+app\application\use_cases\whatsapp\group_match_rows.py                   46      3      0      0    93%   201, 204, 207
+app\application\use_cases\whatsapp\group_match_types.py                 110      0      0      0   100%
+app\application\use_cases\whatsapp\group_submission_matching.py          64      0      0      0   100%
+app\application\use_cases\whatsapp\group_submission_policy.py            22      0      8      0   100%
+app\application\use_cases\whatsapp\group_updates.py                      40      8      6      0    70%   22-27, 49, 52
+app\application\use_cases\whatsapp\imported_broadcast_phone.py           39      1     14      1    96%   69
+app\application\use_cases\whatsapp\message_templates.py                  98     73     56      0    16%   36-50, 80, 86, 93-101, 107-109, 124-154, 180-188, 204-213, 225-269
+app\application\use_cases\whatsapp\plan_group_broadcast_use_case.py      31     31      8      0     0%   11-96
+app\application\use_cases\whatsapp\private_delivery_identity.py           8      1      0      0    88%   29
+app\application\use_cases\whatsapp\qr_templates.py                       14      8      4      0    33%   14-16, 20-23, 27
+app\application\use_cases\whatsapp\recipient_capacity.py                 19      7      4      0    52%   21, 32-41
+app\application\use_cases\whatsapp\source_group_contacts.py              51      6     18      6    83%   26, 53->62, 55, 63, 65, 86-87
+app\application\use_cases\whatsapp\spreadsheet_values.py                 25     17     16      0    20%   16-23, 34-50
+app\application\use_cases\whatsapp\template_text.py                       2      1      0      0    50%   10
+app\application\use_cases\whatsapp\welcome_policy.py                      3      1      0      0    67%   8
+-----------------------------------------------------------------------------------------------------------------
+TOTAL                                                                  1026    184    308     20    77%
+Coverage JSON written to file ../docs/audit/dashboard-2026-10-30/whatsapp-matcher-coverage.json
+
+127 passed in 6.86s

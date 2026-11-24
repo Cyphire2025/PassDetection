@@ -1,0 +1,28 @@
+{
+  "status": "complete current physical retained operator/contract test-source review only",
+  "files": 6,
+  "physical_lines": 1100,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-ci-evidence-test-source-reviewed-files.json",
+    "sha256": "1a007bd6172020a9038f576f62ca59678d8a1c34a895660aebea9b256c35536b"
+  },
+  "source_before_equals_after": true,
+  "source_fence": {
+    "scripts/test_ci_job_inputs.py": "0192ad4ea39c6953fa47b5cc7adf78235608269905f20f340075ef3270f9bbc6",
+    "scripts/test_ci_success_reuse.py": "89851ac7d8f62af0540b9391be3e032db1f6735ec63ea4f0e61beeed7fe6bfab",
+    "scripts/test_tooling_controls.py": "e9452f2284a8aaf34ecc8d6f9c7592630837f3346012733c69273ec93d6c721c",
+    "scripts/test_operational_evidence.py": "ce03c3b07933a8f7938a44710113fd9c04cdb8e89a26bf3d654118f7e1e055ae",
+    "scripts/test_dashboard_release_evidence.py": "9ab37e08e61e63381741811ad063ea709c233f6b57dedf03dbc0313d077f2453",
+    "scripts/test_verify_deployment_resource_budget.py": "9ec4e8bc40918e1612fcae49ed1d514d14e00bd7d1f45350cbfa9b75738051c9"
+  },
+  "new_execution": false,
+  "runtime_mutation": false,
+  "new_validated_findings": [],
+  "scope": "Parent-reserved retained operator/QA/shared-main-CI test contracts. Native support contracts are read solely for existing shared CI compatibility; no native workload or dedicated Inbox extension.",
+  "limits": [
+    "Complete source read is not test execution, service/backend qualification or operator action.",
+    "Authored synthetic provider/CLI/SSH/Docker/registry fixtures do not invoke those live systems now.",
+    "Source-pattern assertions do not by themselves qualify actual workload or deployment correctness.",
+    "No protected source, historic qualified-source stamp, budgets, gates or release baselines changed."
+  ]
+}

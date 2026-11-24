@@ -240,6 +240,8 @@ async def main():
     parser.add_argument("--repeats", type=int, default=3)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
+    if args.repeats < 1:
+        parser.error("--repeats must be positive")
     root = Path(__file__).resolve().parents[2]
     original_export = baseline_module(
         root,

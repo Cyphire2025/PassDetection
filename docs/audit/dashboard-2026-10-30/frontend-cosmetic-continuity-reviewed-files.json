@@ -1,0 +1,52 @@
+[
+  {
+    "path": "frontend/features/companies/components/company-feedback.tsx",
+    "sha256": "ca2dcd60658dab63f40a47faf5b1d99f5862936366a1b3c9b266344c2b6b0b57",
+    "reviewer": "gc_models_finish",
+    "review_scope": "focused",
+    "status": "reviewed",
+    "source_kind": "runtime",
+    "global_new_full_source_coverage_credit": false,
+    "notes": "Root-authorized exact cosmetic candidate bytes adopted after old source hash verification. Exact canonical TypeScript tree/raw tokens/JS literal values/imports/printer and ReactJSX emitted JavaScript Original full source-purpose receipts remain historical; this record confers current focused semantic continuity only. Immutable originals, precise deletion spans and preflight AST/literal/ReactJSX proofs remain in final-whitespace-preflight. No source tests/build/gates rerun for formatting. Four backend candidates and five dedicated Inbox warning files untouched."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-document-follow-up.test.tsx",
+    "sha256": "102b35bc6589a525752d79d6587e3c215f418b0aabd27b086b0c87fb4a32035a",
+    "reviewer": "gc_models_finish",
+    "review_scope": "focused",
+    "status": "reviewed",
+    "source_kind": "test",
+    "global_new_full_source_coverage_credit": false,
+    "notes": "Root-authorized exact cosmetic candidate bytes adopted after old source hash verification. Exact canonical TypeScript tree/raw tokens/JS literal values/imports/printer and ReactJSX emitted JavaScript Original full source-purpose receipts remain historical; this record confers current focused semantic continuity only. Immutable originals, precise deletion spans and preflight AST/literal/ReactJSX proofs remain in final-whitespace-preflight. No source tests/build/gates rerun for formatting. Four backend candidates and five dedicated Inbox warning files untouched."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-list.tsx",
+    "sha256": "97d0ce82e94c4abf1215f7d0c33372b9983c3711bf3c967fd2d0fa90cd2dba73",
+    "reviewer": "gc_models_finish",
+    "review_scope": "focused",
+    "status": "reviewed",
+    "source_kind": "runtime",
+    "global_new_full_source_coverage_credit": false,
+    "notes": "Root-authorized exact cosmetic candidate bytes adopted after old source hash verification. Root-adopted explicit exception: one raw whitespace-only JSXText token changes. All JS literal/non-JSX token/import values, whitespace-only-normalized AST and complete ReactJSX emitted JavaScript remain exact. Original full source-purpose receipts remain historical; this record confers current focused semantic continuity only. Immutable originals, precise deletion spans and preflight AST/literal/ReactJSX proofs remain in final-whitespace-preflight. No source tests/build/gates rerun for formatting. Four backend candidates and five dedicated Inbox warning files untouched."
+  },
+  {
+    "path": "frontend/features/passports/components/upload-link-list.test.tsx",
+    "sha256": "2319af81b2adc31a5c5ccde3b5b6cb372cbd1df54acf9d59743081d2563933aa",
+    "reviewer": "gc_models_finish",
+    "review_scope": "focused",
+    "status": "reviewed",
+    "source_kind": "test",
+    "global_new_full_source_coverage_credit": false,
+    "notes": "Root-authorized exact cosmetic candidate bytes adopted after old source hash verification. Exact canonical TypeScript tree/raw tokens/JS literal values/imports/printer and ReactJSX emitted JavaScript Original full source-purpose receipts remain historical; this record confers current focused semantic continuity only. Immutable originals, precise deletion spans and preflight AST/literal/ReactJSX proofs remain in final-whitespace-preflight. No source tests/build/gates rerun for formatting. Four backend candidates and five dedicated Inbox warning files untouched."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/update-message-composer.tsx",
+    "sha256": "d31b6ada41a81e7cff8d89b52eca61f9435ab54f50d12b735458689457da1ff3",
+    "reviewer": "gc_models_finish",
+    "review_scope": "focused",
+    "status": "reviewed",
+    "source_kind": "runtime",
+    "global_new_full_source_coverage_credit": false,
+    "notes": "Root-authorized exact cosmetic candidate bytes adopted after old source hash verification. Exact canonical TypeScript tree/raw tokens/JS literal values/imports/printer and ReactJSX emitted JavaScript Original full source-purpose receipts remain historical; this record confers current focused semantic continuity only. Immutable originals, precise deletion spans and preflight AST/literal/ReactJSX proofs remain in final-whitespace-preflight. No source tests/build/gates rerun for formatting. Four backend candidates and five dedicated Inbox warning files untouched."
+  }
+]

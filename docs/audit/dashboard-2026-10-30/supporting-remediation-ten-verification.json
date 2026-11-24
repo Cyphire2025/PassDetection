@@ -1,0 +1,20 @@
+{
+  "status": "complete-source-bound-ten-authored-reference-read",
+  "handoff": "docs/audit/dashboard-2026-10-30/supporting-qualification-ten-brand-handoff.json",
+  "handoff_sha256": "0abdd89ad0ca11ffd3cc71d9601086988f1f282f34178ad9cee31936bf5e92bf",
+  "ledger": "docs/audit/dashboard-2026-10-30/supporting-remediation-ten-reviewed-files.json",
+  "ledger_sha256": "972cea79c186ce309156a52996201e7c6e5b569657dbc0b58847b0a05ab49f33",
+  "files": 10,
+  "physical_lines": 802,
+  "full_retained_authored_reference_files": 5,
+  "focused_mixed_reference_files": 5,
+  "source_fence": "All10currenthashes match handoff; everyphysical line including113374characters/longtables read in bounded groups with no clipping.",
+  "source_changes": [],
+  "checks_run": [],
+  "limits": [
+    "No historicalreceipt repinned or rerepresented as currenttest/service/browser/deploy evidence.",
+    "MixeddedicatedInbox/nativereferences keptfocused; no excludedfeatureaudit, realprovider, credentials, privatebackups, scanners, advisoryrenewals or activation.",
+    "Doesnotcloseindependentactualsourcearchitecture/lifetime/finalcombinedqualification obligations."
+  ],
+  "physical_characters": 113374
+}

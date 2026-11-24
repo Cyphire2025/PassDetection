@@ -1,0 +1,15 @@
+✔ distribution landing exposes only the two requested document families (0.54ms)
+✔ category group lists preserve server-backed passenger search and route to their own workspaces (0.102ms)
+✔ flight routes default safely and validate scope and leg before selecting a lane (0.0882ms)
+✔ legacy group URLs preserve group context with a family chooser (0.0731ms)
+✔ lane registry preserves legacy international types and adds empty domestic types (0.1007ms)
+✔ workspace is immutable per route lane and flight navigation is operation-safe (0.1273ms)
+✔ group selection search includes passenger names through a scoped server query (1.0847ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 68.8121

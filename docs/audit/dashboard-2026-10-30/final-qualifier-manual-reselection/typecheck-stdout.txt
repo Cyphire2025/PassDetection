@@ -1,0 +1,4 @@
+features/upload/components/fresh-qualifier.test.tsx(93,5): error TS2322: Type '{ qualifier_relation_other_enabled: false; passport_enabled?: boolean | undefined; passport_required?: boolean | undefined; passport_live_scan?: boolean | undefined; passport_ecr_enabled?: boolean | undefined; ... 9 more ...; agency_dealership_name_label?: string | undefined; }' is not assignable to type 'UploadConfiguration'.
+  Types of property 'passport_enabled' are incompatible.
+    Type 'boolean | undefined' is not assignable to type 'boolean'.
+      Type 'undefined' is not assignable to type 'boolean'.

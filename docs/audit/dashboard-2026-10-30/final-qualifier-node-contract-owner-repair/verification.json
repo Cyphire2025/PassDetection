@@ -1,0 +1,85 @@
+{
+  "status": "Authorized test-only owner migration qualified; root owns combined Node/build/browser follow-through.",
+  "sealed_at_utc": "2026-11-01T01:17:37.133654+00:00",
+  "reviewer": "gc_models_finish",
+  "affected_path": "frontend/features/upload/components/relation-qualifier-step.contract.test.mjs",
+  "original_sha256": "0aa359c5f6ce6a511024f9df9365bb965de59c8564309c2f5843e05f7ebde181",
+  "current_sha256": "7d20ce1a88ae4cf7ce4f9f5671366bdb922698544cd2c4573da0f42bbc38bdd9",
+  "current_physical_lines": 24,
+  "baseline_actual_failure": {
+    "path": "docs/audit/dashboard-2026-10-30/final-retained-frontend-20261101-002/node-contracts.log",
+    "sha256": "8412fa3bb7da5c62446755af5525ca99bd7d33a76da745c998b78f018524c64d",
+    "observation": "Full Node suite failed because builder assertion still searched the 10-line FreshQualifier wrapper. Original run and failed evidence unchanged."
+  },
+  "actual_ownership": "FreshQualifier imports/renders keyed FreshQualifierEditor; editor invokes useQualifierSelectionEditor for owned restore. Editor, not hook, builds, validates, serializes and saves request.",
+  "original_six_contract_statements_preserved_byte_exact": true,
+  "preserved_original_contract_assertions": [
+    "  assert.match(qualifier, /buildQualifierSelectionRequest\\(/);",
+    "  assert.match(qualifier, /if \\(!choice\\) return/);",
+    "  assert.match(qualifier, /state\\.api\\.qualifier\\(choice, signal\\)/);",
+    "  assert.match(qualifier, /state\\.collection\\(\\{ qualifier_selection_token: result\\.selection_token \\}\\)/);",
+    "  assert.match(source.validation, /!payload\\.collection\\?\\.qualifier_selection_token/);",
+    "  assert.match(source.fresh, /key=\\{resume\\.members\\[resume\\.active\\]\\.sessionId\\}/);"
+  ],
+  "new_owner_assertions": "Separate owner reads prove facade import/render/proof key, editor hook import/invocation, hook export/scoped restore, builder import, serialized save and abort guard. No concatenated source search.",
+  "privacy_business_contracts": "Original proof-only collection update, missing-proof validation and active-member session key assertions preserved. Existing service tests for Self/list excluding stale Other text unchanged.",
+  "checks": {
+    "targeted-node": {
+      "argv": [
+        "C:/Users/nipun/AppData/Local/Programs/node-v24.21.0-win-x64/node.exe",
+        "--test",
+        "features/upload/components/relation-qualifier-step.contract.test.mjs"
+      ],
+      "cwd": "frontend",
+      "exit_code": 0,
+      "elapsed_seconds": 0.109,
+      "stdout": "targeted-node-stdout.txt",
+      "stderr": "targeted-node-stderr.txt",
+      "record_basis": "Actual subprocess returned 0 and saved both raw streams before console cp1252 display error; preserved tool result e4b358."
+    },
+    "scoped-eslint": {
+      "argv": [
+        "C:/Users/nipun/AppData/Local/Programs/node-v24.21.0-win-x64/node.exe",
+        "node_modules/eslint/bin/eslint.js",
+        "features/upload/components/relation-qualifier-step.contract.test.mjs"
+      ],
+      "cwd": "frontend",
+      "exit_code": 0,
+      "elapsed_seconds": 1.109,
+      "stdout": "scoped-eslint-stdout.txt",
+      "stderr": "scoped-eslint-stderr.txt"
+    }
+  },
+  "full_run_source_fence_paths": 1803,
+  "full_run_to_current_exact_deltas": [
+    "frontend/features/documents/components/document-row-action-menu.test.tsx",
+    "frontend/features/mcp/components/mcp-read-access.test.tsx",
+    "frontend/features/mcp/components/mcp-simple-access.test.tsx",
+    "frontend/features/upload/components/relation-qualifier-step.contract.test.mjs"
+  ],
+  "our_snapshot_to_current_exact_deltas": [
+    "frontend/features/upload/components/relation-qualifier-step.contract.test.mjs"
+  ],
+  "all_other_1799_maintained_paths_unchanged": true,
+  "runtime_owner_hashes": {
+    "frontend/features/upload/components/fresh-qualifier.tsx": "742ecf4bfaaec141e7a0e422419f57889eb44090679e70e47783cbbf0c6bf72c",
+    "frontend/features/upload/components/fresh-qualifier-editor.tsx": "0317940a84f37795a6646a378e6de1e99deae7e16594c34cdc7cb2369df824dc",
+    "frontend/features/upload/hooks/use-qualifier-selection-editor.ts": "9d5d9a03885b6ae4dd92c7ed91ad740c678297e4ff41f595b17f34d79ca91331",
+    "frontend/features/passports/api/public-upload-link.api.ts": "d720cbf0a79ce838006b30e56b63b69ec992c96881ffa3cb62d3df0f2b3d005b",
+    "frontend/features/upload/services/relation-qualifier.ts": "dae62cf8a502d725b0ed52da453ae56fd7c19961f00200e7585324caf3a45617",
+    "frontend/features/upload/services/relation-qualifier.test.mjs": "1107d39357866443e03ea6e0e4c24d9914f8747626cbdaa1fde0a0a7047b48dd"
+  },
+  "gate_control_hashes_unchanged": {
+    "frontend/scripts/verify-frontend-module-budgets.mjs": "45ddf8fd2ae390af222eb72f224d4b513368470a82ddcf083b69088827febde6",
+    "scripts/release_workspace_branding_bindings.json": "b98d6e57df317ad83f602a529634ac01410eaa5c7689b26b51102778bd944f48",
+    "scripts/release_workspace_branding_policy.py": "f9aa29d4e02812dbc044916e32e919a6e36a5a105a465e66654bc2fcd9d7bd1b",
+    "frontend/vitest.config.mts": "5e80c5305955ce1a682aefbf65a53f7d12aea50c103235299474460b6dd5d20c"
+  },
+  "normal_owner_count_unchanged": 669,
+  "critical_owner_count_unchanged": 34,
+  "runtime_backend_gates_matrix_edited": false,
+  "full_vitest_build_browser_matrix_repeated": false,
+  "display_runner_limit": "runner-display-limitation.txt",
+  "source_fence_before": "source-fence-before.json",
+  "source_fence_after": "source-fence-after.json"
+}

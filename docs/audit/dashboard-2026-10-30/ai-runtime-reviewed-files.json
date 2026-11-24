@@ -1,0 +1,530 @@
+{
+  "files": [
+    {
+      "path": "backend/app/infrastructure/ai/gemini_passport_verification_service.py",
+      "sha256": "63afd33c0f59938a8bb7c5dfa949ae7f82dbca5dc6d7966a5379348b21d5c08b",
+      "lines": 390,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/ai/gemini_post_submission_verification_service.py",
+      "sha256": "e04f106f559497fce799f58ef06002bab09cd7ed7532ee9eeb6046dad8ca641c",
+      "lines": 453,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/ai/bounded_vision_http.py",
+      "sha256": "8a66e9bc0f728cee96334bbfcdacbe2f681c373268e730d0e6eff1424ae447a3",
+      "lines": 68,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/ai/gemini_model_capabilities.py",
+      "sha256": "388684ce53b556a9f4dfbcc22d80c521394c8ba05aa897979f14a38260688cad",
+      "lines": 28,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/ai/passport_date_evidence.py",
+      "sha256": "23de6ddb96714f752111ec6aeaeaf1be717b8045608ca48d1b9723b082cff62b",
+      "lines": 307,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/application/interfaces/passport_extraction.py",
+      "sha256": "866179955d410a99c2835479383e1031ccce26e47b391582ffb0901941355a8b",
+      "lines": 28,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable. Retained active injected extraction interface: draft_runtime still uses it; only unused local-OCR implementations/helpers were removed."
+    },
+    {
+      "path": "backend/app/application/interfaces/passport_verification.py",
+      "sha256": "a7d4956b63a1dfd3283468e94e04b50dd8a5aa65aa01594fe69cf19db1fedc2b",
+      "lines": 31,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/application/interfaces/post_submission_verification.py",
+      "sha256": "713bf5b332d28f06427c64c80a2326eeb4c3b8ca3c40662adc8846154d38d5d1",
+      "lines": 131,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/passport_ai_verification.py",
+      "sha256": "b25e566934ccd6c607cc0f52258f61227ab00a7de0bcd469179dbcc7a677b9b7",
+      "lines": 67,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/process_passport_submission_job_use_case.py",
+      "sha256": "998192ee86644c66578b549b637aa622264e97179ecba66b7fd2a3227260c4c5",
+      "lines": 590,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/verify_submitted_passport_use_case.py",
+      "sha256": "8f6c266b0356dc877c92707733509bb9186189db0d3f0c97cf8b9849b545e5cd",
+      "lines": 150,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/retry_post_submission_verification_use_case.py",
+      "sha256": "d833985834f261af50e4048beb2a6872f8c9f57ffbda8ad0a9af25cdd07f8e0c",
+      "lines": 56,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_submission_repository.py",
+      "sha256": "86d3e08deca66ccc621be769e73a2e8df822c0f540be5779467c8e0cab3379c2",
+      "lines": 901,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/draft_runtime.py",
+      "sha256": "0d2919cf84fcd8f7f25c20f36b4ca22f8dcd26de33beb26f6766e371ff9e6b3e",
+      "lines": 142,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/draft_extraction.py",
+      "sha256": "2c6ba2b29a556071d11ae2897253975039b145a120422350537726bcac8f52f8",
+      "lines": 31,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/processing/celery_app.py",
+      "sha256": "ec7b6302636fc200ece9e08d0ae067ce918db3ada0b4cb01313ad2d8c76ae331",
+      "lines": 425,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/processing/delivery_watchdog.py",
+      "sha256": "27a494e2046a2d760d56f6a1d2d5e1a5e50c26195e41c8892fdca041b3637e3e",
+      "lines": 120,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/processing/dispatcher.py",
+      "sha256": "6e31aa4b8be8d82edd2a79a85f5d0833d39a83c8555d50ef595cdd3d6d3517ae",
+      "lines": 141,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/processing/job_repository.py",
+      "sha256": "cb6a2c126b1e4da14e07d6e872671456cac286f6c1ea8745715e5f691d4c2176",
+      "lines": 360,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/processing/job_state.py",
+      "sha256": "cfccab118d8e0a93e6bc4cc990d79732cef34072ae75e79f69fde765483757af",
+      "lines": 41,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/processing/paused_feature_scheduler.py",
+      "sha256": "188d9f894ca09fa537ab5f1ecf40601c733c8b06681643cee98678458b5f1034",
+      "lines": 33,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/processing/recovery.py",
+      "sha256": "aa7be8147764f287294e2c64d4e824a08fc311269f759371f443df1d2b6a0b17",
+      "lines": 71,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/processing/tasks.py",
+      "sha256": "3b0c253f7585b016e5f27172754d479320453c3213c0dbb16f2831e32b701769",
+      "lines": 84,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/processing/worker_runtime.py",
+      "sha256": "1bb7311c0aa442b2d70ad2a896594c3afe41f23d3570e7e69d69910d2aa39892",
+      "lines": 109,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/processing/__init__.py",
+      "sha256": "e6dcb1e25a650cf00594e6b2db02715dfb9dc10d34054785e6efd502f3a1a76d",
+      "lines": 2,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/verification/dispatcher.py",
+      "sha256": "081074551c612d1a8ec212d623e5aac8cc4a433df25a8d221da9f2580549be5e",
+      "lines": 292,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/verification/job_repository.py",
+      "sha256": "08d701d797fa46f783ac6939c5652a1d19c04f05a5e0ded5cfb3ce37929c9210",
+      "lines": 261,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/verification/runtime.py",
+      "sha256": "bde2ed55836312685572f5294feb522639ce5f35a0436562f8a6029e81d23499",
+      "lines": 260,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/verification/tasks.py",
+      "sha256": "6c93e37549729dd1be037bd2877c01190d8ad032154afe888bec76caa0cc6bde",
+      "lines": 72,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/verification/__init__.py",
+      "sha256": "11e9e6d75e682ac48ee81e84859a996747281397e291bc18b846d51178477b2a",
+      "lines": 1,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/ai/passport_extraction_codec.py",
+      "sha256": "9db5adcea3d33bd79e1ef0b735d568fa4be0a891db9ad6930cc6271c98dfc7e7",
+      "lines": 256,
+      "review_status": "full",
+      "notes": "Reviewed original source in full and extracted owner/import/context boundaries; entire definition/body AST matches the explicit postfix source. No acceptance decision rules changed by extraction."
+    },
+    {
+      "path": "backend/app/infrastructure/ai/passport_extraction_fields.py",
+      "sha256": "411ee74a6755dbce2dd59e504d1eb7133c8e2a9031c0cf03d725270d166ae039",
+      "lines": 207,
+      "review_status": "full",
+      "notes": "Reviewed original source in full and extracted owner/import/context boundaries; entire definition/body AST matches the explicit postfix source. No acceptance decision rules changed by extraction."
+    },
+    {
+      "path": "backend/app/infrastructure/ai/passport_extraction_transport.py",
+      "sha256": "a893e4e784e175b9639d7c72918459b4de4da385efb7565e5765090d2a2e87a6",
+      "lines": 277,
+      "review_status": "full",
+      "notes": "Reviewed original source in full and extracted owner/import/context boundaries; entire definition/body AST matches the explicit postfix source. No acceptance decision rules changed by extraction."
+    },
+    {
+      "path": "backend/app/infrastructure/ai/post_submission_decision_policy.py",
+      "sha256": "d3b680d615ed2d525b361e7fc5be7eec49d6236533a5a2470d7e92ac8c5c84be",
+      "lines": 84,
+      "review_status": "full",
+      "notes": "Reviewed original source in full and extracted owner/import/context boundaries; entire definition/body AST matches the explicit postfix source. No acceptance decision rules changed by extraction."
+    },
+    {
+      "path": "backend/app/infrastructure/ai/post_submission_document_policy.py",
+      "sha256": "45481ffbad13350c61a886e101250b66c62bc9e54e0b4136d71ba09beaf1b27a",
+      "lines": 124,
+      "review_status": "full",
+      "notes": "Reviewed original source in full and extracted owner/import/context boundaries; entire definition/body AST matches the explicit postfix source. No acceptance decision rules changed by extraction."
+    },
+    {
+      "path": "backend/app/infrastructure/ai/post_submission_field_policy.py",
+      "sha256": "f04e958c1aa1477db40c46f6e18b9bff7226f5570ddb743ef37237ee6b26eb26",
+      "lines": 213,
+      "review_status": "full",
+      "notes": "Reviewed original source in full and extracted owner/import/context boundaries; entire definition/body AST matches the explicit postfix source. No acceptance decision rules changed by extraction."
+    },
+    {
+      "path": "backend/app/infrastructure/ai/post_submission_provider_codec.py",
+      "sha256": "a62010652092c473c4f4060648773d3c902b07963d5d886e4a40e6b5434d0530",
+      "lines": 131,
+      "review_status": "full",
+      "notes": "Reviewed original source in full and extracted owner/import/context boundaries; entire definition/body AST matches the explicit postfix source. No acceptance decision rules changed by extraction."
+    },
+    {
+      "path": "backend/app/infrastructure/ai/post_submission_result_formatter.py",
+      "sha256": "fe03dad9f92f204d4642e3fd0078ca2b04a7567f84e6206dc93feea9db865af1",
+      "lines": 68,
+      "review_status": "full",
+      "notes": "Reviewed original source in full and extracted owner/import/context boundaries; entire definition/body AST matches the explicit postfix source. No acceptance decision rules changed by extraction."
+    },
+    {
+      "path": "backend/app/infrastructure/ai/passport_extraction_contract.py",
+      "sha256": "6d1c5aa5ac7c71e4e657a07075ede7092d2ea19fe46cdf2467bf02d0687e14bf",
+      "lines": 180,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/ai/post_submission_contract.py",
+      "sha256": "749232865664761a541b7e519d97cb5c922b8739e8772d37bb696fdff008053b",
+      "lines": 188,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/ai/gemini_ecr_service.py",
+      "sha256": "ef2406f3f7e69dee5f1b2453f14cde26024f3363082ecc37008ac79611e4b25b",
+      "lines": 420,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/ai/gemini_visa_image_edit_service.py",
+      "sha256": "8158a196cb6b9bb733edce4a9bc3bed646dcb7a9b031964b4f306cafd991158c",
+      "lines": 511,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/celery_async_runtime.py",
+      "sha256": "931ac18fd9b7eaa8afd76444fd006c45f828cd73cf54d91816daa9b21de062e2",
+      "lines": 118,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_verification_history.py",
+      "sha256": "66977ee7ff045be532675dff0284dc6ea3732c355f16f2fbdec98f667c9ce64c",
+      "lines": 23,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_submission_view_repository.py",
+      "sha256": "67e3882971d74859de20c09ad9f6f389a4f25e68bfa7e5c18753380f0a13d127",
+      "lines": 144,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_visa_ai_image_job_repository.py",
+      "sha256": "81084044e3a0398c71df647ceeba67fae0faa068f3081a33ee05f5cc9c67ce75",
+      "lines": 282,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_visa_ai_image_repository.py",
+      "sha256": "cf038459fd67bb67111d876bb050b019bbf4c8b9db631dd6128579217b17e5a7",
+      "lines": 127,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/passport_image_library_repository.py",
+      "sha256": "2d9d16bff5479c03d3ac8b6e8967d4a3da58edf32b7cf911221af5f0f3686bad",
+      "lines": 243,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/passports/roster_view_service.py",
+      "sha256": "54600492420b5bf44825f4719be6ecad8ab476db8861030a487ae215dedb9e09",
+      "lines": 75,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/database/traveller_returning_draft_models.py",
+      "sha256": "ee2462ab5691b5533f48f8b748162389e3f08ed97a46ff6476073dca7000b663",
+      "lines": 135,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/database/ecr_models.py",
+      "sha256": "6ac74bbe8e03eb5eeedaa777e92a73b273b92690d4712af4138031ef572e39c6",
+      "lines": 106,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/database/passport_ecr_models.py",
+      "sha256": "242b560047e797a9a00a07b7c295564951550d6d9b750a0ded520a0def07d69c",
+      "lines": 58,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/database/passport_image_library_model.py",
+      "sha256": "598ffd770bad2bbcac866172ed93bd70fd7b472e2464b73df80c46814303c3f1",
+      "lines": 70,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/draft_ecr.py",
+      "sha256": "17e18399861053c04e78376bce42be6e2d151e3711615233cdf7bde8c669f0ab",
+      "lines": 21,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/draft_expiry.py",
+      "sha256": "f25a07d712b8cfa54fbd64897c699ba06120b3e9a8028a28725d7d99e2490acc",
+      "lines": 48,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/documents/storage_cleanup.py",
+      "sha256": "51970583984abc165f0d60390032efda7e6c30709bbc519b366fb594694456ce",
+      "lines": 638,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/retry_public_passport_extraction_use_case.py",
+      "sha256": "99582b33cd81dba02a3941a46f293f01a6180e1d09e5ae92523dc9a5b3247149",
+      "lines": 84,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/reextract_passport_submission_use_case.py",
+      "sha256": "576cd4ee0f7d5159987365caecd136e2ed25de7c9037b1027438e360ef7621a4",
+      "lines": 72,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/client_submit_passport_use_case.py",
+      "sha256": "aee3271b832c45f09989735136583602051456bd830a01c278a766b77b6bdc72",
+      "lines": 521,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/client_submission_values.py",
+      "sha256": "25b50661c250afe7926a8c105e4c5ed4dbe15631ef2a948750482e3a8380ebad",
+      "lines": 117,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/client_submission_replay.py",
+      "sha256": "fa4a44514a533218547317aaa5012ca27762fe2197590f11c38962e953b549a8",
+      "lines": 52,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/domain/value_objects/passport_visa_ai_image_job.py",
+      "sha256": "7281a9768cbc62a8dbdd236a6777c846571c4a62b0ceb048151c276bbc216b6f",
+      "lines": 37,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/domain/value_objects/passport_visa_ai_image.py",
+      "sha256": "1678b989f9da9229f15266a9646f8d9c2e3347cae1ad0781ba40dabb7c700cee",
+      "lines": 22,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/domain/value_objects/passport_image_library.py",
+      "sha256": "5c6bed11e358decd02eabe3250eb20fbee07fb927640341c4caccfe456f86566",
+      "lines": 32,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/application/mcp/roster_reads.py",
+      "sha256": "6e6aaf9fe3888294c1087581135768f2a0a0a096aa3415f9de69ff8d3bf6f67b",
+      "lines": 158,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/ecr/passport_runtime.py",
+      "sha256": "745ad2bfbec7597ad634e520247fc52e3d41fedec43b9b03413c4d3161f3d25b",
+      "lines": 568,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/ecr/passport_tasks.py",
+      "sha256": "33905d4ce9703ed8830badb38889ff9e94ae4bd62d946aa120926265adf870ef",
+      "lines": 40,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/ecr/readiness.py",
+      "sha256": "dbc4a369f6cc5ab3eb3e4b4e0a9ca3f207c0e7520e8530f3b6b3dba4bdf09f4d",
+      "lines": 81,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/ecr/runtime.py",
+      "sha256": "5b1f07bfd90528c026870530b855a81d7b0f13d5d676852aa7038f6e12a7cd35",
+      "lines": 528,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/ecr/tasks.py",
+      "sha256": "9c1cac605ae1753c07123ae09ccdca84e41360a862265cd29a9193cf2bcb519e",
+      "lines": 45,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/ecr/__init__.py",
+      "sha256": "2e5630078b16249409e4d63854a830f4ad0ceeb5f0f9f43f140e5f6f20b05e67",
+      "lines": 36,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/visa_ai_image_jobs/dispatcher.py",
+      "sha256": "209cfb5fcfce1fb4d57daa830674ec2b933e3b2f6b3d27cc1d44fb297c7754c7",
+      "lines": 52,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/visa_ai_image_jobs/runtime.py",
+      "sha256": "cdad55895fb8a92ad83fd1a8f6bbfee6a88574e72250de2d124a848d00b97d3d",
+      "lines": 356,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/visa_ai_image_jobs/tasks.py",
+      "sha256": "a5854603abd8cd48b0e4f558566226a73d9966b47b4f68bd7abf2e687edce67e",
+      "lines": 64,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    },
+    {
+      "path": "backend/app/infrastructure/visa_ai_image_jobs/__init__.py",
+      "sha256": "a44a7ea295c130c69bf46e44a91e8dfd4dd8bcc00b17e0aedf1a386138fd447d",
+      "lines": 6,
+      "review_status": "full",
+      "notes": "Complete source read: provider data/credential logging, bounded processing, retries/cancellation and revision/publication/tenant contracts reviewed as applicable."
+    }
+  ],
+  "method": "Manual full original-source reads; extracted-owner AST equivalence plus manual dependency/callback review. No attribution from unrelated agents is implied."
+}

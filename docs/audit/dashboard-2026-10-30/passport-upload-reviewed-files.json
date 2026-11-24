@@ -1,0 +1,410 @@
+[
+  {
+    "path": "frontend/features/passports/components/passport-image-crop-editor.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "9a68479989040d177dce2e8f4d45905674743196f7cdc5469a3434e105087417",
+    "notes": "Complete former1241-line component and current198-line composition read. Keyed submission/image session prevents cross-scope stale private draft state; shared modal boundary contains keyboard focus and returns to Edit trigger. Canvas/library/AI tabs and editor roles preserved."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-image-library-panel.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "64633cfa206c418014e2938ed1a923d51b8059b1bc958a7132fc59679839b30b",
+    "notes": "Complete library presentation extracted: authenticated preview URLs, selection/source-revision metadata, common busy state, upload input reset and accessible empty/error states. Does not turn private object keys into public URLs."
+  },
+  {
+    "path": "frontend/features/passports/components/visa-ai-image-panel.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "fc9ecc4db886ee52953ab1f43802936bbbee8396e95cb5d204b4a7cc5f140e94",
+    "notes": "Complete Visa-only comparison/generation UI extracted. Durable-job progress, source selection and exact-use revision remain unchanged; no provider calls in tests."
+  },
+  {
+    "path": "frontend/features/passports/hooks/use-passport-image-crop-editor.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "4cd9e9e3be16a147d30e3e2cbcfef0db4277da49a8646b04a4ad93567e666293",
+    "notes": "Complete typed editor orchestrator read/authored. Wires source/draft/actions/AI hooks without duplicate state ownership; public props preserved."
+  },
+  {
+    "path": "frontend/features/passports/hooks/use-passport-image-crop-controls.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "088930613dc9c14a6338ce3733676a987f4acf008ae1a6f2a7e1448c08353de1",
+    "notes": "Complete pointer/touch/keyboard crop controls read/authored. Existing geometry clamp and pointer capture retained; arrow-key movement stops propagation only within crop control."
+  },
+  {
+    "path": "frontend/features/passports/hooks/use-passport-image-editor-source.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "6394222abdbf3fea80368d7c97f4bfc3e433a9506f1aa27543ce86aa0621cfb1",
+    "notes": "Complete private source/library lifecycle read/authored. Abort checks before/after blob await, late metadata completion suppressed, authenticated blob source and object-URL revocation tested."
+  },
+  {
+    "path": "frontend/features/passports/hooks/use-passport-image-editor-draft.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "8422113fb228a9931aa8b3c9b9327922b901aec1d251ca6f4754d72e728e46c3",
+    "notes": "Complete adjustment state/render lifecycle read/authored. Metadata-identity reset, cached image/RAF preview, fine-angle preservation across quarter turns, undo and sharpness maintained; lazy draft state avoids effect reset races."
+  },
+  {
+    "path": "frontend/features/passports/hooks/use-passport-image-editor-actions.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "1a42e743ffc84c4ea19009112b459a56b63e02a01056dc3f63b0270e8813fdfe",
+    "notes": "Complete save/reset/upload/use actions read/authored. Synchronous admission ref prevents same-turn duplicate actions; exact expected revision propagated; late unmounted completion cannot invoke parent save/close callbacks; failure unlock tested."
+  },
+  {
+    "path": "frontend/features/passports/hooks/use-visa-ai-image-generation.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "018bd70d66e1c6da022bf88653eed16eab73548b58b67443d4baae3516cf8ca6",
+    "notes": "Complete durable AI job lifecycle read/authored. Same-turn generation lock, resume/poll, selected-result fallback and cleanup inspected. Close aborts client wait, not persisted backend job; four consecutive failed polls bounded and tested."
+  },
+  {
+    "path": "frontend/features/passports/utils/passport-image-editor-preview.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "7c7cc4553862df4b8177bc9e99b269eec68af43c596aa018abb80164d5c72d36",
+    "notes": "Complete existing canvas preview/sharpness algorithm extracted. Canvas dimensions, crop transformation and cached-source reuse preserved; no destructive preview operation touches the original object."
+  },
+  {
+    "path": "frontend/features/passports/utils/passport-image-editor-state.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "19905003e7d46d8ec171cd6c846956948c1f827d584ba3db5c8e2219b698efe4",
+    "notes": "Complete editor constants, clamping, keyboard delta, merge and structured error helpers read/authored. Original rotation and crop limits preserved."
+  },
+  {
+    "path": "frontend/features/passports/services/visa-ai-generation-polling.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "19d52a7a5041ea34e3b491a857c0c6542c8368c1e7eefaa74ea33f6b6c623093",
+    "notes": "Complete abortable delay/two-second durable polling read/authored. Timer and abort listener cleanup, abort checks and four-consecutive-failure cap preserved."
+  },
+  {
+    "path": "frontend/features/upload/components/upload-flow.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "f1cecafc1afb705b29d5b710d96d5b70488d92f52f58c4f4703a9c116faf927b",
+    "notes": "Complete former762-line flow and current keyed session entry read. Same-token rerenders preserve values; token changes reset private selected files/form/controllers, proven by React regression."
+  },
+  {
+    "path": "frontend/features/upload/components/upload-flow-screen.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "7b5a9272c174ccd98529de1b1856a0e152db6ee32df10b002e5693930e3cefee",
+    "notes": "Complete loading/error/processing/review/success routing extracted. Error screen explicit retry and status announcements preserved; no camera bundle eager load."
+  },
+  {
+    "path": "frontend/features/upload/components/upload-flow-capture-stage.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "8ecc9056475f85557c9091a939083df39005aad2dac6effb4a5380dd4a6ef286",
+    "notes": "Complete capture stage read/authored. Literal lazy imports preserve camera boundaries; passport, back-page and Visa Photo validator/quality workflows unchanged."
+  },
+  {
+    "path": "frontend/features/upload/components/upload-flow-review-stage.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "ad23ae436c9b0f7b5c61bcb02565d58842a981abf178929f45125308a489dbd0",
+    "notes": "Complete review presentation read/authored. Common typed field props shared, configurable fields and unverified-image recovery gates retained; single/family submit controls unchanged."
+  },
+  {
+    "path": "frontend/features/upload/components/upload-flow-selection-stage.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "6990c01cc037ad31cb168f559feed8ae8acd576f448d9e85dac07a341fa4fc73",
+    "notes": "Complete mode/qualifier/family setup and document-choice stage read/authored. Existing configurable documents, family head ordering, qualifier bypass and selection labels preserved."
+  },
+  {
+    "path": "frontend/features/upload/components/upload-acquisition-actions.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "22350f4ba1e1040fe28db80534e4594cb24f2614d211242be4068017f8865a35",
+    "notes": "Complete file/capture/bundle acquisition actions read/authored. Exact existing processUpload arguments, manual-crop flag, original JPEG final validation and selfie requirements preserved."
+  },
+  {
+    "path": "frontend/features/upload/hooks/use-upload-flow-controller.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "1e0a0de5772636386b8ca9f446f19623c51f8a48b67abae8cca4e041f7f61ac0",
+    "notes": "Complete upload orchestration read/authored. Existing processing/family/review handlers and telemetry reused; fallback observer alone opts out of retryOnMount to prevent primary error observer remount loop; explicit refetch and primary mount defaults unchanged."
+  },
+  {
+    "path": "frontend/features/upload/hooks/use-upload-traveller-draft.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "5ecded2f2489770bc377b7132c14fc44881cff99d2ed0ba3b968f36face50bee",
+    "notes": "Complete traveller fields/reset helper read/authored. Exact old replacement-details reset semantics preserved, including unchanged agentEmployeeType behavior."
+  },
+  {
+    "path": "frontend/features/upload/hooks/use-upload-qualifier.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "155944a37ceb67f3018c1ece45085fc0941b06bd66e8e636d9dba915fdf37c4a",
+    "notes": "Complete qualifier selection/restore boundary read/authored. Same-turn admission prevents duplicate selection writes; late unmounted completion cannot persist token or advance flow; back-navigation selection reuse tested."
+  },
+  {
+    "path": "frontend/features/upload/hooks/use-upload-flow-bootstrap.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "8a3bf2e179d9c87d0473fc3737157e6891f22c8bff9528229b54e0698aabd8c7",
+    "notes": "Complete recovery lifecycle adapter read/authored. Pure bootstrap controller remains authority; cancellation across effect replay, stable individual setter dependencies and explicit reset retained."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-image-adjust-workspace.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "94be492f6b86aaf4447e99bbae6f77bd7967681d77f66d5e20ae08e37c43759f",
+    "notes": "Complete existing adjustment workspace read in bounded chunks. Pointer crop frame, resize handles, rotation/brightness/sharpness controls and accessible numeric labels inspected; unchanged by this lane."
+  },
+  {
+    "path": "frontend/features/upload/services/configured-upload.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "6cc73f2801f221975b7c48bb03c39c09e5a7e1866cceec0df092760a5efe0622",
+    "notes": "Complete configuration helpers read. Effective document requirements, conditional questions, family allowance and form value derivation traced to extracted review/selection stages; unchanged."
+  },
+  {
+    "path": "frontend/features/upload/services/upload-flow-bootstrap.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "61631acc412027bc6e2e4190a04d847056d36a4dbd7e01f8b9d2f4a2e403387c",
+    "notes": "Complete pure bootstrap controller read in three bounded chunks. Durable saved submission recovery precedes qualifier restore; every awaited branch honors cancellation, transient errors retain private recovery credentials; unchanged."
+  },
+  {
+    "path": "frontend/features/upload/services/upload-flow-session.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "48ff5be0570150968e0044acab7db5bfee0515712dc7ef198498ba88457e398f",
+    "notes": "Complete session helper read. Secure random UUID/getRandomValues fallback, scoped recovery/qualifier keys and privacy-restricted storage exceptions inspected; private in-memory attempt remains usable without storage."
+  },
+  {
+    "path": "frontend/features/upload/components/traveller-portal.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "5341cbcac1946b6494b92af059c2adbe0c9f62aa3d14cea55c40f1b404039b3d",
+    "notes": "Complete current route entry read and compared with HEAD. Valid New traveller mounts FreshFlow; legacy UploadFlow mounted only on error/missing group. Primary lookup keeps retryOnMount default true."
+  },
+  {
+    "path": "frontend/features/upload/components/fresh-flow.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "28defe51332f7c8d4b1ebb956412d651224b0e5e54269bd4a285150c21a3197d",
+    "notes": "Complete current fresh traveller entry read. Scoped session initialization/private draft resume and family/single composition traced; existing four current browser flows passed, not a claim that all nested files were reviewed."
+  },
+  {
+    "path": "frontend/features/upload/components/upload-link-error-screen.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "3d0bbc91593e3488a126cdeea937c79b30682ce7ae74929ae7e0874e1ad73902",
+    "notes": "Complete recoverable error UI read. Explicit Retry action, closed/missing wording and small-screen layout inspected; new browser regressions exercise actual route fallback."
+  },
+  {
+    "path": "frontend/features/upload/components/upload-flow-status.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "beb6379a78a2256494197bbd6825e623cb3c3151fb7731c38e225e48d7372290",
+    "notes": "Complete loading/progress/success status components read. Accessible status announcements and bounded responsive layout preserved."
+  },
+  {
+    "path": "frontend/features/passports/hooks/use-upload-links.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "ba41309c8edb643681a1f54ce8ffb8222afc487a55ae11f749a83785bb7f35f6",
+    "notes": "Complete query/mutation hooks read. Optional retryOnMount defaults true; only nested fallback observer opts out. Query cache invalidation/patches and bounded terminal/transient retry behavior inspected; primary cached-error remount recovery has a real QueryClient regression."
+  },
+  {
+    "path": "frontend/app/upload/[token]/page.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "0918ed6d5a48e2aac66777e4726d62299b4388162d546f059a6d00d10c683879",
+    "notes": "Complete public upload server route read. Async token resolution and TravellerPortal entry verified; no direct valid-link legacy UploadFlow path exists in current or HEAD route."
+  },
+  {
+    "path": "frontend/features/travellers/services/draft-resume.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "817f28f6049de375c1b677a812f8261d15ace4ba344bfd866f37947d578be228",
+    "notes": "Complete private traveller draft resume helper read. Missing/expired recovery handling and opaque token/session binding inspected; no new behavior introduced."
+  },
+  {
+    "path": "frontend/features/upload/api/fresh-draft.api.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "0a9003bf1d5aba2f8f1311b57c1dc76deb6186c82ce9a054e2015a053f0601af",
+    "notes": "Complete current fresh-draft API facade read. Encoded public draft token path, X-Upload-Session-ID, expected_revision/idempotency_key, authenticated document blob downloads and scoped contact/complete requests traced for current browser coverage mapping; no edits."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-image-editor-source.contract-helper.mjs",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "16818ad2ecaf8ea47fd8a47ed3343de5dfdd8d289b0d6ff8704ee40723bf2d04",
+    "notes": "Complete test/helper source read/authored in this lane; behavioral/source-contract coverage described in passport-upload-progress.md. Browser uses isolated synthetic fixtures without provider sends."
+  },
+  {
+    "path": "frontend/features/passports/components/passport-image-crop-editor.contract.test.mjs",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "be7c917aeca23e3fc94cb087986b548f153b7b5ae817a0209a62f08416a047d7",
+    "notes": "Complete test/helper source read/authored in this lane; behavioral/source-contract coverage described in passport-upload-progress.md. Browser uses isolated synthetic fixtures without provider sends."
+  },
+  {
+    "path": "frontend/features/passports/hooks/passport-image-editor.test-fixtures.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "13dd50b0effc1fa120ea4dc121820d00cb14f9b909024ee9c036fccf3b982434",
+    "notes": "Complete test/helper source read/authored in this lane; behavioral/source-contract coverage described in passport-upload-progress.md. Browser uses isolated synthetic fixtures without provider sends."
+  },
+  {
+    "path": "frontend/features/passports/hooks/use-passport-image-editor-actions.test.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "95cb686fe58dcca38f7b17b63520b1f046a9c2fe8a5abccc50edd27cce86d450",
+    "notes": "Complete test/helper source read/authored in this lane; behavioral/source-contract coverage described in passport-upload-progress.md. Browser uses isolated synthetic fixtures without provider sends."
+  },
+  {
+    "path": "frontend/features/passports/hooks/use-passport-image-editor-draft.test.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "db7facadea4d18c26e0de845f49b35aa0ef9494178aade2b12bfe57049106ae1",
+    "notes": "Complete test/helper source read/authored in this lane; behavioral/source-contract coverage described in passport-upload-progress.md. Browser uses isolated synthetic fixtures without provider sends."
+  },
+  {
+    "path": "frontend/features/passports/hooks/use-passport-image-editor-source.test.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "dd1909f9b95708287546b484a9e25f1320a1a57ab1cfdbb0907869454f6a7d0d",
+    "notes": "Complete test/helper source read/authored in this lane; behavioral/source-contract coverage described in passport-upload-progress.md. Browser uses isolated synthetic fixtures without provider sends."
+  },
+  {
+    "path": "frontend/features/passports/hooks/use-visa-ai-image-generation.test.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "7de2a92310aa5f058a52b8f2f0a04852a19d4e3a730bb86df7c8bd0017502ed4",
+    "notes": "Complete test/helper source read/authored in this lane; behavioral/source-contract coverage described in passport-upload-progress.md. Browser uses isolated synthetic fixtures without provider sends."
+  },
+  {
+    "path": "frontend/features/passports/hooks/use-upload-link-retry.test.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "b38ad7d95e728efbd299d130e2c5e054cb60de051824ff883e6d6803572df161",
+    "notes": "Complete test/helper source read/authored in this lane; behavioral/source-contract coverage described in passport-upload-progress.md. Browser uses isolated synthetic fixtures without provider sends."
+  },
+  {
+    "path": "frontend/features/upload/components/upload-flow-source.contract-helper.mjs",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "2fc941d8a6db7ba562f85b5642b88ed72b32fcc7def4f5bf03bc82f14a0cdcee",
+    "notes": "Complete test/helper source read/authored in this lane; behavioral/source-contract coverage described in passport-upload-progress.md. Browser uses isolated synthetic fixtures without provider sends."
+  },
+  {
+    "path": "frontend/features/upload/components/upload-flow-boundaries.contract.test.mjs",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "5b10a98824a917972807ab6e8ff81706439ec237c852d7160a245c7acbfb05b0",
+    "notes": "Complete test/helper source read/authored in this lane; behavioral/source-contract coverage described in passport-upload-progress.md. Browser uses isolated synthetic fixtures without provider sends."
+  },
+  {
+    "path": "frontend/features/upload/components/passport-camera-final-validation.contract.test.mjs",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "e2ef0523e99eb0b721d2bf1e75a3942dd8d1da78073d93b23a2f098b8d1b59e2",
+    "notes": "Complete test/helper source read/authored in this lane; behavioral/source-contract coverage described in passport-upload-progress.md. Browser uses isolated synthetic fixtures without provider sends."
+  },
+  {
+    "path": "frontend/features/upload/components/upload-flow-configured.test.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "90d37b1b2604f5e8fe37734755cd5c0305b8ee1c11274ad29d149811514a4f69",
+    "notes": "Complete test/helper source read/authored in this lane; behavioral/source-contract coverage described in passport-upload-progress.md. Browser uses isolated synthetic fixtures without provider sends."
+  },
+  {
+    "path": "frontend/features/upload/hooks/use-upload-qualifier.test.tsx",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "cac2a039061f6f7eaf18e9f265b8d0cb673f6f02ede421c9b5fa8d0981e2d481",
+    "notes": "Complete test/helper source read/authored in this lane; behavioral/source-contract coverage described in passport-upload-progress.md. Browser uses isolated synthetic fixtures without provider sends."
+  },
+  {
+    "path": "frontend/e2e/public-upload-link-fallback.spec.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "9a23faaf6bf11587c7ca1167e7975410630a4925d5d353f3e3771341871e7cb3",
+    "notes": "Complete test/helper source read/authored in this lane; behavioral/source-contract coverage described in passport-upload-progress.md. Browser uses isolated synthetic fixtures without provider sends."
+  },
+  {
+    "path": "frontend/features/passports/api/passports.api.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "partial",
+    "status": "needs-follow-up",
+    "sha256": "2371181220d9f2febfb4872e6b2d697e06a48ac3e56f7dc94c824d56b59bb4e4",
+    "notes": "Focused image metadata/edit request types and image API interactions inspected only; unrelated API methods not fully read in this lane."
+  },
+  {
+    "path": "frontend/features/passports/api/upload-links.api.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "partial",
+    "status": "needs-follow-up",
+    "sha256": "7cae53e363364d45600a5f3279c1ca0387acb29a0c27a6d14319e15e70b1a233",
+    "notes": "Focused branding/public-link/qualifier types and methods inspected only; unrelated facade source remains pending."
+  },
+  {
+    "path": "frontend/features/upload/hooks/use-upload-documents.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "partial",
+    "status": "needs-follow-up",
+    "sha256": "35a14f8a9fdbbce266d1b6d298bcb096ac8105813718655158361f7433a27744",
+    "notes": "Only initial95lines and acquisition call interface inspected. Active image processing/validation hook has not been completely read; preserve validators and review later."
+  }
+]

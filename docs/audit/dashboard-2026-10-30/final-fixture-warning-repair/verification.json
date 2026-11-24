@@ -1,0 +1,112 @@
+{
+  "status": "Exactly three approved test-only repairs applied, qualified and frozen. No application/runtime/config change.",
+  "source_ledger": {
+    "path": "docs/audit/dashboard-2026-10-30/final-fixture-warning-repair-reviewed-files.json",
+    "sha256": "8ede193a40a2c799b3b4197159e1c71411ba518870e5bfe15670eb7ab07d5b72"
+  },
+  "source_changes": [
+    {
+      "path": "frontend/features/documents/components/document-row-action-menu.test.tsx",
+      "before_sha256": "93f6e65c4cdb791e1dd6d0628c237e1214c8d50311d5a0357c26f84abb162aca",
+      "after_sha256": "d7c790f4c34e93659ad7f40e0165de79c0657a5b37c1873a8b2d3a48cc2a2da8",
+      "exact_byte_inverse": true
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+      "before_sha256": "07e866b8fcb0c3e0eb2a2eb53258e951de8e2165019e337e93713a7842b040a1",
+      "after_sha256": "a40215a22b53c47180107d5cfd9b08a9e9bb3a2b5e869d6714dc378bcb203596",
+      "exact_byte_inverse": true
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-simple-access.test.tsx",
+      "before_sha256": "36b85b4095967c5ddb4f8f02bdb52c79b6d68baafa7554f963770fe9ea971662",
+      "after_sha256": "b026f08adcf28eb319fb5922b104ab0af465992acb259106812417b6f8e04c37",
+      "exact_byte_inverse": true
+    }
+  ],
+  "focused_qualification": {
+    "files": 3,
+    "cases": 29,
+    "passed": 29,
+    "case_breakdown": {
+      "mcp_read_access": 14,
+      "mcp_simple_access": 12,
+      "document_row_menu": 3
+    },
+    "all_commands_exit_zero": true,
+    "eslint_max_warnings": 0,
+    "typescript_scope": "Three affected test entry points plus immediate imports and Vitest setup; no whole-app type rerun.",
+    "raw_stderr_bytes": {
+      "affected-vitest": 0,
+      "scoped-eslint": 0,
+      "scoped-types": 0
+    },
+    "no_warning_filtering": true,
+    "no_console_mocks_added": true
+  },
+  "preservation": {
+    "original_expect_matcher_ast_identical": {
+      "document_row_menu": 18,
+      "mcp_read_access": 60,
+      "mcp_simple_access": 29
+    },
+    "original_proposal_and_assertion_proof_unedited": true,
+    "exact_original_bytes_preserved": "before-source/",
+    "current_bytes_preserved": "current-source-snapshots/",
+    "native_domrect": "new DOMRect(10,10,36,36) replaces the partial left/top cast, giving numeric right/bottom while preserving movement and resize/actions.",
+    "mcp_response": "Existing permissionFixture() supplies a real declared mock response; API object mocking and actual shared editor/query wiring stay unchanged."
+  },
+  "source_fence": {
+    "parent_after_path": "docs/audit/dashboard-2026-10-30/final-retained-frontend-20261101-002/source-fence-after.json",
+    "captured_paths": 1803,
+    "parent_baseline_drift_at_start": {},
+    "changed_during_affected_run": [
+      "frontend/features/documents/components/document-row-action-menu.test.tsx",
+      "frontend/features/mcp/components/mcp-read-access.test.tsx",
+      "frontend/features/mcp/components/mcp-simple-access.test.tsx"
+    ],
+    "all_other_1800_paths_byte_identical_during_run": true,
+    "runtime_config_drift": {},
+    "subsequent_gc_qualifier_contract_amendment": "Separately parent-approved and GC-owned; not included or retrospectively qualified by this three-file run. Root must enforce exact four final test deltas at final go."
+  },
+  "historical_evidence": {
+    "triage_receipt": "docs/audit/dashboard-2026-10-30/final-frozen-fixture-warning-triage/verification.json",
+    "triage_sha256": "d953a52a49eb9688863ee82c2d976d52c169e2b2090d0162800550a068294e28",
+    "original_whole_frontend_run": "docs/audit/dashboard-2026-10-30/final-retained-frontend-20261101-002/",
+    "continuity": "Earlier whole303-file/2086-case pass remains against its original frozen bytes and had these warnings; it is not relabeled as an uninterrupted warning-free run of changed fixtures. The separate stale Node qualifier contract failure remains parent/GC-owned."
+  },
+  "limits": [
+    "No new runtime security or UI bug claimed; these were incomplete synthetic fixture values.",
+    "No full suite, build, browser or service/provider/deployment qualification run by this amendment. Parent owns corrected all-Node, fresh build and final198 browser cases.",
+    "Vitest used audit-only envDir:false with minimal Windows OS and synthetic loopback environment. No private dotenv read. Copied runner/configs preserve original invocation evidence and are not relocated portable entry points.",
+    "No package/lock/gate/API/schema/application behavior changes; all sources frozen after this seal."
+  ],
+  "evidence": {
+    "affected-vitest-command.json": "13fe69ddf3bcc074ee78c72b7e589c852f8e5a1d2f83c4291dc42173b260e574",
+    "affected-vitest.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "affected-vitest.stdout.log": "9df168bdf043b496982800a03502e554f2c22a395c13a31c919c76df0f241088",
+    "assertion-preservation.json": "f73d7a17f2f2b5911025031bad0851d944d8209848c29294eb1525b86ac33035",
+    "before-source/frontend/features/documents/components/document-row-action-menu.test.tsx": "93f6e65c4cdb791e1dd6d0628c237e1214c8d50311d5a0357c26f84abb162aca",
+    "before-source/frontend/features/mcp/components/mcp-read-access.test.tsx": "07e866b8fcb0c3e0eb2a2eb53258e951de8e2165019e337e93713a7842b040a1",
+    "before-source/frontend/features/mcp/components/mcp-simple-access.test.tsx": "36b85b4095967c5ddb4f8f02bdb52c79b6d68baafa7554f963770fe9ea971662",
+    "current-source-snapshots/frontend/features/documents/components/document-row-action-menu.test.tsx": "d7c790f4c34e93659ad7f40e0165de79c0657a5b37c1873a8b2d3a48cc2a2da8",
+    "current-source-snapshots/frontend/features/mcp/components/mcp-read-access.test.tsx": "a40215a22b53c47180107d5cfd9b08a9e9bb3a2b5e869d6714dc378bcb203596",
+    "current-source-snapshots/frontend/features/mcp/components/mcp-simple-access.test.tsx": "b026f08adcf28eb319fb5922b104ab0af465992acb259106812417b6f8e04c37",
+    "original-audit-tsconfig.json": "c0278084bb225d0fdaad2e73f4d3b9191faa6a9eaa696c9de9783b7e4d658170",
+    "original-audit-vitest-config.mts": "3b5d7c3aa60abeed2c79266d7cc8d8972474e501681bc90bd7747ae7c31d372b",
+    "original-qualification-runner.py": "661dcd25140141f5c95c5a1a1058c56fe765f08514f711f18b508654d077a8ef",
+    "parent-baseline-drift-at-start.json": "e3566b3a06430868d71e9287dfd6c6c520a3da027aabea01951d407ee131dc2f",
+    "proposal.json": "ceb165537456eb01859ec4248c10e9e2ec6bb8ee002c8dbe1d054f9ca9b5d780",
+    "results.json": "d1842936a447f65249e8a6ccdcc0b014f476c8cef1a54a478c408eaa05c0dea8",
+    "reviewed-files.json": "8ede193a40a2c799b3b4197159e1c71411ba518870e5bfe15670eb7ab07d5b72",
+    "scoped-eslint-command.json": "26e5bdda6ac2b47dc085572ab32e0b82d4cbf83f8d6578475712c4b4cf38b639",
+    "scoped-eslint.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "scoped-eslint.stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "scoped-types-command.json": "ab67682dbf7f44b70c6e9e4f4b204f9647d04a8ee124b2f27458f8a7b8743cb9",
+    "scoped-types.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "scoped-types.stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source-delta.json": "33613f6045691277e5a656587f5531090526c877f4ae1101f66daeae0801d11a",
+    "source-fence-after.json": "2fb97e03a5a80b25751d6b7ac7f8ffbb5e55a110121630ba92b7f4aff18b9987",
+    "source-fence-before.json": "e5d360385c7849843801684342f8f238b0d19de1d2e1f0aee0436b19dd995fef"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "command": [
+    "node",
+    "--test",
+    "load-tests/k6/passport-extraction.test.mjs"
+  ],
+  "exit_code": 1,
+  "seconds": 0.34300000000803266,
+  "runtime_sha256": "58f84d794121fb1aaea9ee4da8917b9ddfd6ad1c9554498d1f3edfa657faee55",
+  "runtime_after_sha256": "58f84d794121fb1aaea9ee4da8917b9ddfd6ad1c9554498d1f3edfa657faee55",
+  "method": "Actual complete k6 workload body executed in Node vm with synthetic transport/metrics/clock/fixtures; module declarations only adapted. No HTTP, provider, DB, Docker or actual load."
+}

@@ -1,0 +1,368 @@
+{
+  "files": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_connection_monitoring.py",
+      "sha256": "0e1b1a87c4f3bc1219f2ac79503feedbc4e2d5bd0e6347472fa801c61abcb880",
+      "physical_lines": 171,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "runtime",
+      "notes": "Complete final physical source read. Whole8post-fix endpoint AST/decorators preserved across actual owners; same public aliases/global values/route registration and complete OpenAPI. Narrow local renewed-grant generation protection validated before mechanical move; fresh95case actual owner100percent line/branch; no live provider/PostgreSQL claim."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_connection_disconnect.py",
+      "sha256": "0083a3514a2f499ba1c9bce25b2e07e02ba8896ae62af4389acf6a974251d3b9",
+      "physical_lines": 151,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "runtime",
+      "notes": "Complete final physical source read. Whole8post-fix endpoint AST/decorators preserved across actual owners; same public aliases/global values/route registration and complete OpenAPI. Narrow local renewed-grant generation protection validated before mechanical move; fresh95case actual owner100percent line/branch; no live provider/PostgreSQL claim."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_connection_removal.py",
+      "sha256": "d9cd81b8a36b7c966a4841150a8e039d8c7dfaa24dc1c2a0e68787f85f122888",
+      "physical_lines": 200,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "runtime",
+      "notes": "Complete final physical source read. Whole8post-fix endpoint AST/decorators preserved across actual owners; same public aliases/global values/route registration and complete OpenAPI. Narrow local renewed-grant generation protection validated before mechanical move; fresh95case actual owner100percent line/branch; no live provider/PostgreSQL claim."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_connection_ai_settings.py",
+      "sha256": "dc0843deb74e38e5436042f97de8dfb8a2b0ba7d18810626a4fddbba17462f07",
+      "physical_lines": 118,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "runtime",
+      "notes": "Complete final physical source read. Whole8post-fix endpoint AST/decorators preserved across actual owners; same public aliases/global values/route registration and complete OpenAPI. Narrow local renewed-grant generation protection validated before mechanical move; fresh95case actual owner100percent line/branch; no live provider/PostgreSQL claim."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_connections.py",
+      "sha256": "70591a17783ac049a4b6b664f2a32f1541fba09551856899177832755c70bf69",
+      "physical_lines": 114,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "runtime",
+      "notes": "Complete final physical source read. Whole8post-fix endpoint AST/decorators preserved across actual owners; same public aliases/global values/route registration and complete OpenAPI. Narrow local renewed-grant generation protection validated before mechanical move; fresh95case actual owner100percent line/branch; no live provider/PostgreSQL claim."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_email_ai_inbox_isolation.py",
+      "sha256": "5e8ac0d2db1cd7d29af3bbdd4cfe864295563f1a77dcf5405d2574bf88e13a8c",
+      "physical_lines": 1769,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "test",
+      "notes": "Complete current source physically read in ranges1-334,335-689,690-1044,1045-1399,1400-EOF. Only new owner import and same settings factory attached to first opt-in case; all143assertions/pytest.raises unchanged, all8other functions ASTexact. Only first2connection opt-in cases rerun here; other inbox workflows were not re-executed in this batch."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_email_connection_controls.py",
+      "sha256": "38b32dda7b318e94832b3ba346927bc973792b122447b994ae338964297d91ea",
+      "physical_lines": 162,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "test",
+      "notes": "Complete current new source read:16actual public monitoring transition/feature/status/queue order and AI watermark/effective-policy cases. Synthetic broker/repository boundary; no provider/network calls. All cases pass."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_email_connection_lifecycle.py",
+      "sha256": "fc130e9a9816ee04237a456452d0d895b27f12cb8e4455aff4418635bd26d10d",
+      "physical_lines": 272,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "test",
+      "notes": "Complete current272line source read after instrumentation retarget. Every32original assertion and pytest.raises unchanged; AsyncMock refresh supports actual new one-field query and spies target real disconnect/removal owners. Original26provider/credential/consent cases pass."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_email_connection_removal_outcomes.py",
+      "sha256": "a70bddf4c5ff37e1359fa7521625cbcedf37865e4b9200423895bf0950b77dcb",
+      "physical_lines": 141,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "test",
+      "notes": "Complete current new source read:5already-disconnected/confirmation/committed object cleanup/failure rollback controls; actual route aliases, synthetic object-storage boundary. All cases pass."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_email_connection_revocation_races.py",
+      "sha256": "8360f730ca930227307c1bf646cd07aaff0e8453e7013964d931f4983836acf7",
+      "physical_lines": 145,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "test",
+      "notes": "Complete current new source physically read. Public disconnect/remove and actual SQLA owner queries+retained ORM state demonstrate ordinary renewed-generation preservation. Corrected baseline2fail/2controls pass; after fix all4pass. Committed writer bypasses identity-map synchronization; no real database row-lock/concurrent PostgreSQL or provider behavior simulation claimed."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_email_integration_route_decomposition.py",
+      "sha256": "7a0dc81a5b12e9f3a95b70aaf149976051b82c0ed06f981d47bbd5a7faf4ebf4",
+      "physical_lines": 142,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "test",
+      "notes": "Complete current143line source read. All existing route/name/order/identity assertions unchanged; declaration-source enumeration now includes4actual new owner modules, aggregate single-registration checks retained. All3cases pass."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_access.py",
+      "sha256": "78fc9344b18d976143a137c02d8b073be5516d4738162376218132a0c5074f5e",
+      "physical_lines": 174,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "unchanged runtime context",
+      "notes": "Complete174line source physically read; current prior security full ledger also exists. Immutable owner/agency query scope, explicit credential undefer, row locks and task envelope retained; helper signature/body unchanged. No new unique credit inferred for prior full row."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_credentials.py",
+      "sha256": "2261ae5ae3a21b4b3011c3f4ed4401f913cfa3b91bcef1a00fee4c930f453fca",
+      "physical_lines": 68,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "unchanged runtime context",
+      "notes": "Complete68line existing credential cipher/fence/revoke protocol physically read and unchanged. Real local encryption/unknown outcome controls pass through existing tests; no external revoke executed."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_policy_support.py",
+      "sha256": "f5c08ed966b51441e870a4a6b083c94991af2aa8b7ad73b4fe80b86524588016",
+      "physical_lines": 92,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "unchanged runtime context",
+      "notes": "Complete92line policy/return URL/action/confirmation owner physically read; no edits. Owner-scoped lifecycle actions and safe return fields retained, original contract cases pass."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integrations.py",
+      "sha256": "6b8b8df006d06009b7202f030b91d0f884eed7dcc6880416e04aa0db512d26bf",
+      "physical_lines": 155,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "unchanged runtime context",
+      "notes": "Complete155line aggregate router/export source physically read and unchanged. All18actual routes retain order/aliases/unique registration and complete16path OpenAPI; no generic proxy or dispatch framework added."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_oauth_start.py",
+      "sha256": "7544accdecbbdc918380e58d10b9470fe50cbbea605f9d8cd4bb8ca57662fe0d",
+      "physical_lines": 122,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "unchanged runtime context",
+      "notes": "Complete122line consent start physically read. Same personal scope, browser/session binding, PKCE encrypted verifier, state/audit fields and request-owned transaction; existing synthetic Gmail/Outlook consent controls pass unchanged."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_gmail.py",
+      "sha256": "8fd4a780cf4040c1a0188e50b635ce1935aed85f5b29b4d25d9683a8b22b2b49",
+      "physical_lines": 299,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "unchanged runtime context",
+      "notes": "Complete299line callback source physically read. Existing actor revalidation/owner/provider identity/offline grant/commit/generation/cleanup differences retained; same synthetic callback persistence controls pass. No live OAuth/provider effect inferred; common callback architecture follow-up remains separate."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_outlook.py",
+      "sha256": "46835a02f003132af36e3524de6e16d5fa6c11a4bd425f0245a78689314ead8a",
+      "physical_lines": 328,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "unchanged runtime context",
+      "notes": "Complete328lines physically read in bounded1-170/171-328chunks after earlier combined output truncated. Rotating refresh grant/no remote revoke/provider-specific lookback behavior unchanged; existing synthetic controls pass. Full read does not close callback architecture follow-up."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_email_integration_contract.py",
+      "sha256": "90600186690bfeb92fa3abeee378c071c8227a1dcb8dea82be958daecfc80c2f",
+      "physical_lines": 303,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "unchanged test",
+      "notes": "Complete303line contract source read in bounded prefix/tail; unchanged. Original safe return URL/personal owner scope/provider identity/action/schema controls pass, no assertion changes."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_email_oauth_persistence.py",
+      "sha256": "71d0a956869913c95d3be6658b0d128f8f6951f1f6b9657f4ff57cea1248a2a6",
+      "physical_lines": 161,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "unchanged test",
+      "notes": "Complete161line existing callback test source read; same prior email-model full ledger exists. All original synthetic token encryption, matching owner/profile, state, commit and queue controls pass unchanged."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_email_oauth_generation_race.py",
+      "sha256": "25cf54fd043693bac8b37a2b820afd2d7f1efc5350174176d9691091d4d0cc0b",
+      "physical_lines": 184,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "unchanged test",
+      "notes": "Complete184line existing security generation/current actor tests physically read. Unchanged; existing actual SQLite actor revalidation and synthetic provider final authorization guards pass. These protect actor/session generation, distinct from new connection-generation guard."
+    },
+    {
+      "path": "backend/app/infrastructure/email/account_removal.py",
+      "sha256": "7e2798de81ff286f7b63f29daef17d1bd1416fd7b696db3c5b01ccd54f09f4ad",
+      "physical_lines": 339,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "unchanged runtime context",
+      "notes": "Complete339line cleanup source physically read through two bounded chunks. Same explicit attributable-record and unreferenced object-key boundaries, retained shared/manual documents and immutable audit history; no edits. Architecture decomposition remains a separate follow-up despite complete read and passing existing isolation case."
+    },
+    {
+      "path": "backend/tests/integration/test_mcp_email_overview_reads.py",
+      "sha256": "2bfb583fb81c3ef2025d7bf3aadb3513b540c3acadb0f3f83402a603fee00382",
+      "physical_lines": 172,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "unchanged test",
+      "notes": "Complete171line current readiness/count envelope source physically read; only6status-readiness parity cases rerun, preserving settings patch seam. Count/deadline/other MCP cases not re-executed or requalified by this batch."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_email_account_removal.py",
+      "sha256": "c7ed670c76a462b836494224f0f72118852499d8e1919dc961eb39267f6078ee",
+      "physical_lines": 352,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "unchanged test",
+      "notes": "Complete existing removal isolation test physically read through EOF after prefix/tail chunks. Unchanged real SQLite scope/shared/manual document/audit retention case passes; no real object-storage delete."
+    },
+    {
+      "path": "backend/app/application/security/email_scope.py",
+      "sha256": "96745b29107f274067bb42a9dd94449827fe7b9577d29f5006dcdbad399f770f",
+      "physical_lines": 31,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "unchanged runtime context",
+      "notes": "Complete33line immutable personal mailbox scope helper physically read; no edits. Same-owner boundary retained for platform/agency roles; actual contract ownership cases pass."
+    },
+    {
+      "path": "backend/app/presentation/dependencies/auth.py",
+      "sha256": "5e1641d51673dcbcd1c2cbc8d6ceac397147de52ec4e100bae285ba115d5fefb",
+      "physical_lines": 201,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "unchanged runtime context",
+      "notes": "Complete current authentication dependency source read in prefix1-150 and149-EOF chunks. Actual current user/active/role/session generation/credential-state/MFA context traced, no edits; auth suite not rerun or wholly qualified by connection controls."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/email_integration_schemas.py",
+      "sha256": "a0017a85105e7b2935ed41429f68210b7a6964820738ed980d344925070ca76c",
+      "physical_lines": 233,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "unchanged runtime context",
+      "notes": "Complete current public schema source physically read through prefix160 and tail. Same request/response types, bounded confirmation and no credential fields; complete OpenAPI unchanged. No schema edits."
+    },
+    {
+      "path": "backend/app/infrastructure/database/session.py",
+      "sha256": "ffe7cb50459ed4c30754455477b86b47d67e8de2233aa430fe370e808f63f296",
+      "physical_lines": 165,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "unchanged runtime context",
+      "notes": "Complete current async session source physically read in prefix110 and tail. Production expire_on_commitFalse/autoflushFalse and request commit/exception rollback boundaries traced; no edits, real services not exercised."
+    }
+  ],
+  "partial_and_reused_context": [
+    {
+      "path": "backend/app/presentation/security/email_oauth_binding.py",
+      "review_scope": "reused-current-full-context",
+      "notes": "No new full physical read in this cohort. Exact current full records in auth-security-support-reviewed-files.json and security-reviewed-files.json reused; SHA772bc3d17ee25273a95c36634b156045a0ae3202c27566708a424fb8df1be665 remains frozen. Caller uses actual browser/session revalidation; not new unique manual coverage.",
+      "sha256": "772bc3d17ee25273a95c36634b156045a0ae3202c27566708a424fb8df1be665",
+      "physical_lines": 135
+    },
+    {
+      "path": "backend/scripts/verify_backend_quality_budgets.py",
+      "review_scope": "partial",
+      "read_ranges": [
+        [
+          1,
+          295
+        ]
+      ],
+      "notes": "Existing known measurement/coverage loader used on5proposals only; no whole-budget app scan or shared write.",
+      "sha256": "2baf94d493a068bd1aed0258f4627aed47fe0845e6764fd0310cbf84f57794a9",
+      "physical_lines": 309
+    },
+    {
+      "path": "backend/app/presentation/mcp/dashboard_read_tools.py",
+      "review_scope": "search-only",
+      "notes": "Actual email connections read loader reference only; no full physical read or edits in this cohort.",
+      "sha256": "f644d0590c28257feb5f3a9a05092e88fe10fc9a497023712e85d8cceeda2856",
+      "physical_lines": 300
+    }
+  ],
+  "full_files": 28,
+  "full_physical_lines": 6764,
+  "owned_runtime_files": 5,
+  "owned_test_files": 6,
+  "original604_full_review": {
+    "path": "backend/app/presentation/api/v1/routes/email_integration_connections.py",
+    "sha256": "68eb50e328e057aa7d79b7d8304fffb5ec909d056967afc038a1391617c501df",
+    "physical_lines": 604,
+    "review_scope": "full",
+    "status": "superseded by fixed/decomposed current5owners",
+    "read_ranges": [
+      [
+        1,
+        210
+      ],
+      [
+        211,
+        410
+      ],
+      [
+        411,
+        604
+      ]
+    ],
+    "prior_exact_current_full_ledger": null
+  },
+  "credit_limit": "Only actual complete current physical reads receive full records. Existing matching full contexts are not new unique coverage; reused OAuth binding, search-only or partial source contexts are separate. Full source read does not close architecture/security follow-ups without their own evidence or imply an entire test file was rerun."
+}

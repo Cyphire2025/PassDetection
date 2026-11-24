@@ -1,0 +1,34 @@
+{
+  "critical_config": {
+    "path": "frontend/vitest.config.mts",
+    "before_sha256": "43f8ef71f59df34257e296abc4e2d6181105066af32a39c66bf2dcca6268d37d",
+    "before_lf_sha256": "7c727540b86cd06e9251ceec708e201a667da13b24dcde40fba85fc3765bfda6",
+    "after_sha256": "85ce4e7d5be4ff07748412030ccf1fca3177be52c388dbbada89053bcfc1a400",
+    "old_configuration_restored_exactly_after_lf_normalization_by_removing_added_entry": true,
+    "added_include": "features/upload/hooks/use-fresh-contact-challenge.ts",
+    "original_include_entries": 30,
+    "current_include_entries": 31,
+    "per_file_thresholds_unchanged": {
+      "statements": 74,
+      "branches": 50,
+      "functions": 75,
+      "lines": 75
+    }
+  },
+  "normal_candidates": 18,
+  "budget_receipt": "attendance-contact-budget-integration.json",
+  "source_receipts": [
+    "attendance-queue-verification.json",
+    "fresh-contact-verification.json"
+  ],
+  "static_gate": {
+    "argv": [
+      "C:\\Users\\nipun\\AppData\\Local\\Programs\\node-v24.21.0-win-x64\\node.exe",
+      "scripts/verify-frontend-module-budgets.mjs"
+    ],
+    "cwd": "frontend",
+    "exit_code": 0,
+    "output": "attendance-contact-static-budgets.txt"
+  },
+  "qualification": "Focused runtime checks are recorded in the immutable source receipts. The final combined suite must exercise all31 configured critical owners."
+}

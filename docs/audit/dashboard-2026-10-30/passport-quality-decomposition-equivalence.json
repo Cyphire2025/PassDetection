@@ -1,0 +1,1568 @@
+{
+  "scope": "Final encoded passport quality, live rectangular passport gate, perspective normalization and Visa quality layer ownership movement. Passport API movement has its own receipt.",
+  "stages": [
+    {
+      "name": "final",
+      "original_path": "frontend/features/upload/services/passport-final-quality.ts",
+      "original_sha256": "641686f9d382884957f8deaae07755cb7a7ec8a69fa8594c5127741ec8fc20b5",
+      "function_count": 20,
+      "exact_moved_functions": 20,
+      "compatible_shared_functions": 0,
+      "functions": [
+        {
+          "name": "validatePassportFinalFile",
+          "original_normalized_sha256": "9ab74faf23a74d98453c2990d834e9c1a3c79c8757e7892cbf84b9d19811d0be",
+          "owner": "frontend/features/upload/services/passport-final-quality.ts",
+          "final_normalized_sha256": "9ab74faf23a74d98453c2990d834e9c1a3c79c8757e7892cbf84b9d19811d0be",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "analyzePassportFinalPixels",
+          "original_normalized_sha256": "31f70eb4c47c5842cee95e22a4ceceac20a4c0f6a7c8bdd74a533374cb290ab0",
+          "owner": "frontend/features/upload/services/passport-final-analysis.ts",
+          "final_normalized_sha256": "31f70eb4c47c5842cee95e22a4ceceac20a4c0f6a7c8bdd74a533374cb290ab0",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "analyzeRegion",
+          "original_normalized_sha256": "78196867c2629edd03112594653adc3739b02e2a1f7c2f00cd769d0fa6ef703c",
+          "owner": "frontend/features/upload/services/passport-final-regions.ts",
+          "final_normalized_sha256": "78196867c2629edd03112594653adc3739b02e2a1f7c2f00cd769d0fa6ef703c",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "estimateDocumentCoverage",
+          "original_normalized_sha256": "b10bfbdeee42a407f22b0e190033e8ec6a81d572bf7b8c4df9df6f0cbba3b739",
+          "owner": "frontend/features/upload/services/passport-final-boundaries.ts",
+          "final_normalized_sha256": "b10bfbdeee42a407f22b0e190033e8ec6a81d572bf7b8c4df9df6f0cbba3b739",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "strongestVerticalBoundary",
+          "original_normalized_sha256": "774788efaf5daf7a434aaf96c9670e4dc9bae7cbb7374aac5b26115b03921683",
+          "owner": "frontend/features/upload/services/passport-final-boundaries.ts",
+          "final_normalized_sha256": "774788efaf5daf7a434aaf96c9670e4dc9bae7cbb7374aac5b26115b03921683",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "strongestHorizontalBoundary",
+          "original_normalized_sha256": "00ff2794600a09a7ba91fc9af9302a2c6454b9bfd7615f0b34c669d95f2eed55",
+          "owner": "frontend/features/upload/services/passport-final-boundaries.ts",
+          "final_normalized_sha256": "00ff2794600a09a7ba91fc9af9302a2c6454b9bfd7615f0b34c669d95f2eed55",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "detectScreenEvidence",
+          "original_normalized_sha256": "9bea3e9fb66d593d8e45f5f08dc3f8cb73585325bd5cc81b7116479723915b52",
+          "owner": "frontend/features/upload/services/passport-final-screen.ts",
+          "final_normalized_sha256": "9bea3e9fb66d593d8e45f5f08dc3f8cb73585325bd5cc81b7116479723915b52",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "bandMetrics",
+          "original_normalized_sha256": "aa3c9e02443b27d26d8cf2f5684dbcf4904d538012f05493e680c93e6d6eadcb",
+          "owner": "frontend/features/upload/services/passport-final-screen.ts",
+          "final_normalized_sha256": "aa3c9e02443b27d26d8cf2f5684dbcf4904d538012f05493e680c93e6d6eadcb",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "isExtremeExposure",
+          "original_normalized_sha256": "2552e41cc70b877b9d7b3f8eec4d9a4a5c6be28f3113f6cd0a77a855ca1b88df",
+          "owner": "frontend/features/upload/services/passport-final-region-rules.ts",
+          "final_normalized_sha256": "2552e41cc70b877b9d7b3f8eec4d9a4a5c6be28f3113f6cd0a77a855ca1b88df",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "isSeverelyUnreadable",
+          "original_normalized_sha256": "3f5bf50b6b70b34b38c958ea2ce684b2caa7de416c0a8d019da2059f99043a23",
+          "owner": "frontend/features/upload/services/passport-final-region-rules.ts",
+          "final_normalized_sha256": "3f5bf50b6b70b34b38c958ea2ce684b2caa7de416c0a8d019da2059f99043a23",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "isSoft",
+          "original_normalized_sha256": "90d20fa87ca8b35c9727072a611ddde106111332ca79307968baabf1faaadae6",
+          "owner": "frontend/features/upload/services/passport-final-region-rules.ts",
+          "final_normalized_sha256": "90d20fa87ca8b35c9727072a611ddde106111332ca79307968baabf1faaadae6",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "isRegionEffectivelyBlank",
+          "original_normalized_sha256": "faadd598e821dfb4d013749203320b84f2669d6f572b5679e8b13ca82173cd5d",
+          "owner": "frontend/features/upload/services/passport-final-region-rules.ts",
+          "final_normalized_sha256": "faadd598e821dfb4d013749203320b84f2669d6f572b5679e8b13ca82173cd5d",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "result",
+          "original_normalized_sha256": "05e55277f73e9b3a3371e31bffe0dd0d27a39846033bed585b3b920ae5e40c5d",
+          "owner": "frontend/features/upload/services/passport-final-result.ts",
+          "final_normalized_sha256": "05e55277f73e9b3a3371e31bffe0dd0d27a39846033bed585b3b920ae5e40c5d",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "borderlineMessage",
+          "original_normalized_sha256": "2a028ebaca10f5cab630ed56527e2d663db4d8867c52b22f18f2da8f89b9460c",
+          "owner": "frontend/features/upload/services/passport-final-result.ts",
+          "final_normalized_sha256": "2a028ebaca10f5cab630ed56527e2d663db4d8867c52b22f18f2da8f89b9460c",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "invalidResult",
+          "original_normalized_sha256": "a88199d59132242e7d866472a0fdd0d66271a35414d7ab78fe95a2d820e3daaa",
+          "owner": "frontend/features/upload/services/passport-final-result.ts",
+          "final_normalized_sha256": "a88199d59132242e7d866472a0fdd0d66271a35414d7ab78fe95a2d820e3daaa",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "pixelBounds",
+          "original_normalized_sha256": "3b96c5c3bcced56ee70f5642b1992c45237a0ab0261b8b994ef98cbaf0dc02ba",
+          "owner": "frontend/features/upload/services/passport-final-regions.ts",
+          "final_normalized_sha256": "3b96c5c3bcced56ee70f5642b1992c45237a0ab0261b8b994ef98cbaf0dc02ba",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "toGrayscale",
+          "original_normalized_sha256": "6e2c7227d7ea1400008d51812a1b38bf7a8917a1282500c67fc818e1ddba6ce7",
+          "owner": "frontend/features/upload/services/camera-pixel-math.ts",
+          "final_normalized_sha256": "6e2c7227d7ea1400008d51812a1b38bf7a8917a1282500c67fc818e1ddba6ce7",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "decodeImageFile",
+          "original_normalized_sha256": "e2bb0cb8b540ec88f6ce0c6db6d41e895cd72376da41f2699e433e71378619bb",
+          "owner": "frontend/features/upload/services/passport-final-quality.ts",
+          "final_normalized_sha256": "e2bb0cb8b540ec88f6ce0c6db6d41e895cd72376da41f2699e433e71378619bb",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "clamp01",
+          "original_normalized_sha256": "d290d0fbd1e9b1c068a2b8442c0c7321420701889490d60f465c1ef225a7f695",
+          "owner": "frontend/features/upload/services/passport-final-boundaries.ts",
+          "final_normalized_sha256": "d290d0fbd1e9b1c068a2b8442c0c7321420701889490d60f465c1ef225a7f695",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "roundMetric",
+          "original_normalized_sha256": "77721d6fe3d9393bbc53bb904bac16567c54c309341202c83b82f93c14be6241",
+          "owner": "frontend/features/upload/services/camera-pixel-math.ts",
+          "final_normalized_sha256": "77721d6fe3d9393bbc53bb904bac16567c54c309341202c83b82f93c14be6241",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        }
+      ],
+      "constant_count": 3,
+      "constants": [
+        {
+          "name": "PASSPORT_FINAL_THRESHOLDS",
+          "original_normalized_sha256": "afa3a4cec514f176dcc3e42e3bda925744f8ac8fb16f086acb4e45291b7ae52c",
+          "owner": "frontend/features/upload/services/passport-final-policy.ts",
+          "final_normalized_sha256": "afa3a4cec514f176dcc3e42e3bda925744f8ac8fb16f086acb4e45291b7ae52c",
+          "unchanged": true
+        },
+        {
+          "name": "FRONT_REGIONS",
+          "original_normalized_sha256": "0ff10a2dc59087146dde482f2fdc26768e033f48e6b3ce182c6ce3f480036cc0",
+          "owner": "frontend/features/upload/services/passport-final-policy.ts",
+          "final_normalized_sha256": "0ff10a2dc59087146dde482f2fdc26768e033f48e6b3ce182c6ce3f480036cc0",
+          "unchanged": true
+        },
+        {
+          "name": "BACK_REGIONS",
+          "original_normalized_sha256": "b3bc55712197d95dd2995dce212e4eeacb6943169ae1a4e7760fcc7efeeb07f4",
+          "owner": "frontend/features/upload/services/passport-final-policy.ts",
+          "final_normalized_sha256": "b3bc55712197d95dd2995dce212e4eeacb6943169ae1a4e7760fcc7efeeb07f4",
+          "unchanged": true
+        }
+      ]
+    },
+    {
+      "name": "live",
+      "original_path": "frontend/features/upload/services/passport-rectangular-frame-detector.ts",
+      "original_sha256": "854ca1afe4d2fd15f388853824d23a7dd08541c450e15f1b8ab6c0b4feab1457",
+      "function_count": 25,
+      "exact_moved_functions": 25,
+      "compatible_shared_functions": 0,
+      "functions": [
+        {
+          "name": "detectRectangularPassportFrame",
+          "original_normalized_sha256": "5b460d631c3443ee638c27de3cc67e811f0a37302c1a94ef4f935c154addd734",
+          "owner": "frontend/features/upload/services/passport-rectangular-frame-detector.ts",
+          "shared_exact_duplicate": false,
+          "final_normalized_sha256": "5b460d631c3443ee638c27de3cc67e811f0a37302c1a94ef4f935c154addd734",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "drawGuideFrame",
+          "original_normalized_sha256": "6ed714ad21a0c98c4c926fd521a9ccf7807c584376cbbb448d2da61ec11be71f",
+          "owner": "frontend/features/upload/services/passport-live-frame-adapter.ts",
+          "shared_exact_duplicate": false,
+          "final_normalized_sha256": "6ed714ad21a0c98c4c926fd521a9ccf7807c584376cbbb448d2da61ec11be71f",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "getGuideVideoCrop",
+          "original_normalized_sha256": "ba447aa0baee5226420bb23c410f2b024c8174ee34183acd91ff898a0233169d",
+          "owner": "frontend/features/upload/services/passport-live-frame-adapter.ts",
+          "shared_exact_duplicate": false,
+          "final_normalized_sha256": "ba447aa0baee5226420bb23c410f2b024c8174ee34183acd91ff898a0233169d",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "clampVideoCrop",
+          "original_normalized_sha256": "74f1c8fcf160e1d52515d9d63af98ebeadaa214144e19eed0eca0318180fcdf6",
+          "owner": "frontend/features/upload/services/passport-live-frame-adapter.ts",
+          "shared_exact_duplicate": false,
+          "final_normalized_sha256": "74f1c8fcf160e1d52515d9d63af98ebeadaa214144e19eed0eca0318180fcdf6",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "analyzeRectangularPassportFramePixels",
+          "original_normalized_sha256": "bc61246e327bd776cda61ba7bbfcf8ae3929f58e37a63189eb2ec99e68aa5c9f",
+          "owner": "frontend/features/upload/services/passport-live-analysis.ts",
+          "shared_exact_duplicate": false,
+          "final_normalized_sha256": "bc61246e327bd776cda61ba7bbfcf8ae3929f58e37a63189eb2ec99e68aa5c9f",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "createMotionSignature",
+          "original_normalized_sha256": "881aaa49900e7fc9a8946db016ca6f25babe965cbbb58672941a074dd2421cf7",
+          "owner": "frontend/features/upload/services/passport-live-pixels.ts",
+          "shared_exact_duplicate": false,
+          "final_normalized_sha256": "881aaa49900e7fc9a8946db016ca6f25babe965cbbb58672941a074dd2421cf7",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "analyzeExposure",
+          "original_normalized_sha256": "874f7d1cfe2172b0a77b37664eb95305d4281ebcc266afb57fbdb2623195d7ef",
+          "owner": "frontend/features/upload/services/passport-live-pixels.ts",
+          "shared_exact_duplicate": false,
+          "final_normalized_sha256": "874f7d1cfe2172b0a77b37664eb95305d4281ebcc266afb57fbdb2623195d7ef",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "findVerticalBoundary",
+          "original_normalized_sha256": "d6a55b30102c8a5aa7df3b3cfbd241fbd865a1a039a5224b0d8ba61d96bc76e3",
+          "owner": "frontend/features/upload/services/passport-live-boundary-search.ts",
+          "shared_exact_duplicate": false,
+          "final_normalized_sha256": "d6a55b30102c8a5aa7df3b3cfbd241fbd865a1a039a5224b0d8ba61d96bc76e3",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "findHorizontalBoundary",
+          "original_normalized_sha256": "4b392865001086fa48c37f5e983524924f4b1b83643b7de7f7527c987784ac00",
+          "owner": "frontend/features/upload/services/passport-live-boundary-search.ts",
+          "shared_exact_duplicate": false,
+          "final_normalized_sha256": "4b392865001086fa48c37f5e983524924f4b1b83643b7de7f7527c987784ac00",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "findBoundary",
+          "original_normalized_sha256": "af9714a8d278023ce2a02a4e50babb77495469c2c69dccabfcdce3804ff6e435",
+          "owner": "frontend/features/upload/services/passport-live-boundary-search.ts",
+          "shared_exact_duplicate": false,
+          "final_normalized_sha256": "af9714a8d278023ce2a02a4e50babb77495469c2c69dccabfcdce3804ff6e435",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "evaluateBoundaryCandidate",
+          "original_normalized_sha256": "2a624ad977a048dc3a94e71e17eb5b41133d2cc82125450cb11bca0159729f0b",
+          "owner": "frontend/features/upload/services/passport-live-boundary-evidence.ts",
+          "shared_exact_duplicate": false,
+          "final_normalized_sha256": "2a624ad977a048dc3a94e71e17eb5b41133d2cc82125450cb11bca0159729f0b",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "boundaryStepContrast",
+          "original_normalized_sha256": "963890e00244af686b62d70bcc67910baea64d76f079e27e31e21bee101a79a3",
+          "owner": "frontend/features/upload/services/passport-live-boundary-evidence.ts",
+          "shared_exact_duplicate": false,
+          "final_normalized_sha256": "963890e00244af686b62d70bcc67910baea64d76f079e27e31e21bee101a79a3",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "analyzeInteriorDetail",
+          "original_normalized_sha256": "5131b17fc1766ba93d042fab59bddf0ae594f5c9cee1e7a426aae88b1d2f622f",
+          "owner": "frontend/features/upload/services/passport-live-detail.ts",
+          "shared_exact_duplicate": false,
+          "final_normalized_sha256": "5131b17fc1766ba93d042fab59bddf0ae594f5c9cee1e7a426aae88b1d2f622f",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "sampleInteriorTile",
+          "original_normalized_sha256": "d87fa98dbea32ea596bdc28e4a9ca41cc8130898527c320e9a5cb0ca1f92fd09",
+          "owner": "frontend/features/upload/services/passport-live-detail.ts",
+          "shared_exact_duplicate": false,
+          "final_normalized_sha256": "d87fa98dbea32ea596bdc28e4a9ca41cc8130898527c320e9a5cb0ca1f92fd09",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "pointInsideQuad",
+          "original_normalized_sha256": "fb0a20c06f844a6940a25819ca69fd749443894fca96405cf686b7028ad1f3f6",
+          "owner": "frontend/features/upload/services/passport-live-detail.ts",
+          "shared_exact_duplicate": false,
+          "final_normalized_sha256": "fb0a20c06f844a6940a25819ca69fd749443894fca96405cf686b7028ad1f3f6",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "createDocumentQuad",
+          "original_normalized_sha256": "633e7560da2b5a0d34a80f7761ad4e0af6e366306e7b7d7578b275352871fd69",
+          "owner": "frontend/features/upload/services/passport-live-geometry.ts",
+          "shared_exact_duplicate": false,
+          "final_normalized_sha256": "633e7560da2b5a0d34a80f7761ad4e0af6e366306e7b7d7578b275352871fd69",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "intersectBoundaries",
+          "original_normalized_sha256": "27a6d04e12c97e59a9155bd908a424beca69ceec8588148c2d8bec8fb8266466",
+          "owner": "frontend/features/upload/services/passport-live-geometry.ts",
+          "shared_exact_duplicate": false,
+          "final_normalized_sha256": "27a6d04e12c97e59a9155bd908a424beca69ceec8588148c2d8bec8fb8266466",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "measureDocumentGeometry",
+          "original_normalized_sha256": "e1617a7e65cd8867fcaf22b7efc100b5215cc86b8c7cb6aa1637a664af8e5954",
+          "owner": "frontend/features/upload/services/passport-live-geometry.ts",
+          "shared_exact_duplicate": false,
+          "final_normalized_sha256": "e1617a7e65cd8867fcaf22b7efc100b5215cc86b8c7cb6aa1637a664af8e5954",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "isConvexQuad",
+          "original_normalized_sha256": "3fe9b82358effea0b19ffc0224140b9fdb9c3b4b55cdbd51a02bf3a15bdf3aa2",
+          "owner": "frontend/features/upload/services/passport-live-geometry.ts",
+          "shared_exact_duplicate": false,
+          "final_normalized_sha256": "3fe9b82358effea0b19ffc0224140b9fdb9c3b4b55cdbd51a02bf3a15bdf3aa2",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "polygonArea",
+          "original_normalized_sha256": "ac2bda153fd334defbfea34343f33edb568e31f38762f2aeafdae11be96a0633",
+          "owner": "frontend/features/upload/services/passport-live-geometry.ts",
+          "shared_exact_duplicate": false,
+          "final_normalized_sha256": "ac2bda153fd334defbfea34343f33edb568e31f38762f2aeafdae11be96a0633",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "distance",
+          "original_normalized_sha256": "0e6a7c1c071b96efecd0e0349c2d47803d2fd7836e655f0fb94ae2b3e112de38",
+          "owner": "frontend/features/upload/services/passport-live-geometry.ts",
+          "shared_exact_duplicate": false,
+          "final_normalized_sha256": "0e6a7c1c071b96efecd0e0349c2d47803d2fd7836e655f0fb94ae2b3e112de38",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "radiansToDegrees",
+          "original_normalized_sha256": "5128b51e84ea2f2b5ca442c7e9055db900f87e59473c17ccdfb3a8a8b5129621",
+          "owner": "frontend/features/upload/services/passport-live-geometry.ts",
+          "shared_exact_duplicate": false,
+          "final_normalized_sha256": "5128b51e84ea2f2b5ca442c7e9055db900f87e59473c17ccdfb3a8a8b5129621",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "toGrayscale",
+          "original_normalized_sha256": "6e2c7227d7ea1400008d51812a1b38bf7a8917a1282500c67fc818e1ddba6ce7",
+          "owner": "frontend/features/upload/services/camera-pixel-math.ts",
+          "shared_exact_duplicate": true,
+          "final_normalized_sha256": "6e2c7227d7ea1400008d51812a1b38bf7a8917a1282500c67fc818e1ddba6ce7",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "emptyResult",
+          "original_normalized_sha256": "c42f2d878b032f9e7785985e4cf4a5d1c52013fd6fd07e3844cf19d27a9ad3ed",
+          "owner": "frontend/features/upload/services/passport-live-pixels.ts",
+          "shared_exact_duplicate": false,
+          "final_normalized_sha256": "c42f2d878b032f9e7785985e4cf4a5d1c52013fd6fd07e3844cf19d27a9ad3ed",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "roundMetric",
+          "original_normalized_sha256": "77721d6fe3d9393bbc53bb904bac16567c54c309341202c83b82f93c14be6241",
+          "owner": "frontend/features/upload/services/camera-pixel-math.ts",
+          "shared_exact_duplicate": true,
+          "final_normalized_sha256": "77721d6fe3d9393bbc53bb904bac16567c54c309341202c83b82f93c14be6241",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        }
+      ],
+      "constant_count": 6,
+      "constants": [
+        {
+          "name": "PASSPORT_LIVE_THRESHOLDS",
+          "original_normalized_sha256": "5caead44d7088e85a58ab28192641fc4bfcc22290bed6dd1e578b2a24a07ea48",
+          "owner": "frontend/features/upload/services/passport-live-policy.ts",
+          "final_normalized_sha256": "5caead44d7088e85a58ab28192641fc4bfcc22290bed6dd1e578b2a24a07ea48",
+          "unchanged": true
+        },
+        {
+          "name": "SAMPLE_WIDTH",
+          "original_normalized_sha256": "33cb37a7260005e052289e724a3c5fba40c41530c5ed3f70d038b6d896ba0e2d",
+          "owner": "frontend/features/upload/services/passport-live-policy.ts",
+          "final_normalized_sha256": "33cb37a7260005e052289e724a3c5fba40c41530c5ed3f70d038b6d896ba0e2d",
+          "unchanged": true
+        },
+        {
+          "name": "SAMPLE_HEIGHT",
+          "original_normalized_sha256": "8a2bf8328223b4c5db94c1db81a6f33b20653d5f4cacebdc29768144c22b75de",
+          "owner": "frontend/features/upload/services/passport-live-policy.ts",
+          "final_normalized_sha256": "8a2bf8328223b4c5db94c1db81a6f33b20653d5f4cacebdc29768144c22b75de",
+          "unchanged": true
+        },
+        {
+          "name": "GUIDE_CONTEXT_MARGIN_RATIO",
+          "original_normalized_sha256": "4138e2648a46b6b26f1df9aa27a4b8d5f8e60976748587e1ebd44d952073a3a2",
+          "owner": "frontend/features/upload/services/passport-live-policy.ts",
+          "final_normalized_sha256": "4138e2648a46b6b26f1df9aa27a4b8d5f8e60976748587e1ebd44d952073a3a2",
+          "unchanged": true
+        },
+        {
+          "name": "GUIDE_EDGE_MIN_RATIO",
+          "original_normalized_sha256": "e53638745e411671394087baacb96ceb747fb6e2cdf712a429a4dd790fd5254b",
+          "owner": "frontend/features/upload/services/passport-live-policy.ts",
+          "final_normalized_sha256": "e53638745e411671394087baacb96ceb747fb6e2cdf712a429a4dd790fd5254b",
+          "unchanged": true
+        },
+        {
+          "name": "GUIDE_EDGE_MAX_RATIO",
+          "original_normalized_sha256": "59bfbcaf639631509cbd1f46b746e75a443f9541a7d7d25a030e5f70ca1139d3",
+          "owner": "frontend/features/upload/services/passport-live-policy.ts",
+          "final_normalized_sha256": "59bfbcaf639631509cbd1f46b746e75a443f9541a7d7d25a030e5f70ca1139d3",
+          "unchanged": true
+        }
+      ]
+    },
+    {
+      "name": "perspective",
+      "original_path": "frontend/features/upload/services/passport-perspective-correction.ts",
+      "original_sha256": "8221680ee25badce665e8a4aae611a85897a4b44eb390efb83a08d0bb298022e",
+      "function_count": 22,
+      "exact_moved_functions": 21,
+      "compatible_shared_functions": 1,
+      "functions": [
+        {
+          "name": "normalizePassportFile",
+          "original_normalized_sha256": "19b1b8839837f0ccb576c8e1dc2639eafb18f1344a268b979562b4f504e0b950",
+          "owner": "frontend/features/upload/services/passport-perspective-correction.ts",
+          "shared_compatible_duplicate": false,
+          "final_normalized_sha256": "19b1b8839837f0ccb576c8e1dc2639eafb18f1344a268b979562b4f504e0b950",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "normalizePassportCanvasCapture",
+          "original_normalized_sha256": "c926eaed1483619a0f544f4c02fb18794abc5a3fd124d16978401f0f9bbed160",
+          "owner": "frontend/features/upload/services/passport-perspective-correction.ts",
+          "shared_compatible_duplicate": false,
+          "final_normalized_sha256": "c926eaed1483619a0f544f4c02fb18794abc5a3fd124d16978401f0f9bbed160",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "detectDocumentQuad",
+          "original_normalized_sha256": "76194e0583b418e2229d81125582cbc4858123b93046ea5f1214b8b6548b3979",
+          "owner": "frontend/features/upload/services/passport-quad-detection.ts",
+          "shared_compatible_duplicate": false,
+          "final_normalized_sha256": "76194e0583b418e2229d81125582cbc4858123b93046ea5f1214b8b6548b3979",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "fitVerticalBoundary",
+          "original_normalized_sha256": "1d9c662d4bfeadf614fe61a45b65a277b28d61a5a25368c5e195ffa0d886a78b",
+          "owner": "frontend/features/upload/services/passport-quad-detection.ts",
+          "shared_compatible_duplicate": false,
+          "final_normalized_sha256": "1d9c662d4bfeadf614fe61a45b65a277b28d61a5a25368c5e195ffa0d886a78b",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "fitHorizontalBoundary",
+          "original_normalized_sha256": "3015c642bfc4360ec4a2f834ea80adda0e403636cbfd5dcc01f63cbe8152a360",
+          "owner": "frontend/features/upload/services/passport-quad-detection.ts",
+          "shared_compatible_duplicate": false,
+          "final_normalized_sha256": "3015c642bfc4360ec4a2f834ea80adda0e403636cbfd5dcc01f63cbe8152a360",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "fitRobustLine",
+          "original_normalized_sha256": "3fb54f5bd9d1148f3b8f3fd7fa2e46f47e050b122e4291cf0cf141f4a1b2fbce",
+          "owner": "frontend/features/upload/services/passport-line-fitting.ts",
+          "shared_compatible_duplicate": false,
+          "final_normalized_sha256": "3fb54f5bd9d1148f3b8f3fd7fa2e46f47e050b122e4291cf0cf141f4a1b2fbce",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "weightedLineFit",
+          "original_normalized_sha256": "82a7af0ee9ba7662d9431aeb952a6373368d19c5ee98ced348587f4c1d7265c9",
+          "owner": "frontend/features/upload/services/passport-line-fitting.ts",
+          "shared_compatible_duplicate": false,
+          "final_normalized_sha256": "82a7af0ee9ba7662d9431aeb952a6373368d19c5ee98ced348587f4c1d7265c9",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "intersectVerticalAndHorizontal",
+          "original_normalized_sha256": "737a0684fcebdabd7aa13fc632a7890bf8c4864763572730a1549fcac3b3dbdf",
+          "owner": "frontend/features/upload/services/passport-quad-geometry.ts",
+          "shared_compatible_duplicate": false,
+          "final_normalized_sha256": "737a0684fcebdabd7aa13fc632a7890bf8c4864763572730a1549fcac3b3dbdf",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "isPlausibleQuad",
+          "original_normalized_sha256": "7c8c244837755dc666500547f3d9bd39b1c8b3885111b7c3a62a0c4f5fc664d5",
+          "owner": "frontend/features/upload/services/passport-quad-geometry.ts",
+          "shared_compatible_duplicate": false,
+          "final_normalized_sha256": "7c8c244837755dc666500547f3d9bd39b1c8b3885111b7c3a62a0c4f5fc664d5",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "rectifyDocument",
+          "original_normalized_sha256": "1cc493e8cf956a6f2db416f22867d3d805e40cb421477660820567d455a6a830",
+          "owner": "frontend/features/upload/services/passport-perspective-warp.ts",
+          "shared_compatible_duplicate": false,
+          "final_normalized_sha256": "1cc493e8cf956a6f2db416f22867d3d805e40cb421477660820567d455a6a830",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "isSafeCorrectedPage",
+          "original_normalized_sha256": "a6a84bca004e26f91ce1e92e246612fb2608cd276e29d71bbcc908955d6baa0d",
+          "owner": "frontend/features/upload/services/passport-correction-content.ts",
+          "shared_compatible_duplicate": false,
+          "final_normalized_sha256": "a6a84bca004e26f91ce1e92e246612fb2608cd276e29d71bbcc908955d6baa0d",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "isGenericCorrectionContentSafe",
+          "original_normalized_sha256": "edc38936fcc0b11978bf30f06001dbccdbb49e7ac50e79fa77bde1bfbc16996f",
+          "owner": "frontend/features/upload/services/passport-correction-content.ts",
+          "shared_compatible_duplicate": false,
+          "final_normalized_sha256": "edc38936fcc0b11978bf30f06001dbccdbb49e7ac50e79fa77bde1bfbc16996f",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "genericRegionQuality",
+          "original_normalized_sha256": "9c759635d78a1e71d9b3478c19b68e2c2e844e4c3aa6f158470557412434724b",
+          "owner": "frontend/features/upload/services/passport-correction-content.ts",
+          "shared_compatible_duplicate": false,
+          "final_normalized_sha256": "9c759635d78a1e71d9b3478c19b68e2c2e844e4c3aa6f158470557412434724b",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "solveDestinationToSourceHomography",
+          "original_normalized_sha256": "613d4c8b13acff3d395c12689de76fb8534d10426cbe0c32e24ce212e0eac1eb",
+          "owner": "frontend/features/upload/services/passport-homography.ts",
+          "shared_compatible_duplicate": false,
+          "final_normalized_sha256": "613d4c8b13acff3d395c12689de76fb8534d10426cbe0c32e24ce212e0eac1eb",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "solveAugmentedMatrix",
+          "original_normalized_sha256": "9ebae8a020028e83b06dedf4aa141e2ae69743f3737dd806e9174e60fa67addd",
+          "owner": "frontend/features/upload/services/passport-homography.ts",
+          "shared_compatible_duplicate": false,
+          "final_normalized_sha256": "9ebae8a020028e83b06dedf4aa141e2ae69743f3737dd806e9174e60fa67addd",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "sampleBilinear",
+          "original_normalized_sha256": "dad9b84b523fe068ddb810fe126a66ba182422f1fcf2d7a1801b3fc23af3c818",
+          "owner": "frontend/features/upload/services/passport-perspective-warp.ts",
+          "shared_compatible_duplicate": false,
+          "final_normalized_sha256": "dad9b84b523fe068ddb810fe126a66ba182422f1fcf2d7a1801b3fc23af3c818",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "toGrayscale",
+          "original_normalized_sha256": "485f26ba5f30b89d3bfbbaf3f5b4cbb248e1976347f20e135ae3e25ba27dfcb9",
+          "owner": "frontend/features/upload/services/camera-pixel-math.ts",
+          "shared_compatible_duplicate": true,
+          "final_normalized_sha256": "6e2c7227d7ea1400008d51812a1b38bf7a8917a1282500c67fc818e1ddba6ce7",
+          "normalized_text_unchanged": false,
+          "compatible_shared_body_verified": true
+        },
+        {
+          "name": "distance",
+          "original_normalized_sha256": "c070573f6df9ee00385afbd3fa26460d7d2f2506d58333a23baf81a03d485b7a",
+          "owner": "frontend/features/upload/services/passport-quad-geometry.ts",
+          "shared_compatible_duplicate": false,
+          "final_normalized_sha256": "c070573f6df9ee00385afbd3fa26460d7d2f2506d58333a23baf81a03d485b7a",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "polygonArea",
+          "original_normalized_sha256": "1a7d7e4c1536ce4a335a17d2e666c8e84e144cf2eeb3cc96de54c3639cc50faa",
+          "owner": "frontend/features/upload/services/passport-quad-geometry.ts",
+          "shared_compatible_duplicate": false,
+          "final_normalized_sha256": "1a7d7e4c1536ce4a335a17d2e666c8e84e144cf2eeb3cc96de54c3639cc50faa",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "scalePoint",
+          "original_normalized_sha256": "d8613b4ee4c36a69fe66a6fad75455c4673dd3372ac88d1afdb2698113e5c8d1",
+          "owner": "frontend/features/upload/services/passport-quad-geometry.ts",
+          "shared_compatible_duplicate": false,
+          "final_normalized_sha256": "d8613b4ee4c36a69fe66a6fad75455c4673dd3372ac88d1afdb2698113e5c8d1",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "canvasToFile",
+          "original_normalized_sha256": "5c077fe85a2bc2fd9499413ab0bbbe9090eb57927b370c014ce0c2800bd85e2d",
+          "owner": "frontend/features/upload/services/passport-image-encoding.ts",
+          "shared_compatible_duplicate": false,
+          "final_normalized_sha256": "5c077fe85a2bc2fd9499413ab0bbbe9090eb57927b370c014ce0c2800bd85e2d",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "nextAnimationFrame",
+          "original_normalized_sha256": "ee42971fcbee2a072bdb9c8d4ecad708ef5467b02da81feede088c5db46b4e34",
+          "owner": "frontend/features/upload/services/passport-image-encoding.ts",
+          "shared_compatible_duplicate": false,
+          "final_normalized_sha256": "ee42971fcbee2a072bdb9c8d4ecad708ef5467b02da81feede088c5db46b4e34",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        }
+      ],
+      "constant_count": 2,
+      "constants": [
+        {
+          "name": "ANALYSIS_MAX_WIDTH",
+          "original_normalized_sha256": "08b8bc36bdaf6a35cdae04c3c45977086eb47be2df2bdcb28829dcb0f8b58af9",
+          "owner": "frontend/features/upload/services/passport-quad-detection.ts",
+          "final_normalized_sha256": "08b8bc36bdaf6a35cdae04c3c45977086eb47be2df2bdcb28829dcb0f8b58af9",
+          "unchanged": true
+        },
+        {
+          "name": "OUTPUT_MAX_DIMENSION",
+          "original_normalized_sha256": "0f155c73d7bf5dd88e5b2c3a24569ba3c1642a2e81afb8b6aa086b0352a8c481",
+          "owner": "frontend/features/upload/services/passport-perspective-warp.ts",
+          "final_normalized_sha256": "0f155c73d7bf5dd88e5b2c3a24569ba3c1642a2e81afb8b6aa086b0352a8c481",
+          "unchanged": true
+        }
+      ]
+    },
+    {
+      "name": "visa",
+      "original_path": "frontend/features/upload/components/visa-selfie-quality.ts",
+      "original_sha256": "a0a205e41f6ea4506d2d941dda4830a89f2bde38729307adc13732cfc652ebe8",
+      "function_count": 27,
+      "exact_moved_functions": 27,
+      "compatible_shared_functions": 0,
+      "functions": [
+        {
+          "name": "evaluateWhiteBackground",
+          "original_normalized_sha256": "4f3352e3c440f25555d82f423016e5baeda85f83922cecd68b107f6346ed367d",
+          "owner": "frontend/features/upload/services/visa-quality-background.ts",
+          "final_normalized_sha256": "4f3352e3c440f25555d82f423016e5baeda85f83922cecd68b107f6346ed367d",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "evaluateLiveVisaPhotoBackground",
+          "original_normalized_sha256": "9a4dd7ebcde638d0b0857b3de473e3436bc9813756e43159c36f5e45c4893ba8",
+          "owner": "frontend/features/upload/services/visa-quality-live-background.ts",
+          "final_normalized_sha256": "9a4dd7ebcde638d0b0857b3de473e3436bc9813756e43159c36f5e45c4893ba8",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "isVisaSelfieFaceLargeEnough",
+          "original_normalized_sha256": "b9a10215bc5dd7accb797add5fe058695fee533f46837dd64daa35d73764ba8d",
+          "owner": "frontend/features/upload/services/visa-quality-face.ts",
+          "final_normalized_sha256": "b9a10215bc5dd7accb797add5fe058695fee533f46837dd64daa35d73764ba8d",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "evaluateVisaPhotoFaceCount",
+          "original_normalized_sha256": "7dcd9b55428f508f6c80265818da0db34a9ad83a87420c45faa60d59892981e7",
+          "owner": "frontend/features/upload/services/visa-quality-face.ts",
+          "final_normalized_sha256": "7dcd9b55428f508f6c80265818da0db34a9ad83a87420c45faa60d59892981e7",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "evaluateVisaPhotoFacePlacement",
+          "original_normalized_sha256": "0cad41a7aa0050683410476a574aadf7903bafb026298f1f2de46eadbd88b638",
+          "owner": "frontend/features/upload/services/visa-quality-face.ts",
+          "final_normalized_sha256": "0cad41a7aa0050683410476a574aadf7903bafb026298f1f2de46eadbd88b638",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "isVisaPhotoFaceStable",
+          "original_normalized_sha256": "ab4146611f63767582b7c68ca28c7479eeb06182dd89dcc572912658fd161ef7",
+          "owner": "frontend/features/upload/services/visa-quality-face.ts",
+          "final_normalized_sha256": "ab4146611f63767582b7c68ca28c7479eeb06182dd89dcc572912658fd161ef7",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "evaluateVisaPhotoClarity",
+          "original_normalized_sha256": "d7faa7b0669fb9d06908f0729d704ec0d78e022f39c756a67d8b9a120e236846",
+          "owner": "frontend/features/upload/services/visa-quality-clarity.ts",
+          "final_normalized_sha256": "d7faa7b0669fb9d06908f0729d704ec0d78e022f39c756a67d8b9a120e236846",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "evaluateFinalVisaPhoto",
+          "original_normalized_sha256": "2b7cad21e707e34b40bdb984b4eb9c7bcdac192b7550a743fad1315f6b791387",
+          "owner": "frontend/features/upload/services/visa-quality-final.ts",
+          "final_normalized_sha256": "2b7cad21e707e34b40bdb984b4eb9c7bcdac192b7550a743fad1315f6b791387",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "evaluateFallbackFinalVisaPhoto",
+          "original_normalized_sha256": "3ba464a72ffa07d5f197c0f5d9f46e192f2d9b449b2d8424a0eb1d7813b260cc",
+          "owner": "frontend/features/upload/services/visa-quality-final.ts",
+          "final_normalized_sha256": "3ba464a72ffa07d5f197c0f5d9f46e192f2d9b449b2d8424a0eb1d7813b260cc",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "definiteFinalFacePlacementFailure",
+          "original_normalized_sha256": "636cd2d4707525991020d2d6c5edbdba9555c5ab2798ad5b5f33a192cd34af9a",
+          "owner": "frontend/features/upload/services/visa-quality-face.ts",
+          "final_normalized_sha256": "636cd2d4707525991020d2d6c5edbdba9555c5ab2798ad5b5f33a192cd34af9a",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "encodeVisaJpegUnderLimit",
+          "original_normalized_sha256": "ce28c7b8ad83b8d0a501d6c32f93faeed4ec019ed16ac1e0e19a6f1624625844",
+          "owner": "frontend/features/upload/services/visa-quality-encoding.ts",
+          "final_normalized_sha256": "ce28c7b8ad83b8d0a501d6c32f93faeed4ec019ed16ac1e0e19a6f1624625844",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "isDefinitelyInvalidBackground",
+          "original_normalized_sha256": "94d87c9cd43b6ed2031684f0b942bfbb50b8ef104bd0fe2c60ca6d3c1597475b",
+          "owner": "frontend/features/upload/services/visa-quality-final.ts",
+          "final_normalized_sha256": "94d87c9cd43b6ed2031684f0b942bfbb50b8ef104bd0fe2c60ca6d3c1597475b",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "finalValidation",
+          "original_normalized_sha256": "e8035bd8e5f87c1c2313dc2505c172a7a15d94a863f334dd040389717fb80e15",
+          "owner": "frontend/features/upload/services/visa-quality-final.ts",
+          "final_normalized_sha256": "e8035bd8e5f87c1c2313dc2505c172a7a15d94a863f334dd040389717fb80e15",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "isVisaPhotoFrameCaptureReady",
+          "original_normalized_sha256": "2321a6e00648b6eda27c7be605edc3c7d59899f2a18c51cc07d493849b8a13d2",
+          "owner": "frontend/features/upload/services/visa-quality-camera.ts",
+          "final_normalized_sha256": "2321a6e00648b6eda27c7be605edc3c7d59899f2a18c51cc07d493849b8a13d2",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "isVisaPhotoFallbackCaptureAllowed",
+          "original_normalized_sha256": "53964a70c5a89702e136dc4d5d557133871d4c2c8c23236cd8561546f03cc3df",
+          "owner": "frontend/features/upload/services/visa-quality-camera.ts",
+          "final_normalized_sha256": "53964a70c5a89702e136dc4d5d557133871d4c2c8c23236cd8561546f03cc3df",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "buildVisaPhotoCameraConstraints",
+          "original_normalized_sha256": "1e7f4e3974f785ee0c56877af8e65682d58a5fa8fa93b9299aaa308d17a4c37c",
+          "owner": "frontend/features/upload/services/visa-quality-camera.ts",
+          "final_normalized_sha256": "1e7f4e3974f785ee0c56877af8e65682d58a5fa8fa93b9299aaa308d17a4c37c",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "requestVisaPhotoCamera",
+          "original_normalized_sha256": "1b6f811362f11688b28f2168d9f4738c14389091fdd1a78d5102e9d6589c01b9",
+          "owner": "frontend/features/upload/services/visa-quality-camera.ts",
+          "final_normalized_sha256": "1b6f811362f11688b28f2168d9f4738c14389091fdd1a78d5102e9d6589c01b9",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "isInsidePersonGuide",
+          "original_normalized_sha256": "01abbd2e790f991649f9f5aeee9893f0921792769becdf28794fb26c0b1610f5",
+          "owner": "frontend/features/upload/services/visa-quality-background-mask.ts",
+          "final_normalized_sha256": "01abbd2e790f991649f9f5aeee9893f0921792769becdf28794fb26c0b1610f5",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "isSafeWallSample",
+          "original_normalized_sha256": "db5b0f739fb2ad3ab8bfdd02d571134df0e95a6480d11c3c603ba9a6a2ae1ad0",
+          "owner": "frontend/features/upload/services/visa-quality-background-mask.ts",
+          "final_normalized_sha256": "db5b0f739fb2ad3ab8bfdd02d571134df0e95a6480d11c3c603ba9a6a2ae1ad0",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "isInsideDetectedPersonMask",
+          "original_normalized_sha256": "05e1f6472bf19365b6e3e26a81d87778808a7001b7de6379e383df38cdaeee42",
+          "owner": "frontend/features/upload/services/visa-quality-background-mask.ts",
+          "final_normalized_sha256": "05e1f6472bf19365b6e3e26a81d87778808a7001b7de6379e383df38cdaeee42",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "regionalIndex",
+          "original_normalized_sha256": "01185f7aba2a5b9c8fe95b2dd703c20ae111a5d69feeb046a400b9d2e7d4f3ce",
+          "owner": "frontend/features/upload/services/visa-quality-background-mask.ts",
+          "final_normalized_sha256": "01185f7aba2a5b9c8fe95b2dd703c20ae111a5d69feeb046a400b9d2e7d4f3ce",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "maximumSupportedRatio",
+          "original_normalized_sha256": "07d1a73955c7f73e8aaf63c42fa0096118f572df4ccf53a6f2edea83359faf37",
+          "owner": "frontend/features/upload/services/visa-quality-background-mask.ts",
+          "final_normalized_sha256": "07d1a73955c7f73e8aaf63c42fa0096118f572df4ccf53a6f2edea83359faf37",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "facePixelBounds",
+          "original_normalized_sha256": "ddd9443e003862237fd569d95994f288ef01cb95e0a177a129ad38915c830d03",
+          "owner": "frontend/features/upload/services/visa-quality-clarity.ts",
+          "final_normalized_sha256": "ddd9443e003862237fd569d95994f288ef01cb95e0a177a129ad38915c830d03",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "clampPixel",
+          "original_normalized_sha256": "8a14d1ac8a8f50af878f7827947d3230e138bce3a3aca23cd8631dcea126125b",
+          "owner": "frontend/features/upload/services/visa-quality-clarity.ts",
+          "final_normalized_sha256": "8a14d1ac8a8f50af878f7827947d3230e138bce3a3aca23cd8631dcea126125b",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "pixelLuminance",
+          "original_normalized_sha256": "9078ad8684cf271442bde1cd5cc90bff2003339c23346a6f0c77ab56955407aa",
+          "owner": "frontend/features/upload/services/visa-quality-clarity.ts",
+          "final_normalized_sha256": "9078ad8684cf271442bde1cd5cc90bff2003339c23346a6f0c77ab56955407aa",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "cameraErrorName",
+          "original_normalized_sha256": "ff9a29a459f6b702085e3f64486b1746a4ef0f0b694ca341c02dd6cda612ed1c",
+          "owner": "frontend/features/upload/services/visa-quality-camera.ts",
+          "final_normalized_sha256": "ff9a29a459f6b702085e3f64486b1746a4ef0f0b694ca341c02dd6cda612ed1c",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        },
+        {
+          "name": "failedMetrics",
+          "original_normalized_sha256": "b3a4a805b419fecfc3d3710f3c1d5c3f85309b474a9f34e65b77647bbe1c9b0a",
+          "owner": "frontend/features/upload/services/visa-quality-background-mask.ts",
+          "final_normalized_sha256": "b3a4a805b419fecfc3d3710f3c1d5c3f85309b474a9f34e65b77647bbe1c9b0a",
+          "normalized_text_unchanged": true,
+          "compatible_shared_body_verified": false
+        }
+      ],
+      "constant_count": 64,
+      "constants": [
+        {
+          "name": "SAMPLE_STEP",
+          "original_normalized_sha256": "321301de0fa946c33662f122936db5c75a668b209f3fee241dddd83c782cd953",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "321301de0fa946c33662f122936db5c75a668b209f3fee241dddd83c782cd953",
+          "unchanged": true
+        },
+        {
+          "name": "MIN_LIGHT_LUMINANCE",
+          "original_normalized_sha256": "94534e71d28fa689ea53707aa161666cb7498a1f5fa350ad9ac50d8b9eba3af8",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "94534e71d28fa689ea53707aa161666cb7498a1f5fa350ad9ac50d8b9eba3af8",
+          "unchanged": true
+        },
+        {
+          "name": "MAX_NEUTRAL_CHROMA",
+          "original_normalized_sha256": "f59b7581b43d7e1e8b99acb00081483ba07a3060e7cf229965aa421f43f89f4b",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "f59b7581b43d7e1e8b99acb00081483ba07a3060e7cf229965aa421f43f89f4b",
+          "unchanged": true
+        },
+        {
+          "name": "MIN_LIGHT_NEUTRAL_RATIO",
+          "original_normalized_sha256": "52c4e8efa7037f45272a96bca89ac0a619ce95678537a98120b5122a636837e5",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "52c4e8efa7037f45272a96bca89ac0a619ce95678537a98120b5122a636837e5",
+          "unchanged": true
+        },
+        {
+          "name": "MIN_AVERAGE_LUMINANCE",
+          "original_normalized_sha256": "386d99af6cb920697a4ced8f4bef1e592092b01f5576435201393d00eba6532e",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "386d99af6cb920697a4ced8f4bef1e592092b01f5576435201393d00eba6532e",
+          "unchanged": true
+        },
+        {
+          "name": "MIN_ZONE_LIGHT_NEUTRAL_RATIO",
+          "original_normalized_sha256": "0de49d1852700adb9e859a7f9051eb3bfdba6c375f104b16f503d8ebda722d7a",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "0de49d1852700adb9e859a7f9051eb3bfdba6c375f104b16f503d8ebda722d7a",
+          "unchanged": true
+        },
+        {
+          "name": "MIN_ZONE_LUMINANCE",
+          "original_normalized_sha256": "9537dc6ae05dec09a82c862f3db30bd51140a199e69c2674b9e2b8693e1c1810",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "9537dc6ae05dec09a82c862f3db30bd51140a199e69c2674b9e2b8693e1c1810",
+          "unchanged": true
+        },
+        {
+          "name": "MAX_ZONE_MEAN_SPREAD",
+          "original_normalized_sha256": "9dffb4124613678293b1e6cf837299f538fbc01cd7d6ab41a2e768e4b89f8825",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "9dffb4124613678293b1e6cf837299f538fbc01cd7d6ab41a2e768e4b89f8825",
+          "unchanged": true
+        },
+        {
+          "name": "MAX_LUMINANCE_DEVIATION",
+          "original_normalized_sha256": "d0916fe8c0a5ad91291f99a8086f4200eac4d534aa1060eb515b0e692aaf6a4a",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "d0916fe8c0a5ad91291f99a8086f4200eac4d534aa1060eb515b0e692aaf6a4a",
+          "unchanged": true
+        },
+        {
+          "name": "MAX_WITHIN_ZONE_DEVIATION",
+          "original_normalized_sha256": "99aef5a41a38659bc580e832ae77eb1aaa24e134739a4225477f392d36294260",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "99aef5a41a38659bc580e832ae77eb1aaa24e134739a4225477f392d36294260",
+          "unchanged": true
+        },
+        {
+          "name": "MAX_STRONG_EDGE_RATIO",
+          "original_normalized_sha256": "bddc2c56f90034a5217afd153bd732ea010465cc3ca257727896da73bb574fbc",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "bddc2c56f90034a5217afd153bd732ea010465cc3ca257727896da73bb574fbc",
+          "unchanged": true
+        },
+        {
+          "name": "MAX_ROUGH_TEXTURE_RATIO",
+          "original_normalized_sha256": "17f5569652c53add61290eef22d57faf1dc0e4b4949d5777e211ca3559700848",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "17f5569652c53add61290eef22d57faf1dc0e4b4949d5777e211ca3559700848",
+          "unchanged": true
+        },
+        {
+          "name": "MAX_DIRECTIONAL_ROUGH_TEXTURE_RATIO",
+          "original_normalized_sha256": "85cdff4f69baeb9ec1535c8065d6b249ee490c324d3f487b60012728db1421f5",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "85cdff4f69baeb9ec1535c8065d6b249ee490c324d3f487b60012728db1421f5",
+          "unchanged": true
+        },
+        {
+          "name": "MAX_DARK_PIXEL_RATIO",
+          "original_normalized_sha256": "ec3ff0d527ae32af47c20619151bc9065440eb6db353e175152b9b97208b3be8",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "ec3ff0d527ae32af47c20619151bc9065440eb6db353e175152b9b97208b3be8",
+          "unchanged": true
+        },
+        {
+          "name": "MAX_LINE_COVERAGE",
+          "original_normalized_sha256": "1a73279897342a53086541c2b35cd48544eda550f72a97e7ac6651e6ef541180",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "1a73279897342a53086541c2b35cd48544eda550f72a97e7ac6651e6ef541180",
+          "unchanged": true
+        },
+        {
+          "name": "MAX_REGIONAL_EDGE_RATIO",
+          "original_normalized_sha256": "dd09729daeab7a3f4b0511240d8094d4254991b7ee78abe65f6d326fe845df1f",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "dd09729daeab7a3f4b0511240d8094d4254991b7ee78abe65f6d326fe845df1f",
+          "unchanged": true
+        },
+        {
+          "name": "MAX_REGIONAL_DARK_RATIO",
+          "original_normalized_sha256": "86cf015f5b657a542e64d5fdad78d300cc8bc8724c6f4d4dc33069444d4f9cb5",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "86cf015f5b657a542e64d5fdad78d300cc8bc8724c6f4d4dc33069444d4f9cb5",
+          "unchanged": true
+        },
+        {
+          "name": "EXTREME_REGIONAL_EDGE_RATIO",
+          "original_normalized_sha256": "6ca9c82cc3f06f2229c22263976a52923a6e33eb9beed8288375ad426a19833c",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "6ca9c82cc3f06f2229c22263976a52923a6e33eb9beed8288375ad426a19833c",
+          "unchanged": true
+        },
+        {
+          "name": "EXTREME_REGIONAL_DARK_RATIO",
+          "original_normalized_sha256": "9794ea493a606cd05a984e4101b763c2a387234a92a8947790466349765f5fa4",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "9794ea493a606cd05a984e4101b763c2a387234a92a8947790466349765f5fa4",
+          "unchanged": true
+        },
+        {
+          "name": "MIN_FACE_WIDTH_RATIO",
+          "original_normalized_sha256": "b60a8d6c4ec27acb555f5f05bbac02920b2b87b0fafaccd5e35d1a34e9135ca1",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "b60a8d6c4ec27acb555f5f05bbac02920b2b87b0fafaccd5e35d1a34e9135ca1",
+          "unchanged": true
+        },
+        {
+          "name": "MIN_FACE_HEIGHT_RATIO",
+          "original_normalized_sha256": "9e43fd09d3a4c1771c146de9b7a0456967a99cfb6c6be104ec187a65795e4ef2",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "9e43fd09d3a4c1771c146de9b7a0456967a99cfb6c6be104ec187a65795e4ef2",
+          "unchanged": true
+        },
+        {
+          "name": "MAX_FACE_WIDTH_RATIO",
+          "original_normalized_sha256": "7d566846628aecfa4a4b0a4bb42a55b5de6ca37549c489f806b3661ef1d419ec",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "7d566846628aecfa4a4b0a4bb42a55b5de6ca37549c489f806b3661ef1d419ec",
+          "unchanged": true
+        },
+        {
+          "name": "MAX_FACE_HEIGHT_RATIO",
+          "original_normalized_sha256": "1cafa1322c2aa231ededf3ab8db0826d7b33da4ca04e4301d5cf9c4d676a5811",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "1cafa1322c2aa231ededf3ab8db0826d7b33da4ca04e4301d5cf9c4d676a5811",
+          "unchanged": true
+        },
+        {
+          "name": "MAX_FACE_CENTER_X_OFFSET",
+          "original_normalized_sha256": "dcd1260c1509ad06b83c55a44240fc65d12e8ed8d8985acca9f917e7f8478b11",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "dcd1260c1509ad06b83c55a44240fc65d12e8ed8d8985acca9f917e7f8478b11",
+          "unchanged": true
+        },
+        {
+          "name": "MIN_FACE_CENTER_Y",
+          "original_normalized_sha256": "37c9be6ac321ab61fd0273ab45a6f4a4f71a0ade6b4369c14ee870f047e69144",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "37c9be6ac321ab61fd0273ab45a6f4a4f71a0ade6b4369c14ee870f047e69144",
+          "unchanged": true
+        },
+        {
+          "name": "MAX_FACE_CENTER_Y",
+          "original_normalized_sha256": "4762f24bc54ddf4483639b234a79de2a39093f7ce1f828a11e0e72a3ad5ea1ac",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "4762f24bc54ddf4483639b234a79de2a39093f7ce1f828a11e0e72a3ad5ea1ac",
+          "unchanged": true
+        },
+        {
+          "name": "MAX_EYE_LINE_TILT_DEGREES",
+          "original_normalized_sha256": "83f8a94a4f9c00ca76367a3dc95a4e03b4e66f9f4594ab7b7d4454dc40a71c66",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "83f8a94a4f9c00ca76367a3dc95a4e03b4e66f9f4594ab7b7d4454dc40a71c66",
+          "unchanged": true
+        },
+        {
+          "name": "MAX_STABLE_FACE_CENTER_DELTA",
+          "original_normalized_sha256": "1ca8c764116ac48bf0580e07d7e04861e3e6264561dac6864d3274c1e7caec6c",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "1ca8c764116ac48bf0580e07d7e04861e3e6264561dac6864d3274c1e7caec6c",
+          "unchanged": true
+        },
+        {
+          "name": "MAX_STABLE_FACE_SIZE_DELTA",
+          "original_normalized_sha256": "d373cbda29de09202e85f7a9168ce21e960739b18db3a108422bde615d509089",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "d373cbda29de09202e85f7a9168ce21e960739b18db3a108422bde615d509089",
+          "unchanged": true
+        },
+        {
+          "name": "FINAL_HARD_MIN_FACE_WIDTH_RATIO",
+          "original_normalized_sha256": "93452a757eab83a2af6ff2b4b11817dc12c6f41f05fa3ce22865dfbec861165e",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "93452a757eab83a2af6ff2b4b11817dc12c6f41f05fa3ce22865dfbec861165e",
+          "unchanged": true
+        },
+        {
+          "name": "FINAL_HARD_MIN_FACE_HEIGHT_RATIO",
+          "original_normalized_sha256": "c42c1077b4d55945f1393ebbb702e3dfb96209ad58bac1e9e7ab28631df699a2",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "c42c1077b4d55945f1393ebbb702e3dfb96209ad58bac1e9e7ab28631df699a2",
+          "unchanged": true
+        },
+        {
+          "name": "FINAL_HARD_MAX_FACE_WIDTH_RATIO",
+          "original_normalized_sha256": "c0c440eb04c7253a7f65fa5f70f6e4dd804567ac80af9382f6ad256991ac0523",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "c0c440eb04c7253a7f65fa5f70f6e4dd804567ac80af9382f6ad256991ac0523",
+          "unchanged": true
+        },
+        {
+          "name": "FINAL_HARD_MAX_FACE_HEIGHT_RATIO",
+          "original_normalized_sha256": "1ef3143bc825402e5e5f89fb05e6ca60591a8c185d77e1e80b9f2d8ed6fcd3d8",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "1ef3143bc825402e5e5f89fb05e6ca60591a8c185d77e1e80b9f2d8ed6fcd3d8",
+          "unchanged": true
+        },
+        {
+          "name": "FINAL_HARD_MAX_FACE_CENTER_X_OFFSET",
+          "original_normalized_sha256": "32741b9d3add880e28429d22f26f4f38080483c70eed3156238ce8c0ad36c7df",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "32741b9d3add880e28429d22f26f4f38080483c70eed3156238ce8c0ad36c7df",
+          "unchanged": true
+        },
+        {
+          "name": "FINAL_HARD_MIN_FACE_CENTER_Y",
+          "original_normalized_sha256": "423765f0d9d585fbfc39e29690178aa8e5fe3c31ebfc85d8a7714c9bb52ec24f",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "423765f0d9d585fbfc39e29690178aa8e5fe3c31ebfc85d8a7714c9bb52ec24f",
+          "unchanged": true
+        },
+        {
+          "name": "FINAL_HARD_MAX_FACE_CENTER_Y",
+          "original_normalized_sha256": "a820c80dfb90c98f8b07b7836b0354fa42d5937954b2af2d5757df645b37980e",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "a820c80dfb90c98f8b07b7836b0354fa42d5937954b2af2d5757df645b37980e",
+          "unchanged": true
+        },
+        {
+          "name": "FINAL_HARD_HEAD_EDGE_MARGIN",
+          "original_normalized_sha256": "bebecc053362624ddc53c1ff267b7d85568fa47bb5d5f06961ac0b663f37b0bc",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "bebecc053362624ddc53c1ff267b7d85568fa47bb5d5f06961ac0b663f37b0bc",
+          "unchanged": true
+        },
+        {
+          "name": "FINAL_BORDERLINE_MIN_FACE_GRADIENT",
+          "original_normalized_sha256": "c4596db4b2dea7fa9ef50bf318cceb68e40d304972a2545fdbff51129cd83804",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "c4596db4b2dea7fa9ef50bf318cceb68e40d304972a2545fdbff51129cd83804",
+          "unchanged": true
+        },
+        {
+          "name": "FINAL_BORDERLINE_MIN_FACE_EDGE_RATIO",
+          "original_normalized_sha256": "9e40ddb2dfc4f74a6c220804705fd1d1675745d7185425a7665b3c033a496675",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "9e40ddb2dfc4f74a6c220804705fd1d1675745d7185425a7665b3c033a496675",
+          "unchanged": true
+        },
+        {
+          "name": "FINAL_BORDERLINE_MIN_FACE_LUMINANCE",
+          "original_normalized_sha256": "6d6a4b0424b097aec907f50e877115d45138702c941e41c683a6e7fdd7f0666b",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "6d6a4b0424b097aec907f50e877115d45138702c941e41c683a6e7fdd7f0666b",
+          "unchanged": true
+        },
+        {
+          "name": "FINAL_BORDERLINE_MAX_FACE_LUMINANCE",
+          "original_normalized_sha256": "3d91a2c61ad0f6b66d73e3bd701da244d549f1a8a9cd9406ad0dc5e9ff1c4dce",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "3d91a2c61ad0f6b66d73e3bd701da244d549f1a8a9cd9406ad0dc5e9ff1c4dce",
+          "unchanged": true
+        },
+        {
+          "name": "FINAL_HARD_MIN_BACKGROUND_LUMINANCE",
+          "original_normalized_sha256": "1e4ed5e5b47f2adfe8b8311ab052372853a94e3de25a8986e36c1f5d464e3575",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "1e4ed5e5b47f2adfe8b8311ab052372853a94e3de25a8986e36c1f5d464e3575",
+          "unchanged": true
+        },
+        {
+          "name": "FINAL_HARD_MIN_LIGHT_NEUTRAL_RATIO",
+          "original_normalized_sha256": "112611f1f965157579c339d65a3ac86ef0ca4dd47ce9814e643823c1d10a5898",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "112611f1f965157579c339d65a3ac86ef0ca4dd47ce9814e643823c1d10a5898",
+          "unchanged": true
+        },
+        {
+          "name": "FINAL_HARD_MAX_STRONG_EDGE_RATIO",
+          "original_normalized_sha256": "b69fdfb3231c379dbc94e6e568398891c2e1f63f3e1cebea2ab13e01c4e05b5d",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "b69fdfb3231c379dbc94e6e568398891c2e1f63f3e1cebea2ab13e01c4e05b5d",
+          "unchanged": true
+        },
+        {
+          "name": "FINAL_HARD_MAX_ROUGH_TEXTURE_RATIO",
+          "original_normalized_sha256": "f457ce3868045c41c3041d8bb6c3e6897a9799f25267b8ab8b6bbc98a2442f58",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "f457ce3868045c41c3041d8bb6c3e6897a9799f25267b8ab8b6bbc98a2442f58",
+          "unchanged": true
+        },
+        {
+          "name": "FINAL_HARD_MAX_LINE_COVERAGE",
+          "original_normalized_sha256": "45998cd4a78405fdc7976e04de5e356e8b6bedbdd7f70cf801aea6dd41ab78fc",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "45998cd4a78405fdc7976e04de5e356e8b6bedbdd7f70cf801aea6dd41ab78fc",
+          "unchanged": true
+        },
+        {
+          "name": "FINAL_HARD_MAX_REGIONAL_EDGE_RATIO",
+          "original_normalized_sha256": "002ab96b53ecedfafc9c587b817fef066b34ea61415e95965da3e8709db90da6",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "002ab96b53ecedfafc9c587b817fef066b34ea61415e95965da3e8709db90da6",
+          "unchanged": true
+        },
+        {
+          "name": "FINAL_HARD_MAX_REGIONAL_DARK_RATIO",
+          "original_normalized_sha256": "4af4fa359efdfd9a9553f9803fce0cdd802f000eca2d67244e212fd3c3b1b44a",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "4af4fa359efdfd9a9553f9803fce0cdd802f000eca2d67244e212fd3c3b1b44a",
+          "unchanged": true
+        },
+        {
+          "name": "FINAL_HARD_MIN_FAILING_LIGHT_NEUTRAL_ZONES",
+          "original_normalized_sha256": "0af8cae7a51f7f815c2cb026722d8ade773fc3c61037d7bd70dd91284f86b92c",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "0af8cae7a51f7f815c2cb026722d8ade773fc3c61037d7bd70dd91284f86b92c",
+          "unchanged": true
+        },
+        {
+          "name": "FINAL_HARD_MIN_STRUCTURED_ZONES",
+          "original_normalized_sha256": "f1de8b85961dd873d11baa7f583bf788dba95207e934a1bac3206e3e7e7b90e1",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "f1de8b85961dd873d11baa7f583bf788dba95207e934a1bac3206e3e7e7b90e1",
+          "unchanged": true
+        },
+        {
+          "name": "FINAL_HARD_MIN_EXTREME_ZONES",
+          "original_normalized_sha256": "9d7c484f61867838b3ce20ccc577ecfb7723d7740065becaddb17b6289621483",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "9d7c484f61867838b3ce20ccc577ecfb7723d7740065becaddb17b6289621483",
+          "unchanged": true
+        },
+        {
+          "name": "LIVE_MIN_BACKGROUND_LUMINANCE",
+          "original_normalized_sha256": "f46acb103673870b94b3c7bf5df43fbbea044af4bc631c67f8f8589d641f9f96",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "f46acb103673870b94b3c7bf5df43fbbea044af4bc631c67f8f8589d641f9f96",
+          "unchanged": true
+        },
+        {
+          "name": "LIVE_MIN_LIGHT_NEUTRAL_RATIO",
+          "original_normalized_sha256": "f151c0ab7885c8e299276652697519adbf5be80bcd8874ba4ce66bf6bbf880d8",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "f151c0ab7885c8e299276652697519adbf5be80bcd8874ba4ce66bf6bbf880d8",
+          "unchanged": true
+        },
+        {
+          "name": "LIVE_MAX_FAILING_LIGHT_NEUTRAL_ZONES",
+          "original_normalized_sha256": "b889dbbd1337e8d757383b27670a42d5ea100b82e319c1e9976f8ddd085a72d5",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "b889dbbd1337e8d757383b27670a42d5ea100b82e319c1e9976f8ddd085a72d5",
+          "unchanged": true
+        },
+        {
+          "name": "LIVE_MAX_LUMINANCE_DEVIATION",
+          "original_normalized_sha256": "790672d44e40b00303d618bc1cb797e181cec1be204fdc0d713ec2d8a01cc019",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "790672d44e40b00303d618bc1cb797e181cec1be204fdc0d713ec2d8a01cc019",
+          "unchanged": true
+        },
+        {
+          "name": "LIVE_MAX_ZONE_MEAN_SPREAD",
+          "original_normalized_sha256": "c7c7e3c614dff4b77ae8de5e3156359f9b71d552b4dcda9b5b70071fe5ce47b5",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "c7c7e3c614dff4b77ae8de5e3156359f9b71d552b4dcda9b5b70071fe5ce47b5",
+          "unchanged": true
+        },
+        {
+          "name": "LIVE_MAX_STRONG_EDGE_RATIO",
+          "original_normalized_sha256": "08a4bfa4e5193f73a9f732772be81247ddee811f93343f7902014f4b424522cf",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "08a4bfa4e5193f73a9f732772be81247ddee811f93343f7902014f4b424522cf",
+          "unchanged": true
+        },
+        {
+          "name": "LIVE_MAX_ROUGH_TEXTURE_RATIO",
+          "original_normalized_sha256": "6df335004e77fe888ec03ef58b678a8946b24ca4858351d332a14754b8a91036",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "6df335004e77fe888ec03ef58b678a8946b24ca4858351d332a14754b8a91036",
+          "unchanged": true
+        },
+        {
+          "name": "LIVE_MAX_LINE_COVERAGE",
+          "original_normalized_sha256": "ee8c30c9d6c6fb88a0a94d82cbed5240410c7668435cfc3e44cfc441d2c9b07a",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "ee8c30c9d6c6fb88a0a94d82cbed5240410c7668435cfc3e44cfc441d2c9b07a",
+          "unchanged": true
+        },
+        {
+          "name": "LIVE_MAX_STRUCTURED_ZONES",
+          "original_normalized_sha256": "1d2d9ddfe779f2fd7dad231e97f5a45d371bb33a23b1d1dfeb98b1cdeebe814b",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "1d2d9ddfe779f2fd7dad231e97f5a45d371bb33a23b1d1dfeb98b1cdeebe814b",
+          "unchanged": true
+        },
+        {
+          "name": "LIVE_MAX_EXTREME_ZONES",
+          "original_normalized_sha256": "a8af592f1d2be7635349f943b2863b9e20ca88bae4313fbf057e535881b4e0da",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "a8af592f1d2be7635349f943b2863b9e20ca88bae4313fbf057e535881b4e0da",
+          "unchanged": true
+        },
+        {
+          "name": "LIVE_MAX_REGIONAL_EDGE_RATIO",
+          "original_normalized_sha256": "596f1a63cd8e9454488bdb42d69593ef2d74aa88531ac3fc6ce90aff11156b1d",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "596f1a63cd8e9454488bdb42d69593ef2d74aa88531ac3fc6ce90aff11156b1d",
+          "unchanged": true
+        },
+        {
+          "name": "LIVE_MAX_REGIONAL_DARK_RATIO",
+          "original_normalized_sha256": "b22803de6f23d0c7d68eaa0374ec7de1807a67b35fa705309ef816c15e3cceb1",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "b22803de6f23d0c7d68eaa0374ec7de1807a67b35fa705309ef816c15e3cceb1",
+          "unchanged": true
+        },
+        {
+          "name": "VISA_JPEG_QUALITY_STEPS",
+          "original_normalized_sha256": "b6d78b66e400042082375548bbd6ae6328bfa3fd75fdc6b832226b6c9228ac97",
+          "owner": "frontend/features/upload/services/visa-quality-policy.ts",
+          "final_normalized_sha256": "b6d78b66e400042082375548bbd6ae6328bfa3fd75fdc6b832226b6c9228ac97",
+          "unchanged": true
+        }
+      ]
+    }
+  ],
+  "source_files": [
+    {
+      "path": "frontend/features/upload/services/passport-final-quality.ts",
+      "sha256": "251f799802d7e28855495fd977f375cc86edaf8286b9dc61f17e4020591a872b",
+      "physical_lines": 81
+    },
+    {
+      "path": "frontend/features/upload/services/passport-final-analysis.ts",
+      "sha256": "c2517940b7af0fb77ad06cfb2c606a4b266a305b770909229105811b0502c5ae",
+      "physical_lines": 225
+    },
+    {
+      "path": "frontend/features/upload/services/passport-final-regions.ts",
+      "sha256": "326adf9246009dcaacae26c84a2fc823db15292e48436e8bb6898782d36714e8",
+      "physical_lines": 109
+    },
+    {
+      "path": "frontend/features/upload/services/passport-final-boundaries.ts",
+      "sha256": "7b3f15c38dbb1874d4785311454a4e1624f445b2dc9c0791c85a4bf231913bb9",
+      "physical_lines": 126
+    },
+    {
+      "path": "frontend/features/upload/services/passport-final-screen.ts",
+      "sha256": "dccc0a6546b7b479e0817f9c0a70909941eb688e41c8f371e733d00c078e4aa3",
+      "physical_lines": 108
+    },
+    {
+      "path": "frontend/features/upload/services/passport-final-region-rules.ts",
+      "sha256": "7bf37ddea7780c48d1f9e6d82d024af54c876161334441fa0643818821ead6a8",
+      "physical_lines": 38
+    },
+    {
+      "path": "frontend/features/upload/services/passport-final-result.ts",
+      "sha256": "4771e5c56a8273094d01f8405660fa59075d4e245a6759c488da40be006a1c23",
+      "physical_lines": 73
+    },
+    {
+      "path": "frontend/features/upload/services/camera-pixel-math.ts",
+      "sha256": "d9524868cf9153e96ed241a14f57567606c8770b60658645dda6cc5a56314867",
+      "physical_lines": 23
+    },
+    {
+      "path": "frontend/features/upload/services/passport-final-policy.ts",
+      "sha256": "719202a566546f798fd4a17e2340481c996c96160715ec1ee00574925baef2fd",
+      "physical_lines": 41
+    },
+    {
+      "path": "frontend/features/upload/services/passport-rectangular-frame-detector.ts",
+      "sha256": "36f3f0e7a560fc18dc3058354befd65b3eca66e92f5318ffcad2bd48875ab66b",
+      "physical_lines": 47
+    },
+    {
+      "path": "frontend/features/upload/services/passport-live-frame-adapter.ts",
+      "sha256": "32edd3443b61919717ef512e6e055e140f6d8133764b73ff8e480bf35a06a5d9",
+      "physical_lines": 119
+    },
+    {
+      "path": "frontend/features/upload/services/passport-live-analysis.ts",
+      "sha256": "c718da229716327cf1172d50de65cba8d324a8554e53ed103b636873b6d68876",
+      "physical_lines": 121
+    },
+    {
+      "path": "frontend/features/upload/services/passport-live-pixels.ts",
+      "sha256": "3ca646b79aab989ef98e9c05b095216f946360f879ce1c5d3a78aa99d1acf9b4",
+      "physical_lines": 101
+    },
+    {
+      "path": "frontend/features/upload/services/passport-live-boundary-search.ts",
+      "sha256": "b9bb85a0fa1e653a5a66ee9deed51fb03f53d134ddf9dc7bcfefc2d0ce9515ed",
+      "physical_lines": 127
+    },
+    {
+      "path": "frontend/features/upload/services/passport-live-boundary-evidence.ts",
+      "sha256": "71cd7662722fa3cca8e77cb310c875dcfaa01727cc2f428ecd3d216de3ca345b",
+      "physical_lines": 162
+    },
+    {
+      "path": "frontend/features/upload/services/passport-live-detail.ts",
+      "sha256": "dfba7f326b30ec8799dab16fbf9e3b915167c3e0eab93d907e8486b56b2e5683",
+      "physical_lines": 127
+    },
+    {
+      "path": "frontend/features/upload/services/passport-live-geometry.ts",
+      "sha256": "5e2f7250da2cc77fab8c248ec55ed21ad7d8174c912bb6727327569f96e943e9",
+      "physical_lines": 177
+    },
+    {
+      "path": "frontend/features/upload/services/passport-live-policy.ts",
+      "sha256": "2ee0dba3ab10cc39c8aa8127b57b00921ef09f3d7e056e0c0a3cf3494d0971fa",
+      "physical_lines": 52
+    },
+    {
+      "path": "frontend/features/upload/services/passport-perspective-correction.ts",
+      "sha256": "195b43f1e5cfd7242b3b6fd517228585b7b23ea1a6f340bb825d9f8c656e27ad",
+      "physical_lines": 78
+    },
+    {
+      "path": "frontend/features/upload/services/passport-quad-detection.ts",
+      "sha256": "1c7f39a35f517f124368478fa4b66b4e3ab8874e69e5a7044db8a101a559ad0b",
+      "physical_lines": 99
+    },
+    {
+      "path": "frontend/features/upload/services/passport-line-fitting.ts",
+      "sha256": "813a7115504d9281bba100db45cb293ef691762f5d8fdf4e964091d75e066bce",
+      "physical_lines": 48
+    },
+    {
+      "path": "frontend/features/upload/services/passport-quad-geometry.ts",
+      "sha256": "866a3e6c4fbbf942fed9e0d8eec0b447e7b577c341ba0ab998141c52b2c365e3",
+      "physical_lines": 54
+    },
+    {
+      "path": "frontend/features/upload/services/passport-perspective-warp.ts",
+      "sha256": "2b4563390a11e41a081ee704597f164bdc2df4d9e5ac8544b55db0b5137377c0",
+      "physical_lines": 90
+    },
+    {
+      "path": "frontend/features/upload/services/passport-correction-content.ts",
+      "sha256": "8fc02ac828109e85435903cdd511ef00e0f49cf778e07e69b61426bbf9a58862",
+      "physical_lines": 120
+    },
+    {
+      "path": "frontend/features/upload/services/passport-homography.ts",
+      "sha256": "528691b7c36dcabaf393aa732d50dd6bc1c1a1429b8f60fbe09bfdf62436fb4e",
+      "physical_lines": 44
+    },
+    {
+      "path": "frontend/features/upload/services/passport-image-encoding.ts",
+      "sha256": "9011b07687a4c973a2a36ca12d33def5ec05261d104f75a54be188f9d28ff390",
+      "physical_lines": 22
+    },
+    {
+      "path": "frontend/features/upload/services/visa-quality-background.ts",
+      "sha256": "16ac470f794c0a8df430a8b5616d1c6196a1f4e8b244173cee69bd57468f4e30",
+      "physical_lines": 285
+    },
+    {
+      "path": "frontend/features/upload/services/visa-quality-live-background.ts",
+      "sha256": "3a9a79d521538a9e2886f7f353b16d75c9699722e1ed1129966e82121a1e4cec",
+      "physical_lines": 54
+    },
+    {
+      "path": "frontend/features/upload/services/visa-quality-face.ts",
+      "sha256": "f725aedc1fdabbe8adc45dedfae8f686d1314003fed40d7b53d1070bd9b88c8b",
+      "physical_lines": 91
+    },
+    {
+      "path": "frontend/features/upload/services/visa-quality-clarity.ts",
+      "sha256": "5e04bbcd71b79e78928df556274ac12c2c03d7fef65316fef7ead9aa78bf0dba",
+      "physical_lines": 129
+    },
+    {
+      "path": "frontend/features/upload/services/visa-quality-final.ts",
+      "sha256": "9a0b101ba9e26daf9334a27d991eb5d2e477af516710c4f146eb42f077ad45ea",
+      "physical_lines": 265
+    },
+    {
+      "path": "frontend/features/upload/services/visa-quality-encoding.ts",
+      "sha256": "5f0a1a02de0d97db95d987c1f6c6903761a1a9b3c2b42f00605e59b5eea500c3",
+      "physical_lines": 20
+    },
+    {
+      "path": "frontend/features/upload/services/visa-quality-camera.ts",
+      "sha256": "d810e5677b9eb3a5bf1715e0ae005be27d8c5e50d0ebc823a504c6d17754af3a",
+      "physical_lines": 55
+    },
+    {
+      "path": "frontend/features/upload/services/visa-quality-background-mask.ts",
+      "sha256": "0dd0dbbbee9f17d5189e67cbf18af1d52e6f0680d6c63c707eae9e2a24a37a38",
+      "physical_lines": 95
+    },
+    {
+      "path": "frontend/features/upload/services/visa-quality-policy.ts",
+      "sha256": "3fcd7d40d994789f808f203cff3ffe1167a04ba2fa32836c4a3345ca6b9d1920",
+      "physical_lines": 133
+    }
+  ],
+  "config": {
+    "path": "frontend/tsconfig.json",
+    "sha256": "e1f2b4ec806c55ba0cc71369588733fe427a277990cccfd44ef62c9b6e9fe49d",
+    "reconstructed_before_sha256": "be18523b23b78b6e1a876ddd107d330f0168bddf09d751b57e0b5edce69c66f3",
+    "only_added_option": {
+      "allowImportingTsExtensions": true
+    },
+    "reason": "Existing noEmit/bundler TypeScript plus Node24 direct TS algorithm tests require explicit .ts module imports after splitting standalone algorithms; no custom loader/test weakening."
+  },
+  "note": "Function comparison ignores export modifier and CRLF/LF only. All75 constant groups/declarations preserve exact values. Perspective grayscale is the single deliberate compatible duplicate after separate AST-body equality (parameter spelling, whitespace and redundant parentheses only). Mechanical proof does not substitute for full physical source review."
+}

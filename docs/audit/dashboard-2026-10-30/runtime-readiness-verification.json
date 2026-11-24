@@ -1,0 +1,115 @@
+{
+  "status": "FROZEN final readiness tranche; mechanical and deliberate fix evidence separate",
+  "mechanical_checkpoint": "runtime-readiness-mechanical-verification.json",
+  "mechanical_checkpoint_sha256": "211e236249d2aa9c18fe569cc3620adbf6771035b240754581d58246bd4e7e94",
+  "delta_proof": "runtime-readiness-optional-delta-proof.json",
+  "current_runtime_sources": [
+    {
+      "path": "backend/app/infrastructure/runtime_readiness_contracts.py",
+      "sha256": "29b1aaa8a64ccfe32ab571d8ebb512a9ae600ad5bcacb681a83d927057e3462d",
+      "physical_lines": 52
+    },
+    {
+      "path": "backend/app/infrastructure/runtime_readiness_database.py",
+      "sha256": "e8d95878c10be43b82e7ade8a9b304c1c3825608365508be2d3985ac8c2ac71b",
+      "physical_lines": 73
+    },
+    {
+      "path": "backend/app/infrastructure/runtime_readiness_probes.py",
+      "sha256": "37dbb8ff36d5e19cad2afe0ba523030ac9bbc0c5e43df15e5b624fb1b2a63bf0",
+      "physical_lines": 141
+    },
+    {
+      "path": "backend/app/infrastructure/runtime_readiness_capabilities.py",
+      "sha256": "bc1904a1aada151631034e8fb60b5d366da1e5049fa019b6a03813f9866ab439",
+      "physical_lines": 161
+    },
+    {
+      "path": "backend/app/infrastructure/runtime_readiness.py",
+      "sha256": "b439d9d4174e8c0b1ae096a4f0f23c96ae7e10c6e2f0d636a0509a7c5f9783f0",
+      "physical_lines": 278
+    }
+  ],
+  "current_changed_test_sources": [
+    {
+      "path": "backend/tests/unit/presentation/test_health_optional_probe_isolation.py",
+      "sha256": "4e4a0d376f411cfcbd5168d68e101479a24c8dca2e8651f49bcf2fc66d906cab"
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_runtime_readiness.py",
+      "sha256": "7eb48ca33e298b980e15b71fdb74c2a5fd1b05dff6e21354a304631a5ebc8234"
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_runtime_readiness_guards.py",
+      "sha256": "0dbeca65559eb44c3249cdb1ae1305a5f30a7c075b66ba6220fc4efd3b585e65"
+    }
+  ],
+  "finding": {
+    "id": "RR01",
+    "classification": "correctness/reliability; optional diagnostic transaction isolation",
+    "before": "Cleanup-only SQLfailure left PostgreSQL-shaped outer transaction aborted; real health orchestration consequently marked independent healthy ECR backlog unavailable. Direct SQL continuation and cancellation state also failed.",
+    "after": "Only cleanup diagnostic work is nested in its own savepoint; prior nongatingcleanup status/HTTP200, SQL/defaults and outer transaction preserved. No blanketrollback or raw diagnostic exposure.",
+    "raw_before": ".tmp/runtime-readiness/optional-isolation-baseline.txt",
+    "baseline": "3negativefails1healthycontrolpass",
+    "native_pg_evidence": "No PATHpostgres/psql or runningpostgresprocess; no newservice setup. Explicit synthetic transaction-state model, not livePG/SQLite equivalence, server-commit exception/data-loss claim or deployment qualification."
+  },
+  "checks": [
+    {
+      "name": "Final affected readiness group",
+      "result": "54passed",
+      "raw": ".tmp/runtime-readiness/final-tests.txt",
+      "coverage_json": ".tmp/runtime-readiness/final-coverage.json",
+      "coverage_xml": ".tmp/runtime-readiness/final-coverage.xml"
+    },
+    {
+      "name": "Strict scoped mypy5runtimeowners",
+      "result": "pass"
+    },
+    {
+      "name": "Backend-cwd pinned Ruff5runtime+4affectedtestowners",
+      "result": "pass"
+    },
+    {
+      "name": "Mechanical whole declaration/class/default/SQL/publicalias/hint/cache/lifetime proofs",
+      "result": "historical30decl partition+executedcurrentguards retained; deliberate1helper delta separatelybounded"
+    }
+  ],
+  "every_actual_owner_coverage": [
+    {
+      "path": "app/infrastructure/runtime_readiness.py",
+      "line_percent": 100.0,
+      "branch_percent": 100.0
+    },
+    {
+      "path": "app/infrastructure/runtime_readiness_capabilities.py",
+      "line_percent": 100.0,
+      "branch_percent": 100.0
+    },
+    {
+      "path": "app/infrastructure/runtime_readiness_contracts.py",
+      "line_percent": 100.0,
+      "branch_percent": 100
+    },
+    {
+      "path": "app/infrastructure/runtime_readiness_database.py",
+      "line_percent": 100.0,
+      "branch_percent": 100.0
+    },
+    {
+      "path": "app/infrastructure/runtime_readiness_probes.py",
+      "line_percent": 95.5223880597015,
+      "branch_percent": 95.0
+    }
+  ],
+  "critical_obligation": "Original runtime_readiness88line/63branch floor preserved on every actual5owner, none facade-only. AIexclusive final normal+critical admission pending; no budget/coverage config edits by this lane.",
+  "normal_budget_candidates": "runtime-readiness-budget-candidates.json",
+  "critical_gate_candidates": "runtime-readiness-critical-candidates.json",
+  "old_caps_floors_relaxed": false,
+  "performance_scope": "No claim of live latency improvement; optionalsavepoint adds bounded DB control work inside existing3.75sec requestdeadline.9slot executor,15sec cache and healthy/cancel controls preserved.",
+  "other_candidate": "RR02 hypothetical config mutation not demonstrated in ordinary processconfiguration; no speculative change.",
+  "limits": [
+    "No wholeapp/backend/frontend suite, productionbuild/browser or provider/network service/deployment round.",
+    "Actual private data, realcredentials, services or CodexSecurity scanner were not used.",
+    "Read-only partial supporting files remain partial; standalone source/caller proofs are not liveVPS/nativePG qualification."
+  ]
+}

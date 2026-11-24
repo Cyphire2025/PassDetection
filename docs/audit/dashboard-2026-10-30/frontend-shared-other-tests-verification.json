@@ -1,0 +1,57 @@
+{
+  "created_utc": "2026-10-31T09:21:12.315896+00:00",
+  "status": "read_only_cohort_physical_source_reads_complete_follow_ups_open",
+  "reviewer": "document_ui_architecture",
+  "cohort": "frontend-residual-pending-shared-and-other-tests.json",
+  "cohort_sha256": "48bdde0dc3fc734c8e893b9ddf2d0e6946945c42215db646ee47d7af8020b4fb",
+  "full_files": 82,
+  "full_physical_lines": 11595,
+  "partial_cohort_files": 0,
+  "current_source_coverage": {
+    "files": 82,
+    "physical_lines": 11594,
+    "own_current_full_rows": 81,
+    "own_historical_full_rows_with_owner_current_rebind": 1
+  },
+  "initial81sources_match_strictly_one_authorized_loader_change_rebound_to_owner_full_ledger": true,
+  "prior_explicit_current_full_skips": 1,
+  "credit_basis": "Actual complete physical reads in bounded displayed chunks, with exact-hash ledger lookup before every read and complete follow-up reads after truncation. No coverage credit from inventory, historical execution, metadata enumeration or imports.",
+  "read_only": {
+    "runtime_edits": 0,
+    "test_edits": 0,
+    "config_edits": 0,
+    "app_tests_type_lint_checks": 0,
+    "builds": 0,
+    "browsers_or_services_started": 0,
+    "scanners": 0,
+    "provider_sends": 0,
+    "audit_bookkeeping_only": true
+  },
+  "findings": {
+    "concrete_source_contract_candidate": 1,
+    "reproduced_runtime_defects": 0,
+    "verification_gaps": 2,
+    "artifact_maintenance_candidate": 1,
+    "coherent_test_architecture_follow_up": 1,
+    "owner_contact": "FST-01 sent to root and branding before mutation. Branding corrected frozen loader under parent coordination and recorded actual baselinefail/final13pass, preserving every original test-body byte. This lane remained read-only."
+  },
+  "remaining_scope": [
+    "Completing physical reads does not complete open architecture, security, performance, responsive or integration follow-through.",
+    "Static-regex contracts verify code presence; mocked browser routes prove UI orchestration within synthetic contracts. Neither certifies backend authorization, real provider behavior or real service qualification.",
+    "Real-stack specs were read only; no TLS/PostgreSQL/Redis/private-storage/worker/browser workflow was run in this cohort.",
+    "FST-01 current sourcebdae0536... is rebound only to explicit full owner-ledger/receipt. Original948e47... physical full-read history remains immutable; original assertion bodies independently byte-compared equal during bookkeeping, no app check here.",
+    "Root retains backend image ownership and final combined qualification; AI retains priorities/shared quality/release gates; branding retains frontend565 freeze and assigned62cohort.",
+    "Existing large runtime follow-ups such as attendance-scan-queue remain separately owned/open. No runtime source in those follow-ups was newly credited full here.",
+    "Generated assets and nested package lock metadata retain their prior focused status; no artificial full-read or whole-repository completion claim."
+  ],
+  "artifacts": {
+    "frontend-shared-other-tests-reviewed-files.json": "0906a14d435b44884ff8d9e0185bd3c3209a4169c35f761b04ba64bab83d1bdf",
+    "frontend-shared-other-tests-current-coverage.json": "4dc0c17a79d6d300be39e270f48ccea8fdfc442b49fe9a6a9ccd60c0a23a862a",
+    "frontend-shared-other-tests-source-rebinding.json": "ebadc25a89caaded55d8541193dbced21ea57dbfdb48a170cb29a4afb6dacc32",
+    "frontend-shared-other-tests-findings-and-follow-ups.json": "a187bb36606d070813b7f010546ea51bd3142d443c5e72bf2b8ef01292c123a5",
+    "frontend-shared-other-tests-source-manifest.json": "ac1a70d8ee559fb893043b4f1bfa71cf40a172d2c36c4215028f532def0fbdbe",
+    "frontend-shared-other-tests-review-method.json": "4732012b372d53c31cabfa719d392a1807ac6af27023308c4045541ec517f58f",
+    "frontend-shared-other-tests-unicode-source-supplement.json": "b30d28400095de229e1e1e9ce96b4de630a20eb549f145b8213263c95d6c9341"
+  },
+  "progress_snapshot_sha256": "e5a27d651658a9ae0bd0f4fd84d0fe0762874a446784807925dc9d77cae3478e"
+}

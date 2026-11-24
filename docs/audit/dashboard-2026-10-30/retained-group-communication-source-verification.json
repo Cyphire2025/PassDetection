@@ -1,0 +1,32 @@
+{
+  "status": "Read-only cohort complete; broader audit active",
+  "new_current_full_tests": 5,
+  "test_physical_lines": 636,
+  "supporting_full_rows": 2,
+  "focused_rows": 4,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-group-communication-source-reviewed-files.json",
+    "sha256": "84e11224fc4e330a6e36f590f9c50d291806a25bf5e87bc2b2bcbb7e5bd75551"
+  },
+  "source_fence": {
+    "backend/tests/integration/test_coordinator_assignment_lifecycle.py": "6718759d8450ce79240703d936c6bb52a050a76f7ef27d0ab41cfd194f443325",
+    "backend/tests/integration/test_group_update_dispatch_cache.py": "acc4ced390c9b719a97db31f17d76bd1af29c1175f7303bf744f89fb16b291e0",
+    "backend/tests/unit/application/test_broadcast_history_schedule.py": "682793065db8fa6368773c71131f9010c12ccf929e8fded14f6a23496edd61c2",
+    "backend/tests/unit/application/test_group_matching_field_work.py": "80ba534875e014f53aebe42ea280eb7606516cf2031048811d9b1544b8bf9085",
+    "backend/tests/unit/application/test_identity_partial_names.py": "76f813c7cbd4c637bce76daa49439de08acf9eb8a8fc32ff773c3418cd002ae1",
+    "backend/app/application/travellers/identity_index.py": "bb5ba91a6a9cf6c13489ae4b8cf24fc57aadf6e568bcb70399f68e688291f3ab",
+    "backend/app/application/travellers/identity_candidates.py": "48c1d09ac5a3c302a0e20c796b91679b540d570f37ccbc9ea70748e13c624ce4",
+    "backend/app/infrastructure/repositories/coordinator_assignment_lifecycle.py": "0a7ec89144ce7a41c5e67ab5454e5eae1d17669b5de1b52bb8404b8cda6dfbb9",
+    "backend/app/infrastructure/whatsapp/group_update_dispatch.py": "5badea183b0969519ec6d946b263d84f84e483d3e9d5d24457f9842b7f5243a5",
+    "backend/app/application/travellers/broadcast_history_schedule.py": "a05d07b8696d41ae74543d64360afe984c1db962c1279131f607ed4b97f8d9af",
+    "backend/app/application/use_cases/whatsapp/group_match_normalization.py": "5b6d8982eb966989959ac6c8995b0b3278f1a20594e5aa375a001f06c1118f34"
+  },
+  "checks_run": [],
+  "changes": [],
+  "findings": [],
+  "limitations": [
+    "No test/DB/service/provider execution for source-read credit.",
+    "Current-full matching supporting ledgers were consulted; focused rereads are not inflated to new full credit.",
+    "Existing qualified matching/roster/cache controls remain unchanged and are not reopened as generic architecture debt."
+  ]
+}

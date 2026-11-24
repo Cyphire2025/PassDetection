@@ -1,0 +1,536 @@
+{
+  "basis": "Exact current behavior checkpoint AFTER separately verified observer/CLI/reader fixes; no claim of pre-fix equality. All17 complete declarations (including main) unchanged through responsibility partition and formatting.",
+  "definitions": [
+    {
+      "name": "percentile",
+      "owner": "scripts/qa/workload_capacity_measurements.py",
+      "whole_AST_exact": true,
+      "signature_evaluated_hints_module_qualname_direct_alias_pickle_exact": true
+    },
+    {
+      "name": "summarize",
+      "owner": "scripts/qa/workload_capacity_measurements.py",
+      "whole_AST_exact": true,
+      "signature_evaluated_hints_module_qualname_direct_alias_pickle_exact": true
+    },
+    {
+      "name": "measured",
+      "owner": "scripts/qa/workload_capacity_measurements.py",
+      "whole_AST_exact": true,
+      "signature_evaluated_hints_module_qualname_direct_alias_pickle_exact": true
+    },
+    {
+      "name": "begin_stage",
+      "owner": "scripts/qa/workload_capacity_measurements.py",
+      "whole_AST_exact": true,
+      "signature_evaluated_hints_module_qualname_direct_alias_pickle_exact": true
+    },
+    {
+      "name": "end_stage",
+      "owner": "scripts/qa/workload_capacity_measurements.py",
+      "whole_AST_exact": true,
+      "signature_evaluated_hints_module_qualname_direct_alias_pickle_exact": true
+    },
+    {
+      "name": "path_for",
+      "owner": "scripts/qa/workload_capacity_traffic.py",
+      "whole_AST_exact": true,
+      "signature_evaluated_hints_module_qualname_direct_alias_pickle_exact": true
+    },
+    {
+      "name": "paced_actor",
+      "owner": "scripts/qa/workload_capacity_traffic.py",
+      "whole_AST_exact": true,
+      "signature_evaluated_hints_module_qualname_direct_alias_pickle_exact": true
+    },
+    {
+      "name": "scans",
+      "owner": "scripts/qa/workload_capacity_traffic.py",
+      "whole_AST_exact": true,
+      "signature_evaluated_hints_module_qualname_direct_alias_pickle_exact": true
+    },
+    {
+      "name": "synthetic_jpeg",
+      "owner": "scripts/qa/workload_capacity_traffic.py",
+      "whole_AST_exact": true,
+      "signature_evaluated_hints_module_qualname_direct_alias_pickle_exact": true
+    },
+    {
+      "name": "uploads",
+      "owner": "scripts/qa/workload_capacity_traffic.py",
+      "whole_AST_exact": true,
+      "signature_evaluated_hints_module_qualname_direct_alias_pickle_exact": true
+    },
+    {
+      "name": "overload_actor",
+      "owner": "scripts/qa/workload_capacity_traffic.py",
+      "whole_AST_exact": true,
+      "signature_evaluated_hints_module_qualname_direct_alias_pickle_exact": true
+    },
+    {
+      "name": "tenant_negatives",
+      "owner": "scripts/qa/workload_capacity_traffic.py",
+      "whole_AST_exact": true,
+      "signature_evaluated_hints_module_qualname_direct_alias_pickle_exact": true
+    },
+    {
+      "name": "gates",
+      "owner": "scripts/qa/workload_capacity_gates.py",
+      "whole_AST_exact": true,
+      "signature_evaluated_hints_module_qualname_direct_alias_pickle_exact": true
+    },
+    {
+      "name": "observed_queue_drain_seconds",
+      "owner": "scripts/qa/workload_capacity_gates.py",
+      "whole_AST_exact": true,
+      "signature_evaluated_hints_module_qualname_direct_alias_pickle_exact": true
+    },
+    {
+      "name": "fixture",
+      "owner": "scripts/qa/workload_capacity_resources.py",
+      "whole_AST_exact": true,
+      "signature_evaluated_hints_module_qualname_direct_alias_pickle_exact": true
+    },
+    {
+      "name": "inspect_backend",
+      "owner": "scripts/qa/workload_capacity_resources.py",
+      "whole_AST_exact": true,
+      "signature_evaluated_hints_module_qualname_direct_alias_pickle_exact": true
+    },
+    {
+      "name": "main",
+      "owner": "scripts/qa/workload_capacity_run.py",
+      "whole_AST_exact": true,
+      "signature_evaluated_hints_module_qualname_direct_alias_pickle_exact": true
+    }
+  ],
+  "actual_globals": [
+    {
+      "function": "percentile",
+      "global": "math"
+    },
+    {
+      "function": "summarize",
+      "global": "percentile"
+    },
+    {
+      "function": "summarize",
+      "global": "defaultdict"
+    },
+    {
+      "function": "summarize",
+      "global": "Counter"
+    },
+    {
+      "function": "measured",
+      "global": "ORIGIN"
+    },
+    {
+      "function": "measured",
+      "global": "UTC"
+    },
+    {
+      "function": "measured",
+      "global": "datetime"
+    },
+    {
+      "function": "measured",
+      "global": "time"
+    },
+    {
+      "function": "measured",
+      "global": "httpx"
+    },
+    {
+      "function": "begin_stage",
+      "global": "UTC"
+    },
+    {
+      "function": "begin_stage",
+      "global": "datetime"
+    },
+    {
+      "function": "begin_stage",
+      "global": "time"
+    },
+    {
+      "function": "end_stage",
+      "global": "UTC"
+    },
+    {
+      "function": "end_stage",
+      "global": "datetime"
+    },
+    {
+      "function": "end_stage",
+      "global": "time"
+    },
+    {
+      "function": "paced_actor",
+      "global": "time"
+    },
+    {
+      "function": "paced_actor",
+      "global": "path_for"
+    },
+    {
+      "function": "paced_actor",
+      "global": "asyncio"
+    },
+    {
+      "function": "paced_actor",
+      "global": "measured"
+    },
+    {
+      "function": "scans",
+      "global": "time"
+    },
+    {
+      "function": "scans",
+      "global": "asyncio"
+    },
+    {
+      "function": "scans",
+      "global": "measured"
+    },
+    {
+      "function": "synthetic_jpeg",
+      "global": "random"
+    },
+    {
+      "function": "synthetic_jpeg",
+      "global": "io"
+    },
+    {
+      "function": "synthetic_jpeg",
+      "global": "Image"
+    },
+    {
+      "function": "uploads",
+      "global": "time"
+    },
+    {
+      "function": "uploads",
+      "global": "uuid"
+    },
+    {
+      "function": "uploads",
+      "global": "asyncio"
+    },
+    {
+      "function": "uploads",
+      "global": "measured"
+    },
+    {
+      "function": "overload_actor",
+      "global": "measured"
+    },
+    {
+      "function": "overload_actor",
+      "global": "time"
+    },
+    {
+      "function": "overload_actor",
+      "global": "OVERLOAD_SECONDS"
+    },
+    {
+      "function": "tenant_negatives",
+      "global": "ORIGIN"
+    },
+    {
+      "function": "gates",
+      "global": "observed_queue_drain_seconds"
+    },
+    {
+      "function": "gates",
+      "global": "EXPECTED_UNIQUE_SCANS"
+    },
+    {
+      "function": "gates",
+      "global": "datetime"
+    },
+    {
+      "function": "gates",
+      "global": "RECOVERY_DEADLINE_SECONDS"
+    },
+    {
+      "function": "gates",
+      "global": "OVERLOAD_BUDGET_MS"
+    },
+    {
+      "function": "gates",
+      "global": "summarize"
+    },
+    {
+      "function": "gates",
+      "global": "API_MEMORY_BYTES"
+    },
+    {
+      "function": "gates",
+      "global": "EXPECTED_SCAN_REQUESTS"
+    },
+    {
+      "function": "gates",
+      "global": "MAX_PENDING_AGE_SECONDS"
+    },
+    {
+      "function": "gates",
+      "global": "mcp_gates"
+    },
+    {
+      "function": "gates",
+      "global": "OBSERVED_QUEUES"
+    },
+    {
+      "function": "gates",
+      "global": "BUDGETS_MS"
+    },
+    {
+      "function": "observed_queue_drain_seconds",
+      "global": "datetime"
+    },
+    {
+      "function": "observed_queue_drain_seconds",
+      "global": "OBSERVED_QUEUES"
+    },
+    {
+      "function": "fixture",
+      "global": "ROOT"
+    },
+    {
+      "function": "fixture",
+      "global": "FIXTURES"
+    },
+    {
+      "function": "fixture",
+      "global": "subprocess"
+    },
+    {
+      "function": "fixture",
+      "global": "json"
+    },
+    {
+      "function": "inspect_backend",
+      "global": "ROOT"
+    },
+    {
+      "function": "inspect_backend",
+      "global": "ORIGIN"
+    },
+    {
+      "function": "inspect_backend",
+      "global": "json"
+    },
+    {
+      "function": "inspect_backend",
+      "global": "COMPOSE"
+    },
+    {
+      "function": "inspect_backend",
+      "global": "API_MEMORY_BYTES"
+    },
+    {
+      "function": "inspect_backend",
+      "global": "subprocess"
+    },
+    {
+      "function": "inspect_backend",
+      "global": "require_minimum_profile"
+    },
+    {
+      "function": "main",
+      "global": "OBSERVATION_SECONDS"
+    },
+    {
+      "function": "main",
+      "global": "end_stage"
+    },
+    {
+      "function": "main",
+      "global": "serialized_exports"
+    },
+    {
+      "function": "main",
+      "global": "UTC"
+    },
+    {
+      "function": "main",
+      "global": "overload_actor"
+    },
+    {
+      "function": "main",
+      "global": "RECOVERY_DEADLINE_SECONDS"
+    },
+    {
+      "function": "main",
+      "global": "uuid"
+    },
+    {
+      "function": "main",
+      "global": "begin_stage"
+    },
+    {
+      "function": "main",
+      "global": "httpx"
+    },
+    {
+      "function": "main",
+      "global": "ROOT"
+    },
+    {
+      "function": "main",
+      "global": "scans"
+    },
+    {
+      "function": "main",
+      "global": "SOURCE_ROWS"
+    },
+    {
+      "function": "main",
+      "global": "json"
+    },
+    {
+      "function": "main",
+      "global": "summarize"
+    },
+    {
+      "function": "main",
+      "global": "EXPECTED_SCAN_REQUESTS"
+    },
+    {
+      "function": "main",
+      "global": "fixture"
+    },
+    {
+      "function": "main",
+      "global": "EXPORT_FAMILIES"
+    },
+    {
+      "function": "main",
+      "global": "tenant_negatives"
+    },
+    {
+      "function": "main",
+      "global": "capture_container_events"
+    },
+    {
+      "function": "main",
+      "global": "observed_queue_drain_seconds"
+    },
+    {
+      "function": "main",
+      "global": "uploads"
+    },
+    {
+      "function": "main",
+      "global": "EXPECTED_UNIQUE_SCANS"
+    },
+    {
+      "function": "main",
+      "global": "EXPECTED_SECONDS"
+    },
+    {
+      "function": "main",
+      "global": "datetime"
+    },
+    {
+      "function": "main",
+      "global": "FIXTURES"
+    },
+    {
+      "function": "main",
+      "global": "path_for"
+    },
+    {
+      "function": "main",
+      "global": "time"
+    },
+    {
+      "function": "main",
+      "global": "asyncio"
+    },
+    {
+      "function": "main",
+      "global": "paced_actor"
+    },
+    {
+      "function": "main",
+      "global": "gates"
+    },
+    {
+      "function": "main",
+      "global": "inspect_backend"
+    },
+    {
+      "function": "main",
+      "global": "measured"
+    },
+    {
+      "function": "main",
+      "global": "OUTPUT"
+    },
+    {
+      "function": "main",
+      "global": "EXPORT_SCHEDULING"
+    },
+    {
+      "function": "main",
+      "global": "ORIGIN"
+    },
+    {
+      "function": "main",
+      "global": "OVERLOAD_BUDGET_MS"
+    },
+    {
+      "function": "main",
+      "global": "SOURCE_BYTES"
+    },
+    {
+      "function": "main",
+      "global": "paced_reads"
+    },
+    {
+      "function": "main",
+      "global": "container_event_gates"
+    },
+    {
+      "function": "main",
+      "global": "synthetic_jpeg"
+    },
+    {
+      "function": "main",
+      "global": "subprocess"
+    },
+    {
+      "function": "main",
+      "global": "MAX_PENDING_AGE_SECONDS"
+    },
+    {
+      "function": "main",
+      "global": "finish_observer"
+    },
+    {
+      "function": "main",
+      "global": "RECOVERY_SECONDS"
+    },
+    {
+      "function": "main",
+      "global": "BUDGETS_MS"
+    }
+  ],
+  "constant_ASTs_and_values_exact": 14,
+  "source_sha256": {
+    "scripts/qa/qualify_workload_capacity.py": "ef67abbde653927b30fe191067cde38eedc06244aaa6955a5b29a82c75fdc4bb",
+    "scripts/qa/workload_capacity_measurements.py": "aa83c25cd4bc975416ee15dee4fdc80fe277b57fe2af1f120617cdf2e69c998f",
+    "scripts/qa/workload_capacity_traffic.py": "3b77ec36912a1df4dca13ed566cd51dcf67bac684c01dbf65d816b67d44df250",
+    "scripts/qa/workload_capacity_gates.py": "b4de49ccedbbc05e1686b3be7fab2207f7bfb1bc5c58eacc7b233887b9c72f6f",
+    "scripts/qa/workload_capacity_resources.py": "bef9f6afc679413e818bc7fded99b1cdd858c6f46e6d5456a892fc98ca4b0747",
+    "scripts/qa/workload_capacity_contract.py": "0b08119561bda6eb47d15843da63bc6af9f838a784707aa015508d3af1f1e743",
+    "scripts/qa/workload_capacity_run.py": "17ae004c16a5e91edaebf5d2f88ce743f0e977ab91b963f7b7cd5e9f9caddb08",
+    "scripts/qa/test_workload_capacity_owners.py": "6666fe14e1a6a621cb3d09fef524b08edc0d59bdefc226cf584183ebf8bbcfbe",
+    "scripts/qa/test_capacity_observer_lifecycle.py": "cdea0abebb404e413fa1fd0221f9140f7806731ec0b6f9c180e371e7c5bab35e"
+  },
+  "prior_workload_sha256": "a3217d6482e698d28c2ae2c81d6dc2beef2e532ba047862b5e56638164ef562a",
+  "observer_test_entire_raw_source_restored_by_only_actual_owner_import_retarget": true,
+  "limits": "Source equality and synthetic I/O cannot establish live remote lifecycle, service behavior or production capacity."
+}

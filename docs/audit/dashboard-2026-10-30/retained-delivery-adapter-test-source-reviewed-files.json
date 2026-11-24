@@ -1,0 +1,47 @@
+[
+  {
+    "path": "backend/tests/unit/infrastructure/test_apns_push_provider.py",
+    "sha256": "a76f5f0d37256e65bf4786ff9af6290dc57c6a07d9d1c1430ed983da826b846c",
+    "physical_lines": 234,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole234lines. Shared dashboard/MCP authored notifications dispatch through this server adapter. Generated-key ES256 token cache/expiry, exact sandbox/production endpoint/topic/environment, bounded payload/config shape, pre-I/O admission, safe diagnostic logging and explicit transport-unknown versus safe retry/status classification reviewed. MockTransport/synthetic device tokens only; the Expo tap dictionary and registration environment are reviewed solely as server wire compatibility, no native UI or APNs execution. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_fcm_push_provider.py",
+    "sha256": "1acec1e69f0d4bece4569bc4dcb27a89ecbbe6869ca487cdd00297cda7ab6cfa",
+    "physical_lines": 326,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole326lines. Shared dashboard/MCP notification server adapter fixed-origin/project/token headers and private allowlisted payload, bounded TTL/batch, malformed/ambiguous outcome refusal, Retry-After, safe provider code projection, credential preflight once, total deadline/cancellation propagation, no fabricated receipts and per-target partial outcomes reviewed. Fake credentials/MockTransport; platform package/channel assertions are wire compatibility, not native application qualification. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_fcm_credentials.py",
+    "sha256": "a3365602487d5cffaae5a8d38a8351e7facc18e91c1ed16654762f4187ce067a",
+    "physical_lines": 181,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole181lines. Shared FCM server service-account cache, generated RSA synthetic fixture, fixed project/type/token URI, absolute bounded credential file admission and safe missing/malformed/refresh/HTTP/transport errors reviewed. This outgoing notification OAuth adapter is not deferred Inbox mailbox OAuth. Patched in-memory OAuth transport only, no real credentials loaded or token endpoint called. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_whatsapp_otp_provider.py",
+    "sha256": "a214acdb460248b2cf44e53d0199e70e6de23e4f0a6844727f042ce46109e48a",
+    "physical_lines": 135,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole135lines. Shared Fresh/returning/contact issuance callers use the same adapter as mobile auth. Normalized recipient/template/client projection, noncanonical pretransport refusal, safe unknown-delivery mapping and disabled/development/WhatsApp factory reviewed. Authored synthetic phone/code and AsyncMock; no OTP/provider sends, no native login qualification. Complete current physical test-source read; no new execution/source fix/validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_enterprise_hardening_migration.py",
+    "sha256": "82b9d03bb1a691ea2064ae9bf38cd29330441e63af0a483deda7972c3c793c31",
+    "physical_lines": 264,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole264lines. Shared rooming timestamp ownership, attendance/runtime/scan/discard/closeout tenant constraints and backfill order, identity outbox/upload scan/audit chain table shape, append-only trigger/index/downgrade order and row-preservation source guards reviewed. These are retained dashboard/operations/auth foundations, not dedicated native UI. No migration import/upgrade/downgrade/DDL or database operation executed now. Complete current physical test-source read; no new execution/source fix/validated defect."
+  }
+]

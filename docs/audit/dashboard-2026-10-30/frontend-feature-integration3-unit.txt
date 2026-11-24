@@ -1,0 +1,135 @@
+
+ RUN  v4.1.12 C:/Users/nipun/Desktop/PassDetection/frontend
+      Coverage enabled with v8
+
+ ❯ features/whatsapp/hooks/use-whatsapp-source-groups.test.tsx (10 tests | 6 failed) 1089ms
+     × updates an already-open picker immediately after creating a passport group 82ms
+     × refreshes counts and contacts after Excel import while leaving unrelated previews fresh 75ms
+     × refreshes the copied name after staff approval saves corrected passport fields 78ms
+     × keeps contact edits wired to the source preview cache 78ms
+     × refreshes contacts if a later document-import chunk fails after earlier saves 80ms
+     × removes closed groups and restores reopened groups without waiting for cached results to expire 73ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  features/whatsapp/hooks/use-whatsapp-source-groups.test.tsx > WhatsApp source-group cache freshness > updates an already-open picker immediately after creating a passport group
+RequestOwnerChangedError: The signed-in account changed. Sign back in to the original account before retrying.
+ ❯ capturePrivateOperationOwner lib/api/request-owner.ts:31:27
+     29| export function capturePrivateOperationOwner() {
+     30|   const ownerUserId = useAuthStore.getState().user?.id;
+     31|   if (!ownerUserId) throw new RequestOwnerChangedError();
+       |                           ^
+     32|   const requestConfig = ownerBoundRequestConfig(ownerUserId);
+     33|   return { requestConfig, assertCurrent: () => assertRequestOwner(requ…
+ ❯ envelope hooks/use-private-mutation.ts:33:36
+ ❯ Object.mutateAsync hooks/use-private-mutation.ts:109:14
+ ❯ features/whatsapp/hooks/use-whatsapp-source-groups.test.tsx:88:43
+ ❯ node_modules/@testing-library/react/dist/act-compat.js:47:24
+ ❯ process.env.NODE_ENV.exports.act node_modules/react/cjs/react.development.js:814:22
+ ❯ Proxy.<anonymous> node_modules/@testing-library/react/dist/act-compat.js:46:25
+ ❯ features/whatsapp/hooks/use-whatsapp-source-groups.test.tsx:88:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  features/whatsapp/hooks/use-whatsapp-source-groups.test.tsx > WhatsApp source-group cache freshness > refreshes counts and contacts after Excel import while leaving unrelated previews fresh
+RequestOwnerChangedError: The signed-in account changed. Sign back in to the original account before retrying.
+ ❯ capturePrivateOperationOwner lib/api/request-owner.ts:31:27
+     29| export function capturePrivateOperationOwner() {
+     30|   const ownerUserId = useAuthStore.getState().user?.id;
+     31|   if (!ownerUserId) throw new RequestOwnerChangedError();
+       |                           ^
+     32|   const requestConfig = ownerBoundRequestConfig(ownerUserId);
+     33|   return { requestConfig, assertCurrent: () => assertRequestOwner(requ…
+ ❯ envelope hooks/use-private-mutation.ts:33:36
+ ❯ Object.mutateAsync hooks/use-private-mutation.ts:109:14
+ ❯ features/whatsapp/hooks/use-whatsapp-source-groups.test.tsx:103:47
+ ❯ node_modules/@testing-library/react/dist/act-compat.js:47:24
+ ❯ process.env.NODE_ENV.exports.act node_modules/react/cjs/react.development.js:814:22
+ ❯ Proxy.<anonymous> node_modules/@testing-library/react/dist/act-compat.js:46:25
+ ❯ features/whatsapp/hooks/use-whatsapp-source-groups.test.tsx:103:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  features/whatsapp/hooks/use-whatsapp-source-groups.test.tsx > WhatsApp source-group cache freshness > refreshes the copied name after staff approval saves corrected passport fields
+RequestOwnerChangedError: The signed-in account changed. Sign back in to the original account before retrying.
+ ❯ capturePrivateOperationOwner lib/api/request-owner.ts:31:27
+     29| export function capturePrivateOperationOwner() {
+     30|   const ownerUserId = useAuthStore.getState().user?.id;
+     31|   if (!ownerUserId) throw new RequestOwnerChangedError();
+       |                           ^
+     32|   const requestConfig = ownerBoundRequestConfig(ownerUserId);
+     33|   return { requestConfig, assertCurrent: () => assertRequestOwner(requ…
+ ❯ envelope hooks/use-private-mutation.ts:33:36
+ ❯ Object.mutateAsync hooks/use-private-mutation.ts:109:14
+ ❯ features/whatsapp/hooks/use-whatsapp-source-groups.test.tsx:120:44
+ ❯ node_modules/@testing-library/react/dist/act-compat.js:47:24
+ ❯ process.env.NODE_ENV.exports.act node_modules/react/cjs/react.development.js:814:22
+ ❯ Proxy.<anonymous> node_modules/@testing-library/react/dist/act-compat.js:46:25
+ ❯ features/whatsapp/hooks/use-whatsapp-source-groups.test.tsx:120:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  features/whatsapp/hooks/use-whatsapp-source-groups.test.tsx > WhatsApp source-group cache freshness > keeps contact edits wired to the source preview cache
+RequestOwnerChangedError: The signed-in account changed. Sign back in to the original account before retrying.
+ ❯ capturePrivateOperationOwner lib/api/request-owner.ts:31:27
+     29| export function capturePrivateOperationOwner() {
+     30|   const ownerUserId = useAuthStore.getState().user?.id;
+     31|   if (!ownerUserId) throw new RequestOwnerChangedError();
+       |                           ^
+     32|   const requestConfig = ownerBoundRequestConfig(ownerUserId);
+     33|   return { requestConfig, assertCurrent: () => assertRequestOwner(requ…
+ ❯ envelope hooks/use-private-mutation.ts:33:36
+ ❯ Object.mutateAsync hooks/use-private-mutation.ts:109:14
+ ❯ features/whatsapp/hooks/use-whatsapp-source-groups.test.tsx:132:41
+ ❯ node_modules/@testing-library/react/dist/act-compat.js:47:24
+ ❯ process.env.NODE_ENV.exports.act node_modules/react/cjs/react.development.js:814:22
+ ❯ Proxy.<anonymous> node_modules/@testing-library/react/dist/act-compat.js:46:25
+ ❯ features/whatsapp/hooks/use-whatsapp-source-groups.test.tsx:132:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  features/whatsapp/hooks/use-whatsapp-source-groups.test.tsx > WhatsApp source-group cache freshness > refreshes contacts if a later document-import chunk fails after earlier saves
+AssertionError: expected [Function] to throw error including 'Later chunk failed' but got 'The signed-in account changed. Sign b…'
+
+Expected: "Later chunk failed"
+Received: "The signed-in account changed. Sign back in to the original account before retrying."
+
+ ❯ features/whatsapp/hooks/use-whatsapp-source-groups.test.tsx:144:89
+    143|   it("refreshes contacts if a later document-import chunk fails after …
+    144|     const { wrapper } = setup();
+    145|     const { result } = renderHook(() => ({ preview: useWhatsAppSourceG…
+       |                                                        ^
+    146|     await waitFor(() => expect(result.current.preview.data?.preview_re…
+    147|     vi.mocked(passportsApi.savePassportDocumentsInChunks).mockImplemen…
+ ❯ node_modules/@testing-library/react/dist/act-compat.js:47:24
+ ❯ process.env.NODE_ENV.exports.act node_modules/react/cjs/react.development.js:814:22
+ ❯ Proxy.<anonymous> node_modules/@testing-library/react/dist/act-compat.js:46:25
+ ❯ features/whatsapp/hooks/use-whatsapp-source-groups.test.tsx:144:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  features/whatsapp/hooks/use-whatsapp-source-groups.test.tsx > WhatsApp source-group cache freshness > removes closed groups and restores reopened groups without waiting for cached results to expire
+RequestOwnerChangedError: The signed-in account changed. Sign back in to the original account before retrying.
+ ❯ capturePrivateOperationOwner lib/api/request-owner.ts:31:27
+     29| export function capturePrivateOperationOwner() {
+     30|   const ownerUserId = useAuthStore.getState().user?.id;
+     31|   if (!ownerUserId) throw new RequestOwnerChangedError();
+       |                           ^
+     32|   const requestConfig = ownerBoundRequestConfig(ownerUserId);
+     33|   return { requestConfig, assertCurrent: () => assertRequestOwner(requ…
+ ❯ envelope hooks/use-private-mutation.ts:33:36
+ ❯ Object.mutateAsync hooks/use-private-mutation.ts:109:14
+ ❯ features/whatsapp/hooks/use-whatsapp-source-groups.test.tsx:160:43
+ ❯ node_modules/@testing-library/react/dist/act-compat.js:47:24
+ ❯ process.env.NODE_ENV.exports.act node_modules/react/cjs/react.development.js:814:22
+ ❯ Proxy.<anonymous> node_modules/@testing-library/react/dist/act-compat.js:46:25
+ ❯ features/whatsapp/hooks/use-whatsapp-source-groups.test.tsx:160:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  1 failed | 279 passed (280)
+      Tests  6 failed | 1823 passed (1829)
+   Start at  10:07:07
+   Duration  385.97s (transform 5.05s, setup 42.49s, import 29.04s, tests 119.82s, environment 147.03s)
+

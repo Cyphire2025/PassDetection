@@ -1,0 +1,74 @@
+[
+  {
+    "path": "load-tests/k6/dashboard-load-contract.mjs",
+    "sha256": "61826fb0ae51163a5c270d1a44d99766e485468e16a381b1510eb19d487c5d7d",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete412 physical lines in215+197segments: approved distinct staging identity and exact source revision, external digest-bound short-lived per-VU credentials, canonical timestamps/origin/path and bounded load/soak profiles. No credentials opened/load executed; claimed latency thresholds are criteria, not current measurements."
+  },
+  {
+    "path": "load-tests/k6/dashboard-load.js",
+    "sha256": "b2d987b8c6adfeba5b688e36dd2a3e68120a32e1402782781272fd6e733b5325",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete365 physical lines in185+180segments: actual preflight before sending sessions, explicit no bearer URL metric tags, per-VU requests and ready/heartbeat/sync frame protocol, scoped timing/counters. HTTP burst checks status/JSON headers rather than body schema; source reviewed, no load/network/device execution."
+  },
+  {
+    "path": "load-tests/k6/mobile-load-contract.mjs",
+    "sha256": "bf16974bbe5ca1cb848f72ef21a53b985fee1de98a7b4de41e17306806e839a4",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete217 physical lines first60+tail: shared main-CI pure contract validation, explicit approved distinct staging target and unique bounded fixture sessions/trip scopes, stages/settings. Native load entry points remain excluded; no native feature audit/load or source change."
+  },
+  {
+    "path": "load-tests/k6/mobile-attendance-load-contract.mjs",
+    "sha256": "093c900e7977d65022883984de608b5fa273097d9515f6400d95140a4ed146f3",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete206 physical lines first60+tail: shared main-CI pure synthetic attendance schema/count/UUID/QR/token and duplicate fixture contract checks. Native entry points/features excluded; no attendance requests/load or code change."
+  },
+  {
+    "path": "load-tests/k6/my-photos-load-contract.mjs",
+    "sha256": "9a1e1fdf6c5f7ff1f75c0cb69f44181d1cafc9b084fb765919159b75fe167a70",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete176-line pure synthetic scale-fixture/paging source: bounded match page limits, revision cursor, immutable asset/match projections and explicit identity checks; no real photos/biometrics/object store or native app execution."
+  },
+  {
+    "path": "load-tests/k6/passport-extraction.js",
+    "sha256": "cf621699a475e89ede8f523d5aa8cbf81e1e04fbcbde7b2d77f990a918a5767e",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete original270 lines and exact local changes read. Actual full-script NodeVM5 regression cases4failed+1healthy before ->5pass after, seven-path fence and syntax pass. Private random valid capability consistently used, default bearer URL metric tags omitted and fixed names; original rest of normalized script byte-exact by inverse. No k6/load/provider/HTTP/capacity claim."
+  },
+  {
+    "path": "load-tests/k6/passport-extraction.test.mjs",
+    "sha256": "ea6ff8eab388dfdaed699f023b4c6793dfb51a52ab044accdb3fc70f1977d54f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "All134 authored test lines read; actual script body executes in vm with explicit synthetic module/transport/metric/clock/file ports, only import/export declarations adapted. Five independent credential/poll/replay/collision/metric controls; no HTTP/provider/DB/process fixture. New command added to existing CI validation; no original controls weakened."
+  },
+  {
+    "path": "load-tests/k6/README.md",
+    "sha256": "0df602830a90a0bb127193bc17c4a3d98bf182da4b12ad96e48aba2ade5cbf18",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full source read and narrow updated credential/metric privacy paragraph checked. Existing approved staging/synthetic100-fixture/operator procedure and latency/capacity evidence limits retained. No real test or credential contents bundled."
+  },
+  {
+    "path": ".github/workflows/ci.yml",
+    "sha256": "129d10b5c5b6da21cd7b8b77364c2685fb5d1d380594c71df091eba5fe7a0b89",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "One offline passport-harness regression command added after its existing syntax check; whole immediateoriginal rawCI inverseexact. All other actions, permissions, native/dashboard checks, builds/deployments unchanged; actual CI supply-chain verifier passes. No workflows dispatched or broad CI qualification claimed."
+  }
+]

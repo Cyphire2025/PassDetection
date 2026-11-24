@@ -1,0 +1,29 @@
+{
+  "kind": "metadata-only additive clarification; immutable originals retained",
+  "corrected_source_note": {
+    "path": "backend/app/presentation/api/v1/routes/email_integration_review_decisions.py",
+    "sha256": "591fb3b3b30248d2c2fd1f40ea6eb90cc6232c47833a3cea8f5e3950923ecb77",
+    "old_note_fragment": "Its313line route",
+    "correct_note_fragment": "Its311line route",
+    "actual_function_definition_range": [
+      57,
+      367
+    ],
+    "actual_function_definition_physical_lines": 311,
+    "includes_decorator": false,
+    "physical_file_lines_still367": true
+  },
+  "preserved_artifacts": [
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-task-residual-reviewed-files.json",
+      "sha256": "2e6581c503d2b7b938d996e09c1234709006ad8208b18eb5b85d41d5fcdea4bb"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-task-residual-followups.json",
+      "sha256": "f80abbfe0a9f0e315013384ba7ed69edae66af0efea7dbfae4126224e3ec5202"
+    }
+  ],
+  "source_coverage_candidates_counts_and_checks_changed": false,
+  "tests_rerun": false,
+  "notes": "Only one human prose size estimate was off by2; exact source SHA/file physical_lines=367 and all12current-file3558line totals are already correct. No source, reviewed scope, test result or candidate changes."
+}

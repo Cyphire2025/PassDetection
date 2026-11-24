@@ -1,0 +1,301 @@
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  features/upload/components/fresh-qualifier.test.tsx > fresh qualifier selection restoration > restores saved Other before editing and saves the new draft proof
+Error: expect(element).toHaveValue(Cousin)
+
+Expected the element to have value:
+  Cousin
+Received:
+
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"rounded-2xl border border-slate-200 bg-white p-5"[39m
+      [36m>[39m
+        [36m<section[39m
+          [33maria-busy[39m=[32m"false"[39m
+          [33maria-labelledby[39m=[32m"qualifier-choice-title"[39m
+          [33mclass[39m=[32m"animate-in fade-in slide-in-from-right-4 duration-500"[39m
+        [36m>[39m
+          [36m<h3[39m
+            [33mclass[39m=[32m"mb-2 text-xl font-bold text-slate-900"[39m
+            [33mid[39m=[32m"qualifier-choice-title"[39m
+          [36m>[39m
+            [0mRelation with Qualifier[0m
+          [36m</h3>[39m
+          [36m<p[39m
+            [33mclass[39m=[32m"mb-6 text-sm leading-6 text-slate-600"[39m
+            [33mid[39m=[32m"qualifier-choice-description"[39m
+          [36m>[39m
+            [0mIf the person is travelling personally, select Self. If someone else will travel in the qualifier's place, provide the passenger's relationship with the qualifier and upload that passenger's details in the following steps.[0m
+          [36m</p>[39m
+          [36m<div[39m
+            [33maria-describedby[39m=[32m"qualifier-choice-description"[39m
+            [33maria-label[39m=[32m"Passenger relationship"[39m
+            [33mclass[39m=[32m"space-y-4"[39m
+            [33mrole[39m=[32m"radiogroup"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-checked[39m=[32m"false"[39m
+              [33mclass[39m=[32m"w-full rounded-2xl border-2 p-3 transition sm:p-4 border-slate-200 bg-white hover:border-blue-200 flex items-start gap-3 text-left disabled:cursor-not-allowed disabled:opacity-60"[39m
+              [33mrole[39m=[32m"radio"[39m
+              [33mtabindex[39m=[32m"0"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"flex h-8 w-8 shrink-0 items-center justify-center rounded-lg sm:h-10 sm:w-10 bg-slate-100 text-slate-600"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-user h-6 w-6"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"[39m
+                  [36m/>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"12"[39m
+                    [33mcy[39m=[32m"7"[39m
+                    [33mr[39m=[32m"4"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+              [36m</span>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"min-w-0 flex-1"[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"block text-base font-bold text-slate-900"[39m
+                [36m>[39m
+                  [0mSelf[0m
+                [36m</span>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"mt-1 block text-sm leading-5 text-slate-500"[39m
+                [36m>[39m
+                  [0mThe qualifier is the passenger whose documents will be uploaded.[0m
+                [36m</span>[39m
+              [36m</span>[39m
+            [36m</button>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"grid items-stretch gap-3 grid-cols-2"[39m
+              [33mdata-testid[39m=[32m"qualifier-relationship-methods"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"w-full rounded-2xl border-2 p-3 transition sm:p-4 border-slate-200 bg-white hover:border-blue-200 flex min-w-0 flex-col"[39m
+                [33mdata-testid[39m=[32m"qualifier-list-card"[39m
+              [36m>[39m
+                [36m<button[39m
+                  [33maria-checked[39m=[32m"false"[39m
+                  [33mclass[39m=[32m"relative flex w-full min-w-0 flex-col gap-2 text-left disabled:cursor-not-allowed disabled:opacity-60 sm:flex-row sm:items-start"[39m
+                  [33mrole[39m=[32m"radio"[39m
+                  [33mtabindex[39m=[32m"-1"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"flex h-8 w-8 shrink-0 items-center justify-center rounded-lg sm:h-10 sm:w-10 bg-slate-100 text-slate-600"[39m
+                  [36m>[39m
+                    [36m<svg[39m
+                      [33maria-hidden[39m=[32m"true"[39m
+                      [33mclass[39m=[32m"lucide lucide-users-round h-5 w-5"[39m
+                      [33mfill[39m=[32m"none"[39m
+                      [33mheight[39m=[32m"24"[39m
+                      [33mstroke[39m=[32m"currentColor"[39m
+                      [33mstroke-linecap[39m=[32m"round"[39m
+                      [33mstroke-linejoin[39m=[32m"round"[39m
+                      [33mstroke-width[39m=[32m"2"[39m
+                      [33mviewBox[39m=[32m"0 0 24 24"[39m
+                      [33mwidth[39m=[32m"24"[39m
+                      [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                    [36m>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"M18 21a8 8 0 0 0-16 0"[39m
+                      [36m/>[39m
+                      [36m<circle[39m
+                        [33mcx[39m=[32m"10"[39m
+                        [33mcy[39m=[32m"8"[39m
+                        [33mr[39m=[32m"5"[39m
+                      [36m/>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"M22 20c0-3.37-2-6.5-4-8a5 5 0 0 0-.45-8.3"[39m
+                      [36m/>[39m
+                    [36m</svg>[39m
+                  [36m</span>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"min-w-0 flex-1"[39m
+                  [36m>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"block text-sm font-bold leading-5 text-slate-900"[39m
+                    [36m>[39m
+                      [0mChoose from list[0m
+                    [36m</span>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"mt-1 block text-xs leading-5 text-slate-500"[39m
+                    [36m>[39m
+                      [0mSelect one of the available relationships.[0m
+                    [36m</span>[39m
+                  [36m</span>[39m
+                [36m</button>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"mt-auto block pt-4"[39m
+                [36m>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"mb-2 block text-xs font-semibold text-slate-600"[39m
+                  [36m>[39m
+                    [0mPassenger's relationship[0m
+                  [36m</span>[39m
+                  [36m<select[39m
+                    [33mclass[39m=[32m"h-12 w-full min-w-0 rounded-xl border border-slate-300 bg-white px-2 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:opacity-60 sm:px-3"[39m
+                  [36m>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m""[39m
+                    [36m>[39m
+                      [0mSelect relationship[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"spouse"[39m
+                    [36m>[39m
+                      [0mSpouse[0m
+                    [36m</option>[39m
+                  [36m</select>[39m
+                [36m</label>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"mt-2 text-xs text-slate-500"[39m
+                [36m>[39m
+                  [0mChoose one option.[0m
+                [36m</p>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"w-full rounded-2xl border-2 p-3 transition sm:p-4 border-slate-200 bg-white hover:border-blue-200 flex min-w-0 flex-col"[39m
+                [33mdata-testid[39m=[32m"qualifier-other-card"[39m
+              [36m>[39m
+                [36m<button[39m
+                  [33maria-checked[39m=[32m"false"[39m
+                  [33mclass[39m=[32m"relative flex w-full min-w-0 flex-col gap-2 text-left disabled:cursor-not-allowed disabled:opacity-60 sm:flex-row sm:items-start"[39m
+                  [33mrole[39m=[32m"radio"[39m
+                  [33mtabindex[39m=[32m"-1"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"flex h-8 w-8 shrink-0 items-center justify-center rounded-lg sm:h-10 sm:w-10 bg-slate-100 text-slate-600"[39m
+                  [36m>[39m
+                    [36m<svg[39m
+                      [33maria-hidden[39m=[32m"true"[39m
+                      [33mclass[39m=[32m"lucide lucide-pencil-line h-5 w-5"[39m
+                      [33mfill[39m=[32m"none"[39m
+                      [33mheight[39m=[32m"24"[39m
+                      [33mstroke[39m=[32m"currentColor"[39m
+                      [33mstroke-linecap[39m=[32m"round"[39m
+                      [33mstroke-linejoin[39m=[32m"round"[39m
+                      [33mstroke-width[39m=[32m"2"[39m
+                      [33mviewBox[39m=[32m"0 0 24 24"[39m
+                      [33mwidth[39m=[32m"24"[39m
+                      [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                    [36m>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"M13 21h8"[39m
+                      [36m/>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"m15 5 4 4"[39m
+                      [36m/>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"[39m
+                      [36m/>[39m
+                    [36m</svg>[39m
+                  [36m</span>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"min-w-0 flex-1"[39m
+                  [36m>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"block text-sm font-bold leading-5 text-slate-900"[39m
+                    [36m>[39m
+                      [0mOther relationship[0m
+                    [36m</span>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"mt-1 block text-xs leading-5 text-slate-500"[39m
+                    [36m>[39m
+                      [0mEnter the relationship in your own words.[0m
+                    [36m</span>[39m
+                  [36m</span>[39m
+                [36m</button>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"mt-auto block pt-4"[39m
+                [36m>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"mb-2 block text-xs font-semibold text-slate-600"[39m
+                  [36m>[39m
+                    [0mSpecify relationship[0m
+                  [36m</span>[39m
+                  [36m<input[39m
+                    [33maria-describedby[39m=[32m"qualifier-other-hint"[39m
+                    [33maria-invalid[39m=[32m"false"[39m
+                    [33mautocomplete[39m=[32m"off"[39m
+                    [33mclass[39m=[32m"h-12 w-full min-w-0 rounded-xl border border-slate-300 bg-white px-2 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:opacity-60 sm:px-3"[39m
+                    [33mplaceholder[39m=[32m"e.g. Cousin"[39m
+                    [33mtype[39m=[32m"text"[39m
+                    [33mvalue[39m=[32m""[39m
+                  [36m/>[39m
+                [36m</label>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"mt-2 text-xs text-slate-500"[39m
+                  [33mid[39m=[32m"qualifier-other-hint"[39m
+                [36m>[39m
+                  [0mUp to 100 characters.[0m
+                [36m</p>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<button[39m
+            [33maria-busy[39m=[32m"false"[39m
+            [33mclass[39m=[32m"inline-flex items-center justify-center gap-2 transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap text-white active:bg-blue-800 px-5 mt-6 h-12 w-full rounded-xl bg-blue-600 text-base font-semibold shadow-md shadow-blue-600/20 hover:bg-blue-700"[39m
+            [33mdisabled[39m=[32m""[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0mContinue[0m
+            [36m<svg[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mclass[39m=[32m"lucide lucide-chevron-right ml-1 h-5 w-5"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mheight[39m=[32m"24"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"2"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [33mwidth[39m=[32m"24"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<path[39m
+                [33md[39m=[32m"m9 18 6-6-6-6"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+          [36m</button>[39m
+        [36m</section>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+ ❯ features/upload/components/fresh-qualifier.test.tsx:43:95
+     41|     expect(transport.getQualifierSelection).not.toHaveBeenCalled();
+     42|     fireEvent.click(screen.getByRole("button", { name: "Change" }));
+     43|     await waitFor(() => expect(screen.getByRole("textbox", { name: "Sp…
+       |                                                                                               ^
+     44|     expect(screen.getByRole("radio", { name: /Other relationship/ })).…
+     45|     expect(transport.getQualifierSelection).toHaveBeenCalledWith("grou…
+ ❯ runWithExpensiveErrorDiagnosticsDisabled node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+

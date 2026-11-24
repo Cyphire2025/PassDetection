@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type RefObject } from "react";
 import {
   type PassportFrameStatus,
-} from "../services/passport-frame-detector";
+} from "../services/passport-camera-guide";
 import {
   detectRectangularPassportFrame,
   type RectangularPassportFrameResult,

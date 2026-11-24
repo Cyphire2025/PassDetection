@@ -1,0 +1,29 @@
+{
+  "basis": "Five exact reviewed new config owners were absent in both original Git baseline commits and now require normalized source digest matches. Existing22 baseline digests stay identical; only current backend budget AFTER digest changed for additive193-module checkpoint. Frontend268/settings AFTER digest updates were independently checked earlier. No path wildcard or clean-tree/live catalog admission was relaxed.",
+  "reviewed_paths_before": 22,
+  "reviewed_paths_after": 27,
+  "exact_new_admissions": {
+    "backend/app/core/config/database_settings.py": [
+      null,
+      "7b9726cf21327e74ef9ae4ff58208ac6c1ce3a1d9703e5c8c8c09674cc841d91"
+    ],
+    "backend/app/core/config/redis_settings.py": [
+      null,
+      "c957557cc89327b0dd872741b42f7e012cd3a477b7587df1376bd3494e69e8ca"
+    ],
+    "backend/app/core/config/jwt_settings.py": [
+      null,
+      "35558f00bcfc550b776f36ce71e3dc5a1d338faa13aa968c7f8782d13413e44c"
+    ],
+    "backend/app/core/config/s3_settings.py": [
+      null,
+      "94ec7f8105a32d2a16e2a23aa030425bec1711d93f30abbc7e5db23f7fb3ab47"
+    ],
+    "backend/app/core/config/my_photos_settings.py": [
+      null,
+      "fba9c66b14aecb1e49691889adbc0914c90e75fc43dda6c7c8b06c7c180550ad"
+    ]
+  },
+  "old_before_digests_unchanged": true,
+  "old_0141_baselines_unchanged": true
+}

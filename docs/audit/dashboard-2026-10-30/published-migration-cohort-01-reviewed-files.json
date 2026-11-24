@@ -1,0 +1,247 @@
+{
+  "files": [
+    {
+      "path": "backend/alembic/versions/0001_initial_schema.py",
+      "sha256": "341d027e419e7ffb40a356b6836d9ec1109a460a51ac85fe9c76bffbab66c440",
+      "physical_lines": 160,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0001_initial_schema",
+        "down_revision": null,
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Initial agency/user/role/token/upload/passport schema fully read. Application-suppliedUUID/timestamp values and tenant FKs, token uniqueness, hash-password field and status enums preserved; rawlegacy token/MRZ columns are historical schema, not proof of current runtime storage policy. Later migrations must be traced before current-state conclusions."
+    },
+    {
+      "path": "backend/alembic/versions/0002_client_groups.py",
+      "sha256": "81b224688f5de2dd04a1717965d3f9e2638ce0b47dd99c7dac387e6d5c77d224",
+      "physical_lines": 76,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "needs-follow-up",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0002",
+        "down_revision": "0001_initial_schema",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Historical0002 upgrade explicitly drops passport_submissions/upload_links and rebuilds group-based submission schema, so populated0001 data is not preserved by this boundary. Downgrade drops current group/submission tables without restoring0001 tables. Published history immutable; supported populated-upgrade/rollback boundary needs evidence, no current running-release failure or data leak claimed."
+    },
+    {
+      "path": "backend/alembic/versions/0003_client_review_submission.py",
+      "sha256": "5ede393f0bedd6ab5016288ea14ab12f53d3c19bc31fc7ed09e6544386c6f533",
+      "physical_lines": 31,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0003_client_review_submission",
+        "down_revision": "0002",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds client_submitted enum label and optional phone/review timestamp plus group-scoped contact indexes; downgrade drops addedcolumns/indexes but leaves enum label. No livePostgres enum transaction/rollback qualification from source read."
+    },
+    {
+      "path": "backend/alembic/versions/0004_passport_confidence_score.py",
+      "sha256": "90ed36b79012224e606c0071a2fafce47f8d6d81332d14e45e2e525bbfe7415b",
+      "physical_lines": 28,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0004_passport_confidence_score",
+        "down_revision": "0003_client_review_submission",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Additive nullable JSONB confidence field; no row rewrite/backfill. Downgrade intentionally drops field. No runtime extraction or current privacy claim from migration metadata."
+    },
+    {
+      "path": "backend/alembic/versions/0005_operations_features.py",
+      "sha256": "823263b78ad767c73a1bf18281a728c0cd3528785f2b511bef0d76801c38d656",
+      "physical_lines": 81,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0005_operations_features",
+        "down_revision": "0004_passport_confidence_score",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Audit actor/agency references SETNULL retain event rows after identity removal; personal notifications cascade on user/agency. Indexes cover audit/entity/time and notification recipient/read queries. Current application retention/owner policy requires later schema/runtime evidence."
+    },
+    {
+      "path": "backend/alembic/versions/0006_enterprise_processing.py",
+      "sha256": "5f0a0e73509e3333ee97e82d5c00f4dcef746f09f771c3bfe402bf0d40de5782",
+      "physical_lines": 77,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0006_enterprise_processing",
+        "down_revision": "0005_operations_features",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Durable processing job state/cancellation/attempt/progress fields and status+created indexes added with submission cascade; shared scoped passport/group seek indexes preserved. Existing data survives additive upgrade; actual lock/index build/workload behavior unmeasured."
+    },
+    {
+      "path": "backend/alembic/versions/0007_manager_group_access.py",
+      "sha256": "6ef219dfd3a64a32bfa67f6cee47960eb5a3b61232e00162d8e9d4286ac87827",
+      "physical_lines": 52,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0007_manager_group_access",
+        "down_revision": "0006_enterprise_processing",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Creates group-manager grants with active unique manager/group pair and individual tenant/entityFKs plus JSONB platformsettings. Early individualFKs alone do not establish cross-column tenant coherence; later invariant migrations must be read before any active vulnerability claim."
+    },
+    {
+      "path": "backend/alembic/versions/0008_group_trip_details.py",
+      "sha256": "58a49c0263683c5aac5443fd4ea280ed8755f8addaed43e08dca7f2d45cb0d58",
+      "physical_lines": 33,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0008_group_trip_details",
+        "down_revision": "0007_manager_group_access",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Trip destination/date/package/notes additions are nullable and preserve existing rows without fabricated itinerary data; downgrade removes only those fields. No data service execution."
+    },
+    {
+      "path": "backend/alembic/versions/0009_deleted_group_retention.py",
+      "sha256": "765d350dcb677e5024ad72bdb993571d15d88c26b3fd93f8db0d0e613c1c608c",
+      "physical_lines": 36,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0009_deleted_group_retention",
+        "down_revision": "0008_group_trip_details",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Adds deleted group enum label and nullable deletion timestamp/defaultcount0/retainedflagfalse. Upgrade does not delete source groups/passports; current retention/purge implementation and later revisions remain independent."
+    },
+    {
+      "path": "backend/alembic/versions/0010_tour_operations_foundation.py",
+      "sha256": "b42f72a4f8744d8b7041e9dcf9f9603d3262fb64bb209200fd21113ef25995fb",
+      "physical_lines": 213,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0010_tour_operations_foundation",
+        "down_revision": "0009_deleted_group_retention",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Attendance foundation defines tenant/group/passenger/coordinatorFKs, durable event IDs with per-session event/passenger uniqueness, hashedQRtokens and one-active-token partialunique index, session/scan source enums. EarlyFKscope and later recovery/retention changes require fullchain trace; no attendance service/crypto proof from declarations."
+    },
+    {
+      "path": "backend/alembic/versions/0011_coordinator_group_assignments.py",
+      "sha256": "e3bd7c1b0932a69cc2ef7e3e3e22c91e3b89903c03689c95a289b4b53a434b46",
+      "physical_lines": 69,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0011_coord_group_assign",
+        "down_revision": "0010_tour_operations_foundation",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Coordinator group assignment lifecycle retains inactivehistory and uses a PG partialunique active group/coordinator pair; creator SETNULL and scoped query indexes. IndividualFKtenant consistency remains a later-chain obligation, not a new current runtime finding."
+    },
+    {
+      "path": "backend/alembic/versions/0012_departure_cities.py",
+      "sha256": "7010a105f3029bf229e9e196e80be468d0b3c52ad6cb1e74e58872c490e072a2",
+      "physical_lines": 44,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "published-migration",
+      "revision_metadata": {
+        "revision": "0012_departure_cities",
+        "down_revision": "0011_coord_group_assign",
+        "branch_labels": null,
+        "depends_on": null
+      },
+      "notes": "Non-null group departure-city JSON array gets temporary[] serverdefault to initialize preexisting rows, then removesdefault; optional passport departure_city/index additive. PG JSONB/lock/backfill runtime behavior not executed."
+    },
+    {
+      "path": "backend/alembic/env.py",
+      "sha256": "8a0a7c76835a944fe8eff9137ca406b6a8ab8cc8bd2fab37ec72edca6cd4d7d9",
+      "physical_lines": 69,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "shared-migration-control",
+      "notes": "Complete69line shared source read: syncURL percent escaping, metadata registry reference and offline/online transaction/configuration flow. No env execution or application settings/secrets accessed."
+    },
+    {
+      "path": "backend/scripts/verify_migration_topology.py",
+      "sha256": "9ee4335103a61a7ba566c787906ca4e5eef930f35c7c8a1e72a6c742e38674cf",
+      "physical_lines": 148,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "shared-migration-control",
+      "notes": "Complete148line shared source read: release-manifesthead, explicit additive ancestry and preserved2parent0088merge checks. Source read only; no topology command or live upgrade run, and graphchecks do not prove data compatibility."
+    }
+  ],
+  "manual_full_migrations": 12,
+  "manual_full_migration_lines": 900,
+  "new_current_full_files": 14,
+  "new_current_full_lines": 1117,
+  "reused_current_full_controls": [],
+  "all142published_files_unchanged": true,
+  "source_selection": "published-migration-selection.json",
+  "no_tests_or_migration_execution_for_this_read_only_cohort": true,
+  "separate_authorized_template_fix": {
+    "path": "docs/audit/dashboard-2026-10-30/migration-template-verification.json",
+    "sha256": "1e2ac8f75893cc9c0ac6ea39cf11da9d622bd25f805f13566baac4e5b6397f18"
+  },
+  "deferred_by_user": [
+    "0061_email_integrations.py",
+    "0065_ai_travel_inbox.py"
+  ],
+  "notes": "First12migration sources physically read completely in bounded output. Only source read credit, not oldtest/compiler/hash metadata credit. No published/source/schema/formatting/dependency changes. Prior0141/0142fullreads retained without duplicatecredit. Mobile-only/shared classification remains separate; no newInbox investigation."
+}

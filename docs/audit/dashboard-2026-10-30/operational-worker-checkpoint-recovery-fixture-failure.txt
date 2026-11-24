@@ -1,0 +1,118 @@
+..F.                                                                     [100%]
+================================== FAILURES ===================================
+_ test_end_of_input_checkpoint_requires_complete_successful_counters[complete] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000001FAAB139ED0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001FAA9261250>
+checkpoint = 'complete'
+
+    @pytest.mark.parametrize("checkpoint", ["incomplete", "no_success", "complete"])
+    async def test_end_of_input_checkpoint_requires_complete_successful_counters(
+        db_session, monkeypatch, checkpoint
+    ):
+        scope = await operational_index_scope(db_session, monkeypatch)
+        # A durable checkpoint can be retained across worker/release recovery. No
+        # provider request should start after the recorded cursor reaches input EOF.
+        async with scope.sessions() as session, session.begin():
+            job = await session.get(MyPhotoJobModel, scope.job_id)
+            job.checkpoint_cursor = "999"
+            if checkpoint != "incomplete":
+                job.processed_count = 1
+                job.succeeded_count = int(checkpoint == "complete")
+                job.failed_count = int(checkpoint == "no_success")
+    
+        class FaceSearch:
+            async def index_faces(self, _request):
+                raise AssertionError("EOF recovery must not repeat a provider batch")
+    
+>       result = await operational_runtime.execute_operational_job(
+            scope.job_id,
+            settings=scope.settings,
+            providers=SimpleNamespace(provider_name="aws", face_search=FaceSearch()),
+            lease_owner="synthetic-recovery-worker",
+        )
+
+tests\integration\test_my_photos_index_checkpoint_recovery.py:38: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+app\infrastructure\my_photos\operational_runtime.py:64: in execute_operational_job
+    return await _execute_index_batch(ctx, claim, resolved_settings, resolved_providers)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\infrastructure\my_photos\operational_index_jobs.py:96: in _execute_index_batch
+    return await _publish_index_if_complete(ctx, claim, settings)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\infrastructure\my_photos\operational_index_publication.py:171: in _publish_index_if_complete
+    followup_id = await publish_gallery_revision(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000001FAAB256910>
+
+    async def publish_gallery_revision(
+        session: AsyncSession,
+        *,
+        gallery: MyPhotoGalleryModel,
+        index_job: MyPhotoJobModel,
+        settings: Settings,
+        published_at: datetime,
+    ) -> uuid.UUID | None:
+        """Publish exactly the indexed target and durably schedule bounded refresh fan-out."""
+    
+        target_revision = index_job.target_revision
+        if target_revision is None or target_revision != gallery.published_revision + 1:
+            raise ValueError("Gallery publication target is stale")
+    
+        manifest: MyPhotoGalleryManifestModel | None = None
+        if getattr(index_job, "request_fingerprint", None) is not None:
+            manifest = (
+                await session.execute(
+                    select(MyPhotoGalleryManifestModel)
+                    .where(
+                        MyPhotoGalleryManifestModel.gallery_id == gallery.id,
+                        MyPhotoGalleryManifestModel.agency_id == gallery.agency_id,
+                        MyPhotoGalleryManifestModel.group_id == gallery.group_id,
+                        MyPhotoGalleryManifestModel.manifest_identity == index_job.idempotency_key,
+                        MyPhotoGalleryManifestModel.target_revision == target_revision,
+                        MyPhotoGalleryManifestModel.content_fingerprint
+                        == index_job.request_fingerprint,
+                        MyPhotoGalleryManifestModel.status == "indexing",
+                    )
+                    .with_for_update()
+                )
+            ).scalar_one_or_none()
+            if manifest is None or manifest.total_asset_count != index_job.total_count:
+                raise ValueError("Gallery publication manifest is invalid")
+    
+        coverage = (
+            await session.execute(
+                select(
+                    func.count(MyPhotoMediaAssetModel.id),
+                    func.count(MyPhotoMediaAssetModel.id).filter(
+                        MyPhotoMediaAssetModel.processing_state == "indexed"
+                    ),
+                    func.count(MyPhotoMediaAssetModel.id).filter(
+                        MyPhotoMediaAssetModel.processing_state == "failed"
+                    ),
+                ).where(
+                    MyPhotoMediaAssetModel.gallery_id == gallery.id,
+                    MyPhotoMediaAssetModel.published_revision == target_revision,
+                    MyPhotoMediaAssetModel.processing_state != "removed",
+                )
+            )
+        ).one()
+        if (
+            int(coverage[0]) != index_job.total_count
+            or int(coverage[1]) != index_job.succeeded_count
+            or int(coverage[2]) != index_job.failed_count
+            or int(coverage[1]) + int(coverage[2]) != int(coverage[0])
+        ):
+>           raise ValueError("Gallery publication coverage is incomplete")
+E           ValueError: Gallery publication coverage is incomplete
+
+app\infrastructure\my_photos\revision_runtime.py:92: ValueError
+
+---------- coverage: platform win32, python 3.11.15-final-0 ----------
+Coverage XML written to file C:\Users\nipun\Desktop\PassDetection\docs\audit\dashboard-2026-10-30\operational-worker-sealed-coverage.xml
+Coverage JSON written to file C:\Users\nipun\Desktop\PassDetection\docs\audit\dashboard-2026-10-30\operational-worker-sealed-coverage.json
+
+=========================== short test summary info ===========================
+FAILED tests/integration/test_my_photos_index_checkpoint_recovery.py::test_end_of_input_checkpoint_requires_complete_successful_counters[complete]
+1 failed, 3 passed in 4.14s

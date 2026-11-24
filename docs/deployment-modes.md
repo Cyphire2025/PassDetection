@@ -196,32 +196,38 @@ For a Fast attempt use `--mode fast` and omit `--manifest`. A recovery receipt
 must belong to that exact attempt, source, revision and mode. Do not invoke
 old schema-specific direct-release scripts for a new release.
 
-## Workspace branding: exact 0140 to 0141 transition
+## Workspace branding: exact 0140/0141 to 0142 transition
 
 The `workspace_branding_v1` contract selects `release_workspace_branding.py`.
-Its first rollout uses the explicitly selected operator Fast mode and retains
-the installed PDF checking profile, including its three paused feature workers
-and shared scheduler. It admits the reviewed `98f4fb4f` source baseline and
-only migration `0141_workspace_branding`, adding nullable private image keys
-to `client_organizations` and `client_groups`. Existing rows, grants, queues,
-runtime dependencies, resource ceilings and infrastructure remain retained.
+The reviewed transition targets `0142_group_background`, retaining the existing
+Compose project, volumes, application identities and worker topology. The
+source admission binds an exact reviewed Git revision and schema: the existing
+`0140_document_update_context` baseline runs `0141_workspace_branding` followed
+by `0142_group_background`; the separately bound `0141_workspace_branding`
+baseline runs only the background revision. Unknown source revisions or schemas
+are rejected. This does not require a replacement VPS installation.
 
-Before cutover, the exact backend image must pass the isolated PostgreSQL 16
-branding rehearsal. This verifies source upgrade, target retry, rollback of
-both columns after a lock timeout on the second table, historical row/catalog/
-ACL preservation, rejection of wrong baselines and early new-column values,
-and runtime access through existing table grants. Its receipt binds the source,
-image and migration hashes. This is Fast evidence, not Full CI qualification.
+The operator Fast lane builds retained candidate images and requires an
+exact-image PostgreSQL rehearsal for the selected source. It fences both
+application generations, archives the original database and records a bounded
+row/catalog/ACL preservation baseline before DDL. Existing logo/banner values
+and grants are part of the baseline when starting from 0141. Only columns
+introduced after the selected baseline are normalized, and their values must
+remain null before activation. A column grant added during migration is
+rejected. No new business data or object-storage copy is created by the schema
+upgrade.
 
-Cutover drains both application generations, archives the source database and
-records its SHA-256 plus a bounded-memory row/catalog/ACL baseline. An image-bound
-helper uses the existing migration identity to apply the single transaction.
-It must prove the original baseline unchanged before activation. If 0141 has
-committed, recovery only moves forward using the same backup, baseline and
-candidate images. A running helper blocks recovery. No automatic downgrade or
-restart of an old-schema writer is permitted. All prior resources are retained.
+Each revision commits separately. If a 0140 attempt stops after 0141, recovery
+uses the same backup and original preservation digest to apply only 0142;
+it never restarts 0140 writers against the partially advanced schema. A live
+0141 baseline instead retains its own writers until its background migration
+commits. A running migration helper blocks recovery. No automatic downgrade is
+performed, and all prior resources and recovery receipts are retained.
 
-Once 0141 is installed, subsequent releases use the ordinary same-schema rules.
+Once 0142 is installed, subsequent releases use ordinary same-schema rules.
+Local unit tests do not establish PostgreSQL locking, Docker image qualification
+or the actual VPS's current state. The protected release process still requires
+the bound rehearsal and other existing release gates before activation.
 
 ## Companies and traveller portal: exact additive transition
 

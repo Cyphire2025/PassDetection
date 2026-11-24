@@ -1,0 +1,176 @@
+{
+  "status": "source frozen; retained WhatsApp import current-authority defect focused-qualified",
+  "runtime_changed": {
+    "backend/app/presentation/api/v1/routes/whatsapp_scope.py": "fb1f5adf2ca2f924c57da9efbeb057ad013c4af1f2fc37704ac0883879b9da4c",
+    "backend/app/presentation/api/v1/routes/whatsapp_actor_credentials.py": "0e82cb8ba583b039c8d85c1ab6b3a835532360a14a7c035e63bd7454f9f4e69f"
+  },
+  "source_fence": {
+    "backend/tests/unit/presentation/test_whatsapp_import_current_authority.py": "9bccafab25935ff381284df69cbef6fea1af30457d8c2320c71cc3807573bf48",
+    "backend/tests/unit/presentation/test_whatsapp_import_transactions.py": "e3a3a6649d2c7eb70362728c84cf564c6253a01ae19904b26202a5fa03ab07b4",
+    "backend/tests/unit/presentation/test_access_level_mutation_actors.py": "73b6b1a4c2e690d33277439b3dcc9018112e33e603a9d42055978f5afc81a557",
+    "backend/tests/unit/presentation/test_whatsapp_mutation_boundaries.py": "9f56120bb067639a15431dc1913bfeace59df18b597b6eb6b3a43edc7b1c819a",
+    "backend/tests/unit/presentation/test_whatsapp_role_access.py": "1917bfac3550035b048576f0d844432b003ab7b93873e367165c6066d3b47e0e",
+    "backend/tests/unit/presentation/test_whatsapp_recipient_capacity.py": "d219e684df5548dcfe9b8e8819ba6b76226b41f46869bef60ad30e3149d53507",
+    "backend/tests/unit/presentation/test_whatsapp_contact_json_boundaries.py": "3c7f6365205a6b0e8b972c6df66b7de1f9153f87bea233812b3f58687f498e1c",
+    "backend/tests/unit/presentation/test_whatsapp_source_groups.py": "8de4d0276f7316af0451c8f29d287373b9135ac337b009ac1c94394856f87ca2",
+    "backend/app/presentation/api/v1/routes/whatsapp_creation.py": "80d28f482839d06f304973b37242e3c7ba60e0b50ee3db994d67fed5da8522eb",
+    "backend/app/presentation/api/v1/routes/whatsapp_recipient_additions.py": "278d992f0ac8343d4754aba07fd93c7412f5ff9003c8333d5aa42784b80800f4",
+    "backend/app/presentation/api/v1/routes/whatsapp_contact_import.py": "d627dcea775c7302cd0680e77cb6a7c8f1d3b8bea479b3865d318af1dd6bf1c8",
+    "backend/app/presentation/api/v1/routes/whatsapp_contact_sources.py": "0500fab46a72d955359e71e559d85f7b3a05d623ae35ef8abeccc5afb402626a",
+    "backend/app/presentation/api/v1/routes/whatsapp_contact_excel.py": "dd4fdbdb2ce0a78983ead4bfd5bd9ef311c3a1a366e68e207c72f3cdbfe300dc",
+    "backend/app/presentation/api/v1/routes/whatsapp_imported_fields.py": "fc4ab60c67b8ba4da46dc0b50684264173f2af260696e138b1f40925049ba811",
+    "backend/app/presentation/api/v1/routes/whatsapp_actor_credentials.py": "0e82cb8ba583b039c8d85c1ab6b3a835532360a14a7c035e63bd7454f9f4e69f",
+    "backend/app/presentation/api/v1/routes/whatsapp_scope.py": "fb1f5adf2ca2f924c57da9efbeb057ad013c4af1f2fc37704ac0883879b9da4c",
+    "backend/app/presentation/api/v1/routes/whatsapp_groups_manage.py": "6c48d2e6838d056e9d83db1266521c09ca50a1eda61430c9922bfd93d8c1e924",
+    "backend/app/application/security/access_level_actor.py": "3a8eec715f67356a378986999a012723bdd21f5510518ee7320ce7d0809013a6",
+    "backend/app/infrastructure/repositories/user_repository.py": "a91bd9de4ef129c714c39cbda7ddc3d782fe7b3474fcb8f65837642fa5cb4737",
+    "backend/app/presentation/dependencies/auth.py": "5e1641d51673dcbcd1c2cbc8d6ceac397147de52ec4e100bae285ba115d5fefb"
+  },
+  "full_current_files": 20,
+  "full_current_physical_lines": 3427,
+  "before": "Actual ASGI create-group request held after real workbook parse; independent committed state changes. Revoked session and withdrawn credentials admitted201 and persisted recipient/support/group rows (2fail); deactivation, healthy, profile-only and legacy-no-state4controls passed.",
+  "after": {
+    "unique_affected_cases": 115,
+    "files": 8,
+    "unrelated_access_level_cases_deselected": 15,
+    "new_cases": 8,
+    "seconds": 96.93699999999808,
+    "initial_preliminary_cases": "14passed before final115; not summed",
+    "measurements": [
+      {
+        "path": "app/presentation/api/v1/routes/whatsapp_scope.py",
+        "source_sha256": "fb1f5adf2ca2f924c57da9efbeb057ad013c4af1f2fc37704ac0883879b9da4c",
+        "lines": 177,
+        "complexity": 3,
+        "line_percent": 87.71929824561404,
+        "branch_percent": 83.33333333333333,
+        "branch_sites": 12,
+        "covered_statements": 50,
+        "statements": 57
+      },
+      {
+        "path": "app/presentation/api/v1/routes/whatsapp_actor_credentials.py",
+        "source_sha256": "0e82cb8ba583b039c8d85c1ab6b3a835532360a14a7c035e63bd7454f9f4e69f",
+        "lines": 34,
+        "complexity": 2,
+        "line_percent": 100.0,
+        "branch_percent": null,
+        "branch_sites": 0,
+        "covered_statements": 15,
+        "statements": 15
+      }
+    ],
+    "strict_runtime_sources": 2,
+    "Ruff_paths": 4
+  },
+  "source_proof": {
+    "whole_scope_module_AST_inverse_exact": true,
+    "explicit_deltas": [
+      "Extract actual security-state lock/population and canonical refresh to focused owner; all actors now refresh after original account/agency lock",
+      "Original switched-access actor receives freshly re-applied effective role; ordinary actor still returns original ORM object",
+      "Canonical AuthorizationError now maps to safeHTTP403; original role/agency/active filters and parent-before-child locks unchanged",
+      "Docstring describes current credential/session gate; old lock statement and all unrelated helper bodies exact"
+    ],
+    "scope_source_before_sha256": "31d4d2d26d1057b267463fe0116a3faee14a6cdecf08773bc9a22dd6acf4868f",
+    "scope_source_after_sha256": "fb1f5adf2ca2f924c57da9efbeb057ad013c4af1f2fc37704ac0883879b9da4c",
+    "interfaces_signatures_evaluated_hints_exact": [
+      "_prepare_private_recipient_mutation",
+      "_lock_active_whatsapp_actor",
+      "_whatsapp_actor_lock_statement",
+      "_release_auth_transaction",
+      "_configured_template_name",
+      "_lock_removable_broadcast_recipient"
+    ],
+    "canonical_refresh_identity_exact": true,
+    "original_test_assertions_retained": 18,
+    "unchanged_old_test_bodies": [
+      "test_create_group_parses_workbook_before_reauthorization_and_mutation",
+      "test_add_recipients_parses_before_tenant_group_lock",
+      "test_create_group_rejects_revoked_actor_after_parsing_before_mutation"
+    ],
+    "fixture_adaptation": "Actual typed domainUser/ORMUser/security-state and real canonical repository join-result shape; capture first SQL after new state/canonical reads, add explicit state FOR UPDATE/populate_existing assertions. All old business asserts retained.",
+    "measurements": [
+      {
+        "path": "app/presentation/api/v1/routes/whatsapp_scope.py",
+        "source_sha256": "fb1f5adf2ca2f924c57da9efbeb057ad013c4af1f2fc37704ac0883879b9da4c",
+        "lines": 177,
+        "complexity": 3,
+        "line_percent": 87.71929824561404,
+        "branch_percent": 83.33333333333333,
+        "branch_sites": 12,
+        "covered_statements": 50,
+        "statements": 57
+      },
+      {
+        "path": "app/presentation/api/v1/routes/whatsapp_actor_credentials.py",
+        "source_sha256": "0e82cb8ba583b039c8d85c1ab6b3a835532360a14a7c035e63bd7454f9f4e69f",
+        "lines": 34,
+        "complexity": 2,
+        "line_percent": 100.0,
+        "branch_percent": null,
+        "branch_sites": 0,
+        "covered_statements": 15,
+        "statements": 15
+      }
+    ],
+    "source_fence": {
+      "backend/tests/unit/presentation/test_whatsapp_import_current_authority.py": "9bccafab25935ff381284df69cbef6fea1af30457d8c2320c71cc3807573bf48",
+      "backend/tests/unit/presentation/test_whatsapp_import_transactions.py": "e3a3a6649d2c7eb70362728c84cf564c6253a01ae19904b26202a5fa03ab07b4",
+      "backend/tests/unit/presentation/test_access_level_mutation_actors.py": "73b6b1a4c2e690d33277439b3dcc9018112e33e603a9d42055978f5afc81a557",
+      "backend/tests/unit/presentation/test_whatsapp_mutation_boundaries.py": "9f56120bb067639a15431dc1913bfeace59df18b597b6eb6b3a43edc7b1c819a",
+      "backend/tests/unit/presentation/test_whatsapp_role_access.py": "1917bfac3550035b048576f0d844432b003ab7b93873e367165c6066d3b47e0e",
+      "backend/tests/unit/presentation/test_whatsapp_recipient_capacity.py": "d219e684df5548dcfe9b8e8819ba6b76226b41f46869bef60ad30e3149d53507",
+      "backend/tests/unit/presentation/test_whatsapp_contact_json_boundaries.py": "3c7f6365205a6b0e8b972c6df66b7de1f9153f87bea233812b3f58687f498e1c",
+      "backend/tests/unit/presentation/test_whatsapp_source_groups.py": "8de4d0276f7316af0451c8f29d287373b9135ac337b009ac1c94394856f87ca2",
+      "backend/app/presentation/api/v1/routes/whatsapp_creation.py": "80d28f482839d06f304973b37242e3c7ba60e0b50ee3db994d67fed5da8522eb",
+      "backend/app/presentation/api/v1/routes/whatsapp_recipient_additions.py": "278d992f0ac8343d4754aba07fd93c7412f5ff9003c8333d5aa42784b80800f4",
+      "backend/app/presentation/api/v1/routes/whatsapp_contact_import.py": "d627dcea775c7302cd0680e77cb6a7c8f1d3b8bea479b3865d318af1dd6bf1c8",
+      "backend/app/presentation/api/v1/routes/whatsapp_contact_sources.py": "0500fab46a72d955359e71e559d85f7b3a05d623ae35ef8abeccc5afb402626a",
+      "backend/app/presentation/api/v1/routes/whatsapp_contact_excel.py": "dd4fdbdb2ce0a78983ead4bfd5bd9ef311c3a1a366e68e207c72f3cdbfe300dc",
+      "backend/app/presentation/api/v1/routes/whatsapp_imported_fields.py": "fc4ab60c67b8ba4da46dc0b50684264173f2af260696e138b1f40925049ba811",
+      "backend/app/presentation/api/v1/routes/whatsapp_actor_credentials.py": "0e82cb8ba583b039c8d85c1ab6b3a835532360a14a7c035e63bd7454f9f4e69f",
+      "backend/app/presentation/api/v1/routes/whatsapp_scope.py": "fb1f5adf2ca2f924c57da9efbeb057ad013c4af1f2fc37704ac0883879b9da4c",
+      "backend/app/presentation/api/v1/routes/whatsapp_groups_manage.py": "6c48d2e6838d056e9d83db1266521c09ca50a1eda61430c9922bfd93d8c1e924",
+      "backend/app/application/security/access_level_actor.py": "3a8eec715f67356a378986999a012723bdd21f5510518ee7320ce7d0809013a6",
+      "backend/app/infrastructure/repositories/user_repository.py": "a91bd9de4ef129c714c39cbda7ddc3d782fe7b3474fcb8f65837642fa5cb4737",
+      "backend/app/presentation/dependencies/auth.py": "5e1641d51673dcbcd1c2cbc8d6ceac397147de52ec4e100bae285ba115d5fefb"
+    }
+  },
+  "normal_candidate": {
+    "path": "app/presentation/api/v1/routes/whatsapp_actor_credentials.py",
+    "source_sha256": "0e82cb8ba583b039c8d85c1ab6b3a835532360a14a7c035e63bd7454f9f4e69f",
+    "previous": null,
+    "baseline_lines": 34,
+    "maximum_lines": 40,
+    "baseline_max_function_complexity": 2,
+    "maximum_function_complexity": 2,
+    "minimum_coverage_percent": 100
+  },
+  "critical_candidates": [],
+  "full_read_basis": "Six selected owners1337lines had no matching current full ledger. Additional current actor/canonical repo/value/limits and five wholly read existing/new test sources explicitly recorded; other affected test execution gives no fullread credit.",
+  "initial_errors_preserved": "First targeted command used nonexistent enum parameter IDs; collection failed with no tests run. Corrected to filepath/name selection without changing runtime/test expectations. Scoped Ruff initially found import order; repaired before final115 sourcefence. Preliminary14 and final115 are separate runs, no summing.",
+  "limits": [
+    "Actual persistedSQLite/ASGI/openpyxl held parser and cached ORM state, synthetic initial auth dependency only; no realJWT/cookie/PG race/provider/VPS claim",
+    "Original account/agency filter and canonical policy preserved; UserSecurityStateModel row locked/populated after parent account lock, legacy missing state still allowed by unchanged canonical defaults",
+    "Fresh helper has zero measured branch sites; 15/15statement coverage is not an actual100percentbranch-execution claim",
+    "No broad application suite/build/browser; current MCP classifications remain pending, old1990historical",
+    "Resource candidates for ZIP entry preallocation/dimension expansion are not fixed or proven by this authority batch",
+    "Source read coverage does not close independent unknown resource/architecture follow-ups; Inbox deferred"
+  ],
+  "artifacts": {
+    "whatsapp-import-routes-preflight.json": "0765089eb3c1d150705c409422b96dc51e7e628cfdc6465dcfd2a011aa345629",
+    "whatsapp-import-routes-reviewed-files.json": "d6643b3c2092c0d08b7394ad14569275b7487e23ee177ca81144b1ef888ee037",
+    "whatsapp-import-authority-original-scope.py.txt": "31d4d2d26d1057b267463fe0116a3faee14a6cdecf08773bc9a22dd6acf4868f",
+    "whatsapp-import-authority-original-transactions.py.txt": "c45ee8f2800eb2d8736000b785cd60086d2ad232ed41fe52dcab26422690d4ba",
+    "whatsapp-import-current-authority-before-tests.txt": "835ad016deb1d3bc1421c06dc5ce3bf379c4320b5402e935ed5a39ee668aeb8d",
+    "whatsapp-import-authority-affected-tests.txt": "76f91dd2d70511849cdab77c8546f5fa4e9fc269bc9181a42a4ba43d06fda1dd",
+    "whatsapp-import-authority-command.json": "0b86e1f234c41099f17793759daff81bea7f8c779470bec2d966a9cd8e148e7b",
+    "whatsapp-import-authority-junit.xml": "2100ee3bc5960a70af9f2f13d29b9a54b853e553f0ef68aa2e69d54bb3db4379",
+    "whatsapp-import-authority-coverage.json": "eaa33e99ef796800748065d8c36e15ffac447a0700b9228ded024a0a6fc94eb9",
+    "whatsapp-import-authority-coverage.xml": "2ff1cd11a8299727f0e1b6bdc57f15da4ca1598a1d70321ffbb6904147159ab2",
+    "whatsapp-import-authority-types.txt": "0c37c4158c91ef55c724ba017bf6465f26018199badb08e3ff13f98acdf056c2",
+    "whatsapp-import-authority-lint.txt": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0",
+    "whatsapp-import-authority-source-proof.json": "3db389aca56b85d609038310019b147aadac9e49ee3e0b17f972c6bdf4cff4bc",
+    "whatsapp-import-authority-budget-candidates.json": "19161d334ed5b303096cabe03e224f8799ff603c2d64d4cecabdaf810531e641"
+  }
+}

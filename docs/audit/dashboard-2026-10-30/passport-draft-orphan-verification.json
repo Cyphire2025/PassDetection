@@ -1,0 +1,92 @@
+{
+  "status": "frozen-focused",
+  "before": {
+    "new_cases_failed": 4,
+    "old_document_controls_passed": 3,
+    "reason": "Draft namespace not visited. Held-key cases prove actual visitation after fix, not a before-fix authorization bypass."
+  },
+  "after": {
+    "focused_cases": 30,
+    "test_files": 5,
+    "seconds": 9.27,
+    "actual_FK_held_keys": 26,
+    "durable_reference_columns": 20,
+    "lost_commit_ACK_real_SQLite_control": true,
+    "synthetic_provider_delete_failure_uses_actual_compensation_method": true,
+    "fresh_future_unknown_age_preserved": true
+  },
+  "source_change": "Only drafts/ added to existing fixed prefix tuple plus explanatory docstring; helper108to110 stays within unchanged110/C8/floor100. No engine/task/query/queue/cursor/grace/config/schema change.",
+  "closure": "Backend literal and drafts-word producer/caller searches plus exact Submit key/cleanup and ClientSubmit promotion traces identify drafts/ as passport upload-attempt namespace; Fresh/returning producers use separate returning-drafts/. All statuses/historical refs in existing20column union remain protected. No general object bucket sweep.",
+  "checks": {
+    "strict_owned_mypy_sources": 3,
+    "Ruff_files_from_backend": 9,
+    "format_changed_files": 3,
+    "coverage": [
+      {
+        "path": "app/infrastructure/documents/cleanup_tasks.py",
+        "line_percent": 100.0,
+        "branch_percent": null,
+        "covered_branches": 0,
+        "branches": 0,
+        "existing_critical": null
+      },
+      {
+        "path": "app/infrastructure/documents/orphan_reconciliation.py",
+        "line_percent": 100.0,
+        "branch_percent": 95.0,
+        "covered_branches": 19,
+        "branches": 20,
+        "existing_critical": {
+          "path": "app/infrastructure/documents/orphan_reconciliation.py",
+          "minimum_line_percent": 95,
+          "minimum_branch_percent": 90
+        }
+      },
+      {
+        "path": "app/infrastructure/documents/passport_orphan_reconciliation.py",
+        "line_percent": 100.0,
+        "branch_percent": 100.0,
+        "covered_branches": 8,
+        "branches": 8,
+        "existing_critical": {
+          "path": "app/infrastructure/documents/passport_orphan_reconciliation.py",
+          "minimum_line_percent": 95,
+          "minimum_branch_percent": 95
+        }
+      }
+    ],
+    "no_broad_application_suite": true
+  },
+  "history": "Initial root-cwd Ruff check classified first-party imports differently and reported4old import-order issues. Standard AGENTS backend cwd showed only2new/modified test import blocks; fixed those only, proved exact executable AST/import sets. Unchanged old tests not rewritten.30test run source/runtime preserved; final two test import-order-only differences explicitly proved.",
+  "source_sha256": {
+    "backend/app/infrastructure/documents/passport_orphan_reconciliation.py": "9c64d48c060800206ed9a0455b9f1570b284e5fd87a68811bb4b0afd43a362b1",
+    "backend/app/infrastructure/documents/orphan_reconciliation.py": "7458b420372052de441f45b4349c440eb59464b78d7d5a6dc9da89356dae26a2",
+    "backend/app/infrastructure/documents/cleanup_tasks.py": "39c6acc102334472316a68f88cc2b57cd9cd9a4115318a7596ed632c1df56517",
+    "backend/tests/integration/passport_orphan_fixtures.py": "cd765e1056ce494eccfa91df8c1c555d014775a8810dcdb236dea58d5bfed1d0",
+    "backend/tests/integration/test_passport_draft_orphan_reconciliation.py": "a074f7b914dbfb80ca1efa75a4d146bd9999d6ecf1bb6fe5126c910bddd13dc5",
+    "backend/tests/integration/test_passport_orphan_reconciliation.py": "f830e3dd04d0b20e72afa084a91a09fe135b99a5669be37367387add874649ba",
+    "backend/tests/unit/infrastructure/test_passport_orphan_bounds.py": "aa84ebf9999e431ec17d3f2969e136537e19ae12d690db339729607127560b23",
+    "backend/tests/unit/infrastructure/test_document_orphan_reconciliation.py": "4dfd54838bfdf8b0c9b8ea2305896ea5e1dac3455d6b90808db277833f1ac7ed",
+    "backend/tests/unit/infrastructure/test_document_cleanup_task_diagnostics.py": "2eb37f217f744e51622c663abab2b46128bb493cb310b613dd5a432a1517f231"
+  },
+  "artifacts": {
+    "passport-draft-orphan-proof.json": "916b797c46a64cb9113f2c7571ce73a0df47271d0007f29aed7cfa990d9bd23a",
+    "passport-draft-orphan-reviewed-files.json": "723f6326a646e84b6bc405fa6aa5b932795a19ea178c070320da4136b3287f38",
+    "passport-draft-orphan-budget-candidates.json": "8f3a0893c548513e30578ad5512ea5b01ef5d9e5a9f8ed7d51fa965d448ee86a",
+    "passport-draft-orphan-before.txt": "0f0325a6016fdc83f3ea97978cfc7cbd76eeb3e8f0e2c9e01d93c55b7ef196aa",
+    "passport-draft-orphan-after.txt": "74b0ebf9b6939440fb211acbf39b147f508373902ef11d3a0a0ee390b6a4ab08",
+    "passport-draft-orphan-coverage.json": "194274ecff843b9ad2b6781c4cca83b6eb66b2b65e4cfd58cb06ea624fe7ef89",
+    "passport-draft-orphan-coverage.xml": "759b7f0e5883fc268c845a669b5269622269aa48e67095faeddf700787ef955a",
+    "passport-draft-orphan-mypy.txt": "281a094c39385b4d7b53e5db635f52158036861433c2a4975b9039e77a627a24",
+    "passport-draft-orphan-final-ruff.txt": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0",
+    "passport-draft-orphan-format.txt": "81e0708af79a682467b0ecbd3453a0a33cfcbbe2812201b4d4f405f78ded2976",
+    "passport-draft-orphan-ruff.txt": "cc49c8509727636791823b8245a0c6416ff39eb33407496465628d44b7348ebb",
+    "passport-draft-orphan-backend-cwd-ruff.txt": "b5013e41456ecb28b80d8b1a1ddc92356ea77f84953c76da88222d5a313d0f62"
+  },
+  "limits": [
+    "Synthetic storage/Redis plus real FK SQLite queries/commit/lostACK; no live PostgreSQL, Redis, MinIO/provider deletion/process crash or VPS qualification.",
+    "In-flight protection retains existing24hour grace; no claim for arbitrarily long unreferenced uploads.",
+    "Seven fixed pages add a bounded one-page draft scan; no production query/throughput benchmark.",
+    "Existingnormal/critical/global floors and caps unchanged; only measured baseline refresh proposed."
+  ]
+}

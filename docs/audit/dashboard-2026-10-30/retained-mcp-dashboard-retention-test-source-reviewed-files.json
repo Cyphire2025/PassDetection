@@ -1,0 +1,26 @@
+[
+  {
+    "path": "backend/tests/integration/test_mcp_dashboard_detail_reads.py",
+    "sha256": "2a25b62c68717bdf79064621aeb1cb5f23abace009d89f392cefd24c43a0335c",
+    "physical_lines": 569,
+    "reviewer": "ai_extraction",
+    "review_scope": "focused",
+    "status": "needs-follow-up",
+    "notes": "Retained passport/roster/WhatsApp stored fields, document and image metadata, QR/welcome no-mutation observation, all delivery kinds/current tenant filters, deep scalar/list/text projection continuation, observational transaction no-DML/commit and shared dashboard domain assertions physically reviewed. The generic parametrized dispatch was inspected only for shared domains. Dedicated email review paging and four email domain selectors remain deferred, so no full-file credit. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data.",
+    "retained_ranges": [
+      "1-469",
+      "474-532",
+      "556-569"
+    ],
+    "deferred_scope": "Dedicated Inbox domain selector rows470-473 and email owner-review paging test533-553; generic dispatcher479-489 reviewed only for retained rows."
+  },
+  {
+    "path": "backend/tests/service_integration/test_mcp_retention_reads_postgresql.py",
+    "sha256": "27521f4e60f536ec845e4280028ae1ca0a93150ef5588c35f8e71121652ab569",
+    "physical_lines": 528,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete retained passport schedule fixture/read protocols (not dedicated Inbox retention), exact website parity across active/closed/archived/deleted/held/inactive-agency groups, four scalar-only queries/private hydration denial, immutable business snapshots, fresh actor/grant/security authority, NOWAIT/deadline/cancellation/rollback and committed revocation ordering reviewed. Explicit schedule does not prove purge, local retained schema and no service execution limits reviewed. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  }
+]

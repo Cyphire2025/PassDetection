@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "--tb=short",
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\passport-importer-policy-baseline\\test_original_policies.py"
+  ],
+  "exit_code": 1,
+  "original_source_sha256": "2ae9f4a2425372326259810f40c6f718e2b596f3163ef3876d51686b3e7d35e6",
+  "test_adaptation": "Exactly3importaliases redirect to original importer; all test/helper ASTs and assertions identical",
+  "output": "passport-importer-policies-original-tests.txt"
+}

@@ -1,0 +1,30 @@
+{
+  "status": "Bounded retained session unit-source read complete; dedicated Inbox remainder deferred",
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-session-unit-source-reviewed-files.json",
+    "sha256": "a1d85cd58e2d3dfcce51a7eddd67356350eb395e9793e2e43a447a565183c684"
+  },
+  "new_current_full_tests": 3,
+  "new_test_physical_lines": 278,
+  "supporting_full_rereads": 2,
+  "focused_records": 2,
+  "source_fence": {
+    "backend/tests/unit/core/test_dashboard_session_deadline.py": "cf1db0559a2003d69f8d1faa3391e44e33649e8ee035bc94bfdcd730dc574418",
+    "backend/tests/unit/infrastructure/test_refresh_token_atomic_consumption.py": "597d1e109aeffbc2784f83702de9e07edb282d237d1a1dcb9f87863bbce2baa9",
+    "backend/tests/unit/presentation/test_weekly_auth_cookies.py": "b37b4e43f9fdd39592b7015a5723dcd24fa9317a32a2e5e241e9b4a9f23b4b17",
+    "backend/app/presentation/security/auth_cookies.py": "3d6fed44c2d311709523e9d18e4e2240fcaa5e0ab6bb4b726c95a96d21ef35e9",
+    "backend/app/application/use_cases/auth/logout_all_use_case.py": "8bde10b7b2aca510e85b6e66e6497816c3bc005b3290bad1171219e1510866dc",
+    "backend/tests/unit/infrastructure/test_dashboard_audit_auth_regressions.py": "abd146962c8f50a3c20189e888950ec028d37a089f9c5fd5809187569c9ef50d",
+    "backend/app/core/security/jwt.py": "1a1e2ff5b2c962f744a9d5c8fe10631b2e7d33c848783453cceacbdc8c1ec17d"
+  },
+  "checks_run": [],
+  "changes": [],
+  "findings": [],
+  "scope_partition": "Mixed dashboard_audit_auth_regressions98 receives focused retained1-19/27-77 only; dedicated Inbox20-24/78-98 explicitly deferred by user, no whole-file completion claim. Shared auth cookie cleanup reference is minimal compatibility only, no dedicated binding source opened.",
+  "proof_gaps": [
+    "Source reads show deterministic claims/cookie/conditional SQL controls, not actual passing execution.",
+    "Compiled PostgreSQL UPDATE with mocked session does not prove concurrent database execution; cookie unit response does not prove live browser transport/TLS.",
+    "Skipped seven existing exact-current-full files remain credited only by their own historical ledgers, not by inventory or imports in this cohort."
+  ],
+  "scope": "Retained dashboard identity/session primitives only; no source/test/config changes or new native/Inbox services/credentials/provider activity."
+}

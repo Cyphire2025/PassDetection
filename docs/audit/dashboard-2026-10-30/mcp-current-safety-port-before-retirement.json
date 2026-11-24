@@ -1,0 +1,26 @@
+{
+  "status": "before-retirement-controls-verified;retirement-not-yet-applied",
+  "source_declaration_proof": "mcp-legacy-declaration-reference-proof.json",
+  "reachability": "No productioncaller for2components. Authorize/revoke hooks andAPI methods formclosedchain; requestApi.update hasdeclarationonly. Sixproductionescapes are typeoflivequeries; solecomputeduse is testflow requests/operations. Testspreads/typequeries examined individually.",
+  "backend_native_endpoints": "retained",
+  "safety_mapping": {
+    "PKCE, client/resource/redirect/state/scope validation": "Actual native OAuth/connection-request/direct-client ASGI/policy baseline94cases; expanded currentnative tuple/scope cases15pass beforeclosed frontendretirement.",
+    "Reviewed name, requestedscope narrowing, duplicateapproval and cancelledMFA": "CurrentMcpRequests actualcomponent tests plus newwhitespace-onlyname/directformsubmit regression; no uncontrolledscopeexpansion.",
+    "Callback destination/state/issuer/duplicates, originalrequesteronly, StrictModeonefinalize and departedpagelifetime": "ActualMcpRequestWaitingPage and livevalidatedMcpRequestCallback tests retained.",
+    "Pauseddeployment/preexistingopenreview": "CurrentMcpRequests existingdirectformsubmissioncase blocksapproval whilepause flips; rejectionremainsavailable.",
+    "Superadmin/inactiveactor access gate": "Retain currentMcpAdminPage role/inactive tests; oldConsent-only rerender branch is closed.",
+    "Deleteversuslegacyrevokebehavior": "Retain allcurrent deletion, identitydenial, lostresponse, cache andkeyboard cases; addactualHTTPnon-POST/non-PATCH assertion onliveAPIdelete."
+  },
+  "baseline": {
+    "frontend_current_approval_callbacks": 40,
+    "backend_current_oauth_policy": 94,
+    "expanded_frontend_current_approval_waiting": 26,
+    "expanded_backend_tuple_scope_cases": 15
+  },
+  "receipts_sha256": {
+    "mcp-current-approval-before-retirement.txt": "de22bc4b38eeb0c96dc2273db732618385a408bf5c9ab7a4972bb7273dbaf721",
+    "mcp-current-oauth-authority-before-retirement.txt": "02f32a017c738b88ede63eeadd2b7d2c94372c9ca155ed5618a166a6ae4669b8",
+    "mcp-current-safety-port-before-retirement.txt": "e3b1a5ad44ba8a711ed49908e0357246427175773d5b28aa557d6225acfeab46",
+    "mcp-native-safety-port-before-retirement.txt": "e6cf91ea324234fb02af2b358a03de606065ae49fccdab4548d2162542d60601"
+  }
+}

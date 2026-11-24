@@ -1,0 +1,337 @@
+{
+  "files": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_gmail.py",
+      "sha256": "4c520e1e69042e35a8f6a503c71dea8b796aab1454bee1cd09373419f570c340",
+      "physical_lines": 260,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "runtime",
+      "notes": "Complete final physical source read. Whole expanded4OAuth functions and whole removal function AST exact,20common field statements deduplicated,97actual original global bindings and9shared helper identities,14evaluated hints. Fresh129affected cases and current8owner coverage; normal95floor proposals, no behavior change/new validated defect or provider framework."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_outlook.py",
+      "sha256": "d0ee641a9dfd69e46ce32f1c4d294e796b18407659dd54128ff180f6e56f4deb",
+      "physical_lines": 288,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "runtime",
+      "notes": "Complete final physical source read. Whole expanded4OAuth functions and whole removal function AST exact,20common field statements deduplicated,97actual original global bindings and9shared helper identities,14evaluated hints. Fresh129affected cases and current8owner coverage; normal95floor proposals, no behavior change/new validated defect or provider framework."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_oauth_actor.py",
+      "sha256": "74a9dd20aa8374f92aa6e3e914795726fbfd11b6d4dcd56744b8c7c507c53ff9",
+      "physical_lines": 39,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "runtime",
+      "notes": "Complete final physical source read. Whole expanded4OAuth functions and whole removal function AST exact,20common field statements deduplicated,97actual original global bindings and9shared helper identities,14evaluated hints. Fresh129affected cases and current8owner coverage; normal95floor proposals, no behavior change/new validated defect or provider framework."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_oauth_grant.py",
+      "sha256": "4ee03c00b0ce6c898cdc9c4f37d570e3418348aa33ad183edafb764a30084e7e",
+      "physical_lines": 79,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "runtime",
+      "notes": "Complete final physical source read. Whole expanded4OAuth functions and whole removal function AST exact,20common field statements deduplicated,97actual original global bindings and9shared helper identities,14evaluated hints. Fresh129affected cases and current8owner coverage; normal95floor proposals, no behavior change/new validated defect or provider framework."
+    },
+    {
+      "path": "backend/app/infrastructure/email/account_removal.py",
+      "sha256": "66c08db3b3ba9080b6fa37e8525f38e69310ed0db7a68cc2bfdb24432d30afb2",
+      "physical_lines": 66,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "runtime",
+      "notes": "Complete final physical source read. Whole expanded4OAuth functions and whole removal function AST exact,20common field statements deduplicated,97actual original global bindings and9shared helper identities,14evaluated hints. Fresh129affected cases and current8owner coverage; normal95floor proposals, no behavior change/new validated defect or provider framework."
+    },
+    {
+      "path": "backend/app/infrastructure/email/account_removal_plan.py",
+      "sha256": "3db39a863e8e5f6151ceaca2cac22dd71b90c2446e20bc591eb659d4bc1d7f6c",
+      "physical_lines": 170,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "runtime",
+      "notes": "Complete final physical source read. Whole expanded4OAuth functions and whole removal function AST exact,20common field statements deduplicated,97actual original global bindings and9shared helper identities,14evaluated hints. Fresh129affected cases and current8owner coverage; normal95floor proposals, no behavior change/new validated defect or provider framework."
+    },
+    {
+      "path": "backend/app/infrastructure/email/account_removal_records.py",
+      "sha256": "146210f1d120d31497b20a4e900d6abae383759db84f297f78e611e0e0f90eb2",
+      "physical_lines": 182,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "runtime",
+      "notes": "Complete final physical source read. Whole expanded4OAuth functions and whole removal function AST exact,20common field statements deduplicated,97actual original global bindings and9shared helper identities,14evaluated hints. Fresh129affected cases and current8owner coverage; normal95floor proposals, no behavior change/new validated defect or provider framework."
+    },
+    {
+      "path": "backend/app/infrastructure/email/account_removal_storage.py",
+      "sha256": "2241941defe9960f8f5d17f0f7a6097939ae958f7f084a0476a2761197fde6e4",
+      "physical_lines": 43,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "runtime",
+      "notes": "Complete final physical source read. Whole expanded4OAuth functions and whole removal function AST exact,20common field statements deduplicated,97actual original global bindings and9shared helper identities,14evaluated hints. Fresh129affected cases and current8owner coverage; normal95floor proposals, no behavior change/new validated defect or provider framework."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_email_oauth_callback_edges.py",
+      "sha256": "6e661f4c4daed96a08ed013a3e3e6c6d65d84872ab17d7e06c4beee947d4a063",
+      "physical_lines": 257,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "test",
+      "notes": "Complete current source physically read, including tail after aggregate output truncated.38ordinary Gmail/Outlook missing/expired/replayed/provider/browser/state/denial/config/exchange/refresh/provider-identity/cleanup cases pass through public callbacks; real local encryption, synthetic provider only. No existing test assertion modified."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_email_oauth_actor_policy.py",
+      "sha256": "568a2b093619346f2211c0843467518a23ae5122e73e5e927b374238629a5fef",
+      "physical_lines": 61,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "test",
+      "notes": "Complete71line new source physically read.11actual SQLite initial eligibility cases exercise current roles/user/agency activity/scope and missing-user boundaries; same SQL compiles for both dialects. This initial helper does not replace final locked actor/browser revalidation."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_email_account_removal_paths.py",
+      "sha256": "d47d5e19125941b2b5260fed1c31e9768d7a7c64f63d7243485dcc3be58bdcb5",
+      "physical_lines": 259,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "verified",
+      "owned": true,
+      "source_kind": "test",
+      "notes": "Complete current source physically read through prefix120 and tail after initial aggregate truncation.6real SQLite sparse message/artifact, caller-owned rollback, sole batch/delivery detachment, and artifact/document shared-key retention controls pass; no storage/provider sends."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_email_oauth_persistence.py",
+      "sha256": "71d0a956869913c95d3be6658b0d128f8f6951f1f6b9657f4ff57cea1248a2a6",
+      "physical_lines": 161,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "unchanged test context",
+      "notes": "Complete161line current source reread; all original raw bytes preserved.12synthetic callback grant encryption/ownership/identity/state/transaction/queue cases pass unchanged; no live OAuth."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_email_oauth_generation_race.py",
+      "sha256": "25cf54fd043693bac8b37a2b820afd2d7f1efc5350174176d9691091d4d0cc0b",
+      "physical_lines": 184,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "unchanged test context",
+      "notes": "Complete184line current source reread; raw bytes unchanged.5actual SQLite security-generation/current-actor and synthetic slow-provider final revalidation cases pass unchanged."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_email_account_removal.py",
+      "sha256": "c7ed670c76a462b836494224f0f72118852499d8e1919dc961eb39267f6078ee",
+      "physical_lines": 352,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "unchanged test context",
+      "notes": "Complete current source reread in bounded prefix/tail. Original raw bytes/assertions untouched; actual shared/manual document/other mailbox/audit retention case passes both baseline and final normal run. Trace-only instrumentation observed actual SQL and results separately."
+    },
+    {
+      "path": "backend/app/application/interfaces/email_provider.py",
+      "sha256": "2932fe94283e3083177d51f8a680c9247dc35be49f51d731cce6dad239a77000",
+      "physical_lines": 262,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "unchanged runtime context",
+      "notes": "Complete current provider DTO/error/protocol source physically read independently after prior combined truncation. No edits; helper uses existing typed profile/token DTOs, no new provider interface or dependency abstraction."
+    },
+    {
+      "path": "backend/app/infrastructure/email/token_encryption.py",
+      "sha256": "a6402e43356208c50ad883206cf44c0e5f124886df05ea2f11f18150c7460d3d",
+      "physical_lines": 125,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "unchanged runtime context",
+      "notes": "Complete current versioned Fernet source physically read independently after initial combined output truncated. Same cipher object is passed to common grant helpers, preserving key-version access and original field evaluation order; no key configuration or decryption policy change."
+    },
+    {
+      "path": "backend/app/presentation/security/email_oauth_binding.py",
+      "sha256": "772bc3d17ee25273a95c36634b156045a0ae3202c27566708a424fb8df1be665",
+      "physical_lines": 135,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "unchanged runtime context",
+      "notes": "Complete135line current browser/session/current-actor binding source physically read this cohort; prior exact full records also exist. Final locked User/security revalidation and cookie/session semantics stay in callbacks unchanged."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_email_oauth_security.py",
+      "sha256": "91fb325075d133855e474978e27ca262d466244bb04b8ff1cce45388ab9378b4",
+      "physical_lines": 45,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "unchanged test context",
+      "notes": "Complete existing45line PKCE/hash/state control source physically read.3unchanged cases pass; no new adversarial campaign or runtime changes to OAuth primitives."
+    },
+    {
+      "path": "backend/app/infrastructure/database/document_models.py",
+      "sha256": "414813b4d861c1941592fc9ff5a86f3aff71d5f31a72e3b411a1b6c7fde06d27",
+      "physical_lines": 543,
+      "reviewer": "document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "owned": false,
+      "source_kind": "unchanged runtime context",
+      "notes": "Complete current model source physically read through prefix215/tail EOF for actual batch/document/delivery FK/field context. No class/metadata/DDL/migration edits; existing model identity/source admissions remain independent. Full source read is not new real-service mapper/migration qualification."
+    }
+  ],
+  "full_files": 19,
+  "full_physical_lines": 3511,
+  "owned_runtime_files": 8,
+  "owned_test_files": 3,
+  "reused_current_full_context": {
+    "backend/app/presentation/api/v1/routes/email_connection_removal.py": {
+      "sha256": "d9cd81b8a36b7c966a4841150a8e039d8c7dfaa24dc1c2a0e68787f85f122888",
+      "existing_current_full_ledger": "email-connections-reviewed-files.json",
+      "new_physical_read_credit": false,
+      "notes": "Actual current caller/test closure reused by exact hash; affected cases pass in fresh129selection. Prior full source record retained; not new unique coverage."
+    },
+    "backend/app/presentation/api/v1/routes/email_integrations.py": {
+      "sha256": "6b8b8df006d06009b7202f030b91d0f884eed7dcc6880416e04aa0db512d26bf",
+      "existing_current_full_ledger": "email-connections-reviewed-files.json",
+      "new_physical_read_credit": false,
+      "notes": "Actual current caller/test closure reused by exact hash; affected cases pass in fresh129selection. Prior full source record retained; not new unique coverage."
+    },
+    "backend/app/presentation/api/v1/routes/email_integration_access.py": {
+      "sha256": "78fc9344b18d976143a137c02d8b073be5516d4738162376218132a0c5074f5e",
+      "existing_current_full_ledger": "email-connections-reviewed-files.json",
+      "new_physical_read_credit": false,
+      "notes": "Actual current caller/test closure reused by exact hash; affected cases pass in fresh129selection. Prior full source record retained; not new unique coverage."
+    },
+    "backend/app/presentation/api/v1/routes/email_integration_credentials.py": {
+      "sha256": "2261ae5ae3a21b4b3011c3f4ed4401f913cfa3b91bcef1a00fee4c930f453fca",
+      "existing_current_full_ledger": "email-connections-reviewed-files.json",
+      "new_physical_read_credit": false,
+      "notes": "Actual current caller/test closure reused by exact hash; affected cases pass in fresh129selection. Prior full source record retained; not new unique coverage."
+    },
+    "backend/app/presentation/api/v1/routes/email_integration_oauth_start.py": {
+      "sha256": "7544accdecbbdc918380e58d10b9470fe50cbbea605f9d8cd4bb8ca57662fe0d",
+      "existing_current_full_ledger": "email-connections-reviewed-files.json",
+      "new_physical_read_credit": false,
+      "notes": "Actual current caller/test closure reused by exact hash; affected cases pass in fresh129selection. Prior full source record retained; not new unique coverage."
+    },
+    "backend/app/presentation/api/v1/routes/email_integration_policy_support.py": {
+      "sha256": "f5c08ed966b51441e870a4a6b083c94991af2aa8b7ad73b4fe80b86524588016",
+      "existing_current_full_ledger": "email-connections-reviewed-files.json",
+      "new_physical_read_credit": false,
+      "notes": "Actual current caller/test closure reused by exact hash; affected cases pass in fresh129selection. Prior full source record retained; not new unique coverage."
+    },
+    "backend/tests/unit/presentation/test_email_connection_lifecycle.py": {
+      "sha256": "fc130e9a9816ee04237a456452d0d895b27f12cb8e4455aff4418635bd26d10d",
+      "existing_current_full_ledger": "email-connections-reviewed-files.json",
+      "new_physical_read_credit": false,
+      "notes": "Actual current caller/test closure reused by exact hash; affected cases pass in fresh129selection. Prior full source record retained; not new unique coverage."
+    },
+    "backend/tests/unit/presentation/test_email_integration_route_decomposition.py": {
+      "sha256": "7a0dc81a5b12e9f3a95b70aaf149976051b82c0ed06f981d47bbd5a7faf4ebf4",
+      "existing_current_full_ledger": "email-connections-reviewed-files.json",
+      "new_physical_read_credit": false,
+      "notes": "Actual current caller/test closure reused by exact hash; affected cases pass in fresh129selection. Prior full source record retained; not new unique coverage."
+    },
+    "backend/tests/unit/presentation/test_email_integration_contract.py": {
+      "sha256": "90600186690bfeb92fa3abeee378c071c8227a1dcb8dea82be958daecfc80c2f",
+      "existing_current_full_ledger": "email-connections-reviewed-files.json",
+      "new_physical_read_credit": false,
+      "notes": "Actual current caller/test closure reused by exact hash; affected cases pass in fresh129selection. Prior full source record retained; not new unique coverage."
+    },
+    "backend/tests/unit/presentation/test_email_connection_revocation_races.py": {
+      "sha256": "8360f730ca930227307c1bf646cd07aaff0e8453e7013964d931f4983836acf7",
+      "existing_current_full_ledger": "email-connections-reviewed-files.json",
+      "new_physical_read_credit": false,
+      "notes": "Actual current caller/test closure reused by exact hash; affected cases pass in fresh129selection. Prior full source record retained; not new unique coverage."
+    },
+    "backend/tests/unit/presentation/test_email_connection_removal_outcomes.py": {
+      "sha256": "a70bddf4c5ff37e1359fa7521625cbcedf37865e4b9200423895bf0950b77dcb",
+      "existing_current_full_ledger": "email-connections-reviewed-files.json",
+      "new_physical_read_credit": false,
+      "notes": "Actual current caller/test closure reused by exact hash; affected cases pass in fresh129selection. Prior full source record retained; not new unique coverage."
+    }
+  },
+  "partial_context": [
+    {
+      "path": "backend/app/infrastructure/database/_email_models/artifacts.py",
+      "review_scope": "partial",
+      "read_ranges": [
+        [
+          1,
+          95
+        ]
+      ],
+      "notes": "Actual nullable staging/source-kind and FK context prefix only, not a new full source read. Existing email-model full review remains independent; no model edits.",
+      "sha256": "c761fc46dcd022d7afc0ac5dbbbdb7b28a931d9a5444ce581e968a2966a6fa32",
+      "physical_lines": 286
+    },
+    {
+      "path": "backend/scripts/verify_backend_quality_budgets.py",
+      "review_scope": "partial",
+      "read_ranges": [
+        [
+          1,
+          295
+        ]
+      ],
+      "notes": "Known source/coverage measurement functions reused for8proposals only; no whole-app budget scan or shared gate write.",
+      "sha256": "2baf94d493a068bd1aed0258f4627aed47fe0845e6764fd0310cbf84f57794a9",
+      "physical_lines": 309
+    }
+  ],
+  "original_primary_full_reads": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_gmail.py",
+      "sha256": "8fd4a780cf4040c1a0188e50b635ce1935aed85f5b29b4d25d9683a8b22b2b49",
+      "physical_lines": 299,
+      "review_scope": "full",
+      "status": "superseded by current reviewed architecture; exact original archive retained"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_outlook.py",
+      "sha256": "46835a02f003132af36e3524de6e16d5fa6c11a4bd425f0245a78689314ead8a",
+      "physical_lines": 328,
+      "review_scope": "full",
+      "status": "superseded by current reviewed architecture; exact original archive retained"
+    },
+    {
+      "path": "backend/app/infrastructure/email/account_removal.py",
+      "sha256": "7e2798de81ff286f7b63f29daef17d1bd1416fd7b696db3c5b01ccd54f09f4ad",
+      "physical_lines": 339,
+      "review_scope": "full",
+      "status": "superseded by current reviewed architecture; exact original archive retained"
+    }
+  ],
+  "credit_limit": "Only complete current physical source reads receive new full records. Exact-current prior full context is explicitly reused without new credit; partial/truncated output, metadata, searches, passing old tests and generated SQL traces are not manual full-source credit. Architecture and scale/service verification remain separate obligations."
+}

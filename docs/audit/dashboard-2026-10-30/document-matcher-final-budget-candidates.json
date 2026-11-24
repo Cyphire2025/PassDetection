@@ -1,0 +1,148 @@
+{
+  "only_final_candidates": true,
+  "source_manifest": {
+    "path": "docs/audit/dashboard-2026-10-30/document-matcher-final-source-manifest.json",
+    "sha256": "0436c5852b55b128a1fd580c86956e9efde51a4da3f9a9da844d27bac0fc018b"
+  },
+  "normal_modules": [
+    {
+      "path": "app/infrastructure/documents/document_matcher.py",
+      "baseline_lines": 473,
+      "maximum_lines": 480,
+      "baseline_max_function_complexity": 11,
+      "maximum_function_complexity": 12,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/infrastructure/documents/document_filename_matching.py",
+      "baseline_lines": 73,
+      "maximum_lines": 80,
+      "baseline_max_function_complexity": 14,
+      "maximum_function_complexity": 15,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/documents/document_content_matching.py",
+      "baseline_lines": 117,
+      "maximum_lines": 125,
+      "baseline_max_function_complexity": 9,
+      "maximum_function_complexity": 10,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/documents/document_match_results.py",
+      "baseline_lines": 117,
+      "maximum_lines": 125,
+      "baseline_max_function_complexity": 17,
+      "maximum_function_complexity": 18,
+      "minimum_coverage_percent": 95
+    }
+  ],
+  "replaces_existing_rows": [
+    {
+      "path": "app/infrastructure/documents/document_matcher.py",
+      "baseline_lines": 668,
+      "maximum_lines": 700,
+      "baseline_max_function_complexity": 53,
+      "maximum_function_complexity": 53,
+      "minimum_coverage_percent": 80
+    }
+  ],
+  "prior_critical_membership": [],
+  "new_critical_modules": [],
+  "measurements": {
+    "backend/app/infrastructure/documents/document_matcher.py": {
+      "sha256": "56d4bd08647d29d5d1a98b6469dc6e6149eb9e191effa1aab5e59febee89eb7e",
+      "physical_lines": 473,
+      "max_function_complexity": 11,
+      "line_percent": 92.63803680981596,
+      "branch_percent": 75.0,
+      "missing_lines": [
+        251,
+        274,
+        300,
+        341,
+        380,
+        396,
+        397,
+        398,
+        399,
+        409,
+        453,
+        466
+      ],
+      "missing_branches": [
+        [
+          273,
+          274
+        ],
+        [
+          297,
+          300
+        ],
+        [
+          340,
+          341
+        ],
+        [
+          379,
+          380
+        ],
+        [
+          397,
+          398
+        ],
+        [
+          397,
+          399
+        ]
+      ]
+    },
+    "backend/app/infrastructure/documents/document_filename_matching.py": {
+      "sha256": "3b9f3e31d1348cad060b5b3563a6af6b1481ebde18f372da70fdce0bc33b2955",
+      "physical_lines": 73,
+      "max_function_complexity": 14,
+      "line_percent": 100.0,
+      "branch_percent": 100.0,
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    "backend/app/infrastructure/documents/document_content_matching.py": {
+      "sha256": "e546765e17ec69ac174b8b812ae4a8d0fe79682b106e42d429be703b29fee48f",
+      "physical_lines": 117,
+      "max_function_complexity": 9,
+      "line_percent": 100.0,
+      "branch_percent": 95.45454545454545,
+      "missing_lines": [],
+      "missing_branches": [
+        [
+          72,
+          71
+        ]
+      ]
+    },
+    "backend/app/infrastructure/documents/document_match_results.py": {
+      "sha256": "9992c0747769477e54022ec3312241577201ad403836411bb797acb298bd6451",
+      "physical_lines": 117,
+      "max_function_complexity": 17,
+      "line_percent": 97.95918367346938,
+      "branch_percent": 93.75,
+      "missing_lines": [
+        56
+      ],
+      "missing_branches": [
+        [
+          52,
+          54
+        ],
+        [
+          55,
+          56
+        ]
+      ]
+    }
+  },
+  "all_other_normal_caps_critical_global_floors_unchanged": true,
+  "no_shared_budget_edits_by_agent": true,
+  "notes": "Fourmeasurednormalrows:oneexistingtightened plus3new. Newowners95linefloor, facade80\u219290. Criticalfamilyhadnoexistingmembership; no declaration-onlycritical gates added. Branchmeasurementsreportedhonestly, allPDF/parserhelpersremainfrozen."
+}

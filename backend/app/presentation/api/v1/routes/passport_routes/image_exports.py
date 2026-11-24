@@ -142,9 +142,12 @@ async def export_passport_images_by_group(
                 "request. Open download history or start a new download."
             ),
         ) from exc
+    except BaseException:
+        spool.close()
+        raise
     try:
         await session.commit()
-    except Exception:
+    except BaseException:
         spool.close()
         raise
 

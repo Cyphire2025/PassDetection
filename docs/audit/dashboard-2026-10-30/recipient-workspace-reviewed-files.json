@@ -1,0 +1,114 @@
+[
+  {
+    "path": "frontend/features/whatsapp/workspace/recipients-page.tsx",
+    "sha256": "c9927e48fee8c8b4bf188d55196b43d96f2f22d4f42dafb9bc140035e0be90d6",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Full original page357, details274 and legacy450-line sources read, then all current owners read. Four exact whole moved declarations, two retained detail components,16original state/query statements, seven actual view prop bindings and whole expanded JSX proven.1460 executed old/current filter/sort/count/details comparisons preserve row values/order/object identity/first-wins duplicate keys. Legacy six declarations retired only after full typed1416-source graph and repository-wide caller closure; original bytes and SHA retained. Two live pure helpers and all three actual consumer declarations keep exact AST; compatibility exports retained.26affected unit cases/4files,13Node contracts, scoped TypeScript/lint pass. Source-label helpers have different punctuation/spacing semantics and are intentionally retained separately. These checks do not qualify a current production browser build."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/recipient-details-rail.tsx",
+    "sha256": "672ed014c1e8e74be5ae0459fff8c127d8721dbfffc7c534387509cdcf9ba889",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Full original page357, details274 and legacy450-line sources read, then all current owners read. Four exact whole moved declarations, two retained detail components,16original state/query statements, seven actual view prop bindings and whole expanded JSX proven.1460 executed old/current filter/sort/count/details comparisons preserve row values/order/object identity/first-wins duplicate keys. Legacy six declarations retired only after full typed1416-source graph and repository-wide caller closure; original bytes and SHA retained. Two live pure helpers and all three actual consumer declarations keep exact AST; compatibility exports retained.26affected unit cases/4files,13Node contracts, scoped TypeScript/lint pass. Source-label helpers have different punctuation/spacing semantics and are intentionally retained separately. These checks do not qualify a current production browser build."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/recipient-roster-model.ts",
+    "sha256": "e3f2e50cee541ed983154f9f050a73ee5f0a1e5db8f7a5d6189ca6b29b071295",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Full original page357, details274 and legacy450-line sources read, then all current owners read. Four exact whole moved declarations, two retained detail components,16original state/query statements, seven actual view prop bindings and whole expanded JSX proven.1460 executed old/current filter/sort/count/details comparisons preserve row values/order/object identity/first-wins duplicate keys. Legacy six declarations retired only after full typed1416-source graph and repository-wide caller closure; original bytes and SHA retained. Two live pure helpers and all three actual consumer declarations keep exact AST; compatibility exports retained.26affected unit cases/4files,13Node contracts, scoped TypeScript/lint pass. Source-label helpers have different punctuation/spacing semantics and are intentionally retained separately. These checks do not qualify a current production browser build."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/use-recipient-roster.ts",
+    "sha256": "3484dd0871ed5d256fa87ddec142401e794f4da6243fde9e96137875ae508a30",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Full original page357, details274 and legacy450-line sources read, then all current owners read. Four exact whole moved declarations, two retained detail components,16original state/query statements, seven actual view prop bindings and whole expanded JSX proven.1460 executed old/current filter/sort/count/details comparisons preserve row values/order/object identity/first-wins duplicate keys. Legacy six declarations retired only after full typed1416-source graph and repository-wide caller closure; original bytes and SHA retained. Two live pure helpers and all three actual consumer declarations keep exact AST; compatibility exports retained.26affected unit cases/4files,13Node contracts, scoped TypeScript/lint pass. Source-label helpers have different punctuation/spacing semantics and are intentionally retained separately. These checks do not qualify a current production browser build."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/recipient-roster-filters.tsx",
+    "sha256": "e573b4bdd6243cada260ca9841243d4797aa616c57a9520839de4ce1f9b9ebbe",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Full original page357, details274 and legacy450-line sources read, then all current owners read. Four exact whole moved declarations, two retained detail components,16original state/query statements, seven actual view prop bindings and whole expanded JSX proven.1460 executed old/current filter/sort/count/details comparisons preserve row values/order/object identity/first-wins duplicate keys. Legacy six declarations retired only after full typed1416-source graph and repository-wide caller closure; original bytes and SHA retained. Two live pure helpers and all three actual consumer declarations keep exact AST; compatibility exports retained.26affected unit cases/4files,13Node contracts, scoped TypeScript/lint pass. Source-label helpers have different punctuation/spacing semantics and are intentionally retained separately. These checks do not qualify a current production browser build."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/recipient-roster-table.tsx",
+    "sha256": "4c91949a858fd73efd81b59d5d3ac803671d6fc098ae6477ef473d7ab331291e",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Full original page357, details274 and legacy450-line sources read, then all current owners read. Four exact whole moved declarations, two retained detail components,16original state/query statements, seven actual view prop bindings and whole expanded JSX proven.1460 executed old/current filter/sort/count/details comparisons preserve row values/order/object identity/first-wins duplicate keys. Legacy six declarations retired only after full typed1416-source graph and repository-wide caller closure; original bytes and SHA retained. Two live pure helpers and all three actual consumer declarations keep exact AST; compatibility exports retained.26affected unit cases/4files,13Node contracts, scoped TypeScript/lint pass. Source-label helpers have different punctuation/spacing semantics and are intentionally retained separately. These checks do not qualify a current production browser build."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/group-update-recipient-details.tsx",
+    "sha256": "b2ada0fde569c98f6d7cef3da8b79f7756b1adab03a5b6a9e5b3d0daf3e48537",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Full original page357, details274 and legacy450-line sources read, then all current owners read. Four exact whole moved declarations, two retained detail components,16original state/query statements, seven actual view prop bindings and whole expanded JSX proven.1460 executed old/current filter/sort/count/details comparisons preserve row values/order/object identity/first-wins duplicate keys. Legacy six declarations retired only after full typed1416-source graph and repository-wide caller closure; original bytes and SHA retained. Two live pure helpers and all three actual consumer declarations keep exact AST; compatibility exports retained.26affected unit cases/4files,13Node contracts, scoped TypeScript/lint pass. Source-label helpers have different punctuation/spacing semantics and are intentionally retained separately. These checks do not qualify a current production browser build."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/whatsapp-recipient-roster-rows.tsx",
+    "sha256": "6a73351544da7e44e9244a89bc2fff76a5d3c79d363667b2e4a673f2704395dc",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Full original page357, details274 and legacy450-line sources read, then all current owners read. Four exact whole moved declarations, two retained detail components,16original state/query statements, seven actual view prop bindings and whole expanded JSX proven.1460 executed old/current filter/sort/count/details comparisons preserve row values/order/object identity/first-wins duplicate keys. Legacy six declarations retired only after full typed1416-source graph and repository-wide caller closure; original bytes and SHA retained. Two live pure helpers and all three actual consumer declarations keep exact AST; compatibility exports retained.26affected unit cases/4files,13Node contracts, scoped TypeScript/lint pass. Source-label helpers have different punctuation/spacing semantics and are intentionally retained separately. These checks do not qualify a current production browser build."
+  },
+  {
+    "path": "frontend/features/whatsapp/utils/recipient-detail-fields.ts",
+    "sha256": "2b4f6906ee758f14148bafc3ab341348ce0a45f1bd5f26a12dfc689336aba767",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Full original page357, details274 and legacy450-line sources read, then all current owners read. Four exact whole moved declarations, two retained detail components,16original state/query statements, seven actual view prop bindings and whole expanded JSX proven.1460 executed old/current filter/sort/count/details comparisons preserve row values/order/object identity/first-wins duplicate keys. Legacy six declarations retired only after full typed1416-source graph and repository-wide caller closure; original bytes and SHA retained. Two live pure helpers and all three actual consumer declarations keep exact AST; compatibility exports retained.26affected unit cases/4files,13Node contracts, scoped TypeScript/lint pass. Source-label helpers have different punctuation/spacing semantics and are intentionally retained separately. These checks do not qualify a current production browser build."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/whatsapp-source.contract-helper.mjs",
+    "sha256": "ad1ac54c5b7645aa289cc61cb6dd3657cd25b1fe6a2d760bf175f8dbc2828554",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Wired contract source reader requires actual current imports and hook/component invocation before following only the current roster owners. Existing composer/API owner checks retained."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/whatsapp-recipient-roster.contract.test.mjs",
+    "sha256": "961e1eef552fdd32f028e2323acc1fc6ba85c60a67b7df425249144d17c1e11c",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "All six original current-workflow assertions preserved; only two source loaders follow actual current owners."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/whatsapp-activity-tracker.contract.test.mjs",
+    "sha256": "ee30f4aed57fd6c8fcf569c2ec3fdeee4297f79eba112861475e5f828a6cb791",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "All seven original assertions preserved; recipient source loader follows current explicitly wired controller/views."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/recipients-page.test.tsx",
+    "sha256": "83152a76e27c3320c658415206c7e53d67222efada2efb4d4d3751e0f2b0b848",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Five actual page tests: four behavior controls passed before/after; the unchanged512-recipient history-read negative failed2099>100 before and passes the100-read bound after. Real controls cover search/paging, shared source travellers/read-only details, latest resend/import order and archived controls."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/recipient-workspace.test-fixture.ts",
+    "sha256": "c3210edce1b3efaf7ef3e9cf631ac60fd696e0b1f60418ab6ddef679e87ef490",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Typed synthetic recipients/groups/source contacts only; no provider sends or production identifiers/data."
+  }
+]

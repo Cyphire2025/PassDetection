@@ -1,0 +1,218 @@
+[
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_groups_archive.py",
+    "sha256": "fd5a33d29929bba93d4944eb5e1166cda0d8423be78a19f6f164096fb2c80698",
+    "physical_lines": 117,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical source read, independently of test execution. Selected9route/query files had no matching current full ledgers. Agency scope, staff linked-passport visibility, archive parent locking/active-send block, private mutation cancel/block, replacement delete restrictions and bounded history search/page projections traced through actual query/response owners as applicable. No provider/service call or new authorization policy. Only batch-status runtime changed in this cohort. Source-only read does not qualify all sibling workflows/services or close unrelated findings. Active verified-receipt caller already bounds numeric error identifiers and catches timestamp overflow; raw-code legacy compatibility helper has no active caller, so no disclosure finding asserted."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_groups_read.py",
+    "sha256": "21d3a332823747925f2d2707725c7237c9191d103918f8e86dc2dee8d15d81aa",
+    "physical_lines": 89,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical source read, independently of test execution. Selected9route/query files had no matching current full ledgers. Agency scope, staff linked-passport visibility, archive parent locking/active-send block, private mutation cancel/block, replacement delete restrictions and bounded history search/page projections traced through actual query/response owners as applicable. No provider/service call or new authorization policy. Only batch-status runtime changed in this cohort. Source-only read does not qualify all sibling workflows/services or close unrelated findings. Active verified-receipt caller already bounds numeric error identifiers and catches timestamp overflow; raw-code legacy compatibility helper has no active caller, so no disclosure finding asserted."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_groups_delete.py",
+    "sha256": "3b57c65ed6af310566e44149764e826d8e2d256f648a31c5697a9cc8a883400c",
+    "physical_lines": 166,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical source read, independently of test execution. Selected9route/query files had no matching current full ledgers. Agency scope, staff linked-passport visibility, archive parent locking/active-send block, private mutation cancel/block, replacement delete restrictions and bounded history search/page projections traced through actual query/response owners as applicable. No provider/service call or new authorization policy. Only batch-status runtime changed in this cohort. Source-only read does not qualify all sibling workflows/services or close unrelated findings. Active verified-receipt caller already bounds numeric error identifiers and catches timestamp overflow; raw-code legacy compatibility helper has no active caller, so no disclosure finding asserted."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_batch_status.py",
+    "sha256": "47cbcbe85c98e99f482df74fe79be292c58bc03caab86a4860549ad18279dbeb",
+    "physical_lines": 143,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified-focused",
+    "notes": "Complete current physical source read, independently of test execution. Selected9route/query files had no matching current full ledgers. Agency scope, staff linked-passport visibility, archive parent locking/active-send block, private mutation cancel/block, replacement delete restrictions and bounded history search/page projections traced through actual query/response owners as applicable. No provider/service call or new authorization policy. Actual persisted SQLite/ASGI4queued/processing recent/stale failures +2delivered/failed controls before\u219217affected cases pass, including2nonUTC aware offset controls and detailed/aggregate/foreign-agency404 parity. Five-line helper only restores UTC for absent tzinfo, preserves aware instants; entire original module AST restores after helper removal and onecall inverse. Existing150line/C15/95linefloor retained, current100line/100branch coverage. Not a PostgreSQL production outage or security-bypass claim."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_catalog.py",
+    "sha256": "a035f25086984006cb4081645627bf78a637c782cf269ddffaecb5145c2ff550",
+    "physical_lines": 115,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical source read, independently of test execution. Selected9route/query files had no matching current full ledgers. Agency scope, staff linked-passport visibility, archive parent locking/active-send block, private mutation cancel/block, replacement delete restrictions and bounded history search/page projections traced through actual query/response owners as applicable. No provider/service call or new authorization policy. Only batch-status runtime changed in this cohort. Source-only read does not qualify all sibling workflows/services or close unrelated findings. Active verified-receipt caller already bounds numeric error identifiers and catches timestamp overflow; raw-code legacy compatibility helper has no active caller, so no disclosure finding asserted."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_history.py",
+    "sha256": "7bc42e0f850d8ab664483e42f5926127ccb2cca4f15b491a7c65df2ffc826dd8",
+    "physical_lines": 234,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical source read, independently of test execution. Selected9route/query files had no matching current full ledgers. Agency scope, staff linked-passport visibility, archive parent locking/active-send block, private mutation cancel/block, replacement delete restrictions and bounded history search/page projections traced through actual query/response owners as applicable. No provider/service call or new authorization policy. Only batch-status runtime changed in this cohort. Source-only read does not qualify all sibling workflows/services or close unrelated findings. Active verified-receipt caller already bounds numeric error identifiers and catches timestamp overflow; raw-code legacy compatibility helper has no active caller, so no disclosure finding asserted."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_history_queries.py",
+    "sha256": "73bfdeb539ebfc046a01fe42ccfedd6828c71dd4281b022b3ea963a0883b996b",
+    "physical_lines": 66,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical source read, independently of test execution. Selected9route/query files had no matching current full ledgers. Agency scope, staff linked-passport visibility, archive parent locking/active-send block, private mutation cancel/block, replacement delete restrictions and bounded history search/page projections traced through actual query/response owners as applicable. No provider/service call or new authorization policy. Only batch-status runtime changed in this cohort. Source-only read does not qualify all sibling workflows/services or close unrelated findings. Active verified-receipt caller already bounds numeric error identifiers and catches timestamp overflow; raw-code legacy compatibility helper has no active caller, so no disclosure finding asserted."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_type_history.py",
+    "sha256": "b227e5123e1ce8d1b03ec13770df81287fbfbf2ad0ba0ad9ec6d9f451710a74d",
+    "physical_lines": 197,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical source read, independently of test execution. Selected9route/query files had no matching current full ledgers. Agency scope, staff linked-passport visibility, archive parent locking/active-send block, private mutation cancel/block, replacement delete restrictions and bounded history search/page projections traced through actual query/response owners as applicable. No provider/service call or new authorization policy. Only batch-status runtime changed in this cohort. Source-only read does not qualify all sibling workflows/services or close unrelated findings. Active verified-receipt caller already bounds numeric error identifiers and catches timestamp overflow; raw-code legacy compatibility helper has no active caller, so no disclosure finding asserted."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_type_history_queries.py",
+    "sha256": "f82401f1b3e467ffc49fcf71e9844d58b865229c048c29c2bf9c77a9324ab892",
+    "physical_lines": 162,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical source read, independently of test execution. Selected9route/query files had no matching current full ledgers. Agency scope, staff linked-passport visibility, archive parent locking/active-send block, private mutation cancel/block, replacement delete restrictions and bounded history search/page projections traced through actual query/response owners as applicable. No provider/service call or new authorization policy. Only batch-status runtime changed in this cohort. Source-only read does not qualify all sibling workflows/services or close unrelated findings. Active verified-receipt caller already bounds numeric error identifiers and catches timestamp overflow; raw-code legacy compatibility helper has no active caller, so no disclosure finding asserted."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_shared.py",
+    "sha256": "a0350f00c141d9e44eb016e6dcf7090bea09ce47201dcb190228e30425466ccc",
+    "physical_lines": 220,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical source read, independently of test execution. Selected9route/query files had no matching current full ledgers. Agency scope, staff linked-passport visibility, archive parent locking/active-send block, private mutation cancel/block, replacement delete restrictions and bounded history search/page projections traced through actual query/response owners as applicable. No provider/service call or new authorization policy. Only batch-status runtime changed in this cohort. Source-only read does not qualify all sibling workflows/services or close unrelated findings. Active verified-receipt caller already bounds numeric error identifiers and catches timestamp overflow; raw-code legacy compatibility helper has no active caller, so no disclosure finding asserted."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_delivery_support.py",
+    "sha256": "11584385a6d8d16124e39d5e029c3aa4908b1044b1c7df7861461c93a32b82f0",
+    "physical_lines": 245,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical source read, independently of test execution. Selected9route/query files had no matching current full ledgers. Agency scope, staff linked-passport visibility, archive parent locking/active-send block, private mutation cancel/block, replacement delete restrictions and bounded history search/page projections traced through actual query/response owners as applicable. No provider/service call or new authorization policy. Only batch-status runtime changed in this cohort. Source-only read does not qualify all sibling workflows/services or close unrelated findings. Active verified-receipt caller already bounds numeric error identifiers and catches timestamp overflow; raw-code legacy compatibility helper has no active caller, so no disclosure finding asserted."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_scope.py",
+    "sha256": "31d4d2d26d1057b267463fe0116a3faee14a6cdecf08773bc9a22dd6acf4868f",
+    "physical_lines": 178,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical source read, independently of test execution. Selected9route/query files had no matching current full ledgers. Agency scope, staff linked-passport visibility, archive parent locking/active-send block, private mutation cancel/block, replacement delete restrictions and bounded history search/page projections traced through actual query/response owners as applicable. No provider/service call or new authorization policy. Only batch-status runtime changed in this cohort. Source-only read does not qualify all sibling workflows/services or close unrelated findings. Active verified-receipt caller already bounds numeric error identifiers and catches timestamp overflow; raw-code legacy compatibility helper has no active caller, so no disclosure finding asserted."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_group_visibility.py",
+    "sha256": "6a99074f2af2e4aba32d552358102b415bb9d092cc93bc6acc16f8cf8a41c042",
+    "physical_lines": 21,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical source read, independently of test execution. Selected9route/query files had no matching current full ledgers. Agency scope, staff linked-passport visibility, archive parent locking/active-send block, private mutation cancel/block, replacement delete restrictions and bounded history search/page projections traced through actual query/response owners as applicable. No provider/service call or new authorization policy. Only batch-status runtime changed in this cohort. Source-only read does not qualify all sibling workflows/services or close unrelated findings. Active verified-receipt caller already bounds numeric error identifiers and catches timestamp overflow; raw-code legacy compatibility helper has no active caller, so no disclosure finding asserted."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_group_list_query.py",
+    "sha256": "47639d7ab284843906f52499056128ec5bfed07d8f8fea0af03e22fb291d3816",
+    "physical_lines": 42,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical source read, independently of test execution. Selected9route/query files had no matching current full ledgers. Agency scope, staff linked-passport visibility, archive parent locking/active-send block, private mutation cancel/block, replacement delete restrictions and bounded history search/page projections traced through actual query/response owners as applicable. No provider/service call or new authorization policy. Only batch-status runtime changed in this cohort. Source-only read does not qualify all sibling workflows/services or close unrelated findings. Active verified-receipt caller already bounds numeric error identifiers and catches timestamp overflow; raw-code legacy compatibility helper has no active caller, so no disclosure finding asserted."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_group_list_response.py",
+    "sha256": "78a5476815d164b65ae7cd62985de8fd19426ab4e0ba8b592a351e7610eecfd9",
+    "physical_lines": 30,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical source read, independently of test execution. Selected9route/query files had no matching current full ledgers. Agency scope, staff linked-passport visibility, archive parent locking/active-send block, private mutation cancel/block, replacement delete restrictions and bounded history search/page projections traced through actual query/response owners as applicable. No provider/service call or new authorization policy. Only batch-status runtime changed in this cohort. Source-only read does not qualify all sibling workflows/services or close unrelated findings. Active verified-receipt caller already bounds numeric error identifiers and catches timestamp overflow; raw-code legacy compatibility helper has no active caller, so no disclosure finding asserted."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_roster_support.py",
+    "sha256": "91ae572d7825dafff8ccea8254023fb9924fd58266df0ac1b8d7f61a8e99c23f",
+    "physical_lines": 400,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical source read, independently of test execution. Selected9route/query files had no matching current full ledgers. Agency scope, staff linked-passport visibility, archive parent locking/active-send block, private mutation cancel/block, replacement delete restrictions and bounded history search/page projections traced through actual query/response owners as applicable. No provider/service call or new authorization policy. Only batch-status runtime changed in this cohort. Source-only read does not qualify all sibling workflows/services or close unrelated findings. Active verified-receipt caller already bounds numeric error identifiers and catches timestamp overflow; raw-code legacy compatibility helper has no active caller, so no disclosure finding asserted."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_archive_policy.py",
+    "sha256": "d1cda4800cc392ba5949e982eda4a96aad50bed6a2fccf7b9625a4e17d0b755e",
+    "physical_lines": 13,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical source read, independently of test execution. Selected9route/query files had no matching current full ledgers. Agency scope, staff linked-passport visibility, archive parent locking/active-send block, private mutation cancel/block, replacement delete restrictions and bounded history search/page projections traced through actual query/response owners as applicable. No provider/service call or new authorization policy. Only batch-status runtime changed in this cohort. Source-only read does not qualify all sibling workflows/services or close unrelated findings. Active verified-receipt caller already bounds numeric error identifiers and catches timestamp overflow; raw-code legacy compatibility helper has no active caller, so no disclosure finding asserted."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_webhook.py",
+    "sha256": "7dc8ba21f533ae2efd55c71a987d0d7e0bbcafb217b7982ffbab707fa936221f",
+    "physical_lines": 112,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical source read, independently of test execution. Selected9route/query files had no matching current full ledgers. Agency scope, staff linked-passport visibility, archive parent locking/active-send block, private mutation cancel/block, replacement delete restrictions and bounded history search/page projections traced through actual query/response owners as applicable. No provider/service call or new authorization policy. Only batch-status runtime changed in this cohort. Source-only read does not qualify all sibling workflows/services or close unrelated findings. Active verified-receipt caller already bounds numeric error identifiers and catches timestamp overflow; raw-code legacy compatibility helper has no active caller, so no disclosure finding asserted."
+  },
+  {
+    "path": "backend/app/infrastructure/whatsapp/receipt_inbox.py",
+    "sha256": "73f91c4f3a326634b0ba64e78fbc9cb479fadb295a1536e6a279612574fb834c",
+    "physical_lines": 156,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical source read, independently of test execution. Selected9route/query files had no matching current full ledgers. Agency scope, staff linked-passport visibility, archive parent locking/active-send block, private mutation cancel/block, replacement delete restrictions and bounded history search/page projections traced through actual query/response owners as applicable. No provider/service call or new authorization policy. Only batch-status runtime changed in this cohort. Source-only read does not qualify all sibling workflows/services or close unrelated findings. Active verified-receipt caller already bounds numeric error identifiers and catches timestamp overflow; raw-code legacy compatibility helper has no active caller, so no disclosure finding asserted."
+  },
+  {
+    "path": "backend/app/infrastructure/whatsapp/provider_errors.py",
+    "sha256": "4c02727abd437502c0ba08f6f79f49442ce3439bb43df1614b4e2335a1502b11",
+    "physical_lines": 92,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical source read, independently of test execution. Selected9route/query files had no matching current full ledgers. Agency scope, staff linked-passport visibility, archive parent locking/active-send block, private mutation cancel/block, replacement delete restrictions and bounded history search/page projections traced through actual query/response owners as applicable. No provider/service call or new authorization policy. Only batch-status runtime changed in this cohort. Source-only read does not qualify all sibling workflows/services or close unrelated findings. Active verified-receipt caller already bounds numeric error identifiers and catches timestamp overflow; raw-code legacy compatibility helper has no active caller, so no disclosure finding asserted."
+  },
+  {
+    "path": "backend/app/domain/whatsapp_delivery_status.py",
+    "sha256": "5ac994e676cad35d68bce3c381f8873b60c29e4b33eeed9e0c62d3767512a1d0",
+    "physical_lines": 25,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical source read, independently of test execution. Selected9route/query files had no matching current full ledgers. Agency scope, staff linked-passport visibility, archive parent locking/active-send block, private mutation cancel/block, replacement delete restrictions and bounded history search/page projections traced through actual query/response owners as applicable. No provider/service call or new authorization policy. Only batch-status runtime changed in this cohort. Source-only read does not qualify all sibling workflows/services or close unrelated findings. Active verified-receipt caller already bounds numeric error identifiers and catches timestamp overflow; raw-code legacy compatibility helper has no active caller, so no disclosure finding asserted."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_whatsapp_batch_status_persistence.py",
+    "sha256": "6d55a29e470e25e68e6d20f7343abec7880d085edb89f3684fcab9f86a6c5d66",
+    "physical_lines": 134,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical source read, independently of test execution. Selected9route/query files had no matching current full ledgers. Agency scope, staff linked-passport visibility, archive parent locking/active-send block, private mutation cancel/block, replacement delete restrictions and bounded history search/page projections traced through actual query/response owners as applicable. No provider/service call or new authorization policy. Only batch-status runtime changed in this cohort. Source-only read does not qualify all sibling workflows/services or close unrelated findings. Active verified-receipt caller already bounds numeric error identifiers and catches timestamp overflow; raw-code legacy compatibility helper has no active caller, so no disclosure finding asserted."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_whatsapp_batch_summary.py",
+    "sha256": "4575b4cfbffddda7823dfabc4e7dfebe92e4fdac7ecdee6afa35f27f9671eb4f",
+    "physical_lines": 120,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical source read, independently of test execution. Selected9route/query files had no matching current full ledgers. Agency scope, staff linked-passport visibility, archive parent locking/active-send block, private mutation cancel/block, replacement delete restrictions and bounded history search/page projections traced through actual query/response owners as applicable. No provider/service call or new authorization policy. Only batch-status runtime changed in this cohort. Source-only read does not qualify all sibling workflows/services or close unrelated findings. Active verified-receipt caller already bounds numeric error identifiers and catches timestamp overflow; raw-code legacy compatibility helper has no active caller, so no disclosure finding asserted."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_whatsapp_staff_access_flow.py",
+    "sha256": "fc94c30f4e089bc9af8cf219ea84b156276971a106944f08fe310eaaf530245b",
+    "physical_lines": 171,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical source read, independently of test execution. Selected9route/query files had no matching current full ledgers. Agency scope, staff linked-passport visibility, archive parent locking/active-send block, private mutation cancel/block, replacement delete restrictions and bounded history search/page projections traced through actual query/response owners as applicable. No provider/service call or new authorization policy. Only batch-status runtime changed in this cohort. Source-only read does not qualify all sibling workflows/services or close unrelated findings. Active verified-receipt caller already bounds numeric error identifiers and catches timestamp overflow; raw-code legacy compatibility helper has no active caller, so no disclosure finding asserted."
+  }
+]

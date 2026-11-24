@@ -1,0 +1,84 @@
+{
+  "status": "read-only current data follow-through complete",
+  "original_full_ledger": "frontend-final-assets-reviewed-files.json",
+  "original_full_source_sha256": "99479d234fe8ab9ed8706ce34d2876018f971356b08fec7602d2b660eb61b366",
+  "current_source": {
+    "path": "frontend/scripts/verify-frontend-module-budgets.mjs",
+    "sha256": "f710cb513924bde02490b3cea751059cedcdc3b3af0f1cce1c5111fdd502df1e",
+    "physical_lines": 791,
+    "review_scope": "full",
+    "reviewer": "branding_visuals",
+    "status": "reviewed",
+    "notes": "Current791line catalog covered by prior99479d...790line full physical read plus physically read4 AQ03 rows. Historical fieldview reconstructs equivalent row grammar, NOT original raw whitespace/hash; all RAW controls and other literal row values match outside4rows, corroborated by reconstructed/current compiler AST. Existing3caps unchanged,1new selector cap measured in AQ03 receipt. Targeted composed data follow-through, not791new manual reads or referenced-module qualification.",
+    "resolves_partial_reviews": []
+  },
+  "original_raw_sha_attribution_only": true,
+  "reconstructed_ast_provenance": "Historical full read produced .tmp/offline-scanner/budget-lossless-view.txt: all656recognized Object.freeze rows projected as complete literal fields; every nonrow/control/comment line preserved as RAW. Equivalent row syntax reconstructed for AST comparison, not raw99479hash recreation.",
+  "lossless_view": ".tmp/offline-scanner/budget-lossless-view.txt",
+  "lossless_view_sha256": "06df46d4576e394a71e696b6b30cbabd491afe8ae1397b859cdec9f32dc623a5",
+  "outside4rows_raw_controls_and_row_fields_equal": true,
+  "ast_proof": {
+    "parser": "Existing pinned TypeScript compiler; ScriptKind.JS",
+    "outside4rows_ast_equal": true,
+    "old_removed_rows": 3,
+    "current_removed_rows": 4,
+    "canonical_ast_sha256": "43133cabc153d2686acffaa006aed75cc12f131984d8e1cb47f3d3053701e09f",
+    "provenance": "Before AST from equivalent Object.freeze grammar reconstructed using historical fully read row fieldview +verbatim RAW controls. Raw old source identity is attributed to prior full review, not recreated or claimed."
+  },
+  "before_rows": [
+    {
+      "path": "features/tour-operations/services/attendance-queue-storage.ts",
+      "baselineLines": 145,
+      "maximumLines": 150,
+      "baselineMaxFunctionComplexity": 6,
+      "maximumFunctionComplexity": 7
+    },
+    {
+      "path": "features/tour-operations/services/attendance-queue-replay.ts",
+      "baselineLines": 186,
+      "maximumLines": 190,
+      "baselineMaxFunctionComplexity": 10,
+      "maximumFunctionComplexity": 11
+    },
+    {
+      "path": "features/tour-operations/services/attendance-queue-closeout.ts",
+      "baselineLines": 207,
+      "maximumLines": 210,
+      "baselineMaxFunctionComplexity": 4,
+      "maximumFunctionComplexity": 5
+    }
+  ],
+  "physically_reviewed_current_rows": [
+    {
+      "path": "features/tour-operations/services/attendance-batch-selection.ts",
+      "baselineLines": 31,
+      "maximumLines": 40,
+      "baselineMaxFunctionComplexity": 9,
+      "maximumFunctionComplexity": 10
+    },
+    {
+      "path": "features/tour-operations/services/attendance-queue-storage.ts",
+      "baselineLines": 146,
+      "maximumLines": 150,
+      "baselineMaxFunctionComplexity": 6,
+      "maximumFunctionComplexity": 7
+    },
+    {
+      "path": "features/tour-operations/services/attendance-queue-replay.ts",
+      "baselineLines": 181,
+      "maximumLines": 190,
+      "baselineMaxFunctionComplexity": 10,
+      "maximumFunctionComplexity": 11
+    },
+    {
+      "path": "features/tour-operations/services/attendance-queue-closeout.ts",
+      "baselineLines": 206,
+      "maximumLines": 210,
+      "baselineMaxFunctionComplexity": 4,
+      "maximumFunctionComplexity": 5
+    }
+  ],
+  "preserved_existing_ceilings": true,
+  "new_runtime_review_credit": 0,
+  "source_changes": []
+}

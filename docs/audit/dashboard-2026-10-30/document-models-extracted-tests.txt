@@ -1,0 +1,18 @@
+...............................................................          [100%]
+
+---------- coverage: platform win32, python 3.11.15-final-0 ----------
+Name                                                           Stmts   Miss Branch BrPart  Cover
+------------------------------------------------------------------------------------------------
+app\infrastructure\database\_document_models\__init__.py           1      0      0      0   100%
+app\infrastructure\database\_document_models\cleanup.py           25      0      0      0   100%
+app\infrastructure\database\_document_models\delivery.py          38      0      0      0   100%
+app\infrastructure\database\_document_models\distribution.py      45      0      0      0   100%
+app\infrastructure\database\_document_models\rename.py            40      0      0      0   100%
+app\infrastructure\database\_document_models\upload_chunk.py      27      0      0      0   100%
+app\infrastructure\database\_document_models\upload_scan.py       28      0      0      0   100%
+app\infrastructure\database\document_models.py                    26      0      0      0   100%
+------------------------------------------------------------------------------------------------
+TOTAL                                                            230      0      0      0   100%
+Coverage JSON written to file C:\Users\nipun\Desktop\PassDetection\docs\audit\dashboard-2026-10-30\document-models-extracted-coverage.json
+
+63 passed in 18.37s

@@ -17,10 +17,8 @@ from openpyxl.utils import get_column_letter
 
 from app.domain.entities.entities import PassportSubmission
 from app.domain.value_objects.client_collection_provenance import CLIENT_COLLECTION_SUBMITTED_KEY
-from app.infrastructure.export.passport_excel_exporter import (
-    PassportExcelExporter,
-    _excel_date_value,
-)
+from app.infrastructure.export.passport_excel_exporter import PassportExcelExporter
+from app.infrastructure.export.workbook_values import excel_date_value as _excel_date_value
 
 MAX_EXPORT_ROWS = 20_000
 MAX_EXPORT_COLUMNS = 1_024

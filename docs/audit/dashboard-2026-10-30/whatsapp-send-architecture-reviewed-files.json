@@ -1,0 +1,74 @@
+[
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_send.py",
+    "sha256": "4122db1588df44861cef9a21cde6543ef3c0d4b24e70a5ba70d62585ee212a74",
+    "physical_lines": 271,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified-focused",
+    "notes": "Complete physical current source read independent of execution. Retained dashboard send preparation, fixed tenant/consent/capacity and reminder selection, stale/unknown claim semantics, frozen destination/body accounting and commit-before-publication boundaries traced. Original send427 had no matching current full ledger; its single303-line queue now has named preparation/claim and pure projection owners, main271 retains public2functions and actual durable HTTP registration. Settings, credentials/templates, UUID/clock and later language projection remain main at original expanded statement positions. TypedDATA contains only actual10/5outputs, no session/user/settings/callback context. Entire original54statement queue and nonimport module restore exactly; imported binding identities, public aliases/pickles/hints/default closures/OpenAPI intact. Final96focused cases fresh source coverage; no new runtime defect or performance claim."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_send_preparation.py",
+    "sha256": "a829c85542906d5bbda767aaef47f7937193cde792126b58cefab64b10506aab",
+    "physical_lines": 172,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified-focused",
+    "notes": "Complete physical current source read independent of execution. Retained dashboard send preparation, fixed tenant/consent/capacity and reminder selection, stale/unknown claim semantics, frozen destination/body accounting and commit-before-publication boundaries traced. Original send427 had no matching current full ledger; its single303-line queue now has named preparation/claim and pure projection owners, main271 retains public2functions and actual durable HTTP registration. Settings, credentials/templates, UUID/clock and later language projection remain main at original expanded statement positions. TypedDATA contains only actual10/5outputs, no session/user/settings/callback context. Entire original54statement queue and nonimport module restore exactly; imported binding identities, public aliases/pickles/hints/default closures/OpenAPI intact. Final96focused cases fresh source coverage; no new runtime defect or performance claim."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_send_claims.py",
+    "sha256": "403b722c6e738624598643628acf06e2b423ef65f02db3b52ff7562bc2312c39",
+    "physical_lines": 177,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified-focused",
+    "notes": "Complete physical current source read independent of execution. Retained dashboard send preparation, fixed tenant/consent/capacity and reminder selection, stale/unknown claim semantics, frozen destination/body accounting and commit-before-publication boundaries traced. Original send427 had no matching current full ledger; its single303-line queue now has named preparation/claim and pure projection owners, main271 retains public2functions and actual durable HTTP registration. Settings, credentials/templates, UUID/clock and later language projection remain main at original expanded statement positions. TypedDATA contains only actual10/5outputs, no session/user/settings/callback context. Entire original54statement queue and nonimport module restore exactly; imported binding identities, public aliases/pickles/hints/default closures/OpenAPI intact. Final96focused cases fresh source coverage; no new runtime defect or performance claim."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_send_projection.py",
+    "sha256": "f9bc55a545ab3adb3d897b12f28b836665005e223e13dda877dc11ebd6f11fc5",
+    "physical_lines": 61,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified-focused",
+    "notes": "Complete physical current source read independent of execution. Retained dashboard send preparation, fixed tenant/consent/capacity and reminder selection, stale/unknown claim semantics, frozen destination/body accounting and commit-before-publication boundaries traced. Original send427 had no matching current full ledger; its single303-line queue now has named preparation/claim and pure projection owners, main271 retains public2functions and actual durable HTTP registration. Settings, credentials/templates, UUID/clock and later language projection remain main at original expanded statement positions. TypedDATA contains only actual10/5outputs, no session/user/settings/callback context. Entire original54statement queue and nonimport module restore exactly; imported binding identities, public aliases/pickles/hints/default closures/OpenAPI intact. Final96focused cases fresh source coverage; no new runtime defect or performance claim."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_send_intents.py",
+    "sha256": "462de74cb9c8fa305e26ec299815876c7439a72ba4436d4adf96d590178f5e51",
+    "physical_lines": 212,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical current source read independent of execution. Retained dashboard send preparation, fixed tenant/consent/capacity and reminder selection, stale/unknown claim semantics, frozen destination/body accounting and commit-before-publication boundaries traced. Supporting current owners remain byte-identical to baseline and retain existing full-read provenance. HTTP wrapper locks/populates real actor/security/current agency before durable receipt handling; source preparation uses no provider. MCP snapshot reuses exact helper inside an explicit rollback savepoint for preview; live grant/capability policy is not newly qualified by this source-only trace. No new-unreviewed credit for already current full supporting ledgers."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_send_support.py",
+    "sha256": "b8906f12b93b2e3e5c98d6135da1254014e747aa487e94a7b268ff971ae1b254",
+    "physical_lines": 189,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical current source read independent of execution. Retained dashboard send preparation, fixed tenant/consent/capacity and reminder selection, stale/unknown claim semantics, frozen destination/body accounting and commit-before-publication boundaries traced. Supporting current owners remain byte-identical to baseline and retain existing full-read provenance. HTTP wrapper locks/populates real actor/security/current agency before durable receipt handling; source preparation uses no provider. MCP snapshot reuses exact helper inside an explicit rollback savepoint for preview; live grant/capability policy is not newly qualified by this source-only trace. No new-unreviewed credit for already current full supporting ledgers."
+  },
+  {
+    "path": "backend/app/presentation/mcp/whatsapp_snapshots.py",
+    "sha256": "07687af1f1f17540f12757428083aa13243e9085a4112e26969ed709b2fa1784",
+    "physical_lines": 119,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical current source read independent of execution. Retained dashboard send preparation, fixed tenant/consent/capacity and reminder selection, stale/unknown claim semantics, frozen destination/body accounting and commit-before-publication boundaries traced. Supporting current owners remain byte-identical to baseline and retain existing full-read provenance. HTTP wrapper locks/populates real actor/security/current agency before durable receipt handling; source preparation uses no provider. MCP snapshot reuses exact helper inside an explicit rollback savepoint for preview; live grant/capability policy is not newly qualified by this source-only trace. No new-unreviewed credit for already current full supporting ledgers."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_whatsapp_group_invite.py",
+    "sha256": "ce00ef4f09ded946eec7c6d220724fb9984740bbd916a4547b25d84c30ed3794",
+    "physical_lines": 363,
+    "reviewer": "ai_extraction",
+    "review_scope": "partial",
+    "status": "reviewed",
+    "notes": "Physical1..98 and168..266 plus exact changed import/fixture-owner lists read; rest only AST inverse/assertion comparison and executed source, not full-read credit. All original62assertion nodes retained, entire file AST restores after two concrete owner imports/four fixture module-list substitutions. Full affected file executed final96selection; no broad mocking or dropped business assertions."
+  }
+]

@@ -32,6 +32,11 @@ from app.presentation.dependencies.auth import require_role
 router = APIRouter()
 
 
+def _aware_delivery_time(value: datetime) -> datetime:
+    """Restore UTC for persisted instants read without timezone metadata."""
+    return value.replace(tzinfo=value.tzinfo or UTC)
+
+
 @router.get(
     "/batches/{batch_id}/summary",
     response_model=WhatsAppBatchSummaryResponse,
@@ -107,7 +112,7 @@ async def get_broadcast_batch_status(
     stale_cutoff = datetime.now(tz=UTC) - timedelta(minutes=30)
     results: list[WhatsAppSendResult] = []
     for row in rows:
-        is_stalled = row.status in queued_statuses and row.status_updated_at < stale_cutoff
+        is_stalled = row.status in queued_statuses and _aware_delivery_time(row.status_updated_at) < stale_cutoff
         results.append(
             WhatsAppSendResult(
                 recipient_id=row.recipient_id,

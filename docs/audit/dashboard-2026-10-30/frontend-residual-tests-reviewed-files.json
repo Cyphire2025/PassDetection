@@ -1,0 +1,1644 @@
+{
+  "method": "Manual complete physical test/fixture/helper source reads only; execution is separate evidence and was not repeated for these reads.",
+  "files": [
+    {
+      "path": "frontend/features/auth/components/access-level-switcher.test.tsx",
+      "sha256": "7813afe0cbfc2e09191988f9f0de7b92fe1c9d04621719b43816dab2a5e9790b",
+      "physical_lines": 139,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full rendered access-level controls with actual authStore/QueryClient and mocked auth/navigation/reset; server actual-role capability, keyboard Escape/focus, explicit role changes plus cache clear/GET confirmation, denied switch, late response under replacement actor, coordinator return and explicit agency selection. No real cookie transition proof."
+    },
+    {
+      "path": "frontend/features/auth/components/activation-form.test.tsx",
+      "sha256": "cb81424b55ad558eacfaa80968387bf2e8350b033e8a53640bf30ec5ebff7d0d",
+      "physical_lines": 70,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full actual activation credential controls; URLscrub/token absent DOM, token forwarded only onexplicitpasswordrequest thenMFAstage, malformedduplicate token rejects beforeAPI. Auth API mocked; no real activation credential/provider action."
+    },
+    {
+      "path": "frontend/features/auth/components/auth-session-renewal.contract.test.mjs",
+      "sha256": "5f8ebbbc0029c5a7c6e42c8184b2f0ef36eec2229a9730418e9de7fe362de52f",
+      "physical_lines": 59,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full three static renewal contracts; protected mount after renewal, only rejected401/403refresh expires session, boundedcleanup begins after navigation. Actual source relations only; cookie/cache runtime negatives live elsewhere."
+    },
+    {
+      "path": "frontend/features/auth/components/company-journey-film.test.tsx",
+      "sha256": "741d1f0c56652d37b12ae41d44ee843349e260d583458150954d3953a1a8c8eb",
+      "physical_lines": 187,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full actual film preference/lifetime controls with synthetic media/intersection events; reduced-motion/data saver avoid src/play, visibility/in-view pause/resume, interrupted play recovery, changed system preference, autoplay denial and media failure fall back to poster. No real video/network/browser codec execution."
+    },
+    {
+      "path": "frontend/features/auth/components/route-capability-boundary.test.tsx",
+      "sha256": "e8eb0e7bc580fcecfaf78f026f8aa863330844ad61cdf5e25e04ca414159dde6",
+      "physical_lines": 106,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full actual RouteCapabilityBoundary with authStore and mocked Next navigation; denied children never mount, role downgrade removes content, unregistered deep links fail closed without arbitrary redirect. No server authorization proof."
+    },
+    {
+      "path": "frontend/features/auth/components/step-up-dialog.test.tsx",
+      "sha256": "f0a15afc6aa0960e543e9389fb5d866c87395391a24af473c291aad5a92b0b6b",
+      "physical_lines": 44,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full actual coordinator/dialog keyboard control; requested identity dialog focuses code, traps both Tab directions, Escape rejects pending promise with public cancellation and restores trigger. Auth API mocked, no actual credential verification."
+    },
+    {
+      "path": "frontend/features/auth/config/route-capabilities.test.ts",
+      "sha256": "5e0e2a5d86715459c784b0ebc814f7d2ce6c59fe94720372b7121dac9b4c75be",
+      "physical_lines": 129,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full typed capability map controls across active/inactive/missing users, most-specific versus near-prefix/unregistered paths, tenant/company/audit/MCP/coordinator/WhatsApp/tracker roles, authoritative explicit GC capabilities and role-safe landing. Client policy only, not server permission proof."
+    },
+    {
+      "path": "frontend/features/auth/hooks/use-identity-action-token.test.tsx",
+      "sha256": "191e912c9bb1d7617a0947b7de1a0af915c01a4c28dafe3f839c9dc4464419d4",
+      "physical_lines": 51,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full actual StrictMode credential lifetime controls; token URL scrub preserves history state, retained only in-memory across replay and erased on unmount, missing/short/duplicate/extraquery/hash inputs rejected/scrubbed. Synthetic action token only, no activation request."
+    },
+    {
+      "path": "frontend/features/auth/services/access-level.test.ts",
+      "sha256": "ec18baab12584952eff6d4d37a58ddc2547ec0e1f10e09ddf99f6cae966a88d0",
+      "physical_lines": 93,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full six role-transition service controls; GETme confirms interruptedPOST, protected content remains blocked if unconfirmed, duplicate change suppressed, cross-tab reconcile withoutnewPOST, old me or awaitedcancel cannot overwrite/clear replacement session. Auth/navigation/reset effects mocked; real cookie/cache fanout separate."
+    },
+    {
+      "path": "frontend/features/auth/services/queue-safe-sign-out.contract.test.mjs",
+      "sha256": "eec50dd1fb9b9e06f8c9228eb4036b57bd9f3a77053dfd2646d41a2531faff69",
+      "physical_lines": 63,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full six static logout/queue privacy contracts; defaultownerlock/block, syncfirst/two-destructive confirmations, authloss preservesownerqueue, rejectedrows/keys scrubQRbearer, boundedretryAfter and account-onlycloseout wording. Source assertions are not IndexedDB/fleet proof."
+    },
+    {
+      "path": "frontend/features/auth/services/refresh-attempt.test.ts",
+      "sha256": "807560c08722b01ffaa97fadba667a1dbcdeaef8337581c37e53175b9bf0c267",
+      "physical_lines": 31,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full bounded retry controls; one second/exactlyone retry for refresh-in-progress409 only, repeatedconflictstops,ordinary401/403/500/other409 propagates. Fake promise/clock, not actual cookie refresh contention."
+    },
+    {
+      "path": "frontend/features/auth/services/session-continuity.test.ts",
+      "sha256": "359e1cb90161721c2bac8dd8b03c735bc0e284c17f76467258d3482ec99c697d",
+      "physical_lines": 44,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full store revalidation matrix; stable context/profile/capability-order retains cache sessionVersion, login/new context invalidates, late prior-version/logged-out/access-changing responses ignored and initialhydration creates new boundary. Sensitive-state module mocked; does not independently prove real cache/reset fanout."
+    },
+    {
+      "path": "frontend/features/branding/api/branding-images.api.test.ts",
+      "sha256": "e84a5a8502988fa55057cfda920db31b59a3b6521e136e80a7d8d880227bb13c",
+      "physical_lines": 27,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete actual branding facade owner checks with mocked client; original actor mismatch blocks PUT, postawait actor changes reject upload/remove before stale result return, expectedOwner metadata forwarded. Transport/server/storage not exercised."
+    },
+    {
+      "path": "frontend/features/companies/components/company-all-data.test.tsx",
+      "sha256": "dc0edeb19002c1ac1e12d11d6e5f68e2743949c75a3ba6a2b0830b3f9490dd7e",
+      "physical_lines": 90,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full six directory controls; exact filtered routes/search/sort/count args, one-char search blocked, stopped index honestly labelled,409generation restart retains filters,403does not auto retry/drop cursor. APIs/session mocked, native browser/service behavior separate."
+    },
+    {
+      "path": "frontend/features/companies/components/company-data-exports.test.tsx",
+      "sha256": "cf680524e194b722b684b9e92aada5c6f95ace4d6c18a36492d8edb537236957",
+      "physical_lines": 43,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full lazy persisted export/parts and uncertain-create cases; protected same-origin native download attributes, no eager create/parts, identical idempotent create args across retry. Synthetic API/mock job bytes only."
+    },
+    {
+      "path": "frontend/features/companies/components/company-document-upload.test.tsx",
+      "sha256": "eff4685d7291921d4bfb77202109daeb1598c7790e6e6c3c12a3ebc3fff1e8f6",
+      "physical_lines": 104,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full five document update controls; original revision/context/explicit review, honest unknown issuer, unsupported file beforeblob, same-key retry until edit resets review, duplicate submit single admission and preview URL cleanup. Explicit jsdom native required-file limitation documented; APIs mocked."
+    },
+    {
+      "path": "frontend/features/companies/components/company-groups.test.tsx",
+      "sha256": "2478ecbd8583c61a18051fee77d926e1da70fddbf6fb131802a2eb3431da21da",
+      "physical_lines": 41,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full two section/page/search controls; preserves backend phase independent of archived lifecycle, exact return URL,25-row cursor calls and only relevant section refetch. Auth/store/API mocks explicit; no live query service claim."
+    },
+    {
+      "path": "frontend/features/companies/components/company-match-queue.test.tsx",
+      "sha256": "372214e26db1b5ccfd0f623f08958564924438cf6f6cda4989221609df83d27b",
+      "physical_lines": 68,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full lazy matching picker controls;25-group cursor call, preview only after explicit selection,403 hides cached choices/pagination, failed selected background query restores keyboard/modal/body lock cleanup. Synthetic API/session, no backend matching work executed."
+    },
+    {
+      "path": "frontend/features/companies/components/company-person-documents.test.tsx",
+      "sha256": "86c8f2bd151ec3829dac4468c11b771af3e21ec0160a08e7586692b7b4602281",
+      "physical_lines": 76,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full private preview/version controls; source versus version bytes lazy inline, object URL revoked, access change aborts late response before blob creation, blocked identity prevents new version and no historical fields prefilled. Mock Blob bytes only."
+    },
+    {
+      "path": "frontend/features/companies/components/company-person-editor.test.tsx",
+      "sha256": "63aa55aae73ec759ce03f61dff3366651a8a50512198378e5f76779a71e008cf",
+      "physical_lines": 36,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete two editor controls; originally opened revision/draft preserved after background record update/conflict, changed passport fields submitted and success callback awaits mocked save. API mock limits transport/owner evidence."
+    },
+    {
+      "path": "frontend/features/companies/components/company-person-page.test.tsx",
+      "sha256": "d1cfbecafc789422fae067b035b3b6c4d7d75402c717dc0b6e31d3e26d07cce2",
+      "physical_lines": 34,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete page control; synthetic authenticated actor/API mocks, exact filtered company back URL and active tab, access-level transition removes private name. No actual transport boundary claim."
+    },
+    {
+      "path": "frontend/features/companies/components/company-person-trips.test.tsx",
+      "sha256": "837e802088d5bcad89c21bc903086d29c7dc15d2b565ba7785bef0a118ac3097",
+      "physical_lines": 23,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete bounded history/403 test; real query/controller with mocked history API and synthetic session, verifies cursor argument/signal and removes old private row after denial. No live backend service claim."
+    },
+    {
+      "path": "frontend/features/companies/components/company-picker.test.tsx",
+      "sha256": "e1760544e0914dcbd85813366bb0318f3dcba4e795e27bfd1aff59c79b51b1a1",
+      "physical_lines": 82,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full inactive selection/cursor/search/denial controls;20-row pages beyond old limit, keyboard Enter selection,250ms debounce and stale request abort,403 hides cached options/paging and blocks stale Enter. API mocks, synthetic session."
+    },
+    {
+      "path": "frontend/features/companies/hooks/use-companies.test.tsx",
+      "sha256": "0c7e0592b99b49c2e1391970ba9703ed5ce54a5bbf7d06e66da9e5ac6f04e1e1",
+      "physical_lines": 100,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full five cache/session controls; no metadata during access change, cached page removed, fresh remount/focus reuse and explicit invalidation, actor change hides prior data, obsolete role request aborted/late response ignored. Query/API mocks and store actual boundary, not live server."
+    },
+    {
+      "path": "frontend/features/companies/hooks/use-company-people.test.tsx",
+      "sha256": "19a20c599a8926c5705f616b230fca15b38ce28f2cca2da21c0d97613fbc5c0c",
+      "physical_lines": 136,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full eight fake-timer directory controls; progress totals invalidated onactualchangeonly,12automatic checklimit/manualrecovery, paused/search/cursor/hidden exclusions, denial/error/stoppedindex stops, settled remountreuse and obsolete signal cancellation. SyntheticAPIandcoarse query session."
+    },
+    {
+      "path": "frontend/features/documents/components/document-assignment-export.contract.test.mjs",
+      "sha256": "be68addddb0914d37787dc5390a97d55a9e3b5557cf5320bf2bdcc4e14622c9e",
+      "physical_lines": 40,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete filter/export/stream-bound source assertions; current owner aggregate covers filename/filter, bounded fallback and timeout guards. Does not execute storage/browser stream in this test."
+    },
+    {
+      "path": "frontend/features/documents/components/document-bulk-upload.contract.test.mjs",
+      "sha256": "d8752f767c96554baf09e06b9f62ed351c4a59f7c7bb8bf4c4d48dea2e7e677d",
+      "physical_lines": 468,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete current467-line source physically read in three bounded parts, closing prior focused loader-only source-read scope for this exact hash. Includes executable real chunk/verification/manifest helpers with bounded counts/bytes/concurrency/drain/abort, original opaque receipt IDs/release and UTF8 envelope; remaining source contracts follow actual API/workspace/rename owner graph and preserve original guards. Earlier rename-focused note called it379lines inaccurately; authoritative actual physical length467, now fully read. Full read does not close633-line batching decomposition or future lifetime findings."
+    },
+    {
+      "path": "frontend/features/documents/components/document-distribution-hierarchy.contract.test.mjs",
+      "sha256": "0cd35ede5aef3ecced167de3030402ace02ba5ecc4c07db9fd5c1b0e2f33e8a9",
+      "physical_lines": 94,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full six static route/workflow contracts; only twofamilies/fivelanes, invalid scope/leg notFound, legacy group context, operation/unsaved-confirmed navigation. Actual source catalog used; no new browser runtime qualification."
+    },
+    {
+      "path": "frontend/features/documents/components/document-group-list.test.tsx",
+      "sha256": "f7c310c37f9c43b89c6fa72082576a729672f4103c76cf77518f870606335bf5",
+      "physical_lines": 47,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full current two rendered search cases. First explicitly sets failed base query then expects successful-empty wording: evidenced misleading UI follow-up reported to root, not silently marked cleared. Server search result still must render independently. Query hooks mocked."
+    },
+    {
+      "path": "frontend/features/documents/components/document-group-search.contract.test.mjs",
+      "sha256": "21272b21a58492047953323f636e3ea31c720e8e85b69d8d268ec3377ee35c29",
+      "physical_lines": 17,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete static contract source; asserts group/passenger search text, server-scoped hook/signal and normalized API params. Regex wiring supports source shape, not rendered or live authorization qualification."
+    },
+    {
+      "path": "frontend/features/documents/components/document-manual-review-dialog.test.tsx",
+      "sha256": "830a66fd93c079d6478873f9eb85e5cc6230f81ebf5d3912ca383584422d92c7",
+      "physical_lines": 83,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full strict remount/file-change/close object URL lifetime controls, explicit confirmation/busy Escape and approval gates/error rendering, four clamped progress variants incl zero/overshoot/rejected count. Actual shared modal and synthetic blobs."
+    },
+    {
+      "path": "frontend/features/documents/components/document-row-action-menu.test.tsx",
+      "sha256": "93f6e65c4cdb791e1dd6d0628c237e1214c8d50311d5a0357c26f84abb162aca",
+      "physical_lines": 82,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full nested portal/focus/keyboard/movement cases; menu remains inside owning dialog but outside scrolling table, Escape stops parent close/returns focus, queued unmoved scroll retained and moved/resize closes, explicit removal preserved. Mocked bounds/jsdom only, not production viewport qualification."
+    },
+    {
+      "path": "frontend/features/documents/components/document-whatsapp-delivery.contract.test.mjs",
+      "sha256": "2b69b084fef923e4f0ce1a8e109a28524293c11c45edbe09bb499bdb53432794",
+      "physical_lines": 100,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full six static source contracts for reviewed perpassenger documents, preview/send/tracking endpoints, group compact panel, multiple-document row/count/filter/removal/search semantics and flightlane IDs. Retains actual source owner aggregation; not provider delivery evidence."
+    },
+    {
+      "path": "frontend/features/documents/components/document-workspace-model.test.mjs",
+      "sha256": "5599cade37377f67a6f76fec16946250f5d705017354351c4c54e6a492093a2d",
+      "physical_lines": 221,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full eight executable pure model contracts viaTypeScript transpile;multiple/legacydoc compatibility,same-name identity separation,151st-row filterrefresh,serverphysical sharedcounts,duplicatedassignmentID count,search/status filters,stale selectionintersection,andexact receipt/defaultdeliverypayload. No API/browser/sourcewrite."
+    },
+    {
+      "path": "frontend/features/documents/components/document-workspace-responsive.contract.test.mjs",
+      "sha256": "2d0db63946a22a5212a0ec39dbe09fda9d79ac7f202a7bb784f1a7beb9e1c411",
+      "physical_lines": 28,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete source contract; enforces minimum roster width/accessibly keyboard-scrollable region and portalled viewport-bounded menu with listener cleanup. Static source assertions do not prove actual browser geometry."
+    },
+    {
+      "path": "frontend/features/documents/components/document-workspace-review-controls.test.tsx",
+      "sha256": "b96317dc61e1efb86ecaf9644b5d57144ebf0ac95187f789ce9796a39a0bd5fa",
+      "physical_lines": 58,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full actual filter/export controls; multiple/shared PDF filters forward correct state and export callbacks without removal/delivery side effects. Synthetic counts, no export transport execution."
+    },
+    {
+      "path": "frontend/features/documents/components/document-workspace-source.contract-helper.mjs",
+      "sha256": "6ef7beefca03a9fd68e2a3eedc841c6323eec9ecc28015d0ca4c7abab597bd76",
+      "physical_lines": 26,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete26-line explicit workspace owner source catalog and concatenating reader physically read. Aggregator content is static source evidence; no inference that all aggregated paths were executed or manually read from this helper."
+    },
+    {
+      "path": "frontend/features/documents/components/ecr-results.test.tsx",
+      "sha256": "99585c6882edc5760092eaa66a3f7a520cf72dfd362a1bb2fa67a31968e02610",
+      "physical_lines": 45,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full status/page controls; failed/pending/unclassified never rendered NA;1000 items/duplicate names bounded50-row pages, review details/filter, terminal-only download/retry. Actual view, synthetic typed rows."
+    },
+    {
+      "path": "frontend/features/documents/components/manual-passenger-document-dialog.test.tsx",
+      "sha256": "e06da24cac889d47465c228e155209a3bb2da20d4c6ce7916fd67f0d90af03a0",
+      "physical_lines": 71,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full five manual assignment/menu/controlled-row/link cases; exact selected document revision, correct passenger/direct add, empty checkbox stays controlled, no null placeholder links, protected link rel retained. API/HTTP actor checks separate."
+    },
+    {
+      "path": "frontend/features/documents/hooks/use-document-workspace-delivery.test.tsx",
+      "sha256": "f316cfb41ab78c57c320c2966c61c021fe0f05ba7e84eb82a44dd8af5b50e05d",
+      "physical_lines": 45,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full send-admission hook controls; two same-turn sends invoke mocked mutation once, settled callback releases lock, exact reviewed token/selection/message preserved, fetching/ineligible preview blocked. Transport/provider mocked."
+    },
+    {
+      "path": "frontend/features/documents/hooks/use-document-workspace-upload.test.tsx",
+      "sha256": "67f124f72ecbd36b36b4570232a79a8aae58a7ed8a5851cacbd0cb67e04acd1f",
+      "physical_lines": 57,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full same-turn duplicate-check and unmount/late-response controls; one review request, real controller AbortSignal aborted, late result cannot resolve filename or verify. Distribution APIs/manual hooks mocked intentionally."
+    },
+    {
+      "path": "frontend/features/documents/services/document-upload-recovery.test.ts",
+      "sha256": "5c9ec59fa7fdd9b795fa660b27980d46bf1d0b8df1ad39ed42ea622a8948f4b7",
+      "physical_lines": 120,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full five recovery controls; receipt-only manifest versus sanitized display, final acknowledgement cleanup, tampered count removed, explicit discard and storage-denied cleanup fallback. Synthetic sessionStorage capabilities only; actor reset broader tests separate."
+    },
+    {
+      "path": "frontend/features/documents/services/ecr-upload.test.ts",
+      "sha256": "92089b27c882371a5e6a945a44c034600926e1f2808de8eb8df422c68c43ec67",
+      "physical_lines": 86,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full six upload-layer controls;1000 unique identities/duplicate names, input/count/byte limits, reordered reselection same IDs,3 concurrent chunks/resume skipping saved items, drains other inflight chunks on failure. Synthetic file size overrides and local timers, no image/provider processing."
+    },
+    {
+      "path": "frontend/features/gc-app/api/gc-app-admin.api.test.ts",
+      "sha256": "85938d7c2d7a50f60ca66ff1cc1b2fa939bdc0ea316d5082f72dba40b6cc2b6d",
+      "physical_lines": 180,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full API facade/projection controls with mocked HTTP and actual authStore; bounded ordered directory fan-out, actor-change stops follow-up reads/writes, exact audit pagination without metadata, PDF MIME rejection, revision-preserving setup removal/restore, separate revoke, availability/role/date preservation and single-request announcement publication. HTTP adapter and backend authorization not executed."
+    },
+    {
+      "path": "frontend/features/gc-app/components/announcement-notification-status.test.tsx",
+      "sha256": "2a21a8f8012b374cbe4239586db710a1d388c7ede5903339cac4f35c71cbac3d",
+      "physical_lines": 107,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full lazy diagnostics panel with QueryClient/mocked status API; expansion-only scoped GET, recipient/device distinctions, explicit retry, provider accepted versus phone display, sanitized failure-code labels including private synthetic code. No real provider/device receipt execution."
+    },
+    {
+      "path": "frontend/features/gc-app/components/announcements-panel.test.tsx",
+      "sha256": "df1ae01cd4840da86ed8b8444dfaf58899b547889ee80a98aa43dc47bb4d45ca",
+      "physical_lines": 89,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full five actual publication controls; draft clears only on success, one publish intent/failure retains editor, exact local-to-ISO schedule, publication status distinct from phone delivery, unsaved text blocks selecting another announcement. Callback/API mocked; no provider notification."
+    },
+    {
+      "path": "frontend/features/gc-app/components/app-control-group-workspace.test.tsx",
+      "sha256": "00f0b8916c10de53af2ac6845708b84b59c2943d805816cbf48234652864156b",
+      "physical_lines": 121,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full rendered workspace with mocked queries/mutations; removed trip read-only history, lazy tabs, unsaved dates across unrelated revisions, announcement draft preservation and write denial on failed refresh, bounded history pagination and End-key tab navigation. Network and server authorization not exercised."
+    },
+    {
+      "path": "frontend/features/gc-app/components/app-controls-page.test.tsx",
+      "sha256": "f8e55300bbb64412bf1515b38f489d39bda3abc9615a9b991eef6d4ee8a5cb6d",
+      "physical_lines": 208,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full actual page with synthetic authenticated actor/mocked HTTP; paused configured trips, availability filtering, active/closed eligible group additions only through GC access, company requirement, original actor tuple metadata, revision conflicts without collection mutation, bounded pagination and honest eligible empty wording. No backend permission execution."
+    },
+    {
+      "path": "frontend/features/gc-app/components/app-controls-removal.test.tsx",
+      "sha256": "45ca3161ef47e1657c39d952d51a5af831d280a824a27e01995cb7a5c109e01c",
+      "physical_lines": 203,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full actual AppControls page, hooks/facade/authStore with synthetic HTTP directory; typed confirmation, source-record preservation, role denial, revision conflict explicit reload, lost successful response read-only reconciliation, previous-page recovery, duplicate/pending guards and agency-change completion isolation. Final HTTP delegate mocked; no live deletion/backend proof."
+    },
+    {
+      "path": "frontend/features/gc-app/components/client-manager-details-dialog.test.tsx",
+      "sha256": "aaa6a1fa0054bb61679f656032aced210509896aac8aa10b8c22f3777d505a2e",
+      "physical_lines": 88,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full five account dialog controls; roving linked tabs, adopts returned revision before next action, one same-turn confirmation, copy failure retains one-time reset link, expired versus active session does not claim manager device current. Manager hooks/clipboard mocked, no real credential/session mutation."
+    },
+    {
+      "path": "frontend/features/gc-app/components/common-documents-panel.test.tsx",
+      "sha256": "97f961b9b405fae2b60f89bf781c0c39136e22e1397d7c90b286c8c782656746",
+      "physical_lines": 80,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full five actual content UI controls: synchronous upload admission, unmounted private preview cannot allocate URL, published/scheduled/expired/draft distinction, file retained after failure without automatic retry, mutations disabled during unavailable refresh. Callbacks/blob mocked, no server publishing/storage action."
+    },
+    {
+      "path": "frontend/features/gc-app/components/gc-select.test.tsx",
+      "sha256": "48776aa15e2fbb709c3aabd52bb6a9f0fd7a91c7e0d0621ce6f9512c01eb29b8",
+      "physical_lines": 46,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full actual nested modal select keyboard controls; searchable popup avoids inert ancestor, Escape closes popup then owning dialog with focus return, loading options cannot Enter-select, settled arrow/Enter picks correct value. Actual shared modal, jsdom notviewportgeometry."
+    },
+    {
+      "path": "frontend/features/gc-app/components/group-access-panel.test.tsx",
+      "sha256": "1a41c8f0e8bc75b10c4376fcca2b0debd251cb0b682daface55318b3bcbf11b9",
+      "physical_lines": 184,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full actual panel prop/callback controls; canonical My Photos state until confirmed props, rejected/pending/unavailable gates, pause/restore preserving roles/dates, disable despite missing prerequisites, date edits across unrelated revision, explicit conflict reload, chronological validation and failed-save retention. API/backend mocked at callback boundary."
+    },
+    {
+      "path": "frontend/features/gc-app/gc-app-dashboard.contract.test.mjs",
+      "sha256": "6c5255cb4de1757800c3455bd3b80f5daae3768e96decd7a879dcc31d5408c43",
+      "physical_lines": 267,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full static GC route/sidebar/capability and source-helper contracts; isolated account/removal/revision APIs, bounded/lazy pagination, private mutation owner assertions around cancellation, dedicated My Photos, retained roles/dates, document preview lifetime, fixed publication semantics, no sensitive persistence and dialog/dropdown accessibility wiring. Source assertions do not prove runtime authorization or provider outcomes."
+    },
+    {
+      "path": "frontend/features/gc-app/gc-app-source.contract-helper.mjs",
+      "sha256": "e3ddab850e9199b8041a72a6e2966f4f03bdf2cd23347d6ab8fdcfc2a05d8861",
+      "physical_lines": 33,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full explicit GC API/hooks/controls/manager/documents source aggregates physically read. Shared catalogs follow extracted owners but do not themselves establish downstream execution or manual source review."
+    },
+    {
+      "path": "frontend/features/gc-app/hooks/use-gc-app-admin.test.tsx",
+      "sha256": "377fce9906a232b9f8ee75dd769772a86a9314ac0db8585be4d632b9e4fdf325",
+      "physical_lines": 233,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full actual private mutation hooks/authStore/QueryClient with mocked API; queued global onMutate actor swap prevents dispatch, response/cancel-await actor swaps cannot repopulate control/content cache, canonical revision monotonicity, failed refresh preserves confirmed result, uncertain publication no resend, draft replacement retains published document and dedicated My Photos revision/conflict behavior. Real HTTP adapter not executed here."
+    },
+    {
+      "path": "frontend/features/gc-app/notifications/notification-audience-picker.test.tsx",
+      "sha256": "1cfaf3a074d2723339f1cf5f12b95046515de414148df6cf8ea7ac87356b7ec0",
+      "physical_lines": 59,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full actual multi-group picker controls;20-row cursor pages/search retain explicitselectedgroups and removable names, all-active scope clears selected-group request shape. API mocked; no entire agency fetch or live send."
+    },
+    {
+      "path": "frontend/features/gc-app/notifications/notification-delivery-summary.test.tsx",
+      "sha256": "bdb361d85e7cba1ff40eaace276736478eb06362ada9e823691d7b6a45157b6b",
+      "physical_lines": 44,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full actual delivery-window projection controls with fake time; expiry relabels queued/retry unsent while preserving provideraccepted/unknown evidence and original input immutability, alreadyexpired view immediate. Querynetwork mocked, no device delivery confirmation."
+    },
+    {
+      "path": "frontend/features/gc-app/notifications/notification-history-page.test.tsx",
+      "sha256": "32a7244d94c9dc54d9dcf9454e99fb77b74cf99ee671dba0c27681101151492b",
+      "physical_lines": 134,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full rendered read-only history with mocked actor/scope/API; immutable message/audience/provider counts, detail close, cursor previous/next, actor/agency reset of detail and cursor, loading versus genuine empty, initial/refresh retry retaining cached records and no fetch without scope. No backend/provider receipt execution."
+    },
+    {
+      "path": "frontend/features/gc-app/notifications/notification-review-dialog.test.tsx",
+      "sha256": "21304979f7a00a66f8b17f1ac8273aeb51c9439a0683d3706f100a00d409cab3",
+      "physical_lines": 58,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full five actual review-dialog controls; exact message/audience and explicit send only, expired/zero audience blocked, disabled/no-device warning does not claim delivery, deliberate resend versus same-request recovery distinct, disappeared chosen group blocks silent narrowing. Callback fixtures, not provider sends."
+    },
+    {
+      "path": "frontend/features/gc-app/notifications/notifications-page.test.tsx",
+      "sha256": "155b0ed26a6829469ea4ef7c6594e3c46b93ec3b7586f612dd123517ddf0f400",
+      "physical_lines": 133,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full rendered notification workflow with synthetic actor/QueryClient and mocked APIs; review before explicit send, pending-send read-only recovery, resend only prepares editor, history route separation, save/discard behavior and confirmed failed-delete recovery. Provider sends and HTTP authority adapter not exercised."
+    },
+    {
+      "path": "frontend/features/gc-app/notifications/notifications.api.test.ts",
+      "sha256": "d32e28e30fe9c8f596670ed7acf5f55637f031b5cba8d2791a2c0e7cbda2ca7c",
+      "physical_lines": 74,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full eight facade transport contracts; originalactor metadata onpreview/recovery, agency+revisionboundedit/delete and no implicit send, exactUUID retry payload, GET-only acceptance recovery,20-item cursorhistory, originaldraft recovery binding. Mock client, actual sharedadapter/cookies/backend covered separately."
+    },
+    {
+      "path": "frontend/features/gc-app/notifications/pending-send.test.ts",
+      "sha256": "6166d8b9c2d9741ef5f5ed28af37d27f7e70ef14ed14507424d3b3a23c8b099f",
+      "physical_lines": 29,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full marker privacy/scope cases; stores only request/draft IDs underactor+agencykey, no message content, malformed path/JSON rejected, explicit cleanup. Synthetic sessionStorage metadata, no send endpoint."
+    },
+    {
+      "path": "frontend/features/gc-app/notifications/use-notification-composer.test.tsx",
+      "sha256": "0ebd208f6351cfb3168da828b41634097b9ff206b70a7a6fd1768e72058daebb",
+      "physical_lines": 286,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full actual composer/query/authStore with mocked notification API/storage; account/unmount continuation fences, opaque marker before send and double-click suppression, preserved unknown outcome across reload/account changes, read-only lookup, original UUID retries versus fresh deliberate resend, exact proven no-send unlock conditions, draft conflict retention and storage failure blocks send. No real provider/HTTP execution."
+    },
+    {
+      "path": "frontend/features/mcp/api/mcp-request.api.test.ts",
+      "sha256": "018479ee8e5028e3199b297c4d200e55982e7896fe042005a093a2b5a71423aa",
+      "physical_lines": 26,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full requester cookie/status/finalize contracts; explicit bound header,noquerysecret,no-store/noredirect/referrer, empty finalizebody and sanitized404/409/500errors. Mock fetch, actual server cookie/redirect authority separate."
+    },
+    {
+      "path": "frontend/features/mcp/api/mcp-transfer.api.test.ts",
+      "sha256": "ee26d44b3a982c38a5fe4eeb8c38defee3b1fb792cbbfa5e86b9df6ce875a229",
+      "physical_lines": 25,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full limited credential fetch contracts; token only Authorization, cookies omitted, redirects/referrers/cache blocked, encoded ticket path, upload media/ACKbytehash and bounded public failure without raw server details. Mock fetch, not live MCPtransfer/delivery confirmation."
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-connection-state.test.tsx",
+      "sha256": "ffccf1f6091a4d16feefbc81e62527d92e4f435e83d5c0bc765072ea16a888cd",
+      "physical_lines": 169,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full actual admin/query/authStore with mocked MCP API; retained expired/revoked metadata, confirmed versus denied/cancelled deletion, all device states, keyboard safe focus/Escape, pending competing actions, confirmed cache removal across pages despite failed refresh, immediate role downgrade hiding. No server OAuth mutation proof."
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-devices.test.tsx",
+      "sha256": "ebd0fa1cef03da770e68840abb9aa02bd86d321f2a3530afb2b7c728973c98f1",
+      "physical_lines": 111,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full actual devices view/query/authstore with mocked MCP API; connection-specific enable/disable, confirmed-state pending/duplicate handling, failed/cancelled step-up retains old state, revoked/expired/stale-enabled/unverifiable overview fail closed. No actual OAuth/server grant mutation."
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-permission-sections.test.tsx",
+      "sha256": "bed7998893ba822843e5655b014fe3c9cc0ac323d322f7f28475bc865329ab8b",
+      "physical_lines": 59,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full four actual permission-section controls; supported read/write only, implemented globallydisabled choices retained but immutable, server future-description preserved. Server catalog authority enforcement not established by UI switches."
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-permissions.test.tsx",
+      "sha256": "cc93c8d6e8365e1c1302796df50f2269942a82f612becb198570ad7f19e05454",
+      "physical_lines": 152,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full actual panels/connection card with mocked MCP API; separate read/write choices and tool derivation, pending duplicate suppression/cancel preservation, revision conflict explicit reload, deployment write ceiling, original device scope ceiling, cached refresh failure and malformed catalog fail closed. No real grants/step-up/backend execution."
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+      "sha256": "07e866b8fcb0c3e0eb2a2eb53258e951de8e2165019e337e93713a7842b040a1",
+      "physical_lines": 221,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full actual admin/QueryClient/authStore with mocked MCP APIs; read-only deployment ceiling over retained grants, explicit revision-safe save/confirmed projection, pending and MFA-cancel states, stale cache/server conflict explicit reload, failed refresh fail-closed, original connection scope reduction, lazy tools, hidden exports/transfers and live mode downgrade unmount. No real grants/provider execution."
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-simple-access.test.tsx",
+      "sha256": "36b85b4095967c5ddb4f8f02bdb52c79b6d68baafa7554f963770fe9ea971662",
+      "physical_lines": 99,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full current admin navigation/setup controls; only selected pagequeries mount, no advanced technical payload exposure, copying resource grantsnothing, wrongowner/client/inactive grants notauthorized, emergency/deployment disable reflected, incompletepagediscovery distinct from missingapproval. Actual React/query/authstore with mocked MCPAPI/clipboard."
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-work-results.test.tsx",
+      "sha256": "5ff49f8fa9c85dfa759c3bd4c5dbde69089ca757b674f1f92fb631729f1846d7",
+      "physical_lines": 135,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full rendered MCP workflows/files/inventory with mocked APIs; safe internal entity links reject external paths, server offsets, honest workflow stage/unknown versus delivery distinctions, upload/import/artifact states, deployment ceilings and failed-data versus empty. No provider/server workflow execution."
+    },
+    {
+      "path": "frontend/features/mcp/utils/permissions.test.ts",
+      "sha256": "229598f6753c46021ba4fe2cfbcd969b74885e5e7ecefef1a8d66089d66facf7",
+      "physical_lines": 55,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full pure permission matrix; complete tool section prerequisites, every effectful scope distinct fromdiagnostic, readonlysaved choices retained, malformed/version/duplicate/unknown authority failclosed, stored scope not equal enabled deviceallowance, unsupported sections labelled accurately. Synthetic catalogs, no backend OAuth grant."
+    },
+    {
+      "path": "frontend/features/operations/components/dashboard-realtime-attendance-bridge.test.tsx",
+      "sha256": "ddcabae5206a8cc2cb0b6241a706c30fac6cacd36d711bf1cba0517d6fcd0193",
+      "physical_lines": 147,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full bridge with actual authStore/QueryClient and synthetic EventTarget WebSocket; cookie-only URL, heartbeat acknowledgement, duplicate attendance hints suppressed, documents invalidation, unmount close and unsupported super-admin no connection. No live WebSocket/server proof."
+    },
+    {
+      "path": "frontend/features/operations/components/managed-account-controls.contract.test.mjs",
+      "sha256": "4dea0922b9676f77889d3474445be4dd994e4400cecc6eeb7a6e831413ca7b55",
+      "physical_lines": 23,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full two static menu/deletion-error contracts; actual menu containment and visible mutation error projection. Static source only, not actor/server authorization evidence."
+    },
+    {
+      "path": "frontend/features/operations/components/managed-accounts-panel.contract.test.mjs",
+      "sha256": "9b79ea8d081d41c8a6bd05a386045d1e8fad0767a9b09be310281a792f6bee05",
+      "physical_lines": 24,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full two static staff scope/error/cache contracts; sameagency nonarchived/nondeleted group choices, failure alerts and returned staff cache update. No actual assignment API executed."
+    },
+    {
+      "path": "frontend/features/operations/components/qr-whatsapp-delivery.contract.test.mjs",
+      "sha256": "89194783efb3544ed296e48eb1ff52ca321adf88e35b018b6063ae707f5ac408",
+      "physical_lines": 32,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full static QR preview/send/poll contracts; perpassengeractiveQRreview, selection/uncertain exclusion/editable message, dedicated API routes and active-only1500ms nonbackgroundpoll. No actual QR/provider send."
+    },
+    {
+      "path": "frontend/features/operations/components/rooming-roster-grouping.test.mjs",
+      "sha256": "29867067d9f6b4d562a9906ea32fd97598a9eedbad09d737ed1307777bc51a13",
+      "physical_lines": 62,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full pure grouping/sorting controls; stable Unicode/numeric sort and direction, normalized case/whitespace keys merge,missinglast and displayed counts. No roster/server mutations."
+    },
+    {
+      "path": "frontend/features/operations/components/tour-operations-ui.test.tsx",
+      "sha256": "0906c0cba23ed8d03f264ce4745fa32110aa7e14d46f3f1c5fefe8fad2823cdc",
+      "physical_lines": 24,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full actual coordinator multiselect control; original selected ID toggles exact false, already-open item becomes disabled during save and cannot invoke again. Synthetic coordinators/callback only."
+    },
+    {
+      "path": "frontend/features/operations/services/attendance-invalidation.test.ts",
+      "sha256": "90ec827d59c4631499c26d10b2cae59a2e90a6feeee87c0c8cc83b9b8f6b6bb3",
+      "physical_lines": 48,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full pure jitter/hint contracts; deterministic bounded active/inactive repair intervals, malformed group/source/date invalidation hints rejected, invalid jitter range throws. No live cross-tab/server event stream."
+    },
+    {
+      "path": "frontend/features/operations/services/dashboard-realtime.test.ts",
+      "sha256": "8b7b7bafa208b8c094fe55ce87f834a3cd1e34118dc782db33287e2da7e683e0",
+      "physical_lines": 109,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full pure realtime protocol controls; same-origin cookie WS URL without query secret, invalid hosts/schemes, exact bounded ready/heartbeat/sync_hint parsing, UUID/cursor/query-family limits and reconnect/auth backoff. No actual WebSocket/server-stream proof."
+    },
+    {
+      "path": "frontend/features/operations/services/qr-image-generation.test.mjs",
+      "sha256": "1531d756620d09bad6aacbba16aefcbf6e5e63d9bb6e133d72ce3cf1375061d5",
+      "physical_lines": 149,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full pure async rasterization controls plus source lazy-load checks; shared worker limit across overlapping generations, stable order, exact unchanged-payload cache reuse and successful progressive results despite one failed QR. Renderer synthetic; no QR library/image browser execution."
+    },
+    {
+      "path": "frontend/features/operations/services/rooming-allocation-mutations.test.ts",
+      "sha256": "bb89b956c4d8552a791ec724b100eee55cde011387afbdf3f73eeeffe8f5cf1b",
+      "physical_lines": 225,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full pure revision/delta controls; target and source revision requirements for moves, multi-hotel merge preserving static fields, compact occupant IDs hydrated from authoritative roster, out-of-order response rejected without changing cached workspace. Synthetic DTOs only, no actual database transaction."
+    },
+    {
+      "path": "frontend/features/passports/api/passport-operation-owner.test.ts",
+      "sha256": "2c9dd6c23690157b79a0524cb092e4785d03df9a19698c91e40cb9d696f0a7b8",
+      "physical_lines": 75,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full actual passport facade tests with mocked client/stream utility; initial owner across chunks/poll/export ACK, stale progress callback safely ignored without throwing, valid chunk order/config retained. Scope does not claim actual backend/private adapter execution in these mocks."
+    },
+    {
+      "path": "frontend/features/passports/api/public-upload-session.test.mjs",
+      "sha256": "6eb571a9404c7c950edaac92f973c8078b1a73c516f01eb7f42425a9914299b0",
+      "physical_lines": 64,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full tab/group bootstrap identity controls; stable opaque ID per group, malformed stored value replaced, storage denial uses bounded page-local stable fallback. Public bootstrap token scope not confused with staff actor metadata."
+    },
+    {
+      "path": "frontend/features/passports/api/staff-approval-contract.test.mjs",
+      "sha256": "b00000ae32cfa933a246c39fb1e7d443a2fb38becb381a21dec954addf70c569",
+      "physical_lines": 39,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete serializer/outcome controls; expected extraction revision/corrections/reason trimming and approval response headers preserve submission reference. No actual approval authority request."
+    },
+    {
+      "path": "frontend/features/passports/components/create-upload-link-modal.contract.test.mjs",
+      "sha256": "4fa83fbbf1ec3331480cf1d51235293b61375e1cd1da7d37c02bf2211e4303e4",
+      "physical_lines": 95,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full eight source contracts through actual creation owners; same-turn admission, busy close/copy errors, required trimmed destination/dates/timezone, bounded broadcast matching options and custom detail uniqueness. No actual link/provider dispatch."
+    },
+    {
+      "path": "frontend/features/passports/components/group-document-delivery-panel.test.tsx",
+      "sha256": "2f2a9b2ace925c1315cf0094e191f1cf3c8958288410616f8e6ede0e95cc2333",
+      "physical_lines": 57,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full current delivery receipt/empty/error controls; delivered+read only, accepted versus awaiting/unknown/failed separate, collapsed history, unavailable not empty and route retained. Query hook mocked, no provider status request."
+    },
+    {
+      "path": "frontend/features/passports/components/passport-bulk-delete.contract.test.mjs",
+      "sha256": "222f26eee91758f2d487853a06cb8473002e3bcd00597e165429b2dfebdd7d3f",
+      "physical_lines": 89,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full four source contracts; group scope/cache invalidation, permanent-delete role and nonempty selected-actions actual import/child wiring, count-specific destructive confirmation, successful selection cleanup and visible deferred-storage errors. No original expression injection or backend delete invoked."
+    },
+    {
+      "path": "frontend/features/passports/components/passport-cover-images.test.tsx",
+      "sha256": "2e0d54a6c5770e45736fb8259bac3202c03ec4c085854ed7084a0ca5c4b06c94",
+      "physical_lines": 69,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full shared cover controls; both cover types open/change/crop through correct image revision/trigger, viewer remains readonly, five-document matrix preserves identities. Thumbnail/cell implementations mocked, no private image transfer proof."
+    },
+    {
+      "path": "frontend/features/passports/components/passport-display-name-dialog.test.tsx",
+      "sha256": "2d286b5f8c00b4e7ab87c291bcdec776e2c640033c0c9967ddfce0ae9fb799c5",
+      "physical_lines": 84,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full five alias-editor controls; only normalized alias/original revision, restore name, conflict keeps draft and requires explicit reload, duplicate save blocked, empty/other-group submission disallowed. Query/mutation hooks mocked."
+    },
+    {
+      "path": "frontend/features/passports/components/passport-document-cell.test.tsx",
+      "sha256": "ae2cfb2409070133f8809c99ced57e7a3fcb799c5f4e2296aae67b1e780fea02",
+      "physical_lines": 137,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full seven thumbnail/cache UI lifecycle cases; protected thumbnail versus full Open link, failure retry, unmount abort/no late URL, row reuse versus page release, edited-image-only refetch, inflight row remount retention and decode failure invalidation. Loader/URL/intersection mocked; no production media decode/backend claim."
+    },
+    {
+      "path": "frontend/features/passports/components/passport-document-revisions.test.tsx",
+      "sha256": "f797a919f248f6fed376442f615895742d0d33fb8fce8f1d04a40e8bd685941c",
+      "physical_lines": 98,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full actual controller/roster/dialog integration case; repeated edits update only correct passenger/image revision, preserve other four images/other traveller,3 refetches. Crop editor/document cells mocked; no image transport/storage save proof."
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-detail-boundaries.contract.test.mjs",
+      "sha256": "babd6ba3e55b2369a507d713190d3c28d641970b96eccdc8714ff0371d618747",
+      "physical_lines": 51,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full static ownership contracts; optional editors dynamic, status announcement, rendering implementations and normalization helpers have focused source owners. Source graph assertions do not establish runtime/manual-read coverage of imported modules."
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-detail-source.contract-helper.mjs",
+      "sha256": "c540c85b3538cc4f50a27065de6fba7fa7ca92dce67ff1d4fffbfb5d7c607ac6",
+      "physical_lines": 75,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full75-line actual owner catalog/aggregate and AST handler reader. Reads coordinator/controller/helper set with explicit body lookup; missing handler throws. Catalog alone grants no imported-source manual or runtime coverage."
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-detail.contract.test.mjs",
+      "sha256": "60401d9aea3b834af71e7a98931674784b11ded3fff5cfbdc13339998fc6f939",
+      "physical_lines": 371,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete371-line source read in two bounded parts. Actual wired owner source contracts preserve body portal, server sorting/duplicates/paging/expiry, full-group versus selected streaming/export guards, request identity, roles/selection/revisions/approval outcomes, lazy bounded thumbnails and completed workflow polling. Exact live handler AST extraction avoids adjacent-module false matches. Source contracts are not runtime/server/browser load evidence."
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-overview-panel.test.tsx",
+      "sha256": "6aeac9e706c0e2dcdb87fcb3df415c676460a0b00384a38931205c3738e66b15",
+      "physical_lines": 189,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full actual summary/editor controls; accessible disclosure, role/deleted/import-only tracking boundaries, import-only collection clearing, relationship-method preservation/required choice, legacy airport/custom settings explicit disable, configured labels/optional requirements without advertising disabled scanner. Tracking panels mocked, no save backend."
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-role-access.test.tsx",
+      "sha256": "7a83e70f056129b4a260f65e3dc3e9afa356d5a8b89df629cf13d4d43747fba0",
+      "physical_lines": 112,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full rendered role matrix using actual controller/toolbar/dialog. Admin roles require destructive confirmation; staff retains approval/WhatsApp/display/follow-up while deletion hidden, coordinator follow-up/name actions hidden. Feature queries/mutations mocked, no server deletion/authority proof."
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-selection.test.tsx",
+      "sha256": "84976a57b83594a805f0cd36fdcd407e83241fa19c0f32bce93bbf8bf97100af",
+      "physical_lines": 84,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full five controller selection controls; same-turn functional toggle and1500 cap, decimal count rejection, manual selection retained during preset add and authoritative revisions carried only for admitted IDs. Feature query/mutations mocked; no destructive backend action."
+    },
+    {
+      "path": "frontend/features/passports/components/passport-image-crop-editor.contract.test.mjs",
+      "sha256": "e9aeb74e47825a5cd2f7566b7266ffaeeccf0f44d383c17c7e82c8e210141d05",
+      "physical_lines": 200,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full eleven source contracts over actual editor/API owners; five images/change/edit/open revision, role guards/authenticated edit source, keyboard/pointer/focus, Visa-only AI job/library controls and safe errors, persisted polling/resource cleanup, rAF/fine-rotation preview budgets and optimistic crop reset. No provider image generation or actual production canvas behavior from these regex assertions."
+    },
+    {
+      "path": "frontend/features/passports/components/passport-workspace-dialogs.test.tsx",
+      "sha256": "1a57fba24b3c14780e61c6a6a84db66d59807da66b93246bc00f0d8e69e7f754",
+      "physical_lines": 72,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full five actual modal/progress/normalization controls; labelled focus boundary and busy Escape, accepted-file gating, byte progress, timezone caller describedby plus only rendered helper/error ID, trip city/date/name normalization preserves all settings."
+    },
+    {
+      "path": "frontend/features/passports/components/whatsapp-broadcast-selector.test.tsx",
+      "sha256": "55955de7afcc99f7cb71d0f1a42fd5a9b4816be0b2228a33e508c01d3365b033",
+      "physical_lines": 194,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full six controlled selector cases; archived link can unlink not re-add, safe familiar default fields and explicit OR semantics, legacy-null retained until selection, no stored headings remains compatible, emergency/arbitrary field not silently selected,32-field cap keeps existing choices removable. Hook mocked, no broadcast transport."
+    },
+    {
+      "path": "frontend/features/passports/components/whatsapp-match-evidence.test.ts",
+      "sha256": "55a89676dd0933f7101e95e95487e3bd50e370fede208af446f1f1efa2b56f51",
+      "physical_lines": 28,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete pure dynamic evidence label controls; public custom-field label/alias resolution and safe fallback humanization. Synthetic fields, no contact matching/backend claim."
+    },
+    {
+      "path": "frontend/features/passports/services/document-thumbnail-loader.test.ts",
+      "sha256": "2ae1373fd89e2f40734a4f766ca5b40a176d4f523733253423e35cd02ef3444d",
+      "physical_lines": 129,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full thumbnail schedule/transport controls; five image/legacy URL mapping with external URL untouched, six-slot cancellation queue, server RetryAfter/refill/depleted-budget pacing, cooldown abort, bounded transient retry/non-image failure. Mock fetch/clock, not private backend permission or physical network performance."
+    },
+    {
+      "path": "frontend/features/passports/utils/passport-image-crop-geometry.test.mjs",
+      "sha256": "c76566f82950d6cdab5327318ff1b5c88b43543b3e688861d918d40280d06d78",
+      "physical_lines": 92,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full seven pure crop controls; move/corner bounds/minimum, quarter-turn physical rectangle and four-turn roundtrip, malformed server geometry repair, whole/fine rotation normalization and bounded arbitrary-rotation canvas. No actual raster interpolation proof."
+    },
+    {
+      "path": "frontend/features/passports/utils/passport-image-editor-viewport.test.mjs",
+      "sha256": "685e7cc5c6f47e610908b88a63aceb03164e84907d392d4a9fb7eed3d7ef2060",
+      "physical_lines": 112,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full pure viewport controls; landscape/portrait/native-size fit, all360angles bounded, malformed/tiny viewport safe, zoom1through3/native clamp, immutable input. Narrow Node TS import resolver deregistered after actual helper import; no browser crop rendering claim."
+    },
+    {
+      "path": "frontend/features/passports/utils/passport-image-library.test.mjs",
+      "sha256": "70dba3f217faf0210bfcb542e4baf7ce3d27e68994fa092a66093ab962b51293",
+      "physical_lines": 45,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full manual replacement format/size/source-label controls; supported HEIC/TIFF compatibility, empty/over10MiB/SVG rejection before replacement. Metadata-only file objects, not actual decoder validation."
+    },
+    {
+      "path": "frontend/features/passports/utils/passport-reextract.test.mjs",
+      "sha256": "f322c9507fbb64f163d1ef94f0e1a81211b988a77609b2d13f7de22b87351b56",
+      "physical_lines": 44,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete four pure verification/extraction controls; more than three distinct supported incorrect fields, verified/nonstale/source gate, pending workflow feedback and provider-verdict-specific completion. No extraction/provider invocation."
+    },
+    {
+      "path": "frontend/features/passports/utils/passport-workflow.test.mjs",
+      "sha256": "0c1ca3191f0f2e0aac2282f871a8221b3f24dd7a01b2df8de1abdde6bb1cc736",
+      "physical_lines": 25,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete async versus terminal workflow status controls including legacy extraction-processing compatibility. Pure polling decision only, no OCR/provider call."
+    },
+    {
+      "path": "frontend/features/tour-operations/components/browser-offline-readiness.contract.test.mjs",
+      "sha256": "1d6412ceba527a25c7a203e30cba1b8f818c4915867c1d685113cd83a9109834",
+      "physical_lines": 45,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full three static signed readiness/capture contracts; common trusted-time/session/QRhash/runtime expiry gate, cached readiness lifecycle and signed availability, online availability/offlinefailclosed camera controls. Source-shape assertions not full cold offline browser or cryptographic integration evidence."
+    },
+    {
+      "path": "frontend/features/tour-operations/components/coordinator-pwa.contract.test.mjs",
+      "sha256": "1212f837a58f21ef9acb5e12a0ef5f32769fee720697af24164015be1626a969",
+      "physical_lines": 447,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full 447-line static source/asset contract; safe coordinator returns, bounded rosters, manager-only canonical lifecycle and checkpoints, queue replay/retry/quarantine, scoped encrypted queue and signed offline runtime identity, stale-owner cleanup, constrained scanner viewport and resume, exact public service-worker allowlist/version/update behavior and pinned ZXing license/SHA. It reads vendor bytes for hash only; no manual vendor implementation or cold-browser execution claim."
+    },
+    {
+      "path": "frontend/features/tour-operations/hooks/use-browser-offline-readiness.test.tsx",
+      "sha256": "4f5de1eb10b2ae3bbeea65d7e26e438d5b645fbeb9ae1c167d842ac49847e055",
+      "physical_lines": 93,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full actual hook controls; offline cached signed-readiness check withoutrefresh, oldgroup late response ignored after scopechange. Resolver mocked; no signature/IDB/network/browser coldlaunch qualification."
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-batch-policy.test.ts",
+      "sha256": "a0cef94f0ad7a9dcd2bf0c57334e7d23a1da66041cd08777de8d8dfa5b60e18b",
+      "physical_lines": 67,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full pure response reconciliation controls; exact unique event/batch envelope, only explicitterminalsuccess removes queue, null/missing/retryable responses retained and explicitnonretryable rejection quarantined. Synthetic server DTOs, no actual queue storage/API."
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-privacy.test.mjs",
+      "sha256": "8c6c8b5052ce5dfc3b935fa8b15617fa58eb304f9689f7f0dc91658273c9c6d2",
+      "physical_lines": 69,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full SHA256 reference/rejection/legacy scrub controls; deterministic owner/group/session+QRreference, safe operator review metadata and no raw QR in terminalrecord/key, legacybearer rekeyed. Synthetic QR only, no actual passenger/cache database."
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-retry-policy.test.mjs",
+      "sha256": "623d4e2787615fa4bf8b759a071894245485b05083190a4667afde19070109bc",
+      "physical_lines": 117,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full deterministic pure retry controls; server Retry-After plus positive jitter, bounded exponential backoff, exact eligibility/wakeup, canonical group/session pending/sending/retryable classification and oldest queue age. Does not execute persistent queue or transport."
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-sync-policy.test.mjs",
+      "sha256": "6ff21f9a544f7366db313bce4ce26b0d38e253eb7f02f97087f9bdb26dcf820b",
+      "physical_lines": 123,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full pure authoritative-count/replay policy; duplicate/invalid cannot inflate counts, latest active-session update wins, polling reconciliation, offline/pending/failed/rejected completion blockers, permanent versus recoverable HTTP classification, explicit rejection acknowledgement and server state overriding local counts. No actual persistence/server execution."
+    },
+    {
+      "path": "frontend/features/tour-operations/services/browser-offline-readiness.test.ts",
+      "sha256": "c96d104e915179023e199574b5d580f3cfa62f4b05ef0f184ad7683dbbfa6f9d",
+      "physical_lines": 115,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full readiness resolver controls with mocked refresh/check; valid cached signed readiness survives transient refresh failure, activity/IDB/crypto errors fail closed, trusted-expiry rechecks and online/offline capture distinctions. No actual signature/IDB/cold-launch proof."
+    },
+    {
+      "path": "frontend/features/tour-operations/services/cold-offline-authorization.test.mjs",
+      "sha256": "6699edade4943308c08969aa4956351cc452bacfbffe223f209dfd63f5c57ad1",
+      "physical_lines": 55,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full55-line standalone scanner VM controls. Actual post-signature production authorizeDecodedScan preserves verified runtimeID/QRhash/activitytime andtrusted highwater, wrongQR/closedactivity reject. Onlypersistence substituted afterexplicit key/signature/IDB boundary; notfullcold-offline cryptographic/browser qualification."
+    },
+    {
+      "path": "frontend/features/travellers/api/draft-requests.test.ts",
+      "sha256": "6865b4b773a3916c4d93b45cfba73fdc15c6577c96350526c8c05805941312c1",
+      "physical_lines": 42,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete42-line source reread after earlier truncated group output; exact fresh/returning member headers, asset predecessor, revisioned discard, credentialed small keepalive no image bytes and scoped activity route. Mock post/fetch only, no real cookie/service proof."
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-flow.test.tsx",
+      "sha256": "03b9750327164f6ca9e3c2ed0a5d1327f9133e27be03914bce3387f534ce8dfb",
+      "physical_lines": 85,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full four actual proof-flow UI controls with mocked APIs/review view; OTP candidate masks/full passport before history, date challenge privacy, leading-zero individual code, failed proof locks history and focuses fresh action. No provider OTP/cookie/backend authorization proof."
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-offer.test.tsx",
+      "sha256": "4283dafa159a149fabe25a7a901eca68506778743b301f9a08c4a1672532be18",
+      "physical_lines": 103,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full capability/menu controls; welcome prewarm cache reuse, once-only queued methods, unmount suppresses selection, disabled link/code and network failure distinct, explicit retry recovers. Actual query/menu with mocked capability service and lazy pages."
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-review.test.tsx",
+      "sha256": "43390a27467e951d693a080ed8e47536fe43e622c47648708a5aaa92247e1f76",
+      "physical_lines": 268,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete268-line source read in two bounded parts. Actual returning review/hooks verify explicit update controls, already-submitted receipt recovery, private preview cleanup/non-PII resume, current revision/version/confirmation and same-key retry, family source receipt, required pages/live photo/qualifier, preparation and re-confirmation gates, configured partial replacement, requirements409refresh and staged contact proof. API/preparation/cameras mocked; no real proof/provider/storage qualification."
+    },
+    {
+      "path": "frontend/features/travellers/hooks/draft-response-races.test.tsx",
+      "sha256": "ce9a91d0f6a509297d43f738cd6bea4e9948ab4bc8434f5f93edf1490826214f",
+      "physical_lines": 169,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full169-line parametrized Fresh/returning race source. Actual hooks with synthetic API state verify pending extraction polling thenstop, latest text before leave, canceled pagehide uploads cannot restore late images, read/upload merges preserve typed edits, exactlyone safe revision retry versus changed remoteimage conflict, byte-based uncertain key identity, stale read ignored and divergent save rejected. No actual draft/cookie services."
+    },
+    {
+      "path": "frontend/features/travellers/hooks/use-draft-lifecycle.test.tsx",
+      "sha256": "a5ba2e6721d6193dee4800deb7c76c88ab188996c81a7985c43d9143388354e1",
+      "physical_lines": 106,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete106-line source reread after truncated group output. StrictMode shares initial request without premature abort/discard, old member response ignored, callback replay cannot re-adopt original payload, hidden/visible heartbeat and pagehide leave, one explicit discard, submitted draft retention,expired-image refresh. Polling singleflight/backoff30-check cap and replacement reset controlled with fake timers."
+    },
+    {
+      "path": "frontend/features/travellers/hooks/use-returning-draft.test.ts",
+      "sha256": "ebc18f8aa3cf929c2efecd6ad2eefed03c58398b126862dc407963618996068b",
+      "physical_lines": 75,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full five autosave/revision controls; same uncertain operation then newer dirty edit, conflict rebase with background extraction and photo/qualifier metadata, edit arriving during save blocks completion, expired/replaced draft not revived. API methods mocked, no real proof/cookie service."
+    },
+    {
+      "path": "frontend/features/travellers/services/draft-module-budgets.test.ts",
+      "sha256": "cf3ee80851c066e02aa904bf2207ec5f0ace1343a5e6d064cedcce17d2f66b5e",
+      "physical_lines": 42,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete20 additive local budget entries and evaluator usage physically read; size/complexity assertions retain caps, no downstream source-read credit inferred from table or parent budget script."
+    },
+    {
+      "path": "frontend/features/travellers/services/draft-readiness.test.ts",
+      "sha256": "e04321e4059526f74ad084aa0180ad6d1feb5700191c7aee3ad26958807f0dfe",
+      "physical_lines": 29,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete temporary returning readiness controls; changed passport number needs fresh front evidence, Unicode/spacing same-number correction allowed, pending/running/failed ECR blocks submission, completed REVIEW preserved. Pure readiness projection, no service proof."
+    },
+    {
+      "path": "frontend/features/travellers/services/draft-reconcile.test.ts",
+      "sha256": "e7f33090c30e1e7d48db14874047670918c13a346080d8fc22238b31884accd1",
+      "physical_lines": 40,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete pure three-way reconciliation and private preview queue control; disjoint edits merge, divergent samefield edits reject, authoritative unchanged removals preserved, two active transfers and canceled queued slot do not leak capacity. Synthetic async operations."
+    },
+    {
+      "path": "frontend/features/upload/api/configured-upload.api.test.ts",
+      "sha256": "b617e0a5f6a06a2643173943ecb895b4fb1d7c748b3356b683340b72029d9d5b",
+      "physical_lines": 47,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full three public upload transport contracts: private member OTP headers/proof and cancellation, distinct optional cover/back/photo form parts and source, document-free submission has no fabricated images. Mock client, no real cookie/provider send."
+    },
+    {
+      "path": "frontend/features/upload/components/camera-accessibility.contract.test.mjs",
+      "sha256": "736111e62244727fe28eb1d4fb59a44736f711c6c464cdef211fdc5b73aa33a9",
+      "physical_lines": 87,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full six source contracts; named modal/instructions, visibility stream lifetime, manual passport and visa capture, preview stops original stream before URL, old auto-capture absent. Aggregated source shape only, physical camera/runtime controls separate."
+    },
+    {
+      "path": "frontend/features/upload/components/document-processing.test.tsx",
+      "sha256": "8e2b6338e3bf842ef4d43a4fbb98ab62c7f3e1b344c57e7ae3ab218cdfd6f233",
+      "physical_lines": 117,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full actual Fresh document UI/resource controls; enabled order, immediate local preview until upload/extraction/ECR acknowledgement, failure rollback, pagehide cleanup, accepted preview replaced by newer remote image and failed replacement cannot restore obsolete image. APIs/preparation/dynamic cameras mocked."
+    },
+    {
+      "path": "frontend/features/upload/components/fresh-documents.test.tsx",
+      "sha256": "e2d79fbf4799e04fe0cab2c35edf9b02c696db105ad2ba22876e954943701bf8",
+      "physical_lines": 26,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete current configured collection render controls; live-only passport/photo has three camera controls and zero file inputs, disabled passports/upload-only photo preserves configuration. Heavy dynamic cameras mocked, not real validator/inference evidence."
+    },
+    {
+      "path": "frontend/features/upload/components/passport-camera-final-validation.contract.test.mjs",
+      "sha256": "d98f0ba08186ef449918a3cdab18457a07da61263ec1bb883802100933ad9299",
+      "physical_lines": 67,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full five static camera contracts; capture\u2192normalization\u2192exact final-JPEG validation\u2192preview ordering, manual-only capture, explicit borderline versus hard failure, validated camera File bypasses upload renormalization, only live rectangle detector and no MRZ layout scorer. Source-shape proof only."
+    },
+    {
+      "path": "frontend/features/upload/components/relation-qualifier-step.test.tsx",
+      "sha256": "d08467b1317f4ee8c4ca4b2ca01f207ce378cf8b73710b1a18680c7ea3adf332",
+      "physical_lines": 108,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full controlled relationship UI cases; list-only/other-only/Self exclusivity and exact request bodies, invalid custom text accessible errors, keyboard enabled methods, stale disabled selection blocked, empty provider list leaves Self, all controls locked during save. Pure form callbacks, no actual identity proof request."
+    },
+    {
+      "path": "frontend/features/upload/components/smart-camera.test.tsx",
+      "sha256": "3698d1bd660d52511573bb6cba04fa648ddd95c63fcebcccbfafe1a0607a614e",
+      "physical_lines": 140,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full actual camera surface controls; exact final File gate pass/borderline/hard failure, unmounted validation cannot allocate preview, one pending capture, late stream stopped, normalization after close/restart cannot stop replacement or publish stale image. Media/frame/quality boundaries mocked, no physical-camera quality proof."
+    },
+    {
+      "path": "frontend/features/upload/components/traveller-portal.test.tsx",
+      "sha256": "a8477ccff50398a90c25bdd9708ffbc1df19076d0359a824acce9874866a0690",
+      "physical_lines": 118,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full current portal navigation/resume controls; explicit New versus saved resume, distinct family/member keys and sequential completion, independent new lifetime, returning path separate. FreshMember and dynamic proof views mocked; storage/navigation exercised, not upload/API journey proof."
+    },
+    {
+      "path": "frontend/features/upload/components/upload-contact-verification.test.tsx",
+      "sha256": "82822d13a636e55b1e0584ad1b1bc783a1417e3a3510b7499c1463da7d14c2ae",
+      "physical_lines": 123,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full six legacy contact UI controls; complete email/phone prerequisite, duplicate/stale send/verify response guards, corrected invalid code same challenge, expiry/cooldown/resend replacement and server retryAfter. Actual legacy component, mocked uploadApi. Current source search imports this module only for validContactEmail; component reachability/coverage migration candidate reported, no deletion yet."
+    },
+    {
+      "path": "frontend/features/upload/components/visa-camera-footer.test.tsx",
+      "sha256": "8a9b1e873155bf61bfcae3c99b3c8c4023e2f1181225626b06e02405d39f4ce5",
+      "physical_lines": 47,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full actual footer/control cases using actual camera state but mocked detector/stream/live analysis. Borderline requires explicit confirmation, hard failure cannot accept, passing file accepts once. Synthetic validation outcomes do not establish algorithm/model accuracy."
+    },
+    {
+      "path": "frontend/features/upload/components/visa-camera-source.contract-helper.mjs",
+      "sha256": "116007c1cd55c28a59ca1370ce5b2242b1bbae9321a43716bc8c541d31e65a9c",
+      "physical_lines": 22,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete explicit18-owner camera source aggregate. Reader follows current controller/capture/final-validation/geometry/encoding owners; catalog read alone gives no execution or dependency full-read credit."
+    },
+    {
+      "path": "frontend/features/upload/components/visa-selfie-camera.contract.test.mjs",
+      "sha256": "a0b9a463984023f5ad67975ceeb130114f8d307f4d33f86de0235f86b09d58e0",
+      "physical_lines": 182,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full14 static strict-camera contracts; active strict profile/confidence, dormant relaxed policy separated, exact2:3/two-percent guide margin, manual shutter, guided fallback acknowledgement, outgoing-JPEG recheck, serialized/drained inference, safe runtime errors and bounded old-stream shutdown, borderline/hard gates. Static aggregate not browser/model execution."
+    },
+    {
+      "path": "frontend/features/upload/components/visa-selfie-camera.test.tsx",
+      "sha256": "c65da2f61f4d28de2507e2e063d57f861ea6a7414f156a145eb4818690cbbcab",
+      "physical_lines": 144,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full actual camera UI resource regressions; explicit model-unavailable guided fallback confirmation, capture source released on absent canvas, old drain stops only old tracks, late capture afterclose/restart cannot encode or replace current camera. Model/media/canvas mocked; no actual fallback image acceptance claim."
+    },
+    {
+      "path": "frontend/features/upload/components/visa-selfie-compatibility.test.mjs",
+      "sha256": "23f9146f4255c72a151342ff7c41774b3998f6bd6ed3001c206e2b9a90a996f3",
+      "physical_lines": 140,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full pure compatibility policy cases; one face and original forgiving placement, small/large/offcenter guidance, natural off-white versus dark/colored wall, intentional texture/socket tolerance and invalid-buffer rejection. Retains separate compatibility thresholds, not blanket strict-live policy normalization."
+    },
+    {
+      "path": "frontend/features/upload/components/visa-selfie-quality.test.mjs",
+      "sha256": "7385a96c8fc42f4b5ab47068d7e98ade34615f4f2b2ffd5383e4d3a9d67751b2",
+      "physical_lines": 850,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete850-line source read in four bounded parts including all synthetic person/background/drawing helpers. Actual pure quality/camera policy controls preserve natural neutral light versus texture/clutter failures, face count/placement/eyes/clarity/stability, hard/borderline/pass and fallback boundaries, exclusive2MiB actual-size encoder choice, explicit fallback acknowledgement, rear-camera preference fallback and no permission-denied retry. Synthetic pixel/fakecamera controls do not establish actual face-model accuracy or real-device latency."
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-fresh-draft.test.tsx",
+      "sha256": "eccd346037b49c7d944a7013f3324a3c982af8695d2fa056a169642a80b9f7a8",
+      "physical_lines": 78,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full six current Fresh draft controls; flush before upload, persistent final key, late typed edit retained, uncertain save/final/upload keys stable until definitive409, member unmount abort and hidden-page autosave. Actual controller, synthetic API snapshot state."
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-visa-photo-capture.test.tsx",
+      "sha256": "a76eb4eff4588d416a1be5332b90da293f1e885293a9f1e3cf0911fb2ca1840d",
+      "physical_lines": 127,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full capture lifetime regressions: unmount during encode/decode/inference closes resources/no preview, replacement generation cannot mutate new camera state, complete final validation publishes only after closing source+decoded images/stopping stream. Actual hook/state, synthetic detector/canvas/file."
+    },
+    {
+      "path": "frontend/features/upload/services/camera-capture.test.mjs",
+      "sha256": "c84535eeda230de40ea05b247f1bb083c15c2324c9f8c96f44c171ab959d2410",
+      "physical_lines": 52,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full pure video-to-still crop mapping and fallback source contracts; centered sensor-window/same-aspect coordinates and feature-detected ImageCapture/settings fallback. No actual ImageCapture or camera request invoked."
+    },
+    {
+      "path": "frontend/features/upload/services/camera-quality-policy.test.mjs",
+      "sha256": "44b87c85f8cc660d3833215897cf91c1f7667e3ba2fc6c760dac49ba88833985",
+      "physical_lines": 52,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full strict policy controls: original250ms/latest-three/two-pass readiness and hysteresis, motion signature noise tolerance,800x1200/exclusive2MiB visa output constants. Pure policy tests, no threshold relaxation."
+    },
+    {
+      "path": "frontend/features/upload/services/fresh-validation.test.ts",
+      "sha256": "51a4e0bcf80c7203822b66dee4c8d5d2101260599a78900ff4dbccf8967fa6cd",
+      "physical_lines": 40,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete final-validation controls; original page/extraction/ECR/custom field gates, optional passport and qualifier/family requirements; completed ECR REVIEW retained. Actual validation helpers executed by tests, source read not new test run."
+    },
+    {
+      "path": "frontend/features/upload/services/passport-camera-crop.test.ts",
+      "sha256": "29951a5e4ae44f1b51a4cc495f83773d23c336b843278462b7c7e1176c81bd76",
+      "physical_lines": 22,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete three pure geometry controls; object-cover video\u2192guide crop, original one-percent capture margin clamped at source edges, missing guide full-source fallback. DOM bounds synthetic; no physical camera claim."
+    },
+    {
+      "path": "frontend/features/upload/services/passport-document-verification.test.mjs",
+      "sha256": "99bcccfd35fe0e2988b945956edc0ddb82c6c1427d8caee2b7379253bd4863bb",
+      "physical_lines": 74,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full verified/available gate controls; explicit accepted statuses only, unavailable/missing classifications require saved-image retry, wrong-page/low-quality requires replace, public error projected without internal diagnostic properties. Pure gate logic."
+    },
+    {
+      "path": "frontend/features/upload/services/passport-final-quality.browser.test.ts",
+      "sha256": "99218cb3a588d5246d3482117aa7ee8818fb6f2972141a9bc33dfe358c525673",
+      "physical_lines": 57,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full mocked browser decode/resource cases despite filename: exact supplied File bitmap closes on unavailable/throwing canvas and hard exposure, HTML fallback URLs revoked on load/error. jsdom mocks, not real production browser inference/photo proof."
+    },
+    {
+      "path": "frontend/features/upload/services/passport-final-quality.test.mjs",
+      "sha256": "5f17ff811d48c81028e3c60ee9ece8c844532c0900595ceb09bbac321792fff3",
+      "physical_lines": 366,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete366-line source read in two bounded parts including portrait/text/barcode/pixel generators. Actual final-pixel algorithm distinguishes readable front/back, open-book folds, detail/portrait/major-area missing, screen controls/borders, severe versus harmless glare, lower resolution and clipped three-edge borderline. Tests called physical images are synthetic raster fixtures, not real-device or broad fraud/accuracy proof."
+    },
+    {
+      "path": "frontend/features/upload/services/passport-live-frame-adapter.test.ts",
+      "sha256": "c27f09e2122ccc86b1cfdb12c11e35d87336fcf3988d4e4e320a333e5800a2cf",
+      "physical_lines": 44,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full geometry/resource controls: object-cover guide plus original ten-percent live context, unmeasurable guide full-source fallback, unreadied video avoids pixel reads and missing canvas fails closed. Mocked canvas/bounds, not physical camera evidence."
+    },
+    {
+      "path": "frontend/features/upload/services/passport-rectangular-frame-detector.test.mjs",
+      "sha256": "41187c81f80f80f994671896afc0799f06ff3ea9e90e45fc2997ca19eb008a24",
+      "physical_lines": 348,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete348-line source read in two bounded parts including all synthetic frame generators. Actual pixel algorithm checks four/weak edges, lowcontrast/modestskew/shear controls, keyboard/uniform/blank/bottomdetail/partial/outside/excessiveskew rejection and exposure aftergeometry. Hook/manual source assertions retain original guards. Synthetic pixel shapes, not physical camera or document accuracy benchmark."
+    },
+    {
+      "path": "frontend/features/upload/services/public-flow-telemetry.test.mjs",
+      "sha256": "b00eef011c62227730f2f52e6c06a9e617d00bda5c525f59f68478d13efc7668",
+      "physical_lines": 151,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full six pure telemetry controls; one-second stable reason/precedence, new/cleared candidate resets, strict event/reason enums reject identifying/arbitrary fields, bounded32 newest events. No private passenger text/request/provider emitted in these tests."
+    },
+    {
+      "path": "frontend/features/upload/services/public-upload-file.test.ts",
+      "sha256": "b2fd9c39b2e983cbec234d235ddb3e299793234c71675604f8a9feb685f3f8e6",
+      "physical_lines": 70,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full public input/transport controls; distinct original byte/format limits retained,2MiB PDF/passport versus10MiB visa image, no unsupported/identityless request, actual public form/member header plus canceled signal and invalid preview response rejection. HTTP/decode mocked."
+    },
+    {
+      "path": "frontend/features/upload/services/relation-qualifier.test.mjs",
+      "sha256": "1107d39357866443e03ea6e0e4c24d9914f8747626cbdaa1fde0a0a7047b48dd",
+      "physical_lines": 113,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full nine pure request/choice controls; exact allowlisted canonical codes, stale disabled/list/other/Self isolation, reserved/multiline/hidden-control text rejected, Unicode NFC/codepoint bounds and equivalent selection keys. No actual public proof API."
+    },
+    {
+      "path": "frontend/features/upload/services/visa-face-detection-loader.test.ts",
+      "sha256": "037a9d8a8bae97fd5022c2a2ccf59bd6db840d516faece42399684d73b279159",
+      "physical_lines": 65,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full four loader lifecycle controls; shared versioned script/constructor, serialized initialization across failed generation, script failure removes/retry and missing constructor rejects. Synthetic script events/constructor, not model network/inference."
+    },
+    {
+      "path": "frontend/features/upload/services/visa-photo-upload-detector.test.ts",
+      "sha256": "c6e96cdc24703400fa3737cd13579172257b1701aeb224073cc9339bde630043",
+      "physical_lines": 140,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full six actual detector driver lifecycle controls; warmup reuse/idle close, serialized send/result pairing, timeout waits for abandoned WASM before replacement, stuck retry bounded without unsafe close, bad initialization recovery and timeout drain. Fake driver/timers, no inference accuracy claim."
+    },
+    {
+      "path": "frontend/features/upload/services/visa-photo-upload-validation.test.mjs",
+      "sha256": "92780f0d279a5283fb19f4e07bd2db8070e72e10c95bfec622a24085caa3a924",
+      "physical_lines": 62,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full five static validation contracts; exact output/re-encoded pixels, source byte/pixel/dimension limits, serialized reusable detector, intended relaxed uploaded-photo face/background policy distinct from stricter live capture. Source assertions do not execute model."
+    },
+    {
+      "path": "frontend/features/upload/services/visa-selfie-runtime.test.mjs",
+      "sha256": "884685cd98db1753341afd2227933f772eb9fb0048a4ce2686c34aa579694cb3",
+      "physical_lines": 127,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full serialized queue/runtime controls; no overlapping detector operation, drain after failures, bounded timeout does not unlock stalled queue, strict readiness hysteresis and safe error projection without WASM diagnostic text. Synthetic promises, no real MediaPipe inference."
+    },
+    {
+      "path": "frontend/features/whatsapp/api/whatsapp-archive.test.ts",
+      "sha256": "e4b82771357eaf420e42578a839284d285875f55480760cc16aacd41ee235f6b",
+      "physical_lines": 23,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete facade tests; mocked HTTP client verifies active/archived params and archive/restore endpoints/data, not actual server authorization or actor lifetime."
+    },
+    {
+      "path": "frontend/features/whatsapp/api/whatsapp-source-groups.test.ts",
+      "sha256": "3e3841741c1aa3c06afabd0a606f9e1648b9660d970ffc583614f9486212f098",
+      "physical_lines": 46,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full typed facade tests; list/preview/contacts signals and exact selected-source create revision/support/opt-in body. Client mocked, no live server scope or provider send qualification."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/contact-editor.test.tsx",
+      "sha256": "52cb1fc6a8ce702b7078424b7debff410ef8888d2068b0e3a98fe02689f8eea2",
+      "physical_lines": 23,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete120-row rendered editor case; bounds DOM inputs to page, original index50 edit/remove and final page preserve full input identity. Static synthetic contacts only."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/group-update-dialog.test.tsx",
+      "sha256": "25243e4bf025d0ca913ba82dbacb4891e9c5913a0c96a1f6e09a4663258419d7",
+      "physical_lines": 178,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full eleven rendered update controls; normalizedreviewedtext/selectedaudience,allflightlanes,sharedphone count,batch tracker registrations,same uncertainrequestretry,84earlierattempts unchecked,explicit oldselection,broadcastisolation,loadingandduplicate-submit guards. APIs/mock tracker only; no provider sends."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-activity-motion.test.tsx",
+      "sha256": "dec26753383e8cf03fb488d837dcab2716edb64bfbda485ef9b34d430282cf38",
+      "physical_lines": 382,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete382-line source physically read in two bounded parts. Actual tracker/query-provider controls cover inline/floating route restoration, real summary projection accepted-versus-delivered/failed/unknown counts, delayed receipt polling/cache invalidation, view retention on error/recovery, old metadata compatibility, dragging bounds with mocked rect and permanent denial stopping summary/failure polling. Synthetic APIs/timers/geometry; no production delivery/GPU/viewport proof."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-broadcast-motion.test.tsx",
+      "sha256": "edcdac62f9c3e1e0e9ac713625ded290249383df77ae2550d937bb97e6c6ff4b",
+      "physical_lines": 66,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full decorative motion lifecycle controls; same scene across outcomes, aria-hidden/no invented delivery status, observer/visibility pause and disconnect, retained timestamp cadence after remount. Geometry/real GPU performance unmeasured."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-large-import-form.test.tsx",
+      "sha256": "2d1e7e86f5d6097c5f1233077a776eeecd7006c254acf7bb4b7bc9809f4d25ac",
+      "physical_lines": 45,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full actual create-dialog controls; body portal container, retained original workbook with edited delivery list, explicit opt-in, truncated mixed-invalid import blocks saving until ignored. Synthetic file is not parsed real workbook."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-recipient-import.test.tsx",
+      "sha256": "962974aebf1247184bdcb6d0aeddea25c8c03b53858f66cabd807296f19c3fee",
+      "physical_lines": 80,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full six hook cases;700-source/500-preview bounds, original File retention without undoing delivery edits, duplicate source dedup, hidden-invalid/missing authoritative summary fails closed, stale request aborted/latest retained,11th source rejected. Mock preview not real workbook parsing."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-role-access.contract.test.mjs",
+      "sha256": "ead347be8301c5ea58330bf0711819fcdf79c0cbc65d0265a033ba50fb0cdc1f",
+      "physical_lines": 53,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full capability/navigation/direct-route static assertions; staff inclusion/coordinator exclusion, shared policies and import-only group integration guards through wired owner source. Static strings do not prove runtime server authorization."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-role-access.test.tsx",
+      "sha256": "dc7f11c927c7991ccdcfe6fc0c432e87503849aed2250c30581f8d551645bc7f",
+      "physical_lines": 132,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full rendered staff/coordinator and group tracking/link controls; server can_manage respected,import-onlyredirect and loadingwithholdscontrols, shared policy navigation, exact broadcast-link mutation variables. Synthetic role/API hooks, no backend authorization qualification."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-source-roster.test.tsx",
+      "sha256": "60b7e5ec22738e2529d2083a29d83f00b398db6b28e10ecbd3c7328846158466",
+      "physical_lines": 36,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete shared-number/invalid-phone and377-row pagination/search controls; preserves every traveller, no name merge; page-bounded display searches all source rows. No Excel parsing/provider send claim."
+    },
+    {
+      "path": "frontend/features/whatsapp/components/whatsapp-workspace-boundaries.contract.test.mjs",
+      "sha256": "8b0e4c81c02af60357ad80d45814d25f0c21c1f47be8ac3f77b38cc5984d1247",
+      "physical_lines": 37,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete active route/index/context/preview source contracts; dynamic boundary, single shared import hook, filtered page clamp and archived-history recovery. Uses actual source aggregator; source shape only."
+    },
+    {
+      "path": "frontend/features/whatsapp/hooks/use-group-update-audience.test.tsx",
+      "sha256": "ac3e13bde152297dbe38c55cca8dbac6ada328c0be23667ef833863584d1632a",
+      "physical_lines": 32,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete fake-timer query test; queued audience polls once to403 then stops automatic polling, explicit refetch recovers. try/finally unmount/client/timer cleanup maintained; API mocked."
+    },
+    {
+      "path": "frontend/features/whatsapp/utils/activity-tracking.test.ts",
+      "sha256": "76dc3c5bfb00d6b87864c50b5c1f59feda945e911d94cc08691919c9d9e9fbdb",
+      "physical_lines": 28,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete timestamp cases; invalid persisted dates isolated, legacy extreme timestamp repaired, both supported Date boundaries safe for summary creation. Covers pure parser projection, not active polling."
+    },
+    {
+      "path": "frontend/features/whatsapp/utils/batch-polling.test.mjs",
+      "sha256": "5ddc30d6f003a7d8cb10691194bc4991595425ca751fbde2981bb812fc40f6d7",
+      "physical_lines": 124,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full pure polling/retry cases;terminal stops,queuedboundedbackoff, permanentHTTPerrors stop versus408/429/transients bounded, receipt state retained but timebounded includingunknown/NaN, old queued work reconciles. No network/timer service execution."
+    },
+    {
+      "path": "frontend/features/whatsapp/utils/recipient-delivery.test.mjs",
+      "sha256": "d12022e2bc587b3a03b3d08955b4f1013c3e8eb8778d6796f2af0e973454be3e",
+      "physical_lines": 98,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full eight pure eligibility controls; successful ledger status versusfailed, active andunknown suppression, message-type isolation, reminder repeat policy including active individual resend. Fixture semantics are permessage; no send/provider execution."
+    },
+    {
+      "path": "frontend/features/whatsapp/utils/recipient-import.test.mjs",
+      "sha256": "4f4fc98ce524f5c67c0c2f527befa5a02efb91efe6d1d6c8190569c630c62cb8",
+      "physical_lines": 423,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete423-line source physically read in two bounded parts. Pure tests preserve manual-first normalization/dedup and imported matching fields, mixed partial-success accepted/rejected rows,211-row shape, old DTO compatibility, authoritative rejected totals versus capped detail, exact source-row identity across multiple workbooks and cloned rejected metadata. Fixed local fixtures; no real Excel parser/service/provider execution."
+    },
+    {
+      "path": "frontend/features/whatsapp/utils/recipient-welcome-gate.test.ts",
+      "sha256": "4537152102d5d27f2e3a8b62f6d9eb4ef2c2363588531948cac81df6d06667ab",
+      "physical_lines": 103,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full pure gate cases incl parametrization; broadcast-local welcome, later-message delivery prerequisite, duplicate/active/uncertain exclusions, older DTO compatibility, independent group-invite exception and retry/resend restrictions. No crossbroadcast source contamination inferred from test alone."
+    },
+    {
+      "path": "frontend/features/whatsapp/utils/whatsapp-formatting.test.mjs",
+      "sha256": "4bddcd3bd6489d42368da32f11c68e77bc7942981c8fec4e35f17e804442c07c",
+      "physical_lines": 46,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full pure bold text controls; selection offsets wrap/unwrap, empty selection typing region, safe segment preview parsing. Text projection only, no renderer XSS claim from this test alone."
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/workspace-pagination.test.tsx",
+      "sha256": "3de921fb86ab096eb12c8f9997e1da3194abb6f041c50e1a809413de9fbe85e7",
+      "physical_lines": 22,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete two rendered controls; Next button inside enclosing form does not submit, busy previous/next do not change page. Actual component rendered; no network/provider dependency."
+    }
+  ],
+  "reviewed_at": "2026-10-31T09:10:06.382110+00:00"
+}

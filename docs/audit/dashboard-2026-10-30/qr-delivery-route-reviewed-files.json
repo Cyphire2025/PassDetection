@@ -1,0 +1,47 @@
+[
+  {
+    "path": "backend/app/presentation/api/v1/routes/tour_operations_qr_delivery.py",
+    "sha256": "a65ca1f4b9c0fb0de069df0a2e6d3dcdb2ad7760799c3c517e6ff4de8ddb4037",
+    "lines": 187,
+    "review_scope": "full",
+    "reviewer": "manual_security",
+    "status": "refactored",
+    "notes": "Complete original 696-line QR route source read and full physical current owner read. Tenant/role/consent/welcome/private-destination/token/receipt/admission/publication/compensation paths traced through existing worker boundary. Exact AST ranges, explicit call-time settings/status seams and complete OpenAPI equality established. No real provider calls or authority/schema change. Preview function retains complexity48 as explicit follow-up."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/tour_operations_qr_delivery_policy.py",
+    "sha256": "647846a7e4a3384954920280cbe46acc63555085680cb340be3148c5f6cbbf68",
+    "lines": 142,
+    "review_scope": "full",
+    "reviewer": "manual_security",
+    "status": "refactored",
+    "notes": "Complete original 696-line QR route source read and full physical current owner read. Tenant/role/consent/welcome/private-destination/token/receipt/admission/publication/compensation paths traced through existing worker boundary. Exact AST ranges, explicit call-time settings/status seams and complete OpenAPI equality established. No real provider calls or authority/schema change. Preview function retains complexity48 as explicit follow-up."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/tour_operations_qr_delivery_preview.py",
+    "sha256": "3147020f9cf13b5dd58dee5ba6eae73ad8203371044dadc463ffb2823e319a0f",
+    "lines": 204,
+    "review_scope": "full",
+    "reviewer": "manual_security",
+    "status": "refactored",
+    "notes": "Complete original 696-line QR route source read and full physical current owner read. Tenant/role/consent/welcome/private-destination/token/receipt/admission/publication/compensation paths traced through existing worker boundary. Exact AST ranges, explicit call-time settings/status seams and complete OpenAPI equality established. No real provider calls or authority/schema change. Preview function retains complexity48 as explicit follow-up."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/tour_operations_qr_delivery_queue.py",
+    "sha256": "526a2201c2015a668b4a6b52b9892b6ee076e05ccf9a9ec91606f73ba951169f",
+    "lines": 123,
+    "review_scope": "full",
+    "reviewer": "manual_security",
+    "status": "refactored",
+    "notes": "Complete original 696-line QR route source read and full physical current owner read. Tenant/role/consent/welcome/private-destination/token/receipt/admission/publication/compensation paths traced through existing worker boundary. Exact AST ranges, explicit call-time settings/status seams and complete OpenAPI equality established. No real provider calls or authority/schema change. Preview function retains complexity48 as explicit follow-up."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/tour_operations_qr_delivery_roster.py",
+    "sha256": "5f5aaba4ae811aad884334238a01dec2d0e21ec577ac702b5eec234946540701",
+    "lines": 147,
+    "review_scope": "full",
+    "reviewer": "manual_security",
+    "status": "refactored",
+    "notes": "Complete original 696-line QR route source read and full physical current owner read. Tenant/role/consent/welcome/private-destination/token/receipt/admission/publication/compensation paths traced through existing worker boundary. Exact AST ranges, explicit call-time settings/status seams and complete OpenAPI equality established. No real provider calls or authority/schema change. Preview function retains complexity48 as explicit follow-up."
+  }
+]

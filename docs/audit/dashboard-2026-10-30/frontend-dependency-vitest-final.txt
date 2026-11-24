@@ -1,0 +1,320 @@
+
+ RUN  v4.1.12 C:/Users/nipun/Desktop/PassDetection/frontend
+
+ ✓ features/travellers/components/returning-review.test.tsx (16 tests) 3819ms
+     ✓ autosaves edits only to the draft and stores no personal values in resume metadata  861ms
+     ✓ requires a saved relationship token and configured photo before final submission  1046ms
+ ✓ features/upload/components/upload-flow-configured.test.tsx (13 tests) 17150ms
+     ✓ preserves details when going back, and requires a new OTP after editing the contact  2268ms
+     ✓ reopens contact verification if the server expires the proof while preserving filled details  1789ms
+     ✓ returns to verification when the proof expires on the details page  2173ms
+     ✓ retries only the pending family member after partial submission and expired verification  3037ms
+     ✓ creates a durable document-free submission, skips OCR and allows optional configured details to stay blank  1275ms
+     ✓ keeps a stored passport with missing verification blocked even when passport collection is optional  1189ms
+     ✓ supports document-free family members with a durable record and required head contact for each family submission  2671ms
+     ✓ keeps a family record out of the single-traveller review when changing submission mode  1112ms
+     ✓ keeps selected passport files and the idempotency key after an uncertain upload failure  1350ms
+ ✓ features/upload/components/configured-passport-upload.test.tsx (17 tests) 1096ms
+     ✓ orders only selected pages, previews chosen files and requires each selected page  370ms
+ ✓ features/whatsapp/hooks/use-whatsapp-send-idempotency.test.tsx (42 tests) 268ms
+ ✓ features/whatsapp/components/whatsapp-activity-motion.test.tsx (18 tests) 936ms
+stderr | features/mcp/components/mcp-read-access.test.tsx > unmounts an already selected legacy workflow tab when the effective mode becomes read-only
+Query data cannot be undefined. Please make sure to return a value other than undefined from your query function. Affected query key: ["mcp-admin","permissions"]
+
+ ✓ features/mcp/components/mcp-read-access.test.tsx (15 tests) 1849ms
+   ✓ shows plain descriptions and only configured Read options  370ms
+ ✓ features/whatsapp/components/whatsapp-create-from-group.test.tsx (14 tests) 2568ms
+     ✓ keeps every traveller row including shared numbers and contacts needing attention  376ms
+ ✓ features/passports/components/upload-link-settings.test.tsx (20 tests) 2796ms
+     ✓ reveals independent relationship options and preserves them when the parent is disabled  379ms
+     ✓ presents the requested sections in order and reveals enabled document methods  352ms
+     ✓ allows professional labels to be edited while keeping Staff Code fixed  900ms
+ ✓ features/upload/components/upload-processing-motion.test.tsx (6 tests) 6431ms
+     ✓ keeps one scene from image preparation through upload and extraction, then stops for review and final submission  1226ms
+     ✓ removes the scene after a failed upload or an already completed extraction  508ms
+     ✓ keeps one compact scene from the saved-image retry request through extraction and removes it on failure  1177ms
+     ✓ removes immediate retry motion if queueing the saved-image retry fails  400ms
+     ✓ resumes the saved extraction scene and removes it when extraction fails terminally  896ms
+     ✓ keeps family retry motion attached to only the member being read  2222ms
+ ✓ features/upload/hooks/use-upload-documents.test.tsx (17 tests) 187ms
+ ✓ features/documents/components/document-processing-motion.test.tsx (10 tests) 428ms
+ ✓ features/gc-app/notifications/use-notification-composer.test.tsx (21 tests) 34ms
+ ✓ features/mcp/components/mcp-administration.test.tsx (15 tests) 768ms
+ ✓ features/passports/components/create-upload-link-modal.test.tsx (10 tests) 3031ms
+     ✓ waits for workspace resolution before accepting form input and enables direct superadmin company selection  319ms
+     ✓ discards invalid hidden collection requirements and prior broadcasts when switching to import mode  491ms
+     ✓ restores collection validation when switching back from import mode  344ms
+     ✓ submits renamed optional fields and selected passport pages using the settings shown in the dialog  620ms
+ ✓ features/passports/components/client-details-edit-dialog.test.tsx (13 tests) 2763ms
+     ✓ loads saved labels and sends only the explicitly corrected code with a version check  324ms
+     ✓ allows correcting retained retired answers without changing their labels or identifiers  498ms
+     ✓ cancels without saving and does not automatically remove code prefixes  362ms
+     ✓ keeps conflicting edits visible and requires an explicit latest-version reload  540ms
+ ✓ features/travellers/hooks/draft-response-races.test.tsx (22 tests) 2163ms
+ ✓ features/whatsapp/hooks/use-whatsapp-source-groups.test.tsx (10 tests) 1635ms
+ ✓ features/whatsapp/components/group-update-dialog.test.tsx (10 tests) 1611ms
+   ✓ keeps all 84 earlier update attempts unchecked when opening, changing filters or refreshing  489ms
+ ✓ features/passports/components/passport-group-overview-panel.test.tsx (13 tests) 709ms
+ ✓ features/mcp/components/mcp-permissions.test.tsx (10 tests) 629ms
+ ✓ features/mcp/components/mcp-connection-state.test.tsx (13 tests) 1224ms
+   ✓ supports keyboard cancellation and confirmation with safe initial focus  370ms
+ ✓ features/upload/components/document-processing.test.tsx (8 tests) 344ms
+ ✓ features/companies/components/group-company-assignment.test.tsx (10 tests) 591ms
+ ✓ features/gc-app/components/app-controls-removal.test.tsx (9 tests) 5106ms
+     ✓ confirms removal of an old archived group while keeping the source records  667ms
+     ✓ confirms removal of an old deleted group while keeping the source records  541ms
+     ✓ requires a fresh review after a revision conflict and never retries removal automatically  774ms
+     ✓ recovers a lost successful response by reading the removal marker without another DELETE  499ms
+     ✓ returns to the previous page when the last item is removed (response lost: false)  659ms
+     ✓ returns to the previous page when the last item is removed (response lost: true)  704ms
+     ✓ blocks duplicate clicks and does not show an old agency's completion in the new workspace  490ms
+     ✓ keeps previous-page navigation available if an uncertain removal dialog is dismissed  737ms
+ ✓ features/upload/hooks/use-upload-submission.test.tsx (12 tests) 26ms
+ ✓ features/passports/components/upload-link-list.test.tsx (11 tests) 1055ms
+ ✓ lib/api/streamed-download.test.ts (15 tests) 14ms
+ ✓ features/passports/components/passport-document-follow-up.test.tsx (15 tests) 590ms
+ ✓ features/mcp/components/mcp-requests.test.tsx (10 tests) 678ms
+ ✓ features/mcp/components/mcp-work-results.test.tsx (14 tests) 554ms
+ ✓ features/travel-tracker/components/tracker-workspace.test.tsx (5 tests) 3336ms
+   ✓ marks with one row action, keeps visa and flight separate, and reverses the last mark  694ms
+   ✓ uses server selection across every page and clamps a emptied last page back to useful results  507ms
+   ✓ exports complete marked and pending rosters despite an active passenger search  777ms
+   ✓ reviews unmatched and ambiguous import rows, then applies only the matched IDs  1004ms
+   ✓ shows a failed mark without claiming success and restores the pending row for retry  352ms
+ ✓ features/upload/components/upload-review-panels.test.tsx (5 tests) 344ms
+ ✓ features/gc-app/notifications/notifications-page.test.tsx (7 tests) 1232ms
+     ✓ requires audience review and a separate explicit send, then shows honest provider status  377ms
+ ✓ features/passports/schemas/upload-link.schema.test.ts (29 tests) 16ms
+ ✓ components/ui/modal.test.tsx (10 tests) 733ms
+ ✓ features/gc-app/components/app-controls-page.test.tsx (6 tests) 1272ms
+     ✓ adds an eligible active group through GC App access only  311ms
+ ✓ features/upload/components/instruction-language.test.tsx (26 tests) 905ms
+ ✓ features/gc-app/components/group-access-panel.test.tsx (9 tests) 659ms
+ ✓ features/companies/components/company-matching-dialog.test.tsx (6 tests) 510ms
+ ✓ features/travellers/hooks/use-draft-lifecycle.test.tsx (9 tests) 318ms
+ ✓ features/mcp/components/mcp-request-waiting-page.test.tsx (13 tests) 428ms
+ ✓ features/whatsapp/api/whatsapp-bulk-resend.test.ts (14 tests) 7ms
+ ✓ features/upload/components/traveller-portal.test.tsx (10 tests) 1022ms
+     ✓ keeps the landing choices separate, then starts Only me only after Continue  428ms
+     ✓ keeps a returning draft on its own resume path  336ms
+ ✓ features/companies/components/company-agency-scope.test.tsx (6 tests) 588ms
+ ✓ features/gc-app/notifications/notification-history-page.test.tsx (8 tests) 1153ms
+ ✓ features/upload/components/upload-contact-verification.test.tsx (6 tests) 302ms
+ ✓ features/whatsapp/workspace/use-message-composer.test.tsx (15 tests) 24ms
+ ✓ features/passports/components/whatsapp-broadcast-selector.test.tsx (6 tests) 803ms
+ ✓ features/gc-app/components/app-control-group-workspace.test.tsx (5 tests) 673ms
+ ✓ features/gc-app/hooks/use-gc-app-admin.test.tsx (6 tests) 27ms
+ ✓ features/mcp/components/mcp-devices.test.tsx (9 tests) 422ms
+ ✓ features/upload/services/upload-flow-bootstrap.test.ts (10 tests) 8ms
+ ✓ features/auth/components/access-level-switcher.test.tsx (13 tests) 278ms
+ ✓ features/mcp/utils/consent.test.ts (30 tests) 8ms
+stderr | features/mcp/components/mcp-simple-access.test.tsx > mounts only the selected settings page
+Query data cannot be undefined. Please make sure to return a value other than undefined from your query function. Affected query key: ["mcp-admin","permissions"]
+
+ ✓ features/mcp/components/mcp-simple-access.test.tsx (12 tests) 607ms
+ ✓ features/gc-app/components/announcement-notification-status.test.tsx (17 tests) 412ms
+ ✓ features/travellers/components/returning-offer.test.tsx (9 tests) 306ms
+ ✓ features/travellers/components/returning-flow.test.tsx (4 tests) 336ms
+ ✓ features/gc-app/api/gc-app-admin.api.test.ts (9 tests) 7ms
+ ✓ features/companies/hooks/use-company-people.test.tsx (8 tests) 30ms
+ ✓ features/passports/components/passport-document-cell.test.tsx (7 tests) 447ms
+ ✓ features/whatsapp/utils/recipient-welcome-gate.test.ts (26 tests) 4ms
+ ✓ features/upload/components/fresh-member-form.test.tsx (2 tests) 547ms
+     ✓ blocks submit and Back through preparation and upload, then submits the new revision  341ms
+ ✓ features/auth/components/company-journey-film.test.tsx (8 tests) 111ms
+ ✓ features/operations/services/rooming-allocation-mutations.test.ts (4 tests) 4ms
+ ✓ features/upload/components/visa-photo-upload.test.tsx (5 tests) 441ms
+ ✓ features/passports/services/document-thumbnail-loader.test.ts (7 tests) 16ms
+ ✓ features/upload/components/relation-qualifier-step.test.tsx (11 tests) 1200ms
+     ✓ makes list, Other and Self mutually exclusive even when both fields contain values  599ms
+ ✓ features/auth/config/route-capabilities.test.ts (14 tests) 5ms
+ ✓ features/whatsapp/components/whatsapp-role-access.test.tsx (8 tests) 206ms
+ ✓ features/upload/hooks/use-fresh-draft.test.tsx (6 tests) 713ms
+ ✓ features/upload/services/visa-photo-upload-detector.test.ts (6 tests) 11ms
+ ✓ features/companies/components/company-settings.test.tsx (6 tests) 340ms
+ ✓ features/companies/components/company-all-data.test.tsx (6 tests) 1214ms
+   ✓ debounces partial search, binds server sort/count filters and preserves them in the person link  355ms
+   ✓ keeps a one-character prefix local until it can be searched efficiently  647ms
+ ✓ features/upload/services/review-submission-validation.test.ts (14 tests) 5ms
+ ✓ features/companies/hooks/use-companies.test.tsx (5 tests) 434ms
+ ✓ features/documents/components/manual-passenger-document-dialog.test.tsx (5 tests) 162ms
+ ✓ components/layout/__tests__/mobile-navigation.test.tsx (5 tests) 642ms
+ ✓ features/companies/components/company-person-documents.test.tsx (6 tests) 440ms
+ ✓ features/ai/hooks/use-voice-input.test.ts (7 tests) 22ms
+ ✓ features/whatsapp/components/whatsapp-recipient-import.test.tsx (6 tests) 30ms
+ ✓ features/travellers/hooks/use-returning-draft.test.ts (5 tests) 471ms
+ ✓ features/mcp/utils/file-transfer.test.ts (19 tests) 19ms
+ ✓ features/passports/components/passport-display-name-dialog.test.tsx (5 tests) 383ms
+ ✓ features/passports/components/passport-group-role-access.test.tsx (5 tests) 227ms
+ ✓ features/companies/components/traveller-enrollment-dialog.test.tsx (3 tests) 509ms
+ ✓ features/gc-app/components/announcements-panel.test.tsx (5 tests) 438ms
+ ✓ features/companies/components/company-picker.test.tsx (3 tests) 509ms
+     ✓ debounces search, cancels stale requests, and never offers stale results for selection  304ms
+ ✓ features/upload/services/saved-passport-extraction.test.ts (8 tests) 7ms
+ ✓ features/travellers/services/draft-module-budgets.test.ts (20 tests) 189ms
+ ✓ features/settings/components/dashboard-settings-page.test.tsx (3 tests) 1480ms
+   ✓ applies, persists and resets only real appearance preferences  469ms
+   ✓ preserves policy drafts across sections and exposes only permitted template navigation  470ms
+   ✓ loads templates only on demand, preserves their draft when hidden and clears it when identity changes  540ms
+ ✓ lib/hooks/use-live-history-feed.test.tsx (3 tests) 1046ms
+     ✓ keeps new arrivals visible after six history pages and repairs only the head  658ms
+ ✓ features/upload/hooks/use-returning-family.test.tsx (3 tests) 17ms
+ ✓ features/operations/components/dashboard-realtime-attendance-bridge.test.tsx (2 tests) 17ms
+ ✓ features/passports/components/passport-review-card.test.tsx (5 tests) 360ms
+ ✓ features/operations/api/operations-attendance.api.test.ts (4 tests) 6ms
+ ✓ features/passports/components/passport-document-revisions.test.tsx (1 test) 183ms
+ ✓ features/operations/services/dashboard-realtime.test.ts (5 tests) 4ms
+stderr | features/documents/components/document-row-action-menu.test.tsx > document actions inside a scrolling table > closes when the table moves or viewport changes, and preserves explicit actions
+`NaN` is an invalid value for the `left` css style property.
+
+ ✓ features/documents/components/document-row-action-menu.test.tsx (3 tests) 135ms
+ ✓ features/documents/components/document-manual-review-dialog.test.tsx (6 tests) 180ms
+ ✓ features/upload/services/public-upload-file.test.ts (16 tests) 8ms
+ ✓ features/companies/components/company-document-upload.test.tsx (3 tests) 706ms
+     ✓ preserves a legacy unknown issuer honestly and never offers it for a known issuer  490ms
+ ✓ features/whatsapp/api/whatsapp-group-invite.test.ts (6 tests) 6ms
+ ✓ lib/observability/render-errors.test.ts (10 tests) 38ms
+ ✓ features/search/components/__tests__/global-search.test.tsx (5 tests) 2551ms
+     ✓ exposes combobox semantics and supports arrow-key selection  536ms
+     ✓ announces empty results and closes with Escape  417ms
+     ✓ clears an active query without navigating  410ms
+     ✓ distinguishes a failed search from empty success and retries  637ms
+     ✓ cancels superseded requests and exposes the search shortcut  551ms
+ ✓ features/documents/services/ecr-upload.test.ts (6 tests) 80ms
+ ✓ features/travel-tracker/api.test.ts (5 tests) 7ms
+ ✓ features/gc-app/notifications/notifications.api.test.ts (7 tests) 6ms
+ ✓ features/documents/services/document-upload-recovery.test.ts (5 tests) 5ms
+ ✓ proxy.test.ts (28 tests) 12ms
+ ✓ features/auth/components/account-security-panel.test.tsx (3 tests) 1605ms
+     ✓ validates password policy locally before sending a credential  610ms
+     ✓ changes the password then clears the local session without a duplicate revoke  913ms
+ ✓ features/auth/components/login-session-entry.test.tsx (9 tests) 191ms
+ ✓ features/settings/components/platform-settings-panel.test.tsx (4 tests) 240ms
+ ✓ features/tour-operations/services/browser-offline-readiness.test.ts (6 tests) 5ms
+ ✓ features/upload/hooks/use-upload-contact-verification.test.tsx (5 tests) 19ms
+ ✓ features/upload/api/configured-upload.api.test.ts (3 tests) 4ms
+ ✓ features/companies/components/company-match-queue.test.tsx (2 tests) 292ms
+ ✓ features/companies/components/reuse-setup.test.tsx (2 tests) 236ms
+ ✓ features/auth/services/access-level.test.ts (5 tests) 58ms
+ ✓ features/mcp/utils/permissions.test.ts (15 tests) 5ms
+ ✓ features/gc-app/notifications/notification-audience-picker.test.tsx (2 tests) 957ms
+     ✓ keeps selected groups across pages and search without loading the entire agency  753ms
+ ✓ features/auth/components/authenticated-content.test.tsx (5 tests) 106ms
+ ✓ features/passports/components/passport-cover-images.test.tsx (4 tests) 167ms
+ ✓ features/mcp/components/mcp-permission-sections.test.tsx (4 tests) 166ms
+ ✓ features/upload/components/upload-flow-document-options.test.tsx (6 tests) 542ms
+ ✓ features/upload/services/fresh-validation.test.ts (6 tests) 3ms
+ ✓ features/whatsapp/components/whatsapp-broadcast-motion.test.tsx (3 tests) 59ms
+ ✓ features/passports/components/use-passport-detail-navigation.test.tsx (3 tests) 243ms
+ ✓ features/companies/components/company-groups.test.tsx (2 tests) 444ms
+     ✓ paginates one section without refetching the other and resets cursors after debounced search  329ms
+ ✓ features/gc-app/notifications/notification-review-dialog.test.tsx (5 tests) 209ms
+ ✓ features/companies/components/company-data-exports.test.tsx (2 tests) 208ms
+ ✓ features/companies/components/company-review-tasks.test.tsx (2 tests) 255ms
+ ✓ features/mcp/api/mcp.api.test.ts (7 tests) 5ms
+ ✓ features/upload/services/visa-face-detection-loader.test.ts (4 tests) 20ms
+ ✓ features/auth/components/auth-hydrator.test.tsx (3 tests) 19ms
+ ✓ features/documents/hooks/use-document-workspace-upload.test.tsx (2 tests) 16ms
+ ✓ features/auth/components/route-capability-boundary.test.tsx (3 tests) 101ms
+ ✓ features/travellers/components/returning-replacement.test.tsx (3 tests) 157ms
+ ✓ features/passports/components/use-passport-detail-controller.test.tsx (2 tests) 14ms
+ ✓ features/upload/services/family-upload-state.test.ts (7 tests) 4ms
+ ✓ features/whatsapp/components/whatsapp-large-import-form.test.tsx (2 tests) 312ms
+ ✓ features/settings/hooks/platform-mutation-guards.test.tsx (3 tests) 92ms
+ ✓ features/gc-app/components/common-documents-panel.test.tsx (3 tests) 336ms
+ ✓ features/passports/hooks/use-upload-links.test.tsx (2 tests) 14ms
+ ✓ features/companies/components/company-person-editor.test.tsx (2 tests) 213ms
+ ✓ features/companies/components/company-passports.test.tsx (2 tests) 239ms
+ ✓ features/travellers/api/draft-requests.test.ts (4 tests) 5ms
+ ✓ features/tour-operations/hooks/use-browser-offline-readiness.test.tsx (2 tests) 167ms
+ ✓ features/travellers/services/draft-reconcile.test.ts (4 tests) 5ms
+ ✓ lib/api/client-returning.test.ts (6 tests) 7ms
+ ✓ components/layout/mobile-navigation.test.tsx (2 tests) 124ms
+ ✓ features/passports/components/group-document-delivery-panel.test.tsx (3 tests) 119ms
+ ✓ features/documents/components/traveller-document-eligibility.test.tsx (4 tests) 131ms
+ ✓ features/travellers/components/returning-document-preview.test.tsx (3 tests) 138ms
+ ✓ features/documents/components/ecr-results.test.tsx (3 tests) 236ms
+ ✓ features/documents/components/document-group-list.test.tsx (2 tests) 129ms
+ ✓ features/whatsapp/api/whatsapp-source-groups.test.ts (4 tests) 4ms
+ ✓ features/auth/services/session-continuity.test.ts (14 tests) 3ms
+ ✓ features/passports/components/passport-export-cancellation.test.tsx (1 test) 130ms
+ ✓ lib/api/download-filename.test.ts (8 tests) 8ms
+ ✓ features/documents/components/document-workspace-review-controls.test.tsx (1 test) 119ms
+ ✓ features/gc-app/notifications/notification-delivery-summary.test.tsx (2 tests) 110ms
+ ✓ features/companies/components/company-person-page.test.tsx (1 test) 111ms
+ ✓ features/travellers/services/draft-readiness.test.ts (6 tests) 5ms
+ ✓ features/whatsapp/components/whatsapp-source-roster.test.tsx (2 tests) 143ms
+ ✓ features/documents/hooks/use-document-workspace-delivery.test.tsx (3 tests) 12ms
+ ✓ features/auth/components/activation-form.test.tsx (2 tests) 780ms
+     ✓ scrubs the URL while retaining the token only for the activation request  763ms
+ ✓ features/passports/components/passport-detail-images.test.tsx (3 tests) 86ms
+ ✓ features/upload/hooks/use-upload-operation.test.tsx (4 tests) 14ms
+ ✓ features/auth/components/queue-safe-sign-out-guard.test.tsx (2 tests) 255ms
+ ✓ features/tour-operations/services/attendance-batch-policy.test.ts (3 tests) 2ms
+ ✓ features/whatsapp/workspace/history.api.test.ts (5 tests) 4ms
+ ✓ features/upload/components/fresh-documents.test.tsx (2 tests) 91ms
+ ✓ components/shared/processing-motion.test.tsx (2 tests) 34ms
+ ✓ next-config.policy.test.ts (2 tests) 3ms
+ ✓ lib/navigation/application-route.test.ts (9 tests) 7ms
+ ✓ features/passports/components/passport-group-selection-toolbar.test.tsx (1 test) 570ms
+   ✓ keeps selected passengers through search, filters and sort until Clear is used  569ms
+ ✓ features/travellers/components/detected-history-offer.test.tsx (2 tests) 78ms
+ ✓ features/auth/hooks/use-identity-action-token.test.tsx (6 tests) 102ms
+ ✓ lib/api/client-refresh.test.ts (2 tests) 6ms
+ ✓ features/auth/hooks/use-me.test.tsx (1 test) 21ms
+ ✓ features/passports/components/group-whatsapp-dialogs.test.tsx (1 test) 338ms
+     ✓ requires explicit unlink confirmation and Escape leaves the outer editor intact  337ms
+ ✓ features/companies/components/company-person-trips.test.tsx (1 test) 119ms
+ ✓ features/mcp/api/mcp-transfer.api.test.ts (2 tests) 6ms
+ ✓ features/travellers/services/draft-resume.test.ts (3 tests) 4ms
+ ✓ features/operations/services/attendance-invalidation.test.ts (3 tests) 3ms
+ ✓ features/whatsapp/workspace/composer.api.test.ts (1 test) 4ms
+ ✓ features/tour-operations/services/offline-snapshot.test.ts (3 tests) 3ms
+ ✓ features/mcp/api/mcp-request.api.test.ts (5 tests) 6ms
+ ✓ features/auth/components/step-up-dialog.test.tsx (1 test) 290ms
+ ✓ features/whatsapp/utils/group-invite.test.ts (16 tests) 4ms
+ ✓ features/settings/platform-settings-policy.test.ts (3 tests) 3ms
+ ✓ features/auth/services/refresh-attempt.test.ts (6 tests) 6ms
+ ✓ features/documents/components/document-workspace-dialogs.test.tsx (2 tests) 431ms
+ ✓ config/api-routing.test.ts (4 tests) 3ms
+ ✓ features/auth/components/client-manager-activation-fallback.test.tsx (2 tests) 97ms
+ ✓ features/gc-app/availability.test.ts (3 tests) 3ms
+ ✓ features/upload/services/passport-capture-transition.test.ts (5 tests) 3ms
+ ✓ features/gc-app/notifications/pending-send.test.ts (2 tests) 3ms
+ ✓ lib/utils/coordinator-device-id.test.ts (4 tests) 5ms
+ ✓ features/upload/hooks/use-upload-family.test.tsx (1 test) 12ms
+ ✓ features/branding/components/group-image-dialog.test.tsx (3 tests) 146ms
+ ✓ features/passports/api/upload-links-whatsapp.test.ts (2 tests) 3ms
+ ✓ features/mcp/utils/save-transfer-file.test.ts (2 tests) 64ms
+ ✓ features/whatsapp/api/whatsapp-duplicate-sources.test.ts (2 tests) 3ms
+ ✓ lib/utils/clipboard.test.ts (2 tests) 12ms
+ ✓ components/shared/error-boundary.test.tsx (1 test) 139ms
+ ✓ features/branding/image-crop.test.ts (4 tests) 3ms
+ ✓ components/ui/input.test.tsx (2 tests) 81ms
+ ✓ features/operations/components/tour-operations-ui.test.tsx (1 test) 84ms
+ ✓ features/companies/components/company-original-record.test.tsx (1 test) 73ms
+ ✓ features/passports/components/whatsapp-match-description.test.ts (3 tests) 2ms
+ ✓ features/whatsapp/api/whatsapp-archive.test.ts (3 tests) 3ms
+ ✓ features/email-integrations/services/email-refresh-policy.test.ts (4 tests) 2ms
+ ✓ features/passports/api/client-details.api.test.ts (1 test) 3ms
+ ✓ features/passports/api/passports-search.test.ts (3 tests) 3ms
+ ✓ providers/query-provider.test.ts (9 tests) 3ms
+ ✓ stores/auth-restoration.test.ts (1 test) 8ms
+ ✓ components/ui/liquid-sculpture/engine.test.ts (1 test) 5ms
+ ✓ features/companies/utils/company-navigation.test.ts (9 tests) 3ms
+ ✓ features/passports/components/whatsapp-match-evidence.test.ts (2 tests) 2ms
+ ✓ lib/api/api-error-detail.test.ts (2 tests) 2ms
+ ✓ lib/utils/role-access.test.ts (7 tests) 3ms
+ ✓ features/operations/api/operations-tour-groups.api.test.ts (2 tests) 3ms
+ ✓ config/e2e-isolation.test.ts (1 test) 2ms
+ ✓ features/auth/services/access-level-navigation.test.ts (4 tests) 3ms
+ ✓ features/companies/utils/company-search.test.ts (2 tests) 3ms
+ ✓ lib/utils/phone-number.test.ts (14 tests) 3ms
+ ✓ features/upload/services/contact-verification.test.ts (12 tests) 3ms
+ ✓ features/auth/services/restoration-destination.test.ts (8 tests) 3ms
+
+ Test Files  230 passed (230)
+      Tests  1554 passed (1554)
+   Start at  20:22:07
+   Duration  348.48s (transform 7.03s, setup 41.11s, import 28.78s, tests 107.74s, environment 145.99s)
+

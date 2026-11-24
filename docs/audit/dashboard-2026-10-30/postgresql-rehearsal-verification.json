@@ -1,0 +1,180 @@
+{
+  "status": "rehearsal-focused-source-frozen; compose/other operator architecture remains open",
+  "runtime_owners": 7,
+  "runtime_lines": {
+    "backend/scripts/rehearse_postgresql_upgrade.py": 133,
+    "backend/scripts/postgresql_rehearsal_client.py": 175,
+    "backend/scripts/postgresql_rehearsal_contract.py": 64,
+    "backend/scripts/postgresql_rehearsal_fixture.py": 151,
+    "backend/scripts/postgresql_rehearsal_runner.py": 235,
+    "backend/scripts/postgresql_rehearsal_snapshot.py": 127,
+    "backend/scripts/postgresql_rehearsal_verification.py": 226
+  },
+  "safety_fix": {
+    "before_failed": 6,
+    "before_positive_control": 1,
+    "after_existing_and_new_passed": 14,
+    "underlying_rule": "https://www.postgresql.org/docs/16/sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS",
+    "basis": "Synthetic admission guard negatives plus upstream truncation contract; no database destruction/exploit or live PostgreSQL service execution."
+  },
+  "focused_current": {
+    "backend_cases": 40,
+    "seconds": 3.84,
+    "files": 4,
+    "command": "postgresql-rehearsal-final-command.json",
+    "synthetic_qualifier_cases": 15,
+    "synthetic_qualifier_seconds": 1.409,
+    "do_not_sum_overlapping_historical_runs": true
+  },
+  "proof": {
+    "basis": "Mechanical extraction compares current owner whole declarations to source AFTER the separately tested63byte admission fix; never claims original unpatched code is unchanged.",
+    "whole_function_ASTs_exact": 23,
+    "constant_ASTs_and_evaluated_values_exact": 7,
+    "actual_signatures_hints_modules_qualnames_exact": 23,
+    "function_owner_map": {
+      "_parse_args": "backend/scripts/rehearse_postgresql_upgrade.py",
+      "main": "backend/scripts/rehearse_postgresql_upgrade.py",
+      "validate_database_name": "backend/scripts/postgresql_rehearsal_client.py",
+      "database_environment": "backend/scripts/postgresql_rehearsal_client.py",
+      "require_destructive_acknowledgement": "backend/scripts/postgresql_rehearsal_client.py",
+      "_run": "backend/scripts/postgresql_rehearsal_client.py",
+      "_connect": "backend/scripts/postgresql_rehearsal_client.py",
+      "_drop_database": "backend/scripts/postgresql_rehearsal_client.py",
+      "_create_database": "backend/scripts/postgresql_rehearsal_client.py",
+      "_replace_database": "backend/scripts/postgresql_rehearsal_client.py",
+      "_alembic": "backend/scripts/postgresql_rehearsal_client.py",
+      "_client_major": "backend/scripts/postgresql_rehearsal_client.py",
+      "_sha256": "backend/scripts/postgresql_rehearsal_client.py",
+      "_timed_stage": "backend/scripts/postgresql_rehearsal_client.py",
+      "_seed_previous_release": "backend/scripts/postgresql_rehearsal_fixture.py",
+      "rehearse": "backend/scripts/postgresql_rehearsal_runner.py",
+      "_revision": "backend/scripts/postgresql_rehearsal_snapshot.py",
+      "_scalar": "backend/scripts/postgresql_rehearsal_snapshot.py",
+      "_row_counts": "backend/scripts/postgresql_rehearsal_snapshot.py",
+      "_previous_release_snapshot": "backend/scripts/postgresql_rehearsal_snapshot.py",
+      "_assert_snapshot_equal": "backend/scripts/postgresql_rehearsal_snapshot.py",
+      "_assert_constraint_rejected": "backend/scripts/postgresql_rehearsal_snapshot.py",
+      "_verify_upgraded_database": "backend/scripts/postgresql_rehearsal_verification.py"
+    },
+    "existing_test_assertion_ASTs_preserved": true,
+    "qualifier_entire_module_AST_identical_except_exact6_additive_source_pins": true,
+    "new_qualified_dependencies": [
+      "postgresql_rehearsal_client.py",
+      "postgresql_rehearsal_contract.py",
+      "postgresql_rehearsal_fixture.py",
+      "postgresql_rehearsal_runner.py",
+      "postgresql_rehearsal_snapshot.py",
+      "postgresql_rehearsal_verification.py"
+    ],
+    "runtime_sha256": {
+      "backend/scripts/rehearse_postgresql_upgrade.py": "9ec7e94fecdb070021dc1b253a69e2f454c455a8cc8b780c50b302df42ad808f",
+      "backend/scripts/postgresql_rehearsal_client.py": "8032ff7ef2598fd04e0836a42c010f35086ba3a91b543252d85866db1752e3f3",
+      "backend/scripts/postgresql_rehearsal_contract.py": "cd2cc8f0a6a022ddf435f7a3a30b024fdeff5eea9e174f5a55dddff75b2c4674",
+      "backend/scripts/postgresql_rehearsal_fixture.py": "1f60400f7f47ea387fa7e38caab3e2d35e151073adc11fdd924bb197959095ee",
+      "backend/scripts/postgresql_rehearsal_runner.py": "1e6b746da0f99e33f5d75e95767aa3d77d26a188f8c3b2bbe53098d30fc46fb6",
+      "backend/scripts/postgresql_rehearsal_snapshot.py": "e462fe0d1a77bd269883a1931edb70cbb340ab0fd024c97f8eb35c75494284f7",
+      "backend/scripts/postgresql_rehearsal_verification.py": "41dce0796f4afcb3236c48b283d2665f8c10c5177fa20f048c77644bdf9cdbfb"
+    },
+    "prior_postfix_source_sha256": "6a4d46e5087fec520454b83a07111b0a004a9f8fd1832defbfe3b88213cbdf1b",
+    "limits": "Synthetic public alias/pickle/hint/guard/constraint tests and AST metadata only; actual PostgreSQL dump/restore/populated migrations and Docker-image qualification remain existing required live service gates, not executed here."
+  },
+  "static_checks": [
+    {
+      "check": "ruff",
+      "argv": [
+        "-m",
+        "ruff",
+        "check",
+        "--no-fix",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\scripts\\rehearse_postgresql_upgrade.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\scripts\\postgresql_rehearsal_client.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\scripts\\postgresql_rehearsal_contract.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\scripts\\postgresql_rehearsal_fixture.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\scripts\\postgresql_rehearsal_runner.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\scripts\\postgresql_rehearsal_snapshot.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\scripts\\postgresql_rehearsal_verification.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\tests\\unit\\infrastructure\\test_postgresql_upgrade_rehearsal.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\tests\\unit\\infrastructure\\test_postgresql_upgrade_rehearsal_safety.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\tests\\unit\\infrastructure\\test_postgresql_rehearsal_owner_contracts.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "check": "format",
+      "argv": [
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\scripts\\rehearse_postgresql_upgrade.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\scripts\\postgresql_rehearsal_client.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\scripts\\postgresql_rehearsal_contract.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\scripts\\postgresql_rehearsal_fixture.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\scripts\\postgresql_rehearsal_runner.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\scripts\\postgresql_rehearsal_snapshot.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\scripts\\postgresql_rehearsal_verification.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\tests\\unit\\infrastructure\\test_postgresql_upgrade_rehearsal.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\tests\\unit\\infrastructure\\test_postgresql_upgrade_rehearsal_safety.py",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\backend\\tests\\unit\\infrastructure\\test_postgresql_rehearsal_owner_contracts.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "check": "mypy",
+      "argv": [
+        "-m",
+        "mypy",
+        "--explicit-package-bases",
+        "scripts\\rehearse_postgresql_upgrade.py",
+        "scripts\\postgresql_rehearsal_client.py",
+        "scripts\\postgresql_rehearsal_contract.py",
+        "scripts\\postgresql_rehearsal_fixture.py",
+        "scripts\\postgresql_rehearsal_runner.py",
+        "scripts\\postgresql_rehearsal_snapshot.py",
+        "scripts\\postgresql_rehearsal_verification.py"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "failed_history": [
+    "6guardnegatives/1control beforefix retained.",
+    "Owner metadata fixture initially failed1/5pass because temporary _export alias remained in helpers; helpers now delete temporary loop alias and correctedcurrentcase passes; final40selection includes all6metadata controls.",
+    "Preflight original raw-byte assertion initially failed due GitLF vs workingCRLF; explicitCRLF reconstruction matches original1231bc2b...; no originalsource content drift or source claim fabricated."
+  ],
+  "shared_gate_state": "backend626/91critical, frontend618,102strictpin rows unchanged; these operator paths are outside protected persistent selectors and need no invented admissions or gate relaxation. Six new helper source identities now explicitly joined existing candidate-image qualification pins.",
+  "source_sha256": {
+    "backend/scripts/rehearse_postgresql_upgrade.py": "9ec7e94fecdb070021dc1b253a69e2f454c455a8cc8b780c50b302df42ad808f",
+    "backend/scripts/postgresql_rehearsal_client.py": "8032ff7ef2598fd04e0836a42c010f35086ba3a91b543252d85866db1752e3f3",
+    "backend/scripts/postgresql_rehearsal_contract.py": "cd2cc8f0a6a022ddf435f7a3a30b024fdeff5eea9e174f5a55dddff75b2c4674",
+    "backend/scripts/postgresql_rehearsal_fixture.py": "1f60400f7f47ea387fa7e38caab3e2d35e151073adc11fdd924bb197959095ee",
+    "backend/scripts/postgresql_rehearsal_runner.py": "1e6b746da0f99e33f5d75e95767aa3d77d26a188f8c3b2bbe53098d30fc46fb6",
+    "backend/scripts/postgresql_rehearsal_snapshot.py": "e462fe0d1a77bd269883a1931edb70cbb340ab0fd024c97f8eb35c75494284f7",
+    "backend/scripts/postgresql_rehearsal_verification.py": "41dce0796f4afcb3236c48b283d2665f8c10c5177fa20f048c77644bdf9cdbfb",
+    "scripts/qa/qualify_companies_fast_migration.py": "1d51a0a2e2f02eea28a5d8b15c3794b12f12c0c7c6c86f41c3fbe0d869d0566e",
+    "backend/tests/unit/infrastructure/test_postgresql_upgrade_rehearsal.py": "314ba004751aeb5fcb5e113ea49015cbcfddf4a8d879f88e3421ed205467c0cb",
+    "backend/tests/unit/infrastructure/test_postgresql_upgrade_rehearsal_safety.py": "e3c4f13268d391be5aad118b0284f38195a1aff8d3dc970d879b3054a9094321",
+    "backend/tests/unit/infrastructure/test_postgresql_rehearsal_owner_contracts.py": "384aa39dd0271a875003dd37e168ed5d084ebcfaeb9ad45d330653668e8c8215",
+    "backend/tests/unit/infrastructure/test_companies_migration_rehearsal.py": "400c30b3df3aada828268ae55f5635abf040c14d7a5c55164146500b1097bc5b",
+    "scripts/test_companies_fast_migration_qualification.py": "d394ec736698c8f0f8d5a6ff8bee15bc1f18fd28265c5222316b16c46e97e785"
+  },
+  "artifacts": {
+    "postgresql-rehearsal-extraction-proof.json": "02fe1fa7e5c9ae047b822e1d78e155a92a42753477e14b1f0845ea1583e58e7a",
+    "postgresql-rehearsal-final-command.json": "31305f6c488fefcca17b08261fbb6de600a8266c0cd224a5bbcee716eea75e44",
+    "postgresql-rehearsal-final-tests.txt": "3f8f2300f928b2938a5539c6d785c3a93747f160b9f8aea8bbfff86a32c7d2ce",
+    "postgresql-rehearsal-qualifier-tests.txt": "c9824c33373e2a766f0a01550b1607c30765940444b418fc591a32d720fb4333",
+    "postgresql-rehearsal-final-ruff.txt": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0",
+    "postgresql-rehearsal-final-format.txt": "a69837e5076ef12241581591171de529fd26d5157fc32761175f83b0501cd41d",
+    "postgresql-rehearsal-final-mypy.txt": "e2702f9afc4c0f80ff1e8624f77af7a7d2689ca184512114aae5967a76229ba8",
+    "rehearsal-name-safety-before.txt": "8a4a37eb24b2c51ea93aee569cff6b485142056543ef0f5107330d62b8e4d0a9",
+    "rehearsal-name-safety-after.txt": "6be8ba80a91471e860aab8ba53a4ab4347b9caab26a051c274d685896f003c11",
+    "postgresql-rehearsal-owner-contract-tests.txt": "5a2bc730ea2f01f11a9678f861defe24dd26192b2aaf49e4995277054fc2573c",
+    "postgresql-rehearsal-owner-contract-corrected.txt": "ef72a13f9958b536e504227b8820285bd090a9dcf888ae1b2c3c702c477036cf",
+    "operator-runtime-reviewed-files.json": "0e0e5fd8421f1251fac3508faa8f97aa995c656fce9e61efef4919afd83cf408"
+  },
+  "limits": [
+    "No real PostgreSQL backup/restore/constraint/alembic upgrade, Docker render/runtime or VPS/deployment execution.",
+    "No backend application-wide suite, build or broad browser run; actual populated migration/service gates remain necessary at final combined checkpoint.",
+    "Normal application budget records not used to pretend PostgreSQL-only behavior received synthetic branch qualification.",
+    "Compose731, retained597, traveller690 and workload730 fully reviewed; architecture/lifecycle follow-through not closed by this rehearsal split."
+  ]
+}

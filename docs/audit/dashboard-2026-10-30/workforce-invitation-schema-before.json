@@ -1,0 +1,53 @@
+{
+  "path": "backend/app/presentation/api/v1/schemas/operations_schemas.py",
+  "sha256": "0a32b3635382366c79e2df2922bbbb2b9017dda5242b83fbee31991a982c165a",
+  "original_source": "\"\"\"\nOperational API Schemas\n=======================\nSchemas for admin, audit, analytics, and notification endpoints.\n\"\"\"\n\nfrom __future__ import annotations\n\nimport uuid\nfrom datetime import datetime\nfrom typing import Any, Literal\n\nfrom pydantic import BaseModel, EmailStr, Field, field_validator\n\n\nclass AuditLogResponse(BaseModel):\n    id: uuid.UUID\n    agency_id: uuid.UUID | None = None\n    user_id: uuid.UUID | None = None\n    actor_email: str | None = None\n    action: str\n    entity_type: str\n    entity_id: str | None = None\n    ip_address: str | None = None\n    metadata: dict[str, Any] | None = None\n    created_at: datetime\n\n\nclass NotificationResponse(BaseModel):\n    id: uuid.UUID\n    agency_id: uuid.UUID\n    user_id: uuid.UUID | None = None\n    type: str\n    title: str\n    message: str\n    entity_type: str | None = None\n    entity_id: str | None = None\n    priority: str = \"normal\"\n    category: str = \"general\"\n    metadata: dict[str, Any] = Field(default_factory=dict)\n    is_read: bool\n    created_at: datetime\n    read_at: datetime | None = None\n\n\nclass NotificationFeedResponse(BaseModel):\n    items: list[NotificationResponse] = Field(default_factory=list)\n    unread_count: int = 0\n    next_cursor: str | None = None\n\n\nclass NotificationReadAllResponse(BaseModel):\n    marked_read: int = 0\n\n\nclass AdminOverviewResponse(BaseModel):\n    agencies: int\n    users: int\n    client_groups: int\n    passport_submissions: int\n    pending_review: int\n    client_submitted: int\n    failed: int\n\n\nclass PurgePassportDataResponse(BaseModel):\n    deleted_client_groups: int\n    deleted_passport_submissions: int\n    deleted_processing_jobs: int\n    deleted_notifications: int\n    deleted_audit_logs: int\n    deleted_storage_objects: int\n    deleted_whatsapp_broadcast_groups: int = 0\n    deleted_whatsapp_recipients: int = 0\n    deleted_whatsapp_rejected_contacts: int = 0\n    deleted_whatsapp_support_contacts: int = 0\n    deleted_whatsapp_message_logs: int = 0\n    deleted_whatsapp_delivery_states: int = 0\n    storage_cleanup_deferred: bool = False\n\n\nclass PlatformSettingsResponse(BaseModel):\n    platform_name: str = Field(default=\"Global Connects Dashboard\", min_length=2, max_length=80)\n    require_client_email: bool = False\n    require_client_phone: bool = False\n    duplicate_contact_policy: str = Field(default=\"block_same_group\", pattern=\"^(block_same_group|allow|block_all)$\")\n    default_group_status: str = Field(default=\"active\", pattern=\"^(active|closed)$\")\n    auto_archive_closed_groups_days: int = Field(default=90, ge=1, le=3650)\n    passport_data_retention_days: int = Field(default=365, ge=1, le=3650)\n    mrz_review_threshold: float = Field(default=0.85, ge=0.0, le=1.0)\n    allow_manager_group_creation: bool = True\n    audit_log_retention_days: int = Field(default=365, ge=1, le=3650)\n    updated_at: datetime | None = None\n\n\nclass UpdatePlatformSettingsRequest(BaseModel):\n    expected_updated_at: datetime | None = None\n    platform_name: str = Field(..., min_length=2, max_length=80)\n    require_client_email: bool\n    require_client_phone: bool\n    duplicate_contact_policy: str = Field(..., pattern=\"^(block_same_group|allow|block_all)$\")\n    default_group_status: str = Field(..., pattern=\"^(active|closed)$\")\n    auto_archive_closed_groups_days: int = Field(..., ge=1, le=3650)\n    passport_data_retention_days: int = Field(..., ge=1, le=3650)\n    mrz_review_threshold: float = Field(..., ge=0.0, le=1.0)\n    allow_manager_group_creation: bool\n    audit_log_retention_days: int = Field(..., ge=1, le=3650)\n\n    model_config = {\"extra\": \"forbid\"}\n\n    @field_validator(\"expected_updated_at\")\n    @classmethod\n    def require_timezone_aware_revision(cls, value: datetime | None) -> datetime | None:\n        if value is not None and value.utcoffset() is None:\n            raise ValueError(\"expected_updated_at must include a timezone offset\")\n        return value\n\n\nclass PassportRetentionControlResponse(BaseModel):\n    group_id: uuid.UUID\n    passport_purge_at: datetime | None = None\n    passport_retention_days_applied: int | None = None\n\n\nclass CreateManagerRequest(BaseModel):\n    full_name: str = Field(..., min_length=2, max_length=255)\n    email: EmailStr\n\n    model_config = {\"extra\": \"forbid\"}\n\n\nclass CreateStaffRequest(BaseModel):\n    full_name: str = Field(..., min_length=2, max_length=255)\n    email: EmailStr\n\n    model_config = {\"extra\": \"forbid\"}\n\n\nclass DeleteManagerRequest(BaseModel):\n    delete_owned_data: bool = False\n\n\nclass DeleteManagerResponse(BaseModel):\n    deleted_manager_id: uuid.UUID\n    deleted_owned_data: bool\n    deleted_client_groups: int = 0\n    deleted_passport_submissions: int = 0\n    deleted_processing_jobs: int = 0\n    deleted_notifications: int = 0\n    deleted_audit_logs: int = 0\n    deleted_storage_objects: int = 0\n\n\nclass ManagerGroupAccessResponse(BaseModel):\n    id: uuid.UUID\n    agency_id: uuid.UUID\n    name: str\n    status: str\n    created_by_user_id: uuid.UUID | None = None\n\n\nclass ManagerResponse(BaseModel):\n    id: uuid.UUID\n    full_name: str\n    email: str\n    role: str\n    agency_id: uuid.UUID | None\n    is_active: bool\n    created_at: datetime\n    last_login_at: datetime | None = None\n    created_groups: list[ManagerGroupAccessResponse] = Field(default_factory=list)\n    assigned_groups: list[ManagerGroupAccessResponse] = Field(default_factory=list)\n    credential_state: Literal[\"invited\", \"active\"] = \"active\"\n    activation_token: str | None = None\n\n\nclass AssignManagerGroupsRequest(BaseModel):\n    group_ids: list[uuid.UUID] = Field(default_factory=list)\n\n\nclass ManagedAccountResponse(BaseModel):\n    id: uuid.UUID\n    full_name: str\n    email: str\n    role: str\n    agency_id: uuid.UUID | None\n    agency_name: str | None = None\n    is_active: bool\n    created_at: datetime\n    last_login_at: datetime | None = None\n    credential_state: Literal[\"invited\", \"active\"] = \"active\"\n    activation_token: str | None = None\n\n\nclass ResetManagedAccountPasswordRequest(BaseModel):\n    issue_activation_link: Literal[True] = True\n\n    model_config = {\"extra\": \"forbid\"}\n\n\nclass SetManagedAccountStatusRequest(BaseModel):\n    is_active: bool\n\n\nclass DeleteManagedAccountResponse(BaseModel):\n    account_id: uuid.UUID\n    result: str\n    preserved_history: bool\n\n\nclass AnalyticsSummaryResponse(BaseModel):\n    status_counts: dict[str, int]\n    confidence_buckets: dict[str, int]\n    submissions_by_day: dict[str, int]\n    average_confidence: float | None\n",
+  "review_scope": "full",
+  "reviewer": "root",
+  "schemas": {
+    "CreateManagerRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "full_name": {
+          "maxLength": 255,
+          "minLength": 2,
+          "title": "Full Name",
+          "type": "string"
+        },
+        "email": {
+          "format": "email",
+          "title": "Email",
+          "type": "string"
+        }
+      },
+      "required": [
+        "full_name",
+        "email"
+      ],
+      "title": "CreateManagerRequest",
+      "type": "object"
+    },
+    "CreateStaffRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "full_name": {
+          "maxLength": 255,
+          "minLength": 2,
+          "title": "Full Name",
+          "type": "string"
+        },
+        "email": {
+          "format": "email",
+          "title": "Email",
+          "type": "string"
+        }
+      },
+      "required": [
+        "full_name",
+        "email"
+      ],
+      "title": "CreateStaffRequest",
+      "type": "object"
+    }
+  }
+}

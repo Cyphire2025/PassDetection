@@ -1,0 +1,100 @@
+{
+  "scope": "Backend dashboard operations/menu/rooming/repository direct review tranche; native mobile application source excluded, shared backend compatibility retained; no Codex Security scans/tools.",
+  "manual_source_coverage": {
+    "original_supporting_paths": 54,
+    "direct_current_full_reads": 42,
+    "unchanged_exact_prior_full_records": 12,
+    "new_owners_fully_read": 16,
+    "pending_original_paths": 0,
+    "notes": "This completes this selected source tranche only, not the entire repository audit. Per-path notes/digests are in operations-backend-reviewed-files.json."
+  },
+  "changes": [
+    {
+      "issue": "Out-of-order scan/closeout event times could reverse runtime participation range, cause CHECK failure and roll back valid work.",
+      "before_evidence": "Four actual SQLite tests reproduce three event sequences and checkpoint after clock-skewed scan; named PostgreSQL conflict targets alone translated to exact declared SQLite columns.",
+      "fix": "Canonical record_runtime_participation SQL upsert reads conflicting row atomically with CASE min(first)/max(last). Runtime and closeout callers share it. Source value/latest arrival, tenant/user/session/runtime fields and caller flush/commit remain unchanged."
+    },
+    {
+      "issue": "Discard permits five-minute client clock skew but DB receipt>=discard constraint rejected allowed future event times.",
+      "before_evidence": "Actual SQLite +60/+300 second discard tests failed CHECK constraint; past case passed.",
+      "fix": "Validate original timezone/order and unchanged +5min rejection bound, then cap only future captured/discarded values at actual server receipt. Past times, receipt, retention and idempotent retry remain unchanged.",
+      "forensic_bound": "Permitted future client times are normalized at receipt rather than stored raw; no schema/migration/new field. Original future client offset is not retained. No raw QR/token/passenger evidence is added."
+    },
+    {
+      "issue": "Four unused response_support exports duplicated the canonical live passenger projection chain.",
+      "fix": "Retired only group_passenger_responses/family_sizes/family_size/family_group_label after source reachability proof; retained two live coordinator/group definitions exact AST. Actual office/coordinator projections and public endpoints stay unchanged."
+    }
+  ],
+  "source": [
+    {
+      "path": "backend/app/infrastructure/repositories/attendance_participation.py",
+      "sha256": "059365ff5dee629551568adf958a74607ca5c98e6f04a8e9af0b1ceca06b3b4b"
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/attendance_runtime_repository.py",
+      "sha256": "f9285528b2325afcfb9fa74235f52952303812dee29d435dad48ea5dce7eb9ae"
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/attendance_discard_repository.py",
+      "sha256": "53d0535c024120e161fcfdb920a1e851590c6663274e0cb803404eff8d3ffa08"
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/attendance_closeout_repository.py",
+      "sha256": "ab5b342a2927957397dcf88e2d47cf8a947f99a24a60819e7567da037ca3e0cf"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_response_support.py",
+      "sha256": "e4e9e4bbe4e6f733bedfb3859153ba6fa9aea26f606a1e5ac2ef5afaf7dfa299"
+    }
+  ],
+  "test_source": [
+    {
+      "path": "backend/tests/integration/test_attendance_event_ordering.py",
+      "sha256": "4549d8651bd381a09ef440d726247a13f2ab6265273a0d209aa2bc82ade88f3a"
+    },
+    {
+      "path": "backend/tests/integration/test_tour_operations_tenant_projections.py",
+      "sha256": "63a25d3eb2df11b9608cc9077570c0fd314ea5a8a790fec4c3bdf9b1880ecdcd"
+    }
+  ],
+  "verification": {
+    "passing_executions": 147,
+    "unique_cases": 147,
+    "reports": [
+      "attendance-ordering-affected-tests.xml",
+      "tour-projection-affected-tests.xml",
+      "tour-tenant-projection-corrected-fixture-tests.xml"
+    ],
+    "mypy": "Five changed/new runtime owners pass.",
+    "ruff": "Five runtime owners and both new tests pass --no-fix.",
+    "architecture": "Pass.",
+    "test_limits": "Actual SQLite rows, foreign keys, checks and HTTP session authority. SQLAlchemy named conflict target translated test-only; no real PostgreSQL concurrency certification, broker, Redis, external storage or real provider sends.",
+    "fixture_corrections": [
+      "Initial ordering baseline failed SQLite named PG conflict syntax before target translation; preserved separately as attendance-ordering-before-fix.xml and is NOT vulnerability evidence.",
+      "Initial office projection fixture inserted reserved example.test coordinator email directly, rejected by real EmailStr response. Corrected fixture to synthetic example.com; no runtime validator relaxed and initial failure preserved in tour-tenant-projection-tests.xml."
+    ]
+  },
+  "remaining_architecture_work": [
+    "operations_models.py1182 mixed models: parent approved exact model split next, preserve mapping/metadata/DDL/imports.",
+    "tour_operations_qr_delivery.py696 mixes scope/preview/query/queue/publication; contract-preserving decomposition remains open.",
+    "Closeout statuses function, tour_operations_schemas.py541 and legacy attendance views/batch ownership remain mixed architecture follow-ups.",
+    "Legacy full overview materializes session-by-passenger output and missing-token initial QR fan-out remain performance follow-ups. No response truncation/workflow change made.",
+    "Cross-scope replay-name lookup was traced as trusting internally minted receipt; no attacker-writable receipt or transfer exploit established, so no speculative authorization change."
+  ],
+  "artifacts": {
+    "attendance-operations-budget-candidates.json": "26c75a42f67e249745fe102f15c8815d5c1312fbbf2f83ee304ac915f85aeaae",
+    "attendance-ordering-coverage.json": "ee9206946fde9a3174660b92207a910e584b7417f3097ca77cb61b4046f78f7a",
+    "attendance-ordering-coverage.xml": "f7b811e4df8f3f799459a11184cb4bf79f0127acb816f566130329fc9c7aead2",
+    "tour-projection-coverage.json": "ce84141c7d6648e5f430d1c77d010517de336f3332da9001719e228bc373534c",
+    "tour-duplicate-projection-reachability.json": "e3c3510b48f7050effb95478c95db05508b3f68a0119804dad9d63cdad2c82aa",
+    "attendance-ordering-constraints-before-fix.xml": "a5aaa7a9120ea3d296aba9ea6bc2a6f0a5d3c772ab79480259c260b6bea882bb",
+    "attendance-discard-clock-before-fix.xml": "e1f7a87e91ed01c8700637fc0f8d455483879cbbd62558d8865d18cfa998427a",
+    "attendance-ordering-affected-tests.xml": "1bb6272ce6c24c3f65425d163f12ab92b98b49668f5b97378e513aa55ff3972e",
+    "tour-projection-affected-tests.xml": "cafb184de97b65058d7db4e48d9ce071f36ce13a1e298b2ccfea6eacf48e3d81",
+    "tour-tenant-projection-corrected-fixture-tests.xml": "500e7eac813bf83aff8ed4cc5e66346dbf4a888aa5595ed8bd175d87ad3d9dc1",
+    "attendance-operations-reviewed-files-snapshot.json": "ac0a6f1120c1a227fc73f0bc648fc0850ab97842411e3d3805751dcb4f8cf807",
+    "attendance-operations-ledger-snapshot.json": "24f02400d3db8b9a45d4520cffb553c6c5f586cad17211da19cb2cefb3c05b47"
+  },
+  "central_gates": "Five additive measured candidates queued; no existing size/complexity/coverage floor or critical/global gate altered.",
+  "checkpoint_note": "Before model extraction, working coverage trackers were copied byte-for-byte into immutable checkpoint snapshots; only these artifact paths changed, with their original exact hashes preserved. Runtime/test evidence and candidates unchanged."
+}

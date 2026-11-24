@@ -1,0 +1,160 @@
+{
+  "created_at_utc": "2026-10-31T21:55:25.479210+00:00",
+  "status": "Read-only implementation-ready reproducer proposal; no test execution, source fix or gate mutation",
+  "candidate": "Whether persisted agency suspension must revoke retained dashboard realtime admission and periodic authorization",
+  "original_finding": {
+    "ledger": "docs/audit/dashboard-2026-10-30/auth-security-support-reviewed-files.json",
+    "ledger_sha256": "f8f7290e8018ff6e10e53629dce44aef1adadcfa0af00ac1fe58cc31a0cd4edb",
+    "zero_based_files_record_index": 17,
+    "source_sha256": "71533cd163b346d3f48b4c28a7b3126ecb9003f9e45b872bfefbc0fdcbb8a195",
+    "finding": "Agency-suspension invalidation not explicitly checked; scope-policy follow-up, not certified vulnerability."
+  },
+  "current_authority_and_consumer_trace": [
+    {
+      "path": "backend/app/application/dashboard_realtime_authorization.py",
+      "line": 97,
+      "symbol": "load_dashboard_realtime_authorization",
+      "observation": "Signed access token -> durable require_dashboard_session -> live UserModel/UserSecurityStateModel -> credential/session/role/agency match -> effective-user access-level callback -> tenant-qualified bounded group/assignment IDs. No AgencyModel join/activity predicate."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/dashboard_session_repository.py",
+      "line": 16,
+      "symbol": "require_dashboard_session",
+      "observation": "Validates exact session/user/version, unrevoked and unexpired session. Does not consult agency activity."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/dashboard_realtime.py",
+      "line": 101,
+      "symbol": "authorize_dashboard_realtime",
+      "observation": "Each admission/refresh uses a fresh real AsyncSessionFactory session and passes signed access-level cookies through existing canonical helper; successful read commits, failures rollback."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/dashboard_realtime.py",
+      "line": 126,
+      "symbol": "_refresh_dashboard_authorization",
+      "observation": "Repeats real authorization after configured bounded interval. AuthenticationError ->4401, AuthorizationError ->4403, unexpected error ->1013; otherwise updates existing connection authorization."
+    },
+    {
+      "path": "backend/app/infrastructure/mobile_realtime_registry.py",
+      "line": 178,
+      "symbol": "update_authorization",
+      "observation": "Compares immutable authentication boundary, then replaces/reindexes current trip membership. It does not independently query DB or activity."
+    },
+    {
+      "path": "backend/app/infrastructure/mobile_realtime_registry.py",
+      "line": 195,
+      "symbol": "fanout",
+      "observation": "Offers hint only to existing exact (agency_id,trip_id) index. No independent live DB/agency query per hint."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/realtime_socket_support.py",
+      "line": 113,
+      "symbol": "serve_registered_realtime_connection",
+      "observation": "Authorization task failure propagates close code; finally cancels/drains owned tasks and unregisters connection. Reproduction must exercise this cleanup if claiming delivery revocation."
+    },
+    {
+      "path": "backend/app/application/mobile/realtime_hints.py",
+      "line": 56,
+      "symbol": "MobileRealtimeHint.client_payload",
+      "observation": "Emits type,trip_id,cursor,invalidation; no names/documents/phone/account identifiers. This issue alone cannot establish private content access."
+    }
+  ],
+  "policy_evidence_and_limits": [
+    {
+      "path": "backend/app/application/companies/access.py",
+      "symbol": "resolve_company_workspace",
+      "evidence": "Explicit active AgencyModel predicate denies inactive assigned company workspace."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_scope.py",
+      "symbol": "_whatsapp_actor_lock_statement",
+      "evidence": "When require_agency is true, exact expected agency joins with is_active=True before WhatsApp roster changes."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/auth_access_level.py",
+      "symbol": "_resolve_agency",
+      "evidence": "Selecting a reduced superadmin access level explicitly requires active agency."
+    },
+    {
+      "path": "backend/app/presentation/dependencies/auth.py",
+      "symbol": "get_current_active_user",
+      "evidence": "Generic shared authentication checks user.is_active only; does not establish a universal active-agency requirement."
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/agency_repository.py",
+      "symbol": "AgencyRepository.update",
+      "evidence": "Persisted is_active updates do not themselves rotate user/session state in this method. No maintained agency-suspend handler was located by named AgencyRepository/agency.is_active searches in this trace; no claim of complete external/admin operator closure."
+    }
+  ],
+  "proposed_tests": [
+    {
+      "phase": "A - descriptive persisted-state behavior before any policy assertion",
+      "new_file": "backend/tests/unit/presentation/test_dashboard_realtime_agency_state.py",
+      "fixture": "Use isolated file-backed SQLite + actual Base/registry/FK session factory. Persist active agency, current user/security state, owned/assigned active group and real durable dashboard session via issue_dashboard_access. Replace only route.AsyncSessionFactory with that isolated factory; keep JWT, resolver, UserRepository mapping and authorization real.",
+      "sequence": [
+        "Call actual authorize_dashboard_realtime and assert exact healthy agency/trip snapshot.",
+        "Commit AgencyModel.is_active=False in an independent session, leaving user/security/session/assignments unchanged.",
+        "Call actual authorize_dashboard_realtime through a new session and record whether it still returns same snapshot; assert durable row is inactive from a separate verification session."
+      ],
+      "controls": [
+        "Unchanged active agency remains admitted.",
+        "Revoked dashboard session rejects through existing AuthenticationError.",
+        "Deactivated user rejects through existing AuthenticationError.",
+        "Removing staff group access removes only corresponding trip; unrelated agency never enters snapshot."
+      ],
+      "interpretation": "Returning unchanged membership confirms current behavior only. Expected denial requires root adoption of intended realtime agency suspension policy; do not label a failing invented-policy assertion as a demonstrated vulnerability."
+    },
+    {
+      "phase": "B - actual refresh and consumer boundary",
+      "sequence": [
+        "Register actual bounded MobileRealtimeConnection in existing in-memory/fake-Redis hub test configuration using the healthy real authorization.",
+        "Commit agency inactivity independently.",
+        "Run actual _refresh_dashboard_authorization with deterministic one-cycle scheduling and actual authorization wrapper, not a mocked authorization result.",
+        "If denial policy is adopted, exercise serve_registered_realtime_connection finally cleanup and assert expected close code/unregister, then actual hub.fanout of same-trip PII-free hint delivers zero."
+      ],
+      "controls": [
+        "Healthy one-cycle refresh retains registration and delivers exactly one hint.",
+        "Revoked-user/session controls reuse existing4401 semantics.",
+        "Scoped superadmin mode continues to use effective agency; unscoped superadmin still rejects as before.",
+        "Avoid hanging infinite loop: bounded wait_for and explicit event/cancellation teardown; never patch global asyncio.sleep into recursion."
+      ],
+      "interpretation": "No immediate revocation promise before configured refresh interval. No deployment-wide Redis/WebSocket concurrency or private durable-read policy conclusion."
+    }
+  ],
+  "minimal_fix_if_policy_and_baseline_adopted": {
+    "owner": "backend/app/application/dashboard_realtime_authorization.py",
+    "approach": "After effective_user establishes nonnull effective agency, query actual agency ID with is_active=True and raise existing AuthorizationError for absent/inactive agency before scoped trip snapshot. Prefer a direct bounded existence predicate over new global auth policy, registry/provider mutation or cached activity.",
+    "preserve": [
+      "All JWT/session/credential/role/tenant/access-level parsing and exact group policy.",
+      "Existing maximum trips and scope-order/default/signature/public imports.",
+      "Existing4403 mapping, refresh interval, hub cleanup/capacity and PII-free payload.",
+      "No new active-state restriction on unrelated valid dashboard routes and no native application behavior work."
+    ],
+    "not_authorized_by_this_proposal": "No source/gate/budget edits performed; parent asked for evidence and implementation-ready reproducer first."
+  },
+  "focused_check_selection_if_implementation_is_later_adopted": [
+    "new persisted-state source-bound regression module only for initial reproduction",
+    "tests/unit/application/test_dashboard_realtime_authorization.py",
+    "tests/unit/presentation/test_dashboard_realtime_route.py",
+    "Only actual relevant existing hub revocation/fanout tests if consumer wiring changes; no whole backend suite or service deployment"
+  ],
+  "source_fence": {
+    "backend/app/application/dashboard_realtime_authorization.py": "71533cd163b346d3f48b4c28a7b3126ecb9003f9e45b872bfefbc0fdcbb8a195",
+    "backend/app/presentation/api/v1/routes/dashboard_realtime.py": "28cc9940fda8101a50a45967c56467f7e97928843e49d17c020a8093ea65a5c9",
+    "backend/app/presentation/api/v1/routes/realtime_socket_support.py": "806d2d688a05e6126edff6ff3f55b895a553b15cb5e63966fe842a190ea09ada",
+    "backend/app/infrastructure/mobile_realtime_registry.py": "7153cb96d9235713c117adc805891a4db896c34ed9f05538cb4bd2067e2f4832",
+    "backend/app/infrastructure/repositories/dashboard_session_repository.py": "8b9d43bcad2e486316fa83c7aef0f634e12407a09ec1d911229ab6a0863e8914",
+    "backend/app/infrastructure/repositories/agency_repository.py": "fa927acb3c55b92c7c91d6f02ee77dcab6501a950a1d90ebb6ebe3ce1c35aedb",
+    "backend/app/presentation/dependencies/auth.py": "5e1641d51673dcbcd1c2cbc8d6ceac397147de52ec4e100bae285ba115d5fefb",
+    "backend/app/application/mobile/realtime_hints.py": "9c32a58f000b2837f4c541cc89ce20416f04b6c8a4ebaa1412e45c1d48e4011d",
+    "backend/app/application/companies/access.py": "85eb5114243a39d708f1cf3162051317e5702190e0c1bc5345bff19e1ba8e69c",
+    "backend/app/presentation/api/v1/routes/whatsapp_scope.py": "fb1f5adf2ca2f924c57da9efbeb057ad013c4af1f2fc37704ac0883879b9da4c",
+    "backend/app/presentation/api/v1/routes/auth_access_level.py": "f212d1d8d55ae5b7be9fe50e1cfdceb31d1a1d6647e579e1304e7706c805f6e5",
+    "backend/tests/unit/application/test_dashboard_realtime_authorization.py": "9b391bb0b017ac0922af42f99eb11f22eecccbc59dc362cef5778392a6c0278b",
+    "backend/tests/unit/presentation/test_dashboard_realtime_route.py": "6cbb9de57a97e684fe8ecc2259e0766093f5c1b9e2c3a49d08ce4b6ae4db7968",
+    "backend/tests/unit/infrastructure/test_mobile_realtime_hub.py": "5df63e6918d359b4d76e8bf41e2e924e17e4935cebf3ecf49092230afd62046d",
+    "backend/tests/dashboard_session_fixtures.py": "c43ce6a77f492ee957fb71a97bf35bae0bb72a0b982438a0e335ffa350b50350"
+  },
+  "no_execution_or_new_full_review_credit": true,
+  "no_security_scan_provider_deployment_or_inventory_change": true
+}

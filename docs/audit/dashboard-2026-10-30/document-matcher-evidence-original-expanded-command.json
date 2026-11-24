@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-X",
+    "utf8",
+    "-c",
+    "import sys\nfrom pathlib import Path\nimport tests.conftest\nfrom app.infrastructure.documents import document_matcher as public\nsource=Path(sys.argv[1]).read_text(encoding='utf-8')\nexec(compile(source,sys.argv[1],'exec'),public.__dict__)\nimport pytest\nraise SystemExit(pytest.main(['-q','--tb=short','-o','addopts=','tests/unit/infrastructure/test_document_matcher_evidence_contract.py']))\n",
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\document-matcher-current\\document_matcher.py"
+  ],
+  "exit_code": 1,
+  "before": {
+    "backend/app/infrastructure/documents/document_matcher.py": "56d4bd08647d29d5d1a98b6469dc6e6149eb9e191effa1aab5e59febee89eb7e",
+    "backend/tests/unit/infrastructure/test_document_matcher_evidence_contract.py": "7063be81273e268f6e51cb08cec40a1798b5e34419f0f7526aa96ca113d14f95"
+  },
+  "after": {
+    "backend/app/infrastructure/documents/document_matcher.py": "56d4bd08647d29d5d1a98b6469dc6e6149eb9e191effa1aab5e59febee89eb7e",
+    "backend/tests/unit/infrastructure/test_document_matcher_evidence_contract.py": "7063be81273e268f6e51cb08cec40a1798b5e34419f0f7526aa96ca113d14f95"
+  },
+  "source_frozen": true,
+  "output": "document-matcher-evidence-original-expanded-tests.txt",
+  "runtime_source_sha256": "4256a5acb44ae73680eadc06c788cdefcd6b288e5d31361b0a979f4ce78fd791",
+  "notes": "Exact archived original667source compiled into actual public module namespace in this disposable process, after normal conftest startup. Only public evidence regression module executed; no working-tree runtime reversion or real provider/services."
+}

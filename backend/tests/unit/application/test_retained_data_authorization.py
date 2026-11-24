@@ -49,6 +49,7 @@ from app.presentation.api.v1.routes.passport_routes import (
     image_support,
     submission_review,
 )
+from tests.route_dependencies import set_route_dependency
 
 
 @pytest.fixture
@@ -148,7 +149,7 @@ async def test_deleted_known_ids_fail_before_detail_image_cover_export_or_write_
     storage = Mock(side_effect=AssertionError("Denied requests must not initialize storage"))
     monkeypatch.setattr(covers, "MinioStorageRepository", storage)
     response = AsyncMock(side_effect=AssertionError("Denied detail must not prepare document URLs"))
-    monkeypatch.setattr(submission_review, "_response_from_dto", response)
+    set_route_dependency(monkeypatch, submission_review, "_response_from_dto", response)
     export = AsyncMock(side_effect=AssertionError("Denied export must not load its payload"))
     monkeypatch.setattr(excel_exports, "_current_group_export_submissions", export)
     retry = SimpleNamespace(execute=AsyncMock(side_effect=AssertionError("Denied writes must not execute")))

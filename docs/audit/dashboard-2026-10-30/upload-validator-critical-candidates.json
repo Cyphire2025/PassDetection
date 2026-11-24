@@ -1,0 +1,12 @@
+{
+  "status": "additive actual scanner/canonicalization owner; AI owns integration",
+  "coverage_path": ".tmp/upload-validator-audit/coverage-final.xml",
+  "modules": [
+    {
+      "path": "app/infrastructure/security/upload_validator.py",
+      "source_sha256": "dfb2683e620bcc1a3a5d4f97f5cb4c1cfda20105e493f6070e63b8574c11c73f",
+      "minimum_line_percent": 90,
+      "minimum_branch_percent": 75
+    }
+  ]
+}

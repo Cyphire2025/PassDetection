@@ -1,0 +1,113 @@
+{
+  "status": "Root-authorized exact5frontend cosmetic candidates adopted;4backend candidates remain unapplied",
+  "adopted_at_utc": "2026-10-31T23:58:00.741146+00:00",
+  "preflight_receipt": {
+    "path": "docs/audit/dashboard-2026-10-30/final-whitespace-preflight/verification.json",
+    "sha256": "9a3dcb0a8c54fd37dee5c659de2c208757aeefe080e8112d9429330dda98c6bd"
+  },
+  "adopted_files": [
+    {
+      "path": "frontend/features/companies/components/company-feedback.tsx",
+      "old_sha256": "f47a950d82b98ea45479f5bd5fdd352dab580ef400b008dcc8f639bf040fd16e",
+      "new_sha256": "ca2dcd60658dab63f40a47faf5b1d99f5862936366a1b3c9b266344c2b6b0b57",
+      "old_bytes": 1698,
+      "new_bytes": 1696,
+      "warnings_addressed": 1,
+      "exact_reviewed_candidate": "docs/audit/dashboard-2026-10-30/final-whitespace-preflight/candidates/frontend/features/companies/components/company-feedback.tsx.bin",
+      "candidate_bytes_copied_exactly": true,
+      "semantic_basis": "Exact canonical TypeScript tree/raw tokens/JS literal values/imports/printer and ReactJSX emitted JavaScript"
+    },
+    {
+      "path": "frontend/features/passports/components/passport-document-follow-up.test.tsx",
+      "old_sha256": "13ac90a00e8dff37472e1073264ddbdc7948f02dcc4ae2500292f08ae5627c2d",
+      "new_sha256": "102b35bc6589a525752d79d6587e3c215f418b0aabd27b086b0c87fb4a32035a",
+      "old_bytes": 11055,
+      "new_bytes": 10877,
+      "warnings_addressed": 178,
+      "exact_reviewed_candidate": "docs/audit/dashboard-2026-10-30/final-whitespace-preflight/candidates/frontend/features/passports/components/passport-document-follow-up.test.tsx.bin",
+      "candidate_bytes_copied_exactly": true,
+      "semantic_basis": "Exact canonical TypeScript tree/raw tokens/JS literal values/imports/printer and ReactJSX emitted JavaScript"
+    },
+    {
+      "path": "frontend/features/passports/components/passport-list.tsx",
+      "old_sha256": "4b578db38737c4949c00c017fb83a4884ff328ccdda083c509fa9289be889359",
+      "new_sha256": "97d0ce82e94c4abf1215f7d0c33372b9983c3711bf3c967fd2d0fa90cd2dba73",
+      "old_bytes": 4197,
+      "new_bytes": 4191,
+      "warnings_addressed": 1,
+      "exact_reviewed_candidate": "docs/audit/dashboard-2026-10-30/final-whitespace-preflight/candidates/frontend/features/passports/components/passport-list.tsx.bin",
+      "candidate_bytes_copied_exactly": true,
+      "semantic_basis": "Root-adopted explicit exception: one raw whitespace-only JSXText token changes. All JS literal/non-JSX token/import values, whitespace-only-normalized AST and complete ReactJSX emitted JavaScript remain exact."
+    },
+    {
+      "path": "frontend/features/passports/components/upload-link-list.test.tsx",
+      "old_sha256": "960af70d08f6a4c051ab3cfdbeb5bf2ef9896053f60a966ea45525a35d502df7",
+      "new_sha256": "2319af81b2adc31a5c5ccde3b5b6cb372cbd1df54acf9d59743081d2563933aa",
+      "old_bytes": 11060,
+      "new_bytes": 10886,
+      "warnings_addressed": 174,
+      "exact_reviewed_candidate": "docs/audit/dashboard-2026-10-30/final-whitespace-preflight/candidates/frontend/features/passports/components/upload-link-list.test.tsx.bin",
+      "candidate_bytes_copied_exactly": true,
+      "semantic_basis": "Exact canonical TypeScript tree/raw tokens/JS literal values/imports/printer and ReactJSX emitted JavaScript"
+    },
+    {
+      "path": "frontend/features/whatsapp/workspace/update-message-composer.tsx",
+      "old_sha256": "ac0c15c56bbc54450b2cbb2d47184b53eeb473ec01cf2895fd4f031a6428ed55",
+      "new_sha256": "d31b6ada41a81e7cff8d89b52eca61f9435ab54f50d12b735458689457da1ff3",
+      "old_bytes": 1651,
+      "new_bytes": 1649,
+      "warnings_addressed": 1,
+      "exact_reviewed_candidate": "docs/audit/dashboard-2026-10-30/final-whitespace-preflight/candidates/frontend/features/whatsapp/workspace/update-message-composer.tsx.bin",
+      "candidate_bytes_copied_exactly": true,
+      "semantic_basis": "Exact canonical TypeScript tree/raw tokens/JS literal values/imports/printer and ReactJSX emitted JavaScript"
+    }
+  ],
+  "frontend_warning_occurrences_addressed": 355,
+  "frontend_bytes_removed": 362,
+  "remaining_prior_diff_warning_occurrences": 10,
+  "remaining_warning_breakdown": {
+    "held_backend": 5,
+    "user_deferred_Inbox": 5
+  },
+  "all9_original_snapshots_and9_candidate_bytes_preserved": true,
+  "all4_backend_actual_sources_still_old_hashes": {
+    "backend/app/application/use_cases/passports/process_passport_submission_job_use_case.py": "998192ee86644c66578b549b637aa622264e97179ecba66b7fd2a3227260c4c5",
+    "backend/tests/unit/presentation/test_passport_bulk_delete_route.py": "f04b6d8acee374694823a556e1eb8fb0b75cbdb295c87e99ea2a2da628c759b9",
+    "backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py": "9641b67bc05ad710f7f34dedfb801c69e4a8367dce317cf86477c61a75b58706",
+    "backend/tests/unit/presentation/test_public_passport_capabilities.py": "81ea01aa4629071043595244cc3f0b5ded7414a3467445f11f068faa17e3316f"
+  },
+  "all5_deferred_Inbox_actual_sources_unchanged": {
+    "frontend/features/email-integrations/components/email-ai-rollout-control.tsx": "076d0457a26a1562095b6100b00f870b74e69f8027b0404f49919cd5308752ce",
+    "frontend/features/email-integrations/components/email-integrations-ui.tsx": "75d8b337af55a327c74e861822be26246163545b72c285c1e8cf2c7f03ea29c4",
+    "frontend/features/email-integrations/components/operational-inbox-page.tsx": "b9d9856abfc77fd9f201e1be3f21c2d34898360098cf4b9a56e38111efab25ff",
+    "frontend/features/email-integrations/components/review-queue-page.tsx": "58a421fa8b783c8e8c2a05b01dfd3935fe379df1a2fa49ff9dbdffd76b05bbf8",
+    "frontend/features/email-integrations/services/email-refresh-policy.ts": "c3d74e569f6927713f76578196636890319ced68fa0ab6661a10a2fd4f1304e2"
+  },
+  "all6_qualifier_frozen_source_hashes_unchanged": {
+    "frontend/features/upload/components/fresh-qualifier.tsx": "742ecf4bfaaec141e7a0e422419f57889eb44090679e70e47783cbbf0c6bf72c",
+    "frontend/features/upload/components/fresh-qualifier-editor.tsx": "a03066f52ef1f758e8136f9c5b451d91ab4255ab3dea5a053f1f57341cae0b92",
+    "frontend/features/upload/hooks/use-qualifier-selection-editor.ts": "f6bb7ce7ad849fc2a289ee436a04cc9bd968fc7a2465dbe4e3a4b2cc6ed0ce63",
+    "frontend/features/upload/components/fresh-qualifier.test.tsx": "cd8f37800ef843d4c4a5396957ca7185bde96903a68160b343b8acb3b72a9433",
+    "frontend/features/passports/api/public-upload-link.api.ts": "d720cbf0a79ce838006b30e56b63b69ec992c96881ffa3cb62d3df0f2b3d005b",
+    "frontend/e2e/qualifier-relationship-methods.spec.ts": "d37bab442b0c382f07f6c3b7e5ccda56c858a60b43c5abc19c60254689dc618c"
+  },
+  "root_accepted_raw_whitespace_JSX_exception": true,
+  "initial_write_error_and_recovery": {
+    "error": "Python Path.write_bytes raised OSError22 Invalidargument opening passport-document-follow-up.test.tsx for wb after firstfile(company-feedback) was adopted.",
+    "immediate_second_source_state_verified_before_retry": {
+      "sha256": "13ac90a00e8dff37472e1073264ddbdc7948f02dcc4ae2500292f08ae5627c2d",
+      "bytes": 11055,
+      "attributes": "Archive",
+      "resolved_path_characters": 112,
+      "no_truncate_or_partial_write": true
+    },
+    "other_sources_at_error": "Companyfeedback exactNEW; allremaining8candidate source paths exactOLD. All9snapshots/candidates unchanged.",
+    "fallback": "Native .NET File.WriteAllBytes to exact already-resolved whitelisted workspace paths, rechecked exact old/candidate/new SHA256 values.",
+    "successful_final_second_source_sha256": "102b35bc6589a525752d79d6587e3c215f418b0aabd27b086b0c87fb4a32035a",
+    "permission_rename_delete_or_generic_normalization_changes": false,
+    "underlying_platform_error_cause": "Not determined; no cause inferred."
+  },
+  "tests_build_gate_matrix_or_policy_changes": false,
+  "fresh_test_runs_for_formatting": false,
+  "review_credit": "Focused current exact-byte/semantic continuity only; no fresh full physical source-read, test/build result or historical stamp renewal."
+}

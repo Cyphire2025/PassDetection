@@ -1,0 +1,14 @@
+{
+  "kind": "metadata-only human note typo correction",
+  "sealed_ledger_sha256": "e1fd099bcef24e373519a002f376ceb428c41e5d7c2263ecedc6f69f573f948d",
+  "source_path": "backend/tests/unit/presentation/test_email_oauth_actor_policy.py",
+  "source_sha256": "568a2b093619346f2211c0843467518a23ae5122e73e5e927b374238629a5fef",
+  "actual_physical_lines": 61,
+  "note_before": "Complete71line new source physically read.11actual SQLite initial eligibility cases exercise current roles/user/agency activity/scope and missing-user boundaries; same SQL compiles for both dialects. This initial helper does not replace final locked actor/browser revalidation.",
+  "note_after": "Complete61line new source physically read.11actual SQLite initial eligibility cases exercise current roles/user/agency activity/scope and missing-user boundaries; same SQL compiles for both dialects. This initial helper does not replace final locked actor/browser revalidation.",
+  "review_scope_and_source_hash_unchanged": true,
+  "full_file_count_and_3511_line_total_already_used_correct_61": true,
+  "earlier_seals_preserved": true,
+  "runtime_test_coverage_candidates_changed": false,
+  "app_checks_repeated": false
+}

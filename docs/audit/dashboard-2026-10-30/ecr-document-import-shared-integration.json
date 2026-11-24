@@ -1,0 +1,210 @@
+{
+  "status": "verified at this scoped source checkpoint",
+  "before_modules": 724,
+  "after_modules": 732,
+  "normal_additions": 8,
+  "existing_update": {
+    "path": "app/presentation/api/v1/routes/passport_routes/document_import.py",
+    "before": {
+      "path": "app/presentation/api/v1/routes/passport_routes/document_import.py",
+      "minimum_coverage_percent": 27,
+      "baseline_lines": 415,
+      "maximum_lines": 700,
+      "baseline_max_function_complexity": 21,
+      "maximum_function_complexity": 21
+    },
+    "after": {
+      "path": "app/presentation/api/v1/routes/passport_routes/document_import.py",
+      "baseline_lines": 431,
+      "maximum_lines": 450,
+      "baseline_max_function_complexity": 21,
+      "maximum_function_complexity": 21,
+      "minimum_coverage_percent": 70
+    }
+  },
+  "all723other_normal_rows_unchanged": true,
+  "critical_before": 106,
+  "critical_after": 109,
+  "all106oldcritical_rows_unchanged": true,
+  "critical_additions": [
+    {
+      "path": "app/presentation/api/v1/routes/ecr_checker_upload.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 90
+    },
+    {
+      "path": "app/presentation/api/v1/routes/ecr_checker_staging.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 90
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/document_import_failure.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 90
+    }
+  ],
+  "allglobal_floors_caps_unchanged": true,
+  "source_fence": {
+    "backend/app/presentation/api/v1/routes/ecr_checker.py": "6a10b853b8ecb15371dd770f80f27abd201a812d0cc48948fb65981d2d998726",
+    "backend/app/presentation/api/v1/routes/ecr_checker_actions.py": "58b5fec6fb013d7b89115cb00070059b9b36e8876a025ee6e73f7da5b8e40119",
+    "backend/app/presentation/api/v1/routes/ecr_checker_batches.py": "3b785bd4319187d78ba24b51c8295a5f0df1812d3f3f153298036f0e67d70007",
+    "backend/app/presentation/api/v1/routes/ecr_checker_inputs.py": "1753457d06b683a4f93a48cd3c5ca932e1366fd3831d1af80e598cb588a64e3e",
+    "backend/app/presentation/api/v1/routes/ecr_checker_staging.py": "01f95a3aa223649522389ccfb50108ba8737d47fddfb7f77dbca629e337ff141",
+    "backend/app/presentation/api/v1/routes/ecr_checker_support.py": "8dd4485b7d11562ff0a0946182dd22fbb443b96e4bf4b1060b0929889f36036c",
+    "backend/app/presentation/api/v1/routes/ecr_checker_upload.py": "4cbb51f86dbaff18129c84c42d484a586d3b851f9800952cc4e4d574ddff3036",
+    "backend/tests/unit/presentation/test_ecr_checker.py": "51617506451d54a48a4f68aeb911594749a24ef300800f7e120c88f3e841c6f0",
+    "backend/app/infrastructure/ai/gemini_ecr_service.py": "ef2406f3f7e69dee5f1b2453f14cde26024f3363082ecc37008ac79611e4b25b",
+    "backend/app/infrastructure/ecr/runtime.py": "5b1f07bfd90528c026870530b855a81d7b0f13d5d676852aa7038f6e12a7cd35",
+    "backend/app/infrastructure/database/ecr_models.py": "6ac74bbe8e03eb5eeedaa777e92a73b273b92690d4712af4138031ef572e39c6",
+    "backend/app/infrastructure/export/ecr_excel_exporter.py": "c3d73b377e2b76f52e68fb9b8b907cd22d991e31f727aa3edd9b18241ac897ae",
+    "backend/app/infrastructure/repositories/ecr_read_repository.py": "7e18f91591f42ac8787a767abfc533858d10273dbfce6f3d4ca1ef4dc07b6863",
+    "backend/app/presentation/api/v1/schemas/ecr_schemas.py": "32f1b4ad60f9b3d3568e24f2606cc437183cdbd3ebdf1972b509c8b6bf4d3ec0",
+    "backend/app/infrastructure/database/communications_models.py": "0283ffad7b14ef05b16c2240fba2cf1a2580a7b68d29665ece26a284d67f7688",
+    "backend/app/infrastructure/database/_communications_models/__init__.py": "93f1ffe885e89709e8e59326a3c20db5be6969f0e63c6501052477226783237c",
+    "backend/app/infrastructure/database/_communications_models/broadcast.py": "8fc27df633446ef911ad0598fbcf2491c36a17bbe2057863d9df6299bd2d6370",
+    "backend/app/infrastructure/database/_communications_models/delivery.py": "1fd04b74883bc0a355b94939b74a1173cabd9f2f9c9226ebaf9657df72a2af2c",
+    "backend/app/infrastructure/database/_communications_models/source.py": "f57b7c4a3d07d5abc09a8edf6f4d964617ce2fb9da8058ad42f38c0b8805b0b0",
+    "backend/app/infrastructure/database/_communications_models/welcome.py": "610fe7aaaeb5eb62bbd0defab28b9c298ba9cd7941b4efe73fff8988f0fae12c",
+    "backend/tests/unit/presentation/test_ecr_checker_upload_outcomes.py": "49bb5edeea5dc2aaab0f4d8dd716006b68f9511705e8bd42dcced18028982c3b",
+    "backend/tests/service_integration/test_mcp_ecr_reads_postgresql.py": "d69e15419b63c2980c889ae4de20a1a0c326135ae8a8e34ba1115c96f78f2092",
+    "backend/app/presentation/api/v1/routes/passport_routes/document_import.py": "7b61af41d2d04bef87fff08c24211b35cf26d6684ca5b85581e526feec18b3c8",
+    "backend/app/presentation/api/v1/routes/passport_routes/document_import_failure.py": "fbfb911e4513f49f71fa87f5fd2169a6567ced166e988117bfd0b395fc7a83bf",
+    "backend/tests/unit/presentation/passport_document_import_fixture.py": "2fab208bdbef62855be32c679d121dfb614d461c6cd46742ec1b61f750b54f46",
+    "backend/tests/unit/presentation/test_passport_document_import_cancellation.py": "fa2bc760cf8817c8f678c21526a035cff894281072b5e05b0e2e6b5658da635f",
+    "backend/tests/unit/presentation/test_passport_document_import_storage_outcomes.py": "4a38f7bd0740f8a97b922dddbb7a4991806c8f8d0af24ff1beeea7269f63f08a",
+    "backend/tests/unit/presentation/test_passport_document_import_staging_route.py": "ad5ab7c3f362624f15332afe51832d5b65ab690d00b8d4d113076fa4a0506e63",
+    "backend/tests/unit/presentation/test_passport_crop_lifecycle_contract.py": "b935560711758ef7dc8e8561f72c45d9a7c43fded3a3d128613cf39771a8eb96",
+    "backend/tests/unit/presentation/test_passport_route_decomposition.py": "7b1ee92647844d22d84a29cc90180c58c1888c51c1cfbb1b0a0751d6efafec49",
+    "backend/tests/unit/infrastructure/test_passport_document_import_staging.py": "c2e218d272359f43aeed99d60b3abddfdd9f6ab876f0f72d4dff6d0e2f507f49",
+    "backend/tests/unit/infrastructure/test_passport_document_workspace_cleanup.py": "49ffef50613d62a8b202e482a93a80017696e5098205d75d75d282f60944f778",
+    "backend/tests/unit/infrastructure/test_passport_import_compensation.py": "8833679959268b118603244d1de977d5908d5486aeefa003f4ca6f08b66c401d",
+    "backend/app/infrastructure/documents/storage_transfers.py": "a15cde9b255188896500d54e4de7faf9dafbbe332f13f3163b1590f38a1c58d1",
+    "backend/app/infrastructure/documents/passport_import_compensation.py": "b0eb8569e9937629ebe007e87bdb0c1fcd1979cb188de8f8eff52ca1c8014f76",
+    "backend/app/infrastructure/imports/passport_document_importer.py": "950e1c3b07c4efbc1b370e4c3ad64cd72d3816301fd041584c875ab039d4b69f",
+    "backend/app/infrastructure/storage/minio_repository.py": "f31fe249d63c18ea0e400bae0ee3161eb05db6b194527e2bdab39bf88626180c"
+  },
+  "measurements": [
+    {
+      "group": "ECR",
+      "path": "app/presentation/api/v1/routes/ecr_checker.py",
+      "sha256": "6a10b853b8ecb15371dd770f80f27abd201a812d0cc48948fb65981d2d998726",
+      "lines": 122,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0
+    },
+    {
+      "group": "ECR",
+      "path": "app/presentation/api/v1/routes/ecr_checker_actions.py",
+      "sha256": "58b5fec6fb013d7b89115cb00070059b9b36e8876a025ee6e73f7da5b8e40119",
+      "lines": 112,
+      "complexity": 7,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0
+    },
+    {
+      "group": "ECR",
+      "path": "app/presentation/api/v1/routes/ecr_checker_batches.py",
+      "sha256": "3b785bd4319187d78ba24b51c8295a5f0df1812d3f3f153298036f0e67d70007",
+      "lines": 81,
+      "complexity": 5,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0
+    },
+    {
+      "group": "ECR",
+      "path": "app/presentation/api/v1/routes/ecr_checker_inputs.py",
+      "sha256": "1753457d06b683a4f93a48cd3c5ca932e1366fd3831d1af80e598cb588a64e3e",
+      "lines": 102,
+      "complexity": 10,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0
+    },
+    {
+      "group": "ECR",
+      "path": "app/presentation/api/v1/routes/ecr_checker_staging.py",
+      "sha256": "01f95a3aa223649522389ccfb50108ba8737d47fddfb7f77dbca629e337ff141",
+      "lines": 115,
+      "complexity": 8,
+      "statement_percent": 98.11320754716981,
+      "branch_percent": 93.75
+    },
+    {
+      "group": "ECR",
+      "path": "app/presentation/api/v1/routes/ecr_checker_support.py",
+      "sha256": "8dd4485b7d11562ff0a0946182dd22fbb443b96e4bf4b1060b0929889f36036c",
+      "lines": 137,
+      "complexity": 6,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0
+    },
+    {
+      "group": "ECR",
+      "path": "app/presentation/api/v1/routes/ecr_checker_upload.py",
+      "sha256": "4cbb51f86dbaff18129c84c42d484a586d3b851f9800952cc4e4d574ddff3036",
+      "lines": 139,
+      "complexity": 14,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0
+    },
+    {
+      "group": "Document import",
+      "path": "app/presentation/api/v1/routes/passport_routes/document_import.py",
+      "sha256": "7b61af41d2d04bef87fff08c24211b35cf26d6684ca5b85581e526feec18b3c8",
+      "lines": 431,
+      "complexity": 21,
+      "statement_percent": 74.4186046511628,
+      "branch_percent": 40.476190476190474
+    },
+    {
+      "group": "Document import",
+      "path": "app/presentation/api/v1/routes/passport_routes/document_import_failure.py",
+      "sha256": "fbfb911e4513f49f71fa87f5fd2169a6567ced166e988117bfd0b395fc7a83bf",
+      "lines": 49,
+      "complexity": 2,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0
+    }
+  ],
+  "release": {
+    "before_paths": 117,
+    "after_paths": 117,
+    "all117oldBEFORE_pairs_and116otherAFTER_values_unchanged": true,
+    "only_known_backend_budget_AFTER_updated": true,
+    "backend_budget_sha256": "36a6bec484d1aed5af3758c6f23af116e622cc48eb27dcf5aba166a4c87b11c1",
+    "bindings_sha256": "e4eebe1ce1a20d7753cfcf7b5c700c96af37cc0108678985298a8314c4db6c31"
+  },
+  "evidence_review_basis": "Own full route/support source reads and focused negatives; peer attributed full physical ECR review/equivalence/actual owner coverage. No independent second full ECR review claim.",
+  "artifacts": {
+    "ecr-checker-final-budget-candidates.json": "0a228c1b672d536c213b9365fd7b7444d7f34e28f8b69b0b04b64b18b6ea5c89",
+    "ecr-checker-final-source-manifest.json": "c678551ea2465b795fc51dc91c42583634fe7cae6f1b78dd44392b1ed1fb5891",
+    "ecr-checker-final-verification.json": "5ebd53b20ec9bf7cc5f5a67066af1cfc033f487947a3ed997736a601a6a89373",
+    "document-import-verification.json": "0bcdd12759355fe02cbf4441313bcaefaaa2cd8dad5f5b345fb81bafdb0992ac",
+    "ecr-document-import-previous-values.json": "fe5053a1a29073a33f7c88f5a34b37fa3d11ddd50269220bad940ff0a245320b",
+    "document-import-metric-label-correction.json": "cb263cf6d42ab17b21eea37cfab29b3a10d4813293b5ac1cbd35f32af2d5831a",
+    "document-import-budget-candidates.json": "39210d558006b189fcd76b1ebcdcf38e18544effa6ee1a03cc1ea8d1c40e9013",
+    "document-import-critical-candidates.json": "3e53654e26dec408e146bdda68e9e243e59eb18b60f6bfd4c2ca146486966a2c",
+    "ecr-document-import-budgets.txt": "d44902ccd279decd8a2825e822cda5ade809cf85b9a92a4ffacbc69908313012",
+    "ecr-document-import-bindings.txt": "e5fc95174277489c47ea2fb2e6d94559e16b1c8749b3ad853741978343f018e6",
+    "ecr-document-import-loader-tests.txt": "cd7e43dbc0a7e5888d379bd57a67e09cc7f73f2ca474f6daf6e4a0a90ef38312",
+    "ecr-document-import-exact-bindings.json": "ed09d91cc2afce094737459532e724502208daf56a194b9ab042d2871b473442"
+  },
+  "limits": [
+    "No broad app/build/browser/live-service/VPS qualification",
+    "MCP1990 remains historical pending final source-owner review",
+    "Readonly inventory triage follows; unresolved full-review findings remain open",
+    "Retained FastBuild override arity remains explicitly open"
+  ],
+  "checks": {
+    "backend_static_budgets": "732normal/109critical limits passed",
+    "exact_bindings": "117current AFTERs plus both actual immutable Git BEFOREs passed",
+    "loader_tests": "14focused tests passed7.607seconds",
+    "source_fence": "All route/ECR runtime/test/support hashes checked unchanged at integration and after gates",
+    "frontend": "657budget source unchanged; no application qualification rerun"
+  },
+  "controls": {
+    "backend/backend_quality_budgets.json": "36a6bec484d1aed5af3758c6f23af116e622cc48eb27dcf5aba166a4c87b11c1",
+    "scripts/release_workspace_branding_bindings.json": "e4eebe1ce1a20d7753cfcf7b5c700c96af37cc0108678985298a8314c4db6c31",
+    "scripts/release_workspace_branding_policy.py": "6be84c141d1eb6a521002abb5855d0ec7091c0944f355882e4457947805dd7a7"
+  }
+}

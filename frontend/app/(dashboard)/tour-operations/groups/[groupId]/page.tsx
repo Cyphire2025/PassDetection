@@ -5,7 +5,7 @@ import { TourGroupPassengerAssignmentPage } from "@/features/operations/componen
 import { PASSENGER_ASSIGNMENT_COMPATIBILITY_UI_ENABLED } from "@/features/operations/config/tour-operations-flags";
 
 export const metadata: Metadata = {
-  title: "Tour Group | Global Connects Dashboard",
+  title: "Tour Group",
 };
 
 interface TourGroupPageProps {

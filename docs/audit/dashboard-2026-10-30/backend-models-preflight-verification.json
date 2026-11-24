@@ -1,0 +1,371 @@
+{
+  "sealed_at_utc": "2026-10-31T07:57:46.379522+00:00",
+  "status": "read-only preflight complete; selected implementation scope reported to parent before any edit",
+  "target": "backend/app/infrastructure/database/models.py",
+  "sha256": "cca0de0deb12e7cdc7368501e8a3ac0012e513d691ddcf10a3ead67ec4ec2ed0",
+  "manual_read_credit": {
+    "new_full_target_files": 1,
+    "new_full_target_physical_lines": 1762,
+    "additional_context_reads": "Detailed complete versus partial scopes recorded separately; metadata/AST/search discovery is not a physical full-source read."
+  },
+  "prior_coverage": {
+    "path": "backend/app/infrastructure/database/models.py",
+    "lines": 1762,
+    "sha256": "cca0de0deb12e7cdc7368501e8a3ac0012e513d691ddcf10a3ead67ec4ec2ed0",
+    "inventory_current": true,
+    "current_full_ledgers": [],
+    "current_full_records": [],
+    "current_other_records": [
+      {
+        "ledger": "branding-reviewed-files.json",
+        "path": "backend/app/infrastructure/database/models.py",
+        "status": "needs-follow-up",
+        "reviewer": "branding_visuals",
+        "sha256": "cca0de0deb12e7cdc7368501e8a3ac0012e513d691ddcf10a3ead67ec4ec2ed0",
+        "notes": "Branding fields/styles/callers reviewed and exercised; remaining unrelated contents have not received a complete file review in this lane.",
+        "review_scope": "partial"
+      }
+    ],
+    "excluded_active_or_native": false
+  },
+  "confirmed_architecture_followthrough": "The stable facade remains a mixed owner for 21 tables and one settings type. Existing per-domain reexports demonstrate the repository's accepted owner pattern; a justified core-domain model split remains. This is not an assertion of an exploitable data-isolation defect.",
+  "current_class_catalog": [
+    {
+      "name": "AgencyModel",
+      "table": "agencies",
+      "start_line": 114,
+      "end_line": 136,
+      "physical_lines": 23
+    },
+    {
+      "name": "UserModel",
+      "table": "users",
+      "start_line": 139,
+      "end_line": 185,
+      "physical_lines": 47
+    },
+    {
+      "name": "RefreshTokenModel",
+      "table": "refresh_tokens",
+      "start_line": 188,
+      "end_line": 232,
+      "physical_lines": 45
+    },
+    {
+      "name": "ClientGroupModel",
+      "table": "client_groups",
+      "start_line": 235,
+      "end_line": 414,
+      "physical_lines": 180
+    },
+    {
+      "name": "ManagerGroupAccessModel",
+      "table": "manager_group_access",
+      "start_line": 417,
+      "end_line": 441,
+      "physical_lines": 25
+    },
+    {
+      "name": "CoordinatorAssignmentModel",
+      "table": "coordinator_assignments",
+      "start_line": 444,
+      "end_line": 481,
+      "physical_lines": 38
+    },
+    {
+      "name": "CoordinatorGroupAssignmentModel",
+      "table": "coordinator_group_assignments",
+      "start_line": 484,
+      "end_line": 524,
+      "physical_lines": 41
+    },
+    {
+      "name": "PassportSubmissionModel",
+      "table": "passport_submissions",
+      "start_line": 527,
+      "end_line": 813,
+      "physical_lines": 287
+    },
+    {
+      "name": "PassportExportHistoryModel",
+      "table": "passport_export_history",
+      "start_line": 816,
+      "end_line": 927,
+      "physical_lines": 112
+    },
+    {
+      "name": "PassportRosterResolutionModel",
+      "table": "passport_roster_resolutions",
+      "start_line": 930,
+      "end_line": 1055,
+      "physical_lines": 126
+    },
+    {
+      "name": "PassportImageCropModel",
+      "table": "passport_image_crops",
+      "start_line": 1058,
+      "end_line": 1138,
+      "physical_lines": 81
+    },
+    {
+      "name": "PassportVisaAiImageModel",
+      "table": "passport_visa_ai_images",
+      "start_line": 1141,
+      "end_line": 1182,
+      "physical_lines": 42
+    },
+    {
+      "name": "PassportVisaAiImageJobModel",
+      "table": "passport_visa_ai_image_jobs",
+      "start_line": 1185,
+      "end_line": 1290,
+      "physical_lines": 106
+    },
+    {
+      "name": "QualifierSelectionModel",
+      "table": "qualifier_selections",
+      "start_line": 1293,
+      "end_line": 1368,
+      "physical_lines": 76
+    },
+    {
+      "name": "PassportProcessingJobModel",
+      "table": "passport_processing_jobs",
+      "start_line": 1371,
+      "end_line": 1418,
+      "physical_lines": 48
+    },
+    {
+      "name": "ClientGroupWhatsAppBroadcastLinkModel",
+      "table": "client_group_whatsapp_broadcast_links",
+      "start_line": 1421,
+      "end_line": 1481,
+      "physical_lines": 61
+    },
+    {
+      "name": "PassportPostSubmissionVerificationJobModel",
+      "table": "passport_post_submission_verification_jobs",
+      "start_line": 1484,
+      "end_line": 1548,
+      "physical_lines": 65
+    },
+    {
+      "name": "AuditChainHeadModel",
+      "table": "audit_chain_heads",
+      "start_line": 1551,
+      "end_line": 1600,
+      "physical_lines": 50
+    },
+    {
+      "name": "AuditLogModel",
+      "table": "audit_logs",
+      "start_line": 1603,
+      "end_line": 1676,
+      "physical_lines": 74
+    },
+    {
+      "name": "NotificationModel",
+      "table": "notifications",
+      "start_line": 1679,
+      "end_line": 1736,
+      "physical_lines": 58
+    },
+    {
+      "name": "PlatformSettingsValue",
+      "table": null,
+      "start_line": 1739,
+      "end_line": 1752,
+      "physical_lines": 14
+    },
+    {
+      "name": "PlatformSettingModel",
+      "table": "platform_settings",
+      "start_line": 1755,
+      "end_line": 1762,
+      "physical_lines": 8
+    }
+  ],
+  "proposed_domain_owners": [
+    {
+      "responsibility": "identity core",
+      "classes": [
+        "AgencyModel",
+        "UserModel",
+        "RefreshTokenModel"
+      ],
+      "current_declaration_lines_without_new_imports": 115
+    },
+    {
+      "responsibility": "group configuration",
+      "classes": [
+        "ClientGroupModel"
+      ],
+      "current_declaration_lines_without_new_imports": 180
+    },
+    {
+      "responsibility": "group access assignments",
+      "classes": [
+        "ManagerGroupAccessModel",
+        "CoordinatorAssignmentModel",
+        "CoordinatorGroupAssignmentModel"
+      ],
+      "current_declaration_lines_without_new_imports": 104
+    },
+    {
+      "responsibility": "passport submission",
+      "classes": [
+        "PassportSubmissionModel"
+      ],
+      "current_declaration_lines_without_new_imports": 287
+    },
+    {
+      "responsibility": "export checkpoint",
+      "classes": [
+        "PassportExportHistoryModel"
+      ],
+      "current_declaration_lines_without_new_imports": 112
+    },
+    {
+      "responsibility": "roster resolution",
+      "classes": [
+        "PassportRosterResolutionModel"
+      ],
+      "current_declaration_lines_without_new_imports": 126
+    },
+    {
+      "responsibility": "passport image state",
+      "classes": [
+        "PassportImageCropModel",
+        "PassportVisaAiImageModel",
+        "PassportVisaAiImageJobModel"
+      ],
+      "current_declaration_lines_without_new_imports": 229
+    },
+    {
+      "responsibility": "passport workflow receipts/jobs",
+      "classes": [
+        "QualifierSelectionModel",
+        "PassportProcessingJobModel",
+        "PassportPostSubmissionVerificationJobModel"
+      ],
+      "current_declaration_lines_without_new_imports": 189
+    },
+    {
+      "responsibility": "group broadcast linkage",
+      "classes": [
+        "ClientGroupWhatsAppBroadcastLinkModel"
+      ],
+      "current_declaration_lines_without_new_imports": 61
+    },
+    {
+      "responsibility": "audit chain/log",
+      "classes": [
+        "AuditChainHeadModel",
+        "AuditLogModel"
+      ],
+      "current_declaration_lines_without_new_imports": 124
+    },
+    {
+      "responsibility": "user notifications",
+      "classes": [
+        "NotificationModel"
+      ],
+      "current_declaration_lines_without_new_imports": 58
+    },
+    {
+      "responsibility": "platform policy",
+      "classes": [
+        "PlatformSettingsValue",
+        "PlatformSettingModel"
+      ],
+      "current_declaration_lines_without_new_imports": 22
+    }
+  ],
+  "source_observed_constraints": [
+    "One shared model_base.Base registry/metadata and JSONB/_utcnow primitives must remain identical. Core table objects, mapped class aliases and relationships cannot be cloned.",
+    "Preserve every table/column/index/constraint name, expression, conditional ddl_if/partial predicate, composite tenant/group key, FK ondelete action and native Enum create_type=False. Preserve SQL/JSON/date/default/update behavior and all historical fields, including retired MRZ/hold data columns; this scope does not authorize schema changes.",
+    "Reciprocal Agency/User/RefreshToken/ClientGroup/PassportSubmission and group/WhatsApp link relationship annotations cross proposed ownership boundaries. Existing SQLAlchemy string resolution, mapper registration ordering and ordinary Python annotation lookup are separate contracts.",
+    "ClientOrganizationModel is only imported under TYPE_CHECKING in the current facade. Whether default get_type_hints(ClientGroupModel) already fails must be recorded from an untouched control before a future refactor; no runtime introspection check was executed in this read-only phase.",
+    "Current classes derive their module path from models.py. Before moving declarations, capture module/qualname/mapper registry lookup/pickle/introspection behavior and evaluated type-hint success or existing failure for every actual class. Do not assume stable aliases alone preserve all module-based behavior.",
+    "PassportSubmissionModel is already one cohesive 287-line declaration; imports would put a whole-class owner above300. Prefer source-preserving ownership first; a separate per-entity constraint catalog is only justified if exact expanded class/DDL/wiring proofs remain straightforward. Do not invent mapping mixins to meet an arbitrary line count.",
+    "Alembic/provisioning obtain complete metadata through model_registry, which also imports current MCP models. Parent should serialize any actual core metadata change after the active MCP reconciliation; no MCP, mobile or MyPhotos model source needs to change for the proposed core facade split."
+  ],
+  "future_focused_evidence_needed_before_and_after_edits": [
+    "Raw original class/module source and actual exported mapped-class identity catalog.",
+    "Configure all mappers; compare mapper/table membership, relationships and class registry resolution, with old aliases preserved.",
+    "Compare complete PostgreSQL and SQLite CreateTable/CreateIndex compilation, including conditional/partial expressions and default/enum details, without applying DDL or changing migration history.",
+    "Evaluate actual get_type_hints and module/qualname contracts, distinguishing baseline failures from new regressions.",
+    "Run existing focused model decomposition/metadata alignment controls plus specifically affected domain metadata/migration contract tests; scoped typing/lint. No broad suite/build/browser checkpoint before remaining audit work is complete."
+  ],
+  "next_metadata_only_candidates_if_parent_defers_models": [
+    {
+      "path": "backend/app/infrastructure/database/email_models.py",
+      "lines": 1417,
+      "sha256": "1801ba03397d6b0ac28d032683778592184f22f9b559c5b23d3a524f0a57cadd",
+      "current_full_ledgers": []
+    },
+    {
+      "path": "backend/app/infrastructure/export/passport_excel_exporter.py",
+      "lines": 780,
+      "sha256": "ed47e94d322a97ed45f78901131f83af8172d1b382153da0102f5efee04850ad",
+      "current_full_ledgers": []
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_upload.py",
+      "lines": 720,
+      "sha256": "a76545ac1fdbf5d9ce08a85373fff357eca4e6e8c724264de0d95e16dfd6a0c0",
+      "current_full_ledgers": []
+    },
+    {
+      "path": "backend/app/infrastructure/email/deadline_notifications.py",
+      "lines": 674,
+      "sha256": "65100ec395e5b9db8d2492c1045a390ff2a398075268c24ba1a1ace5e6d0a935",
+      "current_full_ledgers": []
+    },
+    {
+      "path": "backend/app/infrastructure/documents/document_matcher.py",
+      "lines": 667,
+      "sha256": "4256a5acb44ae73680eadc06c788cdefcd6b288e5d31361b0a979f4ce78fd791",
+      "current_full_ledgers": []
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/passport_schemas.py",
+      "lines": 667,
+      "sha256": "f2c10f862e344d3aa84c7608d0c8a86ad19f29e3f6cdf1dbb7730e392dd102f6",
+      "current_full_ledgers": []
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/submission_review.py",
+      "lines": 663,
+      "sha256": "7313b9394687f38ef67a1bd833b0b01d0b749e49a09eaa6367f9c60844060312",
+      "current_full_ledgers": []
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_image_library.py",
+      "lines": 651,
+      "sha256": "f1f5e3dce2cb8e65f382458edcebb224ebe7812e6dadfc5ca217fa2245b8cb7a",
+      "current_full_ledgers": []
+    }
+  ],
+  "checks_executed": [],
+  "runtime_test_config_or_schema_edits": [],
+  "services_or_credentials_accessed": false,
+  "artifacts": [
+    {
+      "path": "docs/audit/dashboard-2026-10-30/backend-models-preflight-original-source.json",
+      "sha256": "ef7abe33eae2699436b0d2a7b19816c1cf1c54ba9df7ef5a7e00dddff73a1e6a"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/backend-models-preflight-selection.json",
+      "sha256": "a4a87d7b4564eb60d52b3cf4b134f4514db6536e09b0eb0b0e970d9f48d1dc05"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/backend-models-preflight-reviewed-files.json",
+      "sha256": "ff7a9573bdc128da2645558ddb73f30c599de1591b589b4dbfeb1e32b91621c3"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/backend-models-preflight-context.json",
+      "sha256": "9e3ef61076607081184addf90ab0215530f6777636b5900631115bf033098665"
+    }
+  ]
+}

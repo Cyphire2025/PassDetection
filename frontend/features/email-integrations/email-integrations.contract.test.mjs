@@ -13,10 +13,16 @@ const roles = read("../../lib/utils/role-access.ts");
 const sidebar = read("../../components/layout/sidebar.tsx");
 const routeCapabilities = read("../auth/config/route-capabilities.ts");
 const shell = read("./components/email-integrations-shell.tsx");
-const connections = read("./components/connections-page.tsx");
-const review = read("./components/review-queue-page.tsx");
-const inbox = read("./components/operational-inbox-page.tsx");
-const message = ['message-activity-page.tsx', 'message-intelligence-brief.tsx', 'use-message-feedback-controller.ts', 'message-activity-model.ts', 'message-deadline-decisions.tsx', 'message-proposal-decisions.tsx', 'message-draft-editor.tsx', 'message-intelligence-feedback.tsx'].map((file) => read(`./components/${file}`)).join("\n");
+const connections = [
+  "./components/connections-page.tsx", "./components/email-connection-card.tsx",
+  "./components/email-connection-dialogs.tsx", "./components/email-connection-summary.tsx",
+  "./hooks/use-email-connections-controller.ts",
+].map(read).join("\n");
+const review = ["review-queue-page.tsx", "email-review-card.tsx", "match-review-dialog.tsx"]
+  .map(file => read(`./components/${file}`)).join("\n");
+const inbox = ["operational-inbox-page.tsx", "operational-inbox-card.tsx", "operational-inbox-views.ts"]
+  .map(file => read(`./components/${file}`)).join("\n");
+const message = ['message-activity-page.tsx', 'message-intelligence-brief.tsx', 'use-message-feedback-controller.ts', 'message-activity-model.ts', 'message-deadline-decisions.tsx', 'message-proposal-decisions.tsx', 'message-draft-editor.tsx', 'message-intelligence-feedback.tsx', 'message-feedback-correction-dialog.tsx', 'message-feedback-links.tsx', 'message-feedback-deadline.tsx'].map((file) => read(`./components/${file}`)).join("\n");
 const activity = read("./components/activity-page.tsx");
 const dialog = read("./components/email-integrations-ui.tsx");
 const hooks = read("./hooks/use-email-integrations.ts");

@@ -1,0 +1,50 @@
+[
+  {
+    "path": "app/infrastructure/database/communications_models.py",
+    "baseline_lines": 92,
+    "maximum_lines": 100,
+    "baseline_max_function_complexity": 0,
+    "maximum_function_complexity": 0,
+    "minimum_coverage_percent": 95
+  },
+  {
+    "path": "app/infrastructure/database/_communications_models/__init__.py",
+    "baseline_lines": 7,
+    "maximum_lines": 10,
+    "baseline_max_function_complexity": 0,
+    "maximum_function_complexity": 0,
+    "minimum_coverage_percent": 95
+  },
+  {
+    "path": "app/infrastructure/database/_communications_models/broadcast.py",
+    "baseline_lines": 160,
+    "maximum_lines": 160,
+    "baseline_max_function_complexity": 0,
+    "maximum_function_complexity": 0,
+    "minimum_coverage_percent": 95
+  },
+  {
+    "path": "app/infrastructure/database/_communications_models/source.py",
+    "baseline_lines": 237,
+    "maximum_lines": 240,
+    "baseline_max_function_complexity": 0,
+    "maximum_function_complexity": 0,
+    "minimum_coverage_percent": 95
+  },
+  {
+    "path": "app/infrastructure/database/_communications_models/delivery.py",
+    "baseline_lines": 157,
+    "maximum_lines": 160,
+    "baseline_max_function_complexity": 0,
+    "maximum_function_complexity": 0,
+    "minimum_coverage_percent": 95
+  },
+  {
+    "path": "app/infrastructure/database/_communications_models/welcome.py",
+    "baseline_lines": 98,
+    "maximum_lines": 100,
+    "baseline_max_function_complexity": 0,
+    "maximum_function_complexity": 0,
+    "minimum_coverage_percent": 95
+  }
+]

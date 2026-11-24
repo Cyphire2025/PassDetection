@@ -1,0 +1,42 @@
+{
+  "finding": "MFA attempt/locked/cancelled changes were rolled back by production get_db_session when verify_dashboard_mfa raised HTTPException before committing.",
+  "before": {
+    "validated_failed_cases": 5,
+    "seconds": 16.43,
+    "log": "mfa-denial-valid-baseline.txt"
+  },
+  "initial_fixture_correction": "The first provisional factor-unavailable fixture violated the existing secret/enabled timestamp pair constraint. Corrected both fields, then all5 behavior regressions failed for the intended rollback reason before runtime edits. Original provisional log retained, not treated as evidence of that invalid fixture.",
+  "after": {
+    "passed": 41,
+    "seconds": 135.35,
+    "log": "mfa-denial-after-fix.txt",
+    "test_files": [
+      "tests/integration/test_mfa_denial_durability.py",
+      "tests/integration/test_dashboard_identity_lifecycle.py",
+      "tests/integration/test_dashboard_weekly_session.py",
+      "tests/integration/test_auth_response_durability.py"
+    ]
+  },
+  "proof": {
+    "denial_sites": 6,
+    "verify_function_ast_identical_after_exact_shared_denial_delegation": true,
+    "public_signatures_and_decorators_unchanged": true
+  },
+  "checks": {
+    "mypy": "passed4source files",
+    "ruff": "changed source/test passed"
+  },
+  "source_sha256": "851dc035d04b4d4b1c024ab0c0ce7a129202f240a15458275d4fffa749af6d84",
+  "test_method": "Actual ASGI requests, fresh independent SQLite sessions and real production get_db_session yield/commit/rollback code; synthetic factory only. No fixture that silently retains failed request mutations, no provider sign-in or delivery.",
+  "preserved": [
+    "Same401 message and no Set-Cookie on denial",
+    "Existing challenge attempt maximum, IP/user-agent binding, eligibility and factor requirements",
+    "Success factor consumption/session/audit commit ordering"
+  ],
+  "pending": [
+    "Action-token account-first lock order and fresh expiry gates",
+    "Oversized auth_identity route responsibilities",
+    "Actual PostgreSQL contention qualification",
+    "Native workbook cancellation drain reproduction/fix"
+  ]
+}

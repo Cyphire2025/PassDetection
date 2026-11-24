@@ -1,0 +1,246 @@
+{
+  "recorded_at": "2026-10-31T11:36:49.254Z",
+  "status": "frozen",
+  "runtime_files": 15,
+  "changed_test_helper_files": 4,
+  "source_fence": [
+    {
+      "path": "frontend/features/operations/api/operations.api.ts",
+      "sha256": "b17508f7b25e0e442b24fc4fdc420e469975d76943c13c157e730f9122a984c4",
+      "physical_lines": 150
+    },
+    {
+      "path": "frontend/features/operations/api/operations-accounts.api.ts",
+      "sha256": "3f20bb6cfe3bb4e791023cdaac89efec5d08b18cb5f27e73b2470fbd652d962c",
+      "physical_lines": 101
+    },
+    {
+      "path": "frontend/features/operations/api/operations-audit.api.ts",
+      "sha256": "0241f0a107c2aa4071053a685fd5919950736ef03800af426ede9f3f505848cf",
+      "physical_lines": 57
+    },
+    {
+      "path": "frontend/features/operations/api/operations-tour.api.ts",
+      "sha256": "bb81e64d34b8b38399f63be3e299ba5b1697aca9156c5e49910518534bffa572",
+      "physical_lines": 75
+    },
+    {
+      "path": "frontend/features/operations/api/operations-rooming.api.ts",
+      "sha256": "4fd943882cf3599e5f0a02919fff9c233cab949e417615dfc8e36421e7eefc54",
+      "physical_lines": 106
+    },
+    {
+      "path": "frontend/features/operations/api/operations-checkin.api.ts",
+      "sha256": "b6e228ed910022835b618345ebe8a80a51116e8c1b2b992365b0841b209c65ea",
+      "physical_lines": 56
+    },
+    {
+      "path": "frontend/features/operations/api/operations-attendance.api.ts",
+      "sha256": "e5fcb39fa2768ad5aea25e34f3f2c352afa8ad89ce46c4aacc8f35ea8a06bf0b",
+      "physical_lines": 210
+    },
+    {
+      "path": "frontend/features/operations/api/operations-qr.api.ts",
+      "sha256": "5d0a0502b976c7e4cafb4370052ac811c04844e0e90be26d5b51eab423ac61d6",
+      "physical_lines": 62
+    },
+    {
+      "path": "frontend/features/operations/api/operations-accounts.types.ts",
+      "sha256": "85009b02c244c5012f4d2b932552dc5f4822f535b70172bc510d0e4e46be49e4",
+      "physical_lines": 87
+    },
+    {
+      "path": "frontend/features/operations/api/operations-audit.types.ts",
+      "sha256": "924b8d50da9c8e5c650ff7ec913c98ab015e647603433b41a9a10eafba36e447",
+      "physical_lines": 39
+    },
+    {
+      "path": "frontend/features/operations/api/operations-tour.types.ts",
+      "sha256": "cb678caa14c6b2b1a06bd799d6448a2549c6236f35774b61ddc2cef2fe5f53ad",
+      "physical_lines": 91
+    },
+    {
+      "path": "frontend/features/operations/api/operations-rooming.types.ts",
+      "sha256": "1eb2015b246c11dc14193335842ef35fac0ac9e143ac9d17e65519dc35766917",
+      "physical_lines": 121
+    },
+    {
+      "path": "frontend/features/operations/api/operations-checkin.types.ts",
+      "sha256": "4d42d4b8a9e0cc74a1e4e9afb1ec8a0caa43dfb279d0ec97fe8024e7e4cc9e12",
+      "physical_lines": 46
+    },
+    {
+      "path": "frontend/features/operations/api/operations-attendance.types.ts",
+      "sha256": "ee3c7f2cae67bacd11d124cb1eb2db61b1bd67ca53a136f9886f71e88086f4d3",
+      "physical_lines": 192
+    },
+    {
+      "path": "frontend/features/operations/api/operations-qr.types.ts",
+      "sha256": "c0d6d5af5f58de01da3d0a10bc5e0819856edb5d6db59a6430f17dc5b1039d18",
+      "physical_lines": 78
+    },
+    {
+      "path": "frontend/features/operations/api/operations-api-source.contract-helper.mjs",
+      "sha256": "dda3678c55cc5a17456c6247173a3a6aed141bc0d6f4d77245104ad0d705c92e",
+      "physical_lines": 33
+    },
+    {
+      "path": "frontend/features/operations/components/qr-whatsapp-delivery.contract.test.mjs",
+      "sha256": "b195a31ed836e7cc52b33e8eb2e305d73606591b331ea69dcf80505d3c577ff0",
+      "physical_lines": 34
+    },
+    {
+      "path": "frontend/features/operations/components/rooming-redesign.contract.test.mjs",
+      "sha256": "2be5fd64e061a7673100a184643c397f307a29c04c4e7ff39feca01bea5e5435",
+      "physical_lines": 230
+    },
+    {
+      "path": "frontend/features/tour-operations/components/coordinator-pwa.contract.test.mjs",
+      "sha256": "a818de296469b7db13657fbf76ab0e8ba02222ab34c985883288bc11a550fffc",
+      "physical_lines": 450
+    }
+  ],
+  "original_source": {
+    "path": "frontend/features/operations/api/operations.api.ts",
+    "sha256": "7a686e1546a5235b19567421afc23c8bce0cccd550f5f619208e807b67da677d",
+    "physicalLines": 1200
+  },
+  "architecture": {
+    "domain_transport_owners": 7,
+    "domain_contract_owners": 7,
+    "compatible_facade": 1,
+    "current_largest_lines": 210,
+    "public_methods": 61,
+    "public_types": 64,
+    "exact_mechanical_declarations": 125,
+    "historical_mechanical_receipt": "operations-api-mechanical-provenance.json",
+    "later_whitespace_only_declarations": [
+      "hotelCheckins",
+      "scanHotelCheckin",
+      "updateHotelCheckin",
+      "HotelCheckinDashboard",
+      "HotelCheckinScanResponse"
+    ],
+    "current_whole_typed_syntax_exact": true,
+    "current_exact_definition_binding_comparisons": 1621,
+    "no_proxy_or_wrapper_or_mutable_forwarding": true,
+    "direct_domain_function_identity": true,
+    "public_export_and_property_order_exact": true,
+    "all_seven_retired_React_hook_SDK_methods_retained": true
+  },
+  "focused_checks": {
+    "execution_parity": {
+      "passed": 124,
+      "failed": 0,
+      "raw": ".tmp/operations-api/final-transport-parity.json",
+      "scope": "61actual original/current SDK success calls;61same injected transport-cancel errors;oneall-property function identity/name/descriptors check;oneETag304reuse/missing-previous check. Last network/download boundary is synthetic; original source executed from the pre-split snapshot using the actual Vitest resolver, no custom loader."
+    },
+    "public_type_equality": {
+      "exit_code": 0,
+      "obligations": 126,
+      "types": 64,
+      "method_signatures": 61,
+      "whole_object": 1,
+      "raw": ".tmp/operations-api/public-types.txt",
+      "fixture": {
+        "path": ".tmp/operations-api/public-types.ts",
+        "sha256": "a3b5d1e16399880f5aa3e093925c6ed8e27ffb115904b86059261e56d0a5aa4e",
+        "physical_lines": 132
+      }
+    },
+    "affected_vitest": {
+      "passed": 81,
+      "failed": 0,
+      "files": 8,
+      "raw": ".tmp/operations-api/final-affected.json",
+      "scope": "Existing/retained hooks, actual manager page+owner adapter, accountcopy, rooming merge, shared mutation helper and directattendance/current-trip API contracts. Ran before five whitespace-only checkin formatting edits; final124actualSDKparity/typeproof cover those current bytes."
+    },
+    "affected_node": {
+      "passed": 38,
+      "failed": 0,
+      "raw": ".tmp/operations-api/final-node.txt"
+    },
+    "type_check": {
+      "exit_code": 0,
+      "raw": ".tmp/operations-api/final-types.txt",
+      "scope": "StandardnoEmit before later whitespace-only formatting; finalscopedtypeproof covers current public graph."
+    },
+    "scoped_lint": {
+      "exit_code": 0,
+      "warnings": 0,
+      "raw": ".tmp/operations-api/final-eslint.txt",
+      "current_formatted_checkin_supplement": ".tmp/operations-api/checkin-format-eslint.txt"
+    }
+  },
+  "contract_loader_proof": [
+    {
+      "path": "frontend/features/operations/components/qr-whatsapp-delivery.contract.test.mjs",
+      "before_sha256": "5f8bfd77df280809db9b8ecf480344fbfef093c885ec2b3f01f417fd33adc923",
+      "after_sha256": "b195a31ed836e7cc52b33e8eb2e305d73606591b331ea69dcf80505d3c577ff0",
+      "all_test_bodies_byte_identical_after_line_ending_normalization": true,
+      "only_loader_and_import_changed": true
+    },
+    {
+      "path": "frontend/features/operations/components/rooming-redesign.contract.test.mjs",
+      "before_sha256": "40df551f8b283191ad66d70dd6c628b54551c6cad46857b08ab5f21ad46007d9",
+      "after_sha256": "2be5fd64e061a7673100a184643c397f307a29c04c4e7ff39feca01bea5e5435",
+      "all_test_bodies_byte_identical_after_line_ending_normalization": true,
+      "only_loader_and_import_changed": true
+    },
+    {
+      "path": "frontend/features/tour-operations/components/coordinator-pwa.contract.test.mjs",
+      "before_sha256": "3c2c3e2ce06786caf3783fdd3427b63d150ed8c4679df57be5e0bb925a9f1b7b",
+      "after_sha256": "a818de296469b7db13657fbf76ab0e8ba02222ab34c985883288bc11a550fffc",
+      "all_test_bodies_byte_identical_after_line_ending_normalization": true,
+      "only_loader_and_import_changed": true
+    }
+  ],
+  "frozen_hooks": {
+    "all10runtime_sources_unchanged": true,
+    "receipt": "operations-hooks-verification.json",
+    "earlier_API_and_three_test_source_rows_intentionally_superseded_by_this_receipt": true,
+    "old_receipts_immutable": true
+  },
+  "critical_coverage": {
+    "config": "frontend/vitest.config.mts",
+    "sha256": "85ce4e7d5be4ff07748412030ccf1fca3177be52c388dbbada89053bcfc1a400",
+    "originalAPIIncluded": false,
+    "allExistingFloorsAndIncludesUntouched": true
+  },
+  "proof_artifacts": [
+    {
+      "path": ".tmp/operations-api/operations.api.original.ts",
+      "sha256": "7a686e1546a5235b19567421afc23c8bce0cccd550f5f619208e807b67da677d",
+      "physical_lines": 1200
+    },
+    {
+      "path": ".tmp/operations-api/transport-parity.test.ts",
+      "sha256": "4e5dcc29fbdb30f0f30d75956bc50854a1e4e9c88f1ef6ff4a81ec68640c29da",
+      "physical_lines": 110
+    },
+    {
+      "path": ".tmp/operations-api/vitest.config.mts",
+      "sha256": "8fcec61c74b5af3519e10d22f3b6aa6f8ec53949911da72691f8db866ce3452c",
+      "physical_lines": 15
+    },
+    {
+      "path": ".tmp/operations-api/public-types.tsconfig.json",
+      "sha256": "bf810e71a930c7a0f2226d39ac40dac2ed14760679387d63bcd6ab10e397320a",
+      "physical_lines": 5
+    },
+    {
+      "path": ".tmp/verify-operations-api.cjs",
+      "sha256": "8bda82826e773e54e3efe18aa89bd8f88c62ca03c2d8370c9a96144b14f6b02d",
+      "physical_lines": 79
+    }
+  ],
+  "tooling_diagnostics": {
+    "initial_synthetic_parity_import_error": ".tmp/operations-api/transport-parity-fixture-import-error.json",
+    "correction": "The .tmp fixture lies outsidefrontend tsconfigPaths importer scope; its isolated Vitest config supplies the exact existing @→frontend alias. No product/toolchain config altered.",
+    "initial_proof_attempts": "A .tmp CommonJS exports identifier collision and transient file-open diagnostic did not change product logic. A raw TypeScript transient-symbol object identity assertion was corrected to actual declaration identity; the original/current execution also verifies actual function identity. No application failure was hidden."
+  },
+  "budget_candidates": "operations-api-budget-candidates.json",
+  "parent_budget_integration": "PENDING-parent-owned; additive measured caps only, no floor/cap relaxation.",
+  "prior_open_API_architecture_followup": "Resolved by this coherent current source/affected evidence; source read alone was not treated as closure.",
+  "limits": "Synthetic transport/component checks, actual compiler public-type identity and static source proof only. No live service, provider send, full application suite, production build/browser or VPS qualification from this tranche. Final combined verification remains parent-owned and OPEN per user cadence."
+}

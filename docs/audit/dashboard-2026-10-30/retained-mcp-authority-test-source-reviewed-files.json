@@ -1,0 +1,56 @@
+[
+  {
+    "path": "backend/tests/integration/test_mcp_admin_overview_http.py",
+    "sha256": "9df7e8c94ae9d0e29f9f143e96f1a5c99d168105a6ec3097bb04d332205e5de4",
+    "physical_lines": 166,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all166 physical lines: actual OAuth/SDK HTTP aggregate parity with website, no business writes/private hydration, static schema/read-only annotations, durable eight-way authority narrowing before counts and safe timeout/oversize/unexpected failure plus recovery. HTTP role-scoped count changes explicitly account for fixture actor. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_admin_overview_reads.py",
+    "sha256": "74738373df0e9a1fff13612f65c7881315b488329c61ecfd5e8e13a53b7b1451",
+    "physical_lines": 162,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all162 physical lines: canonical global/agency/null semantics, seven scalar count queries without ORM private hydration, all-or-nothing integer/shape/envelope limits, empty counts, whole authority/source deadline and foreign principal pre-query denial. Event listeners removed in finally. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/unit/application/test_mcp_direct_client_policy.py",
+    "sha256": "7a6cb8c93d4b2e17ad1360a7032c1ed8dbf723c3fad4f7ca81a4e15b7b51c299",
+    "physical_lines": 324,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all324 physical lines in contiguous1-164 and165-324 segments: exact trusted client URL/public native callback rules, metadata authority/cache expiry/negative-cache behavior, redirect/content/type/stream byte/deadline admission and response close, concurrent metadata discovery and no outbound requests for existing configured grant checks. All outbound HTTP uses MockTransport; no external metadata request performed. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_native_permission_discovery.py",
+    "sha256": "6472c6b345504a4dc0b6b85cf27b272026183b65f4b1dfed7437b3eae472969c",
+    "physical_lines": 255,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all255 physical lines: actual SDK tool listing/status share saved device/global capability/section/release policy; upload/export file-lane independence, dynamic choices, corruption fail-closed, read-only toggles and actual source-gate checks for native creation. Admin inventory describes deployment possibility independently of device grant; no permission added. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/unit/test_mcp_business_configuration.py",
+    "sha256": "013d292d51e1f968a05dde71ff2e01eba7610a71c9e9c434504362d4a2fc4738",
+    "physical_lines": 144,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all144 physical lines: explicit dashboard activation handoff, no password/invite/token authority fields, duplicate group rejection, explicit GC access choices, aware ordered windows, strict positive integer revisions and dynamic workforce role-policy schema guards. Synthetic credentials serve only negative reflection assertions. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_transfer_contract.py",
+    "sha256": "b74cdbfe7cbd2cdc8325d2102ca88969c5c281d76f8adde2c6cc89a23d0ea6b1",
+    "physical_lines": 158,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all158 physical lines: exact HTTPBearer OpenAPI/status/media/raw-body/required header contracts, no FastAPI body buffering, safe receipt model validation and replay identity, strict duplicate/case/empty/dashboard bearer rejection before streaming bytes. Upload fixtures reference synthetic object/provider paths, not live operations. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  }
+]

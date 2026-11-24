@@ -1,0 +1,49 @@
+{
+  "after_fix_source_sha256": "a7476d2b8568c84573ffa36c0150e004bcf65d0abdb6ce2e7afa3c6b56f6ddc9",
+  "owners": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_connection_monitoring.py",
+      "functions": [
+        "sync_connection",
+        "pause_connection",
+        "resume_connection"
+      ],
+      "sha256": "8faafb336b6ca3112ac849d63499d9a34957c414f401553c15e08c16d79a71b7",
+      "physical_lines": 162
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_connection_disconnect.py",
+      "functions": [
+        "disconnect_email_connection"
+      ],
+      "sha256": "221b718f85a6a6901e9a52996ec82ad998f184044da6c581afe424d5af288f15",
+      "physical_lines": 136
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_connection_removal.py",
+      "functions": [
+        "remove_email_connection_and_data"
+      ],
+      "sha256": "b8add65d62a305f8d07ca7bca4142cdc276ba621607b8c773df034383585dcce",
+      "physical_lines": 182
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_connection_ai_settings.py",
+      "functions": [
+        "update_connection_ai_settings"
+      ],
+      "sha256": "9593d39cec01a5459a1b7d0b1652225821d3c53aea66af9d758708dcdb0b85ed",
+      "physical_lines": 109
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_connections.py",
+      "functions": [
+        "email_integration_status",
+        "list_email_connections"
+      ],
+      "sha256": "a4379c0ab54f5813c200980cf93f370155a15499479fc60a48117b4f858c6062",
+      "physical_lines": 94
+    }
+  ],
+  "public_read_views_and_settings_seam_retained": true
+}

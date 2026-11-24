@@ -12,8 +12,8 @@ from app.infrastructure.mobile_realtime import (
     MobileRealtimeCapacityError,
     MobileRealtimeConfig,
     MobileRealtimeHub,
-    _parse_redis_hint,
 )
+from app.infrastructure.mobile_realtime_wire import _parse_redis_hint
 
 
 class _FakePubSub:

@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { Fragment, useEffect, useRef, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { LoadingSpinner } from "@/components/shared/loading-spinner";
 import { expiredSessionSignInPath } from "../services/restoration-destination";
+import { CookieCoordinationUnavailableError } from "../services/cookie-mutation";
+import { privateAuthorityKey } from "../services/session-continuity";
 import {
   selectHasHydrated,
   selectIsAuthenticated,
@@ -26,6 +28,7 @@ export function AuthenticatedContent({ children }: AuthenticatedContentProps) {
   const restorationStatus = useAuthStore((state) => state.restorationStatus);
   const isChangingAccessLevel = useAuthStore((state) => state.isChangingAccessLevel);
   const accessLevelError = useAuthStore((state) => state.accessLevelError);
+  const user = useAuthStore((state) => state.user);
   const redirectStartedRef = useRef(false);
 
   useEffect(() => {
@@ -63,7 +66,9 @@ export function AuthenticatedContent({ children }: AuthenticatedContentProps) {
         <div role="alert" className="max-w-md rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
           <h1 className="text-lg font-semibold text-slate-950">Unable to restore your session</h1>
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            The server is temporarily unavailable or your connection is offline. Your session has not been rejected. Reconnect and try again.
+            {typeof navigator !== "undefined" && !navigator.locks?.request
+              ? new CookieCoordinationUnavailableError().message
+              : "The server is temporarily unavailable or your connection is offline. Your session has not been rejected. Reconnect and try again."}
           </p>
           <button type="button" className="mt-5 rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-medium text-white focus-visible:outline-2 focus-visible:outline-offset-2"
             onClick={() => window.dispatchEvent(new Event("auth:retry-restoration"))}>
@@ -100,5 +105,8 @@ export function AuthenticatedContent({ children }: AuthenticatedContentProps) {
     );
   }
 
-  return children;
+  // Clear local private drafts when authority changes, while preserving them
+  // across cookie renewal and profile refresh for the same authority.
+  const authorityKey = privateAuthorityKey(user);
+  return <Fragment key={authorityKey}>{children}</Fragment>;
 }

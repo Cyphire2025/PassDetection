@@ -1,0 +1,92 @@
+{
+  "files": [
+    {
+      "path": "scripts/test_release_companies_credentials.py",
+      "sha256": "f991fa52cb36667ca605fb1260cef3a608c2f4a06bc56daa81fd336edf951dea",
+      "physical_lines": 281,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete281physicalsource read0-122+122-EOF. Actualcredentialcustody/preflight functions runovertempdirs/syntheticUnicodepasswords andmockedDockerdriver: distinct bootstrap/runtime/migrator, exactDB/endpoints/networks/sourcebindings, exclusiveprivatefile/symlink/hardlink/size/owner permissions, stdinnotargv, read-onlyquery/timeouts/defaultACLproof, stoppedoriginalnoexec, failedproofnocapability, drift/orphannotreplaced. ActualfixedPREFLIGHT exec usesfullystubbed psycopg2 only; notnativePGauth/ACL/realcredentialaccess. Reservedruntimehelper functions invokedbytestdefinitions butnotedited/testedhere."
+    },
+    {
+      "path": "scripts/test_release_companies_fast.py",
+      "sha256": "35ca1d1aeb2296c7f9d97c6ae301a98f25bb823d4bc924bd41253c484a86ceae",
+      "physical_lines": 235,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete235physicalsource read0-120+120-EOF. ActualFastimage/API/source/base/builder/privateexactrehearsalguards overfakeimage/containers. Tests minimumfixture/DDLrollback/splitrole/exacttrue checks, missingproofbeforelivebackup, pausedbeat/workersacrossbuild+rehearsal, cleanfailurevsunknownhelperresume, no rerunonrecovery andFullneverbuilder. Fakehost/receipt values notactualPostgres/RAM/browser/testqualification."
+    },
+    {
+      "path": "scripts/test_release_companies_retained_update.py",
+      "sha256": "8d8563effded7ad15af4c846e9a3766e9b70e9f56ec8874daa6a9b04ff59a575",
+      "physical_lines": 409,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete409physicalsource read0-125/125-265/265-EOF. Sharedrelease_fixture intentionallyobject.__new__+mockedhostsource/retention/proof/migrationidentity; realorchestration/policyfunctions protectexactcustodybeforestop/start, sourcecontract/hash/imagebindings, fixedtask/scheduler/interfaces, gatedhelpercaps/admission, drainordering/failure, bothwriter-generationsforwardfence, runninghelpernoaction, originalbackup/baselinecaptureandtargetrevalidation, no completedreceiptwithoutfinalproof, targetwritesvalidatedresume, same-schemafallback. Reservedhelperimplementation/root75caseactivitynotedited/executed; dictionary/Mockoutcomes notrealVPS/DDL/cgroup proof."
+    },
+    {
+      "path": "scripts/test_release_companies_secrets.py",
+      "sha256": "62efb95286194b02b24ad9ea934287f17e2c7b67fba7d7fee8a2c17b2c9fe591",
+      "physical_lines": 117,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete117physicalsource read. Existingprivatekeymaterial syntheticonly; actualruntime_values/verify_configuration preventbrowser/proxykeyprojection, partial/inconsistent/live-schema/keycustodydrift/newkeygeneration/orphanoverwrites andpreserveexistingdisabledflag. Fixturebase64/literals publictestmaterial, no existingkeyfilesread/providercontact."
+    },
+    {
+      "path": "scripts/test_release_companies_traveller_contract.py",
+      "sha256": "1b720c0a0fe3763403c86fd7a5e2fc1cc11ca0072d1382469efd9e6d6b8f2906",
+      "physical_lines": 148,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete148physicalsource read0-90+90-EOF. Historical3migrationbytecopies+actualpurecontract/helper compare strictpolicy/grant/reuse/history/no-downgrade/path/parent/order/hash; actualrun_revisions callbackinterruption commitsfirstthenresumesremaining, no-opattarget andoutside-schema/no-progress rejection. Syntheticbackup/plannerfencerequiresexactoriginalreceipt acrossintermediateheads; no realDDL/restore/data qualification."
+    },
+    {
+      "path": "scripts/legacy_company_contract_fixture.py",
+      "sha256": "634c210313bdcd92d5dd6aad4eb46ebabd2adb4c6cc0630a6b28cf455edcf88e",
+      "physical_lines": 27,
+      "reviewer": "branding_visuals",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete27physicalsource supportread. Uniqueownedtemporaryroot receivesonlysynthetichistoricalmanifestandexactpublishedmigrationbytecopies; contextmanagerownedcleanup. No realenv/credentials/Git/providerinvocation."
+    },
+    {
+      "path": "scripts/release_companies_credentials.py",
+      "sha256": "21461f6879da9d3b14f7e0c44c3d4b8c2620037735b3ea72de65dd776fec5ad9",
+      "physical_lines": 203,
+      "reviewer": "branding_visuals",
+      "review_scope": "partial",
+      "status": "reviewed",
+      "notes": "Only84-116/144-EOF sourcephysicallyread: currentprivatefile/preflight/probe contractmatchesfixture. No full-sourcecredit; no actualcredentialfile/driverconnection."
+    },
+    {
+      "path": "scripts/release_companies_secrets.py",
+      "sha256": "26e0d7a14a6edc1eab500024e85420dabfa860e6d8a9aba3766907fc18199a4f",
+      "physical_lines": 105,
+      "reviewer": "branding_visuals",
+      "review_scope": "partial",
+      "status": "reviewed",
+      "notes": "Only68-EOF runtime_values physicalreadplusdef/keyreferences. Exactexistingkeycustody/admission logictraced; no whole-sourcecredit."
+    },
+    {
+      "path": "scripts/release_companies_fast.py",
+      "sha256": "96f1f184ca18343a3569e85b81c3e1a7ae11b89efcfeb3beec3676954a3353e1",
+      "physical_lines": 128,
+      "reviewer": "branding_visuals",
+      "review_scope": "partial",
+      "status": "reviewed",
+      "notes": "Only42-107 binding/verify_images/builder/earlyrehearsal sourcephysicallyread. Actualstrictflags/currentAPIhash/image/provenance/configmatchesfixture; no whole-sourcecredit."
+    }
+  ],
+  "new_complete_test_files": 5,
+  "new_complete_test_lines": 1190,
+  "supporting_complete_fixture_files": 1,
+  "reference_only_not_review_credit": [
+    "release_companies_runtime.py: reservedrootimplementation; testcallsiteinspection only",
+    "Othercompanypolicy/retained methodnames usedbyfixtures"
+  ]
+}

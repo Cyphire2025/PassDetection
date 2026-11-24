@@ -34,9 +34,13 @@ same number receive both of their assigned PDFs; neither traveller is skipped
 because the phone is shared. The same accepted or uncertain PDF is still protected
 against accidental duplicate sending. No welcome message is required for PDFs.
 
-Deploy the schema before the new API and worker code. Update an explicit
-`EXPECTED_DATABASE_SCHEMA_REVISION` override to `0105_whatsapp_phone_overrides`,
-and deploy the backend, worker-image consumers and frontend consistently. The UI
+The original `0105` rollout requires its schema before the matching API and worker
+code. For that historical contract, the explicit `EXPECTED_DATABASE_SCHEMA_REVISION`
+override is `0105_whatsapp_phone_overrides`, and the backend, worker-image consumers
+and frontend must be deployed consistently. For a current deployment, use the exact qualified
+[release manifest](../../backend/app/core/config/release_manifest.json) and
+[deployment selector](../deployment-modes.md); do not replace its schema target
+with this older revision. The UI
 invalidates broadcast contact lists and document previews after a phone edit.
 
 This change was reviewed in source only. Tests, builds, lint and runtime checks

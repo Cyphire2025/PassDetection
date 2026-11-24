@@ -1,0 +1,12 @@
+{
+  "frontend_modules_before": 557,
+  "frontend_modules_after": 564,
+  "only_known_frontend_budget_after_changed": true,
+  "old_after": "40df44d9e7f9b075f476157de164173a20ca3fe6da4bc96cd8616357e131552c",
+  "new_after": "be5fd9130c93a5816ce23f2f8c283278d85cfdaaf77e0ad1af4ffb731288618e",
+  "before_exact_manifest_sha256": "a0b8c9c3328c96d09bf7dc6d4a861c7a5f19b8fdb538b7932d50737826466b8b",
+  "after_exact_manifest_sha256": "3d6c8d32d05fd6e751d1bb4e91fbb99932b548dfea13456d0955e23e250bb5fe",
+  "all93_both_before_maps_unchanged": true,
+  "backend562_after_unchanged": true,
+  "provenance": "Root document-rename-budget-integration.json:7 additive measured rows, allprevious557ceilings retained; frozen7runtime/13source-test hashes,29affected+26Node/type/lintcases retained aspeer evidence; no new broad qualification."
+}

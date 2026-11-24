@@ -1,0 +1,221 @@
+{
+  "files": [
+    {
+      "path": "backend/tests/unit/application/test_dashboard_use_cases.py",
+      "sha256": "375add660a26eb8413add4d8abf506a8be56146db2671edc35df879447526eb1",
+      "physical_lines": 117,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete117-line physical read. Current status/archived counts, active links/recent submitted projections and exact owner/visible principal keyword forwarding on mock repositories. Whole actual use case and HTTP consumer read to confirm real current-user visibility forwarding; mock counts are not tenant SQL/performance proof."
+    },
+    {
+      "path": "backend/tests/unit/domain/test_entities.py",
+      "sha256": "21aae0b52e294215a47e739bcc1e9224d0672c10d26a510dd6b8a67a86734c5d",
+      "physical_lines": 153,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete153-line physical read. User email/local agency predicates/deactivation, group active/closed/archive state and passport extraction/review/confirm/failure/configured confidence threshold fields. Actual current entity method slices traced. Unit entity predicates alone do not establish HTTP/persisted account authorization; legacy mrz_raw field is stored compatibility, no OCR execution."
+    },
+    {
+      "path": "backend/tests/unit/domain/test_traveller_identity.py",
+      "sha256": "fc3468f54c9906ca718087694278949f1e92e7758f4ec198084b68212c753773",
+      "physical_lines": 109,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete109-line physical read. Conservative exact independent-type and corroborated whole-word partial-name association, conflict vetoes, zero/case/accents/order/email-local preservation, bounded aliases and Excel calendar-only birth dates, authoritative-name-only replacement. Whole actual normalization/decision/name owners read; matching is not document disclosure authority."
+    },
+    {
+      "path": "backend/tests/unit/domain/test_traveller_verification.py",
+      "sha256": "078fbec1e5bc4bdd7b8cb3cc348d1eff00cab94a69bad82ab9c10015f27b558e",
+      "physical_lines": 69,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete69-line physical read. Lossless identifier/issuing context, stable recovery question extension/provenance, complete exact ISO answer set, five-failure fixed cooldown and all current disclosure prerequisites/expiry. Whole actual pure owner read; persisted locks/OTP/provider/session behavior not qualified by source assertions."
+    },
+    {
+      "path": "backend/tests/unit/domain/test_travel_document_taxonomy.py",
+      "sha256": "f5061417ac5fa3d035a6376cfbee849b0abd36020d646ef63f0cdb04f41c3042",
+      "physical_lines": 39,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete39-line physical read. Legacy international persisted ticket IDs, additive domestic lanes and shared classifier/personal document type sets. Whole pure taxonomy read for shared compatibility; no native document ingress/provider implementation work."
+    },
+    {
+      "path": "backend/tests/unit/domain/test_trip_lifecycle.py",
+      "sha256": "55a051ed7ea6e843be054165bc41d8810f9adbb6c0450797ad13b95578414957",
+      "physical_lines": 69,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete69-line physical read. Canonical complete local return-day expiry boundary, departure fallback/undated behavior, IANA offsets and DST edge values, naive timestamp rejected. Whole actual helper read; source dates do not assert installed runtime timezone database version or service qualification."
+    },
+    {
+      "path": "backend/tests/unit/domain/test_trip_timezone.py",
+      "sha256": "ddb41af810095791a5c9e61224d3cdb219f4c814b86ead59eb3c2e6953bd7358",
+      "physical_lines": 67,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete67-line physical read. IANA identifier vs arbitrary offset rejection, canonical domain group timezone and create/update default/null contracts. Whole normalizer read, selected existing client-group imports used without repeated catalog credit."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_tour_operation_projections.py",
+      "sha256": "04aaf9c4019ce1e6c989dfc8acafe4355f6b3b1fda922e14276c3f7c41e80fe4",
+      "physical_lines": 189,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete189-line physical read. Office/coordinator family/name/contact/detail projection parity with QR hidden, dashboard generate/regenerate/revoke/activate/expire scope/audit/lifecycle and invalid activation no mutation. Whole projection helper plus actual coordinator/QR mutation slices read; mocked management authority is not persisted live route/QR transport proof."
+    },
+    {
+      "path": "backend/app/domain/value_objects/trip_lifecycle.py",
+      "sha256": "422f6cee772e139c76b17fa4c008a2acf369d7df52a5f52f120c3420faa65282",
+      "physical_lines": 31,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source physically read. Aware canonical local calendar-day end using return/departure fallback and undated compatibility. Existing policy preserved."
+    },
+    {
+      "path": "backend/app/domain/value_objects/trip_timezone.py",
+      "sha256": "ad2db08ea5d38e808fe47e58e4569886d03fef62ad58d81cf2afc3b167b34aed",
+      "physical_lines": 29,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source physically read. Bounded trimmed IANA identifier validation using installed ZoneInfo; no environment/tzdata configuration change."
+    },
+    {
+      "path": "backend/app/domain/value_objects/travel_document_taxonomy.py",
+      "sha256": "b4b453065c40c5957e3c40d933d1fb5c7215091bd96f9fd4c789f7e01a4f7948",
+      "physical_lines": 140,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source physically read. Immutable coherent six-lane catalog, legacy/additive IDs and labels/message/classifier/shared category projections. Shared native-labelled fields inspected solely as compatibility metadata, no native feature audit."
+    },
+    {
+      "path": "backend/app/application/use_cases/dashboard/get_dashboard_stats_use_case.py",
+      "sha256": "a054a8620bdd6eac66055b0f51df024b97254f60121b03f28dafa35f3c86f89e",
+      "physical_lines": 97,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source physically read. Explicit repeated repository count/status/archived/active/recent queries with same creator/visible principal context and response projection; no unsafe parallelization/caching or performance claim."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/dashboard.py",
+      "sha256": "425c3af29b4e35bb6ba49c5cd3c49ef1bb9e412781f2dfa303ed28817725b0d5",
+      "physical_lines": 79,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source physically read. Current active-user dependency, empty no-agency compatibility response, agency/staff-owner/current visibility forwarding into real use-case dependency and safe DTO projection."
+    },
+    {
+      "path": "backend/app/domain/services/traveller_identity.py",
+      "sha256": "38a0bf308ae2f2a3dfe93d3c6ffc144b262d1ede9ca8c5ba6baa27f8b67b077c",
+      "physical_lines": 127,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source physically read. Bounded alias/field/value normalization, conservative conflict evidence, authoritative accepted-name override and stable compare export. Existing strict normalization unchanged."
+    },
+    {
+      "path": "backend/app/domain/services/identity_decisions.py",
+      "sha256": "fd9b777034eeba8f9b7951b447affc2f487b3262ad17b2511b6db2be77ebb863",
+      "physical_lines": 44,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source physically read. Purpose-specific independent evidence decision/vetoes/partial corroboration; no authority inferred from matching."
+    },
+    {
+      "path": "backend/app/domain/services/traveller_names.py",
+      "sha256": "8068e69bdab8321fa3dafd3a5da0026bdd24da769a3d7f066367116650f3b413",
+      "physical_lines": 18,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source physically read. Whole-word compatible subsets and bounded reviewed name composition, no edit distance/OCR repair."
+    },
+    {
+      "path": "backend/app/domain/services/traveller_verification.py",
+      "sha256": "dabe8235032ef32257f08cd90fa3b37412a7f5711c30004ced9f16365265f22b",
+      "physical_lines": 166,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source physically read. Exact identifier/context/date proof rules, question/claim/failure budgets and complete generic disclosure gate; persistence/locks remain caller-owned and unqualified by this read."
+    },
+    {
+      "path": "backend/app/domain/entities/client_group_lifecycle.py",
+      "sha256": "30910eb18732f1174995da1a49b021b6658d3acef96ab9253f9c2ddeeb51f55a",
+      "physical_lines": 75,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source physically read. Active/close/archive/restore/delete retention scheduling, anchor preservation, hold-aware purge metadata responsibility unchanged. No actual deletion executed."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_passenger_views.py",
+      "sha256": "1c80705ad869df45d0b11eba99b99a0549d3c07b5532bcd5741a5c74f63dcd52",
+      "physical_lines": 120,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole source physically read. Same-tenant group/submitted roster SQL, coordinator join, single family-size pass and explicit office/coordinator projection without raw QR. Existing module and public contracts untouched."
+    },
+    {
+      "path": "backend/app/domain/entities/identity.py",
+      "sha256": "4e60b4cc3d4759f1c2b12b34984a4300ae388055694cf46581be33f632b94d9e",
+      "physical_lines": 112,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical1-85 complete User construction and management/deactivation methods plus access prefix; remaining account/agency catalog not fully read here."
+    },
+    {
+      "path": "backend/app/domain/entities/passport_extraction.py",
+      "sha256": "e745eb8f9d1b0827bf9bdeb2f8076ed898588fb0f3d1a0cb6c5baf5abc0d3cf1",
+      "physical_lines": 246,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical70-174 and209-end: complete mark_review_required and failure transition methods with adjacent partial no-passport setup. Other extraction methods not fully physically read; no AI/native/OCR pipeline changes or qualification."
+    },
+    {
+      "path": "backend/app/domain/entities/passport_client_review.py",
+      "sha256": "591e2d935dd68ee27e7cfef3229b8080eb590f9e3fed2600cbe1ecb3b014f7cb",
+      "physical_lines": 125,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical24-56 complete confirm method and submit signature prefix only; remaining client review workflow not fully read here."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_assignments.py",
+      "sha256": "8c695bd1cbd7a032badcb7c6bb8dc5fd51df39956ccaf8b754a7e7ffeae194c9",
+      "physical_lines": 362,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical295-367 complete coordinator list/detail consumers and neighboring source only. Earlier management assignments not fully read here; current route scope gates preserved."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_qr.py",
+      "sha256": "067379429327158e35a6dad06db90e3dbea29e24d26fe5689dcbb73285943f2c",
+      "physical_lines": 267,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical69-end complete generate/regenerate/revoke/active/expiration handlers (first decorator partly outside slice). Imports/read-list prefix not fully read here; shared policy and root-frozen QR support untouched."
+    }
+  ],
+  "scope": "Eight new current-full retained test files812lines, eleven whole supporting reads and five explicit partial slices. Full prior support rereads not additional new unreviewed credit. No native ingress/Operations Inbox or provider work."
+}

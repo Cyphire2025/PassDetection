@@ -1,0 +1,28 @@
+{
+  "status": "complete current physical retained operator/contract test-source review only",
+  "files": 6,
+  "physical_lines": 921,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-mcp-qa-test-source-reviewed-files.json",
+    "sha256": "c79c6501eefc03a0aaa549da8404871090a7686d0757b0925fc86e7cddb75820"
+  },
+  "source_before_equals_after": true,
+  "source_fence": {
+    "scripts/test_mcp_direct_containers.py": "8676fe428463b5f22a4880a35be6e917246ff88e60fb7c6abf24e61c524237c2",
+    "scripts/test_mcp_direct_identity.py": "de143a30099c68d6ae6bab5a7be89ab3fa291015f399ce0148af6c9d3a8be62d",
+    "scripts/test_mcp_direct_idle.py": "f450b7005edd308f97054fc481b61877d14ae6a0caa22deb84f9632648337e82",
+    "scripts/test_mcp_direct_retry.py": "a2a2ec5e30750ee04f382ddc21b2d6e1ddd930df0b3ba6d67dc23ed08e1b4f36",
+    "scripts/qa/test_capacity_container_events.py": "21f58a9d158f9fc0ae7500c162a084915436c39bfa0b32a21870134398142275",
+    "scripts/qa/test_mcp_capacity.py": "b158ca3a8184f2e5924ec638c3153dd95ae361592f8ecbdc12ac7d04e9de2824"
+  },
+  "new_execution": false,
+  "runtime_mutation": false,
+  "new_validated_findings": [],
+  "scope": "Parent-reserved retained operator/QA/shared-main-CI test contracts. Native support contracts are read solely for existing shared CI compatibility; no native workload or dedicated Inbox extension.",
+  "limits": [
+    "Complete source read is not test execution, service/backend qualification or operator action.",
+    "Authored synthetic provider/CLI/SSH/Docker/registry fixtures do not invoke those live systems now.",
+    "Source-pattern assertions do not by themselves qualify actual workload or deployment correctness.",
+    "No protected source, historic qualified-source stamp, budgets, gates or release baselines changed."
+  ]
+}

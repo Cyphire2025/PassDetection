@@ -1,0 +1,44 @@
+{
+  "status": "fixed verified frozen",
+  "source_manifest": {
+    "path": "docs/audit/dashboard-2026-10-30/migration-template-source-manifest.json",
+    "sha256": "0799169247e7fd3ceac942a6ddfedab0ea51ac3abb9b22d92a7b323eaefa2d38"
+  },
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/migration-template-reviewed-files.json",
+    "sha256": "a4fbb04b2bd1d86ea4eb933417eca2a27a5daaa9b2b285e619e0d78ac289d44c"
+  },
+  "valid_before_reproduction": {
+    "path": "docs/audit/dashboard-2026-10-30/migration-template-baseline-corrected-reproduction.json",
+    "sha256": "ae3d3a2cba574b6351dfb17e1c9a7a5ab3bbdb24300b4ebdb8580dddb6c4ad82"
+  },
+  "initial_invalid_fixture_qualification": {
+    "path": "docs/audit/dashboard-2026-10-30/migration-template-initial-fixture-correction.json",
+    "sha256": "74c163d926ffe6cc889725e44a1a557de00d00bf624f41412c3188082134418c"
+  },
+  "actual_change": "Future generated revisions contain revision/down_revision/branch_labels/depends_on and importableupgrade/downgrade bodies; optionalimports/actions render. Published scripts untouched.",
+  "checks": {
+    "command": "python -m unittest discover -s tests/unit/infrastructure -p test_migration_revision_template.py -v",
+    "test_tool_chunk": "26055c",
+    "exit_code": 0,
+    "cases": 4,
+    "actual_cases": [
+      "freshbase metadata/import/noop",
+      "real singleparent edge",
+      "twohead branchmerge parents+onehead",
+      "customimports/branch/dependency and mockedop body rendering"
+    ],
+    "unittest_runner_excludes_unrelated_application_pytest_conftest_startup": true,
+    "normal_ci_can_collect_same_unittest_cases": true,
+    "scoped_ruff_command": "python -m ruff check --no-fix tests/unit/infrastructure/test_migration_revision_template.py",
+    "ruff_tool_chunk": "4a064f",
+    "ruff_exit_code": 0,
+    "pinned_versions": {
+      "alembic": "1.13.2",
+      "mako": "1.4.1"
+    },
+    "published_migrations_unchanged": 142
+  },
+  "no_application_env_autogenerate_realDB_productionconfig_provider_or_broad_suite": true,
+  "no_shared_budget_critical_floor_release_pin_dependency_or_head_changes": true
+}

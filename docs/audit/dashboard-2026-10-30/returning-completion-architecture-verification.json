@@ -1,0 +1,136 @@
+{
+  "status": "four runtime owners frozen; affected current qualification passed",
+  "baseline": {
+    "cases": 40,
+    "test_seconds": 56.88,
+    "original_source_sha256": "ff83213778a3fef8585d6b8f5cd57670d45136883e29414761b66fb480f73446",
+    "complexity": 60,
+    "compressed_lines": 187
+  },
+  "final": {
+    "unique_affected_cases": 46,
+    "test_files": 6,
+    "test_seconds": 58.78,
+    "command_seconds": 79.67199999999139,
+    "source_fence_count": 17,
+    "source_fence_unchanged": true,
+    "strict_sources": 4,
+    "explicit_no_fix_Ruff_paths": 4,
+    "measurements": [
+      {
+        "path": "app/application/travellers/completion.py",
+        "source_sha256": "ec518377e326fb2965e1bcefb53ce0124d267f2619394258e2f31940cf0cf627",
+        "lines": 263,
+        "complexity": 32,
+        "line_percent": 94.31818181818183,
+        "covered_statements": 83,
+        "statements": 88,
+        "branch_percent": 78.57142857142857,
+        "covered_branches": 22,
+        "branch_sites": 28
+      },
+      {
+        "path": "app/application/travellers/completion_review.py",
+        "source_sha256": "28cfc1db0388e2fa29880f64d2be0df35fe3c306b5d171679534dddcf2af6f78",
+        "lines": 66,
+        "complexity": 8,
+        "line_percent": 96.29629629629629,
+        "covered_statements": 26,
+        "statements": 27,
+        "branch_percent": 87.5,
+        "covered_branches": 7,
+        "branch_sites": 8
+      },
+      {
+        "path": "app/application/travellers/completion_answers.py",
+        "source_sha256": "b41cda386f09511f35665db73417e3634e080258a64a20718233ce6e1235596e",
+        "lines": 62,
+        "complexity": 6,
+        "line_percent": 100.0,
+        "covered_statements": 23,
+        "statements": 23,
+        "branch_percent": 100.0,
+        "covered_branches": 2,
+        "branch_sites": 2
+      },
+      {
+        "path": "app/application/travellers/completion_source.py",
+        "source_sha256": "9860abbdfe7144b1f66005a410c86c5738264e72a3ced079be405268e35e6ea8",
+        "lines": 76,
+        "complexity": 17,
+        "line_percent": 96.7741935483871,
+        "covered_statements": 30,
+        "statements": 31,
+        "branch_percent": 80.0,
+        "covered_branches": 8,
+        "branch_sites": 10
+      }
+    ]
+  },
+  "proof": {
+    "whole_expanded_50_statement_function_and_signature_AST_exact": true,
+    "whole_nonimport_module_AST_exact": true,
+    "public_evaluated_hints_defaults_name_module_doc_exact": true,
+    "old_import_object_identities": 28,
+    "current_route_and_draft_aliases_and_old_pickle_lookup_preserved": true
+  },
+  "normal_candidates": [
+    {
+      "path": "app/application/travellers/completion.py",
+      "source_sha256": "ec518377e326fb2965e1bcefb53ce0124d267f2619394258e2f31940cf0cf627",
+      "previous": null,
+      "baseline_lines": 263,
+      "maximum_lines": 270,
+      "baseline_max_function_complexity": 32,
+      "maximum_function_complexity": 32,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/application/travellers/completion_review.py",
+      "source_sha256": "28cfc1db0388e2fa29880f64d2be0df35fe3c306b5d171679534dddcf2af6f78",
+      "previous": null,
+      "baseline_lines": 66,
+      "maximum_lines": 70,
+      "baseline_max_function_complexity": 8,
+      "maximum_function_complexity": 8,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/application/travellers/completion_answers.py",
+      "source_sha256": "b41cda386f09511f35665db73417e3634e080258a64a20718233ce6e1235596e",
+      "previous": null,
+      "baseline_lines": 62,
+      "maximum_lines": 70,
+      "baseline_max_function_complexity": 6,
+      "maximum_function_complexity": 6,
+      "minimum_coverage_percent": 100
+    },
+    {
+      "path": "app/application/travellers/completion_source.py",
+      "source_sha256": "9860abbdfe7144b1f66005a410c86c5738264e72a3ced079be405268e35e6ea8",
+      "previous": null,
+      "baseline_lines": 76,
+      "maximum_lines": 80,
+      "baseline_max_function_complexity": 17,
+      "maximum_function_complexity": 17,
+      "minimum_coverage_percent": 95
+    }
+  ],
+  "critical_candidates": [],
+  "intermediate_history": "Initial three-owner46 passed under16path fence. Canonical C39 remained; fourth cohesive authority/review owner then added and final current4-owner46 rerun fresh. Counts are46 current, not92 unique. Initial assembly CRLF doubling/import grouping diagnostics were corrected before either affected after qualification. No runtime bug or validation policy change claimed.",
+  "preserved": "Same permission/owned-source/policy/review, phone/questions/answers/hash, parent transaction, source row locks, idempotency/revision/history immutability, source construction/flush/UUID/clock, publication/event/audit/commit order and all original test business assertions. No service/callback/state catch-all.",
+  "limitations": [
+    "SQLite and existing synthetic fixtures, not live PostgreSQL lock concurrency or deployment.",
+    "Main/review/source measured branches78.57/87.5/80 percent; no full branch certification.",
+    "Whole actual route schema generation was not independently rerun in this root cohort; route file/source-fenced consumers and public function metadata are unchanged.",
+    "Architecture row transfer and shared normal gates await the sole shared owner; previous867/164/661/126 checkpoint remains historical."
+  ],
+  "artifacts": {
+    "returning-completion-final-source-equivalence.json": "52a8bb359bd35964026352a6d2f31d11085258ac6fb6ef73f257fe03aab4b036",
+    "returning-completion-public-contract-proof.json": "4bdcdac670f8c3540cd733c1ef9361b6b42958ac28c38ed9a080a3f1a7d6f0f0",
+    "returning-completion-final-command.json": "80404c1284156cb1fa4f2f61095db885855b82b0f6e1c410d0a27bbd553ca52c",
+    "returning-completion-final-coverage.json": "d9220cb5046161dee749d7b3121cd1b9cce929efc9f89f69af7f135ca206f820",
+    "returning-completion-budget-candidates.json": "884fa0374c8dcb580494a09804fa26d3cd07d3b8e6c7e29e33b10e33166b290f",
+    "returning-completion-final-boundary-transfer-proposal.json": "2f28c776f24bea6d700c9fb3149879d693a90b17fac3545e6f78e67b81986ccb"
+  }
+}

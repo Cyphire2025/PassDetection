@@ -1,0 +1,63 @@
+{
+  "status": "completed authorized byte-preserving local archive after operational consumer migration",
+  "method": "Direct/import/literal URL/dynamic folder-prefix search across maintained frontend/mobile/backend/scripts/connector/CI source; original3release healthprobe consumers explicitly found and qualified by owning agent before move. No runtime caller closure inferred solely from stale tests. No native mobile edit/full-audit claim.",
+  "qualified_release_migration": "release-health-asset-verification.json",
+  "qualified_release_migration_sha256": "ac394a6b6700643e2fb4821615337d3a726be99fbf7b646d179515bf761baa87",
+  "release_migration_scope": "44affected release methods and6captured real probe JS fakefetch cases; no actual deploy/provider/credential call. Existing stable/past PWA image and Docker copy contract qualified by owningagent.",
+  "files": [
+    {
+      "path": "frontend/public/assets/upload-samples/passport-front-cover.png",
+      "sha256": "a86f5fcf2944bae30009226d54a030a502e3ed74bd999d21c489028b633f7753",
+      "bytes": 2872523,
+      "archive_path": "Not related to project/retired-upload-samples/passport-front-cover.png",
+      "status": "retired-from-public-delivery-preserved-in-ignored-local-archive",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "notes": "Original bytes preserved via verified within-workspace literal file move. README physically read; PNGs metadata/container/visual reviewed, not source-line full credit. No confirmed real-passenger inference."
+    },
+    {
+      "path": "frontend/public/assets/upload-samples/passport-back-cover.png",
+      "sha256": "e103ead81bf77949073b9b298013ae8deccf5aaaf22b6b65835f81841e2b210b",
+      "bytes": 2509557,
+      "archive_path": "Not related to project/retired-upload-samples/passport-back-cover.png",
+      "status": "retired-from-public-delivery-preserved-in-ignored-local-archive",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "notes": "Original bytes preserved via verified within-workspace literal file move. README physically read; PNGs metadata/container/visual reviewed, not source-line full credit. No confirmed real-passenger inference."
+    },
+    {
+      "path": "frontend/public/assets/upload-samples/visa-photo.png",
+      "sha256": "20b4d984d63cab7930c9ba3f722b37766495bd1f3a707e8dca98849862c2f85b",
+      "bytes": 117057,
+      "archive_path": "Not related to project/retired-upload-samples/visa-photo.png",
+      "status": "retired-from-public-delivery-preserved-in-ignored-local-archive",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "notes": "Original bytes preserved via verified within-workspace literal file move. README physically read; PNGs metadata/container/visual reviewed, not source-line full credit. No confirmed real-passenger inference."
+    },
+    {
+      "path": "frontend/public/assets/upload-samples/README.md",
+      "sha256": "218fb1193c1e8aef0ed071ca005fcc1712ff2da1684b5dcd8a79f270f5284117",
+      "bytes": 1650,
+      "archive_path": "Not related to project/retired-upload-samples/README.md",
+      "status": "retired-from-public-delivery-preserved-in-ignored-local-archive",
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "notes": "Original bytes preserved via verified within-workspace literal file move. README physically read; PNGs metadata/container/visual reviewed, not source-line full credit. No confirmed real-passenger inference."
+    }
+  ],
+  "closed_reference_search": ".tmp/offline-scanner/retired-samples-final-closure.txt",
+  "closed_reference_search_empty": true,
+  "archive_ignored_by_git": true,
+  "source_and_destination_absolute_paths_verified_within_workspace": true,
+  "overwrites": false,
+  "pixels_or_file_contents_changed": false,
+  "explicitly_preserved_reference": {
+    "path": "frontend/features/upload/components/passport-detail-samples-original.tsx",
+    "sha256": "070e05e4667f669d5f29dc98a95457776fbe4f11cf2e2fc26da1877a2f8dbe9b",
+    "full_read_claim_from_this_manifest": false
+  },
+  "live_branding_aliases_and_related_source_artwork_retained": true,
+  "maintained_docs": "frontend/README.md now identifies retained reference component, retired examples and existingPWA release probe; obsolete README archived intact, not silently rewritten.",
+  "limits": "Repository maintained consumer closure; no independent external bookmarked asset URL/private deployment inventory or original supplied portrait/serial identity claim. No production build/release called. Historical asset metadata ledger remains pre-retirement evidence."
+}

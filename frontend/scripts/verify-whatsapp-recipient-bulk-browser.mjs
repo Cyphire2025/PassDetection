@@ -1,588 +1,157 @@
-/**
- * Real local /whatsapp UI, synthetic auth and recipient fixtures only.
- * node scripts/verify-whatsapp-recipient-bulk-browser.mjs --url http://127.0.0.1:3186
- * Every API request is intercepted. External requests and unexpected mutations
- * are blocked, so this check cannot deliver a message or modify production.
+/** Current multi-recipient selection, source-specific history resend and uncertain recovery.
+ * node scripts/verify-whatsapp-recipient-bulk-browser.mjs --url http://127.0.0.1:3186 [--case all|desktop|mobile|retry|filters]
+ * Every API is synthetic and external/non-API writes are blocked. No provider calls.
  */
 import assert from "node:assert/strict";
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium, expect } from "@playwright/test";
-
-const frontend = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const urlIndex = process.argv.indexOf("--url");
-const origin = new URL(urlIndex < 0 ? "http://127.0.0.1:3186" : process.argv[urlIndex + 1]);
-assert.ok(["127.0.0.1", "localhost", "[::1]"].includes(origin.hostname), "Only a loopback test server is allowed");
-assert.ok(["http:", "https:"].includes(origin.protocol));
-const output = join(frontend, "test-results", "whatsapp-recipient-bulk-browser");
-await mkdir(output, { recursive: true });
-const createdAt = "2026-09-07T00:00:00Z";
-const groups = [{
-  id: "bulk-qa-group-a", name: "Singapore Partner Conference — November 2026",
-  recipient_count: 5, total_contact_count: 6, recipient_opt_in_confirmed: true,
-  created_at: createdAt, updated_at: createdAt,
-}, {
-  id: "bulk-qa-group-b", name: "Sydney Leadership Conference",
-  recipient_count: 1, total_contact_count: 1, recipient_opt_in_confirmed: true,
-  created_at: createdAt, updated_at: createdAt,
-}];
-const user = {
-  id: "bulk-qa-admin", email: "admin@example.test", full_name: "Sample Agency Administrator",
-  role: "agency_admin", agency_id: "sample-agency", is_active: true, last_login_at: null,
-  created_at: createdAt, updated_at: createdAt, capabilities: [],
-};
-function status(messageType, value = "sent") {
-  return {
-    message_type: messageType, status: value, already_sent: value === "sent",
-    latest_resend_status: null, resend_blocked: value === "queued",
-    submitted_at: createdAt, status_updated_at: createdAt,
-  };
-}
-const recipients = [
-  { id: "bulk-alex", name: "Alexandra Montgomery", message_statuses: [status("welcome"), status("passport_link")] },
-  { id: "bulk-bruno", name: "Bruno Sample", message_statuses: [status("welcome"), status("passport_link")] },
-  { id: "bulk-casey", name: "Casey Sample", message_statuses: [status("welcome", "failed"), status("passport_link", "failed")] },
-  { id: "bulk-dana", name: "Dana Sample", message_statuses: [status("welcome", "queued"), status("passport_link")] },
-  { id: "bulk-elliot", name: "Elliot Sample", message_statuses: [status("welcome")] },
-].map((recipient, index) => ({
-  ...recipient, phone_number: `+1202555010${index}`, normalized_phone_number: `+1202555010${index}`,
-  imported_fields: { department: index < 2 ? "Operations" : "Coordination" },
-}));
-const secondRecipient = {
-  ...recipients[0], id: "bulk-other-group", name: "Other Group Passenger", phone_number: "+12025550108", normalized_phone_number: "+12025550108",
-};
-const rejected = {
-  id: "bulk-rejected", source_file_name: "synthetic-roster.xlsx", sheet_name: "Delegates", row_number: 7,
-  raw_name: "Rejected Sample", raw_phone_number: "invalid", reason_code: "invalid_phone", reason: "This phone number is invalid.",
-  created_at: createdAt, imported_fields: {},
-};
-const viewports = [
-  { name: "desktop", width: 1440, height: 1000 },
-  { name: "mobile", width: 390, height: 844 },
-];
-const caseIndex = process.argv.indexOf("--case");
-const requestedCase = caseIndex < 0 ? "all" : process.argv[caseIndex + 1];
-assert.ok(["all", "desktop", "mobile", "retry", "filters"].includes(requestedCase), "--case must be all, desktop, mobile, retry, or filters");
-const report = {
-  origin: origin.origin,
-  evidence: "Real local Next page; every API response is synthetic; external requests and unexpected mutations are blocked; no WhatsApp provider calls",
-  cases: [],
-};
-
-function detail(group) {
-  return { ...group, recipients: group.id === groups[0].id ? recipients : [secondRecipient], support_contacts: [], rejected_contact_count: group.id === groups[0].id ? 1 : 0 };
-}
-function roster(group) {
-  if (group.id === groups[1].id) return {
-    items: [{ kind: "recipient", display_order: 1, recipient: secondRecipient }],
-    counts: { all: 1, sent: 1, failed: 0, rejected: 0, replaced: 0, unidentified: 0 },
-  };
-  return {
-    items: [...recipients.map((recipient, index) => ({ kind: "recipient", display_order: index + 1, recipient })), { kind: "rejected", display_order: 6, rejected_contact: rejected }],
-    counts: { all: 6, sent: 4, failed: 1, rejected: 1, replaced: 0, unidentified: 0 },
-  };
-}
-function responseFor(body, batchId) {
-  const selected = recipients.filter((recipient) => body.recipient_ids.includes(recipient.id));
-  const queued = selected.filter((recipient) => recipient.message_statuses.some((state) => state.message_type === body.message_type && state.status !== "queued"));
-  const noSaved = selected.filter((recipient) => !recipient.message_statuses.some((state) => state.message_type === body.message_type));
-  return {
-    batch_id: batchId, selected: selected.length, queued: queued.length,
-    sent: 0, failed: 0, delivery_unknown: 0, skipped_already_sent: 0,
-    skipped_in_progress: selected.length - queued.length - noSaved.length,
-    skipped_delivery_unknown: 0, skipped_no_saved_message: noSaved.length,
-    skipped_replaced: 0, skipped_ineligible: 0, replayed: false,
-    results: queued.map((recipient) => ({ recipient_id: recipient.id, phone_number: recipient.phone_number, status: "queued" })),
-  };
-}
-
-function savedContent(recipient, type) {
-  return type === "welcome"
-    ? `Welcome ${recipient.name}. Your ${recipient.id === recipients[0].id ? "Operations" : "Delegate"} travel arrangements are ready.`
-    : `Please check the passport details for ${recipient.name} before your departure.`;
-}
-function savedIntro(recipient) {
-  return `Hello ${recipient.name}, please use your secure personal document link below.`;
-}
-function passportUrl(recipient) {
-  return `https://travel.example.test/private-passport/${recipient.id}/sample-personal-token`;
-}
-function previewFor(body) {
-  const selected = recipients.filter((recipient) => body.recipient_ids.includes(recipient.id));
-  const selectedRecipient = selected.find((recipient) => recipient.id === body.preview_recipient_id) ?? selected[0];
-  const outcome = responseFor(body, "preview-only");
-  const content = body.message_content ?? savedContent(selectedRecipient, body.message_type);
-  const intro = body.passport_intro ?? savedIntro(selectedRecipient);
-  const link = passportUrl(selectedRecipient);
-  return {
-    message_type: body.message_type, template_name: `sample_${body.message_type}_approved_v3`,
-    recipient_id: selectedRecipient.id, recipient_name: selectedRecipient.name,
-    recipient_count: selected.length, selected: selected.length,
-    eligible_recipient_ids: outcome.results.map((result) => result.recipient_id),
-    eligible_recipient_count: outcome.queued, already_sent_count: selected.filter((recipient) => recipient.message_statuses.some((status) => status.message_type === body.message_type && status.already_sent)).length,
-    in_progress_count: outcome.skipped_in_progress, uncertain_recipient_count: 0,
-    skipped_in_progress: outcome.skipped_in_progress, skipped_delivery_unknown: 0,
-    skipped_no_saved_message: outcome.skipped_no_saved_message, skipped_replaced: 0, skipped_ineligible: 0,
-    passport_intro: body.message_type === "passport_link" ? intro : null,
-    passport_link: body.message_type === "passport_link" ? link : null,
-    message_content: content, header_image_id: body.header_image_id ?? `saved-image-${selectedRecipient.id}`,
-    content_source: "latest_recipient", header_parameter_values: [], parameter_values: [content],
-    rendered_message: `Dear ${selectedRecipient.name},\n\nGreetings from Global Connect Travels.\n\n${body.message_type === "passport_link" ? `${intro}\n\n${link}\n\n` : ""}${content}\n\nRegards,\nTeam Global Connect Travels`,
-  };
-}
-async function syntheticHeader(page) {
-  const base64 = await page.evaluate(() => {
-    const canvas = document.createElement("canvas");
-    canvas.width = 640; canvas.height = 400;
-    const context = canvas.getContext("2d");
-    context.fillStyle = "#173b59"; context.fillRect(0, 0, 640, 400);
-    context.fillStyle = "#ffffff"; context.font = "bold 32px sans-serif";
-    context.fillText("Synthetic recipient preview", 34, 190);
-    return canvas.toDataURL("image/png").split(",")[1];
-  });
-  return { name: "sample-bulk-header.png", mimeType: "image/png", buffer: Buffer.from(base64, "base64") };
-}
-
-async function createCase(browser, viewport, name) {
-  const context = await browser.newContext({ viewport, serviceWorkers: "block" });
-  const page = await context.newPage();
-  page.setDefaultTimeout(25_000);
-  const state = { errors: [], requests: [], blocked: [], bulkRequests: [], previewRequests: [], uploads: [], holdNext: false, failNext: false, advanceOnFailure: false, lostReceipt: null, failedPreviewCount: 0, holdNextPreview: false, release: null, releasePreview: null, activities: new Map() };
-  page.on("pageerror", (error) => state.errors.push(String(error)));
-  await context.addCookies([{ name: "access_token", value: "synthetic-local-session", domain: origin.hostname, path: "/", httpOnly: true, sameSite: "Lax" }]);
-  await page.route("**/*", async (route) => {
-    const request = route.request();
-    const url = new URL(request.url());
-    if (url.origin !== origin.origin) {
-      state.blocked.push(`${request.method()} ${request.url()}`);
-      return route.abort("blockedbyclient");
-    }
-    if (!url.pathname.startsWith("/api/")) {
-      if (!["GET", "HEAD"].includes(request.method())) {
-        state.blocked.push(`${request.method()} ${url.pathname}`);
-        return route.abort("blockedbyclient");
-      }
-      return route.continue();
-    }
-    state.requests.push(`${request.method()} ${url.pathname}`);
-    const json = (body, responseStatus = 200) => route.fulfill({ status: responseStatus, contentType: "application/json", body: JSON.stringify(body) });
-    if (url.pathname === "/api/v1/auth/me") return json(user);
-    if (url.pathname === "/api/v1/auth/refresh") return json({ status: "authenticated", user, token_type: "bearer", access_token_expires_at: "2099-01-01T00:00:00Z" });
-    if (url.pathname === "/api/v1/notifications/feed") return json({ items: [], unread_count: 0, next_cursor: null });
-    if (url.pathname === "/api/v1/whatsapp/groups") return json(groups);
-    const currentRecipient = (recipient) => state.lostReceipt?.body.recipient_ids.includes(recipient.id)
-      ? { ...recipient, message_statuses: recipient.message_statuses.map((status) => status.message_type === state.lostReceipt.body.message_type ? { ...status, latest_resend_status: "queued", resend_blocked: true } : status) }
-      : recipient;
-    for (const group of groups) {
-      if (url.pathname === `/api/v1/whatsapp/groups/${group.id}` && request.method() === "GET") {
-        const data = detail(group);
-        return json(state.lostReceipt ? { ...data, updated_at: "2026-09-08T01:00:00Z", recipients: data.recipients.map(currentRecipient) } : data);
-      }
-      if (url.pathname === `/api/v1/whatsapp/groups/${group.id}/recipient-roster` && request.method() === "GET") {
-        const data = roster(group);
-        return json(state.lostReceipt ? { ...data, items: data.items.map((item) => item.kind === "recipient" ? { ...item, recipient: currentRecipient(item.recipient) } : item) } : data);
-      }
-    }
-    if (url.pathname === `/api/v1/whatsapp/groups/${groups[0].id}/recipients/resend/preview` && request.method() === "POST") {
-      const body = request.postDataJSON();
-      state.previewRequests.push(body);
-      if (state.lostReceipt) {
-        state.failedPreviewCount++;
-        return json({ error: { code: "NO_ELIGIBLE_RECIPIENTS", message: "The selected recipients are already queued. No eligible saved message is available for a new resend." } }, 409);
-      }
-      if (state.holdNextPreview) {
-        state.holdNextPreview = false;
-        await new Promise((release) => { state.releasePreview = release; });
-        state.releasePreview = null;
-      }
-      if (body.message_content !== null && body.message_content !== undefined && !body.message_content.trim()) {
-        return json({ error: { code: "INVALID_MESSAGE_CONTENT", message: "Message content cannot be empty." } }, 422);
-      }
-      return json(previewFor(body));
-    }
-    if (url.pathname === `/api/v1/whatsapp/groups/${groups[0].id}/welcome-media` && request.method() === "POST") {
-      state.uploads.push({ contentType: request.headers()["content-type"], bodyLength: request.postDataBuffer()?.length });
-      return json({ media_id: `uploaded-header-${state.uploads.length}`, file_name: "sample-bulk-header.png", content_type: "image/png" });
-    }
-    if (url.pathname === `/api/v1/whatsapp/groups/${groups[0].id}/recipients/resend` && request.method() === "POST") {
-      const body = request.postDataJSON();
-      state.bulkRequests.push(body);
-      if (state.failNext) {
-        state.failNext = false;
-        if (state.advanceOnFailure) state.lostReceipt = { body, response: responseFor(body, "synthetic-lost-response-batch") };
-        return route.abort("failed");
-      }
-      if (state.lostReceipt) {
-        if (JSON.stringify(body) !== JSON.stringify(state.lostReceipt.body)) return json({ error: { code: "RECEIPT_MISMATCH", message: "A retry must use the original request and draft." } }, 409);
-        return json({ ...state.lostReceipt.response, replayed: true });
-      }
-      if (state.holdNext) {
-        state.holdNext = false;
-        await new Promise((release) => { state.release = release; });
-        state.release = null;
-      }
-      const batchId = `synthetic-bulk-batch-${state.bulkRequests.length}`;
-      const result = responseFor(body, batchId);
-      state.activities.set(batchId, {
-        activity_id: batchId, kind: "broadcast", title: `${body.message_type === "welcome" ? "Welcome message" : "Passport link"} resend`,
-        context_label: groups[0].name, source_group_id: groups[0].id, document_type: null,
-        total: result.queued, queued: result.queued, sent: 0, failed: 0, delivery_unknown: 0,
-        started_at: new Date().toISOString(), updated_at: new Date().toISOString(),
-      });
-      return json(result);
-    }
-    const activityId = url.pathname.match(/^\/api\/v1\/whatsapp\/activities\/broadcast\/([^/]+)$/)?.[1];
-    if (activityId && state.activities.has(activityId)) return json(state.activities.get(activityId));
-    if (request.method() === "GET") return json([]);
-    state.blocked.push(`${request.method()} ${url.pathname}`);
-    return json({ error: { code: "LOCAL_TEST_UNEXPECTED_MUTATION", message: "Unexpected mutation blocked by synthetic browser verification." } }, 403);
-  });
-  const result = { name, viewport: viewport.name };
-  return { context, page, state, result };
-}
-
-async function openRecipients(page, group = groups[0]) {
-  await page.getByRole("button", { name: `Open actions for ${group.name}`, exact: true }).filter({ visible: true }).click();
-  await page.getByRole("button", { name: "Recipient List", exact: true }).click();
-  const dialog = page.getByRole("dialog", { name: `Recipients — ${group.name}`, exact: true });
-  await expect(dialog).toBeVisible();
-  return dialog;
-}
-function selectionActions(dialog) {
-  return dialog.locator('[aria-label="Selected recipients"], [aria-label="Selected recipient actions"]').filter({ visible: true });
-}
-async function assertFit(dialog, viewport) {
-  const dimensions = await dialog.evaluate((element) => {
-    const box = element.getBoundingClientRect();
-    return { x: box.x, y: box.y, width: box.width, height: box.height, scrollWidth: element.scrollWidth, clientWidth: element.clientWidth, pageWidth: document.documentElement.scrollWidth };
-  });
-  assert.ok(dimensions.x >= -1 && dimensions.x + dimensions.width <= viewport.width + 1, "Workspace stays within viewport width");
-  assert.ok(dimensions.y >= -1 && dimensions.y + dimensions.height <= viewport.height + 1, "Workspace stays within viewport height");
-  assert.ok(dimensions.scrollWidth <= dimensions.clientWidth + 1, "Workspace does not horizontally overflow");
-  assert.ok(dimensions.pageWidth <= viewport.width + 1, "Page does not horizontally overflow");
-  return dimensions;
-}
-async function review(page, dialog, type) {
-  await selectionActions(dialog).getByRole("button", { name: type === "welcome" ? "Resend welcome" : "Resend passport link", exact: true }).click();
-  const confirmation = page.getByRole("dialog", { name: type === "welcome" ? "Resend Welcome Message" : "Resend Passport Link Message", exact: true });
-  await expect(confirmation).toBeVisible();
-  return confirmation;
-}
-function assertPayload(body, type, ids) {
-  assert.equal(body.message_type, type);
-  assert.deepEqual([...body.recipient_ids].sort(), [...ids].sort(), "Only explicitly selected recipient IDs reach the bulk endpoint");
-  assert.match(body.request_id, /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i, "Every operation has a UUID idempotency key");
-  assert.equal("passport_link" in body, false, "A bulk resend must never replace personal links with one common passport URL");
-}
-
-function sendButton(composer, count = 2) {
-  return composer.getByRole("button", { name: `Resend to ${count} selected`, exact: true });
-}
-async function inspectSavedPreview(composer, state, type) {
-  const editor = composer.getByLabel(type === "welcome" ? "Welcome trip message" : "Passport instructions", { exact: true });
-  await expect(editor).toHaveValue(savedContent(recipients[0], type));
-  await expect(sendButton(composer)).toBeEnabled();
-  const fromIndex = state.previewRequests.length;
-  const picker = composer.getByRole("combobox", { name: "Preview recipient", exact: true });
-  await expect(picker.locator("option")).toHaveCount(2);
-  if (type === "passport_link") await expect(composer.getByRole("textbox", { name: "Passport upload link", exact: true })).toHaveValue(passportUrl(recipients[0]));
-  await picker.selectOption(recipients[1].id);
-  await expect(editor).toHaveValue(savedContent(recipients[1], type));
-  await expect(sendButton(composer)).toBeEnabled();
-  await picker.selectOption(recipients[0].id);
-  await expect(editor).toHaveValue(savedContent(recipients[0], type));
-  await expect(sendButton(composer)).toBeEnabled();
-  await picker.selectOption(recipients[1].id);
-  await expect(editor).toHaveValue(savedContent(recipients[1], type));
-  await expect(sendButton(composer)).toBeEnabled();
-  assert.ok(state.previewRequests.slice(fromIndex).every((body) => body.message_content == null && body.passport_intro == null && body.header_image_id == null && body.support_contact_ids == null), "Switching preview recipients must not turn their saved values into shared overrides");
-  if (type === "passport_link") {
-    await expect(composer.getByRole("textbox", { name: "Passport upload link", exact: true })).toHaveValue(passportUrl(recipients[1]));
-    await expect(composer.getByRole("textbox", { name: "Passport upload link", exact: true })).toHaveAttribute("readonly", "");
-    await expect(composer.getByLabel("Passport link introduction", { exact: true })).toHaveValue(savedIntro(recipients[1]));
-  }
-  await expect(composer.getByText(/previous recipients? will be skipped automatically/i)).toHaveCount(0);
-  return editor;
-}
-
-async function verifyDeliveryFilters(dialog) {
-  const filters = dialog.getByRole("group", { name: "Recipient delivery filters", exact: true });
-  await expect(filters.getByRole("button")).toHaveText([
-    /^All\s*\d+$/, /^Sent\s*\d+$/, /^Not Sent\s*\d+$/,
-    /^Delivery left\s*\d+$/, /^Failed\s*\d+$/, /^Need Review\s*\d+$/,
-  ]);
-  const expectRecipients = async (indices) => {
-    for (const [index, recipient] of recipients.entries()) {
-      const checkbox = dialog.getByRole("checkbox", { name: `Select ${recipient.name}`, exact: true });
-      if (indices.includes(index)) await expect(checkbox).toBeVisible();
-      else await expect(checkbox).toHaveCount(0);
-    }
-  };
-  const messageType = dialog.getByRole("combobox", { name: "Message type", exact: true });
-  await expect(messageType).toHaveValue("welcome");
-  await filters.getByRole("button", { name: /^Delivery left\s*3$/ }).click();
-  await expectRecipients([0, 1, 4]);
-  await filters.getByRole("button", { name: /^Failed\s*1$/ }).click();
-  await expectRecipients([2]);
-  await messageType.selectOption("passport_link");
-  await filters.getByRole("button", { name: /^Delivery left\s*3$/ }).click();
-  await expectRecipients([0, 1, 3]);
-  await filters.getByRole("button", { name: /^Not Sent\s*1$/ }).click();
-  await expectRecipients([4]);
-  await messageType.selectOption("welcome");
-  await expect(filters.getByRole("button", { name: /^All\s*5$/ })).toHaveAttribute("aria-pressed", "true");
-  await expectRecipients([0, 1, 2, 3, 4]);
-}
-
-async function verifyFiltersOnly(browser, viewport) {
-  const { context, page, state, result } = await createCase(browser, viewport, `${viewport.name}-delivery-filters`);
-  try {
-    const response = await page.goto(`${origin.origin}/whatsapp`);
-    assert.equal(response.status(), 200);
-    const dialog = await openRecipients(page);
-    await verifyDeliveryFilters(dialog);
-    result.dimensions = await assertFit(dialog, viewport);
-    await dialog.getByRole("group", { name: "Recipient delivery filters", exact: true })
-      .getByRole("button", { name: /^Delivery left\s*3$/ }).click();
-    await page.screenshot({ path: join(output, `${viewport.name}-delivery-filters.png`), animations: "disabled" });
-    assert.equal(state.bulkRequests.length, 0, "Reviewing filters never sends a message");
-    assert.deepEqual(state.errors, [], "No browser runtime errors");
-    assert.deepEqual(state.blocked, [], "No unexpected mutations or external requests attempted");
-    return { ...result, status: "passed", exactSixFilters: true, deliveryLeftScopedByMessageType: true, failedAndQueuedExcluded: true };
-  } catch (error) {
-    await page.screenshot({ path: join(output, `${viewport.name}-delivery-filters-failure.png`), animations: "disabled" }).catch(() => {});
-    throw Object.assign(error, { caseResult: { ...result, status: "failed", error: String(error), errors: state.errors, blocked: state.blocked, requests: state.requests } });
-  } finally {
-    await context.close();
-  }
-}
-
-async function verifyWorkspace(browser, viewport) {
-  const fixture = await createCase(browser, viewport, `${viewport.name}-recipient-selection`);
-  const { context, page, state, result } = fixture;
-  try {
-    const response = await page.goto(`${origin.origin}/whatsapp`);
-    assert.equal(response.status(), 200);
-    const dialog = await openRecipients(page);
-    await verifyDeliveryFilters(dialog);
-    const actions = selectionActions(dialog);
-    const search = dialog.getByRole("searchbox", { name: "Search current recipients", exact: true });
-    await dialog.getByRole("checkbox", { name: `Select ${recipients[0].name}`, exact: true }).check();
-    await search.fill("Bruno");
-    await expect(dialog.getByRole("checkbox", { name: `Select ${recipients[0].name}`, exact: true })).toHaveCount(0);
-    await dialog.getByRole("checkbox", { name: "Select all matching recipients", exact: true }).check();
-    await expect(actions).toContainText(/2 selected|2 recipients/i);
-    await search.fill("");
-    await expect(dialog.getByRole("checkbox", { name: `Select ${recipients[0].name}`, exact: true })).toBeChecked();
-    await expect(dialog.getByRole("checkbox", { name: `Select ${recipients[1].name}`, exact: true })).toBeChecked();
-    await dialog.getByRole("group", { name: "Recipient delivery filters", exact: true }).getByRole("button", { name: /^Failed\b/ }).click();
-    await expect(dialog.getByRole("checkbox", { name: `Select ${recipients[2].name}`, exact: true })).toBeVisible();
-    await expect(actions).toContainText(/2 selected|2 recipients/i);
-    await dialog.getByRole("group", { name: "Recipient delivery filters", exact: true }).getByRole("button", { name: /^All\b/ }).click();
-    await expect(dialog.getByRole("checkbox", { name: "Select Rejected Sample", exact: true })).toHaveCount(0);
-    result.selectionPersistsAcrossSearchAndStatus = true;
-    result.rejectedRowsNotSelectable = true;
-    result.dimensions = await assertFit(dialog, viewport);
-    await page.screenshot({ path: join(output, `${viewport.name}-selected.png`), animations: "disabled" });
-
-    let confirmation = await review(page, dialog, "welcome");
-    await expect(page.getByRole("dialog")).toHaveCount(1);
-    await expect(confirmation).toContainText(/2/);
-    assert.equal(state.bulkRequests.length, 0, "Review does not send a message");
-    result.confirmationDimensions = await assertFit(confirmation, viewport);
-    await page.screenshot({ path: join(output, `${viewport.name}-review.png`), animations: "disabled" });
-    await expect(sendButton(confirmation)).toBeEnabled();
-    await sendButton(confirmation).focus();
-    await page.keyboard.press("Tab");
-    await expect(confirmation.getByRole("button", { name: "Close dialog", exact: true })).toBeFocused();
-    await page.keyboard.press("Escape");
-    await expect(dialog).toBeVisible();
-    await expect(page.getByRole("dialog")).toHaveCount(1);
-    await expect(dialog.getByRole("checkbox", { name: `Select ${recipients[0].name}`, exact: true })).toBeChecked();
-    result.reviewFocusAndEscapeKeepWorkspaceSelection = true;
-    confirmation = await review(page, dialog, "welcome");
-    const welcomeEditor = await inspectSavedPreview(confirmation, state, "welcome");
-    result.savedMessagesChangePerPreviewRecipientWithoutSharedOverrides = true;
-    await welcomeEditor.fill("");
-    await expect(sendButton(confirmation)).toBeDisabled();
-    const editedWelcome = "Please review your updated Singapore conference arrangements before departure.";
-    state.holdNextPreview = true;
-    await welcomeEditor.fill(editedWelcome);
-    await expect.poll(() => state.releasePreview !== null).toBe(true);
-    await expect(sendButton(confirmation)).toBeDisabled();
-    assert.equal(state.bulkRequests.length, 0, "Edited wording cannot send using a stale preview");
-    state.releasePreview();
-    await expect(sendButton(confirmation)).toBeEnabled();
-    await expect(confirmation.getByTestId("whatsapp-message-preview")).toContainText(editedWelcome);
-    await page.screenshot({ path: join(output, `${viewport.name}-edited-welcome.png`), animations: "disabled" });
-    result.emptyBodyAndStalePreviewBlockSending = true;
-    state.holdNext = true;
-    await sendButton(confirmation).click();
-    await expect.poll(() => state.bulkRequests.length).toBe(1);
-    await expect(sendButton(confirmation)).toBeDisabled();
-    await page.keyboard.press("Enter");
-    assert.equal(state.bulkRequests.length, 1, "A pending operation cannot submit twice");
-    assertPayload(state.bulkRequests[0], "welcome", [recipients[0].id, recipients[1].id]);
-    assert.equal(state.bulkRequests[0].message_content, editedWelcome);
-    assert.equal(state.bulkRequests[0].header_image_id ?? null, null, "An unchanged image preserves each recipient's saved image");
-    assert.equal(state.bulkRequests[0].support_contact_ids ?? null, null);
-    state.release();
-    await expect(confirmation).toHaveCount(0);
-    await expect(actions).toContainText(/2 selected|2 recipients/i);
-    result.confirmationAndPendingLockVerified = true;
-
-    const passportReview = await review(page, dialog, "passport_link");
-    const passportEditor = await inspectSavedPreview(passportReview, state, "passport_link");
-    const editedPassport = "Please submit a clear passport scan and review all passenger details.";
-    const editedIntro = "Your team has updated the passport submission instructions.";
-    await passportEditor.fill(editedPassport);
-    await passportReview.getByLabel("Passport link introduction", { exact: true }).fill(editedIntro);
-    await expect(sendButton(passportReview)).toBeEnabled();
-    await expect(passportReview.getByTestId("whatsapp-message-preview")).toContainText(editedPassport);
-    await expect(passportReview.getByTestId("whatsapp-message-preview")).toContainText(editedIntro);
-    await expect(passportReview.getByTestId("whatsapp-message-preview")).toContainText(passportUrl(recipients[1]));
-    await page.screenshot({ path: join(output, `${viewport.name}-edited-passport.png`), animations: "disabled" });
-    await sendButton(passportReview).click();
-    await expect.poll(() => state.bulkRequests.length).toBe(2);
-    await expect(passportReview).toHaveCount(0);
-    assertPayload(state.bulkRequests[1], "passport_link", [recipients[0].id, recipients[1].id]);
-    assert.equal(state.bulkRequests[1].message_content, editedPassport);
-    assert.equal(state.bulkRequests[1].passport_intro, editedIntro);
-    assert.equal(state.bulkRequests[1].support_contact_ids ?? null, null);
-    assert.equal(state.uploads.length, 0, "Keeping saved images causes no unnecessary uploads");
-    assert.notEqual(state.bulkRequests[0].request_id, state.bulkRequests[1].request_id, "Different operations have different request IDs");
-    result.bothMessageTypesUseExplicitSelection = true;
-    await expect.poll(async () => page.evaluate(() => JSON.parse(sessionStorage.getItem("passdetection:whatsapp:tracked-activities:v1") ?? "[]").length)).toBe(2);
-    const tracked = await page.evaluate(() => JSON.parse(sessionStorage.getItem("passdetection:whatsapp:tracked-activities:v1") ?? "[]"));
-    assert.deepEqual(tracked.map((activity) => activity.id).sort(), ["synthetic-bulk-batch-1", "synthetic-bulk-batch-2"]);
-    assert.ok(tracked.every((activity) => activity.total === 2 && activity.sourceGroupId === groups[0].id));
-    result.batchesRegisteredWithGlobalActivityTracker = true;
-
-    await actions.getByRole("button", { name: "Clear selection", exact: true }).click();
-    await actions.getByRole("button", { name: "Select all 5 broadcast recipients", exact: true }).click();
-    for (const recipient of recipients) await expect(dialog.getByRole("checkbox", { name: `Select ${recipient.name}`, exact: true })).toBeChecked();
-    await expect(actions).toContainText(/5 selected|5 recipients/i);
-    const allReview = await review(page, dialog, "welcome");
-    await expect(allReview).toContainText(/skip|progress|pending|unavailable/i);
-    const allPicker = allReview.getByRole("combobox", { name: "Preview recipient", exact: true });
-    await expect(allPicker.locator("option")).toHaveCount(4);
-    await expect(allPicker.locator(`option[value="${recipients[2].id}"]`)).toHaveCount(1);
-    await expect(allPicker.locator(`option[value="${recipients[3].id}"]`)).toHaveCount(0);
-    await allReview.getByRole("button", { name: "Close dialog", exact: true }).click();
-    const allPassportReview = await review(page, dialog, "passport_link");
-    const passportPicker = allPassportReview.getByRole("combobox", { name: "Preview recipient", exact: true });
-    await expect(passportPicker.locator("option")).toHaveCount(4);
-    await expect(passportPicker.locator(`option[value="${recipients[4].id}"]`)).toHaveCount(0);
-    await allPassportReview.getByRole("button", { name: "Close dialog", exact: true }).click();
-    result.allBroadcastAndInProgressReviewVerified = true;
-    result.failedMessagesAllowedAndUnavailableSavedMessagesSkipped = true;
-
-    const navigation = dialog.getByRole("navigation", { name: "Broadcast workspace", exact: true });
-    await navigation.getByRole("button", { name: /^Add recipients\b/ }).click();
-    await expect(dialog.getByRole("textbox", { name: /^Name$/ })).toBeVisible();
-    await expect(dialog.getByRole("checkbox", { name: "Select all matching recipients", exact: true })).toHaveCount(0);
-    await page.screenshot({ path: join(output, `${viewport.name}-add-recipients.png`), animations: "disabled" });
-    await navigation.getByRole("button", { name: /^Broadcast details\b/ }).click();
-    await expect(dialog.getByRole("textbox", { name: /Broadcast name|Group name/ })).toBeVisible();
-    await navigation.getByRole("button", { name: /^Recipients\b/ }).click();
-    await expect(selectionActions(dialog)).toContainText(/5 selected|5 recipients/i);
-    result.sectionsSeparateFormsFromRoster = true;
-
-    await dialog.getByLabel(`Actions for ${recipients[4].name}`, { exact: true }).click();
-    const removeLastRecipient = dialog.getByRole("button", { name: `Remove ${recipients[4].name} from broadcast`, exact: true });
-    await expect(removeLastRecipient).toBeInViewport({ ratio: 1 });
-    await expect(dialog.getByRole("button", { name: `Resend Welcome message to ${recipients[4].name}`, exact: true })).toBeInViewport({ ratio: 1 });
-    await page.screenshot({ path: join(output, `${viewport.name}-last-row-actions.png`), animations: "disabled" });
-    await removeLastRecipient.focus();
-    result.menuBeforeEscape = await removeLastRecipient.evaluate((element) => ({ open: element.closest("details")?.open, focused: element === document.activeElement, activeTag: document.activeElement?.tagName }));
-    await expect(removeLastRecipient).toBeVisible();
-    await page.keyboard.press("Escape");
-    await expect(dialog).toBeVisible();
-    await expect(removeLastRecipient).not.toBeVisible();
-    result.lastRowActionsVisibleAndEscapeScoped = true;
-
-    await dialog.getByRole("button", { name: "Close dialog", exact: true }).click();
-    const secondDialog = await openRecipients(page, groups[1]);
-    await expect(secondDialog.getByRole("checkbox", { name: `Select ${secondRecipient.name}`, exact: true })).not.toBeChecked();
-    await expect(selectionActions(secondDialog).getByRole("button", { name: "Resend welcome", exact: true })).toBeDisabled();
-    result.selectionDoesNotLeakToAnotherBroadcast = true;
-    assert.deepEqual(state.errors, [], "No browser runtime errors");
-    assert.deepEqual(state.blocked, [], "No unexpected mutations or external requests attempted");
-    return { ...result, status: "passed", bulkRequests: state.bulkRequests, requests: state.requests };
-  } catch (error) {
-    await page.screenshot({ path: join(output, `${viewport.name}-failure.png`), animations: "disabled" }).catch(() => {});
-    throw Object.assign(error, { caseResult: { ...result, status: "failed", error: String(error), errors: state.errors, blocked: state.blocked, requests: state.requests, bulkRequests: state.bulkRequests } });
-  } finally {
-    state.release?.();
-    state.releasePreview?.();
-    await context.close();
-  }
-}
-
-async function verifyUncertainRetry(browser) {
-  const fixture = await createCase(browser, viewports[0], "uncertain-request-retry");
-  const { context, page, state, result } = fixture;
-  try {
-    await page.goto(`${origin.origin}/whatsapp`);
-    const dialog = await openRecipients(page);
-    await dialog.getByRole("checkbox", { name: `Select ${recipients[0].name}`, exact: true }).check();
-    await dialog.getByRole("checkbox", { name: `Select ${recipients[1].name}`, exact: true }).check();
-    const confirmation = await review(page, dialog, "welcome");
-    await expect(sendButton(confirmation)).toBeEnabled();
-    await confirmation.locator('input[type="file"]').setInputFiles(await syntheticHeader(page));
-    await expect(sendButton(confirmation)).toBeEnabled();
-    state.failNext = true;
-    state.advanceOnFailure = true;
-    await sendButton(confirmation).click();
-    await expect.poll(() => state.bulkRequests.length).toBe(1);
-    await expect(confirmation.getByRole("alert").first()).toBeVisible();
-    await confirmation.getByRole("combobox", { name: "Preview recipient", exact: true }).selectOption(recipients[1].id);
-    await expect.poll(() => state.failedPreviewCount, { timeout: 15_000 }).toBeGreaterThan(0);
-    const recover = confirmation.getByRole("button", { name: "Check resend status", exact: true });
-    await expect(recover).toBeEnabled();
-    await recover.click();
-    await expect.poll(() => state.bulkRequests.length).toBe(2);
-    await expect(confirmation).toHaveCount(0);
-    assertPayload(state.bulkRequests[0], "welcome", [recipients[0].id, recipients[1].id]);
-    assert.deepEqual(state.bulkRequests[0], state.bulkRequests[1], "Retry after an uncertain network response reuses the exact operation and request ID");
-    assert.equal(state.uploads.length, 1, "An uncertain send retry reuses the already uploaded image");
-    assert.equal(state.bulkRequests[0].header_image_id, "uploaded-header-1");
-    assert.deepEqual(state.errors, []);
-    assert.deepEqual(state.blocked, []);
-    return { ...result, status: "passed", sameRequestIdOnRetry: true, sameUploadedImageOnRetry: true, freshPreviewUnavailableAfterQueue: true, failedPreviewCount: state.failedPreviewCount, bulkRequests: state.bulkRequests };
-  } catch (error) {
-    await page.screenshot({ path: join(output, "uncertain-retry-failure.png"), animations: "disabled" }).catch(() => {});
-    throw Object.assign(error, { caseResult: { ...result, status: "failed", error: String(error), errors: state.errors, requests: state.requests, bulkRequests: state.bulkRequests } });
-  } finally { await context.close(); }
-}
-
+import { localOrigin, viewports, assertClean, assertNoOverflow, assertDialogBoundary, assertMessagePane, syntheticHeader } from "./browser-verification-local-fixture.mjs";
+import { whatsappFixture, openComposer, catalog, groups, recipients, personalLink, savedMessage } from "./browser-verification-whatsapp-fixture.mjs";
+const frontend = resolve(dirname(fileURLToPath(import.meta.url)), ".."), origin = localOrigin();
+const output = join(frontend, "test-results/whatsapp-recipient-bulk-browser"); await mkdir(output, { recursive: true });
+const index = process.argv.indexOf("--case"), requested = index < 0 ? "all" : process.argv[index + 1];
+assert.ok(["all", "desktop", "mobile", "retry", "filters"].includes(requested));
+const report = { origin: origin.origin, evidence: "Current route-owned workspace; every API response synthetic; no provider calls", cases: [] };
+const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 let browser;
-try {
-  browser = await chromium.launch({ headless: true });
-  report.browser = browser.version();
-  if (requestedCase === "filters") {
-    for (const viewport of viewports) {
-      report.cases.push(await verifyFiltersOnly(browser, viewport));
-      console.log(`PASS ${viewport.name} delivery filters`);
+async function verifyFilters(flow) {
+  const { page, state } = flow;
+  await page.goto(`${origin.origin}/whatsapp/${groups[0].id}/recipients`);
+  await expect(page.getByRole("button", { name: /^All recipients/ })).toBeVisible();
+  await page.getByRole("button", { name: /^Welcome failed/ }).click();
+  await expect(page.getByRole("table").getByRole("row")).toHaveCount(2);
+  await expect(page.getByRole("table")).toContainText(recipients[2].name);
+  await page.getByRole("button", { name: /^Contact issues/ }).click();
+  await expect(page.getByRole("table")).toContainText("Rejected Synthetic");
+  await expect(page.getByRole("checkbox", { name: /Rejected Synthetic/ })).toHaveCount(0);
+  await page.goto(`${origin.origin}/whatsapp/${groups[0].id}/history?message=synthetic-passport`);
+  const cases = [["All", 5], ["Sent", 1], ["Not sent", 1], ["Delivery left", 1], ["Failed", 3]];
+  for (const [label, count] of cases) {
+    await page.getByRole("button", { name: `${label} (${count})`, exact: true }).click();
+    await expect(page.getByRole("table").getByRole("row")).toHaveCount(count + 1);
+  }
+  for (const person of [recipients[2], recipients[4]]) {
+    const row = page.getByRole("row").filter({ hasText: person.name });
+    await expect(row.getByRole("button", { name: "Resend", exact: true })).toBeDisabled();
+  }
+  await expect(page.getByText("Delivery is unconfirmed. Resending is paused to avoid duplicates.")).toHaveCount(2);
+  await page.getByRole("searchbox", { name: "Search delivery recipients", exact: true }).fill("Bruno");
+  await expect(page.getByRole("table").getByRole("row")).toHaveCount(2);
+  assert.equal(state.sends.length + state.resends.length, 0, "Filtering never sends a message");
+  await assertNoOverflow(page); return true;
+}
+async function verifyHistorical(flow) {
+  const { page, state } = flow;
+  for (const type of ["welcome", "passport_link"]) {
+    await page.goto(`${origin.origin}/whatsapp/${groups[0].id}/history?message=synthetic-${type === "welcome" ? "welcome" : "passport"}`);
+    for (const [personIndex, action] of [[0, "Resend"], [1, "Retry"]]) {
+      const person = recipients[personIndex], row = page.getByRole("row").filter({ hasText: person.name });
+      await row.getByRole("button", { name: action, exact: true }).click();
+      const dialog = page.getByRole("dialog", { name: `${action} this message`, exact: true });
+      await expect(dialog).toContainText(savedMessage(person, type));
+      await expect(dialog).not.toContainText(savedMessage(recipients[1 - personIndex], type));
+      if (type === "passport_link") { await expect(dialog).toContainText(personalLink(person)); await expect(dialog).not.toContainText(personalLink(recipients[1 - personIndex])); }
+      await expect(dialog.getByRole("textbox"), "Historical resends retain exact saved content rather than shared editable overrides").toHaveCount(0);
+      await assertMessagePane(page, dialog.locator(".whitespace-pre-wrap"));
+      await assertDialogBoundary(page, dialog);
+      state.failResend = personIndex === 1; const before = state.resends.length;
+      await dialog.getByRole("button", { name: "Send to this recipient", exact: true }).click();
+      if (personIndex === 1) {
+        await dialog.getByRole("button", { name: "Check resend status", exact: true }).click();
+        await expect.poll(() => state.resends.length).toBe(before + 2);
+        assert.deepEqual(state.resends[before], state.resends[before + 1], "Uncertain historical retry keeps the same source log, recipient and request ID");
+      }
+      await expect(dialog.getByRole("status")).toContainText("Send request recorded");
+      const record = state.resends[before]; assert.equal(record.recipientId, person.id); assert.equal(record.groupId, groups[0].id);
+      assert.equal(record.body.message_type, type); assert.equal(record.body.source_message_log_id, `saved-${type}-${person.id}`); assert.match(record.body.request_id, uuid);
+      for (const key of ["passport_link", "message_content", "header_image_id", "recipient_ids"]) assert.equal(key in record.body, false, "Saved resend cannot leak a common content/link override");
+      await dialog.getByRole("button", { name: "Done", exact: true }).click();
     }
   }
-  for (const viewport of viewports.filter((candidate) => requestedCase === "all" || candidate.name === requestedCase)) {
-    report.cases.push(await verifyWorkspace(browser, viewport));
-    console.log(`PASS ${viewport.name} recipient workspace`);
-  }
-  if (requestedCase === "all" || requestedCase === "retry") {
-    report.cases.push(await verifyUncertainRetry(browser));
-    console.log("PASS uncertain response retry");
-  }
-  report.status = "passed";
-} catch (error) {
-  report.status = "failed";
-  report.error = String(error);
-  if (error.caseResult) report.cases.push(error.caseResult);
-  console.error(error);
-  process.exitCode = 1;
-} finally {
-  await browser?.close();
-  await writeFile(join(output, "report.json"), `${JSON.stringify(report, null, 2)}\n`);
+  assert.equal(state.media.length, 0, "Saved source resends do not upload images again");
 }
+async function verifyWorkspace(viewport) {
+  const flow = await whatsappFixture(browser, origin, viewport), { page, state, diagnostics } = flow;
+  const result = { name: `${viewport.name}-current-selection-history`, viewport: viewport.name }; report.cases.push(result);
+  try {
+    await verifyFilters(flow); await verifyHistorical(flow);
+    await openComposer(page, origin, catalog[0]);
+    const welcomeAudience = page.getByRole("region", { name: "Message audience" });
+    await expect(welcomeAudience.getByRole("checkbox", { name: `Select ${recipients[0].name}`, exact: true })).toHaveCount(0);
+    await expect(welcomeAudience.getByRole("checkbox", { name: `Select ${recipients[3].name}`, exact: true })).toHaveCount(0);
+    await expect(welcomeAudience.getByRole("checkbox", { name: `Select ${recipients[2].name}`, exact: true })).toBeVisible();
+    await openComposer(page, origin, catalog[1]);
+    await page.getByRole("checkbox", { name: /Include people who received a previous passport link/ }).check();
+    const audience = page.getByRole("region", { name: "Message audience" });
+    await expect(audience.getByRole("checkbox", { name: /^Select / })).toHaveCount(2);
+    for (const index of [2, 3, 4]) await expect(audience.getByRole("checkbox", { name: `Select ${recipients[index].name}`, exact: true })).toHaveCount(0);
+    await audience.getByRole("button", { name: "Deselect matching", exact: true }).click();
+    await audience.getByRole("checkbox", { name: `Select ${recipients[0].name}`, exact: true }).check();
+    const search = audience.getByRole("searchbox", { name: "Search send recipients" });
+    await search.fill("Bruno"); await expect(audience.getByRole("checkbox", { name: /^Select / })).toHaveCount(1);
+    await audience.getByRole("button", { name: "Select all matching", exact: true }).click(); await search.fill("");
+    await expect(audience.getByRole("checkbox", { name: /^Select / })).toHaveCount(2); for (const box of await audience.getByRole("checkbox", { name: /^Select / }).all()) await expect(box).toBeChecked();
+    const editor = page.getByRole("textbox", { name: "Instructions", exact: true }), review = page.getByRole("button", { name: "Review message", exact: true });
+    await page.getByLabel("Header image", { exact: true }).setInputFiles(await syntheticHeader(page));
+    await expect(review).toBeEnabled(); await editor.fill(""); await expect(review).toBeDisabled();
+    state.holdPreview = true; await editor.fill("Review your updated synthetic travel document instructions.");
+    await expect.poll(() => Boolean(state.releasePreview)).toBe(true); await expect(review).toBeDisabled(); state.releasePreview(); await expect(review).toBeEnabled();
+    await review.click(); let dialog = page.getByRole("dialog", { name: "Review and send", exact: true });
+    await assertMessagePane(page, dialog.locator(".whitespace-pre-wrap"));
+    await assertDialogBoundary(page, dialog); await page.keyboard.press("Escape"); await expect(dialog).toHaveCount(0);
+    for (const box of await audience.getByRole("checkbox", { name: /^Select / }).all()) await expect(box).toBeChecked();
+    await review.click(); dialog = page.getByRole("dialog", { name: "Review and send", exact: true }); state.holdSend = true;
+    await dialog.getByRole("button", { name: "Send 2 messages", exact: true }).click(); await expect.poll(() => state.sends.length).toBe(1);
+    await expect(dialog.getByRole("button").last()).toBeDisabled();
+    await page.keyboard.press("Enter"); assert.equal(state.sends.length, 1, "Pending operation cannot submit twice");
+    await page.keyboard.press("Escape"); await expect(dialog).toBeVisible();
+    const record = state.sends[0]; assert.deepEqual([...record.body.recipient_ids].sort(), recipients.slice(0, 2).map(person => person.id).sort()); assert.match(record.key, uuid);
+    assert.equal(record.body.include_previous_recipients, true); assert.equal(record.body.header_image_id, "synthetic-header");
+    state.releaseSend(); await expect(page).toHaveURL(/history\?message=synthetic-batch-/);
+    assert.equal(state.acceptedKeys.size, 1); assert.equal(state.media.length, 1);
+    await expect.poll(() => page.evaluate(() => JSON.parse(sessionStorage.getItem("passdetection:whatsapp:tracked-activities:v1") ?? "[]").length)).toBe(1);
+    const tracked = await page.evaluate(() => JSON.parse(sessionStorage.getItem("passdetection:whatsapp:tracked-activities:v1") ?? "[]"));
+    assert.equal(tracked[0].sourceGroupId, groups[0].id); assert.equal(tracked[0].total, 2);
+    await page.goto(`${origin.origin}/whatsapp/${groups[1].id}`); await page.getByRole("button", { name: /^Passport link Share secure/ }).click();
+    await page.getByRole("checkbox", { name: /Include people who received a previous passport link/ }).check();
+    await expect(page.getByRole("region", { name: "Message audience" })).toContainText("Other Group Passenger");
+    for (const person of recipients) await expect(page.getByRole("checkbox", { name: `Select ${person.name}`, exact: true })).toHaveCount(0);
+    const dimensions = await assertNoOverflow(page); assertClean(diagnostics);
+    await page.screenshot({ path: join(output, `${viewport.name}-current-workspace.png`), fullPage: true });
+    Object.assign(result, { passed: true, dimensions, savedRecipientIsolation: true, currentSelectionIsolation: true, pendingLock: true, exactSourceResends: state.resends.length });
+  } catch (error) { Object.assign(result, { passed: false, failure: String(error), diagnostics }); await page.screenshot({ path: join(output, `${viewport.name}-failure.png`), fullPage: true }).catch(() => {}); throw error; }
+  finally { state.releasePreview?.(); state.releaseSend?.(); await flow.context.close(); }
+}
+async function verifyUncertainRetry() {
+  const flow = await whatsappFixture(browser, origin, viewports[0], { freshAudience: true }), { page, state, diagnostics } = flow;
+  const result = { name: "uncertain-current-send-recovery" }; report.cases.push(result);
+  try {
+    await openComposer(page, origin, catalog[0]); await page.getByLabel("Header image", { exact: true }).setInputFiles(await syntheticHeader(page));
+    const review = page.getByRole("button", { name: "Review message", exact: true }); await expect(review).toBeEnabled(); await review.click();
+    let dialog = page.getByRole("dialog", { name: "Review and send" }); state.failSend = true;
+    await dialog.getByRole("button", { name: "Send 3 messages", exact: true }).click();
+    await expect.poll(() => state.sends.length).toBe(1); await expect(dialog.getByRole("alert")).toBeVisible();
+    await dialog.getByRole("button", { name: "Back to editing", exact: true }).click();
+    await page.getByRole("textbox", { name: "Welcome message", exact: true }).fill("A different current draft must not replace the earlier reviewed send.");
+    await expect(page.getByRole("button", { name: "Refresh preview", exact: true })).toBeVisible();
+    await page.getByRole("button", { name: "Check earlier send", exact: true }).click(); dialog = page.getByRole("dialog", { name: "Review and send" });
+    await expect(dialog).not.toContainText("A different current draft");
+    await dialog.getByRole("button", { name: "Check send status", exact: true }).click();
+    await expect.poll(() => state.sends.length).toBe(2); await expect(page).toHaveURL(/history\?message=synthetic-batch-/);
+    assert.deepEqual(state.sends[0], state.sends[1]); assert.equal(state.media.length, 1, "Recovery reuses the already uploaded media"); assert.equal(state.acceptedKeys.size, 1);
+    const storage = await page.evaluate(() => Object.entries(sessionStorage).filter(([key]) => key.startsWith("passdetection:whatsapp-send:v1:")));
+    assert.equal(storage.length, 1); assert.ok(!JSON.stringify(storage).includes("Please check"), "Recovery stores opaque hashes, not private message text");
+    assertClean(diagnostics); Object.assign(result, { passed: true, exactPayloadRetry: true, retainedMedia: true, freshPreviewUnavailable: true });
+  } catch (error) { Object.assign(result, { passed: false, failure: String(error), diagnostics }); await page.screenshot({ path: join(output, "uncertain-retry-failure.png"), fullPage: true }).catch(() => {}); throw error; }
+  finally { await flow.context.close(); }
+}
+try {
+  browser = await chromium.launch({ headless: true }); report.browser = browser.version();
+  if (requested === "filters") for (const viewport of viewports) { const flow = await whatsappFixture(browser, origin, viewport); try { await verifyFilters(flow); assertClean(flow.diagnostics); report.cases.push({ name: `${viewport.name}-current-filters`, passed: true }); } finally { await flow.context.close(); } }
+  for (const viewport of viewports.filter(item => requested === "all" || requested === item.name)) { await verifyWorkspace(viewport); console.log(`PASS ${viewport.name} current recipient/history workspace`); }
+  if (["all", "retry"].includes(requested)) { await verifyUncertainRetry(); console.log("PASS current uncertain-send retry"); }
+  report.passed = true;
+} catch (error) { report.passed = false; report.failure = String(error); process.exitCode = 1; }
+finally { await browser?.close(); await writeFile(join(output, "report.json"), JSON.stringify(report, null, 2)); console.log(JSON.stringify({ passed: report.passed, failure: report.failure, cases: report.cases }, null, 2)); }

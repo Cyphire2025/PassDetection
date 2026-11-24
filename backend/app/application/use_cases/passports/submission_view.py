@@ -1,481 +1,100 @@
-"""Full-group filtering, duplicate clustering, sorting, and pagination."""
+"""Prepare the duplicate-aware roster through focused, reusable view owners."""
 
 from __future__ import annotations
 
-import calendar
-import math
-import re
-import unicodedata
-import uuid
-from dataclasses import dataclass
-from datetime import UTC, date, datetime
-from typing import Any
+import calendar as calendar
+import math as math
+import re as re
+import unicodedata as unicodedata
+import uuid as uuid
+from dataclasses import dataclass as dataclass
+from datetime import UTC as UTC
+from datetime import date as date
+from datetime import datetime as datetime
+from typing import Any as Any
 
-from app.domain.value_objects.passport_fields import canonical_country_identity
+from app.domain.value_objects.passport_fields import (
+    canonical_country_identity as canonical_country_identity,
+)
 
-
-@dataclass(frozen=True)
-class SubmissionViewEntry:
-    submission: Any
-    duplicate_cluster_id: str | None
-    duplicate_cluster_size: int
-    duplicate_cluster_member_ids: tuple[uuid.UUID, ...]
-    verification_confidence: float | None
-
-
-@dataclass(frozen=True)
-class ExpiryAlert:
-    submission_id: uuid.UUID
-    client_name: str
-    client_email: str | None
-    passport_number: str | None
-    date_of_expiry: str
-    status: str
-
-
-@dataclass(frozen=True)
-class DuplicateClusterPage:
-    cluster_id: str
-    total_members: int
-    matching_members: int
-    visible_member_ids: tuple[uuid.UUID, ...]
-    first_page: int
-    last_page: int
-
-
-@dataclass(frozen=True)
-class SubmissionViewResult:
-    items: tuple[SubmissionViewEntry, ...]
-    ordered_submission_ids: tuple[uuid.UUID, ...]
-    group_total: int
-    total: int
-    page: int
-    page_size: int
-    total_pages: int
-    returned_count: int
-    duplicate_clusters: tuple[DuplicateClusterPage, ...]
-    cluster_boundaries_preserved: bool
-    expiry_alerts: tuple[ExpiryAlert, ...]
-    document_follow_up_count: int = 0
-
-
-@dataclass(frozen=True)
-class SubmissionViewIdentity:
-    id: uuid.UUID
-    extraction_revision: int
-    updated_at: datetime
-
-
-@dataclass(frozen=True)
-class PreparedSubmissionView:
-    """Reusable computed index; full document payloads are never retained here."""
-
-    pages: tuple[tuple[SubmissionViewEntry, ...], ...]
-    clusters: tuple[tuple[DuplicateClusterPage, ...], ...]
-    ordered_submission_ids: tuple[uuid.UUID, ...]
-    group_total: int
-    total: int
-    page_size: int
-    cluster_boundaries_preserved: bool
-    expiry_alerts: tuple[ExpiryAlert, ...]
-    document_follow_up_count: int = 0
-
-    def page(self, number: int) -> SubmissionViewResult:
-        items = self.pages[number - 1] if 0 < number <= len(self.pages) else ()
-        clusters = self.clusters[number - 1] if 0 < number <= len(self.clusters) else ()
-        return SubmissionViewResult(items=items, ordered_submission_ids=self.ordered_submission_ids,
-            group_total=self.group_total, total=self.total, page=number, page_size=self.page_size,
-            total_pages=len(self.pages), returned_count=len(items), duplicate_clusters=clusters,
-            cluster_boundaries_preserved=self.cluster_boundaries_preserved, expiry_alerts=self.expiry_alerts,
-            document_follow_up_count=self.document_follow_up_count)
-
-
-def _normalized_tokens(value: Any) -> str:
-    text = unicodedata.normalize("NFKC", str(value or "")).casefold()
-    return " ".join(token for token in re.split(r"[^\w]+", text) if token)
-
-
-def _normalized_identifier(value: Any) -> str:
-    return "".join(character for character in _normalized_tokens(value) if character.isalnum())
-
-
-def _field_value(submission: Any, field: str) -> str:
-    confirmed = submission.confirmed_fields or {}
-    extracted = submission.extracted_fields or {}
-    # An explicit reviewed blank (notably surname) is authoritative.
-    if field in confirmed:
-        value = confirmed.get(field)
-    else:
-        value = extracted.get(field)
-    return str(value).strip() if value is not None else ""
-
-
-def _passport_name(submission: Any) -> str:
-    components = [
-        _field_value(submission, "given_names"),
-        _field_value(submission, "surname"),
-    ]
-    passport_name = _normalized_tokens(" ".join(component for component in components if component))
-    if passport_name:
-        return passport_name
-    return _normalized_tokens(submission.client_name)
-
-
-def _place_of_issue_identity(submission: Any) -> str:
-    confirmed = submission.confirmed_fields or {}
-    extracted = submission.extracted_fields or {}
-    if "place_of_issue" in confirmed or "place_of_issue" in extracted:
-        return _normalized_identifier(_field_value(submission, "place_of_issue"))
-
-    # Preserve country-code/name equivalence for old records whose JSON used
-    # the previous field. New records use the visibly printed place text.
-    legacy_value = _field_value(submission, "issuing_country")
-    return canonical_country_identity(legacy_value) if legacy_value else ""
-
-
-def duplicate_identity_key(submission: Any) -> str | None:
-    """Prefer passport+place of issue, with a cautious demographic fallback."""
-
-    passport_number = _normalized_identifier(_field_value(submission, "passport_number"))
-    place_of_issue = _place_of_issue_identity(submission)
-    if passport_number and place_of_issue:
-        return f"passport:{passport_number}:{place_of_issue}"
-
-    name = _passport_name(submission)
-    date_of_birth = _normalized_identifier(_field_value(submission, "date_of_birth"))
-    nationality_value = _field_value(submission, "nationality")
-    nationality = canonical_country_identity(nationality_value) if nationality_value else ""
-    if name and date_of_birth and nationality:
-        return f"fallback:{name}:{date_of_birth}:{nationality}"
-    return None
-
-
-def _cluster_id(member_ids: tuple[uuid.UUID, ...]) -> str:
-    # Submission UUIDs are already response identifiers and avoid deriving a
-    # correlatable token from passport or demographic PII.
-    return f"dup_{member_ids[0].hex}"
-
-
-def _verification_confidence(submission: Any) -> float | None:
-    verification = submission.post_submission_verification
-    verification_usable = True
-    if isinstance(verification, dict):
-        fields = verification.get("fields")
-        if isinstance(fields, list):
-            for field in fields:
-                if not isinstance(field, dict):
-                    continue
-                confidence = field.get("confidence")
-                if (
-                    not isinstance(confidence, (int, float))
-                    or isinstance(confidence, bool)
-                    or confidence <= 0
-                ):
-                    continue
-                observed_value = str(field.get("observed_value") or "").strip()
-                reason_code = str(field.get("reason_code") or "").strip().casefold()
-                if not observed_value or reason_code in {"unreadable", "missing_submitted_value"}:
-                    verification_usable = False
-                    break
-        value = verification.get("confidence")
-        if (
-            verification_usable
-            and isinstance(value, (int, float))
-            and not isinstance(value, bool)
-            and math.isfinite(float(value))
-        ):
-            return float(value)
-    value = submission.overall_confidence
-    if (
-        isinstance(value, (int, float))
-        and not isinstance(value, bool)
-        and math.isfinite(float(value))
-    ):
-        return float(value)
-    return None
-
-
-def _build_blocks(
-    submissions: list[Any],
-) -> list[list[SubmissionViewEntry]]:
-    if not submissions:
-        return []
-    parents = list(range(len(submissions)))
-
-    def find(index: int) -> int:
-        while parents[index] != index:
-            parents[index] = parents[parents[index]]
-            index = parents[index]
-        return index
-
-    def union(left: int, right: int) -> None:
-        left_root = find(left)
-        right_root = find(right)
-        if left_root != right_root:
-            parents[right_root] = left_root
-
-    evidence: list[tuple[str, str, str | None]] = []
-    primary_indexes: dict[str, int] = {}
-    fallback_buckets: dict[str, list[int]] = {}
-    for index, submission in enumerate(submissions):
-        passport_number = _normalized_identifier(_field_value(submission, "passport_number"))
-        place_of_issue = _place_of_issue_identity(submission)
-        primary = (
-            f"{passport_number}:{place_of_issue}" if passport_number and place_of_issue else None
-        )
-        name = _passport_name(submission)
-        birth = _normalized_identifier(_field_value(submission, "date_of_birth"))
-        nationality_value = _field_value(submission, "nationality")
-        nationality = canonical_country_identity(nationality_value) if nationality_value else ""
-        fallback = f"{name}:{birth}:{nationality}" if name and birth and nationality else None
-        evidence.append((passport_number, place_of_issue, fallback))
-        if primary:
-            previous = primary_indexes.setdefault(primary, index)
-            union(previous, index)
-        if fallback:
-            fallback_buckets.setdefault(fallback, []).append(index)
-
-    # Fallback clustering is limited to rows whose primary identity is
-    # incomplete. A complete row can join a place-missing row only when the
-    # passport number and demographic fallback both corroborate.
-    for indexes in fallback_buckets.values():
-        # Partition incomplete evidence in linear time. Equal passport numbers
-        # form a component; an unnumbered row connects the incomplete components
-        # exactly as the former pairwise algorithm did. Complete primary rows
-        # still need the corroboration below, preserving conflict boundaries.
-        incomplete_by_passport: dict[str, list[int]] = {}
-        for index in indexes:
-            passport_number, place, _ = evidence[index]
-            if not (passport_number and place):
-                incomplete_by_passport.setdefault(passport_number, []).append(index)
-        for incomplete_members in incomplete_by_passport.values():
-            for index in incomplete_members[1:]:
-                union(incomplete_members[0], index)
-        unnumbered = incomplete_by_passport.get("")
-        if unnumbered:
-            for incomplete_members in incomplete_by_passport.values():
-                union(unnumbered[0], incomplete_members[0])
-
-        # A place-missing row may bridge to a complete primary row only
-        # when this corroborated passport+fallback bucket contains exactly
-        # one complete place. Never bridge conflicting complete places.
-        by_passport: dict[str, list[int]] = {}
-        for index in indexes:
-            passport_number, _, _ = evidence[index]
-            if passport_number:
-                by_passport.setdefault(passport_number, []).append(index)
-        for passport_indexes in by_passport.values():
-            complete_places = {
-                evidence[index][1] for index in passport_indexes if evidence[index][1]
-            }
-            if len(complete_places) == 1:
-                anchor = passport_indexes[0]
-                for index in passport_indexes[1:]:
-                    union(anchor, index)
-
-    grouped: dict[int, list[Any]] = {}
-    for index, submission in enumerate(submissions):
-        grouped.setdefault(find(index), []).append(submission)
-    blocks: list[list[SubmissionViewEntry]] = []
-    for members in grouped.values():
-        ordered_members = sorted(members, key=lambda item: str(item.id))
-        member_ids = tuple(member.id for member in ordered_members)
-        is_duplicate = len(ordered_members) > 1
-        cluster_id = _cluster_id(member_ids) if is_duplicate else None
-        blocks.append(
-            [
-                SubmissionViewEntry(
-                    submission=member,
-                    duplicate_cluster_id=cluster_id,
-                    duplicate_cluster_size=len(ordered_members),
-                    duplicate_cluster_member_ids=member_ids,
-                    verification_confidence=_verification_confidence(member),
-                )
-                for member in ordered_members
-            ]
-        )
-    return blocks
-
-
-def _display_name(submission: Any) -> str:
-    return str(getattr(submission, "display_name", None) or submission.client_name)
-
-
-def _matches_search(entry: SubmissionViewEntry, search: str) -> bool:
-    submission = entry.submission
-    values: list[Any] = [
-        getattr(submission, "display_name", None),
-        submission.client_name,
-        submission.client_email,
-        submission.client_phone,
-        submission.family_head_name,
-        submission.family_head_email,
-        submission.family_head_phone,
-        submission.departure_city,
-    ]
-    values.extend((submission.confirmed_fields or {}).values())
-    values.extend((submission.extracted_fields or {}).values())
-    values.extend((getattr(submission, "staff_metadata", None) or {}).values())
-    needle = _normalized_tokens(search)
-    return any(
-        needle in _normalized_tokens(value)
-        for value in values
-        if isinstance(value, (str, int, float))
-    )
-
-
-def _status_matches(entry: SubmissionViewEntry, submission_filter: str) -> bool:
-    if submission_filter == "all":
-        return True
-    if submission_filter == "document_follow_up":
-        return bool(getattr(entry.submission, "document_follow_up", False))
-    status_map = {
-        "pending_ai": "submitted",
-        "ai_approved": "ai_approved",
-        "needs_review": "needs_review",
-        "staff_approved": "staff_approved",
-    }
-    return bool(entry.submission.status == status_map.get(submission_filter))
-
-
-def _sort_value(entry: SubmissionViewEntry, sort_by: str) -> Any:
-    if sort_by == "name":
-        return _normalized_tokens(_display_name(entry.submission)) or None
-    if sort_by == "verification_confidence":
-        return entry.verification_confidence
-    return entry.submission.updated_at
-
-
-def _sort_entries(
-    entries: list[SubmissionViewEntry],
-    *,
-    sort_by: str,
-    sort_order: str,
-) -> list[SubmissionViewEntry]:
-    # Tie breakers remain ascending regardless of the primary direction.
-    entries = sorted(
-        entries,
-        key=lambda entry: (
-            _normalized_tokens(_display_name(entry.submission)),
-            str(entry.submission.id),
-        ),
-    )
-    populated = [entry for entry in entries if _sort_value(entry, sort_by) is not None]
-    missing = [entry for entry in entries if _sort_value(entry, sort_by) is None]
-    populated.sort(
-        key=lambda entry: _sort_value(entry, sort_by),
-        reverse=sort_order == "desc",
-    )
-    return populated + missing
-
-
-def _sort_blocks(
-    blocks: list[list[SubmissionViewEntry]],
-    *,
-    sort_by: str,
-    sort_order: str,
-) -> list[list[SubmissionViewEntry]]:
-    ordered_blocks = [
-        _sort_entries(list(block), sort_by=sort_by, sort_order=sort_order) for block in blocks
-    ]
-    ordered_blocks.sort(
-        key=lambda block: block[0].duplicate_cluster_id or str(block[0].submission.id)
-    )
-    populated = [block for block in ordered_blocks if _sort_value(block[0], sort_by) is not None]
-    missing = [block for block in ordered_blocks if _sort_value(block[0], sort_by) is None]
-    populated.sort(
-        key=lambda block: _sort_value(block[0], sort_by),
-        reverse=sort_order == "desc",
-    )
-    return populated + missing
-
-
-def _paginate_blocks(
-    blocks: list[list[SubmissionViewEntry]],
-    page_size: int,
-) -> list[list[SubmissionViewEntry]]:
-    pages: list[list[SubmissionViewEntry]] = []
-    current: list[SubmissionViewEntry] = []
-    for block in blocks:
-        if current and len(current) + len(block) > page_size:
-            pages.append(current)
-            current = []
-        # Normal sets remain together. Oversized sets continue onto bounded
-        # pages; retaining every row must never disable the hydration limit.
-        for offset in range(0, len(block), page_size):
-            current.extend(block[offset:offset + page_size])
-            if len(current) == page_size:
-                pages.append(current)
-                current = []
-    if current:
-        pages.append(current)
-    return pages
-
-
-def _all_page_clusters(pages: list[list[SubmissionViewEntry]]) -> tuple[tuple[DuplicateClusterPage, ...], ...]:
-    bounds: dict[str, list[int]] = {}
-    visible: list[dict[str, list[SubmissionViewEntry]]] = []
-    for number, entries in enumerate(pages, start=1):
-        current: dict[str, list[SubmissionViewEntry]] = {}
-        for entry in entries:
-            cluster_id = entry.duplicate_cluster_id
-            if cluster_id is not None:
-                bound = bounds.setdefault(cluster_id, [number, number, 0])
-                bound[1], bound[2] = number, bound[2] + 1
-                current.setdefault(cluster_id, []).append(entry)
-        visible.append(current)
-    return tuple(tuple(DuplicateClusterPage(
-        cluster_id=cluster_id, total_members=entries[0].duplicate_cluster_size,
-        matching_members=bounds[cluster_id][2], visible_member_ids=tuple(entry.submission.id for entry in entries),
-        first_page=bounds[cluster_id][0], last_page=bounds[cluster_id][1],
-    ) for cluster_id, entries in current.items()) for current in visible)
-
-
-def _add_months(value: date, months: int) -> date:
-    month_index = value.month - 1 + months
-    year = value.year + month_index // 12
-    month = month_index % 12 + 1
-    day = min(value.day, calendar.monthrange(year, month)[1])
-    return date(year, month, day)
-
-
-def _expiry_alerts(
-    submissions: list[Any],
-    *,
-    today: date,
-    travel_date: date | None,
-) -> tuple[ExpiryAlert, ...]:
-    warning_date = _add_months(travel_date or today, 6)
-    alerts: list[ExpiryAlert] = []
-    for submission in submissions:
-        expiry_text = _field_value(submission, "date_of_expiry")
-        try:
-            expiry = date.fromisoformat(expiry_text)
-        except (TypeError, ValueError):
-            continue
-        is_expired = expiry < today
-        if not is_expired and expiry > warning_date:
-            continue
-        alerts.append(
-            ExpiryAlert(
-                submission_id=submission.id,
-                client_name=_display_name(submission),
-                client_email=submission.client_email,
-                passport_number=(_field_value(submission, "passport_number") or None),
-                date_of_expiry=expiry.isoformat(),
-                status="expired" if is_expired else "near_expiry",
-            )
-        )
-    return tuple(
-        sorted(
-            alerts,
-            key=lambda alert: (
-                alert.date_of_expiry,
-                _normalized_tokens(alert.client_name),
-                str(alert.submission_id),
-            ),
-        )
-    )
+from .submission_view_clustering import (
+    _build_blocks as _build_blocks,
+)
+from .submission_view_expiry import (
+    _add_months as _add_months,
+)
+from .submission_view_expiry import (
+    _expiry_alerts as _expiry_alerts,
+)
+from .submission_view_fields import (
+    _cluster_id as _cluster_id,
+)
+from .submission_view_fields import (
+    _display_name as _display_name,
+)
+from .submission_view_fields import (
+    _field_value as _field_value,
+)
+from .submission_view_fields import (
+    _normalized_identifier as _normalized_identifier,
+)
+from .submission_view_fields import (
+    _normalized_tokens as _normalized_tokens,
+)
+from .submission_view_fields import (
+    _passport_name as _passport_name,
+)
+from .submission_view_fields import (
+    _place_of_issue_identity as _place_of_issue_identity,
+)
+from .submission_view_fields import (
+    _verification_confidence as _verification_confidence,
+)
+from .submission_view_fields import (
+    duplicate_identity_key as duplicate_identity_key,
+)
+from .submission_view_ordering import (
+    _matches_normalized_search as _matches_normalized_search,
+)
+from .submission_view_ordering import (
+    _matches_search as _matches_search,
+)
+from .submission_view_ordering import (
+    _sort_blocks as _sort_blocks,
+)
+from .submission_view_ordering import (
+    _sort_entries as _sort_entries,
+)
+from .submission_view_ordering import (
+    _sort_value as _sort_value,
+)
+from .submission_view_ordering import (
+    _status_matches as _status_matches,
+)
+from .submission_view_pagination import (
+    _all_page_clusters as _all_page_clusters,
+)
+from .submission_view_pagination import (
+    _paginate_blocks as _paginate_blocks,
+)
+from .submission_view_types import (
+    DuplicateClusterPage as DuplicateClusterPage,
+)
+from .submission_view_types import (
+    ExpiryAlert as ExpiryAlert,
+)
+from .submission_view_types import (
+    PreparedSubmissionView as PreparedSubmissionView,
+)
+from .submission_view_types import (
+    SubmissionViewEntry as SubmissionViewEntry,
+)
+from .submission_view_types import (
+    SubmissionViewIdentity as SubmissionViewIdentity,
+)
+from .submission_view_types import (
+    SubmissionViewResult as SubmissionViewResult,
+)
 
 
 def build_submission_view(
@@ -490,24 +109,39 @@ def build_submission_view(
     today: date | None = None,
     travel_date: date | None = None,
 ) -> SubmissionViewResult:
-    return prepare_submission_view(submissions, submission_filter=submission_filter,
-        sort_by=sort_by, sort_order=sort_order, search=search, page_size=page_size,
-        today=today, travel_date=travel_date).page(page)
+    return prepare_submission_view(
+        submissions,
+        submission_filter=submission_filter,
+        sort_by=sort_by,
+        sort_order=sort_order,
+        search=search,
+        page_size=page_size,
+        today=today,
+        travel_date=travel_date,
+    ).page(page)
 
 
 def prepare_submission_view(
-    submissions: list[Any], *, submission_filter: str, sort_by: str, sort_order: str,
-    search: str | None, page_size: int, today: date | None = None, travel_date: date | None = None,
+    submissions: list[Any],
+    *,
+    submission_filter: str,
+    sort_by: str,
+    sort_order: str,
+    search: str | None,
+    page_size: int,
+    today: date | None = None,
+    travel_date: date | None = None,
 ) -> PreparedSubmissionView:
     """Apply full-group identity logic before filters and block pagination."""
 
     blocks = _build_blocks(submissions)
     normalized_search = (search or "").strip()
     if normalized_search:
+        search_needle = _normalized_tokens(normalized_search)
         blocks = [
             block
             for block in blocks
-            if any(_matches_search(entry, normalized_search) for entry in block)
+            if any(_matches_normalized_search(entry, search_needle) for entry in block)
         ]
 
     if submission_filter == "duplicates":
@@ -522,11 +156,7 @@ def prepare_submission_view(
         ]
 
     blocks = _sort_blocks(blocks, sort_by=sort_by, sort_order=sort_order)
-    ordered_submission_ids = tuple(
-        entry.submission.id
-        for block in blocks
-        for entry in block
-    )
+    ordered_submission_ids = tuple(entry.submission.id for block in blocks for entry in block)
     total = sum(len(block) for block in blocks)
     pages = _paginate_blocks(blocks, page_size)
     return PreparedSubmissionView(
@@ -534,7 +164,9 @@ def prepare_submission_view(
         clusters=_all_page_clusters(pages),
         ordered_submission_ids=ordered_submission_ids,
         group_total=len(submissions),
-        document_follow_up_count=sum(bool(getattr(row, "document_follow_up", False)) for row in submissions),
+        document_follow_up_count=sum(
+            bool(getattr(row, "document_follow_up", False)) for row in submissions
+        ),
         total=total,
         page_size=page_size,
         cluster_boundaries_preserved=all(len(block) <= page_size for block in blocks),

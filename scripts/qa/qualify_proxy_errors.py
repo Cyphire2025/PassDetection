@@ -25,6 +25,17 @@ def docker(*arguments: str) -> str:
     return subprocess.check_output(["docker", *arguments], text=True, stderr=subprocess.PIPE).strip()
 
 
+def _native_transfer_location() -> str:
+    """Exercise the deployed location itself, including its shared proxy policy."""
+    lines = (ROOT / "nginx/conf.d/default.conf").read_text(encoding="utf-8").splitlines()
+    start = next(index for index, line in enumerate(lines)
+                 if line.strip() == "location ^~ /mcp/native-transfers/ {")
+    end = next(index for index in range(start + 1, len(lines)) if lines[index].strip() == "}")
+    return "\n".join(lines[start:end + 1]).replace(
+        "/etc/nginx/conf.d/includes/", "/etc/nginx/includes/",
+    )
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--image", required=True, help="Exact already-qualified Nginx image ID/digest")
@@ -32,14 +43,22 @@ def main() -> int:
     name = "passdetection-proxy-errors-" + uuid.uuid4().hex[:10]
     mappings = "/etc/nginx/includes/api-error-pages.inc"
     locations = "/etc/nginx/includes/api-error-locations.inc"
-    config = "events {}\nhttp {\nserver { listen 80; client_max_body_size 1k;\n"
+    config = ("events {}\nhttp {\naccess_log /tmp/proxy-access.log;\n"
+              "limit_req_zone $binary_remote_addr zone=api:1m rate=1000r/s;\n"
+              "upstream backend { server 127.0.0.1:8081; }\n"
+              "server { listen 80; client_max_body_size 1k;\n")
     config += f"include {mappings}; include {locations};\n"
     config += "\n".join(f"location = /simulate/{code} {{ return {code}; }}" for code in CODES)
     config += "\nlocation = /simulate/408 { return 408; }"
     config += "\nlocation = /upload { proxy_pass http://127.0.0.1:8081; }"
     config += "\nlocation = /protected { proxy_pass http://127.0.0.1:8081; }"
     config += "\nlocation = /unreachable { proxy_pass http://127.0.0.1:9; proxy_connect_timeout 1s; }"
-    config += "\n}\nserver { listen 8081; default_type application/json; return 403 '{\"detail\":\"workflow-specific refusal\"}'; }\n}\n"
+    config += "\n" + _native_transfer_location()
+    config += ("\n}\nserver { listen 8081; access_log off; default_type application/json;"
+               "location /mcp/native-transfers/ {"
+               "if ($http_authorization != 'Bearer synthetic-native-transfer') { return 401 '{\"detail\":\"missing synthetic bearer\"}'; }"
+               "return 403 '{\"detail\":\"workflow-specific refusal\"}'; }"
+               "location / { return 403 '{\"detail\":\"workflow-specific refusal\"}'; } }\n}\n")
     checks = []
     with tempfile.TemporaryDirectory(prefix="passdetection-proxy-errors-") as directory:
         path = Path(directory) / "nginx.conf"
@@ -54,9 +73,12 @@ def main() -> int:
             details = json.loads(docker("inspect", name))[0]
             port = details["NetworkSettings"]["Ports"]["80/tcp"][0]["HostPort"]
             origin = f"http://127.0.0.1:{port}"
-            def request(route: str, body: bytes | None = None):
+            def request(route: str, body: bytes | None = None, *, method: str | None = None,
+                        headers: dict[str, str] | None = None):
                 try:
-                    response = urllib.request.urlopen(urllib.request.Request(origin + route, data=body), timeout=5)
+                    response = urllib.request.urlopen(urllib.request.Request(
+                        origin + route, data=body, method=method, headers=headers or {},
+                    ), timeout=5)
                 except urllib.error.HTTPError as error:
                     response = error
                 with response:
@@ -92,6 +114,18 @@ def main() -> int:
             status, _, body = request("/protected")
             assert status == 403 and body == {"detail": "workflow-specific refusal"}
             checks.append("upstream-business-response-preserved")
+            for method, route, content in (
+                ("GET", "/mcp/native-transfers/native-fixture", None),
+                ("PUT", "/mcp/native-transfers/native-fixture/content", b"x" * 2048),
+            ):
+                status, headers, body = request(route, content, method=method,
+                    headers={"Authorization": "Bearer synthetic-native-transfer"})
+                assert status == 403 and body == {"detail": "workflow-specific refusal"}
+                assert headers["Cache-Control"] == "no-store"
+                checks.append(f"native-transfer-{method.lower()}-reaches-bearer-backend")
+            access_log = docker("exec", name, "cat", "/tmp/proxy-access.log")
+            assert "native-fixture" not in access_log
+            checks.append("native-transfer-access-log-disabled")
             report = {"image": details["Image"], "checks": checks, "scope": "Isolated local Nginx include behavior; no VPS changes"}
             (ROOT / "docs/remediation/proxy-error-evidence.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
             print(json.dumps(report, indent=2))

@@ -1,0 +1,22 @@
+{
+  "status": "Read-only physical preflight complete; no code edits in this lane.",
+  "full_current_sources": 14,
+  "scope": "Twelve AI-priority runtime/package files plus complete passport extraction transport and aggregate metrics registry; health/verification/processing routes traced partially only.",
+  "architecture_proposal": [
+    "Partition metrics941-line mixed protocol, numeric/label/snapshot policy, in-memory store, Redis store/Lua constants, circuit fallback and aggregate bridge. Keep original metrics module as stable bridge/default factory/one-time collector registration; preserve class/import aliases, evaluated hints, defaults, exact Lua bytes, locking and retention.",
+    "Partition coordinator471-line extraction and verification workload policies into focused typed owners while retaining public coordinator/lifecycle facade, all self-override dispatch/signatures and deliberate fail-open/fail-closed/generation/release behavior. No Redis admission algorithm changes proposed."
+  ],
+  "runtime_candidates_not_validated_findings": [
+    "Async passport and post-submission provider paths call synchronous record_provider_event, whose default shared store performs Redis pipeline/eval operations synchronously; deterministic blocked-store coroutine-progress regression needed before changing thread dispatch. Health aggregate snapshots already use to_thread.",
+    "MaintainPriorityLease cancels an await-to_thread heartbeat and awaits a separate release-to_thread; blocked-thread/repeated-cancellation ownership needs an actual negative before any cleanup change. Redis Lua heartbeat generation/state guards already prevent simple release-then-heartbeat resurrection.",
+    "Redis cleanup currently materializes every expired member and loops inside the atomic script. This is a source-bound resource-scaling concern; real backlog/workload impact and a semantics-preserving bounded plan are unqualified. Do not relabel it as a validated security issue or alter fairness/capacity/quiet-period workflow speculatively."
+  ],
+  "preserve": "Current Redis namespaces, same-cluster-key order, exact Lua value/operations, generation fences, capacity/quiet periods, fail-open extraction/fail-closed verification, diagnostics categories and all existing floors/caps. No provider calls/network Redis/config changes during preflight.",
+  "partial_traces": [
+    "backend/app/presentation/api/v1/routes/health.py: selected priority/snapshot offload sites only",
+    "backend/app/infrastructure/processing/worker_runtime.py: selected coordinator factory/admission call sites only",
+    "backend/app/infrastructure/verification/runtime.py: selected coordinator factory/admission call sites only",
+    "backend/app/infrastructure/ai/gemini_post_submission_verification_service.py: selected telemetry call sites; no new whole physical read claim in this preflight"
+  ],
+  "checks": "Read/caller analysis only. Existing focused AI-priority tests identified but not yet run; no broad suite/build/browser."
+}

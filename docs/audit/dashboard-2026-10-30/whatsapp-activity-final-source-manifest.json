@@ -1,0 +1,117 @@
+{
+  "runtime": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_activity.py",
+      "sha256": "06bc0b05081180d73b24ae35a0718018f1344cf72a24f8a009e41d4e016de47f"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_activity_access.py",
+      "sha256": "e9d3f4431e7039e99a31013a9dd0691fa48efd9b60d54d37f99514ac00b50753"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_activity_document_queries.py",
+      "sha256": "c3c009bfd7fc66b55580696b04d962660a2f4a3e3439a220ae49de1dce932e54"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_activity_failure_queries.py",
+      "sha256": "1819db2d3ba194a172f11add3b00e63768a046518a9ae1bd4979eb93199690e7"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_activity_status.py",
+      "sha256": "1decabea2e92dd3f4cded7b1d81fdb55a0d82aad9a0e7b7025de70626ce9abd9"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_activity_summary_queries.py",
+      "sha256": "c8a6d7375e95b8df076cde3d8763cf4043b35d71d4450d00cbb4bbf72f9086ff"
+    }
+  ],
+  "tests": [
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_activity_pages.py",
+      "sha256": "c7a8229884e5665537f1875cdee75cc21c1ff5efe2d9f4e2b0602aba435471c4"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_activity_owner_contract.py",
+      "sha256": "573cb24cf6ce1dc5475701a633dcbc035f7505a67f7e33dfdd2d51d2f5a0f495"
+    }
+  ],
+  "original_runtime": {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_activity.py",
+    "sha256": "f8abd34251e84c59f704cdf2c279cd89dbd4b1813f928fb29667bd968e37b3d1",
+    "physical_lines": 562,
+    "snapshot": ".tmp/whatsapp-activity-current/whatsapp_activity.py"
+  },
+  "unchanged_support": [
+    {
+      "path": "backend/app/presentation/api/v1/schemas/whatsapp_activity_schemas.py",
+      "sha256": "8d9758a1716bb1f79ba8704068f96f33ce9d804828cdfec8a9db90c58f6ef367"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_activity_tracking.py",
+      "sha256": "65ffabf131540f8eb58b187aee2f293e6eb4e2b0dcfdab7f822ddef700933bb3"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_staff_access_flow.py",
+      "sha256": "fc94c30f4e089bc9af8cf219ea84b156276971a106944f08fe310eaaf530245b"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_route_decomposition.py",
+      "sha256": "a4fa48821a7c9ec5e483f797939e96aa23b68e17a1b74c9eaaf2ee29ea18e7c6"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp.py",
+      "sha256": "f2f9e3f934ad389ab39e2e46039c40a7584f0443ac285f057e9f4eac538ea948"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/tour_operations_qr_delivery_queue.py",
+      "sha256": "526a2201c2015a668b4a6b52b9892b6ee076e05ccf9a9ec91606f73ba951169f"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_send_support.py",
+      "sha256": "b8906f12b93b2e3e5c98d6135da1254014e747aa487e94a7b268ff971ae1b254"
+    },
+    {
+      "path": "frontend/features/whatsapp/api/whatsapp-activity.api.ts",
+      "sha256": "6bb296ea8288230781b50c66b1f5a78e002807109fae65ce0ec87641d1bdf963"
+    },
+    {
+      "path": "backend/app/infrastructure/database/passenger_qr_models.py",
+      "sha256": "e815d9390a4a5c9544e43b2384f3791b4cb4d429a4b18bb7da7e37b897421d24"
+    },
+    {
+      "path": "backend/tests/conftest.py",
+      "sha256": "b60a174b1656f30e36d6c748fc1b967c17804b9ef733911f6ff211e9e4d23abe"
+    }
+  ],
+  "focused_dependency_hashes": [
+    {
+      "path": "backend/app/infrastructure/database/communications_models.py",
+      "sha256": "4a4224948d99b7ba12382ba679973f318734ff3c71b27f47e7757f2b07bcf7b3"
+    },
+    {
+      "path": "backend/app/infrastructure/database/document_models.py",
+      "sha256": "414813b4d861c1941592fc9ff5a86f3aff71d5f31a72e3b411a1b6c7fde06d27"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/document_distribution_delivery.py",
+      "sha256": "bcc8368940d02278f1a1248ac428a83b12872b2628500658f92e0d6536b1e24e"
+    },
+    {
+      "path": "backend/tests/integration/test_group_updates.py",
+      "sha256": "ed93dd3ec1bfd03d3f1fa08eb35c1489fda1c070dcdac83c4701aadbac09f3aa"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/group_updates.py",
+      "sha256": "15685967249058f71a453a91856204709abd07de24ea0972073a8c0656a7e9af"
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_qr_whatsapp_delivery.py",
+      "sha256": "90975f9cca1666e3f1565ab5b72da46e1b657fe107b77c82f761f51d74735010"
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/coordinator_assignment_lifecycle.py",
+      "sha256": "0a7ec89144ce7a41c5e67ab5454e5eae1d17669b5de1b52bb8404b8cda6dfbb9"
+    }
+  ],
+  "freeze": "Runtime6/tests2 frozen; root may subsequently own a separate communications-model source fence/metadata qualification. This receipt preserves the actual current model dependency bytes."
+}

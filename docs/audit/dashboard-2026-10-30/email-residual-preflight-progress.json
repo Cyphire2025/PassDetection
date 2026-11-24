@@ -1,0 +1,182 @@
+{
+  "status": "read-only preflight in progress",
+  "inventory": "6409 current rows from parent refreshed inventory",
+  "original_sources": [
+    {
+      "path": "backend/app/infrastructure/database/email_ai_models.py",
+      "sha256": "e9c03b48898c5a05f7e96bafbc96ccec06ec7d2702c47e55f9b4c80a5eff482f",
+      "physical_lines": 630,
+      "snapshot": ".tmp/email-residual-original/backend/app/infrastructure/database/email_ai_models.py"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_ai_rollout_admin.py",
+      "sha256": "767500a1b9f4dd113b41bcefc0ea90fbebe984f34829b1ada8cd4ccbc24a51c3",
+      "physical_lines": 565,
+      "snapshot": ".tmp/email-residual-original/backend/app/presentation/api/v1/routes/email_ai_rollout_admin.py"
+    },
+    {
+      "path": "backend/app/infrastructure/email/tasks.py",
+      "sha256": "e6d2906d78fd9c504c2876dd59ffb91bf29114fb7dcbfd0a4fc6c8cfd6ca2846",
+      "physical_lines": 532,
+      "snapshot": ".tmp/email-residual-original/backend/app/infrastructure/email/tasks.py"
+    },
+    {
+      "path": "backend/app/infrastructure/email/mime.py",
+      "sha256": "c08b88379c1d0d1850a6225db3147342a8399bc57dfcbf3c68303772ce5af4e7",
+      "physical_lines": 389,
+      "snapshot": ".tmp/email-residual-original/backend/app/infrastructure/email/mime.py"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_review_decisions.py",
+      "sha256": "591fb3b3b30248d2c2fd1f40ea6eb90cc6232c47833a3cea8f5e3950923ecb77",
+      "physical_lines": 367,
+      "snapshot": ".tmp/email-residual-original/backend/app/presentation/api/v1/routes/email_integration_review_decisions.py"
+    }
+  ],
+  "matching_current_records": [
+    {
+      "ledger": "backend-models-preflight-selection.json",
+      "record": {
+        "path": "backend/app/infrastructure/database/email_ai_models.py",
+        "lines": 630,
+        "sha256": "e9c03b48898c5a05f7e96bafbc96ccec06ec7d2702c47e55f9b4c80a5eff482f",
+        "inventory_current": true,
+        "current_full_ledgers": [],
+        "current_full_records": [],
+        "current_other_records": [],
+        "excluded_active_or_native": false
+      }
+    },
+    {
+      "ledger": "backend-models-preflight-selection.json",
+      "record": {
+        "path": "backend/app/presentation/api/v1/routes/email_ai_rollout_admin.py",
+        "lines": 565,
+        "sha256": "767500a1b9f4dd113b41bcefc0ea90fbebe984f34829b1ada8cd4ccbc24a51c3",
+        "inventory_current": true,
+        "current_full_ledgers": [],
+        "current_full_records": [],
+        "current_other_records": [],
+        "excluded_active_or_native": false
+      }
+    },
+    {
+      "ledger": "backend-models-preflight-selection.json",
+      "record": {
+        "path": "backend/app/infrastructure/email/tasks.py",
+        "lines": 532,
+        "sha256": "e6d2906d78fd9c504c2876dd59ffb91bf29114fb7dcbfd0a4fc6c8cfd6ca2846",
+        "inventory_current": true,
+        "current_full_ledgers": [],
+        "current_full_records": [],
+        "current_other_records": [],
+        "excluded_active_or_native": false
+      }
+    },
+    {
+      "ledger": "backend-models-preflight-selection.json",
+      "record": {
+        "path": "backend/app/infrastructure/email/mime.py",
+        "lines": 389,
+        "sha256": "c08b88379c1d0d1850a6225db3147342a8399bc57dfcbf3c68303772ce5af4e7",
+        "inventory_current": true,
+        "current_full_ledgers": [],
+        "current_full_records": [],
+        "current_other_records": [],
+        "excluded_active_or_native": false
+      }
+    },
+    {
+      "ledger": "backend-models-preflight-selection.json",
+      "record": {
+        "path": "backend/app/presentation/api/v1/routes/email_integration_review_decisions.py",
+        "lines": 367,
+        "sha256": "591fb3b3b30248d2c2fd1f40ea6eb90cc6232c47833a3cea8f5e3950923ecb77",
+        "inventory_current": true,
+        "current_full_ledgers": [],
+        "current_full_records": [],
+        "current_other_records": [],
+        "excluded_active_or_native": false
+      }
+    },
+    {
+      "ledger": "inventory-notes-verification.json",
+      "record": {
+        "path": "backend/app/infrastructure/database/email_ai_models.py",
+        "sha256": "e9c03b48898c5a05f7e96bafbc96ccec06ec7d2702c47e55f9b4c80a5eff482f",
+        "lines": "630",
+        "status": "inventoried",
+        "review_scope": "unreviewed"
+      }
+    },
+    {
+      "ledger": "inventory-notes-verification.json",
+      "record": {
+        "path": "backend/app/presentation/api/v1/routes/email_ai_rollout_admin.py",
+        "sha256": "767500a1b9f4dd113b41bcefc0ea90fbebe984f34829b1ada8cd4ccbc24a51c3",
+        "lines": "565",
+        "status": "inventoried",
+        "review_scope": "unreviewed"
+      }
+    },
+    {
+      "ledger": "inventory-notes-verification.json",
+      "record": {
+        "path": "backend/app/infrastructure/email/tasks.py",
+        "sha256": "e6d2906d78fd9c504c2876dd59ffb91bf29114fb7dcbfd0a4fc6c8cfd6ca2846",
+        "lines": "532",
+        "status": "inventoried",
+        "review_scope": "unreviewed"
+      }
+    },
+    {
+      "ledger": "source-metrics.json",
+      "record": {
+        "path": "backend/app/infrastructure/database/email_ai_models.py",
+        "lines": 630,
+        "sha256": "e9c03b48898c5a05f7e96bafbc96ccec06ec7d2702c47e55f9b4c80a5eff482f"
+      }
+    },
+    {
+      "ledger": "source-metrics.json",
+      "record": {
+        "path": "backend/app/infrastructure/email/mime.py",
+        "lines": 389,
+        "sha256": "c08b88379c1d0d1850a6225db3147342a8399bc57dfcbf3c68303772ce5af4e7"
+      }
+    },
+    {
+      "ledger": "source-metrics.json",
+      "record": {
+        "path": "backend/app/infrastructure/email/tasks.py",
+        "lines": 532,
+        "sha256": "e6d2906d78fd9c504c2876dd59ffb91bf29114fb7dcbfd0a4fc6c8cfd6ca2846"
+      }
+    },
+    {
+      "ledger": "source-metrics.json",
+      "record": {
+        "path": "backend/app/presentation/api/v1/routes/email_ai_rollout_admin.py",
+        "lines": 565,
+        "sha256": "767500a1b9f4dd113b41bcefc0ea90fbebe984f34829b1ada8cd4ccbc24a51c3"
+      }
+    },
+    {
+      "ledger": "source-metrics.json",
+      "record": {
+        "path": "backend/app/presentation/api/v1/routes/email_integration_review_decisions.py",
+        "lines": 367,
+        "sha256": "591fb3b3b30248d2c2fd1f40ea6eb90cc6232c47833a3cea8f5e3950923ecb77"
+      }
+    },
+    {
+      "ledger": "source-metrics.json",
+      "record": {
+        "path": "backend/app/infrastructure/database/email_ai_models.py",
+        "lines": 630,
+        "sha256": "e9c03b48898c5a05f7e96bafbc96ccec06ec7d2702c47e55f9b4c80a5eff482f"
+      }
+    }
+  ],
+  "notes": "Source snapshots only. Matching records are inspected for explicit full scope before credit; no test run or path inventory is full manual review."
+}

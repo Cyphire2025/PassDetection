@@ -1,7 +1,7 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const client = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn() }));
+const client = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn(), put: vi.fn() }));
 
 vi.mock("@/lib/api/client", () => ({ default: client }));
 
@@ -21,6 +21,7 @@ describe("bounded attendance and audit API contracts", () => {
   beforeEach(() => {
     client.get.mockReset();
     client.post.mockReset();
+    client.put.mockReset();
   });
 
   it("preserves ordered client events in a bounded attendance batch", async () => {
@@ -65,7 +66,32 @@ describe("bounded attendance and audit API contracts", () => {
           },
         ],
       },
+      {},
     );
+  });
+
+  it("carries the captured queue owner as transport metadata without adding it to scan payloads", async () => {
+    client.post.mockResolvedValue({ data: { status: "accepted", items: [] } });
+    await operationsApi.scanMyAttendanceSession({
+      sessionId: "session-1", qrPayload: "private-qr", clientEventId: "event-0001", expectedOwnerUserId: "owner-a",
+    });
+    await operationsApi.scanMyAttendanceSessionBatch({
+      sessionId: "session-1", batchId: "batch-1", scans: [], expectedOwnerUserId: "owner-a",
+    });
+    for (const [, payload, config] of client.post.mock.calls) {
+      expect(config).toEqual({ expectedOwnerUserId: "owner-a" });
+      expect(payload).not.toHaveProperty("expectedOwnerUserId");
+      expect(payload).not.toHaveProperty("expected_owner_user_id");
+    }
+  });
+
+  it("binds count-only closeout publication to its captured queue owner", async () => {
+    const checkpoint = { pending_count: 1, sending_count: 0, retryable_count: 0, needs_review_count: 0, unreviewed_rejected_count: 0, oldest_pending_age_seconds: 20 };
+    client.put.mockResolvedValue({ data: { ...checkpoint, reported_at: "2026-10-30T10:00:00Z" } });
+    await operationsApi.publishMyAttendanceCloseoutCheckpoint({
+      groupId: "group-a", sessionId: "session-a", checkpoint, expectedOwnerUserId: "owner-a",
+    });
+    expect(client.put).toHaveBeenCalledWith(expect.any(String), checkpoint, { expectedOwnerUserId: "owner-a" });
   });
 
   it("reuses an unchanged summary through ETag without decoding a roster", async () => {

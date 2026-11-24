@@ -1,0 +1,86 @@
+{
+  "normal_module_candidates": [
+    {
+      "path": "app/infrastructure/database/document_models.py",
+      "sha256": "4ae0d78c9f6b57f6bd3569e83ea971cf266c6406935b0dcf395b26c2d149a5be",
+      "previous": null,
+      "baseline_lines": 49,
+      "maximum_lines": 50,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 1,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_document_models/__init__.py",
+      "sha256": "b96f487be8cd75c281c4c2a4fbcbfaf87155724c3c2601628443980475be1da7",
+      "previous": null,
+      "baseline_lines": 7,
+      "maximum_lines": 10,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 1,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_document_models/distribution.py",
+      "sha256": "13837498e7ce0513cf86da4b65fef689fe9ae3659906e42752deec7701bdfbed",
+      "previous": null,
+      "baseline_lines": 113,
+      "maximum_lines": 120,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 1,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_document_models/delivery.py",
+      "sha256": "8d686a11093f3f9e50a6d9246ca140fb5ec9e376affef1d44331d78c8c7a42b9",
+      "previous": null,
+      "baseline_lines": 110,
+      "maximum_lines": 110,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 1,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_document_models/upload_scan.py",
+      "sha256": "81b73b7e44895cc6d1919d4e51282f764cfc49ee5b7caf18baef492e5a09ace9",
+      "previous": null,
+      "baseline_lines": 106,
+      "maximum_lines": 110,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 1,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_document_models/rename.py",
+      "sha256": "25f5db90fb583f67d8f30556bc7aea88aa66d70f9c72c1f0ff17f3f3b283c4d4",
+      "previous": null,
+      "baseline_lines": 80,
+      "maximum_lines": 80,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 1,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_document_models/upload_chunk.py",
+      "sha256": "633cc8658617d0ca89385064982cda41604ce7bcdbca1e4b125886d520dd56e6",
+      "previous": null,
+      "baseline_lines": 115,
+      "maximum_lines": 120,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 1,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_document_models/cleanup.py",
+      "sha256": "44392393eae79acc34f548106f56c8b9f8dacf73920cbecb966db4a577b42406",
+      "previous": null,
+      "baseline_lines": 97,
+      "maximum_lines": 100,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 1,
+      "minimum_coverage_percent": 95
+    }
+  ],
+  "critical_module_candidates": [],
+  "notes": "Eight measured additive normal owners. Original document_models had no module/critical row. Declaration coverage is import/definition coverage; metadata/SQLite behavior evidence is separate. Root has not edited shared gates."
+}

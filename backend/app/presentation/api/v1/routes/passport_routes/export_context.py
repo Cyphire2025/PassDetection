@@ -59,7 +59,7 @@ async def _without_rejected_roster_submissions(
                 logger.warning(
                     "passport_roster_resolution_invalid_excluded_submission",
                     resolution_id=str(resolution.id),
-                    value=str(value),
+                    value_type=type(value).__name__,
                 )
     return [submission for submission in submissions if submission.id not in excluded_ids]
 

@@ -1,0 +1,176 @@
+{
+  "status": "proposed exact closure; no retirement mutation yet",
+  "closure": "whatsapp-foundation-closure-proposal.json",
+  "files": [
+    {
+      "module": "app.application.dtos.whatsapp_dtos",
+      "path": "backend/app/application/dtos/whatsapp_dtos.py",
+      "sha256": "b85c66d809b2ec0a8352cc454af2da8fe5d23b00a8bbea569e5b68b51506b162",
+      "reachable_from_entrypoints": false,
+      "incoming_app_modules": [
+        "app.application.interfaces.whatsapp_provider",
+        "app.application.use_cases.whatsapp.plan_group_broadcast_use_case",
+        "app.infrastructure.whatsapp.noop_provider",
+        "app.infrastructure.whatsapp.pricing"
+      ],
+      "physical_lines": 60,
+      "proposed_archive": "Not related to project/retired-whatsapp-foundation/backend/app/application/dtos/whatsapp_dtos.py",
+      "declarations": [
+        {
+          "name": "WhatsAppRecipient",
+          "kind": "ClassDef",
+          "line": 20
+        },
+        {
+          "name": "WhatsAppTemplatePlan",
+          "kind": "ClassDef",
+          "line": 30
+        },
+        {
+          "name": "PlannedWhatsAppMessage",
+          "kind": "ClassDef",
+          "line": 38
+        },
+        {
+          "name": "WhatsAppBroadcastPlan",
+          "kind": "ClassDef",
+          "line": 45
+        },
+        {
+          "name": "WhatsAppCostEstimate",
+          "kind": "ClassDef",
+          "line": 53
+        }
+      ]
+    },
+    {
+      "module": "app.application.interfaces.whatsapp_provider",
+      "path": "backend/app/application/interfaces/whatsapp_provider.py",
+      "sha256": "5d789d233ce3d222334277ed884ac600593092a03f471235552094032cb6affc",
+      "reachable_from_entrypoints": false,
+      "incoming_app_modules": [
+        "app.infrastructure.whatsapp.noop_provider"
+      ],
+      "physical_lines": 27,
+      "proposed_archive": "Not related to project/retired-whatsapp-foundation/backend/app/application/interfaces/whatsapp_provider.py",
+      "declarations": [
+        {
+          "name": "WhatsAppSendResult",
+          "kind": "ClassDef",
+          "line": 18
+        },
+        {
+          "name": "WhatsAppProvider",
+          "kind": "ClassDef",
+          "line": 25
+        }
+      ]
+    },
+    {
+      "module": "app.application.use_cases.whatsapp.plan_group_broadcast_use_case",
+      "path": "backend/app/application/use_cases/whatsapp/plan_group_broadcast_use_case.py",
+      "sha256": "739f646c16b48cfc9102a9ed2513bfe78607ab77ae555e47b1ef1c213c639533",
+      "reachable_from_entrypoints": false,
+      "incoming_app_modules": [],
+      "physical_lines": 96,
+      "proposed_archive": "Not related to project/retired-whatsapp-foundation/backend/app/application/use_cases/whatsapp/plan_group_broadcast_use_case.py",
+      "declarations": [
+        {
+          "name": "PlanGroupBroadcastInput",
+          "kind": "ClassDef",
+          "line": 26
+        },
+        {
+          "name": "PlanGroupBroadcastUseCase",
+          "kind": "ClassDef",
+          "line": 34
+        },
+        {
+          "name": "template_for_intent",
+          "kind": "FunctionDef",
+          "line": 54
+        },
+        {
+          "name": "variables_for_recipient",
+          "kind": "FunctionDef",
+          "line": 82
+        }
+      ]
+    },
+    {
+      "module": "app.infrastructure.whatsapp.noop_provider",
+      "path": "backend/app/infrastructure/whatsapp/noop_provider.py",
+      "sha256": "dd3ad353ad9977aedec8ab24d4c48405b2ef0a9eac505fa6de5de60ab81eaded",
+      "reachable_from_entrypoints": false,
+      "incoming_app_modules": [],
+      "physical_lines": 20,
+      "proposed_archive": "Not related to project/retired-whatsapp-foundation/backend/app/infrastructure/whatsapp/noop_provider.py",
+      "declarations": [
+        {
+          "name": "NoopWhatsAppProvider",
+          "kind": "ClassDef",
+          "line": 14
+        }
+      ]
+    },
+    {
+      "module": "app.infrastructure.whatsapp.pricing",
+      "path": "backend/app/infrastructure/whatsapp/pricing.py",
+      "sha256": "ab2921e69e394bc4e0240735f7a17e98d1e71cdecef476e9e0a13a84fd3a27ab",
+      "reachable_from_entrypoints": false,
+      "incoming_app_modules": [],
+      "physical_lines": 52,
+      "proposed_archive": "Not related to project/retired-whatsapp-foundation/backend/app/infrastructure/whatsapp/pricing.py",
+      "declarations": [
+        {
+          "name": "estimate_whatsapp_cost",
+          "kind": "FunctionDef",
+          "line": 24
+        }
+      ]
+    }
+  ],
+  "retained_live_boundaries": [
+    "app.presentation.api.v1.schemas.whatsapp_schemas.WhatsAppSendResult is a separate Pydantic response type and all of its API consumers remain.",
+    "Actual resolver app.infrastructure.whatsapp.template_settings, all settings/environment names, provider payloads, workers, source synchronization, billing and published schemas remain byte-identical.",
+    "No generic Protocol/abstract method deletion. This proposed set is a proven disconnected legacy prototype, not the live provider adapter contract."
+  ],
+  "obligation_migration": {
+    "path": "backend/tests/unit/application/test_whatsapp_message_templates.py",
+    "before_sha256": "6593ae023ede00012c1cf0231d527b428e25d70b7cca634538a5f27d984a148b",
+    "original_test_count": 9,
+    "old_method": "test_planner_uses_central_runtime_names_and_language",
+    "meaningful_assertions": 4,
+    "proposed_current_owners": [
+      "app.infrastructure.whatsapp.template_settings.TemplateSettingsSnapshot.name",
+      "app.infrastructure.whatsapp.template_settings.template_language"
+    ],
+    "mapping": "Retain approved_welcome/approved_passport and en_US assertions against real current resolver/environment fallback and language helpers; patch only their actual get_settings boundary. Preserve other8 tests entirely (message copy, variable order, image-header/body validation and defaults). No live DB/provider request is needed for the deterministic current resolver control.",
+    "unchanged_test_names": [
+      "test_welcome_message_matches_approved_copy_without_recipient_or_company",
+      "test_welcome_template_parameter_order_matches_meta_template",
+      "test_passport_template_parameter_order_matches_meta_template",
+      "test_reminder_template_has_only_one_editable_body_variable",
+      "test_passport_intro_is_editable_without_changing_meta_parameter_order",
+      "test_passport_preview_matches_approved_fixed_body_text",
+      "test_defaults_and_support_format_are_stable",
+      "test_parameter_validation_requires_welcome_image_and_exact_body_counts"
+    ]
+  },
+  "documentation": {
+    "path": "docs/architecture/tour-operations-phase-8-speed-security-whatsapp-foundation.md",
+    "action": "Retain historical active attendance material; explicitly mark future disconnected scaffold retired and point to actual current WhatsApp workflow docs. Do not present outdated not-enabled list as current system status."
+  },
+  "archive_safeguards": [
+    "Before moving, reverify every current source SHA against this proposal.",
+    "Resolve source and destination absolute paths; assert both remain inside current workspace and destination inside exact ignored archive root.",
+    "Fail rather than overwrite existing destination; move with PowerShell Move-Item -LiteralPath only.",
+    "After moving, verify destination hash equality and source absence; do not attach raw images/data or modify secrets."
+  ],
+  "checks_planned": [
+    "Focused existing/current WhatsApp message template9 tests, with only current resolver obligation replacing prototype-only case.",
+    "Ruff check and format check on changed test only; AST invariance proof for all8 untouched cases.",
+    "Whole maintained closure search plus exact public live resolver/settings/provider/worker/API/source-sync hash fence.",
+    "No broad backend suite, production build, browser or real provider calls."
+  ]
+}

@@ -1,13 +1,19 @@
 import { act, renderHook } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { ReactNode } from "react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { useAuthStore } from "@/stores/auth.store";
+import type { User } from "@/types";
 import { QUERY_KEYS } from "@/constants";
 import { uploadLinksApi, type UploadLinkResponse, type UpdateUploadLinkRequest } from "../api/upload-links.api";
 import { DEFAULT_UPLOAD_CONFIGURATION } from "../types/upload-configuration";
 import { useUpdateGroupWhatsAppLinks, useUpdateUploadLink } from "./use-upload-links";
 
 vi.mock("../api/upload-links.api", () => ({ uploadLinksApi: { update: vi.fn(), updateWhatsAppLinks: vi.fn() } }));
+
+beforeEach(() => {
+  useAuthStore.setState({ user: { id: "synthetic-actor", role: "agency_admin", agency_id: "agency" } as User });
+});
 
 describe("saved upload-link settings", () => {
   it("invalidates the broadcast roster after changing identification fields", async () => {

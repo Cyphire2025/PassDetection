@@ -1,0 +1,32 @@
+[
+  {
+    "path": "backend/app/infrastructure/database/_communications_models/broadcast.py",
+    "classes": [
+      "WhatsAppBroadcastGroupModel",
+      "WhatsAppBroadcastRecipientModel"
+    ]
+  },
+  {
+    "path": "backend/app/infrastructure/database/_communications_models/source.py",
+    "classes": [
+      "WhatsAppBroadcastSourceContactModel",
+      "WhatsAppTravellerPhoneOverrideModel",
+      "WhatsAppBroadcastRejectedContactModel",
+      "WhatsAppBroadcastSupportContactModel"
+    ]
+  },
+  {
+    "path": "backend/app/infrastructure/database/_communications_models/delivery.py",
+    "classes": [
+      "WhatsAppMessageLogModel",
+      "WhatsAppRecipientMessageStateModel"
+    ]
+  },
+  {
+    "path": "backend/app/infrastructure/database/_communications_models/welcome.py",
+    "classes": [
+      "WhatsAppPhoneWelcomeModel",
+      "WhatsAppPhoneWelcomeAttemptModel"
+    ]
+  }
+]

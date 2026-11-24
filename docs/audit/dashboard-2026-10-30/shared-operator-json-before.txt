@@ -1,0 +1,196 @@
+EEEEEEEEEEEEE..
+======================================================================
+ERROR: test_non_object_manifest_has_bounded_existing_rejection (test_shared_operator_json_boundaries.SharedOperatorJsonBoundaries.test_non_object_manifest_has_bounded_existing_rejection) (value=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_shared_operator_json_boundaries.py", line 36, in test_non_object_manifest_has_bounded_existing_rejection
+    self.manifest(value)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_shared_operator_json_boundaries.py", line 17, in manifest
+    return load_release_manifest(path)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 16, in load_release_manifest
+    if manifest.get("version") != 1:
+       ^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'get'
+
+======================================================================
+ERROR: test_non_object_manifest_has_bounded_existing_rejection (test_shared_operator_json_boundaries.SharedOperatorJsonBoundaries.test_non_object_manifest_has_bounded_existing_rejection) (value=[])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_shared_operator_json_boundaries.py", line 36, in test_non_object_manifest_has_bounded_existing_rejection
+    self.manifest(value)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_shared_operator_json_boundaries.py", line 17, in manifest
+    return load_release_manifest(path)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 16, in load_release_manifest
+    if manifest.get("version") != 1:
+       ^^^^^^^^^^^^
+AttributeError: 'list' object has no attribute 'get'
+
+======================================================================
+ERROR: test_non_object_manifest_has_bounded_existing_rejection (test_shared_operator_json_boundaries.SharedOperatorJsonBoundaries.test_non_object_manifest_has_bounded_existing_rejection) (value=42)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_shared_operator_json_boundaries.py", line 36, in test_non_object_manifest_has_bounded_existing_rejection
+    self.manifest(value)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_shared_operator_json_boundaries.py", line 17, in manifest
+    return load_release_manifest(path)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 16, in load_release_manifest
+    if manifest.get("version") != 1:
+       ^^^^^^^^^^^^
+AttributeError: 'int' object has no attribute 'get'
+
+======================================================================
+ERROR: test_non_object_manifest_has_bounded_existing_rejection (test_shared_operator_json_boundaries.SharedOperatorJsonBoundaries.test_non_object_manifest_has_bounded_existing_rejection) (value='synthetic-private')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_shared_operator_json_boundaries.py", line 36, in test_non_object_manifest_has_bounded_existing_rejection
+    self.manifest(value)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_shared_operator_json_boundaries.py", line 17, in manifest
+    return load_release_manifest(path)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 16, in load_release_manifest
+    if manifest.get("version") != 1:
+       ^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+======================================================================
+ERROR: test_non_string_revision_has_bounded_existing_rejection (test_shared_operator_json_boundaries.SharedOperatorJsonBoundaries.test_non_string_revision_has_bounded_existing_rejection) (key='schema_revision', value=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_shared_operator_json_boundaries.py", line 45, in test_non_string_revision_has_bounded_existing_rejection
+    self.manifest(document)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_shared_operator_json_boundaries.py", line 17, in manifest
+    return load_release_manifest(path)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 19, in load_release_manifest
+    if not re.fullmatch(r"[0-9]{4}_[A-Za-z0-9_]{1,27}", manifest.get(key, "")):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\re\__init__.py", line 171, in fullmatch
+    return _compile(pattern, flags).fullmatch(string)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: expected string or bytes-like object, got 'NoneType'
+
+======================================================================
+ERROR: test_non_string_revision_has_bounded_existing_rejection (test_shared_operator_json_boundaries.SharedOperatorJsonBoundaries.test_non_string_revision_has_bounded_existing_rejection) (key='schema_revision', value=42)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_shared_operator_json_boundaries.py", line 45, in test_non_string_revision_has_bounded_existing_rejection
+    self.manifest(document)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_shared_operator_json_boundaries.py", line 17, in manifest
+    return load_release_manifest(path)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 19, in load_release_manifest
+    if not re.fullmatch(r"[0-9]{4}_[A-Za-z0-9_]{1,27}", manifest.get(key, "")):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\re\__init__.py", line 171, in fullmatch
+    return _compile(pattern, flags).fullmatch(string)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: expected string or bytes-like object, got 'int'
+
+======================================================================
+ERROR: test_non_string_revision_has_bounded_existing_rejection (test_shared_operator_json_boundaries.SharedOperatorJsonBoundaries.test_non_string_revision_has_bounded_existing_rejection) (key='schema_revision', value=['synthetic-private'])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_shared_operator_json_boundaries.py", line 45, in test_non_string_revision_has_bounded_existing_rejection
+    self.manifest(document)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_shared_operator_json_boundaries.py", line 17, in manifest
+    return load_release_manifest(path)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 19, in load_release_manifest
+    if not re.fullmatch(r"[0-9]{4}_[A-Za-z0-9_]{1,27}", manifest.get(key, "")):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\re\__init__.py", line 171, in fullmatch
+    return _compile(pattern, flags).fullmatch(string)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: expected string or bytes-like object, got 'list'
+
+======================================================================
+ERROR: test_non_string_revision_has_bounded_existing_rejection (test_shared_operator_json_boundaries.SharedOperatorJsonBoundaries.test_non_string_revision_has_bounded_existing_rejection) (key='previous_schema_revision', value=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_shared_operator_json_boundaries.py", line 45, in test_non_string_revision_has_bounded_existing_rejection
+    self.manifest(document)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_shared_operator_json_boundaries.py", line 17, in manifest
+    return load_release_manifest(path)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 19, in load_release_manifest
+    if not re.fullmatch(r"[0-9]{4}_[A-Za-z0-9_]{1,27}", manifest.get(key, "")):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\re\__init__.py", line 171, in fullmatch
+    return _compile(pattern, flags).fullmatch(string)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: expected string or bytes-like object, got 'NoneType'
+
+======================================================================
+ERROR: test_non_string_revision_has_bounded_existing_rejection (test_shared_operator_json_boundaries.SharedOperatorJsonBoundaries.test_non_string_revision_has_bounded_existing_rejection) (key='previous_schema_revision', value=42)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_shared_operator_json_boundaries.py", line 45, in test_non_string_revision_has_bounded_existing_rejection
+    self.manifest(document)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_shared_operator_json_boundaries.py", line 17, in manifest
+    return load_release_manifest(path)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 19, in load_release_manifest
+    if not re.fullmatch(r"[0-9]{4}_[A-Za-z0-9_]{1,27}", manifest.get(key, "")):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\re\__init__.py", line 171, in fullmatch
+    return _compile(pattern, flags).fullmatch(string)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: expected string or bytes-like object, got 'int'
+
+======================================================================
+ERROR: test_non_string_revision_has_bounded_existing_rejection (test_shared_operator_json_boundaries.SharedOperatorJsonBoundaries.test_non_string_revision_has_bounded_existing_rejection) (key='previous_schema_revision', value=['synthetic-private'])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_shared_operator_json_boundaries.py", line 45, in test_non_string_revision_has_bounded_existing_rejection
+    self.manifest(document)
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_shared_operator_json_boundaries.py", line 17, in manifest
+    return load_release_manifest(path)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\release_manifest.py", line 19, in load_release_manifest
+    if not re.fullmatch(r"[0-9]{4}_[A-Za-z0-9_]{1,27}", manifest.get(key, "")):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\re\__init__.py", line 171, in fullmatch
+    return _compile(pattern, flags).fullmatch(string)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: expected string or bytes-like object, got 'list'
+
+======================================================================
+ERROR: test_non_string_worker_shell_program_has_existing_bounded_rejection (test_shared_operator_json_boundaries.SharedOperatorJsonBoundaries.test_non_string_worker_shell_program_has_existing_bounded_rejection) (program=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_shared_operator_json_boundaries.py", line 56, in test_non_string_worker_shell_program_has_existing_bounded_rejection
+    validate_process_command("worker", {"command": ["sh", "-c", program]})
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\image_runtime_policy.py", line 47, in validate_process_command
+    if re.fullmatch(pattern, " ".join(command[2].split())) is None:
+                                      ^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'split'
+
+======================================================================
+ERROR: test_non_string_worker_shell_program_has_existing_bounded_rejection (test_shared_operator_json_boundaries.SharedOperatorJsonBoundaries.test_non_string_worker_shell_program_has_existing_bounded_rejection) (program=42)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_shared_operator_json_boundaries.py", line 56, in test_non_string_worker_shell_program_has_existing_bounded_rejection
+    validate_process_command("worker", {"command": ["sh", "-c", program]})
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\image_runtime_policy.py", line 47, in validate_process_command
+    if re.fullmatch(pattern, " ".join(command[2].split())) is None:
+                                      ^^^^^^^^^^^^^^^^
+AttributeError: 'int' object has no attribute 'split'
+
+======================================================================
+ERROR: test_non_string_worker_shell_program_has_existing_bounded_rejection (test_shared_operator_json_boundaries.SharedOperatorJsonBoundaries.test_non_string_worker_shell_program_has_existing_bounded_rejection) (program=['synthetic-private'])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_shared_operator_json_boundaries.py", line 56, in test_non_string_worker_shell_program_has_existing_bounded_rejection
+    validate_process_command("worker", {"command": ["sh", "-c", program]})
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\image_runtime_policy.py", line 47, in validate_process_command
+    if re.fullmatch(pattern, " ".join(command[2].split())) is None:
+                                      ^^^^^^^^^^^^^^^^
+AttributeError: 'list' object has no attribute 'split'
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.061s
+
+FAILED (errors=13)

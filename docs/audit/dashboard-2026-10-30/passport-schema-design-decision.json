@@ -1,0 +1,16 @@
+{
+  "decision": "Natural implementation modules with explicit stable facade aliases; old saved pickle references continue loading through the original facade. New type provenance/pickles point to their actual owner.",
+  "reason": "Artificially restoring module identity on every Pydantic class added repeated metadata and incomplete namespace/rebuild complications. No application requires equality of newly encoded Python pickle bytes. Preserve old decoding, exact field schemas, validator semantics, type shapes and full OpenAPI instead.",
+  "prototype_proof_observations": [
+    "Original-validator pickle-byte comparison identified moved function provenance.",
+    "Literal per-class legacy module assignment made some Pydantic forward annotations incomplete before all facade exports loaded; prototype was not released or tested as qualified."
+  ],
+  "published_workflow_contracts_remain_required": [
+    "All original model/alias objects accessible via facade",
+    "Old class and validator pickles resolve current objects",
+    "Both51-model JSON schema modes exact",
+    "Full58-route OpenAPI exact",
+    "Original AST/decorators/fields/validators unchanged",
+    "Same77 focused cases plus2subtests before and after"
+  ]
+}

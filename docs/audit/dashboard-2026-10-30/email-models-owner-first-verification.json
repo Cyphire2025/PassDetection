@@ -1,0 +1,58 @@
+{
+  "all_7_private_owner_first_entries_match_preexisting_public_first_baseline": true,
+  "registry_first_matches_separate_preexisting_registry_baseline": true,
+  "baselines": {
+    "email-models-before-metadata.json": "a299b907ed79f71fd0408a60654f4e951533e2e196d7b45488a0554bcbb63800",
+    "email-models-before-registry-metadata.json": "f3ed03a244d52e55baac168b1100a1491d124f849849ff5393c37f009d5b9b17"
+  },
+  "entries": [
+    {
+      "entry": "app.infrastructure.database.model_registry",
+      "exit_code": 0,
+      "stdout": "{\n  \"mode\": \"verify\",\n  \"entry\": \"app.infrastructure.database.model_registry\",\n  \"tables\": 174,\n  \"mappers\": 174,\n  \"compile_errors\": [],\n  \"email_classes\": 8,\n  \"listeners\": {\n    \"EmailConnectionModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    },\n    \"EmailOAuthStateModel\": {\n      \"canonical_callback_registered\": false,\n      \"before_update_count\": 0\n    },\n    \"EmailMessageModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    },\n    \"EmailArtifactModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    },\n    \"EmailArtifactDocumentModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    },\n    \"EmailReviewItemModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    },\n    \"EmailActivityEventModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    }\n  },\n  \"exact_actual_contract_parity\": true\n}\n",
+      "stderr": ""
+    },
+    {
+      "entry": "app.infrastructure.database._email_models.connections",
+      "exit_code": 0,
+      "stdout": "{\n  \"mode\": \"verify\",\n  \"entry\": \"app.infrastructure.database._email_models.connections\",\n  \"tables\": 174,\n  \"mappers\": 174,\n  \"compile_errors\": [],\n  \"email_classes\": 8,\n  \"listeners\": {\n    \"EmailConnectionModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    },\n    \"EmailOAuthStateModel\": {\n      \"canonical_callback_registered\": false,\n      \"before_update_count\": 0\n    },\n    \"EmailMessageModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    },\n    \"EmailArtifactModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    },\n    \"EmailArtifactDocumentModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    },\n    \"EmailReviewItemModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    },\n    \"EmailActivityEventModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    }\n  },\n  \"exact_actual_contract_parity\": true\n}\n",
+      "stderr": ""
+    },
+    {
+      "entry": "app.infrastructure.database._email_models.oauth",
+      "exit_code": 0,
+      "stdout": "{\n  \"mode\": \"verify\",\n  \"entry\": \"app.infrastructure.database._email_models.oauth\",\n  \"tables\": 174,\n  \"mappers\": 174,\n  \"compile_errors\": [],\n  \"email_classes\": 8,\n  \"listeners\": {\n    \"EmailConnectionModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    },\n    \"EmailOAuthStateModel\": {\n      \"canonical_callback_registered\": false,\n      \"before_update_count\": 0\n    },\n    \"EmailMessageModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    },\n    \"EmailArtifactModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    },\n    \"EmailArtifactDocumentModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    },\n    \"EmailReviewItemModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    },\n    \"EmailActivityEventModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    }\n  },\n  \"exact_actual_contract_parity\": true\n}\n",
+      "stderr": ""
+    },
+    {
+      "entry": "app.infrastructure.database._email_models.messages",
+      "exit_code": 0,
+      "stdout": "{\n  \"mode\": \"verify\",\n  \"entry\": \"app.infrastructure.database._email_models.messages\",\n  \"tables\": 174,\n  \"mappers\": 174,\n  \"compile_errors\": [],\n  \"email_classes\": 8,\n  \"listeners\": {\n    \"EmailConnectionModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    },\n    \"EmailOAuthStateModel\": {\n      \"canonical_callback_registered\": false,\n      \"before_update_count\": 0\n    },\n    \"EmailMessageModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    },\n    \"EmailArtifactModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    },\n    \"EmailArtifactDocumentModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    },\n    \"EmailReviewItemModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    },\n    \"EmailActivityEventModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    }\n  },\n  \"exact_actual_contract_parity\": true\n}\n",
+      "stderr": ""
+    },
+    {
+      "entry": "app.infrastructure.database._email_models.artifacts",
+      "exit_code": 0,
+      "stdout": "{\n  \"mode\": \"verify\",\n  \"entry\": \"app.infrastructure.database._email_models.artifacts\",\n  \"tables\": 174,\n  \"mappers\": 174,\n  \"compile_errors\": [],\n  \"email_classes\": 8,\n  \"listeners\": {\n    \"EmailConnectionModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    },\n    \"EmailOAuthStateModel\": {\n      \"canonical_callback_registered\": false,\n      \"before_update_count\": 0\n    },\n    \"EmailMessageModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    },\n    \"EmailArtifactModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    },\n    \"EmailArtifactDocumentModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    },\n    \"EmailReviewItemModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    },\n    \"EmailActivityEventModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    }\n  },\n  \"exact_actual_contract_parity\": true\n}\n",
+      "stderr": ""
+    },
+    {
+      "entry": "app.infrastructure.database._email_models.documents",
+      "exit_code": 0,
+      "stdout": "{\n  \"mode\": \"verify\",\n  \"entry\": \"app.infrastructure.database._email_models.documents\",\n  \"tables\": 174,\n  \"mappers\": 174,\n  \"compile_errors\": [],\n  \"email_classes\": 8,\n  \"listeners\": {\n    \"EmailConnectionModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    },\n    \"EmailOAuthStateModel\": {\n      \"canonical_callback_registered\": false,\n      \"before_update_count\": 0\n    },\n    \"EmailMessageModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    },\n    \"EmailArtifactModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    },\n    \"EmailArtifactDocumentModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    },\n    \"EmailReviewItemModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    },\n    \"EmailActivityEventModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    }\n  },\n  \"exact_actual_contract_parity\": true\n}\n",
+      "stderr": ""
+    },
+    {
+      "entry": "app.infrastructure.database._email_models.reviews",
+      "exit_code": 0,
+      "stdout": "{\n  \"mode\": \"verify\",\n  \"entry\": \"app.infrastructure.database._email_models.reviews\",\n  \"tables\": 174,\n  \"mappers\": 174,\n  \"compile_errors\": [],\n  \"email_classes\": 8,\n  \"listeners\": {\n    \"EmailConnectionModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    },\n    \"EmailOAuthStateModel\": {\n      \"canonical_callback_registered\": false,\n      \"before_update_count\": 0\n    },\n    \"EmailMessageModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    },\n    \"EmailArtifactModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    },\n    \"EmailArtifactDocumentModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    },\n    \"EmailReviewItemModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    },\n    \"EmailActivityEventModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    }\n  },\n  \"exact_actual_contract_parity\": true\n}\n",
+      "stderr": ""
+    },
+    {
+      "entry": "app.infrastructure.database._email_models.activity",
+      "exit_code": 0,
+      "stdout": "{\n  \"mode\": \"verify\",\n  \"entry\": \"app.infrastructure.database._email_models.activity\",\n  \"tables\": 174,\n  \"mappers\": 174,\n  \"compile_errors\": [],\n  \"email_classes\": 8,\n  \"listeners\": {\n    \"EmailConnectionModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    },\n    \"EmailOAuthStateModel\": {\n      \"canonical_callback_registered\": false,\n      \"before_update_count\": 0\n    },\n    \"EmailMessageModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    },\n    \"EmailArtifactModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    },\n    \"EmailArtifactDocumentModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    },\n    \"EmailReviewItemModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    },\n    \"EmailActivityEventModel\": {\n      \"canonical_callback_registered\": true,\n      \"before_update_count\": 1\n    }\n  },\n  \"exact_actual_contract_parity\": true\n}\n",
+      "stderr": ""
+    }
+  ]
+}

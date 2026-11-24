@@ -1,0 +1,266 @@
+[
+  {
+    "path": "backend/tests/__init__.py",
+    "sha256": "74fefbb92846da43cb0d846a7c9e8a0c02b55dc3b23a1a91fde15bcfe4ade088",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/support source read. Inspected assertions/negative controls, real versus mocked/SQLite/PostgreSQL execution boundaries, safe fixture targets, skip conditions, callback registration, resource-finally cleanup and deterministic contract scope. Namespace-only files contain only package docstrings. No test/runtime edit or new execution claimed; source review does not turn native/Linux/service-only skips into passing external qualification. Mobile-named wrappers were read only for shared group-access/revocation/diagnostic compatibility, not a native feature audit. Mixed scheduler heartbeat test is retained for common platform heartbeat; dedicated Inbox work stays deferred."
+  },
+  {
+    "path": "backend/tests/integration/__init__.py",
+    "sha256": "74fefbb92846da43cb0d846a7c9e8a0c02b55dc3b23a1a91fde15bcfe4ade088",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/support source read. Inspected assertions/negative controls, real versus mocked/SQLite/PostgreSQL execution boundaries, safe fixture targets, skip conditions, callback registration, resource-finally cleanup and deterministic contract scope. Namespace-only files contain only package docstrings. No test/runtime edit or new execution claimed; source review does not turn native/Linux/service-only skips into passing external qualification. Mobile-named wrappers were read only for shared group-access/revocation/diagnostic compatibility, not a native feature audit. Mixed scheduler heartbeat test is retained for common platform heartbeat; dedicated Inbox work stays deferred."
+  },
+  {
+    "path": "backend/tests/service_integration/__init__.py",
+    "sha256": "01f543c3ac3d98f11b61ca8c0d7899c618c22578a0760cab8dbd76bb0864f143",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/support source read. Inspected assertions/negative controls, real versus mocked/SQLite/PostgreSQL execution boundaries, safe fixture targets, skip conditions, callback registration, resource-finally cleanup and deterministic contract scope. Namespace-only files contain only package docstrings. No test/runtime edit or new execution claimed; source review does not turn native/Linux/service-only skips into passing external qualification. Mobile-named wrappers were read only for shared group-access/revocation/diagnostic compatibility, not a native feature audit. Mixed scheduler heartbeat test is retained for common platform heartbeat; dedicated Inbox work stays deferred."
+  },
+  {
+    "path": "backend/tests/unit/__init__.py",
+    "sha256": "74fefbb92846da43cb0d846a7c9e8a0c02b55dc3b23a1a91fde15bcfe4ade088",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/support source read. Inspected assertions/negative controls, real versus mocked/SQLite/PostgreSQL execution boundaries, safe fixture targets, skip conditions, callback registration, resource-finally cleanup and deterministic contract scope. Namespace-only files contain only package docstrings. No test/runtime edit or new execution claimed; source review does not turn native/Linux/service-only skips into passing external qualification. Mobile-named wrappers were read only for shared group-access/revocation/diagnostic compatibility, not a native feature audit. Mixed scheduler heartbeat test is retained for common platform heartbeat; dedicated Inbox work stays deferred."
+  },
+  {
+    "path": "backend/tests/unit/application/__init__.py",
+    "sha256": "74fefbb92846da43cb0d846a7c9e8a0c02b55dc3b23a1a91fde15bcfe4ade088",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/support source read. Inspected assertions/negative controls, real versus mocked/SQLite/PostgreSQL execution boundaries, safe fixture targets, skip conditions, callback registration, resource-finally cleanup and deterministic contract scope. Namespace-only files contain only package docstrings. No test/runtime edit or new execution claimed; source review does not turn native/Linux/service-only skips into passing external qualification. Mobile-named wrappers were read only for shared group-access/revocation/diagnostic compatibility, not a native feature audit. Mixed scheduler heartbeat test is retained for common platform heartbeat; dedicated Inbox work stays deferred."
+  },
+  {
+    "path": "backend/tests/unit/domain/__init__.py",
+    "sha256": "74fefbb92846da43cb0d846a7c9e8a0c02b55dc3b23a1a91fde15bcfe4ade088",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/support source read. Inspected assertions/negative controls, real versus mocked/SQLite/PostgreSQL execution boundaries, safe fixture targets, skip conditions, callback registration, resource-finally cleanup and deterministic contract scope. Namespace-only files contain only package docstrings. No test/runtime edit or new execution claimed; source review does not turn native/Linux/service-only skips into passing external qualification. Mobile-named wrappers were read only for shared group-access/revocation/diagnostic compatibility, not a native feature audit. Mixed scheduler heartbeat test is retained for common platform heartbeat; dedicated Inbox work stays deferred."
+  },
+  {
+    "path": "backend/tests/sqlite_uuid.py",
+    "sha256": "8041ac91e03864aab397cb070570511deb2e1bf2eff3be5fa18eaaac93b72ac8",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/support source read. Inspected assertions/negative controls, real versus mocked/SQLite/PostgreSQL execution boundaries, safe fixture targets, skip conditions, callback registration, resource-finally cleanup and deterministic contract scope. Namespace-only files contain only package docstrings. No test/runtime edit or new execution claimed; source review does not turn native/Linux/service-only skips into passing external qualification. Mobile-named wrappers were read only for shared group-access/revocation/diagnostic compatibility, not a native feature audit. Mixed scheduler heartbeat test is retained for common platform heartbeat; dedicated Inbox work stays deferred."
+  },
+  {
+    "path": "backend/tests/sqlite_trip_timezone.py",
+    "sha256": "81f4d92b61e793435ee6d0828f77d974675054c9a5807e7544d18ff59856c1e4",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/support source read. Inspected assertions/negative controls, real versus mocked/SQLite/PostgreSQL execution boundaries, safe fixture targets, skip conditions, callback registration, resource-finally cleanup and deterministic contract scope. Namespace-only files contain only package docstrings. No test/runtime edit or new execution claimed; source review does not turn native/Linux/service-only skips into passing external qualification. Mobile-named wrappers were read only for shared group-access/revocation/diagnostic compatibility, not a native feature audit. Mixed scheduler heartbeat test is retained for common platform heartbeat; dedicated Inbox work stays deferred."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_data_invariants_sqlite.py",
+    "sha256": "0f36b695b0538bf79f5998894288993a72ed92bc7535ed45502bcbfaef5fc639",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/support source read. Inspected assertions/negative controls, real versus mocked/SQLite/PostgreSQL execution boundaries, safe fixture targets, skip conditions, callback registration, resource-finally cleanup and deterministic contract scope. Namespace-only files contain only package docstrings. No test/runtime edit or new execution claimed; source review does not turn native/Linux/service-only skips into passing external qualification. Mobile-named wrappers were read only for shared group-access/revocation/diagnostic compatibility, not a native feature audit. Mixed scheduler heartbeat test is retained for common platform heartbeat; dedicated Inbox work stays deferred."
+  },
+  {
+    "path": "backend/tests/service_integration/test_document_distribution_upgrade_postgresql.py",
+    "sha256": "c95bdc6a4e51d8697904fc7a5005a1462de0688b03e2038c32a4cfbb66172a62",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/support source read. Inspected assertions/negative controls, real versus mocked/SQLite/PostgreSQL execution boundaries, safe fixture targets, skip conditions, callback registration, resource-finally cleanup and deterministic contract scope. Namespace-only files contain only package docstrings. No test/runtime edit or new execution claimed; source review does not turn native/Linux/service-only skips into passing external qualification. Mobile-named wrappers were read only for shared group-access/revocation/diagnostic compatibility, not a native feature audit. Mixed scheduler heartbeat test is retained for common platform heartbeat; dedicated Inbox work stays deferred."
+  },
+  {
+    "path": "backend/tests/unit/core/test_storage_write_budget.py",
+    "sha256": "888ee812efea53db2eb91e4e0945112197174e9f5f87ab2e3694863951e46b6e",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/support source read. Inspected assertions/negative controls, real versus mocked/SQLite/PostgreSQL execution boundaries, safe fixture targets, skip conditions, callback registration, resource-finally cleanup and deterministic contract scope. Namespace-only files contain only package docstrings. No test/runtime edit or new execution claimed; source review does not turn native/Linux/service-only skips into passing external qualification. Mobile-named wrappers were read only for shared group-access/revocation/diagnostic compatibility, not a native feature audit. Mixed scheduler heartbeat test is retained for common platform heartbeat; dedicated Inbox work stays deferred."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_database_role_policy.py",
+    "sha256": "7e8b7244ea36020210a80a0e122541a02708a55fd7cbbcb639fd6deec465179d",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/support source read. Inspected assertions/negative controls, real versus mocked/SQLite/PostgreSQL execution boundaries, safe fixture targets, skip conditions, callback registration, resource-finally cleanup and deterministic contract scope. Namespace-only files contain only package docstrings. No test/runtime edit or new execution claimed; source review does not turn native/Linux/service-only skips into passing external qualification. Mobile-named wrappers were read only for shared group-access/revocation/diagnostic compatibility, not a native feature audit. Mixed scheduler heartbeat test is retained for common platform heartbeat; dedicated Inbox work stays deferred."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_saved_mrz_validation.py",
+    "sha256": "d5a23393d4d1780129b76922df737dc128453e9c742029db8950786ed1fef5c2",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/support source read. Inspected assertions/negative controls, real versus mocked/SQLite/PostgreSQL execution boundaries, safe fixture targets, skip conditions, callback registration, resource-finally cleanup and deterministic contract scope. Namespace-only files contain only package docstrings. No test/runtime edit or new execution claimed; source review does not turn native/Linux/service-only skips into passing external qualification. Mobile-named wrappers were read only for shared group-access/revocation/diagnostic compatibility, not a native feature audit. Mixed scheduler heartbeat test is retained for common platform heartbeat; dedicated Inbox work stays deferred."
+  },
+  {
+    "path": "backend/tests/unit/core/test_database_urls.py",
+    "sha256": "e9a797ff0a505947de0dac207a5bbdc29b511815a9078f1172c1f6606e1497b6",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/support source read. Inspected assertions/negative controls, real versus mocked/SQLite/PostgreSQL execution boundaries, safe fixture targets, skip conditions, callback registration, resource-finally cleanup and deterministic contract scope. Namespace-only files contain only package docstrings. No test/runtime edit or new execution claimed; source review does not turn native/Linux/service-only skips into passing external qualification. Mobile-named wrappers were read only for shared group-access/revocation/diagnostic compatibility, not a native feature audit. Mixed scheduler heartbeat test is retained for common platform heartbeat; dedicated Inbox work stays deferred."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_traveller_archive_names.py",
+    "sha256": "9e5b89290cc0e79d5b3930c78ef2c65526e296df8d494e83aac8418c971a9052",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/support source read. Inspected assertions/negative controls, real versus mocked/SQLite/PostgreSQL execution boundaries, safe fixture targets, skip conditions, callback registration, resource-finally cleanup and deterministic contract scope. Namespace-only files contain only package docstrings. No test/runtime edit or new execution claimed; source review does not turn native/Linux/service-only skips into passing external qualification. Mobile-named wrappers were read only for shared group-access/revocation/diagnostic compatibility, not a native feature audit. Mixed scheduler heartbeat test is retained for common platform heartbeat; dedicated Inbox work stays deferred."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_refresh_token_hashing.py",
+    "sha256": "738bf4841500a93c1b7e6ede5523a87ae4bf5f66eebe28e4903d58b3a3f5da06",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/support source read. Inspected assertions/negative controls, real versus mocked/SQLite/PostgreSQL execution boundaries, safe fixture targets, skip conditions, callback registration, resource-finally cleanup and deterministic contract scope. Namespace-only files contain only package docstrings. No test/runtime edit or new execution claimed; source review does not turn native/Linux/service-only skips into passing external qualification. Mobile-named wrappers were read only for shared group-access/revocation/diagnostic compatibility, not a native feature audit. Mixed scheduler heartbeat test is retained for common platform heartbeat; dedicated Inbox work stays deferred."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_whatsapp_publication_schedule.py",
+    "sha256": "78662821f7a3c9010be862fe467053ffd33403d89397012bf8d761cde9957b41",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/support source read. Inspected assertions/negative controls, real versus mocked/SQLite/PostgreSQL execution boundaries, safe fixture targets, skip conditions, callback registration, resource-finally cleanup and deterministic contract scope. Namespace-only files contain only package docstrings. No test/runtime edit or new execution claimed; source review does not turn native/Linux/service-only skips into passing external qualification. Mobile-named wrappers were read only for shared group-access/revocation/diagnostic compatibility, not a native feature audit. Mixed scheduler heartbeat test is retained for common platform heartbeat; dedicated Inbox work stays deferred."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_company_export_workbook_lifetime.py",
+    "sha256": "a580a1abfc8f1719163e4ce35735d0d34bd7560ffcdbe9861f7b4ea3493e6298",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/support source read. Inspected assertions/negative controls, real versus mocked/SQLite/PostgreSQL execution boundaries, safe fixture targets, skip conditions, callback registration, resource-finally cleanup and deterministic contract scope. Namespace-only files contain only package docstrings. No test/runtime edit or new execution claimed; source review does not turn native/Linux/service-only skips into passing external qualification. Mobile-named wrappers were read only for shared group-access/revocation/diagnostic compatibility, not a native feature audit. Mixed scheduler heartbeat test is retained for common platform heartbeat; dedicated Inbox work stays deferred."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_alembic_revision_contract.py",
+    "sha256": "922f68a9b428e6849a3b79fd9167ff89d5546ad0b290e17f3525a0882e9ea266",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/support source read. Inspected assertions/negative controls, real versus mocked/SQLite/PostgreSQL execution boundaries, safe fixture targets, skip conditions, callback registration, resource-finally cleanup and deterministic contract scope. Namespace-only files contain only package docstrings. No test/runtime edit or new execution claimed; source review does not turn native/Linux/service-only skips into passing external qualification. Mobile-named wrappers were read only for shared group-access/revocation/diagnostic compatibility, not a native feature audit. Mixed scheduler heartbeat test is retained for common platform heartbeat; dedicated Inbox work stays deferred."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_whatsapp_archive_migration.py",
+    "sha256": "b4e8072b9d3fc717f21f3fd13f692abd8031e4694ccf6a1c5e012b4ca9d8eb5f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/support source read. Inspected assertions/negative controls, real versus mocked/SQLite/PostgreSQL execution boundaries, safe fixture targets, skip conditions, callback registration, resource-finally cleanup and deterministic contract scope. Namespace-only files contain only package docstrings. No test/runtime edit or new execution claimed; source review does not turn native/Linux/service-only skips into passing external qualification. Mobile-named wrappers were read only for shared group-access/revocation/diagnostic compatibility, not a native feature audit. Mixed scheduler heartbeat test is retained for common platform heartbeat; dedicated Inbox work stays deferred."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_whatsapp_template_language_migration.py",
+    "sha256": "fedf3e8e8e9a951b4d7f0709e1c88c82b429807c6a5331d293d79fcb6fb7cdae",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/support source read. Inspected assertions/negative controls, real versus mocked/SQLite/PostgreSQL execution boundaries, safe fixture targets, skip conditions, callback registration, resource-finally cleanup and deterministic contract scope. Namespace-only files contain only package docstrings. No test/runtime edit or new execution claimed; source review does not turn native/Linux/service-only skips into passing external qualification. Mobile-named wrappers were read only for shared group-access/revocation/diagnostic compatibility, not a native feature audit. Mixed scheduler heartbeat test is retained for common platform heartbeat; dedicated Inbox work stays deferred."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_beat_healthcheck.py",
+    "sha256": "ef2755fd9ba766d440891655e065d0735757bbf1b159916392e7c720d379e33e",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/support source read. Inspected assertions/negative controls, real versus mocked/SQLite/PostgreSQL execution boundaries, safe fixture targets, skip conditions, callback registration, resource-finally cleanup and deterministic contract scope. Namespace-only files contain only package docstrings. No test/runtime edit or new execution claimed; source review does not turn native/Linux/service-only skips into passing external qualification. Mobile-named wrappers were read only for shared group-access/revocation/diagnostic compatibility, not a native feature audit. Mixed scheduler heartbeat test is retained for common platform heartbeat; dedicated Inbox work stays deferred."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_import_group_migration.py",
+    "sha256": "d461353007999ec08963a405f196b2a7e693e32f8f8669c88f3dfef5540ca061",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/support source read. Inspected assertions/negative controls, real versus mocked/SQLite/PostgreSQL execution boundaries, safe fixture targets, skip conditions, callback registration, resource-finally cleanup and deterministic contract scope. Namespace-only files contain only package docstrings. No test/runtime edit or new execution claimed; source review does not turn native/Linux/service-only skips into passing external qualification. Mobile-named wrappers were read only for shared group-access/revocation/diagnostic compatibility, not a native feature audit. Mixed scheduler heartbeat test is retained for common platform heartbeat; dedicated Inbox work stays deferred."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_platform_retention_migration.py",
+    "sha256": "f7e1024d0e039dbe6fea04d2584274ecbce580331e26935f4ce11a39bf6e129b",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/support source read. Inspected assertions/negative controls, real versus mocked/SQLite/PostgreSQL execution boundaries, safe fixture targets, skip conditions, callback registration, resource-finally cleanup and deterministic contract scope. Namespace-only files contain only package docstrings. No test/runtime edit or new execution claimed; source review does not turn native/Linux/service-only skips into passing external qualification. Mobile-named wrappers were read only for shared group-access/revocation/diagnostic compatibility, not a native feature audit. Mixed scheduler heartbeat test is retained for common platform heartbeat; dedicated Inbox work stays deferred."
+  },
+  {
+    "path": "backend/tests/service_integration/test_mobile_historical_access_sync_postgresql.py",
+    "sha256": "423c9ff63fdfa4c3292138528d8fafa43f317a44665205f96abf66f4e7b8d976",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/support source read. Inspected assertions/negative controls, real versus mocked/SQLite/PostgreSQL execution boundaries, safe fixture targets, skip conditions, callback registration, resource-finally cleanup and deterministic contract scope. Namespace-only files contain only package docstrings. No test/runtime edit or new execution claimed; source review does not turn native/Linux/service-only skips into passing external qualification. Mobile-named wrappers were read only for shared group-access/revocation/diagnostic compatibility, not a native feature audit. Mixed scheduler heartbeat test is retained for common platform heartbeat; dedicated Inbox work stays deferred."
+  },
+  {
+    "path": "backend/tests/service_integration/test_mobile_refresh_trip_fallback_postgresql.py",
+    "sha256": "16b2a78341f7e47f33bb6f435fca00dceb36ff6710ae9b502d3ebbf5d288953e",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/support source read. Inspected assertions/negative controls, real versus mocked/SQLite/PostgreSQL execution boundaries, safe fixture targets, skip conditions, callback registration, resource-finally cleanup and deterministic contract scope. Namespace-only files contain only package docstrings. No test/runtime edit or new execution claimed; source review does not turn native/Linux/service-only skips into passing external qualification. Mobile-named wrappers were read only for shared group-access/revocation/diagnostic compatibility, not a native feature audit. Mixed scheduler heartbeat test is retained for common platform heartbeat; dedicated Inbox work stays deferred."
+  },
+  {
+    "path": "backend/tests/service_integration/test_mobile_notification_diagnostic_postgresql.py",
+    "sha256": "bb457e785fe392ad474ee59d617ce94cbb41fece56dd0fb4a1b93b05d96a0609",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/support source read. Inspected assertions/negative controls, real versus mocked/SQLite/PostgreSQL execution boundaries, safe fixture targets, skip conditions, callback registration, resource-finally cleanup and deterministic contract scope. Namespace-only files contain only package docstrings. No test/runtime edit or new execution claimed; source review does not turn native/Linux/service-only skips into passing external qualification. Mobile-named wrappers were read only for shared group-access/revocation/diagnostic compatibility, not a native feature audit. Mixed scheduler heartbeat test is retained for common platform heartbeat; dedicated Inbox work stays deferred."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_dashboard_mobile_role_boundary.py",
+    "sha256": "d16f904aac92971dcf84f363275002a8c2f0e9069524e311375de79e6cfaf13f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/support source read. Inspected assertions/negative controls, real versus mocked/SQLite/PostgreSQL execution boundaries, safe fixture targets, skip conditions, callback registration, resource-finally cleanup and deterministic contract scope. Namespace-only files contain only package docstrings. No test/runtime edit or new execution claimed; source review does not turn native/Linux/service-only skips into passing external qualification. Mobile-named wrappers were read only for shared group-access/revocation/diagnostic compatibility, not a native feature audit. Mixed scheduler heartbeat test is retained for common platform heartbeat; dedicated Inbox work stays deferred."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_auth_route_csrf.py",
+    "sha256": "80a107c967ce81a7b158b1334826a3251dad2a921fdb53f3f24bfc97de941c5b",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/support source read. Inspected assertions/negative controls, real versus mocked/SQLite/PostgreSQL execution boundaries, safe fixture targets, skip conditions, callback registration, resource-finally cleanup and deterministic contract scope. Namespace-only files contain only package docstrings. No test/runtime edit or new execution claimed; source review does not turn native/Linux/service-only skips into passing external qualification. Mobile-named wrappers were read only for shared group-access/revocation/diagnostic compatibility, not a native feature audit. Mixed scheduler heartbeat test is retained for common platform heartbeat; dedicated Inbox work stays deferred."
+  },
+  {
+    "path": "scripts/test_expat_runtime_security.py",
+    "sha256": "5af829185adccc54cc61ae2cb5672e7d986c1fee8ba4dd546f334e5d71bc6abc",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/support source read. Inspected assertions/negative controls, real versus mocked/SQLite/PostgreSQL execution boundaries, safe fixture targets, skip conditions, callback registration, resource-finally cleanup and deterministic contract scope. Namespace-only files contain only package docstrings. No test/runtime edit or new execution claimed; source review does not turn native/Linux/service-only skips into passing external qualification. Mobile-named wrappers were read only for shared group-access/revocation/diagnostic compatibility, not a native feature audit. Mixed scheduler heartbeat test is retained for common platform heartbeat; dedicated Inbox work stays deferred."
+  },
+  {
+    "path": "scripts/test_python_runtime_security.py",
+    "sha256": "eca7c15d2ec30e82819ba325b1ff1aca2a68b47f811314315c2f642594442aad",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/support source read. Inspected assertions/negative controls, real versus mocked/SQLite/PostgreSQL execution boundaries, safe fixture targets, skip conditions, callback registration, resource-finally cleanup and deterministic contract scope. Namespace-only files contain only package docstrings. No test/runtime edit or new execution claimed; source review does not turn native/Linux/service-only skips into passing external qualification. Mobile-named wrappers were read only for shared group-access/revocation/diagnostic compatibility, not a native feature audit. Mixed scheduler heartbeat test is retained for common platform heartbeat; dedicated Inbox work stays deferred."
+  },
+  {
+    "path": "scripts/test_node_toolchain_inventory.py",
+    "sha256": "f47baa27aa8893fe1d14d12fa91d9800c56e49147833eec16c14795b821cca13",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/support source read. Inspected assertions/negative controls, real versus mocked/SQLite/PostgreSQL execution boundaries, safe fixture targets, skip conditions, callback registration, resource-finally cleanup and deterministic contract scope. Namespace-only files contain only package docstrings. No test/runtime edit or new execution claimed; source review does not turn native/Linux/service-only skips into passing external qualification. Mobile-named wrappers were read only for shared group-access/revocation/diagnostic compatibility, not a native feature audit. Mixed scheduler heartbeat test is retained for common platform heartbeat; dedicated Inbox work stays deferred."
+  },
+  {
+    "path": "scripts/test_database_identity_environment.py",
+    "sha256": "2bebb00c6deacff4a55d8641065a0db2019a929530d1491aaf5765d0efe277d6",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical test/support source read. Inspected assertions/negative controls, real versus mocked/SQLite/PostgreSQL execution boundaries, safe fixture targets, skip conditions, callback registration, resource-finally cleanup and deterministic contract scope. Namespace-only files contain only package docstrings. No test/runtime edit or new execution claimed; source review does not turn native/Linux/service-only skips into passing external qualification. Mobile-named wrappers were read only for shared group-access/revocation/diagnostic compatibility, not a native feature audit. Mixed scheduler heartbeat test is retained for common platform heartbeat; dedicated Inbox work stays deferred."
+  }
+]

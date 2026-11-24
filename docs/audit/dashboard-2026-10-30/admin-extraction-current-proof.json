@@ -1,0 +1,74 @@
+{
+  "status": "passed",
+  "original_post_projection_source_sha256": "50ff1332b26acdd0783649ffec301f70f68fdd555e98d4b9b8d3b2db4595a8f4",
+  "exact_whole_declarations": 26,
+  "declaration_owners": {
+    "_manager_scope": "backend/app/presentation/api/v1/routes/admin_account_scope.py",
+    "_staff_scope": "backend/app/presentation/api/v1/routes/admin_account_scope.py",
+    "_validated_credential_state": "backend/app/presentation/api/v1/routes/admin_account_views.py",
+    "_group_response": "backend/app/presentation/api/v1/routes/admin_account_views.py",
+    "_manager_response": "backend/app/presentation/api/v1/routes/admin_account_views.py",
+    "list_managers": "backend/app/presentation/api/v1/routes/admin_workforce.py",
+    "create_manager": "backend/app/presentation/api/v1/routes/admin_workforce.py",
+    "list_admin_groups": "backend/app/presentation/api/v1/routes/admin_group_access.py",
+    "list_staff_for_access": "backend/app/presentation/api/v1/routes/admin_group_access.py",
+    "assign_staff_groups": "backend/app/presentation/api/v1/routes/admin_group_access.py",
+    "assign_manager_groups": "backend/app/presentation/api/v1/routes/admin_group_access.py",
+    "get_platform_settings": "backend/app/presentation/api/v1/routes/admin_platform_settings.py",
+    "update_platform_settings": "backend/app/presentation/api/v1/routes/admin_platform_settings.py",
+    "_same_platform_settings_revision": "backend/app/presentation/api/v1/routes/admin_platform_settings.py",
+    "_platform_settings_revision_conflict": "backend/app/presentation/api/v1/routes/admin_platform_settings.py",
+    "_load_platform_settings": "backend/app/presentation/api/v1/routes/admin_platform_settings.py",
+    "get_admin_overview": "backend/app/presentation/api/v1/routes/admin_retention.py",
+    "get_group_passport_retention": "backend/app/presentation/api/v1/routes/admin_retention.py",
+    "_PreviousManagerDelete": "backend/app/presentation/api/v1/routes/admin_manager_delete_replay.py",
+    "_previous_manager_delete_result": "backend/app/presentation/api/v1/routes/admin_manager_delete_replay.py",
+    "_WhatsAppPurgeCounts": "backend/app/presentation/api/v1/routes/admin_deletion_queries.py",
+    "_delete_by_ids": "backend/app/presentation/api/v1/routes/admin_deletion_queries.py",
+    "_delete_whatsapp_broadcast_data": "backend/app/presentation/api/v1/routes/admin_deletion_queries.py",
+    "_delete_entity_rows": "backend/app/presentation/api/v1/routes/admin_deletion_queries.py",
+    "delete_manager": "backend/app/presentation/api/v1/routes/admin_manager_deletion.py",
+    "purge_passport_data": "backend/app/presentation/api/v1/routes/admin_passport_purge.py"
+  },
+  "exact_public_endpoint_declarations_and_actual_facade_identities": 12,
+  "fully_equal_openapi": "admin-api-before.json and snapshot_admin_api.py after",
+  "instrumentation_proofs": [
+    {
+      "path": "backend/tests/unit/presentation/test_admin_passport_storage_cleanup.py",
+      "all_original_assertions_and_declarations_preserved": true,
+      "change": "Only instrumentation targets moved to the actual function-global owners; the retention barrier now guards both destructive owners."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_platform_settings_concurrency.py",
+      "all_original_assertions_and_declarations_preserved": true,
+      "change": "Only instrumentation targets moved to the actual function-global owners; the retention barrier now guards both destructive owners."
+    },
+    {
+      "path": "backend/tests/integration/test_mcp_retention_reads.py",
+      "all_original_assertions_and_declarations_preserved": true,
+      "change": "Only instrumentation targets moved to the actual function-global owners; the retention barrier now guards both destructive owners."
+    }
+  ],
+  "files": {
+    "backend/app/presentation/api/v1/routes/admin_account_scope.py": "0caf40547a4a4b0b4694454532d71d9f728260872ece9a6a93e842faaaca3b12",
+    "backend/app/presentation/api/v1/routes/admin_account_views.py": "64b25aba211ee143b2bd1501bcde536d83af502c22efaa15f3d92f32e7c9df9c",
+    "backend/app/presentation/api/v1/routes/admin_workforce.py": "c2a127cfff5e662562379a44cb1018e7c9069c1dbc8c929766f6b87f45459644",
+    "backend/app/presentation/api/v1/routes/admin_group_access.py": "16536e1644470b62c7130224d9f4650a7c44dfe101c34a29c6f4623d6792657e",
+    "backend/app/presentation/api/v1/routes/admin_platform_settings.py": "634e968871f22640240a86050f2fa778fd23f1520190e29c70dcd4570492760e",
+    "backend/app/presentation/api/v1/routes/admin_retention.py": "a0af2341a6ba20246358af1fd376a0f18f0450d497d984bb734e840d21988e4a",
+    "backend/app/presentation/api/v1/routes/admin_manager_delete_replay.py": "961b3fa5fb070f3bd2e6f69bfaac2d61605d2de3510d580a3fae210fa1752481",
+    "backend/app/presentation/api/v1/routes/admin_deletion_queries.py": "cb724cc20cd7900148eb8ad4b8da27e94dbb4c91aee5f6a022ef2e7d1fb8e88a",
+    "backend/app/presentation/api/v1/routes/admin_manager_deletion.py": "3af4881d8f0090dd4f12868f533fa20f81fc81e08edebaca28691018f3dca10f",
+    "backend/app/presentation/api/v1/routes/admin_passport_purge.py": "2286fd0144a7a6fbd6a74e00e8ce21415f55d7b2a91f5ca524ec51d048225916",
+    "backend/tests/unit/presentation/test_admin_passport_storage_cleanup.py": "63697734ba4571a70b10518b768c365279fc7d5b98264de34a4357c14234c763",
+    "backend/tests/unit/presentation/test_platform_settings_concurrency.py": "ef147e248f1d35f1dd4c3740036eb4ce1c21f9a8e4f240b7a5f654ec2b463e32",
+    "backend/tests/integration/test_mcp_retention_reads.py": "3971c1518796e9108f3175b6a74be59b66066b7769c82a112e744172a380911d",
+    "backend/app/presentation/api/v1/routes/admin.py": "d6cef1f7db8cc08202866b7d93e0a1b3feb91b69ddb49a25687850b9f5cc36c4",
+    "backend/app/presentation/api/v1/routes/admin_group_projection.py": "6bec9d7d3a94f52d2586534d55247851dc1d94f0993ea66db8dcf19a0ec34ace"
+  },
+  "limits": [
+    "The list-manager indexing fix has its own before/after route tests and executed DTO parity proof. This proof compares the subsequent extraction to that already-fixed source.",
+    "Router group registration order is intentionally organized by owner; all unique method/path contracts, complete OpenAPI and security dependencies are equal. No overlapping dynamic/static path ambiguity introduced.",
+    "Private helper facade exports preserve incoming imports. Test patches deliberately target actual implementation owners, with all assertions preserved rather than a mutable callback proxy."
+  ]
+}

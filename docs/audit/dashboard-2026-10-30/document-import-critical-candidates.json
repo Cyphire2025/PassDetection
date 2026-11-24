@@ -1,0 +1,7 @@
+[
+  {
+    "path": "app/presentation/api/v1/routes/passport_routes/document_import_failure.py",
+    "minimum_line_percent": 95,
+    "minimum_branch_percent": 90
+  }
+]

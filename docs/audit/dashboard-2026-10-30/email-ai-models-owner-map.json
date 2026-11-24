@@ -1,0 +1,42 @@
+{
+  "owners": [
+    {
+      "path": "backend/app/infrastructure/database/_email_ai_models/rollout.py",
+      "class_name": "EmailAiRolloutPolicyModel",
+      "legacy_module": "app.infrastructure.database.email_ai_models"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_ai_models/analyses.py",
+      "class_name": "EmailAiAnalysisModel",
+      "legacy_module": "app.infrastructure.database.email_ai_models"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_ai_models/deadlines.py",
+      "class_name": "EmailDetectedDeadlineModel",
+      "legacy_module": "app.infrastructure.database.email_ai_models"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_ai_models/proposals.py",
+      "class_name": "EmailActionProposalModel",
+      "legacy_module": "app.infrastructure.database.email_ai_models"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_ai_models/drafts.py",
+      "class_name": "EmailReplyDraftModel",
+      "legacy_module": "app.infrastructure.database.email_ai_models"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_ai_models/feedback.py",
+      "class_name": "EmailAiFeedbackModel",
+      "legacy_module": "app.infrastructure.database.email_ai_models"
+    }
+  ],
+  "declaration_order": [
+    "EmailAiRolloutPolicyModel",
+    "EmailAiAnalysisModel",
+    "EmailDetectedDeadlineModel",
+    "EmailActionProposalModel",
+    "EmailReplyDraftModel",
+    "EmailAiFeedbackModel"
+  ]
+}

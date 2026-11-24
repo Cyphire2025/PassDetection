@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\dashboard_audit_inventory.py", line 174, in <module>
+    result = refresh(options.mark, options.status, options.reviewer, options.notes)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\dashboard_audit_inventory.py", line 132, in refresh
+    reviewer="; ".join(sorted({record["reviewer"] for record in matching})),
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\dashboard_audit_inventory.py", line 132, in <setcomp>
+    reviewer="; ".join(sorted({record["reviewer"] for record in matching})),
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: unhashable type: 'list'

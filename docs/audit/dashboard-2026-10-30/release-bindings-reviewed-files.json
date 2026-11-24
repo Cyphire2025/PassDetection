@@ -1,0 +1,34 @@
+[
+  {
+    "path": "scripts/release_workspace_branding_policy.py",
+    "sha256": "cae2eacc0398319dd8319f227ad7e9bf92b1edfc91b6abe9bf38121f6a8a406b",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "Prior full authored policy/loader/test source review retained; only exact pin and reviewed data changed. Current parent-adopted group WhatsApp match4 additive checkpoint878to882 normal; all878old rows and165critical/global values exact. Current four canonical source metrics and fresh parent-qualified57case raw coverage/hash18fence checked. Response normal85 backed87.72statement/56.25branch, no critical invented. Only backend-budget AFTER changed, all126BEFOREpairs/125otherAFTER exact; actual882static/wholearchitecture/126currentAFTER+bothGitBEFOREs/14loader pass. FE661/CI sources unchanged. Historical QUALIFIED_SOURCES/MCP1990 not reset. Evidence group-whatsapp-match-shared-integration.json."
+  },
+  {
+    "path": "scripts/release_workspace_branding_bindings.py",
+    "sha256": "037c4aca5b96591e0ef740d819cf57a155be0bea1ba7765ed8ef49e940590cfe",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Prior full authored policy/loader/test source review retained; only exact pin and reviewed data changed. Current parent-adopted group WhatsApp match4 additive checkpoint878to882 normal; all878old rows and165critical/global values exact. Current four canonical source metrics and fresh parent-qualified57case raw coverage/hash18fence checked. Response normal85 backed87.72statement/56.25branch, no critical invented. Only backend-budget AFTER changed, all126BEFOREpairs/125otherAFTER exact; actual882static/wholearchitecture/126currentAFTER+bothGitBEFOREs/14loader pass. FE661/CI sources unchanged. Historical QUALIFIED_SOURCES/MCP1990 not reset. Evidence group-whatsapp-match-shared-integration.json."
+  },
+  {
+    "path": "scripts/test_release_workspace_branding_bindings.py",
+    "sha256": "d18cc4028e5082ffe99ca14797c78f4846da0de041f49c3c2d0ef7b662d98bff",
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Prior full authored policy/loader/test source review retained; only exact pin and reviewed data changed. Current parent-adopted group WhatsApp match4 additive checkpoint878to882 normal; all878old rows and165critical/global values exact. Current four canonical source metrics and fresh parent-qualified57case raw coverage/hash18fence checked. Response normal85 backed87.72statement/56.25branch, no critical invented. Only backend-budget AFTER changed, all126BEFOREpairs/125otherAFTER exact; actual882static/wholearchitecture/126currentAFTER+bothGitBEFOREs/14loader pass. FE661/CI sources unchanged. Historical QUALIFIED_SOURCES/MCP1990 not reset. Evidence group-whatsapp-match-shared-integration.json."
+  },
+  {
+    "path": "scripts/release_workspace_branding_bindings.json",
+    "sha256": "6c5298ac2283a687d54fd1a90c6e1f094942617bc10d073856b0441c886aacc5",
+    "reviewer": "ai_extraction",
+    "review_scope": "partial",
+    "status": "generated-data-verified",
+    "notes": "Generated126-row exact data verification only, no full app-source credit. Current parent-adopted group WhatsApp match4 additive checkpoint878to882 normal; all878old rows and165critical/global values exact. Current four canonical source metrics and fresh parent-qualified57case raw coverage/hash18fence checked. Response normal85 backed87.72statement/56.25branch, no critical invented. Only backend-budget AFTER changed, all126BEFOREpairs/125otherAFTER exact; actual882static/wholearchitecture/126currentAFTER+bothGitBEFOREs/14loader pass. FE661/CI sources unchanged. Historical QUALIFIED_SOURCES/MCP1990 not reset. Evidence group-whatsapp-match-shared-integration.json."
+  }
+]

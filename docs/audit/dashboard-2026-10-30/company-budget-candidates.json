@@ -1,0 +1,107 @@
+[
+  {
+    "path": "features/companies/hooks/use-company-document-upload.ts",
+    "baselineLines": 122,
+    "maximumLines": 130,
+    "baselineMaxFunctionComplexity": 9,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/companies/hooks/use-company-data-exports.ts",
+    "baselineLines": 63,
+    "maximumLines": 70,
+    "baselineMaxFunctionComplexity": 4,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/companies/hooks/use-company-person-editor.ts",
+    "baselineLines": 71,
+    "maximumLines": 80,
+    "baselineMaxFunctionComplexity": 7,
+    "maximumFunctionComplexity": 8
+  },
+  {
+    "path": "features/companies/components/document-upload/selection.tsx",
+    "baselineLines": 45,
+    "maximumLines": 50,
+    "baselineMaxFunctionComplexity": 4,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/companies/components/document-upload/review.tsx",
+    "baselineLines": 34,
+    "maximumLines": 40,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/companies/components/data-exports/files.tsx",
+    "baselineLines": 42,
+    "maximumLines": 50,
+    "baselineMaxFunctionComplexity": 8,
+    "maximumFunctionComplexity": 9
+  },
+  {
+    "path": "features/companies/components/data-exports/jobs.tsx",
+    "baselineLines": 43,
+    "maximumLines": 50,
+    "baselineMaxFunctionComplexity": 10,
+    "maximumFunctionComplexity": 11
+  },
+  {
+    "path": "features/companies/utils/company-errors.ts",
+    "baselineLines": 6,
+    "maximumLines": 15,
+    "baselineMaxFunctionComplexity": 5,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/companies/utils/company-export-status.ts",
+    "baselineLines": 15,
+    "maximumLines": 20,
+    "baselineMaxFunctionComplexity": 1,
+    "maximumFunctionComplexity": 2
+  },
+  {
+    "path": "features/companies/components/company-document-upload.tsx",
+    "baselineLines": 26,
+    "maximumLines": 35,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/companies/components/company-person-editor.tsx",
+    "baselineLines": 36,
+    "maximumLines": 45,
+    "baselineMaxFunctionComplexity": 6,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/companies/components/company-data-exports.tsx",
+    "baselineLines": 29,
+    "maximumLines": 35,
+    "baselineMaxFunctionComplexity": 6,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/companies/components/company-match-queue.tsx",
+    "baselineLines": 33,
+    "maximumLines": 40,
+    "baselineMaxFunctionComplexity": 13,
+    "maximumFunctionComplexity": 13
+  },
+  {
+    "path": "features/companies/components/company-passport-fields.tsx",
+    "baselineLines": 20,
+    "maximumLines": 25,
+    "baselineMaxFunctionComplexity": 4,
+    "maximumFunctionComplexity": 5
+  },
+  {
+    "path": "features/companies/components/company-feedback.tsx",
+    "baselineLines": 24,
+    "maximumLines": 30,
+    "baselineMaxFunctionComplexity": 6,
+    "maximumFunctionComplexity": 7
+  }
+]

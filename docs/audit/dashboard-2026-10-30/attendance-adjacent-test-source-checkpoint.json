@@ -1,0 +1,20 @@
+{
+  "backend/tests/integration/test_browser_attendance_discard_atomicity.py": "d8083ad1cdc404e7e9b687a83bb9e0fdc495a04b3ddd93a98415f20bf01dab9d",
+  "backend/tests/integration/test_browser_attendance_runtime_routes.py": "63987ccf24079df87f254a56e1870f3db6c267267b5fc5e870d6a2a6fd95f606",
+  "backend/tests/unit/presentation/test_browser_offline_authorization.py": "d6b694a6c999acf4061f8de2109cd42463b7460cfbc4f27592dba60189f04c8e",
+  "backend/tests/unit/infrastructure/test_audit_integrity.py": "326ed0fd738aa3f51cde047e765c7b8927a5accce43fc28d1159e710844f3843",
+  "backend/tests/unit/infrastructure/test_audit_log_pagination.py": "4396a391f6121ce93b5ae526e9f6f185c217f5e76512270fc3797c3a3416b1be",
+  "backend/tests/unit/infrastructure/test_audit_checkpoints.py": "e5d7887d9bbf89d1154daaae3c0b6912c55734c26fe50334056109140e7247f9",
+  "backend/tests/unit/presentation/test_audit_log_routes.py": "56a372745c53c4372d883f47f3e1078a5882231dac647b11118cc0f306e3cd95",
+  "backend/tests/integration/test_coordinator_assignment_lifecycle.py": "6718759d8450ce79240703d936c6bb52a050a76f7ef27d0ab41cfd194f443325",
+  "backend/tests/unit/infrastructure/test_coordinator_assignment_tasks.py": "b937da4af5b611bf3b7875bdd54290989dbc47a8cf15f446b59c983077ad5a57",
+  "backend/tests/unit/infrastructure/test_operational_roster_membership.py": "72a771bf758a4c8937abc4a427367be3408f12a1f27e796a85cba34c5c9c237e",
+  "backend/tests/unit/application/test_attendance_dashboard.py": "35f69663712e7d78552f2c7dea6a7b938fb9a4df845c77de4d92027e963773f9",
+  "backend/tests/unit/presentation/test_attendance_dashboard_routes.py": "cc4483cb379462b5e33d4f3710b0ad102d7925bbc4163c2ccce325e9daebac75",
+  "backend/tests/unit/infrastructure/test_attendance_runtime_and_discard.py": "d379b575b58a0762d503c97ebc7ed9d67a5540c76a880e6053ee676139b15e55",
+  "backend/tests/integration/test_mcp_attendance_reads.py": "d60f68a54b39bdb40120e2bddde6f344f5dcd9c97881312bfe44d718a65842c5",
+  "backend/tests/unit/presentation/test_tour_operations_route_decomposition.py": "d8c2a2b5fa23fb4bc1c3af0cc3488fa7c529f0ed308ac447a56b30a3f910170f",
+  "backend/tests/unit/presentation/test_enterprise_attendance_contract_compatibility.py": "d0cb8f46101896d770109539905a54f2775c56dfc618cdfb33208753d67f9af4",
+  "backend/tests/integration/test_mcp_management_audit.py": "bc950da30d554fae33ff1caef20738bf6775a80dcd849a2d0e00146fbab2f7c0",
+  "backend/tests/integration/test_mcp_audit_fixture_isolation.py": "0df0c2bddc6a5ed2e20117d0e87208089515fc265ce4f651b14020fa65761b08"
+}

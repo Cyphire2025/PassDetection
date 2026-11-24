@@ -148,7 +148,6 @@ describe('validateProductionPublicEnvironment', () => {
     ['EXPO_PUBLIC_APP_INTEGRITY_MODE', 'monitor', 'must equal enforce'],
     ['EXPO_PUBLIC_EAS_PROJECT_ID', 'not-a-uuid', 'must be a valid UUID'],
     ['EXPO_PUBLIC_EAS_PROJECT_ID', undefined, 'is required when OTA updates are configured'],
-    ['EXPO_PUBLIC_SENTRY_DSN', undefined, 'is required for production crash and ANR reporting'],
     ['EXPO_PUBLIC_SENTRY_DSN', 'http://public@example.test/1', 'must use HTTPS'],
     ['EXPO_PUBLIC_SENTRY_DSN', 'https://public:password@example.test/1', 'no password'],
     ['EXPO_PUBLIC_OFFLINE_LEASE_ISSUER', undefined, 'OFFLINE_LEASE_ISSUER must be'],
@@ -212,6 +211,17 @@ describe('validateProductionPublicEnvironment', () => {
       SENTRY_PROJECT: 'group-companion',
       SENTRY_AUTH_TOKEN: 'short',
     })).toThrow('protected, non-public build token');
+  });
+
+  it('allows production without an optional crash-reporting service', () => {
+    expect(validateProductionPublicEnvironment({
+      ...validEnvironment,
+      EXPO_PUBLIC_SENTRY_DSN: undefined,
+    }).sentryDsn).toBeUndefined();
+    expect(validateObservabilityBuildEnvironment({})).toBeUndefined();
+    expect(() => validateObservabilityBuildEnvironment({
+      EXPO_PUBLIC_SENTRY_DSN: sentryDsn,
+    })).toThrow('SENTRY_AUTH_TOKEN');
   });
 
   it('reports all missing values in one actionable failure', () => {

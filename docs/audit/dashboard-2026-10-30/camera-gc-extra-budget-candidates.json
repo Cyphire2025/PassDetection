@@ -1,0 +1,23 @@
+[
+  {
+    "path": "hooks/use-private-mutation.ts",
+    "baselineLines": 113,
+    "maximumLines": 120,
+    "baselineMaxFunctionComplexity": 3,
+    "maximumFunctionComplexity": 4
+  },
+  {
+    "path": "features/gc-app/notifications/notification-operation.ts",
+    "baselineLines": 33,
+    "maximumLines": 40,
+    "baselineMaxFunctionComplexity": 2,
+    "maximumFunctionComplexity": 3
+  },
+  {
+    "path": "features/passports/types/passport-trip-details.ts",
+    "baselineLines": 27,
+    "maximumLines": 35,
+    "baselineMaxFunctionComplexity": 0,
+    "maximumFunctionComplexity": 1
+  }
+]

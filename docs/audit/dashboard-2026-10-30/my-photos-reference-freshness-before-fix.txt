@@ -1,0 +1,184 @@
+FFF.                                                                     [100%]
+================================== FAILURES ===================================
+______ test_late_cleanup_cannot_clear_a_newer_pending_reference[current] ______
+
+photo_database = namespace(sessions=async_sessionmaker(class_='AsyncSession', bind=<sqlalchemy.ext.asyncio.engine.AsyncEngine object at...nections=16), app_secret_key='synthetic-photo-cursor-secret'), gallery_id=UUID('f541c55e-95cd-46dd-a265-37f98801ee33'))
+kind = 'current'
+
+    @pytest.mark.parametrize("kind", ["current", "superseded"])
+    async def test_late_cleanup_cannot_clear_a_newer_pending_reference(photo_database, kind):
+        env = photo_database
+        now = datetime.now(UTC)
+        async with env.sessions() as session, session.begin():
+            enrollment = await session.scalar(select(MyPhotoEnrollmentModel))
+            enrollment_id = enrollment.id
+            enrollment.provider_name = "development"
+            enrollment.provider_reference_handle = "synthetic-current-reference"
+            enrollment.reference_version = 2
+            enrollment.enrolled_at = now
+            if kind == "current":
+                enrollment.status = "deleted"
+                enrollment.deleted_at = now
+                enrollment.deletion_idempotency_key = "synthetic-delete"
+                enrollment.deletion_scope = "enrollment_only"
+                enrollment.provider_deletion_status = "pending"
+                enrollment.provider_deletion_requested_at = now
+            else:
+                enrollment.status = "enrolled"
+                enrollment.superseded_provider_reference_handle = "synthetic-old-reference"
+                enrollment.superseded_reference_deletion_status = "pending"
+                enrollment.superseded_reference_deletion_requested_at = now
+    
+        class Provider:
+            async def delete_reference(self, _request):
+                async with env.sessions() as session, session.begin():
+                    field = (
+                        "provider_reference_handle"
+                        if kind == "current"
+                        else "superseded_provider_reference_handle"
+                    )
+                    await session.execute(
+                        update(MyPhotoEnrollmentModel)
+                        .where(
+                            MyPhotoEnrollmentModel.id == enrollment_id,
+                        )
+                        .values(**{field: "synthetic-new-reference"})
+                    )
+                return ReferenceDeletionResult("deleted")
+    
+        providers = SimpleNamespace(provider_name="development", liveness=Provider())
+        async with env.sessions() as session:
+            try:
+                if kind == "current":
+                    service = MyPhotosService(session, settings=env.settings, providers=providers)
+>                   with pytest.raises(MyPhotosConflict):
+E                   Failed: DID NOT RAISE <class 'app.application.my_photos.errors.MyPhotosConflict'>
+
+tests\integration\test_my_photos_reference_freshness.py:70: Failed
+____ test_late_cleanup_cannot_clear_a_newer_pending_reference[superseded] _____
+
+photo_database = namespace(sessions=async_sessionmaker(class_='AsyncSession', bind=<sqlalchemy.ext.asyncio.engine.AsyncEngine object at...nections=16), app_secret_key='synthetic-photo-cursor-secret'), gallery_id=UUID('4d632e7c-8e8e-462e-837e-c640a1e5e1c3'))
+kind = 'superseded'
+
+    @pytest.mark.parametrize("kind", ["current", "superseded"])
+    async def test_late_cleanup_cannot_clear_a_newer_pending_reference(photo_database, kind):
+        env = photo_database
+        now = datetime.now(UTC)
+        async with env.sessions() as session, session.begin():
+            enrollment = await session.scalar(select(MyPhotoEnrollmentModel))
+            enrollment_id = enrollment.id
+            enrollment.provider_name = "development"
+            enrollment.provider_reference_handle = "synthetic-current-reference"
+            enrollment.reference_version = 2
+            enrollment.enrolled_at = now
+            if kind == "current":
+                enrollment.status = "deleted"
+                enrollment.deleted_at = now
+                enrollment.deletion_idempotency_key = "synthetic-delete"
+                enrollment.deletion_scope = "enrollment_only"
+                enrollment.provider_deletion_status = "pending"
+                enrollment.provider_deletion_requested_at = now
+            else:
+                enrollment.status = "enrolled"
+                enrollment.superseded_provider_reference_handle = "synthetic-old-reference"
+                enrollment.superseded_reference_deletion_status = "pending"
+                enrollment.superseded_reference_deletion_requested_at = now
+    
+        class Provider:
+            async def delete_reference(self, _request):
+                async with env.sessions() as session, session.begin():
+                    field = (
+                        "provider_reference_handle"
+                        if kind == "current"
+                        else "superseded_provider_reference_handle"
+                    )
+                    await session.execute(
+                        update(MyPhotoEnrollmentModel)
+                        .where(
+                            MyPhotoEnrollmentModel.id == enrollment_id,
+                        )
+                        .values(**{field: "synthetic-new-reference"})
+                    )
+                return ReferenceDeletionResult("deleted")
+    
+        providers = SimpleNamespace(provider_name="development", liveness=Provider())
+        async with env.sessions() as session:
+            try:
+                if kind == "current":
+                    service = MyPhotosService(session, settings=env.settings, providers=providers)
+                    with pytest.raises(MyPhotosConflict):
+                        await service.delete_enrollment(
+                            claims=env.passenger.claims,
+                            trip=env.passenger.trip,
+                            request=MyPhotosDeleteEnrollmentRequest(
+                                scope="enrollment_only", idempotency_key="synthetic-delete"
+                            ),
+                        )
+                        await session.commit()
+                else:
+                    enrollment = await session.get(MyPhotoEnrollmentModel, enrollment_id)
+                    references = MyPhotosReferenceLifecycle(
+                        MyPhotosContext(session, env.settings, providers)
+                    )
+                    result = await references._delete_superseded_reference(
+                        enrollment=enrollment, passenger_identity_id=env.passenger.identity.id
+                    )
+                    await session.commit()
+>                   assert result.superseded_provider_reference_handle == "synthetic-new-reference"
+E                   AssertionError: assert None == 'synthetic-new-reference'
+E                    +  where None = <app.infrastructure.database.my_photos_models.MyPhotoEnrollmentModel object at 0x00000239E68BAC50>.superseded_provider_reference_handle
+
+tests\integration\test_my_photos_reference_freshness.py:88: AssertionError
+_ test_provider_creation_failure_preserves_concurrent_consent_revocation[True] _
+
+photo_database = namespace(sessions=async_sessionmaker(class_='AsyncSession', bind=<sqlalchemy.ext.asyncio.engine.AsyncEngine object at...nections=16), app_secret_key='synthetic-photo-cursor-secret'), gallery_id=UUID('e5e757c4-eced-4ac2-af3b-5f74b73632ea'))
+revoke = True
+
+    @pytest.mark.parametrize("revoke", [True, False])
+    async def test_provider_creation_failure_preserves_concurrent_consent_revocation(
+        photo_database, revoke
+    ):
+        env = photo_database
+    
+        class Provider:
+            ready = True
+            client_flow = "development_simulator"
+    
+            async def create_session(self, _request):
+                if revoke:
+                    async with env.sessions() as session, session.begin():
+                        await session.execute(
+                            update(MyPhotoEnrollmentModel).values(
+                                status="revoked", revoked_at=datetime.now(UTC)
+                            )
+                        )
+                raise MyPhotosUnavailable("PROVIDER_UNAVAILABLE", "Synthetic provider outage")
+    
+        providers = SimpleNamespace(
+            provider_name="development", liveness=Provider(), face_search=SimpleNamespace(ready=True)
+        )
+        async with env.sessions() as session:
+            service = MyPhotosService(session, settings=env.settings, providers=providers)
+            with pytest.raises(MyPhotosUnavailable):
+                await service.start_liveness(
+                    claims=env.passenger.claims,
+                    trip=env.passenger.trip,
+                    request=MyPhotosLivenessStartRequest(
+                        challenge_mode="movement_only", idempotency_key="synthetic-failed-start"
+                    ),
+                )
+            await session.rollback()
+        async with env.sessions() as session:
+            saved = await session.scalar(select(MyPhotoEnrollmentModel))
+>           assert saved.status == ("revoked" if revoke else "ready")
+E           AssertionError: assert 'ready' == 'revoked'
+E             
+E             - revoked
+E             + ready
+
+tests\integration\test_my_photos_reference_freshness.py:138: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/integration/test_my_photos_reference_freshness.py::test_late_cleanup_cannot_clear_a_newer_pending_reference[current]
+FAILED tests/integration/test_my_photos_reference_freshness.py::test_late_cleanup_cannot_clear_a_newer_pending_reference[superseded]
+FAILED tests/integration/test_my_photos_reference_freshness.py::test_provider_creation_failure_preserves_concurrent_consent_revocation[True]
+3 failed, 1 passed in 8.17s

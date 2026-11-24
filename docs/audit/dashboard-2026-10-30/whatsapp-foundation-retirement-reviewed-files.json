@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "method": "Actual full original-source reads plus authored test/doc deltas and exact AST/byte equivalence proofs. Archived originals remain full historical reads; active current resolver unchanged. Reference graph and retained139hash controls are not manual review credit for their un-read full bodies.",
+  "files": [
+    {
+      "path": "backend/app/application/dtos/whatsapp_dtos.py",
+      "archive_path": "Not related to project/retired-whatsapp-foundation/backend/app/application/dtos/whatsapp_dtos.py",
+      "sha256": "b85c66d809b2ec0a8352cc454af2da8fe5d23b00a8bbea569e5b68b51506b162",
+      "physical_lines": 60,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "retired",
+      "notes": "Complete original source physically read; documented disconnected prototype. Preserved exact bytes at approved local ignored archive; original directory hierarchy retained. Reachability and meaningful test obligation transfer are separately proved, not inferred from Protocol/DTO names."
+    },
+    {
+      "path": "backend/app/application/interfaces/whatsapp_provider.py",
+      "archive_path": "Not related to project/retired-whatsapp-foundation/backend/app/application/interfaces/whatsapp_provider.py",
+      "sha256": "5d789d233ce3d222334277ed884ac600593092a03f471235552094032cb6affc",
+      "physical_lines": 27,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "retired",
+      "notes": "Complete original source physically read; documented disconnected prototype. Preserved exact bytes at approved local ignored archive; original directory hierarchy retained. Reachability and meaningful test obligation transfer are separately proved, not inferred from Protocol/DTO names."
+    },
+    {
+      "path": "backend/app/application/use_cases/whatsapp/plan_group_broadcast_use_case.py",
+      "archive_path": "Not related to project/retired-whatsapp-foundation/backend/app/application/use_cases/whatsapp/plan_group_broadcast_use_case.py",
+      "sha256": "739f646c16b48cfc9102a9ed2513bfe78607ab77ae555e47b1ef1c213c639533",
+      "physical_lines": 96,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "retired",
+      "notes": "Complete original source physically read; documented disconnected prototype. Preserved exact bytes at approved local ignored archive; original directory hierarchy retained. Reachability and meaningful test obligation transfer are separately proved, not inferred from Protocol/DTO names."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/noop_provider.py",
+      "archive_path": "Not related to project/retired-whatsapp-foundation/backend/app/infrastructure/whatsapp/noop_provider.py",
+      "sha256": "dd3ad353ad9977aedec8ab24d4c48405b2ef0a9eac505fa6de5de60ab81eaded",
+      "physical_lines": 20,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "retired",
+      "notes": "Complete original source physically read; documented disconnected prototype. Preserved exact bytes at approved local ignored archive; original directory hierarchy retained. Reachability and meaningful test obligation transfer are separately proved, not inferred from Protocol/DTO names."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/pricing.py",
+      "archive_path": "Not related to project/retired-whatsapp-foundation/backend/app/infrastructure/whatsapp/pricing.py",
+      "sha256": "ab2921e69e394bc4e0240735f7a17e98d1e71cdecef476e9e0a13a84fd3a27ab",
+      "physical_lines": 52,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "retired",
+      "notes": "Complete original source physically read; documented disconnected prototype. Preserved exact bytes at approved local ignored archive; original directory hierarchy retained. Reachability and meaningful test obligation transfer are separately proved, not inferred from Protocol/DTO names."
+    },
+    {
+      "path": "backend/tests/unit/application/test_whatsapp_message_templates.py",
+      "sha256": "e79656876abb6338e0becb80fa2d6dfbee2cf0b5ce46a0805790c8581283773c",
+      "physical_lines": 254,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete original/current test source physically read/authored. Four original template-name/language expected values now execute actual current TemplateSettingsSnapshot.name and template_language. Other8 tests and all unrelated module AST remain exact. Ruff formatter corrected pre-existing wrapping/EOL only; full module AST exact before/after formatter."
+    },
+    {
+      "path": "docs/architecture/tour-operations-phase-8-speed-security-whatsapp-foundation.md",
+      "sha256": "29c528b680fc83d298244b5c32e056f6b22e9e4a0ce6884b08204f0520ea2fca",
+      "physical_lines": 58,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete original/current historical note read; retained attendance scope, explicitly marked prototype retired and old not-enabled list historical, linked current workspace/manifest. No current operational workflow replaced by historical planning guidance."
+    },
+    {
+      "path": "docs/architecture/whatsapp-template-settings.md",
+      "sha256": "b72ae27f93e78462b7b308fc272a6e08714a249ea821f4a51e47bc94f7bedf1e",
+      "physical_lines": 67,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete original/current doc read; current nine registry slots and separate Document-update language setting accurately documented; prototype retirement sentence updated, existing legacy compatibility export retained."
+    },
+    {
+      "path": "backend/app/infrastructure/whatsapp/template_settings.py",
+      "sha256": "9ecc8e05705dbea514b712d0bf8c2517d82fb0423b1a64ee16f5edaebdaa034b",
+      "physical_lines": 103,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete current actual resolver physical read103lines: registry9slots, ENV defaults, bounded validated overrides, session-local memoization and actual language helper. Byte-identical; no resolver/config/provider behavior edit."
+    }
+  ]
+}

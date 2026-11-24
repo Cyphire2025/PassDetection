@@ -10,7 +10,6 @@ import re
 from collections.abc import AsyncIterator, Mapping, Sequence
 from contextlib import asynccontextmanager
 from datetime import datetime, timedelta, timezone
-from email.utils import parsedate_to_datetime
 from typing import Any
 from urllib.parse import quote, urlencode, urlsplit
 
@@ -34,6 +33,7 @@ from app.application.interfaces.email_provider import (
 from app.core.config.settings import Settings, get_settings
 from app.infrastructure.email.mime import normalize_gmail_message
 from app.infrastructure.email.oauth import build_pkce_challenge, hash_oauth_state
+from app.infrastructure.email.retry_after import retry_after_seconds as _retry_after_seconds
 
 _GMAIL_SCOPE = "https://www.googleapis.com/auth/gmail.readonly"
 _AUTHORIZATION_URL = "https://accounts.google.com/o/oauth2/v2/auth"
@@ -725,22 +725,6 @@ def _content_length(headers: httpx.Headers) -> int | None:
     except ValueError:
         return None
     return parsed if parsed >= 0 else None
-
-
-def _retry_after_seconds(value: str | None) -> int | None:
-    if value is None:
-        return None
-    stripped = value.strip()
-    if stripped.isdigit():
-        return min(int(stripped), 86_400)
-    try:
-        parsed = parsedate_to_datetime(stripped)
-        if parsed.tzinfo is None:
-            parsed = parsed.replace(tzinfo=timezone.utc)
-        delay = int((parsed - datetime.now(timezone.utc)).total_seconds())
-    except (TypeError, ValueError, OverflowError):
-        return None
-    return min(max(delay, 0), 86_400)
 
 
 def _valid_redirect_uri(value: str) -> bool:

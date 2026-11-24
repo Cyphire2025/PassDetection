@@ -1,0 +1,12 @@
+[
+  {
+    "path": "backend/tests/unit/presentation/test_gc_content_dashboard_scope.py",
+    "sha256": "6657ffa8c57e0a7a80d9ab16038c76cbd4683ad65f7cdfcba9d41bb08ccfc421",
+    "physical_lines": 179,
+    "reviewer": "gc_models_finish",
+    "review_scope": "full",
+    "status": "reviewed-and-authored",
+    "source_kind": "test",
+    "notes": "Complete new179line retained dashboardadmin test source authored/read. Sevenactualselected cases pass under original earlydotenvguard+minimal syntheticenv andstrict subsetpolicy; no-fixRuff passes. Threeprequery tenantcontext rejects, realSQLiteforeignagency404, own draftpreview andtwoadminunpublish transactions verifyretired DTOs/hiddenactivecontent/revision/auditprivacy. Sharedjournal is localDB bridge only, no nativeingress/provider/storage calls. Onlytestsource changed; all1823app source bytes remainoriginal. Failed001publishedaudiencefixture dataset is preserved/excluded, successful002eligible forparent-ownedbinarycoveragecombination only."
+  }
+]

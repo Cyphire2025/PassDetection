@@ -1,0 +1,46 @@
+{
+  "duplicate_actor_assignments_ast_exact": true,
+  "duplicate_new_connection_expressions_exact_except_provider_literal": true,
+  "duplicate_grant_update_statements_ast_exact": 20,
+  "movements": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_gmail.py",
+      "original_sha256": "8fd4a780cf4040c1a0188e50b635ce1935aed85f5b29b4d25d9683a8b22b2b49",
+      "actor_statement_range": [
+        127,
+        150
+      ],
+      "constructor_range": [
+        223,
+        241
+      ],
+      "grant_update_range": [
+        248,
+        268
+      ],
+      "grant_statement_count": 20
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/email_integration_outlook.py",
+      "original_sha256": "46835a02f003132af36e3524de6e16d5fa6c11a4bd425f0245a78689314ead8a",
+      "actor_statement_range": [
+        148,
+        174
+      ],
+      "constructor_range": [
+        251,
+        269
+      ],
+      "grant_update_range": [
+        276,
+        301
+      ],
+      "grant_statement_count": 20
+    }
+  ],
+  "shared_owner_paths": [
+    "backend/app/presentation/api/v1/routes/email_oauth_actor.py",
+    "backend/app/presentation/api/v1/routes/email_oauth_grant.py"
+  ],
+  "provider_specific_lifecycle_seams_unchanged": "State hashing/locking/consumption/browser binding, provider exchange/encryption, final current actor check, owned/provider identity/offline grant checks, flush/audit/commit, callback-specific failure revocation, queue/redirect stay in original callbacks."
+}

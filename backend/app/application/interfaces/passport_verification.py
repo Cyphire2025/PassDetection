@@ -16,7 +16,7 @@ class PassportVerificationResult:
 
 
 class IPassportVerificationService(ABC):
-    """Classifies the submitted image and verifies OCR fields against it."""
+    """Classifies the submitted image and verifies passport fields against it."""
 
     @abstractmethod
     async def verify(

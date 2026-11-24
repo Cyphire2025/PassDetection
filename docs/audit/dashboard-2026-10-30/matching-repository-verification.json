@@ -1,0 +1,67 @@
+{
+  "scope": "Dashboard and shared backend matching/replacement/history/notification repository tranche. Native mobile app source excluded.",
+  "source_state": "frozen for integration",
+  "source_sha256": {
+    "backend/app/infrastructure/repositories/passport_whatsapp_match_evidence.py": "95a129253bb13ea044c07afa3cafdc6618cee4e8f3f8a09aa354a91a832f2a5f",
+    "backend/app/infrastructure/repositories/passport_whatsapp_match_expansion.py": "0fc4b00ff43da4d81f4d401725903e00bcd9923949636cd32421879b2178fc65",
+    "backend/app/infrastructure/repositories/passport_whatsapp_match_projection.py": "51d13234f9948b37baa82962ff00804d1369b8c5be6a9fe4b843e9fd47da88f2",
+    "backend/app/infrastructure/repositories/passport_whatsapp_match_sources.py": "0b965403ff5c03b39be84fc81c342ef164cdf3b20d3834048ef07a245db9b8f1",
+    "backend/app/infrastructure/repositories/passport_whatsapp_match_targeted.py": "10b853e7a253674046ae8010044defec5fcc7e48282f58b971921302b21c0bda",
+    "backend/app/infrastructure/repositories/passport_whatsapp_matching_repository.py": "fb4c0c77ef572e171220c867bd79c202c507ac8a19248d884913d512da7f65cc",
+    "backend/app/infrastructure/repositories/passport_whatsapp_comparison_cache.py": "c0bca7ed44d99453693f2dfb1f78b4865e884e9586605ff1d2d524dff30a5d34",
+    "backend/app/infrastructure/repositories/passport_roster_resolution_repository.py": "e59711dd43d2d310fe69b5b28ecf3b6ac4ab7de836067425b28d51ddb3614811",
+    "backend/app/infrastructure/repositories/passport_export_history_repository.py": "5a3726ce317c6f588c9cb1f039eccd6ee1a4a2fb74bdbc869bbf138cfcc4bc78",
+    "backend/app/infrastructure/repositories/notification_repository.py": "d19a72107423edd79e3992ca68d2a120fa9701d6ab4ecde402d5e594a0cb067e",
+    "backend/app/infrastructure/repositories/notification_projection_repository.py": "7a48db796bd3343639574339c3efbdc76f2b4a02a18996b1bcbefcb3d2d67dfd",
+    "backend/app/infrastructure/repositories/notification_feed_queries.py": "57a7df490f09b112d05824b86b2ba359080f9d931ce8ca0bd03e9a72119009d1"
+  },
+  "manual_coverage": {
+    "original_repository_files": 7,
+    "current_runtime_files": 25,
+    "fully_read_test_files": 2,
+    "ledger": "matching-repository-reviewed-files.json"
+  },
+  "changes": "Mixed615-line matching repository separated into222-line authoritative facade plus five focused projection/evidence/source/expansion/targeted owners (83..225lines). Maximum function complexity33→14; no matching policy, SQL, API, permission, workflow or default-limit change.",
+  "security": "No proven new cross-tenant/credential/PII vulnerability in these full reads. Existing agency/group/recipient filters, suppression, current source locks, immutable export history and private metadata projection retained. Caller-only authorization limits noted individually.",
+  "proof": {
+    "artifact": "matching-repository-structural-parity.json",
+    "exact_ast_or_block_checks": 18,
+    "old_current_negative_cases": 24,
+    "identical_compiled_pg_queries": 33,
+    "existing_multiround_context_cases_each": 2,
+    "limits": "Actual SQLAlchemy compilation against PostgreSQL dialect with synthetic rows; not live PostgreSQL locking or production performance."
+  },
+  "verification": {
+    "junit": "matching-repository-affected-tests.xml",
+    "name": "pytest",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0",
+    "tests": "183",
+    "time": "79.406",
+    "timestamp": "2026-10-31T09:54:49.174715+05:30",
+    "hostname": "Nipun5070ti",
+    "test_source_fence": "matching-repository-test-command.json",
+    "coverage": "matching-repository-coverage.json",
+    "static": "matching-repository-static-checks.json",
+    "scope": "One coherent14-file affected selection, including meaningful new negatives and actual SQLite/ASGI/SDK/export/current shared-backend consumers. Initial8+24 focused executions are included in final183, not additional unique cases."
+  },
+  "budgets": "matching-repository-budget-candidates.json:6 measured current candidates, floor95each; all existing gate policies/caps/floors untouched by this agent. Remaining unchanged repository branch gaps recorded in coverage, not hidden.",
+  "remaining_limits": [
+    "No external provider sends, live PostgreSQL/Redis/object storage or deployment/VPS qualification",
+    "Original full-group materialization/query count remains; no production scaling or speedup claim",
+    "Explicit analytics confidence gap preserved per existing compatibility test; any product behavior change needs separate policy decision",
+    "Raw helper authorization still depends on identified authorized callers where noted; partial caller reads are not promoted to full files",
+    "Whole repository review remains open"
+  ],
+  "artifacts_sha256": {
+    "matching-repository-reviewed-files.json": "73c30674abc64516ce7049318d4ac75844a5dc8bc6c370702f8b23a326cb38af",
+    "matching-repository-before-reviewed-files.json": "5e73535de2ec5d6e32ba482ca8b8d82c63b714e598f5c966be0b55825e8ddd56",
+    "matching-repository-budget-candidates.json": "7c98e544c9e50983edcb497f30f943211986add4709209435feee74196658bde",
+    "matching-repository-structural-parity.json": "276aa8d3c94c13e44a60061d714319e85b6ee17c7d69c505bbc558ff4e39ecd8",
+    "matching-repository-affected-tests.xml": "5e4dd1e1c5575ba439df17b227e26805ad60846a786acb2edb10b2bc33cea76b",
+    "matching-repository-test-command.json": "705f6a6c5fa8c330790b21fed4374f66c3eef5b197818e9b96029fd8a0ad6ff1",
+    "matching-repository-coverage.json": "9e8eb284d8281ab8849dd2c977cfebb08ec7b5a7580ee134d65e5837eacf85db",
+    "matching-repository-static-checks.json": "1d1bf323684d78cae9e8e5b2016f48361d658b98982e74e4a7f9546a6de0e375"
+  }
+}

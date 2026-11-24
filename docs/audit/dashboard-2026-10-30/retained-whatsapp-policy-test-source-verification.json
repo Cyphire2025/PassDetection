@@ -1,0 +1,43 @@
+{
+  "status": "Read-only test cohort sealed; concrete match-support architecture preflight separately reserved by parent",
+  "new_current_full_tests": 7,
+  "test_physical_lines": 954,
+  "supporting_full_rows": 2,
+  "focused_rows": 5,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-whatsapp-policy-test-source-reviewed-files.json",
+    "sha256": "6c757c7b9461d84e3ac2b60d4f33d3e2bf3a364b02cf8df5569545885e1cf500"
+  },
+  "source_fence": {
+    "backend/tests/unit/presentation/test_whatsapp_webhook_security.py": "d34d4be5c52c20bbf79eaaa5b13c0636a982c81253e4d414754acb2339d3efff",
+    "backend/tests/unit/presentation/test_whatsapp_imported_field_work.py": "ddc659f8ac625addbf01b3ba2a5e9ed513c9cb8515814c2caa5a740c6754f088",
+    "backend/tests/unit/presentation/test_whatsapp_message_content.py": "2779522cb5acbaef1e573d0a0503f2cbee8328af5849e804d0157c9b36f4788a",
+    "backend/tests/unit/presentation/test_whatsapp_reminder_audience.py": "26646e738c76a1436be3bfcd197fbbd9354f968a6dc2b26ba79344afe0f36a1e",
+    "backend/tests/unit/presentation/test_client_group_whatsapp_match_support.py": "9c1438b3893baf354a8e36e5d4385d4a9f4734ffa6013fc41aefae55360f5e48",
+    "backend/tests/unit/presentation/test_whatsapp_staff_group_visibility.py": "eabfb6c66c89d257f0f5599e841011546115eea5d931cd3434bcfafb712575d6",
+    "backend/tests/unit/presentation/test_whatsapp_matching_reminder_flow.py": "93f8839f5c06eb81e9de86a5bc545dcdb577073b61056536297dd66e77b3bee2",
+    "backend/app/presentation/api/v1/routes/client_group_whatsapp_match_support.py": "091a92a1824f3f88caed7a8248b7f7ae261f50b0f35dfcb23acd0f8cd485cdcd",
+    "backend/app/presentation/api/v1/routes/whatsapp_contact_support.py": "c6640e915d3a22ceb880189bb4e3a89f0d7cfc3180a6a8b7582b446b709e1fce",
+    "backend/app/presentation/api/v1/routes/whatsapp_webhook.py": "7dc8ba21f533ae2efd55c71a987d0d7e0bbcafb217b7982ffbab707fa936221f",
+    "backend/app/presentation/api/v1/routes/whatsapp_imported_fields.py": "fc4ab60c67b8ba4da46dc0b50684264173f2af260696e138b1f40925049ba811",
+    "backend/app/presentation/api/v1/routes/whatsapp_composer_content.py": "920f7c816e41d3726049ff7dbb973d741a21d20602ca6ca87ecb8f3273449bf8",
+    "backend/app/presentation/api/v1/routes/whatsapp_reminder_audience.py": "0e9199e40aff3990a9eff3c033fafd17c2b5aec307894d1529bcb8c653410151",
+    "backend/app/presentation/api/v1/routes/client_group_link_operations.py": "07fcf9c399905f1ead0b851acb0d37f99149642fea2add2041210edfed6a1351"
+  },
+  "checks_run": [],
+  "changes": [],
+  "findings": [],
+  "architecture_candidates": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/client_group_whatsapp_match_support.py",
+      "sha256": "091a92a1824f3f88caed7a8248b7f7ae261f50b0f35dfcb23acd0f8cd485cdcd",
+      "scope": "Actual DB/matching acquisition244-332 versus persisted resolution160-241 and HTTP schema projection335-410; validators64-100 and detail117-157 are pure response ownership.",
+      "status": "Reserved read-only design/baseline, no runtime edits before parent plan adoption; not a reopened central roster/cache issue."
+    }
+  ],
+  "limitations": [
+    "No checks solely for source-read credit, no service/scanner/provider/workbook execution.",
+    "Distinct matching association/private delivery permission and caller pagination preserved.",
+    "Metadata candidate discovery filtered actual scope field in separate derived scope-filtered artifact; deferred/native rows displayed as metadata never read or credited."
+  ]
+}

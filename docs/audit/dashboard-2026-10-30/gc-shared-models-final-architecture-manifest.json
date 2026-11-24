@@ -1,0 +1,486 @@
+{
+  "status": "Final current model structure verified; only new-module docstrings differ after focused qualification",
+  "source_before": {
+    "path": "backend/app/infrastructure/database/gc_mobile_models.py",
+    "sha256": "994c6db9ecbb0d5a23bec8ffd3318a2e64b87dbe6582ef277edb098431ac0e33",
+    "lines": 2540
+  },
+  "files": [
+    {
+      "path": "backend/app/infrastructure/database/gc_mobile_models.py",
+      "sha256": "18fcb75da61780da07a5e806635d4e34c281caeefe3b7f47ebbe78d3b3402ce4",
+      "physical_lines": 110
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/__init__.py",
+      "sha256": "3d6b47ac4f231cd452fbac0be5b0b91ebd1051e43e14d2bfac8b037461b6be29",
+      "physical_lines": 7
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/announcements.py",
+      "sha256": "ddfd167e3ec6f694a5b9b4fd5e78f74dbc73ffbda1e2b1f6fa68b7121db9f9b5",
+      "physical_lines": 160
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/attestation.py",
+      "sha256": "d121fb0cbca7591a3d3c907c0cb399d5d1adc94f36e8be421ec8fdb0366f9261",
+      "physical_lines": 131
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/common_documents.py",
+      "sha256": "079550653b8479c535f14252ea1d83b9d037cb0112d6947b4a57dacb9a71971b",
+      "physical_lines": 164
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/document_cache.py",
+      "sha256": "d9cc4bad0435253e7b0aa73e00e1ccf12153a5cd77e3ce725a4dee80f4290bbf",
+      "physical_lines": 126
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/family_delegations.py",
+      "sha256": "00881bb3e306e7985cb687163d41ce4045575c2be8e41a33c79f32187df759d4",
+      "physical_lines": 133
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/group_access.py",
+      "sha256": "be19a91b9200629cb94c9761ac69cee226725cfd45d5317a17184ee25e4cf755",
+      "physical_lines": 260
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/idempotency_receipts.py",
+      "sha256": "2e4ee76a54a7876508fe47a29c9ff4471ef5886baf03cda90111d22652012db5",
+      "physical_lines": 99
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/incidents.py",
+      "sha256": "d74c0acaac5610a28d57802b6a45272baa51154c97a42bf56e78208cb32f8bac",
+      "physical_lines": 125
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/itineraries.py",
+      "sha256": "8456f3888a78300afc37d316ffd98bab4efe5fa7aa5b192b23ad689b436030de",
+      "physical_lines": 304
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/notifications.py",
+      "sha256": "eb171fe049d06297dafa51d5c38b690e41096506040079aa240bcdd037de7254",
+      "physical_lines": 186
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/organizations.py",
+      "sha256": "948281b090747a2ecfaa7a7d203086858d0ac0c042b35e151c5f81ad46b4dd1f",
+      "physical_lines": 235
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/otp_challenges.py",
+      "sha256": "ea43f9a6ef67d7ac0292974239d9375a8031d2f556bf449a16fef41fb7e847f2",
+      "physical_lines": 133
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/passenger_identities.py",
+      "sha256": "a9f5ab3b247a55a5bbf3ffd59fa22ce4e8fcc2afb7db960bfadc581f2d337f7f",
+      "physical_lines": 170
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/push_transport.py",
+      "sha256": "981efda676d8049bd35729b17c3bd4536d2fc050321540963cb1b3e1098fcafd",
+      "physical_lines": 227
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/refresh_tokens.py",
+      "sha256": "82fa0d47cfc766268d1509f4079da96d16584c6b03c724c6210fc61577979996",
+      "physical_lines": 112
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/sessions.py",
+      "sha256": "2a976b5fb1e8f8966810793b1dee2652070b19871d97b07706b11f99d7002b75",
+      "physical_lines": 256
+    },
+    {
+      "path": "backend/app/infrastructure/database/_gc_models/sync_changes.py",
+      "sha256": "30c997125dcf6fd4a0a8a2edf753543811c5770f7952913f82df45eb649985ab",
+      "physical_lines": 120
+    }
+  ],
+  "moves": [
+    {
+      "class": "ClientOrganizationModel",
+      "from": "backend/app/infrastructure/database/gc_mobile_models.py",
+      "original_lines": [
+        46,
+        124
+      ],
+      "to": "backend/app/infrastructure/database/_gc_models/organizations.py",
+      "current_lines": [
+        27,
+        111
+      ],
+      "original_AST_sha256": "4e2bc0266306ae67696c59a69e8d670a81b3f6900edcd5309d47782d42eaabdb",
+      "class_AST_exact_after_only_legacy_module_assignment_removed": true
+    },
+    {
+      "class": "ClientManagerProfileModel",
+      "from": "backend/app/infrastructure/database/gc_mobile_models.py",
+      "original_lines": [
+        127,
+        239
+      ],
+      "to": "backend/app/infrastructure/database/_gc_models/organizations.py",
+      "current_lines": [
+        114,
+        228
+      ],
+      "original_AST_sha256": "e29ed6248e87e125bc37755ecf2152c606fdd29e7521e4a112c8daecca2bd974",
+      "class_AST_exact_after_only_legacy_module_assignment_removed": true
+    },
+    {
+      "class": "GCGroupAccessModel",
+      "from": "backend/app/infrastructure/database/gc_mobile_models.py",
+      "original_lines": [
+        242,
+        373
+      ],
+      "to": "backend/app/infrastructure/database/_gc_models/group_access.py",
+      "current_lines": [
+        27,
+        162
+      ],
+      "original_AST_sha256": "a31f6eded93524082c519cdff541dbb9a1e2b38cf25a28a6246871d9cb08575b",
+      "class_AST_exact_after_only_legacy_module_assignment_removed": true
+    },
+    {
+      "class": "ClientManagerGroupAssignmentModel",
+      "from": "backend/app/infrastructure/database/gc_mobile_models.py",
+      "original_lines": [
+        376,
+        461
+      ],
+      "to": "backend/app/infrastructure/database/_gc_models/group_access.py",
+      "current_lines": [
+        165,
+        260
+      ],
+      "original_AST_sha256": "0aef4713de552c68bf89bee5ed00e4d4738163489d5f68aef960e936686797e7",
+      "class_AST_exact_after_only_legacy_module_assignment_removed": true
+    },
+    {
+      "class": "GCCommonDocumentModel",
+      "from": "backend/app/infrastructure/database/gc_mobile_models.py",
+      "original_lines": [
+        464,
+        597
+      ],
+      "to": "backend/app/infrastructure/database/_gc_models/common_documents.py",
+      "current_lines": [
+        29,
+        164
+      ],
+      "original_AST_sha256": "7de882dcfa9807abd1de4ea7bb46919cc2afcb535236888708a211c02f2b1b99",
+      "class_AST_exact_after_only_legacy_module_assignment_removed": true
+    },
+    {
+      "class": "GCItineraryVersionModel",
+      "from": "backend/app/infrastructure/database/gc_mobile_models.py",
+      "original_lines": [
+        600,
+        698
+      ],
+      "to": "backend/app/infrastructure/database/_gc_models/itineraries.py",
+      "current_lines": [
+        30,
+        130
+      ],
+      "original_AST_sha256": "d06e0fc4fb78e55331dfea455aeb72cf000a8a43aaad2bf208ff07308554cbb9",
+      "class_AST_exact_after_only_legacy_module_assignment_removed": true
+    },
+    {
+      "class": "GCItineraryDayModel",
+      "from": "backend/app/infrastructure/database/gc_mobile_models.py",
+      "original_lines": [
+        701,
+        767
+      ],
+      "to": "backend/app/infrastructure/database/_gc_models/itineraries.py",
+      "current_lines": [
+        133,
+        201
+      ],
+      "original_AST_sha256": "3ecc7334ca113de886e384033377fea515f0464ab6b11b55833a9700a5f1e11c",
+      "class_AST_exact_after_only_legacy_module_assignment_removed": true
+    },
+    {
+      "class": "GCItineraryItemModel",
+      "from": "backend/app/infrastructure/database/gc_mobile_models.py",
+      "original_lines": [
+        770,
+        868
+      ],
+      "to": "backend/app/infrastructure/database/_gc_models/itineraries.py",
+      "current_lines": [
+        204,
+        304
+      ],
+      "original_AST_sha256": "2159a629c4ec48609510ee309b4213b27c4ac7479f2bbe27cab773d1a7a24485",
+      "class_AST_exact_after_only_legacy_module_assignment_removed": true
+    },
+    {
+      "class": "GCAnnouncementModel",
+      "from": "backend/app/infrastructure/database/gc_mobile_models.py",
+      "original_lines": [
+        871,
+        1001
+      ],
+      "to": "backend/app/infrastructure/database/_gc_models/announcements.py",
+      "current_lines": [
+        28,
+        160
+      ],
+      "original_AST_sha256": "8818b0901de0dead3a128594d00c81c346a02bb7ee4cd476b4a0e0213296d01d",
+      "class_AST_exact_after_only_legacy_module_assignment_removed": true
+    },
+    {
+      "class": "MobilePassengerIdentityModel",
+      "from": "backend/app/infrastructure/database/gc_mobile_models.py",
+      "original_lines": [
+        1004,
+        1145
+      ],
+      "to": "backend/app/infrastructure/database/_gc_models/passenger_identities.py",
+      "current_lines": [
+        27,
+        170
+      ],
+      "original_AST_sha256": "098c73bb597885f807564e47a9d18399bd86e02e67758cfa848f2f186668eb12",
+      "class_AST_exact_after_only_legacy_module_assignment_removed": true
+    },
+    {
+      "class": "MobileDocumentMetadataCacheModel",
+      "from": "backend/app/infrastructure/database/gc_mobile_models.py",
+      "original_lines": [
+        1148,
+        1247
+      ],
+      "to": "backend/app/infrastructure/database/_gc_models/document_cache.py",
+      "current_lines": [
+        25,
+        126
+      ],
+      "original_AST_sha256": "24f4434378ed883d7411699af64c873cb3a7498084e89d329221a92fda0a1a2e",
+      "class_AST_exact_after_only_legacy_module_assignment_removed": true
+    },
+    {
+      "class": "MobileOTPChallengeModel",
+      "from": "backend/app/infrastructure/database/gc_mobile_models.py",
+      "original_lines": [
+        1250,
+        1357
+      ],
+      "to": "backend/app/infrastructure/database/_gc_models/otp_challenges.py",
+      "current_lines": [
+        24,
+        133
+      ],
+      "original_AST_sha256": "d3e85d80fcc8f93df2c40892a89463414358fbd2b5b05b276df6612b30a16ec0",
+      "class_AST_exact_after_only_legacy_module_assignment_removed": true
+    },
+    {
+      "class": "MobileDeviceSessionModel",
+      "from": "backend/app/infrastructure/database/gc_mobile_models.py",
+      "original_lines": [
+        1360,
+        1523
+      ],
+      "to": "backend/app/infrastructure/database/_gc_models/sessions.py",
+      "current_lines": [
+        26,
+        191
+      ],
+      "original_AST_sha256": "c3fe5d533e773cf8941703be17648ae055e8d38ade09aa012a3bfff0a5fed61a",
+      "class_AST_exact_after_only_legacy_module_assignment_removed": true
+    },
+    {
+      "class": "MobilePassengerSessionIdentityModel",
+      "from": "backend/app/infrastructure/database/gc_mobile_models.py",
+      "original_lines": [
+        1526,
+        1586
+      ],
+      "to": "backend/app/infrastructure/database/_gc_models/sessions.py",
+      "current_lines": [
+        194,
+        256
+      ],
+      "original_AST_sha256": "14950dbf405523f334424a67cd8dd925af06168459b6e9041da5b3f534b2520d",
+      "class_AST_exact_after_only_legacy_module_assignment_removed": true
+    },
+    {
+      "class": "MobileAppAttestKeyModel",
+      "from": "backend/app/infrastructure/database/gc_mobile_models.py",
+      "original_lines": [
+        1589,
+        1693
+      ],
+      "to": "backend/app/infrastructure/database/_gc_models/attestation.py",
+      "current_lines": [
+        25,
+        131
+      ],
+      "original_AST_sha256": "eab24f68645e22df7beda4a874f6e4e995e504ab6d44feeb37fd7466d1ec57c5",
+      "class_AST_exact_after_only_legacy_module_assignment_removed": true
+    },
+    {
+      "class": "MobileRefreshTokenModel",
+      "from": "backend/app/infrastructure/database/gc_mobile_models.py",
+      "original_lines": [
+        1696,
+        1781
+      ],
+      "to": "backend/app/infrastructure/database/_gc_models/refresh_tokens.py",
+      "current_lines": [
+        25,
+        112
+      ],
+      "original_AST_sha256": "c9ec0a6f1b4b30dff5ac6eeabebb434d037008634f866d6448bd0a7886f302e0",
+      "class_AST_exact_after_only_legacy_module_assignment_removed": true
+    },
+    {
+      "class": "MobilePushRegistrationModel",
+      "from": "backend/app/infrastructure/database/gc_mobile_models.py",
+      "original_lines": [
+        1784,
+        1866
+      ],
+      "to": "backend/app/infrastructure/database/_gc_models/push_transport.py",
+      "current_lines": [
+        28,
+        112
+      ],
+      "original_AST_sha256": "0832a1fb66c88c3971dc4a4abf3afdaf55e08d1be33c8d865f3f86a9dec45618",
+      "class_AST_exact_after_only_legacy_module_assignment_removed": true
+    },
+    {
+      "class": "MobilePushDeliveryModel",
+      "from": "backend/app/infrastructure/database/gc_mobile_models.py",
+      "original_lines": [
+        1869,
+        1979
+      ],
+      "to": "backend/app/infrastructure/database/_gc_models/push_transport.py",
+      "current_lines": [
+        115,
+        227
+      ],
+      "original_AST_sha256": "98ca1301b7f2cc3ca96b426fdbf1dc3d0c65eca2d1cc40892db78a6b0bc03a33",
+      "class_AST_exact_after_only_legacy_module_assignment_removed": true
+    },
+    {
+      "class": "MobileNotificationModel",
+      "from": "backend/app/infrastructure/database/gc_mobile_models.py",
+      "original_lines": [
+        1982,
+        2139
+      ],
+      "to": "backend/app/infrastructure/database/_gc_models/notifications.py",
+      "current_lines": [
+        27,
+        186
+      ],
+      "original_AST_sha256": "916351828df17e6998be44cbe14e3f4f5f00ce451a529e2ecf6d5553057df01b",
+      "class_AST_exact_after_only_legacy_module_assignment_removed": true
+    },
+    {
+      "class": "MobileSyncChangeModel",
+      "from": "backend/app/infrastructure/database/gc_mobile_models.py",
+      "original_lines": [
+        2142,
+        2232
+      ],
+      "to": "backend/app/infrastructure/database/_gc_models/sync_changes.py",
+      "current_lines": [
+        28,
+        120
+      ],
+      "original_AST_sha256": "7981b1f6ecb4a0b126248248bcf80506d9b6245175ca5cd2fe592c41380399a4",
+      "class_AST_exact_after_only_legacy_module_assignment_removed": true
+    },
+    {
+      "class": "PassengerFamilyDelegationModel",
+      "from": "backend/app/infrastructure/database/gc_mobile_models.py",
+      "original_lines": [
+        2235,
+        2340
+      ],
+      "to": "backend/app/infrastructure/database/_gc_models/family_delegations.py",
+      "current_lines": [
+        26,
+        133
+      ],
+      "original_AST_sha256": "13db69d84a1a460580e03149b4834c6be80d9560913c5cce68194d53485aed1c",
+      "class_AST_exact_after_only_legacy_module_assignment_removed": true
+    },
+    {
+      "class": "MobileIdempotencyReceiptModel",
+      "from": "backend/app/infrastructure/database/gc_mobile_models.py",
+      "original_lines": [
+        2343,
+        2415
+      ],
+      "to": "backend/app/infrastructure/database/_gc_models/idempotency_receipts.py",
+      "current_lines": [
+        25,
+        99
+      ],
+      "original_AST_sha256": "6942c9c3f89b5e590e63714e2f508d1abe3695a295975cdd07683ea34e338995",
+      "class_AST_exact_after_only_legacy_module_assignment_removed": true
+    },
+    {
+      "class": "MobileIncidentModel",
+      "from": "backend/app/infrastructure/database/gc_mobile_models.py",
+      "original_lines": [
+        2418,
+        2514
+      ],
+      "to": "backend/app/infrastructure/database/_gc_models/incidents.py",
+      "current_lines": [
+        27,
+        125
+      ],
+      "original_AST_sha256": "4a6706558e26925dada18990c1f69a0a9509a1bcd925fe6ff0373191223ae79f",
+      "class_AST_exact_after_only_legacy_module_assignment_removed": true
+    }
+  ],
+  "all23_class_bodies_AST_exact": true,
+  "original_module_docstring_helper_and22_all_exact": true,
+  "actual_original_import_bindings_identity_count": 26,
+  "original_and_leaf_import_binding_identity_exact": true,
+  "original_database_and_test_sources_other_than_facade_unchanged": 112,
+  "migrations_before_after_exact": 142,
+  "developer_introspection_tradeoff": {
+    "class_inspect_getsource": "OSError: original __module__ now points to stable import facade; no actual class statement there",
+    "getter_getsourcefile": "backend/app/infrastructure/database/_gc_models/organizations.py",
+    "maintained_backend_app_backend_scripts_scripts_getsource_consumers": 0,
+    "no_introspection_monkeypatch": true,
+    "parent_adopted": true
+  },
+  "limits": [
+    "No new schema, table, field, SQL/workflow/authorization/lock/provider or migration behavior",
+    "Class function __globals__ mapping changes with physical owner; actual imported objects and facade clock binding remain exact",
+    "No runtime throughput/memory/security performance claim from source-size separation"
+  ],
+  "prepolish_manifest": {
+    "path": "gc-shared-models-architecture-manifest.json",
+    "sha256": "b039609300a00dd4693f330f36c41bc7e796ef9fcf8a42eb1397fc1830440ec2"
+  },
+  "module_docstring_continuity": {
+    "path": "gc-shared-models-module-docstring-continuity.json",
+    "sha256": "ab95a473a1aa70f40a28f818662e56060d7389002167dc6099cbcd46ce10da87"
+  },
+  "source_review_continuity": "Complete original2540-line schema was physically reviewed by predecessor;23whole declarations transfer by exact AST. Current facade/primer/import headers/in-body legacy module assignments and typed descriptor metadata glue manually read. No fresh independent whole-body reread credit is claimed from AST or test execution.",
+  "actual_import_contract": {
+    "importer_files": 116,
+    "executed_qualifying_import_statements": 120,
+    "GC_bindings": 277,
+    "all_consumer_bytes_unchanged": true,
+    "credit": "Import statements executed by21fresh startup controls only; no full consumer/module-body/native workflow execution credit"
+  }
+}

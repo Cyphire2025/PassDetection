@@ -1,0 +1,92 @@
+[
+  {
+    "path": "backend/tests/unit/infrastructure/test_mcp_image_export_storage.py",
+    "sha256": "aaaa708ae044d3a915c773c6c1762556702e4501686ecf8de677ae78b010b346",
+    "physical_lines": 77,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole77lines. Allowed-source before storage call, actual image source size/checksum/total reservations, predecode pixel admission and held native-inspection cancel/drain task protocol reviewed. Synthetic in-memory image/storage and bounded Event waits, no real object store or new cancellation test execution. Current source unchanged; no execution/runtime change/new validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_mcp_log_runs.py",
+    "sha256": "aca042ee3d4c4fe021794acf5acbad18a2c55332608f65e7a5e71c16ae40e134",
+    "physical_lines": 153,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole153lines. Authored sealed manifests/source digest/count/size/time/status/reason/window, newest incomplete/stale/future/ambiguous/overlimit fail-closed, traversal/missing/partial/hardlink unsafe evidence and absent configuration controls reviewed. No private diagnostic archive opened, all JSONL is test-created synthetic evidence; reading does not qualify actual collector freshness/production health. Current source unchanged; no execution/runtime change/new validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_mcp_storage_sdk_contract.py",
+    "sha256": "66b25600f996d3ddc46f304124a03781e2bfe330a74cfdd2e301e2a6468440d0",
+    "physical_lines": 68,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole68lines. Actual installed boto validation/serialization/signer before-send hook checks create-only If-None-Match is signed, SHA metadata/body,409/412 preserve original; fake AWSResponse guarantees no network and explicit client.close finally. Source-only review, no SDK/storage calls executed now and no live S3 guarantee. Current source unchanged; no execution/runtime change/new validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_pdf_parser_memory.py",
+    "sha256": "c5ca854d192107a633a1a75673d37c2b1ae0c0fbb3898160c4ac39a47dec3660",
+    "physical_lines": 57,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole57lines. Injected cgroup/host headroom budgets, worker process reduction, source serialization/reserve pressure and productionLinux accounting fail-closed versus optional fallback reviewed. Mock platform/filesystem content only, not actual kernel/container memory measurement or native load qualification. Current source unchanged; no execution/runtime change/new validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_search_index_parity.py",
+    "sha256": "7181378d546e266c050c292249ff5f69a05cc46f88ee4434f6eca351f96d1114",
+    "physical_lines": 31,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole31lines. Query expression/ORMGIN trigram index/frozen0110 migration expressions compile exact source strings with no field drift. Read test source only; migration module not imported and no index/catalog/schema operation executed. Current source unchanged; no execution/runtime change/new validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_sqlite_uuid.py",
+    "sha256": "f402616d4790b3c4c322d462f8cf8875bee58bcad28864c4b9ec75c650e66b79",
+    "physical_lines": 82,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole82lines. Pathological numeric/exponent-looking UUIDs in both as_uuid modes retain text, distinct keys/composite scope/foreign keys, native PGUUID compilation and shared async fixture roundtrip controls reviewed. Actual local SQLite design is narrower than running it now or live PostgreSQL qualification. Current source unchanged; no execution/runtime change/new validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_release_source_fixtures.py",
+    "sha256": "95eacba19ea739dfa5a048631ecb7debbbb47dea2908cd4e8f32960cbeb7b45a",
+    "physical_lines": 56,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole56lines. Temp-only historical source builders preserve one complete immutable migration chain/release manifest for0122/0125/0128/0129, exclude syntheticfuture9999 without denylist and retain copied migration bytes. No builder/Alembic/release action executed; historical fixture baselines not repinned. Current source unchanged; no execution/runtime change/new validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_paused_feature_scheduler.py",
+    "sha256": "e3f17e8cfa20f4db875163e16d7fc26d133aebd1d5dad7d9d7925c6ea64ef7fa",
+    "physical_lines": 52,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole52lines. Shared platform schedule keeps lifecycle/heartbeat/documents/mobile/WhatsApp entries, excludes paused feature catalog before persistent merge and preserves original dict/entry identities. Inbox names are fixture exclusions only; no dedicated email runtime audit/extension, no beat/service execution. Current source unchanged; no execution/runtime change/new validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_company_data_release_schema.py",
+    "sha256": "d51565f8232885cf144b46d8d14914be9007f09b4c8a9aaf0c694a6b271fd3b9",
+    "physical_lines": 103,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole103lines. Exact final verified actor expansion only at targetcheckpoint, rejects weaker/deferrable/altered columns/literals; retained chronology/manager/queue catalog hashing, streaming rows.close, exact new empty tables and nullable lookup index/no backfill contract reviewed. MagicMock/catalog examples, no production SQL/release run. Current source unchanged; no execution/runtime change/new validated defect."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_companies_restore_comparison.py",
+    "sha256": "d6ee7550cf9637ea332adf823617e192a81a7451722cf9d133163822ddc7165b",
+    "physical_lines": 201,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Whole201lines. Only exact literal-array cast and associativeAND deparse equivalence accepted with immutable actualrestored snapshot, while literal/type/order/threshold/multiplicity/NOT/OR/function/cast/collation changes and all row/ACL/grant/trigger/constraint dimensions remain exact. Definition/catalog/depth budgets and iterative2000tree controls reviewed. Synthetic PGcatalog text does not qualify a real restore/migration; no release action performed. Current source unchanged; no execution/runtime change/new validated defect."
+  }
+]

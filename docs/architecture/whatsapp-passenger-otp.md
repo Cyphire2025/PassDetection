@@ -141,8 +141,17 @@ separate review/details screen; its remaining fields are not rendered below the
 OTP form. The email is required and validated for format, but is not verified by
 email OTP.
 
-These endpoints use the group token and the draft's `X-Upload-Session-ID`
-credential, not a staff login or a GC App passenger session:
+The current fresh-upload form uses the private `/api/v1/public-drafts/{group_token}`
+lane. Its contact request and verification paths are `/contact/request` and
+`/contact/verify`. Authority requires the same browser's HttpOnly draft cookie
+and its per-member `X-Upload-Session-ID`; the public group token or a submission
+UUID alone is insufficient. Completion uses `/complete` with the expected draft
+revision, `phone_verification_id` and stable idempotency key. These temporary
+drafts grant no access to retained traveller history.
+
+The existing submission compatibility endpoints remain available. They use the
+group token and submission's `X-Upload-Session-ID` credential, not a staff login
+or a GC App passenger session:
 
 - `POST /api/v1/passports/{submission_id}/contact-otp/request` takes
   `group_token`, `phone_number`, and `email`.
@@ -151,7 +160,10 @@ credential, not a staff login or a GC App passenger session:
 - Final `client-submit` requests include the returned `phone_verification_id`
   alongside the same `client_phone` and `client_email`.
 
-Apply migration `0102_public_upload_contact_otp` before deploying the endpoints.
+Migration `0102_public_upload_contact_otp` introduced these submission endpoints.
+That historical migration is not a current deployment target; use the exact
+qualified [release manifest](../../backend/app/core/config/release_manifest.json)
+and [deployment selector](../deployment-modes.md) for the active release.
 Challenges are persisted in `public_upload_contact_challenges`, scoped to the
 draft, group, browser upload credential, normalized phone, and email. Codes and
 credential/email bindings use keyed hashes. Successful verification lasts 60

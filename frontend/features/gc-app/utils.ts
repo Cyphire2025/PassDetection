@@ -11,6 +11,13 @@ export function gcAppErrorMessage(error: unknown, fallback: string): string {
   return fallback;
 }
 
+export function gcSessionState(session: { status: string; revoked_at: string | null; expires_at: string | null }, now: number): string {
+  if (session.revoked_at || session.status === "revoked") return "Revoked";
+  if (session.status === "expired" || (session.expires_at && Date.parse(session.expires_at) <= now)) return "Expired";
+  const state = session.status.replaceAll("_", " ");
+  return state ? state.charAt(0).toUpperCase() + state.slice(1) : "Unknown";
+}
+
 export function formatGcDateTime(value: string | null): string {
   if (!value) return "Not available";
   const date = new Date(value);

@@ -1,0 +1,67 @@
+........................................................................ [ 22%]
+........................................................................ [ 44%]
+........................................................................ [ 66%]
+........................................................................ [ 88%]
+......................................                                   [100%]
+
+---------- coverage: platform win32, python 3.11.15-final-0 ----------
+Name                                                           Stmts   Miss Branch BrPart  Cover
+------------------------------------------------------------------------------------------------
+app\infrastructure\whatsapp\__init__.py                            0      0      0      0   100%
+app\infrastructure\whatsapp\bounded_delivery.py                   39      5      8      2    85%
+app\infrastructure\whatsapp\broadcast_welcome.py                  31      5      8      2    82%
+app\infrastructure\whatsapp\broadcast_worker_policy.py            79     14     44     14    77%
+app\infrastructure\whatsapp\broadcast_worker_provider.py          85     42     12      2    46%
+app\infrastructure\whatsapp\broadcast_worker_state.py             50      3     16      1    94%
+app\infrastructure\whatsapp\cloud_api_provider.py                 17      0      0      0   100%
+app\infrastructure\whatsapp\document_delivery_runtime.py         275    108     78     25    57%
+app\infrastructure\whatsapp\document_update_provider_wave.py      41     41      2      0     0%
+app\infrastructure\whatsapp\document_update_runtime.py           152    152     56      0     0%
+app\infrastructure\whatsapp\group_invite_policy.py                56     19     26      2    57%
+app\infrastructure\whatsapp\group_update_audience.py              76     61     38      0    13%
+app\infrastructure\whatsapp\group_update_contacts.py              19     12      6      0    28%
+app\infrastructure\whatsapp\group_update_dispatch.py              38     38     12      0     0%
+app\infrastructure\whatsapp\mcp_dispatch.py                       40      3     16      3    89%
+app\infrastructure\whatsapp\mcp_document_dispatch.py              71     40     22      4    38%
+app\infrastructure\whatsapp\mcp_document_progress.py              32     19      8      1    35%
+app\infrastructure\whatsapp\mcp_document_publication.py           93     93     26      0     0%
+app\infrastructure\whatsapp\mcp_media_dispatch.py                 43      5     16      5    83%
+app\infrastructure\whatsapp\mcp_progress.py                       38      1     14      1    96%
+app\infrastructure\whatsapp\mcp_publication.py                   108     15     32     10    82%
+app\infrastructure\whatsapp\noop_provider.py                       6      6      0      0     0%
+app\infrastructure\whatsapp\otp_provider.py                       41      6     12      3    83%
+app\infrastructure\whatsapp\phone_overrides.py                   133    100     58      0    17%
+app\infrastructure\whatsapp\phone_welcome.py                     125     30     64     15    71%
+app\infrastructure\whatsapp\pricing.py                            14     14      4      0     0%
+app\infrastructure\whatsapp\private_delivery_policy.py           124     34     46      6    67%
+app\infrastructure\whatsapp\provider_errors.py                    44      2     12      2    93%
+app\infrastructure\whatsapp\provider_media.py                     50     17     12      4    66%
+app\infrastructure\whatsapp\provider_messages.py                  54     12     16      6    71%
+app\infrastructure\whatsapp\provider_payloads.py                   8      0      0      0   100%
+app\infrastructure\whatsapp\provider_transport.py                 45      6     16      4    84%
+app\infrastructure\whatsapp\publication.py                        19      0      2      0   100%
+app\infrastructure\whatsapp\qr_delivery_dispatch.py               75      5     14      5    89%
+app\infrastructure\whatsapp\qr_delivery_media.py                  43     12     10      4    66%
+app\infrastructure\whatsapp\qr_delivery_runtime.py                77      4     16      3    92%
+app\infrastructure\whatsapp\qr_delivery_state.py                  53     17     18      5    66%
+app\infrastructure\whatsapp\qr_delivery_types.py                  25      0      0      0   100%
+app\infrastructure\whatsapp\receipt_bindings.py                   64      5     20      7    86%
+app\infrastructure\whatsapp\receipt_inbox.py                      73      7     22      5    87%
+app\infrastructure\whatsapp\receipt_retention.py                  21      0      2      0   100%
+app\infrastructure\whatsapp\receipt_runtime.py                   152     18     60      7    87%
+app\infrastructure\whatsapp\source_group_backfill.py              33     33      6      0     0%
+app\infrastructure\whatsapp\source_group_sync.py                 172    150     84      0     9%
+app\infrastructure\whatsapp\tasks.py                              89     89     14      0     0%
+app\infrastructure\whatsapp\template_settings.py                  59     12     12      3    73%
+app\infrastructure\whatsapp\traveller_destinations.py            144     53     64     16    53%
+app\infrastructure\whatsapp\traveller_welcome_runtime.py         158    120     48      3    23%
+app\infrastructure\whatsapp\web_publication.py                    70     15     22      8    75%
+app\infrastructure\whatsapp\welcome_recovery.py                   44     32     14      0    21%
+app\infrastructure\whatsapp\worker_recovery.py                    15      1      2      1    88%
+app\infrastructure\whatsapp\worker_runtime.py                    109     16     22      5    81%
+------------------------------------------------------------------------------------------------
+TOTAL                                                           3522   1492   1132    184    54%
+Coverage XML written to file ../docs/audit/dashboard-2026-10-30/whatsapp-provider-worker-qr-coverage.xml
+Coverage JSON written to file ../docs/audit/dashboard-2026-10-30/whatsapp-provider-worker-qr-coverage.json
+
+326 passed in 247.66s (0:04:07)

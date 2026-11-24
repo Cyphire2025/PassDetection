@@ -1,0 +1,245 @@
+{
+  "status": "focused shared operator architecture/JSON boundary checkpoint complete; no live qualification",
+  "source_sha256": {
+    "scripts/release_traveller_whatsapp.py": "a79c9bd3ef06bc83b263d0f5bb3484def8fb97c380ba9c37da0bc88af07e8908",
+    "scripts/traveller_release_contract.py": "73d9424ff0eb8e43f8f016134c1c25b8c93fb3b37e6cc44737d638d695275c70",
+    "scripts/traveller_release_host.py": "2e2cdd3893973ce06bd0f3705934cb0160b43e4dd1f0ca8438478610048c50d2",
+    "scripts/traveller_release_readiness.py": "d48fca223b8557c7d847d0b1413d3102a2ccad17c784bcff931b8b3095e94d1a",
+    "scripts/traveller_release_preparation.py": "a4ff288d0c9154dda7207f2dc71c7d2edc7cfe5c719aca25dba4458129dacfca",
+    "scripts/traveller_release_lifecycle.py": "2c16a67c382037afab7c98ac28832493982514c0901938b6260c42f8a87d128d",
+    "scripts/release_document_resources.py": "6be3fcab032898193fb9ac4715755f26edaa27d3f63032d3bb5ac6eb257a326a",
+    "scripts/test_traveller_release_owners.py": "98b7370c682a5305a2804836e7119a11590feb01a40988834b9f2fc3eeab7776",
+    "scripts/test_traveller_release_json_boundaries.py": "a489b9d641c3a10465e372c9218607a63e24475826ae37e0e0e6e68d54f77333"
+  },
+  "runtime_owners": 6,
+  "runtime_lines": {
+    "scripts/release_traveller_whatsapp.py": 88,
+    "scripts/traveller_release_contract.py": 112,
+    "scripts/traveller_release_host.py": 225,
+    "scripts/traveller_release_readiness.py": 118,
+    "scripts/traveller_release_preparation.py": 81,
+    "scripts/traveller_release_lifecycle.py": 248
+  },
+  "behavior": "Same correct decoded Compose values and image IDs; malformed non-object Compose/non-string image IDs fail with existing bounded ReleaseError instead of uncaught AttributeError/TypeError. No credential/command/service/schema/worker/resource/recovery policy changed.",
+  "checks": {
+    "final_affected_tests": 163,
+    "test_files": 17,
+    "seconds": 10.65,
+    "strict_Linux_type_sources": 6,
+    "repository_Ruff_format_files": 8,
+    "corrected_before": "Four test methods: seven actual malformed-input errors; two normal method controls pass",
+    "initial_baseline_fixture_error": "Preserved first incorrect subTest/assertRaises fixture run, not used as product-only failure evidence.",
+    "earlier_mechanical": "103 unique cases across three separate invocations, not additive to 163 or a broad qualification.",
+    "standalone_CLI_and_real_subclass_dispatch": "Actual unrelated-cwd --help/unknown-option processes with no operational credentials; actual self override/super/recovery/static descriptor/qualification source hash cases included."
+  },
+  "proof": {
+    "basis": "Final guards/typing follow-through after immutable mechanical checkpoint; no relabeling of its 25 whole-method proof.",
+    "methods": [
+      {
+        "name": "run",
+        "owner": "scripts/traveller_release_host.py",
+        "whole_AST_exact_to_original": true,
+        "signature_evaluated_hints_pickle_exact": true
+      },
+      {
+        "name": "dc",
+        "owner": "scripts/traveller_release_host.py",
+        "whole_AST_exact_to_original": true,
+        "signature_evaluated_hints_pickle_exact": true
+      },
+      {
+        "name": "inspect",
+        "owner": "scripts/traveller_release_host.py",
+        "whole_AST_exact_to_original": true,
+        "signature_evaluated_hints_pickle_exact": true
+      },
+      {
+        "name": "say",
+        "owner": "scripts/traveller_release_host.py",
+        "whole_AST_exact_to_original": true,
+        "signature_evaluated_hints_pickle_exact": true
+      },
+      {
+        "name": "verify_checkout",
+        "owner": "scripts/traveller_release_host.py",
+        "whole_AST_exact_to_original": true,
+        "signature_evaluated_hints_pickle_exact": true
+      },
+      {
+        "name": "verify_running_project",
+        "owner": "scripts/traveller_release_host.py",
+        "whole_AST_exact_to_original": true,
+        "signature_evaluated_hints_pickle_exact": true
+      },
+      {
+        "name": "preflight",
+        "owner": "scripts/traveller_release_host.py",
+        "whole_AST_exact_to_original": false,
+        "signature_evaluated_hints_pickle_exact": true
+      },
+      {
+        "name": "config_fingerprint",
+        "owner": "scripts/traveller_release_host.py",
+        "whole_AST_exact_to_original": true,
+        "signature_evaluated_hints_pickle_exact": true
+      },
+      {
+        "name": "write_private",
+        "owner": "scripts/traveller_release_host.py",
+        "whole_AST_exact_to_original": true,
+        "signature_evaluated_hints_pickle_exact": true
+      },
+      {
+        "name": "sync_directory",
+        "owner": "scripts/traveller_release_host.py",
+        "whole_AST_exact_to_original": true,
+        "signature_evaluated_hints_pickle_exact": true
+      },
+      {
+        "name": "verify_image",
+        "owner": "scripts/traveller_release_host.py",
+        "whole_AST_exact_to_original": false,
+        "signature_evaluated_hints_pickle_exact": true
+      },
+      {
+        "name": "container",
+        "owner": "scripts/traveller_release_readiness.py",
+        "whole_AST_exact_to_original": true,
+        "signature_evaluated_hints_pickle_exact": true
+      },
+      {
+        "name": "worker_probe",
+        "owner": "scripts/traveller_release_readiness.py",
+        "whole_AST_exact_to_original": true,
+        "signature_evaluated_hints_pickle_exact": true
+      },
+      {
+        "name": "verify_containers",
+        "owner": "scripts/traveller_release_readiness.py",
+        "whole_AST_exact_to_original": true,
+        "signature_evaluated_hints_pickle_exact": true
+      },
+      {
+        "name": "schema",
+        "owner": "scripts/traveller_release_readiness.py",
+        "whole_AST_exact_to_original": false,
+        "signature_evaluated_hints_pickle_exact": true
+      },
+      {
+        "name": "prepare",
+        "owner": "scripts/traveller_release_preparation.py",
+        "whole_AST_exact_to_original": true,
+        "signature_evaluated_hints_pickle_exact": true
+      },
+      {
+        "name": "prepare_images",
+        "owner": "scripts/traveller_release_preparation.py",
+        "whole_AST_exact_to_original": true,
+        "signature_evaluated_hints_pickle_exact": true
+      },
+      {
+        "name": "__init__",
+        "owner": "scripts/traveller_release_lifecycle.py",
+        "whole_AST_exact_to_original": true,
+        "signature_evaluated_hints_pickle_exact": true
+      },
+      {
+        "name": "prepare_recovery",
+        "owner": "scripts/traveller_release_lifecycle.py",
+        "whole_AST_exact_to_original": true,
+        "signature_evaluated_hints_pickle_exact": true
+      },
+      {
+        "name": "before_migration",
+        "owner": "scripts/traveller_release_lifecycle.py",
+        "whole_AST_exact_to_original": true,
+        "signature_evaluated_hints_pickle_exact": true
+      },
+      {
+        "name": "resume_maintenance",
+        "owner": "scripts/traveller_release_lifecycle.py",
+        "whole_AST_exact_to_original": true,
+        "signature_evaluated_hints_pickle_exact": true
+      },
+      {
+        "name": "begin_maintenance",
+        "owner": "scripts/traveller_release_lifecycle.py",
+        "whole_AST_exact_to_original": true,
+        "signature_evaluated_hints_pickle_exact": true
+      },
+      {
+        "name": "complete_activation",
+        "owner": "scripts/traveller_release_lifecycle.py",
+        "whole_AST_exact_to_original": true,
+        "signature_evaluated_hints_pickle_exact": true
+      },
+      {
+        "name": "pinned_services",
+        "owner": "scripts/traveller_release_lifecycle.py",
+        "whole_AST_exact_to_original": true,
+        "signature_evaluated_hints_pickle_exact": true
+      },
+      {
+        "name": "activate",
+        "owner": "scripts/traveller_release_lifecycle.py",
+        "whole_AST_exact_to_original": true,
+        "signature_evaluated_hints_pickle_exact": true
+      }
+    ],
+    "whole_original_methods_exact": 22,
+    "explicit_inverse_qualified_changes": [
+      "preflight: reject non-dict decoded Compose JSON before mapping access",
+      "verify_image: reject non-str decoded image ID before regex",
+      "schema: local list[str] annotation only",
+      "release_lock: Iterator[None] return annotation +its import only"
+    ],
+    "whole_changed_modules_restore_after_only_named_inverse": true,
+    "all25_method_args_decorators_signatures_evaluated_hints_and_pickle_preserved": true,
+    "constructor_and_lifecycle_bodies_exact": true,
+    "public_and_private_class_runtime_hints_still_empty": true,
+    "lock_helper_return_hint_extension": "Iterator[None] (decorator/args/body unchanged)",
+    "mechanical_checkpoint_sha256": "3694aed5b07d834113c0cf97f2da0c9bd3953f1efc804ad994c5d9012b3f3597",
+    "private_MRO_and_class_source_tradeoff": {
+      "whole_original_methods": 25,
+      "whole_original_helpers_CLI_lock": 5,
+      "constant_AST_and_values": 12,
+      "actual_global_bindings": 45,
+      "constructor_lifecycle_bodies_and_all_method_signatures_hints_decorators_exact": true,
+      "class_runtime_type_hints_equal_empty": true,
+      "static_descriptors_aliases_pickle_exact": true,
+      "new_private_MRO_bases": [
+        "_ReleasePreparation",
+        "_ReleaseReadiness",
+        "_ReleaseHost"
+      ],
+      "runtime_new_base_constructors_fields_slots_getattr": false,
+      "class_dictionary_layout_and_internal_code_owner_names_changed": true,
+      "class_source_introspection": {
+        "Release": "OSError: legacy public alias points to facade, actual class owner is focused module",
+        "ReleaseError": "OSError: legacy public alias points to facade, actual class owner is focused module"
+      },
+      "no_introspection_monkeypatch": true
+    }
+  },
+  "qualification": "All original source pins retained; six individual shared operator owners added to the existing resource qualifier. Changed-source and missing-owner controls prove fail-closed behavior. No actual Docker/PostgreSQL/VPS operation run.",
+  "not_claimed": [
+    "Runtime class getsource compatibility: legacy Release/ReleaseError aliases cause OSError; sourceowners recorded and no inspect patch",
+    "Windows support for Linux-only fcntl/os APIs",
+    "Entire imported operator chain strict typing pass: 21 diagnostics remain",
+    "Retained597 owner decomposition",
+    "Current backend678/99/111 exact green after pending FE657/template drift",
+    "Inbox feature audit or live production readiness"
+  ],
+  "artifacts": {
+    "traveller-release-mechanical-verification.json": "3694aed5b07d834113c0cf97f2da0c9bd3953f1efc804ad994c5d9012b3f3597",
+    "traveller-release-final-proof.json": "ededfb0918a07f6a51cece1995b680b5abdc333d4477f065837e45dee1083259",
+    "traveller-release-reviewed-files.json": "759437d915c541dd3deb5ffc06c4e93ee6dbdb00782dcdde029c89666feb2353",
+    "traveller-release-json-boundaries-before.txt": "7dcfeb16ec3015e4e51575ff4df717bf05300a302868b7558fca5ca8f980587c",
+    "traveller-release-json-boundaries-corrected-before.txt": "3c3be3c6f50d04b5c8244a50ee52bfaa3a99110278a123fbb023c1f064e98d9d",
+    "traveller-release-json-boundaries-after.txt": "50466f65cd9b4bfae467988dac718a123315caf625fc7de91e195aad1438d73c",
+    "traveller-release-final-affected-tests.txt": "8b6e05267a79d860e9ff931a8e30ae04c7594714aa22af8e8337d275807d0b70",
+    "traveller-release-strict-final.txt": "90377c8fd97127580c93ac5740d596c9ebc9db94dafa6560ee11fe16b4460c62",
+    "traveller-release-final-ruff.txt": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0",
+    "traveller-release-final-format.txt": "3fa62c94b1301255f0c64c429c668a4fabc4cb9d3848edb2790b607266d16092"
+  }
+}

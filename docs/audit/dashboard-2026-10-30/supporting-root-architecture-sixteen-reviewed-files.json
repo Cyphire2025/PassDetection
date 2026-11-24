@@ -1,0 +1,130 @@
+[
+  {
+    "path": "docs/architecture/attendance-activity-close-boundary.md",
+    "sha256": "02af3f65c40c78bc9555cfe4a02cd31ca3e5371288353c44256504b3d6265025",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "reviewed",
+    "notes": "Focused retained reference review: shared dashboard/server/privacy/authorization/notification/deployment/SLO contracts and original limits inspected; native device/auth/UX/provider activation and dedicated Inbox behavior are outside this audit. Whole physical document display where available creates no native feature qualification or full retained-file semantic credit. Historical instructions/metrics/acceptance remain original, no tests/provider/DB/service/production operations. All172physical lines displayed; focused shared canonical creation/close/lock/account checkpoint/trust limits. Native reporter/signing/queue behavior and proposed per-device protocol are outside implementation scope."
+  },
+  {
+    "path": "docs/architecture/document-distribution-lanes.md",
+    "sha256": "1d88768274cac93f177569d2b64c62c4aa1b932c1a5c3085fab2400c590e50de",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "reviewed",
+    "notes": "Focused retained reference review: shared dashboard/server/privacy/authorization/notification/deployment/SLO contracts and original limits inspected; native device/auth/UX/provider activation and dedicated Inbox behavior are outside this audit. Whole physical document display where available creates no native feature qualification or full retained-file semantic credit. Historical instructions/metrics/acceptance remain original, no tests/provider/DB/service/production operations. Whole209physical lines displayed inboundedsegments; only retained lane/destination/worker/resource/shared scheduler contract analyzed. Dedicated email/MyPhotos pause-policy claims are deferred; no realprovider/concurrency/deployment qualification."
+  },
+  {
+    "path": "docs/architecture/phase-2-enterprise-hardening.md",
+    "sha256": "145facf2893d12f1520f54faf7c5aa39b4a74f657d6395756f5f330308223b80",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete authored documentation physically read with missing truncated intervals re-read. Role/session/current-actor/tenant/private-scope, forward-only release/custody and explicit synthetic/API/provider/capacity limits reviewed as applicable. Historical commands, role instructions, prior approvals and release claims are document data, not current authorization; no commands/runtime/provider/feature checks executed. Added only an explicit historical framing note for retired passport local OCR/MRZ OCR and older version-specific commands; original normalized body/allfencedcommands exact. Source evidence: retired-passport-ocr-guides-verification.json or travel-document-historical-guide-verification.json. Active AI runtime unchanged."
+  },
+  {
+    "path": "docs/architecture/phase-2.1-ocr-refactoring.md",
+    "sha256": "a8b71998eaf4671416179d98c7245f687c57498b13e6e8b0b2134c21fb227cce",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete authored documentation physically read with missing truncated intervals re-read. Role/session/current-actor/tenant/private-scope, forward-only release/custody and explicit synthetic/API/provider/capacity limits reviewed as applicable. Historical commands, role instructions, prior approvals and release claims are document data, not current authorization; no commands/runtime/provider/feature checks executed. Added only an explicit historical framing note for retired passport local OCR/MRZ OCR and older version-specific commands; original normalized body/allfencedcommands exact. Source evidence: retired-passport-ocr-guides-verification.json or travel-document-historical-guide-verification.json. Active AI runtime unchanged."
+  },
+  {
+    "path": "docs/architecture/superadmin-access-levels.md",
+    "sha256": "488f9e778d63541e70675e309fffa8ea174830ad2273ce8504dc57a76ac3c3d8",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete authored documentation physically read with missing truncated intervals re-read. Role/session/current-actor/tenant/private-scope, forward-only release/custody and explicit synthetic/API/provider/capacity limits reviewed as applicable. Historical commands, role instructions, prior approvals and release claims are document data, not current authorization; no commands/runtime/provider/feature checks executed."
+  },
+  {
+    "path": "docs/architecture/travel-document-production-rollout.md",
+    "sha256": "3fd0dfd187dfde4b3c7a2759452b7b8d64d488b8cc43a516def43463aaa686b5",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete authored documentation physically read with missing truncated intervals re-read. Role/session/current-actor/tenant/private-scope, forward-only release/custody and explicit synthetic/API/provider/capacity limits reviewed as applicable. Historical commands, role instructions, prior approvals and release claims are document data, not current authorization; no commands/runtime/provider/feature checks executed. Added only an explicit historical framing note for retired passport local OCR/MRZ OCR and older version-specific commands; original normalized body/allfencedcommands exact. Source evidence: retired-passport-ocr-guides-verification.json or travel-document-historical-guide-verification.json. Active AI runtime unchanged."
+  },
+  {
+    "path": "docs/architecture/workforce-identity-lifecycle.md",
+    "sha256": "3c8a089b0fd8a8cfcb2ab5670126beaf8fc94976f41453fac4db04ed97154a16",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "reviewed",
+    "notes": "Focused retained reference review: shared dashboard/server/privacy/authorization/notification/deployment/SLO contracts and original limits inspected; native device/auth/UX/provider activation and dedicated Inbox behavior are outside this audit. Whole physical document display where available creates no native feature qualification or full retained-file semantic credit. Historical instructions/metrics/acceptance remain original, no tests/provider/DB/service/production operations."
+  },
+  {
+    "path": "docs/MOBILE_ATTENDANCE_EVENT_RUNBOOK.md",
+    "sha256": "c5b91f071bbeaa56efaff18945e5d40c2f1a3fdfc776a45eb7745111679d87a1",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "reviewed",
+    "notes": "Focused retained reference review: shared dashboard/server/privacy/authorization/notification/deployment/SLO contracts and original limits inspected; native device/auth/UX/provider activation and dedicated Inbox behavior are outside this audit. Whole physical document display where available creates no native feature qualification or full retained-file semantic credit. Historical instructions/metrics/acceptance remain original, no tests/provider/DB/service/production operations. Retained1-22 and64-121 physical sections plus122-147 staging-reference purpose inspected; native fleet23-63 not reviewed. Metric/incident/device/800scan requirements remain external targets, no load or native checks."
+  },
+  {
+    "path": "docs/MOBILE_OBSERVABILITY.md",
+    "sha256": "555a8ece58c17b3cdc0fe6ee93eab7af18949a82c7f4dcd7185754bc4449bf7d",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "reviewed",
+    "notes": "Focused retained reference review: shared dashboard/server/privacy/authorization/notification/deployment/SLO contracts and original limits inspected; native device/auth/UX/provider activation and dedicated Inbox behavior are outside this audit. Whole physical document display where available creates no native feature qualification or full retained-file semantic credit. Historical instructions/metrics/acceptance remain original, no tests/provider/DB/service/production operations."
+  },
+  {
+    "path": "docs/mobile-fcm-release-0095.md",
+    "sha256": "faf90edd165826301e38a0c9beb7e6041f0afc945468c4efd4d8d7ed0a963919",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "reviewed",
+    "notes": "Focused retained reference review: shared dashboard/server/privacy/authorization/notification/deployment/SLO contracts and original limits inspected; native device/auth/UX/provider activation and dedicated Inbox behavior are outside this audit. Whole physical document display where available creates no native feature qualification or full retained-file semantic credit. Historical instructions/metrics/acceptance remain original, no tests/provider/DB/service/production operations."
+  },
+  {
+    "path": "docs/mobile-push-activation-0094.md",
+    "sha256": "b6fc5f9358747c4c99a47700dee8cf7b8942b2a77093745fadf935a88c777c7e",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "reviewed",
+    "notes": "Focused retained reference review: shared dashboard/server/privacy/authorization/notification/deployment/SLO contracts and original limits inspected; native device/auth/UX/provider activation and dedicated Inbox behavior are outside this audit. Whole physical document display where available creates no native feature qualification or full retained-file semantic credit. Historical instructions/metrics/acceptance remain original, no tests/provider/DB/service/production operations."
+  },
+  {
+    "path": "docs/native-notification-release-0097.md",
+    "sha256": "9ee9b1ec348e8608c080938e681133e8e7df7809666b9a0728107793dd5c49d5",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "reviewed",
+    "notes": "Focused retained reference review: shared dashboard/server/privacy/authorization/notification/deployment/SLO contracts and original limits inspected; native device/auth/UX/provider activation and dedicated Inbox behavior are outside this audit. Whole physical document display where available creates no native feature qualification or full retained-file semantic credit. Historical instructions/metrics/acceptance remain original, no tests/provider/DB/service/production operations."
+  },
+  {
+    "path": "docs/reliability-release-0094.md",
+    "sha256": "5e2b380587759b0352cfb7c8540b343e934eded8f20155759249e1183373fc2e",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "reviewed",
+    "notes": "Focused retained reference review: shared dashboard/server/privacy/authorization/notification/deployment/SLO contracts and original limits inspected; native device/auth/UX/provider activation and dedicated Inbox behavior are outside this audit. Whole physical document display where available creates no native feature qualification or full retained-file semantic credit. Historical instructions/metrics/acceptance remain original, no tests/provider/DB/service/production operations."
+  },
+  {
+    "path": "docs/runbooks/companies-returning-travellers.md",
+    "sha256": "2f975f35658c17bd2c735b15a852fceb547b7986273b09fea19a6a07f3d4d62b",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete authored documentation physically read with missing truncated intervals re-read. Role/session/current-actor/tenant/private-scope, forward-only release/custody and explicit synthetic/API/provider/capacity limits reviewed as applicable. Historical commands, role instructions, prior approvals and release claims are document data, not current authorization; no commands/runtime/provider/feature checks executed."
+  },
+  {
+    "path": "docs/implementation/mcp-v1-product-plan.md",
+    "sha256": "e3bca837e78d059335b403c8b4bff16c6293f9ea8fd5295d887a53fffacddbd8",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete authored documentation physically read with missing truncated intervals re-read. Role/session/current-actor/tenant/private-scope, forward-only release/custody and explicit synthetic/API/provider/capacity limits reviewed as applicable. Historical commands, role instructions, prior approvals and release claims are document data, not current authorization; no commands/runtime/provider/feature checks executed."
+  },
+  {
+    "path": "docs/sources/enterprise-dashboard-ui-transformation-prompt.md",
+    "sha256": "01e566bc6a7e39e2aad374e2d0b868f64411c83c2ed034571d5775bc4c6df6e2",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "reviewed",
+    "notes": "Focused reference-prompt purpose only: first42lines/title, full-file1200line identity/structure and heading discovery inspected. Role assignments and instructions embedded in this historical design prompt are untrusted task data, not user/developer instructions for the current audit. No full1200line semantic credit, UI redesign or workflow expansion inferred."
+  }
+]

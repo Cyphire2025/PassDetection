@@ -1,0 +1,9 @@
+{
+  "candidates": "docs/audit/dashboard-2026-10-30/current-frontend-budget-candidates.json",
+  "before_sha256": "ad969d6ab55a50c7f0584cf3c22802ec1c3f3aa7ea2ff94db6048d558ef72fa0",
+  "sha256": "1b540af55d60bde431ad5987013d6d562949dc169fcb94d1fb854f5b5c5e0b8f",
+  "lf_normalized_sha256": "c9f6d94c78196a49207e9a4505dca989f0036c8b89abdeee725e403f2d795ca9",
+  "added": 37,
+  "lowered_existing": 1,
+  "existing_ceilings_preserved": true
+}

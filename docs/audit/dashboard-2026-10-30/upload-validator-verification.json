@@ -1,0 +1,118 @@
+{
+  "status": "passed/frozen two narrow behavior fixes; final combined verification deferred per user cadence",
+  "runtime_and_new_test_sources": [
+    {
+      "path": "backend/app/infrastructure/security/upload_validator.py",
+      "sha256": "dfb2683e620bcc1a3a5d4f97f5cb4c1cfda20105e493f6070e63b8574c11c73f"
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_upload_validator_metadata.py",
+      "sha256": "4fd0dc6a3cf634d12a7456dfbf8c2f045da0749e22788398d6164a137c084334"
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_clamav_health_protocol.py",
+      "sha256": "f0b7b4f8148e234cf112cbc22d86f4c881fa1e80dbc3a57b5fa6dcd8a95e6e66"
+    }
+  ],
+  "baseline": {
+    "raw_path": ".tmp/upload-validator-audit/baseline.txt",
+    "total_cases": 17,
+    "failed": 10,
+    "passed": 7,
+    "image_negatives": 7,
+    "health_negatives": 3,
+    "new_test_source_originals": [
+      {
+        "path": ".tmp/upload-validator-audit/baseline-tests/test_clamav_health_protocol.py",
+        "sha256": "4b5c17e29a68ff7e396190c0b43dbb9e008dcc16fd99bc9dc1ab91062897ac72"
+      },
+      {
+        "path": ".tmp/upload-validator-audit/baseline-tests/test_upload_validator_metadata.py",
+        "sha256": "0c48bf16c4e6828aea72942b2adfe70437e64aeaa1b96c499d5cfbc0391c5b18"
+      }
+    ],
+    "negative_limits": "Real Pillow decode and current workspace.stage; socket-shaped health protocol controls, not live daemon. Timeout control already passed original; not counted as an original deadline regression."
+  },
+  "qualification": {
+    "affected_pytest_cases_passed": 154,
+    "subtests_passed": 3,
+    "byte_exact_image_pipeline_cases": 96,
+    "existing_scan_protocol_test_bytes_unchanged": true,
+    "original_three_test_files_bytes_unchanged": true,
+    "strict_scoped_mypy": "passed1source",
+    "ruff_lint": "passed3changedpaths",
+    "ruff_format": "passed3changedpaths"
+  },
+  "fixes": [
+    {
+      "id": "UV01",
+      "status": "fixed",
+      "description": "ValidatedUpload width/height describe actual canonical JPEG after EXIF orientation/optional resize; stage retains correct metadata. Original source pixel rejection and canonical image bytes unchanged."
+    },
+    {
+      "id": "UV02",
+      "status": "fixed",
+      "description": "Health probe handles fragmented valid PONG, rejects missing NUL, malformed/oversized/extra frame content, shares one total deadline and preserves configuration failure type/resource closure. Scan default4096/chunk8192 and verdict handling unchanged."
+    }
+  ],
+  "primary_protocol_source": {
+    "url": "https://docs.clamav.net/manual/Usage/ClamdProtocol.html",
+    "checked": "2026-10-31",
+    "scope": "Command Framing + PING sections: zPING selects NUL-terminated PONG; no quoted page material copied into source."
+  },
+  "source_proof": {
+    "path": "docs/audit/dashboard-2026-10-30/upload-validator-source-proof.json",
+    "sha256": "7e3c0dff67a61c78a4d021d97af85bd93ac2789a817e49f9eb217e25f98b112f"
+  },
+  "ledger": {
+    "path": "docs/audit/dashboard-2026-10-30/upload-validator-reviewed-files.json",
+    "sha256": "2b796ffee1378587dc29a12ba5d7a3d069372354499323011e1c8dc070f96d2a"
+  },
+  "candidate_files": [
+    {
+      "path": "docs/audit/dashboard-2026-10-30/upload-validator-budget-candidates.json",
+      "sha256": "3f88fc2f3a9d7dbafee5ec99ee9041a97e26842ed76985463b216e53d5dde034"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/upload-validator-critical-candidates.json",
+      "sha256": "d74c3ee6e6c6e49a8d429293380920146e8329f2c3fbacde04066986bc83c08a"
+    }
+  ],
+  "raw_evidence": [
+    {
+      "path": ".tmp/upload-validator-audit/baseline.txt",
+      "sha256": "085b3188d38577548570971c8a74bfe5d661745d158788a799714c17e645632e"
+    },
+    {
+      "path": ".tmp/upload-validator-audit/affected-final.txt",
+      "sha256": "69ab7a3000f879dcf6d8650dd573ec0471f4c137126d53f70f9151b973e26675"
+    },
+    {
+      "path": ".tmp/upload-validator-audit/types-final.txt",
+      "sha256": "8e63ae22e8213e327a5e9cbd584067681681bd8ef7f25c869877887ccdcfc4ff"
+    },
+    {
+      "path": ".tmp/upload-validator-audit/lint.txt",
+      "sha256": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0"
+    },
+    {
+      "path": ".tmp/upload-validator-audit/format-final.txt",
+      "sha256": "81e0708af79a682467b0ecbd3453a0a33cfcbbe2812201b4d4f405f78ded2976"
+    },
+    {
+      "path": ".tmp/upload-validator-audit/coverage-final.json",
+      "sha256": "ad1a75e44ea3c90c65c36875ad0acc4da11e9f6ecdea275328d524e5ec3b5e75"
+    },
+    {
+      "path": ".tmp/upload-validator-audit/coverage-final.xml",
+      "sha256": "bc9a4fb3bba8130b9bc253780abad727a5b2ae9079fa16a182d7dd8cd56de2b8"
+    }
+  ],
+  "scope_and_limits": [
+    "No importer/workspace/root-owned source edits.",
+    "No API/schema/DTO field/signature changes except optional private reader byte-bound keyword.",
+    "No malware-scan acceptance change; health now deliberately requires official zPING framing.",
+    "No live ClamAV, PostgreSQL, object-storage, provider, deployment or broad-suite qualification.",
+    "Existing independent security/architecture follow-ups are not closed by these two fixes."
+  ]
+}

@@ -114,7 +114,9 @@ async def test_client_manager_list_applies_status_company_and_phone_search() -> 
     assert response.total == 0
     assert session.execute.await_count == 2
     sql = str(
-        session.execute.await_args_list[0].args[0].compile(
+        session.execute.await_args_list[0]
+        .args[0]
+        .compile(
             dialect=postgresql.dialect(),
             compile_kwargs={"literal_binds": True},
         )
@@ -144,7 +146,9 @@ async def test_client_manager_list_can_return_deleted_audit_records() -> None:
     )
 
     sql = str(
-        session.execute.await_args_list[0].args[0].compile(
+        session.execute.await_args_list[0]
+        .args[0]
+        .compile(
             dialect=postgresql.dialect(),
             compile_kwargs={"literal_binds": True},
         )
@@ -198,10 +202,11 @@ async def test_client_manager_create_returns_single_use_activation_without_refet
         add=added.append,
         flush=AsyncMock(side_effect=record_flush),
         rollback=AsyncMock(),
+        commit=AsyncMock(),
     )
     http_response = Response()
 
-    with patch("app.presentation.api.v1.routes.gc_app._audit", new=AsyncMock()):
+    with patch("app.presentation.api.v1.routes.gc_app_manager_creation._audit", new=AsyncMock()):
         created = await create_client_manager(
             body=_create_body(organization.id),
             request=_request(),
@@ -226,6 +231,8 @@ async def test_client_manager_create_returns_single_use_activation_without_refet
     ]
     session.rollback.assert_not_awaited()
 
+    session.commit.assert_awaited_once()
+
 
 @pytest.mark.asyncio
 async def test_client_manager_invitation_stays_pending_without_forced_password() -> None:
@@ -244,9 +251,10 @@ async def test_client_manager_invitation_stays_pending_without_forced_password()
         add=added.append,
         flush=AsyncMock(),
         rollback=AsyncMock(),
+        commit=AsyncMock(),
     )
 
-    with patch("app.presentation.api.v1.routes.gc_app._audit", new=AsyncMock()):
+    with patch("app.presentation.api.v1.routes.gc_app_manager_creation._audit", new=AsyncMock()):
         created = await create_client_manager(
             body=body,
             request=_request(),
@@ -259,6 +267,8 @@ async def test_client_manager_invitation_stays_pending_without_forced_password()
     assert created.force_password_change is False
     assert created.activation_token is not None
     session.rollback.assert_not_awaited()
+
+    session.commit.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -285,14 +295,15 @@ async def test_client_manager_create_flushes_foreign_key_dependencies_in_order()
         add=added.append,
         flush=AsyncMock(side_effect=record_flush),
         rollback=AsyncMock(),
+        commit=AsyncMock(),
     )
 
     with (
         patch(
-            "app.presentation.api.v1.routes.gc_app._validate_manager_groups",
+            "app.presentation.api.v1.routes.gc_app_manager_creation._validate_manager_groups",
             new=AsyncMock(return_value={group_id: SimpleNamespace(id=access_id)}),
         ),
-        patch("app.presentation.api.v1.routes.gc_app._audit", new=AsyncMock()),
+        patch("app.presentation.api.v1.routes.gc_app_manager_creation._audit", new=AsyncMock()),
     ):
         await create_client_manager(
             body=body,
@@ -312,6 +323,8 @@ async def test_client_manager_create_flushes_foreign_key_dependencies_in_order()
         ),
     ]
     session.rollback.assert_not_awaited()
+
+    session.commit.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -430,15 +443,18 @@ async def test_client_manager_delete_revokes_access_and_releases_the_email() -> 
 
     with (
         patch(
-            "app.presentation.api.v1.routes.gc_app._get_client_manager",
+            "app.presentation.api.v1.routes.gc_app_manager_profile._get_client_manager",
             new=AsyncMock(return_value=(profile, user, SimpleNamespace())),
         ),
         patch(
-            "app.presentation.api.v1.routes.gc_app._revoke_mobile_sessions",
+            "app.presentation.api.v1.routes.gc_app_manager_profile._revoke_mobile_sessions",
             new=revoke_sessions,
         ),
-        patch("app.presentation.api.v1.routes.gc_app.hash_password", return_value="revoked-hash"),
-        patch("app.presentation.api.v1.routes.gc_app._audit", new=AsyncMock()),
+        patch(
+            "app.presentation.api.v1.routes.gc_app_manager_profile.hash_password",
+            return_value="revoked-hash",
+        ),
+        patch("app.presentation.api.v1.routes.gc_app_manager_profile._audit", new=AsyncMock()),
     ):
         response = await delete_client_manager(
             profile_id=profile_id,

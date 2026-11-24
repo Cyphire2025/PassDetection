@@ -1,0 +1,252 @@
+{
+  "status": "No StorageError HTTP disclosure: central error_response replaces all500messages/detail with generic text, and all38current explicit storage-error constructors are fixed literals.",
+  "constructor_count": 38,
+  "all_current_explicit_constructor_messages_literal": true,
+  "constructors": [
+    {
+      "path": "backend/app/application/mcp/artifacts.py",
+      "line": 626,
+      "literal_message": true,
+      "sha256": "39b4a7df6452cde2743703537b64215088b5cdc8338e04b9b0a856b321a86abe"
+    },
+    {
+      "path": "backend/app/application/mcp/artifacts.py",
+      "line": 645,
+      "literal_message": true,
+      "sha256": "39b4a7df6452cde2743703537b64215088b5cdc8338e04b9b0a856b321a86abe"
+    },
+    {
+      "path": "backend/app/application/mcp/artifacts.py",
+      "line": 641,
+      "literal_message": true,
+      "sha256": "39b4a7df6452cde2743703537b64215088b5cdc8338e04b9b0a856b321a86abe"
+    },
+    {
+      "path": "backend/app/application/mcp/whatsapp_media_uploads.py",
+      "line": 373,
+      "literal_message": true,
+      "sha256": "906c391889de30bdd4a83f255bfefdb62c184337adecd70b7ce0f8a5e7ffb2fc"
+    },
+    {
+      "path": "backend/app/application/mcp/whatsapp_media_uploads.py",
+      "line": 368,
+      "literal_message": true,
+      "sha256": "906c391889de30bdd4a83f255bfefdb62c184337adecd70b7ce0f8a5e7ffb2fc"
+    },
+    {
+      "path": "backend/app/application/use_cases/passports/submit_passport_use_case.py",
+      "line": 339,
+      "literal_message": true,
+      "sha256": "d3087a2787013d1b3793aa4a702cc1811e4dd67e83397f68bffeea933328b8f3"
+    },
+    {
+      "path": "backend/app/infrastructure/storage/mcp_artifact_storage.py",
+      "line": 40,
+      "literal_message": true,
+      "sha256": "99f0c8ef858287f10cc9a9c6ced4c20430417bdda459be25eb8459ccd7c35381"
+    },
+    {
+      "path": "backend/app/infrastructure/storage/mcp_image_export_storage.py",
+      "line": 76,
+      "literal_message": true,
+      "sha256": "0958090ae9cc1abdf70a83737ef073474c4b1a712899d4e9d43e60542d64db99"
+    },
+    {
+      "path": "backend/app/infrastructure/storage/mcp_image_export_storage.py",
+      "line": 79,
+      "literal_message": true,
+      "sha256": "0958090ae9cc1abdf70a83737ef073474c4b1a712899d4e9d43e60542d64db99"
+    },
+    {
+      "path": "backend/app/infrastructure/storage/mcp_image_export_storage.py",
+      "line": 82,
+      "literal_message": true,
+      "sha256": "0958090ae9cc1abdf70a83737ef073474c4b1a712899d4e9d43e60542d64db99"
+    },
+    {
+      "path": "backend/app/infrastructure/storage/mcp_image_export_storage.py",
+      "line": 38,
+      "literal_message": true,
+      "sha256": "0958090ae9cc1abdf70a83737ef073474c4b1a712899d4e9d43e60542d64db99"
+    },
+    {
+      "path": "backend/app/infrastructure/storage/mcp_image_export_storage.py",
+      "line": 43,
+      "literal_message": true,
+      "sha256": "0958090ae9cc1abdf70a83737ef073474c4b1a712899d4e9d43e60542d64db99"
+    },
+    {
+      "path": "backend/app/infrastructure/storage/mcp_image_export_storage.py",
+      "line": 62,
+      "literal_message": true,
+      "sha256": "0958090ae9cc1abdf70a83737ef073474c4b1a712899d4e9d43e60542d64db99"
+    },
+    {
+      "path": "backend/app/infrastructure/storage/mcp_image_export_storage.py",
+      "line": 46,
+      "literal_message": true,
+      "sha256": "0958090ae9cc1abdf70a83737ef073474c4b1a712899d4e9d43e60542d64db99"
+    },
+    {
+      "path": "backend/app/infrastructure/storage/mcp_image_export_storage.py",
+      "line": 55,
+      "literal_message": true,
+      "sha256": "0958090ae9cc1abdf70a83737ef073474c4b1a712899d4e9d43e60542d64db99"
+    },
+    {
+      "path": "backend/app/infrastructure/storage/minio_repository.py",
+      "line": 248,
+      "literal_message": true,
+      "sha256": "f31fe249d63c18ea0e400bae0ee3161eb05db6b194527e2bdab39bf88626180c"
+    },
+    {
+      "path": "backend/app/infrastructure/storage/minio_repository.py",
+      "line": 94,
+      "literal_message": true,
+      "sha256": "f31fe249d63c18ea0e400bae0ee3161eb05db6b194527e2bdab39bf88626180c"
+    },
+    {
+      "path": "backend/app/infrastructure/storage/minio_repository.py",
+      "line": 123,
+      "literal_message": true,
+      "sha256": "f31fe249d63c18ea0e400bae0ee3161eb05db6b194527e2bdab39bf88626180c"
+    },
+    {
+      "path": "backend/app/infrastructure/storage/minio_repository.py",
+      "line": 144,
+      "literal_message": true,
+      "sha256": "f31fe249d63c18ea0e400bae0ee3161eb05db6b194527e2bdab39bf88626180c"
+    },
+    {
+      "path": "backend/app/infrastructure/storage/minio_repository.py",
+      "line": 167,
+      "literal_message": true,
+      "sha256": "f31fe249d63c18ea0e400bae0ee3161eb05db6b194527e2bdab39bf88626180c"
+    },
+    {
+      "path": "backend/app/infrastructure/storage/minio_repository.py",
+      "line": 182,
+      "literal_message": true,
+      "sha256": "f31fe249d63c18ea0e400bae0ee3161eb05db6b194527e2bdab39bf88626180c"
+    },
+    {
+      "path": "backend/app/infrastructure/storage/minio_repository.py",
+      "line": 220,
+      "literal_message": true,
+      "sha256": "f31fe249d63c18ea0e400bae0ee3161eb05db6b194527e2bdab39bf88626180c"
+    },
+    {
+      "path": "backend/app/infrastructure/storage/minio_repository.py",
+      "line": 268,
+      "literal_message": true,
+      "sha256": "f31fe249d63c18ea0e400bae0ee3161eb05db6b194527e2bdab39bf88626180c"
+    },
+    {
+      "path": "backend/app/infrastructure/storage/minio_repository.py",
+      "line": 278,
+      "literal_message": true,
+      "sha256": "f31fe249d63c18ea0e400bae0ee3161eb05db6b194527e2bdab39bf88626180c"
+    },
+    {
+      "path": "backend/app/infrastructure/storage/minio_repository.py",
+      "line": 314,
+      "literal_message": true,
+      "sha256": "f31fe249d63c18ea0e400bae0ee3161eb05db6b194527e2bdab39bf88626180c"
+    },
+    {
+      "path": "backend/app/infrastructure/storage/minio_repository.py",
+      "line": 336,
+      "literal_message": true,
+      "sha256": "f31fe249d63c18ea0e400bae0ee3161eb05db6b194527e2bdab39bf88626180c"
+    },
+    {
+      "path": "backend/app/infrastructure/storage/minio_repository.py",
+      "line": 361,
+      "literal_message": true,
+      "sha256": "f31fe249d63c18ea0e400bae0ee3161eb05db6b194527e2bdab39bf88626180c"
+    },
+    {
+      "path": "backend/app/infrastructure/storage/minio_repository.py",
+      "line": 381,
+      "literal_message": true,
+      "sha256": "f31fe249d63c18ea0e400bae0ee3161eb05db6b194527e2bdab39bf88626180c"
+    },
+    {
+      "path": "backend/app/infrastructure/storage/minio_repository.py",
+      "line": 413,
+      "literal_message": true,
+      "sha256": "f31fe249d63c18ea0e400bae0ee3161eb05db6b194527e2bdab39bf88626180c"
+    },
+    {
+      "path": "backend/app/infrastructure/storage/minio_repository.py",
+      "line": 425,
+      "literal_message": true,
+      "sha256": "f31fe249d63c18ea0e400bae0ee3161eb05db6b194527e2bdab39bf88626180c"
+    },
+    {
+      "path": "backend/app/infrastructure/storage/minio_repository.py",
+      "line": 477,
+      "literal_message": true,
+      "sha256": "f31fe249d63c18ea0e400bae0ee3161eb05db6b194527e2bdab39bf88626180c"
+    },
+    {
+      "path": "backend/app/infrastructure/storage/minio_repository.py",
+      "line": 117,
+      "literal_message": true,
+      "sha256": "f31fe249d63c18ea0e400bae0ee3161eb05db6b194527e2bdab39bf88626180c"
+    },
+    {
+      "path": "backend/app/infrastructure/storage/minio_repository.py",
+      "line": 193,
+      "literal_message": true,
+      "sha256": "f31fe249d63c18ea0e400bae0ee3161eb05db6b194527e2bdab39bf88626180c"
+    },
+    {
+      "path": "backend/app/infrastructure/storage/minio_repository.py",
+      "line": 199,
+      "literal_message": true,
+      "sha256": "f31fe249d63c18ea0e400bae0ee3161eb05db6b194527e2bdab39bf88626180c"
+    },
+    {
+      "path": "backend/app/infrastructure/storage/minio_repository.py",
+      "line": 319,
+      "literal_message": true,
+      "sha256": "f31fe249d63c18ea0e400bae0ee3161eb05db6b194527e2bdab39bf88626180c"
+    },
+    {
+      "path": "backend/app/infrastructure/storage/minio_repository.py",
+      "line": 321,
+      "literal_message": true,
+      "sha256": "f31fe249d63c18ea0e400bae0ee3161eb05db6b194527e2bdab39bf88626180c"
+    },
+    {
+      "path": "backend/app/infrastructure/storage/minio_repository.py",
+      "line": 327,
+      "literal_message": true,
+      "sha256": "f31fe249d63c18ea0e400bae0ee3161eb05db6b194527e2bdab39bf88626180c"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/passport_routes/public_upload.py",
+      "line": 243,
+      "literal_message": true,
+      "sha256": "79089e2aad053e18b44a20342461065efff32572f3a9eeeb5b605d75a0405824"
+    }
+  ],
+  "manual_full_read": [
+    "backend/app/infrastructure/storage/minio_repository.py",
+    "backend/app/presentation/middleware/error_handler.py",
+    "backend/app/presentation/middleware/error_response.py"
+  ],
+  "manual_partial_trace": [
+    "backend/app/application/use_cases/passports/submit_passport_use_case.py:305-351",
+    "backend/app/presentation/api/v1/routes/passport_routes/public_upload.py:225-285",
+    "backend/app/domain/exceptions/exceptions.py:127-151"
+  ],
+  "limit": "Constructor inventory is static source tracing, not a claim all containing physical files were read or every storage call/service was executed. No source runtime patch or new tests justified by this trace alone.",
+  "central_http_projection": {
+    "path": "backend/app/presentation/middleware/error_response.py",
+    "sha256": "c64c7ed350e6860995cc2e0674d6c2e5aa48d2367101935cd7373f8ff406cb32",
+    "behavior": "status_code500 replaces message and clears details; existing realHTTP regression injects private StorageError text and verifies redaction."
+  },
+  "existing_regression": "backend/tests/unit/presentation/test_api_error_envelope.py"
+}

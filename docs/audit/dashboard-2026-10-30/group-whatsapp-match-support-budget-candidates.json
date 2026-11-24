@@ -1,0 +1,123 @@
+{
+  "source_manifest": {
+    "path": "docs/audit/dashboard-2026-10-30/group-whatsapp-match-support-final-source-manifest.json",
+    "sha256": "d211cba3fe6a722a18914c0ebabae6494bcb895f6f0a365bcf551fd9d700b39c"
+  },
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/group-whatsapp-match-support-reviewed-files.json",
+    "sha256": "e9482b65c1076d1095541b6be31786faae909c1d309c8620576eca4b267aa148"
+  },
+  "normal_module_candidates": [
+    {
+      "path": "app/presentation/api/v1/routes/client_group_whatsapp_match_acquisition.py",
+      "sha256": "a9d58063df235d4fbae07a61879e93786e5b5431e63081a5fe82d2fc16d8479c",
+      "previous": null,
+      "baseline_lines": 132,
+      "maximum_lines": 140,
+      "baseline_max_function_complexity": 14,
+      "maximum_function_complexity": 14,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/client_group_whatsapp_match_resolutions.py",
+      "sha256": "09a239a46cd3dbab284ada75e031ef3ed7b1b3160910bbff0d0f844537b95e9f",
+      "previous": null,
+      "baseline_lines": 121,
+      "maximum_lines": 130,
+      "baseline_max_function_complexity": 17,
+      "maximum_function_complexity": 17,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/client_group_whatsapp_match_responses.py",
+      "sha256": "65f319400adc6c1981f5eab8168b307464d0c82a582e6943736c3b4cf49a078e",
+      "previous": null,
+      "baseline_lines": 214,
+      "maximum_lines": 225,
+      "baseline_max_function_complexity": 7,
+      "maximum_function_complexity": 7,
+      "minimum_coverage_percent": 85
+    },
+    {
+      "path": "app/presentation/api/v1/routes/client_group_whatsapp_match_support.py",
+      "sha256": "11a91339306548aec5268918d482475271f828e52be9d8442cd20daf9edc6586",
+      "previous": null,
+      "baseline_lines": 121,
+      "maximum_lines": 125,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 95
+    }
+  ],
+  "critical_module_candidates": [],
+  "coverage": {
+    "app/presentation/api/v1/routes/client_group_whatsapp_match_acquisition.py": {
+      "covered_lines": 37,
+      "num_statements": 37,
+      "percent_covered": 97.43589743589743,
+      "percent_covered_display": "97",
+      "missing_lines": 0,
+      "excluded_lines": 0,
+      "percent_statements_covered": 100.0,
+      "percent_statements_covered_display": "100",
+      "num_branches": 2,
+      "num_partial_branches": 1,
+      "covered_branches": 1,
+      "missing_branches": 1,
+      "percent_branches_covered": 50.0,
+      "percent_branches_covered_display": "50"
+    },
+    "app/presentation/api/v1/routes/client_group_whatsapp_match_resolutions.py": {
+      "covered_lines": 29,
+      "num_statements": 30,
+      "percent_covered": 95.0,
+      "percent_covered_display": "95",
+      "missing_lines": 1,
+      "excluded_lines": 0,
+      "percent_statements_covered": 96.66666666666667,
+      "percent_statements_covered_display": "97",
+      "num_branches": 10,
+      "num_partial_branches": 1,
+      "covered_branches": 9,
+      "missing_branches": 1,
+      "percent_branches_covered": 90.0,
+      "percent_branches_covered_display": "90"
+    },
+    "app/presentation/api/v1/routes/client_group_whatsapp_match_responses.py": {
+      "covered_lines": 50,
+      "num_statements": 57,
+      "percent_covered": 80.82191780821918,
+      "percent_covered_display": "81",
+      "missing_lines": 7,
+      "excluded_lines": 0,
+      "percent_statements_covered": 87.71929824561404,
+      "percent_statements_covered_display": "88",
+      "num_branches": 16,
+      "num_partial_branches": 7,
+      "covered_branches": 9,
+      "missing_branches": 7,
+      "percent_branches_covered": 56.25,
+      "percent_branches_covered_display": "56"
+    },
+    "app/presentation/api/v1/routes/client_group_whatsapp_match_support.py": {
+      "covered_lines": 48,
+      "num_statements": 48,
+      "percent_covered": 100.0,
+      "percent_covered_display": "100",
+      "missing_lines": 0,
+      "excluded_lines": 0,
+      "percent_statements_covered": 100.0,
+      "percent_statements_covered_display": "100",
+      "num_branches": 0,
+      "num_partial_branches": 0,
+      "covered_branches": 0,
+      "missing_branches": 0,
+      "percent_branches_covered": 100.0,
+      "percent_branches_covered_display": "100"
+    }
+  },
+  "original_existing_normal_row": null,
+  "original_existing_critical_row": null,
+  "scope": "All4new normal guards, including every real implementation owner95/95/85 with actual current measured line coverage100/96.67/87.72. Facade95 does not replace real-owner qualification; no critical declaration-only additions. Original410owner had no existing row; every existing global/critical/old normal cap/floor stays untouched. Parent/AI alone adopts shared gates.",
+  "quality_file_observed_sha256": "c02fb129259baa0f38a0b332f92d319a4a31cdfa85738e297f39ae984f237bd6"
+}

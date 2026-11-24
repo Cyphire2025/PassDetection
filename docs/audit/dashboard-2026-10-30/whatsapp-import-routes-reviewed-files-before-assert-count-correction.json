@@ -1,0 +1,182 @@
+[
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_creation.py",
+    "sha256": "80d28f482839d06f304973b37242e3c7ba60e0b50ee3db994d67fed5da8522eb",
+    "physical_lines": 162,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read, independent of execution. Retained dashboard WhatsApp creation/additions, actual parser/rejected-source recovery, imported field and identity normalization, tenant/role/consent/capacity/archive/private delivery boundaries traced; no dedicated Inbox/ExpoUI/provider operations. Scope-only physical review; execution is not a claim of full service qualification. ZIP central-directory preallocation and worksheet dimension expansion are unvalidated resource candidates retained for separate reproduction; CPU worker takes owned bytes and closes workbook internally, so cancellation syntax alone is not a confirmed lifetime defect."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_recipient_additions.py",
+    "sha256": "278d992f0ac8343d4754aba07fd93c7412f5ff9003c8333d5aa42784b80800f4",
+    "physical_lines": 235,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read, independent of execution. Retained dashboard WhatsApp creation/additions, actual parser/rejected-source recovery, imported field and identity normalization, tenant/role/consent/capacity/archive/private delivery boundaries traced; no dedicated Inbox/ExpoUI/provider operations. Scope-only physical review; execution is not a claim of full service qualification. ZIP central-directory preallocation and worksheet dimension expansion are unvalidated resource candidates retained for separate reproduction; CPU worker takes owned bytes and closes workbook internally, so cancellation syntax alone is not a confirmed lifetime defect."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_contact_import.py",
+    "sha256": "d627dcea775c7302cd0680e77cb6a7c8f1d3b8bea479b3865d318af1dd6bf1c8",
+    "physical_lines": 422,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read, independent of execution. Retained dashboard WhatsApp creation/additions, actual parser/rejected-source recovery, imported field and identity normalization, tenant/role/consent/capacity/archive/private delivery boundaries traced; no dedicated Inbox/ExpoUI/provider operations. Scope-only physical review; execution is not a claim of full service qualification. ZIP central-directory preallocation and worksheet dimension expansion are unvalidated resource candidates retained for separate reproduction; CPU worker takes owned bytes and closes workbook internally, so cancellation syntax alone is not a confirmed lifetime defect."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_contact_sources.py",
+    "sha256": "0500fab46a72d955359e71e559d85f7b3a05d623ae35ef8abeccc5afb402626a",
+    "physical_lines": 56,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read, independent of execution. Retained dashboard WhatsApp creation/additions, actual parser/rejected-source recovery, imported field and identity normalization, tenant/role/consent/capacity/archive/private delivery boundaries traced; no dedicated Inbox/ExpoUI/provider operations. Scope-only physical review; execution is not a claim of full service qualification. ZIP central-directory preallocation and worksheet dimension expansion are unvalidated resource candidates retained for separate reproduction; CPU worker takes owned bytes and closes workbook internally, so cancellation syntax alone is not a confirmed lifetime defect."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_contact_excel.py",
+    "sha256": "dd4fdbdb2ce0a78983ead4bfd5bd9ef311c3a1a366e68e207c72f3cdbfe300dc",
+    "physical_lines": 276,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read, independent of execution. Retained dashboard WhatsApp creation/additions, actual parser/rejected-source recovery, imported field and identity normalization, tenant/role/consent/capacity/archive/private delivery boundaries traced; no dedicated Inbox/ExpoUI/provider operations. Scope-only physical review; execution is not a claim of full service qualification. ZIP central-directory preallocation and worksheet dimension expansion are unvalidated resource candidates retained for separate reproduction; CPU worker takes owned bytes and closes workbook internally, so cancellation syntax alone is not a confirmed lifetime defect."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_imported_fields.py",
+    "sha256": "fc4ab60c67b8ba4da46dc0b50684264173f2af260696e138b1f40925049ba811",
+    "physical_lines": 186,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read, independent of execution. Retained dashboard WhatsApp creation/additions, actual parser/rejected-source recovery, imported field and identity normalization, tenant/role/consent/capacity/archive/private delivery boundaries traced; no dedicated Inbox/ExpoUI/provider operations. Scope-only physical review; execution is not a claim of full service qualification. ZIP central-directory preallocation and worksheet dimension expansion are unvalidated resource candidates retained for separate reproduction; CPU worker takes owned bytes and closes workbook internally, so cancellation syntax alone is not a confirmed lifetime defect."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_scope.py",
+    "sha256": "fb1f5adf2ca2f924c57da9efbeb057ad013c4af1f2fc37704ac0883879b9da4c",
+    "physical_lines": 177,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified-focused",
+    "notes": "Complete physical source read, independent of execution. Retained dashboard WhatsApp creation/additions, actual parser/rejected-source recovery, imported field and identity normalization, tenant/role/consent/capacity/archive/private delivery boundaries traced; no dedicated Inbox/ExpoUI/provider operations. Verified current credential/session refresh after actual account/agency lock; security-state SELECT locks and populate_existing replace cached rows. Unchanged canonical effective-role policy and original ordinary ORM return identity. Two actual held-workbook revoked-session/withdrawn-credential negatives failed before; all8new persisted state/workbook/cache cases now pass with positive legacy/profile/healthy controls. Whole scope module AST inverse after exact credential call/import/return+doc deltas; six original public/private helper signatures/evaluated hints exact. Existing181/C4/85 cap unchanged."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_actor_credentials.py",
+    "sha256": "0e82cb8ba583b039c8d85c1ab6b3a835532360a14a7c035e63bd7454f9f4e69f",
+    "physical_lines": 34,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified-focused",
+    "notes": "Complete physical source read, independent of execution. Retained dashboard WhatsApp creation/additions, actual parser/rejected-source recovery, imported field and identity normalization, tenant/role/consent/capacity/archive/private delivery boundaries traced; no dedicated Inbox/ExpoUI/provider operations. Verified current credential/session refresh after actual account/agency lock; security-state SELECT locks and populate_existing replace cached rows. Unchanged canonical effective-role policy and original ordinary ORM return identity. Two actual held-workbook revoked-session/withdrawn-credential negatives failed before; all8new persisted state/workbook/cache cases now pass with positive legacy/profile/healthy controls. Whole scope module AST inverse after exact credential call/import/return+doc deltas; six original public/private helper signatures/evaluated hints exact. Existing181/C4/85 cap unchanged."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_groups_manage.py",
+    "sha256": "6c48d2e6838d056e9d83db1266521c09ca50a1eda61430c9922bfd93d8c1e924",
+    "physical_lines": 228,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read, independent of execution. Retained dashboard WhatsApp creation/additions, actual parser/rejected-source recovery, imported field and identity normalization, tenant/role/consent/capacity/archive/private delivery boundaries traced; no dedicated Inbox/ExpoUI/provider operations. Scope-only physical review; execution is not a claim of full service qualification. ZIP central-directory preallocation and worksheet dimension expansion are unvalidated resource candidates retained for separate reproduction; CPU worker takes owned bytes and closes workbook internally, so cancellation syntax alone is not a confirmed lifetime defect."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_contact_values.py",
+    "sha256": "3a6c521cbd30e24af2492d3807d398b61c028ec305b5f66368b84e427da713a3",
+    "physical_lines": 189,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read, independent of execution. Retained dashboard WhatsApp creation/additions, actual parser/rejected-source recovery, imported field and identity normalization, tenant/role/consent/capacity/archive/private delivery boundaries traced; no dedicated Inbox/ExpoUI/provider operations. Scope-only physical review; execution is not a claim of full service qualification. ZIP central-directory preallocation and worksheet dimension expansion are unvalidated resource candidates retained for separate reproduction; CPU worker takes owned bytes and closes workbook internally, so cancellation syntax alone is not a confirmed lifetime defect."
+  },
+  {
+    "path": "backend/app/application/use_cases/whatsapp/spreadsheet_values.py",
+    "sha256": "9b3a824b2f5dd1c40592a417ee51b0b4538fb9155c01cefb4985c6101816326c",
+    "physical_lines": 52,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read, independent of execution. Retained dashboard WhatsApp creation/additions, actual parser/rejected-source recovery, imported field and identity normalization, tenant/role/consent/capacity/archive/private delivery boundaries traced; no dedicated Inbox/ExpoUI/provider operations. Scope-only physical review; execution is not a claim of full service qualification. ZIP central-directory preallocation and worksheet dimension expansion are unvalidated resource candidates retained for separate reproduction; CPU worker takes owned bytes and closes workbook internally, so cancellation syntax alone is not a confirmed lifetime defect."
+  },
+  {
+    "path": "backend/app/application/use_cases/whatsapp/contact_import_limits.py",
+    "sha256": "004c196f9379aec1df84e0696046494b01c156776b05de8b9ae74e5acc1e9990",
+    "physical_lines": 6,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read, independent of execution. Retained dashboard WhatsApp creation/additions, actual parser/rejected-source recovery, imported field and identity normalization, tenant/role/consent/capacity/archive/private delivery boundaries traced; no dedicated Inbox/ExpoUI/provider operations. Scope-only physical review; execution is not a claim of full service qualification. ZIP central-directory preallocation and worksheet dimension expansion are unvalidated resource candidates retained for separate reproduction; CPU worker takes owned bytes and closes workbook internally, so cancellation syntax alone is not a confirmed lifetime defect."
+  },
+  {
+    "path": "backend/app/application/security/access_level_actor.py",
+    "sha256": "3a8eec715f67356a378986999a012723bdd21f5510518ee7320ce7d0809013a6",
+    "physical_lines": 59,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read, independent of execution. Retained dashboard WhatsApp creation/additions, actual parser/rejected-source recovery, imported field and identity normalization, tenant/role/consent/capacity/archive/private delivery boundaries traced; no dedicated Inbox/ExpoUI/provider operations. Scope-only physical review; execution is not a claim of full service qualification. ZIP central-directory preallocation and worksheet dimension expansion are unvalidated resource candidates retained for separate reproduction; CPU worker takes owned bytes and closes workbook internally, so cancellation syntax alone is not a confirmed lifetime defect."
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/user_repository.py",
+    "sha256": "a91bd9de4ef129c714c39cbda7ddc3d782fe7b3474fcb8f65837642fa5cb4737",
+    "physical_lines": 140,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read, independent of execution. Retained dashboard WhatsApp creation/additions, actual parser/rejected-source recovery, imported field and identity normalization, tenant/role/consent/capacity/archive/private delivery boundaries traced; no dedicated Inbox/ExpoUI/provider operations. Scope-only physical review; execution is not a claim of full service qualification. ZIP central-directory preallocation and worksheet dimension expansion are unvalidated resource candidates retained for separate reproduction; CPU worker takes owned bytes and closes workbook internally, so cancellation syntax alone is not a confirmed lifetime defect."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_whatsapp_import_current_authority.py",
+    "sha256": "9bccafab25935ff381284df69cbef6fea1af30457d8c2320c71cc3807573bf48",
+    "physical_lines": 222,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read, independent of execution. Retained dashboard WhatsApp creation/additions, actual parser/rejected-source recovery, imported field and identity normalization, tenant/role/consent/capacity/archive/private delivery boundaries traced; no dedicated Inbox/ExpoUI/provider operations. Scope-only physical review; execution is not a claim of full service qualification. ZIP central-directory preallocation and worksheet dimension expansion are unvalidated resource candidates retained for separate reproduction; CPU worker takes owned bytes and closes workbook internally, so cancellation syntax alone is not a confirmed lifetime defect."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_whatsapp_import_transactions.py",
+    "sha256": "e3a3a6649d2c7eb70362728c84cf564c6253a01ae19904b26202a5fa03ab07b4",
+    "physical_lines": 322,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read, independent of execution. Retained dashboard WhatsApp creation/additions, actual parser/rejected-source recovery, imported field and identity normalization, tenant/role/consent/capacity/archive/private delivery boundaries traced; no dedicated Inbox/ExpoUI/provider operations. Scope-only physical review; execution is not a claim of full service qualification. ZIP central-directory preallocation and worksheet dimension expansion are unvalidated resource candidates retained for separate reproduction; CPU worker takes owned bytes and closes workbook internally, so cancellation syntax alone is not a confirmed lifetime defect.Only first fixture now explicitly supplies real domainUser/ORMUser/security state/current repository result. All original20assert nodes and other3test bodies exact; no broad canonical-authority mocks or waived role/agency/consent assertions."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_access_level_mutation_actors.py",
+    "sha256": "73b6b1a4c2e690d33277439b3dcc9018112e33e603a9d42055978f5afc81a557",
+    "physical_lines": 119,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read, independent of execution. Retained dashboard WhatsApp creation/additions, actual parser/rejected-source recovery, imported field and identity normalization, tenant/role/consent/capacity/archive/private delivery boundaries traced; no dedicated Inbox/ExpoUI/provider operations. Scope-only physical review; execution is not a claim of full service qualification. ZIP central-directory preallocation and worksheet dimension expansion are unvalidated resource candidates retained for separate reproduction; CPU worker takes owned bytes and closes workbook internally, so cancellation syntax alone is not a confirmed lifetime defect."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_whatsapp_mutation_boundaries.py",
+    "sha256": "9f56120bb067639a15431dc1913bfeace59df18b597b6eb6b3a43edc7b1c819a",
+    "physical_lines": 282,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read, independent of execution. Retained dashboard WhatsApp creation/additions, actual parser/rejected-source recovery, imported field and identity normalization, tenant/role/consent/capacity/archive/private delivery boundaries traced; no dedicated Inbox/ExpoUI/provider operations. Scope-only physical review; execution is not a claim of full service qualification. ZIP central-directory preallocation and worksheet dimension expansion are unvalidated resource candidates retained for separate reproduction; CPU worker takes owned bytes and closes workbook internally, so cancellation syntax alone is not a confirmed lifetime defect."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_whatsapp_role_access.py",
+    "sha256": "1917bfac3550035b048576f0d844432b003ab7b93873e367165c6066d3b47e0e",
+    "physical_lines": 112,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read, independent of execution. Retained dashboard WhatsApp creation/additions, actual parser/rejected-source recovery, imported field and identity normalization, tenant/role/consent/capacity/archive/private delivery boundaries traced; no dedicated Inbox/ExpoUI/provider operations. Scope-only physical review; execution is not a claim of full service qualification. ZIP central-directory preallocation and worksheet dimension expansion are unvalidated resource candidates retained for separate reproduction; CPU worker takes owned bytes and closes workbook internally, so cancellation syntax alone is not a confirmed lifetime defect."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_whatsapp_contact_json_boundaries.py",
+    "sha256": "3c7f6365205a6b0e8b972c6df66b7de1f9153f87bea233812b3f58687f498e1c",
+    "physical_lines": 148,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read, independent of execution. Retained dashboard WhatsApp creation/additions, actual parser/rejected-source recovery, imported field and identity normalization, tenant/role/consent/capacity/archive/private delivery boundaries traced; no dedicated Inbox/ExpoUI/provider operations. Scope-only physical review; execution is not a claim of full service qualification. ZIP central-directory preallocation and worksheet dimension expansion are unvalidated resource candidates retained for separate reproduction; CPU worker takes owned bytes and closes workbook internally, so cancellation syntax alone is not a confirmed lifetime defect."
+  }
+]

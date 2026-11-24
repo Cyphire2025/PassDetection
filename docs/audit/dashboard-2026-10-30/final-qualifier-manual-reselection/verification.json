@@ -1,0 +1,314 @@
+{
+  "status": "Root-authorized frontend-only manual-reselection correction implemented and frozen; current36focused cases/lint/type/coverage qualify exact source hashes. Root owns combined build/browser and actual gate integration.",
+  "sealed_at_utc": "2026-11-01T00:21:44.337319+00:00",
+  "confirmed_reachable_condition": "An active savedOther choice can be rejected by existing qualifier GET400 afterauthorizedstaff disablesOther whilelistmethod remains enabled. Update contracts allowthis, GET rechecks currentflags, and new listselection creation remainsvalid underunchanged server guards. No per-list-option-removal feature was inferred.",
+  "before_negative": {
+    "command": "before-command.json",
+    "exit_code": 1,
+    "meaningful_observation": "Actual rendered component offeredChange retry only; Choose another relationship absent aftersimulatedexistingcontractGET400.",
+    "existing_runtime_view_and_hook_hashes_match_old35": true
+  },
+  "implemented_behavior": [
+    "After failed restore, explicit Choose another relationship opens a blank editor while keeping existing private draft proof.",
+    "Change retry remains available. Existing generic error remains during a retry so manualfallback stays reachable if thatretry hangs.",
+    "Fallback aborts and nulls ownedread beforeblankedit; lateignoredabort response cannot hydrateOldOther or overwrite manually chosen validrelationship.",
+    "Opening or choosing does not POST, clear proof or autosave. Only explicit validSave updatesproof after server success; original currentserver validation remains."
+  ],
+  "current_cases": 36,
+  "current_actual_component_controls": 14,
+  "existing_affected_cases": 22,
+  "checks": {
+    "final-coverage": {
+      "argv": [
+        "node",
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "features/upload/components/fresh-qualifier.test.tsx",
+        "features/upload/components/relation-qualifier-step.test.tsx",
+        "features/upload/components/fresh-member-form.test.tsx",
+        "features/upload/hooks/use-fresh-draft.test.tsx",
+        "--maxWorkers=1",
+        "--pool=threads",
+        "--config",
+        "../.tmp/final-qualifier-browser/reselection-final-coverage.config.mts",
+        "--coverage"
+      ],
+      "exit_code": 0,
+      "seconds": 10.141,
+      "source_fence": {
+        "frontend/features/upload/components/fresh-qualifier.tsx": "742ecf4bfaaec141e7a0e422419f57889eb44090679e70e47783cbbf0c6bf72c",
+        "frontend/features/upload/components/fresh-qualifier-editor.tsx": "0317940a84f37795a6646a378e6de1e99deae7e16594c34cdc7cb2369df824dc",
+        "frontend/features/upload/hooks/use-qualifier-selection-editor.ts": "9d5d9a03885b6ae4dd92c7ed91ad740c678297e4ff41f595b17f34d79ca91331",
+        "frontend/features/upload/components/fresh-qualifier.test.tsx": "408112660e49f8652868f04281e9302144770de90734556d4f217d8bdddc3cab",
+        "frontend/features/passports/api/public-upload-link.api.ts": "d720cbf0a79ce838006b30e56b63b69ec992c96881ffa3cb62d3df0f2b3d005b",
+        "frontend/e2e/qualifier-relationship-methods.spec.ts": "d37bab442b0c382f07f6c3b7e5ccda56c858a60b43c5abc19c60254689dc618c"
+      },
+      "source_unchanged": true
+    },
+    "final-eslint": {
+      "argv": [
+        "node",
+        "node_modules/eslint/bin/eslint.js",
+        "features/upload/components/fresh-qualifier.tsx",
+        "features/upload/components/fresh-qualifier-editor.tsx",
+        "features/upload/hooks/use-qualifier-selection-editor.ts",
+        "features/upload/components/fresh-qualifier.test.tsx",
+        "features/passports/api/public-upload-link.api.ts",
+        "e2e/qualifier-relationship-methods.spec.ts"
+      ],
+      "exit_code": 0,
+      "seconds": 3.016,
+      "source_fence": {
+        "frontend/features/upload/components/fresh-qualifier.tsx": "742ecf4bfaaec141e7a0e422419f57889eb44090679e70e47783cbbf0c6bf72c",
+        "frontend/features/upload/components/fresh-qualifier-editor.tsx": "0317940a84f37795a6646a378e6de1e99deae7e16594c34cdc7cb2369df824dc",
+        "frontend/features/upload/hooks/use-qualifier-selection-editor.ts": "9d5d9a03885b6ae4dd92c7ed91ad740c678297e4ff41f595b17f34d79ca91331",
+        "frontend/features/upload/components/fresh-qualifier.test.tsx": "408112660e49f8652868f04281e9302144770de90734556d4f217d8bdddc3cab",
+        "frontend/features/passports/api/public-upload-link.api.ts": "d720cbf0a79ce838006b30e56b63b69ec992c96881ffa3cb62d3df0f2b3d005b",
+        "frontend/e2e/qualifier-relationship-methods.spec.ts": "d37bab442b0c382f07f6c3b7e5ccda56c858a60b43c5abc19c60254689dc618c"
+      },
+      "source_unchanged": true
+    },
+    "final-typecheck": {
+      "argv": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "--noEmit",
+        "--incremental",
+        "false"
+      ],
+      "exit_code": 0,
+      "seconds": 14.782,
+      "source_fence": {
+        "frontend/features/upload/components/fresh-qualifier.tsx": "742ecf4bfaaec141e7a0e422419f57889eb44090679e70e47783cbbf0c6bf72c",
+        "frontend/features/upload/components/fresh-qualifier-editor.tsx": "0317940a84f37795a6646a378e6de1e99deae7e16594c34cdc7cb2369df824dc",
+        "frontend/features/upload/hooks/use-qualifier-selection-editor.ts": "9d5d9a03885b6ae4dd92c7ed91ad740c678297e4ff41f595b17f34d79ca91331",
+        "frontend/features/upload/components/fresh-qualifier.test.tsx": "408112660e49f8652868f04281e9302144770de90734556d4f217d8bdddc3cab",
+        "frontend/features/passports/api/public-upload-link.api.ts": "d720cbf0a79ce838006b30e56b63b69ec992c96881ffa3cb62d3df0f2b3d005b",
+        "frontend/e2e/qualifier-relationship-methods.spec.ts": "d37bab442b0c382f07f6c3b7e5ccda56c858a60b43c5abc19c60254689dc618c"
+      },
+      "source_unchanged": true
+    }
+  },
+  "source_fence": {
+    "frontend/features/upload/components/fresh-qualifier.tsx": "742ecf4bfaaec141e7a0e422419f57889eb44090679e70e47783cbbf0c6bf72c",
+    "frontend/features/upload/components/fresh-qualifier-editor.tsx": "0317940a84f37795a6646a378e6de1e99deae7e16594c34cdc7cb2369df824dc",
+    "frontend/features/upload/hooks/use-qualifier-selection-editor.ts": "9d5d9a03885b6ae4dd92c7ed91ad740c678297e4ff41f595b17f34d79ca91331",
+    "frontend/features/upload/components/fresh-qualifier.test.tsx": "408112660e49f8652868f04281e9302144770de90734556d4f217d8bdddc3cab",
+    "frontend/features/passports/api/public-upload-link.api.ts": "d720cbf0a79ce838006b30e56b63b69ec992c96881ffa3cb62d3df0f2b3d005b",
+    "frontend/e2e/qualifier-relationship-methods.spec.ts": "d37bab442b0c382f07f6c3b7e5ccda56c858a60b43c5abc19c60254689dc618c"
+  },
+  "changed_from_old35_source_fence": [
+    "frontend/features/upload/components/fresh-qualifier-editor.tsx",
+    "frontend/features/upload/components/fresh-qualifier.test.tsx",
+    "frontend/features/upload/hooks/use-qualifier-selection-editor.ts"
+  ],
+  "unchanged_wrapper_getter_and_browser_spec": {
+    "frontend/features/upload/components/fresh-qualifier.tsx": "742ecf4bfaaec141e7a0e422419f57889eb44090679e70e47783cbbf0c6bf72c",
+    "frontend/features/passports/api/public-upload-link.api.ts": "d720cbf0a79ce838006b30e56b63b69ec992c96881ffa3cb62d3df0f2b3d005b",
+    "frontend/e2e/qualifier-relationship-methods.spec.ts": "d37bab442b0c382f07f6c3b7e5ccda56c858a60b43c5abc19c60254689dc618c"
+  },
+  "coverage_floors_unchanged": {
+    "statements": 74,
+    "branches": 50,
+    "functions": 75,
+    "lines": 75
+  },
+  "current_three_owner_coverage": {
+    "frontend/features/upload/components/fresh-qualifier-editor.tsx": {
+      "lines": {
+        "total": 18,
+        "covered": 18,
+        "skipped": 0,
+        "pct": 100
+      },
+      "functions": {
+        "total": 5,
+        "covered": 5,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 19,
+        "covered": 18,
+        "skipped": 0,
+        "pct": 94.73
+      },
+      "branches": {
+        "total": 12,
+        "covered": 11,
+        "skipped": 0,
+        "pct": 91.66
+      }
+    },
+    "frontend/features/upload/components/fresh-qualifier.tsx": {
+      "lines": {
+        "total": 3,
+        "covered": 3,
+        "skipped": 0,
+        "pct": 100
+      },
+      "functions": {
+        "total": 1,
+        "covered": 1,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 3,
+        "covered": 3,
+        "skipped": 0,
+        "pct": 100
+      },
+      "branches": {
+        "total": 2,
+        "covered": 2,
+        "skipped": 0,
+        "pct": 100
+      }
+    },
+    "frontend/features/upload/hooks/use-qualifier-selection-editor.ts": {
+      "lines": {
+        "total": 42,
+        "covered": 42,
+        "skipped": 0,
+        "pct": 100
+      },
+      "functions": {
+        "total": 13,
+        "covered": 13,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 48,
+        "covered": 47,
+        "skipped": 0,
+        "pct": 97.91
+      },
+      "branches": {
+        "total": 23,
+        "covered": 20,
+        "skipped": 0,
+        "pct": 86.95
+      }
+    }
+  },
+  "root_gate_candidate": {
+    "path": "docs/audit/dashboard-2026-10-30/final-qualifier-manual-reselection/quality-budget-candidates.json",
+    "sha256": "694c0c4235f771e3ea01cc5e16e83a27c3bc4c0ec87a90eee4e55d26260c3893",
+    "new_normal_rows": [
+      {
+        "path": "features/upload/components/fresh-qualifier-editor.tsx",
+        "baselineLines": 86,
+        "maximumLines": 90,
+        "baselineMaxFunctionComplexity": 6,
+        "maximumFunctionComplexity": 7
+      },
+      {
+        "path": "features/upload/hooks/use-qualifier-selection-editor.ts",
+        "baselineLines": 96,
+        "maximumLines": 100,
+        "baselineMaxFunctionComplexity": 9,
+        "maximumFunctionComplexity": 10
+      }
+    ],
+    "all661_existing_rows_caps_untouched": true,
+    "all31_existing_critical_includes_floors_untouched": true,
+    "root_expected_three_critical_additions": [
+      "wrapper",
+      "view",
+      "hook"
+    ]
+  },
+  "review_ledger": {
+    "path": "docs/audit/dashboard-2026-10-30/final-qualifier-manual-reselection/reviewed-files.json",
+    "sha256": "2750576d180f4076238e34d610ebae17f8ba58465f83bf646daafee71fcc4af0",
+    "current_changed_files": 3,
+    "scope": "Complete current owned source read/authored; backend contract proof is focused only."
+  },
+  "prior35_history_preserved": {
+    "verification_sha256": "3c4660b4f35cdc5b6bac56d24bbc0ecb39ef4e1ceaac290454b7b35332b2ae7b",
+    "budget_candidate_sha256": "aa4394dc956126bfa8a61af8f435989fc7634cf674e0ddc94e75863f4f4772ad",
+    "all23_linked_artifacts_unchanged": true,
+    "all_original13_component_controls_byte_exact_after_removing_only_new_control": true
+  },
+  "backend_API_DTO_gate_matrix_lock_build_or_broad_browser_writes_or_runs": false,
+  "MCP_API_owner_getter_unchanged_from_previously_root_reconciled_source": true,
+  "artifacts": {
+    "before-source-fence.json": {
+      "sha256": "279acf91d14b392f0857c7ede9721b3102834b9e20d2f3f274b199f9b54aaa2a",
+      "bytes": 804
+    },
+    "before-command.json": {
+      "sha256": "bea542fe82a4b70a92e1ef7deed516e44be9b9546fb57dc7892ace2fe57b7919",
+      "bytes": 796
+    },
+    "before-stdout.txt": {
+      "sha256": "c96910215633711e7c8fb59e2e950793c6ada3670675add593350e67948c61f3",
+      "bytes": 462
+    },
+    "before-stderr.txt": {
+      "sha256": "3c500c096e02c37d438a31516bd388c8326ff446c902c60631b26e2c4870b180",
+      "bytes": 3415
+    },
+    "delta-source-proof.json": {
+      "sha256": "d1ecfe47dbde7246c59836e1d8ac857d9dfac2ecb12546da4ce1b5a8ee649538",
+      "bytes": 5073
+    },
+    "reviewed-files.json": {
+      "sha256": "2750576d180f4076238e34d610ebae17f8ba58465f83bf646daafee71fcc4af0",
+      "bytes": 2661
+    },
+    "quality-budget-candidates.json": {
+      "sha256": "694c0c4235f771e3ea01cc5e16e83a27c3bc4c0ec87a90eee4e55d26260c3893",
+      "bytes": 2645
+    },
+    "final-coverage-command.json": {
+      "sha256": "441a4a2183803ab661fb29880110a20fb5ba41b4a155dc5d951459015fc9fea4",
+      "bytes": 1399
+    },
+    "final-coverage-stdout.txt": {
+      "sha256": "4367bc6b725c9bc4020b723c0a4397ecb4c33b930dc00b3fef34a192fbb88fee",
+      "bytes": 1310
+    },
+    "final-coverage-stderr.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "final-eslint-command.json": {
+      "sha256": "c50df0df20557603254667c7e74961d3fc99a53b5e05ba63e2d43b457ab4b161",
+      "bytes": 1333
+    },
+    "final-eslint-stdout.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "final-eslint-stderr.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "final-typecheck-command.json": {
+      "sha256": "253388c3127a3fb7bbf01b1a519a0d3abf45814e88a762bfc99d74fd5749a2f2",
+      "bytes": 1036
+    },
+    "final-typecheck-stdout.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "final-typecheck-stderr.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "final-coverage/coverage-summary.json": {
+      "sha256": "36d37234ba998862bb3715209e9356e1833155734f9f7430e6083b37ba0d76c3",
+      "bytes": 1361
+    }
+  },
+  "limitations": [
+    "No post-fix browser/build result is claimed; root will qualify the combined new production artifact.",
+    "Current component tests use synthetic safe DTOs. Backend conditions are manually traced, without backend/provider/service execution.",
+    "All historical35case outputs and earliercoverage remain intact; current36case finalreceipts are separate.",
+    "An intermediate test-fixture optional-config typeerror was corrected before these finalthree current-source checks; intermediate logs remain for provenance.",
+    "Optional independent read-only peer follow-up was requested; source remains frozen pending any concrete finding."
+  ]
+}

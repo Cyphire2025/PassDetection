@@ -1,0 +1,15 @@
+{
+  "probe": "Actual process_whatsapp_broadcast.apply terminal-failure eager trace plus actual in-memory CacheBackend failure metadata. A real SQLite trigger raises SQLAlchemy IntegrityError with hide_parameters=True. No broker/provider/external database/backend invoked.",
+  "state": "FAILURE",
+  "exception_type": "IntegrityError",
+  "exception_secret_in_formatted_automatic_log": true,
+  "payload_token_in_automatic_log_record_data": true,
+  "exception_secret_in_eager_result_exception": true,
+  "exception_secret_in_eager_result_traceback": true,
+  "exception_secret_in_backend_result_metadata": true,
+  "exception_secret_in_backend_traceback_metadata": true,
+  "bound_parameter_in_exception_string": false,
+  "exception_is_actual_sqlalchemy_integrity_error": true,
+  "automatic_log_record_count": 1,
+  "limit": "Actual SQLite and in-memory result-backend execution establishes the automatic formatting and persistence path with synthetic data. This is not a real PostgreSQL driver, broker or production result-backend test."
+}

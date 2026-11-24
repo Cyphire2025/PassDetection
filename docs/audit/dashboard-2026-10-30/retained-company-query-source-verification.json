@@ -1,0 +1,28 @@
+{
+  "status": "Read-only current source cohort complete; broader audit active",
+  "new_current_full_tests": 3,
+  "test_physical_lines": 866,
+  "supporting_full_rows": 1,
+  "focused_rows": 2,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-company-query-source-reviewed-files.json",
+    "sha256": "955761f820935381098f0326318173e536188e0cfd1d90eea6b47fde7805f89f"
+  },
+  "source_fence": {
+    "backend/tests/integration/test_company_directory.py": "027f4bd3a96847532ad621162c9ae4c17eb8e93c98c1344a3392f020c47aa3fd",
+    "backend/tests/integration/test_company_directory_index.py": "0fdd08766a595472d0460e8de2cc0178ef5b19c381e8a68d00353219169e6f0e",
+    "backend/tests/integration/test_company_people.py": "e76274f1b0544d4b3d813887bd44db994c942a2b0cb31ab35d335fe88e2c0537",
+    "backend/app/application/companies/document_publication.py": "3666febf0a0b0480d367c5c9d6b6e5d11208227a7f72fdc175783d61b04ff0ec",
+    "backend/app/application/companies/directory_query.py": "29d0f3493f9670dfc89ac65d440b0ff1b3f251e8469e4d6c325e0cfe16927752",
+    "backend/app/application/companies/current_record.py": "f712f0c6a9f174c438baca87b0c6fc45186b7fee46d5662af0a59d32f370053a"
+  },
+  "previous_current_full_support": [],
+  "checks_run": [],
+  "changes": [],
+  "findings": [],
+  "limitations": [
+    "No app/test/database/provider/network/credential/scanner execution for source-read credit.",
+    "Previously full implementation owners and imported fixtures are not automatically new physical-read credit; focused slices remain focused.",
+    "No new architecture/security/performance claim based on source length or existing test names."
+  ]
+}

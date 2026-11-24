@@ -1,0 +1,133 @@
+export const SAMPLE_STEP = 2;
+
+export const MIN_LIGHT_LUMINANCE = 132;
+
+export const MAX_NEUTRAL_CHROMA = 48;
+
+export const MIN_LIGHT_NEUTRAL_RATIO = 0.68;
+
+export const MIN_AVERAGE_LUMINANCE = 158;
+
+export const MIN_ZONE_LIGHT_NEUTRAL_RATIO = 0.52;
+
+export const MIN_ZONE_LUMINANCE = 128;
+
+export const MAX_ZONE_MEAN_SPREAD = 88;
+
+export const MAX_LUMINANCE_DEVIATION = 55;
+
+export const MAX_WITHIN_ZONE_DEVIATION = 21;
+
+export const MAX_STRONG_EDGE_RATIO = 0.08;
+
+export const MAX_ROUGH_TEXTURE_RATIO = 0.20;
+
+export const MAX_DIRECTIONAL_ROUGH_TEXTURE_RATIO = 0.14;
+
+export const MAX_DARK_PIXEL_RATIO = 0.16;
+
+export const MAX_LINE_COVERAGE = 0.58;
+
+export const MAX_REGIONAL_EDGE_RATIO = 0.25;
+
+export const MAX_REGIONAL_DARK_RATIO = 0.36;
+
+export const EXTREME_REGIONAL_EDGE_RATIO = 0.55;
+
+export const EXTREME_REGIONAL_DARK_RATIO = 0.72;
+
+export const MIN_FACE_WIDTH_RATIO = 0.31;
+
+export const MIN_FACE_HEIGHT_RATIO = 0.38;
+
+export const MAX_FACE_WIDTH_RATIO = 0.72;
+
+export const MAX_FACE_HEIGHT_RATIO = 0.74;
+
+export const MAX_FACE_CENTER_X_OFFSET = 0.11;
+
+export const MIN_FACE_CENTER_Y = 0.27;
+
+export const MAX_FACE_CENTER_Y = 0.52;
+
+export const MAX_EYE_LINE_TILT_DEGREES = 12;
+
+export const MAX_STABLE_FACE_CENTER_DELTA = 0.045;
+
+export const MAX_STABLE_FACE_SIZE_DELTA = 0.055;
+
+export const FINAL_HARD_MIN_FACE_WIDTH_RATIO = 0.23;
+
+export const FINAL_HARD_MIN_FACE_HEIGHT_RATIO = 0.29;
+
+export const FINAL_HARD_MAX_FACE_WIDTH_RATIO = 0.82;
+
+export const FINAL_HARD_MAX_FACE_HEIGHT_RATIO = 0.86;
+
+export const FINAL_HARD_MAX_FACE_CENTER_X_OFFSET = 0.18;
+
+export const FINAL_HARD_MIN_FACE_CENTER_Y = 0.20;
+
+export const FINAL_HARD_MAX_FACE_CENTER_Y = 0.62;
+
+export const FINAL_HARD_HEAD_EDGE_MARGIN = 0.02;
+
+export const FINAL_BORDERLINE_MIN_FACE_GRADIENT = 3.8;
+
+export const FINAL_BORDERLINE_MIN_FACE_EDGE_RATIO = 0.028;
+
+export const FINAL_BORDERLINE_MIN_FACE_LUMINANCE = 70;
+
+export const FINAL_BORDERLINE_MAX_FACE_LUMINANCE = 216;
+
+export const FINAL_HARD_MIN_BACKGROUND_LUMINANCE = 115;
+
+export const FINAL_HARD_MIN_LIGHT_NEUTRAL_RATIO = 0.35;
+
+export const FINAL_HARD_MAX_STRONG_EDGE_RATIO = 0.16;
+
+export const FINAL_HARD_MAX_ROUGH_TEXTURE_RATIO = 0.32;
+
+export const FINAL_HARD_MAX_LINE_COVERAGE = 0.58;
+
+export const FINAL_HARD_MAX_REGIONAL_EDGE_RATIO = 0.48;
+
+export const FINAL_HARD_MAX_REGIONAL_DARK_RATIO = 0.55;
+
+export const FINAL_HARD_MIN_FAILING_LIGHT_NEUTRAL_ZONES = 4;
+
+export const FINAL_HARD_MIN_STRUCTURED_ZONES = 6;
+
+export const FINAL_HARD_MIN_EXTREME_ZONES = 3;
+
+export const LIVE_MIN_BACKGROUND_LUMINANCE = 145;
+
+export const LIVE_MIN_LIGHT_NEUTRAL_RATIO = 0.58;
+
+export const LIVE_MAX_FAILING_LIGHT_NEUTRAL_ZONES = 3;
+
+export const LIVE_MAX_LUMINANCE_DEVIATION = 76;
+
+export const LIVE_MAX_ZONE_MEAN_SPREAD = 165;
+
+export const LIVE_MAX_STRONG_EDGE_RATIO = 0.18;
+
+export const LIVE_MAX_ROUGH_TEXTURE_RATIO = 0.32;
+
+export const LIVE_MAX_LINE_COVERAGE = 0.66;
+
+export const LIVE_MAX_STRUCTURED_ZONES = 6;
+
+export const LIVE_MAX_EXTREME_ZONES = 2;
+
+export const LIVE_MAX_REGIONAL_EDGE_RATIO = 0.50;
+
+export const LIVE_MAX_REGIONAL_DARK_RATIO = 0.82;
+
+export const VISA_JPEG_QUALITY_STEPS = [
+  0.94,
+  0.9,
+  0.85,
+  0.8,
+  0.74,
+] as const;

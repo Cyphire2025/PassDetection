@@ -1,0 +1,10 @@
+........................................................................ [ 31%]
+........................................................................ [ 62%]
+............................................................. [ 88%]
+...........................                                              [100%]
+
+---------- coverage: platform win32, python 3.11.15-final-0 ----------
+Coverage XML written to file C:\Users\nipun\Desktop\PassDetection\docs\audit\dashboard-2026-10-30\dashboard-routes-final-coverage.xml
+Coverage JSON written to file C:\Users\nipun\Desktop\PassDetection\docs\audit\dashboard-2026-10-30\dashboard-routes-final-coverage.json
+
+232 passed, 11 subtests passed in 104.44s (0:01:44)

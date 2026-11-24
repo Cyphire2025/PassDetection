@@ -50,8 +50,10 @@ class BrandingImageResponse(BaseModel):
     revision: int | None = None
 
 
-def _key(owner: ImageOwner) -> str | None:
-    return owner.logo_image_key if isinstance(owner, ClientOrganizationModel) else owner.banner_image_key
+def _key(owner: ImageOwner, kind: BrandingKind) -> str | None:
+    if isinstance(owner, ClientOrganizationModel):
+        return owner.logo_image_key
+    return owner.background_image_key if kind == "group-background" else owner.banner_image_key
 
 
 async def _owner(session: AsyncSession, user: User, kind: BrandingKind, owner_id: uuid.UUID,
@@ -86,19 +88,21 @@ async def _owner(session: AsyncSession, user: User, kind: BrandingKind, owner_id
     return group
 
 
-def _check_version(owner: ImageOwner, expected: str) -> None:
-    if image_version(_key(owner)) != expected:
+def _check_version(owner: ImageOwner, kind: BrandingKind, expected: str) -> None:
+    if image_version(_key(owner, kind)) != expected:
         raise ConflictError("This image changed. Refresh the company or group and try again.")
 
 
 async def _publish(session: AsyncSession, user: User, owner: ImageOwner, kind: BrandingKind,
                    new_key: str | None) -> BrandingImageResponse:
-    old_key = _key(owner)
+    old_key = _key(owner, kind)
     if isinstance(owner, ClientOrganizationModel):
         owner.logo_image_key = new_key
         owner.revision += 1
         owner.updated_by_user_id = user.id
         owner.updated_at = datetime.now(UTC)
+    elif kind == "group-background":
+        owner.background_image_key = new_key
     else:
         owner.banner_image_key = new_key
     stage_storage_cleanup_job(session, agency_id=owner.agency_id, source="branding_image",
@@ -117,7 +121,7 @@ async def read_image(kind: BrandingKind, owner_id: uuid.UUID, agency_id: uuid.UU
                      v: str = Query(default="", max_length=36),
                      user: User = Depends(get_current_active_user), session: AsyncSession = Depends(get_db_session)) -> Response:
     owner = await _owner(session, user, kind, owner_id, agency_id)
-    key = _key(owner)
+    key = _key(owner, kind)
     if not key or (v and v != image_version(key)):
         raise HTTPException(404, "Image not found")
     await session.commit()
@@ -133,7 +137,7 @@ async def upload_image(kind: BrandingKind, owner_id: uuid.UUID, file: UploadFile
                        expected_version: str = Form(default="", max_length=36), agency_id: uuid.UUID | None = None,
                        user: User = Depends(get_current_active_user), session: AsyncSession = Depends(get_db_session)) -> BrandingImageResponse:
     owner = await _owner(session, user, kind, owner_id, agency_id, manage=True)
-    _check_version(owner, expected_version)
+    _check_version(owner, kind, expected_version)
     # Release the authorization read connection before scanning. The owner and
     # image version are checked again under a row lock before attachment.
     await session.commit()
@@ -163,7 +167,7 @@ async def upload_image(kind: BrandingKind, owner_id: uuid.UUID, file: UploadFile
     except (StorageError, TimeoutError) as exc:
         raise HTTPException(503, "Image storage is temporarily unavailable. Please try again.", headers={"Retry-After": "30"}) from exc
     owner = await _owner(session, user, kind, owner_id, agency_id, manage=True, lock=True)
-    _check_version(owner, expected_version)
+    _check_version(owner, kind, expected_version)
     result = await _publish(session, user, owner, kind, key)
     await session.execute(delete(StorageCleanupJobModel).where(StorageCleanupJobModel.id == job_id))
     await session.commit()
@@ -175,5 +179,5 @@ async def remove_image(kind: BrandingKind, owner_id: uuid.UUID, agency_id: uuid.
                        expected_version: str = Query(default="", max_length=36),
                        user: User = Depends(get_current_active_user), session: AsyncSession = Depends(get_db_session)) -> BrandingImageResponse:
     owner = await _owner(session, user, kind, owner_id, agency_id, manage=True, lock=True)
-    _check_version(owner, expected_version)
+    _check_version(owner, kind, expected_version)
     return await _publish(session, user, owner, kind, None)

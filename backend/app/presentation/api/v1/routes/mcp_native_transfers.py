@@ -27,6 +27,7 @@ from app.infrastructure.security.upload_validator import (
     MalwareScannerConfigurationError,
     MalwareScannerUnavailableError,
 )
+from app.presentation.api.v1.download_headers import attachment_disposition
 from app.presentation.api.v1.routes.mcp_artifacts import _BoundedResponse
 from app.presentation.api.v1.schemas.mcp_native_transfer_schemas import MCPNativeDeliveryRequest
 
@@ -163,7 +164,7 @@ async def download(
         headers={
             **PRIVATE,
             "Content-Length": str(row.byte_size),
-            "Content-Disposition": f'attachment; filename="{row.filename}"',
+            "Content-Disposition": attachment_disposition(row.filename),
             "X-Artifact-SHA256": row.sha256,
             "X-Artifact-Size": str(row.byte_size),
             "Content-Security-Policy": "default-src 'none'; sandbox",

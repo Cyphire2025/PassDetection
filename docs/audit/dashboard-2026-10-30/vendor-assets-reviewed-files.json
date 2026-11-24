@@ -1,0 +1,74 @@
+[
+  {
+    "path": "frontend/public/mediapipe/face_detection/face_detection.js",
+    "sha256": "aee96c38df848965ba042ef0454b28eaf811b10cdb629be0ebf641b1ac57f366",
+    "reviewer": "root",
+    "review_scope": "metadata",
+    "status": "reviewed",
+    "notes": "Generated/vendor asset provenance and exact content digest only; not a line-by-line manual application-source review. ZXing minified0.2.0 and MIT license byte-identical to installed locked upstream; MediaPipe0.4.1646425229 assets pass complete reviewed patch regeneration and original model/WASM hash checks. Original vendor algorithms/model internals were not rewritten or certified by these checks."
+  },
+  {
+    "path": "frontend/public/mediapipe/face_detection/face_detection_short.binarypb",
+    "sha256": "771c6b632d5ba58a41d3160abfd80185a1d18081f52bcefc5baec9f3d10aa8d9",
+    "reviewer": "root",
+    "review_scope": "metadata",
+    "status": "reviewed",
+    "notes": "Generated/vendor asset provenance and exact content digest only; not a line-by-line manual application-source review. ZXing minified0.2.0 and MIT license byte-identical to installed locked upstream; MediaPipe0.4.1646425229 assets pass complete reviewed patch regeneration and original model/WASM hash checks. Original vendor algorithms/model internals were not rewritten or certified by these checks."
+  },
+  {
+    "path": "frontend/public/mediapipe/face_detection/face_detection_short_range.tflite",
+    "sha256": "3bc182eb9f33925d9e58b5c8d59308a760f4adea8f282370e428c51212c26633",
+    "reviewer": "root",
+    "review_scope": "metadata",
+    "status": "reviewed",
+    "notes": "Generated/vendor asset provenance and exact content digest only; not a line-by-line manual application-source review. ZXing minified0.2.0 and MIT license byte-identical to installed locked upstream; MediaPipe0.4.1646425229 assets pass complete reviewed patch regeneration and original model/WASM hash checks. Original vendor algorithms/model internals were not rewritten or certified by these checks."
+  },
+  {
+    "path": "frontend/public/mediapipe/face_detection/face_detection_solution_simd_wasm_bin.js",
+    "sha256": "03b287ace310742bf69e10ad003ed20949fd0bc904b00cfdf18dff68885209a6",
+    "reviewer": "root",
+    "review_scope": "metadata",
+    "status": "reviewed",
+    "notes": "Generated/vendor asset provenance and exact content digest only; not a line-by-line manual application-source review. ZXing minified0.2.0 and MIT license byte-identical to installed locked upstream; MediaPipe0.4.1646425229 assets pass complete reviewed patch regeneration and original model/WASM hash checks. Original vendor algorithms/model internals were not rewritten or certified by these checks."
+  },
+  {
+    "path": "frontend/public/mediapipe/face_detection/face_detection_solution_simd_wasm_bin.wasm",
+    "sha256": "ed927313be5ead0002008a7bc18177ecd342c60fd75795e4611fb44e19c4745b",
+    "reviewer": "root",
+    "review_scope": "metadata",
+    "status": "reviewed",
+    "notes": "Generated/vendor asset provenance and exact content digest only; not a line-by-line manual application-source review. ZXing minified0.2.0 and MIT license byte-identical to installed locked upstream; MediaPipe0.4.1646425229 assets pass complete reviewed patch regeneration and original model/WASM hash checks. Original vendor algorithms/model internals were not rewritten or certified by these checks."
+  },
+  {
+    "path": "frontend/public/mediapipe/face_detection/face_detection_solution_wasm_bin.js",
+    "sha256": "53588f1468966555a2d9c99cf9fa18e80016cccae673ecb53f9b50a1a8eb4f91",
+    "reviewer": "root",
+    "review_scope": "metadata",
+    "status": "reviewed",
+    "notes": "Generated/vendor asset provenance and exact content digest only; not a line-by-line manual application-source review. ZXing minified0.2.0 and MIT license byte-identical to installed locked upstream; MediaPipe0.4.1646425229 assets pass complete reviewed patch regeneration and original model/WASM hash checks. Original vendor algorithms/model internals were not rewritten or certified by these checks."
+  },
+  {
+    "path": "frontend/public/mediapipe/face_detection/face_detection_solution_wasm_bin.wasm",
+    "sha256": "7b69c41171c1cfedacc614c5dfdbb9df7e99356bf857d81de835e99414abd8d3",
+    "reviewer": "root",
+    "review_scope": "metadata",
+    "status": "reviewed",
+    "notes": "Generated/vendor asset provenance and exact content digest only; not a line-by-line manual application-source review. ZXing minified0.2.0 and MIT license byte-identical to installed locked upstream; MediaPipe0.4.1646425229 assets pass complete reviewed patch regeneration and original model/WASM hash checks. Original vendor algorithms/model internals were not rewritten or certified by these checks."
+  },
+  {
+    "path": "frontend/public/offline/vendor/zxing-browser.LICENSE.txt",
+    "sha256": "4c26c3077daa7ce4d56ad91f279fafc395bf33c3a0f1ba9ab8cf511bad148ea5",
+    "reviewer": "root",
+    "review_scope": "metadata",
+    "status": "reviewed",
+    "notes": "Generated/vendor asset provenance and exact content digest only; not a line-by-line manual application-source review. ZXing minified0.2.0 and MIT license byte-identical to installed locked upstream; MediaPipe0.4.1646425229 assets pass complete reviewed patch regeneration and original model/WASM hash checks. Original vendor algorithms/model internals were not rewritten or certified by these checks."
+  },
+  {
+    "path": "frontend/public/offline/vendor/zxing-browser.min.js",
+    "sha256": "066bc34edfcdd4a33f0964aeec967752a0dea1ccaf36e58e319ac9fcb5070f6a",
+    "reviewer": "root",
+    "review_scope": "metadata",
+    "status": "reviewed",
+    "notes": "Generated/vendor asset provenance and exact content digest only; not a line-by-line manual application-source review. ZXing minified0.2.0 and MIT license byte-identical to installed locked upstream; MediaPipe0.4.1646425229 assets pass complete reviewed patch regeneration and original model/WASM hash checks. Original vendor algorithms/model internals were not rewritten or certified by these checks."
+  }
+]

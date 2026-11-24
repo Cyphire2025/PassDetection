@@ -158,7 +158,7 @@ async def test_fcm_commit_gap_rechecks_contact_before_any_provider_send(db_sessi
 async def test_recipient_pagination_continues_past_a_page_with_no_authoritative_contacts(
     db_session, monkeypatch
 ):
-    monkeypatch.setattr("app.application.mobile.notification_service._RECIPIENT_PAGE_SIZE", 2)
+    monkeypatch.setattr("app.application.mobile.notification_announcements._RECIPIENT_PAGE_SIZE", 2)
     access = _access()
     access.client_manager_access_enabled = access.coordinator_access_enabled = False
     announcement = _announcement(access)

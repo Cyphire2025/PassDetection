@@ -1,5 +1,12 @@
 # Travel-document production rollout
 
+This is the historical rollout contract for the earlier travel-document release.
+Its local passport MRZ/OCR stage and version-specific setup describe that release;
+current passport extraction uses the active AI flow, and the dormant passport OCR
+ensemble has been retired. The diagram, commands, and release evidence below are
+preserved as history. Use the [current audit tracker](../audit/dashboard-2026-10-30/TRACKER.md)
+and the current release manifest for present qualification and migration status.
+
 This document is the release contract for the WhatsApp, Visa Photo, passport
 scanner, Gemini, staff-review, Relation with Qualifier, and public-upload
 changes. It separates code evidence from checks that require a running staging

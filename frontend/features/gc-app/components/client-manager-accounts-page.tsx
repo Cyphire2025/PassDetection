@@ -2,6 +2,7 @@
 
 import { Check, ChevronRight, Copy, Search, ShieldCheck, UserPlus, Users } from "lucide-react";
 import { useState } from "react";
+import { copyTextToClipboard } from "@/lib/utils/clipboard";
 import { Badge, Button, Card, CardContent, Input } from "@/components/ui";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
@@ -35,6 +36,7 @@ export function ClientManagerAccountsPage() {
   const [selected, setSelected] = useState<ClientManagerAccount | null>(null);
   const [issuedInvitation, setIssuedInvitation] = useState<{ name: string; token: string } | null>(null);
   const [invitationCopied, setInvitationCopied] = useState(false);
+  const [invitationCopyError, setInvitationCopyError] = useState<string | null>(null);
   const debouncedSearch = useDebounce(search, 300);
   const filters = { page, page_size: GC_APP_DEFAULT_PAGE_SIZE, search: debouncedSearch, status } as const;
   const managers = useClientManagers(agencyId, filters);
@@ -54,6 +56,7 @@ export function ClientManagerAccountsPage() {
       if (created.activation_token) {
         setIssuedInvitation({ name: created.name, token: created.activation_token });
         setInvitationCopied(false);
+        setInvitationCopyError(null);
       }
     }
     setFormOpen(false);
@@ -210,9 +213,11 @@ export function ClientManagerAccountsPage() {
       )}
 
       <ClientManagerDetailsDialog
+        key={selected?.id ?? "closed"}
         open={Boolean(selected)}
         agencyId={agencyId}
         manager={selected}
+        onUpdated={(updated) => setSelected((current) => current?.id === updated.id ? updated : current)}
         onClose={() => setSelected(null)}
         onEdit={() => {
           if (!selected) return;
@@ -243,11 +248,14 @@ export function ClientManagerAccountsPage() {
               variant="secondary"
               leftIcon={invitationCopied ? <Check className="h-4 w-4" aria-hidden="true" /> : <Copy className="h-4 w-4" aria-hidden="true" />}
               onClick={() => {
-                void navigator.clipboard.writeText(clientManagerActivationLink(issuedInvitation.token)).then(() => setInvitationCopied(true));
+                void copyTextToClipboard(clientManagerActivationLink(issuedInvitation.token))
+                  .then(() => { setInvitationCopied(true); setInvitationCopyError(null); })
+                  .catch(() => setInvitationCopyError("The activation link could not be copied. Select the link above and copy it manually."));
               }}
             >
               {invitationCopied ? "Copied" : "Copy activation link"}
             </Button>
+            {invitationCopyError && <GcAlert message={invitationCopyError} />}
           </div>
         )}
       </GcDialog>

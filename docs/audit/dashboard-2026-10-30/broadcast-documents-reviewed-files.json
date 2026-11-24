@@ -1,0 +1,58 @@
+[
+  {
+    "path": "frontend/features/whatsapp/workspace/broadcast-documents-page.tsx",
+    "sha256": "cd4154fac40c81e4d6b86ab0f0d1066657b1dbb2c31429fea9e162ddbde86a37",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All410original document workspace lines physically read, then current five query/model/control/table/root owners reviewed. Eight actual denial/stale action/false-zero negatives fixed with transient recovery control; tenUI/performance cases plus two document send cases pass. Exact16post-fix controller statements/shared two-interval predicate/whole expanded rendered tree/compose branch preserved.1920original/current projection comparisons preserve all counts/display/full row values. Actual512status-read baseline15460\u2192passed2148bound; same seven counts/50visible rows."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/use-broadcast-documents.ts",
+    "sha256": "128a4e0bc3e92a1f0e2486a037227d792f37302252bd01a3daee0d8dee386f5e",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All410original document workspace lines physically read, then current five query/model/control/table/root owners reviewed. Eight actual denial/stale action/false-zero negatives fixed with transient recovery control; tenUI/performance cases plus two document send cases pass. Exact16post-fix controller statements/shared two-interval predicate/whole expanded rendered tree/compose branch preserved.1920original/current projection comparisons preserve all counts/display/full row values. Actual512status-read baseline15460\u2192passed2148bound; same seven counts/50visible rows."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/broadcast-documents-model.ts",
+    "sha256": "29c8d314824a5c5a800be519443a11b09cfa670b03fe079ece5f6c982404dfb4",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All410original document workspace lines physically read, then current five query/model/control/table/root owners reviewed. Eight actual denial/stale action/false-zero negatives fixed with transient recovery control; tenUI/performance cases plus two document send cases pass. Exact16post-fix controller statements/shared two-interval predicate/whole expanded rendered tree/compose branch preserved.1920original/current projection comparisons preserve all counts/display/full row values. Actual512status-read baseline15460\u2192passed2148bound; same seven counts/50visible rows."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/broadcast-document-controls.tsx",
+    "sha256": "9a66e9c0a3cd280c07f2161bc47d1200fbf1fb3a87e41bfecc7e5cef7e4fd145",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All410original document workspace lines physically read, then current five query/model/control/table/root owners reviewed. Eight actual denial/stale action/false-zero negatives fixed with transient recovery control; tenUI/performance cases plus two document send cases pass. Exact16post-fix controller statements/shared two-interval predicate/whole expanded rendered tree/compose branch preserved.1920original/current projection comparisons preserve all counts/display/full row values. Actual512status-read baseline15460\u2192passed2148bound; same seven counts/50visible rows."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/broadcast-document-table.tsx",
+    "sha256": "0fe9b53388e669ff2a793a2a4919f7889ba8917e3eb473077955cf358f782536",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All410original document workspace lines physically read, then current five query/model/control/table/root owners reviewed. Eight actual denial/stale action/false-zero negatives fixed with transient recovery control; tenUI/performance cases plus two document send cases pass. Exact16post-fix controller statements/shared two-interval predicate/whole expanded rendered tree/compose branch preserved.1920original/current projection comparisons preserve all counts/display/full row values. Actual512status-read baseline15460\u2192passed2148bound; same seven counts/50visible rows."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/broadcast-documents-query.test.tsx",
+    "sha256": "e356d631ed93f49577a0ab875889721a9b380f2208c22ef94bbd58a1e1bb935c",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete actual component/query tests and typed synthetic DTO fixture read. Nine denial/stale/unavailable/transient cases plus one actual-render512scaling case. QueryClient and timers are cleared after everycase; no provider sends. Role/session/backend endpoint authorization is not established by API mocks."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/broadcast-document-fixtures.test-fixture.ts",
+    "sha256": "291718b4801e1248e2bd8cd1d160a1419d35a6fd6a462a758de12e3dcc4d2534",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete actual component/query tests and typed synthetic DTO fixture read. Nine denial/stale/unavailable/transient cases plus one actual-render512scaling case. QueryClient and timers are cleared after everycase; no provider sends. Role/session/backend endpoint authorization is not established by API mocks."
+  }
+]

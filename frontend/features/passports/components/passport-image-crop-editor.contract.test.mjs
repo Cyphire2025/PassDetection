@@ -1,22 +1,18 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
+import { readPassportImageEditorSource } from "./passport-image-editor-source.contract-helper.mjs";
+import { passportApiSource as api } from "../api/passport-api-source.contract-helper.mjs";
 
-const controller = readFileSync(
-  new URL("./passport-image-crop-editor.tsx", import.meta.url),
-  "utf8",
-);
+const controller = readPassportImageEditorSource();
+const modalBoundary = readFileSync(new URL("../../../components/ui/modal-keyboard-boundary.ts", import.meta.url), "utf8");
 const workspace = readFileSync(
   new URL("./passport-image-adjust-workspace.tsx", import.meta.url),
   "utf8",
 );
 const editor = `${controller}\n${workspace}`;
-const detail = ["passport-detail.tsx", "passport-image-preview.tsx"]
+const detail = ["passport-detail.tsx", "passport-image-preview.tsx", "passport-detail-images.tsx", "use-passport-detail-controller.ts"]
   .map((file) => readFileSync(new URL(`./${file}`, import.meta.url), "utf8")).join("\n");
-const api = readFileSync(
-  new URL("../api/passports.api.ts", import.meta.url),
-  "utf8",
-);
 const endpoints = readFileSync(
   new URL("../../../lib/api/endpoints.ts", import.meta.url),
   "utf8",
@@ -32,7 +28,7 @@ const permissions = readFileSync(
 
 test("all five passport images expose separate Change, Edit, and effective open-new-tab actions", () => {
   for (const imageType of ["visa_photo", "passport_front", "passport_back", "passport_cover", "passport_back_cover"]) {
-    assert.match(detail, new RegExp(`imageType="${imageType}"`));
+    assert.match(detail, new RegExp(`imageType: "${imageType}"`));
   }
   assert.match(detail, /appendCacheRevision/);
   assert.match(detail, /target="_blank"/);
@@ -73,11 +69,14 @@ test("editor supports pointer, touch, keyboard, rotation, dimming, reset, and fo
   assert.match(editor, /rotateCropClockwise/);
   assert.match(editor, /CropShade/);
   assert.match(editor, /Reset edits/);
-  assert.match(editor, /event\.key !== "Tab"/);
+  assert.match(editor, /useModalKeyboardBoundary/);
+  assert.match(modalBoundary, /event\.key !== "Tab"/);
   assert.match(detail, /returnFocusTarget: HTMLButtonElement/);
   assert.match(detail, /onCrop\(event\.currentTarget\)/);
-  assert.match(editor, /returnFocusRef\.current = returnFocusTarget/);
-  assert.match(editor, /returnFocusRef\.current\?\.focus\(\)/);
+  assert.match(editor, /const resolveReturnFocus = useCallback\(\(\) => returnFocusTarget/);
+  assert.match(editor, /returnFocusTarget: resolveReturnFocus/);
+  assert.match(modalBoundary, /returnFocusTarget\?\.\(\) \?\? previousTrigger/);
+  assert.match(modalBoundary, /focus\(trigger\)/);
 });
 
 test("sharpness and the common library are available for every image while guarded AI editing is Visa-only", () => {
@@ -169,7 +168,7 @@ test("fine rotation supports each degree with a frame-budgeted cached preview", 
   assert.match(editor, /min=\{MIN_FINE_ROTATION\}/);
   assert.match(editor, /max=\{MAX_FINE_ROTATION\}/);
   assert.match(editor, /step="1"/);
-  assert.match(editor, /rotationBaseRef\.current \+ nextFineRotation/);
+  assert.match(editor, /current\.rotationBase \+ nextFineRotation/);
   assert.match(editor, /workingImageRef = useRef<HTMLImageElement \| null>\(null\)/);
   assert.match(editor, /window\.requestAnimationFrame/);
   assert.match(editor, /window\.cancelAnimationFrame/);

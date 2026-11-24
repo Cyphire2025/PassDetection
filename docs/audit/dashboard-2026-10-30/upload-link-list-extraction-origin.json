@@ -1,0 +1,399 @@
+{
+  "recorded_at": "2026-10-30T23:30:15.366Z",
+  "original_path": "frontend/features/passports/components/upload-link-list.tsx",
+  "original_sha256": "318f842631e3d9b7e44f886cb6ebe03e41ea9abe80f82d012c870b67cbf6894a",
+  "original_before_fixes_sha256": "7076f6d875be5a455335f2eefbad1bdbf3f05ba6f41b0087f23835110ca4810c",
+  "basis": "Post-fix mechanical partition; source corrections proven separately before movement. Verification script checks actual current owners and state forwarding.",
+  "movement": [
+    {
+      "kind": "controller-statement",
+      "index": 0,
+      "original_sha256": "874ae58b32fbf62c9fd26f22d837734a3507bf9d9f61bd1ec28fd4357cac814f",
+      "exact_text": "const role = useAuthStore(selectUserRole);"
+    },
+    {
+      "kind": "controller-statement",
+      "index": 1,
+      "original_sha256": "d15cd495c2e5f775f694febe9b59f5051b8a7bd384cdfb36e60694f35741f0c0",
+      "exact_text": "const canPermanentlyDelete = canPermanentlyDeleteGroup(role);"
+    },
+    {
+      "kind": "controller-statement",
+      "index": 2,
+      "original_sha256": "06dd31abcd4baa02cefdd164a7bc0e9110ac5a6fa4a45e81f289fcabb4fdc09d",
+      "exact_text": "const canArchive = canArchiveGroup(role);"
+    },
+    {
+      "kind": "controller-statement",
+      "index": 3,
+      "original_sha256": "78142ebb1d1ac9804dc26ae0e20bb39d0d09d52f2b4373528e04a66648174c6b",
+      "exact_text": "const [isModalOpen, setIsModalOpen] = useState(false);"
+    },
+    {
+      "kind": "controller-statement",
+      "index": 4,
+      "original_sha256": "e76ca53110a24a07e3bcafc39107f99e2a437043000660e8204f15d48405568e",
+      "exact_text": "const [isArchivedExpanded, setIsArchivedExpanded] = useState(false);"
+    },
+    {
+      "kind": "controller-statement",
+      "index": 5,
+      "original_sha256": "c8cf16f6e669d539d652f112d7d1bfcf62d1abeeb3750411d4ceb5c535dd48e8",
+      "exact_text": "const [query, setQuery] = useState(\"\");"
+    },
+    {
+      "kind": "controller-statement",
+      "index": 6,
+      "original_sha256": "d5269c93ba60eebf8e2b5e1915ac3c67803387a1e3e013f6dfd41a6068b51db1",
+      "exact_text": "const deferredQuery = useDeferredValue(query);"
+    },
+    {
+      "kind": "controller-statement",
+      "index": 7,
+      "original_sha256": "e589b8e53408160c7f07f34126ef0f7da417d04b89ff1f27a9071b431dd9b3e6",
+      "exact_text": "const { copiedLinkKey, copyError, copyUploadLink } = useUploadLinkCopy();"
+    },
+    {
+      "kind": "controller-statement",
+      "index": 8,
+      "original_sha256": "1ab3185e8ed917debe5fe38c6c46bfc4f24c3f217e283235e079220625bdd6e8",
+      "exact_text": "const [confirmAction, setConfirmAction] = useState<{\r\n    title: string;\r\n    description: string;\r\n    confirmLabel: string;\r\n    variant?: \"primary\" | \"danger\";\r\n    onConfirm: () => void;\r\n  } | null>(null);"
+    },
+    {
+      "kind": "controller-statement",
+      "index": 9,
+      "original_sha256": "c51de70cdbb2b54fe36712da3689f971e6ef17bcf28c1f91415538dd72a71c47",
+      "exact_text": "const [renameTarget, setRenameTarget] = useState<UploadLinkResponse | null>(null);"
+    },
+    {
+      "kind": "controller-statement",
+      "index": 10,
+      "original_sha256": "ffe48969969945c1361f062a31a040aae08038feef16f550514afc14f2675754",
+      "exact_text": "const [deleteTarget, setDeleteTarget] = useState<UploadLinkResponse | null>(null);"
+    },
+    {
+      "kind": "controller-statement",
+      "index": 11,
+      "original_sha256": "1724d5bfc1e297785fdc2a35c41ae1534e4b8645a685898460e8200808dec346",
+      "exact_text": "const {\r\n    data: activeLinksData,\r\n    isLoading: isLoadingActive,\r\n    error: activeLinksError,\r\n    isFetching: isFetchingActive,\r\n    refetch: refetchActive,\r\n  } = useUploadLinks();"
+    },
+    {
+      "kind": "controller-statement",
+      "index": 12,
+      "original_sha256": "283d973d6c1d6c900bfab0186827cee81b171fa1375484b34022699395879c71",
+      "exact_text": "const {\r\n    data: archivedLinksData,\r\n    isLoading: isLoadingArchived,\r\n    error: archivedLinksError,\r\n    isFetching: isFetchingArchived,\r\n    refetch: refetchArchived,\r\n  } = useUploadLinks(\"archived\");"
+    },
+    {
+      "kind": "controller-statement",
+      "index": 13,
+      "original_sha256": "c4287255b1c61377a95a0701941fea82058fd792ccb8e6885a381ada8332f82d",
+      "exact_text": "const activeLinks = activeLinksData ?? [];"
+    },
+    {
+      "kind": "controller-statement",
+      "index": 14,
+      "original_sha256": "f0a35d06fa230098c3f89514dff685690b65a3b5edf0e0438855f62ab9ef66e5",
+      "exact_text": "const archivedLinks = archivedLinksData ?? [];"
+    },
+    {
+      "kind": "controller-statement",
+      "index": 15,
+      "original_sha256": "86d459deade2ba6f6af6da566251734cfd25b8db88f479d8f325cef29fa695b3",
+      "exact_text": "const activeDataKnown = activeLinksData !== undefined;"
+    },
+    {
+      "kind": "controller-statement",
+      "index": 16,
+      "original_sha256": "549253a919c55ff32f9096abe75fb516d5345da9f9b956af87f2c6a777861786",
+      "exact_text": "const archivedDataKnown = archivedLinksData !== undefined;"
+    },
+    {
+      "kind": "controller-statement",
+      "index": 17,
+      "original_sha256": "9b454669c983ad7c8be9a7831a7dfa36716bfe421b2ae8374b3f9e1c80b0b273",
+      "exact_text": "const { mutate: closeLink, isPending: isClosing } = useRevokeUploadLink();"
+    },
+    {
+      "kind": "controller-statement",
+      "index": 18,
+      "original_sha256": "b3c60a9c3e7d84628d447f022eb3871ec8ab2df37aa93100cf8bf8f2fea5ab7c",
+      "exact_text": "const { mutate: archiveLink, isPending: isArchiving } = useDeleteUploadLink();"
+    },
+    {
+      "kind": "controller-statement",
+      "index": 19,
+      "original_sha256": "26178c750a9a93b2948bd0018d4499c0aadb7b618edd3b18bd9372acd54e9696",
+      "exact_text": "const { mutate: restoreLink, isPending: isRestoring } = useRestoreUploadLink();"
+    },
+    {
+      "kind": "controller-statement",
+      "index": 20,
+      "original_sha256": "585861c727b56ebee98d94ef3b0fc219c654e707323c03fe70253dda66099989",
+      "exact_text": "const {\r\n    mutate: permanentlyDeleteLink,\r\n    isPending: isPermanentlyDeleting,\r\n    isError: isPermanentDeleteError,\r\n    error: permanentDeleteError,\r\n    reset: resetPermanentDelete,\r\n  } = usePermanentlyDeleteUploadLink();"
+    },
+    {
+      "kind": "controller-statement",
+      "index": 21,
+      "original_sha256": "a3e34ee93aa578310c7ffe58699c2fc899b626a7b3271094a36566f15051a2ac",
+      "exact_text": "const filteredActiveLinks = useMemo(\r\n    () => filterUploadLinks(activeLinks, deferredQuery),\r\n    [activeLinks, deferredQuery],\r\n  );"
+    },
+    {
+      "kind": "controller-statement",
+      "index": 22,
+      "original_sha256": "c6002efa55a7c3fc62235bf915f07a0f55b4a1187a0c6589a74f25d8f37b3c6d",
+      "exact_text": "const filteredArchivedLinks = useMemo(\r\n    () => filterUploadLinks(archivedLinks, deferredQuery),\r\n    [archivedLinks, deferredQuery],\r\n  );"
+    },
+    {
+      "kind": "controller-statement",
+      "index": 23,
+      "original_sha256": "b8b54e1dbb26eb6c0cd993f8365c7e56c232c112c016115f21bc847131afb41f",
+      "exact_text": "const activeCount = activeLinks.filter((link) => link.status === \"active\" && !link.import_only).length;"
+    },
+    {
+      "kind": "controller-statement",
+      "index": 24,
+      "original_sha256": "f22eaa35a85fe156172d0c5057b835556ba81f6407770d00d9b1e19a7de9cedd",
+      "exact_text": "const closedCount = activeLinks.filter((link) => link.status === \"closed\").length;"
+    },
+    {
+      "kind": "controller-statement",
+      "index": 25,
+      "original_sha256": "27007855e64c29eb9b248eacf0b66c48c27d93d4aa59d16a3b3a4f64baa75c57",
+      "exact_text": "const datedCount = [...activeLinks, ...archivedLinks].filter((link) => link.travel_date).length;"
+    },
+    {
+      "kind": "controller-statement",
+      "index": 26,
+      "original_sha256": "6260603f1c760526bcec6f1d990541b2289213a1a634e59d2a304db78d3de1db",
+      "exact_text": "const openGroupEditor = (link: UploadLinkResponse) => {\r\n    setRenameTarget(link);\r\n  };"
+    },
+    {
+      "kind": "view-node",
+      "owner": "upload-link-list-header.tsx",
+      "original_sha256": "6e41d2b53684232ab780ecfbdfd0aae333444ecfd519a3acf87dbb53362394fe",
+      "exact_text": "<WorkspacePageHeader\r\n        title=\"Group Links\"\r\n        description=\"Create groups for document collection or Excel imports, and manage active, closed, and archived groups.\"\r\n        icon={Link2}\r\n        accent=\"emerald\"\r\n        context={(\r\n          <>\r\n            <WorkspaceHeaderContext icon={Link2}>\r\n              {activeDataKnown ? activeCount.toLocaleString() : \"Unavailable\"} collecting now\r\n            </WorkspaceHeaderContext>\r\n            <WorkspaceHeaderContext icon={Archive}>\r\n              {archivedDataKnown ? archivedLinks.length.toLocaleString() : \"Unavailable\"} archived\r\n            </WorkspaceHeaderContext>\r\n          </>\r\n        )}\r\n        actions={(\r\n          <Button\r\n            onClick={() => setIsModalOpen(true)}\r\n            onMouseEnter={() => void loadCreateUploadLinkModal()}\r\n            onFocus={() => void loadCreateUploadLinkModal()}\r\n            onPointerDown={() => void loadCreateUploadLinkModal()}\r\n            className=\"bg-white text-[#123f73] shadow-sm hover:bg-emerald-50 active:bg-emerald-100\"\r\n          >\r\n            <Link2 className=\"h-4 w-4\" aria-hidden=\"true\" />\r\n            Create Group Link\r\n          </Button>\r\n        )}\r\n      />",
+      "state_forwarding": [
+        "activeDataKnown",
+        "activeCount",
+        "archivedDataKnown",
+        "archivedLinks",
+        "setIsModalOpen"
+      ]
+    },
+    {
+      "kind": "view-node",
+      "owner": "upload-link-list-summary.tsx",
+      "original_sha256": "75a6220b682c3a40dd83a07af0bceb895d9bf241b2df7497d69d2c7cb6f7b535",
+      "exact_text": "<WorkspaceSummaryStrip label=\"Group Link lifecycle summary\">\r\n        {isLoadingActive || isLoadingArchived ? (\r\n          Array.from({ length: 4 }).map((_, index) => (\r\n            <div key={index} className=\"h-[72px] animate-pulse bg-slate-100\" />\r\n          ))\r\n        ) : (\r\n          <>\r\n            <WorkspaceSummaryItem\r\n              label=\"Active links\"\r\n              value={activeDataKnown ? activeCount.toLocaleString() : \"Unavailable\"}\r\n              helper=\"accepting uploads\"\r\n              icon={Link2}\r\n              tone=\"success\"\r\n            />\r\n            <WorkspaceSummaryItem\r\n              label=\"Closed groups\"\r\n              value={activeDataKnown ? closedCount.toLocaleString() : \"Unavailable\"}\r\n              helper=\"intake stopped\"\r\n              icon={CheckCircle2}\r\n            />\r\n            <WorkspaceSummaryItem\r\n              label=\"Archived\"\r\n              value={archivedDataKnown ? archivedLinks.length.toLocaleString() : \"Unavailable\"}\r\n              helper=\"retained history\"\r\n              icon={Archive}\r\n            />\r\n            <WorkspaceSummaryItem\r\n              label=\"Travel date set\"\r\n              value={activeDataKnown && archivedDataKnown ? datedCount.toLocaleString() : \"Unavailable\"}\r\n              helper=\"configured groups\"\r\n              icon={CalendarDays}\r\n              tone=\"info\"\r\n            />\r\n          </>\r\n        )}\r\n      </WorkspaceSummaryStrip>",
+      "state_forwarding": [
+        "isLoadingActive",
+        "isLoadingArchived",
+        "activeDataKnown",
+        "activeCount",
+        "closedCount",
+        "archivedDataKnown",
+        "archivedLinks",
+        "datedCount"
+      ]
+    },
+    {
+      "kind": "view-node",
+      "owner": "upload-link-list-sections.tsx",
+      "original_sha256": "73f286aa880de5ec4239a9bcb0726e529f466eb237ddcfa30a9b74a68700bc1d",
+      "exact_text": "<section\r\n        className=\"overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm\"\r\n        aria-labelledby=\"group-links-heading\"\r\n      >\r\n        <div className=\"flex items-center justify-between border-b border-slate-200 px-4 py-3.5 sm:px-5\">\r\n          <div>\r\n\r\n            <h2 id=\"group-links-heading\" className=\"mt-0.5 font-semibold text-slate-950\">\r\n              Live and closed group links\r\n            </h2>\r\n          </div>\r\n          <span className=\"rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600\">\r\n            {activeDataKnown ? activeLinks.length.toLocaleString() : \"Unavailable\"}\r\n          </span>\r\n        </div>\r\n\r\n        <WorkspaceToolbar\r\n          query={query}\r\n          onQueryChange={setQuery}\r\n          searchLabel=\"Search Group Links\"\r\n          placeholder=\"Search group, destination, package, or departure city\"\r\n          resultLabel={activeDataKnown ? `${filteredActiveLinks.length.toLocaleString()} active or closed` : \"Live and closed links unavailable\"}\r\n        />\r\n\r\n        {activeLinksError && (\r\n          <WorkspaceErrorNotice>\r\n            <p>{activeDataKnown ? \"Live and closed Group Links could not be refreshed. Previously loaded links remain visible.\" : \"Live and closed Group Links could not be loaded.\"}</p>\r\n            <Button type=\"button\" variant=\"secondary\" size=\"sm\" disabled={isFetchingActive} onClick={() => void refetchActive()} className=\"mt-2\">Retry live and closed links</Button>\r\n          </WorkspaceErrorNotice>\r\n        )}\r\n        {isLoadingActive ? (\r\n          <div className=\"p-5\"><LoadingRows /></div>\r\n        ) : !activeDataKnown ? null : activeLinks.length === 0 ? (\r\n          <WorkspaceEmptyState\r\n            title=\"No Group Links are collecting details\"\r\n            description=\"Create a Group Link to collect passport images and traveller details.\"\r\n            action={(\r\n              <Button type=\"button\" onClick={() => setIsModalOpen(true)}>\r\n                <Link2 className=\"h-4 w-4\" aria-hidden=\"true\" />\r\n                Create Group Link\r\n              </Button>\r\n            )}\r\n          />\r\n        ) : filteredActiveLinks.length === 0 ? (\r\n          <WorkspaceEmptyState\r\n            filtered\r\n            title=\"No live or closed links match this search\"\r\n            description=\"Search by group, destination, package, or departure city, or clear the search to restore the full list.\"\r\n          />\r\n        ) : (\r\n          <UploadLinkTable\r\n            caption=\"Live and closed Group Links\"\r\n            links={filteredActiveLinks}\r\n            copiedLinkKey={copiedLinkKey}\r\n            onCopy={copyUploadLink}\r\n            onClose={(id) => {\r\n              setConfirmAction({\r\n                title: \"Close Group\",\r\n                description: \"Clients will no longer be able to upload passports through this group link. Existing submissions remain available for review.\",\r\n                confirmLabel: \"Close Group\",\r\n                onConfirm: () => closeLink(id, { onSuccess: () => setConfirmAction(null) }),\r\n              });\r\n            }}\r\n            onOpen={(id) => restoreLink(id)}\r\n            onArchive={canArchive ? (id) => {\r\n              setConfirmAction({\r\n                title: \"Archive Group\",\r\n                description: \"This group will be removed from active work. Existing passport records and uploaded images will be retained.\",\r\n                confirmLabel: \"Archive Group\",\r\n                onConfirm: () => archiveLink(id, { onSuccess: () => setConfirmAction(null) }),\r\n              });\r\n            } : undefined}\r\n            onRename={openGroupEditor}\r\n            isMutating={isClosing || isArchiving || isRestoring}\r\n            compact\r\n          />\r\n        )}\r\n      </section>",
+      "state_forwarding": [
+        "activeDataKnown",
+        "activeLinks",
+        "query",
+        "setQuery",
+        "filteredActiveLinks",
+        "activeLinksError",
+        "isFetchingActive",
+        "refetchActive",
+        "isLoadingActive",
+        "setIsModalOpen",
+        "copiedLinkKey",
+        "copyUploadLink",
+        "setConfirmAction",
+        "closeLink",
+        "restoreLink",
+        "canArchive",
+        "archiveLink",
+        "openGroupEditor",
+        "isClosing",
+        "isArchiving",
+        "isRestoring",
+        "isArchivedExpanded",
+        "archivedDataKnown",
+        "archivedLinks",
+        "setIsArchivedExpanded",
+        "archivedLinksError",
+        "isFetchingArchived",
+        "refetchArchived",
+        "isLoadingArchived",
+        "filteredArchivedLinks",
+        "resetPermanentDelete",
+        "setDeleteTarget",
+        "canPermanentlyDelete",
+        "isPermanentlyDeleting"
+      ]
+    },
+    {
+      "kind": "view-node",
+      "owner": "upload-link-list-sections.tsx",
+      "original_sha256": "1f7eb8ab2bf4c7fe0a0537094fd494d652080aeabc9f435bb48e0aa879bcb32f",
+      "exact_text": "<section\r\n        className=\"overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm\"\r\n        aria-labelledby=\"archived-group-links-heading\"\r\n      >\r\n        <div className={`flex items-center justify-between gap-3 px-4 py-3.5 sm:px-5 ${isArchivedExpanded ? \"border-b border-slate-200\" : \"\"}`}>\r\n          <div>\r\n\r\n            <h2 id=\"archived-group-links-heading\" className=\"mt-0.5 font-semibold text-slate-950\">\r\n              Archived groups\r\n            </h2>\r\n            <p className=\"mt-1 text-sm text-slate-500\">Groups removed from active passport queues.</p>\r\n          </div>\r\n          <div className=\"flex shrink-0 items-center gap-2\">\r\n            <span className=\"rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600\">\r\n              {archivedDataKnown ? archivedLinks.length.toLocaleString() : \"Unavailable\"}\r\n            </span>\r\n            <Button\r\n              type=\"button\"\r\n              variant=\"ghost\"\r\n              size=\"sm\"\r\n              aria-label={isArchivedExpanded ? \"Hide archived groups\" : \"Show archived groups\"}\r\n              aria-expanded={isArchivedExpanded}\r\n              aria-controls=\"archived-group-links-content\"\r\n              onClick={() => setIsArchivedExpanded((current) => !current)}\r\n            >\r\n              {isArchivedExpanded ? \"Hide\" : \"Show\"}\r\n              <ChevronDown\r\n                className={`h-4 w-4 transition-transform motion-reduce:transition-none ${isArchivedExpanded ? \"rotate-180\" : \"\"}`}\r\n                aria-hidden=\"true\"\r\n              />\r\n            </Button>\r\n          </div>\r\n        </div>\r\n\r\n        <div id=\"archived-group-links-content\" hidden={!isArchivedExpanded}>\r\n          {archivedLinksError && (\r\n            <WorkspaceErrorNotice>\r\n              <p>{archivedDataKnown ? \"Archived Group Links could not be refreshed. Previously loaded links remain visible.\" : \"Archived Group Links could not be loaded.\"}</p>\r\n              <Button type=\"button\" variant=\"secondary\" size=\"sm\" disabled={isFetchingArchived} onClick={() => void refetchArchived()} className=\"mt-2\">Retry archived links</Button>\r\n            </WorkspaceErrorNotice>\r\n          )}\r\n          {isLoadingArchived ? (\r\n            <div className=\"p-5\"><LoadingRows /></div>\r\n          ) : !archivedDataKnown ? null : archivedLinks.length === 0 ? (\r\n            <WorkspaceEmptyState\r\n              title=\"No archived Group Links\"\r\n              description=\"Groups moved out of active work will remain available here according to their retention choice.\"\r\n            />\r\n          ) : filteredArchivedLinks.length === 0 ? (\r\n            <WorkspaceEmptyState\r\n              filtered\r\n              title=\"No archived groups match this search\"\r\n              description=\"Clear the shared Group Link search to restore archived history.\"\r\n            />\r\n          ) : (\r\n            <UploadLinkTable\r\n              caption=\"Archived Group Links\"\r\n              links={filteredArchivedLinks}\r\n              copiedLinkKey={copiedLinkKey}\r\n              onCopy={copyUploadLink}\r\n              onRestore={(id) => restoreLink(id)}\r\n              onRename={openGroupEditor}\r\n              onPermanentDelete={(id) => {\r\n                resetPermanentDelete();\r\n                setDeleteTarget(archivedLinks.find((link) => link.id === id) ?? null);\r\n              }}\r\n              canPermanentlyDelete={canPermanentlyDelete}\r\n              isMutating={isRestoring || isPermanentlyDeleting}\r\n              compact\r\n            />\r\n          )}\r\n        </div>\r\n      </section>",
+      "state_forwarding": [
+        "activeDataKnown",
+        "activeLinks",
+        "query",
+        "setQuery",
+        "filteredActiveLinks",
+        "activeLinksError",
+        "isFetchingActive",
+        "refetchActive",
+        "isLoadingActive",
+        "setIsModalOpen",
+        "copiedLinkKey",
+        "copyUploadLink",
+        "setConfirmAction",
+        "closeLink",
+        "restoreLink",
+        "canArchive",
+        "archiveLink",
+        "openGroupEditor",
+        "isClosing",
+        "isArchiving",
+        "isRestoring",
+        "isArchivedExpanded",
+        "archivedDataKnown",
+        "archivedLinks",
+        "setIsArchivedExpanded",
+        "archivedLinksError",
+        "isFetchingArchived",
+        "refetchArchived",
+        "isLoadingArchived",
+        "filteredArchivedLinks",
+        "resetPermanentDelete",
+        "setDeleteTarget",
+        "canPermanentlyDelete",
+        "isPermanentlyDeleting"
+      ]
+    },
+    {
+      "kind": "view-node",
+      "owner": "upload-link-list-dialogs.tsx",
+      "original_sha256": "5238b6732ccaaa19c0ad40a5f0e3dc166841507c700d2bead297541cc9f04747",
+      "exact_text": "<ConfirmDialog\r\n        isOpen={Boolean(confirmAction)}\r\n        title={confirmAction?.title ?? \"\"}\r\n        description={confirmAction?.description ?? \"\"}\r\n        confirmLabel={confirmAction?.confirmLabel ?? \"Confirm\"}\r\n        variant={confirmAction?.variant}\r\n        isLoading={isClosing || isArchiving || isRestoring || isPermanentlyDeleting}\r\n        onClose={() => setConfirmAction(null)}\r\n        onConfirm={() => confirmAction?.onConfirm()}\r\n      />",
+      "state_forwarding": [
+        "confirmAction",
+        "isClosing",
+        "isArchiving",
+        "isRestoring",
+        "isPermanentlyDeleting",
+        "setConfirmAction",
+        "renameTarget",
+        "setRenameTarget",
+        "deleteTarget",
+        "isPermanentDeleteError",
+        "permanentDeleteError",
+        "setDeleteTarget",
+        "permanentlyDeleteLink"
+      ]
+    },
+    {
+      "kind": "view-node",
+      "owner": "upload-link-list-dialogs.tsx",
+      "original_sha256": "83029ec0d2e99cbf681092a4f42638442a17a64d9ff8166dcefd9bd9d309b573",
+      "exact_text": "{renameTarget && <EditGroupDialog key={renameTarget.id} group={renameTarget} onClose={() => setRenameTarget(null)} />}",
+      "state_forwarding": [
+        "confirmAction",
+        "isClosing",
+        "isArchiving",
+        "isRestoring",
+        "isPermanentlyDeleting",
+        "setConfirmAction",
+        "renameTarget",
+        "setRenameTarget",
+        "deleteTarget",
+        "isPermanentDeleteError",
+        "permanentDeleteError",
+        "setDeleteTarget",
+        "permanentlyDeleteLink"
+      ]
+    },
+    {
+      "kind": "view-node",
+      "owner": "upload-link-list-dialogs.tsx",
+      "original_sha256": "7a2bcc14b754a1f8465127d098ac2918d19b4eb901318e86b9c771f40a5f0311",
+      "exact_text": "<GroupDeleteRetentionDialog\r\n        group={deleteTarget}\r\n        isLoading={isPermanentlyDeleting}\r\n        error={isPermanentDeleteError\r\n          ? permanentDeleteError?.message || \"The group could not be deleted. Please try again.\"\r\n          : null}\r\n        onClose={() => setDeleteTarget(null)}\r\n        onKeepData={() => {\r\n          if (!deleteTarget) return;\r\n          permanentlyDeleteLink(\r\n            { id: deleteTarget.id, retainRecords: true },\r\n            { onSuccess: () => setDeleteTarget(null) },\r\n          );\r\n        }}\r\n        onDeleteData={() => {\r\n          if (!deleteTarget) return;\r\n          permanentlyDeleteLink(\r\n            { id: deleteTarget.id, retainRecords: false },\r\n            { onSuccess: () => setDeleteTarget(null) },\r\n          );\r\n        }}\r\n      />",
+      "state_forwarding": [
+        "confirmAction",
+        "isClosing",
+        "isArchiving",
+        "isRestoring",
+        "isPermanentlyDeleting",
+        "setConfirmAction",
+        "renameTarget",
+        "setRenameTarget",
+        "deleteTarget",
+        "isPermanentDeleteError",
+        "permanentDeleteError",
+        "setDeleteTarget",
+        "permanentlyDeleteLink"
+      ]
+    },
+    {
+      "kind": "declaration",
+      "name": "CompanyAssignmentLabel",
+      "owner": "upload-link-table.tsx",
+      "original_body_sha256": "98b45f13a14e82c8addfe6ec19db9d16d60049e16f669bdf9d42cb9ed3a2fa74"
+    },
+    {
+      "kind": "declaration",
+      "name": "StatusPill",
+      "owner": "upload-link-table.tsx",
+      "original_body_sha256": "eae625b8a0b7e47e5d375fca732fcf5ebf0ad6a24748304e57081bd0efd34ed1"
+    },
+    {
+      "kind": "declaration",
+      "name": "GroupDeleteRetentionDialog",
+      "owner": "group-delete-retention-dialog.tsx",
+      "original_body_sha256": "f2f1f6cf6b8ee62e32b71b88ee5714c2e5b254eb3d7f648ffe6c682e76cec08c"
+    },
+    {
+      "kind": "declaration",
+      "name": "filterUploadLinks",
+      "owner": "upload-link-filter.ts",
+      "original_body_sha256": "3d0ecd22d58d1f6a6c2a1594bcf982239b6c77fdd51b1744ab5c8b15d7f5ce21"
+    },
+    {
+      "kind": "declaration",
+      "name": "LoadingRows",
+      "owner": "upload-link-list-sections.tsx",
+      "original_body_sha256": "4ef9b8e598b58252f6847c4a9fc9bdcb3de1622e5b4b8378c23f399055e087b9"
+    },
+    {
+      "kind": "actions-body",
+      "owner": "upload-link-actions.tsx",
+      "original_body_sha256": "678b4c090c870b04bc34da12b7c521b98a45a3120fc6d969e5f266736bbd9269",
+      "forwarding": [
+        "copiedLinkKey",
+        "onCopy",
+        "onClose",
+        "onOpen",
+        "onArchive",
+        "onRestore",
+        "onRename",
+        "onPermanentDelete",
+        "canPermanentlyDelete",
+        "isMutating"
+      ]
+    },
+    {
+      "kind": "table-jsx",
+      "owner": "upload-link-table.tsx",
+      "transformation": "Only renderActions(link, align) call sites become UploadLinkActions with identical link/alignment and all original closed-over action props; action body remains exact."
+    }
+  ]
+}

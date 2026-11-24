@@ -1,0 +1,327 @@
+{
+  "recorded_at": "2026-10-30T23:03:46.057Z",
+  "changed_runtime_files": 16,
+  "supporting_runtime_files": 2,
+  "records": [
+    {
+      "path": "frontend/features/passports/components/group-whatsapp-broadcast-panel.tsx",
+      "sha256": "52ca105dc16be1b57889a0b48b34f6c666c753b96bb80de659a43a628ed7eadc",
+      "physical_lines": 210,
+      "max_function_complexity": 10,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "All original physical workspace/dialog/table/model source read before movement; authored module wiring, native radio selection, long-name wrapping and current-recipient admission corrections and shared UUID owner reviewed. Fifty-part compositional AST evidence is separate from manual reading."
+    },
+    {
+      "path": "frontend/features/passports/components/use-group-whatsapp-tracking.ts",
+      "sha256": "a8aeeac1b146ba7902514a797e8f2608e3b54271db12cdf987317b4d8ace4660",
+      "physical_lines": 103,
+      "max_function_complexity": 12,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "All original physical workspace/dialog/table/model source read before movement; authored module wiring, native radio selection, long-name wrapping and current-recipient admission corrections and shared UUID owner reviewed. Fifty-part compositional AST evidence is separate from manual reading."
+    },
+    {
+      "path": "frontend/features/passports/components/group-whatsapp-tracking-stats.tsx",
+      "sha256": "8afba9120a7baaaae1685e9ffa9168ca8fe4ce2a4e3a59efc5e9cdc1723180c5",
+      "physical_lines": 80,
+      "max_function_complexity": 10,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "All original physical workspace/dialog/table/model source read before movement; authored module wiring, native radio selection, long-name wrapping and current-recipient admission corrections and shared UUID owner reviewed. Fifty-part compositional AST evidence is separate from manual reading."
+    },
+    {
+      "path": "frontend/features/passports/components/group-whatsapp-tracking-filters.tsx",
+      "sha256": "a5b65b67f8f91608639ca185cd52e0c979ebddce32ba2a24acc6a32b2b558aec",
+      "physical_lines": 144,
+      "max_function_complexity": 8,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "All original physical workspace/dialog/table/model source read before movement; authored module wiring, native radio selection, long-name wrapping and current-recipient admission corrections and shared UUID owner reviewed. Fifty-part compositional AST evidence is separate from manual reading."
+    },
+    {
+      "path": "frontend/features/passports/components/group-whatsapp-comparison-panel.tsx",
+      "sha256": "5aace510faa8fe932a6bd378e43b1b7ab706995f59e5f60ef003b3f50075f666",
+      "physical_lines": 142,
+      "max_function_complexity": 11,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "All original physical workspace/dialog/table/model source read before movement; authored module wiring, native radio selection, long-name wrapping and current-recipient admission corrections and shared UUID owner reviewed. Fifty-part compositional AST evidence is separate from manual reading."
+    },
+    {
+      "path": "frontend/features/passports/components/group-whatsapp-resolution-dialogs.tsx",
+      "sha256": "e757a1f3d660b63e88b50ea1446a3ed2921c44a02a2925fe7b0a7199c101a158",
+      "physical_lines": 156,
+      "max_function_complexity": 8,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "All original physical workspace/dialog/table/model source read before movement; authored module wiring, native radio selection, long-name wrapping and current-recipient admission corrections and shared UUID owner reviewed. Fifty-part compositional AST evidence is separate from manual reading."
+    },
+    {
+      "path": "frontend/features/passports/components/group-whatsapp-dialogs.tsx",
+      "sha256": "1eb3314f73794c9e75a026e44216a9fc2082f0313987d45c8645d135e84be32c",
+      "physical_lines": 4,
+      "max_function_complexity": 0,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "All original physical workspace/dialog/table/model source read before movement; authored module wiring, native radio selection, long-name wrapping and current-recipient admission corrections and shared UUID owner reviewed. Fifty-part compositional AST evidence is separate from manual reading."
+    },
+    {
+      "path": "frontend/features/passports/components/group-whatsapp-replacement-dialog.tsx",
+      "sha256": "66a28876ffec92b22c339ff653eb32b749fb23b7497eacce11489a5ca4c98a2c",
+      "physical_lines": 222,
+      "max_function_complexity": 14,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "All original physical workspace/dialog/table/model source read before movement; authored module wiring, native radio selection, long-name wrapping and current-recipient admission corrections and shared UUID owner reviewed. Fifty-part compositional AST evidence is separate from manual reading."
+    },
+    {
+      "path": "frontend/features/passports/components/group-whatsapp-manage-dialog.tsx",
+      "sha256": "d40e4169d0db8431467ba76d9882dc6c57ff93a245b597143e5879f8ed5cec40",
+      "physical_lines": 144,
+      "max_function_complexity": 3,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "All original physical workspace/dialog/table/model source read before movement; authored module wiring, native radio selection, long-name wrapping and current-recipient admission corrections and shared UUID owner reviewed. Fifty-part compositional AST evidence is separate from manual reading."
+    },
+    {
+      "path": "frontend/features/passports/components/replacement-recipient-choice.tsx",
+      "sha256": "0ac39999192c62e41c5a8ff115fab6f4d1cb420fb6ca2bb79f56fbb12bde8435",
+      "physical_lines": 98,
+      "max_function_complexity": 7,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "All original physical workspace/dialog/table/model source read before movement; authored module wiring, native radio selection, long-name wrapping and current-recipient admission corrections and shared UUID owner reviewed. Fifty-part compositional AST evidence is separate from manual reading."
+    },
+    {
+      "path": "frontend/features/passports/components/group-whatsapp-tracking-table.tsx",
+      "sha256": "5cf7ea66aad7f3afe468b7e379c20be905a3ca9d85f0016b90a38f3390cd9b55",
+      "physical_lines": 8,
+      "max_function_complexity": 0,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "All original physical workspace/dialog/table/model source read before movement; authored module wiring, native radio selection, long-name wrapping and current-recipient admission corrections and shared UUID owner reviewed. Fifty-part compositional AST evidence is separate from manual reading."
+    },
+    {
+      "path": "frontend/features/passports/components/group-whatsapp-match-table.tsx",
+      "sha256": "d8098ac5e8148702948fbc93a8176c8a61b061d7f5e376e4ebafbee17139e238",
+      "physical_lines": 73,
+      "max_function_complexity": 5,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "All original physical workspace/dialog/table/model source read before movement; authored module wiring, native radio selection, long-name wrapping and current-recipient admission corrections and shared UUID owner reviewed. Fifty-part compositional AST evidence is separate from manual reading."
+    },
+    {
+      "path": "frontend/features/passports/components/group-whatsapp-match-row.tsx",
+      "sha256": "7bd9cef21d90c0231f92f26774ed6f600d1992c4eff794f05370db1369e15336",
+      "physical_lines": 268,
+      "max_function_complexity": 33,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "All original physical workspace/dialog/table/model source read before movement; authored module wiring, native radio selection, long-name wrapping and current-recipient admission corrections and shared UUID owner reviewed. Fifty-part compositional AST evidence is separate from manual reading."
+    },
+    {
+      "path": "frontend/features/passports/components/group-whatsapp-tracking-presentation.tsx",
+      "sha256": "c615398c65f0d5f127f56d0d9856e867a9df30c03bf4ed4382e4629580dc813f",
+      "physical_lines": 108,
+      "max_function_complexity": 7,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "All original physical workspace/dialog/table/model source read before movement; authored module wiring, native radio selection, long-name wrapping and current-recipient admission corrections and shared UUID owner reviewed. Fifty-part compositional AST evidence is separate from manual reading."
+    },
+    {
+      "path": "frontend/features/passports/components/group-whatsapp-tracking-model.ts",
+      "sha256": "1babe15f80bac8d0107e943416213d1a7aa9ed95872b4fcdf940eaa67cc31ef1",
+      "physical_lines": 139,
+      "max_function_complexity": 8,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "All original physical workspace/dialog/table/model source read before movement; authored module wiring, native radio selection, long-name wrapping and current-recipient admission corrections and shared UUID owner reviewed. Fifty-part compositional AST evidence is separate from manual reading."
+    },
+    {
+      "path": "frontend/features/passports/utils/passport-request-id.ts",
+      "sha256": "5527502b6951703fdd2e39cff7e3216dcb0d76c73520c2e7f48c283ad90a3c84",
+      "physical_lines": 30,
+      "max_function_complexity": 8,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "All original physical workspace/dialog/table/model source read before movement; authored module wiring, native radio selection, long-name wrapping and current-recipient admission corrections and shared UUID owner reviewed. Fifty-part compositional AST evidence is separate from manual reading."
+    },
+    {
+      "path": "frontend/features/passports/components/group-whatsapp-summary.tsx",
+      "sha256": "95c5bfd2fb746df163d0682e47c9813a0ee7b544ba531ee26edcdc5b9ba5b34d",
+      "physical_lines": 69,
+      "max_function_complexity": 11,
+      "review_scope": "full",
+      "status": "reviewed-unchanged",
+      "review_method": "Every current physical line read to trace summary read-only behavior and import-only/error route admission."
+    },
+    {
+      "path": "frontend/features/passports/components/group-whatsapp-tracking-gate.tsx",
+      "sha256": "7bb590d4ba4ead63601163c0ab5297d7263b64aca3ba6aa4fb64e7c0ad8140b6",
+      "physical_lines": 34,
+      "max_function_complexity": 7,
+      "review_scope": "full",
+      "status": "reviewed-unchanged",
+      "review_method": "Every current physical line read to trace summary read-only behavior and import-only/error route admission."
+    }
+  ],
+  "test_records": [
+    {
+      "path": "frontend/features/passports/components/group-whatsapp-workspace.test.tsx",
+      "sha256": "cc78499ec171c1a978a4a4a5dab89dc4766749934c680d944b2f7c386e7a0c85",
+      "review_scope": "full",
+      "status": "reviewed-and-verified"
+    },
+    {
+      "path": "frontend/features/passports/components/group-whatsapp-match-table.test.tsx",
+      "sha256": "8a00af116f8166f143cb45d31b7cf0a27cf2c067b16a8982a07ecc48202d0d23",
+      "review_scope": "full",
+      "status": "reviewed-and-verified"
+    },
+    {
+      "path": "frontend/features/passports/components/group-whatsapp-replacement-keyboard.test.tsx",
+      "sha256": "604a7c5d853388d0b9c2c444130c0b09b13039887cf0b198412db1d141eb6e39",
+      "review_scope": "full",
+      "status": "reviewed-and-verified"
+    },
+    {
+      "path": "frontend/features/passports/components/group-whatsapp-dialogs.test.tsx",
+      "sha256": "ec41d7e6d701df9c0fa8af4e604a9b5510e046ad16807b88485eabdd10b826a6",
+      "review_scope": "full",
+      "status": "reviewed-and-verified"
+    },
+    {
+      "path": "frontend/features/passports/utils/passport-request-id.test.ts",
+      "sha256": "a48195c9cb4dadd4fe9b967b3faf9c5d0746fef17917fab39939fa7f80aef0e0",
+      "review_scope": "full",
+      "status": "reviewed-and-verified"
+    },
+    {
+      "path": "frontend/features/passports/components/group-whatsapp-source.contract-helper.mjs",
+      "sha256": "65bec11ddab4b03570d4878db14896deb724ef3da7800472d83b71244d3e4301",
+      "review_scope": "full",
+      "status": "reviewed-and-verified"
+    },
+    {
+      "path": "frontend/features/passports/components/group-whatsapp-broadcast-panel.contract.test.mjs",
+      "sha256": "6b2a790fc956ce3a9508efe23835b97f5baa7aad436610e7ca1daf746e5ee71b",
+      "review_scope": "full",
+      "status": "reviewed-and-verified"
+    },
+    {
+      "path": "frontend/features/passports/components/passport-group-detail-source.contract-helper.mjs",
+      "sha256": "c05a4380a3feab1183ff1c7ae45a372031f0ef308aaad1764f499d1703c76394",
+      "review_scope": "full",
+      "status": "reviewed-and-verified"
+    },
+    {
+      "path": "frontend/e2e-fixtures/group-whatsapp-replacement.spec.ts",
+      "sha256": "15329f464d4d2c8e9d8a143ccc170e26af2c1e0d0df2a4ff71c4281977a02ac8",
+      "review_scope": "full",
+      "status": "reviewed-and-verified"
+    },
+    {
+      "path": "frontend/e2e-fixtures/support/replacement-recipient-fixture.tsx",
+      "sha256": "2745b70c8d833de1a9f8111151126c2fafc890adbc8fd38d2a351e844f5dabf1",
+      "review_scope": "full",
+      "status": "reviewed-and-verified"
+    },
+    {
+      "path": "frontend/features/dashboard/components/dashboard-ui-transformation.contract.test.mjs",
+      "sha256": "9502bac53a5a7143fe7d2dee6faa934add4b8cd13a415b29762d3af38ed0b36c",
+      "review_scope": "focused",
+      "status": "reviewed-and-verified",
+      "review_note": "Changed only the actual group WhatsApp source loader; original assertion bodies retained/executed. No new full physical-read claim for the shared test."
+    }
+  ],
+  "maximum_owner_lines": 268,
+  "original_oversized_files": {
+    "workspace": 622,
+    "dialogs": 421,
+    "table": 417
+  },
+  "remaining_original_oversized_owners": 9,
+  "fixes": [
+    "A refreshed candidate query can no longer leave confirmation enabled for a removed recipient; button and handler both require the current candidate.",
+    "Replacement recipients now use native grouped radios with browser arrow/focus behavior, retaining selected recipient/request ID after failed save.",
+    "Long unbroken recipient names wrap inside the bounded choice surface instead of clipping; real project-CSS Chromium before/after evidence covers1440/390.",
+    "Two identical UUID retry-key bodies share the unchanged pure helper. Original export/roster caller names, preferred crypto API, byte/version/variant behavior and compatibility fallback remain."
+  ],
+  "proofs": {
+    "keyboard_baseline": {
+      "path": ".tmp/group-whatsapp-keyboard-before.json",
+      "files": 1,
+      "cases": 2,
+      "passed": 1,
+      "failed": 1
+    },
+    "recipient_refresh_baseline": {
+      "path": ".tmp/group-whatsapp-recipient-refresh-before.json",
+      "files": 1,
+      "cases": 3,
+      "passed": 2,
+      "failed": 1
+    },
+    "final_unit": {
+      "path": ".tmp/group-whatsapp-final-unit.json",
+      "files": 5,
+      "cases": 18,
+      "passed": 18,
+      "failed": 0
+    },
+    "browser_before": {
+      "path": "docs/audit/dashboard-2026-10-30/group-whatsapp-browser-before.json",
+      "expected": 0,
+      "unexpected": 2,
+      "skipped": 0,
+      "flaky": 0
+    },
+    "browser_after": {
+      "path": "docs/audit/dashboard-2026-10-30/group-whatsapp-browser-after.json",
+      "expected": 2,
+      "unexpected": 0,
+      "skipped": 0,
+      "flaky": 0
+    },
+    "node_contracts": {
+      "files": 3,
+      "cases": 49,
+      "passed": 49,
+      "path": ".tmp/group-whatsapp-final-contracts.txt"
+    },
+    "types": "passed",
+    "scoped_eslint": "passed",
+    "existing_passport_budgets": {
+      "modules": 77,
+      "passed": true
+    },
+    "movement": {
+      "path": "docs/audit/dashboard-2026-10-30/group-whatsapp-movement-proof.json",
+      "parts": 50,
+      "passed": true,
+      "note": "Native radio, long-name wrapping and current-recipient admission changes are explicit behavior corrections, separate from mechanical movement; earlier pure movement history retained."
+    },
+    "request_id": {
+      "path": "docs/audit/dashboard-2026-10-30/passport-request-id-dedup-proof.json",
+      "original_bodies_identical": true
+    }
+  },
+  "preserved": [
+    "Both public group workspace wrappers and tracking role/import-only admission guards.",
+    "Backend can_manage plus readOnly enforcement; compact summaries do not enable comparisons.",
+    "Status/broadcast filters, 50-row pages, complete filtered Excel scope, null/unavailable counters and reversible resolution payloads/request IDs.",
+    "Review-candidate versus accepted submission links, row focus identity, pending/error action suppression and native modal keyboard boundaries.",
+    "Private26/controller8/list7 checkpoint source hashes unchanged. Only the approved presentation feedback alias identity was refreshed, with previous receipts preserved."
+  ],
+  "screenshots": [
+    "C:/Users/nipun/Desktop/PassDetection/.tmp/ui-pwa-batch/replacement-before-390.png",
+    "C:/Users/nipun/Desktop/PassDetection/.tmp/ui-pwa-batch/replacement-390.png",
+    "C:/Users/nipun/Desktop/PassDetection/.tmp/ui-pwa-batch/replacement-1440.png"
+  ],
+  "limitations": [
+    "Browser cases bundle the actual recipient-choice component and actual compiled project CSS, with synthetic state, no HTTP service and all network requests blocked; they do not qualify the entire production tracking route or backend provider delivery.",
+    "No whole app build/suite repeated in this coherent feature batch.",
+    "The nine remaining original oversized owners and the pending mixed-export caller closure still require follow-through."
+  ]
+}

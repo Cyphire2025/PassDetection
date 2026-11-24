@@ -1,0 +1,104 @@
+{
+  "files": [
+    {
+      "path": "docs/remediation/phase2-audit.md",
+      "sha256": "bcaf1de1b6e93e63ee194e080b728ce8850ca10a3a045708650794c44bec0384",
+      "physical_lines": 26,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "Dated privacy-minimal sensitive-read audit vs deliveredbytes semantics; callertransaction failclosed and independent WORM/version/signature/checkpoint protocol/credential/rotation boundary. Operational externalanchor/alert setup explicitly deferred; no signing/storage credentials, externalaccount, provider or liveprotocol proof accessed."
+    },
+    {
+      "path": "docs/remediation/phase2-auth.md",
+      "sha256": "89f7710a172954d9a259792e79ecc5b12631c0638c0e0be31bf786e67607a0e0",
+      "physical_lines": 33,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "Dated dashboard sessionfamily revocation/replay/concurrentrotation semantics, fixed neutralerrors/Redis budgets/boundedbcrypt cancellation and legacy72byte verification versus newpasswordbyte limits;0109preservesnative rows. Actual copiedtoken/current source fix quality not inferred from oldresults; no authservice exercised."
+    },
+    {
+      "path": "docs/remediation/phase2-roster.md",
+      "sha256": "e614fbbf0dfc2d1599d6369511471425307d3b65ace9de2cb9887eeada26e8be",
+      "physical_lines": 33,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "Dated database-triggerrevision bound actor/tenant/filtercache, livevisibility beforecache and afterhydration, encryptedJSON/decompression and atomiccount/byte quota, authoritativefallback/SQLitebypass. Componentquery/cold/warm and finalmixedload measurements remain historical, not constanttime/VPS latency guarantee."
+    },
+    {
+      "path": "docs/remediation/phase2-service-integration.md",
+      "sha256": "c1ea8b9801438df0fde6c3b441d313068defcc199aac997034838c1f56dabd0f",
+      "physical_lines": 27,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "All27physical lines fully read. Exact163unique outcome reconciliation (162/163+corrected10family) vs uninterruptedgreenrun, isolatedservice/UUIDschema/searchpath constraints, runtimeprivileges, fixtureonly410catch preservation and sourceprovenance/overlap. No realprovider/currentPG or productionqualification."
+    },
+    {
+      "path": "docs/remediation/phase2-tooling.md",
+      "sha256": "36483071662ec20d632cee94b28fbf63b24975dbb57fc853628c11a6633aa85f",
+      "physical_lines": 87,
+      "physical_text_read": "complete",
+      "review_scope": "focused",
+      "status": "reviewed-focused",
+      "reviewer": "branding_visuals",
+      "notes": "All87physicaltextlines read. Focused retained shared source/release/provenance/pool/replica/dependencytoolchain/nativeCmemory boundaries, actualimage vs labels and explicitly scoped historicaladvisories/backports/temporary mitigations. Dedicated emailworker/memory references and nativeapp/privateattestation remain historicalcontext; no Inboxfeatureinspection, scanners/officialresearch/policyrenewal or currentexemption/activationclaim."
+    },
+    {
+      "path": "docs/remediation/phase2-workload-capacity.md",
+      "sha256": "4e89f4fe1c450ec4c5dc9e4da832a6240bdef692df33efd409b966e904e82756",
+      "physical_lines": 26,
+      "physical_text_read": "complete",
+      "review_scope": "full",
+      "status": "reviewed-full",
+      "reviewer": "branding_visuals",
+      "notes": "Exact historical fixedsynthetictenants/cohorts/actualaccepteduploads/scans/brokeridempotency and percentile/rate/recovery/resource envelopes read, sourcefences and priorfailures preserved. Explicitly no externalAI/email/WhatsApp/pushthroughput or productionwholehost/longsoak proof; no new capacity or causationclaim."
+    },
+    {
+      "path": "docs/remediation/reassessment.md",
+      "sha256": "de4093de181c26c74e1c283872bd0bae5b3824e5bf2000c184c58cd72389d0af",
+      "physical_lines": 125,
+      "physical_text_read": "complete",
+      "review_scope": "focused",
+      "status": "reviewed-focused",
+      "reviewer": "branding_visuals",
+      "notes": "All125physicaltextlines read. Focused retained shared historic engineeringjudgment and44group accounting, separatepartial/operationalgates, selectedcriticalcoverage vs wholefrontend, serviceoverlay counts and backup-presence vs restore/PITR/alert receipts. Mixed Inbox/nativehistoric assessment not newfeatureaudit;6.8/10 is oldcandidatejudgment not currentrating."
+    },
+    {
+      "path": "docs/remediation/reliability.md",
+      "sha256": "15100f96608fcf7d8112a218dfffe9b5923380cca29a9429dbcb56d55498c8f0",
+      "physical_lines": 232,
+      "physical_text_read": "complete",
+      "review_scope": "focused",
+      "status": "reviewed-focused",
+      "reviewer": "branding_visuals",
+      "notes": "All232physicaltextlines read. Focused shared FKfixture vs realparentinsertbug, actualbranch/global/criticalfloors, coverageappend vs cleanno-coverage run, realimage/TLS/privateupload/providerfake and ECRsavepoint/queue/Prometheus vs humanalert distinction, exactsyntheticrestore limits. HistoricalInboxweakcoverage/context not deeperfeatureaudit; no livePG/Celery/restore/networkclaim."
+    },
+    {
+      "path": "docs/remediation/service-integration.md",
+      "sha256": "e06243d24394826c114928d3279c905a3cb13da266c59810148f6094cbd3115f",
+      "physical_lines": 78,
+      "physical_text_read": "complete",
+      "review_scope": "focused",
+      "status": "reviewed-focused",
+      "reviewer": "branding_visuals",
+      "notes": "All78physicaltextlines read. Focused retained isolatedservice/currentimage/rowprivilege sourceprovenance,132unique splitrun versus uninterruptedsuite, retained genuinevalidation/idempotence assertions and guardedRedis optin. Dedicated legacyemailownership paragraphs read only as mixedcontext, not revivedInboxaudit or currentconstraintqualification."
+    },
+    {
+      "path": "docs/remediation/status.md",
+      "sha256": "6f8be6c3827a620b9fb5e41093a03cbac96ddc6b4fd363c3b810fde65f66d87e",
+      "physical_lines": 135,
+      "physical_text_read": "complete",
+      "review_scope": "focused",
+      "status": "reviewed-focused",
+      "reviewer": "branding_visuals",
+      "notes": "All135physicaltextlines read in1\u201350/51\u201395/96\u2013135 including longtables. Focused retained shared historical44formaldenominator/partial-vsclosed/unnumberedseparation, snapshot\u2192supersedingregister links, sourcefix vs production and test/platform/evidence boundaries. Nativeexcluded rows and dedicatedemailconstraint references are context only; no privateexternalaudit/customer/backup contents read or historicalpending counts adopted as current findings."
+    }
+  ]
+}

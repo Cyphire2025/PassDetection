@@ -1,0 +1,13 @@
+{
+  "command": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "mypy",
+    "app/infrastructure/database/email_models.py",
+    "app/infrastructure/database/_email_models"
+  ],
+  "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection\\backend",
+  "exit_code": 0,
+  "stdout": "Success: no issues found in 9 source files\n",
+  "stderr": ""
+}

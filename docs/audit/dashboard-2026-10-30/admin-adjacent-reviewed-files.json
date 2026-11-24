@@ -1,0 +1,29 @@
+[
+  {
+    "path": "backend/app/presentation/api/v1/routes/admin_accounts.py",
+    "sha256": "638ef77f114dca2696916fb8bfa68e73a8120dff51a6264c5172cb19a7437b76",
+    "physical_lines": 620,
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "All620current physical lines read. Current account management scope and session/mobile fencing preserved. Next architecture tranche: separate list/invitation/credential/session/status/deletion owners; trace duplicated credential projection and mailbox-owner scrubbing. Suspected invited-state loss in status response requires actual persisted-route reproduction before any bug claim."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/admin_whatsapp_templates.py",
+    "sha256": "2b9c63f2c7de677f8dc21c6b61d8f6f9337dc42ac16aa3ccc1a59a72333bc1f8",
+    "physical_lines": 131,
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "All131current physical lines read. Role/MFA/CSRF dependencies, revision conflict path, first-row ON CONFLICT arbitration, append-only audit and request-local memo traced. No vulnerability established by this source review; no new execution claimed."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_admin_accounts.py",
+    "sha256": "67a54c0554ea9a9c4a3b98f1639b2cb4f12dc3380b97c71b878814d8305c58c9",
+    "physical_lines": 547,
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Whole547-line current test source physically read in complete ranges. Existing management-scope, cookie/MFA, desktop/mobile revocation, reset one-time links, ordered group locks and retained history assertions mapped for next tranche. Not newly executed yet."
+  }
+]

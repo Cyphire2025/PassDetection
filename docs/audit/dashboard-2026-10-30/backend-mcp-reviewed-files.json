@@ -1,0 +1,642 @@
+[
+  {
+    "path": "backend/app/presentation/mcp/__init__.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "a2237310d4634236784291662900919ccddc8a04ddd493e07e374e9715cc174d",
+    "physical_lines": 1,
+    "notes": "Full module docstring read; no executable registration side effect.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/access_change_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "cefb9bc1fbe6b4ee93c3617c33931026da70a81fac2731f36bd0590598579082",
+    "physical_lines": 181,
+    "notes": "Full181 lines: bounded distinct group additions/current inspected SHA revision, canonical recent-MFA receipt checks and safe domain errors; no existing membership replacement/removal or credential changes.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/admin_overview_read_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "f08c2fafdc022c64b50b402048f5e16d0a9057322cd04e5ffaaca0e6084ba281",
+    "physical_lines": 40,
+    "notes": "Full40 lines: one static aggregate read, current principal and common authorization boundary, fixed busy/limit messages; no scope override or service-health claim.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/analytics_read_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "3f7cddc64b5f8bbb03281a7d0aef8dc8935dc835d00ee24febe6960305bf3aa8",
+    "physical_lines": 54,
+    "notes": "Full54 lines: days-only canonical aggregate adapter, documented clamp/non-atomic/timezone/confidence semantics, fixed public errors; no file/effect input.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/announcement_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "f531a07b633f1a176043f546317f8a003ddc48321a8dd9d8d0f6ce9c82235cfe",
+    "physical_lines": 272,
+    "notes": "Full272 lines: append-only draft/revision models force publish=False, current GC access/retained version descriptor with scoped query and safe messages, canonical support, no push/publication implicit.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/attendance_read_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "32c6ab687060eb2732406711692a8bce74ee9d728d5aa9c31f58d3fa54d13dcf",
+    "physical_lines": 89,
+    "notes": "Full89 lines: exact group/session with inspected snapshot revision for bounded missing pages; counts/aliases/current roster distinctions explicitly documented, names-only source limits; no physical evidence or close action.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/broadcast_link_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "91da2bd01ebde3e23d3cef477384b3c973e32d6ec675357b33b6a61bdea0256d",
+    "physical_lines": 208,
+    "notes": "Full208 lines: exact tenant/group/broadcast/matching options, bounded distinct fields/revision, static canonical retained-effect gates, additive-only operation and current receipt validation; no revivals/replacements/private-send cancellation.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/broadcast_write_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "e0030c72f9f3c33b31bf439e69548c4a9e14d836f9edb5947218b675c416b011",
+    "physical_lines": 301,
+    "notes": "Full301 lines: strict bounded contacts/support fields and explicit opt-in, tenant+revision locked retained history, canonical creation/update/add-only paths, static errors and no provider dispatch; receipt rechecks current scoped active resource.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/business_admin_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "35d5d576bf16380ed5394dd150d107d48e3860d6b8c960afb9baf8232399daf2",
+    "physical_lines": 369,
+    "notes": "Full369 lines: explicit invited workforce/client-manager account DTOs without credentials, MFA/current-group GC settings, expected revisions/timezones and canonical validation; fixed conflict errors and current receipt scope. No provider invitations or implicit group grants.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/client_detail_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "56f2d20e6442563d91710b410fd74e7da20183b75c6181847a75c078f528e22c",
+    "physical_lines": 136,
+    "notes": "Full136 lines: sparse nonempty corrections, current descriptors and sensitive-read audit, typed custom IDs/revision, before-history through canonical operation, blocks null/blank clears and no passport/image/status/send fields.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/contact_import_support.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "249bc73c2f70766003d55c639f7a85dce00c856b83552f85881828a3fb7028c5",
+    "physical_lines": 55,
+    "notes": "Full55 lines: only fixed canonical normalize/map/create functions; HTTP exceptions translated to static operation errors, no arbitrary import/fetch callback.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/contact_import_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "2c7c68b9c3e84cb8a2a5468d82e53a0698c2487defedf15d0f6c8441edded0dc",
+    "physical_lines": 169,
+    "notes": "Full169 lines: original uploading-connection workbook ownership, bounded literal row previews/truncation notice, exact mapping/hash/opt-in creation, no sends; static source/mapping failures and immutable-source one-use contract delegated to canonical service.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/content_read_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "5e4697bd6326c3585aff73b5140b0919228be17ba295fb49e9fca7c42a8bb5de",
+    "physical_lines": 87,
+    "notes": "Full87 lines: fixed enum-selected GC/notification/email service methods, scoped current actor and bounded cursor options, contact/text opt-ins; mailbox ownership explicitly not replaced by superadmin role. No arbitrary callable target.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/dashboard_edit_models.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "a94f1f160c3ed3986f3be607566b406ee7e91aa298a0ae7676b7e4a4fa69eac9",
+    "physical_lines": 157,
+    "notes": "Full157 lines: reviewed partial group fields cloned without replacement validators then canonical validation after merge, extra-forbid exact scopes/revisions, additive hotel selections and explicit destructive-plan review flags. Active rooming/menu validators retained.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/dashboard_edit_operations.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "f0febe1f28aaf5f17bb31616fec3c7ae72e4fea4b5b5b9b22da6367e4879bddd",
+    "physical_lines": 302,
+    "notes": "Full302 lines: static target mapping, tenant/group locks and inspected revisions, preserve-unspecified canonical validation, bounded retained before-images, canonical audited writes, rollback on unsafe oversized result, current scoped receipt authorization.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/dashboard_edit_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "c20325649d5fb11a681bbf1e5bd7bd020ff5b5e94427871418cee41208431f0c",
+    "physical_lines": 65,
+    "notes": "Full65 lines: dynamic tool functions generated solely from static reviewed name/model registry; typed schemas, stable retry keys and explicit change guidance, no arbitrary handler selection.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/dashboard_read_adapters.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "cf1ca7ba592f2b29d8e5609f4b0e2e263b8b728e5572fa2590b4826a398ab91a",
+    "physical_lines": 388,
+    "notes": "Full388 lines, recovered first105 after truncation: observational equivalents avoid minting file URLs/QRs or recovering jobs; real canonical private-image/passport/group checks; stored broadcasts/receipts scoped by selected tenant. Generic adapters rely on outer superadmin+section+projection boundary, not independent HTTP exposure.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/dashboard_read_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "f644d0590c28257feb5f3a9a05092e88fe10fc9a497023712e85d8cceeda2856",
+    "physical_lines": 300,
+    "notes": "Full300 lines, recovered275-end after truncation: static module/handler catalog, inspected typed schemas/strict argument validation/input bounds, live per-view section union and superadmin actor/group/resource agency scope, observational transaction wrapper, shared scrubbed projection and signed continuation; canonical dependencies only.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/dashboard_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "2c8bdf718ad8681cf7f9b69f2fc734d985d21e9d73d53aa06ef5db7ea09d8796",
+    "physical_lines": 40,
+    "notes": "Full40 lines: canonical agency summary invoked only through common read boundary; fixed bounded limit error, no agency/global override or mutation.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/dashboard_workflow_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "37961dd1ff127e9bac25e51d63ebad7bd8b12906905bad6252877bc695483f14",
+    "physical_lines": 105,
+    "notes": "Full105 lines: static workflow model registry/schema discovery, per-selected-workflow tool access, resource/tenant queries and current revision. model_construct used only for static lookup fields; actual mutations retain full typed validation.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/dashboard_write_errors.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "21e6dcd78cfe66d3e883d1fc5f31ada643e9cba2d2c1cd9e25c4869affa833a3",
+    "physical_lines": 22,
+    "notes": "Full22 lines: fixed code-owned public messages; no source row/exception text interpolated.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/dashboard_write_support.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "6b4f34236297cec03c317ed4f09c3f54c32d7ad47c213633cbbd05a840b34d22",
+    "physical_lines": 90,
+    "notes": "Full90 lines: static reviewed result sanitizer/private-field exclusions, real actor preserved when tenant scope selected, no invented client address, deterministic revision hash and row lock with tenant/deletion checks, fixed canonical HTTP error mapping.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/delivery_read_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "f40c430c44e20868f0e48584a0e51abd136f78180e8d85c98321166dfe651fc9",
+    "physical_lines": 49,
+    "notes": "Full49 lines: fixed delivery kinds, explicit scope/filter/contact/deleted flags, bounded cursor, attempts separated from passenger/delivery success; no retry/send effect.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/diagnostic_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "1c23f141047f119bade3e5a6f29e296a5976caf1cabb260fe493542eae1ea5be",
+    "physical_lines": 90,
+    "notes": "Full90 lines: fixed source enum, UUID correlation, bounded100 limit and sealed log root only; diagnostic capability/current device read checks, no arbitrary path/command input. Service validates time windows/redaction; not independently qualified here.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/document_assignment_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "bee51117fcc6cff7e0d15689328f5dfdc36a38764379376e392da3efebab1e8d",
+    "physical_lines": 121,
+    "notes": "Full121 lines: exact group/lane/source queries and bounded1000 batches/files, deterministic review hash and processing guard, canonical save only with explicit review, no sends; receipt rechecks original batch tenant/group/lane membership.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/document_delivery_snapshots.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "a0c00b7178abcca76cbc77e9412ff287161f14b886a5714466792fec255228d4",
+    "physical_lines": 142,
+    "notes": "Full142 lines: actual group/batch scope lock/current user, PDF/matched/source/saved-batch checks and capacity, exact selected document set/hash, canonical queue projection inside rollback-only preparation savepoint; no broker/provider call in preview.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/document_delivery_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "f003b3a96605b1a2dc6b239ec2a9442250e2053dc1b645dfaa416071f25d955f",
+    "physical_lines": 74,
+    "notes": "Full74 lines: prepare/confirm DTOs and exact-hash explicit final approval, immutable source references/database revisions distinguished from byte hashes, operation registration does not dispatch providers directly.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/document_export_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "8ad5f62a692c803d0b9b694dbd006d4072fa4a7d13459db1ac990b51382ac589",
+    "physical_lines": 218,
+    "notes": "Full218 lines: fixed canonical review/export helpers, typed lane/filter/revision, no PDF-byte/URL exposure, durable bounded generation and same-operation recovery. Static safe errors; no sends or assignment mutation.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/document_read_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "6fec845a3c31ffc51739b6d9eff110550e0822ba5754737562d65228586236d7",
+    "physical_lines": 95,
+    "notes": "Full95 lines: static document lane/status selectors, bounded metadata/jobs/batches pages, current actor/resource service, extracted identifiers opt-in; no URL/queue/retry action.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/ecr_read_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "5eacafa33d5274c41cb4b4fee4d293cfea51cbe55c5d1fc07fc3184342018de0",
+    "physical_lines": 71,
+    "notes": "Full71 lines: own-current-agency service only, bounded pages/cursors and fixed failures, metadata separated from file capability and processing.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/email_overview_read_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "c4f6fdd56ea4f1b7d8a98c529ca81f94375400ce3fcbf6b848d960fc4e05f091",
+    "physical_lines": 52,
+    "notes": "Full52 lines: current personal mailbox counts/config readiness flags only, fixed errors, no provider network call or credential/other-user selector.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/excel_options_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "660a0e18d184e4aee2f75a6f228d37ce5ad14a2976555c9112cdef01071bbeb2",
+    "physical_lines": 55,
+    "notes": "Full55 lines: canonical exact field catalog without samples/history, current export authority through common boundary; source/busy/limit errors static, no partial silent truncation.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/export_history_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "5a3b06d74a8a8ef3f5774d9715caaf1e0118d45e86b05ee4cb8ae6f23969c9f0",
+    "physical_lines": 77,
+    "notes": "Full77 lines: fixed history kinds and bounded live cursors/pages, explicit personal/deleted opt-in, retained checkpoint metadata separated from file delivery or recovery.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/export_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "08bddc23ce32ac4ea2c82587d275dc8b5ffcd86e355c0ef8396a8e090a96ec40",
+    "physical_lines": 214,
+    "notes": "Full214 lines: typed inspect/preparation/resume, durable receipt before generation, current capability and protected artifact service, safe error/audit metadata, delivery-ack-only history completion. Repeated orchestration candidate tracked, no refactor during freeze.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/gc_push_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "c9a7563bfee9b4c3bb247aa95931ee9c6b815b0c2fdd54b0f301d5976d10efa7",
+    "physical_lines": 139,
+    "notes": "Full139 lines: exact authored draft revision/bounded groups/people/devices, separate final approved hash confirmation and no content overrides, owned preview/current receipt/progress status separated from delivery. Dispatch implementation not requalified by this presentation read.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/group_change_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "c39d1539df3ff97366a202d1f20f066daa0cd3e11238c9748eefdf81db875690",
+    "physical_lines": 109,
+    "notes": "Full109 lines: static copied creation field types with canonical audited cross-field validation, explicit agency/owner/collection confirmation, no broadcast-link replacement or secure upload token response.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/group_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "f0f0bb06d3b46c27d9db05c677d97fd86ba9f86e057acee2aa2cd63e745f66fe",
+    "physical_lines": 127,
+    "notes": "Full127 lines: bounded signed-cursor list/resolve/roster adapters, current principal passed explicitly, separate counts/filter/contact opt-in semantics; no upload-link secrets fabricated or scope inferred from names.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/group_workbook_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "2b3d254311948594925e6a884edbcc1cdf75d74f25363f8c453b56b7e36ac9b4",
+    "physical_lines": 137,
+    "notes": "Full137 lines: fixed canonical identity/merge/reauthorization helpers, exact staged source/agency/group/revision, safe exceptions, separate preview and apply, preserves images/status/attendance and client-submitted new status; no URL/path input.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/image_export_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "3fa807f5d6864de6170ac88a46da650e59dde084475d77a2a17670d8012e99f9",
+    "physical_lines": 215,
+    "notes": "Full215 lines: exact image export request/revision, source service composition, lock-busy recovery, no raw storage exception response, durable operation then protected generation. ZIP/crop/source implementation not reclassified as fully read here.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/inventory.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "b300d6316b111b0de452dd03dd61a883a5ac522d7cf51c8265d3d1351c4754bc",
+    "physical_lines": 89,
+    "notes": "Full89 lines: registered current tools intersected with deployment/global permissions; qualification explicitly in-progress, dynamic transfer choices and notices distinguish metadata from tenant access. No credentials or personal records.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/invocation.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "45e4644ccb2deba42cab1f963980bdb6206a058145045993c51d29371792174f",
+    "physical_lines": 308,
+    "notes": "Full308 lines: policy validation, SDK-token reauthorization/section checks per invocation, static exception categories/messages, rollback-before-audit and durable operation receipt handling. Arguments/raw unknown tool names are not persisted in failure audits. SDK modern generic-error mapper inspected separately; no raw exception-to-wire claim.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/management_audit.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "634e0f8b4461759375d928e09891f2ad49b7533dac15f01bd5c2c28fc96a8cf7",
+    "physical_lines": 173,
+    "notes": "Full173 lines: code-owned endpoint/action names, UUID-only attributed IDs, static failure classification, separate post-dependency-cleanup session,3s timeout, preserves original rejected response during audit outage; logs fixed event without raw request.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/native_transfer_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "932816b8a53dfe1f155066fb47ce741921125026ec79b552941dc064c00c833d",
+    "physical_lines": 152,
+    "notes": "Full152 lines: limited handoff callbacks use actual SDK bearer, scoped service authorization, static fallback errors, no secret-bearing payload stored in operation/audit. Handoff returned only after commit. Underlying runtime/resource checks require supporting service review.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/notification_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "40bbb5825bb70331103616c59b22031e3b9adc3b0d2ec9580bf7a538c221fd27",
+    "physical_lines": 67,
+    "notes": "Full67 lines: personally targeted list, bounded priority/cursor and explicit single-ID acknowledgement through durable idempotent mutation; no read-mark side effect or other inbox selector.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/observational_session.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "3aab2d7935fbf6e54379a85a3b6d5932132e5790dfe48746a1b1f2f415e5b2f5",
+    "physical_lines": 56,
+    "notes": "Full56 lines: outer authority lock transaction retained; SQLAlchemy guards block business DML/dirty ORM flush and inner commit, while audit tables permitted; hooks removed in finally and deferred dirty state checked before exit. No caller-supplied SQL entry.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/office_change_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "e42b0271f36914a44b51bd85e5332a83f157ef197734504384dbbe339fd5ee67",
+    "physical_lines": 221,
+    "notes": "Full221 lines: fixed additive menu/hotel model registry, explicit platform-null versus tenant scope, bounded category/dish revisions and trip length, canonical service validation, safe errors and stable idempotent retries.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/operation_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "5e1d11f45d77a044497ed523de909cf2304602b665918242d2121bb183beb63c",
+    "physical_lines": 61,
+    "notes": "Full61 lines: inspect only original operation under current token/capability/resource service; no replay/redispatch, audit IDs and static failures. Replacement connection recovery explicitly documented.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/operations_read_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "9f6cab64c484d38dd17785cef3bd30092a76d58e17841b342d0f444cf4787218",
+    "physical_lines": 106,
+    "notes": "Full106 lines: fixed tour/rooming/menu/directory selectors, exact resource IDs and signed page options, current actor service, distinct contact opt-in and physical-evidence semantics; no arbitrary dispatch.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/pdf_ingestion_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "55cc7c0d8125272e294089329e9dfb56e8991f0d9664ef819c68144de62167b3",
+    "physical_lines": 299,
+    "notes": "Full299 lines: fixed canonical receipt/matching/capacity/locking helpers, private malware-scanned artifacts, durable claim before bounded ingestion, safe busy/conflict failures, explicit resume with original operation, no ambiguous-commit compensation or approval/send behavior.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/permission_listing.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "f77aeaed48fc6db7f30e30502ec27d9ee92a8ed99397ee7a13ea842c1efc2f0f",
+    "physical_lines": 254,
+    "notes": "Full254 lines: current global/device scopes and exact tool allowlist intersected; dynamic native upload/export lane availability, original-operation metadata and effective capability filtering. Discovery is not resource authorization. Typed/wire envelopes retained; current grants revalidated.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/phone_difference_read_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "28f5a475f5a75f5274ec44a3221e766a83402f2ae72fe09270f6d056968d7086",
+    "physical_lines": 72,
+    "notes": "Full72 lines with recovered tail: canonical matching helpers statically composed, bounded offset/revision and current read lock, observational guard around matcher, static current actor; output phone comparison is explicit authorized data read.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/rate_limit.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "451c90d08ead83ad422325b8495a078b696b687a03671d5182dd27d75a6eb99a",
+    "physical_lines": 89,
+    "notes": "Full89 lines: authenticated grant-derived per-minute key, production Redis fail-closed503, bounded2048-entry development LRU, fixed429/503 private headers and Redis close. No unverified bearer text used as quota identity.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/rename_read_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "9171d2ef3deedbce9b03371cabd662e312133149723273c6e32ba40e7f48a2b2",
+    "physical_lines": 74,
+    "notes": "Full74 lines with recovered module header: own-agency-only services, bounded strict pages/cursors and extracted identifier opt-in, static domain-error mapping. Filenames remain untrusted presentation data; no storage/delete/download authority.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/retention_read_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "228bec10e10056f32ead45df6a9eed1f477b452b938c14a8c16a001b4f22244f",
+    "physical_lines": 55,
+    "notes": "Full55 lines: one explicit group schedule read, fixed unavailable/busy/input messages and current superadmin scope service; no purge schedule mutation or implied execution/file availability.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/rooming_export_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "642ba33fff1a2c2cffbc4e7af741d97789d86ce0cba26157d0c852f951d19c6e",
+    "physical_lines": 197,
+    "notes": "Full197 lines: exact hotel/group selection, current authority recheck/recovery, safe errors and audit, no allocation/check-in mutation. Repeated safe orchestration only maintainability candidate.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/server.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "1bcec7d9de9b47602526c7b9a903d2350e4d857b7d826a5eb9de70b233cb6846",
+    "physical_lines": 347,
+    "notes": "Full347 lines (recovered261-end after initial truncation): SDK registration allowlists/read-only release gating, live token verifier, no arbitrary handler entry, connection status filtering,1MiB request bound, resource audience validation, DNS/origin protection, authenticated quota ordering and composed lifespan cleanup inspected.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/tour_change_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "d7ecc05b63ca7b8ae2ce41dadb7bc1ed02c5e379c06e92a033c246a6d1c9cfbd",
+    "physical_lines": 258,
+    "notes": "Full258 lines: distinct bounded coordinator additions/activity schema and normalized aware times, static canonical services, retained itinerary version/day/item DTOs, existing activity changes forbidden, safe errors and no scans/check-ins/physical evidence invented.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/tour_evidence_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "7d2f23c7602dd21b012ed161888d5ce30f25cf589e5609016c1d1d0c2fbb5869",
+    "physical_lines": 106,
+    "notes": "Full106 lines: exact scoped existing QR image as native content (not raw text secret), fixed5s timeout, bounded activity cursor service; no generation/activation or attendance action and no source/path override.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/tracking_export_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "4a11c63da3e32352231f01f3d0deacfd47ff10ce20b217092f72914af43b6cdf",
+    "physical_lines": 197,
+    "notes": "Full197 lines: linked-broadcast tracking request/revision, durable preparation/resume and private artifact result; distinguishes tracking from passport history/messages. Repeated safe orchestration only maintainability candidate.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/travel_tracker_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "0ed369200d46cf8e46adf6c4362880c94bdc02399457f500c488f22a95c44204",
+    "physical_lines": 287,
+    "notes": "Full287 lines: current canonical tracker list/roster with bounded pages and explicit next-page completeness, typed mark/import/review hash/idempotency, export family gate/current protected artifact preparation and recovery, native delivery kept separate from progress changes.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/whatsapp_intent_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "3eb3004b275a197535d3d91aef25f4b0531a0e57ce4d6148edcc652661e73f4b",
+    "physical_lines": 203,
+    "notes": "Full203 lines: bounded distinct explicit audience/message, exact plan+hash+LiteralTrue final confirmation, safe cancel semantics, original owned plan read and progress catch-up without provider re-send; queued/accepted/delivered distinctions retained.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/whatsapp_message_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "ce42d056f6b4fa3c1f08198873d65454ebf214a71fd4480655eeba8b60584fc7",
+    "physical_lines": 263,
+    "notes": "Full263 lines: supported template DTOs with extra fields forbidden, owned ready media current sender/broadcast checks and lock recheck, linked same-agency active passport source, safe URL encoding, exact snapshot and no confirm overrides.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/whatsapp_read_tools.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "d573ea429b739510fcea4bdf1dbbcd8f71f01bc1f6e2f037f7387cba7437f4aa",
+    "physical_lines": 96,
+    "notes": "Full96 lines: bounded broadcast/audience/batch service adapters, separate contact opt-in and removed/archive flags, original attempt destination semantics, no provider retry/send/consent inference.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  },
+  {
+    "path": "backend/app/presentation/mcp/whatsapp_snapshots.py",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "07687af1f1f17540f12757428083aa13243e9085a4112e26969ed709b2fa1784",
+    "physical_lines": 119,
+    "notes": "Full119 lines: canonical queue eligibility/frozen language/provider-unknown suppression, bounded actual queued audience, retained exact destinations/template/body; dry-run savepoint rolled back before any persisted send claim. No broker/provider dispatch in helper.",
+    "limits": "Full physical source review of this presentation file; static dependency/caller traces and passing tests are not a full-read claim for downstream services, live provider/Redis/PostgreSQL/storage or deployed MCP transport qualification."
+  }
+]

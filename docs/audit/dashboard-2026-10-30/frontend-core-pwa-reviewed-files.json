@@ -1,0 +1,236 @@
+[
+  {
+    "path": "frontend/config/api-routing.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "fec412f0df3c1de6e71a640853587d1d823f2221c4bf7a99002cfbdc5d1b0b6f",
+    "physical_lines": 53,
+    "notes": "Full53 physical lines: validates HTTP(S) absolute origin without credentials/query/hash/path; server/browser origins separated, development-only localhost fallback, production rewrite requires server-side setting. No provider invocation."
+  },
+  {
+    "path": "frontend/config/e2e-isolation.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "1bc1311256650ab153334dac3c1c7b6b408087d1f1eccb8ccb2b1864a05b2ea9",
+    "physical_lines": 25,
+    "notes": "Full25 lines: synthetic loopback frontend/backend origins override inherited public/server API origins; isolated fixtures environment and ports, no production credentials read."
+  },
+  {
+    "path": "frontend/config/visa-face-detection-assets.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "3385f68886abeca3d99f260bb7c651a20a39a04e3217712354fa8892369638bb",
+    "physical_lines": 7,
+    "notes": "Full7 lines: local vendored MediaPipe base path/version and required model/graph/loader filenames inspected. Compiled asset metadata verified separately; no model accuracy claim."
+  },
+  {
+    "path": "frontend/constants/index.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "353eea44f0b48b0c55239c96ac0cd9d7d169ce9894ec508c381d7c176b8e6197",
+    "physical_lines": 90,
+    "notes": "Full90 lines: dashboard branding, default pagination, upload MIME/extensions, status/query/cache constants inspected. Declarative constants are not runtime authorization."
+  },
+  {
+    "path": "frontend/constants/routes.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "cf0553f85256c4b7a14cb15f34814b4b17b4f8b9d1a51a7589bb2ece17516a2d",
+    "physical_lines": 95,
+    "notes": "Full95 lines: typed navigation routes and encodeURIComponent for dynamic IDs; sign-in and coordinator destinations retained, no route/workflow renaming."
+  },
+  {
+    "path": "frontend/eslint.config.mjs",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "dc9f3a95948d4277e102d267fff8d75c4541200b81d02512d8e7141a08c2e77e",
+    "physical_lines": 29,
+    "notes": "Full29 lines: Next/TypeScript presets plus generated/vendor/e2e-output ignores; application runtime paths remain checked. No lint gate changes."
+  },
+  {
+    "path": "frontend/hooks/use-debounce.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "d3ac5719369837daabf0ee753a5eebdd65c28a375ce528a6d5cafa26dde7c59a",
+    "physical_lines": 25,
+    "notes": "Full25 lines: value/delay timeout reset and cleanup on unmount; generic typed debounce does not retain prior timers."
+  },
+  {
+    "path": "frontend/lib/api/endpoints.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "ba21978b83b0808062782562726df9d14eb3080f858f7b5078fd4e4febd51f34",
+    "physical_lines": 465,
+    "notes": "Full current465 lines reread in bounded ranges, recovering truncated fragments before full status. Central same-origin API route registry, private file URLs and legacy/current route contracts; some UUID segments rely on validated/scoped callers/backend. No authorization inferred from URL composition."
+  },
+  {
+    "path": "frontend/lib/navigation/typed-routes.typecheck.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "bcac76f3160295176376527530c5ea4b495e0d69e63175099cf7fbd17c920227",
+    "physical_lines": 14,
+    "notes": "Full14 lines: compile-only positive/negative typed route assertions including @ts-expect-error, intentionally retained though not app runtime reachable."
+  },
+  {
+    "path": "frontend/lib/observability/route-templates.json",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "5bf3e6d978e740935e10bb1a452e62fe0274e2c33b86487316c3c1e04e1552d4",
+    "physical_lines": 83,
+    "notes": "Full83 lines: finite route templates replace dynamic IDs for observability; no passenger values or secrets embedded."
+  },
+  {
+    "path": "frontend/lib/utils/pagination.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "6e32956db89c2cb8d0fd57d090a51c70bc33b9fc27ea4fcd335ee30877d34d16",
+    "physical_lines": 4,
+    "notes": "Full4 lines: offset clamp assumes caller-validated positive pageSize. No demonstrated invalid caller or runtime regression; not expanded speculatively."
+  },
+  {
+    "path": "frontend/next-env.d.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "0f70629890b72a0a82e91972cc032c04b658b26c265373cb711cf576bfbf8fcc",
+    "physical_lines": 7,
+    "notes": "Full7 generated declaration lines read; Next type imports and current generated dev routes reference. Generated file not manually edited."
+  },
+  {
+    "path": "frontend/next.config.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "806d75de101be36e1a52c30956f40fe200cfb5165c9726f9402f4454a3f5e5e0",
+    "physical_lines": 122,
+    "notes": "Full122 lines: strict standalone/type-checked build, typed routes, same-origin server API rewrite, private no-store headers, narrow public offline caching, service-worker revalidation, security headers and image rules. Supporting proxy /ai override permits local microphone; no false global microphone-block claim."
+  },
+  {
+    "path": "frontend/package.json",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "8c8e2c46658b76bb4b0c7578330ba610d4741be63f30943d5fb262ed73030463",
+    "physical_lines": 68,
+    "notes": "Full68 lines: reviewed exact dependency/scripts/overrides and prebuild MediaPipe check. Metadata inspection is not new dependency vulnerability qualification; no package or lock edits."
+  },
+  {
+    "path": "frontend/playwright.ai.config.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "38e044e208d2b8e794cc618f8d57457bd06116a864bfec647e6f99d2eacda50a",
+    "physical_lines": 34,
+    "notes": "Full34 lines: isolated3126/3226 synthetic fixtures, bounded workers, no reusable unknown dev server, local voice-only checks."
+  },
+  {
+    "path": "frontend/playwright.config.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "a6b07a340d745641ee593806d5a4eec135d7602f1b2ad4f8166b3f8fb468240c",
+    "physical_lines": 54,
+    "notes": "Full54 lines: explicit loopback fixture origins, dedicated services/ports and worker bounds; test outputs local and no real provider sends."
+  },
+  {
+    "path": "frontend/playwright.fixtures.config.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "405c7147f9ca3c04d6cab516be4f879b83f9b52636edf4138399896121f325e3",
+    "physical_lines": 13,
+    "notes": "Full13 lines: isolated fixture-only browser configuration; no deployed app/server reuse."
+  },
+  {
+    "path": "frontend/playwright.mcp-read-only.config.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "e6761f7c31fb3f4e85459a625da1458b47c37125c1f712fbcb28d28099d52635",
+    "physical_lines": 15,
+    "notes": "Full15 lines: worktree-specific isolated MCP browser setup and environment inherited from reviewed baseline; no live MCP write performed."
+  },
+  {
+    "path": "frontend/playwright.real-stack.config.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "174dba648ddf9852d90ea6a8e1b7b4316180e7698cc20ac802452a104c383e9e",
+    "physical_lines": 27,
+    "notes": "Full27 lines: explicit RUN_REAL_STACK opt-in and local HTTPS service targets; no real stack execution in this read-only lane."
+  },
+  {
+    "path": "frontend/postcss.config.mjs",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "dfac7ac2d86d326a0e5adb024e7943c181393ed17a5fcb8f0315b24c7da6ddde",
+    "physical_lines": 7,
+    "notes": "Full7 lines: Tailwind PostCSS plugin only, no dynamic external plugin resolution."
+  },
+  {
+    "path": "frontend/public/email-automation.webmanifest",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "5e270da9d5e9fa2cc7668e44f97b7a99ffd006bb804a44958cbdcf5e7709fd90",
+    "physical_lines": 10,
+    "notes": "Full10 lines: standalone scoped email-automation manifest metadata/icons. Legacy sub-product naming retained pending branding semantics; no cache/private data embedded."
+  },
+  {
+    "path": "frontend/public/offline-scanner.js",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed_with_open_finding",
+    "sha256": "8a85fd57922122905d90a067cb27cbbe12ea08e1c179ee0523e7cde15845a7cc",
+    "physical_lines": 1266,
+    "notes": "Full1266 handwritten physical lines read in bounded groups. Signed Ed25519 authorization, trusted-time rollback fences, owner-indexed IndexedDBv5/AES-GCM queue, QR hashing/roster checks, idempotency references, bounded5000 queue, migrations/quarantine, camera lifecycle/serialized reconnect and textContent-only output inspected. No fetch/XHR/WebSocket/beacon. Proven runtimeId return omission remains OPEN for post-freeze fix; see findings. No compiled-vendor full-source claim."
+  },
+  {
+    "path": "frontend/public/offline.html",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "91cac99ee96e5e78f4bc287e67116ce1751a51c7e7e4daf053664689ea0dd3cc",
+    "physical_lines": 472,
+    "notes": "Full472 physical lines: offline UI/CSS/camera guide, bounded portrait/landscape layout, local-only privacy copy, no inline script, two same-origin deferred external scripts and readable feedback/select controls. No real-camera/browser execution claimed."
+  },
+  {
+    "path": "frontend/public/sw.js",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "d24373c980dd1c12100304ba8a97475ecbe550dece40c9723bc006bc97e661f3",
+    "physical_lines": 118,
+    "notes": "Full118 lines: same-origin GET handling, exact three public-static cache allowlist, no API/private payload caching, coordinator-only navigation fallback on offline/5xx, does not hide401/403, clears retired app caches on reset and rewarms shell after successful coordinator navigation. Source review does not establish browser lifecycle behavior."
+  },
+  {
+    "path": "frontend/tsconfig.json",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "be18523b23b78b6e1a876ddd107d330f0168bddf09d751b57e0b5edce69c66f3",
+    "physical_lines": 34,
+    "notes": "Full34 lines: strict TS, Next typed route include, ES/bundler resolution and generated paths. No type floor loosened."
+  },
+  {
+    "path": "frontend/vitest.setup.ts",
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "sha256": "6d70eee6429bb924349cfb586b927a8fe26f7b87cf3dc7cdf95fc872dc88c3df",
+    "physical_lines": 5,
+    "notes": "Full5 lines: shared test matcher/cleanup setup inspected; test-only infrastructure, not a runtime source claim."
+  }
+]

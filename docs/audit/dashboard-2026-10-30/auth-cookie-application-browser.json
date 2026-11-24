@@ -1,0 +1,229 @@
+{
+  "browser": "151.0.7922.34",
+  "source_sha256": {
+    "frontend/lib/api/client.ts": "ebcb9e65f5a82b82bd122756c6e8126703ba7d1f7b2da94d6477debaa92a4bf2",
+    "frontend/lib/api/request-owner.ts": "dc504d23f73182988fa2d0093fb7954c57fa9a7118f6ce1859eb00df2fe54ac2",
+    "frontend/stores/auth.store.ts": "788cdfd0ed8072ce1191d863759bed359b3a38de35a0aeeb1cc744c3e11f58e9",
+    "frontend/features/auth/api/auth.api.ts": "6e52799fa4c0a18c887c26836402d3b7bd68273b08f5e0365bbbbc8165719abd",
+    "frontend/features/auth/services/cookie-mutation.ts": "fa1385adb965525afba57c42d1eab82d0967b9f3836956b462746be164ece6c7",
+    "frontend/features/auth/services/session-state.ts": "6f8077d093be0f9c9ecdb3340a18870802cb10c6e280b7d48c24d7bcf99330a8"
+  },
+  "results": [
+    {
+      "name": "actual authApi later login follows earlier cookie writer",
+      "status": "passed",
+      "requests": [
+        {
+          "path": "/api/v1/auth/login",
+          "current": "A",
+          "expected": null,
+          "status": 200
+        },
+        {
+          "path": "/api/v1/auth/login",
+          "current": "A",
+          "expected": null,
+          "status": 200
+        },
+        {
+          "path": "/api/v1/auth/me",
+          "current": "B",
+          "expected": null,
+          "status": 200
+        }
+      ]
+    },
+    {
+      "name": "actual challenge cookie deletion precedes later login",
+      "status": "passed",
+      "requests": [
+        {
+          "path": "/api/v1/auth/login",
+          "current": "A",
+          "expected": null,
+          "status": 200
+        },
+        {
+          "path": "/api/v1/auth/login",
+          "current": null,
+          "expected": null,
+          "status": 200
+        },
+        {
+          "path": "/api/v1/auth/me",
+          "current": "B",
+          "expected": null,
+          "status": 200
+        }
+      ]
+    },
+    {
+      "name": "actual raw refresh finishes before queued later login",
+      "status": "passed",
+      "requests": [
+        {
+          "path": "/api/v1/auth/refresh",
+          "current": "A",
+          "expected": "A",
+          "status": 200
+        },
+        {
+          "path": "/api/v1/auth/login",
+          "current": "A",
+          "expected": null,
+          "status": 200
+        },
+        {
+          "path": "/api/v1/auth/me",
+          "current": "B",
+          "expected": null,
+          "status": 200
+        }
+      ]
+    },
+    {
+      "name": "actual direct logout preserves initiating A while queued behind B",
+      "status": "passed",
+      "requests": [
+        {
+          "path": "/api/v1/auth/login",
+          "current": "A",
+          "expected": null,
+          "status": 200
+        },
+        {
+          "path": "/api/v1/auth/logout",
+          "current": "B",
+          "expected": "A",
+          "status": 409
+        },
+        {
+          "path": "/api/v1/auth/me",
+          "current": "B",
+          "expected": null,
+          "status": 200
+        }
+      ]
+    },
+    {
+      "name": "actual stale queued raw refresh is rejected without retry",
+      "status": "passed",
+      "requests": [
+        {
+          "path": "/api/v1/auth/login",
+          "current": "A",
+          "expected": null,
+          "status": 200
+        },
+        {
+          "path": "/api/v1/auth/refresh",
+          "current": "B",
+          "expected": "A",
+          "status": 409
+        },
+        {
+          "path": "/api/v1/auth/me",
+          "current": "B",
+          "expected": null,
+          "status": 200
+        }
+      ]
+    },
+    {
+      "name": "actual MFA proof failure does not refresh unrelated staff cookies",
+      "status": "passed",
+      "requests": [
+        {
+          "path": "/api/v1/auth/mfa/verify",
+          "current": "A",
+          "expected": null,
+          "status": 401
+        },
+        {
+          "path": "/api/v1/auth/me",
+          "current": "A",
+          "expected": null,
+          "status": 200
+        }
+      ]
+    },
+    {
+      "name": "actual password-change step-up releases and reacquires transport lock",
+      "status": "passed",
+      "requests": [
+        {
+          "path": "/api/v1/auth/password/change",
+          "current": "A",
+          "expected": "A",
+          "status": 403
+        },
+        {
+          "path": "/api/v1/auth/mfa/step-up",
+          "current": "A",
+          "expected": "A",
+          "status": 200
+        },
+        {
+          "path": "/api/v1/auth/password/change",
+          "current": "A",
+          "expected": "A",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "name": "actual missing-capability failure is actionable and public recovery remains available",
+      "status": "passed",
+      "requests": [
+        {
+          "path": "/api/v1/auth/password/recovery/request",
+          "current": "A",
+          "expected": null,
+          "status": 200
+        }
+      ]
+    },
+    {
+      "name": "actual native queued identity lock is cancelled on local actor change",
+      "status": "passed",
+      "requests": []
+    },
+    {
+      "name": "actual voluntary logout navigation retains a completed server logout",
+      "status": "passed",
+      "requests": [
+        {
+          "path": "/api/v1/auth/logout",
+          "current": "A",
+          "expected": "A",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "name": "actual logout full navigation cannot release its lock before late headers clear B",
+      "status": "passed",
+      "requests": [
+        {
+          "path": "/api/v1/auth/logout",
+          "current": "A",
+          "expected": "A",
+          "status": 204
+        },
+        {
+          "path": "/api/v1/auth/login",
+          "current": null,
+          "expected": null,
+          "status": 200
+        },
+        {
+          "path": "/api/v1/auth/me",
+          "current": "B",
+          "expected": null,
+          "status": 200
+        }
+      ]
+    }
+  ],
+  "scope": "Actual frontend authApi, Axios adapters/interceptors, refresh coordinator, store and logout source bundled by installed Vite, running in real Chromium over loopback. HTTP backend/accounts/cookies are synthetic; actual backend preconditions separately verified by ASGI/durable SQLite tests. No deployed/full Next UI or PostgreSQL/provider certification."
+}

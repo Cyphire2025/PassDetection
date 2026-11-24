@@ -1,0 +1,187 @@
+[
+  {
+    "path": "backend/tests/unit/presentation/test_bulk_approval_session_fence.py",
+    "kind": "monkeypatch-fans-explicit-imports",
+    "name": "'ensure_approved_passenger_qrs'"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_bulk_approval_session_fence.py",
+    "kind": "monkeypatch-fans-explicit-imports",
+    "name": "'propagate_mobile_passenger_change'"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py",
+    "kind": "monkeypatch-fans-explicit-imports",
+    "name": "_same_actor"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py",
+    "kind": "monkeypatch-fans-explicit-imports",
+    "name": "AsyncMock()"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.bulk_actions.ensure_approved_passenger_qrs"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.bulk_actions.record_operational_event"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.bulk_actions.ensure_approved_passenger_qrs"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.bulk_actions.record_operational_event"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.bulk_actions.ensure_approved_passenger_qrs"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.bulk_actions.record_operational_event"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.bulk_actions.ensure_approved_passenger_qrs"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.bulk_actions.ensure_approved_passenger_qrs"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.bulk_actions.record_operational_event"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_bulk_delete_route.py",
+    "kind": "monkeypatch-fans-explicit-imports",
+    "name": "'propagate_mobile_passenger_change'"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_bulk_delete_route.py",
+    "kind": "monkeypatch-fans-explicit-imports",
+    "name": "'lock_linked_whatsapp_broadcast_groups'"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_bulk_delete_route.py",
+    "kind": "monkeypatch-fans-explicit-imports",
+    "name": "'prepare_private_delivery_identity_mutation'"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_bulk_delete_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.bulk_actions._active_roster_resolution_references"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_bulk_delete_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.bulk_actions.stage_storage_cleanup_jobs"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_bulk_delete_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.bulk_actions.process_storage_cleanup_job"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_bulk_delete_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.bulk_actions._active_roster_resolution_references"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_bulk_delete_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.bulk_actions.stage_storage_cleanup_jobs"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_bulk_delete_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.bulk_actions.process_storage_cleanup_job"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_bulk_delete_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.bulk_actions._active_roster_resolution_references"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_bulk_delete_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.bulk_actions._active_roster_resolution_references"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_bulk_delete_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.bulk_actions._active_roster_resolution_references"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_bulk_delete_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.bulk_actions.stage_storage_cleanup_jobs"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_bulk_delete_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.bulk_actions.process_storage_cleanup_job"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_bulk_delete_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.bulk_actions._active_roster_resolution_references"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_bulk_delete_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.bulk_actions.stage_storage_cleanup_jobs"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_bulk_delete_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.bulk_actions.process_storage_cleanup_job"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_bulk_delete_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.bulk_actions.record_destructive_failure"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_bulk_delete_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.bulk_actions.stage_storage_cleanup_jobs"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_bulk_delete_route.py",
+    "kind": "context-patch-fans-explicit-imports",
+    "target": "app.presentation.api.v1.routes.passport_routes.bulk_actions.process_storage_cleanup_job"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_submission_delete_access.py",
+    "kind": "monkeypatch-fans-explicit-imports",
+    "name": "'propagate_mobile_passenger_change'"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_submission_delete_access.py",
+    "kind": "monkeypatch-fans-explicit-imports",
+    "name": "'process_storage_cleanup_job'"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_superadmin_access_level.py",
+    "kind": "monkeypatch-fans-explicit-imports",
+    "name": "'propagate_mobile_passenger_change'"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_superadmin_access_level.py",
+    "kind": "monkeypatch-fans-explicit-imports",
+    "name": "'process_storage_cleanup_job'"
+  }
+]

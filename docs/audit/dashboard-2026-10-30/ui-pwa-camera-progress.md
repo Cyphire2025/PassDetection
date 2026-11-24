@@ -1,0 +1,7 @@
+# UI/PWA and passport camera checkpoint
+
+The four source-backed corrections are implemented and covered by negative regressions: verified offline installation identity is retained, empty search cannot select stale results, notification modal focus is isolated and returned, and unavailable/stale statistics are distinguished from successful zero/empty data. Existing offline update activation now caches fresh public scanner bytes without reloading the page or clearing pending scans/drafts.
+
+SmartCamera is a9-line lazy entry over a focused capture controller, camera session lifetime hook, view/footer and geometry/guidance helpers. Original threshold/normalization/confirmation/lifecycle behavior is retained. Runtime files are9â€“281lines, replacing the701-line owner; see the origin manifest. Existing source checks follow the actual runtime owners; all useful original assertions remain. New behavior tests cover exact-file acceptance gates, late validation/lease disposal, duplicate admission and visible object-cover crop geometry.
+
+Evidence: ui-pwa-camera-verification.json (source-bound scope/limitations),32 focused unit tests,74 affected Node tests,4 browser tests. Screenshots were physically inspected at1440px and390px; panel readable/bounded and no horizontal overflow. Full combined qualification remains parent-owned. Next architecture work: GC admin API/hooks, then remaining large active image-analysis responsibilities; earlier checkpoints remain historical.

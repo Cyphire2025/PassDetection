@@ -1,0 +1,80 @@
+{
+  "whole_original_class_restored_after_three_explicit_extractions_and_docstring_inverse": true,
+  "original_methods": 6,
+  "original_constructor_mro_signatures_evaluated_hints_static_descriptor_and_pickles_preserved": true,
+  "original_import_object_identities": [
+    "asyncio",
+    "mimetypes",
+    "uuid",
+    "partial",
+    "PassportSubmissionOutputDTO",
+    "passport_submission_output_from_entity",
+    "GroupPassengerCapacityGuard",
+    "require_active_public_upload",
+    "get_settings",
+    "get_logger",
+    "is_valid_upload_credential",
+    "ClientGroup",
+    "PassportSubmission",
+    "QualifierSelection",
+    "EntityNotFoundError",
+    "GroupClosedError",
+    "PassDetectionError",
+    "StorageError",
+    "ValidationError",
+    "IClientGroupRepository",
+    "IObjectStorageRepository",
+    "IPassportSubmissionRepository",
+    "IQualifierSelectionRepository",
+    "hash_qualifier_selection_token",
+    "require_enabled_qualifier_choice",
+    "configuration_for",
+    "validate_documents",
+    "validate_visa_photo_source",
+    "finish_cleanup_despite_cancellation",
+    "run_bounded_storage_operations",
+    "PassportProcessingJobRepository",
+    "ProcessingJobStatus"
+  ],
+  "moved_helper_actual_global_bindings": [
+    {
+      "helper": "require_qualifier_selection",
+      "name": "ValidationError"
+    },
+    {
+      "helper": "require_qualifier_selection",
+      "name": "hash_qualifier_selection_token"
+    },
+    {
+      "helper": "prepare_passport_submission",
+      "name": "PassportSubmission"
+    }
+  ],
+  "moved_plan_entity_qualifier_statement_counts": [
+    3,
+    4,
+    9
+  ],
+  "unchanged_test_adapter_support_bytes": [
+    "backend/app/infrastructure/storage/minio_repository.py",
+    "backend/app/infrastructure/documents/storage_transfers.py",
+    "backend/tests/integration/test_client_group_reopen.py",
+    "backend/tests/unit/application/test_client_group_field_options.py",
+    "backend/tests/unit/presentation/test_configured_public_upload.py",
+    "backend/tests/unit/application/test_configured_public_collection.py",
+    "backend/tests/unit/application/test_manual_passport_staff_review.py",
+    "backend/tests/unit/application/test_passport_processing_reliability.py",
+    "backend/tests/unit/application/test_qualifier_selection_flow.py",
+    "backend/tests/unit/application/test_public_upload_native_lifetime.py",
+    "backend/tests/unit/application/test_submit_passport_use_case.py",
+    "backend/tests/unit/presentation/test_public_upload_commit_outcomes.py",
+    "backend/tests/unit/infrastructure/test_storage_cleanup_passport_covers.py",
+    "backend/tests/passport_image_mutations.py",
+    "backend/tests/integration/test_passport_draft_orphan_reconciliation.py"
+  ],
+  "tests_or_mock_targets_changed": false,
+  "limits": [
+    "Explicit repository arguments are ordinary initialized attributes; arbitrary subclass descriptor side effects on private repository fields are not a supported contract.",
+    "Draft key callable is the original self._draft_key lookup and preserves normal overrides; all page/order/list/UUID/cleanup points restore exactly."
+  ]
+}

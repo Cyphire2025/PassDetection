@@ -1,0 +1,497 @@
+{
+  "cohort_sha256": "48bdde0dc3fc734c8e893b9ddf2d0e6946945c42215db646ee47d7af8020b4fb",
+  "files": [
+    {
+      "path": "frontend/components/shared/error-boundary.test.tsx",
+      "sha256": "625318cf0f6b805550b98b3edd74c6bad785efd73e4a470079b17477766b872e",
+      "physical_lines": 23,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e-fixtures/camera-source.spec.ts",
+      "sha256": "c9fa2577af232f0937c026a5a382eba2a570699c8f18072254df33f37d461290",
+      "physical_lines": 23,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/stores/auth-restoration.test.ts",
+      "sha256": "7f970a32376b3fa754b986bdd9df07c6d39ccc651e077135e639c30cdcf577f0",
+      "physical_lines": 24,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/lib/api/retry-after.test.mjs",
+      "sha256": "97a4cce603db95f4a88a5806d7fee2be813344a73b587d94074910b80c82aaf0",
+      "physical_lines": 26,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/lib/utils/clipboard.test.ts",
+      "sha256": "2114f329ca4a76ece2afa97f0f4b87bb013218442bb594bdd22a21cab0fe0306",
+      "physical_lines": 31,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/lib/api/client-refresh.test.ts",
+      "sha256": "b70617fe7eadb89b73c0e731f126a9a17e3a09e94c4d3847c511b5795cadcb2f",
+      "physical_lines": 32,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/lib/navigation/application-route.test.ts",
+      "sha256": "426850cb175d7d74bd66a7e40acc36287332c309fa35542a591af139a5112c3a",
+      "physical_lines": 32,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/app/dashboard-layout.contract.test.mjs",
+      "sha256": "7b0cb4a6a22eda96395695e2c5b0297cb3f950afd8f05bbce689c91fcb3a1d6b",
+      "physical_lines": 33,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/lib/utils/coordinator-device-id.test.ts",
+      "sha256": "74a28b1fb2204495aac2a2a10850623ac1b27bcd924fa8e5e83002568b23dd39",
+      "physical_lines": 34,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/features/notifications/components/notification-bell.test.tsx",
+      "sha256": "162b2d38ee9dd714e5b7be1f42425545109ff990a9bd859cfdc46ee25412e3d6",
+      "physical_lines": 35,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/next-config.policy.test.ts",
+      "sha256": "d942150946acc998fd6f3377b98d7c4e2a1962b2aac1e246fe8f767742c967b5",
+      "physical_lines": 38,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/features/settings/platform-settings-policy.test.ts",
+      "sha256": "a3180a25c10305b5dacb8dae7dd2df2be5d6a3f6ce1f1c3aa6c690eeab35b3d0",
+      "physical_lines": 40,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/config/api-routing.test.ts",
+      "sha256": "f4d601c540a7acc75e42dc6ead5f04f66ab9381a1011c06c93cabc2e87ecc828",
+      "physical_lines": 41,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/app/(dashboard)/settings/settings-page.contract.test.mjs",
+      "sha256": "4778b84b4a73d697375a96330a50a4db498c393a9b4f9b0be41c589d53539db1",
+      "physical_lines": 43,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e/support/public-contact-otp.ts",
+      "sha256": "2c8941b32d55c729a1e7bef51e92ce9fd88db12b18af8cdd186c1daa28d95d06",
+      "physical_lines": 43,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/features/dashboard/components/dashboard-overview.test.tsx",
+      "sha256": "0ed8c29abbe624101ef13cb58657a57e148a71eae0a4c56c4d03e3f0331e44bf",
+      "physical_lines": 46,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/components/shared/processing-motion.test.tsx",
+      "sha256": "ac0bc68d30c8f9c2a4705094a2cb140fbbccb5c9ecb672ed6edf76cac7d6da3c",
+      "physical_lines": 49,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/lib/api/client-returning.test.ts",
+      "sha256": "7921a4cc246831cbd70b71479fa9d6cbf57594c329d37b3466d52e4e4b86f024",
+      "physical_lines": 53,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/lib/utils/passport-date.test.mjs",
+      "sha256": "cadbe863e28369523ae61600633d17d48e662a3e67dc749ba3dd7dcc3343f8f7",
+      "physical_lines": 57,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/app/legal-pages.contract.test.mjs",
+      "sha256": "43bb7fa31ebaec69a41f79a5f19c6e6790da2bb4ada2454095bf52f5b23dbca9",
+      "physical_lines": 58,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e-real-stack/public-upload.spec.ts",
+      "sha256": "f9d0f7e9134a313b349cd92c57caedb54c3ee6ad4d7787a86b58222a21672c46",
+      "physical_lines": 58,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e/whatsapp-large-import.spec.ts",
+      "sha256": "e7ff55295aaf8ce61034ffdcbf044cecf99fdba2e5707ad0cc3fbbc3fcd5da8b",
+      "physical_lines": 58,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/lib/api/download-filename.test.ts",
+      "sha256": "7bc88601a086d6a63519f95795178c54feb03d65d6d2d523f82ca2e77052e8df",
+      "physical_lines": 58,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/lib/utils/passport-country.test.mjs",
+      "sha256": "cf2da80b1d5dcaaf695a1b101d195009b2b942bc9abc7302a394fb8e9d5ac9b2",
+      "physical_lines": 58,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e/settings-policies.spec.ts",
+      "sha256": "db57b7076e063a5e4f15b70ae3c63b4783ecedda4df91b806c2c53f84aa2eea5",
+      "physical_lines": 59,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e-fixtures/passport-normalization.spec.ts",
+      "sha256": "516b5b1d6e44f2d2d4f1302a6b15a1988d616ee64ac23072c9e22a9e843d07ee",
+      "physical_lines": 62,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e-real-stack/scanner-offline.spec.ts",
+      "sha256": "369d39811b4901ff6200e4e21e38cf59f11b21a63a3362872ccdffc0fe9f329e",
+      "physical_lines": 62,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/features/travel-tracker/api.test.ts",
+      "sha256": "a3949f9436a93e8177406c88325120c8f79067216d2ab0788da2613a345a279c",
+      "physical_lines": 65,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/scripts/verify-frontend-module-budgets.test.mjs",
+      "sha256": "ea078d8e575a62a1bc11fb0f780be786b4e660461f8ea6247e59b405bc600740",
+      "physical_lines": 65,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/lib/observability/render-errors.test.ts",
+      "sha256": "0c25410594974c10590b64cfa9acde687299e1b5331ebd32decf8e28cfc433fe",
+      "physical_lines": 68,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e/travel-tracker.spec.ts",
+      "sha256": "f4b7ae3642663fab2f2f5e1fd3213d53b9996ea273ec1efc4c6a016332f52fb3",
+      "physical_lines": 72,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e/dashboard-resilience.spec.ts",
+      "sha256": "05bad5b83688fed0c41f11d98c1ca498bfeea56e82675c0f0e96069901f64cc3",
+      "physical_lines": 73,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/features/email-integrations/utils/email-integrations.test.mjs",
+      "sha256": "42548b33d6a4f0b1d83042a79b6d5d1f552af8f3f99b27fd9f3184d9479c7e95",
+      "physical_lines": 79,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e/passport-display-name.spec.ts",
+      "sha256": "25a7cbb1cfab16f5474618472df511163457580d921e249f65383a3725058e88",
+      "physical_lines": 80,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/proxy.test.ts",
+      "sha256": "fe0bcefd586935ef670e274ac3182ff5431b7f3304ebd536f7a557ae9a7af32d",
+      "physical_lines": 80,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e/dashboard-enterprise.spec.ts",
+      "sha256": "7c6e296dc795167c2e4c3c1bc57651d5103b2f4b68f4f2b25c78bad93e7c6b15",
+      "physical_lines": 84,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e-fixtures/offline-runtime-update.spec.ts",
+      "sha256": "718f990ee9a64ba45917585e17d2565d6c381bee59b22450886c90a4033dacfc",
+      "physical_lines": 89,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e/document-distribution-management.spec.ts",
+      "sha256": "ba6afe790014847f52e36d67f486523e293c1b600a57b4ab429695a6b7df9e4d",
+      "physical_lines": 90,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e/whatsapp-archive.spec.ts",
+      "sha256": "e6080536d22e52d6806761abacbe8abb6d99310a382df88b4394bce8725f27f4",
+      "physical_lines": 94,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e/support/dashboard-realtime-stub.mjs",
+      "sha256": "7da78b79b508dba1dcef4cc8f12d1179f8ef5a5b2075e849af2a2f75f3ce5db6",
+      "physical_lines": 95,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/features/settings/components/dashboard-settings-page.test.tsx",
+      "sha256": "ad45bdf5e88ead5a9a2aac740bba58e0e1c1e30b22998d7ef27cba7db072ef43",
+      "physical_lines": 95,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e/support/travel-tracker-api.ts",
+      "sha256": "0e3b79cfec1bfa4871fd261f82f701a1ffd5ed204438d075791aa49e208223cd",
+      "physical_lines": 97,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e/office-workspaces.spec.ts",
+      "sha256": "dc3990638eb530acb43274d0e71857997a212b1db7f444f5def88e2966f1788e",
+      "physical_lines": 108,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e/fresh-travellers.spec.ts",
+      "sha256": "70aea7232b48bf2cf82193ba7a751a3c692f83db1e87c1293b88002e74deee11",
+      "physical_lines": 109,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e/gc-app-removal.spec.ts",
+      "sha256": "6357821c4c2886c8aa1710728c2ff3d641729156145d96399b6ff3728c426f69",
+      "physical_lines": 113,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e/qualifier-relationship-methods.spec.ts",
+      "sha256": "aab9e6e497a0885f6f14a2420df7e9396150bd6d100beacc753b2d7884e16095",
+      "physical_lines": 113,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/features/email-integrations/components/email-ai-rollout-control.contract.test.mjs",
+      "sha256": "04fe69a742c4f65a5188b30e723b576ff065dcccb50eec5f08b7633bc178607e",
+      "physical_lines": 113,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e/ecr-checker.spec.ts",
+      "sha256": "e41fe411e09a2ccfbd889b1ed7e382c0e065f379143079a09447a714e154ca8f",
+      "physical_lines": 116,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e/whatsapp-document-management.spec.ts",
+      "sha256": "d621c5a7c3a792bffd8a2df2108c9aa7fd11fc8864825a128c885241598c390d",
+      "physical_lines": 118,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/lib/hooks/use-live-history-feed.test.tsx",
+      "sha256": "2e5a52a6ee6dc2ea31ddc62573208aad410ed617b5258c9d757484571c9f8c86",
+      "physical_lines": 124,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/features/ai/hooks/use-voice-input.test.ts",
+      "sha256": "b27e71cd73751d5eae8d251b01196187295f79b36f1f67d6b3178ff84b44bb18",
+      "physical_lines": 127,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e/passport-client-details.spec.ts",
+      "sha256": "6c6ea95edb452bc6887ae1aa36cfdf39a87d86560bd7d3dd35615ca4bbd0b61f",
+      "physical_lines": 128,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e/ai-voice-preview.spec.ts",
+      "sha256": "93b6b99a812e7dde7792c8f71cb9ca7bfb3fa8512cf764cecafa01403b517a2f",
+      "physical_lines": 133,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e-real-stack/authentication.spec.ts",
+      "sha256": "3df761d159298ebe0cc639523168d55899f181938d3892ecda8ec0a41024d56a",
+      "physical_lines": 135,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e/mcp-read-only.spec.ts",
+      "sha256": "1a607acb0c3a1d8cf70d67fc7c1371e899ec851e3a370d37e9a204dca1e53bbb",
+      "physical_lines": 138,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e/passport-group-overview.spec.ts",
+      "sha256": "fa1f4695339ade6a5c99ca1d3bdc2723ce7b8c09819f258b72deebcd08ffa974",
+      "physical_lines": 141,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/features/travel-tracker/components/tracker-workspace.test.tsx",
+      "sha256": "3d9f75bc04c64e8301784ddc0ab4fc8324620033ec8559ee5a447ec4ca1bfda1",
+      "physical_lines": 143,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/features/notifications/notifications.contract.test.mjs",
+      "sha256": "f849879d1ebb6917215481b505d2b018a89acac988392ee990886d1a03eb71f2",
+      "physical_lines": 147,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e/whatsapp-group-invite.spec.ts",
+      "sha256": "819ce28739006861721d941165e159cb077d83d1d55f51faf0f5e0f61fcf9973",
+      "physical_lines": 152,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/features/search/components/__tests__/global-search.test.tsx",
+      "sha256": "d3dcac433d530e5983dc7b9279587f2a68b221e16c1765667bc38b1513f3f15b",
+      "physical_lines": 154,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/scripts/patch-npm-toolchain.test.mjs",
+      "sha256": "92532d08f429e437acdb0e4077a297703d27c6b78b925dfea4d2f70ee8434a22",
+      "physical_lines": 156,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e/mcp-file-transfer.spec.ts",
+      "sha256": "f4f38059c7de51ddce13dc0d34ba3db5a3ed09497629b6deb3aa7c4cf81b43b5",
+      "physical_lines": 157,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e/authentication.spec.ts",
+      "sha256": "945c87aa3344c64d0ddbfa7cb86d09ad2adfe77edf2120485f930a6f8642e5ea",
+      "physical_lines": 169,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e/whatsapp-from-group.spec.ts",
+      "sha256": "6bf04857e4206bc14bf09e1582c11e5e69a1009a9d7d7fb6c46ebfc88469c17f",
+      "physical_lines": 176,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/components/ui/modal.test.tsx",
+      "sha256": "e2f09f60be70ef468377936259dee9efccf1c37e4a7ae1586387c51fcd19f7de",
+      "physical_lines": 184,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e/browser-session-persistence.spec.ts",
+      "sha256": "d0e157444db53cd45ca1f5c6e8000b91c95c30a3f2fa893c05ac8ff032d56c3d",
+      "physical_lines": 187,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e/gc-app-workflow.spec.ts",
+      "sha256": "29652fee56d832ae0b207bd23f691a196072a016587cc309b3f21322c658cae9",
+      "physical_lines": 215,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e/companies.spec.ts",
+      "sha256": "ab29fcb9a3203db06e5b216574e5877f68a8c5a36fcf49521b86ced86613d5c4",
+      "physical_lines": 217,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e/returning-travellers.spec.ts",
+      "sha256": "c4206f9377ff1012a8419df53ca1aaf89d07d8e9ee1968acc34b777c971b00a6",
+      "physical_lines": 236,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/scripts/patch-mediapipe-csp.test.mjs",
+      "sha256": "eac5b2dcaccf42c4706e46fe0909565de407f8a934323d405679f29cad1448fc",
+      "physical_lines": 250,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/features/dashboard/components/dashboard-ui-transformation.contract.test.mjs",
+      "sha256": "948e47dec344c198ee85ac5aae7e58257d0f1447bc885167b7bd0ace834a9692",
+      "physical_lines": 252,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e/whatsapp-delivery-types.spec.ts",
+      "sha256": "0b70036cbc589813167075ea7b3b96a8d4bad63bd84a635e0f821d40350493fe",
+      "physical_lines": 271,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e/gc-app-notifications.spec.ts",
+      "sha256": "d1ef8541cdf966e6bbf1df5b4e2e60fd394508fe3c80112ba42cb213b08a9202",
+      "physical_lines": 284,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e/identity-lifecycle.spec.ts",
+      "sha256": "77e5784e710b4c56c057c8ca2559b6a516a75aaf2549b89fa93b2006aca8f392",
+      "physical_lines": 331,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/lib/api/streamed-download.test.ts",
+      "sha256": "d586b225cb99f01e50517e3a80ffebfb24f5593b1e9951862b08155cba1dc3b1",
+      "physical_lines": 363,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e/passport-image-editor.spec.ts",
+      "sha256": "89cfda7d1d61722937cacdfffd34897a8f79f2d939182c98734a7851111137d6",
+      "physical_lines": 369,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/features/email-integrations/email-integrations.contract.test.mjs",
+      "sha256": "fb230eda9ea95191fe2978a8fb0e5b82006ca2c15f6ef0d0fb094f1303a920bd",
+      "physical_lines": 371,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e/upload-link-configuration.spec.ts",
+      "sha256": "d3a310e3f4266bad75cbf59ab7a90a2b293aa75dfad769021ddf9fc0c01cb7f7",
+      "physical_lines": 387,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e/whatsapp-workspace.spec.ts",
+      "sha256": "cbe3a72143666bf30403de1a0b17b69af014f1a856a5e8a5407a273ec0f1d0c4",
+      "physical_lines": 431,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e/mcp-administration.spec.ts",
+      "sha256": "14abebd05ce80c7223dee886e7a082e919ecd61950212c90dc06aa47a15cc0fb",
+      "physical_lines": 529,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e/support/whatsapp-workspace-fixture.ts",
+      "sha256": "7a5545c290b4eab35482b88ace812283bbca1493b02cb1b47a9ad4dba8bc08dd",
+      "physical_lines": 596,
+      "review_scope": "full"
+    },
+    {
+      "path": "frontend/e2e/passport-governance.spec.ts",
+      "sha256": "f2ea947659127fa47ddc5cbc55af274d0e2e8768ddf71dbbd684632ddfc8af04",
+      "physical_lines": 750,
+      "review_scope": "full"
+    }
+  ]
+}

@@ -1,0 +1,333 @@
+{
+  "status": "PENDING parent GO; no pytest collection/execution or application checks started",
+  "python": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+  "python_version": "3.11.15",
+  "installed_tools": {
+    "pytest": "9.0.3",
+    "pytest-cov": "5.0.0",
+    "coverage": "7.16.1",
+    "ruff": "0.16.0",
+    "mypy": "2.3.0",
+    "pydantic-settings": "2.14.2"
+  },
+  "scope_policy": {
+    "path": "docs/audit/dashboard-2026-10-30/audit-scope.json",
+    "sha256": "079ffe822ee727a55f6c2541820aa4b8b406b5d5c55cec9349fb52561397bc64",
+    "native_literals": 63
+  },
+  "mixed_manifest": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-mixed-test-function-selection.json",
+    "sha256": "c6cbffc1888bad873264195b771a08cd54bbf86e110963c113d7bc6b594e6524",
+    "files": 14
+  },
+  "discovered_test_files": 910,
+  "planned_precollection_ignored_counts": {
+    "mixed-whole-file-deferred": 3,
+    "operations-inbox-deferred": 57,
+    "native-excluded": 23
+  },
+  "planned_precollection_exact_paths": {
+    "backend/tests/integration/test_mcp_content_read_http.py": "mixed-whole-file-deferred",
+    "backend/tests/integration/test_mcp_dashboard_detail_reads.py": "mixed-whole-file-deferred",
+    "backend/tests/integration/test_mcp_email_overview_http.py": "operations-inbox-deferred",
+    "backend/tests/integration/test_mcp_email_overview_reads.py": "operations-inbox-deferred",
+    "backend/tests/unit/application/test_email_action_policy.py": "operations-inbox-deferred",
+    "backend/tests/unit/application/test_email_ai_analysis_models.py": "operations-inbox-deferred",
+    "backend/tests/unit/application/test_email_ai_evaluation_fixture.py": "operations-inbox-deferred",
+    "backend/tests/unit/application/test_email_deadlines.py": "operations-inbox-deferred",
+    "backend/tests/unit/application/test_email_matching_policy.py": "operations-inbox-deferred",
+    "backend/tests/unit/application/test_email_relevance_policy.py": "operations-inbox-deferred",
+    "backend/tests/unit/application/test_mobile_app_integrity.py": "native-excluded",
+    "backend/tests/unit/application/test_mobile_integrity_service.py": "native-excluded",
+    "backend/tests/unit/core/test_email_integration_settings.py": "operations-inbox-deferred",
+    "backend/tests/unit/infrastructure/test_ai_travel_inbox_migration.py": "operations-inbox-deferred",
+    "backend/tests/unit/infrastructure/test_apple_app_attest_verifier.py": "native-excluded",
+    "backend/tests/unit/infrastructure/test_email_account_removal.py": "operations-inbox-deferred",
+    "backend/tests/unit/infrastructure/test_email_account_removal_paths.py": "operations-inbox-deferred",
+    "backend/tests/unit/infrastructure/test_email_ai_architecture_compatibility.py": "operations-inbox-deferred",
+    "backend/tests/unit/infrastructure/test_email_ai_claim_lifecycle.py": "operations-inbox-deferred",
+    "backend/tests/unit/infrastructure/test_email_ai_context.py": "operations-inbox-deferred",
+    "backend/tests/unit/infrastructure/test_email_ai_deadline_notifications.py": "operations-inbox-deferred",
+    "backend/tests/unit/infrastructure/test_email_ai_model_compatibility.py": "operations-inbox-deferred",
+    "backend/tests/unit/infrastructure/test_email_ai_model_persistence.py": "operations-inbox-deferred",
+    "backend/tests/unit/infrastructure/test_email_ai_runtime.py": "operations-inbox-deferred",
+    "backend/tests/unit/infrastructure/test_email_deadline_batches.py": "operations-inbox-deferred",
+    "backend/tests/unit/infrastructure/test_email_deadline_coverage.py": "operations-inbox-deferred",
+    "backend/tests/unit/infrastructure/test_email_deadline_visibility.py": "operations-inbox-deferred",
+    "backend/tests/unit/infrastructure/test_email_integrations_migration.py": "operations-inbox-deferred",
+    "backend/tests/unit/infrastructure/test_email_model_owner_compatibility.py": "operations-inbox-deferred",
+    "backend/tests/unit/infrastructure/test_email_model_persistence_contracts.py": "operations-inbox-deferred",
+    "backend/tests/unit/infrastructure/test_email_models.py": "operations-inbox-deferred",
+    "backend/tests/unit/infrastructure/test_email_oauth_security.py": "operations-inbox-deferred",
+    "backend/tests/unit/infrastructure/test_email_ownership_constraints_sqlite.py": "operations-inbox-deferred",
+    "backend/tests/unit/infrastructure/test_email_pdf_async_boundary.py": "operations-inbox-deferred",
+    "backend/tests/unit/infrastructure/test_email_pdf_validator.py": "operations-inbox-deferred",
+    "backend/tests/unit/infrastructure/test_email_readiness.py": "operations-inbox-deferred",
+    "backend/tests/unit/infrastructure/test_email_retention_persistence.py": "operations-inbox-deferred",
+    "backend/tests/unit/infrastructure/test_email_retry_after.py": "operations-inbox-deferred",
+    "backend/tests/unit/infrastructure/test_email_sync_service.py": "operations-inbox-deferred",
+    "backend/tests/unit/infrastructure/test_email_task_outcomes.py": "operations-inbox-deferred",
+    "backend/tests/unit/infrastructure/test_email_task_routing.py": "operations-inbox-deferred",
+    "backend/tests/unit/infrastructure/test_email_token_encryption.py": "operations-inbox-deferred",
+    "backend/tests/unit/infrastructure/test_gemini_email_analysis_service.py": "operations-inbox-deferred",
+    "backend/tests/unit/infrastructure/test_gemini_email_analysis_transport.py": "operations-inbox-deferred",
+    "backend/tests/unit/infrastructure/test_gmail_email_provider.py": "operations-inbox-deferred",
+    "backend/tests/unit/infrastructure/test_mobile_app_attest_keys_migration.py": "native-excluded",
+    "backend/tests/unit/infrastructure/test_mobile_association_proxy_contract.py": "native-excluded",
+    "backend/tests/unit/infrastructure/test_mobile_integrity_providers.py": "native-excluded",
+    "backend/tests/unit/infrastructure/test_mobile_journey_geocoding.py": "native-excluded",
+    "backend/tests/unit/infrastructure/test_mobile_openapi_contract.py": "native-excluded",
+    "backend/tests/unit/infrastructure/test_outlook_email_provider.py": "operations-inbox-deferred",
+    "backend/tests/unit/presentation/test_email_ai_inbox_isolation.py": "operations-inbox-deferred",
+    "backend/tests/unit/presentation/test_email_ai_inbox_protocol.py": "operations-inbox-deferred",
+    "backend/tests/unit/presentation/test_email_ai_rollout_admin.py": "operations-inbox-deferred",
+    "backend/tests/unit/presentation/test_email_connection_controls.py": "operations-inbox-deferred",
+    "backend/tests/unit/presentation/test_email_connection_lifecycle.py": "operations-inbox-deferred",
+    "backend/tests/unit/presentation/test_email_connection_removal_outcomes.py": "operations-inbox-deferred",
+    "backend/tests/unit/presentation/test_email_connection_revocation_races.py": "operations-inbox-deferred",
+    "backend/tests/unit/presentation/test_email_integration_contract.py": "operations-inbox-deferred",
+    "backend/tests/unit/presentation/test_email_integration_route_decomposition.py": "operations-inbox-deferred",
+    "backend/tests/unit/presentation/test_email_oauth_actor_policy.py": "operations-inbox-deferred",
+    "backend/tests/unit/presentation/test_email_oauth_callback_edges.py": "operations-inbox-deferred",
+    "backend/tests/unit/presentation/test_email_oauth_generation_race.py": "operations-inbox-deferred",
+    "backend/tests/unit/presentation/test_email_oauth_persistence.py": "operations-inbox-deferred",
+    "backend/tests/unit/presentation/test_email_review_decision_paths.py": "operations-inbox-deferred",
+    "backend/tests/unit/presentation/test_email_review_decision_storage.py": "operations-inbox-deferred",
+    "backend/tests/unit/presentation/test_email_rollout_query_paths.py": "operations-inbox-deferred",
+    "backend/tests/unit/presentation/test_mobile_activation.py": "native-excluded",
+    "backend/tests/unit/presentation/test_mobile_associations.py": "native-excluded",
+    "backend/tests/unit/presentation/test_mobile_auth_response_contract.py": "native-excluded",
+    "backend/tests/unit/presentation/test_mobile_auth_support_boundaries.py": "native-excluded",
+    "backend/tests/unit/presentation/test_mobile_fcm_registration.py": "native-excluded",
+    "backend/tests/unit/presentation/test_mobile_integrity_route.py": "native-excluded",
+    "backend/tests/unit/presentation/test_mobile_journey.py": "native-excluded",
+    "backend/tests/unit/presentation/test_mobile_login_password_work.py": "native-excluded",
+    "backend/tests/unit/presentation/test_mobile_ops_support_boundaries.py": "native-excluded",
+    "backend/tests/unit/presentation/test_mobile_otp_auth.py": "native-excluded",
+    "backend/tests/unit/presentation/test_mobile_passenger_claim_resolution.py": "native-excluded",
+    "backend/tests/unit/presentation/test_mobile_realtime_route.py": "native-excluded",
+    "backend/tests/unit/presentation/test_mobile_refresh_trip_fallback.py": "native-excluded",
+    "backend/tests/unit/presentation/test_mobile_resources.py": "native-excluded",
+    "backend/tests/unit/presentation/test_mobile_route_type_boundaries.py": "mixed-whole-file-deferred",
+    "backend/tests/unit/presentation/test_my_photos_dispatch_contract.py": "native-excluded"
+  },
+  "mixed_selected_complete_functions": {
+    "backend/tests/unit/application/test_mobile_otp_provider.py": [
+      "test_development_provider_fails_closed_in_production",
+      "test_development_provider_never_returns_the_code",
+      "test_disabled_provider_fails_without_leaking_destination"
+    ],
+    "backend/tests/unit/application/test_passenger_session_authority.py": [
+      "test_changed_nonselected_contact_revokes_session_durably_without_deleting_data",
+      "test_direct_trip_policy_rejects_old_broadcast_phone_after_contact_policy_change",
+      "test_unchanged_submitted_contacts_keep_existing_session_and_refresh_token"
+    ],
+    "backend/tests/unit/application/test_mobile_realtime_authorization.py": [
+      "test_authorization_is_tenant_scoped_and_live_revocation_removes_trip"
+    ],
+    "backend/tests/unit/application/test_mobile_push_provider.py": [
+      "test_disabled_provider_is_fail_closed",
+      "test_message_rejects_non_allowlisted_push_data"
+    ],
+    "backend/tests/unit/presentation/test_mobile_authorization_matrix.py": [
+      "test_access_policy_and_realtime_deny_cross_scope_and_lifecycle_rows"
+    ],
+    "backend/tests/unit/presentation/test_mobile_historical_access_sync.py": [
+      "test_projection_keeps_unrelated_or_unknown_revocations"
+    ],
+    "backend/tests/unit/presentation/test_mobile_ops.py": [
+      "test_accessible_notification_groups_are_role_and_tenant_scoped",
+      "test_attendance_qr_batch_is_tenant_scoped_and_loaded_once",
+      "test_attendance_qr_snapshot_preserves_fail_closed_rejection_precedence",
+      "test_attendance_replay_batch_uses_one_canonical_family_read",
+      "test_attendance_session_batch_uses_two_bounded_scoped_reads",
+      "test_attendance_session_capacity_is_tenant_scoped_and_serialized",
+      "test_attendance_session_capacity_keeps_idempotent_active_name_retry",
+      "test_coordinator_imported_date_parser_fails_closed",
+      "test_hundred_scan_batch_bounds_reads_and_journal_flushes",
+      "test_notification_payload_uses_a_fixed_public_allowlist",
+      "test_trip_countdowns_are_excluded_from_the_durable_updates_feed"
+    ],
+    "backend/tests/unit/presentation/test_mobile_route_type_boundaries.py": [],
+    "backend/tests/unit/presentation/test_mobile_submitted_phone_auth.py": [
+      "test_completed_collection_statuses_authorize_without_staff_approval",
+      "test_drafts_and_imported_numbers_are_not_collection_authority",
+      "test_explicit_public_completion_can_supersede_legacy_import_provenance"
+    ],
+    "backend/tests/integration/test_mcp_content_read_http.py": [],
+    "backend/tests/integration/test_mcp_dashboard_detail_reads.py": [],
+    "backend/tests/integration/test_mcp_content_reads.py": [
+      "test_gc_versions_optional_content_and_shared_availability",
+      "test_notification_history_reuses_recipient_and_device_projection_without_dispatch"
+    ],
+    "backend/tests/service_integration/test_mcp_read_parity_postgresql.py": [],
+    "backend/tests/unit/presentation/test_whatsapp_delivery_ledger.py": [
+      "test_batch_status_reports_ambiguous_outcomes_separately_from_failures",
+      "test_current_failed_receipt_releases_submitted_but_not_delivered",
+      "test_delivery_ledger_schema_is_generic_and_unique_per_recipient_type",
+      "test_eligibility_counts_failed_as_retryable_and_active_claim_as_skipped",
+      "test_excel_contact_direct_upload_remains_strict_but_allows_merged_duplicates",
+      "test_excel_contact_name_composes_given_names_and_surname",
+      "test_excel_contact_name_prefers_staffname_over_zone_name",
+      "test_excel_contact_preview_bounds_rejected_row_payload",
+      "test_excel_contact_preview_preserves_an_empty_column_heading",
+      "test_excel_contact_preview_rejects_empty_or_unnamed_contacts",
+      "test_excel_contact_preview_rejects_invalid_file_type",
+      "test_excel_contact_preview_returns_all_rejected_rows_without_a_server_error",
+      "test_excel_contact_preview_returns_named_normalized_recipients",
+      "test_excel_contact_preview_returns_valid_rows_and_actionable_rejections",
+      "test_excel_contact_preview_route_is_role_gated_and_has_stable_contract",
+      "test_excel_contact_preview_skips_structural_header_variants",
+      "test_excel_contact_upload_converts_unexpected_parser_error_to_400",
+      "test_excel_contact_upload_detects_headers_below_title_row",
+      "test_excel_contact_upload_distinguishes_contact_name_from_phone",
+      "test_excel_contact_upload_enforces_compressed_byte_limit",
+      "test_excel_contact_upload_preserves_bounded_fields_across_sheets",
+      "test_excel_contact_upload_stops_after_recipient_row_limit",
+      "test_explicit_resend_never_mutates_baseline_delivery_ledger",
+      "test_explicit_resend_route_is_role_gated_and_returns_send_contract",
+      "test_explicit_resend_schema_freezes_payload_and_has_single_active_guard",
+      "test_explicit_resend_webhook_updates_log_without_loading_baseline_state",
+      "test_explicit_resend_worker_guard_uses_log_claim_not_baseline_state",
+      "test_failed_receipt_before_acceptance_releases_retry_claim",
+      "test_group_delete_blocks_active_passport_replacement",
+      "test_group_delete_blocks_processing_explicit_resend",
+      "test_imported_recipient_field_limit_accepts_large_rosters_but_remains_bounded",
+      "test_late_failed_receipt_does_not_regress_accepted_checklist",
+      "test_late_failed_receipt_remains_scoped_to_its_original_batch",
+      "test_late_welcome_receipt_stays_batch_fenced_for_recipient_phone_changes",
+      "test_legacy_decoder_fails_closed_when_saved_render_is_modified",
+      "test_legacy_passport_snapshot_survives_later_group_and_support_edits",
+      "test_legacy_welcome_snapshot_is_byte_exact_and_keeps_original_support",
+      "test_manual_reactivation_does_not_erase_imported_fields",
+      "test_manual_recipient_rejects_non_phone_characters_and_excess_digits",
+      "test_mark_failed_skips_baseline_ledger_for_explicit_resend",
+      "test_older_provider_event_is_ignored",
+      "test_out_of_order_accepted_receipt_never_moves_status_backwards",
+      "test_readding_removed_phone_reactivates_same_row_and_preserves_identity",
+      "test_readding_replaced_phone_requires_roster_restore",
+      "test_recipient_checklist_only_marks_provider_accepted_states_as_sent",
+      "test_resend_endpoint_blocks_delivery_unknown_explicit_attempt",
+      "test_resend_endpoint_queues_one_edited_message_with_current_template",
+      "test_resend_endpoint_rejects_removed_or_missing_recipient",
+      "test_resend_queue_failure_does_not_release_baseline_sent_state",
+      "test_webhook_delivery_error_redacts_raw_meta_message",
+      "test_worker_acceptance_makes_inflight_provider_success_authoritative",
+      "test_worker_failure_releases_ledger_claim_for_safe_retry",
+      "test_worker_guard_rejects_later_same_phone_replacement_row",
+      "test_worker_guard_rejects_removed_recipient_before_provider_call",
+      "test_worker_guard_requires_current_processing_batch",
+      "test_worker_prefers_frozen_template_snapshot_over_current_group_values",
+      "test_worker_success_exits_retry_loop_and_remains_submitted"
+    ]
+  },
+  "commands_after_GO": [
+    [
+      "environment-isolation",
+      [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\backend-final-qualification\\check_environment_isolation.py"
+      ]
+    ],
+    [
+      "pytest",
+      [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "-p",
+        "retained_selection_plugin",
+        "tests/unit",
+        "tests/integration",
+        "--cov=app",
+        "--cov-branch",
+        "--cov-report=xml:RUN_DIRECTORY\\coverage.xml",
+        "--cov-report=json:RUN_DIRECTORY\\coverage.json",
+        "--cov-report=term:skip-covered",
+        "--junitxml=RUN_DIRECTORY\\junit.xml"
+      ]
+    ],
+    [
+      "ruff",
+      [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "ruff",
+        "check",
+        "--no-fix",
+        "--config",
+        "pyproject.toml",
+        "app",
+        "tests"
+      ]
+    ],
+    [
+      "mypy",
+      [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "mypy",
+        "--config-file",
+        "pyproject.toml",
+        "--cache-dir",
+        "RUN_DIRECTORY\\mypy-cache",
+        "app"
+      ]
+    ],
+    [
+      "migration",
+      [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "scripts/verify_migration_topology.py"
+      ]
+    ],
+    [
+      "architecture",
+      [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "scripts/verify_architecture_boundaries.py"
+      ]
+    ],
+    [
+      "quality-static",
+      [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "scripts/verify_backend_quality_budgets.py"
+      ]
+    ],
+    [
+      "quality-coverage",
+      [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "scripts/verify_backend_quality_budgets.py",
+        "--coverage-file",
+        "RUN_DIRECTORY\\coverage.xml"
+      ]
+    ]
+  ],
+  "environment": {
+    "inherited": "Minimal OS allowlist only; no inherited pytest/xdist/shard/provider/app credentials",
+    "service_opt_ins": "disabled",
+    "profile": "synthetic local fixture values only",
+    "dotenv_guard": "Early sitecustomize in pytest and Python children; skip root/backend private dotenv, deny other opens; explicit synthetic temporary dotenv files remain readable"
+  },
+  "preconditions_at_GO": "Root explicit GO plus900normal/165critical/144bindings and unchanged75line58branch; freeze all current runtime/test/operator/gate inputs then",
+  "runner_sha256": {
+    "audit_common.py": "028e7af5fe968e74a6fb18c29d4ca5fb4d17e3bbe34dc69d52b23ec5540c4eca",
+    "audit_environment_guard.py": "73dbba9415b27e81d955bfac2f0560c2c24a33ae50b517e6716b298fbbb1b901",
+    "check_environment_isolation.py": "86381284019d9c95091ea0aaa2133ebe3a04b30095a9104c4c288cbdf25b7098",
+    "classify_quality.py": "2ccfc7907b358bb94ef65a3e5e3aac91d25aa9593f62bed59d29d58487a18cb6",
+    "retained_selection_plugin.py": "8b0355fef215b64adbde320a1a4c9fe4747c7af5581b404fb964a15d02f39070",
+    "run_qualification.py": "923047399a7f361ddbe40cb09795fd726c6f82c377be91eef494b04cde091755",
+    "sitecustomize.py": "6908458d6c12381d407f7db48ff49b84d78b4f76bdbbee99772175842d05e13b"
+  },
+  "limits": [
+    "Discovery and AST manifest validation only; actual nodeIDs remain unknown until authorized collection.",
+    "Whole-app denominator and complete original quality policy; all raw failures retained before scope annotation.",
+    "Global Ruff/mypy are static shared-compatibility checks, not new native/Inbox feature audit credit.",
+    "No automatic source fixes, no package installs, no production/provider sends or service opt-ins."
+  ]
+}

@@ -1,0 +1,183 @@
+[
+  {
+    "path": "backend/app/presentation/api/v1/routes/mcp_admin.py",
+    "sha256": "0561a30c37d89e2e9cb7e90233bd18f0007306e155988339b7ca4e37365aa9cb",
+    "physical_lines": 433,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "needs-follow-up",
+    "notes": "Complete433physical lines read. Router and nested routers enforce dashboard management dependency; mutation routes require CSRF+recentMFA. Connection disable/revoke/remove preserve grant/workflow provenance; capability update only narrows; bounded read lists omit credential secrets. Admin request service revalidates locked deciding actor. Mixed overview/connections/requests/authorization/controls/activity/inventory/operations remains a coherent architecture follow-up. No new exploit validated, and initial-request authority versus contended DB mutation admission remains a candidate, not a claimed defect. Manual source/caller review only; no tests/provider/VPS qualification triggered by reading."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/mcp_admin_files.py",
+    "sha256": "1f0cbe201b2f924e5ea3c0abb498354a6a69f882a5f9369d9aea9e49e776d7f3",
+    "physical_lines": 83,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete83lines read. Union projection selects metadata only from artifact/contact/header storage owners, never object keys/provider IDs/source cells; outer pagination is bounded and deterministic. Dashboard management and read-only-deployment guards retained. Manual source/caller review only; no tests/provider/VPS qualification triggered by reading."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/mcp_contact_imports.py",
+    "sha256": "517c6136e98b79eebf51d56310c731d7401b3e01255bf4d254a42476591558bb",
+    "physical_lines": 62,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete62lines read. Dedicated bearer principal, exact XLSX lane, ASCII declared size and SHA passed into bounded workbook service. Service independently revalidates current grant/tool/user/agency with locks after scanning; temporary spool native write drain is canonical. Contact size/checksum header duplicate handling differs from image upload but fixed byte/hash quota remains; no bypass or correction claim. Manual source/caller review only; no tests/provider/VPS qualification triggered by reading."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/mcp_oauth.py",
+    "sha256": "cca6bef2b867d3de6445654a7ec4731779dd093b5939843fda6ef7dbc2bbe773",
+    "physical_lines": 213,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete213lines read. Exact duplicate/size authorization parameter rejection, validated client/redirect/resource/PKCE/scope, bounded resume-cookie loop, scoped HttpOnly request capability, origin checks for requester mutation, bounded form parser and durable token-denial/reuse audit. OAuth/native provider requests were not sent. Bytearray.extend precedes form cap check for an already-delivered ASGI chunk; allocation concern is unvalidated, not an adopted defect. Manual source/caller review only; no tests/provider/VPS qualification triggered by reading."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/mcp_permissions.py",
+    "sha256": "1cd9e44b179ea660d75dd9891e4c2ecc5e0a6a17035a278e4326499cec01973a",
+    "physical_lines": 114,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete114lines read. Strict optimistic revisions, current control-to-grant ordering, no permission expansion beyond original capabilities/deployment, retained revoked/expired rejection, bounded audit projections and commit-before-response. Dashboard management/CSRF/MFA remain independent of bearer capabilities. Manual source/caller review only; no tests/provider/VPS qualification triggered by reading."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/mcp_read_access.py",
+    "sha256": "6f231f82d9825e7e5fd0e030d4f254d52a6248c351c6ce3fb9af38487d4d5503",
+    "physical_lines": 82,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete82lines read. Read/write section admin controls require dashboard superadmin/MFA/CSRF; allowed catalog validated, expected revision strict and locked update increments same current revision. No MCP tool registration or authority grant through arbitrary strings. Manual source/caller review only; no tests/provider/VPS qualification triggered by reading."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/mcp_whatsapp_media.py",
+    "sha256": "669bc28f3ac27795df993a99f5fd55ddc7e5b2538938cfed927f2557ed2b5f55",
+    "physical_lines": 141,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete141lines read. Bearer only; one size/checksum/idempotency header, fixed image media cap; actual access service binds current grant, actor, agency+broadcast and ready-only explicit recovery. Recover does not dispatch messages. Upload service/native provider implementation is not independently fully reread here. Manual source/caller review only; no tests/provider/VPS qualification triggered by reading."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/schemas/mcp_native_transfer_schemas.py",
+    "sha256": "e2d485305521fe28bb9941bdce38deb86d2042a3984815aeefe0ab8591efb1d6",
+    "physical_lines": 5,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete5line compatibility reexport read; actual50line application native descriptors independently read for exact purpose/group/document/filename/hash restrictions. No additional buffering or account selection. Manual source/caller review only; no tests/provider/VPS qualification triggered by reading."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/schemas/mcp_permission_schemas.py",
+    "sha256": "d1c126fa6e7aba0d1997e9b4cdb9541492e9eafc102093a4d2cf0b7254b5046c",
+    "physical_lines": 68,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete68lines read. Extra fields forbidden; strict booleans/revisions and finite read/write/tool catalogs, tool prerequisites contained in selected sections. Defaults/after-validator semantics retained. Manual source/caller review only; no tests/provider/VPS qualification triggered by reading."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/schemas/mcp_schemas.py",
+    "sha256": "eb11f05c996f3323cb9fe12d7a578432588963f5749827ac86b61c7530296055",
+    "physical_lines": 82,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete82lines read. Bounded consent/client/redirect/PKCE/state/scopes/names and fixed device platforms. Request labels/approval nonblank names normalized; capabilities canonical validated. MCPControlRequest.enabled remains coercing while access controls use strict bool; no security impact validated. Manual source/caller review only; no tests/provider/VPS qualification triggered by reading."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/schemas/mcp_transfer_schemas.py",
+    "sha256": "758026781ca1e52df2dcf74a2cf6e29e4560686ddb370bfb015b109078c104ac",
+    "physical_lines": 204,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete204lines read. Metadata/UUID/digest/status schemas and raw binary upload/error/delivery documentation; actual body buffering/byte admission belongs to routes/services. Strict acknowledgement rejects extras and constrains size; docs-only OpenAPI builders never confer authorization. Manual source/caller review only; no tests/provider/VPS qualification triggered by reading."
+  },
+  {
+    "path": "backend/app/presentation/dependencies/mcp.py",
+    "sha256": "e800172ecf554ee8b77a68b439925013fdeb621f8f9b2c57576fab5a2e4b5091",
+    "physical_lines": 41,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical support source reread to trace retained dashboard management/bearer transfer closure. Covers current user/security/MFA/credential/session version, control/grant locks, scoped workbook or media recovery and native spool PUT drain as applicable. Earlier application-MCP peer full review remains separate attribution; this is an actual bounded independent source reread, not a matrix classification or executed service claim."
+  },
+  {
+    "path": "backend/app/application/mcp/authorization.py",
+    "sha256": "8e9b9b9d95392262d07dd60184397779e0898bb2b1e543737fff6eb0192ac56f",
+    "physical_lines": 349,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical support source reread to trace retained dashboard management/bearer transfer closure. Covers current user/security/MFA/credential/session version, control/grant locks, scoped workbook or media recovery and native spool PUT drain as applicable. Earlier application-MCP peer full review remains separate attribution; this is an actual bounded independent source reread, not a matrix classification or executed service claim."
+  },
+  {
+    "path": "backend/app/application/mcp/contact_uploads.py",
+    "sha256": "4049641480ae15a5d44a67be0954064f71d1c91b73ead316fa8c03c876f529d5",
+    "physical_lines": 211,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical support source reread to trace retained dashboard management/bearer transfer closure. Covers current user/security/MFA/credential/session version, control/grant locks, scoped workbook or media recovery and native spool PUT drain as applicable. Earlier application-MCP peer full review remains separate attribution; this is an actual bounded independent source reread, not a matrix classification or executed service claim."
+  },
+  {
+    "path": "backend/app/application/mcp/native_transfer_dto.py",
+    "sha256": "d7a2c4d127f633e894d9d6ca098eb51c738eb1560bb312ce2ea712d97ee41dc8",
+    "physical_lines": 50,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical support source reread to trace retained dashboard management/bearer transfer closure. Covers current user/security/MFA/credential/session version, control/grant locks, scoped workbook or media recovery and native spool PUT drain as applicable. Earlier application-MCP peer full review remains separate attribution; this is an actual bounded independent source reread, not a matrix classification or executed service claim."
+  },
+  {
+    "path": "backend/app/application/mcp/whatsapp_media_access.py",
+    "sha256": "f1fb53340b6bccaad83b27455562d1f9c603548bdd1dea06e87078eb81e74a12",
+    "physical_lines": 211,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical support source reread to trace retained dashboard management/bearer transfer closure. Covers current user/security/MFA/credential/session version, control/grant locks, scoped workbook or media recovery and native spool PUT drain as applicable. Earlier application-MCP peer full review remains separate attribution; this is an actual bounded independent source reread, not a matrix classification or executed service claim."
+  },
+  {
+    "path": "backend/app/infrastructure/storage/mcp_artifact_storage.py",
+    "sha256": "99f0c8ef858287f10cc9a9c6ced4c20430417bdda459be25eb8459ccd7c35381",
+    "physical_lines": 40,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current physical support source reread to trace retained dashboard management/bearer transfer closure. Covers current user/security/MFA/credential/session version, control/grant locks, scoped workbook or media recovery and native spool PUT drain as applicable. Earlier application-MCP peer full review remains separate attribution; this is an actual bounded independent source reread, not a matrix classification or executed service claim."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/mcp_artifacts.py",
+    "sha256": "46a2bd46bd04b9c17487b1d965951cfefeae9223c24909e5a9524444016c6dad",
+    "reviewer": "ai_extraction",
+    "review_scope": "partial",
+    "status": "focused",
+    "read_ranges": [
+      [
+        1,
+        125
+      ]
+    ],
+    "notes": "Exact single bearer-header verification, dashboard JWT exclusion, verifier commit before mutation locks and fixed exception-response projection traced only in listed ranges; no whole-file review or runtime proof upgrade."
+  },
+  {
+    "path": "backend/app/application/mcp/connection_requests.py",
+    "sha256": "0ab3e60df97ec6a3c439267a82fd0952fbc8e08f8ee346e2a09b56496ff640a6",
+    "reviewer": "ai_extraction",
+    "review_scope": "partial",
+    "status": "focused",
+    "read_ranges": [
+      [
+        196,
+        315
+      ]
+    ],
+    "notes": "Actual deciding actor/credential/MFA/control locks, narrowed capabilities, one-shot requester finalization and observed decision recheck traced only in listed ranges; no whole-file review or runtime proof upgrade."
+  }
+]

@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "--tb=short",
+    "tests/unit/application/test_submission_view_work.py"
+  ],
+  "exit_code": 1,
+  "source_frozen": true,
+  "output": "submission-view-performance-baseline-tests.txt",
+  "source_snapshot": "submission-view-performance-original-source.json"
+}

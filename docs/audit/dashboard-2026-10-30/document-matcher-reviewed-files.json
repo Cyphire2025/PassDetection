@@ -1,0 +1,122 @@
+[
+  {
+    "path": "backend/app/infrastructure/documents/document_matcher.py",
+    "status": "verified",
+    "reviewer": "ai_extraction",
+    "review_depth": "full",
+    "sha256": "e1a8994f1ef42a2c37367851862bc417133249e21f2f17a73d72eb9f5912be24",
+    "notes": "Focused full-source review of the original1959-line matcher and ownership extraction; classification precedence, scoped indexes, ambiguity handling and resource seams preserved. Functional verification via172matching/native/sandbox/staging/manual-upload tests; no production throughput claim."
+  },
+  {
+    "path": "backend/app/infrastructure/documents/document_matcher_models.py",
+    "status": "verified",
+    "reviewer": "ai_extraction",
+    "review_depth": "full",
+    "sha256": "6f572933765d0f4b6595eae758dfad76797cc4d2c5ee00379ae7ec72ad6d4b1f",
+    "notes": "Focused full-source review of the original1959-line matcher and ownership extraction; classification precedence, scoped indexes, ambiguity handling and resource seams preserved. Functional verification via172matching/native/sandbox/staging/manual-upload tests; no production throughput claim."
+  },
+  {
+    "path": "backend/app/infrastructure/documents/document_identity_limits.py",
+    "status": "verified",
+    "reviewer": "ai_extraction",
+    "review_depth": "full",
+    "sha256": "1425bba98778c0d1666dc7371e98a8ad3b088be237b2bbb3c29bfb27284a29f3",
+    "notes": "Focused full-source review of the original1959-line matcher and ownership extraction; classification precedence, scoped indexes, ambiguity handling and resource seams preserved. Functional verification via172matching/native/sandbox/staging/manual-upload tests; no production throughput claim."
+  },
+  {
+    "path": "backend/app/infrastructure/documents/document_identity_aliases.py",
+    "status": "verified",
+    "reviewer": "ai_extraction",
+    "review_depth": "full",
+    "sha256": "5acc010b7bbec08d01ae9f22f67917286ce84ca5a97d43445ba5602e203eea83",
+    "notes": "Focused full-source review of the original1959-line matcher and ownership extraction; classification precedence, scoped indexes, ambiguity handling and resource seams preserved. Functional verification via172matching/native/sandbox/staging/manual-upload tests; no production throughput claim."
+  },
+  {
+    "path": "backend/app/infrastructure/documents/document_passenger_index.py",
+    "status": "verified",
+    "reviewer": "ai_extraction",
+    "review_depth": "full",
+    "sha256": "adab0a7e926930fa6763a7481c58d37ff7fe636a4adcafc92d327b5c3afcc82d",
+    "notes": "Focused full-source review of the original1959-line matcher and ownership extraction; classification precedence, scoped indexes, ambiguity handling and resource seams preserved. Functional verification via172matching/native/sandbox/staging/manual-upload tests; no production throughput claim."
+  },
+  {
+    "path": "backend/app/infrastructure/documents/document_match_resolution.py",
+    "status": "verified",
+    "reviewer": "ai_extraction",
+    "review_depth": "full",
+    "sha256": "b941022f1ac9e46c1c7417827297034b9a2d322b8c44aa35f9a3c894d077f6dd",
+    "notes": "Focused full-source review of the original1959-line matcher and ownership extraction; classification precedence, scoped indexes, ambiguity handling and resource seams preserved. Functional verification via172matching/native/sandbox/staging/manual-upload tests; no production throughput claim."
+  },
+  {
+    "path": "backend/app/infrastructure/documents/document_type_detection.py",
+    "status": "verified",
+    "reviewer": "ai_extraction",
+    "review_depth": "full",
+    "sha256": "ba6b77ef799e0ded3e29115ffd73ca1b3ad6500bf79aa313e6ed8755c6a78ecb",
+    "notes": "Focused full-source review of the original1959-line matcher and ownership extraction; classification precedence, scoped indexes, ambiguity handling and resource seams preserved. Functional verification via172matching/native/sandbox/staging/manual-upload tests; no production throughput claim."
+  },
+  {
+    "path": "backend/app/infrastructure/documents/document_text_fields.py",
+    "status": "verified",
+    "reviewer": "ai_extraction",
+    "review_depth": "full",
+    "sha256": "657115c4a548a20aace7b37faef07c776138cc41a7904ef9a512f265a12e8fa0",
+    "notes": "Focused full-source review of the original1959-line matcher and ownership extraction; classification precedence, scoped indexes, ambiguity handling and resource seams preserved. Functional verification via172matching/native/sandbox/staging/manual-upload tests; no production throughput claim."
+  },
+  {
+    "path": "backend/app/infrastructure/documents/document_text_normalization.py",
+    "status": "verified",
+    "reviewer": "ai_extraction",
+    "review_depth": "full",
+    "sha256": "e9a4e26508db2df840d17b2a1fb4b50f2be07f92921a1be994ad6a6f9d7d2d9f",
+    "notes": "Focused full-source review of the original1959-line matcher and ownership extraction; classification precedence, scoped indexes, ambiguity handling and resource seams preserved. Functional verification via172matching/native/sandbox/staging/manual-upload tests; no production throughput claim."
+  },
+  {
+    "path": "backend/app/infrastructure/documents/document_batch_classification.py",
+    "status": "verified",
+    "reviewer": "ai_extraction",
+    "review_depth": "full",
+    "sha256": "2b3a06a101c373cc32de12f0f2e8c9a6ce6bb380813887e5603747d5a1dd6417",
+    "notes": "Focused full-source review of the original1959-line matcher and ownership extraction; classification precedence, scoped indexes, ambiguity handling and resource seams preserved. Functional verification via172matching/native/sandbox/staging/manual-upload tests; no production throughput claim."
+  },
+  {
+    "path": "backend/app/infrastructure/documents/document_pdf_support.py",
+    "status": "reviewed",
+    "reviewer": "ai_extraction",
+    "review_depth": "full",
+    "sha256": "563c5247ab3e7d93fc3ca67eb5bb33d7e0d712d393c613d91257259ebc108f3c",
+    "notes": "Fullsource read: native resources close on normal/error paths, render/text/source/page/deadline bounds and active-content rejection preserved; no edits. RealDocker/Linux resource qualification remains separate."
+  },
+  {
+    "path": "backend/app/infrastructure/documents/document_matcher_rules.py",
+    "status": "reviewed",
+    "reviewer": "ai_extraction",
+    "review_depth": "full",
+    "sha256": "64b5ef3a1879f6d3789fc24f2ef62841f481194278e01f612ae519d2a8c95030",
+    "notes": "Fullsource read of bounds and identity/classification vocabularies; values unchanged. Four facade identity-bound overrides resolve explicitly at call time."
+  },
+  {
+    "path": "backend/app/infrastructure/documents/manual_type_approval.py",
+    "status": "reviewed",
+    "reviewer": "ai_extraction",
+    "review_depth": "full",
+    "sha256": "f92299531c58c35aabe14a624397fd5d253f770d2da2857d84ee1200cf350834",
+    "notes": "Fullsource read of encrypted short-lived manual approval proof issuance/validation; tenant/actor/group/upload/lane/content binding retained, no edits."
+  },
+  {
+    "path": "backend/app/infrastructure/documents/pdf_parser_sandbox.py",
+    "status": "partially_reviewed",
+    "reviewer": "ai_extraction",
+    "review_depth": "partial",
+    "sha256": "8986ae28ef2002c86b03cefa56fd9f522725739c8fab75a09d46021e80eabbdb",
+    "notes": "Partialsource review: bounds/admission constants, lease protocol overview, child classification/error sanitization.73 focusedsandbox/memory/staging/manual-upload tests passed; parent coordination/cleanup is not claimed fully reviewed."
+  },
+  {
+    "path": "backend/app/infrastructure/documents/distribution_ingestion.py",
+    "status": "partially_reviewed",
+    "reviewer": "ai_extraction",
+    "review_depth": "partial",
+    "sha256": "adc910220ff19f9b0e7a297b576ca03d43f492f54b712bfcdf19b422de1fbbc6",
+    "notes": "Partialsource review: group-scoped ingestion entrypoint, preclassified receipts, scoped index construction, matching offload and assignment-capacity path through line293. Persistence/cleanup remainder not claimed fully reviewed; actual ingestion regressions passed."
+  }
+]

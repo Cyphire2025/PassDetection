@@ -1,4 +1,4 @@
-"""Apply the exact 0135→0138 chain inside a retained, writer-fenced helper.
+"""Apply the exact 0138 to 0140 chain inside a retained, writer-fenced helper.
 
 Each revision owns its transaction. Resume requires the original 0138 backup
 and preservation baseline. No automatic downgrade, enrollment or activation.

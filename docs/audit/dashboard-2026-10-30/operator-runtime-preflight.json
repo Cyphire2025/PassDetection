@@ -1,0 +1,41 @@
+{
+  "status": "guard-fixed-focused; architecture follow-through pending",
+  "full_files": 9,
+  "validated_guard": {
+    "conditional_effect": "A64byte accepted CI name aliases an existing configured63byte name when PostgreSQL parses quoted DDL; exact-name application guard compares pre-truncation strings.",
+    "upstream_identifier_contract": "https://www.postgresql.org/docs/16/sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS",
+    "before": {
+      "failed": 6,
+      "passed": 1,
+      "log": "rehearsal-name-safety-before.txt"
+    },
+    "after": {
+      "passed": 14,
+      "log": "rehearsal-name-safety-after.txt"
+    },
+    "actual_db_or_cli_calls": 0,
+    "change": "Reject>63ASCII-byte CI database names before any connection, subprocess or replace operation; existingregex/system/ack/configured-name guards preserved."
+  },
+  "architecture_pending": [
+    "rehearse_postgresql_upgrade fixture/query/head verification/client/orchestration separation preserving imported aliases and sameCLI.",
+    "verify_compose_runtime contiguous fixed security/capacity/frontend/development policy separation with whole main AST reconstruction.",
+    "release_retained_update and release_traveller_whatsapp large public recovery/stateful orchestration owners read; no decomposition proposed without focused workflow/caller contract coverage.",
+    "qualify_workload_capacity observer lifecycle after early exception/cancel remains unvalidated candidate; no current resource leak or live capacity claim."
+  ],
+  "source_sha256": {
+    "backend/scripts/rehearse_postgresql_upgrade.py": "14501c84c322fdc4df3d683e9da6cde29e4dae2689d541151cce4d6f3ab636e0",
+    "scripts/verify_compose_runtime.py": "ec6cf4a2efd256295901b53addd103308126c8f8c276ae009b505686446a6775",
+    "scripts/release_retained_update.py": "55338ce54f33e43b174e137b4808ba45cf48bee41cd67d0808e28221e2040c70",
+    "scripts/release_traveller_whatsapp.py": "bc9bc3f27c9c65914dd00c582ce6abd03fc1e18564e8e222ca79f7d03ff4ba32",
+    "scripts/qa/qualify_workload_capacity.py": "608e0a6e083cb538ffde15bf4734a00faf367cbb858d50f7f15a835f8704f427",
+    "scripts/qa/qualify_companies_fast_migration.py": "f8a57052a535fc5fd01fabad9007cc9489b4b8b799458355eddda163bdca25b2",
+    "backend/tests/unit/infrastructure/test_postgresql_upgrade_rehearsal.py": "ebbf1e9c248ff8c23ff55def4a2133851e1379d77d7dc2ceea63688b5508a83a",
+    "backend/tests/unit/infrastructure/test_postgresql_upgrade_rehearsal_safety.py": "874340fd3e082b07b4a88f8b3a90a1d62cad9300bb951d2cd733306cd18983fc",
+    "scripts/test_compose_render_fixture.py": "8d01ea0d51312ef735d405b0bf89a21d76c369bca29a1c10708fcf57f37ad6b5"
+  },
+  "limits": [
+    "Only synthetic guard controls ran. Existing real PostgreSQL populated migration/compose render/live release/capacity gates not rerun.",
+    "No broad application checks, real deployment, database creation/drop or provider calls.",
+    "Current626/91quality and102strictbindings unaffected by unprotected script-only guard fix; centralMCP remains historical1990/deferred."
+  ]
+}

@@ -1,0 +1,75 @@
+..............F........................................                  [100%]
+================================== FAILURES ===================================
+____ test_actual_admission_autoretry_keeps_decision_exception_and_payload _____
+
+private_celery = <Celery isolated-diagnostic-tests at 0x23f275100d0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000023F27514050>
+
+    def test_actual_admission_autoretry_keeps_decision_exception_and_payload(
+        private_celery, monkeypatch
+    ):
+        admission = AiPriorityAdmissionDeferred(
+            workload="synthetic", reason=DETAIL, retry_after_ms=1200
+        )
+    
+        @private_celery.task(
+            name="synthetic.private.admission",
+            autoretry_for=(AiPriorityAdmissionDeferred,),
+            retry_kwargs={"max_retries": 2, "countdown": 3},
+        )
+        def task(*, passenger_link):
+            assert passenger_link == PAYLOAD
+            raise admission
+    
+        publish = Mock(return_value=SimpleNamespace(id="synthetic-admission-retry"))
+        monkeypatch.setattr(private_celery, "send_task", publish)
+        task_id = str(uuid.uuid4())
+        tracer = build_tracer(task.name, task, eager=False, app=private_celery)
+        traced = tracer(
+            task_id,
+            (),
+            {"passenger_link": PAYLOAD},
+            {
+                "id": task_id,
+                "task": task.name,
+                "retries": 0,
+                "is_eager": False,
+                "delivery_info": {"exchange": "", "routing_key": "whatsapp"},
+            },
+        )
+    
+        assert traced.info.state == states.RETRY
+>       assert traced.info.retval.exc is admission
+E       AssertionError: assert RuntimeError('synthetic admission deferred: synthetic-private-DB-detail-P1234567') is AiPriorityAdmissionDeferred('synthetic admission deferred: synthetic-private-DB-detail-P1234567')
+E        +  where RuntimeError('synthetic admission deferred: synthetic-private-DB-detail-P1234567') = Retry(Retry(...), AiPriorityAdmissionDeferred('synthetic admission deferred: synthetic-private-DB-detail-P1234567'), 3).exc
+E        +    where Retry(Retry(...), AiPriorityAdmissionDeferred('synthetic admission deferred: synthetic-private-DB-detail-P1234567'), 3) = <celery.app.trace.TraceInfo object at 0x0000023F274EBBE0>.retval
+E        +      where <celery.app.trace.TraceInfo object at 0x0000023F274EBBE0> = trace_ok_t(retval=<ExceptionInfo: ExceptionWithTraceback()>, info=<celery.app.trace.TraceInfo object at 0x0000023F274EBBE0>, runtime=None, retstr=None).info
+
+tests\unit\infrastructure\test_private_celery_diagnostics.py:392: AssertionError
+---------------------------- Captured stdout call -----------------------------
+2026-10-30T21:24:23.066104Z [info     ] Celery task synthetic.private.admission[c7ab3f16-b49d-4333-9dc1-fe333758e8fa] task_retry: Task retry requested; private details omitted [celery.app.trace]
+------------------------------ Captured log call ------------------------------
+INFO     celery.app.trace:trace.py:128 Celery task synthetic.private.admission[c7ab3f16-b49d-4333-9dc1-fe333758e8fa] task_retry: Task retry requested; private details omitted
+
+---------- coverage: platform win32, python 3.11.15-final-0 ----------
+Name                                                      Stmts   Miss Branch BrPart  Cover
+-------------------------------------------------------------------------------------------
+app\core\logging\__init__.py                                  0      0      0      0   100%
+app\core\logging\celery_diagnostics.py                       60      4     22      2    93%
+app\core\logging\logger.py                                   58      4     12      0    94%
+app\core\logging\mcp_log_normalization.py                    49     49     14      0     0%
+app\core\logging\mcp_log_projection.py                       40     26     12      0    27%
+app\core\logging\task_diagnostics.py                         38      0      6      0   100%
+app\infrastructure\processing\celery_app.py                  54      4      0      0    93%
+app\infrastructure\processing\private_result_backend.py      13      0      2      0   100%
+app\infrastructure\processing\private_task.py                16      0      0      0   100%
+app\infrastructure\processing\private_task_loader.py          3      0      0      0   100%
+app\infrastructure\processing\private_task_request.py        35      1     10      4    89%
+-------------------------------------------------------------------------------------------
+TOTAL                                                       366     88     78      6    73%
+Coverage XML written to file ../docs/audit/dashboard-2026-10-30/celery-diagnostic-coverage.xml
+Coverage JSON written to file ../docs/audit/dashboard-2026-10-30/celery-diagnostic-coverage.json
+
+=========================== short test summary info ===========================
+FAILED tests/unit/infrastructure/test_private_celery_diagnostics.py::test_actual_admission_autoretry_keeps_decision_exception_and_payload
+1 failed, 54 passed in 4.80s

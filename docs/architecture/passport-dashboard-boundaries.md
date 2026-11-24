@@ -33,10 +33,12 @@ including submissions in groups they own or are assigned. One selected row
 and multiple selected rows use the same bulk-delete endpoint.
 
 This permission is separate from permanent group deletion and account/data
-purges. The default destructive-group permission remains unchanged. Legal
-holds, active roster-decision protection, CSRF, applicable recent MFA,
+purges. The default destructive-group permission remains unchanged. Active
+roster-decision protection, CSRF, applicable recent MFA,
 all-or-nothing selection validation, durable audit records, and storage
 cleanup after database commit still apply to manager submission deletion.
+Historical legal-hold flags are inactive, as described in
+[the feature retirement contract](passport-deletion.md).
 
 `public_upload_capability.require_active_public_upload` rejects missing, closed,
 archived and deleted groups before accessing retained submissions or private
@@ -53,8 +55,8 @@ historical attendance, export or delivery records.
 
 ## Durable processing and uncertain commits
 
-Staff document imports stage OCR job rows in the same transaction as their
-image references. Broker publication happens after commit. The API application
+Staff document imports stage durable extraction job rows in the same transaction
+as their image references. Broker publication happens after commit. The API application
 runs bounded periodic extraction recovery: it leases stale queued or expired
 running jobs using `FOR UPDATE SKIP LOCKED`, commits the lease, then dispatches
 outside the request thread. Queued rows remain recoverable even if a previous

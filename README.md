@@ -1,6 +1,6 @@
-# Global Connects Dashboard - Passport OCR Platform
+# Global Connects Dashboard
 
-Passport processing platform for travel agencies. Production readiness depends on
+Travel operations and AI passport processing platform for travel agencies. Production readiness depends on
 the tested release and deployed controls; see the [current release procedure](docs/PRODUCTION_RELEASE_READINESS.md)
 and [recovery evidence requirements](docs/PRODUCTION_RESILIENCE_AND_DR.md).
 

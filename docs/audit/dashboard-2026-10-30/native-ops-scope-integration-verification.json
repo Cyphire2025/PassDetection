@@ -1,0 +1,142 @@
+{
+  "status": "frozen; policy/inventory ownership handed back to root",
+  "approval_proposal": {
+    "path": "docs/audit/dashboard-2026-10-30/native-ops-scope-refinement-proposal.json",
+    "sha256": "9131a393de4af6ca1854bf8043b4e8d0699d53049d35927c6f9701f9f368c1cb"
+  },
+  "native_only_paths_before": 24,
+  "native_only_paths_after": 31,
+  "new_paths": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_attendance_action_support.py",
+      "sha256": "62a8de5e7789dfd111e3e9aaebfc945287c32248ddf9df14e6990661844c1f06",
+      "original_status": "inventoried",
+      "original_review_scope": "unreviewed",
+      "only_changed_field": "scope"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_ops.py",
+      "sha256": "9579d8a220f78d7d422be448f8165fae470f0b48122b141eb58c1ad114bf8b26",
+      "original_status": "focused",
+      "original_review_scope": "focused",
+      "only_changed_field": "scope"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_ops_notification_support.py",
+      "sha256": "22a1427638d519eaea72ae6349c6cb3d54ad9661f6ff0fd63b5cb43b2b4b8308",
+      "original_status": "inventoried",
+      "original_review_scope": "unreviewed",
+      "only_changed_field": "scope"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_ops_passenger_support.py",
+      "sha256": "899fe906efebc7b1883526a2c70507e620e53e6d6586699880900d69150e938a",
+      "original_status": "inventoried",
+      "original_review_scope": "unreviewed",
+      "only_changed_field": "scope"
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/mobile_schemas.py",
+      "sha256": "5ddbd2072d0f12aaa03a24c05840685ab82a95c89d04253f691b09ca159ccd2b",
+      "original_status": "inventoried",
+      "original_review_scope": "unreviewed",
+      "only_changed_field": "scope"
+    },
+    {
+      "path": "backend/app/presentation/dependencies/mobile_auth.py",
+      "sha256": "e15e6efb5660026543df7efc2f0569ccec3c5401e07ded630d7d22ac9cfe9ee9",
+      "original_status": "reviewed",
+      "original_review_scope": "full",
+      "only_changed_field": "scope"
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_mobile_ops_support_boundaries.py",
+      "sha256": "b198091d2f1f11563b5887b4fcdfdeeccc7fed71cc2f29b0b441e36447693314",
+      "original_status": "inventoried",
+      "original_review_scope": "unreviewed",
+      "only_changed_field": "scope"
+    }
+  ],
+  "other_candidate_policy_accounting": {
+    "already_excluded_before": [
+      "backend/tests/unit/presentation/test_mobile_integrity_route.py",
+      "backend/tests/unit/presentation/test_mobile_journey.py"
+    ],
+    "retained_or_unapproved": [
+      "backend/tests/service_integration/test_my_photos_postgresql_contracts.py",
+      "backend/tests/unit/application/test_authored_notifications.py",
+      "backend/tests/unit/application/test_coordinator_trip_expiry_authorization.py",
+      "backend/tests/unit/application/test_mobile_integrity_service.py",
+      "backend/tests/unit/application/test_mobile_notification_service.py",
+      "backend/tests/unit/core/test_password_work_budget.py",
+      "backend/tests/unit/infrastructure/test_apns_push_provider.py",
+      "backend/tests/unit/presentation/test_mobile_activation.py",
+      "backend/tests/unit/presentation/test_mobile_authorization_matrix.py",
+      "backend/tests/unit/presentation/test_mobile_auth_response_contract.py",
+      "backend/tests/unit/presentation/test_mobile_fcm_registration.py",
+      "backend/tests/unit/presentation/test_mobile_ops.py",
+      "backend/tests/unit/presentation/test_mobile_otp_auth.py",
+      "backend/tests/unit/presentation/test_mobile_resources.py",
+      "backend/tests/unit/presentation/test_mobile_submitted_phone_auth.py",
+      "backend/tests/unit/presentation/test_tour_operations_route_decomposition.py"
+    ]
+  },
+  "history_preserved": true,
+  "runtime_source_changes": [],
+  "inventory_tool_changed": false,
+  "old_policy_fields_unchanged_except": [
+    "native_app_only_paths",
+    "native_app_only_paths_reason"
+  ],
+  "original_test_assertions_preserved": true,
+  "checks": [
+    {
+      "name": "Exact current policy expectation baseline",
+      "result": "1fails old24versusapproved31; classification change only, not a runtime bug",
+      "path": ".tmp/native-ops-scope-integration/baseline-policy.txt",
+      "sha256": "e1a9ed4803e64e2c1b2571d2c550a710a1622cdd869c148fa9e2aecf91d1bcf3"
+    },
+    {
+      "name": "Affected scope/resolution/retirement group",
+      "result": "99passed",
+      "path": ".tmp/native-ops-scope-integration/affected-tests.txt",
+      "sha256": "49570e47cb2ee659bcc8ce0ac71e7b98ef600ea9a479ce0b6afa984f52e70a72"
+    },
+    {
+      "name": "Pinned backend-config Ruff",
+      "result": "passed",
+      "path": ".tmp/native-ops-scope-integration/lint.txt",
+      "sha256": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0"
+    },
+    {
+      "name": "Actual inventory refresh",
+      "result": "passed; all7rows change scope only, hashes/status/reviewer/notes/full-or-partial depth preserved",
+      "path": ".tmp/native-ops-scope-integration/refresh.txt",
+      "sha256": "4f422cdc24202acbb5ee46de4611270ac4f3962ff3390ed6df2a620f4278e8f5"
+    }
+  ],
+  "current_sources": [
+    {
+      "path": "docs/audit/dashboard-2026-10-30/audit-scope.json",
+      "sha256": "3fab70acbff090e81d687a34b71ca6363a9b48fdff12ede6e9188a6db092ff23"
+    },
+    {
+      "path": "backend/tests/unit/scripts/test_dashboard_audit_scope.py",
+      "sha256": "e2f1bd33fc02537d790548a6576a7c02b27393fdfcac9ae4a844b1cd237a22cb"
+    },
+    {
+      "path": "scripts/dashboard_audit_inventory.py",
+      "sha256": "509e8e9c1d2091cdda70f3826f31a5ba37f836c67923a2e5891a41e95b5fbbe5"
+    }
+  ],
+  "ledger": {
+    "path": "docs/audit/dashboard-2026-10-30/native-ops-scope-integration-reviewed-files.json",
+    "sha256": "2f626e781952a26c901e31076a31b2ef58b07eefb8c7eb173b48ec9ca80f9100"
+  },
+  "limits": [
+    "Scope classification only, no source/test removal or native feature execution.",
+    "Original schema/OpenAPI/MCP/CI permissions and all underlying shared services remain unchanged.",
+    "No broad app suite/build/browser/provider calls.",
+    "No other-candidate exclusion authorized by this tranche; prior exact exclusions stay authoritative and mixed route-type test remains retained."
+  ]
+}

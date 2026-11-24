@@ -1,0 +1,82 @@
+{
+  "created_at_utc": "2026-10-30T19:02:04.086760+00:00",
+  "scope": "Dashboard auth cookie-writer tranche; native mobile excluded. Actual app modules and backend precondition tested separately from full Next UI/deployment/service qualification.",
+  "source_sha256": {
+    "frontend/lib/api/client.ts": "0580c6d8a66cf4be1a7adc446e8d0604e1b79ccd24aae41a4d7c1613eddd0259",
+    "frontend/lib/api/request-owner.ts": "84bfd2860e69c63999aefd11c44f562d95bb06d269d3a41e894ce2f5f124edfe",
+    "frontend/stores/auth.store.ts": "88e565d1672d1cee428a0ae7e289721521d0b4ef753425ab26131f60789004af",
+    "frontend/features/auth/api/auth.api.ts": "6e52799fa4c0a18c887c26836402d3b7bd68273b08f5e0365bbbbc8165719abd",
+    "frontend/features/auth/services/cookie-mutation.ts": "fa1385adb965525afba57c42d1eab82d0967b9f3836956b462746be164ece6c7",
+    "frontend/features/auth/services/session-state.ts": "2e2bb19faeceaa270d948aeb563de6aa4dcfc77f0939b90ed7f2011269111557",
+    "frontend/features/auth/hooks/use-login.ts": "65572508ff77f60b03a3e8a1f7a8794e98704339558fa1f58e5846d4831d905e",
+    "frontend/features/auth/components/login-form.tsx": "120f01c6b2e036c0fce6d24fa8eeb4cf60ae0f9810354fe8f8ee60e92ff96040",
+    "frontend/features/auth/components/activation-form.tsx": "f6e68a6117d00370a247eaa7accace1f1c85fe258050e176ee230004446d664e",
+    "frontend/features/auth/components/password-recovery-forms.tsx": "2c962f815e3592b132ac56258d9855ef40ad9770ceb47536e6b4ebbeb98adc3a",
+    "frontend/features/auth/components/account-security-panel.tsx": "a7e57c6318afe3080ba08e8e9aac09cc95dd93a67237aa7d413423cea604cbdc",
+    "frontend/features/auth/components/authenticated-content.tsx": "bfd2d9dd886a94df21d3bfe3e6886092af083aa68175251dae4e633d23be69ec",
+    "frontend/features/auth/components/login-session-entry.tsx": "7f2eff2df24000e730b93f7caf27520c4e0eb21cf693242351a28b6e55d8dc76",
+    "frontend/features/auth/components/step-up-dialog.tsx": "2f740545563210f4bd39d1a104d12c76c3b89dac2173f03d5600b3f4f0a4c0b8"
+  },
+  "checks": [
+    {
+      "check": "all auth + lib/api + auth-restoration focused Vitest",
+      "status": "passed",
+      "files": 28,
+      "tests": 221,
+      "artifact": "auth-cookie-all-focused.json"
+    },
+    {
+      "check": "actual bundled frontend modules, real Chromium HTTP/Web Locks/cookies",
+      "status": "passed",
+      "scenarios": 11,
+      "artifact": "auth-cookie-application-browser.json"
+    },
+    {
+      "check": "existing auth Node contracts",
+      "status": "passed",
+      "tests": 9
+    },
+    {
+      "check": "tsc --noEmit --pretty false",
+      "status": "passed"
+    },
+    {
+      "check": "scoped ESLint auth/client/owner/store/test support",
+      "status": "passed"
+    },
+    {
+      "check": "maintainability runtime budgets, root coordinated merge",
+      "status": "passed",
+      "modules": 245
+    }
+  ],
+  "expected_red": [
+    {
+      "artifact": "auth-stale-intent-before-fix.json",
+      "failures": 4,
+      "passing_existing_cases": 8
+    },
+    {
+      "artifact": "auth-cookie-navigation-before-fix.json",
+      "failed_actual_browser_scenarios": 1,
+      "passing_scenarios": 9
+    }
+  ],
+  "backend_receipt": "auth-cookie-backend-verification.json",
+  "behavior": [
+    "Shared origin Web Lock around actual cookie-writing transport only; released before Axios response interceptors, refresh conflict retry and step-up waits",
+    "Known-actor raw refresh and queue-safe direct logout preserve initiating expected actor; no new authorization grant",
+    "Late document logout cannot release its Web Lock before bounded cookie response; private UI unmounts first and stale completion cannot redirect newer actor",
+    "Browser missing/disabled Web Locks fails closed with actionable existing retry UX; nonbrowser path and non-cookie/public requests remain available",
+    "Identity proof401 preserves original failure; no unrelated staff refresh on activation/MFA verification/recovery",
+    "Four old rendered identity intents stop before dispatch under changed context",
+    "Closed unused authApi refreshToken/logout/logoutAll aliases retired; active client/store workflows and backend endpoints unchanged"
+  ],
+  "limits": [
+    "Synthetic loopback HTTP server supplies credentials/cookies; browser executes actual compiled frontend modules, not full Next page UI",
+    "Actual backend precondition qualification is ASGI/durable SQLite; PostgreSQL concurrency/deployed cookie policy not established by these checks",
+    "Root final Next build/whole-frontend coverage/production browser checkpoint is separate and remains pending after concurrent lanes freeze",
+    "Actor-only chained-operation helper does not claim role/agency continuity; callers need authority guards",
+    "Other cross-operation/private form review and broader architecture/audit remain open"
+  ]
+}

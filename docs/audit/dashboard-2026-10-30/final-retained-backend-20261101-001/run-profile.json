@@ -1,0 +1,23 @@
+{
+  "parent_GO_required": true,
+  "serial": true,
+  "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection\\backend",
+  "parent_GO_adopted_source_identities": {
+    "backend/backend_quality_budgets.json": "5b4249b233c075481e258760b8721462f2190e4754312e361b05349aaf2cde46",
+    "scripts/release_workspace_branding_bindings.json": "cdac254b1fba4d15d92728870aea8da984648ad1100ba9a671d1ad227bd17631",
+    "scripts/release_workspace_branding_policy.py": "3710f25e35696b6c8859b248e4f74b8d3221ea5a39f794b9f9813be00286cb90",
+    "docs/audit/dashboard-2026-10-30/gc-models-shared-integration-verification.json": "1fab0ea9ab2c14cbff86a7ecda5e2578889a0b680ef671af8ae4b49caa2bb584"
+  },
+  "environment_policy": "OS allowlist plus explicit synthetic fixture profile; no environment values recorded",
+  "service_opt_ins_disabled": true,
+  "private_dotenv_guard_enabled": true,
+  "runner_identities": {
+    "audit_common.py": "028e7af5fe968e74a6fb18c29d4ca5fb4d17e3bbe34dc69d52b23ec5540c4eca",
+    "audit_environment_guard.py": "73dbba9415b27e81d955bfac2f0560c2c24a33ae50b517e6716b298fbbb1b901",
+    "check_environment_isolation.py": "86381284019d9c95091ea0aaa2133ebe3a04b30095a9104c4c288cbdf25b7098",
+    "classify_quality.py": "2ccfc7907b358bb94ef65a3e5e3aac91d25aa9593f62bed59d29d58487a18cb6",
+    "retained_selection_plugin.py": "8b0355fef215b64adbde320a1a4c9fe4747c7af5581b404fb964a15d02f39070",
+    "run_qualification.py": "923047399a7f361ddbe40cb09795fd726c6f82c377be91eef494b04cde091755",
+    "sitecustomize.py": "6908458d6c12381d407f7db48ff49b84d78b4f76bdbbee99772175842d05e13b"
+  }
+}

@@ -1,0 +1,171 @@
+{
+  "runtime": {
+    "backend/app/presentation/api/v1/routes/whatsapp_composer.py": "8ffe7f51d1bf42bf82a3d2df3b17e45283dd98b0432c45cc860d65f5a5f920b2",
+    "backend/app/presentation/api/v1/routes/whatsapp_composer_support.py": "1bdaa9f902ea5054f80cb1edf701720a63f461cfa5cb5efcf922073fccb20fca",
+    "backend/app/presentation/api/v1/routes/whatsapp_composer_content.py": "920f7c816e41d3726049ff7dbb973d741a21d20602ca6ca87ecb8f3273449bf8",
+    "backend/app/presentation/api/v1/routes/whatsapp_composer_rendering.py": "f28546ca8349a35fb307ee04fdd330a84f5eeb94b117042c80ef5d8009893784",
+    "backend/app/presentation/api/v1/routes/whatsapp_composer_legacy.py": "01c45bce092c04f6e8a1b581d2bd60583ef9e5b5cc393494225c94e2936a8c27",
+    "backend/app/presentation/api/v1/routes/whatsapp_composer_snapshots.py": "cd0995a829e55ee8e02a15357a05c6cb0a88361e51a0fe75842eb197d81e46ca",
+    "backend/app/presentation/api/v1/routes/whatsapp_composer_media.py": "76be5978b5a0dc68cbc04bbc5746187b0991a70e9df30b04334bb9ba068c2d12",
+    "backend/app/presentation/api/v1/routes/whatsapp_composer_preview.py": "e46be0a3c2166c1650c52591852ce33589e3a030edd3c6fd7d7089618ee8ff1e",
+    "backend/app/presentation/api/v1/routes/whatsapp_composer_preview_response.py": "2ba3704eb3085a3c59a8f85b1326add1cca81a72e905cd09237a86c33901e957",
+    "backend/app/presentation/api/v1/routes/whatsapp_resend.py": "e695316fe49e51e51f8d1c3cc45f6db84c5bed82287bf3344f93259a4b1b64ff",
+    "backend/app/presentation/api/v1/routes/whatsapp_resend_claims.py": "cac51751dda4d3124233f2c54f889882ecdcd0663b1a0a21f70e0dcd4fa92fe8",
+    "backend/app/presentation/api/v1/routes/whatsapp_resend_preparation.py": "3e3dabb7374324e38d37f8cf8e194eb647779a0cb702f9c2758e738870675c15",
+    "backend/app/presentation/api/v1/routes/whatsapp_resend_publication.py": "589c7b567df25e42437e13293b4273d16d9271a2c35da2ffc53d620887b9b1ea",
+    "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend.py": "7d87f7da345264d54c1e14ef7e2c6e2e216e92d6921e876dfab1d18f2ea5f3ae",
+    "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_selection.py": "f23a5a32a53c98344caf3fbef41f6b3112e2d0a5ddfc9eb9241afb6981eafb0e",
+    "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_inputs.py": "b2a94f63ffe356dd88be7cb94d04cc7a2311aae9c9d8ee229d611bde5cae7e68",
+    "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_claims.py": "2833bbbdde3be16143c738ac423c20c2c195c7a86627ac1837f681c09f0b36c7",
+    "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_publication.py": "088449d63afee2a8d1bbd4c9e15dfbc54ec6a4c723e66a66aa0f5050913ad0af",
+    "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_support.py": "5e5005c5e9363de6f38e795d4d19c4640623eae3ff403ad36df49fab6bc6b326",
+    "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_history.py": "7aa092010e4484daa6acfe2952c3d23b0c1869d3418e6befdbcdc94d75863f9c",
+    "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_results.py": "a51ac1a8e56e844051c652837d464d763413ba43aa457ece15af57960dee1430",
+    "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_composer.py": "c0092665a99fceef9dc464469c84a33ca89609b8d2f75304db6c2ae8ba8ebe78",
+    "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_preview.py": "a31bbf1e65f3ab58f5509bec48b2b9daf7c8cc45df5b6fad2cc1043ddffbfe6b",
+    "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_preview_values.py": "22578dd2b40732b222d39ff358deb09db16ea062fe07fda967ef5f62c509e213"
+  },
+  "instrumentation_tests": {
+    "backend/tests/unit/presentation/test_whatsapp_composer_persistence.py": "28c491d3d7fba80d5e028de835118ffcf36c58165d67cecf554ca0b80b615af7",
+    "backend/tests/unit/presentation/test_whatsapp_bulk_resend.py": "607cfe85ba777cbcb723175962f5b7e27e8cfa0842b213090e2cd5f33722dad4",
+    "backend/tests/unit/presentation/test_whatsapp_group_invite.py": "21da00839f108f8ad10e83097609326412f4dd8da86a6a981dc081cccda902ea",
+    "backend/tests/unit/presentation/test_whatsapp_bulk_resend_preview.py": "46095b940459dcb93b7cc523ad7883a4daa33eaa61010932a88267975830b480",
+    "backend/tests/unit/presentation/test_whatsapp_welcome_media_authority.py": "20023aa08d040d1f4fe74c1d200d3204b3c237a1e3a0481002178203e76301a0"
+  },
+  "complete_qualified_source_fence": {
+    "backend/app/presentation/api/v1/routes/whatsapp_composer.py": "8ffe7f51d1bf42bf82a3d2df3b17e45283dd98b0432c45cc860d65f5a5f920b2",
+    "backend/app/presentation/api/v1/routes/whatsapp_composer_support.py": "1bdaa9f902ea5054f80cb1edf701720a63f461cfa5cb5efcf922073fccb20fca",
+    "backend/app/presentation/api/v1/routes/whatsapp_resend.py": "e695316fe49e51e51f8d1c3cc45f6db84c5bed82287bf3344f93259a4b1b64ff",
+    "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend.py": "7d87f7da345264d54c1e14ef7e2c6e2e216e92d6921e876dfab1d18f2ea5f3ae",
+    "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_composer.py": "c0092665a99fceef9dc464469c84a33ca89609b8d2f75304db6c2ae8ba8ebe78",
+    "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_support.py": "5e5005c5e9363de6f38e795d4d19c4640623eae3ff403ad36df49fab6bc6b326",
+    "backend/app/presentation/api/v1/routes/whatsapp_history_resend.py": "b7e6738492ef0ce1ced89877335662de95116be8b690dec954e7052ed6c3ceb2",
+    "backend/app/presentation/api/v1/routes/whatsapp_resend_payload.py": "d404e35dfb0eec737193e29f24de045324f456fe871f4048dbf851459c1e5789",
+    "backend/app/presentation/api/v1/routes/whatsapp_preview_recipient.py": "52e0c49a5e962b754ad6dfb760bdb511c2600cb4f8018b29f5d766392ae5a15e",
+    "backend/app/presentation/api/v1/routes/whatsapp_reminder_audience.py": "0e9199e40aff3990a9eff3c033fafd17c2b5aec307894d1529bcb8c653410151",
+    "backend/app/presentation/api/v1/routes/whatsapp_update_audience.py": "a54a210a82d63d0765053d8efe444f2589e2d91cd2ed7171ba69a696eb1aea9a",
+    "backend/app/presentation/api/v1/routes/whatsapp_welcome_media_authority.py": "384a601014b11651d73f1b46dc01dbfdf8568c8efcc2ed84fddf46151af2029c",
+    "backend/app/presentation/api/v1/routes/whatsapp_shared.py": "a0350f00c141d9e44eb016e6dcf7090bea09ce47201dcb190228e30425466ccc",
+    "backend/app/presentation/api/v1/routes/whatsapp_composer_content.py": "920f7c816e41d3726049ff7dbb973d741a21d20602ca6ca87ecb8f3273449bf8",
+    "backend/app/presentation/api/v1/routes/whatsapp_composer_legacy.py": "01c45bce092c04f6e8a1b581d2bd60583ef9e5b5cc393494225c94e2936a8c27",
+    "backend/app/presentation/api/v1/routes/whatsapp_composer_media.py": "76be5978b5a0dc68cbc04bbc5746187b0991a70e9df30b04334bb9ba068c2d12",
+    "backend/app/presentation/api/v1/routes/whatsapp_composer_preview.py": "e46be0a3c2166c1650c52591852ce33589e3a030edd3c6fd7d7089618ee8ff1e",
+    "backend/app/presentation/api/v1/routes/whatsapp_composer_preview_response.py": "2ba3704eb3085a3c59a8f85b1326add1cca81a72e905cd09237a86c33901e957",
+    "backend/app/presentation/api/v1/routes/whatsapp_composer_rendering.py": "f28546ca8349a35fb307ee04fdd330a84f5eeb94b117042c80ef5d8009893784",
+    "backend/app/presentation/api/v1/routes/whatsapp_composer_snapshots.py": "cd0995a829e55ee8e02a15357a05c6cb0a88361e51a0fe75842eb197d81e46ca",
+    "backend/app/presentation/api/v1/routes/whatsapp_resend_claims.py": "cac51751dda4d3124233f2c54f889882ecdcd0663b1a0a21f70e0dcd4fa92fe8",
+    "backend/app/presentation/api/v1/routes/whatsapp_resend_preparation.py": "3e3dabb7374324e38d37f8cf8e194eb647779a0cb702f9c2758e738870675c15",
+    "backend/app/presentation/api/v1/routes/whatsapp_resend_publication.py": "589c7b567df25e42437e13293b4273d16d9271a2c35da2ffc53d620887b9b1ea",
+    "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_claims.py": "2833bbbdde3be16143c738ac423c20c2c195c7a86627ac1837f681c09f0b36c7",
+    "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_history.py": "7aa092010e4484daa6acfe2952c3d23b0c1869d3418e6befdbcdc94d75863f9c",
+    "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_inputs.py": "b2a94f63ffe356dd88be7cb94d04cc7a2311aae9c9d8ee229d611bde5cae7e68",
+    "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_preview.py": "a31bbf1e65f3ab58f5509bec48b2b9daf7c8cc45df5b6fad2cc1043ddffbfe6b",
+    "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_preview_values.py": "22578dd2b40732b222d39ff358deb09db16ea062fe07fda967ef5f62c509e213",
+    "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_publication.py": "088449d63afee2a8d1bbd4c9e15dfbc54ec6a4c723e66a66aa0f5050913ad0af",
+    "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_results.py": "a51ac1a8e56e844051c652837d464d763413ba43aa457ece15af57960dee1430",
+    "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_selection.py": "f23a5a32a53c98344caf3fbef41f6b3112e2d0a5ddfc9eb9241afb6981eafb0e",
+    "backend/tests/unit/presentation/test_whatsapp_composer_persistence.py": "28c491d3d7fba80d5e028de835118ffcf36c58165d67cecf554ca0b80b615af7",
+    "backend/tests/unit/presentation/test_whatsapp_bulk_resend.py": "607cfe85ba777cbcb723175962f5b7e27e8cfa0842b213090e2cd5f33722dad4",
+    "backend/tests/unit/presentation/test_whatsapp_group_invite.py": "21da00839f108f8ad10e83097609326412f4dd8da86a6a981dc081cccda902ea",
+    "backend/tests/unit/presentation/test_whatsapp_repeatable_reminders.py": "24550354d49f1f6092ec3ce246676f554b3ddde678ee28c9ba34167f08f808d0",
+    "backend/tests/unit/presentation/test_whatsapp_route_decomposition.py": "a4fa48821a7c9ec5e483f797939e96aa23b68e17a1b74c9eaaf2ee29ea18e7c6",
+    "backend/tests/unit/presentation/test_whatsapp_welcome_media_authority.py": "20023aa08d040d1f4fe74c1d200d3204b3c237a1e3a0481002178203e76301a0",
+    "backend/tests/unit/presentation/test_whatsapp_update_preview_audience.py": "89fa9e885c463908b921d384b13ce5a0bd47cfca9e4f8a64a22e585e696596fc",
+    "backend/tests/unit/presentation/test_whatsapp_bulk_resend_preview.py": "46095b940459dcb93b7cc523ad7883a4daa33eaa61010932a88267975830b480",
+    "backend/tests/route_dependencies.py": "3a077577b401c5d7819efde9d72104487c4089b12b2e9d9e151e8791f9594535",
+    "backend/tests/whatsapp_filter_export_fixtures.py": "b2d26dbe96fbf284ce74e4a994a9ffa1e1554159198c01f1966ad2c479bada9f",
+    "backend/app/infrastructure/database/document_models.py": "4ae0d78c9f6b57f6bd3569e83ea971cf266c6406935b0dcf395b26c2d149a5be",
+    "backend/app/infrastructure/database/communications_models.py": "0283ffad7b14ef05b16c2240fba2cf1a2580a7b68d29665ece26a284d67f7688",
+    "backend/app/application/security/access_level_actor.py": "3a8eec715f67356a378986999a012723bdd21f5510518ee7320ce7d0809013a6",
+    "backend/tests/unit/presentation/test_whatsapp_delivery_ledger.py": "c0b534ee0e5a15b1aca8587c31ef45d4bbd8a0dd3d7ed1249b83023331732ac5",
+    "backend/app/infrastructure/database/_document_models/__init__.py": "b96f487be8cd75c281c4c2a4fbcbfaf87155724c3c2601628443980475be1da7",
+    "backend/app/infrastructure/database/_document_models/cleanup.py": "44392393eae79acc34f548106f56c8b9f8dacf73920cbecb966db4a577b42406",
+    "backend/app/infrastructure/database/_document_models/delivery.py": "8d686a11093f3f9e50a6d9246ca140fb5ec9e376affef1d44331d78c8c7a42b9",
+    "backend/app/infrastructure/database/_document_models/distribution.py": "13837498e7ce0513cf86da4b65fef689fe9ae3659906e42752deec7701bdfbed",
+    "backend/app/infrastructure/database/_document_models/rename.py": "25f5db90fb583f67d8f30556bc7aea88aa66d70f9c72c1f0ff17f3f3b283c4d4",
+    "backend/app/infrastructure/database/_document_models/upload_chunk.py": "633cc8658617d0ca89385064982cda41604ce7bcdbca1e4b125886d520dd56e6",
+    "backend/app/infrastructure/database/_document_models/upload_scan.py": "81b73b7e44895cc6d1919d4e51282f764cfc49ee5b7caf18baef492e5a09ace9",
+    "backend/app/infrastructure/database/_communications_models/__init__.py": "93f1ffe885e89709e8e59326a3c20db5be6969f0e63c6501052477226783237c",
+    "backend/app/infrastructure/database/_communications_models/broadcast.py": "8fc27df633446ef911ad0598fbcf2491c36a17bbe2057863d9df6299bd2d6370",
+    "backend/app/infrastructure/database/_communications_models/delivery.py": "1fd04b74883bc0a355b94939b74a1173cabd9f2f9c9226ebaf9657df72a2af2c",
+    "backend/app/infrastructure/database/_communications_models/source.py": "f57b7c4a3d07d5abc09a8edf6f4d964617ce2fb9da8058ad42f38c0b8805b0b0",
+    "backend/app/infrastructure/database/_communications_models/welcome.py": "610fe7aaaeb5eb62bbd0defab28b9c298ba9cd7941b4efe73fff8988f0fae12c",
+    ".tmp/run_whatsapp_composition.py": "4d3f34fe1205ae40734964a819cf49a769ede43cc6148374b801657e7c74f572",
+    ".tmp/whatsapp_composition_contract_plugin.py": "c4a7b5ca3482ea1e37d66523cf4aac459a836e5bbd41f9b0a5ab2221f447d4f1"
+  },
+  "all_original_snapshots": {
+    ".tmp/whatsapp-composer-current/route_dependencies.py": "3a077577b401c5d7819efde9d72104487c4089b12b2e9d9e151e8791f9594535",
+    ".tmp/whatsapp-composer-current/test_whatsapp_bulk_resend.py": "d5710134692635a759d5665fff99aceb536c4c5e112cbb3c7c5837475f57dd07",
+    ".tmp/whatsapp-composer-current/test_whatsapp_bulk_resend_preview.py": "4b476effb382da3564111022b76af0feaaa0256ca76d209b77ac51909b1daefb",
+    ".tmp/whatsapp-composer-current/test_whatsapp_composer_persistence.py": "3a92afe90bb8c2daa6156426295669135303dde0de7767eea0012c879cb181cd",
+    ".tmp/whatsapp-composer-current/test_whatsapp_group_invite.py": "68a7110be74c76cdf1136b57457347b42f9ab34f28fac78accd90dc4517557ee",
+    ".tmp/whatsapp-composer-current/test_whatsapp_repeatable_reminders.py": "24550354d49f1f6092ec3ce246676f554b3ddde678ee28c9ba34167f08f808d0",
+    ".tmp/whatsapp-composer-current/test_whatsapp_welcome_media_authority-authority-qualified.py": "d9cf27397b93661801b72a1daf96f4d25e724f83dfa1e47209dee0be780134a8",
+    ".tmp/whatsapp-composer-current/whatsapp_archive_policy.py": "d1cda4800cc392ba5949e982eda4a96aad50bed6a2fccf7b9625a4e17d0b755e",
+    ".tmp/whatsapp-composer-current/whatsapp_bulk_resend.py": "df04ecaf6aa190eea5091e6ffd6d153e3ca069e218dcc44a51df61192b37f8f2",
+    ".tmp/whatsapp-composer-current/whatsapp_bulk_resend_composer.py": "ab61255d40c486c7ffa28aaa3fee83d6cb8c1fba4c35cbb2eccc6d55a922ea3d",
+    ".tmp/whatsapp-composer-current/whatsapp_bulk_resend_preview.py": "d9067315f2a5848aade12faade1a07420199244c30c3e517fd09253bd28b4a44",
+    ".tmp/whatsapp-composer-current/whatsapp_bulk_resend_publication-mechanical.py": "807398a62926f0ee690ed7d17779d6273d08653f9d12f7ad2fe113381c42390e",
+    ".tmp/whatsapp-composer-current/whatsapp_bulk_resend_support.py": "d4ecbe74c00180af07966d9018e0b12e922df57cd7660ebc1bc4881248b0e4a6",
+    ".tmp/whatsapp-composer-current/whatsapp_composer-authority-qualified.py": "df96370146f2f39152bf3ce3549c27237d3e38fa369c39a5eb3fbcd5b2be3901",
+    ".tmp/whatsapp-composer-current/whatsapp_composer-preview-qualified.py": "2979e690f4aac0945b54ed366e5a85c12d6d9a4350416b7c85d0e5a5a3daee31",
+    ".tmp/whatsapp-composer-current/whatsapp_composer.py": "29651e2747c95b9fd257458ea54fa89b93e3fba98c3d95b6bf7961eb52f726bf",
+    ".tmp/whatsapp-composer-current/whatsapp_composer_support.py": "6cc3a753b6ad7b746a3707ae743f158307a8a3779d9b9f29402da08deaef5018",
+    ".tmp/whatsapp-composer-current/whatsapp_history_resend.py": "b7e6738492ef0ce1ced89877335662de95116be8b690dec954e7052ed6c3ceb2",
+    ".tmp/whatsapp-composer-current/whatsapp_resend.py": "1af6956e51c098a8b6ffa3e160c875f88b525b217508309cc832d0ab32b25bb2",
+    ".tmp/whatsapp-composer-current/whatsapp_resend_payload.py": "d404e35dfb0eec737193e29f24de045324f456fe871f4048dbf851459c1e5789",
+    ".tmp/whatsapp-composer-current/whatsapp_shared.py": "a0350f00c141d9e44eb016e6dcf7090bea09ce47201dcb190228e30425466ccc",
+    ".tmp/whatsapp-composer-current/whatsapp_welcome_media_authority-authority-qualified.py": "384a601014b11651d73f1b46dc01dbfdf8568c8efcc2ed84fddf46151af2029c"
+  },
+  "archived_original_seven": {
+    "whatsapp_composer": {
+      "path": ".tmp/whatsapp-composer-current/whatsapp_composer.py",
+      "sha256": "29651e2747c95b9fd257458ea54fa89b93e3fba98c3d95b6bf7961eb52f726bf"
+    },
+    "whatsapp_composer_support": {
+      "path": ".tmp/whatsapp-composer-current/whatsapp_composer_support.py",
+      "sha256": "6cc3a753b6ad7b746a3707ae743f158307a8a3779d9b9f29402da08deaef5018"
+    },
+    "whatsapp_resend": {
+      "path": ".tmp/whatsapp-composer-current/whatsapp_resend.py",
+      "sha256": "1af6956e51c098a8b6ffa3e160c875f88b525b217508309cc832d0ab32b25bb2"
+    },
+    "whatsapp_bulk_resend": {
+      "path": ".tmp/whatsapp-composer-current/whatsapp_bulk_resend.py",
+      "sha256": "df04ecaf6aa190eea5091e6ffd6d153e3ca069e218dcc44a51df61192b37f8f2"
+    },
+    "whatsapp_bulk_resend_composer": {
+      "path": ".tmp/whatsapp-composer-current/whatsapp_bulk_resend_composer.py",
+      "sha256": "ab61255d40c486c7ffa28aaa3fee83d6cb8c1fba4c35cbb2eccc6d55a922ea3d"
+    },
+    "whatsapp_bulk_resend_support": {
+      "path": ".tmp/whatsapp-composer-current/whatsapp_bulk_resend_support.py",
+      "sha256": "d4ecbe74c00180af07966d9018e0b12e922df57cd7660ebc1bc4881248b0e4a6"
+    },
+    "whatsapp_bulk_resend_preview": {
+      "path": ".tmp/whatsapp-composer-current/whatsapp_bulk_resend_preview.py",
+      "sha256": "d9067315f2a5848aade12faade1a07420199244c30c3e517fd09253bd28b4a44"
+    }
+  },
+  "behavior_corrected_composer_baseline": {
+    "path": ".tmp/whatsapp-composer-current/whatsapp_composer-preview-qualified.py",
+    "sha256": "2979e690f4aac0945b54ed366e5a85c12d6d9a4350416b7c85d0e5a5a3daee31"
+  },
+  "frozen_payload_helper": {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_resend_payload.py",
+    "sha256": "d404e35dfb0eec737193e29f24de045324f456fe871f4048dbf851459c1e5789"
+  },
+  "frozen_authority_guard": {
+    "path": "backend/app/presentation/api/v1/routes/whatsapp_welcome_media_authority.py",
+    "sha256": "384a601014b11651d73f1b46dc01dbfdf8568c8efcc2ed84fddf46151af2029c"
+  },
+  "audit_harness": {
+    ".tmp/run_whatsapp_composition.py": "4d3f34fe1205ae40734964a819cf49a769ede43cc6148374b801657e7c74f572",
+    ".tmp/whatsapp_composition_contract_plugin.py": "c4a7b5ca3482ea1e37d66523cf4aac459a836e5bbd41f9b0a5ab2221f447d4f1",
+    ".tmp/qualify_whatsapp_broker_control.py": "b8b56cf06c436fae02a6b0639ef2e9dbbe2a88aaeed1950870de7a666cfd486b",
+    ".tmp/prove_whatsapp_composition_followthrough.py": "69776af053faf24dcd093f8ccc5c4aea694173159578d80099a48b75a1dad348",
+    ".tmp/prove_whatsapp_composition_test_controls.py": "834b51dd70e239d8b7e5bc31af823f7e30c072533e5d6795d94cb069fde11dcd",
+    ".tmp/finalize_whatsapp_bulk_source_proof.py": "10059a8d80de8645052717f10d1175cc8b1fbcbd52ffdbe8764cdc701bcce321"
+  },
+  "source_freeze": "All24 runtime owners and five actual-owner instrumentation tests frozen. No further writes by this lane after this receipt; shared gates owned by AI/root."
+}

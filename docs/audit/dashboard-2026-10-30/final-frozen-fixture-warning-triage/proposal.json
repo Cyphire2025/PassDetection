@@ -1,0 +1,57 @@
+{
+  "status": "Prepared only; not applied or executed. Parent must release the final frozen run before adopting.",
+  "files": [
+    {
+      "path": "frontend/features/documents/components/document-row-action-menu.test.tsx",
+      "before_sha256": "93f6e65c4cdb791e1dd6d0628c237e1214c8d50311d5a0357c26f84abb162aca",
+      "candidate_sha256": "d7c790f4c34e93659ad7f40e0165de79c0657a5b37c1873a8b2d3a48cc2a2da8",
+      "source_current_unchanged": true,
+      "exact_byte_inverse": true,
+      "reason": "Native getBoundingClientRect supplies numeric right/bottom/size; partial cast at line71 omitted these, causing NaN when reopening after the movement assertion. Complete native DOMRect preserves movement and subsequent resize/removal controls.",
+      "replacements": [
+        {
+          "before": "{ left: 10, top: 10 } as DOMRect",
+          "after": "new DOMRect(10, 10, 36, 36)"
+        }
+      ]
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+      "before_sha256": "07e866b8fcb0c3e0eb2a2eb53258e951de8e2165019e337e93713a7842b040a1",
+      "candidate_sha256": "a40215a22b53c47180107d5cfd9b08a9e9bb3a2b5e869d6714dc378bcb203596",
+      "source_current_unchanged": true,
+      "exact_byte_inverse": true,
+      "reason": "Whole API object is replaced by vi.fn mocks. Actual intentionally mounted shared PermissionsPanel calls permissions for read_only_mode=false; existing synthetic permissionFixture supplies valid declared response without suppressing logs or mocking runtime hooks.",
+      "replacements": [
+        {
+          "before": "import { McpAdminPage",
+          "after": "import { permissionFixture } from \"../utils/permissions.test-fixture\";\r\nimport { McpAdminPage"
+        },
+        {
+          "before": "  vi.mocked(mcpApi.overview).mockResolvedValue(overview);",
+          "after": "  vi.mocked(mcpApi.overview).mockResolvedValue(overview);\r\n  vi.mocked(mcpApi.permissions).mockResolvedValue(permissionFixture());"
+        }
+      ]
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-simple-access.test.tsx",
+      "before_sha256": "36b85b4095967c5ddb4f8f02bdb52c79b6d68baafa7554f963770fe9ea971662",
+      "candidate_sha256": "b026f08adcf28eb319fb5922b104ab0af465992acb259106812417b6f8e04c37",
+      "source_current_unchanged": true,
+      "exact_byte_inverse": true,
+      "reason": "Whole API object is replaced by vi.fn mocks. Actual intentionally mounted shared PermissionsPanel calls permissions for read_only_mode=false; existing synthetic permissionFixture supplies valid declared response without suppressing logs or mocking runtime hooks.",
+      "replacements": [
+        {
+          "before": "import { McpAdminPage",
+          "after": "import { permissionFixture } from \"../utils/permissions.test-fixture\";\r\nimport { McpAdminPage"
+        },
+        {
+          "before": "  vi.mocked(mcpApi.overview).mockResolvedValue(overview);",
+          "after": "  vi.mocked(mcpApi.overview).mockResolvedValue(overview);\r\n  vi.mocked(mcpApi.permissions).mockResolvedValue(permissionFixture());"
+        }
+      ]
+    }
+  ],
+  "scope": "Exactly three test fixtures. No runtime/config/gates/assertion changes, no console filtering or warning suppression.",
+  "follow_up": "After approved application run only these three affected test files plus scoped lint/types; no rebuild needed because compiled runtime remains identical."
+}

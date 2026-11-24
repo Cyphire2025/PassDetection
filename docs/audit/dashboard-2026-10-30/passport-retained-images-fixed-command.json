@@ -1,0 +1,40 @@
+{
+  "argv": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "--tb=short",
+    "-o",
+    "addopts=",
+    "tests/unit/presentation/test_passport_image_retained_authority.py"
+  ],
+  "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection\\backend",
+  "exit_code": 0,
+  "before": {
+    "backend/app/presentation/api/v1/routes/passport_image_mutation.py": "af4270cf475d6d72a42aec31d8ffcaf832b8f5662f7eee16c8042099d2a8bb2c",
+    "backend/app/presentation/api/v1/routes/passport_image_library.py": "3384131d33cebaf71fb8036b95a7710b663ec88773d4db2bd5302c4ec0d7285e",
+    "backend/app/presentation/api/v1/routes/passport_image_library_manual.py": "688f966d72482c4ed19f0b2c558a3d31db83aae44e75301dff7579e5576bd6bc",
+    "backend/app/presentation/api/v1/routes/passport_image_library_selection.py": "9e0f598d9fe96328858c0845fb3495f6c7a3dda4ac8d6eb8fc72694261066a3d",
+    "backend/app/presentation/api/v1/routes/passport_image_library_authority.py": "1a3f020f32134e9eab62ccd3f24e116648af90e2f34f238b2813fa5129a6e390",
+    "backend/app/application/travellers/snapshot_access.py": "88f5ddb022c01904f7309ea5933785482c3f8f8d5d999f7d93c05631f5d0d76f",
+    "backend/app/application/travellers/asset_policy.py": "e5a15a5687e2e259b901631023dd573faafd854e6890e7b05b2918f47b44e647",
+    "backend/tests/unit/presentation/test_passport_image_retained_authority.py": "9c0b919c2fbaba3e1963631bf541feb9e69755d37cc22bf187d4a8099d2828ae",
+    "backend/tests/passport_image_mutations.py": "fceefc1ce5c57969627ddadc7d481470cd8aba31041704a0cf226bc598ce4679",
+    "backend/tests/route_dependencies.py": "36ab3ffd5c252f94e5137925158c7dfc4ec5ac4c05d482c7d826ae0cfd40e5a9"
+  },
+  "after": {
+    "backend/app/presentation/api/v1/routes/passport_image_mutation.py": "af4270cf475d6d72a42aec31d8ffcaf832b8f5662f7eee16c8042099d2a8bb2c",
+    "backend/app/presentation/api/v1/routes/passport_image_library.py": "3384131d33cebaf71fb8036b95a7710b663ec88773d4db2bd5302c4ec0d7285e",
+    "backend/app/presentation/api/v1/routes/passport_image_library_manual.py": "688f966d72482c4ed19f0b2c558a3d31db83aae44e75301dff7579e5576bd6bc",
+    "backend/app/presentation/api/v1/routes/passport_image_library_selection.py": "9e0f598d9fe96328858c0845fb3495f6c7a3dda4ac8d6eb8fc72694261066a3d",
+    "backend/app/presentation/api/v1/routes/passport_image_library_authority.py": "1a3f020f32134e9eab62ccd3f24e116648af90e2f34f238b2813fa5129a6e390",
+    "backend/app/application/travellers/snapshot_access.py": "88f5ddb022c01904f7309ea5933785482c3f8f8d5d999f7d93c05631f5d0d76f",
+    "backend/app/application/travellers/asset_policy.py": "e5a15a5687e2e259b901631023dd573faafd854e6890e7b05b2918f47b44e647",
+    "backend/tests/unit/presentation/test_passport_image_retained_authority.py": "9c0b919c2fbaba3e1963631bf541feb9e69755d37cc22bf187d4a8099d2828ae",
+    "backend/tests/passport_image_mutations.py": "fceefc1ce5c57969627ddadc7d481470cd8aba31041704a0cf226bc598ce4679",
+    "backend/tests/route_dependencies.py": "36ab3ffd5c252f94e5137925158c7dfc4ec5ac4c05d482c7d826ae0cfd40e5a9"
+  },
+  "source_frozen": true,
+  "output": "passport-retained-images-fixed-tests.txt"
+}

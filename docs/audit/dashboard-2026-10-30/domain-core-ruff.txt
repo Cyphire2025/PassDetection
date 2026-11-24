@@ -1,0 +1,581 @@
+I001 [*] Import block is un-sorted or un-formatted
+  --> backend\app\domain\entities\client_group.py:3:1
+   |
+ 1 |   """Public client group entity and validated construction."""
+ 2 |
+ 3 | / from __future__ import annotations
+ 4 | |
+ 5 | | import uuid
+ 6 | | from app.domain.entities.client_group_configuration import (
+ 7 | |     ClientGroupConfiguration,
+ 8 | |     _normalize_departure_cities,
+ 9 | | )
+10 | | from app.domain.entities.client_group_lifecycle import ClientGroupLifecycle
+11 | | from app.domain.entities.enums import GroupStatus
+12 | | from app.domain.entities.factories import _new_uuid, _utcnow
+13 | | from app.domain.exceptions.exceptions import ValidationError
+14 | | from app.domain.value_objects.custom_questions import (
+15 | |     normalize_custom_details,
+16 | |     normalize_custom_questions,
+17 | | )
+18 | | from app.domain.value_objects.trip_timezone import DEFAULT_TRIP_TIMEZONE, normalize_trip_timezone
+19 | | from app.domain.value_objects.upload_configuration import (
+20 | |     normalize_upload_configuration,
+21 | |     validate_capture_configuration,
+22 | | )
+23 | | from dataclasses import dataclass
+24 | | from datetime import date
+   | |_________________________^
+   |
+help: Organize imports
+   |
+5  | import uuid
+6  + from dataclasses import dataclass
+7  + from datetime import date
+8  +
+9  | from app.domain.entities.client_group_configuration import (
+--------------------------------------------------------------------------------
+25 | )
+   - from dataclasses import dataclass
+   - from datetime import date
+26 |
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> backend\app\domain\entities\client_group_configuration.py:3:1
+   |
+ 1 |   """Editable group settings and public collection acquisition policy."""
+ 2 |
+ 3 | / from __future__ import annotations
+ 4 | |
+ 5 | | from app.domain.entities.client_group_state import ClientGroupState
+ 6 | | from app.domain.exceptions.exceptions import ValidationError
+ 7 | | from app.domain.value_objects.custom_questions import (
+ 8 | |     normalize_custom_details,
+ 9 | |     normalize_custom_questions,
+10 | | )
+11 | | from app.domain.value_objects.import_group import import_group_settings
+12 | | from app.domain.value_objects.trip_timezone import normalize_trip_timezone
+13 | | from app.domain.value_objects.upload_configuration import (
+14 | |     configuration_for,
+15 | |     normalize_upload_configuration,
+16 | |     validate_capture_configuration,
+17 | | )
+18 | | from datetime import date
+   | |_________________________^
+   |
+help: Organize imports
+   |
+4  |
+5  + from datetime import date
+6  +
+7  | from app.domain.entities.client_group_state import ClientGroupState
+--------------------------------------------------------------------------------
+19 | )
+   - from datetime import date
+20 |
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> backend\app\domain\entities\client_group_lifecycle.py:3:1
+  |
+1 |   """Client group visibility, retention and deletion transitions."""
+2 |
+3 | / from __future__ import annotations
+4 | |
+5 | | from app.domain.entities.client_group_state import ClientGroupState
+6 | | from app.domain.entities.enums import GroupStatus
+7 | | from app.domain.entities.factories import _utcnow
+8 | | from app.domain.exceptions.exceptions import ValidationError
+9 | | from datetime import timedelta
+  | |______________________________^
+  |
+help: Organize imports
+   |
+4  |
+5  + from datetime import timedelta
+6  +
+7  | from app.domain.entities.client_group_state import ClientGroupState
+8  | from app.domain.entities.enums import GroupStatus
+9  | from app.domain.entities.factories import _utcnow
+10 | from app.domain.exceptions.exceptions import ValidationError
+   - from datetime import timedelta
+11 |
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> backend\app\domain\entities\client_group_state.py:3:1
+   |
+ 1 |   """Client group field definitions and dataclass defaults."""
+ 2 |
+ 3 | / from __future__ import annotations
+ 4 | |
+ 5 | | import uuid
+ 6 | | from app.domain.entities.enums import GroupStatus
+ 7 | | from app.domain.entities.factories import _utcnow
+ 8 | | from app.domain.value_objects.custom_questions import (
+ 9 | |     CustomDetailDefinition,
+10 | |     CustomQuestionDefinition,
+11 | | )
+12 | | from app.domain.value_objects.trip_timezone import DEFAULT_TRIP_TIMEZONE
+13 | | from dataclasses import dataclass, field
+14 | | from datetime import date, datetime
+   | |___________________________________^
+   |
+help: Organize imports
+   |
+5  | import uuid
+6  + from dataclasses import dataclass, field
+7  + from datetime import date, datetime
+8  +
+9  | from app.domain.entities.enums import GroupStatus
+--------------------------------------------------------------------------------
+15 | from app.domain.value_objects.trip_timezone import DEFAULT_TRIP_TIMEZONE
+   - from dataclasses import dataclass, field
+   - from datetime import date, datetime
+16 |
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> backend\app\domain\entities\entities.py:3:1
+   |
+ 1 |   """Compatibility imports for focused domain owners; existing caller paths are retained."""
+ 2 |
+ 3 | / from app.domain.entities.client_group import ClientGroup as ClientGroup
+ 4 | | from app.domain.entities.enums import (
+ 5 | |     UserRole as UserRole,
+ 6 | |     PassportProcessingStatus as PassportProcessingStatus,
+ 7 | |     StaffApprovalOutcome as StaffApprovalOutcome,
+ 8 | |     PassportExtractionStatus as PassportExtractionStatus,
+ 9 | |     GroupStatus as GroupStatus,
+10 | |     OFFICE_VISIBLE_PASSPORT_STATUS_VALUES as OFFICE_VISIBLE_PASSPORT_STATUS_VALUES,
+11 | |     OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES as OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES,
+12 | |     PENDING_REVIEW_PASSPORT_STATUS_VALUES as PENDING_REVIEW_PASSPORT_STATUS_VALUES,
+13 | |     CONFIRMED_PASSPORT_STATUS_VALUES as CONFIRMED_PASSPORT_STATUS_VALUES,
+14 | |     RETRYABLE_POST_SUBMISSION_PROVIDER_STATUSES as RETRYABLE_POST_SUBMISSION_PROVIDER_STATUSES,
+15 | | )
+16 | | from app.domain.entities.identity import User as User, Agency as Agency
+17 | | from app.domain.entities.passport_submission import PassportSubmission as PassportSubmission
+18 | | from app.domain.entities.qualifier_selection import QualifierSelection as QualifierSelection
+   | |____________________________________________________________________________________________^
+   |
+help: Organize imports
+   |
+4  | from app.domain.entities.enums import (
+   -     UserRole as UserRole,
+   -     PassportProcessingStatus as PassportProcessingStatus,
+   -     StaffApprovalOutcome as StaffApprovalOutcome,
+   -     PassportExtractionStatus as PassportExtractionStatus,
+   -     GroupStatus as GroupStatus,
+5  +     CONFIRMED_PASSPORT_STATUS_VALUES as CONFIRMED_PASSPORT_STATUS_VALUES,
+6  + )
+7  + from app.domain.entities.enums import (
+8  |     OFFICE_VISIBLE_PASSPORT_STATUS_VALUES as OFFICE_VISIBLE_PASSPORT_STATUS_VALUES,
+9  + )
+10 + from app.domain.entities.enums import (
+11 |     OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES as OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES,
+12 + )
+13 + from app.domain.entities.enums import (
+14 |     PENDING_REVIEW_PASSPORT_STATUS_VALUES as PENDING_REVIEW_PASSPORT_STATUS_VALUES,
+   -     CONFIRMED_PASSPORT_STATUS_VALUES as CONFIRMED_PASSPORT_STATUS_VALUES,
+15 + )
+16 + from app.domain.entities.enums import (
+17 |     RETRYABLE_POST_SUBMISSION_PROVIDER_STATUSES as RETRYABLE_POST_SUBMISSION_PROVIDER_STATUSES,
+18 | )
+   - from app.domain.entities.identity import User as User, Agency as Agency
+19 + from app.domain.entities.enums import (
+20 +     GroupStatus as GroupStatus,
+21 + )
+22 + from app.domain.entities.enums import (
+23 +     PassportExtractionStatus as PassportExtractionStatus,
+24 + )
+25 + from app.domain.entities.enums import (
+26 +     PassportProcessingStatus as PassportProcessingStatus,
+27 + )
+28 + from app.domain.entities.enums import (
+29 +     StaffApprovalOutcome as StaffApprovalOutcome,
+30 + )
+31 + from app.domain.entities.enums import (
+32 +     UserRole as UserRole,
+33 + )
+34 + from app.domain.entities.identity import Agency as Agency
+35 + from app.domain.entities.identity import User as User
+36 | from app.domain.entities.passport_submission import PassportSubmission as PassportSubmission
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> backend\app\domain\entities\identity.py:3:1
+  |
+1 |   """Agency and staff account entities and their local access predicates."""
+2 |
+3 | / from __future__ import annotations
+4 | |
+5 | | import uuid
+6 | | from app.domain.entities.enums import UserRole
+7 | | from app.domain.entities.factories import _new_uuid, _utcnow
+8 | | from dataclasses import dataclass, field
+9 | | from datetime import datetime
+  | |_____________________________^
+  |
+help: Organize imports
+   |
+5  | import uuid
+   - from app.domain.entities.enums import UserRole
+   - from app.domain.entities.factories import _new_uuid, _utcnow
+6  | from dataclasses import dataclass, field
+7  | from datetime import datetime
+8  |
+9  + from app.domain.entities.enums import UserRole
+10 + from app.domain.entities.factories import _new_uuid, _utcnow
+11 +
+12 |
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> backend\app\domain\entities\passport_client_review.py:3:1
+   |
+ 1 |   """Client corrections and submission with family and contact snapshots."""
+ 2 |
+ 3 | / from __future__ import annotations
+ 4 | |
+ 5 | | import uuid
+ 6 | | from app.domain.entities.enums import (
+ 7 | |     OFFICE_VISIBLE_PASSPORT_STATUS_VALUES,
+ 8 | |     PassportExtractionStatus,
+ 9 | |     PassportProcessingStatus,
+10 | | )
+11 | | from app.domain.entities.factories import _utcnow
+12 | | from app.domain.entities.passport_state import PassportSubmissionState
+13 | | from app.domain.exceptions.exceptions import ValidationError
+14 | | from app.domain.value_objects.custom_questions import (
+15 | |     CustomAnswerSnapshot,
+16 | |     CustomDetailAnswerSnapshot,
+17 | | )
+   | |_^
+   |
+help: Organize imports
+  |
+5 | import uuid
+6 +
+7 | from app.domain.entities.enums import (
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> backend\app\domain\entities\passport_extraction.py:3:1
+   |
+ 1 |   """Revision-bound passport extraction and failure transitions."""
+ 2 |
+ 3 | / from __future__ import annotations
+ 4 | |
+ 5 | | from app.domain.entities.enums import PassportExtractionStatus, PassportProcessingStatus
+ 6 | | from app.domain.entities.factories import _utcnow
+ 7 | | from app.domain.entities.passport_state import PassportSubmissionState
+ 8 | | from app.domain.exceptions.exceptions import ValidationError
+ 9 | | from app.domain.value_objects.passport_document_classification import (
+10 | |     classification_outcome,
+11 | |     manual_review_submission_allowed,
+12 | | )
+13 | | from app.domain.value_objects.passport_fields import (
+14 | |     REVIEWABLE_PASSPORT_FIELDS,
+15 | |     reconcile_confirmed_with_extraction,
+16 | | )
+17 | | from dataclasses import field
+   | |_____________________________^
+   |
+help: Organize imports
+   |
+4  |
+5  + from dataclasses import field
+6  +
+7  | from app.domain.entities.enums import PassportExtractionStatus, PassportProcessingStatus
+--------------------------------------------------------------------------------
+18 | )
+   - from dataclasses import field
+19 |
+   |
+
+F401 [*] `dataclasses.field` imported but unused
+  --> backend\app\domain\entities\passport_extraction.py:17:25
+   |
+15 |     reconcile_confirmed_with_extraction,
+16 | )
+17 | from dataclasses import field
+   |                         ^^^^^
+   |
+help: Remove unused import: `dataclasses.field`
+   |
+16 | )
+   - from dataclasses import field
+17 |
+   |
+
+F811 Redefinition of unused `field` from line 17
+   --> backend\app\domain\entities\passport_extraction.py:109:17
+    |
+107 |         absent_fields = {
+108 |             field
+109 |             for field in (raw_absent_fields if isinstance(raw_absent_fields, list) else [])
+    |                 ^^^^^ `field` redefined here
+110 |             if field == "surname"
+111 |         }
+    |
+   ::: backend\app\domain\entities\passport_extraction.py:17:25
+    |
+ 15 |     reconcile_confirmed_with_extraction,
+ 16 | )
+ 17 | from dataclasses import field
+    |                         ----- previous definition of `field` here
+    |
+help: Remove definition: `field`
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> backend\app\domain\entities\passport_staff_review.py:3:1
+   |
+ 1 |   """Revision-bound AI verification and canonical staff review transitions."""
+ 2 |
+ 3 | / from __future__ import annotations
+ 4 | |
+ 5 | | import uuid
+ 6 | | from app.domain.entities.enums import (
+ 7 | |     PassportProcessingStatus,
+ 8 | |     RETRYABLE_POST_SUBMISSION_PROVIDER_STATUSES,
+ 9 | |     StaffApprovalOutcome,
+10 | | )
+11 | | from app.domain.entities.factories import _utcnow
+12 | | from app.domain.entities.passport_state import PassportSubmissionState
+13 | | from app.domain.exceptions.exceptions import (
+14 | |     StaffApprovalStaleError,
+15 | |     StaffApprovalUnavailableError,
+16 | |     ValidationError,
+17 | | )
+18 | | from app.domain.value_objects.passport_document_classification import requires_manual_staff_review
+   | |__________________________________________________________________________________________________^
+   |
+help: Organize imports
+   |
+5  | import uuid
+6  +
+7  | from app.domain.entities.enums import (
+   -     PassportProcessingStatus,
+8  |     RETRYABLE_POST_SUBMISSION_PROVIDER_STATUSES,
+9  +     PassportProcessingStatus,
+10 |     StaffApprovalOutcome,
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> backend\app\domain\entities\passport_state.py:3:1
+   |
+ 1 |   """Stored submission fields and derived manual-review eligibility."""
+ 2 |
+ 3 | / from __future__ import annotations
+ 4 | |
+ 5 | | import uuid
+ 6 | | from app.domain.entities.enums import PassportExtractionStatus, PassportProcessingStatus
+ 7 | | from app.domain.entities.factories import _utcnow
+ 8 | | from app.domain.value_objects.custom_questions import (
+ 9 | |     CustomAnswerSnapshot,
+10 | |     CustomDetailAnswerSnapshot,
+11 | | )
+12 | | from app.domain.value_objects.passport_document_classification import (
+13 | |     manual_review_submission_allowed,
+14 | | )
+15 | | from dataclasses import dataclass, field
+16 | | from datetime import datetime
+   | |_____________________________^
+   |
+help: Organize imports
+   |
+5  | import uuid
+6  + from dataclasses import dataclass, field
+7  + from datetime import datetime
+8  +
+9  | from app.domain.entities.enums import PassportExtractionStatus, PassportProcessingStatus
+--------------------------------------------------------------------------------
+17 | )
+   - from dataclasses import dataclass, field
+   - from datetime import datetime
+18 |
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> backend\app\domain\entities\passport_submission.py:3:1
+   |
+ 1 |   """Public passport submission construction and stored image keys."""
+ 2 |
+ 3 | / from __future__ import annotations
+ 4 | |
+ 5 | | import uuid
+ 6 | | from app.domain.entities.enums import PassportExtractionStatus, PassportProcessingStatus
+ 7 | | from app.domain.entities.factories import _new_uuid, _utcnow
+ 8 | | from app.domain.entities.passport_client_review import PassportClientReview
+ 9 | | from app.domain.entities.passport_extraction import PassportExtraction
+10 | | from app.domain.entities.passport_staff_review import PassportStaffReview
+11 | | from app.domain.entities.qualifier_selection import QualifierSelection
+12 | | from app.domain.exceptions.exceptions import ValidationError
+13 | | from dataclasses import dataclass
+   | |_________________________________^
+   |
+help: Organize imports
+   |
+5  | import uuid
+6  + from dataclasses import dataclass
+7  +
+8  | from app.domain.entities.enums import PassportExtractionStatus, PassportProcessingStatus
+--------------------------------------------------------------------------------
+14 | from app.domain.exceptions.exceptions import ValidationError
+   - from dataclasses import dataclass
+15 |
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> backend\app\domain\entities\qualifier_selection.py:3:1
+   |
+ 1 |   """Time-bound qualifier choices captured before document collection."""
+ 2 |
+ 3 | / from __future__ import annotations
+ 4 | |
+ 5 | | import uuid
+ 6 | | from app.domain.entities.factories import _new_uuid, _utcnow
+ 7 | | from app.domain.exceptions.exceptions import ValidationError
+ 8 | | from app.domain.value_objects.qualifier_relations import normalize_qualifier_choice
+ 9 | | from dataclasses import dataclass
+10 | | from datetime import datetime
+   | |_____________________________^
+   |
+help: Organize imports
+   |
+5  | import uuid
+6  + from dataclasses import dataclass
+7  + from datetime import datetime
+8  +
+9  | from app.domain.entities.factories import _new_uuid, _utcnow
+10 | from app.domain.exceptions.exceptions import ValidationError
+11 | from app.domain.value_objects.qualifier_relations import normalize_qualifier_choice
+   - from dataclasses import dataclass
+   - from datetime import datetime
+12 |
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> backend\app\domain\repositories\client_groups.py:3:1
+  |
+1 |   """Client group and qualifier selection persistence contracts."""
+2 |
+3 | / from __future__ import annotations
+4 | |
+5 | | import uuid
+6 | | from abc import ABC, abstractmethod
+7 | | from app.domain.entities.entities import ClientGroup, QualifierSelection, User
+  | |______________________________________________________________________________^
+  |
+help: Organize imports
+  |
+6 | from abc import ABC, abstractmethod
+7 +
+8 | from app.domain.entities.entities import ClientGroup, QualifierSelection, User
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> backend\app\domain\repositories\identity.py:3:1
+  |
+1 |   """User and agency persistence contracts."""
+2 |
+3 | / from __future__ import annotations
+4 | |
+5 | | import uuid
+6 | | from abc import ABC, abstractmethod
+7 | | from app.domain.entities.entities import Agency, User
+  | |_____________________________________________________^
+  |
+help: Organize imports
+  |
+6 | from abc import ABC, abstractmethod
+7 +
+8 | from app.domain.entities.entities import Agency, User
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> backend\app\domain\repositories\interfaces.py:3:1
+   |
+ 1 |   """Compatibility imports for focused domain owners; existing caller paths are retained."""
+ 2 |
+ 3 | / from app.domain.repositories.client_groups import (
+ 4 | |     IClientGroupRepository as IClientGroupRepository,
+ 5 | |     IQualifierSelectionRepository as IQualifierSelectionRepository,
+ 6 | | )
+ 7 | | from app.domain.repositories.identity import (
+ 8 | |     IUserRepository as IUserRepository,
+ 9 | |     IAgencyRepository as IAgencyRepository,
+10 | | )
+11 | | from app.domain.repositories.object_storage import (
+12 | |     IObjectStorageRepository as IObjectStorageRepository,
+13 | | )
+14 | | from app.domain.repositories.passport_submissions import (
+15 | |     PassportSubmissionGroupSummary as PassportSubmissionGroupSummary,
+16 | |     IPassportSubmissionRepository as IPassportSubmissionRepository,
+17 | | )
+   | |_^
+   |
+help: Organize imports
+   |
+4  |     IClientGroupRepository as IClientGroupRepository,
+5  + )
+6  + from app.domain.repositories.client_groups import (
+7  |     IQualifierSelectionRepository as IQualifierSelectionRepository,
+8  | )
+9  | from app.domain.repositories.identity import (
+10 +     IAgencyRepository as IAgencyRepository,
+11 + )
+12 + from app.domain.repositories.identity import (
+13 |     IUserRepository as IUserRepository,
+   -     IAgencyRepository as IAgencyRepository,
+14 | )
+--------------------------------------------------------------------------------
+18 | from app.domain.repositories.passport_submissions import (
+   -     PassportSubmissionGroupSummary as PassportSubmissionGroupSummary,
+19 |     IPassportSubmissionRepository as IPassportSubmissionRepository,
+20 | )
+21 + from app.domain.repositories.passport_submissions import (
+22 +     PassportSubmissionGroupSummary as PassportSubmissionGroupSummary,
+23 + )
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> backend\app\domain\repositories\passport_submissions.py:3:1
+   |
+ 1 |   """Passport persistence and group summary contracts."""
+ 2 |
+ 3 | / from __future__ import annotations
+ 4 | |
+ 5 | | import uuid
+ 6 | | from abc import ABC, abstractmethod
+ 7 | | from app.domain.entities.entities import PassportSubmission, User
+ 8 | | from app.domain.value_objects.custom_questions import (
+ 9 | |     CustomDetailDefinition,
+10 | |     CustomQuestionDefinition,
+11 | | )
+12 | | from app.domain.value_objects.dashboard_summary import DashboardRecentSubmission
+13 | | from app.domain.value_objects.trip_timezone import DEFAULT_TRIP_TIMEZONE
+14 | | from dataclasses import dataclass
+15 | | from datetime import date, datetime
+16 | | from typing import Literal, Sequence
+   | |____________________________________^
+   |
+help: Organize imports
+   |
+6  | from abc import ABC, abstractmethod
+7  + from dataclasses import dataclass
+8  + from datetime import date, datetime
+9  + from typing import Literal, Sequence
+10 +
+11 | from app.domain.entities.entities import PassportSubmission, User
+--------------------------------------------------------------------------------
+17 | from app.domain.value_objects.trip_timezone import DEFAULT_TRIP_TIMEZONE
+   - from dataclasses import dataclass
+   - from datetime import date, datetime
+   - from typing import Literal, Sequence
+18 |
+   |
+
+Found 18 errors.
+[*] 17 fixable with the `--fix` option.

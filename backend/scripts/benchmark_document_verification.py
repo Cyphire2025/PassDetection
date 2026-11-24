@@ -295,6 +295,8 @@ if __name__ == "__main__":
     cli.add_argument("--runs", type=int, default=4)
     cli.add_argument("--scanner-host", default="scan")
     args = cli.parse_args()
+    if args.runs < 1:
+        cli.error("--runs must be positive")
     os.environ.setdefault("OMP_THREAD_LIMIT", "1")
     if args.phase == "generate":
         fixtures(args.fixtures)

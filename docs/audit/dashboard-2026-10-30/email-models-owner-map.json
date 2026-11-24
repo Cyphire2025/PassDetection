@@ -1,0 +1,41 @@
+{
+  "owners": [
+    {
+      "path": "backend/app/infrastructure/database/_email_models/connections.py",
+      "class": "EmailConnectionModel"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_models/oauth.py",
+      "class": "EmailOAuthStateModel"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_models/messages.py",
+      "class": "EmailMessageModel"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_models/artifacts.py",
+      "class": "EmailArtifactModel"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_models/documents.py",
+      "class": "EmailArtifactDocumentModel"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_models/reviews.py",
+      "class": "EmailReviewItemModel"
+    },
+    {
+      "path": "backend/app/infrastructure/database/_email_models/activity.py",
+      "class": "EmailActivityEventModel"
+    }
+  ],
+  "declaration_order": [
+    "EmailConnectionModel",
+    "EmailOAuthStateModel",
+    "EmailMessageModel",
+    "EmailArtifactModel",
+    "EmailArtifactDocumentModel",
+    "EmailReviewItemModel",
+    "EmailActivityEventModel"
+  ]
+}

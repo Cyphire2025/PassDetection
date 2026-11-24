@@ -1,0 +1,11 @@
+{
+  "build_id": "sk5Gr2SBpAGsBdGnFXb9g",
+  "api_origin": "http://127.0.0.1:3199",
+  "basis": "Fresh production artifact after the qualified1667-path full1860case/286file frontend run, returning/document module graphs and current bodyportal/wrapping. Public/static copied only into local standalone tree.",
+  "files": {
+    "frontend/.next/BUILD_ID": "322af991a0f5ea77427751facdad5047c88e38c570be72edf4e19321ed503b61",
+    "frontend/.next/required-server-files.json": "25fef115322a86903edd904be501a9ca46283c1ef62af8792a2eb5675ef00d33",
+    "frontend/.next/server/app-paths-manifest.json": "99bfd70226f70809ffb155a4936810bc62d2a03b74eabf2597edf1fbe5632d38",
+    "frontend/.next/standalone/server.js": "4ce533c2d4db0d48e1ea2666d64865986cb36e709b0912e9dc86b803743dfa17"
+  }
+}

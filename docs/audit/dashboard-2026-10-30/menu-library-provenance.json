@@ -1,0 +1,63 @@
+{
+  "originalSource": {
+    "path": "frontend/features/menu/components/menu-library.tsx",
+    "sha256": "2138396230a886864660d7485ac6f714de55957665f943949d24b3e37369d92a"
+  },
+  "intentionalFixedReferenceSha256": "f6f0feab49039a142ef04f684d7b6cd38fcca6848c3a56f1f1ae8859bd9c44e5",
+  "currentRuntimeFiles": 9,
+  "completeControllerStatementsExact": 28,
+  "completeLocalModelDeclarationsExactExceptInternalExports": 3,
+  "wholeExpandedTypedJSXSyntaxNodes": 1758,
+  "actualChildComponentEdgesExpanded": 5,
+  "allLiteralTextPropsHandlersAndNativeDOMStructurePreserved": true,
+  "jsxIndentation": "Only source indentation is dedented for readable component owners; JSX text is compared using React whitespace normalization, while explicitstrings/templateparts are exact.",
+  "actualCompilerDefinitionBindingsPreserved": 942,
+  "unboundIdentifiersCompared": 0,
+  "actualImportedComponentBindingsVerified": true,
+  "publicMenuLibraryParameterExact": true,
+  "viewModelDirectShorthandProjection": [
+    "categories",
+    "newCategoryName",
+    "setNewCategoryName",
+    "openDishForm",
+    "newDishName",
+    "newDishNotes",
+    "setOpenDishForm",
+    "setNewDishName",
+    "setNewDishNotes",
+    "editingCategory",
+    "setEditingCategory",
+    "editingDish",
+    "setEditingDish",
+    "deleteTarget",
+    "setDeleteTarget",
+    "feedback",
+    "createCategory",
+    "updateCategory",
+    "deleteCategory",
+    "createDish",
+    "updateDish",
+    "deleteDish",
+    "selectedCategory",
+    "selectedCategoryIndex",
+    "selectCategory",
+    "submitCategory",
+    "submitCategoryEdit",
+    "submitDish",
+    "submitDishEdit",
+    "toggleDish",
+    "confirmDelete",
+    "openAddDish"
+  ],
+  "privateHooks": {
+    "completeOriginalTypedFunctionDeclarations": 19,
+    "onlyIntentionalWrapperRenames": 12,
+    "allOtherDeclarationTextExact": true,
+    "APIWholeFileByteIdentical": true
+  },
+  "sourceContract": {
+    "path": "frontend/features/menu/components/menu-page.contract.test.mjs",
+    "all5OriginalTestBodiesByteIdentical": true
+  },
+  "limits": "Mechanical movement is qualified against the deliberate draft-guard fixed snapshot. Original->guard changes are separately reproduced with actualUI and original-owner tests. Compiler/JSX proof is not live backend/provider or production-browser qualification."
+}

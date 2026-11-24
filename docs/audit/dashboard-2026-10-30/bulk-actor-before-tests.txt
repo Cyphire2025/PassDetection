@@ -1,0 +1,24 @@
+...FF                                                                    [100%]
+================================== FAILURES ===================================
+_ test_bulk_approval_rechecks_the_authenticated_actor_session_before_writing[sessions_revoked] _
+tests\unit\presentation\test_bulk_approval_session_fence.py:84: in test_bulk_approval_rechecks_the_authenticated_actor_session_before_writing
+    assert (error_status, model.status) == (
+E   AssertionError: assert (None, 'staff_approved') == (403, 'client_submitted')
+E     
+E     At index 0 diff: None != 403
+E     Use -v to get more diff
+---------------------------- Captured stdout call -----------------------------
+2026-10-31T13:37:01.958277Z [info     ] all_refresh_tokens_revoked     [app.infrastructure.repositories.refresh_token_repository] user_id=8cd5b708-f0c3-4eb8-904a-4d43e607670a
+------------------------------ Captured log call ------------------------------
+INFO     app.infrastructure.repositories.refresh_token_repository:refresh_token_repository.py:244 {'user_id': '8cd5b708-f0c3-4eb8-904a-4d43e607670a', 'event': 'all_refresh_tokens_revoked', 'logger': 'app.infrastructure.repositories.refresh_token_repository', 'level': 'info', 'timestamp': '2026-10-31T13:37:01.958277Z'}
+_ test_bulk_approval_rechecks_the_authenticated_actor_session_before_writing[credential_reset] _
+tests\unit\presentation\test_bulk_approval_session_fence.py:84: in test_bulk_approval_rechecks_the_authenticated_actor_session_before_writing
+    assert (error_status, model.status) == (
+E   AssertionError: assert (None, 'staff_approved') == (403, 'client_submitted')
+E     
+E     At index 0 diff: None != 403
+E     Use -v to get more diff
+=========================== short test summary info ===========================
+FAILED tests/unit/presentation/test_bulk_approval_session_fence.py::test_bulk_approval_rechecks_the_authenticated_actor_session_before_writing[sessions_revoked]
+FAILED tests/unit/presentation/test_bulk_approval_session_fence.py::test_bulk_approval_rechecks_the_authenticated_actor_session_before_writing[credential_reset]
+2 failed, 3 passed in 3.11s

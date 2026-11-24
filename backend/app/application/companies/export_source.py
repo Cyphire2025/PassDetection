@@ -70,24 +70,30 @@ async def source_image_page(session: AsyncSession, job: Job, user: User) -> list
     if job.cursor:
         query = query.where(MatchCase.id > job.cursor)
     cases = list((await session.scalars(query.order_by(MatchCase.id).limit(IMAGE_PAGE_SIZE))).all())
-    source_ids = [uuid.UUID(case.source_row_key) for case in cases]
+    source_ids = {}
+    for case in cases:
+        try:
+            source_ids[case.id] = uuid.UUID(case.source_row_key)
+        except ValueError:
+            continue
     from app.domain.entities.entities import OFFICE_VISIBLE_PASSPORT_STATUS_VALUES
     from app.infrastructure.database.models import PassportSubmissionModel as Submission
     attribute = getattr(Submission, SOURCE_SIDES[side])
     sources = {row.id: row for row in (await session.execute(select(Submission.id,
         Submission.group_id, Submission.extraction_revision, attribute.label("key")).where(
-        Submission.agency_id == job.agency_id, Submission.id.in_(source_ids),
+        Submission.agency_id == job.agency_id, Submission.id.in_(source_ids.values()),
         Submission.group_id.in_(groups), Submission.status.in_(OFFICE_VISIBLE_PASSPORT_STATUS_VALUES)))).all()}
     result = []
     for case in cases:
         assert case.traveller_id is not None
-        source_id = uuid.UUID(case.source_row_key)
-        source = sources.get(source_id)
+        source_id = source_ids.get(case.id)
+        source = sources.get(source_id) if source_id is not None else None
         # Retained keys are exported only through their independently authorized
         # asset rows, never through a stale operational pointer.
         key = (source.key if source and source.group_id == case.group_id
             and source.key and not source.key.startswith("travellers/") else "")
-        result.append(ImageSource(case.id, case.traveller_id, source_id,
+        # Unreadable references retain only their case cursor, never an object.
+        result.append(ImageSource(case.id, case.traveller_id, source_id or case.id,
             source.extraction_revision if source else 0, side, key, "", -1 if key else 0, "original_submission"))
     return result
 

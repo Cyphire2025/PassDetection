@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
+import { readGroupQrSource } from "../components/group-qr-source.contract-helper.mjs";
 
 import {
   createQrImageGenerator,
@@ -9,10 +10,7 @@ import {
   QR_IMAGE_GENERATION_CONCURRENCY,
 } from "./qr-image-generation.ts";
 
-const page = readFileSync(
-  new URL("../components/tour-group-qr-codes-page.tsx", import.meta.url),
-  "utf8",
-);
+const page = readGroupQrSource();
 const generator = readFileSync(
   new URL("./qr-image-generation.ts", import.meta.url),
   "utf8",

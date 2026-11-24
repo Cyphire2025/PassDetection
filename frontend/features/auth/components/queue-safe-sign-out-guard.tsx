@@ -23,13 +23,19 @@ export function QueueSafeSignOutGuard() {
   const titleId = useId();
   const descriptionId = useId();
   const clearSession = useAuthStore((state) => state.clearSession);
+  const ownerUserId = useAuthStore((state) => state.user?.id ?? null);
+  const sessionVersion = useAuthStore((state) => state.sessionVersion);
   const [snapshot, setSnapshot] = useState<BrowserAttendanceQueueSafetySnapshot | null>(null);
+  const [reviewVersion, setReviewVersion] = useState<number | null>(null);
   const [stage, setStage] = useState<DestructiveStage>("blocked");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => subscribeToQueueSafeSignOutReview((next) => {
+    const authentication = useAuthStore.getState();
+    if (next.ownerUserId !== authentication.user?.id) return;
     setSnapshot(next);
+    setReviewVersion(authentication.sessionVersion);
     setStage("blocked");
     setError(null);
   }), []);
@@ -41,11 +47,18 @@ export function QueueSafeSignOutGuard() {
     setError(null);
   };
   const dialogRef = useRef<HTMLDivElement>(null);
-  const handleKeyDown = useModalKeyboardBoundary({ dialogRef, isOpen: Boolean(snapshot), canClose: !busy, onClose: close });
+  const currentReview = snapshot?.ownerUserId === ownerUserId && reviewVersion === sessionVersion;
+  const handleKeyDown = useModalKeyboardBoundary({ dialogRef, isOpen: Boolean(snapshot) && currentReview, canClose: !busy, onClose: close });
 
-  if (!snapshot) return null;
+  if (!snapshot || !currentReview) return null;
+
+  const reviewIsCurrent = () => {
+    const authentication = useAuthStore.getState();
+    return authentication.user?.id === snapshot.ownerUserId && authentication.sessionVersion === reviewVersion;
+  };
 
   const syncThenSignOut = async () => {
+    if (!reviewIsCurrent()) return;
     setBusy(true);
     setError(null);
     try {
@@ -54,7 +67,9 @@ export function QueueSafeSignOutGuard() {
         return;
       }
       await syncPendingAttendanceScans();
+      if (!reviewIsCurrent()) return;
       const refreshed = await getBrowserAttendanceQueueSafetySnapshot();
+      if (!reviewIsCurrent() || refreshed.ownerUserId !== snapshot.ownerUserId) return;
       if (hasUnsafeBrowserAttendanceQueue(refreshed)) {
         setSnapshot(refreshed);
         setError(
@@ -74,6 +89,7 @@ export function QueueSafeSignOutGuard() {
   };
 
   const discardAndSignOut = async () => {
+    if (!reviewIsCurrent()) return;
     setBusy(true);
     setError(null);
     try {

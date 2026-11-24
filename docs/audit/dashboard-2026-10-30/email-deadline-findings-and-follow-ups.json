@@ -1,0 +1,72 @@
+{
+  "architecture": {
+    "status": "implemented and focused verified",
+    "original_lines": 674,
+    "owners": "Public scanner/transaction entrypoint plus typed stage policy, marker coverage/index, notification batches, initial attention coverage and live group visibility. Max216lines; no callback/proxy/mixin framework or workflow/schema change.",
+    "limits": "Cohesive notification body keeps explicit payload fields and branch logic (MCC26); splitting only to reduce a line/complexity number was not justified. Total868runtime lines includes direct compatibility imports and narrow typed index, not a total-line reduction claim."
+  },
+  "performance": {
+    "status": "validated work reduction implemented",
+    "work": {
+      "emit200": {
+        "before": {
+          "rule_row_visits": 160000,
+          "index_row_visits": 0,
+          "index_builds": 0
+        },
+        "after": {
+          "rule_row_visits": 200,
+          "index_row_visits": 800,
+          "index_builds": 1
+        },
+        "same_notifications_events_order_operations": true,
+        "rows": 200,
+        "existing_markers": 800,
+        "created": 25
+      },
+      "initial8": {
+        "before": {
+          "rule_row_visits": 512,
+          "index_row_visits": 0,
+          "index_builds": 0
+        },
+        "after": {
+          "rule_row_visits": 16,
+          "index_row_visits": 32,
+          "index_builds": 1
+        },
+        "same_notifications_events_order_operations": true,
+        "rows": 8,
+        "existing_markers": 32,
+        "created": 16
+      }
+    },
+    "algorithm": "Previously each candidate checked every prior event row O(D*E); now one O(E) scope index and checks only relevant histories. Worst case remains O(D*E) for pathological single-scope history, and the matching histories must still be evaluated. Bucket order/row identity and legacy predicate preserved exactly.",
+    "space": "New index stores O(E) references plus scoped keys; the old duplicate outer list is removed. No asymptotic space reduction or measured memory/latency/throughput claim.",
+    "measurement_scope": "Ordinary corrected schedule:200deadline batch across25valid analyses,800prior markers, and an8deadline initial path with32markers. Actual rule/index iteration counters and all full notification/event outputs captured before/after; synthetic repository/session boundaries, no real provider."
+  },
+  "security_correctness": {
+    "new_validated_defects": [],
+    "preserved": "Same owner/agency/role/current-user/group lifecycle/rollout filters; anti-exists schedule/legacy rule; locking/order/batch200; notifications metadata privacy/dedupe; initial coverage stages; event fields; single commit/flush boundaries. SQLA query compiles identically for PostgreSQL and SQLite; actual isolated SQLite workflows pass.",
+    "new_controls": "Marker index separates agency/deadline/owner/stage exactly, legacy timestamp and non-boolean epoch guards retained. Duplicate/review/eligibility and current owner lookup guards exercised; original7DB privacy/policy/idempotence controls unchanged."
+  },
+  "compatibility": {
+    "exact_whole_declarations": 24,
+    "narrow_changed_functions": 2,
+    "original_global_bindings": 81,
+    "direct_legacy_aliases": 26,
+    "function_pickle_contracts": 10,
+    "actual_callers_and_evaluated_hints": true,
+    "introspection_limit": {
+      "actual_owner": "backend/app/infrastructure/email/deadline_notification_policy.py",
+      "legacy_getsource_result": "OSError",
+      "explanation": "Legacy public class module/qualname/pickle identity retained; inspect.getsource uses that facade and cannot locate the moved class. No inspect monkeypatch."
+    }
+  },
+  "remaining": [
+    "No live PostgreSQL concurrency/lock, real provider, deployment/browser or production latency/memory qualification claimed; final combined checks remain parent-owned.",
+    "Related tasks.py532 and scheduler_readiness.py539 were not full-read or refactored by this batch; only actual immediate caller closure credited.",
+    "Repository-wide file-read/architecture/security follow-ups remain open independently; this six-owner deadline batch does not imply whole audit completion.",
+    "AI/root owns proposed6normal95floor admissions and final combined verification. Shared budgets/config/strict baseline/release gates remain untouched by this lane."
+  ]
+}

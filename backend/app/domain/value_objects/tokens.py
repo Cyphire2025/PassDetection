@@ -7,21 +7,21 @@ Lives in the domain layer — no framework imports.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 
 
 @dataclass(frozen=True)
 class AccessToken:
     """Represents an issued JWT access token."""
-    token: str
+    token: str = field(repr=False)
     expires_at: datetime
 
 
 @dataclass(frozen=True)
 class RefreshTokenValue:
     """Represents an issued opaque refresh token."""
-    token: str
+    token: str = field(repr=False)
     expires_at: datetime
 
 

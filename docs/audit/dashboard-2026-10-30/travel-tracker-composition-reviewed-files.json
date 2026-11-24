@@ -1,0 +1,149 @@
+{
+  "stage": "cohesive composition after independently sealed native worker fix",
+  "files": [
+    {
+      "path": "backend/app/infrastructure/travel_tracker/service.py",
+      "sha256": "46dc6766ba6b41de4825b7a08a13a4040bf071a8a75a97fa57cce39891540546",
+      "physical_lines": 183,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Complete current facade physically read. Public constructor,17 public/private MCP method signatures/defaults/decorators and role constant identity retained. Exact original constructor and mark actor refresh/SHAREfence skip stay before authorized mutation helper. Explicit current session/user/group-allowlist values forwarded; no service callback bag/runtime proxy. Actual hints/alias tests and live SQLite+MCP contract cases qualify forwarding; no unsupported concurrent AsyncSession claim."
+    },
+    {
+      "path": "backend/app/infrastructure/travel_tracker/spreadsheets.py",
+      "sha256": "3631d37fc6edf5812e69c783b7aebdc973c96a10356564541dd35f509afa9dcf",
+      "physical_lines": 25,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Complete compatibility facade physically read. All17original declarations preserved as actual implementation object aliases in focused spreadsheet owners; no copied algorithm or missing private compatibility symbols. Runtime alias/object/hint checks pass."
+    },
+    {
+      "path": "backend/app/infrastructure/travel_tracker/queries.py",
+      "sha256": "9767612e03fbca78969628332778f7e5860acb71a5ad0b5c1b6627117b8c7cb4",
+      "physical_lines": 176,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Complete current owner physically read: exact original actor/group visibility, allowed-group filter, tenant/group/passenger tracker join, canonical roster removals, validated search/pagination, deterministic orders and grouped counts after explicit value/call projection. Full original body AST restored for each moved method; no SQL/lock/filter policy change."
+    },
+    {
+      "path": "backend/app/infrastructure/travel_tracker/reads.py",
+      "sha256": "dab608a9db981140e8c31a4a064e143e2e50016ed0498e453d44b5595aca457b",
+      "physical_lines": 109,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Complete current paginated read owner physically read. Original list/workspace bodies preserve counts/order/page, sensitive-read audit and DTO projections after source-expanded self/session/user/grant calls. Scope values are explicit request inputs; no new mutable shared state."
+    },
+    {
+      "path": "backend/app/infrastructure/travel_tracker/projections.py",
+      "sha256": "71955d39ebe70864ef807d361fcdfa897ca6b392bfe5bc073e164e3c87656299",
+      "physical_lines": 43,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Complete DTO projection owner physically read. Original counts and all passenger/contact/passport/readiness/timestamp output fields exact after method-to-function projection; no stored AI field/checksum/MRZ contract dropped."
+    },
+    {
+      "path": "backend/app/infrastructure/travel_tracker/changes.py",
+      "sha256": "b56fb8e896136401da4f85e9a17180a19732b5fb116c2f1ed5950f9ae8744f44",
+      "physical_lines": 113,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Complete authorized mark owner physically read. Exact original post-actor-preflight mutation body preserved after explicit argument/call projection: group/row lock and order, deduplicated IDs, filtered expected count, foreign atomic failure, independent booleans/timestamps/actor IDs, changed-only audit, flush/summary/response and managed commit/rollback ordering."
+    },
+    {
+      "path": "backend/app/infrastructure/travel_tracker/files.py",
+      "sha256": "aab1888109e1965e8f93434d782c326319a12b95d7529b9edb888f6fcd192cff",
+      "physical_lines": 114,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Complete current import/export orchestration physically read. Original export/filter/row cap/filename/audit and preview authorization/scanner/reader/matcher/sensitive-read ordering preserved. Uses byte-identical fixed drained worker. New worker regression instrumentation targets this actual owner; no API7/source/MCP capability protocol change."
+    },
+    {
+      "path": "backend/app/infrastructure/travel_tracker/spreadsheet_values.py",
+      "sha256": "c68d237ca6324c0bdc34e2927d3b3bc4d09baf7a93e570e51743f3e889eb3423",
+      "physical_lines": 56,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Complete exact original10-declaration relocation physically read: fixed bounds/error type, canonical field merge/text/name and Unicode exact normalization. Facade aliases have same actual object identity."
+    },
+    {
+      "path": "backend/app/infrastructure/travel_tracker/spreadsheet_reader.py",
+      "sha256": "eac524464c0f8368e31d42eb5ee4b7bd865813df280e67c3d55f3e84c5a3c9d8",
+      "physical_lines": 151,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Complete exact original4-declaration relocation physically read: header aliases, row/column/cell limit, CSV UTF8, ZIP expansion/count/compression/encryption/macro/external-link checks, bounded actual OOXML rows and workbook close/error projection unchanged."
+    },
+    {
+      "path": "backend/app/infrastructure/travel_tracker/spreadsheet_matching.py",
+      "sha256": "a195bad2cab0a412ec19f61674c78ad752c1cea1bae59b9a4e484e4deab1b81c",
+      "physical_lines": 119,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Complete exact original matching function physically read: group-local ID/passport/name indexes; strong identifier conflict cannot fall back to name, exact unique normalization, ambiguous/duplicate/unmatched diagnostics and count/ordered unique-ID output unchanged."
+    },
+    {
+      "path": "backend/app/infrastructure/travel_tracker/spreadsheet_export.py",
+      "sha256": "62b6ce61f5b9a4868238949a7947888f1d91051cf879c781991403d837b5a9b7",
+      "physical_lines": 158,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "refactored",
+      "notes": "Complete exact original2-declaration relocation physically read. All fixed/contact/imported/question/detail fields, formula/control sanitization, column/header/order/style/freeze/autofilter/write-only workbook semantics unchanged."
+    },
+    {
+      "path": "backend/app/infrastructure/travel_tracker/threading.py",
+      "sha256": "0e4ed2a5fdcfd0061a9661938a34e3936f1b482d3a460ec74cd9788c908ca85f",
+      "physical_lines": 36,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "fixed",
+      "notes": "Current36-line worker remains byte-identical to separately sealed deliberate behavior checkpoint55d42197. Original10real AnyIO worker controls retained after import-only actual export-owner instrumentation retarget; no architecture change to cancellation/context/limiter semantics."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_travel_tracker_work_lifetime.py",
+      "sha256": "3815284e49cfc275660826f5470c695c8954e9461d2ae4fb529ec6f585a2c89d",
+      "physical_lines": 191,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete current regression source physically read/authored earlier; all10fixtures/assertions exact after import-only module retarget from service to actual files exporter owner. No cancelled worker/resource/limiter/context obligation weakened."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_travel_tracker_compatibility.py",
+      "sha256": "45ac3e0c66c4468d7231e5c98efddf012e29cd6a86471865d2cfa0d7b2b2f27c",
+      "physical_lines": 58,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete new/current runtime compatibility test source physically read/authored: evaluates real get_type_hints for every service method and spreadsheet callable, exact facade implementation identities, mutable role-constant alias, actor/allowlist/commit defaults and private MCP query return type.2focused cases pass."
+    },
+    {
+      "path": "backend/tests/integration/test_mcp_travel_tracker.py",
+      "sha256": "d1d6c3220ea190e31468d5d1489d56d26ef5d3444f4a49bb1f6c45333c9bad17",
+      "physical_lines": 398,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete398-line current test source physically read; actual grant/native upload/SDK/section/read/write/current-revision/export artifact/idempotency and receipt recovery assertions unchanged.19current affected cases passed in isolated SQLite/in-memory object fixtures; not live provider/PG/VPS proof."
+    },
+    {
+      "path": "backend/app/application/mcp/travel_tracker.py",
+      "sha256": "b8efdf5bf1b0fbbf797281263c4e1adc631677b80069411822107a067f8d44f5",
+      "physical_lines": 482,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete482-line current source physically read across all bounded sections. Exact actor SHAREfence context, canonical native source purpose/group/sheet/revision/previewhash, grant/section capabilities, mark commitFalse and export pre-admission/revision/artifact-progress semantics traced; byte-unchanged by this batch. Two direct AnyIO parse/match awaits remain a separate unproven normal-path cancellation candidate outside local worker fix."
+    }
+  ]
+}

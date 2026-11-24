@@ -75,7 +75,11 @@ def _load_manifest(path: Path) -> GalleryManifestRequest:
     size = resolved.stat().st_size
     if not 1 <= size <= _MAX_MANIFEST_FILE_BYTES:
         raise ValueError("Manifest file is outside the 1 MiB control-plane limit")
-    return GalleryManifestRequest.model_validate_json(resolved.read_text(encoding="utf-8"))
+    with resolved.open("rb") as source:
+        raw = source.read(_MAX_MANIFEST_FILE_BYTES + 1)
+    if not 1 <= len(raw) <= _MAX_MANIFEST_FILE_BYTES:
+        raise ValueError("Manifest file is outside the 1 MiB control-plane limit")
+    return GalleryManifestRequest.model_validate_json(raw.decode("utf-8"))
 
 
 def _manifest_paths(inputs: Sequence[Path]) -> tuple[Path, ...]:

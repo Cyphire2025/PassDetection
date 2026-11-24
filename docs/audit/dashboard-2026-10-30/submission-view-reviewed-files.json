@@ -1,0 +1,130 @@
+[
+  {
+    "path": "backend/app/application/use_cases/passports/submission_view.py",
+    "sha256": "190a7227b2be7cefb8182a2c9e18408060672648f0e316e58168987994fc6eeb",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical current source/test or complete original/current moved declarations read. Same53affected cases before/after,27whole AST/96actualbinding proof,432 exact prepared/page/cache-payload source replays; encrypted cache/authorization/revision fixtures inspected. No whole-file read credit derives only from test execution."
+  },
+  {
+    "path": "backend/app/infrastructure/passports/roster_view_service.py",
+    "sha256": "54600492420b5bf44825f4719be6ecad8ab476db8861030a487ae215dedb9e09",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical current source/test or complete original/current moved declarations read. Same53affected cases before/after,27whole AST/96actualbinding proof,432 exact prepared/page/cache-payload source replays; encrypted cache/authorization/revision fixtures inspected. No whole-file read credit derives only from test execution."
+  },
+  {
+    "path": "backend/app/infrastructure/passports/roster_cache.py",
+    "sha256": "8eaba82501192453e1fa6dd8ab6aee880524dfe4673e2c6e64f898bbefc8b239",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical current source/test or complete original/current moved declarations read. Same53affected cases before/after,27whole AST/96actualbinding proof,432 exact prepared/page/cache-payload source replays; encrypted cache/authorization/revision fixtures inspected. No whole-file read credit derives only from test execution."
+  },
+  {
+    "path": "backend/app/infrastructure/passports/roster_cache_codec.py",
+    "sha256": "e9d1632d324053b7fef0ee5d0289aa7ab815f5ffe3a4c948e9c5f03955a62d8c",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical current source/test or complete original/current moved declarations read. Same53affected cases before/after,27whole AST/96actualbinding proof,432 exact prepared/page/cache-payload source replays; encrypted cache/authorization/revision fixtures inspected. No whole-file read credit derives only from test execution."
+  },
+  {
+    "path": "backend/tests/unit/application/test_submission_view.py",
+    "sha256": "9c81bc89e0155e89f55fa4479c1ed1c488220885d31124ddf7c2090250126f32",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical current source/test or complete original/current moved declarations read. Same53affected cases before/after,27whole AST/96actualbinding proof,432 exact prepared/page/cache-payload source replays; encrypted cache/authorization/revision fixtures inspected. No whole-file read credit derives only from test execution."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_roster_cache.py",
+    "sha256": "3bf08ec8693fe1841bb2666349f344f6fd2700618033e25aef781f2bb50d7d7b",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical current source/test or complete original/current moved declarations read. Same53affected cases before/after,27whole AST/96actualbinding proof,432 exact prepared/page/cache-payload source replays; encrypted cache/authorization/revision fixtures inspected. No whole-file read credit derives only from test execution."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_view_page_hydration.py",
+    "sha256": "9e9327224159d6604c918bdb48ffc18fc6e4e087d079a310321b8a354a831cba",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical current source/test or complete original/current moved declarations read. Same53affected cases before/after,27whole AST/96actualbinding proof,432 exact prepared/page/cache-payload source replays; encrypted cache/authorization/revision fixtures inspected. No whole-file read credit derives only from test execution."
+  },
+  {
+    "path": "backend/tests/integration/test_passport_view_search_projection.py",
+    "sha256": "93e9406007405a82c1de337b4fff4a85c7ace0c40da2c10d27c6efbce47755e3",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical current source/test or complete original/current moved declarations read. Same53affected cases before/after,27whole AST/96actualbinding proof,432 exact prepared/page/cache-payload source replays; encrypted cache/authorization/revision fixtures inspected. No whole-file read credit derives only from test execution."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py",
+    "sha256": "9641b67bc05ad710f7f34dedfb801c69e4a8367dce317cf86477c61a75b58706",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical current source/test or complete original/current moved declarations read. Same53affected cases before/after,27whole AST/96actualbinding proof,432 exact prepared/page/cache-payload source replays; encrypted cache/authorization/revision fixtures inspected. No whole-file read credit derives only from test execution."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_submission_view_schema.py",
+    "sha256": "fbdfd1f233d7298b2aacaddd6df41ca81aab4f76961b859e88f009c321d80983",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical current source/test or complete original/current moved declarations read. Same53affected cases before/after,27whole AST/96actualbinding proof,432 exact prepared/page/cache-payload source replays; encrypted cache/authorization/revision fixtures inspected. No whole-file read credit derives only from test execution."
+  },
+  {
+    "path": "backend/app/application/use_cases/passports/submission_view_clustering.py",
+    "sha256": "4d19af2f8b2985d6dc5b837e2d56e6ee59b7824b00b699e49d8871bd334e632d",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical current source/test or complete original/current moved declarations read. Same53affected cases before/after,27whole AST/96actualbinding proof,432 exact prepared/page/cache-payload source replays; encrypted cache/authorization/revision fixtures inspected. No whole-file read credit derives only from test execution."
+  },
+  {
+    "path": "backend/app/application/use_cases/passports/submission_view_expiry.py",
+    "sha256": "cb587c37b91dda43b362dfb44f590eab2c169bf1ba82a0e1328f222febe7a775",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical current source/test or complete original/current moved declarations read. Same53affected cases before/after,27whole AST/96actualbinding proof,432 exact prepared/page/cache-payload source replays; encrypted cache/authorization/revision fixtures inspected. No whole-file read credit derives only from test execution."
+  },
+  {
+    "path": "backend/app/application/use_cases/passports/submission_view_fields.py",
+    "sha256": "a54108cb403c4f25fceb23b771512ebe4ecc59d7eecdc512c136f7fc3e75e9b3",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical current source/test or complete original/current moved declarations read. Same53affected cases before/after,27whole AST/96actualbinding proof,432 exact prepared/page/cache-payload source replays; encrypted cache/authorization/revision fixtures inspected. No whole-file read credit derives only from test execution."
+  },
+  {
+    "path": "backend/app/application/use_cases/passports/submission_view_ordering.py",
+    "sha256": "21246a9d48b5f24d55a9667f231bf98d433cd4e3d12534d13ab6ef25c532dcdc",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical current source/test or complete original/current moved declarations read. Same53affected cases before/after,27whole AST/96actualbinding proof,432 exact prepared/page/cache-payload source replays; encrypted cache/authorization/revision fixtures inspected. No whole-file read credit derives only from test execution."
+  },
+  {
+    "path": "backend/app/application/use_cases/passports/submission_view_pagination.py",
+    "sha256": "f266be66d12c735d87ade56b48648b72905583564aee4cb73ff71faa8cbb71e8",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical current source/test or complete original/current moved declarations read. Same53affected cases before/after,27whole AST/96actualbinding proof,432 exact prepared/page/cache-payload source replays; encrypted cache/authorization/revision fixtures inspected. No whole-file read credit derives only from test execution."
+  },
+  {
+    "path": "backend/app/application/use_cases/passports/submission_view_types.py",
+    "sha256": "54edcabd910675d4b866641a53f92314bf63ee5dfcc01de65d30be6d77405b37",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical current source/test or complete original/current moved declarations read. Same53affected cases before/after,27whole AST/96actualbinding proof,432 exact prepared/page/cache-payload source replays; encrypted cache/authorization/revision fixtures inspected. No whole-file read credit derives only from test execution."
+  }
+]

@@ -1,0 +1,76 @@
+{
+  "recorded_at": "2026-10-31T05:09:07.730025+00:00",
+  "records": [
+    {
+      "path": "frontend/features/travellers/hooks/use-returning-claim.ts",
+      "sha256": "6bbee8286214f1b18980b091c6fa32eac391d98357eef4f8dd6ac8711c00fe41",
+      "physical_lines": 80,
+      "review_scope": "full",
+      "status": "reviewed-follow-through-pending",
+      "reviewer": "branding_visuals",
+      "notes": "Single-flight AbortController and every post-await state guard fully read; server-selected verification sequence traced through returning API and ReturningFlow. Candidate needing rendered proof: repeated confirm/recovery responses currently recurse without a transition bound. No actual current server loop or authorization bypass established.",
+      "verification": "Full physical source and actual caller/API/test supporting reads only during parent freeze; no runtime changes or additional test execution credited to this read."
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-contact-dialog.tsx",
+      "sha256": "68b2d407803af17481ad20938f516ff5d55aad852fa447eb7542f2d35b4a9ef6",
+      "physical_lines": 54,
+      "review_scope": "full",
+      "status": "reviewed-follow-through-pending",
+      "reviewer": "branding_visuals",
+      "notes": "OTP request/verify, explicit contact-use confirmation, resend timer, pending close/Escape denial and abort cleanup fully read; only caller is ReturningReviewContent with current draft ID. Dense UI/state ordering is an architecture follow-through target; no demonstrated request/verification workflow defect claimed.",
+      "verification": "Full physical source and actual caller/API/test supporting reads only during parent freeze; no runtime changes or additional test execution credited to this read."
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-flow.tsx",
+      "sha256": "336a3b4589785f6113334b3780af7d7c06c7ac47ee6e6cc1172e44372e50f970",
+      "physical_lines": 65,
+      "review_scope": "full",
+      "status": "reviewed-follow-through-pending",
+      "reviewer": "branding_visuals",
+      "notes": "All physical JSX/state read, including failed-proof focus, stage-priority branches and review transition; actual caller is TravellerPortal. Keep method/capabilities/group-token and manual verification semantics while expanding dense presentation in next coherent batch.",
+      "verification": "Full physical source and actual caller/API/test supporting reads only during parent freeze; no runtime changes or additional test execution credited to this read."
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-offer.tsx",
+      "sha256": "cabb37d14e557d8f1b6e8b4ffb9c8a3ef76a670214781cba11b1e63858d0d8df",
+      "physical_lines": 41,
+      "review_scope": "full",
+      "status": "reviewed-follow-through-pending",
+      "reviewer": "branding_visuals",
+      "notes": "Availability refetch single-flight, token/unmount selection invalidation and server-disabled code fallback fully read; current portal keys offer by token and existing rendered tests cover pending choices/back/disabled link. No new defect established.",
+      "verification": "Full physical source and actual caller/API/test supporting reads only during parent freeze; no runtime changes or additional test execution credited to this read."
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-resume.tsx",
+      "sha256": "54e96cbb354b75b645b6859cf1739e79b9fe130f05c2e95a32e08f1c4ffaf01f",
+      "physical_lines": 25,
+      "review_scope": "full",
+      "status": "reviewed-follow-through-pending",
+      "reviewer": "branding_visuals",
+      "notes": "History lookup cancellation and 24-hour recovery presentation fully read; current portal caller/Next dynamic token segment traced. Candidate token-prop stale-display behavior is not yet proven through a production navigation; do not call a leak based on rerender alone.",
+      "verification": "Full physical source and actual caller/API/test supporting reads only during parent freeze; no runtime changes or additional test execution credited to this read."
+    },
+    {
+      "path": "frontend/features/travellers/components/returning-review.tsx",
+      "sha256": "baeaf7a47e40984791c30f7695ddf972ef49e5d170bd53550e039399e266f57d",
+      "physical_lines": 108,
+      "review_scope": "full",
+      "status": "reviewed-follow-through-pending",
+      "reviewer": "branding_visuals",
+      "notes": "All review/draft controls, passport selection, confirmation reset, current contact verification, collection/document requirements and final submission priority read. Public history/review-version keys and current callers traced. Dense JSX and state-controller responsibilities need a focused architecture batch, preserving readiness/submit/cancellation gates.",
+      "verification": "Full physical source and actual caller/API/test supporting reads only during parent freeze; no runtime changes or additional test execution credited to this read."
+    },
+    {
+      "path": "frontend/features/travellers/components/traveller-document.tsx",
+      "sha256": "665ac1d9cf382c5b402fd47b28e152cfef7794ef5c07ab2cbd8a4f0fe7196bb4",
+      "physical_lines": 45,
+      "review_scope": "full",
+      "status": "reviewed-follow-through-pending",
+      "reviewer": "branding_visuals",
+      "notes": "Entire lazy protected preview flow read: queued fetch, abort on dependency/unmount, bounded MIME/bytes, object-URL cleanup and retry. Actual ReturningDraftImages caller keys each image by document ID. Candidate identity-dependent stale state must be proved with its real key/caller before modifying lifetime behavior.",
+      "verification": "Full physical source and actual caller/API/test supporting reads only during parent freeze; no runtime changes or additional test execution credited to this read."
+    }
+  ],
+  "scope": "Seven previously identified returning-traveller architecture follow-through owners; source review complete, implementation/proofs remain pending."
+}

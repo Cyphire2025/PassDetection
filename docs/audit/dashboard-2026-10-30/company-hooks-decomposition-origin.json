@@ -1,0 +1,51 @@
+{
+  "basis": "Current intentional guard changes preceded extraction. All10moved declarations preserve exact TypeScript AST; public facade names/signatures retained.",
+  "declarations": [
+    {
+      "name": "companyQueryOptions",
+      "destination": "frontend/features/companies/hooks/company-query-state.ts"
+    },
+    {
+      "name": "companyKeys",
+      "destination": "frontend/features/companies/hooks/company-query-state.ts"
+    },
+    {
+      "name": "useCompanyQueryScope",
+      "destination": "frontend/features/companies/hooks/company-query-state.ts"
+    },
+    {
+      "name": "useCompanyQueryContext",
+      "destination": "frontend/features/companies/hooks/company-query-state.ts"
+    },
+    {
+      "name": "useCompanies",
+      "destination": "frontend/features/companies/hooks/use-company-queries.ts"
+    },
+    {
+      "name": "useCompanyLookup",
+      "destination": "frontend/features/companies/hooks/use-company-queries.ts"
+    },
+    {
+      "name": "useCompany",
+      "destination": "frontend/features/companies/hooks/use-company-queries.ts"
+    },
+    {
+      "name": "useCompanySummary",
+      "destination": "frontend/features/companies/hooks/use-company-queries.ts"
+    },
+    {
+      "name": "useCompanyGroups",
+      "destination": "frontend/features/companies/hooks/use-company-queries.ts"
+    },
+    {
+      "name": "useCompanyMutations",
+      "destination": "frontend/features/companies/hooks/use-company-mutations.ts"
+    }
+  ],
+  "files": {
+    "frontend/features/companies/hooks/use-companies.ts": "005c40a44385c7fe3fbaa82c32eedcca7e75097919ca590366bb1bc5056bdb28",
+    "frontend/features/companies/hooks/company-query-state.ts": "fb6557cb497ff2ac377c3795ac1d8095446de7a3dbddcae06f664b96d772ba44",
+    "frontend/features/companies/hooks/use-company-queries.ts": "f5874240b0539820954be15ea66eab9596eb1fe3ed34506009537bb4a51e3acd",
+    "frontend/features/companies/hooks/use-company-mutations.ts": "5cca17266ce8149129c37c0327b7d6766c3053025bb8135cd3d621624248f5b7"
+  }
+}

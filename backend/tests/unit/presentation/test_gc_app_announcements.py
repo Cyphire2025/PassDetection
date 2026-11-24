@@ -38,7 +38,7 @@ async def test_announcement_list_excludes_retired_and_revoked_history() -> None:
     session = SimpleNamespace(execute=AsyncMock(return_value=_Result([])))
 
     with patch(
-        "app.presentation.api.v1.routes.gc_app_content._admin_access_context",
+        "app.presentation.api.v1.routes.gc_app_announcements._admin_access_context",
         new=AsyncMock(return_value=(access, SimpleNamespace())),
     ):
         response = await list_announcements(
@@ -83,23 +83,23 @@ async def test_deleting_published_announcement_cancels_pending_notifications() -
 
     with (
         patch(
-            "app.presentation.api.v1.routes.gc_app_content._admin_access_context",
+            "app.presentation.api.v1.routes.gc_app_announcement_publication._admin_access_context",
             new=AsyncMock(return_value=(access, SimpleNamespace())),
         ),
         patch(
-            "app.presentation.api.v1.routes.gc_app_content._get_announcement",
+            "app.presentation.api.v1.routes.gc_app_announcement_publication._get_announcement",
             new=AsyncMock(return_value=announcement),
         ),
         patch(
-            "app.presentation.api.v1.routes.gc_app_content.append_mobile_sync_change",
+            "app.presentation.api.v1.routes.gc_app_announcement_publication.append_mobile_sync_change",
             new=AsyncMock(),
         ),
         patch(
-            "app.presentation.api.v1.routes.gc_app_content.cancel_announcement_notifications",
+            "app.presentation.api.v1.routes.gc_app_announcement_publication.cancel_announcement_notifications",
             new=cancel,
         ),
         patch(
-            "app.presentation.api.v1.routes.gc_app_content._content_audit",
+            "app.presentation.api.v1.routes.gc_app_announcement_publication._content_audit",
             new=AsyncMock(),
         ),
     ):

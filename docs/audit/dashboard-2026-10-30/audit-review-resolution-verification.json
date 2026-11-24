@@ -1,0 +1,35 @@
+{
+  "scope": "Audit bookkeeping and one complete source-read closure only",
+  "cases": 10,
+  "exit_code": 0,
+  "lint_exit_code": 0,
+  "source_frozen": true,
+  "before": {
+    "scripts/dashboard_audit_inventory.py": "ffde99d121f92ca6795f9ad23d7358d16e011259bcf65d8774ce304a52150bfe",
+    "backend/tests/unit/scripts/test_dashboard_audit_review_resolutions.py": "ad54f856bf475aec172c76015e028c6967101c3d1a46d35aeadebe7123cee2dc",
+    "backend/tests/unit/presentation/test_document_chunk_uploads.py": "ab8dfbbad5c33998d1c622f5e9bf27635abb449623fe121e822d404e9b1b2ff9"
+  },
+  "after": {
+    "scripts/dashboard_audit_inventory.py": "ffde99d121f92ca6795f9ad23d7358d16e011259bcf65d8774ce304a52150bfe",
+    "backend/tests/unit/scripts/test_dashboard_audit_review_resolutions.py": "ad54f856bf475aec172c76015e028c6967101c3d1a46d35aeadebe7123cee2dc",
+    "backend/tests/unit/presentation/test_document_chunk_uploads.py": "ab8dfbbad5c33998d1c622f5e9bf27635abb449623fe121e822d404e9b1b2ff9"
+  },
+  "argv": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "tests/unit/scripts/test_dashboard_audit_review_resolutions.py"
+  ],
+  "explicit_target": {
+    "ledger": "distribution-upload-reviewed-files.json",
+    "record_sha256": "8f373f6c4105fab6b5f4e96161cbfff0bdd964e496c4729f5ddec478570f74a5",
+    "reason": "Completed the previously outstanding full physical read at the identical source digest; this resolves only that partial-read entry."
+  },
+  "immutable_parent_ledger_sha256": "7544c10625a28062bcce2da1e00635137e6f730f8306d487ef306ef1bf5c0f55",
+  "parent_ledger_preserved": true,
+  "inventory_files": 6181,
+  "application_checks_repeated": false
+}

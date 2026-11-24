@@ -1,0 +1,106 @@
+[
+  {
+    "path": "backend/app/domain/services/traveller_suitability.py",
+    "sha256": "eaec54fb85922579d26e450aa8a170fe4cea1e0a2c3e27adbe8c45a31ed0a35c",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical source read. Actual accepted request/domain\u2192persisted SQLite operational-reuse path reproduced year10000 overflow;6negative failures/2controls\u219243affected cases plus4236assessment/630calendar original-source parity cases. Whole module exact outside explicit pure calendar comparison delta; old tests unchanged. See suitability-calendar-verification.json; synthetic SQLite correctness evidence only, no live services/security incident/legal rule claim."
+  },
+  {
+    "path": "backend/tests/unit/domain/test_traveller_suitability.py",
+    "sha256": "4c53102f87bf90c0c591207326b2ad409c6560a0ec50888209c31792d3552e90",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical source read. Actual accepted request/domain\u2192persisted SQLite operational-reuse path reproduced year10000 overflow;6negative failures/2controls\u219243affected cases plus4236assessment/630calendar original-source parity cases. Whole module exact outside explicit pure calendar comparison delta; old tests unchanged. See suitability-calendar-verification.json; synthetic SQLite correctness evidence only, no live services/security incident/legal rule claim."
+  },
+  {
+    "path": "backend/tests/unit/domain/test_traveller_suitability_boundaries.py",
+    "sha256": "fece97f6ee776bb617a7f1ea275df0ab2c1d92fffb64fa5d3ab2ba44ec5fc8f9",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical source read. Actual accepted request/domain\u2192persisted SQLite operational-reuse path reproduced year10000 overflow;6negative failures/2controls\u219243affected cases plus4236assessment/630calendar original-source parity cases. Whole module exact outside explicit pure calendar comparison delta; old tests unchanged. See suitability-calendar-verification.json; synthetic SQLite correctness evidence only, no live services/security incident/legal rule claim."
+  },
+  {
+    "path": "backend/tests/integration/test_operational_autoassignment.py",
+    "sha256": "313c9802407763748a4f18ab6d056ca1650ffab28a6bb913ec8632b9aa150c66",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Actual accepted request/domain\u2192persisted SQLite operational-reuse path reproduced year10000 overflow;6negative failures/2controls\u219243affected cases plus4236assessment/630calendar original-source parity cases. Whole module exact outside explicit pure calendar comparison delta; old tests unchanged. See suitability-calendar-verification.json; synthetic SQLite correctness evidence only, no live services/security incident/legal rule claim."
+  },
+  {
+    "path": "backend/tests/integration/test_suitability_calendar_boundary.py",
+    "sha256": "850245e0615849a4d38a5617972201f8e02661364bb3953292f7da09bb0e73f4",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete physical source read. Actual accepted request/domain\u2192persisted SQLite operational-reuse path reproduced year10000 overflow;6negative failures/2controls\u219243affected cases plus4236assessment/630calendar original-source parity cases. Whole module exact outside explicit pure calendar comparison delta; old tests unchanged. See suitability-calendar-verification.json; synthetic SQLite correctness evidence only, no live services/security incident/legal rule claim."
+  },
+  {
+    "path": "backend/tests/integration/traveller_reuse_fixtures.py",
+    "sha256": "9ccb9c675db6dff12324374e4fc08cffb55ec33037361c39f69f0f3284a207b7",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Actual accepted request/domain\u2192persisted SQLite operational-reuse path reproduced year10000 overflow;6negative failures/2controls\u219243affected cases plus4236assessment/630calendar original-source parity cases. Whole module exact outside explicit pure calendar comparison delta; old tests unchanged. See suitability-calendar-verification.json; synthetic SQLite correctness evidence only, no live services/security incident/legal rule claim."
+  },
+  {
+    "path": "backend/app/application/travellers/operational_autoassignment.py",
+    "sha256": "43c8e015205ba695a139ec20398c8e10b6752875e0a275c9850d457b0fb4522c",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Actual accepted request/domain\u2192persisted SQLite operational-reuse path reproduced year10000 overflow;6negative failures/2controls\u219243affected cases plus4236assessment/630calendar original-source parity cases. Whole module exact outside explicit pure calendar comparison delta; old tests unchanged. See suitability-calendar-verification.json; synthetic SQLite correctness evidence only, no live services/security incident/legal rule claim."
+  },
+  {
+    "path": "backend/app/application/travellers/history.py",
+    "sha256": "7d4a38b91c56d0caf999412a9168fc3d0dd93b37b71dd7baa3b866de1909e051",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Actual accepted request/domain\u2192persisted SQLite operational-reuse path reproduced year10000 overflow;6negative failures/2controls\u219243affected cases plus4236assessment/630calendar original-source parity cases. Whole module exact outside explicit pure calendar comparison delta; old tests unchanged. See suitability-calendar-verification.json; synthetic SQLite correctness evidence only, no live services/security incident/legal rule claim."
+  },
+  {
+    "path": "backend/app/domain/entities/client_group.py",
+    "sha256": "3611455105d0b61425774efb899b883fe9d4e3e192b4e3ca39330c955d5b50f2",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Actual accepted request/domain\u2192persisted SQLite operational-reuse path reproduced year10000 overflow;6negative failures/2controls\u219243affected cases plus4236assessment/630calendar original-source parity cases. Whole module exact outside explicit pure calendar comparison delta; old tests unchanged. See suitability-calendar-verification.json; synthetic SQLite correctness evidence only, no live services/security incident/legal rule claim."
+  },
+  {
+    "path": "backend/app/domain/value_objects/group_trip_settings.py",
+    "sha256": "e4db9450f179fef74a62e880c2c6286454ba5d927a8ac2e4f959e8c57d7ae78a",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read. Actual accepted request/domain\u2192persisted SQLite operational-reuse path reproduced year10000 overflow;6negative failures/2controls\u219243affected cases plus4236assessment/630calendar original-source parity cases. Whole module exact outside explicit pure calendar comparison delta; old tests unchanged. See suitability-calendar-verification.json; synthetic SQLite correctness evidence only, no live services/security incident/legal rule claim."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/schemas/client_group_request_schemas.py",
+    "sha256": "05119ad00c36913fca7f40df7c8e466a017661f7bbc14a0512d0a2c357667e82",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "reviewed",
+    "notes": "Focused physical source read of creation schema1-135, configuration1-90, or actual claim helper1-85 respectively, to trace accepted date/domain/persisted history boundary. No new whole-file read, route execution or auth bypass claim."
+  },
+  {
+    "path": "backend/app/domain/entities/client_group_configuration.py",
+    "sha256": "3486a83b66db4ec1658e74ba47bdd0052423d7a122fb5cc6bcbbb5fc633606db",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "reviewed",
+    "notes": "Focused physical source read of creation schema1-135, configuration1-90, or actual claim helper1-85 respectively, to trace accepted date/domain/persisted history boundary. No new whole-file read, route execution or auth bypass claim."
+  },
+  {
+    "path": "backend/tests/integration/test_returning_claims.py",
+    "sha256": "a51dc72c3781f0f932d21e0a0c7a25d613f2782082eacb333689b6fc04da53ae",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "reviewed",
+    "notes": "Focused physical source read of creation schema1-135, configuration1-90, or actual claim helper1-85 respectively, to trace accepted date/domain/persisted history boundary. No new whole-file read, route execution or auth bypass claim."
+  }
+]

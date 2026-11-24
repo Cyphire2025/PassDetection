@@ -1,0 +1,116 @@
+{
+  "recorded_at": "2026-10-31T09:57:55.573994+00:00",
+  "basis": "Complete original/current UI/hook/service/test reads plus TypeScript module resolver static/reexport/literal dynamic/require and runtime identifier/string closure across1650current source modules. No runtime namespace or retired UI/type edge; module reachable only for retained validator. Actual six legacy obligations executed on current FreshContact with real useFreshDraft serialized queue before legacy-only test retirement.",
+  "original_files": [
+    {
+      "path": "frontend/features/upload/components/upload-contact-verification.tsx",
+      "sha256": "b4d925237294c1e316d40c9282b00518e63405a743752a856b66b450a2f6d557",
+      "physical_lines": 185,
+      "snapshot": ".tmp/fresh-contact/upload-contact-verification.original.tsx",
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "retired-after-full-read-and-caller-proof"
+    },
+    {
+      "path": "frontend/features/upload/components/upload-contact-verification.test.tsx",
+      "sha256": "82822d13a636e55b1e0584ad1b1bc783a1417e3a3510b7499c1463da7d14c2ae",
+      "physical_lines": 123,
+      "snapshot": ".tmp/fresh-contact/upload-contact-verification.original.test.tsx",
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "retired-after-full-read-and-caller-proof"
+    }
+  ],
+  "retired_files": [
+    "frontend/features/upload/components/upload-contact-verification.tsx",
+    "frontend/features/upload/components/upload-contact-verification.test.tsx"
+  ],
+  "retired_declarations": [
+    {
+      "id": "frontend/features/upload/components/upload-contact-verification.tsx#ContactVerification",
+      "path": "frontend/features/upload/components/upload-contact-verification.tsx",
+      "name": "ContactVerification",
+      "kind": "InterfaceDeclaration",
+      "sha256": "f0d1f97d050a3b50144710f21cfb3de5b0a864f59469ca62586bf766237f96e3",
+      "exported": true
+    },
+    {
+      "id": "frontend/features/upload/components/upload-contact-verification.tsx#Props",
+      "path": "frontend/features/upload/components/upload-contact-verification.tsx",
+      "name": "Props",
+      "kind": "InterfaceDeclaration",
+      "sha256": "6df725480a22cbec3190e6f560e0214f2fbc192f98f007258dd1a1f262925184",
+      "exported": false
+    },
+    {
+      "id": "frontend/features/upload/components/upload-contact-verification.tsx#UploadContactVerification",
+      "path": "frontend/features/upload/components/upload-contact-verification.tsx",
+      "name": "UploadContactVerification",
+      "kind": "FunctionDeclaration",
+      "sha256": "9f990dc17b184ad261f4f8979b0abf11b904a9fb3c492d8d203a1a1d2f4bad64",
+      "exported": true
+    },
+    {
+      "id": "frontend/features/upload/components/upload-contact-verification.tsx#VerifiedContactSummary",
+      "path": "frontend/features/upload/components/upload-contact-verification.tsx",
+      "name": "VerifiedContactSummary",
+      "kind": "FunctionDeclaration",
+      "sha256": "8aaf9b1f90db8edb51a6438c6eda128098980ee74978288bc09cde682b9b28e2",
+      "exported": true
+    }
+  ],
+  "retained_declarations": [
+    {
+      "before": "frontend/features/upload/components/upload-contact-verification.tsx#validContactEmail",
+      "after": "frontend/features/upload/services/contact-verification.ts#validContactEmail",
+      "wholeTypedDeclarationExact": true,
+      "sha256": "1f6834b77593252f80664718e03ca8d8f2f7a91f7b70172d02ec53ee93e8e9fb"
+    }
+  ],
+  "caller_evidence": "legacy-contact-caller-closure.json",
+  "caller_evidence_sha256": "228bf0958488135b0a62a894ac3aa3415ddf62719df2353b57a63ce6f9342125",
+  "old_to_current_test_responsibilities": [
+    {
+      "old": "requires email and complete phone numbers",
+      "current": "requires valid email and complete phone input before requesting a code"
+    },
+    {
+      "old": "sends once on repeated clicks and ignores response after contact changes",
+      "current": "suppresses repeated sends and ignores a challenge for edited contact details; drops a queued old contact before sending and preserves the replacement contact request"
+    },
+    {
+      "old": "ignores successful verify response after editing email",
+      "current": "does not accept verification for contact details edited during the request"
+    },
+    {
+      "old": "invalid code then corrected code on same challenge",
+      "current": "allows a corrected code on the same challenge only after authoritative revision refresh"
+    },
+    {
+      "old": "expiry/resend cooldown and replacement challenge",
+      "current": "expires challenges, enforces successful resend cooldown and uses the replacement challenge"
+    },
+    {
+      "old": "failed send server cooldown",
+      "current": "honors a failed-send server retry interval without allowing immediate repeat requests; does not impose an old contacts late failed-send cooldown on its replacement"
+    }
+  ],
+  "retained_api_contracts": [
+    "uploadApi.requestContactOtp",
+    "uploadApi.verifyContactOtp",
+    "freshDraftApi public token/member API and backend endpoints unchanged"
+  ],
+  "coverage_migration": {
+    "original_critical_owner": "features/upload/hooks/use-fresh-contact.ts",
+    "new_actual_request_timer_owner": "features/upload/hooks/use-fresh-contact-challenge.ts",
+    "retain_original_include": true,
+    "same_per_file_thresholds": {
+      "statements": 74,
+      "branches": 50,
+      "functions": 75,
+      "lines": 75
+    },
+    "configuration_owner": "root: add new actual owner, do not remove original or lower any floors"
+  },
+  "line_count_correction": "The authoritative archived physical source contains185lines. An earlier commentary estimate of198was incorrect; test contains123lines."
+}

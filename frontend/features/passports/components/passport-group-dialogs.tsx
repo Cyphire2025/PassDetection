@@ -1,7 +1,7 @@
 "use client";
 import { ConfirmDialog } from "@/components/ui";
 import { isDownloadCancelled } from "@/lib/api/download-destination";
-import { normalizeCities } from "../utils/passport-group-trip";
+import { tripDetailsUpdate } from "../utils/passport-group-update";
 import {
   PassportExportDialog,
   PassportImageCropEditor,
@@ -80,42 +80,13 @@ export function PassportGroupDialogs({
         <TripDetailsDialog
           form={tripForm}
           isLoading={updateGroup.isPending}
+          saveError={updateGroup.isError ? mutationErrorMessage(updateGroup.error, "Trip details could not be saved. Please retry.") : undefined}
           onChange={setTripForm}
-          onClose={() => setIsEditingTrip(false)}
+          onClose={() => { updateGroup.reset(); setIsEditingTrip(false); }}
           onSave={() => {
             updateGroup.mutate(
-              {
-                id: groupId,
-                name: tripForm.name.trim() || groupDetails.group_name,
-                destination: tripForm.destination || null,
-                travel_date: tripForm.travel_date || null,
-                return_date: tripForm.return_date || null,
-                timezone: tripForm.timezone.trim(),
-                departure_cities: tripForm.nearest_international_airport_enabled
-                  ? normalizeCities(tripForm.departure_cities)
-                  : [],
-                base_city_enabled: tripForm.base_city_enabled,
-                nearest_international_airport_enabled:
-                  tripForm.nearest_international_airport_enabled,
-                staff_code_enabled: tripForm.staff_code_enabled,
-                agent_employee_code_enabled:
-                  tripForm.agent_employee_code_enabled,
-                meal_preference_enabled: tripForm.meal_preference_enabled,
-                upload_configuration: tripForm.upload_configuration,
-                custom_questions: tripForm.custom_questions,
-                custom_details: tripForm.custom_details,
-                require_selfie: tripForm.require_selfie,
-                allow_files_from_device: tripForm.allow_files_from_device,
-                ask_nearest_domestic_airport:
-                  tripForm.ask_nearest_domestic_airport,
-                relation_with_qualifier_enabled:
-                  tripForm.relation_with_qualifier_enabled,
-                designation_enabled: tripForm.designation_enabled,
-                agency_dealership_name_enabled:
-                  tripForm.agency_dealership_name_enabled,
-                notes: tripForm.notes || null,
-              },
-              { onSuccess: () => setIsEditingTrip(false) },
+              tripDetailsUpdate(groupId, tripForm, groupDetails.group_name),
+              { onSuccess: () => { updateGroup.reset(); setIsEditingTrip(false); } },
             );
           }}
         />

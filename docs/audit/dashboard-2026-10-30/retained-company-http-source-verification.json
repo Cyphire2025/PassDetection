@@ -1,0 +1,42 @@
+{
+  "status": "Read-only bounded company/group HTTP-source cohort complete; broader audit active",
+  "new_current_full_tests": 7,
+  "test_physical_lines": 1279,
+  "supporting_full_rows": 7,
+  "focused_rows": 6,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-company-http-source-reviewed-files.json",
+    "sha256": "c63ffcc54389249670b2e8e7be84cb6c826794e1728bda079b7a3a6697371b0a"
+  },
+  "source_fence": {
+    "backend/tests/integration/test_company_people_http.py": "bf51ca6d89337588c80feeb29ad03d4efc1ca9d13d1e43d66d11797ebdea3c16",
+    "backend/tests/integration/test_company_submissions.py": "d73dda0b7f661df5dd58cac8f9602a202bff2b9827f953e5eb12bc10e20cb6eb",
+    "backend/tests/integration/test_company_summary.py": "01033393ea775ef2b0a49af2247cdd5185ada3cb1332ebda987240613ca928c6",
+    "backend/tests/integration/test_group_company_assignment_http.py": "91dc411388580ab9d62a71b22f354a55ba519ab402e6e411d5a782669e1c771e",
+    "backend/tests/integration/test_legacy_staff_roster_reuse.py": "ecb24d0536770ae8006a808aa9ed3cfa18fcc1c7cfe6fe377a0ff7448c31ff3b",
+    "backend/tests/integration/test_client_group_reopen.py": "1ce0e901670a074c05b6658062f4bed3a99910b20a66daf2f03541e4aad7fe28",
+    "backend/tests/integration/test_group_delete_retained_documents.py": "715a957bba45db5cbfcde6376455b060b74b0af51add91758324dc4e5cbc2756",
+    "backend/app/presentation/api/v1/routes/company_submissions.py": "7361f91c6e76710f84e79220f4cba3dab6be3e5f7d8d0aaaf6887900c2bb6611",
+    "backend/app/application/companies/traveller_metrics.py": "64e3e068cf298b1f967aaacb3d1156ce2b988561fa784303350e3014f923c2de",
+    "backend/app/application/companies/summary.py": "5d4a593eba2880b245432192ecd9dbfec1c36c6f3bcb62ba07c8b1b4e5921d53",
+    "backend/app/application/companies/access.py": "85eb5114243a39d708f1cf3162051317e5702190e0c1bc5345bff19e1ba8e69c",
+    "backend/app/application/companies/assignment.py": "cf87ffaf0b731341a3a88ffa9fa2ee4cd40d9872baf071691a4b4d517404ce30",
+    "backend/app/application/use_cases/client_groups/restore_client_group_use_case.py": "1eda69ab875d5b5a77d6f608647a714c6559e7ded46b17393fec98e0ad92c6c1",
+    "backend/app/application/use_cases/client_groups/revoke_client_group_use_case.py": "d5e00bdc31d9ce061ebbd8e37cbb3322dcbd9bb522c7c89b1a29f8c7f416b73b",
+    "backend/app/presentation/api/v1/routes/company_people.py": "80aaf08e4c970c6edcfc2ebb622fb558744c98cd852f428482a6377186a79c0b",
+    "backend/app/presentation/api/v1/routes/companies.py": "4d4feacb0186a8a62973bdbf345655dcebdc93f016f81c1fb555faf45abdc90a",
+    "backend/app/presentation/api/v1/routes/client_group_configuration.py": "925faec9ce0fcaad02be70b0207ce7339fa9e941a6ae28f2131cf30b18a1f993",
+    "backend/app/presentation/api/v1/routes/client_group_retention.py": "88b5a3cef1b849b79e8eb8b169d65e35d90ed65d95470b75fcf5ae347b677e8a",
+    "backend/app/presentation/api/v1/routes/client_group_permanent_delete.py": "7bca9c679fe968144e0ca24759cd4115c459d9b0a47c10fceee7ba9614b42818",
+    "backend/app/application/travellers/retention.py": "e149daafe2db93605bdfe8297e71ede879879b176f7f002428cae7543184b7da"
+  },
+  "checks_run": [],
+  "changes": [],
+  "findings": [],
+  "proof_gaps": [
+    "Source assertions/query counters and fixtures read without execution; no live HTTP/PG/storage/provider qualification.",
+    "Authority/CSRF overrides, synthetic storage/validator and source-level query counts do not establish real authorization or capacity.",
+    "Ordinary record population, accepted person identity and lawful retained trip source are distinct; no policy/workflow broadened.",
+    "Bounded caller slices retain partial scope; no validated new defect or speculative architecture/performance change."
+  ]
+}

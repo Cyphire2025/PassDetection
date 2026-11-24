@@ -1,0 +1,351 @@
+{
+  "constants": {
+    "MAX_EXPORT_ROWS": 20000,
+    "_MESSAGE_LABELS": {
+      "group_invite": "Group invite",
+      "passport_link": "Passport link",
+      "reminder": "Reminder",
+      "welcome": "Welcome"
+    },
+    "_MIME": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "_SOURCE_QUERY_BATCH": 1000,
+    "_SourceKey": "tuple[uuid.UUID, uuid.UUID]"
+  },
+  "functions": {
+    "_broadcast_import_contact_values": {
+      "annotations": {
+        "fields": "dict[str, typing.Any]",
+        "return": "dict[str, typing.Any]"
+      },
+      "doc": "Unambiguous contact context for this exact broadcast row, never a phone match.",
+      "module": "app.presentation.api.v1.routes.whatsapp_exports",
+      "qualname": "_broadcast_import_contact_values",
+      "signature": "(fields: 'dict[str, Any]') -> 'dict[str, Any]'"
+    },
+    "_delivery_values": {
+      "annotations": {
+        "recipient": "app.presentation.api.v1.schemas.whatsapp_schemas.WhatsAppRecipientResponse | None",
+        "return": "dict[str, typing.Any]"
+      },
+      "doc": null,
+      "module": "app.presentation.api.v1.routes.whatsapp_exports",
+      "qualname": "_delivery_values",
+      "signature": "(recipient: 'WhatsAppRecipientResponse | None') -> 'dict[str, Any]'"
+    },
+    "_exportable_links": {
+      "annotations": {
+        "broadcast": "<class 'app.infrastructure.database.communications_models.WhatsAppBroadcastGroupModel'>",
+        "return": "list[tuple[app.infrastructure.database.models.ClientGroupModel, app.infrastructure.database.models.ClientGroupWhatsAppBroadcastLinkModel]]",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "user": "<class 'app.domain.entities.identity.User'>"
+      },
+      "doc": null,
+      "module": "app.presentation.api.v1.routes.whatsapp_exports",
+      "qualname": "_exportable_links",
+      "signature": "(session: 'AsyncSession', broadcast: 'WhatsAppBroadcastGroupModel', user: 'User') -> 'list[tuple[ClientGroupModel, ClientGroupWhatsAppBroadcastLinkModel]]'"
+    },
+    "_gather_export_rows": {
+      "annotations": {
+        "body": "<class 'app.presentation.api.v1.schemas.whatsapp_export_schemas.WhatsAppFilterExportRequest'>",
+        "broadcast": "<class 'app.infrastructure.database.communications_models.WhatsAppBroadcastGroupModel'>",
+        "return": "list[app.infrastructure.export.whatsapp_filter_excel_exporter.WhatsAppExportRow]",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "user": "<class 'app.domain.entities.identity.User'>"
+      },
+      "doc": null,
+      "module": "app.presentation.api.v1.routes.whatsapp_exports",
+      "qualname": "_gather_export_rows",
+      "signature": "(body: 'WhatsAppFilterExportRequest', broadcast: 'WhatsAppBroadcastGroupModel', user: 'User', session: 'AsyncSession') -> 'list[WhatsAppExportRow]'"
+    },
+    "_latest_attempt_values": {
+      "annotations": {
+        "broadcast": "<class 'app.infrastructure.database.communications_models.WhatsAppBroadcastGroupModel'>",
+        "recipient_ids": "set[uuid.UUID]",
+        "return": "dict[uuid.UUID, dict[str, typing.Any]]",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>"
+      },
+      "doc": null,
+      "module": "app.presentation.api.v1.routes.whatsapp_exports",
+      "qualname": "_latest_attempt_values",
+      "signature": "(session: 'AsyncSession', broadcast: 'WhatsAppBroadcastGroupModel', recipient_ids: 'set[uuid.UUID]') -> 'dict[uuid.UUID, dict[str, Any]]'"
+    },
+    "_roster_identity": {
+      "annotations": {
+        "return": "tuple[str, uuid.UUID]",
+        "row": "<class 'app.presentation.api.v1.schemas.whatsapp_schemas.WhatsAppRecipientRosterItemResponse'>"
+      },
+      "doc": null,
+      "module": "app.presentation.api.v1.routes.whatsapp_exports",
+      "qualname": "_roster_identity",
+      "signature": "(row: 'WhatsAppRecipientRosterItemResponse') -> 'tuple[str, uuid.UUID]'"
+    },
+    "_stale_rows": {
+      "annotations": {
+        "return": "<class 'fastapi.exceptions.HTTPException'>"
+      },
+      "doc": null,
+      "module": "app.presentation.api.v1.routes.whatsapp_exports",
+      "qualname": "_stale_rows",
+      "signature": "() -> 'HTTPException'"
+    },
+    "export_broadcast_filter": {
+      "annotations": {
+        "body": "<class 'app.presentation.api.v1.schemas.whatsapp_export_schemas.WhatsAppFilterExportRequest'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "group_id": "<class 'uuid.UUID'>",
+        "return": "<class 'starlette.responses.Response'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>"
+      },
+      "doc": null,
+      "module": "app.presentation.api.v1.routes.whatsapp_exports",
+      "qualname": "export_broadcast_filter",
+      "signature": "(group_id: 'uuid.UUID', body: 'WhatsAppFilterExportRequest', current_user: 'User' = Depends(dependency=<function require_role.<locals>._check_role>, use_cache=True, scope=None), session: 'AsyncSession' = Depends(dependency=<function get_db_session>, use_cache=True, scope=None)) -> 'Response'"
+    }
+  },
+  "openapi": {
+    "components": {
+      "schemas": {
+        "HTTPValidationError": {
+          "properties": {
+            "detail": {
+              "items": {
+                "$ref": "#/components/schemas/ValidationError"
+              },
+              "title": "Detail",
+              "type": "array"
+            }
+          },
+          "title": "HTTPValidationError",
+          "type": "object"
+        },
+        "ValidationError": {
+          "properties": {
+            "ctx": {
+              "title": "Context",
+              "type": "object"
+            },
+            "input": {
+              "title": "Input"
+            },
+            "loc": {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ]
+              },
+              "title": "Location",
+              "type": "array"
+            },
+            "msg": {
+              "title": "Message",
+              "type": "string"
+            },
+            "type": {
+              "title": "Error Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "loc",
+            "msg",
+            "type"
+          ],
+          "title": "ValidationError",
+          "type": "object"
+        },
+        "WhatsAppExportItem": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "format": "uuid",
+              "title": "Id",
+              "type": "string"
+            },
+            "kind": {
+              "enum": [
+                "recipient",
+                "rejected",
+                "replaced",
+                "unidentified",
+                "source_contact"
+              ],
+              "title": "Kind",
+              "type": "string"
+            },
+            "source_group_id": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Source Group Id"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "title": "WhatsAppExportItem",
+          "type": "object"
+        },
+        "WhatsAppFilterExportRequest": {
+          "additionalProperties": false,
+          "properties": {
+            "filter_label": {
+              "default": "All",
+              "maxLength": 80,
+              "title": "Filter Label",
+              "type": "string"
+            },
+            "items": {
+              "items": {
+                "$ref": "#/components/schemas/WhatsAppExportItem"
+              },
+              "maxItems": 20000,
+              "minItems": 1,
+              "title": "Items",
+              "type": "array"
+            },
+            "message_type": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "welcome",
+                    "passport_link",
+                    "reminder",
+                    "group_invite"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Message Type"
+            },
+            "view": {
+              "enum": [
+                "delivery",
+                "travellers"
+              ],
+              "title": "View",
+              "type": "string"
+            }
+          },
+          "required": [
+            "view",
+            "items"
+          ],
+          "title": "WhatsAppFilterExportRequest",
+          "type": "object"
+        }
+      },
+      "securitySchemes": {
+        "HTTPBearer": {
+          "scheme": "bearer",
+          "type": "http"
+        }
+      }
+    },
+    "info": {
+      "title": "FastAPI",
+      "version": "0.1.0"
+    },
+    "openapi": "3.1.0",
+    "paths": {
+      "/whatsapp/groups/{group_id}/export": {
+        "post": {
+          "operationId": "export_broadcast_filter_whatsapp_groups__group_id__export_post",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "group_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "title": "Group Id",
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WhatsAppFilterExportRequest"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "content": {
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+                  "schema": {
+                    "format": "binary",
+                    "type": "string"
+                  }
+                }
+              },
+              "description": "Authorized file content",
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string"
+                  }
+                },
+                "Content-Disposition": {
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Export Broadcast Filter"
+        }
+      }
+    }
+  },
+  "routes": [
+    {
+      "dependencies": [
+        "require_cookie_csrf",
+        "_check_role",
+        "get_db_session"
+      ],
+      "endpoint": "export_broadcast_filter",
+      "methods": [
+        "POST"
+      ],
+      "path": "/groups/{group_id}/export",
+      "response_model": "None",
+      "status": null
+    }
+  ]
+}

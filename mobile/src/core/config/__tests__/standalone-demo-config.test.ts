@@ -24,7 +24,7 @@ describe('standalone demo native configuration', () => {
   it('embeds its own assets, removes internet permission and disables OTA/live links', () => {
     const build = config();
     expect(build.android?.package).toBe('com.globalconnects.groupcompanion');
-    expect(build.android?.versionCode).toBe(11);
+    expect(build.android?.versionCode).toBe(13);
     expect(build.android?.blockedPermissions).toContain('android.permission.INTERNET');
     expect(build.android?.intentFilters).toEqual([]);
     expect(build.android?.googleServicesFile).toBeUndefined();

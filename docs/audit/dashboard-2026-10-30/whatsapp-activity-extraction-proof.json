@@ -1,0 +1,87 @@
+{
+  "checkpoint": "After the actual terminal-denial fix; this proves subsequent ownership moves, not equality to unrepaired source.",
+  "functions": [
+    {
+      "name": "useWhatsAppActivityTracker",
+      "target": "context.ts",
+      "body_and_parameters_ast_identical": true
+    },
+    {
+      "name": "subscribeToClientEnvironment",
+      "target": "storage.ts",
+      "body_and_parameters_ast_identical": true
+    },
+    {
+      "name": "readInitialTrackedActivities",
+      "target": "storage.ts",
+      "body_and_parameters_ast_identical": true
+    },
+    {
+      "name": "readFloatingPosition",
+      "target": "floating-overlay.tsx",
+      "body_and_parameters_ast_identical": true
+    },
+    {
+      "name": "clampPosition",
+      "target": "floating-overlay.tsx",
+      "body_and_parameters_ast_identical": true
+    },
+    {
+      "name": "DraggableWhatsAppActivityOverlay",
+      "target": "floating-overlay.tsx",
+      "body_and_parameters_ast_identical": true
+    },
+    {
+      "name": "WhatsAppActivityInline",
+      "target": "inline.tsx",
+      "body_and_parameters_ast_identical": true
+    },
+    {
+      "name": "FailureRecipients",
+      "target": "failure-recipients.tsx",
+      "body_and_parameters_ast_identical": true
+    }
+  ],
+  "provider": {
+    "declarations_ast_identical": 11,
+    "rendered_return_ast_identical": true
+  },
+  "effects": [
+    {
+      "marker": "broadcastsToRefresh",
+      "target": "use-activity-refresh.ts",
+      "callback_ast_identical": true,
+      "declared_dependency_change": "Stable parent-owned useRef object added to dependencies when passed as a hook parameter; no lint suppression."
+    },
+    {
+      "marker": "completedSuccessfully",
+      "target": "use-activity-completion.ts",
+      "callback_ast_identical": true,
+      "declared_dependency_change": "Stable parent-owned useRef object added to dependencies when passed as a hook parameter; no lint suppression."
+    },
+    {
+      "marker": "completionTimersRef.current.values()",
+      "target": "use-activity-completion.ts",
+      "callback_ast_identical": true,
+      "declared_dependency_change": "Stable parent-owned useRef object added to dependencies when passed as a hook parameter; no lint suppression."
+    }
+  ],
+  "row": {
+    "query_and_rendered_return_ast_identical": true,
+    "selector_declarations_ast_identical": 13
+  },
+  "source_sha256": {
+    ".tmp/whatsapp-activity-tracker-before-split.tsx": "aa8181e1eacfe8dc1ac579fd7d706a4e301c32b21bb7df77ae8b8ee00e6b21d4",
+    "frontend/features/whatsapp/components/whatsapp-activity-tracker.tsx": "6e0d45060f8ede7bdfb15f06a5e32a87d38ae5e2140b1709c145c211db17f359",
+    "frontend/features/whatsapp/components/activity-tracker/context.ts": "e4776fc1477a87f46637c84d232cd1a5587670a28d2742f88927ca33c63fd221",
+    "frontend/features/whatsapp/components/activity-tracker/failure-recipients.tsx": "1fabc6e3601b6d08b8ba3db26d2eb820d0a882f308b53cd56414ac25f625a49e",
+    "frontend/features/whatsapp/components/activity-tracker/floating-overlay.tsx": "028f43d64961445a4495a4f8fc07b2e18f2d5c871549580ca60bd839cfe02348",
+    "frontend/features/whatsapp/components/activity-tracker/inline.tsx": "5402d48b59ae0c590f0045d306ad16f2ab85dc896a2ed593c99edd95ad309a11",
+    "frontend/features/whatsapp/components/activity-tracker/progress.ts": "bc6a5223da0c0f6c1a570637e8f72b5e23a63286028ab5b001f475457348a685",
+    "frontend/features/whatsapp/components/activity-tracker/row.tsx": "e027d5478b923099b0d7052caa0dce5fcc79fa1300f5c3b7f108ac34acab8965",
+    "frontend/features/whatsapp/components/activity-tracker/storage.ts": "2401a7e540dd33625c581ac418138483e49ddf6f83d628218627fedc95927783",
+    "frontend/features/whatsapp/components/activity-tracker/use-activity-completion.ts": "4cef39dd6d7b286b38afdc3abcac291626fc7f6d37cff74e57112dca44d46dae",
+    "frontend/features/whatsapp/components/activity-tracker/use-activity-refresh.ts": "0b3aa0aa88c6b8d00f3b6faff607f3dd69e30983a6bfa3d0ce57d46186c040bc",
+    "frontend/features/whatsapp/components/activity-tracker/use-tracked-activities.ts": "e67a4200e8709b2c0f9bd2688baeb383769745143dda5550ea1358462db19a18"
+  }
+}

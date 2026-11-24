@@ -1,0 +1,171 @@
+[
+  {
+    "path": "backend/app/presentation/api/v1/routes/document_distribution_upload.py",
+    "actual_original_global_identities": [
+      "APIRouter",
+      "Annotated",
+      "AsyncSession",
+      "Depends",
+      "DocumentBatchResponse",
+      "File",
+      "Form",
+      "MAX_FILENAME_REPLACEMENTS_LENGTH",
+      "UploadFile",
+      "User",
+      "_with_staging_cleanup",
+      "get_current_active_user",
+      "get_db_session",
+      "require_cookie_csrf",
+      "status",
+      "uuid"
+    ]
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/document_distribution_upload_content.py",
+    "actual_original_global_identities": [
+      "ClassifiedDocument",
+      "HTTPException",
+      "MAX_DOCUMENT_BATCH_BYTES",
+      "StagedDocumentReceipt",
+      "TravelDocumentFile",
+      "UploadFile",
+      "UploadSecurityContext",
+      "User",
+      "VerificationReceiptBatchTooLargeError",
+      "VerificationReceiptError",
+      "VerificationReceiptExpiredError",
+      "VerificationReceiptScopeChangedError",
+      "_cleanup_remembered_request_staging",
+      "_remember_request_staging_keys",
+      "decode_verification_receipts",
+      "document_chunk_fingerprint",
+      "finish_cleanup_despite_cancellation",
+      "get_settings",
+      "read_bounded_document_uploads",
+      "staged_document_chunk_fingerprint",
+      "status",
+      "uuid"
+    ]
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/document_distribution_upload_chunk_state.py",
+    "actual_original_global_identities": [
+      "AsyncSession",
+      "DocumentBatchResponse",
+      "DocumentDistributionBatchModel",
+      "DocumentUploadChunkModel",
+      "HTTPException",
+      "_all_group_documents",
+      "_batch_response",
+      "_cleanup_remembered_request_staging",
+      "_processing_batch_response",
+      "finish_cleanup_despite_cancellation",
+      "select",
+      "status",
+      "uuid",
+      "validate_existing_document_chunk",
+      "validate_next_document_chunk"
+    ]
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/document_distribution_upload_persistence_scope.py",
+    "actual_original_global_identities": [
+      "AsyncSession",
+      "DistributedDocumentModel",
+      "DocumentDistributionBatchModel",
+      "DocumentMatcher",
+      "DocumentUploadChunkModel",
+      "HTTPException",
+      "User",
+      "_ConcurrentDocumentChunkReplay",
+      "_enforce_group_document_assignment_capacity",
+      "_first_blocking_processing_upload_id",
+      "_lock_and_validate_document_match_scope",
+      "acquire_document_upload_advisory_lock",
+      "acquire_document_upload_scope_advisory_lock",
+      "apply_filename_replacements",
+      "resolve_concurrent_document_chunk_replay",
+      "select",
+      "status",
+      "uuid",
+      "validate_next_document_chunk"
+    ]
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/document_distribution_upload_commit.py",
+    "actual_original_global_identities": [
+      "AsyncSession",
+      "_cleanup_distribution_storage_keys",
+      "_cleanup_remembered_request_staging",
+      "finish_cleanup_despite_cancellation",
+      "logger",
+      "new_document_chunk_receipt",
+      "process_storage_cleanup_job",
+      "uuid"
+    ]
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/document_distribution_upload_workflow.py",
+    "actual_original_global_identities": [
+      "AsyncSession",
+      "DocumentBatchResponse",
+      "DocumentDistributionBatchModel",
+      "DocumentDistributionCapacityError",
+      "DocumentParserUnavailableError",
+      "HTTPException",
+      "TravelDocumentIngestionService",
+      "UnsupportedDocumentBatchFormatError",
+      "UploadFile",
+      "User",
+      "_ConcurrentDocumentChunkReplay",
+      "_all_group_documents",
+      "_batch_response",
+      "_cleanup_remembered_request_staging",
+      "_detach_distribution_batch_before_long_processing",
+      "_document_match_roster_snapshot",
+      "_processing_batch_response",
+      "bounded_pdf_batch_timeout_seconds",
+      "finish_cleanup_despite_cancellation",
+      "parse_filename_replacements",
+      "replacement_chunk_fingerprint",
+      "resolve_document_chunk_metadata",
+      "select",
+      "status",
+      "uuid",
+      "validate_document_chunk_size",
+      "validate_staging_receipt_batch",
+      "validate_verification_receipt_token_batch",
+      "validated_distribution_upload_inputs"
+    ]
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/document_distribution_upload_match_scope.py",
+    "actual_original_global_identities": [
+      "AsyncSession",
+      "DocumentMatcher",
+      "HTTPException",
+      "User",
+      "_document_match_roster_snapshot",
+      "_first_blocking_processing_upload_id",
+      "_get_authorized_group",
+      "_group_passengers",
+      "_linked_document_match_identifiers",
+      "_read_linked_document_match_source",
+      "status",
+      "uuid",
+      "verification_scope_fingerprints"
+    ]
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/document_distribution_upload_response.py",
+    "actual_original_global_identities": [
+      "AsyncSession",
+      "DocumentBatchResponse",
+      "RejectedDocumentResponse",
+      "_all_group_documents",
+      "_batch_response",
+      "_processing_batch_response",
+      "uuid"
+    ]
+  }
+]

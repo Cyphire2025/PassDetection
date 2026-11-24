@@ -1,0 +1,8 @@
+{
+  "public_signature_evaluated_hints_defaults_module_name_qualname_doc_exact": true,
+  "original_import_object_identities": 28,
+  "actual_route_and_draft_consumer_aliases_exact": true,
+  "canonical_and_legacy_global_pickle_lookup_preserved": true,
+  "actual_route_source_sha256": "0822b0d6307ff145a6b8e7271f38f225a82bb957f5b3cf1122eac2ae39273bf2",
+  "native_service_or_provider_calls": false
+}

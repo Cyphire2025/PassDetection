@@ -1,0 +1,6 @@
+{
+  "before_sha256": "ab1f1961f774769a8efbebd80c4f0c5b66c52b77e6a3ddc79906e49259b63109",
+  "after_sha256": "129d10b5c5b6da21cd7b8b77364c2685fb5d1d380594c71df091eba5fe7a0b89",
+  "only_delta": "One network-free actual-script Node regression command added after existing passport harness syntax check. Existing native/dashboard checks, image/release/deployment workflows and permissions unchanged.",
+  "whole_original_raw_inverse_exact": true
+}

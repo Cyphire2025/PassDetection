@@ -1,0 +1,74 @@
+{
+  "status": "frozen-focused-family",
+  "actual_tests": {
+    "passed": 174,
+    "files": 13,
+    "seconds": 73.46,
+    "source_paths": 39,
+    "command": "passport-image-family-command.json",
+    "output": "passport-image-family-tests.txt"
+  },
+  "current_runtime_coverage": {
+    "owners": 22,
+    "json": "passport-image-family-coverage.json",
+    "xml": "passport-image-family-coverage.xml"
+  },
+  "actual_retained_regression": {
+    "before_passed": 8,
+    "before_failed": 16,
+    "fixed_passed": 24,
+    "before": "passport-retained-images-before-command.json",
+    "fixed": "passport-retained-images-fixed-command.json",
+    "behavior": "All8image mutations/preview deny completed asset purge/profile hard deletion after external work; existing lawful trip copies remain readable after future-reuse withdrawal."
+  },
+  "previous_actual_failure_batches": [
+    "image-library-verification.json",
+    "passport-image-siblings-verification.json",
+    "image-cleanup-verification.json"
+  ],
+  "proofs": [
+    "passport-image-family-library-proof.json",
+    "passport-image-siblings-extraction-proof.json",
+    "passport-image-retained-boundary-proof.json"
+  ],
+  "scope_proof": {
+    "library_whole_declarations": 7,
+    "library_direct_import_identities": 107,
+    "library_reviewed_augmented_scope_edges": 2,
+    "sibling_whole_declarations": 13,
+    "sibling_current_import_identities": 288,
+    "public_routes_order_full_openapi_dependencies_signatures_evaluated_hints_aliases_preserved": true,
+    "generic_boundary_original_module_ast_restores_after_only_declared_changes": true,
+    "original_base_actor_lock_and_retained_policy_sources_unchanged": true
+  },
+  "runtime_owners_with_budget_candidates": 20,
+  "existing_rows": 11,
+  "new_rows": 9,
+  "effective_critical_candidates": 11,
+  "existing_critical": 4,
+  "new_critical": 7,
+  "budget_candidates": "passport-image-family-budget-candidates.json",
+  "checks": {
+    "mypy": {
+      "sources": 22,
+      "exit_code": 0,
+      "output": "passport-image-family-types.txt"
+    },
+    "ruff": {
+      "paths": 39,
+      "exit_code": 0,
+      "output": "passport-image-family-lint.txt"
+    }
+  },
+  "review_scope": {
+    "full": 38,
+    "focused": 1
+  },
+  "limitations": [
+    "Actual local SQLite persistence, synthetic provider/storage/raster adapters; no live PostgreSQL/object store/provider/VPS qualification.",
+    "The retained authority check covers completed changes before the post-processing publication boundary; it is not a live PostgreSQL transaction/deadlock or streamed-network revocation qualification.",
+    "Read-only CPU rendering admission is separately traced to the worker-owned existing guard; private orphan cleanup remains separate work.",
+    "Earlier91/88/24executions overlap this174selection and must not be summed as distinct cases.",
+    "No whole application suite, production build or broad browser check was run for this focused batch."
+  ]
+}

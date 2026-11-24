@@ -1,0 +1,38 @@
+[
+  {
+    "path": "frontend/features/whatsapp/workspace/message-composer-review-dialog.tsx",
+    "before_sha256": "e6c9d57c801685a6f47640a7c5d01ff3a76ba7ec46954ef573442553e4d4c330",
+    "after_sha256": "db713b4753ec61ea22a7b54d4b549d313ded3856ebcd5ee49503bc4368b24b20",
+    "proof": "Removing only the one added CSS utility restores the complete original raw bytes. Contents, whitespace and event/action/state code unchanged."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/historical-resend-dialog.tsx",
+    "before_sha256": "2cbea919ebd763543e5656bf0aa17249a22eb10a430876f86f59c2ebcb0fab83",
+    "after_sha256": "16733090bbab804a3ba9c15ce2fc5538dde0c9d25cfa043438d01cc3931858aa",
+    "proof": "Removing only the one added CSS utility restores the complete original raw bytes. Contents, whitespace and event/action/state code unchanged."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/document-composer.tsx",
+    "before_sha256": "d0a5bf1a4d946599c8ca816bd70509ed755c7c38f5621154714e726e6015ab7d",
+    "after_sha256": "104a7e4f980bc67091754fe43b37b626854c35c974428a63e23091eb707aaf22",
+    "proof": "Removing only the one added CSS utility restores the complete original raw bytes. Contents, whitespace and event/action/state code unchanged."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/trip-update-composer.tsx",
+    "before_sha256": "1f7e345cb948830afb8c7be9c3c2de226a16cb497fc55008768c4f473537d53c",
+    "after_sha256": "2c7c6dce285bceca82717bf5150a5c17b0f4bec1ab81ca8e86a0af78225150b8",
+    "proof": "Removing only the one added CSS utility restores the complete original raw bytes. Contents, whitespace and event/action/state code unchanged."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/group-update-recipient-details.tsx",
+    "before_sha256": "b2ada0fde569c98f6d7cef3da8b79f7756b1adab03a5b6a9e5b3d0daf3e48537",
+    "after_sha256": "d736c47d7ba83a229193d57d6bd641e61f36bae0aabc49f3ff55a8877596ca6f",
+    "proof": "Removing only the one added CSS utility restores the complete original raw bytes. Contents, whitespace and event/action/state code unchanged."
+  },
+  {
+    "path": "frontend/features/documents/components/document-workspace-dialogs.tsx",
+    "before_sha256": "5e01b142c946f29ceda1fd756bf44bd198eceff73be81f065cc4f10dc96a1cb7",
+    "after_sha256": "0a46db86357155b8b0725515247743abcb2c77b6c3011ccedde08c1e38d187e0",
+    "proof": "Removing only the one added CSS utility restores the complete original raw bytes. Contents, whitespace and event/action/state code unchanged."
+  }
+]

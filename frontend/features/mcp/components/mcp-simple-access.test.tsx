@@ -4,6 +4,7 @@ import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { useAuthStore } from "@/stores/auth.store";
 import type { User } from "@/types";
 import { mcpApi, type McpConnection, type McpOverview } from "../api/mcp.api";
+import { permissionFixture } from "../utils/permissions.test-fixture";
 import { McpAdminPage, type McpAdminSection } from "./mcp-admin-page";
 
 vi.mock("../api/mcp.api", async (original) => {
@@ -31,6 +32,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   useAuthStore.setState({ user: { id: connection.user_id, role: "super_admin", is_active: true } as User });
   vi.mocked(mcpApi.overview).mockResolvedValue(overview);
+  vi.mocked(mcpApi.permissions).mockResolvedValue(permissionFixture());
   vi.mocked(mcpApi.connections).mockResolvedValue({ items: [connection], next_offset: null });
   vi.mocked(mcpApi.requests).mockResolvedValue({ items: [], next_offset: null });
   vi.mocked(mcpApi.activity).mockResolvedValue({ items: [], next_offset: null });
@@ -71,7 +73,8 @@ it("shows the native URL instructions and copies the URL without granting access
   expect(setup).not.toHaveTextContent("PowerShell");
   fireEvent.click(screen.getByRole("button", { name: "Copy MCP URL" }));
   await waitFor(() => expect(writeText).toHaveBeenCalledWith(overview.resource));
-  for (const method of [mcpApi.authorize, mcpApi.updateConnection, mcpApi.control, mcpApi.revoke]) expect(method).not.toHaveBeenCalled();
+  for (const method of [mcpApi.approveRequest, mcpApi.rejectRequest, mcpApi.updateConnection,
+    mcpApi.control, mcpApi.deleteConnection, mcpApi.setConnectionAccess]) expect(method).not.toHaveBeenCalled();
 });
 
 it.each([

@@ -1,0 +1,40 @@
+{
+  "basis": "Actual current HEAD source versus current working-tree physical lines, not older quality-budget baselines.",
+  "modules": [
+    {
+      "path": "frontend/features/settings/components/platform-settings-panel.tsx",
+      "before_lines": 646,
+      "after_lines": 20
+    },
+    {
+      "path": "frontend/features/passports/components/passport-detail.tsx",
+      "before_lines": 1291,
+      "after_lines": 111
+    },
+    {
+      "path": "frontend/features/documents/components/document-workspace.tsx",
+      "before_lines": 982,
+      "after_lines": 20
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/rooming.py",
+      "before_lines": 1895,
+      "after_lines": 136
+    },
+    {
+      "path": "backend/app/infrastructure/email/sync_service.py",
+      "before_lines": 2426,
+      "after_lines": 307
+    },
+    {
+      "path": "backend/app/infrastructure/documents/document_matcher.py",
+      "before_lines": 1959,
+      "after_lines": 667
+    },
+    {
+      "path": "frontend/components/layout/mobile-navigation.tsx",
+      "before_lines": 103,
+      "after_lines": 53
+    }
+  ]
+}

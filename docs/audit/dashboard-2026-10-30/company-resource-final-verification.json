@@ -1,0 +1,205 @@
+{
+  "environment": ".tmp/dashboard-security-patch-venv-2",
+  "runtime_full_reads": 171,
+  "supporting_partial_files": 3,
+  "complete_traveller_application_files": 66,
+  "complete_traveller_infrastructure_files": 25,
+  "pending_traveller_application_files": 0,
+  "previous_independent_company_checkpoint": {
+    "passed": 222,
+    "files": 22,
+    "seconds": 155.87,
+    "manifest": "company-backend-test-manifest.json",
+    "log": "company-backend-tests.txt"
+  },
+  "previous_returning_count_change_tests": {
+    "passed": 39,
+    "seconds": 33.33
+  },
+  "previous_otp_resource_tests": {
+    "passed": 137,
+    "seconds": 62.02
+  },
+  "new_backend_node_ids_in_company_lane": 50,
+  "new_nodes": {
+    "export_source": 1,
+    "otp_pool_lifetime": 18,
+    "draft_late_write": 1,
+    "sdk_retry_envelope": 10,
+    "private_copy_lease": 1,
+    "group_retained_deletion": 2,
+    "export_facade_admission": 5,
+    "workbook_lifetime": 2,
+    "encrypted_page_boundaries": 10
+  },
+  "regressions_observed_before_fixes": [
+    "Historical malformed source UUID export raised ValueError.",
+    "Public upload OTP success did not await request-scoped Redis pool aclose.",
+    "Timed-out local upload thread recreated a draft object after early cleanup consumed its intent.",
+    "Ten-attempt private-copy lease omitted 111 seconds of actual pinned standard SDK retry delays.",
+    "Completed and pending retained-document source deletion both raised SQLite foreign-key IntegrityError.",
+    "Early export authority denial left an unsaved openpyxl row generator unclosed; 104-case run103passes/1unraisable setup error, then direct lifetime test unsaved case failed before fix."
+  ],
+  "backend_module_budgets_passed": 187,
+  "mypy_changed_sources_passed": 9,
+  "ruff_changed_source_and_tests": "passed",
+  "architecture_boundaries": "passed",
+  "mcp_classification_check": "passed, 1949 surfaces",
+  "strict_release_and_mcp_tooling_tests_passed": 27,
+  "release_source_bindings": "All22 current AFTER and both exact baseline BEFORE values independently match.",
+  "readability_pending": [],
+  "limits": [
+    "Focused synthetic checks, not the full backend suite. Historical checkpoint groups overlap and are not added into a unique test count.",
+    "Direct group operation regression exercises real database authorization/deletion/commit and isolated WhatsApp collaborators; existing HTTP dependency test separately asserts CSRF/recent-MFA declarations.",
+    "No live Redis, object store, provider, PostgreSQL, Docker or VPS qualification.",
+    "Configured S3 retry envelope follows current pinned SDK backoff and configured I/O attempts; not a claim about measured network/DNS runtime.",
+    "Three broad supporting files and unlisted backend runtime/migrations remain pending; complete source reads are not live service qualification."
+  ],
+  "original_lifecycle_tests": {
+    "passed": 99,
+    "seconds": 116.85,
+    "files": [
+      "tests/integration/test_group_delete_retained_documents.py",
+      "tests/unit/presentation/test_client_group_storage_cleanup.py",
+      "tests/unit/presentation/test_passport_crop_lifecycle_contract.py",
+      "tests/unit/presentation/test_passport_submission_delete_access.py",
+      "tests/unit/application/test_traveller_enrollment.py",
+      "tests/unit/core/test_storage_write_budget.py",
+      "tests/integration/test_private_copy_retry_envelope.py",
+      "tests/integration/test_draft_upload_cleanup_lifetime.py",
+      "tests/integration/test_draft_retention.py",
+      "tests/integration/test_returning_drafts.py",
+      "tests/integration/test_company_data_exports.py"
+    ],
+    "log": "company-lifecycle-tests.txt",
+    "coverage": "company-lifecycle-coverage.json"
+  },
+  "final_lifecycle_tests": {
+    "passed": 106,
+    "seconds": 117.54,
+    "files": [
+      "tests/integration/test_group_delete_retained_documents.py",
+      "tests/unit/presentation/test_client_group_storage_cleanup.py",
+      "tests/unit/presentation/test_passport_crop_lifecycle_contract.py",
+      "tests/unit/presentation/test_passport_submission_delete_access.py",
+      "tests/unit/application/test_traveller_enrollment.py",
+      "tests/unit/core/test_storage_write_budget.py",
+      "tests/integration/test_private_copy_retry_envelope.py",
+      "tests/integration/test_draft_upload_cleanup_lifetime.py",
+      "tests/integration/test_draft_retention.py",
+      "tests/integration/test_returning_drafts.py",
+      "tests/integration/test_company_data_exports.py",
+      "tests/unit/infrastructure/test_company_export_workbook_lifetime.py",
+      "tests/integration/test_company_export_admission_compatibility.py"
+    ],
+    "log": "company-lifecycle-final-tests.txt",
+    "coverage": "company-lifecycle-final-coverage.json",
+    "boundary": "After write-only sheet cleanup fix and page/admission extraction, before the final AST-identical class/constants owner relocation; final26-case run explicitly rechecks all affected export owners after that move, including exact byte/row parser boundary tests. New admission/page/workbook owners retain the original worker90% line floor; workbook rendering inherits renderer85%."
+  },
+  "final_export_owner_tests": {
+    "passed": 26,
+    "seconds": 21.68,
+    "files": [
+      "tests/unit/infrastructure/test_company_export_row_boundaries.py",
+      "tests/unit/infrastructure/test_company_export_workbook_lifetime.py",
+      "tests/integration/test_company_export_admission_compatibility.py",
+      "tests/integration/test_company_data_exports.py"
+    ],
+    "log": "company-export-owners-final-tests.txt",
+    "coverage": "company-export-owners-final-coverage.json"
+  },
+  "previous_lifecycle_measurements": [
+    {
+      "path": "app/application/travellers/draft_retention.py",
+      "line_percent": 95.74468085106383,
+      "branch_percent": 87.5
+    },
+    {
+      "path": "app/core/storage_write_budget.py",
+      "line_percent": 100.0,
+      "branch_percent": 100
+    },
+    {
+      "path": "app/infrastructure/travellers/asset_copy.py",
+      "line_percent": 90.2439024390244,
+      "branch_percent": 70.45454545454545
+    },
+    {
+      "path": "app/infrastructure/travellers/company_export_worker.py",
+      "line_percent": 90.47619047619048,
+      "branch_percent": 72.58064516129032
+    },
+    {
+      "path": "app/presentation/api/v1/routes/client_group_permanent_delete.py",
+      "line_percent": 93.50649350649351,
+      "branch_percent": 75.0
+    }
+  ],
+  "final_export_measurements": [
+    {
+      "path": "app/infrastructure/travellers/company_export_admission.py",
+      "physical_lines": 160,
+      "maximum_function_complexity": 11,
+      "line_percent": 92.1875,
+      "branch_percent": 68.18181818181819,
+      "sha256": "fdce49e0364a9df3498812057a96d81ec4afc49901f3fbb8184797bb2ac34f68"
+    },
+    {
+      "path": "app/infrastructure/travellers/company_export_limits.py",
+      "physical_lines": 5,
+      "maximum_function_complexity": 0,
+      "line_percent": 100.0,
+      "branch_percent": 100,
+      "sha256": "8feb56e7b6b841181272503309a935222ac81075bec229651a7ae538c6c71217"
+    },
+    {
+      "path": "app/infrastructure/travellers/company_export_page.py",
+      "physical_lines": 159,
+      "maximum_function_complexity": 34,
+      "line_percent": 90.78947368421052,
+      "branch_percent": 78.125,
+      "sha256": "eba24418958bcd869004c5409ef8828a74f7bf81d683e2e1e58674f3b4c3199c"
+    },
+    {
+      "path": "app/infrastructure/travellers/company_export_render.py",
+      "physical_lines": 116,
+      "maximum_function_complexity": 12,
+      "line_percent": 90.66666666666667,
+      "branch_percent": 78.125,
+      "sha256": "4063ab9a2e155876a17184d55a993131b226191d43b376d8160433695322f828",
+      "existing_floor_unchanged": 85
+    },
+    {
+      "path": "app/infrastructure/travellers/company_export_workbook.py",
+      "physical_lines": 69,
+      "maximum_function_complexity": 8,
+      "line_percent": 96.96969696969697,
+      "branch_percent": 83.33333333333333,
+      "sha256": "ad0a038621d577a940767dbb2704482b748544b1ec8661fd4bd7935d09593e6e"
+    },
+    {
+      "path": "app/infrastructure/travellers/company_export_workbook_render.py",
+      "physical_lines": 59,
+      "maximum_function_complexity": 7,
+      "line_percent": 93.61702127659575,
+      "branch_percent": 75.0,
+      "sha256": "f86fd9f4b8ae07bfebd6f029dcc41822f2d9952693ebec1a0471b5fbcc246778"
+    },
+    {
+      "path": "app/infrastructure/travellers/company_export_worker.py",
+      "physical_lines": 147,
+      "maximum_function_complexity": 5,
+      "line_percent": 97.72727272727273,
+      "branch_percent": 50.0,
+      "sha256": "0fd62ac61c57539f06202672d2b3dfc2afd3a264ffae2185c2dd35de1856c16a",
+      "existing_floor_unchanged": 90
+    }
+  ],
+  "ruff_format": "Passed12 final changed source/test files; original compressed-layout follow-through resolved.",
+  "structural_proof": [
+    "company-export-admission-structural-proof.json",
+    "company-workbook-render-structural-proof.json"
+  ],
+  "module_budget_integration": "company-export-budget-integration.json",
+  "current_review_records_sha256": "5df1905645052d9ae7dd54cecfd1ade819d83f8eff733eb21e54c10015aa2815"
+}

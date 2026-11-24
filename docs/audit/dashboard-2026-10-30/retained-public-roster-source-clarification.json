@@ -1,0 +1,10 @@
+{
+  "status": "Metadata-only qualification clarification; historical receipt preserved",
+  "historical_receipt": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-public-roster-source-verification.json",
+    "sha256": "e146d38580bdd3546ccdfb51bb8267dc7ed7dcea7316ffac0b6a6b86c0ea827d"
+  },
+  "clarification": "The source-only cohort does not reopen already-qualified submit4-owner170 or roster7-owner61+864parity/5000-to-1 source-read lanes. No new architecture defect was established by file length/coordinator naming; any future candidate requires current exact function/hash/responsibility evidence. Physical focused read limitations remain unchanged.",
+  "changes": [],
+  "checks_run": []
+}

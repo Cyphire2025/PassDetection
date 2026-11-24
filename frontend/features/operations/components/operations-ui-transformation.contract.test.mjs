@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
+import { readGroupQrSource } from "./group-qr-source.contract-helper.mjs";
 
 const read = (name) => readFileSync(new URL(name, import.meta.url), "utf8");
 
@@ -8,10 +9,15 @@ const sharedUi = read("./operations-workspace-ui.tsx");
 const tourAssignments = read("./tour-group-assignments-page.tsx");
 const tourUi = read("./tour-operations-ui.tsx");
 const attendance = read("./tour-group-attendance-page.tsx");
-const qrCodes = read("./tour-group-qr-codes-page.tsx");
+const qrCodes = readGroupQrSource();
 const roomingGroups = read("./rooming-groups-page.tsx");
 const roomingWorkspace = read("./rooming-workspace-page.tsx");
-const roomingPassengers = read("./rooming-passenger-hotel-allocation.tsx");
+const roomingPassengerEntry = read("./rooming-passenger-hotel-allocation.tsx");
+const roomingPassengers = [
+  roomingPassengerEntry,
+  read("../hooks/use-rooming-passenger-selection.ts"),
+  read("./rooming-roster-table.tsx"),
+].join("\n");
 const roomingPlan = read("./rooming-auto-allocation.tsx");
 const checkin = read("./hotel-checkin-dashboard.tsx");
 
@@ -53,6 +59,9 @@ test("Rooming preserves the three-stage workflow while deferring check-in code",
 });
 
 test("large Rooming lists avoid rerendering unchanged rows and skip offscreen paint", () => {
+  assert.match(roomingPassengerEntry, /useRoomingPassengerSelection\(props\)/);
+  assert.match(roomingPassengerEntry, /<PassengerTable/);
+  assert.match(roomingPassengerEntry, /<RosterGroupSection/);
   assert.match(roomingPassengers, /const passengersById = useMemo/);
   assert.match(roomingPassengers, /const togglePassenger = useCallback/);
   assert.match(roomingPassengers, /const PassengerRow = memo/);

@@ -1,0 +1,17 @@
+{
+  "backend/app/infrastructure/my_photos/operational_index_jobs.py": "ec6f22a6219d32364903fa3b91def695095bbb32996e08e5e43109ed24eafeb3",
+  "backend/app/infrastructure/my_photos/operational_index_publication.py": "f16ac652055a36e19611d212304907f2287633ee4e99c0fe2a9f498786b5a54f",
+  "backend/app/infrastructure/my_photos/operational_job_claims.py": "29449ee1905ce2a2371e1d84463a9235e1ebcfe82b7d90618531dfb6cf383cca",
+  "backend/app/infrastructure/my_photos/operational_job_contracts.py": "3785947c91564a0b8cc4c77c62ba0ba46542af19b067370ebc9d4e740727bb7f",
+  "backend/app/infrastructure/my_photos/operational_job_lifecycle.py": "73c399ca4a004b77c735ea686ce7ad728704989a28ec2a5499b787182844b3e6",
+  "backend/app/infrastructure/my_photos/operational_job_policy.py": "2e3df8a42a1c086b87909be0446704a9385f84ebf4e504fb0a5561cea0456636",
+  "backend/app/infrastructure/my_photos/operational_job_queries.py": "6822aaad4b591795a2c345d7193989df9f0549800dd3c93b4456652443965f20",
+  "backend/app/infrastructure/my_photos/operational_media_jobs.py": "d0c29dac99f160e5c421bd6a7ef1a066381f37b051aa97c72e690563248a2e2b",
+  "backend/app/infrastructure/my_photos/operational_runtime.py": "c178e781b9f62a0e415bdbecf8c9c9b02a263f8d6726080090cc92845e5af2cb",
+  "backend/app/infrastructure/my_photos/provider_tasks.py": "f5da388cd882e778fcf7873abccf8bb6bb186cf8c6c493d30ab41ddce0cfa434",
+  "backend/app/infrastructure/my_photos/aws_face_search.py": "f5c1d90678c307d99d8ee1966975c7012a30bb9b32b15c69583957c945672ff5",
+  "backend/app/infrastructure/my_photos/gallery_manifest_providers.py": "302457c64fceeb254c0d1fed006f86e9a6da37e01b1764a3f3d8c11015a52e19",
+  "backend/tests/integration/my_photos_operational_fixtures.py": "f29c1c8f04c264ca9fa38c99d65274ec97022da089f195ca026464bb74f197cf",
+  "backend/tests/integration/test_my_photos_index_lifecycle.py": "7e9507acf9b7802d86d157318f943a928fb13d6926c4de44dd670932d028f094",
+  "backend/tests/integration/test_my_photos_operational_dispatch.py": "fbbf030d0590c0b7b12dcba3a57a319541968d9cbd369badda9774eab2e0632a"
+}

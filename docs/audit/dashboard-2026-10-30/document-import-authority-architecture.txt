@@ -1,0 +1,21 @@
+app/application/mobile/authored_notification_access.py: dependency contract changed; review exact imports, remove stale entries
+app/application/mobile/authored_notification_drafts.py: infrastructure access has no reviewed transaction-service boundary
+app/application/mobile/authored_notification_grants.py: infrastructure access has no reviewed transaction-service boundary
+app/application/mobile/authored_notification_registrations.py: infrastructure access has no reviewed transaction-service boundary
+app/application/mobile/authored_notification_reviews.py: infrastructure access has no reviewed transaction-service boundary
+app/application/mobile/authored_notification_send.py: infrastructure access has no reviewed transaction-service boundary
+app/application/mobile/authored_notification_service.py: dependency contract changed; review exact imports, remove stale entries
+app/application/mobile/authored_notification_targets.py: infrastructure access has no reviewed transaction-service boundary
+app/application/mobile/notification_announcements.py: infrastructure access has no reviewed transaction-service boundary
+app/application/mobile/notification_authority.py: infrastructure access has no reviewed transaction-service boundary
+app/application/mobile/notification_countdown_recipients.py: infrastructure access has no reviewed transaction-service boundary
+app/application/mobile/notification_countdown_schedule.py: infrastructure access has no reviewed transaction-service boundary
+app/application/mobile/notification_countdown_values.py: infrastructure access has no reviewed transaction-service boundary
+app/application/mobile/notification_delivery_states.py: infrastructure access has no reviewed transaction-service boundary
+app/application/mobile/notification_dispatch_claims.py: infrastructure access has no reviewed transaction-service boundary
+app/application/mobile/notification_dispatch_results.py: infrastructure access has no reviewed transaction-service boundary
+app/application/mobile/notification_dispatch_targets.py: infrastructure access has no reviewed transaction-service boundary
+app/application/mobile/notification_document_changes.py: infrastructure access has no reviewed transaction-service boundary
+app/application/mobile/notification_receipts.py: infrastructure access has no reviewed transaction-service boundary
+app/application/mobile/notification_registrations.py: infrastructure access has no reviewed transaction-service boundary
+app/application/mobile/notification_service.py: dependency contract changed; review exact imports, remove stale entries

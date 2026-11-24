@@ -1,0 +1,14 @@
+{
+  "candidates": "docs/audit/dashboard-2026-10-30/composer-upload-helper-budget-candidates.json",
+  "before_sha256": "c31d8c11d6ab4267a38580776c4c0b87feb64fa82afecc7dabe466fcf06554c9",
+  "sha256": "3b3068b6d4eee2f84dbf48d368a82723142b4639e774009095a062a396cc2848",
+  "lf_normalized_sha256": "5f4c368e23ab1a7c47a3a93d2e42574d33b63ff1144c3ad1eb42641c5575c515",
+  "added": 21,
+  "updated_existing": 1,
+  "lowered_existing": 1,
+  "lowered_existing_paths": [
+    "features/travellers/services/draft-resume.ts"
+  ],
+  "existing_ceilings_preserved": true,
+  "previous_ceilings_sha256": "f7798437ce7ce6a55a382c0d9ff545f30b92635d2d718a457f411311af726fce"
+}

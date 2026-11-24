@@ -1,0 +1,9 @@
+{
+  "command": "python -B <absolute scripts/mcp_inventory.py> --help",
+  "unrelated_cwd": true,
+  "environment": "PATH/SYSTEMROOT only, empty PYTHONPATH",
+  "exit_code": 0,
+  "stdout": "usage: mcp_inventory.py [-h] [--root ROOT] [--check] [--output OUTPUT]\n\nDiscover application workflow surfaces without importing the application. The\nchecked-in matrix is a review ledger, not an MCP tool allowlist. Discovery\nnever classifies new operations automatically: --check fails until a reviewer\nadds a disposition, business workflow and evidence state. Runtime adapters\nmust enforce authorization and effects independently.\n\noptions:\n  -h, --help       show this help message and exit\n  --root ROOT\n  --check          Reject new, changed, removed or unclassified surfaces\n  --output OUTPUT  Write discovery only; never changes reviewed\n                   classifications\n",
+  "stderr": "",
+  "no_app_import_execution_or_network": true
+}

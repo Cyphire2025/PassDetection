@@ -1,0 +1,98 @@
+{
+  "source_baselines_preserved": {
+    "0140": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+    "0141": "875d17b25da2687b5673148fabe9d10346ae0e4a"
+  },
+  "exact_bindings_updated": [
+    {
+      "path": "backend/requirements.txt",
+      "source0140_sha256": "85806e4acd976cfb1d86437cb6af229505ec9c86ef714e015c91e19883344282",
+      "source0141_sha256": "85806e4acd976cfb1d86437cb6af229505ec9c86ef714e015c91e19883344282",
+      "candidate_sha256": "e19ae0b0079c0375e8ac06ff53e73e5916eef52e4b05ad51adfcd7f23d5735e2"
+    },
+    {
+      "path": "backend/requirements.lock",
+      "source0140_sha256": "1504909b310b33fcfbdd6a45d90f41dc6df8b743ec97f77e3ed918013fa43c75",
+      "source0141_sha256": "1504909b310b33fcfbdd6a45d90f41dc6df8b743ec97f77e3ed918013fa43c75",
+      "candidate_sha256": "fdcc91a5eb87f6f678fe03ef37c83109edb639527eba387d73d031114a4188b6"
+    },
+    {
+      "path": "backend/requirements-dev.lock",
+      "source0140_sha256": "558e52f32ca3b6225d39b7ee86a036f79c13225baf4a78f051925bef511e146c",
+      "source0141_sha256": "558e52f32ca3b6225d39b7ee86a036f79c13225baf4a78f051925bef511e146c",
+      "candidate_sha256": "7ea4f5b8c8ecbc7831892949564679349d2852fa1f0f0b60f88af994f6c1f4f2"
+    },
+    {
+      "path": "backend/app/infrastructure/storage/minio_repository.py",
+      "source0140_sha256": "dde40a198aff9f1ecbd7e36aa6e4069ebfd58808329744ccf6cac54a669294e1",
+      "source0141_sha256": "dde40a198aff9f1ecbd7e36aa6e4069ebfd58808329744ccf6cac54a669294e1",
+      "candidate_sha256": "f31fe249d63c18ea0e400bae0ee3161eb05db6b194527e2bdab39bf88626180c"
+    },
+    {
+      "path": "backend/backend_quality_budgets.json",
+      "source0140_sha256": "1a0a15cddd6a58eecdf40e7f401c1a8475b559525def093289d51fdb1ee790b0",
+      "source0141_sha256": "1a0a15cddd6a58eecdf40e7f401c1a8475b559525def093289d51fdb1ee790b0",
+      "candidate_sha256": "4a15035a3705a5509b8d8dec1b418906e5c30f8b418f21022f873cd6e81fbc18"
+    },
+    {
+      "path": "frontend/scripts/verify-frontend-module-budgets.mjs",
+      "source0140_sha256": "dd6bad57c8eae5afe4e0ca49d7d28568c0637a716b434da8a7c07f869723fabe",
+      "source0141_sha256": "dd6bad57c8eae5afe4e0ca49d7d28568c0637a716b434da8a7c07f869723fabe",
+      "candidate_sha256": "8596ea0b4e7af3c817c0ec58e5d319cf81c0ba0580a7c56016b6214bf3b9d418"
+    }
+  ],
+  "dependency_delta_independently_checked": {
+    "backend/requirements.lock": {
+      "removed": [
+        "contourpy",
+        "cycler",
+        "fonttools",
+        "imageio",
+        "joblib",
+        "kiwisolver",
+        "lazy-loader",
+        "matplotlib",
+        "narwhals",
+        "networkx",
+        "passporteye",
+        "pdfminer",
+        "pycryptodome",
+        "pyparsing",
+        "scikit-image",
+        "scikit-learn",
+        "scipy",
+        "threadpoolctl",
+        "tifffile"
+      ],
+      "added": [],
+      "retained_version_or_hash_changes": []
+    },
+    "backend/requirements-dev.lock": {
+      "removed": [
+        "contourpy",
+        "cycler",
+        "fonttools",
+        "imageio",
+        "joblib",
+        "kiwisolver",
+        "lazy-loader",
+        "matplotlib",
+        "narwhals",
+        "networkx",
+        "passporteye",
+        "pdfminer",
+        "pycryptodome",
+        "scikit-image",
+        "scikit-learn",
+        "scipy",
+        "threadpoolctl",
+        "tifffile"
+      ],
+      "added": [],
+      "retained_version_or_hash_changes": []
+    }
+  },
+  "wildcard_admission_expanded": false,
+  "backend_quality_budgets_explicitly_bound": true,
+  "unknown_sources_still_rejected": true
+}

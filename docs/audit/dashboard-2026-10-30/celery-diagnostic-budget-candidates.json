@@ -1,0 +1,90 @@
+[
+  {
+    "path": "app/core/logging/task_diagnostics.py",
+    "baseline_lines": 89,
+    "maximum_lines": 93,
+    "baseline_max_function_complexity": 9,
+    "maximum_function_complexity": 9,
+    "minimum_coverage_percent": 90,
+    "observed_statement_coverage": 100.0,
+    "observed_branch_coverage": 100.0,
+    "sha256": "d4d52761bc6b7b18f406fcabf8051ca2cf2a38c40a2aab9502118ab2d5ec2410"
+  },
+  {
+    "path": "app/core/logging/celery_diagnostics.py",
+    "baseline_lines": 120,
+    "maximum_lines": 125,
+    "baseline_max_function_complexity": 11,
+    "maximum_function_complexity": 11,
+    "minimum_coverage_percent": 90,
+    "observed_statement_coverage": 93.33333333333333,
+    "observed_branch_coverage": 90.9090909090909,
+    "sha256": "d53a83b8f76cde01bd8ecf14979a1f86d059e5d9d731a50c185c3f61aadb455b"
+  },
+  {
+    "path": "app/core/logging/logger.py",
+    "baseline_lines": 147,
+    "maximum_lines": 153,
+    "baseline_max_function_complexity": 5,
+    "maximum_function_complexity": 5,
+    "minimum_coverage_percent": 90,
+    "observed_statement_coverage": 93.10344827586206,
+    "observed_branch_coverage": 100.0,
+    "sha256": "d37b2e95594583847064ee7a85fba724b1fd2c1e37d5ac65a3c4566cba00b58b"
+  },
+  {
+    "path": "app/infrastructure/processing/private_task.py",
+    "baseline_lines": 46,
+    "maximum_lines": 48,
+    "baseline_max_function_complexity": 1,
+    "maximum_function_complexity": 1,
+    "minimum_coverage_percent": 90,
+    "observed_statement_coverage": 100.0,
+    "observed_branch_coverage": null,
+    "sha256": "a495d711503ae226e24bed1599eedc3c429232f57751c6dc1cdb8dbbbc557c81"
+  },
+  {
+    "path": "app/infrastructure/processing/private_task_request.py",
+    "baseline_lines": 51,
+    "maximum_lines": 54,
+    "baseline_max_function_complexity": 4,
+    "maximum_function_complexity": 4,
+    "minimum_coverage_percent": 90,
+    "observed_statement_coverage": 100.0,
+    "observed_branch_coverage": 90.0,
+    "sha256": "c148d9cf71005ca02c57036e2910a0b738bf26bdf584dcfad5d4c08d67016c39"
+  },
+  {
+    "path": "app/infrastructure/processing/private_task_loader.py",
+    "baseline_lines": 11,
+    "maximum_lines": 12,
+    "baseline_max_function_complexity": 0,
+    "maximum_function_complexity": 0,
+    "minimum_coverage_percent": 90,
+    "observed_statement_coverage": 100.0,
+    "observed_branch_coverage": null,
+    "sha256": "7b2b2ea9ca6a9d33c1789fb163e4639d50704a030a27e5a2c6b423e89dd92d55"
+  },
+  {
+    "path": "app/infrastructure/processing/private_result_backend.py",
+    "baseline_lines": 38,
+    "maximum_lines": 40,
+    "baseline_max_function_complexity": 3,
+    "maximum_function_complexity": 3,
+    "minimum_coverage_percent": 90,
+    "observed_statement_coverage": 100.0,
+    "observed_branch_coverage": 100.0,
+    "sha256": "50de41be6776cf6fed98769f0e6c077214a8032e17b48e244131ce3552ace0e6"
+  },
+  {
+    "path": "app/infrastructure/processing/celery_app.py",
+    "baseline_lines": 430,
+    "maximum_lines": 448,
+    "baseline_max_function_complexity": 1,
+    "maximum_function_complexity": 1,
+    "minimum_coverage_percent": 90,
+    "observed_statement_coverage": 92.5925925925926,
+    "observed_branch_coverage": null,
+    "sha256": "402830e148bc2745e7d05837ec10d81db4ed54bb9f6ab293d9cca60ae0f4a9e3"
+  }
+]

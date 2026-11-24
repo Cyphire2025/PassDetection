@@ -1,0 +1,88 @@
+{
+  "status": "additive candidates only; AI owns integration",
+  "existing_normal_or_critical_rows": 0,
+  "no_floor_or_cap_relaxations": true,
+  "modules": [
+    {
+      "path": "app/infrastructure/mobile_realtime.py",
+      "baseline_lines": 223,
+      "maximum_lines": 230,
+      "baseline_max_function_complexity": 6,
+      "maximum_function_complexity": 6,
+      "minimum_coverage_percent": 90,
+      "source_sha256": "522f09695a6505fde44a5b490e78b39606df4c55308bad9798e0874eb666c21a"
+    },
+    {
+      "path": "app/infrastructure/mobile_realtime_capacity.py",
+      "baseline_lines": 174,
+      "maximum_lines": 180,
+      "baseline_max_function_complexity": 6,
+      "maximum_function_complexity": 6,
+      "minimum_coverage_percent": 90,
+      "source_sha256": "1e29d7a946046066c677e7a58ce07a7fdc21be0a284aed1abd91103abe304d17"
+    },
+    {
+      "path": "app/infrastructure/mobile_realtime_connection.py",
+      "baseline_lines": 73,
+      "maximum_lines": 80,
+      "baseline_max_function_complexity": 5,
+      "maximum_function_complexity": 5,
+      "minimum_coverage_percent": 95,
+      "source_sha256": "aa4623acff1649feac6f50d40b0663ddcbddce6d3100dec5e4571b81ffee5ed3"
+    },
+    {
+      "path": "app/infrastructure/mobile_realtime_contracts.py",
+      "baseline_lines": 101,
+      "maximum_lines": 110,
+      "baseline_max_function_complexity": 1,
+      "maximum_function_complexity": 1,
+      "minimum_coverage_percent": 90,
+      "source_sha256": "1bcc4988950fc38baff8163e8e3e5032e4dddcf48bef52de23c5e54b5ae1047e"
+    },
+    {
+      "path": "app/infrastructure/mobile_realtime_lease_store.py",
+      "baseline_lines": 100,
+      "maximum_lines": 100,
+      "baseline_max_function_complexity": 9,
+      "maximum_function_complexity": 9,
+      "minimum_coverage_percent": 90,
+      "source_sha256": "e6d08e13b82b3fdfbd41f768727d225638c2021ce90a1c1d7a24dfe2d51c3290"
+    },
+    {
+      "path": "app/infrastructure/mobile_realtime_registry.py",
+      "baseline_lines": 229,
+      "maximum_lines": 230,
+      "baseline_max_function_complexity": 7,
+      "maximum_function_complexity": 7,
+      "minimum_coverage_percent": 95,
+      "source_sha256": "7153cb96d9235713c117adc805891a4db896c34ed9f05538cb4bd2067e2f4832"
+    },
+    {
+      "path": "app/infrastructure/mobile_realtime_resources.py",
+      "baseline_lines": 37,
+      "maximum_lines": 40,
+      "baseline_max_function_complexity": 4,
+      "maximum_function_complexity": 4,
+      "minimum_coverage_percent": 95,
+      "source_sha256": "023947d7269c41a1b8528a9d50aa4c620abf59b2cc0b3b5c1b5f1b8aecafb3ae"
+    },
+    {
+      "path": "app/infrastructure/mobile_realtime_transport.py",
+      "baseline_lines": 269,
+      "maximum_lines": 270,
+      "baseline_max_function_complexity": 10,
+      "maximum_function_complexity": 10,
+      "minimum_coverage_percent": 90,
+      "source_sha256": "6526b37299ace415283ef01f53aa023c738c0cff7de796ae421ab3db10a6300c"
+    },
+    {
+      "path": "app/infrastructure/mobile_realtime_wire.py",
+      "baseline_lines": 122,
+      "maximum_lines": 130,
+      "baseline_max_function_complexity": 14,
+      "maximum_function_complexity": 14,
+      "minimum_coverage_percent": 80,
+      "source_sha256": "88abe50692fbbb35a494d3788d152b43aa7f2aaea81d51b5eadd12698c936f2d"
+    }
+  ]
+}

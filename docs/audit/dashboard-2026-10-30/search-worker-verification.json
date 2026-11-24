@@ -1,0 +1,106 @@
+{
+  "status": "Search worker tranche source-frozen and focused verification passed; remaining MyPhotos architecture/lifecycle audit open.",
+  "source_owners": 7,
+  "original_physical_lines": 709,
+  "post_expiry_fix_physical_lines": 720,
+  "dispatcher_lines": 163,
+  "largest_focused_owner_lines": 217,
+  "before_expiry_regressions": {
+    "failed": 5,
+    "passed_controls": 10
+  },
+  "after_fix_cases": 27,
+  "after_extraction_same_cases": 27,
+  "final_unique_passing_cases": 44,
+  "final_test_files": 4,
+  "tests_limit": "These passing selections overlap;44 is the unique current count, not a sum of27+27+44. No broad backend run.",
+  "source_equivalence": "All15 declarations exact after factory->single typed context normalization, complete dispatch AST exact, four private signature/forwarding wrappers, original class aliases/__module__/evaluated hints/pickle and __all__ retained. Test module exact after only2 actual-owner audit mock target moves. Prior lease fix changes only shared claim-row helper whole-module AST.",
+  "fix": "Both durable search and job expiry predicates checked alongside existing owner/status/cancellation; both rows rechecked after last row-lock await. Expired failures cannot alter attempts/status and expired job cannot publish successful matches.",
+  "coverage": [
+    {
+      "path": "app/infrastructure/my_photos/worker_runtime.py",
+      "sha256": "fbaee6ad22a5e0fb054639eed785e6383affcbdef89ef867b0e63500d73e8931",
+      "lines": 163,
+      "complexity": 13,
+      "statement_percent": 92.64705882352942,
+      "branch_percent": 100.0,
+      "branches": 2
+    },
+    {
+      "path": "app/infrastructure/my_photos/search_job_claims.py",
+      "sha256": "0f63c60008a03187b1d71626d9b68108c16c7c5b40ddd9114c28df9464bab354",
+      "lines": 195,
+      "complexity": 23,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "branches": 18
+    },
+    {
+      "path": "app/infrastructure/my_photos/search_job_contracts.py",
+      "sha256": "483e287f85fe760f4d8ac86710d0b87a238e77cc9e1f420346a30a129a47b3a1",
+      "lines": 52,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_percent": null,
+      "branches": 0
+    },
+    {
+      "path": "app/infrastructure/my_photos/search_job_lifecycle.py",
+      "sha256": "f2bb24c594528790694ec8f0c86ed8c9f3c695b1c5436fdc4a19bb3de48dcb3e",
+      "lines": 109,
+      "complexity": 4,
+      "statement_percent": 92.1875,
+      "branch_percent": 83.33333333333334,
+      "branches": 6
+    },
+    {
+      "path": "app/infrastructure/my_photos/search_job_policy.py",
+      "sha256": "1c94ba6a6f7c7202fb1194943e2965e18c904ecee08b0147e0bee3f4747aa755",
+      "lines": 87,
+      "complexity": 19,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "branches": 8
+    },
+    {
+      "path": "app/infrastructure/my_photos/search_job_publication.py",
+      "sha256": "99099cdc1e26452fc2e71305e48804a37ae2c3780308b13fcc62eea500c53398",
+      "lines": 217,
+      "complexity": 15,
+      "statement_percent": 97.46835443037975,
+      "branch_percent": 92.85714285714286,
+      "branches": 14
+    },
+    {
+      "path": "app/infrastructure/my_photos/search_job_queries.py",
+      "sha256": "353bee1088cf89f7362a2a65222625392926f62f7ded19e0c4cd776d8ed9c1d5",
+      "lines": 55,
+      "complexity": 7,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "branches": 2
+    }
+  ],
+  "checks": "Fresh isolated branch coverage/source fence,7source configured mypy/Ruff,4affected test-source Ruff,architecture and existing528 budgets pass. Proposed4critical obligations pass actual Cobertura evaluator with unchanged numerical global floors on scoped XML.",
+  "compatibility": "Public task/search API and payload/config/route/schema contracts unchanged. Original facade session-factory override remains authoritative at every original helper invocation; no callbacks bag/circular lookup.",
+  "source_sha256": {
+    "backend/app/infrastructure/my_photos/worker_runtime.py": "fbaee6ad22a5e0fb054639eed785e6383affcbdef89ef867b0e63500d73e8931",
+    "backend/app/infrastructure/my_photos/search_job_claims.py": "0f63c60008a03187b1d71626d9b68108c16c7c5b40ddd9114c28df9464bab354",
+    "backend/app/infrastructure/my_photos/search_job_contracts.py": "483e287f85fe760f4d8ac86710d0b87a238e77cc9e1f420346a30a129a47b3a1",
+    "backend/app/infrastructure/my_photos/search_job_lifecycle.py": "f2bb24c594528790694ec8f0c86ed8c9f3c695b1c5436fdc4a19bb3de48dcb3e",
+    "backend/app/infrastructure/my_photos/search_job_policy.py": "1c94ba6a6f7c7202fb1194943e2965e18c904ecee08b0147e0bee3f4747aa755",
+    "backend/app/infrastructure/my_photos/search_job_publication.py": "99099cdc1e26452fc2e71305e48804a37ae2c3780308b13fcc62eea500c53398",
+    "backend/app/infrastructure/my_photos/search_job_queries.py": "353bee1088cf89f7362a2a65222625392926f62f7ded19e0c4cd776d8ed9c1d5"
+  },
+  "remaining": [
+    "Post-provider derivative/version mutation edges beyond tested13guards remain explicit future investigation.",
+    "Directory metadata enumeration resolves/sorts allmatching localJSON paths before its50unique-file cap; trusted interactiveoperator resource follow-through remains open. DedicatedCLIengine also lacks the mainfactory hide_parameters setting; no actual parameter-leak sink reproduced here.",
+    "Operational AWS adapter currently71.35% statements/48.28% branches and index admission86.27%/57.14% in focused selection; retained70 and new85 statement floors pass, but uncovered error/recovery branches remain explicit test debt.",
+    "Provider batches retain local native ownership until return; network timeout or hard process death can still leave remote effects whose provider-side evidence/cleanup needs separate lifecycle review.",
+    "Admission and post-provider scope now use gallery->job->asset order at the reviewed seams; real PostgreSQL interleaving/deadlock and high-concurrency throughput qualification remains unperformed. One bounded scope lookup per live claim is the explicit tradeoff.",
+    "Gallery/index/media batching and individual SDK dispatch now retain tested native siblings. Recovery fanout/gather ownership and late rejected liveness-reference cleanup remain separate caller-proof investigations.",
+    "Recovery runtime, revision runtime and summary projector remain active mixed source owners for cohesive architectural follow-through. Original full physical reads do not close that implementation obligation.",
+    "Search admission retains original logical complexity23 and lifecycle/finalization uncovered error branches remain explicit. New measured obligations cover actual claims/validation/lease/publication owners; live PostgreSQL concurrency and provider behavior remain unqualified."
+  ],
+  "limits": "All provider responses and accounts are synthetic. Real SQLite persistence and actual SQL order metadata do not establish PostgreSQL concurrency, provider sends/cloud integration or VPS qualification."
+}

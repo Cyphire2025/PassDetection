@@ -1,0 +1,321 @@
+FFFF                                                                     [100%]
+================================== FAILURES ===================================
+_____ test_liveness_uses_canonical_executed_lock_order[creation_success] ______
+
+photo_database = namespace(sessions=async_sessionmaker(class_='AsyncSession', bind=<sqlalchemy.ext.asyncio.engine.AsyncEngine object at...re.database.gc_mobile_models.MobilePassengerIdentityModel object at 0x000002151E4D4890>, client_manager_profile=None)))
+phase = 'creation_success'
+
+    @pytest.mark.parametrize(
+        "phase", ["creation_success", "creation_failure", "completion_initial", "completion_final"]
+    )
+    async def test_liveness_uses_canonical_executed_lock_order(photo_database, phase):
+        env = photo_database
+        locks, initial = [], []
+        labels = {
+            MobilePassengerIdentityModel: "identity",
+            MyPhotoEnrollmentModel: "enrollment",
+            MyPhotoLivenessSessionModel: "liveness",
+        }
+    
+        class Provider:
+            ready = True
+            client_flow = "development_simulator"
+    
+            async def create_session(self, request):
+                if phase.startswith("creation"):
+                    locks.clear()  # The durable reservation transaction ended before provider I/O.
+                if phase == "creation_failure":
+                    raise MyPhotosUnavailable("PROVIDER_UNAVAILABLE", "Synthetic provider outage")
+                return LivenessSessionHandle("synthetic-provider-session", request.expires_at)
+    
+            async def get_result(self, _reference):
+                initial[:] = locks
+                locks.clear()  # Observe only the transaction reacquired after provider I/O.
+                return LivenessResult("passed", reference_face_handle="synthetic-reference")
+    
+        providers = SimpleNamespace(
+            provider_name="development", liveness=Provider(), face_search=SimpleNamespace(ready=True)
+        )
+        async with env.sessions() as session:
+    
+            @event.listens_for(session.sync_session, "do_orm_execute")
+            def observe(execution):
+                if not execution.is_select:
+                    return
+                statement = execution.statement
+                if "FOR UPDATE" not in str(statement.compile(dialect=postgresql.dialect())):
+                    return
+                entity = statement.column_descriptions[0].get("entity")
+                if entity in labels:
+                    locks.append(labels[entity])
+    
+            service = MyPhotosService(session, settings=env.settings, providers=providers)
+            start = MyPhotosLivenessStartRequest(
+                challenge_mode="movement_only", idempotency_key="synthetic-lock-start"
+            )
+            if phase == "creation_failure":
+                with pytest.raises(MyPhotosUnavailable):
+                    await service.start_liveness(
+                        claims=env.passenger.claims, trip=env.passenger.trip, request=start
+                    )
+                assert locks == ["enrollment", "liveness"]
+                return
+            created = await service.start_liveness(
+                claims=env.passenger.claims, trip=env.passenger.trip, request=start
+            )
+            await session.commit()
+            if phase == "creation_success":
+>               assert locks == ["identity", "enrollment", "liveness"]
+E               AssertionError: assert ['liveness', 'enrollment'] == ['identity', ...', 'liveness']
+E                 
+E                 At index 0 diff: 'liveness' != 'identity'
+E                 Right contains one more item: 'liveness'
+E                 Use -v to get more diff
+
+tests\integration\test_my_photos_lock_order.py:86: AssertionError
+_____ test_liveness_uses_canonical_executed_lock_order[creation_failure] ______
+
+photo_database = namespace(sessions=async_sessionmaker(class_='AsyncSession', bind=<sqlalchemy.ext.asyncio.engine.AsyncEngine object at...re.database.gc_mobile_models.MobilePassengerIdentityModel object at 0x000002151E58CCD0>, client_manager_profile=None)))
+phase = 'creation_failure'
+
+    @pytest.mark.parametrize(
+        "phase", ["creation_success", "creation_failure", "completion_initial", "completion_final"]
+    )
+    async def test_liveness_uses_canonical_executed_lock_order(photo_database, phase):
+        env = photo_database
+        locks, initial = [], []
+        labels = {
+            MobilePassengerIdentityModel: "identity",
+            MyPhotoEnrollmentModel: "enrollment",
+            MyPhotoLivenessSessionModel: "liveness",
+        }
+    
+        class Provider:
+            ready = True
+            client_flow = "development_simulator"
+    
+            async def create_session(self, request):
+                if phase.startswith("creation"):
+                    locks.clear()  # The durable reservation transaction ended before provider I/O.
+                if phase == "creation_failure":
+                    raise MyPhotosUnavailable("PROVIDER_UNAVAILABLE", "Synthetic provider outage")
+                return LivenessSessionHandle("synthetic-provider-session", request.expires_at)
+    
+            async def get_result(self, _reference):
+                initial[:] = locks
+                locks.clear()  # Observe only the transaction reacquired after provider I/O.
+                return LivenessResult("passed", reference_face_handle="synthetic-reference")
+    
+        providers = SimpleNamespace(
+            provider_name="development", liveness=Provider(), face_search=SimpleNamespace(ready=True)
+        )
+        async with env.sessions() as session:
+    
+            @event.listens_for(session.sync_session, "do_orm_execute")
+            def observe(execution):
+                if not execution.is_select:
+                    return
+                statement = execution.statement
+                if "FOR UPDATE" not in str(statement.compile(dialect=postgresql.dialect())):
+                    return
+                entity = statement.column_descriptions[0].get("entity")
+                if entity in labels:
+                    locks.append(labels[entity])
+    
+            service = MyPhotosService(session, settings=env.settings, providers=providers)
+            start = MyPhotosLivenessStartRequest(
+                challenge_mode="movement_only", idempotency_key="synthetic-lock-start"
+            )
+            if phase == "creation_failure":
+                with pytest.raises(MyPhotosUnavailable):
+                    await service.start_liveness(
+                        claims=env.passenger.claims, trip=env.passenger.trip, request=start
+                    )
+>               assert locks == ["enrollment", "liveness"]
+E               AssertionError: assert ['liveness', 'enrollment'] == ['enrollment', 'liveness']
+E                 
+E                 At index 0 diff: 'liveness' != 'enrollment'
+E                 Use -v to get more diff
+
+tests\integration\test_my_photos_lock_order.py:79: AssertionError
+____ test_liveness_uses_canonical_executed_lock_order[completion_initial] _____
+
+photo_database = namespace(sessions=async_sessionmaker(class_='AsyncSession', bind=<sqlalchemy.ext.asyncio.engine.AsyncEngine object at...re.database.gc_mobile_models.MobilePassengerIdentityModel object at 0x000002151E7F2D90>, client_manager_profile=None)))
+phase = 'completion_initial'
+
+    @pytest.mark.parametrize(
+        "phase", ["creation_success", "creation_failure", "completion_initial", "completion_final"]
+    )
+    async def test_liveness_uses_canonical_executed_lock_order(photo_database, phase):
+        env = photo_database
+        locks, initial = [], []
+        labels = {
+            MobilePassengerIdentityModel: "identity",
+            MyPhotoEnrollmentModel: "enrollment",
+            MyPhotoLivenessSessionModel: "liveness",
+        }
+    
+        class Provider:
+            ready = True
+            client_flow = "development_simulator"
+    
+            async def create_session(self, request):
+                if phase.startswith("creation"):
+                    locks.clear()  # The durable reservation transaction ended before provider I/O.
+                if phase == "creation_failure":
+                    raise MyPhotosUnavailable("PROVIDER_UNAVAILABLE", "Synthetic provider outage")
+                return LivenessSessionHandle("synthetic-provider-session", request.expires_at)
+    
+            async def get_result(self, _reference):
+                initial[:] = locks
+                locks.clear()  # Observe only the transaction reacquired after provider I/O.
+                return LivenessResult("passed", reference_face_handle="synthetic-reference")
+    
+        providers = SimpleNamespace(
+            provider_name="development", liveness=Provider(), face_search=SimpleNamespace(ready=True)
+        )
+        async with env.sessions() as session:
+    
+            @event.listens_for(session.sync_session, "do_orm_execute")
+            def observe(execution):
+                if not execution.is_select:
+                    return
+                statement = execution.statement
+                if "FOR UPDATE" not in str(statement.compile(dialect=postgresql.dialect())):
+                    return
+                entity = statement.column_descriptions[0].get("entity")
+                if entity in labels:
+                    locks.append(labels[entity])
+    
+            service = MyPhotosService(session, settings=env.settings, providers=providers)
+            start = MyPhotosLivenessStartRequest(
+                challenge_mode="movement_only", idempotency_key="synthetic-lock-start"
+            )
+            if phase == "creation_failure":
+                with pytest.raises(MyPhotosUnavailable):
+                    await service.start_liveness(
+                        claims=env.passenger.claims, trip=env.passenger.trip, request=start
+                    )
+                assert locks == ["enrollment", "liveness"]
+                return
+            created = await service.start_liveness(
+                claims=env.passenger.claims, trip=env.passenger.trip, request=start
+            )
+            await session.commit()
+            if phase == "creation_success":
+                assert locks == ["identity", "enrollment", "liveness"]
+                return
+            locks.clear()
+            await service.complete_liveness(
+                claims=env.passenger.claims,
+                trip=env.passenger.trip,
+                session_id=created.session_id,
+                request=MyPhotosLivenessCompleteRequest(
+                    outcome="completed", idempotency_key="synthetic-lock-completion"
+                ),
+            )
+>           assert (initial if phase == "completion_initial" else locks) == [
+                "identity",
+                "enrollment",
+                "liveness",
+            ]
+E           AssertionError: assert ['enrollment', 'liveness'] == ['identity', ...', 'liveness']
+E             
+E             At index 0 diff: 'enrollment' != 'identity'
+E             Right contains one more item: 'liveness'
+E             Use -v to get more diff
+
+tests\integration\test_my_photos_lock_order.py:97: AssertionError
+_____ test_liveness_uses_canonical_executed_lock_order[completion_final] ______
+
+photo_database = namespace(sessions=async_sessionmaker(class_='AsyncSession', bind=<sqlalchemy.ext.asyncio.engine.AsyncEngine object at...re.database.gc_mobile_models.MobilePassengerIdentityModel object at 0x000002151E8E5C90>, client_manager_profile=None)))
+phase = 'completion_final'
+
+    @pytest.mark.parametrize(
+        "phase", ["creation_success", "creation_failure", "completion_initial", "completion_final"]
+    )
+    async def test_liveness_uses_canonical_executed_lock_order(photo_database, phase):
+        env = photo_database
+        locks, initial = [], []
+        labels = {
+            MobilePassengerIdentityModel: "identity",
+            MyPhotoEnrollmentModel: "enrollment",
+            MyPhotoLivenessSessionModel: "liveness",
+        }
+    
+        class Provider:
+            ready = True
+            client_flow = "development_simulator"
+    
+            async def create_session(self, request):
+                if phase.startswith("creation"):
+                    locks.clear()  # The durable reservation transaction ended before provider I/O.
+                if phase == "creation_failure":
+                    raise MyPhotosUnavailable("PROVIDER_UNAVAILABLE", "Synthetic provider outage")
+                return LivenessSessionHandle("synthetic-provider-session", request.expires_at)
+    
+            async def get_result(self, _reference):
+                initial[:] = locks
+                locks.clear()  # Observe only the transaction reacquired after provider I/O.
+                return LivenessResult("passed", reference_face_handle="synthetic-reference")
+    
+        providers = SimpleNamespace(
+            provider_name="development", liveness=Provider(), face_search=SimpleNamespace(ready=True)
+        )
+        async with env.sessions() as session:
+    
+            @event.listens_for(session.sync_session, "do_orm_execute")
+            def observe(execution):
+                if not execution.is_select:
+                    return
+                statement = execution.statement
+                if "FOR UPDATE" not in str(statement.compile(dialect=postgresql.dialect())):
+                    return
+                entity = statement.column_descriptions[0].get("entity")
+                if entity in labels:
+                    locks.append(labels[entity])
+    
+            service = MyPhotosService(session, settings=env.settings, providers=providers)
+            start = MyPhotosLivenessStartRequest(
+                challenge_mode="movement_only", idempotency_key="synthetic-lock-start"
+            )
+            if phase == "creation_failure":
+                with pytest.raises(MyPhotosUnavailable):
+                    await service.start_liveness(
+                        claims=env.passenger.claims, trip=env.passenger.trip, request=start
+                    )
+                assert locks == ["enrollment", "liveness"]
+                return
+            created = await service.start_liveness(
+                claims=env.passenger.claims, trip=env.passenger.trip, request=start
+            )
+            await session.commit()
+            if phase == "creation_success":
+                assert locks == ["identity", "enrollment", "liveness"]
+                return
+            locks.clear()
+            await service.complete_liveness(
+                claims=env.passenger.claims,
+                trip=env.passenger.trip,
+                session_id=created.session_id,
+                request=MyPhotosLivenessCompleteRequest(
+                    outcome="completed", idempotency_key="synthetic-lock-completion"
+                ),
+            )
+>           assert (initial if phase == "completion_initial" else locks) == [
+                "identity",
+                "enrollment",
+                "liveness",
+            ]
+E           AssertionError: assert ['identity', ... 'enrollment'] == ['identity', ...', 'liveness']
+E             
+E             At index 1 diff: 'liveness' != 'enrollment'
+E             Use -v to get more diff
+
+tests\integration\test_my_photos_lock_order.py:97: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/integration/test_my_photos_lock_order.py::test_liveness_uses_canonical_executed_lock_order[creation_success]
+FAILED tests/integration/test_my_photos_lock_order.py::test_liveness_uses_canonical_executed_lock_order[creation_failure]
+FAILED tests/integration/test_my_photos_lock_order.py::test_liveness_uses_canonical_executed_lock_order[completion_initial]
+FAILED tests/integration/test_my_photos_lock_order.py::test_liveness_uses_canonical_executed_lock_order[completion_final]
+4 failed in 7.92s

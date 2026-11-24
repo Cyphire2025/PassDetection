@@ -1,0 +1,63 @@
+{
+  "command": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "tests/unit/presentation/test_admin_accounts.py",
+    "tests/integration/test_managed_account_status_projection.py",
+    "tests/integration/test_managed_account_scope_contracts.py",
+    "tests/integration/test_mcp_business_admin_tools.py",
+    "--cov-branch",
+    "--cov-report=",
+    "--cov-report=json:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\managed-account-current-coverage.json",
+    "--cov=app.presentation.api.v1.routes.admin_accounts",
+    "--cov=app.presentation.api.v1.routes.managed_account_creation",
+    "--cov=app.presentation.api.v1.routes.managed_account_credentials",
+    "--cov=app.presentation.api.v1.routes.managed_account_mutations",
+    "--cov=app.presentation.api.v1.routes.managed_account_queries",
+    "--cov=app.presentation.api.v1.routes.managed_account_scope",
+    "--cov=app.presentation.api.v1.routes.managed_account_sessions",
+    "--cov=app.presentation.api.v1.routes.managed_account_values"
+  ],
+  "cwd": "backend",
+  "before": {
+    "backend/app/presentation/api/v1/routes/admin_accounts.py": "75ff6a0e79de56d0397c4ed7f980e2ffa1135a41dcf2f9e07d137edeb522a2ac",
+    "backend/app/presentation/api/v1/routes/managed_account_creation.py": "6b377cce932b283ec9cd83b4ec8d7020eda70165330c57fad96ab6b344ced05f",
+    "backend/app/presentation/api/v1/routes/managed_account_credentials.py": "067cfca4e972d2caaff00aa6b2dc81fbe3bcff6f2bb7bb39b0c4a5fee114a778",
+    "backend/app/presentation/api/v1/routes/managed_account_mutations.py": "b5a6857bf9589e9e8ea07f5b73b1b9173234544d1d9d04bcb1ad4469a5ceb68b",
+    "backend/app/presentation/api/v1/routes/managed_account_queries.py": "7a6551812cf5935088b20d795e42660f7e787b4459bef731da77c8fb7a1a8e4c",
+    "backend/app/presentation/api/v1/routes/managed_account_scope.py": "c1b80c32d6b6f88f3bdfdcd28f7b57dbf1c82eb8df58b40a7da9fc6c6f33ee11",
+    "backend/app/presentation/api/v1/routes/managed_account_sessions.py": "64828e2872daadeaee2362b07c4a353f43c6408e4598e59e7287ebb96b628043",
+    "backend/app/presentation/api/v1/routes/managed_account_values.py": "1b89f19ee3ede770ebf6f7751c91bf8669ed08c7778e6cae51793eeece3a5f83",
+    "backend/tests/unit/presentation/test_admin_accounts.py": "f6029356bb308a58a21f9cda8b6af692fc04a291b2e3c6649bf0f416e19f753a",
+    "backend/tests/integration/test_managed_account_status_projection.py": "d2fd69a13b86b0cb372b03bad86fe7e9cdf5741c0074bc9bf4c706d093698ed4",
+    "backend/tests/integration/test_managed_account_scope_contracts.py": "6f3ee562ceb9c73fbc0573b330c651d9c6a2afaddb2fc8651b95fd96a1051343",
+    "backend/tests/integration/test_mcp_business_admin_tools.py": "552430a7a821d9558d8fd907f333da4d9596d2aa690f85ef57c5e5e9287ca1ef",
+    "backend/tests/integration/test_admin_workforce_contracts.py": "69c92cec878b3e49fe79a89a239e321f160d434f90eba61eacf6cbc175203ff0"
+  },
+  "after": {
+    "backend/app/presentation/api/v1/routes/admin_accounts.py": "75ff6a0e79de56d0397c4ed7f980e2ffa1135a41dcf2f9e07d137edeb522a2ac",
+    "backend/app/presentation/api/v1/routes/managed_account_creation.py": "6b377cce932b283ec9cd83b4ec8d7020eda70165330c57fad96ab6b344ced05f",
+    "backend/app/presentation/api/v1/routes/managed_account_credentials.py": "067cfca4e972d2caaff00aa6b2dc81fbe3bcff6f2bb7bb39b0c4a5fee114a778",
+    "backend/app/presentation/api/v1/routes/managed_account_mutations.py": "b5a6857bf9589e9e8ea07f5b73b1b9173234544d1d9d04bcb1ad4469a5ceb68b",
+    "backend/app/presentation/api/v1/routes/managed_account_queries.py": "7a6551812cf5935088b20d795e42660f7e787b4459bef731da77c8fb7a1a8e4c",
+    "backend/app/presentation/api/v1/routes/managed_account_scope.py": "c1b80c32d6b6f88f3bdfdcd28f7b57dbf1c82eb8df58b40a7da9fc6c6f33ee11",
+    "backend/app/presentation/api/v1/routes/managed_account_sessions.py": "64828e2872daadeaee2362b07c4a353f43c6408e4598e59e7287ebb96b628043",
+    "backend/app/presentation/api/v1/routes/managed_account_values.py": "1b89f19ee3ede770ebf6f7751c91bf8669ed08c7778e6cae51793eeece3a5f83",
+    "backend/tests/unit/presentation/test_admin_accounts.py": "f6029356bb308a58a21f9cda8b6af692fc04a291b2e3c6649bf0f416e19f753a",
+    "backend/tests/integration/test_managed_account_status_projection.py": "d2fd69a13b86b0cb372b03bad86fe7e9cdf5741c0074bc9bf4c706d093698ed4",
+    "backend/tests/integration/test_managed_account_scope_contracts.py": "6f3ee562ceb9c73fbc0573b330c651d9c6a2afaddb2fc8651b95fd96a1051343",
+    "backend/tests/integration/test_mcp_business_admin_tools.py": "552430a7a821d9558d8fd907f333da4d9596d2aa690f85ef57c5e5e9287ca1ef",
+    "backend/tests/integration/test_admin_workforce_contracts.py": "69c92cec878b3e49fe79a89a239e321f160d434f90eba61eacf6cbc175203ff0"
+  },
+  "source_frozen": true,
+  "exit_code": 0,
+  "runtime_files": 8,
+  "test_files": 4,
+  "support_files": [
+    "backend/tests/integration/test_admin_workforce_contracts.py"
+  ]
+}

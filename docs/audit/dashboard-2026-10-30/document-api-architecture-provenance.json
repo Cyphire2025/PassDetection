@@ -1,0 +1,316 @@
+{
+  "original_source": {
+    "path": "frontend/features/documents/api/document-distribution.api.ts",
+    "sha256": "390291cc880dd42d5d68c8f223cd67bfc7ce245d116f3f42aa2e76c344b1453b",
+    "source": "import apiClient, { type ApiError } from \"@/lib/api/client\";\nimport { API_ENDPOINTS } from \"@/lib/api/endpoints\";\nimport { downloadStreamedResponse } from \"@/lib/api/streamed-download\";\nimport type {\n  AbortDocumentUploadResult,\n  DistributionDocumentType,\n  DocumentBatchReview,\n  DocumentDistributionGroup,\n  DocumentDeliveryPreview,\n  DocumentDeliveryTracking,\n  DocumentVerificationResult,\n  SendDocumentBroadcastResult,\n  VerifiedDistributedDocument,\n  ManualDocumentReplacement,\n} from \"@/types/document-distribution.types\";\nimport {\n  createDocumentStagingManifest,\n  createDocumentVerificationSession,\n  isPassengerMatchedVerificationFile,\n  MAX_DOCUMENT_VERIFICATION_CONCURRENCY,\n  runConcurrentDocumentVerification,\n  runStagedDocumentUpload,\n  type DocumentStagingManifest,\n  type DocumentUploadProgress,\n  type DocumentFilenameReplacement,\n} from \"../services/document-upload-batching\";\nimport { verificationWithoutStagingReceipts } from \"../services/document-upload-recovery\";\nimport type { DocumentManualReviewCandidate } from \"../services/document-manual-review\";\n\nexport interface DocumentVerificationUploadPlan {\n  verification: DocumentVerificationResult;\n  stagingManifest: DocumentStagingManifest;\n  manualReviewCandidates?: DocumentManualReviewCandidate[];\n}\n\nexport type DocumentAssignmentExportFilter =\n  | \"all\"\n  | \"assigned\"\n  | \"missing\"\n  | \"sent\"\n  | \"not_sent\"\n  | \"multiple_pdfs\"\n  | \"shared_pdf\";\n\nexport const documentDistributionApi = {\n  listGroups: async (search?: string, signal?: AbortSignal): Promise<DocumentDistributionGroup[]> => {\n    const { data } = await apiClient.get<DocumentDistributionGroup[]>(API_ENDPOINTS.documents.groups, {\n      params: search?.trim() ? { search: search.trim() } : undefined,\n      signal,\n    });\n    return data;\n  },\n\n  getReview: async (groupId: string, documentType: DistributionDocumentType, signal?: AbortSignal): Promise<DocumentBatchReview> => {\n    const { data } = await apiClient.get<DocumentBatchReview>(API_ENDPOINTS.documents.review(groupId, documentType), { signal });\n    return data;\n  },\n\n  exportReview: async (\n    groupId: string,\n    documentType: DistributionDocumentType,\n    filter: DocumentAssignmentExportFilter,\n    search: string,\n    groupName?: string,\n  ): Promise<void> => {\n    await downloadStreamedResponse({\n      url: API_ENDPOINTS.documents.reviewExport(groupId, documentType),\n      params: { filter, search: search.trim() || undefined },\n      suggestedFilename: documentAssignmentFilename(\n        groupName ?? groupId,\n        documentType,\n        filter,\n      ),\n    });\n  },\n\n  verifyDocuments: async (\n    groupId: string,\n    documentType: DistributionDocumentType,\n    files: File[],\n    onProgress?: (progress: DocumentUploadProgress) => void,\n    signal?: AbortSignal,\n    filenameReplacements: DocumentFilenameReplacement[] = [],\n  ): Promise<DocumentVerificationUploadPlan> => {\n    const session = createDocumentVerificationSession(files);\n    const manualReviewByChunk: DocumentManualReviewCandidate[][] = [];\n    let fileOffset = 0;\n    const fileOffsets = session.chunks.map((chunk) => {\n      const offset = fileOffset;\n      fileOffset += chunk.length;\n      return offset;\n    });\n    const completedResults = await runConcurrentDocumentVerification({\n      session,\n      concurrency: MAX_DOCUMENT_VERIFICATION_CONCURRENCY,\n      onProgress,\n      signal,\n      uploadChunk: async (chunk, chunkIndex, reportUpload) => {\n        const formData = new FormData();\n        formData.append(\"upload_id\", session.uploadId);\n        formData.append(\"chunk_id\", session.chunkIds[chunkIndex]);\n        chunk.forEach((file) => formData.append(\"files\", file));\n        const { data } = await apiClient.post<DocumentVerificationResult>(\n          API_ENDPOINTS.documents.verify(groupId, documentType),\n          formData,\n          {\n            headers: { \"Content-Type\": \"multipart/form-data\" },\n            timeout: 240_000,\n            signal,\n            onUploadProgress: (event) => reportUpload(event.loaded, event.total),\n          },\n        );\n        if (data.files.length !== chunk.length) {\n          throw new Error(\"The document verification response did not match the selected PDFs.\");\n        }\n        manualReviewByChunk[chunkIndex] = data.files.flatMap((result, index) =>\n          !result.accepted && result.manual_review_token\n            ? [{\n              fileIndex: fileOffsets[chunkIndex] + index,\n              file: chunk[index],\n              approvalToken: result.manual_review_token,\n              uploadId: session.uploadId,\n              chunkId: crypto.randomUUID(),\n              filenameReplacement: filenameReplacements.find((entry) => entry.filename === result.filename),\n            }]\n            : [],\n        );\n        return data;\n      },\n    });\n    const normalizedResults = completedResults.map((result) => {\n      const verifiedFiles = result.files.map((file) => {\n        const accepted = isPassengerMatchedVerificationFile(file);\n        if (accepted === file.accepted) return file;\n        return {\n          ...file,\n          accepted,\n          reason: file.match_reason || \"No passenger match found\",\n          staging_receipt: null,\n        };\n      });\n      const acceptedCount = verifiedFiles.filter((file) => file.accepted).length;\n      return {\n        ...result,\n        accepted_count: acceptedCount,\n        rejected_count: verifiedFiles.length - acceptedCount,\n        files: verifiedFiles,\n      };\n    });\n    const stagingManifest = createDocumentStagingManifest(\n      session,\n      normalizedResults.map((result) => result.files.map((file) => file.accepted)),\n      normalizedResults.map((result) =>\n        result.files.map((file) => file.staging_receipt),\n      ),\n    );\n    for (const chunk of stagingManifest.chunks) {\n      const resultIndex = session.chunkIds.indexOf(chunk.chunkId);\n      const acceptedNames = new Set(normalizedResults[resultIndex]?.files.filter((file) => file.accepted).map((file) => file.filename));\n      chunk.filenameReplacements = filenameReplacements.filter((entry) => acceptedNames.has(entry.filename));\n    }\n    const verification = verificationWithoutStagingReceipts({\n      group_id: groupId,\n      document_type: documentType,\n      total_count: normalizedResults.reduce(\n        (total, result) => total + result.total_count,\n        0,\n      ),\n      accepted_count: normalizedResults.reduce(\n        (total, result) => total + result.accepted_count,\n        0,\n      ),\n      rejected_count: normalizedResults.reduce(\n        (total, result) => total + result.rejected_count,\n        0,\n      ),\n      files: normalizedResults.flatMap((result) => result.files),\n    });\n    return {\n      stagingManifest,\n      verification,\n      manualReviewCandidates: manualReviewByChunk.flat(),\n    };\n  },\n\n  manuallyVerifyDocument: async (\n    groupId: string,\n    documentType: DistributionDocumentType,\n    candidate: DocumentManualReviewCandidate,\n    signal?: AbortSignal,\n    targetUploadId?: string,\n  ): Promise<VerifiedDistributedDocument> => {\n    const formData = new FormData();\n    formData.append(\"file\", candidate.file);\n    formData.append(\"approval_token\", candidate.approvalToken);\n    formData.append(\"upload_id\", candidate.uploadId);\n    formData.append(\"chunk_id\", candidate.chunkId);\n    formData.append(\"confirmed\", \"true\");\n    if (targetUploadId) formData.append(\"target_upload_id\", targetUploadId);\n    const { data } = await apiClient.post<VerifiedDistributedDocument>(\n      API_ENDPOINTS.documents.manualVerify(groupId, documentType),\n      formData,\n      {\n        headers: { \"Content-Type\": \"multipart/form-data\" },\n        timeout: 240_000,\n        signal,\n      },\n    );\n    return data;\n  },\n\n  uploadDocuments: async (\n    groupId: string,\n    documentType: DistributionDocumentType,\n    manifest: DocumentStagingManifest,\n    onProgress?: (progress: DocumentUploadProgress) => void,\n    onManifestChange?: (manifest: DocumentStagingManifest) => void,\n    signal?: AbortSignal,\n  ): Promise<DocumentBatchReview> => {\n    return runStagedDocumentUpload({\n      manifest,\n      onProgress,\n      onManifestChange,\n      signal,\n      uploadChunk: async (chunk, chunkIndex, reportUpload) => {\n        const formData = new FormData();\n        formData.append(\"upload_id\", manifest.uploadId);\n        formData.append(\"chunk_id\", chunk.chunkId);\n        formData.append(\"chunk_index\", String(chunkIndex));\n        formData.append(\"expected_chunk_count\", String(manifest.chunks.length));\n        formData.append(\"expected_file_count\", String(manifest.totalFiles));\n        if (chunk.filenameReplacements?.length) {\n          formData.append(\"filename_replacements\", JSON.stringify(chunk.filenameReplacements));\n        }\n        chunk.receipts.forEach((receipt) =>\n          formData.append(\"staging_receipts\", receipt),\n        );\n        try {\n          const { data } = await apiClient.post<DocumentBatchReview>(\n            API_ENDPOINTS.documents.upload(groupId, documentType),\n            formData,\n            {\n              headers: { \"Content-Type\": \"multipart/form-data\" },\n              timeout: 240_000,\n              signal,\n              onUploadProgress: (event) => reportUpload(event.loaded, event.total),\n            },\n          );\n          return data;\n        } catch (error) {\n          if ((error as Partial<ApiError> | null)?.code === \"HTTP_410\") {\n            throw new Error(\n              \"The secure PDF staging receipt expired. Select and check the PDFs again; \"\n              + \"the browser did not retain raw file copies for fallback upload.\",\n            );\n          }\n          throw error;\n        }\n      },\n    });\n  },\n\n  abortUpload: async (\n    groupId: string,\n    documentType: DistributionDocumentType,\n    batchId: string,\n  ): Promise<AbortDocumentUploadResult> => {\n    const { data } = await apiClient.post<AbortDocumentUploadResult>(\n      API_ENDPOINTS.documents.abortUpload(groupId, documentType, batchId),\n    );\n    return data;\n  },\n\n  reuploadPassengerDocument: async (\n    groupId: string,\n    documentType: DistributionDocumentType,\n    passengerId: string,\n    file: File,\n  ): Promise<DocumentBatchReview> => {\n    const formData = new FormData();\n    formData.append(\"file\", file);\n    const { data } = await apiClient.post<DocumentBatchReview>(\n      API_ENDPOINTS.documents.reupload(groupId, documentType, passengerId),\n      formData,\n      {\n        headers: { \"Content-Type\": \"multipart/form-data\" },\n        timeout: 60_000,\n      },\n    );\n    return data;\n  },\n\n  manualUploadPassengerDocument: async (groupId: string, documentType: DistributionDocumentType,\n    passengerId: string, file: File, mode: \"add\" | \"replace\", replacements: ManualDocumentReplacement[]): Promise<DocumentBatchReview> => {\n    const body = new FormData();\n    body.append(\"file\", file);\n    body.append(\"mode\", mode);\n    body.append(\"replacement_documents\", JSON.stringify(replacements));\n    return (await apiClient.post<DocumentBatchReview>(API_ENDPOINTS.documents.manualUpload(groupId, documentType, passengerId),\n      body, { headers: { \"Content-Type\": \"multipart/form-data\" }, timeout: 60_000 })).data;\n  },\n\n  deleteDocuments: async (\n    groupId: string,\n    documentType: DistributionDocumentType,\n    documentIds: string[],\n  ): Promise<DocumentBatchReview> => {\n    const { data } = await apiClient.post<DocumentBatchReview>(API_ENDPOINTS.documents.deleteDocuments(groupId, documentType), {\n      document_ids: documentIds,\n    });\n    return data;\n  },\n\n  unassignDocuments: async (\n    groupId: string,\n    documentType: DistributionDocumentType,\n    documentIds: string[],\n  ): Promise<DocumentBatchReview> => {\n    const { data } = await apiClient.post<DocumentBatchReview>(\n      API_ENDPOINTS.documents.unassignDocuments(groupId, documentType),\n      {\n        document_ids: documentIds,\n      },\n    );\n    return data;\n  },\n\n  saveBatch: async (batchId: string): Promise<{ batch_id: string; status: string; saved_at: string }> => {\n    const { data } = await apiClient.post<{ batch_id: string; status: string; saved_at: string }>(\n      API_ENDPOINTS.documents.saveBatch(batchId),\n    );\n    return data;\n  },\n\n  previewWhatsAppDelivery: async (\n    groupId: string,\n    documentType: DistributionDocumentType,\n    signal?: AbortSignal,\n    broadcastGroupId?: string,\n  ): Promise<DocumentDeliveryPreview> => {\n    const { data } = await apiClient.get<DocumentDeliveryPreview>(\n      API_ENDPOINTS.documents.whatsappPreview(groupId, documentType),\n      { signal, params: broadcastGroupId ? { broadcast_group_id: broadcastGroupId } : undefined },\n    );\n    return data;\n  },\n\n  sendWhatsAppDelivery: async (\n    batchId: string,\n    documentIds: string[],\n    resendDocumentIds: string[],\n    messageContent1: string,\n    messageContent2: string,\n    previewToken: string,\n    broadcastGroupId?: string,\n  ): Promise<SendDocumentBroadcastResult> => {\n    const { data } = await apiClient.post<SendDocumentBroadcastResult>(\n      API_ENDPOINTS.documents.sendWhatsApp(batchId),\n      {\n        document_ids: documentIds,\n        resend_document_ids: resendDocumentIds,\n        message_content_1: messageContent1,\n        message_content_2: messageContent2,\n        preview_token: previewToken,\n        broadcast_group_id: broadcastGroupId,\n      },\n    );\n    return data;\n  },\n\n  getDeliveryTracking: async (groupId: string): Promise<DocumentDeliveryTracking> => {\n    const { data } = await apiClient.get<DocumentDeliveryTracking>(\n      API_ENDPOINTS.documents.deliveryTracking(groupId),\n      { params: { limit: 6 } },\n    );\n    return data;\n  },\n};\n\nfunction documentAssignmentFilename(\n  groupName: string,\n  documentType: DistributionDocumentType,\n  filter: DocumentAssignmentExportFilter,\n) {\n  const raw = `${groupName}-${documentType}-${filter}-document-assignments`.trim();\n  const safe = raw.replace(/[^A-Za-z0-9_.-]+/g, \"_\").slice(0, 120);\n  return `${safe || \"document\"}.xlsx`;\n}\n"
+  },
+  "indexed_checkpoint": {
+    "path": "frontend/features/documents/api/document-distribution.api.ts",
+    "sha256": "88b88a63a5c65d91f18b07748cf48684f150afd89d76e6f3b3d33cd0ffeea5e2",
+    "source": "import apiClient, { type ApiError } from \"@/lib/api/client\";\nimport { API_ENDPOINTS } from \"@/lib/api/endpoints\";\nimport { downloadStreamedResponse } from \"@/lib/api/streamed-download\";\nimport type {\n  AbortDocumentUploadResult,\n  DistributionDocumentType,\n  DocumentBatchReview,\n  DocumentDistributionGroup,\n  DocumentDeliveryPreview,\n  DocumentDeliveryTracking,\n  DocumentVerificationResult,\n  SendDocumentBroadcastResult,\n  VerifiedDistributedDocument,\n  ManualDocumentReplacement,\n} from \"@/types/document-distribution.types\";\nimport {\n  createDocumentStagingManifest,\n  createDocumentVerificationSession,\n  isPassengerMatchedVerificationFile,\n  MAX_DOCUMENT_VERIFICATION_CONCURRENCY,\n  runConcurrentDocumentVerification,\n  runStagedDocumentUpload,\n  type DocumentStagingManifest,\n  type DocumentUploadProgress,\n  type DocumentFilenameReplacement,\n} from \"../services/document-upload-batching\";\nimport { verificationWithoutStagingReceipts } from \"../services/document-upload-recovery\";\nimport type { DocumentManualReviewCandidate } from \"../services/document-manual-review\";\nimport { attachFilenameReplacements, indexFirstFilenameReplacements } from \"../services/document-filename-replacements\";\n\nexport interface DocumentVerificationUploadPlan {\n  verification: DocumentVerificationResult;\n  stagingManifest: DocumentStagingManifest;\n  manualReviewCandidates?: DocumentManualReviewCandidate[];\n}\n\nexport type DocumentAssignmentExportFilter =\n  | \"all\"\n  | \"assigned\"\n  | \"missing\"\n  | \"sent\"\n  | \"not_sent\"\n  | \"multiple_pdfs\"\n  | \"shared_pdf\";\n\nexport const documentDistributionApi = {\n  listGroups: async (search?: string, signal?: AbortSignal): Promise<DocumentDistributionGroup[]> => {\n    const { data } = await apiClient.get<DocumentDistributionGroup[]>(API_ENDPOINTS.documents.groups, {\n      params: search?.trim() ? { search: search.trim() } : undefined,\n      signal,\n    });\n    return data;\n  },\n\n  getReview: async (groupId: string, documentType: DistributionDocumentType, signal?: AbortSignal): Promise<DocumentBatchReview> => {\n    const { data } = await apiClient.get<DocumentBatchReview>(API_ENDPOINTS.documents.review(groupId, documentType), { signal });\n    return data;\n  },\n\n  exportReview: async (\n    groupId: string,\n    documentType: DistributionDocumentType,\n    filter: DocumentAssignmentExportFilter,\n    search: string,\n    groupName?: string,\n  ): Promise<void> => {\n    await downloadStreamedResponse({\n      url: API_ENDPOINTS.documents.reviewExport(groupId, documentType),\n      params: { filter, search: search.trim() || undefined },\n      suggestedFilename: documentAssignmentFilename(\n        groupName ?? groupId,\n        documentType,\n        filter,\n      ),\n    });\n  },\n\n  verifyDocuments: async (\n    groupId: string,\n    documentType: DistributionDocumentType,\n    files: File[],\n    onProgress?: (progress: DocumentUploadProgress) => void,\n    signal?: AbortSignal,\n    filenameReplacements: DocumentFilenameReplacement[] = [],\n  ): Promise<DocumentVerificationUploadPlan> => {\n    const session = createDocumentVerificationSession(files);\n    const firstReplacementByFilename = indexFirstFilenameReplacements(filenameReplacements);\n    const manualReviewByChunk: DocumentManualReviewCandidate[][] = [];\n    let fileOffset = 0;\n    const fileOffsets = session.chunks.map((chunk) => {\n      const offset = fileOffset;\n      fileOffset += chunk.length;\n      return offset;\n    });\n    const completedResults = await runConcurrentDocumentVerification({\n      session,\n      concurrency: MAX_DOCUMENT_VERIFICATION_CONCURRENCY,\n      onProgress,\n      signal,\n      uploadChunk: async (chunk, chunkIndex, reportUpload) => {\n        const formData = new FormData();\n        formData.append(\"upload_id\", session.uploadId);\n        formData.append(\"chunk_id\", session.chunkIds[chunkIndex]);\n        chunk.forEach((file) => formData.append(\"files\", file));\n        const { data } = await apiClient.post<DocumentVerificationResult>(\n          API_ENDPOINTS.documents.verify(groupId, documentType),\n          formData,\n          {\n            headers: { \"Content-Type\": \"multipart/form-data\" },\n            timeout: 240_000,\n            signal,\n            onUploadProgress: (event) => reportUpload(event.loaded, event.total),\n          },\n        );\n        if (data.files.length !== chunk.length) {\n          throw new Error(\"The document verification response did not match the selected PDFs.\");\n        }\n        manualReviewByChunk[chunkIndex] = data.files.flatMap((result, index) =>\n          !result.accepted && result.manual_review_token\n            ? [{\n              fileIndex: fileOffsets[chunkIndex] + index,\n              file: chunk[index],\n              approvalToken: result.manual_review_token,\n              uploadId: session.uploadId,\n              chunkId: crypto.randomUUID(),\n              filenameReplacement: firstReplacementByFilename.get(result.filename),\n            }]\n            : [],\n        );\n        return data;\n      },\n    });\n    const normalizedResults = completedResults.map((result) => {\n      const verifiedFiles = result.files.map((file) => {\n        const accepted = isPassengerMatchedVerificationFile(file);\n        if (accepted === file.accepted) return file;\n        return {\n          ...file,\n          accepted,\n          reason: file.match_reason || \"No passenger match found\",\n          staging_receipt: null,\n        };\n      });\n      const acceptedCount = verifiedFiles.filter((file) => file.accepted).length;\n      return {\n        ...result,\n        accepted_count: acceptedCount,\n        rejected_count: verifiedFiles.length - acceptedCount,\n        files: verifiedFiles,\n      };\n    });\n    const stagingManifest = createDocumentStagingManifest(\n      session,\n      normalizedResults.map((result) => result.files.map((file) => file.accepted)),\n      normalizedResults.map((result) =>\n        result.files.map((file) => file.staging_receipt),\n      ),\n    );\n    attachFilenameReplacements(stagingManifest, session.chunkIds, normalizedResults, filenameReplacements);\n    const verification = verificationWithoutStagingReceipts({\n      group_id: groupId,\n      document_type: documentType,\n      total_count: normalizedResults.reduce(\n        (total, result) => total + result.total_count,\n        0,\n      ),\n      accepted_count: normalizedResults.reduce(\n        (total, result) => total + result.accepted_count,\n        0,\n      ),\n      rejected_count: normalizedResults.reduce(\n        (total, result) => total + result.rejected_count,\n        0,\n      ),\n      files: normalizedResults.flatMap((result) => result.files),\n    });\n    return {\n      stagingManifest,\n      verification,\n      manualReviewCandidates: manualReviewByChunk.flat(),\n    };\n  },\n\n  manuallyVerifyDocument: async (\n    groupId: string,\n    documentType: DistributionDocumentType,\n    candidate: DocumentManualReviewCandidate,\n    signal?: AbortSignal,\n    targetUploadId?: string,\n  ): Promise<VerifiedDistributedDocument> => {\n    const formData = new FormData();\n    formData.append(\"file\", candidate.file);\n    formData.append(\"approval_token\", candidate.approvalToken);\n    formData.append(\"upload_id\", candidate.uploadId);\n    formData.append(\"chunk_id\", candidate.chunkId);\n    formData.append(\"confirmed\", \"true\");\n    if (targetUploadId) formData.append(\"target_upload_id\", targetUploadId);\n    const { data } = await apiClient.post<VerifiedDistributedDocument>(\n      API_ENDPOINTS.documents.manualVerify(groupId, documentType),\n      formData,\n      {\n        headers: { \"Content-Type\": \"multipart/form-data\" },\n        timeout: 240_000,\n        signal,\n      },\n    );\n    return data;\n  },\n\n  uploadDocuments: async (\n    groupId: string,\n    documentType: DistributionDocumentType,\n    manifest: DocumentStagingManifest,\n    onProgress?: (progress: DocumentUploadProgress) => void,\n    onManifestChange?: (manifest: DocumentStagingManifest) => void,\n    signal?: AbortSignal,\n  ): Promise<DocumentBatchReview> => {\n    return runStagedDocumentUpload({\n      manifest,\n      onProgress,\n      onManifestChange,\n      signal,\n      uploadChunk: async (chunk, chunkIndex, reportUpload) => {\n        const formData = new FormData();\n        formData.append(\"upload_id\", manifest.uploadId);\n        formData.append(\"chunk_id\", chunk.chunkId);\n        formData.append(\"chunk_index\", String(chunkIndex));\n        formData.append(\"expected_chunk_count\", String(manifest.chunks.length));\n        formData.append(\"expected_file_count\", String(manifest.totalFiles));\n        if (chunk.filenameReplacements?.length) {\n          formData.append(\"filename_replacements\", JSON.stringify(chunk.filenameReplacements));\n        }\n        chunk.receipts.forEach((receipt) =>\n          formData.append(\"staging_receipts\", receipt),\n        );\n        try {\n          const { data } = await apiClient.post<DocumentBatchReview>(\n            API_ENDPOINTS.documents.upload(groupId, documentType),\n            formData,\n            {\n              headers: { \"Content-Type\": \"multipart/form-data\" },\n              timeout: 240_000,\n              signal,\n              onUploadProgress: (event) => reportUpload(event.loaded, event.total),\n            },\n          );\n          return data;\n        } catch (error) {\n          if ((error as Partial<ApiError> | null)?.code === \"HTTP_410\") {\n            throw new Error(\n              \"The secure PDF staging receipt expired. Select and check the PDFs again; \"\n              + \"the browser did not retain raw file copies for fallback upload.\",\n            );\n          }\n          throw error;\n        }\n      },\n    });\n  },\n\n  abortUpload: async (\n    groupId: string,\n    documentType: DistributionDocumentType,\n    batchId: string,\n  ): Promise<AbortDocumentUploadResult> => {\n    const { data } = await apiClient.post<AbortDocumentUploadResult>(\n      API_ENDPOINTS.documents.abortUpload(groupId, documentType, batchId),\n    );\n    return data;\n  },\n\n  reuploadPassengerDocument: async (\n    groupId: string,\n    documentType: DistributionDocumentType,\n    passengerId: string,\n    file: File,\n  ): Promise<DocumentBatchReview> => {\n    const formData = new FormData();\n    formData.append(\"file\", file);\n    const { data } = await apiClient.post<DocumentBatchReview>(\n      API_ENDPOINTS.documents.reupload(groupId, documentType, passengerId),\n      formData,\n      {\n        headers: { \"Content-Type\": \"multipart/form-data\" },\n        timeout: 60_000,\n      },\n    );\n    return data;\n  },\n\n  manualUploadPassengerDocument: async (groupId: string, documentType: DistributionDocumentType,\n    passengerId: string, file: File, mode: \"add\" | \"replace\", replacements: ManualDocumentReplacement[]): Promise<DocumentBatchReview> => {\n    const body = new FormData();\n    body.append(\"file\", file);\n    body.append(\"mode\", mode);\n    body.append(\"replacement_documents\", JSON.stringify(replacements));\n    return (await apiClient.post<DocumentBatchReview>(API_ENDPOINTS.documents.manualUpload(groupId, documentType, passengerId),\n      body, { headers: { \"Content-Type\": \"multipart/form-data\" }, timeout: 60_000 })).data;\n  },\n\n  deleteDocuments: async (\n    groupId: string,\n    documentType: DistributionDocumentType,\n    documentIds: string[],\n  ): Promise<DocumentBatchReview> => {\n    const { data } = await apiClient.post<DocumentBatchReview>(API_ENDPOINTS.documents.deleteDocuments(groupId, documentType), {\n      document_ids: documentIds,\n    });\n    return data;\n  },\n\n  unassignDocuments: async (\n    groupId: string,\n    documentType: DistributionDocumentType,\n    documentIds: string[],\n  ): Promise<DocumentBatchReview> => {\n    const { data } = await apiClient.post<DocumentBatchReview>(\n      API_ENDPOINTS.documents.unassignDocuments(groupId, documentType),\n      {\n        document_ids: documentIds,\n      },\n    );\n    return data;\n  },\n\n  saveBatch: async (batchId: string): Promise<{ batch_id: string; status: string; saved_at: string }> => {\n    const { data } = await apiClient.post<{ batch_id: string; status: string; saved_at: string }>(\n      API_ENDPOINTS.documents.saveBatch(batchId),\n    );\n    return data;\n  },\n\n  previewWhatsAppDelivery: async (\n    groupId: string,\n    documentType: DistributionDocumentType,\n    signal?: AbortSignal,\n    broadcastGroupId?: string,\n  ): Promise<DocumentDeliveryPreview> => {\n    const { data } = await apiClient.get<DocumentDeliveryPreview>(\n      API_ENDPOINTS.documents.whatsappPreview(groupId, documentType),\n      { signal, params: broadcastGroupId ? { broadcast_group_id: broadcastGroupId } : undefined },\n    );\n    return data;\n  },\n\n  sendWhatsAppDelivery: async (\n    batchId: string,\n    documentIds: string[],\n    resendDocumentIds: string[],\n    messageContent1: string,\n    messageContent2: string,\n    previewToken: string,\n    broadcastGroupId?: string,\n  ): Promise<SendDocumentBroadcastResult> => {\n    const { data } = await apiClient.post<SendDocumentBroadcastResult>(\n      API_ENDPOINTS.documents.sendWhatsApp(batchId),\n      {\n        document_ids: documentIds,\n        resend_document_ids: resendDocumentIds,\n        message_content_1: messageContent1,\n        message_content_2: messageContent2,\n        preview_token: previewToken,\n        broadcast_group_id: broadcastGroupId,\n      },\n    );\n    return data;\n  },\n\n  getDeliveryTracking: async (groupId: string): Promise<DocumentDeliveryTracking> => {\n    const { data } = await apiClient.get<DocumentDeliveryTracking>(\n      API_ENDPOINTS.documents.deliveryTracking(groupId),\n      { params: { limit: 6 } },\n    );\n    return data;\n  },\n};\n\nfunction documentAssignmentFilename(\n  groupName: string,\n  documentType: DistributionDocumentType,\n  filter: DocumentAssignmentExportFilter,\n) {\n  const raw = `${groupName}-${documentType}-${filter}-document-assignments`.trim();\n  const safe = raw.replace(/[^A-Za-z0-9_.-]+/g, \"_\").slice(0, 120);\n  return `${safe || \"document\"}.xlsx`;\n}\n"
+  },
+  "complete_method_ownership": {
+    "methods": [
+      {
+        "name": "listGroups",
+        "owner": "frontend/features/documents/api/document-review.api.ts",
+        "source": "listGroups: async (search?: string, signal?: AbortSignal): Promise<DocumentDistributionGroup[]> => {\n    const { data } = await apiClient.get<DocumentDistributionGroup[]>(API_ENDPOINTS.documents.groups, {\n      params: search?.trim() ? { search: search.trim() } : undefined,\n      signal,\n    });\n    return data;\n  }"
+      },
+      {
+        "name": "getReview",
+        "owner": "frontend/features/documents/api/document-review.api.ts",
+        "source": "getReview: async (groupId: string, documentType: DistributionDocumentType, signal?: AbortSignal): Promise<DocumentBatchReview> => {\n    const { data } = await apiClient.get<DocumentBatchReview>(API_ENDPOINTS.documents.review(groupId, documentType), { signal });\n    return data;\n  }"
+      },
+      {
+        "name": "exportReview",
+        "owner": "frontend/features/documents/api/document-review.api.ts",
+        "source": "exportReview: async (\n    groupId: string,\n    documentType: DistributionDocumentType,\n    filter: DocumentAssignmentExportFilter,\n    search: string,\n    groupName?: string,\n  ): Promise<void> => {\n    await downloadStreamedResponse({\n      url: API_ENDPOINTS.documents.reviewExport(groupId, documentType),\n      params: { filter, search: search.trim() || undefined },\n      suggestedFilename: documentAssignmentFilename(\n        groupName ?? groupId,\n        documentType,\n        filter,\n      ),\n    });\n  }"
+      },
+      {
+        "name": "verifyDocuments",
+        "owner": "frontend/features/documents/api/document-verification.api.ts",
+        "source": "verifyDocuments: async (\n    groupId: string,\n    documentType: DistributionDocumentType,\n    files: File[],\n    onProgress?: (progress: DocumentUploadProgress) => void,\n    signal?: AbortSignal,\n    filenameReplacements: DocumentFilenameReplacement[] = [],\n  ): Promise<DocumentVerificationUploadPlan> => {\n    const session = createDocumentVerificationSession(files);\n    const firstReplacementByFilename = indexFirstFilenameReplacements(filenameReplacements);\n    const manualReviewByChunk: DocumentManualReviewCandidate[][] = [];\n    let fileOffset = 0;\n    const fileOffsets = session.chunks.map((chunk) => {\n      const offset = fileOffset;\n      fileOffset += chunk.length;\n      return offset;\n    });\n    const completedResults = await runConcurrentDocumentVerification({\n      session,\n      concurrency: MAX_DOCUMENT_VERIFICATION_CONCURRENCY,\n      onProgress,\n      signal,\n      uploadChunk: async (chunk, chunkIndex, reportUpload) => {\n        const formData = new FormData();\n        formData.append(\"upload_id\", session.uploadId);\n        formData.append(\"chunk_id\", session.chunkIds[chunkIndex]);\n        chunk.forEach((file) => formData.append(\"files\", file));\n        const { data } = await apiClient.post<DocumentVerificationResult>(\n          API_ENDPOINTS.documents.verify(groupId, documentType),\n          formData,\n          {\n            headers: { \"Content-Type\": \"multipart/form-data\" },\n            timeout: 240_000,\n            signal,\n            onUploadProgress: (event) => reportUpload(event.loaded, event.total),\n          },\n        );\n        if (data.files.length !== chunk.length) {\n          throw new Error(\"The document verification response did not match the selected PDFs.\");\n        }\n        manualReviewByChunk[chunkIndex] = data.files.flatMap((result, index) =>\n          !result.accepted && result.manual_review_token\n            ? [{\n              fileIndex: fileOffsets[chunkIndex] + index,\n              file: chunk[index],\n              approvalToken: result.manual_review_token,\n              uploadId: session.uploadId,\n              chunkId: crypto.randomUUID(),\n              filenameReplacement: firstReplacementByFilename.get(result.filename),\n            }]\n            : [],\n        );\n        return data;\n      },\n    });\n    const normalizedResults = completedResults.map((result) => {\n      const verifiedFiles = result.files.map((file) => {\n        const accepted = isPassengerMatchedVerificationFile(file);\n        if (accepted === file.accepted) return file;\n        return {\n          ...file,\n          accepted,\n          reason: file.match_reason || \"No passenger match found\",\n          staging_receipt: null,\n        };\n      });\n      const acceptedCount = verifiedFiles.filter((file) => file.accepted).length;\n      return {\n        ...result,\n        accepted_count: acceptedCount,\n        rejected_count: verifiedFiles.length - acceptedCount,\n        files: verifiedFiles,\n      };\n    });\n    const stagingManifest = createDocumentStagingManifest(\n      session,\n      normalizedResults.map((result) => result.files.map((file) => file.accepted)),\n      normalizedResults.map((result) =>\n        result.files.map((file) => file.staging_receipt),\n      ),\n    );\n    attachFilenameReplacements(stagingManifest, session.chunkIds, normalizedResults, filenameReplacements);\n    const verification = verificationWithoutStagingReceipts({\n      group_id: groupId,\n      document_type: documentType,\n      total_count: normalizedResults.reduce(\n        (total, result) => total + result.total_count,\n        0,\n      ),\n      accepted_count: normalizedResults.reduce(\n        (total, result) => total + result.accepted_count,\n        0,\n      ),\n      rejected_count: normalizedResults.reduce(\n        (total, result) => total + result.rejected_count,\n        0,\n      ),\n      files: normalizedResults.flatMap((result) => result.files),\n    });\n    return {\n      stagingManifest,\n      verification,\n      manualReviewCandidates: manualReviewByChunk.flat(),\n    };\n  }"
+      },
+      {
+        "name": "manuallyVerifyDocument",
+        "owner": "frontend/features/documents/api/document-verification.api.ts",
+        "source": "manuallyVerifyDocument: async (\n    groupId: string,\n    documentType: DistributionDocumentType,\n    candidate: DocumentManualReviewCandidate,\n    signal?: AbortSignal,\n    targetUploadId?: string,\n  ): Promise<VerifiedDistributedDocument> => {\n    const formData = new FormData();\n    formData.append(\"file\", candidate.file);\n    formData.append(\"approval_token\", candidate.approvalToken);\n    formData.append(\"upload_id\", candidate.uploadId);\n    formData.append(\"chunk_id\", candidate.chunkId);\n    formData.append(\"confirmed\", \"true\");\n    if (targetUploadId) formData.append(\"target_upload_id\", targetUploadId);\n    const { data } = await apiClient.post<VerifiedDistributedDocument>(\n      API_ENDPOINTS.documents.manualVerify(groupId, documentType),\n      formData,\n      {\n        headers: { \"Content-Type\": \"multipart/form-data\" },\n        timeout: 240_000,\n        signal,\n      },\n    );\n    return data;\n  }"
+      },
+      {
+        "name": "uploadDocuments",
+        "owner": "frontend/features/documents/api/document-batches.api.ts",
+        "source": "uploadDocuments: async (\n    groupId: string,\n    documentType: DistributionDocumentType,\n    manifest: DocumentStagingManifest,\n    onProgress?: (progress: DocumentUploadProgress) => void,\n    onManifestChange?: (manifest: DocumentStagingManifest) => void,\n    signal?: AbortSignal,\n  ): Promise<DocumentBatchReview> => {\n    return runStagedDocumentUpload({\n      manifest,\n      onProgress,\n      onManifestChange,\n      signal,\n      uploadChunk: async (chunk, chunkIndex, reportUpload) => {\n        const formData = new FormData();\n        formData.append(\"upload_id\", manifest.uploadId);\n        formData.append(\"chunk_id\", chunk.chunkId);\n        formData.append(\"chunk_index\", String(chunkIndex));\n        formData.append(\"expected_chunk_count\", String(manifest.chunks.length));\n        formData.append(\"expected_file_count\", String(manifest.totalFiles));\n        if (chunk.filenameReplacements?.length) {\n          formData.append(\"filename_replacements\", JSON.stringify(chunk.filenameReplacements));\n        }\n        chunk.receipts.forEach((receipt) =>\n          formData.append(\"staging_receipts\", receipt),\n        );\n        try {\n          const { data } = await apiClient.post<DocumentBatchReview>(\n            API_ENDPOINTS.documents.upload(groupId, documentType),\n            formData,\n            {\n              headers: { \"Content-Type\": \"multipart/form-data\" },\n              timeout: 240_000,\n              signal,\n              onUploadProgress: (event) => reportUpload(event.loaded, event.total),\n            },\n          );\n          return data;\n        } catch (error) {\n          if ((error as Partial<ApiError> | null)?.code === \"HTTP_410\") {\n            throw new Error(\n              \"The secure PDF staging receipt expired. Select and check the PDFs again; \"\n              + \"the browser did not retain raw file copies for fallback upload.\",\n            );\n          }\n          throw error;\n        }\n      },\n    });\n  }"
+      },
+      {
+        "name": "abortUpload",
+        "owner": "frontend/features/documents/api/document-batches.api.ts",
+        "source": "abortUpload: async (\n    groupId: string,\n    documentType: DistributionDocumentType,\n    batchId: string,\n  ): Promise<AbortDocumentUploadResult> => {\n    const { data } = await apiClient.post<AbortDocumentUploadResult>(\n      API_ENDPOINTS.documents.abortUpload(groupId, documentType, batchId),\n    );\n    return data;\n  }"
+      },
+      {
+        "name": "reuploadPassengerDocument",
+        "owner": "frontend/features/documents/api/document-batches.api.ts",
+        "source": "reuploadPassengerDocument: async (\n    groupId: string,\n    documentType: DistributionDocumentType,\n    passengerId: string,\n    file: File,\n  ): Promise<DocumentBatchReview> => {\n    const formData = new FormData();\n    formData.append(\"file\", file);\n    const { data } = await apiClient.post<DocumentBatchReview>(\n      API_ENDPOINTS.documents.reupload(groupId, documentType, passengerId),\n      formData,\n      {\n        headers: { \"Content-Type\": \"multipart/form-data\" },\n        timeout: 60_000,\n      },\n    );\n    return data;\n  }"
+      },
+      {
+        "name": "manualUploadPassengerDocument",
+        "owner": "frontend/features/documents/api/document-batches.api.ts",
+        "source": "manualUploadPassengerDocument: async (groupId: string, documentType: DistributionDocumentType,\n    passengerId: string, file: File, mode: \"add\" | \"replace\", replacements: ManualDocumentReplacement[]): Promise<DocumentBatchReview> => {\n    const body = new FormData();\n    body.append(\"file\", file);\n    body.append(\"mode\", mode);\n    body.append(\"replacement_documents\", JSON.stringify(replacements));\n    return (await apiClient.post<DocumentBatchReview>(API_ENDPOINTS.documents.manualUpload(groupId, documentType, passengerId),\n      body, { headers: { \"Content-Type\": \"multipart/form-data\" }, timeout: 60_000 })).data;\n  }"
+      },
+      {
+        "name": "deleteDocuments",
+        "owner": "frontend/features/documents/api/document-batches.api.ts",
+        "source": "deleteDocuments: async (\n    groupId: string,\n    documentType: DistributionDocumentType,\n    documentIds: string[],\n  ): Promise<DocumentBatchReview> => {\n    const { data } = await apiClient.post<DocumentBatchReview>(API_ENDPOINTS.documents.deleteDocuments(groupId, documentType), {\n      document_ids: documentIds,\n    });\n    return data;\n  }"
+      },
+      {
+        "name": "unassignDocuments",
+        "owner": "frontend/features/documents/api/document-batches.api.ts",
+        "source": "unassignDocuments: async (\n    groupId: string,\n    documentType: DistributionDocumentType,\n    documentIds: string[],\n  ): Promise<DocumentBatchReview> => {\n    const { data } = await apiClient.post<DocumentBatchReview>(\n      API_ENDPOINTS.documents.unassignDocuments(groupId, documentType),\n      {\n        document_ids: documentIds,\n      },\n    );\n    return data;\n  }"
+      },
+      {
+        "name": "saveBatch",
+        "owner": "frontend/features/documents/api/document-batches.api.ts",
+        "source": "saveBatch: async (batchId: string): Promise<{ batch_id: string; status: string; saved_at: string }> => {\n    const { data } = await apiClient.post<{ batch_id: string; status: string; saved_at: string }>(\n      API_ENDPOINTS.documents.saveBatch(batchId),\n    );\n    return data;\n  }"
+      },
+      {
+        "name": "previewWhatsAppDelivery",
+        "owner": "frontend/features/documents/api/document-delivery.api.ts",
+        "source": "previewWhatsAppDelivery: async (\n    groupId: string,\n    documentType: DistributionDocumentType,\n    signal?: AbortSignal,\n    broadcastGroupId?: string,\n  ): Promise<DocumentDeliveryPreview> => {\n    const { data } = await apiClient.get<DocumentDeliveryPreview>(\n      API_ENDPOINTS.documents.whatsappPreview(groupId, documentType),\n      { signal, params: broadcastGroupId ? { broadcast_group_id: broadcastGroupId } : undefined },\n    );\n    return data;\n  }"
+      },
+      {
+        "name": "sendWhatsAppDelivery",
+        "owner": "frontend/features/documents/api/document-delivery.api.ts",
+        "source": "sendWhatsAppDelivery: async (\n    batchId: string,\n    documentIds: string[],\n    resendDocumentIds: string[],\n    messageContent1: string,\n    messageContent2: string,\n    previewToken: string,\n    broadcastGroupId?: string,\n  ): Promise<SendDocumentBroadcastResult> => {\n    const { data } = await apiClient.post<SendDocumentBroadcastResult>(\n      API_ENDPOINTS.documents.sendWhatsApp(batchId),\n      {\n        document_ids: documentIds,\n        resend_document_ids: resendDocumentIds,\n        message_content_1: messageContent1,\n        message_content_2: messageContent2,\n        preview_token: previewToken,\n        broadcast_group_id: broadcastGroupId,\n      },\n    );\n    return data;\n  }"
+      },
+      {
+        "name": "getDeliveryTracking",
+        "owner": "frontend/features/documents/api/document-delivery.api.ts",
+        "source": "getDeliveryTracking: async (groupId: string): Promise<DocumentDeliveryTracking> => {\n    const { data } = await apiClient.get<DocumentDeliveryTracking>(\n      API_ENDPOINTS.documents.deliveryTracking(groupId),\n      { params: { limit: 6 } },\n    );\n    return data;\n  }"
+      }
+    ],
+    "originalMethodOrder": [
+      "listGroups",
+      "getReview",
+      "exportReview",
+      "verifyDocuments",
+      "manuallyVerifyDocument",
+      "uploadDocuments",
+      "abortUpload",
+      "reuploadPassengerDocument",
+      "manualUploadPassengerDocument",
+      "deleteDocuments",
+      "unassignDocuments",
+      "saveBatch",
+      "previewWhatsAppDelivery",
+      "sendWhatsAppDelivery",
+      "getDeliveryTracking"
+    ],
+    "types": [
+      {
+        "name": "DocumentVerificationUploadPlan",
+        "source": "export interface DocumentVerificationUploadPlan {\n  verification: DocumentVerificationResult;\n  stagingManifest: DocumentStagingManifest;\n  manualReviewCandidates?: DocumentManualReviewCandidate[];\n}"
+      },
+      {
+        "name": "DocumentAssignmentExportFilter",
+        "source": "export type DocumentAssignmentExportFilter =\n  | \"all\"\n  | \"assigned\"\n  | \"missing\"\n  | \"sent\"\n  | \"not_sent\"\n  | \"multiple_pdfs\"\n  | \"shared_pdf\";"
+      }
+    ]
+  },
+  "movement": {
+    "moved": [
+      {
+        "name": "listGroups",
+        "owner": "frontend/features/documents/api/document-review.api.ts",
+        "complete_method_and_signature_AST_exact": true
+      },
+      {
+        "name": "getReview",
+        "owner": "frontend/features/documents/api/document-review.api.ts",
+        "complete_method_and_signature_AST_exact": true
+      },
+      {
+        "name": "exportReview",
+        "owner": "frontend/features/documents/api/document-review.api.ts",
+        "complete_method_and_signature_AST_exact": true
+      },
+      {
+        "name": "verifyDocuments",
+        "owner": "frontend/features/documents/api/document-verification.api.ts",
+        "complete_method_and_signature_AST_exact": true
+      },
+      {
+        "name": "manuallyVerifyDocument",
+        "owner": "frontend/features/documents/api/document-verification.api.ts",
+        "complete_method_and_signature_AST_exact": true
+      },
+      {
+        "name": "uploadDocuments",
+        "owner": "frontend/features/documents/api/document-batches.api.ts",
+        "complete_method_and_signature_AST_exact": true
+      },
+      {
+        "name": "abortUpload",
+        "owner": "frontend/features/documents/api/document-batches.api.ts",
+        "complete_method_and_signature_AST_exact": true
+      },
+      {
+        "name": "reuploadPassengerDocument",
+        "owner": "frontend/features/documents/api/document-batches.api.ts",
+        "complete_method_and_signature_AST_exact": true
+      },
+      {
+        "name": "manualUploadPassengerDocument",
+        "owner": "frontend/features/documents/api/document-batches.api.ts",
+        "complete_method_and_signature_AST_exact": true
+      },
+      {
+        "name": "deleteDocuments",
+        "owner": "frontend/features/documents/api/document-batches.api.ts",
+        "complete_method_and_signature_AST_exact": true
+      },
+      {
+        "name": "unassignDocuments",
+        "owner": "frontend/features/documents/api/document-batches.api.ts",
+        "complete_method_and_signature_AST_exact": true
+      },
+      {
+        "name": "saveBatch",
+        "owner": "frontend/features/documents/api/document-batches.api.ts",
+        "complete_method_and_signature_AST_exact": true
+      },
+      {
+        "name": "previewWhatsAppDelivery",
+        "owner": "frontend/features/documents/api/document-delivery.api.ts",
+        "complete_method_and_signature_AST_exact": true
+      },
+      {
+        "name": "sendWhatsAppDelivery",
+        "owner": "frontend/features/documents/api/document-delivery.api.ts",
+        "complete_method_and_signature_AST_exact": true
+      },
+      {
+        "name": "getDeliveryTracking",
+        "owner": "frontend/features/documents/api/document-delivery.api.ts",
+        "complete_method_and_signature_AST_exact": true
+      }
+    ],
+    "original_public_method_order": [
+      "listGroups",
+      "getReview",
+      "exportReview",
+      "verifyDocuments",
+      "manuallyVerifyDocument",
+      "uploadDocuments",
+      "abortUpload",
+      "reuploadPassengerDocument",
+      "manualUploadPassengerDocument",
+      "deleteDocuments",
+      "unassignDocuments",
+      "saveBatch",
+      "previewWhatsAppDelivery",
+      "sendWhatsAppDelivery",
+      "getDeliveryTracking"
+    ],
+    "facade_owner_order_exact": [
+      "documentReviewApi",
+      "documentVerificationApi",
+      "documentBatchesApi",
+      "documentDeliveryApi"
+    ],
+    "other14methods_unchanged_before_and_after_optimization": true,
+    "public_type_ASTs_exact": true,
+    "private_export_filename_function_AST_exact": true,
+    "deliberate_change": "verifyDocuments indexes replacement names and attaches all matching replacements in input order; this is intentionally different from repeated find/filter/indexOf. Actual workload/output regressions qualify it separately from mechanical movement.",
+    "normalization": "TypeScript structural AST ignores trivia and redundant expression parentheses; identifier/string/numeric semantics and full method signatures/bodies retained."
+  },
+  "formatting": {
+    "records": [
+      {
+        "path": "frontend/features/documents/api/document-distribution.api.ts",
+        "before_sha256": "29b422e32c2515d910fc7fa7e50aa137045b6695718bc50ed63e46796cdec7a8",
+        "after_sha256": "29b422e32c2515d910fc7fa7e50aa137045b6695718bc50ed63e46796cdec7a8",
+        "emitted_AST_unchanged": true,
+        "physical_lines": 15
+      },
+      {
+        "path": "frontend/features/documents/api/document-review.api.ts",
+        "before_sha256": "7d2be36d273f6f0fd36602bcb7fab992fd74d3ca75b6646e61f07eaf4187ffc2",
+        "after_sha256": "0e65fec9713722a3a2fb684f751a3c0054176a08802434df069d5b6ec45a3325",
+        "emitted_AST_unchanged": true,
+        "physical_lines": 52
+      },
+      {
+        "path": "frontend/features/documents/api/document-verification.api.ts",
+        "before_sha256": "7fff9a5cdfa7aec98cc2b361727c7b8d49c91ce6490a1f90c226270ee7209fa4",
+        "after_sha256": "f07dcb1a9e9131ed9f4b5e58c9ff6bf93074c27a888395c3b7317c8e6c2304d6",
+        "emitted_AST_unchanged": true,
+        "physical_lines": 151
+      },
+      {
+        "path": "frontend/features/documents/api/document-batches.api.ts",
+        "before_sha256": "2c5b63979832edcc53a84ec5ef9e336c20b352c1460e571dd78d8cf088987b2d",
+        "after_sha256": "0d811cd76a73c62b47a299762cb14a4792a9bffc769f0e33e110c898d8108a1b",
+        "emitted_AST_unchanged": true,
+        "physical_lines": 147
+      },
+      {
+        "path": "frontend/features/documents/api/document-delivery.api.ts",
+        "before_sha256": "0b158a051006153566b9f93b7f0133fc853622fd22e090dc711bb36fa422b13b",
+        "after_sha256": "4bd918f76bb2847b975adc2eea2ab49649993b0d1d38d06760949ed602f791f9",
+        "emitted_AST_unchanged": true,
+        "physical_lines": 55
+      },
+      {
+        "path": "frontend/features/documents/api/document-distribution.types.ts",
+        "before_sha256": "5d026f0150a4855d078f7956011ec18c6bf0e57d1b95ce4c83bf0e0443818b25",
+        "after_sha256": "5d026f0150a4855d078f7956011ec18c6bf0e57d1b95ce4c83bf0e0443818b25",
+        "emitted_AST_unchanged": true,
+        "physical_lines": 19
+      },
+      {
+        "path": "frontend/features/documents/services/document-filename-replacements.ts",
+        "before_sha256": "bdcaed2ce12db58ea63115554231b5f5e8cf286c4f6fe63d240374556ececa85",
+        "after_sha256": "bdcaed2ce12db58ea63115554231b5f5e8cf286c4f6fe63d240374556ececa85",
+        "emitted_AST_unchanged": true,
+        "physical_lines": 47
+      },
+      {
+        "path": "frontend/features/documents/api/document-verification.api.test.ts",
+        "before_sha256": "933aae8f1bca6fce43ed0a18aaf3e67596a228d10969f3fab0be03efd5506671",
+        "after_sha256": "0bf140b3c877327a515a59788e0daca57a2e5ac0f7ac14b17111f81b6ddf43b2",
+        "emitted_AST_unchanged": true,
+        "physical_lines": 127
+      }
+    ]
+  },
+  "final_runtime": [
+    {
+      "path": "frontend/features/documents/api/document-distribution.api.ts",
+      "sha256": "29b422e32c2515d910fc7fa7e50aa137045b6695718bc50ed63e46796cdec7a8"
+    },
+    {
+      "path": "frontend/features/documents/api/document-review.api.ts",
+      "sha256": "0e65fec9713722a3a2fb684f751a3c0054176a08802434df069d5b6ec45a3325"
+    },
+    {
+      "path": "frontend/features/documents/api/document-verification.api.ts",
+      "sha256": "f07dcb1a9e9131ed9f4b5e58c9ff6bf93074c27a888395c3b7317c8e6c2304d6"
+    },
+    {
+      "path": "frontend/features/documents/api/document-batches.api.ts",
+      "sha256": "0d811cd76a73c62b47a299762cb14a4792a9bffc769f0e33e110c898d8108a1b"
+    },
+    {
+      "path": "frontend/features/documents/api/document-delivery.api.ts",
+      "sha256": "4bd918f76bb2847b975adc2eea2ab49649993b0d1d38d06760949ed602f791f9"
+    },
+    {
+      "path": "frontend/features/documents/api/document-distribution.types.ts",
+      "sha256": "5d026f0150a4855d078f7956011ec18c6bf0e57d1b95ce4c83bf0e0443818b25"
+    },
+    {
+      "path": "frontend/features/documents/services/document-filename-replacements.ts",
+      "sha256": "bdcaed2ce12db58ea63115554231b5f5e8cf286c4f6fe63d240374556ececa85"
+    }
+  ],
+  "deliberate_change": "Verification uses a first-exact-name index and attaches replacement lists through accepted-name/chunk buckets. All duplicate entries, original order, first-match identity and exact string names are retained. Session/receipt normalization, transport arguments, callbacks, signals and other14methods are unchanged."
+}

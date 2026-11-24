@@ -8,6 +8,8 @@ import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+import app.application.mobile.passenger_change_identities as identity_changes
+import app.application.mobile.passenger_change_journal as journal_changes
 import app.application.mobile.passenger_change_propagation as propagation_module
 from app.application.mobile.passenger_change_propagation import (
     plan_mobile_passenger_change_events,
@@ -176,7 +178,7 @@ async def test_targeted_coordinator_change_carries_authoritative_roster_proof(
     )
     await persist_mobile_access_graph(db_session, access)
     revision = AsyncMock(return_value=4242)
-    monkeypatch.setattr(propagation_module, "coordinator_roster_revision", revision)
+    monkeypatch.setattr(journal_changes, "coordinator_roster_revision", revision)
     passenger_id = uuid.uuid4()
 
     result = await propagate_mobile_passenger_change(
@@ -343,12 +345,12 @@ async def test_document_only_change_never_reconciles_identity_bindings(
     targeted = AsyncMock()
     full = AsyncMock()
     monkeypatch.setattr(
-        propagation_module,
+        identity_changes,
         "reconcile_passenger_identities_for_changes",
         targeted,
     )
     monkeypatch.setattr(
-        propagation_module,
+        identity_changes,
         "reconcile_passenger_identities",
         full,
     )

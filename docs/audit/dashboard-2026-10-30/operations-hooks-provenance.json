@@ -1,0 +1,286 @@
+{
+  "originalSha256": "cc0e4bc344b5cac65e7912bbc534e58bd7ab5e3304ad419bdd2ac15e8969ba73",
+  "privateFixSha256": "2191e9374c69e05590f24a4240be1c3d535daf7a3922bc93845c3c3db3e57176",
+  "originalPhysicalLines": 752,
+  "originalDeclarations": 46,
+  "intentionalWrapperRenameCallsAtHistoricalCheckpoint": 28,
+  "currentPrivateInvocationsAfterClosedRetirement": 26,
+  "allOtherRetainedOriginalDeclarationTextExact": true,
+  "retainedPartition": [
+    {
+      "name": "MANAGED_ACCOUNTS_QUERY_KEY",
+      "owner": "frontend/features/operations/hooks/operations-query-scope.ts",
+      "wholeTypedDeclarationExactAfterWrapperFix": true
+    },
+    {
+      "name": "STAFF_ACCOUNTS_QUERY_KEY",
+      "owner": "frontend/features/operations/hooks/operations-query-scope.ts",
+      "wholeTypedDeclarationExactAfterWrapperFix": true
+    },
+    {
+      "name": "STAFF_ACCESS_QUERY_KEY",
+      "owner": "frontend/features/operations/hooks/operations-query-scope.ts",
+      "wholeTypedDeclarationExactAfterWrapperFix": true
+    },
+    {
+      "name": "roomingWorkspaceKey",
+      "owner": "frontend/features/operations/hooks/operations-query-scope.ts",
+      "wholeTypedDeclarationExactAfterWrapperFix": true
+    },
+    {
+      "name": "useAuthenticatedQueryScope",
+      "owner": "frontend/features/operations/hooks/operations-query-scope.ts",
+      "wholeTypedDeclarationExactAfterWrapperFix": true
+    },
+    {
+      "name": "useManagers",
+      "owner": "frontend/features/operations/hooks/use-admin-operations.ts",
+      "wholeTypedDeclarationExactAfterWrapperFix": true
+    },
+    {
+      "name": "useAdminGroups",
+      "owner": "frontend/features/operations/hooks/use-admin-operations.ts",
+      "wholeTypedDeclarationExactAfterWrapperFix": true
+    },
+    {
+      "name": "useCreateManager",
+      "owner": "frontend/features/operations/hooks/use-admin-operations.ts",
+      "wholeTypedDeclarationExactAfterWrapperFix": true
+    },
+    {
+      "name": "useDeleteManager",
+      "owner": "frontend/features/operations/hooks/use-admin-operations.ts",
+      "wholeTypedDeclarationExactAfterWrapperFix": true
+    },
+    {
+      "name": "useStaffAccessAccounts",
+      "owner": "frontend/features/operations/hooks/use-managed-accounts.ts",
+      "wholeTypedDeclarationExactAfterWrapperFix": true
+    },
+    {
+      "name": "useCreateStaff",
+      "owner": "frontend/features/operations/hooks/use-managed-accounts.ts",
+      "wholeTypedDeclarationExactAfterWrapperFix": true
+    },
+    {
+      "name": "useAssignStaffGroups",
+      "owner": "frontend/features/operations/hooks/use-managed-accounts.ts",
+      "wholeTypedDeclarationExactAfterWrapperFix": true
+    },
+    {
+      "name": "useManagedAccountActions",
+      "owner": "frontend/features/operations/hooks/use-managed-accounts.ts",
+      "wholeTypedDeclarationExactAfterWrapperFix": true
+    },
+    {
+      "name": "useAnalyticsSummary",
+      "owner": "frontend/features/operations/hooks/use-audit-operations.ts",
+      "wholeTypedDeclarationExactAfterWrapperFix": true
+    },
+    {
+      "name": "useAuditLogPages",
+      "owner": "frontend/features/operations/hooks/use-audit-operations.ts",
+      "wholeTypedDeclarationExactAfterWrapperFix": true
+    },
+    {
+      "name": "useAuditLogExport",
+      "owner": "frontend/features/operations/hooks/use-audit-operations.ts",
+      "wholeTypedDeclarationExactAfterWrapperFix": true
+    },
+    {
+      "name": "useTourCoordinators",
+      "owner": "frontend/features/operations/hooks/use-tour-operations.ts",
+      "wholeTypedDeclarationExactAfterWrapperFix": true
+    },
+    {
+      "name": "useCreateTourCoordinator",
+      "owner": "frontend/features/operations/hooks/use-tour-operations.ts",
+      "wholeTypedDeclarationExactAfterWrapperFix": true
+    },
+    {
+      "name": "useTourGroups",
+      "owner": "frontend/features/operations/hooks/use-tour-operations.ts",
+      "wholeTypedDeclarationExactAfterWrapperFix": true
+    },
+    {
+      "name": "useAssignTourGroupCoordinators",
+      "owner": "frontend/features/operations/hooks/use-tour-operations.ts",
+      "wholeTypedDeclarationExactAfterWrapperFix": true
+    },
+    {
+      "name": "useTourGroupPassengers",
+      "owner": "frontend/features/operations/hooks/use-tour-operations.ts",
+      "wholeTypedDeclarationExactAfterWrapperFix": true
+    },
+    {
+      "name": "useAssignTourGroupPassengers",
+      "owner": "frontend/features/operations/hooks/use-tour-operations.ts",
+      "wholeTypedDeclarationExactAfterWrapperFix": true
+    },
+    {
+      "name": "useRoomingWorkspace",
+      "owner": "frontend/features/operations/hooks/use-rooming-operations.ts",
+      "wholeTypedDeclarationExactAfterWrapperFix": true
+    },
+    {
+      "name": "useRoomingPriorityFields",
+      "owner": "frontend/features/operations/hooks/use-rooming-operations.ts",
+      "wholeTypedDeclarationExactAfterWrapperFix": true
+    },
+    {
+      "name": "useRoomingRosterFieldValues",
+      "owner": "frontend/features/operations/hooks/use-rooming-operations.ts",
+      "wholeTypedDeclarationExactAfterWrapperFix": true
+    },
+    {
+      "name": "useRoomingActions",
+      "owner": "frontend/features/operations/hooks/use-rooming-operations.ts",
+      "wholeTypedDeclarationExactAfterWrapperFix": true
+    },
+    {
+      "name": "useMyTourGroups",
+      "owner": "frontend/features/operations/hooks/use-coordinator-attendance.ts",
+      "wholeTypedDeclarationExactAfterWrapperFix": true
+    },
+    {
+      "name": "useMyTourGroupPassengers",
+      "owner": "frontend/features/operations/hooks/use-coordinator-attendance.ts",
+      "wholeTypedDeclarationExactAfterWrapperFix": true
+    },
+    {
+      "name": "useMyTourGroupPassenger",
+      "owner": "frontend/features/operations/hooks/use-coordinator-attendance.ts",
+      "wholeTypedDeclarationExactAfterWrapperFix": true
+    },
+    {
+      "name": "useMyAttendanceSessions",
+      "owner": "frontend/features/operations/hooks/use-coordinator-attendance.ts",
+      "wholeTypedDeclarationExactAfterWrapperFix": true
+    },
+    {
+      "name": "useMyAttendanceSessionDetails",
+      "owner": "frontend/features/operations/hooks/use-coordinator-attendance.ts",
+      "wholeTypedDeclarationExactAfterWrapperFix": true
+    },
+    {
+      "name": "useCompleteManagedAttendanceSession",
+      "owner": "frontend/features/operations/hooks/use-managed-attendance.ts",
+      "wholeTypedDeclarationExactAfterWrapperFix": true
+    },
+    {
+      "name": "useCreateManagedAttendanceSession",
+      "owner": "frontend/features/operations/hooks/use-managed-attendance.ts",
+      "wholeTypedDeclarationExactAfterWrapperFix": true
+    },
+    {
+      "name": "useGroupAttendanceSummary",
+      "owner": "frontend/features/operations/hooks/use-managed-attendance.ts",
+      "wholeTypedDeclarationExactAfterWrapperFix": true
+    },
+    {
+      "name": "useGroupAttendanceMissingPassengers",
+      "owner": "frontend/features/operations/hooks/use-managed-attendance.ts",
+      "wholeTypedDeclarationExactAfterWrapperFix": true
+    },
+    {
+      "name": "useGroupQrCodes",
+      "owner": "frontend/features/operations/hooks/use-qr-operations.ts",
+      "wholeTypedDeclarationExactAfterWrapperFix": true
+    },
+    {
+      "name": "useQrDeliveryPreview",
+      "owner": "frontend/features/operations/hooks/use-qr-operations.ts",
+      "wholeTypedDeclarationExactAfterWrapperFix": true
+    },
+    {
+      "name": "useSendQrBroadcast",
+      "owner": "frontend/features/operations/hooks/use-qr-operations.ts",
+      "wholeTypedDeclarationExactAfterWrapperFix": true
+    },
+    {
+      "name": "usePassengerQrLifecycle",
+      "owner": "frontend/features/operations/hooks/use-qr-operations.ts",
+      "wholeTypedDeclarationExactAfterWrapperFix": true
+    }
+  ],
+  "retiredNames": [
+    "useAdminOverview",
+    "useAssignManagerGroups",
+    "useManagedAccounts",
+    "useStaffAccounts",
+    "useTourOperationsArchitecture",
+    "useScanMyAttendanceSession",
+    "useGroupAttendanceOverview"
+  ],
+  "historicalCompleteMechanicalProof": "operations-hooks-mechanical-provenance.json",
+  "publicNamedExportsInOriginalOrder": [
+    "useManagers",
+    "useAdminGroups",
+    "useCreateManager",
+    "useDeleteManager",
+    "useStaffAccessAccounts",
+    "useCreateStaff",
+    "useAssignStaffGroups",
+    "useManagedAccountActions",
+    "useAnalyticsSummary",
+    "useAuditLogPages",
+    "useAuditLogExport",
+    "useTourCoordinators",
+    "useCreateTourCoordinator",
+    "useTourGroups",
+    "useRoomingWorkspace",
+    "useRoomingPriorityFields",
+    "useRoomingRosterFieldValues",
+    "useRoomingActions",
+    "useAssignTourGroupCoordinators",
+    "useTourGroupPassengers",
+    "useAssignTourGroupPassengers",
+    "useMyTourGroups",
+    "useMyTourGroupPassengers",
+    "useMyTourGroupPassenger",
+    "useMyAttendanceSessions",
+    "useMyAttendanceSessionDetails",
+    "useCompleteManagedAttendanceSession",
+    "useCreateManagedAttendanceSession",
+    "useGroupAttendanceSummary",
+    "useGroupAttendanceMissingPassengers",
+    "useGroupQrCodes",
+    "useQrDeliveryPreview",
+    "useSendQrBroadcast",
+    "usePassengerQrLifecycle"
+  ],
+  "actualTypeScriptBindingComparisons": 1080,
+  "unboundIdentifiersCompared": 0,
+  "importsAndLocalBindingDefinitionsPreserved": true,
+  "apiWholeFileByteIdentical": true,
+  "apiSha256": "7a686e1546a5235b19567421afc23c8bce0cccd550f5f619208e807b67da677d",
+  "contracts": [
+    {
+      "path": "frontend/features/operations/components/qr-whatsapp-delivery.contract.test.mjs",
+      "allOriginalTestBodiesIdentical": true,
+      "onlyIntentionalAssertionChange": null
+    },
+    {
+      "path": "frontend/features/operations/components/rooming-redesign.contract.test.mjs",
+      "allOriginalTestBodiesIdentical": false,
+      "onlyIntentionalAssertionChange": "Forbidden room-generation actions rejected under both old and new mutation wrappers."
+    },
+    {
+      "path": "frontend/features/operations/components/managed-accounts-panel.contract.test.mjs",
+      "allOriginalTestBodiesIdentical": true,
+      "onlyIntentionalAssertionChange": null
+    },
+    {
+      "path": "frontend/features/tour-operations/components/coordinator-pwa.contract.test.mjs",
+      "allOriginalTestBodiesIdentical": true,
+      "onlyIntentionalAssertionChange": null
+    }
+  ],
+  "criticalCoverage": {
+    "config": "frontend/vitest.config.mts",
+    "sha256": "85ce4e7d5be4ff07748412030ccf1fca3177be52c388dbbada89053bcfc1a400",
+    "originalHooksIncluded": false,
+    "old31IncludesAndPerFileFloorsUntouched": true
+  },
+  "limits": "AST/binding proof does not establish backend authorization/provider delivery. Concrete normal-page actor negative/control and focused hook/workflow checks are separate evidence."
+}

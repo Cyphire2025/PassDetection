@@ -1,0 +1,8 @@
+{
+  "path": "backend/tests/unit/presentation/test_whatsapp_batch_status_persistence.py",
+  "tested_sha256": "df070b02f6a28f01fe816b5519303364d0bd4b27a4e5a645e962d3b58c3ea745",
+  "final_sha256": "6d55a29e470e25e68e6d20f7343abec7880d085edb89f3684fcab9f86a6c5d66",
+  "whole_test_module_AST_exact": true,
+  "runtime_sources_unchanged": true,
+  "proof_limit": "Pinned formatting only, no test semantics/assertion/import change.17case run binds tested source; final source-equivalence explicit, no unnecessary full rerun."
+}

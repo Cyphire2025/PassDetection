@@ -15,7 +15,10 @@ function setup() {
   fireEvent.change(support.getByRole("textbox", { name: "Name" }), { target: { value: "Support" } });
   fireEvent.change(support.getByRole("textbox", { name: "WhatsApp number" }), { target: { value: "+918888888888" } });
   fireEvent.click(support.getByRole("button", { name: "Add" }));
-  return { onSubmit, fileInput: view.container.querySelector('input[type="file"]')! };
+  const dialog = screen.getByRole("dialog");
+  expect(document.body).toContainElement(dialog);
+  expect(view.container).not.toContainElement(dialog);
+  return { onSubmit, fileInput: dialog.querySelector('input[type="file"]')! };
 }
 beforeEach(() => { vi.clearAllMocks(); vi.mocked(whatsappApi.previewContacts).mockResolvedValue(preview); });
 describe("large import form submission", () => {

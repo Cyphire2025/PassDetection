@@ -1,0 +1,56 @@
+[
+  {
+    "path": "scripts/bounded_command_output.py",
+    "sha256": "313dfcbc4a37f5c184946973d8f2af364d693e820fc771eeb8b2d429bf3f53bb",
+    "physical_lines": 99,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified-focused",
+    "notes": "Complete current physical source read. Retained baseline actual stdout/stderr producer overflow2fail4controls before\u2192seven current cases pass with real direct-child/dual-pipe close/reap checks; same-source52+10 affected cases across six files pass. Neutral stdlib engine3prior declarations restore AST exactly after typed-error/stderr-mode inverse; QA public signature/hints/private exclusive files/full success tail exact, original3safe reason strings retained. Baseline whole nonimport module restores after bounded-run replacement and explicit3typed annotation extensions. Original Docker target/credentials projection/fixedSQL/CLI unaffected. Byte cap intentionally8MiB combined stdout+discardedstderr, no longer posthoc stdout-character limit. Windows only actual process qualification; Linux/Docker/provider/VPS/RSS and remote/descendant lifecycle remain unqualified. Historical root32owner receipt/stamps unchanged. Evidence bounded-command-baseline-verification.json."
+  },
+  {
+    "path": "scripts/qa/bounded_qualification_output.py",
+    "sha256": "a3f94f996defdb506fbfd24262065fda74fa9fedcdf2292f284424f8fc9e1a28",
+    "physical_lines": 29,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified-focused",
+    "notes": "Complete current physical source read. Retained baseline actual stdout/stderr producer overflow2fail4controls before\u2192seven current cases pass with real direct-child/dual-pipe close/reap checks; same-source52+10 affected cases across six files pass. Neutral stdlib engine3prior declarations restore AST exactly after typed-error/stderr-mode inverse; QA public signature/hints/private exclusive files/full success tail exact, original3safe reason strings retained. Baseline whole nonimport module restores after bounded-run replacement and explicit3typed annotation extensions. Original Docker target/credentials projection/fixedSQL/CLI unaffected. Byte cap intentionally8MiB combined stdout+discardedstderr, no longer posthoc stdout-character limit. Windows only actual process qualification; Linux/Docker/provider/VPS/RSS and remote/descendant lifecycle remain unqualified. Historical root32owner receipt/stamps unchanged. Evidence bounded-command-baseline-verification.json."
+  },
+  {
+    "path": "scripts/mcp_production_baseline.py",
+    "sha256": "21c4ca665fd5968cd31d3e8e653f66a16e92e1b325150b3b902b49302f06a130",
+    "physical_lines": 198,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified-focused",
+    "notes": "Complete current physical source read. Retained baseline actual stdout/stderr producer overflow2fail4controls before\u2192seven current cases pass with real direct-child/dual-pipe close/reap checks; same-source52+10 affected cases across six files pass. Neutral stdlib engine3prior declarations restore AST exactly after typed-error/stderr-mode inverse; QA public signature/hints/private exclusive files/full success tail exact, original3safe reason strings retained. Baseline whole nonimport module restores after bounded-run replacement and explicit3typed annotation extensions. Original Docker target/credentials projection/fixedSQL/CLI unaffected. Byte cap intentionally8MiB combined stdout+discardedstderr, no longer posthoc stdout-character limit. Windows only actual process qualification; Linux/Docker/provider/VPS/RSS and remote/descendant lifecycle remain unqualified. Historical root32owner receipt/stamps unchanged. Evidence bounded-command-baseline-verification.json."
+  },
+  {
+    "path": "scripts/test_mcp_production_baseline.py",
+    "sha256": "4eeebc2762934d0c1e58f666104f5e2049ddcac3ce130e15027e13b356663b66",
+    "physical_lines": 120,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified-focused",
+    "notes": "Complete current physical source read. Retained baseline actual stdout/stderr producer overflow2fail4controls before\u2192seven current cases pass with real direct-child/dual-pipe close/reap checks; same-source52+10 affected cases across six files pass. Neutral stdlib engine3prior declarations restore AST exactly after typed-error/stderr-mode inverse; QA public signature/hints/private exclusive files/full success tail exact, original3safe reason strings retained. Baseline whole nonimport module restores after bounded-run replacement and explicit3typed annotation extensions. Original Docker target/credentials projection/fixedSQL/CLI unaffected. Byte cap intentionally8MiB combined stdout+discardedstderr, no longer posthoc stdout-character limit. Windows only actual process qualification; Linux/Docker/provider/VPS/RSS and remote/descendant lifecycle remain unqualified. Historical root32owner receipt/stamps unchanged. Evidence bounded-command-baseline-verification.json."
+  },
+  {
+    "path": "scripts/test_mcp_baseline_output.py",
+    "sha256": "1fd0580b4742d7130505903e5cf05bb30e009d3bfb3d63ffeabaa3b30795f19b",
+    "physical_lines": 95,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified-focused",
+    "notes": "Complete current physical source read. Retained baseline actual stdout/stderr producer overflow2fail4controls before\u2192seven current cases pass with real direct-child/dual-pipe close/reap checks; same-source52+10 affected cases across six files pass. Neutral stdlib engine3prior declarations restore AST exactly after typed-error/stderr-mode inverse; QA public signature/hints/private exclusive files/full success tail exact, original3safe reason strings retained. Baseline whole nonimport module restores after bounded-run replacement and explicit3typed annotation extensions. Original Docker target/credentials projection/fixedSQL/CLI unaffected. Byte cap intentionally8MiB combined stdout+discardedstderr, no longer posthoc stdout-character limit. Windows only actual process qualification; Linux/Docker/provider/VPS/RSS and remote/descendant lifecycle remain unqualified. Historical root32owner receipt/stamps unchanged. Evidence bounded-command-baseline-verification.json."
+  },
+  {
+    "path": "docs/implementation/mcp-production-observation.md",
+    "sha256": "9a2124b3a1dccb7be13e865b90e6dda65206a7adaf63bb24b870f0092bb150d0",
+    "physical_lines": 56,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "verified-focused",
+    "notes": "Complete current physical source read. Retained baseline actual stdout/stderr producer overflow2fail4controls before\u2192seven current cases pass with real direct-child/dual-pipe close/reap checks; same-source52+10 affected cases across six files pass. Neutral stdlib engine3prior declarations restore AST exactly after typed-error/stderr-mode inverse; QA public signature/hints/private exclusive files/full success tail exact, original3safe reason strings retained. Baseline whole nonimport module restores after bounded-run replacement and explicit3typed annotation extensions. Original Docker target/credentials projection/fixedSQL/CLI unaffected. Byte cap intentionally8MiB combined stdout+discardedstderr, no longer posthoc stdout-character limit. Windows only actual process qualification; Linux/Docker/provider/VPS/RSS and remote/descendant lifecycle remain unqualified. Historical root32owner receipt/stamps unchanged. Evidence bounded-command-baseline-verification.json."
+  }
+]

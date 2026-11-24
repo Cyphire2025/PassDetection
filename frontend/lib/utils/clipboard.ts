@@ -9,11 +9,12 @@ export async function copyTextToClipboard(text: string): Promise<void> {
   textArea.style.position = "fixed";
   textArea.style.opacity = "0";
   document.body.appendChild(textArea);
-  textArea.select();
-  const copied = document.execCommand("copy");
-  textArea.remove();
-
-  if (!copied) {
-    throw new Error("Copy command was rejected");
+  try {
+    textArea.select();
+    if (!document.execCommand("copy")) {
+      throw new Error("Copy command was rejected");
+    }
+  } finally {
+    textArea.remove();
   }
 }

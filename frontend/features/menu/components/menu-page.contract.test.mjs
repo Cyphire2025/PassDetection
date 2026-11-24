@@ -1,19 +1,17 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
+import { readMenuLibrarySource } from "./menu-library-source.contract-helper.mjs";
 
 const pageSource = readFileSync(
   new URL("./menu-page.tsx", import.meta.url),
   "utf8",
 );
-const plannerSource = readFileSync(
-  new URL("./meal-planner.tsx", import.meta.url),
-  "utf8",
-);
-const librarySource = readFileSync(
-  new URL("./menu-library.tsx", import.meta.url),
-  "utf8",
-);
+const plannerSource = [
+  "./meal-planner.tsx", "./meal-plan-details.tsx", "./meal-plan-slot.tsx", "./generate-plan-dialog.tsx",
+  "../hooks/use-meal-planner.ts", "../utils/meal-plan-format.ts",
+].map((path) => readFileSync(new URL(path, import.meta.url), "utf8")).join("\n");
+const librarySource = readMenuLibrarySource();
 const sidebarSource = readFileSync(
   new URL("../../../components/layout/sidebar.tsx", import.meta.url),
   "utf8",

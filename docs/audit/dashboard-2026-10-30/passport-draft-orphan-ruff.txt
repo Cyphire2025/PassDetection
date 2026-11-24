@@ -1,0 +1,125 @@
+I001 [*] Import block is un-sorted or un-formatted
+  --> backend\tests\integration\test_passport_orphan_reconciliation.py:3:1
+   |
+ 1 |   """Exercise the actual scheduled scanner with synthetic storage and real owners."""
+ 2 |
+ 3 | / from __future__ import annotations
+ 4 | |
+ 5 | | from datetime import UTC, datetime, timedelta
+ 6 | |
+ 7 | | import pytest
+ 8 | | from sqlalchemy import event, select, text
+ 9 | | from sqlalchemy.exc import OperationalError
+10 | | from sqlalchemy.ext.asyncio import async_sessionmaker
+11 | |
+12 | | from app.infrastructure.database.models import PassportSubmissionModel
+13 | | from app.infrastructure.documents import (
+14 | |     cleanup_tasks,
+15 | |     orphan_reconciliation,
+16 | |     passport_orphan_reconciliation,
+17 | | )
+18 | | from app.infrastructure.documents.storage_cleanup import StorageCleanupCipher
+19 | | from tests.integration.passport_orphan_fixtures import (
+20 | |     IMAGE_PREFIXES,
+21 | |     retained_document_keys,
+22 | |     retained_image_keys,
+23 | | )
+24 | | from tests.unit.infrastructure.test_document_orphan_reconciliation import FakeCursor, FakeStorage
+   | |_________________________________________________________________________________________________^
+25 |
+26 |   NOW = datetime(2026, 10, 31, tzinfo=UTC)
+   |
+help: Organize imports
+   |
+7  | import pytest
+   - from sqlalchemy import event, select, text
+   - from sqlalchemy.exc import OperationalError
+   - from sqlalchemy.ext.asyncio import async_sessionmaker
+   -
+8  | from app.infrastructure.database.models import PassportSubmissionModel
+--------------------------------------------------------------------------------
+14 | from app.infrastructure.documents.storage_cleanup import StorageCleanupCipher
+15 + from sqlalchemy import event, select, text
+16 + from sqlalchemy.exc import OperationalError
+17 + from sqlalchemy.ext.asyncio import async_sessionmaker
+18 +
+19 | from tests.integration.passport_orphan_fixtures import (
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> backend\tests\unit\infrastructure\test_document_cleanup_task_diagnostics.py:3:1
+  |
+1 |   """The unchanged Celery task boundary exposes aggregates and exception types."""
+2 |
+3 | / from __future__ import annotations
+4 | |
+5 | | import pytest
+6 | |
+7 | | from app.infrastructure.documents import cleanup_tasks
+  | |______________________________________________________^
+  |
+help: Organize imports
+  |
+5 | import pytest
+  -
+6 | from app.infrastructure.documents import cleanup_tasks
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> backend\tests\unit\infrastructure\test_document_orphan_reconciliation.py:1:1
+   |
+ 1 | / from __future__ import annotations
+ 2 | |
+ 3 | | import base64
+ 4 | | from datetime import UTC, datetime, timedelta
+ 5 | | from typing import Any
+ 6 | |
+ 7 | | import pytest
+ 8 | |
+ 9 | | from app.infrastructure.documents.orphan_reconciliation import (
+10 | |     DOCUMENT_ORPHAN_CURSOR_TTL_SECONDS,
+11 | |     DOCUMENT_ORPHAN_PAGE_SIZE,
+12 | |     DocumentOrphanReconciliationResult,
+13 | |     reconcile_document_storage_orphans,
+14 | | )
+15 | | from app.infrastructure.documents.storage_cleanup import StorageCleanupCipher
+   | |_____________________________________________________________________________^
+   |
+help: Organize imports
+  |
+7 | import pytest
+  -
+8 | from app.infrastructure.documents.orphan_reconciliation import (
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> backend\tests\unit\infrastructure\test_passport_orphan_bounds.py:3:1
+   |
+ 1 |   """Failure, grace and cursor controls for the existing bounded cleanup engine."""
+ 2 |
+ 3 | / from __future__ import annotations
+ 4 | |
+ 5 | | import base64
+ 6 | | from datetime import UTC, datetime, timedelta, timezone
+ 7 | | from types import SimpleNamespace
+ 8 | | from unittest.mock import AsyncMock
+ 9 | |
+10 | | import pytest
+11 | |
+12 | | from app.infrastructure.documents import orphan_reconciliation as engine
+13 | | from app.infrastructure.documents import passport_orphan_reconciliation as images
+14 | | from app.infrastructure.documents.storage_cleanup import StorageCleanupCipher
+15 | | from tests.unit.infrastructure.test_document_orphan_reconciliation import FakeCursor, FakeStorage
+   | |_________________________________________________________________________________________________^
+16 |
+17 |   NOW = datetime(2026, 10, 31, tzinfo=UTC)
+   |
+help: Organize imports
+   |
+10 | import pytest
+   -
+11 | from app.infrastructure.documents import orphan_reconciliation as engine
+   |
+
+Found 4 errors.
+[*] 4 fixable with the `--fix` option.

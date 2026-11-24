@@ -38,6 +38,7 @@ class FakeWebSocket extends EventTarget {
   }
 
   receive(payload: object) {
+    if (this.readyState !== FakeWebSocket.OPEN) return;
     this.dispatchEvent(new MessageEvent("message", { data: JSON.stringify(payload) }));
   }
 }
@@ -60,6 +61,7 @@ describe("DashboardRealtimeAttendanceBridge", () => {
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     vi.unstubAllGlobals();
     useAuthStore.setState({
       user: null,
@@ -78,6 +80,7 @@ describe("DashboardRealtimeAttendanceBridge", () => {
 
     expect(socket?.url).toBe("ws://localhost:3000/api/v1/dashboard/realtime");
     expect(socket?.url).not.toContain("?");
+    expect(socket?.readyState).toBe(FakeWebSocket.OPEN);
 
     act(() => {
       socket?.receive({ type: "ready", heartbeat_seconds: 20, idle_timeout_seconds: 65 });
@@ -122,7 +125,107 @@ describe("DashboardRealtimeAttendanceBridge", () => {
     renderBridge(queryClient);
     expect(FakeWebSocket.instances).toHaveLength(0);
   });
+
+  it.each(["account", "agency"] as const)(
+    "closes the old socket across a real %s authority change and accepts the new owner's hints",
+    (change) => {
+      const owners: Array<string | null> = [];
+      const invalidate = queryClient.invalidateQueries.bind(queryClient);
+      const invalidations = vi.spyOn(queryClient, "invalidateQueries").mockImplementation((...args) => {
+        owners.push(useAuthStore.getState().user?.id ?? null);
+        return invalidate(...args);
+      });
+      const view = renderBridge(queryClient);
+      const oldSocket = FakeWebSocket.instances[0]!;
+      const original = useAuthStore.getState().user!;
+      act(() => {
+        receiveReady(oldSocket);
+        oldSocket.receive(documentHint(4));
+      });
+      expect(owners).toEqual([original.id, original.id]);
+      const replacement = change === "account"
+        ? { ...original, id: "replacement-manager", email: "replacement@example.test" }
+        : { ...original, agency_id: "019d2a5b-6357-7600-8ed3-98c5ca70bfa3" };
+
+      act(() => useAuthStore.getState().setSession(replacement));
+      expect(oldSocket.readyState).toBe(FakeWebSocket.CLOSED);
+      expect(oldSocket.closes).toContainEqual(expect.objectContaining({ code: 1000 }));
+      const currentSocket = FakeWebSocket.instances[1]!;
+      expect(currentSocket.readyState).toBe(FakeWebSocket.OPEN);
+      invalidations.mockClear();
+      owners.length = 0;
+      act(() => oldSocket.receive(documentHint(5)));
+      expect(invalidations).not.toHaveBeenCalled();
+      act(() => {
+        receiveReady(currentSocket);
+        currentSocket.receive(documentHint(1));
+      });
+      expect(owners).toEqual([replacement.id, replacement.id]);
+      expect(invalidations).toHaveBeenCalledTimes(2);
+      expect(invalidations).toHaveBeenCalledWith({ queryKey: ["document-distribution"] });
+      expect(invalidations).toHaveBeenCalledWith({ queryKey: ["gc-app"] });
+      view.unmount();
+    },
+  );
+
+  it("ignores old frames after unmount and permits a fresh mounted socket", () => {
+    const invalidations = vi.spyOn(queryClient, "invalidateQueries");
+    const view = renderBridge(queryClient);
+    const oldSocket = FakeWebSocket.instances[0]!;
+    act(() => receiveReady(oldSocket));
+    view.unmount();
+    expect(oldSocket.readyState).toBe(FakeWebSocket.CLOSED);
+    act(() => oldSocket.receive(documentHint(5)));
+    expect(invalidations).not.toHaveBeenCalled();
+
+    const nextView = renderBridge(queryClient);
+    const currentSocket = FakeWebSocket.instances[1]!;
+    expect(currentSocket.readyState).toBe(FakeWebSocket.OPEN);
+    act(() => {
+      receiveReady(currentSocket);
+      currentSocket.receive(documentHint(1));
+    });
+    expect(invalidations).toHaveBeenCalledTimes(2);
+    nextView.unmount();
+  });
+
+  it("ignores a closed socket's frames while its healthy replacement reconnects", () => {
+    vi.useFakeTimers();
+    const invalidations = vi.spyOn(queryClient, "invalidateQueries");
+    const view = renderBridge(queryClient);
+    const oldSocket = FakeWebSocket.instances[0]!;
+    act(() => {
+      receiveReady(oldSocket);
+      oldSocket.close(1000, "Connection ended");
+      oldSocket.receive(documentHint(5));
+      vi.advanceTimersByTime(35_000);
+    });
+    expect(oldSocket.readyState).toBe(FakeWebSocket.CLOSED);
+    expect(invalidations).not.toHaveBeenCalled();
+    const currentSocket = FakeWebSocket.instances[1]!;
+    expect(currentSocket.readyState).toBe(FakeWebSocket.OPEN);
+    act(() => {
+      receiveReady(currentSocket);
+      currentSocket.receive(documentHint(1));
+    });
+    expect(invalidations).toHaveBeenCalledTimes(2);
+    view.unmount();
+  });
 });
+
+function receiveReady(socket: FakeWebSocket) {
+  expect(socket.readyState).toBe(FakeWebSocket.OPEN);
+  socket.receive({ type: "ready", heartbeat_seconds: 20, idle_timeout_seconds: 65 });
+}
+
+function documentHint(cursor: number) {
+  return {
+    type: "sync_hint",
+    trip_id: "019d2a5b-6357-7600-8ed3-98c5ca70bfa2",
+    cursor,
+    invalidation: "documents",
+  };
+}
 
 function renderBridge(queryClient: QueryClient) {
   return render(

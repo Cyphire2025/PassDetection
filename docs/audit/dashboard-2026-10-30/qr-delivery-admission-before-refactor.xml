@@ -1,0 +1,1084 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="3.671" timestamp="2026-10-31T04:08:28.935263+05:30" hostname="Nipun5070ti"><testcase classname="tests.integration.test_qr_delivery_admission" name="test_qr_admission_keeps_one_receipt_and_retries_only_known_queue_failure[False]" time="1.534"><failure message="TypeError: can't compare offset-naive and offset-aware datetimes">+ Exception Group Traceback (most recent call last):
+  |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_utils.py", line 85, in create_collapsing_task_group
+  |     async with anyio.create_task_group() as tg:
+  |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 815, in __aexit__
+  |     raise BaseExceptionGroup(
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\_pytest\runner.py", line 353, in from_call
+    |     result: TResult | None = func()
+    |                              ^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\_pytest\runner.py", line 245, in &lt;lambda&gt;
+    |     lambda: runtest_hook(item=item, **kwds),
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_hooks.py", line 512, in __call__
+    |     return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_manager.py", line 120, in _hookexec
+    |     return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 167, in _multicall
+    |     raise exception
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 139, in _multicall
+    |     teardown.throw(exception)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\_pytest\logging.py", line 850, in pytest_runtest_call
+    |     yield
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 139, in _multicall
+    |     teardown.throw(exception)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\_pytest\capture.py", line 900, in pytest_runtest_call
+    |     return (yield)
+    |             ^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 139, in _multicall
+    |     teardown.throw(exception)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\_pytest\skipping.py", line 268, in pytest_runtest_call
+    |     return (yield)
+    |             ^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 121, in _multicall
+    |     res = hook_impl.function(*args)
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\_pytest\runner.py", line 179, in pytest_runtest_call
+    |     item.runtest()
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pytest_asyncio\plugin.py", line 569, in runtest
+    |     super().runtest()
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\_pytest\python.py", line 1720, in runtest
+    |     self.ihook.pytest_pyfunc_call(pyfuncitem=self)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_hooks.py", line 512, in __call__
+    |     return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_manager.py", line 120, in _hookexec
+    |     return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 167, in _multicall
+    |     raise exception
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 139, in _multicall
+    |     teardown.throw(exception)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 53, in run_old_style_hookwrapper
+    |     return result.get_result()
+    |            ^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_result.py", line 103, in get_result
+    |     raise exc.with_traceback(tb)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 38, in run_old_style_hookwrapper
+    |     res = yield
+    |           ^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 121, in _multicall
+    |     res = hook_impl.function(*args)
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\_pytest\python.py", line 166, in pytest_pyfunc_call
+    |     result = testfunction(**testargs)
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pytest_asyncio\plugin.py", line 905, in inner
+    |     runner.run(coro, context=context)
+    |   File "C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\asyncio\runners.py", line 118, in run
+    |     return self._loop.run_until_complete(task)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\asyncio\base_events.py", line 654, in run_until_complete
+    |     return future.result()
+    |            ^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\backend\tests\integration\test_qr_delivery_admission.py", line 99, in test_qr_admission_keeps_one_receipt_and_retries_only_known_queue_failure
+    |     repeated = await client.post(endpoint, headers=headers, json=body)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py", line 1892, in post
+    |     return await self.request(
+    |            ^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py", line 1574, in request
+    |     return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py", line 1661, in send
+    |     response = await self._send_handling_auth(
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py", line 1689, in _send_handling_auth
+    |     response = await self._send_handling_redirects(
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py", line 1726, in _send_handling_redirects
+    |     response = await self._send_single_request(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py", line 1763, in _send_single_request
+    |     response = await transport.handle_async_request(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_transports\asgi.py", line 164, in handle_async_request
+    |     await self.app(scope, receive, send)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\applications.py", line 1160, in __call__
+    |     await super().__call__(scope, receive, send)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\applications.py", line 90, in __call__
+    |     await self.middleware_stack(scope, receive, send)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    |     raise exc
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    |     await self.app(scope, receive, _send)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\middleware\request_id.py", line 54, in dispatch
+    |     response = await call_next(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    |     raise app_exc from app_exc.__cause__ or app_exc.__context__
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\middleware\metrics.py", line 22, in dispatch
+    |     response = await call_next(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    |     raise app_exc from app_exc.__cause__ or app_exc.__context__
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\middleware\rate_limit.py", line 260, in dispatch
+    |     response = await call_next(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    |     raise app_exc from app_exc.__cause__ or app_exc.__context__
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\middleware\security_headers.py", line 18, in dispatch
+    |     response = await call_next(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    |     raise app_exc from app_exc.__cause__ or app_exc.__context__
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\middleware\safe_gzip.py", line 35, in __call__
+    |     await responder(scope, receive, send)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\gzip.py", line 130, in __call__
+    |     await super().__call__(scope, receive, send)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\gzip.py", line 46, in __call__
+    |     await self.app(scope, receive, self.send_with_compression)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\cors.py", line 88, in __call__
+    |     await self.app(scope, receive, send)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    |     await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    |     raise exc
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    |     await self.app(scope, receive, send)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\routing.py", line 660, in __call__
+    |     await self.middleware_stack(scope, receive, send)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\routing.py", line 680, in app
+    |     await route.handle(scope, receive, send)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\routing.py", line 276, in handle
+    |     await self.app(scope, receive, send)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py", line 119, in app
+    |     await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    |     raise exc
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py", line 105, in app
+    |     response = await f(request)
+    |                ^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py", line 431, in app
+    |     raw_response = await run_endpoint_function(
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py", line 313, in run_endpoint_function
+    |     return await dependant.call(**values)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\api\v1\routes\tour_operations_qr_delivery.py", line 537, in send_qr_whatsapp_broadcast
+    |     preview = await _build_preview(session, group=group)
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\api\v1\routes\tour_operations_qr_delivery.py", line 367, in _build_preview
+    |     token_status = qr_status(token)
+    |                    ^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\backend\tests\integration\test_qr_delivery_admission.py", line 58, in &lt;lambda&gt;
+    |     lambda item: original_status(
+    |                  ^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\backend\app\infrastructure\qr\approved_passenger_qr_issuer.py", line 47, in qr_status
+    |     if expires_at &lt;= current_time:
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    | TypeError: can't compare offset-naive and offset-aware datetimes
+    +------------------------------------
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\backend\tests\integration\test_qr_delivery_admission.py", line 99, in test_qr_admission_keeps_one_receipt_and_retries_only_known_queue_failure
+    repeated = await client.post(endpoint, headers=headers, json=body)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py", line 1892, in post
+    return await self.request(
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py", line 1574, in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py", line 1661, in send
+    response = await self._send_handling_auth(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py", line 1689, in _send_handling_auth
+    response = await self._send_handling_redirects(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py", line 1726, in _send_handling_redirects
+    response = await self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py", line 1763, in _send_single_request
+    response = await transport.handle_async_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_transports\asgi.py", line 164, in handle_async_request
+    await self.app(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\applications.py", line 1160, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\middleware\request_id.py", line 54, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\middleware\metrics.py", line 22, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\middleware\rate_limit.py", line 260, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\middleware\security_headers.py", line 18, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\middleware\safe_gzip.py", line 35, in __call__
+    await responder(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\gzip.py", line 130, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\gzip.py", line 46, in __call__
+    await self.app(scope, receive, self.send_with_compression)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py", line 119, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py", line 105, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py", line 431, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py", line 313, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\api\v1\routes\tour_operations_qr_delivery.py", line 537, in send_qr_whatsapp_broadcast
+    preview = await _build_preview(session, group=group)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\api\v1\routes\tour_operations_qr_delivery.py", line 367, in _build_preview
+    token_status = qr_status(token)
+                   ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\tests\integration\test_qr_delivery_admission.py", line 58, in &lt;lambda&gt;
+    lambda item: original_status(
+                 ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\app\infrastructure\qr\approved_passenger_qr_issuer.py", line 47, in qr_status
+    if expires_at &lt;= current_time:
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: can't compare offset-naive and offset-aware datetimes
+
+The above exception was the direct cause of the following exception:
+
+client = &lt;httpx.AsyncClient object at 0x000002D45C796690&gt;
+db_session = &lt;sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000002D4592DA450&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002D4591AAC50&gt;
+broker_fails = False
+
+    @pytest.mark.parametrize("broker_fails", [False, True])
+    async def test_qr_admission_keeps_one_receipt_and_retries_only_known_queue_failure(
+        client, db_session, monkeypatch, broker_fails
+    ):
+        context = await _seed_private_delivery_context(db_session)
+        token = context["token"]
+        token.expires_at = datetime.now(tz=UTC) + timedelta(days=1)
+        actor_id = uuid.uuid4()
+        db_session.add(
+            UserModel(
+                id=actor_id,
+                agency_id=context["agency"].id,
+                email="qr-administrator@example.com",
+                full_name="Synthetic QR administrator",
+                role="agency_admin",
+                hashed_password="unused",
+            )
+        )
+        await db_session.commit()
+        access, _ = await issue_dashboard_access(
+            db_session,
+            user_id=actor_id,
+            agency_id=context["agency"].id,
+            role="agency_admin",
+        )
+        monkeypatch.setattr(
+            routes,
+            "get_settings",
+            lambda: SimpleNamespace(
+                whatsapp_access_token="synthetic-provider-token",
+                whatsapp_phone_number_id="synthetic-phone-id",
+            ),
+        )
+        # SQLite drops tzinfo while PostgreSQL timestamptz retains it; keep this
+        # isolated test adapter consistent with the existing real-row QR tests.
+        original_status = routes.qr_status
+        monkeypatch.setattr(
+            routes,
+            "qr_status",
+            lambda item: original_status(
+                item, now=datetime.now(tz=UTC).replace(tzinfo=item.expires_at.tzinfo)
+            )
+            if item
+            else "not_generated",
+        )
+        from app.infrastructure.whatsapp.tasks import process_qr_whatsapp_broadcast
+    
+        def publish(*_args, **_kwargs):
+            # Publication must occur only after the durable admission commit.
+            assert not db_session.in_transaction()
+            if broker_fails:
+                raise RuntimeError("synthetic-secret-and-private-broker-location")
+    
+        publisher = MagicMock(side_effect=publish)
+        monkeypatch.setattr(process_qr_whatsapp_broadcast, "apply_async", publisher)
+        endpoint = f"/api/v1/tour-operations/groups/{context['group'].id}/qr-codes/whatsapp-send"
+        body = {"qr_token_ids": [str(token.id)], "message_content": "Your synthetic QR"}
+        headers = {"Authorization": f"Bearer {access}"}
+        response = await client.post(endpoint, headers=headers, json=body)
+        assert response.status_code == (503 if broker_fails else 202), response.text
+        assert "synthetic-secret-and-private-broker-location" not in response.text
+        deliveries = list((await db_session.scalars(select(PassengerQrWhatsAppDeliveryModel))).all())
+        assert len(deliveries) == 1
+        delivery = deliveries[0]
+        assert delivery.qr_token_id == token.id and delivery.passenger_id == context["passengers"][0].id
+        assert delivery.normalized_phone_number == context["recipient"].normalized_phone_number
+        assert delivery.template_parameter_values == [body["message_content"]]
+        assert delivery.provider_message_id is None and delivery.provider_media_id is None
+        assert delivery.status == ("failed" if broker_fails else "queued")
+        receipt_id, original_batch = delivery.id, delivery.send_batch_id
+        await db_session.rollback()
+        if broker_fails:
+            publisher.side_effect = None
+            retried = await client.post(endpoint, headers=headers, json=body)
+            assert retried.status_code == 202, retried.text
+            db_session.expire_all()
+            rows = list((await db_session.scalars(select(PassengerQrWhatsAppDeliveryModel))).all())
+            assert len(rows) == 1 and rows[0].id == receipt_id
+            assert rows[0].status == "queued" and rows[0].send_batch_id != original_batch
+        else:
+&gt;           repeated = await client.post(endpoint, headers=headers, json=body)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\integration\test_qr_delivery_admission.py:99: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py:1892: in post
+    return await self.request(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py:1574: in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py:1661: in send
+    response = await self._send_handling_auth(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py:1689: in _send_handling_auth
+    response = await self._send_handling_redirects(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py:1726: in _send_handling_redirects
+    response = await self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py:1763: in _send_single_request
+    response = await transport.handle_async_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_transports\asgi.py:164: in handle_async_request
+    await self.app(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\applications.py:1160: in __call__
+    await super().__call__(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\applications.py:90: in __call__
+    await self.middleware_stack(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\errors.py:186: in __call__
+    raise exc
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:193: in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\presentation\middleware\request_id.py:54: in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:168: in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:144: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:193: in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\presentation\middleware\metrics.py:22: in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:168: in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:144: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:193: in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\presentation\middleware\rate_limit.py:260: in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:168: in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:144: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:193: in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\presentation\middleware\security_headers.py:18: in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:168: in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:144: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+app\presentation\middleware\safe_gzip.py:35: in __call__
+    await responder(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\gzip.py:130: in __call__
+    await super().__call__(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\gzip.py:46: in __call__
+    await self.app(scope, receive, self.send_with_compression)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\cors.py:88: in __call__
+    await self.app(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\exceptions.py:63: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py:18: in __call__
+    await self.app(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\routing.py:660: in __call__
+    await self.middleware_stack(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\routing.py:680: in app
+    await route.handle(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\routing.py:276: in handle
+    await self.app(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py:119: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py:105: in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py:431: in app
+    raw_response = await run_endpoint_function(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py:313: in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\presentation\api\v1\routes\tour_operations_qr_delivery.py:537: in send_qr_whatsapp_broadcast
+    preview = await _build_preview(session, group=group)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\presentation\api\v1\routes\tour_operations_qr_delivery.py:367: in _build_preview
+    token_status = qr_status(token)
+                   ^^^^^^^^^^^^^^^^
+tests\integration\test_qr_delivery_admission.py:58: in &lt;lambda&gt;
+    lambda item: original_status(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+token = &lt;app.infrastructure.database.passenger_qr_models.PassengerQRTokenModel object at 0x000002D45CE3FE50&gt;
+now = datetime.datetime(2026, 10, 30, 22, 38, 30, 522770)
+
+    def qr_status(
+        token: PassengerQRTokenModel | None,
+        now: datetime | None = None,
+    ) -&gt; str:
+        if token is None:
+            return "not_generated"
+        current_time = now or datetime.now(tz=UTC)
+        if token.revoked_at is not None:
+            return "revoked"
+        expires_at = token.expires_at if token.expires_at.tzinfo else token.expires_at.replace(tzinfo=UTC)
+&gt;       if expires_at &lt;= current_time:
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: can't compare offset-naive and offset-aware datetimes
+
+app\infrastructure\qr\approved_passenger_qr_issuer.py:47: TypeError</failure></testcase><testcase classname="tests.integration.test_qr_delivery_admission" name="test_qr_admission_keeps_one_receipt_and_retries_only_known_queue_failure[True]" time="1.451"><failure message="TypeError: can't compare offset-naive and offset-aware datetimes">+ Exception Group Traceback (most recent call last):
+  |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_utils.py", line 85, in create_collapsing_task_group
+  |     async with anyio.create_task_group() as tg:
+  |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 815, in __aexit__
+  |     raise BaseExceptionGroup(
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\_pytest\runner.py", line 353, in from_call
+    |     result: TResult | None = func()
+    |                              ^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\_pytest\runner.py", line 245, in &lt;lambda&gt;
+    |     lambda: runtest_hook(item=item, **kwds),
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_hooks.py", line 512, in __call__
+    |     return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_manager.py", line 120, in _hookexec
+    |     return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 167, in _multicall
+    |     raise exception
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 139, in _multicall
+    |     teardown.throw(exception)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\_pytest\logging.py", line 850, in pytest_runtest_call
+    |     yield
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 139, in _multicall
+    |     teardown.throw(exception)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\_pytest\capture.py", line 900, in pytest_runtest_call
+    |     return (yield)
+    |             ^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 139, in _multicall
+    |     teardown.throw(exception)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\_pytest\skipping.py", line 268, in pytest_runtest_call
+    |     return (yield)
+    |             ^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 121, in _multicall
+    |     res = hook_impl.function(*args)
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\_pytest\runner.py", line 179, in pytest_runtest_call
+    |     item.runtest()
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pytest_asyncio\plugin.py", line 569, in runtest
+    |     super().runtest()
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\_pytest\python.py", line 1720, in runtest
+    |     self.ihook.pytest_pyfunc_call(pyfuncitem=self)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_hooks.py", line 512, in __call__
+    |     return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_manager.py", line 120, in _hookexec
+    |     return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 167, in _multicall
+    |     raise exception
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 139, in _multicall
+    |     teardown.throw(exception)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 53, in run_old_style_hookwrapper
+    |     return result.get_result()
+    |            ^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_result.py", line 103, in get_result
+    |     raise exc.with_traceback(tb)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 38, in run_old_style_hookwrapper
+    |     res = yield
+    |           ^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pluggy\_callers.py", line 121, in _multicall
+    |     res = hook_impl.function(*args)
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\_pytest\python.py", line 166, in pytest_pyfunc_call
+    |     result = testfunction(**testargs)
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\pytest_asyncio\plugin.py", line 905, in inner
+    |     runner.run(coro, context=context)
+    |   File "C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\asyncio\runners.py", line 118, in run
+    |     return self._loop.run_until_complete(task)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\asyncio\base_events.py", line 654, in run_until_complete
+    |     return future.result()
+    |            ^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\backend\tests\integration\test_qr_delivery_admission.py", line 92, in test_qr_admission_keeps_one_receipt_and_retries_only_known_queue_failure
+    |     retried = await client.post(endpoint, headers=headers, json=body)
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py", line 1892, in post
+    |     return await self.request(
+    |            ^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py", line 1574, in request
+    |     return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py", line 1661, in send
+    |     response = await self._send_handling_auth(
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py", line 1689, in _send_handling_auth
+    |     response = await self._send_handling_redirects(
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py", line 1726, in _send_handling_redirects
+    |     response = await self._send_single_request(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py", line 1763, in _send_single_request
+    |     response = await transport.handle_async_request(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_transports\asgi.py", line 164, in handle_async_request
+    |     await self.app(scope, receive, send)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\applications.py", line 1160, in __call__
+    |     await super().__call__(scope, receive, send)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\applications.py", line 90, in __call__
+    |     await self.middleware_stack(scope, receive, send)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    |     raise exc
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    |     await self.app(scope, receive, _send)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\middleware\request_id.py", line 54, in dispatch
+    |     response = await call_next(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    |     raise app_exc from app_exc.__cause__ or app_exc.__context__
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\middleware\metrics.py", line 22, in dispatch
+    |     response = await call_next(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    |     raise app_exc from app_exc.__cause__ or app_exc.__context__
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\middleware\rate_limit.py", line 260, in dispatch
+    |     response = await call_next(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    |     raise app_exc from app_exc.__cause__ or app_exc.__context__
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\middleware\security_headers.py", line 18, in dispatch
+    |     response = await call_next(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    |     raise app_exc from app_exc.__cause__ or app_exc.__context__
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\middleware\safe_gzip.py", line 35, in __call__
+    |     await responder(scope, receive, send)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\gzip.py", line 130, in __call__
+    |     await super().__call__(scope, receive, send)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\gzip.py", line 46, in __call__
+    |     await self.app(scope, receive, self.send_with_compression)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\cors.py", line 88, in __call__
+    |     await self.app(scope, receive, send)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    |     await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    |     raise exc
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    |     await self.app(scope, receive, send)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\routing.py", line 660, in __call__
+    |     await self.middleware_stack(scope, receive, send)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\routing.py", line 680, in app
+    |     await route.handle(scope, receive, send)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\routing.py", line 276, in handle
+    |     await self.app(scope, receive, send)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py", line 119, in app
+    |     await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    |     raise exc
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py", line 105, in app
+    |     response = await f(request)
+    |                ^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py", line 431, in app
+    |     raw_response = await run_endpoint_function(
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py", line 313, in run_endpoint_function
+    |     return await dependant.call(**values)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\api\v1\routes\tour_operations_qr_delivery.py", line 537, in send_qr_whatsapp_broadcast
+    |     preview = await _build_preview(session, group=group)
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\api\v1\routes\tour_operations_qr_delivery.py", line 367, in _build_preview
+    |     token_status = qr_status(token)
+    |                    ^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\backend\tests\integration\test_qr_delivery_admission.py", line 58, in &lt;lambda&gt;
+    |     lambda item: original_status(
+    |                  ^^^^^^^^^^^^^^^^
+    |   File "C:\Users\nipun\Desktop\PassDetection\backend\app\infrastructure\qr\approved_passenger_qr_issuer.py", line 47, in qr_status
+    |     if expires_at &lt;= current_time:
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    | TypeError: can't compare offset-naive and offset-aware datetimes
+    +------------------------------------
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\backend\tests\integration\test_qr_delivery_admission.py", line 92, in test_qr_admission_keeps_one_receipt_and_retries_only_known_queue_failure
+    retried = await client.post(endpoint, headers=headers, json=body)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py", line 1892, in post
+    return await self.request(
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py", line 1574, in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py", line 1661, in send
+    response = await self._send_handling_auth(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py", line 1689, in _send_handling_auth
+    response = await self._send_handling_redirects(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py", line 1726, in _send_handling_redirects
+    response = await self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py", line 1763, in _send_single_request
+    response = await transport.handle_async_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_transports\asgi.py", line 164, in handle_async_request
+    await self.app(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\applications.py", line 1160, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\middleware\request_id.py", line 54, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\middleware\metrics.py", line 22, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\middleware\rate_limit.py", line 260, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\middleware\security_headers.py", line 18, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\middleware\safe_gzip.py", line 35, in __call__
+    await responder(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\gzip.py", line 130, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\gzip.py", line 46, in __call__
+    await self.app(scope, receive, self.send_with_compression)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py", line 119, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py", line 105, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py", line 431, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py", line 313, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\api\v1\routes\tour_operations_qr_delivery.py", line 537, in send_qr_whatsapp_broadcast
+    preview = await _build_preview(session, group=group)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\app\presentation\api\v1\routes\tour_operations_qr_delivery.py", line 367, in _build_preview
+    token_status = qr_status(token)
+                   ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\tests\integration\test_qr_delivery_admission.py", line 58, in &lt;lambda&gt;
+    lambda item: original_status(
+                 ^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\backend\app\infrastructure\qr\approved_passenger_qr_issuer.py", line 47, in qr_status
+    if expires_at &lt;= current_time:
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: can't compare offset-naive and offset-aware datetimes
+
+The above exception was the direct cause of the following exception:
+
+client = &lt;httpx.AsyncClient object at 0x000002D45ED09C10&gt;
+db_session = &lt;sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000002D45AA23750&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002D4591A9250&gt;
+broker_fails = True
+
+    @pytest.mark.parametrize("broker_fails", [False, True])
+    async def test_qr_admission_keeps_one_receipt_and_retries_only_known_queue_failure(
+        client, db_session, monkeypatch, broker_fails
+    ):
+        context = await _seed_private_delivery_context(db_session)
+        token = context["token"]
+        token.expires_at = datetime.now(tz=UTC) + timedelta(days=1)
+        actor_id = uuid.uuid4()
+        db_session.add(
+            UserModel(
+                id=actor_id,
+                agency_id=context["agency"].id,
+                email="qr-administrator@example.com",
+                full_name="Synthetic QR administrator",
+                role="agency_admin",
+                hashed_password="unused",
+            )
+        )
+        await db_session.commit()
+        access, _ = await issue_dashboard_access(
+            db_session,
+            user_id=actor_id,
+            agency_id=context["agency"].id,
+            role="agency_admin",
+        )
+        monkeypatch.setattr(
+            routes,
+            "get_settings",
+            lambda: SimpleNamespace(
+                whatsapp_access_token="synthetic-provider-token",
+                whatsapp_phone_number_id="synthetic-phone-id",
+            ),
+        )
+        # SQLite drops tzinfo while PostgreSQL timestamptz retains it; keep this
+        # isolated test adapter consistent with the existing real-row QR tests.
+        original_status = routes.qr_status
+        monkeypatch.setattr(
+            routes,
+            "qr_status",
+            lambda item: original_status(
+                item, now=datetime.now(tz=UTC).replace(tzinfo=item.expires_at.tzinfo)
+            )
+            if item
+            else "not_generated",
+        )
+        from app.infrastructure.whatsapp.tasks import process_qr_whatsapp_broadcast
+    
+        def publish(*_args, **_kwargs):
+            # Publication must occur only after the durable admission commit.
+            assert not db_session.in_transaction()
+            if broker_fails:
+                raise RuntimeError("synthetic-secret-and-private-broker-location")
+    
+        publisher = MagicMock(side_effect=publish)
+        monkeypatch.setattr(process_qr_whatsapp_broadcast, "apply_async", publisher)
+        endpoint = f"/api/v1/tour-operations/groups/{context['group'].id}/qr-codes/whatsapp-send"
+        body = {"qr_token_ids": [str(token.id)], "message_content": "Your synthetic QR"}
+        headers = {"Authorization": f"Bearer {access}"}
+        response = await client.post(endpoint, headers=headers, json=body)
+        assert response.status_code == (503 if broker_fails else 202), response.text
+        assert "synthetic-secret-and-private-broker-location" not in response.text
+        deliveries = list((await db_session.scalars(select(PassengerQrWhatsAppDeliveryModel))).all())
+        assert len(deliveries) == 1
+        delivery = deliveries[0]
+        assert delivery.qr_token_id == token.id and delivery.passenger_id == context["passengers"][0].id
+        assert delivery.normalized_phone_number == context["recipient"].normalized_phone_number
+        assert delivery.template_parameter_values == [body["message_content"]]
+        assert delivery.provider_message_id is None and delivery.provider_media_id is None
+        assert delivery.status == ("failed" if broker_fails else "queued")
+        receipt_id, original_batch = delivery.id, delivery.send_batch_id
+        await db_session.rollback()
+        if broker_fails:
+            publisher.side_effect = None
+&gt;           retried = await client.post(endpoint, headers=headers, json=body)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\integration\test_qr_delivery_admission.py:92: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py:1892: in post
+    return await self.request(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py:1574: in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py:1661: in send
+    response = await self._send_handling_auth(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py:1689: in _send_handling_auth
+    response = await self._send_handling_redirects(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py:1726: in _send_handling_redirects
+    response = await self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_client.py:1763: in _send_single_request
+    response = await transport.handle_async_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\httpx\_transports\asgi.py:164: in handle_async_request
+    await self.app(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\applications.py:1160: in __call__
+    await super().__call__(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\applications.py:90: in __call__
+    await self.middleware_stack(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\errors.py:186: in __call__
+    raise exc
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:193: in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\presentation\middleware\request_id.py:54: in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:168: in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:144: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:193: in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\presentation\middleware\metrics.py:22: in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:168: in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:144: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:193: in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\presentation\middleware\rate_limit.py:260: in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:168: in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:144: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:193: in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\presentation\middleware\security_headers.py:18: in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:168: in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\base.py:144: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+app\presentation\middleware\safe_gzip.py:35: in __call__
+    await responder(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\gzip.py:130: in __call__
+    await super().__call__(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\gzip.py:46: in __call__
+    await self.app(scope, receive, self.send_with_compression)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\cors.py:88: in __call__
+    await self.app(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\middleware\exceptions.py:63: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py:18: in __call__
+    await self.app(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\routing.py:660: in __call__
+    await self.middleware_stack(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\routing.py:680: in app
+    await route.handle(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\routing.py:276: in handle
+    await self.app(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py:119: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+..\.tmp\dashboard-audit-venv\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+..\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py:105: in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+..\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py:431: in app
+    raw_response = await run_endpoint_function(
+..\.tmp\dashboard-audit-venv\Lib\site-packages\fastapi\routing.py:313: in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\presentation\api\v1\routes\tour_operations_qr_delivery.py:537: in send_qr_whatsapp_broadcast
+    preview = await _build_preview(session, group=group)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\presentation\api\v1\routes\tour_operations_qr_delivery.py:367: in _build_preview
+    token_status = qr_status(token)
+                   ^^^^^^^^^^^^^^^^
+tests\integration\test_qr_delivery_admission.py:58: in &lt;lambda&gt;
+    lambda item: original_status(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+token = &lt;app.infrastructure.database.passenger_qr_models.PassengerQRTokenModel object at 0x000002D45E6889D0&gt;
+now = datetime.datetime(2026, 10, 30, 22, 38, 32, 467009)
+
+    def qr_status(
+        token: PassengerQRTokenModel | None,
+        now: datetime | None = None,
+    ) -&gt; str:
+        if token is None:
+            return "not_generated"
+        current_time = now or datetime.now(tz=UTC)
+        if token.revoked_at is not None:
+            return "revoked"
+        expires_at = token.expires_at if token.expires_at.tzinfo else token.expires_at.replace(tzinfo=UTC)
+&gt;       if expires_at &lt;= current_time:
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: can't compare offset-naive and offset-aware datetimes
+
+app\infrastructure\qr\approved_passenger_qr_issuer.py:47: TypeError</failure></testcase></testsuite></testsuites>

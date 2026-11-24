@@ -1,0 +1,18 @@
+{
+  "before_modules": 512,
+  "after_modules": 520,
+  "new_modules": 8,
+  "all512_previous_rows_retained_verbatim": true,
+  "before_critical_entries": 47,
+  "after_critical_entries": 52,
+  "all47_previous_critical_entries_retained_verbatim": true,
+  "global_and_other_gates_unchanged": true,
+  "before_budget_sha256": "2e7ab347afd24308cc1e2c299888ec534567afba212fc8301bd40cda2161da1c",
+  "after_budget_sha256": "9fdef5d5f27048736c9213680e7c643a8d1ccbbd50e319c2f42db21e96c43601",
+  "before_exact_manifest_sha256": "bb8cdb7a97dbb78ea2a3a5abc6f47592d6a2d281bbcf83e95fadb98f8a53e6d6",
+  "after_exact_manifest_sha256": "a48f13195d990361c979fa82e432d2e01931de0b8ee8b11552b0a5a8d28f9e21",
+  "all79_both_before_sets_unchanged": true,
+  "only_known_backend_budget_after_changed": true,
+  "provenance": "Root full current8-source and raw same-source coverage evidence;72 unique affected cases,4 actual status regressions,25-case tenant/role matrix, original15 function/annotation/facade and8 OpenAPI contracts. Integration does not claim a second physical review or rerun of unchanged peer sources.",
+  "limits": "Actual source/measurement/coverage integration only; no broad app suite or live PostgreSQL/provider/VPS qualification."
+}

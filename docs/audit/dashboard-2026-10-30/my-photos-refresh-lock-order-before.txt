@@ -1,0 +1,41 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+__________________ test_refresh_uses_gallery_job_lock_order ___________________
+
+photo_database = namespace(sessions=async_sessionmaker(class_='AsyncSession', bind=<sqlalchemy.ext.asyncio.engine.AsyncEngine object at...re.database.gc_mobile_models.MobilePassengerIdentityModel object at 0x000001655D9C2E90>, client_manager_profile=None)))
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001655BB6F490>
+
+    async def test_refresh_uses_gallery_job_lock_order(photo_database, monkeypatch):
+        env = photo_database
+        job_id = await _refresh_job(env, condition="current", enrolled=False)
+        locks = []
+    
+        class RecordingSession(AsyncSession):
+            async def execute(self, statement, *args, **kwargs):
+                if getattr(statement, "_for_update_arg", None) is not None:
+                    locks.append(
+                        (
+                            statement.column_descriptions[0]["entity"].__tablename__,
+                            str(statement.compile(dialect=postgresql.dialect())),
+                        )
+                    )
+                return await super().execute(statement, *args, **kwargs)
+    
+        sessions = async_sessionmaker(
+            env.sessions.kw["bind"], class_=RecordingSession, expire_on_commit=False
+        )
+        monkeypatch.setattr(revision_runtime, "AsyncSessionFactory", sessions)
+        result = await revision_runtime.execute_refresh_fanout(
+            job_id=job_id, lease_owner="synthetic-worker", settings=env.settings
+        )
+        assert result.state == "succeeded"
+>       assert [table for table, _sql in locks[:2]] == ["my_photo_galleries", "my_photo_jobs"]
+E       AssertionError: assert ['my_photo_jo...to_galleries'] == ['my_photo_ga...y_photo_jobs']
+E         
+E         At index 0 diff: 'my_photo_jobs' != 'my_photo_galleries'
+E         Use -v to get more diff
+
+tests\integration\test_my_photos_refresh_authority.py:103: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/integration/test_my_photos_refresh_authority.py::test_refresh_uses_gallery_job_lock_order
+1 failed in 2.95s

@@ -1,0 +1,35 @@
+{
+  "status": "FROZEN minor branding asset fix; final production metadata/browser qualification remains pending",
+  "old_sha256": "2b8ad2d33455a8f736fc3a8ebf8f0bdea8848ad4c0db48a2833bd0f9cd775932",
+  "new_sha256": "4d31aaecf1864449db9a2c4322930e406b598813c5de73f19028f1cd953217f2",
+  "path": "frontend/app/favicon.ico",
+  "bytes": 2247,
+  "source_png": "frontend/public/pwa-icon-192.png",
+  "source_png_sha256": "554d5337b9f093cf54dc7e0f552ebe4a987c58fc7aa404d69512165f3ace502c",
+  "same_existing_framework_route": true,
+  "pixel_edit": false,
+  "new_dependency_or_public_path": false,
+  "checks": [
+    {
+      "command": "node --test components/brand/favicon-asset.test.mjs",
+      "baseline": "1fail on original default fourframe icon",
+      "current": "1passed on current oneframe lossless PNG container",
+      "logs": [
+        ".tmp/offline-scanner/favicon-baseline.txt",
+        ".tmp/offline-scanner/favicon-fixed.txt"
+      ]
+    },
+    {
+      "scope": "Actual isolated WebKit native ICO/PNG image decode;192x192sameRGBA SHA/expected opaque source alpha",
+      "receipt": ".tmp/offline-scanner/favicon-native-decoder.json",
+      "screenshot": "C:/Users/nipun/Desktop/PassDetection/.tmp/offline-scanner/favicon-before-after.png"
+    },
+    {
+      "command": "affected ESLint --max-warnings=0",
+      "outcome": "passed"
+    }
+  ],
+  "test_sha256": "4c7ddb9b1276bd31413d970cb9c237248b7bba4131fc20a3e1caf444a343b89d",
+  "scanner38fence_unchanged": true,
+  "limits": "Container/native-decoder proof, not Next production metadata/browser tab UI, provider or physical display certification. Old icon remains historical in ignored local .tmp; no shipped duplicate original."
+}

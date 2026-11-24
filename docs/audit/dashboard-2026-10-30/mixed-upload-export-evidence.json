@@ -1,0 +1,511 @@
+{
+  "basis": "All production TS/TSX sources, TypeScript module resolver and explicit named/type/namespace/reexport/literal dynamic/require inbound edges. An absent named import only proves unused export when no namespace/star/dynamic inbound exists; textual literal searches supplement this graph. Original source hashes are captured before retirement.",
+  "declarations": [
+    {
+      "path": "frontend/features/upload/components/upload-contact-verification.tsx",
+      "sha256": "b4d925237294c1e316d40c9282b00518e63405a743752a856b66b450a2f6d557",
+      "exports": [
+        "ContactVerification",
+        "validContactEmail",
+        "UploadContactVerification",
+        "VerifiedContactSummary"
+      ]
+    },
+    {
+      "path": "frontend/features/upload/components/upload-flow-fields.tsx",
+      "sha256": "7def6b3a17f61905a109a410937547bab11edb6f9a01e284ac4c40329c9aee22",
+      "exports": [
+        "NameInput",
+        "SelectInput",
+        "ContactInput",
+        "ContactSection",
+        "CustomQuestionFields",
+        "CustomDetailFields",
+        "ConfiguredClientFields",
+        "DepartureCitySelect"
+      ]
+    },
+    {
+      "path": "frontend/features/upload/components/upload-flow-review.tsx",
+      "sha256": "a44601e4c856bdf31e802faeb990c941eee4e6ec8ff708fbeda7661dd03668e7",
+      "exports": [
+        "ReviewLayout",
+        "ReviewWarning",
+        "ReviewFields",
+        "ExtractionNotice",
+        "DocumentVerificationBlock",
+        "PassportRoiOverlays"
+      ]
+    },
+    {
+      "path": "frontend/features/upload/components/upload-flow.constants.ts",
+      "sha256": "eebfb2fbf6f4bb4864d898c5970f7f005cfb6439b82f00b99696e54769c7b4fe",
+      "exports": [
+        "MIN_FAMILY_MEMBERS",
+        "MAX_FAMILY_MEMBERS",
+        "REVIEW_FIELDS",
+        "REQUIRED_REVIEW_FIELDS",
+        "FAMILY_RELATIONS",
+        "GENDERS",
+        "PASSIVE_PROGRESS_STEPS"
+      ]
+    },
+    {
+      "path": "frontend/features/upload/components/upload-flow.types.ts",
+      "sha256": "749ff8370e128e44a2098346cd51295e49b6f054ed861c81daba513460bee764",
+      "exports": [
+        "FlowMode",
+        "AgentEmployeeType",
+        "UploadFlowStep",
+        "FamilyMember",
+        "FamilyReuseBinding",
+        "PassportDocumentBundle",
+        "ExtractionWaitResult"
+      ]
+    },
+    {
+      "path": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "sha256": "87ad595aaa0f39735b0393e23b1d3a4db05f3e7f09b36080ff5f1297f05c2258",
+      "exports": [
+        "createFamilyMember",
+        "createFamilyMembers",
+        "emptyDocumentBundle",
+        "isClientSubmissionComplete",
+        "hasActiveUploadProgress",
+        "getInitialReviewFields",
+        "passportHolderName",
+        "mergeMissingReviewFields",
+        "hasMissingRequiredFields",
+        "formatReviewFieldValue",
+        "hasValidReviewDates",
+        "todayIsoDate",
+        "yesterdayIsoDate",
+        "toLabel",
+        "isExtractionTerminal",
+        "extractionNoticeFor",
+        "canRetryExtractionFor",
+        "formatFileSize",
+        "sleep",
+        "stageLabel",
+        "submitErrorMessage",
+        "errorMessage",
+        "uploadPersistenceErrorMessage"
+      ]
+    }
+  ],
+  "inbound": [
+    {
+      "from": "frontend/features/companies/hooks/use-company-person-editor.ts",
+      "to": "frontend/features/upload/components/upload-flow.constants.ts",
+      "kind": "static-import",
+      "names": [
+        {
+          "imported": "REVIEW_FIELDS",
+          "local": "REVIEW_FIELDS",
+          "typeOnly": false
+        }
+      ],
+      "line": 4
+    },
+    {
+      "from": "frontend/features/upload/hooks/use-fresh-contact.ts",
+      "to": "frontend/features/upload/components/upload-contact-verification.tsx",
+      "kind": "static-import",
+      "names": [
+        {
+          "imported": "validContactEmail",
+          "local": "validContactEmail",
+          "typeOnly": false
+        }
+      ],
+      "line": 5
+    },
+    {
+      "from": "frontend/features/companies/components/company-original-record.tsx",
+      "to": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "kind": "static-import",
+      "names": [
+        {
+          "imported": "toLabel",
+          "local": "toLabel",
+          "typeOnly": false
+        }
+      ],
+      "line": 3
+    },
+    {
+      "from": "frontend/features/companies/components/company-passport-fields.tsx",
+      "to": "frontend/features/upload/components/upload-flow.constants.ts",
+      "kind": "static-import",
+      "names": [
+        {
+          "imported": "REVIEW_FIELDS",
+          "local": "REVIEW_FIELDS",
+          "typeOnly": false
+        }
+      ],
+      "line": 3
+    },
+    {
+      "from": "frontend/features/companies/components/company-passport-fields.tsx",
+      "to": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "kind": "static-import",
+      "names": [
+        {
+          "imported": "toLabel",
+          "local": "toLabel",
+          "typeOnly": false
+        }
+      ],
+      "line": 4
+    },
+    {
+      "from": "frontend/features/companies/components/company-person-details.tsx",
+      "to": "frontend/features/upload/components/upload-flow.constants.ts",
+      "kind": "static-import",
+      "names": [
+        {
+          "imported": "REVIEW_FIELDS",
+          "local": "REVIEW_FIELDS",
+          "typeOnly": false
+        }
+      ],
+      "line": 1
+    },
+    {
+      "from": "frontend/features/companies/components/company-person-details.tsx",
+      "to": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "kind": "static-import",
+      "names": [
+        {
+          "imported": "toLabel",
+          "local": "toLabel",
+          "typeOnly": false
+        }
+      ],
+      "line": 2
+    },
+    {
+      "from": "frontend/features/companies/components/company-person-documents.tsx",
+      "to": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "kind": "static-import",
+      "names": [
+        {
+          "imported": "toLabel",
+          "local": "toLabel",
+          "typeOnly": false
+        }
+      ],
+      "line": 11
+    },
+    {
+      "from": "frontend/features/travellers/components/returning-review.tsx",
+      "to": "frontend/features/upload/components/upload-flow-fields.tsx",
+      "kind": "static-import",
+      "names": [
+        {
+          "imported": "CustomDetailFields",
+          "local": "CustomDetailFields",
+          "typeOnly": false
+        },
+        {
+          "imported": "CustomQuestionFields",
+          "local": "CustomQuestionFields",
+          "typeOnly": false
+        }
+      ],
+      "line": 7
+    },
+    {
+      "from": "frontend/features/travellers/components/returning-review.tsx",
+      "to": "frontend/features/upload/components/upload-flow-review.tsx",
+      "kind": "static-import",
+      "names": [
+        {
+          "imported": "ReviewFields",
+          "local": "ReviewFields",
+          "typeOnly": false
+        }
+      ],
+      "line": 8
+    },
+    {
+      "from": "frontend/features/upload/components/fresh-contact.tsx",
+      "to": "frontend/features/upload/components/upload-flow-fields.tsx",
+      "kind": "static-import",
+      "names": [
+        {
+          "imported": "ContactInput",
+          "local": "ContactInput",
+          "typeOnly": false
+        }
+      ],
+      "line": 6
+    },
+    {
+      "from": "frontend/features/upload/components/fresh-contact.tsx",
+      "to": "frontend/features/upload/components/upload-contact-verification.tsx",
+      "kind": "static-import",
+      "names": [
+        {
+          "imported": "validContactEmail",
+          "local": "validContactEmail",
+          "typeOnly": false
+        }
+      ],
+      "line": 7
+    },
+    {
+      "from": "frontend/features/upload/components/fresh-flow.tsx",
+      "to": "frontend/features/upload/components/upload-flow.constants.ts",
+      "kind": "static-import",
+      "names": [
+        {
+          "imported": "MAX_FAMILY_MEMBERS",
+          "local": "MAX_FAMILY_MEMBERS",
+          "typeOnly": false
+        },
+        {
+          "imported": "MIN_FAMILY_MEMBERS",
+          "local": "MIN_FAMILY_MEMBERS",
+          "typeOnly": false
+        }
+      ],
+      "line": 10
+    },
+    {
+      "from": "frontend/features/upload/components/fresh-member-form.tsx",
+      "to": "frontend/features/upload/components/upload-flow-review.tsx",
+      "kind": "static-import",
+      "names": [
+        {
+          "imported": "ReviewFields",
+          "local": "ReviewFields",
+          "typeOnly": false
+        }
+      ],
+      "line": 12
+    },
+    {
+      "from": "frontend/features/upload/components/fresh-trip-fields.tsx",
+      "to": "frontend/features/upload/components/upload-flow-fields.tsx",
+      "kind": "static-import",
+      "names": [
+        {
+          "imported": "ConfiguredClientFields",
+          "local": "ConfiguredClientFields",
+          "typeOnly": false
+        },
+        {
+          "imported": "CustomDetailFields",
+          "local": "CustomDetailFields",
+          "typeOnly": false
+        },
+        {
+          "imported": "CustomQuestionFields",
+          "local": "CustomQuestionFields",
+          "typeOnly": false
+        },
+        {
+          "imported": "DepartureCitySelect",
+          "local": "DepartureCitySelect",
+          "typeOnly": false
+        },
+        {
+          "imported": "SelectInput",
+          "local": "SelectInput",
+          "typeOnly": false
+        }
+      ],
+      "line": 4
+    },
+    {
+      "from": "frontend/features/upload/components/fresh-trip-fields.tsx",
+      "to": "frontend/features/upload/components/upload-flow.constants.ts",
+      "kind": "static-import",
+      "names": [
+        {
+          "imported": "FAMILY_RELATIONS",
+          "local": "FAMILY_RELATIONS",
+          "typeOnly": false
+        },
+        {
+          "imported": "GENDERS",
+          "local": "GENDERS",
+          "typeOnly": false
+        }
+      ],
+      "line": 5
+    },
+    {
+      "from": "frontend/features/upload/components/upload-contact-verification.tsx",
+      "to": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "kind": "static-import",
+      "names": [
+        {
+          "imported": "errorMessage",
+          "local": "errorMessage",
+          "typeOnly": false
+        }
+      ],
+      "line": 10
+    },
+    {
+      "from": "frontend/features/upload/components/upload-contact-verification.tsx",
+      "to": "frontend/features/upload/components/upload-flow-fields.tsx",
+      "kind": "static-import",
+      "names": [
+        {
+          "imported": "ContactInput",
+          "local": "ContactInput",
+          "typeOnly": false
+        }
+      ],
+      "line": 11
+    },
+    {
+      "from": "frontend/features/upload/components/upload-flow-fields.tsx",
+      "to": "frontend/features/upload/components/upload-flow.types.ts",
+      "kind": "static-import",
+      "names": [
+        {
+          "imported": "AgentEmployeeType",
+          "local": "AgentEmployeeType",
+          "typeOnly": true
+        }
+      ],
+      "line": 9
+    },
+    {
+      "from": "frontend/features/upload/components/upload-flow-review.tsx",
+      "to": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "kind": "static-import",
+      "names": [
+        {
+          "imported": "formatReviewFieldValue",
+          "local": "formatReviewFieldValue",
+          "typeOnly": false
+        },
+        {
+          "imported": "toLabel",
+          "local": "toLabel",
+          "typeOnly": false
+        },
+        {
+          "imported": "todayIsoDate",
+          "local": "todayIsoDate",
+          "typeOnly": false
+        },
+        {
+          "imported": "yesterdayIsoDate",
+          "local": "yesterdayIsoDate",
+          "typeOnly": false
+        }
+      ],
+      "line": 8
+    },
+    {
+      "from": "frontend/features/upload/components/upload-flow-review.tsx",
+      "to": "frontend/features/upload/components/upload-flow.constants.ts",
+      "kind": "static-import",
+      "names": [
+        {
+          "imported": "REVIEW_FIELDS",
+          "local": "REVIEW_FIELDS",
+          "typeOnly": false
+        }
+      ],
+      "line": 14
+    },
+    {
+      "from": "frontend/features/upload/components/upload-flow.constants.ts",
+      "to": "frontend/features/upload/components/upload-flow.types.ts",
+      "kind": "static-import",
+      "names": [
+        {
+          "imported": "UploadFlowStep",
+          "local": "UploadFlowStep",
+          "typeOnly": true
+        }
+      ],
+      "line": 41
+    },
+    {
+      "from": "frontend/features/upload/services/configured-upload.ts",
+      "to": "frontend/features/upload/components/upload-flow.types.ts",
+      "kind": "static-import",
+      "names": [
+        {
+          "imported": "PassportDocumentBundle",
+          "local": "PassportDocumentBundle",
+          "typeOnly": true
+        }
+      ],
+      "line": 7
+    },
+    {
+      "from": "frontend/features/upload/services/fresh-document-validation.ts",
+      "to": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "kind": "static-import",
+      "names": [
+        {
+          "imported": "hasMissingRequiredFields",
+          "local": "hasMissingRequiredFields",
+          "typeOnly": false
+        },
+        {
+          "imported": "hasValidReviewDates",
+          "local": "hasValidReviewDates",
+          "typeOnly": false
+        }
+      ],
+      "line": 3
+    },
+    {
+      "from": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "to": "frontend/features/upload/components/upload-flow.constants.ts",
+      "kind": "static-import",
+      "names": [
+        {
+          "imported": "REQUIRED_REVIEW_FIELDS",
+          "local": "REQUIRED_REVIEW_FIELDS",
+          "typeOnly": false
+        },
+        {
+          "imported": "REVIEW_FIELDS",
+          "local": "REVIEW_FIELDS",
+          "typeOnly": false
+        },
+        {
+          "imported": "PASSIVE_PROGRESS_STEPS",
+          "local": "PASSIVE_PROGRESS_STEPS",
+          "typeOnly": false
+        }
+      ],
+      "line": 12
+    },
+    {
+      "from": "frontend/features/upload/services/upload-flow-helpers.ts",
+      "to": "frontend/features/upload/components/upload-flow.types.ts",
+      "kind": "static-import",
+      "names": [
+        {
+          "imported": "FamilyMember",
+          "local": "FamilyMember",
+          "typeOnly": true
+        },
+        {
+          "imported": "PassportDocumentBundle",
+          "local": "PassportDocumentBundle",
+          "typeOnly": true
+        },
+        {
+          "imported": "UploadFlowStep",
+          "local": "UploadFlowStep",
+          "typeOnly": true
+        }
+      ],
+      "line": 17
+    }
+  ]
+}

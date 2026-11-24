@@ -1,0 +1,222 @@
+{
+  "checkpoint": "UI/PWA corrections and passport SmartCamera decomposition after sealed frontend authority integration",
+  "recorded_at": "2026-10-30T20:35:38.701312+00:00",
+  "source_records": [
+    {
+      "path": "frontend/public/offline-scanner.js",
+      "sha256": "458389ca4811ee4186ab14f3d00039100a7d8264b68d7a99a8bcbe31232896d9",
+      "physical_lines": 1267
+    },
+    {
+      "path": "frontend/public/sw.js",
+      "sha256": "6f4b65d8a241cbda5191f3eb07999f47709993361f1d244222bc0f5d417c9ea0",
+      "physical_lines": 121
+    },
+    {
+      "path": "frontend/features/search/components/global-search.tsx",
+      "sha256": "ccf20a1f30789869a1aff1c304db2846079d367b8744b0032a951a75fde9095c",
+      "physical_lines": 281
+    },
+    {
+      "path": "frontend/features/dashboard/components/dashboard-overview.tsx",
+      "sha256": "ee7daaf92eebe269202737628cb8151f9673a0cfbd8a2dc16066cf0634d24bfe",
+      "physical_lines": 274
+    },
+    {
+      "path": "frontend/features/notifications/components/notification-bell.tsx",
+      "sha256": "c548db6041eb2ffc349d1fcdb2e4c33f648d67861b9c8ff5b1d0c4e42999892d",
+      "physical_lines": 66
+    },
+    {
+      "path": "frontend/features/notifications/components/notification-panel.tsx",
+      "sha256": "8125bf458b2ccca4dcc6d9ff73e7b177c9d62fb460acc404ecf886dee67b1f0b",
+      "physical_lines": 238
+    },
+    {
+      "path": "frontend/features/notifications/components/notification-row.tsx",
+      "sha256": "4d0ee94cce8f31042f2b21f77c2afb3df9db44c181f745baa032f36521f9bddc",
+      "physical_lines": 141
+    },
+    {
+      "path": "frontend/features/notifications/hooks/use-notification-center.ts",
+      "sha256": "87e05d1a207ef5ced043c9822195b0b0e26f5362dafd79ec5b56a0097010d7b9",
+      "physical_lines": 23
+    },
+    {
+      "path": "frontend/features/upload/components/smart-camera.tsx",
+      "sha256": "ab15b876d074224e5656330971dda54991acc688e7dfdceb8ae3473b1e6257a7",
+      "physical_lines": 9
+    },
+    {
+      "path": "frontend/features/upload/components/passport-camera.types.ts",
+      "sha256": "c9f38f008c6f17f58920ee4b771c6a218d9e9de18fd148aee8e73b6ca1e2df83",
+      "physical_lines": 11
+    },
+    {
+      "path": "frontend/features/upload/components/passport-camera-view.tsx",
+      "sha256": "7de034eeff03615f76ad98a66afa8bb600d4d1c2bc37ac9275c3b8e6762ba4d0",
+      "physical_lines": 134
+    },
+    {
+      "path": "frontend/features/upload/components/passport-camera-footer.tsx",
+      "sha256": "e5d0685b0b740689267079829ee230302fbfd15bbe820290413ae7b0216acbe4",
+      "physical_lines": 109
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-passport-camera.ts",
+      "sha256": "42b9b3bd336a7b4cfa9b8702e83bf85f7e3783b64efefaf12542bb80902e5b6e",
+      "physical_lines": 264
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-passport-camera-session.ts",
+      "sha256": "d11a1bb00f0a907c61fba4e2f2c8e6f8db520f3859884ba531f8183449736cdf",
+      "physical_lines": 136
+    },
+    {
+      "path": "frontend/features/upload/services/passport-camera-crop.ts",
+      "sha256": "948dc40e76c377761b2e73961a73d0edd7c05ff9c001772c1f5dbe239bc542f9",
+      "physical_lines": 67
+    },
+    {
+      "path": "frontend/features/upload/services/passport-camera-guidance.ts",
+      "sha256": "8658ebb6f39280fbbdfced196d9ed71f19b6576953e6bd3b26e3c3a0360008c6",
+      "physical_lines": 37
+    },
+    {
+      "path": "frontend/features/search/components/__tests__/global-search.test.tsx",
+      "sha256": "d3dcac433d530e5983dc7b9279587f2a68b221e16c1765667bc38b1513f3f15b",
+      "physical_lines": 154
+    },
+    {
+      "path": "frontend/features/dashboard/components/dashboard-overview.test.tsx",
+      "sha256": "0ed8c29abbe624101ef13cb58657a57e148a71eae0a4c56c4d03e3f0331e44bf",
+      "physical_lines": 46
+    },
+    {
+      "path": "frontend/features/notifications/components/notification-bell.test.tsx",
+      "sha256": "162b2d38ee9dd714e5b7be1f42425545109ff990a9bd859cfdc46ee25412e3d6",
+      "physical_lines": 35
+    },
+    {
+      "path": "frontend/features/notifications/notifications.contract.test.mjs",
+      "sha256": "f849879d1ebb6917215481b505d2b018a89acac988392ee990886d1a03eb71f2",
+      "physical_lines": 147
+    },
+    {
+      "path": "frontend/features/tour-operations/services/cold-offline-authorization.test.mjs",
+      "sha256": "6699edade4943308c08969aa4956351cc452bacfbffe223f209dfd63f5c57ad1",
+      "physical_lines": 55
+    },
+    {
+      "path": "frontend/features/tour-operations/services/public-offline-runtime-cache.test.mjs",
+      "sha256": "30af490f8d14444d596b8adcebd3864e3843b20828effac1d15326ea22a97928",
+      "physical_lines": 21
+    },
+    {
+      "path": "frontend/features/tour-operations/components/coordinator-pwa.contract.test.mjs",
+      "sha256": "1212f837a58f21ef9acb5e12a0ef5f32769fee720697af24164015be1626a969",
+      "physical_lines": 447
+    },
+    {
+      "path": "frontend/e2e-fixtures/offline-runtime-update.spec.ts",
+      "sha256": "718f990ee9a64ba45917585e17d2565d6c381bee59b22450886c90a4033dacfc",
+      "physical_lines": 89
+    },
+    {
+      "path": "frontend/e2e/dashboard-resilience.spec.ts",
+      "sha256": "05bad5b83688fed0c41f11d98c1ca498bfeea56e82675c0f0e96069901f64cc3",
+      "physical_lines": 73
+    },
+    {
+      "path": "frontend/features/upload/components/smart-camera.test.tsx",
+      "sha256": "3698d1bd660d52511573bb6cba04fa648ddd95c63fcebcccbfafe1a0607a614e",
+      "physical_lines": 140
+    },
+    {
+      "path": "frontend/features/upload/services/passport-camera-crop.test.ts",
+      "sha256": "29951a5e4ae44f1b51a4cc495f83773d23c336b843278462b7c7e1176c81bd76",
+      "physical_lines": 22
+    },
+    {
+      "path": "frontend/features/upload/components/passport-camera-source.contract-helper.mjs",
+      "sha256": "212a047989e3c98aa94de5f67e7c003b65efb5f78a7d20407116009421446627",
+      "physical_lines": 13
+    },
+    {
+      "path": "frontend/features/upload/components/camera-accessibility.contract.test.mjs",
+      "sha256": "736111e62244727fe28eb1d4fb59a44736f711c6c464cdef211fdc5b73aa33a9",
+      "physical_lines": 87
+    },
+    {
+      "path": "frontend/features/upload/components/passport-camera-final-validation.contract.test.mjs",
+      "sha256": "6ebf311d862689e5e6cb89cb8edbc749662a2e72ee9e521d6ba0daa193c26a35",
+      "physical_lines": 70
+    },
+    {
+      "path": "frontend/features/upload/services/passport-rectangular-frame-detector.test.mjs",
+      "sha256": "41187c81f80f80f994671896afc0799f06ff3ea9e90e45fc2997ca19eb008a24",
+      "physical_lines": 348
+    }
+  ],
+  "negative_before_fix": [
+    "Search: keyboard result could navigate again after selecting cleared query; combobox describedby referenced absent status element (2 focused failures).",
+    "Dashboard: initial failed fetch displayed zero/empty success; stale fetch error gave no stale-data notice (2 focused failures; successful zero baseline passed).",
+    "NotificationBell: Ctrl+K global search shortcut escaped declared aria-modal dialog (1 focused failure).",
+    "Standalone authorization: verified installation runtimeId omitted from returned scan context (1 Node VM failure; wrong QR/closed signed activity negatives passed).",
+    "Public service-worker update installation used HTTP default cache; request cache reload assertion failed before correction (1 Node VM failure)."
+  ],
+  "verification": [
+    {
+      "check": "Focused UI/camera/modal Vitest",
+      "result": "6 files /32 tests passed",
+      "receipt": "ui-pwa-camera-unit.json"
+    },
+    {
+      "check": "Affected UI/PWA/camera source contracts and rectangular geometry",
+      "result": "49 Node tests passed"
+    },
+    {
+      "check": "Coordinator PWA existing contracts at correct components path",
+      "result": "25 Node tests passed"
+    },
+    {
+      "check": "Installed old service-worker cache update",
+      "result": "1 Chromium browser test passed",
+      "receipt": "ui-pwa-update-browser.json"
+    },
+    {
+      "check": "Rendered desktop1440/mobile390 stats retry + notification modal + cleared search",
+      "result": "3 Chromium browser tests passed",
+      "receipt": "ui-pwa-rendered-browser.json"
+    },
+    {
+      "check": "TypeScript",
+      "result": "passed npm run type-check before camera, then tsc --noEmit after camera"
+    },
+    {
+      "check": "Scoped ESLint",
+      "result": "13 UI/PWA paths and10 camera paths passed; no final camera warnings"
+    }
+  ],
+  "camera_behavior_preserved": [
+    "Manual capture only; geometric live readiness; original 2400px maximum capture dimension and1% margin.",
+    "Exact normalized JPEG validated before preview; pass accepted, borderline requires explicit confirmation, hard failure only retake.",
+    "Synchronous duplicate-capture admission; source close in finally; late normalization/validation/lease disposal across restart/unmount.",
+    "Hidden tab releases camera and invalidates capture; returning visible restarts session; URL revoked on replacement/unmount."
+  ],
+  "offline_update_preserved": [
+    "No forced page reload, private storage purge or authorization epoch change.",
+    "Only existing3 public allowlist assets cached; v11 install bypasses old HTTP cache.",
+    "Browser receipt verifies cached current actual scanner bytes, pending IDB row, unsaved input and document epoch survive activation."
+  ],
+  "limitations": [
+    "Standalone authorization unit harness begins after signature verification; it does not qualify full signed-manifest cold-offline camera journey.",
+    "Synthetic service-worker fixture tests asset update/queue retention only; no real camera/provider/production data.",
+    "Hardware camera accuracy/lighting is not established by mocked source and synthetic geometry tests.",
+    "No full build or whole suite rerun for individual fixes; parent combined checkpoint pending."
+  ],
+  "screenshots": [
+    "C:/Users/nipun/Desktop/PassDetection/.tmp/ui-pwa-batch/screenshots/notifications-1440.png",
+    "C:/Users/nipun/Desktop/PassDetection/.tmp/ui-pwa-batch/screenshots/notifications-390.png"
+  ]
+}

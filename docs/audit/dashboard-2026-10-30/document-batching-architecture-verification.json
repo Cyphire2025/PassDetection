@@ -1,0 +1,143 @@
+{
+  "recorded_at": "2026-10-31T09:33:23.038893+00:00",
+  "status": "frozen",
+  "source_fence": [
+    {
+      "path": "frontend/features/documents/services/document-upload-batching.ts",
+      "sha256": "d4c95c411e9e9d82c7573f42c55a67532ca1b3c213cec73db98c3df6ae963d8e"
+    },
+    {
+      "path": "frontend/features/documents/services/document-upload-model.ts",
+      "sha256": "46313a8541e21d5dd9264eabf7d91f9d23eb4bd6651222896eb9772f120d5896"
+    },
+    {
+      "path": "frontend/features/documents/services/document-upload-sessions.ts",
+      "sha256": "e98ae2c6db407f96c338c954b19b81582528531d6375842b51b3d7d2b7b3d6a2"
+    },
+    {
+      "path": "frontend/features/documents/services/document-verification-batches.ts",
+      "sha256": "e08c1755bea17368c100e23389c39b8b3e3f47339fcd7352ab8e535d04a72ab9"
+    },
+    {
+      "path": "frontend/features/documents/services/document-staging-manifest.ts",
+      "sha256": "4a5a209fee76a811519bad5f84f0dba15d21bc246431377f24e3235d55cd621d"
+    },
+    {
+      "path": "frontend/features/documents/services/document-upload-finalization.ts",
+      "sha256": "58035823500a41553790f5d3b632994ec026fc29aea3a227dfa1f3bda91715f8"
+    },
+    {
+      "path": "frontend/features/documents/services/document-upload-retry.ts",
+      "sha256": "0bed525dd9692e584486e6fcb11f74151e3bfac6347281ec4ccd172f470a0fcf"
+    },
+    {
+      "path": "frontend/features/documents/services/document-upload-batching.test.mjs",
+      "sha256": "0f85f9303865a24e863d67c346fdbacc89db84b22ce340c87480e06c4fdda264"
+    },
+    {
+      "path": "frontend/features/documents/components/document-batching-source.contract-helper.mjs",
+      "sha256": "7d75914b27897b903719d6a70c0be814c699c7b83d875fa2d1fe3310c0a9adaf"
+    },
+    {
+      "path": "frontend/features/documents/components/document-bulk-upload.contract.test.mjs",
+      "sha256": "5955561d74fce4725b1d5e660a94a58bf06a5f7843923509ef4fbab36b9dde35"
+    }
+  ],
+  "original": "frontend/features/documents/services/document-upload-batching.ts:633lines",
+  "original_sha256": "9c31e0dd473a89f3e70555dfb7d0ba8f3b7b6bb4826d320c8eba82609f12ff3c",
+  "architecture": "Compatibility facade plus6cohesive model/session/verification/manifest/finalization/retry owners; largest180lines.",
+  "preservation_proof": "document-batching-architecture-provenance.json",
+  "exact_counts": {
+    "original_declarations_moved_once": 31,
+    "original_public_named_exports": 23,
+    "unchanged_original_test_bodies": 23
+  },
+  "critical_coverage": {
+    "config": "frontend/vitest.config.mts",
+    "sha256": "43f8ef71f59df34257e296abc4e2d6181105066af32a39c66bf2dcca6268d37d",
+    "originalBatchingIncluded": false,
+    "originalFloorsPreserved": {
+      "statements": 74,
+      "branches": 50,
+      "functions": 75,
+      "lines": 75
+    },
+    "configUnmodified": true,
+    "note": "No original critical V8 include matched this module; original Node algorithm safety obligations now execute actual facade and relocated implementation graph, all unchanged23 cases plus4 negative/control algorithm cases."
+  },
+  "frozen_api_and_invocation_owners_unchanged": [
+    {
+      "path": "frontend/features/documents/api/document-distribution.api.ts",
+      "sha256": "29b422e32c2515d910fc7fa7e50aa137045b6695718bc50ed63e46796cdec7a8"
+    },
+    {
+      "path": "frontend/features/documents/api/document-review.api.ts",
+      "sha256": "0e65fec9713722a3a2fb684f751a3c0054176a08802434df069d5b6ec45a3325"
+    },
+    {
+      "path": "frontend/features/documents/api/document-verification.api.ts",
+      "sha256": "f07dcb1a9e9131ed9f4b5e58c9ff6bf93074c27a888395c3b7317c8e6c2304d6"
+    },
+    {
+      "path": "frontend/features/documents/api/document-batches.api.ts",
+      "sha256": "0d811cd76a73c62b47a299762cb14a4792a9bffc769f0e33e110c898d8108a1b"
+    },
+    {
+      "path": "frontend/features/documents/api/document-delivery.api.ts",
+      "sha256": "4bd918f76bb2847b975adc2eea2ab49649993b0d1d38d06760949ed602f791f9"
+    },
+    {
+      "path": "frontend/features/documents/api/document-distribution.types.ts",
+      "sha256": "5d026f0150a4855d078f7956011ec18c6bf0e57d1b95ce4c83bf0e0443818b25"
+    },
+    {
+      "path": "frontend/features/documents/hooks/use-document-distribution.ts",
+      "sha256": "212ab308ba02e8fbe7ebea934d1b4681f84417aec5ef3eb9ebf0e84436a0c5bf"
+    },
+    {
+      "path": "frontend/features/documents/services/document-filename-replacements.ts",
+      "sha256": "bdcaed2ce12db58ea63115554231b5f5e8cf286c4f6fe63d240374556ececa85"
+    }
+  ],
+  "affected_checks": {
+    "original_node_baseline": {
+      "passed": 23,
+      "failed": 0,
+      "raw_log": ".tmp/frontend-residual-coverage/document-batching-before.txt"
+    },
+    "current_node": {
+      "passed": 27,
+      "failed": 0,
+      "skipped": 0,
+      "raw_log": ".tmp/frontend-residual-coverage/document-batching-final-node.txt"
+    },
+    "new4_against_original": {
+      "passed": 4,
+      "failed": 0,
+      "command": "node --test --test-reporter=tap .tmp/document-batching/newcases-original.test.mjs",
+      "actual_tool_chunk": "1dca9c",
+      "source_snapshot": ".tmp/document-batching/document-upload-batching.original.ts"
+    },
+    "affected_vitest": {
+      "passed": 27,
+      "failed": 0,
+      "files": 4,
+      "raw_json": ".tmp/frontend-residual-coverage/document-batching-affected.json"
+    },
+    "type_check": {
+      "exit_code": 0,
+      "raw_log": ".tmp/frontend-residual-coverage/document-batching-types.txt"
+    },
+    "scoped_eslint": {
+      "exit_code": 0,
+      "warnings": 0,
+      "raw_log": ".tmp/frontend-residual-coverage/document-batching-lint.txt"
+    }
+  },
+  "budget_candidates": "document-batching-architecture-budget-candidates.json",
+  "limits": [
+    "No whole application suite/coverage/build/browser run.",
+    "No server/provider requests or production data.",
+    "Source/type/algorithm compatibility evidence does not claim current production artifact qualification."
+  ]
+}

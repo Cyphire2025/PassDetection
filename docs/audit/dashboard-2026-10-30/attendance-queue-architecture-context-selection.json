@@ -1,0 +1,145 @@
+{
+  "metadata_only_not_physical_read_credit": true,
+  "records": [
+    {
+      "path": "frontend/features/tour-operations/services/attendance-closeout-checkpoint.ts",
+      "physical_lines": 218,
+      "sha256": "3f79eda74d3f7ce683b15117f62a56c8fd2e48635bf0dc4f6e758b828614f5c3",
+      "existing_full_operations_records": [
+        {
+          "path": "frontend/features/tour-operations/services/attendance-closeout-checkpoint.ts",
+          "status": "fixed",
+          "review_scope": "full",
+          "notes": "Complete read: canonical count-only payload, owner/session snapshots, coalesced publisher lanes and cross-tab serialization. Captured owner now continues through protected transport to closeout PUT, preventing publication as a replacement actor during async authentication. Runtime hint switch and stable-owner tests pass.",
+          "sha256": "3f79eda74d3f7ce683b15117f62a56c8fd2e48635bf0dc4f6e758b828614f5c3"
+        }
+      ]
+    },
+    {
+      "path": "frontend/features/tour-operations/services/browser-offline-database.ts",
+      "physical_lines": 122,
+      "sha256": "efac84fbbb1ddcedffdf29f571d9a7af674839ecda93f7bbd38c5fadfa3b7ab5",
+      "existing_full_operations_records": [
+        {
+          "path": "frontend/features/tour-operations/services/browser-offline-database.ts",
+          "status": "fixed",
+          "review_scope": "full",
+          "notes": "Full read. Reproduced blocked open rejecting caller then later succeeding without a connection owner; late success now closes after prior failure, preserving normal success/versionchange behavior. Two deterministic lifecycle tests pass. No schema version, purge, migration or queue retention change.",
+          "sha256": "efac84fbbb1ddcedffdf29f571d9a7af674839ecda93f7bbd38c5fadfa3b7ab5"
+        }
+      ]
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-scan-queue-owner.test.ts",
+      "physical_lines": 194,
+      "sha256": "52f36f887760811273262f4120a2b2acdeeae7f5280c76b9da70c874c8acd460",
+      "existing_full_operations_records": [
+        {
+          "path": "frontend/features/tour-operations/services/attendance-scan-queue-owner.test.ts",
+          "status": "reviewed",
+          "review_scope": "full",
+          "notes": "Thirteen deterministic actual queue/checkpoint public-entrypoint tests: batch+legacy postclaim decryption switch, stale-success suppression, server409 mismatch before tab notices, retained original retries, foreign-owner preservation, discard audit retention, stable replay and owner-bound closeout publication.",
+          "sha256": "52f36f887760811273262f4120a2b2acdeeae7f5280c76b9da70c874c8acd460"
+        }
+      ]
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-safety-contract.ts",
+      "physical_lines": 40,
+      "sha256": "b1d57d1512e6958de84280b172bd0ed98ebaa1f881ecd1706be4e7f666f9f46b",
+      "existing_full_operations_records": [
+        {
+          "path": "frontend/features/tour-operations/services/attendance-queue-safety-contract.ts",
+          "status": "reviewed",
+          "review_scope": "full",
+          "notes": "Full read: pending/sending/retry/review/discard or unavailable storage all block unsafe signout; unavailable snapshot is fail-closed.",
+          "sha256": "b1d57d1512e6958de84280b172bd0ed98ebaa1f881ecd1706be4e7f666f9f46b"
+        }
+      ]
+    },
+    {
+      "path": "frontend/features/tour-operations/hooks/use-attendance-scan-sync.ts",
+      "physical_lines": 182,
+      "sha256": "5d98e622157c9ef5829a3594d2f644995989e648599519e0c100960a752fd7e8",
+      "existing_full_operations_records": [
+        {
+          "path": "frontend/features/tour-operations/hooks/use-attendance-scan-sync.ts",
+          "status": "reviewed",
+          "review_scope": "full",
+          "notes": "Full read: queue count/private-issue refresh, replay aggregation, count invalidation hints and cleanup traced into owner-fenced queue/public scan entrypoints. No production device/network qualification performed.",
+          "sha256": "5d98e622157c9ef5829a3594d2f644995989e648599519e0c100960a752fd7e8"
+        }
+      ]
+    },
+    {
+      "path": "frontend/features/tour-operations/components/coordinator-offline-scan-drain.tsx",
+      "physical_lines": 107,
+      "sha256": "f3e622ed99b2628628ab1d3ce3690ac4aad08205cd5cc92a7c766e93d61188c7",
+      "existing_full_operations_records": [
+        {
+          "path": "frontend/features/tour-operations/components/coordinator-offline-scan-drain.tsx",
+          "status": "reviewed",
+          "review_scope": "full",
+          "notes": "Full read: exact persisted next-attempt scheduling, independent allSettled scan/discard lanes, visibility/network wakeup and timer/listener cleanup; no blind polling or queue purge.",
+          "sha256": "f3e622ed99b2628628ab1d3ce3690ac4aad08205cd5cc92a7c766e93d61188c7"
+        }
+      ]
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-retry-policy.ts",
+      "physical_lines": 126,
+      "sha256": "c52346bbcb643c0236b55ba3cea5ba2a529cbf4f0a36b0af6b1b6c04558cdc42",
+      "existing_full_operations_records": [
+        {
+          "path": "frontend/features/tour-operations/services/attendance-retry-policy.ts",
+          "status": "reviewed",
+          "review_scope": "full",
+          "notes": "Full read: capped exponential backoff, positive bounded jitter, server RetryAfter floor, canonical group/session closeout classification and oldest wakeup calculation.",
+          "sha256": "c52346bbcb643c0236b55ba3cea5ba2a529cbf4f0a36b0af6b1b6c04558cdc42"
+        }
+      ]
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-sync-policy.ts",
+      "physical_lines": 78,
+      "sha256": "9541575e20aa13891ed7de757ffd1689cefde3c81bb5e18f704e67f051875944",
+      "existing_full_operations_records": [
+        {
+          "path": "frontend/features/tour-operations/services/attendance-sync-policy.ts",
+          "status": "reviewed",
+          "review_scope": "full",
+          "notes": "Complete read: successful replay states, permanent versus recoverable error classification. AUTH_REQUEST_OWNER_CHANGED is not a permanent rejection and does not cause queue deletion or offline capture under the new account.",
+          "sha256": "9541575e20aa13891ed7de757ffd1689cefde3c81bb5e18f704e67f051875944"
+        }
+      ]
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-batch-policy.ts",
+      "physical_lines": 52,
+      "sha256": "393e5adfa1a6e03c8e12786f7a5ab4c2e2600bf5baa9103bb3f4e76b1edb0710",
+      "existing_full_operations_records": [
+        {
+          "path": "frontend/features/tour-operations/services/attendance-batch-policy.ts",
+          "status": "reviewed",
+          "review_scope": "full",
+          "notes": "Complete read: exact batchID/eventID cardinality and uniqueness checks; only complete counted/duplicate outcomes delete a pending row, terminal rejections quarantine and ambiguous responses remain retryable.",
+          "sha256": "393e5adfa1a6e03c8e12786f7a5ab4c2e2600bf5baa9103bb3f4e76b1edb0710"
+        }
+      ]
+    },
+    {
+      "path": "frontend/features/tour-operations/services/attendance-queue-privacy.ts",
+      "physical_lines": 152,
+      "sha256": "f4bc6c4123150b5b9bc5d04085801b474e8796177a895d1ec3b8b449ca113c48",
+      "existing_full_operations_records": [
+        {
+          "path": "frontend/features/tour-operations/services/attendance-queue-privacy.ts",
+          "status": "reviewed",
+          "review_scope": "full",
+          "notes": "Full read: SHA256 references bind owner/group/session/QR; raw QR omitted from terminal evidence; invalid/unattributable legacy rows remain quarantined; secure-crypto requirement explicit.",
+          "sha256": "f4bc6c4123150b5b9bc5d04085801b474e8796177a895d1ec3b8b449ca113c48"
+        }
+      ]
+    }
+  ]
+}

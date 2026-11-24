@@ -1,0 +1,12 @@
+{
+  "frontend_modules_before": 549,
+  "frontend_modules_after": 556,
+  "only_known_frontend_budget_after_changed": true,
+  "old_after": "97aa7f5656de989e88c2e0b8b447aa12eafa5d25c5bf32fe983bba8d512fa57d",
+  "new_after": "271ea71d436b034cfee74ed520c7859bacbbb64a90e0a5e5b1e68a97f80712d9",
+  "old_exact_manifest_pin": "a48f13195d990361c979fa82e432d2e01931de0b8ee8b11552b0a5a8d28f9e21",
+  "new_exact_manifest_pin": "4e5aa6b2a24bfd55f9bf7c478c414d1fca7bfc2ed464b08425a033529a22a8bc",
+  "all79_both_before_sets_unchanged": true,
+  "backend520_after_retained": true,
+  "provenance": "Root document-api-budget-integration.json:7 measured additions, prior549 ceilings unchanged; frozen7 runtime source hashes, complete15-method owner/signature/facade proof and measured replacement-index performance.81 affected cases/18files plus11 API cases retain peer attribution and overlap is not summed. No broad rerun."
+}

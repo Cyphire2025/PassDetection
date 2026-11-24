@@ -1,0 +1,21 @@
+{
+  "AQ-PREFLIGHT-01": {
+    "status": "validated and narrowly corrected",
+    "trigger": "Current protected storageVersion5 scan or discard audit remains sending after prior document terminates.",
+    "baseline": "Actual public queue/privacy/database-open path on persistent minimal IndexedDB API fixture: two recovery assertions failed, no usable-lock and legacy explicit-discard controls passed.",
+    "fix": "Only usable Web Locks authorize interrupted recovery. Scan recovery happens under existing drain+owner locks after protected row identity validation, updates only verified owner/version5/sending IDs and preserves original event/time/crypto/retry data. Discard recovery occurs under existing owner lock with same original audit event. All existing auth/grant/server idempotency and terminal/retry handling remains unchanged.",
+    "controls": "11 new cases: original stable event/duplicate reconciliation and foreign-owner preservation; unavailable and unusable lock-manager controls; two module/document live drain exclusion; authorization denial preserves data; retry-time preservation; invalid protected identity unchanged; already-applied discard identity/privacy; unavailable-lock audit retention; direct constructor/constant identity; legacy explicit-discard workflow.",
+    "limits": "Normal IndexedDB API and lock-lane fixtures exercise actual source paths, not a real browser crash/transaction/cross-tab implementation. Crypto and HTTP are mocked. No real backend service or provider result claimed."
+  },
+  "AQ-PREFLIGHT-02": {
+    "status": "current workflow preserved; comment corrected",
+    "evidence": "Actual guarded UI offers two explicit discard confirmations and auth store calls boundary with discard. Public-boundary control confirms signout callback runs while an owner-attributed unscoped terminal row remains retained. Ordinary block mode and fail-closed inspection remain unchanged. Removed misleading claim that explicit discard stays blocked; no group attribution, deletion or workflow decision invented.",
+    "remaining": "Unscoped legacy review records intentionally have no manufactured group/audit receipt; any separate product workflow for them remains outside this mechanical split."
+  },
+  "AQ-PREFLIGHT-03": {
+    "status": "performance follow-up remains open",
+    "evidence": "Repeated scan filtering and oldest-time sorting unchanged. No benchmark/work-counter parity run, no performance optimization or production latency/throughput claim.",
+    "next": "Only optimize if representative5000-row work-counter/order/outcome parity and measurement justify a coherent change."
+  },
+  "remaining_integration": "Parent owns14 proposed normal module budget admissions and final combined repository verification. Existing30 critical V8 includes/floors untouched; original queue absent, no declaration/facade-only critical gate added."
+}

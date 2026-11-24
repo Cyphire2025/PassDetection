@@ -1,0 +1,812 @@
+{
+  "same_actual_query_trace_after_bijective_fixture_id_normalization": true,
+  "core_compiled_query_count": 52,
+  "actual_sqlite_statement_count": 27,
+  "same_core_PostgreSQL_SQLite_queries_and_parameter_bindings": true,
+  "same_actual_SQLite_statement_order_parameters_delete_flush_order": true,
+  "same_actual_result_values_type_hints_pickle_and_public_signature": true,
+  "why_initial_comparison_failed": "Model Column defaults captured UUID4 before test-body instrumentation, so persisted default IDs still differ between isolated runs. Original raw before/after observations retained. Consistent one-to-one UUID normalization preserves identity reuse across every query and result; absolute fixture identities and timestamps are not claimed identical.",
+  "initial_after_pytest_hook_status": "Existing test body completed its assertions; trace-only hook comparison failed and produced teardown warning. That log remains a failed instrumentation checkpoint. Final affected run will execute the unchanged actual test without this reporting hook.",
+  "scope": "Actual real SQLite removal fixture and two-dialect Core SQL compilation; no PostgreSQL execution/concurrency/provider/storage assertion. Result/retained-data regressions and full expanded statement source proof are independent controls.",
+  "artifacts": [
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-removal-before-actual-query-trace.json",
+      "sha256": "876d85562870454b57921d53cd08be186591163a0bd7f29128037b7c0f1be5c1",
+      "uuid_identity_count": 10
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-removal-after-actual-query-trace.json",
+      "sha256": "0fe5e82e2b9d9dcb2618286ca1b0730eb5e8f26282e6e60a994a43bcbf5ce7d0",
+      "uuid_identity_count": 10
+    }
+  ],
+  "normalized_trace": [
+    {
+      "core_queries": [
+        {
+          "dialect": "postgresql",
+          "sql": "SELECT email_messages.id \nFROM email_messages \nWHERE email_messages.connection_id = %(connection_id_1)s::UUID AND email_messages.agency_id = %(agency_id_1)s::UUID AND email_messages.owner_user_id = %(owner_user_id_1)s::UUID",
+          "parameters": {
+            "connection_id_1": "<uuid1>",
+            "agency_id_1": "<uuid2>",
+            "owner_user_id_1": "<uuid3>"
+          }
+        },
+        {
+          "dialect": "sqlite",
+          "sql": "SELECT email_messages.id \nFROM email_messages \nWHERE email_messages.connection_id = ? AND email_messages.agency_id = ? AND email_messages.owner_user_id = ?",
+          "parameters": {
+            "connection_id_1": "<uuid1>",
+            "agency_id_1": "<uuid2>",
+            "owner_user_id_1": "<uuid3>"
+          }
+        },
+        {
+          "dialect": "postgresql",
+          "sql": "SELECT email_artifacts.id, email_artifacts.storage_key \nFROM email_artifacts \nWHERE email_artifacts.message_id IN (__[POSTCOMPILE_message_id_1]) AND email_artifacts.agency_id = %(agency_id_1)s::UUID AND email_artifacts.owner_user_id = %(owner_user_id_1)s::UUID",
+          "parameters": {
+            "message_id_1": [
+              "<uuid4>"
+            ],
+            "agency_id_1": "<uuid2>",
+            "owner_user_id_1": "<uuid3>"
+          }
+        },
+        {
+          "dialect": "sqlite",
+          "sql": "SELECT email_artifacts.id, email_artifacts.storage_key \nFROM email_artifacts \nWHERE email_artifacts.message_id IN (__[POSTCOMPILE_message_id_1]) AND email_artifacts.agency_id = ? AND email_artifacts.owner_user_id = ?",
+          "parameters": {
+            "message_id_1": [
+              "<uuid4>"
+            ],
+            "agency_id_1": "<uuid2>",
+            "owner_user_id_1": "<uuid3>"
+          }
+        },
+        {
+          "dialect": "postgresql",
+          "sql": "SELECT email_review_items.id \nFROM email_review_items \nWHERE email_review_items.message_id IN (__[POSTCOMPILE_message_id_1]) AND email_review_items.agency_id = %(agency_id_1)s::UUID AND email_review_items.owner_user_id = %(owner_user_id_1)s::UUID",
+          "parameters": {
+            "message_id_1": [
+              "<uuid4>"
+            ],
+            "agency_id_1": "<uuid2>",
+            "owner_user_id_1": "<uuid3>"
+          }
+        },
+        {
+          "dialect": "sqlite",
+          "sql": "SELECT email_review_items.id \nFROM email_review_items \nWHERE email_review_items.message_id IN (__[POSTCOMPILE_message_id_1]) AND email_review_items.agency_id = ? AND email_review_items.owner_user_id = ?",
+          "parameters": {
+            "message_id_1": [
+              "<uuid4>"
+            ],
+            "agency_id_1": "<uuid2>",
+            "owner_user_id_1": "<uuid3>"
+          }
+        },
+        {
+          "dialect": "postgresql",
+          "sql": "SELECT email_ai_analyses.id \nFROM email_ai_analyses \nWHERE email_ai_analyses.message_id IN (__[POSTCOMPILE_message_id_1]) AND email_ai_analyses.connection_id = %(connection_id_1)s::UUID AND email_ai_analyses.agency_id = %(agency_id_1)s::UUID AND email_ai_analyses.owner_user_id = %(owner_user_id_1)s::UUID",
+          "parameters": {
+            "message_id_1": [
+              "<uuid4>"
+            ],
+            "connection_id_1": "<uuid1>",
+            "agency_id_1": "<uuid2>",
+            "owner_user_id_1": "<uuid3>"
+          }
+        },
+        {
+          "dialect": "sqlite",
+          "sql": "SELECT email_ai_analyses.id \nFROM email_ai_analyses \nWHERE email_ai_analyses.message_id IN (__[POSTCOMPILE_message_id_1]) AND email_ai_analyses.connection_id = ? AND email_ai_analyses.agency_id = ? AND email_ai_analyses.owner_user_id = ?",
+          "parameters": {
+            "message_id_1": [
+              "<uuid4>"
+            ],
+            "connection_id_1": "<uuid1>",
+            "agency_id_1": "<uuid2>",
+            "owner_user_id_1": "<uuid3>"
+          }
+        },
+        {
+          "dialect": "postgresql",
+          "sql": "SELECT email_artifact_documents.distributed_document_id \nFROM email_artifact_documents \nWHERE email_artifact_documents.artifact_id IN (__[POSTCOMPILE_artifact_id_1]) AND email_artifact_documents.agency_id = %(agency_id_1)s::UUID AND email_artifact_documents.owner_user_id = %(owner_user_id_1)s::UUID AND email_artifact_documents.result_type = %(result_type_1)s",
+          "parameters": {
+            "artifact_id_1": [
+              "<uuid5>"
+            ],
+            "agency_id_1": "<uuid2>",
+            "owner_user_id_1": "<uuid3>",
+            "result_type_1": "created"
+          }
+        },
+        {
+          "dialect": "sqlite",
+          "sql": "SELECT email_artifact_documents.distributed_document_id \nFROM email_artifact_documents \nWHERE email_artifact_documents.artifact_id IN (__[POSTCOMPILE_artifact_id_1]) AND email_artifact_documents.agency_id = ? AND email_artifact_documents.owner_user_id = ? AND email_artifact_documents.result_type = ?",
+          "parameters": {
+            "artifact_id_1": [
+              "<uuid5>"
+            ],
+            "agency_id_1": "<uuid2>",
+            "owner_user_id_1": "<uuid3>",
+            "result_type_1": "created"
+          }
+        },
+        {
+          "dialect": "postgresql",
+          "sql": "SELECT email_artifact_documents.distributed_document_id \nFROM email_artifact_documents \nWHERE email_artifact_documents.distributed_document_id IN (__[POSTCOMPILE_distributed_document_id_1]) AND (email_artifact_documents.artifact_id NOT IN (__[POSTCOMPILE_artifact_id_1]))",
+          "parameters": {
+            "distributed_document_id_1": [
+              "<uuid6>",
+              "<uuid7>"
+            ],
+            "artifact_id_1": [
+              "<uuid5>"
+            ]
+          }
+        },
+        {
+          "dialect": "sqlite",
+          "sql": "SELECT email_artifact_documents.distributed_document_id \nFROM email_artifact_documents \nWHERE email_artifact_documents.distributed_document_id IN (__[POSTCOMPILE_distributed_document_id_1]) AND (email_artifact_documents.artifact_id NOT IN (__[POSTCOMPILE_artifact_id_1]))",
+          "parameters": {
+            "distributed_document_id_1": [
+              "<uuid6>",
+              "<uuid7>"
+            ],
+            "artifact_id_1": [
+              "<uuid5>"
+            ]
+          }
+        },
+        {
+          "dialect": "postgresql",
+          "sql": "SELECT distributed_documents.id, distributed_documents.batch_id, distributed_documents.storage_key \nFROM distributed_documents \nWHERE distributed_documents.id IN (__[POSTCOMPILE_id_1]) AND distributed_documents.agency_id = %(agency_id_1)s::UUID",
+          "parameters": {
+            "id_1": [
+              "<uuid6>"
+            ],
+            "agency_id_1": "<uuid2>"
+          }
+        },
+        {
+          "dialect": "sqlite",
+          "sql": "SELECT distributed_documents.id, distributed_documents.batch_id, distributed_documents.storage_key \nFROM distributed_documents \nWHERE distributed_documents.id IN (__[POSTCOMPILE_id_1]) AND distributed_documents.agency_id = ?",
+          "parameters": {
+            "id_1": [
+              "<uuid6>"
+            ],
+            "agency_id_1": "<uuid2>"
+          }
+        },
+        {
+          "dialect": "postgresql",
+          "sql": "DELETE FROM notifications WHERE notifications.agency_id = %(agency_id_1)s::UUID AND notifications.user_id = %(user_id_1)s::UUID AND notifications.category = %(category_1)s AND notifications.entity_type = %(entity_type_1)s AND notifications.entity_id IN (__[POSTCOMPILE_entity_id_1])",
+          "parameters": {
+            "agency_id_1": "<uuid2>",
+            "user_id_1": "<uuid3>",
+            "category_1": "email_operations",
+            "entity_type_1": "email_message",
+            "entity_id_1": [
+              "<uuid4>"
+            ]
+          }
+        },
+        {
+          "dialect": "sqlite",
+          "sql": "DELETE FROM notifications WHERE notifications.agency_id = ? AND notifications.user_id = ? AND notifications.category = ? AND notifications.entity_type = ? AND notifications.entity_id IN (__[POSTCOMPILE_entity_id_1])",
+          "parameters": {
+            "agency_id_1": "<uuid2>",
+            "user_id_1": "<uuid3>",
+            "category_1": "email_operations",
+            "entity_type_1": "email_message",
+            "entity_id_1": [
+              "<uuid4>"
+            ]
+          }
+        },
+        {
+          "dialect": "postgresql",
+          "sql": "DELETE FROM email_ai_feedback WHERE email_ai_feedback.analysis_id IN (__[POSTCOMPILE_analysis_id_1])",
+          "parameters": {
+            "analysis_id_1": [
+              "<uuid8>"
+            ]
+          }
+        },
+        {
+          "dialect": "sqlite",
+          "sql": "DELETE FROM email_ai_feedback WHERE email_ai_feedback.analysis_id IN (__[POSTCOMPILE_analysis_id_1])",
+          "parameters": {
+            "analysis_id_1": [
+              "<uuid8>"
+            ]
+          }
+        },
+        {
+          "dialect": "postgresql",
+          "sql": "DELETE FROM email_reply_drafts WHERE email_reply_drafts.analysis_id IN (__[POSTCOMPILE_analysis_id_1])",
+          "parameters": {
+            "analysis_id_1": [
+              "<uuid8>"
+            ]
+          }
+        },
+        {
+          "dialect": "sqlite",
+          "sql": "DELETE FROM email_reply_drafts WHERE email_reply_drafts.analysis_id IN (__[POSTCOMPILE_analysis_id_1])",
+          "parameters": {
+            "analysis_id_1": [
+              "<uuid8>"
+            ]
+          }
+        },
+        {
+          "dialect": "postgresql",
+          "sql": "DELETE FROM email_action_proposals WHERE email_action_proposals.analysis_id IN (__[POSTCOMPILE_analysis_id_1])",
+          "parameters": {
+            "analysis_id_1": [
+              "<uuid8>"
+            ]
+          }
+        },
+        {
+          "dialect": "sqlite",
+          "sql": "DELETE FROM email_action_proposals WHERE email_action_proposals.analysis_id IN (__[POSTCOMPILE_analysis_id_1])",
+          "parameters": {
+            "analysis_id_1": [
+              "<uuid8>"
+            ]
+          }
+        },
+        {
+          "dialect": "postgresql",
+          "sql": "DELETE FROM email_detected_deadlines WHERE email_detected_deadlines.analysis_id IN (__[POSTCOMPILE_analysis_id_1])",
+          "parameters": {
+            "analysis_id_1": [
+              "<uuid8>"
+            ]
+          }
+        },
+        {
+          "dialect": "sqlite",
+          "sql": "DELETE FROM email_detected_deadlines WHERE email_detected_deadlines.analysis_id IN (__[POSTCOMPILE_analysis_id_1])",
+          "parameters": {
+            "analysis_id_1": [
+              "<uuid8>"
+            ]
+          }
+        },
+        {
+          "dialect": "postgresql",
+          "sql": "DELETE FROM email_ai_analyses WHERE email_ai_analyses.id IN (__[POSTCOMPILE_id_1])",
+          "parameters": {
+            "id_1": [
+              "<uuid8>"
+            ]
+          }
+        },
+        {
+          "dialect": "sqlite",
+          "sql": "DELETE FROM email_ai_analyses WHERE email_ai_analyses.id IN (__[POSTCOMPILE_id_1])",
+          "parameters": {
+            "id_1": [
+              "<uuid8>"
+            ]
+          }
+        },
+        {
+          "dialect": "postgresql",
+          "sql": "DELETE FROM email_activity_events WHERE email_activity_events.connection_id = %(connection_id_1)s::UUID AND email_activity_events.agency_id = %(agency_id_1)s::UUID AND email_activity_events.owner_user_id = %(owner_user_id_1)s::UUID",
+          "parameters": {
+            "connection_id_1": "<uuid1>",
+            "agency_id_1": "<uuid2>",
+            "owner_user_id_1": "<uuid3>"
+          }
+        },
+        {
+          "dialect": "sqlite",
+          "sql": "DELETE FROM email_activity_events WHERE email_activity_events.connection_id = ? AND email_activity_events.agency_id = ? AND email_activity_events.owner_user_id = ?",
+          "parameters": {
+            "connection_id_1": "<uuid1>",
+            "agency_id_1": "<uuid2>",
+            "owner_user_id_1": "<uuid3>"
+          }
+        },
+        {
+          "dialect": "postgresql",
+          "sql": "DELETE FROM email_review_items WHERE email_review_items.id IN (__[POSTCOMPILE_id_1])",
+          "parameters": {
+            "id_1": [
+              "<uuid9>"
+            ]
+          }
+        },
+        {
+          "dialect": "sqlite",
+          "sql": "DELETE FROM email_review_items WHERE email_review_items.id IN (__[POSTCOMPILE_id_1])",
+          "parameters": {
+            "id_1": [
+              "<uuid9>"
+            ]
+          }
+        },
+        {
+          "dialect": "postgresql",
+          "sql": "DELETE FROM email_artifact_documents WHERE email_artifact_documents.artifact_id IN (__[POSTCOMPILE_artifact_id_1])",
+          "parameters": {
+            "artifact_id_1": [
+              "<uuid5>"
+            ]
+          }
+        },
+        {
+          "dialect": "sqlite",
+          "sql": "DELETE FROM email_artifact_documents WHERE email_artifact_documents.artifact_id IN (__[POSTCOMPILE_artifact_id_1])",
+          "parameters": {
+            "artifact_id_1": [
+              "<uuid5>"
+            ]
+          }
+        },
+        {
+          "dialect": "postgresql",
+          "sql": "UPDATE email_artifacts SET duplicate_of_id=%(duplicate_of_id)s::UUID, updated_at=%(updated_at)s WHERE email_artifacts.duplicate_of_id IN (__[POSTCOMPILE_duplicate_of_id_1])",
+          "parameters": {
+            "duplicate_of_id": null,
+            "updated_at": null,
+            "duplicate_of_id_1": [
+              "<uuid5>"
+            ]
+          }
+        },
+        {
+          "dialect": "sqlite",
+          "sql": "UPDATE email_artifacts SET duplicate_of_id=?, updated_at=? WHERE email_artifacts.duplicate_of_id IN (__[POSTCOMPILE_duplicate_of_id_1])",
+          "parameters": {
+            "duplicate_of_id": null,
+            "updated_at": null,
+            "duplicate_of_id_1": [
+              "<uuid5>"
+            ]
+          }
+        },
+        {
+          "dialect": "postgresql",
+          "sql": "DELETE FROM email_artifacts WHERE email_artifacts.id IN (__[POSTCOMPILE_id_1])",
+          "parameters": {
+            "id_1": [
+              "<uuid5>"
+            ]
+          }
+        },
+        {
+          "dialect": "sqlite",
+          "sql": "DELETE FROM email_artifacts WHERE email_artifacts.id IN (__[POSTCOMPILE_id_1])",
+          "parameters": {
+            "id_1": [
+              "<uuid5>"
+            ]
+          }
+        },
+        {
+          "dialect": "postgresql",
+          "sql": "DELETE FROM email_messages WHERE email_messages.id IN (__[POSTCOMPILE_id_1])",
+          "parameters": {
+            "id_1": [
+              "<uuid4>"
+            ]
+          }
+        },
+        {
+          "dialect": "sqlite",
+          "sql": "DELETE FROM email_messages WHERE email_messages.id IN (__[POSTCOMPILE_id_1])",
+          "parameters": {
+            "id_1": [
+              "<uuid4>"
+            ]
+          }
+        },
+        {
+          "dialect": "postgresql",
+          "sql": "DELETE FROM email_oauth_states WHERE email_oauth_states.connection_id = %(connection_id_1)s::UUID AND email_oauth_states.agency_id = %(agency_id_1)s::UUID AND email_oauth_states.user_id = %(user_id_1)s::UUID",
+          "parameters": {
+            "connection_id_1": "<uuid1>",
+            "agency_id_1": "<uuid2>",
+            "user_id_1": "<uuid3>"
+          }
+        },
+        {
+          "dialect": "sqlite",
+          "sql": "DELETE FROM email_oauth_states WHERE email_oauth_states.connection_id = ? AND email_oauth_states.agency_id = ? AND email_oauth_states.user_id = ?",
+          "parameters": {
+            "connection_id_1": "<uuid1>",
+            "agency_id_1": "<uuid2>",
+            "user_id_1": "<uuid3>"
+          }
+        },
+        {
+          "dialect": "postgresql",
+          "sql": "DELETE FROM email_ai_rollout_policies WHERE email_ai_rollout_policies.scope_type = %(scope_type_1)s AND email_ai_rollout_policies.connection_id = %(connection_id_1)s::UUID AND email_ai_rollout_policies.agency_id = %(agency_id_1)s::UUID AND email_ai_rollout_policies.owner_user_id = %(owner_user_id_1)s::UUID",
+          "parameters": {
+            "scope_type_1": "connection",
+            "connection_id_1": "<uuid1>",
+            "agency_id_1": "<uuid2>",
+            "owner_user_id_1": "<uuid3>"
+          }
+        },
+        {
+          "dialect": "sqlite",
+          "sql": "DELETE FROM email_ai_rollout_policies WHERE email_ai_rollout_policies.scope_type = ? AND email_ai_rollout_policies.connection_id = ? AND email_ai_rollout_policies.agency_id = ? AND email_ai_rollout_policies.owner_user_id = ?",
+          "parameters": {
+            "scope_type_1": "connection",
+            "connection_id_1": "<uuid1>",
+            "agency_id_1": "<uuid2>",
+            "owner_user_id_1": "<uuid3>"
+          }
+        },
+        {
+          "dialect": "postgresql",
+          "sql": "DELETE FROM document_whatsapp_deliveries WHERE document_whatsapp_deliveries.distributed_document_id IN (__[POSTCOMPILE_distributed_document_id_1]) AND document_whatsapp_deliveries.agency_id = %(agency_id_1)s::UUID",
+          "parameters": {
+            "distributed_document_id_1": [
+              "<uuid6>"
+            ],
+            "agency_id_1": "<uuid2>"
+          }
+        },
+        {
+          "dialect": "sqlite",
+          "sql": "DELETE FROM document_whatsapp_deliveries WHERE document_whatsapp_deliveries.distributed_document_id IN (__[POSTCOMPILE_distributed_document_id_1]) AND document_whatsapp_deliveries.agency_id = ?",
+          "parameters": {
+            "distributed_document_id_1": [
+              "<uuid6>"
+            ],
+            "agency_id_1": "<uuid2>"
+          }
+        },
+        {
+          "dialect": "postgresql",
+          "sql": "DELETE FROM distributed_documents WHERE distributed_documents.id IN (__[POSTCOMPILE_id_1]) AND distributed_documents.agency_id = %(agency_id_1)s::UUID",
+          "parameters": {
+            "id_1": [
+              "<uuid6>"
+            ],
+            "agency_id_1": "<uuid2>"
+          }
+        },
+        {
+          "dialect": "sqlite",
+          "sql": "DELETE FROM distributed_documents WHERE distributed_documents.id IN (__[POSTCOMPILE_id_1]) AND distributed_documents.agency_id = ?",
+          "parameters": {
+            "id_1": [
+              "<uuid6>"
+            ],
+            "agency_id_1": "<uuid2>"
+          }
+        },
+        {
+          "dialect": "postgresql",
+          "sql": "SELECT distributed_documents.batch_id \nFROM distributed_documents \nWHERE distributed_documents.batch_id IN (__[POSTCOMPILE_batch_id_1])",
+          "parameters": {
+            "batch_id_1": [
+              "<uuid10>"
+            ]
+          }
+        },
+        {
+          "dialect": "sqlite",
+          "sql": "SELECT distributed_documents.batch_id \nFROM distributed_documents \nWHERE distributed_documents.batch_id IN (__[POSTCOMPILE_batch_id_1])",
+          "parameters": {
+            "batch_id_1": [
+              "<uuid10>"
+            ]
+          }
+        },
+        {
+          "dialect": "postgresql",
+          "sql": "SELECT email_artifacts.storage_key \nFROM email_artifacts \nWHERE email_artifacts.storage_key IN (__[POSTCOMPILE_storage_key_1])",
+          "parameters": {
+            "storage_key_1": [
+              "email-integrations/removed/staged.pdf",
+              "email-integrations-canonical/exclusive.pdf"
+            ]
+          }
+        },
+        {
+          "dialect": "sqlite",
+          "sql": "SELECT email_artifacts.storage_key \nFROM email_artifacts \nWHERE email_artifacts.storage_key IN (__[POSTCOMPILE_storage_key_1])",
+          "parameters": {
+            "storage_key_1": [
+              "email-integrations/removed/staged.pdf",
+              "email-integrations-canonical/exclusive.pdf"
+            ]
+          }
+        },
+        {
+          "dialect": "postgresql",
+          "sql": "SELECT distributed_documents.storage_key \nFROM distributed_documents \nWHERE distributed_documents.storage_key IN (__[POSTCOMPILE_storage_key_1])",
+          "parameters": {
+            "storage_key_1": [
+              "email-integrations/removed/staged.pdf",
+              "email-integrations-canonical/exclusive.pdf"
+            ]
+          }
+        },
+        {
+          "dialect": "sqlite",
+          "sql": "SELECT distributed_documents.storage_key \nFROM distributed_documents \nWHERE distributed_documents.storage_key IN (__[POSTCOMPILE_storage_key_1])",
+          "parameters": {
+            "storage_key_1": [
+              "email-integrations/removed/staged.pdf",
+              "email-integrations-canonical/exclusive.pdf"
+            ]
+          }
+        }
+      ],
+      "actual_sqlite_statements": [
+        {
+          "sql": "SELECT email_messages.id \nFROM email_messages \nWHERE email_messages.connection_id = ? AND email_messages.agency_id = ? AND email_messages.owner_user_id = ?",
+          "parameters": [
+            "<uuid1>",
+            "<uuid2>",
+            "<uuid3>"
+          ]
+        },
+        {
+          "sql": "SELECT email_artifacts.id, email_artifacts.storage_key \nFROM email_artifacts \nWHERE email_artifacts.message_id IN (?) AND email_artifacts.agency_id = ? AND email_artifacts.owner_user_id = ?",
+          "parameters": [
+            "<uuid4>",
+            "<uuid2>",
+            "<uuid3>"
+          ]
+        },
+        {
+          "sql": "SELECT email_review_items.id \nFROM email_review_items \nWHERE email_review_items.message_id IN (?) AND email_review_items.agency_id = ? AND email_review_items.owner_user_id = ?",
+          "parameters": [
+            "<uuid4>",
+            "<uuid2>",
+            "<uuid3>"
+          ]
+        },
+        {
+          "sql": "SELECT email_ai_analyses.id \nFROM email_ai_analyses \nWHERE email_ai_analyses.message_id IN (?) AND email_ai_analyses.connection_id = ? AND email_ai_analyses.agency_id = ? AND email_ai_analyses.owner_user_id = ?",
+          "parameters": [
+            "<uuid4>",
+            "<uuid1>",
+            "<uuid2>",
+            "<uuid3>"
+          ]
+        },
+        {
+          "sql": "SELECT email_artifact_documents.distributed_document_id \nFROM email_artifact_documents \nWHERE email_artifact_documents.artifact_id IN (?) AND email_artifact_documents.agency_id = ? AND email_artifact_documents.owner_user_id = ? AND email_artifact_documents.result_type = ?",
+          "parameters": [
+            "<uuid5>",
+            "<uuid2>",
+            "<uuid3>",
+            "created"
+          ]
+        },
+        {
+          "sql": "SELECT email_artifact_documents.distributed_document_id \nFROM email_artifact_documents \nWHERE email_artifact_documents.distributed_document_id IN (?, ?) AND (email_artifact_documents.artifact_id NOT IN (?))",
+          "parameters": [
+            "<uuid6>",
+            "<uuid7>",
+            "<uuid5>"
+          ]
+        },
+        {
+          "sql": "SELECT distributed_documents.id, distributed_documents.batch_id, distributed_documents.storage_key \nFROM distributed_documents \nWHERE distributed_documents.id IN (?) AND distributed_documents.agency_id = ?",
+          "parameters": [
+            "<uuid6>",
+            "<uuid2>"
+          ]
+        },
+        {
+          "sql": "DELETE FROM notifications WHERE notifications.agency_id = ? AND notifications.user_id = ? AND notifications.category = ? AND notifications.entity_type = ? AND notifications.entity_id IN (?)",
+          "parameters": [
+            "<uuid2>",
+            "<uuid3>",
+            "email_operations",
+            "email_message",
+            "<uuid4>"
+          ]
+        },
+        {
+          "sql": "DELETE FROM email_ai_feedback WHERE email_ai_feedback.analysis_id IN (?)",
+          "parameters": [
+            "<uuid8>"
+          ]
+        },
+        {
+          "sql": "DELETE FROM email_reply_drafts WHERE email_reply_drafts.analysis_id IN (?)",
+          "parameters": [
+            "<uuid8>"
+          ]
+        },
+        {
+          "sql": "DELETE FROM email_action_proposals WHERE email_action_proposals.analysis_id IN (?)",
+          "parameters": [
+            "<uuid8>"
+          ]
+        },
+        {
+          "sql": "DELETE FROM email_detected_deadlines WHERE email_detected_deadlines.analysis_id IN (?)",
+          "parameters": [
+            "<uuid8>"
+          ]
+        },
+        {
+          "sql": "DELETE FROM email_ai_analyses WHERE email_ai_analyses.id IN (?)",
+          "parameters": [
+            "<uuid8>"
+          ]
+        },
+        {
+          "sql": "DELETE FROM email_activity_events WHERE email_activity_events.connection_id = ? AND email_activity_events.agency_id = ? AND email_activity_events.owner_user_id = ?",
+          "parameters": [
+            "<uuid1>",
+            "<uuid2>",
+            "<uuid3>"
+          ]
+        },
+        {
+          "sql": "DELETE FROM email_review_items WHERE email_review_items.id IN (?)",
+          "parameters": [
+            "<uuid9>"
+          ]
+        },
+        {
+          "sql": "DELETE FROM email_artifact_documents WHERE email_artifact_documents.artifact_id IN (?)",
+          "parameters": [
+            "<uuid5>"
+          ]
+        },
+        {
+          "sql": "UPDATE email_artifacts SET duplicate_of_id=?, updated_at=? WHERE email_artifacts.duplicate_of_id IN (?)",
+          "parameters": [
+            null,
+            "<datetime>",
+            "<uuid5>"
+          ]
+        },
+        {
+          "sql": "DELETE FROM email_artifacts WHERE email_artifacts.id IN (?)",
+          "parameters": [
+            "<uuid5>"
+          ]
+        },
+        {
+          "sql": "DELETE FROM email_messages WHERE email_messages.id IN (?)",
+          "parameters": [
+            "<uuid4>"
+          ]
+        },
+        {
+          "sql": "DELETE FROM email_oauth_states WHERE email_oauth_states.connection_id = ? AND email_oauth_states.agency_id = ? AND email_oauth_states.user_id = ?",
+          "parameters": [
+            "<uuid1>",
+            "<uuid2>",
+            "<uuid3>"
+          ]
+        },
+        {
+          "sql": "DELETE FROM email_ai_rollout_policies WHERE email_ai_rollout_policies.scope_type = ? AND email_ai_rollout_policies.connection_id = ? AND email_ai_rollout_policies.agency_id = ? AND email_ai_rollout_policies.owner_user_id = ?",
+          "parameters": [
+            "connection",
+            "<uuid1>",
+            "<uuid2>",
+            "<uuid3>"
+          ]
+        },
+        {
+          "sql": "DELETE FROM document_whatsapp_deliveries WHERE document_whatsapp_deliveries.distributed_document_id IN (?) AND document_whatsapp_deliveries.agency_id = ?",
+          "parameters": [
+            "<uuid6>",
+            "<uuid2>"
+          ]
+        },
+        {
+          "sql": "DELETE FROM distributed_documents WHERE distributed_documents.id IN (?) AND distributed_documents.agency_id = ?",
+          "parameters": [
+            "<uuid6>",
+            "<uuid2>"
+          ]
+        },
+        {
+          "sql": "SELECT distributed_documents.batch_id \nFROM distributed_documents \nWHERE distributed_documents.batch_id IN (?)",
+          "parameters": [
+            "<uuid10>"
+          ]
+        },
+        {
+          "sql": "DELETE FROM email_connections WHERE email_connections.id = ?",
+          "parameters": [
+            "<uuid1>"
+          ]
+        },
+        {
+          "sql": "SELECT email_artifacts.storage_key \nFROM email_artifacts \nWHERE email_artifacts.storage_key IN (?, ?)",
+          "parameters": [
+            "email-integrations/removed/staged.pdf",
+            "email-integrations-canonical/exclusive.pdf"
+          ]
+        },
+        {
+          "sql": "SELECT distributed_documents.storage_key \nFROM distributed_documents \nWHERE distributed_documents.storage_key IN (?, ?)",
+          "parameters": [
+            "email-integrations/removed/staged.pdf",
+            "email-integrations-canonical/exclusive.pdf"
+          ]
+        }
+      ],
+      "operation_order": [
+        "sql",
+        "sql",
+        "sql",
+        "sql",
+        "sql",
+        "sql",
+        "sql",
+        "sql",
+        "sql",
+        "sql",
+        "sql",
+        "sql",
+        "sql",
+        "sql",
+        "sql",
+        "sql",
+        "sql",
+        "sql",
+        "sql",
+        "sql",
+        "sql",
+        "sql",
+        "sql",
+        "sql",
+        "delete_connection",
+        "explicit_flush",
+        "sql",
+        "sql",
+        "sql"
+      ],
+      "result": {
+        "connection_id": "<uuid1>",
+        "message_count": 1,
+        "artifact_count": 1,
+        "review_count": 1,
+        "activity_count": 1,
+        "document_count": 1,
+        "notification_count": 1,
+        "audit_log_count": 0,
+        "storage_keys": [
+          "email-integrations/removed/staged.pdf",
+          "email-integrations-canonical/exclusive.pdf"
+        ]
+      },
+      "result_type": [
+        "app.infrastructure.email.account_removal",
+        "EmailAccountRemovalResult"
+      ],
+      "result_pickle_equal": true,
+      "public_function_signature": "(session: 'AsyncSession', *, connection: 'EmailConnectionModel') -> 'EmailAccountRemovalResult'",
+      "public_function_hints": {
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "connection": "<class 'app.infrastructure.database.email_models.EmailConnectionModel'>",
+        "return": "<class 'app.infrastructure.email.account_removal.EmailAccountRemovalResult'>"
+      },
+      "result_class_hints": {
+        "connection_id": "<class 'uuid.UUID'>",
+        "message_count": "<class 'int'>",
+        "artifact_count": "<class 'int'>",
+        "review_count": "<class 'int'>",
+        "activity_count": "<class 'int'>",
+        "document_count": "<class 'int'>",
+        "notification_count": "<class 'int'>",
+        "audit_log_count": "<class 'int'>",
+        "storage_keys": "tuple[str, ...]"
+      }
+    }
+  ]
+}

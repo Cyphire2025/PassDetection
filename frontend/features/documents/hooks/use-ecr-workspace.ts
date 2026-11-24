@@ -2,12 +2,21 @@ import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { ROUTES } from "@/constants/routes";
 import { isDownloadCancelled } from "@/lib/api/download-destination";
+import { capturePrivateOperationOwner } from "@/lib/api/request-owner";
 import { ecrCheckerApi } from "../api/ecr-checker.api";
 import { ecrKeys, useEcrBatch, useEcrBatches } from "./use-ecr-checker";
 import {
   clearEcrUpload, createEcrUploadEntries, ecrErrorMessage, restoreEcrUpload,
   storeEcrUpload, uploadEcrEntries, type EcrUploadEntry, type EcrUploadProgress,
 } from "../services/ecr-upload";
+
+type EcrOperationOwner = ReturnType<typeof capturePrivateOperationOwner>;
+
+function canPublishOperation(owner: EcrOperationOwner | null, mounted: boolean, signal?: AbortSignal) {
+  if (!mounted || signal?.aborted) return false;
+  try { owner?.assertCurrent(); return true; }
+  catch { return false; }
+}
 
 export function useEcrWorkspace(initialBatchId: string | null) {
   const [batchId, setBatchId] = useState(initialBatchId);
@@ -18,11 +27,15 @@ export function useEcrWorkspace(initialBatchId: string | null) {
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState<EcrUploadProgress | null>(null);
   const controllerRef = useRef<AbortController | null>(null);
+  const mountedRef = useRef(false);
   const queryClient = useQueryClient();
   const batches = useEcrBatches();
   const batch = useEcrBatch(batchId);
 
-  useEffect(() => () => controllerRef.current?.abort(), []);
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; controllerRef.current?.abort(); };
+  }, []);
   useEffect(() => {
     if (!busy) return;
     const preventLoss = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = ""; };
@@ -59,17 +72,22 @@ export function useEcrWorkspace(initialBatchId: string | null) {
     setBusy(true);
     setError(null);
     let activeId = batchId;
+    let owner: EcrOperationOwner | null = null;
     try {
+      const operationOwner = capturePrivateOperationOwner();
+      owner = operationOwner;
       let current;
       if (activeId) current = await ecrCheckerApi.get(activeId, controller.signal);
       else {
         if (!entries.length) throw new Error("Choose your passport back-page images first.");
         current = await ecrCheckerApi.create(title.trim() || `ECR check ${new Date().toLocaleDateString("en-GB")}`, entries.length, controller.signal);
+        if (!canPublishOperation(owner, mountedRef.current, controller.signal)) return;
         activeId = current.batch_id;
         storeEcrUpload(activeId, entries);
         setBatchId(activeId);
         window.history.replaceState(null, "", `${ROUTES.dashboard.ecrChecker}?batch=${encodeURIComponent(activeId)}`);
       }
+      if (!canPublishOperation(owner, mountedRef.current, controller.signal)) return;
       queryClient.setQueryData(ecrKeys.batch(activeId), current);
       if (current.status === "uploading" && current.total_count < current.expected_count) {
         if (!entries.length) throw new Error("Choose the same original images again to resume this upload.");
@@ -77,20 +95,28 @@ export function useEcrWorkspace(initialBatchId: string | null) {
           entries,
           existingItems: current.items,
           signal: controller.signal,
-          onProgress: setProgress,
-          uploadChunk: (chunk, report) => ecrCheckerApi.upload(activeId!, chunk, report, controller.signal),
+          onProgress: value => {
+            if (canPublishOperation(owner, mountedRef.current, controller.signal)) setProgress(value);
+          },
+          uploadChunk: (chunk, report) => {
+            operationOwner.assertCurrent();
+            controller.signal.throwIfAborted();
+            return ecrCheckerApi.upload(activeId!, chunk, report, controller.signal);
+          },
         });
       }
+      if (!canPublishOperation(owner, mountedRef.current, controller.signal)) return;
       const started = await ecrCheckerApi.start(activeId, controller.signal);
+      if (!canPublishOperation(owner, mountedRef.current, controller.signal)) return;
       queryClient.setQueryData(ecrKeys.batch(activeId), started);
       clearEcrUpload(activeId);
       setEntries([]);
       setProgress(null);
     } catch (failure) {
-      if (!controller.signal.aborted) setError(ecrErrorMessage(failure));
+      if (canPublishOperation(owner, mountedRef.current, controller.signal)) setError(ecrErrorMessage(failure));
     } finally {
       controllerRef.current = null;
-      if (!controller.signal.aborted) {
+      if (canPublishOperation(owner, mountedRef.current, controller.signal)) {
         setBusy(false);
         void queryClient.invalidateQueries({ queryKey: ecrKeys.all });
       }
@@ -101,16 +127,19 @@ export function useEcrWorkspace(initialBatchId: string | null) {
     if (!batchId || action) return;
     setAction(kind);
     setError(null);
+    let owner: EcrOperationOwner | null = null;
     try {
+      owner = capturePrivateOperationOwner();
       if (kind === "retry") {
         const updated = await ecrCheckerApi.retry(batchId);
+        if (!canPublishOperation(owner, mountedRef.current)) return;
         queryClient.setQueryData(ecrKeys.batch(batchId), updated);
         void queryClient.invalidateQueries({ queryKey: ecrKeys.batches });
       } else await ecrCheckerApi.export(batchId);
     } catch (failure) {
-      if (!isDownloadCancelled(failure)) setError(ecrErrorMessage(failure));
+      if (canPublishOperation(owner, mountedRef.current) && !isDownloadCancelled(failure)) setError(ecrErrorMessage(failure));
     } finally {
-      setAction(null);
+      if (canPublishOperation(owner, mountedRef.current)) setAction(null);
     }
   }
 

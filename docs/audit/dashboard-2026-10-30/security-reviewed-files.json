@@ -1,0 +1,1060 @@
+[
+  {
+    "path": "backend/app/presentation/middleware/request_path.py",
+    "status": "fixed",
+    "notes": "Unmatched HTTP metrics now use one static route label; existing request-log token redaction preserved.",
+    "review_scope": "full",
+    "sha256": "d49ef8512edf8455fef0e9502aa92bb34cbcdc04ffdb73d83eb91288a9415709"
+  },
+  {
+    "path": "backend/app/infrastructure/observability/metrics.py",
+    "status": "fixed",
+    "notes": "Arbitrary HTTP methods collapse to OTHER, bounding attacker-controlled metric series.",
+    "review_scope": "full",
+    "sha256": "62dbb6b6319c694293c59e0fb8a682c4ca4963c0a55cc79b13b531e11d5fd773"
+  },
+  {
+    "path": "backend/app/presentation/dependencies/csrf.py",
+    "status": "fixed",
+    "notes": "Malformed URL authorities and ports fail closed with 403 instead of escaping as 500.",
+    "review_scope": "full",
+    "sha256": "dfc552ab80bd41ab4128ef5971bf6c0f99243ec824fd55cd7059b1056a86625a"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/object_streaming.py",
+    "status": "fixed",
+    "notes": "Untrusted byte-range decimals are clamped before integer conversion; oversized valid ranges preserve RFC range behavior. Explicit partial ends now reach S3 rather than failing against an open-ended response.",
+    "review_scope": "full",
+    "sha256": "c0771e8ab0f14dfc13828f35085a16e2dc31d9f7ca6e932a883a235a37119983"
+  },
+  {
+    "path": "nginx/nginx.conf",
+    "status": "fixed",
+    "notes": "Full file read. Added missing public-draft group-capability redaction in edge access logs. Actual Nginx runtime qualification remains pending because the Docker daemon is unavailable.",
+    "review_scope": "full",
+    "sha256": "2a9515f14744385154c5169c47f07cd87dbf8a36d713037fd7fae599ee1aaa5f"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_request_metric_cardinality.py",
+    "status": "fixed",
+    "notes": "Behavioral regression coverage for unknown paths/methods, known route templates, and early middleware rejections.",
+    "review_scope": "full",
+    "sha256": "cede90639a08b2d5b3e074464b1659daf64ccdef803be0bdd6eb140ef0a3685d"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_csrf.py",
+    "status": "fixed",
+    "notes": "Malformed Origin regressions exercise both cookie and preauthentication guards.",
+    "review_scope": "full",
+    "sha256": "266ae85496404b4df74762b284ec7138fc5b0c082f48e460a5a36b5c7652f62f"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_object_streaming.py",
+    "status": "fixed",
+    "notes": "Five-thousand-digit range regressions cover start, end, suffix, and leading-zero cases.",
+    "review_scope": "full",
+    "sha256": "fe55b929716fb4bac71c2e9ae4e60450fce6f146d5540e7e235bb96ce1c3df5e"
+  },
+  {
+    "path": "AGENTS.md",
+    "status": "reviewed",
+    "notes": "Repository verification, synthetic fixtures, release scope, preserved migrations.",
+    "review_scope": "full",
+    "sha256": "65d3cf5f7539fd491e57d71a75871f7517a4237c876c0a9aef502be3c0791d2d"
+  },
+  {
+    "path": "frontend/AGENTS.md",
+    "status": "reviewed",
+    "notes": "Full reread after Next upgrade: use version-matched installed Next documentation and preserve generated agent-rule instructions.",
+    "review_scope": "full",
+    "sha256": "d273860cb120cdc0c127d565b196d6846274ad3933d5848932659c2a0b193898"
+  },
+  {
+    "path": "backend/app/core/security/jwt.py",
+    "status": "reviewed",
+    "notes": "Signed access-token creation/decoding and opaque keyed refresh-token hashing.",
+    "review_scope": "full",
+    "sha256": "1a1e2ff5b2c962f744a9d5c8fe10631b2e7d33c848783453cceacbdc8c1ec17d"
+  },
+  {
+    "path": "backend/app/core/logging/logger.py",
+    "status": "reviewed",
+    "notes": "Transport-log suppression and structured formatter/fallback configuration.",
+    "review_scope": "full",
+    "sha256": "770bc8714a5e9f2055dcc8c7a0b07f270e045a0276cef5f615bec8e72815fdb1"
+  },
+  {
+    "path": "backend/app/presentation/security/auth_cookies.py",
+    "status": "reviewed",
+    "notes": "HttpOnly/Secure cookies, expiry deadlines and path-correct deletion.",
+    "review_scope": "full",
+    "sha256": "3d6fed44c2d311709523e9d18e4e2240fcaa5e0ab6bb4b726c95a96d21ef35e9"
+  },
+  {
+    "path": "backend/app/presentation/security/client_ip.py",
+    "status": "reviewed",
+    "notes": "Direct peer validation and explicit trusted-proxy network boundary.",
+    "review_scope": "full",
+    "sha256": "a34fe467e3bee2845e6f8b4194309f9c4047b678c8b159cafe6edb3109662a9c"
+  },
+  {
+    "path": "backend/app/presentation/security/email_oauth_binding.py",
+    "status": "reviewed",
+    "notes": "Browser nonce, account generation binding and actor revalidation before persistence.",
+    "review_scope": "full",
+    "sha256": "772bc3d17ee25273a95c36634b156045a0ae3202c27566708a424fb8df1be665"
+  },
+  {
+    "path": "backend/app/presentation/security/access_level.py",
+    "status": "reviewed",
+    "notes": "Signed access-level cookie lifetime and transport flags.",
+    "review_scope": "full",
+    "sha256": "e75baffb6b181823d547a02ff69da4a6835dd1d04bdfb373ce792c3ae7523171"
+  },
+  {
+    "path": "backend/app/presentation/middleware/security_headers.py",
+    "status": "reviewed",
+    "notes": "Private API no-store, nosniff, frame restrictions and production HSTS.",
+    "review_scope": "full",
+    "sha256": "cd1ed40acbf348c287159225ab30ac29a93580b5a34450ecce53f676cc532a52"
+  },
+  {
+    "path": "backend/app/presentation/middleware/error_response.py",
+    "status": "reviewed",
+    "notes": "Unexpected 500 responses redact details and preserve common no-store contract.",
+    "review_scope": "full",
+    "sha256": "c64c7ed350e6860995cc2e0674d6c2e5aa48d2367101935cd7373f8ff406cb32"
+  },
+  {
+    "path": "backend/app/presentation/middleware/request_id.py",
+    "status": "reviewed",
+    "notes": "Request IDs are UUID-normalized; existing secret-safe request labels bound to structured logs.",
+    "review_scope": "full",
+    "sha256": "f9a566887f2cee7063bedaf4362534359915604d62e9be7c242eaebc2d9dd9c1"
+  },
+  {
+    "path": "backend/app/presentation/middleware/metrics.py",
+    "status": "reviewed",
+    "notes": "Telemetry uses post-routing templates and now constant unmatched fallback.",
+    "review_scope": "full",
+    "sha256": "ded196adbc80fabcc66d263a56c8acb03be0ff6aa1a99f4ac36e9914ffeef5f5"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/dashboard_realtime.py",
+    "status": "reviewed",
+    "notes": "Origin+Host boundary, cookie-only authority, bounded cookie sizes and periodic live reauthorization.",
+    "review_scope": "full",
+    "sha256": "28cc9940fda8101a50a45967c56467f7e97928843e49d17c020a8093ea65a5c9"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/returning_dependencies.py",
+    "status": "reviewed",
+    "notes": "Strict scoped capability cookies, trusted request origin and independent network/session limiter.",
+    "review_scope": "full",
+    "sha256": "66a1dceb02091608a1f37256d23b634e0aaf49cafd2f9d782e7b10447fbab9dd"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/email_integrations.py",
+    "status": "reviewed",
+    "notes": "Compatibility facade preserves explicit route ownership and registration order.",
+    "review_scope": "full",
+    "sha256": "6b8b8df006d06009b7202f030b91d0f884eed7dcc6880416e04aa0db512d26bf"
+  },
+  {
+    "path": "frontend/features/auth/services/restoration-destination.ts",
+    "status": "reviewed",
+    "notes": "Redirects require an application route on the same synthetic origin; control characters and restoration loops rejected.",
+    "review_scope": "full",
+    "sha256": "74b93c0b4c144b618d0b04b88a22a490a3b945ac389c0a25b04bd6fd61334c21"
+  },
+  {
+    "path": "frontend/features/auth/services/session-state.ts",
+    "status": "fixed",
+    "notes": "In-memory authority transition cannot be suppressed by shared owner marker or denied storage; query reset dispatch moved outside storage try. Store-specific cleanup still excludes unsynced attendance rows.",
+    "review_scope": "full",
+    "sha256": "6f8077d093be0f9c9ecdb3340a18870802cb10c6e280b7d48c24d7bcf99330a8",
+    "attribution": "manual_security direct physical-file read"
+  },
+  {
+    "path": "frontend/features/auth/services/session-continuity.ts",
+    "status": "fixed",
+    "notes": "Effective private scope helper excludes profile timestamps/sessionVersion; existing broader revalidation equality retained.",
+    "review_scope": "full",
+    "sha256": "cdb69ae93f3884102bb475cb090e3f7fb796fe6e7b1cb87eced8106dda00ffcc",
+    "attribution": "manual_security direct physical-file read"
+  },
+  {
+    "path": "frontend/features/auth/services/refresh-attempt.ts",
+    "status": "reviewed",
+    "notes": "Only explicit REFRESH_IN_PROGRESS conflict gets one bounded retry.",
+    "review_scope": "full",
+    "sha256": "7962f2bc0da715b99b6210819dcc741cc31f21d1d4067837ac54468b0b35f363"
+  },
+  {
+    "path": "frontend/features/auth/services/refresh-coordinator.ts",
+    "status": "reviewed",
+    "notes": "Cross-tab refresh coordination; fallback lease bounds and storage restrictions reviewed.",
+    "review_scope": "full",
+    "sha256": "abe6e1db6123a00dc2d3a1cecd44b410e124ae7a70b29d26629fac6865951628"
+  },
+  {
+    "path": "frontend/features/auth/hooks/use-logout.ts",
+    "status": "reviewed",
+    "notes": "Delegates server and local cleanup through centralized session boundary.",
+    "review_scope": "full",
+    "sha256": "7e3213b947e82869f1c709dfcad5939e2c02cda9a4fa199b0725fa37b1486d9a"
+  },
+  {
+    "path": "frontend/stores/auth.store.ts",
+    "status": "fixed",
+    "notes": "Full current read; captures memory authority before preparation, preserves cold restoration and same-authority revalidation. Existing logout queue review and cookie-writer navigation contract preserved.",
+    "review_scope": "full",
+    "sha256": "788cdfd0ed8072ce1191d863759bed359b3a38de35a0aeeb1cc744c3e11f58e9",
+    "attribution": "manual_security direct physical-file read"
+  },
+  {
+    "path": "frontend/features/travellers/services/draft-resume.ts",
+    "status": "reviewed",
+    "notes": "Only expiry/navigation/idempotency metadata persisted; no passport/contact content.",
+    "review_scope": "full",
+    "sha256": "817f28f6049de375c1b677a812f8261d15ace4ba344bfd866f37947d578be228"
+  },
+  {
+    "path": "frontend/features/whatsapp/utils/normal-send-storage.ts",
+    "status": "reviewed",
+    "notes": "Payload hashes and scoped idempotency state retained for uncertain-send protection; no message text persisted.",
+    "review_scope": "full",
+    "sha256": "288a223b74f4ae45242c7eabb534eeae2c241f2b04d8a3d6ad6067d46176dbee"
+  },
+  {
+    "path": "frontend/features/gc-app/notifications/pending-send.ts",
+    "status": "reviewed",
+    "notes": "Actor/agency-scoped opaque IDs only; no notification content persisted.",
+    "review_scope": "full",
+    "sha256": "d64438ca523bb43fad8289224d1b54574eb634c4088d649a90734cb11c708347"
+  },
+  {
+    "path": "frontend/features/passports/api/public-upload-session.ts",
+    "status": "reviewed",
+    "notes": "Per-tab bootstrap identifiers, format validation and storage-disabled fallback.",
+    "review_scope": "full",
+    "sha256": "cb6cc0e1eb2968316f8e40e300958ef951ca6d03dbff84b2ef52f972c98d706a"
+  },
+  {
+    "path": "frontend/lib/api/download-filename.ts",
+    "status": "reviewed",
+    "notes": "Suggested filename removes separators/control characters; sequence preference contains no personal data.",
+    "review_scope": "full",
+    "sha256": "6dc58741eb3d7e9213f288ad8d23e573fdbae1f5a87e341046e7130e56fd59e0"
+  },
+  {
+    "path": "backend/app/presentation/dependencies/auth.py",
+    "status": "fixed",
+    "notes": "Full physical read. Optional expected-actor mismatch precondition runs only after actual token/durable session/user/session-version/credential checks and before handler entry; cannot choose or grant authority. Thin ASGI cookie/bearer tests cover matching, switched, malformed and absent actor metadata; unauthenticated header grants nothing.",
+    "review_scope": "full",
+    "sha256": "5e1641d51673dcbcd1c2cbc8d6ceac397147de52ec4e100bae285ba115d5fefb"
+  },
+  {
+    "path": "backend/app/application/security/authorization_policy.py",
+    "status": "reviewed",
+    "notes": "Read all role/tenant/lifecycle, staff, coordinator, deletion and object-authorization helpers; scoped query and imperative checks retained. Authorization suite passes.",
+    "review_scope": "full",
+    "sha256": "6a1ee49097b124715ce52fb5810387c6be5a3a5e18f4896676340c6e6dabe663"
+  },
+  {
+    "path": "backend/app/presentation/middleware/error_handler.py",
+    "status": "reviewed",
+    "notes": "Full file read: unexpected failures use generic error envelopes and static logging metadata; validation/domain errors follow existing classified response mappings. Transitive domain message producers remain separate review scope.",
+    "review_scope": "full",
+    "sha256": "f13e9b0fee8ceefb1bef491680a252e2b2f15916a348ba8e8a05bbf32d800733"
+  },
+  {
+    "path": "backend/app/presentation/middleware/rate_limit.py",
+    "status": "fixed",
+    "notes": "Full file read including public initial/follow-up, dashboard media/account, trusted proxy identity and fallback policy matrix. Expired permitted-fallback local counter/burst state is reclaimed; Redis-required policies remain fail-closed.",
+    "review_scope": "full",
+    "sha256": "e6584470329a975675002df270a3bcfad458f9cb30398e99e0a04f38936fd851"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/router.py",
+    "status": "reviewed",
+    "notes": "Full file read: dashboard/public route registrations, public boundary dependencies and prefixes inspected. Native mobile implementation modules remain excluded.",
+    "review_scope": "full",
+    "sha256": "1601724fbb3be3b3483987335c1e80bbcf8e8c8894cc5a8a5cc16d04955b9fc7"
+  },
+  {
+    "path": "backend/app/main.py",
+    "status": "reviewed",
+    "notes": "Full file read: injected settings, middleware order, fixed router installation, production docs suppression, scanner admission, task lifecycle and sanitized runtime identity logging inspected. Display branding/AI description changes independently reread.",
+    "review_scope": "full",
+    "sha256": "e2cc9a341ab8d6506035c3188c738aa67f6dbd05c81cb73f4c79696235f2077d"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/audit_logs.py",
+    "status": "reviewed",
+    "notes": "Full file read: tenant policy, bounded pagination/export, cursor rejection and formula-safe CSV output inspected. Repository implementation and real database qualification are separate scopes.",
+    "review_scope": "full",
+    "sha256": "d40421d8cd5220df82e79f2c36adf41b28302cb18ad53738bc14e5983cfb49c6"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/frontend_errors.py",
+    "status": "reviewed",
+    "notes": "Full file read: strict bounded report schema, static route metadata, trusted-origin check and Redis atomic global/IP/deduplication admission inspected; raw caller exceptions are not logged.",
+    "review_scope": "full",
+    "sha256": "aaa3769183ca3b8e304ca13389c9d32cd48b840acb45604442887ba3cd7a6d32"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/search.py",
+    "status": "reviewed",
+    "notes": "Full file read: search categories delegate tenant/group authorization and sensitive-read evidence. Root owns query-performance changes; no additional source-level authority issue identified.",
+    "review_scope": "full",
+    "sha256": "d0a0d52453a97c070490385990719e01c4e97ae289690617ec4620ec6a97bc8e"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/returning_claims.py",
+    "status": "reviewed",
+    "notes": "Full file read: group capability precedes masked lookup/challenge/confirmation, and secret cookies retain strict scoped attributes. Store/identity service implementations are separate file scopes.",
+    "review_scope": "full",
+    "sha256": "ffa02a956d7334c7b826fd22a4e136918ec5e099188788e185a889e7bf581503"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/fresh_draft.py",
+    "status": "reviewed",
+    "notes": "Full file read: draft capability precedes operations; private asset query binds draft, agency, current ready state and exact asset ID; responses remain no-store.",
+    "review_scope": "full",
+    "sha256": "8329f063867f8824603c3b334f46a44937fe070fcdc7fa5ccace56df9f726cc4"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/returning_draft.py",
+    "status": "reviewed",
+    "notes": "Full file read: exact displayed draft ID and cookie grant binding, completed-receipt checks, and current ready private-asset ownership retained.",
+    "review_scope": "full",
+    "sha256": "5219f1ee19a684cda5cabca948e2e14c6784e02215b5f7bd4ec6293a633bebfe"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/images.py",
+    "status": "reviewed",
+    "notes": "Full file read: original/edit-source/thumbnail policy precedes private reads/cache; revisions/source-key conflicts and cleanup preserve retained-library ownership during mutations.",
+    "review_scope": "full",
+    "sha256": "bfaba35d33ac81bcae0273e25ec234a289da66657f21bf5533fb53846d4c9328"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/image_support.py",
+    "status": "reviewed",
+    "notes": "Read remaining cleanup/crop/cache helpers; retained-asset checks precede source access and cache lookup, and retained originals are excluded from cleanup.",
+    "review_scope": "full",
+    "sha256": "95885e4a2c966a6efba14c872703024eaaa135b9ba4821e80c14eb0867fcd0a5"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/document_distribution_groups_read.py",
+    "status": "reviewed",
+    "notes": "Read group list/count queries, authorized document-review load, export and stable filename construction; scoped roster and group policy retained.",
+    "review_scope": "full",
+    "sha256": "971a9f386858e6725f8231a8b2be8f4e00d8beab55e2ec74589f9fab1c91cdcb"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/rooming.py",
+    "status": "fixed",
+    "notes": "Fully read original rooming workflows and split them into focused owning modules. Stable facade retains helpers, exact endpoint order, role/CSRF dependencies and unchanged handler signature/decorator fingerprints.",
+    "review_scope": "full",
+    "sha256": "645af85577b9f9f5d0c1f5a9afbcadc7f2311f416bb9655d1e66236344a363aa"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/email_integration_access.py",
+    "status": "reviewed",
+    "notes": "Read complete mailbox-owner/agency helpers and provider dispatch. Owner constraint applies to superadmins as well; token columns stay deferred unless explicitly requested.",
+    "review_scope": "full",
+    "sha256": "78fc9344b18d976143a137c02d8b073be5516d4738162376218132a0c5074f5e"
+  },
+  {
+    "path": "backend/app/infrastructure/storage/minio_repository.py",
+    "status": "fixed",
+    "notes": "Fully read storage client configuration, metadata/hash/range/stream/copy/presign/delete/list methods. Added optional exact range end for bounded private HTTP responses, preserving existing full-object length/trailing-byte checks and safe hashed diagnostics. Source-to-sink storage tests pass.",
+    "review_scope": "full",
+    "sha256": "f31fe249d63c18ea0e400bae0ee3161eb05db6b194527e2bdab39bf88626180c"
+  },
+  {
+    "path": "backend/app/infrastructure/email/gmail_provider.py",
+    "status": "reviewed",
+    "notes": "Full physical source read completed with branding_visuals. Fixed HTTPS OAuth/Gmail endpoints, quoted opaque resource IDs, readonly scope, capped/repeated-token-safe paging, redirect refusal, bounded JSON/base64 attachment bytes, sanitized transport errors and no credential logging inspected. Live provider/OAuth/mailbox integration was not exercised.",
+    "review_scope": "full",
+    "sha256": "e36134267ca2582561e5f525091759759ff2e8933c471b48ef1b691f7833ea28"
+  },
+  {
+    "path": "backend/app/infrastructure/email/outlook_provider.py",
+    "status": "reviewed",
+    "notes": "Full physical source read completed with branding_visuals. Fixed HTTPS OAuth/Graph hosts, constrained tenant/resource continuations, repeated-link/page/message caps, redirect refusal, bounded response/attachment streams, whole-delta-page cursor behavior and sanitized provider errors inspected. Live provider/OAuth/mailbox integration was not exercised.",
+    "review_scope": "full",
+    "sha256": "72c1a9a91b37e1509f31f752f3e7bb2c84cda68550d309f6827b08101efd6d30"
+  },
+  {
+    "path": "backend/app/infrastructure/email/sync_service.py",
+    "status": "fixed",
+    "notes": "Reviewed the complete original sync workflow across extracted owners. Coordinator and compatibility aliases retained; native function/class ASTs verified unchanged by extraction; canonical log source preserved. Own async validation fix is separately tested.",
+    "review_scope": "full",
+    "sha256": "29d5be92fd1ac4e6509ad86088573b67121b3e76671bbe76ec1b8fedce9e97e5"
+  },
+  {
+    "path": "backend/app/infrastructure/export/document_assignment_excel_exporter.py",
+    "status": "reviewed",
+    "notes": "Full file read: workbook projections, dates, output construction and formula escaping inspected. Caller authorization remains the owning route/service contract.",
+    "review_scope": "full",
+    "sha256": "97a743b2ee2e22059ff38968306b693c75698c5635251516972710e93b9d460e"
+  },
+  {
+    "path": "backend/app/infrastructure/export/rooming_excel_exporter.py",
+    "status": "reviewed",
+    "notes": "Full file read: hotel/check-in exports preserve safe cell conversion, date values and formatting. Route ownership/revision rechecks were traced in the rooming owners.",
+    "review_scope": "full",
+    "sha256": "877bba594f55701c19e4fd139b0d964ce6f31ba9b5046efe6952003bdb44b102"
+  },
+  {
+    "path": "backend/app/infrastructure/export/meal_plan_excel_exporter.py",
+    "status": "fixed",
+    "notes": "Full file read. Detail worksheet now groups entries once rather than rescanning every entry per day, preserving ascending days, within-day order, dates, gaps and cell formatting. Workbook/visit-count regression and existing tests pass.",
+    "review_scope": "full",
+    "sha256": "ab27b43b6851d63087af46368443e3c73e5b1171270259383fdc32c046c63cb4"
+  },
+  {
+    "path": "backend/app/infrastructure/export/passport_image_zip_exporter.py",
+    "status": "reviewed",
+    "notes": "Full physical source read completed with branding_visuals. NFKC path sanitization, bounded names, casefold collision resolution, regular ZIP attributes, source-bound active crops, fixed-prefix original sniffing, 5000-submission/2GiB/spool limits and cancellation/exception cleanup inspected. Per-object byte bounds are delegated to storage/upload contracts; no live object-store qualification.",
+    "review_scope": "full",
+    "sha256": "b827929f2b96502df76554d53f39f7cda63de0c96b3e201231b76980ebe4f01e"
+  },
+  {
+    "path": "backend/app/infrastructure/security/contact_spreadsheet_security.py",
+    "status": "reviewed",
+    "notes": "Full file read: bounded ZIP/XML/row/cell admission, formula/external-content rejection, malware scanning and cancellation-drained snapshot parsing inspected. Transitive parser modules are separate scopes.",
+    "review_scope": "full",
+    "sha256": "731d5489216a25e4688f042e8c9c0695d50bc36e297a795ea546c742af23b167"
+  },
+  {
+    "path": "frontend/proxy.ts",
+    "status": "reviewed",
+    "notes": "Full file read: per-response CSP nonce, safe same-origin redirect destinations and optimistic cookie-presence navigation use explicit route capabilities; backend remains authorization authority. Deployed CSP runtime qualification remains separate.",
+    "review_scope": "full",
+    "sha256": "2072c17dd4904240dd5ee969c5c5cc8d588c3d00ee8e07f8749cee415beda928"
+  },
+  {
+    "path": "frontend/lib/utils/public-url.ts",
+    "status": "reviewed",
+    "notes": "Full file read: configured share-link origin selection and loopback handling inspected. Actual VPS/domain environment matrix was not exercised.",
+    "review_scope": "full",
+    "sha256": "cb80bfc54539c447e3dbc284f77e92fe3e44ecc1cbd92e381bb327c6b2fa851c"
+  },
+  {
+    "path": "frontend/lib/api/client.ts",
+    "status": "fixed",
+    "notes": "Full current read; raw refresh snapshots authority before lock await and checks before expiry cleanup. Parent bounded Blob/single-parse decoder independently reviewed and preserved.",
+    "review_scope": "full",
+    "sha256": "ebcb9e65f5a82b82bd122756c6e8126703ba7d1f7b2da94d6477debaa92a4bf2",
+    "attribution": "manual_security direct physical-file read"
+  },
+  {
+    "path": "frontend/lib/api/streamed-download.ts",
+    "status": "fixed",
+    "notes": "Full file read. RFC5987 extended filenames are decoded while ordinary Content-Disposition filename values stay literal; session-reset cancellation, bounded fallback, destination permission, timeouts and user-selected filename behavior retained. Fifteen focused tests pass.",
+    "review_scope": "full",
+    "sha256": "93842b4ed30b0d86d01cee2ee1cfa34399cd338406956277caa5ce28d94b0a51"
+  },
+  {
+    "path": "frontend/features/documents/services/ecr-upload.ts",
+    "status": "reviewed",
+    "notes": "Full file read: local recovery retains fingerprints/opaque identifiers, bounded three-worker upload chunks settle progress and abort without persisting document bodies.",
+    "review_scope": "full",
+    "sha256": "77f36be3c5989f400fcd86d5443049d813d2fcf068b4b99d5e5c9519a8ab0195"
+  },
+  {
+    "path": "frontend/features/auth/config/route-capabilities.ts",
+    "status": "reviewed",
+    "notes": "Full file read: explicit route/capability map fails closed for unmapped destinations and retains role checks; backend remains authority.",
+    "review_scope": "full",
+    "sha256": "e4aa3f32555e9351c8c7f02fd8b5d9270ff03c9663a2b1b3555268aa40db370c"
+  },
+  {
+    "path": "nginx/conf.d/default.conf",
+    "status": "fixed",
+    "notes": "Full file read. Added the missing /mcp/native-transfers/ backend proxy lane with bounded streaming uploads, shared private MCP headers/rate policy and access-log suppression. Existing Docker runtime qualifier now tests the actual source location; Docker unavailable locally.",
+    "review_scope": "full",
+    "sha256": "fbdfc76a569b0484464b9f4a7fd6d7e80aa40911418ca96aee5a6ba99dac3963"
+  },
+  {
+    "path": "backend/app/presentation/middleware/local_rate_limit.py",
+    "status": "fixed",
+    "notes": "Pure local window/token-bucket functions retain active quotas and persist each burst policy own expiration; cleanup runs periodically.",
+    "review_scope": "full",
+    "sha256": "84e651073854bab6319bd157d0754fc45e4deb243ddded7b961fec6bf6b9124c"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_local_rate_limit_expiry.py",
+    "status": "fixed",
+    "notes": "500-window outage regression and mixed-policy expiry/refill regression verify cleanup without active-quota resets.",
+    "review_scope": "full",
+    "sha256": "7966f39a21e897311be522dbf9312e6864ee47988ed4b3485b40d005f451ea2e"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_http_rate_limit_fixture_isolation.py",
+    "status": "reviewed",
+    "notes": "Verified test boundary clears local quota state while enforcement remains active; both fixture application cases pass.",
+    "review_scope": "full",
+    "sha256": "bd72b14e7e8a2569c37112f1847d25f8327ec2a78396d467301a64a1f0176d10"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_rate_limit_middleware.py",
+    "status": "reviewed",
+    "notes": "Full file read including synthetic request/Redis fixtures, initial/follow-up/account/media quotas and edge routing contracts. Complete file passed in focused quota verification.",
+    "review_scope": "full",
+    "sha256": "5818e5b8fd2f861747ec8a90c71e67a1b12ca4019ec8c53c093335dd1cc7a02b"
+  },
+  {
+    "path": "backend/app/application/security/email_scope.py",
+    "status": "reviewed",
+    "notes": "Read complete immutable mailbox owner scope and tenant checks.",
+    "review_scope": "full",
+    "sha256": "96745b29107f274067bb42a9dd94449827fe7b9577d29f5006dcdbad399f770f"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/document_distribution_access.py",
+    "status": "reviewed",
+    "notes": "Read complete office-role allowlist and agency predicate helper.",
+    "review_scope": "full",
+    "sha256": "b6f0d4915881cfe933eb1257f87c7964f513600d747e1d572e193f7a1423d45e"
+  },
+  {
+    "path": "backend/app/infrastructure/export/workbook_values.py",
+    "status": "reviewed",
+    "notes": "Independently reviewed root shared date/string/formula conversion extraction; canonical conversion preserves legacy non-date text.",
+    "review_scope": "full",
+    "sha256": "bd7cbaf14a7b682e8e4bee6ece7475e38b9696e74e17bda0b573b49df2d32ec8"
+  },
+  {
+    "path": "backend/app/infrastructure/email/retry_after.py",
+    "status": "reviewed",
+    "notes": "Independently reviewed root provider-neutral bounded decimal/date parser; untrusted huge numeric values are clamped before integer conversion.",
+    "review_scope": "full",
+    "sha256": "38ff352601fc244a89f48dd0152caf80337b01a65fb7c672b4d7ab13d28b0d5a"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/rooming_access.py",
+    "status": "fixed",
+    "notes": "Focused owner extracted from fully reviewed rooming source. Existing transaction/authorization/revision/read-model behavior preserved; rooming and MCP regressions pass.",
+    "review_scope": "full",
+    "sha256": "0b8bc65bfb18473222245af2601a11f8b2e385e74c014b47695d18a4a0e5bc3e"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/rooming_presenters.py",
+    "status": "fixed",
+    "notes": "Focused owner extracted from fully reviewed rooming source. Existing transaction/authorization/revision/read-model behavior preserved; rooming and MCP regressions pass.",
+    "review_scope": "full",
+    "sha256": "474bb74dcba8abc3f284780c72ba6fb071d0cde20cbe516f211caca50a4c989c"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/rooming_checkin_reads.py",
+    "status": "fixed",
+    "notes": "Focused owner extracted from fully reviewed rooming source. Existing transaction/authorization/revision/read-model behavior preserved; rooming and MCP regressions pass.",
+    "review_scope": "full",
+    "sha256": "87446353d21bb46bacd1f6c0b9c49731b57efb30934538fda812d368026988d0"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/rooming_workspace.py",
+    "status": "fixed",
+    "notes": "Focused owner extracted from fully reviewed rooming source. Existing transaction/authorization/revision/read-model behavior preserved; rooming and MCP regressions pass.",
+    "review_scope": "full",
+    "sha256": "19144c4de1f7d23157cc3cc83a90da00095211a147f8433cdd54276b6af0880e"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/rooming_hotels.py",
+    "status": "fixed",
+    "notes": "Focused owner extracted from fully reviewed rooming source. Existing transaction/authorization/revision/read-model behavior preserved; rooming and MCP regressions pass.",
+    "review_scope": "full",
+    "sha256": "92d4dce6ecef1203c83e87c956ed033119508c1087eff5eaa8660f918e691cd8"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/rooming_selection.py",
+    "status": "fixed",
+    "notes": "Focused owner extracted from fully reviewed rooming source. Existing transaction/authorization/revision/read-model behavior preserved; rooming and MCP regressions pass.",
+    "review_scope": "full",
+    "sha256": "0bb43ba0578c03d91e1a231a3782eb39ae90b19e654fb875f76b351ae5d009da"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/rooming_auto_allocation.py",
+    "status": "fixed",
+    "notes": "Focused owner extracted from fully reviewed rooming source. Existing transaction/authorization/revision/read-model behavior preserved; rooming and MCP regressions pass.",
+    "review_scope": "full",
+    "sha256": "8378025bb31cf9ca4c25e2861f478e158646904dee636be3b29d8980c14bc142"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/rooming_exports.py",
+    "status": "fixed",
+    "notes": "Focused owner extracted from fully reviewed rooming source. Existing transaction/authorization/revision/read-model behavior preserved; rooming and MCP regressions pass.",
+    "review_scope": "full",
+    "sha256": "41feebb85e3ed8d8c109127e0fb2f27d6348cfd032638035818b9fc34720c571"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/rooming_checkins.py",
+    "status": "fixed",
+    "notes": "Focused owner extracted from fully reviewed rooming source. Existing transaction/authorization/revision/read-model behavior preserved; rooming and MCP regressions pass.",
+    "review_scope": "full",
+    "sha256": "01367da07d9744aa8be38a4a90ffdc273e559d147f881dfe59541b9d45222fca"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/rooming_policy.py",
+    "status": "fixed",
+    "notes": "Focused owner extracted from fully reviewed rooming source. Existing transaction/authorization/revision/read-model behavior preserved; rooming and MCP regressions pass.",
+    "review_scope": "full",
+    "sha256": "a1d4ffb4f717cb7ed0ae16ae051cf9dd8fe54ff233b558c1f6fe1359d7ecbe33"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/download_headers.py",
+    "status": "fixed",
+    "notes": "ASCII attachment headers preserved; Unicode/unsafe names RFC5987-encoded so they serialize safely through HTTP without raw header delimiters.",
+    "review_scope": "full",
+    "sha256": "e12e71d95f3da0d7a5ce93f15e4e61c122a825603a0e1b5abdb26f745c79e624"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_download_headers.py",
+    "status": "fixed",
+    "notes": "Protocol-level Response/email header parsing verifies Unicode and quote round-trip, ASCII compatibility and control-character header isolation.",
+    "review_scope": "full",
+    "sha256": "aa99ef3611c3ae5efb1d82a059498a25a5eafddf70e88a39ea1adc8dd733d9ca"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/mcp_artifacts.py",
+    "status": "fixed",
+    "notes": "Full file read: exact dedicated bearer authority, connection/grant revalidation, read-only denial, bounded uploads and private/checksummed streaming with cleanup retained. Downloads use safe shared attachment serialization.",
+    "review_scope": "full",
+    "sha256": "46a2bd46bd04b9c17487b1d965951cfefeae9223c24909e5a9524444016c6dad"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/mcp_native_transfers.py",
+    "status": "fixed",
+    "notes": "Full file read: exact dedicated bearer authority, origin/query-token guard, prepared upload bounds, service authority and private/checksummed response headers retained. Downloads use safe shared attachment serialization.",
+    "review_scope": "full",
+    "sha256": "622df398fa4ed190f5109eb1ce5fa01d6ba615eeec15f04e972bf39c1a2bb0de"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/document_distribution_scope.py",
+    "status": "reviewed",
+    "notes": "Full file read: authorized group/batch lookups, live actor/agency/group locks, and source/roster/identifier fingerprint revalidation are tenant-bound.",
+    "review_scope": "full",
+    "sha256": "92faa69c9f13af427dd128c72aac3a99518be701db40990b6d32155aa8cb11a9"
+  },
+  {
+    "path": "backend/app/infrastructure/email/sync_contracts.py",
+    "status": "fixed",
+    "notes": "Cohesive email sync owner extracted without function/class AST changes. Reviewed task envelope/owner scope, lease/transaction or storage/matching boundaries as applicable; 156 email/provider/OAuth/ownership/MCP regression tests pass. Attachment parser now runs off-loop with cancellation drain.",
+    "review_scope": "full",
+    "sha256": "c38193441cc07f711fd5e481ced8a4867a9fba53e982dde24e1a06c689580bb7"
+  },
+  {
+    "path": "backend/app/infrastructure/email/sync_connections.py",
+    "status": "fixed",
+    "notes": "Cohesive email sync owner extracted without function/class AST changes. Reviewed task envelope/owner scope, lease/transaction or storage/matching boundaries as applicable; 156 email/provider/OAuth/ownership/MCP regression tests pass. Attachment parser now runs off-loop with cancellation drain.",
+    "review_scope": "full",
+    "sha256": "8cfb14464848b4799519a12fa898fb1bf5658c1cad5eb55df1558e790d3e3b22"
+  },
+  {
+    "path": "backend/app/infrastructure/email/sync_mailbox.py",
+    "status": "fixed",
+    "notes": "Cohesive email sync owner extracted without function/class AST changes. Reviewed task envelope/owner scope, lease/transaction or storage/matching boundaries as applicable; 156 email/provider/OAuth/ownership/MCP regression tests pass. Attachment parser now runs off-loop with cancellation drain.",
+    "review_scope": "full",
+    "sha256": "82b244669c8a2b63fe815b080132fde63be09a7f0aefbde458b2e5caf85c1fbf"
+  },
+  {
+    "path": "backend/app/infrastructure/email/sync_reviews.py",
+    "status": "fixed",
+    "notes": "Cohesive email sync owner extracted without function/class AST changes. Reviewed task envelope/owner scope, lease/transaction or storage/matching boundaries as applicable; 156 email/provider/OAuth/ownership/MCP regression tests pass. Attachment parser now runs off-loop with cancellation drain.",
+    "review_scope": "full",
+    "sha256": "cf95a7b3198171f79c81fa1c4e6e77081eac19d5f16501c43b5cfb674b81ad1f"
+  },
+  {
+    "path": "backend/app/infrastructure/email/sync_events.py",
+    "status": "fixed",
+    "notes": "Cohesive email sync owner extracted without function/class AST changes. Reviewed task envelope/owner scope, lease/transaction or storage/matching boundaries as applicable; 156 email/provider/OAuth/ownership/MCP regression tests pass. Attachment parser now runs off-loop with cancellation drain.",
+    "review_scope": "full",
+    "sha256": "b435c6f0d0a5c190fc03b1d947bf5c0678f2d02986776a6f3339c01048886d50"
+  },
+  {
+    "path": "backend/app/infrastructure/email/sync_document_ingestion.py",
+    "status": "fixed",
+    "notes": "Cohesive email sync owner extracted without function/class AST changes. Reviewed task envelope/owner scope, lease/transaction or storage/matching boundaries as applicable; 156 email/provider/OAuth/ownership/MCP regression tests pass. Attachment parser now runs off-loop with cancellation drain.",
+    "review_scope": "full",
+    "sha256": "4da7f1efb782dc1e2c6fb4887572f8f46485305317087415d63159a8413d163e"
+  },
+  {
+    "path": "backend/app/infrastructure/email/sync_duplicates.py",
+    "status": "fixed",
+    "notes": "Cohesive email sync owner extracted without function/class AST changes. Reviewed task envelope/owner scope, lease/transaction or storage/matching boundaries as applicable; 156 email/provider/OAuth/ownership/MCP regression tests pass. Attachment parser now runs off-loop with cancellation drain.",
+    "review_scope": "full",
+    "sha256": "6e7328bb392d1aeebb6ffb38dc0b7fdccbaaccfd37d48f76174cb74088a6fd36"
+  },
+  {
+    "path": "backend/app/infrastructure/email/sync_attachments.py",
+    "status": "fixed",
+    "notes": "Cohesive email sync owner extracted without function/class AST changes. Reviewed task envelope/owner scope, lease/transaction or storage/matching boundaries as applicable; 156 email/provider/OAuth/ownership/MCP regression tests pass. Attachment parser now runs off-loop with cancellation drain.",
+    "review_scope": "full",
+    "sha256": "f282617e49a1d3fef5f1432241fc37372a35c593f1853742c225ef92d55bdfa2"
+  },
+  {
+    "path": "backend/app/infrastructure/email/sync_review_ingestion.py",
+    "status": "fixed",
+    "notes": "Cohesive email sync owner extracted without function/class AST changes. Reviewed task envelope/owner scope, lease/transaction or storage/matching boundaries as applicable; 156 email/provider/OAuth/ownership/MCP regression tests pass. Attachment parser now runs off-loop with cancellation drain.",
+    "review_scope": "full",
+    "sha256": "a5463a49be576ba5607d617d664e40b614570c791de91940caff325e4d9c80cc"
+  },
+  {
+    "path": "backend/app/infrastructure/email/sync_messages.py",
+    "status": "fixed",
+    "notes": "Cohesive email sync owner extracted without function/class AST changes. Reviewed task envelope/owner scope, lease/transaction or storage/matching boundaries as applicable; 156 email/provider/OAuth/ownership/MCP regression tests pass. Attachment parser now runs off-loop with cancellation drain.",
+    "review_scope": "full",
+    "sha256": "3a4e0d1f32bf6654338ea3c80419189dd1d35e42bd5c26ea07e132d9f8fa4845"
+  },
+  {
+    "path": "backend/app/infrastructure/security/upload_security.py",
+    "status": "fixed",
+    "notes": "Full file read including scanner admission, quarantine encryption/context, MIME/size/digest evidence and image/PDF classification. Structural PDF readers/streams close on success, encrypted and malformed input; resource-lifetime regressions pass.",
+    "review_scope": "full",
+    "sha256": "293afb52d404d9dc96dd0d303620891274d8654d1e21c2d81ccc844c2d5e4102"
+  },
+  {
+    "path": "backend/app/infrastructure/email/pdf_validator.py",
+    "status": "reviewed",
+    "notes": "Full read: bounded bytes/pages, magic and declared type, safe filename, scanner-first parsing, encrypted-PDF rejection, context-managed reader and redacted byte repr. Async callers now offload this CPU/native parsing.",
+    "review_scope": "full",
+    "sha256": "8252075fd2f3d095aefda15ca99bd8fdb4fb72ae28439e47420dd42e9488f169"
+  },
+  {
+    "path": "backend/app/infrastructure/documents/storage_transfers.py",
+    "status": "reviewed",
+    "notes": "Full read: bounded concurrency, cancellation shielding/drain, first-error propagation and cancellation-safe cleanup. Used to preserve PDF native-work lifetime.",
+    "review_scope": "full",
+    "sha256": "3d7214fc32cbc7865a44bf177f8f94dc6211194d7aec415f7fba7b20351ac18a"
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_email_sync_service.py",
+    "status": "fixed",
+    "notes": "Full file read. Four mock target strings follow extracted implementation owners; assertions, bounded history/deduplication and owner-envelope tests preserved. Entire file passed focused verification.",
+    "review_scope": "full",
+    "sha256": "dfe71e5be41b9b1a80b832e5a424a7617818527ab7b26d6ca4d4a3b195ba3f65"
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_email_pdf_async_boundary.py",
+    "status": "fixed",
+    "notes": "Behavioral thread-identity and cancellation tests prove that PDF work leaves the event loop and finishes before a cancelled caller releases its scope.",
+    "review_scope": "full",
+    "sha256": "720d8513664e9d87930ca367d2757152d81743effd32e2e825b9652f4eb7d65d"
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_upload_pdf_resource_lifetime.py",
+    "status": "fixed",
+    "notes": "Real pypdf validation proves input streams close immediately for valid, encrypted and malformed documents.",
+    "review_scope": "full",
+    "sha256": "7234200928f1964f12dfb19443644bc9be82c37439dff012948dc89c5d870113"
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_minio_streaming.py",
+    "status": "fixed",
+    "notes": "Read existing storage fixtures and added five private-HTTP-to-real-repository range cases plus explicit-bound validation. Existing bounded memory, checksum, closure and trailing-byte checks retained.",
+    "review_scope": "full",
+    "sha256": "3df3f48c064f84812c834ea37c24fd94ec191bf6211388429f137dfc71c32e4c"
+  },
+  {
+    "path": "backend/app/application/travellers/snapshot_access.py",
+    "status": "reviewed",
+    "notes": "Full read of exact frozen submission/group/agency/person/document/asset participation checks, withdrawal-vs-trip authority, and bounded accepted-participation synchronization.",
+    "review_scope": "full",
+    "sha256": "88f5ddb022c01904f7309ea5933785482c3f8f8d5d999f7d93c05631f5d0d76f"
+  },
+  {
+    "path": "backend/app/application/travellers/asset_policy.py",
+    "status": "reviewed",
+    "notes": "Full read: available/unpurged assets require retention authority, allowlisted MIME, bounded size and current deadline.",
+    "review_scope": "full",
+    "sha256": "e5a15a5687e2e259b901631023dd573faafd854e6890e7b05b2918f47b44e647"
+  },
+  {
+    "path": "backend/app/infrastructure/imaging/passport_thumbnail_cache.py",
+    "status": "reviewed",
+    "notes": "Full read of bounded byte/entry LRU, per-key async single-flight, cache access and owned lock cleanup. Authorization remains outside cache and occurs first at image routes.",
+    "review_scope": "full",
+    "sha256": "bf1376afc710bcca274d1e1ce1e7fb32975991b277df9cf91392ae9a0b58fbc0"
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/sensitive_read_audit.py",
+    "status": "reviewed",
+    "notes": "Full read: sensitive-access evidence includes identifiers/count only and participates in the authorized request transaction.",
+    "review_scope": "full",
+    "sha256": "706ee94b136574f8099232390ea21203ae187879b78e44ee7c25bb8bef140b39"
+  },
+  {
+    "path": "backend/app/application/companies/source_documents.py",
+    "status": "reviewed",
+    "notes": "Full read: resolved source association is bound to tenant/company/person and caller-visible groups; retained source assets additionally revalidate frozen snapshot ownership.",
+    "review_scope": "full",
+    "sha256": "24f982321a60cbea20fae7df83179887bc09608f99ab2a695a680044d8d1646e"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/company_source_documents.py",
+    "status": "reviewed",
+    "notes": "Full read: bounded signed cursor tied to actor/agency/company/person; original asset route reauthorizes source, checks live MIME/size and sends private/no-store/nosniff headers.",
+    "review_scope": "full",
+    "sha256": "ba3e81e30ba3c25746b9963c6af57da7b7301d2a48c1075cb865b440c1f06cf9"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/company_people.py",
+    "status": "reviewed",
+    "notes": "Full read: role/company/person authorization precedes directory/document/assets; asset join binds tenant/company/person and retained authority, MIME/size and no-store headers.",
+    "review_scope": "full",
+    "sha256": "80aaf08e4c970c6edcfc2ebb622fb558744c98cd852f428482a6377186a79c0b"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/document_distribution_delivery.py",
+    "status": "reviewed",
+    "notes": "Full file read: actor/tenant/group locks, deterministic preview and selected-document tenant filters precede queue persistence; retries/resends preserve outcome policy, commit precedes publication, compensation touches queued rows, tracking is agency/group scoped.",
+    "review_scope": "full",
+    "sha256": "bcc8368940d02278f1a1248ac428a83b12872b2628500658f92e0d6536b1e24e"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/document_distribution_delivery_preview.py",
+    "status": "reviewed",
+    "notes": "Full file read: document/batch/destination/history queries are tenant/group/type bound and deterministic source fingerprints precede queue comparisons; configuration and response tail inspected.",
+    "review_scope": "full",
+    "sha256": "b5001bcb988c5111f4ed6b2de1936a708ca03acf899924b805f36418fd2b57d0"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/document_distribution_delivery_selection.py",
+    "status": "reviewed",
+    "notes": "Full file read: explicit resend eligibility, failed-only retries and accepted/unknown suppression retain current private delivery semantics.",
+    "review_scope": "full",
+    "sha256": "dc357ebc3270241b34ac2d0cde457ce8f5bf84d44904847e4d1d000a3ba60d69"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/document_distribution_delivery_support.py",
+    "status": "reviewed",
+    "notes": "Full file read: delivery list/selection helpers preserve tenant/group/status matching and bounded retry decisions.",
+    "review_scope": "full",
+    "sha256": "27f98eb8f1a469edb45459de6d806a67abaf3816acd42894e7ff45f00b53050c"
+  },
+  {
+    "path": "backend/app/infrastructure/whatsapp/publication.py",
+    "status": "reviewed",
+    "notes": "Full file read: durable commit precedes bounded thread publication; compensation updates only queued rows with the internal batch identity.",
+    "review_scope": "full",
+    "sha256": "b5ceb5197b6c04b908c15de40dc47f285cd162624b167c61d48d677c534e78ef"
+  },
+  {
+    "path": "backend/app/infrastructure/whatsapp/private_delivery_policy.py",
+    "status": "reviewed",
+    "notes": "Full file read: immutable snapshot binds agency/group/passenger/recipient/broadcast/phone, current source locks precede send, and identity mutations block ambiguous/processing outcomes. Native mobile implementations remain excluded.",
+    "review_scope": "full",
+    "sha256": "bed4893e0328209032e17a7e13292fc6ee2029b562e6b69e4cd0586fba04b34b"
+  },
+  {
+    "path": "backend/app/infrastructure/whatsapp/document_delivery_runtime.py",
+    "status": "reviewed",
+    "notes": "Full file read: saved tenant/group/passenger/type-bound document query, bounded worker slices, final current identity/source/grant locks before provider send, ambiguous-outcome resend suppression, receipt progression and static error logging inspected. Real provider/database concurrency was not exercised.",
+    "review_scope": "full",
+    "sha256": "995e3c43450e9ab3e6a82789c7df4456f0c02eb3f7280efbb49468c74d4a358a"
+  },
+  {
+    "path": "frontend/lib/api/streamed-download.test.ts",
+    "status": "fixed",
+    "notes": "Full file read. Percent-literal filename regressions distinguish quoted/unquoted ordinary values from RFC5987 encoding; malformed extended encoding falls back. Focused Vitest file passes 15 tests.",
+    "review_scope": "full",
+    "sha256": "f2fd7c98c5a44cd38de40b61608c69fa122b369101a409bc71aa0ab066d666fe"
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_meal_plan_excel_exporter.py",
+    "status": "fixed",
+    "notes": "Full file read. Workbook regression verifies ascending days, preserved interleaved entry order, date/merge/gap formatting and one source-entry visit per item. Three focused tests pass.",
+    "review_scope": "full",
+    "sha256": "00234d0abe42f0c39d1593e13c70db115f158610b5abf1df3122a9a29a4a9061"
+  },
+  {
+    "path": "scripts/qa/qualify_proxy_errors.py",
+    "status": "fixed",
+    "notes": "Full file read. Existing isolated Nginx runtime qualifier now extracts the actual native-transfer location and tests synthetic bearer GET/PUT backend routing, upload size, no-store and private access-log suppression. Compilation/extraction passed; runtime not executed without Docker.",
+    "review_scope": "full",
+    "sha256": "392adf7bf99cf21899ce6611a188607637630ffc531e0f81902a6a3cd6071453"
+  },
+  {
+    "path": "nginx/conf.d/includes/mcp-proxy.inc",
+    "status": "reviewed",
+    "notes": "Full file read: dedicated shared MCP proxy uses bounded edge quota/timeouts, fixed backend, forwarded request identity, disabled buffering/cache and no-store response policy.",
+    "review_scope": "full",
+    "sha256": "b7a485b2cf1d9dd31766ab90eb6588a9bb306da14db32272145d017349390f6a"
+  },
+  {
+    "path": "backend/app/application/use_cases/passports/prepare_image_export.py",
+    "status": "reviewed",
+    "notes": "Full file read by supporting branding_visuals agent. Agency/group selection membership and current export preparation validate requested private submission sources before ZIP rendering. Native mobile implementations remain excluded.",
+    "review_scope": "full",
+    "sha256": "453cf038b84859a51bad847562349d6e7e42e066d5c41c99a9ac84e2aa39a9e5"
+  },
+  {
+    "path": "backend/app/application/travellers/export_authority.py",
+    "status": "reviewed",
+    "notes": "Full file read by supporting branding_visuals agent. Retained-asset company/revision/revocation joins and pre/post-render export authority checks preserve source ownership; real database concurrency not exercised.",
+    "review_scope": "full",
+    "sha256": "e94da9c1c33b3c885118c62a1c0a75b8434cf5112374c8cbd7f1c7f986b993af"
+  },
+  {
+    "path": "frontend/lib/api/request-owner.ts",
+    "status": "fixed",
+    "review_scope": "full",
+    "notes": "Full current read; internal immutable effective-authority tuple fences dispatch/response/refresh/step-up; subscription only aborts. HTTP expected actor remains user-only restrictive precondition.",
+    "sha256": "dc504d23f73182988fa2d0093fb7954c57fa9a7118f6ce1859eb00df2fe54ac2",
+    "attribution": "manual_security direct physical-file read"
+  },
+  {
+    "path": "frontend/lib/api/request-owner.test.ts",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Full current read; protected/public/auth dispatch, deferred interceptor/refresh/step-up, cancellation, no-old-actor-expiry regressions; only exact local tuple metadata expectations changed.",
+    "sha256": "4aa1afb3de23ec24ef0b7a963297faf7344d2e29dbf6de95335c00bbdfc55dc1",
+    "attribution": "manual_security direct physical-file read"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_dashboard_expected_actor.py",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Nine deterministic source-to-handler tests use synthetic identities and an isolated ASGI application; prove mismatch stops command effect for cookie and bearer authentication, absent header remains compatible, header cannot substitute authentication.",
+    "sha256": "b08fed2dd3fa0d7d670f56c3407a43a3b67f3c1ed7a1165bf53edaa4d311be86"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_dashboard_cookie_csrf.py",
+    "status": "reviewed",
+    "review_scope": "full",
+    "notes": "Full read. Existing central cookie CSRF and bearer compatibility tests retained; synthetic Request stand-ins now include headers consistent with actual Request.",
+    "sha256": "379cfc0bf46b104e92c8c302bf4acfea24abac6d64875dddad12044f51cec33e"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/auth.py",
+    "status": "fixed",
+    "review_scope": "full",
+    "attribution": "manual_security direct physical-file read",
+    "sha256": "b3a10680eb335e589430dee4eba3fefa95d2fd54877682c15308b7e6e79177f8",
+    "notes": "Full read plus narrow optional expected-actor precondition fix reviewed. Seven actual ASGI/durable session regressions now pass; matching/no-header workflows preserved. See auth-cookie-backend-verification.json; frontend all-writer coordination still OPEN."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/auth_access_level.py",
+    "status": "needs-followup",
+    "review_scope": "full",
+    "attribution": "manual_security direct physical-file read",
+    "sha256": "f212d1d8d55ae5b7be9fe50e1cfdceb31d1a1d6647e579e1304e7706c805f6e5",
+    "notes": "Complete physical read: true superadmin check, agency selection, signed role-cookie writer and audit traced. Cross-tab writer ordering follow-up OPEN."
+  },
+  {
+    "path": "backend/app/application/use_cases/auth/logout_use_case.py",
+    "status": "fixed",
+    "review_scope": "full",
+    "attribution": "manual_security direct physical-file read",
+    "sha256": "a79022eb7c5285a123bcb12e2d3d67f53637d3e1122cde6a0cf7e2e4c41b8649",
+    "notes": "Full read plus narrow optional expected-actor precondition fix reviewed. Seven actual ASGI/durable session regressions now pass; matching/no-header workflows preserved. See auth-cookie-backend-verification.json; frontend all-writer coordination still OPEN."
+  },
+  {
+    "path": "backend/app/application/use_cases/auth/refresh_token_use_case.py",
+    "status": "fixed",
+    "review_scope": "full",
+    "attribution": "manual_security direct physical-file read",
+    "sha256": "8c6b50fced825c17e64740e6db4e9ddfc1cfa6e1c855b0cadd8e3f7c3272ea3b",
+    "notes": "Full read plus narrow optional expected-actor precondition fix reviewed. Seven actual ASGI/durable session regressions now pass; matching/no-header workflows preserved. See auth-cookie-backend-verification.json; frontend all-writer coordination still OPEN."
+  },
+  {
+    "path": "backend/app/infrastructure/repositories/refresh_token_repository.py",
+    "status": "fixed",
+    "review_scope": "full",
+    "attribution": "manual_security direct physical-file read",
+    "sha256": "219a15a385285e5c2a805b6b6b8e3e9f16e38c788163555af8f063221dc6f316",
+    "notes": "Full read plus narrow optional expected-actor precondition fix reviewed. Seven actual ASGI/durable session regressions now pass; matching/no-header workflows preserved. See auth-cookie-backend-verification.json; frontend all-writer coordination still OPEN."
+  },
+  {
+    "path": "backend/app/domain/value_objects/request_actor.py",
+    "review_scope": "full",
+    "attribution": "manual_security direct physical-file read",
+    "status": "fixed",
+    "sha256": "ff6f9aebf061d2f9c1cf6bc127e8c291264ebd344d8c86e46983dd7c127facc2",
+    "notes": "Full read plus narrow optional expected-actor precondition fix reviewed. Seven actual ASGI/durable session regressions now pass; matching/no-header workflows preserved. See auth-cookie-backend-verification.json; frontend all-writer coordination still OPEN."
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_dashboard_session_families.py",
+    "review_scope": "full",
+    "attribution": "manual_security direct physical-file read",
+    "status": "reviewed",
+    "sha256": "f67f844845f5fc196cc3f80f37d46307fd178469b12d6b8cb85f2f7dd6755214",
+    "notes": "Full read plus narrow optional expected-actor precondition fix reviewed. Seven actual ASGI/durable session regressions now pass; matching/no-header workflows preserved. See auth-cookie-backend-verification.json; frontend all-writer coordination still OPEN."
+  },
+  {
+    "path": "frontend/features/auth/services/cookie-mutation.ts",
+    "review_scope": "full",
+    "attribution": "manual_security direct physical-file read",
+    "sha256": "fa1385adb965525afba57c42d1eab82d0967b9f3836956b462746be164ece6c7",
+    "status": "fixed",
+    "notes": "Shared secure-browser transport WebLock; exact current staff-auth/selected-access cookie writers, cancellable queued acquisition, nested retry dispatch sharing, failclosed capability UX. No silent lease fallback. Current checkpoint: auth-cookie-frontend-verification.json."
+  },
+  {
+    "path": "frontend/features/auth/api/auth.api.ts",
+    "review_scope": "full",
+    "attribution": "manual_security direct physical-file read",
+    "sha256": "6e52799fa4c0a18c887c26836402d3b7bd68273b08f5e0365bbbbc8165719abd",
+    "status": "fixed",
+    "notes": "Four identity requests use operation-local abort continuity; three proven unconsumed duplicate refresh/logout aliases removed; active workflows retained. Current checkpoint: auth-cookie-frontend-verification.json."
+  },
+  {
+    "path": "frontend/features/auth/components/account-security-panel.test.tsx",
+    "sha256": "49672d3ab4452ad5434d357cac9b93436c36cf48bdc9e42533edde628ff95807",
+    "review_scope": "full",
+    "attribution": "manual_security direct physical-file read",
+    "status": "reviewed",
+    "notes": "Full current read; seven behavior cases include retained same-authority draft, suppressed late A completion and actual global-onMutate invocation boundary."
+  },
+  {
+    "path": "frontend/features/auth/components/account-security-panel.tsx",
+    "sha256": "46c4dbdc716ff490bf7b74f43a4241270d56015d81b3dc7f7f9524acd975ecc4",
+    "review_scope": "full",
+    "attribution": "manual_security direct physical-file read",
+    "status": "fixed",
+    "notes": "Stable effective-authority key preserves same-authority drafts; two current private mutations capture initiating scope before TanStack callbacks. Clipboard rejection remains explicit follow-up."
+  },
+  {
+    "path": "frontend/features/auth/components/authenticated-content.tsx",
+    "sha256": "2a6b961e1c3aed8a9fce536a1a08aefe4f68a6699271581ad65c1e1aa1c76d4d",
+    "review_scope": "full",
+    "attribution": "manual_security direct physical-file read",
+    "status": "fixed",
+    "notes": "Full current read; stable shared [id,role,agency_id] key; existing restoration/capability/error states preserved."
+  },
+  {
+    "path": "frontend/stores/auth-account-boundary.test.tsx",
+    "sha256": "7a8aa11d4a236d30cc4960805e5ba7aa2072a25edbd1132f6dc2e7845758345c",
+    "review_scope": "full",
+    "attribution": "manual_security direct physical-file read",
+    "status": "reviewed",
+    "notes": "Six actual SessionLifecycle+QueryClient+store cases: cross-tab owner marker, denied get/remove, same-user role/agency transition, same-authority draft preservation."
+  },
+  {
+    "path": "frontend/lib/api/private-operation-authority.test.ts",
+    "sha256": "56a27d221a1aeb00cd5a05586823b1891b565cf4456053f6b5246f666e07ae30",
+    "review_scope": "full",
+    "attribution": "manual_security direct physical-file read",
+    "status": "reviewed",
+    "notes": "Seven actual helper/adapter cases: role/agency operation+inflight response, same-authority preservation, deferred refresh replay rejection."
+  },
+  {
+    "path": "frontend/hooks/use-private-mutation.ts",
+    "sha256": "0e282bc7638a1c404fd07936d5e267f05cdb9d4a66c25cb1e4074f9232820250",
+    "review_scope": "full",
+    "attribution": "manual_security direct physical-file read",
+    "status": "reviewed",
+    "notes": "Independent full current source read of branding_visuals shared helper: invocation capture, public variables/context/callback adaptation, stale outcomes and overlapping invocation guards. No runtime edit by this lane."
+  },
+  {
+    "path": "frontend/hooks/use-private-mutation.test.tsx",
+    "sha256": "4e733ec8fd4f6e22fde8a11b486e05762635331ab2a7ed19ff56ba9350ca692b",
+    "review_scope": "full",
+    "attribution": "manual_security direct physical-file read",
+    "status": "reviewed",
+    "notes": "Full prior/current authored helper behavior read; one exact metadata expectation updated to include original effective-authority tuple; all assertions retained."
+  }
+]

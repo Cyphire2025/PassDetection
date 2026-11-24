@@ -1,0 +1,131 @@
+{
+  "recorded_at": "2026-10-30T22:02:12.355Z",
+  "records": [
+    {
+      "path": "frontend/features/passports/components/use-passport-group-controller.tsx",
+      "sha256": "b414bd4682ff48913abf80285d8c19dc230fefe8f82596ef8435f5496f8798c7",
+      "physical_lines": 84,
+      "max_function_complexity": 7,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Original controller every physical line read; current owner wiring and atomic selection changes authored/reviewed. AST movement evidence separately covers65 moved statements, with one declared group-name parameter alias."
+    },
+    {
+      "path": "frontend/features/passports/components/use-passport-group-view.ts",
+      "sha256": "7e6678791390f664e3a27c3c1b53e3c03c747e72db19259dd2229684e7921646",
+      "physical_lines": 176,
+      "max_function_complexity": 5,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Original controller every physical line read; current owner wiring and atomic selection changes authored/reviewed. AST movement evidence separately covers65 moved statements, with one declared group-name parameter alias."
+    },
+    {
+      "path": "frontend/features/passports/components/use-passport-group-metadata.ts",
+      "sha256": "7ca3b8738eb1b5200d6a86b2272665f8fcac7ba83a58b7dc7205c950c67e6a1b",
+      "physical_lines": 49,
+      "max_function_complexity": 10,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Original controller every physical line read; current owner wiring and atomic selection changes authored/reviewed. AST movement evidence separately covers65 moved statements, with one declared group-name parameter alias."
+    },
+    {
+      "path": "frontend/features/passports/components/use-passport-group-menus.ts",
+      "sha256": "bbe7b315057d302cf67b73cae7c8d7bcda47c851b0389a512abda245e4b86053",
+      "physical_lines": 86,
+      "max_function_complexity": 3,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Original controller every physical line read; current owner wiring and atomic selection changes authored/reviewed. AST movement evidence separately covers65 moved statements, with one declared group-name parameter alias."
+    },
+    {
+      "path": "frontend/features/passports/components/use-passport-group-imports.ts",
+      "sha256": "7267f2ee80f0b908edb3a34277bd6a780c75dd927d6e6b1860b07a5ecef54bc6",
+      "physical_lines": 75,
+      "max_function_complexity": 2,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Original controller every physical line read; current owner wiring and atomic selection changes authored/reviewed. AST movement evidence separately covers65 moved statements, with one declared group-name parameter alias."
+    },
+    {
+      "path": "frontend/features/passports/components/use-passport-group-dialog-state.ts",
+      "sha256": "2063557a510b23a16242f5d73ee725b3a17928eb5a15f4d5ecb85587f3c0954d",
+      "physical_lines": 70,
+      "max_function_complexity": 1,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Original controller every physical line read; current owner wiring and atomic selection changes authored/reviewed. AST movement evidence separately covers65 moved statements, with one declared group-name parameter alias."
+    },
+    {
+      "path": "frontend/features/passports/components/use-passport-selected-image-download.ts",
+      "sha256": "0fbe23b54f2c10dce2672af197c2490ec0c6f31643749c8becb26a5ced613ce8",
+      "physical_lines": 38,
+      "max_function_complexity": 5,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Original controller every physical line read; current owner wiring and atomic selection changes authored/reviewed. AST movement evidence separately covers65 moved statements, with one declared group-name parameter alias."
+    },
+    {
+      "path": "frontend/features/passports/components/use-passport-group-selection.ts",
+      "sha256": "0951bebe5944496e3a9c692c6dc2ed4aca1fd770b4e9d2367273e983a4960514",
+      "physical_lines": 143,
+      "max_function_complexity": 5,
+      "review_scope": "full",
+      "status": "reviewed-and-improved",
+      "review_method": "Original controller every physical line read; current owner wiring and atomic selection changes authored/reviewed. AST movement evidence separately covers65 moved statements, with one declared group-name parameter alias."
+    }
+  ],
+  "runtime_files": 8,
+  "original_controller_lines": 722,
+  "current_controller_lines": 84,
+  "maximum_owner_lines": 176,
+  "preserved_public_properties": 106,
+  "remaining_original_oversized_owners": 15,
+  "proofs": {
+    "baseline": {
+      "path": ".tmp/passport-group-selection-before.json",
+      "files": 1,
+      "cases": 4,
+      "passed": 1,
+      "failed": 3
+    },
+    "unadmitted_revision_baseline": {
+      "path": ".tmp/passport-group-selection-revision-before.json",
+      "files": 1,
+      "cases": 5,
+      "passed": 4,
+      "failed": 1
+    },
+    "affected": {
+      "path": ".tmp/passport-group-controller-after.json",
+      "files": 5,
+      "cases": 26,
+      "passed": 26,
+      "failed": 0
+    },
+    "final_selection": {
+      "path": ".tmp/passport-group-selection-final.json",
+      "files": 1,
+      "cases": 5,
+      "passed": 5,
+      "failed": 0
+    },
+    "node_contracts": {
+      "path": ".tmp/passport-group-controller-contracts.txt",
+      "files": 4,
+      "cases": 30,
+      "passed": 30
+    },
+    "types": "passed",
+    "scoped_eslint": "passed"
+  },
+  "fixes": [
+    "Atomic IDs, revision maps and cached Set membership make same-turn toggles/cap consistent.",
+    "Whole custom counts use Number plus integer/range validation, so1.5 is rejected.",
+    "Preset revision maps contain only admitted selected IDs; repeated filtered presets cannot accumulate revisions for cap-excluded records."
+  ],
+  "limits": [
+    "No production build/whole suite repeated for these coherent source fixes.",
+    "65 moved-statement AST equivalence excludes the deliberate selection behavior changes, which have separate negative regressions.",
+    "Private26 source checkpoint remains unchanged."
+  ]
+}

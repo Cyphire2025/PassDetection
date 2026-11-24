@@ -1,10 +1,13 @@
 # Production release readiness
 
-This is the current operator gate for the existing PassDetection installation.
-Use [Current release and storage cutover](CURRENT_RELEASE_AND_STORAGE.md) for the
-short prepare/activate commands and interruption recovery. The historical
-September 5 policy rehearsal remains useful evidence, but its two-file MinIO
-rollout commands are superseded by the current three-file release path.
+This checklist records required operational gates and dated observations of the
+existing installation. Use [Choosing a deployment](deployment-modes.md) and the
+exact qualified checkout's
+[release manifest](../backend/app/core/config/release_manifest.json) to select the
+current release and recovery path. [Historical storage cutover](CURRENT_RELEASE_AND_STORAGE.md)
+preserves the earlier `0112 → 0113` commands; those commands and the September 5
+two-file MinIO rehearsal are not a current deployment recipe. Dated observations
+below do not establish the VPS's present state.
 
 The current code and maintained storage provider were qualified locally with
 synthetic data. **The Hostinger KVM 4 VPS has not been deployed or migrated in
@@ -18,7 +21,7 @@ including legacy MinIO running. This establishes basic host inventory only.
 The second bounded search found local application PostgreSQL archives, the newest
 returned dated 21 September. Their contents were not inspected or restored; this
 does not prove integrity, object/Redis coverage, off-host protection or PITR.
-The running application revision remains the original audit baseline. Direct
+The inspection recorded the original audit baseline as the running revision. Direct
 schema/effective-grant/WAL checks were pending at that snapshot. A second
 read-only inspection on 27 September confirmed live schema
 `0107_passport_ecr_checks` and the runtime role's superuser, CREATEDB and
@@ -35,9 +38,9 @@ restore, deletion protection, PITR or measured RPO/RTO. No backup was restored,
 created, deleted or rescheduled. The provider's **1h 54m estimate is not a measured
 RTO**. See the [read-only inspection record](C:/Users/nipun/Desktop/PassDetection-Independent-Audit-2026-09-26/24-VPS-Read-Only-Inspection.md).
 
-## Release contract and recorded identities
+## Historical release contract and recorded identities
 
-[release_manifest.json](../backend/app/core/config/release_manifest.json) declares
+For the recorded storage cutover, the then-reviewed release manifest declared
 target schema `0113_document_follow_up`, reviewed previous schema
 `0112_passport_cover_edits`, and all **eight** worker services/nodes:
 `worker`/`general`, `email-worker`/`email`, `email-ai-worker`/`email-ai`,
@@ -45,7 +48,7 @@ target schema `0113_document_follow_up`, reviewed previous schema
 `visa-ai-worker`/`visa-ai`, `my-photos-worker`/`my-photos`, and `ecr-worker`/`ecr`.
 `email-beat` is the scheduler, not a ninth worker. Settings, runtime checks,
 Compose mirrors, CI and `scripts/release_current.py` use or validate this contract.
-The current manifest accepts the reviewed `0112` baseline or current `0113`
+That historical manifest accepted the reviewed `0112` baseline or its `0113`
 head. Any other database revision needs its own reviewed upgrade rehearsal;
 stop on an unknown/missing revision. Migration `0109` invalidates existing
 dashboard sessions, requiring a fresh sign-in; it preserves business records,
@@ -58,7 +61,7 @@ identity files and `tmp/current-release/` private and available after a restart.
 These files can contain credentials or sensitive object keys. They do not belong
 in Git, CI artifacts, screenshots or support messages.
 
-The current helper selects `docker-compose.yml`, `docker-compose.prod.yml` and
+That storage-cutover helper selects `docker-compose.yml`, `docker-compose.prod.yml` and
 `docker-compose.storage-production.yml`, with profile `maintenance`; APNs adds
 its reviewed overlay only when enabled. The base file alone is development
 configuration. The two-file base/production path retains legacy MinIO for
@@ -150,7 +153,9 @@ latency/backlog limits and restart behavior remain required operating evidence.
 
 ## Recovery and reopening traffic
 
-Follow the checkpoint recovery instructions in [the current procedure](CURRENT_RELEASE_AND_STORAGE.md).
+Follow the selected release's recovery instructions in [Choosing a deployment](deployment-modes.md).
+The steps below describe recovery of the [historical storage cutover](CURRENT_RELEASE_AND_STORAGE.md),
+not permission to use that older helper for a current release.
 Rerunning the same command checks pending writer recovery before requiring a
 running backend. Changed writer identities, unknown providers and ambiguous
 handoff fail closed. A failed Nginx test/reload leaves the checkpoint pending.

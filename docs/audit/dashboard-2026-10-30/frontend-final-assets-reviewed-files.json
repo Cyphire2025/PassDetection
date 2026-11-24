@@ -1,0 +1,911 @@
+{
+  "method": "Manual full source/support reading is separate from focused binary metadata/container/visual/source-consumer review. Binary line counts are never treated as source-read coverage. Source-caller searches are evidence, not source full credit.",
+  "files": [
+    {
+      "path": "frontend/app/favicon.ico",
+      "sha256": "4d31aaecf1864449db9a2c4322930e406b598813c5de73f19028f1cd953217f2",
+      "bytes": 2247,
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Focused binary/container and native decoder review: original default Vercel artwork replaced with losslessly repacked existing Group Companion192PNG at same framework favicon route. Exact PNG payload/dimensions/color/alpha and WebKit full RGBA parity pass; no pixel edit. See favicon-asset-verification.json.",
+      "metadata": {
+        "format": "ico",
+        "images": [
+          {
+            "width": 192,
+            "height": 192,
+            "offset": 22,
+            "length": 2225
+          }
+        ]
+      }
+    },
+    {
+      "path": "frontend/public/ai/liquid-sculpture-mobile.webp",
+      "sha256": "b0c8d8e5d64b8cec906a3b390e3dc7c9a5af08334bf0632873c601782cb4bc46",
+      "bytes": 173650,
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Focused WebP/hash/dimensions/metadata review. Actual SHA exactly matches digest in existing21st.dev user-supplied source URL recorded by ATTRIBUTION.md. LiquidSculptureHero uses both responsive local assets and disposes engine/listeners. Attribution is repository evidence, not independently established license grant.",
+      "metadata": {
+        "format": "webp",
+        "width": 1024,
+        "height": 1300,
+        "channels": 3,
+        "pages": 1,
+        "hasAlpha": false,
+        "embeddedMetadata": {},
+        "otherKeys": [
+          "format",
+          "mediaType",
+          "size",
+          "width",
+          "height",
+          "space",
+          "channels",
+          "depth",
+          "isProgressive",
+          "isPalette",
+          "hasProfile",
+          "hasAlpha",
+          "autoOrient"
+        ]
+      }
+    },
+    {
+      "path": "frontend/public/ai/liquid-sculpture.webp",
+      "sha256": "ae8c3de9003460e59182e950ccd345f68f27f9d0e4808b64c92c962a4eca7120",
+      "bytes": 192398,
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Focused WebP/hash/dimensions/metadata review. Actual SHA exactly matches digest in existing21st.dev user-supplied source URL recorded by ATTRIBUTION.md. LiquidSculptureHero uses both responsive local assets and disposes engine/listeners. Attribution is repository evidence, not independently established license grant.",
+      "metadata": {
+        "format": "webp",
+        "width": 1983,
+        "height": 793,
+        "channels": 3,
+        "pages": 1,
+        "hasAlpha": false,
+        "embeddedMetadata": {},
+        "otherKeys": [
+          "format",
+          "mediaType",
+          "size",
+          "width",
+          "height",
+          "space",
+          "channels",
+          "depth",
+          "isProgressive",
+          "isPalette",
+          "hasProfile",
+          "hasAlpha",
+          "autoOrient"
+        ]
+      }
+    },
+    {
+      "path": "frontend/public/apple-touch-icon.png",
+      "sha256": "82ec58e29579fa9a5f1b6966a204840c44c29053c5ba395f659e4e755d238eb0",
+      "bytes": 2078,
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Focused PNG/hash/dimensions/metadata; actual app layout/manifest explicit current public consumer.512normal/maskable files byte-identical but separately declared stable purpose paths retained.192PNG also exact favicon payload; no user data or GPS EXIF observed.",
+      "metadata": {
+        "format": "png",
+        "width": 180,
+        "height": 180,
+        "channels": 3,
+        "pages": 1,
+        "hasAlpha": false,
+        "embeddedMetadata": {},
+        "otherKeys": [
+          "format",
+          "mediaType",
+          "size",
+          "width",
+          "height",
+          "space",
+          "channels",
+          "depth",
+          "density",
+          "isProgressive",
+          "isPalette",
+          "bitsPerSample",
+          "hasProfile",
+          "hasAlpha",
+          "autoOrient"
+        ]
+      }
+    },
+    {
+      "path": "frontend/public/assets/branding/global-connect/global-connect-logo-original.jpeg",
+      "sha256": "b9833d5f9fa942bbc7445e7da7d7065c264f5e2d84a4a8b514cf2e2a8d1361bb",
+      "bytes": 373204,
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Focused original branding JPEG/hash/dimensions and parsed XMP/IPTC metadata tags. Contains editor/creator/history/thumbnail/document IDs; no demonstrated secret/location leak from tags alone. Related source artwork retained, not classified unrelated merely because active components use derivativePNG.",
+      "metadata": {
+        "format": "jpeg",
+        "width": 3583,
+        "height": 2556,
+        "channels": 3,
+        "pages": 1,
+        "hasAlpha": false,
+        "embeddedMetadata": {
+          "xmp": 17117,
+          "iptc": 42
+        },
+        "otherKeys": [
+          "format",
+          "mediaType",
+          "size",
+          "width",
+          "height",
+          "space",
+          "channels",
+          "depth",
+          "density",
+          "chromaSubsampling",
+          "isProgressive",
+          "isPalette",
+          "resolutionUnit",
+          "hasProfile",
+          "hasAlpha",
+          "autoOrient",
+          "xmpAsString"
+        ]
+      }
+    },
+    {
+      "path": "frontend/public/assets/branding/global-connect/global-connect-logo-reveal-poster.png",
+      "sha256": "399e3c970d65746f04dcc6138f3f760a102b71b6fbab7cc1b0a0ac30d4666796",
+      "bytes": 196831,
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Focused supplied original branding media/hash/container metadata. Related source artwork retained; no current runtime binding found in bounded maintained-source caller trace. No producer/ownership/right certification or full audiovisual decode claim.",
+      "metadata": {
+        "format": "png",
+        "width": 1920,
+        "height": 1080,
+        "channels": 4,
+        "pages": 1,
+        "hasAlpha": true,
+        "embeddedMetadata": {},
+        "otherKeys": [
+          "format",
+          "mediaType",
+          "size",
+          "width",
+          "height",
+          "space",
+          "channels",
+          "depth",
+          "density",
+          "isProgressive",
+          "isPalette",
+          "bitsPerSample",
+          "hasProfile",
+          "hasAlpha",
+          "autoOrient"
+        ]
+      }
+    },
+    {
+      "path": "frontend/public/assets/branding/global-connect/globalconnect-logo-removebg-preview.png",
+      "sha256": "e9d45430d5be76c134d3f8a2ed11f72e6005f19d5c07b99a93d1762c823232d3",
+      "bytes": 87808,
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Focused PNG/hash/dimensions/alpha/metadata. Actual brand/auth/legal public routes use these stable aliases; transparent root logo and branding derivative share exact bytes. Retained both live paths rather than break existing consumers/URLs.",
+      "metadata": {
+        "format": "png",
+        "width": 612,
+        "height": 408,
+        "channels": 4,
+        "pages": 1,
+        "hasAlpha": true,
+        "embeddedMetadata": {},
+        "otherKeys": [
+          "format",
+          "mediaType",
+          "size",
+          "width",
+          "height",
+          "space",
+          "channels",
+          "depth",
+          "density",
+          "isProgressive",
+          "isPalette",
+          "bitsPerSample",
+          "hasProfile",
+          "hasAlpha",
+          "autoOrient"
+        ]
+      }
+    },
+    {
+      "path": "frontend/public/assets/branding/global-connect/journey-film/journey-film-poster.jpg",
+      "sha256": "eb8d3cee87c283445e29cc8115936bee1eba578809e92e659bb8e92e0d9b6cd5",
+      "bytes": 114609,
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Focused static media format/hash/container review plus actual CompanyJourneyFilm caller. H264 local video/poster; productioncomponent gates src by motion/data preference, pauses offscreen/hidden and cleans up observer/listener. MP4 metadata bound/track/codec inspection, not full packet decode/performance/provider-rights certification.",
+      "metadata": {
+        "format": "jpeg",
+        "width": 1600,
+        "height": 1000,
+        "channels": 3,
+        "pages": 1,
+        "hasAlpha": false,
+        "embeddedMetadata": {
+          "icc": 456
+        },
+        "otherKeys": [
+          "format",
+          "mediaType",
+          "size",
+          "width",
+          "height",
+          "space",
+          "channels",
+          "depth",
+          "density",
+          "chromaSubsampling",
+          "isProgressive",
+          "isPalette",
+          "hasProfile",
+          "hasAlpha",
+          "autoOrient"
+        ]
+      }
+    },
+    {
+      "path": "frontend/public/assets/upload-samples/passport-back-cover.png",
+      "sha256": "e103ead81bf77949073b9b298013ae8deccf5aaaf22b6b65835f81841e2b210b",
+      "bytes": 2509557,
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Focused PNG/hash/dimensions/embedded metadata plus actual visual inspection: supplied cover/serial-barcode artwork or portrait guide, no EXIF detected. Identity/authorship not established and no real-passenger claim. Closed dashboard/mobile runtime caller search, but visa-photo is still an operational release probe dependency; keep all3and obsoleteREADME until separately qualified probe migration, then authorized archival with original bytes.",
+      "metadata": {
+        "format": "png",
+        "width": 1005,
+        "height": 1291,
+        "channels": 4,
+        "pages": 1,
+        "hasAlpha": true,
+        "embeddedMetadata": {},
+        "otherKeys": [
+          "format",
+          "mediaType",
+          "size",
+          "width",
+          "height",
+          "space",
+          "channels",
+          "depth",
+          "density",
+          "isProgressive",
+          "isPalette",
+          "bitsPerSample",
+          "hasProfile",
+          "hasAlpha",
+          "autoOrient"
+        ]
+      }
+    },
+    {
+      "path": "frontend/public/assets/upload-samples/passport-front-cover.png",
+      "sha256": "a86f5fcf2944bae30009226d54a030a502e3ed74bd999d21c489028b633f7753",
+      "bytes": 2872523,
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Focused PNG/hash/dimensions/embedded metadata plus actual visual inspection: supplied cover/serial-barcode artwork or portrait guide, no EXIF detected. Identity/authorship not established and no real-passenger claim. Closed dashboard/mobile runtime caller search, but visa-photo is still an operational release probe dependency; keep all3and obsoleteREADME until separately qualified probe migration, then authorized archival with original bytes.",
+      "metadata": {
+        "format": "png",
+        "width": 964,
+        "height": 1292,
+        "channels": 4,
+        "pages": 1,
+        "hasAlpha": true,
+        "embeddedMetadata": {},
+        "otherKeys": [
+          "format",
+          "mediaType",
+          "size",
+          "width",
+          "height",
+          "space",
+          "channels",
+          "depth",
+          "density",
+          "isProgressive",
+          "isPalette",
+          "bitsPerSample",
+          "hasProfile",
+          "hasAlpha",
+          "autoOrient"
+        ]
+      }
+    },
+    {
+      "path": "frontend/public/assets/upload-samples/visa-photo.png",
+      "sha256": "20b4d984d63cab7930c9ba3f722b37766495bd1f3a707e8dca98849862c2f85b",
+      "bytes": 117057,
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Focused PNG/hash/dimensions/embedded metadata plus actual visual inspection: supplied cover/serial-barcode artwork or portrait guide, no EXIF detected. Identity/authorship not established and no real-passenger claim. Closed dashboard/mobile runtime caller search, but visa-photo is still an operational release probe dependency; keep all3and obsoleteREADME until separately qualified probe migration, then authorized archival with original bytes.",
+      "metadata": {
+        "format": "png",
+        "width": 297,
+        "height": 418,
+        "channels": 4,
+        "pages": 1,
+        "hasAlpha": true,
+        "embeddedMetadata": {},
+        "otherKeys": [
+          "format",
+          "mediaType",
+          "size",
+          "width",
+          "height",
+          "space",
+          "channels",
+          "depth",
+          "density",
+          "isProgressive",
+          "isPalette",
+          "bitsPerSample",
+          "hasProfile",
+          "hasAlpha",
+          "autoOrient"
+        ]
+      }
+    },
+    {
+      "path": "frontend/public/globalconnect-logo-transparent.png",
+      "sha256": "e9d45430d5be76c134d3f8a2ed11f72e6005f19d5c07b99a93d1762c823232d3",
+      "bytes": 87808,
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Focused PNG/hash/dimensions/alpha/metadata. Actual brand/auth/legal public routes use these stable aliases; transparent root logo and branding derivative share exact bytes. Retained both live paths rather than break existing consumers/URLs.",
+      "metadata": {
+        "format": "png",
+        "width": 612,
+        "height": 408,
+        "channels": 4,
+        "pages": 1,
+        "hasAlpha": true,
+        "embeddedMetadata": {},
+        "otherKeys": [
+          "format",
+          "mediaType",
+          "size",
+          "width",
+          "height",
+          "space",
+          "channels",
+          "depth",
+          "density",
+          "isProgressive",
+          "isPalette",
+          "bitsPerSample",
+          "hasProfile",
+          "hasAlpha",
+          "autoOrient"
+        ]
+      }
+    },
+    {
+      "path": "frontend/public/globalconnect-logo.png",
+      "sha256": "06729cfb6f3c47c26f5f882fcbcff60dbbdbdc6c252897dc30c5eba857070024",
+      "bytes": 72287,
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Focused PNG/hash/dimensions/alpha/metadata. Actual brand/auth/legal public routes use these stable aliases; transparent root logo and branding derivative share exact bytes. Retained both live paths rather than break existing consumers/URLs.",
+      "metadata": {
+        "format": "png",
+        "width": 1431,
+        "height": 955,
+        "channels": 4,
+        "pages": 1,
+        "hasAlpha": true,
+        "embeddedMetadata": {},
+        "otherKeys": [
+          "format",
+          "mediaType",
+          "size",
+          "width",
+          "height",
+          "space",
+          "channels",
+          "depth",
+          "density",
+          "isProgressive",
+          "isPalette",
+          "bitsPerSample",
+          "hasProfile",
+          "hasAlpha",
+          "autoOrient"
+        ]
+      }
+    },
+    {
+      "path": "frontend/public/images/traveller/journey-background-mobile.webp",
+      "sha256": "185f74c52b723ee96f15fecf2aca2fdadddceafb745308134349362815a8a7d0",
+      "bytes": 6740,
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Focused supplied responsive WebP/hash/dimensions/noEXIF metadata. Related earlier source artwork retained; bounded current dashboard/mobile trace found no explicit runtime use. No deletion based solely on reference search.",
+      "metadata": {
+        "format": "webp",
+        "width": 768,
+        "height": 512,
+        "channels": 3,
+        "pages": 1,
+        "hasAlpha": false,
+        "embeddedMetadata": {},
+        "otherKeys": [
+          "format",
+          "mediaType",
+          "size",
+          "width",
+          "height",
+          "space",
+          "channels",
+          "depth",
+          "isProgressive",
+          "isPalette",
+          "hasProfile",
+          "hasAlpha",
+          "autoOrient"
+        ]
+      }
+    },
+    {
+      "path": "frontend/public/images/traveller/journey-background.webp",
+      "sha256": "cc88a72c78348a939892d76f6c7940dd3b1658b9233658efb30f4d529ff6911d",
+      "bytes": 30786,
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Focused supplied responsive WebP/hash/dimensions/noEXIF metadata. Related earlier source artwork retained; bounded current dashboard/mobile trace found no explicit runtime use. No deletion based solely on reference search.",
+      "metadata": {
+        "format": "webp",
+        "width": 1536,
+        "height": 1024,
+        "channels": 3,
+        "pages": 1,
+        "hasAlpha": false,
+        "embeddedMetadata": {},
+        "otherKeys": [
+          "format",
+          "mediaType",
+          "size",
+          "width",
+          "height",
+          "space",
+          "channels",
+          "depth",
+          "isProgressive",
+          "isPalette",
+          "hasProfile",
+          "hasAlpha",
+          "autoOrient"
+        ]
+      }
+    },
+    {
+      "path": "frontend/public/images/traveller/traveller-portal-4k.webp",
+      "sha256": "c1dc348a83a084ed22dafaea325a08b3b678bc5c0dcfa13a0dfa459a436f2203",
+      "bytes": 257572,
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Focused WebP/hash/dimensions/noEXIF metadata. Actual globals.css traveller-portal before layer uses landscape/portrait sources at responsive breakpoint. No image-content edit/production load-speed inference.",
+      "metadata": {
+        "format": "webp",
+        "width": 3840,
+        "height": 2160,
+        "channels": 3,
+        "pages": 1,
+        "hasAlpha": false,
+        "embeddedMetadata": {},
+        "otherKeys": [
+          "format",
+          "mediaType",
+          "size",
+          "width",
+          "height",
+          "space",
+          "channels",
+          "depth",
+          "isProgressive",
+          "isPalette",
+          "hasProfile",
+          "hasAlpha",
+          "autoOrient"
+        ]
+      }
+    },
+    {
+      "path": "frontend/public/images/traveller/traveller-portal-portrait-4k.webp",
+      "sha256": "ca93defe68535d56135984e4b77d6e2d1fb5402989567cbee735d4b988128619",
+      "bytes": 248892,
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Focused WebP/hash/dimensions/noEXIF metadata. Actual globals.css traveller-portal before layer uses landscape/portrait sources at responsive breakpoint. No image-content edit/production load-speed inference.",
+      "metadata": {
+        "format": "webp",
+        "width": 2160,
+        "height": 3840,
+        "channels": 3,
+        "pages": 1,
+        "hasAlpha": false,
+        "embeddedMetadata": {},
+        "otherKeys": [
+          "format",
+          "mediaType",
+          "size",
+          "width",
+          "height",
+          "space",
+          "channels",
+          "depth",
+          "isProgressive",
+          "isPalette",
+          "hasProfile",
+          "hasAlpha",
+          "autoOrient"
+        ]
+      }
+    },
+    {
+      "path": "frontend/public/pwa-icon-192.png",
+      "sha256": "554d5337b9f093cf54dc7e0f552ebe4a987c58fc7aa404d69512165f3ace502c",
+      "bytes": 2225,
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Focused PNG/hash/dimensions/metadata; actual app layout/manifest explicit current public consumer.512normal/maskable files byte-identical but separately declared stable purpose paths retained.192PNG also exact favicon payload; no user data or GPS EXIF observed.",
+      "metadata": {
+        "format": "png",
+        "width": 192,
+        "height": 192,
+        "channels": 3,
+        "pages": 1,
+        "hasAlpha": false,
+        "embeddedMetadata": {},
+        "otherKeys": [
+          "format",
+          "mediaType",
+          "size",
+          "width",
+          "height",
+          "space",
+          "channels",
+          "depth",
+          "density",
+          "isProgressive",
+          "isPalette",
+          "bitsPerSample",
+          "hasProfile",
+          "hasAlpha",
+          "autoOrient"
+        ]
+      }
+    },
+    {
+      "path": "frontend/public/pwa-icon-512.png",
+      "sha256": "21aef20f8e6a9e8d5e81f1a7e38218c9d67054498b68a288dca62397b6f5832d",
+      "bytes": 8954,
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Focused PNG/hash/dimensions/metadata; actual app layout/manifest explicit current public consumer.512normal/maskable files byte-identical but separately declared stable purpose paths retained.192PNG also exact favicon payload; no user data or GPS EXIF observed.",
+      "metadata": {
+        "format": "png",
+        "width": 512,
+        "height": 512,
+        "channels": 3,
+        "pages": 1,
+        "hasAlpha": false,
+        "embeddedMetadata": {},
+        "otherKeys": [
+          "format",
+          "mediaType",
+          "size",
+          "width",
+          "height",
+          "space",
+          "channels",
+          "depth",
+          "density",
+          "isProgressive",
+          "isPalette",
+          "bitsPerSample",
+          "hasProfile",
+          "hasAlpha",
+          "autoOrient"
+        ]
+      }
+    },
+    {
+      "path": "frontend/public/pwa-icon-maskable-512.png",
+      "sha256": "21aef20f8e6a9e8d5e81f1a7e38218c9d67054498b68a288dca62397b6f5832d",
+      "bytes": 8954,
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Focused PNG/hash/dimensions/metadata; actual app layout/manifest explicit current public consumer.512normal/maskable files byte-identical but separately declared stable purpose paths retained.192PNG also exact favicon payload; no user data or GPS EXIF observed.",
+      "metadata": {
+        "format": "png",
+        "width": 512,
+        "height": 512,
+        "channels": 3,
+        "pages": 1,
+        "hasAlpha": false,
+        "embeddedMetadata": {},
+        "otherKeys": [
+          "format",
+          "mediaType",
+          "size",
+          "width",
+          "height",
+          "space",
+          "channels",
+          "depth",
+          "density",
+          "isProgressive",
+          "isPalette",
+          "bitsPerSample",
+          "hasProfile",
+          "hasAlpha",
+          "autoOrient"
+        ]
+      }
+    },
+    {
+      "path": "frontend/public/assets/branding/global-connect/global-connect-logo-reveal-4k.mp4",
+      "sha256": "590488246b94d8fe31722d23a84eae0d55d0ec690bfb764754de666af2e8aa42",
+      "bytes": 1798384,
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Focused supplied original branding media/hash/container metadata. Related source artwork retained; no current runtime binding found in bounded maintained-source caller trace. No producer/ownership/right certification or full audiovisual decode claim.",
+      "metadata": {
+        "mediaBoxes": [
+          {
+            "type": "ftyp",
+            "path": "ftyp",
+            "size": 32
+          },
+          {
+            "type": "mvhd",
+            "path": "moov/mvhd",
+            "size": 108,
+            "timescale": 1000,
+            "durationTicks": 9000,
+            "durationSeconds": 9
+          },
+          {
+            "type": "tkhd",
+            "path": "moov/trak/tkhd",
+            "size": 92,
+            "width": 3840,
+            "height": 2160
+          },
+          {
+            "type": "hdlr",
+            "path": "moov/trak/mdia/hdlr",
+            "size": 45,
+            "handler": "vide"
+          },
+          {
+            "type": "stsd",
+            "path": "moov/trak/mdia/minf/stbl/stsd",
+            "size": 180,
+            "entryCount": 1,
+            "firstCodec": "avc1"
+          },
+          {
+            "type": "tkhd",
+            "path": "moov/trak/tkhd",
+            "size": 92,
+            "width": 0,
+            "height": 0
+          },
+          {
+            "type": "hdlr",
+            "path": "moov/trak/mdia/hdlr",
+            "size": 45,
+            "handler": "soun"
+          },
+          {
+            "type": "stsd",
+            "path": "moov/trak/mdia/minf/stbl/stsd",
+            "size": 126,
+            "entryCount": 1,
+            "firstCodec": "mp4a"
+          },
+          {
+            "type": "udta",
+            "path": "moov/udta",
+            "size": 159
+          },
+          {
+            "type": "meta",
+            "path": "moov/udta/meta",
+            "size": 151
+          },
+          {
+            "type": "hdlr",
+            "path": "moov/udta/meta/hdlr",
+            "size": 33,
+            "handler": "mdir"
+          },
+          {
+            "type": "ilst",
+            "path": "moov/udta/meta/ilst",
+            "size": 106
+          }
+        ]
+      }
+    },
+    {
+      "path": "frontend/public/assets/branding/global-connect/journey-film/journey-film-web.mp4",
+      "sha256": "a1af2d0afde7b5fecfc1d09af4656d1a6e8a781e2f1fe829bd324fed5f36f4eb",
+      "bytes": 2078001,
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Focused static media format/hash/container review plus actual CompanyJourneyFilm caller. H264 local video/poster; productioncomponent gates src by motion/data preference, pauses offscreen/hidden and cleans up observer/listener. MP4 metadata bound/track/codec inspection, not full packet decode/performance/provider-rights certification.",
+      "metadata": {
+        "mediaBoxes": [
+          {
+            "type": "ftyp",
+            "path": "ftyp",
+            "size": 32
+          },
+          {
+            "type": "mvhd",
+            "path": "moov/mvhd",
+            "size": 108,
+            "timescale": 1000,
+            "durationTicks": 24000,
+            "durationSeconds": 24
+          },
+          {
+            "type": "tkhd",
+            "path": "moov/trak/tkhd",
+            "size": 92,
+            "width": 1600,
+            "height": 1000
+          },
+          {
+            "type": "hdlr",
+            "path": "moov/trak/mdia/hdlr",
+            "size": 45,
+            "handler": "vide"
+          },
+          {
+            "type": "stsd",
+            "path": "moov/trak/mdia/minf/stbl/stsd",
+            "size": 198,
+            "entryCount": 1,
+            "firstCodec": "avc1"
+          },
+          {
+            "type": "udta",
+            "path": "moov/udta",
+            "size": 175
+          },
+          {
+            "type": "meta",
+            "path": "moov/udta/meta",
+            "size": 167
+          },
+          {
+            "type": "hdlr",
+            "path": "moov/udta/meta/hdlr",
+            "size": 33,
+            "handler": "mdir"
+          },
+          {
+            "type": "ilst",
+            "path": "moov/udta/meta/ilst",
+            "size": 122
+          }
+        ]
+      }
+    },
+    {
+      "path": "frontend/scripts/verify-frontend-module-budgets.mjs",
+      "sha256": "99479d234fe8ab9ed8706ce34d2876018f971356b08fec7602d2b660eb61b366",
+      "physical_lines": 790,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full790physical lines accounted at exact99479d...; all656literal catalog rows manually read with every path/baseline/maxline/baseline/maxcomplexity value in lossless field view; fixed Object.freeze syntax recognized exactly, every comment/nonrow/control line displayed verbatim. No credit for referencedmodule full reads from catalog. Paths workspace-relative, missing source fails, separate nested function counting, physical EOL accounting and CLI guard inspected; no proven bug/no source edit/no tests triggered."
+    },
+    {
+      "path": "frontend/public/ai/ATTRIBUTION.md",
+      "sha256": "2279f2feabf62ad7589a3cac310d01a447841f40e8c093453b117e7dd186357b",
+      "physical_lines": 11,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full11line source/provenance statement read; actual two WebP bytes match SHA digests in recorded URLs. User-supplied source attribution retained; not a separately verified license/right claim."
+    },
+    {
+      "path": "frontend/public/assets/upload-samples/README.md",
+      "sha256": "218fb1193c1e8aef0ed071ca005fcc1712ff2da1684b5dcd8a79f270f5284117",
+      "physical_lines": 32,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full32line original read; references retired passport-upload-page and says active flow uses nowunconsumedPNG copies. OriginalPassportDetailSample explicit retained asset remains. README/source PNGs await coordinated release-probe migration before authorized byte-preserving archive."
+    },
+    {
+      "path": "frontend/components/ui/liquid-sculpture-hero.tsx",
+      "sha256": "93db34394eba3ec6c1ee0108e939ae34f705a211da89cee7a90e064ac76b7769",
+      "physical_lines": 117,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full actual current source reread for immediate public resource consumption: local responsive assets, visibility/motion/data controls and effect teardown traced. Existing current-source animation followups remain separate; read does not close independent stale-image/reduced-motion tests."
+    },
+    {
+      "path": "frontend/features/auth/components/company-journey-film.tsx",
+      "sha256": "cdcba2fa832baedb166aeec8be8bbfe123013f7cab9d3da38ddfad5187159427",
+      "physical_lines": 104,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full actual current source reread for local H264/poster: conditional src, motion/saveData subscription, intersection/document visibility playback guards, cleanup and error poster fallback. No broad browser/performance claim."
+    },
+    {
+      "path": "frontend/components/brand/brand-logo.tsx",
+      "sha256": "e57ec6a72b6700f26d19603823e25ee0160d9182ad7e7dc18e53c379b8779caa",
+      "physical_lines": 35,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full35line source reread; current root transparentPNG stable public alias, optional preload, fixed alpha-bound viewBox and SVG imagehref; no raw userHTML/private requests."
+    },
+    {
+      "path": "frontend/app/manifest.ts",
+      "sha256": "6c12704376c490d3d96f3ca04e2ee50bab243233adc708758c720f95aacb3dcc",
+      "physical_lines": 37,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full37line source reread: Group Companion name/id/start/scope icons/purposes; byte-identical512aliases intentionally separate normal/maskable public contracts. No native mobile change."
+    },
+    {
+      "path": "frontend/README.md",
+      "sha256": "d289440d2516265dcbdc0f0ea13588c2f9bf016f17e94e7534c1e9914b55eda5",
+      "physical_lines": 69,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Full69line maintained source read: current framework/ownership/dev/verification/VPS documentation. No changes yet; stale retired sample restoration instructions live in separate nowobsolete sampleREADME only."
+    }
+  ]
+}

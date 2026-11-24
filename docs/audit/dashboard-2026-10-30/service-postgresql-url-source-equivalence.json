@@ -1,0 +1,14 @@
+{
+  "backend/tests/service_integration/test_real_service_contracts.py": {
+    "sha256": "665353f197fefb123965ff96d08b6e6f1eddef63c52a8f2250c46e47ced50bef",
+    "all_original_nonhelper_module_ast_exact": true,
+    "new_alias_import_only": true,
+    "post_test_whitespace_only_ast_exact": true
+  },
+  "backend/tests/service_integration/test_my_photos_postgresql_contracts.py": {
+    "sha256": "b10864c0b9970cda22badfbe80bee4c197300a3efe6c927b165016466adfe046",
+    "all_original_nonhelper_module_ast_exact": true,
+    "new_alias_import_only": true,
+    "post_test_whitespace_only_ast_exact": true
+  }
+}

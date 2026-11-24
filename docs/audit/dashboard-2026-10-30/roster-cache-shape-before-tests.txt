@@ -1,0 +1,44 @@
+....FF..                                                                 [100%]
+================================== FAILURES ===================================
+_ test_current_cache_get_recomputes_for_malformed_encrypted_payloads[truncated-row] _
+tests\unit\infrastructure\test_roster_cache_shape_recovery.py:44: in test_current_cache_get_recomputes_for_malformed_encrypted_payloads
+    assert await cache.get(identity) is None
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+app\infrastructure\passports\roster_cache.py:68: in get
+    return await asyncio.to_thread(decode, stored, self.cipher, identity)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\asyncio\threads.py:25: in to_thread
+    return await loop.run_in_executor(None, func_call)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\concurrent\futures\thread.py:58: in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\infrastructure\passports\roster_cache_codec.py:62: in decode
+    pages = tuple(tuple(SubmissionViewEntry(
+app\infrastructure\passports\roster_cache_codec.py:62: in <genexpr>
+    pages = tuple(tuple(SubmissionViewEntry(
+app\infrastructure\passports\roster_cache_codec.py:63: in <genexpr>
+    SubmissionViewIdentity(uuid.UUID(row[0]), int(row[1]), datetime.fromisoformat(row[2])),
+                                     ^^^^^^
+E   IndexError: list index out of range
+_ test_current_cache_get_recomputes_for_malformed_encrypted_payloads[wrong-members-shape] _
+tests\unit\infrastructure\test_roster_cache_shape_recovery.py:44: in test_current_cache_get_recomputes_for_malformed_encrypted_payloads
+    assert await cache.get(identity) is None
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+app\infrastructure\passports\roster_cache.py:68: in get
+    return await asyncio.to_thread(decode, stored, self.cipher, identity)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\asyncio\threads.py:25: in to_thread
+    return await loop.run_in_executor(None, func_call)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Roaming\uv\python\cpython-3.11.15-windows-x86_64-none\Lib\concurrent\futures\thread.py:58: in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\infrastructure\passports\roster_cache_codec.py:61: in decode
+    members = {key: tuple(uuid.UUID(item) for item in items) for key, items in value["members"].items()}
+                                                                               ^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'list' object has no attribute 'items'
+=========================== short test summary info ===========================
+FAILED tests/unit/infrastructure/test_roster_cache_shape_recovery.py::test_current_cache_get_recomputes_for_malformed_encrypted_payloads[truncated-row]
+FAILED tests/unit/infrastructure/test_roster_cache_shape_recovery.py::test_current_cache_get_recomputes_for_malformed_encrypted_payloads[wrong-members-shape]
+2 failed, 6 passed in 0.65s

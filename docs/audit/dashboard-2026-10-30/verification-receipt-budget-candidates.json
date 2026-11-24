@@ -1,0 +1,79 @@
+[
+  {
+    "path": "app/infrastructure/documents/verification_receipt_cipher.py",
+    "baseline_lines": 96,
+    "maximum_lines": 99,
+    "baseline_max_function_complexity": 11,
+    "maximum_function_complexity": 11,
+    "minimum_coverage_percent": 95,
+    "observed_statement_coverage": 96.0,
+    "observed_branch_coverage": 83.33333333333333,
+    "sha256": "30913eac94b50e9741489d7c9404aa11660aa85b063bc9827c26dcd81f7b7ff3",
+    "coverage_evidence": "verification-receipt-final-coverage.json",
+    "source_fence_evidence": "verification-receipt-final-command.json",
+    "proposed_critical_coverage_gate": {
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 80
+    }
+  },
+  {
+    "path": "app/infrastructure/documents/verification_receipt_models.py",
+    "baseline_lines": 94,
+    "maximum_lines": 97,
+    "baseline_max_function_complexity": 1,
+    "maximum_function_complexity": 1,
+    "minimum_coverage_percent": 100,
+    "observed_statement_coverage": 100.0,
+    "observed_branch_coverage": 100.0,
+    "sha256": "07da7bde5fd0596290e94f84d291b6cb0eb6217daa2a9f1b010079355e30edac",
+    "coverage_evidence": "verification-receipt-final-coverage.json",
+    "source_fence_evidence": "verification-receipt-final-command.json"
+  },
+  {
+    "path": "app/infrastructure/documents/verification_receipt_payload.py",
+    "baseline_lines": 162,
+    "maximum_lines": 167,
+    "baseline_max_function_complexity": 17,
+    "maximum_function_complexity": 17,
+    "minimum_coverage_percent": 80,
+    "observed_statement_coverage": 80.0,
+    "observed_branch_coverage": 50.0,
+    "sha256": "0e88fe849a24ab6bd9b8e9e6068ac09c47f2a3d0811ea5a9207e6fb2e93f23b3",
+    "coverage_evidence": "verification-receipt-final-coverage.json",
+    "source_fence_evidence": "verification-receipt-final-command.json"
+  },
+  {
+    "path": "app/infrastructure/documents/verification_receipt_scope.py",
+    "baseline_lines": 153,
+    "maximum_lines": 158,
+    "baseline_max_function_complexity": 21,
+    "maximum_function_complexity": 21,
+    "minimum_coverage_percent": 95,
+    "observed_statement_coverage": 95.3125,
+    "observed_branch_coverage": 95.0,
+    "sha256": "e2d24df8b74457cdbafaf61321c91c6397049138e2ce22478868434014949a0b",
+    "coverage_evidence": "verification-receipt-final-coverage.json",
+    "source_fence_evidence": "verification-receipt-final-command.json",
+    "proposed_critical_coverage_gate": {
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 90
+    }
+  },
+  {
+    "path": "app/infrastructure/documents/verification_staging.py",
+    "baseline_lines": 247,
+    "maximum_lines": 255,
+    "baseline_max_function_complexity": 18,
+    "maximum_function_complexity": 18,
+    "minimum_coverage_percent": 90,
+    "observed_statement_coverage": 94.56521739130434,
+    "observed_branch_coverage": 81.25,
+    "sha256": "80559887908423587b23589041e9eb5d3aca7ffe856f5267426eafa997a8ba74",
+    "coverage_evidence": "verification-receipt-final-coverage.json",
+    "source_fence_evidence": "verification-receipt-final-command.json",
+    "proposed_critical_coverage_gate": {
+      "minimum_line_percent": 90,
+      "minimum_branch_percent": 80
+    }
+  }
+]

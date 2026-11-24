@@ -1,0 +1,34 @@
+{
+  "candidates": "docs/audit/dashboard-2026-10-30/ai-runtime-budget-candidates.json",
+  "before_sha256": "035ba73a9db7c3dc2f9529f34bdc8ef0bd2fd24b5166afe60df4c4c73e2a1619",
+  "sha256": "45355a8a85f6fbf074509ae14fd0ed2e0dcd18e0f7a30cbca0c7828e5317e88e",
+  "added": [
+    "app/infrastructure/ai/gemini_passport_verification_service.py",
+    "app/infrastructure/ai/gemini_post_submission_verification_service.py",
+    "app/infrastructure/ai/bounded_vision_http.py",
+    "app/infrastructure/ai/passport_extraction_codec.py",
+    "app/infrastructure/ai/passport_extraction_fields.py",
+    "app/infrastructure/ai/passport_extraction_transport.py",
+    "app/infrastructure/ai/post_submission_decision_policy.py",
+    "app/infrastructure/ai/post_submission_document_policy.py",
+    "app/infrastructure/ai/post_submission_field_policy.py",
+    "app/infrastructure/ai/post_submission_provider_codec.py",
+    "app/infrastructure/ai/post_submission_result_formatter.py",
+    "app/infrastructure/ai/gemini_ecr_service.py",
+    "app/infrastructure/ai/gemini_visa_image_edit_service.py",
+    "app/application/use_cases/passports/client_submission_values.py",
+    "app/application/use_cases/passports/client_submission_replay.py",
+    "app/application/use_cases/passports/client_submit_passport_use_case.py",
+    "app/infrastructure/visa_ai_image_jobs/runtime.py"
+  ],
+  "updated": [],
+  "total_module_budgets": 182,
+  "additional_critical_owners": [
+    "app/application/use_cases/passports/client_submission_values.py",
+    "app/application/use_cases/passports/client_submission_replay.py"
+  ],
+  "unchanged_global_and_original_critical_floors": true,
+  "existing_module_coverage_floors_preserved_or_raised": true,
+  "all_candidates_current_source_measured": true,
+  "note": "Focused measured coverage confirms these owner floors only. No global/backend full-suite coverage pass is inferred."
+}

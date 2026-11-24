@@ -1,0 +1,27 @@
+{
+  "status": "Read-only source cohort sealed; broader audit active",
+  "new_current_full_tests": 3,
+  "test_physical_lines": 694,
+  "supporting_full_rows": 1,
+  "focused_rows": 2,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-whatsapp-privacy-source-reviewed-files.json",
+    "sha256": "34b25ad8afd4f6ae21822e681485bb28689e8a3045545c2ae5f075db624ac0bc"
+  },
+  "source_fence": {
+    "backend/tests/unit/presentation/test_whatsapp_private_delivery_hardening.py": "032dd12da7d995b042c41117d869fc235877ebc3ffaae4fc6348193d56bc5ec2",
+    "backend/tests/unit/presentation/test_whatsapp_archive.py": "b43fb185bb3564399722b7c03979056fbebc3ca263e51f2c5d18da21682c0bc4",
+    "backend/tests/unit/presentation/test_whatsapp_recipient_details.py": "75531973d513a08da24724ec897f7e06732b3fa14004050e4edf7f198382bd0e",
+    "backend/app/presentation/api/v1/routes/whatsapp_recipient_details.py": "cbf2a7caef9dec783ffb6252f6e3aa5ca3c6108e7e19df9d2a6308d55f098b0e",
+    "backend/app/presentation/api/v1/routes/whatsapp_groups_archive.py": "fd5a33d29929bba93d4944eb5e1166cda0d8423be78a19f6f164096fb2c80698",
+    "backend/app/presentation/api/v1/routes/tour_operations_qr_delivery_roster.py": "5f5aaba4ae811aad884334238a01dec2d0e21ec577ac702b5eec234946540701"
+  },
+  "checks_run": [],
+  "changes": [],
+  "findings": [],
+  "limitations": [
+    "No app/test/DB/provider/scanner/browser execution for read-only source credit.",
+    "Existing current authority/private identity/archive/metadata policies retained; no new stronger concurrency assurance inferred.",
+    "Shared dashboard administration and QR publication retained, native ingress/device/UI and dedicated Inbox excluded."
+  ]
+}

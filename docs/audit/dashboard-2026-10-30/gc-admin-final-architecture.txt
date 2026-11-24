@@ -1,0 +1,1 @@
+Architecture boundaries verified: isolated domain; no application HTTP dependencies; only explicitly reviewed infrastructure edges

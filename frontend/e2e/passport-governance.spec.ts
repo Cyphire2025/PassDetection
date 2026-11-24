@@ -1,3 +1,4 @@
+import { prepareVisibleMenuTrigger } from "./support/visible-menu-trigger";
 import { expect, test, type Page, type Route } from "@playwright/test";
 
 const admin = {
@@ -672,7 +673,9 @@ test("large duplicate sets continue across pages and bulk approval retains every
   await expect(page.getByRole("checkbox", { name: "Select Traveller 050", exact: true })).toBeVisible();
   await expect(page.getByRole("checkbox", { name: "Select Traveller 000", exact: true })).toHaveCount(0);
   await page.getByRole("combobox", { name: "Select submissions", exact: true }).selectOption("all");
-  await page.getByRole("button", { name: "Open bulk actions for 303 selected submissions" }).click();
+  const bulkActions = page.getByRole("button", { name: "Open bulk actions for 303 selected submissions" });
+  await prepareVisibleMenuTrigger(bulkActions);
+  await bulkActions.click();
   await page.getByRole("button", { name: "Staff approve all selected (303)", exact: true }).click();
   await page.getByRole("button", { name: "Approve 303 selected", exact: true }).click();
   await expect(page.getByText("Staff approved 303 submissions.", { exact: true })).toBeVisible();

@@ -19,7 +19,6 @@ const REQUIRED_ANDROID_NATIVE_FILES = Object.freeze([
   'android/gradle/wrapper/gradle-wrapper.properties',
   'android/gradlew',
   'android/gradlew.bat',
-  'android/sentry.properties',
   'android/settings.gradle',
 ]);
 
@@ -172,6 +171,10 @@ function nativeAndroidSourceManifest(mobileRoot, dependencies = {}) {
     if (!availablePaths.has(requiredPath)) {
       throw new Error(`Required Android native release input is missing: ${requiredPath}.`);
     }
+  }
+  const appGradle = readBytes(join(root, 'android/app/build.gradle')).toString('utf8');
+  if (appGradle.includes('sentry.gradle') && !availablePaths.has('android/sentry.properties')) {
+    throw new Error('Enabled Sentry native release input is missing: android/sentry.properties.');
   }
   const manifest = Object.freeze({
     schema_version: 2,

@@ -1,0 +1,33 @@
+---
+name: polish-existing-dashboard
+description: Improve an existing dashboard's visual consistency, responsive layout, accessibility and interaction behavior while preserving its business workflows and design system. Use for UI polish and existing-screen improvements, including user-controlled image placement.
+---
+
+# Polish an existing dashboard
+
+Improve the actual screens and interactions the user names. Start from the established design system, component ownership and data contracts; keep business actions, permissions and navigation semantics intact.
+
+## Inspect the experience
+
+Read local app instructions and the installed framework's relevant documentation before implementation. Inspect the target screen at realistic desktop and narrow viewport sizes, including long labels, populated tables, empty states, pending actions and failures. Use synthetic accounts and data.
+
+Separate a visual defect from a data or workflow defect. Identify the owning component and reusable primitive before changing shared styles. Global overrides should have a demonstrated effect on the intended surfaces and be checked on affected neighboring screens.
+
+## Implement deliberate polish
+
+- Make spacing, typography, density and control hierarchy consistent with the surrounding product. Preserve useful existing controls and labels unless the user asked to change them.
+- Prevent layout jumps, overflow and clipped controls at supported widths. Long text, flex children and tables need explicit wrapping, minimum-width or scrolling decisions.
+- Preserve draft inputs, selection and filter state across expected navigation and retries. Show immediate action feedback, keep duplicate submissions bounded and handle stale responses/cancelled requests without overwriting newer state.
+- Maintain keyboard reachability, visible focus, meaningful labels and dialog focus return. Drag interactions need an accessible alternative. Respect reduced motion and avoid animation that blocks input or obscures progress.
+- For image placement, distinguish fitting from cropping. Use a bounded preview with controlled position/zoom when requested, preserve the original image, clamp adjustments, and persist placement separately from the media bytes when the existing storage contract supports it.
+- Match a crop preview to the actual target area's aspect ratio on the current viewport. Bound the editor's visible size while preserving that ratio; avoid an additional, unexpected crop when the chosen area is saved and displayed.
+- Apply blur, dimming, gradients or other image effects only when requested or already required by the accepted design. Scope transparent surfaces to the image-enabled state and intended region; preserve usable menus, dialogs and controls. Check text readability against representative images and honor the user's visual choice.
+- Keep pointer movement and resizing efficient; avoid remote mutations or expensive whole-screen work per movement. Release object URLs, listeners and in-flight work when their owner changes or unmounts.
+
+## Verify the result
+
+Run the affected type, lint and component checks. Exercise the changed journey in a real browser or app surface when available: desktop/narrow layouts, keyboard operation, open/save/cancel/reopen, image replacement/removal and network failure where relevant. Inspect the rendered result rather than relying only on source assertions.
+
+Report the changed behavior, evidence actually collected and remaining visual or integration checks. A component test does not establish complete browser, accessibility or performance qualification.
+
+Example request: Keep this dashboard's workflow intact, make the background image adjustable, and fix narrow-screen spacing and keyboard behavior.

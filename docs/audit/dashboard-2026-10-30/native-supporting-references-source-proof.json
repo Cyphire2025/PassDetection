@@ -1,0 +1,68 @@
+{
+  "status": "passed-exact-source-data-inverse",
+  "proposal_sha256": "521b683569af8860aac6db05bfc1565044627cb1b6a3bede325b8bc2dd35399b",
+  "inventory_whole_AST_outside_nine_literal_additions_exact": true,
+  "native_support_set_before": 5,
+  "native_support_set_after": 14,
+  "policy_first42_exact": true,
+  "new_literal_total": 51,
+  "backend_literal_total_unchanged": 37,
+  "policy_other_fields_exact": true,
+  "reason_original_prefix_preserved": true,
+  "all_original_function_bodies_exact_except_stricter_count_union": [
+    "policy",
+    "test_only_dedicated_inbox_paths_are_deferred",
+    "test_active_totals_exclude_deferred_files_but_keep_original_review_status",
+    "test_invalid_scope_policy_fails_before_inventory_replacement",
+    "test_only_four_explicit_public_sample_assets_can_enter_retirement_history",
+    "foundation_manifest",
+    "test_exact_five_foundation_sources_remain_visible_without_local_archive",
+    "test_foundation_retirement_cannot_admit_unrelated_or_inconsistent_records",
+    "test_native_scope_only_excludes_explicit_literal_paths",
+    "test_native_scope_preserves_existing_full_read_and_independent_followup",
+    "test_checked_in_native_scope_has_only_approved_literal_cohorts",
+    "test_native_support_scope_is_explicit_and_keeps_dashboard_tooling",
+    "test_invalid_native_scope_cannot_replace_inventory",
+    "branding_experiment_manifest",
+    "test_only_closed_branding_cohort_enters_history_without_asset_payloads",
+    "test_branding_history_cannot_exclude_unrelated_or_unverified_assets"
+  ],
+  "scope_test_deliberate_changes": [
+    "Newexact9tuple and one9-case listed-vs-unlisted/retained regression.",
+    "Existing full/finding/hash preservation parametrization extended9members.",
+    "Existing invalid-scope parametrization extends4literal/glob lookalike rejections.",
+    "Exact checked-in total42\u219251 and approved union adds9; backend37 unchanged."
+  ],
+  "old_test_AST_after_exact_inverse_equal": true,
+  "source_before": [
+    {
+      "path": "scripts/dashboard_audit_inventory.py",
+      "sha256": "5d0d7cf8cfb0f0e5050d98e146ec91ad0589fb24a1ddbbbba41d423e0beb4f7c",
+      "snapshot": ".tmp/native-supporting-references/dashboard_audit_inventory.py"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/audit-scope.json",
+      "sha256": "9c427138be39ebb2fcbf37d4804e331d2f2e2a30b2157814ec4ef7874784a5f0",
+      "snapshot": ".tmp/native-supporting-references/audit-scope.json"
+    },
+    {
+      "path": "backend/tests/unit/scripts/test_dashboard_audit_scope.py",
+      "sha256": "9c251b8c9f9a15e3d6c918aa5872309c990ea0387c2dbc935c2043851b90893e",
+      "snapshot": ".tmp/native-supporting-references/test_dashboard_audit_scope.py"
+    }
+  ],
+  "source_after": [
+    {
+      "path": "scripts/dashboard_audit_inventory.py",
+      "sha256": "61b1f27bba8e779eb470c6c37640c7e090b980c0e35f90310b40c82d7c8f8d7e"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/audit-scope.json",
+      "sha256": "acc06ee60a37eb8646a53b239d7ebc3e4d4b0c0d97c3c05c1bf766ea829ed700"
+    },
+    {
+      "path": "backend/tests/unit/scripts/test_dashboard_audit_scope.py",
+      "sha256": "ceba3aba834a725c79b3c6f8109d49348dc0b9dd3d4e7cfbad9df664b857d805"
+    }
+  ]
+}

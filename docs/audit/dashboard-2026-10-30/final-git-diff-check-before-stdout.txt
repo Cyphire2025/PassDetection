@@ -1,0 +1,722 @@
+backend/app/application/use_cases/passports/process_passport_submission_job_use_case.py:590: new blank line at EOF.
+backend/tests/unit/presentation/test_passport_bulk_delete_route.py:38: trailing whitespace.
++    set_route_dependency(monkeypatch, 
+backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py:55: trailing whitespace.
++    set_route_dependency(monkeypatch, 
+backend/tests/unit/presentation/test_passport_bulk_staff_approval_route.py:59: trailing whitespace.
++    set_route_dependency(monkeypatch, 
+backend/tests/unit/presentation/test_public_passport_capabilities.py:74: trailing whitespace.
++    set_route_dependency(monkeypatch, 
+frontend/features/companies/components/company-feedback.tsx:24: new blank line at EOF.
+frontend/features/email-integrations/components/email-ai-rollout-control.tsx:191: new blank line at EOF.
+frontend/features/email-integrations/components/email-integrations-ui.tsx:176: new blank line at EOF.
+frontend/features/email-integrations/components/operational-inbox-page.tsx:183: new blank line at EOF.
+frontend/features/email-integrations/components/review-queue-page.tsx:176: new blank line at EOF.
+frontend/features/email-integrations/services/email-refresh-policy.ts:35: new blank line at EOF.
+frontend/features/passports/components/passport-document-follow-up.test.tsx:1: trailing whitespace.
++import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+frontend/features/passports/components/passport-document-follow-up.test.tsx:2: trailing whitespace.
++import { act, fireEvent, render, renderHook, screen, waitFor } from "@testing-library/react";
+frontend/features/passports/components/passport-document-follow-up.test.tsx:3: trailing whitespace.
++import { useState, type ComponentProps, type ReactNode } from "react";
+frontend/features/passports/components/passport-document-follow-up.test.tsx:4: trailing whitespace.
++import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+frontend/features/passports/components/passport-document-follow-up.test.tsx:5: trailing whitespace.
++import { useAuthStore } from "@/stores/auth.store";
+frontend/features/passports/components/passport-document-follow-up.test.tsx:6: trailing whitespace.
++import type { User } from "@/types";
+frontend/features/passports/components/passport-document-follow-up.test.tsx:7: trailing whitespace.
++import { QUERY_KEYS } from "@/constants";
+frontend/features/passports/components/passport-document-follow-up.test.tsx:8: trailing whitespace.
++import apiClient from "@/lib/api/client";
+frontend/features/passports/components/passport-document-follow-up.test.tsx:9: trailing whitespace.
++import { passportsApi, type PassportGroupSubmissionsView } from "../api/passports.api";
+frontend/features/passports/components/passport-document-follow-up.test.tsx:10: trailing whitespace.
++import { parsePassportGroupViewState } from "../utils/passport-group-navigation";
+frontend/features/passports/components/passport-document-follow-up.test.tsx:11: trailing whitespace.
++import { DocumentFollowUpActions, DocumentFollowUpBadge } from "./passport-document-follow-up";
+frontend/features/passports/components/passport-document-follow-up.test.tsx:12: trailing whitespace.
++import { PassportGroupSelectionToolbar } from "./passport-group-selection-toolbar";
+frontend/features/passports/components/passport-document-follow-up.test.tsx:13: trailing whitespace.
++import { usePassportDocumentFollowUp } from "./use-passport-document-follow-up";
+frontend/features/passports/components/passport-document-follow-up.test.tsx:14: trailing whitespace.
++
+frontend/features/passports/components/passport-document-follow-up.test.tsx:15: trailing whitespace.
++afterEach(() => vi.restoreAllMocks());
+frontend/features/passports/components/passport-document-follow-up.test.tsx:16: trailing whitespace.
++const ownerConfig = { expectedOwnerUserId: "staff", expectedAuthorityKey: '["staff","agency_admin","agency"]' };
+frontend/features/passports/components/passport-document-follow-up.test.tsx:17: trailing whitespace.
++beforeEach(() => useAuthStore.setState({ user: { id: "staff", role: "agency_admin", agency_id: "agency" } as User }));
+frontend/features/passports/components/passport-document-follow-up.test.tsx:18: trailing whitespace.
++
+frontend/features/passports/components/passport-document-follow-up.test.tsx:19: trailing whitespace.
++function setupQueryClient() {
+frontend/features/passports/components/passport-document-follow-up.test.tsx:20: trailing whitespace.
++  const client = new QueryClient({ defaultOptions: { mutations: { retry: false }, queries: { retry: false } } });
+frontend/features/passports/components/passport-document-follow-up.test.tsx:21: trailing whitespace.
++  const wrapper = ({ children }: { children: ReactNode }) => <QueryClientProvider client={client}>{children}</QueryClientProvider>;
+frontend/features/passports/components/passport-document-follow-up.test.tsx:22: trailing whitespace.
++  return { client, wrapper };
+frontend/features/passports/components/passport-document-follow-up.test.tsx:23: trailing whitespace.
++}
+frontend/features/passports/components/passport-document-follow-up.test.tsx:24: trailing whitespace.
++
+frontend/features/passports/components/passport-document-follow-up.test.tsx:25: trailing whitespace.
++function followUpOptions() {
+frontend/features/passports/components/passport-document-follow-up.test.tsx:26: trailing whitespace.
++  return {
+frontend/features/passports/components/passport-document-follow-up.test.tsx:27: trailing whitespace.
++    groupId: "group-1", selectedPassports: ["visible", "other-page"], canManage: true,
+frontend/features/passports/components/passport-document-follow-up.test.tsx:28: trailing whitespace.
++    flaggedCount: 2, viewStatus: { isLoading: false, isFetching: false }, includeDeleted: false, groupStatus: "active", submissionFilter: "all" as const,
+frontend/features/passports/components/passport-document-follow-up.test.tsx:29: trailing whitespace.
++    setSubmissionFilter: vi.fn(), setPage: vi.fn(), closeMenu: vi.fn(), setFeedback: vi.fn(),
+frontend/features/passports/components/passport-document-follow-up.test.tsx:30: trailing whitespace.
++  };
+frontend/features/passports/components/passport-document-follow-up.test.tsx:31: trailing whitespace.
++}
+frontend/features/passports/components/passport-document-follow-up.test.tsx:32: trailing whitespace.
++
+frontend/features/passports/components/passport-document-follow-up.test.tsx:33: trailing whitespace.
++function toolbarProps(count?: number) {
+frontend/features/passports/components/passport-document-follow-up.test.tsx:34: trailing whitespace.
++  return {
+frontend/features/passports/components/passport-document-follow-up.test.tsx:35: trailing whitespace.
++    search: "different person", setSearch: vi.fn(), setPage: vi.fn(), isFetching: false,
+frontend/features/passports/components/passport-document-follow-up.test.tsx:36: trailing whitespace.
++    isLoading: false, sortBy: "name", setSortBy: vi.fn(), submissionFilter: "all",
+frontend/features/passports/components/passport-document-follow-up.test.tsx:37: trailing whitespace.
++    setSubmissionFilter: vi.fn(), sortOrder: "asc", setSortOrder: vi.fn(), selectionPreset: "",
+frontend/features/passports/components/passport-document-follow-up.test.tsx:38: trailing whitespace.
++    handleSelectionPreset: vi.fn(), selectedPassports: [], isBulkActionsMenuOpen: false,
+frontend/features/passports/components/passport-document-follow-up.test.tsx:39: trailing whitespace.
++    viewMode: "table", setViewMode: vi.fn(),
+frontend/features/passports/components/passport-document-follow-up.test.tsx:40: trailing whitespace.
++    submissionsView: { items: [], total: 0, document_follow_up_count: count } as unknown as PassportGroupSubmissionsView,
+frontend/features/passports/components/passport-document-follow-up.test.tsx:41: trailing whitespace.
++  } as unknown as ComponentProps<typeof PassportGroupSelectionToolbar>;
+frontend/features/passports/components/passport-document-follow-up.test.tsx:42: trailing whitespace.
++}
+frontend/features/passports/components/passport-document-follow-up.test.tsx:43: trailing whitespace.
++
+frontend/features/passports/components/passport-document-follow-up.test.tsx:44: trailing whitespace.
++describe("document follow-up filter", () => {
+frontend/features/passports/components/passport-document-follow-up.test.tsx:45: trailing whitespace.
++  it("appears from the group-wide count even when search hides every flagged person", () => {
+frontend/features/passports/components/passport-document-follow-up.test.tsx:46: trailing whitespace.
++    const props = toolbarProps(0);
+frontend/features/passports/components/passport-document-follow-up.test.tsx:47: trailing whitespace.
++    const { rerender } = render(<PassportGroupSelectionToolbar {...props} />);
+frontend/features/passports/components/passport-document-follow-up.test.tsx:48: trailing whitespace.
++    expect(screen.queryByRole("option", { name: "Flagged for follow-up" })).not.toBeInTheDocument();
+frontend/features/passports/components/passport-document-follow-up.test.tsx:49: trailing whitespace.
++    rerender(<PassportGroupSelectionToolbar {...props} submissionsView={toolbarProps(2).submissionsView} />);
+frontend/features/passports/components/passport-document-follow-up.test.tsx:50: trailing whitespace.
++    expect(screen.getByRole("option", { name: "Flagged for follow-up" })).toBeInTheDocument();
+frontend/features/passports/components/passport-document-follow-up.test.tsx:51: trailing whitespace.
++    fireEvent.change(screen.getByLabelText("Filter submissions"), { target: { value: "document_follow_up" } });
+frontend/features/passports/components/passport-document-follow-up.test.tsx:52: trailing whitespace.
++    expect(props.setSubmissionFilter).toHaveBeenCalledWith("document_follow_up");
+frontend/features/passports/components/passport-document-follow-up.test.tsx:53: trailing whitespace.
++    expect(props.setPage).toHaveBeenCalledWith(1);
+frontend/features/passports/components/passport-document-follow-up.test.tsx:54: trailing whitespace.
++    rerender(<PassportGroupSelectionToolbar {...props} />);
+frontend/features/passports/components/passport-document-follow-up.test.tsx:55: trailing whitespace.
++    expect(screen.queryByRole("option", { name: "Flagged for follow-up" })).not.toBeInTheDocument();
+frontend/features/passports/components/passport-document-follow-up.test.tsx:56: trailing whitespace.
++  });
+frontend/features/passports/components/passport-document-follow-up.test.tsx:57: trailing whitespace.
++
+frontend/features/passports/components/passport-document-follow-up.test.tsx:58: trailing whitespace.
++  it("waits for a settled group count before resetting the last-cleared flagged filter", async () => {
+frontend/features/passports/components/passport-document-follow-up.test.tsx:59: trailing whitespace.
++    const { wrapper } = setupQueryClient();
+frontend/features/passports/components/passport-document-follow-up.test.tsx:60: trailing whitespace.
++    const options = { ...followUpOptions(), submissionFilter: "document_follow_up" as const };
+frontend/features/passports/components/passport-document-follow-up.test.tsx:61: trailing whitespace.
++    const { rerender } = renderHook(({ ready, count }) => usePassportDocumentFollowUp({
+frontend/features/passports/components/passport-document-follow-up.test.tsx:62: trailing whitespace.
++      ...options, viewStatus: { isLoading: false, isFetching: !ready }, flaggedCount: count,
+frontend/features/passports/components/passport-document-follow-up.test.tsx:63: trailing whitespace.
++    }), { wrapper, initialProps: { ready: false, count: undefined as number | undefined } });
+frontend/features/passports/components/passport-document-follow-up.test.tsx:64: trailing whitespace.
++    expect(options.setSubmissionFilter).not.toHaveBeenCalled();
+frontend/features/passports/components/passport-document-follow-up.test.tsx:65: trailing whitespace.
++    rerender({ ready: false, count: 0 });
+frontend/features/passports/components/passport-document-follow-up.test.tsx:66: trailing whitespace.
++    expect(options.setSubmissionFilter).not.toHaveBeenCalled();
+frontend/features/passports/components/passport-document-follow-up.test.tsx:67: trailing whitespace.
++    rerender({ ready: true, count: 1 });
+frontend/features/passports/components/passport-document-follow-up.test.tsx:68: trailing whitespace.
++    expect(options.setSubmissionFilter).not.toHaveBeenCalled();
+frontend/features/passports/components/passport-document-follow-up.test.tsx:69: trailing whitespace.
++    rerender({ ready: true, count: 0 });
+frontend/features/passports/components/passport-document-follow-up.test.tsx:70: trailing whitespace.
++    await waitFor(() => expect(options.setSubmissionFilter).toHaveBeenCalledWith("all"));
+frontend/features/passports/components/passport-document-follow-up.test.tsx:71: trailing whitespace.
++    expect(options.setPage).toHaveBeenCalledWith(1);
+frontend/features/passports/components/passport-document-follow-up.test.tsx:72: trailing whitespace.
++  });
+frontend/features/passports/components/passport-document-follow-up.test.tsx:73: trailing whitespace.
++
+frontend/features/passports/components/passport-document-follow-up.test.tsx:74: trailing whitespace.
++  it("retains the flag filter in group and detail navigation URLs", () => {
+frontend/features/passports/components/passport-document-follow-up.test.tsx:75: trailing whitespace.
++    expect(parsePassportGroupViewState(new URLSearchParams("filter=document_follow_up")).submissionFilter)
+frontend/features/passports/components/passport-document-follow-up.test.tsx:76: trailing whitespace.
++      .toBe("document_follow_up");
+frontend/features/passports/components/passport-document-follow-up.test.tsx:77: trailing whitespace.
++    expect(parsePassportGroupViewState(new URLSearchParams("group_filter=document_follow_up"), "group_").submissionFilter)
+frontend/features/passports/components/passport-document-follow-up.test.tsx:78: trailing whitespace.
++      .toBe("document_follow_up");
+frontend/features/passports/components/passport-document-follow-up.test.tsx:79: trailing whitespace.
++  });
+frontend/features/passports/components/passport-document-follow-up.test.tsx:80: trailing whitespace.
++
+frontend/features/passports/components/passport-document-follow-up.test.tsx:81: trailing whitespace.
++  it.each([
+frontend/features/passports/components/passport-document-follow-up.test.tsx:82: trailing whitespace.
++    { isLoading: true, isFetching: false },
+frontend/features/passports/components/passport-document-follow-up.test.tsx:83: trailing whitespace.
++    { isLoading: false, isFetching: false, isPlaceholderData: true },
+frontend/features/passports/components/passport-document-follow-up.test.tsx:84: trailing whitespace.
++    { isLoading: false, isFetching: false, error: new Error("Reload failed") },
+frontend/features/passports/components/passport-document-follow-up.test.tsx:85: trailing whitespace.
++  ])("does not reset the filter for an incomplete or failed response: %j", async (viewStatus) => {
+frontend/features/passports/components/passport-document-follow-up.test.tsx:86: trailing whitespace.
++    const { wrapper } = setupQueryClient();
+frontend/features/passports/components/passport-document-follow-up.test.tsx:87: trailing whitespace.
++    const options = { ...followUpOptions(), flaggedCount: 0, submissionFilter: "document_follow_up" as const, viewStatus };
+frontend/features/passports/components/passport-document-follow-up.test.tsx:88: trailing whitespace.
++    renderHook(() => usePassportDocumentFollowUp(options), { wrapper });
+frontend/features/passports/components/passport-document-follow-up.test.tsx:89: trailing whitespace.
++    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 10)); });
+frontend/features/passports/components/passport-document-follow-up.test.tsx:90: trailing whitespace.
++    expect(options.setSubmissionFilter).not.toHaveBeenCalled();
+frontend/features/passports/components/passport-document-follow-up.test.tsx:91: trailing whitespace.
++  });
+frontend/features/passports/components/passport-document-follow-up.test.tsx:92: trailing whitespace.
++});
+frontend/features/passports/components/passport-document-follow-up.test.tsx:93: trailing whitespace.
++
+frontend/features/passports/components/passport-document-follow-up.test.tsx:94: trailing whitespace.
++describe("document follow-up actions", () => {
+frontend/features/passports/components/passport-document-follow-up.test.tsx:95: trailing whitespace.
++  it.each([true, false])("persists flagged=%s for the whole selection and refreshes passport data", async (flagged) => {
+frontend/features/passports/components/passport-document-follow-up.test.tsx:96: trailing whitespace.
++    const { client, wrapper } = setupQueryClient();
+frontend/features/passports/components/passport-document-follow-up.test.tsx:97: trailing whitespace.
++    const queryKey = QUERY_KEYS.passports.groupDetail("group-1", { page: 1 });
+frontend/features/passports/components/passport-document-follow-up.test.tsx:98: trailing whitespace.
++    client.setQueryData(queryKey, { marker: "cached roster" });
+frontend/features/passports/components/passport-document-follow-up.test.tsx:99: trailing whitespace.
++    const api = vi.spyOn(passportsApi, "bulkDocumentFollowUp").mockResolvedValue({ updated_count: 2, flagged });
+frontend/features/passports/components/passport-document-follow-up.test.tsx:100: trailing whitespace.
++    const options = followUpOptions();
+frontend/features/passports/components/passport-document-follow-up.test.tsx:101: trailing whitespace.
++    const { result } = renderHook(() => usePassportDocumentFollowUp(options), { wrapper });
+frontend/features/passports/components/passport-document-follow-up.test.tsx:102: trailing whitespace.
++    act(() => result.current.update(flagged));
+frontend/features/passports/components/passport-document-follow-up.test.tsx:103: trailing whitespace.
++    await waitFor(() => expect(options.setFeedback).toHaveBeenLastCalledWith({
+frontend/features/passports/components/passport-document-follow-up.test.tsx:104: trailing whitespace.
++      tone: "success", message: flagged ? "2 people flagged for document follow-up." : "Document follow-up flag cleared for 2 people.",
+frontend/features/passports/components/passport-document-follow-up.test.tsx:105: trailing whitespace.
++    }));
+frontend/features/passports/components/passport-document-follow-up.test.tsx:106: trailing whitespace.
++    expect(api).toHaveBeenCalledWith("group-1", { submission_ids: ["visible", "other-page"], flagged }, ownerConfig);
+frontend/features/passports/components/passport-document-follow-up.test.tsx:107: trailing whitespace.
++    expect(client.getQueryState(queryKey)?.isInvalidated).toBe(true);
+frontend/features/passports/components/passport-document-follow-up.test.tsx:108: trailing whitespace.
++    expect(options.closeMenu).toHaveBeenCalledOnce();
+frontend/features/passports/components/passport-document-follow-up.test.tsx:109: trailing whitespace.
++    expect(options.setPage).not.toHaveBeenCalled();
+frontend/features/passports/components/passport-document-follow-up.test.tsx:110: trailing whitespace.
++    expect(options.selectedPassports).toEqual(["visible", "other-page"]);
+frontend/features/passports/components/passport-document-follow-up.test.tsx:111: trailing whitespace.
++  });
+frontend/features/passports/components/passport-document-follow-up.test.tsx:112: trailing whitespace.
++
+frontend/features/passports/components/passport-document-follow-up.test.tsx:113: trailing whitespace.
++  it("reports save errors, keeps the selection, and permits retry", async () => {
+frontend/features/passports/components/passport-document-follow-up.test.tsx:114: trailing whitespace.
++    const { wrapper } = setupQueryClient();
+frontend/features/passports/components/passport-document-follow-up.test.tsx:115: trailing whitespace.
++    const api = vi.spyOn(passportsApi, "bulkDocumentFollowUp").mockRejectedValueOnce(new Error("Server unavailable"))
+frontend/features/passports/components/passport-document-follow-up.test.tsx:116: trailing whitespace.
++      .mockResolvedValueOnce({ updated_count: 2, flagged: true });
+frontend/features/passports/components/passport-document-follow-up.test.tsx:117: trailing whitespace.
++    const options = followUpOptions();
+frontend/features/passports/components/passport-document-follow-up.test.tsx:118: trailing whitespace.
++    const { result } = renderHook(() => usePassportDocumentFollowUp(options), { wrapper });
+frontend/features/passports/components/passport-document-follow-up.test.tsx:119: trailing whitespace.
++    act(() => result.current.update(true));
+frontend/features/passports/components/passport-document-follow-up.test.tsx:120: trailing whitespace.
++    await waitFor(() => expect(options.setFeedback).toHaveBeenLastCalledWith({ tone: "error", message: "Server unavailable" }));
+frontend/features/passports/components/passport-document-follow-up.test.tsx:121: trailing whitespace.
++    expect(options.selectedPassports).toEqual(["visible", "other-page"]);
+frontend/features/passports/components/passport-document-follow-up.test.tsx:122: trailing whitespace.
++    act(() => result.current.update(true));
+frontend/features/passports/components/passport-document-follow-up.test.tsx:123: trailing whitespace.
++    await waitFor(() => expect(api).toHaveBeenCalledTimes(2));
+frontend/features/passports/components/passport-document-follow-up.test.tsx:124: trailing whitespace.
++  });
+frontend/features/passports/components/passport-document-follow-up.test.tsx:125: trailing whitespace.
++
+frontend/features/passports/components/passport-document-follow-up.test.tsx:126: trailing whitespace.
++  it("blocks repeated clicks while saving and disables both menu choices", async () => {
+frontend/features/passports/components/passport-document-follow-up.test.tsx:127: trailing whitespace.
++    const { wrapper } = setupQueryClient();
+frontend/features/passports/components/passport-document-follow-up.test.tsx:128: trailing whitespace.
++    let finish!: (result: { updated_count: number; flagged: boolean }) => void;
+frontend/features/passports/components/passport-document-follow-up.test.tsx:129: trailing whitespace.
++    const api = vi.spyOn(passportsApi, "bulkDocumentFollowUp").mockImplementation(() => new Promise((resolve) => { finish = resolve; }));
+frontend/features/passports/components/passport-document-follow-up.test.tsx:130: trailing whitespace.
++    function Harness() {
+frontend/features/passports/components/passport-document-follow-up.test.tsx:131: trailing whitespace.
++      const [options] = useState(followUpOptions);
+frontend/features/passports/components/passport-document-follow-up.test.tsx:132: trailing whitespace.
++      const followUp = usePassportDocumentFollowUp(options);
+frontend/features/passports/components/passport-document-follow-up.test.tsx:133: trailing whitespace.
++      return <DocumentFollowUpActions followUp={followUp} selectedCount={2} />;
+frontend/features/passports/components/passport-document-follow-up.test.tsx:134: trailing whitespace.
++    }
+frontend/features/passports/components/passport-document-follow-up.test.tsx:135: trailing whitespace.
++    render(<Harness />, { wrapper });
+frontend/features/passports/components/passport-document-follow-up.test.tsx:136: trailing whitespace.
++    fireEvent.click(screen.getByRole("button", { name: "Flag for document follow-up (2)" }));
+frontend/features/passports/components/passport-document-follow-up.test.tsx:137: trailing whitespace.
++    fireEvent.click(screen.getByRole("button", { name: "Flag for document follow-up (2)" }));
+frontend/features/passports/components/passport-document-follow-up.test.tsx:138: trailing whitespace.
++    await waitFor(() => expect(api).toHaveBeenCalledOnce());
+frontend/features/passports/components/passport-document-follow-up.test.tsx:139: trailing whitespace.
++    expect(screen.getByRole("button", { name: "Flag for document follow-up (2)" })).toBeDisabled();
+frontend/features/passports/components/passport-document-follow-up.test.tsx:140: trailing whitespace.
++    expect(screen.getByRole("button", { name: "Clear document follow-up flag (2)" })).toBeDisabled();
+frontend/features/passports/components/passport-document-follow-up.test.tsx:141: trailing whitespace.
++    await act(async () => finish({ updated_count: 2, flagged: true }));
+frontend/features/passports/components/passport-document-follow-up.test.tsx:142: trailing whitespace.
++  });
+frontend/features/passports/components/passport-document-follow-up.test.tsx:143: trailing whitespace.
++
+frontend/features/passports/components/passport-document-follow-up.test.tsx:144: trailing whitespace.
++  it("hides actions and refuses requests without management permission", () => {
+frontend/features/passports/components/passport-document-follow-up.test.tsx:145: trailing whitespace.
++    const { wrapper } = setupQueryClient();
+frontend/features/passports/components/passport-document-follow-up.test.tsx:146: trailing whitespace.
++    const api = vi.spyOn(passportsApi, "bulkDocumentFollowUp");
+frontend/features/passports/components/passport-document-follow-up.test.tsx:147: trailing whitespace.
++    const options = { ...followUpOptions(), canManage: false };
+frontend/features/passports/components/passport-document-follow-up.test.tsx:148: trailing whitespace.
++    const { result } = renderHook(() => usePassportDocumentFollowUp(options), { wrapper });
+frontend/features/passports/components/passport-document-follow-up.test.tsx:149: trailing whitespace.
++    render(<DocumentFollowUpActions followUp={result.current} selectedCount={2} />);
+frontend/features/passports/components/passport-document-follow-up.test.tsx:150: trailing whitespace.
++    expect(screen.queryByRole("button", { name: /document follow-up/ })).not.toBeInTheDocument();
+frontend/features/passports/components/passport-document-follow-up.test.tsx:151: trailing whitespace.
++    act(() => result.current.update(true));
+frontend/features/passports/components/passport-document-follow-up.test.tsx:152: trailing whitespace.
++    expect(api).not.toHaveBeenCalled();
+frontend/features/passports/components/passport-document-follow-up.test.tsx:153: trailing whitespace.
++  });
+frontend/features/passports/components/passport-document-follow-up.test.tsx:154: trailing whitespace.
++
+frontend/features/passports/components/passport-document-follow-up.test.tsx:155: trailing whitespace.
++  it.each([{ includeDeleted: true }, { groupStatus: "archived" }])("hides actions for a historical group: %j", (history) => {
+frontend/features/passports/components/passport-document-follow-up.test.tsx:156: trailing whitespace.
++    const { wrapper } = setupQueryClient();
+frontend/features/passports/components/passport-document-follow-up.test.tsx:157: trailing whitespace.
++    const api = vi.spyOn(passportsApi, "bulkDocumentFollowUp");
+frontend/features/passports/components/passport-document-follow-up.test.tsx:158: trailing whitespace.
++    const { result } = renderHook(() => usePassportDocumentFollowUp({ ...followUpOptions(), ...history }), { wrapper });
+frontend/features/passports/components/passport-document-follow-up.test.tsx:159: trailing whitespace.
++    expect(result.current.canManage).toBe(false);
+frontend/features/passports/components/passport-document-follow-up.test.tsx:160: trailing whitespace.
++    act(() => result.current.update(true));
+frontend/features/passports/components/passport-document-follow-up.test.tsx:161: trailing whitespace.
++    expect(api).not.toHaveBeenCalled();
+frontend/features/passports/components/passport-document-follow-up.test.tsx:162: trailing whitespace.
++  });
+frontend/features/passports/components/passport-document-follow-up.test.tsx:163: trailing whitespace.
++
+frontend/features/passports/components/passport-document-follow-up.test.tsx:164: trailing whitespace.
++  it("sends the agreed scoped endpoint and request body", async () => {
+frontend/features/passports/components/passport-document-follow-up.test.tsx:165: trailing whitespace.
++    const post = vi.spyOn(apiClient, "post").mockResolvedValue({ data: { updated_count: 1, flagged: true } });
+frontend/features/passports/components/passport-document-follow-up.test.tsx:166: trailing whitespace.
++    await passportsApi.bulkDocumentFollowUp("group-123", { submission_ids: ["person-123"], flagged: true });
+frontend/features/passports/components/passport-document-follow-up.test.tsx:167: trailing whitespace.
++    expect(post).toHaveBeenCalledWith("/api/v1/passports/groups/group-123/bulk-document-follow-up", {
+frontend/features/passports/components/passport-document-follow-up.test.tsx:168: trailing whitespace.
++      submission_ids: ["person-123"], flagged: true,
+frontend/features/passports/components/passport-document-follow-up.test.tsx:169: trailing whitespace.
++    });
+frontend/features/passports/components/passport-document-follow-up.test.tsx:170: trailing whitespace.
++  });
+frontend/features/passports/components/passport-document-follow-up.test.tsx:171: trailing whitespace.
++
+frontend/features/passports/components/passport-document-follow-up.test.tsx:172: trailing whitespace.
++  it("shows a separate follow-up badge only for flagged records", () => {
+frontend/features/passports/components/passport-document-follow-up.test.tsx:173: trailing whitespace.
++    const { rerender } = render(<DocumentFollowUpBadge />);
+frontend/features/passports/components/passport-document-follow-up.test.tsx:174: trailing whitespace.
++    expect(screen.queryByText("Document follow-up")).not.toBeInTheDocument();
+frontend/features/passports/components/passport-document-follow-up.test.tsx:175: trailing whitespace.
++    rerender(<DocumentFollowUpBadge flagged />);
+frontend/features/passports/components/passport-document-follow-up.test.tsx:176: trailing whitespace.
++    expect(screen.getByText("Document follow-up")).toBeInTheDocument();
+frontend/features/passports/components/passport-document-follow-up.test.tsx:177: trailing whitespace.
++  });
+frontend/features/passports/components/passport-document-follow-up.test.tsx:178: trailing whitespace.
++});
+frontend/features/passports/components/passport-list.tsx:118: trailing whitespace.
++      
+frontend/features/passports/components/upload-link-list.test.tsx:1: trailing whitespace.
++import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+frontend/features/passports/components/upload-link-list.test.tsx:2: trailing whitespace.
++import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+frontend/features/passports/components/upload-link-list.test.tsx:3: trailing whitespace.
++import { beforeEach, describe, expect, it, vi } from "vitest";
+frontend/features/passports/components/upload-link-list.test.tsx:4: trailing whitespace.
++import { useAuthStore } from "@/stores/auth.store";
+frontend/features/passports/components/upload-link-list.test.tsx:5: trailing whitespace.
++import type { User, UserRole } from "@/types";
+frontend/features/passports/components/upload-link-list.test.tsx:6: trailing whitespace.
++import { uploadLinksApi, type UploadLinkResponse } from "../api/upload-links.api";
+frontend/features/passports/components/upload-link-list.test.tsx:7: trailing whitespace.
++import { UploadLinkList } from "./upload-link-list";
+frontend/features/passports/components/upload-link-list.test.tsx:8: trailing whitespace.
++
+frontend/features/passports/components/upload-link-list.test.tsx:9: trailing whitespace.
++vi.mock("../api/upload-links.api", () => ({
+frontend/features/passports/components/upload-link-list.test.tsx:10: trailing whitespace.
++  uploadLinksApi: { list: vi.fn(), permanentDelete: vi.fn(), assignCompany: vi.fn(), update: vi.fn() },
+frontend/features/passports/components/upload-link-list.test.tsx:11: trailing whitespace.
++}));
+frontend/features/passports/components/upload-link-list.test.tsx:12: trailing whitespace.
++vi.mock("@/features/companies/components/company-picker", () => ({ CompanyPicker: ({ onChange, value }: {
+frontend/features/passports/components/upload-link-list.test.tsx:13: trailing whitespace.
++  onChange: (value: unknown) => void; value: { name: string } | null;
+frontend/features/passports/components/upload-link-list.test.tsx:14: trailing whitespace.
++}) => <><p>{value?.name ?? "Unassigned"}</p><button type="button" onClick={() => onChange({ id: "client", name: "Assigned client", status: "active" })}>Select client company</button></> }));
+frontend/features/passports/components/upload-link-list.test.tsx:15: trailing whitespace.
++
+frontend/features/passports/components/upload-link-list.test.tsx:16: trailing whitespace.
++const archivedGroup: UploadLinkResponse = {
+frontend/features/passports/components/upload-link-list.test.tsx:17: trailing whitespace.
++  id: "archived-group", name: "NIPUN", token: "group-token", status: "archived",
+frontend/features/passports/components/upload-link-list.test.tsx:18: trailing whitespace.
++  created_at: "2026-09-24T00:00:00Z", departure_cities: [],
+frontend/features/passports/components/upload-link-list.test.tsx:19: trailing whitespace.
++  agency_id: "agency", created_by_user_id: "admin", closed_at: "2026-09-24T01:00:00Z",
+frontend/features/passports/components/upload-link-list.test.tsx:20: trailing whitespace.
++  destination: null, travel_date: null, return_date: null, timezone: "Asia/Kolkata",
+frontend/features/passports/components/upload-link-list.test.tsx:21: trailing whitespace.
++  package_name: null, base_city_enabled: false, nearest_international_airport_enabled: false,
+frontend/features/passports/components/upload-link-list.test.tsx:22: trailing whitespace.
++  staff_code_enabled: false, agent_employee_code_enabled: false, meal_preference_enabled: false,
+frontend/features/passports/components/upload-link-list.test.tsx:23: trailing whitespace.
++  require_selfie: false, allow_files_from_device: true, ask_nearest_domestic_airport: false,
+frontend/features/passports/components/upload-link-list.test.tsx:24: trailing whitespace.
++  relation_with_qualifier_enabled: false, designation_enabled: false, agency_dealership_name_enabled: false,
+frontend/features/passports/components/upload-link-list.test.tsx:25: trailing whitespace.
++  custom_questions: [], custom_details: [], qualifier_relation_options: [], notes: null,
+frontend/features/passports/components/upload-link-list.test.tsx:26: trailing whitespace.
++  deleted_at: null, deleted_passport_count: 0, deletion_retained_records: false,
+frontend/features/passports/components/upload-link-list.test.tsx:27: trailing whitespace.
++};
+frontend/features/passports/components/upload-link-list.test.tsx:28: trailing whitespace.
++
+frontend/features/passports/components/upload-link-list.test.tsx:29: trailing whitespace.
++const ownerConfig = { expectedOwnerUserId: "admin", expectedAuthorityKey: '["admin","agency_admin","agency"]' };
+frontend/features/passports/components/upload-link-list.test.tsx:30: trailing whitespace.
++
+frontend/features/passports/components/upload-link-list.test.tsx:31: trailing whitespace.
++function renderList(role: UserRole = "agency_admin") {
+frontend/features/passports/components/upload-link-list.test.tsx:32: trailing whitespace.
++  useAuthStore.setState({
+frontend/features/passports/components/upload-link-list.test.tsx:33: trailing whitespace.
++    user: { id: "admin", role, agency_id: "agency", is_active: true } as User,
+frontend/features/passports/components/upload-link-list.test.tsx:34: trailing whitespace.
++    isAuthenticated: true, hasHydrated: true,
+frontend/features/passports/components/upload-link-list.test.tsx:35: trailing whitespace.
++  });
+frontend/features/passports/components/upload-link-list.test.tsx:36: trailing whitespace.
++  const queryClient = new QueryClient({
+frontend/features/passports/components/upload-link-list.test.tsx:37: trailing whitespace.
++    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+frontend/features/passports/components/upload-link-list.test.tsx:38: trailing whitespace.
++  });
+frontend/features/passports/components/upload-link-list.test.tsx:39: trailing whitespace.
++  render(<QueryClientProvider client={queryClient}><UploadLinkList /></QueryClientProvider>);
+frontend/features/passports/components/upload-link-list.test.tsx:40: trailing whitespace.
++}
+frontend/features/passports/components/upload-link-list.test.tsx:41: trailing whitespace.
++
+frontend/features/passports/components/upload-link-list.test.tsx:42: trailing whitespace.
++async function openDeleteDialog() {
+frontend/features/passports/components/upload-link-list.test.tsx:43: trailing whitespace.
++  const showArchived = screen.queryByRole("button", { name: "Show archived groups" });
+frontend/features/passports/components/upload-link-list.test.tsx:44: trailing whitespace.
++  if (showArchived) fireEvent.click(showArchived);
+frontend/features/passports/components/upload-link-list.test.tsx:45: trailing whitespace.
++  // Both responsive table layouts exist in jsdom; either invokes the same action.
+frontend/features/passports/components/upload-link-list.test.tsx:46: trailing whitespace.
++  const triggers = await screen.findAllByRole("button", { name: "Delete" });
+frontend/features/passports/components/upload-link-list.test.tsx:47: trailing whitespace.
++  fireEvent.click(triggers[0]);
+frontend/features/passports/components/upload-link-list.test.tsx:48: trailing whitespace.
++  return screen.getByRole("dialog", { name: "Delete Archived Group" });
+frontend/features/passports/components/upload-link-list.test.tsx:49: trailing whitespace.
++}
+frontend/features/passports/components/upload-link-list.test.tsx:50: trailing whitespace.
++
+frontend/features/passports/components/upload-link-list.test.tsx:51: trailing whitespace.
++beforeEach(() => {
+frontend/features/passports/components/upload-link-list.test.tsx:52: trailing whitespace.
++  vi.mocked(uploadLinksApi.list).mockReset().mockImplementation(async (status) => (
+frontend/features/passports/components/upload-link-list.test.tsx:53: trailing whitespace.
++    status === "archived" ? [archivedGroup] : []
+frontend/features/passports/components/upload-link-list.test.tsx:54: trailing whitespace.
++  ));
+frontend/features/passports/components/upload-link-list.test.tsx:55: trailing whitespace.
++  vi.mocked(uploadLinksApi.permanentDelete).mockReset();
+frontend/features/passports/components/upload-link-list.test.tsx:56: trailing whitespace.
++  vi.mocked(uploadLinksApi.assignCompany).mockReset();
+frontend/features/passports/components/upload-link-list.test.tsx:57: trailing whitespace.
++  vi.mocked(uploadLinksApi.update).mockReset();
+frontend/features/passports/components/upload-link-list.test.tsx:58: trailing whitespace.
++});
+frontend/features/passports/components/upload-link-list.test.tsx:59: trailing whitespace.
++
+frontend/features/passports/components/upload-link-list.test.tsx:60: trailing whitespace.
++describe("archived group disclosure", () => {
+frontend/features/passports/components/upload-link-list.test.tsx:61: trailing whitespace.
++  it("saves an archived import's company with the main action and updates the reopened card", async () => {
+frontend/features/passports/components/upload-link-list.test.tsx:62: trailing whitespace.
++    let stored = { ...archivedGroup, import_only: true, company_id: null, company: null, company_revision: 0 } as UploadLinkResponse;
+frontend/features/passports/components/upload-link-list.test.tsx:63: trailing whitespace.
++    vi.mocked(uploadLinksApi.list).mockImplementation(async (status) => status === "archived" ? [stored] : []);
+frontend/features/passports/components/upload-link-list.test.tsx:64: trailing whitespace.
++    vi.mocked(uploadLinksApi.assignCompany).mockImplementation(async () => {
+frontend/features/passports/components/upload-link-list.test.tsx:65: trailing whitespace.
++      stored = { ...stored, company_id: "client", company: { id: "client", name: "Assigned client", status: "active" }, company_revision: 1 };
+frontend/features/passports/components/upload-link-list.test.tsx:66: trailing whitespace.
++      return stored;
+frontend/features/passports/components/upload-link-list.test.tsx:67: trailing whitespace.
++    });
+frontend/features/passports/components/upload-link-list.test.tsx:68: trailing whitespace.
++    renderList();
+frontend/features/passports/components/upload-link-list.test.tsx:69: trailing whitespace.
++    fireEvent.click(screen.getByRole("button", { name: "Show archived groups" }));
+frontend/features/passports/components/upload-link-list.test.tsx:70: trailing whitespace.
++    fireEvent.click((await screen.findAllByRole("button", { name: "Edit" }))[0]);
+frontend/features/passports/components/upload-link-list.test.tsx:71: trailing whitespace.
++    fireEvent.click(screen.getByRole("button", { name: "Select client company" }));
+frontend/features/passports/components/upload-link-list.test.tsx:72: trailing whitespace.
++    fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
+frontend/features/passports/components/upload-link-list.test.tsx:73: trailing whitespace.
++    await waitFor(() => expect(screen.queryByRole("dialog", { name: "Edit Group" })).not.toBeInTheDocument());
+frontend/features/passports/components/upload-link-list.test.tsx:74: trailing whitespace.
++    expect(uploadLinksApi.assignCompany).toHaveBeenCalledOnce();
+frontend/features/passports/components/upload-link-list.test.tsx:75: trailing whitespace.
++    expect(uploadLinksApi.update).not.toHaveBeenCalled();
+frontend/features/passports/components/upload-link-list.test.tsx:76: trailing whitespace.
++    expect(screen.queryByText("Company not assigned")).not.toBeInTheDocument();
+frontend/features/passports/components/upload-link-list.test.tsx:77: trailing whitespace.
++    expect(screen.getAllByText("Assigned client")).toHaveLength(2);
+frontend/features/passports/components/upload-link-list.test.tsx:78: trailing whitespace.
++    fireEvent.click(screen.getAllByRole("button", { name: "Edit" })[0]);
+frontend/features/passports/components/upload-link-list.test.tsx:79: trailing whitespace.
++    expect(within(screen.getByRole("dialog", { name: "Edit Group" })).getByText("Assigned client")).toBeInTheDocument();
+frontend/features/passports/components/upload-link-list.test.tsx:80: trailing whitespace.
++    fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
+frontend/features/passports/components/upload-link-list.test.tsx:81: trailing whitespace.
++    await waitFor(() => expect(screen.queryByRole("dialog", { name: "Edit Group" })).not.toBeInTheDocument());
+frontend/features/passports/components/upload-link-list.test.tsx:82: trailing whitespace.
++    expect(uploadLinksApi.assignCompany).toHaveBeenCalledOnce();
+frontend/features/passports/components/upload-link-list.test.tsx:83: trailing whitespace.
++  });
+frontend/features/passports/components/upload-link-list.test.tsx:84: trailing whitespace.
++  it("starts collapsed, retains the count, and allows the archived actions to be shown and hidden", async () => {
+frontend/features/passports/components/upload-link-list.test.tsx:85: trailing whitespace.
++    renderList();
+frontend/features/passports/components/upload-link-list.test.tsx:86: trailing whitespace.
++    const archivedSection = screen.getByRole("region", { name: "Archived groups" });
+frontend/features/passports/components/upload-link-list.test.tsx:87: trailing whitespace.
++    await within(archivedSection).findByText("1");
+frontend/features/passports/components/upload-link-list.test.tsx:88: trailing whitespace.
++    const toggle = within(archivedSection).getByRole("button", { name: "Show archived groups" });
+frontend/features/passports/components/upload-link-list.test.tsx:89: trailing whitespace.
++    expect(toggle).toHaveAttribute("aria-expanded", "false");
+frontend/features/passports/components/upload-link-list.test.tsx:90: trailing whitespace.
++    expect(within(archivedSection).queryByRole("button", { name: "Restore" })).not.toBeInTheDocument();
+frontend/features/passports/components/upload-link-list.test.tsx:91: trailing whitespace.
++    expect(within(archivedSection).queryByRole("table", { name: "Archived Group Links" })).not.toBeInTheDocument();
+frontend/features/passports/components/upload-link-list.test.tsx:92: trailing whitespace.
++
+frontend/features/passports/components/upload-link-list.test.tsx:93: trailing whitespace.
++    fireEvent.click(toggle);
+frontend/features/passports/components/upload-link-list.test.tsx:94: trailing whitespace.
++    expect(toggle).toHaveAttribute("aria-expanded", "true");
+frontend/features/passports/components/upload-link-list.test.tsx:95: trailing whitespace.
++    expect(within(archivedSection).getByRole("table", { name: "Archived Group Links" })).toBeVisible();
+frontend/features/passports/components/upload-link-list.test.tsx:96: trailing whitespace.
++    expect(within(archivedSection).getAllByRole("button", { name: "Restore" })).toHaveLength(2);
+frontend/features/passports/components/upload-link-list.test.tsx:97: trailing whitespace.
++    expect(within(archivedSection).getAllByRole("button", { name: "Edit" })).toHaveLength(2);
+frontend/features/passports/components/upload-link-list.test.tsx:98: trailing whitespace.
++    expect(within(archivedSection).getAllByRole("button", { name: "Delete" })).toHaveLength(2);
+frontend/features/passports/components/upload-link-list.test.tsx:99: trailing whitespace.
++
+frontend/features/passports/components/upload-link-list.test.tsx:100: trailing whitespace.
++    fireEvent.click(within(archivedSection).getByRole("button", { name: "Hide archived groups" }));
+frontend/features/passports/components/upload-link-list.test.tsx:101: trailing whitespace.
++    expect(toggle).toHaveAttribute("aria-expanded", "false");
+frontend/features/passports/components/upload-link-list.test.tsx:102: trailing whitespace.
++    expect(within(archivedSection).queryByRole("button", { name: "Restore" })).not.toBeInTheDocument();
+frontend/features/passports/components/upload-link-list.test.tsx:103: trailing whitespace.
++    expect(within(archivedSection).getByText("1")).toBeVisible();
+frontend/features/passports/components/upload-link-list.test.tsx:104: trailing whitespace.
++  });
+frontend/features/passports/components/upload-link-list.test.tsx:105: trailing whitespace.
++});
+frontend/features/passports/components/upload-link-list.test.tsx:106: trailing whitespace.
++
+frontend/features/passports/components/upload-link-list.test.tsx:107: trailing whitespace.
++describe("archived group deletion feedback", () => {
+frontend/features/passports/components/upload-link-list.test.tsx:108: trailing whitespace.
++  it.each([
+frontend/features/passports/components/upload-link-list.test.tsx:109: trailing whitespace.
++    { status: 409, code: "HTTP_409", message: "Cancel pending document deliveries before permanently deleting this group." },
+frontend/features/passports/components/upload-link-list.test.tsx:110: trailing whitespace.
++    { status: 403, code: "AUTHORIZATION_ERROR", message: "You cannot delete data for this group" },
+frontend/features/passports/components/upload-link-list.test.tsx:111: trailing whitespace.
++    { code: "STEP_UP_CANCELLED", message: "Identity confirmation was cancelled." },
+frontend/features/passports/components/upload-link-list.test.tsx:112: trailing whitespace.
++    { code: "NETWORK_ERROR", message: "Unable to reach the server. Check your connection and try again." },
+frontend/features/passports/components/upload-link-list.test.tsx:113: trailing whitespace.
++  ])("shows $code inside the open dialog without retrying or changing retention", async (error) => {
+frontend/features/passports/components/upload-link-list.test.tsx:114: trailing whitespace.
++    vi.mocked(uploadLinksApi.permanentDelete).mockRejectedValue(error);
+frontend/features/passports/components/upload-link-list.test.tsx:115: trailing whitespace.
++    renderList();
+frontend/features/passports/components/upload-link-list.test.tsx:116: trailing whitespace.
++    const dialog = await openDeleteDialog();
+frontend/features/passports/components/upload-link-list.test.tsx:117: trailing whitespace.
++    fireEvent.click(within(dialog).getByRole("button", { name: /^Delete passport records/ }));
+frontend/features/passports/components/upload-link-list.test.tsx:118: trailing whitespace.
++    expect(await within(dialog).findByRole("alert")).toHaveTextContent(error.message);
+frontend/features/passports/components/upload-link-list.test.tsx:119: trailing whitespace.
++    expect(dialog).toBeInTheDocument();
+frontend/features/passports/components/upload-link-list.test.tsx:120: trailing whitespace.
++    expect(uploadLinksApi.permanentDelete).toHaveBeenCalledExactlyOnceWith("archived-group", false, ownerConfig);
+frontend/features/passports/components/upload-link-list.test.tsx:121: trailing whitespace.
++    expect(within(dialog).getByRole("button", { name: "Cancel" })).toBeEnabled();
+frontend/features/passports/components/upload-link-list.test.tsx:122: trailing whitespace.
++  });
+frontend/features/passports/components/upload-link-list.test.tsx:123: trailing whitespace.
++
+frontend/features/passports/components/upload-link-list.test.tsx:124: trailing whitespace.
++  it("shows a useful fallback when an unexpected error has no message", async () => {
+frontend/features/passports/components/upload-link-list.test.tsx:125: trailing whitespace.
++    vi.mocked(uploadLinksApi.permanentDelete).mockRejectedValue({ code: "UNEXPECTED_ERROR" });
+frontend/features/passports/components/upload-link-list.test.tsx:126: trailing whitespace.
++    renderList();
+frontend/features/passports/components/upload-link-list.test.tsx:127: trailing whitespace.
++    const dialog = await openDeleteDialog();
+frontend/features/passports/components/upload-link-list.test.tsx:128: trailing whitespace.
++    fireEvent.click(within(dialog).getByRole("button", { name: /^Delete passport records/ }));
+frontend/features/passports/components/upload-link-list.test.tsx:129: trailing whitespace.
++    expect(await within(dialog).findByRole("alert")).toHaveTextContent("The group could not be deleted. Please try again.");
+frontend/features/passports/components/upload-link-list.test.tsx:130: trailing whitespace.
++  });
+frontend/features/passports/components/upload-link-list.test.tsx:131: trailing whitespace.
++
+frontend/features/passports/components/upload-link-list.test.tsx:132: trailing whitespace.
++  it("shows retention errors and clears them when the dialog is reopened", async () => {
+frontend/features/passports/components/upload-link-list.test.tsx:133: trailing whitespace.
++    vi.mocked(uploadLinksApi.permanentDelete).mockRejectedValue({ message: "This group was already deleted using a different retention choice." });
+frontend/features/passports/components/upload-link-list.test.tsx:134: trailing whitespace.
++    renderList();
+frontend/features/passports/components/upload-link-list.test.tsx:135: trailing whitespace.
++    const dialog = await openDeleteDialog();
+frontend/features/passports/components/upload-link-list.test.tsx:136: trailing whitespace.
++    fireEvent.click(within(dialog).getByRole("button", { name: /^Keep passport records/ }));
+frontend/features/passports/components/upload-link-list.test.tsx:137: trailing whitespace.
++    expect(await within(dialog).findByRole("alert")).toHaveTextContent("different retention choice");
+frontend/features/passports/components/upload-link-list.test.tsx:138: trailing whitespace.
++    expect(uploadLinksApi.permanentDelete).toHaveBeenCalledExactlyOnceWith("archived-group", true, ownerConfig);
+frontend/features/passports/components/upload-link-list.test.tsx:139: trailing whitespace.
++    fireEvent.click(within(dialog).getByRole("button", { name: "Close dialog" }));
+frontend/features/passports/components/upload-link-list.test.tsx:140: trailing whitespace.
++    const reopened = await openDeleteDialog();
+frontend/features/passports/components/upload-link-list.test.tsx:141: trailing whitespace.
++    expect(within(reopened).queryByRole("alert")).not.toBeInTheDocument();
+frontend/features/passports/components/upload-link-list.test.tsx:142: trailing whitespace.
++  });
+frontend/features/passports/components/upload-link-list.test.tsx:143: trailing whitespace.
++
+frontend/features/passports/components/upload-link-list.test.tsx:144: trailing whitespace.
++  it("clears the error for a manual retry, prevents duplicate actions or dismissal while pending, and closes on success", async () => {
+frontend/features/passports/components/upload-link-list.test.tsx:145: trailing whitespace.
++    let complete!: () => void;
+frontend/features/passports/components/upload-link-list.test.tsx:146: trailing whitespace.
++    vi.mocked(uploadLinksApi.permanentDelete)
+frontend/features/passports/components/upload-link-list.test.tsx:147: trailing whitespace.
++      .mockRejectedValueOnce({ message: "A document delivery is still in progress." })
+frontend/features/passports/components/upload-link-list.test.tsx:148: trailing whitespace.
++      .mockImplementationOnce(() => new Promise<void>((resolve) => { complete = resolve; }));
+frontend/features/passports/components/upload-link-list.test.tsx:149: trailing whitespace.
++    renderList();
+frontend/features/passports/components/upload-link-list.test.tsx:150: trailing whitespace.
++    const dialog = await openDeleteDialog();
+frontend/features/passports/components/upload-link-list.test.tsx:151: trailing whitespace.
++    const deleteButton = within(dialog).getByRole("button", { name: /^Delete passport records/ });
+frontend/features/passports/components/upload-link-list.test.tsx:152: trailing whitespace.
++    fireEvent.click(deleteButton);
+frontend/features/passports/components/upload-link-list.test.tsx:153: trailing whitespace.
++    await within(dialog).findByRole("alert");
+frontend/features/passports/components/upload-link-list.test.tsx:154: trailing whitespace.
++    fireEvent.click(deleteButton);
+frontend/features/passports/components/upload-link-list.test.tsx:155: trailing whitespace.
++    await waitFor(() => expect(dialog).toHaveAttribute("aria-busy", "true"));
+frontend/features/passports/components/upload-link-list.test.tsx:156: trailing whitespace.
++    expect(within(dialog).queryByRole("alert")).not.toBeInTheDocument();
+frontend/features/passports/components/upload-link-list.test.tsx:157: trailing whitespace.
++    for (const button of within(dialog).getAllByRole("button")) expect(button).toBeDisabled();
+frontend/features/passports/components/upload-link-list.test.tsx:158: trailing whitespace.
++    expect(within(dialog).getByRole("status")).toHaveTextContent("Deleting group");
+frontend/features/passports/components/upload-link-list.test.tsx:159: trailing whitespace.
++    fireEvent.keyDown(dialog, { key: "Escape" });
+frontend/features/passports/components/upload-link-list.test.tsx:160: trailing whitespace.
++    fireEvent.click(deleteButton);
+frontend/features/passports/components/upload-link-list.test.tsx:161: trailing whitespace.
++    expect(dialog).toBeInTheDocument();
+frontend/features/passports/components/upload-link-list.test.tsx:162: trailing whitespace.
++    expect(uploadLinksApi.permanentDelete).toHaveBeenCalledTimes(2);
+frontend/features/passports/components/upload-link-list.test.tsx:163: trailing whitespace.
++    await act(async () => { complete(); });
+frontend/features/passports/components/upload-link-list.test.tsx:164: trailing whitespace.
++    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+frontend/features/passports/components/upload-link-list.test.tsx:165: trailing whitespace.
++  });
+frontend/features/passports/components/upload-link-list.test.tsx:166: trailing whitespace.
++
+frontend/features/passports/components/upload-link-list.test.tsx:167: trailing whitespace.
++  it.each(["agency_manager", "agency_staff"] as const)("keeps permanent deletion hidden for %s", async (role) => {
+frontend/features/passports/components/upload-link-list.test.tsx:168: trailing whitespace.
++    renderList(role);
+frontend/features/passports/components/upload-link-list.test.tsx:169: trailing whitespace.
++    fireEvent.click(screen.getByRole("button", { name: "Show archived groups" }));
+frontend/features/passports/components/upload-link-list.test.tsx:170: trailing whitespace.
++    await screen.findAllByText("NIPUN");
+frontend/features/passports/components/upload-link-list.test.tsx:171: trailing whitespace.
++    expect(screen.queryByRole("button", { name: "Delete" })).not.toBeInTheDocument();
+frontend/features/passports/components/upload-link-list.test.tsx:172: trailing whitespace.
++    expect(uploadLinksApi.permanentDelete).not.toHaveBeenCalled();
+frontend/features/passports/components/upload-link-list.test.tsx:173: trailing whitespace.
++  });
+frontend/features/passports/components/upload-link-list.test.tsx:174: trailing whitespace.
++});
+frontend/features/whatsapp/workspace/update-message-composer.tsx:47: new blank line at EOF.

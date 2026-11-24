@@ -1,0 +1,52 @@
+{
+  "command": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-X",
+    "utf8",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "-p",
+    "ecr_checker_contract_plugin",
+    "tests/unit/presentation/test_ecr_checker.py"
+  ],
+  "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection\\backend",
+  "exit_code": 0,
+  "elapsed_seconds": 18.23399999999674,
+  "source_before": {
+    "backend/app/presentation/api/v1/routes/ecr_checker.py": "ecbc1a61b1b8b674f6dedcda752dc204b80189d180b4a9641a4ba5ad52c15468",
+    "backend/tests/unit/presentation/test_ecr_checker.py": "2f9c0510cdf55a9f39bbf2528afee7a6ea2a8561c35a74026bf49b346b701f8e",
+    "backend/app/infrastructure/ai/gemini_ecr_service.py": "ef2406f3f7e69dee5f1b2453f14cde26024f3363082ecc37008ac79611e4b25b",
+    "backend/app/infrastructure/ecr/runtime.py": "5b1f07bfd90528c026870530b855a81d7b0f13d5d676852aa7038f6e12a7cd35",
+    "backend/app/infrastructure/database/ecr_models.py": "6ac74bbe8e03eb5eeedaa777e92a73b273b92690d4712af4138031ef572e39c6",
+    "backend/app/infrastructure/export/ecr_excel_exporter.py": "c3d73b377e2b76f52e68fb9b8b907cd22d991e31f727aa3edd9b18241ac897ae",
+    "backend/app/infrastructure/repositories/ecr_read_repository.py": "7e18f91591f42ac8787a767abfc533858d10273dbfce6f3d4ca1ef4dc07b6863",
+    "backend/app/presentation/api/v1/schemas/ecr_schemas.py": "32f1b4ad60f9b3d3568e24f2606cc437183cdbd3ebdf1972b509c8b6bf4d3ec0",
+    "backend/app/infrastructure/database/communications_models.py": "0283ffad7b14ef05b16c2240fba2cf1a2580a7b68d29665ece26a284d67f7688",
+    "backend/app/infrastructure/database/_communications_models/__init__.py": "93f1ffe885e89709e8e59326a3c20db5be6969f0e63c6501052477226783237c",
+    "backend/app/infrastructure/database/_communications_models/broadcast.py": "8fc27df633446ef911ad0598fbcf2491c36a17bbe2057863d9df6299bd2d6370",
+    "backend/app/infrastructure/database/_communications_models/delivery.py": "1fd04b74883bc0a355b94939b74a1173cabd9f2f9c9226ebaf9657df72a2af2c",
+    "backend/app/infrastructure/database/_communications_models/source.py": "f57b7c4a3d07d5abc09a8edf6f4d964617ce2fb9da8058ad42f38c0b8805b0b0",
+    "backend/app/infrastructure/database/_communications_models/welcome.py": "610fe7aaaeb5eb62bbd0defab28b9c298ba9cd7941b4efe73fff8988f0fae12c"
+  },
+  "source_after": {
+    "backend/app/presentation/api/v1/routes/ecr_checker.py": "ecbc1a61b1b8b674f6dedcda752dc204b80189d180b4a9641a4ba5ad52c15468",
+    "backend/tests/unit/presentation/test_ecr_checker.py": "2f9c0510cdf55a9f39bbf2528afee7a6ea2a8561c35a74026bf49b346b701f8e",
+    "backend/app/infrastructure/ai/gemini_ecr_service.py": "ef2406f3f7e69dee5f1b2453f14cde26024f3363082ecc37008ac79611e4b25b",
+    "backend/app/infrastructure/ecr/runtime.py": "5b1f07bfd90528c026870530b855a81d7b0f13d5d676852aa7038f6e12a7cd35",
+    "backend/app/infrastructure/database/ecr_models.py": "6ac74bbe8e03eb5eeedaa777e92a73b273b92690d4712af4138031ef572e39c6",
+    "backend/app/infrastructure/export/ecr_excel_exporter.py": "c3d73b377e2b76f52e68fb9b8b907cd22d991e31f727aa3edd9b18241ac897ae",
+    "backend/app/infrastructure/repositories/ecr_read_repository.py": "7e18f91591f42ac8787a767abfc533858d10273dbfce6f3d4ca1ef4dc07b6863",
+    "backend/app/presentation/api/v1/schemas/ecr_schemas.py": "32f1b4ad60f9b3d3568e24f2606cc437183cdbd3ebdf1972b509c8b6bf4d3ec0",
+    "backend/app/infrastructure/database/communications_models.py": "0283ffad7b14ef05b16c2240fba2cf1a2580a7b68d29665ece26a284d67f7688",
+    "backend/app/infrastructure/database/_communications_models/__init__.py": "93f1ffe885e89709e8e59326a3c20db5be6969f0e63c6501052477226783237c",
+    "backend/app/infrastructure/database/_communications_models/broadcast.py": "8fc27df633446ef911ad0598fbcf2491c36a17bbe2057863d9df6299bd2d6370",
+    "backend/app/infrastructure/database/_communications_models/delivery.py": "1fd04b74883bc0a355b94939b74a1173cabd9f2f9c9226ebaf9657df72a2af2c",
+    "backend/app/infrastructure/database/_communications_models/source.py": "f57b7c4a3d07d5abc09a8edf6f4d964617ce2fb9da8058ad42f38c0b8805b0b0",
+    "backend/app/infrastructure/database/_communications_models/welcome.py": "610fe7aaaeb5eb62bbd0defab28b9c298ba9cd7941b4efe73fff8988f0fae12c"
+  },
+  "source_unchanged": true,
+  "output": "docs/audit/dashboard-2026-10-30/ecr-checker-before-focused-tests.txt"
+}

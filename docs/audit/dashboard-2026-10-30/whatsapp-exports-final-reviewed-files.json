@@ -1,0 +1,117 @@
+{
+  "files": [
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_exports.py",
+      "sha256": "d205033cf09a5e9700ca8a69fe442d0746abc3e1f27d8d96efef741e07fbd413",
+      "physical_lines": 265,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical read after typed phase partition, formatting and final source freeze. Original statements/ordering/queries/awaits/quota placement expanded exactly; no behavior/cache/shared workbook policy change. Separate measured comparison reuse and worker cancellation/admission follow-ups remain open."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_export_hydration.py",
+      "sha256": "81b7ca7b933e77e0544cf625c6161005c70fc267dccbe461e9e82c61b2e2b288",
+      "physical_lines": 161,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical read after typed phase partition, formatting and final source freeze. Original statements/ordering/queries/awaits/quota placement expanded exactly; no behavior/cache/shared workbook policy change. Separate measured comparison reuse and worker cancellation/admission follow-ups remain open."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_export_matching.py",
+      "sha256": "5629130dd850e98c531f76aa020aa70b3194b887ee7824097335c9c89453e6d5",
+      "physical_lines": 132,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical read after typed phase partition, formatting and final source freeze. Original statements/ordering/queries/awaits/quota placement expanded exactly; no behavior/cache/shared workbook policy change. Separate measured comparison reuse and worker cancellation/admission follow-ups remain open."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_export_projection.py",
+      "sha256": "113e8e2c30234079fbb172466469a8f1d43eee6468da2fd2ccd9daf432fa28de",
+      "physical_lines": 246,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical read after typed phase partition, formatting and final source freeze. Original statements/ordering/queries/awaits/quota placement expanded exactly; no behavior/cache/shared workbook policy change. Separate measured comparison reuse and worker cancellation/admission follow-ups remain open."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_export_selection.py",
+      "sha256": "19bfd1f654bb0c3484bc36af1ee759f0551a5d334052089a4cadac0d8a7b8e9c",
+      "physical_lines": 60,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical read after typed phase partition, formatting and final source freeze. Original statements/ordering/queries/awaits/quota placement expanded exactly; no behavior/cache/shared workbook policy change. Separate measured comparison reuse and worker cancellation/admission follow-ups remain open."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_export_sources.py",
+      "sha256": "3f1af44c7b37cb8a93a306262643ed4bb7f689605fb29fd93ea2bdc7459847b2",
+      "physical_lines": 201,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical read after typed phase partition, formatting and final source freeze. Original statements/ordering/queries/awaits/quota placement expanded exactly; no behavior/cache/shared workbook policy change. Separate measured comparison reuse and worker cancellation/admission follow-ups remain open."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/whatsapp_export_support.py",
+      "sha256": "e69b75a0b214ac678244b06b7888df8c8c01ba098fc6718666361a700fe5f410",
+      "physical_lines": 185,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical read after typed phase partition, formatting and final source freeze. Original statements/ordering/queries/awaits/quota placement expanded exactly; no behavior/cache/shared workbook policy change. Separate measured comparison reuse and worker cancellation/admission follow-ups remain open."
+    },
+    {
+      "path": "backend/tests/whatsapp_filter_export_fixtures.py",
+      "sha256": "b2d26dbe96fbf284ce74e4a994a9ffa1e1554159198c01f1966ad2c479bada9f",
+      "physical_lines": 245,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read. Actual synthetic FK-enabled SQLite graph/workbook controls; all original caller-route assertions retained. This source read does not establish PostgreSQL or live-provider behavior."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_filter_export_freshness.py",
+      "sha256": "105fb2ac9108c1bc82c88eb1accbd068dc5a8a9f9d11ae14280a7c2a9650bc2d",
+      "physical_lines": 145,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read. Actual synthetic FK-enabled SQLite graph/workbook controls; all original caller-route assertions retained. This source read does not establish PostgreSQL or live-provider behavior."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_filter_export_provenance.py",
+      "sha256": "d2667a1eece5e6798720875a3fbf5688a57941f13e98c2f05425db48250c190b",
+      "physical_lines": 212,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read. Actual synthetic FK-enabled SQLite graph/workbook controls; all original caller-route assertions retained. This source read does not establish PostgreSQL or live-provider behavior."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_filter_exports.py",
+      "sha256": "4568940399b81ea08f70e20b7b8353f0c0887be67d60ac2184c24615a81cb1a8",
+      "physical_lines": 333,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read. Actual synthetic FK-enabled SQLite graph/workbook controls; all original caller-route assertions retained. This source read does not establish PostgreSQL or live-provider behavior."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_route_decomposition.py",
+      "sha256": "a4fa48821a7c9ec5e483f797939e96aa23b68e17a1b74c9eaaf2ee29ea18e7c6",
+      "physical_lines": 218,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete current physical source read. Actual synthetic FK-enabled SQLite graph/workbook controls; all original caller-route assertions retained. This source read does not establish PostgreSQL or live-provider behavior."
+    }
+  ],
+  "unchanged_preflight_full_and_focused_scopes": {
+    "path": "docs/audit/dashboard-2026-10-30/whatsapp-exports-preflight-reviewed-files.json",
+    "sha256": "47a617f2df814e3c9a5c4eed3aa04fb36a2991b4b1b5bc4fad0e09a709e778a8"
+  },
+  "credit_rule": "Only the listed physically read current sources receive full read credit; inherited support scopes remain exactly full/focused as recorded."
+}

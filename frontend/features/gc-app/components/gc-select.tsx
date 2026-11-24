@@ -59,6 +59,7 @@ export function GcSelect({
   const [open, setOpen] = useState(false);
   const [internalSearch, setInternalSearch] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
+  const [portalHost, setPortalHost] = useState<Element | null>(null);
   const [menuPosition, setMenuPosition] = useState<{
     left: number;
     top?: number;
@@ -81,6 +82,7 @@ export function GcSelect({
     const trigger = triggerRef.current;
     if (!trigger) return;
     const bounds = trigger.getBoundingClientRect();
+    setPortalHost(rootRef.current?.closest("[data-gc-dialog-layer]") ?? rootRef.current?.closest('[role="dialog"]') ?? document.body);
     const menuHeight = searchable ? 320 : 272;
     const spaceBelow = window.innerHeight - bounds.bottom;
     const openAbove = spaceBelow < menuHeight && bounds.top > spaceBelow;
@@ -116,7 +118,9 @@ export function GcSelect({
 
   useEffect(() => {
     if (!open) return;
-    if (searchable) requestAnimationFrame(() => searchRef.current?.focus());
+    if (!searchable) return;
+    const frame = requestAnimationFrame(() => searchRef.current?.focus());
+    return () => cancelAnimationFrame(frame);
   }, [open, searchable]);
 
   const openMenu = () => {
@@ -140,17 +144,22 @@ export function GcSelect({
   };
 
   const choose = (option: GcSelectOption | undefined) => {
-    if (!option || option.disabled) return;
+    if (!option || option.disabled || loading) return;
     onChange(option.value);
     setOpen(false);
     if (searchValue === undefined) setInternalSearch("");
+    triggerRef.current?.focus();
   };
 
   const handleKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key === "Escape") {
+    if (event.key === "Escape" && open) {
+      event.preventDefault();
+      event.stopPropagation();
       setOpen(false);
+      triggerRef.current?.focus();
       return;
     }
+    if (event.key === "Tab" && open) setOpen(false);
     if (event.key === "ArrowDown" || event.key === "ArrowUp") {
       event.preventDefault();
       if (!open) openMenu();
@@ -179,8 +188,9 @@ export function GcSelect({
         aria-controls={listboxId}
         aria-expanded={open}
         aria-haspopup="listbox"
+        aria-activedescendant={open && !loading && visibleOptions[activeIndex] ? `${listboxId}-${activeIndex}` : undefined}
         aria-labelledby={label ? `${selectId}-label ${selectId}` : undefined}
-        aria-describedby={[error && errorId, hint && hintId].filter(Boolean).join(" ") || undefined}
+        aria-describedby={[error && errorId, !error && hint && hintId].filter(Boolean).join(" ") || undefined}
         aria-invalid={Boolean(error)}
         disabled={disabled}
         onClick={() => {
@@ -204,9 +214,10 @@ export function GcSelect({
         />
       </button>
 
-      {open && menuPosition && createPortal(
+      {open && menuPosition && portalHost && createPortal(
         <div
           ref={menuRef}
+          onKeyDown={handleKeyDown}
           style={menuPosition}
           className="fixed z-[110] min-w-[14rem] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-[0_18px_45px_-18px_rgba(15,23,42,0.38)]"
         >
@@ -221,9 +232,10 @@ export function GcSelect({
                     setSearch(event.target.value);
                     setActiveIndex(0);
                   }}
-                  onKeyDown={handleKeyDown}
                   placeholder={searchPlaceholder}
                   aria-label={searchPlaceholder}
+                  aria-controls={listboxId}
+                  aria-activedescendant={!loading && visibleOptions[activeIndex] ? `${listboxId}-${activeIndex}` : undefined}
                   className="h-9 w-full rounded-lg border border-slate-200 bg-white pl-9 pr-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-600/10"
                 />
               </div>
@@ -240,8 +252,10 @@ export function GcSelect({
               return (
                 <button
                   key={option.value}
+                  id={`${listboxId}-${index}`}
                   type="button"
                   role="option"
+                  tabIndex={-1}
                   aria-selected={isSelected}
                   disabled={option.disabled}
                   onPointerMove={() => setActiveIndex(index)}
@@ -262,7 +276,7 @@ export function GcSelect({
             })}
           </div>
         </div>,
-        document.body,
+        portalHost,
       )}
 
       {hint && !error && <p id={hintId} className="text-xs text-slate-500">{hint}</p>}

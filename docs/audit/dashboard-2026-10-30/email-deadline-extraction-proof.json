@@ -1,0 +1,548 @@
+{
+  "original_sha256": "65100ec395e5b9db8d2492c1045a390ff2a398075268c24ba1a1ace5e6d0a935",
+  "whole_exact_declarations": [
+    "_ACTIVE_DEADLINE_STATUSES",
+    "_ACTIVE_ANALYSIS_STATUSES",
+    "_OFFICE_ROLES",
+    "_SCAN_BATCH_SIZE",
+    "_IMMINENT_LEAD_TIME",
+    "_DUE_STAGE_DURATION",
+    "_DeadlineNotificationStage",
+    "_WINDOW_STAGE",
+    "_IMMINENT_STAGE",
+    "_DUE_STAGE",
+    "_OVERDUE_STAGE",
+    "_DEADLINE_NOTIFICATION_STAGES",
+    "_STAGE_BY_NAME",
+    "_STAGE_EVENT_TYPES",
+    "_DeadlineRow",
+    "_ExistingStageRow",
+    "_deadline_notification_stage",
+    "_notification_stage_message",
+    "_aware_utc",
+    "_deadline_schedule_identity",
+    "_required_due_at",
+    "_stage_schedule_is_covered",
+    "_visible_linked_group_name",
+    "scan_email_ai_deadline_notifications"
+  ],
+  "only_approved_scoped_index_changes": [
+    {
+      "name": "create_deadline_window_notifications",
+      "assignments": 1,
+      "rule_arguments": 1,
+      "all_other_ast_statements_and_expressions_exact": true
+    },
+    {
+      "name": "mark_initial_deadline_window_coverage",
+      "assignments": 1,
+      "rule_arguments": 1,
+      "all_other_ast_statements_and_expressions_exact": true
+    }
+  ],
+  "direct_legacy_aliases_identity": [
+    "_ACTIVE_DEADLINE_STATUSES",
+    "_ACTIVE_ANALYSIS_STATUSES",
+    "_OFFICE_ROLES",
+    "_SCAN_BATCH_SIZE",
+    "_IMMINENT_LEAD_TIME",
+    "_DUE_STAGE_DURATION",
+    "_DeadlineNotificationStage",
+    "_WINDOW_STAGE",
+    "_IMMINENT_STAGE",
+    "_DUE_STAGE",
+    "_OVERDUE_STAGE",
+    "_DEADLINE_NOTIFICATION_STAGES",
+    "_STAGE_BY_NAME",
+    "_STAGE_EVENT_TYPES",
+    "_DeadlineRow",
+    "_ExistingStageRow",
+    "_deadline_notification_stage",
+    "_notification_stage_message",
+    "_aware_utc",
+    "_deadline_schedule_identity",
+    "_required_due_at",
+    "_stage_schedule_is_covered",
+    "create_deadline_window_notifications",
+    "mark_initial_deadline_window_coverage",
+    "_visible_linked_group_name",
+    "scan_email_ai_deadline_notifications"
+  ],
+  "original_global_bindings_identity": [
+    {
+      "function": "_deadline_notification_stage",
+      "binding": "_DUE_STAGE",
+      "identity_exact": true
+    },
+    {
+      "function": "_deadline_notification_stage",
+      "binding": "_DUE_STAGE_DURATION",
+      "identity_exact": true
+    },
+    {
+      "function": "_deadline_notification_stage",
+      "binding": "_IMMINENT_LEAD_TIME",
+      "identity_exact": true
+    },
+    {
+      "function": "_deadline_notification_stage",
+      "binding": "_IMMINENT_STAGE",
+      "identity_exact": true
+    },
+    {
+      "function": "_deadline_notification_stage",
+      "binding": "_OVERDUE_STAGE",
+      "identity_exact": true
+    },
+    {
+      "function": "_deadline_notification_stage",
+      "binding": "_WINDOW_STAGE",
+      "identity_exact": true
+    },
+    {
+      "function": "_deadline_notification_stage",
+      "binding": "_aware_utc",
+      "identity_exact": true
+    },
+    {
+      "function": "_notification_stage_message",
+      "binding": "_DUE_STAGE",
+      "identity_exact": true
+    },
+    {
+      "function": "_notification_stage_message",
+      "binding": "_IMMINENT_STAGE",
+      "identity_exact": true
+    },
+    {
+      "function": "_notification_stage_message",
+      "binding": "_WINDOW_STAGE",
+      "identity_exact": true
+    },
+    {
+      "function": "_aware_utc",
+      "binding": "UTC",
+      "identity_exact": true
+    },
+    {
+      "function": "_deadline_schedule_identity",
+      "binding": "_aware_utc",
+      "identity_exact": true
+    },
+    {
+      "function": "_deadline_schedule_identity",
+      "binding": "hashlib",
+      "identity_exact": true
+    },
+    {
+      "function": "_stage_schedule_is_covered",
+      "binding": "_aware_utc",
+      "identity_exact": true
+    },
+    {
+      "function": "create_deadline_window_notifications",
+      "binding": "EmailActivityEventModel",
+      "identity_exact": true
+    },
+    {
+      "function": "create_deadline_window_notifications",
+      "binding": "NotificationRepository",
+      "identity_exact": true
+    },
+    {
+      "function": "create_deadline_window_notifications",
+      "binding": "_ACTIVE_DEADLINE_STATUSES",
+      "identity_exact": true
+    },
+    {
+      "function": "create_deadline_window_notifications",
+      "binding": "_STAGE_BY_NAME",
+      "identity_exact": true
+    },
+    {
+      "function": "create_deadline_window_notifications",
+      "binding": "_STAGE_EVENT_TYPES",
+      "identity_exact": true
+    },
+    {
+      "function": "create_deadline_window_notifications",
+      "binding": "_WINDOW_STAGE",
+      "identity_exact": true
+    },
+    {
+      "function": "create_deadline_window_notifications",
+      "binding": "_aware_utc",
+      "identity_exact": true
+    },
+    {
+      "function": "create_deadline_window_notifications",
+      "binding": "_deadline_notification_stage",
+      "identity_exact": true
+    },
+    {
+      "function": "create_deadline_window_notifications",
+      "binding": "_deadline_schedule_identity",
+      "identity_exact": true
+    },
+    {
+      "function": "create_deadline_window_notifications",
+      "binding": "_notification_stage_message",
+      "identity_exact": true
+    },
+    {
+      "function": "create_deadline_window_notifications",
+      "binding": "_required_due_at",
+      "identity_exact": true
+    },
+    {
+      "function": "create_deadline_window_notifications",
+      "binding": "_stage_schedule_is_covered",
+      "identity_exact": true
+    },
+    {
+      "function": "create_deadline_window_notifications",
+      "binding": "_visible_linked_group_name",
+      "identity_exact": true
+    },
+    {
+      "function": "create_deadline_window_notifications",
+      "binding": "hashlib",
+      "identity_exact": true
+    },
+    {
+      "function": "create_deadline_window_notifications",
+      "binding": "select",
+      "identity_exact": true
+    },
+    {
+      "function": "create_deadline_window_notifications",
+      "binding": "timedelta",
+      "identity_exact": true
+    },
+    {
+      "function": "mark_initial_deadline_window_coverage",
+      "binding": "EmailActivityEventModel",
+      "identity_exact": true
+    },
+    {
+      "function": "mark_initial_deadline_window_coverage",
+      "binding": "_ACTIVE_DEADLINE_STATUSES",
+      "identity_exact": true
+    },
+    {
+      "function": "mark_initial_deadline_window_coverage",
+      "binding": "_IMMINENT_LEAD_TIME",
+      "identity_exact": true
+    },
+    {
+      "function": "mark_initial_deadline_window_coverage",
+      "binding": "_STAGE_EVENT_TYPES",
+      "identity_exact": true
+    },
+    {
+      "function": "mark_initial_deadline_window_coverage",
+      "binding": "_WINDOW_STAGE",
+      "identity_exact": true
+    },
+    {
+      "function": "mark_initial_deadline_window_coverage",
+      "binding": "_aware_utc",
+      "identity_exact": true
+    },
+    {
+      "function": "mark_initial_deadline_window_coverage",
+      "binding": "_deadline_notification_stage",
+      "identity_exact": true
+    },
+    {
+      "function": "mark_initial_deadline_window_coverage",
+      "binding": "_deadline_schedule_identity",
+      "identity_exact": true
+    },
+    {
+      "function": "mark_initial_deadline_window_coverage",
+      "binding": "_required_due_at",
+      "identity_exact": true
+    },
+    {
+      "function": "mark_initial_deadline_window_coverage",
+      "binding": "_stage_schedule_is_covered",
+      "identity_exact": true
+    },
+    {
+      "function": "mark_initial_deadline_window_coverage",
+      "binding": "select",
+      "identity_exact": true
+    },
+    {
+      "function": "mark_initial_deadline_window_coverage",
+      "binding": "timedelta",
+      "identity_exact": true
+    },
+    {
+      "function": "_visible_linked_group_name",
+      "binding": "AuthorizationPolicy",
+      "identity_exact": true
+    },
+    {
+      "function": "_visible_linked_group_name",
+      "binding": "ClientGroupModel",
+      "identity_exact": true
+    },
+    {
+      "function": "_visible_linked_group_name",
+      "binding": "UserRepository",
+      "identity_exact": true
+    },
+    {
+      "function": "_visible_linked_group_name",
+      "binding": "UserRole",
+      "identity_exact": true
+    },
+    {
+      "function": "_visible_linked_group_name",
+      "binding": "select",
+      "identity_exact": true
+    },
+    {
+      "function": "_visible_linked_group_name",
+      "binding": "uuid",
+      "identity_exact": true
+    },
+    {
+      "function": "scan_email_ai_deadline_notifications",
+      "binding": "AsyncSessionFactory",
+      "identity_exact": true
+    },
+    {
+      "function": "scan_email_ai_deadline_notifications",
+      "binding": "BigInteger",
+      "identity_exact": true
+    },
+    {
+      "function": "scan_email_ai_deadline_notifications",
+      "binding": "EmailActivityEventModel",
+      "identity_exact": true
+    },
+    {
+      "function": "scan_email_ai_deadline_notifications",
+      "binding": "EmailAiAnalysisModel",
+      "identity_exact": true
+    },
+    {
+      "function": "scan_email_ai_deadline_notifications",
+      "binding": "EmailConnectionModel",
+      "identity_exact": true
+    },
+    {
+      "function": "scan_email_ai_deadline_notifications",
+      "binding": "EmailDetectedDeadlineModel",
+      "identity_exact": true
+    },
+    {
+      "function": "scan_email_ai_deadline_notifications",
+      "binding": "EmailMessageModel",
+      "identity_exact": true
+    },
+    {
+      "function": "scan_email_ai_deadline_notifications",
+      "binding": "UTC",
+      "identity_exact": true
+    },
+    {
+      "function": "scan_email_ai_deadline_notifications",
+      "binding": "UserModel",
+      "identity_exact": true
+    },
+    {
+      "function": "scan_email_ai_deadline_notifications",
+      "binding": "UserRole",
+      "identity_exact": true
+    },
+    {
+      "function": "scan_email_ai_deadline_notifications",
+      "binding": "_ACTIVE_ANALYSIS_STATUSES",
+      "identity_exact": true
+    },
+    {
+      "function": "scan_email_ai_deadline_notifications",
+      "binding": "_ACTIVE_DEADLINE_STATUSES",
+      "identity_exact": true
+    },
+    {
+      "function": "scan_email_ai_deadline_notifications",
+      "binding": "_DUE_STAGE",
+      "identity_exact": true
+    },
+    {
+      "function": "scan_email_ai_deadline_notifications",
+      "binding": "_DUE_STAGE_DURATION",
+      "identity_exact": true
+    },
+    {
+      "function": "scan_email_ai_deadline_notifications",
+      "binding": "_IMMINENT_LEAD_TIME",
+      "identity_exact": true
+    },
+    {
+      "function": "scan_email_ai_deadline_notifications",
+      "binding": "_IMMINENT_STAGE",
+      "identity_exact": true
+    },
+    {
+      "function": "scan_email_ai_deadline_notifications",
+      "binding": "_OFFICE_ROLES",
+      "identity_exact": true
+    },
+    {
+      "function": "scan_email_ai_deadline_notifications",
+      "binding": "_OVERDUE_STAGE",
+      "identity_exact": true
+    },
+    {
+      "function": "scan_email_ai_deadline_notifications",
+      "binding": "_SCAN_BATCH_SIZE",
+      "identity_exact": true
+    },
+    {
+      "function": "scan_email_ai_deadline_notifications",
+      "binding": "_WINDOW_STAGE",
+      "identity_exact": true
+    },
+    {
+      "function": "scan_email_ai_deadline_notifications",
+      "binding": "_aware_utc",
+      "identity_exact": true
+    },
+    {
+      "function": "scan_email_ai_deadline_notifications",
+      "binding": "and_",
+      "identity_exact": true
+    },
+    {
+      "function": "scan_email_ai_deadline_notifications",
+      "binding": "case",
+      "identity_exact": true
+    },
+    {
+      "function": "scan_email_ai_deadline_notifications",
+      "binding": "cast",
+      "identity_exact": true
+    },
+    {
+      "function": "scan_email_ai_deadline_notifications",
+      "binding": "create_deadline_window_notifications",
+      "identity_exact": true
+    },
+    {
+      "function": "scan_email_ai_deadline_notifications",
+      "binding": "datetime",
+      "identity_exact": true
+    },
+    {
+      "function": "scan_email_ai_deadline_notifications",
+      "binding": "email_ai_disabled_policy_exists",
+      "identity_exact": true
+    },
+    {
+      "function": "scan_email_ai_deadline_notifications",
+      "binding": "exists",
+      "identity_exact": true
+    },
+    {
+      "function": "scan_email_ai_deadline_notifications",
+      "binding": "extract",
+      "identity_exact": true
+    },
+    {
+      "function": "scan_email_ai_deadline_notifications",
+      "binding": "get_settings",
+      "identity_exact": true
+    },
+    {
+      "function": "scan_email_ai_deadline_notifications",
+      "binding": "or_",
+      "identity_exact": true
+    },
+    {
+      "function": "scan_email_ai_deadline_notifications",
+      "binding": "select",
+      "identity_exact": true
+    },
+    {
+      "function": "scan_email_ai_deadline_notifications",
+      "binding": "timedelta",
+      "identity_exact": true
+    }
+  ],
+  "all10_function_pickle_identity": [
+    "_deadline_notification_stage",
+    "_notification_stage_message",
+    "_aware_utc",
+    "_deadline_schedule_identity",
+    "_required_due_at",
+    "_stage_schedule_is_covered",
+    "create_deadline_window_notifications",
+    "mark_initial_deadline_window_coverage",
+    "_visible_linked_group_name",
+    "scan_email_ai_deadline_notifications"
+  ],
+  "actual_task_and_persistence_callers_identity": true,
+  "new_index_hints": {
+    "rows": "collections.abc.Sequence[tuple[uuid.UUID, uuid.UUID | None, uuid.UUID, str, dict[str, object], datetime.datetime]]",
+    "return": "dict[tuple[uuid.UUID, uuid.UUID | None, uuid.UUID, str], list[tuple[uuid.UUID, uuid.UUID | None, uuid.UUID, str, dict[str, object], datetime.datetime]]]"
+  },
+  "stage_dataclass_hints": {
+    "name": "<class 'str'>",
+    "event_type": "<class 'str'>",
+    "event_key_suffix": "<class 'str'>",
+    "title": "<class 'str'>",
+    "summary_code": "<class 'str'>",
+    "activity_stage": "<class 'str'>",
+    "priority": "<class 'str'>"
+  },
+  "introspection_limit": {
+    "actual_owner": "backend/app/infrastructure/email/deadline_notification_policy.py",
+    "legacy_getsource_result": "OSError",
+    "explanation": "Legacy public class module/qualname/pickle identity retained; inspect.getsource uses that facade and cannot locate the moved class. No inspect monkeypatch."
+  },
+  "original904line_test_sha256_unchanged": "e8e1c40f7fdc717829dfe4fc1b5382ecbceeab692a04829eb87e7e567ce13778",
+  "sources": [
+    {
+      "path": "backend/app/infrastructure/email/deadline_notification_policy.py",
+      "sha256": "a8c849c0f7d567b5a57cfbc3d5017b9ca6668e84799c5f4a2edacad31c59c8e7",
+      "physical_lines": 163,
+      "source": "\"\"\"Typed deadline stages, eligibility constants and shared calendar policy.\"\"\"\n\nfrom __future__ import annotations\n\nimport uuid\nfrom dataclasses import dataclass\nfrom datetime import UTC, datetime, timedelta\n\nfrom app.domain.entities.entities import UserRole\nfrom app.infrastructure.database.email_ai_models import (\n    EmailAiAnalysisModel,\n    EmailDetectedDeadlineModel,\n)\nfrom app.infrastructure.database.email_models import EmailConnectionModel, EmailMessageModel\n\n_ACTIVE_DEADLINE_STATUSES = {\"detected\", \"review_required\", \"acknowledged\"}\n\n_ACTIVE_ANALYSIS_STATUSES = {\"completed\", \"review_required\"}\n\n_OFFICE_ROLES = {\n    UserRole.SUPER_ADMIN.value,\n    UserRole.AGENCY_ADMIN.value,\n    UserRole.AGENCY_MANAGER.value,\n    UserRole.AGENCY_STAFF.value,\n}\n\n_SCAN_BATCH_SIZE = 200\n\n_IMMINENT_LEAD_TIME = timedelta(hours=24)\n\n_DUE_STAGE_DURATION = timedelta(hours=24)\n\n\n@dataclass(frozen=True)\nclass _DeadlineNotificationStage:\n    name: str\n    event_type: str\n    event_key_suffix: str\n    title: str\n    summary_code: str\n    activity_stage: str\n    priority: str\n\n\n# Keep the original public dataclass/pickle identity.\n_DeadlineNotificationStage.__module__ = \"app.infrastructure.email.deadline_notifications\"\n\n_WINDOW_STAGE = _DeadlineNotificationStage(\n    name=\"window\",\n    event_type=\"ai_deadline_window_notified\",\n    event_key_suffix=\"window-notified\",\n    title=\"Travel deadline entered the action window\",\n    summary_code=\"email_ai_deadline_window_notified\",\n    activity_stage=\"info\",\n    priority=\"normal\",\n)\n\n_IMMINENT_STAGE = _DeadlineNotificationStage(\n    name=\"24h\",\n    event_type=\"ai_deadline_24h_notified\",\n    event_key_suffix=\"24h-notified\",\n    title=\"Travel deadline is due within 24 hours\",\n    summary_code=\"email_ai_deadline_24h_notified\",\n    activity_stage=\"warning\",\n    priority=\"high\",\n)\n\n_DUE_STAGE = _DeadlineNotificationStage(\n    name=\"due\",\n    event_type=\"ai_deadline_due_notified\",\n    event_key_suffix=\"due-notified\",\n    title=\"Travel deadline is due now\",\n    summary_code=\"email_ai_deadline_due_notified\",\n    activity_stage=\"warning\",\n    priority=\"high\",\n)\n\n_OVERDUE_STAGE = _DeadlineNotificationStage(\n    name=\"overdue\",\n    event_type=\"ai_deadline_overdue_notified\",\n    event_key_suffix=\"overdue-notified\",\n    title=\"Travel deadline is overdue\",\n    summary_code=\"email_ai_deadline_overdue_notified\",\n    activity_stage=\"warning\",\n    priority=\"high\",\n)\n\n_DEADLINE_NOTIFICATION_STAGES = (\n    _WINDOW_STAGE,\n    _IMMINENT_STAGE,\n    _DUE_STAGE,\n    _OVERDUE_STAGE,\n)\n\n_STAGE_BY_NAME = {stage.name: stage for stage in _DEADLINE_NOTIFICATION_STAGES}\n\n_STAGE_EVENT_TYPES = {stage.event_type for stage in _DEADLINE_NOTIFICATION_STAGES}\n\n_DeadlineRow = tuple[\n    EmailDetectedDeadlineModel,\n    EmailAiAnalysisModel,\n    EmailMessageModel,\n    EmailConnectionModel,\n]\n\n_ExistingStageRow = tuple[\n    uuid.UUID,\n    uuid.UUID | None,\n    uuid.UUID,\n    str,\n    dict[str, object],\n    datetime,\n]\n\n\ndef _deadline_notification_stage(\n    *,\n    due_at: datetime,\n    now: datetime,\n    cutoff: datetime,\n) -> _DeadlineNotificationStage | None:\n    due_time = _aware_utc(due_at)\n    if due_time > cutoff:\n        return None\n    if due_time <= now - _DUE_STAGE_DURATION:\n        return _OVERDUE_STAGE\n    if due_time <= now:\n        return _DUE_STAGE\n    if due_time <= now + _IMMINENT_LEAD_TIME:\n        return _IMMINENT_STAGE\n    return _WINDOW_STAGE\n\n\ndef _notification_stage_message(\n    stage: _DeadlineNotificationStage,\n    count: int,\n) -> str:\n    noun = \"deadline\" if count == 1 else \"deadlines\"\n    if stage is _WINDOW_STAGE:\n        verb = \"needs\" if count == 1 else \"need\"\n        return f\"{noun} now {verb} attention.\"\n    verb = \"is\" if count == 1 else \"are\"\n    if stage is _IMMINENT_STAGE:\n        return f\"{noun} {verb} due within 24 hours.\"\n    if stage is _DUE_STAGE:\n        return f\"{noun} {verb} due now.\"\n    return f\"{noun} {verb} overdue.\"\n\n\ndef _aware_utc(value: datetime) -> datetime:\n    if value.tzinfo is None:\n        return value.replace(tzinfo=UTC)\n    return value.astimezone(UTC)\n\n\n# Direct public aliases keep their existing callable metadata.\nfor _function in (\n    _deadline_notification_stage,\n    _notification_stage_message,\n    _aware_utc,\n):\n    _function.__module__ = \"app.infrastructure.email.deadline_notifications\"\ndel _function\n"
+    },
+    {
+      "path": "backend/app/infrastructure/email/deadline_notification_coverage.py",
+      "sha256": "2d5c73b23edd340873d335c8bb98fa5bbbe39f0d17535c26a3bb60aaadab1f23",
+      "physical_lines": 89,
+      "source": "\"\"\"Persisted deadline schedule identity and legacy marker coverage rules.\"\"\"\n\nfrom __future__ import annotations\n\nimport hashlib\nimport uuid\nfrom collections.abc import Sequence\nfrom datetime import datetime\n\nfrom app.infrastructure.database.email_ai_models import EmailDetectedDeadlineModel\nfrom app.infrastructure.email.deadline_notification_policy import (\n    _aware_utc,\n    _DeadlineNotificationStage,\n    _ExistingStageRow,\n)\n\n_StageCoverageKey = tuple[uuid.UUID, uuid.UUID | None, uuid.UUID, str]\n_StageCoverageIndex = dict[_StageCoverageKey, list[_ExistingStageRow]]\n\n\ndef _index_stage_coverage(rows: Sequence[_ExistingStageRow]) -> _StageCoverageIndex:\n    \"\"\"Retain persisted marker order within each exact authorization/stage scope.\"\"\"\n\n    by_scope: _StageCoverageIndex = {}\n    for row in rows:\n        key = (row[0], row[1], row[2], row[3])\n        by_scope.setdefault(key, []).append(row)\n    return by_scope\n\n\ndef _deadline_schedule_identity(due_at: datetime) -> tuple[int, str]:\n    due_time = _aware_utc(due_at).replace(microsecond=0)\n    schedule_epoch = int(due_time.timestamp())\n    schedule_fingerprint = hashlib.sha256(due_time.isoformat().encode(\"ascii\")).hexdigest()[:16]\n    return schedule_epoch, schedule_fingerprint\n\n\ndef _required_due_at(deadline: EmailDetectedDeadlineModel) -> datetime:\n    \"\"\"Narrow the nullable persistence field after an eligibility check.\"\"\"\n\n    if deadline.due_at is None:\n        raise ValueError(\"Eligible email deadline is missing its due time\")\n    return deadline.due_at\n\n\ndef _stage_schedule_is_covered(\n    existing_rows: Sequence[_ExistingStageRow],\n    *,\n    deadline: EmailDetectedDeadlineModel,\n    stage: _DeadlineNotificationStage,\n    schedule_epoch: int,\n) -> bool:\n    for (\n        agency_id,\n        changed_entity_id,\n        owner_user_id,\n        event_type,\n        details,\n        occurred_at,\n    ) in existing_rows:\n        if (\n            agency_id != deadline.agency_id\n            or changed_entity_id != deadline.id\n            or owner_user_id != deadline.owner_user_id\n            or event_type != stage.event_type\n        ):\n            continue\n        recorded_epoch = details.get(\"schedule_epoch\")\n        if (\n            isinstance(recorded_epoch, int)\n            and not isinstance(recorded_epoch, bool)\n            and recorded_epoch == schedule_epoch\n        ):\n            return True\n        if recorded_epoch is None and _aware_utc(occurred_at) >= _aware_utc(deadline.updated_at):\n            # Legacy markers did not persist a schedule identity. Treat them as\n            # current only until the deadline row is changed or corrected.\n            return True\n    return False\n\n\n# Direct public aliases keep their existing callable metadata.\nfor _function in (\n    _deadline_schedule_identity,\n    _required_due_at,\n    _stage_schedule_is_covered,\n):\n    _function.__module__ = \"app.infrastructure.email.deadline_notifications\"\ndel _function\n"
+    },
+    {
+      "path": "backend/app/infrastructure/email/deadline_notification_emit.py",
+      "sha256": "ac10f20696044e79b328ff446dc59f8a070194748f493383f5aa58b303b7da06",
+      "physical_lines": 216,
+      "source": "\"\"\"Owner-scoped notification batches and transactional activity markers.\"\"\"\n\nfrom __future__ import annotations\n\nimport hashlib\nimport uuid\nfrom collections.abc import Sequence\nfrom datetime import datetime, timedelta\n\nfrom sqlalchemy import select\nfrom sqlalchemy.ext.asyncio import AsyncSession\n\nfrom app.infrastructure.database.email_models import EmailActivityEventModel\nfrom app.infrastructure.email.deadline_notification_coverage import (\n    _deadline_schedule_identity,\n    _index_stage_coverage,\n    _required_due_at,\n    _stage_schedule_is_covered,\n)\nfrom app.infrastructure.email.deadline_notification_policy import (\n    _ACTIVE_DEADLINE_STATUSES,\n    _STAGE_BY_NAME,\n    _STAGE_EVENT_TYPES,\n    _WINDOW_STAGE,\n    _aware_utc,\n    _deadline_notification_stage,\n    _DeadlineNotificationStage,\n    _DeadlineRow,\n    _notification_stage_message,\n)\nfrom app.infrastructure.email.deadline_notification_visibility import _visible_linked_group_name\nfrom app.infrastructure.repositories.notification_repository import NotificationRepository\n\n\nasync def create_deadline_window_notifications(\n    session: AsyncSession,\n    *,\n    rows: Sequence[_DeadlineRow],\n    now: datetime,\n    window_days: int,\n) -> int:\n    \"\"\"Create one stable notification per analysis and current deadline stage.\"\"\"\n\n    if not rows:\n        return 0\n    current_time = _aware_utc(now)\n    cutoff = current_time + timedelta(days=window_days)\n    staged_rows: list[tuple[_DeadlineRow, _DeadlineNotificationStage]] = []\n    for row in rows:\n        deadline = row[0]\n        if deadline.status not in _ACTIVE_DEADLINE_STATUSES or deadline.due_at is None:\n            continue\n        stage = _deadline_notification_stage(\n            due_at=deadline.due_at,\n            now=current_time,\n            cutoff=cutoff,\n        )\n        if stage is not None:\n            staged_rows.append((row, stage))\n    if not staged_rows:\n        return 0\n    staged_deadline_ids = [row[0][0].id for row in staged_rows]\n    existing_result = await session.execute(\n        select(\n            EmailActivityEventModel.agency_id,\n            EmailActivityEventModel.changed_entity_id,\n            EmailActivityEventModel.owner_user_id,\n            EmailActivityEventModel.event_type,\n            EmailActivityEventModel.details,\n            EmailActivityEventModel.occurred_at,\n        ).where(\n            EmailActivityEventModel.changed_entity_type == \"email_detected_deadline\",\n            EmailActivityEventModel.agency_id.in_([row[0][0].agency_id for row in staged_rows]),\n            EmailActivityEventModel.changed_entity_id.in_(staged_deadline_ids),\n            EmailActivityEventModel.event_type.in_(_STAGE_EVENT_TYPES),\n        )\n    )\n    existing_by_scope = _index_stage_coverage(existing_result.tuples().all())\n\n    pending_by_analysis_stage: dict[tuple[uuid.UUID, str], list[_DeadlineRow]] = {}\n    pending_markers: set[tuple[uuid.UUID, uuid.UUID, uuid.UUID, str, int]] = set()\n    for row, stage in staged_rows:\n        deadline, analysis, _, _ = row\n        schedule_epoch, _schedule_fingerprint = _deadline_schedule_identity(\n            _required_due_at(deadline)\n        )\n        marker = (\n            deadline.agency_id,\n            deadline.id,\n            deadline.owner_user_id,\n            stage.event_type,\n            schedule_epoch,\n        )\n        if marker in pending_markers:\n            continue\n        if _stage_schedule_is_covered(\n            existing_by_scope.get(\n                (deadline.agency_id, deadline.id, deadline.owner_user_id, stage.event_type),\n                (),\n            ),\n            deadline=deadline,\n            stage=stage,\n            schedule_epoch=schedule_epoch,\n        ):\n            continue\n        pending_markers.add(marker)\n        pending_by_analysis_stage.setdefault(\n            (analysis.id, stage.name),\n            [],\n        ).append(row)\n\n    created = 0\n    repository = NotificationRepository(session)\n    group_names: dict[uuid.UUID, str | None] = {}\n    for (\n        _analysis_id,\n        stage_name,\n    ), rows_for_analysis in pending_by_analysis_stage.items():\n        stage = _STAGE_BY_NAME[stage_name]\n        deadline, analysis, message, connection = rows_for_analysis[0]\n        due_times = [_aware_utc(_required_due_at(item[0])) for item in rows_for_analysis]\n        needs_date_review = any(item[0].status == \"review_required\" for item in rows_for_analysis)\n        if needs_date_review and stage is _WINDOW_STAGE:\n            title = \"Travel deadline needs date review\"\n        else:\n            title = stage.title\n        notification_deadline_ids = sorted(str(item[0].id) for item in rows_for_analysis)\n        schedule_identities = {\n            str(item[0].id): _deadline_schedule_identity(_required_due_at(item[0]))\n            for item in rows_for_analysis\n        }\n        batch_items = sorted(\n            f\"{deadline_id}:{schedule_identities[deadline_id][1]}\"\n            for deadline_id in notification_deadline_ids\n        )\n        batch_key = hashlib.sha256(\"|\".join(batch_items).encode(\"ascii\")).hexdigest()[:16]\n        if analysis.id not in group_names:\n            group_names[analysis.id] = await _visible_linked_group_name(\n                session,\n                analysis,\n            )\n        group_name = group_names[analysis.id]\n        await repository.create(\n            agency_id=deadline.agency_id,\n            user_id=deadline.owner_user_id,\n            type=\"email_ai_deadline\",\n            title=title,\n            message=(\n                f\"{len(rows_for_analysis)} detected travel \"\n                f\"{_notification_stage_message(stage, len(rows_for_analysis))} \"\n                \"Open the owner-scoped Operations Inbox to review it.\"\n            ),\n            entity_type=\"email_message\",\n            entity_id=str(message.id),\n            priority=\"high\" if needs_date_review else stage.priority,\n            category=\"email_operations\",\n            dedupe_key=(f\"email-ai:{analysis.id}:deadline-{stage.name}:{batch_key}\"),\n            metadata={\n                \"provider\": connection.provider,\n                \"account_email\": connection.email_address,\n                \"analysis_id\": str(analysis.id),\n                \"deadline_ids\": notification_deadline_ids,\n                \"deadline_count\": len(rows_for_analysis),\n                \"next_due_at\": min(due_times).isoformat(),\n                \"window_days\": window_days,\n                \"notification_stage\": stage.name,\n                \"deadline_schedule_fingerprints\": {\n                    deadline_id: schedule_identities[deadline_id][1]\n                    for deadline_id in notification_deadline_ids\n                },\n                **({\"group_name\": group_name} if group_name is not None else {}),\n            },\n        )\n        for item, _, _, _ in rows_for_analysis:\n            due_at = _aware_utc(_required_due_at(item))\n            schedule_epoch, schedule_fingerprint = schedule_identities[str(item.id)]\n            session.add(\n                EmailActivityEventModel(\n                    agency_id=item.agency_id,\n                    owner_user_id=item.owner_user_id,\n                    connection_id=item.connection_id,\n                    message_id=item.message_id,\n                    event_key=(\n                        f\"email-ai-deadline:{item.id}:schedule:\"\n                        f\"{schedule_fingerprint}:{stage.event_key_suffix}\"\n                    ),\n                    event_type=stage.event_type,\n                    stage=(\"warning\" if needs_date_review else stage.activity_stage),\n                    actor_type=\"system\",\n                    summary_code=stage.summary_code,\n                    details={\n                        \"analysis_id\": str(analysis.id),\n                        \"deadline_id\": str(item.id),\n                        \"due_at\": due_at.isoformat(),\n                        \"deadline_status\": item.status,\n                        \"window_days\": window_days,\n                        \"notification_stage\": stage.name,\n                        \"schedule_epoch\": schedule_epoch,\n                        \"schedule_fingerprint\": schedule_fingerprint,\n                        \"notification_batch_key\": batch_key,\n                    },\n                    ai_used=True,\n                    ai_provider=analysis.ai_provider,\n                    ai_model=analysis.ai_model,\n                    confidence=item.confidence,\n                    changed_entity_type=\"email_detected_deadline\",\n                    changed_entity_id=item.id,\n                )\n            )\n        created += 1\n    await session.flush()\n    return created\n\n\n# Direct public aliases keep their existing callable metadata.\ncreate_deadline_window_notifications.__module__ = \"app.infrastructure.email.deadline_notifications\"\n"
+    },
+    {
+      "path": "backend/app/infrastructure/email/deadline_notification_initial.py",
+      "sha256": "df4c8654700079828556a555ae8453b3b3ee2373df85cdd49ff80069e05d6013",
+      "physical_lines": 144,
+      "source": "\"\"\"Initial analysis attention coverage without duplicate deadline notifications.\"\"\"\n\nfrom __future__ import annotations\n\nimport uuid\nfrom collections.abc import Sequence\nfrom datetime import datetime, timedelta\n\nfrom sqlalchemy import select\nfrom sqlalchemy.ext.asyncio import AsyncSession\n\nfrom app.infrastructure.database.email_models import EmailActivityEventModel\nfrom app.infrastructure.email.deadline_notification_coverage import (\n    _deadline_schedule_identity,\n    _index_stage_coverage,\n    _required_due_at,\n    _stage_schedule_is_covered,\n)\nfrom app.infrastructure.email.deadline_notification_policy import (\n    _ACTIVE_DEADLINE_STATUSES,\n    _IMMINENT_LEAD_TIME,\n    _STAGE_EVENT_TYPES,\n    _WINDOW_STAGE,\n    _aware_utc,\n    _deadline_notification_stage,\n    _DeadlineRow,\n)\n\n\nasync def mark_initial_deadline_window_coverage(\n    session: AsyncSession,\n    *,\n    rows: Sequence[_DeadlineRow],\n    now: datetime,\n    window_days: int,\n) -> int:\n    \"\"\"Mark deadlines covered by the analysis-level notification without duplicating it.\"\"\"\n\n    if not rows:\n        return 0\n    current_time = _aware_utc(now)\n    cutoff = current_time + timedelta(days=window_days)\n    eligible = [\n        row\n        for row in rows\n        if row[0].status in _ACTIVE_DEADLINE_STATUSES\n        and row[0].due_at is not None\n        and _aware_utc(row[0].due_at) <= cutoff\n    ]\n    if not eligible:\n        return 0\n    existing_result = await session.execute(\n        select(\n            EmailActivityEventModel.agency_id,\n            EmailActivityEventModel.changed_entity_id,\n            EmailActivityEventModel.owner_user_id,\n            EmailActivityEventModel.event_type,\n            EmailActivityEventModel.details,\n            EmailActivityEventModel.occurred_at,\n        ).where(\n            EmailActivityEventModel.changed_entity_type == \"email_detected_deadline\",\n            EmailActivityEventModel.agency_id.in_([row[0].agency_id for row in eligible]),\n            EmailActivityEventModel.changed_entity_id.in_([row[0].id for row in eligible]),\n            EmailActivityEventModel.event_type.in_(_STAGE_EVENT_TYPES),\n        )\n    )\n    existing_by_scope = _index_stage_coverage(existing_result.tuples().all())\n    pending_markers: set[tuple[uuid.UUID, uuid.UUID, uuid.UUID, str, int]] = set()\n    created = 0\n    for deadline, analysis, _, _ in eligible:\n        due_at = _aware_utc(_required_due_at(deadline))\n        schedule_epoch, schedule_fingerprint = _deadline_schedule_identity(due_at)\n        current_stage = _deadline_notification_stage(\n            due_at=due_at,\n            now=current_time,\n            cutoff=cutoff,\n        )\n        covered_stages = [_WINDOW_STAGE]\n        if current_stage is not None and current_stage is not _WINDOW_STAGE:\n            covered_stages.append(current_stage)\n        for stage in covered_stages:\n            marker = (\n                deadline.agency_id,\n                deadline.id,\n                deadline.owner_user_id,\n                stage.event_type,\n                schedule_epoch,\n            )\n            if marker in pending_markers or _stage_schedule_is_covered(\n                existing_by_scope.get(\n                    (deadline.agency_id, deadline.id, deadline.owner_user_id, stage.event_type),\n                    (),\n                ),\n                deadline=deadline,\n                stage=stage,\n                schedule_epoch=schedule_epoch,\n            ):\n                continue\n            activity_stage = stage.activity_stage\n            if stage is _WINDOW_STAGE and (\n                due_at <= current_time + _IMMINENT_LEAD_TIME or deadline.status == \"review_required\"\n            ):\n                activity_stage = \"warning\"\n            session.add(\n                EmailActivityEventModel(\n                    agency_id=deadline.agency_id,\n                    owner_user_id=deadline.owner_user_id,\n                    connection_id=deadline.connection_id,\n                    message_id=deadline.message_id,\n                    event_key=(\n                        f\"email-ai-deadline:{deadline.id}:schedule:\"\n                        f\"{schedule_fingerprint}:{stage.event_key_suffix}\"\n                    ),\n                    event_type=stage.event_type,\n                    stage=activity_stage,\n                    actor_type=\"system\",\n                    summary_code=stage.summary_code,\n                    details={\n                        \"analysis_id\": str(analysis.id),\n                        \"deadline_id\": str(deadline.id),\n                        \"due_at\": due_at.isoformat(),\n                        \"deadline_status\": deadline.status,\n                        \"window_days\": window_days,\n                        \"notification_mode\": \"analysis_attention\",\n                        \"notification_stage\": stage.name,\n                        \"schedule_epoch\": schedule_epoch,\n                        \"schedule_fingerprint\": schedule_fingerprint,\n                    },\n                    ai_used=True,\n                    ai_provider=analysis.ai_provider,\n                    ai_model=analysis.ai_model,\n                    confidence=deadline.confidence,\n                    changed_entity_type=\"email_detected_deadline\",\n                    changed_entity_id=deadline.id,\n                )\n            )\n            pending_markers.add(marker)\n            created += 1\n    await session.flush()\n    return created\n\n\n# Direct public aliases keep their existing callable metadata.\nmark_initial_deadline_window_coverage.__module__ = \"app.infrastructure.email.deadline_notifications\"\n"
+    },
+    {
+      "path": "backend/app/infrastructure/email/deadline_notification_visibility.py",
+      "sha256": "4cb991f01ca3ceb7852388ee8135d6fbb58cd99b9500fe16ca4a1e1ea64831dd",
+      "physical_lines": 55,
+      "source": "\"\"\"Live owner authorization for linked-group notification metadata.\"\"\"\n\nfrom __future__ import annotations\n\nimport uuid\n\nfrom sqlalchemy import select\nfrom sqlalchemy.ext.asyncio import AsyncSession\n\nfrom app.application.security.authorization_policy import AuthorizationPolicy\nfrom app.domain.entities.entities import UserRole\nfrom app.infrastructure.database.email_ai_models import EmailAiAnalysisModel\nfrom app.infrastructure.database.models import ClientGroupModel\nfrom app.infrastructure.repositories.user_repository import UserRepository\n\n\nasync def _visible_linked_group_name(\n    session: AsyncSession,\n    analysis: EmailAiAnalysisModel,\n) -> str | None:\n    \"\"\"Resolve a linked group only through the current owner's live visibility.\"\"\"\n\n    raw_group_id = (analysis.result_json or {}).get(\"linked_group_id\")\n    if not isinstance(raw_group_id, str):\n        return None\n    try:\n        group_id = uuid.UUID(raw_group_id)\n    except ValueError:\n        return None\n    owner = await UserRepository(session).get_by_id(analysis.owner_user_id)\n    if (\n        owner is None\n        or not owner.is_active\n        or (owner.role != UserRole.SUPER_ADMIN and owner.agency_id != analysis.agency_id)\n    ):\n        return None\n    statement = select(ClientGroupModel).where(\n        ClientGroupModel.id == group_id,\n        ClientGroupModel.agency_id == analysis.agency_id,\n        ClientGroupModel.status.notin_({\"archived\", \"deleted\"}),\n    )\n    group = await session.scalar(\n        AuthorizationPolicy.apply_group_visibility_scope(\n            statement,\n            owner,\n        )\n    )\n    if group is None:\n        return None\n    normalized = \" \".join(group.name.split())[:160]\n    return normalized or None\n\n\n# Direct public aliases keep their existing callable metadata.\n_visible_linked_group_name.__module__ = \"app.infrastructure.email.deadline_notifications\"\n"
+    },
+    {
+      "path": "backend/app/infrastructure/email/deadline_notifications.py",
+      "sha256": "173d7b875eb937f21b867e155c20827f5a039a81990ce8afdccfcaa4078bfda9",
+      "physical_lines": 201,
+      "source": "\"\"\"Public deadline scanner and stable legacy notification API aliases.\"\"\"\n\nfrom __future__ import annotations\n\nfrom datetime import UTC, datetime, timedelta\n\nfrom sqlalchemy import BigInteger, and_, case, cast, exists, extract, or_, select\n\nfrom app.application.use_cases.email_integrations.rollout_policy import (\n    email_ai_disabled_policy_exists,\n)\nfrom app.core.config.settings import Settings, get_settings\nfrom app.domain.entities.entities import UserRole\nfrom app.infrastructure.database.email_ai_models import (\n    EmailAiAnalysisModel,\n    EmailDetectedDeadlineModel,\n)\nfrom app.infrastructure.database.email_models import (\n    EmailActivityEventModel,\n    EmailConnectionModel,\n    EmailMessageModel,\n)\nfrom app.infrastructure.database.models import UserModel\nfrom app.infrastructure.database.session import AsyncSessionFactory\nfrom app.infrastructure.email.deadline_notification_coverage import (\n    _deadline_schedule_identity as _deadline_schedule_identity,\n)\nfrom app.infrastructure.email.deadline_notification_coverage import (\n    _required_due_at as _required_due_at,\n)\nfrom app.infrastructure.email.deadline_notification_coverage import (\n    _stage_schedule_is_covered as _stage_schedule_is_covered,\n)\nfrom app.infrastructure.email.deadline_notification_emit import create_deadline_window_notifications\nfrom app.infrastructure.email.deadline_notification_initial import (\n    mark_initial_deadline_window_coverage as mark_initial_deadline_window_coverage,\n)\nfrom app.infrastructure.email.deadline_notification_policy import (\n    _ACTIVE_ANALYSIS_STATUSES,\n    _ACTIVE_DEADLINE_STATUSES,\n    _DUE_STAGE,\n    _DUE_STAGE_DURATION,\n    _IMMINENT_LEAD_TIME,\n    _IMMINENT_STAGE,\n    _OFFICE_ROLES,\n    _OVERDUE_STAGE,\n    _SCAN_BATCH_SIZE,\n    _WINDOW_STAGE,\n    _aware_utc,\n)\nfrom app.infrastructure.email.deadline_notification_policy import (\n    _DEADLINE_NOTIFICATION_STAGES as _DEADLINE_NOTIFICATION_STAGES,\n)\nfrom app.infrastructure.email.deadline_notification_policy import _STAGE_BY_NAME as _STAGE_BY_NAME\nfrom app.infrastructure.email.deadline_notification_policy import (\n    _STAGE_EVENT_TYPES as _STAGE_EVENT_TYPES,\n)\nfrom app.infrastructure.email.deadline_notification_policy import (\n    _deadline_notification_stage as _deadline_notification_stage,\n)\nfrom app.infrastructure.email.deadline_notification_policy import (\n    _DeadlineNotificationStage as _DeadlineNotificationStage,\n)\nfrom app.infrastructure.email.deadline_notification_policy import _DeadlineRow as _DeadlineRow\nfrom app.infrastructure.email.deadline_notification_policy import (\n    _ExistingStageRow as _ExistingStageRow,\n)\nfrom app.infrastructure.email.deadline_notification_policy import (\n    _notification_stage_message as _notification_stage_message,\n)\nfrom app.infrastructure.email.deadline_notification_visibility import (\n    _visible_linked_group_name as _visible_linked_group_name,\n)\n\n\nasync def scan_email_ai_deadline_notifications(\n    settings: Settings | None = None,\n    *,\n    now: datetime | None = None,\n) -> int:\n    \"\"\"Notify eligible owners when persisted deadlines reach their current stage.\"\"\"\n\n    settings = settings or get_settings()\n    if not settings.email_ai_notifications_ready:\n        return 0\n    current_time = _aware_utc(now or datetime.now(tz=UTC))\n    cutoff = current_time + timedelta(days=settings.email_ai_deadline_notification_window_days)\n    current_stage_event_type = case(\n        (\n            EmailDetectedDeadlineModel.due_at <= current_time - _DUE_STAGE_DURATION,\n            _OVERDUE_STAGE.event_type,\n        ),\n        (\n            EmailDetectedDeadlineModel.due_at <= current_time,\n            _DUE_STAGE.event_type,\n        ),\n        (\n            EmailDetectedDeadlineModel.due_at <= current_time + _IMMINENT_LEAD_TIME,\n            _IMMINENT_STAGE.event_type,\n        ),\n        else_=_WINDOW_STAGE.event_type,\n    )\n    deadline_schedule_epoch = cast(\n        extract(\"epoch\", EmailDetectedDeadlineModel.due_at),\n        BigInteger,\n    )\n    activity_schedule_epoch = EmailActivityEventModel.details[\"schedule_epoch\"].as_integer()\n    async with AsyncSessionFactory() as session:\n        result = await session.execute(\n            select(\n                EmailDetectedDeadlineModel,\n                EmailAiAnalysisModel,\n                EmailMessageModel,\n                EmailConnectionModel,\n            )\n            .join(\n                EmailAiAnalysisModel,\n                and_(\n                    EmailAiAnalysisModel.id == EmailDetectedDeadlineModel.analysis_id,\n                    EmailAiAnalysisModel.message_id == EmailDetectedDeadlineModel.message_id,\n                    EmailAiAnalysisModel.connection_id == EmailDetectedDeadlineModel.connection_id,\n                    EmailAiAnalysisModel.agency_id == EmailDetectedDeadlineModel.agency_id,\n                    EmailAiAnalysisModel.owner_user_id == EmailDetectedDeadlineModel.owner_user_id,\n                ),\n            )\n            .join(\n                EmailMessageModel,\n                and_(\n                    EmailMessageModel.id == EmailDetectedDeadlineModel.message_id,\n                    EmailMessageModel.connection_id == EmailDetectedDeadlineModel.connection_id,\n                    EmailMessageModel.agency_id == EmailDetectedDeadlineModel.agency_id,\n                    EmailMessageModel.owner_user_id == EmailDetectedDeadlineModel.owner_user_id,\n                ),\n            )\n            .join(\n                EmailConnectionModel,\n                and_(\n                    EmailConnectionModel.id == EmailDetectedDeadlineModel.connection_id,\n                    EmailConnectionModel.agency_id == EmailDetectedDeadlineModel.agency_id,\n                    EmailConnectionModel.owner_user_id == EmailDetectedDeadlineModel.owner_user_id,\n                ),\n            )\n            .join(\n                UserModel,\n                UserModel.id == EmailDetectedDeadlineModel.owner_user_id,\n            )\n            .where(\n                EmailDetectedDeadlineModel.status.in_(_ACTIVE_DEADLINE_STATUSES),\n                EmailDetectedDeadlineModel.due_at.is_not(None),\n                EmailDetectedDeadlineModel.due_at <= cutoff,\n                EmailAiAnalysisModel.status.in_(_ACTIVE_ANALYSIS_STATUSES),\n                EmailConnectionModel.status.in_({\"active\", \"failing\"}),\n                EmailConnectionModel.ai_processing_enabled.is_(True),\n                UserModel.is_active.is_(True),\n                UserModel.role.in_(_OFFICE_ROLES),\n                or_(\n                    UserModel.role == UserRole.SUPER_ADMIN.value,\n                    UserModel.agency_id == EmailDetectedDeadlineModel.agency_id,\n                ),\n                ~email_ai_disabled_policy_exists(\n                    agency_id=EmailDetectedDeadlineModel.agency_id,\n                    owner_user_id=EmailDetectedDeadlineModel.owner_user_id,\n                    connection_id=EmailDetectedDeadlineModel.connection_id,\n                ),\n                ~exists(\n                    select(1).where(\n                        EmailActivityEventModel.changed_entity_type == \"email_detected_deadline\",\n                        EmailActivityEventModel.changed_entity_id == EmailDetectedDeadlineModel.id,\n                        EmailActivityEventModel.agency_id == EmailDetectedDeadlineModel.agency_id,\n                        EmailActivityEventModel.owner_user_id\n                        == EmailDetectedDeadlineModel.owner_user_id,\n                        EmailActivityEventModel.event_type == current_stage_event_type,\n                        or_(\n                            activity_schedule_epoch == deadline_schedule_epoch,\n                            and_(\n                                activity_schedule_epoch.is_(None),\n                                EmailActivityEventModel.occurred_at\n                                >= EmailDetectedDeadlineModel.updated_at,\n                            ),\n                        ),\n                    )\n                ),\n            )\n            .order_by(\n                EmailDetectedDeadlineModel.due_at.asc(),\n                EmailDetectedDeadlineModel.id.asc(),\n            )\n            .limit(_SCAN_BATCH_SIZE)\n            .with_for_update(\n                skip_locked=True,\n                of=EmailDetectedDeadlineModel,\n            )\n        )\n        notified = await create_deadline_window_notifications(\n            session,\n            rows=list(result.tuples().all()),\n            now=current_time,\n            window_days=settings.email_ai_deadline_notification_window_days,\n        )\n        await session.commit()\n        return notified\n"
+    }
+  ]
+}

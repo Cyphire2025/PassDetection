@@ -1,0 +1,54 @@
+{
+  "status": "coherent-config-batch-frozen-and-affected-checks-pass",
+  "runtime_owners": 13,
+  "lines": {
+    "root_before": 927,
+    "root_after": 212,
+    "my_photos_before": 411,
+    "my_photos_after": 242,
+    "aws_policy_owner": 209,
+    "largest_current_owner": 242
+  },
+  "architecture": "Seven focused field models are composed by public Settings; each flat field is declared once. Three typed policy function owners retain root startup-validator order. My Photos AWS production admission is orchestrated by four responsibility-specific helpers, with the original class/facade and policy order retained. No proxy globals or implicit registration.",
+  "contracts": {
+    "flat_root_fields": 195,
+    "my_photos_fields": 66,
+    "exact_metadata": "Ordered field declarations/aliases/defaults/redaction metadata, constructor signatures, config, effective per-field validators, model-validator order and computed fields. Four full validation/serialization schemas match exactly.",
+    "source_AST": "195root field declarations,21moved root methods (10whole declarations and11complete bodies under self parameter rename),retainedrootmethods/loader/singleton exact.66Photos field declarations/three retained methods and two storage helpers exact. Whole35statement AWS method body exact after macro expansion and plain region parameter substitution.",
+    "validation_registration": "Global field-decorator dictionary registration order changes only between disjoint fields. Effective per-field validator lists and actual model-validation order are exact; this distinction is recorded by the independent peer probe."
+  },
+  "checks": {
+    "affected_tests": "185cases/11files; allpass with branch coverage.",
+    "additional_cases": "16distinct cases across existing identity security and new environment/SMTP boundary tests; allpass with unchanged-source coverage append.",
+    "distinct_cases": 201,
+    "scoped_ruff": "13runtime files and newtest pass --no-fix",
+    "strict_mypy": "13runtime files pass",
+    "architecture": "pass",
+    "source_fence": "All13runtime SHA identities unchanged throughout checks and peer read.",
+    "independent_review": "13physical source reads; inspected installed Pydantic field/decorator collection, isolated old/current synthetic environment/dotenv/keyring/error/default isolation comparisons match. No whole-suite rerun.",
+    "coverage": "13owners measured77.67\u2013100line%;identitypolicy100/root99.12. Original MyPhotos75floor retained, its old430line/48complexity caps tightened to250/11. Twelve additive owner ratchets; no existing floor or ceiling weakened. Declarative-field line coverage is not exhaustive business coverage."
+  },
+  "instrumentation_history": "Initial metadata probe identified only accidentally changed root schema description; original class docstring restored before final checks. One formatting helper was launched from the wrong working directory and did not run; corrected before sourcefreeze. Original generated extraction origin hashes intentionally remain historical; final manifest/proofs bind current13source hashes.",
+  "deployment_compatibility": "All existing flat environment names, .env/constructor precedence, default values, validation/admission, public child-setting import paths and computed construction retained. No real .env or secrets copied/read for evidence; only synthetic configuration. No new VPS setup required by this refactor.",
+  "limits": "No real PostgreSQL/Redis/AWS/provider or VPS qualification, no new production performance claim. No broad frontend/backend suite repeated for this feature batch. Whole-file dashboard review continues.",
+  "receipts_sha256": {
+    "settings-contract-before.json": "a452a39d555583ccfbcca1e19e588392672ebe42160e9d9a260f7bde6a10495b",
+    "settings-contract-after.json": "a452a39d555583ccfbcca1e19e588392672ebe42160e9d9a260f7bde6a10495b",
+    "settings-extraction-origin.json": "5b86ab480037c9fa8e6e4578e3aa2eae921daa58e4f00ab9560ef80912230b91",
+    "my-photos-settings-extraction-origin.json": "32fc8b62b31c911d9dec18832983b7645a03ce84e275afba644b23b63c3c50a5",
+    "settings-source-checkpoint.json": "16bb8481859d08f21a80f202d03bf132a6a504a9f5f5ca5c25f5eb5170ea15a0",
+    "settings-current-extraction-proof.json": "6889e8860cb423aa92bfaf5699da636fe4f1f1b99c4da3a55593842f69e04aa9",
+    "settings-final-ruff.txt": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "settings-final-types.txt": "a3aaf5f81b19b41bca4db48201304558d1f7ca3800bae38ee86392e044969fad",
+    "settings-final-architecture.txt": "895bfbeca4c78591066dcf214c4bfe9de43b5d7ed5d3f518fe398563a7bcc992",
+    "settings-affected-tests.xml": "f61d0e04d2c61fbee778b9292dd9ea9254e867d549d025224ea6686b373d749b",
+    "settings-environment-supplement.xml": "e012eb72fcdcbd6fe3f613a88f39fb2f09337e1fab0031bebb7fe161f684e89b",
+    "settings-final-coverage.json": "db7f9d7c2968a2d9cbfc037b0545d6da4f6e7d6f34dc6477bd4bebfd7c1c33ee",
+    "settings-final-coverage.xml": "9fb9deb5117b85028f8532cc4900ca7365da36e8540a330063b20aa948c134ec",
+    "settings-source-measurements.json": "7da7dd148ed96ae71264f6686cfeee052a127b2d07c1c4385835d0a1fdf52900",
+    "settings-budget-candidates.json": "1c582b56829aa16f08930d25ea323102a8c829f97f74d50cf0ef0718d0ff81f9",
+    "settings-reviewed-files.json": "266dcbcec5fc5907964cfcfc2d90ef0453527d714c8042e5c07df672535a7822",
+    "settings-independent-wiring-verification.json": "dc2fe67d40b4770c2b3308c4ddcf9e96788350479c67c4b2e54cd8acda30c6be",
+    "settings-independent-reviewed-files.json": "984e4e5b8f248384c93f91f35a64b4300242b23e3ea8bf25a010d9ad0ce7dca2"
+  }
+}

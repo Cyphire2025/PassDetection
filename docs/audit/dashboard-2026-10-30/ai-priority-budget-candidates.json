@@ -1,0 +1,354 @@
+{
+  "candidates": [
+    {
+      "path": "app/infrastructure/ai_priority/admission_context.py",
+      "baseline_lines": 34,
+      "maximum_lines": 36,
+      "baseline_max_function_complexity": 1,
+      "maximum_function_complexity": 1,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/ai_priority/coordinator.py",
+      "baseline_lines": 240,
+      "maximum_lines": 250,
+      "baseline_max_function_complexity": 5,
+      "maximum_function_complexity": 5,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/ai_priority/extraction_admission.py",
+      "baseline_lines": 197,
+      "maximum_lines": 205,
+      "baseline_max_function_complexity": 3,
+      "maximum_function_complexity": 3,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/ai_priority/verification_admission.py",
+      "baseline_lines": 109,
+      "maximum_lines": 114,
+      "baseline_max_function_complexity": 3,
+      "maximum_function_complexity": 3,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/ai_priority/metrics.py",
+      "baseline_lines": 241,
+      "maximum_lines": 251,
+      "baseline_max_function_complexity": 4,
+      "maximum_function_complexity": 4,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/ai_priority/metrics_contract.py",
+      "baseline_lines": 52,
+      "maximum_lines": 55,
+      "baseline_max_function_complexity": 1,
+      "maximum_function_complexity": 1,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/ai_priority/metrics_memory.py",
+      "baseline_lines": 144,
+      "maximum_lines": 150,
+      "baseline_max_function_complexity": 4,
+      "maximum_function_complexity": 4,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/ai_priority/metrics_policy.py",
+      "baseline_lines": 192,
+      "maximum_lines": 200,
+      "baseline_max_function_complexity": 9,
+      "maximum_function_complexity": 9,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/ai_priority/metrics_redis.py",
+      "baseline_lines": 209,
+      "maximum_lines": 218,
+      "baseline_max_function_complexity": 12,
+      "maximum_function_complexity": 12,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/ai_priority/metrics_resilient.py",
+      "baseline_lines": 171,
+      "maximum_lines": 178,
+      "baseline_max_function_complexity": 4,
+      "maximum_function_complexity": 4,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/ai_priority/metrics_scripts.py",
+      "baseline_lines": 90,
+      "maximum_lines": 94,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/ai_priority/provider_metrics.py",
+      "baseline_lines": 28,
+      "maximum_lines": 30,
+      "baseline_max_function_complexity": 1,
+      "maximum_function_complexity": 1,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/ai_priority/runtime.py",
+      "baseline_lines": 71,
+      "maximum_lines": 74,
+      "baseline_max_function_complexity": 3,
+      "maximum_function_complexity": 3,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/ai_priority/factory.py",
+      "baseline_lines": 36,
+      "maximum_lines": 38,
+      "baseline_max_function_complexity": 1,
+      "maximum_function_complexity": 1,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/ai_priority/config.py",
+      "baseline_lines": 80,
+      "maximum_lines": 84,
+      "baseline_max_function_complexity": 4,
+      "maximum_function_complexity": 4,
+      "minimum_coverage_percent": 95
+    }
+  ],
+  "critical_candidates": [
+    {
+      "path": "app/infrastructure/ai_priority/runtime.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    },
+    {
+      "path": "app/infrastructure/ai_priority/provider_metrics.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    }
+  ],
+  "measurements": [
+    {
+      "path": "app/infrastructure/ai_priority/admission_context.py",
+      "sha256": "eca2ec309f6b415879351a293692a578940e0666172e5f95939515b78702468e",
+      "physical_lines": 34,
+      "complexity": 1,
+      "most_complex_function": "queue_extraction",
+      "covered_lines": 10,
+      "statements": 10,
+      "line_percent": 100.0,
+      "covered_branches": 0,
+      "branches": 0,
+      "branch_percent": null
+    },
+    {
+      "path": "app/infrastructure/ai_priority/coordinator.py",
+      "sha256": "bcbfdc68e32740b914686690413ea1c19f3d77e5b1dc67e2fec39b2d1ac28441",
+      "physical_lines": 240,
+      "complexity": 5,
+      "most_complex_function": "_decision",
+      "covered_lines": 96,
+      "statements": 96,
+      "line_percent": 100.0,
+      "covered_branches": 18,
+      "branches": 18,
+      "branch_percent": 100.0
+    },
+    {
+      "path": "app/infrastructure/ai_priority/extraction_admission.py",
+      "sha256": "5d61b7ab55d97cb7f0eef33e283a76a4e2c26c11bb327e40480eaf997f185f89",
+      "physical_lines": 197,
+      "complexity": 3,
+      "most_complex_function": "reserve_public_extraction",
+      "covered_lines": 72,
+      "statements": 72,
+      "line_percent": 100.0,
+      "covered_branches": 6,
+      "branches": 6,
+      "branch_percent": 100.0
+    },
+    {
+      "path": "app/infrastructure/ai_priority/verification_admission.py",
+      "sha256": "682c540ce4b86a2f7024213d63533e5aa12cf5409967838c5b31ccd8e06eeb48",
+      "physical_lines": 109,
+      "complexity": 3,
+      "most_complex_function": "try_start_verification",
+      "covered_lines": 37,
+      "statements": 37,
+      "line_percent": 100.0,
+      "covered_branches": 2,
+      "branches": 2,
+      "branch_percent": 100.0
+    },
+    {
+      "path": "app/infrastructure/ai_priority/metrics.py",
+      "sha256": "58a549a1d768f5074537da9997ebcec08ab0d073d149a7705376d5e5f90dead3",
+      "physical_lines": 241,
+      "complexity": 4,
+      "most_complex_function": "record_provider_event",
+      "covered_lines": 94,
+      "statements": 94,
+      "line_percent": 100.0,
+      "covered_branches": 11,
+      "branches": 12,
+      "branch_percent": 91.66666666666666
+    },
+    {
+      "path": "app/infrastructure/ai_priority/metrics_contract.py",
+      "sha256": "9e71389b39bf58e5de0ad2920533ca7f5f4042d078d4ff33b596ebe43f920c55",
+      "physical_lines": 52,
+      "complexity": 1,
+      "most_complex_function": "increment",
+      "covered_lines": 6,
+      "statements": 6,
+      "line_percent": 100.0,
+      "covered_branches": 0,
+      "branches": 0,
+      "branch_percent": null
+    },
+    {
+      "path": "app/infrastructure/ai_priority/metrics_memory.py",
+      "sha256": "29cb27cb8e5206b8d47cff511c3dc12698386722a214795dd352ea65c8f03b29",
+      "physical_lines": 144,
+      "complexity": 4,
+      "most_complex_function": "mark_started",
+      "covered_lines": 77,
+      "statements": 79,
+      "line_percent": 97.46835443037975,
+      "covered_branches": 16,
+      "branches": 18,
+      "branch_percent": 88.88888888888889
+    },
+    {
+      "path": "app/infrastructure/ai_priority/metrics_policy.py",
+      "sha256": "27402108289975bcaf115601e7d260402a3bb8c54f31f39ef81a849031f7ed28",
+      "physical_lines": 192,
+      "complexity": 9,
+      "most_complex_function": "_optional_float",
+      "covered_lines": 57,
+      "statements": 57,
+      "line_percent": 100.0,
+      "covered_branches": 12,
+      "branches": 12,
+      "branch_percent": 100.0
+    },
+    {
+      "path": "app/infrastructure/ai_priority/metrics_redis.py",
+      "sha256": "858aab8f8a57603206d77b42535d3e3d2fac9390088ef3edb2c04151eaa2c8e0",
+      "physical_lines": 209,
+      "complexity": 12,
+      "most_complex_function": "snapshot",
+      "covered_lines": 77,
+      "statements": 77,
+      "line_percent": 100.0,
+      "covered_branches": 8,
+      "branches": 8,
+      "branch_percent": 100.0
+    },
+    {
+      "path": "app/infrastructure/ai_priority/metrics_resilient.py",
+      "sha256": "aa3ae27d6efa650a780f5613013d0cb1786414024ae5c3960d6896bae5c849ff",
+      "physical_lines": 171,
+      "complexity": 4,
+      "most_complex_function": "snapshot",
+      "covered_lines": 69,
+      "statements": 69,
+      "line_percent": 100.0,
+      "covered_branches": 4,
+      "branches": 4,
+      "branch_percent": 100.0
+    },
+    {
+      "path": "app/infrastructure/ai_priority/metrics_scripts.py",
+      "sha256": "cc25dcc0066df52ee96014736890a0604444eb73c85e65645d8adfe3978c887f",
+      "physical_lines": 90,
+      "complexity": 0,
+      "most_complex_function": null,
+      "covered_lines": 6,
+      "statements": 6,
+      "line_percent": 100.0,
+      "covered_branches": 0,
+      "branches": 0,
+      "branch_percent": null
+    },
+    {
+      "path": "app/infrastructure/ai_priority/provider_metrics.py",
+      "sha256": "f6a5b456136d2c42a1e649335d1e12842884a810301ba360c123ce0d5cbb4071",
+      "physical_lines": 28,
+      "complexity": 1,
+      "most_complex_function": "record_provider_event",
+      "covered_lines": 6,
+      "statements": 6,
+      "line_percent": 100.0,
+      "covered_branches": 0,
+      "branches": 0,
+      "branch_percent": null
+    },
+    {
+      "path": "app/infrastructure/ai_priority/runtime.py",
+      "sha256": "7de45950107ea9569db2ae365c0cc8c90983c5b0985d8c0b2b94278ead8ab19d",
+      "physical_lines": 71,
+      "complexity": 3,
+      "most_complex_function": "_stop_and_release",
+      "covered_lines": 37,
+      "statements": 37,
+      "line_percent": 100.0,
+      "covered_branches": 4,
+      "branches": 4,
+      "branch_percent": 100.0
+    },
+    {
+      "path": "app/infrastructure/ai_priority/factory.py",
+      "sha256": "7e70f7bb24bb5fd2bf336b11f98a527f2cba5d5aff74a922bb6bba49bc5d599b",
+      "physical_lines": 36,
+      "complexity": 1,
+      "most_complex_function": "get_ai_priority_coordinator",
+      "covered_lines": 10,
+      "statements": 10,
+      "line_percent": 100.0,
+      "covered_branches": 0,
+      "branches": 0,
+      "branch_percent": null
+    },
+    {
+      "path": "app/infrastructure/ai_priority/config.py",
+      "sha256": "e0ad89c9f09a694e0e10e00b3fd0fe1cf6f256a90101eeacf1ddbcfd21d062d3",
+      "physical_lines": 80,
+      "complexity": 4,
+      "most_complex_function": "__post_init__",
+      "covered_lines": 35,
+      "statements": 35,
+      "line_percent": 100.0,
+      "covered_branches": 6,
+      "branches": 6,
+      "branch_percent": 100.0
+    }
+  ],
+  "source_sha256": {
+    "backend/app/infrastructure/ai_priority/admission_context.py": "eca2ec309f6b415879351a293692a578940e0666172e5f95939515b78702468e",
+    "backend/app/infrastructure/ai_priority/coordinator.py": "bcbfdc68e32740b914686690413ea1c19f3d77e5b1dc67e2fec39b2d1ac28441",
+    "backend/app/infrastructure/ai_priority/extraction_admission.py": "5d61b7ab55d97cb7f0eef33e283a76a4e2c26c11bb327e40480eaf997f185f89",
+    "backend/app/infrastructure/ai_priority/verification_admission.py": "682c540ce4b86a2f7024213d63533e5aa12cf5409967838c5b31ccd8e06eeb48",
+    "backend/app/infrastructure/ai_priority/metrics.py": "58a549a1d768f5074537da9997ebcec08ab0d073d149a7705376d5e5f90dead3",
+    "backend/app/infrastructure/ai_priority/metrics_contract.py": "9e71389b39bf58e5de0ad2920533ca7f5f4042d078d4ff33b596ebe43f920c55",
+    "backend/app/infrastructure/ai_priority/metrics_memory.py": "29cb27cb8e5206b8d47cff511c3dc12698386722a214795dd352ea65c8f03b29",
+    "backend/app/infrastructure/ai_priority/metrics_policy.py": "27402108289975bcaf115601e7d260402a3bb8c54f31f39ef81a849031f7ed28",
+    "backend/app/infrastructure/ai_priority/metrics_redis.py": "858aab8f8a57603206d77b42535d3e3d2fac9390088ef3edb2c04151eaa2c8e0",
+    "backend/app/infrastructure/ai_priority/metrics_resilient.py": "aa3ae27d6efa650a780f5613013d0cb1786414024ae5c3960d6896bae5c849ff",
+    "backend/app/infrastructure/ai_priority/metrics_scripts.py": "cc25dcc0066df52ee96014736890a0604444eb73c85e65645d8adfe3978c887f",
+    "backend/app/infrastructure/ai_priority/provider_metrics.py": "f6a5b456136d2c42a1e649335d1e12842884a810301ba360c123ce0d5cbb4071",
+    "backend/app/infrastructure/ai_priority/runtime.py": "7de45950107ea9569db2ae365c0cc8c90983c5b0985d8c0b2b94278ead8ab19d",
+    "backend/app/infrastructure/ai_priority/factory.py": "7e70f7bb24bb5fd2bf336b11f98a527f2cba5d5aff74a922bb6bba49bc5d599b",
+    "backend/app/infrastructure/ai_priority/config.py": "e0ad89c9f09a694e0e10e00b3fd0fe1cf6f256a90101eeacf1ddbcfd21d062d3"
+  },
+  "coverage_sha256": "7e1824900348a5df769fed9f4acb4ce0aaebe320729a175c62336a21027fc94d",
+  "source_fence": "ai-priority-final-source-test-fence.json",
+  "preserved": "All562preceding module rows and69critical/global gates remain unchanged. External AI transport/service existing75line floors and complexity limits retained.",
+  "limits": "No new critical gates on declaration-only protocol/Lua owners;95line normal import budgets are not service qualification."
+}

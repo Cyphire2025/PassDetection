@@ -1,0 +1,15 @@
+{
+  "candidates": "docs/audit/dashboard-2026-10-30/frontend-feature-integration4-budget-candidates.json",
+  "before_sha256": "c3ed06873fbb0916dfb2c3094c1521dbec3279d5d5df3350110fe608ac53fb8d",
+  "sha256": "5cd6595896ab77c9bea1ff4ccf2e79af6979e4996438a8fa5bd7a2703f75d2be",
+  "lf_normalized_sha256": "97aa7f5656de989e88c2e0b8b447aa12eafa5d25c5bf32fe983bba8d512fa57d",
+  "added": 23,
+  "updated_existing": 2,
+  "lowered_existing": 2,
+  "lowered_existing_paths": [
+    "features/travellers/components/returning-resume.tsx",
+    "features/travellers/components/traveller-document.tsx"
+  ],
+  "existing_ceilings_preserved": true,
+  "previous_ceilings_sha256": "f3d9d094d1427b21a9eb7baa7d5f7e09ea502d79865eda772c80f35b0f779d58"
+}

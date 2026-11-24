@@ -1,0 +1,455 @@
+{
+  "method": "Named source/docs complete physical reads; other resources remain explicit focused byte/container/provenance/reference review. Archived72 entries use separate original-byte manifest and are not binary full-source credit.",
+  "files": [
+    {
+      "path": "scripts/dashboard_audit_inventory.py",
+      "sha256": "509e8e9c1d2091cdda70f3826f31a5ba37f836c67923a2e5891a41e95b5fbbe5",
+      "physical_lines": 436,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "fixed",
+      "notes": "Complete source physically read before owned changes; narrow archive/metadata validators and explicit fixed72-entry cohort branch authored/reviewed. Original exact5 foundation and native scope contracts remain covered. Added reusable original/archive identity guard, no general assets/backend exemption. Historical review/finding merge retained."
+    },
+    {
+      "path": "backend/tests/unit/scripts/test_dashboard_audit_scope.py",
+      "sha256": "a4e7f0d03d87515ec9b0cdb8cf58d68fa45231e4de3d40468fdb3c854eb8b2d4",
+      "physical_lines": 331,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "fixed",
+      "notes": "Complete original/current source read/authored;11 new branding manifest controls, existing native/Inbox/foundation tests preserved. Actual91-case combined affected pass; no application runtime tests removed or changed."
+    },
+    {
+      "path": "backend/tests/unit/scripts/test_dashboard_audit_review_resolutions.py",
+      "sha256": "516f40f6a05fc0e6f37f6618f225a819146d344ccf4dcda5a0e9a4fe796c6dd7",
+      "physical_lines": 217,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete current supporting test source physical read; unchanged partial/full resolution and original retirement source/hash/line obligations executed in91-case affected group. Physical file217lines; an older immutable inventory-foundation note said213 while its physical_lines field correctly recorded217. Full bounded reads reached EOF, no extra review credit inferred from that typo."
+    },
+    {
+      "path": "assets/README.md",
+      "sha256": "881ef4f0de84e6b661d09f8faf5644505c6609a0783fb9787633ced27914b2b9",
+      "physical_lines": 32,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete32line asset-library source note read; root artwork/provenance relationships and runtime-copy separation establish retention. Historical project naming prose not a runtime rename/setup contract."
+    },
+    {
+      "path": "assets/branding/global-connect/broadcast-motion/README.md",
+      "sha256": "3f1c056bd94d5318b47e3beacfd12d2e8a0e631cdc5cfa5eb301bfc302c2a898",
+      "physical_lines": 39,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete39line artwork source/use/generation/validation note read. Existing preview generator points to this exact maintained directory; retained."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/README.md",
+      "sha256": "eba8efef09dbe0dc39474c37af41216d99e943d2dca7b0324e5b580edad002c0",
+      "physical_lines": 70,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete70line master/source/render/QA/provenance note read. Active login public web/poster copies map to root retained masters/source; old published QA statements are historical, not rerun here."
+    },
+    {
+      "path": "assets/branding/global-connect/login-background/README.md",
+      "sha256": "ae14e43ad40eb81e32389d1e2d1e8522bade87c097a38e9991fc80cca1185575",
+      "physical_lines": 16,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete16line current+previous artwork/generator/geodata/source-reference note read. Runtime paper/wing assets and intentional atlas reference retained."
+    },
+    {
+      "path": "assets/branding/global-connect/processing-motion/README.md",
+      "sha256": "4782da7a88ca91e1ed8a0234ecc25bbc059acb54428b1cc3514916d36e8f3e66",
+      "physical_lines": 27,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete27line artwork placement/lifecycle/generator/validation note read. Active processing component and source-preview relationship retained; no new browser qualification claimed."
+    },
+    {
+      "path": "assets/design-concepts/dashboard/dashboard-direction-2026-09-06-prompt.md",
+      "sha256": "9acefe28b82cb2647332cf12f74eec09743f6db08f620bad48cfa72caecab46a",
+      "physical_lines": 28,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete28line historical design prompt read as asset content, not present instructions. Dashboard-specific concept/reference pair retained; no prompt execution, image generation or source UI change."
+    },
+    {
+      "path": "frontend/scripts/generate-broadcast-motion-preview.mjs",
+      "sha256": "71759706c01893412c28cd6c8bbdab15410fca0ef74540b39e0242b137f38a6a",
+      "physical_lines": 51,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete current63line generator physically read: creates unique temp entry, actual shared component+CSS SSR preview, exact broadcast-motion output, finally closes Vite and removes only its identical temp entry. No broad asset/social prefix generation and no provider action. Unchanged."
+    },
+    {
+      "path": "assets/branding/global-connect/broadcast-motion/preview.html",
+      "sha256": "1f019037c1010fc3f47e67fdfa25f8faa15666f84791c4b45080f7e4c537a5fa",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/branding/global-connect/global-connect-logo-original.jpeg",
+      "sha256": "b9833d5f9fa942bbc7445e7da7d7065c264f5e2d84a4a8b514cf2e2a8d1361bb",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/branding/global-connect/global-connect-logo-reveal-4k.mp4",
+      "sha256": "590488246b94d8fe31722d23a84eae0d55d0ec690bfb764754de666af2e8aa42",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/branding/global-connect/global-connect-logo-reveal-poster.png",
+      "sha256": "399e3c970d65746f04dcc6138f3f760a102b71b6fbab7cc1b0a0ac30d4666796",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/branding/global-connect/globalconnect-logo-removebg-preview.png",
+      "sha256": "e9d45430d5be76c134d3f8a2ed11f72e6005f19d5c07b99a93d1762c823232d3",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/branding/global-connect/globalconnect-logo.png",
+      "sha256": "06729cfb6f3c47c26f5f882fcbcff60dbbdbdc6c252897dc30c5eba857070024",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/branding/global-connect/globalconnectteam.png",
+      "sha256": "e9a21b1124c99ada1edccb037f45c0078f9fe69d219c11439f7188669e0ccd15",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/journey-film-4k.mp4",
+      "sha256": "a68e15cd396dbbd66583093c56a9d6690e706d25f9d11e9a259545f93578dd33",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/journey-film-master.mp4",
+      "sha256": "7893649f9e2e829af23fe6a69da88ffe32c7ec3181280fa26c9b0d2557c956e2",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/journey-film-poster.jpg",
+      "sha256": "eb8d3cee87c283445e29cc8115936bee1eba578809e92e659bb8e92e0d9b6cd5",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/journey-film-web.mp4",
+      "sha256": "a1af2d0afde7b5fecfc1d09af4656d1a6e8a781e2f1fe829bd324fed5f36f4eb",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/4k-media-verification.json",
+      "sha256": "72697482dbc4062af51265acd7ba55cc7ecb5e85996855bf396c0d2218f2a20f",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/asset-manifest.json",
+      "sha256": "8257e5b07b151c7e640defb94ff61c6e927ec966ac20c930f6dea4f0a5bc877d",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/browser-color-probes/full-srgb.mp4",
+      "sha256": "a8fd820f0a5fc763cbc69e45c4b6e9485e26d2e19bf9ab8e3909a333a3b5a9e4",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/browser-color-probes/index.html",
+      "sha256": "af6e1431d71391c18afe684fc65e01180344a60db1ca8a75e46d2d3016dcbf26",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/browser-color-probes/limited-709.mp4",
+      "sha256": "1a934b02cc187ee01ffd5f1ec88f531239b2d0fedd375912b24357cbac998c2d",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/browser-color-probes/limited-srgb.mp4",
+      "sha256": "166812ecff18495b10f331e1253aa10f9eafb9db017d056f10fe71554ccd968a",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/browser-color-probes/limited-unspecified.mp4",
+      "sha256": "7430093f8c56471e0d3afa70a04bc0c8acf1757cb422669cb8a4c63e68abc965",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/color-and-copy-verification.json",
+      "sha256": "a540094b4faed953ec23d3bfa5c602981759a1cd1467ccf359465872d4814352",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/contact-sheet.jpg",
+      "sha256": "815c7a1c41369b6e3f1decff4bbdfa1f8fb31645753f8e5b8a82955b62d28090",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/encoded-4k-frame-zero.png",
+      "sha256": "5a48ef906e73f25ffa60017f94e04a0b26ffee9847e8853689f694fcf2da9140",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/encoded-frame-zero.png",
+      "sha256": "54dff91278aa5b6b87578570e3c46300255ea69d5a710ee97384bd2d6055480c",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/frame-0.jpg",
+      "sha256": "e40e1bbcae6e4e4e631598aee0588aa9bc5237118efcede30383d2495db17101",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/frame-1.jpg",
+      "sha256": "1228b09fb868c780efaaa318f414d589f63f252c12469818b66710e841fca0c0",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/frame-2.jpg",
+      "sha256": "5d92cea962ddbf9edb5eae868bc2336360af7b4b910b87cdd6ef433e2aa2df2b",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/frame-3.jpg",
+      "sha256": "362f3d08cce59464215f238850562ec965db691122e6357a171bd28784317be5",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/frame-4.jpg",
+      "sha256": "ee0ca659616be40ac9ad019dfdf8ff3ed54dce42588ebf67a41e343acf5e38fd",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/frame-5.jpg",
+      "sha256": "cd2e6fb9bdf277b3b2e56c42107f226a22c6c15dc8418e3eafc0c9299c8b8773",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/loop-verification.json",
+      "sha256": "a38b463b6cf915ac6931b85049173652cf1272097a4ca37ad0209a1b6e506712",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/master-media-verification.json",
+      "sha256": "e1361cd0a824ad9d0f5680f2679a0fb0b6f016518353b62ee7afaa307d7c8ea2",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/source-frame-zero.png",
+      "sha256": "d7a039c252262da69fbd61eb3d256c8ea2861ccb828414485df88ac53486791c",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/qa/web-media-verification.json",
+      "sha256": "38c53aa8e559d89169b605fc671a539875a1f95854f10b8cf8ada78407bda28b",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/source/ne_110m_land.geojson",
+      "sha256": "9e0729ee253ca7d7a5c4ae9395fb1902264c5377c52e224d13dd85010e2835d9",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/source/package.json",
+      "sha256": "de832d338888bfc642bb9ebc1d817db8783ad613b6620ccddd8246bb253a6580",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/source/render.cjs",
+      "sha256": "92b8272f89ba74c74cf3f4ccd801dd28950409f4da1d6231a604e96c22c3fb62",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/branding/global-connect/journey-film/source/scene.cjs",
+      "sha256": "7df72050148d122d476a694407147598f41d3835bdd56f0acf3272bb20749c60",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/branding/global-connect/login-background/paper-routes.svg",
+      "sha256": "20c44ca2502f3db21dda0ebd50d7e0f1e4c98d4e812a5e5585c4a327416bef3a",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/branding/global-connect/login-background/source/generate-backgrounds.cjs",
+      "sha256": "0f61b2bb0582e93bfe0231667b818e670b56d4ed6a8fabf621e6274ace95872a",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/branding/global-connect/login-background/travel-atlas.svg",
+      "sha256": "0689859aca3bb8e5b8b0f81fd73623168c0d6f4c5b9ae058ee3e38b713f19b09",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/branding/global-connect/login-background/wing-architecture.svg",
+      "sha256": "6bd680e3a17b0f5d671a9e617aa3c1162a595ac916769e37497e9b2b3064b11d",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/branding/global-connect/processing-motion/preview.html",
+      "sha256": "e781726b1fb194bdcb0fc5c24a1fe2031f57f02b34a498df25930edf25b1ac59",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/branding/global-connect/wallpaper.png",
+      "sha256": "6d4854058634a02f0a9ad796c34c1f2441ee18c2016f768a2a2c985bf6cfc389",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/design-concepts/dashboard/dashboard-direction-2026-09-06.png",
+      "sha256": "c326bb5478b6c7ab2ff934a1c33c7ec035683cf38fb065f44804e89be7ea5ca6",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Dashboard direction image and authored prompt are a project-specific source/reference pair, not runtime delivery. Preserve intentional design provenance. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/GCT staff  Mobile Number detail.xlsx",
+      "sha256": "7dc9eb9dcead4af965e28896b4b3b8d2721c91986f73a25cd4d64f0d12a5ac4f",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Potential staff contact workbook; no content opened/copied/attached. Lack of automatic code reference cannot rule out deliberate manual import use. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    },
+    {
+      "path": "assets/Global-Connect-Logo-Animation-Complete.zip",
+      "sha256": "414d7d749ec210be154c4374c58c3b0e58d1532dda516094597a5d42faf59a85",
+      "review_scope": "focused",
+      "reviewer": "branding_visuals",
+      "status": "asset-metadata-reviewed",
+      "notes": "Active or intentional original/reference artwork, motion master/source/QA or generator support. App runtime copies and maintained asset-library/generator docs establish project relevance; no blanket unused classification from non-runtime location. Current metadata/reference/copy-identity scope only; binary/geometry/authoring-source content is not credited as full semantic code review. No image/audio/video edits or worksheet content interpretation."
+    }
+  ]
+}

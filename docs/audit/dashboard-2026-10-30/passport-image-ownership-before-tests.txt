@@ -1,0 +1,118 @@
+FF..F.                                                                   [100%]
+================================== FAILURES ===================================
+____ test_failed_history_or_commit_releases_rendered_spool[history_error] _____
+
+export_context = namespace(actor=User(id=UUID('acc27486-098b-467c-9671-ff6649b4199e'), email='synthetic@example.test', hashed_password=... {'synthetic': True}}, render=<AsyncMock id='1939815379536'>), history_id=UUID('d5af84d9-d667-4fcb-9603-9f160749849a'))
+boundary = 'history_error'
+
+    @pytest.mark.parametrize("boundary", [
+        "history_error", "history_cancel", "history_integrity", "commit_error", "commit_cancel",
+    ])
+    async def test_failed_history_or_commit_releases_rendered_spool(export_context, boundary):
+        context = export_context
+        if boundary == "history_integrity":
+            failure = IntegrityError("synthetic history insert", {}, RuntimeError("duplicate"))
+            expected = HTTPException
+        elif boundary.endswith("cancel"):
+            failure = asyncio.CancelledError()
+            expected = asyncio.CancelledError
+        else:
+            failure = RuntimeError("synthetic persistence outage")
+            expected = RuntimeError
+        target = context.record if boundary.startswith("history") else context.session.commit
+        target.side_effect = failure
+    
+        with pytest.raises(expected) as raised:
+            await invoke(context)
+    
+        if boundary == "history_integrity":
+            assert raised.value.status_code == 409
+            assert "already prepared" in raised.value.detail
+            assert raised.value.__cause__ is failure
+        else:
+            assert raised.value is failure
+>       assert context.spool.closed
+E       AssertionError: assert False
+E        +  where False = <tempfile.SpooledTemporaryFile object at 0x000001C3A6464A30>.closed
+E        +    where <tempfile.SpooledTemporaryFile object at 0x000001C3A6464A30> = namespace(actor=User(id=UUID('acc27486-098b-467c-9671-ff6649b4199e'), email='synthetic@example.test', hashed_password=... {'synthetic': True}}, render=<AsyncMock id='1939815379536'>), history_id=UUID('d5af84d9-d667-4fcb-9603-9f160749849a')).spool
+
+tests\unit\presentation\test_passport_image_export_ownership.py:90: AssertionError
+____ test_failed_history_or_commit_releases_rendered_spool[history_cancel] ____
+
+export_context = namespace(actor=User(id=UUID('c47751f5-7d6b-461c-ae64-ca37dd60b10d'), email='synthetic@example.test', hashed_password=... {'synthetic': True}}, render=<AsyncMock id='1939819676240'>), history_id=UUID('309d3c1d-f416-47f6-8fc0-f7135098ca44'))
+boundary = 'history_cancel'
+
+    @pytest.mark.parametrize("boundary", [
+        "history_error", "history_cancel", "history_integrity", "commit_error", "commit_cancel",
+    ])
+    async def test_failed_history_or_commit_releases_rendered_spool(export_context, boundary):
+        context = export_context
+        if boundary == "history_integrity":
+            failure = IntegrityError("synthetic history insert", {}, RuntimeError("duplicate"))
+            expected = HTTPException
+        elif boundary.endswith("cancel"):
+            failure = asyncio.CancelledError()
+            expected = asyncio.CancelledError
+        else:
+            failure = RuntimeError("synthetic persistence outage")
+            expected = RuntimeError
+        target = context.record if boundary.startswith("history") else context.session.commit
+        target.side_effect = failure
+    
+        with pytest.raises(expected) as raised:
+            await invoke(context)
+    
+        if boundary == "history_integrity":
+            assert raised.value.status_code == 409
+            assert "already prepared" in raised.value.detail
+            assert raised.value.__cause__ is failure
+        else:
+            assert raised.value is failure
+>       assert context.spool.closed
+E       AssertionError: assert False
+E        +  where False = <tempfile.SpooledTemporaryFile object at 0x000001C3A63A6DA0>.closed
+E        +    where <tempfile.SpooledTemporaryFile object at 0x000001C3A63A6DA0> = namespace(actor=User(id=UUID('c47751f5-7d6b-461c-ae64-ca37dd60b10d'), email='synthetic@example.test', hashed_password=... {'synthetic': True}}, render=<AsyncMock id='1939819676240'>), history_id=UUID('309d3c1d-f416-47f6-8fc0-f7135098ca44')).spool
+
+tests\unit\presentation\test_passport_image_export_ownership.py:90: AssertionError
+____ test_failed_history_or_commit_releases_rendered_spool[commit_cancel] _____
+
+export_context = namespace(actor=User(id=UUID('d4cbe8d2-0c30-4342-8c94-9d7c31bfb197'), email='synthetic@example.test', hashed_password=... {'synthetic': True}}, render=<AsyncMock id='1939782214544'>), history_id=UUID('8c5894bb-0446-47d1-a604-f24eb4ad19b8'))
+boundary = 'commit_cancel'
+
+    @pytest.mark.parametrize("boundary", [
+        "history_error", "history_cancel", "history_integrity", "commit_error", "commit_cancel",
+    ])
+    async def test_failed_history_or_commit_releases_rendered_spool(export_context, boundary):
+        context = export_context
+        if boundary == "history_integrity":
+            failure = IntegrityError("synthetic history insert", {}, RuntimeError("duplicate"))
+            expected = HTTPException
+        elif boundary.endswith("cancel"):
+            failure = asyncio.CancelledError()
+            expected = asyncio.CancelledError
+        else:
+            failure = RuntimeError("synthetic persistence outage")
+            expected = RuntimeError
+        target = context.record if boundary.startswith("history") else context.session.commit
+        target.side_effect = failure
+    
+        with pytest.raises(expected) as raised:
+            await invoke(context)
+    
+        if boundary == "history_integrity":
+            assert raised.value.status_code == 409
+            assert "already prepared" in raised.value.detail
+            assert raised.value.__cause__ is failure
+        else:
+            assert raised.value is failure
+>       assert context.spool.closed
+E       AssertionError: assert False
+E        +  where False = <tempfile.SpooledTemporaryFile object at 0x000001C3A7653220>.closed
+E        +    where <tempfile.SpooledTemporaryFile object at 0x000001C3A7653220> = namespace(actor=User(id=UUID('d4cbe8d2-0c30-4342-8c94-9d7c31bfb197'), email='synthetic@example.test', hashed_password=... {'synthetic': True}}, render=<AsyncMock id='1939782214544'>), history_id=UUID('8c5894bb-0446-47d1-a604-f24eb4ad19b8')).spool
+
+tests\unit\presentation\test_passport_image_export_ownership.py:90: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/unit/presentation/test_passport_image_export_ownership.py::test_failed_history_or_commit_releases_rendered_spool[history_error]
+FAILED tests/unit/presentation/test_passport_image_export_ownership.py::test_failed_history_or_commit_releases_rendered_spool[history_cancel]
+FAILED tests/unit/presentation/test_passport_image_export_ownership.py::test_failed_history_or_commit_releases_rendered_spool[commit_cancel]
+3 failed, 3 passed in 1.05s

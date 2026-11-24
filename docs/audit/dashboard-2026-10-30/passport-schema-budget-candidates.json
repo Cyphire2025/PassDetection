@@ -1,0 +1,74 @@
+[
+  {
+    "path": "app/presentation/api/v1/schemas/passport_schemas.py",
+    "baseline_lines": 176,
+    "maximum_lines": 180,
+    "baseline_max_function_complexity": 0,
+    "maximum_function_complexity": 0,
+    "minimum_coverage_percent": 95
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/passport_editing_schemas.py",
+    "baseline_lines": 97,
+    "maximum_lines": 100,
+    "baseline_max_function_complexity": 3,
+    "maximum_function_complexity": 3,
+    "minimum_coverage_percent": 95
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/passport_collection_schemas.py",
+    "baseline_lines": 112,
+    "maximum_lines": 120,
+    "baseline_max_function_complexity": 4,
+    "maximum_function_complexity": 4,
+    "minimum_coverage_percent": 95
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/passport_bulk_schemas.py",
+    "baseline_lines": 93,
+    "maximum_lines": 100,
+    "baseline_max_function_complexity": 0,
+    "maximum_function_complexity": 0,
+    "minimum_coverage_percent": 95
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/passport_export_schemas.py",
+    "baseline_lines": 116,
+    "maximum_lines": 120,
+    "baseline_max_function_complexity": 0,
+    "maximum_function_complexity": 0,
+    "minimum_coverage_percent": 95
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/passport_document_schemas.py",
+    "baseline_lines": 53,
+    "maximum_lines": 60,
+    "baseline_max_function_complexity": 0,
+    "maximum_function_complexity": 0,
+    "minimum_coverage_percent": 95
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/passport_verification_schemas.py",
+    "baseline_lines": 47,
+    "maximum_lines": 50,
+    "baseline_max_function_complexity": 0,
+    "maximum_function_complexity": 0,
+    "minimum_coverage_percent": 95
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/passport_view_schemas.py",
+    "baseline_lines": 163,
+    "maximum_lines": 170,
+    "baseline_max_function_complexity": 0,
+    "maximum_function_complexity": 0,
+    "minimum_coverage_percent": 95
+  },
+  {
+    "path": "app/presentation/api/v1/schemas/passport_summary_schemas.py",
+    "baseline_lines": 49,
+    "maximum_lines": 50,
+    "baseline_max_function_complexity": 0,
+    "maximum_function_complexity": 0,
+    "minimum_coverage_percent": 95
+  }
+]

@@ -1,0 +1,41 @@
+{
+  "status": "passed pure extraction checkpoint after the separately proven status fix",
+  "exact_whole_function_declarations": 15,
+  "evaluated_runtime_type_hints_equal": 15,
+  "actual_facade_callable_identities": 15,
+  "unchanged_public_endpoints": 8,
+  "explicit_legacy_request_response_aliases": 5,
+  "original_role_contracts": 4,
+  "all_original_test_assertions_and_declarations_preserved": true,
+  "declaration_owners": {
+    "_get_manageable_account": "backend/app/presentation/api/v1/routes/managed_account_scope.py",
+    "_validated_credential_state": "backend/app/presentation/api/v1/routes/managed_account_values.py",
+    "_audit_account_action": "backend/app/presentation/api/v1/routes/managed_account_values.py",
+    "_account_response": "backend/app/presentation/api/v1/routes/managed_account_values.py",
+    "_deactivate_coordinator_assignments": "backend/app/presentation/api/v1/routes/managed_account_sessions.py",
+    "_fence_dashboard_sessions": "backend/app/presentation/api/v1/routes/managed_account_sessions.py",
+    "_fence_coordinator_mobile_sessions": "backend/app/presentation/api/v1/routes/managed_account_sessions.py",
+    "list_managed_accounts": "backend/app/presentation/api/v1/routes/managed_account_queries.py",
+    "list_staff_accounts": "backend/app/presentation/api/v1/routes/managed_account_queries.py",
+    "create_staff_account": "backend/app/presentation/api/v1/routes/managed_account_creation.py",
+    "reset_managed_account_password": "backend/app/presentation/api/v1/routes/managed_account_credentials.py",
+    "revoke_managed_account_sessions": "backend/app/presentation/api/v1/routes/managed_account_credentials.py",
+    "reset_managed_account_mfa": "backend/app/presentation/api/v1/routes/managed_account_credentials.py",
+    "set_managed_account_status": "backend/app/presentation/api/v1/routes/managed_account_mutations.py",
+    "delete_managed_account": "backend/app/presentation/api/v1/routes/managed_account_mutations.py"
+  },
+  "files": {
+    "backend/app/presentation/api/v1/routes/managed_account_scope.py": "c4095fe5f73c0767c5936faad14aa2fc4cbacd467491287bb3f8addfca8c3135",
+    "backend/app/presentation/api/v1/routes/managed_account_values.py": "1b89f19ee3ede770ebf6f7751c91bf8669ed08c7778e6cae51793eeece3a5f83",
+    "backend/app/presentation/api/v1/routes/managed_account_sessions.py": "64828e2872daadeaee2362b07c4a353f43c6408e4598e59e7287ebb96b628043",
+    "backend/app/presentation/api/v1/routes/managed_account_queries.py": "23c96cdd4fe27a5fb0a262796673c615b994aa6fef05a9167b764a2b243ba445",
+    "backend/app/presentation/api/v1/routes/managed_account_creation.py": "6b377cce932b283ec9cd83b4ec8d7020eda70165330c57fad96ab6b344ced05f",
+    "backend/app/presentation/api/v1/routes/managed_account_credentials.py": "067cfca4e972d2caaff00aa6b2dc81fbe3bcff6f2bb7bb39b0c4a5fee114a778",
+    "backend/app/presentation/api/v1/routes/managed_account_mutations.py": "b5a6857bf9589e9e8ea07f5b73b1b9173234544d1d9d04bcb1ad4469a5ceb68b",
+    "backend/app/presentation/api/v1/routes/admin_accounts.py": "75ff6a0e79de56d0397c4ed7f980e2ffa1135a41dcf2f9e07d137edeb522a2ac",
+    "backend/tests/unit/presentation/test_admin_accounts.py": "01d7044f069a9f31c01aa480eeef23fffa34ea4d85f625418b4e0aaa81728093"
+  },
+  "composition": "The two query routes retain their actual original APIRoute objects because the root collection has an empty path; FastAPI otherwise rejects empty-prefix child inclusion. No query child lifespan/dependency hooks exist. The application still mounts /admin/accounts; complete OpenAPI matches original.",
+  "initial_error": "First child-router include attempted empty path/empty prefix, which FastAPI rejected during collection. Corrected before39affected cases passed; original failed collection output retained.",
+  "limits": "Pure extraction proof is relative to the post-status-fix623line baseline. It does not assert equivalence with the original faulty active-default response."
+}

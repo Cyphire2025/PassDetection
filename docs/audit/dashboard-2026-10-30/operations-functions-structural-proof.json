@@ -1,0 +1,19 @@
+{
+  "rooming": "Original context class/signature, both SQL statement blocks/locks, local-value expression and recipient merge block exact AST; reorganized conditional discovery/value assembly tested for160same-output/exactcompiled-query cases. Original matcher/conversion module globals remain the call-time boundary.",
+  "closeout": "Four immutable value class ASTs and UTC normalizer exact; repository constructor/publish/status whole-method ASTs exact. statuses/classifier public args exact. All source query/limit/require_work ASTs exact after explicit self-to-parameter normalization, excluding only Python lookup-map construction now indexed once. Freshness/summary parity202cases and runtime/legacy/query parity16cases bound remaining rewritten policy/assembly behavior.",
+  "qr": "Original build signature, three source query stage statement ASTs, complete recipient response constructor (normalizing three decision attributes) and post-row configuration/response tail exact. Ordered eligibility guard rewrite checked across504same-output/exactcompiled-query cases; original route passes call-time get_settings/qr_status callbacks unchanged.",
+  "nonclaims": "Rewritten orchestration/early-return policy/index assembly are not claimed whole-function AST-equivalent. Explicit structural ranges plus same-output/runtime tests bound those changes; no live provider/PG concurrency/production throughput claim.",
+  "source_sha256": {
+    "backend/app/infrastructure/repositories/attendance_closeout_policy.py": "d6cd82b1f50958861dcd2dcef714285f37fd2159eedde7410d52ae1637c3af83",
+    "backend/app/infrastructure/repositories/attendance_closeout_projection.py": "2d7edea3708fa6a6e0a076847c3d1c0adcbfb210b079e3cb9b3de423572670a3",
+    "backend/app/infrastructure/repositories/attendance_closeout_repository.py": "d9e49db4b311e5be8e8232cdf0edb6fdefef6d5fead54c5e79027bf99387f0ea",
+    "backend/app/infrastructure/repositories/attendance_closeout_sources.py": "ccf25a007b38a98b7d2acdb3deed4e25209eccb1b3804e3ec9858772760bfca8",
+    "backend/app/infrastructure/repositories/attendance_closeout_types.py": "a10e016c550c601ea050f6c8675d5ea38ac7e5b35a0b32782c3f3166bb241b35",
+    "backend/app/infrastructure/rooming/priority_context_fields.py": "9911be5d26148642eee9615b75dd02e8da8fb7e8eb0347a0337a598939fa141c",
+    "backend/app/infrastructure/rooming/priority_context_sources.py": "afaa718cc11e807420568948a1fbe6b2e8c0d18093d139edc1c0dd5eafded53d",
+    "backend/app/infrastructure/rooming/priority_fields.py": "82c947d1e7ffdcaeb6058cf8e441fbd0eb7a24bc39ccc9bd7a2f1bffb69ef205",
+    "backend/app/presentation/api/v1/routes/tour_operations_qr_delivery_preview.py": "58a71834a0c04725243e69ce2ea10e28d408776ec01c2ba239e90fe1daff7031",
+    "backend/app/presentation/api/v1/routes/tour_operations_qr_eligibility.py": "a2c72f9850ae97c39a02170fc8ee8e6567722e9be9cfa30a019a2d82efe41f5f",
+    "backend/app/presentation/api/v1/routes/tour_operations_qr_preview_sources.py": "75e1b3919c7dd0946f5c4ec3635a65ea32efa369145633a3349ed925f4867845"
+  }
+}

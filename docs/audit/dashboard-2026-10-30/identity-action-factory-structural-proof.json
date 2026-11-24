@@ -1,0 +1,16 @@
+{
+  "basis": "Recheck the three complete action persistence methods against the original pre-extraction snapshot after exactly four clock-call and one UUID-call dependency rebindings. Facade clock and UUID factories both resolve at invocation; the existing deterministic recovery fixture now asserts exact IDs rather than allowing random ordering to mask a lost seam. No token hash, purpose, query, lock, expiry, supersession or atomic consume statement differs in the moved methods.",
+  "three_complete_methods_ast_identical_after_explicit_clock_and_uuid_rebindings": true,
+  "current_sources": [
+    {
+      "path": "backend/app/infrastructure/repositories/identity_security_repository.py",
+      "sha256": "cb748a2dc68051430b6eb60c5983c5551ec7fee2d27fbfe45df9237c50daad6c",
+      "lines": 345
+    },
+    {
+      "path": "backend/app/infrastructure/repositories/identity_action_token_repository.py",
+      "sha256": "0cfc0cb594e048ad9c81f77430f2cc676db35bc72841c863f2421eb8f8a7c90a",
+      "lines": 202
+    }
+  ]
+}

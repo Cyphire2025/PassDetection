@@ -1,0 +1,26 @@
+{
+  "status": "Read-only cohort sealed; broader retained audit active",
+  "new_current_full_tests": 3,
+  "test_physical_lines": 557,
+  "supporting_full_rows": 1,
+  "focused_rows": 1,
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/retained-passport-details-source-reviewed-files.json",
+    "sha256": "a91cf42de005fea7474d87ba0d7ffd7084dc03100ad416400dd974d7a34a8232"
+  },
+  "source_fence": {
+    "backend/tests/unit/presentation/test_passport_client_details_flow.py": "16cbc4f82012165edb8d1d8b2af77c147bff255d8ab596431bb91ad68e4f7c3a",
+    "backend/tests/unit/presentation/test_passport_client_details_routes.py": "e0e4bfd5af9d945bd28cb90e9cf0e47d5dca04a779abc6d94fc26305810df7b7",
+    "backend/tests/unit/application/test_passport_ai_verification.py": "98f367e2d185a8247da58961b3292c67fd6c4f9204a5ee33acd8b5ac6f22df64",
+    "backend/app/application/use_cases/passports/passport_ai_verification.py": "b25e566934ccd6c607cc0f52258f61227ab00a7de0bcd469179dbcc7a677b9b7",
+    "backend/app/presentation/api/v1/routes/passport_routes/client_details.py": "7f46d49afcc137b131541db751a35fd25dff60d48472abf0caf0f53efc92b91b"
+  },
+  "checks_run": [],
+  "changes": [],
+  "findings": [],
+  "limitations": [
+    "No test/DB/DDL/provider/browser or actual environment URL inspection for source credit.",
+    "Shared dashboard-triggered reconciliation coverage retained; native ingress/device/UI excluded.",
+    "Existing root client-details/shared correction and original QR/provider qualification preserved without claiming new service proof."
+  ]
+}

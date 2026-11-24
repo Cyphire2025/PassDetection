@@ -39,7 +39,7 @@ export const mcpTransferApi = {
   download: (id: string, token: string, signal?: AbortSignal) => transferFetch(id, token, "/content", { signal }),
   upload: async (ticket: McpFileTransfer, token: string, file: Blob, signal?: AbortSignal): Promise<McpFileTransfer> =>
     (await transferFetch(ticket.id, token, "/content", { method: "PUT", body: file, signal, headers: { "Content-Type": ticket.media_type } })).json(),
-  acknowledge: async (ticket: McpFileTransfer, token: string): Promise<McpFileTransfer> =>
-    (await transferFetch(ticket.id, token, "/delivery", { method: "POST", headers: { "Content-Type": "application/json" },
+  acknowledge: async (ticket: McpFileTransfer, token: string, signal?: AbortSignal): Promise<McpFileTransfer> =>
+    (await transferFetch(ticket.id, token, "/delivery", { method: "POST", signal, headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ byte_size: ticket.byte_size, sha256: ticket.sha256 }) })).json(),
 };

@@ -2,7 +2,13 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-const page = readFileSync(new URL("../../../features/settings/components/platform-settings-panel.tsx", import.meta.url), "utf8");
+const page = [
+  "components/platform-settings-panel.tsx",
+  "components/platform-policy-section.tsx",
+  "components/platform-data-section.tsx",
+  "hooks/use-platform-settings.ts",
+  "hooks/use-platform-data-purge.ts",
+].map((path) => readFileSync(new URL(`../../../features/settings/${path}`, import.meta.url), "utf8")).join("\n");
 const policy = readFileSync(
   new URL("../../../features/settings/platform-settings-policy.ts", import.meta.url),
   "utf8",

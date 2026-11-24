@@ -1,0 +1,155 @@
+{
+  "shared_gates_edited": false,
+  "measurements": [
+    {
+      "path": "app/infrastructure/database/email_models.py",
+      "lines": 86,
+      "max_function_complexity": 4,
+      "most_complex_function": "_reject_email_owner_change",
+      "coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/database/_email_models/__init__.py",
+      "lines": 7,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/database/_email_models/connections.py",
+      "lines": 262,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/database/_email_models/oauth.py",
+      "lines": 147,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/database/_email_models/messages.py",
+      "lines": 222,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/database/_email_models/artifacts.py",
+      "lines": 286,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/database/_email_models/documents.py",
+      "lines": 105,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/database/_email_models/reviews.py",
+      "lines": 268,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/database/_email_models/activity.py",
+      "lines": 233,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "coverage_percent": null
+    }
+  ],
+  "previous_budgets": {
+    "app/infrastructure/database/email_models.py": null,
+    "app/infrastructure/database/_email_models/__init__.py": null,
+    "app/infrastructure/database/_email_models/connections.py": null,
+    "app/infrastructure/database/_email_models/oauth.py": null,
+    "app/infrastructure/database/_email_models/messages.py": null,
+    "app/infrastructure/database/_email_models/artifacts.py": null,
+    "app/infrastructure/database/_email_models/documents.py": null,
+    "app/infrastructure/database/_email_models/reviews.py": null,
+    "app/infrastructure/database/_email_models/activity.py": null
+  },
+  "candidates": [
+    {
+      "path": "app/infrastructure/database/email_models.py",
+      "baseline_lines": 86,
+      "maximum_lines": 86,
+      "baseline_max_function_complexity": 4,
+      "maximum_function_complexity": 4,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_email_models/__init__.py",
+      "baseline_lines": 7,
+      "maximum_lines": 7,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_email_models/connections.py",
+      "baseline_lines": 262,
+      "maximum_lines": 262,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_email_models/oauth.py",
+      "baseline_lines": 147,
+      "maximum_lines": 147,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_email_models/messages.py",
+      "baseline_lines": 222,
+      "maximum_lines": 222,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_email_models/artifacts.py",
+      "baseline_lines": 286,
+      "maximum_lines": 286,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_email_models/documents.py",
+      "baseline_lines": 105,
+      "maximum_lines": 105,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_email_models/reviews.py",
+      "baseline_lines": 268,
+      "maximum_lines": 268,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/database/_email_models/activity.py",
+      "baseline_lines": 233,
+      "maximum_lines": 233,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 95
+    }
+  ],
+  "new_critical_declaration_only_gates": [],
+  "verification_basis": "Normal measured owner budgets plus meaningful ORM default, deferred load, owner-update, tenant-FK and compiled metadata regression controls. No new critical declaration-only gates."
+}

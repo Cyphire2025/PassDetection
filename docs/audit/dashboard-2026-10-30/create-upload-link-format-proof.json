@@ -1,0 +1,34 @@
+{
+  "records": [
+    {
+      "path": "frontend/features/passports/components/create-upload-link-modal.tsx",
+      "before_sha256": "8538870c278ff6790893b497b0d2957713b86ec120279450b36acf3f36071d8f",
+      "current_sha256": "08b545a8fcba98e3ba4f628f0050eb18e6d1ee868c397c6fb82da17d04331f5a",
+      "emitted_AST_unchanged": true
+    },
+    {
+      "path": "frontend/features/passports/components/use-create-upload-link-form.ts",
+      "before_sha256": "175741ff4fb248b0f83e6c4f2f995a309ae7c950537a81ffd6eab7b74129f4ce",
+      "current_sha256": "6e3bea262eb9c7f0edecfcb0e15e081b5c1fc5e4965d3e1a16062273e0f96a75",
+      "emitted_AST_unchanged": true
+    },
+    {
+      "path": "frontend/features/passports/components/create-upload-link-defaults.ts",
+      "before_sha256": "c04a55c4053357723636e2409ae50ba15e85723be7ad3f030594ae4f51c988df",
+      "current_sha256": "dce7d039f75154cc2c37466635b11d3e65e58d324a4487e4a96952cca0cd3ae9",
+      "emitted_AST_unchanged": true
+    },
+    {
+      "path": "frontend/features/passports/components/create-upload-link-details.tsx",
+      "before_sha256": "88c35b004df0ee36e85d469ae417cb565c8413cba42b186f825f32d4530396cf",
+      "current_sha256": "26da29f4b4ebd1cf5f2750a13a20499da5809502c9dc4abd4b8d2e743c8ff802",
+      "emitted_AST_unchanged": true
+    },
+    {
+      "path": "frontend/features/passports/components/create-upload-link-result.tsx",
+      "before_sha256": "8be97b46981a5d1c1abb1e9426c29649161e5def8e6bfdacd333036b564a0ddc",
+      "current_sha256": "ddd936d38925e35989c96be296c7e0550fd39c17e91587e212e799137c2ae1ac",
+      "emitted_AST_unchanged": true
+    }
+  ]
+}

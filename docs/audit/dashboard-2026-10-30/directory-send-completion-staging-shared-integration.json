@@ -1,0 +1,472 @@
+{
+  "status": "verified at this focused source checkpoint",
+  "before_modules": 867,
+  "after_modules": 878,
+  "normal_additions": 11,
+  "existing_updates": 3,
+  "normal_changes": [
+    {
+      "before": {
+        "path": "app/presentation/api/v1/routes/whatsapp_send.py",
+        "baseline_lines": 405,
+        "maximum_lines": 440,
+        "baseline_max_function_complexity": 27,
+        "maximum_function_complexity": 27,
+        "minimum_coverage_percent": 86
+      },
+      "after": {
+        "path": "app/presentation/api/v1/routes/whatsapp_send.py",
+        "baseline_lines": 271,
+        "maximum_lines": 280,
+        "baseline_max_function_complexity": 7,
+        "maximum_function_complexity": 7,
+        "minimum_coverage_percent": 86
+      }
+    },
+    {
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/whatsapp_send_preparation.py",
+        "baseline_lines": 172,
+        "maximum_lines": 180,
+        "baseline_max_function_complexity": 8,
+        "maximum_function_complexity": 8,
+        "minimum_coverage_percent": 90
+      }
+    },
+    {
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/whatsapp_send_claims.py",
+        "baseline_lines": 177,
+        "maximum_lines": 180,
+        "baseline_max_function_complexity": 14,
+        "maximum_function_complexity": 14,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/whatsapp_send_projection.py",
+        "baseline_lines": 61,
+        "maximum_lines": 70,
+        "baseline_max_function_complexity": 1,
+        "maximum_function_complexity": 1,
+        "minimum_coverage_percent": 100
+      }
+    },
+    {
+      "before": {
+        "path": "app/presentation/api/v1/routes/gc_app_group_directory.py",
+        "baseline_lines": 351,
+        "maximum_lines": 369,
+        "baseline_max_function_complexity": 28,
+        "maximum_function_complexity": 28,
+        "minimum_coverage_percent": 75
+      },
+      "after": {
+        "path": "app/presentation/api/v1/routes/gc_app_group_directory.py",
+        "baseline_lines": 166,
+        "maximum_lines": 170,
+        "baseline_max_function_complexity": 6,
+        "maximum_function_complexity": 6,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/gc_group_directory_filters.py",
+        "baseline_lines": 94,
+        "maximum_lines": 100,
+        "baseline_max_function_complexity": 13,
+        "maximum_function_complexity": 13,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/gc_group_directory_query.py",
+        "baseline_lines": 144,
+        "maximum_lines": 150,
+        "baseline_max_function_complexity": 9,
+        "maximum_function_complexity": 9,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/gc_group_directory_projection.py",
+        "baseline_lines": 64,
+        "maximum_lines": 70,
+        "baseline_max_function_complexity": 8,
+        "maximum_function_complexity": 8,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "before": null,
+      "after": {
+        "path": "app/application/travellers/completion.py",
+        "baseline_lines": 263,
+        "maximum_lines": 270,
+        "baseline_max_function_complexity": 32,
+        "maximum_function_complexity": 32,
+        "minimum_coverage_percent": 90
+      }
+    },
+    {
+      "before": null,
+      "after": {
+        "path": "app/application/travellers/completion_review.py",
+        "baseline_lines": 66,
+        "maximum_lines": 70,
+        "baseline_max_function_complexity": 8,
+        "maximum_function_complexity": 8,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "before": null,
+      "after": {
+        "path": "app/application/travellers/completion_answers.py",
+        "baseline_lines": 62,
+        "maximum_lines": 70,
+        "baseline_max_function_complexity": 6,
+        "maximum_function_complexity": 6,
+        "minimum_coverage_percent": 100
+      }
+    },
+    {
+      "before": null,
+      "after": {
+        "path": "app/application/travellers/completion_source.py",
+        "baseline_lines": 76,
+        "maximum_lines": 80,
+        "baseline_max_function_complexity": 17,
+        "maximum_function_complexity": 17,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "before": {
+        "path": "app/presentation/api/v1/routes/gc_app_common_staging.py",
+        "baseline_lines": 291,
+        "maximum_lines": 306,
+        "baseline_max_function_complexity": 6,
+        "maximum_function_complexity": 6,
+        "minimum_coverage_percent": 90
+      },
+      "after": {
+        "path": "app/presentation/api/v1/routes/gc_app_common_staging.py",
+        "baseline_lines": 295,
+        "maximum_lines": 306,
+        "baseline_max_function_complexity": 6,
+        "maximum_function_complexity": 6,
+        "minimum_coverage_percent": 90
+      }
+    },
+    {
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/gc_app_common_authority.py",
+        "baseline_lines": 39,
+        "maximum_lines": 40,
+        "baseline_max_function_complexity": 4,
+        "maximum_function_complexity": 4,
+        "minimum_coverage_percent": 95
+      }
+    }
+  ],
+  "critical_before": 164,
+  "critical_after": 165,
+  "critical_additions": [
+    {
+      "path": "app/presentation/api/v1/routes/gc_app_common_authority.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 90
+    }
+  ],
+  "all_old_caps_floors_preserved_or_tightened": true,
+  "all164oldcritical_and_global_values_exact": true,
+  "measurements": [
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_send.py",
+      "source_sha256": "4122db1588df44861cef9a21cde6543ef3c0d4b24e70a5ba70d62585ee212a74",
+      "lines": 271,
+      "complexity": 7,
+      "line_percent": 94.25287356321839,
+      "branch_percent": 100.0,
+      "branch_sites": 8
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_send_preparation.py",
+      "source_sha256": "a829c85542906d5bbda767aaef47f7937193cde792126b58cefab64b10506aab",
+      "lines": 172,
+      "complexity": 8,
+      "line_percent": 94.73684210526316,
+      "branch_percent": 62.5,
+      "branch_sites": 8
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_send_claims.py",
+      "source_sha256": "403b722c6e738624598643628acf06e2b423ef65f02db3b52ff7562bc2312c39",
+      "lines": 177,
+      "complexity": 14,
+      "line_percent": 97.95918367346938,
+      "branch_percent": 75.0,
+      "branch_sites": 4
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_send_projection.py",
+      "source_sha256": "f9bc55a545ab3adb3d897b12f28b836665005e223e13dda877dc11ebd6f11fc5",
+      "lines": 61,
+      "complexity": 1,
+      "line_percent": 100.0,
+      "branch_percent": null,
+      "branch_sites": 0
+    },
+    {
+      "path": "app/presentation/api/v1/routes/gc_app_group_directory.py",
+      "source_sha256": "afdb38527c34adc9959a46a05a20e3721d0f1acf7e81eb11a96b255d6677f929",
+      "lines": 166,
+      "complexity": 6,
+      "line_percent": 100.0,
+      "branch_percent": 100.0,
+      "branch_sites": 6
+    },
+    {
+      "path": "app/presentation/api/v1/routes/gc_group_directory_filters.py",
+      "source_sha256": "10eea059002d7af41dbf80a7040fbe0776ed041e2b66804f7422d25df3ea5f2e",
+      "lines": 94,
+      "complexity": 13,
+      "line_percent": 97.05882352941177,
+      "branch_percent": 95.0,
+      "branch_sites": 20
+    },
+    {
+      "path": "app/presentation/api/v1/routes/gc_group_directory_query.py",
+      "source_sha256": "2de6566fb5e1df37eebd32e5740f874c9eb6c36542d3524268f2ada299f036db",
+      "lines": 144,
+      "complexity": 9,
+      "line_percent": 100.0,
+      "branch_percent": 100.0,
+      "branch_sites": 4
+    },
+    {
+      "path": "app/presentation/api/v1/routes/gc_group_directory_projection.py",
+      "source_sha256": "b98c55e8b2dd580f52194875cbe8914e8e00979780c566a51f8616d13ef3eb0e",
+      "lines": 64,
+      "complexity": 8,
+      "line_percent": 100.0,
+      "branch_percent": 100.0,
+      "branch_sites": 2
+    },
+    {
+      "path": "app/application/travellers/completion.py",
+      "source_sha256": "ec518377e326fb2965e1bcefb53ce0124d267f2619394258e2f31940cf0cf627",
+      "lines": 263,
+      "complexity": 32,
+      "line_percent": 94.31818181818181,
+      "branch_percent": 78.57142857142857,
+      "branch_sites": 28
+    },
+    {
+      "path": "app/application/travellers/completion_review.py",
+      "source_sha256": "28cfc1db0388e2fa29880f64d2be0df35fe3c306b5d171679534dddcf2af6f78",
+      "lines": 66,
+      "complexity": 8,
+      "line_percent": 96.29629629629629,
+      "branch_percent": 87.5,
+      "branch_sites": 8
+    },
+    {
+      "path": "app/application/travellers/completion_answers.py",
+      "source_sha256": "b41cda386f09511f35665db73417e3634e080258a64a20718233ce6e1235596e",
+      "lines": 62,
+      "complexity": 6,
+      "line_percent": 100.0,
+      "branch_percent": 100.0,
+      "branch_sites": 2
+    },
+    {
+      "path": "app/application/travellers/completion_source.py",
+      "source_sha256": "9860abbdfe7144b1f66005a410c86c5738264e72a3ced079be405268e35e6ea8",
+      "lines": 76,
+      "complexity": 17,
+      "line_percent": 96.7741935483871,
+      "branch_percent": 80.0,
+      "branch_sites": 10
+    },
+    {
+      "path": "app/presentation/api/v1/routes/gc_app_common_staging.py",
+      "source_sha256": "21c0b756307e35642e9819f1509f1065df89b70bdfad74b65537e4379414718d",
+      "lines": 295,
+      "complexity": 6,
+      "line_percent": 93.20388349514563,
+      "branch_percent": 70.0,
+      "branch_sites": 10
+    },
+    {
+      "path": "app/presentation/api/v1/routes/gc_app_common_authority.py",
+      "source_sha256": "3cad85f026b14fb8627a0f3059e2e5d5027b54c4f411981332c7136bbd93db5c",
+      "lines": 39,
+      "complexity": 4,
+      "line_percent": 100.0,
+      "branch_percent": 100.0,
+      "branch_sites": 2
+    }
+  ],
+  "source_fence": {
+    "backend/app/presentation/api/v1/routes/whatsapp_send.py": "4122db1588df44861cef9a21cde6543ef3c0d4b24e70a5ba70d62585ee212a74",
+    "backend/app/presentation/api/v1/routes/whatsapp_send_support.py": "b8906f12b93b2e3e5c98d6135da1254014e747aa487e94a7b268ff971ae1b254",
+    "backend/app/presentation/api/v1/routes/whatsapp_send_intents.py": "462de74cb9c8fa305e26ec299815876c7439a72ba4436d4adf96d590178f5e51",
+    "backend/app/presentation/api/v1/routes/whatsapp_recipient_claims.py": "74485a30dbbc4e0dae5582ca56bdde9198cc3fb5132e19dc02b26a18d3a23a56",
+    "backend/app/presentation/api/v1/routes/whatsapp_phone_welcome.py": "5bfe0b3e22e078f786633d32556118dc353d0aae1ff7b9d9663c308976f9e05e",
+    "backend/app/presentation/api/v1/routes/whatsapp_reminder_audience.py": "0e9199e40aff3990a9eff3c033fafd17c2b5aec307894d1529bcb8c653410151",
+    "backend/app/presentation/api/v1/routes/whatsapp_composer_content.py": "920f7c816e41d3726049ff7dbb973d741a21d20602ca6ca87ecb8f3273449bf8",
+    "backend/app/presentation/mcp/whatsapp_snapshots.py": "07687af1f1f17540f12757428083aa13243e9085a4112e26969ed709b2fa1784",
+    "backend/app/infrastructure/whatsapp/web_publication.py": "d5132698ea97f869e6add9b5df5fbc8b78ece0cac4b664e3458d28e0294cf0ee",
+    "backend/tests/integration/test_whatsapp_send_intents.py": "401f0e4fbebaac88abd95120df6e93c5e75702d4f6f7f4d0175207e73d6af61a",
+    "backend/tests/unit/presentation/test_whatsapp_repeatable_reminders.py": "24550354d49f1f6092ec3ce246676f554b3ddde678ee28c9ba34167f08f808d0",
+    "backend/tests/unit/presentation/test_whatsapp_route_decomposition.py": "a4fa48821a7c9ec5e483f797939e96aa23b68e17a1b74c9eaaf2ee29ea18e7c6",
+    "backend/tests/unit/presentation/test_whatsapp_group_invite.py": "ce00ef4f09ded946eec7c6d220724fb9984740bbd916a4547b25d84c30ed3794",
+    "backend/tests/unit/presentation/test_whatsapp_recipient_capacity.py": "d219e684df5548dcfe9b8e8819ba6b76226b41f46869bef60ad30e3149d53507",
+    "backend/tests/integration/test_mcp_whatsapp_configuration_errors.py": "3d7a04bdb3235ecfdf7630e58dd3b99d4c2803260ab80269b36cf7f2d4c18c6f",
+    "backend/tests/integration/test_mcp_whatsapp_intents.py": "6c4612a5c8bd503d1f3b198681cbd3552ae02ea2a63926ec694ab1125ef21f51",
+    "backend/app/presentation/api/v1/routes/whatsapp_send_preparation.py": "a829c85542906d5bbda767aaef47f7937193cde792126b58cefab64b10506aab",
+    "backend/app/presentation/api/v1/routes/whatsapp_send_claims.py": "403b722c6e738624598643628acf06e2b423ef65f02db3b52ff7562bc2312c39",
+    "backend/app/presentation/api/v1/routes/whatsapp_send_projection.py": "f9bc55a545ab3adb3d897b12f28b836665005e223e13dda877dc11ebd6f11fc5",
+    "backend/app/presentation/api/v1/routes/gc_app_group_directory.py": "afdb38527c34adc9959a46a05a20e3721d0f1acf7e81eb11a96b255d6677f929",
+    "backend/app/presentation/api/v1/routes/gc_app_scope.py": "19c66d3d873131f1a931974532b48c77b0867e581aa0207c68b43fb7af0dbf59",
+    "backend/app/presentation/api/v1/routes/gc_app.py": "86c7be766e61cc9b384a17cfee1f1eb1025d474fd4727a74eebd91bb9ec9b6cd",
+    "backend/app/application/mobile/group_app_availability.py": "054b0a4e071e42749aab33f1a71abd9099e0e43a1a7de74d57f6a1161848bbbf",
+    "backend/app/presentation/api/v1/schemas/gc_app_schemas.py": "5557dd8c09c832c863496f3d7828a5e0fe54c3d40e19cf8c2da001d482289c5f",
+    "backend/tests/unit/presentation/test_gc_app_availability.py": "fe657ee2e52d1e94c5c67f71f0ecadc1383b4354916d263afae1575c7e4b6521",
+    "backend/tests/unit/presentation/test_gc_app_closed_collection_groups.py": "b4c11115882a63f1824ffc9319f379259860e9d91a45b6cd0a7e4bda66157d25",
+    "backend/tests/unit/presentation/test_gc_app_client_organizations.py": "fa880d2830a3f5ff0f8b058b6a2dff09462aebd2f90b5c46c9c5c131f182fde4",
+    "backend/tests/unit/presentation/test_gc_legacy_router_exports.py": "4534352d2e19cdf9975267c2ab28fbaeab835d15ffc8f2b644bdf9227ee1b83b",
+    "backend/app/presentation/api/v1/routes/gc_group_directory_filters.py": "10eea059002d7af41dbf80a7040fbe0776ed041e2b66804f7422d25df3ea5f2e",
+    "backend/app/presentation/api/v1/routes/gc_group_directory_query.py": "2de6566fb5e1df37eebd32e5740f874c9eb6c36542d3524268f2ada299f036db",
+    "backend/app/presentation/api/v1/routes/gc_group_directory_projection.py": "b98c55e8b2dd580f52194875cbe8914e8e00979780c566a51f8616d13ef3eb0e",
+    "backend/tests/unit/presentation/test_gc_directory_query_contract.py": "c001fb2725305c114cbc981d65804ab80ec4eaef4f8ce4d04e24616c9ed351d2",
+    "backend/app/application/travellers/completion.py": "ec518377e326fb2965e1bcefb53ce0124d267f2619394258e2f31940cf0cf627",
+    "backend/app/application/travellers/completion_review.py": "28cfc1db0388e2fa29880f64d2be0df35fe3c306b5d171679534dddcf2af6f78",
+    "backend/app/application/travellers/completion_answers.py": "b41cda386f09511f35665db73417e3634e080258a64a20718233ce6e1235596e",
+    "backend/app/application/travellers/completion_source.py": "9860abbdfe7144b1f66005a410c86c5738264e72a3ced079be405268e35e6ea8",
+    "backend/app/application/travellers/draft_completion.py": "e57cbbd30e03b3e009639bd37dc5b7b061f6af51160c217c951fc310ca6e6891",
+    "backend/app/application/travellers/history.py": "7d4a38b91c56d0caf999412a9168fc3d0dd93b37b71dd7baa3b866de1909e051",
+    "backend/app/application/travellers/submission_snapshot.py": "56a314ca3a9f15b7686bdbf342a3d4220f97b1711ffd656e835256534707a2fb",
+    "backend/app/application/travellers/requirements.py": "03f35fbc7d91443fec5f423c530ba0024dc4e6f5988d2f4fd5ab7ea150792562",
+    "backend/app/application/travellers/current_details.py": "bfb063d3a8dd9313b075f3ba0e6011b57db9b99ed1efd9566943d4643b0e1c6f",
+    "backend/app/application/travellers/owned_extraction.py": "e1ed6c5c5f13a9bb696564939be2f9a1f3b3ecbdaa105bdf8c180159c5b48cab",
+    "backend/tests/integration/test_returning_completion.py": "899766b271b0e16ff67babf2e4a647fc1667006ab04ecc0d6d956eddae534a24",
+    "backend/tests/integration/test_returning_owned_extraction.py": "91dfdf3798eb84ee8f5e964efec0fb768bc5a0c918d9bec898c3b0cfca4c624a",
+    "backend/tests/integration/test_returning_drafts.py": "b68bffa5b0275eb8811b28a7e30b1289bf49982d833ef8eb3d49f33c63d4b32d",
+    "backend/tests/integration/test_returning_draft_collection.py": "76d6a949afd0d7c4fbfa8d1b95dcd5c8eee227bbcae14921624d42afc48b1df5",
+    "backend/tests/integration/test_draft_replacement_resume.py": "6a6381cfe0d7156633d93272dc4e0e0d27a4fb13e41eb78145775e93610abcad",
+    "backend/tests/integration/test_returning_contact_scope.py": "ad0641f52e19beb95b9039eabbb01beea8f414b7b55cb7c5c931770ea3d8feeb",
+    "backend/app/presentation/api/v1/routes/returning_completion.py": "0822b0d6307ff145a6b8e7271f38f225a82bb957f5b3cf1122eac2ae39273bf2",
+    "backend/app/presentation/api/v1/routes/gc_app_common_authority.py": "3cad85f026b14fb8627a0f3059e2e5d5027b54c4f411981332c7136bbd93db5c",
+    "backend/app/presentation/api/v1/routes/gc_app_common_staging.py": "21c0b756307e35642e9819f1509f1065df89b70bdfad74b65537e4379414718d",
+    "backend/app/presentation/api/v1/routes/gc_app_common_documents.py": "8b98cbcbeaee8dd2782ba2e282bec6c3ac988326b087724ec275045ff6fde469",
+    "backend/app/presentation/api/v1/routes/gc_app_content_scope.py": "ee1b01c9543593b6600aedde21acd5e6b7c6082a8b58320729f6799b4acab2d8",
+    "backend/app/presentation/api/v1/routes/gc_app_content.py": "bde93b5bf77fbcd2fc6bca3abc379f7c926e8b94da6679a521bec487a120c075",
+    "backend/app/application/security/access_level_actor.py": "3a8eec715f67356a378986999a012723bdd21f5510518ee7320ce7d0809013a6",
+    "backend/app/infrastructure/repositories/user_repository.py": "a91bd9de4ef129c714c39cbda7ddc3d782fe7b3474fcb8f65837642fa5cb4737",
+    "backend/tests/unit/presentation/test_gc_common_document_current_authority.py": "24651c1769009c12a316e056ca5eda482d7cc29075cafbc9f4bfe7bb44bf183b",
+    "backend/tests/unit/presentation/test_gc_app_content_compensation.py": "75c4cb036632defb4353a19f9587697e2649e99055086983a44d05159a4c4e18",
+    "backend/tests/unit/presentation/test_gc_common_document_native_cancellation.py": "f34062f4c8c8c08be59cea511b58215dda2b10bd31ca7ff94f87ec92caa9aca2",
+    "backend/tests/integration/test_gc_common_document_admin_workflow.py": "6f2a6ea90e5fb62a7b6ae5d36bc84b1521fadbcbb88f07dcb099f544ec415a93",
+    ".tmp/run_gc_common_staging_authority.py": "3f2b07b5c9a71bef4003febac489c49188e10b8aed98815b36fd9b3a3b47eff1"
+  },
+  "source_fence_count": 61,
+  "architecture_transfer": {
+    "proposal": "returning-completion-final-boundary-transfer-proposal.json",
+    "proposal_sha256": "2f28c776f24bea6d700c9fb3149879d693a90b17fac3545e6f78e67b81986ccb",
+    "rows": {
+      "app/application/travellers/completion_source.py": {
+        "owner": "repository maintainers",
+        "review_by": "2026-12-31",
+        "reason": "One live authorized grant/person/group transaction validates the displayed review digest, questions and optional exact owned extraction before idempotent trip snapshot publication. Scoped participation/source/event models and shared platform requirements preserve prior trips; the canonical trip-local-date predicate permits the reviewed phone binding only on the current or future snapshot after real confirmation, without an extra read or document download.",
+        "imports": [
+          "app.infrastructure.database.models",
+          "app.infrastructure.database.models.PassportSubmissionModel",
+          "app.infrastructure.database.traveller_reuse_models",
+          "app.infrastructure.database.traveller_reuse_models.TravellerParticipationModel",
+          "app.infrastructure.repositories.coordinator_assignment_lifecycle",
+          "app.infrastructure.repositories.coordinator_assignment_lifecycle.current_trip_clause"
+        ]
+      },
+      "app/application/travellers/completion_review.py": {
+        "owner": "repository maintainers",
+        "review_by": "2026-12-31",
+        "reason": "One live authorized grant/person/group transaction validates the displayed review digest, questions and optional exact owned extraction before idempotent trip snapshot publication. Scoped participation/source/event models and shared platform requirements preserve prior trips; the canonical trip-local-date predicate permits the reviewed phone binding only on the current or future snapshot after real confirmation, without an extra read or document download.",
+        "imports": [
+          "app.infrastructure.repositories.platform_policy_repository",
+          "app.infrastructure.repositories.platform_policy_repository.PlatformPolicyRepository"
+        ]
+      }
+    },
+    "old_main_and_all_unrelated_values_exact": true,
+    "original_raw_restores_after_removing_only2newrows": true
+  },
+  "release": {
+    "paths": 126,
+    "only_known_budget_and_architecture_AFTER_updated": true,
+    "all126originalBEFORE_pairs_and124otherAFTER_values_exact": true,
+    "frontend661_unchanged": true,
+    "budget_sha256": "c02fb129259baa0f38a0b332f92d319a4a31cdfa85738e297f39ae984f237bd6",
+    "architecture_raw_sha256": "d74dad8369bc1e9cdb2ebb2fa7a550ca87de9a9e267b1c6c94de749569b50d36",
+    "bindings_sha256": "ebc496090fc663d935723fd24cd911c7f1476c3a20170f652cb5caa3ad075306"
+  },
+  "review_basis": "Own send/directory source and focused before/current behavior/equivalence, parent-qualified completion4 and peer-qualified staging2 source identities/rawcoverage/proofs independently checked. No additional whole-peer-source reread or execution credit.",
+  "behavior_scopes": {
+    "send": "96affected7files",
+    "directory": "22affected5files (11existing+11new original controls),144 SQL-expression parity cohorts separate from behavior/coverage",
+    "completion": "46affected6files; intermediate46 retained historical, not92unique",
+    "staging": "43unique; separate12CRLF compatibility repeats, not55unique"
+  },
+  "limits": [
+    "Focused shared static/admission only; no broad application/build/browser/provider/VPS qualification.",
+    "MCP1990 and historical qualified_sources remain historical and unmodified.",
+    "Directory conditional whole-tenant metrics SQL remains unchanged; no performance/capacity claim.",
+    "Normal line obligations on moved send/directory owners retained or strengthened; no new branch gates fabricated on architecture-only functions.",
+    "Staging actual credential/current actor guard95L90B adds real18statement2branch obligation; every164priorcritical/global floor exact."
+  ],
+  "artifacts": {
+    "whatsapp-send-architecture-verification.json": "f76e0c4068b61d56199e998de11f0f683b1c355fecd1c386cbee6151619b6e14",
+    "gc-directory-architecture-verification.json": "b6e9c0d0a29ce575a4b698a38ccd6f4787e72c53fba27be900dd0b04caf9b747",
+    "returning-completion-architecture-verification.json": "f929b9450988afc3cb745b3e510ba692fd3efcad1f3a9bb5a4eb26fc0c3b5371",
+    "gc-common-staging-authority-final-verification.json": "c6024fddf8db3630ed98e14b940b46a32266dc6eded477514206bb138b6b27b6",
+    "whatsapp-send-architecture-budget-candidates.json": "79a111adced0615c8f1e305deaf8332380f93f42bb037986884b5f1b76877253",
+    "gc-directory-architecture-budget-candidates.json": "cee3cf46f06828e04aa22b7cfb5f1ac4130fa9b70c2eaa89c05baf1b64abcd33",
+    "returning-completion-budget-candidates.json": "884fa0374c8dcb580494a09804fa26d3cd07d3b8e6c7e29e33b10e33166b290f",
+    "gc-common-staging-authority-budget-candidates.json": "247dace0a1b0545a0de9b8d582ce8a98181aa89eb28090261dd98c62deeab72b",
+    "returning-completion-final-boundary-transfer-proposal.json": "2f28c776f24bea6d700c9fb3149879d693a90b17fac3545e6f78e67b81986ccb",
+    "directory-send-completion-staging-previous-values.json": "c9fb8cdbbaaf62407b08929854f6ee655a4008e8f03119f457ff142a77754529",
+    "directory-send-completion-staging-budgets.txt": "2775779474b57b5331ae8ff87366a4ab85dcff9f7fd11e0d8add8682bca0b403",
+    "directory-send-completion-staging-architecture.txt": "895bfbeca4c78591066dcf214c4bfe9de43b5d7ed5d3f518fe398563a7bcc992",
+    "directory-send-completion-staging-bindings.txt": "35a6029ac6f0381cd7027d13b864222808ad5e21ca643cf7506454c1b3bb3dbf",
+    "directory-send-completion-staging-loader-tests.txt": "88e77f4fc464ab0fca89db719e6cf6c762509fa04fc82eb91ab577d6bf7ba893",
+    "directory-send-completion-staging-exact-bindings.json": "03aa3866dc2a26c99f3844ae98b2f4ed2cce267a3dc3d935f6966f1acf4c5f1e"
+  },
+  "checks": {
+    "backend_normal_static": "878 modules pass",
+    "critical_obligations": "165 total,164 prior values exact; one meaningful current actor guard95L90B added",
+    "architecture": "Whole static checker pass after exactly2strict-subset completion responsibility rows, original main/all unrelated policy unchanged",
+    "release_bindings": "126 current AFTER + both actual original Git BEFOREs pass; only budget/architecture AFTER updated",
+    "loader": "14 focused tests pass",
+    "combined_source_fence": "61 current runtime/test/support hashes rechecked",
+    "frontend": "661 already bound and unchanged; no broad build/test/browser requalification"
+  },
+  "controls": {
+    "backend/backend_quality_budgets.json": "c02fb129259baa0f38a0b332f92d319a4a31cdfa85738e297f39ae984f237bd6",
+    "backend/architecture-dependencies.json": "d74dad8369bc1e9cdb2ebb2fa7a550ca87de9a9e267b1c6c94de749569b50d36",
+    "scripts/release_workspace_branding_bindings.json": "ebc496090fc663d935723fd24cd911c7f1476c3a20170f652cb5caa3ad075306",
+    "scripts/release_workspace_branding_policy.py": "66e8bfbd7d8b4c7447317d82927194e73b697da0ac5da371c0a9eaa23119e431"
+  }
+}

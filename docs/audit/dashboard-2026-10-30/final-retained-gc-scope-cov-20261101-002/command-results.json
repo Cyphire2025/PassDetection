@@ -1,0 +1,39 @@
+[
+  {
+    "name": "pytest",
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "-m",
+      "pytest",
+      "-q",
+      "--tb=long",
+      "-o",
+      "addopts=",
+      "-p",
+      "subset_plugin",
+      "tests\\unit\\presentation\\test_gc_content_dashboard_scope.py",
+      "--cov=app",
+      "--cov-branch",
+      "--cov-report=xml:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\final-retained-gc-scope-cov-20261101-002\\coverage.xml",
+      "--cov-report=json:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\final-retained-gc-scope-cov-20261101-002\\coverage.json",
+      "--junitxml=C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\final-retained-gc-scope-cov-20261101-002\\junit.xml"
+    ],
+    "exit_code": 0,
+    "seconds": 50.157
+  },
+  {
+    "name": "ruff",
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "-m",
+      "ruff",
+      "check",
+      "--no-fix",
+      "--config",
+      "pyproject.toml",
+      "tests\\unit\\presentation\\test_gc_content_dashboard_scope.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.375
+  }
+]

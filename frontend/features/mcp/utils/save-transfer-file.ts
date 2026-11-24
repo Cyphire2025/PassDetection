@@ -2,13 +2,21 @@ type SaveHandle = { createWritable(): Promise<{ write(blob: Blob): Promise<void>
 type SaveWindow = Window & { showSaveFilePicker?: (options: { suggestedName: string; types: { description: string; accept: Record<string, string[]> }[] }) => Promise<SaveHandle> };
 
 /** Only a completed filesystem write is detectable. Anchor downloads need user confirmation. */
-export async function saveTransferFile(blob: Blob, filename: string, mediaType: string): Promise<"saved" | "confirm"> {
+export async function saveTransferFile(blob: Blob, filename: string, mediaType: string, signal?: AbortSignal): Promise<"saved" | "confirm"> {
+  signal?.throwIfAborted();
   const browser = window as SaveWindow;
   if (browser.showSaveFilePicker) {
     const handle = await browser.showSaveFilePicker({ suggestedName: filename,
       types: [{ description: "Prepared Global Connects file", accept: { [mediaType]: [`.${filename.split(".").at(-1)}`] } }] });
+    signal?.throwIfAborted();
     const writable = await handle.createWritable();
-    try { await writable.write(blob); await writable.close(); }
+    try {
+      signal?.throwIfAborted();
+      await writable.write(blob);
+      signal?.throwIfAborted();
+      await writable.close();
+      signal?.throwIfAborted();
+    }
     catch (error) { await writable.abort?.().catch(() => undefined); throw error; }
     return "saved";
   }

@@ -7,6 +7,7 @@ for strong identifiers. There is no fuzzy automatic merge or phone-unique key.
 from __future__ import annotations
 
 import uuid
+from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime
 
@@ -95,6 +96,7 @@ async def phone_candidates(
         name = crypto.decrypt(name_ciphertext).split() if name_ciphertext else []
         number = crypto.decrypt(number_ciphertext) if number_ciphertext else ""
         masked.append((f"******** {name[-1]}" if name else "Traveller", f"********{number[-2:]}" if number else ""))
+    masked_counts = Counter(masked)
     for index, (traveller_id, _, _) in enumerate(people):
         handle = crypto.digest("candidate-handle", claim.secret_hash, str(traveller_id))
         if traveller_id not in existing:
@@ -104,7 +106,7 @@ async def phone_candidates(
                 token_hash=crypto.digest("candidate", handle), expires_at=claim.expires_at,
             ))
         label, hint = masked[index]
-        if masked.count((label, hint)) > 1:
+        if masked_counts[(label, hint)] > 1:
             label, hint = f"Traveller {index + 1}", ""
         result.append(MaskedCandidate(handle, label, hint))
     return tuple(result), False

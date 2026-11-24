@@ -1,0 +1,129 @@
+{
+  "retired": {
+    "surface": {
+      "id": "frontend:frontend/features/companies/api/companies.api.ts:travellers",
+      "kind": "frontend_callable",
+      "source": "frontend/features/companies/api/companies.api.ts",
+      "handler": "travellers"
+    },
+    "workflow": "companies.directory-and-reviewed-history",
+    "disposition": "internal_dependency",
+    "phase": null,
+    "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+    "adapter_requirements": [],
+    "implementation": {
+      "status": "not_applicable",
+      "adapter": null,
+      "evidence": []
+    }
+  },
+  "updated_facade_fingerprints": [
+    {
+      "before": {
+        "id": "frontend_api:frontend/features/companies/api/companies.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/companies/api/companies.api.ts",
+        "contract_sha256": "d5418498f303b92fbe2e2e8cf7b7af48b60c73fcebe5567600a2be8207cd2bb1"
+      },
+      "after": {
+        "id": "frontend_api:frontend/features/companies/api/companies.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/companies/api/companies.api.ts",
+        "contract_sha256": "6e52008c7be11ebfdc427cd087378a1ac40b4abec48b148c468d89197f1944ef"
+      }
+    },
+    {
+      "before": {
+        "id": "frontend_api:frontend/features/operations/api/operations.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "contract_sha256": "0fa14f9d9aca90f554cec85df230d72786a71e24725144e5531700aa004d45e9"
+      },
+      "after": {
+        "id": "frontend_api:frontend/features/operations/api/operations.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/operations/api/operations.api.ts",
+        "contract_sha256": "d1a2cb128065e70bd6d016b91683d5a8d5c06bd9ea449e3805fcbc119c92afc0"
+      }
+    },
+    {
+      "before": {
+        "id": "frontend_api:frontend/lib/api/client.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/lib/api/client.ts",
+        "contract_sha256": "e650bbb5d22e85bd6d2c20886f1ff2061b0b0398a08422a099d287628e4c0405"
+      },
+      "after": {
+        "id": "frontend_api:frontend/lib/api/client.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/lib/api/client.ts",
+        "contract_sha256": "3c83ccb7a6ff0ff930fe93484ac09ad10ad7914824824f8767b43bf3e0281368"
+      }
+    }
+  ],
+  "reviewed_new_internal_primitives": [
+    {
+      "surface": {
+        "id": "frontend:frontend/lib/api/request-owner.ts:assertRequestOwner",
+        "kind": "frontend_callable",
+        "source": "frontend/lib/api/request-owner.ts",
+        "handler": "assertRequestOwner"
+      },
+      "workflow": "auth.request-owner-precondition.assertRequestOwner",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Reviewed opt-in authenticated-actor mismatch/cancellation primitive. It can only reject stale-owner requests/responses; it grants no identity, capability or server authority. Business adapters still use existing authorization and consent boundaries.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/lib/api/request-owner.ts:ownerBoundAdapter",
+        "kind": "frontend_callable",
+        "source": "frontend/lib/api/request-owner.ts",
+        "handler": "ownerBoundAdapter"
+      },
+      "workflow": "auth.request-owner-precondition.ownerBoundAdapter",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Reviewed opt-in authenticated-actor mismatch/cancellation primitive. It can only reject stale-owner requests/responses; it grants no identity, capability or server authority. Business adapters still use existing authorization and consent boundaries.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/lib/api/request-owner.ts:ownerBoundRequestConfig",
+        "kind": "frontend_callable",
+        "source": "frontend/lib/api/request-owner.ts",
+        "handler": "ownerBoundRequestConfig"
+      },
+      "workflow": "auth.request-owner-precondition.ownerBoundRequestConfig",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Reviewed opt-in authenticated-actor mismatch/cancellation primitive. It can only reject stale-owner requests/responses; it grants no identity, capability or server authority. Business adapters still use existing authorization and consent boundaries.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    }
+  ],
+  "reviewed_sources": [
+    "frontend/lib/api/request-owner.ts",
+    "backend/app/presentation/dependencies/auth.py"
+  ],
+  "basis": "Company closed-chain retirement supplied by root; exact source diff reviewed. Auth primitive source read in full plus current auth dependency diff following its preceding full review. All other capability classifications preserved.",
+  "classified_surfaces": 1950
+}

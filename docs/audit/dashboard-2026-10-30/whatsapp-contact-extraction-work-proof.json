@@ -1,0 +1,109 @@
+{
+  "basis": "Exact declarations against post-work-bound origin; performance change compared to original before source separately.",
+  "origin_sha256": "48dad4f7a894cf71a49c6f519b9ef7339208a84a991701b729953dc3fddf0204",
+  "checks": [
+    "whole declaration and facade alias _validated_rejection_code",
+    "whole declaration and facade alias _normalize_phone",
+    "whole declaration and facade alias _clean_name",
+    "whole declaration and facade alias _clean_required_name",
+    "whole declaration and facade alias _validate_excel_archive",
+    "whole declaration and facade alias _excel_header_label",
+    "whole declaration and facade alias _excel_field_key",
+    "whole declaration and facade alias _safe_imported_fields",
+    "whole declaration and facade alias _matching_field_label",
+    "whole declaration and facade alias _merge_imported_field_keys",
+    "whole declaration and facade alias _matching_field_options",
+    "whole declaration and facade alias _imported_field_keys_for_contacts",
+    "whole declaration and facade alias _parse_imported_field_keys",
+    "whole declaration and facade alias _is_excel_phone_header",
+    "whole declaration and facade alias _is_excel_name_header",
+    "whole declaration and facade alias _excel_header_columns",
+    "whole declaration and facade alias _find_excel_contact_header",
+    "whole declaration and facade alias _excel_name_from_row",
+    "whole declaration and facade alias _excel_raw_name_from_row",
+    "whole declaration and facade alias _bounded_excel_raw_value",
+    "whole declaration and facade alias _is_repeated_excel_header",
+    "whole declaration and facade alias _row_has_contact_identity",
+    "whole declaration and facade alias _excel_fields_from_row",
+    "whole declaration and facade alias _merge_recipient_inputs",
+    "whole declaration and facade alias _parse_manual_contacts",
+    "whole declaration and facade alias _normalized_recipient_inputs",
+    "whole declaration and facade alias _activate_recipient_models",
+    "whole declaration and facade alias _parse_support_contacts",
+    "whole declaration and facade alias _rejected_contact_fingerprint",
+    "whole declaration and facade alias _parse_rejected_contacts",
+    "whole declaration and facade alias _add_rejected_contact_models",
+    "whole declaration and facade alias _positive_int",
+    "whole declaration and facade alias _roster_source_sort_key",
+    "whole declaration and facade alias _new_roster_display_orders",
+    "whole declaration and facade alias _next_roster_display_order",
+    "whole declaration and facade alias _excel_contact_preview_response",
+    "whole declaration and facade alias _recipient_response",
+    "whole declaration and facade alias _rejected_contact_response",
+    "whole declaration and facade alias _support_contact_response",
+    "whole declaration and facade alias _WhatsAppExcelContactParseResult",
+    "constant/alias declaration _excel_cell_text",
+    "constant/alias declaration PHONE_RE",
+    "constant/alias declaration MAX_WHATSAPP_EXCEL_UNCOMPRESSED_BYTES",
+    "constant/alias declaration MAX_WHATSAPP_EXCEL_ARCHIVE_MEMBERS",
+    "constant/alias declaration MAX_WHATSAPP_EXCEL_COMPRESSION_RATIO",
+    "constant/alias declaration MAX_WHATSAPP_EXCEL_HEADER_SCAN_ROWS",
+    "constant/alias declaration MAX_WHATSAPP_IMPORTED_FIELDS",
+    "constant/alias declaration MAX_WHATSAPP_IMPORTED_FIELD_KEY_LENGTH",
+    "constant/alias declaration MAX_WHATSAPP_IMPORTED_FIELD_VALUE_LENGTH",
+    "constant/alias declaration MAX_WHATSAPP_IMPORTED_FIELDS_BYTES",
+    "constant/alias declaration WHATSAPP_UPLOAD_READ_CHUNK_BYTES",
+    "constant/alias declaration WHATSAPP_ROSTER_SOURCE_FIELDS",
+    "constant/alias declaration WHATSAPP_NON_MATCHING_IMPORTED_FIELDS",
+    "constant/alias declaration _MATCHING_FIELD_LABELS",
+    "constant/alias declaration _EXCEL_FIELD_ALIASES",
+    "constant/alias declaration _EMPTY_EXCEL_VALUES",
+    "constant/alias declaration _WHATSAPP_CONTACT_REJECTION_REASONS",
+    "legacy dataclass module/pickle/type hints/ordered fields/property"
+  ],
+  "count": 58,
+  "workload": {
+    "declared_unique_headings": 3000,
+    "returned_keys": 256,
+    "same_output": true,
+    "before": {
+      "peak_normalized_keys": 3000,
+      "string_equality_comparisons": 4498500
+    },
+    "after": {
+      "peak_normalized_keys": 257,
+      "string_equality_comparisons": 0
+    },
+    "additional_output_parity_cohorts": 7
+  },
+  "valid_manual_fields_workload": {
+    "contacts": 20,
+    "distinct_fields_per_contact": 150,
+    "each_contact_passes_current_field_key_byte_and_value_bounds": true,
+    "returned_keys": 256,
+    "same_output": true,
+    "before": {
+      "peak_normalized_keys": 3000,
+      "string_equality_comparisons": 4498500
+    },
+    "after": {
+      "peak_normalized_keys": 258,
+      "string_equality_comparisons": 0
+    }
+  },
+  "source_sha256": {
+    "backend/app/presentation/api/v1/routes/whatsapp_contact_support.py": "c6640e915d3a22ceb880189bb4e3a89f0d7cfc3180a6a8b7582b446b709e1fce",
+    "backend/app/presentation/api/v1/routes/whatsapp_contact_values.py": "3a6c521cbd30e24af2492d3807d398b61c028ec305b5f66368b84e427da713a3",
+    "backend/app/presentation/api/v1/routes/whatsapp_imported_fields.py": "fc4ab60c67b8ba4da46dc0b50684264173f2af260696e138b1f40925049ba811",
+    "backend/app/presentation/api/v1/routes/whatsapp_contact_excel.py": "dd4fdbdb2ce0a78983ead4bfd5bd9ef311c3a1a366e68e207c72f3cdbfe300dc",
+    "backend/app/presentation/api/v1/routes/whatsapp_recipient_inputs.py": "b36a54b257d60ba8825ae02f253aa7f7f63998c34bf06a678fd4ef88524ecee8",
+    "backend/app/presentation/api/v1/routes/whatsapp_contact_rejections.py": "afeab1dc52e467c586a57b85b9b5289a7dcb45414035c1652a0bfd46d8f11e9e",
+    "backend/app/presentation/api/v1/routes/whatsapp_roster_order.py": "364fb303eb5ff6eb6f62e68bb9b47674f4596ef555ecbcf941a79efc85dbf997",
+    "backend/app/presentation/api/v1/routes/whatsapp_contact_responses.py": "04cdf2c58e178c1fbe733ec238efbe3d3eec3765fe938607cadf3b85e9c1cb14",
+    "backend/app/presentation/api/v1/routes/whatsapp_contact_parse_result.py": "473226263ce8155b0aa4177327c3338c7aff8442f96c0ba6ab862186fbc70aed"
+  },
+  "limits": [
+    "Equality instrumentation preserves string values/hash/eq; this is deterministic synthetic work/allocation-count evidence, not production latency or RSS.",
+    "Existing conflict and normalization policy remains unchanged; no claim of removing all contact import complexity."
+  ]
+}

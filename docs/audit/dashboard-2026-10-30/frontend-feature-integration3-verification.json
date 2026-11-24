@@ -1,0 +1,72 @@
+{
+  "status": "passed frozen third frontend integration checkpoint",
+  "source_files_hashed": 1638,
+  "final_source_unchanged": true,
+  "unit_files_passed": 280,
+  "unit_cases_passed": 1829,
+  "node_contracts_passed": 668,
+  "required_types": "passed against final source",
+  "lint": "whole direct ESLint --max-warnings=0 passed with zero output; required npm lint also executed",
+  "module_budgets": {
+    "passed": 526,
+    "old_ceilings_or_coverage_floors_raised": false
+  },
+  "production_build": "passed with explicitly isolated optional API origin and current standalone assets",
+  "production_build_id": "u3zGikOfkpKz028gaYBSI",
+  "production_browser": {
+    "passed": 9,
+    "failed": 0,
+    "skipped": 0,
+    "flaky": 0,
+    "scope": "Current standalone artifact: credential login/logout, rejected/expired/denied sessions,320px/1440px Fresh drafts, independent family drafts, interrupted-submit receipt recovery, isolated API rewrites and fresh CSP nonces."
+  },
+  "configured_critical_owner_count": 30,
+  "configured_critical_owner_coverage_percent": {
+    "lines": 97.82,
+    "statements": 92.53,
+    "functions": 91.57,
+    "branches": 87.38,
+    "branchesTrue": 100
+  },
+  "coverage_floors_unchanged": {
+    "per_file": true,
+    "statements": 74,
+    "branches": 50,
+    "functions": 75,
+    "lines": 75
+  },
+  "coverage_scope": "Configured critical owners only; neither whole-project coverage nor whole-codebase audit completion.",
+  "initial_failures_preserved": [
+    "Initial1829-case run:1823passed/6failed, all six were a signed-in actor missing from one existing private-mutation fixture;10focused cases pass after adding only synthetic test authority, all original assertions byte-exact. Vitest did not report coverage after test failure, so final complete coverage run was required.",
+    "Initial668Node run:666passed/2stale source-contract failures. Actual live-owner loaders/one equivalent guarded child expression corrected, seven affected cases pass; subsequent whole668Node pass.",
+    "One unused named audience import triggered a lint warning; removal preserves exact emitted JavaScript. Current final full lint has no warnings.",
+    "npm PowerShell wrapper did not forward the requested strict-warning flag and emitted an unknown-config warning. Direct ESLint invoked the actual --max-warnings=0 flag and passed.",
+    "First attempt to write the unused-binding cleanup encountered a transient Windows file-open error before mutation. Source was confirmed intact, then the same exact-emitted-JS check and write succeeded."
+  ],
+  "verification_cadence": "Resume coherent affected-only review/fixes. Subsequent test-tooling or runtime batches have their own source receipts; no full build/suite merely for file reads/docs/formatting. Final combined qualification remains required after whole audit implementation completes.",
+  "limits": "Whole-dashboard manual source review/architecture follow-through remains active. This frontend checkpoint does not establish actual PostgreSQL/Redis/private-object-storage/Linux/Nginx/container/VPS release qualification. No commit/push/deploy/provider send.",
+  "receipts_sha256": {
+    "frontend-feature-integration3-source-checkpoint.json": "36efd8d5bcc650f6245acb31b75b15b3edf64bd595d13b7d1b36daba224f43c6",
+    "frontend-feature-integration3-final-source-checkpoint.json": "f7b4a73e3cea0d288d701ed266988a0223e290b3ae1c1a44ca6bd2aca5f3bfd7",
+    "frontend-feature-integration3-final-source-verification.json": "584ca45fea0aded09ac483a64dac2c3d1bcf681c6d2d26ddb57c1500d26dd715",
+    "frontend-feature-integration3-source-transition.json": "42e5a0d4499c859afa2af1089044361f25a2980c93c200a7911e680e589e34d1",
+    "frontend-feature-integration3-corrections-proof.json": "e9b1ea9ed7f148cc36403067b8f7f98721ec23c469b77d139279fd00828285dd",
+    "frontend-feature-integration3-unit.txt": "0fc7281f7c6ab65769f26c0825634fb14a06c0a33e9c10e85c6eabb0777eb260",
+    "frontend-feature-integration3-node.txt": "ced024de32724b9ae00baa1858683f935db99f7b24a4eefa3285f52534e050a3",
+    "frontend-feature-integration3-lint.txt": "4865e289c67a11dfecd0fb33fc1e36dea35795f6ce827dc0055a80f4b06eb2f8",
+    "frontend-feature-integration3-source-groups-before.txt": "38cb39bf4e3dab2aed2f1b79a0f5f7d333d6dc121c0399c61d4cbbffedd71cd2",
+    "frontend-feature-integration3-source-groups-after.txt": "ade6aff6ebf399285aecd1fdbcf4a4840d1f6a7178bb68470ddf8a2ba143bc2d",
+    "frontend-feature-integration3-unused-import-proof.json": "1cb8b3f314b1490ca6b76a5a052cad072566ef26c00bc1455f76461833e1c39e",
+    "frontend-checkpoint3-contract-supplement.json": "dbab536b13482957b5d48b21b1c4a64d3c8b6f71b581cf10840c53b19cffdeb8",
+    "frontend-feature-integration3-final-unit.txt": "9659a4cd810ba520464ae281e284b355650359c8472d8c6b8b925a8eeede8984",
+    "frontend-feature-integration3-final-node.txt": "4b5c01bda6dffc62e9160712c60ea671379f65662aae05eeba100d8ba353bc8e",
+    "frontend-feature-integration3-final-types.txt": "9454c3f1e6dd0b35a44cd34b78d3a60b348f85fde420b2665f190a84b5597031",
+    "frontend-feature-integration3-final-lint.txt": "1e5fe9ac6987df4dfeb3d03d80111f478c8edc446b61590764c499be6c4ff666",
+    "frontend-feature-integration3-final-eslint.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "frontend-feature-integration3-final-budgets.txt": "e402e195aa7be54fe73bddba56f64c4cdbda31cea6772451a6ac28b6a5bd5bf1",
+    "frontend-feature-integration3-build.txt": "858393f348a5a84b84d290752ccea1adbc73c402de1648387c7b86073b5ca107",
+    "frontend-feature-integration3-build-artifact.json": "06190d4f4212a285eddd6df21b473209dd7868d2d70c8177ae02797509c91c51",
+    "frontend-feature-integration3-production-browser.json": "725d6218971e88d7c0eaba82b05b6ca4b5ba04d720d1557545ce01f49771bae1",
+    "frontend-feature-integration3-final-coverage/coverage-summary.json": "ccfc08f8f9da6ef2007aa6c8bee320afa0348dc3d8b716428b0f4f8d566fa394"
+  }
+}

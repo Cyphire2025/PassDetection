@@ -1,0 +1,31 @@
+{
+  "status": "focused source file-kind correctness checkpoint complete; native POSIX qualification pending",
+  "source_sha256": {
+    "scripts/mcp_direct_state.py": "61a40f56b409431fc899d4412d5dcaa90276a746b27f2ee973cdfcd82fd3c744",
+    "scripts/mcp_direct_release.py": "1d74a7889f251d836fb946df1fdd5b5db72b4a648ea402c7ec4ec6306746440a",
+    "scripts/test_mcp_source_file_kinds.py": "cb9f74e5cd027d1842e5eaa5993b8bbaf12d68802c937a5a4dca14c5a00cdabc"
+  },
+  "proof": {
+    "whole_module_AST_restores_after_only_source_inventory_file_kind_branch": true,
+    "regular_files_paths_hashes_order_directory_omission_and_symlink_rejection_preserved": true,
+    "intended_guard_correction": "Path.is_file is already a regular-file check, so nested nonregular rejection was unreachable for FIFO/socket/device entries. Now directories skip explicitly and all other nonregular entries reject before read.",
+    "native_platform_limit": "Windows here lacks socket.AF_UNIX and os.mkfifo. Four kind controls use explicit synthetic filesystem stat results; actual regular directory/file hashing runs. Real POSIX FIFO test is present and skipped here.",
+    "no_remote_exploit_claim": true
+  },
+  "checks": {
+    "before": "4test methods:4synthetic special-kind failures,2ordinary/control methods pass,1POSIX method skipped",
+    "after": "39selected tests/5files:38pass,1POSIXskip in0.697seconds",
+    "Ruff": "2changed owned paths pass repositoryconfig",
+    "native_probe": "socket.AF_UNIX absent before any temp/socket resources created; no native Unix socket test claim",
+    "no_live_services_or_broad_checks": true
+  },
+  "unchanged": "All module functions/imports/args/annotations/body AST except exact source_inventory kind branch; no manifest formats/schema/retention/migrations/retry policy changes",
+  "artifacts": {
+    "mcp-source-state-before.json": "0b667b2d8ac10575cb2e43eb586e590242c27a25b19bf3f410b4b3c742ed1109",
+    "mcp-source-kinds-proof.json": "07535205c236cbe899e05af8b62328ca87a508163662e48fa0ebb8825fb48a9c",
+    "mcp-state-release-reviewed-files.json": "c09a404540ff0f0d90d5bbc3898d439b5282b1c78209ea8c8c3b7b86643d691b",
+    "mcp-source-kinds-before.txt": "d69a3dc8658887338561bba8a439d9bbe996c44769ee53350f6660edaa7aa379",
+    "mcp-source-kinds-after.txt": "ecffbf7eae7fa4b8d6b64e42a01303ae015b078bef08562038cbe95f32b24b6c",
+    "mcp-source-kinds-ruff.txt": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0"
+  }
+}

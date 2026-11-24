@@ -9,10 +9,10 @@ describe("mobile release configuration", () => {
       config: {} as ExpoConfig,
     } as ConfigContext);
 
-    expect(config.name).toBe("Global Connect Travels");
+    expect(config.name).toBe("Group Companion");
     expect(config.slug).toBe("group-companion");
-    expect(config.version).toBe("1.0.10");
-    expect(config.android?.versionCode).toBe(11);
+    expect(config.version).toBe("1.0.11");
+    expect(config.android?.versionCode).toBe(13);
     expect(config.ios?.buildNumber).toBe("2");
     expect(require("../../../../package.json").version).toBe(config.version);
     expect(require("../../../../package-lock.json").packages[""].version).toBe(config.version);
@@ -28,7 +28,7 @@ describe("mobile release configuration", () => {
     expect(config.plugins).toContain("expo-sharing");
     expect(config.plugins).toContain("expo-asset");
     expect(config.plugins).toContain("./plugins/with-android-unlocked-device-store");
-    expect(config.plugins).toContainEqual(["@sentry/react-native/expo", {}]);
+    expect(config.plugins).not.toContainEqual(["@sentry/react-native/expo", {}]);
     expect(config.plugins).toContainEqual([
       "expo-secure-store",
       {

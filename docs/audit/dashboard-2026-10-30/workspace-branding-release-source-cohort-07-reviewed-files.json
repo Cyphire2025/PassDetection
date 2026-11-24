@@ -1,0 +1,42 @@
+[
+  {
+    "path": "backend/scripts/workspace_branding_release.py",
+    "sha256": "f57dd8730af505f3f5b59b16e34a3d41e7550f8e305355a93ddfc316a65f1461",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical current source read of additive0140/0141\u21920142 contract and qualification closure. Reviewed exact migration AST/hash chain, original row/catalog/table+column grants, streamed100-row digests, null-beforeactivation rule, bounded PostgreSQL transaction/lock/sort limits, exact expected preservation digest, separate source/target/resume, failclosed private receipt and synthetic ownership/tmpfs cleanup. Fixed branding_runtime role collision concern is cleared for the maintained caller: INNER invokes once per freshly created disposable PostgreSQL server, and the host wrapper removes only its exact labeled/tmpfs-only resources. No operator code or migration edited; actual Docker/PostgreSQL/VPS flow was not executed. Existing locally installed postgres/pg_ctl commands were not found; no runtime installed."
+  },
+  {
+    "path": "backend/scripts/workspace_branding_release_schema.py",
+    "sha256": "d1f19a5f85298ffc9645e2611fd1014a718c3c688c9d4b7686c2fbd76d5a24fd",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical current source read of additive0140/0141\u21920142 contract and qualification closure. Reviewed exact migration AST/hash chain, original row/catalog/table+column grants, streamed100-row digests, null-beforeactivation rule, bounded PostgreSQL transaction/lock/sort limits, exact expected preservation digest, separate source/target/resume, failclosed private receipt and synthetic ownership/tmpfs cleanup. Fixed branding_runtime role collision concern is cleared for the maintained caller: INNER invokes once per freshly created disposable PostgreSQL server, and the host wrapper removes only its exact labeled/tmpfs-only resources. No operator code or migration edited; actual Docker/PostgreSQL/VPS flow was not executed. Existing locally installed postgres/pg_ctl commands were not found; no runtime installed."
+  },
+  {
+    "path": "backend/scripts/release_workspace_branding_upgrade.py",
+    "sha256": "1f3027faf4925cc789117f8e2da54543a61037d075ebbd1b0fa263cd8cd44386",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical current source read of additive0140/0141\u21920142 contract and qualification closure. Reviewed exact migration AST/hash chain, original row/catalog/table+column grants, streamed100-row digests, null-beforeactivation rule, bounded PostgreSQL transaction/lock/sort limits, exact expected preservation digest, separate source/target/resume, failclosed private receipt and synthetic ownership/tmpfs cleanup. Fixed branding_runtime role collision concern is cleared for the maintained caller: INNER invokes once per freshly created disposable PostgreSQL server, and the host wrapper removes only its exact labeled/tmpfs-only resources. No operator code or migration edited; actual Docker/PostgreSQL/VPS flow was not executed. Existing locally installed postgres/pg_ctl commands were not found; no runtime installed."
+  },
+  {
+    "path": "backend/scripts/qualify_workspace_branding.py",
+    "sha256": "7630be7204a148e704c18c4e7a715deb463cf47fba593c585f7313ed8cc6fa03",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical current source read of additive0140/0141\u21920142 contract and qualification closure. Reviewed exact migration AST/hash chain, original row/catalog/table+column grants, streamed100-row digests, null-beforeactivation rule, bounded PostgreSQL transaction/lock/sort limits, exact expected preservation digest, separate source/target/resume, failclosed private receipt and synthetic ownership/tmpfs cleanup. Fixed branding_runtime role collision concern is cleared for the maintained caller: INNER invokes once per freshly created disposable PostgreSQL server, and the host wrapper removes only its exact labeled/tmpfs-only resources. No operator code or migration edited; actual Docker/PostgreSQL/VPS flow was not executed. Existing locally installed postgres/pg_ctl commands were not found; no runtime installed."
+  },
+  {
+    "path": "scripts/qa/qualify_branding_migration.py",
+    "sha256": "96d59a4b5bff6d8b103592b80b10052b690630cec925ace0cea10bc5f2c46a1f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical current source read of additive0140/0141\u21920142 contract and qualification closure. Reviewed exact migration AST/hash chain, original row/catalog/table+column grants, streamed100-row digests, null-beforeactivation rule, bounded PostgreSQL transaction/lock/sort limits, exact expected preservation digest, separate source/target/resume, failclosed private receipt and synthetic ownership/tmpfs cleanup. Fixed branding_runtime role collision concern is cleared for the maintained caller: INNER invokes once per freshly created disposable PostgreSQL server, and the host wrapper removes only its exact labeled/tmpfs-only resources. No operator code or migration edited; actual Docker/PostgreSQL/VPS flow was not executed. Existing locally installed postgres/pg_ctl commands were not found; no runtime installed."
+  }
+]

@@ -1,0 +1,160 @@
+{
+  "shared_budget_file_edited": false,
+  "owner": "AI gate owner integrates",
+  "measurements": [
+    {
+      "path": "app/infrastructure/imports/passport_excel_importer.py",
+      "lines": 115,
+      "max_function_complexity": 13,
+      "most_complex_function": "import_rows",
+      "coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/imports/passport_excel_catalog.py",
+      "lines": 228,
+      "max_function_complexity": 7,
+      "most_complex_function": "_build_header_alias_index",
+      "coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/imports/passport_excel_records.py",
+      "lines": 52,
+      "max_function_complexity": 0,
+      "most_complex_function": null,
+      "coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/imports/passport_excel_rows.py",
+      "lines": 264,
+      "max_function_complexity": 13,
+      "most_complex_function": "_confirmed_fields",
+      "coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/imports/passport_excel_limits.py",
+      "lines": 158,
+      "max_function_complexity": 13,
+      "most_complex_function": "_validate_archive",
+      "coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/imports/passport_excel_worksheets.py",
+      "lines": 256,
+      "max_function_complexity": 25,
+      "most_complex_function": "_collect_worksheet",
+      "coverage_percent": null
+    },
+    {
+      "path": "app/infrastructure/imports/passport_excel_formula.py",
+      "lines": 46,
+      "max_function_complexity": 4,
+      "most_complex_function": "worksheet_contains_formula",
+      "coverage_percent": null
+    }
+  ],
+  "previous_budgets": {
+    "app/infrastructure/imports/passport_excel_importer.py": null,
+    "app/infrastructure/imports/passport_excel_catalog.py": null,
+    "app/infrastructure/imports/passport_excel_records.py": null,
+    "app/infrastructure/imports/passport_excel_rows.py": null,
+    "app/infrastructure/imports/passport_excel_limits.py": null,
+    "app/infrastructure/imports/passport_excel_worksheets.py": null,
+    "app/infrastructure/imports/passport_excel_formula.py": null
+  },
+  "candidates": [
+    {
+      "path": "app/infrastructure/imports/passport_excel_importer.py",
+      "baseline_lines": 115,
+      "maximum_lines": 115,
+      "baseline_max_function_complexity": 13,
+      "maximum_function_complexity": 13,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/imports/passport_excel_catalog.py",
+      "baseline_lines": 228,
+      "maximum_lines": 228,
+      "baseline_max_function_complexity": 7,
+      "maximum_function_complexity": 7,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/infrastructure/imports/passport_excel_records.py",
+      "baseline_lines": 52,
+      "maximum_lines": 52,
+      "baseline_max_function_complexity": 0,
+      "maximum_function_complexity": 0,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/imports/passport_excel_rows.py",
+      "baseline_lines": 264,
+      "maximum_lines": 264,
+      "baseline_max_function_complexity": 13,
+      "maximum_function_complexity": 13,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/infrastructure/imports/passport_excel_limits.py",
+      "baseline_lines": 158,
+      "maximum_lines": 158,
+      "baseline_max_function_complexity": 13,
+      "maximum_function_complexity": 13,
+      "minimum_coverage_percent": 85
+    },
+    {
+      "path": "app/infrastructure/imports/passport_excel_worksheets.py",
+      "baseline_lines": 256,
+      "maximum_lines": 256,
+      "baseline_max_function_complexity": 25,
+      "maximum_function_complexity": 25,
+      "minimum_coverage_percent": 85
+    },
+    {
+      "path": "app/infrastructure/imports/passport_excel_formula.py",
+      "baseline_lines": 46,
+      "maximum_lines": 46,
+      "baseline_max_function_complexity": 4,
+      "maximum_function_complexity": 4,
+      "minimum_coverage_percent": 85
+    }
+  ],
+  "proposed_coverage_floors": [
+    {
+      "path": "app/infrastructure/imports/passport_excel_catalog.py",
+      "minimum_line_percent": 90,
+      "minimum_branch_percent": 75
+    },
+    {
+      "path": "app/infrastructure/imports/passport_excel_formula.py",
+      "minimum_line_percent": 85,
+      "minimum_branch_percent": 95
+    },
+    {
+      "path": "app/infrastructure/imports/passport_excel_importer.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 85
+    },
+    {
+      "path": "app/infrastructure/imports/passport_excel_limits.py",
+      "minimum_line_percent": 85,
+      "minimum_branch_percent": 80
+    },
+    {
+      "path": "app/infrastructure/imports/passport_excel_records.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    },
+    {
+      "path": "app/infrastructure/imports/passport_excel_rows.py",
+      "minimum_line_percent": 90,
+      "minimum_branch_percent": 85
+    },
+    {
+      "path": "app/infrastructure/imports/passport_excel_worksheets.py",
+      "minimum_line_percent": 85,
+      "minimum_branch_percent": 75
+    }
+  ],
+  "coverage_note": "Floors are measured from focused existing cases and rounded down to five-percent steps, capped at95. AI owner must retain the greater of these and every existing floor; no gate relaxation is authorized. Formula policy/source are unchanged."
+}

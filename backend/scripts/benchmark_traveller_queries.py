@@ -1,6 +1,6 @@
 """Bounded synthetic local query benchmark; NOT PostgreSQL/API capacity proof.
 
-Run from backend with .venv311 Python. Creates a new synthetic SQLite database
+Run from backend with the reviewed .venv Python. Creates a new synthetic SQLite database
 under the specified output directory; refuses to overwrite an existing database.
 No .env, provider, real record, or network service is accessed. Batches cap Python
 working data at 500 rows. Concurrent readers are capped at four for 20-300 seconds.

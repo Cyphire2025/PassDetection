@@ -1,0 +1,28 @@
+..E.E
+======================================================================
+ERROR: test_non_object_inventory_rows_fail_with_bounded_reason (test_retained_release_json_boundaries.RetainedJsonBoundaries.test_non_object_inventory_rows_fail_with_bounded_reason) (value=['synthetic-private'])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_retained_release_json_boundaries.py", line 37, in test_non_object_inventory_rows_fail_with_bounded_reason
+    release.rows()
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\retained_release_host.py", line 57, in rows
+    if not isinstance(rows, list) or not all(isinstance(row, dict) for row in rows):
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'bool' object is not callable
+
+======================================================================
+ERROR: test_normal_inventory_preserves_original_objects_and_command_scope (test_retained_release_json_boundaries.RetainedJsonBoundaries.test_normal_inventory_preserves_original_objects_and_command_scope)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_retained_release_json_boundaries.py", line 20, in test_normal_inventory_preserves_original_objects_and_command_scope
+    self.assertEqual(release.rows(all=True), rows)
+                     ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\retained_release_host.py", line 57, in rows
+    if not isinstance(rows, list) or not all(isinstance(row, dict) for row in rows):
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'bool' object is not callable
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.006s
+
+FAILED (errors=2)

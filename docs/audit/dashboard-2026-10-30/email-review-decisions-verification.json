@@ -1,0 +1,172 @@
+{
+  "status": "complete; sources frozen; current candidates pending integration",
+  "source_manifest": {
+    "path": "docs/audit/dashboard-2026-10-30/email-review-decisions-source-manifest.json",
+    "sha256": "b852438ff7fdd7da047e42d774399f5d4f3ada39ae66c7b5391f55a1b145b8ce"
+  },
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/email-review-decisions-reviewed-files.json",
+    "sha256": "065443e6f0c782bedc41498a9a58b576806d855e166d3c2bbcbd65c4f7ed7adf"
+  },
+  "candidates": {
+    "path": "docs/audit/dashboard-2026-10-30/email-review-decisions-budget-candidates.json",
+    "sha256": "e2a01c5ef96298d0d615eccbcba0f4710d2efa3e971c95ec1fe26a7a18de41f9"
+  },
+  "followups": {
+    "path": "docs/audit/dashboard-2026-10-30/email-review-decisions-followups.json",
+    "sha256": "3639233679f0d0062c0aa9f78c0a5a9e15b16fdb40fc8de463ca03b52d06a9d1"
+  },
+  "artifacts": [
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-review-decisions-original-source.json",
+      "sha256": "737f6adb58c91802192c11a042b353cd401b1a6807a5eca006338ae7fd440286"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-review-decisions-movement-checkpoint.json",
+      "sha256": "40c7e800e7683b909f1d683e50a8513a5b6e1768b56525e0f2f88beb7f623749"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-review-decisions-guard-final-extraction-proof.json",
+      "sha256": "22b0442e02a35b25377e344e5173b70a01a082d1f57d6f5769bd09aa5d9138e4"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-review-decisions-runtime-bindings-proof.json",
+      "sha256": "1956cf16c8d873b3359bcb57cae47cf20a304ab557fae5b7864bef2effb1d192"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-review-decisions-before-runtime-contract.json",
+      "sha256": "8e7d75f0994b014734a8e1539f1a0c45dcd75cbfea95cf2727949dff003a3e05"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-review-decisions-after-runtime-contract.json",
+      "sha256": "fdd9a3a43e7e6e165f51ada3786e8f84d3e0d9ee2503ad1e619924afdd1884c3"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-review-decisions-baseline-checks.json",
+      "sha256": "b999c6e5fc8ef0c837bc55ade40c10efba624c2638081dc16a6c80b78a943041"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-review-decisions-baseline-corrected-checks.json",
+      "sha256": "48db23b129f36eac499a520fe184b399fba5458bd421f337f0a2238b7ea1d94a"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-review-decisions-final-checks.json",
+      "sha256": "93eced4523c4bcac76944fa1f0f61a4a787ecff6d790b65ca86382f56a742f7d"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-review-decisions-guard-final-checks.json",
+      "sha256": "c91250271c192382e6e9ced2c060f1311c1b50610fa5b5af3a95cd663891b835"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-review-decisions-guard-final-coverage.json",
+      "sha256": "93a3f86d0753cb82d4e95d72c40e4b8debf8389a0bd4d3b17996b133710c3d5b"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/email-review-decisions-guard-final-coverage.xml",
+      "sha256": "1405faff5d839b720b3b1bf8d340fc49c00166e33bc2e90c593911d1f027efb6"
+    }
+  ],
+  "source_lines": [
+    184,
+    154,
+    166
+  ],
+  "original_27statement_expanded_body_ast_exact": true,
+  "actual_runtime": {
+    "original_import_objects": 37,
+    "original_global_bindings": 33,
+    "evaluated_hint_objects": 5,
+    "helper_and_facade_identity_bindings": 3,
+    "http_operations": 1,
+    "openapi_paths": 1,
+    "facade_route_order": 18,
+    "typed_context_fields": 5,
+    "typed_action_outcome_fields": 3,
+    "no_callbacks_proxy_or_new_framework": true
+  },
+  "checks": {
+    "pre_edit_corrected": 29,
+    "initial_after_checkpoint": 29,
+    "current_final": 31,
+    "existing_cases": 6,
+    "new_ordinary_orchestration_cases": 23,
+    "new_unavailable_row_contract_cases": 2,
+    "source_fence_paths_unchanged": 10,
+    "prior_frozen_paths_unchanged": 224,
+    "strict_mypy_files": 3,
+    "strict_mypy_exit_code": 0,
+    "original_effective_ruff6_tool_chunk": "7dc686",
+    "only_subsequently_changed_test_rechecked_ruff_tool_chunk": "8f743f",
+    "current_effective_ruff_files": 6,
+    "new_test_original_function_asts_unchanged": true,
+    "only_fixture_dependency_retarget": 1
+  },
+  "owner_coverage": [
+    {
+      "path": "app/presentation/api/v1/routes/email_integration_review_decisions.py",
+      "lines": 184,
+      "max_function_complexity": 14,
+      "most_complex_function": "resolve_email_review",
+      "coverage_percent": 100.0,
+      "branch_count": 10,
+      "branch_coverage_percent": 90.0,
+      "missing_lines": [],
+      "missing_branches": [
+        [
+          164,
+          166
+        ]
+      ]
+    },
+    {
+      "path": "app/presentation/api/v1/routes/email_review_context.py",
+      "lines": 154,
+      "max_function_complexity": 8,
+      "most_complex_function": "_lock_email_review",
+      "coverage_percent": 100.0,
+      "branch_count": 12,
+      "branch_coverage_percent": 100.0,
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    {
+      "path": "app/presentation/api/v1/routes/email_review_actions.py",
+      "lines": 166,
+      "max_function_complexity": 22,
+      "most_complex_function": "_apply_email_review_action",
+      "coverage_percent": 98.85057471264368,
+      "branch_count": 26,
+      "branch_coverage_percent": 84.61538461538461,
+      "missing_lines": [
+        47
+      ],
+      "missing_branches": [
+        [
+          46,
+          47
+        ],
+        [
+          80,
+          89
+        ],
+        [
+          136,
+          138
+        ],
+        [
+          153,
+          157
+        ]
+      ]
+    }
+  ],
+  "normal_operations": {
+    "tightened": 1,
+    "added": 2
+  },
+  "critical_candidates": 0,
+  "all_old_global_critical_floors_and_BEFOREs_preserved": true,
+  "shared_gate_or_release_files_edited": false,
+  "no_broad_suites_builds_browser_provider_sends_deployment": true,
+  "notes": "Only currentguard-final31case/3owner unmixed isolated coverage is final;29casefinal filename is historical checkpoint. No behavior/security policy change or novel bug claimed."
+}

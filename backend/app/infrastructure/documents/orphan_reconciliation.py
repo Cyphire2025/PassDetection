@@ -108,9 +108,8 @@ async def _advance_cursor(
             await client.delete(_cursor_key(prefix))
             return
         encrypted = cipher.encrypt([objects[-1][0]])
-        cursor_value = (
-            f"{cipher.key_version}:"
-            + base64.urlsafe_b64encode(encrypted).decode("ascii")
+        cursor_value = f"{cipher.key_version}:" + base64.urlsafe_b64encode(encrypted).decode(
+            "ascii"
         )
         await client.setex(
             _cursor_key(prefix),
@@ -153,6 +152,27 @@ async def reconcile_document_storage_orphans(
     not permanently hide later orphaned keys.
     """
 
+    return await _reconcile_fixed_storage_namespaces(
+        prefixes=DOCUMENT_ORPHAN_PREFIXES,
+        storage=storage,
+        reference_lookup=reference_lookup,
+        cursor_client=cursor_client,
+        cursor_cipher=cursor_cipher,
+        now=now,
+    )
+
+
+async def _reconcile_fixed_storage_namespaces(
+    *,
+    prefixes: tuple[str, ...],
+    reference_lookup: ReferenceLookup,
+    storage: MinioStorageRepository | None = None,
+    cursor_client: Any | None = None,
+    cursor_cipher: StorageCleanupCipher | None = None,
+    now: datetime | None = None,
+) -> DocumentOrphanReconciliationResult:
+    """Shared bounded engine; callers supply fixed, reviewed namespace tuples."""
+
     active_storage = storage or MinioStorageRepository()
     owned_cursor = cursor_client is None
     cursor = cursor_client or Redis.from_url(
@@ -169,7 +189,7 @@ async def reconcile_document_storage_orphans(
     deleted_count = 0
 
     try:
-        for prefix in DOCUMENT_ORPHAN_PREFIXES:
+        for prefix in prefixes:
             start_after = await _read_cursor(cursor, prefix, cipher=cipher)
             objects = await active_storage.list_files(
                 prefix=prefix,
@@ -178,9 +198,7 @@ async def reconcile_document_storage_orphans(
             )
             scanned_count += len(objects)
             stale_keys = [
-                key
-                for key, modified_at in objects
-                if _is_past_grace(modified_at, cutoff=cutoff)
+                key for key, modified_at in objects if _is_past_grace(modified_at, cutoff=cutoff)
             ]
             stale_candidate_count += len(stale_keys)
             referenced = await reference_lookup(prefix, stale_keys)

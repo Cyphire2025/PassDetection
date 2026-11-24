@@ -1,0 +1,99 @@
+{
+  "recorded_at": "2026-10-31T09:57:55.573994+00:00",
+  "status": "frozen",
+  "source_fence": [
+    {
+      "path": "frontend/features/upload/hooks/use-fresh-contact.ts",
+      "sha256": "ecfc375b9982d5fd6d4ec154db0537d378e3d559851cf0e231f2e8f1515dbd83"
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-fresh-contact-challenge.ts",
+      "sha256": "5b21efe2a732c978c0d21e7d1200cda81711952daacf258002d195ff9e4c442a"
+    },
+    {
+      "path": "frontend/features/upload/components/fresh-contact.tsx",
+      "sha256": "59c1f7c10b6c22ff3c9cfc40f632bdbfc7d239d9990f71a519628dfb6b906dfd"
+    },
+    {
+      "path": "frontend/features/upload/services/contact-verification.ts",
+      "sha256": "832e6a28cbf06e700cc915b91f60621e3738467288b4ae066c78c5c1a9b439e5"
+    },
+    {
+      "path": "frontend/features/upload/components/fresh-contact.test.tsx",
+      "sha256": "cdd02ebd5195af3f8893a0339a8c07da392274262cd8a2d35e146849977127ea"
+    }
+  ],
+  "retirement_manifest": "legacy-contact-retirement-manifest.json",
+  "provenance": "fresh-contact-provenance.json",
+  "baseline": {
+    "corrected": ".tmp/frontend-residual-coverage/fresh-contact-baseline-corrected.json",
+    "passed": 4,
+    "failed": 2,
+    "observations": [
+      "Repeated click before serialized flush/foreground pending starts queues duplicate requestCode calls.",
+      "Failed-send validated server retry interval was ignored by current contact UI."
+    ],
+    "initial_fixture_error": "Initial clock test enabled fake timers after mounting a real interval; corrected before clean4pass2fail baseline. Initial log retained separately."
+  },
+  "actual_checks": {
+    "old_and_new_before_retirement": {
+      "passed": 12,
+      "failed": 0,
+      "raw_json": ".tmp/frontend-residual-coverage/contact-obligations-before-retirement.json"
+    },
+    "final_affected_vitest": {
+      "passed": 25,
+      "failed": 0,
+      "files": 3,
+      "raw_json": ".tmp/frontend-residual-coverage/fresh-contact-final2.json"
+    },
+    "focused_critical_coverage": {
+      "per_file": {
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\features\\upload\\hooks\\use-fresh-contact-challenge.ts": {
+          "lines": 100,
+          "branches": 100,
+          "functions": 100,
+          "statements": 100
+        },
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\frontend\\features\\upload\\hooks\\use-fresh-contact.ts": {
+          "lines": 100,
+          "branches": 91.66,
+          "functions": 100,
+          "statements": 96.15
+        }
+      },
+      "raw_summary": ".tmp/fresh-contact/coverage-final2/coverage-summary.json",
+      "thresholds_retained": {
+        "statements": 74,
+        "branches": 50,
+        "functions": 75,
+        "lines": 75
+      },
+      "new_actual_owner_requires_parent_include": true
+    },
+    "affected_node": {
+      "passed": 8,
+      "failed": 0,
+      "raw_log": ".tmp/frontend-residual-coverage/fresh-contact-node.txt"
+    },
+    "types": {
+      "exit_code": 0,
+      "raw_log": ".tmp/frontend-residual-coverage/fresh-contact-types-final.txt",
+      "earlier_test_fixture_enum_diagnostic": ".tmp/frontend-residual-coverage/fresh-contact-types.txt"
+    },
+    "scoped_lint": {
+      "exit_code": 0,
+      "warnings": 0,
+      "raw_log": ".tmp/frontend-residual-coverage/fresh-contact-lint-sealed.txt",
+      "earlier_ref_cleanup_warning": ".tmp/frontend-residual-coverage/fresh-contact-lint.txt",
+      "resolution": "Capture effect epoch for cleanup assignment; same operation invalidation semantics, final zero-warning lint."
+    }
+  },
+  "budget_candidates": "fresh-contact-budget-candidates.json",
+  "limitations": [
+    "No whole app tests/build/browser run.",
+    "Current contact component uses actual draft queue but network methods are mocked; no live OTP/provider send or server rate-limit bypass claim.",
+    "Original6legacy test responsibilities preserved through current behavior; original UI-only labels/layout no longer represent production callers.",
+    "No API/backend/public token/member proof/DTO/config/package/mobile changes. Parent owns additive critical include and budget integration."
+  ]
+}

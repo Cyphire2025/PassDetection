@@ -7,7 +7,7 @@
 
 import { create } from "zustand";
 import { expiredSessionSignInPath } from "@/features/auth/services/restoration-destination";
-import { unchangedSessionAuthority } from "@/features/auth/services/session-continuity";
+import { privateAuthorityKey, unchangedSessionAuthority } from "@/features/auth/services/session-continuity";
 import type { AccessLevelAgencyChoice, User } from "@/types";
 import {
   clearServerSessionCookies,
@@ -87,7 +87,9 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => ({
   })),
 
   setSession: (user) => {
-    prepareSensitiveBrowserStateForUser(user.id);
+    const previous = get().user;
+    prepareSensitiveBrowserStateForUser(user.id,
+      previous !== null && privateAuthorityKey(previous) !== privateAuthorityKey(user));
     set((state) => ({
       user,
       isAuthenticated: true,
@@ -143,12 +145,20 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => ({
         accessLevelError: null,
         accessLevelAgencyChoice: null,
       }));
+      const clearedSessionVersion = get().sessionVersion;
+      const serverLogout = revokeServerSession
+        ? clearServerSessionCookies(expectedUserId ?? undefined) : Promise.resolve();
       const cleanup = Promise.all([
-        revokeServerSession ? clearServerSessionCookies() : Promise.resolve(),
+        serverLogout,
         clearSensitiveBrowserState(reason, notifyOtherTabs),
       ]);
 
-      if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {
+      // Full navigation releases this document's Web Locks. Keep the cookie
+      // writer alive until its bounded response completes; private UI is
+      // already unmounted by the state transition above.
+      if (revokeServerSession) await serverLogout;
+      if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login")
+        && !get().isAuthenticated && get().sessionVersion === clearedSessionVersion) {
         const params = new URLSearchParams();
         if (reason === "session_expired") params.set("reason", "session_expired");
         if (loginReason) params.set("reason", loginReason);

@@ -1,0 +1,115 @@
+{
+  "files": [
+    {
+      "path": "scripts/qa/qualify_workload_capacity.py",
+      "sha256": "ef67abbde653927b30fe191067cde38eedc06244aaa6955a5b29a82c75fdc4bb",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 109,
+      "notes": "Entire original workload source physically reviewed; original declarations and every current owner import/glue authored and examined. Exact17 original function/metadata obligations,103 actual global bindings and14 constants qualified; final2 typed guards/local annotations/stream-name cleanup are explicit inverse proof, not claimed unchanged. Four focused test files cover synthetic actual HTTP and standalone CLI. No independent second reviewer/live services claim."
+    },
+    {
+      "path": "scripts/qa/test_capacity_observer_lifecycle.py",
+      "sha256": "cdea0abebb404e413fa1fd0221f9140f7806731ec0b6f9c180e371e7c5bab35e",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 196,
+      "notes": "Entire original workload source physically reviewed; original declarations and every current owner import/glue authored and examined. Exact17 original function/metadata obligations,103 actual global bindings and14 constants qualified; final2 typed guards/local annotations/stream-name cleanup are explicit inverse proof, not claimed unchanged. Four focused test files cover synthetic actual HTTP and standalone CLI. No independent second reviewer/live services claim."
+    },
+    {
+      "path": "scripts/qa/test_mcp_capacity_profile.py",
+      "sha256": "e18ef81199a70a87bbaacbb02f8af00b1bfb1362576a57ab13db1bb3542620e1",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 105,
+      "notes": "Entire original workload source physically reviewed; original declarations and every current owner import/glue authored and examined. Exact17 original function/metadata obligations,103 actual global bindings and14 constants qualified; final2 typed guards/local annotations/stream-name cleanup are explicit inverse proof, not claimed unchanged. Four focused test files cover synthetic actual HTTP and standalone CLI. No independent second reviewer/live services claim."
+    },
+    {
+      "path": "scripts/qa/test_workload_capacity.py",
+      "sha256": "a0e1be994d760740c23a8dfa0373816211db47dc70b93f712352a73297ed118b",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 260,
+      "notes": "Entire original workload source physically reviewed; original declarations and every current owner import/glue authored and examined. Exact17 original function/metadata obligations,103 actual global bindings and14 constants qualified; final2 typed guards/local annotations/stream-name cleanup are explicit inverse proof, not claimed unchanged. Four focused test files cover synthetic actual HTTP and standalone CLI. No independent second reviewer/live services claim."
+    },
+    {
+      "path": "scripts/qa/test_workload_capacity_owners.py",
+      "sha256": "9dca3a95236c91e9b2ac9aac933841724997a7ca0cc89bab60cf4ef2293fa616",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 117,
+      "notes": "Entire original workload source physically reviewed; original declarations and every current owner import/glue authored and examined. Exact17 original function/metadata obligations,103 actual global bindings and14 constants qualified; final2 typed guards/local annotations/stream-name cleanup are explicit inverse proof, not claimed unchanged. Four focused test files cover synthetic actual HTTP and standalone CLI. No independent second reviewer/live services claim."
+    },
+    {
+      "path": "scripts/qa/workload_capacity_contract.py",
+      "sha256": "0b08119561bda6eb47d15843da63bc6af9f838a784707aa015508d3af1f1e743",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 47,
+      "notes": "Entire original workload source physically reviewed; original declarations and every current owner import/glue authored and examined. Exact17 original function/metadata obligations,103 actual global bindings and14 constants qualified; final2 typed guards/local annotations/stream-name cleanup are explicit inverse proof, not claimed unchanged. Four focused test files cover synthetic actual HTTP and standalone CLI. No independent second reviewer/live services claim."
+    },
+    {
+      "path": "scripts/qa/workload_capacity_gates.py",
+      "sha256": "b4de49ccedbbc05e1686b3be7fab2207f7bfb1bc5c58eacc7b233887b9c72f6f",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 129,
+      "notes": "Entire original workload source physically reviewed; original declarations and every current owner import/glue authored and examined. Exact17 original function/metadata obligations,103 actual global bindings and14 constants qualified; final2 typed guards/local annotations/stream-name cleanup are explicit inverse proof, not claimed unchanged. Four focused test files cover synthetic actual HTTP and standalone CLI. No independent second reviewer/live services claim."
+    },
+    {
+      "path": "scripts/qa/workload_capacity_measurements.py",
+      "sha256": "0fef0bd1c2c90e33046aae59c8de09f554051d66aa55379ed060384d851bc70b",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 142,
+      "notes": "Entire original workload source physically reviewed; original declarations and every current owner import/glue authored and examined. Exact17 original function/metadata obligations,103 actual global bindings and14 constants qualified; final2 typed guards/local annotations/stream-name cleanup are explicit inverse proof, not claimed unchanged. Four focused test files cover synthetic actual HTTP and standalone CLI. No independent second reviewer/live services claim."
+    },
+    {
+      "path": "scripts/qa/workload_capacity_resources.py",
+      "sha256": "bef9f6afc679413e818bc7fded99b1cdd858c6f46e6d5456a892fc98ca4b0747",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 80,
+      "notes": "Entire original workload source physically reviewed; original declarations and every current owner import/glue authored and examined. Exact17 original function/metadata obligations,103 actual global bindings and14 constants qualified; final2 typed guards/local annotations/stream-name cleanup are explicit inverse proof, not claimed unchanged. Four focused test files cover synthetic actual HTTP and standalone CLI. No independent second reviewer/live services claim."
+    },
+    {
+      "path": "scripts/qa/workload_capacity_run.py",
+      "sha256": "1a03b1d0303e9a1733d8f344af2b6810e5929c047e57548c4ea071bc3faa7d90",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 255,
+      "notes": "Entire original workload source physically reviewed; original declarations and every current owner import/glue authored and examined. Exact17 original function/metadata obligations,103 actual global bindings and14 constants qualified; final2 typed guards/local annotations/stream-name cleanup are explicit inverse proof, not claimed unchanged. Four focused test files cover synthetic actual HTTP and standalone CLI. No independent second reviewer/live services claim."
+    },
+    {
+      "path": "scripts/qa/workload_capacity_traffic.py",
+      "sha256": "3b77ec36912a1df4dca13ed566cd51dcf67bac684c01dbf65d816b67d44df250",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "lines": 171,
+      "notes": "Entire original workload source physically reviewed; original declarations and every current owner import/glue authored and examined. Exact17 original function/metadata obligations,103 actual global bindings and14 constants qualified; final2 typed guards/local annotations/stream-name cleanup are explicit inverse proof, not claimed unchanged. Four focused test files cover synthetic actual HTTP and standalone CLI. No independent second reviewer/live services claim."
+    }
+  ],
+  "scope": "Current fixed-stack QA runner and direct affected tests. No native UI, release/deploy/service actions."
+}

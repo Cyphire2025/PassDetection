@@ -40,12 +40,12 @@ from app.presentation.api.v1.routes.whatsapp_shared import (
     _group_detail,
     _normalize_phone,
     _parse_imported_field_keys,
+    _parse_manual_contacts,
     _parse_rejected_contacts,
     _parse_support_contacts,
 )
 from app.presentation.api.v1.schemas.whatsapp_schemas import (
     WhatsAppBroadcastGroupDetailResponse,
-    WhatsAppRecipientInput,
     WhatsAppSupportContactInput,
 )
 from app.presentation.dependencies.auth import require_role
@@ -81,14 +81,7 @@ async def create_broadcast_group(
     # Release that transaction before parsing request JSON or workbook bytes.
     await session.rollback()
     preview_field_keys = _parse_imported_field_keys(imported_field_keys_json)
-    try:
-        manual_contacts = [
-            WhatsAppRecipientInput(**item) for item in json.loads(contacts_json or "[]")
-        ]
-    except (TypeError, ValueError) as exc:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid manual contact list"
-        ) from exc
+    manual_contacts = _parse_manual_contacts(contacts_json)
     rejected_contacts = _parse_rejected_contacts(rejected_contacts_json)
 
     try:

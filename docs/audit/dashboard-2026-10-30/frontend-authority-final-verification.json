@@ -1,0 +1,55 @@
+{
+  "status": "passed-frozen-frontend-checkpoint",
+  "source_files_hashed": 1398,
+  "source_unchanged_through_final_unit_and_contract_runs": true,
+  "unit_files_passed": 256,
+  "unit_cases_passed": 1652,
+  "node_contracts_passed": 670,
+  "required_types": "passed after all four test-only fixture corrections",
+  "lint": "whole lint passed; all four later test-only changes passed scoped lint; runtime unchanged",
+  "module_budgets": {
+    "passed": 268,
+    "old_ceilings_raised": false,
+    "retired_paths": "Four exactly proved closed WhatsApp sources only."
+  },
+  "production_build": "passed default production and explicitly isolated optional-proxy artifact",
+  "production_browser": {
+    "passed": 9,
+    "failed": 0,
+    "scope": "Exact branded login title, full credential login/logout, expired session, denied role, 320px/1440px uploads, independent family drafts, lost-response recovery, three proxy paths and CSP nonces."
+  },
+  "configured_critical_owner_coverage_percent": {
+    "lines": 97.69,
+    "statements": 92.44,
+    "functions": 91.57,
+    "branches": 87.08,
+    "branchesTrue": 100
+  },
+  "coverage_floors_unchanged": {
+    "per_file": true,
+    "statements": 74,
+    "branches": 50,
+    "functions": 75,
+    "lines": 75
+  },
+  "coverage_scope": "Configured critical owners only, not the entire codebase.",
+  "prior_failures_preserved": "First16unit/2Nodefixture-source-contract failures and first local missing-proxy-build probe are saved. Their original receipts were not relabeled.",
+  "source_build_relationship": "Both production builds used unchanged runtime bytes; only four named test files and generated Next type entry changed from initial build snapshot to final snapshot, as independently checked. Production browser ran the freshly built isolated artifact.",
+  "verification_cadence": "No more broad reruns for file reads, documentation or unrelated small edits. Continue coherent batches with meaningful affected checks; next combined checkpoint on stable shared changes, then final combined verification once implementation is complete.",
+  "limits": "This is a frontend checkpoint. Whole repository per-file review, remaining implementations and actual PostgreSQL/Redis/private-S3/Linux/Nginx/container/VPS release qualification remain open. No commit/push/deploy/provider send performed.",
+  "receipts_sha256": {
+    "frontend-authority-final-source-checkpoint.json": "520ccc9b76a1ef4481ab0bccaf790723c12a994179c9a47342cd5b8ad6adb073",
+    "frontend-authority-final-source-verification.json": "d69f09a37f6de7f4b86c7fc9a43bfda16e1ba0964766dbb6103858af75199f82",
+    "frontend-authority-final-unit.txt": "5ff7cc2c999ce2b45144968a80c6253280935d718bd758f8ed27e008dd801d43",
+    "frontend-authority-final-node-contracts.txt": "a9fc80e826a41af0ce4c375d6d65f991c150bbb534836bf4895fafd8553bf582",
+    "frontend-authority-final-types.txt": "9454c3f1e6dd0b35a44cd34b78d3a60b348f85fde420b2665f190a84b5597031",
+    "frontend-authority-lint.txt": "65d10c2da0781691adc45c185308c222c2a92911360ade0a27a4e555be91c5bb",
+    "frontend-authority-budgets.txt": "302b8bbeef286e36bce0132c39e53cc9032d8e688acd38ee719a8adec874a857",
+    "frontend-authority-build.txt": "47e2b709dc69210a8dab07d53fecc136350f40b19f599e2edd17232872ec0bb5",
+    "frontend-authority-isolated-build.txt": "88c6a771a4fe91efe475491672e874d0ee53dd6392f2dcff15a8ec826363aaa3",
+    "frontend-authority-isolated-production-browser.json": "044c5f37e33ff30cc54c5027569431dd97aaa78e9593457a51d7f63d66761482",
+    "camera-gc-test-only-integration-verification.json": "32925441c46cd7c26c1ac7df7996c95d2da18d155815bc19c8babc02d24de83e",
+    "frontend-authority-first-integration-failures.json": "8f59eb3cab0a367f7de08b8b4d42c3f992df396b90c573d41375ab0ef4f8a8e0",
+    "frontend-authority-browser-build-setup.json": "555a0f3274f1778321113ae3bd99da674fb225202713cf742b14192924e11954"
+  }
+}

@@ -8,6 +8,10 @@ from dataclasses import dataclass
 from threading import RLock
 from typing import Any, Protocol
 
+_HTTP_METHODS = frozenset({
+    "GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "TRACE", "CONNECT",
+})
+
 
 class MetricsExportSink(Protocol):
     """Non-authoritative external sink; telemetry may never change a workflow."""
@@ -126,6 +130,7 @@ class MetricsRegistry:
 
     def record_request(self, *, method: str, path: str, status_code: int, duration_ms: float) -> None:
         route = self._normalize_path(path)
+        method = method if method in _HTTP_METHODS else "OTHER"
         self.increment(f"http.requests.total.{method}.{status_code}.{route}")
         self.observe(f"http.requests.duration_ms.{method}.{route}", duration_ms)
 

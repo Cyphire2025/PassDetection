@@ -1,0 +1,47 @@
+{
+  "source_changes": [
+    {
+      "path": "scripts/release_code_update.py",
+      "sha256": "5ae04cf862c283c6e95cb05847d368bca6a8327298b09486add2c621c938aa48",
+      "old_sha256": "21f79c420f5f8964cb429224cb323487468efde6f7231b72d00e98137968edd6",
+      "exact_source_inverse_after_only_literal_asset_and_error_description_replacements": true,
+      "URL_replacements": 2
+    },
+    {
+      "path": "scripts/release_retained_update.py",
+      "sha256": "b0b9daf0ad422893ef5618895f04b36f435959838945ca2e4384ab3936b91e14",
+      "old_sha256": "55338ce54f33e43b174e137b4808ba45cf48bee41cd67d0808e28221e2040c70",
+      "exact_source_inverse_after_only_literal_asset_and_error_description_replacements": true,
+      "URL_replacements": 1
+    }
+  ],
+  "known_old_release_source_asset_availability": [
+    {
+      "revision": "current",
+      "asset_sha256": "554d5337b9f093cf54dc7e0f552ebe4a987c58fc7aa404d69512165f3ace502c",
+      "PNG_valid": true,
+      "width": 192,
+      "height": 192,
+      "existing_runtime_copies_public_assets": true
+    },
+    {
+      "revision": "98f4fb4f7ba982fc46f917d24db63d59993a74a8",
+      "asset_sha256": "554d5337b9f093cf54dc7e0f552ebe4a987c58fc7aa404d69512165f3ace502c",
+      "PNG_valid": true,
+      "width": 192,
+      "height": 192,
+      "existing_runtime_copies_public_assets": true
+    },
+    {
+      "revision": "875d17b25da2687b5673148fabe9d10346ae0e4a",
+      "asset_sha256": "554d5337b9f093cf54dc7e0f552ebe4a987c58fc7aa404d69512165f3ace502c",
+      "PNG_valid": true,
+      "width": 192,
+      "height": 192,
+      "existing_runtime_copies_public_assets": true
+    }
+  ],
+  "all_hosts_commands_timeouts_resource_conditions_readiness_recovery_scope_unchanged": true,
+  "node_runtime": "v24.21.0",
+  "no_real_release_executed": true
+}

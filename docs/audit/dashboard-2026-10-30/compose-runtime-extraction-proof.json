@@ -1,0 +1,34 @@
+{
+  "basis": "Before any optional queue-contract strengthening: exact mechanical relocation of original source guards.",
+  "original_statements": 102,
+  "expanded_current_main_statement_ASTs_exact": true,
+  "original_nonmain_whole_function_ASTs_exact": 7,
+  "constant_ASTs_and_evaluated_values_exact": 22,
+  "public_signatures_and_runtime_hints_exact": 8,
+  "source_path_argument_renames_explicit": {
+    "backend_dockerfile_path": "BACKEND_DOCKERFILE",
+    "gunicorn_configuration_path": "GUNICORN_CONFIG",
+    "frontend_dockerignore_path": "FRONTEND_DOCKERIGNORE",
+    "backend_dockerignore_path": "BACKEND_DOCKERIGNORE"
+  },
+  "CLI_exception_boundary_whole_AST_exact": true,
+  "runtime_sha256": {
+    "scripts/verify_compose_runtime.py": "fc40628ad8ee060c34574e1d624d36f20fa1ead9e498dad4bf6c7067fae9e5e8",
+    "scripts/compose_runtime_capacity.py": "5261ea747dc77062c2b6d4c13ff617c0df6ab72c7e3a003410b5bd0c364ae979",
+    "scripts/compose_runtime_clients.py": "0e542244be82084f49bb558c3500c1a51fb97f8e7f8f367a75dd54f679768d93",
+    "scripts/compose_runtime_contract.py": "12c0fe4ac2368f4ed6120d68d8c7224f2402a3b8b65d9075e507fdc55edcb3e3",
+    "scripts/compose_runtime_services.py": "698b1cdbda38eaa96a5fb08377c90bb4a2ecedcb620f5f073fc3d01c1aae2d43",
+    "scripts/compose_runtime_values.py": "fba60e039015fd050fd7048f490a33da69fa6f9654d1297768ac01ff7799e4de",
+    "scripts/compose_runtime_workers.py": "39e9c121e4ae21fee8a251d47f911c370dac620006fd0d4f8cb71bca90c33f66"
+  },
+  "lines": {
+    "scripts/verify_compose_runtime.py": 215,
+    "scripts/compose_runtime_capacity.py": 208,
+    "scripts/compose_runtime_clients.py": 120,
+    "scripts/compose_runtime_contract.py": 132,
+    "scripts/compose_runtime_services.py": 138,
+    "scripts/compose_runtime_values.py": 58,
+    "scripts/compose_runtime_workers.py": 141
+  },
+  "limits": "Source/metadata proof only, no Docker Compose rendering, running service policy or deployment executed."
+}

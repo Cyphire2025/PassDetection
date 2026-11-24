@@ -1,0 +1,114 @@
+FFFF..                                                                   [100%]
+================================== FAILURES ===================================
+_ test_manager_invitation_stores_only_single_use_hash_and_returns_private_response[agency_admin] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000001FDAAC81B50>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001FDAAC95FD0>
+role = <UserRole.AGENCY_ADMIN: 'agency_admin'>
+
+    @pytest.mark.parametrize("role", [UserRole.AGENCY_ADMIN, UserRole.SUPER_ADMIN])
+    async def test_manager_invitation_stores_only_single_use_hash_and_returns_private_response(
+        db_session: AsyncSession, monkeypatch: pytest.MonkeyPatch, role: UserRole,
+    ) -> None:
+        actor = await _actor(db_session, role)
+        monkeypatch.setattr(admin_workforce, "hash_password", lambda _value: "synthetic-password-hash")
+        response = Response()
+        before = datetime.now(UTC)
+        invited = await admin.create_manager(
+>           body=CreateManagerRequest(full_name="  Invited Manager  ", email="NEW@example.test"),
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            request=_request(), response=response, current_user=actor, session=db_session,
+        )
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for CreateManagerRequest
+E       email
+E         value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email. [type=value_error, input_value='NEW@example.test', input_type=str]
+
+tests\integration\test_admin_workforce_contracts.py:57: ValidationError
+_ test_manager_invitation_stores_only_single_use_hash_and_returns_private_response[super_admin] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000001FDAAEE4B50>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001FDAAC94E50>
+role = <UserRole.SUPER_ADMIN: 'super_admin'>
+
+    @pytest.mark.parametrize("role", [UserRole.AGENCY_ADMIN, UserRole.SUPER_ADMIN])
+    async def test_manager_invitation_stores_only_single_use_hash_and_returns_private_response(
+        db_session: AsyncSession, monkeypatch: pytest.MonkeyPatch, role: UserRole,
+    ) -> None:
+        actor = await _actor(db_session, role)
+        monkeypatch.setattr(admin_workforce, "hash_password", lambda _value: "synthetic-password-hash")
+        response = Response()
+        before = datetime.now(UTC)
+        invited = await admin.create_manager(
+>           body=CreateManagerRequest(full_name="  Invited Manager  ", email="NEW@example.test"),
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            request=_request(), response=response, current_user=actor, session=db_session,
+        )
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for CreateManagerRequest
+E       email
+E         value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email. [type=value_error, input_value='NEW@example.test', input_type=str]
+
+tests\integration\test_admin_workforce_contracts.py:57: ValidationError
+__ test_rejected_invitation_creates_no_account_token_or_audit[no_agency-400] __
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000001FDAAEDB010>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001FDAAC94290>
+reason = 'no_agency', status_code = 400
+
+    @pytest.mark.parametrize("reason,status_code", [("no_agency", 400), ("duplicate_email", 409)])
+    async def test_rejected_invitation_creates_no_account_token_or_audit(
+        db_session: AsyncSession, monkeypatch: pytest.MonkeyPatch, reason: str, status_code: int,
+    ) -> None:
+        actor = await _actor(db_session)
+        if reason == "no_agency":
+            actor.agency_id = None
+    
+        def unexpected_password(_value: str) -> str:
+            raise AssertionError("Rejected invitation attempted credential generation")
+    
+        monkeypatch.setattr(admin_workforce, "hash_password", unexpected_password)
+        with pytest.raises(HTTPException) as denied:
+            await admin.create_manager(
+>               body=CreateManagerRequest(full_name="Synthetic duplicate", email="OWNER@example.test"),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                request=_request(), response=Response(), current_user=actor, session=db_session,
+            )
+E           pydantic_core._pydantic_core.ValidationError: 1 validation error for CreateManagerRequest
+E           email
+E             value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email. [type=value_error, input_value='OWNER@example.test', input_type=str]
+
+tests\integration\test_admin_workforce_contracts.py:107: ValidationError
+_ test_rejected_invitation_creates_no_account_token_or_audit[duplicate_email-409] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x000001FDACA0D590>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001FDAC7B8510>
+reason = 'duplicate_email', status_code = 409
+
+    @pytest.mark.parametrize("reason,status_code", [("no_agency", 400), ("duplicate_email", 409)])
+    async def test_rejected_invitation_creates_no_account_token_or_audit(
+        db_session: AsyncSession, monkeypatch: pytest.MonkeyPatch, reason: str, status_code: int,
+    ) -> None:
+        actor = await _actor(db_session)
+        if reason == "no_agency":
+            actor.agency_id = None
+    
+        def unexpected_password(_value: str) -> str:
+            raise AssertionError("Rejected invitation attempted credential generation")
+    
+        monkeypatch.setattr(admin_workforce, "hash_password", unexpected_password)
+        with pytest.raises(HTTPException) as denied:
+            await admin.create_manager(
+>               body=CreateManagerRequest(full_name="Synthetic duplicate", email="OWNER@example.test"),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                request=_request(), response=Response(), current_user=actor, session=db_session,
+            )
+E           pydantic_core._pydantic_core.ValidationError: 1 validation error for CreateManagerRequest
+E           email
+E             value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email. [type=value_error, input_value='OWNER@example.test', input_type=str]
+
+tests\integration\test_admin_workforce_contracts.py:107: ValidationError
+=========================== short test summary info ===========================
+FAILED tests/integration/test_admin_workforce_contracts.py::test_manager_invitation_stores_only_single_use_hash_and_returns_private_response[agency_admin]
+FAILED tests/integration/test_admin_workforce_contracts.py::test_manager_invitation_stores_only_single_use_hash_and_returns_private_response[super_admin]
+FAILED tests/integration/test_admin_workforce_contracts.py::test_rejected_invitation_creates_no_account_token_or_audit[no_agency-400]
+FAILED tests/integration/test_admin_workforce_contracts.py::test_rejected_invitation_creates_no_account_token_or_audit[duplicate_email-409]
+4 failed, 2 passed in 2.71s

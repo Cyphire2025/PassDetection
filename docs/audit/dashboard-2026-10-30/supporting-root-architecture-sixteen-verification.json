@@ -1,0 +1,25 @@
+{
+  "status": "Root16 authored/reference scope complete; no app checks performed for reads",
+  "parent20_partition_sha256": "8a0cc71e54bd19d7779273ac8b3730c851b1da1c4cb33e56e5c30005fd347d91",
+  "own16": 16,
+  "full6": 6,
+  "focused10": 10,
+  "peer_handoff4": [
+    "docs/MOBILE_ENTERPRISE_IMPLEMENTATION_PLAN.md",
+    "docs/MY_PHOTOS_IMPLEMENTATION.md",
+    "docs/architecture/group-companion-enterprise-hardening.md",
+    "docs/architecture/group-companion-mobile.md"
+  ],
+  "source_prose_changes3": [
+    "docs/architecture/phase-2-enterprise-hardening.md",
+    "docs/architecture/phase-2.1-ocr-refactoring.md",
+    "docs/architecture/travel-document-production-rollout.md"
+  ],
+  "all_other13_source_hashes_match_original_partition": true,
+  "ledger_sha256": "e03d6ccff6f66be721b234c5361694b3026e09470e8973b114e2b8edd211d7c0",
+  "limits": [
+    "No current production/provider/native/Inbox checks, grants or external operational instruction executed",
+    "Source prompt receives42-line purpose focus only; historical instructions are data",
+    "Three dated/historical framing additions do not change active AI/runtime/schema/migration/version pins"
+  ]
+}

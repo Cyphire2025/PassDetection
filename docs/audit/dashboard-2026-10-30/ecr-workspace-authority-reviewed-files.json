@@ -1,0 +1,32 @@
+{
+  "method": "Actual full physical source reads plus focused normal-path synthetic regressions; no scan/live backend proof.",
+  "files": [
+    {
+      "path": "frontend/features/documents/hooks/use-ecr-workspace.ts",
+      "sha256": "530fc5554a6d22abbf2b26a4ca413ab1ad49c7374936428f32e763324ce6b5a0",
+      "physical_lines": 150,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed-and-fixed",
+      "notes": "Complete current hook source read and narrow per-await/lifetime publication fix. Original hook parameters, return object, ECR upload IDs/limits/order and direct async action semantics retained. Existing API/client/export transport unchanged. Captured initiating authority fences post-response cache/history/recovery/progress/error/finally effects; abort remains active for normal unmount."
+    },
+    {
+      "path": "frontend/features/documents/components/ecr-workspace-authority.test.tsx",
+      "sha256": "ef1f3df3f72a00f3a72e0f412e26d784f6cf8e5a9c17f20f930c1e587de3cf2d",
+      "physical_lines": 112,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete actual normal-page authority regression source read. AuthenticatedContent remount and SessionLifecycle cleanup execute with real client/ownerBoundAdapter; final HTTP delegate only is synthetic. Eight cases cover post-create/retry/chunk/start acknowledgement actor changes, same-user role/agency changes and valid profile-refresh controls. No live backend or browser qualification claim."
+    },
+    {
+      "path": "frontend/features/documents/test-support/ecr-authority.test-fixture.tsx",
+      "sha256": "08c964dfab41436f98530b0c4df041aeef063e1a2ad69095036c24f676f3382d",
+      "physical_lines": 71,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete synthetic ECR transport/page fixture source read. Actual auth/client/query/lifecycle owners execute; only network response semantics are synthetic, with explicit authorized actor/scope and404 on replacement scope. Client cache, mounts, unmounts and final network writes are observable. This test helper has no production caller."
+    }
+  ]
+}

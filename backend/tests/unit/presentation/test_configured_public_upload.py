@@ -23,6 +23,7 @@ from app.presentation.api.v1.schemas.passport_schemas import (
     ClientSubmitPassportRequest,
     PassportSubmissionResponse,
 )
+from tests.route_dependencies import set_route_dependency
 
 
 @pytest.mark.parametrize("size", [MAX_PUBLIC_DOCUMENT_BYTES, MAX_PUBLIC_DOCUMENT_BYTES + 1])
@@ -47,10 +48,10 @@ async def test_disabled_live_scan_is_rejected_before_any_file_decode(monkeypatch
         "Configured link", "synthetic-link", uuid.uuid4(), uuid.uuid4(),
         upload_configuration={"passport_live_scan": False},
     )
-    monkeypatch.setattr(public_upload, "ClientGroupRepository", lambda _: Mock(get_by_token=AsyncMock(return_value=group)))
-    monkeypatch.setattr(public_upload, "upload_session_matches_identifier", lambda *_: True)
+    set_route_dependency(monkeypatch, public_upload, "ClientGroupRepository", lambda _: Mock(get_by_token=AsyncMock(return_value=group)))
+    set_route_dependency(monkeypatch, public_upload, "upload_session_matches_identifier", lambda *_: True)
     decode = AsyncMock()
-    monkeypatch.setattr(public_upload, "_validated_upload_file", decode)
+    set_route_dependency(monkeypatch, public_upload, "_validated_upload_file", decode)
     front = UploadFile(file=io.BytesIO(b"untrusted"), filename="front.jpg")
     back = UploadFile(file=io.BytesIO(b"untrusted"), filename="back.jpg")
     with pytest.raises(HTTPException, match="disabled") as exc:
@@ -106,14 +107,14 @@ async def test_multipart_endpoint_accepts_and_commits_a_details_only_draft(monke
     storage = AsyncMock()
     use_case = SubmitPassportUseCase(groups, passports, storage)
     session = AsyncMock()
-    monkeypatch.setattr(public_upload, "ClientGroupRepository", lambda _: groups)
-    monkeypatch.setattr(public_upload, "propagate_mobile_passenger_change", AsyncMock())
+    set_route_dependency(monkeypatch, public_upload, "ClientGroupRepository", lambda _: groups)
+    set_route_dependency(monkeypatch, public_upload, "propagate_mobile_passenger_change", AsyncMock())
 
     async def response_from_dto(result, **_kwargs):
         session.commit.assert_awaited_once()
         return PassportSubmissionResponse.model_validate(result)
 
-    monkeypatch.setattr(public_upload, "_response_from_dto", response_from_dto)
+    set_route_dependency(monkeypatch, public_upload, "_response_from_dto", response_from_dto)
     app = FastAPI()
     app.include_router(public_upload.router)
     app.dependency_overrides[public_upload._get_submit_passport_use_case] = lambda: use_case

@@ -1,0 +1,140 @@
+{
+  "status": "passed/frozen NS02 canonical coordinator expiry correction",
+  "runtime_sources": [
+    {
+      "path": "backend/app/application/mobile/notification_authority.py",
+      "sha256": "256d49c099af6fdcbd890188c2377a33654098c96ae720c8d5f824eecf823c8f",
+      "physical_lines": 85
+    },
+    {
+      "path": "backend/app/application/mobile/notification_group_authority.py",
+      "sha256": "9ce27a54edbb03114908fcd54816565a90a05e561c51f15d8cd2db50d899f66a",
+      "physical_lines": 174
+    }
+  ],
+  "test_source": {
+    "path": "backend/tests/unit/application/test_notification_coordinator_expiry.py",
+    "sha256": "fb931893fdb94fb5aa7f339a67d8658e34f48790c40a585bd1dbff184d43df76"
+  },
+  "policy_source": {
+    "path": "backend/architecture-dependencies.json",
+    "sha256": "3681bf6ca3b2bab52dcde5d0adbb4921cc8dd54771411193c2553ddaceb08b6e"
+  },
+  "before": {
+    "first_baseline": "2failed6passed8cases",
+    "additional_commit_gap_baseline": "1failed1selectedcase",
+    "actual_total_negative_cases": 3,
+    "controls": 6,
+    "test_originals": [
+      {
+        "path": ".tmp/notification-coordinator-expiry/before/baseline8-test.py",
+        "sha256": "1842fecc2b48bc8881d81556db7f5742c12eb5c631f830ebe40d3ade845a6327"
+      },
+      {
+        "path": ".tmp/notification-coordinator-expiry/before/baseline9-test.py",
+        "sha256": "fb931893fdb94fb5aa7f339a67d8658e34f48790c40a585bd1dbff184d43df76"
+      }
+    ]
+  },
+  "after": {
+    "targeted_regressions_passed": 9,
+    "affected_current_cases_passed": 53,
+    "runtime_import_hint_and_existing_architecture_cases_passed": 6,
+    "strict_mypy_sources_passed": 2,
+    "ruff_changed_paths_passed": 3,
+    "format_changed_paths_passed": 3,
+    "architecture_checker": "passed"
+  },
+  "behavior": "At live group eligibility decisions, suppress coordinator document/countdown push after canonical trip-local end-date, including the fresh post-intent-commit decision. Keep existing cancellation projections and rows; client-manager historical refresh authority remains.",
+  "privacy_calibration": "Confirmed unwanted generic notification to a coordinator past the existing end-of-trip access window. Not private payload disclosure, authentication bypass, provider delivery proof or live send.",
+  "source_proof": {
+    "path": "docs/audit/dashboard-2026-10-30/notification-coordinator-expiry-source-proof.json",
+    "sha256": "99369e0f60f9740c74b6f924f9430c9887cb4dce279ea5b0824aabdd8f85040e"
+  },
+  "architecture_proof": {
+    "path": "docs/audit/dashboard-2026-10-30/notification-coordinator-expiry-architecture-proof.json",
+    "sha256": "872add8ed5ce886bae0110c32a4d33fc7bf1a641df037cced21ded5770230264"
+  },
+  "ledger": {
+    "path": "docs/audit/dashboard-2026-10-30/notification-coordinator-expiry-reviewed-files.json",
+    "sha256": "cab641db5b13c046bc55d518f37c2046519bd27bae183ae0b626ab672e1367e9"
+  },
+  "budget_candidates": {
+    "path": "docs/audit/dashboard-2026-10-30/notification-coordinator-expiry-budget-candidates.json",
+    "sha256": "d4665e0185a80e28be9f746f785d3daa19b9b8567172e69eb38738df9b40d648"
+  },
+  "critical_candidates": {
+    "path": "docs/audit/dashboard-2026-10-30/notification-coordinator-expiry-critical-candidates.json",
+    "sha256": "cec923f4232b094dc13301657df386aa30ae2dc4127a5a2ebcfb730f1cfba47c"
+  },
+  "current_source_coverage_only": [
+    {
+      "path": "app/application/mobile/notification_authority.py",
+      "line_percent": 90.625,
+      "branch_percent": 80.0,
+      "lines": 85,
+      "complexity": 12
+    },
+    {
+      "path": "app/application/mobile/notification_group_authority.py",
+      "line_percent": 97.29729729729729,
+      "branch_percent": 87.5,
+      "lines": 174,
+      "complexity": 15
+    }
+  ],
+  "old80line60branch_floors_follow_both_actual_owners": true,
+  "original230_cap_tightened_not_raised": true,
+  "raw_evidence": [
+    {
+      "path": ".tmp/notification-coordinator-expiry/baseline.txt",
+      "sha256": "8f7a2e034ee3208fd0c28f3b2018c25a4d3c41ebdce69b8721fd465aad20acfe"
+    },
+    {
+      "path": ".tmp/notification-coordinator-expiry/commit-gap-baseline.txt",
+      "sha256": "899347eefef0c42cdd4f364f68688f3b1e89b3c9fcc0c40a25108c00c07595c3"
+    },
+    {
+      "path": ".tmp/notification-coordinator-expiry/regressions.txt",
+      "sha256": "3cc0a27209772f70b5a84077be1e4c906c2721e0ae5e792f2928e1742b7f38a8"
+    },
+    {
+      "path": ".tmp/notification-coordinator-expiry/affected.txt",
+      "sha256": "c6649baba3783b61971de4ca482463707fd7f88e671798e22524a5e94d13f4df"
+    },
+    {
+      "path": ".tmp/notification-coordinator-expiry/coverage.json",
+      "sha256": "f44b2105b1ad91ec7e5e2da46394d0d2cbffabbbbd192028279cfb72a1cd3d4e"
+    },
+    {
+      "path": ".tmp/notification-coordinator-expiry/coverage.xml",
+      "sha256": "9568af4055fd918f6f06d6a7928f767a0c2ed1a88b13a0dfbf1ea900ac8b7af7"
+    },
+    {
+      "path": ".tmp/notification-coordinator-expiry/types.txt",
+      "sha256": "0c37c4158c91ef55c724ba017bf6465f26018199badb08e3ff13f98acdf056c2"
+    },
+    {
+      "path": ".tmp/notification-coordinator-expiry/lint.txt",
+      "sha256": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0"
+    },
+    {
+      "path": ".tmp/notification-coordinator-expiry/format.txt",
+      "sha256": "81e0708af79a682467b0ecbd3453a0a33cfcbbe2812201b4d4f405f78ded2976"
+    },
+    {
+      "path": ".tmp/notification-coordinator-expiry/architecture.txt",
+      "sha256": "895bfbeca4c78591066dcf214c4bfe9de43b5d7ed5d3f518fe398563a7bcc992"
+    },
+    {
+      "path": ".tmp/notification-coordinator-expiry/compatibility.txt",
+      "sha256": "29336ca44c3d4255a8800ee568ede2f73b9f15fac255bcdcaeedd73896cba3a9"
+    }
+  ],
+  "limits": [
+    "Actual SQLite source/worker and controlled fresh handoff wall clock with fake provider; no PostgreSQL row-lock timing/native SDK/provider/VPS claim.",
+    "Existing cancellation update remains restricted to submitting/retry delivery rows, preserving terminal/accepted/uncertain evidence by exact unchanged source projection; no records deleted.",
+    "Fresh eligibility decision clocks exercised at initial dispatch and immediately after durable intent commit; no claim of a continuous real-time authorization transaction across external HTTP.",
+    "All previous mechanical receipts remain historical immutable; this separate current-hash behavior receipt supersedes only NS02 affected sources."
+  ]
+}

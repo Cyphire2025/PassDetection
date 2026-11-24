@@ -1,0 +1,65 @@
+[
+  {
+    "path": "backend/tests/integration/test_mcp_authorization.py",
+    "sha256": "1f877fd571a71b623b9dddc434b15431e2993d10a8e476614209e06d1ae5a31c",
+    "physical_lines": 721,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all721 physical lines in contiguous1-240/241-480/481-721 segments. Complete isolated fixture/lifespan and actual OAuth/SDK HTTP paths: PKCE/resource/client/redirect binding, code single-use and invalid exchange nonconsumption, refresh family replay revocation, current role/activity/security/MFA/deletion and capability narrowing, host/origin CSRF and fresh MFA, rate-limit fail-closed, private audit/path redaction, group pagination/ambiguity and cross-connection idempotency. No test runs from reading this shared fixture. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_access_changes.py",
+    "sha256": "60b9dc080e19fbedba5969fbfd0e37f1ac0eca2ab6cb5bbfc47b0dc7b53cfdbe",
+    "physical_lines": 338,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all338 physical lines: additive owned/assigned/unassigned staff/manager access keeps unrelated rows, revision and fresh MFA protect mutation/replay, active agency/account/group scope and strict bounded inputs deny without partial state, exact current receipt entities rechecked, SDK audited replay and retained-scope capacity guard. Inactive agency behavior is workflow-specific evidence, not universal realtime policy. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_native_transfers.py",
+    "sha256": "3b03a76054c822d580e560ca5e3c70fdb4721c807b0275f4b42af946b30aa86d",
+    "physical_lines": 468,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all468 physical lines in contiguous halves: fragment limited bearer distinct from ambient dashboard/OAuth, origin/query guard, exact retry/hash/scan and prepared purpose/target/source binding, no business ingestion during staging, lease conflict/expiry reclaim and postscan revocation cleanup. Download completion requires exact saved-copy acknowledgement, interrupted stream never marks delivered, late inspection preserves valid staged source but not revoked/expired/rebound authority. Actual fixture storage/scanner only synthetic. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/service_integration/test_mcp_access_postgresql.py",
+    "sha256": "3bdf5c49a0196c82abb0ef7268c7ed8ea5b88582d0c34f4785c9d1b15007eab8",
+    "physical_lines": 217,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all217 physical lines: six independent connection retries converge on one assignment/audit, distinct stale revision has one winner and website replacement holds shared user lock until commit before MCP conflicts. Owned SQL event listener and waiting task clean up in finally; real PostgreSQL contention source only, not executed. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/service_integration/test_mcp_concurrency_postgresql.py",
+    "sha256": "7c962dea11b4f7509760de606e2e8924024a3f9720eb47f48b2505e7a39a8581",
+    "physical_lines": 217,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all217 physical lines: opt-in isolated cluster/session factory, real authorization-code and refresh-family contention checks, eight contenders one successor, durable reuse revocation and locked revoke fences waiting refresh without extra token pair. Auth errors commit security consequences deliberately; no actual concurrency execution claimed. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/service_integration/test_mcp_connection_delete_postgresql.py",
+    "sha256": "8c67e541790f215462739ba40f9c9b6c06a03f7facffbffea9c37b5896d78485",
+    "physical_lines": 235,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all235 physical lines: generated isolated database, actual ASGI independent-session duplicate DELETE/refresh lock serialization, idempotent response, exactly one durable removal audit/hash chain, unaffected second device and all old/new token rejection after removal. Owned DB cleanup disposes/terminates only generated DB sessions; no migration/SQL/process execution here. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/service_integration/test_mcp_connection_requests_postgresql.py",
+    "sha256": "451b421f47dbe1817325a2241546ca8d9973f1b6aea09bb40f785bb26c142f9e",
+    "physical_lines": 213,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all213 physical lines: exact request-row contention for approval/rejection/finalization, one grant/code, persisted creator quota shared across independent sessions and exclusive isolated generated DB scope. Expected security outcomes distinct from side effects; final cleanup removes only owned database. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  }
+]

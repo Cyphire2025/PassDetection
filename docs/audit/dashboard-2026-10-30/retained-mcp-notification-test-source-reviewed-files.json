@@ -1,0 +1,65 @@
+[
+  {
+    "path": "backend/tests/integration/test_mcp_notification_changes.py",
+    "sha256": "4ef5ba52877cb30f592298e65b58f66cd22ad051e8b99abaa9bb9ddc92af967e",
+    "physical_lines": 151,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all151 physical lines: personal acknowledgement preserves first read timestamp and exact cross-grant retry, rejects foreign/shared/missing recipient without scope oracle, no scope override, same-key conflict leaves next row unread, audit failure atomically rolls back and current authority/recipient is rechecked before replay. Generic dashboard account-security feed retained despite email-named synthetic metadata. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_notification_http.py",
+    "sha256": "52a3622d9dad4fcee38e31d9db7d6bbe66d5b4872a51632b6791b29989f685e6",
+    "physical_lines": 166,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all166 physical lines: actual SDK personal feed and explicit ack, distinct read/change permissions, all-or-nothing bounded response and sanitized audit, foreign ack no operation, eight current authority changes deny before source projection. No Inbox engine or provider behavior investigated. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_notification_reads.py",
+    "sha256": "4a9888daeeb419eb6ee916cfb5dc4907b77b105f954fa0fd1febf4e224c87fba",
+    "physical_lines": 135,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all135 physical lines: website parity/user-only feed without agency, bounded metadata allowlist/untrusted content, stable keyset tie ordering and cursor actor/filter binding, exactly four scalar queries avoiding ORM giant metadata hydration, explicit field/Unicode page/input limits and recovery. Synthetic provider/account_email fields test shared notification projection, no mailbox integration review. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/service_integration/test_mcp_notifications_postgresql.py",
+    "sha256": "5d87a1fc17799c2d8da8b33827a20312d05d8b9330dcbcc91b0dd293eaff03c0",
+    "physical_lines": 195,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all195 physical lines: opt-in loopback generated schema with statement/lock deadlines and intentional evidence retention, bounded JSONB scalar feed parity, exact concurrent acknowledgements, NOWAIT rollback/retry, immutable saved-receipt replay and actual blocked-query deadline recovery. Source describes real PG tests, but none run here. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_gc_push_drafts.py",
+    "sha256": "c18b8ab411674951a251c04f80158c0139d83cea579c4c28db2f1cffeed175ae",
+    "physical_lines": 161,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all161 physical lines: desktop-MCP authored draft creation is append-only/no send, strict group/content choices and safe current receipt binding; actual SDK create -> saved preview -> explicit exact-hash confirmation queues only reviewed audience. Shared server notification producer retained; native UI not reviewed. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_gc_push.py",
+    "sha256": "c5c0831f983368b6e27b11dfd804c7e864798b75a0482529c68dfa00b695deb5",
+    "physical_lines": 382,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all382 physical lines in contiguous halves: exact bounded preview without token/outbox, cross-connection hash/expiry confirmation, immutable queued receipt versus accepted-not-delivered progress, audience/device/content drift atomic rollback, original authority recheck at provider handoff, revoked origin suppresses unsent dispatch while unknown/accepted siblings retained, no later device expansion, SDK and APNS environment parity using synthetic providers only. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  },
+  {
+    "path": "backend/tests/service_integration/test_mcp_gc_push_postgresql.py",
+    "sha256": "4d893ae4f1322fc2bf0157f97d89ca3f1b979686ff1e5a2fe1c0e97f146b0077",
+    "physical_lines": 357,
+    "reviewer": "ai_extraction",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Read all357 physical lines in contiguous1-190/191-357 segments: unique retained PG schema/source-only external boundaries, one batch under cross-grant contention, original grant/control/role/security locks serialize actual synthetic provider handoff, revoked winner suppresses send, separate origin waves, interrupted attempt becomes unknown without duplicate, terminal observation skips held operation lock and rollback permits exact retry. No provider/PG operation executed. Source-only physical review; no test, service, provider, migration or deployment execution. Existing runtime behavior/independent findings/qualification limits remain separate. Synthetic fixture names and values are authored source, not operational data."
+  }
+]

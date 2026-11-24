@@ -1,0 +1,201 @@
+{
+  "status": "sealed-authored-guides-doc-only-correction",
+  "source_fence": [
+    {
+      "path": "docs/WHATSAPP_BROADCAST_WORKSPACE.md",
+      "sha256": "6aa4562ccfbd533048c43bf44aba31cf26084777068bc241067447e0d67d9092",
+      "physical_lines": 60,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete authored guide physically read. Broadcast route/editor/history/selection/private-file/filter/export/template/destination/idempotency/unknown-outcome claims assessed against earlier reviewed source owner context; source-only vs synthetic/service/provider caveats retained. Historical validation/source-integration claims are not rerun, authenticated, promoted to current qualification or treated as instructions."
+    },
+    {
+      "path": "docs/architecture/whatsapp-broadcast-performance.md",
+      "sha256": "debd8b410f0e7d46f3230065a376db74b7fc1d874d9136e46e1de2d3eebdb83d",
+      "physical_lines": 66,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete authored guide physically read. Broadcast route/editor/history/selection/private-file/filter/export/template/destination/idempotency/unknown-outcome claims assessed against earlier reviewed source owner context; source-only vs synthetic/service/provider caveats retained. Historical validation/source-integration claims are not rerun, authenticated, promoted to current qualification or treated as instructions."
+    },
+    {
+      "path": "docs/architecture/whatsapp-delivery-history.md",
+      "sha256": "371ab33df826aef2156e06bde57dab9a877510d5dd98f69cfdea518874d2967b",
+      "physical_lines": 74,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete authored guide physically read. Broadcast route/editor/history/selection/private-file/filter/export/template/destination/idempotency/unknown-outcome claims assessed against earlier reviewed source owner context; source-only vs synthetic/service/provider caveats retained. Historical validation/source-integration claims are not rerun, authenticated, promoted to current qualification or treated as instructions."
+    },
+    {
+      "path": "docs/architecture/whatsapp-filter-exports.md",
+      "sha256": "b891b67cdabc213fd0284d188ad6add8758d98702f513c955f8216ff842fd07f",
+      "physical_lines": 62,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete authored guide physically read. Broadcast route/editor/history/selection/private-file/filter/export/template/destination/idempotency/unknown-outcome claims assessed against earlier reviewed source owner context; source-only vs synthetic/service/provider caveats retained. Historical validation/source-integration claims are not rerun, authenticated, promoted to current qualification or treated as instructions."
+    },
+    {
+      "path": "docs/architecture/whatsapp-approved-template-rollout.md",
+      "sha256": "d841cef569e8b60b3cfafa88635b1d9c2ed5f09c048690147625b016ddaab929",
+      "physical_lines": 133,
+      "review_scope": "full",
+      "status": "reviewed-and-documented",
+      "reviewer": "branding_visuals",
+      "notes": "Complete authored guide physically read. Broadcast route/editor/history/selection/private-file/filter/export/template/destination/idempotency/unknown-outcome claims assessed against earlier reviewed source owner context; source-only vs synthetic/service/provider caveats retained. Historical validation/source-integration claims are not rerun, authenticated, promoted to current qualification or treated as instructions. Only seven\u2192nine corrected from actual nine-entry TEMPLATE_REGISTRY and current settings guide. Entire other text and all original component/template/ENV/rollout/rollback blocks byte-content exact."
+    },
+    {
+      "path": "docs/architecture/whatsapp-group-invites.md",
+      "sha256": "c3da3f6ae8850de102f3d0a430e02487d9cee491f5832072dc8e506a739543c1",
+      "physical_lines": 92,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": "Complete authored guide physically read. Broadcast route/editor/history/selection/private-file/filter/export/template/destination/idempotency/unknown-outcome claims assessed against earlier reviewed source owner context; source-only vs synthetic/service/provider caveats retained. Historical validation/source-integration claims are not rerun, authenticated, promoted to current qualification or treated as instructions."
+    },
+    {
+      "path": "docs/architecture/whatsapp-passenger-otp.md",
+      "sha256": "4b5d8c405eee351424c804fe030db4cb184e22c4a5333250d8147c0537eccc4f",
+      "physical_lines": 195,
+      "review_scope": "full",
+      "status": "reviewed-and-documented",
+      "reviewer": "branding_visuals",
+      "notes": "Complete authored guide physically read. Broadcast route/editor/history/selection/private-file/filter/export/template/destination/idempotency/unknown-outcome claims assessed against earlier reviewed source owner context; source-only vs synthetic/service/provider caveats retained. Historical validation/source-integration claims are not rerun, authenticated, promoted to current qualification or treated as instructions. Current retained fresh-upload lane corrected from actual normal hook/API/router/dependency chain: public-drafts contact+completion, HttpOnly draft cookie plus per-member X-Upload-Session-ID; legacy submission endpoints preserved explicitly.0102 rollout labelled historical; original native-client Meta setup copied unchanged as historical shared-provider context, no native app/current Meta/provider behavior audited or executed."
+    },
+    {
+      "path": "docs/architecture/whatsapp-shared-phone-corrections.md",
+      "sha256": "126b4b59116f12b766eab1468749127c89ef95e18f7f8a75fe9929a6953afab7",
+      "physical_lines": 47,
+      "review_scope": "full",
+      "status": "reviewed-and-documented",
+      "reviewer": "branding_visuals",
+      "notes": "Complete authored guide physically read. Broadcast route/editor/history/selection/private-file/filter/export/template/destination/idempotency/unknown-outcome claims assessed against earlier reviewed source owner context; source-only vs synthetic/service/provider caveats retained. Historical validation/source-integration claims are not rerun, authenticated, promoted to current qualification or treated as instructions. Current deployment guidance now distinguishes original0105 override from qualified manifest selector. Every identity/merge/source-fingerprint/uncertain delivery/history/per-assigned-PDF safety rule retained, no runtime mutation."
+    }
+  ],
+  "full_read_count": 8,
+  "physical_lines": 729,
+  "ledger": {
+    "path": "docs/audit/dashboard-2026-10-30/supporting-whatsapp-guides-reviewed-files.json",
+    "sha256": "bcfe8ab834e5462c402a3b52152aba6ba74503817bf9dd99551531207f167b08"
+  },
+  "changes": [
+    {
+      "path": "docs/architecture/whatsapp-approved-template-rollout.md",
+      "snapshot": ".tmp/supporting-whatsapp-docs/whatsapp-approved-template-rollout.md",
+      "sha256": "8bb320e9e7603180ff4fb3ee3c51383e3ba9a53b7c80b30f13aabc0f6c51cf0b",
+      "after_sha256": "d841cef569e8b60b3cfafa88635b1d9c2ed5f09c048690147625b016ddaab929",
+      "fenced_code_blocks_exact": true,
+      "changed_regions": [
+        {
+          "kind": "replace",
+          "old_lines": [
+            8,
+            8
+          ],
+          "new_lines": [
+            8,
+            8
+          ]
+        }
+      ]
+    },
+    {
+      "path": "docs/architecture/whatsapp-shared-phone-corrections.md",
+      "snapshot": ".tmp/supporting-whatsapp-docs/whatsapp-shared-phone-corrections.md",
+      "sha256": "e69491c07eb5ed1718701f5c12adcdbbfed3b4dd0efcb3f68457e6f100ef227f",
+      "after_sha256": "126b4b59116f12b766eab1468749127c89ef95e18f7f8a75fe9929a6953afab7",
+      "fenced_code_blocks_exact": true,
+      "changed_regions": [
+        {
+          "kind": "replace",
+          "old_lines": [
+            37,
+            39
+          ],
+          "new_lines": [
+            37,
+            43
+          ]
+        }
+      ]
+    },
+    {
+      "path": "docs/architecture/whatsapp-passenger-otp.md",
+      "snapshot": ".tmp/supporting-whatsapp-docs/whatsapp-passenger-otp.md",
+      "sha256": "94b7fc2e9a6ec62c24c98923052cc02b6b657c05d20d582f5ef0348b07f1447c",
+      "after_sha256": "4b5d8c405eee351424c804fe030db4cb184e22c4a5333250d8147c0537eccc4f",
+      "fenced_code_blocks_exact": true,
+      "changed_regions": [
+        {
+          "kind": "replace",
+          "old_lines": [
+            144,
+            145
+          ],
+          "new_lines": [
+            144,
+            154
+          ]
+        },
+        {
+          "kind": "replace",
+          "old_lines": [
+            154,
+            154
+          ],
+          "new_lines": [
+            163,
+            166
+          ]
+        }
+      ]
+    }
+  ],
+  "supporting_caller_evidence": [
+    {
+      "path": "backend/app/infrastructure/whatsapp/template_settings.py",
+      "sha256": "9ecc8e05705dbea514b712d0bf8c2517d82fb0423b1a64ee16f5edaebdaa034b",
+      "review_scope": "focused",
+      "notes": "Only exact slot declaration or current contact hook/API/route/private dependency/prefix chain used as supporting proof; matching previous full reviews remain attributed, no new blanket runtime read/validation credit."
+    },
+    {
+      "path": "frontend/features/upload/hooks/use-fresh-contact-challenge.ts",
+      "sha256": "5b21efe2a732c978c0d21e7d1200cda81711952daacf258002d195ff9e4c442a",
+      "review_scope": "focused",
+      "notes": "Only exact slot declaration or current contact hook/API/route/private dependency/prefix chain used as supporting proof; matching previous full reviews remain attributed, no new blanket runtime read/validation credit."
+    },
+    {
+      "path": "frontend/features/upload/api/fresh-draft.api.ts",
+      "sha256": "0a9003bf1d5aba2f8f1311b57c1dc76deb6186c82ce9a054e2015a053f0601af",
+      "review_scope": "focused",
+      "notes": "Only exact slot declaration or current contact hook/API/route/private dependency/prefix chain used as supporting proof; matching previous full reviews remain attributed, no new blanket runtime read/validation credit."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/fresh_draft_contact.py",
+      "sha256": "168b9d16a63198a623d521dd2dec86d2e145b17086eceec1187a8115b4fd1821",
+      "review_scope": "focused",
+      "notes": "Only exact slot declaration or current contact hook/API/route/private dependency/prefix chain used as supporting proof; matching previous full reviews remain attributed, no new blanket runtime read/validation credit."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/fresh_draft_dependencies.py",
+      "sha256": "da7cdb422c5a300c5931a5662a6845151f3e101e457baca9ba4815bb8c5c4700",
+      "review_scope": "focused",
+      "notes": "Only exact slot declaration or current contact hook/API/route/private dependency/prefix chain used as supporting proof; matching previous full reviews remain attributed, no new blanket runtime read/validation credit."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/router.py",
+      "sha256": "1601724fbb3be3b3483987335c1e80bbcf8e8c8894cc5a8a5cc16d04955b9fc7",
+      "review_scope": "focused",
+      "notes": "Only exact slot declaration or current contact hook/API/route/private dependency/prefix chain used as supporting proof; matching previous full reviews remain attributed, no new blanket runtime read/validation credit."
+    }
+  ],
+  "checks": "Only doc diff/one-literal inverse/unchanged fenced-code/relative-link verification. No tests/build/browser/provider/deployment/native-client execution.",
+  "limits": [
+    "Current application/runtime/API/security policies and every legacy published endpoint remain unchanged.",
+    "No real OTP/provider send, provider-template approval/current Meta contract validation or current native-app capability claim.",
+    "Original migration IDs and operator requirements retained as historical; exact candidate manifest/selector governs current releases.",
+    "Historical source/test/production integration and timings are records, not current artifact or operational receipts."
+  ]
+}

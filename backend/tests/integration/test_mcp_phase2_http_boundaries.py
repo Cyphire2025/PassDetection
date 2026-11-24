@@ -18,7 +18,7 @@ from app.infrastructure.database.mcp_models import (
     MCPGrantModel,
     MCPTokenModel,
 )
-from app.presentation.api.v1.routes import mcp_admin
+from app.presentation.api.v1.routes import mcp_admin_connections
 from tests.integration.test_mcp_authorization import (
     CLIENT,
     REDIRECT,
@@ -138,7 +138,7 @@ async def test_rotation_near_absolute_expiry_cannot_extend_grant_and_admin_repor
             return cls.current
 
     monkeypatch.setattr(authorization, "datetime", Clock)
-    monkeypatch.setattr(mcp_admin, "datetime", Clock)
+    monkeypatch.setattr(mcp_admin_connections, "datetime", Clock)
     result = await client.post("/oauth/mcp/token", data=_refresh_fields(tokens))
     assert result.status_code == 200 and result.json()["expires_in"] == 30
     rows = list(await session.scalars(select(MCPTokenModel).where(

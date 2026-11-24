@@ -1,0 +1,29 @@
+{
+  "original_sha256": "df04ecaf6aa190eea5091e6ffd6d153e3ca069e218dcc44a51df61192b37f8f2",
+  "complete_public_bulk_resend_expanded_ast_exact": true,
+  "all_original_scope_replay_checks_queries_canonical_phone_order_continue_mutations_result_reordering_flushes_audit_commits_and_publication": "Exact",
+  "purpose_data_fields": {
+    "BulkResendInputs": [
+      "edits",
+      "states",
+      "active_statuses",
+      "sources",
+      "replaced_phones"
+    ],
+    "BulkResendClaims": [
+      "batch_id",
+      "logs",
+      "results"
+    ]
+  },
+  "replay_semantics": "Helper retains original nested early return; explicit trailingNone is only the original no-receipt fall-through. Public caller returns any nonNone response immediately.",
+  "welcome_bookkeeping": "Phone helper starts reason=None and returns that optional skip reason; the sole caller is already in original reason-is-None / valid-source-state / successful-decode / welcome branch. Original phone body and all append/continue points expand exactly.",
+  "task_payload": "Original inline payload still exact at mechanical checkpoint; reuse follows separately.",
+  "source": {
+    "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend.py": "7d87f7da345264d54c1e14ef7e2c6e2e216e92d6921e876dfab1d18f2ea5f3ae",
+    "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_selection.py": "f23a5a32a53c98344caf3fbef41f6b3112e2d0a5ddfc9eb9241afb6981eafb0e",
+    "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_inputs.py": "b2a94f63ffe356dd88be7cb94d04cc7a2311aae9c9d8ee229d611bde5cae7e68",
+    "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_claims.py": "2833bbbdde3be16143c738ac423c20c2c195c7a86627ac1837f681c09f0b36c7",
+    "backend/app/presentation/api/v1/routes/whatsapp_bulk_resend_publication.py": "807398a62926f0ee690ed7d17779d6273d08653f9d12f7ad2fe113381c42390e"
+  }
+}

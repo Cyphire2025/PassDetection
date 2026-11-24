@@ -1,0 +1,26 @@
+{
+  "checks": [
+    {
+      "path": "scripts/mcp_production_baseline.py",
+      "sha256": "21c4ca665fd5968cd31d3e8e653f66a16e92e1b325150b3b902b49302f06a130",
+      "status": "help passed from unrelated cwd with empty PYTHONPATH",
+      "stdout_sha256": "86020d1cc5357c69ae90a1848b3a7904527fc083540031bf6cc6522f7aa0f798",
+      "stderr": ""
+    },
+    {
+      "path": "scripts/mcp_log_collector.py",
+      "sha256": "0675c1f18f1c9edee8a5f1cf1ae00ac0b1cb21cd3158a26fdbb67026557a4735",
+      "status": "help passed from unrelated cwd with empty PYTHONPATH",
+      "stdout_sha256": "154684b323a3f47a5b1e218234fa940deabcc1bf6919f5dc10552cef5e02c324",
+      "stderr": ""
+    },
+    {
+      "path": "scripts/qa/qualify_companies_fast_migration.py",
+      "sha256": "1d51a0a2e2f02eea28a5d8b15c3794b12f12c0c7c6c86f41c3fbe0d869d0566e",
+      "status": "help passed from unrelated cwd with empty PYTHONPATH",
+      "stdout_sha256": "94ff0f8eb089cef1885f41df626b618d158876658ac4bee73854ce661dfe9556",
+      "stderr": ""
+    }
+  ],
+  "limits": "Argument-parser/help only. No Docker/provider/database/VPS/config/credential work invoked. Actual maintained direct CLI entrypoints insert scripts root or receive it as normal script-directory sys.path; neutral engine is shipped with repository scripts, no TLS/QA dependency imported by the engine."
+}

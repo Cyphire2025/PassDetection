@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import uuid
 from unittest.mock import AsyncMock
 
@@ -44,11 +45,35 @@ def test_platform_policy_loader_rejects_corrupt_persisted_values(
         PlatformPolicies.from_mapping(override)
 
 
+@pytest.mark.parametrize(
+    "override",
+    [
+        {"duplicate_contact_policy": []},
+        {"duplicate_contact_policy": {}},
+        {"duplicate_contact_policy": 0},
+        {"duplicate_contact_policy": None},
+        {"default_group_status": []},
+        {"default_group_status": {}},
+        {"default_group_status": 0},
+        {"default_group_status": None},
+        {"mrz_review_threshold": 10**400},
+    ],
+)
+def test_malformed_json_policy_values_use_the_configuration_error_boundary(override):
+    persisted = json.loads(json.dumps(override))
+    with pytest.raises(PlatformPolicyConfigurationError):
+        PlatformPolicies.from_mapping(persisted)
+
+
 @pytest.mark.asyncio
 async def test_default_group_status_is_applied_at_the_domain_creation_boundary() -> None:
     group_repository = AsyncMock()
     company_id = uuid.uuid4()
-    group_repository.require_active_company.return_value = {"id": company_id, "name": "Policy client", "status": "active"}
+    group_repository.require_active_company.return_value = {
+        "id": company_id,
+        "name": "Policy client",
+        "status": "active",
+    }
     provider = AsyncMock()
     provider.load.return_value = PlatformPolicies(
         default_group_status="closed",

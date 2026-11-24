@@ -1,0 +1,434 @@
+{
+  "status": "retained-local-operator-qa-connector-qualified-with-explicit-environment-skips-and-single-locale-outcome-overlay",
+  "parent_go_receipt": {
+    "path": "docs/audit/dashboard-2026-10-30/gc-models-shared-integration-verification.json",
+    "sha256": "1fab0ea9ab2c14cbff86a7ecda5e2578889a0b680ef671af8ae4b49caa2bb584"
+  },
+  "scope_policy": {
+    "path": "docs/audit/dashboard-2026-10-30/audit-scope.json",
+    "sha256": "079ffe822ee727a55f6c2541820aa4b8b406b5d5c55cec9349fb52561397bc64",
+    "native_literal_paths": 63,
+    "operator_candidate_files": 112,
+    "operator_exact_policy_exclusions": []
+  },
+  "source_fence": {
+    "count": 3288,
+    "initial_snapshot_path": ".tmp/final-operator-connector/final-retained-20261101-operator-connector-corrected/source-before.json",
+    "initial_snapshot_sha256": "529d698d6a121266acb5bedbd4243aa09b0d6b4f43633751163288dd925fc827",
+    "final_all_paths_and_hashes_unchanged": true,
+    "changes": [],
+    "scope": "Authored backendapp/tests/scripts, root scripts, connector source/tests/package contracts and tooling. Excludes new audit/.tmp outputs, frontend parent-owned qualification and docsmetadata/MCPmatrix.",
+    "MCP_matrix_note": "Actual docs/implementation/mcp-workflow-coverage.json is excluded; root owns its separately source-bound snapshot/driftcheck. This operator test cohort contains no literal reference/actualglobal --check invocation; synthetic inventoryunitcases do not qualify actualmatrix."
+  },
+  "operator": {
+    "command": [
+      "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "../scripts",
+      "-p",
+      "test_*.py"
+    ],
+    "cwd": "backend",
+    "files": 112,
+    "executed": 1030,
+    "initial_corrected_run_passed": 1023,
+    "initial_corrected_run_errors": 1,
+    "skipped": 6,
+    "elapsed_test_seconds": 76.891,
+    "skips_classification": "Environment/platform prerequisites, including Linux/fork/FIFO/flock, patchedimage/nativeinterpreter and symlink privilege limitations; actual aggregatecount6, no invented testcase outcomeIDs.",
+    "sole_error_id": "test_mcp_baseline_output.BaselineOutputTests.test_text_decoding_matches_the_existing_subprocess_locale_contract",
+    "sole_error_basis": "Runner forcedPYTHONUTF8=1; stdlib Windows subprocess textreader thread raised UnicodeDecodeError for deliberate0xff, yielding stdoutNone before test .strip. Production boundedbinary capture remains defaultTextIOWrapper locale; currentsource/test read, no productchange.",
+    "affected_native_locale_control": {
+      "command": [
+        "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+        "-m",
+        "unittest",
+        "test_mcp_baseline_output.BaselineOutputTests.test_text_decoding_matches_the_existing_subprocess_locale_contract"
+      ],
+      "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection\\backend",
+      "environment_change_from_combined": "Only PYTHONUTF8=0 (native Windows locale); same isolation/credentials/network/privateenv guards and immutable source.",
+      "locale": {
+        "utf8_mode": 0,
+        "encoding": "cp1252",
+        "preferred_encoding": "cp1252"
+      },
+      "returncode": 0,
+      "elapsed_seconds": 1.422,
+      "log_sha256": "945d2eebee7f78282fc95349c085b2e4ac3ab5d19b06e199b8023f027b348ba5",
+      "meaning": "Affected test only; not a second combined operator run."
+    },
+    "reconciled_outcomes": {
+      "passing": 1024,
+      "environment_skipped": 6,
+      "unresolved_product_failures": 0
+    },
+    "claim_boundary": "Split outcome evidence:1023passes+one same-test nativeWindows defaultcp1252 pass, sixskips. NOT one uninterrupted1030greenrun, no claim that forcedUTF8 fixture passes, no productionLinuximage qualification."
+  },
+  "qa": {
+    "modules": [
+      "test_workload_capacity",
+      "test_mcp_capacity",
+      "test_capacity_container_events",
+      "test_workload_capacity_owners",
+      "test_mcp_capacity_profile",
+      "test_capacity_observer_lifecycle"
+    ],
+    "executed": 48,
+    "passed": 48,
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "elapsed_test_seconds": 2.302
+  },
+  "connector": {
+    "ruff": "passed --no-fix",
+    "pytest": {
+      "test_files": 24,
+      "passed": 181,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "elapsed_test_seconds": 52.43,
+      "junit": ".tmp/final-operator-connector/final-retained-20261101-operator-connector-corrected/connector-junit.xml"
+    },
+    "native_boundary": "Real Windows kernel mutex and uniquely named synthetic credential roundtrip/cleanup only; no actual uservault credentials, Codex/browser sign-in, productionauthorization or providers. Actual syntheticloopback OAuth/MCP SQLite fixtures do not prove realPostgreSQL/service/VPS behavior."
+  },
+  "packaging": {
+    "preliminary_mismatched_backend_wheel": {
+      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\final-operator-connector\\final-retained-20261101-operator-connector-corrected\\wheels\\global_connects_mcp_connector-0.2.4-py3-none-any.whl",
+      "sha256": "c40e58eb98b27166eb53d193d3d8524b1e265c63d90ff21b1f0611ca6d94185a",
+      "bytes": 37778
+    },
+    "preliminary_backend": {
+      "setuptools": "79.0.1",
+      "wheel": null,
+      "pytest": "9.0.3",
+      "pytest-asyncio": "1.4.0",
+      "ruff": "0.16.0",
+      "mcp": "2.2.0",
+      "httpx2": "2.13.1",
+      "pywin32": "312"
+    },
+    "preliminary_qualification": "Build success only; wrongsetuptools79/no wheeldist, not accepted as reviewedtoolchain result. Preserved unchanged.",
+    "exact_build_identity": {
+      "python": "3.11.15 (main, Jul 23 2026, 14:42:43) [MSC v.1944 64 bit (AMD64)]",
+      "packages": {
+        "pip": "26.2.1",
+        "setuptools": "84.0.0",
+        "wheel": "0.48.0",
+        "packaging": "26.3"
+      }
+    },
+    "lock_source": "backend/requirements-image-build.lock",
+    "lock_source_sha256": "fade5b1894ef7e5eb88c803e0deface4c63ce515c941cb325f47046ca6338d4f",
+    "hashlocked_subset_sha256": "e0c1f4dde06116bff3e0134c87bd51fc24d80e7478cb622eaabce2dc1532c30a",
+    "raw_downloaded_artifacts": [
+      {
+        "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\final-operator-connector\\exact-build-wheelhouse\\packaging-26.3-py3-none-any.whl",
+        "sha256": "d7193f7c8e4e93f444fde0262bf90af30e16fa0ad0ad44cb553c87339b23cd1c",
+        "bytes": 129956
+      },
+      {
+        "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\final-operator-connector\\exact-build-wheelhouse\\pip-26.2.1-py3-none-any.whl",
+        "sha256": "71138adf1f4ca900cdb7d289c21b7494329f2332b6d85f0e1c42108c0384ed3e",
+        "bytes": 1816632
+      },
+      {
+        "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\final-operator-connector\\exact-build-wheelhouse\\setuptools-84.0.0-py3-none-any.whl",
+        "sha256": "51a52592b3b99e102b609654876bd65f19f999935166d1352678931132b0c670",
+        "bytes": 818216
+      },
+      {
+        "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\final-operator-connector\\exact-build-wheelhouse\\wheel-0.48.0-py3-none-any.whl",
+        "sha256": "3217dcc807155e45db462d7ef2431f5ddda0d7273b700d05a67b271ceb1287ab",
+        "bytes": 33320
+      }
+    ],
+    "exact_build_commands": [
+      {
+        "name": "create-environment",
+        "command": [
+          "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+          "-m",
+          "venv",
+          "--without-pip",
+          "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\final-operator-connector\\exact-build-qualification\\build-venv"
+        ],
+        "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\final-operator-connector\\exact-build-qualification",
+        "returncode": 0,
+        "elapsed_seconds": 0.25,
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "install-exact-build-tools",
+        "command": [
+          "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+          "-m",
+          "pip",
+          "--python",
+          "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\final-operator-connector\\exact-build-qualification\\build-venv\\Scripts\\python.exe",
+          "install",
+          "--no-index",
+          "--find-links",
+          "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\final-operator-connector\\exact-build-wheelhouse",
+          "--require-hashes",
+          "--no-deps",
+          "-r",
+          "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\final-operator-connector\\build-tool-subset.lock"
+        ],
+        "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\final-operator-connector\\exact-build-qualification",
+        "returncode": 0,
+        "elapsed_seconds": 8.969,
+        "log_sha256": "a4140d2edac3e9ed0d9bbb5b6414275f9315b0e0a4b099965da818ea973f90de"
+      },
+      {
+        "name": "build-tool-identity",
+        "command": [
+          "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\final-operator-connector\\exact-build-qualification\\build-venv\\Scripts\\python.exe",
+          "-c",
+          "import json,sys,importlib.metadata as m;print(json.dumps({\"python\":sys.version,\"packages\":{p:m.version(p) for p in (\"pip\",\"setuptools\",\"wheel\",\"packaging\")}}))"
+        ],
+        "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\final-operator-connector\\exact-build-qualification",
+        "returncode": 0,
+        "elapsed_seconds": 0.234,
+        "log_sha256": "966093c252cf2471ff64d3d12acc942acdf96ec2618b04212044e04e327e7084"
+      },
+      {
+        "name": "wheel-exact",
+        "command": [
+          "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\final-operator-connector\\exact-build-qualification\\build-venv\\Scripts\\python.exe",
+          "-m",
+          "pip",
+          "wheel",
+          "--no-deps",
+          "--no-build-isolation",
+          "--wheel-dir",
+          "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\final-operator-connector\\exact-build-qualification\\wheels",
+          "."
+        ],
+        "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\final-operator-connector\\exact-build-qualification\\connector-source",
+        "returncode": 0,
+        "elapsed_seconds": 2.234,
+        "log_sha256": "299fb0fb8c5038ef54e6e847a2edfd7df3beaf5917bc4c0aa105eee494833e0e"
+      }
+    ],
+    "accepted_wheel": {
+      "path": "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\final-operator-connector\\exact-build-qualification\\wheels\\global_connects_mcp_connector-0.2.4-py3-none-any.whl",
+      "sha256": "a5198c5224d0a0ecba26d365c9aa6169e4e01b456dae82199c8ca7cef7f45ac4",
+      "bytes": 37779
+    },
+    "packaged_module_byte_parity_count": 14,
+    "RECORD_verified_entries": 18,
+    "archive_CRC": "passed",
+    "metadata": {
+      "Name": "global-connects-mcp-connector",
+      "Version": "0.2.4",
+      "Requires-Python": "<3.12,>=3.11",
+      "Requires-Dist": [
+        "mcp==2.2.0",
+        "httpx2==2.13.1",
+        "pywin32==312; sys_platform == \"win32\""
+      ],
+      "WHEEL": "Wheel-Version: 1.0\nGenerator: setuptools (84.0.0)\nRoot-Is-Purelib: true\nTag: py3-none-any\n\n",
+      "entry_points": "[console_scripts]\ngc-mcp = gc_mcp_connector.cli:main\n"
+    },
+    "original_source_copy_files": 16,
+    "source_originals_unchanged": true,
+    "existing_venv_preserved_versions": {
+      "pip": "26.2.1",
+      "setuptools": "79.0.1",
+      "wheel": null,
+      "packaging": "26.3"
+    },
+    "installation_boundary": "Exactisolated audit buildvenv only; no developer/venv2/package/locksource modification. Wheels downloaded through declaredofficialPyPI knownhashes, then offline hashrequired installation and no-deps/no-build-isolation build."
+  },
+  "isolation_controls": {
+    "all_guard_controls_passed": true,
+    "event_counts": [
+      {
+        "stage": "isolation-control",
+        "kind": "docker_non_static_operation_denied",
+        "count": 3
+      },
+      {
+        "stage": "isolation-control",
+        "kind": "existing_service_port_denied",
+        "count": 1
+      },
+      {
+        "stage": "isolation-control",
+        "kind": "non_loopback_resolution_denied",
+        "count": 1
+      },
+      {
+        "stage": "isolation-control",
+        "kind": "non_loopback_socket_denied",
+        "count": 1
+      },
+      {
+        "stage": "isolation-control",
+        "kind": "private_environment_open_denied",
+        "count": 1
+      },
+      {
+        "stage": "isolation-control",
+        "kind": "private_settings_dotenv_omitted",
+        "count": 2
+      },
+      {
+        "stage": "isolation-control",
+        "kind": "synthetic_compose_config_started",
+        "count": 2
+      },
+      {
+        "stage": "operator",
+        "kind": "synthetic_compose_config_started",
+        "count": 6
+      }
+    ],
+    "noncontrol_denials": [],
+    "actual_operator_static_compose_config_invocations": 6,
+    "static_not_daemon": "Actualdockercomposeconfig only for exactcode-update-revision-test and synthetictemp cwd/files. No pull/build/run/up/start/stop/restart/remove or daemon request.",
+    "scope": "Auditguard localPython events/known currentchildcommands, not formal sandbox or proof against arbitrary nonPythonchildren. Private filecontents not read."
+  },
+  "preliminary_harness_run": {
+    "operator_executions": 1030,
+    "operator_errors": 355,
+    "operator_skips": 6,
+    "qa_executions": 48,
+    "qa_errors": 1,
+    "connector_passed": 179,
+    "connector_failed_native_child": 2,
+    "ruff_and_wheel": "blocked by sameguard bug",
+    "cause": "WindowsPopen event executableNone +one fixtureos.name mutation exposed runner pathclass bug. Actual WindowsCommandLineToArgvW/LocalFree and capturedhostpathclass fix audithelper only. Oldlogs/source reconstruction with exactpreparationhash matching retained.",
+    "never_product_evidence": true
+  },
+  "audit_helper_ledger": "docs/audit/dashboard-2026-10-30/final-operator-connector-reviewed-files.json",
+  "audit_helper_ledger_sha256": "2729f678fc04bb1f2ba9aa04121afb3fc4ce5b6d699a1269bccb00f4736f51cc",
+  "evidence": [
+    {
+      "path": ".tmp/final-operator-connector/final-retained-20261101-operator-connector-corrected/execution.json",
+      "sha256": "00fa68a88e58af4e820bac336d36211843ea848e5dcc20d084a2904589139fbc",
+      "bytes": 5291
+    },
+    {
+      "path": ".tmp/final-operator-connector/final-retained-20261101-operator-connector-corrected/source-before.json",
+      "sha256": "529d698d6a121266acb5bedbd4243aa09b0d6b4f43633751163288dd925fc827",
+      "bytes": 438279
+    },
+    {
+      "path": ".tmp/final-operator-connector/final-retained-20261101-operator-connector-corrected/operator.log",
+      "sha256": "6e50fc2b1e4d17e94adc33963a2fb41764da2b19478ecb08f71c9fede37bdd14",
+      "bytes": 9666
+    },
+    {
+      "path": ".tmp/final-operator-connector/final-retained-20261101-operator-connector-corrected/qa.log",
+      "sha256": "8faeeae3d237929d051bba80ed02e89ce29c4b60e133014d3ce68f77af418e68",
+      "bytes": 152
+    },
+    {
+      "path": ".tmp/final-operator-connector/final-retained-20261101-operator-connector-corrected/connector-ruff.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "bytes": 19
+    },
+    {
+      "path": ".tmp/final-operator-connector/final-retained-20261101-operator-connector-corrected/connector-pytest.log",
+      "sha256": "6eef8037b576fef8bfe36499b18d9841ea4720b9a2af73ba229634e9afab53ba",
+      "bytes": 265
+    },
+    {
+      "path": ".tmp/final-operator-connector/final-retained-20261101-operator-connector-corrected/connector-junit.xml",
+      "sha256": "d39b284d55af4d6e68aca054a7580766218d019eec1b66d47d223c4a9370d2da",
+      "bytes": 34805
+    },
+    {
+      "path": ".tmp/final-operator-connector/final-retained-20261101-operator-connector-corrected/operator-native-locale-control.json",
+      "sha256": "eccadae784fe26dd9e941e15f1908ad138c80c62320b061705507288c73e5126",
+      "bytes": 818
+    },
+    {
+      "path": ".tmp/final-operator-connector/final-retained-20261101-operator-connector-corrected/operator-native-locale-control.log",
+      "sha256": "945d2eebee7f78282fc95349c085b2e4ac3ab5d19b06e199b8023f027b348ba5",
+      "bytes": 103
+    },
+    {
+      "path": ".tmp/final-operator-connector/final-retained-20261101-operator-connector-corrected/isolation-events.jsonl",
+      "sha256": "1d491048b8a418ed66daf194044f8663075673271125607e0a85184312342b16",
+      "bytes": 1481
+    },
+    {
+      "path": ".tmp/final-operator-connector/final-retained-20261101-operator-connector/execution.json",
+      "sha256": "90998a63c0611efc2297f0bf2d92be0dbe497a9d9b0e6277b29bf98faa4e4392",
+      "bytes": 4920
+    },
+    {
+      "path": ".tmp/final-operator-connector/final-retained-20261101-operator-connector/operator.log",
+      "sha256": "6b38cacd38eb6cbbeafdd15793973593f3e61ec598818e7461c1f283f370c966",
+      "bytes": 790860
+    },
+    {
+      "path": ".tmp/final-operator-connector/final-retained-20261101-operator-connector/qa.log",
+      "sha256": "37ba3f25b7612f098c9e4643264961967e2787b2a66fc452c0188bd255010cb3",
+      "bytes": 1748
+    },
+    {
+      "path": ".tmp/final-operator-connector/final-retained-20261101-operator-connector/connector-ruff.log",
+      "sha256": "0779c250103e52948640d00a68d1ad210794fb28b14e8f1d7233f97e4acb2ba5",
+      "bytes": 1485
+    },
+    {
+      "path": ".tmp/final-operator-connector/final-retained-20261101-operator-connector/connector-pytest.log",
+      "sha256": "859bf0e80325877fbbf766cc0121c75dfe526d41b5a9bac571a778f95c8a7d6f",
+      "bytes": 6629
+    },
+    {
+      "path": ".tmp/final-operator-connector/final-retained-20261101-operator-connector/connector-wheel.log",
+      "sha256": "0dcbe301591d65d9675eb50bfe436f7215b543dcb17c8aa229564bd6c62885df",
+      "bytes": 6950
+    },
+    {
+      "path": ".tmp/final-operator-connector/final-retained-20261101-operator-connector/reconstructed-preliminary-helpers/proof.json",
+      "sha256": "331c648db0d72f68661c69b69f4d728fef809ca2c1b3e36db9cf8d8d57a8eda4",
+      "bytes": 1009
+    },
+    {
+      "path": ".tmp/final-operator-connector/exact-build-download.json",
+      "sha256": "61857a59e18b03bbf0dc6e3e28fb07a2437d1ed72874b20ed5bca624b34fbbe1",
+      "bytes": 779
+    },
+    {
+      "path": ".tmp/final-operator-connector/exact-build-download.log",
+      "sha256": "3bf852cfe2b7d3db3142daba092d08f411da635451917665bc2abab5f9b02b6c",
+      "bytes": 1078
+    },
+    {
+      "path": ".tmp/final-operator-connector/build-tool-subset.lock",
+      "sha256": "e0c1f4dde06116bff3e0134c87bd51fc24d80e7478cb622eaabce2dc1532c30a",
+      "bytes": 753
+    },
+    {
+      "path": ".tmp/final-operator-connector/exact-build-qualification/execution.json",
+      "sha256": "8a5acc9c35794e97fa08dbe4538a755b1062b549efccc1988635eb46bc5485e1",
+      "bytes": 8886
+    },
+    {
+      "path": ".tmp/final-operator-connector/exact-build-qualification/artifact-verification.json",
+      "sha256": "094a9d75b3c9b63af283ef9ebb86be1bdaf173731a6e9d84a105e9c3cde0e309",
+      "bytes": 4716
+    }
+  ],
+  "unchanged_requirements": [
+    "No source/test/config/gate/migration/API/workflow edits",
+    "No real provider/customer/VPS/deploy/securityscanner actions",
+    "No native app or dedicatedInbox suites revived",
+    "No lock regeneration or existingdeveloper environment replacement"
+  ],
+  "remaining_limits": [
+    "Six environment/platform operator tests remain skipped in Windowslocalrun; Linuximage/daemon/serviceintegration qualification is not established.",
+    "One stdliblocale test has splitnativeWindows outcome evidence, not uninterruptedcombinedoperatorgreen.",
+    "Currentfrontend/backend broadcoverage and actualMCPmatrix verification are parent/peer-owned separate receipts."
+  ]
+}

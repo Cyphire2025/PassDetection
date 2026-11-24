@@ -1,0 +1,29 @@
+.FF.F..
+======================================================================
+FAIL: test_configured_check_cannot_admit_missing_or_unknown_health (test_mcp_direct_health_admission.DirectHealthAdmission.test_configured_check_cannot_admit_missing_or_unknown_health) (status=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_mcp_direct_health_admission.py", line 40, in test_configured_check_cannot_admit_missing_or_unknown_health
+    with self.assertRaisesRegex(BuildError, "^candidate_health_deadline$"):
+AssertionError: BuildError not raised
+
+======================================================================
+FAIL: test_configured_check_cannot_admit_missing_or_unknown_health (test_mcp_direct_health_admission.DirectHealthAdmission.test_configured_check_cannot_admit_missing_or_unknown_health) (status='unknown')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_mcp_direct_health_admission.py", line 40, in test_configured_check_cannot_admit_missing_or_unknown_health
+    with self.assertRaisesRegex(BuildError, "^candidate_health_deadline$"):
+AssertionError: BuildError not raised
+
+======================================================================
+FAIL: test_healthy_response_after_deadline_cannot_authorize_cutover (test_mcp_direct_health_admission.DirectHealthAdmission.test_healthy_response_after_deadline_cannot_authorize_cutover)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\nipun\Desktop\PassDetection\scripts\test_mcp_direct_health_admission.py", line 45, in test_healthy_response_after_deadline_cannot_authorize_cutover
+    with self.assertRaisesRegex(BuildError, "^candidate_health_deadline$"):
+AssertionError: BuildError not raised
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.003s
+
+FAILED (failures=3)

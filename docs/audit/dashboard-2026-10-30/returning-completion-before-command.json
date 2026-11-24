@@ -1,0 +1,30 @@
+{
+  "command": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "--cov=app.application.travellers.completion",
+    "--cov-branch",
+    "--cov-report=json:C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\returning-completion-before-coverage.json",
+    "--junitxml=C:\\Users\\nipun\\Desktop\\PassDetection\\docs\\audit\\dashboard-2026-10-30\\returning-completion-before-junit.xml",
+    "tests/integration/test_returning_completion.py",
+    "tests/integration/test_returning_owned_extraction.py",
+    "tests/integration/test_returning_drafts.py",
+    "tests/integration/test_returning_draft_collection.py",
+    "tests/integration/test_draft_replacement_resume.py"
+  ],
+  "exit_code": 0,
+  "seconds": 78.125,
+  "source_sha256_before": "ff83213778a3fef8585d6b8f5cd57670d45136883e29414761b66fb480f73446",
+  "source_sha256_after": "ff83213778a3fef8585d6b8f5cd57670d45136883e29414761b66fb480f73446",
+  "test_paths": [
+    "tests/integration/test_returning_completion.py",
+    "tests/integration/test_returning_owned_extraction.py",
+    "tests/integration/test_returning_drafts.py",
+    "tests/integration/test_returning_draft_collection.py",
+    "tests/integration/test_draft_replacement_resume.py"
+  ]
+}

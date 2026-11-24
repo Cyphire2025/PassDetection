@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+# ruff: noqa: F401 -- preserve the original activity module import surface.
 import uuid
 from datetime import UTC, datetime, timedelta
 from typing import Any, Literal
@@ -22,6 +23,36 @@ from app.infrastructure.database.models import (
     WhatsAppMessageLogModel,
 )
 from app.infrastructure.database.session import get_db_session
+from app.presentation.api.v1.routes.whatsapp_activity_access import (
+    ACTIVITY_ROLES,
+    _ensure_kind_access,
+    _scope_client_group_statement,
+)
+from app.presentation.api.v1.routes.whatsapp_activity_document_queries import (
+    _document_activity_deliveries_statement,
+    _document_activity_status_predicate,
+)
+from app.presentation.api.v1.routes.whatsapp_activity_failure_queries import (
+    _broadcast_failures_statement,
+    _document_failures_statement,
+    _qr_failures_statement,
+)
+from app.presentation.api.v1.routes.whatsapp_activity_status import (
+    ACTIVE_STATUSES,
+    ACTIVITY_STALE_AFTER,
+    ACTIVITY_STATUS_COUNT_KEYS,
+    KNOWN_STATUSES,
+    SUCCESS_STATUSES,
+    UNCERTAIN_STATUSES,
+    _failed_status_predicate,
+    _normalized_activity_status,
+    _status_aggregates,
+)
+from app.presentation.api.v1.routes.whatsapp_activity_summary_queries import (
+    _broadcast_activity_statement,
+    _document_activity_statement,
+    _qr_activity_statement,
+)
 from app.presentation.api.v1.schemas.whatsapp_activity_schemas import (
     DocumentActivityDeliveriesResponse,
     DocumentActivityDeliveryResponse,
@@ -32,23 +63,20 @@ from app.presentation.api.v1.schemas.whatsapp_activity_schemas import (
 )
 from app.presentation.dependencies.auth import WHATSAPP_BROADCAST_ROLES, require_role
 
+# Preserve legacy module/qualname and pickle lookup. Source inspection points
+# to each real implementation owner.
+for _activity_helper in (
+    _ensure_kind_access, _scope_client_group_statement,
+    _document_activity_deliveries_statement, _document_activity_status_predicate,
+    _broadcast_failures_statement, _document_failures_statement, _qr_failures_statement,
+    _failed_status_predicate, _normalized_activity_status, _status_aggregates,
+    _broadcast_activity_statement, _document_activity_statement, _qr_activity_statement,
+):
+    _activity_helper.__module__ = __name__
+del _activity_helper
+
 router = APIRouter()
 
-ACTIVITY_ROLES = [
-    UserRole.SUPER_ADMIN,
-    UserRole.AGENCY_ADMIN,
-    UserRole.AGENCY_MANAGER,
-    UserRole.AGENCY_STAFF,
-]
-ACTIVE_STATUSES = frozenset({"queued", "processing"})
-SUCCESS_STATUSES = frozenset({"submitted", "sent", "delivered", "read"})
-UNCERTAIN_STATUSES = frozenset({"delivery_unknown", "stalled"})
-KNOWN_STATUSES = ACTIVE_STATUSES | SUCCESS_STATUSES | UNCERTAIN_STATUSES
-ACTIVITY_STALE_AFTER = timedelta(minutes=30)
-ACTIVITY_STATUS_COUNT_KEYS = (
-    "queued", "processing", "submitted", "sent", "delivered", "read",
-    "failed", "delivery_unknown", "stalled",
-)
 
 _BROADCAST_TITLES = {
     "welcome": "Welcome message broadcast",
@@ -57,216 +85,6 @@ _BROADCAST_TITLES = {
     "group_invite": "WhatsApp group invite broadcast",
     "document_update": "Update message broadcast",
 }
-
-
-def _normalized_activity_status(
-    status_column: Any,
-    status_updated_column: Any,
-    *,
-    stale_cutoff: datetime,
-) -> Any:
-    return case(
-        (
-            and_(status_column.in_(ACTIVE_STATUSES), status_updated_column < stale_cutoff),
-            "stalled",
-        ),
-        else_=status_column,
-    )
-
-
-def _status_aggregates(
-    status_column: Any,
-    status_updated_column: Any,
-    *,
-    stale_cutoff: datetime,
-) -> tuple[Any, ...]:
-    is_active = status_column.in_(ACTIVE_STATUSES)
-    is_stale = and_(is_active, status_updated_column < stale_cutoff)
-    is_queued = and_(is_active, ~is_stale)
-    is_unknown = or_(status_column.in_(UNCERTAIN_STATUSES), is_stale)
-    is_failed = ~status_column.in_(KNOWN_STATUSES)
-    normalized_status = _normalized_activity_status(
-        status_column, status_updated_column, stale_cutoff=stale_cutoff,
-    )
-    return (
-        func.count().label("total"),
-        func.count().filter(is_queued).label("queued"),
-        func.count().filter(status_column.in_(SUCCESS_STATUSES)).label("sent"),
-        func.count().filter(is_failed).label("failed"),
-        func.count().filter(is_unknown).label("delivery_unknown"),
-        *(
-            func.count()
-            .filter(is_failed if name == "failed" else normalized_status == name)
-            .label(f"status_count_{name}")
-            for name in ACTIVITY_STATUS_COUNT_KEYS
-        ),
-    )
-
-
-def _scope_client_group_statement(statement: Any, current_user: User) -> Any:
-    return AuthorizationPolicy.apply_group_visibility_scope(statement, current_user)
-
-
-def _broadcast_activity_statement(
-    *,
-    batch_id: uuid.UUID,
-    current_user: User,
-    stale_cutoff: datetime,
-) -> Any:
-    statement = (
-        select(
-            WhatsAppMessageLogModel.batch_id.label("activity_id"),
-            WhatsAppBroadcastGroupModel.id.label("source_group_id"),
-            WhatsAppBroadcastGroupModel.name.label("context_label"),
-            WhatsAppMessageLogModel.message_type.label("activity_label"),
-            *_status_aggregates(
-                WhatsAppMessageLogModel.status,
-                WhatsAppMessageLogModel.status_updated_at,
-                stale_cutoff=stale_cutoff,
-            ),
-            func.min(WhatsAppMessageLogModel.created_at).label("started_at"),
-            func.max(WhatsAppMessageLogModel.status_updated_at).label("updated_at"),
-        )
-        .join(
-            WhatsAppBroadcastGroupModel,
-            WhatsAppBroadcastGroupModel.id == WhatsAppMessageLogModel.broadcast_group_id,
-        )
-        .where(WhatsAppMessageLogModel.batch_id == batch_id)
-        .group_by(
-            WhatsAppMessageLogModel.batch_id,
-            WhatsAppBroadcastGroupModel.id,
-            WhatsAppBroadcastGroupModel.name,
-            WhatsAppMessageLogModel.message_type,
-        )
-    )
-    if current_user.role != UserRole.SUPER_ADMIN:
-        statement = statement.where(WhatsAppBroadcastGroupModel.agency_id == current_user.agency_id)
-    return statement
-
-
-def _document_activity_statement(
-    *,
-    batch_id: uuid.UUID,
-    current_user: User,
-    stale_cutoff: datetime,
-) -> Any:
-    statement = (
-        select(
-            DocumentWhatsAppDeliveryModel.send_batch_id.label("activity_id"),
-            ClientGroupModel.id.label("source_group_id"),
-            ClientGroupModel.name.label("context_label"),
-            DocumentWhatsAppDeliveryModel.document_type.label("activity_label"),
-            *_status_aggregates(
-                DocumentWhatsAppDeliveryModel.status,
-                DocumentWhatsAppDeliveryModel.status_updated_at,
-                stale_cutoff=stale_cutoff,
-            ),
-            func.min(DocumentWhatsAppDeliveryModel.created_at).label("started_at"),
-            func.max(DocumentWhatsAppDeliveryModel.status_updated_at).label("updated_at"),
-        )
-        .join(
-            ClientGroupModel,
-            and_(
-                ClientGroupModel.id == DocumentWhatsAppDeliveryModel.group_id,
-                ClientGroupModel.agency_id == DocumentWhatsAppDeliveryModel.agency_id,
-            ),
-        )
-        .where(DocumentWhatsAppDeliveryModel.send_batch_id == batch_id)
-        .group_by(
-            DocumentWhatsAppDeliveryModel.send_batch_id,
-            ClientGroupModel.id,
-            ClientGroupModel.name,
-            DocumentWhatsAppDeliveryModel.document_type,
-        )
-    )
-    return _scope_client_group_statement(statement, current_user)
-
-
-def _document_activity_deliveries_statement(
-    *,
-    batch_id: uuid.UUID,
-    current_user: User,
-    stale_cutoff: datetime,
-) -> Any:
-    statement = (
-        select(
-            DocumentWhatsAppDeliveryModel.id.label("delivery_id"),
-            DocumentWhatsAppDeliveryModel.passenger_name,
-            DocumentWhatsAppDeliveryModel.phone_number,
-            DocumentWhatsAppDeliveryModel.document_filename,
-            DocumentWhatsAppDeliveryModel.document_type,
-            _normalized_activity_status(
-                DocumentWhatsAppDeliveryModel.status,
-                DocumentWhatsAppDeliveryModel.status_updated_at,
-                stale_cutoff=stale_cutoff,
-            ).label("status"),
-            DocumentWhatsAppDeliveryModel.error_message,
-            DocumentWhatsAppDeliveryModel.status_updated_at,
-        )
-        .select_from(DocumentWhatsAppDeliveryModel)
-        .join(
-            ClientGroupModel,
-            and_(
-                ClientGroupModel.id == DocumentWhatsAppDeliveryModel.group_id,
-                ClientGroupModel.agency_id == DocumentWhatsAppDeliveryModel.agency_id,
-            ),
-        )
-        .where(DocumentWhatsAppDeliveryModel.send_batch_id == batch_id)
-    )
-    return _scope_client_group_statement(statement, current_user)
-
-
-def _document_activity_status_predicate(
-    status_filter: DocumentActivityStatusFilter, *, stale_cutoff: datetime,
-) -> Any:
-    status_column = DocumentWhatsAppDeliveryModel.status
-    if status_filter == "sent":
-        return status_column.in_(SUCCESS_STATUSES)
-    if status_filter == "delivered":
-        return status_column.in_(("delivered", "read"))
-    if status_filter == "failed":
-        return _failed_status_predicate(status_column)
-    normalized_status = _normalized_activity_status(
-        status_column,
-        DocumentWhatsAppDeliveryModel.status_updated_at,
-        stale_cutoff=stale_cutoff,
-    )
-    if status_filter == "needs_review":
-        return normalized_status.in_(UNCERTAIN_STATUSES)
-    return normalized_status == status_filter
-
-
-def _qr_activity_statement(
-    *,
-    batch_id: uuid.UUID,
-    current_user: User,
-    stale_cutoff: datetime,
-) -> Any:
-    statement = (
-        select(
-            PassengerQrWhatsAppDeliveryModel.send_batch_id.label("activity_id"),
-            ClientGroupModel.id.label("source_group_id"),
-            ClientGroupModel.name.label("context_label"),
-            *_status_aggregates(
-                PassengerQrWhatsAppDeliveryModel.status,
-                PassengerQrWhatsAppDeliveryModel.status_updated_at,
-                stale_cutoff=stale_cutoff,
-            ),
-            func.min(PassengerQrWhatsAppDeliveryModel.created_at).label("started_at"),
-            func.max(PassengerQrWhatsAppDeliveryModel.status_updated_at).label("updated_at"),
-        )
-        .join(
-            ClientGroupModel,
-            ClientGroupModel.id == PassengerQrWhatsAppDeliveryModel.group_id,
-        )
-        .where(PassengerQrWhatsAppDeliveryModel.send_batch_id == batch_id)
-        .group_by(
-            PassengerQrWhatsAppDeliveryModel.send_batch_id,
-            ClientGroupModel.id,
-            ClientGroupModel.name,
-        )
-    )
-    return _scope_client_group_statement(statement, current_user)
 
 
 def _activity_statement(
@@ -295,86 +113,6 @@ def _activity_statement(
     )
 
 
-def _failed_status_predicate(status_column: Any) -> Any:
-    return ~status_column.in_(KNOWN_STATUSES)
-
-
-def _broadcast_failures_statement(*, batch_id: uuid.UUID, current_user: User) -> Any:
-    statement = (
-        select(
-            WhatsAppBroadcastRecipientModel.name.label("recipient_name"),
-            func.coalesce(WhatsAppMessageLogModel.normalized_phone_number,
-                          WhatsAppBroadcastRecipientModel.normalized_phone_number).label("phone_number"),
-            WhatsAppMessageLogModel.error_message.label("error_message"),
-        )
-        .join(
-            WhatsAppBroadcastRecipientModel,
-            WhatsAppBroadcastRecipientModel.id == WhatsAppMessageLogModel.recipient_id,
-        )
-        .join(
-            WhatsAppBroadcastGroupModel,
-            WhatsAppBroadcastGroupModel.id == WhatsAppMessageLogModel.broadcast_group_id,
-        )
-        .where(
-            WhatsAppMessageLogModel.batch_id == batch_id,
-            _failed_status_predicate(WhatsAppMessageLogModel.status),
-        )
-        .order_by(
-            WhatsAppBroadcastRecipientModel.name.asc().nulls_last(),
-            WhatsAppBroadcastRecipientModel.normalized_phone_number.asc(),
-        )
-    )
-    if current_user.role != UserRole.SUPER_ADMIN:
-        statement = statement.where(WhatsAppBroadcastGroupModel.agency_id == current_user.agency_id)
-    return statement
-
-
-def _document_failures_statement(*, batch_id: uuid.UUID, current_user: User) -> Any:
-    statement = (
-        select(
-            DocumentWhatsAppDeliveryModel.passenger_name.label("recipient_name"),
-            DocumentWhatsAppDeliveryModel.normalized_phone_number.label("phone_number"),
-            DocumentWhatsAppDeliveryModel.error_message.label("error_message"),
-        )
-        .join(
-            ClientGroupModel,
-            ClientGroupModel.id == DocumentWhatsAppDeliveryModel.group_id,
-        )
-        .where(
-            DocumentWhatsAppDeliveryModel.send_batch_id == batch_id,
-            _failed_status_predicate(DocumentWhatsAppDeliveryModel.status),
-        )
-        .order_by(
-            DocumentWhatsAppDeliveryModel.passenger_name.asc(),
-            DocumentWhatsAppDeliveryModel.normalized_phone_number.asc(),
-        )
-    )
-    return _scope_client_group_statement(statement, current_user)
-
-
-def _qr_failures_statement(*, batch_id: uuid.UUID, current_user: User) -> Any:
-    statement = (
-        select(
-            PassengerQrWhatsAppDeliveryModel.passenger_name.label("recipient_name"),
-            PassengerQrWhatsAppDeliveryModel.normalized_phone_number.label("phone_number"),
-            PassengerQrWhatsAppDeliveryModel.error_message.label("error_message"),
-        )
-        .join(
-            ClientGroupModel,
-            ClientGroupModel.id == PassengerQrWhatsAppDeliveryModel.group_id,
-        )
-        .where(
-            PassengerQrWhatsAppDeliveryModel.send_batch_id == batch_id,
-            _failed_status_predicate(PassengerQrWhatsAppDeliveryModel.status),
-        )
-        .order_by(
-            PassengerQrWhatsAppDeliveryModel.passenger_name.asc(),
-            PassengerQrWhatsAppDeliveryModel.normalized_phone_number.asc(),
-        )
-    )
-    return _scope_client_group_statement(statement, current_user)
-
-
 def _failures_statement(
     *,
     kind: WhatsAppActivityKind,
@@ -386,14 +124,6 @@ def _failures_statement(
     if kind == "document":
         return _document_failures_statement(batch_id=batch_id, current_user=current_user)
     return _qr_failures_statement(batch_id=batch_id, current_user=current_user)
-
-
-def _ensure_kind_access(kind: WhatsAppActivityKind, current_user: User) -> None:
-    if kind == "broadcast" and current_user.role not in WHATSAPP_BROADCAST_ROLES:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="WhatsApp broadcast activity not found",
-        )
 
 
 def _activity_title(kind: WhatsAppActivityKind, activity_label: str | None) -> str:

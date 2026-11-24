@@ -1,0 +1,797 @@
+{
+  "status": "verified at this scoped source checkpoint",
+  "before_modules": 741,
+  "after_modules": 782,
+  "normal_additions": 41,
+  "normal_updates": [
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/document_import.py",
+      "before": {
+        "path": "app/presentation/api/v1/routes/passport_routes/document_import.py",
+        "baseline_lines": 431,
+        "maximum_lines": 450,
+        "baseline_max_function_complexity": 21,
+        "maximum_function_complexity": 21,
+        "minimum_coverage_percent": 70
+      },
+      "after": {
+        "path": "app/presentation/api/v1/routes/passport_routes/document_import.py",
+        "baseline_lines": 207,
+        "maximum_lines": 215,
+        "baseline_max_function_complexity": 11,
+        "maximum_function_complexity": 12,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/document_import_failure.py",
+      "before": {
+        "path": "app/presentation/api/v1/routes/passport_routes/document_import_failure.py",
+        "baseline_lines": 49,
+        "maximum_lines": 55,
+        "baseline_max_function_complexity": 2,
+        "maximum_function_complexity": 2,
+        "minimum_coverage_percent": 95
+      },
+      "after": {
+        "path": "app/presentation/api/v1/routes/passport_routes/document_import_failure.py",
+        "baseline_lines": 55,
+        "maximum_lines": 55,
+        "baseline_max_function_complexity": 2,
+        "maximum_function_complexity": 2,
+        "minimum_coverage_percent": 95
+      }
+    }
+  ],
+  "all739other_normal_rows_unchanged": true,
+  "critical_before": 117,
+  "critical_after": 136,
+  "critical_additions": [
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/document_import_authority.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 90
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/document_import_persistence.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 90
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/document_import_staging.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 90
+    },
+    {
+      "path": "app/infrastructure/imports/passport_zip_admission.py",
+      "minimum_line_percent": 90,
+      "minimum_branch_percent": 80
+    },
+    {
+      "path": "app/infrastructure/imports/passport_zip_members.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    },
+    {
+      "path": "app/infrastructure/imports/passport_document_streams.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 75
+    },
+    {
+      "path": "app/infrastructure/imports/passport_document_workspace.py",
+      "minimum_line_percent": 90,
+      "minimum_branch_percent": 80
+    },
+    {
+      "path": "app/infrastructure/travel_tracker/queries.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 85
+    },
+    {
+      "path": "app/infrastructure/travel_tracker/reads.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 50
+    },
+    {
+      "path": "app/infrastructure/travel_tracker/projections.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    },
+    {
+      "path": "app/infrastructure/travel_tracker/changes.py",
+      "minimum_line_percent": 90,
+      "minimum_branch_percent": 90
+    },
+    {
+      "path": "app/infrastructure/travel_tracker/files.py",
+      "minimum_line_percent": 85,
+      "minimum_branch_percent": 50
+    },
+    {
+      "path": "app/infrastructure/travel_tracker/spreadsheet_values.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 70
+    },
+    {
+      "path": "app/infrastructure/travel_tracker/spreadsheet_reader.py",
+      "minimum_line_percent": 85,
+      "minimum_branch_percent": 75
+    },
+    {
+      "path": "app/infrastructure/travel_tracker/spreadsheet_matching.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 90
+    },
+    {
+      "path": "app/infrastructure/travel_tracker/spreadsheet_export.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 90
+    },
+    {
+      "path": "app/infrastructure/travel_tracker/threading.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 70
+    },
+    {
+      "path": "app/infrastructure/security/upload_validator.py",
+      "minimum_line_percent": 90,
+      "minimum_branch_percent": 75
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_welcome_media_authority.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 90
+    }
+  ],
+  "all117oldcritical_rows_unchanged": true,
+  "all_global_caps_floors_other_policy_unchanged": true,
+  "source_fence": {
+    "backend/app/presentation/api/v1/routes/passport_routes/document_import.py": "ec34e2f4c252e18cc192eb3ba6eff60f177243dfb33214e71dc5c793d10ef52d",
+    "backend/app/presentation/api/v1/routes/passport_routes/document_import_authority.py": "73a0a685a17eb592a944db685de700c9fa120828451d7e0a832ef6114654bd82",
+    "backend/app/presentation/api/v1/routes/passport_routes/document_import_failure.py": "50b0f10c49e96cd70b175131f1a120c3da71673251acfcf8f2f114bb747ebee5",
+    "backend/app/presentation/api/v1/routes/passport_routes/document_import_persistence.py": "8683b7909356c0036d32493f4739e30d3466fc7a5c4130f662e03918788a9a97",
+    "backend/app/presentation/api/v1/routes/passport_routes/document_import_preview.py": "4fe70fde54aa40be11051b8824388129936b4250131b2a97c7e196b154655695",
+    "backend/app/presentation/api/v1/routes/passport_routes/document_import_processing.py": "85e5d17e7ace085980f79203fe869c55b03e0178e432648595431dbf3544dc63",
+    "backend/app/presentation/api/v1/routes/passport_routes/document_import_staging.py": "e2af270a396ab3c58ea785d08b68ae2d5d3219e874f3ce5ce8432d83d78e1974",
+    "backend/tests/unit/presentation/document_import_authority_fixture.py": "3c31b2caedae1b086f3206768d3848e433b5a4215fc4793ee5d92c59f8435b1e",
+    "backend/tests/unit/presentation/passport_document_import_fixture.py": "68b63cb91d9c0dda1a7464f2224774faa13943d29f865976fb53b1a12334628a",
+    "backend/tests/unit/presentation/test_document_import_authority.py": "493c5fbfcc08763d55331779663405820715762a6aa60fe3a02b82f9429e81ae",
+    "backend/tests/unit/presentation/test_document_import_authority_locks.py": "573456a0ac137148433cf353f2e48b7e6ab5a342988e997963cc4a20ae701838",
+    "backend/tests/unit/presentation/test_document_import_initial_scope.py": "af9ab3819c562ab5e7ac937040bf8560cc970d7e61fc85da5d7ffb6ac99b6e56",
+    "backend/tests/unit/presentation/test_document_import_processing.py": "77ed0f686e0aa4620506a1b621a1e344154042b432e491435616deab250a7ce9",
+    "backend/tests/unit/presentation/test_passport_document_import_cancellation.py": "4766f7295ae9f9a275c86267f42ed364b7f47dae43830b764290d4a2e876b963",
+    "backend/tests/unit/presentation/test_passport_document_import_storage_outcomes.py": "a147c6f194b72893bb39a6872796ce4e0cadca924082b7d177be30355787ba73",
+    "backend/tests/unit/presentation/test_passport_crop_lifecycle_contract.py": "3d2495d0eedf4e4f68a3796b4d5304fff4ec3af6ac698d64639c481b5373a30e",
+    "backend/tests/unit/presentation/test_passport_document_import_staging_route.py": "ad5ab7c3f362624f15332afe51832d5b65ab690d00b8d4d113076fa4a0506e63",
+    "backend/tests/unit/presentation/test_passport_route_decomposition.py": "7b1ee92647844d22d84a29cc90180c58c1888c51c1cfbb1b0a0751d6efafec49",
+    "backend/app/application/security/access_level_actor.py": "3a8eec715f67356a378986999a012723bdd21f5510518ee7320ce7d0809013a6",
+    "backend/app/application/security/authorization_policy.py": "6a1ee49097b124715ce52fb5810387c6be5a3a5e18f4896676340c6e6dabe663",
+    "backend/app/application/use_cases/passports/reextract_passport_submission_use_case.py": "576cd4ee0f7d5159987365caecd136e2ed25de7c9037b1027438e360ef7621a4",
+    "backend/app/application/dtos/passport_dtos.py": "805b3451c5178df54163d73ca34754e2f57cd50ce87b0f79f9ca6cc1c1a51ed3",
+    "backend/app/infrastructure/documents/storage_transfers.py": "a15cde9b255188896500d54e4de7faf9dafbbe332f13f3163b1590f38a1c58d1",
+    "backend/app/infrastructure/documents/passport_import_compensation.py": "b0eb8569e9937629ebe007e87bdb0c1fcd1979cb188de8f8eff52ca1c8014f76",
+    "backend/app/infrastructure/storage/minio_repository.py": "f31fe249d63c18ea0e400bae0ee3161eb05db6b194527e2bdab39bf88626180c",
+    "backend/app/infrastructure/security/upload_validator.py": "dfb2683e620bcc1a3a5d4f97f5cb4c1cfda20105e493f6070e63b8574c11c73f",
+    "backend/app/infrastructure/repositories/user_repository.py": "a91bd9de4ef129c714c39cbda7ddc3d782fe7b3474fcb8f65837642fa5cb4737",
+    "backend/app/infrastructure/repositories/client_group_repository.py": "66064e771138181d5be51bd1708e2104b3ff944b3a4e517d5bce770912a1453d",
+    "backend/app/infrastructure/repositories/passport_image_crop_repository.py": "ab9eb177615d85eb42e9b15f00a94a3cd7a9e10dc9dda15d6db918ebb2e7f9b7",
+    "backend/app/infrastructure/repositories/passport_image_library_repository.py": "2d9d16bff5479c03d3ac8b6e8967d4a3da58edf32b7cf911221af5f0f3686bad",
+    "backend/app/infrastructure/repositories/passport_submission_repository.py": "86d3e08deca66ccc621be769e73a2e8df822c0f540be5779467c8e0cab3379c2",
+    "backend/app/infrastructure/processing/job_repository.py": "cb6a2c126b1e4da14e07d6e872671456cac286f6c1ea8745715e5f691d4c2176",
+    "backend/tests/unit/infrastructure/test_passport_import_compensation.py": "8833679959268b118603244d1de977d5908d5486aeefa003f4ca6f08b66c401d",
+    "backend/app/infrastructure/imports/passport_document_importer.py": "1431aac22fdf7d255516c02f34d1f6ad8102ca083668a5f609bc9b74b7c65d92",
+    "backend/app/infrastructure/imports/passport_document_workspace.py": "78260b471bcc10d9edd1ed44b06dc732e5468802ea723ca8891964c12add98f7",
+    "backend/app/infrastructure/imports/passport_document_streams.py": "6ab71940f43d46edff2ece4e5c80706428ab087702e99f65eff5f2f3ed6a4caf",
+    "backend/app/infrastructure/imports/passport_document_images.py": "8f097d6a4b7a63f7c1fd2fb82615c351e3d7701baaed3c398349eabc2de60f0d",
+    "backend/app/infrastructure/imports/passport_zip_members.py": "88ef17047879d07ae2720d99dee680b4744c49d68baf59e7de33821ce6e3628c",
+    "backend/app/infrastructure/imports/passport_zip_reader.py": "8c5d054b922a9f3878ba1ded3b7971a873286b36a3cf84356fe2cb9c366d88ea",
+    "backend/app/infrastructure/imports/passport_zip_admission.py": "b534f8d9c02733c4a378e11ce74770b906c5dcea37984c5bf138930504e3486d",
+    "backend/tests/unit/infrastructure/test_passport_document_import_staging.py": "c221d9bfba0d176b12c7812ff42c9dd46d2ac40219edf25400761677e91f845f",
+    "backend/tests/unit/infrastructure/test_passport_document_workspace_cleanup.py": "49ffef50613d62a8b202e482a93a80017696e5098205d75d75d282f60944f778",
+    "backend/tests/unit/infrastructure/test_passport_zip_member_admission.py": "a0975f2180c69445f3e167808192a304d8028b8b4d507717ba2af6a4fad1b3e4",
+    "backend/tests/unit/infrastructure/test_passport_document_import_policies.py": "8da8e50b0ba9a1879d6be35c0e40329ca4825caa7796de2387f45e5c07ea8247",
+    "backend/tests/unit/presentation/test_document_import_preview_boundary.py": "faf3bd64ecc44eff4fd5643a619100979e5992423e2644128ae654bec0b51d51",
+    "backend/tests/unit/presentation/test_document_import_retained_sources.py": "16f69eb2e438e18a2cc5121368420d7cade69e8f9c72df581907a356af40fd56",
+    "backend/app/infrastructure/database/document_models.py": "4ae0d78c9f6b57f6bd3569e83ea971cf266c6406935b0dcf395b26c2d149a5be",
+    "backend/app/infrastructure/database/models.py": "685526fd00128c49052195d84ac17d7e1ad66ace8e43dbcd70e260435be24c16",
+    "backend/app/infrastructure/database/model_base.py": "bbd9bc11ad8e482b9ebefe26d74123f9bb4ad79b3e73b9dbe846cdfd925f0da9",
+    "backend/app/infrastructure/database/model_registry.py": "226b2b4c321e3b231222355d9f6752d945dd2e160324b7a3685c4b37865b9ec5",
+    "backend/tests/unit/infrastructure/test_database_model_decomposition.py": "4f8b6b02767650ea28af0347763f36d30a2b108413e57cffd3b9774bd0d16889",
+    "backend/tests/unit/infrastructure/test_document_whatsapp_delivery.py": "c0b81a26f33b44de26023316cb4062cedb68295069a5f9650f5bcb40c81a0dca",
+    "backend/tests/unit/infrastructure/test_document_upload_chunk_limits_migration.py": "83c7e91452c17f7d31c89e21ce1178eaab2cc916db8e0a3db5dcfe54a1a1e688",
+    "backend/tests/unit/infrastructure/test_storage_cleanup.py": "33c3fce4b7527887f3e83e3b88eaaee175877731b2a4f2976bf00976cea0007e",
+    "backend/tests/unit/infrastructure/test_storage_cleanup_persistence.py": "4090cf388f291d90a7c26016f22bcab332efd8953599b71f813bb6c4c21d0cd2",
+    "backend/tests/unit/infrastructure/test_upload_security.py": "4280e3eac5cf0a1308b3a9fe83d671653d021395d7728880aaa85a332d69f3b7",
+    "backend/tests/integration/test_document_manual_upload.py": "68b994c0aba81ee4c888f644fe73ce16d65c78c66be3538fa2ee0de89998225e",
+    "backend/app/infrastructure/database/_document_models/cleanup.py": "44392393eae79acc34f548106f56c8b9f8dacf73920cbecb966db4a577b42406",
+    "backend/app/infrastructure/database/_document_models/delivery.py": "8d686a11093f3f9e50a6d9246ca140fb5ec9e376affef1d44331d78c8c7a42b9",
+    "backend/app/infrastructure/database/_document_models/distribution.py": "13837498e7ce0513cf86da4b65fef689fe9ae3659906e42752deec7701bdfbed",
+    "backend/app/infrastructure/database/_document_models/rename.py": "25f5db90fb583f67d8f30556bc7aea88aa66d70f9c72c1f0ff17f3f3b283c4d4",
+    "backend/app/infrastructure/database/_document_models/upload_chunk.py": "633cc8658617d0ca89385064982cda41604ce7bcdbca1e4b125886d520dd56e6",
+    "backend/app/infrastructure/database/_document_models/upload_scan.py": "81b73b7e44895cc6d1919d4e51282f764cfc49ee5b7caf18baef492e5a09ace9",
+    "backend/app/infrastructure/database/_document_models/__init__.py": "b96f487be8cd75c281c4c2a4fbcbfaf87155724c3c2601628443980475be1da7",
+    "backend/app/infrastructure/travel_tracker/service.py": "46dc6766ba6b41de4825b7a08a13a4040bf071a8a75a97fa57cce39891540546",
+    "backend/app/infrastructure/travel_tracker/spreadsheets.py": "3631d37fc6edf5812e69c783b7aebdc973c96a10356564541dd35f509afa9dcf",
+    "backend/app/infrastructure/travel_tracker/queries.py": "9767612e03fbca78969628332778f7e5860acb71a5ad0b5c1b6627117b8c7cb4",
+    "backend/app/infrastructure/travel_tracker/reads.py": "dab608a9db981140e8c31a4a064e143e2e50016ed0498e453d44b5595aca457b",
+    "backend/app/infrastructure/travel_tracker/projections.py": "71955d39ebe70864ef807d361fcdfa897ca6b392bfe5bc073e164e3c87656299",
+    "backend/app/infrastructure/travel_tracker/changes.py": "b56fb8e896136401da4f85e9a17180a19732b5fb116c2f1ed5950f9ae8744f44",
+    "backend/app/infrastructure/travel_tracker/files.py": "aab1888109e1965e8f93434d782c326319a12b95d7529b9edb888f6fcd192cff",
+    "backend/app/infrastructure/travel_tracker/spreadsheet_values.py": "c68d237ca6324c0bdc34e2927d3b3bc4d09baf7a93e570e51743f3e889eb3423",
+    "backend/app/infrastructure/travel_tracker/spreadsheet_reader.py": "eac524464c0f8368e31d42eb5ee4b7bd865813df280e67c3d55f3e84c5a3c9d8",
+    "backend/app/infrastructure/travel_tracker/spreadsheet_matching.py": "a195bad2cab0a412ec19f61674c78ad752c1cea1bae59b9a4e484e4deab1b81c",
+    "backend/app/infrastructure/travel_tracker/spreadsheet_export.py": "62b6ce61f5b9a4868238949a7947888f1d91051cf879c781991403d837b5a9b7",
+    "backend/app/infrastructure/travel_tracker/threading.py": "0e4ed2a5fdcfd0061a9661938a34e3936f1b482d3a460ec74cd9788c908ca85f",
+    "backend/app/presentation/api/v1/routes/whatsapp_exports.py": "d205033cf09a5e9700ca8a69fe442d0746abc3e1f27d8d96efef741e07fbd413",
+    "backend/app/presentation/api/v1/routes/whatsapp_export_hydration.py": "81b7ca7b933e77e0544cf625c6161005c70fc267dccbe461e9e82c61b2e2b288",
+    "backend/app/presentation/api/v1/routes/whatsapp_export_matching.py": "5629130dd850e98c531f76aa020aa70b3194b887ee7824097335c9c89453e6d5",
+    "backend/app/presentation/api/v1/routes/whatsapp_export_projection.py": "113e8e2c30234079fbb172466469a8f1d43eee6468da2fd2ccd9daf432fa28de",
+    "backend/app/presentation/api/v1/routes/whatsapp_export_selection.py": "19bfd1f654bb0c3484bc36af1ee759f0551a5d334052089a4cadac0d8a7b8e9c",
+    "backend/app/presentation/api/v1/routes/whatsapp_export_sources.py": "3f1af44c7b37cb8a93a306262643ed4bb7f689605fb29fd93ea2bdc7459847b2",
+    "backend/app/presentation/api/v1/routes/whatsapp_export_support.py": "e69b75a0b214ac678244b06b7888df8c8c01ba098fc6718666361a700fe5f410",
+    "backend/app/presentation/api/v1/routes/whatsapp_welcome_media_authority.py": "384a601014b11651d73f1b46dc01dbfdf8568c8efcc2ed84fddf46151af2029c"
+  },
+  "measurements": [
+    {
+      "group": "authority",
+      "path": "app/presentation/api/v1/routes/passport_routes/document_import.py",
+      "sha256": "ec34e2f4c252e18cc192eb3ba6eff60f177243dfb33214e71dc5c793d10ef52d",
+      "lines": 207,
+      "complexity": 11,
+      "statement_percent": 100.0,
+      "branch_percent": 87.5,
+      "branch_count": 8
+    },
+    {
+      "group": "authority",
+      "path": "app/presentation/api/v1/routes/passport_routes/document_import_authority.py",
+      "sha256": "73a0a685a17eb592a944db685de700c9fa120828451d7e0a832ef6114654bd82",
+      "lines": 108,
+      "complexity": 7,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "branch_count": 10
+    },
+    {
+      "group": "authority",
+      "path": "app/presentation/api/v1/routes/passport_routes/document_import_failure.py",
+      "sha256": "50b0f10c49e96cd70b175131f1a120c3da71673251acfcf8f2f114bb747ebee5",
+      "lines": 55,
+      "complexity": 2,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "branch_count": 4
+    },
+    {
+      "group": "authority",
+      "path": "app/presentation/api/v1/routes/passport_routes/document_import_persistence.py",
+      "sha256": "8683b7909356c0036d32493f4739e30d3466fc7a5c4130f662e03918788a9a97",
+      "lines": 101,
+      "complexity": 15,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "branch_count": 14
+    },
+    {
+      "group": "authority",
+      "path": "app/presentation/api/v1/routes/passport_routes/document_import_preview.py",
+      "sha256": "4fe70fde54aa40be11051b8824388129936b4250131b2a97c7e196b154655695",
+      "lines": 142,
+      "complexity": 7,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "branch_count": 8
+    },
+    {
+      "group": "authority",
+      "path": "app/presentation/api/v1/routes/passport_routes/document_import_processing.py",
+      "sha256": "85e5d17e7ace085980f79203fe869c55b03e0178e432648595431dbf3544dc63",
+      "lines": 77,
+      "complexity": 11,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "branch_count": 10
+    },
+    {
+      "group": "authority",
+      "path": "app/presentation/api/v1/routes/passport_routes/document_import_staging.py",
+      "sha256": "e2af270a396ab3c58ea785d08b68ae2d5d3219e874f3ce5ce8432d83d78e1974",
+      "lines": 80,
+      "complexity": 3,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "branch_count": 6
+    },
+    {
+      "group": "importer",
+      "path": "app/infrastructure/imports/passport_document_importer.py",
+      "sha256": "1431aac22fdf7d255516c02f34d1f6ad8102ca083668a5f609bc9b74b7c65d92",
+      "lines": 246,
+      "complexity": 14,
+      "statement_percent": 95.14563106796116,
+      "branch_percent": 100.0,
+      "branch_count": 20
+    },
+    {
+      "group": "importer",
+      "path": "app/infrastructure/imports/passport_document_workspace.py",
+      "sha256": "78260b471bcc10d9edd1ed44b06dc732e5468802ea723ca8891964c12add98f7",
+      "lines": 131,
+      "complexity": 6,
+      "statement_percent": 93.75,
+      "branch_percent": 85.71428571428571,
+      "branch_count": 14
+    },
+    {
+      "group": "importer",
+      "path": "app/infrastructure/imports/passport_document_streams.py",
+      "sha256": "6ab71940f43d46edff2ece4e5c80706428ab087702e99f65eff5f2f3ed6a4caf",
+      "lines": 46,
+      "complexity": 7,
+      "statement_percent": 96.29629629629629,
+      "branch_percent": 80.0,
+      "branch_count": 10
+    },
+    {
+      "group": "importer",
+      "path": "app/infrastructure/imports/passport_document_images.py",
+      "sha256": "8f097d6a4b7a63f7c1fd2fb82615c351e3d7701baaed3c398349eabc2de60f0d",
+      "lines": 66,
+      "complexity": 6,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "branch_count": 6
+    },
+    {
+      "group": "importer",
+      "path": "app/infrastructure/imports/passport_zip_members.py",
+      "sha256": "88ef17047879d07ae2720d99dee680b4744c49d68baf59e7de33821ce6e3628c",
+      "lines": 66,
+      "complexity": 16,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "branch_count": 18
+    },
+    {
+      "group": "importer",
+      "path": "app/infrastructure/imports/passport_zip_reader.py",
+      "sha256": "8c5d054b922a9f3878ba1ded3b7971a873286b36a3cf84356fe2cb9c366d88ea",
+      "lines": 101,
+      "complexity": 10,
+      "statement_percent": 97.5609756097561,
+      "branch_percent": 90.0,
+      "branch_count": 10
+    },
+    {
+      "group": "importer",
+      "path": "app/infrastructure/imports/passport_zip_admission.py",
+      "sha256": "b534f8d9c02733c4a378e11ce74770b906c5dcea37984c5bf138930504e3486d",
+      "lines": 75,
+      "complexity": 13,
+      "statement_percent": 94.11764705882354,
+      "branch_percent": 83.33333333333333,
+      "branch_count": 18
+    },
+    {
+      "group": "tracker",
+      "path": "app/infrastructure/travel_tracker/service.py",
+      "sha256": "46dc6766ba6b41de4825b7a08a13a4040bf071a8a75a97fa57cce39891540546",
+      "lines": 183,
+      "complexity": 2,
+      "statement_percent": 87.09677419354838,
+      "branch_percent": 100.0,
+      "branch_count": 2
+    },
+    {
+      "group": "tracker",
+      "path": "app/infrastructure/travel_tracker/spreadsheets.py",
+      "sha256": "3631d37fc6edf5812e69c783b7aebdc973c96a10356564541dd35f509afa9dcf",
+      "lines": 25,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_percent": null,
+      "branch_count": 0
+    },
+    {
+      "group": "tracker",
+      "path": "app/infrastructure/travel_tracker/queries.py",
+      "sha256": "9767612e03fbca78969628332778f7e5860acb71a5ad0b5c1b6627117b8c7cb4",
+      "lines": 176,
+      "complexity": 7,
+      "statement_percent": 95.5223880597015,
+      "branch_percent": 86.36363636363636,
+      "branch_count": 22
+    },
+    {
+      "group": "tracker",
+      "path": "app/infrastructure/travel_tracker/reads.py",
+      "sha256": "dab608a9db981140e8c31a4a064e143e2e50016ed0498e453d44b5595aca457b",
+      "lines": 109,
+      "complexity": 5,
+      "statement_percent": 96.7741935483871,
+      "branch_percent": 50.0,
+      "branch_count": 2
+    },
+    {
+      "group": "tracker",
+      "path": "app/infrastructure/travel_tracker/projections.py",
+      "sha256": "71955d39ebe70864ef807d361fcdfa897ca6b392bfe5bc073e164e3c87656299",
+      "lines": 43,
+      "complexity": 5,
+      "statement_percent": 100.0,
+      "branch_percent": null,
+      "branch_count": 0
+    },
+    {
+      "group": "tracker",
+      "path": "app/infrastructure/travel_tracker/changes.py",
+      "sha256": "b56fb8e896136401da4f85e9a17180a19732b5fb116c2f1ed5950f9ae8744f44",
+      "lines": 113,
+      "complexity": 18,
+      "statement_percent": 92.3076923076923,
+      "branch_percent": 94.44444444444444,
+      "branch_count": 18
+    },
+    {
+      "group": "tracker",
+      "path": "app/infrastructure/travel_tracker/files.py",
+      "sha256": "aab1888109e1965e8f93434d782c326319a12b95d7529b9edb888f6fcd192cff",
+      "lines": 114,
+      "complexity": 5,
+      "statement_percent": 86.95652173913044,
+      "branch_percent": 50.0,
+      "branch_count": 6
+    },
+    {
+      "group": "tracker",
+      "path": "app/infrastructure/travel_tracker/spreadsheet_values.py",
+      "sha256": "c68d237ca6324c0bdc34e2927d3b3bc4d09baf7a93e570e51743f3e889eb3423",
+      "lines": 56,
+      "complexity": 6,
+      "statement_percent": 96.29629629629629,
+      "branch_percent": 75.0,
+      "branch_count": 4
+    },
+    {
+      "group": "tracker",
+      "path": "app/infrastructure/travel_tracker/spreadsheet_reader.py",
+      "sha256": "eac524464c0f8368e31d42eb5ee4b7bd865813df280e67c3d55f3e84c5a3c9d8",
+      "lines": 151,
+      "complexity": 25,
+      "statement_percent": 86.74698795180723,
+      "branch_percent": 77.27272727272727,
+      "branch_count": 44
+    },
+    {
+      "group": "tracker",
+      "path": "app/infrastructure/travel_tracker/spreadsheet_matching.py",
+      "sha256": "a195bad2cab0a412ec19f61674c78ad752c1cea1bae59b9a4e484e4deab1b81c",
+      "lines": 119,
+      "complexity": 27,
+      "statement_percent": 96.72131147540983,
+      "branch_percent": 92.85714285714286,
+      "branch_count": 28
+    },
+    {
+      "group": "tracker",
+      "path": "app/infrastructure/travel_tracker/spreadsheet_export.py",
+      "sha256": "62b6ce61f5b9a4868238949a7947888f1d91051cf879c781991403d837b5a9b7",
+      "lines": 158,
+      "complexity": 51,
+      "statement_percent": 96.875,
+      "branch_percent": 90.0,
+      "branch_count": 20
+    },
+    {
+      "group": "tracker",
+      "path": "app/infrastructure/travel_tracker/threading.py",
+      "sha256": "0e4ed2a5fdcfd0061a9661938a34e3936f1b482d3a460ec74cd9788c908ca85f",
+      "lines": 36,
+      "complexity": 6,
+      "statement_percent": 100.0,
+      "branch_percent": 75.0,
+      "branch_count": 4
+    },
+    {
+      "group": "validator",
+      "path": "app/infrastructure/security/upload_validator.py",
+      "sha256": "dfb2683e620bcc1a3a5d4f97f5cb4c1cfda20105e493f6070e63b8574c11c73f",
+      "lines": 345,
+      "complexity": 14,
+      "statement_percent": 93.47826086956522,
+      "branch_percent": 81.25,
+      "branch_count": 48
+    },
+    {
+      "group": "exports",
+      "path": "app/presentation/api/v1/routes/whatsapp_exports.py",
+      "sha256": "d205033cf09a5e9700ca8a69fe442d0746abc3e1f27d8d96efef741e07fbd413",
+      "lines": 265,
+      "complexity": 5,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "branch_count": 6
+    },
+    {
+      "group": "exports",
+      "path": "app/presentation/api/v1/routes/whatsapp_export_hydration.py",
+      "sha256": "81b7ca7b933e77e0544cf625c6161005c70fc267dccbe461e9e82c61b2e2b288",
+      "lines": 161,
+      "complexity": 10,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "branch_count": 10
+    },
+    {
+      "group": "exports",
+      "path": "app/presentation/api/v1/routes/whatsapp_export_matching.py",
+      "sha256": "5629130dd850e98c531f76aa020aa70b3194b887ee7824097335c9c89453e6d5",
+      "lines": 132,
+      "complexity": 16,
+      "statement_percent": 98.14814814814815,
+      "branch_percent": 87.5,
+      "branch_count": 24
+    },
+    {
+      "group": "exports",
+      "path": "app/presentation/api/v1/routes/whatsapp_export_projection.py",
+      "sha256": "113e8e2c30234079fbb172466469a8f1d43eee6468da2fd2ccd9daf432fa28de",
+      "lines": 246,
+      "complexity": 13,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "branch_count": 34
+    },
+    {
+      "group": "exports",
+      "path": "app/presentation/api/v1/routes/whatsapp_export_selection.py",
+      "sha256": "19bfd1f654bb0c3484bc36af1ee759f0551a5d334052089a4cadac0d8a7b8e9c",
+      "lines": 60,
+      "complexity": 12,
+      "statement_percent": 96.66666666666667,
+      "branch_percent": 75.0,
+      "branch_count": 4
+    },
+    {
+      "group": "exports",
+      "path": "app/presentation/api/v1/routes/whatsapp_export_sources.py",
+      "sha256": "3f1af44c7b37cb8a93a306262643ed4bb7f689605fb29fd93ea2bdc7459847b2",
+      "lines": 201,
+      "complexity": 16,
+      "statement_percent": 96.34146341463415,
+      "branch_percent": 93.33333333333333,
+      "branch_count": 30
+    },
+    {
+      "group": "exports",
+      "path": "app/presentation/api/v1/routes/whatsapp_export_support.py",
+      "sha256": "e69b75a0b214ac678244b06b7888df8c8c01ba098fc6718666361a700fe5f410",
+      "lines": 185,
+      "complexity": 9,
+      "statement_percent": 97.33333333333333,
+      "branch_percent": 100.0,
+      "branch_count": 20
+    },
+    {
+      "group": "models",
+      "path": "app/infrastructure/database/document_models.py",
+      "sha256": "4ae0d78c9f6b57f6bd3569e83ea971cf266c6406935b0dcf395b26c2d149a5be",
+      "lines": 49,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_percent": null,
+      "branch_count": 0
+    },
+    {
+      "group": "models",
+      "path": "app/infrastructure/database/_document_models/__init__.py",
+      "sha256": "b96f487be8cd75c281c4c2a4fbcbfaf87155724c3c2601628443980475be1da7",
+      "lines": 7,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_percent": null,
+      "branch_count": 0
+    },
+    {
+      "group": "models",
+      "path": "app/infrastructure/database/_document_models/distribution.py",
+      "sha256": "13837498e7ce0513cf86da4b65fef689fe9ae3659906e42752deec7701bdfbed",
+      "lines": 113,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_percent": null,
+      "branch_count": 0
+    },
+    {
+      "group": "models",
+      "path": "app/infrastructure/database/_document_models/delivery.py",
+      "sha256": "8d686a11093f3f9e50a6d9246ca140fb5ec9e376affef1d44331d78c8c7a42b9",
+      "lines": 110,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_percent": null,
+      "branch_count": 0
+    },
+    {
+      "group": "models",
+      "path": "app/infrastructure/database/_document_models/upload_scan.py",
+      "sha256": "81b73b7e44895cc6d1919d4e51282f764cfc49ee5b7caf18baef492e5a09ace9",
+      "lines": 106,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_percent": null,
+      "branch_count": 0
+    },
+    {
+      "group": "models",
+      "path": "app/infrastructure/database/_document_models/rename.py",
+      "sha256": "25f5db90fb583f67d8f30556bc7aea88aa66d70f9c72c1f0ff17f3f3b283c4d4",
+      "lines": 80,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_percent": null,
+      "branch_count": 0
+    },
+    {
+      "group": "models",
+      "path": "app/infrastructure/database/_document_models/upload_chunk.py",
+      "sha256": "633cc8658617d0ca89385064982cda41604ce7bcdbca1e4b125886d520dd56e6",
+      "lines": 115,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_percent": null,
+      "branch_count": 0
+    },
+    {
+      "group": "models",
+      "path": "app/infrastructure/database/_document_models/cleanup.py",
+      "sha256": "44392393eae79acc34f548106f56c8b9f8dacf73920cbecb966db4a577b42406",
+      "lines": 97,
+      "complexity": 0,
+      "statement_percent": 100.0,
+      "branch_percent": null,
+      "branch_count": 0
+    },
+    {
+      "group": "media",
+      "path": "app/presentation/api/v1/routes/whatsapp_welcome_media_authority.py",
+      "sha256": "384a601014b11651d73f1b46dc01dbfdf8568c8efcc2ed84fddf46151af2029c",
+      "lines": 92,
+      "complexity": 7,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "branch_count": 8
+    }
+  ],
+  "review_basis": "Own7physical authority owners + peer attributed frozen source/equivalence/focused current raw coverage artifacts; static integration is not an independent second full-source review of peer36owners.",
+  "release": {
+    "before_paths": 117,
+    "after_paths": 125,
+    "all117oldBEFORE_pairs_and116otherAFTERs_unchanged": true,
+    "new_exact_model_rows": [
+      {
+        "path": "backend/app/infrastructure/database/document_models.py",
+        "before_0140": "ba215203086d1298b46d9491053239a4aa9eaad13e7e0a8107f9695717479091",
+        "before_0141": "ba215203086d1298b46d9491053239a4aa9eaad13e7e0a8107f9695717479091",
+        "after": "4ae0d78c9f6b57f6bd3569e83ea971cf266c6406935b0dcf395b26c2d149a5be"
+      },
+      {
+        "path": "backend/app/infrastructure/database/_document_models/__init__.py",
+        "before_0140": null,
+        "before_0141": null,
+        "after": "b96f487be8cd75c281c4c2a4fbcbfaf87155724c3c2601628443980475be1da7"
+      },
+      {
+        "path": "backend/app/infrastructure/database/_document_models/distribution.py",
+        "before_0140": null,
+        "before_0141": null,
+        "after": "13837498e7ce0513cf86da4b65fef689fe9ae3659906e42752deec7701bdfbed"
+      },
+      {
+        "path": "backend/app/infrastructure/database/_document_models/delivery.py",
+        "before_0140": null,
+        "before_0141": null,
+        "after": "8d686a11093f3f9e50a6d9246ca140fb5ec9e376affef1d44331d78c8c7a42b9"
+      },
+      {
+        "path": "backend/app/infrastructure/database/_document_models/upload_scan.py",
+        "before_0140": null,
+        "before_0141": null,
+        "after": "81b73b7e44895cc6d1919d4e51282f764cfc49ee5b7caf18baef492e5a09ace9"
+      },
+      {
+        "path": "backend/app/infrastructure/database/_document_models/rename.py",
+        "before_0140": null,
+        "before_0141": null,
+        "after": "25f5db90fb583f67d8f30556bc7aea88aa66d70f9c72c1f0ff17f3f3b283c4d4"
+      },
+      {
+        "path": "backend/app/infrastructure/database/_document_models/upload_chunk.py",
+        "before_0140": null,
+        "before_0141": null,
+        "after": "633cc8658617d0ca89385064982cda41604ce7bcdbca1e4b125886d520dd56e6"
+      },
+      {
+        "path": "backend/app/infrastructure/database/_document_models/cleanup.py",
+        "before_0140": null,
+        "before_0141": null,
+        "after": "44392393eae79acc34f548106f56c8b9f8dacf73920cbecb966db4a577b42406"
+      }
+    ],
+    "each_new_before_verified_from_actual_both_git_trees": true,
+    "only_known_backend_budget_AFTER_refreshed": true,
+    "backend_budget_sha256": "5abf0be12e056c89a73805d937bc51bcdf2b100076c07ccbc8c6673473eaf3b7",
+    "bindings_sha256": "11716651907fa9c49225e796a4d9435290f84f7a2902b9d198442eaf764e42f2",
+    "frontend657_unchanged_raw": "f710cb513924bde02490b3cea751059cedcdc3b3af0f1cce1c5111fdd502df1e"
+  },
+  "artifacts": {
+    "document-import-authority-verification.json": "d2eb3759ba04d1ba351743b66605fd8c45ababac98afdcf8b4ccc2b8732afe8a",
+    "passport-importer-architecture-verification.json": "95bc07f8d0a5ac18d3c6dee53a9a167e38ec8ca382f07869c95a26d4055c9834",
+    "travel-tracker-composition-verification.json": "bd92097e2cfa76c638e9b5a21a3da14772b31605f5ab79c37f59e26d9b347108",
+    "upload-validator-verification.json": "c4cb116ed9af021dbb7f69118817552983a0423156b95b1b1f2eb1260207a19f",
+    "whatsapp-exports-final-verification.json": "2f3130cff690a51599ea51edf320b5c723fb47184c737be2cc7e23d84a8a1b78",
+    "document-models-verification.json": "08581452f4f6bed25729e27e51142b6fbb9a77d97e738218b9b038c98e0907cc",
+    "whatsapp-welcome-media-verification.json": "57a7acfb8874841efb9b5edc6f0a7e0e977e88057839ba31979500028600e220",
+    ".tmp/travel-tracker-audit/composition-tests.txt": "007be9f6211a15bb16f9c0ed6730dbd04e00e29339b5168dd7da4bd6b784e925",
+    ".tmp/travel-tracker-audit/composition-coverage.json": "41ba4d75c01362cbfb45379bb2187720e7d17e26df0b6a7294ef1ad9d173cea8",
+    ".tmp/travel-tracker-audit/composition-coverage.xml": "df3773097fab566a53b6d0e003bee3a04439e67b1a6c698717f8aff7ac3586ad",
+    ".tmp/travel-tracker-audit/composition-runtime-contracts.txt": "213e7d69730d580643d7992407f884b06d136118668df0636d528458e79724e5",
+    ".tmp/travel-tracker-audit/composition-types.txt": "e903677c248a6ca6ac9094eed21b5350be088d014c43570c553f047d8f487a0a",
+    ".tmp/travel-tracker-audit/composition-lint.txt": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0",
+    ".tmp/travel-tracker-audit/composition-format.txt": "ff48816299c0229eee091029455819afe09b19b5aa20c598a0be2a61d4635da3",
+    ".tmp/upload-validator-audit/baseline.txt": "085b3188d38577548570971c8a74bfe5d661745d158788a799714c17e645632e",
+    ".tmp/upload-validator-audit/affected-final.txt": "69ab7a3000f879dcf6d8650dd573ec0471f4c137126d53f70f9151b973e26675",
+    ".tmp/upload-validator-audit/types-final.txt": "8e63ae22e8213e327a5e9cbd584067681681bd8ef7f25c869877887ccdcfc4ff",
+    ".tmp/upload-validator-audit/lint.txt": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0",
+    ".tmp/upload-validator-audit/format-final.txt": "81e0708af79a682467b0ecbd3453a0a33cfcbbe2812201b4d4f405f78ded2976",
+    ".tmp/upload-validator-audit/coverage-final.json": "ad1a75e44ea3c90c65c36875ad0acc4da11e9f6ecdea275328d524e5ec3b5e75",
+    ".tmp/upload-validator-audit/coverage-final.xml": "bc9a4fb3bba8130b9bc253780abad727a5b2ae9079fa16a182d7dd8cd56de2b8",
+    "travel-tracker-qualified-coverage.json": "41ba4d75c01362cbfb45379bb2187720e7d17e26df0b6a7294ef1ad9d173cea8",
+    "travel-tracker-qualified-coverage.xml": "df3773097fab566a53b6d0e003bee3a04439e67b1a6c698717f8aff7ac3586ad",
+    "upload-validator-qualified-coverage.json": "ad1a75e44ea3c90c65c36875ad0acc4da11e9f6ecdea275328d524e5ec3b5e75",
+    "upload-validator-qualified-coverage.xml": "bc9a4fb3bba8130b9bc253780abad727a5b2ae9079fa16a182d7dd8cd56de2b8",
+    "document-import-authority-budget-candidates.json": "983b4653b1dd934f0878ab6ea77527ebebf622705a015205ac08cb903a9832d9",
+    "document-import-authority-final-coverage.json": "c7459858d646989ba2147949ce2847ae97dba3a87d0b3875ee8a185ea1b1fcbe",
+    "passport-importer-architecture-budget-candidates.json": "261b23f74d56b32c12f1d1bbb4133e0c536af90e82cb092f985ea7c55b0d6e34",
+    "passport-importer-architecture-final-coverage.json": "cad954f797646cd04b996c7c1b3b750a080c725e8cf551a17b6ddc1cda5fc779",
+    "travel-tracker-budget-candidates.json": "520aa188a92f42deb3193580c2d6dc3d2e898cfed5788ef7b4ba4757137a9902",
+    "upload-validator-budget-candidates.json": "3f88fc2f3a9d7dbafee5ec99ee9041a97e26842ed76985463b216e53d5dde034",
+    "whatsapp-exports-final-budget-candidates.json": "c9d180b1e4ffd4b7815980d1d677a1c8119e408c2e124adc78658040e47bfe11",
+    "whatsapp-exports-qualified-coverage.json": "af0bd9d49d3ad4b782ec9f84f3acc8e98cc0376234b82a1b990277fe9fb2fe92",
+    "document-models-budget-candidates.json": "2895f008de4cb1ecd320e8337581729a313da9b0e76d94eedf51d9824dc0099c",
+    "document-models-extracted-coverage.json": "8fc6486de2ffb1e4fd12f6971161e39ee6802cf42564d103c6917e876eb9e703",
+    "whatsapp-welcome-media-budget-candidates.json": "19f7d904aabbf6ae164848d35df355f11982431e4f9151d797ea051bb5dc027f",
+    "whatsapp-welcome-media-coverage.json": "63ad202e8a92ce6144350933325a0fc0d06410cc75ffa68a40611c1dda44eb81",
+    "document-import-authority-critical-candidates.json": "8db6fa2138180715a9ff84d79e435672fd0e7b7ba1097e0d2de3e4ae0c600627",
+    "travel-tracker-critical-candidates.json": "d196837df95e2c4d56469e24f5ad3f16977e1c97a38f09f208020d37990da61d",
+    "upload-validator-critical-candidates.json": "d74c3ee6e6c6e49a8d429293380920146e8329f2c3fbacde04066986bc83c08a",
+    "authority-importer-tracker-models-previous-values.json": "83e21cb32d1a83ecc46e81ac3a69708e101636723987f47a7bb5e6e68acca260",
+    "authority-importer-tracker-models-budgets.txt": "7587114b8a22a72ba4bbe187ba8fe8c5eb9a94ae90faadc878f4cacc533fc5a0",
+    "authority-importer-tracker-models-bindings.txt": "0b3a28123d392018d244d078942a9d6d98ae49544fafd0e052f4237b0e263f39",
+    "authority-importer-tracker-models-loader-tests.txt": "8f48592e347ce12ce90a73c832738ac5c28bf46bac31390ae9b199a27c291a1c",
+    "authority-importer-tracker-models-exact-bindings.json": "7c6478036d68f3c897d622f23210372a0b0c1415d3f244160e0a90dc4a9410bd"
+  },
+  "not_adopted_declaration_criticals": "DocumentModels8 normal95ratchets and actual174mapper/schema/entry-mode controls; no type-only/model critical additions.",
+  "limits": [
+    "Whole architecture currently notification-only concurrent unsealed exact-edge migration; not claimed green",
+    "No broad application/build/browser/live-service/VPS qualification",
+    "MCP1990 remains historical; final actual-owner reconciliation pending",
+    "DedicatedInbox deferred; no new dedicated Inbox work",
+    "Tracker direct MCP run_sync lifetime remains a separate unproven candidate",
+    "Retained FastBuild override arity and unproven stdout resource capture remain open"
+  ],
+  "checks": {
+    "backend_static_budgets": "782normal/136critical limits pass",
+    "exact_bindings": "125current AFTERs and both actual immutable Git BEFOREs pass",
+    "loader_tests": "14focused tests pass8.118seconds",
+    "source_fence": "All attributed/owned frozen source identities checked before integration and after focused gates",
+    "frontend": "657normal budget source unchanged; no app qualification rerun"
+  },
+  "branchless_actual_work_limit": "Tracker projections.py executes actual counts/passenger conditional projection and is not a declaration-only owner. Its100line coverage supports the adopted95line floor; Coverage reports0branch sites, so the retained proposed95branch field is not represented as95/100% measured branch coverage. No old gate altered.",
+  "unnecessary_binding_updates_avoided": "No existing125AFTER drift from root auth DTO projection or platform-policy shape guard; those paths are outside the current protected source closure, so no speculative admissions/refreshes were added.",
+  "controls": {
+    "backend/backend_quality_budgets.json": "5abf0be12e056c89a73805d937bc51bcdf2b100076c07ccbc8c6673473eaf3b7",
+    "scripts/release_workspace_branding_bindings.json": "11716651907fa9c49225e796a4d9435290f84f7a2902b9d198442eaf764e42f2",
+    "scripts/release_workspace_branding_policy.py": "fb067b7bbdd0d5a23a982e82c51c361dca3098536e5263064b3d95019fe051be"
+  }
+}

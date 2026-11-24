@@ -1,0 +1,42 @@
+[
+  {
+    "path": "scripts/storage_release.py",
+    "sha256": "8616dbf1b10c62efea77034c68a5112c12b90bc247f8c923d71158623d37d1e1",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete210-line source read in120+90segments: exact immutable provider and live app endpoint/bucket/credential identity, separate source/destination volumes, protected readonly identity/copy proof, writer fence and existing finally recovery. Version-preserving copy validates bodies and retains source; no live env/secret/volume/image/provider inspection or cutover performed. Shared worker inventory compatibility only; dedicated Inbox feature work deferred."
+  },
+  {
+    "path": "scripts/storage_writer_fence.py",
+    "sha256": "d6d6ef96b95005318d72a19219d6ae42ba6849fe13841d8cb3f24c57eaee69ce",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete305-line source read in155+150segments: durable project/checkout/revision/phase custody, private proof hashes and separate source/target identities; exact copy name/token/image/config/volume process checks before own stop, stage exclusion and provider authority before all-or-nothing writer restart. No guessed rollback of newer target writes; shared scheduler/worker compatibility only. No live checkpoint/private identity/container read or write."
+  },
+  {
+    "path": "scripts/recover_worker_deployment.py",
+    "sha256": "a8a4450fc4e45ef7eb25add28e0c4dc36d3af2b20cc0f7def4c32ca897225993",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete267-line historical source read in145+122segments: fixed0092 worker-only preflight, same image/revision/backend code and exact website identity, graceful schedulers-before-workers drain, restart-policy rollback only before convergence and project-local kernel lock. Clearly historical compatibility reference, not current0142 operator guidance; no Docker/VPS/current release call. Dedicated Inbox task details not audited/modified."
+  },
+  {
+    "path": "scripts/qa/qualify_persistent_release.py",
+    "sha256": "9bf0b700cffa9bad4fa8c1d8564ba115428841c0d65e0a51336f82ad4307b4e7",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete226-line source read in120+106segments: unique disposable retained synthetic project, scoped read-only cgroup helper, actual transition injected interruption/recovery and rows/sequences/Redis queue/TTL proof, protected production data exclusion and explicit retained artifacts. No Docker/migrations/native-services/load or current acceptance run. The unchanged finally-stop-before-evidence ordering remains a source-only failure-path limitation, not proven data loss or actual leak."
+  },
+  {
+    "path": "scripts/qa/qualify_code_update_nginx.py",
+    "sha256": "4fd298a9ab4a9cb8cf80a76588cfec11f537f1a943b84ae50f09c01f9969398d",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete319 physical source lines read in110+108+101segments including synthetic HTTP server/nginx config: immutable images, own unique fixture network/containers, held request release in finally, real route/drain/invalid-config restoration protocol and bounded synthetic diagnostics. No real Docker/nginx/socket/service execution. Sequential cleanup on first removal failure is an unvalidated scoped QA resource follow-up; no proven live orphan or production vulnerability."
+  }
+]

@@ -14,7 +14,7 @@ const base = { id: "group-1", agency_id: "agency-1", name: "Historical Group", s
 const target = { id: "target", name: "Target Company", status: "active" as const };
 function setup(group = base, onClose = vi.fn()) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
-  useAuthStore.setState({ user: { role: "agency_admin", is_active: true, agency_id: "agency-1" } as User });
+  useAuthStore.setState({ user: { id: "owner", role: "agency_admin", is_active: true, agency_id: "agency-1" } as User });
   const view = render(<QueryClientProvider client={client}><EditGroupDialog group={group} onClose={onClose} /></QueryClientProvider>);
   return { ...view, client, onClose };
 }
@@ -44,7 +44,7 @@ describe("company assignment", () => {
     fireEvent.change(within(dialog).getByRole("textbox", { name: "Reason for reassignment" }), { target: { value: "Correcting client ownership" } });
     fireEvent.click(within(dialog).getByRole("button", { name: "Confirm reassignment" }));
     await waitFor(() => expect(dialog).not.toBeInTheDocument());
-    expect(apiClient.post).toHaveBeenCalledExactlyOnceWith("/api/v1/companies/target/reassignments/group-1", { expected_revision: 4, expected_roster_revision: 17, reason: "Correcting client ownership" }, { params: { agency_id: "agency-1" } });
+    expect(apiClient.post).toHaveBeenCalledExactlyOnceWith("/api/v1/companies/target/reassignments/group-1", { expected_revision: 4, expected_roster_revision: 17, reason: "Correcting client ownership" }, { params: { agency_id: "agency-1" }, expectedOwnerUserId: "owner", expectedAuthorityKey: JSON.stringify(["owner", "agency_admin", "agency-1"]) });
     expect(apiClient.patch).not.toHaveBeenCalled();
   });
 
@@ -137,6 +137,7 @@ describe("company assignment", () => {
     client.setQueryData(key, [base]);
     fireEvent.click(screen.getByRole("button", { name: "Select target company" }));
     fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
+    await waitFor(() => expect(apiClient.patch).toHaveBeenCalledOnce());
     act(() => useAuthStore.setState((state) => ({ sessionVersion: state.sessionVersion + 1 })));
     await act(async () => complete({ data: { ...base, company_id: target.id, company: target, company_revision: 1 } }));
     expect(client.getQueryData(key)).toEqual([base]);

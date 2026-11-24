@@ -1,0 +1,269 @@
+{
+  "status": "Frozen and qualified scoped architecture implementation; broader audit and explicit follow-ups remain active",
+  "source_manifest": {
+    "path": "docs/audit/dashboard-2026-10-30/whatsapp-exports-final-source-manifest.json",
+    "sha256": "a01f8190642cd4d2187a5ac01fc991a1d2b2718a805a301ffcc99741afdd96b0"
+  },
+  "reviewed_files": {
+    "path": "docs/audit/dashboard-2026-10-30/whatsapp-exports-final-reviewed-files.json",
+    "sha256": "70c0d0a82748198abac928a84d56f7ab53acad1d49688665535687dbad0aa810"
+  },
+  "budget_candidates": {
+    "path": "docs/audit/dashboard-2026-10-30/whatsapp-exports-final-budget-candidates.json",
+    "sha256": "c9d180b1e4ffd4b7815980d1d677a1c8119e408c2e124adc78658040e47bfe11"
+  },
+  "approved_design": {
+    "path": "docs/audit/dashboard-2026-10-30/whatsapp-exports-preflight-design.json",
+    "sha256": "b4121d88ac3db1046a9f32ef74dadac734415c9b57153e8dda25a11e454a08cf"
+  },
+  "original_source": {
+    "path": ".tmp/whatsapp-exports-current/whatsapp_exports.py",
+    "sha256": "4c719c70041d102ee6b96af13394442bd468032f53dd236ae7331095d2885aaa"
+  },
+  "implementation": [
+    "Seven purpose-specific owners: public HTTP composition, selection/policy, durable/displaced/unidentified source provenance, phone/manual matching, bounded hydration/delivery context, ordered projection and existing scalar support policies.",
+    "Original 308-line/MCC100 gather becomes a small typed orchestration; maximum actual function complexity is16 and every current runtime owner is below300 physical lines.",
+    "Five frozen DATA records preserve actual dict/set/list identities; no callbacks, proxy objects, inheritance chain, new library or generic provider/export framework.",
+    "All seven remaining original function declarations match complete ASTs; the gathering function matches its entire original AST after explicitly proven typed phase expansion, including all query/await/branch/continue/append/overflow/return ordering.",
+    "Original eight function signatures, evaluated hints, docs, module/qualname and pickle identities, constants, role/CSRF route dependencies and raw OpenAPI remain exact."
+  ],
+  "checks": {
+    "original_focused": {
+      "path": "docs/audit/dashboard-2026-10-30/whatsapp-exports-before-focused-command.json",
+      "sha256": "5e2460303b585a22b47fe61f7582d146421cfad8d99b38ecb450ab767cdf7f39"
+    },
+    "mechanical_focused": {
+      "path": "docs/audit/dashboard-2026-10-30/whatsapp-exports-mechanical-focused-command.json",
+      "sha256": "9bd66dbfe8b76b4f5d9495639fbc2906e4e4f5ab0303f4337dce3f59f90a2815"
+    },
+    "typed_phase_focused": {
+      "path": "docs/audit/dashboard-2026-10-30/whatsapp-exports-phases-focused-command.json",
+      "sha256": "e4af671bf8bf1dfeebb9fc6957bc1375f9f8ddf8bea4751334a2f93ea012f20f"
+    },
+    "current_qualified_focused": {
+      "path": "docs/audit/dashboard-2026-10-30/whatsapp-exports-qualified-focused-command.json",
+      "sha256": "eb96f2c1f92e565ad0804e794ed86ff3206a4884a74ed11c583999fc2c3e2743"
+    },
+    "counts": {
+      "before": 21,
+      "mechanical": 21,
+      "phases": 21,
+      "qualified": 34
+    },
+    "qualified_coverage": {
+      "path": "docs/audit/dashboard-2026-10-30/whatsapp-exports-qualified-coverage.json",
+      "sha256": "af0bd9d49d3ad4b782ec9f84f3acc8e98cc0376234b82a1b990277fe9fb2fe92"
+    },
+    "qualified_coverage_xml": {
+      "path": "docs/audit/dashboard-2026-10-30/whatsapp-exports-qualified-coverage.xml",
+      "sha256": "c6173c09307b181f8210b80ee295f5ea95b3c6e85bdecb3b3e557456d2bf9320"
+    },
+    "complete_expanded_source_proof": {
+      "path": "docs/audit/dashboard-2026-10-30/whatsapp-exports-phases-expanded-source-proof.json",
+      "sha256": "489bb04dd03eb46019d79e976ad0cb274a33bcf9f83734ca754473c1e65b4669"
+    },
+    "runtime_contract_before": {
+      "path": "docs/audit/dashboard-2026-10-30/whatsapp-exports-before-runtime-contract.json",
+      "sha256": "88894d0a7930e1b33ed622fef590e91edb28b3a1506261020a90a5f09ee1e20a"
+    },
+    "runtime_contract_after": {
+      "path": "docs/audit/dashboard-2026-10-30/whatsapp-exports-qualified-runtime-contract.json",
+      "sha256": "88894d0a7930e1b33ed622fef590e91edb28b3a1506261020a90a5f09ee1e20a"
+    },
+    "runtime_binding_proof": {
+      "path": "docs/audit/dashboard-2026-10-30/whatsapp-exports-qualified-runtime-bindings.json",
+      "sha256": "e61d29472fa1dae220c25abdabdf5e718702a279e1ce6332d1125652a977ef63"
+    },
+    "original_import_object_identity_count": 58,
+    "actual_dependency_global_identity_count": 175,
+    "evaluated_function_and_data_hint_count": 25,
+    "scoped_mypy": {
+      "sources": 7,
+      "exit_code": 0,
+      "log": {
+        "path": ".tmp/whatsapp-exports-final-types.log",
+        "sha256": "e2702f9afc4c0f80ff1e8624f77af7a7d2689ca184512114aae5967a76229ba8"
+      }
+    },
+    "scoped_ruff": {
+      "sources": 11,
+      "exit_code": 0,
+      "log": {
+        "path": ".tmp/whatsapp-exports-final-lint.log",
+        "sha256": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0"
+      }
+    }
+  },
+  "measured_current_owners": [
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_exports.py",
+      "lines": 265,
+      "maximum_function_complexity": 5,
+      "most_complex_function": "export_broadcast_filter",
+      "line_percent": 100.0,
+      "branch_percent": 100.0,
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_export_hydration.py",
+      "lines": 161,
+      "maximum_function_complexity": 10,
+      "most_complex_function": "load_export_delivery",
+      "line_percent": 100.0,
+      "branch_percent": 100.0,
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_export_matching.py",
+      "lines": 132,
+      "maximum_function_complexity": 16,
+      "most_complex_function": "add_manual_match_sources",
+      "line_percent": 98.14814814814815,
+      "branch_percent": 87.5,
+      "missing_lines": [
+        65
+      ],
+      "missing_branches": [
+        [
+          64,
+          65
+        ],
+        [
+          67,
+          69
+        ],
+        [
+          129,
+          123
+        ]
+      ]
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_export_projection.py",
+      "lines": 246,
+      "maximum_function_complexity": 13,
+      "most_complex_function": "append_source_rows",
+      "line_percent": 100.0,
+      "branch_percent": 100.0,
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_export_selection.py",
+      "lines": 60,
+      "maximum_function_complexity": 12,
+      "most_complex_function": "select_export_rows",
+      "line_percent": 96.66666666666667,
+      "branch_percent": 75.0,
+      "missing_lines": [
+        56
+      ],
+      "missing_branches": [
+        [
+          55,
+          56
+        ]
+      ]
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_export_sources.py",
+      "lines": 201,
+      "maximum_function_complexity": 16,
+      "most_complex_function": "load_durable_sources",
+      "line_percent": 96.34146341463415,
+      "branch_percent": 93.33333333333333,
+      "missing_lines": [
+        177,
+        178,
+        199
+      ],
+      "missing_branches": [
+        [
+          179,
+          174
+        ],
+        [
+          198,
+          199
+        ]
+      ]
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_export_support.py",
+      "lines": 185,
+      "maximum_function_complexity": 9,
+      "most_complex_function": "_delivery_values",
+      "line_percent": 97.33333333333333,
+      "branch_percent": 100.0,
+      "missing_lines": [
+        91,
+        92
+      ],
+      "missing_branches": []
+    }
+  ],
+  "behavior_controls": [
+    "Actual FK-enabled synthetic SQLite database plus real workbook readback, not mock-only gather results.",
+    "Delivery request ID order and distinct merged-contact/source expansion order; private aliases retain their own imported fields.",
+    "Travellers reversed selection preserves exact source identities including shared and missing delivery associations.",
+    "Manual configured-field matching, unambiguous email/zone, unidentified source identity, replaced original/displaced passenger versus replacement, and valid phone override followed by changed-source invalidation.",
+    "Foreign agency404, unavailable/unassigned/inactive source409, missing office-visible source409; recipient removal/deletion between roster and fresh hydration409.",
+    "Actual1001 selected keys produce source and entity SQL batches[1000,1] without reordering; original +1 source sentinel, manual population, required-source and expanded-alias budgets do not silently truncate.",
+    "Latest-attempt equal-created-at UUID tie order; rendered provider bodies/IDs/template arguments excluded; stored delivery checklist and latest-attempt fields remain distinct.",
+    "Real xlsx literal formula-looking strings, leading zeros/phone strings/date cells; UTF8 Content-Disposition/no-store/nosniff; actual rollback precedes worker serialization off the event-loop thread."
+  ],
+  "performance_follow_up": {
+    "observed_work": "With two linked groups and one selected manual recipient, actual pure comparison executes3times: two roster groups and the selected manual group again. No wall-clock or representative maximum-capacity speedup claim.",
+    "freshness_control": "An ordinary staff-code change after roster read changes the second manual input and removes obsolete enrichment; fresh DB/authorization/recipient reads are retained.",
+    "decision": "Parent explicitly directed independent architecture seal. No cache or frozen roster/source policy edit; a representative work bound and exact fresh-input cache admission require a separately coordinated batch.",
+    "worker_lifetime": "Plain awaited worker cancellation/admission under abandoned/max-size concurrent requests remains unmeasured, not a validated vulnerability or basis for shared native/exporter policy edits."
+  },
+  "remaining_limits": [
+    "Focused SQLite proves these selected outcomes only; no PostgreSQL/Redis/object-store/live-provider/service-dependent proof and no maximum production capacity claim.",
+    "Preserved legacy malformed-resolution skip and redundant provenance skip branches were not manufactured into an additional vulnerability campaign; missing coverage remains visible in current owner report.",
+    "The existing support functions now execute from real focused owners; legacy public/pickle identities are preserved, while inspect.getsource returns the new source owner. No introspection monkeypatch.",
+    "No no-lag/performance claim for the whole dashboard and no whole-audit completion claim."
+  ],
+  "history": {
+    "initial_fixture_run": {
+      "log": {
+        "path": ".tmp/whatsapp-exports-baseline-tests.log",
+        "sha256": "4c850de4a4537e912ff0151153d42af7e9fa47ff41ba926f8e7ddf6784b745ff"
+      },
+      "result": "11pass/2fixture-assumption failures: canonical matching key and DOB header corrected before original21 baseline; no runtime bug inferred."
+    },
+    "corrected_first13": {
+      "path": ".tmp/whatsapp-exports-baseline-corrected-tests.log",
+      "sha256": "5f8d29adff24112a921181d856053dbbe5b63bf0907bca166c6c0c4614ea3e66"
+    },
+    "original18": {
+      "path": ".tmp/whatsapp-exports-full-baseline-tests.log",
+      "sha256": "6d51f0c26c21269cb953ecad2c4c6e6e56fdd0108c61355129b2a66550488bd0"
+    },
+    "new_freshness6": {
+      "path": ".tmp/whatsapp-exports-freshness-tests.log",
+      "sha256": "3690788fcbac8ef495340326a83d98003883068bf45bb4e88376e570980cb5f1"
+    },
+    "wrong_cwd_type_probe": {
+      "log": {
+        "path": ".tmp/whatsapp-exports-initial-types.log",
+        "sha256": "7e2ed6136aeba98f2d22178ad1c129a9719436fb02d688db79d508396a6c24d7"
+      },
+      "result": "Root cwd omitted backend config and reported dependency stub errors. Correct backend-cwd strict7 passed; no package/config/type-rule change."
+    },
+    "source_edit_proof": "A transient comment-patch indentation mistake was restored before app checks; expanded AST re-proved current source. DATA docstrings were explicitly admitted to the proof harness. No failed app outcome suppressed.",
+    "measurement": "Unavailable optional radon probe was replaced by the repository's existing dependency-free measure_source API; no dependency installed or gate changed."
+  },
+  "scope": {
+    "runtime_frozen": true,
+    "tests_frozen": true,
+    "shared_gates_edited": false,
+    "shared_workbook_native_policy_edited": false,
+    "provider_actions": false,
+    "production_data_or_credentials": false,
+    "broad_suite_build_browser": false,
+    "operations_inbox": "Deferred by user; no Inbox work in this batch"
+  }
+}

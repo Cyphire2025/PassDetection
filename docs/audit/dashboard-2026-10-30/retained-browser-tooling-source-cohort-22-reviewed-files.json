@@ -1,0 +1,50 @@
+[
+  {
+    "path": "scripts/qa/browser_workflow_fixtures.py",
+    "sha256": "dd22d5e7d4b9c641335d12b64582c69c3c12ad10327faa769efc7c64804e661d",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full174-line source read: exact disposable browser DB guard, synthetic deterministic accounts/QR/activity/public-upload fixtures and narrow OTP challenge helper; actual API proof consumption remains. No database/engine/services/providers called or native ingress feature audited."
+  },
+  {
+    "path": "scripts/qa/dashboard_visual_review.mjs",
+    "sha256": "9ad7707086b7e5c7dff4a0a22417b98ef902d183b5b989e9ee28777ec9e2f29a",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full96-line shared browser runner source read: fixed loopback base URL, blocked external browser origins, synthetic-only MFA, source-route discovery and responsive overflow/screenshots. Existing route discovery includes deferred Inbox routes; no browser launched or dedicated Inbox flow audited. Exported review lifecycle belongs to caller."
+  },
+  {
+    "path": "scripts/qa/dashboard_whatsapp_fixtures.py",
+    "sha256": "3bda7a46a42a0e764b8d3f0bda53cab31991583c12f4e5d59d3a38bf30f899d0",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full128-line source read: exact development DB/namespace/tenant/group guard, idempotent synthetic recipient/link/support fixtures, existing ownership checks, consent explicitly reset, no task/log/provider queue/send. No database work executed."
+  },
+  {
+    "path": "scripts/qa/diagnose_capacity_tails.py",
+    "sha256": "b1bdc833de28069d4b1bff1e1b058bcae0caa82d6888f43f02998635c309fb46",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full290-line source read in contiguous halves: retained synthetic run/group/tenant guard, real ASGI authentication, bounded sequential roster/search spans and heartbeat teardown, trace/SQL-hook restoration and read-only timeout-limited plans, no bound values in receipt. No capacity run, cache reset, credential or service access; instrumentation is diagnosis, not production throughput proof."
+  },
+  {
+    "path": "scripts/qa/dashboard_visual_fixtures.py",
+    "sha256": "d9efa5e5f52e8b31a4976202f77cda494f227a55bd58b2244cd832c49eddaee1",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "reviewed",
+    "notes": "Focused retained slice: development/disposable-DB guard plus GC organization/group control and synthetic private-image/WhatsApp seed (imports/lines24-35 and GC/assets tail). Existing inert mailbox/message block deferred with OperationsInbox; no source edits or fixture execution."
+  },
+  {
+    "path": "scripts/qa/dashboard_controls_smoke.mjs",
+    "sha256": "443f0448c0aa46642eb5762b956110d0ee3c8d1709d943ef4e5c15edf94293de",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "reviewed",
+    "notes": "Complete file physically inspected for retained browser controls: local appearance/search/selection/WhatsApp/document-menu/audit geometry and finally evidence/browser closure, read/refresh/preview-only network gate. Mixed Inbox navigation pair remains outside active review; retained slice explicitly focused, no new Inbox run. No browser launched/production request/policy mutation."
+  }
+]

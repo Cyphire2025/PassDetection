@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "--tb=short",
+    "tests/unit/scripts/test_dashboard_audit_scope.py",
+    "tests/unit/scripts/test_dashboard_audit_review_resolutions.py"
+  ],
+  "exit_code": 0,
+  "before": {
+    "scripts/dashboard_audit_inventory.py": "2b30a6f5b0b779c66d1c410c668aa474b8aea6e841f03a8c8f4a8d22695ce3e3",
+    "backend/tests/unit/scripts/test_dashboard_audit_scope.py": "22d06b709801fedbcc9391648c180f1291fd7d880c10b50a62aa19f832aa6e64",
+    "docs/audit/dashboard-2026-10-30/audit-scope.json": "cf05f499a920e64f0dcae208d6c9ece63b368721e08755b051dfd12d7aa70408"
+  },
+  "after": {
+    "scripts/dashboard_audit_inventory.py": "2b30a6f5b0b779c66d1c410c668aa474b8aea6e841f03a8c8f4a8d22695ce3e3",
+    "backend/tests/unit/scripts/test_dashboard_audit_scope.py": "22d06b709801fedbcc9391648c180f1291fd7d880c10b50a62aa19f832aa6e64",
+    "docs/audit/dashboard-2026-10-30/audit-scope.json": "cf05f499a920e64f0dcae208d6c9ece63b368721e08755b051dfd12d7aa70408"
+  },
+  "source_frozen": true,
+  "output": "native-support-scope-final-tests.txt"
+}

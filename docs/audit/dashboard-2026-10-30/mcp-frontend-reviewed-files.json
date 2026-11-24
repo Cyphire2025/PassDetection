@@ -1,0 +1,362 @@
+[
+  {
+    "path": "frontend/features/mcp/api/mcp-capabilities.ts",
+    "sha256": "262a4d6c91f312c97b654fc1374f388dd67f16ceafb7ee150b65a83489ce5e75",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Complete original/copied source and final assembled owners read; exact AST preservation and current hash recorded. Current180affectedMCPcases pass plus15expandednative malformed/scope cases and94existingnativeOAuth/policy cases before retirement. TypeScript and scopedlint pass. Retired semantics mapped to actual current owners; no backend/native endpoints removed. Six new focused runtime owners, public transport and hook facade retain old import paths; no unused export barrel retained."
+  },
+  {
+    "path": "frontend/features/mcp/api/mcp-permissions.ts",
+    "sha256": "6adfc7fd75aa3dae1504a48a8e1f59d78d94c1a8dc9e2ef69c190633c4c0af58",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "All physical lines in11original frozen batches read; changed guards/declarations reread. Initial-actor, departed-page, denial polling and streamed-body resource regressions retained. Closed legacy client chain retired only after declaration/computed/escape proof and actual current OAuth/approval/callback safety coverage. API DTO/capability/query/mutation owners extracted with35declaration and18transportmethod AST checks. Current180MCPcases/18files passed; later whitespace/import ordering preserved executable AST, focused current types/lint and4role assertions passed. Remaining dense views/manual-transfer lifecycle follow-through and real-service deployment qualification stay open."
+  },
+  {
+    "path": "frontend/features/mcp/api/mcp-request.api.ts",
+    "sha256": "b17f80a24888e59de80c68684354939d34aef3cc6e0fc3db6f4f3280dfce693a",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "All physical lines in11original frozen batches read; changed guards/declarations reread. Initial-actor, departed-page, denial polling and streamed-body resource regressions retained. Closed legacy client chain retired only after declaration/computed/escape proof and actual current OAuth/approval/callback safety coverage. API DTO/capability/query/mutation owners extracted with35declaration and18transportmethod AST checks. Current180MCPcases/18files passed; later whitespace/import ordering preserved executable AST, focused current types/lint and4role assertions passed. Remaining dense views/manual-transfer lifecycle follow-through and real-service deployment qualification stay open."
+  },
+  {
+    "path": "frontend/features/mcp/api/mcp-transfer.api.ts",
+    "sha256": "74118934c947fefa84fcd4f803fefe357605345ef814200a17ec588b341af534",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "All physical lines in11original frozen batches read; changed guards/declarations reread. Initial-actor, departed-page, denial polling and streamed-body resource regressions retained. Closed legacy client chain retired only after declaration/computed/escape proof and actual current OAuth/approval/callback safety coverage. API DTO/capability/query/mutation owners extracted with35declaration and18transportmethod AST checks. Current180MCPcases/18files passed; later whitespace/import ordering preserved executable AST, focused current types/lint and4role assertions passed. Remaining dense views/manual-transfer lifecycle follow-through and real-service deployment qualification stay open."
+  },
+  {
+    "path": "frontend/features/mcp/api/mcp.api.test.ts",
+    "sha256": "058fe8efc92d2b9f8ea637705442b8456008d6e932e65e587c0d120efe90e026",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Complete original/copied source and final assembled owners read; exact AST preservation and current hash recorded. Current180affectedMCPcases pass plus15expandednative malformed/scope cases and94existingnativeOAuth/policy cases before retirement. TypeScript and scopedlint pass. Retired semantics mapped to actual current owners; no backend/native endpoints removed. Six new focused runtime owners, public transport and hook facade retain old import paths; no unused export barrel retained."
+  },
+  {
+    "path": "frontend/features/mcp/api/mcp.api.ts",
+    "sha256": "8951306146e020ca3dd3901fb642acc0e3417b82d5f4289eb174a218e009fe00",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Complete original/copied source and final assembled owners read; exact AST preservation and current hash recorded. Current180affectedMCPcases pass plus15expandednative malformed/scope cases and94existingnativeOAuth/policy cases before retirement. TypeScript and scopedlint pass. Retired semantics mapped to actual current owners; no backend/native endpoints removed. Six new focused runtime owners, public transport and hook facade retain old import paths; no unused export barrel retained."
+  },
+  {
+    "path": "frontend/features/mcp/api/mcp.types.ts",
+    "sha256": "e7e1c7cb8b3e670039ef256a46030da9fcfbd334a2c9fb146a4ed4ff0e4ce1a2",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Complete original/copied source and final assembled owners read; exact AST preservation and current hash recorded. Current180affectedMCPcases pass plus15expandednative malformed/scope cases and94existingnativeOAuth/policy cases before retirement. TypeScript and scopedlint pass. Retired semantics mapped to actual current owners; no backend/native endpoints removed. Six new focused runtime owners, public transport and hook facade retain old import paths; no unused export barrel retained."
+  },
+  {
+    "path": "frontend/features/mcp/components/mcp-access-home.tsx",
+    "sha256": "3b2314e4741d66bcee04af178dc57acfde5efb9134c37f370c8e8aabf3a672aa",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "All physical lines in11original frozen batches read; changed guards/declarations reread. Initial-actor, departed-page, denial polling and streamed-body resource regressions retained. Closed legacy client chain retired only after declaration/computed/escape proof and actual current OAuth/approval/callback safety coverage. API DTO/capability/query/mutation owners extracted with35declaration and18transportmethod AST checks. Current180MCPcases/18files passed; later whitespace/import ordering preserved executable AST, focused current types/lint and4role assertions passed. Remaining dense views/manual-transfer lifecycle follow-through and real-service deployment qualification stay open."
+  },
+  {
+    "path": "frontend/features/mcp/components/mcp-access-model.ts",
+    "sha256": "ceb15686e90264bfef455c5235ca947cebaa5c26f4fb60c3339294dbba53bf5b",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "All physical lines in11original frozen batches read; changed guards/declarations reread. Initial-actor, departed-page, denial polling and streamed-body resource regressions retained. Closed legacy client chain retired only after declaration/computed/escape proof and actual current OAuth/approval/callback safety coverage. API DTO/capability/query/mutation owners extracted with35declaration and18transportmethod AST checks. Current180MCPcases/18files passed; later whitespace/import ordering preserved executable AST, focused current types/lint and4role assertions passed. Remaining dense views/manual-transfer lifecycle follow-through and real-service deployment qualification stay open."
+  },
+  {
+    "path": "frontend/features/mcp/components/mcp-activity.tsx",
+    "sha256": "c67524ed15bd3dd23665437ae3fa3f02adfefc9e4e31f37d32559bc4d4c8f8a5",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "All physical lines in11original frozen batches read; changed guards/declarations reread. Initial-actor, departed-page, denial polling and streamed-body resource regressions retained. Closed legacy client chain retired only after declaration/computed/escape proof and actual current OAuth/approval/callback safety coverage. API DTO/capability/query/mutation owners extracted with35declaration and18transportmethod AST checks. Current180MCPcases/18files passed; later whitespace/import ordering preserved executable AST, focused current types/lint and4role assertions passed. Remaining dense views/manual-transfer lifecycle follow-through and real-service deployment qualification stay open."
+  },
+  {
+    "path": "frontend/features/mcp/components/mcp-admin-page.tsx",
+    "sha256": "be8f34605a790ed3ebefe1e937df7d6b8dd4af6a2b3d1798a639236816e11820",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "All physical lines in11original frozen batches read; changed guards/declarations reread. Initial-actor, departed-page, denial polling and streamed-body resource regressions retained. Closed legacy client chain retired only after declaration/computed/escape proof and actual current OAuth/approval/callback safety coverage. API DTO/capability/query/mutation owners extracted with35declaration and18transportmethod AST checks. Current180MCPcases/18files passed; later whitespace/import ordering preserved executable AST, focused current types/lint and4role assertions passed. Remaining dense views/manual-transfer lifecycle follow-through and real-service deployment qualification stay open."
+  },
+  {
+    "path": "frontend/features/mcp/components/mcp-administration.test.tsx",
+    "sha256": "faf443129c9e8747366520aeb01f12f722d7fedc314d1534bcf24205160e2b70",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Complete original/copied source and final assembled owners read; exact AST preservation and current hash recorded. Current180affectedMCPcases pass plus15expandednative malformed/scope cases and94existingnativeOAuth/policy cases before retirement. TypeScript and scopedlint pass. Retired semantics mapped to actual current owners; no backend/native endpoints removed. Six new focused runtime owners, public transport and hook facade retain old import paths; no unused export barrel retained."
+  },
+  {
+    "path": "frontend/features/mcp/components/mcp-connection-card.tsx",
+    "sha256": "a28f7b0c6a851676cf11b298eace918b4b12e5b93b272437d93c29146c0148f3",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "All physical lines in11original frozen batches read; changed guards/declarations reread. Initial-actor, departed-page, denial polling and streamed-body resource regressions retained. Closed legacy client chain retired only after declaration/computed/escape proof and actual current OAuth/approval/callback safety coverage. API DTO/capability/query/mutation owners extracted with35declaration and18transportmethod AST checks. Current180MCPcases/18files passed; later whitespace/import ordering preserved executable AST, focused current types/lint and4role assertions passed. Remaining dense views/manual-transfer lifecycle follow-through and real-service deployment qualification stay open."
+  },
+  {
+    "path": "frontend/features/mcp/components/mcp-connection-permissions.tsx",
+    "sha256": "2a0524805213a425bc0493d097c8e27e4c532eaec299bfc74447db476d56ba93",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "All physical lines in11original frozen batches read; changed guards/declarations reread. Initial-actor, departed-page, denial polling and streamed-body resource regressions retained. Closed legacy client chain retired only after declaration/computed/escape proof and actual current OAuth/approval/callback safety coverage. API DTO/capability/query/mutation owners extracted with35declaration and18transportmethod AST checks. Current180MCPcases/18files passed; later whitespace/import ordering preserved executable AST, focused current types/lint and4role assertions passed. Remaining dense views/manual-transfer lifecycle follow-through and real-service deployment qualification stay open."
+  },
+  {
+    "path": "frontend/features/mcp/components/mcp-devices.tsx",
+    "sha256": "3524c96add439895f6fbe08c7e1ad5bbd748560d08db7c52c8f5cb33c430967c",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "All physical lines in11original frozen batches read; changed guards/declarations reread. Initial-actor, departed-page, denial polling and streamed-body resource regressions retained. Closed legacy client chain retired only after declaration/computed/escape proof and actual current OAuth/approval/callback safety coverage. API DTO/capability/query/mutation owners extracted with35declaration and18transportmethod AST checks. Current180MCPcases/18files passed; later whitespace/import ordering preserved executable AST, focused current types/lint and4role assertions passed. Remaining dense views/manual-transfer lifecycle follow-through and real-service deployment qualification stay open."
+  },
+  {
+    "path": "frontend/features/mcp/components/mcp-direct-setup.tsx",
+    "sha256": "a0e641938b0cac361306302ad1ed28a683268cb5812f70b05096a8adb277b8cc",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "All physical lines in11original frozen batches read; changed guards/declarations reread. Initial-actor, departed-page, denial polling and streamed-body resource regressions retained. Closed legacy client chain retired only after declaration/computed/escape proof and actual current OAuth/approval/callback safety coverage. API DTO/capability/query/mutation owners extracted with35declaration and18transportmethod AST checks. Current180MCPcases/18files passed; later whitespace/import ordering preserved executable AST, focused current types/lint and4role assertions passed. Remaining dense views/manual-transfer lifecycle follow-through and real-service deployment qualification stay open."
+  },
+  {
+    "path": "frontend/features/mcp/components/mcp-file-transfer-page.tsx",
+    "sha256": "b8d8ae5c2fb4d6ef9f2ae4b08820febfc1c3372917ea1e40a52772ed9131c634",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "All physical lines in11original frozen batches read; changed guards/declarations reread. Initial-actor, departed-page, denial polling and streamed-body resource regressions retained. Closed legacy client chain retired only after declaration/computed/escape proof and actual current OAuth/approval/callback safety coverage. API DTO/capability/query/mutation owners extracted with35declaration and18transportmethod AST checks. Current180MCPcases/18files passed; later whitespace/import ordering preserved executable AST, focused current types/lint and4role assertions passed. Remaining dense views/manual-transfer lifecycle follow-through and real-service deployment qualification stay open."
+  },
+  {
+    "path": "frontend/features/mcp/components/mcp-permission-sections.tsx",
+    "sha256": "11026a43619133442cb3694b45919c66ec0ccf83f51a4ab8889644b1278fc5d1",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "All physical lines in11original frozen batches read; changed guards/declarations reread. Initial-actor, departed-page, denial polling and streamed-body resource regressions retained. Closed legacy client chain retired only after declaration/computed/escape proof and actual current OAuth/approval/callback safety coverage. API DTO/capability/query/mutation owners extracted with35declaration and18transportmethod AST checks. Current180MCPcases/18files passed; later whitespace/import ordering preserved executable AST, focused current types/lint and4role assertions passed. Remaining dense views/manual-transfer lifecycle follow-through and real-service deployment qualification stay open."
+  },
+  {
+    "path": "frontend/features/mcp/components/mcp-permission-switch.tsx",
+    "sha256": "1c9bd7400dae3a20da3db63fa8082fc3c04703bf5cdf770e546aecbbe698f1f6",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "All physical lines in11original frozen batches read; changed guards/declarations reread. Initial-actor, departed-page, denial polling and streamed-body resource regressions retained. Closed legacy client chain retired only after declaration/computed/escape proof and actual current OAuth/approval/callback safety coverage. API DTO/capability/query/mutation owners extracted with35declaration and18transportmethod AST checks. Current180MCPcases/18files passed; later whitespace/import ordering preserved executable AST, focused current types/lint and4role assertions passed. Remaining dense views/manual-transfer lifecycle follow-through and real-service deployment qualification stay open."
+  },
+  {
+    "path": "frontend/features/mcp/components/mcp-permissions-panel.tsx",
+    "sha256": "cc7ad2c4fba092d7c6036541a18c96d88d4c313f1e16db5dc0e28b9c817264fa",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "All physical lines in11original frozen batches read; changed guards/declarations reread. Initial-actor, departed-page, denial polling and streamed-body resource regressions retained. Closed legacy client chain retired only after declaration/computed/escape proof and actual current OAuth/approval/callback safety coverage. API DTO/capability/query/mutation owners extracted with35declaration and18transportmethod AST checks. Current180MCPcases/18files passed; later whitespace/import ordering preserved executable AST, focused current types/lint and4role assertions passed. Remaining dense views/manual-transfer lifecycle follow-through and real-service deployment qualification stay open."
+  },
+  {
+    "path": "frontend/features/mcp/components/mcp-read-access-panel.tsx",
+    "sha256": "0c137389ee5183e5f78185101c10588c27d5a2ec8d4897273185956660fdcbd8",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "All physical lines in11original frozen batches read; changed guards/declarations reread. Initial-actor, departed-page, denial polling and streamed-body resource regressions retained. Closed legacy client chain retired only after declaration/computed/escape proof and actual current OAuth/approval/callback safety coverage. API DTO/capability/query/mutation owners extracted with35declaration and18transportmethod AST checks. Current180MCPcases/18files passed; later whitespace/import ordering preserved executable AST, focused current types/lint and4role assertions passed. Remaining dense views/manual-transfer lifecycle follow-through and real-service deployment qualification stay open."
+  },
+  {
+    "path": "frontend/features/mcp/components/mcp-request-permissions.tsx",
+    "sha256": "2261feecbea4b2e14672e56881241fc583e50c9566c512f140795e72d8b11335",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "All physical lines in11original frozen batches read; changed guards/declarations reread. Initial-actor, departed-page, denial polling and streamed-body resource regressions retained. Closed legacy client chain retired only after declaration/computed/escape proof and actual current OAuth/approval/callback safety coverage. API DTO/capability/query/mutation owners extracted with35declaration and18transportmethod AST checks. Current180MCPcases/18files passed; later whitespace/import ordering preserved executable AST, focused current types/lint and4role assertions passed. Remaining dense views/manual-transfer lifecycle follow-through and real-service deployment qualification stay open."
+  },
+  {
+    "path": "frontend/features/mcp/components/mcp-request-waiting-page.test.tsx",
+    "sha256": "47cc8119568a1daa98aa113c8b64686d1f5d15855654ccffc46012e869a95d24",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Complete current test source read/written. Actual pending-request lifetime, global/local TanStack scheduling and readable-stream ownership negative regressions preserved; original consent/byte-integrity assertions retained."
+  },
+  {
+    "path": "frontend/features/mcp/components/mcp-request-waiting-page.tsx",
+    "sha256": "a8d6aa8ce2a76f5eb2b2b4495adbfe70f669013466f2dc9e6efc3cb76ffd0583",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "All physical lines in11original frozen batches read; changed guards/declarations reread. Initial-actor, departed-page, denial polling and streamed-body resource regressions retained. Closed legacy client chain retired only after declaration/computed/escape proof and actual current OAuth/approval/callback safety coverage. API DTO/capability/query/mutation owners extracted with35declaration and18transportmethod AST checks. Current180MCPcases/18files passed; later whitespace/import ordering preserved executable AST, focused current types/lint and4role assertions passed. Remaining dense views/manual-transfer lifecycle follow-through and real-service deployment qualification stay open."
+  },
+  {
+    "path": "frontend/features/mcp/components/mcp-requests.test.tsx",
+    "sha256": "b29dea2dc7e94bc9aa9fef810f3679c9278f967ea9e83c244e898f5b0821af63",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Complete original/copied source and final assembled owners read; exact AST preservation and current hash recorded. Current180affectedMCPcases pass plus15expandednative malformed/scope cases and94existingnativeOAuth/policy cases before retirement. TypeScript and scopedlint pass. Retired semantics mapped to actual current owners; no backend/native endpoints removed. Six new focused runtime owners, public transport and hook facade retain old import paths; no unused export barrel retained."
+  },
+  {
+    "path": "frontend/features/mcp/components/mcp-requests.tsx",
+    "sha256": "f3e0daf77ac027a85b26342b1cbd433e1d6ec01fcf927857c56f57c762e9300b",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "All physical lines in11original frozen batches read; changed guards/declarations reread. Initial-actor, departed-page, denial polling and streamed-body resource regressions retained. Closed legacy client chain retired only after declaration/computed/escape proof and actual current OAuth/approval/callback safety coverage. API DTO/capability/query/mutation owners extracted with35declaration and18transportmethod AST checks. Current180MCPcases/18files passed; later whitespace/import ordering preserved executable AST, focused current types/lint and4role assertions passed. Remaining dense views/manual-transfer lifecycle follow-through and real-service deployment qualification stay open."
+  },
+  {
+    "path": "frontend/features/mcp/components/mcp-settings.tsx",
+    "sha256": "f26d931bf38a5d71f7ad05d71c0763730ea9f6ec21d21a183bc193aa555b4690",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "All physical lines in11original frozen batches read; changed guards/declarations reread. Initial-actor, departed-page, denial polling and streamed-body resource regressions retained. Closed legacy client chain retired only after declaration/computed/escape proof and actual current OAuth/approval/callback safety coverage. API DTO/capability/query/mutation owners extracted with35declaration and18transportmethod AST checks. Current180MCPcases/18files passed; later whitespace/import ordering preserved executable AST, focused current types/lint and4role assertions passed. Remaining dense views/manual-transfer lifecycle follow-through and real-service deployment qualification stay open."
+  },
+  {
+    "path": "frontend/features/mcp/components/mcp-shared.tsx",
+    "sha256": "74f3fa479673d662f8ce12e4a28a0a2d07c98a16ec6a2742b9ea77e8c9d4aebf",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "All physical lines in11original frozen batches read; changed guards/declarations reread. Initial-actor, departed-page, denial polling and streamed-body resource regressions retained. Closed legacy client chain retired only after declaration/computed/escape proof and actual current OAuth/approval/callback safety coverage. API DTO/capability/query/mutation owners extracted with35declaration and18transportmethod AST checks. Current180MCPcases/18files passed; later whitespace/import ordering preserved executable AST, focused current types/lint and4role assertions passed. Remaining dense views/manual-transfer lifecycle follow-through and real-service deployment qualification stay open."
+  },
+  {
+    "path": "frontend/features/mcp/components/mcp-work-results.tsx",
+    "sha256": "a28bdbbd137e0cdb2df1d805d2c6d87600f99777090c64afdf13248cb3fe7180",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "All physical lines in11original frozen batches read; changed guards/declarations reread. Initial-actor, departed-page, denial polling and streamed-body resource regressions retained. Closed legacy client chain retired only after declaration/computed/escape proof and actual current OAuth/approval/callback safety coverage. API DTO/capability/query/mutation owners extracted with35declaration and18transportmethod AST checks. Current180MCPcases/18files passed; later whitespace/import ordering preserved executable AST, focused current types/lint and4role assertions passed. Remaining dense views/manual-transfer lifecycle follow-through and real-service deployment qualification stay open."
+  },
+  {
+    "path": "frontend/features/mcp/hooks/mcp-query-keys.ts",
+    "sha256": "dab49612ec94c974832ad3f7bac1b6c6bfbd78ed8c8d7cdde4d6fbbbb5509edb",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Complete original/copied source and final assembled owners read; exact AST preservation and current hash recorded. Current180affectedMCPcases pass plus15expandednative malformed/scope cases and94existingnativeOAuth/policy cases before retirement. TypeScript and scopedlint pass. Retired semantics mapped to actual current owners; no backend/native endpoints removed. Six new focused runtime owners, public transport and hook facade retain old import paths; no unused export barrel retained."
+  },
+  {
+    "path": "frontend/features/mcp/hooks/use-mcp-connection-mutations.ts",
+    "sha256": "f321f7c43936535c21689c3d08c7ffa660be81b94092296c489ba47712d9cbd3",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Complete original/copied source and final assembled owners read; exact AST preservation and current hash recorded. Current180affectedMCPcases pass plus15expandednative malformed/scope cases and94existingnativeOAuth/policy cases before retirement. TypeScript and scopedlint pass. Retired semantics mapped to actual current owners; no backend/native endpoints removed. Six new focused runtime owners, public transport and hook facade retain old import paths; no unused export barrel retained."
+  },
+  {
+    "path": "frontend/features/mcp/hooks/use-mcp-file-transfer.ts",
+    "sha256": "b5edbfe107c22759958b17d0724c362f5d01ebf1f70d2907b700b67af32115a7",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "All physical lines in11original frozen batches read; changed guards/declarations reread. Initial-actor, departed-page, denial polling and streamed-body resource regressions retained. Closed legacy client chain retired only after declaration/computed/escape proof and actual current OAuth/approval/callback safety coverage. API DTO/capability/query/mutation owners extracted with35declaration and18transportmethod AST checks. Current180MCPcases/18files passed; later whitespace/import ordering preserved executable AST, focused current types/lint and4role assertions passed. Remaining dense views/manual-transfer lifecycle follow-through and real-service deployment qualification stay open."
+  },
+  {
+    "path": "frontend/features/mcp/hooks/use-mcp-owner.test.tsx",
+    "sha256": "a75b50b2bba67d3086260ff2cbb7363daeb32a3651fc428022f044f00a26d45d",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Complete current test source read/written. Actual pending-request lifetime, global/local TanStack scheduling and readable-stream ownership negative regressions preserved; original consent/byte-integrity assertions retained."
+  },
+  {
+    "path": "frontend/features/mcp/hooks/use-mcp-policy-mutations.ts",
+    "sha256": "4eca3147c30b9b43a355c5e5c59a8e5e3a44f5a1a55a879c4912c879c94756d5",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Complete original/copied source and final assembled owners read; exact AST preservation and current hash recorded. Current180affectedMCPcases pass plus15expandednative malformed/scope cases and94existingnativeOAuth/policy cases before retirement. TypeScript and scopedlint pass. Retired semantics mapped to actual current owners; no backend/native endpoints removed. Six new focused runtime owners, public transport and hook facade retain old import paths; no unused export barrel retained."
+  },
+  {
+    "path": "frontend/features/mcp/hooks/use-mcp-queries.ts",
+    "sha256": "a8a3f8c4b665384ec59fc05a1ae22eb2ac957e1cd3003b927b87d2a062a09c7b",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Complete original/copied source and final assembled owners read; exact AST preservation and current hash recorded. Current180affectedMCPcases pass plus15expandednative malformed/scope cases and94existingnativeOAuth/policy cases before retirement. TypeScript and scopedlint pass. Retired semantics mapped to actual current owners; no backend/native endpoints removed. Six new focused runtime owners, public transport and hook facade retain old import paths; no unused export barrel retained."
+  },
+  {
+    "path": "frontend/features/mcp/hooks/use-mcp.ts",
+    "sha256": "9bd0ef21c81fb692e56e9a151605751474a2361a78c1f7df13ffe97bbb06754a",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Complete original/copied source and final assembled owners read; exact AST preservation and current hash recorded. Current180affectedMCPcases pass plus15expandednative malformed/scope cases and94existingnativeOAuth/policy cases before retirement. TypeScript and scopedlint pass. Retired semantics mapped to actual current owners; no backend/native endpoints removed. Six new focused runtime owners, public transport and hook facade retain old import paths; no unused export barrel retained."
+  },
+  {
+    "path": "frontend/features/mcp/utils/consent.test.ts",
+    "sha256": "44c8b5f6abbb93c3486709cbe0dd208478840d7853ea5d127f7a4868fec29193",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Complete original/copied source and final assembled owners read; exact AST preservation and current hash recorded. Current180affectedMCPcases pass plus15expandednative malformed/scope cases and94existingnativeOAuth/policy cases before retirement. TypeScript and scopedlint pass. Retired semantics mapped to actual current owners; no backend/native endpoints removed. Six new focused runtime owners, public transport and hook facade retain old import paths; no unused export barrel retained."
+  },
+  {
+    "path": "frontend/features/mcp/utils/consent.ts",
+    "sha256": "2d2351cb1ab94d2e1c89c6e0e2591b907d1d54050ccfc912c26519122a330cdb",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "All physical lines in11original frozen batches read; changed guards/declarations reread. Initial-actor, departed-page, denial polling and streamed-body resource regressions retained. Closed legacy client chain retired only after declaration/computed/escape proof and actual current OAuth/approval/callback safety coverage. API DTO/capability/query/mutation owners extracted with35declaration and18transportmethod AST checks. Current180MCPcases/18files passed; later whitespace/import ordering preserved executable AST, focused current types/lint and4role assertions passed. Remaining dense views/manual-transfer lifecycle follow-through and real-service deployment qualification stay open."
+  },
+  {
+    "path": "frontend/features/mcp/utils/file-transfer.test.ts",
+    "sha256": "3597aca541bb93c33a7163e2eb2c86d39af0a5275f0a51e107a1b17db8fe1d67",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "Complete current test source read/written. Actual pending-request lifetime, global/local TanStack scheduling and readable-stream ownership negative regressions preserved; original consent/byte-integrity assertions retained."
+  },
+  {
+    "path": "frontend/features/mcp/utils/file-transfer.ts",
+    "sha256": "d3dfea06cc4ad5d5bbd1f1ce43691ce48cf37da099927b3d40a0e5950268c483",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "All physical lines in11original frozen batches read; changed guards/declarations reread. Initial-actor, departed-page, denial polling and streamed-body resource regressions retained. Closed legacy client chain retired only after declaration/computed/escape proof and actual current OAuth/approval/callback safety coverage. API DTO/capability/query/mutation owners extracted with35declaration and18transportmethod AST checks. Current180MCPcases/18files passed; later whitespace/import ordering preserved executable AST, focused current types/lint and4role assertions passed. Remaining dense views/manual-transfer lifecycle follow-through and real-service deployment qualification stay open."
+  },
+  {
+    "path": "frontend/features/mcp/utils/permissions.test-fixture.ts",
+    "sha256": "0abf8392f5dd5009c266d8a099e2aa37cadc8f448ed7c28d8d11d09dab607dfe",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "All physical lines in11original frozen batches read; changed guards/declarations reread. Initial-actor, departed-page, denial polling and streamed-body resource regressions retained. Closed legacy client chain retired only after declaration/computed/escape proof and actual current OAuth/approval/callback safety coverage. API DTO/capability/query/mutation owners extracted with35declaration and18transportmethod AST checks. Current180MCPcases/18files passed; later whitespace/import ordering preserved executable AST, focused current types/lint and4role assertions passed. Remaining dense views/manual-transfer lifecycle follow-through and real-service deployment qualification stay open."
+  },
+  {
+    "path": "frontend/features/mcp/utils/permissions.ts",
+    "sha256": "649337bae7ae704a603f96f9607a00ccc8a7fef84f61ab669efceff693cb6c00",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "All physical lines in11original frozen batches read; changed guards/declarations reread. Initial-actor, departed-page, denial polling and streamed-body resource regressions retained. Closed legacy client chain retired only after declaration/computed/escape proof and actual current OAuth/approval/callback safety coverage. API DTO/capability/query/mutation owners extracted with35declaration and18transportmethod AST checks. Current180MCPcases/18files passed; later whitespace/import ordering preserved executable AST, focused current types/lint and4role assertions passed. Remaining dense views/manual-transfer lifecycle follow-through and real-service deployment qualification stay open."
+  },
+  {
+    "path": "frontend/features/mcp/utils/read-only.ts",
+    "sha256": "cb9075a10fe65246113a61342808e34f0ec35760d327ce96d391b054b3ca4b72",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "All physical lines in11original frozen batches read; changed guards/declarations reread. Initial-actor, departed-page, denial polling and streamed-body resource regressions retained. Closed legacy client chain retired only after declaration/computed/escape proof and actual current OAuth/approval/callback safety coverage. API DTO/capability/query/mutation owners extracted with35declaration and18transportmethod AST checks. Current180MCPcases/18files passed; later whitespace/import ordering preserved executable AST, focused current types/lint and4role assertions passed. Remaining dense views/manual-transfer lifecycle follow-through and real-service deployment qualification stay open."
+  },
+  {
+    "path": "frontend/features/mcp/utils/save-transfer-file.ts",
+    "sha256": "2b22a15628fab2dde53cb6fa0be7fec6fb70ba09e14d3ecad6c508c737ea4706",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "All physical lines in11original frozen batches read; changed guards/declarations reread. Initial-actor, departed-page, denial polling and streamed-body resource regressions retained. Closed legacy client chain retired only after declaration/computed/escape proof and actual current OAuth/approval/callback safety coverage. API DTO/capability/query/mutation owners extracted with35declaration and18transportmethod AST checks. Current180MCPcases/18files passed; later whitespace/import ordering preserved executable AST, focused current types/lint and4role assertions passed. Remaining dense views/manual-transfer lifecycle follow-through and real-service deployment qualification stay open."
+  },
+  {
+    "path": "frontend/features/mcp/utils/section-copy.ts",
+    "sha256": "5f4a045f43880a70348e88882b49fe86134a4f0e997ed62b4abbc35f5fdd9592",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "All physical lines in11original frozen batches read; changed guards/declarations reread. Initial-actor, departed-page, denial polling and streamed-body resource regressions retained. Closed legacy client chain retired only after declaration/computed/escape proof and actual current OAuth/approval/callback safety coverage. API DTO/capability/query/mutation owners extracted with35declaration and18transportmethod AST checks. Current180MCPcases/18files passed; later whitespace/import ordering preserved executable AST, focused current types/lint and4role assertions passed. Remaining dense views/manual-transfer lifecycle follow-through and real-service deployment qualification stay open."
+  }
+]

@@ -1,0 +1,103 @@
+{
+  "status": "all direct facade consumers use preserved public surface",
+  "imports": [
+    {
+      "path": "backend/app/main.py",
+      "line": 26,
+      "names": [
+        "start_mobile_realtime",
+        "stop_mobile_realtime"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/dashboard_realtime.py",
+      "line": 21,
+      "names": [
+        "MobileRealtimeCapacityError",
+        "MobileRealtimeConnection",
+        "MobileRealtimeHub",
+        "get_mobile_realtime_hub"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/health.py",
+      "line": 34,
+      "names": [
+        "get_mobile_realtime_hub"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/mobile_realtime.py",
+      "line": 20,
+      "names": [
+        "MobileRealtimeCapacityError",
+        "MobileRealtimeConnection",
+        "MobileRealtimeHub",
+        "get_mobile_realtime_hub"
+      ]
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/realtime_socket_support.py",
+      "line": 15,
+      "names": [
+        "MobileRealtimeConfig",
+        "MobileRealtimeConnection",
+        "MobileRealtimeConnectionClosed",
+        "MobileRealtimeHub"
+      ]
+    },
+    {
+      "path": "backend/tests/service_integration/test_mobile_realtime_startup_redis.py",
+      "line": 13,
+      "names": [
+        "MobileRealtimeCapacityError",
+        "MobileRealtimeHub"
+      ]
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_mobile_realtime_hub.py",
+      "line": 11,
+      "names": [
+        "MobileRealtimeCapacityError",
+        "MobileRealtimeConfig",
+        "MobileRealtimeHub"
+      ]
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_realtime_subscriber_lifetime.py",
+      "line": 15,
+      "names": [
+        "MobileRealtimeHub"
+      ]
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_realtime_transport_boundaries.py",
+      "line": 15,
+      "names": [
+        "MobileRealtimeHub"
+      ]
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_realtime_transport_boundaries.py",
+      "line": 150,
+      "names": [
+        "MobileRealtimeConnectionClosed"
+      ]
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_dashboard_realtime_route.py",
+      "line": 15,
+      "names": [
+        "MobileRealtimeConnection"
+      ]
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_mobile_realtime_route.py",
+      "line": 15,
+      "names": [
+        "MobileRealtimeConnection"
+      ]
+    }
+  ],
+  "limits": "Automated typed-import closure only; full source review is separately recorded. Existing service integration source is retained but not executed."
+}

@@ -1,0 +1,482 @@
+[
+  {
+    "path": "frontend/features/companies/api/companies.api.ts",
+    "sha256": "a88caa0248d6ac9ef92618421e98b8ceab77f4e18fe734aac707fe7aab9135b2",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/api/company-data-exports.api.ts",
+    "sha256": "a871990869a9cd560f4c9f42a158408698574b98619d5b3db1d37bb72231e27a",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/api/company-matching.api.ts",
+    "sha256": "5a35df7d7c10b08ee473a01174af5543bb04ed2f6c320ccc179de5d94527c877",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/api/company-passports.api.ts",
+    "sha256": "53f8396226ceef7e822dc1e57d4b81be53d5625b7329648757dedd8106750788",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/api/company-people.api.ts",
+    "sha256": "0812b8151ce2cbd45224edb6f7fccd9c79c6c1391c5c75ad5dc3ad3a454ad80d",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/api/reuse-setup.api.ts",
+    "sha256": "ea23c6a3f5f1131c2a55a77b480cbecf9eb7aa5719592ee120450e03aec44c74",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/components/company-agency-scope.tsx",
+    "sha256": "8d17044db48a4bfef896581d9ecc3eeab7b1b30fbfe4a1bc66a8b11225602864",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/components/company-all-data.tsx",
+    "sha256": "3eea431d6b6a293e387ad21ecd3f2d85d4ebba659eba5069d82b3410a2e94f8c",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/components/company-dashboard.tsx",
+    "sha256": "74966210f14b1d8dc77db834234f65653ad01ef3bb6149b4e528faf9ae72f019",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/components/company-data-exports.tsx",
+    "sha256": "9ae4b7fa478f103974cbcd48d09a2ac800ce1cc5c1bf10247be1956ad4d6da00",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/components/company-directory.tsx",
+    "sha256": "cd318567d8cea4d4a9ea895b4027cfdcad6fde091a464a37d2a6970275d1b1a0",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/components/company-document-preview.tsx",
+    "sha256": "ae83840b42b1f5e2058f9c342abe970ea8ac2ee2570cc0513dcb5cdf27b07149",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/components/company-document-upload.tsx",
+    "sha256": "69951d50d8a22ccf17db3d3b1a6695a65bacb2c5927c7b8fd102b8cca5d78ff8",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/components/company-feedback.tsx",
+    "sha256": "f47a950d82b98ea45479f5bd5fdd352dab580ef400b008dcc8f639bf040fd16e",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/components/company-form.tsx",
+    "sha256": "a88cb65b277785b39a79da76131427d055b0ae774c257d8e2e7ba7a94d500a67",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/components/company-group-return-link.tsx",
+    "sha256": "2405dcaa38b3133e2a4ea3c15a744b2c45ba865149038646fdda97ed530339d9",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/components/company-groups.tsx",
+    "sha256": "2490ace4b9b8db586e25dd3675ced99686e62c969873d8fbf7977dff4d78a95c",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/components/company-match-queue.tsx",
+    "sha256": "d57b41cb41672a420d4c4e566d507547e0607879ca8c1b3c52fcfa1c07fbbbde",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/components/company-match-resolution.tsx",
+    "sha256": "d1609c9677ab6680d13315bd040fa8f8ee6f98b413f079abb40b6d0a3bf31ca0",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/components/company-matching-dialog.tsx",
+    "sha256": "92bb8eeba9b0dffc5b54df9825d01febf696f329e960f99700e58a54e3abe45e",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/components/company-original-documents.tsx",
+    "sha256": "da6e817e0799cdee9e674b9479046f85cb9198c3e74bc1a0e560b83951836aa3",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/components/company-original-record.tsx",
+    "sha256": "817dd73286cff282c059f9033f78654abd1db971d0b81fbd5f1dfac7ee0d6474",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/components/company-overview-stats.tsx",
+    "sha256": "58c3c183a3ac498389464561fab360a751097c3d82cd86a00055b4c4ac93ae26",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/components/company-passport-fields.tsx",
+    "sha256": "709116f53aad62746120fac7fd0a11160e3e4666d28501e3bc753adbf55450fb",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/components/company-passports.tsx",
+    "sha256": "a9751f7b43e42f65856760bb0b7ce634c7173055e16e92e549f74485c7e548df",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/components/company-people-results.tsx",
+    "sha256": "fbb959dfe147d4e4879486554b7e501d04162ede95531ddcd5c3d342c31213b2",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/components/company-people-toolbar.tsx",
+    "sha256": "7e6b645bdc01a977e621093bb33ed5cefc198abd02f902da35d507258ac184fc",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/components/company-person-details.tsx",
+    "sha256": "1855fb1ee6491467e8063b959fc19781922a1fa793c8b95e8bd99316b176d57c",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/components/company-person-documents.tsx",
+    "sha256": "41e1df41d8a9b680ec319f02587a8835616c2ddddc84a367acfbecdd01547573",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/components/company-person-editor.tsx",
+    "sha256": "8c0349dae0ce94aba14c73fbb214d2463e6b5e4d9a5ab9b4333ecfb02c470a27",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/components/company-person-page.tsx",
+    "sha256": "a59260d7f3bac6d3ef9532bf9cb1fad969cdc05df1d20262ea4ac719b7e96c17",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/components/company-person-row.tsx",
+    "sha256": "66fcd1c73a8a5e4d28559316a37b72095858daa4d86390b6dd75d6f0d0b3c5d5",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/components/company-person-trips.tsx",
+    "sha256": "532f14fba24a52e91a567169465d406f16682a565ba0a5f136188a065790f4ac",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/components/company-picker.tsx",
+    "sha256": "8cef25c7c9ccacea0bc4d010690b0bb1ec7cdd249c495799e20bffb7338d998a",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/components/company-reassignment-dialog.tsx",
+    "sha256": "96e4be21757ec63820c19a33629e08d40b3b17cc1df6aa51e5b4ab42554b7481",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "needs-follow-up",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/components/company-settings.tsx",
+    "sha256": "83a4f7d2d1d3f3c4d9b6e7b6130f74d62358488fe82bcc0d3fbc98f0d9d09310",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/components/company-view-tabs.tsx",
+    "sha256": "bdcbeb156f7c7d73e61c3fe9829113c8894d6dedf57c4d113fbf17e1eac9fe7b",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/components/group-company-assignment.tsx",
+    "sha256": "62b4ecafedf2c258635eb05f97d473d2f186dd1becae5306c6a9698cdc43052b",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/hooks/use-companies.ts",
+    "sha256": "fcad852c6bb6b676233dbf60420438bf0c418bc1ff35a784ba20ab8295bb828c",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/hooks/use-company-document-preview.ts",
+    "sha256": "1a250ee5082fb7c0fafa0368494668799d090f88d34340bae70d9ce7d0626dd6",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/hooks/use-company-people.ts",
+    "sha256": "9800a9b89e1263c4cb581371d209ac2cdb342ef192f9e35ea0c8ce4ee52fd1e4",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/hooks/use-company-session.ts",
+    "sha256": "84a77d2fc62ec7d5aaa7afda0d4efeebf6da93dd361403cce25ed278c5c34ade",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/hooks/use-company-view-state.ts",
+    "sha256": "55a5b3ae758a2bcb871eb6a1e1c1362a5dd344942f7673a0ae6072b288850151",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/hooks/use-company-workspace.ts",
+    "sha256": "9e3eb6b35572246c8d41706579e3e998b00bc1322eda2dc22a88a3695fbaedd5",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/test-support/navigation.ts",
+    "sha256": "3e3a852f3965c6c22b66aeb71bf4b43fbec421db93ec7391802e9f1d8a0b01cd",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/types/company-people.ts",
+    "sha256": "a7c351b05abce4e6ff02e3773eaba839c34dc89035ece6860e182dd30de3bd89",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/types.ts",
+    "sha256": "39940861fd932190bf97fd93e2b1e2ea23dc941ecd20f2bd1ecc48e5e51a8dbc",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/utils/company-index-status.ts",
+    "sha256": "4e3a124ec3fcdab68f2192cf75f47db87a3f0db6d39afbc80ef5218ed20fa26a",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/utils/company-navigation.ts",
+    "sha256": "0945ca6ac9fbc2f253deca2ab5899dc22eef9a1b5fc28529d0d884f70da25db5",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/utils/company-search.ts",
+    "sha256": "5cf1824bc9836ef97d62984cac306b3d42bcc9494566c68650efb1424204af21",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/utils/group-assignment-cache.ts",
+    "sha256": "9e1557d56824ace8bcb08af0bb55ce1dfaa874c6551ec7ed064b085af08bc2e8",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "reviewed",
+    "notes": "Every physical line read in frozen company source batches0\u201311, with current intentional diffs reread. Private DTO/transport, tenant context, query/cursor bounds, explicit revision/idempotency and UI mutation behavior inspected. Dense single-line JSX is an explicit readability follow-up; physical line ceilings do not excuse compressed source. Closed legacy CompanyTravellers view/transport retirement has independent caller/hash proof. Matching picker keyboard ownership now follows the actually rendered dialog, verified by a background-denial regression."
+  },
+  {
+    "path": "frontend/features/companies/hooks/use-company-document-upload.ts",
+    "sha256": "3bc247f6b7b971506892a01b1d803937699d287b904fe60ac57c91c01ce3f8a9",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "New cohesive owner authored and fully read; preserves private transport, frozen revision, idempotency, explicit review, cancellation/object URL lifecycle and bounded page/poll behavior. Presentation is readable across physical lines; no existing ceiling increased."
+  },
+  {
+    "path": "frontend/features/companies/hooks/use-company-data-exports.ts",
+    "sha256": "c79279aae4f0d9bfc47628d6d7b3fef5e848acf0b8eebfeb5cf22820525e06ce",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "New cohesive owner authored and fully read; preserves private transport, frozen revision, idempotency, explicit review, cancellation/object URL lifecycle and bounded page/poll behavior. Presentation is readable across physical lines; no existing ceiling increased."
+  },
+  {
+    "path": "frontend/features/companies/hooks/use-company-person-editor.ts",
+    "sha256": "7db1f64c870881bdd5267267463f1850801f4172a447af1193770b0839771b45",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "New cohesive owner authored and fully read; preserves private transport, frozen revision, idempotency, explicit review, cancellation/object URL lifecycle and bounded page/poll behavior. Presentation is readable across physical lines; no existing ceiling increased."
+  },
+  {
+    "path": "frontend/features/companies/components/document-upload/selection.tsx",
+    "sha256": "c95863188cedd60a9a404631d0a023952de33355e06be3a7b7c2b148f541bfd7",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "New cohesive owner authored and fully read; preserves private transport, frozen revision, idempotency, explicit review, cancellation/object URL lifecycle and bounded page/poll behavior. Presentation is readable across physical lines; no existing ceiling increased."
+  },
+  {
+    "path": "frontend/features/companies/components/document-upload/review.tsx",
+    "sha256": "b1b23934822cab9b5898f1bd87f80c59e5d93d6458b4d2cd18f469190f5a4b1b",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "New cohesive owner authored and fully read; preserves private transport, frozen revision, idempotency, explicit review, cancellation/object URL lifecycle and bounded page/poll behavior. Presentation is readable across physical lines; no existing ceiling increased."
+  },
+  {
+    "path": "frontend/features/companies/components/data-exports/files.tsx",
+    "sha256": "6ae33bc6d80d8d87cb5a5c9c0fea5a1716725d4ba07f9fd38543b68feb99185e",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "New cohesive owner authored and fully read; preserves private transport, frozen revision, idempotency, explicit review, cancellation/object URL lifecycle and bounded page/poll behavior. Presentation is readable across physical lines; no existing ceiling increased."
+  },
+  {
+    "path": "frontend/features/companies/components/data-exports/jobs.tsx",
+    "sha256": "5ffe18d4203b0b7ae1d5bae9aaa3349ee288de2e7c50a4545332d699cca64f69",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "New cohesive owner authored and fully read; preserves private transport, frozen revision, idempotency, explicit review, cancellation/object URL lifecycle and bounded page/poll behavior. Presentation is readable across physical lines; no existing ceiling increased."
+  },
+  {
+    "path": "frontend/features/companies/utils/company-errors.ts",
+    "sha256": "85274b757140bb03935c2d99485240f73b874d08d9dc60fcb42f9a41324c9e44",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "New cohesive owner authored and fully read; preserves private transport, frozen revision, idempotency, explicit review, cancellation/object URL lifecycle and bounded page/poll behavior. Presentation is readable across physical lines; no existing ceiling increased."
+  },
+  {
+    "path": "frontend/features/companies/utils/company-export-status.ts",
+    "sha256": "06abc255e301a6e278c253c8182be5e414e24587b8f2a192a3806367094a6bee",
+    "review_scope": "full",
+    "reviewer": "root",
+    "status": "fixed",
+    "notes": "New cohesive owner authored and fully read; preserves private transport, frozen revision, idempotency, explicit review, cancellation/object URL lifecycle and bounded page/poll behavior. Presentation is readable across physical lines; no existing ceiling increased."
+  }
+]

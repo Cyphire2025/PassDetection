@@ -1,0 +1,7 @@
+{
+  "path": "backend/tests/unit/presentation/test_workforce_invitation_names.py",
+  "before_sha256": "5162c748caf6625ec5810b44d3c58fcaeda78351995c34ca14b3993bda633daf",
+  "after_sha256": "b3fbdff67955a4e0892c14300c8af9107dcee45f8d20e12a383cbaa6fe6dcc5f",
+  "whole_module_AST_exact": true,
+  "reason": "Only two-line import wrapping; no app/test execution repeated for formatting."
+}

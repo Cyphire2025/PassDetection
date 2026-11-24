@@ -1,0 +1,36 @@
+{
+  "command": [
+    "C:\\Users\\nipun\\Desktop\\PassDetection\\.tmp\\dashboard-security-patch-venv-2\\Scripts\\python.exe",
+    "-X",
+    "utf8",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "-p",
+    "whatsapp_activity_contract_plugin",
+    "tests/unit/presentation/test_whatsapp_activity_tracking.py",
+    "tests/unit/presentation/test_whatsapp_activity_pages.py",
+    "tests/unit/presentation/test_whatsapp_staff_access_flow.py"
+  ],
+  "cwd": "C:\\Users\\nipun\\Desktop\\PassDetection\\backend",
+  "exit_code": 0,
+  "elapsed_seconds": 20.327999999994063,
+  "source_before": {
+    "backend/app/presentation/api/v1/routes/whatsapp_activity.py": "f8abd34251e84c59f704cdf2c279cd89dbd4b1813f928fb29667bd968e37b3d1",
+    "backend/tests/unit/presentation/test_whatsapp_activity_pages.py": "c7a8229884e5665537f1875cdee75cc21c1ff5efe2d9f4e2b0602aba435471c4",
+    "backend/tests/unit/presentation/test_whatsapp_activity_tracking.py": "65ffabf131540f8eb58b187aee2f293e6eb4e2b0dcfdab7f822ddef700933bb3",
+    "backend/tests/unit/presentation/test_whatsapp_staff_access_flow.py": "fc94c30f4e089bc9af8cf219ea84b156276971a106944f08fe310eaaf530245b",
+    "backend/app/presentation/api/v1/schemas/whatsapp_activity_schemas.py": "8d9758a1716bb1f79ba8704068f96f33ce9d804828cdfec8a9db90c58f6ef367"
+  },
+  "source_after": {
+    "backend/app/presentation/api/v1/routes/whatsapp_activity.py": "f8abd34251e84c59f704cdf2c279cd89dbd4b1813f928fb29667bd968e37b3d1",
+    "backend/tests/unit/presentation/test_whatsapp_activity_pages.py": "c7a8229884e5665537f1875cdee75cc21c1ff5efe2d9f4e2b0602aba435471c4",
+    "backend/tests/unit/presentation/test_whatsapp_activity_tracking.py": "65ffabf131540f8eb58b187aee2f293e6eb4e2b0dcfdab7f822ddef700933bb3",
+    "backend/tests/unit/presentation/test_whatsapp_staff_access_flow.py": "fc94c30f4e089bc9af8cf219ea84b156276971a106944f08fe310eaaf530245b",
+    "backend/app/presentation/api/v1/schemas/whatsapp_activity_schemas.py": "8d9758a1716bb1f79ba8704068f96f33ce9d804828cdfec8a9db90c58f6ef367"
+  },
+  "source_unchanged": true,
+  "output": "docs/audit/dashboard-2026-10-30/whatsapp-activity-before-corrected-focused-tests.txt"
+}

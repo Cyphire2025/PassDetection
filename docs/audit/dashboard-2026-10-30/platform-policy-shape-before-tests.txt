@@ -1,0 +1,46 @@
+.......FF..FF..F.                                                        [100%]
+================================== FAILURES ===================================
+_ test_malformed_json_policy_values_use_the_configuration_error_boundary[override0] _
+tests\unit\application\test_platform_policies.py:65: in test_malformed_json_policy_values_use_the_configuration_error_boundary
+    PlatformPolicies.from_mapping(persisted)
+app\application\platform_policies.py:51: in from_mapping
+    if duplicate_policy not in {"block_same_group", "allow", "block_all"}:
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: unhashable type: 'list'
+_ test_malformed_json_policy_values_use_the_configuration_error_boundary[override1] _
+tests\unit\application\test_platform_policies.py:65: in test_malformed_json_policy_values_use_the_configuration_error_boundary
+    PlatformPolicies.from_mapping(persisted)
+app\application\platform_policies.py:51: in from_mapping
+    if duplicate_policy not in {"block_same_group", "allow", "block_all"}:
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: unhashable type: 'dict'
+_ test_malformed_json_policy_values_use_the_configuration_error_boundary[override4] _
+tests\unit\application\test_platform_policies.py:65: in test_malformed_json_policy_values_use_the_configuration_error_boundary
+    PlatformPolicies.from_mapping(persisted)
+app\application\platform_policies.py:54: in from_mapping
+    if group_status not in {"active", "closed"}:
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: unhashable type: 'list'
+_ test_malformed_json_policy_values_use_the_configuration_error_boundary[override5] _
+tests\unit\application\test_platform_policies.py:65: in test_malformed_json_policy_values_use_the_configuration_error_boundary
+    PlatformPolicies.from_mapping(persisted)
+app\application\platform_policies.py:54: in from_mapping
+    if group_status not in {"active", "closed"}:
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: unhashable type: 'dict'
+_ test_malformed_json_policy_values_use_the_configuration_error_boundary[override8] _
+tests\unit\application\test_platform_policies.py:65: in test_malformed_json_policy_values_use_the_configuration_error_boundary
+    PlatformPolicies.from_mapping(persisted)
+app\application\platform_policies.py:85: in from_mapping
+    mrz_review_threshold=_bounded_float(
+app\application\platform_policies.py:155: in _bounded_float
+    result = float(candidate)
+             ^^^^^^^^^^^^^^^^
+E   OverflowError: int too large to convert to float
+=========================== short test summary info ===========================
+FAILED tests/unit/application/test_platform_policies.py::test_malformed_json_policy_values_use_the_configuration_error_boundary[override0]
+FAILED tests/unit/application/test_platform_policies.py::test_malformed_json_policy_values_use_the_configuration_error_boundary[override1]
+FAILED tests/unit/application/test_platform_policies.py::test_malformed_json_policy_values_use_the_configuration_error_boundary[override4]
+FAILED tests/unit/application/test_platform_policies.py::test_malformed_json_policy_values_use_the_configuration_error_boundary[override5]
+FAILED tests/unit/application/test_platform_policies.py::test_malformed_json_policy_values_use_the_configuration_error_boundary[override8]
+5 failed, 12 passed in 0.52s

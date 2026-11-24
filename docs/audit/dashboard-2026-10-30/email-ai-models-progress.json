@@ -1,0 +1,16 @@
+{
+  "status": "complete frozen; integration pending; broader review remains active",
+  "receipt": {
+    "path": "docs/audit/dashboard-2026-10-30/email-ai-models-verification.json",
+    "sha256": "dbdad7c1facfdad9b60981691c4f3e10e0eb1725217a1fd1e9d950b1f2af716e"
+  },
+  "new_full_current_files": 14,
+  "new_full_current_physical_lines": 2105,
+  "still_open": [
+    "rollout_admin565",
+    "review_decisions367",
+    "unread caller/test sources",
+    "final combined verification"
+  ],
+  "notes": "Previous task/OAuth/deadline/connection/core/email receipts and sources stay unchanged."
+}

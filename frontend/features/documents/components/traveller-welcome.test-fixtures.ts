@@ -1,16 +1,4 @@
-import type { DocumentDeliveryPreview, TravellerWelcomePreview, TravellerWelcomeRecipient } from "@/types/document-distribution.types";
-
-export function welcomeRecipient(overrides: Partial<TravellerWelcomeRecipient> = {}): TravellerWelcomeRecipient {
-  return { phone_number: "+919900000001", passenger_ids: ["mother", "father"], passenger_names: ["Mother", "Father"], status: "required", eligible: true, reason: "This number has not been welcomed yet.", rendered_message: "Hello Mother and Father, welcome to the company trip.", ...overrides };
-}
-
-export function welcomePreview(overrides: Partial<TravellerWelcomePreview> = {}): TravellerWelcomePreview {
-  return {
-    group_id: "trip", preview_token: "review-token", source_broadcast_id: "source", source_broadcast_name: "Company qualifiers", sources: [{ id: "source", name: "Company qualifiers" }], template_name: "welcome_v1", template_configured: true, can_send: true, configuration_error: null, header_image_url: null,
-    summary: { total_numbers: 3, needs_welcome: 1, already_welcomed: 1, in_progress: 1, blocked: 0 },
-    recipients: [welcomeRecipient(), welcomeRecipient({ phone_number: "+919900000002", passenger_ids: ["original"], passenger_names: ["Original traveller"], status: "delivered", eligible: false, reason: "Welcome was already delivered." }), welcomeRecipient({ phone_number: "+919900000003", passenger_ids: ["pending"], passenger_names: ["Pending traveller"], status: "sent", eligible: false, reason: "Waiting for welcome delivery." })], poll_after_seconds: 5, ...overrides,
-  };
-}
+import type { DocumentDeliveryPreview } from "@/types/document-distribution.types";
 
 export function documentPreview(overrides: Partial<DocumentDeliveryPreview> = {}): DocumentDeliveryPreview {
   return {

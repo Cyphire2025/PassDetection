@@ -1,0 +1,441 @@
+{
+  "before_modules": 443,
+  "after_modules": 471,
+  "new_modules": 28,
+  "all_443_previous_rows_unchanged": true,
+  "all_global_and_critical_gates_unchanged": true,
+  "before_budget_sha256": "cea34272ee47d9ef74d97ff1db5f05dd062eab76ab4111297afcd984c3169562",
+  "after_budget_sha256": "28a73beb41822d43b6351adfbd8d25e3a52bb869f8eb8e33a2869d26d8cb5467",
+  "before_exact_manifest_sha256": "064a4216a06896a38a82eb0bc887a1b84e4aa79e2b045148295932540ee0b707",
+  "after_exact_manifest_sha256": "5525b42a9387da66b995c3788d3d81a40879f20822e1446cc431f51d129d96a7",
+  "both_original_baseline_sets_unchanged": true,
+  "only_backend_budget_after_changed_in_exact_bindings": true,
+  "source_review_provenance": [
+    "ai_extraction:gallery-manifest-verification.json",
+    "manual_security:document-rename-verification.json"
+  ],
+  "not_a_second_full_physical_peer_review": true,
+  "limits": "New gallery cleanup/cancel65statement floors reflect focused67\u201369statement/50branch evidence. All previous floors unchanged. Exact browser AFTER bindings await next independently reviewed wrap batch; no blind refresh or live deployment qualification.",
+  "changes": [
+    {
+      "owner": "gallery-manifest",
+      "after": {
+        "path": "app/infrastructure/my_photos/gallery_ingestion.py",
+        "baseline_lines": 109,
+        "maximum_lines": 114,
+        "baseline_max_function_complexity": 1,
+        "maximum_function_complexity": 1,
+        "minimum_coverage_percent": 100
+      },
+      "source_sha256": "8b2b5e33a322d7c702969ac685effb569cfe1adb5c6ac7d7d4b93f57ea2d8d22",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": null,
+      "coverage_evidence": "gallery-manifest-coverage.json,66passing affected cases/six files, exact runtime+test fence unchanged."
+    },
+    {
+      "owner": "gallery-manifest",
+      "after": {
+        "path": "app/infrastructure/my_photos/gallery_manifest_cancellation.py",
+        "baseline_lines": 248,
+        "maximum_lines": 258,
+        "baseline_max_function_complexity": 38,
+        "maximum_function_complexity": 38,
+        "minimum_coverage_percent": 65
+      },
+      "source_sha256": "5b7985cc2b14a39088f2d9e15a8f92b19dc396481a7afe4a8e89109b341803aa",
+      "observed_statement_coverage": 67.32673267326733,
+      "observed_branch_coverage": 50.0,
+      "coverage_evidence": "gallery-manifest-coverage.json,66passing affected cases/six files, exact runtime+test fence unchanged."
+    },
+    {
+      "owner": "gallery-manifest",
+      "after": {
+        "path": "app/infrastructure/my_photos/gallery_manifest_cleanup.py",
+        "baseline_lines": 290,
+        "maximum_lines": 302,
+        "baseline_max_function_complexity": 10,
+        "maximum_function_complexity": 10,
+        "minimum_coverage_percent": 65
+      },
+      "source_sha256": "69a007bc2f7edf6fba14dbf01a626ac4354f03dbea2eb31a2c324f0188425f1b",
+      "observed_statement_coverage": 69.76744186046511,
+      "observed_branch_coverage": 50.0,
+      "coverage_evidence": "gallery-manifest-coverage.json,66passing affected cases/six files, exact runtime+test fence unchanged."
+    },
+    {
+      "owner": "gallery-manifest",
+      "after": {
+        "path": "app/infrastructure/my_photos/gallery_manifest_context.py",
+        "baseline_lines": 17,
+        "maximum_lines": 18,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 100
+      },
+      "source_sha256": "13962075ff5d9f37d59f204a2bd541f4e82d60b162a0a1bade6abb7f4a1bd43e",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": null,
+      "coverage_evidence": "gallery-manifest-coverage.json,66passing affected cases/six files, exact runtime+test fence unchanged."
+    },
+    {
+      "owner": "gallery-manifest",
+      "after": {
+        "path": "app/infrastructure/my_photos/gallery_manifest_contracts.py",
+        "baseline_lines": 192,
+        "maximum_lines": 200,
+        "baseline_max_function_complexity": 11,
+        "maximum_function_complexity": 11,
+        "minimum_coverage_percent": 90
+      },
+      "source_sha256": "32741f69e2257347172fe3e6d30f67156ed3f8aae7f0fc84120ce2dd9bf8069f",
+      "observed_statement_coverage": 90.66666666666667,
+      "observed_branch_coverage": 50.0,
+      "coverage_evidence": "gallery-manifest-coverage.json,66passing affected cases/six files, exact runtime+test fence unchanged."
+    },
+    {
+      "owner": "gallery-manifest",
+      "after": {
+        "path": "app/infrastructure/my_photos/gallery_manifest_finalization.py",
+        "baseline_lines": 175,
+        "maximum_lines": 182,
+        "baseline_max_function_complexity": 20,
+        "maximum_function_complexity": 20,
+        "minimum_coverage_percent": 80
+      },
+      "source_sha256": "d559954084fbc13f884bee9b734f51f415b7a23d363439199a8e2b8283d7be36",
+      "observed_statement_coverage": 82.25806451612904,
+      "observed_branch_coverage": 54.54545454545455,
+      "coverage_evidence": "gallery-manifest-coverage.json,66passing affected cases/six files, exact runtime+test fence unchanged."
+    },
+    {
+      "owner": "gallery-manifest",
+      "after": {
+        "path": "app/infrastructure/my_photos/gallery_manifest_fingerprints.py",
+        "baseline_lines": 18,
+        "maximum_lines": 19,
+        "baseline_max_function_complexity": 1,
+        "maximum_function_complexity": 1,
+        "minimum_coverage_percent": 100
+      },
+      "source_sha256": "ebd0dafd7459736a204e311ff4476bf5350e976b11555638671a6d5b48d52d4d",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": null,
+      "coverage_evidence": "gallery-manifest-coverage.json,66passing affected cases/six files, exact runtime+test fence unchanged."
+    },
+    {
+      "owner": "gallery-manifest",
+      "after": {
+        "path": "app/infrastructure/my_photos/gallery_manifest_persistence.py",
+        "baseline_lines": 143,
+        "maximum_lines": 149,
+        "baseline_max_function_complexity": 7,
+        "maximum_function_complexity": 7,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "bc6e4c8f4ee9a610bb173075fc35d60166220df26373fb3a72821a6d1b903c56",
+      "observed_statement_coverage": 96.7741935483871,
+      "observed_branch_coverage": 83.33333333333333,
+      "coverage_evidence": "gallery-manifest-coverage.json,66passing affected cases/six files, exact runtime+test fence unchanged."
+    },
+    {
+      "owner": "gallery-manifest",
+      "after": {
+        "path": "app/infrastructure/my_photos/gallery_manifest_policy.py",
+        "baseline_lines": 159,
+        "maximum_lines": 166,
+        "baseline_max_function_complexity": 10,
+        "maximum_function_complexity": 10,
+        "minimum_coverage_percent": 80
+      },
+      "source_sha256": "d7ad70a7bb06e670a3f0548cad0a1d2082277cc13d19cb126efef4e09947149a",
+      "observed_statement_coverage": 83.6734693877551,
+      "observed_branch_coverage": 57.142857142857146,
+      "coverage_evidence": "gallery-manifest-coverage.json,66passing affected cases/six files, exact runtime+test fence unchanged."
+    },
+    {
+      "owner": "gallery-manifest",
+      "after": {
+        "path": "app/infrastructure/my_photos/gallery_manifest_providers.py",
+        "baseline_lines": 186,
+        "maximum_lines": 194,
+        "baseline_max_function_complexity": 8,
+        "maximum_function_complexity": 8,
+        "minimum_coverage_percent": 85
+      },
+      "source_sha256": "924f7e0141c0eccb2702fb103ec5ec52d901f51d3300f182f902376643fc0a47",
+      "observed_statement_coverage": 86.56716417910448,
+      "observed_branch_coverage": 70.0,
+      "coverage_evidence": "gallery-manifest-coverage.json,66passing affected cases/six files, exact runtime+test fence unchanged."
+    },
+    {
+      "owner": "gallery-manifest",
+      "after": {
+        "path": "app/infrastructure/my_photos/gallery_manifest_queries.py",
+        "baseline_lines": 113,
+        "maximum_lines": 118,
+        "baseline_max_function_complexity": 3,
+        "maximum_function_complexity": 3,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "361c4521a8df1c8b55a8e7a68ba6886558f8b46958b288f6cebfebcf7d5069a8",
+      "observed_statement_coverage": 97.05882352941177,
+      "observed_branch_coverage": 90.0,
+      "coverage_evidence": "gallery-manifest-coverage.json,66passing affected cases/six files, exact runtime+test fence unchanged."
+    },
+    {
+      "owner": "gallery-manifest",
+      "after": {
+        "path": "app/infrastructure/my_photos/gallery_manifest_registration.py",
+        "baseline_lines": 223,
+        "maximum_lines": 232,
+        "baseline_max_function_complexity": 17,
+        "maximum_function_complexity": 17,
+        "minimum_coverage_percent": 80
+      },
+      "source_sha256": "fe7a14da11c196eb6be3f18b58c2e1704fde8bc30f5b92cf3f1fb97ea2d3319f",
+      "observed_statement_coverage": 83.56164383561644,
+      "observed_branch_coverage": 60.0,
+      "coverage_evidence": "gallery-manifest-coverage.json,66passing affected cases/six files, exact runtime+test fence unchanged."
+    },
+    {
+      "owner": "gallery-manifest",
+      "after": {
+        "path": "app/infrastructure/my_photos/gallery_manifest_results.py",
+        "baseline_lines": 84,
+        "maximum_lines": 88,
+        "baseline_max_function_complexity": 7,
+        "maximum_function_complexity": 7,
+        "minimum_coverage_percent": 90
+      },
+      "source_sha256": "701d3ee1ff1bc2e6374ca796536e0d3a8a9fa73e4e89edcf8fdb6a8a8bb1f0ff",
+      "observed_statement_coverage": 90.0,
+      "observed_branch_coverage": 78.57142857142857,
+      "coverage_evidence": "gallery-manifest-coverage.json,66passing affected cases/six files, exact runtime+test fence unchanged."
+    },
+    {
+      "owner": "gallery-manifest",
+      "after": {
+        "path": "app/infrastructure/my_photos/gallery_manifest_status.py",
+        "baseline_lines": 93,
+        "maximum_lines": 97,
+        "baseline_max_function_complexity": 9,
+        "maximum_function_complexity": 9,
+        "minimum_coverage_percent": 90
+      },
+      "source_sha256": "798a0e52b0a3793ea5facdf33ca24a48d09ef1713d2456e0c81f3d9f7c30376c",
+      "observed_statement_coverage": 90.3225806451613,
+      "observed_branch_coverage": 50.0,
+      "coverage_evidence": "gallery-manifest-coverage.json,66passing affected cases/six files, exact runtime+test fence unchanged."
+    },
+    {
+      "owner": "document-rename",
+      "after": {
+        "path": "app/presentation/api/v1/routes/document_rename.py",
+        "baseline_lines": 284,
+        "maximum_lines": 296,
+        "baseline_max_function_complexity": 3,
+        "maximum_function_complexity": 3,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "1a67a5554ad321e041c3fdb52658a52ee2178e930614dd9181c9712695c6d8f4",
+      "observed_statement_coverage": 98.88888888888889,
+      "observed_branch_coverage": 83.33333333333333,
+      "coverage_evidence": "document-rename-coverage.json"
+    },
+    {
+      "owner": "document-rename",
+      "after": {
+        "path": "app/presentation/api/v1/routes/document_rename_archive_io.py",
+        "baseline_lines": 51,
+        "maximum_lines": 54,
+        "baseline_max_function_complexity": 4,
+        "maximum_function_complexity": 4,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "ae163a151f6836d1d442e1ae139a230041e865d9160a79c22686ebc0d694a44f",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 83.33333333333333,
+      "coverage_evidence": "document-rename-coverage.json"
+    },
+    {
+      "owner": "document-rename",
+      "after": {
+        "path": "app/presentation/api/v1/routes/document_rename_authority.py",
+        "baseline_lines": 98,
+        "maximum_lines": 102,
+        "baseline_max_function_complexity": 7,
+        "maximum_function_complexity": 7,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "6cb12b518c87991b290befbf69ad63ca34b173d01555b198a57564fda5f92b72",
+      "observed_statement_coverage": 96.66666666666667,
+      "observed_branch_coverage": 75.0,
+      "coverage_evidence": "document-rename-coverage.json"
+    },
+    {
+      "owner": "document-rename",
+      "after": {
+        "path": "app/presentation/api/v1/routes/document_rename_batch_contracts.py",
+        "baseline_lines": 45,
+        "maximum_lines": 47,
+        "baseline_max_function_complexity": 1,
+        "maximum_function_complexity": 1,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "bffae5dca599943e5f52b410314c322b31c1c027fd2a4ff173b049659dbe79f0",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 100.0,
+      "coverage_evidence": "document-rename-coverage.json"
+    },
+    {
+      "owner": "document-rename",
+      "after": {
+        "path": "app/presentation/api/v1/routes/document_rename_batches.py",
+        "baseline_lines": 166,
+        "maximum_lines": 173,
+        "baseline_max_function_complexity": 13,
+        "maximum_function_complexity": 13,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "3e896a08f265767202d03d38b9651abf5c7829220749c9bdd1041b8ae002a751",
+      "observed_statement_coverage": 96.42857142857143,
+      "observed_branch_coverage": 75.0,
+      "coverage_evidence": "document-rename-coverage.json"
+    },
+    {
+      "owner": "document-rename",
+      "after": {
+        "path": "app/presentation/api/v1/routes/document_rename_chunk_staging.py",
+        "baseline_lines": 152,
+        "maximum_lines": 159,
+        "baseline_max_function_complexity": 17,
+        "maximum_function_complexity": 17,
+        "minimum_coverage_percent": 90
+      },
+      "source_sha256": "782791199d9b9cd89d8a131b1b68a6c042786946f1b986d9551444f9af57b4e6",
+      "observed_statement_coverage": 92.85714285714286,
+      "observed_branch_coverage": 68.75,
+      "coverage_evidence": "document-rename-coverage.json"
+    },
+    {
+      "owner": "document-rename",
+      "after": {
+        "path": "app/presentation/api/v1/routes/document_rename_cleanup.py",
+        "baseline_lines": 45,
+        "maximum_lines": 47,
+        "baseline_max_function_complexity": 4,
+        "maximum_function_complexity": 4,
+        "minimum_coverage_percent": 90
+      },
+      "source_sha256": "32a074de366f9055fe1f211009ce49bf3873ea300afd1ce6aaf5d7e16b6c64bd",
+      "observed_statement_coverage": 94.11764705882354,
+      "observed_branch_coverage": 50.0,
+      "coverage_evidence": "document-rename-coverage.json"
+    },
+    {
+      "owner": "document-rename",
+      "after": {
+        "path": "app/presentation/api/v1/routes/document_rename_download_contracts.py",
+        "baseline_lines": 36,
+        "maximum_lines": 38,
+        "baseline_max_function_complexity": 1,
+        "maximum_function_complexity": 1,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "a68fa72155b47b7b4cef183768141e9cee566ddb5f7f852cf45778cb11ad05eb",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 100.0,
+      "coverage_evidence": "document-rename-coverage.json"
+    },
+    {
+      "owner": "document-rename",
+      "after": {
+        "path": "app/presentation/api/v1/routes/document_rename_downloads.py",
+        "baseline_lines": 193,
+        "maximum_lines": 201,
+        "baseline_max_function_complexity": 19,
+        "maximum_function_complexity": 19,
+        "minimum_coverage_percent": 90
+      },
+      "source_sha256": "9be794804fbe1bcacc12acb428e86df4b79d7d6205cdc4d205e4e44bceb578cf",
+      "observed_statement_coverage": 91.01123595505618,
+      "observed_branch_coverage": 81.81818181818181,
+      "coverage_evidence": "document-rename-coverage.json"
+    },
+    {
+      "owner": "document-rename",
+      "after": {
+        "path": "app/presentation/api/v1/routes/document_rename_finalization.py",
+        "baseline_lines": 120,
+        "maximum_lines": 125,
+        "baseline_max_function_complexity": 17,
+        "maximum_function_complexity": 17,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "f4bb970777c1a6793ac383f71a8aa447c4016239e049b4ac2ee7c5d6c8635c2d",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 100.0,
+      "coverage_evidence": "document-rename-coverage.json"
+    },
+    {
+      "owner": "document-rename",
+      "after": {
+        "path": "app/presentation/api/v1/routes/document_rename_preparation.py",
+        "baseline_lines": 170,
+        "maximum_lines": 177,
+        "baseline_max_function_complexity": 21,
+        "maximum_function_complexity": 21,
+        "minimum_coverage_percent": 90
+      },
+      "source_sha256": "4871c140af96e3e2e389bf401175aacea0b2e15a246885dc90eef4c358b13a0f",
+      "observed_statement_coverage": 90.74074074074075,
+      "observed_branch_coverage": 79.16666666666667,
+      "coverage_evidence": "document-rename-coverage.json"
+    },
+    {
+      "owner": "document-rename",
+      "after": {
+        "path": "app/presentation/api/v1/routes/document_rename_staging.py",
+        "baseline_lines": 145,
+        "maximum_lines": 151,
+        "baseline_max_function_complexity": 15,
+        "maximum_function_complexity": 15,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "d65eda600998b2c4efab4ab925ed44fa430ac417610caf28ba9f1663d8aa0f56",
+      "observed_statement_coverage": 98.27586206896552,
+      "observed_branch_coverage": 100.0,
+      "coverage_evidence": "document-rename-coverage.json"
+    },
+    {
+      "owner": "document-rename",
+      "after": {
+        "path": "app/presentation/api/v1/routes/document_rename_upload_contracts.py",
+        "baseline_lines": 123,
+        "maximum_lines": 128,
+        "baseline_max_function_complexity": 1,
+        "maximum_function_complexity": 1,
+        "minimum_coverage_percent": 95
+      },
+      "source_sha256": "9379f7a8c6cf859ddc1bafedeb99dc5295e0a84d67c2d712efc467a3112f0a62",
+      "observed_statement_coverage": 100.0,
+      "observed_branch_coverage": 100.0,
+      "coverage_evidence": "document-rename-coverage.json"
+    },
+    {
+      "owner": "document-rename",
+      "after": {
+        "path": "app/presentation/api/v1/routes/document_rename_values.py",
+        "baseline_lines": 108,
+        "maximum_lines": 113,
+        "baseline_max_function_complexity": 5,
+        "maximum_function_complexity": 5,
+        "minimum_coverage_percent": 85
+      },
+      "source_sha256": "6ae0630f1bceedb90f44cb18751576292be23ea8d1585aaf143d76b73bda71ec",
+      "observed_statement_coverage": 85.71428571428571,
+      "observed_branch_coverage": 50.0,
+      "coverage_evidence": "document-rename-coverage.json"
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "authority": "Root GO after original full command chain completed; exact BEFORE hashes and independently recomputed AST inverses required before any writes",
+  "original_combined_receipt_sha256": "98a842e3b4e604015ee6b03e908713ddb6efca0b7f584b1b64957b548791871f",
+  "unchanged_app_source_fence_sha256": "420ad3710cdfb61492b72265c8bc6eeb50503759546d3d1d5f6f0a70a806def0",
+  "app_source_paths": 1823,
+  "all_app_sources_unchanged": true,
+  "changed_test_sources": [
+    {
+      "path": "backend/tests/unit/presentation/test_rate_limit_middleware.py",
+      "before_sha256": "5818e5b8fd2f861747ec8a90c71e67a1b12ca4019ec8c53c093335dd1cc7a02b",
+      "after_sha256": "98e6cff02ba803e4c852d5fe2c3915f520d903b427626b19a54cd60cadf9c2a5",
+      "inverse_AST_proved_before_write": true
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_whatsapp_composer_persistence.py",
+      "before_sha256": "28c491d3d7fba80d5e028de835118ffcf36c58165d67cecf554ca0b80b615af7",
+      "after_sha256": "38b78b67bb469668fcb076e8bce3635d1e2b346e467cb89e0d118d9f60cba5da",
+      "inverse_AST_proved_before_write": true
+    },
+    {
+      "path": "backend/tests/integration/test_broadcast_incremental_matching.py",
+      "before_sha256": "a7e0de80508375d35cc2b890ccf3ca35cfc8a9306bb7b84d8f3db50d57d73bf8",
+      "after_sha256": "1e28dc326b0df1ac0c98e315479c308786e1d67130ce8a2e63154fc08463ccb3",
+      "inverse_AST_proved_before_write": true
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_traveller_reconciliation_runtime.py",
+      "before_sha256": "842d4f4b41cbb99e637763f7de93ee9c778df67431436916d75262c4e1b3d9c7",
+      "after_sha256": "a4f94884189dbbfec16be987a4b8e866b9569e5faa02cac017bfa8aa5663c134",
+      "inverse_AST_proved_before_write": true
+    }
+  ],
+  "new_negative_control": "Initial exhausted burst returns0 without session factory/history/slot calls",
+  "no_guards_floors_gates_or_runtime_changes": true,
+  "original_failures_preserved": true,
+  "prewrite_attempt": "First proposal adapter expected path key but rate proposal uses source; KeyError occurred before directory creation or any source write; corrected schema adapter before independent proofs/application."
+}

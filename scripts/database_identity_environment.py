@@ -13,7 +13,10 @@ PASSWORD_KEYS = {"POSTGRES_RUNTIME_PASSWORD", "POSTGRES_MIGRATION_PASSWORD"}
 
 
 def prepare_database_identity_environment(text: str) -> str:
-    defaults = {**ROLE_DEFAULTS, **{key: secrets.token_urlsafe(48) for key in sorted(PASSWORD_KEYS)}}
+    defaults = {
+        **ROLE_DEFAULTS,
+        **{key: secrets.token_urlsafe(48) for key in sorted(PASSWORD_KEYS)},
+    }
     return prepare_environment_defaults(text, defaults)
 
 
@@ -23,9 +26,11 @@ def prepare_environment_defaults(text: str, defaults: dict[str, str]) -> str:
     for line in text.splitlines():
         match = re.match(r"^\s*(?:export\s+)?([A-Z_]+)\s*=\s*(.*)$", line)
         key = match.group(1) if match else ""
-        if key in defaults:
+        if match is not None and key in defaults:
             if key in seen:
-                raise ValueError(f"Duplicate {key}; resolve the protected environment before release")
+                raise ValueError(
+                    f"Duplicate {key}; resolve the protected environment before release"
+                )
             seen.add(key)
             value = match.group(2).strip().strip("\"'")
             if not value or value.startswith("CHANGE_ME_"):

@@ -1,0 +1,337 @@
+{
+  "status": "verified at this focused source checkpoint",
+  "before_modules": 862,
+  "after_modules": 867,
+  "normal_additions": 5,
+  "existing_updates": 3,
+  "normal_changes": [
+    {
+      "before": null,
+      "after": {
+        "path": "app/core/zip_directory_admission.py",
+        "baseline_lines": 65,
+        "maximum_lines": 70,
+        "baseline_max_function_complexity": 13,
+        "maximum_function_complexity": 13,
+        "minimum_coverage_percent": 90
+      }
+    },
+    {
+      "before": null,
+      "after": {
+        "path": "app/application/use_cases/whatsapp/spreadsheet_values.py",
+        "baseline_lines": 61,
+        "maximum_lines": 70,
+        "baseline_max_function_complexity": 9,
+        "maximum_function_complexity": 9,
+        "minimum_coverage_percent": 80
+      }
+    },
+    {
+      "before": {
+        "path": "app/presentation/api/v1/routes/passport_routes/image_exports.py",
+        "minimum_coverage_percent": 47,
+        "baseline_lines": 279,
+        "maximum_lines": 700,
+        "baseline_max_function_complexity": 14,
+        "maximum_function_complexity": 14
+      },
+      "after": {
+        "path": "app/presentation/api/v1/routes/passport_routes/image_exports.py",
+        "baseline_lines": 247,
+        "maximum_lines": 250,
+        "baseline_max_function_complexity": 14,
+        "maximum_function_complexity": 14,
+        "minimum_coverage_percent": 75
+      }
+    },
+    {
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/group_update_preview.py",
+        "baseline_lines": 111,
+        "maximum_lines": 120,
+        "baseline_max_function_complexity": 27,
+        "maximum_function_complexity": 27,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "before": {
+        "path": "app/presentation/api/v1/routes/document_distribution_reupload.py",
+        "baseline_lines": 245,
+        "maximum_lines": 270,
+        "baseline_max_function_complexity": 12,
+        "maximum_function_complexity": 12,
+        "minimum_coverage_percent": 32
+      },
+      "after": {
+        "path": "app/presentation/api/v1/routes/document_distribution_reupload.py",
+        "baseline_lines": 248,
+        "maximum_lines": 270,
+        "baseline_max_function_complexity": 12,
+        "maximum_function_complexity": 12,
+        "minimum_coverage_percent": 32
+      }
+    },
+    {
+      "before": {
+        "path": "app/presentation/api/v1/routes/document_distribution_save.py",
+        "baseline_lines": 83,
+        "maximum_lines": 100,
+        "baseline_max_function_complexity": 7,
+        "maximum_function_complexity": 7,
+        "minimum_coverage_percent": 56
+      },
+      "after": {
+        "path": "app/presentation/api/v1/routes/document_distribution_save.py",
+        "baseline_lines": 96,
+        "maximum_lines": 100,
+        "baseline_max_function_complexity": 7,
+        "maximum_function_complexity": 7,
+        "minimum_coverage_percent": 56
+      }
+    },
+    {
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/document_distribution_manual_upload.py",
+        "baseline_lines": 271,
+        "maximum_lines": 280,
+        "baseline_max_function_complexity": 14,
+        "maximum_function_complexity": 14,
+        "minimum_coverage_percent": 80
+      }
+    },
+    {
+      "before": null,
+      "after": {
+        "path": "app/presentation/api/v1/routes/document_distribution_compensation.py",
+        "baseline_lines": 48,
+        "maximum_lines": 50,
+        "baseline_max_function_complexity": 3,
+        "maximum_function_complexity": 3,
+        "minimum_coverage_percent": 90
+      }
+    }
+  ],
+  "critical_before": 162,
+  "critical_after": 164,
+  "critical_additions": [
+    {
+      "path": "app/core/zip_directory_admission.py",
+      "minimum_line_percent": 90,
+      "minimum_branch_percent": 80
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_compensation.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 80
+    }
+  ],
+  "all_old_caps_floors_preserved_or_tightened": true,
+  "all162old_critical_and_global_values_exact": true,
+  "measurements": [
+    {
+      "path": "app/core/zip_directory_admission.py",
+      "sha256": "b15f7007473b7f2f895a1f9fcf4a883c51252d54d0ba41be8e45cc9d268cef21",
+      "lines": 65,
+      "complexity": 13,
+      "line_percent": 95.65217391304348,
+      "branch_percent": 88.88888888888889,
+      "branch_sites": 18
+    },
+    {
+      "path": "app/application/use_cases/whatsapp/spreadsheet_values.py",
+      "sha256": "2a2680e0e53d7388f6bd0fff4ef263936ae71c9c97b91d83c18841a6d681f275",
+      "lines": 61,
+      "complexity": 9,
+      "line_percent": 83.87096774193549,
+      "branch_percent": 62.5,
+      "branch_sites": 16
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/image_exports.py",
+      "sha256": "583c82d4547b2500c98b0f01a4ccab88d0bb7ae9f0cd5613fd24da4a1fab59bc",
+      "lines": 247,
+      "complexity": 14,
+      "line_percent": 77.55102040816327,
+      "branch_percent": 50.0,
+      "branch_sites": 8
+    },
+    {
+      "path": "app/presentation/api/v1/routes/group_update_preview.py",
+      "sha256": "1ed9c5c6feb888a64cccb6cc6ecb513e02660313cabbfa16961e22c8f832e04e",
+      "lines": 111,
+      "complexity": 27,
+      "line_percent": 100.0,
+      "branch_percent": 92.85714285714286,
+      "branch_sites": 14
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_reupload.py",
+      "sha256": "63ff9508a4bee8dd0b0f50ae850595a3cccd0fa7aaabb699a6207f0849b67523",
+      "lines": 248,
+      "complexity": 12,
+      "line_percent": 89.74358974358974,
+      "branch_percent": 50.0,
+      "branch_sites": 8
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_save.py",
+      "sha256": "50a56cd284fbf83e0df2dd08f09054f3a5e21af877d8a66a6fea95b5295259c8",
+      "lines": 96,
+      "complexity": 7,
+      "line_percent": 100.0,
+      "branch_percent": 100.0,
+      "branch_sites": 6
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_manual_upload.py",
+      "sha256": "c8fe9462b8f9cd872c4326940f502444c2323e13ee058d4a11dcaf0ed31a31aa",
+      "lines": 271,
+      "complexity": 14,
+      "line_percent": 89.01098901098901,
+      "branch_percent": 50.0,
+      "branch_sites": 16
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_compensation.py",
+      "sha256": "d98fca40ceeff7d2072101550c267520eda03e1865658706fa0fb7dea6aa89c3",
+      "lines": 48,
+      "complexity": 3,
+      "line_percent": 100.0,
+      "branch_percent": 100.0,
+      "branch_sites": 2
+    }
+  ],
+  "source_fence": {
+    "backend/app/core/zip_directory_admission.py": "b15f7007473b7f2f895a1f9fcf4a883c51252d54d0ba41be8e45cc9d268cef21",
+    "backend/app/infrastructure/imports/passport_zip_admission.py": "bd6d3a73be7fc1a82ca612b7b2403ef370982a41a260a9feba053e243541d3bd",
+    "backend/app/application/use_cases/whatsapp/spreadsheet_values.py": "2a2680e0e53d7388f6bd0fff4ef263936ae71c9c97b91d83c18841a6d681f275",
+    "backend/app/presentation/api/v1/routes/whatsapp_contact_import.py": "b0ba7bf421b699533d4557eb94e3b994c151655bf519bb3d2f73f55002be0cd5",
+    "backend/app/infrastructure/imports/passport_zip_reader.py": "8c5d054b922a9f3878ba1ded3b7971a873286b36a3cf84356fe2cb9c366d88ea",
+    "backend/app/infrastructure/imports/passport_document_importer.py": "1431aac22fdf7d255516c02f34d1f6ad8102ca083668a5f609bc9b74b7c65d92",
+    "backend/app/infrastructure/imports/passport_zip_members.py": "88ef17047879d07ae2720d99dee680b4744c49d68baf59e7de33821ce6e3628c",
+    "backend/app/infrastructure/imports/passport_document_streams.py": "6ab71940f43d46edff2ece4e5c80706428ab087702e99f65eff5f2f3ed6a4caf",
+    "backend/app/infrastructure/imports/passport_document_workspace.py": "78260b471bcc10d9edd1ed44b06dc732e5468802ea723ca8891964c12add98f7",
+    "backend/app/infrastructure/security/contact_spreadsheet_security.py": "731d5489216a25e4688f042e8c9c0695d50bc36e297a795ea546c742af23b167",
+    "backend/app/presentation/api/v1/routes/whatsapp_actor_credentials.py": "0e82cb8ba583b039c8d85c1ab6b3a835532360a14a7c035e63bd7454f9f4e69f",
+    "backend/app/presentation/api/v1/routes/whatsapp_scope.py": "fb1f5adf2ca2f924c57da9efbeb057ad013c4af1f2fc37704ac0883879b9da4c",
+    "backend/app/presentation/api/v1/routes/whatsapp_contact_values.py": "3a6c521cbd30e24af2492d3807d398b61c028ec305b5f66368b84e427da713a3",
+    "backend/app/presentation/api/v1/routes/whatsapp_creation.py": "80d28f482839d06f304973b37242e3c7ba60e0b50ee3db994d67fed5da8522eb",
+    "backend/app/presentation/api/v1/routes/whatsapp_recipient_additions.py": "278d992f0ac8343d4754aba07fd93c7412f5ff9003c8333d5aa42784b80800f4",
+    "backend/tests/unit/presentation/test_whatsapp_workbook_resource_admission.py": "809a94a0f35934ed0cb116d2607a730c4748db8587165425faf95a99edcffa56",
+    "backend/tests/unit/infrastructure/test_passport_zip_member_admission.py": "a0975f2180c69445f3e167808192a304d8028b8b4d507717ba2af6a4fad1b3e4",
+    "backend/tests/unit/infrastructure/test_passport_document_import_policies.py": "8da8e50b0ba9a1879d6be35c0e40329ca4825caa7796de2387f45e5c07ea8247",
+    "backend/tests/unit/infrastructure/test_passport_document_import_staging.py": "c221d9bfba0d176b12c7812ff42c9dd46d2ac40219edf25400761677e91f845f",
+    "backend/tests/unit/presentation/test_whatsapp_delivery_ledger.py": "c0b534ee0e5a15b1aca8587c31ef45d4bbd8a0dd3d7ed1249b83023331732ac5",
+    "backend/tests/unit/presentation/test_whatsapp_recipient_capacity.py": "d219e684df5548dcfe9b8e8819ba6b76226b41f46869bef60ad30e3149d53507",
+    "backend/tests/integration/test_mcp_contact_imports.py": "0fafeb285a48dfa284eca079a20890f20ad8075611636b80d319d954f2bc9be9",
+    "backend/app/presentation/api/v1/routes/passport_routes/image_exports.py": "583c82d4547b2500c98b0f01a4ccab88d0bb7ae9f0cd5613fd24da4a1fab59bc",
+    "backend/app/presentation/api/v1/routes/passport_routes/response_support.py": "3982f9979db2de63d23aee12bda3143c06f580eb0f640a86a016345075f7eef5",
+    "backend/app/application/use_cases/passports/prepare_image_export.py": "453cf038b84859a51bad847562349d6e7e42e066d5c41c99a9ac84e2aa39a9e5",
+    "backend/tests/unit/presentation/test_passport_image_export_ownership.py": "a84ce7603ce20736f6d725382cf9a97aafa974a2bb8086dbd27ab0ff8e98b0ff",
+    "backend/tests/unit/presentation/test_selected_passport_image_export.py": "28a63bea5771e02c68b597348dec77743f6e5cf5d0f4f5c0fd14c0519b3d761e",
+    "backend/tests/integration/test_mcp_image_exports.py": "2bb9a2c527190b5727a2ea41c5f6adaed6afbb8669722c5a4b143dadd8e5036e",
+    ".tmp/run_passport_image_ownership.py": "cf0276d06c0ede74f1d1803a4d348f8c99a8d52fc2ad1378a0a92a386faf891a",
+    "backend/app/presentation/api/v1/routes/group_update_preview.py": "1ed9c5c6feb888a64cccb6cc6ecb513e02660313cabbfa16961e22c8f832e04e",
+    "backend/app/presentation/api/v1/routes/document_update_preview.py": "80b704ce02854ce15c13a0e6f7151a98739b4295422f8c9d9c99b5c0bdc61973",
+    "backend/app/presentation/api/v1/routes/group_updates.py": "15685967249058f71a453a91856204709abd07de24ea0972073a8c0656a7e9af",
+    "backend/app/presentation/api/v1/routes/whatsapp_update_resend.py": "6a4030480233fc5b6865a6b49452eb685f21a8a58012601611b552a6eb73a2b6",
+    "backend/app/infrastructure/whatsapp/group_update_audience.py": "17341ab7a6b7971d58533bbed1f639de5fc3286fbc8b4b9db05b3acda9915ee4",
+    "backend/app/presentation/api/v1/schemas/group_update_schemas.py": "cdf642c81fa484b13eb75a2ed0a2dc7c323619624402456deb2af2d642253ec1",
+    "backend/app/application/use_cases/whatsapp/group_updates.py": "21fedeb3de24aea185f6891e8234811acb375e8af120906fe326d9ea401ea9b5",
+    "backend/app/application/use_cases/whatsapp/document_updates.py": "532e0fffaa8840625214d9bd9b4140b76a3d521f9d85826f62de7203e86a8213",
+    "backend/tests/integration/test_group_update_preview_retention.py": "daf7f2ef48051959a36544fd12929c0bde73f999d410f7d582f1dee765fc3a11",
+    "backend/tests/integration/test_group_updates.py": "ed93dd3ec1bfd03d3f1fa08eb35c1489fda1c070dcdac83c4701aadbac09f3aa",
+    "backend/tests/integration/test_document_updates.py": "f5797dccd59654b214520f3c381c9f3a9dc3d9d0a1cd0cb75de28e8d123efee0",
+    ".tmp/run_group_preview_retention.py": "eb0d94f8c38eee0096fb085c418c10e0aaa8619ab3d6567d0f67dbbf4f9e068d",
+    ".tmp/test_group_preview_retention_differential.py": "9d23a532bada5c918b2c98db3eb7f636d4e8f49ec24f33894db72fe72169cd4a",
+    "backend/tests/conftest.py": "b60a174b1656f30e36d6c748fc1b967c17804b9ef733911f6ff211e9e4d23abe",
+    ".tmp/run_group_preview_differential_qualified.py": "d7b9e8e25e4c04d97fb7bd73a82ba0a745be35e7015cf4003f77a2ac0e216b6e",
+    "backend/pyproject.toml": "b2e64e9c2eb7c449d6f8c1f307433760fcb054ceede1cdf2350d5421308addb3",
+    "backend/app/presentation/api/v1/routes/document_distribution_manual_upload.py": "c8fe9462b8f9cd872c4326940f502444c2323e13ee058d4a11dcaf0ed31a31aa",
+    "backend/app/presentation/api/v1/routes/document_distribution_reupload.py": "63ff9508a4bee8dd0b0f50ae850595a3cccd0fa7aaabb699a6207f0849b67523",
+    "backend/app/presentation/api/v1/routes/document_distribution_save.py": "50a56cd284fbf83e0df2dd08f09054f3a5e21af877d8a66a6fea95b5295259c8",
+    "backend/app/presentation/api/v1/routes/document_distribution_compensation.py": "d98fca40ceeff7d2072101550c267520eda03e1865658706fa0fb7dea6aa89c3",
+    "backend/tests/unit/presentation/test_document_distribution_residual_lifecycle.py": "dd7a76a31545d81fb2f6fe87deca7482bac35d20bc56cf90b5f2d4b129294956",
+    "backend/tests/unit/presentation/test_document_distribution_reupload_lifetime.py": "3aa39116ccbb8f6cdc62e7a7643ae1380ce3b0f97d4a27f494e5375e8d4f2331",
+    "backend/tests/unit/presentation/test_document_distribution_compensation.py": "66567d2b532bb63ff03c8f19729a8bc4f1b50ba99a4f38c767bbffa96e3f2036",
+    "backend/tests/unit/presentation/test_document_distribution_matching.py": "5793652d336623a30e860bf9c81b7a5cfbbea1f113f86469c89d0dba57d411a0",
+    "backend/tests/unit/presentation/test_document_distribution_staging_routes.py": "9ed52130c26879815757d7f224476e3fcf72a19d3e3ad7f1157f78489724d04a",
+    "backend/tests/unit/presentation/test_document_distribution_upload_abort.py": "1d5138d363656a87ca9733fc7957980920f4173a568c8ce41ab854ab910e704c"
+  },
+  "review_basis": "Own sharedZIP/dimension full source/current99affected/15normalJSONparities and exact moved-algorithm/pickle/publiccursor proof. Parent-approved peer-qualified image1/preview1/document4 artifacts/rawcoverage/current source identities independently verified; no additional whole-source rereads or execution credit claimed.",
+  "critical_responsibility": "Actual neutral core takes inherited90L80B in addition to retained old passport guard90L80B; branchless wrapper does not replace implementation gate. New actual precommit compensation95L80B has20/20statements and2/2branches. No declaration-only critical additions.",
+  "release": {
+    "paths": 126,
+    "only_known_BE867_budget_AFTER_updated": true,
+    "all125BEFORE_pairs_and124other_AFTER_values_exact": true,
+    "frontend661_unchanged": true,
+    "backend_budget_sha256": "a1b687f864f9739ceb8dee3628de702b2c1df7346422ea7638f1fa408bc8bb28",
+    "bindings_sha256": "dfc9d35a8946cf8016d7231d916f2bf420cdd00142c0232591bb5daea03acd8f",
+    "original125BEFORE_pairs_and124unrelated_AFTER_values_exact": true,
+    "exact126th_audit_compose_source_admission": {
+      "path": "docker-compose.audit.yml",
+      "before_0140": "eb2a6bb2f7aa0fc02a787c0d868002b80be9084bbcb2fc92becc5a902eda4057",
+      "before_0141": "eb2a6bb2f7aa0fc02a787c0d868002b80be9084bbcb2fc92becc5a902eda4057",
+      "after": "b356f5c9044d77cab626d4cba704c9f6b8d17ae290b8d7d563e402b8e105c38c"
+    }
+  },
+  "artifacts": {
+    "whatsapp-workbook-resource-verification.json": "643e2239df2adf1288b5008f444262bcd45df9ac9c59db5342a1b6503d2e17a3",
+    "passport-image-ownership-final-verification.json": "4f0231791f821ee07c9ddf93bc65895c3a6ac1e5007071e84a75c689f62178ad",
+    "group-preview-retention-final-verification.json": "daf493c5f444e2a1c5e610570030cd42fc65f553a5a3d0ac4df91419e499320f",
+    "document-residual-verification.json": "8ea91ce1f8352be9966da5bad00a9b8ea4e587ead84ec9d7ee092013efbb0213",
+    "whatsapp-workbook-resource-budget-candidates.json": "feb99c21ebdf17635435095c78eb964b9ef2f54951163776202bd763a2d1c119",
+    "passport-image-ownership-budget-candidates.json": "1bc4013a079ef383e693ced17d3f60b98a4318bd1151a53fca67bc12b8db0573",
+    "group-preview-retention-budget-candidates.json": "15042b56c67ba65644b1300a2d55dc9a215c3ea0febb41b1801b5286e02c6ad1",
+    "document-residual-budget-candidates.json": "2efb7c923f4715eb1d0389af88cd8e287f4f6175d6e492b3082fb08e5b98d806",
+    "zip-document-residual-previous-values.json": "4dc805bb78050bd215044db88e48d04a85fc374b4baa3b8d934030e224f6779f",
+    "document-residual-qualified-coverage.json": "04e003cf42fb3b06c29482ccaf4fddf594c41f1da1e260b33f1aa32a3cb2a96d",
+    "document-residual-qualified-coverage.xml": "a70a39d3ef3b25a2098fb6769db807ec41bd256cafff2e7c4585882931ca80c6",
+    "zip-document-residual-budgets.txt": "83a6b3eaa053b98d7b6240fcb3a349ea1d2917ed7c04ba02752e547b7c0081cf",
+    "zip-document-residual-architecture.txt": "895bfbeca4c78591066dcf214c4bfe9de43b5d7ed5d3f518fe398563a7bcc992",
+    "zip-document-residual-bindings.txt": "35a6029ac6f0381cd7027d13b864222808ad5e21ca643cf7506454c1b3bb3dbf",
+    "zip-document-residual-loader-tests.txt": "0ec457af22dcda67a09282a0de858b6206cea2662f84edaac9ea59aba782bc7c",
+    "zip-document-residual-exact-bindings.json": "6c66bf563bf6ff42e7748a607596a99878a8842c95e9b4164384b1f7daf04abf",
+    "audit-compose-exact-admission-verification.json": "e04567efcbab0207df5c227e060c2af023166fdfc46c3c3cbe057e089f6821ca",
+    "audit-compose-exact-admission-preflight.json": "2c8896453f39031bb495a4c12da8700f1169a3442f33aa20348cf3fbc9bcb215",
+    "audit-compose-admission-previous-values.json": "6a046ab7be6b5bf546436dbcf6555fd9f8101b4a4292299007d201f5882db93f",
+    "zip-document-residual-loader-before-compose-admission.txt": "1981114e5a4667300606a6f6463c08f368b4b0e2abfdc09b93b073d8bad09bc7",
+    "deployment-config-verification.json": "55b10067fc61ab86d90375bc718c6f6b2713d54295e08564c2ee4db0b2473e4f"
+  },
+  "limits": [
+    "No broad application/build/browser/provider/VPS qualification, MCP1990historical",
+    "Workbook counts are real parser objects/tuple slots, not processRSS/throughput",
+    "Group preview retention counters cover DTO lifetime, not fewer constructors/queries or wholeprocess memory",
+    "Separately qualified current99ZIP/11image/55product+7auditpreview/33document cases not combined into an application suite; initial fixture/error runs retained",
+    "Imagefloor47to75/cap700to250 tightens one existing obligation; reupload/save update measured baselines only, same ceilings/floors",
+    "Historical qualified source stamps and both originalGit BEFOREs never reset"
+  ],
+  "checks": {
+    "backend_static_budgets": "867normal/164critical limits pass",
+    "architecture": "whole actual static checker pass; no extra edge exception needed for neutral core",
+    "exact_bindings": "126current AFTER+bothactualGit BEFOREs pass, including existing-file non-null audit overlay baseline",
+    "loader": "14focused tests pass after exact audit overlay admission",
+    "source_fence_count": 55,
+    "source_fence": "Every combined runtime/test/support hash rechecked, no stale coverage append",
+    "frontend": "661already bound and unchanged; no repeated application/build qualification"
+  },
+  "admission_correction": {
+    "proof": {
+      "path": "audit-compose-exact-admission-verification.json",
+      "sha256": "e04567efcbab0207df5c227e060c2af023166fdfc46c3c3cbe057e089f6821ca"
+    },
+    "before_failure": "Initial14test invocation failed one assertion because a newly modified tracked docker-compose.audit.yml was in protected prospective source closure with no explicitrow. Failed log retained. No admission happened before Brand five-case qualification/root exact review.",
+    "qualified_delta": "Both actual Git BEFOREs eb2a6... non-null; entire actual baselineLF text equals current after only obsolete0093 override to packagedschema comment. CurrentrawCRLF1213... distinct from admittedLFb356...; allservices/IDs/commands/volumes/resource setup source exact outside line.",
+    "runtime_scope_limit": "Root neutral capture/release_companies in-progress edits outside these source fences are not qualified by this gate checkpoint. No historical release stamp reset."
+  },
+  "controls": {
+    "backend/backend_quality_budgets.json": "a1b687f864f9739ceb8dee3628de702b2c1df7346422ea7638f1fa408bc8bb28",
+    "scripts/release_workspace_branding_bindings.json": "dfc9d35a8946cf8016d7231d916f2bf420cdd00142c0232591bb5daea03acd8f",
+    "scripts/release_workspace_branding_policy.py": "901695f7de64bac6ecc118b6a8d1091df0cb5a4f2bdfb6d0e32a9422fbcd3b67",
+    "backend/architecture-dependencies.json": "b08e5358d637c79ac89d84fca765fa476a6669bc460a72766d1af64c880be2e6"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "status": "metadata-schema compatibility amendment only",
+  "reason": "Inventory loader accepts explicit files/records list; initial ledger used source_files key. Source hashes/review rows/claims unchanged.",
+  "original_verification": {
+    "path": "docs/audit/dashboard-2026-10-30/final-browser-test-corrections-verification.json",
+    "sha256": "7d7998cabf68dc1d14e97c934dd6a11528ab682d2694d655cd65666b1790f6eb"
+  },
+  "preserved_original_ledger": {
+    "path": "docs/audit/dashboard-2026-10-30/final-browser-test-corrections-reviewed-files.pre-inventory-schema.json",
+    "sha256": "7236acb52aa6be0b7d7e46461f7522f5cf7a3cb37d2ea18cf55f140b9cbd51f3"
+  },
+  "current_ledger": {
+    "path": "docs/audit/dashboard-2026-10-30/final-browser-test-corrections-reviewed-files.json",
+    "sha256": "1ca3e46a0ac365243b7e5a0b82a870472552b265e3a0b817d32433d13bdde2e5"
+  },
+  "all_source_hashes_unchanged": true,
+  "review_rows_byte_semantics_identical": true,
+  "no_app_checks_repeated": true
+}

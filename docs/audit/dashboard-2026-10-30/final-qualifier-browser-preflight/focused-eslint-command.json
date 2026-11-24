@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "node",
+    "node_modules/eslint/bin/eslint.js",
+    "features/upload/components/fresh-qualifier.tsx",
+    "features/upload/components/fresh-qualifier-editor.tsx",
+    "features/upload/hooks/use-qualifier-selection-editor.ts",
+    "features/upload/components/fresh-qualifier.test.tsx",
+    "features/passports/api/public-upload-link.api.ts",
+    "e2e/qualifier-relationship-methods.spec.ts"
+  ],
+  "exit_code": 0,
+  "seconds": 1.625,
+  "source_fence": {
+    "frontend/features/upload/components/fresh-qualifier.tsx": "742ecf4bfaaec141e7a0e422419f57889eb44090679e70e47783cbbf0c6bf72c",
+    "frontend/features/upload/components/fresh-qualifier-editor.tsx": "a03066f52ef1f758e8136f9c5b451d91ab4255ab3dea5a053f1f57341cae0b92",
+    "frontend/features/upload/hooks/use-qualifier-selection-editor.ts": "e8fb5f4700c86ff436fe49922a975a9e948512b1d4e930bf65b3c826daedc557",
+    "frontend/features/upload/components/fresh-qualifier.test.tsx": "ff2eb9ecd68a4f3fd6cc0c2a9b6b97c7e90e4f837f0853cfa71321724bf01810",
+    "frontend/features/passports/api/public-upload-link.api.ts": "ea4f1fcaa27fde590b344ff89e2324f882894e10b51d6f3e97c8011bc49f44ca",
+    "frontend/e2e/qualifier-relationship-methods.spec.ts": "d37bab442b0c382f07f6c3b7e5ccda56c858a60b43c5abc19c60254689dc618c"
+  },
+  "source_unchanged": true
+}

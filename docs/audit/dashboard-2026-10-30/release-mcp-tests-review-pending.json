@@ -1,0 +1,36 @@
+{
+  "basis": "Automated exact current-hash/full-ledger source triage only; no physical review credit.",
+  "pending": [
+    {
+      "path": "scripts/test_release_mcp_admin_approval_contract.py",
+      "sha256": "b2dbd244afd17fdf3c737f91bf3fb2ceb022be714aabd54dfe80d83fb188d36c",
+      "lines": 153,
+      "matching_full": []
+    },
+    {
+      "path": "scripts/test_release_mcp_contract.py",
+      "sha256": "0a8a1482789774073898304095ef642b7946d185ab2106095eb1b417b29c5a73",
+      "lines": 103,
+      "matching_full": []
+    },
+    {
+      "path": "scripts/test_release_mcp_database.py",
+      "sha256": "531c406b5884e2ffd818260a56e2b8bdf1aa97a7d89c75b3743f5ee1a5990240",
+      "lines": 217,
+      "matching_full": []
+    },
+    {
+      "path": "scripts/test_release_mcp_direct_devices_contract.py",
+      "sha256": "0360629dbb2b08a7128167bf0dce431459217f653f3b397a9cf6f3438d1e9d9a",
+      "lines": 155,
+      "matching_full": []
+    },
+    {
+      "path": "scripts/test_release_mcp_read_only_contract.py",
+      "sha256": "28cb5b4278c9b92801bb597af07e50deebb64ad00688b198944779d38a0d4b52",
+      "lines": 178,
+      "matching_full": []
+    }
+  ],
+  "skipped_current_full": []
+}

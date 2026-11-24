@@ -1,0 +1,226 @@
+[
+  {
+    "path": "scripts/release_authored_notifications.py",
+    "sha256": "b28c8138ac3c41edc80af68ca6d10bf29f14ebbf511e04056d3404d678545ab3",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read of unchanged release/registry/dispatch/backup/profile and packaging owners. Examined exact revision/schema/image identities, credential-free error boundaries, challenge/redirect hosts, current-main qualification and required job gates, private logs/locks, artifact signatures/readback, recovery preservation and retained Docker/network/resource contracts. mobile-named historical release is retained because shared dashboard release chain imports its schema; native features not audited. Existing canonical byte parser actually rejects Redis maxmemory zero before profile admission, clearing that candidate; no guard weakened or runtime fix adopted. Source review only; no credential file read, network registry/API request, packaging, release, signal or deployment executed."
+  },
+  {
+    "path": "scripts/release_gc_app_group_removal.py",
+    "sha256": "9a78e64837227845fd92e68fdbdd742dbe2b4cfcfda0651d41905826480427a5",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read of unchanged release/registry/dispatch/backup/profile and packaging owners. Examined exact revision/schema/image identities, credential-free error boundaries, challenge/redirect hosts, current-main qualification and required job gates, private logs/locks, artifact signatures/readback, recovery preservation and retained Docker/network/resource contracts. mobile-named historical release is retained because shared dashboard release chain imports its schema; native features not audited. Existing canonical byte parser actually rejects Redis maxmemory zero before profile admission, clearing that candidate; no guard weakened or runtime fix adopted. Source review only; no credential file read, network registry/API request, packaging, release, signal or deployment executed."
+  },
+  {
+    "path": "scripts/release_gc_group_access.py",
+    "sha256": "53d06c2be27e68a56026429e897a3962931370560692f72575fa9886b8f9793a",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read of unchanged release/registry/dispatch/backup/profile and packaging owners. Examined exact revision/schema/image identities, credential-free error boundaries, challenge/redirect hosts, current-main qualification and required job gates, private logs/locks, artifact signatures/readback, recovery preservation and retained Docker/network/resource contracts. mobile-named historical release is retained because shared dashboard release chain imports its schema; native features not audited. Existing canonical byte parser actually rejects Redis maxmemory zero before profile admission, clearing that candidate; no guard weakened or runtime fix adopted. Source review only; no credential file read, network registry/API request, packaging, release, signal or deployment executed."
+  },
+  {
+    "path": "scripts/release_import_groups_archive.py",
+    "sha256": "ced9f50b28162abd6e1f5c71e0f57c5eeff0fe536da31bebcebc5f8ec8e7df09",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read of unchanged release/registry/dispatch/backup/profile and packaging owners. Examined exact revision/schema/image identities, credential-free error boundaries, challenge/redirect hosts, current-main qualification and required job gates, private logs/locks, artifact signatures/readback, recovery preservation and retained Docker/network/resource contracts. mobile-named historical release is retained because shared dashboard release chain imports its schema; native features not audited. Existing canonical byte parser actually rejects Redis maxmemory zero before profile admission, clearing that candidate; no guard weakened or runtime fix adopted. Source review only; no credential file read, network registry/API request, packaging, release, signal or deployment executed."
+  },
+  {
+    "path": "scripts/release_notification_guard.py",
+    "sha256": "921f3f42562e03559cd70d7ee3e4f57d39b8ae4b5574d23d5d6fa338edc34050",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read of unchanged release/registry/dispatch/backup/profile and packaging owners. Examined exact revision/schema/image identities, credential-free error boundaries, challenge/redirect hosts, current-main qualification and required job gates, private logs/locks, artifact signatures/readback, recovery preservation and retained Docker/network/resource contracts. mobile-named historical release is retained because shared dashboard release chain imports its schema; native features not audited. Existing canonical byte parser actually rejects Redis maxmemory zero before profile admission, clearing that candidate; no guard weakened or runtime fix adopted. Source review only; no credential file read, network registry/API request, packaging, release, signal or deployment executed."
+  },
+  {
+    "path": "scripts/release_notification_workspace.py",
+    "sha256": "be6b378dae6ee6ee3afc5fbe91a0384a6102cde4c9ca49307f65fc890190aa70",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read of unchanged release/registry/dispatch/backup/profile and packaging owners. Examined exact revision/schema/image identities, credential-free error boundaries, challenge/redirect hosts, current-main qualification and required job gates, private logs/locks, artifact signatures/readback, recovery preservation and retained Docker/network/resource contracts. mobile-named historical release is retained because shared dashboard release chain imports its schema; native features not audited. Existing canonical byte parser actually rejects Redis maxmemory zero before profile admission, clearing that candidate; no guard weakened or runtime fix adopted. Source review only; no credential file read, network registry/API request, packaging, release, signal or deployment executed."
+  },
+  {
+    "path": "scripts/release_realtime_startup.py",
+    "sha256": "8f4196d13ad67c77f214c214355ee6ba1f8d0d47d969ef6fedfc2aedabaaae1d",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read of unchanged release/registry/dispatch/backup/profile and packaging owners. Examined exact revision/schema/image identities, credential-free error boundaries, challenge/redirect hosts, current-main qualification and required job gates, private logs/locks, artifact signatures/readback, recovery preservation and retained Docker/network/resource contracts. mobile-named historical release is retained because shared dashboard release chain imports its schema; native features not audited. Existing canonical byte parser actually rejects Redis maxmemory zero before profile admission, clearing that candidate; no guard weakened or runtime fix adopted. Source review only; no credential file read, network registry/API request, packaging, release, signal or deployment executed."
+  },
+  {
+    "path": "scripts/release_mobile_fcm.py",
+    "sha256": "2b1a367485fe1b3f147af332312d9e82575ab5bb8ec2349d1b6515a1308d0205",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read of unchanged release/registry/dispatch/backup/profile and packaging owners. Examined exact revision/schema/image identities, credential-free error boundaries, challenge/redirect hosts, current-main qualification and required job gates, private logs/locks, artifact signatures/readback, recovery preservation and retained Docker/network/resource contracts. mobile-named historical release is retained because shared dashboard release chain imports its schema; native features not audited. Existing canonical byte parser actually rejects Redis maxmemory zero before profile admission, clearing that candidate; no guard weakened or runtime fix adopted. Source review only; no credential file read, network registry/API request, packaging, release, signal or deployment executed."
+  },
+  {
+    "path": "scripts/release_deploy.py",
+    "sha256": "f0863df49a18e0548d9c8be56e0b7886a23c902fdb8c44507f399bc65564f69e",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read of unchanged release/registry/dispatch/backup/profile and packaging owners. Examined exact revision/schema/image identities, credential-free error boundaries, challenge/redirect hosts, current-main qualification and required job gates, private logs/locks, artifact signatures/readback, recovery preservation and retained Docker/network/resource contracts. mobile-named historical release is retained because shared dashboard release chain imports its schema; native features not audited. Existing canonical byte parser actually rejects Redis maxmemory zero before profile admission, clearing that candidate; no guard weakened or runtime fix adopted. Source review only; no credential file read, network registry/API request, packaging, release, signal or deployment executed."
+  },
+  {
+    "path": "scripts/release_reliability.py",
+    "sha256": "7c0e931fe508f54e646fc09cadd3edd4b96d1f4bb8039f5fece38105c9e4e497",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read of unchanged release/registry/dispatch/backup/profile and packaging owners. Examined exact revision/schema/image identities, credential-free error boundaries, challenge/redirect hosts, current-main qualification and required job gates, private logs/locks, artifact signatures/readback, recovery preservation and retained Docker/network/resource contracts. mobile-named historical release is retained because shared dashboard release chain imports its schema; native features not audited. Existing canonical byte parser actually rejects Redis maxmemory zero before profile admission, clearing that candidate; no guard weakened or runtime fix adopted. Source review only; no credential file read, network registry/API request, packaging, release, signal or deployment executed."
+  },
+  {
+    "path": "scripts/release_connector.py",
+    "sha256": "86fd38f8878d724385fa2a17e3559d04ab6ae72bbdc6a47370baa3df25edc976",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read of unchanged release/registry/dispatch/backup/profile and packaging owners. Examined exact revision/schema/image identities, credential-free error boundaries, challenge/redirect hosts, current-main qualification and required job gates, private logs/locks, artifact signatures/readback, recovery preservation and retained Docker/network/resource contracts. mobile-named historical release is retained because shared dashboard release chain imports its schema; native features not audited. Existing canonical byte parser actually rejects Redis maxmemory zero before profile admission, clearing that candidate; no guard weakened or runtime fix adopted. Source review only; no credential file read, network registry/API request, packaging, release, signal or deployment executed."
+  },
+  {
+    "path": "scripts/release_resource_profile.py",
+    "sha256": "4e3341e4eab82732bd3537fd698583f2ed28b657f08a80e12ba24f3aa1e308a4",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read of unchanged release/registry/dispatch/backup/profile and packaging owners. Examined exact revision/schema/image identities, credential-free error boundaries, challenge/redirect hosts, current-main qualification and required job gates, private logs/locks, artifact signatures/readback, recovery preservation and retained Docker/network/resource contracts. mobile-named historical release is retained because shared dashboard release chain imports its schema; native features not audited. Existing canonical byte parser actually rejects Redis maxmemory zero before profile admission, clearing that candidate; no guard weakened or runtime fix adopted. Source review only; no credential file read, network registry/API request, packaging, release, signal or deployment executed."
+  },
+  {
+    "path": "scripts/registry_preflight.py",
+    "sha256": "4d32f026219dc44f81ac2da14e1cbb53d37266a0d05aa86706b1c0f429c1d798",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read of unchanged release/registry/dispatch/backup/profile and packaging owners. Examined exact revision/schema/image identities, credential-free error boundaries, challenge/redirect hosts, current-main qualification and required job gates, private logs/locks, artifact signatures/readback, recovery preservation and retained Docker/network/resource contracts. mobile-named historical release is retained because shared dashboard release chain imports its schema; native features not audited. Existing canonical byte parser actually rejects Redis maxmemory zero before profile admission, clearing that candidate; no guard weakened or runtime fix adopted. Source review only; no credential file read, network registry/API request, packaging, release, signal or deployment executed."
+  },
+  {
+    "path": "scripts/release_ci_dispatch.py",
+    "sha256": "cdbafa248fc14687cf3bd34046e3594650d3505c2ef5b2506234a5a1f47ea996",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read of unchanged release/registry/dispatch/backup/profile and packaging owners. Examined exact revision/schema/image identities, credential-free error boundaries, challenge/redirect hosts, current-main qualification and required job gates, private logs/locks, artifact signatures/readback, recovery preservation and retained Docker/network/resource contracts. mobile-named historical release is retained because shared dashboard release chain imports its schema; native features not audited. Existing canonical byte parser actually rejects Redis maxmemory zero before profile admission, clearing that candidate; no guard weakened or runtime fix adopted. Source review only; no credential file read, network registry/API request, packaging, release, signal or deployment executed."
+  },
+  {
+    "path": "scripts/release_publication.py",
+    "sha256": "136c2814e9fc4ef2bedacc2601a020941577578fa619da4ec3b2599496cc622f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read of unchanged release/registry/dispatch/backup/profile and packaging owners. Examined exact revision/schema/image identities, credential-free error boundaries, challenge/redirect hosts, current-main qualification and required job gates, private logs/locks, artifact signatures/readback, recovery preservation and retained Docker/network/resource contracts. mobile-named historical release is retained because shared dashboard release chain imports its schema; native features not audited. Existing canonical byte parser actually rejects Redis maxmemory zero before profile admission, clearing that candidate; no guard weakened or runtime fix adopted. Source review only; no credential file read, network registry/API request, packaging, release, signal or deployment executed."
+  },
+  {
+    "path": "docker-compose.apns.yml",
+    "sha256": "b3ea728621684bd4724b8d03720ac7ee5a4dd50ca07a06e5a1c23972fc68d54a",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical configuration read. Inspected optional readonly secret/log mounts, explicit existing network names and separate retained storage volume/provider, synthetic capacity bounds, development cache mounts, bounded metric labels/collector/alert windows and evidence limitations. Unchanged and unexecuted; no rendered Compose, Docker/resource or live-monitoring qualification claim."
+  },
+  {
+    "path": "docker-compose.capacity.yml",
+    "sha256": "aac38b1db0c38f1ff20420f5c38d1cac004138b952a4240f8d4cffa1b909ab5d",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical configuration read. Inspected optional readonly secret/log mounts, explicit existing network names and separate retained storage volume/provider, synthetic capacity bounds, development cache mounts, bounded metric labels/collector/alert windows and evidence limitations. Unchanged and unexecuted; no rendered Compose, Docker/resource or live-monitoring qualification claim."
+  },
+  {
+    "path": "docker-compose.dev.yml",
+    "sha256": "b5d025bc9affde3ffe2876f34103478c4bba6634546fd385d7b76458d15dddd2",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical configuration read. Inspected optional readonly secret/log mounts, explicit existing network names and separate retained storage volume/provider, synthetic capacity bounds, development cache mounts, bounded metric labels/collector/alert windows and evidence limitations. Unchanged and unexecuted; no rendered Compose, Docker/resource or live-monitoring qualification claim."
+  },
+  {
+    "path": "docker-compose.mcp-diagnostics.yml",
+    "sha256": "e26f811f99380a8a62aff4e771b219b4f2605bc4c6c385865c39eac768d8d757",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical configuration read. Inspected optional readonly secret/log mounts, explicit existing network names and separate retained storage volume/provider, synthetic capacity bounds, development cache mounts, bounded metric labels/collector/alert windows and evidence limitations. Unchanged and unexecuted; no rendered Compose, Docker/resource or live-monitoring qualification claim."
+  },
+  {
+    "path": "docker-compose.storage.yml",
+    "sha256": "00428be551ff272c48be12eb1bd7f7c977a57b94a9cf2371c1d0b1cb04754e47",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical configuration read. Inspected optional readonly secret/log mounts, explicit existing network names and separate retained storage volume/provider, synthetic capacity bounds, development cache mounts, bounded metric labels/collector/alert windows and evidence limitations. Unchanged and unexecuted; no rendered Compose, Docker/resource or live-monitoring qualification claim."
+  },
+  {
+    "path": "monitoring/alerts.yml",
+    "sha256": "5ffefad36fc17baa6f63109185bec1d7aaa1a1b873ea5422e057677afdbd987e",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical configuration read. Inspected optional readonly secret/log mounts, explicit existing network names and separate retained storage volume/provider, synthetic capacity bounds, development cache mounts, bounded metric labels/collector/alert windows and evidence limitations. Unchanged and unexecuted; no rendered Compose, Docker/resource or live-monitoring qualification claim."
+  },
+  {
+    "path": "monitoring/qualification-prometheus.yml",
+    "sha256": "33afe6ad3cdf3932aaa48f3ef1c4640cacb920e21804e7f626b28575c5adeaa5",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical configuration read. Inspected optional readonly secret/log mounts, explicit existing network names and separate retained storage volume/provider, synthetic capacity bounds, development cache mounts, bounded metric labels/collector/alert windows and evidence limitations. Unchanged and unexecuted; no rendered Compose, Docker/resource or live-monitoring qualification claim."
+  },
+  {
+    "path": "monitoring/statsd_mapping.yml",
+    "sha256": "df2462a02678185938a1dd090d380800b8b14d6c55b6ba8d0fd82c545c5d5aff",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical configuration read. Inspected optional readonly secret/log mounts, explicit existing network names and separate retained storage volume/provider, synthetic capacity bounds, development cache mounts, bounded metric labels/collector/alert windows and evidence limitations. Unchanged and unexecuted; no rendered Compose, Docker/resource or live-monitoring qualification claim."
+  },
+  {
+    "path": "scripts/qa/run_linux_webkit.cjs",
+    "sha256": "8124d2794a33b549fb11ff1dae825fc33917b7cb27bb9ebb42ad40267ec6f81a",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read of unchanged synthetic qualification. Inspected fixed local project/network targets, TLS-preserving loopback proxy/socket cleanup, labeled exact copy-process identity and caller cleanup, new-only generated restore database and digest/object checks. Source review only; these browser/Docker/PostgreSQL/storage flows were not executed."
+  },
+  {
+    "path": "scripts/qa/qualify_storage_copy_process.py",
+    "sha256": "13ca69ea61e7e876428911177c4fa129b202a179f7af6543b7fca0c39f43a95d",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read of unchanged synthetic qualification. Inspected fixed local project/network targets, TLS-preserving loopback proxy/socket cleanup, labeled exact copy-process identity and caller cleanup, new-only generated restore database and digest/object checks. Source review only; these browser/Docker/PostgreSQL/storage flows were not executed."
+  },
+  {
+    "path": "scripts/qa/qualify_synthetic_recovery.py",
+    "sha256": "020b5bde27167af145347060e6db3e6a3f7df4acb3933260cf4f50b0ee5b92e0",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read of unchanged synthetic qualification. Inspected fixed local project/network targets, TLS-preserving loopback proxy/socket cleanup, labeled exact copy-process identity and caller cleanup, new-only generated restore database and digest/object checks. Source review only; these browser/Docker/PostgreSQL/storage flows were not executed."
+  },
+  {
+    "path": "scripts/verify_deployment_resource_budget.py",
+    "sha256": "ffa3b1159465bf57a750333bb708f03272b5f0130682a545593dc366a527e638",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "reviewed",
+    "notes": "Focused first72physical lines including canonical byte parser/replica parsing; actual original profile fixture with Redis maxmemory0 raises existing positive-whole-byte ValueError. Candidate cleared; no whole-file new read or runtime change claimed."
+  },
+  {
+    "path": "scripts/test_release_resource_profile.py",
+    "sha256": "b54d5b155558fca5d34faefc4884ce56db05d3ad69502c1e5cd45d1ce89651ec",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete physical source read including profile fixtures, worker/resource/provider/concurrency/queue/Redis/host-swap controls. Only one existing fixture-based zero-Redis-limit source-candidate probe executed; full test module not newly run and no assertions edited."
+  }
+]

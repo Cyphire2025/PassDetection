@@ -1,0 +1,146 @@
+[
+  {
+    "path": "frontend/features/whatsapp/workspace/use-message-composer.ts",
+    "sha256": "04173c530af2d515168cc0f06ca026571fbb35cd27930bad0466896506c05186",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All original363hook/381view/313audience physical lines read, and current13owner imports/types/composition and moved contents reviewed.36exact moved statements,3retained parent statements,32public properties/state interface, image cleanup effect and four rendered subtrees retained against explicit post-Set-fix snapshot. Query/image/send/state/draft/field and view responsibilities are now focused. Actual512recipient work baseline131840indexed reads becomes<=2048 with order/originalselection preserved. Prior61affected cases, final16current composer cases/17wiredNodecontracts/current scoped types+lint pass; no whole-suite/build/browser claim."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/message-composer-state.ts",
+    "sha256": "8b74256ea305fc8cd6536b3d685e35152f906ff66ed4f4126f1afbfa7838a11e",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All original363hook/381view/313audience physical lines read, and current13owner imports/types/composition and moved contents reviewed.36exact moved statements,3retained parent statements,32public properties/state interface, image cleanup effect and four rendered subtrees retained against explicit post-Set-fix snapshot. Query/image/send/state/draft/field and view responsibilities are now focused. Actual512recipient work baseline131840indexed reads becomes<=2048 with order/originalselection preserved. Prior61affected cases, final16current composer cases/17wiredNodecontracts/current scoped types+lint pass; no whole-suite/build/browser claim."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/use-composer-header-image.ts",
+    "sha256": "756838275b4d98c9a76630fc7ebca1d9a4c1f8c939272349c79f6881e45ca94e",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All original363hook/381view/313audience physical lines read, and current13owner imports/types/composition and moved contents reviewed.36exact moved statements,3retained parent statements,32public properties/state interface, image cleanup effect and four rendered subtrees retained against explicit post-Set-fix snapshot. Query/image/send/state/draft/field and view responsibilities are now focused. Actual512recipient work baseline131840indexed reads becomes<=2048 with order/originalselection preserved. Prior61affected cases, final16current composer cases/17wiredNodecontracts/current scoped types+lint pass; no whole-suite/build/browser claim."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/use-message-composer-preview.ts",
+    "sha256": "6340e508f09eb38627710dbb813793dc648c151eb163102568e9a390986ce7dd",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All original363hook/381view/313audience physical lines read, and current13owner imports/types/composition and moved contents reviewed.36exact moved statements,3retained parent statements,32public properties/state interface, image cleanup effect and four rendered subtrees retained against explicit post-Set-fix snapshot. Query/image/send/state/draft/field and view responsibilities are now focused. Actual512recipient work baseline131840indexed reads becomes<=2048 with order/originalselection preserved. Prior61affected cases, final16current composer cases/17wiredNodecontracts/current scoped types+lint pass; no whole-suite/build/browser claim."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/use-message-composer-send.ts",
+    "sha256": "cd24910c8feeab370aac194f2dcf4f5c37d2b957363860926447515eeba503b8",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All original363hook/381view/313audience physical lines read, and current13owner imports/types/composition and moved contents reviewed.36exact moved statements,3retained parent statements,32public properties/state interface, image cleanup effect and four rendered subtrees retained against explicit post-Set-fix snapshot. Query/image/send/state/draft/field and view responsibilities are now focused. Actual512recipient work baseline131840indexed reads becomes<=2048 with order/originalselection preserved. Prior61affected cases, final16current composer cases/17wiredNodecontracts/current scoped types+lint pass; no whole-suite/build/browser claim."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/message-composer.tsx",
+    "sha256": "44c1809c09633cb27af4563e5e39f5baac0747789df196a56b808fe2e870c8b6",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All original363hook/381view/313audience physical lines read, and current13owner imports/types/composition and moved contents reviewed.36exact moved statements,3retained parent statements,32public properties/state interface, image cleanup effect and four rendered subtrees retained against explicit post-Set-fix snapshot. Query/image/send/state/draft/field and view responsibilities are now focused. Actual512recipient work baseline131840indexed reads becomes<=2048 with order/originalselection preserved. Prior61affected cases, final16current composer cases/17wiredNodecontracts/current scoped types+lint pass; no whole-suite/build/browser claim."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/message-composer-editor.tsx",
+    "sha256": "0c3c532e105fcec986bf235d018ec1bd584277eb6eec6b74e1ff8d9105262ff7",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All original363hook/381view/313audience physical lines read, and current13owner imports/types/composition and moved contents reviewed.36exact moved statements,3retained parent statements,32public properties/state interface, image cleanup effect and four rendered subtrees retained against explicit post-Set-fix snapshot. Query/image/send/state/draft/field and view responsibilities are now focused. Actual512recipient work baseline131840indexed reads becomes<=2048 with order/originalselection preserved. Prior61affected cases, final16current composer cases/17wiredNodecontracts/current scoped types+lint pass; no whole-suite/build/browser claim."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/message-composer-feedback.tsx",
+    "sha256": "bc8f840e55d6a9de70496a0a7f967f2f575b4329921a61d4076afad6c24842bc",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All original363hook/381view/313audience physical lines read, and current13owner imports/types/composition and moved contents reviewed.36exact moved statements,3retained parent statements,32public properties/state interface, image cleanup effect and four rendered subtrees retained against explicit post-Set-fix snapshot. Query/image/send/state/draft/field and view responsibilities are now focused. Actual512recipient work baseline131840indexed reads becomes<=2048 with order/originalselection preserved. Prior61affected cases, final16current composer cases/17wiredNodecontracts/current scoped types+lint pass; no whole-suite/build/browser claim."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/message-composer-review-dialog.tsx",
+    "sha256": "e6c9d57c801685a6f47640a7c5d01ff3a76ba7ec46954ef573442553e4d4c330",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All original363hook/381view/313audience physical lines read, and current13owner imports/types/composition and moved contents reviewed.36exact moved statements,3retained parent statements,32public properties/state interface, image cleanup effect and four rendered subtrees retained against explicit post-Set-fix snapshot. Query/image/send/state/draft/field and view responsibilities are now focused. Actual512recipient work baseline131840indexed reads becomes<=2048 with order/originalselection preserved. Prior61affected cases, final16current composer cases/17wiredNodecontracts/current scoped types+lint pass; no whole-suite/build/browser claim."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/message-composer-audience.tsx",
+    "sha256": "a50dc588389bda0e3051ae67c5e13e55d7f73c2999a36e746b697455a644b947",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All original363hook/381view/313audience physical lines read, and current13owner imports/types/composition and moved contents reviewed.36exact moved statements,3retained parent statements,32public properties/state interface, image cleanup effect and four rendered subtrees retained against explicit post-Set-fix snapshot. Query/image/send/state/draft/field and view responsibilities are now focused. Actual512recipient work baseline131840indexed reads becomes<=2048 with order/originalselection preserved. Prior61affected cases, final16current composer cases/17wiredNodecontracts/current scoped types+lint pass; no whole-suite/build/browser claim."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/message-composer-audience-filters.tsx",
+    "sha256": "72a3bf4e9cec963fc8da1bb2b3d73aca400aa4375b9eb5ec012fee4edd03182a",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All original363hook/381view/313audience physical lines read, and current13owner imports/types/composition and moved contents reviewed.36exact moved statements,3retained parent statements,32public properties/state interface, image cleanup effect and four rendered subtrees retained against explicit post-Set-fix snapshot. Query/image/send/state/draft/field and view responsibilities are now focused. Actual512recipient work baseline131840indexed reads becomes<=2048 with order/originalselection preserved. Prior61affected cases, final16current composer cases/17wiredNodecontracts/current scoped types+lint pass; no whole-suite/build/browser claim."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/composer-field-state.ts",
+    "sha256": "b937a7d12deb58c3c170239b4df693c4784a5512e68d63159188193ff497fce8",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All original363hook/381view/313audience physical lines read, and current13owner imports/types/composition and moved contents reviewed.36exact moved statements,3retained parent statements,32public properties/state interface, image cleanup effect and four rendered subtrees retained against explicit post-Set-fix snapshot. Query/image/send/state/draft/field and view responsibilities are now focused. Actual512recipient work baseline131840indexed reads becomes<=2048 with order/originalselection preserved. Prior61affected cases, final16current composer cases/17wiredNodecontracts/current scoped types+lint pass; no whole-suite/build/browser claim."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/composer-draft.ts",
+    "sha256": "f10f11d4aec65b1b6f71f744fd8fb701d0b109a8c4c7f993f8b60f2bdf95e059",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "refactored",
+    "notes": "All original363hook/381view/313audience physical lines read, and current13owner imports/types/composition and moved contents reviewed.36exact moved statements,3retained parent statements,32public properties/state interface, image cleanup effect and four rendered subtrees retained against explicit post-Set-fix snapshot. Query/image/send/state/draft/field and view responsibilities are now focused. Actual512recipient work baseline131840indexed reads becomes<=2048 with order/originalselection preserved. Prior61affected cases, final16current composer cases/17wiredNodecontracts/current scoped types+lint pass; no whole-suite/build/browser claim."
+  },
+  {
+    "path": "frontend/features/whatsapp/workspace/use-message-composer.test.tsx",
+    "sha256": "88c91fff452a22f275ce2ffcc7891433b6d8e4119ae0762f40f8787d22f9c6e3",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current source read. Tests preserve prior business assertions. Only explicitly imported/invoked controller, field/draft or JSX owners can satisfy relocated source contracts; no unrelated source scans. Deterministic actual-hook selection work regression retains original array identity/order and ready control."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/whatsapp-source.contract-helper.mjs",
+    "sha256": "bea827cfcb87f19e8007c1dc427c4fef540d09a60292274ef266d7c38dab7878",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current source read. Tests preserve prior business assertions. Only explicitly imported/invoked controller, field/draft or JSX owners can satisfy relocated source contracts; no unrelated source scans. Deterministic actual-hook selection work regression retains original array identity/order and ready control."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/whatsapp-reminder.contract.test.mjs",
+    "sha256": "98334ca25620953a7863dbef7ad0c06e980e2d10aeb321d69ed1d789eb8bb568",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current source read. Tests preserve prior business assertions. Only explicitly imported/invoked controller, field/draft or JSX owners can satisfy relocated source contracts; no unrelated source scans. Deterministic actual-hook selection work regression retains original array identity/order and ready control."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/whatsapp-reliability.contract.test.mjs",
+    "sha256": "482118c5fb7e39a822dd87a8f2f52d2b11e05d1f99c1a934fe3b81c8adf79862",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current source read. Tests preserve prior business assertions. Only explicitly imported/invoked controller, field/draft or JSX owners can satisfy relocated source contracts; no unrelated source scans. Deterministic actual-hook selection work regression retains original array identity/order and ready control."
+  },
+  {
+    "path": "frontend/features/whatsapp/components/whatsapp-activity-tracker.contract.test.mjs",
+    "sha256": "ec9dc8b71cbb13eda529cf8b8fcdf783e96e70d6ad27cc86a0c0922a8c71ce3a",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete current source read. Tests preserve prior business assertions. Only explicitly imported/invoked controller, field/draft or JSX owners can satisfy relocated source contracts; no unrelated source scans. Deterministic actual-hook selection work regression retains original array identity/order and ready control."
+  }
+]

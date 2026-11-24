@@ -1,0 +1,34 @@
+{
+  "files": [
+    {
+      "path": "scripts/dashboard_audit_inventory.py",
+      "sha256": "61b1f27bba8e779eb470c6c37640c7e090b980c0e35f90310b40c82d7c8f8d7e",
+      "physical_lines": 509,
+      "review_scope": "full",
+      "status": "verified",
+      "reviewer": "branding_visuals",
+      "notes": "Current source composed review: complete source previously physically reviewed by root at exact BEFORE hash in closed-artifact-history-native-scope-reviewed-files.json, then all authored9literal whitelist additions manually reviewed. Whole-module AST outside that data set exactly identical. Classifier/parser/retirement/review-resolution/history/CLI behavior unchanged; no generic native/doc/helper filename exclusion.",
+      "review_basis": "composed-exact-before-root-full-plus-complete-authored-delta"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/audit-scope.json",
+      "sha256": "acc06ee60a37eb8646a53b239d7ebc3e4d4b0c0d97c3c05c1bf766ea829ed700",
+      "physical_lines": 122,
+      "review_scope": "full",
+      "status": "verified",
+      "reviewer": "branding_visuals",
+      "notes": "Complete current policy data reviewed through original Inbox/retained rules,42existing enumerated native literals and9source-bound approved references plus explicit history reason. Other JSON fields exact, old42path order and reason prefix preserved; total51/backend37. Scope classification only, no full native feature review credit or application authority.",
+      "review_basis": "complete-policy-data-review"
+    },
+    {
+      "path": "backend/tests/unit/scripts/test_dashboard_audit_scope.py",
+      "sha256": "ceba3aba834a725c79b3c6f8109d49348dc0b9dd3d4e7cfbad9df664b857d805",
+      "physical_lines": 483,
+      "review_scope": "full",
+      "status": "verified",
+      "reviewer": "branding_visuals",
+      "notes": "Current test source composed review: root full physical review at exact BEFORE hash in closed-artifact-history-native-scope-reviewed-files.json, all authored data/case additions reviewed. All16old function bodies exact except stricter checked-in51/37count/approved-union assertion; new listed/unlisted docs/helpers, lookalike rejection and historical full/hash/finding preservation cases. Actual focused141pass, no native app/CI feature tests removed or run.",
+      "review_basis": "composed-exact-before-root-full-plus-complete-authored-delta"
+    }
+  ]
+}

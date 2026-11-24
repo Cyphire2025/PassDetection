@@ -4,7 +4,6 @@ import Link from "next/link";
 import {
   useCallback,
   useDeferredValue,
-  useEffect,
   useId,
   useMemo,
   useRef,
@@ -23,6 +22,7 @@ import {
   X,
 } from "lucide-react";
 import { Badge, Button, Input, Skeleton } from "@/components/ui";
+import { useModalKeyboardBoundary } from "@/components/ui/modal";
 import { ROUTES } from "@/constants/routes";
 import { selectUserRole, useAuthStore } from "@/stores/auth.store";
 import {
@@ -531,7 +531,7 @@ function MissingPeopleDialog({
 }) {
   const titleId = useId();
   const dialogRef = useRef<HTMLDivElement | null>(null);
-  const closeRef = useRef<HTMLButtonElement | null>(null);
+  const handleDialogKeyDown = useModalKeyboardBoundary({ dialogRef, isOpen: true, canClose: true, onClose });
   const [search, setSearch] = useState("");
   const deferredSearch = useDeferredValue(search.trim());
   const missingQuery = useGroupAttendanceMissingPassengers({
@@ -550,40 +550,16 @@ function MissingPeopleDialog({
     });
   }, [missingQuery.data?.pages]);
 
-  useEffect(() => {
-    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    closeRef.current?.focus();
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        onClose();
-        return;
-      }
-      if (event.key !== "Tab") return;
-      const controls = Array.from(dialogRef.current?.querySelectorAll<HTMLElement>('button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])') ?? []);
-      if (controls.length === 0) return;
-      const first = controls[0];
-      const last = controls[controls.length - 1];
-      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
-      if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
-    };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      previousFocus?.focus();
-    };
-  }, [onClose]);
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
-      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby={titleId} className="max-h-[85vh] w-full max-w-2xl overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
+      <div ref={dialogRef} onKeyDown={handleDialogKeyDown} role="dialog" aria-modal="true" aria-labelledby={titleId} className="max-h-[85vh] w-full max-w-2xl overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
         <div className="flex items-start justify-between gap-4 border-b border-slate-200 px-5 py-4">
           <div>
 
             <h2 id={titleId} className="mt-1 font-semibold text-slate-950">Missing people · {session.name}</h2>
             <p className="mt-1 text-sm text-slate-500">{session.present_count} of {session.present_count + session.missing_count} counted</p>
           </div>
-          <button ref={closeRef} type="button" onClick={onClose} className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700" aria-label="Close missing people list">
+          <button data-dialog-initial-focus type="button" onClick={onClose} className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700" aria-label="Close missing people list">
             <X className="h-5 w-5" aria-hidden="true" />
           </button>
         </div>

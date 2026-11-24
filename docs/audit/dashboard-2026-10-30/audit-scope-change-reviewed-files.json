@@ -1,0 +1,34 @@
+[
+  {
+    "path": "scripts/dashboard_audit_inventory.py",
+    "sha256": "fa6836a9f74e8a0913ac087bdf20b09e809a608a1e66168e5b6661725b2b6d80",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete current tool/test/policy source read or authored changes;48focused positive/negative tooling controls. Historical ledgers untouched; active estimates exclude only explicit user deferrals and retain shared exceptions. See audit-scope-change-verification.json."
+  },
+  {
+    "path": "backend/tests/unit/scripts/test_dashboard_audit_scope.py",
+    "sha256": "cdad2b21740ef0e20f557494b0f7f06f16252567fb85b26a7c3308718841df9a",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete current tool/test/policy source read or authored changes;48focused positive/negative tooling controls. Historical ledgers untouched; active estimates exclude only explicit user deferrals and retain shared exceptions. See audit-scope-change-verification.json."
+  },
+  {
+    "path": "backend/tests/unit/scripts/test_dashboard_audit_review_resolutions.py",
+    "sha256": "516f40f6a05fc0e6f37f6618f225a819146d344ccf4dcda5a0e9a4fe796c6dd7",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete current tool/test/policy source read or authored changes;48focused positive/negative tooling controls. Historical ledgers untouched; active estimates exclude only explicit user deferrals and retain shared exceptions. See audit-scope-change-verification.json."
+  },
+  {
+    "path": "docs/audit/dashboard-2026-10-30/audit-scope.json",
+    "sha256": "58a87e04b06a7c82b818189d06f9ff64e022dd732661b2c3acb8111a22015f67",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Complete current tool/test/policy source read or authored changes;48focused positive/negative tooling controls. Historical ledgers untouched; active estimates exclude only explicit user deferrals and retain shared exceptions. See audit-scope-change-verification.json."
+  }
+]

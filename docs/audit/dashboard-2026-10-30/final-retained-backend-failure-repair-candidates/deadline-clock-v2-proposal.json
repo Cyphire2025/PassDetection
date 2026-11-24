@@ -1,0 +1,32 @@
+{
+  "status": "Prepared only, approved root design; source unchanged and candidate not tested",
+  "path": "backend/tests/unit/infrastructure/test_traveller_reconciliation_runtime.py",
+  "before_sha256": "842d4f4b41cbb99e637763f7de93ee9c778df67431436916d75262c4e1b3d9c7",
+  "candidate_sha256": "a4f94884189dbbfec16be987a4b8e866b9569e5faa02cac017bfa8aa5663c134",
+  "supersedes_unapplied_design": "deadline-clock-proposal.json retained unchanged",
+  "exact_whole_module_AST_inverse": true,
+  "only_existing_change": "Pin module-local runtime.monotonic at0 in exact blocked-admission test, preserving real10ms asyncio cancellation and both assertions",
+  "new_counter_control": {
+    "function": "test_exhausted_initial_burst_budget_never_starts_work",
+    "clock": "0 then current production burst-seconds+1",
+    "result": 0,
+    "must_not_call": [
+      "session_factory",
+      "advance_company_history_chain",
+      "_reconciliation_slot"
+    ]
+  },
+  "independent_advance_clock_test_unchanged": true,
+  "all_other_methods_assertions_mocks_and_namespace_unchanged": true,
+  "runtime_source_unchanged": true,
+  "source_fence_exact_after_preparation": true,
+  "artifacts": {
+    "deadline-clock-v2-candidate.py.txt": "a4f94884189dbbfec16be987a4b8e866b9569e5faa02cac017bfa8aa5663c134",
+    "deadline-clock-v2.patch": "a6bd0bad03599f552ba5313df54613dca4b0cab7785746d22e5d04e1e2de84fd"
+  },
+  "limits": [
+    "No actual source application until all original commands finish and root GO.",
+    "Countercontrol preserves valid premature expiry; it does not force entry for exhausted budgets.",
+    "No retries, xfails, deadline increase or coverage merging."
+  ]
+}

@@ -1,0 +1,230 @@
+{
+  "files": [
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_account_support.py",
+      "sha256": "bf953509cd71f2146ee49dcf47c044c5b73c17aad2aecbc48bcc84814ba502de",
+      "physical_lines": 41,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete41-line physical read. Reviewed named constraint extraction/driver wrapper semantics and status allowlists through whole current normalization helper. Constraint errors map only reviewed names; fake IntegrityError does not establish driver/PostgreSQL behavior."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_announcement_atomic_publish.py",
+      "sha256": "37e222b081c56acbb2d30a8f98927d9dd29e9ff256175ef12fdba5a3ab39ebe5",
+      "physical_lines": 124,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete124-line physical read. Actual dashboard create/edit publication, single revision-guarded caller-owned transaction, rollback on synthetic queue failure, hidden legacy draft, stale revision and205-item paging/stable IDs. Actual announcement create/update/version and publication owners traced; no queue/provider execution."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_announcements.py",
+      "sha256": "609f8130309aeaede4fd834975306b8eb7014e27f2859d2b5e6d80989479b88d",
+      "physical_lines": 119,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete119-line physical read. Actual admin current-only list SQL and published deletion cancellation/version update. PostgreSQL compiled statement/assertion source reviewed; mock access/queue/session are not actual database or notification-delivery qualification."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_availability.py",
+      "sha256": "fe657ee2e52d1e94c5c67f71f0ecadc1383b4354916d263afae1575c7e4b6521",
+      "physical_lines": 119,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete119-line physical read. Dashboard configured/eligible pickers, paused/removed distinctions, active/scheduled/ended/unavailable filtering before paging, count/projection and foreign-agency isolation assertions. Whole actual directory owner read; no query timing/service assertion executed."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_emergency_revocation.py",
+      "sha256": "eaa130e6610db634eef367623f33814806c9989d1564ea0b64cf27764bf4a761",
+      "physical_lines": 64,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete64-line physical read. Retained dashboard emergency revocation keeps setup while fencing current grants/session records and four journal audiences, unlike setup removal; revision/role/tenant/CSRF controls. Actual admin owner read; downstream device-table consequences only, native ingress/provider implementations not audited."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_group_removal.py",
+      "sha256": "cdd97e1811580613cf929d6b4da1bf51e8ef0adfb7cd3e0bdd0af0d1040d3105",
+      "physical_lines": 195,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete195-line physical read. Retained dashboard soft removal, exact admin role/tenant/revision/CSRF/idempotent audit, explicit re-add generation, old lifecycle/group/data/send history retention and failed-commit rollback. Existing shared session/policy consequences read only as assertions, no native runtime/device feature work or real sends."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_replacement_publish.py",
+      "sha256": "fd4ef94a726f3f709d05f1b05a7bf77e890afc5c79429d938af4e5e8f1728c4e",
+      "physical_lines": 53,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete53-line physical read. Announcement/document/itinerary lower-UUID replacement controls ensure old published slot flushes before promotion. All three actual dashboard publication statement contexts traced; no production storage/provider mutation."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_app_time_windows.py",
+      "sha256": "cd805fabce9db69a4d09546a4d948e26f15a0a2d7627964b8cc4993520bdfb21",
+      "physical_lines": 43,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete43-line physical read. Aware operator access/announcement/itinerary timestamps, offset-to-UTC instant comparison, naive/mixed rejection and optional bounds. Actual selected schema declarations read; no schema or date-policy change."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_group_access_query.py",
+      "sha256": "b5cbd5632832eeb7b606e87e2310636b59de2dbaa5e47be6f0c5cc5e3661f31c",
+      "physical_lines": 48,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete48-line physical read. Canonical dashboard group control projection uses explicit query origin, same-agency organization and gallery context, zero usage counts. Actual full response function read only; no MyPhotos/native feature execution."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_gc_legacy_router_exports.py",
+      "sha256": "4534352d2e19cdf9975267c2ab28fbaeab835d15ffc8f2b644bdf9227ee1b83b",
+      "physical_lines": 65,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete65-line physical read. Declarative retained dashboard admin/content alias catalogs and registered HTTP endpoint identity/count assertions; actual selected facade directory import and content router aggregation traced. Names of shared native-backed data management do not imply native ingress/source audit."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_announcement_notification_diagnostics.py",
+      "sha256": "148fc7de1a311d52c6299299218c8d77e1b934c73c52e3901d9288a701110b5f",
+      "physical_lines": 235,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Complete235-line physical read. Read-only dashboard diagnostics provider-enabled flag/current tenant+announcement scope/role-before-query, additive legacy count defaults and unpublish delete journal/access-generation parity for three content types. Provider labels are synthetic diagnostics metadata, no provider sends/receipt transport or native device implementation qualification."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_account_support.py",
+      "sha256": "866cc314da3b10e34271674c3d970493c16c41fed61cfd6f7a3d08861c634615",
+      "physical_lines": 121,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical source read. Purpose-specific duplicate constraint traversal with cycle guard/driver diag fallback and reviewed messages, strict status normalizers and response projections. Supporting review only; preserve any prior current-full record rather than inflate new test count."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_group_removal.py",
+      "sha256": "926647677f5809a754a49d8281092eb417cdf37c33b35d9287db188715bbbd74",
+      "physical_lines": 166,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical source read. Dashboard role+CSRF dependencies, canonical tenant and group-before-access row locks, emergency account-session revocation vs trip-only soft removal, exact revisions/journal/audit/commit-before204 retained. No native ingress/device implementation investigation."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_announcement_publication.py",
+      "sha256": "b8e93bd5bc1b4fa56390d352e538d1b6b7a82e60e63707022743cda3db1fa37b",
+      "physical_lines": 250,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical source read. Admin content lookup+lock ordering, retire/flush/promote publication, same transaction journal/queue/audit, delete vs revoked history and cancellation; no provider action. Read closure does not claim all-failure integration qualification."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_content_scope.py",
+      "sha256": "ee1b01c9543593b6600aedde21acd5e6b7c6082a8b58320729f6799b4acab2d8",
+      "physical_lines": 179,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical source read. Explicit tenant selection, locked group-before-access/current refresh and read-only joined lookup; revision/lifecycle/window guards, bounded audit metadata, status/hash helpers. Read-only removed setup history policy unchanged; no speculative behavior fix."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_group_directory.py",
+      "sha256": "4f72610b1b8afc2f03301dbae3f6f6886143668a640a3ee0cfd4e9f86e9fa8b6",
+      "physical_lines": 351,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Whole physical source read. Retained dashboard agency/group admin authority, escaped search, same-tenant joins, availability/count/pagination ordering, single metrics aggregate and canonical projected setup data. Large search orchestration remains an architecture follow-up; physical read is not completed decomposition or performance proof."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_announcements.py",
+      "sha256": "fa477ecd36f4bc9cc6991314d5c9a173fff479273d6687fb620c3eebefc92530",
+      "physical_lines": 293,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical61-end source read: list/page/status and whole create/update/version orchestration. Import prefix1-60 not physically read here; retained dashboard transaction/queue and current authority consumers traced only, no whole-file credit."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_group_access_support.py",
+      "sha256": "238744b3b55e57baeab37e1533a126a4a91def27c845cd75364474a29ef0ab24",
+      "physical_lines": 268,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical35-81 and181-end slices: explicit restore/revision/lifecycle validation and complete canonical response/usage/organization/gallery query. Feature mutation implementation82-180 not audited here, no MyPhotos/native feature work/full-file claim."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/schemas/gc_app_schemas.py",
+      "sha256": "5557dd8c09c832c863496f3d7828a5e0fe54c3d40e19cf8c2da001d482289c5f",
+      "physical_lines": 412,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical233-255/300-322/383-395 selected access update/time-window, itinerary timestamp and announcement declarations only. Other schema catalog remains outside this focused read; shared datetime/field contracts unchanged."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_common_publication.py",
+      "sha256": "0679798544767676fb0c37eddfe714517b83d8b57b188eeb7bdd65532585d7a2",
+      "physical_lines": 246,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical41-138 selected imports/router and complete common-document publish phase (retire old rows then flush before promotion). Remaining routes not fully read here."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_itineraries.py",
+      "sha256": "c07eee3e4cbd5fbc3a2e34ef5cc6ff8a16892fe49d082131789875dc00706294",
+      "physical_lines": 232,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical107-186 complete publish route and neighboring decorator only; prior original slot flush precedes promotion. Other itinerary/upload/native implementation not audited."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_content.py",
+      "sha256": "bde93b5bf77fbcd2fc6bca3abc379f7c926e8b94da6679a521bec487a120c075",
+      "physical_lines": 206,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical166-end selected schema aliases and full router aggregation, plus actual alias names traced by source lookup. Other compatibility imports not fully physically read; runtime registered endpoint identity assertions not executed."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app.py",
+      "sha256": "86c7be766e61cc9b384a17cfee1f1eb1025d474fd4727a74eebd91bb9ec9b6cd",
+      "physical_lines": 227,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical1-27 canonical directory/settings compatibility imports only; remainder not read here. Alias catalog source lookup does not confer full-source credit."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/gc_app_group_settings.py",
+      "sha256": "2404362318d37b76efd70e081a56e25d2d9a3fc1e0d50a2e552a60e98c97f9fc",
+      "physical_lines": 396,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Physical38-92 selected imports, complete retained dashboard get access boundary and configure admission prefix only. Rest of configuration path not read here, no source edits."
+    },
+    {
+      "path": "backend/tests/gc_app_workflow_fixtures.py",
+      "sha256": "b8679ff5ff9196654ff049226ab3ab28f6f2873441d4c4577e0e06116476b947",
+      "physical_lines": 97,
+      "reviewer": "/root/document_ui_architecture",
+      "review_scope": "focused",
+      "status": "reviewed",
+      "notes": "Retained source scope only1-45 imports and complete workflow_group synthetic dashboard operator/group/access fixture. Remaining passenger/device/session fixture helpers physically displayed incidentally but deliberately not audited or credited under native-feature exclusion."
+    }
+  ],
+  "scope": "Eleven new current-full retained dashboard admin test files; five full dependencies and nine bounded focused callers. Native ingress/device/provider and dedicated Operations Inbox excluded. Shared downstream table assertions are compatibility context only."
+}

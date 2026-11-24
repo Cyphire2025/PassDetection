@@ -1,0 +1,27 @@
+{
+  "retired_compatibility_wrappers": [
+    "_ensure_collection",
+    "_provider_configuration_fingerprint",
+    "_status_snapshot",
+    "_audit_cancellation_requested",
+    "_delete_cancelled_provider_faces",
+    "_cancelled_media_batch",
+    "_delete_cancelled_media",
+    "_has_cancelled_media",
+    "_cleanup_cancelled_manifest",
+    "_verify_media",
+    "_persist_batch_assets",
+    "_load_scope",
+    "_locked_gallery",
+    "_locked_manifest",
+    "_locked_batch",
+    "_existing_batch_result",
+    "_job_for_manifest",
+    "_result_for_manifest"
+  ],
+  "count": 18,
+  "retired_workflows": [],
+  "implementation_functions_retained_in_focused_owners": true,
+  "caller_evidence": "rg/AST imports across backend/app,backend/tests,backend/scripts,scripts,mcp-connector,frontend find service consumers only in unit gallery tests and backend/scripts/register_my_photos_manifest.py; they call constructor and four public methods only. No module namespace escape/computed private-method dispatch found. Original18 private calls were exclusively internal to the old class and are now explicit typed-context calls between owners.",
+  "public_model_exports_and_constructor_and_four_methods_preserved": true
+}

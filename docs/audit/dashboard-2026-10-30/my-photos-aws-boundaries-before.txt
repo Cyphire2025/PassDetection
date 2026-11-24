@@ -1,0 +1,193 @@
+FFFFF                                                                    [100%]
+================================== FAILURES ===================================
+__________ test_provider_configuration_repr_omits_raw_hmac_material ___________
+
+    def test_provider_configuration_repr_omits_raw_hmac_material() -> None:
+        secrets = ["scope-synthetic-private-" * 3, "active-synthetic-private-" * 3,
+                   "previous-synthetic-private-" * 3]
+        config = aws_provider_config(_settings(
+            aws_scope_hmac_secret=secrets[0], aws_provider_hmac_secret=secrets[1],
+            aws_provider_hmac_previous_keys={"reference-v1": secrets[2]},
+        ))
+        assert config.scope_hmac_secret == secrets[0].encode()
+        assert config.reference_signing_keys["reference-v1"] == secrets[2].encode()
+>       assert all(secret not in repr(config) for secret in secrets)
+E       assert False
+E        +  where False = all(<generator object test_provider_configuration_repr_omits_raw_hmac_material.<locals>.<genexpr> at 0x000001C55E08D8A0>)
+
+tests\unit\infrastructure\test_my_photos_aws_providers.py:1271: AssertionError
+______ test_delivery_expiring_during_provider_work_is_not_returned[head] ______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001C55DEED8D0>
+delay_phase = 'head'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("delay_phase", ["head", "dispatch", "signing"])
+    async def test_delivery_expiring_during_provider_work_is_not_returned(
+        monkeypatch: pytest.MonkeyPatch, delay_phase: str
+    ) -> None:
+        from app.infrastructure.my_photos import aws_providers
+    
+        now = [NOW]
+        s3 = FakeS3()
+        provider = S3DirectMediaDeliveryProvider(
+            s3_client=s3, config=aws_provider_config(_settings()), clock=lambda: now[0],
+        )
+        _, request, authorization = await _authorized_media(
+            provider, s3, asset_identity="expires-during-provider-work",
+        )
+        original_head, original_sign = s3.head_object, s3.generate_presigned_url
+    
+        def head(**kwargs: object) -> dict[str, object]:
+            if delay_phase == "head":
+                now[0] += timedelta(seconds=10)
+            return original_head(**kwargs)
+    
+        def sign(method: str, **kwargs: object) -> str:
+            if delay_phase == "signing":
+                now[0] += timedelta(seconds=10)
+            return original_sign(method, **kwargs)
+    
+        original_call = aws_providers._async_client_call
+    
+        async def delayed_call(method: object, *args: object, **kwargs: object) -> object:
+            if delay_phase == "dispatch" and method != s3.head_object:
+                now[0] += timedelta(seconds=10)
+            return await original_call(method, *args, **kwargs)  # type: ignore[arg-type]
+    
+        monkeypatch.setattr(s3, "head_object", head)
+        monkeypatch.setattr(s3, "generate_presigned_url", sign)
+        monkeypatch.setattr(aws_providers, "_async_client_call", delayed_call)
+>       with pytest.raises(MyPhotosUnavailable) as captured:
+E       Failed: DID NOT RAISE <class 'app.application.my_photos.errors.MyPhotosUnavailable'>
+
+tests\unit\infrastructure\test_my_photos_aws_providers.py:1327: Failed
+____ test_delivery_expiring_during_provider_work_is_not_returned[dispatch] ____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001C55E706410>
+delay_phase = 'dispatch'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("delay_phase", ["head", "dispatch", "signing"])
+    async def test_delivery_expiring_during_provider_work_is_not_returned(
+        monkeypatch: pytest.MonkeyPatch, delay_phase: str
+    ) -> None:
+        from app.infrastructure.my_photos import aws_providers
+    
+        now = [NOW]
+        s3 = FakeS3()
+        provider = S3DirectMediaDeliveryProvider(
+            s3_client=s3, config=aws_provider_config(_settings()), clock=lambda: now[0],
+        )
+        _, request, authorization = await _authorized_media(
+            provider, s3, asset_identity="expires-during-provider-work",
+        )
+        original_head, original_sign = s3.head_object, s3.generate_presigned_url
+    
+        def head(**kwargs: object) -> dict[str, object]:
+            if delay_phase == "head":
+                now[0] += timedelta(seconds=10)
+            return original_head(**kwargs)
+    
+        def sign(method: str, **kwargs: object) -> str:
+            if delay_phase == "signing":
+                now[0] += timedelta(seconds=10)
+            return original_sign(method, **kwargs)
+    
+        original_call = aws_providers._async_client_call
+    
+        async def delayed_call(method: object, *args: object, **kwargs: object) -> object:
+            if delay_phase == "dispatch" and method != s3.head_object:
+                now[0] += timedelta(seconds=10)
+            return await original_call(method, *args, **kwargs)  # type: ignore[arg-type]
+    
+        monkeypatch.setattr(s3, "head_object", head)
+        monkeypatch.setattr(s3, "generate_presigned_url", sign)
+        monkeypatch.setattr(aws_providers, "_async_client_call", delayed_call)
+>       with pytest.raises(MyPhotosUnavailable) as captured:
+E       Failed: DID NOT RAISE <class 'app.application.my_photos.errors.MyPhotosUnavailable'>
+
+tests\unit\infrastructure\test_my_photos_aws_providers.py:1327: Failed
+____ test_delivery_expiring_during_provider_work_is_not_returned[signing] _____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001C55E704910>
+delay_phase = 'signing'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("delay_phase", ["head", "dispatch", "signing"])
+    async def test_delivery_expiring_during_provider_work_is_not_returned(
+        monkeypatch: pytest.MonkeyPatch, delay_phase: str
+    ) -> None:
+        from app.infrastructure.my_photos import aws_providers
+    
+        now = [NOW]
+        s3 = FakeS3()
+        provider = S3DirectMediaDeliveryProvider(
+            s3_client=s3, config=aws_provider_config(_settings()), clock=lambda: now[0],
+        )
+        _, request, authorization = await _authorized_media(
+            provider, s3, asset_identity="expires-during-provider-work",
+        )
+        original_head, original_sign = s3.head_object, s3.generate_presigned_url
+    
+        def head(**kwargs: object) -> dict[str, object]:
+            if delay_phase == "head":
+                now[0] += timedelta(seconds=10)
+            return original_head(**kwargs)
+    
+        def sign(method: str, **kwargs: object) -> str:
+            if delay_phase == "signing":
+                now[0] += timedelta(seconds=10)
+            return original_sign(method, **kwargs)
+    
+        original_call = aws_providers._async_client_call
+    
+        async def delayed_call(method: object, *args: object, **kwargs: object) -> object:
+            if delay_phase == "dispatch" and method != s3.head_object:
+                now[0] += timedelta(seconds=10)
+            return await original_call(method, *args, **kwargs)  # type: ignore[arg-type]
+    
+        monkeypatch.setattr(s3, "head_object", head)
+        monkeypatch.setattr(s3, "generate_presigned_url", sign)
+        monkeypatch.setattr(aws_providers, "_async_client_call", delayed_call)
+>       with pytest.raises(MyPhotosUnavailable) as captured:
+E       Failed: DID NOT RAISE <class 'app.application.my_photos.errors.MyPhotosUnavailable'>
+
+tests\unit\infrastructure\test_my_photos_aws_providers.py:1327: Failed
+________ test_delivery_signing_lifetime_uses_time_after_storage_lookup ________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001C55E7223D0>
+
+    @pytest.mark.asyncio
+    async def test_delivery_signing_lifetime_uses_time_after_storage_lookup(
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        now = [NOW]
+        s3 = FakeS3()
+        provider = S3DirectMediaDeliveryProvider(
+            s3_client=s3, config=aws_provider_config(_settings()), clock=lambda: now[0],
+        )
+        _, request, authorization = await _authorized_media(
+            provider, s3, asset_identity="bounded-signing-lifetime",
+        )
+        original_head = s3.head_object
+    
+        def head(**kwargs: object) -> dict[str, object]:
+            now[0] += timedelta(seconds=3)
+            return original_head(**kwargs)
+    
+        monkeypatch.setattr(s3, "head_object", head)
+        await provider.resolve(_resolution_request(
+            request, authorization, expires_at=NOW + timedelta(seconds=10),
+        ))
+>       assert s3.presigned[-1][1]["ExpiresIn"] == 7
+E       assert 10 == 7
+
+tests\unit\infrastructure\test_my_photos_aws_providers.py:1356: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/unit/infrastructure/test_my_photos_aws_providers.py::test_provider_configuration_repr_omits_raw_hmac_material
+FAILED tests/unit/infrastructure/test_my_photos_aws_providers.py::test_delivery_expiring_during_provider_work_is_not_returned[head]
+FAILED tests/unit/infrastructure/test_my_photos_aws_providers.py::test_delivery_expiring_during_provider_work_is_not_returned[dispatch]
+FAILED tests/unit/infrastructure/test_my_photos_aws_providers.py::test_delivery_expiring_during_provider_work_is_not_returned[signing]
+FAILED tests/unit/infrastructure/test_my_photos_aws_providers.py::test_delivery_signing_lifetime_uses_time_after_storage_lookup
+5 failed, 33 deselected in 0.52s

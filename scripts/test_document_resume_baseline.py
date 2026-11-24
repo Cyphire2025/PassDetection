@@ -37,7 +37,7 @@ class ControlledResumeTests(unittest.TestCase):
         patch('mcp_direct_release.inspect', side_effect=lambda identifier, **_: self.current[identifier]).start()
         patch('release_document_resume_baseline.bound_original', side_effect=bind_container).start()
         patch('release_document_retained_update.bound_original', side_effect=bind_container).start()
-        patch('release_retained_update.wait_for_idle').start()
+        patch('retained_release_host.wait_for_idle').start()
 
     def stop(self, row):
         self.current[row['Id']]['State'].update(Running=False, Pid=0, ExitCode=0)

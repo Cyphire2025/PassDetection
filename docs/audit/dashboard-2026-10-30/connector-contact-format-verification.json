@@ -1,0 +1,8 @@
+{
+  "path": "mcp-connector/src/gc_mcp_connector/contact_uploads.py",
+  "before_sha256": "0f9815ae484a12d6af3a7b804c1d7af447c983c32125dea5deac6a03d10e29a1",
+  "after_sha256": "a4d9381af4f13d178a2273446f03ecc3defd162a4dbd563face0969059fd5e64",
+  "ast_equal_without_position_attributes": true,
+  "before_lines": 55,
+  "after_lines": 89
+}

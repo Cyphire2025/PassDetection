@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="2" time="0.424" timestamp="2026-10-31T04:28:23.143171+05:30" hostname="Nipun5070ti"><testcase classname="tests.unit.infrastructure.test_attendance_closeout_projection_work" name="test_public_statuses_preserve_runtime_and_legacy_results_with_linear_source_work[1]" time="0.004" /><testcase classname="tests.unit.infrastructure.test_attendance_closeout_projection_work" name="test_public_statuses_preserve_runtime_and_legacy_results_with_linear_source_work[16]" time="0.002"><failure message="AssertionError: 1056 activity-key reads; activity count must not multiply source scans&#10;assert 1056 &lt;= (8 * (32 + 32))&#10; +  where 32 = len([&lt;test_attendance_closeout_projection_work._CountedActivityRow object at 0x00000156AAFD8310&gt;, &lt;test_attendance_closeou... 0x00000156AB018110&gt;, &lt;test_attendance_closeout_projection_work._CountedActivityRow object at 0x00000156AB018790&gt;, ...])&#10; +  and   32 = len([&lt;test_attendance_closeout_projection_work._CountedActivityRow object at 0x00000156AAFD8750&gt;, &lt;test_attendance_closeou... 0x00000156AB0188D0&gt;, &lt;test_attendance_closeout_projection_work._CountedActivityRow object at 0x00000156AB018750&gt;, ...])">activity_count = 16
+
+    @pytest.mark.parametrize("activity_count", [1, 16])
+    async def test_public_statuses_preserve_runtime_and_legacy_results_with_linear_source_work(
+        activity_count,
+    ):
+        agency_id, group_id = uuid.uuid4(), uuid.uuid4()
+        coordinators = [uuid.UUID(int=index) for index in range(1, 4)]
+        runtimes = [uuid.UUID(int=index) for index in (100, 101)]
+        activities = [uuid.UUID(int=1000 + index) for index in range(activity_count)]
+        assignments = [
+            SimpleNamespace(
+                coordinator_user_id=coordinator,
+                full_name=f"Synthetic coordinator {index}",
+                assigned_at=NOW - timedelta(hours=1),
+            )
+            for index, coordinator in enumerate(coordinators)
+        ]
+        checkpoints, participants = [], []
+        for index, activity in enumerate(activities):
+            for coordinator_index, (coordinator, runtime) in enumerate(
+                zip(coordinators, runtimes, strict=False)
+            ):
+                pending = int(index == coordinator_index == 0)
+                checkpoints.append(
+                    _CountedActivityRow(
+                        activity,
+                        coordinator_user_id=coordinator,
+                        runtime_registration_id=runtime,
+                        reported_at=NOW - timedelta(seconds=1),
+                        pending_count=pending,
+                        sending_count=0,
+                        retryable_count=0,
+                        needs_review_count=0,
+                        unreviewed_rejected_count=0,
+                        oldest_pending_age_seconds=8 if pending else None,
+                    )
+                )
+                participants.append(
+                    _CountedActivityRow(
+                        activity,
+                        coordinator_user_id=coordinator,
+                        runtime_registration_id=runtime,
+                        first_participated_at=NOW - timedelta(minutes=10),
+                        full_name=f"Synthetic coordinator {coordinator_index}",
+                        runtime_kind="pwa",
+                        runtime_status="active",
+                    )
+                )
+        source_runtimes = [
+            SimpleNamespace(id=runtime, runtime_kind="pwa", status="active") for runtime in runtimes
+        ]
+        session = _Session([assignments, checkpoints, source_runtimes, participants])
+        # Query authority and actual database behavior are covered separately. The
+        # real repository/loader/classifier path is used; only SQL results are fixed
+        # so deterministic attribute reads measure projection work, not timing.
+        result = await AttendanceCloseoutRepository(session).statuses(
+            agency_id=agency_id,
+            group_id=group_id,
+            activity_valid_after={activity: NOW - timedelta(hours=1) for activity in activities},
+            now=NOW,
+        )
+        assert len(session.statements) == 4
+        assert list(result) == activities
+        for index, activity in enumerate(activities):
+            status = result[activity]
+            assert status.ready is False
+            assert status.active_assignment_count == 3
+            assert status.ready_assignment_count == (1 if index == 0 else 2)
+            assert status.missing_assignment_count == 1
+            assert status.unresolved_count == (1 if index == 0 else 0)
+            assert status.oldest_pending_age_seconds == (9 if index == 0 else None)
+            assert [row.coordinator_id for row in status.coordinators] == coordinators
+        visits = sum(row.activity_reads for row in [*checkpoints, *participants])
+&gt;       assert visits &lt;= 8 * (len(checkpoints) + len(participants)), (
+            f"{visits} activity-key reads; activity count must not multiply source scans"
+        )
+E       AssertionError: 1056 activity-key reads; activity count must not multiply source scans
+E       assert 1056 &lt;= (8 * (32 + 32))
+E        +  where 32 = len([&lt;test_attendance_closeout_projection_work._CountedActivityRow object at 0x00000156AAFD8310&gt;, &lt;test_attendance_closeou... 0x00000156AB018110&gt;, &lt;test_attendance_closeout_projection_work._CountedActivityRow object at 0x00000156AB018790&gt;, ...])
+E        +  and   32 = len([&lt;test_attendance_closeout_projection_work._CountedActivityRow object at 0x00000156AAFD8750&gt;, &lt;test_attendance_closeou... 0x00000156AB0188D0&gt;, &lt;test_attendance_closeout_projection_work._CountedActivityRow object at 0x00000156AB018750&gt;, ...])
+
+tests\unit\infrastructure\test_attendance_closeout_projection_work.py:121: AssertionError</failure></testcase></testsuite></testsuites>

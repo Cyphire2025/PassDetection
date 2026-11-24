@@ -1,0 +1,118 @@
+[
+  {
+    "path": "backend/app/presentation/api/v1/routes/email_connection_monitoring.py",
+    "sha256": "0e1b1a87c4f3bc1219f2ac79503feedbc4e2d5bd0e6347472fa801c61abcb880"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/email_connection_disconnect.py",
+    "sha256": "0083a3514a2f499ba1c9bce25b2e07e02ba8896ae62af4389acf6a974251d3b9"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/email_connection_removal.py",
+    "sha256": "d9cd81b8a36b7c966a4841150a8e039d8c7dfaa24dc1c2a0e68787f85f122888"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/email_connection_ai_settings.py",
+    "sha256": "dc0843deb74e38e5436042f97de8dfb8a2b0ba7d18810626a4fddbba17462f07"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/email_integration_connections.py",
+    "sha256": "70591a17783ac049a4b6b664f2a32f1541fba09551856899177832755c70bf69"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_email_connection_lifecycle.py",
+    "sha256": "fc130e9a9816ee04237a456452d0d895b27f12cb8e4455aff4418635bd26d10d"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_email_connection_revocation_races.py",
+    "sha256": "8360f730ca930227307c1bf646cd07aaff0e8453e7013964d931f4983836acf7"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_email_connection_controls.py",
+    "sha256": "38b32dda7b318e94832b3ba346927bc973792b122447b994ae338964297d91ea"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_email_connection_removal_outcomes.py",
+    "sha256": "a70bddf4c5ff37e1359fa7521625cbcedf37865e4b9200423895bf0950b77dcb"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_email_integration_route_decomposition.py",
+    "sha256": "7a0dc81a5b12e9f3a95b70aaf149976051b82c0ed06f981d47bbd5a7faf4ebf4"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_email_ai_inbox_isolation.py",
+    "sha256": "5e8ac0d2db1cd7d29af3bbdd4cfe864295563f1a77dcf5405d2574bf88e13a8c"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/email_integration_access.py",
+    "sha256": "78fc9344b18d976143a137c02d8b073be5516d4738162376218132a0c5074f5e"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/email_integration_credentials.py",
+    "sha256": "2261ae5ae3a21b4b3011c3f4ed4401f913cfa3b91bcef1a00fee4c930f453fca"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/email_integration_policy_support.py",
+    "sha256": "f5c08ed966b51441e870a4a6b083c94991af2aa8b7ad73b4fe80b86524588016"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/email_integrations.py",
+    "sha256": "6b8b8df006d06009b7202f030b91d0f884eed7dcc6880416e04aa0db512d26bf"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/email_integration_oauth_start.py",
+    "sha256": "7544accdecbbdc918380e58d10b9470fe50cbbea605f9d8cd4bb8ca57662fe0d"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/email_integration_gmail.py",
+    "sha256": "8fd4a780cf4040c1a0188e50b635ce1935aed85f5b29b4d25d9683a8b22b2b49"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/email_integration_outlook.py",
+    "sha256": "46835a02f003132af36e3524de6e16d5fa6c11a4bd425f0245a78689314ead8a"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_email_integration_contract.py",
+    "sha256": "90600186690bfeb92fa3abeee378c071c8227a1dcb8dea82be958daecfc80c2f"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_email_oauth_persistence.py",
+    "sha256": "71d0a956869913c95d3be6658b0d128f8f6951f1f6b9657f4ff57cea1248a2a6"
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_email_oauth_generation_race.py",
+    "sha256": "25cf54fd043693bac8b37a2b820afd2d7f1efc5350174176d9691091d4d0cc0b"
+  },
+  {
+    "path": "backend/app/infrastructure/email/account_removal.py",
+    "sha256": "7e2798de81ff286f7b63f29daef17d1bd1416fd7b696db3c5b01ccd54f09f4ad"
+  },
+  {
+    "path": "backend/app/presentation/security/email_oauth_binding.py",
+    "sha256": "772bc3d17ee25273a95c36634b156045a0ae3202c27566708a424fb8df1be665"
+  },
+  {
+    "path": "backend/tests/integration/test_mcp_email_overview_reads.py",
+    "sha256": "2bfb583fb81c3ef2025d7bf3aadb3513b540c3acadb0f3f83402a603fee00382"
+  },
+  {
+    "path": "backend/tests/unit/infrastructure/test_email_account_removal.py",
+    "sha256": "c7ed670c76a462b836494224f0f72118852499d8e1919dc961eb39267f6078ee"
+  },
+  {
+    "path": "backend/app/application/security/email_scope.py",
+    "sha256": "96745b29107f274067bb42a9dd94449827fe7b9577d29f5006dcdbad399f770f"
+  },
+  {
+    "path": "backend/app/presentation/dependencies/auth.py",
+    "sha256": "5e1641d51673dcbcd1c2cbc8d6ceac397147de52ec4e100bae285ba115d5fefb"
+  },
+  {
+    "path": "backend/app/presentation/api/v1/schemas/email_integration_schemas.py",
+    "sha256": "a0017a85105e7b2935ed41429f68210b7a6964820738ed980d344925070ca76c"
+  },
+  {
+    "path": "backend/app/infrastructure/database/session.py",
+    "sha256": "ffe7cb50459ed4c30754455477b86b47d67e8de2233aa430fe370e808f63f296"
+  }
+]

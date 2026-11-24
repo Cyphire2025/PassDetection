@@ -1,0 +1,155 @@
+{
+  "files": [
+    {
+      "path": "scripts/release_retained_update.py",
+      "sha256": "7aa6681ae94a5d25b38eb3ed56c597c097d642546a234c1f4e9d4088fe1c97ec",
+      "physical_lines": 164,
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "notes": "Whole current physical source read; original597 post-health-probe source review and current28method/9helper/FastBuild/constant/runtimebinding equivalence retained. Actual self/super, source qualification and standaloneCLI controls pass; no live service qualification. Final decoded-data follow-through separately qualified: two JSON object/list guards, one service-label type guard, local path rename/internalgit annotations/explicit regex boolean. Whole three changed-module inverse and unchanged public arguments/evaluated hints proven. Current153affected cases pass; strict27-interface/generic annotations remain open (final count26)."
+    },
+    {
+      "path": "scripts/retained_release_contract.py",
+      "sha256": "c5dd3b221a201cb3269cb312614a238d3f5b5f670e2ab82bd4686a34dc5f950e",
+      "physical_lines": 225,
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "notes": "Whole current physical source read; original597 post-health-probe source review and current28method/9helper/FastBuild/constant/runtimebinding equivalence retained. Actual self/super, source qualification and standaloneCLI controls pass; no live service qualification. Final decoded-data follow-through separately qualified: two JSON object/list guards, one service-label type guard, local path rename/internalgit annotations/explicit regex boolean. Whole three changed-module inverse and unchanged public arguments/evaluated hints proven. Current153affected cases pass; strict27-interface/generic annotations remain open (final count26)."
+    },
+    {
+      "path": "scripts/retained_release_fast.py",
+      "sha256": "a55df2753e7442c71c759678ca78f9a274519248e38159b9a30de43c08626f5c",
+      "physical_lines": 69,
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "notes": "Whole current physical source read; original597 post-health-probe source review and current28method/9helper/FastBuild/constant/runtimebinding equivalence retained. Actual self/super, source qualification and standaloneCLI controls pass; no live service qualification. Final decoded-data follow-through separately qualified: two JSON object/list guards, one service-label type guard, local path rename/internalgit annotations/explicit regex boolean. Whole three changed-module inverse and unchanged public arguments/evaluated hints proven. Current153affected cases pass; strict27-interface/generic annotations remain open (final count26)."
+    },
+    {
+      "path": "scripts/retained_release_host.py",
+      "sha256": "268149106dc04bc235b85e47f1523dfbd5b987f289d692bc12b55ae7217463d2",
+      "physical_lines": 231,
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "notes": "Whole current physical source read; original597 post-health-probe source review and current28method/9helper/FastBuild/constant/runtimebinding equivalence retained. Actual self/super, source qualification and standaloneCLI controls pass; no live service qualification. Final decoded-data follow-through separately qualified: two JSON object/list guards, one service-label type guard, local path rename/internalgit annotations/explicit regex boolean. Whole three changed-module inverse and unchanged public arguments/evaluated hints proven. Current153affected cases pass; strict27-interface/generic annotations remain open (final count26)."
+    },
+    {
+      "path": "scripts/retained_release_runtime.py",
+      "sha256": "d5e65521ce9ab73ce2fe7e11773a7a453276ead001b4f97498bb6d7e6e85109a",
+      "physical_lines": 227,
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "notes": "Whole current physical source read; original597 post-health-probe source review and current28method/9helper/FastBuild/constant/runtimebinding equivalence retained. Actual self/super, source qualification and standaloneCLI controls pass; no live service qualification. Final decoded-data follow-through separately qualified: two JSON object/list guards, one service-label type guard, local path rename/internalgit annotations/explicit regex boolean. Whole three changed-module inverse and unchanged public arguments/evaluated hints proven. Current153affected cases pass; strict27-interface/generic annotations remain open (final count26)."
+    },
+    {
+      "path": "scripts/retained_release_build.py",
+      "sha256": "a368b6037e19be1a792e4a975145c4104edfd61ed3d5923388efa69a2cf2dca1",
+      "physical_lines": 57,
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "notes": "Whole current physical source read; original597 post-health-probe source review and current28method/9helper/FastBuild/constant/runtimebinding equivalence retained. Actual self/super, source qualification and standaloneCLI controls pass; no live service qualification. Final decoded-data follow-through separately qualified: two JSON object/list guards, one service-label type guard, local path rename/internalgit annotations/explicit regex boolean. Whole three changed-module inverse and unchanged public arguments/evaluated hints proven. Current153affected cases pass; strict27-interface/generic annotations remain open (final count26)."
+    },
+    {
+      "path": "scripts/retained_release_lifecycle.py",
+      "sha256": "aff3f49aed8e3475f2d511db7a6fa83304be7da8559cac27b3c13587ca652aea",
+      "physical_lines": 228,
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "notes": "Whole current physical source read; original597 post-health-probe source review and current28method/9helper/FastBuild/constant/runtimebinding equivalence retained. Actual self/super, source qualification and standaloneCLI controls pass; no live service qualification. Final decoded-data follow-through separately qualified: two JSON object/list guards, one service-label type guard, local path rename/internalgit annotations/explicit regex boolean. Whole three changed-module inverse and unchanged public arguments/evaluated hints proven. Current153affected cases pass; strict27-interface/generic annotations remain open (final count26)."
+    },
+    {
+      "path": "scripts/release_document_resources.py",
+      "sha256": "d0106c684c8bf2073c0992409051903592b371d050c666554d74d4c8ad045a6a",
+      "physical_lines": 324,
+      "reviewer": "ai_extraction",
+      "review_scope": "partial",
+      "review_status": "partial",
+      "status": "verified-focused",
+      "notes": "Only exact qualifier source list/hash boundary or mapped fixture/dependency patch targets reviewed. Whole test AST restores after only named dependency-owner retarget; no independent full test/module review claim."
+    },
+    {
+      "path": "scripts/test_retained_release_owners.py",
+      "sha256": "30915e59c5b4e80fc8323f56208757512b4b9fd17055c618de58182967307661",
+      "physical_lines": 120,
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "notes": "Whole current physical source read; original597 post-health-probe source review and current28method/9helper/FastBuild/constant/runtimebinding equivalence retained. Actual self/super, source qualification and standaloneCLI controls pass; no live service qualification. Final decoded-data follow-through separately qualified: two JSON object/list guards, one service-label type guard, local path rename/internalgit annotations/explicit regex boolean. Whole three changed-module inverse and unchanged public arguments/evaluated hints proven. Current153affected cases pass; strict27-interface/generic annotations remain open (final count26)."
+    },
+    {
+      "path": "scripts/test_release_retained_update.py",
+      "sha256": "cd6e1959c6a8114718999575a20f9007c18ccc9f3eff55ae91e7e19584484e62",
+      "physical_lines": 488,
+      "reviewer": "ai_extraction",
+      "review_scope": "partial",
+      "review_status": "partial",
+      "status": "verified-focused",
+      "notes": "Only exact qualifier source list/hash boundary or mapped fixture/dependency patch targets reviewed. Whole test AST restores after only named dependency-owner retarget; no independent full test/module review claim."
+    },
+    {
+      "path": "scripts/test_release_companies_fast.py",
+      "sha256": "35ca1d1aeb2296c7f9d97c6ae301a98f25bb823d4bc924bd41253c484a86ceae",
+      "physical_lines": 235,
+      "reviewer": "ai_extraction",
+      "review_scope": "partial",
+      "review_status": "partial",
+      "status": "verified-focused",
+      "notes": "Only exact qualifier source list/hash boundary or mapped fixture/dependency patch targets reviewed. Whole test AST restores after only named dependency-owner retarget; no independent full test/module review claim."
+    },
+    {
+      "path": "scripts/test_release_document_fast.py",
+      "sha256": "9a488f31d2eaa5e5871fd68a1d2062e73b2694f21f2a89acf17e3fc07a44194b",
+      "physical_lines": 177,
+      "reviewer": "ai_extraction",
+      "review_scope": "partial",
+      "review_status": "partial",
+      "status": "verified-focused",
+      "notes": "Only exact qualifier source list/hash boundary or mapped fixture/dependency patch targets reviewed. Whole test AST restores after only named dependency-owner retarget; no independent full test/module review claim."
+    },
+    {
+      "path": "scripts/test_document_resume_baseline.py",
+      "sha256": "cadebf2e0ce006b306f8a500b214403ba64a88ba3c085ce5a67d50fb3808d016",
+      "physical_lines": 190,
+      "reviewer": "ai_extraction",
+      "review_scope": "partial",
+      "review_status": "partial",
+      "status": "verified-focused",
+      "notes": "Only exact qualifier source list/hash boundary or mapped fixture/dependency patch targets reviewed. Whole test AST restores after only named dependency-owner retarget; no independent full test/module review claim."
+    },
+    {
+      "path": "scripts/test_release_health_asset.py",
+      "sha256": "946363b761bfe7e4ca1a2da5612f4fd690a0c41591b40dfab17a57d58f478adb",
+      "physical_lines": 135,
+      "reviewer": "ai_extraction",
+      "review_scope": "partial",
+      "review_status": "partial",
+      "status": "verified-focused",
+      "notes": "Only exact qualifier source list/hash boundary or mapped fixture/dependency patch targets reviewed. Whole test AST restores after only named dependency-owner retarget; no independent full test/module review claim."
+    },
+    {
+      "path": "scripts/test_retained_release_json_boundaries.py",
+      "sha256": "24f4ca73f2b8c0c3d03f413e6daca2eb130b716e9403df007d37352ebf8164d6",
+      "physical_lines": 90,
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "review_status": "full",
+      "status": "verified-focused",
+      "notes": "Complete authored/read six-test actual-method synthetic boundary module. Three ordinary/empty controls, nine malformedJSON scenarios, one additional malformed service-label scenario plus null control. Existing command scope/deadlines/digest gates exercised without real providers/Docker."
+    }
+  ],
+  "scope": "Nine full current source/test records and six partial qualifier/test owner-retarget records. Shared release work; dedicatedInbox remains deferred."
+}

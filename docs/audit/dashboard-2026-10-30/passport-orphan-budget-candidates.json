@@ -1,0 +1,52 @@
+[
+  {
+    "path": "app/infrastructure/documents/orphan_reconciliation.py",
+    "sha256": "7458b420372052de441f45b4349c440eb59464b78d7d5a6dc9da89356dae26a2",
+    "baseline_lines": 226,
+    "maximum_lines": 230,
+    "baseline_max_function_complexity": 13,
+    "maximum_function_complexity": 13,
+    "minimum_coverage_percent": 95,
+    "observed_statement_coverage": 100.0,
+    "observed_branch_coverage": 95.0,
+    "old_budget": null,
+    "coverage_evidence": "passport-orphan-coverage.json",
+    "source_fence_evidence": "passport-orphan-command.json",
+    "proposed_critical_coverage_gate": {
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 90
+    }
+  },
+  {
+    "path": "app/infrastructure/documents/passport_orphan_reconciliation.py",
+    "sha256": "386437eba16ef0ce7ad40ddf6bfa9542ba55c23ce2797c42413d090201d854ca",
+    "baseline_lines": 108,
+    "maximum_lines": 110,
+    "baseline_max_function_complexity": 8,
+    "maximum_function_complexity": 8,
+    "minimum_coverage_percent": 100,
+    "observed_statement_coverage": 100.0,
+    "observed_branch_coverage": 100.0,
+    "old_budget": null,
+    "coverage_evidence": "passport-orphan-coverage.json",
+    "source_fence_evidence": "passport-orphan-command.json",
+    "proposed_critical_coverage_gate": {
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 95
+    }
+  },
+  {
+    "path": "app/infrastructure/documents/cleanup_tasks.py",
+    "sha256": "39c6acc102334472316a68f88cc2b57cd9cd9a4115318a7596ed632c1df56517",
+    "baseline_lines": 67,
+    "maximum_lines": 70,
+    "baseline_max_function_complexity": 2,
+    "maximum_function_complexity": 2,
+    "minimum_coverage_percent": 100,
+    "observed_statement_coverage": 100.0,
+    "observed_branch_coverage": 100,
+    "old_budget": null,
+    "coverage_evidence": "passport-orphan-coverage.json",
+    "source_fence_evidence": "passport-orphan-command.json"
+  }
+]

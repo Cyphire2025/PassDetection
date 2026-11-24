@@ -1,0 +1,35 @@
+{
+  "identity_updates": [
+    "frontend_api:frontend/features/passports/api/upload-links.api.ts",
+    "openapi:POST:/api/v1/passports/upload/{token}/{submission_id}/scan-again",
+    "registration:backend/app/presentation/api/v1/router.py",
+    "route:backend/app/presentation/api/v1/routes/passport_routes/public_upload.py:scan_again_public_upload:POST:/upload/{token}/{submission_id}/scan-again",
+    "route:backend/app/presentation/api/v1/routes/passport_routes/queries.py:list_passport_groups:GET:/groups"
+  ],
+  "new_reviewed_surfaces": [
+    "frontend:frontend/features/branding/api/branding-images.api.ts:imageVersion",
+    "frontend:frontend/features/branding/api/branding-images.api.ts:invalidateBrandingImages",
+    "frontend:frontend/features/branding/api/branding-images.api.ts:saveBrandingImage",
+    "frontend:frontend/features/branding/image-crop.ts:cropBrandingImage",
+    "frontend:frontend/features/branding/image-crop.ts:cropRegion",
+    "frontend:frontend/features/settings/hooks/use-platform-data-purge.ts:usePlatformDataPurge",
+    "frontend:frontend/features/settings/hooks/use-platform-settings.ts:usePlatformSettings",
+    "frontend_api:frontend/features/branding/api/branding-images.api.ts",
+    "openapi:DELETE:/api/v1/branding/{kind}/{owner_id}",
+    "openapi:GET:/api/v1/branding/{kind}/{owner_id}",
+    "openapi:PUT:/api/v1/branding/{kind}/{owner_id}",
+    "page:frontend/app/ai/page.tsx",
+    "registration:backend/app/presentation/api/v1/routes/branding_images.py",
+    "route:backend/app/presentation/api/v1/routes/branding_images.py:read_image:GET:/{kind}/{owner_id}",
+    "route:backend/app/presentation/api/v1/routes/branding_images.py:remove_image:DELETE:/{kind}/{owner_id}",
+    "route:backend/app/presentation/api/v1/routes/branding_images.py:upload_image:PUT:/{kind}/{owner_id}"
+  ],
+  "retired_surface": "frontend:frontend/features/settings/components/platform-settings-panel.tsx:PlatformSettingsPanel",
+  "runtime_capabilities_changed": false,
+  "preserved_existing_dispositions": true,
+  "manual_exclusions": [
+    "frontend:frontend/features/settings/hooks/use-platform-data-purge.ts:usePlatformDataPurge",
+    "openapi:DELETE:/api/v1/branding/{kind}/{owner_id}",
+    "route:backend/app/presentation/api/v1/routes/branding_images.py:remove_image:DELETE:/{kind}/{owner_id}"
+  ]
+}

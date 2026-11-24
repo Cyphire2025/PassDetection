@@ -1,36 +1,80 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Global Connects Dashboard web application
 
-## Getting Started
+This directory contains the Next.js dashboard and browser traveller/coordinator
+flows. The Expo application is maintained separately in `../mobile/`. Read the
+repository [working instructions](../AGENTS.md) and this directory's
+[framework instructions](AGENTS.md) before changing application code.
 
-First, run the development server:
+## Local development
 
-```bash
+Use the reviewed Node.js and npm versions in
+[`tooling/toolchain.json`](../tooling/toolchain.json). Install the existing lock
+with `npm ci`; avoid regenerating dependency locks for unrelated changes.
+
+From this directory:
+
+```sh
+npm ci
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The development server uses port 3000 unless explicitly configured otherwise.
+Follow the repository [development setup](../README.md) for the Python API and
+local environment configuration. Public Next.js environment variables are
+browser-visible; API credentials and production data belong outside client
+configuration and test fixtures.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Source ownership
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `app/` owns routes, metadata, layouts and loading/error boundaries.
+- `features/` owns each workflow's UI, hooks, API adapters and services.
+- `components/`, `hooks/`, `lib/`, `providers/` and `stores/` contain shared
+  primitives and session/transport infrastructure.
+- `types/` and `constants/` contain shared contracts and route definitions.
+- `public/` includes the explicit public offline scanner runtime and assets.
 
-## Learn More
+Keep permission checks, private request ownership, upload receipt identities and
+document/camera acceptance rules intact when extracting a focused owner. Move
+the meaningful tests and coverage obligations with the implementation.
 
-To learn more about Next.js, take a look at the following resources:
+The standalone offline scanner is maintained in
+[`features/tour-operations/offline-runtime/`](features/tour-operations/offline-runtime/README.md)
+and generated into the existing public script. Its source guide explains the
+regeneration command and the stale-artifact check in the normal build.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+`features/upload/components/passport-detail-samples-original.tsx` retains the
+original detail-page illustrations as reference artwork. Retired cover and
+portrait PNG examples are preserved in the local `Not related to project`
+archive and are no longer public assets. Release health checks use the existing
+PWA icon; the active upload flow does not depend on those retired examples.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Verification
 
-## Deploy on Vercel
+During implementation, run the affected tests and checks for a coherent change.
+Examples:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```sh
+node node_modules/vitest/vitest.mjs run path/to/affected.test.tsx --maxWorkers=1 --pool=threads
+node --test path/to/affected.contract.test.mjs
+npm run type-check
+npm run lint
+npm run maintainability:check
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The repository working instructions and CI define the complete integration and
+release gates, including coverage, production builds and browser journeys. A
+focused source or component test does not qualify a production deployment.
+
+Browser journeys use [`playwright.config.ts`](playwright.config.ts) and
+[`config/e2e-isolation.ts`](config/e2e-isolation.ts). They own isolated loopback
+services on ports 3100 and 3199 and override API destinations with their fixture
+server. Use synthetic accounts and documents, and preserve that isolation.
+
+## Existing VPS release
+
+This frontend participates in the existing single-VPS release. Use the
+[current release and storage procedure](../docs/CURRENT_RELEASE_AND_STORAGE.md)
+and [production readiness requirements](../docs/PRODUCTION_RELEASE_READINESS.md).
+The repository release helpers qualify and activate the intended revision;
+changing application branding or source structure does not require a new
+hosting setup. This README does not deploy or migrate the VPS.

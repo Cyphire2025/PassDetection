@@ -4,11 +4,12 @@ from __future__ import annotations
 
 import json
 import uuid
+from collections import Counter
 from datetime import UTC, datetime
 from typing import cast
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import and_, func, select
+from sqlalchemy import Select, and_, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.mobile.passenger_change_propagation import (
@@ -67,7 +68,7 @@ from app.presentation.dependencies.csrf import require_cookie_csrf
 router = APIRouter()
 
 
-def _source_group_statement(current_user: User):  # type: ignore[no-untyped-def]
+def _source_group_statement(current_user: User) -> Select[tuple[ClientGroupModel]]:
     # Even a super admin must create in the effective agency, matching normal
     # broadcast creation. Group visibility alone deliberately allows all agencies.
     statement = select(ClientGroupModel).where(
@@ -75,7 +76,7 @@ def _source_group_statement(current_user: User):  # type: ignore[no-untyped-def]
         ClientGroupModel.status == GroupStatus.ACTIVE.value,
         ClientGroupModel.deleted_at.is_(None),
     )
-    return AuthorizationPolicy.apply_group_visibility_scope(statement, current_user)
+    return cast(Select[tuple[ClientGroupModel]], AuthorizationPolicy.apply_group_visibility_scope(statement, current_user))
 
 
 async def _source_group(
@@ -91,7 +92,7 @@ async def _source_group(
         await AuthorizationPolicy(session).require_manage_group(current_user, group)
     except AuthorizationError as exc:
         raise HTTPException(403, exc.message) from exc
-    return cast(ClientGroupModel, group)
+    return group
 
 
 async def _source_preview(
@@ -270,10 +271,11 @@ async def get_broadcast_source_contacts(
             recipient_id=corrected.id if corrected else row.recipient_id,
         ))
     phones = [row.normalized_phone_number for row in contacts if not row.issue and row.normalized_phone_number]
+    source_counts = Counter(row.source_group_id for row in rows)
     return WhatsAppBroadcastSourceRoster(
         sources=[WhatsAppSourceGroupOption(
             id=source.id, name=source.name, import_only=source.import_only,
-            submission_count=sum(row.source_group_id == source.id for row in rows),
+            submission_count=source_counts[source.id],
         ) for source in sources],
         total_contacts=len(contacts), unique_phone_count=len(set(phones)),
         shared_phone_count=len(phones) - len(set(phones)),

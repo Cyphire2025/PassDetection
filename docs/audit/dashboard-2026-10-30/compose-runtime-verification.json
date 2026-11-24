@@ -1,0 +1,87 @@
+{
+  "status": "source-frozen-focused-current",
+  "original_lines": 731,
+  "current_runtime_owners": 7,
+  "current_lines": {
+    "scripts/verify_compose_runtime.py": 215,
+    "scripts/compose_runtime_capacity.py": 208,
+    "scripts/compose_runtime_clients.py": 120,
+    "scripts/compose_runtime_contract.py": 132,
+    "scripts/compose_runtime_services.py": 138,
+    "scripts/compose_runtime_values.py": 58,
+    "scripts/compose_runtime_workers.py": 175
+  },
+  "mechanical_proof": {
+    "main_statements_exact_before_queue_strengthening": 102,
+    "nonmain_whole_functions_exact": 7,
+    "constant_ASTs_and_actual_values_exact": 22,
+    "public_signatures_hints_exact": 8,
+    "source_file_argument_renames_explicit_and_noncolliding": true,
+    "CLI_exception_boundary_AST_exact": true
+  },
+  "intentional_behavior_fix": {
+    "before_failed": 2,
+    "before_controls_passed": 8,
+    "old_issue": "Substring checks accepted a similarly namedqueue or required queue name in unrelated logfileargument; actual configuredconsumption differed.",
+    "new_check": "Parse existing declared command shape and require exactsingle -Q/--queues set; all old validationsretained inoriginalorder.",
+    "supplemental_module_inverse_proof": true,
+    "limits": "Sourcevalidator false-negative only; no live queuedworker/deployed failure/securitybypass claimed."
+  },
+  "focused_checks": {
+    "unittest_methods_passed": 13,
+    "seconds": 0.015,
+    "files": 2,
+    "valid_queue_option_shapes": 7,
+    "negative_queue_option_shapes": 7,
+    "ruff_owned_runtime_and_tests": 9,
+    "format_owned_runtime_and_tests": 9,
+    "scoped_linux_typecheck_modules": 7,
+    "source_fence": "compose-runtime-final-command.json"
+  },
+  "history": [
+    "Initial mechanical proof caught four local-vs-path argument name collisions in inverse AST restoration; path arguments now distinct *_path names, complete102statement exactproofpassed before queuefix.",
+    "Ambient non-checkout Ruffconfiguration initially selectedextraPLC0414 rules; final uses unchanged reviewedbackend/pyproject.toml explicitly, and all actual originalstatement/functionASTs remained exact. No linterpolicy modified.",
+    "Initial rootcwd mypy invocation produced19 unresolvedscriptimportdiagnostics; correctscriptsCLIcwd broaderWindows walk exposed11 unrelated imported/platformdiagnostics. Finalscoped7module Linux typecheck passes with imported bodies excluded, not a complete repository typecheck.",
+    "Initial formatcheck found existing unchanged renderfixture formatting; formatter changedonlywhitespace/parentheses, complete AST provedidentical. Failedcheck retained."
+  ],
+  "source_sha256": {
+    "scripts/verify_compose_runtime.py": "fc40628ad8ee060c34574e1d624d36f20fa1ead9e498dad4bf6c7067fae9e5e8",
+    "scripts/compose_runtime_capacity.py": "5261ea747dc77062c2b6d4c13ff617c0df6ab72c7e3a003410b5bd0c364ae979",
+    "scripts/compose_runtime_clients.py": "0e542244be82084f49bb558c3500c1a51fb97f8e7f8f367a75dd54f679768d93",
+    "scripts/compose_runtime_contract.py": "12c0fe4ac2368f4ed6120d68d8c7224f2402a3b8b65d9075e507fdc55edcb3e3",
+    "scripts/compose_runtime_services.py": "698b1cdbda38eaa96a5fb08377c90bb4a2ecedcb620f5f073fc3d01c1aae2d43",
+    "scripts/compose_runtime_values.py": "fba60e039015fd050fd7048f490a33da69fa6f9654d1297768ac01ff7799e4de",
+    "scripts/compose_runtime_workers.py": "13e906a71f218a6990f48bdb4de872487ddbc9c9a907287a508b45d05e44ef7b",
+    "scripts/test_compose_runtime_policies.py": "7b1c614c2d65cd1eca9f7538dbe6349edf9e26a6368528c43b0ccb1bdad77830",
+    "scripts/test_compose_render_fixture.py": "9fca05ccd7addadb69bcb2a7a431b1a335ea5541484518c2f2ba31822e530f64",
+    "backend/Dockerfile": "10895b26619bfee4e3f93426a3a8f4c3859a805442fcf63427adf12a0b429e6e",
+    "backend/gunicorn.conf.py": "5d309d16336290af027ad235a9c6b8b7110661d78e84d6823a62890b797d44c4",
+    "backend/.dockerignore": "b1ccfa9fa13ed96a2b0ab4671a27e4b3e0ef4f6a9d478a1ddc519bbdc01a1645",
+    "frontend/.dockerignore": "6a4024fa246fe813bedec0eaf950776f99b7a83d00e3c8abc10d67acb5dccce2"
+  },
+  "artifacts": {
+    "compose-runtime-extraction-proof.json": "4dd6a0a04f70f07c388d7c22632f869bc5aa69c5801530fe6a0032cda1783421",
+    "compose-runtime-queue-followthrough.json": "9aeacb4baea895b4b49c6f7c1c4291c22b03c6512a78de9684dc8a95f6f0f1c1",
+    "compose-runtime-original-sources.json": "4d7b0e9a15d64c7c207b7c78f8bea08cb64d5801c71c3c1efe82cd73fa5c0376",
+    "compose-runtime-reviewed-files.json": "b914a25eb413181176da1d4dd845ff23784a80a0c0fc14f8ebeabecb298450c9",
+    "compose-runtime-final-command.json": "544314a5d0d3dff6b0d107b0d592f69b9e8a0552012e17cbb08365a5cf5c27bd",
+    "compose-runtime-final-unit.txt": "750bddc76b7713b71324411ce5f7b7c96784270cf015d750a31c356f6d9b53a3",
+    "compose-runtime-final-ruff.txt": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0",
+    "compose-runtime-final-format.txt": "38e84e0948ed804ef5b17840dd465124bf6e79a3716b4cdf09673cd6837f2df5",
+    "compose-runtime-final-mypy.txt": "e2702f9afc4c0f80ff1e8624f77af7a7d2689ca184512114aae5967a76229ba8",
+    "compose-runtime-policy-before.txt": "f198e315c7e7b5ddf284a8a899bb5a2945e76e04314032d24d2978a82b2b5fe7",
+    "compose-runtime-policy-after.txt": "24320dbea01608b8af192c0142a8c06169dcdb7630aea9eb1e92c512e08e9a0b",
+    "compose-runtime-format-initial.txt": "401d728936f75c06b123e62918c871b85ebca893e767736390f3339f58e0a18e"
+  },
+  "remaining_operator_followups": [
+    "Read-only full597line retained release/690line traveller release/730line workload qualifier architecture obligations remainopen.",
+    "Workload observer lifetime after earlyexception/cancellation is an unvalidatedcandidate; no runtimechangesmade.",
+    "Broader imported rootoperator type annotations/platform qualification not closed by scoped owned typecheck."
+  ],
+  "limits": [
+    "No DockerCompose rendering/daemon/service execution, provider calls, deploy/upgrade or productioncredentialreads.",
+    "All actual Compose definitions/images/queuecommands/resource/envsettings remainbyteunchanged.",
+    "Existing realCompose/runtime/image and deploymentgates must runatfinalcombined qualification; source proofs/synthetic policies do not replace them.",
+    "Current backend626/91/FE618 strict102 state unaffected by these unprotected operator source edits; pending deadline6/FE629 exactintegration separate."
+  ]
+}

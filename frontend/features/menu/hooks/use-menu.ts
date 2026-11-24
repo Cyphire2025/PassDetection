@@ -1,4 +1,5 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { usePrivateMutation } from "@/hooks/use-private-mutation";
 import { QUERY_KEYS } from "@/constants";
 import {
   menuApi,
@@ -23,7 +24,7 @@ function useRefreshMenu() {
 
 export function useCreateMenuCategory() {
   const refresh = useRefreshMenu();
-  return useMutation({
+  return usePrivateMutation({
     mutationFn: menuApi.createCategory,
     onSuccess: refresh,
   });
@@ -32,7 +33,7 @@ export function useCreateMenuCategory() {
 export function useUpdateMenuCategory() {
   const queryClient = useQueryClient();
   const refresh = useRefreshMenu();
-  return useMutation({
+  return usePrivateMutation({
     mutationFn: ({ categoryId, name }: { categoryId: string; name: string }) => {
       const category = requireCategory(currentWorkspace(queryClient), categoryId);
       return menuApi.updateCategory({
@@ -48,7 +49,7 @@ export function useUpdateMenuCategory() {
 export function useDeleteMenuCategory() {
   const queryClient = useQueryClient();
   const refresh = useRefreshMenu();
-  return useMutation({
+  return usePrivateMutation({
     mutationFn: (categoryId: string) => {
       const category = requireCategory(currentWorkspace(queryClient), categoryId);
       return menuApi.deleteCategory({
@@ -63,7 +64,7 @@ export function useDeleteMenuCategory() {
 export function useCreateMenuDish() {
   const queryClient = useQueryClient();
   const refresh = useRefreshMenu();
-  return useMutation({
+  return usePrivateMutation({
     mutationFn: ({
       categoryId,
       name,
@@ -88,7 +89,7 @@ export function useCreateMenuDish() {
 export function useUpdateMenuDish() {
   const queryClient = useQueryClient();
   const refresh = useRefreshMenu();
-  return useMutation({
+  return usePrivateMutation({
     mutationFn: ({
       dishId,
       name,
@@ -117,7 +118,7 @@ export function useUpdateMenuDish() {
 export function useDeleteMenuDish() {
   const queryClient = useQueryClient();
   const refresh = useRefreshMenu();
-  return useMutation({
+  return usePrivateMutation({
     mutationFn: (dishId: string) => {
       const { category, dish } = requireDish(currentWorkspace(queryClient), dishId);
       return menuApi.deleteDish({
@@ -133,7 +134,7 @@ export function useDeleteMenuDish() {
 export function useGenerateMealPlan() {
   const queryClient = useQueryClient();
   const refresh = useRefreshMenu();
-  return useMutation({
+  return usePrivateMutation({
     mutationFn: (input: GenerateMealPlanInput) => {
       const workspace = currentWorkspace(queryClient);
       const categoryIds = input.category_ids
@@ -153,7 +154,7 @@ export function useGenerateMealPlan() {
 export function useRegenerateMealPlan() {
   const queryClient = useQueryClient();
   const refresh = useRefreshMenu();
-  return useMutation({
+  return usePrivateMutation({
     mutationFn: ({ planId, categoryIds }: { planId: string; categoryIds?: string[] }) => {
       const workspace = currentWorkspace(queryClient);
       const plan = requirePlan(workspace, planId);
@@ -172,7 +173,7 @@ export function useRegenerateMealPlan() {
 export function useUpdateMealPlan() {
   const queryClient = useQueryClient();
   const refresh = useRefreshMenu();
-  return useMutation({
+  return usePrivateMutation({
     mutationFn: ({
       planId,
       name,
@@ -196,7 +197,7 @@ export function useUpdateMealPlan() {
 
 export function useUpdateMealPlanEntry() {
   const queryClient = useQueryClient();
-  return useMutation({
+  return usePrivateMutation({
     mutationFn: ({
       planId,
       entryId,
@@ -244,7 +245,7 @@ export function useUpdateMealPlanEntry() {
 export function useDeleteMealPlan() {
   const queryClient = useQueryClient();
   const refresh = useRefreshMenu();
-  return useMutation({
+  return usePrivateMutation({
     mutationFn: (planId: string) => {
       const plan = requirePlan(currentWorkspace(queryClient), planId);
       return menuApi.deletePlan({
@@ -257,7 +258,7 @@ export function useDeleteMealPlan() {
 }
 
 export function useExportMealPlan() {
-  return useMutation({
+  return usePrivateMutation({
     mutationFn: menuApi.exportPlan,
   });
 }

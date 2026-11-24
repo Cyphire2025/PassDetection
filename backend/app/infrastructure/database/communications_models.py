@@ -1,545 +1,92 @@
-"""WhatsApp broadcast and delivery SQLAlchemy models."""
+"""Stable WhatsApp model aliases with original ORM registration order."""
 
 from __future__ import annotations
 
-import uuid
-from datetime import datetime
-from typing import TYPE_CHECKING, Any
+import uuid as uuid
+from datetime import (
+    datetime as datetime,
+)
+from typing import (
+    TYPE_CHECKING as TYPE_CHECKING,
+)
+from typing import (
+    Any as Any,
+)
 
 from sqlalchemy import (
-    BigInteger,
-    Boolean,
-    CheckConstraint,
-    DateTime,
-    ForeignKey,
-    Index,
-    Integer,
-    String,
-    Text,
-    UniqueConstraint,
-    text,
+    BigInteger as BigInteger,
 )
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import (
+    Boolean as Boolean,
+)
+from sqlalchemy import (
+    CheckConstraint as CheckConstraint,
+)
+from sqlalchemy import (
+    DateTime as DateTime,
+)
+from sqlalchemy import (
+    ForeignKey as ForeignKey,
+)
+from sqlalchemy import (
+    Index as Index,
+)
+from sqlalchemy import (
+    Integer as Integer,
+)
+from sqlalchemy import (
+    String as String,
+)
+from sqlalchemy import (
+    Text as Text,
+)
+from sqlalchemy import (
+    UniqueConstraint as UniqueConstraint,
+)
+from sqlalchemy import (
+    text as text,
+)
+from sqlalchemy.dialects.postgresql import (
+    UUID as UUID,
+)
+from sqlalchemy.orm import (
+    Mapped as Mapped,
+)
+from sqlalchemy.orm import (
+    mapped_column as mapped_column,
+)
+from sqlalchemy.orm import (
+    relationship as relationship,
+)
 
-from app.infrastructure.database.model_base import JSONB, Base, _utcnow
+from app.infrastructure.database.model_base import (
+    JSONB as JSONB,
+)
+from app.infrastructure.database.model_base import (
+    Base as Base,
+)
+from app.infrastructure.database.model_base import (
+    _utcnow as _utcnow,
+)
 
-if TYPE_CHECKING:
-    from app.infrastructure.database.models import ClientGroupWhatsAppBroadcastLinkModel
-
-
-class WhatsAppBroadcastGroupModel(Base):
-    __tablename__ = "whatsapp_broadcast_groups"
-    __table_args__ = (
-        Index("ix_whatsapp_broadcast_groups_agency_created", "agency_id", "created_at"),
-        Index("ix_whatsapp_groups_agency_archive_created", "agency_id", "archived_at", "created_at"),
-    )
-
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    agency_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
-        ForeignKey("agencies.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True,
-    )
-    name: Mapped[str] = mapped_column(String(255), nullable=False)
-    organizing_company_name: Mapped[str] = mapped_column(String(255), nullable=False, default="")
-    recipient_opt_in_confirmed_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
-    archived_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    # Canonical headings discovered across imported workbooks. Keeping the
-    # bounded union on the list makes link configuration cheap even for large
-    # recipient rosters and preserves headings whose column is currently empty.
-    imported_field_keys: Mapped[list[str]] = mapped_column(
-        JSONB,
-        nullable=False,
-        default=list,
-        server_default="[]",
-    )
-    created_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True
-    )
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=_utcnow, nullable=False
-    )
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False
-    )
-    client_group_links: Mapped[list[ClientGroupWhatsAppBroadcastLinkModel]] = relationship(
-        "ClientGroupWhatsAppBroadcastLinkModel",
-        back_populates="broadcast_group",
-        cascade="all, delete-orphan",
-    )
-    rejected_contacts: Mapped[list[WhatsAppBroadcastRejectedContactModel]] = relationship(
-        "WhatsAppBroadcastRejectedContactModel",
-        back_populates="broadcast_group",
-        cascade="all, delete-orphan",
-    )
-
-
-class WhatsAppBroadcastRecipientModel(Base):
-    __tablename__ = "whatsapp_broadcast_recipients"
-    __table_args__ = (
-        Index("ix_whatsapp_recipient_source_seek", "broadcast_group_id", "id"),
-        UniqueConstraint(
-            "broadcast_group_id",
-            "normalized_phone_number",
-            name="uq_whatsapp_recipient_group_phone",
-        ),
-        Index("ix_whatsapp_recipients_group_created", "broadcast_group_id", "created_at"),
-        Index(
-            "ix_whatsapp_recipients_group_display_order",
-            "broadcast_group_id",
-            "display_order",
-        ),
-        Index(
-            "ix_whatsapp_broadcast_recipients_roster_resolution",
-            "suppressed_by_roster_resolution_id",
-        ),
-    )
-
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    broadcast_group_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
-        ForeignKey("whatsapp_broadcast_groups.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True,
-    )
-    agency_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
-        ForeignKey("agencies.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True,
-    )
-    name: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    phone_number: Mapped[str] = mapped_column(String(64), nullable=False)
-    normalized_phone_number: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
-    imported_fields: Mapped[dict[str, str]] = mapped_column(
-        JSONB,
-        nullable=False,
-        default=dict,
-        server_default="{}",
-    )
-    display_order: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
-    is_source_managed: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, default=False, server_default=text("false")
-    )
-    removed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    merged_into_recipient_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True),
-        ForeignKey("whatsapp_broadcast_recipients.id", name="fk_whatsapp_recipient_merge_target", ondelete="SET NULL"),
-        nullable=True,
-        index=True,
-    )
-    merged_contacts: Mapped[list[dict[str, Any]]] = mapped_column(
-        JSONB, nullable=False, default=list, server_default="[]",
-    )
-    suppressed_by_roster_resolution_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True),
-        ForeignKey(
-            "passport_roster_resolutions.id",
-            name="fk_whatsapp_recipient_roster_resolution",
-            use_alter=True,
-            ondelete="SET NULL",
-        ),
-        nullable=True,
-    )
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=_utcnow, nullable=False
-    )
-
-
-class WhatsAppBroadcastSourceContactModel(Base):
-    """Every source traveller; several travellers may share one delivery recipient."""
-
-    __tablename__ = "whatsapp_broadcast_source_contacts"
-    __table_args__ = (
-        UniqueConstraint(
-            "broadcast_group_id", "source_group_id", "source_submission_id",
-            name="uq_whatsapp_source_contact_submission",
-        ),
-        Index("ix_whatsapp_source_contacts_agency_source", "agency_id", "source_group_id"),
-        Index("ix_whatsapp_source_contacts_broadcast", "broadcast_group_id"),
-        Index("ix_whatsapp_source_contacts_recipient", "recipient_id"),
-        Index("ix_whatsapp_source_contacts_submission", "source_submission_id"),
-    )
-
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    agency_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("agencies.id", ondelete="CASCADE"), nullable=False
-    )
-    broadcast_group_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("whatsapp_broadcast_groups.id", ondelete="CASCADE"),
-        nullable=False,
-    )
-    source_group_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("client_groups.id", ondelete="CASCADE"), nullable=False
-    )
-    source_submission_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("passport_submissions.id", ondelete="CASCADE"),
-        nullable=False,
-    )
-    recipient_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("whatsapp_broadcast_recipients.id", ondelete="SET NULL"),
-        nullable=True,
-    )
-    name: Mapped[str] = mapped_column(Text, nullable=False)
-    raw_phone_number: Mapped[str | None] = mapped_column(Text, nullable=True)
-    normalized_phone_number: Mapped[str | None] = mapped_column(String(32), nullable=True)
-    issue: Mapped[str | None] = mapped_column(String(32), nullable=True)
-    imported_fields: Mapped[dict[str, str]] = mapped_column(
-        JSONB, nullable=False, default=dict, server_default="{}"
-    )
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=_utcnow, onupdate=_utcnow
-    )
-
-
-class WhatsAppTravellerPhoneOverrideModel(Base):
-    """An exact traveller's broadcast-only correction, never collection authority."""
-
-    __tablename__ = "whatsapp_traveller_phone_overrides"
-    __table_args__ = (
-        UniqueConstraint("broadcast_group_id", "passenger_id", name="uq_whatsapp_phone_override_passenger"),
-        Index("ix_whatsapp_phone_overrides_agency_group", "agency_id", "group_id"),
-        Index("ix_whatsapp_phone_overrides_recipient", "recipient_id"),
-    )
-
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    agency_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("agencies.id", ondelete="CASCADE"), nullable=False,
-    )
-    broadcast_group_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("whatsapp_broadcast_groups.id", ondelete="CASCADE"), nullable=False,
-    )
-    group_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("client_groups.id", ondelete="CASCADE"), nullable=False,
-    )
-    passenger_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("passport_submissions.id", ondelete="CASCADE"), nullable=False,
-    )
-    recipient_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("whatsapp_broadcast_recipients.id", ondelete="CASCADE"), nullable=False,
-    )
-    source_phone_fingerprint: Mapped[str] = mapped_column(String(64), nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False,
-    )
-
-
-class WhatsAppBroadcastRejectedContactModel(Base):
-    __tablename__ = "whatsapp_broadcast_rejected_contacts"
-    __table_args__ = (
-        Index("ix_whatsapp_rejected_source_seek", "broadcast_group_id", "id"),
-        UniqueConstraint(
-            "broadcast_group_id",
-            "fingerprint",
-            name="uq_whatsapp_rejected_contact_group_fingerprint",
-        ),
-        CheckConstraint(
-            "row_number >= 1",
-            name="ck_whatsapp_rejected_contact_row_number",
-        ),
-        CheckConstraint(
-            "reason_code IN ('missing_phone', 'invalid_phone', 'missing_name', 'duplicate_phone')",
-            name="ck_whatsapp_rejected_contact_reason_code",
-        ),
-        Index(
-            "ix_whatsapp_rejected_contacts_group_created",
-            "broadcast_group_id",
-            "created_at",
-        ),
-        Index(
-            "ix_whatsapp_rejected_contacts_group_display_order",
-            "broadcast_group_id",
-            "display_order",
-        ),
-    )
-
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
-        primary_key=True,
-        default=uuid.uuid4,
-    )
-    broadcast_group_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
-        ForeignKey("whatsapp_broadcast_groups.id", ondelete="CASCADE"),
-        nullable=False,
-    )
-    agency_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
-        ForeignKey("agencies.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True,
-    )
-    source_file_name: Mapped[str] = mapped_column(String(255), nullable=False)
-    sheet_name: Mapped[str] = mapped_column(String(31), nullable=False)
-    row_number: Mapped[int] = mapped_column(Integer, nullable=False)
-    raw_name: Mapped[str | None] = mapped_column(String(256), nullable=True)
-    raw_phone_number: Mapped[str | None] = mapped_column(String(64), nullable=True)
-    imported_fields: Mapped[dict[str, str]] = mapped_column(
-        JSONB,
-        nullable=False,
-        default=dict,
-        server_default="{}",
-    )
-    display_order: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
-    reason_code: Mapped[str] = mapped_column(String(32), nullable=False)
-    reason: Mapped[str] = mapped_column(String(256), nullable=False)
-    fingerprint: Mapped[str] = mapped_column(String(64), nullable=False)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        default=_utcnow,
-        nullable=False,
-    )
-
-    broadcast_group: Mapped[WhatsAppBroadcastGroupModel] = relationship(
-        "WhatsAppBroadcastGroupModel",
-        back_populates="rejected_contacts",
-    )
-
-
-class WhatsAppBroadcastSupportContactModel(Base):
-    __tablename__ = "whatsapp_broadcast_support_contacts"
-    __table_args__ = (
-        UniqueConstraint(
-            "broadcast_group_id",
-            "normalized_phone_number",
-            name="uq_whatsapp_support_group_phone",
-        ),
-        Index("ix_whatsapp_support_group_order", "broadcast_group_id", "sort_order"),
-    )
-
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    broadcast_group_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
-        ForeignKey("whatsapp_broadcast_groups.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True,
-    )
-    agency_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
-        ForeignKey("agencies.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True,
-    )
-    name: Mapped[str] = mapped_column(String(255), nullable=False)
-    phone_number: Mapped[str] = mapped_column(String(64), nullable=False)
-    normalized_phone_number: Mapped[str] = mapped_column(String(32), nullable=False)
-    sort_order: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=_utcnow, nullable=False
-    )
-
-
-class WhatsAppMessageLogModel(Base):
-    __tablename__ = "whatsapp_message_logs"
-    __table_args__ = (
-        Index("ix_whatsapp_message_logs_group_created", "broadcast_group_id", "created_at"),
-        Index("ix_whatsapp_message_logs_provider_id", "provider_message_id"),
-        Index(
-            "uq_whatsapp_active_explicit_resend",
-            "recipient_id",
-            "message_type",
-            unique=True,
-            postgresql_where=text(
-                "is_explicit_resend = true "
-                "AND status IN ('queued', 'processing', 'delivery_unknown')"
-            ),
-            sqlite_where=text(
-                "is_explicit_resend = true "
-                "AND status IN ('queued', 'processing', 'delivery_unknown')"
-            ),
-        ),
-    )
-
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    batch_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), nullable=True, index=True
-    )
-    broadcast_group_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
-        ForeignKey("whatsapp_broadcast_groups.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True,
-    )
-    recipient_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
-        ForeignKey("whatsapp_broadcast_recipients.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True,
-    )
-    agency_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
-        ForeignKey("agencies.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True,
-    )
-    message_type: Mapped[str] = mapped_column(String(64), nullable=False)
-    # Immutable destination: receipts must never qualify an edited roster phone.
-    normalized_phone_number: Mapped[str | None] = mapped_column(String(32), nullable=True)
-    status: Mapped[str] = mapped_column(String(32), nullable=False)
-    status_updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=_utcnow, nullable=False
-    )
-    provider_status_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
-    provider_message_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
-    template_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    template_language: Mapped[str | None] = mapped_column(String(16), nullable=True)
-    rendered_message: Mapped[str | None] = mapped_column(Text, nullable=True)
-    header_parameter_values: Mapped[list[str] | None] = mapped_column(JSONB, nullable=True)
-    template_parameter_values: Mapped[list[str] | None] = mapped_column(JSONB, nullable=True)
-    # Frozen scope for text-only document updates; never changes document send status.
-    document_update_context: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
-    is_explicit_resend: Mapped[bool] = mapped_column(
-        Boolean,
-        default=False,
-        server_default=text("false"),
-        nullable=False,
-    )
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=_utcnow, nullable=False
-    )
-
-
-class WhatsAppRecipientMessageStateModel(Base):
-    """Atomic per-recipient/per-message-type delivery claim and checklist."""
-
-    __tablename__ = "whatsapp_recipient_message_states"
-    __table_args__ = (
-        UniqueConstraint(
-            "recipient_id",
-            "message_type",
-            name="uq_whatsapp_recipient_message_state",
-        ),
-        Index(
-            "ix_whatsapp_message_states_group_type_status",
-            "broadcast_group_id",
-            "message_type",
-            "status",
-        ),
-    )
-
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    broadcast_group_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
-        ForeignKey("whatsapp_broadcast_groups.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True,
-    )
-    recipient_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
-        ForeignKey("whatsapp_broadcast_recipients.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True,
-    )
-    agency_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
-        ForeignKey("agencies.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True,
-    )
-    message_type: Mapped[str] = mapped_column(String(64), nullable=False)
-    status: Mapped[str] = mapped_column(String(32), nullable=False)
-    batch_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), nullable=True, index=True
-    )
-    submitted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    status_updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=_utcnow, nullable=False
-    )
-    provider_status_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=_utcnow, nullable=False
-    )
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        default=_utcnow,
-        onupdate=_utcnow,
-        nullable=False,
-    )
-
-
-class WhatsAppPhoneWelcomeModel(Base):
-    """One welcome prerequisite per tenant and actual destination phone."""
-
-    __tablename__ = "whatsapp_phone_welcomes"
-    __table_args__ = (
-        UniqueConstraint("agency_id", "normalized_phone_number", name="uq_whatsapp_phone_welcome"),
-    )
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    agency_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("agencies.id", ondelete="CASCADE"), nullable=False
-    )
-    normalized_phone_number: Mapped[str] = mapped_column(String(32), nullable=False)
-    status: Mapped[str] = mapped_column(String(32), nullable=False)
-    # Logical source UUID, deliberately not a foreign key: removing an imported
-    # list must not erase confirmed welcome delivery to this phone.
-    attempt_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
-    attempt_kind: Mapped[str] = mapped_column(String(16), nullable=False)
-    delivered_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    provider_status_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
-    status_updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=_utcnow, nullable=False
-    )
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=_utcnow, nullable=False
-    )
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False
-    )
-
-
-class WhatsAppPhoneWelcomeAttemptModel(Base):
-    """Frozen, durable traveller welcome intent outside the imported roster."""
-
-    __tablename__ = "whatsapp_phone_welcome_attempts"
-    __table_args__ = (Index("ix_phone_welcome_attempt_batch_status", "batch_id", "status"),)
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    batch_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
-    agency_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("agencies.id", ondelete="CASCADE"), nullable=False
-    )
-    group_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("client_groups.id", ondelete="CASCADE"), nullable=False
-    )
-    broadcast_group_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
-        ForeignKey("whatsapp_broadcast_groups.id", ondelete="CASCADE"),
-        nullable=False,
-    )
-    passenger_ids: Mapped[list[str]] = mapped_column(JSONB, nullable=False, default=list)
-    normalized_phone_number: Mapped[str] = mapped_column(String(32), nullable=False)
-    recipient_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    template_name: Mapped[str] = mapped_column(String(255), nullable=False)
-    rendered_message: Mapped[str] = mapped_column(Text, nullable=False)
-    header_parameter_values: Mapped[list[str]] = mapped_column(JSONB, nullable=False)
-    template_parameter_values: Mapped[list[str]] = mapped_column(JSONB, nullable=False)
-    created_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
-    )
-    status: Mapped[str] = mapped_column(String(32), nullable=False, default="queued")
-    provider_message_id: Mapped[str | None] = mapped_column(String(255), nullable=True, index=True)
-    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
-    provider_status_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
-    status_updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=_utcnow, nullable=False
-    )
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=_utcnow, nullable=False
-    )
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False
-    )
+# Keep the original class/table registration order and qualified ORM namespace.
+# isort: off
+from ._communications_models.broadcast import (
+    WhatsAppBroadcastGroupModel as WhatsAppBroadcastGroupModel,
+    WhatsAppBroadcastRecipientModel as WhatsAppBroadcastRecipientModel,
+)
+from ._communications_models.source import (
+    WhatsAppBroadcastSourceContactModel as WhatsAppBroadcastSourceContactModel,
+    WhatsAppTravellerPhoneOverrideModel as WhatsAppTravellerPhoneOverrideModel,
+    WhatsAppBroadcastRejectedContactModel as WhatsAppBroadcastRejectedContactModel,
+    WhatsAppBroadcastSupportContactModel as WhatsAppBroadcastSupportContactModel,
+)
+from ._communications_models.delivery import (
+    WhatsAppMessageLogModel as WhatsAppMessageLogModel,
+    WhatsAppRecipientMessageStateModel as WhatsAppRecipientMessageStateModel,
+)
+from ._communications_models.welcome import (
+    WhatsAppPhoneWelcomeModel as WhatsAppPhoneWelcomeModel,
+    WhatsAppPhoneWelcomeAttemptModel as WhatsAppPhoneWelcomeAttemptModel,
+)
+# isort: on

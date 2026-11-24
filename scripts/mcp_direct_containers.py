@@ -101,7 +101,7 @@ class UnixConnection(http.client.HTTPConnection):
 
 
 class LocalDocker:
-    def __init__(self):
+    def __init__(self) -> None:
         if sys.platform != "linux" or os.environ.get("DOCKER_HOST") or os.environ.get("DOCKER_CONTEXT"):
             raise ContainerError("local_linux_docker_required")
 

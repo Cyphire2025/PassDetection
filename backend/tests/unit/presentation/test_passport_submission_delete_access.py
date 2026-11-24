@@ -35,6 +35,7 @@ from app.presentation.api.v1.routes.client_groups import permanently_delete_clie
 from app.presentation.api.v1.routes.passport_routes import bulk_actions
 from app.presentation.dependencies.auth import get_current_active_user
 from app.presentation.middleware.error_handler import register_exception_handlers
+from tests.route_dependencies import set_route_dependency
 
 
 @dataclass
@@ -57,8 +58,8 @@ class DeleteCase:
 def external_effects(monkeypatch: pytest.MonkeyPatch):
     propagate = AsyncMock()
     cleanup = AsyncMock(return_value=None)
-    monkeypatch.setattr(bulk_actions, "propagate_mobile_passenger_change", propagate)
-    monkeypatch.setattr(bulk_actions, "process_storage_cleanup_job", cleanup)
+    set_route_dependency(monkeypatch, bulk_actions, "propagate_mobile_passenger_change", propagate)
+    set_route_dependency(monkeypatch, bulk_actions, "process_storage_cleanup_job", cleanup)
     return propagate, cleanup
 
 

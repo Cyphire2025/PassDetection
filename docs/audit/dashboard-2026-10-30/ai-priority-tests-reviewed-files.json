@@ -1,0 +1,20 @@
+{
+  "files": [
+    {
+      "path": "backend/tests/unit/infrastructure/test_ai_priority_async_boundaries.py",
+      "sha256": "fe654914a3ff9e9712a6ebaa5980003dd30133b53de1fddc7b26eaab22d4a9ac",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Authored and manually reviewed synthetic native-event/actual-call-site tests; no provider/network/Redis access."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_ai_priority_store_boundaries.py",
+      "sha256": "2e62ceb49a341296e16738377e3d2779acebfa3ad3a2f267e9e882d89c3fdaef",
+      "reviewer": "ai_extraction",
+      "review_scope": "full",
+      "status": "reviewed",
+      "notes": "Authored and manually reviewed synthetic native-event/actual-call-site tests; no provider/network/Redis access."
+    }
+  ]
+}

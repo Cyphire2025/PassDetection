@@ -1,0 +1,66 @@
+[
+  {
+    "path": "scripts/qa/qualify_document_migration.py",
+    "sha256": "e3abd2e55c1e075e553bfe3570bc86f1c9d05de83f52cb2e2d78f514dee3a26b",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete207-line source read in110+97segments including INNER program: clean exact committed revision/local Linux daemon/image IDs/labels and no anonymous volumes, bounded synthetic-only migration marker/source/helper hash checks, disposable tmpfs mounts and exact ownership cleanup, exclusive private receipt. Historical source/target contract preserved; no image/PG/migration execution or current runtime acceptance claim."
+  },
+  {
+    "path": "scripts/qa/qualify_document_release_resources.py",
+    "sha256": "03d43bf2afed0435208b128b676aeda38e991fa7e59d7b4c4df5e5facaf9d93e",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete244-line source read in125+119segments: exact image/revision/clean checkout, synthetic sender with bounded resources/own labels/network, exact outcome/SQL resource evidence and pressure/retained lifecycle receipts, fail-closed memory type/peak/OOM checks, source recheck and exclusivefsynced private outputs. No Docker/native/resource load/service action; cleanup first-error behavior is source-only follow-up, not a proven live leak."
+  },
+  {
+    "path": "scripts/qa/mcp_capacity.py",
+    "sha256": "e30996246d631910953d1b4b2ad28030da312e2c938ee5e2d3b88f48e4d9a113",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete225-line source read in115+110segments: authenticated structured MCP responses, rate pacing, explicit bounded export selection, actual workbook row multiset and checksum/size before delivery acknowledgement, serialized exports with wait included in latency, per-cohort counts and OOM evidence. No token/body/artifact locator in samples. No real MCP/auth/export/HTTP/load execution or current latency claim."
+  },
+  {
+    "path": "scripts/qa/qualify_storage_migration.py",
+    "sha256": "e06a007f8fd27e0e4ba910d2907633f68ac52d7ac513f76d8cf6a52f9144585f",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete365-line source read in125+125+115segments: fixed isolated endpoints/synthetic random bucket namespaces, actual-copy contract regressions for version/delete/tag/metadata/current inventory, separate-process lock refusal, lost PUT response preserving both copies and capacity-before-writes,1001version pagination. Protected source untouched by test intentions; no actual provider/bucket/file/process operation, current evidence or generic automatic crash-recovery claim."
+  },
+  {
+    "path": "scripts/qa/run_storage_migration_qualification.py",
+    "sha256": "a36577ce321afdabaecaf81b7eff43aeb42801a857342a9b60b622fc6781bbd6",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete120-line source read: exact existing-fixture collision refusal, new internal maintained-provider fixtures with synthetic policy, labelled own resource creation and bounded client workload, historical legacyMinIO evidence distinction, retained state/logs. No Docker/provider run. Diagnostics preceding each cleanup and sequential first-error teardown remain unvalidated QA resource-path limitations, not real data loss claims."
+  },
+  {
+    "path": "scripts/qa/seed_enterprise_browser_stack.py",
+    "sha256": "ed11accc377fc009ba7eea6205fca6bbae903391db18347c4776dedd3e19ebbc",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete257-line source read in135+122segments: explicit development disposable DB and deterministic unique namespace, synthetic MFA/accounts/manager-group/passenger/activity reset, isolated helpers and final transaction/engine disposal. No seed/privateignoredfile loaded, DB mutation, provider send or native feature audit. Mixed inert Inbox helper call preserved as existing compatibility only; dedicated Inbox block not newly audited."
+  },
+  {
+    "path": "scripts/qa/upload_configuration_http_smoke.py",
+    "sha256": "48631548e2315b3aa4065fa9e031fd520e41708b1968aa03f382c05547c5bec6",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete265-line source read in135+130segments: loopback HTTP/development API and synthetic account/tenant validation before collection changes, independent no-passport/cover-only and field/review settings, consistent private capability and wrong-group/credential rejections, output/evidence in finally. Native fixture images generated only at execution; no image/HTTP/auth/scanner/provider/current acceptance run."
+  },
+  {
+    "path": "scripts/qa/pdf_upload_followup.py",
+    "sha256": "33ae0c143977a05fbe609f43cf5fb3359d78e755ef6271eb5edf088e687a7e6c",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Complete514-line source read in130+130+130+124segments including guarded fixture program: fixed audit project/loopback bind/development synthetic DB/namespace and manager guards, synthetic escaped PDF streams, retained exact resume IDs, auth only in memory, receipt-based rename/distribution roundtrip and local-only retrieval, malformed/security-test rejection and finally evidence. No fixture bytes, Docker, PDF, HTTP, AV or provider run performed. Larger one-off journey orchestration is coherent test tooling, not an app-runtime architecture finding."
+  }
+]

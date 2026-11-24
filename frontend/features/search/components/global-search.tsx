@@ -20,6 +20,7 @@ export function GlobalSearch() {
   const inputId = useId();
   const listboxId = `${inputId}-results`;
   const statusId = `${inputId}-status`;
+  const panelVisible = isOpen && query.trim().length >= 2;
 
   useEffect(() => {
     const handlePointerDown = (event: MouseEvent) => {
@@ -87,6 +88,7 @@ export function GlobalSearch() {
         : ROUTES.dashboard.passportGroup(result.group_id ?? result.id);
     setIsOpen(false);
     setQuery("");
+    setResults([]);
     setActiveIndex(-1);
     router.push(href);
   };
@@ -97,7 +99,7 @@ export function GlobalSearch() {
       setActiveIndex(-1);
       return;
     }
-    if (results.length === 0 || isLoading || error) return;
+    if (query.trim().length < 2 || results.length === 0 || isLoading || error) return;
     if (event.key === "ArrowDown") {
       event.preventDefault();
       setIsOpen(true);
@@ -130,11 +132,11 @@ export function GlobalSearch() {
           value={query}
           role="combobox"
           aria-autocomplete="list"
-          aria-expanded={isOpen && query.trim().length >= 2}
-          aria-controls={listboxId}
-          aria-describedby={statusId}
+          aria-expanded={panelVisible}
+          aria-controls={panelVisible ? listboxId : undefined}
+          aria-describedby={panelVisible ? statusId : undefined}
           aria-activedescendant={
-            isOpen && activeIndex >= 0
+            panelVisible && activeIndex >= 0 && activeIndex < results.length
               ? `${listboxId}-option-${activeIndex}`
               : undefined
           }
@@ -146,9 +148,7 @@ export function GlobalSearch() {
             setResults([]);
             setActiveIndex(-1);
             if (nextQuery.trim().length < 2) {
-              setResults([]);
               setIsLoading(false);
-              setActiveIndex(-1);
             } else {
               setIsLoading(true);
             }
@@ -179,7 +179,7 @@ export function GlobalSearch() {
         )}
       </div>
 
-      {isOpen && query.trim().length >= 2 && (
+      {panelVisible && (
         <div
           id={listboxId}
           role="listbox"

@@ -17,6 +17,10 @@ from PIL import Image
 from app.core.config.settings import Settings, get_settings
 from app.core.logging.logger import get_logger
 from app.core.native_image_admission import bounded_native_image
+from app.infrastructure.ai.bounded_vision_http import (
+    VisionResponseRejected,
+    post_bounded_vision_response,
+)
 from app.infrastructure.imaging.passport_image_cropper import (
     PassportImageCropError,
     render_passport_image_crop,
@@ -240,11 +244,14 @@ class GeminiVisaImageEditService:
                 encoded, str
             ):
                 continue
+            maximum_bytes = self._settings.upload_max_file_size_bytes
+            if len(encoded) > 4 * ((maximum_bytes + 2) // 3):
+                raise GeminiVisaImageEditError("Gemini returned an image outside the allowed size.")
             try:
                 content = base64.b64decode(encoded, validate=True)
             except ValueError as exc:
                 raise GeminiVisaImageEditError("Gemini returned an unreadable image.") from exc
-            if not content or len(content) > self._settings.upload_max_file_size_bytes:
+            if not content or len(content) > maximum_bytes:
                 raise GeminiVisaImageEditError("Gemini returned an image outside the allowed size.")
             return content
         raise GeminiVisaImageEditError(
@@ -270,27 +277,33 @@ class GeminiVisaImageEditService:
         endpoint = (
             f"{self._settings.gemini_api_base_url.rstrip('/')}/models/{model}:generateContent"
         )
+        headers = {"x-goog-api-key": api_key, "Content-Type": "application/json"}
+        # One maximum-size base64 image plus bounded JSON/text metadata.
+        response_limit = 4 * ((self._settings.upload_max_file_size_bytes + 2) // 3) + 65_536
         try:
             if self._http_client is not None:
-                response = await self._http_client.post(
+                response = await post_bounded_vision_response(
+                    self._http_client,
                     endpoint,
-                    headers={
-                        "x-goog-api-key": api_key,
-                        "Content-Type": "application/json",
-                    },
-                    json=payload,
+                    headers=headers,
+                    payload=payload,
                     timeout=timeout,
+                    maximum_bytes=response_limit,
                 )
             else:
                 async with httpx.AsyncClient(timeout=timeout) as client:
-                    response = await client.post(
+                    response = await post_bounded_vision_response(
+                        client,
                         endpoint,
-                        headers={
-                            "x-goog-api-key": api_key,
-                            "Content-Type": "application/json",
-                        },
-                        json=payload,
+                        headers=headers,
+                        payload=payload,
+                        timeout=timeout,
+                        maximum_bytes=response_limit,
                     )
+        except VisionResponseRejected as exc:
+            raise _GeminiVisaImageEditFallbackableProviderRejected(
+                "Gemini returned an unreadable response. Please try again later."
+            ) from exc
         except (httpx.TimeoutException, httpx.TransportError) as exc:
             raise GeminiVisaImageEditProviderUnavailable(
                 "Gemini image generation is temporarily unavailable. Please try again."
@@ -332,9 +345,7 @@ class GeminiVisaImageEditService:
     def _operation_timeout_seconds(self) -> float:
         # Keep lightweight test/alternate settings objects compatible while
         # production Settings supplies the validated configurable value.
-        return float(
-            getattr(self._settings, "gemini_image_edit_timeout_seconds", 300)
-        )
+        return float(getattr(self._settings, "gemini_image_edit_timeout_seconds", 300))
 
     def _configured_models(self) -> list[str]:
         raw_models = (
@@ -453,6 +464,9 @@ class GeminiVisaImageEditService:
         candidates = payload.get("candidates")
         if not isinstance(candidates, list) or not candidates:
             raise GeminiVisaImageEditError("Gemini returned no usable result.")
+        candidate = candidates[0]
+        if isinstance(candidate, dict) and candidate.get("finishReason") not in (None, "STOP"):
+            raise GeminiVisaImageEditError("Gemini did not finish generating a usable image.")
         content = candidates[0].get("content") if isinstance(candidates[0], dict) else None
         parts = content.get("parts") if isinstance(content, dict) else None
         if not isinstance(parts, list):
@@ -462,16 +476,11 @@ class GeminiVisaImageEditService:
     @staticmethod
     def validate_prompt(prompt: str) -> str:
         normalized = " ".join(prompt.strip().split())
-        if (
-            len(normalized) < 3
-            or len(normalized) > 1000
-            or _CONTROL_PATTERN.search(normalized)
-        ):
+        if len(normalized) < 3 or len(normalized) > 1000 or _CONTROL_PATTERN.search(normalized):
             raise GeminiVisaImageEditRejected("Enter a valid presentation-edit prompt.")
         if any(pattern.search(normalized) for pattern in _DISALLOWED_PROMPT_PATTERNS):
             raise GeminiVisaImageEditRejected(
-                "Visa AI editing cannot replace the person, change identity, "
-                "or create a face swap."
+                "Visa AI editing cannot replace the person, change identity, or create a face swap."
             )
         return normalized
 

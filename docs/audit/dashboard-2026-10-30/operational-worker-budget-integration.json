@@ -1,0 +1,20 @@
+{
+  "before_modules": 502,
+  "after_modules": 512,
+  "new_modules": 10,
+  "all502previous_rows_retained_verbatim": true,
+  "before_critical_entries": 43,
+  "after_critical_entries": 47,
+  "all43_previous_critical_entries_retained_verbatim": true,
+  "global_and_other_gates_unchanged": true,
+  "candidate_sha256": "e8adf450a7367ead16c66eff5c4271b105a14761a33ea060c059181a0bb15a40",
+  "source_evidence": "operational-worker-verification.json:191 distinct passing affected cases at identical12 runtime SHA values,24 normalized unchanged declarations/3 explicit tested restorations, metadata compatibility and actual scoped Cobertura gates.",
+  "critical_responsibility": "Gallery provider original75line/53branch and module85floor retained on validation owner. Moved cancellation helper receives stronger95/90. Claims95/90, current authority queries95/85 and index publication95/90 add actual measured coverage obligations; no forwarding-facade substitution.",
+  "before_budget_sha256": "0225cd42cb89143a42c82fca145afc2a749a8059b46fc1bb4d58554022a6c352",
+  "after_budget_sha256": "2e7ab347afd24308cc1e2c299888ec534567afba212fc8301bd40cda2161da1c",
+  "before_exact_manifest_sha256": "9f0608356ae73efec7edf88b589aaf0a9cdabf5fd8af84b31b90d2f77d032222",
+  "after_exact_manifest_sha256": "bb8cdb7a97dbb78ea2a3a5abc6f47592d6a2d281bbcf83e95fadb98f8a53e6d6",
+  "all79_both_before_sets_unchanged": true,
+  "only_known_backend_budget_after_changed": true,
+  "limits": "Scoped implementation, source and measurement integration. Remaining MyPhotos pre-claim lock order, lifecycle and architecture work explicitly open; no whole-backend/live-service/VPS qualification."
+}

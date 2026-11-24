@@ -1,0 +1,99 @@
+{
+  "original_sources": [
+    {
+      "path": "docs/audit/dashboard-2026-10-30/audit-scope.json",
+      "sha256": "c6ec43ad41653d3c49224d93f28ad8853495301657050993b63dc06998072238",
+      "bytes": 9800,
+      "snapshot": "docs/audit/dashboard-2026-10-30/native-residual-two-original-0-audit-scope.json.txt"
+    },
+    {
+      "path": "scripts/dashboard_audit_inventory.py",
+      "sha256": "61b1f27bba8e779eb470c6c37640c7e090b980c0e35f90310b40c82d7c8f8d7e",
+      "bytes": 28208,
+      "snapshot": "docs/audit/dashboard-2026-10-30/native-residual-two-original-1-dashboard_audit_inventory.py.txt"
+    },
+    {
+      "path": "backend/tests/unit/scripts/test_dashboard_audit_scope.py",
+      "sha256": "9e1672f8b5157085d4a4d24b374926666d69bed9f329a5f5bed795592fc9e237",
+      "bytes": 26029,
+      "snapshot": "docs/audit/dashboard-2026-10-30/native-residual-two-original-2-test_dashboard_audit_scope.py.txt"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/file-inventory.csv",
+      "sha256": "2311a97b63cd1575324e152514b911b837623fd63a3c9916af5d050ad34536ef",
+      "bytes": 3712471,
+      "snapshot": "docs/audit/dashboard-2026-10-30/native-residual-two-original-3-file-inventory.csv.txt"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/inventory-summary.json",
+      "sha256": "b92458845f7208310a959e928564f8522df15e837de13b251eab4b5a8448d2d8",
+      "bytes": 12853,
+      "snapshot": "docs/audit/dashboard-2026-10-30/native-residual-two-original-4-inventory-summary.json.txt"
+    }
+  ],
+  "selected_rows": {
+    "backend/tests/unit/presentation/test_my_photos_dispatch_contract.py": {
+      "path": "backend/tests/unit/presentation/test_my_photos_dispatch_contract.py",
+      "scope": "backend",
+      "kind": "test",
+      "lines": "159",
+      "sha256": "cf90424c55e07a08e41e2e975a56fc1044accb156503301bcbf26f65e5b6b166",
+      "status": "inventoried",
+      "reviewer": "",
+      "notes": "",
+      "review_scope": "unreviewed"
+    },
+    "backend/tests/unit/infrastructure/fixtures/mobile_journey_london_photon.json": {
+      "path": "backend/tests/unit/infrastructure/fixtures/mobile_journey_london_photon.json",
+      "scope": "backend",
+      "kind": "test",
+      "lines": "352",
+      "sha256": "18b58d15e290a6367495296b70bd3590e439bced1771869bca4c3575757ae231",
+      "status": "inventoried",
+      "reviewer": "",
+      "notes": "",
+      "review_scope": "unreviewed"
+    }
+  },
+  "selected_source_identities": {
+    "backend/tests/unit/presentation/test_my_photos_dispatch_contract.py": "cf90424c55e07a08e41e2e975a56fc1044accb156503301bcbf26f65e5b6b166",
+    "backend/tests/unit/infrastructure/fixtures/mobile_journey_london_photon.json": "18b58d15e290a6367495296b70bd3590e439bced1771869bca4c3575757ae231"
+  },
+  "claim_trace_file_identities": [
+    {
+      "path": "docs/audit/dashboard-2026-10-30/my-photos-runtime-checkpoint-source-fence.json",
+      "sha256": "9414d0a51ae948b0037f597b630fc3cd6a129bc8cdbccc8ba33a7ee54bdbcc5b",
+      "snapshot": "docs/audit/dashboard-2026-10-30/native-residual-two-original-claim-0-my-photos-runtime-checkpoint-source-fence.json.txt"
+    }
+  ],
+  "immutable_previous153_artifacts": [
+    {
+      "path": "docs/audit/dashboard-2026-10-30/retained-final-scope-equivalence.json",
+      "sha256": "e665fd34d16a8c927d8b227f5da5018661af4e4675b6c3307ab015cab8d51089"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/retained-final-scope-junit.xml",
+      "sha256": "792451428a31b61396648209106f193af947ad9eec4ca5a83ddbec93c01f3fa2"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/retained-final-scope-original-policy.json",
+      "sha256": "acc06ee60a37eb8646a53b239d7ebc3e4d4b0c0d97c3c05c1bf766ea829ed700"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/retained-final-scope-original-tests.txt",
+      "sha256": "ceba3aba834a725c79b3c6f8109d49348dc0b9dd3d4e7cfbad9df664b857d805"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/retained-final-scope-reviewed-files.json",
+      "sha256": "802430b168d1ecbc12074376f1dc40957ab219900297d27cd45e3b4055c97094"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/retained-final-scope-tests.txt",
+      "sha256": "5d8ee490be03bdfa53561aeffa62bf63cf6042f266914bc2ae99bdb69e4f585d"
+    },
+    {
+      "path": "docs/audit/dashboard-2026-10-30/retained-final-scope-verification.json",
+      "sha256": "24700817a19c56cb3b3b22afbdbb29caee364a912fb048d14108f849c2c657c8"
+    }
+  ]
+}

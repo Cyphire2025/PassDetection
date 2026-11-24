@@ -1,0 +1,42 @@
+[
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/bulk_actions.py",
+    "sha256": "a6f4dc210dd2dfaea0ab81b6d47b2af3c48b0eb8442ed815c80b111cd97864a8",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "needs-follow-up",
+    "notes": "Whole current source physically read or exact already-read body plus one reviewed diagnostic keyword;16affected tests pass. See bulk-roster-diagnostic-verification.json. Bulk architecture remains open."
+  },
+  {
+    "path": "backend/app/presentation/api/v1/routes/passport_routes/export_context.py",
+    "sha256": "ce172b2f3c0bf0c02a79a83937a239bb4dddfabc2e4fc913190cbeacd67371ee",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Whole current source physically read or exact already-read body plus one reviewed diagnostic keyword;16affected tests pass. See bulk-roster-diagnostic-verification.json. Bulk architecture remains open."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_bulk_roster_reference_boundary.py",
+    "sha256": "0b4a20bc47c41b7923545f7e886ffc0e54926e69598f2ed843c4c979f51e3f87",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Whole current source physically read or exact already-read body plus one reviewed diagnostic keyword;16affected tests pass. See bulk-roster-diagnostic-verification.json. Bulk architecture remains open."
+  },
+  {
+    "path": "backend/tests/unit/presentation/test_passport_export_history_routes.py",
+    "sha256": "b2b95a05310c6824b182dcb524199a44455932f075edf1b255fb130b3e751f6f",
+    "reviewer": "root",
+    "review_scope": "focused",
+    "status": "verified",
+    "notes": "Focused export-history boundary source traces and13existing cases executed; no full file read credit."
+  },
+  {
+    "path": "backend/app/infrastructure/database/_core_models/roster.py",
+    "sha256": "6fbdd6446f17e92e4cbeee06e757a95bfba49d42192c7ff3860c8c0773214793",
+    "reviewer": "root",
+    "review_scope": "full",
+    "status": "verified",
+    "notes": "Whole current source physically read or exact already-read body plus one reviewed diagnostic keyword;16affected tests pass. See bulk-roster-diagnostic-verification.json. Bulk architecture remains open."
+  }
+]

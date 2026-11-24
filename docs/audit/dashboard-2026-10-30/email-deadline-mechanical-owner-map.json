@@ -1,0 +1,74 @@
+{
+  "original_sha256": "65100ec395e5b9db8d2492c1045a390ff2a398075268c24ba1a1ace5e6d0a935",
+  "owners": [
+    {
+      "path": "backend/app/infrastructure/email/deadline_notification_policy.py",
+      "declarations": [
+        "_ACTIVE_DEADLINE_STATUSES",
+        "_ACTIVE_ANALYSIS_STATUSES",
+        "_OFFICE_ROLES",
+        "_SCAN_BATCH_SIZE",
+        "_IMMINENT_LEAD_TIME",
+        "_DUE_STAGE_DURATION",
+        "_DeadlineNotificationStage",
+        "_WINDOW_STAGE",
+        "_IMMINENT_STAGE",
+        "_DUE_STAGE",
+        "_OVERDUE_STAGE",
+        "_DEADLINE_NOTIFICATION_STAGES",
+        "_STAGE_BY_NAME",
+        "_STAGE_EVENT_TYPES",
+        "_DeadlineRow",
+        "_ExistingStageRow",
+        "_deadline_notification_stage",
+        "_notification_stage_message",
+        "_aware_utc"
+      ],
+      "sha256": "420f1bd9b435bb853fd81a377197dc8548d6b0a46404d1004d361a61cb53813e",
+      "physical_lines": 173
+    },
+    {
+      "path": "backend/app/infrastructure/email/deadline_notification_coverage.py",
+      "declarations": [
+        "_deadline_schedule_identity",
+        "_required_due_at",
+        "_stage_schedule_is_covered"
+      ],
+      "sha256": "a85ab601b9df31f5bfce13686673131eebd183298997bce37fa99cc0ae432d25",
+      "physical_lines": 71
+    },
+    {
+      "path": "backend/app/infrastructure/email/deadline_notification_emit.py",
+      "declarations": [
+        "create_deadline_window_notifications"
+      ],
+      "sha256": "e14285ef5629acbdece042ebfdd3b23901b965d87345f32cc7de3641cad60702",
+      "physical_lines": 205
+    },
+    {
+      "path": "backend/app/infrastructure/email/deadline_notification_initial.py",
+      "declarations": [
+        "mark_initial_deadline_window_coverage"
+      ],
+      "sha256": "0029f59b6d167587bef295d7f1389d9bd567e829dacc94c690bc32adbacd5b70",
+      "physical_lines": 129
+    },
+    {
+      "path": "backend/app/infrastructure/email/deadline_notification_visibility.py",
+      "declarations": [
+        "_visible_linked_group_name"
+      ],
+      "sha256": "d71bf7edcdb9a220d5289dd151ed4adcee65d8fdd893de90da37f48ef05efe7d",
+      "physical_lines": 61
+    },
+    {
+      "path": "backend/app/infrastructure/email/deadline_notifications.py",
+      "declarations": [
+        "scan_email_ai_deadline_notifications"
+      ],
+      "sha256": "b0765dae45c29825a7903fb3e545c8ef66e72e682092e56b9a27061f7db5ccec",
+      "physical_lines": 145
+    }
+  ],
+  "public_scanner_and_existing_session_factory_patch_seam_retained": true
+}

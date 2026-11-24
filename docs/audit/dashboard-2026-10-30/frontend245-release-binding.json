@@ -1,0 +1,7 @@
+{
+  "frontend_reviewed_module_count": 245,
+  "frontend_raw_sha256": "1b540af55d60bde431ad5987013d6d562949dc169fcb94d1fb854f5b5c5e0b8f",
+  "frontend_normalized_sha256": "c9f6d94c78196a49207e9a4505dca989f0036c8b89abdeee725e403f2d795ca9",
+  "policy_scope": "Only reviewed frontend budget AFTER hash refreshed from the parent integrated source. Both original baseline BEFORE values, backend187 hash and all other reviewed bindings unchanged.",
+  "parent_integration_evidence": "current-frontend-budget*.json"
+}

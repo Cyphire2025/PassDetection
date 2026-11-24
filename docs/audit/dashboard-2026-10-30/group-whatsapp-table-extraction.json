@@ -1,0 +1,6 @@
+{
+  "origin_path": "frontend/features/passports/components/group-whatsapp-tracking-table.tsx",
+  "origin_sha256": "53ebfb142703b4fc7f8d6ca837c8ecb7aa85524c5b3fd175f6333600165ecfff",
+  "backup": ".tmp/group-whatsapp-table-before-decomposition.tsx",
+  "note": "Original row variables/JSX move to one row owner, with identical key expression now on the keyed child component through a pure key helper. Three readonly presentation functions move unchanged; public4 exports remain."
+}

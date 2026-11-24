@@ -1,0 +1,935 @@
+{
+  "functions": {
+    "_batch": {
+      "annotations": {
+        "batch_id": "<class 'uuid.UUID'>",
+        "lock": "<class 'bool'>",
+        "return": "<class 'app.infrastructure.database.ecr_models.EcrBatchModel'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "user": "<class 'app.domain.entities.identity.User'>"
+      },
+      "doc": null,
+      "module": "app.presentation.api.v1.routes.ecr_checker",
+      "qualname": "_batch",
+      "signature": "(session: 'AsyncSession', user: 'User', batch_id: 'uuid.UUID', *, lock: 'bool' = False) -> 'EcrBatchModel'"
+    },
+    "_dispatch": {
+      "annotations": {
+        "batch_id": "<class 'uuid.UUID'>",
+        "return": "<class 'NoneType'>"
+      },
+      "doc": null,
+      "module": "app.presentation.api.v1.routes.ecr_checker",
+      "qualname": "_dispatch",
+      "signature": "(batch_id: 'uuid.UUID') -> 'None'"
+    },
+    "_items": {
+      "annotations": {
+        "batch_id": "<class 'uuid.UUID'>",
+        "return": "list[app.infrastructure.database.ecr_models.EcrItemModel]",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>"
+      },
+      "doc": null,
+      "module": "app.presentation.api.v1.routes.ecr_checker",
+      "qualname": "_items",
+      "signature": "(session: 'AsyncSession', batch_id: 'uuid.UUID') -> 'list[EcrItemModel]'"
+    },
+    "_lock_active_actor": {
+      "annotations": {
+        "return": "<class 'app.domain.entities.identity.User'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>",
+        "user": "<class 'app.domain.entities.identity.User'>"
+      },
+      "doc": "Revalidate the actor under short shared locks before every mutation.\n\n    Shared locks let upload chunks proceed together while excluding concurrent\n    account/agency revocation until the mutation commits. The restricted access\n    level of a super administrator is preserved by the common actor helper.\n    ",
+      "module": "app.presentation.api.v1.routes.ecr_checker",
+      "qualname": "_lock_active_actor",
+      "signature": "(session: 'AsyncSession', user: 'User') -> 'User'"
+    },
+    "_parse_client_ids": {
+      "annotations": {
+        "file_count": "<class 'int'>",
+        "return": "list[uuid.UUID]",
+        "value": "<class 'str'>"
+      },
+      "doc": null,
+      "module": "app.presentation.api.v1.routes.ecr_checker",
+      "qualname": "_parse_client_ids",
+      "signature": "(value: 'str', file_count: 'int') -> 'list[uuid.UUID]'"
+    },
+    "_response": {
+      "annotations": {
+        "batch": "<class 'app.infrastructure.database.ecr_models.EcrBatchModel'>",
+        "return": "<class 'app.presentation.api.v1.schemas.ecr_schemas.EcrBatchResponse'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>"
+      },
+      "doc": null,
+      "module": "app.presentation.api.v1.routes.ecr_checker",
+      "qualname": "_response",
+      "signature": "(session: 'AsyncSession', batch: 'EcrBatchModel') -> 'EcrBatchResponse'"
+    },
+    "_run_admitted_upload": {
+      "annotations": {
+        "operation": "collections.abc.Callable[[], collections.abc.Awaitable[app.presentation.api.v1.schemas.ecr_schemas.EcrBatchResponse]]",
+        "return": "<class 'app.presentation.api.v1.schemas.ecr_schemas.EcrBatchResponse'>"
+      },
+      "doc": "One decoded ECR upload per API process, including cancellation cleanup.\n\n    Waiting requests keep their UploadFile spools without materializing the\n    original chunks. A disconnected caller must not release admission while a\n    decoder thread or staged storage operation is still using its memory or\n    request session, so admitted work settles before cancellation propagates.\n    ",
+      "module": "app.presentation.api.v1.routes.ecr_checker",
+      "qualname": "_run_admitted_upload",
+      "signature": "(operation: 'Callable[[], Awaitable[EcrBatchResponse]]') -> 'EcrBatchResponse'"
+    },
+    "_scope": {
+      "annotations": {
+        "return": "list[sqlalchemy.sql.elements.ColumnElement[bool]]",
+        "user": "<class 'app.domain.entities.identity.User'>"
+      },
+      "doc": null,
+      "module": "app.presentation.api.v1.routes.ecr_checker",
+      "qualname": "_scope",
+      "signature": "(user: 'User') -> 'list[ColumnElement[bool]]'"
+    },
+    "_summary": {
+      "annotations": {
+        "batch": "<class 'app.infrastructure.database.ecr_models.EcrBatchModel'>",
+        "items": "list[app.infrastructure.database.ecr_models.EcrItemModel]",
+        "return": "<class 'app.presentation.api.v1.schemas.ecr_schemas.EcrBatchSummary'>"
+      },
+      "doc": null,
+      "module": "app.presentation.api.v1.routes.ecr_checker",
+      "qualname": "_summary",
+      "signature": "(batch: 'EcrBatchModel', items: 'list[EcrItemModel]') -> 'EcrBatchSummary'"
+    },
+    "_upload_ecr_items_admitted": {
+      "annotations": {
+        "batch_id": "<class 'uuid.UUID'>",
+        "client_ids": "<class 'str'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "files": "list[fastapi.datastructures.UploadFile]",
+        "return": "<class 'app.presentation.api.v1.schemas.ecr_schemas.EcrBatchResponse'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>"
+      },
+      "doc": null,
+      "module": "app.presentation.api.v1.routes.ecr_checker",
+      "qualname": "_upload_ecr_items_admitted",
+      "signature": "(*, batch_id: 'uuid.UUID', current_user: 'User', session: 'AsyncSession', files: 'list[UploadFile]', client_ids: 'str') -> 'EcrBatchResponse'"
+    },
+    "create_ecr_batch": {
+      "annotations": {
+        "body": "<class 'app.presentation.api.v1.schemas.ecr_schemas.CreateEcrBatch'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "return": "<class 'app.presentation.api.v1.schemas.ecr_schemas.EcrBatchResponse'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>"
+      },
+      "doc": null,
+      "module": "app.presentation.api.v1.routes.ecr_checker",
+      "qualname": "create_ecr_batch",
+      "signature": "(body: 'CreateEcrBatch', current_user: 'UserDep', session: 'SessionDep') -> 'EcrBatchResponse'"
+    },
+    "export_ecr_batch": {
+      "annotations": {
+        "batch_id": "<class 'uuid.UUID'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "return": "<class 'starlette.responses.Response'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>"
+      },
+      "doc": null,
+      "module": "app.presentation.api.v1.routes.ecr_checker",
+      "qualname": "export_ecr_batch",
+      "signature": "(batch_id: 'uuid.UUID', current_user: 'UserDep', session: 'SessionDep') -> 'Response'"
+    },
+    "get_ecr_batch": {
+      "annotations": {
+        "batch_id": "<class 'uuid.UUID'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "return": "<class 'app.presentation.api.v1.schemas.ecr_schemas.EcrBatchResponse'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>"
+      },
+      "doc": null,
+      "module": "app.presentation.api.v1.routes.ecr_checker",
+      "qualname": "get_ecr_batch",
+      "signature": "(batch_id: 'uuid.UUID', current_user: 'UserDep', session: 'SessionDep') -> 'EcrBatchResponse'"
+    },
+    "list_ecr_batches": {
+      "annotations": {
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "return": "list[app.presentation.api.v1.schemas.ecr_schemas.EcrBatchSummary]",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>"
+      },
+      "doc": null,
+      "module": "app.presentation.api.v1.routes.ecr_checker",
+      "qualname": "list_ecr_batches",
+      "signature": "(current_user: 'UserDep', session: 'SessionDep') -> 'list[EcrBatchSummary]'"
+    },
+    "retry_ecr_batch": {
+      "annotations": {
+        "batch_id": "<class 'uuid.UUID'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "return": "<class 'app.presentation.api.v1.schemas.ecr_schemas.EcrBatchResponse'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>"
+      },
+      "doc": null,
+      "module": "app.presentation.api.v1.routes.ecr_checker",
+      "qualname": "retry_ecr_batch",
+      "signature": "(batch_id: 'uuid.UUID', current_user: 'UserDep', session: 'SessionDep') -> 'EcrBatchResponse'"
+    },
+    "start_ecr_batch": {
+      "annotations": {
+        "batch_id": "<class 'uuid.UUID'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "return": "<class 'app.presentation.api.v1.schemas.ecr_schemas.EcrBatchResponse'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>"
+      },
+      "doc": null,
+      "module": "app.presentation.api.v1.routes.ecr_checker",
+      "qualname": "start_ecr_batch",
+      "signature": "(batch_id: 'uuid.UUID', current_user: 'UserDep', session: 'SessionDep') -> 'EcrBatchResponse'"
+    },
+    "upload_ecr_items": {
+      "annotations": {
+        "batch_id": "<class 'uuid.UUID'>",
+        "client_ids": "<class 'str'>",
+        "current_user": "<class 'app.domain.entities.identity.User'>",
+        "files": "list[fastapi.datastructures.UploadFile]",
+        "return": "<class 'app.presentation.api.v1.schemas.ecr_schemas.EcrBatchResponse'>",
+        "session": "<class 'sqlalchemy.ext.asyncio.session.AsyncSession'>"
+      },
+      "doc": null,
+      "module": "app.presentation.api.v1.routes.ecr_checker",
+      "qualname": "upload_ecr_items",
+      "signature": "(batch_id: 'uuid.UUID', current_user: 'UserDep', session: 'SessionDep', files: 'Annotated[list[UploadFile], File()]', client_ids: 'Annotated[str, Form(max_length=300)]') -> 'EcrBatchResponse'"
+    }
+  },
+  "logger": "app.presentation.api.v1.routes.ecr_checker",
+  "openapi": {
+    "components": {
+      "schemas": {
+        "Body_upload_ecr_items_ecr_checker_batches__batch_id__items_post": {
+          "properties": {
+            "client_ids": {
+              "maxLength": 300,
+              "title": "Client Ids",
+              "type": "string"
+            },
+            "files": {
+              "items": {
+                "contentMediaType": "application/octet-stream",
+                "type": "string"
+              },
+              "title": "Files",
+              "type": "array"
+            }
+          },
+          "required": [
+            "files",
+            "client_ids"
+          ],
+          "title": "Body_upload_ecr_items_ecr_checker_batches__batch_id__items_post",
+          "type": "object"
+        },
+        "CreateEcrBatch": {
+          "properties": {
+            "expected_count": {
+              "maximum": 1000.0,
+              "minimum": 1.0,
+              "title": "Expected Count",
+              "type": "integer"
+            },
+            "title": {
+              "default": "ECR check",
+              "maxLength": 160,
+              "minLength": 1,
+              "title": "Title",
+              "type": "string"
+            }
+          },
+          "required": [
+            "expected_count"
+          ],
+          "title": "CreateEcrBatch",
+          "type": "object"
+        },
+        "EcrBatchResponse": {
+          "properties": {
+            "batch_id": {
+              "format": "uuid",
+              "title": "Batch Id",
+              "type": "string"
+            },
+            "created_at": {
+              "format": "date-time",
+              "title": "Created At",
+              "type": "string"
+            },
+            "ecr_count": {
+              "title": "Ecr Count",
+              "type": "integer"
+            },
+            "expected_count": {
+              "title": "Expected Count",
+              "type": "integer"
+            },
+            "failed_count": {
+              "title": "Failed Count",
+              "type": "integer"
+            },
+            "items": {
+              "items": {
+                "$ref": "#/components/schemas/EcrItemResponse"
+              },
+              "title": "Items",
+              "type": "array"
+            },
+            "na_count": {
+              "title": "Na Count",
+              "type": "integer"
+            },
+            "processed_count": {
+              "title": "Processed Count",
+              "type": "integer"
+            },
+            "review_count": {
+              "title": "Review Count",
+              "type": "integer"
+            },
+            "status": {
+              "title": "Status",
+              "type": "string"
+            },
+            "title": {
+              "title": "Title",
+              "type": "string"
+            },
+            "total_count": {
+              "title": "Total Count",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "batch_id",
+            "title",
+            "status",
+            "total_count",
+            "expected_count",
+            "processed_count",
+            "ecr_count",
+            "na_count",
+            "review_count",
+            "failed_count",
+            "created_at",
+            "items"
+          ],
+          "title": "EcrBatchResponse",
+          "type": "object"
+        },
+        "EcrBatchSummary": {
+          "properties": {
+            "batch_id": {
+              "format": "uuid",
+              "title": "Batch Id",
+              "type": "string"
+            },
+            "created_at": {
+              "format": "date-time",
+              "title": "Created At",
+              "type": "string"
+            },
+            "ecr_count": {
+              "title": "Ecr Count",
+              "type": "integer"
+            },
+            "expected_count": {
+              "title": "Expected Count",
+              "type": "integer"
+            },
+            "failed_count": {
+              "title": "Failed Count",
+              "type": "integer"
+            },
+            "na_count": {
+              "title": "Na Count",
+              "type": "integer"
+            },
+            "processed_count": {
+              "title": "Processed Count",
+              "type": "integer"
+            },
+            "review_count": {
+              "title": "Review Count",
+              "type": "integer"
+            },
+            "status": {
+              "title": "Status",
+              "type": "string"
+            },
+            "title": {
+              "title": "Title",
+              "type": "string"
+            },
+            "total_count": {
+              "title": "Total Count",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "batch_id",
+            "title",
+            "status",
+            "total_count",
+            "expected_count",
+            "processed_count",
+            "ecr_count",
+            "na_count",
+            "review_count",
+            "failed_count",
+            "created_at"
+          ],
+          "title": "EcrBatchSummary",
+          "type": "object"
+        },
+        "EcrItemResponse": {
+          "properties": {
+            "client_id": {
+              "format": "uuid",
+              "title": "Client Id",
+              "type": "string"
+            },
+            "id": {
+              "format": "uuid",
+              "title": "Id",
+              "type": "string"
+            },
+            "original_filename": {
+              "title": "Original Filename",
+              "type": "string"
+            },
+            "reason": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Reason"
+            },
+            "result": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "ECR",
+                    "NA",
+                    "NEEDS_REVIEW"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Result"
+            },
+            "status": {
+              "enum": [
+                "queued",
+                "processing",
+                "completed",
+                "failed"
+              ],
+              "title": "Status",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "client_id",
+            "original_filename",
+            "status",
+            "result",
+            "reason"
+          ],
+          "title": "EcrItemResponse",
+          "type": "object"
+        },
+        "HTTPValidationError": {
+          "properties": {
+            "detail": {
+              "items": {
+                "$ref": "#/components/schemas/ValidationError"
+              },
+              "title": "Detail",
+              "type": "array"
+            }
+          },
+          "title": "HTTPValidationError",
+          "type": "object"
+        },
+        "ValidationError": {
+          "properties": {
+            "ctx": {
+              "title": "Context",
+              "type": "object"
+            },
+            "input": {
+              "title": "Input"
+            },
+            "loc": {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ]
+              },
+              "title": "Location",
+              "type": "array"
+            },
+            "msg": {
+              "title": "Message",
+              "type": "string"
+            },
+            "type": {
+              "title": "Error Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "loc",
+            "msg",
+            "type"
+          ],
+          "title": "ValidationError",
+          "type": "object"
+        }
+      },
+      "securitySchemes": {
+        "HTTPBearer": {
+          "scheme": "bearer",
+          "type": "http"
+        }
+      }
+    },
+    "info": {
+      "title": "FastAPI",
+      "version": "0.1.0"
+    },
+    "openapi": "3.1.0",
+    "paths": {
+      "/ecr-checker/batches": {
+        "get": {
+          "operationId": "list_ecr_batches_ecr_checker_batches_get",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "items": {
+                      "$ref": "#/components/schemas/EcrBatchSummary"
+                    },
+                    "title": "Response List Ecr Batches Ecr Checker Batches Get",
+                    "type": "array"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "List Ecr Batches"
+        },
+        "post": {
+          "operationId": "create_ecr_batch_ecr_checker_batches_post",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateEcrBatch"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "201": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/EcrBatchResponse"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Create Ecr Batch"
+        }
+      },
+      "/ecr-checker/batches/{batch_id}": {
+        "get": {
+          "operationId": "get_ecr_batch_ecr_checker_batches__batch_id__get",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "batch_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "title": "Batch Id",
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/EcrBatchResponse"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Get Ecr Batch"
+        }
+      },
+      "/ecr-checker/batches/{batch_id}/export.xlsx": {
+        "get": {
+          "operationId": "export_ecr_batch_ecr_checker_batches__batch_id__export_xlsx_get",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "batch_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "title": "Batch Id",
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "content": {
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+                  "schema": {
+                    "format": "binary",
+                    "type": "string"
+                  }
+                }
+              },
+              "description": "Authorized file content",
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string"
+                  }
+                },
+                "Content-Disposition": {
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Export Ecr Batch"
+        }
+      },
+      "/ecr-checker/batches/{batch_id}/items": {
+        "post": {
+          "operationId": "upload_ecr_items_ecr_checker_batches__batch_id__items_post",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "batch_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "title": "Batch Id",
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "$ref": "#/components/schemas/Body_upload_ecr_items_ecr_checker_batches__batch_id__items_post"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/EcrBatchResponse"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Upload Ecr Items"
+        }
+      },
+      "/ecr-checker/batches/{batch_id}/retry": {
+        "post": {
+          "operationId": "retry_ecr_batch_ecr_checker_batches__batch_id__retry_post",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "batch_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "title": "Batch Id",
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/EcrBatchResponse"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Retry Ecr Batch"
+        }
+      },
+      "/ecr-checker/batches/{batch_id}/start": {
+        "post": {
+          "operationId": "start_ecr_batch_ecr_checker_batches__batch_id__start_post",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "batch_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "title": "Batch Id",
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/EcrBatchResponse"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              },
+              "description": "Validation Error"
+            }
+          },
+          "security": [
+            {
+              "HTTPBearer": []
+            }
+          ],
+          "summary": "Start Ecr Batch"
+        }
+      }
+    }
+  },
+  "routes": [
+    {
+      "dependencies": [
+        "require_cookie_csrf",
+        "get_current_active_user",
+        "get_db_session"
+      ],
+      "endpoint": "create_ecr_batch",
+      "methods": [
+        "POST"
+      ],
+      "path": "/batches",
+      "response_model": "<class 'app.presentation.api.v1.schemas.ecr_schemas.EcrBatchResponse'>",
+      "status": 201
+    },
+    {
+      "dependencies": [
+        "get_current_active_user",
+        "get_db_session"
+      ],
+      "endpoint": "list_ecr_batches",
+      "methods": [
+        "GET"
+      ],
+      "path": "/batches",
+      "response_model": "list[app.presentation.api.v1.schemas.ecr_schemas.EcrBatchSummary]",
+      "status": null
+    },
+    {
+      "dependencies": [
+        "get_current_active_user",
+        "get_db_session"
+      ],
+      "endpoint": "get_ecr_batch",
+      "methods": [
+        "GET"
+      ],
+      "path": "/batches/{batch_id}",
+      "response_model": "<class 'app.presentation.api.v1.schemas.ecr_schemas.EcrBatchResponse'>",
+      "status": null
+    },
+    {
+      "dependencies": [
+        "require_cookie_csrf",
+        "get_current_active_user",
+        "get_db_session"
+      ],
+      "endpoint": "upload_ecr_items",
+      "methods": [
+        "POST"
+      ],
+      "path": "/batches/{batch_id}/items",
+      "response_model": "<class 'app.presentation.api.v1.schemas.ecr_schemas.EcrBatchResponse'>",
+      "status": null
+    },
+    {
+      "dependencies": [
+        "require_cookie_csrf",
+        "get_current_active_user",
+        "get_db_session"
+      ],
+      "endpoint": "start_ecr_batch",
+      "methods": [
+        "POST"
+      ],
+      "path": "/batches/{batch_id}/start",
+      "response_model": "<class 'app.presentation.api.v1.schemas.ecr_schemas.EcrBatchResponse'>",
+      "status": null
+    },
+    {
+      "dependencies": [
+        "require_cookie_csrf",
+        "get_current_active_user",
+        "get_db_session"
+      ],
+      "endpoint": "retry_ecr_batch",
+      "methods": [
+        "POST"
+      ],
+      "path": "/batches/{batch_id}/retry",
+      "response_model": "<class 'app.presentation.api.v1.schemas.ecr_schemas.EcrBatchResponse'>",
+      "status": null
+    },
+    {
+      "dependencies": [
+        "get_current_active_user",
+        "get_db_session"
+      ],
+      "endpoint": "export_ecr_batch",
+      "methods": [
+        "GET"
+      ],
+      "path": "/batches/{batch_id}/export.xlsx",
+      "response_model": "None",
+      "status": null
+    }
+  ]
+}

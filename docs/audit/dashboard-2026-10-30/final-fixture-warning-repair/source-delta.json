@@ -1,0 +1,14 @@
+{
+  "frontend/features/documents/components/document-row-action-menu.test.tsx": {
+    "before": "93f6e65c4cdb791e1dd6d0628c237e1214c8d50311d5a0357c26f84abb162aca",
+    "after": "d7c790f4c34e93659ad7f40e0165de79c0657a5b37c1873a8b2d3a48cc2a2da8"
+  },
+  "frontend/features/mcp/components/mcp-read-access.test.tsx": {
+    "before": "07e866b8fcb0c3e0eb2a2eb53258e951de8e2165019e337e93713a7842b040a1",
+    "after": "a40215a22b53c47180107d5cfd9b08a9e9bb3a2b5e869d6714dc378bcb203596"
+  },
+  "frontend/features/mcp/components/mcp-simple-access.test.tsx": {
+    "before": "36b85b4095967c5ddb4f8f02bdb52c79b6d68baafa7554f963770fe9ea971662",
+    "after": "b026f08adcf28eb319fb5922b104ab0af465992acb259106812417b6f8e04c37"
+  }
+}

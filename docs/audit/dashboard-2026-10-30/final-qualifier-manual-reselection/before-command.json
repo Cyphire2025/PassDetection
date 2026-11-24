@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "features/upload/components/fresh-qualifier.test.tsx",
+    "--maxWorkers=1",
+    "--pool=threads",
+    "-t",
+    "allows an explicit current-config replacement"
+  ],
+  "exit_code": 1,
+  "seconds": 18.562,
+  "runtime_before": {
+    "frontend/features/upload/components/fresh-qualifier-editor.tsx": "a03066f52ef1f758e8136f9c5b451d91ab4255ab3dea5a053f1f57341cae0b92",
+    "frontend/features/upload/hooks/use-qualifier-selection-editor.ts": "f6bb7ce7ad849fc2a289ee436a04cc9bd968fc7a2465dbe4e3a4b2cc6ed0ce63"
+  },
+  "test_sha256": "dd2a588bf33fef994c5dfc97b092d43cda40eecee9dff77b4b15f8d7c2d35031",
+  "expected_defect": "Failed saved choice GET offers Change retry only; no manual replacement path."
+}

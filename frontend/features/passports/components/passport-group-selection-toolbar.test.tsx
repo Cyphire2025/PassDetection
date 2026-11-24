@@ -54,3 +54,18 @@ it("keeps selected passengers through search, filters and sort until Clear is us
   await user.click(screen.getByRole("button", { name: "Clear selection" }));
   expect(resetBulkSelection).toHaveBeenCalledOnce();
 });
+
+it("keeps every selection action absent when the selection is empty, even if the menu flag was open", () => {
+  const props = {
+    search: "", setSearch: vi.fn(), setPage: vi.fn(), sortBy: "name", setSortBy: vi.fn(),
+    submissionFilter: "all", setSubmissionFilter: vi.fn(), sortOrder: "asc", setSortOrder: vi.fn(),
+    selectionPreset: "", handleSelectionPreset: vi.fn(), submissionsView: { total: 0 },
+    selectedPassports: [], isBulkActionsMenuOpen: true, viewMode: "table", setViewMode: vi.fn(),
+  } as unknown as ComponentProps<typeof PassportGroupSelectionToolbar>;
+  render(<PassportGroupSelectionToolbar {...props} />);
+  expect(screen.getByRole("textbox", { name: "Search group passengers" })).toBeInTheDocument();
+  for (const action of [/Open bulk actions/, /Staff approve/, /Export Excel/, /Download Passport Images/, /Delete selected/, /Clear selection/]) {
+    expect(screen.queryByRole("button", { name: action })).not.toBeInTheDocument();
+  }
+  expect(screen.queryByRole("group", { name: "Bulk submission actions" })).not.toBeInTheDocument();
+});

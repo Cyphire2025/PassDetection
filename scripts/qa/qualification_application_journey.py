@@ -17,6 +17,8 @@ import uuid
 from datetime import UTC, datetime, timedelta
 
 import httpx
+from app.application.security.public_contact_proof import code_digest as _code_digest
+from app.application.security.public_contact_proof import digest as _digest
 from app.core.config.settings import get_settings
 from app.core.security.identity_security import encrypt_mfa_secret
 from app.core.security.password import hash_password
@@ -33,10 +35,6 @@ from app.infrastructure.database.public_upload_contact_model import (
 )
 from app.infrastructure.database.session import AsyncSessionFactory, engine
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
-from app.presentation.api.v1.routes.passport_routes.contact_verification import (
-    _code_digest,
-    _digest,
-)
 from PIL import Image
 from seed_enterprise_browser_stack import AGENCY_ID, MANAGER_PASSWORD, MANAGERS
 from sqlalchemy import func, select

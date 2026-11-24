@@ -1,0 +1,83 @@
+{
+  "status": "frozen-focused-batch",
+  "source_fence": "image-library-final-command.json",
+  "original_library_lines": 651,
+  "current_facade_lines": 80,
+  "largest_current_library_workflow_owner": 279,
+  "runtime_paths": 8,
+  "full_read_records": 15,
+  "focused_read_records": 1,
+  "final_tests": {
+    "cases": 91,
+    "files": 7,
+    "passed": 91,
+    "exit_code": 0,
+    "output": "image-library-final-tests.txt",
+    "coverage": "image-library-final-coverage.json"
+  },
+  "actual_regressions": [
+    {
+      "kind": "lost-commit-acknowledgement",
+      "baseline_passed": 4,
+      "baseline_failed": 4,
+      "baseline": "image-library-commit-baseline-command.json",
+      "final_cases": 8
+    },
+    {
+      "kind": "native-write-cancellation",
+      "baseline_passed": 2,
+      "baseline_failed": 2,
+      "baseline": "image-library-native-baseline.json",
+      "final_cases": 4
+    },
+    {
+      "kind": "persistence-cancellation",
+      "baseline_passed": 6,
+      "baseline_failed": 2,
+      "baseline": "image-library-transaction-cancel-baseline.json",
+      "final_total_cancellation_cases": 8
+    },
+    {
+      "kind": "post-storage-current-authority",
+      "baseline_passed": 4,
+      "baseline_failed": 12,
+      "baseline_output": "image-library-authority-before-tests.txt",
+      "final_cases": 26
+    }
+  ],
+  "baseline_limits": "Native/persistence cancellation baseline receipts and authority raw output predate the final source fence; no full contemporaneous command/source fence is fabricated for them. Fixture setup errors are separate from corrected product baselines.",
+  "architecture_proof": "image-library-extraction-proof.json",
+  "contracts": {
+    "whole_post_behavior_declarations": 7,
+    "actual_dependency_identities": 109,
+    "all_four_routes_order_openapi_default_dependencies": true,
+    "public_signatures_evaluated_hints_aliases": true,
+    "original_shared_read_wrapper_expands_to_same_body": true,
+    "production_mutable_dependency_proxies": false
+  },
+  "checks": {
+    "mypy": {
+      "sources": 8,
+      "exit_code": 0,
+      "output": "image-library-final-types.txt"
+    },
+    "ruff": {
+      "paths": 16,
+      "exit_code": 0,
+      "output": "image-library-final-lint.txt"
+    },
+    "proof": {
+      "exit_code": 0,
+      "output": "image-library-final-proof.txt"
+    }
+  },
+  "test_setup_retirement": "Removed three obsolete locked-repository mock assignments and the entire unused non-front repository factory/mock. Original business assertions retained; the deliberate initial read rollback expectation had already changed with the transaction fix.",
+  "budgets": "image-library-budget-candidates.json",
+  "effective_critical_owners": 4,
+  "open_independent_followups": "image-library-followups.json",
+  "limitations": [
+    "Actual local SQLite persistence and synthetic storage/native writes; real PostgreSQL/object store/provider/VPS remain unqualified.",
+    "Private stream controls use isolated auth/repository/storage seams and assert actual handler scope arguments, errors, bytes and headers.",
+    "This focused batch does not qualify sibling image routes, crash durability or the whole current application."
+  ]
+}

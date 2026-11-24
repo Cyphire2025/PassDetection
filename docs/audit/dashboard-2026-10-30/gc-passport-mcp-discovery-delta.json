@@ -1,0 +1,4442 @@
+{
+  "new": [
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-account-mappers.ts:fullControlBody",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-account-mappers.ts",
+      "handler": "fullControlBody"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-account-mappers.ts:normalizeClientManager",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-account-mappers.ts",
+      "handler": "normalizeClientManager"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-account-mappers.ts:normalizeControl",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-account-mappers.ts",
+      "handler": "normalizeControl"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-account-mappers.ts:normalizeGroup",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-account-mappers.ts",
+      "handler": "normalizeGroup"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-announcements.api.ts:createAnnouncement",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-announcements.api.ts",
+      "handler": "createAnnouncement"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-announcements.api.ts:deleteAnnouncement",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-announcements.api.ts",
+      "handler": "deleteAnnouncement"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-announcements.api.ts:listAnnouncements",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-announcements.api.ts",
+      "handler": "listAnnouncements"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-announcements.api.ts:setAnnouncementPublished",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-announcements.api.ts",
+      "handler": "setAnnouncementPublished"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-announcements.api.ts:updateAnnouncement",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-announcements.api.ts",
+      "handler": "updateAnnouncement"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-audit.api.ts:listClientManagerAudit",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-audit.api.ts",
+      "handler": "listClientManagerAudit"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-audit.api.ts:listGroupAudit",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-audit.api.ts",
+      "handler": "listGroupAudit"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-content-mappers.ts:itineraryStartsAt",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-content-mappers.ts",
+      "handler": "itineraryStartsAt"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-content-mappers.ts:normalizeAnnouncement",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-content-mappers.ts",
+      "handler": "normalizeAnnouncement"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-content-mappers.ts:normalizeDocument",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-content-mappers.ts",
+      "handler": "normalizeDocument"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-content-mappers.ts:normalizeItinerary",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-content-mappers.ts",
+      "handler": "normalizeItinerary"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-directory.api.ts:createClientOrganization",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-directory.api.ts",
+      "handler": "createClientOrganization"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-directory.api.ts:listAgencies",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-directory.api.ts",
+      "handler": "listAgencies"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-directory.api.ts:removeClientOrganization",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-directory.api.ts",
+      "handler": "removeClientOrganization"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-directory.api.ts:searchCompanies",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-directory.api.ts",
+      "handler": "searchCompanies"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-documents.api.ts:deleteCommonDocument",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-documents.api.ts",
+      "handler": "deleteCommonDocument"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-documents.api.ts:getGroupContent",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-documents.api.ts",
+      "handler": "getGroupContent"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-documents.api.ts:previewCommonDocument",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-documents.api.ts",
+      "handler": "previewCommonDocument"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-documents.api.ts:reorderCommonDocuments",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-documents.api.ts",
+      "handler": "reorderCommonDocuments"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-documents.api.ts:setCommonDocumentPublished",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-documents.api.ts",
+      "handler": "setCommonDocumentPublished"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-documents.api.ts:uploadCommonDocument",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-documents.api.ts",
+      "handler": "uploadCommonDocument"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-groups.api.ts:addGroup",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-groups.api.ts",
+      "handler": "addGroup"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-groups.api.ts:getGroupControl",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-groups.api.ts",
+      "handler": "getGroupControl"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-groups.api.ts:listGroups",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-groups.api.ts",
+      "handler": "listGroups"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-groups.api.ts:removeGroup",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-groups.api.ts",
+      "handler": "removeGroup"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-groups.api.ts:revokeGroupAccess",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-groups.api.ts",
+      "handler": "revokeGroupAccess"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-groups.api.ts:searchGroups",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-groups.api.ts",
+      "handler": "searchGroups"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-groups.api.ts:setMyPhotosEnabled",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-groups.api.ts",
+      "handler": "setMyPhotosEnabled"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-groups.api.ts:updateGroupControl",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-groups.api.ts",
+      "handler": "updateGroupControl"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-itineraries.api.ts:publishItinerary",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-itineraries.api.ts",
+      "handler": "publishItinerary"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-itineraries.api.ts:saveItineraryDraft",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-itineraries.api.ts",
+      "handler": "saveItineraryDraft"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-itineraries.api.ts:unpublishItinerary",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-itineraries.api.ts",
+      "handler": "unpublishItinerary"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-managers.api.ts:createClientManager",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-managers.api.ts",
+      "handler": "createClientManager"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-managers.api.ts:listClientManagerSessions",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-managers.api.ts",
+      "handler": "listClientManagerSessions"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-managers.api.ts:listClientManagers",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-managers.api.ts",
+      "handler": "listClientManagers"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-managers.api.ts:resetClientManagerPassword",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-managers.api.ts",
+      "handler": "resetClientManagerPassword"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-managers.api.ts:revokeClientManagerSessions",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-managers.api.ts",
+      "handler": "revokeClientManagerSessions"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-managers.api.ts:setClientManagerStatus",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-managers.api.ts",
+      "handler": "setClientManagerStatus"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-managers.api.ts:softDeleteClientManager",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-managers.api.ts",
+      "handler": "softDeleteClientManager"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-managers.api.ts:updateClientManager",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-managers.api.ts",
+      "handler": "updateClientManager"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-transport.ts:agencyParams",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-transport.ts",
+      "handler": "agencyParams"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-transport.ts:asPage",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-transport.ts",
+      "handler": "asPage"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-transport.ts:mapBounded",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-transport.ts",
+      "handler": "mapBounded"
+    },
+    {
+      "id": "frontend:frontend/features/gc-app/api/gc-app-transport.ts:toOffsetParams",
+      "kind": "frontend_callable",
+      "source": "frontend/features/gc-app/api/gc-app-transport.ts",
+      "handler": "toOffsetParams"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-export-download.ts:completePreparedGroupExport",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-export-download.ts",
+      "handler": "completePreparedGroupExport"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-export-download.ts:confirmStartedGroupExport",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-export-download.ts",
+      "handler": "confirmStartedGroupExport"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-export-download.ts:passportImageDownloadFilename",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-export-download.ts",
+      "handler": "passportImageDownloadFilename"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-export-download.ts:requireExportHistoryId",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-export-download.ts",
+      "handler": "requireExportHistoryId"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-group-exports.api.ts:completeGroupExportHistory",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-group-exports.api.ts",
+      "handler": "completeGroupExportHistory"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-group-exports.api.ts:exportGroup",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-group-exports.api.ts",
+      "handler": "exportGroup"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-group-exports.api.ts:exportGroupImages",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-group-exports.api.ts",
+      "handler": "exportGroupImages"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-group-exports.api.ts:exportWhatsAppTracking",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-group-exports.api.ts",
+      "handler": "exportWhatsAppTracking"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-group-exports.api.ts:getGroupExportFields",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-group-exports.api.ts",
+      "handler": "getGroupExportFields"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-group-exports.api.ts:getGroupExportHistory",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-group-exports.api.ts",
+      "handler": "getGroupExportHistory"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-group-exports.api.ts:getGroupExportHistoryDetail",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-group-exports.api.ts",
+      "handler": "getGroupExportHistoryDetail"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-images.api.ts:getEditableImage",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-images.api.ts",
+      "handler": "getEditableImage"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-images.api.ts:getImageCrop",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-images.api.ts",
+      "handler": "getImageCrop"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-images.api.ts:getOriginalImage",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-images.api.ts",
+      "handler": "getOriginalImage"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-images.api.ts:listImageLibrary",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-images.api.ts",
+      "handler": "listImageLibrary"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-images.api.ts:resetImageCrop",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-images.api.ts",
+      "handler": "resetImageCrop"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-images.api.ts:saveImageCrop",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-images.api.ts",
+      "handler": "saveImageCrop"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-images.api.ts:uploadImageLibraryImage",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-images.api.ts",
+      "handler": "uploadImageLibraryImage"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-images.api.ts:useImageLibraryImage",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-images.api.ts",
+      "handler": "useImageLibraryImage"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-imports.api.ts:importGroup",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-imports.api.ts",
+      "handler": "importGroup"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-imports.api.ts:previewPassportDocuments",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-imports.api.ts",
+      "handler": "previewPassportDocuments"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-imports.api.ts:savePassportDocuments",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-imports.api.ts",
+      "handler": "savePassportDocuments"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-imports.api.ts:savePassportDocumentsInChunks",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-imports.api.ts",
+      "handler": "savePassportDocumentsInChunks"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-records.api.ts:bulkDelete",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-records.api.ts",
+      "handler": "bulkDelete"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-records.api.ts:bulkDocumentFollowUp",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-records.api.ts",
+      "handler": "bulkDocumentFollowUp"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-records.api.ts:bulkStaffApprove",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-records.api.ts",
+      "handler": "bulkStaffApprove"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-records.api.ts:confirm",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-records.api.ts",
+      "handler": "confirm"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-records.api.ts:getById",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-records.api.ts",
+      "handler": "getById"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-records.api.ts:getGroupSubmissionsView",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-records.api.ts",
+      "handler": "getGroupSubmissionsView"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-records.api.ts:list",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-records.api.ts",
+      "handler": "list"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-records.api.ts:listByGroup",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-records.api.ts",
+      "handler": "listByGroup"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-records.api.ts:listGroups",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-records.api.ts",
+      "handler": "listGroups"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-records.api.ts:reextract",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-records.api.ts",
+      "handler": "reextract"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-records.api.ts:retryAiVerification",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-records.api.ts",
+      "handler": "retryAiVerification"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-records.api.ts:staffApprove",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-records.api.ts",
+      "handler": "staffApprove"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-selection-exports.api.ts:exportSelectedGroupImages",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-selection-exports.api.ts",
+      "handler": "exportSelectedGroupImages"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-selection-exports.api.ts:exportSelectedGroups",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-selection-exports.api.ts",
+      "handler": "exportSelectedGroups"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-selection-exports.api.ts:exportSelectedPassports",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-selection-exports.api.ts",
+      "handler": "exportSelectedPassports"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-selection-exports.api.ts:getSelectedGroupsExportFields",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-selection-exports.api.ts",
+      "handler": "getSelectedGroupsExportFields"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-visa-ai.api.ts:applyVisaAiEdit",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-visa-ai.api.ts",
+      "handler": "applyVisaAiEdit"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-visa-ai.api.ts:createVisaAiGenerationJob",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-visa-ai.api.ts",
+      "handler": "createVisaAiGenerationJob"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-visa-ai.api.ts:generateVisaAiLibraryImage",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-visa-ai.api.ts",
+      "handler": "generateVisaAiLibraryImage"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-visa-ai.api.ts:generateVisaAiPreview",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-visa-ai.api.ts",
+      "handler": "generateVisaAiPreview"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-visa-ai.api.ts:getActiveVisaAiGenerationJob",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-visa-ai.api.ts",
+      "handler": "getActiveVisaAiGenerationJob"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-visa-ai.api.ts:getVisaAiGenerationJob",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-visa-ai.api.ts",
+      "handler": "getVisaAiGenerationJob"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-visa-ai.api.ts:listVisaAiLibrary",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-visa-ai.api.ts",
+      "handler": "listVisaAiLibrary"
+    },
+    {
+      "id": "frontend:frontend/features/passports/api/passport-visa-ai.api.ts:useVisaAiLibraryImage",
+      "kind": "frontend_callable",
+      "source": "frontend/features/passports/api/passport-visa-ai.api.ts",
+      "handler": "useVisaAiLibraryImage"
+    },
+    {
+      "id": "frontend_api:frontend/features/gc-app/api/gc-app-announcements.api.ts",
+      "kind": "frontend_api_contract",
+      "source": "frontend/features/gc-app/api/gc-app-announcements.api.ts",
+      "contract_sha256": "4d0d5ed7e7aed4e6c9bcc309e8cc7040061ad82e896df17828649c4f6105830b"
+    },
+    {
+      "id": "frontend_api:frontend/features/gc-app/api/gc-app-audit.api.ts",
+      "kind": "frontend_api_contract",
+      "source": "frontend/features/gc-app/api/gc-app-audit.api.ts",
+      "contract_sha256": "2ffd9bc269c993b01fe2d258d394be1d7dc5424036bb2549ac887140fb27fea5"
+    },
+    {
+      "id": "frontend_api:frontend/features/gc-app/api/gc-app-directory.api.ts",
+      "kind": "frontend_api_contract",
+      "source": "frontend/features/gc-app/api/gc-app-directory.api.ts",
+      "contract_sha256": "4ba9ce7f17bb651183e667c6d0c3dee7c3f7384f40eb9f4661d63fafa9385e51"
+    },
+    {
+      "id": "frontend_api:frontend/features/gc-app/api/gc-app-documents.api.ts",
+      "kind": "frontend_api_contract",
+      "source": "frontend/features/gc-app/api/gc-app-documents.api.ts",
+      "contract_sha256": "0d409c68f34db37e0fb0a6083e2d164af5e5f49ffae083c92a790731041ba27e"
+    },
+    {
+      "id": "frontend_api:frontend/features/gc-app/api/gc-app-groups.api.ts",
+      "kind": "frontend_api_contract",
+      "source": "frontend/features/gc-app/api/gc-app-groups.api.ts",
+      "contract_sha256": "742e84370a2d4157ee6cbadfc4d37498e150747ab1a52bbf2c521dfedb7a2737"
+    },
+    {
+      "id": "frontend_api:frontend/features/gc-app/api/gc-app-itineraries.api.ts",
+      "kind": "frontend_api_contract",
+      "source": "frontend/features/gc-app/api/gc-app-itineraries.api.ts",
+      "contract_sha256": "b1371566daaa921158f706b8a4eae4821bdfa896df79411e2eb70804d10bd54e"
+    },
+    {
+      "id": "frontend_api:frontend/features/gc-app/api/gc-app-managers.api.ts",
+      "kind": "frontend_api_contract",
+      "source": "frontend/features/gc-app/api/gc-app-managers.api.ts",
+      "contract_sha256": "530eea92e22bab090fe5b3da1904cf54df26a2461a6f5972e9a13b53a59bd91f"
+    },
+    {
+      "id": "frontend_api:frontend/features/passports/api/passport-export-download.ts",
+      "kind": "frontend_api_contract",
+      "source": "frontend/features/passports/api/passport-export-download.ts",
+      "contract_sha256": "dc8e342a9833ff763747d0db73f70a63b9a608b66d2e3b25609dcd86a10faf02"
+    },
+    {
+      "id": "frontend_api:frontend/features/passports/api/passport-group-exports.api.ts",
+      "kind": "frontend_api_contract",
+      "source": "frontend/features/passports/api/passport-group-exports.api.ts",
+      "contract_sha256": "b76293292523d942c23a505bba7d14db0bd793bd774067a53517428976ad09fe"
+    },
+    {
+      "id": "frontend_api:frontend/features/passports/api/passport-images.api.ts",
+      "kind": "frontend_api_contract",
+      "source": "frontend/features/passports/api/passport-images.api.ts",
+      "contract_sha256": "1a340b447dcbdfb4b2e7b3a25570c6e8beb0173cbd6a97e454608b32646d9c3d"
+    },
+    {
+      "id": "frontend_api:frontend/features/passports/api/passport-imports.api.ts",
+      "kind": "frontend_api_contract",
+      "source": "frontend/features/passports/api/passport-imports.api.ts",
+      "contract_sha256": "829562dd0ad993c745e326c95607b67b54f2b84be8708b8b0ddc04d026b1cfb6"
+    },
+    {
+      "id": "frontend_api:frontend/features/passports/api/passport-records.api.ts",
+      "kind": "frontend_api_contract",
+      "source": "frontend/features/passports/api/passport-records.api.ts",
+      "contract_sha256": "976bd9d42cd455d2bdb97fe245f481a6f42a46918bddd66b89dfd47dffb03262"
+    },
+    {
+      "id": "frontend_api:frontend/features/passports/api/passport-selection-exports.api.ts",
+      "kind": "frontend_api_contract",
+      "source": "frontend/features/passports/api/passport-selection-exports.api.ts",
+      "contract_sha256": "f5dbfe3c2ca02b1a1e460f40d257fefb5fb8f8b812c0eecfc8176076cfe5f52a"
+    },
+    {
+      "id": "frontend_api:frontend/features/passports/api/passport-visa-ai.api.ts",
+      "kind": "frontend_api_contract",
+      "source": "frontend/features/passports/api/passport-visa-ai.api.ts",
+      "contract_sha256": "4aabe5f89d6f57310645d2f400631b5964a6e2035fdd6975bdda85020616e9c2"
+    },
+    {
+      "id": "registration:backend/app/presentation/api/v1/routes/gc_app_announcement_publication.py",
+      "kind": "route_registration",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_announcement_publication.py",
+      "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+    },
+    {
+      "id": "registration:backend/app/presentation/api/v1/routes/gc_app_announcements.py",
+      "kind": "route_registration",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_announcements.py",
+      "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+    },
+    {
+      "id": "registration:backend/app/presentation/api/v1/routes/gc_app_common_documents.py",
+      "kind": "route_registration",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_common_documents.py",
+      "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+    },
+    {
+      "id": "registration:backend/app/presentation/api/v1/routes/gc_app_common_preview.py",
+      "kind": "route_registration",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_common_preview.py",
+      "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+    },
+    {
+      "id": "registration:backend/app/presentation/api/v1/routes/gc_app_common_publication.py",
+      "kind": "route_registration",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_common_publication.py",
+      "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+    },
+    {
+      "id": "registration:backend/app/presentation/api/v1/routes/gc_app_content_audit.py",
+      "kind": "route_registration",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_content_audit.py",
+      "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+    },
+    {
+      "id": "registration:backend/app/presentation/api/v1/routes/gc_app_group_directory.py",
+      "kind": "route_registration",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_group_directory.py",
+      "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+    },
+    {
+      "id": "registration:backend/app/presentation/api/v1/routes/gc_app_group_settings.py",
+      "kind": "route_registration",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_group_settings.py",
+      "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+    },
+    {
+      "id": "registration:backend/app/presentation/api/v1/routes/gc_app_itineraries.py",
+      "kind": "route_registration",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_itineraries.py",
+      "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+    },
+    {
+      "id": "registration:backend/app/presentation/api/v1/routes/gc_app_manager_access.py",
+      "kind": "route_registration",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_manager_access.py",
+      "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+    },
+    {
+      "id": "registration:backend/app/presentation/api/v1/routes/gc_app_manager_creation.py",
+      "kind": "route_registration",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_manager_creation.py",
+      "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+    },
+    {
+      "id": "registration:backend/app/presentation/api/v1/routes/gc_app_manager_directory.py",
+      "kind": "route_registration",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_manager_directory.py",
+      "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+    },
+    {
+      "id": "registration:backend/app/presentation/api/v1/routes/gc_app_manager_profile.py",
+      "kind": "route_registration",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_manager_profile.py",
+      "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+    },
+    {
+      "id": "registration:backend/app/presentation/api/v1/routes/gc_app_organizations.py",
+      "kind": "route_registration",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_organizations.py",
+      "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/gc_app_announcement_publication.py:delete_announcement:DELETE:/groups/{group_id}/announcements/{announcement_id}",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_announcement_publication.py",
+      "handler": "delete_announcement",
+      "method": "DELETE",
+      "local_path": "/groups/{group_id}/announcements/{announcement_id}",
+      "contract_sha256": "d29088ee822609cbc6a699c2f12d86e26c8946bab38eae9fdddd6face4d89de3",
+      "summary": "delete announcement",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/gc_app_announcement_publication.py:publish_announcement:POST:/groups/{group_id}/announcements/{announcement_id}/publish",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_announcement_publication.py",
+      "handler": "publish_announcement",
+      "method": "POST",
+      "local_path": "/groups/{group_id}/announcements/{announcement_id}/publish",
+      "contract_sha256": "21a404a0f97a3f0ce45008985ef67c1762d0af150221627d544f0cc90dc01683",
+      "summary": "publish announcement",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/gc_app_announcement_publication.py:unpublish_announcement:POST:/groups/{group_id}/announcements/{announcement_id}/unpublish",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_announcement_publication.py",
+      "handler": "unpublish_announcement",
+      "method": "POST",
+      "local_path": "/groups/{group_id}/announcements/{announcement_id}/unpublish",
+      "contract_sha256": "9306e8fabbcdf9369a919a794c92c86508a86b3cd5fe8f0577ba5045af44443e",
+      "summary": "unpublish announcement",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/gc_app_announcements.py:create_announcement:POST:/groups/{group_id}/announcements",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_announcements.py",
+      "handler": "create_announcement",
+      "method": "POST",
+      "local_path": "/groups/{group_id}/announcements",
+      "contract_sha256": "12ebabe3af9d879cbab17fdfe1b9862c15a5b539bdc200741d8ae845691d153f",
+      "summary": "create announcement",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/gc_app_announcements.py:get_announcement_notification_status:GET:/groups/{group_id}/announcements/{announcement_id}/notification-status",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_announcements.py",
+      "handler": "get_announcement_notification_status",
+      "method": "GET",
+      "local_path": "/groups/{group_id}/announcements/{announcement_id}/notification-status",
+      "contract_sha256": "5756a7afd9090eb6f5d25ad6f9ef8ce806ff078106cc0836a2bd929c7a43037f",
+      "summary": "get announcement notification status",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/gc_app_announcements.py:list_announcements:GET:/groups/{group_id}/announcements",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_announcements.py",
+      "handler": "list_announcements",
+      "method": "GET",
+      "local_path": "/groups/{group_id}/announcements",
+      "contract_sha256": "cef48e13c20fb65cfd0eb953f01f568092c8adef9812a7d524a4c57156818bdf",
+      "summary": "list announcements",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/gc_app_announcements.py:page_announcements:GET:/groups/{group_id}/announcements/page",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_announcements.py",
+      "handler": "page_announcements",
+      "method": "GET",
+      "local_path": "/groups/{group_id}/announcements/page",
+      "contract_sha256": "d842ad4f82f616512fbcfec82eaca1b75000e2427693d8966e37819a03ddf258",
+      "summary": "page announcements",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/gc_app_announcements.py:update_announcement:PUT:/groups/{group_id}/announcements/{announcement_id}",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_announcements.py",
+      "handler": "update_announcement",
+      "method": "PUT",
+      "local_path": "/groups/{group_id}/announcements/{announcement_id}",
+      "contract_sha256": "f2e7e9eec2e437919fa5b341c525f54bd05c89dcdbcf3005f8021bae0924e373",
+      "summary": "update announcement",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/gc_app_common_documents.py:list_common_documents:GET:/groups/{group_id}/common-documents",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_common_documents.py",
+      "handler": "list_common_documents",
+      "method": "GET",
+      "local_path": "/groups/{group_id}/common-documents",
+      "contract_sha256": "5527e588dd6fbc3060b7fd81471c07da9229008ec4c3d317bd1fd92a1ca3eb52",
+      "summary": "list common documents",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/gc_app_common_documents.py:reorder_common_documents:PUT:/groups/{group_id}/common-documents/reorder",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_common_documents.py",
+      "handler": "reorder_common_documents",
+      "method": "PUT",
+      "local_path": "/groups/{group_id}/common-documents/reorder",
+      "contract_sha256": "31c0a2dafdd3ff3c0b0ae28a5aa2a939e7184b4afd4a53fb95eb9aedde989ccd",
+      "summary": "reorder common documents",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/gc_app_common_documents.py:replace_common_document:POST:/groups/{group_id}/common-documents/{document_id}/replace",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_common_documents.py",
+      "handler": "replace_common_document",
+      "method": "POST",
+      "local_path": "/groups/{group_id}/common-documents/{document_id}/replace",
+      "contract_sha256": "0445bbcea9c8c62219cd115b922b204ffe5fa6cddb07aa2739802422ef1b192b",
+      "summary": "replace common document",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/gc_app_common_documents.py:upload_common_document:POST:/groups/{group_id}/common-documents",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_common_documents.py",
+      "handler": "upload_common_document",
+      "method": "POST",
+      "local_path": "/groups/{group_id}/common-documents",
+      "contract_sha256": "90bdab0d2f288e91d6728d62194cc04ce1a790c33ce43096358bbc790198c418",
+      "summary": "upload common document",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/gc_app_common_preview.py:preview_common_document_content:GET:/groups/{group_id}/common-documents/{document_id}/content",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_common_preview.py",
+      "handler": "preview_common_document_content",
+      "method": "GET",
+      "local_path": "/groups/{group_id}/common-documents/{document_id}/content",
+      "contract_sha256": "7a28b9346f42bcd28d637a44f345e3a3031a75fc8e59ed63be6491bf56103634",
+      "summary": "preview common document content",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/gc_app_common_publication.py:delete_common_document:DELETE:/groups/{group_id}/common-documents/{document_id}",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_common_publication.py",
+      "handler": "delete_common_document",
+      "method": "DELETE",
+      "local_path": "/groups/{group_id}/common-documents/{document_id}",
+      "contract_sha256": "b53147096ce906554b85209ea1334afd21fcc484656ed69362caa3e5cd96b9f8",
+      "summary": "delete common document",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/gc_app_common_publication.py:publish_common_document:POST:/groups/{group_id}/common-documents/{document_id}/publish",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_common_publication.py",
+      "handler": "publish_common_document",
+      "method": "POST",
+      "local_path": "/groups/{group_id}/common-documents/{document_id}/publish",
+      "contract_sha256": "8763bbfbe29e65c38c58a5e5bbd99f0281ffc562eab3a270d0f6a20beb878fd6",
+      "summary": "publish common document",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/gc_app_common_publication.py:unpublish_common_document:POST:/groups/{group_id}/common-documents/{document_id}/unpublish",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_common_publication.py",
+      "handler": "unpublish_common_document",
+      "method": "POST",
+      "local_path": "/groups/{group_id}/common-documents/{document_id}/unpublish",
+      "contract_sha256": "e1022484a9fb2e9af12342a09d34a4fa1031d850027cba2d7be4b957787a6e8c",
+      "summary": "unpublish common document",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/gc_app_content_audit.py:list_group_gc_audit:GET:/groups/{group_id}/audit",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_content_audit.py",
+      "handler": "list_group_gc_audit",
+      "method": "GET",
+      "local_path": "/groups/{group_id}/audit",
+      "contract_sha256": "a975dac9f7a9f838fd0bf29eca4d8a797a59f1887ca9204a48ea273a02c65485",
+      "summary": "list group gc audit",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/gc_app_group_directory.py:list_gc_agencies:GET:/agencies",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_group_directory.py",
+      "handler": "list_gc_agencies",
+      "method": "GET",
+      "local_path": "/agencies",
+      "contract_sha256": "4123e1fb48f303c81510164c3087290c69d622425424b71f71b261bb17f73d47",
+      "summary": "list gc agencies",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/gc_app_group_directory.py:search_gc_groups:GET:/groups",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_group_directory.py",
+      "handler": "search_gc_groups",
+      "method": "GET",
+      "local_path": "/groups",
+      "contract_sha256": "27eb8346d57081fa374149e546b58ff49278bad1dd5772c56a0b5624d3fc9696",
+      "summary": "search gc groups",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/gc_app_group_settings.py:configure_gc_group_access:PUT:/groups/{group_id}",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_group_settings.py",
+      "handler": "configure_gc_group_access",
+      "method": "PUT",
+      "local_path": "/groups/{group_id}",
+      "contract_sha256": "a0fddfa0eee7942f1db43eb297ff68134b2084c08e74581801fbe609378ad56e",
+      "summary": "configure gc group access",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/gc_app_group_settings.py:configure_gc_group_my_photos_feature:PUT:/groups/{group_id}/features/my-photos",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_group_settings.py",
+      "handler": "configure_gc_group_my_photos_feature",
+      "method": "PUT",
+      "local_path": "/groups/{group_id}/features/my-photos",
+      "contract_sha256": "933670c817fdd9a40650437a255e006fe27575f5f0cb34acfa6421d4850c8be1",
+      "summary": "configure gc group my photos feature",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/gc_app_group_settings.py:get_gc_group_access:GET:/groups/{group_id}",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_group_settings.py",
+      "handler": "get_gc_group_access",
+      "method": "GET",
+      "local_path": "/groups/{group_id}",
+      "contract_sha256": "23140cedafc054bbe2470098126438c4e0e2c0031393b8c4b08366cb14b0813f",
+      "summary": "get gc group access",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/gc_app_group_settings.py:refresh_mobile_passenger_identities:POST:/groups/{group_id}/passenger-identities/reconcile",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_group_settings.py",
+      "handler": "refresh_mobile_passenger_identities",
+      "method": "POST",
+      "local_path": "/groups/{group_id}/passenger-identities/reconcile",
+      "contract_sha256": "e385d3d189b5e7405b55984312b666a3f88fea30185b05591abfbba41386d35c",
+      "summary": "refresh mobile passenger identities",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/gc_app_itineraries.py:create_itinerary_draft:POST:/groups/{group_id}/itineraries/drafts",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_itineraries.py",
+      "handler": "create_itinerary_draft",
+      "method": "POST",
+      "local_path": "/groups/{group_id}/itineraries/drafts",
+      "contract_sha256": "314c568181613155bd044f6c9688b2b99a8dabc9ae0eeff35fb2d17181462e79",
+      "summary": "create itinerary draft",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/gc_app_itineraries.py:preview_itinerary:GET:/groups/{group_id}/itineraries/preview",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_itineraries.py",
+      "handler": "preview_itinerary",
+      "method": "GET",
+      "local_path": "/groups/{group_id}/itineraries/preview",
+      "contract_sha256": "a0ec9a4ceb5559b41dc40555422350d30dfdc86dd38820571b139a88b29f5c8a",
+      "summary": "preview itinerary",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/gc_app_itineraries.py:publish_itinerary:POST:/groups/{group_id}/itineraries/{version_id}/publish",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_itineraries.py",
+      "handler": "publish_itinerary",
+      "method": "POST",
+      "local_path": "/groups/{group_id}/itineraries/{version_id}/publish",
+      "contract_sha256": "d258da7504bc217703326bc213d9d309313252ef8b6d5cb524a74e20f4ae2d13",
+      "summary": "publish itinerary",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/gc_app_itineraries.py:unpublish_itinerary:POST:/groups/{group_id}/itineraries/{version_id}/unpublish",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_itineraries.py",
+      "handler": "unpublish_itinerary",
+      "method": "POST",
+      "local_path": "/groups/{group_id}/itineraries/{version_id}/unpublish",
+      "contract_sha256": "9e5016dedb047ae641fd28eeb19ea3ca91f71c7202db5aeac2c7d335f75d2c52",
+      "summary": "unpublish itinerary",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/gc_app_manager_access.py:replace_client_manager_groups:PUT:/client-managers/{profile_id}/groups",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_manager_access.py",
+      "handler": "replace_client_manager_groups",
+      "method": "PUT",
+      "local_path": "/client-managers/{profile_id}/groups",
+      "contract_sha256": "31b8726f6dce5032279a0690f893a2ac6bbe90978dbb7201fbfc7e5617854653",
+      "summary": "replace client manager groups",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/gc_app_manager_access.py:reset_client_manager_password:POST:/client-managers/{profile_id}/reset-password",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_manager_access.py",
+      "handler": "reset_client_manager_password",
+      "method": "POST",
+      "local_path": "/client-managers/{profile_id}/reset-password",
+      "contract_sha256": "eb5cea56d8b460d73131f6de57cfc8141c10c2317a3a8dea58542b6caa640a47",
+      "summary": "reset client manager password",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/gc_app_manager_access.py:revoke_client_manager_sessions:POST:/client-managers/{profile_id}/revoke-sessions",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_manager_access.py",
+      "handler": "revoke_client_manager_sessions",
+      "method": "POST",
+      "local_path": "/client-managers/{profile_id}/revoke-sessions",
+      "contract_sha256": "fa3924cc30677deb70ef155d838109cfba594b55b416c8b2157fadd9ff352ada",
+      "summary": "revoke client manager sessions",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/gc_app_manager_creation.py:create_client_manager:POST:/client-managers",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_manager_creation.py",
+      "handler": "create_client_manager",
+      "method": "POST",
+      "local_path": "/client-managers",
+      "contract_sha256": "5d72c9307842e937953eb950d9bff0a8965907c6e5d0c4d0b870d9677f093e55",
+      "summary": "create client manager",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/gc_app_manager_directory.py:list_client_manager_audit:GET:/client-managers/{profile_id}/audit",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_manager_directory.py",
+      "handler": "list_client_manager_audit",
+      "method": "GET",
+      "local_path": "/client-managers/{profile_id}/audit",
+      "contract_sha256": "6e1df17d1b327ab3fb242ecde5dbdecdae83d4598410cb68866952b93a366c84",
+      "summary": "list client manager audit",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/gc_app_manager_directory.py:list_client_manager_sessions:GET:/client-managers/{profile_id}/sessions",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_manager_directory.py",
+      "handler": "list_client_manager_sessions",
+      "method": "GET",
+      "local_path": "/client-managers/{profile_id}/sessions",
+      "contract_sha256": "9a416af8659dc7450c1ae6960bcf125520f822612bc56a37501b50921de5459f",
+      "summary": "list client manager sessions",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/gc_app_manager_directory.py:list_client_managers:GET:/client-managers",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_manager_directory.py",
+      "handler": "list_client_managers",
+      "method": "GET",
+      "local_path": "/client-managers",
+      "contract_sha256": "1d918fb488aa4679420c7bc7f24034258f42f9c7596f63c788e0e3423aa1d107",
+      "summary": "list client managers",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/gc_app_manager_profile.py:delete_client_manager:DELETE:/client-managers/{profile_id}",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_manager_profile.py",
+      "handler": "delete_client_manager",
+      "method": "DELETE",
+      "local_path": "/client-managers/{profile_id}",
+      "contract_sha256": "f3c1f574ea92a12f7aaa9990cf01888047e888742d977b17c0a04e023da0a2f6",
+      "summary": "delete client manager",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/gc_app_manager_profile.py:force_client_manager_password_change:PATCH:/client-managers/{profile_id}/force-password-change",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_manager_profile.py",
+      "handler": "force_client_manager_password_change",
+      "method": "PATCH",
+      "local_path": "/client-managers/{profile_id}/force-password-change",
+      "contract_sha256": "8147634639b2f15a7e302aca021f2ace0e46db4c1ac0b1b4eff108a6a24f74ab",
+      "summary": "force client manager password change",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/gc_app_manager_profile.py:set_client_manager_status:PATCH:/client-managers/{profile_id}/status",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_manager_profile.py",
+      "handler": "set_client_manager_status",
+      "method": "PATCH",
+      "local_path": "/client-managers/{profile_id}/status",
+      "contract_sha256": "655b6c8dd23c6d46f94722bff971c2dc45af62f5c410426040e26a679235ba0e",
+      "summary": "set client manager status",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/gc_app_manager_profile.py:update_client_manager:PATCH:/client-managers/{profile_id}",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_manager_profile.py",
+      "handler": "update_client_manager",
+      "method": "PATCH",
+      "local_path": "/client-managers/{profile_id}",
+      "contract_sha256": "7458b4606e328ca580915a1976a82e596bd71dc7baa9018b92df6bf951e5b775",
+      "summary": "update client manager",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/gc_app_organizations.py:create_client_organization:POST:/client-organizations",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_organizations.py",
+      "handler": "create_client_organization",
+      "method": "POST",
+      "local_path": "/client-organizations",
+      "contract_sha256": "449a826cac038e491c4196eaf38ad227d0d7542a866330f92ee5298d3ce70f6c",
+      "summary": "create client organization",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/gc_app_organizations.py:delete_client_organization:DELETE:/client-organizations/{organization_id}",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_organizations.py",
+      "handler": "delete_client_organization",
+      "method": "DELETE",
+      "local_path": "/client-organizations/{organization_id}",
+      "contract_sha256": "00431cd08bcb9d010fe318566c1adaf654ab9f15502f9544e19322482ff7727c",
+      "summary": "delete client organization",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/gc_app_organizations.py:list_client_organizations:GET:/client-organizations",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_organizations.py",
+      "handler": "list_client_organizations",
+      "method": "GET",
+      "local_path": "/client-organizations",
+      "contract_sha256": "7a17f6e6d756a4d5537d03a46e840c9ba091bc6e191f81d3e944d660edd49291",
+      "summary": "list client organizations",
+      "schema_visible": true
+    },
+    {
+      "id": "route:backend/app/presentation/api/v1/routes/gc_app_organizations.py:search_client_organizations:GET:/client-organizations/search",
+      "kind": "source_route",
+      "source": "backend/app/presentation/api/v1/routes/gc_app_organizations.py",
+      "handler": "search_client_organizations",
+      "method": "GET",
+      "local_path": "/client-organizations/search",
+      "contract_sha256": "9ed276064fe3bd91306881ae88385d15e0d22bbf5d99beec189340f6772ab9cf",
+      "summary": "search client organizations",
+      "schema_visible": true
+    }
+  ],
+  "stale": [
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:addGroup",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "handler": "addGroup"
+      },
+      "workflow": "gc-app.addGroup",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:createAnnouncement",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "handler": "createAnnouncement"
+      },
+      "workflow": "gc-app.createAnnouncement",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:createClientManager",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "handler": "createClientManager"
+      },
+      "workflow": "gc-app.createClientManager",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:createClientOrganization",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "handler": "createClientOrganization"
+      },
+      "workflow": "gc-app.createClientOrganization",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:deleteAnnouncement",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "handler": "deleteAnnouncement"
+      },
+      "workflow": "gc-app.deleteAnnouncement",
+      "disposition": "manual_removal",
+      "phase": null,
+      "rationale": "Record, file, membership, archive or destructive cancellation/removal effects are outside MCP authority and remain manual.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      },
+      "exclusion_boundary": "no_removal"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:deleteCommonDocument",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "handler": "deleteCommonDocument"
+      },
+      "workflow": "gc-app.deleteCommonDocument",
+      "disposition": "manual_removal",
+      "phase": null,
+      "rationale": "Record, file, membership, archive or destructive cancellation/removal effects are outside MCP authority and remain manual.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      },
+      "exclusion_boundary": "no_removal"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:getGroupContent",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "handler": "getGroupContent"
+      },
+      "workflow": "gc-app.getGroupContent",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:getGroupControl",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "handler": "getGroupControl"
+      },
+      "workflow": "gc-app.getGroupControl",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:listAgencies",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "handler": "listAgencies"
+      },
+      "workflow": "gc-app.listAgencies",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:listAnnouncements",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "handler": "listAnnouncements"
+      },
+      "workflow": "gc-app.listAnnouncements",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:listClientManagerAudit",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "handler": "listClientManagerAudit"
+      },
+      "workflow": "gc-app.listClientManagerAudit",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:listClientManagerSessions",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "handler": "listClientManagerSessions"
+      },
+      "workflow": "gc-app.listClientManagerSessions",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Preserve existing recent-MFA and identity-security-version rules; no MCP self-authority controls."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:listClientManagers",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "handler": "listClientManagers"
+      },
+      "workflow": "gc-app.listClientManagers",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:listGroupAudit",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "handler": "listGroupAudit"
+      },
+      "workflow": "gc-app.listGroupAudit",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:listGroups",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "handler": "listGroups"
+      },
+      "workflow": "gc-app.listGroups",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:previewCommonDocument",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "handler": "previewCommonDocument"
+      },
+      "workflow": "gc-app.previewCommonDocument",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:publishItinerary",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "handler": "publishItinerary"
+      },
+      "workflow": "gc-app.publishItinerary",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:removeClientOrganization",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "handler": "removeClientOrganization"
+      },
+      "workflow": "gc-app.removeClientOrganization",
+      "disposition": "manual_removal",
+      "phase": null,
+      "rationale": "Record, file, membership, archive or destructive cancellation/removal effects are outside MCP authority and remain manual.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      },
+      "exclusion_boundary": "no_removal"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:removeGroup",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "handler": "removeGroup"
+      },
+      "workflow": "gc-app.removeGroup",
+      "disposition": "manual_removal",
+      "phase": null,
+      "rationale": "Record, file, membership, archive or destructive cancellation/removal effects are outside MCP authority and remain manual.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      },
+      "exclusion_boundary": "no_removal"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:reorderCommonDocuments",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "handler": "reorderCommonDocuments"
+      },
+      "workflow": "gc-app.reorderCommonDocuments",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:resetClientManagerPassword",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "handler": "resetClientManagerPassword"
+      },
+      "workflow": "gc-app.resetClientManagerPassword",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Preserve existing recent-MFA and identity-security-version rules; no MCP self-authority controls."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:revokeClientManagerSessions",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "handler": "revokeClientManagerSessions"
+      },
+      "workflow": "gc-app.revokeClientManagerSessions",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Preserve existing recent-MFA and identity-security-version rules; no MCP self-authority controls."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:revokeGroupAccess",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "handler": "revokeGroupAccess"
+      },
+      "workflow": "gc-app.revokeGroupAccess",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:saveItineraryDraft",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "handler": "saveItineraryDraft"
+      },
+      "workflow": "gc-app.saveItineraryDraft",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Additive variant locally tested: coordinator memberships are inserted without deactivation, attendance creation resolves only exactly compatible active state, GC itinerary drafts retain all versions. Existing replacement, schedule edits, physical events and publishing are separate workflows.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/tour_change_tools.py",
+        "evidence": [
+          "backend/tests/integration/test_mcp_tour_changes.py",
+          "backend/tests/service_integration/test_mcp_tour_postgresql.py",
+          "docs/implementation/mcp-tour-gc-creations.md"
+        ]
+      },
+      "effect_review": "additive_variant_locally_tested"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:searchCompanies",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "handler": "searchCompanies"
+      },
+      "workflow": "gc-app.searchCompanies",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:searchGroups",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "handler": "searchGroups"
+      },
+      "workflow": "gc-app.searchGroups",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:setAnnouncementPublished",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "handler": "setAnnouncementPublished"
+      },
+      "workflow": "gc-app.setAnnouncementPublished",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:setClientManagerStatus",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "handler": "setClientManagerStatus"
+      },
+      "workflow": "gc-app.setClientManagerStatus",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Preserve existing recent-MFA and identity-security-version rules; no MCP self-authority controls."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:setCommonDocumentPublished",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "handler": "setCommonDocumentPublished"
+      },
+      "workflow": "gc-app.setCommonDocumentPublished",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:setMyPhotosEnabled",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "handler": "setMyPhotosEnabled"
+      },
+      "workflow": "gc-app.setMyPhotosEnabled",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:softDeleteClientManager",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "handler": "softDeleteClientManager"
+      },
+      "workflow": "gc-app.softDeleteClientManager",
+      "disposition": "manual_removal",
+      "phase": null,
+      "rationale": "Calls DELETE /api/v1/gc-app/admin/client-managers/{profile_id}; the canonical handler deactivates assignments, revokes mobile sessions, marks profile/user deleted, replaces email/password and clears invitation material. Inherits the already agreed canonical no-removal exclusion.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      },
+      "exclusion_boundary": "no_removal",
+      "effect_review": "canonical_source_and_frontend_endpoint_chain_reviewed"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:unpublishItinerary",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "handler": "unpublishItinerary"
+      },
+      "workflow": "gc-app.unpublishItinerary",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:updateAnnouncement",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "handler": "updateAnnouncement"
+      },
+      "workflow": "gc-app.updateAnnouncement",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:updateClientManager",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "handler": "updateClientManager"
+      },
+      "workflow": "gc-app.updateClientManager",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:updateGroupControl",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "handler": "updateGroupControl"
+      },
+      "workflow": "gc-app.updateGroupControl",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/gc-app/api/gc-app-admin.api.ts:uploadCommonDocument",
+        "kind": "frontend_callable",
+        "source": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "handler": "uploadCommonDocument"
+      },
+      "workflow": "gc-app.uploadCommonDocument",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/mcp/api/mcp.api.ts:authorize",
+        "kind": "frontend_callable",
+        "source": "frontend/features/mcp/api/mcp.api.ts",
+        "handler": "authorize"
+      },
+      "workflow": "mcp.connection-management.authorize",
+      "disposition": "implement",
+      "phase": 2,
+      "rationale": "MCP authorization/connection status or superadmin browser controls. Enforce the distinct transport boundary; tools cannot change their own authority.",
+      "adapter_requirements": [
+        "active_superadmin",
+        "oauth_pkce_resource_binding",
+        "no_self_authority_escalation",
+        "revocation_and_security_version_checks",
+        "bounded_secret_free_audit"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "frontend/features/mcp/api/mcp.api.ts:authorize",
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/mcp/api/mcp.api.ts:revoke",
+        "kind": "frontend_callable",
+        "source": "frontend/features/mcp/api/mcp.api.ts",
+        "handler": "revoke"
+      },
+      "workflow": "mcp.connection-management.revoke",
+      "disposition": "implement",
+      "phase": 2,
+      "rationale": "MCP authorization/connection status or superadmin browser controls. Enforce the distinct transport boundary; tools cannot change their own authority.",
+      "adapter_requirements": [
+        "active_superadmin",
+        "oauth_pkce_resource_binding",
+        "no_self_authority_escalation",
+        "revocation_and_security_version_checks",
+        "bounded_secret_free_audit"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "frontend/features/mcp/api/mcp.api.ts:revoke",
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passports.api.ts:applyVisaAiEdit",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "handler": "applyVisaAiEdit"
+      },
+      "workflow": "passports.applyVisaAiEdit",
+      "disposition": "implement",
+      "phase": 5,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passports.api.ts:bulkDelete",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "handler": "bulkDelete"
+      },
+      "workflow": "passports.bulkDelete",
+      "disposition": "manual_removal",
+      "phase": null,
+      "rationale": "Permanently removes selected passport records through API_ENDPOINTS.passports.bulkDelete; inherits the already agreed canonical no-removal exclusion.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "canonical_source_and_frontend_endpoint_chain_reviewed",
+      "exclusion_boundary": "no_removal"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passports.api.ts:bulkDocumentFollowUp",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "handler": "bulkDocumentFollowUp"
+      },
+      "workflow": "passports.bulkDocumentFollowUp",
+      "disposition": "implement",
+      "phase": 5,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passports.api.ts:bulkStaffApprove",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "handler": "bulkStaffApprove"
+      },
+      "workflow": "passports.bulkStaffApprove",
+      "disposition": "implement",
+      "phase": 5,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passports.api.ts:completeGroupExportHistory",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "handler": "completeGroupExportHistory"
+      },
+      "workflow": "passports.completeGroupExportHistory",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "protected_artifact_and_verified_delivery",
+        "preserve_export_history_generation_vs_delivery",
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passports.api.ts:confirm",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "handler": "confirm"
+      },
+      "workflow": "passports.confirm",
+      "disposition": "implement",
+      "phase": 5,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passports.api.ts:createVisaAiGenerationJob",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "handler": "createVisaAiGenerationJob"
+      },
+      "workflow": "passports.createVisaAiGenerationJob",
+      "disposition": "implement",
+      "phase": 5,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passports.api.ts:exportGroup",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "handler": "exportGroup"
+      },
+      "workflow": "passports.exportGroup",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "protected_artifact_and_verified_delivery",
+        "preserve_export_history_generation_vs_delivery",
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/export_tools.py",
+        "evidence": [
+          "docs/implementation/mcp-excel-exports.md",
+          "backend/tests/integration/test_mcp_exports.py",
+          "backend/tests/service_integration/test_mcp_exports_postgresql.py",
+          "mcp-connector/tests/test_exports_tcp.py"
+        ]
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passports.api.ts:exportGroupImages",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "handler": "exportGroupImages"
+      },
+      "workflow": "passports.exportGroupImages",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "protected_artifact_and_verified_delivery",
+        "preserve_export_history_generation_vs_delivery",
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/image_export_tools.py",
+        "evidence": [
+          "docs/implementation/mcp-image-exports.md",
+          "backend/tests/integration/test_mcp_image_exports.py",
+          "backend/tests/service_integration/test_mcp_image_exports_postgresql.py",
+          "mcp-connector/tests/test_image_exports_tcp.py"
+        ]
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passports.api.ts:exportSelectedGroupImages",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "handler": "exportSelectedGroupImages"
+      },
+      "workflow": "passports.exportSelectedGroupImages",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "protected_artifact_and_verified_delivery",
+        "preserve_export_history_generation_vs_delivery",
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/image_export_tools.py",
+        "evidence": [
+          "docs/implementation/mcp-image-exports.md",
+          "backend/tests/integration/test_mcp_image_exports.py",
+          "backend/tests/service_integration/test_mcp_image_exports_postgresql.py",
+          "mcp-connector/tests/test_image_exports_tcp.py"
+        ]
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passports.api.ts:exportSelectedGroups",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "handler": "exportSelectedGroups"
+      },
+      "workflow": "passports.exportSelectedGroups",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "protected_artifact_and_verified_delivery",
+        "preserve_export_history_generation_vs_delivery",
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/export_tools.py",
+        "evidence": [
+          "docs/implementation/mcp-excel-exports.md",
+          "backend/tests/integration/test_mcp_exports.py",
+          "backend/tests/service_integration/test_mcp_exports_postgresql.py",
+          "mcp-connector/tests/test_exports_tcp.py"
+        ]
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passports.api.ts:exportSelectedPassports",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "handler": "exportSelectedPassports"
+      },
+      "workflow": "passports.exportSelectedPassports",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "protected_artifact_and_verified_delivery",
+        "preserve_export_history_generation_vs_delivery",
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/export_tools.py",
+        "evidence": [
+          "docs/implementation/mcp-excel-exports.md",
+          "backend/tests/integration/test_mcp_exports.py",
+          "backend/tests/service_integration/test_mcp_exports_postgresql.py",
+          "mcp-connector/tests/test_exports_tcp.py"
+        ]
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passports.api.ts:exportWhatsAppTracking",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "handler": "exportWhatsAppTracking"
+      },
+      "workflow": "passports.exportWhatsAppTracking",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "protected_artifact_and_verified_delivery",
+        "preserve_export_history_generation_vs_delivery",
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/tracking_export_tools.py",
+        "evidence": [
+          "docs/implementation/mcp-tracking-exports.md",
+          "backend/tests/integration/test_mcp_tracking_exports.py",
+          "backend/tests/service_integration/test_mcp_tracking_exports_postgresql.py",
+          "mcp-connector/tests/test_tracking_exports_tcp.py"
+        ]
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passports.api.ts:generateVisaAiLibraryImage",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "handler": "generateVisaAiLibraryImage"
+      },
+      "workflow": "passports.generateVisaAiLibraryImage",
+      "disposition": "implement",
+      "phase": 5,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passports.api.ts:generateVisaAiPreview",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "handler": "generateVisaAiPreview"
+      },
+      "workflow": "passports.generateVisaAiPreview",
+      "disposition": "implement",
+      "phase": 5,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passports.api.ts:getActiveVisaAiGenerationJob",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "handler": "getActiveVisaAiGenerationJob"
+      },
+      "workflow": "passports.getActiveVisaAiGenerationJob",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passports.api.ts:getById",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "handler": "getById"
+      },
+      "workflow": "passports.getById",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passports.api.ts:getEditableImage",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "handler": "getEditableImage"
+      },
+      "workflow": "passports.getEditableImage",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passports.api.ts:getGroupExportFields",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "handler": "getGroupExportFields"
+      },
+      "workflow": "passports.getGroupExportFields",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "protected_artifact_and_verified_delivery",
+        "preserve_export_history_generation_vs_delivery",
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/excel_options_tools.py",
+        "evidence": [
+          "backend/app/application/use_cases/passports/excel_export_options.py",
+          "backend/tests/integration/test_mcp_excel_options.py",
+          "backend/tests/service_integration/test_mcp_excel_options_postgresql.py",
+          "backend/tests/unit/presentation/test_selected_groups_export.py",
+          "backend/tests/unit/presentation/test_passport_group_pending_export_helpers.py",
+          "backend/tests/unit/core/test_mcp_release_envelope.py",
+          "docs/implementation/mcp-excel-options-checkpoint.md"
+        ]
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passports.api.ts:getGroupExportHistory",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "handler": "getGroupExportHistory"
+      },
+      "workflow": "passports.getGroupExportHistory",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "protected_artifact_and_verified_delivery",
+        "preserve_export_history_generation_vs_delivery",
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/export_history_tools.py",
+        "evidence": [
+          "backend/app/application/mcp/export_history_reads.py",
+          "backend/app/application/use_cases/passports/export_history_projection.py",
+          "backend/tests/integration/test_mcp_export_history_reads.py",
+          "backend/tests/service_integration/test_mcp_export_history_postgresql.py",
+          "backend/tests/unit/presentation/test_passport_export_history_routes.py",
+          "backend/tests/unit/core/test_mcp_release_envelope.py",
+          "docs/implementation/mcp-export-history-checkpoint.md"
+        ]
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passports.api.ts:getGroupExportHistoryDetail",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "handler": "getGroupExportHistoryDetail"
+      },
+      "workflow": "passports.getGroupExportHistoryDetail",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "protected_artifact_and_verified_delivery",
+        "preserve_export_history_generation_vs_delivery",
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/export_history_tools.py",
+        "evidence": [
+          "backend/app/application/mcp/export_history_reads.py",
+          "backend/app/application/use_cases/passports/export_history_projection.py",
+          "backend/tests/integration/test_mcp_export_history_reads.py",
+          "backend/tests/service_integration/test_mcp_export_history_postgresql.py",
+          "backend/tests/unit/presentation/test_passport_export_history_routes.py",
+          "backend/tests/unit/core/test_mcp_release_envelope.py",
+          "docs/implementation/mcp-export-history-checkpoint.md"
+        ]
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passports.api.ts:getGroupSubmissionsView",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "handler": "getGroupSubmissionsView"
+      },
+      "workflow": "passports.getGroupSubmissionsView",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passports.api.ts:getImageCrop",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "handler": "getImageCrop"
+      },
+      "workflow": "passports.getImageCrop",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passports.api.ts:getOriginalImage",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "handler": "getOriginalImage"
+      },
+      "workflow": "passports.getOriginalImage",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passports.api.ts:getSelectedGroupsExportFields",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "handler": "getSelectedGroupsExportFields"
+      },
+      "workflow": "passports.getSelectedGroupsExportFields",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "protected_artifact_and_verified_delivery",
+        "preserve_export_history_generation_vs_delivery",
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/excel_options_tools.py",
+        "evidence": [
+          "backend/app/application/use_cases/passports/excel_export_options.py",
+          "backend/tests/integration/test_mcp_excel_options.py",
+          "backend/tests/service_integration/test_mcp_excel_options_postgresql.py",
+          "backend/tests/unit/presentation/test_selected_groups_export.py",
+          "backend/tests/unit/presentation/test_passport_group_pending_export_helpers.py",
+          "backend/tests/unit/core/test_mcp_release_envelope.py",
+          "docs/implementation/mcp-excel-options-checkpoint.md"
+        ]
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passports.api.ts:getVisaAiGenerationJob",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "handler": "getVisaAiGenerationJob"
+      },
+      "workflow": "passports.getVisaAiGenerationJob",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passports.api.ts:importGroup",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "handler": "importGroup"
+      },
+      "workflow": "passports.importGroup",
+      "disposition": "implement",
+      "phase": 5,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passports.api.ts:list",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "handler": "list"
+      },
+      "workflow": "passports.list",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passports.api.ts:listByGroup",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "handler": "listByGroup"
+      },
+      "workflow": "passports.listByGroup",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passports.api.ts:listGroups",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "handler": "listGroups"
+      },
+      "workflow": "passports.listGroups",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passports.api.ts:listImageLibrary",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "handler": "listImageLibrary"
+      },
+      "workflow": "passports.listImageLibrary",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passports.api.ts:listVisaAiLibrary",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "handler": "listVisaAiLibrary"
+      },
+      "workflow": "passports.listVisaAiLibrary",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passports.api.ts:previewPassportDocuments",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "handler": "previewPassportDocuments"
+      },
+      "workflow": "passports.previewPassportDocuments",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passports.api.ts:reextract",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "handler": "reextract"
+      },
+      "workflow": "passports.reextract",
+      "disposition": "implement",
+      "phase": 5,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passports.api.ts:resetImageCrop",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "handler": "resetImageCrop"
+      },
+      "workflow": "passports.resetImageCrop",
+      "disposition": "implement",
+      "phase": 5,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passports.api.ts:retryAiVerification",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "handler": "retryAiVerification"
+      },
+      "workflow": "passports.retryAiVerification",
+      "disposition": "implement",
+      "phase": 5,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passports.api.ts:saveImageCrop",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "handler": "saveImageCrop"
+      },
+      "workflow": "passports.saveImageCrop",
+      "disposition": "implement",
+      "phase": 5,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passports.api.ts:savePassportDocuments",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "handler": "savePassportDocuments"
+      },
+      "workflow": "passports.savePassportDocuments",
+      "disposition": "implement",
+      "phase": 5,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passports.api.ts:savePassportDocumentsInChunks",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "handler": "savePassportDocumentsInChunks"
+      },
+      "workflow": "passports.savePassportDocumentsInChunks",
+      "disposition": "implement",
+      "phase": 5,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passports.api.ts:staffApprove",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "handler": "staffApprove"
+      },
+      "workflow": "passports.staffApprove",
+      "disposition": "implement",
+      "phase": 5,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passports.api.ts:uploadImageLibraryImage",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "handler": "uploadImageLibraryImage"
+      },
+      "workflow": "passports.uploadImageLibraryImage",
+      "disposition": "implement",
+      "phase": 5,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passports.api.ts:useImageLibraryImage",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "handler": "useImageLibraryImage"
+      },
+      "workflow": "passports.useImageLibraryImage",
+      "disposition": "implement",
+      "phase": 5,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/passports/api/passports.api.ts:useVisaAiLibraryImage",
+        "kind": "frontend_callable",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "handler": "useVisaAiLibraryImage"
+      },
+      "workflow": "passports.useVisaAiLibraryImage",
+      "disposition": "implement",
+      "phase": 5,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend_api:frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/gc-app/api/gc-app-admin.api.ts",
+        "contract_sha256": "0fdf0d1b8bfb649fd257e8057dd217db24c777ab47bb5cf1f0208f98eb4a6bd8"
+      },
+      "workflow": "transport.frontend.features.gc-app.api.gc-app-admin.api.ts",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Routing or frontend transport facade implementing the individually classified business operations; fingerprint forces review of prefix/registration/alias and nonstandard action changes.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend_api:frontend/features/passports/api/passports.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/passports/api/passports.api.ts",
+        "contract_sha256": "55dcdd062a023c61cb4a3635cd99a60764c19a881de6ac0eacc242067d780364"
+      },
+      "workflow": "transport.frontend.features.passports.api.passports.api.ts",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Routing or frontend transport facade implementing the individually classified business operations; fingerprint forces review of prefix/registration/alias and nonstandard action changes.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/gc_app.py:configure_gc_group_access:PUT:/groups/{group_id}",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/gc_app.py",
+        "handler": "configure_gc_group_access",
+        "method": "PUT",
+        "local_path": "/groups/{group_id}",
+        "contract_sha256": "a0fddfa0eee7942f1db43eb297ff68134b2084c08e74581801fbe609378ad56e",
+        "summary": "configure gc group access",
+        "schema_visible": true
+      },
+      "workflow": "gc-app.configure-gc-group-access",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Disabling/revoking can schedule purges; only additive/retained configuration changes."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "confirmed_adapter_required"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/gc_app.py:configure_gc_group_my_photos_feature:PUT:/groups/{group_id}/features/my-photos",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/gc_app.py",
+        "handler": "configure_gc_group_my_photos_feature",
+        "method": "PUT",
+        "local_path": "/groups/{group_id}/features/my-photos",
+        "contract_sha256": "933670c817fdd9a40650437a255e006fe27575f5f0cb34acfa6421d4850c8be1",
+        "summary": "configure gc group my photos feature",
+        "schema_visible": true
+      },
+      "workflow": "gc-app.configure-gc-group-my-photos-feature",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Disable/revoke may initiate biometric purge; reject destructive variants and preserve consent rules."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "confirmed_adapter_required"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/gc_app.py:create_client_manager:POST:/client-managers",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/gc_app.py",
+        "handler": "create_client_manager",
+        "method": "POST",
+        "local_path": "/client-managers",
+        "contract_sha256": "5d72c9307842e937953eb950d9bff0a8965907c6e5d0c4d0b870d9677f093e55",
+        "summary": "create client manager",
+        "schema_visible": true
+      },
+      "workflow": "gc-app.create-client-manager",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/gc_app.py:create_client_organization:POST:/client-organizations",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/gc_app.py",
+        "handler": "create_client_organization",
+        "method": "POST",
+        "local_path": "/client-organizations",
+        "contract_sha256": "449a826cac038e491c4196eaf38ad227d0d7542a866330f92ee5298d3ce70f6c",
+        "summary": "create client organization",
+        "schema_visible": true
+      },
+      "workflow": "gc-app.create-client-organization",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/gc_app.py:delete_client_manager:DELETE:/client-managers/{profile_id}",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/gc_app.py",
+        "handler": "delete_client_manager",
+        "method": "DELETE",
+        "local_path": "/client-managers/{profile_id}",
+        "contract_sha256": "f3c1f574ea92a12f7aaa9990cf01888047e888742d977b17c0a04e023da0a2f6",
+        "summary": "delete client manager",
+        "schema_visible": true
+      },
+      "workflow": "gc-app.delete-client-manager",
+      "disposition": "manual_removal",
+      "phase": null,
+      "rationale": "Record, file, membership, archive or destructive cancellation/removal effects are outside MCP authority and remain manual.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      },
+      "exclusion_boundary": "no_removal"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/gc_app.py:delete_client_organization:DELETE:/client-organizations/{organization_id}",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/gc_app.py",
+        "handler": "delete_client_organization",
+        "method": "DELETE",
+        "local_path": "/client-organizations/{organization_id}",
+        "contract_sha256": "00431cd08bcb9d010fe318566c1adaf654ab9f15502f9544e19322482ff7727c",
+        "summary": "delete client organization",
+        "schema_visible": true
+      },
+      "workflow": "gc-app.delete-client-organization",
+      "disposition": "manual_removal",
+      "phase": null,
+      "rationale": "Record, file, membership, archive or destructive cancellation/removal effects are outside MCP authority and remain manual.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      },
+      "exclusion_boundary": "no_removal"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/gc_app.py:force_client_manager_password_change:PATCH:/client-managers/{profile_id}/force-password-change",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/gc_app.py",
+        "handler": "force_client_manager_password_change",
+        "method": "PATCH",
+        "local_path": "/client-managers/{profile_id}/force-password-change",
+        "contract_sha256": "8147634639b2f15a7e302aca021f2ace0e46db4c1ac0b1b4eff108a6a24f74ab",
+        "summary": "force client manager password change",
+        "schema_visible": true
+      },
+      "workflow": "gc-app.force-client-manager-password-change",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Preserve existing recent-MFA and identity-security-version rules; no MCP self-authority controls."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/gc_app.py:get_gc_group_access:GET:/groups/{group_id}",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/gc_app.py",
+        "handler": "get_gc_group_access",
+        "method": "GET",
+        "local_path": "/groups/{group_id}",
+        "contract_sha256": "23140cedafc054bbe2470098126438c4e0e2c0031393b8c4b08366cb14b0813f",
+        "summary": "get gc group access",
+        "schema_visible": true
+      },
+      "workflow": "gc-app.get-gc-group-access",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/gc_app.py:list_client_manager_audit:GET:/client-managers/{profile_id}/audit",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/gc_app.py",
+        "handler": "list_client_manager_audit",
+        "method": "GET",
+        "local_path": "/client-managers/{profile_id}/audit",
+        "contract_sha256": "6e1df17d1b327ab3fb242ecde5dbdecdae83d4598410cb68866952b93a366c84",
+        "summary": "list client manager audit",
+        "schema_visible": true
+      },
+      "workflow": "gc-app.list-client-manager-audit",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/gc_app.py:list_client_manager_sessions:GET:/client-managers/{profile_id}/sessions",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/gc_app.py",
+        "handler": "list_client_manager_sessions",
+        "method": "GET",
+        "local_path": "/client-managers/{profile_id}/sessions",
+        "contract_sha256": "9a416af8659dc7450c1ae6960bcf125520f822612bc56a37501b50921de5459f",
+        "summary": "list client manager sessions",
+        "schema_visible": true
+      },
+      "workflow": "gc-app.list-client-manager-sessions",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "Preserve existing recent-MFA and identity-security-version rules; no MCP self-authority controls."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/gc_app.py:list_client_managers:GET:/client-managers",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/gc_app.py",
+        "handler": "list_client_managers",
+        "method": "GET",
+        "local_path": "/client-managers",
+        "contract_sha256": "1d918fb488aa4679420c7bc7f24034258f42f9c7596f63c788e0e3423aa1d107",
+        "summary": "list client managers",
+        "schema_visible": true
+      },
+      "workflow": "gc-app.list-client-managers",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/gc_app.py:list_client_organizations:GET:/client-organizations",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/gc_app.py",
+        "handler": "list_client_organizations",
+        "method": "GET",
+        "local_path": "/client-organizations",
+        "contract_sha256": "7a17f6e6d756a4d5537d03a46e840c9ba091bc6e191f81d3e944d660edd49291",
+        "summary": "list client organizations",
+        "schema_visible": true
+      },
+      "workflow": "gc-app.list-client-organizations",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/gc_app.py:list_gc_agencies:GET:/agencies",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/gc_app.py",
+        "handler": "list_gc_agencies",
+        "method": "GET",
+        "local_path": "/agencies",
+        "contract_sha256": "4123e1fb48f303c81510164c3087290c69d622425424b71f71b261bb17f73d47",
+        "summary": "list gc agencies",
+        "schema_visible": true
+      },
+      "workflow": "gc-app.list-gc-agencies",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/gc_app.py:refresh_mobile_passenger_identities:POST:/groups/{group_id}/passenger-identities/reconcile",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/gc_app.py",
+        "handler": "refresh_mobile_passenger_identities",
+        "method": "POST",
+        "local_path": "/groups/{group_id}/passenger-identities/reconcile",
+        "contract_sha256": "e385d3d189b5e7405b55984312b666a3f88fea30185b05591abfbba41386d35c",
+        "summary": "refresh mobile passenger identities",
+        "schema_visible": true
+      },
+      "workflow": "gc-app.refresh-mobile-passenger-identities",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/gc_app.py:replace_client_manager_groups:PUT:/client-managers/{profile_id}/groups",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/gc_app.py",
+        "handler": "replace_client_manager_groups",
+        "method": "PUT",
+        "local_path": "/client-managers/{profile_id}/groups",
+        "contract_sha256": "31b8726f6dce5032279a0690f893a2ac6bbe90978dbb7201fbfc7e5617854653",
+        "summary": "replace client manager groups",
+        "schema_visible": true
+      },
+      "workflow": "gc-app.replace-client-manager-groups",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Retain existing group assignments and history; omission must not revoke membership."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "confirmed_adapter_required"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/gc_app.py:reset_client_manager_password:POST:/client-managers/{profile_id}/reset-password",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/gc_app.py",
+        "handler": "reset_client_manager_password",
+        "method": "POST",
+        "local_path": "/client-managers/{profile_id}/reset-password",
+        "contract_sha256": "eb5cea56d8b460d73131f6de57cfc8141c10c2317a3a8dea58542b6caa640a47",
+        "summary": "reset client manager password",
+        "schema_visible": true
+      },
+      "workflow": "gc-app.reset-client-manager-password",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Preserve existing recent-MFA and identity-security-version rules; no MCP self-authority controls."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/gc_app.py:revoke_client_manager_sessions:POST:/client-managers/{profile_id}/revoke-sessions",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/gc_app.py",
+        "handler": "revoke_client_manager_sessions",
+        "method": "POST",
+        "local_path": "/client-managers/{profile_id}/revoke-sessions",
+        "contract_sha256": "fa3924cc30677deb70ef155d838109cfba594b55b416c8b2157fadd9ff352ada",
+        "summary": "revoke client manager sessions",
+        "schema_visible": true
+      },
+      "workflow": "gc-app.revoke-client-manager-sessions",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Preserve existing recent-MFA and identity-security-version rules; no MCP self-authority controls."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/gc_app.py:search_client_organizations:GET:/client-organizations/search",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/gc_app.py",
+        "handler": "search_client_organizations",
+        "method": "GET",
+        "local_path": "/client-organizations/search",
+        "contract_sha256": "9ed276064fe3bd91306881ae88385d15e0d22bbf5d99beec189340f6772ab9cf",
+        "summary": "search client organizations",
+        "schema_visible": true
+      },
+      "workflow": "gc-app.search-client-organizations",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/gc_app.py:search_gc_groups:GET:/groups",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/gc_app.py",
+        "handler": "search_gc_groups",
+        "method": "GET",
+        "local_path": "/groups",
+        "contract_sha256": "27eb8346d57081fa374149e546b58ff49278bad1dd5772c56a0b5624d3fc9696",
+        "summary": "search gc groups",
+        "schema_visible": true
+      },
+      "workflow": "gc-app.search-gc-groups",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/gc_app.py:set_client_manager_status:PATCH:/client-managers/{profile_id}/status",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/gc_app.py",
+        "handler": "set_client_manager_status",
+        "method": "PATCH",
+        "local_path": "/client-managers/{profile_id}/status",
+        "contract_sha256": "655b6c8dd23c6d46f94722bff971c2dc45af62f5c410426040e26a679235ba0e",
+        "summary": "set client manager status",
+        "schema_visible": true
+      },
+      "workflow": "gc-app.set-client-manager-status",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Preserve existing recent-MFA and identity-security-version rules; no MCP self-authority controls."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/gc_app.py:update_client_manager:PATCH:/client-managers/{profile_id}",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/gc_app.py",
+        "handler": "update_client_manager",
+        "method": "PATCH",
+        "local_path": "/client-managers/{profile_id}",
+        "contract_sha256": "7458b4606e328ca580915a1976a82e596bd71dc7baa9018b92df6bf951e5b775",
+        "summary": "update client manager",
+        "schema_visible": true
+      },
+      "workflow": "gc-app.update-client-manager",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/gc_app_content.py:create_announcement:POST:/groups/{group_id}/announcements",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/gc_app_content.py",
+        "handler": "create_announcement",
+        "method": "POST",
+        "local_path": "/groups/{group_id}/announcements",
+        "contract_sha256": "12ebabe3af9d879cbab17fdfe1b9862c15a5b539bdc200741d8ae845691d153f",
+        "summary": "create announcement",
+        "schema_visible": true
+      },
+      "workflow": "gc-app.create-announcement",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/gc_app_content.py:create_itinerary_draft:POST:/groups/{group_id}/itineraries/drafts",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/gc_app_content.py",
+        "handler": "create_itinerary_draft",
+        "method": "POST",
+        "local_path": "/groups/{group_id}/itineraries/drafts",
+        "contract_sha256": "314c568181613155bd044f6c9688b2b99a8dabc9ae0eeff35fb2d17181462e79",
+        "summary": "create itinerary draft",
+        "schema_visible": true
+      },
+      "workflow": "gc-app.create-itinerary-draft",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Additive variant locally tested: coordinator memberships are inserted without deactivation, attendance creation resolves only exactly compatible active state, GC itinerary drafts retain all versions. Existing replacement, schedule edits, physical events and publishing are separate workflows.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/tour_change_tools.py",
+        "evidence": [
+          "backend/tests/integration/test_mcp_tour_changes.py",
+          "backend/tests/service_integration/test_mcp_tour_postgresql.py",
+          "docs/implementation/mcp-tour-gc-creations.md"
+        ]
+      },
+      "effect_review": "additive_variant_locally_tested"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/gc_app_content.py:delete_announcement:DELETE:/groups/{group_id}/announcements/{announcement_id}",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/gc_app_content.py",
+        "handler": "delete_announcement",
+        "method": "DELETE",
+        "local_path": "/groups/{group_id}/announcements/{announcement_id}",
+        "contract_sha256": "d29088ee822609cbc6a699c2f12d86e26c8946bab38eae9fdddd6face4d89de3",
+        "summary": "delete announcement",
+        "schema_visible": true
+      },
+      "workflow": "gc-app.delete-announcement",
+      "disposition": "manual_removal",
+      "phase": null,
+      "rationale": "Record, file, membership, archive or destructive cancellation/removal effects are outside MCP authority and remain manual.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      },
+      "exclusion_boundary": "no_removal"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/gc_app_content.py:delete_common_document:DELETE:/groups/{group_id}/common-documents/{document_id}",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/gc_app_content.py",
+        "handler": "delete_common_document",
+        "method": "DELETE",
+        "local_path": "/groups/{group_id}/common-documents/{document_id}",
+        "contract_sha256": "b53147096ce906554b85209ea1334afd21fcc484656ed69362caa3e5cd96b9f8",
+        "summary": "delete common document",
+        "schema_visible": true
+      },
+      "workflow": "gc-app.delete-common-document",
+      "disposition": "manual_removal",
+      "phase": null,
+      "rationale": "Record, file, membership, archive or destructive cancellation/removal effects are outside MCP authority and remain manual.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      },
+      "exclusion_boundary": "no_removal"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/gc_app_content.py:get_announcement_notification_status:GET:/groups/{group_id}/announcements/{announcement_id}/notification-status",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/gc_app_content.py",
+        "handler": "get_announcement_notification_status",
+        "method": "GET",
+        "local_path": "/groups/{group_id}/announcements/{announcement_id}/notification-status",
+        "contract_sha256": "5756a7afd9090eb6f5d25ad6f9ef8ce806ff078106cc0836a2bd929c7a43037f",
+        "summary": "get announcement notification status",
+        "schema_visible": true
+      },
+      "workflow": "gc-app.get-announcement-notification-status",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "Preserve existing recent-MFA and identity-security-version rules; no MCP self-authority controls."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/gc_app_content.py:list_announcements:GET:/groups/{group_id}/announcements",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/gc_app_content.py",
+        "handler": "list_announcements",
+        "method": "GET",
+        "local_path": "/groups/{group_id}/announcements",
+        "contract_sha256": "cef48e13c20fb65cfd0eb953f01f568092c8adef9812a7d524a4c57156818bdf",
+        "summary": "list announcements",
+        "schema_visible": true
+      },
+      "workflow": "gc-app.list-announcements",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/gc_app_content.py:list_common_documents:GET:/groups/{group_id}/common-documents",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/gc_app_content.py",
+        "handler": "list_common_documents",
+        "method": "GET",
+        "local_path": "/groups/{group_id}/common-documents",
+        "contract_sha256": "5527e588dd6fbc3060b7fd81471c07da9229008ec4c3d317bd1fd92a1ca3eb52",
+        "summary": "list common documents",
+        "schema_visible": true
+      },
+      "workflow": "gc-app.list-common-documents",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/gc_app_content.py:list_group_gc_audit:GET:/groups/{group_id}/audit",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/gc_app_content.py",
+        "handler": "list_group_gc_audit",
+        "method": "GET",
+        "local_path": "/groups/{group_id}/audit",
+        "contract_sha256": "a975dac9f7a9f838fd0bf29eca4d8a797a59f1887ca9204a48ea273a02c65485",
+        "summary": "list group gc audit",
+        "schema_visible": true
+      },
+      "workflow": "gc-app.list-group-gc-audit",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/gc_app_content.py:page_announcements:GET:/groups/{group_id}/announcements/page",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/gc_app_content.py",
+        "handler": "page_announcements",
+        "method": "GET",
+        "local_path": "/groups/{group_id}/announcements/page",
+        "contract_sha256": "d842ad4f82f616512fbcfec82eaca1b75000e2427693d8966e37819a03ddf258",
+        "summary": "page announcements",
+        "schema_visible": true
+      },
+      "workflow": "gc-app.page-announcements",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/gc_app_content.py:preview_common_document_content:GET:/groups/{group_id}/common-documents/{document_id}/content",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/gc_app_content.py",
+        "handler": "preview_common_document_content",
+        "method": "GET",
+        "local_path": "/groups/{group_id}/common-documents/{document_id}/content",
+        "contract_sha256": "7a28b9346f42bcd28d637a44f345e3a3031a75fc8e59ed63be6491bf56103634",
+        "summary": "preview common document content",
+        "schema_visible": true
+      },
+      "workflow": "gc-app.preview-common-document-content",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "protected_artifact_and_verified_delivery",
+        "preserve_export_history_generation_vs_delivery"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/gc_app_content.py:preview_itinerary:GET:/groups/{group_id}/itineraries/preview",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/gc_app_content.py",
+        "handler": "preview_itinerary",
+        "method": "GET",
+        "local_path": "/groups/{group_id}/itineraries/preview",
+        "contract_sha256": "a0ec9a4ceb5559b41dc40555422350d30dfdc86dd38820571b139a88b29f5c8a",
+        "summary": "preview itinerary",
+        "schema_visible": true
+      },
+      "workflow": "gc-app.preview-itinerary",
+      "disposition": "implement",
+      "phase": 3,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/gc_app_content.py:publish_announcement:POST:/groups/{group_id}/announcements/{announcement_id}/publish",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/gc_app_content.py",
+        "handler": "publish_announcement",
+        "method": "POST",
+        "local_path": "/groups/{group_id}/announcements/{announcement_id}/publish",
+        "contract_sha256": "21a404a0f97a3f0ce45008985ef67c1762d0af150221627d544f0cc90dc01683",
+        "summary": "publish announcement",
+        "schema_visible": true
+      },
+      "workflow": "gc-app.publish-announcement",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/gc_app_content.py:publish_common_document:POST:/groups/{group_id}/common-documents/{document_id}/publish",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/gc_app_content.py",
+        "handler": "publish_common_document",
+        "method": "POST",
+        "local_path": "/groups/{group_id}/common-documents/{document_id}/publish",
+        "contract_sha256": "8763bbfbe29e65c38c58a5e5bbd99f0281ffc562eab3a270d0f6a20beb878fd6",
+        "summary": "publish common document",
+        "schema_visible": true
+      },
+      "workflow": "gc-app.publish-common-document",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/gc_app_content.py:publish_itinerary:POST:/groups/{group_id}/itineraries/{version_id}/publish",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/gc_app_content.py",
+        "handler": "publish_itinerary",
+        "method": "POST",
+        "local_path": "/groups/{group_id}/itineraries/{version_id}/publish",
+        "contract_sha256": "d258da7504bc217703326bc213d9d309313252ef8b6d5cb524a74e20f4ae2d13",
+        "summary": "publish itinerary",
+        "schema_visible": true
+      },
+      "workflow": "gc-app.publish-itinerary",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/gc_app_content.py:reorder_common_documents:PUT:/groups/{group_id}/common-documents/reorder",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/gc_app_content.py",
+        "handler": "reorder_common_documents",
+        "method": "PUT",
+        "local_path": "/groups/{group_id}/common-documents/reorder",
+        "contract_sha256": "31c0a2dafdd3ff3c0b0ae28a5aa2a939e7184b4afd4a53fb95eb9aedde989ccd",
+        "summary": "reorder common documents",
+        "schema_visible": true
+      },
+      "workflow": "gc-app.reorder-common-documents",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/gc_app_content.py:replace_common_document:POST:/groups/{group_id}/common-documents/{document_id}/replace",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/gc_app_content.py",
+        "handler": "replace_common_document",
+        "method": "POST",
+        "local_path": "/groups/{group_id}/common-documents/{document_id}/replace",
+        "contract_sha256": "0445bbcea9c8c62219cd115b922b204ffe5fa6cddb07aa2739802422ef1b192b",
+        "summary": "replace common document",
+        "schema_visible": true
+      },
+      "workflow": "gc-app.replace-common-document",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Verify storage/object versions and historical files survive; preserve prior published versions."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "confirmed_adapter_required"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/gc_app_content.py:unpublish_announcement:POST:/groups/{group_id}/announcements/{announcement_id}/unpublish",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/gc_app_content.py",
+        "handler": "unpublish_announcement",
+        "method": "POST",
+        "local_path": "/groups/{group_id}/announcements/{announcement_id}/unpublish",
+        "contract_sha256": "9306e8fabbcdf9369a919a794c92c86508a86b3cd5fe8f0577ba5045af44443e",
+        "summary": "unpublish announcement",
+        "schema_visible": true
+      },
+      "workflow": "gc-app.unpublish-announcement",
+      "disposition": "manual_removal",
+      "phase": null,
+      "rationale": "Record, file, membership, archive or destructive cancellation/removal effects are outside MCP authority and remain manual.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      },
+      "exclusion_boundary": "no_removal"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/gc_app_content.py:unpublish_common_document:POST:/groups/{group_id}/common-documents/{document_id}/unpublish",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/gc_app_content.py",
+        "handler": "unpublish_common_document",
+        "method": "POST",
+        "local_path": "/groups/{group_id}/common-documents/{document_id}/unpublish",
+        "contract_sha256": "e1022484a9fb2e9af12342a09d34a4fa1031d850027cba2d7be4b957787a6e8c",
+        "summary": "unpublish common document",
+        "schema_visible": true
+      },
+      "workflow": "gc-app.unpublish-common-document",
+      "disposition": "manual_removal",
+      "phase": null,
+      "rationale": "Record, file, membership, archive or destructive cancellation/removal effects are outside MCP authority and remain manual.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      },
+      "exclusion_boundary": "no_removal"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/gc_app_content.py:unpublish_itinerary:POST:/groups/{group_id}/itineraries/{version_id}/unpublish",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/gc_app_content.py",
+        "handler": "unpublish_itinerary",
+        "method": "POST",
+        "local_path": "/groups/{group_id}/itineraries/{version_id}/unpublish",
+        "contract_sha256": "9e5016dedb047ae641fd28eeb19ea3ca91f71c7202db5aeac2c7d335f75d2c52",
+        "summary": "unpublish itinerary",
+        "schema_visible": true
+      },
+      "workflow": "gc-app.unpublish-itinerary",
+      "disposition": "manual_removal",
+      "phase": null,
+      "rationale": "Record, file, membership, archive or destructive cancellation/removal effects are outside MCP authority and remain manual.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      },
+      "exclusion_boundary": "no_removal"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/gc_app_content.py:update_announcement:PUT:/groups/{group_id}/announcements/{announcement_id}",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/gc_app_content.py",
+        "handler": "update_announcement",
+        "method": "PUT",
+        "local_path": "/groups/{group_id}/announcements/{announcement_id}",
+        "contract_sha256": "f2e7e9eec2e437919fa5b341c525f54bd05c89dcdbcf3005f8021bae0924e373",
+        "summary": "update announcement",
+        "schema_visible": true
+      },
+      "workflow": "gc-app.update-announcement",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress",
+        "Existing update deletes drafts; preserve every prior draft/version."
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "confirmed_adapter_required"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/gc_app_content.py:upload_common_document:POST:/groups/{group_id}/common-documents",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/gc_app_content.py",
+        "handler": "upload_common_document",
+        "method": "POST",
+        "local_path": "/groups/{group_id}/common-documents",
+        "contract_sha256": "90bdab0d2f288e91d6728d62194cc04ce1a790c33ce43096358bbc790198c418",
+        "summary": "upload common document",
+        "schema_visible": true
+      },
+      "workflow": "gc-app.upload-common-document",
+      "disposition": "implement",
+      "phase": 7,
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    }
+  ],
+  "changed": [
+    {
+      "before": {
+        "surface": {
+          "id": "endpoint_registry:frontend/lib/api/endpoints.ts",
+          "kind": "frontend_endpoint_registry",
+          "source": "frontend/lib/api/endpoints.ts",
+          "contract_sha256": "8275d6762f2e00750e2ae20d94c1d7e82bc7991ee3b657277db1e3bea261ec41"
+        },
+        "workflow": "application.frontend-endpoint-registry",
+        "disposition": "internal_dependency",
+        "phase": null,
+        "rationale": "Existing UI, authentication, provider callback or physical/device protocol dependency; business adapters use the corresponding application services without fabricating client/physical evidence or bypassing consent.",
+        "adapter_requirements": [],
+        "implementation": {
+          "status": "not_applicable",
+          "adapter": null,
+          "evidence": []
+        }
+      },
+      "after": {
+        "id": "endpoint_registry:frontend/lib/api/endpoints.ts",
+        "kind": "frontend_endpoint_registry",
+        "source": "frontend/lib/api/endpoints.ts",
+        "contract_sha256": "8c7f885dd7a58641e76dd856e87dcfdf0a72430f0d55fe897667dd8e7606a366"
+      }
+    },
+    {
+      "before": {
+        "surface": {
+          "id": "frontend_api:frontend/features/mcp/api/mcp-request.api.ts",
+          "kind": "frontend_api_contract",
+          "source": "frontend/features/mcp/api/mcp-request.api.ts",
+          "contract_sha256": "2a2414baf1e9b7b8e679aaf55795519b00f36cf5e7e269361beae90c545e5c14"
+        },
+        "workflow": "mcp.connection-management.requester_protocol",
+        "disposition": "internal_dependency",
+        "phase": null,
+        "rationale": "Public requester protocol uses a per-request HttpOnly cookie and matching request header. Status never returns a code; mutation checks the exact origin, finalization is one-shot and bound to the original native OAuth tuple, and administrator approval grants no requester capability. No dashboard login or MCP business-tool exposure.",
+        "adapter_requirements": [
+          "requester_http_only_cookie",
+          "matching_request_header",
+          "exact_mutation_origin",
+          "no_store_no_referrer",
+          "request_ttl",
+          "one_shot_finalization",
+          "oauth_pkce_resource_state_issuer_binding",
+          "no_self_authority_escalation"
+        ],
+        "implementation": {
+          "status": "not_applicable",
+          "adapter": null,
+          "evidence": [
+            "backend/tests/integration/test_mcp_connection_requests.py",
+            "backend/tests/service_integration/test_mcp_connection_requests_postgresql.py",
+            "frontend/e2e/mcp-administration.spec.ts",
+            "docs/implementation/mcp-admin-approval.md"
+          ]
+        }
+      },
+      "after": {
+        "id": "frontend_api:frontend/features/mcp/api/mcp-request.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/mcp/api/mcp-request.api.ts",
+        "contract_sha256": "cfbbdc9ff6b90f3595b542efb23ea3f9efcd3da5bbc280a661c4d1a3e0f1edfc"
+      }
+    },
+    {
+      "before": {
+        "surface": {
+          "id": "frontend_api:frontend/features/mcp/api/mcp.api.ts",
+          "kind": "frontend_api_contract",
+          "source": "frontend/features/mcp/api/mcp.api.ts",
+          "contract_sha256": "5033b9d7f52836b50f46347bc82d6aca568b9de5bd707973435c28a709004732"
+        },
+        "workflow": "mcp.connection-management.transport",
+        "disposition": "internal_dependency",
+        "phase": null,
+        "rationale": "Dedicated MCP browser/HTTP transport dependency; control operations must never be proxied as authority-changing tools.",
+        "adapter_requirements": [],
+        "implementation": {
+          "status": "not_applicable",
+          "adapter": null,
+          "evidence": []
+        }
+      },
+      "after": {
+        "id": "frontend_api:frontend/features/mcp/api/mcp.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/mcp/api/mcp.api.ts",
+        "contract_sha256": "8e315b1c563a942d4c16bed5c555980bb763738ca7d089dc2b2b1585a4acbcb5"
+      }
+    },
+    {
+      "before": {
+        "surface": {
+          "id": "frontend_api:frontend/lib/api/endpoints.ts",
+          "kind": "frontend_api_contract",
+          "source": "frontend/lib/api/endpoints.ts",
+          "contract_sha256": "8275d6762f2e00750e2ae20d94c1d7e82bc7991ee3b657277db1e3bea261ec41"
+        },
+        "workflow": "transport.frontend.lib.api.endpoints.ts",
+        "disposition": "internal_dependency",
+        "phase": null,
+        "rationale": "Routing or frontend transport facade implementing the individually classified business operations; fingerprint forces review of prefix/registration/alias and nonstandard action changes.",
+        "adapter_requirements": [],
+        "implementation": {
+          "status": "not_applicable",
+          "adapter": null,
+          "evidence": []
+        }
+      },
+      "after": {
+        "id": "frontend_api:frontend/lib/api/endpoints.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/lib/api/endpoints.ts",
+        "contract_sha256": "8c7f885dd7a58641e76dd856e87dcfdf0a72430f0d55fe897667dd8e7606a366"
+      }
+    },
+    {
+      "before": {
+        "surface": {
+          "id": "registration:backend/app/presentation/api/v1/routes/gc_app.py",
+          "kind": "route_registration",
+          "source": "backend/app/presentation/api/v1/routes/gc_app.py",
+          "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+        },
+        "workflow": "transport.backend.app.presentation.api.v1.routes.gc_app.py",
+        "disposition": "internal_dependency",
+        "phase": null,
+        "rationale": "Routing or frontend transport facade implementing the individually classified business operations; fingerprint forces review of prefix/registration/alias and nonstandard action changes.",
+        "adapter_requirements": [],
+        "implementation": {
+          "status": "not_applicable",
+          "adapter": null,
+          "evidence": []
+        }
+      },
+      "after": {
+        "id": "registration:backend/app/presentation/api/v1/routes/gc_app.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/gc_app.py",
+        "contract_sha256": "d49b9fbac1e4c375c1f39682a1fe72eddec4e48d15a19a05fe499a01ccb684f0"
+      }
+    },
+    {
+      "before": {
+        "surface": {
+          "id": "registration:backend/app/presentation/api/v1/routes/gc_app_content.py",
+          "kind": "route_registration",
+          "source": "backend/app/presentation/api/v1/routes/gc_app_content.py",
+          "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+        },
+        "workflow": "transport.backend.app.presentation.api.v1.routes.gc_app_content.py",
+        "disposition": "internal_dependency",
+        "phase": null,
+        "rationale": "Routing or frontend transport facade implementing the individually classified business operations; fingerprint forces review of prefix/registration/alias and nonstandard action changes.",
+        "adapter_requirements": [],
+        "implementation": {
+          "status": "not_applicable",
+          "adapter": null,
+          "evidence": []
+        }
+      },
+      "after": {
+        "id": "registration:backend/app/presentation/api/v1/routes/gc_app_content.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/gc_app_content.py",
+        "contract_sha256": "8e26d802538131499e5e389a6ef4e62d282a14454805e47db332f75eb6472a6c"
+      }
+    }
+  ]
+}

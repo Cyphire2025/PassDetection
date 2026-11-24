@@ -1,0 +1,106 @@
+{
+  "status": "sealed focused correction batch; parent final combined qualification pending",
+  "source_ledger": {
+    "path": "docs/audit/dashboard-2026-10-30/final-browser-test-corrections-reviewed-files.json",
+    "sha256": "7236acb52aa6be0b7d7e46461f7522f5cf7a3cb37d2ea18cf55f140b9cbd51f3"
+  },
+  "sources_frozen": {
+    "frontend/e2e/companies.spec.ts": "18675e1536a93ca378be9b157efeb2bf3e6f21c0ea0963e0cb9cfb8c45e8534a",
+    "frontend/e2e/passport-governance.spec.ts": "735514f1d23e37366260f56c5d400b55aa5a97d41c55d83c75063bdf5fba7cd6",
+    "frontend/e2e/whatsapp-delivery-types.spec.ts": "9cf5fc770e01e14401dfdced1de88f58860a4121eeb5448591a4d6d845c3f890",
+    "frontend/e2e/whatsapp-workspace.spec.ts": "73f56fc85eab98650245fd8899e2bbec67882962356615b9d15c6adb02bd11f4",
+    "frontend/e2e/whatsapp-document-management.spec.ts": "e418d1fce28196893725031f6faa56937e11edd4226d88b2929d3057b32c9efb",
+    "frontend/e2e/support/visible-menu-trigger.ts": "4468cf454afe14f72b1db838971d48f09136a5266f6e04be309e56f4c7274aa9"
+  },
+  "build_id": "-SsobzdWJpn6pla1bMQEw",
+  "compiled_artifact_paths": 1634,
+  "final_affected_browser": {
+    "tests": 7,
+    "passed": 7,
+    "seconds": 29.3,
+    "cases": [
+      {
+        "title": "all data loads documents lazily, edits current fields and retains versions at 320px",
+        "status": "passed",
+        "duration_ms": 3464
+      },
+      {
+        "title": "all data loads documents lazily, edits current fields and retains versions at 1440px",
+        "status": "passed",
+        "duration_ms": 3036
+      },
+      {
+        "title": "large duplicate sets continue across pages and bulk approval retains every selected revision",
+        "status": "passed",
+        "duration_ms": 2064
+      },
+      {
+        "title": "two long detail cards remain divided and scroll independently at desktop heights",
+        "status": "passed",
+        "duration_ms": 1889
+      },
+      {
+        "title": "recipient documents are scoped and manageable at 1440px",
+        "status": "passed",
+        "duration_ms": 5633
+      },
+      {
+        "title": "recipient documents are scoped and manageable at 390px",
+        "status": "passed",
+        "duration_ms": 5461
+      },
+      {
+        "title": "recipients support failed-number correction and stacked detail panels",
+        "status": "passed",
+        "duration_ms": 1406
+      }
+    ],
+    "source13_unchanged": true,
+    "compiled_artifact1634_unchanged": true
+  },
+  "diagnostics": {
+    "governance": "Originalauto-scroll opens743.1ms\u2192MAINscroll743.4\u2192closed760; correctedUTF8 originalFAIL / settled-pointerPASS / visibleEnterPASS, full303revision/requestbody+approval+7page assertions executed.",
+    "recipient_menu": "Original opens485.9\u2192MAINscroll494.8\u2192closed497; originalFAIL / settled-pointerPASS / visibleEnterPASS, complete two-viewport geometry/body-wheel assertions executed.",
+    "companies": "Original captured strict-mode2hidden version<dd> before Currentdetailspanel commits; named currenttabpanel wait+scoped exactpassport assertion qualifies both320/1440.",
+    "workspace": "Same RecipientRowMenu/anchor/names/viewport as recipientdiagnostic; originaltrace menuopen761465.750\u2192closed761469.720; current full failed-number/stacked/addrecipient case passes.",
+    "document_management": "Original2width tests stopped at retiredindex actionbutton; migrated to live broadcast Documents and generic sourcegroup management +catalog idupdate TripUpdateComposer. Currentfixture includes3members+foreign4th across membership/review/preview/update, actualsharedobject identity, five scopedlane previews, manualuploadonce/replacecancel, menuEscape/focus, selected1docreview/0implicitresends, updateineligiblecheckboxdisabled, no sendwrites."
+  },
+  "preliminary_harness_errors": [
+    "Three first governance temporary diagnostics used implicitcp1252 reader and mangled Unicode locator before menu; preserved as harness failures. Actual frontend never mangled. Corrected explicitUTF8 rerun only3affectedcases.",
+    "One scoped ESLint invocation from rootcwd lacked frontendconfig; repeated once in actualfrontendcwd, sixsource ESLint exit0/maxwarnings0."
+  ],
+  "verification": {
+    "eslint": {
+      "files": 6,
+      "exit_code": 0,
+      "max_warnings": 0,
+      "cwd": "frontend",
+      "tool_result_chunk": "0a9d3f"
+    },
+    "helper_extraction": "Exact byteinverse for3sharedgesture callers; all original other source/assertions preserved. First7pre-helper PASS receipt retained separately."
+  },
+  "immutable_original_full_suite": "Original196:179pass17fail is preserved and not relabeled green; this batch qualifies seven affected tests only. Parent owns qualifier runtime restoration/freshbuild/final196.",
+  "no_source_changes_outside_six_tests": true,
+  "new_product_security_issue_claimed": false,
+  "limits": [
+    "Synthetic isolated loopback Chromium on existing productionartifact; no actual backend/privateobjectstore/provider/mobile/VPS qualification.",
+    "Observed queuedautomation scroll dismissal is test-navigation synchronization; no production menu behavior change.",
+    "Sources requalified only six currenttestpaths+selectedunchangedruntime9fence and exact compiledartifact. Unrelated qualifier source changes do not become qualified from this old artifact.",
+    "Scope/floors/caps/sharedgates/packages/locks/configs/buildoutputs untouched.",
+    "No new mandatory broad check or scanner."
+  ],
+  "evidence": {
+    "docs/audit/dashboard-2026-10-30/final-browser-menu-diagnostics-20261101-001/result.json": "5b0330cb2837bc447ec30a4c1331257ac4561fb9defbfff34be4d7aa7c1c501a",
+    "docs/audit/dashboard-2026-10-30/final-browser-menu-diagnostics-20261101-002-utf8/result.json": "683d65e3df8c054a94502245317d483c61043688f13d096d6b985a2386042be4",
+    "docs/audit/dashboard-2026-10-30/final-browser-affected-corrections-20261101-001/result.json": "e89187caad36013a47b98412aba5f1b5977f63e0f8c99983d954517a51db742c",
+    "docs/audit/dashboard-2026-10-30/final-browser-affected-corrections-20261101-002-helper/result.json": "1ff24bd366dcff83e9beda93aede15357cbad9c2dc4d7dce8237063a7b24889d",
+    ".tmp/final-browser-failure-diagnostics/affected-helper-results.json": "2a4e8658cc327b7c5ebdb1a32b6614956a3fec3ad97515215525003283ba4de7",
+    ".tmp/final-browser-failure-diagnostics/governance-event-summary.json": "806f9643a092f36e8eb8eb14f834a0cfe00d3cde15c4ef7e386760d7cec6e0e4",
+    ".tmp/final-browser-failure-diagnostics/whatsapp-event-summary.json": "ab731d5b5884945f0d0b52c47bd0920b04eb8d0d6fc4e801fb76e45ac45db907",
+    ".tmp/final-browser-test-corrections/exact-inverse-proof.json": "1d9acd5575d3a66b0058002c9989ad58733df68b6710214cddbb7037e81755fc",
+    ".tmp/final-browser-test-corrections/helper-extraction/proof.json": "90411667977f00d8f0f3d2878f7987d302e9c27ee1495105129772c6f6bd5902",
+    ".tmp/company-browser-locator/proof.json": "6c4e120df3b21b56e850ea0c94709c180c9c0b8e168856b635a7429850193c15",
+    ".tmp/governance-browser-diagnostic/captured-trace-evidence.json": "9faa9f25ce35205910874d5f8012329fb7d79674445cacae13544f46eeaea9cc",
+    ".tmp/whatsapp-document-management-diagnosis/read-only-proof.json": "53d886c31de49714e3b9e6826a920433bcf0634db88574e965f1dbd06aa0f6a3"
+  }
+}

@@ -1,0 +1,23 @@
+[
+  {
+    "path": "frontend/features/mcp/components/mcp-consent-page.tsx",
+    "sha256": "fb9a145e02d4bee24d0131753b9d379f4341defdda29d5b19f747c711225d8ee",
+    "physicalLines": 104,
+    "status": "retired_closed_chain",
+    "reason": "Declaration, computed access, facade escape and framework roots reviewed; meaningful native approval/callback/role/PKCE/scope controls verified and ported before retirement. Backend/native endpoints retained."
+  },
+  {
+    "path": "frontend/features/mcp/components/mcp-access-examples.tsx",
+    "sha256": "7cc24a102a91e085b7b7c160ad558a893e87c0031ce52933349691643227fd5b",
+    "physicalLines": 45,
+    "status": "retired_closed_chain",
+    "reason": "Declaration, computed access, facade escape and framework roots reviewed; meaningful native approval/callback/role/PKCE/scope controls verified and ported before retirement. Backend/native endpoints retained."
+  },
+  {
+    "path": "frontend/features/mcp/api/mcp-contract-exports.ts",
+    "sha256": "7744544106e3891f48ac0e6923d38398f9e63c0c329f972984d325da233efff0",
+    "physicalLines": 2,
+    "status": "discarded-unused-extraction-helper",
+    "reason": "Unused intermediate export barrel caught before verification and removed. Public API already directly reexports contracts/capabilities; no production/test caller or workflow."
+  }
+]

@@ -1,0 +1,80 @@
+{
+  "status": "Additive measured candidate only; parent owns shared gates",
+  "existingNormalRows": 661,
+  "measurements": [
+    {
+      "path": "features/branding/components/group-banner.tsx",
+      "sha256": "d54d0b135c0fdd993c453e6703bd2ddda29cc51e099012c946848943c41fb459",
+      "physicalLines": 41,
+      "maximumFunctionComplexity": 8,
+      "existingBudget": null
+    },
+    {
+      "path": "features/branding/components/group-banner-action.tsx",
+      "sha256": "8fa3dfd6610baadf728db116ccc2490c4e2a7770f9ba216dd3b96ff6f9c1e4cd",
+      "physicalLines": 25,
+      "maximumFunctionComplexity": 7,
+      "existingBudget": null
+    },
+    {
+      "path": "features/branding/components/group-image-dialog.tsx",
+      "sha256": "da64396862a67e55104ecc8cc602d25f22c12975f58bcbb56c4ddaba0a320230",
+      "physicalLines": 74,
+      "maximumFunctionComplexity": 9,
+      "existingBudget": null
+    },
+    {
+      "path": "features/branding/components/group-banner-frame.ts",
+      "sha256": "754ca8518df4e57f6b832e8e739238287f31afc98ceab52f6f3c47f85afbb6c2",
+      "physicalLines": 12,
+      "maximumFunctionComplexity": 0,
+      "existingBudget": null
+    },
+    {
+      "path": "features/branding/components/use-group-image-aspect.ts",
+      "sha256": "8774bd9add3379488f59da76e254114ff3349d5faebadccbc24d6923ecae16bd",
+      "physicalLines": 59,
+      "maximumFunctionComplexity": 9,
+      "existingBudget": null
+    }
+  ],
+  "newNormalRows": [
+    {
+      "path": "features/branding/components/group-banner.tsx",
+      "baselineLines": 41,
+      "maximumLines": 50,
+      "baselineMaxFunctionComplexity": 8,
+      "maximumFunctionComplexity": 9
+    },
+    {
+      "path": "features/branding/components/group-banner-action.tsx",
+      "baselineLines": 25,
+      "maximumLines": 30,
+      "baselineMaxFunctionComplexity": 7,
+      "maximumFunctionComplexity": 8
+    },
+    {
+      "path": "features/branding/components/group-image-dialog.tsx",
+      "baselineLines": 74,
+      "maximumLines": 80,
+      "baselineMaxFunctionComplexity": 9,
+      "maximumFunctionComplexity": 10
+    },
+    {
+      "path": "features/branding/components/group-banner-frame.ts",
+      "baselineLines": 12,
+      "maximumLines": 20,
+      "baselineMaxFunctionComplexity": 0,
+      "maximumFunctionComplexity": 1
+    },
+    {
+      "path": "features/branding/components/use-group-image-aspect.ts",
+      "baselineLines": 59,
+      "maximumLines": 60,
+      "baselineMaxFunctionComplexity": 9,
+      "maximumFunctionComplexity": 10
+    }
+  ],
+  "newCriticalRows": [],
+  "constraints": "No old cap/floor changes; no existing branding owner rows/critical profile found. Public save/crop/URL contract unchanged."
+}

@@ -1,0 +1,25 @@
+{
+  "original_sha256": "1af6956e51c098a8b6ffa3e160c875f88b525b217508309cc832d0ab32b25bb2",
+  "complete_public_single_resend_expanded_ast_exact": true,
+  "all_original_scope_replay_checks_stale_updates_awaits_claims_flushes_audit_commits_payload_publish_compensation_and_return_order": "Exact",
+  "purpose_data_fields": {
+    "ResendClaim": [
+      "delivery_state",
+      "is_retry",
+      "now"
+    ],
+    "PreparedResend": [
+      "source_log",
+      "batch_id",
+      "header_parameters",
+      "parameters"
+    ]
+  },
+  "records_never_contain_settings_provider_credentials_or_callbacks": true,
+  "source": {
+    "backend/app/presentation/api/v1/routes/whatsapp_resend.py": "e695316fe49e51e51f8d1c3cc45f6db84c5bed82287bf3344f93259a4b1b64ff",
+    "backend/app/presentation/api/v1/routes/whatsapp_resend_claims.py": "cac51751dda4d3124233f2c54f889882ecdcd0663b1a0a21f70e0dcd4fa92fe8",
+    "backend/app/presentation/api/v1/routes/whatsapp_resend_preparation.py": "3e3dabb7374324e38d37f8cf8e194eb647779a0cb702f9c2758e738870675c15",
+    "backend/app/presentation/api/v1/routes/whatsapp_resend_publication.py": "589c7b567df25e42437e13293b4273d16d9271a2c35da2ffc53d620887b9b1ea"
+  }
+}

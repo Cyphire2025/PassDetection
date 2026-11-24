@@ -1,0 +1,122 @@
+{
+  "stage": "deliberate cancellation behavior checkpoint before architecture",
+  "files": [
+    {
+      "path": "backend/app/infrastructure/travel_tracker/__init__.py",
+      "sha256": "824420c4815f1c14e6d3189722aeca19ee89bedad4a7510799384509c159a7f9",
+      "physical_lines": 1,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete one-line package docstring physically read; shared dashboard/MCP tracker implementation, no native app-only feature audit."
+    },
+    {
+      "path": "backend/app/infrastructure/travel_tracker/actor.py",
+      "sha256": "ec9dca830b1486c3e55a183759d09c50e41ddb334c845e241d1cb7a9907c16c2",
+      "physical_lines": 45,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete45-line source read: actual-versus-effective account rowlock, live role/agency/active/deleted checks and refresh_access_level_actor branch; existing permission error contract retained."
+    },
+    {
+      "path": "backend/app/infrastructure/travel_tracker/threading.py",
+      "sha256": "0e4ed2a5fdcfd0061a9661938a34e3936f1b482d3a460ec74cd9788c908ca85f",
+      "physical_lines": 36,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "fixed",
+      "notes": "Complete original13-line/current36-line source read/authored. Real external asyncio cancellation abandoned work despite AnyIOFalse and released its thread token; owned task+shield/drain now retains native inputs/capacity through repeated cancel and late errors. AnyIO pre-start checkpoint, shared limiter, request ContextVar, normal kwargs/results/original exception identity preserved. Deliberate behavior change, no crossdomain helper or new work budget."
+    },
+    {
+      "path": "backend/app/infrastructure/travel_tracker/service.py",
+      "sha256": "171444bfa92d48ab37321e0603282d5761cfe021c17c248426312b0ba3d50c23",
+      "physical_lines": 487,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete487-line original/current source physically read. Role/tenant/group scope, current actor lock, MCP SHARE-fence skip, canonical roster/count/filter, atomic idempotent mark+auds, native export/import boundaries and safe names traced. Byte-identical at this behavior checkpoint. Architecture responsibility separation remains independently OPEN."
+    },
+    {
+      "path": "backend/app/infrastructure/travel_tracker/spreadsheets.py",
+      "sha256": "4bf66a2e2708d8755de2ffc9426fe6844e91bd2cc8ad56837d2e7afe53b8af76",
+      "physical_lines": 436,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete436-line original/current source physically read.8MB/32MBzip/1krow/256col/2kidentitycell bounds, macro/external-link/encryption checks, workbook close, strongID/passport/name conservative matching, duplicate handling, safe complete detail export and formula neutralization traced. Byte-identical here; cohesive parsing/matching/export architecture remains independently OPEN."
+    },
+    {
+      "path": "backend/app/presentation/api/v1/routes/travel_tracker.py",
+      "sha256": "fe2b56936d219d382179246e6e51f87fd08b21a1ed62de29f73aacd272b61239",
+      "physical_lines": 139,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete139-line route source read: live dashboard auth, CSRF writes/preview, no-store private reads/export, bounded uploaded body and close, DTO/binary contracts and service error projection unchanged. No live service authentication claim from local SQLite fixtures."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_travel_tracker_spreadsheets.py",
+      "sha256": "043221d02d556b9a90cf7d43d96fa518ff7c9c4536d58dd0323d4dae662ab469",
+      "physical_lines": 105,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete105-line physical test source read; UTF8/XLSX format/column/row/headers/malformedXML and strong identity/no fallback/duplicates assertions preserved unchanged."
+    },
+    {
+      "path": "backend/tests/unit/presentation/test_travel_tracker.py",
+      "sha256": "30bf4c076b8f20a8446057225d13b19ee6a4b2842121b2a5ba7697abe14c6b25",
+      "physical_lines": 501,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete501-line physical test source read. Canonical imported/all-status roster, removed members, idempotent independent marks/audit, foreign IDs atomicity, stale count, live actor/agency/role restrictions, allowed-group scope, archived groups, conservative preview, safe full export roundtrip, compositeFK, MCP no-lock-upgrade and managed rollback, HTTP contract and strictmark DTO controls remain unchanged."
+    },
+    {
+      "path": "backend/tests/unit/infrastructure/test_travel_tracker_work_lifetime.py",
+      "sha256": "f8caf23980b98a0ac8aeca38de6b1682dfec9c95fd8cd14c712f969bb1f5185c",
+      "physical_lines": 191,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete new authored/read10-case source: normal service.export +real AnyIO workers across external/repeated asyncio cancel and late success/failure; explicit borrowed threadtoken retention underlimit1, context propagation/no caller mutation, AnyIO in-flight and already-cancelled scope controls, original normal failure identity/kwargs. Synthetic blocking native work, no actual external service/provider or private data."
+    },
+    {
+      "path": "backend/app/infrastructure/travellers/company_export_native_work.py",
+      "sha256": "a1eb881381e063d0ce8ef77a1f79885e38a23b92a8e652244c093bac3a406a4f",
+      "physical_lines": 26,
+      "review_scope": "full",
+      "reviewer": "branding_visuals",
+      "status": "reviewed",
+      "notes": "Complete26-line supporting helper source read only, showing established owned thread drain semantics. Not imported/reused across domains or modified; its independently frozen gates/ownership stay intact."
+    },
+    {
+      "path": "backend/app/application/mcp/travel_tracker.py",
+      "sha256": "b8efdf5bf1b0fbbf797281263c4e1adc631677b80069411822107a067f8d44f5",
+      "physical_lines": 482,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "supporting-trace",
+      "notes": "Supporting current source physically read1\u2013135 and300\u2013EOF only: tracker_service captures change actor with existing SHAREfence; export scope/native source bytes/rows/revision/artifact/idempotent progress use current service/private query seams. No new full-current claim from this trace; earlier matching-hash full ledgers remain independently attributable."
+    },
+    {
+      "path": "backend/tests/integration/test_mcp_travel_tracker.py",
+      "sha256": "d1d6c3220ea190e31468d5d1489d56d26ef5d3444f4a49bb1f6c45333c9bad17",
+      "physical_lines": 398,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "supporting-trace",
+      "notes": "Supporting current source1\u2013140 physically read only: actual grant/device/capability/native setup and idempotent status receipt controls. Remaining test assertions are not credited or executed by this checkpoint."
+    },
+    {
+      "path": "backend/app/core/security/password.py",
+      "sha256": "824e24005074924475fbaff4d1b3d5a93204b89a429e678fa6cc153507bf8eca",
+      "physical_lines": 132,
+      "review_scope": "partial",
+      "reviewer": "branding_visuals",
+      "status": "supporting-trace",
+      "notes": "Supporting source1\u201385 only: established AnyIO+asyncio external-cancellation budget pattern explains why direct await can release a token early. Not changed or imported as tracker dependency; no full source credit."
+    }
+  ]
+}

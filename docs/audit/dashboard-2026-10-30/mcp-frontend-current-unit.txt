@@ -1,0 +1,3493 @@
+
+ RUN  v4.1.12 C:/Users/nipun/Desktop/PassDetection/frontend
+
+ ❯ features/mcp/components/mcp-permissions.test.tsx (10 tests | 7 failed) 7485ms
+   × keeps read sections when enabling writes and derives cross-section tools only from the reviewed section choices 1155ms
+   × turns write authority off without discarding saved section or read choices 1034ms
+   × retains pending choices, prevents repeat saves, and does not claim success when identity confirmation is cancelled 1041ms
+   × requires reload after a revision conflict and adopts the confirmed policy before another edit 1026ms
+   × does not allow an old read-only connection to acquire new write scopes 1043ms
+   × saves independent device flags while retaining the original read limit and blocking other row actions during the request 1054ms
+   × requires new approval or a fresh revision after a device conflict rather than retrying automatically 1039ms
+ ❯ features/mcp/components/mcp-requests.test.tsx (10 tests | 5 failed) 5628ms
+   × shows the matching code and reviews only currently permitted requested scopes 1144ms
+   × does not repeat a pending approval or claim success after cancelled identity confirmation 1038ms
+   × requires deliberate rejection and shows the server decision after it succeeds 1058ms
+   × deliberately approves a newly requested write-capable envelope with write access initially off 1078ms
+   × allows deliberate narrower write approval without granting scopes absent from the request 1093ms
+ ❯ features/mcp/components/mcp-devices.test.tsx (9 tests | 4 failed) 2307ms
+   × disables just the chosen connection, shows confirmed state, and enables it again 1046ms
+   × keeps authorization visible while a disable is pending and does not repeat the request 1045ms
+   × does not claim changed access or retry when the server returns Identity confirmation was cancelled. 18ms
+   × does not claim changed access or retry when the server returns Access could not be saved. 27ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 16 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  features/mcp/components/mcp-devices.test.tsx > disables just the chosen connection, shows confirmed state, and enables it again
+TestingLibraryElementError: Unable to find role="button" and name "Enable"
+
+Ignored nodes: comments, script, style
+<article
+  aria-label="Office Windows"
+  class="p-5"
+>
+  <div
+    class="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)_auto] lg:items-center lg:gap-5"
+  >
+    <div
+      class="min-w-0"
+    >
+      <div
+        class="flex flex-wrap items-center gap-2"
+      >
+        <h3
+          class="break-words text-sm font-semibold text-slate-950"
+        >
+          Office Windows
+        </h3>
+        <span
+          class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium border bg-green-50 text-green-700 border-green-200"
+        >
+          Authorized
+        </span>
+      </div>
+      <p
+        class="mt-1 text-xs text-slate-500"
+      >
+        Windows
+      </p>
+    </div>
+    <div
+      class="text-xs"
+    >
+      <p
+        class="text-slate-500 lg:sr-only"
+      >
+        Last used
+      </p>
+      <p
+        class="mt-1 text-slate-700"
+      >
+        Not used yet
+      </p>
+    </div>
+    <div
+      class="text-xs"
+    >
+      <p
+        class="text-slate-500 lg:sr-only"
+      >
+        Sign in again by
+      </p>
+      <p
+        class="mt-1 text-slate-700"
+      >
+        09 Oct 2026, 05:30
+      </p>
+    </div>
+    <div
+      class="flex min-w-28 flex-wrap items-center gap-1 lg:justify-end"
+    >
+      <button
+        aria-busy="false"
+        class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap bg-white text-slate-700 border border-slate-300 shadow-sm hover:bg-slate-50 active:bg-slate-100 h-8 px-3 text-xs rounded-md"
+      >
+        Disable
+      </button>
+      <button
+        aria-busy="false"
+        aria-expanded="false"
+        class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap text-slate-600 hover:bg-slate-100 hover:text-slate-900 active:bg-slate-200 h-8 px-3 text-xs rounded-md"
+      >
+        Manage
+      </button>
+      <button
+        aria-busy="false"
+        aria-haspopup="dialog"
+        class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap hover:bg-slate-100 active:bg-slate-200 h-8 px-3 text-xs rounded-md text-red-700 hover:text-red-800"
+      >
+        Delete
+      </button>
+    </div>
+  </div>
+  <div
+    class="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800"
+    role="alert"
+  >
+    <p>
+      The signed-in account changed. Sign back in to the original account before retrying.
+    </p>
+  </div>
+</article>
+
+Ignored nodes: comments, script, style
+<html>
+  <head />
+  <body>
+    <div>
+      <section
+        aria-label="MCP devices"
+        class="space-y-5"
+      >
+        <div
+          class="flex items-start gap-3"
+        >
+          <svg
+            aria-hidden="true"
+            class="lucide lucide-monitor mt-0.5 h-5 w-5 shrink-0 text-blue-700"
+            fill="none"
+            height="24"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <rect
+              height="14"
+              rx="2"
+              width="20"
+              x="2"
+              y="3"
+            />
+            <line
+              x1="8"
+              x2="16"
+              y1="21"
+              y2="21"
+            />
+            <line
+              x1="12"
+              x2="12"
+              y1="17"
+              y2="21"
+            />
+          </svg>
+          <div>
+            <h2
+              class="text-xl font-semibold tracking-tight text-slate-950"
+            >
+              Devices
+            </h2>
+            <p
+              class="mt-1 text-sm leading-6 text-slate-600"
+            >
+              Each named authorization is listed separately. Disable a connection to stop its access; enable it to resume while its sign-in is valid.
+            </p>
+          </div>
+        </div>
+        <p
+          class="max-w-4xl text-xs leading-5 text-slate-500"
+        >
+          These entries represent separate approved connections. Names and platforms are labels; ChatGPT may share one account connection across devices.
+        </p>
+        <div
+          class="overflow-hidden rounded-xl border border-slate-200 bg-white"
+        >
+          <div
+            aria-hidden="true"
+            class="hidden grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)_auto] gap-5 border-b border-slate-200 bg-slate-50 px-5 py-3 text-xs font-medium text-slate-500 lg:grid"
+          >
+            <span>
+              Device and access
+            </span>
+            <span>
+              Last used
+            </span>
+            <span>
+              Sign in again by
+            </span>
+            <span
+              class="min-w-28 text-right"
+            >
+              Actions
+            </span>
+          </div>
+          <div
+            class="divide-y divide-slate-100"
+          >
+            <article
+              aria-label="Office Windows"
+              class="p-5"
+            >
+              <div
+                class="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)_auto] lg:items-center lg:gap-5"
+              >
+                <div
+                  class="min-w-0"
+                >
+                  <div
+                    class="flex flex-wrap items-center gap-2"
+                  >
+                    <h3
+                      class="break-words text-sm font-semibold text-slate-950"
+                    >
+                      Office Windows
+                    </h3>
+                    <span
+                      class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium border bg-green-50 text-green-700 border-green-200"
+                    >
+                      Authorized
+                    </span>
+                  </div>
+                  <p
+                    class="mt-1 text-xs text-slate-500"
+                  >
+                    Windows
+                  </p>
+                </div>
+                <div
+                  class="text-xs"
+                >
+                  <p
+                    class="text-slate-500 lg:sr-only"
+                  >
+                    Last used
+                  </p>
+                  <p
+                    class="mt-1 text-slate-700"
+                  >
+                    Not used yet
+                  </p>
+                </div>
+                <div
+                  class="text-xs"
+                >
+                  <p
+                    class="text-slate-500 lg:sr-only"
+                  >
+                    Sign in again by
+                  </p>
+                  <p
+                    class="mt-1 text-slate-700"
+                  >
+                    09 Oct 2026, 05:30
+                  </p>
+                </div>
+                <div
+                  class="flex min-w-28 flex-wrap items-center gap-1 lg:justify-end"
+                >
+                  <button
+                    aria-busy="false"
+                    class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap bg-white text-slate-700 border border-slate-300 shadow-sm hover:bg-slate-50 active:bg-slate-100 h-8 px-3 text-xs rounded-md"
+                  >
+                    Disable
+                  </button>
+                  <button
+                    aria-busy="false"
+                    aria-expanded="false"
+                    class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap text-slate-600 hover:bg-slate-100 hover:text-slate-900 active:bg-slate-200 h-8 px-3 text-xs rounded-md"
+                  >
+                    Manage
+                  </button>
+                  <button
+                    aria-busy="false"
+                    aria-haspopup="dialog"
+                    class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap hover:bg-slate-100 active:bg-slate-200 h-8 px-3 text-xs rounded-md text-red-700 hover:text-red-800"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+              <div
+                class="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800"
+                role="alert"
+              >
+                <p>
+                  The signed-in account changed. Sign back in to the original account before retrying.
+                </p>
+              </div>
+            </article>
+            <article
+              aria-label="My MacBook"
+              class="p-5"
+            >
+              <div
+                class="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)_auto] lg:items-center lg:gap-5"
+              >
+                <div
+                  class="min-w-0"
+                >
+                  <div
+                    class="flex flex-wrap items-center gap-2"
+                  >
+                    <h3
+                      class="break-words text-sm font-semibold text-slate-950"
+                    >
+                      My MacBook
+                    </h3>
+                    <span
+                      class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium border bg-green-50 text-green-700 border-green-200"
+                    >
+                      Authorized
+                    </span>
+                  </div>
+                  <p
+                    class="mt-1 text-xs text-slate-500"
+                  >
+                    macOS
+                  </p>
+                </div>
+                <div
+                  class="text-xs"
+                >
+                  <p
+                    class="text-slate-500 lg:sr-only"
+                  >
+                    Last used
+                  </p>
+                  <p
+                    class="mt-1 text-slate-700"
+                  >
+                    Not used yet
+                  </p>
+                </div>
+                <div
+                  class="text-xs"
+                >
+                  <p
+                    class="text-slate-500 lg:sr-only"
+                  >
+                    Sign in again by
+                  </p>
+                  <p
+                    class="mt-1 text-slate-700"
+                  >
+                    09 Oct 2026, 05:30
+                  </p>
+                </div>
+                <div
+                  class="flex min-w-28 flex-wrap items-center gap-1 lg:justify-end"
+                >
+                  <button
+                    aria-busy="false"
+                    class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap bg-white text-slate-700 border border-slate-300 shadow-sm hover:bg-slate-50 active:bg-slate-100 h-8 px-3 text-xs rounded-md"
+                  >
+                    Disable
+                  </button>
+                  <button
+                    aria-busy="false"
+                    aria-expanded="false"
+                    class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap text-slate-600 hover:bg-slate-100 hover:text-slate-900 active:bg-slate-200 h-8 px-3 text-xs rounded-md"
+                  >
+                    Manage
+                  </button>
+                  <button
+                    aria-busy="false"
+                    aria-haspopup="dialog"
+                    class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap hover:bg-slate-100 active:bg-slate-200 h-8 px-3 text-xs rounded-md text-red-700 hover:text-red-800"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+    </div>
+  </body>
+</html>
+ ❯ Proxy.waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ features/mcp/components/mcp-devices.test.tsx:53:9
+     51|   fireEvent.click(within(await screen.findByRole("article", { name: fi…
+     52|   expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+     53|   await waitFor(() => expect(within(screen.getByRole("article", { name…
+       |         ^
+     54|   expect(mcpApi.setConnectionAccess).toHaveBeenCalledWith({ id: first.…
+     55|   expect(within(screen.getByRole("article", { name: second.name })).ge…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/16]⎯
+
+ FAIL  features/mcp/components/mcp-devices.test.tsx > keeps authorization visible while a disable is pending and does not repeat the request
+Error: expect(element).toBeDisabled()
+
+Received element is not disabled:
+  <button
+  aria-busy="false"
+  class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap bg-white text-slate-700 border border-slate-300 shadow-sm hover:bg-slate-50 active:bg-slate-100 h-8 px-3 text-xs rounded-md"
+/>
+
+Ignored nodes: comments, script, style
+<html>
+  <head />
+  <body>
+    <div>
+      <section
+        aria-label="MCP devices"
+        class="space-y-5"
+      >
+        <div
+          class="flex items-start gap-3"
+        >
+          <svg
+            aria-hidden="true"
+            class="lucide lucide-monitor mt-0.5 h-5 w-5 shrink-0 text-blue-700"
+            fill="none"
+            height="24"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <rect
+              height="14"
+              rx="2"
+              width="20"
+              x="2"
+              y="3"
+            />
+            <line
+              x1="8"
+              x2="16"
+              y1="21"
+              y2="21"
+            />
+            <line
+              x1="12"
+              x2="12"
+              y1="17"
+              y2="21"
+            />
+          </svg>
+          <div>
+            <h2
+              class="text-xl font-semibold tracking-tight text-slate-950"
+            >
+              Devices
+            </h2>
+            <p
+              class="mt-1 text-sm leading-6 text-slate-600"
+            >
+              Each named authorization is listed separately. Disable a connection to stop its access; enable it to resume while its sign-in is valid.
+            </p>
+          </div>
+        </div>
+        <p
+          class="max-w-4xl text-xs leading-5 text-slate-500"
+        >
+          These entries represent separate approved connections. Names and platforms are labels; ChatGPT may share one account connection across devices.
+        </p>
+        <div
+          class="overflow-hidden rounded-xl border border-slate-200 bg-white"
+        >
+          <div
+            aria-hidden="true"
+            class="hidden grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)_auto] gap-5 border-b border-slate-200 bg-slate-50 px-5 py-3 text-xs font-medium text-slate-500 lg:grid"
+          >
+            <span>
+              Device and access
+            </span>
+            <span>
+              Last used
+            </span>
+            <span>
+              Sign in again by
+            </span>
+            <span
+              class="min-w-28 text-right"
+            >
+              Actions
+            </span>
+          </div>
+          <div
+            class="divide-y divide-slate-100"
+          >
+            <article
+              aria-label="Office Windows"
+              class="p-5"
+            >
+              <div
+                class="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)_auto] lg:items-center lg:gap-5"
+              >
+                <div
+                  class="min-w-0"
+                >
+                  <div
+                    class="flex flex-wrap items-center gap-2"
+                  >
+                    <h3
+                      class="break-words text-sm font-semibold text-slate-950"
+                    >
+                      Office Windows
+                    </h3>
+                    <span
+                      class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium border bg-green-50 text-green-700 border-green-200"
+                    >
+                      Authorized
+                    </span>
+                  </div>
+                  <p
+                    class="mt-1 text-xs text-slate-500"
+                  >
+                    Windows
+                  </p>
+                </div>
+                <div
+                  class="text-xs"
+                >
+                  <p
+                    class="text-slate-500 lg:sr-only"
+                  >
+                    Last used
+                  </p>
+                  <p
+                    class="mt-1 text-slate-700"
+                  >
+                    Not used yet
+                  </p>
+                </div>
+                <div
+                  class="text-xs"
+                >
+                  <p
+                    class="text-slate-500 lg:sr-only"
+                  >
+                    Sign in again by
+                  </p>
+                  <p
+                    class="mt-1 text-slate-700"
+                  >
+                    09 Oct 2026, 05:30
+                  </p>
+                </div>
+                <div
+                  class="flex min-w-28 flex-wrap items-center gap-1 lg:justify-end"
+                >
+                  <button
+                    aria-busy="false"
+                    class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap bg-white text-slate-700 border border-slate-300 shadow-sm hover:bg-slate-50 active:bg-slate-100 h-8 px-3 text-xs rounded-md"
+                  >
+                    Disable
+                  </button>
+                  <button
+                    aria-busy="false"
+                    aria-expanded="false"
+                    class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap text-slate-600 hover:bg-slate-100 hover:text-slate-900 active:bg-slate-200 h-8 px-3 text-xs rounded-md"
+                  >
+                    Manage
+                  </button>
+                  <button
+                    aria-busy="false"
+                    aria-haspopup="dialog"
+                    class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap hover:bg-slate-100 active:bg-slate-200 h-8 px-3 text-xs rounded-md text-red-700 hover:text-red-800"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+              <div
+                class="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800"
+                role="alert"
+              >
+                <p>
+                  The signed-in account changed. Sign back in to the original account before retrying.
+                </p>
+              </div>
+            </article>
+            <article
+              aria-label="My MacBook"
+              class="p-5"
+            >
+              <div
+                class="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)_auto] lg:items-center lg:gap-5"
+              >
+                <div
+                  class="min-w-0"
+                >
+                  <div
+                    class="flex flex-wrap items-center gap-2"
+                  >
+                    <h3
+                      class="break-words text-sm font-semibold text-slate-950"
+                    >
+                      My MacBook
+                    </h3>
+                    <span
+                      class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium border bg-green-50 text-green-700 border-green-200"
+                    >
+                      Authorized
+                    </span>
+                  </div>
+                  <p
+                    class="mt-1 text-xs text-slate-500"
+                  >
+                    macOS
+                  </p>
+                </div>
+                <div
+                  class="text-xs"
+                >
+                  <p
+                    class="text-slate-500 lg:sr-only"
+                  >
+                    Last used
+                  </p>
+                  <p
+                    class="mt-1 text-slate-700"
+                  >
+                    Not used yet
+                  </p>
+                </div>
+                <div
+                  class="text-xs"
+                >
+                  <p
+                    class="text-slate-500 lg:sr-only"
+                  >
+                    Sign in again by
+                  </p>
+                  <p
+                    class="mt-1 text-slate-700"
+                  >
+                    09 Oct 2026, 05:30
+                  </p>
+                </div>
+                <div
+                  class="flex min-w-28 flex-wrap items-center gap-1 lg:justify-end"
+                >
+                  <button
+                    aria-busy="false"
+                    class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap bg-white text-slate-700 border border-slate-300 shadow-sm hover:bg-slate-50 active:bg-slate-100 h-8 px-3 text-xs rounded-md"
+                  >
+                    Disable
+                  </button>
+                  <button
+                    aria-busy="false"
+                    aria-expanded="false"
+                    class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap text-slate-600 hover:bg-slate-100 hover:text-slate-900 active:bg-slate-200 h-8 px-3 text-xs rounded-md"
+                  >
+                    Manage
+                  </button>
+                  <button
+                    aria-busy="false"
+                    aria-haspopup="dialog"
+                    class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap hover:bg-slate-100 active:bg-slate-200 h-8 px-3 text-xs rounded-md text-red-700 hover:text-red-800"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+    </div>
+  </body>
+</html>
+ ❯ features/mcp/components/mcp-devices.test.tsx:69:85
+     67|   const card = await screen.findByRole("article", { name: first.name }…
+     68|   fireEvent.click(within(card).getByRole("button", { name: "Disable" }…
+     69|   await waitFor(() => expect(within(card).getByRole("button", { name: …
+       |                                                                                     ^
+     70|   expect(within(card).getByText("Authorized", { exact: true })).toBeVi…
+     71|   fireEvent.click(within(card).getByRole("button", { name: "Disable" }…
+ ❯ runWithExpensiveErrorDiagnosticsDisabled node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/16]⎯
+
+ FAIL  features/mcp/components/mcp-devices.test.tsx > does not claim changed access or retry when the server returns Identity confirmation was cancelled.
+Error: expect(element).toHaveTextContent()
+
+Expected element to have text content:
+  Identity confirmation was cancelled.
+Received:
+  The signed-in account changed. Sign back in to the original account before retrying.
+ ❯ features/mcp/components/mcp-devices.test.tsx:83:50
+     81|   const card = await screen.findByRole("article", { name: first.name }…
+     82|   fireEvent.click(within(card).getByRole("button", { name: "Disable" }…
+     83|   expect(await within(card).findByRole("alert")).toHaveTextContent(mes…
+       |                                                  ^
+     84|   expect(within(card).getByRole("button", { name: "Disable" })).toBeEn…
+     85|   expect(within(card).getByText("Authorized", { exact: true })).toBeVi…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/16]⎯
+
+ FAIL  features/mcp/components/mcp-devices.test.tsx > does not claim changed access or retry when the server returns Access could not be saved.
+Error: expect(element).toHaveTextContent()
+
+Expected element to have text content:
+  Access could not be saved.
+Received:
+  The signed-in account changed. Sign back in to the original account before retrying.
+ ❯ features/mcp/components/mcp-devices.test.tsx:83:50
+     81|   const card = await screen.findByRole("article", { name: first.name }…
+     82|   fireEvent.click(within(card).getByRole("button", { name: "Disable" }…
+     83|   expect(await within(card).findByRole("alert")).toHaveTextContent(mes…
+       |                                                  ^
+     84|   expect(within(card).getByRole("button", { name: "Disable" })).toBeEn…
+     85|   expect(within(card).getByText("Authorized", { exact: true })).toBeVi…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/16]⎯
+
+ FAIL  features/mcp/components/mcp-permissions.test.tsx > keeps read sections when enabling writes and derives cross-section tools only from the reviewed section choices
+AssertionError: expected "vi.fn()" to be called with arguments: [ Array(2) ]
+
+Number of calls: 0
+
+
+Ignored nodes: comments, script, style
+<html>
+  <head />
+  <body>
+    <div>
+      <section
+        aria-label="MCP permission settings"
+        class="space-y-4"
+      >
+        <form
+          class="space-y-5"
+        >
+          <section
+            aria-label="Read settings"
+            class="space-y-5 rounded-xl border border-slate-200 bg-white p-5 sm:p-6"
+          >
+            <div>
+              <h2
+                class="text-lg font-semibold tracking-tight text-slate-950"
+              >
+                Read access
+              </h2>
+              <p
+                class="mt-1 text-sm leading-6 text-slate-500"
+              >
+                Choose which information approved devices can look up. Only sections with available MCP reads are listed.
+              </p>
+            </div>
+            <label
+              class="relative flex items-start justify-between gap-5"
+            >
+              <span
+                class="min-w-0"
+              >
+                <span
+                  class="block text-sm font-medium text-slate-950"
+                >
+                  Allow read access
+                </span>
+                <span
+                  class="mt-1 block text-xs leading-5 text-slate-500"
+                >
+                  Allow approved connections to read the selected sections.
+                </span>
+              </span>
+              <input
+                aria-label="Allow read access"
+                checked=""
+                class="peer absolute right-0 top-0.5 z-10 h-6 w-11 cursor-pointer opacity-0 disabled:cursor-not-allowed"
+                role="switch"
+                type="checkbox"
+              />
+              <span
+                aria-hidden="true"
+                class="pointer-events-none relative mt-0.5 h-6 w-11 shrink-0 rounded-full bg-slate-200 transition-colors after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:shadow-sm after:transition-transform peer-checked:bg-blue-600 peer-checked:after:translate-x-5 peer-focus-visible:ring-2 peer-focus-visible:ring-blue-600 peer-focus-visible:ring-offset-2 peer-disabled:opacity-50"
+              />
+            </label>
+            <fieldset
+              class="divide-y divide-slate-100 rounded-xl border border-slate-200"
+            >
+              <legend
+                class="sr-only"
+              >
+                Read sections
+              </legend>
+              <div
+                class="px-4 py-4 sm:px-5"
+              >
+                <label
+                  class="relative flex items-start justify-between gap-5"
+                >
+                  <span
+                    class="min-w-0"
+                  >
+                    <span
+                      class="block text-sm font-medium text-slate-950"
+                    >
+                      Read All groups
+                    </span>
+                    <span
+                      class="mt-1 block text-xs leading-5 text-slate-500"
+                    >
+                      Find groups and passengers, review passport details, extraction results and processing status.
+                    </span>
+                  </span>
+                  <input
+                    aria-label="Read All groups"
+                    checked=""
+                    class="peer absolute right-0 top-0.5 z-10 h-6 w-11 cursor-pointer opacity-0 disabled:cursor-not-allowed"
+                    role="switch"
+                    type="checkbox"
+                  />
+                  <span
+                    aria-hidden="true"
+                    class="pointer-events-none relative mt-0.5 h-6 w-11 shrink-0 rounded-full bg-slate-200 transition-colors after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:shadow-sm after:transition-transform peer-checked:bg-blue-600 peer-checked:after:translate-x-5 peer-focus-visible:ring-2 peer-focus-visible:ring-blue-600 peer-focus-visible:ring-offset-2 peer-disabled:opacity-50"
+                  />
+                </label>
+              </div>
+              <div
+                class="px-4 py-4 sm:px-5"
+              >
+                <label
+                  class="relative flex items-start justify-between gap-5"
+                >
+                  <span
+                    class="min-w-0"
+                  >
+                    <span
+                      class="block text-sm font-medium text-slate-950"
+                    >
+                      Read Group links
+                    </span>
+                    <span
+                      class="mt-1 block text-xs leading-5 text-slate-500"
+                    >
+                      View group link settings, collection fields, custom questions and linked broadcasts.
+                    </span>
+                  </span>
+                  <input
+                    aria-label="Read Group links"
+                    class="peer absolute right-0 top-0.5 z-10 h-6 w-11 cursor-pointer opacity-0 disabled:cursor-not-allowed"
+                    role="switch"
+                    type="checkbox"
+                  />
+                  <span
+                    aria-hidden="true"
+                    class="pointer-events-none relative mt-0.5 h-6 w-11 shrink-0 rounded-full bg-slate-200 transition-colors after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:roun...
+ ❯ features/mcp/components/mcp-permissions.test.tsx:37:56
+     35|   fireEvent.click(within(write).getByRole("switch", { name: "Write Gro…
+     36|   fireEvent.click(screen.getByRole("button", { name: "Save permissions…
+     37|   await waitFor(() => expect(mcpApi.updatePermissions).toHaveBeenCalle…
+       |                                                        ^
+     38|     allowed_read_sections: ["all_groups", "menu"], allowed_write_secti…
+     39|     allowed_write_tools: ["configure_group_link", "create_group", "cre…
+ ❯ runWithExpensiveErrorDiagnosticsDisabled node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/16]⎯
+
+ FAIL  features/mcp/components/mcp-permissions.test.tsx > turns write authority off without discarding saved section or read choices
+AssertionError: expected "vi.fn()" to be called with arguments: [ ObjectContaining{…}, Anything ]
+
+Number of calls: 0
+
+
+Ignored nodes: comments, script, style
+<html>
+  <head />
+  <body>
+    <div>
+      <section
+        aria-label="MCP permission settings"
+        class="space-y-4"
+      >
+        <form
+          class="space-y-5"
+        >
+          <section
+            aria-label="Read settings"
+            class="space-y-5 rounded-xl border border-slate-200 bg-white p-5 sm:p-6"
+          >
+            <div>
+              <h2
+                class="text-lg font-semibold tracking-tight text-slate-950"
+              >
+                Read access
+              </h2>
+              <p
+                class="mt-1 text-sm leading-6 text-slate-500"
+              >
+                Choose which information approved devices can look up. Only sections with available MCP reads are listed.
+              </p>
+            </div>
+            <label
+              class="relative flex items-start justify-between gap-5"
+            >
+              <span
+                class="min-w-0"
+              >
+                <span
+                  class="block text-sm font-medium text-slate-950"
+                >
+                  Allow read access
+                </span>
+                <span
+                  class="mt-1 block text-xs leading-5 text-slate-500"
+                >
+                  Allow approved connections to read the selected sections.
+                </span>
+              </span>
+              <input
+                aria-label="Allow read access"
+                checked=""
+                class="peer absolute right-0 top-0.5 z-10 h-6 w-11 cursor-pointer opacity-0 disabled:cursor-not-allowed"
+                role="switch"
+                type="checkbox"
+              />
+              <span
+                aria-hidden="true"
+                class="pointer-events-none relative mt-0.5 h-6 w-11 shrink-0 rounded-full bg-slate-200 transition-colors after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:shadow-sm after:transition-transform peer-checked:bg-blue-600 peer-checked:after:translate-x-5 peer-focus-visible:ring-2 peer-focus-visible:ring-blue-600 peer-focus-visible:ring-offset-2 peer-disabled:opacity-50"
+              />
+            </label>
+            <fieldset
+              class="divide-y divide-slate-100 rounded-xl border border-slate-200"
+            >
+              <legend
+                class="sr-only"
+              >
+                Read sections
+              </legend>
+              <div
+                class="px-4 py-4 sm:px-5"
+              >
+                <label
+                  class="relative flex items-start justify-between gap-5"
+                >
+                  <span
+                    class="min-w-0"
+                  >
+                    <span
+                      class="block text-sm font-medium text-slate-950"
+                    >
+                      Read All groups
+                    </span>
+                    <span
+                      class="mt-1 block text-xs leading-5 text-slate-500"
+                    >
+                      Find groups and passengers, review passport details, extraction results and processing status.
+                    </span>
+                  </span>
+                  <input
+                    aria-label="Read All groups"
+                    checked=""
+                    class="peer absolute right-0 top-0.5 z-10 h-6 w-11 cursor-pointer opacity-0 disabled:cursor-not-allowed"
+                    role="switch"
+                    type="checkbox"
+                  />
+                  <span
+                    aria-hidden="true"
+                    class="pointer-events-none relative mt-0.5 h-6 w-11 shrink-0 rounded-full bg-slate-200 transition-colors after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:shadow-sm after:transition-transform peer-checked:bg-blue-600 peer-checked:after:translate-x-5 peer-focus-visible:ring-2 peer-focus-visible:ring-blue-600 peer-focus-visible:ring-offset-2 peer-disabled:opacity-50"
+                  />
+                </label>
+              </div>
+              <div
+                class="px-4 py-4 sm:px-5"
+              >
+                <label
+                  class="relative flex items-start justify-between gap-5"
+                >
+                  <span
+                    class="min-w-0"
+                  >
+                    <span
+                      class="block text-sm font-medium text-slate-950"
+                    >
+                      Read Group links
+                    </span>
+                    <span
+                      class="mt-1 block text-xs leading-5 text-slate-500"
+                    >
+                      View group link settings, collection fields, custom questions and linked broadcasts.
+                    </span>
+                  </span>
+                  <input
+                    aria-label="Read Group links"
+                    class="peer absolute right-0 top-0.5 z-10 h-6 w-11 cursor-pointer opacity-0 disabled:cursor-not-allowed"
+                    role="switch"
+                    type="checkbox"
+                  />
+                  <span
+                    aria-hidden="true"
+                    class="pointer-events-none relative mt-0.5 h-6 w-11 shrink-0 rounded-full bg-slate-200 transition-colors after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:roun...
+ ❯ features/mcp/components/mcp-permissions.test.tsx:48:56
+     46|   fireEvent.click(await screen.findByRole("switch", { name: "Allow wri…
+     47|   fireEvent.click(screen.getByRole("button", { name: "Save permissions…
+     48|   await waitFor(() => expect(mcpApi.updatePermissions).toHaveBeenCalle…
+       |                                                        ^
+     49|     allowed_read_sections: ["all_groups", "menu"], allowed_write_secti…
+     50| });
+ ❯ runWithExpensiveErrorDiagnosticsDisabled node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/16]⎯
+
+ FAIL  features/mcp/components/mcp-permissions.test.tsx > retains pending choices, prevents repeat saves, and does not claim success when identity confirmation is cancelled
+Error: expect(element).toBeDisabled()
+
+Received element is not disabled:
+  <button
+  aria-busy="false"
+  class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap bg-blue-600 text-white shadow-sm hover:bg-blue-700 active:bg-blue-800 h-9 px-4 py-2"
+  type="submit"
+/>
+
+Ignored nodes: comments, script, style
+<html>
+  <head />
+  <body>
+    <div>
+      <section
+        aria-label="MCP permission settings"
+        class="space-y-4"
+      >
+        <form
+          class="space-y-5"
+        >
+          <section
+            aria-label="Read settings"
+            class="space-y-5 rounded-xl border border-slate-200 bg-white p-5 sm:p-6"
+          >
+            <div>
+              <h2
+                class="text-lg font-semibold tracking-tight text-slate-950"
+              >
+                Read access
+              </h2>
+              <p
+                class="mt-1 text-sm leading-6 text-slate-500"
+              >
+                Choose which information approved devices can look up. Only sections with available MCP reads are listed.
+              </p>
+            </div>
+            <label
+              class="relative flex items-start justify-between gap-5"
+            >
+              <span
+                class="min-w-0"
+              >
+                <span
+                  class="block text-sm font-medium text-slate-950"
+                >
+                  Allow read access
+                </span>
+                <span
+                  class="mt-1 block text-xs leading-5 text-slate-500"
+                >
+                  Allow approved connections to read the selected sections.
+                </span>
+              </span>
+              <input
+                aria-label="Allow read access"
+                checked=""
+                class="peer absolute right-0 top-0.5 z-10 h-6 w-11 cursor-pointer opacity-0 disabled:cursor-not-allowed"
+                role="switch"
+                type="checkbox"
+              />
+              <span
+                aria-hidden="true"
+                class="pointer-events-none relative mt-0.5 h-6 w-11 shrink-0 rounded-full bg-slate-200 transition-colors after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:shadow-sm after:transition-transform peer-checked:bg-blue-600 peer-checked:after:translate-x-5 peer-focus-visible:ring-2 peer-focus-visible:ring-blue-600 peer-focus-visible:ring-offset-2 peer-disabled:opacity-50"
+              />
+            </label>
+            <fieldset
+              class="divide-y divide-slate-100 rounded-xl border border-slate-200"
+            >
+              <legend
+                class="sr-only"
+              >
+                Read sections
+              </legend>
+              <div
+                class="px-4 py-4 sm:px-5"
+              >
+                <label
+                  class="relative flex items-start justify-between gap-5"
+                >
+                  <span
+                    class="min-w-0"
+                  >
+                    <span
+                      class="block text-sm font-medium text-slate-950"
+                    >
+                      Read All groups
+                    </span>
+                    <span
+                      class="mt-1 block text-xs leading-5 text-slate-500"
+                    >
+                      Find groups and passengers, review passport details, extraction results and processing status.
+                    </span>
+                  </span>
+                  <input
+                    aria-label="Read All groups"
+                    checked=""
+                    class="peer absolute right-0 top-0.5 z-10 h-6 w-11 cursor-pointer opacity-0 disabled:cursor-not-allowed"
+                    role="switch"
+                    type="checkbox"
+                  />
+                  <span
+                    aria-hidden="true"
+                    class="pointer-events-none relative mt-0.5 h-6 w-11 shrink-0 rounded-full bg-slate-200 transition-colors after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:shadow-sm after:transition-transform peer-checked:bg-blue-600 peer-checked:after:translate-x-5 peer-focus-visible:ring-2 peer-focus-visible:ring-blue-600 peer-focus-visible:ring-offset-2 peer-disabled:opacity-50"
+                  />
+                </label>
+              </div>
+              <div
+                class="px-4 py-4 sm:px-5"
+              >
+                <label
+                  class="relative flex items-start justify-between gap-5"
+                >
+                  <span
+                    class="min-w-0"
+                  >
+                    <span
+                      class="block text-sm font-medium text-slate-950"
+                    >
+                      Read Group links
+                    </span>
+                    <span
+                      class="mt-1 block text-xs leading-5 text-slate-500"
+                    >
+                      View group link settings, collection fields, custom questions and linked broadcasts.
+                    </span>
+                  </span>
+                  <input
+                    aria-label="Read Group links"
+                    class="peer absolute right-0 top-0.5 z-10 h-6 w-11 cursor-pointer opacity-0 disabled:cursor-not-allowed"
+                    role="switch"
+                    type="checkbox"
+                  />
+                  <span
+                    aria-hidden="true"
+                    class="pointer-events-none relative mt-0.5 h-6 w-11 shrink-0 rounded-full bg-slate-200 transition-colors after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:roun...
+ ❯ features/mcp/components/mcp-permissions.test.tsx:58:88
+     56|   fireEvent.click(await screen.findByRole("switch", { name: "Allow wri…
+     57|   fireEvent.click(screen.getByRole("button", { name: "Save permissions…
+     58|   await waitFor(() => expect(screen.getByRole("button", { name: "Save …
+       |                                                                                        ^
+     59|   await waitFor(() => expect(screen.getByRole("switch", { name: "Read …
+     60|   fireEvent.click(screen.getByRole("button", { name: "Save permissions…
+ ❯ runWithExpensiveErrorDiagnosticsDisabled node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/16]⎯
+
+ FAIL  features/mcp/components/mcp-permissions.test.tsx > requires reload after a revision conflict and adopts the confirmed policy before another edit
+TestingLibraryElementError: Unable to find an element with the text: /changed elsewhere/. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <section
+      aria-label="MCP permission settings"
+      class="space-y-4"
+    >
+      <form
+        class="space-y-5"
+      >
+        <section
+          aria-label="Read settings"
+          class="space-y-5 rounded-xl border border-slate-200 bg-white p-5 sm:p-6"
+        >
+          <div>
+            <h2
+              class="text-lg font-semibold tracking-tight text-slate-950"
+            >
+              Read access
+            </h2>
+            <p
+              class="mt-1 text-sm leading-6 text-slate-500"
+            >
+              Choose which information approved devices can look up. Only sections with available MCP reads are listed.
+            </p>
+          </div>
+          <label
+            class="relative flex items-start justify-between gap-5"
+          >
+            <span
+              class="min-w-0"
+            >
+              <span
+                class="block text-sm font-medium text-slate-950"
+              >
+                Allow read access
+              </span>
+              <span
+                class="mt-1 block text-xs leading-5 text-slate-500"
+              >
+                Allow approved connections to read the selected sections.
+              </span>
+            </span>
+            <input
+              aria-label="Allow read access"
+              checked=""
+              class="peer absolute right-0 top-0.5 z-10 h-6 w-11 cursor-pointer opacity-0 disabled:cursor-not-allowed"
+              role="switch"
+              type="checkbox"
+            />
+            <span
+              aria-hidden="true"
+              class="pointer-events-none relative mt-0.5 h-6 w-11 shrink-0 rounded-full bg-slate-200 transition-colors after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:shadow-sm after:transition-transform peer-checked:bg-blue-600 peer-checked:after:translate-x-5 peer-focus-visible:ring-2 peer-focus-visible:ring-blue-600 peer-focus-visible:ring-offset-2 peer-disabled:opacity-50"
+            />
+          </label>
+          <fieldset
+            class="divide-y divide-slate-100 rounded-xl border border-slate-200"
+          >
+            <legend
+              class="sr-only"
+            >
+              Read sections
+            </legend>
+            <div
+              class="px-4 py-4 sm:px-5"
+            >
+              <label
+                class="relative flex items-start justify-between gap-5"
+              >
+                <span
+                  class="min-w-0"
+                >
+                  <span
+                    class="block text-sm font-medium text-slate-950"
+                  >
+                    Read All groups
+                  </span>
+                  <span
+                    class="mt-1 block text-xs leading-5 text-slate-500"
+                  >
+                    Find groups and passengers, review passport details, extraction results and processing status.
+                  </span>
+                </span>
+                <input
+                  aria-label="Read All groups"
+                  checked=""
+                  class="peer absolute right-0 top-0.5 z-10 h-6 w-11 cursor-pointer opacity-0 disabled:cursor-not-allowed"
+                  role="switch"
+                  type="checkbox"
+                />
+                <span
+                  aria-hidden="true"
+                  class="pointer-events-none relative mt-0.5 h-6 w-11 shrink-0 rounded-full bg-slate-200 transition-colors after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:shadow-sm after:transition-transform peer-checked:bg-blue-600 peer-checked:after:translate-x-5 peer-focus-visible:ring-2 peer-focus-visible:ring-blue-600 peer-focus-visible:ring-offset-2 peer-disabled:opacity-50"
+                />
+              </label>
+            </div>
+            <div
+              class="px-4 py-4 sm:px-5"
+            >
+              <label
+                class="relative flex items-start justify-between gap-5"
+              >
+                <span
+                  class="min-w-0"
+                >
+                  <span
+                    class="block text-sm font-medium text-slate-950"
+                  >
+                    Read Group links
+                  </span>
+                  <span
+                    class="mt-1 block text-xs leading-5 text-slate-500"
+                  >
+                    View group link settings, collection fields, custom questions and linked broadcasts.
+                  </span>
+                </span>
+                <input
+                  aria-label="Read Group links"
+                  class="peer absolute right-0 top-0.5 z-10 h-6 w-11 cursor-pointer opacity-0 disabled:cursor-not-allowed"
+                  role="switch"
+                  type="checkbox"
+                />
+                <span
+                  aria-hidden="true"
+                  class="pointer-events-none relative mt-0.5 h-6 w-11 shrink-0 rounded-full bg-slate-200 transition-colors after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:shadow-sm after:transition-transform peer-checked:bg-blue-600 peer-checked:after:translate-x-5 peer-focus-visible:ring-2 peer-focus-visible:ring-blue-600 peer-focus-visible:ring-offset-2 peer-disabled:opacity-50"
+                />
+         ...
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <section
+      aria-label="MCP permission settings"
+      class="space-y-4"
+    >
+      <form
+        class="space-y-5"
+      >
+        <section
+          aria-label="Read settings"
+          class="space-y-5 rounded-xl border border-slate-200 bg-white p-5 sm:p-6"
+        >
+          <div>
+            <h2
+              class="text-lg font-semibold tracking-tight text-slate-950"
+            >
+              Read access
+            </h2>
+            <p
+              class="mt-1 text-sm leading-6 text-slate-500"
+            >
+              Choose which information approved devices can look up. Only sections with available MCP reads are listed.
+            </p>
+          </div>
+          <label
+            class="relative flex items-start justify-between gap-5"
+          >
+            <span
+              class="min-w-0"
+            >
+              <span
+                class="block text-sm font-medium text-slate-950"
+              >
+                Allow read access
+              </span>
+              <span
+                class="mt-1 block text-xs leading-5 text-slate-500"
+              >
+                Allow approved connections to read the selected sections.
+              </span>
+            </span>
+            <input
+              aria-label="Allow read access"
+              checked=""
+              class="peer absolute right-0 top-0.5 z-10 h-6 w-11 cursor-pointer opacity-0 disabled:cursor-not-allowed"
+              role="switch"
+              type="checkbox"
+            />
+            <span
+              aria-hidden="true"
+              class="pointer-events-none relative mt-0.5 h-6 w-11 shrink-0 rounded-full bg-slate-200 transition-colors after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:shadow-sm after:transition-transform peer-checked:bg-blue-600 peer-checked:after:translate-x-5 peer-focus-visible:ring-2 peer-focus-visible:ring-blue-600 peer-focus-visible:ring-offset-2 peer-disabled:opacity-50"
+            />
+          </label>
+          <fieldset
+            class="divide-y divide-slate-100 rounded-xl border border-slate-200"
+          >
+            <legend
+              class="sr-only"
+            >
+              Read sections
+            </legend>
+            <div
+              class="px-4 py-4 sm:px-5"
+            >
+              <label
+                class="relative flex items-start justify-between gap-5"
+              >
+                <span
+                  class="min-w-0"
+                >
+                  <span
+                    class="block text-sm font-medium text-slate-950"
+                  >
+                    Read All groups
+                  </span>
+                  <span
+                    class="mt-1 block text-xs leading-5 text-slate-500"
+                  >
+                    Find groups and passengers, review passport details, extraction results and processing status.
+                  </span>
+                </span>
+                <input
+                  aria-label="Read All groups"
+                  checked=""
+                  class="peer absolute right-0 top-0.5 z-10 h-6 w-11 cursor-pointer opacity-0 disabled:cursor-not-allowed"
+                  role="switch"
+                  type="checkbox"
+                />
+                <span
+                  aria-hidden="true"
+                  class="pointer-events-none relative mt-0.5 h-6 w-11 shrink-0 rounded-full bg-slate-200 transition-colors after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:shadow-sm after:transition-transform peer-checked:bg-blue-600 peer-checked:after:translate-x-5 peer-focus-visible:ring-2 peer-focus-visible:ring-blue-600 peer-focus-visible:ring-offset-2 peer-disabled:opacity-50"
+                />
+              </label>
+            </div>
+            <div
+              class="px-4 py-4 sm:px-5"
+            >
+              <label
+                class="relative flex items-start justify-between gap-5"
+              >
+                <span
+                  class="min-w-0"
+                >
+                  <span
+                    class="block text-sm font-medium text-slate-950"
+                  >
+                    Read Group links
+                  </span>
+                  <span
+                    class="mt-1 block text-xs leading-5 text-slate-500"
+                  >
+                    View group link settings, collection fields, custom questions and linked broadcasts.
+                  </span>
+                </span>
+                <input
+                  aria-label="Read Group links"
+                  class="peer absolute right-0 top-0.5 z-10 h-6 w-11 cursor-pointer opacity-0 disabled:cursor-not-allowed"
+                  role="switch"
+                  type="checkbox"
+                />
+                <span
+                  aria-hidden="true"
+                  class="pointer-events-none relative mt-0.5 h-6 w-11 shrink-0 rounded-full bg-slate-200 transition-colors after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:shadow-sm after:transition-transform peer-checked:bg-blue-600 peer-checked:after:translate-x-5 peer-focus-visible:ring-2 peer-focus-visible:ring-blue-600 peer-focus-visible:ring-offset-2 peer-disabled:opacity-50"
+                />
+         ...
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ features/mcp/components/mcp-permissions.test.tsx:73:16
+     71|   fireEvent.click(await screen.findByRole("switch", { name: "Allow wri…
+     72|   fireEvent.click(screen.getByRole("button", { name: "Save permissions…
+     73|   await screen.findByText(/changed elsewhere/);
+       |                ^
+     74|   expect(screen.getByRole("button", { name: "Save permissions" })).toB…
+     75|   vi.mocked(mcpApi.permissions).mockResolvedValue(permissionFixture({ …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/16]⎯
+
+ FAIL  features/mcp/components/mcp-permissions.test.tsx > does not allow an old read-only connection to acquire new write scopes
+AssertionError: expected "vi.fn()" to be called with arguments: [ { id: 'windows-a', …(5) }, Anything ]
+
+Number of calls: 0
+
+
+Ignored nodes: comments, script, style
+<html>
+  <head />
+  <body>
+    <div>
+      <article
+        aria-label="Office Windows"
+        class="p-5"
+      >
+        <div
+          class="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)_auto] lg:items-center lg:gap-5"
+        >
+          <div
+            class="min-w-0"
+          >
+            <div
+              class="flex flex-wrap items-center gap-2"
+            >
+              <h3
+                class="break-words text-sm font-semibold text-slate-950"
+              >
+                Office Windows
+              </h3>
+              <span
+                class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium border bg-green-50 text-green-700 border-green-200"
+              >
+                Authorized
+              </span>
+            </div>
+            <p
+              class="mt-1 text-xs text-slate-500"
+            >
+              Windows
+            </p>
+            <p
+              class="mt-1 text-xs text-slate-500"
+            >
+              Read 
+              allowed
+               · Write 
+              off
+            </p>
+          </div>
+          <div
+            class="text-xs"
+          >
+            <p
+              class="text-slate-500 lg:sr-only"
+            >
+              Last used
+            </p>
+            <p
+              class="mt-1 text-slate-700"
+            >
+              Not used yet
+            </p>
+          </div>
+          <div
+            class="text-xs"
+          >
+            <p
+              class="text-slate-500 lg:sr-only"
+            >
+              Sign in again by
+            </p>
+            <p
+              class="mt-1 text-slate-700"
+            >
+              10 Oct 2026, 05:30
+            </p>
+          </div>
+          <div
+            class="flex min-w-28 flex-wrap items-center gap-1 lg:justify-end"
+          >
+            <button
+              aria-busy="false"
+              class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap bg-white text-slate-700 border border-slate-300 shadow-sm hover:bg-slate-50 active:bg-slate-100 h-8 px-3 text-xs rounded-md"
+            >
+              Disable
+            </button>
+            <button
+              aria-busy="false"
+              aria-expanded="true"
+              class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap text-slate-600 hover:bg-slate-100 hover:text-slate-900 active:bg-slate-200 h-8 px-3 text-xs rounded-md"
+            >
+              Manage
+            </button>
+            <button
+              aria-busy="false"
+              aria-haspopup="dialog"
+              class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap hover:bg-slate-100 active:bg-slate-200 h-8 px-3 text-xs rounded-md text-red-700 hover:text-red-800"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+        <section
+          aria-label="Device permission settings"
+          class="mt-5 space-y-5 border-t border-slate-200 pt-5"
+        >
+          <form
+            class="flex flex-col items-start gap-3 sm:flex-row sm:items-end"
+          >
+            <div
+              class="w-full min-w-0 sm:flex-1"
+            >
+              <div
+                class="flex flex-col gap-1.5"
+              >
+                <label
+                  class="text-sm font-medium text-slate-700"
+                  for="_r_2_"
+                >
+                  Connection name
+                  <span
+                    aria-hidden="true"
+                    class="ml-1 text-red-500"
+                  >
+                    *
+                  </span>
+                </label>
+                <div
+                  class="relative flex items-center"
+                >
+                  <input
+                    aria-invalid="false"
+                    class="w-full rounded-lg border bg-white text-slate-900 text-sm placeholder:text-slate-400 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent disabled:cursor-not-allowed disabled:bg-slate-50 disabled:opacity-60 border-slate-300 hover:border-slate-400 pl-3 pr-3 py-2 h-9"
+                    id="_r_2_"
+                    maxlength="120"
+                    required=""
+                    value="Office Windows"
+                  />
+                </div>
+              </div>
+            </div>
+            <button
+              aria-busy="false"
+              class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 ...
+ ❯ features/mcp/components/mcp-permissions.test.tsx:99:66
+     97|   fireEvent.click(screen.getByRole("switch", { name: "Allow read acces…
+     98|   fireEvent.click(screen.getByRole("button", { name: "Save access" }));
+     99|   await waitFor(() => expect(mcpApi.updateConnectionPermissions).toHav…
+       |                                                                  ^
+    100|     read_enabled: false, write_enabled: false, allowed_read_sections: …
+    101|   expect(mcpApi.updateConnection).not.toHaveBeenCalled();
+ ❯ runWithExpensiveErrorDiagnosticsDisabled node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/16]⎯
+
+ FAIL  features/mcp/components/mcp-permissions.test.tsx > saves independent device flags while retaining the original read limit and blocking other row actions during the request
+Error: expect(element).toBeDisabled()
+
+Received element is not disabled:
+  <button
+  aria-busy="false"
+  aria-haspopup="dialog"
+  class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap hover:bg-slate-100 active:bg-slate-200 h-8 px-3 text-xs rounded-md text-red-700 hover:text-red-800"
+/>
+
+Ignored nodes: comments, script, style
+<html>
+  <head />
+  <body>
+    <div>
+      <article
+        aria-label="Office Windows"
+        class="p-5"
+      >
+        <div
+          class="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)_auto] lg:items-center lg:gap-5"
+        >
+          <div
+            class="min-w-0"
+          >
+            <div
+              class="flex flex-wrap items-center gap-2"
+            >
+              <h3
+                class="break-words text-sm font-semibold text-slate-950"
+              >
+                Office Windows
+              </h3>
+              <span
+                class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium border bg-green-50 text-green-700 border-green-200"
+              >
+                Authorized
+              </span>
+            </div>
+            <p
+              class="mt-1 text-xs text-slate-500"
+            >
+              Windows
+            </p>
+            <p
+              class="mt-1 text-xs text-slate-500"
+            >
+              Read 
+              allowed
+               · Write 
+              off
+            </p>
+          </div>
+          <div
+            class="text-xs"
+          >
+            <p
+              class="text-slate-500 lg:sr-only"
+            >
+              Last used
+            </p>
+            <p
+              class="mt-1 text-slate-700"
+            >
+              Not used yet
+            </p>
+          </div>
+          <div
+            class="text-xs"
+          >
+            <p
+              class="text-slate-500 lg:sr-only"
+            >
+              Sign in again by
+            </p>
+            <p
+              class="mt-1 text-slate-700"
+            >
+              10 Oct 2026, 05:30
+            </p>
+          </div>
+          <div
+            class="flex min-w-28 flex-wrap items-center gap-1 lg:justify-end"
+          >
+            <button
+              aria-busy="false"
+              class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap bg-white text-slate-700 border border-slate-300 shadow-sm hover:bg-slate-50 active:bg-slate-100 h-8 px-3 text-xs rounded-md"
+            >
+              Disable
+            </button>
+            <button
+              aria-busy="false"
+              aria-expanded="true"
+              class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap text-slate-600 hover:bg-slate-100 hover:text-slate-900 active:bg-slate-200 h-8 px-3 text-xs rounded-md"
+            >
+              Manage
+            </button>
+            <button
+              aria-busy="false"
+              aria-haspopup="dialog"
+              class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap hover:bg-slate-100 active:bg-slate-200 h-8 px-3 text-xs rounded-md text-red-700 hover:text-red-800"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+        <section
+          aria-label="Device permission settings"
+          class="mt-5 space-y-5 border-t border-slate-200 pt-5"
+        >
+          <form
+            class="flex flex-col items-start gap-3 sm:flex-row sm:items-end"
+          >
+            <div
+              class="w-full min-w-0 sm:flex-1"
+            >
+              <div
+                class="flex flex-col gap-1.5"
+              >
+                <label
+                  class="text-sm font-medium text-slate-700"
+                  for="_r_5_"
+                >
+                  Connection name
+                  <span
+                    aria-hidden="true"
+                    class="ml-1 text-red-500"
+                  >
+                    *
+                  </span>
+                </label>
+                <div
+                  class="relative flex items-center"
+                >
+                  <input
+                    aria-invalid="false"
+                    class="w-full rounded-lg border bg-white text-slate-900 text-sm placeholder:text-slate-400 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent disabled:cursor-not-allowed disabled:bg-slate-50 disabled:opacity-60 border-slate-300 hover:border-slate-400 pl-3 pr-3 py-2 h-9"
+                    id="_r_5_"
+                    maxlength="120"
+                    required=""
+                    value="Office Windows"
+                  />
+                </div>
+              </div>
+            </div>
+            <button
+              aria-busy="false"
+              class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 ...
+ ❯ features/mcp/components/mcp-permissions.test.tsx:113:78
+    111|   fireEvent.click(screen.getByRole("switch", { name: "Allow write acce…
+    112|   fireEvent.click(screen.getByRole("button", { name: "Save access" }));
+    113|   await waitFor(() => expect(screen.getByRole("button", { name: "Delet…
+       |                                                                              ^
+    114|   expect(screen.getByRole("button", { name: "Disable" })).toBeDisabled…
+    115|   expect(screen.getByRole("button", { name: "Manage" })).toBeDisabled(…
+ ❯ runWithExpensiveErrorDiagnosticsDisabled node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/16]⎯
+
+ FAIL  features/mcp/components/mcp-permissions.test.tsx > requires new approval or a fresh revision after a device conflict rather than retrying automatically
+TestingLibraryElementError: Unable to find an element with the text: /Reconnect for write approval/. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <article
+      aria-label="Office Windows"
+      class="p-5"
+    >
+      <div
+        class="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)_auto] lg:items-center lg:gap-5"
+      >
+        <div
+          class="min-w-0"
+        >
+          <div
+            class="flex flex-wrap items-center gap-2"
+          >
+            <h3
+              class="break-words text-sm font-semibold text-slate-950"
+            >
+              Office Windows
+            </h3>
+            <span
+              class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium border bg-green-50 text-green-700 border-green-200"
+            >
+              Authorized
+            </span>
+          </div>
+          <p
+            class="mt-1 text-xs text-slate-500"
+          >
+            Windows
+          </p>
+          <p
+            class="mt-1 text-xs text-slate-500"
+          >
+            Read 
+            allowed
+             · Write 
+            off
+          </p>
+        </div>
+        <div
+          class="text-xs"
+        >
+          <p
+            class="text-slate-500 lg:sr-only"
+          >
+            Last used
+          </p>
+          <p
+            class="mt-1 text-slate-700"
+          >
+            Not used yet
+          </p>
+        </div>
+        <div
+          class="text-xs"
+        >
+          <p
+            class="text-slate-500 lg:sr-only"
+          >
+            Sign in again by
+          </p>
+          <p
+            class="mt-1 text-slate-700"
+          >
+            10 Oct 2026, 05:30
+          </p>
+        </div>
+        <div
+          class="flex min-w-28 flex-wrap items-center gap-1 lg:justify-end"
+        >
+          <button
+            aria-busy="false"
+            class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap bg-white text-slate-700 border border-slate-300 shadow-sm hover:bg-slate-50 active:bg-slate-100 h-8 px-3 text-xs rounded-md"
+          >
+            Disable
+          </button>
+          <button
+            aria-busy="false"
+            aria-expanded="true"
+            class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap text-slate-600 hover:bg-slate-100 hover:text-slate-900 active:bg-slate-200 h-8 px-3 text-xs rounded-md"
+          >
+            Manage
+          </button>
+          <button
+            aria-busy="false"
+            aria-haspopup="dialog"
+            class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap hover:bg-slate-100 active:bg-slate-200 h-8 px-3 text-xs rounded-md text-red-700 hover:text-red-800"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+      <section
+        aria-label="Device permission settings"
+        class="mt-5 space-y-5 border-t border-slate-200 pt-5"
+      >
+        <form
+          class="flex flex-col items-start gap-3 sm:flex-row sm:items-end"
+        >
+          <div
+            class="w-full min-w-0 sm:flex-1"
+          >
+            <div
+              class="flex flex-col gap-1.5"
+            >
+              <label
+                class="text-sm font-medium text-slate-700"
+                for="_r_8_"
+              >
+                Connection name
+                <span
+                  aria-hidden="true"
+                  class="ml-1 text-red-500"
+                >
+                  *
+                </span>
+              </label>
+              <div
+                class="relative flex items-center"
+              >
+                <input
+                  aria-invalid="false"
+                  class="w-full rounded-lg border bg-white text-slate-900 text-sm placeholder:text-slate-400 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent disabled:cursor-not-allowed disabled:bg-slate-50 disabled:opacity-60 border-slate-300 hover:border-slate-400 pl-3 pr-3 py-2 h-9"
+                  id="_r_8_"
+                  maxlength="120"
+                  required=""
+                  value="Office Windows"
+                />
+              </div>
+            </div>
+          </div>
+          <button
+            aria-busy="false"
+            class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap bg-white text-slate-700 border border-slate-300 shadow-sm hover:bg-slate-50 active:bg-slate-100 h-9 px-4 py-2"
+            disabled=""
+            type="submit"...
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <article
+      aria-label="Office Windows"
+      class="p-5"
+    >
+      <div
+        class="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)_auto] lg:items-center lg:gap-5"
+      >
+        <div
+          class="min-w-0"
+        >
+          <div
+            class="flex flex-wrap items-center gap-2"
+          >
+            <h3
+              class="break-words text-sm font-semibold text-slate-950"
+            >
+              Office Windows
+            </h3>
+            <span
+              class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium border bg-green-50 text-green-700 border-green-200"
+            >
+              Authorized
+            </span>
+          </div>
+          <p
+            class="mt-1 text-xs text-slate-500"
+          >
+            Windows
+          </p>
+          <p
+            class="mt-1 text-xs text-slate-500"
+          >
+            Read 
+            allowed
+             · Write 
+            off
+          </p>
+        </div>
+        <div
+          class="text-xs"
+        >
+          <p
+            class="text-slate-500 lg:sr-only"
+          >
+            Last used
+          </p>
+          <p
+            class="mt-1 text-slate-700"
+          >
+            Not used yet
+          </p>
+        </div>
+        <div
+          class="text-xs"
+        >
+          <p
+            class="text-slate-500 lg:sr-only"
+          >
+            Sign in again by
+          </p>
+          <p
+            class="mt-1 text-slate-700"
+          >
+            10 Oct 2026, 05:30
+          </p>
+        </div>
+        <div
+          class="flex min-w-28 flex-wrap items-center gap-1 lg:justify-end"
+        >
+          <button
+            aria-busy="false"
+            class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap bg-white text-slate-700 border border-slate-300 shadow-sm hover:bg-slate-50 active:bg-slate-100 h-8 px-3 text-xs rounded-md"
+          >
+            Disable
+          </button>
+          <button
+            aria-busy="false"
+            aria-expanded="true"
+            class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap text-slate-600 hover:bg-slate-100 hover:text-slate-900 active:bg-slate-200 h-8 px-3 text-xs rounded-md"
+          >
+            Manage
+          </button>
+          <button
+            aria-busy="false"
+            aria-haspopup="dialog"
+            class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap hover:bg-slate-100 active:bg-slate-200 h-8 px-3 text-xs rounded-md text-red-700 hover:text-red-800"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+      <section
+        aria-label="Device permission settings"
+        class="mt-5 space-y-5 border-t border-slate-200 pt-5"
+      >
+        <form
+          class="flex flex-col items-start gap-3 sm:flex-row sm:items-end"
+        >
+          <div
+            class="w-full min-w-0 sm:flex-1"
+          >
+            <div
+              class="flex flex-col gap-1.5"
+            >
+              <label
+                class="text-sm font-medium text-slate-700"
+                for="_r_8_"
+              >
+                Connection name
+                <span
+                  aria-hidden="true"
+                  class="ml-1 text-red-500"
+                >
+                  *
+                </span>
+              </label>
+              <div
+                class="relative flex items-center"
+              >
+                <input
+                  aria-invalid="false"
+                  class="w-full rounded-lg border bg-white text-slate-900 text-sm placeholder:text-slate-400 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent disabled:cursor-not-allowed disabled:bg-slate-50 disabled:opacity-60 border-slate-300 hover:border-slate-400 pl-3 pr-3 py-2 h-9"
+                  id="_r_8_"
+                  maxlength="120"
+                  required=""
+                  value="Office Windows"
+                />
+              </div>
+            </div>
+          </div>
+          <button
+            aria-busy="false"
+            class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap bg-white text-slate-700 border border-slate-300 shadow-sm hover:bg-slate-50 active:bg-slate-100 h-9 px-4 py-2"
+            disabled=""
+            type="submit"...
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ features/mcp/components/mcp-permissions.test.tsx:130:23
+    128|   fireEvent.click(screen.getByRole("switch", { name: "Allow write acce…
+    129|   fireEvent.click(screen.getByRole("button", { name: "Save access" }));
+    130|   expect(await screen.findByText(/Reconnect for write approval/)).toBe…
+       |                       ^
+    131|   expect(screen.getByRole("button", { name: "Save access" })).toBeDisa…
+    132|   expect(screen.getByRole("button", { name: "Reload connection" })).to…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/16]⎯
+
+ FAIL  features/mcp/components/mcp-requests.test.tsx > shows the matching code and reviews only currently permitted requested scopes
+AssertionError: expected "vi.fn()" to be called with arguments: [ { id: 'request-a', …(3) }, Anything ]
+
+Number of calls: 0
+
+
+Ignored nodes: comments, script, style
+<html>
+  <head />
+  <body>
+    <div>
+      <section
+        aria-label="MCP access requests"
+        class="space-y-5"
+      >
+        <div>
+          <h2
+            class="text-xl font-semibold tracking-tight text-slate-950"
+          >
+            Requests
+          </h2>
+          <p
+            class="mt-1 text-sm leading-6 text-slate-600"
+          >
+            Approve or reject new connections. The requester keeps their browser tab open while you review.
+          </p>
+        </div>
+        <div
+          class="rounded-xl border border-blue-100 bg-blue-50 px-5 py-4 text-sm leading-6 text-blue-950"
+        >
+          Compare the code below with the code on the requester's screen before approving. Approved connections will use your Global Connects account and the permissions you select.
+        </div>
+        <article
+          aria-label="Codex device"
+          class="rounded-xl border border-slate-200 bg-white p-5 sm:p-6"
+        >
+          <div
+            class="flex flex-col justify-between gap-4 sm:flex-row sm:items-start"
+          >
+            <div>
+              <div
+                class="flex flex-wrap items-center gap-2"
+              >
+                <h3
+                  class="text-base font-semibold text-slate-950"
+                >
+                  Codex device
+                </h3>
+                <span
+                  class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium border bg-transparent text-slate-600 border-slate-300"
+                >
+                  Pending
+                </span>
+              </div>
+              <p
+                class="mt-1 text-sm text-slate-500"
+              >
+                Codex
+                 · 
+                Windows
+              </p>
+              <p
+                class="mt-2 text-xs text-slate-500"
+              >
+                Requested 
+                02 Oct 2026, 05:30
+                 · Expires 
+                02 Oct 2026, 05:40
+              </p>
+            </div>
+            <div
+              class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3"
+            >
+              <p
+                class="text-xs font-medium text-slate-500"
+              >
+                Comparison code
+              </p>
+              <p
+                class="mt-1 font-mono text-xl font-semibold tracking-widest text-slate-950"
+              >
+                V8M-2QK
+              </p>
+            </div>
+          </div>
+          <div
+            class="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4"
+          >
+            <p
+              class="text-xs text-slate-500"
+            >
+              Requested: 
+              Look up information, Download reports
+            </p>
+            <div
+              class="flex gap-2"
+            >
+              <button
+                aria-busy="false"
+                class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap bg-white text-slate-700 border border-slate-300 shadow-sm hover:bg-slate-50 active:bg-slate-100 h-8 px-3 text-xs rounded-md"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-x h-4 w-4"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M18 6 6 18"
+                  />
+                  <path
+                    d="m6 6 12 12"
+                  />
+                </svg>
+                Reject
+              </button>
+              <button
+                aria-busy="false"
+                class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap bg-blue-600 text-white shadow-sm hover:bg-blue-700 active:bg-blue-800 h-8 px-3 text-xs rounded-md"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-check h-4 w-4"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M20 6 9 17l-5-5"
+                  />
+                </svg>
+                Approve
+              </button>
+            </div>
+          </div>
+          <form
+            class="mt-5 space-y-4 border-t border-slate-100 pt-5"
+          >
+            <div
+              class="grid gap-4 sm:grid-cols-2"
+            >
+              <div
+                class="flex flex-col gap-1.5"
+              >
+                <label
+                  class="text-sm font-medium text-slate-700"
+                  for="_r_2_"
+                >
+                  Device name
+                  <span
+                    aria-hidden="true"
+                    class="ml-1 text-red-500"
+                  >
+                    *
+                  </span>
+                </label>
+                <div
+                  class="relative flex items-center"
+                >
+                  <input
+                    aria-invalid="false"
+                    class="w-full rounded-lg border bg-white text-slate-900 text-sm placeholder:text-slate-400 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent disabled:cursor-not-allowed disabled:bg-slate-50 disabled:opacity-60 border-slate-300 hover:border-slate-400 pl-3 pr-3 py-2 h-9"
+                    id="_r_2_"
+                    maxlength="120"
+                    required=""
+                    value="  My MacBook  "
+                  />
+                </div>
+              </div>
+              <label
+                class="space-y-1.5 text-sm font-medium text-slate-700"
+              >
+                Platform
+                <select
+                  class="block min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-normal"
+                >
+                  <option>
+                    Windows
+                  </option>
+                  <option>
+                    macOS
+                  </option>
+                  <option>
+                    Other
+                  </option>
+                </select>
+              </label>
+            </div>
+            <fieldset
+              class="space-y-2"
+            >
+              <legend
+                class="mb-2 text-sm font-semibold text-slate-900"
+              >
+                What this connection can do
+              </legend>
+              <label
+                class="flex cursor-pointer items-start gap-3 rounded-lg border border-slate-200 p-3 text-sm has-checked:border-blue-300 has-checked:bg-blue-50/40"
+              >
+                <input
+                  checked=""
+                  class="mt-0.5 h-4 w-4 rounded border-slate-300 accent-blue-600"
+                  type="checkbox"
+                />
+                <span>
+                  <span
+                    class="block font-medium text-slate-900"
+                  >
+                    Look up information
+                  </span>
+                  <span
+                    class="mt-0.5 block text-xs leading-5 text-slate-500"
+                  >
+                    Find groups, check passenger details and see recorded activity.
+                  </span>
+                </span>
+              </label>
+            </fieldset>
+            <p
+              class="text-xs leading-5 text-slate-500"
+            >
+              Approve only after matching the comparison code. You may need to confirm your identity. The requester will finish connecting in their own browser.
+            </p>
+            <div
+              class="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800"
+              role="alert"
+            >
+              <p>
+                The signed-in account changed. Sign back in to the original account before retrying.
+              </p>
+            </div>
+            <div
+              class="flex flex-wrap justify-end gap-2"
+            >
+              <button
+                aria-busy="false"
+                class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap bg-white text-slate-700 border border-slate-300 shadow-sm hover:bg-slate-50 active:bg-slate-100 h-9 px-4 py-2"
+                type="button"
+              >
+                Cancel
+              </button>
+              <button
+                aria-busy="false"
+                class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap bg-blue-600 text-white shadow-sm hover:bg-blue-700 active:bg-blue-800 h-9 px-4 py-2"
+                type="submit"
+              >
+                Approve connection
+              </button>
+            </div>
+          </form>
+        </article>
+      </section>
+    </div>
+  </body>
+</html>
+ ❯ features/mcp/components/mcp-requests.test.tsx:39:53
+     37|   fireEvent.change(within(row).getByRole("combobox", { name: "Platform…
+     38|   fireEvent.click(within(row).getByRole("button", { name: "Approve con…
+     39|   await waitFor(() => expect(mcpApi.approveRequest).toHaveBeenCalledWi…
+       |                                                     ^
+     40|   expect(mcpApi.approveRequest).toHaveBeenCalledOnce();
+     41| });
+ ❯ runWithExpensiveErrorDiagnosticsDisabled node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/16]⎯
+
+ FAIL  features/mcp/components/mcp-requests.test.tsx > does not repeat a pending approval or claim success after cancelled identity confirmation
+Error: expect(element).toBeDisabled()
+
+Received element is not disabled:
+  <button
+  aria-busy="false"
+  class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap bg-blue-600 text-white shadow-sm hover:bg-blue-700 active:bg-blue-800 h-9 px-4 py-2"
+  type="submit"
+/>
+
+Ignored nodes: comments, script, style
+<html>
+  <head />
+  <body>
+    <div>
+      <section
+        aria-label="MCP access requests"
+        class="space-y-5"
+      >
+        <div>
+          <h2
+            class="text-xl font-semibold tracking-tight text-slate-950"
+          >
+            Requests
+          </h2>
+          <p
+            class="mt-1 text-sm leading-6 text-slate-600"
+          >
+            Approve or reject new connections. The requester keeps their browser tab open while you review.
+          </p>
+        </div>
+        <div
+          class="rounded-xl border border-blue-100 bg-blue-50 px-5 py-4 text-sm leading-6 text-blue-950"
+        >
+          Compare the code below with the code on the requester's screen before approving. Approved connections will use your Global Connects account and the permissions you select.
+        </div>
+        <article
+          aria-label="Codex device"
+          class="rounded-xl border border-slate-200 bg-white p-5 sm:p-6"
+        >
+          <div
+            class="flex flex-col justify-between gap-4 sm:flex-row sm:items-start"
+          >
+            <div>
+              <div
+                class="flex flex-wrap items-center gap-2"
+              >
+                <h3
+                  class="text-base font-semibold text-slate-950"
+                >
+                  Codex device
+                </h3>
+                <span
+                  class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium border bg-transparent text-slate-600 border-slate-300"
+                >
+                  Pending
+                </span>
+              </div>
+              <p
+                class="mt-1 text-sm text-slate-500"
+              >
+                Codex
+                 · 
+                Windows
+              </p>
+              <p
+                class="mt-2 text-xs text-slate-500"
+              >
+                Requested 
+                02 Oct 2026, 05:30
+                 · Expires 
+                02 Oct 2026, 05:40
+              </p>
+            </div>
+            <div
+              class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3"
+            >
+              <p
+                class="text-xs font-medium text-slate-500"
+              >
+                Comparison code
+              </p>
+              <p
+                class="mt-1 font-mono text-xl font-semibold tracking-widest text-slate-950"
+              >
+                V8M-2QK
+              </p>
+            </div>
+          </div>
+          <div
+            class="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4"
+          >
+            <p
+              class="text-xs text-slate-500"
+            >
+              Requested: 
+              Look up information, Download reports
+            </p>
+            <div
+              class="flex gap-2"
+            >
+              <button
+                aria-busy="false"
+                class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap bg-white text-slate-700 border border-slate-300 shadow-sm hover:bg-slate-50 active:bg-slate-100 h-8 px-3 text-xs rounded-md"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-x h-4 w-4"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M18 6 6 18"
+                  />
+                  <path
+                    d="m6 6 12 12"
+                  />
+                </svg>
+                Reject
+              </button>
+              <button
+                aria-busy="false"
+                class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap bg-blue-600 text-white shadow-sm hover:bg-blue-700 active:bg-blue-800 h-8 px-3 text-xs rounded-md"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-check h-4 w-4"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M20 6 9 17l-5-5"
+                  />
+                </svg>
+                Approve
+              </button>
+            </div>
+          </div>
+          <form
+            class="mt-5 space-y-4 border-t border-slate-100 pt-5"
+          >
+            <div
+              class="grid gap-4 sm:grid-cols-2"
+            >
+              <div
+                class="flex flex-col gap-1.5"
+              >
+                <label
+                  class="text-sm font-medium text-slate-700"
+                  for="_r_5_"
+                >
+                  Device name
+                  <span
+                    aria-hidden="true"
+                    class="ml-1 text-red-500"
+                  >
+                    *
+                  </span>
+                </label>
+                <div
+                  class="relative flex items-center"
+                >
+                  <input
+                    aria-invalid="false"
+                    class="w-full rounded-lg border bg-white text-slate-900 text-sm placeholder:text-slate-400 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent disabled:cursor-not-allowed disabled:bg-slate-50 disabled:opacity-60 border-slate-300 hover:border-slate-400 pl-3 pr-3 py-2 h-9"
+                    id="_r_5_"
+                    maxlength="120"
+                    required=""
+                    value="Codex device"
+                  />
+                </div>
+              </div>
+              <label
+                class="space-y-1.5 text-sm font-medium text-slate-700"
+              >
+                Platform
+                <select
+                  class="block min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-normal"
+                >
+                  <option>
+                    Windows
+                  </option>
+                  <option>
+                    macOS
+                  </option>
+                  <option>
+                    Other
+                  </option>
+                </select>
+              </label>
+            </div>
+            <fieldset
+              class="space-y-2"
+            >
+              <legend
+                class="mb-2 text-sm font-semibold text-slate-900"
+              >
+                What this connection can do
+              </legend>
+              <label
+                class="flex cursor-pointer items-start gap-3 rounded-lg border border-slate-200 p-3 text-sm has-checked:border-blue-300 has-checked:bg-blue-50/40"
+              >
+                <input
+                  checked=""
+                  class="mt-0.5 h-4 w-4 rounded border-slate-300 accent-blue-600"
+                  type="checkbox"
+                />
+                <span>
+                  <span
+                    class="block font-medium text-slate-900"
+                  >
+                    Look up information
+                  </span>
+                  <span
+                    class="mt-0.5 block text-xs leading-5 text-slate-500"
+                  >
+                    Find groups, check passenger details and see recorded activity.
+                  </span>
+                </span>
+              </label>
+            </fieldset>
+            <p
+              class="text-xs leading-5 text-slate-500"
+            >
+              Approve only after matching the comparison code. You may need to confirm your identity. The requester will finish connecting in their own browser.
+            </p>
+            <div
+              class="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800"
+              role="alert"
+            >
+              <p>
+                The signed-in account changed. Sign back in to the original account before retrying.
+              </p>
+            </div>
+            <div
+              class="flex flex-wrap justify-end gap-2"
+            >
+              <button
+                aria-busy="false"
+                class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap bg-white text-slate-700 border border-slate-300 shadow-sm hover:bg-slate-50 active:bg-slate-100 h-9 px-4 py-2"
+                type="button"
+              >
+                Cancel
+              </button>
+              <button
+                aria-busy="false"
+                class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap bg-blue-600 text-white shadow-sm hover:bg-blue-700 active:bg-blue-800 h-9 px-4 py-2"
+                type="submit"
+              >
+                Approve connection
+              </button>
+            </div>
+          </form>
+        </article>
+      </section>
+    </div>
+  </body>
+</html>
+ ❯ features/mcp/components/mcp-requests.test.tsx:49:95
+     47|   fireEvent.click(within(row).getByRole("button", { name: "Approve" })…
+     48|   fireEvent.click(within(row).getByRole("button", { name: "Approve con…
+     49|   await waitFor(() => expect(within(row).getByRole("button", { name: "…
+       |                                                                                               ^
+     50|   fireEvent.click(within(row).getByRole("button", { name: "Approve con…
+     51|   await act(async () => fail({ code: "STEP_UP_CANCELLED", message: "Id…
+ ❯ runWithExpensiveErrorDiagnosticsDisabled node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/16]⎯
+
+ FAIL  features/mcp/components/mcp-requests.test.tsx > requires deliberate rejection and shows the server decision after it succeeds
+TestingLibraryElementError: Unable to find an element with the text: Rejected. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body
+  style="overflow: hidden;"
+>
+  <div>
+    <section
+      aria-label="MCP access requests"
+      class="space-y-5"
+    >
+      <div
+        inert=""
+      >
+        <h2
+          class="text-xl font-semibold tracking-tight text-slate-950"
+        >
+          Requests
+        </h2>
+        <p
+          class="mt-1 text-sm leading-6 text-slate-600"
+        >
+          Approve or reject new connections. The requester keeps their browser tab open while you review.
+        </p>
+      </div>
+      <div
+        class="rounded-xl border border-blue-100 bg-blue-50 px-5 py-4 text-sm leading-6 text-blue-950"
+        inert=""
+      >
+        Compare the code below with the code on the requester's screen before approving. Approved connections will use your Global Connects account and the permissions you select.
+      </div>
+      <article
+        aria-label="Codex device"
+        class="rounded-xl border border-slate-200 bg-white p-5 sm:p-6"
+      >
+        <div
+          class="flex flex-col justify-between gap-4 sm:flex-row sm:items-start"
+          inert=""
+        >
+          <div>
+            <div
+              class="flex flex-wrap items-center gap-2"
+            >
+              <h3
+                class="text-base font-semibold text-slate-950"
+              >
+                Codex device
+              </h3>
+              <span
+                class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium border bg-transparent text-slate-600 border-slate-300"
+              >
+                Pending
+              </span>
+            </div>
+            <p
+              class="mt-1 text-sm text-slate-500"
+            >
+              Codex
+               · 
+              Windows
+            </p>
+            <p
+              class="mt-2 text-xs text-slate-500"
+            >
+              Requested 
+              02 Oct 2026, 05:30
+               · Expires 
+              02 Oct 2026, 05:40
+            </p>
+          </div>
+          <div
+            class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3"
+          >
+            <p
+              class="text-xs font-medium text-slate-500"
+            >
+              Comparison code
+            </p>
+            <p
+              class="mt-1 font-mono text-xl font-semibold tracking-widest text-slate-950"
+            >
+              V8M-2QK
+            </p>
+          </div>
+        </div>
+        <div
+          class="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4"
+          inert=""
+        >
+          <p
+            class="text-xs text-slate-500"
+          >
+            Requested: 
+            Look up information, Download reports
+          </p>
+          <div
+            class="flex gap-2"
+          >
+            <button
+              aria-busy="false"
+              class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap bg-white text-slate-700 border border-slate-300 shadow-sm hover:bg-slate-50 active:bg-slate-100 h-8 px-3 text-xs rounded-md"
+            >
+              <svg
+                aria-hidden="true"
+                class="lucide lucide-x h-4 w-4"
+                fill="none"
+                height="24"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M18 6 6 18"
+                />
+                <path
+                  d="m6 6 12 12"
+                />
+              </svg>
+              Reject
+            </button>
+            <button
+              aria-busy="false"
+              class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap bg-blue-600 text-white shadow-sm hover:bg-blue-700 active:bg-blue-800 h-8 px-3 text-xs rounded-md"
+            >
+              <svg
+                aria-hidden="true"
+                class="lucide lucide-check h-4 w-4"
+                fill="none"
+                height="24"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M20 6 9 17l-5-5"
+                />
+              </svg>
+              Approve
+            </button>
+          </div>
+        </div>
+        <div
+          class="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800"
+          role="alert"
+        >
+          <p>
+            The signed-in account changed. Sign back in to the original account before retrying.
+          </p>
+        </div>
+        <div
+          aria-describedby="_r_7_"
+          aria-labelledby="_r_6_"
+          aria-modal="true"
+          class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm"
+          role="dialog"
+        >
+          <div
+            class="w-full max-w-lg overflow-hidden rounded-xl bg-white shadow-2xl animate-in fade-in zoom-in-95 duration-200"
+          >
+            <div
+              class="flex items-start justify-between gap-4 border-b border-slate-100 px-6 py-4"
+            >
+              <div
+                class="flex items-start gap-3"
+              >
+                <span
+                  class="mt-0.5 text-red-600"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="lucide lucide-triangle-alert h-5 w-5"
+                    fill="none"
+                    height="24"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"
+                    />
+                    <path
+                      d="M12 9v4"
+                    />
+                    <path
+                      d="M12 17h.01"
+                    />
+                  </svg>
+                </span>
+                <div>
+                  <h2
+                    class="text-lg font-semibold text-slate-900"
+                    id="_r_6_"
+                  >
+                    Reject Codex device?
+                  </h2>
+                  <p
+                    class="mt-1 text-sm leading-6 text-slate-600"
+                    id="_r_7_"
+                  >
+                    The requester will be told that access was declined. This request will not create an approved device.
+                  </p>
+                </div>
+              </div>
+              <button
+                aria-label="Close dialog"
+                class="rounded-full p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-x h-5 w-5"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M18 6 6 18"
+                  />
+                  <path
+                    d="m6 6 12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+            <div
+              class="flex justify-end gap-3 px-6 py-4"
+            >
+              <button
+                aria-busy="false"
+                class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap bg-white text-slate-700 border border-slate-300 shadow-sm hover:bg-slate-50 active:bg-slate-100 h-9 px-4 py-2"
+                data-dialog-initial-focus="true"
+                type="button"
+              >
+                Cancel
+              </button>
+              <button
+                aria-busy="false"
+                class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap bg-red-600 text-white hover:bg-red-700 active:bg-red-800 h-9 px-4 py-2"
+                type="button"
+              >
+                Reject request
+              </button>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+  </div>
+</body>
+
+Ignored nodes: comments, script, style
+<body
+  style="overflow: hidden;"
+>
+  <div>
+    <section
+      aria-label="MCP access requests"
+      class="space-y-5"
+    >
+      <div
+        inert=""
+      >
+        <h2
+          class="text-xl font-semibold tracking-tight text-slate-950"
+        >
+          Requests
+        </h2>
+        <p
+          class="mt-1 text-sm leading-6 text-slate-600"
+        >
+          Approve or reject new connections. The requester keeps their browser tab open while you review.
+        </p>
+      </div>
+      <div
+        class="rounded-xl border border-blue-100 bg-blue-50 px-5 py-4 text-sm leading-6 text-blue-950"
+        inert=""
+      >
+        Compare the code below with the code on the requester's screen before approving. Approved connections will use your Global Connects account and the permissions you select.
+      </div>
+      <article
+        aria-label="Codex device"
+        class="rounded-xl border border-slate-200 bg-white p-5 sm:p-6"
+      >
+        <div
+          class="flex flex-col justify-between gap-4 sm:flex-row sm:items-start"
+          inert=""
+        >
+          <div>
+            <div
+              class="flex flex-wrap items-center gap-2"
+            >
+              <h3
+                class="text-base font-semibold text-slate-950"
+              >
+                Codex device
+              </h3>
+              <span
+                class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium border bg-transparent text-slate-600 border-slate-300"
+              >
+                Pending
+              </span>
+            </div>
+            <p
+              class="mt-1 text-sm text-slate-500"
+            >
+              Codex
+               · 
+              Windows
+            </p>
+            <p
+              class="mt-2 text-xs text-slate-500"
+            >
+              Requested 
+              02 Oct 2026, 05:30
+               · Expires 
+              02 Oct 2026, 05:40
+            </p>
+          </div>
+          <div
+            class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3"
+          >
+            <p
+              class="text-xs font-medium text-slate-500"
+            >
+              Comparison code
+            </p>
+            <p
+              class="mt-1 font-mono text-xl font-semibold tracking-widest text-slate-950"
+            >
+              V8M-2QK
+            </p>
+          </div>
+        </div>
+        <div
+          class="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4"
+          inert=""
+        >
+          <p
+            class="text-xs text-slate-500"
+          >
+            Requested: 
+            Look up information, Download reports
+          </p>
+          <div
+            class="flex gap-2"
+          >
+            <button
+              aria-busy="false"
+              class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap bg-white text-slate-700 border border-slate-300 shadow-sm hover:bg-slate-50 active:bg-slate-100 h-8 px-3 text-xs rounded-md"
+            >
+              <svg
+                aria-hidden="true"
+                class="lucide lucide-x h-4 w-4"
+                fill="none"
+                height="24"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M18 6 6 18"
+                />
+                <path
+                  d="m6 6 12 12"
+                />
+              </svg>
+              Reject
+            </button>
+            <button
+              aria-busy="false"
+              class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap bg-blue-600 text-white shadow-sm hover:bg-blue-700 active:bg-blue-800 h-8 px-3 text-xs rounded-md"
+            >
+              <svg
+                aria-hidden="true"
+                class="lucide lucide-check h-4 w-4"
+                fill="none"
+                height="24"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M20 6 9 17l-5-5"
+                />
+              </svg>
+              Approve
+            </button>
+          </div>
+        </div>
+        <div
+          class="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800"
+          role="alert"
+        >
+          <p>
+            The signed-in account changed. Sign back in to the original account before retrying.
+          </p>
+        </div>
+        <div
+          aria-describedby="_r_7_"
+          aria-labelledby="_r_6_"
+          aria-modal="true"
+          class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm"
+          role="dialog"
+        >
+          <div
+            class="w-full max-w-lg overflow-hidden rounded-xl bg-white shadow-2xl animate-in fade-in zoom-in-95 duration-200"
+          >
+            <div
+              class="flex items-start justify-between gap-4 border-b border-slate-100 px-6 py-4"
+            >
+              <div
+                class="flex items-start gap-3"
+              >
+                <span
+                  class="mt-0.5 text-red-600"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="lucide lucide-triangle-alert h-5 w-5"
+                    fill="none"
+                    height="24"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"
+                    />
+                    <path
+                      d="M12 9v4"
+                    />
+                    <path
+                      d="M12 17h.01"
+                    />
+                  </svg>
+                </span>
+                <div>
+                  <h2
+                    class="text-lg font-semibold text-slate-900"
+                    id="_r_6_"
+                  >
+                    Reject Codex device?
+                  </h2>
+                  <p
+                    class="mt-1 text-sm leading-6 text-slate-600"
+                    id="_r_7_"
+                  >
+                    The requester will be told that access was declined. This request will not create an approved device.
+                  </p>
+                </div>
+              </div>
+              <button
+                aria-label="Close dialog"
+                class="rounded-full p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-x h-5 w-5"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M18 6 6 18"
+                  />
+                  <path
+                    d="m6 6 12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+            <div
+              class="flex justify-end gap-3 px-6 py-4"
+            >
+              <button
+                aria-busy="false"
+                class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap bg-white text-slate-700 border border-slate-300 shadow-sm hover:bg-slate-50 active:bg-slate-100 h-9 px-4 py-2"
+                data-dialog-initial-focus="true"
+                type="button"
+              >
+                Cancel
+              </button>
+              <button
+                aria-busy="false"
+                class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap bg-red-600 text-white hover:bg-red-700 active:bg-red-800 h-9 px-4 py-2"
+                type="button"
+              >
+                Reject request
+              </button>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+  </div>
+</body>
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ features/mcp/components/mcp-requests.test.tsx:64:23
+     62|   expect(mcpApi.rejectRequest).not.toHaveBeenCalled();
+     63|   fireEvent.click(within(screen.getByRole("dialog")).getByRole("button…
+     64|   expect(await screen.findByText("Rejected", { exact: true })).toBeVis…
+       |                       ^
+     65|   expect(mcpApi.rejectRequest).toHaveBeenCalledWith(request.id, expect…
+     66| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/16]⎯
+
+ FAIL  features/mcp/components/mcp-requests.test.tsx > deliberately approves a newly requested write-capable envelope with write access initially off
+AssertionError: expected "vi.fn()" to be called with arguments: [ ObjectContaining{…}, Anything ]
+
+Number of calls: 0
+
+
+Ignored nodes: comments, script, style
+<html>
+  <head />
+  <body
+    style=""
+  >
+    <div>
+      <section
+        aria-label="MCP access requests"
+        class="space-y-5"
+      >
+        <div>
+          <h2
+            class="text-xl font-semibold tracking-tight text-slate-950"
+          >
+            Requests
+          </h2>
+          <p
+            class="mt-1 text-sm leading-6 text-slate-600"
+          >
+            Approve or reject new connections. The requester keeps their browser tab open while you review.
+          </p>
+        </div>
+        <div
+          class="rounded-xl border border-blue-100 bg-blue-50 px-5 py-4 text-sm leading-6 text-blue-950"
+        >
+          Compare the code below with the code on the requester's screen before approving. Approved connections will use your Global Connects account and the permissions you select.
+        </div>
+        <article
+          aria-label="Codex device"
+          class="rounded-xl border border-slate-200 bg-white p-5 sm:p-6"
+        >
+          <div
+            class="flex flex-col justify-between gap-4 sm:flex-row sm:items-start"
+          >
+            <div>
+              <div
+                class="flex flex-wrap items-center gap-2"
+              >
+                <h3
+                  class="text-base font-semibold text-slate-950"
+                >
+                  Codex device
+                </h3>
+                <span
+                  class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium border bg-transparent text-slate-600 border-slate-300"
+                >
+                  Pending
+                </span>
+              </div>
+              <p
+                class="mt-1 text-sm text-slate-500"
+              >
+                Codex
+                 · 
+                Windows
+              </p>
+              <p
+                class="mt-2 text-xs text-slate-500"
+              >
+                Requested 
+                02 Oct 2026, 05:30
+                 · Expires 
+                02 Oct 2026, 05:40
+              </p>
+            </div>
+            <div
+              class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3"
+            >
+              <p
+                class="text-xs font-medium text-slate-500"
+              >
+                Comparison code
+              </p>
+              <p
+                class="mt-1 font-mono text-xl font-semibold tracking-widest text-slate-950"
+              >
+                V8M-2QK
+              </p>
+            </div>
+          </div>
+          <div
+            class="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4"
+          >
+            <p
+              class="text-xs text-slate-500"
+            >
+              Requested: 
+              Look up information, Download reports
+            </p>
+            <div
+              class="flex gap-2"
+            >
+              <button
+                aria-busy="false"
+                class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap bg-white text-slate-700 border border-slate-300 shadow-sm hover:bg-slate-50 active:bg-slate-100 h-8 px-3 text-xs rounded-md"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-x h-4 w-4"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M18 6 6 18"
+                  />
+                  <path
+                    d="m6 6 12 12"
+                  />
+                </svg>
+                Reject
+              </button>
+              <button
+                aria-busy="false"
+                class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap bg-blue-600 text-white shadow-sm hover:bg-blue-700 active:bg-blue-800 h-8 px-3 text-xs rounded-md"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-check h-4 w-4"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M20 6 9 17l-5-5"
+                  />
+                </svg>
+                Approve
+              </button>
+     ...
+ ❯ features/mcp/components/mcp-requests.test.tsx:106:53
+    104|   expect(screen.getByRole("switch", { name: "Allow write access" })).n…
+    105|   fireEvent.click(screen.getByRole("button", { name: "Approve connecti…
+    106|   await waitFor(() => expect(mcpApi.approveRequest).toHaveBeenCalledWi…
+       |                                                     ^
+    107|     read_enabled: true, write_enabled: false, allowed_read_sections: n…
+    108| });
+ ❯ runWithExpensiveErrorDiagnosticsDisabled node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/16]⎯
+
+ FAIL  features/mcp/components/mcp-requests.test.tsx > allows deliberate narrower write approval without granting scopes absent from the request
+AssertionError: expected "vi.fn()" to be called with arguments: [ ObjectContaining{…}, Anything ]
+
+Number of calls: 0
+
+
+Ignored nodes: comments, script, style
+<html>
+  <head />
+  <body
+    style=""
+  >
+    <div>
+      <section
+        aria-label="MCP access requests"
+        class="space-y-5"
+      >
+        <div>
+          <h2
+            class="text-xl font-semibold tracking-tight text-slate-950"
+          >
+            Requests
+          </h2>
+          <p
+            class="mt-1 text-sm leading-6 text-slate-600"
+          >
+            Approve or reject new connections. The requester keeps their browser tab open while you review.
+          </p>
+        </div>
+        <div
+          class="rounded-xl border border-blue-100 bg-blue-50 px-5 py-4 text-sm leading-6 text-blue-950"
+        >
+          Compare the code below with the code on the requester's screen before approving. Approved connections will use your Global Connects account and the permissions you select.
+        </div>
+        <article
+          aria-label="Codex device"
+          class="rounded-xl border border-slate-200 bg-white p-5 sm:p-6"
+        >
+          <div
+            class="flex flex-col justify-between gap-4 sm:flex-row sm:items-start"
+          >
+            <div>
+              <div
+                class="flex flex-wrap items-center gap-2"
+              >
+                <h3
+                  class="text-base font-semibold text-slate-950"
+                >
+                  Codex device
+                </h3>
+                <span
+                  class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium border bg-transparent text-slate-600 border-slate-300"
+                >
+                  Pending
+                </span>
+              </div>
+              <p
+                class="mt-1 text-sm text-slate-500"
+              >
+                Codex
+                 · 
+                Windows
+              </p>
+              <p
+                class="mt-2 text-xs text-slate-500"
+              >
+                Requested 
+                02 Oct 2026, 05:30
+                 · Expires 
+                02 Oct 2026, 05:40
+              </p>
+            </div>
+            <div
+              class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3"
+            >
+              <p
+                class="text-xs font-medium text-slate-500"
+              >
+                Comparison code
+              </p>
+              <p
+                class="mt-1 font-mono text-xl font-semibold tracking-widest text-slate-950"
+              >
+                V8M-2QK
+              </p>
+            </div>
+          </div>
+          <div
+            class="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4"
+          >
+            <p
+              class="text-xs text-slate-500"
+            >
+              Requested: 
+              Look up information, Download reports
+            </p>
+            <div
+              class="flex gap-2"
+            >
+              <button
+                aria-busy="false"
+                class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap bg-white text-slate-700 border border-slate-300 shadow-sm hover:bg-slate-50 active:bg-slate-100 h-8 px-3 text-xs rounded-md"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-x h-4 w-4"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M18 6 6 18"
+                  />
+                  <path
+                    d="m6 6 12 12"
+                  />
+                </svg>
+                Reject
+              </button>
+              <button
+                aria-busy="false"
+                class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap bg-blue-600 text-white shadow-sm hover:bg-blue-700 active:bg-blue-800 h-8 px-3 text-xs rounded-md"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-check h-4 w-4"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M20 6 9 17l-5-5"
+                  />
+                </svg>
+                Approve
+              </button>
+     ...
+ ❯ features/mcp/components/mcp-requests.test.tsx:119:53
+    117|   fireEvent.click(screen.getByRole("switch", { name: "Write All groups…
+    118|   fireEvent.click(screen.getByRole("button", { name: "Approve connecti…
+    119|   await waitFor(() => expect(mcpApi.approveRequest).toHaveBeenCalledWi…
+       |                                                     ^
+    120|     read_enabled: true, write_enabled: true, allowed_read_sections: nu…
+    121| });
+ ❯ runWithExpensiveErrorDiagnosticsDisabled node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/16]⎯
+
+
+ Test Files  3 failed | 15 passed (18)
+      Tests  16 failed | 187 passed (203)
+   Start at  00:54:55
+   Duration  35.43s (transform 508ms, setup 2.25s, import 2.24s, tests 20.72s, environment 8.72s)
+

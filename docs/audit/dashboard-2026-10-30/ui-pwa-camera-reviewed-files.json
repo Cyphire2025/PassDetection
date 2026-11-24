@@ -1,0 +1,146 @@
+[
+  {
+    "path": "frontend/public/offline-scanner.js",
+    "sha256": "458389ca4811ee4186ab14f3d00039100a7d8264b68d7a99a8bcbe31232896d9",
+    "physical_lines": 1267,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full current physical source read/authored and checked against original workflow; focused test evidence in ui-pwa-camera-verification.json."
+  },
+  {
+    "path": "frontend/public/sw.js",
+    "sha256": "6f4b65d8a241cbda5191f3eb07999f47709993361f1d244222bc0f5d417c9ea0",
+    "physical_lines": 121,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full current physical source read/authored and checked against original workflow; focused test evidence in ui-pwa-camera-verification.json."
+  },
+  {
+    "path": "frontend/features/search/components/global-search.tsx",
+    "sha256": "ccf20a1f30789869a1aff1c304db2846079d367b8744b0032a951a75fde9095c",
+    "physical_lines": 281,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full current physical source read/authored and checked against original workflow; focused test evidence in ui-pwa-camera-verification.json."
+  },
+  {
+    "path": "frontend/features/dashboard/components/dashboard-overview.tsx",
+    "sha256": "ee7daaf92eebe269202737628cb8151f9673a0cfbd8a2dc16066cf0634d24bfe",
+    "physical_lines": 274,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full current physical source read/authored and checked against original workflow; focused test evidence in ui-pwa-camera-verification.json."
+  },
+  {
+    "path": "frontend/features/notifications/components/notification-bell.tsx",
+    "sha256": "c548db6041eb2ffc349d1fcdb2e4c33f648d67861b9c8ff5b1d0c4e42999892d",
+    "physical_lines": 66,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full current physical source read/authored and checked against original workflow; focused test evidence in ui-pwa-camera-verification.json."
+  },
+  {
+    "path": "frontend/features/notifications/components/notification-panel.tsx",
+    "sha256": "8125bf458b2ccca4dcc6d9ff73e7b177c9d62fb460acc404ecf886dee67b1f0b",
+    "physical_lines": 238,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full current physical source read/authored and checked against original workflow; focused test evidence in ui-pwa-camera-verification.json."
+  },
+  {
+    "path": "frontend/features/notifications/components/notification-row.tsx",
+    "sha256": "4d0ee94cce8f31042f2b21f77c2afb3df9db44c181f745baa032f36521f9bddc",
+    "physical_lines": 141,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full current physical source read/authored and checked against original workflow; focused test evidence in ui-pwa-camera-verification.json."
+  },
+  {
+    "path": "frontend/features/notifications/hooks/use-notification-center.ts",
+    "sha256": "87e05d1a207ef5ced043c9822195b0b0e26f5362dafd79ec5b56a0097010d7b9",
+    "physical_lines": 23,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full current physical source read/authored and checked against original workflow; focused test evidence in ui-pwa-camera-verification.json."
+  },
+  {
+    "path": "frontend/features/upload/components/smart-camera.tsx",
+    "sha256": "ab15b876d074224e5656330971dda54991acc688e7dfdceb8ae3473b1e6257a7",
+    "physical_lines": 9,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full current physical source read/authored and checked against original workflow; focused test evidence in ui-pwa-camera-verification.json."
+  },
+  {
+    "path": "frontend/features/upload/components/passport-camera.types.ts",
+    "sha256": "c9f38f008c6f17f58920ee4b771c6a218d9e9de18fd148aee8e73b6ca1e2df83",
+    "physical_lines": 11,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full current physical source read/authored and checked against original workflow; focused test evidence in ui-pwa-camera-verification.json."
+  },
+  {
+    "path": "frontend/features/upload/components/passport-camera-view.tsx",
+    "sha256": "7de034eeff03615f76ad98a66afa8bb600d4d1c2bc37ac9275c3b8e6762ba4d0",
+    "physical_lines": 134,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full current physical source read/authored and checked against original workflow; focused test evidence in ui-pwa-camera-verification.json."
+  },
+  {
+    "path": "frontend/features/upload/components/passport-camera-footer.tsx",
+    "sha256": "e5d0685b0b740689267079829ee230302fbfd15bbe820290413ae7b0216acbe4",
+    "physical_lines": 109,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full current physical source read/authored and checked against original workflow; focused test evidence in ui-pwa-camera-verification.json."
+  },
+  {
+    "path": "frontend/features/upload/hooks/use-passport-camera.ts",
+    "sha256": "42b9b3bd336a7b4cfa9b8702e83bf85f7e3783b64efefaf12542bb80902e5b6e",
+    "physical_lines": 264,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full current physical source read/authored and checked against original workflow; focused test evidence in ui-pwa-camera-verification.json."
+  },
+  {
+    "path": "frontend/features/upload/hooks/use-passport-camera-session.ts",
+    "sha256": "d11a1bb00f0a907c61fba4e2f2c8e6f8db520f3859884ba531f8183449736cdf",
+    "physical_lines": 136,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full current physical source read/authored and checked against original workflow; focused test evidence in ui-pwa-camera-verification.json."
+  },
+  {
+    "path": "frontend/features/upload/services/passport-camera-crop.ts",
+    "sha256": "948dc40e76c377761b2e73961a73d0edd7c05ff9c001772c1f5dbe239bc542f9",
+    "physical_lines": 67,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full current physical source read/authored and checked against original workflow; focused test evidence in ui-pwa-camera-verification.json."
+  },
+  {
+    "path": "frontend/features/upload/services/passport-camera-guidance.ts",
+    "sha256": "8658ebb6f39280fbbdfced196d9ed71f19b6576953e6bd3b26e3c3a0360008c6",
+    "physical_lines": 37,
+    "reviewer": "branding_visuals",
+    "review_scope": "full",
+    "status": "reviewed",
+    "notes": "Full current physical source read/authored and checked against original workflow; focused test evidence in ui-pwa-camera-verification.json."
+  }
+]

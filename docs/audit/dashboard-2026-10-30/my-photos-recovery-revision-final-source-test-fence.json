@@ -1,0 +1,53 @@
+{
+  "pytest_exit_code": 0,
+  "prior_checkpoint": "my-photos-recovery-revision-source-test-fence.json",
+  "all15runtime_owner_hashes_unchanged_before_coverage_append": true,
+  "changed_test_files": [
+    "backend/tests/integration/test_my_photos_recovery_dispatch_bounds.py",
+    "backend/tests/unit/infrastructure/test_my_photos_recovery_native_lifetime.py"
+  ],
+  "test_change_basis": "Original assertions retained; shared deletion fixture preparation extracted and two ordinary retry cases added; two typed-provider failure controls added. Those7preceding cases re-exercised alongside8new checkpoint/metadata/retry/provider cases. Onlyunchanged runtime line/arcs reused.",
+  "command": [
+    "-q",
+    "-o",
+    "addopts=",
+    "--cov",
+    "--cov-config=../.tmp/my-photos-recovery.coveragerc",
+    "--cov-append",
+    "--cov-report=json:../docs/audit/dashboard-2026-10-30/my-photos-recovery-revision-final-coverage.json",
+    "--cov-report=xml:../docs/audit/dashboard-2026-10-30/my-photos-recovery-revision-final-coverage.xml",
+    "--cov-report=",
+    "tests/integration/test_my_photos_recovery_dispatch_bounds.py",
+    "tests/unit/infrastructure/test_my_photos_recovery_native_lifetime.py",
+    "tests/unit/infrastructure/test_my_photos_recovery_owner_compatibility.py",
+    "tests/integration/test_my_photos_refresh_checkpoint.py"
+  ],
+  "sha256": {
+    "backend/app/infrastructure/my_photos/recovery_contracts.py": "d037566eef9b6b427de95afc1f1976d40d7a71216da23a77dfdde6bb0aeaf948",
+    "backend/app/infrastructure/my_photos/recovery_deletion_claims.py": "311a11102a96d5ecb0795c2e39e71015eb7d924555ab701d431e5ebb5d6584b6",
+    "backend/app/infrastructure/my_photos/recovery_deletion_policy.py": "d86945b7fa3042e484a11fedafade9aa4345c068cc339111368879c6a6f0c510",
+    "backend/app/infrastructure/my_photos/recovery_deletion_results.py": "54d36f744992a3f453f0a5b30e750e4ab5ec1541dae2ab18409deb582f602ab6",
+    "backend/app/infrastructure/my_photos/recovery_dispatch.py": "4cb0782b1a4b73bb9571224bacc500e4ae2600d635081984f9c30ed26ff6bf55",
+    "backend/app/infrastructure/my_photos/recovery_runtime.py": "f8cce11b8425da1e2477171056aaa6d36a6cd8bd46264687bfce28df3c40f039",
+    "backend/app/infrastructure/my_photos/revision_contracts.py": "ef11937ab13464689f76279f70ea3ae6d3eb975255ae530c05d0fb76c9cb8f5d",
+    "backend/app/infrastructure/my_photos/revision_policy.py": "e36496eb03da944383505621b8bf014224153da892237f81b4ece5d019b475f1",
+    "backend/app/infrastructure/my_photos/revision_publication.py": "4231360e46b2c036ae69723e64b00d1674faa1e4a6d8b2732783c622d0ed72fe",
+    "backend/app/infrastructure/my_photos/revision_refresh.py": "f11efdcc61935d884f7219e1eaa8710dcdf09650868759a298e500d82fafa42c",
+    "backend/app/infrastructure/my_photos/revision_runtime.py": "152f40b2a0cb17c02a429aaa7748b2f017d55aca19536e40293724d14f02d557",
+    "backend/app/infrastructure/my_photos/summary_counts.py": "767294893570227fdfc8c69fea3ba0fde042ec6b4decd52d12631236fb40b9d4",
+    "backend/app/infrastructure/my_photos/summary_projector.py": "3af212f0e352bb194a5ebe90257fb33211d9d83fcad44282ea316715f8dcc8e1",
+    "backend/app/infrastructure/my_photos/summary_responses.py": "6b0b2302b34058b9ff34b4de3a0532184c63f88179ecdfe7a47b588f8d5124fb",
+    "backend/app/infrastructure/my_photos/summary_state.py": "03d083cc4f4fd2d15d87d4620850bddee2ca13b379a935ff007978a352690758",
+    "backend/tests/integration/test_my_photos_refresh_authority.py": "af5f8655e992583aa285d44b01fcab51a13c2b8ec3590722881d681dbbd49b26",
+    "backend/tests/integration/test_my_photos_recovery_lock_order.py": "b80cf44801e98e295eba13ceb76d18e935d60ab432d355944ed49148c67ea5ce",
+    "backend/tests/integration/test_my_photos_recovery_claim_fencing.py": "3aff2d8838be88552f70c36f7949ca32c5c7c21ce38a874feca13e825036559a",
+    "backend/tests/integration/test_my_photos_recovery_dispatch_bounds.py": "a44966454802f598c974668ca8cadd204b97816e7910d5d9a993a5c203ce866a",
+    "backend/tests/integration/test_my_photos_operational_dispatch.py": "fbbf030d0590c0b7b12dcba3a57a319541968d9cbd369badda9774eab2e0632a",
+    "backend/tests/integration/test_my_photos_index_checkpoint_recovery.py": "7ec0b5e66a50663a970ab4b673cc6a1f738b378715a6343d88a345008f73930d",
+    "backend/tests/unit/infrastructure/test_my_photos_recovery_native_lifetime.py": "ea6453450bfba4f7caeffefde163a5e0431a40b506546c2241866d8e81d9398c",
+    "backend/tests/unit/infrastructure/test_my_photos_summary_projection.py": "e2768b4a72c5339fd352527a75338ff76dd2b92f38d7ba2886187d518f2fffed",
+    "backend/tests/unit/infrastructure/test_my_photos_contracts.py": "5eba6233ab282377aa29b358f23efbbc671563aaf77e022f4dda1696ae28f813",
+    "backend/tests/unit/infrastructure/test_my_photos_recovery_owner_compatibility.py": "343487d861980aa55e051445fbdc34f9740ac9e210894e3c477d3977b2924524",
+    "backend/tests/integration/test_my_photos_refresh_checkpoint.py": "dd8249160d3c4346981ce06dd20ec50dea33c88d6e4f3919ddab9a8b38f20ba6"
+  }
+}

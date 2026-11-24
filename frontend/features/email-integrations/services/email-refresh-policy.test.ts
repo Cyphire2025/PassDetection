@@ -1,8 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  EMAIL_REPAIR_PAGE_BUDGET,
-  emailRepairIntervalMs,
-} from "./email-refresh-policy";
+import { emailRepairIntervalMs } from "./email-refresh-policy";
 
 describe("email repair refresh policy", () => {
   it("does not poll a hidden document", () => {
@@ -20,7 +17,4 @@ describe("email repair refresh policy", () => {
     expect(emailRepairIntervalMs({ active: true, visible: true, random: () => 1 })).toBe(10_000);
   });
 
-  it("bounds retained operational inbox pages", () => {
-    expect(EMAIL_REPAIR_PAGE_BUDGET).toBe(5);
-  });
 });

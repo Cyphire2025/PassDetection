@@ -1,0 +1,22 @@
+{
+  "immutable_original": "image-library-followups.json",
+  "statuses": [
+    {
+      "id": "image-crash-reconciliation",
+      "status": "in-progress",
+      "owner": "ai_extraction",
+      "basis": "Actual20durablekey-column closure and pre-fix orphan failures; final implementation/evidence pending."
+    },
+    {
+      "id": "sibling-image-mutation-boundaries",
+      "status": "fixed-in-local-qualified-scope",
+      "basis": "passport-image-family-verification.json174cases, retained24included, all13routecontracts+sharedlockedsourcepolicy proof. No live PostgreSQL deadlock claim."
+    },
+    {
+      "id": "image-native-render-lifetime",
+      "status": "candidate-cleared-existing-invariant",
+      "basis": "native-image-followup-verification.json; actual decorated entrypoints and1real kernel cancellation control. No runtime change needed."
+    }
+  ],
+  "final_combined_application_qualification": "pending remaining repository work"
+}

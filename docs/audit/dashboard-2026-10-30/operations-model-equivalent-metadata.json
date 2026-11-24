@@ -1,0 +1,2696 @@
+{
+  "all_mapper_class_table_identities": [
+    [
+      "AgencyModel",
+      "agencies"
+    ],
+    [
+      "AttendanceCloseoutCheckpointModel",
+      "attendance_closeout_checkpoints"
+    ],
+    [
+      "AttendanceDiscardTombstoneModel",
+      "attendance_discard_tombstones"
+    ],
+    [
+      "AttendanceRecordModel",
+      "attendance_records"
+    ],
+    [
+      "AttendanceRuntimeRegistrationModel",
+      "attendance_runtime_registrations"
+    ],
+    [
+      "AttendanceScanBatchModel",
+      "attendance_scan_batches"
+    ],
+    [
+      "AttendanceScanBatchResultModel",
+      "attendance_scan_batch_results"
+    ],
+    [
+      "AttendanceSessionModel",
+      "attendance_sessions"
+    ],
+    [
+      "AttendanceSessionRuntimeParticipantModel",
+      "attendance_session_runtime_participants"
+    ],
+    [
+      "AuditChainHeadModel",
+      "audit_chain_heads"
+    ],
+    [
+      "AuditLogModel",
+      "audit_logs"
+    ],
+    [
+      "ClientGroupModel",
+      "client_groups"
+    ],
+    [
+      "ClientGroupWhatsAppBroadcastLinkModel",
+      "client_group_whatsapp_broadcast_links"
+    ],
+    [
+      "ClientManagerGroupAssignmentModel",
+      "client_manager_group_assignments"
+    ],
+    [
+      "ClientManagerProfileModel",
+      "client_manager_profiles"
+    ],
+    [
+      "ClientOrganizationModel",
+      "client_organizations"
+    ],
+    [
+      "CompanyDataExportJobModel",
+      "company_data_export_jobs"
+    ],
+    [
+      "CompanyDataExportPartModel",
+      "company_data_export_parts"
+    ],
+    [
+      "CompanyDirectoryGroupCountModel",
+      "company_directory_group_counts"
+    ],
+    [
+      "CompanyDirectoryPersonModel",
+      "company_directory_people"
+    ],
+    [
+      "CompanyDirectoryPrefixModel",
+      "company_directory_prefixes"
+    ],
+    [
+      "CompanyDirectoryQueueModel",
+      "company_directory_queue"
+    ],
+    [
+      "CompanyDirectoryStateModel",
+      "company_directory_states"
+    ],
+    [
+      "CoordinatorAssignmentModel",
+      "coordinator_assignments"
+    ],
+    [
+      "CoordinatorGroupAssignmentModel",
+      "coordinator_group_assignments"
+    ],
+    [
+      "DashboardAuthChallengeModel",
+      "dashboard_auth_challenges"
+    ],
+    [
+      "DashboardSessionModel",
+      "dashboard_sessions"
+    ],
+    [
+      "DistributedDocumentModel",
+      "distributed_documents"
+    ],
+    [
+      "DocumentDistributionBatchModel",
+      "document_distribution_batches"
+    ],
+    [
+      "DocumentRenameBatchModel",
+      "document_rename_batches"
+    ],
+    [
+      "DocumentRenameItemModel",
+      "document_rename_items"
+    ],
+    [
+      "DocumentUploadChunkModel",
+      "document_upload_chunks"
+    ],
+    [
+      "DocumentWhatsAppDeliveryModel",
+      "document_whatsapp_deliveries"
+    ],
+    [
+      "EcrBatchModel",
+      "ecr_batches"
+    ],
+    [
+      "EcrItemModel",
+      "ecr_items"
+    ],
+    [
+      "EmailActionProposalModel",
+      "email_action_proposals"
+    ],
+    [
+      "EmailActivityEventModel",
+      "email_activity_events"
+    ],
+    [
+      "EmailAiAnalysisModel",
+      "email_ai_analyses"
+    ],
+    [
+      "EmailAiFeedbackModel",
+      "email_ai_feedback"
+    ],
+    [
+      "EmailAiRolloutPolicyModel",
+      "email_ai_rollout_policies"
+    ],
+    [
+      "EmailArtifactDocumentModel",
+      "email_artifact_documents"
+    ],
+    [
+      "EmailArtifactModel",
+      "email_artifacts"
+    ],
+    [
+      "EmailConnectionModel",
+      "email_connections"
+    ],
+    [
+      "EmailDetectedDeadlineModel",
+      "email_detected_deadlines"
+    ],
+    [
+      "EmailMessageModel",
+      "email_messages"
+    ],
+    [
+      "EmailOAuthStateModel",
+      "email_oauth_states"
+    ],
+    [
+      "EmailReplyDraftModel",
+      "email_reply_drafts"
+    ],
+    [
+      "EmailReviewItemModel",
+      "email_review_items"
+    ],
+    [
+      "GCAnnouncementModel",
+      "gc_announcements"
+    ],
+    [
+      "GCCommonDocumentModel",
+      "gc_common_documents"
+    ],
+    [
+      "GCGroupAccessModel",
+      "gc_group_access"
+    ],
+    [
+      "GCItineraryDayModel",
+      "gc_itinerary_days"
+    ],
+    [
+      "GCItineraryItemModel",
+      "gc_itinerary_items"
+    ],
+    [
+      "GCItineraryVersionModel",
+      "gc_itinerary_versions"
+    ],
+    [
+      "GCNotificationBatchModel",
+      "gc_notification_batches"
+    ],
+    [
+      "GCNotificationDraftModel",
+      "gc_notification_drafts"
+    ],
+    [
+      "GCNotificationRecipientGrantModel",
+      "gc_notification_recipient_grants"
+    ],
+    [
+      "GCNotificationRecipientModel",
+      "gc_notification_recipients"
+    ],
+    [
+      "IdentityActionTokenModel",
+      "identity_action_tokens"
+    ],
+    [
+      "IdentityNotificationOutboxModel",
+      "identity_notification_outbox"
+    ],
+    [
+      "MCPArtifactAccessModel",
+      "mcp_artifact_access"
+    ],
+    [
+      "MCPArtifactModel",
+      "mcp_artifacts"
+    ],
+    [
+      "MCPAuthorizationCodeModel",
+      "mcp_authorization_codes"
+    ],
+    [
+      "MCPConnectionRequestModel",
+      "mcp_connection_requests"
+    ],
+    [
+      "MCPContactImportUploadModel",
+      "mcp_contact_import_uploads"
+    ],
+    [
+      "MCPControlModel",
+      "mcp_control"
+    ],
+    [
+      "MCPDocumentDeliveryOutboxModel",
+      "mcp_document_delivery_outbox"
+    ],
+    [
+      "MCPDocumentDeliveryPlanModel",
+      "mcp_document_delivery_plans"
+    ],
+    [
+      "MCPGCPushOriginModel",
+      "mcp_gc_push_origins"
+    ],
+    [
+      "MCPGCPushPlanModel",
+      "mcp_gc_push_plans"
+    ],
+    [
+      "MCPGrantModel",
+      "mcp_grants"
+    ],
+    [
+      "MCPNativeTransferModel",
+      "mcp_native_transfers"
+    ],
+    [
+      "MCPOperationModel",
+      "mcp_operations"
+    ],
+    [
+      "MCPRecordRevisionModel",
+      "mcp_record_revisions"
+    ],
+    [
+      "MCPTokenModel",
+      "mcp_tokens"
+    ],
+    [
+      "MCPWhatsAppHeaderAccessModel",
+      "mcp_whatsapp_header_access"
+    ],
+    [
+      "MCPWhatsAppHeaderMediaModel",
+      "mcp_whatsapp_header_media"
+    ],
+    [
+      "MCPWhatsAppOutboxModel",
+      "mcp_whatsapp_outbox"
+    ],
+    [
+      "MCPWhatsAppPlanModel",
+      "mcp_whatsapp_plans"
+    ],
+    [
+      "MFARecoveryCodeModel",
+      "mfa_recovery_codes"
+    ],
+    [
+      "ManagerGroupAccessModel",
+      "manager_group_access"
+    ],
+    [
+      "MealPlanEntryModel",
+      "meal_plan_entries"
+    ],
+    [
+      "MealPlanModel",
+      "meal_plans"
+    ],
+    [
+      "MenuCategoryModel",
+      "menu_categories"
+    ],
+    [
+      "MenuDishModel",
+      "menu_dishes"
+    ],
+    [
+      "MobileAppAttestKeyModel",
+      "mobile_app_attest_keys"
+    ],
+    [
+      "MobileDeviceSessionModel",
+      "mobile_device_sessions"
+    ],
+    [
+      "MobileDocumentMetadataCacheModel",
+      "mobile_document_metadata_cache"
+    ],
+    [
+      "MobileIdempotencyReceiptModel",
+      "mobile_idempotency_receipts"
+    ],
+    [
+      "MobileIncidentModel",
+      "mobile_incidents"
+    ],
+    [
+      "MobileNotificationModel",
+      "mobile_notifications"
+    ],
+    [
+      "MobileOTPChallengeModel",
+      "mobile_otp_challenges"
+    ],
+    [
+      "MobilePassengerIdentityModel",
+      "mobile_passenger_identities"
+    ],
+    [
+      "MobilePassengerSessionIdentityModel",
+      "mobile_passenger_session_identities"
+    ],
+    [
+      "MobilePushDeliveryModel",
+      "mobile_push_deliveries"
+    ],
+    [
+      "MobilePushRegistrationModel",
+      "mobile_push_registrations"
+    ],
+    [
+      "MobileRefreshTokenModel",
+      "mobile_refresh_tokens"
+    ],
+    [
+      "MobileSyncChangeModel",
+      "mobile_sync_changes"
+    ],
+    [
+      "MyPhotoAssetVariantModel",
+      "my_photo_asset_variants"
+    ],
+    [
+      "MyPhotoDeliveryAuthorizationModel",
+      "my_photo_delivery_authorizations"
+    ],
+    [
+      "MyPhotoEnrollmentModel",
+      "my_photo_enrollments"
+    ],
+    [
+      "MyPhotoFaceOccurrenceModel",
+      "my_photo_face_occurrences"
+    ],
+    [
+      "MyPhotoGalleryManifestBatchModel",
+      "my_photo_gallery_manifest_batches"
+    ],
+    [
+      "MyPhotoGalleryManifestModel",
+      "my_photo_gallery_manifests"
+    ],
+    [
+      "MyPhotoGalleryModel",
+      "my_photo_galleries"
+    ],
+    [
+      "MyPhotoJobModel",
+      "my_photo_jobs"
+    ],
+    [
+      "MyPhotoLivenessSessionModel",
+      "my_photo_liveness_sessions"
+    ],
+    [
+      "MyPhotoMatchModel",
+      "my_photo_matches"
+    ],
+    [
+      "MyPhotoMediaAssetModel",
+      "my_photo_media_assets"
+    ],
+    [
+      "MyPhotoSearchRunModel",
+      "my_photo_search_runs"
+    ],
+    [
+      "NotificationModel",
+      "notifications"
+    ],
+    [
+      "PassengerFamilyDelegationModel",
+      "passenger_family_delegations"
+    ],
+    [
+      "PassengerQRTokenModel",
+      "passenger_qr_tokens"
+    ],
+    [
+      "PassengerQrWhatsAppDeliveryModel",
+      "passenger_qr_whatsapp_deliveries"
+    ],
+    [
+      "PassportEcrCheckModel",
+      "passport_ecr_checks"
+    ],
+    [
+      "PassportExportHistoryModel",
+      "passport_export_history"
+    ],
+    [
+      "PassportImageCropModel",
+      "passport_image_crops"
+    ],
+    [
+      "PassportImageLibraryItemModel",
+      "passport_image_library_items"
+    ],
+    [
+      "PassportPostSubmissionVerificationJobModel",
+      "passport_post_submission_verification_jobs"
+    ],
+    [
+      "PassportProcessingJobModel",
+      "passport_processing_jobs"
+    ],
+    [
+      "PassportRosterResolutionModel",
+      "passport_roster_resolutions"
+    ],
+    [
+      "PassportSubmissionModel",
+      "passport_submissions"
+    ],
+    [
+      "PassportVisaAiImageJobModel",
+      "passport_visa_ai_image_jobs"
+    ],
+    [
+      "PassportVisaAiImageModel",
+      "passport_visa_ai_images"
+    ],
+    [
+      "PlatformSettingModel",
+      "platform_settings"
+    ],
+    [
+      "PublicUploadContactChallengeModel",
+      "public_upload_contact_challenges"
+    ],
+    [
+      "QualifierSelectionModel",
+      "qualifier_selections"
+    ],
+    [
+      "RefreshTokenModel",
+      "refresh_tokens"
+    ],
+    [
+      "RoomingAssignmentModel",
+      "rooming_assignments"
+    ],
+    [
+      "RoomingCheckinModel",
+      "rooming_checkins"
+    ],
+    [
+      "RoomingHotelModel",
+      "rooming_hotels"
+    ],
+    [
+      "RoomingHotelPassengerModel",
+      "rooming_hotel_passengers"
+    ],
+    [
+      "RoomingPassengerPreferenceModel",
+      "rooming_passenger_preferences"
+    ],
+    [
+      "RoomingRoomModel",
+      "rooming_rooms"
+    ],
+    [
+      "StorageCleanupJobModel",
+      "storage_cleanup_jobs"
+    ],
+    [
+      "TravelTrackerModel",
+      "travel_tracker"
+    ],
+    [
+      "TravellerAttemptBudgetModel",
+      "traveller_attempt_budgets"
+    ],
+    [
+      "TravellerCandidateHandleModel",
+      "traveller_candidate_handles"
+    ],
+    [
+      "TravellerChallengeSelectionModel",
+      "traveller_challenge_selections"
+    ],
+    [
+      "TravellerChangeEventModel",
+      "traveller_change_events"
+    ],
+    [
+      "TravellerChangeFeedModel",
+      "traveller_change_feeds"
+    ],
+    [
+      "TravellerClaimModel",
+      "traveller_claims"
+    ],
+    [
+      "TravellerContactBindingModel",
+      "traveller_contact_bindings"
+    ],
+    [
+      "TravellerDocumentAssetModel",
+      "traveller_document_assets"
+    ],
+    [
+      "TravellerDocumentReviewTaskModel",
+      "traveller_document_review_tasks"
+    ],
+    [
+      "TravellerDocumentRevisionModel",
+      "traveller_document_revisions"
+    ],
+    [
+      "TravellerDraftAssetModel",
+      "traveller_draft_assets"
+    ],
+    [
+      "TravellerDraftContactProofModel",
+      "traveller_draft_contact_proofs"
+    ],
+    [
+      "TravellerGroupReuseConfigModel",
+      "traveller_group_reuse_configs"
+    ],
+    [
+      "TravellerHistoryGrantModel",
+      "traveller_history_grants"
+    ],
+    [
+      "TravellerIdentifierModel",
+      "traveller_identifiers"
+    ],
+    [
+      "TravellerMatchCaseModel",
+      "traveller_match_cases"
+    ],
+    [
+      "TravellerParticipationModel",
+      "traveller_participations"
+    ],
+    [
+      "TravellerPassportModel",
+      "traveller_passports"
+    ],
+    [
+      "TravellerProfileModel",
+      "traveller_profiles"
+    ],
+    [
+      "TravellerReconciliationJobModel",
+      "traveller_reconciliation_jobs"
+    ],
+    [
+      "TravellerReturningDraftModel",
+      "traveller_returning_drafts"
+    ],
+    [
+      "TravellerReusePolicyModel",
+      "traveller_reuse_policies"
+    ],
+    [
+      "UntrustedUploadScanModel",
+      "untrusted_upload_scans"
+    ],
+    [
+      "UserModel",
+      "users"
+    ],
+    [
+      "UserSecurityStateModel",
+      "user_security_states"
+    ],
+    [
+      "WhatsAppBroadcastGroupModel",
+      "whatsapp_broadcast_groups"
+    ],
+    [
+      "WhatsAppBroadcastRecipientModel",
+      "whatsapp_broadcast_recipients"
+    ],
+    [
+      "WhatsAppBroadcastRejectedContactModel",
+      "whatsapp_broadcast_rejected_contacts"
+    ],
+    [
+      "WhatsAppBroadcastSourceContactModel",
+      "whatsapp_broadcast_source_contacts"
+    ],
+    [
+      "WhatsAppBroadcastSupportContactModel",
+      "whatsapp_broadcast_support_contacts"
+    ],
+    [
+      "WhatsAppMessageLogModel",
+      "whatsapp_message_logs"
+    ],
+    [
+      "WhatsAppPhoneWelcomeAttemptModel",
+      "whatsapp_phone_welcome_attempts"
+    ],
+    [
+      "WhatsAppPhoneWelcomeModel",
+      "whatsapp_phone_welcomes"
+    ],
+    [
+      "WhatsAppProviderMessageBindingModel",
+      "whatsapp_provider_message_bindings"
+    ],
+    [
+      "WhatsAppProviderReceiptModel",
+      "whatsapp_provider_receipts"
+    ],
+    [
+      "WhatsAppRecipientMessageStateModel",
+      "whatsapp_recipient_message_states"
+    ],
+    [
+      "WhatsAppSendIntentModel",
+      "whatsapp_send_intents"
+    ],
+    [
+      "WhatsAppTravellerPhoneOverrideModel",
+      "whatsapp_traveller_phone_overrides"
+    ]
+  ],
+  "all_registered_tables": [
+    "agencies",
+    "attendance_closeout_checkpoints",
+    "attendance_discard_tombstones",
+    "attendance_records",
+    "attendance_runtime_registrations",
+    "attendance_scan_batch_results",
+    "attendance_scan_batches",
+    "attendance_session_runtime_participants",
+    "attendance_sessions",
+    "audit_chain_heads",
+    "audit_logs",
+    "client_group_whatsapp_broadcast_links",
+    "client_groups",
+    "client_manager_group_assignments",
+    "client_manager_profiles",
+    "client_organizations",
+    "company_data_export_jobs",
+    "company_data_export_parts",
+    "company_directory_group_counts",
+    "company_directory_people",
+    "company_directory_prefixes",
+    "company_directory_queue",
+    "company_directory_states",
+    "coordinator_assignments",
+    "coordinator_group_assignments",
+    "dashboard_auth_challenges",
+    "dashboard_sessions",
+    "distributed_documents",
+    "document_distribution_batches",
+    "document_rename_batches",
+    "document_rename_items",
+    "document_upload_chunks",
+    "document_whatsapp_deliveries",
+    "ecr_batches",
+    "ecr_items",
+    "email_action_proposals",
+    "email_activity_events",
+    "email_ai_analyses",
+    "email_ai_feedback",
+    "email_ai_rollout_policies",
+    "email_artifact_documents",
+    "email_artifacts",
+    "email_connections",
+    "email_detected_deadlines",
+    "email_messages",
+    "email_oauth_states",
+    "email_reply_drafts",
+    "email_review_items",
+    "gc_announcements",
+    "gc_common_documents",
+    "gc_group_access",
+    "gc_itinerary_days",
+    "gc_itinerary_items",
+    "gc_itinerary_versions",
+    "gc_notification_batches",
+    "gc_notification_drafts",
+    "gc_notification_recipient_grants",
+    "gc_notification_recipients",
+    "identity_action_tokens",
+    "identity_notification_outbox",
+    "manager_group_access",
+    "mcp_artifact_access",
+    "mcp_artifacts",
+    "mcp_authorization_codes",
+    "mcp_connection_requests",
+    "mcp_contact_import_uploads",
+    "mcp_control",
+    "mcp_document_delivery_outbox",
+    "mcp_document_delivery_plans",
+    "mcp_gc_push_origins",
+    "mcp_gc_push_plans",
+    "mcp_grants",
+    "mcp_native_transfers",
+    "mcp_operations",
+    "mcp_record_revisions",
+    "mcp_tokens",
+    "mcp_whatsapp_header_access",
+    "mcp_whatsapp_header_media",
+    "mcp_whatsapp_outbox",
+    "mcp_whatsapp_plans",
+    "meal_plan_entries",
+    "meal_plans",
+    "menu_categories",
+    "menu_dishes",
+    "mfa_recovery_codes",
+    "mobile_app_attest_keys",
+    "mobile_device_sessions",
+    "mobile_document_metadata_cache",
+    "mobile_idempotency_receipts",
+    "mobile_incidents",
+    "mobile_notifications",
+    "mobile_otp_challenges",
+    "mobile_passenger_identities",
+    "mobile_passenger_session_identities",
+    "mobile_push_deliveries",
+    "mobile_push_registrations",
+    "mobile_refresh_tokens",
+    "mobile_sync_changes",
+    "my_photo_asset_variants",
+    "my_photo_delivery_authorizations",
+    "my_photo_enrollments",
+    "my_photo_face_occurrences",
+    "my_photo_galleries",
+    "my_photo_gallery_manifest_batches",
+    "my_photo_gallery_manifests",
+    "my_photo_jobs",
+    "my_photo_liveness_sessions",
+    "my_photo_matches",
+    "my_photo_media_assets",
+    "my_photo_search_runs",
+    "notifications",
+    "passenger_family_delegations",
+    "passenger_qr_tokens",
+    "passenger_qr_whatsapp_deliveries",
+    "passport_ecr_checks",
+    "passport_export_history",
+    "passport_image_crops",
+    "passport_image_library_items",
+    "passport_post_submission_verification_jobs",
+    "passport_processing_jobs",
+    "passport_roster_resolutions",
+    "passport_submissions",
+    "passport_visa_ai_image_jobs",
+    "passport_visa_ai_images",
+    "platform_settings",
+    "public_upload_contact_challenges",
+    "qualifier_selections",
+    "refresh_tokens",
+    "rooming_assignments",
+    "rooming_checkins",
+    "rooming_hotel_passengers",
+    "rooming_hotels",
+    "rooming_passenger_preferences",
+    "rooming_rooms",
+    "storage_cleanup_jobs",
+    "travel_tracker",
+    "traveller_attempt_budgets",
+    "traveller_candidate_handles",
+    "traveller_challenge_selections",
+    "traveller_change_events",
+    "traveller_change_feeds",
+    "traveller_claims",
+    "traveller_contact_bindings",
+    "traveller_document_assets",
+    "traveller_document_review_tasks",
+    "traveller_document_revisions",
+    "traveller_draft_assets",
+    "traveller_draft_contact_proofs",
+    "traveller_group_reuse_configs",
+    "traveller_history_grants",
+    "traveller_identifiers",
+    "traveller_match_cases",
+    "traveller_participations",
+    "traveller_passports",
+    "traveller_profiles",
+    "traveller_reconciliation_jobs",
+    "traveller_returning_drafts",
+    "traveller_reuse_policies",
+    "untrusted_upload_scans",
+    "user_security_states",
+    "users",
+    "whatsapp_broadcast_groups",
+    "whatsapp_broadcast_recipients",
+    "whatsapp_broadcast_rejected_contacts",
+    "whatsapp_broadcast_source_contacts",
+    "whatsapp_broadcast_support_contacts",
+    "whatsapp_message_logs",
+    "whatsapp_phone_welcome_attempts",
+    "whatsapp_phone_welcomes",
+    "whatsapp_provider_message_bindings",
+    "whatsapp_provider_receipts",
+    "whatsapp_recipient_message_states",
+    "whatsapp_send_intents",
+    "whatsapp_traveller_phone_overrides"
+  ],
+  "ddl": {
+    "postgresql": {
+      "attendance_closeout_checkpoints": {
+        "indexes": {
+          "ix_attendance_closeout_checkpoints_coordinator_user_id": "CREATE INDEX ix_attendance_closeout_checkpoints_coordinator_user_id ON attendance_closeout_checkpoints (coordinator_user_id)",
+          "ix_attendance_closeout_checkpoints_session_id": "CREATE INDEX ix_attendance_closeout_checkpoints_session_id ON attendance_closeout_checkpoints (session_id)",
+          "ix_attendance_closeout_checkpoints_session_reported": "CREATE INDEX ix_attendance_closeout_checkpoints_session_reported ON attendance_closeout_checkpoints (session_id, reported_at)",
+          "uq_attendance_closeout_legacy_account": "CREATE UNIQUE INDEX uq_attendance_closeout_legacy_account ON attendance_closeout_checkpoints (session_id, coordinator_user_id) WHERE runtime_registration_id IS NULL"
+        },
+        "table": "\nCREATE TABLE attendance_closeout_checkpoints (\n\tid UUID NOT NULL, \n\tsession_id UUID NOT NULL, \n\tagency_id UUID NOT NULL, \n\tcoordinator_user_id UUID NOT NULL, \n\truntime_registration_id UUID, \n\tpending_count INTEGER NOT NULL, \n\tsending_count INTEGER NOT NULL, \n\tretryable_count INTEGER NOT NULL, \n\tneeds_review_count INTEGER NOT NULL, \n\tunreviewed_rejected_count INTEGER NOT NULL, \n\toldest_pending_age_seconds INTEGER, \n\treported_at TIMESTAMP WITH TIME ZONE NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_attendance_closeout_checkpoint_runtime UNIQUE (session_id, coordinator_user_id, runtime_registration_id), \n\tCONSTRAINT fk_attendance_closeout_session_tenant FOREIGN KEY(session_id, agency_id) REFERENCES attendance_sessions (id, agency_id) ON DELETE CASCADE, \n\tCONSTRAINT fk_attendance_closeout_runtime_tenant_coordinator FOREIGN KEY(runtime_registration_id, agency_id, coordinator_user_id) REFERENCES attendance_runtime_registrations (id, agency_id, coordinator_user_id) ON DELETE RESTRICT, \n\tCONSTRAINT ck_attendance_closeout_checkpoint_nonnegative_counts CHECK (pending_count >= 0 AND sending_count >= 0 AND retryable_count >= 0 AND needs_review_count >= 0 AND unreviewed_rejected_count >= 0), \n\tCONSTRAINT ck_attendance_closeout_checkpoint_oldest_pending CHECK (((pending_count + sending_count + retryable_count = 0 AND oldest_pending_age_seconds IS NULL) OR (pending_count + sending_count + retryable_count > 0 AND oldest_pending_age_seconds >= 0))), \n\tFOREIGN KEY(session_id) REFERENCES attendance_sessions (id) ON DELETE CASCADE, \n\tFOREIGN KEY(agency_id) REFERENCES agencies (id) ON DELETE CASCADE, \n\tFOREIGN KEY(coordinator_user_id) REFERENCES users (id) ON DELETE CASCADE, \n\tFOREIGN KEY(runtime_registration_id) REFERENCES attendance_runtime_registrations (id) ON DELETE RESTRICT\n)\n\n"
+      },
+      "attendance_discard_tombstones": {
+        "indexes": {
+          "ix_attendance_discard_retention": "CREATE INDEX ix_attendance_discard_retention ON attendance_discard_tombstones (retention_expires_at, id)",
+          "ix_attendance_discard_session_received": "CREATE INDEX ix_attendance_discard_session_received ON attendance_discard_tombstones (session_id, received_at)"
+        },
+        "table": "\nCREATE TABLE attendance_discard_tombstones (\n\tid UUID NOT NULL, \n\tagency_id UUID NOT NULL, \n\tgroup_id UUID NOT NULL, \n\tsession_id UUID NOT NULL, \n\tcoordinator_user_id UUID NOT NULL, \n\truntime_registration_id UUID, \n\tdiscard_event_id UUID NOT NULL, \n\tscan_reference VARCHAR(64) NOT NULL, \n\treason_category VARCHAR(32) NOT NULL, \n\tcaptured_at TIMESTAMP WITH TIME ZONE, \n\tdiscarded_at TIMESTAMP WITH TIME ZONE NOT NULL, \n\treceived_at TIMESTAMP WITH TIME ZONE NOT NULL, \n\tstatus VARCHAR(16) DEFAULT 'accepted' NOT NULL, \n\tretention_expires_at TIMESTAMP WITH TIME ZONE NOT NULL, \n\treconciled_at TIMESTAMP WITH TIME ZONE, \n\treconciliation_note VARCHAR(500), \n\tupdated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_attendance_discard_event UNIQUE (agency_id, coordinator_user_id, discard_event_id), \n\tCONSTRAINT fk_attendance_discard_session_tenant_group FOREIGN KEY(session_id, agency_id, group_id) REFERENCES attendance_sessions (id, agency_id, group_id) ON DELETE RESTRICT, \n\tCONSTRAINT fk_attendance_discard_runtime_tenant_coordinator FOREIGN KEY(runtime_registration_id, agency_id, coordinator_user_id) REFERENCES attendance_runtime_registrations (id, agency_id, coordinator_user_id) ON DELETE RESTRICT, \n\tCONSTRAINT ck_attendance_discard_scan_reference CHECK (length(scan_reference) = 64), \n\tCONSTRAINT ck_attendance_discard_reason CHECK (reason_category IN ('operator_discard', 'coordinator_confirmed_rescan', 'wrong_group', 'expired_authorization', 'activity_closed', 'duplicate', 'duplicate_local_evidence', 'passenger_not_attending', 'privacy_or_data_error', 'server_rejected', 'server_terminal_rejection', 'corrupted_entry', 'other')), \n\tCONSTRAINT ck_attendance_discard_status CHECK (status IN ('accepted', 'reconciled', 'overridden')), \n\tCONSTRAINT ck_attendance_discard_time_order CHECK (received_at >= discarded_at AND retention_expires_at > received_at), \n\tFOREIGN KEY(agency_id) REFERENCES agencies (id) ON DELETE RESTRICT, \n\tFOREIGN KEY(group_id) REFERENCES client_groups (id) ON DELETE RESTRICT, \n\tFOREIGN KEY(session_id) REFERENCES attendance_sessions (id) ON DELETE RESTRICT, \n\tFOREIGN KEY(coordinator_user_id) REFERENCES users (id) ON DELETE RESTRICT, \n\tFOREIGN KEY(runtime_registration_id) REFERENCES attendance_runtime_registrations (id) ON DELETE RESTRICT\n)\n\n"
+      },
+      "attendance_records": {
+        "indexes": {
+          "ix_attendance_records_agency_id": "CREATE INDEX ix_attendance_records_agency_id ON attendance_records (agency_id)",
+          "ix_attendance_records_agency_session": "CREATE INDEX ix_attendance_records_agency_session ON attendance_records (agency_id, session_id)",
+          "ix_attendance_records_coordinator_scanned": "CREATE INDEX ix_attendance_records_coordinator_scanned ON attendance_records (coordinator_user_id, scanned_at)",
+          "ix_attendance_records_coordinator_user_id": "CREATE INDEX ix_attendance_records_coordinator_user_id ON attendance_records (coordinator_user_id)",
+          "ix_attendance_records_passenger_id": "CREATE INDEX ix_attendance_records_passenger_id ON attendance_records (passenger_id)",
+          "ix_attendance_records_scanned_at": "CREATE INDEX ix_attendance_records_scanned_at ON attendance_records (scanned_at)",
+          "ix_attendance_records_session_id": "CREATE INDEX ix_attendance_records_session_id ON attendance_records (session_id)"
+        },
+        "table": "\nCREATE TABLE attendance_records (\n\tid UUID NOT NULL, \n\tagency_id UUID NOT NULL, \n\tsession_id UUID NOT NULL, \n\tpassenger_id UUID NOT NULL, \n\tcoordinator_user_id UUID NOT NULL, \n\tscanned_at TIMESTAMP WITH TIME ZONE NOT NULL, \n\tsync_source attendance_scan_source_enum NOT NULL, \n\tclient_event_id VARCHAR(128) NOT NULL, \n\tdevice_id VARCHAR(128), \n\truntime_registration_id UUID, \n\tcreated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_attendance_records_session_passenger UNIQUE (session_id, passenger_id), \n\tCONSTRAINT uq_attendance_records_session_client_event UNIQUE (session_id, client_event_id), \n\tCONSTRAINT fk_attendance_record_runtime_tenant_coordinator FOREIGN KEY(runtime_registration_id, agency_id, coordinator_user_id) REFERENCES attendance_runtime_registrations (id, agency_id, coordinator_user_id) ON DELETE RESTRICT, \n\tFOREIGN KEY(agency_id) REFERENCES agencies (id) ON DELETE CASCADE, \n\tFOREIGN KEY(session_id) REFERENCES attendance_sessions (id) ON DELETE CASCADE, \n\tFOREIGN KEY(passenger_id) REFERENCES passport_submissions (id) ON DELETE CASCADE, \n\tFOREIGN KEY(coordinator_user_id) REFERENCES users (id) ON DELETE RESTRICT, \n\tFOREIGN KEY(runtime_registration_id) REFERENCES attendance_runtime_registrations (id) ON DELETE RESTRICT\n)\n\n"
+      },
+      "attendance_runtime_registrations": {
+        "indexes": {
+          "ix_attendance_runtime_coordinator_status": "CREATE INDEX ix_attendance_runtime_coordinator_status ON attendance_runtime_registrations (agency_id, coordinator_user_id, status, expires_at)",
+          "ix_attendance_runtime_native_session": "CREATE INDEX ix_attendance_runtime_native_session ON attendance_runtime_registrations (native_mobile_session_id)"
+        },
+        "table": "\nCREATE TABLE attendance_runtime_registrations (\n\tid UUID NOT NULL, \n\tagency_id UUID NOT NULL, \n\tcoordinator_user_id UUID NOT NULL, \n\truntime_kind VARCHAR(24) NOT NULL, \n\truntime_identifier_hash VARCHAR(64) NOT NULL, \n\tnative_mobile_session_id UUID, \n\tstatus VARCHAR(16) DEFAULT 'active' NOT NULL, \n\tregistered_at TIMESTAMP WITH TIME ZONE NOT NULL, \n\tlast_seen_at TIMESTAMP WITH TIME ZONE NOT NULL, \n\texpires_at TIMESTAMP WITH TIME ZONE NOT NULL, \n\trevoked_at TIMESTAMP WITH TIME ZONE, \n\trevoke_reason VARCHAR(80), \n\treplaced_by_runtime_id UUID, \n\tcreated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n\tupdated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_attendance_runtime_id_tenant_coordinator UNIQUE (id, agency_id, coordinator_user_id), \n\tCONSTRAINT uq_attendance_runtime_identifier UNIQUE (agency_id, coordinator_user_id, runtime_identifier_hash), \n\tCONSTRAINT fk_attendance_runtime_coordinator_tenant FOREIGN KEY(coordinator_user_id, agency_id) REFERENCES users (id, agency_id) ON DELETE RESTRICT, \n\tCONSTRAINT ck_attendance_runtime_kind CHECK (runtime_kind IN ('native_mobile', 'pwa', 'webview', 'legacy_account')), \n\tCONSTRAINT ck_attendance_runtime_status CHECK (status IN ('active', 'revoked', 'expired', 'lost', 'replaced')), \n\tCONSTRAINT ck_attendance_runtime_identifier_hash CHECK (length(runtime_identifier_hash) = 64), \n\tCONSTRAINT ck_attendance_runtime_expiry CHECK (expires_at > registered_at), \n\tCONSTRAINT ck_attendance_runtime_revocation_shape CHECK ((status = 'active' AND revoked_at IS NULL) OR (status <> 'active' AND revoked_at IS NOT NULL)), \n\tFOREIGN KEY(agency_id) REFERENCES agencies (id) ON DELETE CASCADE, \n\tFOREIGN KEY(native_mobile_session_id) REFERENCES mobile_device_sessions (id) ON DELETE SET NULL, \n\tFOREIGN KEY(replaced_by_runtime_id) REFERENCES attendance_runtime_registrations (id) ON DELETE SET NULL\n)\n\n"
+      },
+      "attendance_scan_batch_results": {
+        "indexes": {
+          "ix_attendance_scan_batch_results_batch_order": "CREATE INDEX ix_attendance_scan_batch_results_batch_order ON attendance_scan_batch_results (batch_id, request_ordinal)"
+        },
+        "table": "\nCREATE TABLE attendance_scan_batch_results (\n\tid UUID NOT NULL, \n\tbatch_id UUID NOT NULL, \n\tagency_id UUID NOT NULL, \n\tsession_id UUID NOT NULL, \n\tcoordinator_user_id UUID NOT NULL, \n\tclient_event_id VARCHAR(128) NOT NULL, \n\trequest_ordinal INTEGER NOT NULL, \n\trequest_fingerprint VARCHAR(64) NOT NULL, \n\toutcome VARCHAR(16) NOT NULL, \n\tretryable BOOLEAN NOT NULL, \n\tpassenger_id UUID, \n\terror_code VARCHAR(80), \n\tcreated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_attendance_scan_batch_result_event UNIQUE (agency_id, session_id, client_event_id), \n\tCONSTRAINT ck_attendance_scan_batch_result_fingerprint CHECK (length(request_fingerprint) = 64), \n\tCONSTRAINT ck_attendance_scan_batch_result_outcome CHECK (outcome IN ('counted', 'duplicate', 'rejected')), \n\tCONSTRAINT ck_attendance_scan_batch_result_shape CHECK ((outcome IN ('counted', 'duplicate') AND passenger_id IS NOT NULL AND error_code IS NULL AND retryable = false) OR (outcome = 'rejected' AND passenger_id IS NULL AND error_code IS NOT NULL)), \n\tFOREIGN KEY(batch_id) REFERENCES attendance_scan_batches (batch_id) ON DELETE CASCADE, \n\tFOREIGN KEY(agency_id) REFERENCES agencies (id) ON DELETE RESTRICT, \n\tFOREIGN KEY(session_id) REFERENCES attendance_sessions (id) ON DELETE RESTRICT, \n\tFOREIGN KEY(coordinator_user_id) REFERENCES users (id) ON DELETE RESTRICT\n)\n\n"
+      },
+      "attendance_scan_batches": {
+        "indexes": {
+          "ix_attendance_scan_batches_session_created": "CREATE INDEX ix_attendance_scan_batches_session_created ON attendance_scan_batches (session_id, created_at)"
+        },
+        "table": "\nCREATE TABLE attendance_scan_batches (\n\tbatch_id UUID NOT NULL, \n\tagency_id UUID NOT NULL, \n\tgroup_id UUID NOT NULL, \n\tsession_id UUID NOT NULL, \n\tcoordinator_user_id UUID NOT NULL, \n\truntime_registration_id UUID, \n\trequest_fingerprint VARCHAR(64) NOT NULL, \n\titem_count INTEGER NOT NULL, \n\tcreated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n\tPRIMARY KEY (batch_id), \n\tCONSTRAINT fk_attendance_scan_batch_session_tenant_group FOREIGN KEY(session_id, agency_id, group_id) REFERENCES attendance_sessions (id, agency_id, group_id) ON DELETE RESTRICT, \n\tCONSTRAINT fk_attendance_scan_batch_runtime_tenant_coordinator FOREIGN KEY(runtime_registration_id, agency_id, coordinator_user_id) REFERENCES attendance_runtime_registrations (id, agency_id, coordinator_user_id) ON DELETE RESTRICT, \n\tCONSTRAINT ck_attendance_scan_batch_fingerprint CHECK (length(request_fingerprint) = 64), \n\tCONSTRAINT ck_attendance_scan_batch_item_count CHECK (item_count BETWEEN 1 AND 50), \n\tFOREIGN KEY(agency_id) REFERENCES agencies (id) ON DELETE RESTRICT, \n\tFOREIGN KEY(group_id) REFERENCES client_groups (id) ON DELETE RESTRICT, \n\tFOREIGN KEY(session_id) REFERENCES attendance_sessions (id) ON DELETE RESTRICT, \n\tFOREIGN KEY(coordinator_user_id) REFERENCES users (id) ON DELETE RESTRICT, \n\tFOREIGN KEY(runtime_registration_id) REFERENCES attendance_runtime_registrations (id) ON DELETE RESTRICT\n)\n\n"
+      },
+      "attendance_session_runtime_participants": {
+        "indexes": {
+          "ix_attendance_participants_session_coordinator": "CREATE INDEX ix_attendance_participants_session_coordinator ON attendance_session_runtime_participants (session_id, coordinator_user_id)"
+        },
+        "table": "\nCREATE TABLE attendance_session_runtime_participants (\n\tid UUID NOT NULL, \n\tagency_id UUID NOT NULL, \n\tsession_id UUID NOT NULL, \n\tcoordinator_user_id UUID NOT NULL, \n\truntime_registration_id UUID NOT NULL, \n\tparticipation_source VARCHAR(16) NOT NULL, \n\tfirst_participated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n\tlast_participated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_attendance_session_runtime_participant UNIQUE (session_id, runtime_registration_id), \n\tCONSTRAINT fk_attendance_participant_session_tenant FOREIGN KEY(session_id, agency_id) REFERENCES attendance_sessions (id, agency_id) ON DELETE CASCADE, \n\tCONSTRAINT fk_attendance_participant_runtime_tenant_coordinator FOREIGN KEY(runtime_registration_id, agency_id, coordinator_user_id) REFERENCES attendance_runtime_registrations (id, agency_id, coordinator_user_id) ON DELETE RESTRICT, \n\tCONSTRAINT ck_attendance_participant_source CHECK (participation_source IN ('scan', 'checkpoint', 'discard', 'legacy')), \n\tCONSTRAINT ck_attendance_participant_time_order CHECK (last_participated_at >= first_participated_at), \n\tFOREIGN KEY(agency_id) REFERENCES agencies (id) ON DELETE CASCADE\n)\n\n"
+      },
+      "attendance_sessions": {
+        "indexes": {
+          "ix_attendance_sessions_agency_created": "CREATE INDEX ix_attendance_sessions_agency_created ON attendance_sessions (agency_id, created_at)",
+          "ix_attendance_sessions_agency_id": "CREATE INDEX ix_attendance_sessions_agency_id ON attendance_sessions (agency_id)",
+          "ix_attendance_sessions_canonical_session_id": "CREATE INDEX ix_attendance_sessions_canonical_session_id ON attendance_sessions (canonical_session_id)",
+          "ix_attendance_sessions_group_id": "CREATE INDEX ix_attendance_sessions_group_id ON attendance_sessions (group_id)",
+          "ix_attendance_sessions_group_schedule": "CREATE INDEX ix_attendance_sessions_group_schedule ON attendance_sessions (group_id, scheduled_starts_at, scheduled_ends_at)",
+          "ix_attendance_sessions_group_status": "CREATE INDEX ix_attendance_sessions_group_status ON attendance_sessions (group_id, status)",
+          "ix_attendance_sessions_status": "CREATE INDEX ix_attendance_sessions_status ON attendance_sessions (status)",
+          "uq_attendance_sessions_active_group_name": "CREATE UNIQUE INDEX uq_attendance_sessions_active_group_name ON attendance_sessions (group_id, normalized_name) WHERE status IN ('draft', 'active') AND id = canonical_session_id"
+        },
+        "table": "\nCREATE TABLE attendance_sessions (\n\tid UUID NOT NULL, \n\tagency_id UUID NOT NULL, \n\tgroup_id UUID NOT NULL, \n\tname VARCHAR(160) NOT NULL, \n\tnormalized_name VARCHAR(160) NOT NULL, \n\tcanonical_session_id UUID NOT NULL, \n\tstatus attendance_session_status_enum NOT NULL, \n\tcreated_by_user_id UUID NOT NULL, \n\tcreated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n\tupdated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n\tstarted_at TIMESTAMP WITH TIME ZONE, \n\tcompleted_at TIMESTAMP WITH TIME ZONE, \n\tcancelled_at TIMESTAMP WITH TIME ZONE, \n\tscheduled_starts_at TIMESTAMP WITH TIME ZONE, \n\tscheduled_ends_at TIMESTAMP WITH TIME ZONE, \n\tschedule_timezone VARCHAR(64), \n\tschedule_version INTEGER DEFAULT '1' NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_attendance_sessions_id_agency UNIQUE (id, agency_id), \n\tCONSTRAINT uq_attendance_sessions_id_agency_group UNIQUE (id, agency_id, group_id), \n\tCONSTRAINT ck_attendance_sessions_scheduled_window CHECK ((scheduled_starts_at IS NULL AND scheduled_ends_at IS NULL) OR (scheduled_starts_at IS NOT NULL AND scheduled_ends_at IS NOT NULL AND scheduled_ends_at > scheduled_starts_at)), \n\tCONSTRAINT ck_attendance_sessions_schedule_version CHECK (schedule_version >= 1), \n\tCONSTRAINT ck_attendance_sessions_schedule_timezone CHECK (schedule_timezone IS NULL OR (length(schedule_timezone) BETWEEN 1 AND 64 AND schedule_timezone = trim(schedule_timezone))), \n\tFOREIGN KEY(agency_id) REFERENCES agencies (id) ON DELETE CASCADE, \n\tFOREIGN KEY(group_id) REFERENCES client_groups (id) ON DELETE CASCADE, \n\tFOREIGN KEY(canonical_session_id) REFERENCES attendance_sessions (id) ON DELETE CASCADE, \n\tFOREIGN KEY(created_by_user_id) REFERENCES users (id) ON DELETE RESTRICT\n)\n\n"
+      },
+      "passenger_qr_tokens": {
+        "indexes": {
+          "ix_passenger_qr_tokens_active_passenger": "CREATE INDEX ix_passenger_qr_tokens_active_passenger ON passenger_qr_tokens (passenger_id, is_active)",
+          "ix_passenger_qr_tokens_agency_active": "CREATE INDEX ix_passenger_qr_tokens_agency_active ON passenger_qr_tokens (agency_id, is_active)",
+          "ix_passenger_qr_tokens_agency_id": "CREATE INDEX ix_passenger_qr_tokens_agency_id ON passenger_qr_tokens (agency_id)",
+          "ix_passenger_qr_tokens_expires_at": "CREATE INDEX ix_passenger_qr_tokens_expires_at ON passenger_qr_tokens (expires_at)",
+          "ix_passenger_qr_tokens_is_active": "CREATE INDEX ix_passenger_qr_tokens_is_active ON passenger_qr_tokens (is_active)",
+          "ix_passenger_qr_tokens_passenger_id": "CREATE INDEX ix_passenger_qr_tokens_passenger_id ON passenger_qr_tokens (passenger_id)",
+          "uq_passenger_qr_tokens_one_active_per_passenger": "CREATE UNIQUE INDEX uq_passenger_qr_tokens_one_active_per_passenger ON passenger_qr_tokens (passenger_id) WHERE is_active = true"
+        },
+        "table": "\nCREATE TABLE passenger_qr_tokens (\n\tid UUID NOT NULL, \n\tagency_id UUID NOT NULL, \n\tpassenger_id UUID NOT NULL, \n\ttoken_hash VARCHAR(128) NOT NULL, \n\tqr_payload VARCHAR(64), \n\ttoken_version INTEGER NOT NULL, \n\tis_active BOOLEAN NOT NULL, \n\tcreated_by_user_id UUID, \n\trevoked_at TIMESTAMP WITH TIME ZONE, \n\texpires_at TIMESTAMP WITH TIME ZONE NOT NULL, \n\tcreated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n\tupdated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_passenger_qr_tokens_token_hash UNIQUE (token_hash), \n\tFOREIGN KEY(agency_id) REFERENCES agencies (id) ON DELETE CASCADE, \n\tFOREIGN KEY(passenger_id) REFERENCES passport_submissions (id) ON DELETE CASCADE, \n\tFOREIGN KEY(created_by_user_id) REFERENCES users (id) ON DELETE SET NULL\n)\n\n"
+      },
+      "passenger_qr_whatsapp_deliveries": {
+        "indexes": {
+          "ix_passenger_qr_whatsapp_deliveries_agency_id": "CREATE INDEX ix_passenger_qr_whatsapp_deliveries_agency_id ON passenger_qr_whatsapp_deliveries (agency_id)",
+          "ix_passenger_qr_whatsapp_deliveries_broadcast_group_id": "CREATE INDEX ix_passenger_qr_whatsapp_deliveries_broadcast_group_id ON passenger_qr_whatsapp_deliveries (broadcast_group_id)",
+          "ix_passenger_qr_whatsapp_deliveries_group_id": "CREATE INDEX ix_passenger_qr_whatsapp_deliveries_group_id ON passenger_qr_whatsapp_deliveries (group_id)",
+          "ix_passenger_qr_whatsapp_deliveries_normalized_phone_number": "CREATE INDEX ix_passenger_qr_whatsapp_deliveries_normalized_phone_number ON passenger_qr_whatsapp_deliveries (normalized_phone_number)",
+          "ix_passenger_qr_whatsapp_deliveries_passenger_id": "CREATE INDEX ix_passenger_qr_whatsapp_deliveries_passenger_id ON passenger_qr_whatsapp_deliveries (passenger_id)",
+          "ix_passenger_qr_whatsapp_deliveries_qr_token_id": "CREATE INDEX ix_passenger_qr_whatsapp_deliveries_qr_token_id ON passenger_qr_whatsapp_deliveries (qr_token_id)",
+          "ix_passenger_qr_whatsapp_deliveries_recipient_id": "CREATE INDEX ix_passenger_qr_whatsapp_deliveries_recipient_id ON passenger_qr_whatsapp_deliveries (recipient_id)",
+          "ix_passenger_qr_whatsapp_deliveries_send_batch_id": "CREATE INDEX ix_passenger_qr_whatsapp_deliveries_send_batch_id ON passenger_qr_whatsapp_deliveries (send_batch_id)",
+          "ix_passenger_qr_whatsapp_deliveries_status": "CREATE INDEX ix_passenger_qr_whatsapp_deliveries_status ON passenger_qr_whatsapp_deliveries (status)",
+          "ix_passenger_qr_whatsapp_delivery_group_status": "CREATE INDEX ix_passenger_qr_whatsapp_delivery_group_status ON passenger_qr_whatsapp_deliveries (group_id, status)",
+          "ix_passenger_qr_whatsapp_delivery_send_batch": "CREATE INDEX ix_passenger_qr_whatsapp_delivery_send_batch ON passenger_qr_whatsapp_deliveries (send_batch_id, created_at)"
+        },
+        "table": "\nCREATE TABLE passenger_qr_whatsapp_deliveries (\n\tid UUID NOT NULL, \n\tagency_id UUID NOT NULL, \n\tgroup_id UUID NOT NULL, \n\tpassenger_id UUID NOT NULL, \n\tqr_token_id UUID NOT NULL, \n\tbroadcast_group_id UUID, \n\trecipient_id UUID, \n\tsend_batch_id UUID NOT NULL, \n\tpassenger_name VARCHAR(255) NOT NULL, \n\tpassport_number VARCHAR(32), \n\tphone_number VARCHAR(64) NOT NULL, \n\tnormalized_phone_number VARCHAR(32) NOT NULL, \n\ttemplate_name VARCHAR(255) NOT NULL, \n\ttemplate_parameter_values JSONB NOT NULL, \n\tstatus VARCHAR(32) NOT NULL, \n\tattempt_count INTEGER NOT NULL, \n\tprovider_message_id VARCHAR(255), \n\tprovider_media_id VARCHAR(255), \n\terror_message TEXT, \n\tstatus_updated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n\tprovider_status_at TIMESTAMP WITH TIME ZONE, \n\tcreated_by_user_id UUID, \n\tcreated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n\tupdated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_passenger_qr_whatsapp_delivery_token UNIQUE (qr_token_id), \n\tFOREIGN KEY(agency_id) REFERENCES agencies (id) ON DELETE CASCADE, \n\tFOREIGN KEY(group_id) REFERENCES client_groups (id) ON DELETE CASCADE, \n\tFOREIGN KEY(passenger_id) REFERENCES passport_submissions (id) ON DELETE CASCADE, \n\tFOREIGN KEY(qr_token_id) REFERENCES passenger_qr_tokens (id) ON DELETE CASCADE, \n\tFOREIGN KEY(broadcast_group_id) REFERENCES whatsapp_broadcast_groups (id) ON DELETE SET NULL, \n\tFOREIGN KEY(recipient_id) REFERENCES whatsapp_broadcast_recipients (id) ON DELETE SET NULL, \n\tUNIQUE (provider_message_id), \n\tFOREIGN KEY(created_by_user_id) REFERENCES users (id) ON DELETE SET NULL\n)\n\n"
+      },
+      "rooming_assignments": {
+        "indexes": {
+          "ix_rooming_assignments_hotel_id": "CREATE INDEX ix_rooming_assignments_hotel_id ON rooming_assignments (hotel_id)",
+          "ix_rooming_assignments_passenger_id": "CREATE INDEX ix_rooming_assignments_passenger_id ON rooming_assignments (passenger_id)",
+          "ix_rooming_assignments_room_id": "CREATE INDEX ix_rooming_assignments_room_id ON rooming_assignments (room_id)",
+          "ix_rooming_assignments_room_position": "CREATE INDEX ix_rooming_assignments_room_position ON rooming_assignments (room_id, position)"
+        },
+        "table": "\nCREATE TABLE rooming_assignments (\n\tid UUID NOT NULL, \n\thotel_id UUID NOT NULL, \n\troom_id UUID NOT NULL, \n\tpassenger_id UUID NOT NULL, \n\tposition INTEGER NOT NULL, \n\tassigned_at TIMESTAMP WITH TIME ZONE NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_rooming_assignments_hotel_passenger UNIQUE (hotel_id, passenger_id), \n\tCONSTRAINT uq_rooming_assignments_room_passenger UNIQUE (room_id, passenger_id), \n\tFOREIGN KEY(hotel_id) REFERENCES rooming_hotels (id) ON DELETE CASCADE, \n\tFOREIGN KEY(room_id) REFERENCES rooming_rooms (id) ON DELETE CASCADE, \n\tFOREIGN KEY(passenger_id) REFERENCES passport_submissions (id) ON DELETE CASCADE\n)\n\n"
+      },
+      "rooming_checkins": {
+        "indexes": {
+          "ix_rooming_checkins_agency_id": "CREATE INDEX ix_rooming_checkins_agency_id ON rooming_checkins (agency_id)",
+          "ix_rooming_checkins_hotel_id": "CREATE INDEX ix_rooming_checkins_hotel_id ON rooming_checkins (hotel_id)",
+          "ix_rooming_checkins_hotel_status": "CREATE INDEX ix_rooming_checkins_hotel_status ON rooming_checkins (hotel_id, checked_in, key_issued, welcome_letter_issued)",
+          "ix_rooming_checkins_passenger_id": "CREATE INDEX ix_rooming_checkins_passenger_id ON rooming_checkins (passenger_id)",
+          "ix_rooming_checkins_room_id": "CREATE INDEX ix_rooming_checkins_room_id ON rooming_checkins (room_id)"
+        },
+        "table": "\nCREATE TABLE rooming_checkins (\n\tid UUID NOT NULL, \n\tagency_id UUID NOT NULL, \n\thotel_id UUID NOT NULL, \n\troom_id UUID NOT NULL, \n\tpassenger_id UUID NOT NULL, \n\tchecked_in BOOLEAN NOT NULL, \n\tchecked_in_at TIMESTAMP WITH TIME ZONE, \n\tkey_issued BOOLEAN NOT NULL, \n\tkey_issued_at TIMESTAMP WITH TIME ZONE, \n\twelcome_letter_issued BOOLEAN NOT NULL, \n\twelcome_letter_issued_at TIMESTAMP WITH TIME ZONE, \n\tremarks TEXT, \n\tupdated_by_user_id UUID, \n\tcreated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n\tupdated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_rooming_checkins_hotel_passenger UNIQUE (hotel_id, passenger_id), \n\tFOREIGN KEY(agency_id) REFERENCES agencies (id) ON DELETE CASCADE, \n\tFOREIGN KEY(hotel_id) REFERENCES rooming_hotels (id) ON DELETE CASCADE, \n\tFOREIGN KEY(room_id) REFERENCES rooming_rooms (id) ON DELETE CASCADE, \n\tFOREIGN KEY(passenger_id) REFERENCES passport_submissions (id) ON DELETE CASCADE, \n\tFOREIGN KEY(updated_by_user_id) REFERENCES users (id) ON DELETE SET NULL\n)\n\n"
+      },
+      "rooming_hotel_passengers": {
+        "indexes": {
+          "ix_rooming_hotel_passengers_agency_id": "CREATE INDEX ix_rooming_hotel_passengers_agency_id ON rooming_hotel_passengers (agency_id)",
+          "ix_rooming_hotel_passengers_group_hotel": "CREATE INDEX ix_rooming_hotel_passengers_group_hotel ON rooming_hotel_passengers (group_id, hotel_id)",
+          "ix_rooming_hotel_passengers_group_id": "CREATE INDEX ix_rooming_hotel_passengers_group_id ON rooming_hotel_passengers (group_id)",
+          "ix_rooming_hotel_passengers_hotel_id": "CREATE INDEX ix_rooming_hotel_passengers_hotel_id ON rooming_hotel_passengers (hotel_id)",
+          "ix_rooming_hotel_passengers_passenger_id": "CREATE INDEX ix_rooming_hotel_passengers_passenger_id ON rooming_hotel_passengers (passenger_id)"
+        },
+        "table": "\nCREATE TABLE rooming_hotel_passengers (\n\tid UUID NOT NULL, \n\tagency_id UUID NOT NULL, \n\tgroup_id UUID NOT NULL, \n\thotel_id UUID NOT NULL, \n\tpassenger_id UUID NOT NULL, \n\tis_vip BOOLEAN DEFAULT 'false' NOT NULL, \n\tcreated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n\tupdated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_rooming_hotel_passengers_group_passenger UNIQUE (group_id, passenger_id), \n\tCONSTRAINT uq_rooming_hotel_passengers_hotel_passenger UNIQUE (hotel_id, passenger_id), \n\tFOREIGN KEY(agency_id) REFERENCES agencies (id) ON DELETE CASCADE, \n\tFOREIGN KEY(group_id) REFERENCES client_groups (id) ON DELETE CASCADE, \n\tFOREIGN KEY(hotel_id) REFERENCES rooming_hotels (id) ON DELETE CASCADE, \n\tFOREIGN KEY(passenger_id) REFERENCES passport_submissions (id) ON DELETE CASCADE\n)\n\n"
+      },
+      "rooming_hotels": {
+        "indexes": {
+          "ix_rooming_hotels_agency_id": "CREATE INDEX ix_rooming_hotels_agency_id ON rooming_hotels (agency_id)",
+          "ix_rooming_hotels_group_created": "CREATE INDEX ix_rooming_hotels_group_created ON rooming_hotels (group_id, created_at)",
+          "ix_rooming_hotels_group_id": "CREATE INDEX ix_rooming_hotels_group_id ON rooming_hotels (group_id)"
+        },
+        "table": "\nCREATE TABLE rooming_hotels (\n\tid UUID NOT NULL, \n\tagency_id UUID NOT NULL, \n\tgroup_id UUID NOT NULL, \n\thotel_name VARCHAR(255) NOT NULL, \n\tcity VARCHAR(120), \n\tcheck_in_date DATE, \n\tcheck_out_date DATE, \n\tallocation_priority_fields JSONB DEFAULT '[]' NOT NULL, \n\tallocation_revision INTEGER DEFAULT '0' NOT NULL, \n\tallocation_fingerprint VARCHAR(64), \n\tallocation_updated_at TIMESTAMP WITH TIME ZONE, \n\tcreated_by_user_id UUID, \n\tcreated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n\tupdated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n\tPRIMARY KEY (id), \n\tFOREIGN KEY(agency_id) REFERENCES agencies (id) ON DELETE CASCADE, \n\tFOREIGN KEY(group_id) REFERENCES client_groups (id) ON DELETE CASCADE, \n\tFOREIGN KEY(created_by_user_id) REFERENCES users (id) ON DELETE SET NULL\n)\n\n"
+      },
+      "rooming_passenger_preferences": {
+        "indexes": {
+          "ix_rooming_preferences_hotel_id": "CREATE INDEX ix_rooming_preferences_hotel_id ON rooming_passenger_preferences (hotel_id)",
+          "ix_rooming_preferences_hotel_passenger": "CREATE INDEX ix_rooming_preferences_hotel_passenger ON rooming_passenger_preferences (hotel_id, passenger_id)",
+          "ix_rooming_preferences_passenger_id": "CREATE INDEX ix_rooming_preferences_passenger_id ON rooming_passenger_preferences (passenger_id)"
+        },
+        "table": "\nCREATE TABLE rooming_passenger_preferences (\n\tid UUID NOT NULL, \n\thotel_id UUID NOT NULL, \n\tpassenger_id UUID NOT NULL, \n\tallocation_tag VARCHAR(16) NOT NULL, \n\tspecial_requests JSONB NOT NULL, \n\troommate_notes TEXT, \n\tupdated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_rooming_preferences_hotel_passenger UNIQUE (hotel_id, passenger_id), \n\tFOREIGN KEY(hotel_id) REFERENCES rooming_hotels (id) ON DELETE CASCADE, \n\tFOREIGN KEY(passenger_id) REFERENCES passport_submissions (id) ON DELETE CASCADE\n)\n\n"
+      },
+      "rooming_rooms": {
+        "indexes": {
+          "ix_rooming_rooms_hotel_id": "CREATE INDEX ix_rooming_rooms_hotel_id ON rooming_rooms (hotel_id)",
+          "ix_rooming_rooms_hotel_number": "CREATE INDEX ix_rooming_rooms_hotel_number ON rooming_rooms (hotel_id, room_number)"
+        },
+        "table": "\nCREATE TABLE rooming_rooms (\n\tid UUID NOT NULL, \n\thotel_id UUID NOT NULL, \n\troom_number VARCHAR(32) NOT NULL, \n\troom_type VARCHAR(16) NOT NULL, \n\tcapacity INTEGER NOT NULL, \n\tallocation_tag VARCHAR(16) NOT NULL, \n\troommate_notes TEXT, \n\tis_saved BOOLEAN NOT NULL, \n\tsort_order INTEGER NOT NULL, \n\tcreated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n\tupdated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_rooming_rooms_hotel_number UNIQUE (hotel_id, room_number), \n\tFOREIGN KEY(hotel_id) REFERENCES rooming_hotels (id) ON DELETE CASCADE\n)\n\n"
+      }
+    },
+    "sqlite": {
+      "attendance_closeout_checkpoints": {
+        "indexes": {
+          "ix_attendance_closeout_checkpoints_coordinator_user_id": "CREATE INDEX ix_attendance_closeout_checkpoints_coordinator_user_id ON attendance_closeout_checkpoints (coordinator_user_id)",
+          "ix_attendance_closeout_checkpoints_session_id": "CREATE INDEX ix_attendance_closeout_checkpoints_session_id ON attendance_closeout_checkpoints (session_id)",
+          "ix_attendance_closeout_checkpoints_session_reported": "CREATE INDEX ix_attendance_closeout_checkpoints_session_reported ON attendance_closeout_checkpoints (session_id, reported_at)",
+          "uq_attendance_closeout_legacy_account": "CREATE UNIQUE INDEX uq_attendance_closeout_legacy_account ON attendance_closeout_checkpoints (session_id, coordinator_user_id) WHERE runtime_registration_id IS NULL"
+        },
+        "table": "\nCREATE TABLE attendance_closeout_checkpoints (\n\tid CHAR(32) NOT NULL, \n\tsession_id CHAR(32) NOT NULL, \n\tagency_id CHAR(32) NOT NULL, \n\tcoordinator_user_id CHAR(32) NOT NULL, \n\truntime_registration_id CHAR(32), \n\tpending_count INTEGER NOT NULL, \n\tsending_count INTEGER NOT NULL, \n\tretryable_count INTEGER NOT NULL, \n\tneeds_review_count INTEGER NOT NULL, \n\tunreviewed_rejected_count INTEGER NOT NULL, \n\toldest_pending_age_seconds INTEGER, \n\treported_at DATETIME NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_attendance_closeout_checkpoint_runtime UNIQUE (session_id, coordinator_user_id, runtime_registration_id), \n\tCONSTRAINT fk_attendance_closeout_session_tenant FOREIGN KEY(session_id, agency_id) REFERENCES attendance_sessions (id, agency_id) ON DELETE CASCADE, \n\tCONSTRAINT fk_attendance_closeout_runtime_tenant_coordinator FOREIGN KEY(runtime_registration_id, agency_id, coordinator_user_id) REFERENCES attendance_runtime_registrations (id, agency_id, coordinator_user_id) ON DELETE RESTRICT, \n\tCONSTRAINT ck_attendance_closeout_checkpoint_nonnegative_counts CHECK (pending_count >= 0 AND sending_count >= 0 AND retryable_count >= 0 AND needs_review_count >= 0 AND unreviewed_rejected_count >= 0), \n\tCONSTRAINT ck_attendance_closeout_checkpoint_oldest_pending CHECK (((pending_count + sending_count + retryable_count = 0 AND oldest_pending_age_seconds IS NULL) OR (pending_count + sending_count + retryable_count > 0 AND oldest_pending_age_seconds >= 0))), \n\tFOREIGN KEY(session_id) REFERENCES attendance_sessions (id) ON DELETE CASCADE, \n\tFOREIGN KEY(agency_id) REFERENCES agencies (id) ON DELETE CASCADE, \n\tFOREIGN KEY(coordinator_user_id) REFERENCES users (id) ON DELETE CASCADE, \n\tFOREIGN KEY(runtime_registration_id) REFERENCES attendance_runtime_registrations (id) ON DELETE RESTRICT\n)\n\n"
+      },
+      "attendance_discard_tombstones": {
+        "indexes": {
+          "ix_attendance_discard_retention": "CREATE INDEX ix_attendance_discard_retention ON attendance_discard_tombstones (retention_expires_at, id)",
+          "ix_attendance_discard_session_received": "CREATE INDEX ix_attendance_discard_session_received ON attendance_discard_tombstones (session_id, received_at)"
+        },
+        "table": "\nCREATE TABLE attendance_discard_tombstones (\n\tid CHAR(32) NOT NULL, \n\tagency_id CHAR(32) NOT NULL, \n\tgroup_id CHAR(32) NOT NULL, \n\tsession_id CHAR(32) NOT NULL, \n\tcoordinator_user_id CHAR(32) NOT NULL, \n\truntime_registration_id CHAR(32), \n\tdiscard_event_id CHAR(32) NOT NULL, \n\tscan_reference VARCHAR(64) NOT NULL, \n\treason_category VARCHAR(32) NOT NULL, \n\tcaptured_at DATETIME, \n\tdiscarded_at DATETIME NOT NULL, \n\treceived_at DATETIME NOT NULL, \n\tstatus VARCHAR(16) DEFAULT 'accepted' NOT NULL, \n\tretention_expires_at DATETIME NOT NULL, \n\treconciled_at DATETIME, \n\treconciliation_note VARCHAR(500), \n\tupdated_at DATETIME NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_attendance_discard_event UNIQUE (agency_id, coordinator_user_id, discard_event_id), \n\tCONSTRAINT fk_attendance_discard_session_tenant_group FOREIGN KEY(session_id, agency_id, group_id) REFERENCES attendance_sessions (id, agency_id, group_id) ON DELETE RESTRICT, \n\tCONSTRAINT fk_attendance_discard_runtime_tenant_coordinator FOREIGN KEY(runtime_registration_id, agency_id, coordinator_user_id) REFERENCES attendance_runtime_registrations (id, agency_id, coordinator_user_id) ON DELETE RESTRICT, \n\tCONSTRAINT ck_attendance_discard_scan_reference CHECK (length(scan_reference) = 64), \n\tCONSTRAINT ck_attendance_discard_reason CHECK (reason_category IN ('operator_discard', 'coordinator_confirmed_rescan', 'wrong_group', 'expired_authorization', 'activity_closed', 'duplicate', 'duplicate_local_evidence', 'passenger_not_attending', 'privacy_or_data_error', 'server_rejected', 'server_terminal_rejection', 'corrupted_entry', 'other')), \n\tCONSTRAINT ck_attendance_discard_status CHECK (status IN ('accepted', 'reconciled', 'overridden')), \n\tCONSTRAINT ck_attendance_discard_time_order CHECK (received_at >= discarded_at AND retention_expires_at > received_at), \n\tFOREIGN KEY(agency_id) REFERENCES agencies (id) ON DELETE RESTRICT, \n\tFOREIGN KEY(group_id) REFERENCES client_groups (id) ON DELETE RESTRICT, \n\tFOREIGN KEY(session_id) REFERENCES attendance_sessions (id) ON DELETE RESTRICT, \n\tFOREIGN KEY(coordinator_user_id) REFERENCES users (id) ON DELETE RESTRICT, \n\tFOREIGN KEY(runtime_registration_id) REFERENCES attendance_runtime_registrations (id) ON DELETE RESTRICT\n)\n\n"
+      },
+      "attendance_records": {
+        "indexes": {
+          "ix_attendance_records_agency_id": "CREATE INDEX ix_attendance_records_agency_id ON attendance_records (agency_id)",
+          "ix_attendance_records_agency_session": "CREATE INDEX ix_attendance_records_agency_session ON attendance_records (agency_id, session_id)",
+          "ix_attendance_records_coordinator_scanned": "CREATE INDEX ix_attendance_records_coordinator_scanned ON attendance_records (coordinator_user_id, scanned_at)",
+          "ix_attendance_records_coordinator_user_id": "CREATE INDEX ix_attendance_records_coordinator_user_id ON attendance_records (coordinator_user_id)",
+          "ix_attendance_records_passenger_id": "CREATE INDEX ix_attendance_records_passenger_id ON attendance_records (passenger_id)",
+          "ix_attendance_records_scanned_at": "CREATE INDEX ix_attendance_records_scanned_at ON attendance_records (scanned_at)",
+          "ix_attendance_records_session_id": "CREATE INDEX ix_attendance_records_session_id ON attendance_records (session_id)"
+        },
+        "table": "\nCREATE TABLE attendance_records (\n\tid CHAR(32) NOT NULL, \n\tagency_id CHAR(32) NOT NULL, \n\tsession_id CHAR(32) NOT NULL, \n\tpassenger_id CHAR(32) NOT NULL, \n\tcoordinator_user_id CHAR(32) NOT NULL, \n\tscanned_at DATETIME NOT NULL, \n\tsync_source VARCHAR(7) NOT NULL, \n\tclient_event_id VARCHAR(128) NOT NULL, \n\tdevice_id VARCHAR(128), \n\truntime_registration_id CHAR(32), \n\tcreated_at DATETIME NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_attendance_records_session_passenger UNIQUE (session_id, passenger_id), \n\tCONSTRAINT uq_attendance_records_session_client_event UNIQUE (session_id, client_event_id), \n\tCONSTRAINT fk_attendance_record_runtime_tenant_coordinator FOREIGN KEY(runtime_registration_id, agency_id, coordinator_user_id) REFERENCES attendance_runtime_registrations (id, agency_id, coordinator_user_id) ON DELETE RESTRICT, \n\tFOREIGN KEY(agency_id) REFERENCES agencies (id) ON DELETE CASCADE, \n\tFOREIGN KEY(session_id) REFERENCES attendance_sessions (id) ON DELETE CASCADE, \n\tFOREIGN KEY(passenger_id) REFERENCES passport_submissions (id) ON DELETE CASCADE, \n\tFOREIGN KEY(coordinator_user_id) REFERENCES users (id) ON DELETE RESTRICT, \n\tFOREIGN KEY(runtime_registration_id) REFERENCES attendance_runtime_registrations (id) ON DELETE RESTRICT\n)\n\n"
+      },
+      "attendance_runtime_registrations": {
+        "indexes": {
+          "ix_attendance_runtime_coordinator_status": "CREATE INDEX ix_attendance_runtime_coordinator_status ON attendance_runtime_registrations (agency_id, coordinator_user_id, status, expires_at)",
+          "ix_attendance_runtime_native_session": "CREATE INDEX ix_attendance_runtime_native_session ON attendance_runtime_registrations (native_mobile_session_id)"
+        },
+        "table": "\nCREATE TABLE attendance_runtime_registrations (\n\tid CHAR(32) NOT NULL, \n\tagency_id CHAR(32) NOT NULL, \n\tcoordinator_user_id CHAR(32) NOT NULL, \n\truntime_kind VARCHAR(24) NOT NULL, \n\truntime_identifier_hash VARCHAR(64) NOT NULL, \n\tnative_mobile_session_id CHAR(32), \n\tstatus VARCHAR(16) DEFAULT 'active' NOT NULL, \n\tregistered_at DATETIME NOT NULL, \n\tlast_seen_at DATETIME NOT NULL, \n\texpires_at DATETIME NOT NULL, \n\trevoked_at DATETIME, \n\trevoke_reason VARCHAR(80), \n\treplaced_by_runtime_id CHAR(32), \n\tcreated_at DATETIME NOT NULL, \n\tupdated_at DATETIME NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_attendance_runtime_id_tenant_coordinator UNIQUE (id, agency_id, coordinator_user_id), \n\tCONSTRAINT uq_attendance_runtime_identifier UNIQUE (agency_id, coordinator_user_id, runtime_identifier_hash), \n\tCONSTRAINT fk_attendance_runtime_coordinator_tenant FOREIGN KEY(coordinator_user_id, agency_id) REFERENCES users (id, agency_id) ON DELETE RESTRICT, \n\tCONSTRAINT ck_attendance_runtime_kind CHECK (runtime_kind IN ('native_mobile', 'pwa', 'webview', 'legacy_account')), \n\tCONSTRAINT ck_attendance_runtime_status CHECK (status IN ('active', 'revoked', 'expired', 'lost', 'replaced')), \n\tCONSTRAINT ck_attendance_runtime_identifier_hash CHECK (length(runtime_identifier_hash) = 64), \n\tCONSTRAINT ck_attendance_runtime_expiry CHECK (expires_at > registered_at), \n\tCONSTRAINT ck_attendance_runtime_revocation_shape CHECK ((status = 'active' AND revoked_at IS NULL) OR (status <> 'active' AND revoked_at IS NOT NULL)), \n\tFOREIGN KEY(agency_id) REFERENCES agencies (id) ON DELETE CASCADE, \n\tFOREIGN KEY(native_mobile_session_id) REFERENCES mobile_device_sessions (id) ON DELETE SET NULL, \n\tFOREIGN KEY(replaced_by_runtime_id) REFERENCES attendance_runtime_registrations (id) ON DELETE SET NULL\n)\n\n"
+      },
+      "attendance_scan_batch_results": {
+        "indexes": {
+          "ix_attendance_scan_batch_results_batch_order": "CREATE INDEX ix_attendance_scan_batch_results_batch_order ON attendance_scan_batch_results (batch_id, request_ordinal)"
+        },
+        "table": "\nCREATE TABLE attendance_scan_batch_results (\n\tid CHAR(32) NOT NULL, \n\tbatch_id CHAR(32) NOT NULL, \n\tagency_id CHAR(32) NOT NULL, \n\tsession_id CHAR(32) NOT NULL, \n\tcoordinator_user_id CHAR(32) NOT NULL, \n\tclient_event_id VARCHAR(128) NOT NULL, \n\trequest_ordinal INTEGER NOT NULL, \n\trequest_fingerprint VARCHAR(64) NOT NULL, \n\toutcome VARCHAR(16) NOT NULL, \n\tretryable BOOLEAN NOT NULL, \n\tpassenger_id CHAR(32), \n\terror_code VARCHAR(80), \n\tcreated_at DATETIME NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_attendance_scan_batch_result_event UNIQUE (agency_id, session_id, client_event_id), \n\tCONSTRAINT ck_attendance_scan_batch_result_fingerprint CHECK (length(request_fingerprint) = 64), \n\tCONSTRAINT ck_attendance_scan_batch_result_outcome CHECK (outcome IN ('counted', 'duplicate', 'rejected')), \n\tCONSTRAINT ck_attendance_scan_batch_result_shape CHECK ((outcome IN ('counted', 'duplicate') AND passenger_id IS NOT NULL AND error_code IS NULL AND retryable = false) OR (outcome = 'rejected' AND passenger_id IS NULL AND error_code IS NOT NULL)), \n\tFOREIGN KEY(batch_id) REFERENCES attendance_scan_batches (batch_id) ON DELETE CASCADE, \n\tFOREIGN KEY(agency_id) REFERENCES agencies (id) ON DELETE RESTRICT, \n\tFOREIGN KEY(session_id) REFERENCES attendance_sessions (id) ON DELETE RESTRICT, \n\tFOREIGN KEY(coordinator_user_id) REFERENCES users (id) ON DELETE RESTRICT\n)\n\n"
+      },
+      "attendance_scan_batches": {
+        "indexes": {
+          "ix_attendance_scan_batches_session_created": "CREATE INDEX ix_attendance_scan_batches_session_created ON attendance_scan_batches (session_id, created_at)"
+        },
+        "table": "\nCREATE TABLE attendance_scan_batches (\n\tbatch_id CHAR(32) NOT NULL, \n\tagency_id CHAR(32) NOT NULL, \n\tgroup_id CHAR(32) NOT NULL, \n\tsession_id CHAR(32) NOT NULL, \n\tcoordinator_user_id CHAR(32) NOT NULL, \n\truntime_registration_id CHAR(32), \n\trequest_fingerprint VARCHAR(64) NOT NULL, \n\titem_count INTEGER NOT NULL, \n\tcreated_at DATETIME NOT NULL, \n\tPRIMARY KEY (batch_id), \n\tCONSTRAINT fk_attendance_scan_batch_session_tenant_group FOREIGN KEY(session_id, agency_id, group_id) REFERENCES attendance_sessions (id, agency_id, group_id) ON DELETE RESTRICT, \n\tCONSTRAINT fk_attendance_scan_batch_runtime_tenant_coordinator FOREIGN KEY(runtime_registration_id, agency_id, coordinator_user_id) REFERENCES attendance_runtime_registrations (id, agency_id, coordinator_user_id) ON DELETE RESTRICT, \n\tCONSTRAINT ck_attendance_scan_batch_fingerprint CHECK (length(request_fingerprint) = 64), \n\tCONSTRAINT ck_attendance_scan_batch_item_count CHECK (item_count BETWEEN 1 AND 50), \n\tFOREIGN KEY(agency_id) REFERENCES agencies (id) ON DELETE RESTRICT, \n\tFOREIGN KEY(group_id) REFERENCES client_groups (id) ON DELETE RESTRICT, \n\tFOREIGN KEY(session_id) REFERENCES attendance_sessions (id) ON DELETE RESTRICT, \n\tFOREIGN KEY(coordinator_user_id) REFERENCES users (id) ON DELETE RESTRICT, \n\tFOREIGN KEY(runtime_registration_id) REFERENCES attendance_runtime_registrations (id) ON DELETE RESTRICT\n)\n\n"
+      },
+      "attendance_session_runtime_participants": {
+        "indexes": {
+          "ix_attendance_participants_session_coordinator": "CREATE INDEX ix_attendance_participants_session_coordinator ON attendance_session_runtime_participants (session_id, coordinator_user_id)"
+        },
+        "table": "\nCREATE TABLE attendance_session_runtime_participants (\n\tid CHAR(32) NOT NULL, \n\tagency_id CHAR(32) NOT NULL, \n\tsession_id CHAR(32) NOT NULL, \n\tcoordinator_user_id CHAR(32) NOT NULL, \n\truntime_registration_id CHAR(32) NOT NULL, \n\tparticipation_source VARCHAR(16) NOT NULL, \n\tfirst_participated_at DATETIME NOT NULL, \n\tlast_participated_at DATETIME NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_attendance_session_runtime_participant UNIQUE (session_id, runtime_registration_id), \n\tCONSTRAINT fk_attendance_participant_session_tenant FOREIGN KEY(session_id, agency_id) REFERENCES attendance_sessions (id, agency_id) ON DELETE CASCADE, \n\tCONSTRAINT fk_attendance_participant_runtime_tenant_coordinator FOREIGN KEY(runtime_registration_id, agency_id, coordinator_user_id) REFERENCES attendance_runtime_registrations (id, agency_id, coordinator_user_id) ON DELETE RESTRICT, \n\tCONSTRAINT ck_attendance_participant_source CHECK (participation_source IN ('scan', 'checkpoint', 'discard', 'legacy')), \n\tCONSTRAINT ck_attendance_participant_time_order CHECK (last_participated_at >= first_participated_at), \n\tFOREIGN KEY(agency_id) REFERENCES agencies (id) ON DELETE CASCADE\n)\n\n"
+      },
+      "attendance_sessions": {
+        "indexes": {
+          "ix_attendance_sessions_agency_created": "CREATE INDEX ix_attendance_sessions_agency_created ON attendance_sessions (agency_id, created_at)",
+          "ix_attendance_sessions_agency_id": "CREATE INDEX ix_attendance_sessions_agency_id ON attendance_sessions (agency_id)",
+          "ix_attendance_sessions_canonical_session_id": "CREATE INDEX ix_attendance_sessions_canonical_session_id ON attendance_sessions (canonical_session_id)",
+          "ix_attendance_sessions_group_id": "CREATE INDEX ix_attendance_sessions_group_id ON attendance_sessions (group_id)",
+          "ix_attendance_sessions_group_schedule": "CREATE INDEX ix_attendance_sessions_group_schedule ON attendance_sessions (group_id, scheduled_starts_at, scheduled_ends_at)",
+          "ix_attendance_sessions_group_status": "CREATE INDEX ix_attendance_sessions_group_status ON attendance_sessions (group_id, status)",
+          "ix_attendance_sessions_status": "CREATE INDEX ix_attendance_sessions_status ON attendance_sessions (status)",
+          "uq_attendance_sessions_active_group_name": "CREATE UNIQUE INDEX uq_attendance_sessions_active_group_name ON attendance_sessions (group_id, normalized_name)"
+        },
+        "table": "\nCREATE TABLE attendance_sessions (\n\tid CHAR(32) NOT NULL, \n\tagency_id CHAR(32) NOT NULL, \n\tgroup_id CHAR(32) NOT NULL, \n\tname VARCHAR(160) NOT NULL, \n\tnormalized_name VARCHAR(160) NOT NULL, \n\tcanonical_session_id CHAR(32) NOT NULL, \n\tstatus VARCHAR(9) NOT NULL, \n\tcreated_by_user_id CHAR(32) NOT NULL, \n\tcreated_at DATETIME NOT NULL, \n\tupdated_at DATETIME NOT NULL, \n\tstarted_at DATETIME, \n\tcompleted_at DATETIME, \n\tcancelled_at DATETIME, \n\tscheduled_starts_at DATETIME, \n\tscheduled_ends_at DATETIME, \n\tschedule_timezone VARCHAR(64), \n\tschedule_version INTEGER DEFAULT '1' NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_attendance_sessions_id_agency UNIQUE (id, agency_id), \n\tCONSTRAINT uq_attendance_sessions_id_agency_group UNIQUE (id, agency_id, group_id), \n\tCONSTRAINT ck_attendance_sessions_scheduled_window CHECK ((scheduled_starts_at IS NULL AND scheduled_ends_at IS NULL) OR (scheduled_starts_at IS NOT NULL AND scheduled_ends_at IS NOT NULL AND scheduled_ends_at > scheduled_starts_at)), \n\tCONSTRAINT ck_attendance_sessions_schedule_version CHECK (schedule_version >= 1), \n\tCONSTRAINT ck_attendance_sessions_schedule_timezone CHECK (schedule_timezone IS NULL OR (length(schedule_timezone) BETWEEN 1 AND 64 AND schedule_timezone = trim(schedule_timezone))), \n\tFOREIGN KEY(agency_id) REFERENCES agencies (id) ON DELETE CASCADE, \n\tFOREIGN KEY(group_id) REFERENCES client_groups (id) ON DELETE CASCADE, \n\tFOREIGN KEY(canonical_session_id) REFERENCES attendance_sessions (id) ON DELETE CASCADE, \n\tFOREIGN KEY(created_by_user_id) REFERENCES users (id) ON DELETE RESTRICT\n)\n\n"
+      },
+      "passenger_qr_tokens": {
+        "indexes": {
+          "ix_passenger_qr_tokens_active_passenger": "CREATE INDEX ix_passenger_qr_tokens_active_passenger ON passenger_qr_tokens (passenger_id, is_active)",
+          "ix_passenger_qr_tokens_agency_active": "CREATE INDEX ix_passenger_qr_tokens_agency_active ON passenger_qr_tokens (agency_id, is_active)",
+          "ix_passenger_qr_tokens_agency_id": "CREATE INDEX ix_passenger_qr_tokens_agency_id ON passenger_qr_tokens (agency_id)",
+          "ix_passenger_qr_tokens_expires_at": "CREATE INDEX ix_passenger_qr_tokens_expires_at ON passenger_qr_tokens (expires_at)",
+          "ix_passenger_qr_tokens_is_active": "CREATE INDEX ix_passenger_qr_tokens_is_active ON passenger_qr_tokens (is_active)",
+          "ix_passenger_qr_tokens_passenger_id": "CREATE INDEX ix_passenger_qr_tokens_passenger_id ON passenger_qr_tokens (passenger_id)",
+          "uq_passenger_qr_tokens_one_active_per_passenger": "CREATE UNIQUE INDEX uq_passenger_qr_tokens_one_active_per_passenger ON passenger_qr_tokens (passenger_id)"
+        },
+        "table": "\nCREATE TABLE passenger_qr_tokens (\n\tid CHAR(32) NOT NULL, \n\tagency_id CHAR(32) NOT NULL, \n\tpassenger_id CHAR(32) NOT NULL, \n\ttoken_hash VARCHAR(128) NOT NULL, \n\tqr_payload VARCHAR(64), \n\ttoken_version INTEGER NOT NULL, \n\tis_active BOOLEAN NOT NULL, \n\tcreated_by_user_id CHAR(32), \n\trevoked_at DATETIME, \n\texpires_at DATETIME NOT NULL, \n\tcreated_at DATETIME NOT NULL, \n\tupdated_at DATETIME NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_passenger_qr_tokens_token_hash UNIQUE (token_hash), \n\tFOREIGN KEY(agency_id) REFERENCES agencies (id) ON DELETE CASCADE, \n\tFOREIGN KEY(passenger_id) REFERENCES passport_submissions (id) ON DELETE CASCADE, \n\tFOREIGN KEY(created_by_user_id) REFERENCES users (id) ON DELETE SET NULL\n)\n\n"
+      },
+      "passenger_qr_whatsapp_deliveries": {
+        "indexes": {
+          "ix_passenger_qr_whatsapp_deliveries_agency_id": "CREATE INDEX ix_passenger_qr_whatsapp_deliveries_agency_id ON passenger_qr_whatsapp_deliveries (agency_id)",
+          "ix_passenger_qr_whatsapp_deliveries_broadcast_group_id": "CREATE INDEX ix_passenger_qr_whatsapp_deliveries_broadcast_group_id ON passenger_qr_whatsapp_deliveries (broadcast_group_id)",
+          "ix_passenger_qr_whatsapp_deliveries_group_id": "CREATE INDEX ix_passenger_qr_whatsapp_deliveries_group_id ON passenger_qr_whatsapp_deliveries (group_id)",
+          "ix_passenger_qr_whatsapp_deliveries_normalized_phone_number": "CREATE INDEX ix_passenger_qr_whatsapp_deliveries_normalized_phone_number ON passenger_qr_whatsapp_deliveries (normalized_phone_number)",
+          "ix_passenger_qr_whatsapp_deliveries_passenger_id": "CREATE INDEX ix_passenger_qr_whatsapp_deliveries_passenger_id ON passenger_qr_whatsapp_deliveries (passenger_id)",
+          "ix_passenger_qr_whatsapp_deliveries_qr_token_id": "CREATE INDEX ix_passenger_qr_whatsapp_deliveries_qr_token_id ON passenger_qr_whatsapp_deliveries (qr_token_id)",
+          "ix_passenger_qr_whatsapp_deliveries_recipient_id": "CREATE INDEX ix_passenger_qr_whatsapp_deliveries_recipient_id ON passenger_qr_whatsapp_deliveries (recipient_id)",
+          "ix_passenger_qr_whatsapp_deliveries_send_batch_id": "CREATE INDEX ix_passenger_qr_whatsapp_deliveries_send_batch_id ON passenger_qr_whatsapp_deliveries (send_batch_id)",
+          "ix_passenger_qr_whatsapp_deliveries_status": "CREATE INDEX ix_passenger_qr_whatsapp_deliveries_status ON passenger_qr_whatsapp_deliveries (status)",
+          "ix_passenger_qr_whatsapp_delivery_group_status": "CREATE INDEX ix_passenger_qr_whatsapp_delivery_group_status ON passenger_qr_whatsapp_deliveries (group_id, status)",
+          "ix_passenger_qr_whatsapp_delivery_send_batch": "CREATE INDEX ix_passenger_qr_whatsapp_delivery_send_batch ON passenger_qr_whatsapp_deliveries (send_batch_id, created_at)"
+        },
+        "table": "\nCREATE TABLE passenger_qr_whatsapp_deliveries (\n\tid CHAR(32) NOT NULL, \n\tagency_id CHAR(32) NOT NULL, \n\tgroup_id CHAR(32) NOT NULL, \n\tpassenger_id CHAR(32) NOT NULL, \n\tqr_token_id CHAR(32) NOT NULL, \n\tbroadcast_group_id CHAR(32), \n\trecipient_id CHAR(32), \n\tsend_batch_id CHAR(32) NOT NULL, \n\tpassenger_name VARCHAR(255) NOT NULL, \n\tpassport_number VARCHAR(32), \n\tphone_number VARCHAR(64) NOT NULL, \n\tnormalized_phone_number VARCHAR(32) NOT NULL, \n\ttemplate_name VARCHAR(255) NOT NULL, \n\ttemplate_parameter_values JSON NOT NULL, \n\tstatus VARCHAR(32) NOT NULL, \n\tattempt_count INTEGER NOT NULL, \n\tprovider_message_id VARCHAR(255), \n\tprovider_media_id VARCHAR(255), \n\terror_message TEXT, \n\tstatus_updated_at DATETIME NOT NULL, \n\tprovider_status_at DATETIME, \n\tcreated_by_user_id CHAR(32), \n\tcreated_at DATETIME NOT NULL, \n\tupdated_at DATETIME NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_passenger_qr_whatsapp_delivery_token UNIQUE (qr_token_id), \n\tFOREIGN KEY(agency_id) REFERENCES agencies (id) ON DELETE CASCADE, \n\tFOREIGN KEY(group_id) REFERENCES client_groups (id) ON DELETE CASCADE, \n\tFOREIGN KEY(passenger_id) REFERENCES passport_submissions (id) ON DELETE CASCADE, \n\tFOREIGN KEY(qr_token_id) REFERENCES passenger_qr_tokens (id) ON DELETE CASCADE, \n\tFOREIGN KEY(broadcast_group_id) REFERENCES whatsapp_broadcast_groups (id) ON DELETE SET NULL, \n\tFOREIGN KEY(recipient_id) REFERENCES whatsapp_broadcast_recipients (id) ON DELETE SET NULL, \n\tUNIQUE (provider_message_id), \n\tFOREIGN KEY(created_by_user_id) REFERENCES users (id) ON DELETE SET NULL\n)\n\n"
+      },
+      "rooming_assignments": {
+        "indexes": {
+          "ix_rooming_assignments_hotel_id": "CREATE INDEX ix_rooming_assignments_hotel_id ON rooming_assignments (hotel_id)",
+          "ix_rooming_assignments_passenger_id": "CREATE INDEX ix_rooming_assignments_passenger_id ON rooming_assignments (passenger_id)",
+          "ix_rooming_assignments_room_id": "CREATE INDEX ix_rooming_assignments_room_id ON rooming_assignments (room_id)",
+          "ix_rooming_assignments_room_position": "CREATE INDEX ix_rooming_assignments_room_position ON rooming_assignments (room_id, position)"
+        },
+        "table": "\nCREATE TABLE rooming_assignments (\n\tid CHAR(32) NOT NULL, \n\thotel_id CHAR(32) NOT NULL, \n\troom_id CHAR(32) NOT NULL, \n\tpassenger_id CHAR(32) NOT NULL, \n\tposition INTEGER NOT NULL, \n\tassigned_at DATETIME NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_rooming_assignments_hotel_passenger UNIQUE (hotel_id, passenger_id), \n\tCONSTRAINT uq_rooming_assignments_room_passenger UNIQUE (room_id, passenger_id), \n\tFOREIGN KEY(hotel_id) REFERENCES rooming_hotels (id) ON DELETE CASCADE, \n\tFOREIGN KEY(room_id) REFERENCES rooming_rooms (id) ON DELETE CASCADE, \n\tFOREIGN KEY(passenger_id) REFERENCES passport_submissions (id) ON DELETE CASCADE\n)\n\n"
+      },
+      "rooming_checkins": {
+        "indexes": {
+          "ix_rooming_checkins_agency_id": "CREATE INDEX ix_rooming_checkins_agency_id ON rooming_checkins (agency_id)",
+          "ix_rooming_checkins_hotel_id": "CREATE INDEX ix_rooming_checkins_hotel_id ON rooming_checkins (hotel_id)",
+          "ix_rooming_checkins_hotel_status": "CREATE INDEX ix_rooming_checkins_hotel_status ON rooming_checkins (hotel_id, checked_in, key_issued, welcome_letter_issued)",
+          "ix_rooming_checkins_passenger_id": "CREATE INDEX ix_rooming_checkins_passenger_id ON rooming_checkins (passenger_id)",
+          "ix_rooming_checkins_room_id": "CREATE INDEX ix_rooming_checkins_room_id ON rooming_checkins (room_id)"
+        },
+        "table": "\nCREATE TABLE rooming_checkins (\n\tid CHAR(32) NOT NULL, \n\tagency_id CHAR(32) NOT NULL, \n\thotel_id CHAR(32) NOT NULL, \n\troom_id CHAR(32) NOT NULL, \n\tpassenger_id CHAR(32) NOT NULL, \n\tchecked_in BOOLEAN NOT NULL, \n\tchecked_in_at DATETIME, \n\tkey_issued BOOLEAN NOT NULL, \n\tkey_issued_at DATETIME, \n\twelcome_letter_issued BOOLEAN NOT NULL, \n\twelcome_letter_issued_at DATETIME, \n\tremarks TEXT, \n\tupdated_by_user_id CHAR(32), \n\tcreated_at DATETIME NOT NULL, \n\tupdated_at DATETIME NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_rooming_checkins_hotel_passenger UNIQUE (hotel_id, passenger_id), \n\tFOREIGN KEY(agency_id) REFERENCES agencies (id) ON DELETE CASCADE, \n\tFOREIGN KEY(hotel_id) REFERENCES rooming_hotels (id) ON DELETE CASCADE, \n\tFOREIGN KEY(room_id) REFERENCES rooming_rooms (id) ON DELETE CASCADE, \n\tFOREIGN KEY(passenger_id) REFERENCES passport_submissions (id) ON DELETE CASCADE, \n\tFOREIGN KEY(updated_by_user_id) REFERENCES users (id) ON DELETE SET NULL\n)\n\n"
+      },
+      "rooming_hotel_passengers": {
+        "indexes": {
+          "ix_rooming_hotel_passengers_agency_id": "CREATE INDEX ix_rooming_hotel_passengers_agency_id ON rooming_hotel_passengers (agency_id)",
+          "ix_rooming_hotel_passengers_group_hotel": "CREATE INDEX ix_rooming_hotel_passengers_group_hotel ON rooming_hotel_passengers (group_id, hotel_id)",
+          "ix_rooming_hotel_passengers_group_id": "CREATE INDEX ix_rooming_hotel_passengers_group_id ON rooming_hotel_passengers (group_id)",
+          "ix_rooming_hotel_passengers_hotel_id": "CREATE INDEX ix_rooming_hotel_passengers_hotel_id ON rooming_hotel_passengers (hotel_id)",
+          "ix_rooming_hotel_passengers_passenger_id": "CREATE INDEX ix_rooming_hotel_passengers_passenger_id ON rooming_hotel_passengers (passenger_id)"
+        },
+        "table": "\nCREATE TABLE rooming_hotel_passengers (\n\tid CHAR(32) NOT NULL, \n\tagency_id CHAR(32) NOT NULL, \n\tgroup_id CHAR(32) NOT NULL, \n\thotel_id CHAR(32) NOT NULL, \n\tpassenger_id CHAR(32) NOT NULL, \n\tis_vip BOOLEAN DEFAULT 'false' NOT NULL, \n\tcreated_at DATETIME NOT NULL, \n\tupdated_at DATETIME NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_rooming_hotel_passengers_group_passenger UNIQUE (group_id, passenger_id), \n\tCONSTRAINT uq_rooming_hotel_passengers_hotel_passenger UNIQUE (hotel_id, passenger_id), \n\tFOREIGN KEY(agency_id) REFERENCES agencies (id) ON DELETE CASCADE, \n\tFOREIGN KEY(group_id) REFERENCES client_groups (id) ON DELETE CASCADE, \n\tFOREIGN KEY(hotel_id) REFERENCES rooming_hotels (id) ON DELETE CASCADE, \n\tFOREIGN KEY(passenger_id) REFERENCES passport_submissions (id) ON DELETE CASCADE\n)\n\n"
+      },
+      "rooming_hotels": {
+        "indexes": {
+          "ix_rooming_hotels_agency_id": "CREATE INDEX ix_rooming_hotels_agency_id ON rooming_hotels (agency_id)",
+          "ix_rooming_hotels_group_created": "CREATE INDEX ix_rooming_hotels_group_created ON rooming_hotels (group_id, created_at)",
+          "ix_rooming_hotels_group_id": "CREATE INDEX ix_rooming_hotels_group_id ON rooming_hotels (group_id)"
+        },
+        "table": "\nCREATE TABLE rooming_hotels (\n\tid CHAR(32) NOT NULL, \n\tagency_id CHAR(32) NOT NULL, \n\tgroup_id CHAR(32) NOT NULL, \n\thotel_name VARCHAR(255) NOT NULL, \n\tcity VARCHAR(120), \n\tcheck_in_date DATE, \n\tcheck_out_date DATE, \n\tallocation_priority_fields JSON DEFAULT '[]' NOT NULL, \n\tallocation_revision INTEGER DEFAULT '0' NOT NULL, \n\tallocation_fingerprint VARCHAR(64), \n\tallocation_updated_at DATETIME, \n\tcreated_by_user_id CHAR(32), \n\tcreated_at DATETIME NOT NULL, \n\tupdated_at DATETIME NOT NULL, \n\tPRIMARY KEY (id), \n\tFOREIGN KEY(agency_id) REFERENCES agencies (id) ON DELETE CASCADE, \n\tFOREIGN KEY(group_id) REFERENCES client_groups (id) ON DELETE CASCADE, \n\tFOREIGN KEY(created_by_user_id) REFERENCES users (id) ON DELETE SET NULL\n)\n\n"
+      },
+      "rooming_passenger_preferences": {
+        "indexes": {
+          "ix_rooming_preferences_hotel_id": "CREATE INDEX ix_rooming_preferences_hotel_id ON rooming_passenger_preferences (hotel_id)",
+          "ix_rooming_preferences_hotel_passenger": "CREATE INDEX ix_rooming_preferences_hotel_passenger ON rooming_passenger_preferences (hotel_id, passenger_id)",
+          "ix_rooming_preferences_passenger_id": "CREATE INDEX ix_rooming_preferences_passenger_id ON rooming_passenger_preferences (passenger_id)"
+        },
+        "table": "\nCREATE TABLE rooming_passenger_preferences (\n\tid CHAR(32) NOT NULL, \n\thotel_id CHAR(32) NOT NULL, \n\tpassenger_id CHAR(32) NOT NULL, \n\tallocation_tag VARCHAR(16) NOT NULL, \n\tspecial_requests JSON NOT NULL, \n\troommate_notes TEXT, \n\tupdated_at DATETIME NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_rooming_preferences_hotel_passenger UNIQUE (hotel_id, passenger_id), \n\tFOREIGN KEY(hotel_id) REFERENCES rooming_hotels (id) ON DELETE CASCADE, \n\tFOREIGN KEY(passenger_id) REFERENCES passport_submissions (id) ON DELETE CASCADE\n)\n\n"
+      },
+      "rooming_rooms": {
+        "indexes": {
+          "ix_rooming_rooms_hotel_id": "CREATE INDEX ix_rooming_rooms_hotel_id ON rooming_rooms (hotel_id)",
+          "ix_rooming_rooms_hotel_number": "CREATE INDEX ix_rooming_rooms_hotel_number ON rooming_rooms (hotel_id, room_number)"
+        },
+        "table": "\nCREATE TABLE rooming_rooms (\n\tid CHAR(32) NOT NULL, \n\thotel_id CHAR(32) NOT NULL, \n\troom_number VARCHAR(32) NOT NULL, \n\troom_type VARCHAR(16) NOT NULL, \n\tcapacity INTEGER NOT NULL, \n\tallocation_tag VARCHAR(16) NOT NULL, \n\troommate_notes TEXT, \n\tis_saved BOOLEAN NOT NULL, \n\tsort_order INTEGER NOT NULL, \n\tcreated_at DATETIME NOT NULL, \n\tupdated_at DATETIME NOT NULL, \n\tPRIMARY KEY (id), \n\tCONSTRAINT uq_rooming_rooms_hotel_number UNIQUE (hotel_id, room_number), \n\tFOREIGN KEY(hotel_id) REFERENCES rooming_hotels (id) ON DELETE CASCADE\n)\n\n"
+      }
+    }
+  },
+  "mapped": {
+    "AttendanceCloseoutCheckpointModel": {
+      "attributes": [
+        "agency_id",
+        "coordinator_user_id",
+        "id",
+        "needs_review_count",
+        "oldest_pending_age_seconds",
+        "pending_count",
+        "reported_at",
+        "retryable_count",
+        "runtime_registration_id",
+        "sending_count",
+        "session_id",
+        "unreviewed_rejected_count"
+      ],
+      "columns": {
+        "agency_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "coordinator_user_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "id": {
+          "default": {
+            "callable": "uuid.uuid4"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "needs_review_count": {
+          "default": "0",
+          "info": {},
+          "onupdate": null
+        },
+        "oldest_pending_age_seconds": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "pending_count": {
+          "default": "0",
+          "info": {},
+          "onupdate": null
+        },
+        "reported_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          }
+        },
+        "retryable_count": {
+          "default": "0",
+          "info": {},
+          "onupdate": null
+        },
+        "runtime_registration_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "sending_count": {
+          "default": "0",
+          "info": {},
+          "onupdate": null
+        },
+        "session_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "unreviewed_rejected_count": {
+          "default": "0",
+          "info": {},
+          "onupdate": null
+        }
+      },
+      "primary_key": [
+        "id"
+      ],
+      "relationships": {},
+      "table": "attendance_closeout_checkpoints"
+    },
+    "AttendanceDiscardTombstoneModel": {
+      "attributes": [
+        "agency_id",
+        "captured_at",
+        "coordinator_user_id",
+        "discard_event_id",
+        "discarded_at",
+        "group_id",
+        "id",
+        "reason_category",
+        "received_at",
+        "reconciled_at",
+        "reconciliation_note",
+        "retention_expires_at",
+        "runtime_registration_id",
+        "scan_reference",
+        "session_id",
+        "status",
+        "updated_at"
+      ],
+      "columns": {
+        "agency_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "captured_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "coordinator_user_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "discard_event_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "discarded_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "group_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "id": {
+          "default": {
+            "callable": "uuid.uuid4"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "reason_category": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "received_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "reconciled_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "reconciliation_note": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "retention_expires_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "runtime_registration_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "scan_reference": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "session_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "status": {
+          "default": "accepted",
+          "info": {},
+          "onupdate": null
+        },
+        "updated_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          }
+        }
+      },
+      "primary_key": [
+        "id"
+      ],
+      "relationships": {},
+      "table": "attendance_discard_tombstones"
+    },
+    "AttendanceRecordModel": {
+      "attributes": [
+        "agency_id",
+        "client_event_id",
+        "coordinator_user_id",
+        "created_at",
+        "device_id",
+        "id",
+        "passenger_id",
+        "runtime_registration_id",
+        "scanned_at",
+        "session_id",
+        "sync_source"
+      ],
+      "columns": {
+        "agency_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "client_event_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "coordinator_user_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "created_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "device_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "id": {
+          "default": {
+            "callable": "uuid.uuid4"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "passenger_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "runtime_registration_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "scanned_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "session_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "sync_source": {
+          "default": "online",
+          "info": {},
+          "onupdate": null
+        }
+      },
+      "primary_key": [
+        "id"
+      ],
+      "relationships": {},
+      "table": "attendance_records"
+    },
+    "AttendanceRuntimeRegistrationModel": {
+      "attributes": [
+        "agency_id",
+        "coordinator_user_id",
+        "created_at",
+        "expires_at",
+        "id",
+        "last_seen_at",
+        "native_mobile_session_id",
+        "registered_at",
+        "replaced_by_runtime_id",
+        "revoke_reason",
+        "revoked_at",
+        "runtime_identifier_hash",
+        "runtime_kind",
+        "status",
+        "updated_at"
+      ],
+      "columns": {
+        "agency_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "coordinator_user_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "created_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "expires_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "id": {
+          "default": {
+            "callable": "uuid.uuid4"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "last_seen_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "native_mobile_session_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "registered_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "replaced_by_runtime_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "revoke_reason": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "revoked_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "runtime_identifier_hash": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "runtime_kind": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "status": {
+          "default": "active",
+          "info": {},
+          "onupdate": null
+        },
+        "updated_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          }
+        }
+      },
+      "primary_key": [
+        "id"
+      ],
+      "relationships": {},
+      "table": "attendance_runtime_registrations"
+    },
+    "AttendanceScanBatchModel": {
+      "attributes": [
+        "agency_id",
+        "batch_id",
+        "coordinator_user_id",
+        "created_at",
+        "group_id",
+        "item_count",
+        "request_fingerprint",
+        "runtime_registration_id",
+        "session_id"
+      ],
+      "columns": {
+        "agency_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "batch_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "coordinator_user_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "created_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "group_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "item_count": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "request_fingerprint": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "runtime_registration_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "session_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        }
+      },
+      "primary_key": [
+        "batch_id"
+      ],
+      "relationships": {},
+      "table": "attendance_scan_batches"
+    },
+    "AttendanceScanBatchResultModel": {
+      "attributes": [
+        "agency_id",
+        "batch_id",
+        "client_event_id",
+        "coordinator_user_id",
+        "created_at",
+        "error_code",
+        "id",
+        "outcome",
+        "passenger_id",
+        "request_fingerprint",
+        "request_ordinal",
+        "retryable",
+        "session_id"
+      ],
+      "columns": {
+        "agency_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "batch_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "client_event_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "coordinator_user_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "created_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "error_code": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "id": {
+          "default": {
+            "callable": "uuid.uuid4"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "outcome": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "passenger_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "request_fingerprint": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "request_ordinal": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "retryable": {
+          "default": "False",
+          "info": {},
+          "onupdate": null
+        },
+        "session_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        }
+      },
+      "primary_key": [
+        "id"
+      ],
+      "relationships": {},
+      "table": "attendance_scan_batch_results"
+    },
+    "AttendanceSessionModel": {
+      "attributes": [
+        "agency_id",
+        "cancelled_at",
+        "canonical_session_id",
+        "completed_at",
+        "created_at",
+        "created_by_user_id",
+        "group_id",
+        "id",
+        "name",
+        "normalized_name",
+        "schedule_timezone",
+        "schedule_version",
+        "scheduled_ends_at",
+        "scheduled_starts_at",
+        "started_at",
+        "status",
+        "updated_at"
+      ],
+      "columns": {
+        "agency_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "cancelled_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "canonical_session_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "completed_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "created_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "created_by_user_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "group_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "id": {
+          "default": {
+            "callable": "uuid.uuid4"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "name": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "normalized_name": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "schedule_timezone": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "schedule_version": {
+          "default": "1",
+          "info": {},
+          "onupdate": null
+        },
+        "scheduled_ends_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "scheduled_starts_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "started_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "status": {
+          "default": "draft",
+          "info": {},
+          "onupdate": null
+        },
+        "updated_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          }
+        }
+      },
+      "primary_key": [
+        "id"
+      ],
+      "relationships": {},
+      "table": "attendance_sessions"
+    },
+    "AttendanceSessionRuntimeParticipantModel": {
+      "attributes": [
+        "agency_id",
+        "coordinator_user_id",
+        "first_participated_at",
+        "id",
+        "last_participated_at",
+        "participation_source",
+        "runtime_registration_id",
+        "session_id"
+      ],
+      "columns": {
+        "agency_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "coordinator_user_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "first_participated_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "id": {
+          "default": {
+            "callable": "uuid.uuid4"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "last_participated_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "participation_source": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "runtime_registration_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "session_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        }
+      },
+      "primary_key": [
+        "id"
+      ],
+      "relationships": {},
+      "table": "attendance_session_runtime_participants"
+    },
+    "PassengerQRTokenModel": {
+      "attributes": [
+        "agency_id",
+        "created_at",
+        "created_by_user_id",
+        "expires_at",
+        "id",
+        "is_active",
+        "passenger_id",
+        "qr_payload",
+        "revoked_at",
+        "token_hash",
+        "token_version",
+        "updated_at"
+      ],
+      "columns": {
+        "agency_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "created_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "created_by_user_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "expires_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "id": {
+          "default": {
+            "callable": "uuid.uuid4"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "is_active": {
+          "default": "True",
+          "info": {},
+          "onupdate": null
+        },
+        "passenger_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "qr_payload": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "revoked_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "token_hash": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "token_version": {
+          "default": "1",
+          "info": {},
+          "onupdate": null
+        },
+        "updated_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          }
+        }
+      },
+      "primary_key": [
+        "id"
+      ],
+      "relationships": {},
+      "table": "passenger_qr_tokens"
+    },
+    "PassengerQrWhatsAppDeliveryModel": {
+      "attributes": [
+        "agency_id",
+        "attempt_count",
+        "broadcast_group_id",
+        "created_at",
+        "created_by_user_id",
+        "error_message",
+        "group_id",
+        "id",
+        "normalized_phone_number",
+        "passenger_id",
+        "passenger_name",
+        "passport_number",
+        "phone_number",
+        "provider_media_id",
+        "provider_message_id",
+        "provider_status_at",
+        "qr_token_id",
+        "recipient_id",
+        "send_batch_id",
+        "status",
+        "status_updated_at",
+        "template_name",
+        "template_parameter_values",
+        "updated_at"
+      ],
+      "columns": {
+        "agency_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "attempt_count": {
+          "default": "0",
+          "info": {},
+          "onupdate": null
+        },
+        "broadcast_group_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "created_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "created_by_user_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "error_message": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "group_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "id": {
+          "default": {
+            "callable": "uuid.uuid4"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "normalized_phone_number": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "passenger_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "passenger_name": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "passport_number": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "phone_number": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "provider_media_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "provider_message_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "provider_status_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "qr_token_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "recipient_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "send_batch_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "status": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "status_updated_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "template_name": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "template_parameter_values": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "updated_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          }
+        }
+      },
+      "primary_key": [
+        "id"
+      ],
+      "relationships": {},
+      "table": "passenger_qr_whatsapp_deliveries"
+    },
+    "RoomingAssignmentModel": {
+      "attributes": [
+        "assigned_at",
+        "hotel_id",
+        "id",
+        "passenger_id",
+        "position",
+        "room_id"
+      ],
+      "columns": {
+        "assigned_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "hotel_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "id": {
+          "default": {
+            "callable": "uuid.uuid4"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "passenger_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "position": {
+          "default": "1",
+          "info": {},
+          "onupdate": null
+        },
+        "room_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        }
+      },
+      "primary_key": [
+        "id"
+      ],
+      "relationships": {},
+      "table": "rooming_assignments"
+    },
+    "RoomingCheckinModel": {
+      "attributes": [
+        "agency_id",
+        "checked_in",
+        "checked_in_at",
+        "created_at",
+        "hotel_id",
+        "id",
+        "key_issued",
+        "key_issued_at",
+        "passenger_id",
+        "remarks",
+        "room_id",
+        "updated_at",
+        "updated_by_user_id",
+        "welcome_letter_issued",
+        "welcome_letter_issued_at"
+      ],
+      "columns": {
+        "agency_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "checked_in": {
+          "default": "False",
+          "info": {},
+          "onupdate": null
+        },
+        "checked_in_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "created_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "hotel_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "id": {
+          "default": {
+            "callable": "uuid.uuid4"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "key_issued": {
+          "default": "False",
+          "info": {},
+          "onupdate": null
+        },
+        "key_issued_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "passenger_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "remarks": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "room_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "updated_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          }
+        },
+        "updated_by_user_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "welcome_letter_issued": {
+          "default": "False",
+          "info": {},
+          "onupdate": null
+        },
+        "welcome_letter_issued_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        }
+      },
+      "primary_key": [
+        "id"
+      ],
+      "relationships": {},
+      "table": "rooming_checkins"
+    },
+    "RoomingHotelModel": {
+      "attributes": [
+        "agency_id",
+        "allocation_fingerprint",
+        "allocation_priority_fields",
+        "allocation_revision",
+        "allocation_updated_at",
+        "check_in_date",
+        "check_out_date",
+        "city",
+        "created_at",
+        "created_by_user_id",
+        "group_id",
+        "hotel_name",
+        "id",
+        "updated_at"
+      ],
+      "columns": {
+        "agency_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "allocation_fingerprint": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "allocation_priority_fields": {
+          "default": {
+            "callable": "builtins.list"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "allocation_revision": {
+          "default": "0",
+          "info": {},
+          "onupdate": null
+        },
+        "allocation_updated_at": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "check_in_date": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "check_out_date": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "city": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "created_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "created_by_user_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "group_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "hotel_name": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "id": {
+          "default": {
+            "callable": "uuid.uuid4"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "updated_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          }
+        }
+      },
+      "primary_key": [
+        "id"
+      ],
+      "relationships": {},
+      "table": "rooming_hotels"
+    },
+    "RoomingHotelPassengerModel": {
+      "attributes": [
+        "agency_id",
+        "created_at",
+        "group_id",
+        "hotel_id",
+        "id",
+        "is_vip",
+        "passenger_id",
+        "updated_at"
+      ],
+      "columns": {
+        "agency_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "created_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "group_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "hotel_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "id": {
+          "default": {
+            "callable": "uuid.uuid4"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "is_vip": {
+          "default": "False",
+          "info": {},
+          "onupdate": null
+        },
+        "passenger_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "updated_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          }
+        }
+      },
+      "primary_key": [
+        "id"
+      ],
+      "relationships": {},
+      "table": "rooming_hotel_passengers"
+    },
+    "RoomingPassengerPreferenceModel": {
+      "attributes": [
+        "allocation_tag",
+        "hotel_id",
+        "id",
+        "passenger_id",
+        "roommate_notes",
+        "special_requests",
+        "updated_at"
+      ],
+      "columns": {
+        "allocation_tag": {
+          "default": "unspecified",
+          "info": {},
+          "onupdate": null
+        },
+        "hotel_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "id": {
+          "default": {
+            "callable": "uuid.uuid4"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "passenger_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "roommate_notes": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "special_requests": {
+          "default": {
+            "callable": "builtins.list"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "updated_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          }
+        }
+      },
+      "primary_key": [
+        "id"
+      ],
+      "relationships": {},
+      "table": "rooming_passenger_preferences"
+    },
+    "RoomingRoomModel": {
+      "attributes": [
+        "allocation_tag",
+        "capacity",
+        "created_at",
+        "hotel_id",
+        "id",
+        "is_saved",
+        "room_number",
+        "room_type",
+        "roommate_notes",
+        "sort_order",
+        "updated_at"
+      ],
+      "columns": {
+        "allocation_tag": {
+          "default": "mixed",
+          "info": {},
+          "onupdate": null
+        },
+        "capacity": {
+          "default": "2",
+          "info": {},
+          "onupdate": null
+        },
+        "created_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "hotel_id": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "id": {
+          "default": {
+            "callable": "uuid.uuid4"
+          },
+          "info": {},
+          "onupdate": null
+        },
+        "is_saved": {
+          "default": "False",
+          "info": {},
+          "onupdate": null
+        },
+        "room_number": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "room_type": {
+          "default": "twin",
+          "info": {},
+          "onupdate": null
+        },
+        "roommate_notes": {
+          "default": null,
+          "info": {},
+          "onupdate": null
+        },
+        "sort_order": {
+          "default": "0",
+          "info": {},
+          "onupdate": null
+        },
+        "updated_at": {
+          "default": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          },
+          "info": {},
+          "onupdate": {
+            "callable": "app.infrastructure.database.model_base._utcnow"
+          }
+        }
+      },
+      "primary_key": [
+        "id"
+      ],
+      "relationships": {},
+      "table": "rooming_rooms"
+    }
+  },
+  "operation_tables": [
+    "attendance_closeout_checkpoints",
+    "attendance_discard_tombstones",
+    "attendance_records",
+    "attendance_runtime_registrations",
+    "attendance_scan_batch_results",
+    "attendance_scan_batches",
+    "attendance_session_runtime_participants",
+    "attendance_sessions",
+    "passenger_qr_tokens",
+    "passenger_qr_whatsapp_deliveries",
+    "rooming_assignments",
+    "rooming_checkins",
+    "rooming_hotel_passengers",
+    "rooming_hotels",
+    "rooming_passenger_preferences",
+    "rooming_rooms"
+  ],
+  "stable_facade_alias_identities": [
+    "RoomingHotelModel",
+    "AttendanceDiscardTombstoneModel",
+    "RoomingHotelPassengerModel",
+    "RoomingRoomModel",
+    "RoomingPassengerPreferenceModel",
+    "RoomingAssignmentModel",
+    "RoomingCheckinModel",
+    "PassengerQRTokenModel",
+    "PassengerQrWhatsAppDeliveryModel",
+    "AttendanceSessionModel",
+    "AttendanceRuntimeRegistrationModel",
+    "AttendanceSessionRuntimeParticipantModel",
+    "AttendanceCloseoutCheckpointModel",
+    "AttendanceRecordModel",
+    "AttendanceScanBatchModel",
+    "AttendanceScanBatchResultModel"
+  ]
+}

@@ -1,0 +1,37 @@
+[
+  {
+    "path": "features/whatsapp/workspace/broadcast-documents-page.tsx",
+    "baselineLines": 107,
+    "maximumLines": 110,
+    "baselineMaxFunctionComplexity": 9,
+    "maximumFunctionComplexity": 10
+  },
+  {
+    "path": "features/whatsapp/workspace/use-broadcast-documents.ts",
+    "baselineLines": 93,
+    "maximumLines": 100,
+    "baselineMaxFunctionComplexity": 5,
+    "maximumFunctionComplexity": 6
+  },
+  {
+    "path": "features/whatsapp/workspace/broadcast-documents-model.ts",
+    "baselineLines": 87,
+    "maximumLines": 90,
+    "baselineMaxFunctionComplexity": 23,
+    "maximumFunctionComplexity": 24
+  },
+  {
+    "path": "features/whatsapp/workspace/broadcast-document-controls.tsx",
+    "baselineLines": 76,
+    "maximumLines": 80,
+    "baselineMaxFunctionComplexity": 6,
+    "maximumFunctionComplexity": 7
+  },
+  {
+    "path": "features/whatsapp/workspace/broadcast-document-table.tsx",
+    "baselineLines": 125,
+    "maximumLines": 130,
+    "baselineMaxFunctionComplexity": 5,
+    "maximumFunctionComplexity": 6
+  }
+]

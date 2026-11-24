@@ -1,0 +1,12 @@
+{
+  "candidates": "docs/audit/dashboard-2026-10-30/passport-quality-api-budget-candidates.json",
+  "before_sha256": "9903c606296cfc2164097c515cfee1d50b6d573be1decd714becca406ad487e6",
+  "sha256": "a1830463ed7f877cad5964aef1ec7667f23208cfb3254a3fa2e7de56a8a030f4",
+  "lf_normalized_sha256": "1fdda774f92adc75dd923b0f653ce29536dc604e54a7d442640324de88c475e7",
+  "added": 52,
+  "updated_existing": 0,
+  "lowered_existing": 0,
+  "lowered_existing_paths": [],
+  "existing_ceilings_preserved": true,
+  "previous_ceilings_sha256": "a4cbd2cba3e12fda55be5fd042250b0b238a3c0df31bfc9834c4482072ee3823"
+}

@@ -1,0 +1,103 @@
+{
+  "files": [
+    {
+      "path": "frontend/features/documents/components/document-row-action-menu.test.tsx",
+      "sha256": "93f6e65c4cdb791e1dd6d0628c237e1214c8d50311d5a0357c26f84abb162aca",
+      "physical_lines": 82,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": [
+        "Complete physical source read in this peer pass. Source-only fixture/geometry review, not a new execution or runtime qualification claim; no frontend writes."
+      ]
+    },
+    {
+      "path": "frontend/features/documents/components/document-row-action-menu.tsx",
+      "sha256": "690ff487361e546bbf757955bd98f050b174ea50f09451de08e7870a978ec3df",
+      "physical_lines": 172,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": [
+        "Complete physical source read in this peer pass. Source-only fixture/geometry review, not a new execution or runtime qualification claim; no frontend writes."
+      ]
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-read-access.test.tsx",
+      "sha256": "07e866b8fcb0c3e0eb2a2eb53258e951de8e2165019e337e93713a7842b040a1",
+      "physical_lines": 221,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": [
+        "Complete physical source read in this peer pass. Source-only fixture/geometry review, not a new execution or runtime qualification claim; no frontend writes."
+      ]
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-simple-access.test.tsx",
+      "sha256": "36b85b4095967c5ddb4f8f02bdb52c79b6d68baafa7554f963770fe9ea971662",
+      "physical_lines": 99,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": [
+        "Complete physical source read in this peer pass. Source-only fixture/geometry review, not a new execution or runtime qualification claim; no frontend writes."
+      ]
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-settings.tsx",
+      "sha256": "f26d931bf38a5d71f7ad05d71c0763730ea9f6ec21d21a183bc193aa555b4690",
+      "physical_lines": 79,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": [
+        "Complete physical source read in this peer pass. Source-only fixture/geometry review, not a new execution or runtime qualification claim; no frontend writes."
+      ]
+    },
+    {
+      "path": "frontend/features/mcp/components/mcp-permissions-panel.tsx",
+      "sha256": "cc7ad2c4fba092d7c6036541a18c96d88d4c313f1e16db5dc0e28b9c817264fa",
+      "physical_lines": 72,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": [
+        "Complete physical source read in this peer pass. Source-only fixture/geometry review, not a new execution or runtime qualification claim; no frontend writes."
+      ]
+    },
+    {
+      "path": "frontend/features/mcp/hooks/use-mcp-queries.ts",
+      "sha256": "a8a3f8c4b665384ec59fc05a1ae22eb2ac957e1cd3003b927b87d2a062a09c7b",
+      "physical_lines": 89,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": [
+        "Complete physical source read in this peer pass. Source-only fixture/geometry review, not a new execution or runtime qualification claim; no frontend writes."
+      ]
+    },
+    {
+      "path": "frontend/features/mcp/utils/permissions.test-fixture.ts",
+      "sha256": "0abf8392f5dd5009c266d8a099e2aa37cadc8f448ed7c28d8d11d09dab607dfe",
+      "physical_lines": 40,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": [
+        "Complete physical source read in this peer pass. Source-only fixture/geometry review, not a new execution or runtime qualification claim; no frontend writes."
+      ]
+    },
+    {
+      "path": "frontend/e2e/workspace-branding.spec.ts",
+      "sha256": "cfe3e5af1c6b53ac01ef8c0323099a982f8263f005598673c71b018eafd11686",
+      "physical_lines": 353,
+      "review_scope": "full",
+      "status": "reviewed",
+      "reviewer": "branding_visuals",
+      "notes": [
+        "Complete physical source read in this peer pass. Source-only fixture/geometry review, not a new execution or runtime qualification claim; no frontend writes."
+      ]
+    }
+  ]
+}

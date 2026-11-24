@@ -1,0 +1,274 @@
+{
+  "status": "budget/static integration complete; exact source qualification pending active frontend scanner/package freeze",
+  "before_modules": 656,
+  "after_modules": 666,
+  "normal_additions": 10,
+  "updated_existing_rows": [
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/public_upload.py",
+      "before": {
+        "path": "app/presentation/api/v1/routes/passport_routes/public_upload.py",
+        "minimum_coverage_percent": 66,
+        "baseline_lines": 599,
+        "maximum_lines": 700,
+        "baseline_max_function_complexity": 16,
+        "maximum_function_complexity": 16
+      },
+      "after": {
+        "path": "app/presentation/api/v1/routes/passport_routes/public_upload.py",
+        "baseline_lines": 142,
+        "maximum_lines": 150,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      }
+    }
+  ],
+  "old_unchanged_module_rows": 655,
+  "before_critical": 98,
+  "after_critical": 99,
+  "new_actual_scope_guard": [
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/public_upload_scope.py",
+      "minimum_line_percent": 95,
+      "minimum_branch_percent": 75
+    }
+  ],
+  "all_prior_caps_floors_critical_global_policy_and_untracked_values_preserved": true,
+  "measurements": [
+    {
+      "group": "public-upload",
+      "path": "app/presentation/api/v1/routes/passport_routes/public_upload.py",
+      "sha256": "a669ea87ed3488fe4d7a680478d15efb2b4c55dd72177c24ad80e0a031c7cde8",
+      "actual_lines": 142,
+      "actual_complexity": 0,
+      "statement_percent": 100.0,
+      "branch_percent": null,
+      "normal_budget": {
+        "path": "app/presentation/api/v1/routes/passport_routes/public_upload.py",
+        "baseline_lines": 142,
+        "maximum_lines": 150,
+        "baseline_max_function_complexity": 0,
+        "maximum_function_complexity": 0,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "group": "public-upload",
+      "path": "app/presentation/api/v1/routes/passport_routes/public_upload_discard.py",
+      "sha256": "d6f95d5da7bb2da0d7351d90ee4114cf6368276edacaf5c9f9f474a0cda76287",
+      "actual_lines": 150,
+      "actual_complexity": 15,
+      "statement_percent": 93.75,
+      "branch_percent": 80.0,
+      "normal_budget": {
+        "path": "app/presentation/api/v1/routes/passport_routes/public_upload_discard.py",
+        "baseline_lines": 150,
+        "maximum_lines": 150,
+        "baseline_max_function_complexity": 15,
+        "maximum_function_complexity": 15,
+        "minimum_coverage_percent": 90
+      }
+    },
+    {
+      "group": "public-upload",
+      "path": "app/presentation/api/v1/routes/passport_routes/public_upload_images.py",
+      "sha256": "3dcb9a9643672db808e242c5378083b8b37c2124b9c3fb550362b6b92d359b59",
+      "actual_lines": 128,
+      "actual_complexity": 4,
+      "statement_percent": 67.74193548387096,
+      "branch_percent": 0.0,
+      "normal_budget": {
+        "path": "app/presentation/api/v1/routes/passport_routes/public_upload_images.py",
+        "baseline_lines": 128,
+        "maximum_lines": 130,
+        "baseline_max_function_complexity": 4,
+        "maximum_function_complexity": 4,
+        "minimum_coverage_percent": 66
+      }
+    },
+    {
+      "group": "public-upload",
+      "path": "app/presentation/api/v1/routes/passport_routes/public_upload_preparation.py",
+      "sha256": "12d04c2039d5beefdd512bcd8d795e898aa7c984ffd5f21a8f5066f81bcee930",
+      "actual_lines": 88,
+      "actual_complexity": 10,
+      "statement_percent": 96.875,
+      "branch_percent": 87.5,
+      "normal_budget": {
+        "path": "app/presentation/api/v1/routes/passport_routes/public_upload_preparation.py",
+        "baseline_lines": 88,
+        "maximum_lines": 90,
+        "baseline_max_function_complexity": 10,
+        "maximum_function_complexity": 10,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "group": "public-upload",
+      "path": "app/presentation/api/v1/routes/passport_routes/public_upload_scope.py",
+      "sha256": "f624101b4f81e5a049b338a4c587877a2d2a96ca454b5e5304274a18ae3410c2",
+      "actual_lines": 51,
+      "actual_complexity": 5,
+      "statement_percent": 95.23809523809524,
+      "branch_percent": 75.0,
+      "normal_budget": {
+        "path": "app/presentation/api/v1/routes/passport_routes/public_upload_scope.py",
+        "baseline_lines": 51,
+        "maximum_lines": 60,
+        "baseline_max_function_complexity": 5,
+        "maximum_function_complexity": 5,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "group": "public-upload",
+      "path": "app/presentation/api/v1/routes/passport_routes/public_upload_status.py",
+      "sha256": "402392e3f03b55060b0d39e991193ab136f46ca8560bd53646bb26c7dc94b674",
+      "actual_lines": 213,
+      "actual_complexity": 10,
+      "statement_percent": 81.9672131147541,
+      "branch_percent": 40.0,
+      "normal_budget": {
+        "path": "app/presentation/api/v1/routes/passport_routes/public_upload_status.py",
+        "baseline_lines": 213,
+        "maximum_lines": 220,
+        "baseline_max_function_complexity": 10,
+        "maximum_function_complexity": 10,
+        "minimum_coverage_percent": 80
+      }
+    },
+    {
+      "group": "public-upload",
+      "path": "app/presentation/api/v1/routes/passport_routes/public_upload_submission.py",
+      "sha256": "6639f322a898f1689186c8300eaedcbe330b04d6e58403ae4c0dfab5b5243dbf",
+      "actual_lines": 201,
+      "actual_complexity": 14,
+      "statement_percent": 78.33333333333333,
+      "branch_percent": 50.0,
+      "normal_budget": {
+        "path": "app/presentation/api/v1/routes/passport_routes/public_upload_submission.py",
+        "baseline_lines": 201,
+        "maximum_lines": 210,
+        "baseline_max_function_complexity": 14,
+        "maximum_function_complexity": 14,
+        "minimum_coverage_percent": 75
+      }
+    },
+    {
+      "group": "email-task",
+      "path": "app/infrastructure/email/tasks.py",
+      "sha256": "8f6f1ffaeef887685738600dfedb599683b2c029e526829686557b3c9c30f186",
+      "actual_lines": 217,
+      "actual_complexity": 12,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "normal_budget": {
+        "path": "app/infrastructure/email/tasks.py",
+        "baseline_lines": 217,
+        "maximum_lines": 220,
+        "baseline_max_function_complexity": 12,
+        "maximum_function_complexity": 13,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "group": "email-task",
+      "path": "app/infrastructure/email/task_dispatch.py",
+      "sha256": "86b9b4c57d77c9212aeb09da52319a344545600723358ef6987c543df0a7a231",
+      "actual_lines": 93,
+      "actual_complexity": 3,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "normal_budget": {
+        "path": "app/infrastructure/email/task_dispatch.py",
+        "baseline_lines": 93,
+        "maximum_lines": 100,
+        "baseline_max_function_complexity": 3,
+        "maximum_function_complexity": 4,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "group": "email-task",
+      "path": "app/infrastructure/email/task_retention.py",
+      "sha256": "8993ffeaf443ba7702d5dfcb8b82bd92ccb3f1a01c6fa56352826f1bd4c6a740",
+      "actual_lines": 206,
+      "actual_complexity": 11,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "normal_budget": {
+        "path": "app/infrastructure/email/task_retention.py",
+        "baseline_lines": 206,
+        "maximum_lines": 210,
+        "baseline_max_function_complexity": 11,
+        "maximum_function_complexity": 12,
+        "minimum_coverage_percent": 95
+      }
+    },
+    {
+      "group": "email-task",
+      "path": "app/infrastructure/email/storage_reconciliation.py",
+      "sha256": "82c537430f63511991de71b143291cf7a4e8a6b8bf9a6ae53880399430b0b88c",
+      "actual_lines": 113,
+      "actual_complexity": 9,
+      "statement_percent": 100.0,
+      "branch_percent": 100.0,
+      "normal_budget": {
+        "path": "app/infrastructure/email/storage_reconciliation.py",
+        "baseline_lines": 113,
+        "maximum_lines": 120,
+        "baseline_max_function_complexity": 9,
+        "maximum_function_complexity": 10,
+        "minimum_coverage_percent": 95
+      }
+    }
+  ],
+  "release": {
+    "paths": 102,
+    "both_original_before_pairs_unchanged": true,
+    "only_known_after_update": "backend/backend_quality_budgets.json",
+    "other101AFTER_values_unchanged": true,
+    "after_backend_budget_sha256": "66a1dfa4febb988c2a2994d0fbc20349b6cfb116feff9245e2e2da69be07ebb5",
+    "after_bindings_sha256": "1feb5e058111516eb32275178b78a4fea3d54b5a4fc18810b0c663a602db2e1a",
+    "frontend639_unchanged": true
+  },
+  "artifacts": {
+    "public-upload-verification.json": "1e30beaff137301e2dcfd9fa532dde24f5d8f9937e6bed159299b4db7181150e",
+    "public-upload-budget-candidates.json": "3e32f04ec50bdc864bf783c662f7244096b458bb82f8b666918c00c9544cf2d6",
+    "public-upload-critical-candidates.json": "6b88fe132e99f3431d681b445453a5c233f81a8c9a577962c0760e1d4ecc20c4",
+    "public-upload-qualified2-coverage.json": "b0d9ffeb7f67cec20507a359427ce1cbb220f769db8970d338cb1632bf7da162",
+    "email-task-verification.json": "603c1f7352c4d38712d9ff30de25a7729d25adf0d732e9b6baedf5f55a178075",
+    "email-task-budget-candidates.json": "668fd80a472c46ef486278883c71535f60dca7f2c6db92009e3c271cc9d1ef5e",
+    "email-task-source-fence.json": "8cc1b1371000ff08cef616e6236ac84cd20726344c79cb7a406a942d56b0f096",
+    "email-task-checkpoint-coverage.json": "53a7113628227755e101a46c2421d5ea71a4508cf8c49043a014ae299e2e0458",
+    "public-upload-email-task-previous-values.json": "c16595ba5cc3a5346644b252b81136154a0d38e6216c40e7e896434dcba87bab",
+    "public-upload-email-task-budgets.txt": "eebd8052cfa1b40225851cbbaf4549ea4588d4b7fb2bbae0b40ac60ea5924343",
+    "public-upload-email-task-bindings.txt": "87c165ee34f4bfa07b9fe5eedade3493ad0c8fda856328579460dfe7981c4ed1",
+    "public-upload-email-task-loader-tests.txt": "4911bdd4990f43c07722fcc49603d77afa0258b0749d5f579ce6786d1116eb4b",
+    "release-bindings-active-drift.json": "8b70b214a8dc6b550520ef48a92dd097a0fe1c4f5cb27deb88c63049692e7d5a"
+  },
+  "limits": [
+    "Peer full source review and exact frozen focused coverage retained with attribution; current measurements are not independent full second reads.",
+    "No broad app suite, production build, live providers/services/VPS qualification.",
+    "Root native-upload fix and protected emailAI models are separate active tranches, not covered by this gate merge.",
+    "MCP1990 remains historical/deferred."
+  ],
+  "checks": {
+    "static_backend_budget": "PASS666 normal /99 critical",
+    "exact_after": "FAIL known active frontend package drift; not repinned",
+    "focused_loader": "14cases executed:13pass/1admission failure for new offline scanner build script",
+    "logs": [
+      "public-upload-email-task-budgets.txt",
+      "public-upload-email-task-bindings.txt",
+      "public-upload-email-task-loader-tests.txt",
+      "release-bindings-active-drift.json"
+    ],
+    "no_broad_application_suite": true
+  },
+  "last_qualified_exact_report_archive": {
+    "path": "oauth-submission-storage-exact-bindings.json",
+    "sha256": "f0868906203edfcfc49d35c9b1ab4fa44c0ebcd9441901f72545beaab9146616",
+    "original_mutable_path": "current-checkpoint-release-bindings.json"
+  }
+}

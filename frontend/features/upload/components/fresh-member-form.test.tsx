@@ -6,7 +6,7 @@ import type { FreshDraft, FreshPayload } from "../api/fresh-draft.api";
 import { preparePublicUploadFile } from "../services/public-upload-file";
 import { FreshMemberForm } from "./fresh-member-form";
 
-const api = vi.hoisted(() => ({ start: vi.fn(), read: vi.fn(), save: vi.fn(), upload: vi.fn(), complete: vi.fn(), document: vi.fn(), activity: vi.fn(), discard: vi.fn() }));
+const api = vi.hoisted(() => ({ start: vi.fn(), read: vi.fn(), save: vi.fn(), upload: vi.fn(), complete: vi.fn(), document: vi.fn(), activity: vi.fn(), discard: vi.fn(), requestCode: vi.fn(), verifyCode: vi.fn() }));
 vi.mock("../api/fresh-draft.api", () => ({ freshDraftApi: () => api }));
 vi.mock("../services/public-upload-file", async (original) => ({ ...await original<object>(), preparePublicUploadFile: vi.fn(async (file: File) => file) }));
 const collection = { acquisition_mode: "file" as const, submission_mode: "single" as const };
@@ -31,6 +31,11 @@ beforeEach(() => {
   api.document.mockResolvedValue(new Blob(["saved"], { type: "image/jpeg" }));
   api.activity.mockResolvedValue({ images_present: true, presence_recorded: true, heartbeat_after_seconds: 60 });
   api.discard.mockResolvedValue(undefined);
+  api.requestCode.mockResolvedValue({ challenge_id: "contact-challenge", expires_in_seconds: 300, resend_after_seconds: 0 });
+  api.verifyCode.mockImplementation(async () => {
+    server.revision++; server.phone_verification_id = "verified-proof"; server.phone_verification_expires_at = "2099-01-01";
+    return { phone_verification_id: "verified-proof", phone_number: "+919999999999", expires_in_seconds: 3600 };
+  });
 });
 async function setup() {
   const onBack = vi.fn(), onComplete = vi.fn();
@@ -75,5 +80,60 @@ describe("fresh submission during image preparation", () => {
     expect(server.documents.map(({ id }) => id)).toEqual(["front", "back"]); expect(api.upload).not.toHaveBeenCalled(); expect(api.complete).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole("button", { name: "Back" }));
     await waitFor(() => expect(onBack).toHaveBeenCalledOnce()); expect(api.discard).toHaveBeenCalledOnce();
+  });
+});
+
+
+describe("fresh contact proof authority", () => {
+  async function confirmCode() {
+    fireEvent.click(screen.getByRole("button", { name: "Verify WhatsApp number" }));
+    fireEvent.change(await screen.findByLabelText("Verification code"), { target: { value: "123456" } });
+    fireEvent.click(screen.getByRole("button", { name: "Confirm code" }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "Confirm details and submit" })).toBeEnabled());
+  }
+
+  it("reads the revision advanced by OTP verification before enabling submission", async () => {
+    server.phone_verification_id = null; server.phone_verification_expires_at = null;
+    const onComplete = vi.fn();
+    render(<FreshMemberForm token="trip" group={group} member={member} initial={collection} onStarted={vi.fn()} onComplete={onComplete} onBack={vi.fn()} />);
+    await screen.findByRole("button", { name: "Verify WhatsApp number" });
+    expect(screen.getByRole("button", { name: "Confirm details and submit" })).toBeDisabled();
+    await confirmCode();
+    expect(api.read).toHaveBeenCalledOnce();
+    fireEvent.click(screen.getByRole("button", { name: "Confirm details and submit" }));
+    await waitFor(() => expect(onComplete).toHaveBeenCalledOnce());
+    expect(api.complete.mock.calls[0].slice(0, 3)).toEqual([2, "verified-proof", "stable-final-key"]);
+  });
+
+  it("invalidates only a rejected proof and accepts renewed verification with the same proof ID", async () => {
+    const { onComplete } = await setup();
+    api.complete.mockRejectedValueOnce({ code: "verification_failed", message: "Verify your WhatsApp number again." });
+    fireEvent.change(screen.getByLabelText("Passport Number", { exact: true }), { target: { value: "PRESERVED123" } });
+    fireEvent.click(screen.getByRole("button", { name: "Confirm details and submit" }));
+    await screen.findByRole("button", { name: "Verify WhatsApp number" });
+    expect(screen.getByRole("button", { name: "Confirm details and submit" })).toBeDisabled();
+    expect(screen.queryByText("WhatsApp number verified")).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Passport Number", { exact: true })).toHaveValue("PRESERVED123");
+    expect(screen.getByLabelText("Email", { exact: true })).toHaveValue("person@example.test");
+    await confirmCode();
+    fireEvent.click(screen.getByRole("button", { name: "Confirm details and submit" }));
+    await waitFor(() => expect(onComplete).toHaveBeenCalledOnce());
+    expect(api.complete).toHaveBeenCalledTimes(2);
+    expect(api.complete.mock.calls.map(call => call[1])).toEqual(["verified-proof", "verified-proof"]);
+    expect(api.complete.mock.calls[0][2]).toBe(api.complete.mock.calls[1][2]);
+    expect(server.passport_fields.passport_number).toBe("PRESERVED123");
+  });
+
+  it("keeps submission blocked if the authoritative post-verification read fails", async () => {
+    server.phone_verification_id = null; server.phone_verification_expires_at = null;
+    api.read.mockRejectedValueOnce(new Error("Private draft could not be refreshed."));
+    render(<FreshMemberForm token="trip" group={group} member={member} initial={collection} onStarted={vi.fn()} onComplete={vi.fn()} onBack={vi.fn()} />);
+    fireEvent.click(await screen.findByRole("button", { name: "Verify WhatsApp number" }));
+    fireEvent.change(await screen.findByLabelText("Verification code"), { target: { value: "123456" } });
+    fireEvent.click(screen.getByRole("button", { name: "Confirm code" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("could not be refreshed");
+    expect(screen.getByRole("button", { name: "Confirm details and submit" })).toBeDisabled();
+    expect(screen.queryByText("WhatsApp number verified")).not.toBeInTheDocument();
+    expect(api.complete).not.toHaveBeenCalled();
   });
 });

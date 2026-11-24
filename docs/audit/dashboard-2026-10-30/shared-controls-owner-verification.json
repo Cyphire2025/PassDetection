@@ -1,0 +1,61 @@
+{
+  "status": "passed affected checks; final combined qualification remains open",
+  "intentional_changes": [
+    "Full149original/current source read and real public callers traced. Disabled/readOnly text fields left an enabled native-picker button, proved by two direct rendered-component negatives; now both picker controls and editing callbacks honor the same lock. Existing typed/native valid ISO dates/range rejection/invalid-date feedback controls pass. No date parsing or valid-submit contract changed.",
+    "Full60original/current source read and installed Next16 Link guide checked. A single boolean permanently suppressed intent prefetch after a retained link changed href; actual two-destination focus test reproduced the omission. Last warmed href now gates deduplication; unchanged destination still warms once across pointer/focus/touch and preserves all caller callbacks and automatic prefetch=false.",
+    "Supplemental security admission hardening after immutable pure-extraction receipt. Paused cancelQueries fixture exposed two old-draft dispatches after actor/role changes at this component boundary; capture before first await, three post-await owner assertions and actual expected-actor/request-authority binding now reject them. Same-authority profile refresh control passes. Existing dashboard root remount+abort+adapter protections mean this mock admission proof is not a claim of an exploitable production data leak. Removing precisely declared guard additions restores all24 original controller statement ASTs."
+  ],
+  "actual_before_failures": {
+    "shared_controls": 3,
+    "template_owner_admission": 2
+  },
+  "after_cases": 25,
+  "after_files": 6,
+  "source_sha256": {
+    "frontend/components/shared/passport-date-input.tsx": "b02e9f7b8fd991d611398b647b1043273b54841e3a4adc36e7c43d5c7dec408a",
+    "frontend/components/shared/intent-prefetch-link.tsx": "6c4fb062083d4f2bc22b2e18301e6f62ebf9401b3a97fe6ce7479521b83769e5",
+    "frontend/features/settings/hooks/use-whatsapp-template-settings.ts": "1e0433bbdc4b48aa0232d2da94999aaff6c45c43256ddebf97a956ce5c438754",
+    "frontend/components/shared/passport-date-input.test.tsx": "7d3045136cfa04006c2aa6c976586e81be7dc5898978510185cbe31896cfdb0b",
+    "frontend/components/shared/intent-prefetch-link.test.tsx": "d12307dacb5366ec7483f079f5d3176fd26b21ad813cf884268b5519e953f6bc",
+    "frontend/features/settings/components/whatsapp-template-settings-panel.test.tsx": "51e4151bf5ca2dcc5bf8afb349b605f76ff3d149d31e8a5cf625b1b74e00355f"
+  },
+  "current_measurements": [
+    {
+      "path": "components/shared/passport-date-input.tsx",
+      "baselineLines": 154,
+      "maximumLines": 160,
+      "baselineMaxFunctionComplexity": 9,
+      "maximumFunctionComplexity": 10
+    },
+    {
+      "path": "components/shared/intent-prefetch-link.tsx",
+      "baselineLines": 60,
+      "maximumLines": 70,
+      "baselineMaxFunctionComplexity": 2,
+      "maximumFunctionComplexity": 3
+    },
+    {
+      "path": "features/settings/hooks/use-whatsapp-template-settings.ts",
+      "baselineLines": 176,
+      "maximumLines": 180,
+      "baselineMaxFunctionComplexity": 17,
+      "maximumFunctionComplexity": 17
+    }
+  ],
+  "evidence_sha256": {
+    "docs/audit/dashboard-2026-10-30/shared-controls-before-unit.txt": "652a58d817d3d637f2866aeca20cbfe98c047e9e7a1105ebe6efc845e1644008",
+    "docs/audit/dashboard-2026-10-30/template-settings-owner-before-unit.txt": "0aba81f1ef7af8185a8bee0e6afd46dfcab99686d2c3b64734329c25f8caf4d4",
+    "docs/audit/dashboard-2026-10-30/shared-controls-template-owner-after-unit.txt": "77fcbe37e4cfc4d5b441fe4bfcac32b90924e9047ae2691591985bf1264c6f13",
+    "docs/audit/dashboard-2026-10-30/shared-controls-template-owner-types.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/audit/dashboard-2026-10-30/shared-controls-template-owner-lint.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/audit/dashboard-2026-10-30/template-settings-owner-current-proof.json": "9489303e00ed94ea2afe3dd250127f1dd46ad41a40324a2a87bbc469005bd52c",
+    "docs/audit/dashboard-2026-10-30/shared-controls-owner-reviewed-files.json": "9529f062770263a01dcbffef4687c30ff76be9a81eaa5bc3f27ad09ed0cb9945",
+    "docs/audit/dashboard-2026-10-30/shared-controls-owner-budget-candidates.json": "3f1ae07688f7bf376973cb26a59fea6a5e88b77e305fad3177ffb0c5764bb872"
+  },
+  "limits": [
+    "Original template-settings-verification receipt/proof remain immutable; current hook/test supplement supersedes their source bindings only.",
+    "Final25affected cases overlap earlier settings and shared motion cases; these counts must not be added as unique cases to prior feature receipts.",
+    "Actual calendar/prefetch component behavior was tested; native browser calendar visuals and navigation latency have no fresh browser/production-build measurement here.",
+    "Three owner checks protect admission/completion/cache publication across real async seams using the existing shared request-owner implementation. Backend authorization remains authoritative."
+  ]
+}

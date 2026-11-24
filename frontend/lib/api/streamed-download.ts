@@ -4,6 +4,8 @@ import {
   subscribeToSessionResets,
 } from "@/features/auth/services/session-state";
 import apiClient from "./client";
+import { assertRequestOwner, ownerBoundRequestConfig } from "./request-owner";
+import { useAuthStore } from "@/stores/auth.store";
 import { chooseDownloadDestination, type FileDownloadWritable } from "./download-destination";
 import { safeSuggestedFilename } from "./download-filename";
 
@@ -20,6 +22,7 @@ export interface StreamedDownloadRequest {
   signal?: AbortSignal;
   maxFallbackBytes?: number;
   validateHeaders?: (headers: RawAxiosResponseHeaders) => void;
+  expectedOwnerUserId?: string;
 }
 
 export interface StreamedDownloadResult {
@@ -54,12 +57,21 @@ export async function downloadStreamedResponse({
   signal,
   maxFallbackBytes = MAX_BOUNDED_DOWNLOAD_FALLBACK_BYTES,
   validateHeaders,
+  expectedOwnerUserId,
 }: StreamedDownloadRequest): Promise<StreamedDownloadResult> {
   if (!Number.isSafeInteger(maxFallbackBytes) || maxFallbackBytes <= 0) {
     throw new Error("The bounded download limit must be a positive integer");
   }
+  const requestOwner = ownerBoundRequestConfig(expectedOwnerUserId ?? useAuthStore.getState().user?.id);
+  assertRequestOwner(requestOwner);
 
   const controller = new AbortController();
+  // The HTTP adapter owns headers only. Keep the same authority through the
+  // picker and response body, even if browser storage prevents reset events.
+  const unsubscribeOwner = useAuthStore.subscribe(() => {
+    try { assertRequestOwner(requestOwner); }
+    catch (error) { controller.abort(error); }
+  });
   const abortFromCaller = () => controller.abort(signal?.reason);
   if (signal?.aborted) abortFromCaller();
   else signal?.addEventListener("abort", abortFromCaller, { once: true });
@@ -80,12 +92,14 @@ export async function downloadStreamedResponse({
     controller.signal.throwIfAborted();
     const destination = await chooseDownloadDestination(suggestedFilename);
     controller.signal.throwIfAborted();
+    assertRequestOwner(requestOwner);
     const { fileHandle } = destination;
     hardTimeout = globalThis.setTimeout(
       () => controller.abort("download-hard-timeout"),
       DOWNLOAD_HARD_TIMEOUT_MS,
     );
     const response = await apiClient.request<ReadableStream<Uint8Array>>({
+      ...requestOwner,
       url,
       method,
       params,
@@ -124,6 +138,7 @@ export async function downloadStreamedResponse({
       );
       controller.signal.throwIfAborted();
       await writable.close();
+      controller.signal.throwIfAborted();
       writable = null;
       reader = null;
       return {
@@ -175,6 +190,7 @@ export async function downloadStreamedResponse({
       window.removeEventListener(SENSITIVE_STATE_RESET_EVENT, abortForSessionReset);
     }
     unsubscribeSessionResets();
+    unsubscribeOwner();
   }
 }
 
@@ -278,7 +294,7 @@ export function attachmentFilename(value: unknown, fallback: string) {
   const raw = utf8Match?.[1] ?? quotedMatch?.[1] ?? plainMatch?.[1];
   if (!raw) return safeSuggestedFilename(fallback);
   try {
-    return safeSuggestedFilename(decodeURIComponent(raw.trim()));
+    return safeSuggestedFilename(utf8Match ? decodeURIComponent(raw.trim()) : raw.trim());
   } catch {
     return safeSuggestedFilename(fallback);
   }

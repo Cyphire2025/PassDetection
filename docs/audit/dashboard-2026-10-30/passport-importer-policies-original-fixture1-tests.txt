@@ -1,0 +1,15 @@
+..F..................                                                    [100%]
+================================== FAILURES ===================================
+_ test_unsafe_or_unmatched_entry_does_not_block_later_valid_image[nested\\..\\STF_A1_FRONT.jpg-False-Unsafe ZIP path] _
+..\.tmp\passport-importer-policy-baseline\test_original_policies.py:60: in test_unsafe_or_unmatched_entry_does_not_block_later_valid_image
+    assert len(errors) == 1 and errors[0][0] == filename and errors[0][1].startswith(reason)
+E   AssertionError: assert (1 == 1 and 'nested/../STF_A1_FRONT.jpg' == 'nested\\..\\STF_A1_FRONT.jpg'
+E    +  where 1 = len([('nested/../STF_A1_FRONT.jpg', 'Unsafe ZIP path')])
+E     
+E     - nested\..\STF_A1_FRONT.jpg
+E     ?       ^  ^
+E     + nested/../STF_A1_FRONT.jpg
+E     ?       ^  ^)
+=========================== short test summary info ===========================
+FAILED ..\.tmp\passport-importer-policy-baseline\test_original_policies.py::test_unsafe_or_unmatched_entry_does_not_block_later_valid_image[nested\\..\\STF_A1_FRONT.jpg-False-Unsafe ZIP path]
+1 failed, 20 passed in 0.69s
